@@ -1,0 +1,33 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=include
+template="device=include
+name=A?
+file=unknown
+numslots=0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 10 -30 2 1 0.333333 0.333333 {}
+T {Gnucap include} 60 -30 2 1 0.333333 0.333333 {}
+T {@file} 50 0 2 1 0.333333 0.333333 {}
+T {File:} 10 0 2 1 0.333333 0.333333 {}
+
+L 4 0 -20 200 -20 {}
+L 4 200 -50 200 -20 {}
+L 4 0 -50 200 -50 {}
+L 4 0 -50 0 -20 {}
+
+
+
+
+
+
+

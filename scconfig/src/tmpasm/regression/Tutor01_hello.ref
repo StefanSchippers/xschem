@@ -1,0 +1,16 @@
+print [at 7:1]
+ arg: {hello world!
+}
+print [at 11:1]
+ arg: {hello}
+ arg: {world!}
+ arg: {
+}
+print [at 14:1]
+print [at 17:1]
+ arg: {HELLO}
+print [at 17:16]
+ arg: { WORLD!}
+print [at 17:36]
+ arg: {
+}

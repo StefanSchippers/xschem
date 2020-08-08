@@ -1,0 +1,92 @@
+
+body {
+  background-color: #ffffbb;
+  background-image:  url('debian-swirl.svg'), url('bg5.svg'), url('bg4.svg');
+  background-position: 66px 85px , left top, left top;
+  background-size: 50px 50px, 180px auto, auto 500px;
+  background-repeat: no-repeat, no-repeat, repeat-x;
+
+  border: none;
+  margin:0;
+  padding: 0px;
+
+}
+
+.body2{
+  font-family:arial;
+  background:  url('bg.gif')
+}
+
+.clearp{
+  clear: both;
+}
+
+.menu_iframe{
+  width: 100%;
+  height: 24px ;
+  position: fixed;
+  border: none;
+  padding: 0px;
+  overflow: hidden;
+  margin: 0px;
+  top: 0px;
+  left: 0px;
+  background: #2244aa;
+ } 
+
+.menu{
+  white-space:nowrap;
+  height: 20px;
+  width:100%;
+  margin: 0px;
+  padding: 0px;
+  border: none;
+  overflow: hidden;
+  font-family: arial;
+  background: #2244aa;
+  font-weight: bold;
+}
+.menu_a{ 
+  color: yellow;
+  border: none;
+  padding: 0px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+
+.body1 {
+  font-family:arial;
+  border: none;
+  margin:20px;
+  padding: 0px;
+}
+
+
+
+.left {
+  text-align:left;
+}
+
+.right {
+  text-align:left;
+}
+a{
+  text-decoration:none;
+}
+
+a:hover{
+  background-color: red;
+  color: white;
+}
+
+h1{ 
+  text-align:center;
+  text-shadow: 10px 10px 9px #48b
+}
+
+p:hover{
+/*  background-color:yellow */
+}

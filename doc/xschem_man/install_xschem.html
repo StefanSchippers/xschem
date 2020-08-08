@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM TUTORIAL</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="what_is_xschem.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="run_xschem.html" class="next">NEXT</a>
+
+ <!-- slide title -->
+ <h1> INSTALL XSCHEM </h1><br>
+ <p>
+ in order to install the program run the following command:
+ </p>
+ <pre class="code">
+  user:~$ cd xschem-&lt;version&gt;; ./configure
+ </pre>
+ <p>
+  This will make all the necessary checks for required libraries and system tools. 
+ </p>
+ <p>
+ for Debian and Ubuntu systems these are the packages you should check to be installed.
+ Tck/Tk versions may vary on different systems, 8.4, 8.5, 8.6 versions are all good.
+ </p>
+ <pre class="code">
+  tcl8.6                libx11-dev
+  tk8.6                 libxpm-dev
+  tcl8.6-dev            bison
+  tk8.6-dev             flex
+  gawk or mawk          libcairo2-dev
+ </pre>
+
+ <p>If configure ends with no errors we are ready to compile:
+ </p>
+ <pre class="code">
+  user:~$ make
+ </pre>
+ <p>If we want to install xschem and its required files (execute as root if you plan to do a system-wide
+ installation, for example in /usr/local):
+ </p>
+ <pre class="code">
+  user:~$ make install
+ </pre>
+ <p>
+  This will install all the runtime needed files into the locations previously configured
+  (can be found in Makefile.conf). To change the default installation prefix
+  (/usr/local), please replace the configure step shown above with:
+ </p>
+ <pre class="code">
+   ./configure --prefix=new/prefix/path
+ </pre>
+ <p>
+  DESTDIR is supported.
+ </p>
+ <p class="important">
+  For testing purposes <kbd>xschem</kbd> can be run and invoked from the build directory
+  <kbd>xschem-&lt;version&gt;/src/</kbd> without installation.
+ </p><br>
+ <pre class="code">
+  user:~$ cd xschem-2.7.0/src && ./xschem
+ </pre>
+ <p>
+  When xschem is running, type <kbd>puts $XSCHEM_LIBRARY_PATH</kbd> in the xschem tcl prompt to 
+  know the library search path.<br>
+  Type <kbd>puts $XSCHEM_SHAREDIR</kbd> to see the installation path.
+ </p>
+ <p>
+  Sample user design libraries are provided and installed systemwide under 
+  <kbd>${XSCHEM_SHAREDIR/xschem_library/</kbd>.
+  The XSCHEM_START_WINDOW specifies a schematic to preload at startup, to avoid absolute paths use a path that
+  is relative to one of the <kbd>XSCHEM_LIBRARY_PATH</kbd> directories. XSCHEM will figure out the actual location.
+  You may comment the definition if you don't want any schematic on startup.
+  <br><br>
+  If you need to override system settings, create a
+  <kbd>~/.xschem/xschemrc</kbd>. The easiest way is to copy the system
+  installed version from ${prefix}/share/xschem/xschemrc and then
+  make the necessary changes
+ </p> 
+ <pre class="code">
+  user:$ mkdir ~/.xschem
+  user:$ cp &lt;install root&gt;/share/xschem/xschemrc ~/.xschem/xschemrc
+ </pre><br>
+ <br><br>
+
+ <h2> -Technical information - Detailed XSCHEM startup sequence </h2>
+ <p class="important"> Information here under is not meant to be executed by the user </p><br>
+ <ol>
+ <li>If <kbd>--rcfile=&lt;rcfile&gt;</kbd> is given then source the specified rcfile. Do not load any other rcfile.</li>
+ <li>If <kbd>../src/xchem.tcl</kbd> with respect to current dir is existing and
+     <kbd>../xschem_library</kbd> is also existing then we are starting
+     from a build directory, set <kbd>XSCHEM_SHAREDIR</kbd> to <kbd>&lt;current dir&gt;</kbd> and
+     also set <br><kbd>XSCHEM_LIBRARY_PATH</kbd> to <kbd>.:/../xschem_library/devices</kbd>.</li>
+ <li>Else use compile-time (generated from configure script) provided <kbd>XSCHEM_SHAREDIR</kbd>.
+ <li>Source system-wide xschemrc if existing: <kbd>XSCHEM_SHAREDIR/xschemrc</kbd></li>
+ <li>If in current dir there is a <kbd>xschemrc</kbd> file source it.</li>
+ <li>Else if there is a <kbd>USER_CONF_DIR/xschemrc</kbd> file source it.
+     <kbd>XSCHEM_SHAREDIR</kbd>  and <kbd>USER_CONF_DIR</kbd> are preprocessor macros
+     passed at compile time by the configure script.
+     The first one will be overridden only if executing from a build directory, see item 2.</li>
+ <li>If <kbd>XSCHEM_SHAREDIR</kbd> not defined --&gt; error and quit.</li>
+ <li>Start loading user provided schematic file or start with empty window  (or filename
+     specified in <kbd>XSCHEM_START_WINDOW</kbd> tcl variable).</li>
+ </ol>
+
+ <br><br>
+
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

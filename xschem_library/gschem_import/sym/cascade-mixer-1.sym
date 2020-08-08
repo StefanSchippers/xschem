@@ -1,0 +1,51 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=cascade-mixer
+template="footprint=none
+device=cascade-mixer
+name=MX?
+G=0
+NF=0
+IIP3=0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 30 -180 2 1 0.333333 0.333333 {}
+T {LO} 58.6667 -90 2 1 0.333333 0.333333 {}
+T {G=0} 50 -40 2 1 0.333333 0.333333 {}
+T {NF=0} 50 -20 2 1 0.333333 0.333333 {}
+T {IIP3=0} 50 0 2 1 0.333333 0.333333 {}
+
+
+L 4 35 -155 105 -85 {}
+L 4 35 -85 105 -155 {}
+L 4 70 -70 70 -60 {}
+L 4 50 -60 70 -60 {}
+
+A 4 70 -120 50 0 360 {}
+
+
+
+
+
+L 3 0 -120 20 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=1
+pinseq=1
+name=IN
+dir=in
+}
+T {@#0:name} 25 -115 2 1 0.333333 0.333333 {}
+L 3 120 -120 140 -120 {}
+B 5 137.5 -122.5 142.5 -117.5 {pinnumber=2
+pinseq=2
+name=OUT
+dir=out
+}
+T {@#1:name} 115 -115 2 0 0.333333 0.333333 {}

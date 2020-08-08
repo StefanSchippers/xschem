@@ -1,0 +1,57 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=BAV70LT1
+template="device=BAV70LT1
+name=D?
+footprint=SOT23
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {BAV70LT1} 10 -40 2 1 0.133333 0.133333 {}
+T {@name} 10 -50 2 1 0.2 0.2 {}
+
+
+L 4 30 -37 30 -23 {}
+L 4 10 -30 20 -30 {}
+L 4 30 -30 40 -30 {}
+L 4 20 -36 30 -30 {}
+L 4 20 -36 20 -24 {}
+L 4 20 -24 30 -30 {}
+L 4 40 -30 40 -10 {}
+L 4 20 -16 30 -10 {}
+L 4 20 -16 20 -4 {}
+L 4 20 -4 30 -10 {}
+L 4 30 -17 30 -3 {}
+L 4 30 -10 40 -10 {}
+L 4 10 -10 20 -10 {}
+
+
+
+
+
+
+L 3 0 -30 10 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {pinnumber=1
+pinseq=1
+dir=inout
+name=ANODE1
+}
+L 3 0 -10 10 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {pinnumber=2
+pinseq=2
+dir=inout
+name=ANODE2
+}
+L 3 40 -20 50 -20 {}
+B 5 47.5 -22.5 52.5 -17.5 {pinnumber=3
+pinseq=3
+dir=inout
+name=CATHODE
+}

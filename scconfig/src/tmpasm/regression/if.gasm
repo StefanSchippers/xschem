@@ -1,0 +1,10 @@
+put a 1
+if a then
+	if b then
+		print {then-then}
+	else
+		print {then-else}
+	end
+else
+	print {else}
+end

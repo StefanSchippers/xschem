@@ -1,0 +1,15 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=verilog_preprocessor
+vhdl_ignore=true
+spice_ignore=true
+tedax_ignore=true
+template="name=s1 string=\\"`include \\\\\\"file\\\\\\"\\""
+format="@string"
+}
+V {}
+S {}
+E {}
+L 4 0 -10 70 -10 {}
+L 4 0 -10 0 10 {}
+T {PREPROCESSOR DIRECTIVE} 5 -25 0 0 0.3 0.3 {}
+T {@string} 15 -5 0 0 0.3 0.3 {font=monospace}

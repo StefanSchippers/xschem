@@ -1,0 +1,64 @@
+
+unit n
+voltage VCC
+slope 0.2
+format hspice
+
+buswidth LDA 13 [ ]
+
+buswidth LDSALDEL 2 [ ]
+buswidth LDPRECHDEL 2 [ ]
+
+param tck 16
+param tah  2.5
+param tas  2.5
+
+alias cycle add en oe
+  set LDEN en
+  set LDOE oe
+  set LDA add
+  s tas
+  set LDCP 1
+  s tah
+  set LDEN 0
+  set LDA 0000
+  s tck/2-tah
+  set LDCP 0
+  s tck/2-tas
+endalias
+
+
+beginfile stimuli_rom8k.cir
+
+set VCC 0
+set LDCP 0
+set LDA 0000
+set LDEN 0
+
+s tck-0.1
+set VCC 1
+s 100
+s tck-tas
+;     add en oe
+;=====================
+cycle 0000 1 1
+cycle 0011 1 1
+cycle 0022 1 1
+cycle 0033 1 1
+cycle 0044 1 1
+cycle 0055 1 1
+cycle 0066 1 1
+cycle 0107 1 1
+cycle 0077 1 1
+cycle 0088 1 1
+cycle 0099 1 1
+cycle 00aa 1 1
+cycle 00bb 1 1
+cycle 00cc 1 1
+cycle 00dd 1 1
+cycle 00ee 1 1
+cycle 0000 0 0
+
+endfile
+
+

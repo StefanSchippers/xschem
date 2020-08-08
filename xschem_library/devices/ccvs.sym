@@ -1,0 +1,19 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=vcvs
+format="@name @pinlist @vnam @value"
+template="name=H1 vnam=v1 value=1"}
+V {}
+S {}
+E {}
+L 4 0 -20 20 -0 {}
+L 4 -20 0 0 -20 {}
+L 4 -20 0 0 20 {}
+L 4 0 20 20 0 {}
+L 4 0 -30 0 30 {}
+L 4 10 -20 20 -20 {}
+L 4 15 -25 15 -15 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout}
+B 5 -2.5 27.5 2.5 32.5 {name=m dir=inout}
+T {@value} 25 10 0 0 0.2 0.2 {}
+T {@name} 25 -15 0 0 0.2 0.2 {}
+T {@vnam} 25 -2.5 0 0 0.2 0.2 {}

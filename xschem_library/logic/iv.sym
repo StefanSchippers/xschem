@@ -1,0 +1,22 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=gate
+vhdl_stop=true
+verilog_format = "assign #@del @@Y = ~ @@A[max:0] ;"
+vhdl_format = " @@Y <= not @@A[max:0] after @del ps ;"
+format="@name [ @@A[max:0]  ] @@Y inv"
+template="name=x1 delay=\\"70 ps\\" del=70"
+generic_type="delay=time"
+}
+V {}
+S {}
+E {}
+L 4 -40 0 -25 0 {}
+L 4 -25 -20 -25 20 {}
+L 4 -25 -20 15 0 {}
+L 4 -25 20 15 0 {}
+L 4 25 0 40 0 {}
+B 5 37.5 -2.5 42.5 2.5 {name=Y dir=out verilog_type=wire}
+B 5 -42.5 -2.5 -37.5 2.5 {name=A[max:0] dir=in}
+A 4 20 0 5 180 360 {}
+T {@name} -23.75 -5 0 0 0.2 0.2 {}
+T {IV} -2.8125 -28.75 0 0 0.3 0.3 {}

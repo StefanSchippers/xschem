@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM PRESENTATION</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+.content{ background-image:url('xschem_bg2.png');}
+</style>
+
+</head>
+<body>
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="tutorial_xschem_slides08.html" class="prev">PREV</a>
+<a href="tutorial_xschem_slides01.html" class="home">UP</a>
+<a href="tutorial_xschem_slides0812.html" class="next">NEXT</a>
+
+
+ <!-- slide title -->
+ <h1>SIMULATION - 2</h1>
+
+ <h3 style="text-align:left; max-width: 45%;margin-left:0;">
+  <ul style="margin-left:0;">
+   <li> External tools are configured via a 'simconf' widget.
+        This needs to be tuned for the host system. Config
+        is then saved in a simrc file, which can be edited directly 
+        to add / remove / configure tools.</li>
+   <li> Tools can be run in the background. Xschem optionally shows exit status, stderr and stdout
+        messages from batch jobs without blocking.</li>
+   <li> Multiple Simulator / viewing tools can be configured for each simulation mode 
+        (spice, VHDL, Verilog), a radio button sets the active tool.</li>
+   <li> Additional tools (logic synthesis, etc) can easily be added in the future.</li>
+   <li> No information about external tools is hard coded in Xschem.</li>
+  </ul>
+ </h3>
+ <img src="tutorial_xschem_slides10.png" style="position:fixed; top:15%; right:2%; max-width: 55%;">
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

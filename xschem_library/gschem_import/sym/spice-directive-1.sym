@@ -1,0 +1,33 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=directive
+template="device=directive
+name=A?
+file=unknown
+value=unknown
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 10 -40 2 1 0.333333 0.333333 {}
+T {SPICE directive} 60 -40 2 1 0.333333 0.333333 {}
+T {@file} 10 -10 2 1 0.333333 0.333333 {}
+T {@value} 10 -10 2 1 0.333333 0.333333 {}
+
+L 4 0 -30 200 -30 {}
+L 4 200 -60 200 -30 {}
+L 4 0 -60 200 -60 {}
+L 4 0 -60 0 -30 {}
+
+
+
+
+
+
+

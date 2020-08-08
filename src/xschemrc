@@ -1,0 +1,230 @@
+# xschemrc system configuration file
+# values may be overridden by user's ~/.xschem/xschemrc configuration file
+# or by project-local ./xschemrc
+
+## clear tcl prompts
+# set tcl_prompt1 {}
+# set tcl_prompt2 {}
+
+
+###########################################################################
+## xschem installation directory XSCHEM_SHAREDIR
+###########################################################################
+
+# normally there is no reason to set this variable if using standard
+# installation. Location of files is set at compile time but may be overridden
+# with following line:
+#
+# set XSCHEM_SHAREDIR $env(HOME)/share/xschem
+
+###########################################################################
+## xschem system-wide design library paths XSCHEM_LIBRARY_PATH
+###########################################################################
+
+# If unset xschem starts with the default set compile time, typically:
+# set XSCHEM_LIBRARY_PATH .:~/.xschem/xschem_library:${XSCHEM_SHAREDIR}/xschem_library/devices
+
+# For testing in build src directory
+#
+# set XSCHEM_LIBRARY_PATH .:../xschem_library/devices
+
+# for testing after installation:
+#
+# set XSCHEM_LIBRARY_PATH {}
+# append XSCHEM_LIBRARY_PATH :.
+# append XSCHEM_LIBRARY_PATH :~/.xschem/xschem_library
+# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/xschem_library/devices
+# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/logic
+# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/examples
+# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/binto7seg
+# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/xTAG
+# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/rulz-r8c33
+# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/ngspice
+# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/rom8k
+# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/pcb
+# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/symgen
+# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/gschem_import
+# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/gschem_import/sym
+
+
+# For Windows, use ; instead of :, and enclosed pathname with ""
+#append XSCHEM_LIBRARY_PATH ";."
+#append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library"
+#append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/devices"
+
+###########################################################################
+## set custom colors for xschem libraries matching certain patterns
+## each line contains a pattern followed by a color
+## color can be an ordinary name (grey, brown, blue) or a hex code {#77aaff}
+## hex code must be enclosed in braces
+## don't forget backslash at end of line
+###########################################################################
+
+# set dircolor(/share/xschem/) red
+# set dircolor(/share/doc/xschem/) {#00aa00}
+
+###########################################################################
+## Window to open on startup XSCHEM_START_WINDOW
+###########################################################################
+
+# Start without a design:
+#
+# set XSCHEM_START_WINDOW {}
+
+# Start with a design
+# To avoid absolute paths, use a path that is relative to one of the
+# XSCHEM_LIBRARY_PATH directories.
+#
+# set XSCHEM_START_WINDOW {0_examples_top.sch}
+
+
+###########################################################################
+## Directory where simulations, netlist and simulator outputs are placed
+###########################################################################
+# If unset $USER_CONF_DIR/simulations is assumed (normally ~/.xschem/simulations) 
+#
+# set netlist_dir $env(HOME)/.xschem/simulations
+
+
+###########################################################################
+## change default [] with some other characters for bussed signals 
+## in spice netlists (example: DATA[7] --> DATA<7>) 
+###########################################################################
+
+# set bus_replacement_char {<>}
+
+## for XSPICE
+# set bus_replacement_char {__} 
+
+
+###########################################################################
+## some default behavior
+###########################################################################
+
+set netlist_type spice ;# allowed : spice, verilog, vhdl, tedax
+set hspice_netlist 1
+set verilog_2001 1
+# set line_width 2
+set change_lw 1
+set color_ps 1
+set initial_geometry {900x600}
+# set unzoom_nodrift 0
+
+## if set to 1 allow to place multiple components with same name.
+## Warning: this is normally not allowed in any simulation netlist.
+set disable_unique_names 0
+
+## if set to 1 continue drawing lines / wires after click
+# set persistent_command 1
+
+
+## set widget scaling (mainly for font display) 
+# set tk_scaling 1.7
+
+## disable some symbol layers
+# set enable_layer(5) 0 ;# example to disable pin red boxes
+
+###########################################################################
+## custom grid / snap value settings
+###########################################################################
+
+# set grid 100
+# set snap 50
+
+###########################################################################
+## Custom colors  may be defined here
+###########################################################################
+
+#  set cadlayers 22
+#  set light_colors {
+#   "#ffffff" "#0044ee" "#aaaaaa" "#222222" "#229900"
+#   "#bb2200" "#00ccee" "#ff0000" "#888800" "#00aaaa"
+#   "#880088" "#00ff00" "#0000cc" "#666600" "#557755"
+#   "#aa2222" "#7ccc40" "#00ffcc" "#ce0097" "#d2d46b"
+#   "#ef6158" "#fdb200" }
+
+#  set dark_colors {
+#   "#000000" "#00ccee" "#3f3f3f" "#cccccc" "#88dd00"
+#   "#bb2200" "#00ccee" "#ff0000" "#ffff00" "#ffffff"
+#   "#ff00ff" "#00ff00" "#0000cc" "#aaaa00" "#aaccaa"
+#   "#ff7777" "#bfff81" "#00ffcc" "#ce0097" "#d2d46b"
+#   "#ef6158" "#fdb200" }
+
+###########################################################################
+## CAIRO STUFF
+###########################################################################
+
+#### Scale all fonts by this number
+# set cairo_font_scale 1.0
+
+#### default for following two is 0.85 (xscale) and 0.88 (yscale) to 
+#### match cairo font spacing
+# set nocairo_font_xscale 1.0
+# set nocairo_font_yscale 1.0
+
+#### Scale line spacing by this number
+# set cairo_font_line_spacing 1.0
+
+#### Specify a font
+set cairo_font_name {Monospace Regular}
+
+#### Lift up text by some zoom-corrected pixels for
+#### better compatibility wrt no cairo version.
+#### Useful values in the range [-1, 3]
+# set cairo_vert_correct 0
+# set nocairo_vert_correct 0
+
+###########################################################################
+## KEYBINDINGS
+###########################################################################
+
+#### General format for specifying a replacement for a keybind
+#### Replace Ctrl-d with Escape (so you wont kill the program)
+# set replace_key(Control-d) Escape
+
+#### swap w and W keybinds; Always specify Shift for capital letters
+# set replace_key(Shift-W) w
+# set replace_key(w) Shift-W
+
+set terminal {xterm -geometry 100x35 -fn 9x15 -bg black -fg white -cr white -ms white }
+## lxterminal is not OK since it will not inherit env vars: 
+## In order to reduce memory usage and increase the performance, all instances
+## of the terminal are sharing a single process. LXTerminal is part of LXDE
+
+## editor must not detach from launching shell (-f mandatory for gvim)
+# set editor { xterm -geometry 100x40 -e nano }
+# set editor { xterm -geometry 100x40 -e pico }
+set editor {gvim -f -geometry 90x28}
+
+#### show info window (ERC rules errors warnings etc) 
+# set show_infowindow 1
+
+#### command to translate xpm to png (assumes command takes source 
+#### and dest file as arguments, example: gm convert plot.xpm plot.png)
+set to_png {gm convert}
+
+#### computer farm redirector
+#### RTDA NC
+# set computerfarm {nc run -Il}
+#### LSF BSUB
+# set computerfarm {bsub -Is}
+
+#### set gaw address for socket connection: {host port}
+set gaw_tcp_address {localhost 2020}
+
+#### set xschem listening port
+# set xschem_listen_port 2021
+
+#### utile (stefan's spice stimuli editor)
+set utile_gui_path ${XSCHEM_SHAREDIR}/utile/utile3
+set utile_cmd_path ${XSCHEM_SHAREDIR}/utile/utile
+
+#### list of tcl files to preload.
+# lappend tcl_files ${XSCHEM_SHAREDIR}/change_index.tcl
+# lappend tcl_files ${XSCHEM_SHAREDIR}/hspice_backannotate.tcl
+# lappend tcl_files ${XSCHEM_SHAREDIR}/ngspice_backannotate.tcl
+
+#### toolbar
+# set toolbar_visible 1
+# set toolbar_horiz   1
+

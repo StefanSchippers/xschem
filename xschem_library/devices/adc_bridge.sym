@@ -1,0 +1,17 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=delay
+verilog_ignore=true
+vhdl_ignore=true
+format="@name [ @@s ] [ @@d ] @adc_bridge_model"
+template="name=A1 adc_bridge_model= adc_buff"
+}
+V {}
+S {}
+E {}
+L 4 -30 0 30 0 {}
+L 4 -10 -5 10 0 {}
+L 4 -10 5 10 0 {}
+B 5 27.5 -2.5 32.5 2.5 {name=d dir=out verilog_type=wire propagate_to=1}
+B 5 -32.5 -2.5 -27.5 2.5 {name=s dir=in verilog_type=wire propagate_to=0}
+T {@name} -25 -10 0 0 0.12 0.12 {}
+T {@adc_bridge_model} 0 -10 0 0 0.12 0.12 {}

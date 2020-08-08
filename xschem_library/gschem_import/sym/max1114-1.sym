@@ -1,0 +1,66 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX1114
+template="name=U?
+device=MAX1114
+footprint=CERQUAD44
+numslots=0
+description=\\"8-bit, 150Msps Flash ADC\\"
+AGND=AGND
+DGND=DGND
+VEE=VEE
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @AGND @DGND @VEE"
+
+extra="AGND DGND VEE"
+extra_pinnumber="2,8,9,14,16,18,20,25,26,33 1,34 3,7,12,22,27,32"
+}
+V {}
+S {}
+E {}
+T {@name} 230 -620 2 0 0.333333 0.333333 {}
+T {MAX1114} 30 -615 2 1 0.333333 0.333333 {}
+
+L 4 30 0 230 0 {}
+L 4 230 -610 230 0 {}
+L 4 30 -610 230 -610 {}
+L 4 30 -610 30 0 {}
+
+L 4 30 -600 40 -590 {}
+L 4 30 -580 40 -590 {}
+L 4 30 -560 40 -550 {}
+L 4 30 -540 40 -550 {}
+
+A 4 25 -550 5 0 360 {}
+
+
+
+
+
+L 3 230 -230 260 -230 {}
+B 5 257.5 -232.5 262.5 -227.5 {pinnumber=4
+pinseq=4
+name=MINV
+dir=in
+}
+T {@#0:pinnumber} 240 -235 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 225 -230 2 0 0.266667 0.266667 {}
+L 3 0 -590 30 -590 {}
+B 5 -2.5 -592.5 2.5 -587.5 {pinnumber=5
+pinseq=5
+name=CLK
+dir=in
+}
+T {@#1:pinnumber} 20 -595 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 40 -590 2 1 0.266667 0.266667 {}
+L 3 0 -550 20 -550 {}
+B 5 -2.5 -552.5 2.5 -547.5 {pinnumber=6
+pinseq=6
+name=\_CLK\_
+dir=in
+}
+T {@#2:pinnumber} 20 -555 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 40 -550 2 1 0.266667 0.266667 {}

@@ -1,0 +1,60 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=LT1782
+template="name=U?
+footprint=SOT23
+device=LT1782
+description=\\"rail-to-rail input and output opamp\\"
+numslots=0
+documentation=http://www.linear.com.cn/pdf/1782fa.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="5 2"
+}
+V {}
+S {}
+E {}
+T {@name} 60 -60 2 1 0.333333 0.333333 {}
+T {LT1782} 20 -90 2 1 0.333333 0.333333 {}
+
+
+L 4 20 -80 20 0 {}
+L 4 20 -80 80 -40 {}
+L 4 20 0 80 -40 {}
+L 4 30 -65 30 -55 {}
+L 4 25 -60 35 -60 {}
+L 4 25 -20 35 -20 {}
+
+
+
+
+
+
+L 3 80 -40 100 -40 {}
+B 5 97.5 -42.5 102.5 -37.5 {pinnumber=1
+pinseq=1
+dir=out
+name=OUT
+}
+T {@#0:pinnumber} 80 -45 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -60 20 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=3
+pinseq=3
+dir=in
+name=IN+
+}
+T {@#1:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -20 20 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=4
+pinseq=4
+dir=in
+name=IN-
+}
+T {@#2:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}

@@ -1,0 +1,97 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=74107
+template="device=74107
+slot=1
+numslots=2
+name=U?
+footprint=DIP14
+description=\\"2 JK-flip-flops with clear (edge triggered)\\"
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/74HC_HCT107_CNV_2.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="14 7"
+}
+V {}
+S {}
+E {}
+T {@name} 130 -200 2 0 0.333333 0.333333 {}
+T {74107} 30 -195 2 1 0.266667 0.266667 {}
+
+L 4 30 -30 130 -30 {}
+L 4 130 -190 130 -30 {}
+L 4 30 -190 130 -190 {}
+L 4 30 -190 30 -30 {}
+
+L 4 30 -115 37.5 -110 {}
+L 4 30 -105 37.5 -110 {}
+
+A 4 135 -60 5 0 360 {}
+A 4 80 -25 5 0 360 {}
+A 4 25 -110 5 0 360 {}
+
+
+
+
+
+L 3 0 -160 30 -160 {}
+B 5 -2.5 -162.5 2.5 -157.5 {
+pinseq=1
+name=J
+dir=in
+pinnumber=1:8
+}
+T {@#0:pinnumber} 20 -165 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -160 2 1 0.266667 0.266667 {}
+L 3 140 -60 160 -60 {}
+B 5 157.5 -62.5 162.5 -57.5 {
+pinseq=2
+name=\_Q\_
+dir=out
+pinnumber=2:6
+}
+T {@#1:pinnumber} 140 -65 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 125 -60 2 0 0.266667 0.266667 {}
+L 3 130 -160 160 -160 {}
+B 5 157.5 -162.5 162.5 -157.5 {
+pinseq=3
+name=Q
+dir=out
+pinnumber=3:5
+}
+T {@#2:pinnumber} 140 -165 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 125 -160 2 0 0.266667 0.266667 {}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {
+pinseq=4
+name=K
+dir=in
+pinnumber=4:11
+}
+T {@#3:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -60 2 1 0.266667 0.266667 {}
+L 3 0 -110 20 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {
+pinseq=5
+name=\_CLK\_
+dir=inout
+pinnumber=12:9
+}
+T {@#4:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 37.5 -110 2 1 0.266667 0.266667 {}
+L 3 80 -20 80 0 {}
+B 5 77.5 -2.5 82.5 2.5 {
+pinseq=6
+name=\_CLR\_
+dir=in
+pinnumber=13:10
+}
+T {@#5:pinnumber} 85 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 48.2667 -35 2 1 0.266667 0.266667 {}

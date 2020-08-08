@@ -1,0 +1,71 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=ATTENUATOR
+template="device=ATTENUATOR
+name=ATN?
+pins=3
+class=DISCRETE
+footprint=0805_IMS
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 0 -130 2 1 0.333333 0.333333 {}
+
+
+L 4 50 -90 60 -110 {}
+L 4 40 -110 50 -90 {}
+L 4 30 -90 40 -110 {}
+L 4 20 -110 30 -90 {}
+L 4 60 -110 70 -90 {}
+L 4 70 -90 75 -100 {}
+L 4 15 -100 20.1 -110 {}
+L 4 120 -90 130 -110 {}
+L 4 110 -110 120 -90 {}
+L 4 100 -90 110 -110 {}
+L 4 90 -110 100 -90 {}
+L 4 130 -110 140 -90 {}
+L 4 140 -90 145 -100 {}
+L 4 85 -100 90.1 -110 {}
+L 4 70 -40 90 -30 {}
+L 4 70 -40 90 -50 {}
+L 4 70 -60 90 -50 {}
+L 4 70 -60 90 -70 {}
+L 4 70 -20 90 -30 {}
+L 4 70 -20 80 -15 {}
+L 4 80 -75 90 -69.9 {}
+L 4 80 -100 80 -75 {}
+L 4 75 -100 85 -100 {}
+
+
+
+
+
+
+L 3 0 -100 15.2 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 10 -105 2 1 0.266667 0.266667 {layer=13}
+L 3 80 -15 80 0 {}
+B 5 77.5 -2.5 82.5 2.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 70 -5 2 1 0.266667 0.266667 {layer=13}
+L 3 145 -100 160 -100 {}
+B 5 157.5 -102.5 162.5 -97.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#2:pinnumber} 150 -105 2 1 0.266667 0.266667 {layer=13}

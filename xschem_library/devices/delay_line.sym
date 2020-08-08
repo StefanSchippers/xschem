@@ -1,0 +1,20 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=transmission_line
+format="@name @pinlist z0=@z0 td=@td"
+template="name=T1 z0=50 td=10n"}
+V {}
+S {}
+E {}
+L 4 -70 -15 70 -15 {}
+L 4 -70 -5 70 -5 {}
+L 4 -70 -5 -70 10 {}
+L 4 -80 10 -70 10 {}
+L 4 70 -5 70 10 {}
+L 4 70 10 80 10 {}
+L 4 -80 -10 80 -10 {}
+B 5 -82.5 -12.5 -77.5 -7.5 {name=nap dir=in}
+B 5 -82.5 7.5 -77.5 12.5 {name=nam dir=in}
+B 5 77.5 -12.5 82.5 -7.5 {name=nbp dir=out}
+B 5 77.5 7.5 82.5 12.5 {name=nbm dir=out}
+T {z0=@z0 delay=@td} -60 -30 0 0 0.25 0.2 {}
+T {@name} -40 -47.5 0 0 0.2 0.2 {}

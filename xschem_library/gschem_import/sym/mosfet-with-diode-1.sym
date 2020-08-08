@@ -1,0 +1,75 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=NPN_TRANSISTOR
+template="device=NPN_TRANSISTOR
+name=Q?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 90 -50 2 1 0.333333 0.333333 {}
+
+
+L 4 40 -70 40 -30 {}
+L 4 18.4 -50 40 -50 {}
+L 4 60 -80 60 -64 {}
+L 4 44 -70 44 -58 {}
+L 4 44 -42 44 -30 {}
+L 4 44 -56 44 -44 {}
+L 4 44 -64 60 -64 {}
+L 4 44 -36 60 -36 {}
+L 4 60 -36 60 -20 {}
+L 4 60 -50 60 -36 {}
+L 4 44 -50 48 -52 {}
+L 4 48 -52 48 -48 {}
+L 4 44 -50 48 -48 {}
+L 4 48 -50 60 -50 {}
+L 4 60 -70 68 -70 {}
+L 4 66 -53 72 -53 {}
+L 4 68 -70 69 -70 {}
+L 4 69 -70 69 -58 {}
+L 4 64 -51 66 -53 {}
+L 4 72 -53 74 -55 {}
+L 4 66 -47 69 -53 {}
+L 4 69 -53 72 -47 {}
+L 4 66 -47 72 -47 {}
+L 4 69 -58 69 -53 {}
+L 4 60 -30 69 -30 {}
+L 4 69 -47 69 -30 {}
+
+A 4 50 -50.1 31.6 0 360 {}
+A 4 60 -70 0.5 0 360 {}
+A 4 60 -36 0.5 0 360 {}
+A 4 60 -30 0.5 0 360 {}
+
+
+
+
+
+L 3 60 -100 60 -80 {}
+B 5 57.5 -102.5 62.5 -97.5 {pinnumber=D
+pinseq=1
+name=D
+dir=inout
+}
+T {@#0:pinnumber} 50 -85 2 1 0.2 0.2 {layer=13}
+L 3 0 -50 18.4 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=G
+pinseq=2
+name=G
+dir=inout
+}
+T {@#1:pinnumber} 10 -55 2 1 0.2 0.2 {layer=13}
+L 3 60 -20 60 0 {}
+B 5 57.5 -2.5 62.5 2.5 {pinnumber=S
+pinseq=3
+name=S
+dir=inout
+}
+T {@#2:pinnumber} 50 -5 2 1 0.2 0.2 {layer=13}

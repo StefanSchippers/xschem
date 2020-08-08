@@ -1,0 +1,30 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=label
+template="device=PORT2
+lab=PORT2
+"
+
+}
+V {}
+S {}
+E {}
+T {Port 2} 25 -5 2 1 0.266667 0.266667 {}
+
+
+L 4 20 -20 20 0 {}
+L 4 20 -20 70 -20 {}
+L 4 70 -20 80 -10 {}
+L 4 70 0 80 -10 {}
+L 4 20 0 70 0 {}
+
+
+
+
+
+
+L 3 0 -10 20 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}

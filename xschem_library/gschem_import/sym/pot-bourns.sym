@@ -1,0 +1,54 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=VARIABLE_RESISTOR
+template="device=VARIABLE_RESISTOR
+name=R?
+pins=3
+class=DISCRETE
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 60 -40 2 1 0.333333 0.333333 {}
+
+
+L 4 44.8 -30.1 50 -20 {}
+L 4 50.1 -20.1 55.3 -30.2 {}
+L 4 50 0 60 -20 {}
+L 4 40 -20 50 0 {}
+L 4 30 0 40 -20 {}
+L 4 20 -20 30 0 {}
+L 4 60 -20 70 0 {}
+L 4 70 0 75 -10 {}
+L 4 15 -10 20.1 -20 {}
+L 4 50 -45 50 -20 {}
+
+
+
+
+
+
+L 3 0 -10 15.2 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+L 3 50 -60 50 -45 {}
+B 5 47.5 -62.5 52.5 -57.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+L 3 75 -10 90 -10 {}
+B 5 87.5 -12.5 92.5 -7.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}

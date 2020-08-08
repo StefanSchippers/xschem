@@ -1,0 +1,67 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=NE592
+template="device=NE592
+name=U?
+footprint=DIP14
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {NE592} 42.5 -75 2 1 0.333333 0.333333 {}
+T {@name} 10 -160 2 1 0.333333 0.333333 {}
+
+
+L 4 30 -150 30 -10 {}
+L 4 30 -150 170 -80 {}
+L 4 40 -115 40 -105 {}
+L 4 35 -110 45 -110 {}
+L 4 35 -50 45 -50 {}
+L 4 30 -10 170 -80 {}
+
+
+
+
+
+
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 15 -52.5 2 1 0.266667 0.266667 {layer=13}
+L 3 50 -20 50 10 {}
+B 5 47.5 7.5 52.5 12.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#1:pinnumber} 52.5 -5 2 1 0.266667 0.266667 {layer=13}
+L 3 110 -50 110 -20 {}
+B 5 107.5 -22.5 112.5 -17.5 {pinnumber=5
+pinseq=5
+name=5
+dir=inout
+}
+T {@#2:pinnumber} 112.5 -35 2 1 0.266667 0.266667 {layer=13}
+L 3 130 -60 160 -60 {}
+B 5 157.5 -62.5 162.5 -57.5 {pinnumber=7
+pinseq=7
+name=7
+dir=inout
+}
+T {@#3:pinnumber} 135 -47.5 2 1 0.266667 0.266667 {layer=13}
+L 3 130 -100 160 -100 {}
+B 5 157.5 -102.5 162.5 -97.5 {pinnumber=8
+pinseq=8
+name=8
+dir=inout
+}
+T {@#4:pinnumber} 135 -107.5 2 1 0.266667 0.266667 {layer=13}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM REMOTE CONTROL</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="developer_info.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="xschem_remote.html" class="next">NEXT</a>
+ <!-- slide title -->
+ <h1>XSCHEM REMOTE INTERFACE SPECIFICATION</h1><br>
+ <h3>GENERAL INFORMATIONS</h3>
+ <p>
+ XSCHEM embeds a tcl shell, when running xschem the terminal will present a tcl prompt allowing to send / get commands through it.
+ Most user actions done in the drawing window can be done by sending tcl commands through the tcl shell.
+ Since I/O is simply done through stdin/stdout this allows XSCHEM to be controlled by another application, by piping XSCHEM
+ commands to XSCHEM stdin and getting XSCHEM answers piped from XSCHEM stdout.
+ </p>
+ <p>
+ XSCHEM implements a TCL <kbd>xschem</kbd> command that accepts additional arguments. This command implements all the XSCHEM remote interface.
+ Of course all Tck-Tk commands are available, for example, if this command is sent to XSCHEM: '<kbd>wm withdraw .</kbd>' the xschem main window 
+ will be withdrawn by the window manager, while '<kbd>wm state . normal</kbd>' will show again the window.<br>
+ This command: '<kbd>puts $XSCHEM_LIBRARY_PATH</kbd>' will print the content of the <kbd>XSCHEM_LIBRARY_PATH</kbd> tcl variable 
+ containing the search path.
+ </p>
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

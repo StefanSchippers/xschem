@@ -1,0 +1,19 @@
+v {xschem version=2.9.7 file_version=1.2}
+G {type=primitive
+vhdl_stop=true
+format="@name @@Z @@VSS V=pwl(v( @@A , @@VSS ), @TABLE )"
+template="name=B1 TABLE=\\"1.4, 3.0, 1.6, 0.0\\""}
+V {}
+S {}
+E {}
+L 4 -40 0 -27.5 0 {}
+L 4 -27.5 -20 -27.5 20 {}
+L 4 -27.5 -20 16.25 0 {}
+L 4 -27.5 20 16.25 0 {}
+L 4 0 7.5 0 30 {}
+L 4 26.25 0 40 0 {}
+B 5 -42.5 -2.5 -37.5 2.5 {name=A dir=in }
+B 5 37.5 -2.5 42.5 2.5 {name=Z dir=out }
+B 5 -2.5 27.5 2.5 32.5 {name=VSS dir=in}
+A 4 21.25 -0 5 180 360 {}
+T {@name} -26.25 -5 0 0 0.2 0.2 {}

@@ -1,0 +1,76 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX872
+template="device=MAX872
+name=U?
+footprint=DIP8
+description=\\"10uA, low-dropout, precision voltage reference\\"
+numslots=0
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX872-MAX874.pdf
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND"
+
+extra="GND"
+extra_pinnumber="4"
+}
+V {}
+S {}
+E {}
+T {@name} 180 -130 2 0 0.333333 0.333333 {}
+T {MAX872} 30 -125 2 1 0.333333 0.333333 {}
+
+L 4 30 0 180 0 {}
+L 4 180 -120 180 0 {}
+L 4 30 -120 180 -120 {}
+L 4 30 -120 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -100 30 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=2
+pinseq=2
+name=VIN
+dir=in
+}
+T {@#0:pinnumber} 20 -105 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -100 2 1 0.266667 0.266667 {}
+L 3 180 -100 210 -100 {}
+B 5 207.5 -102.5 212.5 -97.5 {pinnumber=3
+pinseq=3
+name=TEMP
+dir=out
+}
+T {@#1:pinnumber} 190 -105 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 175 -100 2 0 0.266667 0.266667 {}
+L 3 180 -20 210 -20 {}
+B 5 207.5 -22.5 212.5 -17.5 {pinnumber=5
+pinseq=5
+name=TRIM
+dir=in
+}
+T {@#2:pinnumber} 190 -25 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 175 -20 2 0 0.266667 0.266667 {}
+L 3 180 -60 210 -60 {}
+B 5 207.5 -62.5 212.5 -57.5 {pinnumber=6
+pinseq=6
+name=VOUT
+dir=out
+}
+T {@#3:pinnumber} 190 -65 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 175 -60 2 0 0.266667 0.266667 {}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=8
+pinseq=8
+name=COMP
+dir=in
+}
+T {@#4:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -60 2 1 0.266667 0.266667 {}

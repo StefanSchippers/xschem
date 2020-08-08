@@ -1,0 +1,122 @@
+
+.MODEL BC857 PNP(
++       AF= 1.00E+00    BF= 1.96E+02    BR= 3.38E+00   CJC= 9.80E-12
++      CJE= 1.56E-11   CJS= 0.00E+00    EG= 1.11E+00    FC= 8.28E-01
++      IKF= 8.35E-01   IKR= 1.60E-02   IRB= 1.31E-06    IS= 1.32E-14
++      ISC= 7.71E-14   ISE= 8.44E-13   ITF= 2.14E-01    KF= 0.00E+00
++      MJC= 3.49E-01   MJE= 4.18E-01   MJS= 3.30E-01    NC= 1.19E+00
++       NE= 1.83E+00    NF= 1.00E+00    NR= 1.00E+00   PTF= 0.00E+00
++       RB= 1.00E-02   RBM= 1.00E-02    RC= 1.52E+00    RE= 3.00E-02
++       TF= 6.05E-10    TR= 0.00E+00   VAF= 5.90E+01   VAR= 1.74E+01
++      VJC= 3.00E-01   VJE= 8.00E-01   VJS= 7.50E-01   VTF= 4.39E+00
++     XCJC= 1.00E+00   XTB= 0.00E+00   XTF= 5.81E+00   XTI= 3.00E+00)
+
+.SUBCKT irlml6402 1 2 3
+* Node 1 -> Drain
+* Node 2 -> Gate
+* Node 3 -> Source
+M1 9 7 8 8 MM L=100u W=100u
+.MODEL MM PMOS LEVEL=1 IS=1e-32
++VTO=-1 LAMBDA=0.0111358 KP=12.788
++CGSO=5.36099e-06 CGDO=5.54234e-08
+RS 8 3 0.0246704
+D1 1 3 MD
+.MODEL MD D IS=2.03395e-08 RS=0.0432758 N=1.5 BV=20
++IBV=0.00025 EG=1 XTI=4 TT=1e-07
++CJO=1.11974e-10 VJ=0.5 M=0.3 FC=0.5
+RDS 3 1 5e+07
+RD 9 1 0.0001
+RG 2 7 29.2227
+D2 5 4 MD1
+* Default values used in MD1:
+*   RS=0 EG=1.11 XTI=3.0 TT=0
+*   BV=infinite IBV=1mA
+.MODEL MD1 D IS=1e-32 N=50
++CJO=1.68841e-10 VJ=1.50027 M=0.3 FC=1e-08
+D3 5 0 MD2
+* Default values used in MD2:
+*   EG=1.11 XTI=3.0 TT=0 CJO=0
+*   BV=infinite IBV=1mA
+.MODEL MD2 D IS=1e-10 N=0.4 RS=3e-06
+RL 5 10 1
+FI2 7 9 VFI2 -1
+VFI2 4 0 0
+EV16 10 0 9 7 1
+CAP 11 10 9.68769e-10
+FI1 7 9 VFI1 -1
+VFI1 11 6 0
+RCAP 6 10 1
+D4 6 0 MD3
+* Default values used in MD3:
+*   EG=1.11 XTI=3.0 TT=0 CJO=0
+*   RS=0 BV=infinite IBV=1mA
+.MODEL MD3 D IS=1e-10 N=0.4
+.ENDS irlml6402
+
+.SUBCKT   D1N5765       2   99
+*                      |    |
+*                      |    |
+*                      |    CATHODE
+*                      ANODE
+I1  99  4   7.0
+D1  2   99   DLOW
+D2  2   4   DHIGH
+R1  4   99  .1   TC=-6.27E-3,-2.33E-7
+*
+.MODEL DLOW     D       (
++         IS = 1.0E-15
++         RS = 100
++          N = 2.15
++         TT = 10.0E-09
++        CJO = 8.285237E-11
++         VJ = 1.2076937
++          M = 0.4053107
++         EG = 1.664
++        XTI = 10.78
++         KF = 0
++         AF = 1
++         FC = 0.4340008
++         BV = 5.0
++        IBV = 1E-4
++ )
+.MODEL DHIGH    D       (
++         IS = 9.0E-15
++         RS = 0.30
++          N = 1.2
++         TT = 0
++        CJO = 0
++         VJ = 1
++          M = .5
++         EG = 0.1
++        XTI = -3.84
++         KF = 0
++         AF = 1
++         FC = .5
++         BV = 9.9999E+13
++        IBV = .001
++ )
+.ENDS
+
+.SUBCKT BZX5V1 a c			
+
+ DF a c DFOR			
+ DR c a DREV			
+ DB b a DBRE			
+ EB c b POLY(1) d 0 3.6 1
+ IB 0 d 1m
+ RB 0 d 1k TC=3m
+
+.MODEL DFOR D
+ + IS =   1p  RS =  3.5  N  =  1.4  CJO= 178p
+ + VJ = 610m  M  = 335m  FC = 700m  XTI=    3
+ + EG =1.186
+
+.MODEL DREV D
+ + IS = 100f  N  =   30  XTI=    3  EG =1.186
+
+.MODEL DBRE D
+ + IS =  10f  RS =    6  N  =    1  XTI=    0
+ + EG =1.186
+
+.ENDS BZX5V1			
+

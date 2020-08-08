@@ -1,0 +1,35 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=RELAY
+template="device=RELAY
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {RELAY} 60 -30 2 1 0.333333 0.333333 {}
+T {@name} 180 -235 2 1 0.333333 0.333333 {}
+
+L 4 0 -50 180 -50 {}
+L 4 180 -230 180 -50 {}
+L 4 0 -230 180 -230 {}
+L 4 0 -230 0 -50 {}
+
+L 4 90 -210 90 -70 {}
+L 4 90 -140 155 -225 {}
+
+
+A 4 30 -200 20 270 180 {}
+A 4 30 -160 20 270 180 {}
+A 4 30 -120 20 270 180 {}
+A 4 30 -80 20 270 180 {}
+
+
+
+

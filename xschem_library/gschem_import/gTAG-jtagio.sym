@@ -1,0 +1,71 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=none
+template="name=S?
+device=none
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {gTAG-jtagio} 192.333 -108.333 0 1 0.333333 0.333333 {}
+T {@name} 0 -210 2 1 0.333333 0.333333 {}
+
+L 4 0 0 260 0 {}
+L 4 260 -200 260 0 {}
+L 4 0 -200 260 -200 {}
+L 4 0 -200 0 0 {}
+
+
+
+
+
+
+
+L 3 260 -180 290 -180 {}
+B 5 287.5 -182.5 292.5 -177.5 {name=tdi_ttl
+pinnumber=1
+pinseq=1
+dir=inout
+}
+T {@#0:name} 250 -180 2 0 0.333333 0.333333 {}
+L 3 260 -140 290 -140 {}
+B 5 287.5 -142.5 292.5 -137.5 {name=tdo_ttl
+pinnumber=2
+pinseq=2
+dir=inout
+}
+T {@#1:name} 250 -140 2 0 0.333333 0.333333 {}
+L 3 260 -100 290 -100 {}
+B 5 287.5 -102.5 292.5 -97.5 {name=tms_ttl
+pinnumber=3
+pinseq=3
+dir=inout
+}
+T {@#2:name} 250 -100 2 0 0.333333 0.333333 {}
+L 3 260 -60 290 -60 {}
+B 5 287.5 -62.5 292.5 -57.5 {name=tck_ttl
+pinnumber=4
+pinseq=4
+dir=inout
+}
+T {@#3:name} 250 -60 2 0 0.333333 0.333333 {}
+L 3 260 -20 290 -20 {}
+B 5 287.5 -22.5 292.5 -17.5 {name=trst_ttl
+pinnumber=5
+pinseq=5
+dir=inout
+}
+T {@#4:name} 250 -20 2 0 0.333333 0.333333 {}
+L 3 130 -230 130 -200 {}
+B 5 127.5 -232.5 132.5 -227.5 {pinnumber=6
+pinseq=6
+name=jtag_power
+dir=inout
+}
+T {@#5:name} 90 -180 2 1 0.333333 0.333333 {}

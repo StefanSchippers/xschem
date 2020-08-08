@@ -1,0 +1,3 @@
+pritn {foo}
+switch {cond}
+	case {1} print {foo}; end

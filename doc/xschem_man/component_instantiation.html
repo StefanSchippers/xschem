@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>COMPONENT INSTANTIATION</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="xschem_properties.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="symbol_property_syntax.html" class="next">NEXT</a>
+ <!-- slide title -->
+ <h1>COMPONENT INSTANTIATION</h1><br>
+ <p>
+  In the <a href="run_xschem.html">RUN XSCHEM</a> slide some instructions were provided as examples to
+  place a component in the schematic. Now we will cover the topic in more detail with emphasis on
+  component properties. Start by opening a test schematic window (you may delete any existing 
+  stuff in it if any).
+ </p>
+ <img src="load_schematic.png">
+ <p>
+  Now start by inserting a component, consider for example <kbd>devices/nmos4.sym</kbd>; press the
+  <kbd>Insert</kbd> key, navigate to the <kbd>devices</kbd> design library and open the <kbd>nmos4.sym</kbd>
+  symbol.
+ </p>
+ <img src="nmos4_symbol.png">
+ <p>
+  Now draw some wires on each pin of the nmos; place the mouse pointer on the component pins and
+  use the <kbd>'w'</kbd> bindkey.
+ </p>
+ <img src="nmos4_wires.png">
+ <p> 
+  we need now to put labels on wire ends: use the <kbd>Insert</kbd> key and locate the 
+  <kbd>devices/lab_pin.sym</kbd> symbol. After the <kbd>lab_pin</kbd> symbol is placed you can move it
+  by selecting it with the mouse and pressing the <kbd>'m'</kbd> bindkey. You can also flip
+  ( <kbd>'F'</kbd>) and rotate while moving (<kbd>'R'</kbd>) to adjust the orientation. After
+  placing the first one you may copy the others from it (<kbd>'c'</kbd> bindkey). The end result 
+  should look  like this:
+ </p>
+ <img src="nmos4_labels.png">
+ <p> 
+  This is what an electrical circuit is all about: a network of wires and components. In this 
+  schematic we have 5 components (4 labels and one mos) and 4 nets. It is not mandatory to put a 
+  wire segment between component pins; we could equally well do this: 
+ </p>
+ <img src="nmos4_labels2.png">
+ <p> 
+  This circuit is absolutely equivalent to the previous one: it will produce the same 
+  device connectivity netlist.<br>
+  Now we need to set appropriate labels on the NMOS terminals. This is -again- accomplished with 
+  component properties. Select the wire label on the nmos source pin and press the <kbd>'q'</kbd>
+  bindkey: 
+ </p>
+ <img src="nmos4_editprop.png">
+ <p>
+  Now, replace the 'xxx' default string in the dialog with a different name (example: SOURCE)
+  After clicking <kbd>OK</kbd> the source terminal will have the right label.
+ </p>
+ <img src="nmos4_editprop2.png">
+ <p>
+  repeat the process for the remaining GATE, DRAIN, BODY terminals; 
+ </p>
+ <img src="nmos4_editprop3.png">
+ <p>
+  The following picture shows the <kbd>lab_pin</kbd> component with its properties and
+  the corresponding symbol definition with its global properties (remember global properties in 
+  the <a href="xschem_properties.html">xschem_properties</a> slide)
+ </p>
+ <img src="properties.png" style="height:70%;">
+ <p>
+  when building the netlist XSCHEM will look for wires that touch the red square of the lab_pin
+  component and name that wires with the component 'lab' property.
+  for example the SPICE netlist of the circuit will be: 
+  <pre class="code">m1 DRAIN GATE SOURCE BODY nmos w=5u l=0.18u m=1</pre>
+ </p>
+ <p>
+  We need now to edit the nmos properties. Select it and press the <kbd>'q'</kbd> bindkey
+ </p>
+ <img src="nmos_properties.png">
+ <p>
+  from the edit properties dialog you see there are 5 attributes with values defined:
+ </p>
+  <ul>
+  <li> The component name <kbd>name=m1</kbd>.</li>
+  <li> The spice model to be used in simulation <kbd>model=nmos</kbd>.</li>
+  <li> The transistor width <kbd>w=5u</kbd>.</li>
+  <li> The transistor channel length <kbd>l=0.18u</kbd>.</li>
+  <li> The number of parallel transistors (multiplicity) <kbd>m=1</kbd>.</li>
+  </ul>
+  <p>
+  We have never defined a value for these properties. These are the default values defined in the
+  <kbd>template</kbd> attribute in the global <kbd>nmos4.sym</kbd> property string.
+ </p>
+ <img src="nmos_properties2.png">
+ <p>
+  We may want to change the dimensions of the transistor; simply change the <kbd>w</kbd> and
+  <kbd>l</kbd> attribute values.<br>
+  Also the component name may be changed as long as it is unique in the current schematic window.
+  All simulators require that components are unique, it is not permitted to have 2 components
+  with identical name, so XSCHEM enforces this. 
+  </p>
+ <img src="nmos_properties3.png">
+
+  <p>
+  If a name is set that matches an existing component
+  xschem will rename it keeping the first letter (<kbd>m</kbd> in this example) and appending a number
+  (so you might end up in something like <kbd>m23</kbd> if there are many devices).
+ </p>
+ <p class="important">
+  the <kbd>name</kbd> attribute is unique in the schematic window, and must be placed first in the
+  property string. The name is also used by xschem to efficiently index it in the internal
+  hash tables.
+ </p><br>
+ <h3>SPECIAL COMPONENTS</h3>  
+ <p>General purpose</p>
+ <ul>
+  <li><kbd>devices/ipin.sym</kbd></li>
+  <li><kbd>devices/opin.sym</kbd></li>
+  <li><kbd>devices/iopin.sym</kbd></li>
+  <p> 
+   These components are used to name a net or a pin of another component. They do not have any other function
+   other than giving an explicit name to a net.
+  </p>
+  <img src="special1.png">
+  <li><kbd>devices/lab_pin.sym</kbd></li>
+  <li><kbd>devices/lab_wire.sym</kbd></li>
+  <li><kbd>devices/launcher.sym</kbd></li>
+  <li><kbd>devices/architecture.sym</kbd><p> This prints global attributes of the schematic. Attributes of this 
+   symbol should not be set. It is a readonly symbol printing top-level schematic properties.</p></li>
+ </ul>
+ 
+ <p>Spice netlist special components</p>
+ <ul>
+  <li><kbd>devices/code.sym</kbd></li>
+  <li><kbd>devices/code_shown.sym</kbd></li>
+  <p> these symbols are used to place simulator commands or additional netlist lines as text into the schematic.</p>
+ </ul>
+
+ <p>Verilog netlist special components</p>
+ <ul>
+  <li><kbd>devices/verilog_timescale.sym</kbd></li>
+  <li><kbd>devices/verilog_preprocessor.sym</kbd></li>
+ </ul>
+
+
+ <p>VHDL netlist special components</p>
+ <ul>
+  <li><kbd>devices/use.sym</kbd></li>
+  <li><kbd>devices/package.sym</kbd></li>
+  <li><kbd>devices/package_not_shown.sym</kbd></li>
+  <li><kbd>devices/arch_declarations.sym</kbd></li>
+  <li><kbd>devices/attributes.sym</kbd></li>
+  <li><kbd>devices/port_attributes.sym</kbd></li>
+  <li><kbd>devices/generic_pin.sym</kbd></li>
+  <li><kbd>devices/generic.sym</kbd></li>
+ </ul><br>
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

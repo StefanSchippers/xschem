@@ -1,0 +1,27 @@
+v {xschem version=2.9.6 file_version=1.1}
+G {type=subcircuit
+verilog_format="xnor #(@risedel , @falldel ) @name ( @#0 , @#1 , @#2 );"
+vhdl_format = "@@Z <= @@A xnor @@B after 0.1 ns;"
+format="@name @pinlist @symname"
+template="name=x1 risedel=400 falldel=300"
+verilog_primitive=true
+vhdl_primitive=true
+}
+V {}
+S {}
+E {}
+L 4 45 0 60 0 {}
+L 4 -40 -20 -26.875 -20 {}
+L 4 -40 20 -26.875 20 {}
+L 4 -25 -30 -5 -30 {}
+L 4 -25 30 -5 30 {}
+B 5 57.5 -2.5 62.5 2.5 {name=Z dir=out verilog_type=wire}
+B 5 -42.5 -22.5 -37.5 -17.5 {name=A dir=in}
+B 5 -42.5 17.5 -37.5 22.5 {name=B dir=in}
+A 4 40 0 5 180 360 {}
+A 4 -9.642857142857142 17.85714285714286 48.0818286351295 21.80140948635181 62.65738573560834 {}
+A 4 -4.6875 -11.25 41.25118369513777 269.5659493678606 74.60789655596687 {}
+A 4 -65 0 50 323.130102354156 73.7397952916881 {}
+A 4 -72.5 0 50 323.130102354156 73.7397952916881 {}
+T {@symname} -12.5 -12.5 0 0 0.2 0.2 {}
+T {@name} -12.5 2.5 0 0 0.2 0.2 {}

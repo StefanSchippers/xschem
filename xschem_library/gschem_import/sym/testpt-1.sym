@@ -1,0 +1,36 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=TESTPOINT
+template="name=TP?
+device=TESTPOINT
+footprint=none
+numslots=0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 10 -40 2 1 0.333333 0.333333 {}
+
+
+L 4 0 -30 10 -20 {}
+L 4 10 -20 20 -30 {}
+L 4 0 -30 10 -40 {}
+L 4 10 -40 20 -30 {}
+
+
+
+
+
+
+L 3 10 -20 10 0 {}
+B 5 7.5 -2.5 12.5 2.5 {pinseq=1
+pinnumber=1
+dir=inout
+name=1
+}

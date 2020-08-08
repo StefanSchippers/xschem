@@ -1,0 +1,103 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=9602
+template="name=U?
+device=9602
+numslots=2
+slot=1
+footprint=DIP16
+description=\\"2 retriggerable, resetable monoflops\\"
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="16 8"
+}
+V {}
+S {}
+E {}
+T {@name} 140 -190 2 0 0.333333 0.333333 {}
+T {9602} 30 -184 2 1 0.333333 0.333333 {}
+
+L 4 30 0 140 0 {}
+L 4 140 -180 140 0 {}
+L 4 30 -180 140 -180 {}
+L 4 30 -180 30 0 {}
+
+
+A 4 25 -80 5 0 360 {}
+A 4 25 -20 5 0 360 {}
+A 4 145 -70 5 0 360 {}
+
+
+
+
+
+L 3 0 -160 30 -160 {}
+B 5 -2.5 -162.5 2.5 -157.5 {
+pinseq=1
+name=C_EXT
+dir=inout
+pinnumber=1:15
+}
+T {@#0:pinnumber} 20 -165 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -160 2 1 0.266667 0.266667 {}
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {
+pinseq=2
+name=RC_EXT
+dir=inout
+pinnumber=2:14
+}
+T {@#1:pinnumber} 20 -125 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -120 2 1 0.266667 0.266667 {}
+L 3 0 -80 20 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {
+pinseq=3
+name=\_CLR\_
+dir=in
+pinnumber=3:13
+}
+T {@#2:pinnumber} 20 -85 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -80 2 1 0.266667 0.266667 {}
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {
+pinseq=4
+name=TRIG
+dir=in
+pinnumber=4:12
+}
+T {@#3:pinnumber} 20 -55 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -50 2 1 0.266667 0.266667 {}
+L 3 0 -20 20 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {
+pinseq=5
+name=\_TRIG\_
+dir=in
+pinnumber=5:11
+}
+T {@#4:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -20 2 1 0.266667 0.266667 {}
+L 3 140 -100 170 -100 {}
+B 5 167.5 -102.5 172.5 -97.5 {
+pinseq=6
+name=Q
+dir=out
+pinnumber=6:10
+}
+T {@#5:pinnumber} 150 -105 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 135 -100 2 0 0.266667 0.266667 {}
+L 3 150 -70 170 -70 {}
+B 5 167.5 -72.5 172.5 -67.5 {
+pinseq=7
+name=\_Q\_
+dir=out
+pinnumber=7:9
+}
+T {@#6:pinnumber} 150 -75 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 135 -70 2 0 0.266667 0.266667 {}

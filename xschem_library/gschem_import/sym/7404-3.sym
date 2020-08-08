@@ -1,0 +1,132 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=7404
+template="numslots=0
+description=\\"Hex Inverting Gates\\"
+device=7404
+footprint=DIP14
+name=U?
+GND=GND
+Vcc=Vcc
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND @Vcc"
+
+extra="GND Vcc"
+extra_pinnumber="7 14"
+}
+V {}
+S {}
+E {}
+T {@name} 150 -200 2 1 0.333333 0.333333 {}
+T {7404} 30 -195 2 1 0.333333 0.333333 {}
+
+L 4 30 0 170 0 {}
+L 4 170 -190 170 0 {}
+L 4 30 -190 170 -190 {}
+L 4 30 -190 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -170 30 -170 {}
+B 5 -2.5 -172.5 2.5 -167.5 {pinnumber=1
+pinseq=1
+name=A1
+dir=in
+}
+T {@#0:pinnumber} 20 -175 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -170 2 1 0.266667 0.266667 {}
+L 3 170 -170 200 -170 {}
+B 5 197.5 -172.5 202.5 -167.5 {name=Y1
+pinnumber=2
+pinseq=2
+dir=out
+}
+T {@#1:name} 165 -170 2 0 0.266667 0.266667 {}
+T {@#1:pinnumber} 180 -175 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=3
+pinseq=3
+name=A2
+dir=in
+}
+T {@#2:pinnumber} 20 -145 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -140 2 1 0.266667 0.266667 {}
+L 3 170 -140 200 -140 {}
+B 5 197.5 -142.5 202.5 -137.5 {name=Y2
+pinnumber=4
+pinseq=4
+dir=out
+}
+T {@#3:name} 165 -140 2 0 0.266667 0.266667 {}
+T {@#3:pinnumber} 180 -145 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinnumber=5
+pinseq=5
+name=A3
+dir=in
+}
+T {@#4:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -110 2 1 0.266667 0.266667 {}
+L 3 170 -110 200 -110 {}
+B 5 197.5 -112.5 202.5 -107.5 {name=Y3
+pinnumber=6
+pinseq=6
+dir=out
+}
+T {@#5:name} 165 -110 2 0 0.266667 0.266667 {}
+T {@#5:pinnumber} 180 -115 2 1 0.266667 0.266667 {layer=13}
+L 3 170 -80 200 -80 {}
+B 5 197.5 -82.5 202.5 -77.5 {name=Y4
+pinnumber=8
+pinseq=8
+dir=out
+}
+T {@#6:name} 165 -80 2 0 0.266667 0.266667 {}
+T {@#6:pinnumber} 180 -85 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -80 30 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=9
+pinseq=9
+name=A4
+dir=in
+}
+T {@#7:pinnumber} 20 -85 2 0 0.266667 0.266667 {layer=13}
+T {@#7:name} 35 -80 2 1 0.266667 0.266667 {}
+L 3 170 -50 200 -50 {}
+B 5 197.5 -52.5 202.5 -47.5 {name=Y5
+pinnumber=10
+pinseq=10
+dir=out
+}
+T {@#8:name} 165 -50 2 0 0.266667 0.266667 {}
+T {@#8:pinnumber} 180 -55 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=11
+pinseq=11
+name=A5
+dir=in
+}
+T {@#9:pinnumber} 20 -55 2 0 0.266667 0.266667 {layer=13}
+T {@#9:name} 35 -50 2 1 0.266667 0.266667 {}
+L 3 170 -20 200 -20 {}
+B 5 197.5 -22.5 202.5 -17.5 {name=Y6
+pinnumber=12
+pinseq=12
+dir=out
+}
+T {@#10:name} 165 -20 2 0 0.266667 0.266667 {}
+T {@#10:pinnumber} 180 -25 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=13
+pinseq=13
+name=A6
+dir=in
+}
+T {@#11:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#11:name} 35 -20 2 1 0.266667 0.266667 {}

@@ -1,0 +1,17 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=notif0
+verilog_format="not ( @str1 , @str0 ) #( @risedel , @falldel ) @name ( @@Z , @@A );"
+template="name=b1 str1=strong1 str0=strong0 risedel=100 falldel=100"}
+V {}
+S {}
+E {}
+L 4 -40 0 -25 0 {}
+L 4 -25 -20 -25 20 {}
+L 4 -25 -20 15 0 {}
+L 4 -25 20 15 0 {}
+L 4 25 0 40 0 {}
+B 5 37.5 -2.5 42.5 2.5 {name=Z verilog_type=wire dir=out}
+B 5 -42.5 -2.5 -37.5 2.5 {name=A dir=in}
+A 4 20 0 5 180 360 {}
+T {@symname} 7.5 -22.5 0 0 0.2 0.2 {}
+T {@name} -23.75 -5 0 0 0.2 0.2 {}

@@ -1,0 +1,10 @@
+G {type=missing
+format="*  @name -  @symname  IS MISSING !!!!"
+template="name=x1"}
+L 8 -110 -25 -110 25 {}
+L 8 -110 -25 110 -25 {}
+L 8 110 -25 110 25 {}
+L 8 -110 25 110 25 {}
+T {@symname} -44.5 1.5 0 0 0.3 0.3 {}
+T {@name} 115 -37 0 0 0.2 0.2 {}
+T {---MISSING SYMBOL---} -89.5 -21 0 0 0.3 0.3 {}

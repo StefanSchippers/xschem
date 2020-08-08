@@ -1,0 +1,34 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=directive
+template="device=directive
+name=A?
+file=unknown
+value=unknown
+numslots=0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 10 -30 2 1 0.333333 0.333333 {}
+T {Gnucap directive} 60 -30 2 1 0.333333 0.333333 {}
+T {@file} 10 0 2 1 0.333333 0.333333 {}
+T {@value} 10 0 2 1 0.333333 0.333333 {}
+
+L 4 0 -20 210 -20 {}
+L 4 210 -50 210 -20 {}
+L 4 0 -50 210 -50 {}
+L 4 0 -50 0 -20 {}
+
+
+
+
+
+
+

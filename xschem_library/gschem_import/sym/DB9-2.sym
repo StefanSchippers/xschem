@@ -1,0 +1,104 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=DB9
+template="device=DB9
+name=CONN?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 20 -320 2 1 0.333333 0.333333 {}
+
+
+L 4 0 -270 0 -30 {}
+L 4 3.8 -23.4 70.2 -0.8 {}
+L 4 3.7 -276.5 70 -303.1 {}
+L 4 90 -290.5 90 -13.7 {}
+
+A 4 30 -60 5 0 360 {}
+A 4 30 -120 5 0 360 {}
+A 4 30 -180 5 0 360 {}
+A 4 30 -240 5 0 360 {}
+A 4 60 -30 5 0 360 {}
+A 4 60 -90 5 0 360 {}
+A 4 60 -150 5 0 360 {}
+A 4 60 -210 5 0 360 {}
+A 4 60 -270 5 0 360 {}
+
+A 4 75 -15 15 250 110 {}
+A 4 7.5 -30 7.5 180 60 {}
+A 4 75 -289 15 0 110 {}
+A 4 7.5 -270 7.5 120 60 {}
+
+
+
+
+L 3 65 -270 120 -270 {}
+B 5 117.5 -272.5 122.5 -267.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 100 -275 2 1 0.266667 0.266667 {layer=13}
+L 3 35 -240 120 -240 {}
+B 5 117.5 -242.5 122.5 -237.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 100 -245 2 1 0.266667 0.266667 {layer=13}
+L 3 65 -210 120 -210 {}
+B 5 117.5 -212.5 122.5 -207.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#2:pinnumber} 100 -215 2 1 0.266667 0.266667 {layer=13}
+L 3 35 -180 120 -180 {}
+B 5 117.5 -182.5 122.5 -177.5 {pinnumber=4
+pinseq=4
+name=4
+dir=inout
+}
+T {@#3:pinnumber} 100 -185 2 1 0.266667 0.266667 {layer=13}
+L 3 65 -150 120 -150 {}
+B 5 117.5 -152.5 122.5 -147.5 {pinnumber=5
+pinseq=5
+name=5
+dir=inout
+}
+T {@#4:pinnumber} 100 -155 2 1 0.266667 0.266667 {layer=13}
+L 3 35 -120 120 -120 {}
+B 5 117.5 -122.5 122.5 -117.5 {pinnumber=6
+pinseq=6
+name=6
+dir=inout
+}
+T {@#5:pinnumber} 100 -125 2 1 0.266667 0.266667 {layer=13}
+L 3 65 -90 120 -90 {}
+B 5 117.5 -92.5 122.5 -87.5 {pinnumber=7
+pinseq=7
+name=7
+dir=inout
+}
+T {@#6:pinnumber} 100 -95 2 1 0.266667 0.266667 {layer=13}
+L 3 35 -60 120 -60 {}
+B 5 117.5 -62.5 122.5 -57.5 {pinnumber=8
+pinseq=8
+name=8
+dir=inout
+}
+T {@#7:pinnumber} 100 -65 2 1 0.266667 0.266667 {layer=13}
+L 3 65 -30 120 -30 {}
+B 5 117.5 -32.5 122.5 -27.5 {pinnumber=9
+pinseq=9
+name=9
+dir=inout
+}
+T {@#8:pinnumber} 100 -35 2 1 0.266667 0.266667 {layer=13}

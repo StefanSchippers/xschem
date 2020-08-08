@@ -1,0 +1,97 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX663
+template="device=MAX663
+name=U?
+footprint=DIP8
+description=\\"dual mode 5V/programmable voltage regulator\\"
+numslots=0
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX663-MAX666.pdf
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 210 -220 2 0 0.333333 0.333333 {}
+T {MAX663} 30 -215 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 210 -30 {}
+L 4 210 -210 210 -30 {}
+L 4 30 -210 210 -210 {}
+L 4 30 -210 30 -30 {}
+
+
+
+
+
+
+
+L 3 210 -180 240 -180 {}
+B 5 237.5 -182.5 242.5 -177.5 {pinnumber=1
+pinseq=1
+name=SENSE
+dir=in
+}
+T {@#0:pinnumber} 220 -185 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 205 -180 2 0 0.266667 0.266667 {}
+L 3 210 -120 240 -120 {}
+B 5 237.5 -122.5 242.5 -117.5 {pinnumber=2
+pinseq=2
+name=VOUT2
+dir=out
+}
+T {@#1:pinnumber} 220 -125 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 205 -120 2 0 0.266667 0.266667 {}
+L 3 210 -60 240 -60 {}
+B 5 237.5 -62.5 242.5 -57.5 {pinnumber=3
+pinseq=3
+name=VOUT1
+dir=out
+}
+T {@#2:pinnumber} 220 -65 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 205 -60 2 0 0.266667 0.266667 {}
+L 3 90 -30 90 0 {}
+B 5 87.5 -2.5 92.5 2.5 {pinnumber=4
+pinseq=4
+name=GND
+dir=inout
+}
+T {@#3:pinnumber} 95 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 83.3333 -35 3 0 0.266667 0.266667 {}
+L 3 60 -30 60 0 {}
+B 5 57.5 -2.5 62.5 2.5 {pinnumber=5
+pinseq=5
+name=SHDN
+dir=in
+}
+T {@#4:pinnumber} 65 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 53.3333 -35 3 0 0.266667 0.266667 {}
+L 3 120 -30 120 0 {}
+B 5 117.5 -2.5 122.5 2.5 {pinnumber=6
+pinseq=6
+name=VSET
+dir=in
+}
+T {@#5:pinnumber} 125 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 113.333 -35 3 0 0.266667 0.266667 {}
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=7
+pinseq=7
+name=VTC
+dir=out
+}
+T {@#6:pinnumber} 20 -125 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -120 2 1 0.266667 0.266667 {}
+L 3 0 -180 30 -180 {}
+B 5 -2.5 -182.5 2.5 -177.5 {pinnumber=8
+pinseq=8
+name=VIN\\ (POS)
+dir=in
+}
+T {@#7:pinnumber} 20 -185 2 0 0.266667 0.266667 {layer=13}
+T {@#7:name} 35 -180 2 1 0.266667 0.266667 {}

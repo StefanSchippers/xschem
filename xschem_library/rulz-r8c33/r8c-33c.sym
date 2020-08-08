@@ -1,0 +1,145 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=ic
+format="@spiceprefix@name @pinlist @symname"
+tedax_format="footprint @name @footprint 
+value @name @value
+device @name @device
+@comptag"
+template="name=U1 
+device=r8c-33c 
+footprint=TQFP32_7"}
+V {}
+S {}
+E {}
+L 3 -260 -140 -220 -140 {}
+L 3 -260 -100 -220 -100 {}
+L 3 -260 -60 -220 -60 {}
+L 3 -260 -20 -220 -20 {}
+L 3 -260 20 -220 20 {}
+L 3 -260 60 -220 60 {}
+L 3 -260 100 -220 100 {}
+L 3 -260 140 -220 140 {}
+L 3 -140 300 -140 340 {}
+L 3 -100 300 -100 340 {}
+L 3 -60 300 -60 340 {}
+L 3 -20 300 -20 340 {}
+L 3 20 300 20 340 {}
+L 3 60 300 60 340 {}
+L 3 100 300 100 340 {}
+L 3 140 300 140 340 {}
+L 3 -140 -340 -140 -300 {}
+L 3 -100 -340 -100 -300 {}
+L 3 -60 -340 -60 -300 {}
+L 3 -20 -340 -20 -300 {}
+L 3 20 -340 20 -300 {}
+L 3 60 -340 60 -300 {}
+L 3 100 -340 100 -300 {}
+L 3 140 -340 140 -300 {}
+L 3 220 -140 260 -140 {}
+L 3 220 -100 260 -100 {}
+L 3 220 -60 260 -60 {}
+L 3 220 -20 260 -20 {}
+L 3 220 20 260 20 {}
+L 3 220 60 260 60 {}
+L 3 220 100 260 100 {}
+L 3 220 140 260 140 {}
+B 5 -262.5 -142.5 -257.5 -137.5 {name=P4.2/VREF dir=inout pinnumber=1}
+B 5 -262.5 -102.5 -257.5 -97.5 {name=MODE dir=inout pinnumber=2}
+B 5 -262.5 -62.5 -257.5 -57.5 {name=RESET dir=inout pinnumber=3}
+B 5 -262.5 -22.5 -257.5 -17.5 {name=XOUT dir=inout pinnumber=4}
+B 5 -262.5 17.5 -257.5 22.5 {name=VSS dir=inout pinnumber=5}
+B 5 -262.5 57.5 -257.5 62.5 {name=XIN dir=inout pinnumber=6}
+B 5 -262.5 97.5 -257.5 102.5 {name=VDD dir=inout pinnumber=7}
+B 5 -262.5 137.5 -257.5 142.5 {name=P3.7/SDA dir=inout pinnumber=8}
+B 5 -142.5 337.5 -137.5 342.5 {name=P3.5/SCL dir=inout pinnumber=9}
+B 5 -102.5 337.5 -97.5 342.5 {name=P3.4 dir=inout pinnumber=10}
+B 5 -62.5 337.5 -57.5 342.5 {name=P3.3 dir=inout pinnumber=11}
+B 5 -22.5 337.5 -17.5 342.5 {name=P2.2 dir=inout pinnumber=12}
+B 5 17.5 337.5 22.5 342.5 {name=P2.1 dir=inout pinnumber=13}
+B 5 57.5 337.5 62.5 342.5 {name=P2.0 dir=inout pinnumber=14}
+B 5 97.5 337.5 102.5 342.5 {name=P3.1 dir=inout pinnumber=15}
+B 5 137.5 337.5 142.5 342.5 {name=P4.5 dir=inout pinnumber=16}
+B 5 -142.5 -342.5 -137.5 -337.5 {name=P0.0 dir=inout pinnumber=32}
+B 5 -102.5 -342.5 -97.5 -337.5 {name=TxD1/P0.1 dir=inout pinnumber=31}
+B 5 -62.5 -342.5 -57.5 -337.5 {name=RxD1/P0.2 dir=inout pinnumber=30}
+B 5 -22.5 -342.5 -17.5 -337.5 {name=CLK1/P0.3 dir=inout pinnumber=29}
+B 5 17.5 -342.5 22.5 -337.5 {name=P0.4 dir=inout pinnumber=28}
+B 5 57.5 -342.5 62.5 -337.5 {name=P0.5 dir=inout pinnumber=27}
+B 5 97.5 -342.5 102.5 -337.5 {name=P0.6 dir=inout pinnumber=26}
+B 5 137.5 -342.5 142.5 -337.5 {name=P0.7 dir=inout pinnumber=25}
+B 5 257.5 -142.5 262.5 -137.5 {name=P1.0 dir=inout pinnumber=24}
+B 5 257.5 -102.5 262.5 -97.5 {name=P1.1 dir=inout pinnumber=23}
+B 5 257.5 -62.5 262.5 -57.5 {name=P1.2 dir=inout pinnumber=22}
+B 5 257.5 -22.5 262.5 -17.5 {name=P1.3 dir=inout pinnumber=21}
+B 5 257.5 17.5 262.5 22.5 {name=TxD0/P1.4 dir=inout pinnumber=20}
+B 5 257.5 57.5 262.5 62.5 {name=RxD0/P1.5 dir=inout pinnumber=19}
+B 5 257.5 97.5 262.5 102.5 {name=CLK0/P1.6 dir=inout pinnumber=18}
+B 5 257.5 137.5 262.5 142.5 {name=P1.7 dir=inout pinnumber=17}
+P 4 5 -220 -300 220 -300 220 300 -220 300 -220 -300 {}
+T {P4.2/VREF} -209 -149.6 0 0 0.4 0.4 {}
+T {@#0:pinnumber} -232 -156 0 1 0.25 0.25 {layer=13}
+T {MODE} -209 -109.6 0 0 0.4 0.4 {}
+T {@#1:pinnumber} -232 -116 0 1 0.25 0.25 {layer=13}
+T {RESET} -209 -69.59999999999999 0 0 0.4 0.4 {}
+T {@#2:pinnumber} -232 -76 0 1 0.25 0.25 {layer=13}
+T {XOUT} -209 -29.6 0 0 0.4 0.4 {}
+T {@#3:pinnumber} -232 -36 0 1 0.25 0.25 {layer=13}
+T {VSS} -209 10.4 0 0 0.4 0.4 {}
+T {@#4:pinnumber} -232 4 0 1 0.25 0.25 {layer=13}
+T {XIN} -209 50.4 0 0 0.4 0.4 {}
+T {@#5:pinnumber} -232 44 0 1 0.25 0.25 {layer=13}
+T {VDD} -209 90.40000000000001 0 0 0.4 0.4 {}
+T {@#6:pinnumber} -232 84 0 1 0.25 0.25 {layer=13}
+T {P3.7/SDA} -209 130.4 0 0 0.4 0.4 {}
+T {@#7:pinnumber} -232 124 0 1 0.25 0.25 {layer=13}
+T {P3.5/SCL} -130.4 289 1 1 0.4 0.4 {}
+T {@#8:pinnumber} -156 312 3 1 0.25 0.25 {layer=13}
+T {P3.4} -90.40000000000001 289 1 1 0.4 0.4 {}
+T {@#9:pinnumber} -116 312 3 1 0.25 0.25 {layer=13}
+T {P3.3} -50.40000000000001 289 1 1 0.4 0.4 {}
+T {@#10:pinnumber} -76 312 3 1 0.25 0.25 {layer=13}
+T {P2.2} -10.40000000000001 289 1 1 0.4 0.4 {}
+T {@#11:pinnumber} -36 312 3 1 0.25 0.25 {layer=13}
+T {P2.1} 29.6 289 1 1 0.4 0.4 {}
+T {@#12:pinnumber} 4 312 3 1 0.25 0.25 {layer=13}
+T {P2.0} 69.59999999999999 289 1 1 0.4 0.4 {}
+T {@#13:pinnumber} 44 312 3 1 0.25 0.25 {layer=13}
+T {P3.1} 109.6 289 1 1 0.4 0.4 {}
+T {@#14:pinnumber} 84 312 3 1 0.25 0.25 {layer=13}
+T {P4.5} 149.6 289 1 1 0.4 0.4 {}
+T {@#15:pinnumber} 124 312 3 1 0.25 0.25 {layer=13}
+T {P0.0} -130.4 -289 1 0 0.4 0.4 {}
+T {@#16:pinnumber} -156 -312 3 0 0.25 0.25 {layer=13}
+T {TxD1/P0.1} -90.40000000000001 -289 1 0 0.4 0.4 {}
+T {@#17:pinnumber} -116 -312 3 0 0.25 0.25 {layer=13}
+T {RxD1/P0.2} -50.40000000000001 -289 1 0 0.4 0.4 {}
+T {@#18:pinnumber} -76 -312 3 0 0.25 0.25 {layer=13}
+T {CLK1/P0.3} -10.40000000000001 -289 1 0 0.4 0.4 {}
+T {@#19:pinnumber} -36 -312 3 0 0.25 0.25 {layer=13}
+T {P0.4} 29.6 -289 1 0 0.4 0.4 {}
+T {@#20:pinnumber} 4 -312 3 0 0.25 0.25 {layer=13}
+T {P0.5} 69.59999999999999 -289 1 0 0.4 0.4 {}
+T {@#21:pinnumber} 44 -312 3 0 0.25 0.25 {layer=13}
+T {P0.6} 109.6 -289 1 0 0.4 0.4 {}
+T {@#22:pinnumber} 84 -312 3 0 0.25 0.25 {layer=13}
+T {P0.7} 149.6 -289 1 0 0.4 0.4 {}
+T {@#23:pinnumber} 124 -312 3 0 0.25 0.25 {layer=13}
+T {P1.0} 209 -149.6 0 1 0.4 0.4 {}
+T {@#24:pinnumber} 232 -156 0 0 0.25 0.25 {layer=13}
+T {P1.1} 209 -109.6 0 1 0.4 0.4 {}
+T {@#25:pinnumber} 232 -116 0 0 0.25 0.25 {layer=13}
+T {P1.2} 209 -69.59999999999999 0 1 0.4 0.4 {}
+T {@#26:pinnumber} 232 -76 0 0 0.25 0.25 {layer=13}
+T {P1.3} 209 -29.6 0 1 0.4 0.4 {}
+T {@#27:pinnumber} 232 -36 0 0 0.25 0.25 {layer=13}
+T {TxD0/P1.4} 209 10.4 0 1 0.4 0.4 {}
+T {@#28:pinnumber} 232 4 0 0 0.25 0.25 {layer=13}
+T {RxD0/P1.5} 209 50.4 0 1 0.4 0.4 {}
+T {@#29:pinnumber} 232 44 0 0 0.25 0.25 {layer=13}
+T {CLK0/P1.6} 209 90.40000000000001 0 1 0.4 0.4 {}
+T {@#30:pinnumber} 232 84 0 0 0.25 0.25 {layer=13}
+T {P1.7} 209 130.4 0 1 0.4 0.4 {}
+T {@#31:pinnumber} 232 124 0 0 0.25 0.25 {layer=13}
+T {@device} -63 -48 0 0 0.6 0.6 {}
+T {@symname} -72 -8 0 0 0.6 0.6 {}
+T {@name} -45 32 0 0 0.6 0.6 {}

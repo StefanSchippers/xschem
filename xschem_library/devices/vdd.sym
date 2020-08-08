@@ -1,0 +1,12 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=label
+global=true
+format="*.alias @lab"
+template="name=l1 lab=VDD"}
+V {}
+S {}
+E {}
+L 4 0 -20 0 0 {}
+L 4 -10 -20 10 -20 {}
+B 5 -2.5 -2.5 2.5 2.5 {name=p dir=inout verilog_type=wire}
+T {@lab} -12.5 -35 0 0 0.2 0.2 {}

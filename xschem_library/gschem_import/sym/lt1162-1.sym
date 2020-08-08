@@ -1,0 +1,143 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=LT1162
+template="device=LT1162
+description=\\"Full-bridge N-channel Power MOSFET Driver\\"
+documentation=http://www.linear.com/pdf/11602fa.pdf
+name=U?
+footprint=DIP24N
+slot=1
+numslots=2
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@device} 190 -10 2 1 0.333333 0.333333 {}
+T {@name} 40 -370 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 260 -30 {}
+L 4 260 -360 260 -30 {}
+L 4 30 -360 260 -360 {}
+L 4 30 -360 30 -30 {}
+
+
+A 4 25 -240 5 0 360 {}
+
+
+
+
+
+L 3 0 -330 30 -330 {}
+B 5 -2.5 -332.5 2.5 -327.5 {
+pinseq=1
+name=SV+
+dir=inout
+pinnumber=1:7
+}
+T {@#0:pinnumber} 20 -335 2 0 0.333333 0.333333 {layer=13}
+T {@#0:name} 40 -338.333 0 0 0.333333 0.333333 {}
+L 3 0 -180 30 -180 {}
+B 5 -2.5 -182.5 2.5 -177.5 {
+pinseq=2
+name=INTOP
+dir=in
+pinnumber=2:8
+}
+T {@#1:pinnumber} 20 -185 2 0 0.333333 0.333333 {layer=13}
+T {@#1:name} 40 -188.333 0 0 0.333333 0.333333 {}
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {
+pinseq=3
+name=INBOTTOM
+dir=in
+pinnumber=3:9
+}
+T {@#2:pinnumber} 20 -125 2 0 0.333333 0.333333 {layer=13}
+T {@#2:name} 40 -128.333 0 0 0.333333 0.333333 {}
+L 3 0 -240 20 -240 {}
+B 5 -2.5 -242.5 2.5 -237.5 {
+pinseq=4
+name=/UVOUT
+dir=inout
+pinnumber=4:10
+}
+T {@#3:pinnumber} 20 -245 2 0 0.333333 0.333333 {layer=13}
+T {@#3:name} 40 -248.333 0 0 0.333333 0.333333 {}
+L 3 90 -30 90 0 {}
+B 5 87.5 -2.5 92.5 2.5 {
+pinseq=5
+name=GND
+dir=inout
+pinnumber=5:11
+}
+T {@#4:pinnumber} 95 -10 2 1 0.333333 0.333333 {layer=13}
+T {@#4:name} 107 -48.3333 0 1 0.333333 0.333333 {}
+L 3 260 -90 290 -90 {}
+B 5 287.5 -92.5 292.5 -87.5 {
+pinseq=6
+name=BGATEFB
+dir=in
+pinnumber=6:12
+}
+T {@#5:pinnumber} 270 -95 2 1 0.333333 0.333333 {layer=13}
+T {@#5:name} 160 -98.3333 0 0 0.333333 0.333333 {}
+L 3 260 -120 290 -120 {}
+B 5 287.5 -122.5 292.5 -117.5 {
+pinseq=7
+name=BGATEDR
+dir=out
+pinnumber=19:13
+}
+T {@#6:pinnumber} 270 -125 2 1 0.333333 0.333333 {layer=13}
+T {@#6:name} 160 -128.333 0 0 0.333333 0.333333 {}
+L 3 0 -300 30 -300 {}
+B 5 -2.5 -302.5 2.5 -297.5 {
+pinseq=8
+name=PV+
+dir=inout
+pinnumber=20:14
+}
+T {@#7:pinnumber} 20 -305 2 0 0.333333 0.333333 {layer=13}
+T {@#7:name} 40 -308.333 0 0 0.333333 0.333333 {}
+L 3 260 -180 290 -180 {}
+B 5 287.5 -182.5 292.5 -177.5 {
+pinseq=9
+name=TSOURCE
+dir=inout
+pinnumber=21:15
+}
+T {@#8:pinnumber} 270 -185 2 1 0.333333 0.333333 {layer=13}
+T {@#8:name} 160 -188.333 0 0 0.333333 0.333333 {}
+L 3 260 -240 290 -240 {}
+B 5 287.5 -242.5 292.5 -237.5 {
+pinseq=10
+name=TGATEFB
+dir=in
+pinnumber=22:16
+}
+T {@#9:pinnumber} 270 -245 2 1 0.333333 0.333333 {layer=13}
+T {@#9:name} 160 -248.333 0 0 0.333333 0.333333 {}
+L 3 260 -270 290 -270 {}
+B 5 287.5 -272.5 292.5 -267.5 {
+pinseq=11
+name=TGATEDR
+dir=out
+pinnumber=23:17
+}
+T {@#10:pinnumber} 270 -275 2 1 0.333333 0.333333 {layer=13}
+T {@#10:name} 160 -278.333 0 0 0.333333 0.333333 {}
+L 3 260 -330 290 -330 {}
+B 5 287.5 -332.5 292.5 -327.5 {
+pinseq=12
+name=BOOST
+dir=inout
+pinnumber=24:18
+}
+T {@#11:pinnumber} 270 -335 2 1 0.333333 0.333333 {layer=13}
+T {@#11:name} 180 -338.333 0 0 0.333333 0.333333 {}

@@ -1,0 +1,79 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=DUAL_OPAMP
+template="device=DUAL_OPAMP
+name=U?
+slot=1
+numslots=2
+footprint=SO8
+footprint2=DIP8
+symversion=0.2
+documentation=http://www.onsemi.com/pub/Collateral/LM358-D.PDF
+description=\\"dual opamp\\"
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 20 -90 2 1 0.333333 0.333333 {}
+
+
+L 4 20 -80 20 0 {}
+L 4 20 -80 80 -40 {}
+L 4 20 0 80 -40 {}
+L 4 30 -25 30 -15 {}
+L 4 25 -20 35 -20 {}
+L 4 25 -60 35 -60 {}
+
+
+
+
+
+
+L 3 0 -20 20 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {
+pinseq=1
+name=IN+
+dir=in
+pinnumber=3:5
+}
+T {@#0:pinnumber} 15 -25 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -60 20 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {
+pinseq=2
+name=IN-
+dir=in
+pinnumber=2:6
+}
+T {@#1:pinnumber} 15 -65 2 0 0.266667 0.266667 {layer=13}
+L 3 50 -80 50 -60 {}
+B 5 47.5 -82.5 52.5 -77.5 {
+pinseq=3
+name=V+
+dir=inout
+pinnumber=8:8
+}
+T {@#2:pinnumber} 55 -60 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 40.9333 -60 0 0 0.266667 0.266667 {}
+L 3 50 -20 50 0 {}
+B 5 47.5 -2.5 52.5 2.5 {
+pinseq=4
+name=V-
+dir=inout
+pinnumber=4:4
+}
+T {@#3:pinnumber} 55 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 40.9333 -20 2 1 0.266667 0.266667 {}
+L 3 80 -40 100 -40 {}
+B 5 97.5 -42.5 102.5 -37.5 {
+pinseq=5
+name=OUT
+dir=out
+pinnumber=1:7
+}
+T {@#4:pinnumber} 85 -45 2 1 0.266667 0.266667 {layer=13}

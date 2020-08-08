@@ -1,0 +1,151 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=74259
+template="name=U?
+device=74259
+footprint=DIP16
+description=\\"8 bit addressable latch\\"
+numslots=0
+documentation=http://focus.ti.com/lit/ds/symlink/sn74als259.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="16 8"
+}
+V {}
+S {}
+E {}
+T {@name} 170 -420 2 0 0.333333 0.333333 {}
+T {74259} 30 -415 2 1 0.333333 0.333333 {}
+
+L 4 30 0 170 0 {}
+L 4 170 -410 170 0 {}
+L 4 30 -410 170 -410 {}
+L 4 30 -410 30 0 {}
+
+
+A 4 25 -80 5.2 0 360 {}
+A 4 25 -40 5.2 0 360 {}
+
+
+
+
+
+L 3 0 -380 30 -380 {}
+B 5 -2.5 -382.5 2.5 -377.5 {pinnumber=1
+pinseq=1
+name=A_SEL
+dir=in
+}
+T {@#0:pinnumber} 20 -385 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -380 2 1 0.266667 0.266667 {}
+L 3 0 -350 30 -350 {}
+B 5 -2.5 -352.5 2.5 -347.5 {pinnumber=2
+pinseq=2
+name=B_SEL
+dir=in
+}
+T {@#1:pinnumber} 20 -355 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -350 2 1 0.266667 0.266667 {}
+L 3 0 -320 30 -320 {}
+B 5 -2.5 -322.5 2.5 -317.5 {pinnumber=3
+pinseq=3
+name=C_SEL
+dir=in
+}
+T {@#2:pinnumber} 20 -325 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -320 2 1 0.266667 0.266667 {}
+L 3 170 -380 200 -380 {}
+B 5 197.5 -382.5 202.5 -377.5 {pinnumber=4
+pinseq=4
+name=Q0
+dir=out
+}
+T {@#3:pinnumber} 180 -385 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 165 -380 2 0 0.266667 0.266667 {}
+L 3 170 -350 200 -350 {}
+B 5 197.5 -352.5 202.5 -347.5 {pinnumber=5
+pinseq=5
+name=Q1
+dir=out
+}
+T {@#4:pinnumber} 180 -355 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 165 -350 2 0 0.266667 0.266667 {}
+L 3 170 -320 200 -320 {}
+B 5 197.5 -322.5 202.5 -317.5 {pinnumber=6
+pinseq=6
+name=Q2
+dir=out
+}
+T {@#5:pinnumber} 180 -325 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 165 -320 2 0 0.266667 0.266667 {}
+L 3 170 -290 200 -290 {}
+B 5 197.5 -292.5 202.5 -287.5 {pinnumber=7
+pinseq=7
+name=Q3
+dir=out
+}
+T {@#6:pinnumber} 180 -295 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 165 -290 2 0 0.266667 0.266667 {}
+L 3 170 -260 200 -260 {}
+B 5 197.5 -262.5 202.5 -257.5 {pinnumber=9
+pinseq=9
+name=Q4
+dir=out
+}
+T {@#7:pinnumber} 180 -265 2 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 165 -260 2 0 0.266667 0.266667 {}
+L 3 170 -230 200 -230 {}
+B 5 197.5 -232.5 202.5 -227.5 {pinnumber=10
+pinseq=10
+name=Q5
+dir=out
+}
+T {@#8:pinnumber} 180 -235 2 1 0.266667 0.266667 {layer=13}
+T {@#8:name} 165 -230 2 0 0.266667 0.266667 {}
+L 3 170 -200 200 -200 {}
+B 5 197.5 -202.5 202.5 -197.5 {pinnumber=11
+pinseq=11
+name=Q6
+dir=out
+}
+T {@#9:pinnumber} 180 -205 2 1 0.266667 0.266667 {layer=13}
+T {@#9:name} 165 -200 2 0 0.266667 0.266667 {}
+L 3 170 -170 200 -170 {}
+B 5 197.5 -172.5 202.5 -167.5 {pinnumber=12
+pinseq=12
+name=Q7
+dir=out
+}
+T {@#10:pinnumber} 180 -175 2 1 0.266667 0.266667 {layer=13}
+T {@#10:name} 165 -170 2 0 0.266667 0.266667 {}
+L 3 0 -220 30 -220 {}
+B 5 -2.5 -222.5 2.5 -217.5 {pinnumber=13
+pinseq=13
+name=D
+dir=in
+}
+T {@#11:pinnumber} 20 -225 2 0 0.266667 0.266667 {layer=13}
+T {@#11:name} 35 -220 2 1 0.266667 0.266667 {}
+L 3 0 -80 20 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=14
+pinseq=14
+name=ENABLE
+dir=in
+}
+T {@#12:pinnumber} 20 -85 2 0 0.266667 0.266667 {layer=13}
+T {@#12:name} 35 -80 2 1 0.266667 0.266667 {}
+L 3 0 -40 20 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinnumber=15
+pinseq=15
+name=CLEAR
+dir=in
+}
+T {@#13:pinnumber} 20 -45 2 0 0.266667 0.266667 {layer=13}
+T {@#13:name} 35 -40 2 1 0.266667 0.266667 {}

@@ -1,0 +1,26 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=label
+template="lab=GND
+"
+
+}
+V {}
+S {}
+E {}
+
+
+L 4 0 -10 20 -10 {}
+L 4 5.5 -5 14.5 -5 {}
+L 4 8 -1 12 -1 {}
+
+
+
+
+
+
+L 3 10 -30 10 -10 {}
+B 5 7.5 -32.5 12.5 -27.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}

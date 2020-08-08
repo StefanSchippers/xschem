@@ -1,0 +1,75 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX4662
+template="device=MAX4662
+name=S?
+slot=1
+numslots=4
+footprint=DIP16
+description=\\"quad SPST CMOS analog switch\\"
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX4661-MAX4663.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="12 5"
+}
+V {}
+S {}
+E {}
+T {@name} 80 -60 2 1 0.333333 0.333333 {}
+
+
+L 4 40 -50 60 -30 {}
+L 4 30 -70 50 -70 {}
+L 4 50 -70 50 -40 {}
+L 4 30 -80 30 0 {}
+L 4 30 0 70 0 {}
+L 4 70 -80 70 0 {}
+L 4 30 -80 70 -80 {}
+L 4 60 -30 70 -30 {}
+L 4 30 -30 40 -30 {}
+
+
+
+
+
+
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {
+pinseq=1
+name=IN
+dir=in
+pinnumber=1:8:9:16
+}
+T {@#0:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+L 3 70 -30 100 -30 {}
+B 5 97.5 -32.5 102.5 -27.5 {
+pinseq=2
+name=COM
+dir=inout
+pinnumber=2:7:10:15
+}
+T {@#1:pinnumber} 80 -35 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {
+pinseq=3
+name=NO
+dir=inout
+pinnumber=3:6:11:14
+}
+T {@#2:pinnumber} 20 -35 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -10 30 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {
+pinseq=4
+name=V-
+dir=inout
+pinnumber=
+}
+T {@#3:pinnumber} 20 -15 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -10 2 1 0.266667 0.266667 {}

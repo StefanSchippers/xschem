@@ -1,0 +1,64 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX492
+template="device=MAX492
+name=U?
+numslots=2
+slot=1
+footprint=DIP8
+description=\\"dual single-supply rail-to-rail opamp\\"
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX492-MAX495.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="8 4"
+}
+V {}
+S {}
+E {}
+T {@name} 60 -70 2 1 0.333333 0.333333 {}
+T {MAX492} 22.5 -85 2 1 0.266667 0.266667 {}
+
+
+L 4 25 -60 35 -60 {}
+L 4 30 -65 30 -55 {}
+L 4 20 -80 20 0 {}
+L 4 20 -80 80 -40 {}
+L 4 20 0 80 -40 {}
+L 4 25 -20 35 -20 {}
+
+
+
+
+
+
+L 3 80 -40 100 -40 {}
+B 5 97.5 -42.5 102.5 -37.5 {
+pinseq=1
+name=OUT
+dir=out
+pinnumber=1:7
+}
+T {@#0:pinnumber} 85 -45 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -20 20 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {
+pinseq=2
+name=IN-
+dir=in
+pinnumber=2:6
+}
+T {@#1:pinnumber} 15 -25 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -60 20 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {
+pinseq=3
+name=IN+
+dir=in
+pinnumber=3:5
+}
+T {@#2:pinnumber} 15 -65 2 0 0.266667 0.266667 {layer=13}

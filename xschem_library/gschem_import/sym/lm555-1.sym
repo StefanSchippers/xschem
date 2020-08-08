@@ -1,0 +1,93 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=LM555
+template="device=LM555
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {OUT} 160 -40 2 1 0.266667 0.266667 {}
+T {CTRL} 153 -109.8 2 1 0.266667 0.266667 {}
+T {THRES} 140 -150 2 1 0.266667 0.266667 {}
+T {DISC} 156.9 -190.2 2 1 0.266667 0.266667 {}
+T {RESET} 50.6 -230.2 2 1 0.266667 0.266667 {}
+T {VCC} 144 -230.2 2 1 0.266667 0.266667 {}
+T {TRIG} 40 -150 2 1 0.266667 0.266667 {}
+T {GND} 40 -40 2 1 0.266667 0.266667 {}
+T {LM555} 30 0 2 1 0.333333 0.333333 {}
+T {@name} 180 0 2 1 0.333333 0.333333 {}
+
+L 4 30 -20 200 -20 {}
+L 4 200 -250 200 -20 {}
+L 4 30 -250 200 -250 {}
+L 4 30 -250 30 -20 {}
+
+
+
+
+
+
+
+L 3 0 -40 30 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 12.9 -46.8 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 9.6 -156.5 2 1 0.266667 0.266667 {layer=13}
+L 3 200 -40 230 -40 {}
+B 5 227.5 -42.5 232.5 -37.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#2:pinnumber} 209.8 -46.8 2 1 0.266667 0.266667 {layer=13}
+L 3 80 -280 80 -250 {}
+B 5 77.5 -282.5 82.5 -277.5 {pinnumber=4
+pinseq=4
+name=4
+dir=inout
+}
+T {@#3:pinnumber} 60.2 -262.2 2 1 0.266667 0.266667 {layer=13}
+L 3 200 -110 230 -110 {}
+B 5 227.5 -112.5 232.5 -107.5 {pinnumber=5
+pinseq=5
+name=5
+dir=inout
+}
+T {@#4:pinnumber} 209.8 -116.6 2 1 0.266667 0.266667 {layer=13}
+L 3 200 -150 230 -150 {}
+B 5 227.5 -152.5 232.5 -147.5 {pinnumber=6
+pinseq=6
+name=6
+dir=inout
+}
+T {@#5:pinnumber} 209.8 -156.5 2 1 0.266667 0.266667 {layer=13}
+L 3 200 -190 230 -190 {}
+B 5 227.5 -192.5 232.5 -187.5 {pinnumber=7
+pinseq=7
+name=7
+dir=inout
+}
+T {@#6:pinnumber} 209.8 -197 2 1 0.266667 0.266667 {layer=13}
+L 3 160 -280 160 -250 {}
+B 5 157.5 -282.5 162.5 -277.5 {pinnumber=8
+pinseq=8
+name=8
+dir=inout
+}
+T {@#7:pinnumber} 140.1 -262.2 2 1 0.266667 0.266667 {layer=13}

@@ -1,0 +1,30 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=subcircuit
+vhdl_stop=true 
+verilog_stop=true
+format="@name @pinlist @symname" 
+template="name=x1 delay=\\"400 ps\\" del=400"
+generic_type="delay=time"}
+V {}
+S {}
+E {}
+L 4 -50 -30 50 -30 {}
+L 4 -50 30 50 30 {}
+L 4 -50 -30 -50 30 {}
+L 4 50 -30 50 30 {}
+L 4 -70 -20 -50 -20 {}
+L 4 50 -20 70 -20 {}
+L 4 -70 20 -50 20 {}
+L 4 -50 15 -45 20 {}
+L 4 -50 25 -45 20 {}
+L 4 0 30 0 50 {}
+B 5 -72.5 -22.5 -67.5 -17.5 {name=D dir=in}
+B 5 67.5 -22.5 72.5 -17.5 {name=Q dir=out verilog_type=wire}
+B 5 -72.5 17.5 -67.5 22.5 {name=CK dir=in}
+B 5 -2.5 47.5 2.5 52.5 {name=RST dir=in}
+T {@name} -15 -2 0 0 0.2 0.2 {}
+T {D} -40 -24 0 0 0.2 0.2 {}
+T {Q} 45 -24 0 1 0.2 0.2 {}
+T {CK} -40 16 0 0 0.2 0.2 {}
+T {RST} -10 16 0 0 0.2 0.2 {}
+T {FF} -7.5 -25 0 0 0.3 0.3 {}

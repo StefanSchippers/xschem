@@ -1,0 +1,23 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1"
+}
+V {}
+S {}
+E {}
+L 4 -130 -20 130 -20 {}
+L 4 -130 20 130 20 {}
+L 4 -130 -20 -130 20 {}
+L 4 130 -20 130 20 {}
+L 4 -150 -10 -130 -10 {}
+L 4 -150 10 -130 10 {}
+L 4 130 -10 150 -10 {}
+B 5 -152.5 -12.5 -147.5 -7.5 {name=LDWL[511:0] dir=in }
+B 5 -152.5 7.5 -147.5 12.5 {name=vss dir=in }
+B 5 147.5 -12.5 152.5 -7.5 {name=LDBLREF dir=inout }
+T {@symname} -63 -6 0 0 0.3 0.3 {}
+T {@name} 135 -32 0 0 0.2 0.2 {}
+T {LDWL[511:0]} -125 -14 0 0 0.2 0.2 {}
+T {vss} -125 6 0 0 0.2 0.2 {}
+T {LDBLREF} 125 -14 0 1 0.2 0.2 {}

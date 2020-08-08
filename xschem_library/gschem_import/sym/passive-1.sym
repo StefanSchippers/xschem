@@ -1,0 +1,32 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=label
+template="device=none
+description=\\"Passive module port\\"
+value=PASSIVE
+lab=PASSIVE
+"
+
+}
+V {}
+S {}
+E {}
+T {} 90 -20 2 1 0.333333 0.333333 {}
+T {@value} 90 -18.3333 0 0 0.333333 0.333333 {}
+
+
+L 4 20 -20 20 0 {}
+L 4 20 -20 80 -20 {}
+L 4 80 -20 80 0 {}
+L 4 20 0 80 0 {}
+
+
+
+
+
+
+L 3 0 -10 20 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {pinnumber=1
+name=PASSIVE
+pinseq=1
+dir=inout
+}

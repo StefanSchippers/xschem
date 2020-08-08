@@ -1,0 +1,47 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=subcircuit
+vhdl_stop=true
+format="@name @pinlist @VCCPIN @VSSPIN @symname wn=@wn lln=@lln wp=@wp lp=@lp m=@m"
+template="name=x1 m=1 
++ wn=18u lln=1.2u wp=10u lp=1.2u
++ VCCPIN=VCC VSSPIN=VSS"
+extra="VCCPIN VSSPIN"
+generic_type="m=integer wn=real lln=real wp=real lp=real VCCPIN=string VSSPIN=string"
+verilog_stop=true
+}
+V {}
+S {}
+E {}
+L 4 -40 -20 -25 -20 {}
+L 4 35 -2.5 35 2.5 {}
+L 4 35 -2.5 37.5 -5 {}
+L 4 37.5 -5 42.5 -5 {}
+L 4 42.5 -5 45 -2.5 {}
+L 4 45 -2.5 45 2.5 {}
+L 4 42.5 5 45 2.5 {}
+L 4 37.5 5 42.5 5 {}
+L 4 35 2.5 37.5 5 {}
+L 4 45 0 60 0 {}
+L 4 -25 -30 -25 30 {}
+L 4 -25 -30 0 -30 {}
+L 4 -25 30 0 30 {}
+L 4 -40 0 -25 0 {}
+L 4 12.5 -27.5 22.5 -22.5 {}
+L 4 0 -30 12.5 -27.5 {}
+L 4 12.5 27.5 22.5 22.5 {}
+L 4 0 30 12.5 27.5 {}
+L 4 22.5 22.5 30 15 {}
+L 4 30 15 33.75 7.5 {}
+L 4 33.75 7.5 35 0 {}
+L 4 22.5 -22.5 30 -15 {}
+L 4 30 -15 33.75 -7.5 {}
+L 4 33.75 -7.5 35 0 {}
+L 4 -40 20 -25 20 {}
+B 5 57.5 -2.5 62.5 2.5 {name=y dir=out verilog_type=wire}
+B 5 -42.5 -22.5 -37.5 -17.5 {name=a dir=in}
+B 5 -42.5 -2.5 -37.5 2.5 {name=b dir=in}
+B 5 -42.5 17.5 -37.5 22.5 {name=c dir=in}
+T {n:@wn\\/@lln} -35 45 2 1 0.25 0.2 {}
+T {p:@wp\\/@lp} -35 -32.5 2 1 0.25 0.2 {}
+T {m=@m} -10 -47.5 2 1 0.25 0.2 {}
+T {@name} -21.25 -5 0 0 0.2 0.2 {}

@@ -1,0 +1,28 @@
+v {xschem version=2.9.2  file_version=1.1}
+G {type=subcircuit
+format="@name @pinlist @model"
+template="name=X1"}
+B 5 -242.5 -42.5 -237.5 -37.5 {name=D dir=in pinnumber=1}
+L 4 -240 -40 -200 -40 {}
+T {D} -189 -49.6 0 0 0.4 0.4 {}
+B 5 -242.5 -2.5 -237.5 2.5 {name=RST dir=in pinnumber=2}
+L 4 -240 0 -200 0 {}
+T {RST} -189 -9.6 0 0 0.4 0.4 {}
+B 5 -242.5 37.5 -237.5 42.5 {name=CLK dir=in pinnumber=3}
+L 4 -240 40 -210 40 {}
+T {CLK} -189 30.4 0 0 0.4 0.4 {}
+A 4 -205 40 5 0 360 {}
+L 4 -200 32 -192 40 {}
+L 4 -200 48 -192 40 {}
+B 5 237.5 -42.5 242.5 -37.5 {name=QB dir=out pinnumber=4}
+L 2 200 -40 240 -40 {}
+T {QB} 189 -49.6 0 1 0.4 0.4 {}
+B 5 -162.5 -142.5 -157.5 -137.5 {name=VCC dir=inout pinnumber=5}
+L 3 -160 -140 -160 -100 {}
+T {VCC} -181 -89 0 0 0.4 0.4 {}
+B 5 -162.5 137.5 -157.5 142.5 {name=VSS dir=inout pinnumber=6}
+L 3 -160 100 -160 140 {}
+T {VSS} -181 89 2 1 0.4 0.4 {}
+P 4 5 -200 -100 200 -100 200 100 -200 100 -200 -100 {}
+T {TEST SYMBOL} -99 -28 0 0 0.6 0.6 {}
+T {STEFAN SCHIPPERS} -144 12 0 0 0.6 0.6 {}

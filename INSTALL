@@ -1,0 +1,29 @@
+1. requirements
+
+	- C89 compiler
+	- awk (tested with mawk and gawk)
+	- tcl/tk (tested with 8.4, 8.5 and 8.6)
+	- Xlib, Xpm
+	- bison
+	- flex
+	- optional: cairo (for fancier text rendering)
+	- optional: xcb
+	- optional: xrender
+
+2. compiling
+
+	./configure && make
+
+	See ./configure --help for configure-time options.
+
+3. running from source (does not require installation)
+
+	cd src && ./xschem
+
+4. installation
+
+	make install
+
+	or
+
+	make install DESTDIR=/tmp/packaging

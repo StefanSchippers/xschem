@@ -1,0 +1,111 @@
+process_option(): file name given: ../xschem_library/binto7seg/sevenseg.sch
+Tcl_AppInit(): sourcing /home/schippes/.xschem/xschemrc
+Tcl_AppInit(): XSCHEM_SHAREDIR=/home/schippes/share/xschem  XSCHEM_LIBRARY_PATH=:~/.xschem/xschem_library:/home/schippes/xschem-repo/trunk/xschem_library/devices:/home/schippes/xschem-repo/trunk/xschem_library/logic:/home/schippes/xschem-repo/trunk/xschem_library/examples:/home/schippes/xschem-repo/trunk/xschem_library/binto7seg:/home/schippes/xschem-repo/trunk/xschem_library/ngspice:/home/schippes/xschem-repo/trunk/xschem_library/rom8k:/home/schippes/xschem-repo/trunk/xschem_library/pcb
+Tcl_AppInit(): done step a of xinit()
+Tcl_AppInit(): done step a1 of xinit()
+Tcl_AppInit(): sourcing /home/schippes/share/xschem/xschem.tcl
+Tcl_AppInit(): done executing xschem.tcl
+Tcl_AppInit(): resolved xschem_executable=/home/schippes/bin/xschem
+created dir ***Removed***
+undo_dirname ***Removed***
+remove_symbols(): done
+load_schematic(): opening file for loading:/home/schippes/share/xschem/systemlib/font.sch, filename=/home/schippes/share/xschem/systemlib/font.sch
+load_schematic(): schematic[currentsch]=/home/schippes/share/xschem/systemlib/font.sch
+cleared object hash table
+clear drawing(): deleted data structures, now deleting hash
+free_hash(): removing hash table
+# free_hash(): max_collisions=0 n_elements=0 hashsize=31627
+load_schematic(): reading file: /home/schippes/share/xschem/systemlib/font.sch
+read_xschem_file ***Removed***
+load_schematic(): /home/schippes/share/xschem/systemlib/font.sch, returning
+cleared object hash table
+clear drawing(): deleted data structures, now deleting hash
+free_hash(): removing hash table
+# free_hash(): max_collisions=0 n_elements=0 hashsize=31627
+Tcl_AppInit(): drawing window ID ***Removed***
+Tcl_AppInit(): top window ID ***Removed***
+Tcl_AppInit(): done tkinit()
+Tcl_AppInit(): screen depth: 24
+Tcl_AppInit(): done step b of xinit()
+Tcl_AppInit(): done step c of xinit()
+Tcl_AppInit(): done step e of xinit()
+Tcl_AppInit(): done xinit()
+Tcl_AppInit(): sizeof Instance=136 , sizeof Instdef=152
+Tcl_AppInit(): xserver max request size: 65535
+set_grid(): default_grid = 20, cadgrid=20
+Tcl_AppInit(): done X init
+xschem set_netlist_dir: argv[2] = /home/schippes/.xschem/simulations
+Tcl_AppInit(): filename ../xschem_library/binto7seg/sevenseg.sch given, removing symbols
+remove_symbols(): done
+load_schematic(): opening file for loading:/mnt/x/home/schippes/xschem-repo/trunk/xschem_library/binto7seg/sevenseg.sch, filename=sevenseg.sch
+load_schematic(): schematic[currentsch]=/mnt/x/home/schippes/xschem-repo/trunk/xschem_library/binto7seg/sevenseg.sch
+cleared object hash table
+clear drawing(): deleted data structures, now deleting hash
+free_hash(): removing hash table
+# free_hash(): max_collisions=0 n_elements=0 hashsize=31627
+load_schematic(): reading file: /mnt/x/home/schippes/xschem-repo/trunk/xschem_library/binto7seg/sevenseg.sch
+read_xschem_file ***Removed***
+load_inst(): tmp=ipin.sym
+load_inst() 1: name=ipin.sym
+load_inst() 2: name=ipin.sym
+load_inst(): tmp=opin.sym
+load_inst() 1: name=opin.sym
+load_inst() 2: name=opin.sym
+load_inst(): tmp=title.sym
+load_inst() 1: name=title.sym
+load_inst() 2: name=title.sym
+load_inst(): tmp=code.sym
+load_inst() 1: name=code.sym
+load_inst() 2: name=code.sym
+match_symbol(): matching symbol not found:ipin.sym, loading
+load_symbol_definition(): name=ipin.sym
+load_symbol_definition(): trying: /mnt/x/home/schippes/xschem-repo/trunk/xschem_library/devices/ipin.sym
+match_symbol(): matching symbol not found:opin.sym, loading
+load_symbol_definition(): name=opin.sym
+load_symbol_definition(): trying: /mnt/x/home/schippes/xschem-repo/trunk/xschem_library/devices/opin.sym
+match_symbol(): matching symbol not found:title.sym, loading
+load_symbol_definition(): name=title.sym
+load_symbol_definition(): trying: /mnt/x/home/schippes/xschem-repo/trunk/xschem_library/devices/title.sym
+match_symbol(): matching symbol not found:code.sym, loading
+load_symbol_definition(): name=code.sym
+load_symbol_definition(): trying: /mnt/x/home/schippes/xschem-repo/trunk/xschem_library/devices/code.sym
+load_schematic(): /mnt/x/home/schippes/xschem-repo/trunk/xschem_library/binto7seg/sevenseg.sch, returning
+zoom_full(): areaw=1004, areah=704
+Tcl_AppInit(): returning TCL_OK
+framewinID ***Removed***
+framewin nchilds=2
+framewin parentID=38000f6
+framewin child 0=38000f7
+Tcl_AppInit(): creating icon pixmap returned: 0
+resetwin ***Removed***
+resetwin ***Removed***
+
+zoom_full(): areaw=904, areah=546
+resetwin ***Removed***
+draw(): drawing string 0 = Copyright (C) 2008 DJ Delorie (dj delorie com)
+Distributed under the terms of the GNU General Public License,
+either verion 2 or (at your choice) any later version.
+draw(): lw=1
+callback(): Expose
+tclexit() INVOKED
+delete_netlist_structs(): begin erasing
+# free_node_hash(): max_collisions=0 n_elements=0 hashsize=31627
+delete_netlist_structs(): end erasing
+xwin_exit(): Releasing pixmaps
+xwin_exit(): destroying tk windows and releasing X11 stuff
+xwin_exit(): clearing drawing data structures
+cleared object hash table
+clear drawing(): deleted data structures, now deleting hash
+free_hash(): removing hash table
+# free_hash(): max_collisions=0 n_elements=0 hashsize=31627
+xwin_exit(): freeing graphic primitive arrays
+xwin_exit(): wire
+xwin_exit(): gridpoint
+xwin_exit(): textelement
+xwin_exit(): freeing instances
+xwin_exit(): freeing selected group array
+xwin_exit(): removing symbols
+remove_symbols(): done
+xwin_exit(): removing font
+xwin_exit(): closed display
+xwin_exit(): deleted undo buffer

@@ -1,0 +1,13 @@
+v {xschem version=2.9.7 file_version=1.2}
+G {type=lcc_iopin
+format="*.iopin @lab"
+template="name=p1 lab=xxx"
+}
+V {}
+S {}
+E {}
+L 7 -10 -2.5 -7.5 0 {}
+L 7 -10 2.5 -7.5 0 {}
+L 7 -12.5 0 -10 -2.5 {}
+L 7 -12.5 0 -10 2.5 {}
+T {@lab} -3.75 -16.25 0 1 0.2 0.2 {}

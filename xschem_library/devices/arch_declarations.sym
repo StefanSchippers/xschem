@@ -1,0 +1,16 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=arch_declarations
+spice_ignore=true
+verilog_ignore=true
+tedax_ignore=true
+template="
+
+signal AAA: std_logic;
+
+"}
+V {}
+S {}
+E {}
+L 4 -0 -10 355 -10 {}
+T {ARCHITECTURE DECLARATIONS} 5 -25 0 0 0.3 0.3 {}
+T {HIDDEN} 45 5 0 0 0.2 0.2 {}

@@ -1,0 +1,35 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=SWITCAP-analysis
+template="device=SWITCAP-analysis
+name=ANA?
+file=none
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND"
+
+extra="GND"
+extra_pinnumber="1"
+}
+V {}
+S {}
+E {}
+T {Switcap Analysis Block} 20 -90 2 1 0.666667 0.666667 {}
+T {@name} 20 -10 2 1 0.333333 0.333333 {}
+T {file=none} 20 -60 2 1 0.333333 0.333333 {}
+
+L 4 0 0 440 0 {}
+L 4 440 -130 440 0 {}
+L 4 0 -130 440 -130 {}
+L 4 0 -130 0 0 {}
+
+L 4 0 -40 440 -40 {}
+
+
+
+
+
+

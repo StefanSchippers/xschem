@@ -1,0 +1,41 @@
+put [at 1:1]
+ arg: a
+ arg: {1}
+put [at 2:1]
+ arg: foo
+ arg: {example-FOO}
+put [at 3:1]
+ arg: bar
+ arg: {example-BAR}
+put [at 4:1]
+ arg: baz
+ arg: {example-BAZ}
+put [at 5:1]
+ arg: hah
+ arg: {haha}
+foreach n in [~foo ~bar~ baz~] [at 9:1]
+ print [at 10:2]
+  arg: {n=}
+  arg: n
+  arg: {
+}
+ print [at 11:2]
+  arg: {a11}
+  arg: [~a12 ~hah~ a14~]
+  arg: {
+}
+ print [at 12:2]
+  arg: {a21}
+  arg: {a22 a23}
+  arg: {
+}
+ print [at 13:2]
+  arg: {a31
+}
+print [at 15:1]
+ arg: {a41}
+ arg: {a42}
+ arg: {a43}
+ arg: {
+}
+print [at 16:1]

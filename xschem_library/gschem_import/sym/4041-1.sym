@@ -1,0 +1,68 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4041
+template="name=U?
+device=4041
+slot=1
+numslots=4
+footprint=DIP14
+description=\\"4 true/complement buffer\\"
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4041B_CNV_3.pdf
+VDD=VDD
+VSS=VSS
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VDD @VSS"
+
+extra="VDD VSS"
+extra_pinnumber="14 7"
+}
+V {}
+S {}
+E {}
+T {@name} 40 -210 2 1 0.333333 0.333333 {}
+T {4041} 40 0 2 1 0.333333 0.333333 {}
+
+
+L 4 40 -100 40 -20 {}
+L 4 40 -20 120 -60 {}
+L 4 40 -100 120 -60 {}
+L 4 40 -200 40 -120 {}
+L 4 40 -120 120 -160 {}
+L 4 40 -200 120 -160 {}
+L 4 30 -160 40 -160 {}
+L 4 30 -160 30 -60 {}
+L 4 30 -60 40 -60 {}
+
+A 4 125 -160 5 0 360 {}
+
+
+
+
+
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {
+pinseq=1
+dir=in
+name=A
+pinnumber=3:6:10:13
+}
+T {@#0:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+L 3 130 -160 150 -160 {}
+B 5 147.5 -162.5 152.5 -157.5 {
+pinseq=2
+dir=out
+name=/Q
+pinnumber=2:5:9:12
+}
+T {@#1:pinnumber} 130 -165 2 1 0.266667 0.266667 {layer=13}
+L 3 120 -60 150 -60 {}
+B 5 147.5 -62.5 152.5 -57.5 {
+pinseq=3
+dir=out
+name=Q
+pinnumber=1:4:8:11
+}
+T {@#2:pinnumber} 130 -65 2 1 0.266667 0.266667 {layer=13}

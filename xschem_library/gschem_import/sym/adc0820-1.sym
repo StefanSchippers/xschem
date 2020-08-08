@@ -1,0 +1,178 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=ADC0820
+template="device=ADC0820
+name=U?
+footprint=DIP20
+description=\\"8-bit A/D-converter with track/hold function\\"
+numslots=0
+documentation=http://www.national.com/ds.cgi/AD/ADC0820.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="20 10"
+}
+V {}
+S {}
+E {}
+T {@name} 260 -400 2 0 0.333333 0.333333 {}
+T {ADC0820} 30 -395 2 1 0.266667 0.266667 {}
+
+L 4 30 0 260 0 {}
+L 4 260 -390 260 0 {}
+L 4 30 -390 260 -390 {}
+L 4 30 -390 30 0 {}
+
+
+A 4 25 -250 5 0 360 {}
+A 4 25 -210 5 0 360 {}
+A 4 25 -170 5 0 360 {}
+A 4 265 -50 5 0 360 {}
+A 4 25 -90 5 0 360 {}
+
+
+
+
+
+L 3 0 -370 30 -370 {}
+B 5 -2.5 -372.5 2.5 -367.5 {pinnumber=1
+pinseq=1
+name=VIN
+dir=in
+}
+T {@#0:pinnumber} 20 -375 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -370 2 1 0.266667 0.266667 {}
+L 3 260 -370 290 -370 {}
+B 5 287.5 -372.5 292.5 -367.5 {pinnumber=2
+pinseq=2
+name=DB0
+dir=inout
+}
+T {@#1:pinnumber} 270 -375 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 255 -370 2 0 0.266667 0.266667 {}
+L 3 260 -330 290 -330 {}
+B 5 287.5 -332.5 292.5 -327.5 {pinnumber=3
+pinseq=3
+name=DB1
+dir=inout
+}
+T {@#2:pinnumber} 270 -335 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 255 -330 2 0 0.266667 0.266667 {}
+L 3 260 -290 290 -290 {}
+B 5 287.5 -292.5 292.5 -287.5 {pinnumber=4
+pinseq=4
+name=DB2
+dir=inout
+}
+T {@#3:pinnumber} 270 -295 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 255 -290 2 0 0.266667 0.266667 {}
+L 3 260 -250 290 -250 {}
+B 5 287.5 -252.5 292.5 -247.5 {pinnumber=5
+pinseq=5
+name=DB3
+dir=inout
+}
+T {@#4:pinnumber} 270 -255 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 255 -250 2 0 0.266667 0.266667 {}
+L 3 0 -250 20 -250 {}
+B 5 -2.5 -252.5 2.5 -247.5 {pinnumber=6
+pinseq=6
+name=\_WR\_/RDY
+dir=inout
+}
+T {@#5:pinnumber} 20 -255 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -250 2 1 0.266667 0.266667 {}
+L 3 0 -130 30 -130 {}
+B 5 -2.5 -132.5 2.5 -127.5 {pinnumber=7
+pinseq=7
+name=MODE
+dir=in
+}
+T {@#6:pinnumber} 20 -135 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -130 2 1 0.266667 0.266667 {}
+L 3 0 -210 20 -210 {}
+B 5 -2.5 -212.5 2.5 -207.5 {pinnumber=8
+pinseq=8
+name=\_RD\_
+dir=in
+}
+T {@#7:pinnumber} 20 -215 2 0 0.266667 0.266667 {layer=13}
+T {@#7:name} 35 -210 2 1 0.266667 0.266667 {}
+L 3 0 -170 20 -170 {}
+B 5 -2.5 -172.5 2.5 -167.5 {pinnumber=9
+pinseq=9
+name=\_INT\_
+dir=out
+}
+T {@#8:pinnumber} 20 -175 2 0 0.266667 0.266667 {layer=13}
+T {@#8:name} 35 -170 2 1 0.266667 0.266667 {}
+L 3 0 -330 30 -330 {}
+B 5 -2.5 -332.5 2.5 -327.5 {pinnumber=11
+pinseq=11
+name=VREF-
+dir=in
+}
+T {@#9:pinnumber} 20 -335 2 0 0.266667 0.266667 {layer=13}
+T {@#9:name} 35 -330 2 1 0.266667 0.266667 {}
+L 3 0 -290 30 -290 {}
+B 5 -2.5 -292.5 2.5 -287.5 {pinnumber=12
+pinseq=12
+name=VREF+
+dir=in
+}
+T {@#10:pinnumber} 20 -295 2 0 0.266667 0.266667 {layer=13}
+T {@#10:name} 35 -290 2 1 0.266667 0.266667 {}
+L 3 0 -90 20 -90 {}
+B 5 -2.5 -92.5 2.5 -87.5 {pinnumber=13
+pinseq=13
+name=\_CS\_
+dir=in
+}
+T {@#11:pinnumber} 20 -95 2 0 0.266667 0.266667 {layer=13}
+T {@#11:name} 35 -90 2 1 0.266667 0.266667 {}
+L 3 260 -210 290 -210 {}
+B 5 287.5 -212.5 292.5 -207.5 {pinnumber=14
+pinseq=14
+name=DB4
+dir=inout
+}
+T {@#12:pinnumber} 270 -215 2 1 0.266667 0.266667 {layer=13}
+T {@#12:name} 255 -210 2 0 0.266667 0.266667 {}
+L 3 260 -170 290 -170 {}
+B 5 287.5 -172.5 292.5 -167.5 {pinnumber=15
+pinseq=15
+name=DB5
+dir=inout
+}
+T {@#13:pinnumber} 270 -175 2 1 0.266667 0.266667 {layer=13}
+T {@#13:name} 255 -170 2 0 0.266667 0.266667 {}
+L 3 260 -130 290 -130 {}
+B 5 287.5 -132.5 292.5 -127.5 {pinnumber=16
+pinseq=16
+name=DB6
+dir=inout
+}
+T {@#14:pinnumber} 270 -135 2 1 0.266667 0.266667 {layer=13}
+T {@#14:name} 255 -130 2 0 0.266667 0.266667 {}
+L 3 260 -90 290 -90 {}
+B 5 287.5 -92.5 292.5 -87.5 {pinnumber=17
+pinseq=17
+name=DB7
+dir=inout
+}
+T {@#15:pinnumber} 270 -95 2 1 0.266667 0.266667 {layer=13}
+T {@#15:name} 255 -90 2 0 0.266667 0.266667 {}
+L 3 270 -50 290 -50 {}
+B 5 287.5 -52.5 292.5 -47.5 {pinnumber=18
+pinseq=18
+name=\_OFL\_
+dir=out
+}
+T {@#16:pinnumber} 270 -55 2 1 0.266667 0.266667 {layer=13}
+T {@#16:name} 255 -50 2 0 0.266667 0.266667 {}

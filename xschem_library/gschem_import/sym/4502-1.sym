@@ -1,0 +1,157 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4502
+template="name=U?
+device=4502
+footprint=DIP
+description=\\"strobed hex inverting bus driver\\"
+numslots=0
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4502B_CNV_3.pdf
+VSS=VSS
+VDD=VDD
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VSS @VDD"
+
+extra="VSS VDD"
+extra_pinnumber="8 16"
+}
+V {}
+S {}
+E {}
+T {@name} 170 -350 2 0 0.333333 0.333333 {}
+T {4502} 30 -345 2 1 0.333333 0.333333 {}
+
+L 4 30 0 170 0 {}
+L 4 170 -340 170 0 {}
+L 4 30 -340 170 -340 {}
+L 4 30 -340 30 0 {}
+
+
+A 4 25 -30 5 0 360 {}
+A 4 25 -70 5 0 360 {}
+A 4 175 -110 5 0 360 {}
+A 4 175 -150 5 0 360 {}
+A 4 175 -190 5 0 360 {}
+A 4 175 -310 5 0 360 {}
+A 4 175 -230 5 0 360 {}
+A 4 175 -270 5 0 360 {}
+
+
+
+
+
+L 3 0 -30 20 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {pinnumber=4
+pinseq=1
+name=\_OE\_
+dir=in
+}
+T {@#0:pinnumber} 20 -35 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -30 2 1 0.266667 0.266667 {}
+L 3 0 -70 20 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {pinnumber=12
+pinseq=2
+name=\_E\_
+dir=in
+}
+T {@#1:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -70 2 1 0.266667 0.266667 {}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinnumber=15
+pinseq=3
+name=A6
+dir=in
+}
+T {@#2:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -110 2 1 0.266667 0.266667 {}
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=13
+pinseq=4
+name=A5
+dir=in
+}
+T {@#3:pinnumber} 20 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -150 2 1 0.266667 0.266667 {}
+L 3 0 -190 30 -190 {}
+B 5 -2.5 -192.5 2.5 -187.5 {pinnumber=10
+pinseq=5
+name=A4
+dir=in
+}
+T {@#4:pinnumber} 20 -195 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -190 2 1 0.266667 0.266667 {}
+L 3 0 -310 30 -310 {}
+B 5 -2.5 -312.5 2.5 -307.5 {pinnumber=1
+pinseq=6
+name=A1
+dir=in
+}
+T {@#5:pinnumber} 20 -315 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -310 2 1 0.266667 0.266667 {}
+L 3 0 -230 30 -230 {}
+B 5 -2.5 -232.5 2.5 -227.5 {pinnumber=6
+pinseq=7
+name=A3
+dir=in
+}
+T {@#6:pinnumber} 20 -235 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -230 2 1 0.266667 0.266667 {}
+L 3 0 -270 30 -270 {}
+B 5 -2.5 -272.5 2.5 -267.5 {pinnumber=3
+pinseq=8
+name=A2
+dir=in
+}
+T {@#7:pinnumber} 20 -275 2 0 0.266667 0.266667 {layer=13}
+T {@#7:name} 35 -270 2 1 0.266667 0.266667 {}
+L 3 180 -110 200 -110 {}
+B 5 197.5 -112.5 202.5 -107.5 {pinnumber=14
+pinseq=9
+name=\_Y6\_
+dir=inout
+}
+T {@#8:pinnumber} 180 -115 2 1 0.266667 0.266667 {layer=13}
+T {@#8:name} 165 -110 2 0 0.266667 0.266667 {}
+L 3 180 -150 200 -150 {}
+B 5 197.5 -152.5 202.5 -147.5 {pinnumber=11
+pinseq=10
+name=\_Y5\_
+dir=inout
+}
+T {@#9:pinnumber} 180 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#9:name} 165 -150 2 0 0.266667 0.266667 {}
+L 3 180 -190 200 -190 {}
+B 5 197.5 -192.5 202.5 -187.5 {pinnumber=9
+pinseq=11
+name=\_Y4\_
+dir=inout
+}
+T {@#10:pinnumber} 180 -195 2 1 0.266667 0.266667 {layer=13}
+T {@#10:name} 165 -190 2 0 0.266667 0.266667 {}
+L 3 180 -310 200 -310 {}
+B 5 197.5 -312.5 202.5 -307.5 {pinnumber=2
+pinseq=12
+name=\_Y1\_
+dir=inout
+}
+T {@#11:pinnumber} 180 -315 2 1 0.266667 0.266667 {layer=13}
+T {@#11:name} 165 -310 2 0 0.266667 0.266667 {}
+L 3 180 -230 200 -230 {}
+B 5 197.5 -232.5 202.5 -227.5 {pinnumber=7
+pinseq=13
+name=\_Y3\_
+dir=inout
+}
+T {@#12:pinnumber} 180 -235 2 1 0.266667 0.266667 {layer=13}
+T {@#12:name} 165 -230 2 0 0.266667 0.266667 {}
+L 3 180 -270 200 -270 {}
+B 5 197.5 -272.5 202.5 -267.5 {pinnumber=5
+pinseq=14
+name=\_Y2\_
+dir=inout
+}
+T {@#13:pinnumber} 180 -275 2 1 0.266667 0.266667 {layer=13}
+T {@#13:name} 165 -270 2 0 0.266667 0.266667 {}

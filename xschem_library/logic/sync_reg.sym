@@ -1,0 +1,32 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=subcircuit
+verilog_stop=true
+format="@name @pinlist @symname"
+template="name=x1 width=8 del=400 delay=\\"400 ps\\""
+generic_type="delay=time"
+}
+V {}
+S {}
+E {}
+L 4 -80 -40 80 -40 {}
+L 4 -80 40 80 40 {}
+L 4 -80 -40 -80 40 {}
+L 4 80 -40 80 40 {}
+L 4 80 -30 100 -30 {}
+L 4 -100 30 -80 30 {}
+L 4 -100 10 -80 10 {}
+L 4 -100 -30 -80 -30 {}
+L 4 -100 -10 -80 -10 {}
+B 5 97.5 -32.5 102.5 -27.5 {name=DATA_OUT[width-1:0] sig_type=std_logic verilog_type=wire dir=out }
+B 5 -102.5 27.5 -97.5 32.5 {name=CK sig_type=std_logic verilog_type=wire dir=in }
+B 5 -102.5 7.5 -97.5 12.5 {name=RESET sig_type=std_logic verilog_type=wire dir=in }
+B 5 -102.5 -32.5 -97.5 -27.5 {name=DATA_IN[width-1:0] sig_type=std_logic verilog_type=wire dir=in }
+B 5 -102.5 -12.5 -97.5 -7.5 {name=LOAD sig_type=std_logic verilog_type=wire dir=in }
+T {@symname} -40.5 19 0 0 0.3 0.3 {}
+T {@name} 85 -52 0 0 0.2 0.2 {}
+T {DATA_OUT} 75 -34 0 1 0.2 0.2 {}
+T {CK} -75 26 0 0 0.2 0.2 {}
+T {RESET} -75 6 0 0 0.2 0.2 {}
+T {DATA_IN} -75 -34 0 0 0.2 0.2 {}
+T {LOAD} -75 -14 0 0 0.2 0.2 {}
+T {width=@width} -55 -54 0 0 0.2 0.2 {}

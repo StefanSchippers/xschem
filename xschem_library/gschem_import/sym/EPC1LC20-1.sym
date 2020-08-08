@@ -1,0 +1,71 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=EPC1LC20
+template="device=EPC1LC20
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {EPC1LC20} 40 2.5 2 1 0.333333 0.333333 {}
+T {@name} 40 -110 2 1 0.333333 0.333333 {}
+
+L 4 40 -20 160 -20 {}
+L 4 160 -100 160 -20 {}
+L 4 40 -100 160 -100 {}
+L 4 40 -100 40 -20 {}
+
+
+A 4 165 -30 5 0 360 {}
+A 4 35 -30 5 0 360 {}
+
+
+
+
+
+L 3 160 -90 190 -90 {}
+B 5 187.5 -92.5 192.5 -87.5 {pinnumber=2
+pinseq=1
+name=DATA
+dir=inout
+}
+T {@#0:pinnumber} 170 -95 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 115 -85 2 1 0.266667 0.266667 {}
+L 3 160 -70 190 -70 {}
+B 5 187.5 -72.5 192.5 -67.5 {pinnumber=4
+pinseq=2
+name=DCLK
+dir=inout
+}
+T {@#1:pinnumber} 170 -75 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 115 -65 2 1 0.266667 0.266667 {}
+L 3 160 -50 190 -50 {}
+B 5 187.5 -52.5 192.5 -47.5 {pinnumber=8
+pinseq=3
+name=OE
+dir=inout
+}
+T {@#2:pinnumber} 170 -55 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 132.5 -45 2 1 0.266667 0.266667 {}
+L 3 170 -30 190 -30 {}
+B 5 187.5 -32.5 192.5 -27.5 {pinnumber=9
+pinseq=4
+name=/CS
+dir=inout
+}
+T {@#3:pinnumber} 170 -35 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 127.5 -25 2 1 0.266667 0.266667 {}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {pinnumber=12
+pinseq=5
+name=/CASC
+dir=inout
+}
+T {@#4:pinnumber} 10 -35 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 45 -25 2 1 0.266667 0.266667 {}

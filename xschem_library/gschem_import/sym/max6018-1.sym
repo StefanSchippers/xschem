@@ -1,0 +1,57 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX6018
+template="device=MAX6018
+footprint=SOT23
+name=U?
+description=\\"precision, micropower, low-dropout, 1.8V voltage reference\\"
+numslots=0
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX6018.pdf
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 150 -150 2 0 0.333333 0.333333 {}
+T {MAX6018} 15 -77.5 2 1 0.333333 0.333333 {}
+
+L 4 0 -30 150 -30 {}
+L 4 150 -140 150 -30 {}
+L 4 0 -140 150 -140 {}
+L 4 0 -140 0 -30 {}
+
+
+
+
+
+
+
+L 3 70 -170 70 -140 {}
+B 5 67.5 -172.5 72.5 -167.5 {pinnumber=1
+pinseq=1
+dir=inout
+name=Vcc
+}
+T {@#0:pinnumber} 75 -150 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 56.4 -135 0 0 0.266667 0.266667 {}
+L 3 150 -90 180 -90 {}
+B 5 177.5 -92.5 182.5 -87.5 {pinnumber=2
+pinseq=2
+dir=out
+name=OUT
+}
+T {@#1:pinnumber} 160 -95 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 145 -90 2 0 0.266667 0.266667 {}
+L 3 70 -30 70 0 {}
+B 5 67.5 -2.5 72.5 2.5 {pinnumber=3
+pinseq=3
+dir=inout
+name=GND
+}
+T {@#2:pinnumber} 75 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 56.4 -35 2 1 0.266667 0.266667 {}

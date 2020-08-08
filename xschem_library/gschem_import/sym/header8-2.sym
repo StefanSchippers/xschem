@@ -1,0 +1,90 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=HEADER8
+template="device=HEADER8
+numslots=0
+description=\\"Header 8 pins\\"
+name=J?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 60 -170 2 1 0.333333 0.333333 {}
+
+L 4 30 0 110 0 {}
+L 4 110 -160 110 0 {}
+L 4 30 -160 110 -160 {}
+L 4 30 -160 30 0 {}
+
+L 4 30 -80 110 -80 {}
+L 4 30 -40 110 -40 {}
+L 4 30 -120 110 -120 {}
+L 4 70 -160 70 0 {}
+
+
+
+
+
+
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=1
+name=1
+pinseq=1
+dir=inout
+}
+T {@#0:pinnumber} 10 -145 2 1 0.266667 0.266667 {layer=13}
+L 3 110 -140 140 -140 {}
+B 5 137.5 -142.5 142.5 -137.5 {pinnumber=2
+name=2
+pinseq=2
+dir=inout
+}
+T {@#1:pinnumber} 120 -145 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -100 30 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=3
+name=3
+pinseq=3
+dir=inout
+}
+T {@#2:pinnumber} 10 -105 2 1 0.266667 0.266667 {layer=13}
+L 3 110 -100 140 -100 {}
+B 5 137.5 -102.5 142.5 -97.5 {pinnumber=4
+name=4
+pinseq=4
+dir=inout
+}
+T {@#3:pinnumber} 120 -105 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=5
+name=5
+pinseq=5
+dir=inout
+}
+T {@#4:pinnumber} 10 -65 2 1 0.266667 0.266667 {layer=13}
+L 3 110 -60 140 -60 {}
+B 5 137.5 -62.5 142.5 -57.5 {pinnumber=6
+name=6
+pinseq=6
+dir=inout
+}
+T {@#5:pinnumber} 125 -65 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=7
+name=7
+pinseq=7
+dir=inout
+}
+T {@#6:pinnumber} 15 -25 2 1 0.266667 0.266667 {layer=13}
+L 3 110 -20 140 -20 {}
+B 5 137.5 -22.5 142.5 -17.5 {pinnumber=8
+name=8
+pinseq=8
+dir=inout
+}
+T {@#7:pinnumber} 125 -25 2 1 0.266667 0.266667 {layer=13}

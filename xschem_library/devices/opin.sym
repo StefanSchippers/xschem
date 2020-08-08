@@ -1,0 +1,11 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=opin
+format="*.opin @lab"
+template="name=p1 lab=xxx"
+}
+V {}
+S {}
+E {}
+B 5 -0.009765619999999999 -0.009765619999999999 0.009765619999999999 0.009765619999999999 {name=p dir=in}
+P 5 6 -0 -5 0 5 8.125 5 14.375 0 8.125 -5 -0 -5 {fill=true}
+T {@lab} 20 -8.75 0 0 0.4 0.33 {}

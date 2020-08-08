@@ -1,0 +1,30 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=2S2K3
+template="device=2S2K3
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 70 -50 2 1 0.333333 0.333333 {}
+
+
+L 4 40 -60 40 -20 {}
+L 4 40 -50 60 -50 {}
+L 4 40 -30 60 -30 {}
+L 4 30 -40 40 -40 {}
+L 4 35 -45 40 -40 {}
+L 4 35 -35 40 -40 {}
+
+
+
+
+
+

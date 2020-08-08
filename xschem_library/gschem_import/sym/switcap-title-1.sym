@@ -1,0 +1,35 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=SWITCAP-title
+template="TITLE=\\"my title\\"
+device=SWITCAP-title
+name=TITLE
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND"
+
+extra="GND"
+extra_pinnumber="1"
+}
+V {}
+S {}
+E {}
+T {TITLE=my title} 20 -70 2 1 0.333333 0.333333 {}
+T {Switcap Title Block} 50 -110 2 1 0.666667 0.666667 {}
+T {@name} 10 -10 2 1 0.333333 0.333333 {}
+
+L 4 0 0 450 0 {}
+L 4 450 -150 450 0 {}
+L 4 0 -150 450 -150 {}
+L 4 0 -150 0 0 {}
+
+L 4 0 -40 450 -40 {}
+
+
+
+
+
+

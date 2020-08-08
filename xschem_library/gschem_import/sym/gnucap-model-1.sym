@@ -1,0 +1,36 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=model
+template="device=model
+name=A?
+model-name=unknown
+file=unknown
+numslots=0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 10 -50 2 1 0.333333 0.333333 {}
+T {Gnucap model} 50 -50 2 1 0.333333 0.333333 {}
+T {Model name:} 10 -20 2 1 0.333333 0.333333 {}
+T {File:} 10 0 2 1 0.333333 0.333333 {}
+T {@model-name} 130 -20 2 1 0.333333 0.333333 {}
+T {@file} 50 0 2 1 0.333333 0.333333 {}
+
+L 4 0 -40 180 -40 {}
+L 4 180 -70 180 -40 {}
+L 4 0 -70 180 -70 {}
+L 4 0 -70 0 -40 {}
+
+
+
+
+
+
+

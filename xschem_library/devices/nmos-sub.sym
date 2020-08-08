@@ -1,0 +1,26 @@
+v {xschem version=2.9.5_RC8 file_version=1.1}
+G {type=nmos
+format="@name @pinlist @substrate @model w=@w l=@l m=@m"
+template="name=M1 model=nmos substrate=VSS w=5u l=0.18u m=1"}
+V {}
+S {}
+E {}
+L 4 5 -30 5 30 {}
+L 4 5 -20 20 -20 {}
+L 4 20 -30 20 -20 {}
+L 4 5 20 20 20 {}
+L 4 20 20 20 30 {}
+L 4 -5 -15 -5 15 {}
+L 4 -5 0 -5 5 {}
+L 4 -20 0 -12.5 0 {}
+L 4 -20 0 -5 0 {}
+L 4 10 0 20 0 {}
+L 4 5 -5 10 0 {}
+L 4 5 5 10 -0 {}
+B 5 17.5 -32.5 22.5 -27.5 {name=d dir=inout}
+B 5 -22.5 -2.5 -17.5 2.5 {name=g dir=in}
+B 5 17.5 27.5 22.5 32.5 {name=s dir=inout}
+T {@w\\/@l\\/@m} 7.5 -17.5 0 0 0.2 0.2 {}
+T {@name} 7.5 6.25 0 0 0.2 0.2 {}
+T {D} 25 -27.5 0 0 0.15 0.15 {}
+T {@substrate} 22.5 -3.125 0 0 0.1 0.1 {layer=4}

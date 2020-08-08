@@ -1,0 +1,47 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=VIPEC-GRID
+template="title=\\"Graph Title\\"
+Ymin=-80
+Ymax=20
+Divisions=5
+scale=dB
+S11=on
+S22=off
+S12=off
+S21=on
+device=VIPEC-GRID
+name=GRID1
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {ViPEC Grid Display} 424 -306.667 0 1 0.666667 0.666667 {}
+T {title=Graph Title} 60 -220 2 1 0.333333 0.333333 {}
+T {Ymin=-80} 60 -180 2 1 0.333333 0.333333 {}
+T {Ymax=20} 260 -180 2 1 0.333333 0.333333 {}
+T {Divisions=5} 260 -140 2 1 0.333333 0.333333 {}
+T {scale=dB} 60 -140 2 1 0.333333 0.333333 {}
+T {S11=on} 60 -100 2 1 0.333333 0.333333 {}
+T {S22=off} 260 -60 2 1 0.333333 0.333333 {}
+T {S12=off} 60 -60 2 1 0.333333 0.333333 {}
+T {S21=on} 260 -100 2 1 0.333333 0.333333 {}
+T {@name} 0 0 2 1 0.333333 0.333333 {}
+
+L 4 0 -20 440 -20 {}
+L 4 440 -340 440 -20 {}
+L 4 0 -340 440 -340 {}
+L 4 0 -340 0 -20 {}
+
+
+
+
+
+
+

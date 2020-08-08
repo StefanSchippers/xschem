@@ -1,0 +1,45 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=CRYSTAL
+template="device=CRYSTAL
+name=U?
+description=crystal
+numslots=0
+symversion=0.1
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 20 -30 2 1 0.333333 0.333333 {}
+
+L 4 25 0 45 0 {}
+L 4 45 -20 45 0 {}
+L 4 25 -20 45 -20 {}
+L 4 25 -20 25 0 {}
+
+L 4 20 -24 20 4 {}
+L 4 50 -24 50 4 {}
+
+
+
+
+
+
+L 3 0 -10 20 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+L 3 50 -10 70 -10 {}
+B 5 67.5 -12.5 72.5 -7.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}

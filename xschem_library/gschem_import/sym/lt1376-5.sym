@@ -1,0 +1,95 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=LT1376-5
+template="class=IC
+name=U?
+pins=8
+device=LT1376-5
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 20 -250 2 1 0.333333 0.333333 {}
+T {LT1376-5} 70 -100 2 1 0.333333 0.333333 {}
+
+L 4 20 -20 200 -20 {}
+L 4 200 -220 200 -20 {}
+L 4 20 -220 200 -220 {}
+L 4 20 -220 20 -20 {}
+
+
+
+
+
+
+
+L 3 110 -240 110 -220 {}
+B 5 107.5 -242.5 112.5 -237.5 {pinnumber=1
+pinseq=1
+name=Boost
+dir=inout
+}
+T {@#0:pinnumber} 100 -225 2 1 0.333333 0.333333 {layer=13}
+T {@#0:name} 81.6667 -210 0 0 0.333333 0.333333 {}
+L 3 0 -170 20 -170 {}
+B 5 -2.5 -172.5 2.5 -167.5 {pinnumber=2
+pinseq=2
+name=Vin
+dir=inout
+}
+T {@#1:pinnumber} 5 -175 2 1 0.333333 0.333333 {layer=13}
+T {@#1:name} 25 -178.333 0 0 0.333333 0.333333 {}
+L 3 200 -170 220 -170 {}
+B 5 217.5 -172.5 222.5 -167.5 {pinnumber=3
+pinseq=3
+name=Vsw
+dir=inout
+}
+T {@#2:pinnumber} 205 -175 2 1 0.333333 0.333333 {layer=13}
+T {@#2:name} 190 -178.333 0 1 0.333333 0.333333 {}
+L 3 200 -130 220 -130 {}
+B 5 217.5 -132.5 222.5 -127.5 {pinnumber=4
+pinseq=4
+name=BIAS
+dir=inout
+}
+T {@#3:pinnumber} 205 -135 2 1 0.333333 0.333333 {layer=13}
+T {@#3:name} 190 -138.333 0 1 0.333333 0.333333 {}
+L 3 0 -80 20 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=5
+pinseq=5
+name=/SHDN
+dir=inout
+}
+T {@#4:pinnumber} 5 -85 2 1 0.333333 0.333333 {layer=13}
+T {@#4:name} 25 -88.3333 0 0 0.333333 0.333333 {}
+L 3 60 -20 60 0 {}
+B 5 57.5 -2.5 62.5 2.5 {pinnumber=6
+pinseq=6
+name=GND
+dir=inout
+}
+T {@#5:pinnumber} 45 0 2 1 0.333333 0.333333 {layer=13}
+T {@#5:name} 43 -25 2 1 0.333333 0.333333 {}
+L 3 200 -80 220 -80 {}
+B 5 217.5 -82.5 222.5 -77.5 {pinnumber=7
+pinseq=7
+name=FB/Sense
+dir=inout
+}
+T {@#6:pinnumber} 205 -85 2 1 0.333333 0.333333 {layer=13}
+T {@#6:name} 190 -88.3333 0 1 0.333333 0.333333 {}
+L 3 150 -20 150 0 {}
+B 5 147.5 -2.5 152.5 2.5 {pinnumber=8
+pinseq=8
+name=Vc
+dir=inout
+}
+T {@#7:pinnumber} 135 0 2 1 0.333333 0.333333 {layer=13}
+T {@#7:name} 138.667 -25 2 1 0.333333 0.333333 {}

@@ -1,0 +1,13 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=coupler
+format="@name @L1 @L2 @K"
+template="name=K1 K=0.9 L1=L1 L2=L2"}
+V {}
+S {}
+E {}
+L 4 5 -30 5 30 {}
+L 4 -5 -30 -5 30 {}
+T {K=@K} -20 60 0 0 0.25 0.2 {}
+T {@name} -20 42.5 0 0 0.2 0.2 {}
+T {@L1} -10 -10 0 1 0.25 0.2 {}
+T {@L2} 10 -10 0 0 0.25 0.2 {}

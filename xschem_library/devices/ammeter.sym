@@ -1,0 +1,14 @@
+v {xschem version=2.9.5_RC8 file_version=1.1}
+G {type=current_probe
+format="@name @pinlist 0"
+template="name=Vmeas"}
+V {}
+S {}
+E {}
+L 4 0 -30 0 30 {}
+L 4 -7.5 0 -0 10 {}
+L 4 -0 10 7.5 0 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout propagate_to=1}
+B 5 -2.5 27.5 2.5 32.5 {name=m dir=inout propagate_to=0}
+T {@name} 10 -17.5 0 0 0.2 0.2 {}
+T {@current} 10 12.5 0 0 0.2 0.2 {layer=15}

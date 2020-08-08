@@ -1,0 +1,162 @@
+                        XSCHEM MOUSE BINDINGS
+----------------------------------------------------------------------
+LeftButton              Clear selection and select a graphic object 
+                        (line, rectangle, symbol, wire)
+                        if clicking on blank area: clear selection
+
+shift + LeftButton      Select without clearing previous selection
+
+ctrl + LeftButton       if an 'url' or 'tclcommand' property is defined on 
+                        selected instance open the url or execute the 
+                        tclcommand
+
+LeftButton drag         Select objects by area, clearing previous selection
+
+shift + LeftButton drag Select objects by area, without clearing 
+                        previous selection
+
+Ctrl + LeftButton drag  Select objects by area to perform a 
+                        subsequent   'stretch'  move operation
+
+Shift +                 Select objects by area without unselecting
+Ctrl + LeftButton drag  to perform a subsequent   'stretch'  move operation
+
+Mouse Wheel             Zoom in / out
+
+MidButton drag          Pan viewable area
+
+Alt + LeftButton        Unselect selected object
+
+Alt + LeftButton drag  
+                        Unselect objects by area
+
+RightButton             Edit property of object under the mouse
+                        else edit global schematic / symbol property string
+
+Shift + RightButton     Edit property of object under the mouse 
+                        else edit global schematic / symbol property string
+                        using the specified (or default) text editor.
+
+LeftButton Double click Terminate Polygon placement
+
+
+                        XSCHEM KEY BINDINGS
+----------------------------------------------------------------------
+-          BackSpace    Back to parent schematic
+-          Delete       Delete selected objects
+-          Insert       Insert element from library
+-          Down         Move down
+ctrl       Enter        Confirm closing dialog boxes
+-          Escape       Abort, redraw, unselect
+-          Left         Move right
+-          Right        Move left
+-          Up           Move up
+-           '!'         Break selected wires at any wire or component pin
+                        connection
+-           ' '         Pan schematic
+-           ' '         When drawing lines or wires toggle between 
+                        manhattan H-V, manhattan V-H or oblique path.
+-           '#'         Highlight components with duplicated name (refdes)
+ctrl        '#'         Rename components with duplicated name (refdes)
+-           '5'         View only probes
+-           'a'         Make symbol from pin list of current schematic
+ctrl        'a'         Select all
+shift       'A'         Toggle show netlist
+-           'b'         Merge file
+ctrl        'b'         Toggle show text in symbol
+shift       'B'         Delete files
+-           'c'         Copy selected obj. 
+ctrl        'c'         Save to clipboard
+shift       'C'         Start arc placement
+shift+ctrl  'C'         Start circle placement
+alt         'C'         Toggle dim/brite background with rest of layers
+ctrl        'e'         Back to parent schematic
+-           'e'         Descend to schematic
+alt         'e'         Edit selected schematic in a new window
+            '\'         Toggle Full screen
+shift       'F'         Flip
+alt         'f'         Flip objects around their anchor points
+ctrl        'f'         Find/select by substring or regexp
+-           'f'         Full zoom
+shift       'G'         Double snap factor
+-           'g'         Half snap factor
+ctrl        'g'         Set snap factor
+alt         'g'         Hilight selected nets and send to gaw waveform viewer
+-           'h'         Constrained horizontal move/copy of objects
+alt         'h'         create symbol pins from schematic pins
+ctrl        'h'         Follow http link or execute command (url, tclcommand properties)
+shift       'H'         Attach net labels to selected instance
+-           'i'         Descend to  symbol
+alt         'i'         Edit selected symbol in a new window
+alt+shift   'J'         Create labels with 'i' prefix from highlighted nets/pins
+alt         'j'         Create labels without 'i' prefix from highlighted nets/pins
+ctrl        'j'         Create ports from highlight nets
+alt+ctrl    'j'         Print list of highlighted nets/pins with label expansion
+shift       'J'         create xplot plot file for ngspice in simulation directory
+                        (just type xplot in ngspice)
+-           'j'         Print list of highlighted nets/pins
+-           'k'         Hilight selected nets
+ctrl+shift  'K'         highlight net passing through elements with 'propagate_to' property set on pins
+shift       'K'         Unhilight all nets
+ctrl        'k'         Unhilight selected nets
+alt         'k'         Select all nets attached to selected wire / label / pin.
+-           'l'         Start line
+ctrl        'l'         Make schematic view from selected symbol
+alt+shift   'l'         add lab_wire.sym to schematic
+alt         'l'         add lab_pin.sym to schematic
+ctrl        'o'         Load schematic
+-           'm'         Move selected obj.
+shift       'N'         Hierarchical netlist
+-           'n'         Netlist
+ctrl        'n'         New schematic
+ctrl+shift  'N'         New symbol
+shift       'O'         Toggle Light / Dark colorscheme
+ctrl        'o'         Load schematic
+alt         'p'         Add symbol pin
+ctrl        'p'         Pan schematic view
+shift       'P'         Pan, other way to.
+alt         'q'         Edit schematic file (dangerous!)
+-           'q'         Edit prop
+shift       'Q'         Edit prop with vim
+ctrl+shift  'Q'         View prop
+ctrl        'q'         Exit XSCHEM
+alt         'r'         Rotate objects around their anchor points
+shift       'R'         Rotate
+-           'r'         Start rect
+shift       'S'         Change element order
+ctrl+shift  'S'         Save  as schematic
+ctrl        's'         Save schematic
+alt         's'         Reload current schematic from disk
+ctrl+alt    's'         Save-as symbol
+-           't'         Place text
+alt         'u'         Align to current grid selected objects
+shift       'U'         Redo
+-           'u'         Undo
+-           'v'         Constrained vertical move/copy of objects
+ctrl        'v'         Paste from clipboard
+shift       'V'         Toggle spice/vhdl/verilog netlist 
+-           'w'         Place wire
+ctrl        'w'         Place polygon. Operation ends by placing last point over first.
+shift       'W'         Place wire, snapping to closest pin or net endpoint
+ctrl        'x'         Cut into clipboard
+-           'x'         New cad session
+shift       'X'         Highlight discrepancies between object ports and attached nets
+-           'y'         Toggle stretching wires
+-           'z'         Zoom box
+shift       'Z'         Zoom in
+ctrl        'z'         Zoom out
+-           '?'         Help
+-           '&'         Join / break / collapse wires
+shift       '*'         Postscript/pdf print
+ctr+shift   '*'         Xpm/png print
+alt+shift   '*'         Svg print
+            '-'         dim colors
+ctrl        '-'         Test mode: change line width
+ctrl        '+'         Test mode: change line width
+            '+'         brite colors
+-           '_'         Toggle change line width
+-           '%'         Toggle draw grid
+-           '='         Toggle fill rectangles
+-           '$'         Toggle pixmap  saving
+ctrl        '$'         Toggle use XCopyArea vs drawing primitives for drawing the screen
+-           ':'         Toggle flat netlist

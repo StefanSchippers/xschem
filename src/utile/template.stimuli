@@ -1,0 +1,14 @@
+
+unit n
+voltage 1.2
+slope 1
+format hspice
+
+beginfile stimuli.cir
+
+
+
+
+endfile
+
+

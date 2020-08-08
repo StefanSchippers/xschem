@@ -1,0 +1,152 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4086
+template="name=U?
+device=4086
+footprint=DIP14
+description=\\"4-wide 2-input AND/OR invert gate\\"
+numslots=0
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4086B_CNV_3.pdf
+VDD=VDD
+VSS=VSS
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VDD @VSS"
+
+extra="VDD VSS"
+extra_pinnumber="14 7"
+}
+V {}
+S {}
+E {}
+T {@name} 40 -480 2 1 0.333333 0.333333 {}
+T {4086} 30 0 2 1 0.333333 0.333333 {}
+
+
+L 4 236 -300 350 -300 {}
+L 4 236 -180 350 -180 {}
+L 4 30 -360 30 -280 {}
+L 4 30 -360 110 -360 {}
+L 4 30 -280 110 -280 {}
+L 4 30 -200 30 -120 {}
+L 4 30 -200 110 -200 {}
+L 4 30 -120 110 -120 {}
+L 4 30 -460 30 -380 {}
+L 4 30 -460 110 -460 {}
+L 4 30 -380 110 -380 {}
+L 4 30 -100 30 -20 {}
+L 4 30 -100 110 -100 {}
+L 4 30 -20 110 -20 {}
+L 4 25 -260 135 -260 {}
+L 4 25 -220 135 -220 {}
+L 4 135 -260 135 -250 {}
+L 4 135 -250 260 -250 {}
+L 4 135 -230 135 -220 {}
+L 4 135 -230 269.5 -230 {}
+L 4 150 -160 165 -160 {}
+L 4 165 -210 165 -160 {}
+L 4 165 -210 263 -210 {}
+L 4 150 -320 165 -320 {}
+L 4 165 -320 165 -270 {}
+L 4 165 -270 263.5 -270 {}
+L 4 150 -420 185 -420 {}
+L 4 185 -420 185 -290 {}
+L 4 185 -290 249 -290 {}
+L 4 185 -190 249 -190 {}
+L 4 150 -60 185 -60 {}
+L 4 185 -190 185 -60 {}
+
+A 4 425 -240 5 0 360 {}
+A 4 265 -250 5 0 360 {}
+
+A 4 347.5 -225 75 13 77 {}
+A 4 200 -240 70 301 59 {}
+A 4 200 -240 70 0 59 {}
+A 4 110 -320 40 270 180 {}
+A 4 110 -160 40 270 180 {}
+A 4 110 -420 40 270 180 {}
+A 4 110 -60 40 270 180 {}
+A 4 347.5 -255 75 270 77 {}
+
+
+
+
+L 3 0 -40 30 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinnumber=1
+pinseq=1
+dir=in
+name=A
+}
+T {@#0:pinnumber} 20 -45 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -80 30 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=2
+pinseq=2
+dir=in
+name=B
+}
+T {@#1:pinnumber} 20 -85 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=5
+pinseq=3
+dir=in
+name=C
+}
+T {@#2:pinnumber} 20 -145 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -180 30 -180 {}
+B 5 -2.5 -182.5 2.5 -177.5 {pinnumber=6
+pinseq=4
+dir=in
+name=D
+}
+T {@#3:pinnumber} 20 -185 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -220 30 -220 {}
+B 5 -2.5 -222.5 2.5 -217.5 {pinnumber=10
+pinseq=5
+dir=in
+name=I
+}
+T {@#4:pinnumber} 20 -225 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -260 30 -260 {}
+B 5 -2.5 -262.5 2.5 -257.5 {pinnumber=11
+pinseq=6
+dir=in
+name=J
+}
+T {@#5:pinnumber} 20 -265 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -300 30 -300 {}
+B 5 -2.5 -302.5 2.5 -297.5 {pinnumber=8
+pinseq=7
+dir=in
+name=E
+}
+T {@#6:pinnumber} 20 -305 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -340 30 -340 {}
+B 5 -2.5 -342.5 2.5 -337.5 {pinnumber=9
+pinseq=8
+dir=in
+name=F
+}
+T {@#7:pinnumber} 20 -345 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -400 30 -400 {}
+B 5 -2.5 -402.5 2.5 -397.5 {pinnumber=12
+pinseq=9
+dir=in
+name=G
+}
+T {@#8:pinnumber} 20 -405 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -440 30 -440 {}
+B 5 -2.5 -442.5 2.5 -437.5 {pinnumber=13
+pinseq=10
+dir=in
+name=H
+}
+T {@#9:pinnumber} 20 -445 2 0 0.266667 0.266667 {layer=13}
+L 3 430 -240 450 -240 {}
+B 5 447.5 -242.5 452.5 -237.5 {pinnumber=3
+pinseq=11
+dir=out
+name=Y
+}
+T {@#10:pinnumber} 430 -245 2 1 0.266667 0.266667 {layer=13}

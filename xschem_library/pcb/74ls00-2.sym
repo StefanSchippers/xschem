@@ -1,0 +1,33 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=nand
+verilog_format="nand #(@risedel , @falldel ) @name ( @#2 , @#0 , @#1 );"
+format="@name @pinlist @symname"
+tedax_format="footprint @name @footprint
+device @name @symname"
+template="name=U1 footprint=\\"dip(14)\\" risedel=100 falldel=200 numslots=4"
+}
+V {}
+S {}
+E {}
+L 4 -40 -20 -25 -20 {}
+L 4 -25 -30 -25 30 {}
+L 4 -25 -30 5 -30 {}
+L 4 -25 30 5 30 {}
+L 4 -40 20 -25 20 {}
+L 4 45 0 60 0 {}
+L 4 0 -50 0 -30 {}
+L 4 0 30 0 50 {}
+B 5 -42.5 -22.5 -37.5 -17.5 {name=A dir=in pinnumber=1:4:9:12}
+B 5 -42.5 17.5 -37.5 22.5 {name=B dir=in pinnumber=2:5:10:13}
+B 5 57.5 -2.5 62.5 2.5 {name=Z dir=out verilog_type=wire pinnumber=3:6:8:11}
+B 5 -2.5 -52.5 2.5 -47.5 {name=VCC dir=in pinnumber=14}
+B 5 -2.5 47.5 2.5 52.5 {name=GND dir=in pinnumber=7}
+A 4 5 0 30 270 180 {}
+A 4 40 0 5 0 360 {}
+T {@name} -20 -12.5 0 0 0.2 0.2 {}
+T {@symname} -22.5 2.5 0 0 0.2 0.2 {}
+T {@#0:pinnumber} -22.5 -25 0 0 0.2 0.2 {}
+T {@#1:pinnumber} -22.5 17.5 0 0 0.2 0.2 {}
+T {@#2:pinnumber} 45 7.5 0 0 0.2 0.2 {}
+T {@#3:pinnumber} 7.5 -45 0 0 0.2 0.2 {}
+T {@#4:pinnumber} 7.5 35 0 0 0.2 0.2 {}

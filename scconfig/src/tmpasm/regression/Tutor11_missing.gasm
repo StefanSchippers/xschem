@@ -1,0 +1,11 @@
+# conditional/safe variable reference: name prefixed by ?
+# if the variable does not exist, no error is thrown but empty
+# string is returned
+
+if ?a then
+	print {empty}
+else
+	print {not empty}
+end
+
+put b ?a

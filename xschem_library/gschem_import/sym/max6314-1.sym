@@ -1,0 +1,67 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX6314
+template="device=MAX6314
+footprint=SOT143
+name=U?
+description=\\"68HC11/bidirectional-compatible uP reset circuit\\"
+numslots=0
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX6314.pdf
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 200 -165 2 0 0.333333 0.333333 {}
+T {MAX6314} 10 -165 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 200 -30 {}
+L 4 200 -160 200 -30 {}
+L 4 30 -160 200 -160 {}
+L 4 30 -160 30 -30 {}
+
+
+A 4 25 -100 5 0 360 {}
+A 4 205 -100 5 0 360 {}
+
+
+
+
+
+L 3 110 -30 110 0 {}
+B 5 107.5 -2.5 112.5 2.5 {pinnumber=1
+pinseq=1
+dir=inout
+name=GND
+}
+T {@#0:pinnumber} 115 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 96.4 -35 2 1 0.266667 0.266667 {}
+L 3 210 -100 230 -100 {}
+B 5 227.5 -102.5 232.5 -97.5 {pinnumber=2
+pinseq=2
+dir=inout
+name=\_RESET\_
+}
+T {@#1:pinnumber} 210 -105 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 195 -100 2 0 0.266667 0.266667 {}
+L 3 0 -100 20 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=3
+pinseq=3
+dir=in
+name=\_MR\_
+}
+T {@#2:pinnumber} 20 -105 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -100 2 1 0.266667 0.266667 {}
+L 3 110 -190 110 -160 {}
+B 5 107.5 -192.5 112.5 -187.5 {pinnumber=4
+pinseq=4
+dir=in
+name=Vcc
+}
+T {@#3:pinnumber} 115 -170 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 96.4 -155 0 0 0.266667 0.266667 {}

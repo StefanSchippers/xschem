@@ -1,0 +1,54 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=T-Line
+template="device=T-Line
+name=T?
+value=?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 105 5 2 1 0.333333 0.333333 {}
+T {@value} 40 -70 2 1 0.333333 0.333333 {}
+
+
+L 4 40 -60 180 -60 {}
+L 4 40 -20 180 -20 {}
+
+A 4 40 -40 20.1 0 360 {}
+
+A 4 180 -40 20 270 180 {}
+
+
+
+
+L 3 0 -40 40 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinnumber=left
+pinseq=1
+name=left
+dir=inout
+}
+L 3 40 -20 40 0 {}
+B 5 37.5 -2.5 42.5 2.5 {pinnumber=left-ref
+pinseq=2
+name=left-ref
+dir=inout
+}
+L 3 200 -40 220 -40 {}
+B 5 217.5 -42.5 222.5 -37.5 {pinnumber=right
+pinseq=3
+name=right
+dir=inout
+}
+L 3 180 -20 180 0 {}
+B 5 177.5 -2.5 182.5 2.5 {pinnumber=right-ref
+pinseq=4
+name=right-ref
+dir=inout
+}

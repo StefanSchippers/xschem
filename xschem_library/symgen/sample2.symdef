@@ -1,0 +1,80 @@
+
+#  <pinnumber>  <direction>[<circle><edge_trigger>] <name>
+# circle: !
+# edge_trigger: >
+# direction is mandatory: i=input, o=output, b=bidirectional (inout)
+
+[labels] 
+@device
+@symname
+@name
+! type=ic
+! format="@spiceprefix@name @pinlist @symname"
+! tedax_format="footprint @name @footprint 
+! value @name @value
+! device @name @device
+! @comptag"
+! template="name=U1 
+! device=r8c-33c 
+! footprint=TQFP32_7"
+--vmode
+[left]
+24   i!   CHIP_SELECT
+.bus
+11   i    AD0
+12   i    AD1
+13   i    AD2
+14   i    AD3
+15   i    AD4
+16   i    AD5
+17   i    AD6
+18   i    AD7
+48   i    AD8
+49   i    AD9
+
+21   i>   ALE
+
+22   i!   \_RD\_
+23   i!>  \_WR\_
+25   i!   INTERRUPT_REQUEST
+[right]
+10   i!   RST
+26   i>   MOTEN
+1    i!>  LA
+6    o    TXP
+7    o    TXM
+
+5    i    RXP
+4    i    RXM
+28   i    XTAL1
+27   i    XTAL2
+[top]
+3    io    AVP
+.bus
+29  o     DATA0
+30  o     DATA1
+31  o     DATA2
+32  o     DATA3
+33  o     DATA4
+34  o     DATA5
+35  o     DATA6
+36  o     DATA7
+37  o     DATA8
+38  o     DATA9
+39  o     DATA10
+40  o     DATA11
+41  o     DATA12
+42  o     DATA13
+43  o     DATA14
+44  o     DATA15
+
+8    io    VDD1
+19   io    VDD2
+
+45   io    VDD_ANALOG
+46   io    VDD_DIGITAL
+[bottom]
+2    io!   GND_ANALOG
+47   io!   GND_DIGITAL
+9    io>   DGND1
+20   io>   GND2

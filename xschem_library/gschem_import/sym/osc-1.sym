@@ -1,0 +1,36 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=OSC
+template="device=OSC
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {OSC} 0 0 2 1 0.266667 0.266667 {}
+T {@name} 0 -90 2 1 0.333333 0.333333 {}
+
+L 4 0 -20 90 -20 {}
+L 4 90 -80 90 -20 {}
+L 4 0 -80 90 -80 {}
+L 4 0 -80 0 -20 {}
+
+
+
+
+
+
+
+L 3 90 -50 120 -50 {}
+B 5 117.5 -52.5 122.5 -47.5 {pinnumber=8
+pinseq=8
+name=8
+dir=inout
+}
+T {@#0:pinnumber} 95 -55 2 1 0.333333 0.333333 {layer=13}

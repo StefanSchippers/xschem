@@ -1,0 +1,83 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=ADT1-1WT
+template="name=T?
+device=ADT1-1WT
+footprint=MINICIRCUITS_CD542
+value=ADT1-1WT
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 0 -140 2 1 0.333333 0.333333 {}
+T {@value} 30 -160 2 1 0.333333 0.333333 {}
+
+
+L 4 20 -130 50 -130 {}
+L 4 20 -10 50 -10 {}
+L 4 100 -130 130 -130 {}
+L 4 100 -10 130 -10 {}
+L 4 70 -140 70 0 {}
+L 4 80 -140 80 0 {}
+L 4 100 -70 130 -70 {}
+
+A 4 60 -145 5.2 0 360 {}
+A 4 90 -145 5.2 0 360 {}
+
+A 4 50 -120 9.8 270 180 {}
+A 4 50 -100 9.8 270 180 {}
+A 4 50 -80 9.8 270 180 {}
+A 4 50 -60 10 270 180 {}
+A 4 100 -120 9.8 90 180 {}
+A 4 50 -40 9.8 270 180 {}
+A 4 50 -20 9.8 270 180 {}
+A 4 100 -100 9.8 90 180 {}
+A 4 100 -80 9.8 90 180 {}
+A 4 100 -60 9.8 90 180 {}
+A 4 100 -40 9.8 90 180 {}
+A 4 100 -20 9.8 90 180 {}
+
+
+
+
+L 3 0 -10 20 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {pinnumber=1
+pinseq=1
+dir=inout
+name=1
+}
+T {@#0:pinnumber} 20 -20 2 1 0.333333 0.333333 {layer=13}
+L 3 130 -70 150 -70 {}
+B 5 147.5 -72.5 152.5 -67.5 {pinnumber=2
+pinseq=2
+dir=inout
+name=2
+}
+T {@#1:pinnumber} 130 -80 2 1 0.333333 0.333333 {layer=13}
+L 3 0 -130 20 -130 {}
+B 5 -2.5 -132.5 2.5 -127.5 {pinnumber=3
+pinseq=3
+dir=inout
+name=3
+}
+T {@#2:pinnumber} 20 -110 2 1 0.333333 0.333333 {layer=13}
+L 3 130 -10 150 -10 {}
+B 5 147.5 -12.5 152.5 -7.5 {pinnumber=4
+pinseq=4
+dir=inout
+name=4
+}
+T {@#3:pinnumber} 130 -20 2 1 0.333333 0.333333 {layer=13}
+L 3 130 -130 150 -130 {}
+B 5 147.5 -132.5 152.5 -127.5 {pinnumber=6
+pinseq=6
+dir=inout
+name=6
+}
+T {@#4:pinnumber} 130 -110 2 1 0.333333 0.333333 {layer=13}

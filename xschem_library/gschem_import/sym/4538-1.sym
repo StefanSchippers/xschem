@@ -1,0 +1,105 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4538
+template="device=4538
+slot=1
+numslots=2
+name=U?
+footprint=DIP16
+description=\\"2 precision monostable multivibrators\\"
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4538B_CNV_3.pdf
+symversion=0.1
+VDD=VDD
+VSS=VSS
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VDD @VSS"
+
+extra="VDD VSS"
+extra_pinnumber="16 8"
+}
+V {}
+S {}
+E {}
+T {@name} 130 -230 2 0 0.333333 0.333333 {}
+T {4538} 30 -225 2 1 0.266667 0.266667 {}
+
+L 4 30 0 130 0 {}
+L 4 130 -220 130 0 {}
+L 4 30 -220 130 -220 {}
+L 4 30 -220 30 0 {}
+
+
+A 4 25 -190 5 0 360 {}
+A 4 25 -110 5 0 360 {}
+A 4 135 -150 5 0 360 {}
+
+
+
+
+
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {
+pinseq=1
+name=C
+dir=inout
+pinnumber=1:15
+}
+T {@#0:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -70 2 1 0.266667 0.266667 {}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {
+pinseq=2
+name=RC
+dir=inout
+pinnumber=2:14
+}
+T {@#1:pinnumber} 20 -35 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -30 2 1 0.266667 0.266667 {}
+L 3 0 -110 20 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {
+pinseq=3
+name=\_CLR\_
+dir=in
+pinnumber=3:13
+}
+T {@#2:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -110 2 1 0.266667 0.266667 {}
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {
+pinseq=4
+name=I1
+dir=in
+pinnumber=4:12
+}
+T {@#3:pinnumber} 20 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -150 2 1 0.266667 0.266667 {}
+L 3 0 -190 20 -190 {}
+B 5 -2.5 -192.5 2.5 -187.5 {
+pinseq=5
+name=\_I0\_
+dir=in
+pinnumber=5:11
+}
+T {@#4:pinnumber} 20 -195 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -190 2 1 0.266667 0.266667 {}
+L 3 130 -190 160 -190 {}
+B 5 157.5 -192.5 162.5 -187.5 {
+pinseq=6
+name=Q
+dir=out
+pinnumber=6:10
+}
+T {@#5:pinnumber} 140 -195 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 125 -190 2 0 0.266667 0.266667 {}
+L 3 140 -150 160 -150 {}
+B 5 157.5 -152.5 162.5 -147.5 {
+pinseq=7
+name=\_Q\_
+dir=out
+pinnumber=7:9
+}
+T {@#6:pinnumber} 140 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 125 -150 2 0 0.266667 0.266667 {}

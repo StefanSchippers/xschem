@@ -1,0 +1,28 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=opamp
+format="@spiceprefix@name @#0 @#1 @VCC @VNN @#2 @model"
+tedax_format="footprint @name @footprint
+device @name @symname"
+template="name=U1:1 model=LM358 device=LM358 footprint=\\"SO(8)\\" numslots=2 VCC=VCC VNN=VNN"
+extra="VCC VNN"
+extra_pinnumber="8 4"}
+V {}
+S {}
+E {}
+L 4 110 0 130 0 {}
+L 4 -80 -40 -60 -40 {}
+L 4 -80 40 -60 40 {}
+L 4 -60 -70 110 0 {}
+L 4 -60 70 110 0 {}
+L 4 -60 -70 -60 70 {}
+B 5 -82.5 -42.5 -77.5 -37.5 {name=PLUS sig_type=std_logic dir=in pinnumber=3:5}
+B 5 -82.5 37.5 -77.5 42.5 {name=MINUS sig_type=std_logic dir=in pinnumber=2:6}
+B 5 127.5 -2.5 132.5 2.5 {name=OUT sig_type=std_logic dir=out pinnumber=1:7}
+T {@device} -48.5 -11 0 0 0.3 0.3 {}
+T {@name} 0 -62 0 0 0.3 0.3 {}
+T {@#2:pinnumber} 115 -14 0 0 0.2 0.2 {layer=13}
+T {@#0:pinnumber} -65 -54 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -65 26 0 1 0.2 0.2 {layer=13}
+T {OUT} 90 -4 0 1 0.2 0.2 {}
+T {PLUS} -55 -44 0 0 0.2 0.2 {}
+T {MINUS} -55 36 0 0 0.2 0.2 {}

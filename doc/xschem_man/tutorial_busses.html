@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM TUTORIAL: Bussed nets - Vectors of instances</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="xschem_man.html" class="home">UP</a>
+
+ <!-- slide title -->
+ <h1> TUTORIAL: Use Bus/Vector notation for signal bundles / arrays of instances</h1>
+ <p>
+  XSCHEM has the ability to use a compact notation to represent signal bundles.
+  There is no specific 'bus' entity, in XSCHEM a bus is simply a wire with a label representing a bundle of bits, 
+  the syntax is explained below.
+  Normally a net label assigns a name to a wire, for example 'ENABLE', 'RESET', 'CLK' and so on, however more complex formats are available to describe
+  multiple bits.
+ </p>
+
+ <ul>
+ <li><kbd>AAA,BBB,CCC</kbd>: described a bundle of 3 signals, AAA, BBB, CCC.</li>
+ <li><kbd>AAA[3:0]</kbd>: describes the set <kbd>AAA[3],AAA[2],AAA[1],AAA[0]</kbd>. The form <kbd>AAA[3:0]</kbd>
+    and <kbd>AAA[3],AAA[2],AAA[1],AAA[0]</kbd> are exactly equivalent.</li>
+ <li><kbd>AAA[1:0],BBB[5:4]</kbd>: describes the bundle: <kbd>AAA[1],AAA[0],BBB[5],BBB[4]</kbd>.</li>
+ <li><kbd>AAA[6:0:2]</kbd>: describes the bundle <kbd>AAA[6],AAA[4],AAA[2],AAA[0]</kbd>.</li>
+ <li><kbd>2*AAA[1:0]</kbd>: describes the bundle <kbd>AAA[1],AAA[0],AAA[1],AAA[0]</kbd>.</li>
+ <li><kbd>AAA[1:0]*2</kbd>: describes the bundle <kbd>AAA[1],AAA[1],AAA[0],AAA[0]</kbd>.</li>
+ <li><kbd>2*(AAA[1:0],BBB)</kbd>: describes the bundle <kbd>AAA[1],AAA[0],BBB,AAA[1],AAA[0],BBB</kbd>.</li>
+ <li><kbd>(AAA[1:0],BBB)*2</kbd>: describes the bundle <kbd>AAA[1],AAA[1],AAA[0],AAA[0],BBB,BBB</kbd>.</li>
+ </ul>
+ <p>
+  All the above notations are perfectly valid label net name attributes.<br>
+  In a very similar way multiple instances can be placed in a schematic setting the 'name' attribute to a vector notation.<br>
+  For example in picture below <kbd>x22[15:0]</kbd> represents 16 inverters with names <kbd>x22[15],x22[14],...,x22[0]</kbd>.
+ </p>
+ <img src="busses0.png">
+ <br>
+
+ <p>
+  Recently a new notation has been added for buses that expands without putting brackets:
+ </p>
+ <ul>
+ <li><kbd>AAA[3..0]</kbd>: describes the set <kbd>AAA3,AAA2,AAA1,AAA0</kbd>. The form <kbd>AAA[3..0]</kbd>
+    and <kbd>AAA3,AAA2,AAA1,AAA0</kbd> are exactly equivalent.</li>
+ <li><kbd>AAA[1..0],BBB[5..4]</kbd>: describes the bundle: <kbd>AAA1,AAA0,BBB5,BBB4</kbd>.</li>
+ <li><kbd>AAA[6..0..2]</kbd>: describes the bundle <kbd>AAA6,AAA4,AAA2,AAA0</kbd>.</li>
+ <li><kbd>2*AAA[1..0]</kbd>: describes the bundle <kbd>AAA1,AAA0,AAA1,AAA0</kbd>.</li>
+ <li><kbd>AAA[1..0]*2</kbd>: describes the bundle <kbd>AAA1,AAA1,AAA0,AAA0</kbd>.</li>
+ <li><kbd>2*(AAA[1..0],BBB)</kbd>: describes the bundle <kbd>AAA1,AAA0,BBB,AAA1,AAA0,BBB</kbd>.</li>
+ <li><kbd>(AAA[1..0],BBB)*2</kbd>: describes the bundle <kbd>AAA1,AAA1,AAA0,AAA0,BBB,BBB</kbd>.</li>
+ </ul>
+
+
+ <p>
+  In following picture there is a main 72 bit bus (the vertical thick wire) and bus ripper symbols
+  (<kbd>devices/bus_connect_nolab.sym</kbd>) are used to take slices of bits from the main bus. Wire labels are used to define bus slices.
+  To display thick wires for busses, select all wire segments, then press 'q' and add attribute <kbd>bus=true</kbd>.
+ </p>
+ <img src="busses1.png">
+ <p>
+  following picture shows an istantiation of 6 inverters:
+ </p>
+ <img src="busses2.png">
+ <p>
+  The generated spice netlist is the following:
+ </p>
+ <pre class="code">
+...
+xinv5 BB0 AA5 bf
+xinv4 BB1 AA4 bf
+xinv3 BB2 AA3 bf
+xinv2 BB3 AA2 bf
+xinv1 BB4 AA1 bf
+xinv0 BB5 AA0 bf
+...
+ </pre><br>
+ <p>
+  Example of a more complex bus routing. main bus is a bundle of 2 buses: DATA_A[0..15] and DATA_B[0..15]
+ </p>
+ <img src="busses3.png">
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

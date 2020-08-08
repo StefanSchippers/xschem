@@ -1,0 +1,24 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=subcircuit
+format="@name @pinlist @symname"
+template="name=S1
+device=xTAG-psu"
+}
+V {}
+S {}
+E {}
+L 4 -130 -50 130 -50 {}
+L 4 -130 50 130 50 {}
+L 4 -130 -50 -130 50 {}
+L 4 130 -50 130 50 {}
+L 4 130 0 150 0 {}
+L 4 -150 0 -130 0 {}
+L 7 130 30 150 30 {}
+B 5 147.5 -2.5 152.5 2.5 {name=usb_power dir=in }
+B 5 147.5 27.5 152.5 32.5 {name=pon_reset_ dir=out }
+B 5 -152.5 -2.5 -147.5 2.5 {name=jtag_power dir=in }
+T {@device} -36 -41 0 0 0.4 0.4 {}
+T {@name} 130 -77 0 1 0.4 0.4 {}
+T {usb_power} 125 -9 0 1 0.3 0.3 {}
+T {pon_reset_} 125 21 0 1 0.3 0.3 {}
+T {jtag_power} -125 -9 0 0 0.3 0.3 {}

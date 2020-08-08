@@ -1,0 +1,82 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=connector
+verilog_ignore=true
+format="*connector(8,1) @pinlist"
+tedax_format="footprint @name @footprint"
+template="name=C1 footprint=connector(8,1)"
+}
+V {}
+S {}
+E {}
+L 4 -30 -20 -20 -20 {}
+L 4 20 -20 30 -20 {}
+L 4 -30 0 -20 0 {}
+L 4 20 0 30 0 {}
+L 4 -30 20 -20 20 {}
+L 4 20 20 30 20 {}
+L 4 -30 40 -20 40 {}
+L 4 20 40 30 40 {}
+L 4 -30 60 -20 60 {}
+L 4 20 60 30 60 {}
+L 4 -30 80 -20 80 {}
+L 4 20 80 30 80 {}
+L 4 -30 100 -20 100 {}
+L 4 20 100 30 100 {}
+L 4 -30 120 -20 120 {}
+L 4 20 120 30 120 {}
+L 4 -30 140 -20 140 {}
+L 4 20 140 30 140 {}
+L 4 -30 160 -20 160 {}
+L 4 20 160 30 160 {}
+L 4 0 -30 0 170 {}
+L 4 -20 150 20 150 {}
+L 4 -20 130 20 130 {}
+L 4 -20 110 20 110 {}
+L 4 -20 90 20 90 {}
+L 4 -20 70 20 70 {}
+L 4 -20 50 20 50 {}
+L 4 -20 30 20 30 {}
+L 4 -20 10 20 10 {}
+L 4 -20 -10 20 -10 {}
+B 5 -31.25 -21.25 -28.75 -18.75 {name=conn_1 dir=inout pinnumber=1}
+B 5 -31.25 -1.25 -28.75 1.25 {name=conn_2 dir=inout pinnumber=2}
+B 5 -31.25 18.75 -28.75 21.25 {name=conn_3 dir=inout pinnumber=3}
+B 5 -31.25 38.75 -28.75 41.25 {name=conn_4 dir=inout pinnumber=4}
+B 5 -31.25 58.75 -28.75 61.25 {name=conn_5 dir=inout pinnumber=5}
+B 5 -31.25 78.75 -28.75 81.25 {name=conn_6 dir=inout pinnumber=6}
+B 5 -31.25 98.75 -28.75 101.25 {name=conn_7 dir=inout pinnumber=7}
+B 5 -31.25 118.75 -28.75 121.25 {name=conn_8 dir=inout pinnumber=8}
+B 5 -31.25 138.75 -28.75 141.25 {name=conn_7 dir=inout pinnumber=9}
+B 5 -31.25 158.75 -28.75 161.25 {name=conn_8 dir=inout pinnumber=10}
+B 5 28.75 158.75 31.25 161.25 {name=conn_1 dir=inout pinnumber=11}
+B 5 28.75 138.75 31.25 141.25 {name=conn_2 dir=inout pinnumber=12}
+B 5 28.75 118.75 31.25 121.25 {name=conn_3 dir=inout pinnumber=13}
+B 5 28.75 98.75 31.25 101.25 {name=conn_4 dir=inout pinnumber=14}
+B 5 28.75 78.75 31.25 81.25 {name=conn_5 dir=inout pinnumber=15}
+B 5 28.75 58.75 31.25 61.25 {name=conn_6 dir=inout pinnumber=16}
+B 5 28.75 38.75 31.25 41.25 {name=conn_7 dir=inout pinnumber=17}
+B 5 28.75 18.75 31.25 21.25 {name=conn_8 dir=inout pinnumber=18}
+B 5 28.75 -1.25 31.25 1.25 {name=conn_7 dir=inout pinnumber=19}
+B 5 28.75 -21.25 31.25 -18.75 {name=conn_8 dir=inout pinnumber=20}
+P 4 5 -20 170 20 170 20 -30 -20 -30 -20 170 {}
+T {@name} -13.75 -43.75 0 0 0.2 0.2 {}
+T {@#0:pinnumber} -23.75 -31.25 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -23.75 -11.25 0 1 0.2 0.2 {layer=13}
+T {@#2:pinnumber} -23.75 8.75 0 1 0.2 0.2 {layer=13}
+T {@#3:pinnumber} -23.75 28.75 0 1 0.2 0.2 {layer=13}
+T {@#4:pinnumber} -23.75 48.75 0 1 0.2 0.2 {layer=13}
+T {@#5:pinnumber} -23.75 68.75 0 1 0.2 0.2 {layer=13}
+T {@#6:pinnumber} -23.75 88.75 0 1 0.2 0.2 {layer=13}
+T {@#7:pinnumber} -23.75 108.75 0 1 0.2 0.2 {layer=13}
+T {@#8:pinnumber} -23.75 128.75 0 1 0.2 0.2 {layer=13}
+T {@#9:pinnumber} -23.75 148.75 0 1 0.2 0.2 {layer=13}
+T {@#10:pinnumber} 23.75 148.75 0 0 0.2 0.2 {layer=13}
+T {@#11:pinnumber} 23.75 128.75 0 0 0.2 0.2 {layer=13}
+T {@#12:pinnumber} 23.75 108.75 0 0 0.2 0.2 {layer=13}
+T {@#13:pinnumber} 23.75 88.75 0 0 0.2 0.2 {layer=13}
+T {@#14:pinnumber} 23.75 68.75 0 0 0.2 0.2 {layer=13}
+T {@#15:pinnumber} 23.75 48.75 0 0 0.2 0.2 {layer=13}
+T {@#16:pinnumber} 23.75 28.75 0 0 0.2 0.2 {layer=13}
+T {@#17:pinnumber} 23.75 8.75 0 0 0.2 0.2 {layer=13}
+T {@#18:pinnumber} 23.75 -11.25 0 0 0.2 0.2 {layer=13}
+T {@#19:pinnumber} 23.75 -31.25 0 0 0.2 0.2 {layer=13}

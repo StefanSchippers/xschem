@@ -1,0 +1,39 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=SMITH
+template="device=SMITH
+Title=\\"Graph Title\\"
+S11=on
+S12=off
+S22=off
+S21=on
+name=SMITH1
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {Smith Chart} 304.667 -256.667 0 1 0.666667 0.666667 {}
+T {Title=Graph Title} 276.333 -188.333 0 1 0.333333 0.333333 {}
+T {S11=on} 60 -110 2 1 0.333333 0.333333 {}
+T {S12=off} 60 -50 2 1 0.333333 0.333333 {}
+T {S22=off} 230 -50 2 1 0.333333 0.333333 {}
+T {S21=on} 230 -110 2 1 0.333333 0.333333 {}
+T {@name} 0 0 2 1 0.333333 0.333333 {}
+
+L 4 0 -20 360 -20 {}
+L 4 360 -300 360 -20 {}
+L 4 0 -300 360 -300 {}
+L 4 0 -300 0 -20 {}
+
+
+
+
+
+
+

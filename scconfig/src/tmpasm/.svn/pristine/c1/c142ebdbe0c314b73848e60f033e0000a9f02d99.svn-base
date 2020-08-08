@@ -1,0 +1,64 @@
+# The following string util is scconfig specific.
+
+# Uniq: filter a list of words and remove duplicate items. This instruction
+# is useful for using text nodes as lists.
+# The simplest syntax is "uniq address" which will do the filtering on
+# the content of a database address. The default separator is \n
+put list [@this
+is
+a
+list
+of
+words,
+a
+list
+of
+words.
+@]
+print {original:\n} list {\n}
+uniq list
+print {uniq:\n} list {\n}
+
+# If the original list needs to be left intact, the alternative syntax is
+# "uniq dest-addr src-addr":
+put foo [@this
+foo
+is
+a
+this
+foo
+@]
+uniq tmp foo
+print {original:\n} foo {\nuniq:\n} tmp {\n}
+
+# Note: the algorithm of uniq is slow, and will not be efficient for very long
+# lists. Uniq preserves the order of words (by their first appearance).
+
+# Sortuniq performs the same action, except it also orders the list using
+# qsort() (so it is even slower on big lists).
+sortuniq tmp foo
+print {\nsortuniq:\n} tmp {\n}
+
+
+# A typical use case is having #defines and #includes on a list; #defines
+# should end up on the top, but order of #incldues should be preserved, so
+# sortuniq is not an option. When uniq is called with more than 2 argument,s
+# the extra arguments specify group regexps; the input is first organized into
+# groups then uniq is ran on these groups. Anything that doesn't match the
+# groups listed are put in a "misc" group that ends up as the last group.
+put list [@#define foo
+#include "foo20.h"
+#include "foo10.h"
+/* misc1 */
+#define bar
+#include "bar1.h"
+#include "bar2.h"
+/* misc2 */
+@]
+
+# set input field separator to \n so uniq is splitting by lines, not by
+# words
+put /tmpasm/IFS {\n}
+
+uniq tmp list {^#define} {^#include}
+print {original:\n} list {\ngrouped uniq:\n} tmp {\n}

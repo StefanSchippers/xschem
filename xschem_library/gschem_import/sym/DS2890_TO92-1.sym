@@ -1,0 +1,68 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=DS2890
+template="device=DS2890
+description=\\"1-wire digital potentiometer\\"
+name=U?
+footprint=TO-92
+numslots=0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 110 -90 2 1 0.333333 0.333333 {}
+T {DS2890} 110 -70 2 1 0.333333 0.333333 {}
+
+
+L 4 80 -100 90 -95 {}
+L 4 70 -85 90 -95 {}
+L 4 70 -85 90 -75 {}
+L 4 70 -65 90 -75 {}
+L 4 70 -65 90 -55 {}
+L 4 70 -45 90 -55 {}
+L 4 70 -45 80 -40 {}
+L 4 100 -105 100 -35 {}
+L 4 55 -40 80 -40 {}
+L 4 55 -70 55 -40 {}
+L 4 55 -70 70 -70 {}
+L 4 60 -75 70 -70 {}
+L 4 60 -65 70 -70 {}
+L 4 80 -110 80 -100 {}
+L 4 80 -40 80 -30 {}
+
+
+A 4 80 -70 40 60 240 {}
+
+
+
+
+L 3 80 -30 80 0 {}
+B 5 77.5 -2.5 82.5 2.5 {pinnumber=1
+pinseq=1
+dir=inout
+name=GND
+}
+T {@#0:pinnumber} 70 -15 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 85 -15 2 1 0.333333 0.333333 {}
+L 3 10 -70 40 -70 {}
+B 5 7.5 -72.5 12.5 -67.5 {pinnumber=2
+pinseq=2
+dir=inout
+name=1-W
+}
+T {@#1:pinnumber} 25 -80 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 0 -50 2 1 0.333333 0.333333 {}
+L 3 80 -140 80 -110 {}
+B 5 77.5 -142.5 82.5 -137.5 {pinnumber=3
+pinseq=3
+dir=inout
+name=RH
+}
+T {@#2:pinnumber} 65 -115 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 90 -115 2 1 0.333333 0.333333 {}

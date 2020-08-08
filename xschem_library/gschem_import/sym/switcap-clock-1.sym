@@ -1,0 +1,38 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=SWITCAP-clock
+template="PERIOD=1
+device=SWITCAP-clock
+PSTART=0
+PSTOP=3/8
+name=CLK?
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND"
+
+extra="GND"
+extra_pinnumber="1"
+}
+V {}
+S {}
+E {}
+T {PERIOD=1} 20 -10 2 1 0.333333 0.333333 {}
+T {Switcap Clock Definition} 10 -90 2 1 0.666667 0.666667 {}
+T {PSTART=0} 170 -10 2 1 0.333333 0.333333 {}
+T {PSTOP=3/8} 320 -10 2 1 0.333333 0.333333 {}
+T {@name} 190 -50 2 1 0.333333 0.333333 {}
+
+L 4 0 0 450 0 {}
+L 4 450 -130 450 0 {}
+L 4 0 -130 450 -130 {}
+L 4 0 -130 0 0 {}
+
+
+
+
+
+
+

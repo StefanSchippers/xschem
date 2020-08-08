@@ -1,0 +1,152 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=74367
+template="device=74367
+name=U?
+footprint=DIP16
+description=\\"hex buffer/line driver (tristate)\\"
+numslots=0
+documentation=http://www-s.ti.com/sc/ds/sn74hc367.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="16 8"
+}
+V {}
+S {}
+E {}
+T {@name} 130 -250 2 0 0.333333 0.333333 {}
+T {74367} 30 -245 2 1 0.333333 0.333333 {}
+
+L 4 30 0 130 0 {}
+L 4 130 -240 130 0 {}
+L 4 30 -240 130 -240 {}
+L 4 30 -240 30 0 {}
+
+L 4 30 -90 130 -90 {}
+
+A 4 25 -100 5 0 360 {}
+A 4 25 -10 5 0 360 {}
+
+
+
+
+
+L 3 0 -220 30 -220 {}
+B 5 -2.5 -222.5 2.5 -217.5 {pinnumber=2
+pinseq=1
+name=A1
+dir=in
+}
+T {@#0:pinnumber} 20 -225 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -220 2 1 0.266667 0.266667 {}
+L 3 130 -220 160 -220 {}
+B 5 157.5 -222.5 162.5 -217.5 {pinnumber=3
+pinseq=2
+name=Y1
+dir=inout
+}
+T {@#1:pinnumber} 140 -225 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 125 -220 2 0 0.266667 0.266667 {}
+L 3 0 -190 30 -190 {}
+B 5 -2.5 -192.5 2.5 -187.5 {pinnumber=4
+pinseq=3
+name=A2
+dir=in
+}
+T {@#2:pinnumber} 20 -195 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -190 2 1 0.266667 0.266667 {}
+L 3 130 -190 160 -190 {}
+B 5 157.5 -192.5 162.5 -187.5 {pinnumber=5
+pinseq=4
+name=Y2
+dir=inout
+}
+T {@#3:pinnumber} 140 -195 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 125 -190 2 0 0.266667 0.266667 {}
+L 3 0 -160 30 -160 {}
+B 5 -2.5 -162.5 2.5 -157.5 {pinnumber=6
+pinseq=5
+name=A3
+dir=in
+}
+T {@#4:pinnumber} 20 -165 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -160 2 1 0.266667 0.266667 {}
+L 3 130 -160 160 -160 {}
+B 5 157.5 -162.5 162.5 -157.5 {pinnumber=7
+pinseq=6
+name=Y3
+dir=inout
+}
+T {@#5:pinnumber} 140 -165 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 125 -160 2 0 0.266667 0.266667 {}
+L 3 0 -130 30 -130 {}
+B 5 -2.5 -132.5 2.5 -127.5 {pinnumber=10
+pinseq=7
+name=A4
+dir=in
+}
+T {@#6:pinnumber} 20 -135 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -130 2 1 0.266667 0.266667 {}
+L 3 130 -130 160 -130 {}
+B 5 157.5 -132.5 162.5 -127.5 {pinnumber=9
+pinseq=8
+name=Y4
+dir=inout
+}
+T {@#7:pinnumber} 140 -135 2 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 125 -130 2 0 0.266667 0.266667 {}
+L 3 0 -100 20 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=1
+pinseq=9
+name=\_G1\_
+dir=in
+}
+T {@#8:pinnumber} 20 -105 2 0 0.266667 0.266667 {layer=13}
+T {@#8:name} 35 -100 2 1 0.266667 0.266667 {}
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {pinnumber=12
+pinseq=10
+name=A5
+dir=in
+}
+T {@#9:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+T {@#9:name} 35 -70 2 1 0.266667 0.266667 {}
+L 3 130 -70 160 -70 {}
+B 5 157.5 -72.5 162.5 -67.5 {pinnumber=11
+pinseq=11
+name=Y5
+dir=inout
+}
+T {@#10:pinnumber} 140 -75 2 1 0.266667 0.266667 {layer=13}
+T {@#10:name} 125 -70 2 0 0.266667 0.266667 {}
+L 3 0 -40 30 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinnumber=14
+pinseq=12
+name=A6
+dir=in
+}
+T {@#11:pinnumber} 20 -45 2 0 0.266667 0.266667 {layer=13}
+T {@#11:name} 35 -40 2 1 0.266667 0.266667 {}
+L 3 130 -40 160 -40 {}
+B 5 157.5 -42.5 162.5 -37.5 {pinnumber=13
+pinseq=13
+name=Y6
+dir=inout
+}
+T {@#12:pinnumber} 140 -45 2 1 0.266667 0.266667 {layer=13}
+T {@#12:name} 125 -40 2 0 0.266667 0.266667 {}
+L 3 0 -10 20 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {pinnumber=15
+pinseq=14
+name=\_G2\_
+dir=in
+}
+T {@#13:pinnumber} 20 -15 2 0 0.266667 0.266667 {layer=13}
+T {@#13:name} 35 -10 2 1 0.266667 0.266667 {}

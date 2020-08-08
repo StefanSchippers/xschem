@@ -1,0 +1,255 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MC12429
+template="name=U?
+footprint=\\"PLCC 28\\"
+device=MC12429
+documentation=http://www.freescale.com/files/timing_interconnect_access/doc/data_sheet/MC12429.pdf
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {MC12429} 110 -180 2 1 0.333333 0.333333 {}
+T {@name} 280 -280 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 270 -30 {}
+L 4 270 -270 270 -30 {}
+L 4 30 -270 270 -270 {}
+L 4 30 -270 30 -30 {}
+
+
+
+
+
+
+
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=1
+pinseq=1
+name=PLLVCC
+dir=inout
+}
+T {@#0:pinnumber} 10 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -145 2 1 0.266667 0.266667 {}
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=2
+pinseq=2
+name=NC
+dir=inout
+}
+T {@#1:pinnumber} 10 -125 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -120 2 1 0.266667 0.266667 {}
+L 3 0 -90 30 -90 {}
+B 5 -2.5 -92.5 2.5 -87.5 {pinnumber=3
+pinseq=3
+name=NC
+dir=inout
+}
+T {@#2:pinnumber} 10 -95 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -85 2 1 0.266667 0.266667 {}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=4
+pinseq=4
+name=XTAL1
+dir=inout
+}
+T {@#3:pinnumber} 10 -65 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -55 2 1 0.266667 0.266667 {}
+L 3 60 -30 60 0 {}
+B 5 57.5 -2.5 62.5 2.5 {pinnumber=5
+pinseq=5
+name=XTAL2
+dir=inout
+}
+T {@#4:pinnumber} 50 -15 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -35 2 1 0.266667 0.266667 {}
+L 3 90 -30 90 0 {}
+B 5 87.5 -2.5 92.5 2.5 {pinnumber=6
+pinseq=6
+name=OE
+dir=inout
+}
+T {@#5:pinnumber} 80 -15 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 95 -40 1 1 0.266667 0.266667 {}
+L 3 120 -30 120 0 {}
+B 5 117.5 -2.5 122.5 2.5 {pinnumber=7
+pinseq=7
+name=Pload
+dir=inout
+}
+T {@#6:pinnumber} 110 -15 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 125 -40 1 1 0.266667 0.266667 {}
+L 3 150 -30 150 0 {}
+B 5 147.5 -2.5 152.5 2.5 {pinnumber=8
+pinseq=8
+name=M[0]
+dir=inout
+}
+T {@#7:pinnumber} 140 -15 2 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 155 -40 1 1 0.266667 0.266667 {}
+L 3 180 -30 180 0 {}
+B 5 177.5 -2.5 182.5 2.5 {pinnumber=9
+pinseq=9
+name=M[1]
+dir=inout
+}
+T {@#8:pinnumber} 170 -15 2 1 0.266667 0.266667 {layer=13}
+T {@#8:name} 185 -40 1 1 0.266667 0.266667 {}
+L 3 210 -30 210 0 {}
+B 5 207.5 -2.5 212.5 2.5 {pinnumber=10
+pinseq=10
+name=M[2]
+dir=inout
+}
+T {@#9:pinnumber} 195 -15 2 1 0.266667 0.266667 {layer=13}
+T {@#9:name} 215 -40 1 1 0.266667 0.266667 {}
+L 3 240 -30 240 0 {}
+B 5 237.5 -2.5 242.5 2.5 {pinnumber=11
+pinseq=11
+name=M[3]
+dir=inout
+}
+T {@#10:pinnumber} 225 -15 2 1 0.266667 0.266667 {layer=13}
+T {@#10:name} 230 -35 2 1 0.266667 0.266667 {}
+L 3 270 -60 300 -60 {}
+B 5 297.5 -62.5 302.5 -57.5 {pinnumber=12
+pinseq=12
+name=M[4]
+dir=inout
+}
+T {@#11:pinnumber} 280 -65 2 1 0.266667 0.266667 {layer=13}
+T {@#11:name} 235 -55 2 1 0.266667 0.266667 {}
+L 3 270 -90 300 -90 {}
+B 5 297.5 -92.5 302.5 -87.5 {pinnumber=13
+pinseq=13
+name=M[5]
+dir=inout
+}
+T {@#12:pinnumber} 280 -95 2 1 0.266667 0.266667 {layer=13}
+T {@#12:name} 235 -85 2 1 0.266667 0.266667 {}
+L 3 270 -120 300 -120 {}
+B 5 297.5 -122.5 302.5 -117.5 {pinnumber=14
+pinseq=14
+name=M[6]
+dir=inout
+}
+T {@#13:pinnumber} 280 -125 2 1 0.266667 0.266667 {layer=13}
+T {@#13:name} 235 -115 2 1 0.266667 0.266667 {}
+L 3 270 -150 300 -150 {}
+B 5 297.5 -152.5 302.5 -147.5 {pinnumber=15
+pinseq=15
+name=M[7]
+dir=inout
+}
+T {@#14:pinnumber} 280 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#14:name} 235 -145 2 1 0.266667 0.266667 {}
+L 3 270 -180 300 -180 {}
+B 5 297.5 -182.5 302.5 -177.5 {pinnumber=16
+pinseq=16
+name=M[8]
+dir=inout
+}
+T {@#15:pinnumber} 280 -185 2 1 0.266667 0.266667 {layer=13}
+T {@#15:name} 235 -175 2 1 0.266667 0.266667 {}
+L 3 270 -210 300 -210 {}
+B 5 297.5 -212.5 302.5 -207.5 {pinnumber=17
+pinseq=17
+name=N[0]
+dir=inout
+}
+T {@#16:pinnumber} 280 -215 2 1 0.266667 0.266667 {layer=13}
+T {@#16:name} 235 -205 2 1 0.266667 0.266667 {}
+L 3 270 -240 300 -240 {}
+B 5 297.5 -242.5 302.5 -237.5 {pinnumber=18
+pinseq=18
+name=N[1]
+dir=inout
+}
+T {@#17:pinnumber} 280 -245 2 1 0.266667 0.266667 {layer=13}
+T {@#17:name} 235 -235 2 1 0.266667 0.266667 {}
+L 3 240 -300 240 -270 {}
+B 5 237.5 -302.5 242.5 -297.5 {pinnumber=19
+pinseq=19
+name=GND
+dir=inout
+}
+T {@#18:pinnumber} 245 -280 2 1 0.266667 0.266667 {layer=13}
+T {@#18:name} 230 -250 2 1 0.266667 0.266667 {}
+L 3 210 -300 210 -270 {}
+B 5 207.5 -302.5 212.5 -297.5 {pinnumber=20
+pinseq=20
+name=TEST
+dir=inout
+}
+T {@#19:pinnumber} 215 -280 2 1 0.266667 0.266667 {layer=13}
+T {@#19:name} 220 -220 1 1 0.266667 0.266667 {}
+L 3 180 -300 180 -270 {}
+B 5 177.5 -302.5 182.5 -297.5 {pinnumber=21
+pinseq=21
+name=VCC
+dir=inout
+}
+T {@#20:pinnumber} 185 -280 2 1 0.266667 0.266667 {layer=13}
+T {@#20:name} 190 -230 1 1 0.266667 0.266667 {}
+L 3 150 -300 150 -270 {}
+B 5 147.5 -302.5 152.5 -297.5 {pinnumber=22
+pinseq=22
+name=GND
+dir=inout
+}
+T {@#21:pinnumber} 155 -280 2 1 0.266667 0.266667 {layer=13}
+T {@#21:name} 160 -230 1 1 0.266667 0.266667 {}
+L 3 120 -300 120 -270 {}
+B 5 117.5 -302.5 122.5 -297.5 {pinnumber=23
+pinseq=23
+name=Fout\\\\
+dir=inout
+}
+T {@#22:pinnumber} 125 -280 2 1 0.266667 0.266667 {layer=13}
+T {@#22:name} 130 -230 1 1 0.266667 0.266667 {}
+L 3 90 -300 90 -270 {}
+B 5 87.5 -302.5 92.5 -297.5 {pinnumber=24
+pinseq=24
+name=Fout
+dir=inout
+}
+T {@#23:pinnumber} 95 -280 2 1 0.266667 0.266667 {layer=13}
+T {@#23:name} 100 -230 1 1 0.266667 0.266667 {}
+L 3 60 -300 60 -270 {}
+B 5 57.5 -302.5 62.5 -297.5 {pinnumber=25
+pinseq=25
+name=Vcc
+dir=inout
+}
+T {@#24:pinnumber} 65 -280 2 1 0.266667 0.266667 {layer=13}
+T {@#24:name} 50 -250 2 1 0.266667 0.266667 {}
+L 3 0 -240 30 -240 {}
+B 5 -2.5 -242.5 2.5 -237.5 {pinnumber=26
+pinseq=26
+name=Sclock
+dir=inout
+}
+T {@#25:pinnumber} 5 -245 2 1 0.266667 0.266667 {layer=13}
+T {@#25:name} 35 -235 2 1 0.266667 0.266667 {}
+L 3 0 -210 30 -210 {}
+B 5 -2.5 -212.5 2.5 -207.5 {pinnumber=27
+pinseq=27
+name=Sdata
+dir=inout
+}
+T {@#26:pinnumber} 5 -215 2 1 0.266667 0.266667 {layer=13}
+T {@#26:name} 35 -205 2 1 0.266667 0.266667 {}
+L 3 0 -180 30 -180 {}
+B 5 -2.5 -182.5 2.5 -177.5 {pinnumber=28
+pinseq=28
+name=Sload
+dir=inout
+}
+T {@#27:pinnumber} 5 -185 2 1 0.266667 0.266667 {layer=13}
+T {@#27:name} 35 -175 2 1 0.266667 0.266667 {}

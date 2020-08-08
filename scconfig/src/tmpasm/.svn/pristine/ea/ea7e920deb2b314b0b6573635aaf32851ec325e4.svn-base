@@ -1,0 +1,6 @@
+append tmp {foo}
+append tmp {bar}
+append tmp {baz}
+foreach n in tmp
+	print {-> } n {\n}
+end

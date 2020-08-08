@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM TUTORIAL: CREATE SYMBOL</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="xschem_man.html" class="home">UP</a>
+
+ <!-- slide title -->
+ <h1> TUTORIAL: Manage XSCHEM design / symbol libraries </h1>
+ <p>
+  There are 2 ways to describe symbols in xschem,<br>
+ </p>
+ <ul>
+ <li>
+  first approach: define a <kbd>XSCHEM_LIBRARY_PATH</kbd> that is a list of paths
+  to last level directories containing .sym /.sch files
+ </li>
+ <li>
+  second approach: define a <kbd>XSCHEM_LIBRARY_PATH</kbd> that is a list of paths
+  one level above the directories containing .sym/.sch files
+ </li>
+ </ul>
+ <p>
+  In the first approach a '<kbd>npn.sym</kbd>' symbol placed in a schematic will be
+  saved as '<kbd>npn.sym</kbd>' in the .sch file, when loading back the parent
+  schematic xschem will go through the <kbd>XSCHEM_LIBRARY_PATH</kbd> and look for
+  a directory containing <kbd>npn.sym</kbd>.
+ </p>
+
+ <p>
+  In the second approach the '<kbd>npn.sym</kbd>' will be saved as
+  '<kbd>devices/npn.sym</kbd>' (assuming <kbd>devices/</kbd> is the directory containing this
+  symbol) . This is because the <kbd>XSCHEM_LIBRARY_PATH</kbd> is pointing to
+  something like <kbd>/some/path/xschem_library/</kbd>
+  and <kbd>xschem_library/</kbd> contains <kbd>devices/</kbd> (names are just given as
+  examples, any dir name is allowed for <kbd>xschem_library/</kbd> and <kbd>devices/</kbd>)
+ </p>
+
+ <p>
+  The first approach is preferred by pcb hobbysts, people working on
+  small designs.
+  the second approach is preferred for big designs where a one level
+  indirection is desired for symbols, so any symbol in xschem is given
+  as '<kbd>libname/symname.sym</kbd>' instead of just '<kbd>symname.sym</kbd>'<br>
+
+  For VLSI / big designs I <b>strongly</b> suggest using the second approach,
+  just as an example i have the following dirs:
+ </p>
+ <pre class="code">
+  ~/share/xschem/xschem_library/
+    containing:
+    devices/
+    TECHLIB/
+  
+  ~/xschem_library/
+    containing:
+    stdcell_stef/
+  
+  ~/share/doc/xschem/
+    containing:
+    library_t9/
+    dram/
+ </pre>
+  
+ <p>
+  then in my xschemrc i have the following:
+ </p>
+ <p>
+  <kbd>set XSCHEM_LIBRARY_PATH \ <br>
+  $env(HOME)/share/xschem/xschem_library:$env(HOME)/share/doc/xschem/:$env(HOME)/xschem_library</kbd><br>
+ </p>
+ <h3>
+  You may choose either method, but please be consistent throughout your design.
+ </h3>
+
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

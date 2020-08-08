@@ -1,0 +1,31 @@
+# Blocks are special syntax to make it easier to handle large,
+# to-be-printed-verbatim blocks of data, which is essential in a template
+# language. Blocks are enclosed in [$ $], where $ is an arbitrary character
+# that shall be chosen by the programmer, per block; once a characher is
+# chosen, it can not appear in the string. There is no backslash escaping
+# in blocks. Blocks can be used anywhere where strings could be used.
+print [@this is a string@] {\n}
+
+print {--\n}
+
+put myblk [!a block
+of multiline
+data.
+!]
+
+print myblk
+
+# A special feature of the block is inline variable substitution using the same
+# separator character chosen at the opening brace. In the example below
+# myvar is substituted because it is sorrounded by the separator (@ in
+# the first case and $ in the second case). Whitespace and newlines
+# are preserved in the block, even in the inline variable name!
+
+put myvar {world}
+print {--\n}
+print [@ hello @myvar@! @] {\n}
+print {--\n}
+print [$
+	hi @myvar@!
+$]
+print {--\n}

@@ -1,0 +1,184 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=40374
+template="name=U?
+device=40374
+footprint=DIP20
+description=\\"octal D-type flip-flops\\"
+numslots=0
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF40374B_CNV_3.pdf
+VSS=VSS
+VDD=VDD
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VSS @VDD"
+
+extra="VSS VDD"
+extra_pinnumber="20 10"
+}
+V {}
+S {}
+E {}
+T {@name} 70 -400 2 0 0.333333 0.333333 {}
+T {40374} 0 -5 2 1 0.333333 0.333333 {}
+
+L 4 50 -30 150 -30 {}
+L 4 150 -390 150 -30 {}
+L 4 50 -390 150 -390 {}
+L 4 50 -390 50 -30 {}
+
+L 4 80 -40 87.5 -30 {}
+L 4 72.5 -30 80 -40 {}
+
+A 4 120 -25 5 0 360 {}
+
+
+
+
+
+L 3 120 -20 120 0 {}
+B 5 117.5 -2.5 122.5 2.5 {pinnumber=1
+pinseq=1
+name=\_OE\_
+dir=in
+}
+T {@#0:pinnumber} 125 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 92.8 -35 2 1 0.266667 0.266667 {}
+L 3 80 -30 80 0 {}
+B 5 77.5 -2.5 82.5 2.5 {pinnumber=11
+pinseq=2
+name=CP
+dir=inout
+}
+T {@#1:pinnumber} 85 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 70.9333 -42.5 2 1 0.266667 0.266667 {}
+L 3 20 -70 50 -70 {}
+B 5 17.5 -72.5 22.5 -67.5 {pinnumber=18
+pinseq=3
+name=D7
+dir=in
+}
+T {@#2:pinnumber} 40 -75 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 55 -70 2 1 0.266667 0.266667 {}
+L 3 20 -110 50 -110 {}
+B 5 17.5 -112.5 22.5 -107.5 {pinnumber=17
+pinseq=4
+name=D6
+dir=in
+}
+T {@#3:pinnumber} 40 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 55 -110 2 1 0.266667 0.266667 {}
+L 3 20 -150 50 -150 {}
+B 5 17.5 -152.5 22.5 -147.5 {pinnumber=14
+pinseq=5
+name=D5
+dir=in
+}
+T {@#4:pinnumber} 40 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 55 -150 2 1 0.266667 0.266667 {}
+L 3 20 -190 50 -190 {}
+B 5 17.5 -192.5 22.5 -187.5 {pinnumber=13
+pinseq=6
+name=D4
+dir=in
+}
+T {@#5:pinnumber} 40 -195 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 55 -190 2 1 0.266667 0.266667 {}
+L 3 20 -230 50 -230 {}
+B 5 17.5 -232.5 22.5 -227.5 {pinnumber=8
+pinseq=7
+name=D3
+dir=in
+}
+T {@#6:pinnumber} 40 -235 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 55 -230 2 1 0.266667 0.266667 {}
+L 3 20 -270 50 -270 {}
+B 5 17.5 -272.5 22.5 -267.5 {pinnumber=7
+pinseq=8
+name=D2
+dir=in
+}
+T {@#7:pinnumber} 40 -275 2 0 0.266667 0.266667 {layer=13}
+T {@#7:name} 55 -270 2 1 0.266667 0.266667 {}
+L 3 20 -310 50 -310 {}
+B 5 17.5 -312.5 22.5 -307.5 {pinnumber=4
+pinseq=9
+name=D1
+dir=in
+}
+T {@#8:pinnumber} 40 -315 2 0 0.266667 0.266667 {layer=13}
+T {@#8:name} 55 -310 2 1 0.266667 0.266667 {}
+L 3 20 -350 50 -350 {}
+B 5 17.5 -352.5 22.5 -347.5 {pinnumber=3
+pinseq=10
+name=D0
+dir=in
+}
+T {@#9:pinnumber} 40 -355 2 0 0.266667 0.266667 {layer=13}
+T {@#9:name} 55 -350 2 1 0.266667 0.266667 {}
+L 3 150 -70 180 -70 {}
+B 5 177.5 -72.5 182.5 -67.5 {pinnumber=19
+pinseq=11
+name=Q7
+dir=inout
+}
+T {@#10:pinnumber} 160 -75 2 1 0.266667 0.266667 {layer=13}
+T {@#10:name} 145 -70 2 0 0.266667 0.266667 {}
+L 3 150 -110 180 -110 {}
+B 5 177.5 -112.5 182.5 -107.5 {pinnumber=16
+pinseq=12
+name=Q6
+dir=inout
+}
+T {@#11:pinnumber} 160 -115 2 1 0.266667 0.266667 {layer=13}
+T {@#11:name} 145 -110 2 0 0.266667 0.266667 {}
+L 3 150 -150 180 -150 {}
+B 5 177.5 -152.5 182.5 -147.5 {pinnumber=15
+pinseq=13
+name=Q5
+dir=inout
+}
+T {@#12:pinnumber} 160 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#12:name} 145 -150 2 0 0.266667 0.266667 {}
+L 3 150 -190 180 -190 {}
+B 5 177.5 -192.5 182.5 -187.5 {pinnumber=12
+pinseq=14
+name=Q4
+dir=inout
+}
+T {@#13:pinnumber} 160 -195 2 1 0.266667 0.266667 {layer=13}
+T {@#13:name} 145 -190 2 0 0.266667 0.266667 {}
+L 3 150 -230 180 -230 {}
+B 5 177.5 -232.5 182.5 -227.5 {pinnumber=9
+pinseq=15
+name=Q3
+dir=inout
+}
+T {@#14:pinnumber} 160 -235 2 1 0.266667 0.266667 {layer=13}
+T {@#14:name} 145 -230 2 0 0.266667 0.266667 {}
+L 3 150 -270 180 -270 {}
+B 5 177.5 -272.5 182.5 -267.5 {pinnumber=6
+pinseq=16
+name=Q2
+dir=inout
+}
+T {@#15:pinnumber} 160 -275 2 1 0.266667 0.266667 {layer=13}
+T {@#15:name} 145 -270 2 0 0.266667 0.266667 {}
+L 3 150 -310 180 -310 {}
+B 5 177.5 -312.5 182.5 -307.5 {pinnumber=5
+pinseq=17
+name=Q1
+dir=inout
+}
+T {@#16:pinnumber} 160 -315 2 1 0.266667 0.266667 {layer=13}
+T {@#16:name} 145 -310 2 0 0.266667 0.266667 {}
+L 3 150 -350 180 -350 {}
+B 5 177.5 -352.5 182.5 -347.5 {pinnumber=2
+pinseq=18
+name=Q0
+dir=inout
+}
+T {@#17:pinnumber} 160 -355 2 1 0.266667 0.266667 {layer=13}
+T {@#17:name} 145 -350 2 0 0.266667 0.266667 {}

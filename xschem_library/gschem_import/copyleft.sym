@@ -1,0 +1,35 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=none
+template="graphical=1
+device=none
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {This schematic is free software; you can redistribute it and/or modify} 0 -230 2 1 0.333333 0.333333 {}
+T { it under the terms of the GNU General Public License as published by} 0 -210 2 1 0.333333 0.333333 {}
+T {the Free Software Foundation; either version 2 of the License, or} 0 -190 2 1 0.333333 0.333333 {}
+T {(at your option) any later version.} 0 -170 2 1 0.333333 0.333333 {}
+T {This schematic is distributed in the hope that it will be useful,} 0 -140 2 1 0.333333 0.333333 {}
+T {but WITHOUT ANY WARRANTY; without even the implied warranty of} 0 -120 2 1 0.333333 0.333333 {}
+T {MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the} 0 -100 2 1 0.333333 0.333333 {}
+T {GNU General Public License for more details.} 0 -70 2 1 0.333333 0.333333 {}
+T {You should have received a copy of the GNU General Public License} 0 -50 2 1 0.333333 0.333333 {}
+T {along with this program; if not, write to the Free Software} 0 -30 2 1 0.333333 0.333333 {}
+T {Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA} 0 -10 2 1 0.333333 0.333333 {}
+T {(C) 2001 Stefan Petersen (spe@stacken.kth.se)} 0 -270 2 1 0.333333 0.333333 {}
+
+
+
+
+
+
+
+

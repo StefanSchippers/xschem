@@ -1,0 +1,39 @@
+GUI_CFLAGS = -DPLUGIN_GUI
+GUI_OBJS = \
+  $(BIN)/gui/find_gtk2.o \
+  $(BIN)/gui/find_gtk3.o \
+  $(BIN)/gui/find_lesstif2.o \
+  $(BIN)/gui/find_x.o \
+  $(BIN)/gui/find_gd.o \
+  $(BIN)/gui/find_cairo.o \
+  $(BIN)/gui/find_misc.o \
+  $(BIN)/gui/find_gl.o \
+  $(BIN)/gui/gui.o
+
+
+$(BIN)/gui/find_gtk2.o: $(SRC)/gui/find_gtk2.c
+	$(CC) $(CFLAGS) -c $(SRC)/gui/find_gtk2.c -o $(BIN)/gui/find_gtk2.o
+
+$(BIN)/gui/find_gtk3.o: $(SRC)/gui/find_gtk3.c
+	$(CC) $(CFLAGS) -c $(SRC)/gui/find_gtk3.c -o $(BIN)/gui/find_gtk3.o
+
+$(BIN)/gui/find_lesstif2.o: $(SRC)/gui/find_lesstif2.c
+	$(CC) $(CFLAGS) -c $(SRC)/gui/find_lesstif2.c -o $(BIN)/gui/find_lesstif2.o
+
+$(BIN)/gui/find_x.o: $(SRC)/gui/find_x.c
+	$(CC) $(CFLAGS) -c $(SRC)/gui/find_x.c -o $(BIN)/gui/find_x.o
+
+$(BIN)/gui/find_gd.o: $(SRC)/gui/find_gd.c
+	$(CC) $(CFLAGS) -c $(SRC)/gui/find_gd.c -o $(BIN)/gui/find_gd.o
+
+$(BIN)/gui/find_misc.o: $(SRC)/gui/find_misc.c
+	$(CC) $(CFLAGS) -c $(SRC)/gui/find_misc.c -o $(BIN)/gui/find_misc.o
+
+$(BIN)/gui/find_gl.o: $(SRC)/gui/find_gl.c
+	$(CC) $(CFLAGS) -c $(SRC)/gui/find_gl.c -o $(BIN)/gui/find_gl.o
+
+$(BIN)/gui/find_cairo.o: $(SRC)/gui/find_cairo.c
+	$(CC) $(CFLAGS) -c $(SRC)/gui/find_cairo.c -o $(BIN)/gui/find_cairo.o
+
+$(BIN)/gui/gui.o: $(SRC)/gui/gui.c
+	$(CC) $(CFLAGS) -c $(SRC)/gui/gui.c -o $(BIN)/gui/gui.o

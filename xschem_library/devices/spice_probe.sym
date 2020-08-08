@@ -1,0 +1,24 @@
+v {xschem version=2.9.7 file_version=1.2}
+G {type=probe
+vhdl_ignore=true
+spice_ignore=false
+verilog_ignore=true
+tedax_ignore=true
+format=".save v( @@p )"
+template="name=p1 analysis=tran"}
+V {}
+S {}
+E {}
+L 15 3.75 -8.75 10 -16.25 {}
+L 15 0 -0 3.75 -8.75 {}
+L 15 10 -27.5 10 -13.75 {}
+L 15 7.5 -16.25 28.75 -16.25 {}
+L 15 12.5 -20 17.5 -20 {}
+L 15 17.5 -23.75 17.5 -20 {}
+L 15 17.5 -23.75 21.25 -23.75 {}
+L 15 21.25 -23.75 21.25 -20 {}
+L 15 21.25 -20 25 -20 {}
+L 15 25 -23.75 25 -20 {}
+L 15 25 -23.75 27.8125 -23.75 {}
+B 5 -0.46875 -0.46875 0.46875 0.46875 {name=p dir=xxx}
+T {@voltage} 12.5 -37.5 0 0 0.2 0.2 {layer=15}

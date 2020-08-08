@@ -1,0 +1,94 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=74107
+template="device=74107
+footprint=DIP14
+numslots=2
+name=U?
+description=\\"2 JK-flip-flops with clear (pulstriggered)\\"
+slot=1
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/74HC_HCT107_CNV_2.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="14 7"
+}
+V {}
+S {}
+E {}
+T {@name} 170 -180 2 0 0.333333 0.333333 {}
+T {74107} 30 -174 2 1 0.333333 0.333333 {}
+
+L 4 30 0 170 0 {}
+L 4 170 -170 170 0 {}
+L 4 30 -170 170 -170 {}
+L 4 30 -170 30 0 {}
+
+
+A 4 175 -100 5 0 360 {}
+A 4 25 -60 5 0 360 {}
+
+
+
+
+
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {
+pinseq=1
+name=J
+dir=in
+pinnumber=1:8
+}
+T {@#0:pinnumber} 20 -145 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -140 2 1 0.266667 0.266667 {}
+L 3 170 -140 200 -140 {}
+B 5 197.5 -142.5 202.5 -137.5 {
+pinseq=2
+name=Q
+dir=out
+pinnumber=3:5
+}
+T {@#1:pinnumber} 180 -145 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 165 -140 2 0 0.266667 0.266667 {}
+L 3 0 -100 30 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {
+pinseq=3
+name=K
+dir=in
+pinnumber=4:11
+}
+T {@#2:pinnumber} 20 -105 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -100 2 1 0.266667 0.266667 {}
+L 3 180 -100 200 -100 {}
+B 5 197.5 -102.5 202.5 -97.5 {
+pinseq=4
+name=\_Q\_
+dir=out
+pinnumber=2:6
+}
+T {@#3:pinnumber} 180 -105 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 165 -100 2 0 0.266667 0.266667 {}
+L 3 0 -60 20 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {
+pinseq=5
+name=\_CLR\_
+dir=in
+pinnumber=13:10
+}
+T {@#4:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -60 2 1 0.266667 0.266667 {}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {
+pinseq=6
+name=CLK
+dir=inout
+pinnumber=12:9
+}
+T {@#5:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -20 2 1 0.266667 0.266667 {}

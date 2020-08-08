@@ -1,0 +1,84 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=Dual_Two_Way_Switch
+template="device=Dual_Two_Way_Switch
+name=S?
+footprint=\\"CONNECTOR 2 3\\"
+symversion=1.0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 41 -150 2 1 0.333333 0.333333 {}
+
+
+L 4 30 -30 66 -45 {}
+L 4 31 -110 66 -125 {}
+L 4 46 -116 46 -105 {}
+L 4 46 -45 46 -37 {}
+L 4 46 -70 46 -55 {}
+L 4 46 -95 46 -80 {}
+
+A 4 66 -130 5 0 360 {}
+A 4 66 -90 5 0 360 {}
+A 4 66 -50 5 0 360 {}
+A 4 66 -10 5 0 360 {}
+
+
+
+
+
+L 3 70 -130 100 -130 {}
+B 5 97.5 -132.5 102.5 -127.5 {pinseq=1
+pinnumber=1
+name=1
+name=1
+dir=inout
+dir=inout
+}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinseq=2
+pinnumber=2
+name=2
+name=2
+dir=inout
+dir=inout
+}
+L 3 70 -90 100 -90 {}
+B 5 97.5 -92.5 102.5 -87.5 {pinseq=3
+pinnumber=3
+name=3
+name=3
+dir=inout
+dir=inout
+}
+L 3 70 -50 100 -50 {}
+B 5 97.5 -52.5 102.5 -47.5 {pinseq=4
+pinnumber=4
+name=4
+name=4
+dir=inout
+dir=inout
+}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {pinseq=5
+pinnumber=5
+name=5
+name=5
+dir=inout
+dir=inout
+}
+L 3 70 -10 100 -10 {}
+B 5 97.5 -12.5 102.5 -7.5 {pinseq=6
+pinnumber=6
+name=6
+name=6
+dir=inout
+dir=inout
+}

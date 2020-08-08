@@ -1,0 +1,68 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=XINGER4A1305-3
+template="device=XINGER4A1305-3
+pins=3
+class=IC
+footprint=xinger4A1305
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 30 -170 2 1 0.333333 0.333333 {}
+
+
+L 4 20 -90 20 -70 {}
+L 4 140 -130 180 -160 {}
+L 4 180 -160 180 -140 {}
+L 4 140 -110 180 -140 {}
+L 4 140 -50 180 -20 {}
+L 4 140 -30 180 0 {}
+L 4 180 -20 180 0 {}
+L 4 160 -95 180 -85 {}
+L 4 160 -75 180 -85 {}
+L 4 160 -75 180 -65 {}
+L 4 160 -55 180 -65 {}
+L 4 160 -95 180 -105 {}
+L 4 170 -110 180 -105 {}
+L 4 160 -55.1 170 -50 {}
+L 4 170 -132 170 -110 {}
+L 4 170 -50 170 -27 {}
+L 4 20 -90 140 -130 {}
+L 4 20 -70 140 -30 {}
+L 4 40 -80 140 -50 {}
+L 4 40 -80 140 -110 {}
+
+
+
+
+
+
+L 3 0 -80 20 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 10 -85 2 1 0.333333 0.333333 {layer=13}
+L 3 180 -150 200 -150 {}
+B 5 197.5 -152.5 202.5 -147.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 190 -155 2 1 0.333333 0.333333 {layer=13}
+L 3 180 -10 200 -10 {}
+B 5 197.5 -12.5 202.5 -7.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#2:pinnumber} 190 -15 2 1 0.333333 0.333333 {layer=13}

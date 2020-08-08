@@ -1,0 +1,12 @@
+- regression test syntax errors and improve syntax error reporting
+	- switch:
+		- data instead of case
+		- multiple defaults
+		- deafult must be at end of the list
+		- case out of switch
+		- default out of switch
+	- forarch
+- tutorial
+	- append
+- [[]] eval? what's the output? -> generate and include scripts (may need mktemp binding)
+- update docs

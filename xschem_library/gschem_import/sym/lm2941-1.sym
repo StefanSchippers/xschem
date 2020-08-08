@@ -1,0 +1,81 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=LM2941T
+template="footprint=TO220_5PIN
+pins=6
+device=LM2941T
+class=IC
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 150 -160 2 0 0.333333 0.333333 {}
+T {LM2941T} 30 -160 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 150 -30 {}
+L 4 150 -150 150 -30 {}
+L 4 30 -150 150 -150 {}
+L 4 30 -150 30 -30 {}
+
+
+A 4 25 -60 5 0 360 {}
+
+
+
+
+
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=4
+pinseq=1
+name=In
+dir=inout
+}
+T {@#0:pinnumber} 9.6 -125 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 37.5 -115 2 1 0.266667 0.266667 {}
+L 3 0 -60 20 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=2
+pinseq=2
+name=/On
+dir=inout
+}
+T {@#1:pinnumber} 9.6 -65 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 37.5 -55 2 1 0.266667 0.266667 {}
+L 3 150 -120 180 -120 {}
+B 5 177.5 -122.5 182.5 -117.5 {pinnumber=5
+pinseq=3
+name=Out
+dir=inout
+}
+T {@#2:pinnumber} 160 -125 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 119.8 -115 2 1 0.266667 0.266667 {}
+L 3 150 -60 180 -60 {}
+B 5 177.5 -62.5 182.5 -57.5 {pinnumber=1
+pinseq=4
+name=Adj
+dir=inout
+}
+T {@#3:pinnumber} 160 -65 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 121.4 -55 2 1 0.266667 0.266667 {}
+L 3 60 -30 60 0 {}
+B 5 57.5 -2.5 62.5 2.5 {pinnumber=6
+pinseq=5
+name=Tab
+dir=inout
+}
+T {@#4:pinnumber} 67.5 -15 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 46.2 -35 2 1 0.266667 0.266667 {}
+L 3 120 -30 120 0 {}
+B 5 117.5 -2.5 122.5 2.5 {pinnumber=3
+pinseq=6
+name=GND
+dir=inout
+}
+T {@#5:pinnumber} 127.5 -15 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 103.2 -35 2 1 0.266667 0.266667 {}

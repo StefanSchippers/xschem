@@ -1,0 +1,50 @@
+v {xschem version=2.9.5 file_version=1.1}
+G {type=passgate
+vhdl_stop=true
+format="#@spiceprefix\\\\MA#@name @#0 @#2 @#1 @VCCBPIN @modelp w=@wp l=@lp delvto=@delvto m=@m
+#@spiceprefix\\\\MB#@name @#0 @#3 @#1 @VSSBPIN @modeln w=@wn l=@ln delvto=@delvto m=@m"
+template="name=x1 m=1
++ wn=1 ln=0.2 modeln=nmos
++ wp=1 lp=0.2 modelp=pmos
++ delvto=0
++ VCCBPIN=VCC VSSBPIN=VSS nf=1"
+extra="VCCBPIN VSSBPIN"
+generic_type="m=integer 
+wn=real ln=real 
+wp=real lp=real 
+VCCBPIN=string 
+VSSBPIN=string
+modeln=string
+modelp=string"
+verilog_stop=true
+}
+V {}
+S {}
+E {}
+L 4 -20 -20 -20 -0 {}
+L 4 -20 -0 20 -20 {}
+L 4 20 -20 20 -0 {}
+L 4 -20 -20 20 -0 {}
+L 4 -0 -30 0 -20.625 {}
+L 4 -20 0 -20 20 {}
+L 4 -20 20 20 0 {}
+L 4 20 0 20 20 {}
+L 4 -20 0 20 20 {}
+L 4 -0 10 0 30 {}
+L 4 -40 0 -20 0 {}
+L 4 20 -0 40 0 {}
+B 5 37.5 -2.5 42.5 2.5 {name=Z dir=inout}
+B 5 -42.5 -2.5 -37.5 2.5 {name=A dir=inout}
+B 5 -2.5 -32.5 2.5 -27.5 {name=GP dir=in}
+B 5 -2.5 27.5 2.5 32.5 {name=GN dir=in}
+A 4 0 -15.625 5 180 360 {}
+T {A} -35 -15 0 0 0.2 0.2 {}
+T {Z} 30 -15 0 0 0.2 0.2 {}
+T {@VCCBPIN} 7.5 -30 0 0 0.15 0.15 {}
+T {@VSSBPIN} 7.5 22.5 0 0 0.15 0.15 {}
+T {@name
+@wn\\/@ln
+@modeln} 10 40 0 0 0.2 0.2 {}
+T {m=@m
+@wp\\/@lp
+@modelp} 10 -70 0 0 0.2 0.2 {}

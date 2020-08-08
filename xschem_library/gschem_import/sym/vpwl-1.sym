@@ -1,0 +1,50 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=vpwl
+template="name=V?
+device=vpwl
+footprint=none
+numslots=0
+description=\\"piece-wise linear signal source\\"
+value=\\"pwl 100n 0 200n 1\\"
+comment=\\"syntax: pwl t1 v1 t2 v2 ...\\"
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 70 -65 2 1 0.333333 0.333333 {}
+T {@value} 70 -45 2 1 0.333333 0.333333 {}
+
+
+L 4 12 -50 20 -72 {}
+L 4 20 -72 20 -62 {}
+L 4 20 -62 36 -64 {}
+L 4 36 -64 38 -56 {}
+L 4 38 -56 46 -50 {}
+
+A 4 30 -60 30 0 360 {}
+
+
+
+
+
+L 3 30 -120 30 -90 {}
+B 5 27.5 -122.5 32.5 -117.5 {pinnumber=1
+pinseq=1
+name=+
+dir=inout
+}
+T {@#0:name} 25.4667 -85 0 0 0.266667 0.266667 {}
+L 3 30 -30 30 0 {}
+B 5 27.5 -2.5 32.5 2.5 {pinnumber=2
+pinseq=2
+name=-
+dir=inout
+}
+T {@#1:name} 25.4667 -35 2 1 0.266667 0.266667 {}

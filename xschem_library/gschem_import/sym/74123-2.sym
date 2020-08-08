@@ -1,0 +1,104 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=74123
+template="device=74123
+footprint=DIP16
+numslots=2
+name=U?
+description=\\"2 retriggerable monoflops with clear\\"
+symversion=1.0
+slot=1
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/74HC_HCT123_CNV_2.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="16 8"
+}
+V {}
+S {}
+E {}
+T {@name} 180 -190 2 0 0.333333 0.333333 {}
+T {74123} 40 -184 2 1 0.333333 0.333333 {}
+
+L 4 40 0 180 0 {}
+L 4 180 -180 180 0 {}
+L 4 40 -180 180 -180 {}
+L 4 40 -180 40 0 {}
+
+
+A 4 35 -30 5 0 360 {}
+A 4 35 -150 5 0 360 {}
+
+
+
+
+
+L 3 10 -150 30 -150 {}
+B 5 7.5 -152.5 12.5 -147.5 {
+pinseq=1
+name=\_A\_
+dir=in
+pinnumber=1:9
+}
+T {@#0:pinnumber} 30 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 45 -150 2 1 0.266667 0.266667 {}
+L 3 10 -110 40 -110 {}
+B 5 7.5 -112.5 12.5 -107.5 {
+pinseq=2
+name=B
+dir=in
+pinnumber=2:10
+}
+T {@#1:pinnumber} 30 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 45 -110 2 1 0.266667 0.266667 {}
+L 3 10 -30 30 -30 {}
+B 5 7.5 -32.5 12.5 -27.5 {
+pinseq=3
+name=\_CLR\_
+dir=in
+pinnumber=3:11
+}
+T {@#2:pinnumber} 30 -35 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 45 -30 2 1 0.266667 0.266667 {}
+L 3 180 -150 210 -150 {}
+B 5 207.5 -152.5 212.5 -147.5 {
+pinseq=4
+name=Q
+dir=out
+pinnumber=13:5
+}
+T {@#3:pinnumber} 190 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 175 -150 2 0 0.266667 0.266667 {}
+L 3 180 -110 210 -110 {}
+B 5 207.5 -112.5 212.5 -107.5 {
+pinseq=5
+name=\_Q\_
+dir=out
+pinnumber=4:12
+}
+T {@#4:pinnumber} 190 -115 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 175 -110 2 0 0.266667 0.266667 {}
+L 3 180 -70 210 -70 {}
+B 5 207.5 -72.5 212.5 -67.5 {
+pinseq=6
+name=Ce
+dir=inout
+pinnumber=14:6
+}
+T {@#5:pinnumber} 190 -75 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 175 -70 2 0 0.266667 0.266667 {}
+L 3 180 -30 210 -30 {}
+B 5 207.5 -32.5 212.5 -27.5 {
+pinseq=7
+name=Re/Ce
+dir=inout
+pinnumber=15:7
+}
+T {@#6:pinnumber} 190 -35 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 175 -30 2 0 0.266667 0.266667 {}

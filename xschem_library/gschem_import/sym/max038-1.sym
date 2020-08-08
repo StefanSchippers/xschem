@@ -1,0 +1,86 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX038
+template="device=MAX038
+name=U?
+footprint=DIP20
+description=\\"high frequency waveform generator\\"
+numslots=0
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX038.pdf
+DV+=DV+
+DGND=DGND
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @DV+ @DGND @GND"
+
+extra="DV+ DGND GND"
+extra_pinnumber="16 15 2,6,9,11,18"
+}
+V {}
+S {}
+E {}
+T {@name} 230 -410 2 0 0.333333 0.333333 {}
+T {MAX038} 30 -405 2 1 0.333333 0.333333 {}
+
+L 4 30 0 230 0 {}
+L 4 230 -400 230 0 {}
+L 4 30 -400 230 -400 {}
+L 4 30 -400 30 0 {}
+
+
+
+
+
+
+
+L 3 230 -380 260 -380 {}
+B 5 257.5 -382.5 262.5 -377.5 {pinnumber=1
+pinseq=1
+name=REF
+dir=out
+}
+T {@#0:pinnumber} 240 -385 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 225 -380 2 0 0.266667 0.266667 {}
+L 3 0 -380 30 -380 {}
+B 5 -2.5 -382.5 2.5 -377.5 {pinnumber=3
+pinseq=3
+name=A0
+dir=in
+}
+T {@#1:pinnumber} 20 -385 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -380 2 1 0.266667 0.266667 {}
+L 3 0 -340 30 -340 {}
+B 5 -2.5 -342.5 2.5 -337.5 {pinnumber=4
+pinseq=4
+name=A1
+dir=in
+}
+T {@#2:pinnumber} 20 -345 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -340 2 1 0.266667 0.266667 {}
+L 3 0 -300 30 -300 {}
+B 5 -2.5 -302.5 2.5 -297.5 {pinnumber=5
+pinseq=5
+name=COSC
+dir=inout
+}
+T {@#3:pinnumber} 20 -305 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -300 2 1 0.266667 0.266667 {}
+L 3 0 -260 30 -260 {}
+B 5 -2.5 -262.5 2.5 -257.5 {pinnumber=7
+pinseq=7
+name=DADJ
+dir=in
+}
+T {@#4:pinnumber} 20 -265 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -260 2 1 0.266667 0.266667 {}
+L 3 0 -220 30 -220 {}
+B 5 -2.5 -222.5 2.5 -217.5 {pinnumber=8
+pinseq=8
+name=FADJ
+dir=in
+}
+T {@#5:pinnumber} 20 -225 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -220 2 1 0.266667 0.266667 {}

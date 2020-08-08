@@ -1,0 +1,25 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=flash
+vhdl_stop=true
+format="@name @pinlist @model dvt=@dvt width=@width length=@length m=1" 
+template="name=x1 model=flash1 dvt=0 width=0.16u length=0.3u m=1"}
+V {}
+S {}
+E {}
+L 4 -15 -30 -15 30 {}
+L 4 -15 -20 0 -20 {}
+L 4 0 -30 0 -20 {}
+L 4 -15 20 0 20 {}
+L 4 0 20 0 30 {}
+L 4 -30 -15 -30 15 {}
+L 4 -30 0 -30 5 {}
+L 4 -40 0 -32.5 0 {}
+L 4 -40 0 -30 0 {}
+L 4 -15 0 0 0 {}
+L 8 -22.5 -15 -22.5 15 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=D dir=inout}
+B 5 -42.5 -2.5 -37.5 2.5 {name=G dir=in}
+B 5 -2.5 27.5 2.5 32.5 {name=S dir=inout}
+B 5 -2.5 -2.5 2.5 2.5 {name=B dir=in}
+T {DVT=@dvt} -11 4 0 0 0.2 0.2 {}
+T {@name} -10 -12 0 0 0.2 0.2 {}

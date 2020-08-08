@@ -1,0 +1,15 @@
+put [at 1:1]
+ arg: a
+ arg: 1
+if a [at 2:6]
+then:
+ if b [at 3:7]
+ then:
+  print [at 4:3]
+   arg: {then-then}
+ else:
+  print [at 6:3]
+   arg: {then-else}
+else:
+ print [at 9:2]
+  arg: {else}

@@ -1,0 +1,20 @@
+v {xschem version=2.9.5_RC8 file_version=1.1}
+G {type=isource
+format="@name @pinlist TABLE \{ @CTRL \} = @TABLE"
+template="name=G1 CTRL=\\"V(plus,minus)\\" TABLE=\\"(0, 0) (1, 100m) (2, 300m)\\""}
+V {}
+S {}
+E {}
+L 4 0 -30 0 -15 {}
+L 4 -10 0 10 0 {}
+L 4 -20 12.5 -17.5 5 {}
+L 4 -22.5 5 -17.5 5 {}
+L 4 -22.5 5 -20 12.5 {}
+L 4 0 15 0 30 {}
+L 4 -20 -12.5 -20 5 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout}
+B 5 -2.5 27.5 2.5 32.5 {name=m dir=inout}
+A 4 0 0 15 270 360 {}
+T {@name} 20 -17.5 0 0 0.2 0.2 {}
+T {@CTRL
+@TABLE} 20 0 0 0 0.2 0.2 {}

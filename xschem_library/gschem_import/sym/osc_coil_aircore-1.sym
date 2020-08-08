@@ -1,0 +1,34 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=OSC_COIL
+template="device=OSC_COIL
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {OSC COIL} 100 -30 2 1 0.333333 0.333333 {}
+T {@name} 100 -230 2 1 0.333333 0.333333 {}
+
+
+L 4 70 -60 90 -60 {}
+
+
+A 4 70 -240 20 90 180 {}
+A 4 70 -200 20 90 180 {}
+A 4 70 -160 20 90 180 {}
+A 4 70 -120 20 90 180 {}
+A 4 70 -80 20 90 180 {}
+A 4 90 -80 20 270 180 {}
+A 4 90 -120 20 270 180 {}
+A 4 90 -160 20 270 180 {}
+
+
+
+

@@ -1,0 +1,47 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=VARISTOR
+type=MOV
+template="device=MOV
+description=\\"Metal Oxide Varistor\\"
+numslots=0
+footprint=MOV
+device=VARISTOR
+name=V?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 20 -40 2 1 0.333333 0.333333 {}
+
+L 4 15 -10 75 -10 {}
+L 4 75 -30 75 -10 {}
+L 4 15 -30 75 -30 {}
+L 4 15 -30 15 -10 {}
+
+L 4 15 0 25 0 {}
+L 4 25 0 65 -40 {}
+
+
+
+
+
+
+L 3 0 -20 15.2 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=1
+pinseq=1
+name=1
+dir=in
+}
+L 3 75 -20 90 -20 {}
+B 5 87.5 -22.5 92.5 -17.5 {pinnumber=2
+pinseq=2
+name=2
+dir=in
+}

@@ -1,0 +1,58 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=OSC
+template="device=OSC
+name=U?
+footprint=OSC14
+description=\\"Generic Oscillator Can\\"
+numslots=0
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND"
+
+extra="GND"
+extra_pinnumber="2"
+}
+V {}
+S {}
+E {}
+T {@device} 50 -70 2 1 0.333333 0.333333 {}
+T {@name} 50 -90 2 1 0.333333 0.333333 {}
+
+L 4 0 0 90 0 {}
+L 4 90 -60 90 0 {}
+L 4 0 -60 90 -60 {}
+L 4 0 -60 0 0 {}
+
+L 4 7.5 -17.5 22.5 -17.5 {}
+L 4 22.5 -40 22.5 -17.5 {}
+L 4 22.5 -40 40 -40 {}
+L 4 40 -40 40 -17.5 {}
+L 4 40 -17.5 57.5 -17.5 {}
+L 4 57.5 -40 57.5 -17.5 {}
+L 4 57.5 -40 72.5 -40 {}
+
+
+
+
+
+
+L 3 90 -10 120 -10 {}
+B 5 117.5 -12.5 122.5 -7.5 {pinnumber=3
+pinseq=3
+dir=out
+name=OUT
+}
+T {@#0:pinnumber} 95 -15 2 1 0.333333 0.333333 {layer=13}
+T {@#0:name} 57.5 -5 2 1 0.266667 0.266667 {}
+L 3 10 -90 10 -60 {}
+B 5 7.5 -92.5 12.5 -87.5 {pinnumber=4
+pinseq=4
+dir=inout
+name=Vcc
+}
+T {@#1:pinnumber} 27.5 -77.5 0 1 0.333333 0.333333 {layer=13}
+T {@#1:name} 5 -45 2 1 0.266667 0.266667 {}

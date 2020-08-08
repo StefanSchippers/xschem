@@ -1,0 +1,55 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=photodiode
+template="device=photodiode
+name=PD?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 90 -80 0 1 0.333333 0.333333 {}
+
+
+L 4 40 -40 50 -50 {}
+L 4 50 -50 60 -40 {}
+L 4 40 -40 60 -40 {}
+L 4 40 -50 60 -50 {}
+L 4 50 -70 50 -50 {}
+L 4 50 -40 50 -20 {}
+L 4 15.4 -65.5 21.9 -70.2 {}
+L 4 8.2 -82.6 9.5 -74.2 {}
+L 4 8.2 -82.6 22.9 -62.2 {}
+L 4 21.9 -70.2 23 -62.1 {}
+L 4 15.4 -65.5 23 -62.1 {}
+L 4 -3.7 -89.8 9.5 -74.2 {}
+L 4 15 -49.4 21.5 -54.1 {}
+L 4 7.8 -66.5 9.1 -58.1 {}
+L 4 7.8 -66.5 22.5 -46.1 {}
+L 4 21.5 -54.1 22.6 -46 {}
+L 4 15 -49.4 22.6 -46 {}
+L 4 -4.1 -73.7 9.1 -58.1 {}
+
+A 4 50 -45 20 0 360 {}
+
+
+
+
+
+L 3 50 -20 50 0 {}
+B 5 47.5 -2.5 52.5 2.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+L 3 50 -90 50 -70 {}
+B 5 47.5 -92.5 52.5 -87.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}

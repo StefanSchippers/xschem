@@ -1,0 +1,55 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=PMOS_TRANSISTOR
+template="device=PMOS_TRANSISTOR
+name=Q?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 70 -60 2 1 0.333333 0.333333 {}
+
+
+L 4 30 -60 30 -20 {}
+L 4 20 -60 20 -20 {}
+L 4 30 -60 50 -60 {}
+L 4 30 -20 50 -20 {}
+L 4 30 -40 50 -40 {}
+L 4 40 -30 50 -40 {}
+L 4 40 -50 50 -40 {}
+
+
+
+
+
+
+L 3 50 -80 50 -60 {}
+B 5 47.5 -82.5 52.5 -77.5 {pinnumber=D
+pinseq=1
+name=D
+dir=inout
+}
+L 3 0 -40 20 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinnumber=G
+pinseq=2
+name=G
+dir=inout
+}
+L 3 50 -20 50 0 {}
+B 5 47.5 -2.5 52.5 2.5 {pinnumber=S
+pinseq=3
+name=S
+dir=inout
+}
+L 3 50 -40 70 -40 {}
+B 5 67.5 -42.5 72.5 -37.5 {pinnumber=B
+pinseq=4
+name=B
+dir=inout
+}

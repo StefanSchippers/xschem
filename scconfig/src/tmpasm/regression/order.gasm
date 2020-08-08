@@ -1,0 +1,51 @@
+# test if without an else
+put list {one two three four}
+
+print list {\n}
+
+print {\nnothing:\n}
+
+# do nothing: order matches
+order out list {one} {before} {two}
+print out {\n}
+
+order out list {one} {before} {one}
+print out {\n}
+
+order out list {one} {after} {one}
+print out {\n}
+
+order out list {two} {after} {one}
+print out {\n}
+
+# do nothing: not on list matches
+order out list {nine} {after} {one}
+print out {\n}
+order out list {one} {after} {nine}
+print out {\n}
+
+print {\nbefore:\n}
+order out list {two} {before} {one}
+print out {\n}
+
+order out list {four} {before} {one}
+print out {\n}
+
+order out list {four} {before} {three}
+print out {\n}
+
+order out list {three} {before} {two}
+print out {\n}
+
+print {\nafter:\n}
+order out list {one} {after} {two}
+print out {\n}
+
+order out list {one} {after} {four}
+print out {\n}
+
+order out list {two} {after} {three}
+print out {\n}
+
+order out list {two} {after} {four}
+print out {\n}

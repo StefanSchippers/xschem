@@ -1,0 +1,45 @@
+v {xschem version=2.9.6 file_version=1.1}
+G {type=subcircuit
+vhdl_stop=true
+verilog_netlist=true
+format="@name @pinlist @symname"
+template="name=x1 dim=5 width=8 hex=0 
+datafile=ram.list modulename=ram access_delay=3000 oe_delay=300"
+generic_type="datafile=string modulename=string"
+}
+V {}
+S {}
+E {}
+L 4 -130 -70 130 -70 {}
+L 4 -130 70 130 70 {}
+L 4 -130 -70 -130 70 {}
+L 4 130 -70 130 70 {}
+L 4 -150 -60 -130 -60 {}
+L 4 -150 -40 -130 -40 {}
+L 4 130 -60 150 -60 {}
+L 4 -150 -20 -130 -20 {}
+L 4 -150 0 -130 0 {}
+L 4 -150 20 -130 20 {}
+L 4 -150 40 -130 40 {}
+L 4 -150 60 -130 60 {}
+B 5 -152.5 -62.5 -147.5 -57.5 {name=ADD[dim-1:0] dir=in }
+B 5 -152.5 -42.5 -147.5 -37.5 {name=M[width-1:0] dir=in }
+B 5 147.5 -62.5 152.5 -57.5 {name=DOUT[width-1:0] verilog_type=wire dir=out }
+B 5 -152.5 -22.5 -147.5 -17.5 {name=DIN[width-1:0] dir=in }
+B 5 -152.5 -2.5 -147.5 2.5 {name=WEN dir=in }
+B 5 -152.5 17.5 -147.5 22.5 {name=CEN dir=in }
+B 5 -152.5 37.5 -147.5 42.5 {name=OEN dir=in }
+B 5 -152.5 57.5 -147.5 62.5 {name=CK dir=in }
+T {@symname} -31.5 -6 0 0 0.3 0.3 {}
+T {@name} 135 -82 0 0 0.2 0.2 {}
+T {ADD[dim-1:0]} -125 -64 0 0 0.2 0.2 {}
+T {M[width-1:0]} -125 -44 0 0 0.2 0.2 {}
+T {DOUT[width-1:0]} 125 -64 0 1 0.2 0.2 {}
+T {DIN[width-1:0]} -125 -24 0 0 0.2 0.2 {}
+T {WEN} -125 -4 0 0 0.2 0.2 {}
+T {CEN} -125 16 0 0 0.2 0.2 {}
+T {OEN} -125 36 0 0 0.2 0.2 {}
+T {CK} -125 56 0 0 0.2 0.2 {}
+T {2} -115 -84 0 0 0.2 0.2 {}
+T {@dim} -105 -94 0 0 0.2 0.2 {}
+T {x @width} -95 -84 0 0 0.2 0.2 {}

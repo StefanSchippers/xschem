@@ -1,0 +1,57 @@
+
+#  <pinnumber>  <direction>[<circle><edge_trigger>] <name>
+# circle: !
+# edge_trigger: >
+# direction is mandatory: i=input, o=output, b=bidirectional (inout)
+
+[labels] 
+@device
+@symname
+@name
+! type=ic
+! format="@spiceprefix@name @pinlist @symname"
+! tedax_format="footprint @name @footprint 
+! value @name @value
+! device @name @device
+! @comptag"
+! template="name=U1 
+! device=r8c-33c 
+! footprint=TQFP32_7"
+--vmode
+[left]
+1 P4.2/VREF
+2 MODE
+3 RESET
+4 XOUT
+5 VSS
+6 XIN
+7 VDD
+8 P3.7/SDA
+[bottom]
+9 P3.5/SCL
+10 P3.4
+11 P3.3
+12 P2.2
+13 P2.1
+14 P2.0
+15 P3.1
+16 P4.5
+[top]
+32 P0.0
+31 TxD1/P0.1
+30 RxD1/P0.2
+29 CLK1/P0.3
+28 P0.4
+27 P0.5
+26 P0.6
+25 P0.7
+[right]
+24 P1.0
+23 P1.1
+22 P1.2
+21 P1.3
+20 TxD0/P1.4
+19 RxD0/P1.5
+18 CLK0/P1.6
+17 P1.7
+

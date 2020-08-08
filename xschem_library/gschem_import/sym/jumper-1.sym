@@ -1,0 +1,44 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=JUMPER
+template="device=JUMPER
+name=J?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 30 -50 2 1 0.333333 0.333333 {}
+
+L 4 0 -20 20 -20 {}
+L 4 20 -80 20 -20 {}
+L 4 0 -80 20 -80 {}
+L 4 0 -80 0 -20 {}
+
+
+A 4 10 -70 5 0 360 {}
+A 4 10 -30 5 0 360 {}
+
+
+
+
+
+L 3 10 -20 10 0 {}
+B 5 7.5 -2.5 12.5 2.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 15 -5 2 1 0.266667 0.266667 {layer=13}
+L 3 10 -100 10 -80 {}
+B 5 7.5 -102.5 12.5 -97.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 15 -85 2 1 0.266667 0.266667 {layer=13}

@@ -1,0 +1,142 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4051
+template="device=4051
+name=U?
+footprint=DIL16
+description=\\"8-1 analogue multiplexer/demultiplexer\\"
+numslots=0
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4051B_CNV_3.pdf
+VDD=VDD
+VSS=VSS
+VEE=VEE
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VDD @VSS @VEE"
+
+extra="VDD VSS VEE"
+extra_pinnumber="16 8 7"
+}
+V {}
+S {}
+E {}
+T {@name} 170 -270 2 0 0.333333 0.333333 {}
+T {4051} 30 -264 2 1 0.333333 0.333333 {}
+
+L 4 30 0 170 0 {}
+L 4 170 -260 170 0 {}
+L 4 30 -260 170 -260 {}
+L 4 30 -260 30 0 {}
+
+
+
+
+
+
+
+L 3 170 -110 200 -110 {}
+B 5 197.5 -112.5 202.5 -107.5 {pinnumber=1
+pinseq=1
+name=X4
+dir=inout
+}
+T {@#0:pinnumber} 180 -115 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 165 -110 2 0 0.266667 0.266667 {}
+L 3 170 -50 200 -50 {}
+B 5 197.5 -52.5 202.5 -47.5 {pinnumber=2
+pinseq=2
+name=X6
+dir=inout
+}
+T {@#1:pinnumber} 180 -55 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 165 -50 2 0 0.266667 0.266667 {}
+L 3 0 -130 30 -130 {}
+B 5 -2.5 -132.5 2.5 -127.5 {pinnumber=3
+pinseq=3
+name=X
+dir=inout
+}
+T {@#2:pinnumber} 20 -135 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -130 2 1 0.266667 0.266667 {}
+L 3 170 -20 200 -20 {}
+B 5 197.5 -22.5 202.5 -17.5 {pinnumber=4
+pinseq=4
+name=X7
+dir=inout
+}
+T {@#3:pinnumber} 180 -25 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 165 -20 2 0 0.266667 0.266667 {}
+L 3 170 -80 200 -80 {}
+B 5 197.5 -82.5 202.5 -77.5 {pinnumber=5
+pinseq=5
+name=X5
+dir=inout
+}
+T {@#4:pinnumber} 180 -85 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 165 -80 2 0 0.266667 0.266667 {}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=6
+pinseq=6
+name=Inh
+dir=in
+}
+T {@#5:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -20 2 1 0.266667 0.266667 {}
+L 3 0 -170 30 -170 {}
+B 5 -2.5 -172.5 2.5 -167.5 {pinnumber=9
+pinseq=9
+name=C
+dir=in
+}
+T {@#6:pinnumber} 20 -175 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -170 2 1 0.266667 0.266667 {}
+L 3 0 -200 30 -200 {}
+B 5 -2.5 -202.5 2.5 -197.5 {pinnumber=10
+pinseq=10
+name=B
+dir=in
+}
+T {@#7:pinnumber} 20 -205 2 0 0.266667 0.266667 {layer=13}
+T {@#7:name} 35 -200 2 1 0.266667 0.266667 {}
+L 3 0 -230 30 -230 {}
+B 5 -2.5 -232.5 2.5 -227.5 {pinnumber=11
+pinseq=11
+name=A
+dir=in
+}
+T {@#8:pinnumber} 20 -235 2 0 0.266667 0.266667 {layer=13}
+T {@#8:name} 35 -230 2 1 0.266667 0.266667 {}
+L 3 170 -140 200 -140 {}
+B 5 197.5 -142.5 202.5 -137.5 {pinnumber=12
+pinseq=12
+name=X3
+dir=inout
+}
+T {@#9:pinnumber} 180 -145 2 1 0.266667 0.266667 {layer=13}
+T {@#9:name} 165 -140 2 0 0.266667 0.266667 {}
+L 3 170 -230 200 -230 {}
+B 5 197.5 -232.5 202.5 -227.5 {pinnumber=13
+pinseq=13
+name=X0
+dir=inout
+}
+T {@#10:pinnumber} 180 -235 2 1 0.266667 0.266667 {layer=13}
+T {@#10:name} 165 -230 2 0 0.266667 0.266667 {}
+L 3 170 -200 200 -200 {}
+B 5 197.5 -202.5 202.5 -197.5 {pinnumber=14
+pinseq=14
+name=X1
+dir=inout
+}
+T {@#11:pinnumber} 180 -205 2 1 0.266667 0.266667 {layer=13}
+T {@#11:name} 165 -200 2 0 0.266667 0.266667 {}
+L 3 170 -170 200 -170 {}
+B 5 197.5 -172.5 202.5 -167.5 {pinnumber=15
+pinseq=15
+name=X2
+dir=inout
+}
+T {@#12:pinnumber} 180 -175 2 1 0.266667 0.266667 {layer=13}
+T {@#12:name} 165 -170 2 0 0.266667 0.266667 {}

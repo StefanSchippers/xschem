@@ -1,0 +1,85 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=M41T00
+template="name=U?
+device=M41T00
+footprint=SO8
+description=\\"Serial RTC (Real Time Clock)\\"
+author=\\"Bjørnar Ness bjornar.nessATsubdimension.com\\"
+numslots=0
+GND=GND
+Vcc=Vcc
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND @Vcc"
+
+extra="GND Vcc"
+extra_pinnumber="4 8"
+}
+V {}
+S {}
+E {}
+T {@name} 150 -200 2 0 0.333333 0.333333 {}
+T {M41T00} 30 -210 0 0 0.333333 0.333333 {}
+
+L 4 30 -30 150 -30 {}
+L 4 150 -190 150 -30 {}
+L 4 30 -190 150 -190 {}
+L 4 30 -190 30 -30 {}
+
+
+
+
+
+
+
+L 3 0 -160 30 -160 {}
+B 5 -2.5 -162.5 2.5 -157.5 {pinnumber=1
+name=OSCI
+pinseq=1
+dir=in
+}
+T {@#0:pinnumber} 20 -165 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -168.333 0 0 0.333333 0.333333 {}
+L 3 150 -160 180 -160 {}
+B 5 177.5 -162.5 182.5 -157.5 {pinnumber=2
+name=OSCO
+pinseq=2
+dir=out
+}
+T {@#1:pinnumber} 160 -165 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 145 -168.333 0 1 0.333333 0.333333 {}
+L 3 60 -30 60 0 {}
+B 5 57.5 -2.5 62.5 2.5 {pinnumber=3
+name=Vbat
+pinseq=3
+dir=inout
+}
+T {@#2:pinnumber} 50 -15 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 51.6667 -35 3 0 0.333333 0.333333 {}
+L 3 150 -120 180 -120 {}
+B 5 177.5 -122.5 182.5 -117.5 {pinnumber=5
+name=SDA
+pinseq=4
+dir=inout
+}
+T {@#3:pinnumber} 160 -125 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 145 -128.333 0 1 0.333333 0.333333 {}
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=6
+name=SCL
+pinseq=5
+dir=inout
+}
+T {@#4:pinnumber} 20 -125 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -128.333 0 0 0.333333 0.333333 {}
+L 3 150 -80 180 -80 {}
+B 5 177.5 -82.5 182.5 -77.5 {pinnumber=7
+name=FT/OUT
+pinseq=6
+dir=out
+}
+T {@#5:pinnumber} 160 -85 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 145 -88.3333 0 1 0.333333 0.333333 {}

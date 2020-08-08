@@ -1,0 +1,57 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=IPS021
+template="name=U?
+device=IPS021
+numslots=0
+footprint=TO220
+description=\\"Fully Protected Power MOSFET Switch\\"
+documentation=http://www.irf.com/product-info/datasheets/data/ips021.pdf
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 110 -95 2 1 0.333333 0.333333 {}
+T {@device} 20 -95 2 1 0.333333 0.333333 {}
+
+L 4 20 0 130 0 {}
+L 4 130 -90 130 0 {}
+L 4 20 -90 130 -90 {}
+L 4 20 -90 20 0 {}
+
+
+
+
+
+
+
+L 3 0 -40 20 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinnumber=1
+pinseq=1
+dir=in
+name=IN
+}
+T {@#0:pinnumber} 15 -45 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 30 -40 2 1 0.266667 0.266667 {}
+L 3 130 -70 150 -70 {}
+B 5 147.5 -72.5 152.5 -67.5 {pinnumber=2
+pinseq=2
+dir=out
+name=D
+}
+T {@#1:pinnumber} 135 -75 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 120 -70 2 0 0.266667 0.266667 {}
+L 3 130 -10 150 -10 {}
+B 5 147.5 -12.5 152.5 -7.5 {pinnumber=3
+pinseq=3
+dir=inout
+name=S
+}
+T {@#2:pinnumber} 135 -15 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 120 -10 2 0 0.266667 0.266667 {}

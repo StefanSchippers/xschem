@@ -1,0 +1,32 @@
+foreach item in {this is a list of words} [at 7:1]
+ print [at 8:2]
+  arg: item
+  arg: {
+}
+put [at 15:1]
+ arg: nl
+ arg: {
+}
+foreach item in {foo bar baz} [at 16:1]
+ foreach w in [~next: ~item~~nl~~] [at 17:2]
+  print [at 18:3]
+   arg: w
+put [at 27:1]
+ arg: libs
+ arg: {-lsdl -ltcl8.4}
+foreach l in libs [at 28:1]
+ print [at 29:2]
+  arg: {l=}
+  arg: l
+  arg: {
+}
+ switch l [at 30:2]
+  case {^-lsdl}
+   put [at 31:19]
+    arg: libs
+    arg: [~-lm ~libs~ -lsvga~]
+print [at 34:1]
+ arg: {libs=}
+ arg: libs
+ arg: {
+}

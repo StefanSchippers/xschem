@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>NETLISTING</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="commands.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="net_probes.html" class="next">NEXT</a>
+ <!-- slide title -->
+ <h1>NETLISTING</h1><br>
+ <p>
+  XSCHEM has 3 predefined netlisting modes, <kbd>Spice</kbd>, <kbd>Verilog</kbd> and
+  <kbd>VHDL</kbd>. Netlisting mode can be set in the <kbd>Options</kbd> menu
+  (<kbd>Vhdl</kbd>, <kbd>Verilog</kbd> <kbd>Spice</kbd> radio buttons)
+  or with the <kbd>&lt;Shift&gt;V</kbd> key. Once a netlist mode is set, hitting the
+  <kbd>Netlist</kbd> button on the top-right of the menu bar or the <kbd>&lt;Shift&gt;N</kbd>
+  key will produce the netlist file in the defined simulation directory.
+  The simulation directory is one important path that is specified in the <kbd>xschemrc</kbd>
+  file, if no one is defined XSCHEM will prompt for a directory.
+  The path where netlists are produced can be changed with the
+  <kbd>Simulation-&gt;Set netlist dir</kbd> menu entry.
+  The netlist filename is <kbd>cellname.ext</kbd> where <kbd>cellname</kbd> is the name of the 
+  top-level schematic from which the netlist has been generated, and <kbd>ext</kbd> is the
+  file extension:</p>
+  <ul>
+  <li><kbd>spice</kbd> for spice netlist.</li>
+  <li><kbd>vhdl</kbd> for vhdl netlist.</li>
+  <li><kbd>v</kbd> for verilog netlist.</li>
+  </ul>
+ <h3> EXAMPLE</h3>
+ <p>
+  Consider the following top level schematic, part of the XSCHEM distribution
+  (<kbd>examples/poweramp.sch</kbd>).</p>
+ <img src="netlisting1.png">
+ <p>
+ This schematic is made of some <kbd>leaf</kbd> components and some 
+ <kbd>subcircuit</kbd> components:
+ </p>
+ <ul>
+ <li><kbd>leaf</kbd>: these componens are 'known' to the simulator, 
+  netlist of these blocks is done by specifying a 'format' attribute in the symbol 
+  property string. Examples of leaf components in the schematic above are voltage sources,
+  resistors, capacitors, dependent sources. The following are examples of leaf component
+  instantiations in a SPICE netlist:<br><br>
+ <pre class="code">
+c3 VSS VNN 100u m=1
+r11 VPP net1 0.3 m=1
+r9 VNN net2 0.3 m=1
+r19 OUTM FBN '100k' m=1 
+</pre><br>
+ The format of resistor (and capacitor) SPICE netlist is defined in the 
+ format attribute of the symbol global property: <br><br>
+ <pre class="code">
+format="@name @pinlist @value m=@m"</pre>
+ </li><br>
+ <li><kbd>subcircuit</kbd>: these components are not base blocks known to the simulator, but 
+  are representation of a more complex block. These components have in addition to the symbol
+  a schematic representation. In the picture example the <kbd>mos_power_ampli</kbd> is a
+  subcircuit block. These type of components also have a 'format' property that defines
+  a subcircuit call. A subcircuit call specifies the connections of nets to the symbol pins
+  and the symbol name. The following two subcircuit calls are present in the SPICE
+  netlist:<br><br>
+ <pre class="code">
+x1 OUTM VSSX FBN VPP VNN VSS mos_power_ampli
+x0 OUTP INX FB VPP VNN VSS mos_power_ampli</pre>
+ <br>
+  The format of subcircuit type components is  also defined in the symbol <kbd>format</kbd>
+  attribute: <br><br>
+ <pre class="code">
+format="@name @pinlist @symname"</pre>
+ </li>
+ </ul>
+ <p>
+  For subcircuits, after completing the netlist of the top level the XSCHEM' netlister
+  will recursively generate all the netlists of subcircuit components until leaf
+  schematics are reached that do not instantiate further subcircuits.
+ </p>
+ <pre class="code">
+...
+... (end of top level netlist) 
+...
+* expanding symbol: examples/mos_power_ampli # of pins=6
+
+.subckt mos_power_ampli OUT PLUS MINUS VPP VNN VSS
+*.ipin PLUS
+*.ipin MINUS
+*.ipin VPP
+...
+... </pre>
+ <br>
+ <h3> Other netlist formats</h3>
+ <p>
+  All the concepts explained for SPICE netlist apply for Verilog and VHDL formats. 
+  Its up to the designer to ensure that the objects in the schematic are 'known' to the
+  target simulator. For example a resistor is normally
+  not used in VHDL or Verilog designs, so unless an appropriate 'format'
+  attribute is defined (for example a <kbd>rtran</kbd> device may be good for a verilog
+  resistor with some limitations).
+  The format attribute for Verilog is called <kbd>verilog_format</kbd> and
+  the attribute for VHDL is <kbd>vhdl_format</kbd><br>
+  The following example shows two attributes in a NMOS symbol that define the format
+  for SPICE and for Verilog and some valid default (<kbd>template</kbd>) values:
+ </p>
+ <pre class="code">
+type=nmos
+format="@name @pinlist @model w=@w l=@l m=@m"
+verilog_format="@verilog_gate #(@del ) @name ( @@d , @@s , @@g );"
+template="name=x1 verilog_gate=nmos del=50,50,50 model=NCH w=0.68 l=0.07 m=1"
+generic_type="model=string" </pre>
+ <br> 
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

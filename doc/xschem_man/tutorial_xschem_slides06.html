@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM PRESENTATION</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+.content{ background-image:url('xschem_bg2.png');}
+</style>
+
+</head>
+<body>
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="tutorial_xschem_slides05.html" class="prev">PREV</a>
+<a href="tutorial_xschem_slides01.html" class="home">UP</a>
+<a href="tutorial_xschem_slides061.html" class="next">NEXT</a>
+
+
+ <!-- slide title -->
+ <h1>HIERARCHY, SYMBOLS AND COMPONENT INSTANCES</h1>
+
+ <h3 style="text-align:left; max-width: 55%;margin-left:0;">
+  <ul style="margin-left:0;">
+   <li>Describe complex circuits by using symbols.</li>
+   <li>A component placed in a schematic is an instance of a 
+      <a href="http://repo.hu/projects/xschem/xschem_man/tutorial_create_symbol.html">symbol</a>.</li>
+   <li>A symbol hides the underlying circuit, showing only the interface (pins) to the parent schematic.</li>
+   <li>Repetitive blocks (registers, amplifiers, comparators, logic gates, ...) can be used multiple times in a design.</li>
+   <li>When creating a netlist the circuit is traversed all the way from the top level down to the lowest level leaves.</li>
+   <li>At the lowest level we have primitive symbols, these have attributes telling the netlister how to describe them.</li>
+   <li>A symbol definition is stored in a .sym file (inv.sym), while the circuit implementation is in a .sch file (inv.sch).</li>
+  </ul>
+ </h3>
+ <img src="tutorial_xschem_slides05.png" style="position:fixed; top:15%; right:2%;width:40%; max-width: 40%;">
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

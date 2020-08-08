@@ -1,0 +1,71 @@
+put [at 15:1]
+ arg: myvar
+ arg: {foobar}
+switch myvar [at 16:1]
+ case {baz}
+  put [at 17:14]
+   arg: res
+   arg: {1}
+  print [at 17:27]
+   arg: {this is baz.
+}
+ case {^oob}
+  put [at 18:14]
+   arg: res
+   arg: {2}
+  print [at 18:27]
+   arg: {did you mean out-of-band?
+}
+ case {^f}
+  put [at 19:14]
+   arg: res
+   arg: {3}
+  print [at 19:27]
+   arg: {starts with f.
+}
+ case {oob}
+  put [at 20:14]
+   arg: res
+   arg: {4}
+  print [at 20:27]
+   arg: {OOB!
+}
+ default
+  put [at 21:14]
+   arg: res
+   arg: {0}
+  print [at 21:27]
+   arg: {none.
+}
+print [at 24:1]
+ arg: {result is: }
+ arg: res
+ arg: {
+}
+put [at 28:1]
+ arg: patt
+ arg: {^number$}
+put [at 29:1]
+ arg: REF
+ arg: {3}
+switch [~num ~res~ ber~] [at 30:1]
+ case patt
+  print [at 31:23]
+   arg: {empty
+}
+ case [~^num ~REF~~]
+  print [at 32:23]
+   arg: {reference
+}
+put [at 38:1]
+ arg: cond
+ arg: {blobb}
+switch cond [at 39:1]
+ case {lob}
+  print [at 40:15]
+   arg: {"then"
+}
+ default
+  print [at 41:15]
+   arg: {"else"
+}

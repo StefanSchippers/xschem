@@ -1,0 +1,37 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=spice-IO
+template="device=spice-IO
+name=P?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 85 -25 2 1 0.333333 0.333333 {}
+T {.SUBCKT IO Pin} 18.8 -9.7 2 1 0.2 0.2 {}
+
+
+L 4 40 -30 50 -40 {}
+L 4 40 -30 50 -20 {}
+L 4 50 -40 70 -40 {}
+L 4 50 -20 70 -20 {}
+L 4 70 -40 80 -30 {}
+L 4 70 -20 80 -30 {}
+
+
+
+
+
+
+L 3 20 -30 40 -30 {}
+B 5 17.5 -32.5 22.5 -27.5 {pinseq=1
+pinnumber=1
+dir=inout
+name=1
+}

@@ -1,0 +1,13 @@
+[labels]
+--hide-pinnumber
+--auto-pinnumber
+@name
+@symname
+! type=subcircuit
+! format="@name @pinlist @symname"
+! template="name=X1"
+[right]
+  o      Z
+[left]
+  i      A
+  i      B

@@ -1,0 +1,38 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=symbol
+template="graphical=1
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {FILE:} 900 -40 2 1 0.266667 0.266667 {}
+T {REVISION:} 1250 -40 2 1 0.266667 0.266667 {}
+T {DRAWN BY: } 1250 -10 2 1 0.266667 0.266667 {}
+T {PAGE} 900 -10 2 1 0.266667 0.266667 {}
+T {OF} 1070 -10 2 1 0.266667 0.266667 {}
+T {TITLE} 900 -70 2 1 0.266667 0.266667 {}
+
+L 4 0 0 1650 0 {}
+L 4 1650 -1160 1650 0 {}
+L 4 0 -1160 1650 -1160 {}
+L 4 0 -1160 0 0 {}
+L 4 890 0 1650 0 {}
+L 4 1650 -140 1650 0 {}
+L 4 890 -140 1650 -140 {}
+L 4 890 -140 890 0 {}
+
+L 4 1240 -60 1240 0 {}
+L 4 890 -60 1650 -60 {}
+
+
+
+
+
+

@@ -1,0 +1,101 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4518
+template="device=4518
+footprint=DIP16
+slot=1
+numslots=2
+name=U?
+description=\\"2 BCD counter\\"
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4518B_CNV_3.pdf
+VDD=VDD
+VSS=VSS
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VDD @VSS"
+
+extra="VDD VSS"
+extra_pinnumber="16 8"
+}
+V {}
+S {}
+E {}
+T {@name} 180 -190 2 0 0.333333 0.333333 {}
+T {4518} 30 -185 2 1 0.333333 0.333333 {}
+
+L 4 30 0 180 0 {}
+L 4 180 -180 180 0 {}
+L 4 30 -180 180 -180 {}
+L 4 30 -180 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {
+pinseq=1
+name=CLK
+dir=inout
+pinnumber=1:9
+}
+T {@#0:pinnumber} 20 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -150 2 1 0.266667 0.266667 {}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {
+pinseq=2
+name=EN
+dir=in
+pinnumber=2:10
+}
+T {@#1:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -110 2 1 0.266667 0.266667 {}
+L 3 180 -150 210 -150 {}
+B 5 207.5 -152.5 212.5 -147.5 {
+pinseq=3
+name=Q1
+dir=out
+pinnumber=3:11
+}
+T {@#2:pinnumber} 190 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 175 -150 2 0 0.266667 0.266667 {}
+L 3 180 -110 210 -110 {}
+B 5 207.5 -112.5 212.5 -107.5 {
+pinseq=4
+name=Q2
+dir=out
+pinnumber=4:12
+}
+T {@#3:pinnumber} 190 -115 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 175 -110 2 0 0.266667 0.266667 {}
+L 3 180 -70 210 -70 {}
+B 5 207.5 -72.5 212.5 -67.5 {
+pinseq=5
+name=Q3
+dir=out
+pinnumber=5:13
+}
+T {@#4:pinnumber} 190 -75 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 175 -70 2 0 0.266667 0.266667 {}
+L 3 180 -30 210 -30 {}
+B 5 207.5 -32.5 212.5 -27.5 {
+pinseq=6
+name=Q4
+dir=out
+pinnumber=6:14
+}
+T {@#5:pinnumber} 190 -35 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 175 -30 2 0 0.266667 0.266667 {}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {
+pinseq=7
+name=RST
+dir=in
+pinnumber=7:15
+}
+T {@#6:pinnumber} 20 -35 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -30 2 1 0.266667 0.266667 {}

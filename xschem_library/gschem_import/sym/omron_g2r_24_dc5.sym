@@ -1,0 +1,130 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=OMRON_G2R-24-DC5
+template="device=OMRON_G2R-24-DC5
+name=K?
+class=IC
+pins=8
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 10 -110 2 1 0.2 0.2 {}
+
+
+L 4 45 -77 49 -73 {}
+L 4 41 -73 49 -73 {}
+L 4 41 -73 45 -77 {}
+L 4 45 -80 49 -84 {}
+L 4 41 -84 49 -84 {}
+L 4 41 -84 45 -80 {}
+L 4 45 -37 49 -33 {}
+L 4 41 -33 49 -33 {}
+L 4 41 -33 45 -37 {}
+L 4 45 -40 49 -44 {}
+L 4 41 -44 49 -44 {}
+L 4 41 -44 45 -40 {}
+L 4 30 -80 50 -80 {}
+L 4 45 -90 45 -84 {}
+L 4 45 -90 50 -90 {}
+L 4 45 -73 45 -70 {}
+L 4 45 -70 50 -70 {}
+L 4 30 -40 50 -40 {}
+L 4 45 -50 45 -44 {}
+L 4 45 -50 50 -50 {}
+L 4 45 -33 45 -30 {}
+L 4 45 -30 50 -30 {}
+L 4 35 -25 35 -5 {}
+L 4 35 -5 40 -5 {}
+L 4 40 -25 40 -5 {}
+L 4 35 -25 40 -25 {}
+L 4 30 -20 42 -20 {}
+L 4 40 -16 42 -16 {}
+L 4 33 -16 35 -16 {}
+L 4 33 -12 42 -12 {}
+L 4 40 -8 42 -8 {}
+L 4 34 -8 35 -8 {}
+L 4 37 -80 37 -76 {}
+L 4 37 -73 37 -69 {}
+L 4 37 -66 37 -62 {}
+L 4 37 -59 37 -55 {}
+L 4 37 -52 37 -48 {}
+L 4 37 -45 37 -41 {}
+
+A 4 27.5 -80 2.5 0 360 {}
+A 4 27.5 -40 2.5 0 360 {}
+
+A 4 42 -18 2 0 90 {}
+A 4 42 -18 2 270 90 {}
+A 4 33 -14 2 270 270 {}
+A 4 33 -14 2 180 90 {}
+A 4 42 -10 2 0 90 {}
+A 4 42 -10 2 270 90 {}
+A 4 30 -8 2 26 64 {}
+A 4 34 -10 2 207 63 {}
+
+
+
+
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=1
+pinseq=1
+name=COIL1
+dir=inout
+}
+T {@#0:pinnumber} 20.2 -22 2 1 0.2 0.2 {layer=13}
+L 3 50 -90 80 -90 {}
+B 5 77.5 -92.5 82.5 -87.5 {pinnumber=2
+pinseq=2
+name=NC1
+dir=inout
+}
+T {@#1:pinnumber} 55 -92 2 1 0.2 0.2 {layer=13}
+L 3 0 -80 25 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=3
+pinseq=3
+name=COMMON1
+dir=inout
+}
+T {@#2:pinnumber} 19 -82 2 1 0.2 0.2 {layer=13}
+L 3 50 -70 80 -70 {}
+B 5 77.5 -72.5 82.5 -67.5 {pinnumber=4
+pinseq=4
+name=NO1
+dir=inout
+}
+T {@#3:pinnumber} 55 -72 2 1 0.2 0.2 {layer=13}
+L 3 50 -30 80 -30 {}
+B 5 77.5 -32.5 82.5 -27.5 {pinnumber=5
+pinseq=5
+name=NO2
+dir=inout
+}
+T {@#4:pinnumber} 55 -32 2 1 0.2 0.2 {layer=13}
+L 3 0 -40 25 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinnumber=6
+pinseq=6
+name=COMMON2
+dir=inout
+}
+T {@#5:pinnumber} 17.8 -42 2 1 0.2 0.2 {layer=13}
+L 3 50 -50 80 -50 {}
+B 5 77.5 -52.5 82.5 -47.5 {pinnumber=7
+pinseq=7
+name=NC2
+dir=inout
+}
+T {@#6:pinnumber} 55 -52 2 1 0.2 0.2 {layer=13}
+L 3 0 -10 30 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {pinnumber=8
+pinseq=8
+name=COIL2
+dir=inout
+}
+T {@#7:pinnumber} 18.4 -12 2 1 0.2 0.2 {layer=13}

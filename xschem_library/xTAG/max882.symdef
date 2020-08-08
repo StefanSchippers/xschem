@@ -1,0 +1,24 @@
+
+#  <pinnumber>  <direction>[<circle><edge_trigger>] <name>
+# circle: !
+# edge_trigger: >
+# direction is mandatory: i=input, o=output, b=bidirectional (inout)
+
+[labels] 
+@device
+@symname
+@name
+! type=subcircuit
+! format="@spiceprefix@name @pinlist @symname"
+! template="name=U1 device=MAX882 footprint=SO8"
+[left]
+7   i   STBY_
+5   i   IN
+8   i   LBI
+[right]
+1   o   LBO
+4   o   OUT
+[bottom]
+2   io  SET
+3   io  GND1
+6   io  GND

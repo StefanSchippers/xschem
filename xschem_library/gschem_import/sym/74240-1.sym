@@ -1,0 +1,191 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=74240
+template="device=74240
+name=U?
+footprint=DIP20
+description=\\"octal inverting buffer (tristate)\\"
+numslots=0
+documentation=http://www-s.ti.com/sc/ds/sn74hc240.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="20 10"
+}
+V {}
+S {}
+E {}
+T {@name} 170 -300 2 0 0.333333 0.333333 {}
+T {74240} 30 -295 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 170 -30 {}
+L 4 170 -290 170 -30 {}
+L 4 30 -290 170 -290 {}
+L 4 30 -290 30 -30 {}
+
+
+A 4 60 -25 5 0 360 {}
+A 4 140 -25 5 0 360 {}
+A 4 175 -60 5 0 360 {}
+A 4 175 -90 5 0 360 {}
+A 4 175 -120 5 0 360 {}
+A 4 175 -150 5 0 360 {}
+A 4 175 -180 5 0 360 {}
+A 4 175 -210 5 0 360 {}
+A 4 175 -240 5 0 360 {}
+A 4 175 -270 5 0 360 {}
+
+
+
+
+
+L 3 60 -20 60 0 {}
+B 5 57.5 -2.5 62.5 2.5 {pinnumber=1
+pinseq=1
+name=GA
+dir=in
+}
+T {@#0:pinnumber} 65 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 50.9333 -35 2 1 0.266667 0.266667 {}
+L 3 0 -270 30 -270 {}
+B 5 -2.5 -272.5 2.5 -267.5 {pinnumber=2
+pinseq=2
+name=A1
+dir=in
+}
+T {@#1:pinnumber} 20 -275 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -270 2 1 0.266667 0.266667 {}
+L 3 180 -60 200 -60 {}
+B 5 197.5 -62.5 202.5 -57.5 {pinnumber=3
+pinseq=3
+name=YB4
+dir=inout
+}
+T {@#2:pinnumber} 180 -65 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 165 -60 2 0 0.266667 0.266667 {}
+L 3 0 -240 30 -240 {}
+B 5 -2.5 -242.5 2.5 -237.5 {pinnumber=4
+pinseq=4
+name=A2
+dir=in
+}
+T {@#3:pinnumber} 20 -245 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -240 2 1 0.266667 0.266667 {}
+L 3 180 -90 200 -90 {}
+B 5 197.5 -92.5 202.5 -87.5 {pinnumber=5
+pinseq=5
+name=YB3
+dir=inout
+}
+T {@#4:pinnumber} 180 -95 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 165 -90 2 0 0.266667 0.266667 {}
+L 3 0 -210 30 -210 {}
+B 5 -2.5 -212.5 2.5 -207.5 {pinnumber=6
+pinseq=6
+name=A3
+dir=in
+}
+T {@#5:pinnumber} 20 -215 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -210 2 1 0.266667 0.266667 {}
+L 3 180 -120 200 -120 {}
+B 5 197.5 -122.5 202.5 -117.5 {pinnumber=7
+pinseq=7
+name=YB2
+dir=inout
+}
+T {@#6:pinnumber} 180 -125 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 165 -120 2 0 0.266667 0.266667 {}
+L 3 0 -180 30 -180 {}
+B 5 -2.5 -182.5 2.5 -177.5 {pinnumber=8
+pinseq=8
+name=A4
+dir=in
+}
+T {@#7:pinnumber} 20 -185 2 0 0.266667 0.266667 {layer=13}
+T {@#7:name} 35 -180 2 1 0.266667 0.266667 {}
+L 3 180 -150 200 -150 {}
+B 5 197.5 -152.5 202.5 -147.5 {pinnumber=9
+pinseq=9
+name=YB1
+dir=inout
+}
+T {@#8:pinnumber} 180 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#8:name} 165 -150 2 0 0.266667 0.266667 {}
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=11
+pinseq=11
+name=B1
+dir=in
+}
+T {@#9:pinnumber} 20 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#9:name} 35 -150 2 1 0.266667 0.266667 {}
+L 3 180 -180 200 -180 {}
+B 5 197.5 -182.5 202.5 -177.5 {pinnumber=12
+pinseq=12
+name=YA4
+dir=inout
+}
+T {@#10:pinnumber} 180 -185 2 1 0.266667 0.266667 {layer=13}
+T {@#10:name} 165 -180 2 0 0.266667 0.266667 {}
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=13
+pinseq=13
+name=B2
+dir=in
+}
+T {@#11:pinnumber} 20 -125 2 0 0.266667 0.266667 {layer=13}
+T {@#11:name} 35 -120 2 1 0.266667 0.266667 {}
+L 3 180 -210 200 -210 {}
+B 5 197.5 -212.5 202.5 -207.5 {pinnumber=14
+pinseq=14
+name=YA3
+dir=inout
+}
+T {@#12:pinnumber} 180 -215 2 1 0.266667 0.266667 {layer=13}
+T {@#12:name} 165 -210 2 0 0.266667 0.266667 {}
+L 3 0 -90 30 -90 {}
+B 5 -2.5 -92.5 2.5 -87.5 {pinnumber=15
+pinseq=15
+name=B3
+dir=in
+}
+T {@#13:pinnumber} 20 -95 2 0 0.266667 0.266667 {layer=13}
+T {@#13:name} 35 -90 2 1 0.266667 0.266667 {}
+L 3 180 -240 200 -240 {}
+B 5 197.5 -242.5 202.5 -237.5 {pinnumber=16
+pinseq=16
+name=YA2
+dir=inout
+}
+T {@#14:pinnumber} 180 -245 2 1 0.266667 0.266667 {layer=13}
+T {@#14:name} 165 -240 2 0 0.266667 0.266667 {}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=17
+pinseq=17
+name=B4
+dir=in
+}
+T {@#15:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#15:name} 35 -60 2 1 0.266667 0.266667 {}
+L 3 180 -270 200 -270 {}
+B 5 197.5 -272.5 202.5 -267.5 {pinnumber=18
+pinseq=18
+name=YA1
+dir=inout
+}
+T {@#16:pinnumber} 180 -275 2 1 0.266667 0.266667 {layer=13}
+T {@#16:name} 165 -270 2 0 0.266667 0.266667 {}
+L 3 140 -20 140 0 {}
+B 5 137.5 -2.5 142.5 2.5 {pinnumber=19
+pinseq=19
+name=GB
+dir=in
+}
+T {@#17:pinnumber} 145 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#17:name} 130.933 -35 2 1 0.266667 0.266667 {}

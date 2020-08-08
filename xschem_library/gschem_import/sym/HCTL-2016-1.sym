@@ -1,0 +1,152 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=HCTL-2016
+template="device=HCTL-2016
+name=U?
+footprint=DIP16
+description=\\"Quadrature Decoder/Counter Interface\\"
+numslots=0
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="16 8"
+}
+V {}
+S {}
+E {}
+T {@device} 40 -280 2 1 0.333333 0.333333 {}
+T {@name} 40 -300 2 1 0.333333 0.333333 {}
+
+L 4 30 0 170 0 {}
+L 4 170 -270 170 0 {}
+L 4 30 -270 170 -270 {}
+L 4 30 -270 30 0 {}
+
+L 4 30 -220 40 -210 {}
+L 4 30 -200 40 -210 {}
+
+A 4 25 -180 5 0 360 {}
+A 4 25 -150 5 0 360 {}
+
+
+
+
+
+L 3 170 -240 200 -240 {}
+B 5 197.5 -242.5 202.5 -237.5 {pinnumber=1
+pinseq=1
+dir=inout
+name=D0
+}
+T {@#0:pinnumber} 190 -245 2 1 0.333333 0.333333 {layer=13}
+T {@#0:name} 140 -248.333 0 0 0.333333 0.333333 {}
+L 3 170 -210 200 -210 {}
+B 5 197.5 -212.5 202.5 -207.5 {pinnumber=15
+pinseq=2
+dir=inout
+name=D1
+}
+T {@#1:pinnumber} 180 -215 2 1 0.333333 0.333333 {layer=13}
+T {@#1:name} 140 -218.333 0 0 0.333333 0.333333 {}
+L 3 170 -180 200 -180 {}
+B 5 197.5 -182.5 202.5 -177.5 {pinnumber=14
+pinseq=3
+dir=inout
+name=D2
+}
+T {@#2:pinnumber} 180 -185 2 1 0.333333 0.333333 {layer=13}
+T {@#2:name} 140 -188.333 0 0 0.333333 0.333333 {}
+L 3 170 -150 200 -150 {}
+B 5 197.5 -152.5 202.5 -147.5 {pinnumber=13
+pinseq=4
+dir=inout
+name=D3
+}
+T {@#3:pinnumber} 180 -155 2 1 0.333333 0.333333 {layer=13}
+T {@#3:name} 140 -158.333 0 0 0.333333 0.333333 {}
+L 3 170 -120 200 -120 {}
+B 5 197.5 -122.5 202.5 -117.5 {pinnumber=12
+pinseq=5
+dir=inout
+name=D4
+}
+T {@#4:pinnumber} 180 -125 2 1 0.333333 0.333333 {layer=13}
+T {@#4:name} 140 -128.333 0 0 0.333333 0.333333 {}
+L 3 170 -90 200 -90 {}
+B 5 197.5 -92.5 202.5 -87.5 {pinnumber=11
+pinseq=6
+dir=inout
+name=D5
+}
+T {@#5:pinnumber} 180 -95 2 1 0.333333 0.333333 {layer=13}
+T {@#5:name} 140 -98.3333 0 0 0.333333 0.333333 {}
+L 3 170 -60 200 -60 {}
+B 5 197.5 -62.5 202.5 -57.5 {pinnumber=10
+pinseq=7
+dir=inout
+name=D6
+}
+T {@#6:pinnumber} 180 -65 2 1 0.333333 0.333333 {layer=13}
+T {@#6:name} 140 -68.3333 0 0 0.333333 0.333333 {}
+L 3 170 -30 200 -30 {}
+B 5 197.5 -32.5 202.5 -27.5 {pinnumber=9
+pinseq=8
+dir=inout
+name=D7
+}
+T {@#7:pinnumber} 190 -35 2 1 0.333333 0.333333 {layer=13}
+T {@#7:name} 140 -38.3333 0 0 0.333333 0.333333 {}
+L 3 0 -210 30 -210 {}
+B 5 -2.5 -212.5 2.5 -207.5 {pinnumber=2
+pinseq=9
+dir=inout
+name=CLK
+}
+T {@#8:pinnumber} 10 -215 2 1 0.333333 0.333333 {layer=13}
+T {@#8:name} 40 -218.333 0 0 0.333333 0.333333 {}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=7
+pinseq=10
+dir=in
+name=CHA
+}
+T {@#9:pinnumber} 10 -65 2 1 0.333333 0.333333 {layer=13}
+T {@#9:name} 40 -68.3333 0 0 0.333333 0.333333 {}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {pinnumber=6
+pinseq=11
+dir=in
+name=CHB
+}
+T {@#10:pinnumber} 10 -35 2 1 0.333333 0.333333 {layer=13}
+T {@#10:name} 40 -38.3333 0 0 0.333333 0.333333 {}
+L 3 0 -240 30 -240 {}
+B 5 -2.5 -242.5 2.5 -237.5 {pinnumber=3
+pinseq=12
+dir=in
+name=SEL
+}
+T {@#11:pinnumber} 10 -245 2 1 0.333333 0.333333 {layer=13}
+T {@#11:name} 40 -248.333 0 0 0.333333 0.333333 {}
+L 3 0 -180 20 -180 {}
+B 5 -2.5 -182.5 2.5 -177.5 {pinnumber=4
+pinseq=13
+dir=in
+name=/OE
+}
+T {@#12:pinnumber} 10 -185 2 1 0.333333 0.333333 {layer=13}
+T {@#12:name} 40 -188.333 0 0 0.333333 0.333333 {}
+L 3 0 -150 20 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=5
+pinseq=14
+dir=in
+name=/RST
+}
+T {@#13:pinnumber} 10 -155 2 1 0.333333 0.333333 {layer=13}
+T {@#13:name} 40 -158.333 0 0 0.333333 0.333333 {}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM TUTORIAL</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+li{padding-top:2px;}
+p{line-height:1.4;padding: 20px  20px 0;text-align: justify;}
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="xschem_man.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="install_xschem.html" class="next">NEXT</a>
+ <!-- slide title -->
+ <h1> WHAT IS XSCHEM </h1><br>
+
+ <p>
+  Electronic systems today tend to be generally very complex and a lot of work has to be done from 
+  circuit conception to the validation of the final product. One of the milestones of this process 
+  is the creation of the circuit schematic of the electronic system. 
+ </p><p>
+  The circuit diagram has to be drawn using an interactive computer program called 
+  <em>schematic editor </em>, this is usually a very first step in the design cycle of the product.
+   Once the schematic has been drawn on the computer, the circuit connectivity and device list 
+  <em>(netlist)</em> can be generated and sent to a circuit simulator (spice, hspice, eldo, 
+  just to mention some) for performing circuit simulation.
+ </p><p> 
+  So, as you probably guessed, <b>XSCHEM</b> is a schematic capture program that allows to interactively
+  enter an electronic circuit using a graphical and easy to use interface. When the schematic 
+  has been created a circuit netlist can be generated for simulation. Currently XSCHEM supports four 
+  netlist formats:
+ </p>
+ <ol>
+   <li> SPICE netlist
+   <li> VHDL netlist
+   <li> VERILOG netlist
+   <li> tEDAx netlist for Printed board editing software like <a href="http://repo.hu/projects/pcb-rnd">pcb-rnd</a>.
+ </ol><p>
+  XSCHEM was initially created for VLSI design, not for printed circuit board schematics (PCB), however the 
+  recently added tEDAx netlist format is used to export XSCHEM schematics to pcb-rnd or other tEDAx-aware PCB editors.
+  The roadmap for XSCHEM development will focus more in the future to build a tight integration with
+  <a href="http://repo.hu/projects/pcb-rnd">pcb-rnd</a> printed board editor, joining the
+  <a href="http://repo.hu/projects/coraleda">CoralEDA</a> ecosystem philosophy.<br>
+  XSCHEM initial design goal was to handle Integrated Circuit (IC) design and generate netlists for Very Large Scale digital,        
+  analog or mixed mode simulations. While the user interface looks very simple, the netlisting and rendering
+  engine in XSCHEM are designed from the ground-up to handle in the most efficient way very large designs.
+  Also the user interaction has no bells and whistles but is the result of doing actual work on big projects
+  in the most efficient way. This is why for example most of the work is done with bind keys, instead of
+  using context menus or elaborate graphical actions, simply these things will slow your work if most of
+  your schematics have 5-8 levels of hierarchy and 1000K+ transistors.<br>
+  Here under a picture of a VLSI SOC (System On Chip) imported in XSCHEM. As you can see the ability of XSCHEM is to handle
+  really big designs. This has been the primary goal during the whole development of the program.
+  The sample design showed has more than 10 levels of hierarchy and really big schematics. For each hierarchy level one
+  component is expanded until the leaf of the tree is reached. :-)
+  </p>
+  <img src="big_design.png">
+  <p>
+  It is also worth to point out that XSCHEM has nothing to do with GSCHEM, the name similarity is just coincidence.
+  <a href='http://wiki.geda-project.org/geda:gaf'>GSCHEM</a> is another powerful Schematic 
+  Capture program, primarily focused on board level (PCB) system design. See 
+  <a href='http://geda-project.org/'>gEDA</a> for more information.
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

@@ -1,0 +1,107 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=HSDL-3612
+template="name=U?
+description=\\"IrDA SIR integrated transceiver\\"
+documentation=US
+numslots=0
+device=HSDL-3612
+symversion=1.0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {HSDL-3612} 180 -300 2 1 0.333333 0.333333 {}
+T {@name} 40 -300 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 210 -30 {}
+L 4 210 -290 210 -30 {}
+L 4 30 -290 210 -290 {}
+L 4 30 -290 30 -30 {}
+
+
+
+A 4 210 -210 40 270 180 {}
+A 4 210 -110 40 270 180 {}
+
+
+
+
+L 3 100 -320 100 -290 {}
+B 5 97.5 -322.5 102.5 -317.5 {pinnumber=1
+pinseq=1
+dir=inout
+name=Vcc
+}
+T {@#0:pinnumber} 90 -310 0 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 80 -270 2 1 0.333333 0.333333 {}
+L 3 170 -320 170 -290 {}
+B 5 167.5 -322.5 172.5 -317.5 {pinnumber=10
+pinseq=2
+dir=inout
+name=LEDA
+}
+T {@#1:pinnumber} 160 -310 0 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 150 -270 2 1 0.333333 0.333333 {}
+L 3 0 -230 30 -230 {}
+B 5 -2.5 -232.5 2.5 -227.5 {pinnumber=9
+pinseq=3
+dir=in
+name=TXD
+}
+T {@#2:pinnumber} 10 -240 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 40 -230 2 1 0.333333 0.333333 {}
+L 3 0 -170 30 -170 {}
+B 5 -2.5 -172.5 2.5 -167.5 {pinnumber=4
+pinseq=4
+dir=in
+name=MD0
+}
+T {@#3:pinnumber} 10 -180 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 40 -170 2 1 0.333333 0.333333 {}
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=5
+pinseq=5
+dir=in
+name=MD1
+}
+T {@#4:pinnumber} 10 -150 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 40 -140 2 1 0.333333 0.333333 {}
+L 3 0 -80 30 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=8
+pinseq=6
+dir=out
+name=RXD
+}
+T {@#5:pinnumber} 10 -90 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 40 -80 2 1 0.333333 0.333333 {}
+L 3 60 -30 60 0 {}
+B 5 57.5 -2.5 62.5 2.5 {pinnumber=7
+pinseq=7
+dir=inout
+name=GND
+}
+T {@#6:pinnumber} 50 -20 0 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 40 -40 2 1 0.333333 0.333333 {}
+L 3 110 -30 110 0 {}
+B 5 107.5 -2.5 112.5 2.5 {pinnumber=3
+pinseq=8
+dir=inout
+name=GND
+}
+T {@#7:pinnumber} 100 -20 0 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 90 -40 2 1 0.333333 0.333333 {}
+L 3 180 -30 180 0 {}
+B 5 177.5 -2.5 182.5 2.5 {pinnumber=2
+pinseq=9
+dir=inout
+name=AGND
+}
+T {@#8:pinnumber} 170 -20 0 1 0.266667 0.266667 {layer=13}
+T {@#8:name} 150 -40 2 1 0.333333 0.333333 {}

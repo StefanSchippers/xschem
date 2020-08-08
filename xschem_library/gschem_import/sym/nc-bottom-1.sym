@@ -1,0 +1,35 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=DRC_Directive
+template="value=NoConnection
+documentation=nc.pdf
+device=DRC_Directive
+graphical=1
+symversion=1.1
+symbol=nc
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {NC} 31.3333 -15 0 1 0.333333 0.333333 {}
+
+
+L 4 5 -20 35 -20 {}
+
+
+
+
+
+
+L 3 20 -40 20 -20 {}
+B 5 17.5 -42.5 22.5 -37.5 {pinseq=1
+pinnumber=1
+name=1
+dir=inout
+}

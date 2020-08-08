@@ -1,0 +1,32 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=GND
+template="device=GND
+orcad_xsize=2
+orcad_ysize=1
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+
+
+
+A 4 0 -20 10 0 360 {}
+
+
+
+
+
+L 3 0 -10 0 0 {}
+B 5 -2.5 -2.5 2.5 2.5 {pinnumber=1
+pinseq=1
+dir=inout
+name=PWR
+}
+T {@#0:pinnumber} 0 -20 2 1 0.2 0.2 {layer=13}

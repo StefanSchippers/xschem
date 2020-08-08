@@ -1,0 +1,103 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4027
+template="name=U?
+device=4027
+footprint=DIP16
+slot=1
+numslots=2
+description=\\"2 JK master-slave flip-flop\\"
+VSS=VSS
+VDD=VDD
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VSS @VDD"
+
+extra="VSS VDD"
+extra_pinnumber="8 16"
+}
+V {}
+S {}
+E {}
+T {@name} 40 -200 2 0 0.333333 0.333333 {}
+T {4027} 10 -5 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 140 -30 {}
+L 4 140 -190 140 -30 {}
+L 4 30 -190 140 -190 {}
+L 4 30 -190 30 -30 {}
+
+L 4 30 -117.5 40 -110 {}
+L 4 30 -102.5 40 -110 {}
+
+A 4 145 -130 5 0 360 {}
+
+
+
+
+
+L 3 80 -30 80 0 {}
+B 5 77.5 -2.5 82.5 2.5 {
+pinseq=1
+name=R
+dir=in
+pinnumber=12:4
+}
+T {@#0:pinnumber} 85 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 75.4667 -35 2 1 0.266667 0.266667 {}
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {
+pinseq=2
+name=K
+dir=in
+pinnumber=11:5
+}
+T {@#1:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -70 2 1 0.266667 0.266667 {}
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {
+pinseq=3
+name=J
+dir=in
+pinnumber=10:6
+}
+T {@#2:pinnumber} 20 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -150 2 1 0.266667 0.266667 {}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {
+pinseq=4
+name=CLK
+dir=in
+pinnumber=13:3
+}
+T {@#3:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 40 -110 2 1 0.266667 0.266667 {}
+L 3 140 -90 170 -90 {}
+B 5 167.5 -92.5 172.5 -87.5 {
+pinseq=5
+name=Q
+dir=out
+pinnumber=15:1
+}
+T {@#4:pinnumber} 150 -95 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 135 -90 2 0 0.266667 0.266667 {}
+L 3 150 -130 170 -130 {}
+B 5 167.5 -132.5 172.5 -127.5 {
+pinseq=6
+name=\_Q\_
+dir=out
+pinnumber=14:2
+}
+T {@#5:pinnumber} 150 -135 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 135 -130 2 0 0.266667 0.266667 {}
+L 3 80 -220 80 -190 {}
+B 5 77.5 -222.5 82.5 -217.5 {
+pinseq=7
+name=S
+dir=in
+pinnumber=9:7
+}
+T {@#6:pinnumber} 85 -200 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 75.4667 -185 0 0 0.266667 0.266667 {}

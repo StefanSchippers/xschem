@@ -1,0 +1,128 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=ic
+format="@spiceprefix@name @pinlist @symname"
+tedax_format="footprint @name @footprint 
+value @name @value
+device @name @device
+@comptag"
+template="name=U1
+device=FT232RL
+footprint=SSOP28"}
+V {}
+S {}
+E {}
+L 3 -220 -260 -180 -260 {}
+L 3 -220 -220 -180 -220 {}
+L 3 -220 -180 -180 -180 {}
+L 3 -169 -192 -99 -192 {}
+L 3 -220 -140 -180 -140 {}
+L 3 -220 -100 -180 -100 {}
+L 3 -220 -60 -180 -60 {}
+L 3 -220 -20 -180 -20 {}
+L 3 -220 20 -180 20 {}
+L 3 -140 -360 -140 -320 {}
+L 3 -60 -360 -60 -320 {}
+L 3 180 -260 220 -260 {}
+L 3 180 -220 220 -220 {}
+L 3 180 -180 220 -180 {}
+L 3 180 -140 220 -140 {}
+L 3 180 -100 220 -100 {}
+L 3 180 -20 220 -20 {}
+L 3 127 -32 169 -32 {}
+L 3 180 20 220 20 {}
+L 3 127 8 169 8 {}
+L 3 180 60 220 60 {}
+L 3 127 48 169 48 {}
+L 3 180 100 220 100 {}
+L 3 127 88 169 88 {}
+L 3 180 140 220 140 {}
+L 3 141 128 169 128 {}
+L 3 180 180 220 180 {}
+L 3 127 168 169 168 {}
+L 3 180 220 220 220 {}
+L 3 180 260 220 260 {}
+L 3 -140 320 -140 360 {}
+L 3 -80 320 -80 360 {}
+L 3 -20 320 -20 360 {}
+B 5 -222.5 -262.5 -217.5 -257.5 {name=USBDM dir=inout pinnumber=16}
+B 5 -222.5 -222.5 -217.5 -217.5 {name=USBDP dir=inout pinnumber=15}
+B 5 -222.5 -182.5 -217.5 -177.5 {name=_RESET_ dir=inout pinnumber=19}
+B 5 -222.5 -142.5 -217.5 -137.5 {name=OSCI dir=inout pinnumber=27}
+B 5 -222.5 -102.5 -217.5 -97.5 {name=OSCO dir=inout pinnumber=28}
+B 5 -222.5 -62.5 -217.5 -57.5 {name=TEST dir=inout pinnumber=26}
+B 5 -222.5 -22.5 -217.5 -17.5 {name=3V3OUT dir=inout pinnumber=17}
+B 5 -222.5 17.5 -217.5 22.5 {name=AGND dir=inout pinnumber=25}
+B 5 -142.5 -362.5 -137.5 -357.5 {name=VCC dir=inout pinnumber=20}
+B 5 -62.5 -362.5 -57.5 -357.5 {name=VCCIO dir=inout pinnumber=4}
+B 5 217.5 -262.5 222.5 -257.5 {name=CBUS0 dir=inout pinnumber=23}
+B 5 217.5 -222.5 222.5 -217.5 {name=CBUS1 dir=inout pinnumber=22}
+B 5 217.5 -182.5 222.5 -177.5 {name=CBUS2 dir=inout pinnumber=13}
+B 5 217.5 -142.5 222.5 -137.5 {name=CBUS3 dir=inout pinnumber=14}
+B 5 217.5 -102.5 222.5 -97.5 {name=CBUS4 dir=inout pinnumber=12}
+B 5 217.5 -22.5 222.5 -17.5 {name=_DTR_ dir=inout pinnumber=2}
+B 5 217.5 17.5 222.5 22.5 {name=_CTS_ dir=inout pinnumber=11}
+B 5 217.5 57.5 222.5 62.5 {name=_DSR_ dir=inout pinnumber=9}
+B 5 217.5 97.5 222.5 102.5 {name=_DCD_ dir=inout pinnumber=10}
+B 5 217.5 137.5 222.5 142.5 {name=_RI_ dir=inout pinnumber=6}
+B 5 217.5 177.5 222.5 182.5 {name=_RTS_ dir=inout pinnumber=3}
+B 5 217.5 217.5 222.5 222.5 {name=RXD dir=inout pinnumber=5}
+B 5 217.5 257.5 222.5 262.5 {name=TXD dir=inout pinnumber=1}
+B 5 -142.5 357.5 -137.5 362.5 {name=GND dir=inout pinnumber=7}
+B 5 -82.5 357.5 -77.5 362.5 {name=GND dir=inout pinnumber=18}
+B 5 -22.5 357.5 -17.5 362.5 {name=GND dir=inout pinnumber=21}
+P 4 5 -180 -320 180 -320 180 320 -180 320 -180 -320 {}
+T {USBDM} -169 -269.6 0 0 0.4 0.4 {}
+T {@#0:pinnumber} -192 -276 0 1 0.25 0.25 {layer=13}
+T {USBDP} -169 -229.6 0 0 0.4 0.4 {}
+T {@#1:pinnumber} -192 -236 0 1 0.25 0.25 {layer=13}
+T {RESET} -169 -189.6 0 0 0.4 0.4 {}
+T {@#2:pinnumber} -192 -196 0 1 0.25 0.25 {layer=13}
+T {OSCI} -169 -149.6 0 0 0.4 0.4 {}
+T {@#3:pinnumber} -192 -156 0 1 0.25 0.25 {layer=13}
+T {OSCO} -169 -109.6 0 0 0.4 0.4 {}
+T {@#4:pinnumber} -192 -116 0 1 0.25 0.25 {layer=13}
+T {TEST} -169 -69.59999999999999 0 0 0.4 0.4 {}
+T {@#5:pinnumber} -192 -76 0 1 0.25 0.25 {layer=13}
+T {3V3OUT} -169 -29.6 0 0 0.4 0.4 {}
+T {@#6:pinnumber} -192 -36 0 1 0.25 0.25 {layer=13}
+T {AGND} -169 10.4 0 0 0.4 0.4 {}
+T {@#7:pinnumber} -192 4 0 1 0.25 0.25 {layer=13}
+T {VCC} -161 -309 0 0 0.4 0.4 {}
+T {@#8:pinnumber} -156 -332 3 0 0.25 0.25 {layer=13}
+T {VCCIO} -95 -309 0 0 0.4 0.4 {}
+T {@#9:pinnumber} -76 -332 3 0 0.25 0.25 {layer=13}
+T {CBUS0} 169 -269.6 0 1 0.4 0.4 {}
+T {@#10:pinnumber} 192 -276 0 0 0.25 0.25 {layer=13}
+T {CBUS1} 169 -229.6 0 1 0.4 0.4 {}
+T {@#11:pinnumber} 192 -236 0 0 0.25 0.25 {layer=13}
+T {CBUS2} 169 -189.6 0 1 0.4 0.4 {}
+T {@#12:pinnumber} 192 -196 0 0 0.25 0.25 {layer=13}
+T {CBUS3} 169 -149.6 0 1 0.4 0.4 {}
+T {@#13:pinnumber} 192 -156 0 0 0.25 0.25 {layer=13}
+T {CBUS4} 169 -109.6 0 1 0.4 0.4 {}
+T {@#14:pinnumber} 192 -116 0 0 0.25 0.25 {layer=13}
+T {DTR} 169 -29.6 0 1 0.4 0.4 {}
+T {@#15:pinnumber} 192 -36 0 0 0.25 0.25 {layer=13}
+T {CTS} 169 10.4 0 1 0.4 0.4 {}
+T {@#16:pinnumber} 192 4 0 0 0.25 0.25 {layer=13}
+T {DSR} 169 50.4 0 1 0.4 0.4 {}
+T {@#17:pinnumber} 192 44 0 0 0.25 0.25 {layer=13}
+T {DCD} 169 90.40000000000001 0 1 0.4 0.4 {}
+T {@#18:pinnumber} 192 84 0 0 0.25 0.25 {layer=13}
+T {RI} 169 130.4 0 1 0.4 0.4 {}
+T {@#19:pinnumber} 192 124 0 0 0.25 0.25 {layer=13}
+T {RTS} 169 170.4 0 1 0.4 0.4 {}
+T {@#20:pinnumber} 192 164 0 0 0.25 0.25 {layer=13}
+T {RXD} 169 210.4 0 1 0.4 0.4 {}
+T {@#21:pinnumber} 192 204 0 0 0.25 0.25 {layer=13}
+T {TXD} 169 250.4 0 1 0.4 0.4 {}
+T {@#22:pinnumber} 192 244 0 0 0.25 0.25 {layer=13}
+T {GND} -161 309 2 1 0.4 0.4 {}
+T {@#23:pinnumber} -156 332 3 1 0.25 0.25 {layer=13}
+T {GND} -101 309 2 1 0.4 0.4 {}
+T {@#24:pinnumber} -96 332 3 1 0.25 0.25 {layer=13}
+T {GND} -41 309 2 1 0.4 0.4 {}
+T {@#25:pinnumber} -36 332 3 1 0.25 0.25 {layer=13}
+T {@device} -173 132 0 0 0.5 0.5 {}
+T {@symname} -72 -8 0 0 0.6 0.6 {}
+T {@name} -45 32 0 0 0.6 0.6 {}

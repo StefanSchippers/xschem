@@ -1,0 +1,73 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=7410
+template="device=7410
+slot=1
+numslots=3
+name=U?
+footprint=DIP14
+description=\\"3 NAND gates with 3 inputs\\"
+documentation=http://www-s.ti.com/sc/ds/sn74hc10.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="14 7"
+}
+V {}
+S {}
+E {}
+T {7410} 40 0 2 1 0.266667 0.266667 {}
+T {@name} 40 -90 2 1 0.333333 0.333333 {}
+
+
+L 4 30 -80 30 -20 {}
+L 4 30 -80 70 -80 {}
+L 4 30 -20 70 -20 {}
+L 4 30 -20 30 0 {}
+L 4 30 -100 30 -80 {}
+
+A 4 105 -50 5 0 360 {}
+
+A 4 70 -50 30 270 180 {}
+
+
+
+
+L 3 0 -90 30 -90 {}
+B 5 -2.5 -92.5 2.5 -87.5 {
+pinseq=1
+name=A
+dir=in
+pinnumber=1:3:9
+}
+T {@#0:pinnumber} 20 -95 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {
+pinseq=2
+name=B
+dir=in
+pinnumber=2:4:10
+}
+T {@#1:pinnumber} 20 -55 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -10 30 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {
+pinseq=3
+name=C
+dir=in
+pinnumber=13:5:11
+}
+T {@#2:pinnumber} 20 -15 2 0 0.266667 0.266667 {layer=13}
+L 3 110 -50 130 -50 {}
+B 5 127.5 -52.5 132.5 -47.5 {
+pinseq=4
+name=Y
+dir=out
+pinnumber=12:6:8
+}
+T {@#3:pinnumber} 110 -55 2 1 0.266667 0.266667 {layer=13}

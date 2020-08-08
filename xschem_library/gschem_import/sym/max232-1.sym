@@ -1,0 +1,149 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX232
+template="device=MAX232
+name=U?
+footprint=DIP16
+description=\\"5V-powered dual RS-232 driver/receiver\\"
+numslots=0
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX220-MAX249.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="16 15"
+}
+V {}
+S {}
+E {}
+T {@name} 230 -290 2 0 0.333333 0.333333 {}
+T {MAX232} 30 -285 2 1 0.333333 0.333333 {}
+
+L 4 30 0 230 0 {}
+L 4 230 -280 230 0 {}
+L 4 30 -280 230 -280 {}
+L 4 30 -280 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -240 30 -240 {}
+B 5 -2.5 -242.5 2.5 -237.5 {pinnumber=1
+pinseq=1
+name=C1+
+dir=inout
+}
+T {@#0:pinnumber} 20 -245 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -240 2 1 0.266667 0.266667 {}
+L 3 0 -210 30 -210 {}
+B 5 -2.5 -212.5 2.5 -207.5 {pinnumber=2
+pinseq=2
+name=V+
+dir=inout
+}
+T {@#1:pinnumber} 20 -215 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -210 2 1 0.266667 0.266667 {}
+L 3 0 -180 30 -180 {}
+B 5 -2.5 -182.5 2.5 -177.5 {pinnumber=3
+pinseq=3
+name=C1-
+dir=inout
+}
+T {@#2:pinnumber} 20 -185 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -180 2 1 0.266667 0.266667 {}
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=4
+pinseq=4
+name=C2+
+dir=inout
+}
+T {@#3:pinnumber} 20 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -150 2 1 0.266667 0.266667 {}
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=5
+pinseq=5
+name=C2-
+dir=inout
+}
+T {@#4:pinnumber} 20 -125 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -120 2 1 0.266667 0.266667 {}
+L 3 0 -90 30 -90 {}
+B 5 -2.5 -92.5 2.5 -87.5 {pinnumber=6
+pinseq=6
+name=V-
+dir=inout
+}
+T {@#5:pinnumber} 20 -95 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -90 2 1 0.266667 0.266667 {}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=7
+pinseq=7
+name=Tx2\\ Out
+dir=out
+}
+T {@#6:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -60 2 1 0.266667 0.266667 {}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {pinnumber=8
+pinseq=8
+name=Rx2\\ In
+dir=in
+}
+T {@#7:pinnumber} 20 -35 2 0 0.266667 0.266667 {layer=13}
+T {@#7:name} 35 -30 2 1 0.266667 0.266667 {}
+L 3 230 -30 260 -30 {}
+B 5 257.5 -32.5 262.5 -27.5 {pinnumber=9
+pinseq=9
+name=Rx2\\ Out
+dir=out
+}
+T {@#8:pinnumber} 240 -35 2 1 0.266667 0.266667 {layer=13}
+T {@#8:name} 225 -30 2 0 0.266667 0.266667 {}
+L 3 230 -60 260 -60 {}
+B 5 257.5 -62.5 262.5 -57.5 {pinnumber=10
+pinseq=10
+name=Tx2\\ In
+dir=in
+}
+T {@#9:pinnumber} 240 -65 2 1 0.266667 0.266667 {layer=13}
+T {@#9:name} 225 -60 2 0 0.266667 0.266667 {}
+L 3 230 -90 260 -90 {}
+B 5 257.5 -92.5 262.5 -87.5 {pinnumber=11
+pinseq=11
+name=Tx1\\ In
+dir=in
+}
+T {@#10:pinnumber} 240 -95 2 1 0.266667 0.266667 {layer=13}
+T {@#10:name} 225 -90 2 0 0.266667 0.266667 {}
+L 3 230 -120 260 -120 {}
+B 5 257.5 -122.5 262.5 -117.5 {pinnumber=12
+pinseq=12
+name=Rx1\\ Out
+dir=out
+}
+T {@#11:pinnumber} 240 -125 2 1 0.266667 0.266667 {layer=13}
+T {@#11:name} 225 -120 2 0 0.266667 0.266667 {}
+L 3 230 -150 260 -150 {}
+B 5 257.5 -152.5 262.5 -147.5 {pinnumber=13
+pinseq=13
+name=Rx1\\ In
+dir=in
+}
+T {@#12:pinnumber} 240 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#12:name} 225 -150 2 0 0.266667 0.266667 {}
+L 3 230 -180 260 -180 {}
+B 5 257.5 -182.5 262.5 -177.5 {pinnumber=14
+pinseq=14
+name=Tx1\\ Out
+dir=out
+}
+T {@#13:pinnumber} 240 -185 2 1 0.266667 0.266667 {layer=13}
+T {@#13:name} 225 -180 2 0 0.266667 0.266667 {}

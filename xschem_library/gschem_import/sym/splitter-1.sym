@@ -1,0 +1,53 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=SPLITTER
+template="device=SPLITTER
+name=U?
+pins=6
+class=IC
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 50 -110 2 1 0.333333 0.333333 {}
+
+L 4 20 -20 100 -20 {}
+L 4 100 -100 100 -20 {}
+L 4 20 -100 100 -100 {}
+L 4 20 -100 20 -20 {}
+
+
+
+A 4 20 -20 40 0 90 {}
+A 4 100 -20 40 90 90 {}
+
+
+
+
+L 3 0 -60 20 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 15 -65 2 1 0.333333 0.333333 {layer=13}
+L 3 100 -60 120 -60 {}
+B 5 117.5 -62.5 122.5 -57.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 105 -65 2 1 0.333333 0.333333 {layer=13}
+L 3 60 -20 60 0 {}
+B 5 57.5 -2.5 62.5 2.5 {pinnumber=3
+pinseq=3
+name=S
+dir=inout
+}
+T {@#2:name} 65 -25 2 1 0.333333 0.333333 {}

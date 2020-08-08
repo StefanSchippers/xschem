@@ -1,0 +1,18 @@
+put a {1}
+put foo {example-FOO}
+put bar {example-BAR}
+put baz {example-BAZ}
+put hah {haha}
+
+# should set n to the string foo, the value of bar and the string baz
+# per iteration
+foreach n in [~foo ~bar~ baz~]
+	print {n=} n {\n}
+	print {a11} [@a12 @hah@ a14@] {\n}
+	print {a21} {a22 a23} {\n}
+	print {a31\n}
+end
+print {a41} {a42} {a43} {\n}
+print
+
+

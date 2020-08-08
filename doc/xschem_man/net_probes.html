@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>NET PROBES</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="netlisting.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="simulation.html" class="next">NEXT</a>
+ <!-- slide title -->
+ <h1>NET PROBES</h1><br>
+ <p>
+  XSCHEM has the ability to hilight a net and propagate the highlight color to all nets or
+  instance pins attached to the net. It has the ability to follow this net through the hierarchy. This is very
+  useful in large designs as it makes it easy to see where a net is driven and were the net goes (fan-out).
+  Highlighting a net is straightforward, click a net and press the <kbd>'k'</kbd> key. If more nets are selected
+  all nets will be colored with different colors.
+  <kbd>&lt;Shift&gt;K</kbd> clears all highlight nets, <kbd>&lt;Ctrl&gt;k</kbd> clears selected nets.
+ </p>
+ <p>Select some nets...</p>
+ <img src="probes1.png">
+ <p>...press the <kbd>'k'</kbd> key...</p>
+ <img src="probes2.png">
+ <p>...all nets are highlighted, select the white net...</p>
+ <img src="probes3.png">
+ <p>..press the <kbd>&lt;Ctrl&gt;k</kbd> key and white net is un-highlighted...</p>
+ <img src="probes4.png">
+ <p>
+  if you descend into component instance <kbd>x1</kbd> (mos_power_ampli) (<kbd>'e'</kbd> key) you will see the highlight nets
+  propagated into the child component.
+ </p>
+ <img src="probes5.png">
+ <p>
+  A very useful function is the 'View only probes' mode, (<kbd>'5'</kbd> key) that hides
+  everything but the highlight probes. This is useful in very big VLSI designs to quickly
+  locate start and end point of nets.
+  Pressing again the <kbd>'5'</kbd> key restores the normal view.
+ </p>
+ <img src="probes6.png">
+ <br> 
+ <img src="probes7.png">
+  
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

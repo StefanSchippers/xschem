@@ -1,0 +1,48 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=74??
+template="numslots=0
+name=U?
+footprint=DIP14
+description=\\"power symbol for gates with vcc on 14 and gnd on 7\\"
+device=74??
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 30 -90 2 1 0.333333 0.333333 {}
+T {@device} 50 -60 2 1 0.333333 0.333333 {}
+
+
+L 4 0 -80 0 -20 {}
+L 4 0 -80 40 -80 {}
+L 4 0 -20 40 -20 {}
+L 4 40 -80 40 -20 {}
+
+
+
+
+
+
+L 3 20 -20 20 10 {}
+B 5 17.5 7.5 22.5 12.5 {pinnumber=7
+pinseq=1
+name=GND
+dir=inout
+}
+T {@#0:pinnumber} 18 -15 0 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 4 -24 2 1 0.266667 0.266667 {}
+L 3 20 -110 20 -80 {}
+B 5 17.5 -112.5 22.5 -107.5 {pinnumber=14
+pinseq=2
+name=Vcc
+dir=inout
+}
+T {@#1:pinnumber} 18 -85 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 6 -75 0 0 0.266667 0.266667 {}

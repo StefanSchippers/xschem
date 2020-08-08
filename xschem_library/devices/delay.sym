@@ -1,0 +1,17 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=delay_eldo
+format="del@name @pinlist @del"
+template="name=d1 del=2e-9"}
+V {}
+S {}
+E {}
+L 4 -40 0 -30 0 {}
+L 4 -30 -10 -30 10 {}
+L 4 -30 10 30 10 {}
+L 4 30 -10 30 10 {}
+L 4 -30 -10 30 -10 {}
+L 4 30 -0 40 -0 {}
+B 5 -42.5 -2.5 -37.5 2.5 {name=inp dir=in}
+B 5 37.5 -2.5 42.5 2.5 {name=outp dir=out}
+T {del=@del} -27.5 -3.75 0 0 0.15 0.15 {}
+T {@name} -25 -22.5 0 0 0.2 0.2 {}

@@ -1,0 +1,44 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=DIODE
+template="device=DIODE
+name=D?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 30 -60 2 1 0.333333 0.333333 {}
+
+
+L 4 30 -50 30 -10 {}
+L 4 30 -50 60 -30 {}
+L 4 30 -10 60 -30 {}
+L 4 60 -50 60 -10 {}
+L 4 60 -30 70 -30 {}
+L 4 20 -30 30 -30 {}
+
+
+A 4 65 -50 5 0 180 {}
+A 4 55 -10 5 180 180 {}
+
+
+
+
+L 3 0 -30 20 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+L 3 70 -30 90 -30 {}
+B 5 87.5 -32.5 92.5 -27.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}

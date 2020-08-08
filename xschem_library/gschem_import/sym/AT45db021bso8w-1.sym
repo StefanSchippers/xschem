@@ -1,0 +1,99 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=AT45DB021B
+template="name=U?
+device=AT45DB021B
+footprint=SO8W
+author=bpaddock(at)csonline.net
+documentation=http://www.atmel.com/
+description=\\"2-Megabit DataFlash\\"
+numslots=0
+symversion=1.0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 30 -240 2 1 0.333333 0.333333 {}
+T {AT45DB021B} 120 -235 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 170 -30 {}
+L 4 170 -230 170 -30 {}
+L 4 30 -230 170 -230 {}
+L 4 30 -230 30 -30 {}
+
+
+
+
+
+
+
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=1
+pinseq=1
+name=SI
+dir=in
+}
+T {@#0:pinnumber} 20 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -150 2 1 0.266667 0.266667 {}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinnumber=2
+pinseq=2
+name=SCK
+dir=in
+}
+T {@#1:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -110 2 1 0.266667 0.266667 {}
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {pinnumber=3
+pinseq=3
+name=\_RESET\_
+dir=in
+}
+T {@#2:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -70 2 1 0.266667 0.266667 {}
+L 3 170 -190 200 -190 {}
+B 5 197.5 -192.5 202.5 -187.5 {pinnumber=4
+pinseq=4
+name=\_CS\_
+dir=in
+}
+T {@#3:pinnumber} 180 -195 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 165 -190 2 0 0.266667 0.266667 {}
+L 3 0 -190 30 -190 {}
+B 5 -2.5 -192.5 2.5 -187.5 {pinnumber=5
+pinseq=5
+name=\_WP\_
+dir=in
+}
+T {@#4:pinnumber} 20 -195 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -190 2 1 0.266667 0.266667 {}
+L 3 110 -260 110 -230 {}
+B 5 107.5 -262.5 112.5 -257.5 {pinnumber=6
+pinseq=6
+name=VCC
+dir=inout
+}
+T {@#5:pinnumber} 105 -240 1 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 110 -225 1 0 0.266667 0.266667 {}
+L 3 110 -30 110 0 {}
+B 5 107.5 -2.5 112.5 2.5 {pinnumber=7
+pinseq=7
+name=GND
+dir=inout
+}
+T {@#6:pinnumber} 105 -20 1 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 110 -35 1 1 0.266667 0.266667 {}
+L 3 170 -150 200 -150 {}
+B 5 197.5 -152.5 202.5 -147.5 {pinnumber=8
+pinseq=8
+name=SO
+dir=inout
+}
+T {@#7:pinnumber} 180 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 165 -150 2 0 0.266667 0.266667 {}

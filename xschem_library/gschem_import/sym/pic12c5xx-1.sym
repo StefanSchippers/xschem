@@ -1,0 +1,86 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=PIC12C5xx
+template="name=U?
+device=PIC12C5xx
+footprint=DIP8
+numslots=0
+description=\\"8-bit CMOS microcontroller\\"
+documentation=http://www.microchip.com/download/lit/pline/picmicro/families/12c5xx/40139e.pdf
+symversion=0.1
+Vdd=Vdd
+Vss=Vss
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vdd @Vss"
+
+extra="Vdd Vss"
+extra_pinnumber="1 8"
+}
+V {}
+S {}
+E {}
+T {@name} 260 -130 0 1 0.333333 0.333333 {}
+T {PIC12C5xx} 30 -115 2 1 0.333333 0.333333 {}
+
+L 4 30 0 260 0 {}
+L 4 260 -110 260 0 {}
+L 4 30 -110 260 -110 {}
+L 4 30 -110 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -80 30 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=2
+pinseq=1
+name=GP5/OSC1/CLKIN
+dir=inout
+}
+T {@#0:pinnumber} 20 -85 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -80 2 1 0.266667 0.266667 {}
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=3
+pinseq=2
+name=GP4/OSC2
+dir=inout
+}
+T {@#1:pinnumber} 20 -55 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -50 2 1 0.266667 0.266667 {}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=4
+pinseq=3
+name=GP3/MCLR/Vpp
+dir=in
+}
+T {@#2:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -20 2 1 0.266667 0.266667 {}
+L 3 260 -20 290 -20 {}
+B 5 287.5 -22.5 292.5 -17.5 {pinnumber=5
+pinseq=5
+name=GP2/T0CKI
+dir=inout
+}
+T {@#3:pinnumber} 270 -25 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 255 -20 2 0 0.266667 0.266667 {}
+L 3 260 -50 290 -50 {}
+B 5 287.5 -52.5 292.5 -47.5 {pinnumber=6
+pinseq=6
+name=GP1
+dir=inout
+}
+T {@#4:pinnumber} 270 -55 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 255 -50 2 0 0.266667 0.266667 {}
+L 3 260 -80 290 -80 {}
+B 5 287.5 -82.5 292.5 -77.5 {pinnumber=7
+pinseq=7
+name=GP0
+dir=inout
+}
+T {@#5:pinnumber} 270 -85 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 255 -80 2 0 0.266667 0.266667 {}

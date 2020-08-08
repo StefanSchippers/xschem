@@ -1,0 +1,54 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=vexp
+template="name=V?
+device=vexp
+footprint=none
+numslots=0
+description=\\"exponential signal source\\"
+value=\\"vexp 0 1 \\"
+comment=\\"syntax: exp v1 v2 td1 tau1 td2 tau2\\"
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 70 -65 2 1 0.333333 0.333333 {}
+T {@value} 70 -45 2 1 0.333333 0.333333 {}
+
+
+L 4 7.5 -50 12.5 -50 {}
+L 4 22.5 -67.5 27.5 -67.5 {}
+L 4 12.5 -50 17.8 -64.2 {}
+L 4 27.5 -67.5 33.1 -56.5 {}
+L 4 42.5 -50 50 -50 {}
+
+A 4 30 -60 30 0 360 {}
+
+A 4 22.5 -62.5 5 90 70 {}
+A 4 42.5 -60 10 200 70 {}
+
+
+
+
+L 3 30 -120 30 -90 {}
+B 5 27.5 -122.5 32.5 -117.5 {pinnumber=1
+pinseq=1
+name=+
+dir=inout
+}
+T {@#0:pinnumber} 35 -100 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 25.4667 -85 0 0 0.266667 0.266667 {}
+L 3 30 -30 30 0 {}
+B 5 27.5 -2.5 32.5 2.5 {pinnumber=2
+pinseq=2
+name=-
+dir=inout
+}
+T {@#1:pinnumber} 35 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 25.4667 -35 2 1 0.266667 0.266667 {}

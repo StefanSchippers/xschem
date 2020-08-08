@@ -1,0 +1,61 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=40109
+template="name=U?
+device=40109
+slot=1
+numslots=4
+footprint=DIP16
+description=\\"4 LOW-to-HIGH voltage level shifter\\"
+VSS=VSS
+VDD=VDD
+VCC=VCC
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VSS @VDD @VCC"
+
+extra="VSS VDD VCC"
+extra_pinnumber="8 16 1"
+}
+V {}
+S {}
+E {}
+T {@name} 20 -90 2 1 0.333333 0.333333 {}
+T {40109} 20 -70 2 1 0.333333 0.333333 {}
+
+
+L 4 30 -60 30 -20 {}
+L 4 30 -60 70 -40 {}
+L 4 30 -20 70 -40 {}
+
+
+
+
+
+
+L 3 0 -40 30 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {
+pinseq=1
+dir=in
+name=A
+pinnumber=3:6:14:10
+}
+T {@#0:pinnumber} 20 -45 2 0 0.266667 0.266667 {layer=13}
+L 3 70 -40 100 -40 {}
+B 5 97.5 -42.5 102.5 -37.5 {
+pinseq=2
+dir=inout
+name=Y
+pinnumber=4:5:13:11
+}
+T {@#1:pinnumber} 80 -45 2 1 0.266667 0.266667 {layer=13}
+L 3 50 -30 50 0 {}
+B 5 47.5 -2.5 52.5 2.5 {
+pinseq=3
+dir=in
+name=EN
+pinnumber=2:7:15:9
+}
+T {@#2:pinnumber} 55 -10 2 1 0.266667 0.266667 {layer=13}

@@ -1,0 +1,34 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=HOLE
+template="class=IO
+pins=1
+device=HOLE
+nobom=1
+name=H?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 48.3333 -68.3333 0 1 0.333333 0.333333 {}
+
+
+
+A 4 20 -30 20 0 360 {}
+
+
+
+
+
+L 3 20 -10 20 0 {}
+B 5 17.5 -2.5 22.5 2.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}

@@ -1,0 +1,15 @@
+v {xschem version=2.9.7 file_version=1.2}
+G {type=timescale
+spice_ignore=true
+vhdl_ignore=true
+tedax_ignore=true
+template="name=s1 timestep=\\"100ps\\" precision=\\"100ps\\" "
+verilog_format="`timescale @timestep\\/@precision"
+format="`timescale @timestep\\/@precision"}
+V {}
+S {}
+E {}
+L 4 0 -10 70 -10 {}
+L 4 0 -10 0 10 {}
+T {TIMESCALE} 5 -25 0 0 0.3 0.3 {}
+T {`timescale @timestep\\/@precision} 15 -5 0 0 0.3 0.3 {}

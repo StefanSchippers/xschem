@@ -1,0 +1,65 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4077
+template="device=4077
+slot=1
+numslots=4
+name=U?
+footprint=DIP14
+description=\\"4 XNOR gates with 2 inputs\\"
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4077B_CNV_3.pdf
+VDD=VDD
+VSS=VSS
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VDD @VSS"
+
+extra="VDD VSS"
+extra_pinnumber="14 7"
+}
+V {}
+S {}
+E {}
+T {@name} 25 -90 2 1 0.333333 0.333333 {}
+T {4077} 40 0 2 1 0.333333 0.333333 {}
+
+
+L 4 36.5 -20 70 -20 {}
+L 4 36.5 -80 70 -80 {}
+
+A 4 113.8 -50 5 0 360 {}
+
+A 4 10 -50 40 312 96 {}
+A 4 70 -60 40 270 76 {}
+A 4 70 -40 40 14 76 {}
+A 4 0 -50 40 312 96 {}
+
+
+
+
+L 3 0 -70 34.7 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {
+pinseq=1
+dir=in
+name=A
+pinnumber=1:5:8:12
+}
+T {@#0:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -30 34.7 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {
+pinseq=2
+dir=in
+name=B
+pinnumber=2:6:9:13
+}
+T {@#1:pinnumber} 20 -35 2 0 0.266667 0.266667 {layer=13}
+L 3 118.8 -50 140 -50 {}
+B 5 137.5 -52.5 142.5 -47.5 {
+pinseq=3
+dir=out
+name=Y
+pinnumber=3:4:10:11
+}
+T {@#2:pinnumber} 120 -55 2 1 0.266667 0.266667 {layer=13}

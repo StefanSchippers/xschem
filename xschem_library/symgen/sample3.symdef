@@ -1,0 +1,74 @@
+
+#  <pinnumber>  <direction>[<circle><edge_trigger>] <name>
+# circle: !
+# edge_trigger: >
+# direction is mandatory: i=input, o=output, b=bidirectional (inout)
+
+[labels] 
+FAKE IC TO TEST XSCHEM SYMGEN
+STEFAN FREDERIK SCHIPPERS
+@symname
+@name
+! type=subcircuit
+! format="@name @pinlist @symname"
+! template="name=x1"
+--vmode
+--auto_pinnumber
+
+[left]
+    i!   CHIP_SELECT
+.bus
+    i    AD0
+    i    AD1
+    i    AD2
+    i    AD3
+    i    AD4
+    i    AD5
+    i    AD6
+    i    AD7
+
+    i>   ALE
+
+    i!   RD
+    i!>  WR
+    i!   INTERRUPT_REQUEST
+[right]
+    i!   RST
+    i>   MOTEN
+    i!>  LA
+    o    TXP
+    o    TXM
+
+    i    RXP
+    i    RXM
+    i    XTAL1
+    i    XTAL2
+[top]
+    b    AVP
+.bus
+    o!    DATA0 
+    o!    DATA1
+    o!    DATA2
+    o     DATA3
+    o     DATA4
+    o!    DATA5
+    o!    DATA6
+    o!    DATA7
+    o!    DATA8
+    o     DATA9
+    o>    DATA10
+    o>    DATA11
+    o>    DATA12
+    o     DATA13
+    o     DATA14
+    o     DATA15
+
+    b    VDD1
+    b    VDD2
+    b    VDD_ANALOG
+    b    VDD_DIGITAL
+[bottom]
+    b!   GND_ANALOG
+    b!   GND_DIGITAL
+    b>   DGND1
+    b>   GND2

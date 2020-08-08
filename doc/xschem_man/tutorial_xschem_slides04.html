@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM PRESENTATION</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+.content{ background-image:url('xschem_bg2.png');}
+</style>
+
+</head>
+<body>
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="tutorial_xschem_slides03.html" class="prev">PREV</a>
+<a href="tutorial_xschem_slides01.html" class="home">UP</a>
+<a href="tutorial_xschem_slides05.html" class="next">NEXT</a>
+
+
+ <!-- slide title -->
+ <div style="float:left; width:50%;">
+ <br>
+ <h2>XSCHEM IS</h2>
+ <h3 style="text-align:left; margin-left:0;margin-bottom:40px;">
+  <ul style="margin-left:0;">
+   <li>A Free OSS small project, follows the UNIX KISS philosophy. ~30K SLOC.</li>
+   <li>A Digital / Analog / Mixed mode circuit schematic editor.</li>
+   <li>A hierarchical design tool: wrap (parametric) sub-blocks into symbols and use them multiple times.</li>
+   <li>Fast: Performance is important. Editing a schematic with 100K instances MUST not be a problem.</li>
+   <li>Xschem knows the connectivity. Netlist build is embedded in the core.</li>
+   <li>Verilog, VHDL, Spice, tEDAx netlist backends. Adding another backend is not difficult.</li>
+   <li>Intensive and time consuming computations all done in pure C.</li>
+   <li>Tcl-tk used for GUI and scripting language. Direct Xlib drawing.</li>
+   <li>Netlist extraction must be instant (&lt;500ms) on small to medium designs.</li>
+  </ul>
+ </h3>
+ </div>
+
+ <div style="float:left; width:50%;">
+ <br>
+ <h2>XSCHEM IS NOT</h2>
+ <h3 style="text-align:left; margin-left:0;margin-bottom:40px;">
+  <ul style="margin-left:0;">
+   <li>A space-ship. Does not depend on too many libs.</li>
+   <li>A Gtk or Qt project, with APIs changing constantly.</li>
+   <li>Proprietary or using undocumented file formats.</li>
+   <li>A layout tool.</li>
+   <li>A circuit simulator.</li>
+   <li>A native windows software (yet).</li>
+   <li>Super easy to use: there is a learning curve.</li>
+   <li>A memory hog: XSCHEM with a medium design loaded requires 54M virtual memory, 24M resident set. 
+       Perfectly useable on an Intel-Atom netbook with 1GB RAM.  This is my performance test machine.</li>
+   <li>A C++, C99, C11 project: all code is ANSI-C C89, works on old Solaris, Irix machines, compiles on 32bit, 64 bit and on armhf.
+  </ul>
+ </h3>
+ </div>
+
+
+
+
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

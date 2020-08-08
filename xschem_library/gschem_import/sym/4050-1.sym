@@ -1,0 +1,53 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4050
+template="slot=1
+device=4050
+footprint=DIP16
+numslots=6
+name=U?
+description=\\"6 buffers\\"
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4050B_CNV_3.pdf
+VDD=VDD
+VSS=VSS
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VDD @VSS"
+
+extra="VDD VSS"
+extra_pinnumber="1 8"
+}
+V {}
+S {}
+E {}
+T {@name} 30 -90 2 1 0.333333 0.333333 {}
+T {4050} 30 0 2 1 0.333333 0.333333 {}
+
+
+L 4 30 -80 30 -20 {}
+L 4 30 -80 90 -50 {}
+L 4 30 -20 90 -50 {}
+
+
+
+
+
+
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {
+pinseq=1
+dir=in
+name=A
+pinnumber=3:5:7:9:11:14
+}
+T {@#0:pinnumber} 20 -55 2 0 0.266667 0.266667 {layer=13}
+L 3 90 -50 120 -50 {}
+B 5 117.5 -52.5 122.5 -47.5 {
+pinseq=2
+dir=out
+name=Y
+pinnumber=2:4:6:10:12:15
+}
+T {@#1:pinnumber} 100 -55 2 1 0.266667 0.266667 {layer=13}

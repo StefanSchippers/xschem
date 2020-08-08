@@ -1,0 +1,14 @@
+# Instruction "halt" breaks the execution of the current script file
+# (returning from the C call to tmpasm() or stop processing an "include",
+# returning to executing the parent script). It is useful for cheap
+# termination of the script file from deep inside nested loops/ifs.
+
+put tmp {true}
+if tmp then
+	foreach item in {foo bar true baz}
+		print item {\n}
+		if item then
+			halt
+		end
+	end
+end

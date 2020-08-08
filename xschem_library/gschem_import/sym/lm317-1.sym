@@ -1,0 +1,53 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=LM317
+template="device=LM317
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {LM317} 30 -140 2 1 0.333333 0.333333 {}
+T {@name} 170 -140 2 0 0.333333 0.333333 {}
+
+L 4 30 -30 170 -30 {}
+L 4 170 -130 170 -30 {}
+L 4 30 -130 170 -130 {}
+L 4 30 -130 30 -30 {}
+
+
+
+
+
+
+
+L 3 100 -30 100 0 {}
+B 5 97.5 -2.5 102.5 2.5 {pinnumber=1
+pinseq=1
+name=Adjust
+dir=inout
+}
+T {@#0:pinnumber} 110 -10 2 1 0.333333 0.333333 {layer=13}
+T {@#0:name} 66 -40 2 1 0.333333 0.333333 {}
+L 3 170 -80 200 -80 {}
+B 5 197.5 -82.5 202.5 -77.5 {pinnumber=2
+pinseq=2
+name=Vout
+dir=inout
+}
+T {@#1:pinseq} 180 -90 2 1 0.333333 0.333333 {}
+T {@#1:name} 160 -80 2 0 0.333333 0.333333 {}
+L 3 0 -80 30 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=3
+pinseq=3
+name=Vin
+dir=inout
+}
+T {@#2:pinnumber} 20 -90 2 0 0.333333 0.333333 {layer=13}
+T {@#2:name} 40 -80 2 1 0.333333 0.333333 {}

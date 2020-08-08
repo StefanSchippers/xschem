@@ -1,0 +1,136 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4047
+template="device=4047
+footprint=DIP14
+name=U?
+description=\\"monostable/astable multivibrator\\"
+numslots=0
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4047B_CNV_3.pdf
+VDD=VDD
+VSS=VSS
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VDD @VSS"
+
+extra="VDD VSS"
+extra_pinnumber="14 7"
+}
+V {}
+S {}
+E {}
+T {@name} 160 -290 2 0 0.333333 0.333333 {}
+T {4047} 30 -285 2 1 0.333333 0.333333 {}
+
+L 4 30 0 160 0 {}
+L 4 160 -280 160 0 {}
+L 4 30 -280 160 -280 {}
+L 4 30 -280 30 0 {}
+
+
+A 4 25 -170 5 0 360 {}
+A 4 25 -110 5 0 360 {}
+A 4 165 -130 5 0 360 {}
+
+
+
+
+
+L 3 0 -260 30 -260 {}
+B 5 -2.5 -262.5 2.5 -257.5 {pinnumber=1
+pinseq=1
+name=C
+dir=inout
+}
+T {@#0:pinnumber} 20 -265 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -260 2 1 0.266667 0.266667 {}
+L 3 0 -230 30 -230 {}
+B 5 -2.5 -232.5 2.5 -227.5 {pinnumber=2
+pinseq=2
+name=R
+dir=inout
+}
+T {@#1:pinnumber} 20 -235 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -230 2 1 0.266667 0.266667 {}
+L 3 0 -200 30 -200 {}
+B 5 -2.5 -202.5 2.5 -197.5 {pinnumber=3
+pinseq=3
+name=RC
+dir=inout
+}
+T {@#2:pinnumber} 20 -205 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -200 2 1 0.266667 0.266667 {}
+L 3 0 -170 20 -170 {}
+B 5 -2.5 -172.5 2.5 -167.5 {pinnumber=4
+pinseq=4
+name=\_AST\_
+dir=in
+}
+T {@#3:pinnumber} 20 -175 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -170 2 1 0.266667 0.266667 {}
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=5
+pinseq=5
+name=AST
+dir=in
+}
+T {@#4:pinnumber} 20 -145 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -140 2 1 0.266667 0.266667 {}
+L 3 0 -110 20 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinnumber=6
+pinseq=6
+name=-\_TRIG\_
+dir=in
+}
+T {@#5:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -110 2 1 0.266667 0.266667 {}
+L 3 0 -80 30 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=8
+pinseq=8
+name=+TRIG
+dir=in
+}
+T {@#6:pinnumber} 20 -85 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -80 2 1 0.266667 0.266667 {}
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=9
+pinseq=9
+name=RST
+dir=in
+}
+T {@#7:pinnumber} 20 -55 2 0 0.266667 0.266667 {layer=13}
+T {@#7:name} 35 -50 2 1 0.266667 0.266667 {}
+L 3 160 -170 190 -170 {}
+B 5 187.5 -172.5 192.5 -167.5 {pinnumber=10
+pinseq=10
+name=Q
+dir=out
+}
+T {@#8:pinnumber} 170 -175 2 1 0.266667 0.266667 {layer=13}
+T {@#8:name} 155 -170 2 0 0.266667 0.266667 {}
+L 3 170 -130 190 -130 {}
+B 5 187.5 -132.5 192.5 -127.5 {pinnumber=11
+pinseq=11
+name=\_Q\_
+dir=out
+}
+T {@#9:pinnumber} 170 -135 2 1 0.266667 0.266667 {layer=13}
+T {@#9:name} 155 -130 2 0 0.266667 0.266667 {}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=12
+pinseq=12
+name=RTRIG
+dir=in
+}
+T {@#10:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#10:name} 35 -20 2 1 0.266667 0.266667 {}
+L 3 160 -230 190 -230 {}
+B 5 187.5 -232.5 192.5 -227.5 {pinnumber=13
+pinseq=13
+name=OSC
+dir=out
+}
+T {@#11:pinnumber} 170 -235 2 1 0.266667 0.266667 {layer=13}
+T {@#11:name} 155 -230 2 0 0.266667 0.266667 {}

@@ -1,0 +1,64 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=VIPEC
+template="Fo=1GHz
+Fmin=100Hz
+Fmax=2GHz
+Freq=GHz
+Scale=log
+Cap=pF
+Res=k
+Ind=nH
+Ang=deg
+Length=mm
+Points=100
+Zo=50
+device=VIPEC
+name=ANAL
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {Fo=1GHz} 70 -330 2 1 0.333333 0.333333 {}
+T {Fmin=100Hz} 70 -220 2 1 0.333333 0.333333 {}
+T {Fmax=2GHz} 270 -220 2 1 0.333333 0.333333 {}
+T {Freq=GHz} 10 -90 2 1 0.333333 0.333333 {}
+T {Scale=log} 270 -180 2 1 0.333333 0.333333 {}
+T {Cap=pF} 190 -110 2 1 0.333333 0.333333 {}
+T {Res=k} 10 -110 2 1 0.333333 0.333333 {}
+T {Ind=nH} 320 -110 2 1 0.333333 0.333333 {}
+T {Ang=deg} 190 -90 2 1 0.333333 0.333333 {}
+T {Length=mm} 320 -90 2 1 0.333333 0.333333 {}
+T {Points=100} 70 -180 2 1 0.333333 0.333333 {}
+T {Units} 190 -140 2 1 0.333333 0.333333 {}
+T {Sweep} 180 -250 2 1 0.333333 0.333333 {}
+T {ViPEC Analysis Block} 30 -390 2 1 0.666667 0.666667 {}
+T {Zo=50} 270 -330 2 1 0.333333 0.333333 {}
+
+L 4 0 -30 450 -30 {}
+L 4 450 -440 450 -30 {}
+L 4 0 -440 450 -440 {}
+L 4 0 -440 0 -30 {}
+
+L 4 0 -160 450 -160 {}
+L 4 0 -70 450 -70 {}
+L 4 0 -270 450 -270 {}
+
+
+
+
+
+
+L 3 220 -30 220 0 {}
+B 5 217.5 -2.5 222.5 2.5 {name=GND
+pinnumber=1
+pinseq=1
+dir=inout
+}
+T {@#0:name} 200 -40 2 1 0.333333 0.333333 {}

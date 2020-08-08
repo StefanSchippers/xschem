@@ -1,0 +1,59 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=SPARAMBLOCK
+template="Z=50
+device=SPARAMBLOCK
+name=BLOCK?
+model=model.sp
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {Z=50} 112.667 -48.3333 0 1 0.333333 0.333333 {}
+T {S} 118.333 -151.667 0 1 1.66667 1.66667 {}
+T {In} 30 -168.333 0 0 0.333333 0.333333 {}
+T {Out} 150 -168.333 0 1 0.333333 0.333333 {}
+T {@name} 20 0 2 1 0.333333 0.333333 {}
+T {model=model.sp} 20 -210 2 1 0.333333 0.333333 {}
+
+L 4 20 -20 160 -20 {}
+L 4 160 -200 160 -20 {}
+L 4 20 -200 160 -200 {}
+L 4 20 -200 20 -20 {}
+
+
+
+
+
+
+
+L 3 0 -160 20 -160 {}
+B 5 -2.5 -162.5 2.5 -157.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+L 3 0 -60 20 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+L 3 160 -160 180 -160 {}
+B 5 177.5 -162.5 182.5 -157.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+L 3 160 -60 180 -60 {}
+B 5 177.5 -62.5 182.5 -57.5 {pinnumber=4
+pinseq=4
+name=4
+dir=inout
+}

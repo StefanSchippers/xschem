@@ -1,0 +1,144 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=CONNECTOR_14
+template="name=CONN?
+device=CONNECTOR_14
+footprint=SIP14N
+author=\\"Leon Kos\\"
+description=\\"generic connector\\"
+numslots=0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 70 -610 2 0 0.333333 0.333333 {}
+
+L 4 30 0 70 0 {}
+L 4 70 -600 70 0 {}
+L 4 30 -600 70 -600 {}
+L 4 30 -600 30 0 {}
+
+
+A 4 25 -560 5 0 360 {}
+A 4 25 -520 5 0 360 {}
+A 4 25 -480 5 0 360 {}
+A 4 25 -440 5 0 360 {}
+A 4 25 -400 5 0 360 {}
+A 4 25 -360 5 0 360 {}
+A 4 25 -320 5 0 360 {}
+A 4 25 -280 5 0 360 {}
+A 4 25 -240 5 0 360 {}
+A 4 25 -200 5 0 360 {}
+A 4 25 -160 5 0 360 {}
+A 4 25 -120 5 0 360 {}
+A 4 25 -80 5 0 360 {}
+A 4 25 -40 5 0 360 {}
+
+
+
+
+
+L 3 0 -560 20 -560 {}
+B 5 -2.5 -562.5 2.5 -557.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:name} 35 -560 2 1 0.266667 0.266667 {}
+L 3 0 -520 20 -520 {}
+B 5 -2.5 -522.5 2.5 -517.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:name} 35 -520 2 1 0.266667 0.266667 {}
+L 3 0 -480 20 -480 {}
+B 5 -2.5 -482.5 2.5 -477.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#2:name} 35 -480 2 1 0.266667 0.266667 {}
+L 3 0 -440 20 -440 {}
+B 5 -2.5 -442.5 2.5 -437.5 {pinnumber=4
+pinseq=4
+name=4
+dir=inout
+}
+T {@#3:name} 35 -440 2 1 0.266667 0.266667 {}
+L 3 0 -400 20 -400 {}
+B 5 -2.5 -402.5 2.5 -397.5 {pinnumber=5
+pinseq=5
+name=5
+dir=inout
+}
+T {@#4:name} 35 -400 2 1 0.266667 0.266667 {}
+L 3 0 -360 20 -360 {}
+B 5 -2.5 -362.5 2.5 -357.5 {pinnumber=6
+pinseq=6
+name=6
+dir=inout
+}
+T {@#5:name} 35 -360 2 1 0.266667 0.266667 {}
+L 3 0 -320 20 -320 {}
+B 5 -2.5 -322.5 2.5 -317.5 {pinnumber=7
+pinseq=7
+name=7
+dir=inout
+}
+T {@#6:name} 35 -320 2 1 0.266667 0.266667 {}
+L 3 0 -280 20 -280 {}
+B 5 -2.5 -282.5 2.5 -277.5 {pinnumber=8
+pinseq=8
+name=8
+dir=inout
+}
+T {@#7:name} 35 -280 2 1 0.266667 0.266667 {}
+L 3 0 -240 20 -240 {}
+B 5 -2.5 -242.5 2.5 -237.5 {pinnumber=9
+pinseq=9
+name=9
+dir=inout
+}
+T {@#8:name} 35 -240 2 1 0.266667 0.266667 {}
+L 3 0 -200 20 -200 {}
+B 5 -2.5 -202.5 2.5 -197.5 {pinnumber=10
+pinseq=10
+name=10
+dir=inout
+}
+T {@#9:name} 35 -200 2 1 0.266667 0.266667 {}
+L 3 0 -160 20 -160 {}
+B 5 -2.5 -162.5 2.5 -157.5 {pinnumber=11
+pinseq=11
+name=11
+dir=inout
+}
+T {@#10:name} 35 -160 2 1 0.266667 0.266667 {}
+L 3 0 -120 20 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=12
+pinseq=12
+name=12
+dir=inout
+}
+T {@#11:name} 35 -120 2 1 0.266667 0.266667 {}
+L 3 0 -80 20 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=13
+pinseq=13
+name=13
+dir=inout
+}
+T {@#12:name} 35 -80 2 1 0.266667 0.266667 {}
+L 3 0 -40 20 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinnumber=14
+pinseq=14
+name=14
+dir=inout
+}
+T {@#13:name} 35 -40 2 1 0.266667 0.266667 {}

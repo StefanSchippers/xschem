@@ -1,0 +1,90 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=OPAMP
+template="device=OPAMP
+name=U?
+footprint=DIP8
+description=\\"single opamp with trimmable offset\\"
+numslots=0
+symversion=1.0
+comment=NC-PINS:8
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 100 -130 2 0 0.333333 0.333333 {}
+
+L 4 20 -20 100 -20 {}
+L 4 100 -120 100 -20 {}
+L 4 20 -120 100 -120 {}
+L 4 20 -120 20 -20 {}
+
+L 4 30 -110 30 -30 {}
+L 4 30 -110 90 -70 {}
+L 4 30 -30 90 -70 {}
+L 4 40 -95 40 -85 {}
+L 4 35 -90 45 -90 {}
+L 4 35 -50 45 -50 {}
+
+
+
+
+
+
+L 3 0 -90 20 -90 {}
+B 5 -2.5 -92.5 2.5 -87.5 {pinnumber=3
+pinseq=1
+name=IN+
+dir=in
+}
+T {@#0:pinnumber} 15 -95 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -50 20 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=2
+pinseq=2
+name=IN-
+dir=in
+}
+T {@#1:pinnumber} 15 -55 2 0 0.266667 0.266667 {layer=13}
+L 3 50 -140 50 -120 {}
+B 5 47.5 -142.5 52.5 -137.5 {pinnumber=7
+pinseq=3
+name=V+
+dir=inout
+}
+T {@#2:pinnumber} 55 -125 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 40.9333 -115 0 0 0.266667 0.266667 {}
+L 3 50 -20 50 0 {}
+B 5 47.5 -2.5 52.5 2.5 {pinnumber=4
+pinseq=4
+name=V-
+dir=inout
+}
+T {@#3:pinnumber} 55 -5 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 40.9333 -25 2 1 0.266667 0.266667 {}
+L 3 100 -70 120 -70 {}
+B 5 117.5 -72.5 122.5 -67.5 {pinnumber=6
+pinseq=5
+name=OUT
+dir=out
+}
+T {@#4:pinnumber} 105 -75 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -110 20 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinnumber=1
+pinseq=6
+name=NULL
+dir=inout
+}
+T {@#5:pinnumber} 15 -115 2 0 0.266667 0.266667 {layer=13}
+L 3 100 -110 120 -110 {}
+B 5 117.5 -112.5 122.5 -107.5 {pinnumber=5
+pinseq=7
+name=NULL
+dir=inout
+}
+T {@#6:pinnumber} 105 -115 2 1 0.266667 0.266667 {layer=13}

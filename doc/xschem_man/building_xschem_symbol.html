@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SYMBOLS</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="xschem_elements.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="xschem_properties.html" class="next">NEXT</a>
+
+ <!-- slide title -->
+ <h1>SYMBOLS</h1><br>
+ <p>
+  The best way to understand how a symbol is defined is to analyze an existing one. 
+  Load a test schematic (for example <kbd>test.sch</kbd>). Let's consider the
+  resistor symbol. Use the <kbd>Insert</kbd> key to place the <kbd>devices/res.sym</kbd> symbol.
+ </p>
+ <img src="xschem_insert.png">
+ <p>
+  Use the file selector dialog to locate <kbd>res.sym</kbd>.
+ </p>
+ <img src="building_symbol_01.png">
+ <p>
+  Now select the resistor by left-clicking on it (it will turn to grey color) 
+ </p>
+ <img src="building_symbol_02.png">
+ <p> 
+  After selecting the component (component is an instance of a symbol)
+  descend into its symbol definition
+  by pressing the <kbd>'i'</kbd> key. XSCHEM will load the
+  <kbd>devices/res.sym</kbd> file and show it in 
+  the drawing window. Before descending it asks if you want to save
+  the parent schematic drawing 
+  before loading the resistor symbol. Answer 'yes'.
+ </p>
+ <img src="building_symbol_03.png">
+ <p>
+  The image above is the 'symbol definition', you can now select individual graphic elements that 
+  represent the symbol, lines, rectangles and text.
+  Normally a symbol contains some pins, these are just rectangles drawn on the 'pin' layer, and some 
+  graphics / descriptive text. Another fundamental part of symbols are properties.
+  Properties are text strings that define attributes of the symbol, for example: 
+ </p>
+ <ul>
+  <li>The name of the connection pins</li>
+  <li>The type of the symbol (spice primitive, subcircuit, documentation)</li>
+  <li>The format of the spice/verilog/VHDL netlist for the symbol</li>
+ </ul>
+ <p>
+  We will return on symbols after explaining properties.
+ </p>
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

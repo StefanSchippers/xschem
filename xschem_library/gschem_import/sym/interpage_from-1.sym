@@ -1,0 +1,36 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=interpage_from
+template="device=interpage_from
+graphical=1
+pages=unknown
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@pages} 130 -20 2 1 0.333333 0.333333 {}
+
+
+L 4 30 -20 50 0 {}
+L 4 50 0 110 0 {}
+L 4 110 -40 110 0 {}
+L 4 50 -40 110 -40 {}
+L 4 30 -20 50 -40 {}
+
+
+
+
+
+
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}

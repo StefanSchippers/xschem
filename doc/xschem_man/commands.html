@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>EDITOR COMMANDS</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="parameters.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="netlisting.html" class="next">NEXT</a>
+ <!-- slide title -->
+ <h1>EDITOR COMMANDS</h1><br>
+ <p>
+  Most editing commands are available in the menu, but definitely key-bindings and Mouse actions
+  are the most effective way to build and arrange schematics, so you should learn at least the 
+  most important ones.
+ </p>
+ <p>
+  The basic principle in XSCHEM is that first you select something in the circuit then you
+  decide what to do with the selection.
+  For example, if you need to change an object property you first select it (mouse click) and then
+  you press the edit property (<kbd>'q'</kbd>) key.
+  It you need to move together multiple objects you select them (by area or using multiple mouse
+  clicks with the <kbd>Shift</kbd> key), then you press the move (<kbd>'m'</kbd>) key.
+ </p>
+ <h3> EDITOR COMMAND CHEATSHEET</h3>
+ <p>
+  This list is available in XSCHEM in the <kbd>Help</kbd> menu
+ </p>
+ <pre class="code" style="height: 600px;">
+
+                        XSCHEM MOUSE BINDINGS
+----------------------------------------------------------------------
+LeftButton              Clear selection and select a graphic object 
+                        (line, rectangle, symbol, wire)
+                        if clicking on blank area: clear selection
+
+shift + LeftButton      Select without clearing previous selection
+
+ctrl + LeftButton       if an 'url' or 'tclcommand' property is defined on 
+                        selected instance open the url or execute the 
+                        tclcommand
+
+LeftButton drag         Select objects by area, clearing previous selection
+
+shift + LeftButton drag Select objects by area, without clearing 
+                        previous selection
+
+Ctrl + LeftButton drag  Select objects by area to perform a 
+                        subsequent   'stretch'  move operation
+
+Shift +                 Select objects by area without unselecting
+Ctrl + LeftButton drag  to perform a subsequent   'stretch'  move operation
+
+Mouse Wheel             Zoom in / out
+
+MidButton drag          Pan viewable area
+
+Alt + LeftButton        Unselect selected object
+
+Alt + LeftButton drag  
+                        Unselect objects by area
+
+RightButton             Edit property of object under the mouse
+                        else edit global schematic / symbol property string
+
+Shift + RightButton     Edit property of object under the mouse 
+                        else edit global schematic / symbol property string
+                        using the specified (or default) text editor.
+
+LeftButton Double click Terminate Polygon placement
+
+
+                        XSCHEM KEY BINDINGS
+----------------------------------------------------------------------
+-          BackSpace    Back to parent schematic
+-          Delete       Delete selected objects
+-          Insert       Insert element from library
+-          Down         Move down
+ctrl       Enter        Confirm closing dialog boxes
+-          Escape       Abort, redraw, unselect
+-          Left         Move right
+-          Right        Move left
+-          Up           Move up
+-           '!'         Break selected wires at any wire or component pin
+                        connection
+-           ' '         Pan schematic
+-           ' '         When drawing lines or wires toggle between 
+                        manhattan H-V, manhattan V-H or oblique path.
+-           '#'         Highlight components with duplicated name (refdes)
+ctrl        '#'         Rename components with duplicated name (refdes)
+-           '5'         View only probes
+-           'a'         Make symbol from pin list of current schematic
+ctrl        'a'         Select all
+shift       'A'         Toggle show netlist
+-           'b'         Merge file
+ctrl        'b'         Toggle show text in symbol
+-           'c'         Copy selected obj. 
+ctrl        'c'         Save to clipboard
+shift       'C'         Start arc placement
+shift+ctrl  'C'         Start circle placement
+alt         'C'         Toggle dim/brite background with rest of layers
+ctrl        'e'         Back to parent schematic
+-           'e'         Descend to schematic
+alt         'e'         Edit selected schematic in a new window
+            '\'         Toggle Full screen
+shift       'F'         Flip
+alt         'f'         Flip objects around their anchor points
+ctrl        'f'         Find/select by substring or regexp
+-           'f'         Full zoom
+shift       'G'         Double snap factor
+-           'g'         Half snap factor
+ctrl        'g'         Set snap factor
+alt         'g'         Hilight selected nets and send to gaw waveform viewer
+-           'h'         Constrained horizontal move/copy of objects
+alt         'h'         create symbol pins from schematic pins
+ctrl        'h'         Follow http link or execute command (url, tclcommand properties)
+shift       'H'         Attach net labels to selected instance
+-           'i'         Descend to  symbol
+alt         'i'         Edit selected symbol in a new window
+shift       'J'         Create symbol from pin list
+alt+shift   'J'         Create labels with 'i' prefix from highlighted nets/pins
+alt         'j'         Create labels without 'i' prefix from highlighted nets/pins
+ctrl        'j'         Create ports from highlight nets
+alt+ctrl    'j'         Print list of highlighted nets/pins with label expansion
+-           'j'         Print list of highlighted nets/pins
+shift       'J'         create xplot plot file for ngspice in simulation directory
+                        (just type xplot in ngspice)
+-           'k'         Hilight selected nets
+ctrl+shift  'K'         highlight net passing through elements with 'propagate_to' property set on pins
+shift       'K'         Unhilight all nets
+ctrl        'k'         Unhilight selected nets
+-           'l'         Start line
+ctrl        'l'         Make schematic view from selected symbol
+alt         'l'         add lab_pin.sym to schematic
+alt+shift   'l'         add lab_wire.sym to schematic
+ctrl        'o'         Load schematic
+-           'm'         Move selected obj.
+shift       'N'         Hierarchical netlist
+-           'n'         Netlist
+ctrl        'n'         New schematic
+ctrl+shift  'N'         New symbol
+shift       'O'         Toggle Light / Dark colorscheme
+ctrl        'o'         Load schematic
+alt         'p'         Add symbol pin
+ctrl        'p'         Pan schematic view
+shift       'P'         Pan, other way to.
+alt         'q'         Edit schematic file (dangerous!)
+-           'q'         Edit prop
+shift       'Q'         Edit prop with vim
+ctrl+shift  'Q'         View prop
+ctrl        'q'         Exit XSCHEM
+alt         'r'         Rotate objects around their anchor points
+shift       'R'         Rotate
+-           'r'         Start rect
+shift       'S'         Change element order
+ctrl+shift  'S'         Save  as schematic
+ctrl        's'         Save schematic
+alt         's'         Reload current schematic from disk
+ctrl+alt    's'         Save-as symbol
+-           't'         Place text
+alt         'u'         Align to current grid selected objects
+shift       'U'         Redo
+-           'u'         Undo
+-           'v'         Constrained vertical move/copy of objects
+ctrl        'v'         Paste from clipboard
+shift       'V'         Toggle spice/vhdl/verilog netlist 
+-           'w'         Place wire
+ctrl        'w'         Place polygon. Operation ends by placing last point over first.
+shift       'W'         Place wire, snapping to closest pin or net endpoint
+ctrl        'x'         Cut into clipboard
+-           'x'         New cad session
+shift       'X'         Highlight discrepancies between object ports and attached nets
+-           'y'         Toggle stretching wires
+-           'z'         Zoom box
+shift       'Z'         Zoom in
+ctrl        'z'         Zoom out
+-           '?'         Help
+-           '&amp;'         Join / break / collapse wires
+shift       '*'         Postscript/pdf print
+ctr+shift   '*'         Xpm/png print
+alt+shift   '*'         Svg print
+            '-'         dim colors
+ctrl        '-'         Test mode: change line width
+ctrl        '+'         Test mode: change line width
+            '+'         brite colors
+-           '_'         Toggle change line width
+-           '%'         Toggle draw grid
+-           '='         Toggle fill rectangles
+-           '$'         Toggle pixmap  saving
+ctrl        '$'         Toggle use XCopyArea vs drawing primitives for drawing the screen
+-           ':'         Toggle flat netlist
+ </pre><br>
+
+ <h3>KEYBIND CUSTOMIZATION</h3>
+ <p>
+  changes to default keybindings may be placed in the <kbd>~/.xschem</kbd> file as in the following examples:
+ </p>
+ <pre class="code">
+## replace Ctrl-d with Escape (so you won't kill the program :-))
+set replace_key(Control-d) Escape
+## swap w and W keybinds; Always specify Shift for capital letters
+set replace_key(Shift-W) w
+set replace_key(w) Shift-W
+ </pre><br>
+
+
+ <h3>STRETCH OPERATIONS</h3>
+ <p>
+  An important operation that deserves a special paragraph is the <kbd>Stretch</kbd> operation.
+  There is frequently the need to move part of the circuit without breaking connections, for 
+  example to create more room for other circuitry or just to make it look better.
+  The first thing to do is to drag a selection rectangle with the mouse holding down the
+  <kbd>Ctrl</kbd> key, cutting wires we need to stretch:
+ </p>
+ <img src="commands1.png">
+ <p>
+  After selection is done hit the move (<kbd>'m'</kbd>) key. You will be able to move the selected part
+  of the schematic keeping connected the wires crossing the selection rectangle:
+ </p>
+ <img src="commands2.png">
+ <p>
+  In our example we needed to move up part of the circuit, the end result is shown in next picture. 
+  Multiple stretch rectangles can be set using the <kbd>Shift</kbd> key in addition to the 
+  <kbd>Ctrl</kbd> key after setting the first stretch area.
+ </p>
+ <img src="commands3.png">
+
+ <h3>PLACE WIRES SNAPPING TO CLOSEST PIN OT NET ENDPOINT</h3>
+ <p>
+  The (uppercase) <kbd>'W'</kbd> bindkey allows to place a wire putting start (and end point, later) to the 
+  closest pin or wire endpoint, this will make it easier to connect precisely without the need to zoom in all times.
+ </p><br>
+ <h3>CONSTRAINED MOVE</h3>
+ <p>
+  while creating wires, lines, and moving, stretching, copying objects, pressing the <kbd>'h'</kbd> or <kbd>'v'</kbd> keys 
+  will constrain the movement to a horizontal or vertical direction, respectively.
+ </p> 
+ <img src="commands4.png" style="margin-bottom: 0px;" >
+ <p style="padding-top:0px;"> <i>
+  Constrained horizontal move: regardless of the mouse pointer Y position movement 
+  occurs on the X direction only.
+ </i></p>
+ <img src="commands5.png" style="margin-bottom: 0px;">
+ <p style="padding-top:0px;"> <i>
+  Unconstrained move: objects follow the mouse pointer in X and Y direction.
+ </i></p>
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM TUTORIAL</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="xschem_man.html" class="home">UP</a>
+
+ <!-- slide title -->
+ <h1> TUTORIAL: RUN A SIMULATION WITH XSCHEM </h1>
+
+ <p>
+  here some instructions to create a schematic and run a ngspice transient sim in XSCHEM:
+ <ol>
+ <li>Build and install xschem from svn head.</li>
+ <li>Create some empty directory (in my examples i use ~/x)</li>
+ <li>cd ~/x</li>
+ <li>~/bin/xschem rlc.sch  (use the actual xschem install path). xschem will warn you that the rlc.sch file does not exist. No problem.</li>
+ <li>Press Insert key</li>
+ <li>Navigate in the file selector to .../share/xschem/xschem_library/devices</li>
+ <li>Select 'capa.sym' and press 'Open'</li>
+ <li>Select the capacitor, press 'm' and place it somewhere</li>
+ <li>Press 'Insert' again and place 'res.sym' and then again 'ind.sym'</li>
+ <li>Again, press 'Insert' and place 'vsource_arith.sym'</li>
+ <li>By selecting (left btn click)  and moving ('m') place the components like in this picture:</li>
+ 
+ <img src="tutorial_run_simulation_01.png"> 
+ 
+ <li>Press the right mouse button on the capacitor and set its 'value=' attribute to 50nF:</li>
+ 
+ <img src="tutorial_run_simulation_02.png"> 
+ 
+ 
+ <li>Do the same for the inductor (10mH) and the resistor (1k)</li>
+ <li>Set the voltage source VOL to: "'3*cos(time*time*time*1e11)'" (include quotes, single and double):</li>
+ 
+ <img src="tutorial_run_simulation_03.png"> 
+ 
+ 
+ <li>Pressing the 'w' key and moving the mouse you draw wires, wire the components as shown (press 'w', move the mouse and click, this draws a wire segment):</li>
+ 
+ <img src="tutorial_run_simulation_04.png"> 
+ 
+ 
+ <li>Press 'Insert key and place one instance of 'lab_pin', then use the right mouse button to change its 'lab' attribute to A:</li>
+ 
+ <img src="tutorial_run_simulation_05.png"> 
+ 
+ 
+ <li>Move the label as shown, (you can use 'F' to flip and 'R' to rotate), then using 'c' copy this pin label and edit attributes to create the B and C labels, place all of these as shown:</li>
+ 
+ <img src="tutorial_run_simulation_06.png"> 
+ 
+ 
+ <li>Select the 'C' label and copy it as shown here, set its lab attribute to 0 (this will be the 0V (gnd node))</li>
+ 
+ <img src="tutorial_run_simulation_07.png"> 
+ 
+ 
+ <li>Press 'Insert key, place the 'code.sym' symbol, set name and value attributes as follows:</li>
+ 
+ <img src="tutorial_run_simulation_08.png"> 
+ 
+ 
+ <li>Cosmetics: add 'title.sym' move the circuit (by selecting it dragging the mouse and pressing 'm', if needed).  Note that you can do a 'stretch move'operation if you need move components keeping the wires attached; refer to the xschem manual <a href="http://repo.hu/projects/xschem/xschem_man/commands.html">here</a></li>
+ 
+ <img src="tutorial_run_simulation_09.png"> 
+ 
+ 
+ <li>The circuit is ready for simulation: press 'netlist' the 'rlc.spice' will  be generated in current dir.</li>
+ <li>If ngspice is installed on the system press 'Simulate':</li>
+ <li>In the simulator window type 'plot a b c':</li>
+ 
+ <img src="tutorial_run_simulation_10.png"> 
+ 
+ 
+ <li>If you set 'Simulation -&gt; Configure simulators and tools -&gt; Ngspice Batch' and press 'Simulate' again the sim will be run in batch mode, a 'rlc.raw' file will be generated and a 'rlc.out' file will contain the simulator textual output.</li>
+ </ol>
+ </p>
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

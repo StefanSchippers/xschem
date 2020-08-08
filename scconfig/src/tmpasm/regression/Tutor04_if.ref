@@ -1,0 +1,42 @@
+put [at 1:1]
+ arg: myvar
+ arg: {true}
+if myvar [at 6:10]
+then:
+ print [at 7:2]
+  arg: {myvar is true (1)
+}
+else:
+ print [at 9:2]
+  arg: {myvar is false (1)
+}
+if myvar [at 14:10]
+then:
+ print [at 15:2]
+  arg: {myvar is true (2)
+}
+else:
+ (NOP)
+if myvar [at 19:10]
+then:
+ (NOP)
+else:
+ print [at 20:2]
+  arg: {myvar is false (3)
+}
+put [at 24:1]
+ arg: foo
+ arg: {false}
+if myvar [at 25:10]
+then:
+ if foo [at 26:9]
+ then:
+  print [at 27:3]
+   arg: {myvar and bar are true (4)
+}
+ else:
+  print [at 29:3]
+   arg: {myvar is true, bar is false (4)
+}
+else:
+ (NOP)

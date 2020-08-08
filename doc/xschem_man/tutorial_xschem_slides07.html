@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM PRESENTATION</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+.content{ background-image:url('xschem_bg2.png');}
+</style>
+
+</head>
+<body>
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="tutorial_xschem_slides061.html" class="prev">PREV</a>
+<a href="tutorial_xschem_slides01.html" class="home">UP</a>
+<a href="tutorial_xschem_slides071.html" class="next">NEXT</a>
+
+
+ <!-- slide title -->
+ <h1>INSTANCE ATTRIBUTES, PARAMETRIZED SUBCIRCUITS</h1>
+
+ <h3 style="text-align:left; max-width: 55%;margin-left:0;">
+  <ul style="margin-left:0;">
+   <li>A symbol may have any sort of parameters that can be specified when placing an instance of it in a schematic.</li>
+   <li>Example: inverter with variable W/L dimensions for p and n transistors.</li>
+   <li>Parameters enable circuit reuse (think of variable width registers, variable size RAMs, variable strength buffers).</li>
+   <li>Symbol may show parameters using the @param notation, @param is then expanded with the actual 'param' value
+       set as attribute in the component instance.</li>
+   <li>Attributes may be used in multiple level hierarchies. No single-level restriction.</li>
+
+  </ul>
+ </h3>
+ <img src="tutorial_xschem_slides06.png" style="position:fixed; top:18%; right:2%;width:38%; max-width: 38%;">
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

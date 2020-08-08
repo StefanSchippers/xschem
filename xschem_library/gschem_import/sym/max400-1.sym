@@ -1,0 +1,77 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX400
+template="device=MAX400
+name=U?
+footprint=DIP8
+description=\\"ultra-low offset voltage operational amplifier\\"
+numslots=0
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX400.pdf
+V+=V+
+V-=V-
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @V+ @V-"
+
+extra="V+ V-"
+extra_pinnumber="7 4"
+}
+V {}
+S {}
+E {}
+T {@name} 230 -170 2 0 0.333333 0.333333 {}
+T {MAX400} 30 -165 2 1 0.333333 0.333333 {}
+
+L 4 30 0 230 0 {}
+L 4 230 -160 230 0 {}
+L 4 30 -160 230 -160 {}
+L 4 30 -160 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=1
+pinseq=1
+name=VOSTRIM
+dir=inout
+}
+T {@#0:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -60 2 1 0.266667 0.266667 {}
+L 3 0 -100 30 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=2
+pinseq=2
+name=IN-
+dir=in
+}
+T {@#1:pinnumber} 20 -105 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -100 2 1 0.266667 0.266667 {}
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=3
+pinseq=3
+name=IN+
+dir=in
+}
+T {@#2:pinnumber} 20 -145 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -140 2 1 0.266667 0.266667 {}
+L 3 230 -80 260 -80 {}
+B 5 257.5 -82.5 262.5 -77.5 {pinnumber=6
+pinseq=6
+name=VOUT
+dir=out
+}
+T {@#3:pinnumber} 240 -85 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 225 -80 2 0 0.266667 0.266667 {}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=8
+pinseq=8
+name=VOSTRIM
+dir=inout
+}
+T {@#4:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -20 2 1 0.266667 0.266667 {}

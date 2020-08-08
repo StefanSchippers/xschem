@@ -1,0 +1,423 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=DIN41612C56
+template="device=DIN41612C56
+numslots=0
+description=\\"DIN 41612C-56\\"
+name=CONN?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@description} 60 -1300 2 1 0.333333 0.333333 {}
+T {@name} 350 -1300 2 0 0.333333 0.333333 {}
+
+L 4 50 0 350 0 {}
+L 4 350 -1290 350 0 {}
+L 4 50 -1290 350 -1290 {}
+L 4 50 -1290 50 0 {}
+
+
+
+
+
+
+
+L 3 20 -1230 50 -1230 {}
+B 5 17.5 -1232.5 22.5 -1227.5 {pinnumber=A2
+name=A2
+pinseq=1
+dir=inout
+}
+T {@#0:pinnumber} 20 -1235 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -1150 50 -1150 {}
+B 5 17.5 -1152.5 22.5 -1147.5 {pinnumber=A4
+name=A4
+pinseq=2
+dir=inout
+}
+T {@#1:pinnumber} 20 -1155 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -1070 50 -1070 {}
+B 5 17.5 -1072.5 22.5 -1067.5 {pinnumber=A6
+name=A6
+pinseq=3
+dir=inout
+}
+T {@#2:pinnumber} 20 -1075 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -990 50 -990 {}
+B 5 17.5 -992.5 22.5 -987.5 {pinnumber=A8
+name=A8
+pinseq=4
+dir=inout
+}
+T {@#3:pinnumber} 20 -995 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -910 50 -910 {}
+B 5 17.5 -912.5 22.5 -907.5 {pinnumber=A10
+name=A10
+pinseq=5
+dir=inout
+}
+T {@#4:pinnumber} 10 -915 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -830 50 -830 {}
+B 5 17.5 -832.5 22.5 -827.5 {pinnumber=A12
+name=A12
+pinseq=6
+dir=inout
+}
+T {@#5:pinnumber} 10 -835 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -750 50 -750 {}
+B 5 17.5 -752.5 22.5 -747.5 {pinnumber=A14
+name=A14
+pinseq=7
+dir=inout
+}
+T {@#6:pinnumber} 10 -755 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -670 50 -670 {}
+B 5 17.5 -672.5 22.5 -667.5 {pinnumber=A16
+name=A16
+pinseq=8
+dir=inout
+}
+T {@#7:pinnumber} 10 -675 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -590 50 -590 {}
+B 5 17.5 -592.5 22.5 -587.5 {pinnumber=A18
+name=A18
+pinseq=9
+dir=inout
+}
+T {@#8:pinnumber} 10 -595 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -510 50 -510 {}
+B 5 17.5 -512.5 22.5 -507.5 {pinnumber=A20
+name=A20
+pinseq=10
+dir=inout
+}
+T {@#9:pinnumber} 10 -515 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -430 50 -430 {}
+B 5 17.5 -432.5 22.5 -427.5 {pinnumber=A22
+name=A22
+pinseq=11
+dir=inout
+}
+T {@#10:pinnumber} 10 -435 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -350 50 -350 {}
+B 5 17.5 -352.5 22.5 -347.5 {pinnumber=A24
+name=A24
+pinseq=12
+dir=inout
+}
+T {@#11:pinnumber} 10 -355 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -270 50 -270 {}
+B 5 17.5 -272.5 22.5 -267.5 {pinnumber=A26
+name=A26
+pinseq=13
+dir=inout
+}
+T {@#12:pinnumber} 10 -275 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -190 50 -190 {}
+B 5 17.5 -192.5 22.5 -187.5 {pinnumber=A28
+name=A28
+pinseq=14
+dir=inout
+}
+T {@#13:pinnumber} 10 -195 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -110 50 -110 {}
+B 5 17.5 -112.5 22.5 -107.5 {pinnumber=A30
+name=A30
+pinseq=15
+dir=inout
+}
+T {@#14:pinnumber} 10 -115 2 1 0.266667 0.266667 {layer=13}
+L 3 20 -30 50 -30 {}
+B 5 17.5 -32.5 22.5 -27.5 {pinnumber=A32
+name=A32
+pinseq=16
+dir=inout
+}
+T {@#15:pinnumber} 10 -35 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -1230 380 -1230 {}
+B 5 377.5 -1232.5 382.5 -1227.5 {pinnumber=B2
+name=B2
+pinseq=17
+dir=inout
+}
+T {@#16:pinnumber} 360 -1235 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -1210 380 -1210 {}
+B 5 377.5 -1212.5 382.5 -1207.5 {pinnumber=C2
+name=C2
+pinseq=18
+dir=inout
+}
+T {@#17:pinnumber} 360 -1215 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -1190 380 -1190 {}
+B 5 377.5 -1192.5 382.5 -1187.5 {pinnumber=B3
+name=B3
+pinseq=19
+dir=inout
+}
+T {@#18:pinnumber} 360 -1195 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -1150 380 -1150 {}
+B 5 377.5 -1152.5 382.5 -1147.5 {pinnumber=B4
+name=B4
+pinseq=20
+dir=inout
+}
+T {@#19:pinnumber} 360 -1155 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -1130 380 -1130 {}
+B 5 377.5 -1132.5 382.5 -1127.5 {pinnumber=C4
+name=C4
+pinseq=21
+dir=inout
+}
+T {@#20:pinnumber} 360 -1135 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -1070 380 -1070 {}
+B 5 377.5 -1072.5 382.5 -1067.5 {pinnumber=B6
+name=B6
+pinseq=22
+dir=inout
+}
+T {@#21:pinnumber} 360 -1075 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -1050 380 -1050 {}
+B 5 377.5 -1052.5 382.5 -1047.5 {pinnumber=C6
+name=C6
+pinseq=23
+dir=inout
+}
+T {@#22:pinnumber} 360 -1055 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -1030 380 -1030 {}
+B 5 377.5 -1032.5 382.5 -1027.5 {pinnumber=B7
+name=B7
+pinseq=24
+dir=inout
+}
+T {@#23:pinnumber} 360 -1035 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -990 380 -990 {}
+B 5 377.5 -992.5 382.5 -987.5 {pinnumber=B8
+name=B8
+pinseq=25
+dir=inout
+}
+T {@#24:pinnumber} 360 -995 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -970 380 -970 {}
+B 5 377.5 -972.5 382.5 -967.5 {pinnumber=C8
+name=C8
+pinseq=26
+dir=inout
+}
+T {@#25:pinnumber} 360 -975 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -910 380 -910 {}
+B 5 377.5 -912.5 382.5 -907.5 {pinnumber=B10
+name=B10
+pinseq=27
+dir=inout
+}
+T {@#26:pinnumber} 360 -915 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -890 380 -890 {}
+B 5 377.5 -892.5 382.5 -887.5 {pinnumber=C10
+name=C10
+pinseq=28
+dir=inout
+}
+T {@#27:pinnumber} 360 -895 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -870 380 -870 {}
+B 5 377.5 -872.5 382.5 -867.5 {pinnumber=B11
+name=B11
+pinseq=29
+dir=inout
+}
+T {@#28:pinnumber} 360 -875 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -830 380 -830 {}
+B 5 377.5 -832.5 382.5 -827.5 {pinnumber=B12
+name=B12
+pinseq=30
+dir=inout
+}
+T {@#29:pinnumber} 360 -835 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -810 380 -810 {}
+B 5 377.5 -812.5 382.5 -807.5 {pinnumber=C12
+name=C12
+pinseq=31
+dir=inout
+}
+T {@#30:pinnumber} 360 -815 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -750 380 -750 {}
+B 5 377.5 -752.5 382.5 -747.5 {pinnumber=B14
+name=B14
+pinseq=32
+dir=inout
+}
+T {@#31:pinnumber} 360 -755 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -730 380 -730 {}
+B 5 377.5 -732.5 382.5 -727.5 {pinnumber=C14
+name=C14
+pinseq=33
+dir=inout
+}
+T {@#32:pinnumber} 360 -735 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -710 380 -710 {}
+B 5 377.5 -712.5 382.5 -707.5 {pinnumber=B15
+name=B15
+pinseq=34
+dir=inout
+}
+T {@#33:pinnumber} 360 -715 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -670 380 -670 {}
+B 5 377.5 -672.5 382.5 -667.5 {pinnumber=B16
+name=B16
+pinseq=35
+dir=inout
+}
+T {@#34:pinnumber} 360 -675 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -650 380 -650 {}
+B 5 377.5 -652.5 382.5 -647.5 {pinnumber=C16
+name=C16
+pinseq=36
+dir=inout
+}
+T {@#35:pinnumber} 360 -655 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -590 380 -590 {}
+B 5 377.5 -592.5 382.5 -587.5 {pinnumber=B18
+name=B18
+pinseq=37
+dir=inout
+}
+T {@#36:pinnumber} 360 -595 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -570 380 -570 {}
+B 5 377.5 -572.5 382.5 -567.5 {pinnumber=C18
+name=C18
+pinseq=38
+dir=inout
+}
+T {@#37:pinnumber} 360 -575 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -550 380 -550 {}
+B 5 377.5 -552.5 382.5 -547.5 {pinnumber=B19
+name=B19
+pinseq=39
+dir=inout
+}
+T {@#38:pinnumber} 360 -555 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -510 380 -510 {}
+B 5 377.5 -512.5 382.5 -507.5 {pinnumber=B20
+name=B20
+pinseq=40
+dir=inout
+}
+T {@#39:pinnumber} 360 -515 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -490 380 -490 {}
+B 5 377.5 -492.5 382.5 -487.5 {pinnumber=C20
+name=C20
+pinseq=41
+dir=inout
+}
+T {@#40:pinnumber} 360 -495 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -430 380 -430 {}
+B 5 377.5 -432.5 382.5 -427.5 {pinnumber=B22
+name=B22
+pinseq=42
+dir=inout
+}
+T {@#41:pinnumber} 360 -435 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -410 380 -410 {}
+B 5 377.5 -412.5 382.5 -407.5 {pinnumber=C22
+name=C22
+pinseq=43
+dir=inout
+}
+T {@#42:pinnumber} 360 -415 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -390 380 -390 {}
+B 5 377.5 -392.5 382.5 -387.5 {pinnumber=B23
+name=B23
+pinseq=44
+dir=inout
+}
+T {@#43:pinnumber} 360 -395 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -350 380 -350 {}
+B 5 377.5 -352.5 382.5 -347.5 {pinnumber=B24
+name=B24
+pinseq=45
+dir=inout
+}
+T {@#44:pinnumber} 360 -355 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -330 380 -330 {}
+B 5 377.5 -332.5 382.5 -327.5 {pinnumber=C24
+name=C24
+pinseq=46
+dir=inout
+}
+T {@#45:pinnumber} 360 -335 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -270 380 -270 {}
+B 5 377.5 -272.5 382.5 -267.5 {pinnumber=B26
+name=B26
+pinseq=47
+dir=inout
+}
+T {@#46:pinnumber} 360 -275 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -250 380 -250 {}
+B 5 377.5 -252.5 382.5 -247.5 {pinnumber=C26
+name=C26
+pinseq=48
+dir=inout
+}
+T {@#47:pinnumber} 360 -255 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -230 380 -230 {}
+B 5 377.5 -232.5 382.5 -227.5 {pinnumber=B27
+name=27
+pinseq=49
+dir=inout
+}
+T {@#48:pinnumber} 360 -235 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -190 380 -190 {}
+B 5 377.5 -192.5 382.5 -187.5 {pinnumber=B28
+name=B28
+pinseq=50
+dir=inout
+}
+T {@#49:pinnumber} 360 -195 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -170 380 -170 {}
+B 5 377.5 -172.5 382.5 -167.5 {pinnumber=C28
+name=C28
+pinseq=51
+dir=inout
+}
+T {@#50:pinnumber} 360 -175 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -110 380 -110 {}
+B 5 377.5 -112.5 382.5 -107.5 {pinnumber=B30
+name=B30
+pinseq=52
+dir=inout
+}
+T {@#51:pinnumber} 360 -115 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -90 380 -90 {}
+B 5 377.5 -92.5 382.5 -87.5 {pinnumber=C30
+name=C30
+pinseq=53
+dir=inout
+}
+T {@#52:pinnumber} 360 -95 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -70 380 -70 {}
+B 5 377.5 -72.5 382.5 -67.5 {pinnumber=B31
+name=B31
+pinseq=54
+dir=inout
+}
+T {@#53:pinnumber} 360 -75 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -30 380 -30 {}
+B 5 377.5 -32.5 382.5 -27.5 {pinnumber=B32
+name=B32
+pinseq=55
+dir=inout
+}
+T {@#54:pinnumber} 360 -35 2 1 0.266667 0.266667 {layer=13}
+L 3 350 -10 380 -10 {}
+B 5 377.5 -12.5 382.5 -7.5 {pinnumber=C32
+name=C32
+pinseq=56
+dir=inout
+}
+T {@#55:pinnumber} 360 -15 2 1 0.266667 0.266667 {layer=13}

@@ -1,0 +1,45 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=regulator
+format="@spiceprefix@name @pinlist @symname"
+
+tedax_format="footprint @name @footprint
+device @name @symname"
+
+template="name=U1 device=MAX882 footprint=SO8"}
+V {}
+S {}
+E {}
+L 4 -200 -40 -160 -40 {}
+L 4 -200 0 -160 0 {}
+L 4 -200 40 -160 40 {}
+L 7 160 -40 200 -40 {}
+L 7 160 40 200 40 {}
+L 9 -120 100 -120 140 {}
+L 9 80 100 80 140 {}
+L 9 120 100 120 140 {}
+B 5 -202.5 -42.5 -197.5 -37.5 {name=STBY_ dir=in pinnumber=7}
+B 5 -202.5 -2.5 -197.5 2.5 {name=IN dir=in pinnumber=5}
+B 5 -202.5 37.5 -197.5 42.5 {name=LBI dir=in pinnumber=8}
+B 5 197.5 -42.5 202.5 -37.5 {name=LBO dir=out pinnumber=1}
+B 5 197.5 37.5 202.5 42.5 {name=OUT dir=out pinnumber=4}
+B 5 -122.5 137.5 -117.5 142.5 {name=SET dir=inout pinnumber=2}
+B 5 77.5 137.5 82.5 142.5 {name=GND dir=inout pinnumber=3}
+B 5 117.5 137.5 122.5 142.5 {name=GND dir=inout pinnumber=6}
+P 4 5 -160 -100 160 -100 160 100 -160 100 -160 -100 {}
+T {STBY_} -149 -49.6 0 0 0.4 0.4 {}
+T {7} -172 -56 0 1 0.25 0.25 {layer=13}
+T {IN} -149 -9.6 0 0 0.4 0.4 {}
+T {5} -172 -16 0 1 0.25 0.25 {layer=13}
+T {LBI} -149 30.4 0 0 0.4 0.4 {}
+T {8} -172 24 0 1 0.25 0.25 {layer=13}
+T {LBO} 149 -49.6 0 1 0.4 0.4 {}
+T {1} 172 -56 0 0 0.25 0.25 {layer=13}
+T {OUT} 149 30.4 0 1 0.4 0.4 {}
+T {4} 172 24 0 0 0.25 0.25 {layer=13}
+T {SET} -141 89 2 1 0.4 0.4 {}
+T {2} -136 112 3 1 0.25 0.25 {layer=13}
+T {3} 64 112 3 1 0.25 0.25 {layer=13}
+T {GND} 79 89 2 1 0.4 0.4 {}
+T {6} 104 112 3 1 0.25 0.25 {layer=13}
+T {@device} -63 -18 0 0 0.6 0.6 {}
+T {@name} 160 -143 0 1 0.6 0.6 {}

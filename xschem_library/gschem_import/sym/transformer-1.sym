@@ -1,0 +1,68 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=transformer
+template="name=T?
+device=transformer
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 30 -130 2 1 0.333333 0.333333 {}
+
+
+L 4 20 -110 50 -110 {}
+L 4 20 -10 50 -10 {}
+L 4 100 -10 130 -10 {}
+L 4 100 -110 130 -110 {}
+L 4 70 -120 70 0 {}
+L 4 80 -120 80 0 {}
+
+
+A 4 50 -100 10 270 180 {}
+A 4 50 -40 10 270 180 {}
+A 4 50 -20 10 270 180 {}
+A 4 100 -20 10 90 180 {}
+A 4 100 -40 10 90 180 {}
+A 4 100 -100 10 90 180 {}
+A 4 50 -80 10 270 180 {}
+A 4 50 -60 10 270 180 {}
+A 4 100 -80 10 90 180 {}
+A 4 100 -60 10 90 180 {}
+
+
+
+
+L 3 0 -110 20 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 10 -115 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -10 20 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 10 -15 2 1 0.266667 0.266667 {layer=13}
+L 3 130 -110 150 -110 {}
+B 5 147.5 -112.5 152.5 -107.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#2:pinnumber} 140 -115 2 1 0.266667 0.266667 {layer=13}
+L 3 130 -10 150 -10 {}
+B 5 147.5 -12.5 152.5 -7.5 {pinnumber=4
+pinseq=4
+name=4
+dir=inout
+}
+T {@#3:pinnumber} 140 -15 2 1 0.266667 0.266667 {layer=13}

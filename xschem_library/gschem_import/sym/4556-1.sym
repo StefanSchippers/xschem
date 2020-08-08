@@ -1,0 +1,106 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4556
+template="name=U?
+device=4556
+footprint=DIP16
+slot=1
+numslots=2
+description=\\"2 2-bit binary decoders\\"
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4556B_CNV_3.pdf
+VSS=VSS
+VDD=VDD
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VSS @VDD"
+
+extra="VSS VDD"
+extra_pinnumber="8 16"
+}
+V {}
+S {}
+E {}
+T {@name} 130 -190 2 0 0.333333 0.333333 {}
+T {4556} 30 -185 2 1 0.333333 0.333333 {}
+
+L 4 30 0 130 0 {}
+L 4 130 -180 130 0 {}
+L 4 30 -180 130 -180 {}
+L 4 30 -180 30 0 {}
+
+
+A 4 25 -30 5 0 360 {}
+A 4 135 -30 5 0 360 {}
+A 4 135 -70 5 0 360 {}
+A 4 135 -110 5 0 360 {}
+A 4 135 -150 5 0 360 {}
+
+
+
+
+
+L 3 0 -30 20 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {
+pinseq=1
+name=\_EN\_
+dir=in
+pinnumber=1:15
+}
+T {@#0:pinnumber} 20 -35 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -30 2 1 0.266667 0.266667 {}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {
+pinseq=2
+name=S1
+dir=in
+pinnumber=3:13
+}
+T {@#1:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -110 2 1 0.266667 0.266667 {}
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {
+pinseq=3
+name=S0
+dir=in
+pinnumber=2:14
+}
+T {@#2:pinnumber} 20 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -150 2 1 0.266667 0.266667 {}
+L 3 140 -30 160 -30 {}
+B 5 157.5 -32.5 162.5 -27.5 {
+pinseq=4
+name=\_Y3\_
+dir=out
+pinnumber=7:9
+}
+T {@#3:pinnumber} 140 -35 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 125 -30 2 0 0.266667 0.266667 {}
+L 3 140 -70 160 -70 {}
+B 5 157.5 -72.5 162.5 -67.5 {
+pinseq=5
+name=\_Y2\_
+dir=out
+pinnumber=6:10
+}
+T {@#4:pinnumber} 140 -75 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 125 -70 2 0 0.266667 0.266667 {}
+L 3 140 -110 160 -110 {}
+B 5 157.5 -112.5 162.5 -107.5 {
+pinseq=6
+name=\_Y1\_
+dir=out
+pinnumber=5:11
+}
+T {@#5:pinnumber} 140 -115 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 125 -110 2 0 0.266667 0.266667 {}
+L 3 140 -150 160 -150 {}
+B 5 157.5 -152.5 162.5 -147.5 {
+pinseq=7
+name=\_Y0\_
+dir=out
+pinnumber=4:12
+}
+T {@#6:pinnumber} 140 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 125 -150 2 0 0.266667 0.266667 {}

@@ -1,0 +1,65 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=7432
+template="device=7432
+slot=1
+numslots=4
+name=U?
+footprint=DIP14
+description=\\"4 OR gates with 2 inputs\\"
+documentation=http://www-s.ti.com/sc/ds/sn74hc32.pdf
+GND=GND
+Vcc=Vcc
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND @Vcc"
+
+extra="GND Vcc"
+extra_pinnumber="7 14"
+}
+V {}
+S {}
+E {}
+T {7432} 30 0 2 1 0.266667 0.266667 {}
+T {@name} 30 -90 2 1 0.333333 0.333333 {}
+
+
+L 4 30 -80 30 -20 {}
+L 4 30 -80 70 -80 {}
+L 4 30 -20 70 -20 {}
+
+A 4 25 -70 5 0 360 {}
+A 4 25 -30 5 0 360 {}
+A 4 105 -50 5.1 0 360 {}
+
+A 4 70 -50 30 270 180 {}
+
+
+
+
+L 3 0 -70 20 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {
+pinseq=1
+name=A
+dir=in
+pinnumber=1:4:9:12
+}
+T {@#0:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -30 20 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {
+pinseq=2
+name=B
+dir=in
+pinnumber=2:5:10:13
+}
+T {@#1:pinnumber} 20 -35 2 0 0.266667 0.266667 {layer=13}
+L 3 110 -50 130 -50 {}
+B 5 127.5 -52.5 132.5 -47.5 {
+pinseq=3
+name=Y
+dir=out
+pinnumber=3:6:8:11
+}
+T {@#2:pinnumber} 110 -55 2 1 0.266667 0.266667 {layer=13}

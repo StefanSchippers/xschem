@@ -1,0 +1,46 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAINS_CONNECTOR
+template="name=CONN?
+device=MAINS_CONNECTOR
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 40 -110 2 1 0.333333 0.333333 {}
+
+
+L 4 40 -100 55 -100 {}
+L 4 40 0 55 0 {}
+L 4 40 -100 40 0 {}
+L 4 0 -75 40 -75 {}
+L 4 0 -25 40 -25 {}
+L 4 95 -80 120 -80 {}
+L 4 95 -20 120 -20 {}
+
+
+A 4 55 -50 50 270 180 {}
+
+
+
+
+L 3 120 -80 140 -80 {}
+B 5 137.5 -82.5 142.5 -77.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 130 -85 2 1 0.266667 0.266667 {layer=13}
+L 3 120 -20 140 -20 {}
+B 5 137.5 -22.5 142.5 -17.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 130 -25 2 1 0.266667 0.266667 {layer=13}

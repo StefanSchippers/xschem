@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>xschem schematic circuit editor - VHDL Verilog Spice
+      netlister</title>
+    <meta content="stefan.schippers@gmail.com" name="author">
+    <meta content="EDA tool for drawing hierarchical circuit schematics
+      and making Spice - Verilog - VHDL netlists for simulation"
+      name="description">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <style type="text/css">
+      h2 { 
+            text-shadow: 10px 10px 9px #aa4;
+      }
+      .just { text-align: justify; }
+    </style>
+
+  </head>
+  <body>
+  <iframe class="menu_iframe"  seamless src="menu_xschem.html"> </iframe>
+  <div  class="body1">
+
+
+    <div 
+         style="background:url(xschem.png);background-size: 100% 150px; 
+         width:100%; height: 150px;"
+    >
+    <h1><br>
+        XSCHEM : schematic capture<br>and netlisting EDA tool
+    </h1>
+    </div>
+    <br>
+    <p class='just'>
+    <b>Xschem</b> is a schematic capture program, it allows creation of
+    hierarchical representation of circuits with a top down approach . 
+    By focusing on interfaces, hierarchy and instance properties a 
+    complex system can be described in terms of simpler building blocks.
+    A VHDL or Verilog or Spice netlist can be generated from 
+    the drawn schematic, allowing
+    the simulation of the circuit. Key feature of the program is its
+    drawing engine written in C and using directly the Xlib drawing
+    primitives; this gives very good speed performance, even on very
+    big circuits. The user interface is built with the Tcl-Tk toolkit,
+    tcl is also the extension language used.<br></p>
+    <h2 style="text-align: center;">Features</h2>
+    <ul>
+      <li>hierarchical schematic drawings, no limits on size</li>
+      <li>any object in the schematic can have any sort of properties
+        (generics in VHDL, parameters in Spice or Verilog)<br>
+      </li>
+      <li>new Spice/Verilog primitives can be created, and the netlist
+        format can be defined by the user</li>
+      <li>tcl extension language allows the creation of scripts; any
+        user command in the drawing window has an associated tcl comand</li>
+      <li>VHDL / Verilog / Spice netlist, ready for simulation</li>
+      <li>Behavioral VHDL / Verilog code can be embedded as one of the
+        properties of the schematic block, <br>
+      </li>
+    </ul>
+    <br>
+    Xschem runs on UNIX systems with X11 and Tcl-Tk toolkit installed.<br>
+    <br>
+    <h2 style="text-align: center;">Documentation</h2>
+    <div style="text-align: center;">
+      <a href="xschem_man/xschem_man.html" target="_blank">XSCHEM manual</a>
+      <br>
+      <a href="xschem_man/XSCHEM_2.9.2_Manual_Tutorials.pdf" target="_blank">XSCHEM PDF manual</a>
+    </div>
+    <h2 style="text-align: center;">Download</h2>
+    <div style="text-align: center;">
+      <a href="releases/">Current release</a>
+      <br>
+      <a href="https://sourceforge.net/projects/xschem/" target="_blank">Old XSCHEM releases on Sourceforge</a>
+      <br>
+    SVN: svn checkout svn://repo.hu/xschem/trunk<br> 
+      <br>
+    </div>
+    <h2 style="text-align: center;">License</h2>
+    <div style="text-align: center;">The software is released under
+      the GNU GPL, General Public License<br>
+      <br>
+      <h2>Contact</h2>
+      Anyone interested in this project please contact me at the
+      following address:<br>
+        <h4>STEFAN.SCHIPPERS@GMAIL.COM</h4><br>
+      <br>
+    </div>
+    <h2 style="text-align: center;">Software requirements:</h2>
+    - X11<br>
+    - tcl-tk libs and developent files<br>
+    - c99 compiler<br>
+    - bison (only for compiling the grammar parser)<br>
+    - flex (only for compiling the lexical analyzer<br>
+    - Xpm library and -dev header files<br>
+    - awk (tested with gawk and mawk)<br>
+    <div style="text-align: center;">
+      <h2>Systems tested:</h2>
+    </div>
+    - Linux debian / Redhat<br>
+    - Solaris sparc<br>
+    - Windows (with the cygwin layer and cygwin/Xorg X11 server,
+    plus the tcl/tk toolkit and the -dev libraries) <br>
+    <br>
+    <br>
+    <div style="text-align: center;"><br>
+    </div>
+    <h2 style="text-align: center;">Screenshots<br>
+    </h2>
+    <div style="text-align: center;">
+      <div style="text-align: left;">
+        <ul>
+          <li>analog circuit example<br>
+          </li>
+        </ul>
+      </div>
+      <br>
+      <img style=" border:5px solid #996622 ; box-shadow: 10px 10px 9px #aa4;"
+        alt="analog circuit
+        example" title="analog circuit example" src="xschem1.png"><br>
+      <br>
+      <div style="text-align: left;">
+        <ul>
+          <li>digital system for VHDL simulation<br>
+          </li>
+        </ul>
+      </div>
+      <br>
+      <img style=" border:5px solid #996622;box-shadow: 10px 10px 9px #aa4;" 
+        alt="dicital example"
+        title="digital example" src="xschem2.png"><br>
+    </div>
+    <br>
+  </div>
+  </body>
+</html>

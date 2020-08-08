@@ -1,0 +1,6 @@
+pritn [at 1:1]
+ arg: {foo}
+switch {cond} [at 2:1]
+ case {1}
+  print [at 3:11]
+   arg: {foo}

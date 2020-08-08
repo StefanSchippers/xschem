@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM TUTORIAL</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="xschem_man.html" class="home">UP</a>
+
+ <!-- slide title -->
+ <h1> FAQ </h1>
+ 
+ <h3> I want new instances to get assigned a new unique name automatically.</h3>
+ <p class="faq">
+  Add this to your xschemrc file:
+ </p>
+ <pre class="code">set disable_unique_names 0</pre>
+ <p class="faq">
+  By default XSCHEM allows instance name (Refdes) duplicates in the schematic.
+  This must be resolved by the user normally, before exporting any netlist.
+  The <kbd>Hilight - Highlight duplicate instance names</kbd> (<kbd>k</kbd> key) menu entry
+  can be used to mark the components that need to be renamed.
+  The <kbd>Highlight - Rename duplicate instance names</kbd> menu entry can be used to automatically 
+  rename the last added components so that they have an unique name.
+  Using the above mentioned xschemrc option will automatically rename any added refdes
+  that clashes with existing names.
+ </p>
+
+ <h3> Why do i have to press 'm' to move a component instead of just click and drag? </h3>
+ <p class="faq">
+  XSCHEM is intended to handle very big schematics, mouse drags are used to select a rectangular portion 
+  of the circuit to move / stretch, if a mouse click + drag moves components it would be very easy to move
+  things instead of selecting things. This happens with geda-gschem for example: <br>
+ <img src="faq00.png"><br>
+  Here i want to select the R7 and R8 resistors, so i place the mouse close to the upper-left R7 boundary and
+  start dragging, but since clicking also selects nearby objects the wire gets selected and moving the mouse will move the wire.<br>
+ <img src="faq01.png"><br>
+  This behavior is considered not acceptable so clicking and dragging will never modify the circuit.
+  Pressing 'm' (for move) or 'c' (for copy) makes the behavior more predictable and safer. A new user just needs to get used to it.
+ </p>
+  
+
+ <h3> </h3>
+ <p class="faq">
+
+ </p>
+
+
+ <h3> </h3>
+ <p class="faq">
+
+ </p>
+
+
+ <h3> </h3>
+ <p class="faq">
+
+ </p>
+
+
+ <h3> </h3>
+ <p class="faq">
+
+ </p>
+
+
+ <h3> </h3>
+ <p class="faq">
+
+ </p>
+
+
+ <h3> </h3>
+ <p class="faq">
+
+ </p>
+
+
+
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

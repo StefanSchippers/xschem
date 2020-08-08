@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM PRESENTATION</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+.content{ background-image:url('xschem_bg2.png');}
+</style>
+
+</head>
+<body>
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="tutorial_xschem_slides.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="tutorial_xschem_slides01.html" class="next">NEXT</a>
+
+
+ <!-- slide title -->
+ <h1><a href="http://repo.hu/projects/xschem">XSCHEM</a> - CIRCUIT SCHEMATIC EDITOR<br>FOR VLSI - ASIC - PCB DESIGN</h1>
+ <h2 style="max-width: 66%;margin-left:10px;">Submitted to F-si.org - Free Silicon Foundation Conference 2020</h2>
+ <h3 style="text-align:left; max-width: 70%;margin-left:0;">
+  <ul style="margin-left:0;">
+   <li>Hierarchical representation of circuits.</li>
+   <li>Generate circuit netlists for SPICE, Verilog, VHDL, <br>tEDAx (pcb-rnd interchange format)</li>
+   <li>Components can be primitives, behavioral blocks, subcircuit blocks.</li>
+   <li>True mixed mode circuit description: Analog, Behavioral, Transistor-level, Gate-level.</li>
+   <li>Designed from ground-up to handle Very large designs as efficiently as possible, no scripting language is used for intensive computations.</li>
+   <li>Core is written in C89 for max portability, GUI and scripting language implemented with Tcl-Tk.</li>
+   <li>XSCHEM understands vector instances and bus notations like DATA[15:0,31:16].</li>
+   <li>TCL API for forward / backward annotation to / from 3rd party EDA software.</li>
+   <li>Works on most unix-likes and on Windows if the Cygwin / XWin layer is installed.</li>
+   <li>Native Windows port is planned.</li>
+  </ul>
+ </h3>
+ <img src="tutorial_xschem_slides01.png" style="position:fixed; top:20%; right:2%;max-width: 30%;border: 1px solid">
+ <img src="tutorial_xschem_slides02.png" style="position:fixed; top:55%; right:4%;max-width: 30%;border: 1px solid">
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

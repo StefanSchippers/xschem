@@ -1,0 +1,47 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=i2c_eprom
+format="@name @pinlist @power @ground @symname"
+
+tedax_format="footprint @name @footprint
+device @name @device"
+
+template="name=U1
+device=24cxx
+footprint=SO8
+power=VCC 
+ground=GND"
+extra="power ground"
+extra_pinnumber="4 8"}
+V {}
+S {}
+E {}
+L 4 -60 -80 60 -80 {}
+L 4 -60 80 60 80 {}
+L 4 -60 -80 -60 80 {}
+L 4 60 -80 60 80 {}
+L 4 -80 -60 -60 -60 {}
+L 4 60 -20 80 -20 {}
+L 4 60 20 80 20 {}
+L 4 60 60 80 60 {}
+L 7 -80 -20 -60 -20 {}
+L 7 -80 20 -60 20 {}
+B 5 -82.5 -62.5 -77.5 -57.5 {name=A1 dir=in pinnumber=1}
+B 5 -82.5 -22.5 -77.5 -17.5 {name=A2 dir=in pinnumber=2}
+B 5 -82.5 17.5 -77.5 22.5 {name=A3 dir=in pinnumber=3 }
+B 5 77.5 57.5 82.5 62.5 {name=SDA dir=inout pinnumber=5 }
+B 5 77.5 17.5 82.5 22.5 {name=SCL dir=in pinnumber=6}
+B 5 77.5 -22.5 82.5 -17.5 {name=WP dir=in pinnumber=7}
+T {@device} -24.5 -51 0 0 0.3 0.3 {}
+T {@name} 65 -92 0 0 0.2 0.2 {}
+T {A1} -55 -66.5 0 0 0.3 0.3 {}
+T {A2} -55 -26.5 0 0 0.3 0.3 {}
+T {A3} -55 13.5 0 0 0.3 0.3 {}
+T {WP} 55 -26.5 0 1 0.3 0.3 {}
+T {SCL} 55 13.5 0 1 0.3 0.3 {}
+T {SDA} 55 53.5 0 1 0.3 0.3 {}
+T {@#0:pinnumber} -67.5 -75 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -67.5 -35 0 1 0.2 0.2 {layer=13}
+T {@#2:pinnumber} -67.5 5 0 1 0.2 0.2 {layer=13}
+T {@#5:pinnumber} 67.5 -35 0 0 0.2 0.2 {layer=13}
+T {@#4:pinnumber} 67.5 5 0 0 0.2 0.2 {layer=13}
+T {@#3:pinnumber} 67.5 45 0 0 0.2 0.2 {layer=13}

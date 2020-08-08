@@ -1,0 +1,59 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=pad
+template="name=P?
+device=pad
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 50 -123.1 2 1 0.333333 0.333333 {}
+T {IO} 49.0667 -21.6667 0 1 0.266667 0.266667 {}
+T {EN} 70 -106.667 0 1 0.266667 0.266667 {}
+
+L 4 0 0 80 0 {}
+L 4 80 -120 80 0 {}
+L 4 0 -120 80 -120 {}
+L 4 0 -120 0 0 {}
+L 4 5 -5 75 -5 {}
+L 4 75 -115 75 -5 {}
+L 4 5 -115 75 -115 {}
+L 4 5 -115 5 -5 {}
+
+L 4 55 -60 75 -60 {}
+L 4 55 -60 65 -50 {}
+L 4 55 -60 65 -70 {}
+L 4 55 -20 75 -20 {}
+L 4 65 -10 75 -20 {}
+L 4 65 -30 75 -20 {}
+
+A 4 40 -60 10 0 360 {}
+
+
+
+
+
+L 3 80 -100 110 -100 {}
+B 5 107.5 -102.5 112.5 -97.5 {pinnumber=pin_enable
+pinseq=1
+name=pin_enable
+dir=inout
+}
+L 3 80 -20 110 -20 {}
+B 5 107.5 -22.5 112.5 -17.5 {pinnumber=pin_input
+pinseq=2
+name=pin_input
+dir=inout
+}
+L 3 80 -60 110 -60 {}
+B 5 107.5 -62.5 112.5 -57.5 {pinnumber=pin_output
+pinseq=3
+name=pin_output
+dir=inout
+}

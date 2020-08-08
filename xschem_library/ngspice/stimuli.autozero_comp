@@ -1,0 +1,53 @@
+unit n
+voltage VCC
+slope 0.1
+format hspice_simple
+
+param vbl VDL
+param delta 0.002
+param zero 30 
+param sense 30
+
+alias read mm pp
+set EN 1
+s zero-0.7
+set CAL 0
+s 0.7
+set PLUS  '{pp}' slope=4
+set MINUS '{mm}' slope=4
+s sense-1
+set LATCHF 0
+s 1
+set LATCHF 1
+set CAL 1
+set EN 0 
+
+set MINUS '{vbl}'
+set PLUS '{vbl}'
+s 20
+endalias 
+
+beginfile stimuli_autozero_comp.cir
+
+set VSS 0 r=400
+set VCC 1 r=1000
+set RSTF 0
+s 2
+set RSTF 1
+set MINUS '{vbl}'
+set PLUS '{vbl}'
+set CAL 1
+set LATCHF 1
+set EN  0
+s 120
+set EN 1 
+read {vbl} {vbl}-{delta}
+read {vbl} {vbl}+{delta}
+read {vbl}+{delta} {vbl}
+read {vbl}-{delta} {vbl}
+s 120
+
+
+endfile
+
+

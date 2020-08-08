@@ -1,0 +1,62 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=NPN_TRANSISTOR_subcircuit
+template="device=NPN_TRANSISTOR_subcircuit
+name=X?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 105 -90 2 1 0.333333 0.333333 {}
+T {.SUBCKT} 100 -35 2 1 0.166667 0.166667 {}
+T {Transistor} 100 -45 2 1 0.166667 0.166667 {}
+
+
+L 4 60 -60 80 -40 {}
+L 4 60 -80 80 -100 {}
+L 4 60 -90 60 -50 {}
+L 4 38.4 -70 60 -70 {}
+L 4 76.4 -47.2 80 -40 {}
+L 4 72.8 -43.6 80 -40 {}
+L 4 72.8 -43.6 76.4 -47.2 {}
+L 4 30 -110 140 -110 {}
+L 4 30 -30 140 -30 {}
+L 4 140 -110 140 -30 {}
+L 4 30 -110 30 -30 {}
+L 4 80 -110 80 -100 {}
+L 4 30 -70 40 -70 {}
+L 4 80 -40 80 -30 {}
+
+A 4 70 -70.1 31.6 0 360 {}
+
+
+
+
+
+L 3 80 -130 80 -110 {}
+B 5 77.5 -132.5 82.5 -127.5 {pinnumber=3
+pinseq=1
+name=3
+dir=inout
+}
+T {@#0:pinnumber} 70 -125 2 1 0.2 0.2 {layer=13}
+L 3 10 -70 28.4 -70 {}
+B 5 7.5 -72.5 12.5 -67.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 10 -75 2 1 0.2 0.2 {layer=13}
+L 3 80 -30 80 -10 {}
+B 5 77.5 -12.5 82.5 -7.5 {pinnumber=1
+pinseq=3
+name=1
+dir=inout
+}
+T {@#2:pinnumber} 70 -5 2 1 0.2 0.2 {layer=13}

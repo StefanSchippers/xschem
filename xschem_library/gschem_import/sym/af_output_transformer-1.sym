@@ -1,0 +1,35 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=AF_OUTPUT_TRANSFORMER
+template="device=AF_OUTPUT_TRANSFORMER
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {TRANSFORMER AF OUT} 0 0 2 1 0.333333 0.333333 {}
+T {@name} 130 -210 2 1 0.333333 0.333333 {}
+
+
+L 4 90 -240 90 -30 {}
+L 4 110 -240 110 -30 {}
+
+
+A 4 140 -160 20 90 180 {}
+A 4 140 -120 20 90 180 {}
+A 4 140 -80 20 90 180 {}
+A 4 60 -210 20 270 180 {}
+A 4 60 -170 20 270 180 {}
+A 4 60 -130 20 270 180 {}
+A 4 60 -90 20 270 180 {}
+A 4 60 -50 20 270 180 {}
+
+
+
+

@@ -1,0 +1,43 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=BEEPER
+template="device=BEEPER
+name=U?
+description=\\"pieco beeper\\"
+numslots=0
+symversion=0.1
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 30 -70 2 1 0.333333 0.333333 {}
+T {Beeper} 27.7 -25.5 2 1 0.266667 0.266667 {}
+
+
+
+A 4 50 -30 30 0 360 {}
+
+
+
+
+
+L 3 0 -30 20 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 15 -35 2 0 0.266667 0.266667 {layer=13}
+L 3 80 -30 100 -30 {}
+B 5 97.5 -32.5 102.5 -27.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 85 -35 2 1 0.266667 0.266667 {layer=13}

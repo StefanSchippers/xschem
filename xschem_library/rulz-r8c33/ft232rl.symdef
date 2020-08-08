@@ -1,0 +1,51 @@
+
+#  <pinnumber>  <direction>[<circle><edge_trigger>] <name>
+# circle: !
+# edge_trigger: >
+# direction is mandatory: i=input, o=output, b=bidirectional (inout)
+
+[labels] 
+@device
+@symname
+@name
+! type=ic
+! format="@spiceprefix@name @pinlist @symname"
+! tedax_format="footprint @name @footprint 
+! value @name @value
+! device @name @device
+! @comptag"
+! template="name=U1
+! device=FT232RL
+! footprint=SSOP28"
+[left]
+16 USBDM
+15 USBDP
+19 \_RESET\_
+27 OSCI
+28 OSCO
+26 TEST
+17 3V3OUT
+25 AGND
+[top]
+20 VCC
+4 VCCIO
+[right]
+23 CBUS0
+22 CBUS1
+13 CBUS2
+14 CBUS3
+12 CBUS4
+
+2 \_DTR\_
+11 \_CTS\_
+9 \_DSR\_
+10 \_DCD\_
+6 \_RI\_
+3 \_RTS\_
+5 RXD
+1 TXD
+[bottom]
+7 GND
+18 GND
+21 GND
+

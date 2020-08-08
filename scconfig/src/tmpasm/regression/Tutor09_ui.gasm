@@ -1,0 +1,15 @@
+# The following user interface utils are scconfig specific.
+
+# The report infrstructure is the main UI in scconfig. It prints
+# messages to the console. The "report" instruction works similar
+# to print, but its output is always the console, immune to
+# redirections and default file output (tmpasm is most commonly
+# used for generating files, so the default output file is not
+# the console but a file being generated)
+put myvar {!\n}
+report {hello } {world} myvar
+report [@hello world@myvar@@]
+
+# If an error is detected during generation of a file, the script should abort.
+# This is a direct call to abort(2).
+abort

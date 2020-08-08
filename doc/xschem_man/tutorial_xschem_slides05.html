@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM PRESENTATION</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+.content{ background-image:url('xschem_bg2.png');}
+</style>
+
+</head>
+<body>
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="tutorial_xschem_slides04.html" class="prev">PREV</a>
+<a href="tutorial_xschem_slides01.html" class="home">UP</a>
+<a href="tutorial_xschem_slides06.html" class="next">NEXT</a>
+
+
+ <!-- slide title -->
+ <h1>FEATURE LIST</h1>
+
+ <div style="float:left; width:49%;">
+  <h3 style="text-align:left; max-width: 100%;margin-left:0;font-size: 90%;">
+   <table>
+     <tr><th>FEATURE</th><th>DESCRIPTION</th></tr>
+     <tr><td>File format for schematic and symbol files.</td><td>ASCII</td></tr>
+     <tr><td>Multiple schematic /symbol windows.</td><td>Each handled by 1 XSCHEM instance. A crash of one instance does not crash all others.</td></tr>
+     <tr><td>Clipboard copy / paste (ctrl-c ctrl-v), across hierarchy levels.</td><td>Yes, between different windows too.</td></tr>
+     <tr><td>Copy from one window to other window.</td><td>Yes.</td></tr>
+     <tr><td>Memory footprint.</td><td>Very low, data purged on hierarchy traversal.</td></tr>
+     <tr><td>Undo buffer.</td><td>Yes.</td></tr>
+     <tr><td>Scripting language / GUI toolkit</td><td>Tcl / Tk.</td></tr>
+     <tr><td>Schematic netlisting.</td><td>SPICE, Verilog, VHDL, tEDAx, embedded into XSCHEM and using Awk post processors.</td></tr>
+     <tr><td>Wire snap to pin.</td><td>Yes.</td></tr>
+     <tr><td>Instance pin auto wiring.</td><td>Yes.</td></tr>
+     <tr><td>Net auto-router engine.</td><td>No.</td></tr>
+     <tr><td>Parametric symbols</td><td>Yes.</td></tr>
+     <tr><td>Bus notation for nets and components.</td><td>Yes.</td></tr>
+   </table>
+  </h3>
+ </div>
+
+ <div style="float:left; width:49%;">
+  <h3 style="text-align:left; max-width: 100%;margin-left:0;font-size: 90%;">
+   <table>
+     <tr><th>FEATURE</th><th>DESCRIPTION</th></tr>
+     <tr><td>Portability.</td><td>All UNIX systems with Tcl and X11, Windows with the Cygwin layer.</td></tr>
+     <tr><td>Netlisting performance.</td><td>Extremely fast, Complex system with 59 sub blocks netlisted in VHDL in &lt; 1 second on a Linux laptop.</td></tr>
+     <tr><td>Startup time.</td><td>Fast (&lt;1 sec).</td></tr>
+     <tr><td>Primitive component creation with arbitrary code for VHDL/SPICE/verilog.</td><td>Works out of the box with very simple property strings.</td></tr>
+     <tr><td>Parametrized sub blocks.</td><td>Yes.</td></tr>
+     <tr><td>Single / split file netlisting.</td><td>Yes, any supported netlist formats.</td></tr>
+     <tr><td>Mixed mode netlisting, symbol based.</td><td>Yes, in split netlisting mode.</td></tr>
+     <tr><td>Automatic symbol creation from schematic and vice-versa.</td><td>Yes.</td></tr>
+     <tr><td>Property editing on multiple instances, changing only modified token/value pairs, even on different symbol sets.</td><td>Yes.</td></tr>
+     <tr><td>Pin creation from schematic nets.</td><td>Yes, net names can be changed to pins and vice-versa, function to automatically generate pins for nets that are undriven.</td></tr>
+   </table>
+  </h3>
+ </div>
+
+
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

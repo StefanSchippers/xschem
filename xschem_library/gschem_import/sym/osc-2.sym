@@ -1,0 +1,46 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=OSC
+template="device=OSC
+name=U?
+footprint=DIP8
+description=\\"Generic Oscillator Half Can\\"
+numslots=0
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="8 4"
+}
+V {}
+S {}
+E {}
+T {@device} 50 -70 2 1 0.333333 0.333333 {}
+T {@name} 0 -70 2 1 0.333333 0.333333 {}
+
+L 4 0 0 90 0 {}
+L 4 90 -60 90 0 {}
+L 4 0 -60 90 -60 {}
+L 4 0 -60 0 0 {}
+
+L 4 80 -30 90 -40 {}
+L 4 80 -30 90 -20 {}
+
+
+
+
+
+
+L 3 90 -30 120 -30 {}
+B 5 117.5 -32.5 122.5 -27.5 {pinnumber=5
+pinseq=5
+dir=out
+name=OUT
+}
+T {@#0:pinnumber} 95 -35 2 1 0.333333 0.333333 {layer=13}
+T {@#0:name} 40 -38.3333 0 0 0.333333 0.333333 {}

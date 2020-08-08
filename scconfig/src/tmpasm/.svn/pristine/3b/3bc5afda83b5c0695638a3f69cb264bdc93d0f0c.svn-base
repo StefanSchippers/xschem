@@ -1,0 +1,18 @@
+# Comments start with # and end at the end of the line; comments
+# can be started anywhere outside of strings and blocks
+
+# Print will print each argument without appending a newline. An argument
+# is a data, string literals are written in brace. Escape sequences
+# are as usual
+print {hello world!\n}
+
+# Print doesn't have any hidden side effect: no separators printed
+# between arguments
+print {hello} {world!} {\n}
+
+# Print works without an argument as well: it just prints nothing
+print
+
+# instructions are separated by newlines and/or semicolons:
+print {HELLO}; print { WORLD!};;;; print {\n};
+

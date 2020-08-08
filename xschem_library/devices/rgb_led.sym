@@ -1,0 +1,44 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=diode
+format="@spiceprefix@name @pinlist @model"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+template="name=X1 model=XXX device=XXX"}
+V {}
+S {}
+E {}
+L 4 5 -30 30 -30 {}
+L 4 -30 -30 -5 -30 {}
+L 4 5 0 30 0 {}
+L 4 -30 0 -5 0 {}
+L 4 5 -10 5 10 {}
+L 4 5 30 30 30 {}
+L 4 -30 30 -5 30 {}
+L 4 -20 -45 -20 45 {}
+L 4 -20 45 20 45 {}
+L 4 20 -45 20 45 {}
+L 4 -20 -45 20 -45 {}
+L 7 5 20 5 40 {}
+L 12 5 -40 5 -20 {}
+B 5 -32.5 -32.5 -27.5 -27.5 {name=b dir=inout pinnumber=1}
+B 5 -32.5 -2.5 -27.5 2.5 {name=g dir=inout pinnumber=2}
+B 5 -32.5 27.5 -27.5 32.5 {name=r dir=inout pinnumber=3}
+B 5 27.5 27.5 32.5 32.5 {name=gr dir=inout pinnumber=4}
+B 5 27.5 -2.5 32.5 2.5 {name=gg dir=inout pinnumber=5}
+B 5 27.5 -32.5 32.5 -27.5 {name=gb dir=inout pinnumber=6}
+P 7 4 -5 23.75 5 30 -5 36.25 -5 23.75 {}
+P 11 4 -5 -6.25 5 0 -5 6.25 -5 -6.25 {}
+P 12 4 -5 -36.25 5 -30 -5 -23.75 -5 -36.25 {}
+T {@name} -17.5 -60 0 0 0.2 0.2 {}
+T {@value} -17.5 -77.5 0 0 0.2 0.2 {}
+T {@#0:pinnumber} -25 -46.25 0 1 0.2 0.2 {layer=13}
+T {B} -15 -30 0 0 0.25 0.25 {}
+T {G} -15 0 0 0 0.25 0.25 {}
+T {R} -15 30 0 0 0.25 0.25 {}
+T {@#1:pinnumber} -25 -16.25 0 1 0.2 0.2 {layer=13}
+T {@#2:pinnumber} -25 13.75 0 1 0.2 0.2 {layer=13}
+T {@#5:pinnumber} 25 -46.25 0 0 0.2 0.2 {layer=13}
+T {@#4:pinnumber} 25 -16.25 0 0 0.2 0.2 {layer=13}
+T {@#3:pinnumber} 25 13.75 0 0 0.2 0.2 {layer=13}

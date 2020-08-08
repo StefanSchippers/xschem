@@ -1,0 +1,47 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=esd
+format="@spiceprefix@name @pinlist @symname"
+tedax_format="footprint @name @footprint
+device @name @device"
+
+template="name=U1
+device=SN75240PW
+footprint=SO8"}
+V {}
+S {}
+E {}
+L 4 -200 -60 -160 -60 {}
+L 4 -200 -20 -160 -20 {}
+L 4 -200 20 -160 20 {}
+L 4 -200 60 -160 60 {}
+L 4 160 -60 200 -60 {}
+L 4 160 -20 200 -20 {}
+L 4 160 20 200 20 {}
+L 4 160 60 200 60 {}
+B 5 -202.5 -62.5 -197.5 -57.5 {name=GND dir=in pinnumber=1}
+B 5 -202.5 -22.5 -197.5 -17.5 {name=C dir=in pinnumber=2}
+B 5 -202.5 17.5 -197.5 22.5 {name=GND dir=in pinnumber=3}
+B 5 -202.5 57.5 -197.5 62.5 {name=D dir=in pinnumber=4}
+B 5 197.5 57.5 202.5 62.5 {name=GND dir=in pinnumber=5}
+B 5 197.5 17.5 202.5 22.5 {name=B dir=in pinnumber=6}
+B 5 197.5 -22.5 202.5 -17.5 {name=GND dir=in pinnumber=7}
+B 5 197.5 -62.5 202.5 -57.5 {name=A dir=in pinnumber=8}
+P 4 5 -160 -100 160 -100 160 100 -160 100 -160 -100 {}
+T {@device} -93 -18 0 0 0.6 0.6 {}
+T {@name} 55 -138 0 0 0.6 0.6 {}
+T {GND} -149 -69.59999999999999 0 0 0.4 0.4 {}
+T {@#0:pinnumber} -172 -76 0 1 0.25 0.25 {layer=13}
+T {C} -149 -29.59999999999999 0 0 0.4 0.4 {}
+T {@#1:pinnumber} -172 -36 0 1 0.25 0.25 {layer=13}
+T {GND} -149 10.40000000000001 0 0 0.4 0.4 {}
+T {@#2:pinnumber} -172 4 0 1 0.25 0.25 {layer=13}
+T {D} -149 50.40000000000001 0 0 0.4 0.4 {}
+T {@#3:pinnumber} -172 44 0 1 0.25 0.25 {layer=13}
+T {A} 149 -69.59999999999999 0 1 0.4 0.4 {}
+T {@#7:pinnumber} 172 -76 0 0 0.25 0.25 {layer=13}
+T {GND} 149 -29.59999999999999 0 1 0.4 0.4 {}
+T {@#6:pinnumber} 172 -36 0 0 0.25 0.25 {layer=13}
+T {B} 149 10.40000000000001 0 1 0.4 0.4 {}
+T {@#5:pinnumber} 172 4 0 0 0.25 0.25 {layer=13}
+T {GND} 149 50.40000000000001 0 1 0.4 0.4 {}
+T {@#4:pinnumber} 172 44 0 0 0.25 0.25 {layer=13}

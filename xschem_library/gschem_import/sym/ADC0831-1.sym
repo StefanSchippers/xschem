@@ -1,0 +1,95 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=ADC0831
+template="device=ADC0831
+name=U?
+symversion=1.0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {ADC0831} 30 -215 2 1 0.333333 0.333333 {}
+T {@name} 200 -220 2 0 0.333333 0.333333 {}
+
+L 4 30 -30 200 -30 {}
+L 4 200 -210 200 -30 {}
+L 4 30 -210 200 -210 {}
+L 4 30 -210 30 -30 {}
+
+
+A 4 25 -100 5 0 360 {}
+
+
+
+
+
+L 3 0 -100 20 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=1
+pinseq=1
+name=/CS
+dir=inout
+}
+T {@#0:pinnumber} 20 -105 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 40 -100 2 1 0.333333 0.333333 {}
+L 3 200 -180 230 -180 {}
+B 5 227.5 -182.5 232.5 -177.5 {pinnumber=2
+pinseq=2
+name=Uin+
+dir=inout
+}
+T {@#1:pinnumber} 215 -185 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 185 -180 2 0 0.333333 0.333333 {}
+L 3 200 -140 230 -140 {}
+B 5 227.5 -142.5 232.5 -137.5 {pinnumber=3
+pinseq=3
+name=Uin-
+dir=inout
+}
+T {@#2:pinnumber} 215 -145 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 185 -140 2 0 0.333333 0.333333 {}
+L 3 80 -30 80 0 {}
+B 5 77.5 -2.5 82.5 2.5 {pinnumber=4
+pinseq=4
+name=GND
+dir=inout
+}
+T {@#3:pinnumber} 85 -15 3 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 80 -45 3 0 0.333333 0.333333 {}
+L 3 200 -100 230 -100 {}
+B 5 227.5 -102.5 232.5 -97.5 {pinnumber=5
+pinseq=5
+name=VREF
+dir=inout
+}
+T {@#4:pinnumber} 215 -105 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 185 -100 2 0 0.333333 0.333333 {}
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=6
+pinseq=6
+name=D0
+dir=inout
+}
+T {@#5:pinnumber} 20 -145 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 40 -140 2 1 0.333333 0.333333 {}
+L 3 0 -180 30 -180 {}
+B 5 -2.5 -182.5 2.5 -177.5 {pinnumber=7
+pinseq=7
+name=CLK
+dir=inout
+}
+T {@#6:pinnumber} 20 -185 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 40 -180 2 1 0.333333 0.333333 {}
+L 3 140 -30 140 0 {}
+B 5 137.5 -2.5 142.5 2.5 {pinnumber=8
+pinseq=8
+name=Vcc
+dir=inout
+}
+T {@#7:pinnumber} 145 -15 3 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 140 -45 3 0 0.333333 0.333333 {}

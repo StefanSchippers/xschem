@@ -1,0 +1,56 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4010
+template="device=4010
+slot=1
+numslots=6
+name=U?
+pins=16
+class=IC
+footprint=DIP16
+description=\\"6 CMOS to TTL converter\\"
+GND=GND
+VDD=VDD
+Vcc=Vcc
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND @VDD @Vcc"
+
+extra="GND VDD Vcc"
+extra_pinnumber="8 16 1"
+}
+V {}
+S {}
+E {}
+T {@name} 30 -90 2 1 0.333333 0.333333 {}
+T {4010} 30 0 2 1 0.266667 0.266667 {}
+
+
+L 4 30 -80 80 -50 {}
+L 4 30 -20 80 -50 {}
+L 4 30 -80 30 -50 {}
+L 4 30 -50 30 -20 {}
+
+
+
+
+
+
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {
+pinseq=1
+dir=in
+name=A
+pinnumber=3:5:7:9:11:14
+}
+T {@#0:pinnumber} 20 -55 2 0 0.266667 0.266667 {layer=13}
+L 3 80 -50 110 -50 {}
+B 5 107.5 -52.5 112.5 -47.5 {
+pinseq=2
+dir=out
+name=Y
+pinnumber=2:4:6:10:12:15
+}
+T {@#1:pinnumber} 90 -55 2 1 0.266667 0.266667 {layer=13}

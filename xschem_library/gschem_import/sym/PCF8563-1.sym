@@ -1,0 +1,96 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=PCF8563
+template="name=U?
+footprint=DIP8
+description=\\"Real-time clock/calendar\\"
+numslots=0
+device=PCF8563
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {PCF8563} 130 -190 2 1 0.333333 0.333333 {}
+T {@name} 40 -190 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 170 -30 {}
+L 4 170 -180 170 -30 {}
+L 4 30 -180 170 -180 {}
+L 4 30 -180 30 -30 {}
+
+
+
+
+
+
+
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=1
+pinseq=1
+dir=in
+name=OSCI
+}
+T {@#0:pinnumber} 0 -155 2 1 0.333333 0.333333 {layer=13}
+T {@#0:name} 40 -158.333 0 0 0.333333 0.333333 {}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=2
+pinseq=2
+dir=out
+name=OSCO
+}
+T {@#1:pinnumber} 0 -65 2 1 0.333333 0.333333 {layer=13}
+T {@#1:name} 40 -68.3333 0 0 0.333333 0.333333 {}
+L 3 170 -60 200 -60 {}
+B 5 197.5 -62.5 202.5 -57.5 {pinnumber=3
+pinseq=3
+dir=out
+name=/INT
+}
+T {@#2:pinnumber} 180 -65 2 1 0.333333 0.333333 {layer=13}
+T {@#2:name} 120 -68.3333 0 0 0.333333 0.333333 {}
+L 3 100 -30 100 0 {}
+B 5 97.5 -2.5 102.5 2.5 {pinnumber=4
+pinseq=4
+dir=inout
+name=GND
+}
+T {@#3:pinnumber} 105 -10 2 1 0.333333 0.333333 {layer=13}
+T {@#3:name} 80 -48.3333 0 0 0.333333 0.333333 {}
+L 3 170 -120 200 -120 {}
+B 5 197.5 -122.5 202.5 -117.5 {pinnumber=5
+pinseq=5
+dir=inout
+name=SDA
+}
+T {@#4:pinnumber} 180 -125 2 1 0.333333 0.333333 {layer=13}
+T {@#4:name} 120 -128.333 0 0 0.333333 0.333333 {}
+L 3 170 -150 200 -150 {}
+B 5 197.5 -152.5 202.5 -147.5 {pinnumber=6
+pinseq=6
+dir=in
+name=SCL
+}
+T {@#5:pinnumber} 180 -155 2 1 0.333333 0.333333 {layer=13}
+T {@#5:name} 120 -158.333 0 0 0.333333 0.333333 {}
+L 3 170 -90 200 -90 {}
+B 5 197.5 -92.5 202.5 -87.5 {pinnumber=7
+pinseq=7
+dir=out
+name=CLKOUT
+}
+T {@#6:pinnumber} 180 -95 2 1 0.333333 0.333333 {layer=13}
+T {@#6:name} 80 -98.3333 0 0 0.333333 0.333333 {}
+L 3 100 -210 100 -180 {}
+B 5 97.5 -212.5 102.5 -207.5 {pinnumber=8
+pinseq=8
+dir=inout
+name=Vdd
+}
+T {@#7:pinnumber} 105 -190 2 1 0.333333 0.333333 {layer=13}
+T {@#7:name} 80 -178.333 0 0 0.333333 0.333333 {}

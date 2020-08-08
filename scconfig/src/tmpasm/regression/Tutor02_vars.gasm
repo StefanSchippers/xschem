@@ -1,0 +1,26 @@
+# Variables are stored in a hash. Variable names follow the normal
+# identifier rules with less restrictions (can start with number)
+# To set the value of a variable, use: put var value
+put myvar {Hello world!\n}
+
+# Referencing the variable is done by using its name
+print myvar
+
+# In most context arguments are data; data can be both string literal and
+# variable reference:
+print {Hello universe! } myvar
+
+# the second var of put is just data, can be string or variable; copying
+# a variable:
+put str {cats raining from the sky}
+put tmp str
+print str {==} tmp {\n}
+
+# the ? prefix results in empty string if a variable doesnt exist, instead
+# of throwing a runtime error
+print {safe get: '} ?nonexist {'\n}
+
+# the & prefix evaluates to "true" or "false" depending on whether the node
+# exists in the tree or not
+print {exists (no):  } &nonexist  {\n}
+print {exists (yes): } &myvar  {\n}

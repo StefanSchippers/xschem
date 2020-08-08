@@ -1,0 +1,43 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=cascade-source
+template="device=cascade-source
+name=SOURCE
+footprint=none
+C=0
+CN0=0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 10 -110 2 1 0.333333 0.333333 {}
+T {C=0} 10 -20 2 1 0.333333 0.333333 {}
+T {CN0=0} 10 0 2 1 0.333333 0.333333 {}
+
+
+L 4 25 -60 25 -50 {}
+L 4 45 -80 50 -80 {}
+L 4 20 -50 30 -50 {}
+L 4 22.5 -47.5 27.5 -47.5 {}
+
+A 4 25 -80 20 0 360 {}
+A 4 25 -45 0.5 0 360 {}
+
+A 4 20 -80 5 0 180 {}
+A 4 30 -80 5 180 180 {}
+
+
+
+
+L 3 50 -80 70 -80 {}
+B 5 67.5 -82.5 72.5 -77.5 {pinnumber=1
+pinseq=1
+name=OUT
+dir=out
+}

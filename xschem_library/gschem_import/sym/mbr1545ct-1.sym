@@ -1,0 +1,78 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MBR1545CT
+template="device=MBR1545CT
+name=D?
+footprint=TO-220AB
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 20 -110 2 1 0.333333 0.333333 {}
+
+L 4 0 -20 140 -20 {}
+L 4 140 -100 140 -20 {}
+L 4 0 -100 140 -100 {}
+L 4 0 -100 0 -20 {}
+
+L 4 10 -30 50 -30 {}
+L 4 10 -30 30 -60 {}
+L 4 30 -60 50 -30 {}
+L 4 10 -60 50 -60 {}
+L 4 30 -70 30 -60 {}
+L 4 30 -30 30 -20 {}
+L 4 90 -30 130 -30 {}
+L 4 90 -30 110 -60 {}
+L 4 110 -60 130 -30 {}
+L 4 90 -60 130 -60 {}
+L 4 110 -70 110 -60 {}
+L 4 110 -30 110 -20 {}
+L 4 30 -90 30 -70 {}
+L 4 110 -90 110 -70 {}
+L 4 30 -90 110 -90 {}
+L 4 70 -100 70 -90 {}
+L 4 70 -90 70 -20 {}
+L 4 50 -70 50 -60 {}
+L 4 10 -60 10 -50 {}
+L 4 90 -60 90 -50 {}
+L 4 130 -70 130 -60 {}
+
+
+
+
+
+
+L 3 30 -20 30 0 {}
+B 5 27.5 -2.5 32.5 2.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 20 -5 2 1 0.266667 0.266667 {layer=13}
+L 3 70 -20 70 0 {}
+B 5 67.5 -2.5 72.5 2.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 60 -5 2 1 0.266667 0.266667 {layer=13}
+L 3 110 -20 110 0 {}
+B 5 107.5 -2.5 112.5 2.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#2:pinnumber} 100 -5 2 1 0.266667 0.266667 {layer=13}
+L 3 70 -120 70 -100 {}
+B 5 67.5 -122.5 72.5 -117.5 {pinnumber=4
+pinseq=4
+name=4
+dir=inout
+}
+T {@#3:pinnumber} 60 -105 2 1 0.266667 0.266667 {layer=13}

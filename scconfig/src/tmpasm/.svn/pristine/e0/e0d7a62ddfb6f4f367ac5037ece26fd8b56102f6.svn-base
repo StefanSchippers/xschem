@@ -1,0 +1,6 @@
+error: unexpected "end" in "if" - expected "then" at 2:4
+if v [at 2:1]
+then:
+ (NOP)
+else:
+ (NOP)

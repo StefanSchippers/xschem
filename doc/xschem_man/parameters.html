@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>COMPONENT PARAMETERS</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="creating_symbols.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="commands.html" class="next">NEXT</a>
+ <!-- slide title -->
+ <h1>COMPONENT PARAMETERS</h1><br>
+ <p>
+  What makes subcircuits really useful is the possibility to pass parameters.
+  Parametrized subcircuits are like functions with arguments in a programming language. 
+  One single component can be instantiated with different parameters.
+  Recall the NAND2 gate we designed. It is made of four MOS transistors. A MOS transistor
+  has at least 2 parameter, channel length (L) and transistor width (W) that define
+  its geometry. we have 2 NMOS transistors and 2 PMOS transistors, so we would like 
+  to have 4 parameters passed to the NAND gate: P-channel with/length (WP/LP) and
+  N-channel with/length (WN/LN).
+  So open again the <kbd>mylib/nand2.sch</kbd> nand gate and replace the w=, l= properties with:
+  <kbd>w=WN l=LN</kbd> for the two NMOS and <kbd>w=WP l=LP</kbd> for the two PMOS.
+ </p>
+ <p class="important">
+  TIP: you can select two PMOS at the same time by clicking the second one with the 
+  <kbd>shift</kbd> key pressed, so with edit property <kbd>'q'</kbd> key
+  you will change properties for both.
+ </p>
+ <img src="parameters1.png">
+ <p>
+  By doing the same for the NMOS transistors we end up with a schematic with fully
+  parametrized transistor geometry.
+ </p>
+ <img src="parameters2.png">
+ <p>
+  Now we have to change the <kbd>mylib/nand2.sym</kbd> symbol. Save the changes in the 
+  nand2 schematic (<kbd>&lt;shift&gt;S</kbd>) and load (<kbd>Ctrl-o</kbd>)
+  the nand2 symbol. without selecting
+  anything hit the <kbd>'q'</kbd> key to edit the symbol global property string.
+  make the changes as shown in the picture.
+ </p>
+ <img src="parameters3.png">
+ <p>
+  The <kbd>template</kbd> attribute defines the default values to assign to WN, LN, WP, LP.
+  The <kbd>format</kbd> string is updated to pass parameters, 
+  the replacement character <kbd>@</kbd>
+  is used to substitute the parameters passed at component instantiation.
+  You may also add some descriptive text (<kbd>'t'</kbd>)
+  so you will visually see the actual value for the parameters of the component:
+ </p>
+ <img src="parameters4.png">
+ <p>
+  Now close the modified symbol saving the changes. Let's test the placement of the 
+  new modified symbol. Start a new
+  schematic (menu <kbd>File -&gt; New</kbd>) and insert (<kbd>Insert key</kbd>)
+  the NAND2 gate. by pressing <kbd>'q'</kbd> you are now able to speciify different values
+  for the geometric parameters:
+ </p>
+ <img src="parameters5.png">
+ <p> 
+  let's place a second instance (select and <kbd>'c'</kbd> copy key) of the nand gate.
+  set for the second NAND gate different WN, LN, WP, LP parameters.
+  place some labels on input and outputs and connect the output of the first NAND gate 
+  to one of the inputs of the second NAND gate. Name the pin labels as in the picture
+  using the edit property <kbd>'q'</kbd> key on selected <kbd>lab_pin</kbd> instance
+ </p>
+ <p class="important">
+  TIP: XSCHEM can automatically place pin labels on a component: just select it and
+  press the <kbd>Shift-h</kbd> key.
+ </p>
+ <img src="parameters6.png">
+ <p>
+  now save the new schematic (<kbd>'s'</kbd> key, save in <kbd>mylib/test2.sch</kbd>)
+  If you enable the netlist window, menu  <kbd>Options-&gt;Show netlist win</kbd> and press
+  the <kbd>Netlist</kbd> button in the menu bar you get the following netlist:
+ </p>
+ <pre class="code">
+**.subckt test2
+x1 Z net1 C nand2 WP=12u LP=0.4u WN=8u LN=0.6u
+x2 net1 A B nand2 WP=5u LP=1u WN=3u LN=1.5u
+**** begin user architecture code
+**** end user architecture code
+**.ends
+
+* expanding symbol: mylib/nand2 # of pins=3
+
+.subckt nand2 Z A B WP=8u LP=0.18u WN=5u LN=0.18u
+*.ipin A
+*.opin Z
+*.ipin B
+m1 Z A net1 VSS nmos w=WN l=LN m=1
+m2 Z B VCC VCC pmos w=WP l=LP m=1
+m3 Z A VCC VCC pmos w=WP l=LP m=1
+m4 net1 B VSS VSS nmos w=WN l=LN m=1
+**** begin user architecture code
+**** end user architecture code
+.ends
+
+.GLOBAL VCC
+.GLOBAL VSS
+.end
+ </pre>
+ <p>
+  As you can see there are 2 components placed passing parameters to a 
+  <kbd>nand2</kbd> subcircuit.
+  There is complete freedom in the number of parameters. Any kind parameters can be used
+  in subcircuits as long as the simulator permits these.
+ </p>
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

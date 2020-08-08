@@ -1,0 +1,375 @@
+        (IN)UTILE HELP FILE
+
+(in)utile is a program that can convert a stimuli description file written using 
+an efficient descripton language to stimuli files for different target simulators.
+Supported simulator up to now are:
+
+- ELDO standard pwl form (eldo_simple)
+- ELDO enhanced pwl form, that handles hi-Z states too. (eldo)
+- HSPICE standard pwl form (hspice_simple)
+- HSPICE enhanced pwl form, that handles hi-Z states too. (hspice)
+- PowerMill vector file format for digital-only signals (powermill)
+- powermill sintax (new_powermill)
+- powermill interactive description (relative_powermill)
+- ncsim format (ncsim)
+
+NOTATIONS:
+ 
+ <some_filename>  means a user choosen filename
+ <some_name>      means a user choosen name (for variables, signals, macro...)
+ 
+syntax:
+ 
+  (path)/utile3 <stimuli_file>
+ 
+ 
+        FORMAT OF A STIMULI FILE
+
+the utile syntax is very simple: every command is placed on one text line,
+like:
+<command> <param1> <param2> ...
+the command can be indented, spaces before command are allowed
+Multiple spaces between successive arguments are allowed.
+Comment lines can be inserted by putting a semicolon (;) at the beginning of a line,
+similarly a comment can be placed on a command statement, by putting a semicolon
+
+example:
+;  this is a comment
+set apad 0001f0; comment
+ 
+------------------------------- LANGUAGE KEYWORDS ----------------------------------
+
+**************** include ******************************* 
+include <file> or .include <file>
+  the named file is included in the main stimuli file, like the C #include directive.
+ 
+**************** alias ********************************* 
+alias <name> <param1> <param2> ...
+...
+... utile keywords
+...
+endalias
+ 
+  The alias and endalias keywords are used to define macros; like ordinary macros
+  a number of parameters can be declared. The parameters can be used in the macro
+  definition and are expanded with actual values when called.
+  example:
+   alias ciclo_we par1 par2
+     set apad 0
+     set dqpad 0
+     s .1
+     set apad par1
+     set dqpad par2
+     set wenpad 0
+     s .1
+     set apad 0
+     set dqpad 0
+     set wenpad 1
+     s .1
+   endalias
+  defined macros can be called simply by their name, followed by the appropriate
+  number of parameters:
+  example:
+    ciclo_we 2aa 55
+  An alias can call aliases too, allowing nested macro blocks.
+  WARNING: do not use names for parameters that clash with signal names, 
+  otherwise signal names inside the macro definition will be substituted
+  (feature or bug?)
+  simple expressions are allowed on parameters, example:
+
+  alias addition par1 par2
+    set sig1 par1+par2
+    s 100
+  endalias
+
+  parameters can be enclosed in { } brackets if there is text near them, example:
+
+  alias test1 signal index
+    set {signal}[{index}] 3.2
+    s 100
+  endalias
+  
+
+**************** beginfile ****************************** 
+beginfile <filename>
+... utile instructions
+... utile instructions
+endfile
+  The beginfile and endfile keywords delimit a portion of the stimuli file that 
+  when translated will be put in a file named <filename>
+  More than one beginfile-endfile blocks are allowed, allowing the translation of
+  different portions of the stimuli file into different files, perhaps with
+  different formats (eldo - powermill). For example, bus assignments are best
+  translated for powermill using the vector file format, while the voltage
+  supplies can be dumped to a spice pwl form for more flexibility.
+
+
+**************** param ********************************** 
+param <parameter> <value>
+  Set <parameter> to <value>. <parameter> can be used anywhere and
+  this value is used.
+  Parameters should be defined before using them
+  Example:
+   param eqlz_time 20
+  parameters can be given in terms of other parameters and simple arithmetic
+  expressions can be given (+, -, *, / ) , no spaces in expressions, expressions are 
+  evaluated from left to right, all operators have the same precedence 
+  example:
+     param tck    10
+     param tck_2  tck/2
+     param tis    tck_2-10
+
+     
+
+**************** format ********************************* 
+format <eldo|eldo_simple|powermill|new_powermill|relative_powermill>
+  The format command defines the target simulator. The second field 
+  specifies one of the allowed output formats. Allowed values are:
+
+  eldo_simple  -> simple pwl description.
+  eldo         -> more complete pwl description which can handle the 
+                  disconnect condition, i.e. a "set apad zzzzz" (set
+                  apad bus to HI-Z) is implemented. Note that when 
+                  a pwl voltage generator is connected to a signal 
+                  the Hi-Z state can not be achieved. This is the 
+                  major limitation of the previous format.
+  hspice       -> same as 'eldo' with hspice syntax variants
+  hspice_simple-> same as 'eldo_simple' with hspice syntax variants
+  powermill    -> translates to the EPIC vector file format;
+                  can be used only for digital signals/buses
+  new_powermill
+               -> enhanced powermill format that uses the force_node_v
+                  and rel_node_v statements. This format handles digital and
+                  analog signals (can set any voltage value on signals, not only
+                  "1", "0", "z")
+  relative_powermill
+               -> yet a more enhanced powermill format that does not specify absolute
+                  time values for events but only relative values. File written in this
+                  format can be read in at the powermil prompt using the "read_cmd_file"
+                  command. This format will replace the previous one in the future, 
+                  since it is simply better.
+  ncsim
+               -> format understood by the ncsim simulator, it handles
+	 	  std_logic and real assignments, to distinguish
+	 	  std_logic from real, real values should be written with 
+	 	  decimals, for example: set vxr 4.5
+	 	  integer values should be written with the '%' character appended
+		  ex:   set NN 32%
+  
+**************** release ********************************** 
+release
+  This keyword should be put immediatly after a beginfile statement, it is used
+  only in the relative_powermill mode, and indicates that signals should be
+  released before being set in (and only in )the first assignments. 
+  
+**************** origin *********************************** 
+origin <time> 
+  sets the time origin. the new time origin (the time=0 point) will be set at 
+  <time> and all events occurring before <time> (having thus negative time)
+  are dropped and not translated. This is useful for shifting left the stimuli 
+  file time base in the case of a powermill simulation restart. (powermill always
+  restarts at time=0, when using the .ic file).
+
+
+**************** reset_sim ******************************** 
+reset_sim
+  only usefull in ncsim mode, will reset the simulator to the initial state
+  this command is tipically put at the beginning of the stimuli file
+
+**************** time ************************************* 
+time <time>
+  sets the *absolute* simulation time to <time>. It is up to the user to ensure 
+  that <time> will be always greater than the current time, and for this
+  reason its use is descouraged.
+
+**************** unit ************************************* 
+unit <unit>
+  sets the time unit of measure:  supported values for <unit> are:
+  p -> picoseconds
+  n -> nanoseconds
+  u -> microseconds
+  default of unit is "u" (microseconds)
+
+**************** slope ************************************ 
+slope <time>
+  sets the default transition time in the current time unit
+  default value=2ns
+  Warning: set the unit (u or n) BEFORE setting the slope;
+  The following:
+  slope 2
+  unit n
+  will set the slope to 2usec, because the default unit us microseconds
+  The unit n will be effective on following lines only.
+
+**************** voltage ********************************** 
+voltage <value>
+  sets the Vcc for logic signals to <value> volts (default=1.8V)
+
+**************** ground *********************************** 
+ground <value>
+  sets the GND for logic signals to <value> volts (default=0V)
+
+
+**************** ground_node ****************************** 
+ground_node <node>
+  sets the GND node for voltage sources (ELDO* format)  to <node> 
+default: 0)
+
+********************* roff ******************************** 
+roff <value>
+  sets the default impedance (default=1G Ohm) for nodes set in 'z'
+  state
+
+********************* ron ********************************* 
+ron <value>
+  sets the default impedance for driven (not 'z') nodes (default: 0.1 Ohm)
+
+******************* halfvoltage *************************** 
+halfvoltage <value>
+  sets the equilibrium voltage (default=voltage/2) for nodes in the 
+  hi-z 'z' state.
+
+**************** bus ************************************** 
+bus <bus_name> <sn> <sn-1> <sn-2> ... <s1> <s0>
+  example:
+   bus apad apad10 apad9 apad8 apad7 apad6 apad5 apad4 apad3 apad2 apad1 apad0
+
+  bus declaration: the second field is the bus name and it is followed
+  by the list of signals that define the bus, from MSB to LSB.
+
+**************** buswidth ********************************* 
+buswidth <bus_name> <width> [open_bracket] [close bracket]
+  bus declaration, declares a bus: bus_name[width-1 : 0]
+  optionally, characters can be given for index delimiters, default is [ ],
+  example: 
+   buswidth apad 16 
+     will create a bus named apad, composed of the bits apad[15], apad[14],...,apad[0]
+     if the lower index of the bus is not zero or if the bus is in ascending order
+     the buswidth keyword can not be used; Use "bus" instead.
+   buswidth add 4 < > 
+     will create a bus add<3:0> from bits add<3>, add<2>, add<1>, add<0>
+
+**************** dump ************************************* 
+dump <free string>
+  <free string> is written to the output file *as is*, without any translation.
+  this is useful for writing directly to the output file.
+  example: 
+    dump Cload node1 node2 30pF
+  will print: 
+    Cload node1 node2 30pF 
+  to the output file. 
+  Note that this keyword must be inside a beginfile-endfile block
+  
+
+**************** spice | eldo ****************************** 
+spice | eldo <free string> 
+  same as dump, but printed at end of file
+  
+**************** s ***************************************** 
+s <time>
+  advance simulation time by <time> units (if unit is "u" advance <time> microseconds)
+  this is a relative time, since it will increment the current time by the given
+  amount and not set it to an absolute value, as the time instruction does.
+
+**************** set *************************************** 
+set <signal | bus> <value> [<resistance>] [r=<resistance>] [slope=<value>]
+set <bus>  <value> [r=value>] [vhi[gh]=<value>] [vlo[w]=<value>] [slo[pe]=<value>]
+  This is the most important instruction and allows to set signal voltages
+  Different notations are used for signal and bus assignments.
+  The optional <resistance> parameter if specified sets the resistance of
+  the voltage source.
+  In case of bus assignments the global settings: 'voltage' and ''ground'
+  determine the high and low values (1 and 0); in case different values
+  are desired the parameters vhi=... and vlo=... can be used. Also
+  resistance can be given with r=...., the r=... is a different syntax
+  'that can be used in addition to the old compatible format: 
+    set signal value <res>
+  another optional parameter is the [slope=<value>] , that can be given to
+  override the global slope setting for this assignment.
+  xxx=<value> options can be given in any order
+
+  - Signal assignment
+    examples:
+     set cen_pad 1
+     set vxp 4.5
+     set dq_pad4 z
+
+    Allowed values for <value> are:
+    - 1  	-> set signal to logical 1, the voltage specified with the "voltage" 
+                   instruction 
+    - 0 	-> set signal to logic 0 (0 Volt)
+    - x		-> don't care condition, signal will not be changed (usefull in bus
+                   assignments, see later).
+    - z		-> high impedance state.
+    - <number>  -> signal will be forced to <number> volts
+		   to avoid clashing with the logic one definition, 1.0 must be
+		   written if a signal has to be set at 1 volt and not at logic one.
+		   for the ncsim format real signals must be assigned using decimal dot,
+		   for example: set vxr 4.6. 
+    %Ascii_str% -> the ascii string enclosed between % characters is converted to hexadecimal
+                   %READ% --> 52454144
+                   this is very useful to print commands in waveform viewer, declare a bus
+                   with the right number of bits, example:
+                   buswidth CMD 32 < > 
+                   ...
+                   beginfile stimuli.cir
+                   ...
+                   set CMD %READ%
+                   ...
+                   endfile
+
+  - bus assignment
+    examples:  
+    set apad aaaa00
+    set dqpad zzzz
+    set dqpad ff'0010'a
+    set dqpad '0000_0000_0011_1111'
+    set apad  ax'0z011100x'4
+    set dqpad 1234 r=1000 vhi=2.5
+
+  Prefixing a bus assignment with the ~ character produces inverted data:
+  example:  set apad ~ff'11'  --> apad='0000000000'
+ 
+  By default numbers are hexadecimal in bus assignment, with the special x and z
+  characters that are used as "don't change" and "hi-Z" conditions.
+  Specifying a z in a hexadecimal
+  number means that 4 binary bits are set to hi-Z.
+  Similarly for the x condition, the 4 bits are left unchanged.
+  Numbers inside single quotes (ex: '011110z') are treated as binary so
+  any digit refers to exactly 1 bit. This way we can specify 0,1,x,z conditions
+  on single bits.
+  Hexadecimal and binary notations can be intermixed, example: fff'010101'34
+
+  If the given hex/binary/mixed number is smaller than the bus width the undefined bits 
+  (at the MSB portion of the bus, that is, on the left) are treated as "don't change".
+ 
+
+
+ 
+**************** clock ************************************** 
+clock <signal> <pulse> <period> [invert] [high_value] [low_value]
+  This instruction creates a clock, clock starts immediately at current time,
+  the invert flag negates the clock (pulsed low).
+  The optional parameters [high_value] and [low_value] set the clock high and low
+  values (default: low=0, high=vdd)
+  see figure
+                       _______              _______
+   ___________________|       |____________|       |__________
+                      |       |            |
+                      |<pulse>|            |
+                      |<----- period ----->|
+                      |
+                 clock_start
+               (current time)
+
+
+**************** stop_clock ********************************** 
+stop_clock <signal> 
+  Stop the named clock
+
+**************** create_eldo_bus ********************************** 
+create_eldo_bus
+  Forces the creation of the .setbus // .plotbus in the stimuli file
+  even when using the eldo_simple format, the default, when using 
+  eldo_simple format is to only use standard spice keywords, so if buses
+  are to be created this command must be given.

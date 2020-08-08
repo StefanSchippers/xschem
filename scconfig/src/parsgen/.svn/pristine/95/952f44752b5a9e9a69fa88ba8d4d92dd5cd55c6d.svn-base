@@ -1,0 +1,6 @@
+PARSGEN_CFLAGS = -DPLUGIN_PARSGEN
+PARSGEN_OBJS = \
+  $(BIN)/parsgen/find_parsgen.o
+
+$(BIN)/parsgen/find_parsgen.o: $(SRC)/parsgen/find_parsgen.c
+	$(CC) $(CFLAGS) -c $(SRC)/parsgen/find_parsgen.c -o $(BIN)/parsgen/find_parsgen.o

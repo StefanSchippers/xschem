@@ -1,0 +1,39 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1
+device=xTAG-ucont"
+}
+V {}
+S {}
+E {}
+L 4 -130 -80 130 -80 {}
+L 4 -130 80 130 80 {}
+L 4 -130 -80 -130 80 {}
+L 4 130 -80 130 80 {}
+L 4 -150 -40 -130 -40 {}
+L 4 130 -40 150 -40 {}
+L 4 130 0 150 0 {}
+L 4 130 40 150 40 {}
+L 7 -150 -20 -130 -20 {}
+L 7 -150 0 -130 0 {}
+L 7 -150 20 -130 20 {}
+L 7 -150 40 -130 40 {}
+B 5 -152.5 -42.5 -147.5 -37.5 {name=tdi_ttl dir=in }
+B 5 -152.5 -22.5 -147.5 -17.5 {name=tdo_ttl dir=out }
+B 5 -152.5 -2.5 -147.5 2.5 {name=tms_ttl dir=out }
+B 5 -152.5 17.5 -147.5 22.5 {name=tck_ttl dir=out }
+B 5 -152.5 37.5 -147.5 42.5 {name=trst_ttl dir=out }
+B 5 147.5 -42.5 152.5 -37.5 {name=reset_ dir=in }
+B 5 147.5 -2.5 152.5 2.5 {name=usb_iop dir=in }
+B 5 147.5 37.5 152.5 42.5 {name=usb_iom dir=in }
+T {@device} -54.5 -6 0 0 0.4 0.4 {}
+T {@name} 130 -107 0 1 0.4 0.4 {}
+T {tdi_ttl} -125 -49 0 0 0.3 0.3 {}
+T {tdo_ttl} -125 -29 0 0 0.3 0.3 {}
+T {tms_ttl} -125 -9 0 0 0.3 0.3 {}
+T {tck_ttl} -125 11 0 0 0.3 0.3 {}
+T {trst_ttl} -125 31 0 0 0.3 0.3 {}
+T {reset_} 125 -49 0 1 0.3 0.3 {}
+T {usb_iop} 125 -9 0 1 0.3 0.3 {}
+T {usb_iom} 125 31 0 1 0.3 0.3 {}

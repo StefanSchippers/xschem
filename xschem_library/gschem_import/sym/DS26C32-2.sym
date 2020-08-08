@@ -1,0 +1,157 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=DS26C32
+template="device=DS26C32
+name=U?
+footprint=DIP16
+description=\\"Quad Differential Line Receiver\\"
+documentation=TBD
+numslots=0
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="16 8"
+}
+V {}
+S {}
+E {}
+T {DS26C32} 20 -310 2 1 0.266667 0.266667 {}
+T {@name} 30 -330 2 1 0.333333 0.333333 {}
+
+
+L 4 30 -280 30 -240 {}
+L 4 30 -240 60 -260 {}
+L 4 30 -280 60 -260 {}
+L 4 30 -230 30 -190 {}
+L 4 30 -190 60 -210 {}
+L 4 30 -230 60 -210 {}
+L 4 30 -180 30 -140 {}
+L 4 30 -140 60 -160 {}
+L 4 30 -180 60 -160 {}
+L 4 30 -130 30 -90 {}
+L 4 30 -90 60 -110 {}
+L 4 30 -130 60 -110 {}
+L 4 26 0 60 0 {}
+L 4 26 -60 60 -60 {}
+L 4 100 -30 120 -30 {}
+L 4 120 -80 120 -30 {}
+L 4 60 -80 120 -80 {}
+L 4 50 -100 60 -80 {}
+
+A 4 25 -250 5 0 360 {}
+A 4 25 -200 5 0 360 {}
+A 4 25 -150 5 0 360 {}
+A 4 25 -100 5 0 360 {}
+A 4 25 -10 5 0 360 {}
+
+A 4 0 -30 40 312 97 {}
+A 4 60 -40 40 270 76 {}
+A 4 60 -20 40 14 76 {}
+
+
+
+
+L 3 0 -250 20 -250 {}
+B 5 -2.5 -252.5 2.5 -247.5 {pinnumber=1
+pinseq=1
+name=I0-
+dir=in
+}
+T {@#0:pinnumber} 10 -266.667 0 1 0.266667 0.266667 {layer=13}
+L 3 0 -270 30 -270 {}
+B 5 -2.5 -272.5 2.5 -267.5 {pinnumber=2
+pinseq=2
+name=I0+
+dir=in
+}
+T {@#1:pinnumber} 10 -286.667 0 1 0.266667 0.266667 {layer=13}
+L 3 60 -260 80 -260 {}
+B 5 77.5 -262.5 82.5 -257.5 {pinnumber=3
+pinseq=3
+name=O0
+dir=out
+}
+T {@#2:pinnumber} 70 -276.667 0 1 0.266667 0.266667 {layer=13}
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=4
+pinseq=4
+name=ENA+
+dir=in
+}
+T {@#3:pinnumber} 10 -66.6667 0 1 0.266667 0.266667 {layer=13}
+L 3 60 -210 80 -210 {}
+B 5 77.5 -212.5 82.5 -207.5 {pinnumber=5
+pinseq=5
+name=O1
+dir=out
+}
+T {@#4:pinnumber} 70 -226.667 0 1 0.266667 0.266667 {layer=13}
+L 3 0 -220 30 -220 {}
+B 5 -2.5 -222.5 2.5 -217.5 {pinnumber=6
+pinseq=6
+name=I1+
+dir=in
+}
+T {@#5:pinnumber} 10 -236.667 0 1 0.266667 0.266667 {layer=13}
+L 3 0 -200 20 -200 {}
+B 5 -2.5 -202.5 2.5 -197.5 {pinnumber=7
+pinseq=7
+name=I1-
+dir=in
+}
+T {@#6:pinnumber} 10 -216.667 0 1 0.266667 0.266667 {layer=13}
+L 3 0 -150 20 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=9
+pinseq=9
+name=I2-
+dir=in
+}
+T {@#7:pinnumber} 10 -166.667 0 1 0.266667 0.266667 {layer=13}
+L 3 0 -170 30 -170 {}
+B 5 -2.5 -172.5 2.5 -167.5 {pinnumber=10
+pinseq=10
+name=I2+
+dir=in
+}
+T {@#8:pinnumber} 10 -186.667 0 1 0.266667 0.266667 {layer=13}
+L 3 60 -160 80 -160 {}
+B 5 77.5 -162.5 82.5 -157.5 {pinnumber=11
+pinseq=11
+name=O2
+dir=out
+}
+T {@#9:pinnumber} 70 -176.667 0 1 0.266667 0.266667 {layer=13}
+L 3 0 -10 20 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {pinnumber=12
+pinseq=12
+name=ENA-
+dir=in
+}
+T {@#10:pinnumber} 10 -26.6667 0 1 0.266667 0.266667 {layer=13}
+L 3 60 -110 80 -110 {}
+B 5 77.5 -112.5 82.5 -107.5 {pinnumber=13
+pinseq=13
+name=O3
+dir=out
+}
+T {@#11:pinnumber} 70 -126.667 0 1 0.266667 0.266667 {layer=13}
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=14
+pinseq=14
+name=I3+
+dir=in
+}
+T {@#12:pinnumber} 10 -136.667 0 1 0.266667 0.266667 {layer=13}
+L 3 0 -100 20 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=15
+pinseq=15
+name=I3-
+dir=in
+}
+T {@#13:pinnumber} 10 -116.667 0 1 0.266667 0.266667 {layer=13}

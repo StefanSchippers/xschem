@@ -1,0 +1,53 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX4005
+template="device=MAX4005
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {IN} 40 -50 2 1 0.333333 0.333333 {}
+T {PEAK} 150 -80 2 1 0.333333 0.333333 {}
+T {OUT} 160 -40 2 1 0.333333 0.333333 {}
+T {MAX4005} 30 -115 2 1 0.333333 0.333333 {}
+T {@name} 210 -120 2 0 0.333333 0.333333 {}
+
+L 4 30 0 210 0 {}
+L 4 210 -110 210 0 {}
+L 4 30 -110 210 -110 {}
+L 4 30 -110 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#0:pinnumber} 10 -65 2 1 0.333333 0.333333 {layer=13}
+L 3 210 -50 240 -50 {}
+B 5 237.5 -52.5 242.5 -47.5 {pinnumber=6
+pinseq=6
+name=6
+dir=inout
+}
+T {@#1:pinnumber} 220 -55 2 1 0.333333 0.333333 {layer=13}
+L 3 210 -90 240 -90 {}
+B 5 237.5 -92.5 242.5 -87.5 {pinnumber=7
+pinseq=7
+name=7
+dir=inout
+}
+T {@#2:pinnumber} 220 -95 2 1 0.333333 0.333333 {layer=13}

@@ -1,0 +1,95 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX1011
+template="device=MAX1011
+name=U?
+footprint=QSOP24
+description=\\"low power, 90Msps, 6-bit ADC\\"
+numslots=0
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1011.pdf
+VCC=VCC
+GND=GND
+OGND=OGND
+VCCO=VCCO
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VCC @GND @OGND @VCCO"
+
+extra="VCC GND OGND VCCO"
+extra_pinnumber="6,11,14 9,10,12,13 16 17"
+}
+V {}
+S {}
+E {}
+T {@name} 230 -350 2 0 0.333333 0.333333 {}
+T {MAX1011} 30 -345 2 1 0.333333 0.333333 {}
+
+L 4 30 0 230 0 {}
+L 4 230 -340 230 0 {}
+L 4 30 -340 230 -340 {}
+L 4 30 -340 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -320 30 -320 {}
+B 5 -2.5 -322.5 2.5 -317.5 {pinnumber=1
+pinseq=1
+name=GAIN
+dir=in
+}
+T {@#0:pinnumber} 20 -325 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -320 2 1 0.266667 0.266667 {}
+L 3 0 -280 30 -280 {}
+B 5 -2.5 -282.5 2.5 -277.5 {pinnumber=2
+pinseq=2
+name=OCC+
+dir=inout
+}
+T {@#1:pinnumber} 20 -285 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -280 2 1 0.266667 0.266667 {}
+L 3 0 -240 30 -240 {}
+B 5 -2.5 -242.5 2.5 -237.5 {pinnumber=3
+pinseq=3
+name=OCC-
+dir=inout
+}
+T {@#2:pinnumber} 20 -245 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -240 2 1 0.266667 0.266667 {}
+L 3 0 -200 30 -200 {}
+B 5 -2.5 -202.5 2.5 -197.5 {pinnumber=4
+pinseq=4
+name=IN+
+dir=in
+}
+T {@#3:pinnumber} 20 -205 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -200 2 1 0.266667 0.266667 {}
+L 3 0 -160 30 -160 {}
+B 5 -2.5 -162.5 2.5 -157.5 {pinnumber=5
+pinseq=5
+name=IN-
+dir=in
+}
+T {@#4:pinnumber} 20 -165 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -160 2 1 0.266667 0.266667 {}
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=7
+pinseq=7
+name=TNK+
+dir=in
+}
+T {@#5:pinnumber} 20 -125 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -120 2 1 0.266667 0.266667 {}
+L 3 0 -80 30 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=8
+pinseq=8
+name=TNK-
+dir=in
+}
+T {@#6:pinnumber} 20 -85 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -80 2 1 0.266667 0.266667 {}

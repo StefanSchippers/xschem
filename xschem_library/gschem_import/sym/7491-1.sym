@@ -1,0 +1,79 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=7491
+template="device=7491
+footprint=DIP14
+name=U?
+description=\\"8-bit shift register\\"
+numslots=0
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="5 10"
+}
+V {}
+S {}
+E {}
+T {@name} 170 -140 2 0 0.333333 0.333333 {}
+T {7491} 30 -134 2 1 0.333333 0.333333 {}
+
+L 4 30 0 170 0 {}
+L 4 170 -130 170 0 {}
+L 4 30 -130 170 -130 {}
+L 4 30 -130 30 0 {}
+
+L 4 30 -25 37.5 -20 {}
+L 4 30 -15 37.5 -20 {}
+
+A 4 175 -60 5 0 360 {}
+
+
+
+
+
+L 3 0 -100 30 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=12
+pinseq=1
+name=D
+dir=in
+}
+T {@#0:pinnumber} 20 -105 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -100 2 1 0.266667 0.266667 {}
+L 3 170 -100 200 -100 {}
+B 5 197.5 -102.5 202.5 -97.5 {pinnumber=13
+pinseq=2
+name=Q
+dir=out
+}
+T {@#1:pinnumber} 180 -105 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 165 -100 2 0 0.266667 0.266667 {}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=11
+pinseq=3
+name=EN
+dir=in
+}
+T {@#2:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -60 2 1 0.266667 0.266667 {}
+L 3 180 -60 200 -60 {}
+B 5 197.5 -62.5 202.5 -57.5 {pinnumber=14
+pinseq=4
+name=\_Q\_
+dir=out
+}
+T {@#3:pinnumber} 180 -65 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 165 -60 2 0 0.266667 0.266667 {}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=9
+pinseq=5
+name=CLK
+dir=inout
+}
+T {@#4:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 37.5 -20 2 1 0.266667 0.266667 {}

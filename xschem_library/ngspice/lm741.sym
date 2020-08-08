@@ -1,0 +1,33 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=opamp
+format="@spiceprefix@name @pinlist @model"
+tedax_format="footprint @name @footprint
+device @name @symname"
+template="name=X1 model=LM7141 device=LM741 footprint=\\"SO(8)\\""
+}
+V {}
+S {}
+E {}
+L 4 80 0 100 0 {}
+L 4 -100 -40 -80 -40 {}
+L 4 -100 40 -80 40 {}
+L 4 -80 -70 80 0 {}
+L 4 -80 70 80 0 {}
+L 4 -80 -70 -80 70 {}
+L 4 0 -60 0 -35 {}
+L 4 0 35 0 60 {}
+B 5 -102.5 -42.5 -97.5 -37.5 {name=PLUS sig_type=std_logic dir=in pinnumber=2}
+B 5 -102.5 37.5 -97.5 42.5 {name=MINUS sig_type=std_logic dir=in pinnumber=3}
+B 5 -2.5 -62.5 2.5 -57.5 {name=VCC sig_type=std_logic dir=inout pinnumber=7}
+B 5 -2.5 57.5 2.5 62.5 {name=VEE sig_type=std_logic dir=inout pinnumber=4}
+B 5 97.5 -2.5 102.5 2.5 {name=OUT sig_type=std_logic dir=out pinnumber=6}
+T {@device} -68.5 -11 0 0 0.3 0.3 {}
+T {@name} 20 -42 0 0 0.3 0.3 {}
+T {@#2:pinnumber} 85 -14 0 0 0.2 0.2 {layer=13}
+T {@#0:pinnumber} -85 -54 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -85 26 0 1 0.2 0.2 {layer=13}
+T {@#4:name} 61.5625 -4.9375 0 1 0.2 0.2 {}
+T {@#0:name} -75 -44 0 0 0.2 0.2 {}
+T {@#1:name} -75 36 0 0 0.2 0.2 {}
+T {@#4:pinnumber} 5 46 0 0 0.2 0.2 {layer=13}
+T {@#3:pinnumber} 5 -56.5 0 0 0.2 0.2 {layer=13}

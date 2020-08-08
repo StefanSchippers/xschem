@@ -1,0 +1,116 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX535
+template="device=MAX535
+name=U?
+footprint=uMAX8
+description=\\"low-power, serial 13-bit voltage-output DAC \\"
+numslots=0
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX535-MAX5351.pdf
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 190 -180 2 0 0.333333 0.333333 {}
+T {DAC} 83.8 -81.8 2 1 0.133333 0.133333 {}
+T {MAX535} 20 -180 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 190 -30 {}
+L 4 190 -170 190 -30 {}
+L 4 30 -170 190 -170 {}
+L 4 30 -170 30 -30 {}
+
+L 4 110 -100 110 -80 {}
+L 4 110 -80 130 -90 {}
+L 4 110 -100 130 -90 {}
+L 4 80 -90 100 -90 {}
+L 4 80 -90 80 -80 {}
+L 4 80 -80 100 -80 {}
+L 4 100 -80 104 -85 {}
+L 4 100 -90 104 -85 {}
+L 4 90 -90 100 -90 {}
+L 4 104 -85 110 -85 {}
+L 4 114 -86 114 -84 {}
+L 4 113 -85 115 -85 {}
+L 4 113 -95 115 -95 {}
+L 4 105 -120 145 -120 {}
+L 4 105 -120 105 -95 {}
+L 4 105 -95 110 -95 {}
+L 4 130 -90 145 -90 {}
+
+A 4 25 -90 5 0 360 {}
+
+
+
+
+
+L 3 190 -90 220 -90 {}
+B 5 217.5 -92.5 222.5 -87.5 {pinnumber=1
+pinseq=1
+name=OUT
+dir=out
+}
+T {@#0:pinnumber} 200 -95 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 185 -90 2 0 0.266667 0.266667 {}
+L 3 0 -90 20 -90 {}
+B 5 -2.5 -92.5 2.5 -87.5 {pinnumber=2
+pinseq=2
+name=\_CS\_
+dir=in
+}
+T {@#1:pinnumber} 20 -95 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -90 2 1 0.266667 0.266667 {}
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=3
+pinseq=3
+name=DIN
+dir=in
+}
+T {@#2:pinnumber} 20 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -150 2 1 0.266667 0.266667 {}
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=4
+pinseq=4
+name=SCLK
+dir=inout
+}
+T {@#3:pinnumber} 20 -125 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -120 2 1 0.266667 0.266667 {}
+L 3 190 -120 220 -120 {}
+B 5 217.5 -122.5 222.5 -117.5 {pinnumber=5
+pinseq=5
+name=FB
+dir=in
+}
+T {@#4:pinnumber} 200 -125 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 185 -120 2 0 0.266667 0.266667 {}
+L 3 190 -150 220 -150 {}
+B 5 217.5 -152.5 222.5 -147.5 {pinnumber=6
+pinseq=6
+name=REF
+dir=in
+}
+T {@#5:pinnumber} 200 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 185 -150 2 0 0.266667 0.266667 {}
+L 3 110 -30 110 0 {}
+B 5 107.5 -2.5 112.5 2.5 {pinnumber=7
+pinseq=7
+name=GND
+dir=inout
+}
+T {@#6:pinnumber} 115 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 96.4 -35 2 1 0.266667 0.266667 {}
+L 3 110 -200 110 -170 {}
+B 5 107.5 -202.5 112.5 -197.5 {pinnumber=8
+pinseq=8
+name=Vcc
+dir=inout
+}
+T {@#7:pinnumber} 115 -180 2 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 96.4 -165 0 0 0.266667 0.266667 {}

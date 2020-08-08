@@ -1,0 +1,36 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=LOOP_ANTENNA
+template="device=LOOP_ANTENNA
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {LOOP ANTENNA} 10 -260 2 1 0.333333 0.333333 {}
+T {@name} 190 -240 2 1 0.333333 0.333333 {}
+
+
+L 4 60 -90 60 -70 {}
+L 4 0 -90 60 -90 {}
+L 4 130 -90 130 -70 {}
+L 4 130 -90 190 -90 {}
+L 4 0 -250 0 -90 {}
+L 4 170 -250 170 -110 {}
+L 4 20 -230 20 -110 {}
+L 4 20 -230 190 -230 {}
+L 4 190 -230 190 -90 {}
+L 4 0 -250 170 -250 {}
+L 4 20 -110 170 -110 {}
+
+
+
+
+
+

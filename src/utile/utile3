@@ -1,0 +1,10 @@
+#!/bin/sh 
+# wrapper that executes the TCL-TK frontend to the (IN)UTILE program
+#				Stefan Schippers
+
+
+# removing existing TK_LIBRARY variable avoids some clobbering 
+# with existing old libraries seen on Solaris systems
+export PATH="${XSCHEM_SHAREDIR}/utile:$PATH"
+export UTILE3_PATH="${XSCHEM_SHAREDIR}/utile"
+utile.tcl $@

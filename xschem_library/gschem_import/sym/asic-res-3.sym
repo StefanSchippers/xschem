@@ -1,0 +1,50 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=RESISTOR
+template="device=RESISTOR
+name=R?
+l=10u
+w=3u
+model-name=rpolyh
+description=\\"high resistive poly0 resistor\\"
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 20 -70 2 1 0.333333 0.333333 {}
+T {l=10u} 20 -20 2 1 0.266667 0.266667 {}
+T {w=3u} 20 0 2 1 0.266667 0.266667 {}
+T {@model-name} 60.6 -65 2 1 0.266667 0.266667 {}
+
+
+L 4 25 -50 30 -40 {}
+L 4 30 -40 40 -60 {}
+L 4 40 -60 50 -40 {}
+L 4 50 -40 60 -60 {}
+L 4 60 -60 70 -40 {}
+L 4 70 -40 80 -60 {}
+L 4 80 -60 85 -50 {}
+
+
+
+
+
+
+L 3 0 -50 25 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+L 3 85 -50 110 -50 {}
+B 5 107.5 -52.5 112.5 -47.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}

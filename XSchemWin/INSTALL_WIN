@@ -1,0 +1,15 @@
+1. requirements
+
+    - Windows 10
+    - ActiveState TCL/TK 8.69 x64 (https://www.activestate.com/products/tcl/)
+    - Gawk for Windows (Add directory of awk.exe to PATH)
+    - NGSpice for Windows
+
+2. Install Tree
+C:/Program Files/XSchem/bin                          - Binaries (executable file).
+C:/Program Files/XSchem/doc                          - Various documentation.
+C:/Program Files/XSchem/share                        - default share directory containing systemlib, utile, xschem.tcl, xschemrc and *.awk (can be overriden with XSCHEM_SHARE_DIR) 
+C:/Program Files/XSchem/xschem_library               - XSchem library consisting of .sch and .sym
+C:/Users/<YourUserName>/xschem                       - User configuration directory
+
+It's important to maintain this Install tree for XSchem to work correctly

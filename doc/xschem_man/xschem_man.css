@@ -1,0 +1,245 @@
+/* stefan 20121120 */
+
+*{
+ /* get rid of mobile font bosting, hopefully */
+ max-height: 1000000em;
+ -moz-text-size-adjust: none; /* Firefox Mobile */
+ text-size-adjust: none;
+
+
+ margin-top:0;
+ margin-bottom:0;
+ border: none;
+}
+
+html, body{ 
+  min-height: 100%;
+  height: 100%;
+  margin:0 auto 0;
+}
+
+.indexdiv{
+  background-color: #cccccc;
+}
+
+kbd{
+  color: #993333;
+  text-align: left;
+}
+
+li{
+  margin-left: 20px;
+  margin-right: 60px;
+  margin-bottom: 5px;
+}
+
+table {
+ border-collapse: collapse;
+ margin-left: 5%;
+ margin-right: 5%;
+ margin-bottom: 40px;
+}
+th{
+ border-style:solid;
+ border-width:2px;
+ background-color: #3ab;
+}
+td{
+ border-style:solid;
+ border-width:1px;
+ background-color: #9de;
+}
+ 
+img{
+  box-shadow: 10px 10px 9px #48b;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  margin-left: 30px;
+}
+
+.content{ 
+  font-family: arial;
+  height: auto !important;
+  height: 100%;
+  min-height: 100%;
+  padding-bottom: 0;
+  padding-top: 0;
+  background:#ccddff;
+  margin-bottom: -35px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top:0;
+  overflow: hidden;
+}
+p{
+  text-align: justify;
+}
+
+.faq {
+  padding-left: 4em;
+}
+.filler{ 
+  min-height: 35px;
+  height: 35px;
+  margin:0;
+  padding:0;
+  border:none;
+}
+
+
+.footer{
+  font-family: arial;
+  margin:0;
+  width: 100%;
+  border: none;
+  padding:0;
+  height: 35px;
+  background: #223388; /* background in footer as IE8 does not set background in iframe */
+  overflow: hidden;
+}
+
+.footer_iframe{
+  height: 35px;
+  margin:0;
+  margin-bottom:-5px;  /* to avoid vertical scrollbars on firefox*/
+  width: 100%;
+  border: none;
+  padding:0;
+  background: #223388;
+}
+
+.prev {
+  width: 12%;
+  background-color: #888888; 
+  box-shadow: 10px 10px 10px #48b;
+  text-align: center;
+  position: fixed ; 
+  left: 0px;
+}
+.home {
+  width: 12%;
+  background-color: #888888; 
+  box-shadow: 10px 10px 10px #48b;
+  text-align: center;
+  position: fixed ; 
+  left:14%
+}
+.next {
+  width: 12%;
+  background-color: #888888; 
+  box-shadow: 10px 10px 10px #48b;
+  text-align: center;
+  position: fixed ; 
+  left:28%
+}
+
+a{
+  text-decoration:none;
+}
+
+a:hover{
+  background-color: red;
+  color: white;
+  text-shadow: 14px 14px 19px #48b
+}
+
+span{
+  white-space: nowrap;
+}
+
+ol,ul{
+  margin-left: 20px;
+  margin-right: 20px;
+}  
+h1{
+  margin-top: 40px;
+  text-align:center;
+  text-shadow: 10px 10px 9px #48b;
+}
+h2{
+  margin-top: 30px;
+  margin-left: 30px;
+}
+
+h3{
+  margin-top: 30px;
+  margin-left: 30px;
+}
+
+.idx{ 
+  background-color:#ddeeff;
+  overflow:hidden;width:80%; 
+  margin-left: auto; 
+  margin-right:auto;
+  margin-bottom:30px;
+  border: groove 3px;
+  box-shadow: 14px 14px 9px #48b;
+}
+
+.important{
+  box-shadow: 10px 10px 9px #48b;
+  background:#eeee77;
+  border:groove;
+  margin: auto;
+  width: 80%;
+}
+
+.code{
+  box-shadow: 10px 10px 9px #48b;
+  background: white;
+  overflow: auto;
+  width: 90%;
+  margin: auto;
+  border: groove;
+}
+
+/* mobile rendering  */
+@media all and (-webkit-min-device-pixel-ratio: 2) and (min-resolution: 192dpi)  and (orientation : portrait){ 
+  * {
+    font-size:20px;
+  }
+  .prev {
+    width: 10%;
+    font-size: 90%;
+    position: fixed ;
+    left: 0px;
+  }
+  .home {
+    width: 10%;
+    font-size: 90%;
+    position: fixed ;
+    left:12%
+  }
+  .next {
+    width: 10%;
+    font-size: 90%;
+    position: fixed ;
+    left:24%
+  }
+}
+@media all and (-webkit-min-device-pixel-ratio: 2) and (min-resolution: 192dpi)  and (orientation : landscape){ 
+  * {
+    font-size:25px;
+  }
+
+  li{
+  }
+  .prev {
+    width: 8%;
+    font-size: 80%;
+    position: fixed ;
+    left: 0px;
+  }
+  .home {
+    width: 8%;
+    font-size: 80%;
+    position: fixed ;
+    left:10%
+  }
+  .next {
+    width: 8%;
+    font-size: 80%;
+    position: fixed ;
+    left:20%
+  }
+}

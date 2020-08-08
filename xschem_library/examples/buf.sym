@@ -1,0 +1,18 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=buff
+vhdl_stop=true
+format="@name @@Z @@VSS  pwl(1) @@A @@VSS  @TABLE"
+template="name=E1 TABLE=\\"1.4 0.0 1.6 3.0\\""}
+V {}
+S {}
+E {}
+L 4 -40 0 -27.5 0 {}
+L 4 -27.5 -20 -27.5 20 {}
+L 4 -27.5 -20 16.25 0 {}
+L 4 -27.5 20 16.25 0 {}
+L 4 16.25 0 40 0 {}
+L 4 0 7.5 0 30 {}
+B 5 -42.5 -2.5 -37.5 2.5 {name=A dir=in }
+B 5 37.5 -2.5 42.5 2.5 {name=Z dir=out }
+B 5 -2.5 27.5 2.5 32.5 {name=VSS dir=in}
+T {@name} -26.25 -5 0 0 0.2 0.2 {}

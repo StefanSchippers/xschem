@@ -1,0 +1,66 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX100
+template="device=MAX100
+name=U?
+footprint=CFP84
+description=\\"250Msps, 8-bit ADC with track/hold\\"
+numslots=0
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX100.pdf
+GND=GND
+VCC=VCC
+DGND=DGND
+VEE=VEE
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND @VCC @DGND @VEE"
+
+extra="GND VCC DGND VEE"
+extra_pinnumber="4,7,15,49,57,60,64,67,70,71,74,77,78,79,82,84 8,21,43,56 18,24,27,30,34,37,40,46 32,69,80"
+}
+V {}
+S {}
+E {}
+T {@name} 230 -790 2 0 0.333333 0.333333 {}
+T {MAX100} 30 -785 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 230 -30 {}
+L 4 230 -780 230 -30 {}
+L 4 30 -780 230 -780 {}
+L 4 30 -780 30 -30 {}
+
+
+A 4 25 -570 5 0 360 {}
+A 4 235 -710 5 0 360 {}
+A 4 25 -550 5 0 360 {}
+
+
+
+
+
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {pinnumber=1
+pinseq=1
+name=PAD
+dir=inout
+}
+T {@#0:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -70 2 1 0.266667 0.266667 {}
+L 3 0 -630 30 -630 {}
+B 5 -2.5 -632.5 2.5 -627.5 {pinnumber=2
+pinseq=2
+name=CLK
+dir=in
+}
+T {@#1:pinnumber} 20 -635 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -630 2 1 0.266667 0.266667 {}
+L 3 0 -570 20 -570 {}
+B 5 -2.5 -572.5 2.5 -567.5 {pinnumber=3
+pinseq=3
+name=\_CLK\_
+dir=in
+}
+T {@#2:pinnumber} 20 -575 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -570 2 1 0.266667 0.266667 {}

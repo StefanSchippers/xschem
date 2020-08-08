@@ -1,0 +1,89 @@
+put [at 7:1]
+ arg: list
+ arg: {this
+is
+a
+list
+of
+words,
+a
+list
+of
+words.
+}
+print [at 18:1]
+ arg: {original:
+}
+ arg: list
+ arg: {
+}
+uniq [at 19:1]
+ arg: list
+print [at 20:1]
+ arg: {uniq:
+}
+ arg: list
+ arg: {
+}
+put [at 24:1]
+ arg: foo
+ arg: {this
+foo
+is
+a
+this
+foo
+}
+uniq [at 31:1]
+ arg: tmp
+ arg: foo
+print [at 32:1]
+ arg: {original:
+}
+ arg: foo
+ arg: {
+uniq:
+}
+ arg: tmp
+ arg: {
+}
+sortuniq [at 39:1]
+ arg: tmp
+ arg: foo
+print [at 40:1]
+ arg: {
+sortuniq:
+}
+ arg: tmp
+ arg: {
+}
+put [at 49:1]
+ arg: list
+ arg: {#define foo
+#include "foo20.h"
+#include "foo10.h"
+/* misc1 */
+#define bar
+#include "bar1.h"
+#include "bar2.h"
+/* misc2 */
+}
+put [at 61:1]
+ arg: /tmpasm/IFS
+ arg: {
+}
+uniq [at 63:1]
+ arg: tmp
+ arg: list
+ arg: {^#define}
+ arg: {^#include}
+print [at 64:1]
+ arg: {original:
+}
+ arg: list
+ arg: {
+grouped uniq:
+}
+ arg: tmp
+ arg: {
+}

@@ -1,0 +1,96 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=581000
+template="device=581000
+name=U?
+footprint=none
+description=\\"1Mx8 dram simm memory module\\"
+numslots=0
+author=\\"Werner Hoch <werner.hoATgmx.de>\\"
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="1,30 9,22"
+}
+V {}
+S {}
+E {}
+T {@name} 230 -450 2 0 0.333333 0.333333 {}
+T {581000} 30 -445 2 1 0.333333 0.333333 {}
+
+L 4 30 0 230 0 {}
+L 4 230 -440 230 0 {}
+L 4 30 -440 230 -440 {}
+L 4 30 -440 30 0 {}
+
+
+A 4 25 -20 5 0 360 {}
+A 4 25 -50 5 0 360 {}
+A 4 25 -80 5 0 360 {}
+
+
+
+
+
+L 3 0 -20 20 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=2
+pinseq=2
+name=\_CAS\_
+dir=in
+}
+T {@#0:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -20 2 1 0.266667 0.266667 {}
+L 3 230 -380 260 -380 {}
+B 5 257.5 -382.5 262.5 -377.5 {pinnumber=3
+pinseq=3
+name=D0
+dir=inout
+}
+T {@#1:pinnumber} 240 -385 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 225 -380 2 0 0.266667 0.266667 {}
+L 3 0 -410 30 -410 {}
+B 5 -2.5 -412.5 2.5 -407.5 {pinnumber=4
+pinseq=4
+name=A0
+dir=in
+}
+T {@#2:pinnumber} 20 -415 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -410 2 1 0.266667 0.266667 {}
+L 3 0 -380 30 -380 {}
+B 5 -2.5 -382.5 2.5 -377.5 {pinnumber=5
+pinseq=5
+name=A1
+dir=in
+}
+T {@#3:pinnumber} 20 -385 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -380 2 1 0.266667 0.266667 {}
+L 3 230 -350 260 -350 {}
+B 5 257.5 -352.5 262.5 -347.5 {pinnumber=6
+pinseq=6
+name=D1
+dir=inout
+}
+T {@#4:pinnumber} 240 -355 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 225 -350 2 0 0.266667 0.266667 {}
+L 3 0 -350 30 -350 {}
+B 5 -2.5 -352.5 2.5 -347.5 {pinnumber=7
+pinseq=7
+name=A2
+dir=in
+}
+T {@#5:pinnumber} 20 -355 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -350 2 1 0.266667 0.266667 {}
+L 3 0 -320 30 -320 {}
+B 5 -2.5 -322.5 2.5 -317.5 {pinnumber=8
+pinseq=8
+name=A3
+dir=in
+}
+T {@#6:pinnumber} 20 -325 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -320 2 1 0.266667 0.266667 {}

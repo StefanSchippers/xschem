@@ -1,0 +1,69 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=50L6GT
+template="device=50L6GT
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {50L6GT} 20 -270 2 1 0.333333 0.333333 {}
+T {@name} 250 -260 2 1 0.333333 0.333333 {}
+
+
+L 4 90 -120 90 -90 {}
+L 4 90 -120 220 -120 {}
+L 4 220 -120 220 -60 {}
+L 4 90 -140 120 -140 {}
+L 4 130 -140 160 -140 {}
+L 4 170 -140 200 -140 {}
+L 4 210 -140 230 -140 {}
+L 4 90 -170 120 -170 {}
+L 4 130 -170 160 -170 {}
+L 4 170 -170 200 -170 {}
+L 4 210 -170 230 -170 {}
+L 4 90 -210 230 -210 {}
+L 4 160 -270 160 -210 {}
+L 4 30 -140 80 -140 {}
+L 4 240 -170 270 -170 {}
+
+A 4 155 -155 115 0 360 {}
+
+
+
+
+
+L 3 160 -310 160 -270 {}
+B 5 157.5 -312.5 162.5 -307.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#0:pinnumber} 140 -290 2 1 0.333333 0.333333 {layer=13}
+L 3 270 -170 310 -170 {}
+B 5 307.5 -172.5 312.5 -167.5 {pinnumber=4
+pinseq=4
+name=4
+dir=inout
+}
+T {@#1:pinnumber} 290 -180 2 1 0.333333 0.333333 {layer=13}
+L 3 0 -140 40 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=5
+pinseq=5
+name=5
+dir=inout
+}
+T {@#2:pinnumber} 20 -150 2 1 0.333333 0.333333 {layer=13}
+L 3 220 -60 220 0 {}
+B 5 217.5 -2.5 222.5 2.5 {pinnumber=8
+pinseq=8
+name=8
+dir=inout
+}
+T {@#3:pinnumber} 230 -30 2 1 0.333333 0.333333 {layer=13}

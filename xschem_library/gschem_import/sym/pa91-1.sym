@@ -1,0 +1,108 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=PA91
+template="device=PA91
+description=\\"APEX PA91 High Voltage Amplifier\\"
+slot=1
+documentation=http://eportal.apexmicrotech.com/mainsite/pdf/pa91u.pdf
+footprint=SIP02
+name=U?
+symversion=0.1
+numslots=0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@device} 40 -70 2 1 0.333333 0.333333 {}
+T {@name} 120 -130 2 1 0.333333 0.333333 {}
+
+
+L 4 30 -120 30 -20 {}
+L 4 30 -120 140 -70 {}
+L 4 30 -20 140 -70 {}
+
+
+
+
+
+
+L 3 0 -100 30 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinseq=1
+pinnumber=1
+dir=in
+name=-in
+}
+T {@#0:name} 40 -90 2 1 0.333333 0.333333 {}
+L 3 0 -40 30 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinseq=2
+name=+in
+pinnumber=2
+dir=in
+}
+T {@#1:name} 40 -40 2 1 0.333333 0.333333 {}
+L 3 70 -40 70 -10 {}
+B 5 67.5 -12.5 72.5 -7.5 {pinseq=4
+pinnumber=4
+dir=inout
+name=C1
+}
+T {@#2:name} 80 -20 2 1 0.333333 0.333333 {}
+L 3 100 -50 100 -20 {}
+B 5 97.5 -22.5 102.5 -17.5 {pinseq=5
+pinnumber=5
+dir=inout
+name=C2
+}
+T {@#3:name} 110 -20 2 1 0.333333 0.333333 {}
+L 3 140 -70 170 -70 {}
+B 5 167.5 -72.5 172.5 -67.5 {pinseq=6
+pinnumber=6
+name=OUT
+dir=out
+}
+T {@#4:name} 130 -50 2 1 0.333333 0.333333 {}
+L 3 50 -30 50 0 {}
+B 5 47.5 -2.5 52.5 2.5 {name=-Vss
+dir=inout
+pinnumber=7
+pinseq=7
+}
+T {@#5:name} 0 0 2 1 0.333333 0.333333 {}
+L 3 60 -30 60 0 {}
+B 5 57.5 -2.5 62.5 2.5 {pinnumber=8
+pinseq=8
+dir=inout
+name=-Vss2
+}
+L 3 80 -100 110 -100 {}
+B 5 107.5 -102.5 112.5 -97.5 {pinseq=9
+name=ILIM
+pinnumber=9
+dir=inout
+}
+T {@#7:name} 70 -110 2 1 0.333333 0.333333 {}
+L 3 100 -90 130 -90 {}
+B 5 127.5 -92.5 132.5 -87.5 {pinseq=10
+pinnumber=10
+dir=inout
+name=ILIM2
+}
+L 3 50 -140 50 -110 {}
+B 5 47.5 -142.5 52.5 -137.5 {dir=inout
+pinnumber=11
+pinseq=11
+name=+Vss
+}
+T {@#9:name} 0 -130 2 1 0.333333 0.333333 {}
+L 3 60 -140 60 -110 {}
+B 5 57.5 -142.5 62.5 -137.5 {pinnumber=12
+pinseq=12
+dir=inout
+name=+Vss2
+}

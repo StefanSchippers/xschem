@@ -1,0 +1,82 @@
+
+#  <pinnumber>  <direction>[<circle><edge_trigger>] <name>
+# circle: !
+# edge_trigger: >
+# direction is mandatory: i=input, o=output, b=bidirectional (inout)
+
+[labels] 
+@device
+@symname
+@name
+! type=subcircuit
+! format="@spiceprefix@name @pinlist @symname"
+! template="name=U1 device=cy7c64603-52nc footprint=cy7c64603_qfp"
+--vmode
+[left]
+5   i   AVCC
+
+18  i   DISCON_
+28  i   RESET_
+
+24  i   USBDP
+25  i   UBDM
+
+
+16  i   XCLKSEL
+38  i   XCLK
+12  o   CLKOUT
+4   i   WAKEUP_
+2   i   SCL
+3   i   SDA
+[top]
+1   i   VCC1
+14  i   VCC2
+27  i   VCC3
+40  i   VCC4
+
+7   o   XOUT
+
+6   i   XIN
+[right]
+42  i   RDY2
+10  i   PA4_RDY4
+11  i   PA5_RDY5
+
+.bus
+29  o   PB0
+30  o   PB1
+31  o   PB2
+32  o   PB3
+33  o   PB4
+34  o   PB5
+35  o   PB6
+36  o   PB7
+
+.bus
+43  o   PC0
+44  o   PC1
+45  o   PC2
+46  o   PC3
+48  o   PC4
+49  o   PC5
+50  o   PC6
+51  o   PC7
+
+41  o   CTL0
+37  o   CTL2
+[bottom]
+8   i   AGND
+13  i   GND1
+21  i   GND2
+26  i   GND3
+39  i   GND4
+47  i   GND5
+52  i   GND6
+
+9   i   RESERVED1
+15  i   RESERVED2
+17  i   RESERVED3
+19  i   RESERVED4
+20  i   RESERVED5
+22  i   RESERVED6
+23  i   RESERVED7

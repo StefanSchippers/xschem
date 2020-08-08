@@ -1,0 +1,103 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4517
+template="name=U?
+device=4517
+footprint=DIP16
+slot=1
+numslots=2
+description=\\"2 64-stage static shift registers\\"
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4517B_CNV_3.pdf
+VSS=VSS
+VDD=VDD
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VSS @VDD"
+
+extra="VSS VDD"
+extra_pinnumber="8 16"
+}
+V {}
+S {}
+E {}
+T {@name} 190 -195 2 0 0.333333 0.333333 {}
+T {4517} 30 -195 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 190 -30 {}
+L 4 190 -190 190 -30 {}
+L 4 30 -190 190 -190 {}
+L 4 30 -190 30 -30 {}
+
+L 4 30 -157.5 40 -150 {}
+L 4 30 -142.5 40 -150 {}
+
+
+
+
+
+
+L 3 170 -30 170 0 {}
+B 5 167.5 -2.5 172.5 2.5 {
+pinseq=1
+name=Q64
+dir=inout
+pinnumber=5:11
+}
+T {@#0:pinnumber} 175 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 156.4 -35 2 1 0.266667 0.266667 {}
+L 3 130 -30 130 0 {}
+B 5 127.5 -2.5 132.5 2.5 {
+pinseq=2
+name=Q48
+dir=inout
+pinnumber=2:14
+}
+T {@#1:pinnumber} 135 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 116.4 -35 2 1 0.266667 0.266667 {}
+L 3 90 -30 90 0 {}
+B 5 87.5 -2.5 92.5 2.5 {
+pinseq=3
+name=Q32
+dir=inout
+pinnumber=6:10
+}
+T {@#2:pinnumber} 95 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 76.4 -35 2 1 0.266667 0.266667 {}
+L 3 50 -30 50 0 {}
+B 5 47.5 -2.5 52.5 2.5 {
+pinseq=4
+name=Q16
+dir=inout
+pinnumber=1:15
+}
+T {@#3:pinnumber} 55 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 36.4 -35 2 1 0.266667 0.266667 {}
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {
+pinseq=5
+name=WE
+dir=in
+pinnumber=3:13
+}
+T {@#4:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -70 2 1 0.266667 0.266667 {}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {
+pinseq=6
+name=D1
+dir=in
+pinnumber=7:19
+}
+T {@#5:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -110 2 1 0.266667 0.266667 {}
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {
+pinseq=7
+name=CLK
+dir=in
+pinnumber=4:12
+}
+T {@#6:pinnumber} 20 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 40 -150 2 1 0.266667 0.266667 {}

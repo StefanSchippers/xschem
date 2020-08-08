@@ -1,0 +1,150 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=ACE1202LN14
+template="device=ACE1202LN14
+name=U?
+footprint=DIP14
+numslots=0
+description=\\"8-bit micro controller for low power applications (FAIRCHILD)\\"
+documentation=http://www.fairchildsemi.com/ds/AC/ACE1202.pdf
+GND=GND
+Vcc=Vcc
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND @Vcc"
+
+extra="GND Vcc"
+extra_pinnumber="13 14"
+}
+V {}
+S {}
+E {}
+T {@name} 260 -290 2 0 0.333333 0.333333 {}
+T {ACE1202LN14} 30 -285 2 1 0.266667 0.266667 {}
+
+L 4 30 0 260 0 {}
+L 4 260 -280 260 0 {}
+L 4 30 -280 260 -280 {}
+L 4 30 -280 30 0 {}
+
+
+A 4 265 -60 5 0 360 {}
+
+
+
+
+
+L 3 0 -260 30 -260 {}
+B 5 -2.5 -262.5 2.5 -257.5 {pinnumber=1
+pinseq=1
+dir=inout
+name=G3\\ (LOAD)
+}
+T {@#0:pinnumber} 20 -265 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -260 2 1 0.266667 0.266667 {}
+L 3 0 -220 30 -220 {}
+B 5 -2.5 -222.5 2.5 -217.5 {pinnumber=2
+pinseq=2
+dir=inout
+name=G4\\ (SFT_IN)
+}
+T {@#1:pinnumber} 20 -225 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -220 2 1 0.266667 0.266667 {}
+L 3 0 -180 30 -180 {}
+B 5 -2.5 -182.5 2.5 -177.5 {pinnumber=3
+pinseq=3
+dir=inout
+name=NC
+}
+T {@#2:pinnumber} 20 -185 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -180 2 1 0.266667 0.266667 {}
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=4
+pinseq=4
+dir=inout
+name=G6
+}
+T {@#3:pinnumber} 20 -145 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -140 2 1 0.266667 0.266667 {}
+L 3 0 -100 30 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=5
+pinseq=5
+dir=inout
+name=G7
+}
+T {@#4:pinnumber} 20 -105 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -100 2 1 0.266667 0.266667 {}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=6
+pinseq=6
+dir=inout
+name=G5\\ (VCC)
+}
+T {@#5:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -60 2 1 0.266667 0.266667 {}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=7
+pinseq=7
+dir=inout
+name=G0
+}
+T {@#6:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -20 2 1 0.266667 0.266667 {}
+L 3 260 -20 290 -20 {}
+B 5 287.5 -22.5 292.5 -17.5 {pinnumber=8
+pinseq=8
+dir=inout
+name=(CKI)\\ G1
+}
+T {@#7:pinnumber} 270 -25 2 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 255 -20 2 0 0.266667 0.266667 {}
+L 3 270 -60 290 -60 {}
+B 5 287.5 -62.5 292.5 -57.5 {pinnumber=9
+pinseq=9
+dir=in
+name=\_RESET\_
+}
+T {@#8:pinnumber} 270 -65 2 1 0.266667 0.266667 {layer=13}
+T {@#8:name} 255 -60 2 0 0.266667 0.266667 {}
+L 3 260 -100 290 -100 {}
+B 5 287.5 -102.5 292.5 -97.5 {pinnumber=10
+pinseq=10
+dir=inout
+name=NC
+}
+T {@#9:pinnumber} 270 -105 2 1 0.266667 0.266667 {layer=13}
+T {@#9:name} 255 -100 2 0 0.266667 0.266667 {}
+L 3 260 -140 290 -140 {}
+B 5 287.5 -142.5 292.5 -137.5 {pinnumber=11
+pinseq=11
+dir=inout
+name=(SFT_OUT)\\ G2
+}
+T {@#10:pinnumber} 270 -145 2 1 0.266667 0.266667 {layer=13}
+T {@#10:name} 255 -140 2 0 0.266667 0.266667 {}
+L 3 260 -180 290 -180 {}
+B 5 287.5 -182.5 292.5 -177.5 {pinnumber=12
+pinseq=12
+dir=inout
+name=NC
+}
+T {@#11:pinnumber} 270 -185 2 1 0.266667 0.266667 {layer=13}
+T {@#11:name} 255 -180 2 0 0.266667 0.266667 {}
+L 3 260 -220 290 -220 {}
+B 5 287.5 -222.5 292.5 -217.5 {pinnumber=13
+pinseq=13
+dir=inout
+name=GND
+}
+T {@#12:pinnumber} 270 -225 2 1 0.266667 0.266667 {layer=13}
+T {@#12:name} 255 -220 2 0 0.266667 0.266667 {}
+L 3 260 -260 290 -260 {}
+B 5 287.5 -262.5 292.5 -257.5 {pinnumber=14
+pinseq=14
+dir=inout
+name=VCC
+}
+T {@#13:pinnumber} 270 -265 2 1 0.266667 0.266667 {layer=13}
+T {@#13:name} 255 -260 2 0 0.266667 0.266667 {}

@@ -1,0 +1,77 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=12SQ7
+template="device=12SQ7
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {12SQ7} 20 -280 2 1 0.333333 0.333333 {}
+T {@name} 250 -260 2 1 0.333333 0.333333 {}
+
+
+L 4 80 -160 80 -140 {}
+L 4 80 -160 210 -160 {}
+L 4 210 -160 210 -120 {}
+L 4 210 -120 210 -90 {}
+L 4 230 -160 230 -140 {}
+L 4 230 -120 230 -100 {}
+L 4 80 -190 100 -190 {}
+L 4 120 -190 140 -190 {}
+L 4 160 -190 180 -190 {}
+L 4 200 -190 210 -190 {}
+L 4 80 -220 210 -220 {}
+L 4 150 -280 150 -220 {}
+L 4 230 -150 270 -150 {}
+L 4 230 -110 250 -110 {}
+L 4 40 -190 60 -190 {}
+L 4 210 -90 210 -60 {}
+
+A 4 155 -165 115 0 360 {}
+
+
+
+
+
+L 3 0 -190 40 -190 {}
+B 5 -2.5 -192.5 2.5 -187.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#0:pinnumber} 10 -200 2 1 0.333333 0.333333 {layer=13}
+L 3 210 -60 210 0 {}
+B 5 207.5 -2.5 212.5 2.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#1:pinnumber} 190 -30 2 1 0.333333 0.333333 {layer=13}
+L 3 270 -150 310 -150 {}
+B 5 307.5 -152.5 312.5 -147.5 {pinnumber=4
+pinseq=4
+name=4
+dir=inout
+}
+T {@#2:pinnumber} 280 -160 2 1 0.333333 0.333333 {layer=13}
+L 3 250 -110 310 -110 {}
+B 5 307.5 -112.5 312.5 -107.5 {pinnumber=5
+pinseq=5
+name=5
+dir=inout
+}
+T {@#3:pinnumber} 280 -90 2 1 0.333333 0.333333 {layer=13}
+L 3 150 -310 150 -280 {}
+B 5 147.5 -312.5 152.5 -307.5 {pinnumber=6
+pinseq=6
+name=6
+dir=inout
+}
+T {@#4:pinnumber} 130 -290 2 1 0.333333 0.333333 {layer=13}

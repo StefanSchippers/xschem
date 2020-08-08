@@ -1,0 +1,47 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1"
+}
+V {}
+S {}
+E {}
+L 4 -130 -70 130 -70 {}
+L 4 -130 70 130 70 {}
+L 4 -130 -70 -130 70 {}
+L 4 130 -70 130 70 {}
+L 4 130 -60 150 -60 {}
+L 4 130 -40 150 -40 {}
+L 4 130 -20 150 -20 {}
+L 4 130 0 150 0 {}
+L 4 130 20 150 20 {}
+L 4 130 40 150 40 {}
+L 4 -150 -60 -130 -60 {}
+L 4 -150 -40 -130 -40 {}
+L 4 -150 -20 -130 -20 {}
+L 4 -150 0 -130 0 {}
+L 4 130 60 150 60 {}
+B 5 147.5 -62.5 152.5 -57.5 {name=LDPRECH dir=out }
+B 5 147.5 -42.5 152.5 -37.5 {name=LDSAL dir=out }
+B 5 147.5 -22.5 152.5 -17.5 {name=LDCP_ROWDEC dir=out }
+B 5 147.5 -2.5 152.5 2.5 {name=LDCP_SA dir=out }
+B 5 147.5 17.5 152.5 22.5 {name=LDCP_ADDLAT_B dir=out }
+B 5 147.5 37.5 152.5 42.5 {name=LDCP_COL_B dir=out }
+B 5 -152.5 -62.5 -147.5 -57.5 {name=LDEN_LAT dir=in }
+B 5 -152.5 -42.5 -147.5 -37.5 {name=LDCP dir=in }
+B 5 -152.5 -22.5 -147.5 -17.5 {name=VCC dir=in }
+B 5 -152.5 -2.5 -147.5 2.5 {name=VSS dir=in }
+B 5 147.5 57.5 152.5 62.5 {name=LDYMSREF dir=inout }
+T {@symname} -40.5 -6 0 0 0.3 0.3 {}
+T {@name} 135 -82 0 0 0.2 0.2 {}
+T {LDPRECH} 125 -64 0 1 0.2 0.2 {}
+T {LDSAL} 125 -44 0 1 0.2 0.2 {}
+T {LDCP_ROWDEC} 125 -24 0 1 0.2 0.2 {}
+T {LDCP_SA} 125 -4 0 1 0.2 0.2 {}
+T {LDCP_ADDLAT_B} 125 16 0 1 0.2 0.2 {}
+T {LDCP_COL_B} 125 36 0 1 0.2 0.2 {}
+T {LDEN_LAT} -125 -64 0 0 0.2 0.2 {}
+T {LDCP} -125 -44 0 0 0.2 0.2 {}
+T {VCC} -125 -24 0 0 0.2 0.2 {}
+T {VSS} -125 -4 0 0 0.2 0.2 {}
+T {LDYMSREF} 125 56 0 1 0.2 0.2 {}

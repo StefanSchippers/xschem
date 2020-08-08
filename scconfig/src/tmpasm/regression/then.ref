@@ -1,0 +1,12 @@
+if cnd [at 2:8]
+then:
+ print [at 3:2]
+  arg: a1
+  arg: a2
+  arg: a3
+else:
+ (NOP)
+print [at 6:1]
+ arg: a1
+ arg: a2
+ arg: a3

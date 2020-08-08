@@ -1,0 +1,151 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4076
+template="name=U?
+device=4076
+footprint=DIP16
+description=\\"quadruple D-type register with 3-state outputs\\"
+numslots=0
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4076B_CNV_3.pdf
+VSS=VSS
+VDD=VDD
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VSS @VDD"
+
+extra="VSS VDD"
+extra_pinnumber="8 16"
+}
+V {}
+S {}
+E {}
+T {@name} 40 -240 2 0 0.333333 0.333333 {}
+T {4076} 30 -5 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 220 -30 {}
+L 4 220 -230 220 -30 {}
+L 4 30 -230 220 -230 {}
+L 4 30 -230 30 -30 {}
+
+L 4 100 -40 107.5 -30 {}
+L 4 92.5 -30 100 -40 {}
+
+
+
+
+
+
+L 3 140 -30 140 0 {}
+B 5 137.5 -2.5 142.5 2.5 {pinnumber=15
+pinseq=1
+name=R
+dir=in
+}
+T {@#0:pinnumber} 145 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 135.467 -35 2 1 0.266667 0.266667 {}
+L 3 100 -30 100 0 {}
+B 5 97.5 -2.5 102.5 2.5 {pinnumber=7
+pinseq=2
+name=CLK
+dir=inout
+}
+T {@#1:pinnumber} 105 -10 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 86.4 -42.5 2 1 0.266667 0.266667 {}
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {pinnumber=11
+pinseq=3
+name=D3
+dir=in
+}
+T {@#2:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -70 2 1 0.266667 0.266667 {}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinnumber=12
+pinseq=4
+name=D2
+dir=in
+}
+T {@#3:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -110 2 1 0.266667 0.266667 {}
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=13
+pinseq=5
+name=D1
+dir=in
+}
+T {@#4:pinnumber} 20 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -150 2 1 0.266667 0.266667 {}
+L 3 0 -190 30 -190 {}
+B 5 -2.5 -192.5 2.5 -187.5 {pinnumber=14
+pinseq=6
+name=D0
+dir=in
+}
+T {@#5:pinnumber} 20 -195 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -190 2 1 0.266667 0.266667 {}
+L 3 220 -70 250 -70 {}
+B 5 247.5 -72.5 252.5 -67.5 {pinnumber=6
+pinseq=7
+name=Q3
+dir=out
+}
+T {@#6:pinnumber} 230 -75 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 215 -70 2 0 0.266667 0.266667 {}
+L 3 220 -110 250 -110 {}
+B 5 247.5 -112.5 252.5 -107.5 {pinnumber=5
+pinseq=8
+name=Q2
+dir=out
+}
+T {@#7:pinnumber} 230 -115 2 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 215 -110 2 0 0.266667 0.266667 {}
+L 3 220 -150 250 -150 {}
+B 5 247.5 -152.5 252.5 -147.5 {pinnumber=4
+pinseq=9
+name=Q1
+dir=out
+}
+T {@#8:pinnumber} 230 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#8:name} 215 -150 2 0 0.266667 0.266667 {}
+L 3 220 -190 250 -190 {}
+B 5 247.5 -192.5 252.5 -187.5 {pinnumber=3
+pinseq=10
+name=Q0
+dir=out
+}
+T {@#9:pinnumber} 230 -195 2 1 0.266667 0.266667 {layer=13}
+T {@#9:name} 215 -190 2 0 0.266667 0.266667 {}
+L 3 180 -260 180 -230 {}
+B 5 177.5 -262.5 182.5 -257.5 {pinnumber=2
+pinseq=11
+name=N
+dir=in
+}
+T {@#10:pinnumber} 185 -240 2 1 0.266667 0.266667 {layer=13}
+T {@#10:name} 175.467 -225 0 0 0.266667 0.266667 {}
+L 3 140 -260 140 -230 {}
+B 5 137.5 -262.5 142.5 -257.5 {pinnumber=1
+pinseq=12
+name=M
+dir=in
+}
+T {@#11:pinnumber} 145 -240 2 1 0.266667 0.266667 {layer=13}
+T {@#11:name} 135.467 -225 0 0 0.266667 0.266667 {}
+L 3 100 -260 100 -230 {}
+B 5 97.5 -262.5 102.5 -257.5 {pinnumber=10
+pinseq=13
+name=G2
+dir=in
+}
+T {@#12:pinnumber} 105 -240 2 1 0.266667 0.266667 {layer=13}
+T {@#12:name} 90.9333 -225 0 0 0.266667 0.266667 {}
+L 3 60 -260 60 -230 {}
+B 5 57.5 -262.5 62.5 -257.5 {pinnumber=9
+pinseq=14
+name=G1
+dir=in
+}
+T {@#13:pinnumber} 65 -240 2 1 0.266667 0.266667 {layer=13}
+T {@#13:name} 50.9333 -225 0 0 0.266667 0.266667 {}

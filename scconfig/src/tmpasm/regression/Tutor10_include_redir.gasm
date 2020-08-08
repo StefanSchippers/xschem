@@ -1,0 +1,52 @@
+# NOTE: THIS EXAMPLE WILL NOT WORK IN THE ON-LINE WEB VERSION
+
+# These features are scconfig specific.
+
+# There is a default output file coming from the environment; this
+# is the file being generated. In the most common cases this is the
+# only file the script will ever write. Any "print" instruction will
+# write this file by default. However, sometimes it is handy
+# to generate a small misc file during generating a large file. Thus
+# the output file that "print" writes is not hardwired. Instead, there
+# is the default output file and the current output file. Instruction
+# "redir" can change the current output file.
+
+print {this goes to the default output\n}
+
+# redirect to Tutor10.inc; any "print" until the next "redir" will
+# write that file
+redir {Tutor10.inc}
+print {# this is a generated file.}
+print [@
+	print {hello world from my include!\n}
+@]
+
+# switch back to the default output
+redir
+print {back at default output.\n}
+
+
+# Dynamic include: the script may include another script, runtime. When
+# an include instruction is executed, the referred file is open, read,
+# parsed and executed, recusively.
+#
+# Include being dynamic (or runtime) is unusual, but has the following
+# advantages:
+#  - file name for inclusion can be calculated
+#  - conditional include is easily possible without an extra preprocessing layer
+#  - it is possible to generate a script on the fly and include it (sort of eval)
+# Drawbacks:
+#  - it is possible to end up in an infinite loop that will only stop when
+#    resources run out (open fds or memory)
+#  - it is slow, e.g. if the body of a foreach contains include, the whole
+#    read-parse-execute procedure is repeated for each item
+# Redir files are overwritten when first open from an execution.
+
+print {Include:\n}
+include {Tutor10.inc}
+
+# NOTE: the above script works only because "redir" has a side effect:
+# whenever redirection switches away from a file, that file is flushed.
+# This happens even if the new current output is the same as the old
+# current output (no actual switch takes place).
+

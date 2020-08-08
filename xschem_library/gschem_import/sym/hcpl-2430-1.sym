@@ -1,0 +1,65 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=HCPL-2430
+template="name=U?
+device=HCPL-2430
+footprint=DIP8
+documentation=http://rocky.digikey.com/WebLib/Agilent/Web%20Data/HCPL-2400_2430.pdf
+description=\\"dual channel 20 MBd optocoupler\\"
+numslots=2
+slot=1
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="8 5"
+}
+V {}
+S {}
+E {}
+T {@name} 110 -90 2 0 0.333333 0.333333 {}
+T {HCPL-2430} 30 2.5 2 1 0.266667 0.266667 {}
+
+L 4 30 -12.5 110 -12.5 {}
+L 4 110 -82.5 110 -12.5 {}
+L 4 30 -82.5 110 -82.5 {}
+L 4 30 -82.5 30 -12.5 {}
+
+
+
+
+
+
+
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {
+pinseq=1
+name=IN+
+dir=in
+pinnumber=1:4
+}
+T {@#0:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -55 2 1 0.266667 0.266667 {}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {
+pinseq=2
+name=IN-
+dir=in
+pinnumber=2:3
+}
+T {@#1:pinnumber} 20 -35 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -25 2 1 0.266667 0.266667 {}
+L 3 110 -50 140 -50 {}
+B 5 137.5 -52.5 142.5 -47.5 {
+pinseq=3
+name=OUT
+dir=out
+pinnumber=7:6
+}
+T {@#2:pinnumber} 120 -55 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 105 -45 2 0 0.266667 0.266667 {}

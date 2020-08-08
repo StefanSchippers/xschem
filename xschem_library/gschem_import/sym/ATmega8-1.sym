@@ -1,0 +1,237 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=ATmega8
+template="description=\\"Low-power AVR 8-bit Microcontroller\\"
+documentation=\\"http://rocky.digikey.com/WebLib/Atmel/Web Data/ATmeg8(L) Preliminary Complete.pdf\\"
+footprint=DIP28N
+name=U?
+numslots=0
+device=ATmega8
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="7 8,22"
+}
+V {}
+S {}
+E {}
+T {ATmega8} 220 -430 2 0 0.333333 0.333333 {}
+T {@name} 230 -460 2 0 0.333333 0.333333 {}
+
+L 4 30 -10 230 -10 {}
+L 4 230 -450 230 -10 {}
+L 4 30 -450 230 -450 {}
+L 4 30 -450 30 -10 {}
+
+
+
+
+
+
+
+L 3 230 -210 260 -210 {}
+B 5 257.5 -212.5 262.5 -207.5 {pinnumber=1
+pinseq=1
+name=(RESET)\\ PC6
+dir=inout
+}
+T {@#0:pinnumber} 240 -215 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 225 -210 2 0 0.266667 0.266667 {}
+L 3 0 -430 30 -430 {}
+B 5 -2.5 -432.5 2.5 -427.5 {pinnumber=2
+pinseq=2
+name=PD0\\ (RxD)
+dir=inout
+}
+T {@#1:pinnumber} 20 -435 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -430 2 1 0.266667 0.266667 {}
+L 3 0 -410 30 -410 {}
+B 5 -2.5 -412.5 2.5 -407.5 {pinnumber=3
+pinseq=3
+name=PD1\\ (TxD)
+dir=inout
+}
+T {@#2:pinnumber} 20 -415 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -410 2 1 0.266667 0.266667 {}
+L 3 0 -390 30 -390 {}
+B 5 -2.5 -392.5 2.5 -387.5 {pinnumber=4
+pinseq=4
+name=PD2\\ (INT0)
+dir=inout
+}
+T {@#3:pinnumber} 20 -395 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -390 2 1 0.266667 0.266667 {}
+L 3 0 -370 30 -370 {}
+B 5 -2.5 -372.5 2.5 -367.5 {pinnumber=5
+pinseq=5
+name=PD3\\ (INT1)
+dir=inout
+}
+T {@#4:pinnumber} 20 -375 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -370 2 1 0.266667 0.266667 {}
+L 3 0 -350 30 -350 {}
+B 5 -2.5 -352.5 2.5 -347.5 {pinnumber=6
+pinseq=6
+name=PD4\\ (XCK/T0)
+dir=inout
+}
+T {@#5:pinnumber} 20 -355 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -350 2 1 0.266667 0.266667 {}
+L 3 0 -40 30 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinnumber=9
+pinseq=9
+name=PB6\\ (XTAL1/OSC1)
+dir=inout
+}
+T {@#6:pinnumber} 20 -45 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -40 2 1 0.266667 0.266667 {}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=10
+pinseq=10
+name=PB7\\ (XTAL2/TOSC2)
+dir=inout
+}
+T {@#7:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#7:name} 35 -20 2 1 0.266667 0.266667 {}
+L 3 0 -330 30 -330 {}
+B 5 -2.5 -332.5 2.5 -327.5 {pinnumber=11
+pinseq=11
+name=PD5\\ (T1)
+dir=inout
+}
+T {@#8:pinnumber} 20 -335 2 0 0.266667 0.266667 {layer=13}
+T {@#8:name} 35 -330 2 1 0.266667 0.266667 {}
+L 3 0 -310 30 -310 {}
+B 5 -2.5 -312.5 2.5 -307.5 {pinnumber=12
+pinseq=12
+name=PD6\\ (AIN0)
+dir=inout
+}
+T {@#9:pinnumber} 20 -315 2 0 0.266667 0.266667 {layer=13}
+T {@#9:name} 35 -310 2 1 0.266667 0.266667 {}
+L 3 0 -290 30 -290 {}
+B 5 -2.5 -292.5 2.5 -287.5 {pinnumber=13
+pinseq=13
+name=PD7\\ (AIN1)
+dir=inout
+}
+T {@#10:pinnumber} 20 -295 2 0 0.266667 0.266667 {layer=13}
+T {@#10:name} 35 -290 2 1 0.266667 0.266667 {}
+L 3 0 -160 30 -160 {}
+B 5 -2.5 -162.5 2.5 -157.5 {pinnumber=14
+pinseq=14
+name=PB0\\ (ICP1)
+dir=inout
+}
+T {@#11:pinnumber} 20 -165 2 0 0.266667 0.266667 {layer=13}
+T {@#11:name} 35 -160 2 1 0.266667 0.266667 {}
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=15
+pinseq=15
+name=PB1\\ (OC1A)
+dir=inout
+}
+T {@#12:pinnumber} 20 -145 2 0 0.266667 0.266667 {layer=13}
+T {@#12:name} 35 -140 2 1 0.266667 0.266667 {}
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=16
+pinseq=16
+name=PB2\\ (SS/OC1B)
+dir=inout
+}
+T {@#13:pinnumber} 20 -125 2 0 0.266667 0.266667 {layer=13}
+T {@#13:name} 35 -120 2 1 0.266667 0.266667 {}
+L 3 0 -100 30 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=17
+pinseq=17
+name=PB3\\ (MOSI/OC2)
+dir=inout
+}
+T {@#14:pinnumber} 20 -105 2 0 0.266667 0.266667 {layer=13}
+T {@#14:name} 35 -100 2 1 0.266667 0.266667 {}
+L 3 0 -80 30 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=18
+pinseq=18
+name=PB4\\ (MISO)
+dir=inout
+}
+T {@#15:pinnumber} 20 -85 2 0 0.266667 0.266667 {layer=13}
+T {@#15:name} 35 -80 2 1 0.266667 0.266667 {}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=19
+pinseq=19
+name=PB5\\ (SCK)
+dir=inout
+}
+T {@#16:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#16:name} 35 -60 2 1 0.266667 0.266667 {}
+L 3 230 -100 260 -100 {}
+B 5 257.5 -102.5 262.5 -97.5 {pinnumber=20
+pinseq=20
+name=AVCC
+dir=in
+}
+T {@#17:pinnumber} 240 -105 2 1 0.266667 0.266667 {layer=13}
+T {@#17:name} 225 -100 2 0 0.266667 0.266667 {}
+L 3 230 -130 260 -130 {}
+B 5 257.5 -132.5 262.5 -127.5 {pinnumber=21
+pinseq=21
+name=AREF
+dir=in
+}
+T {@#18:pinnumber} 240 -135 2 1 0.266667 0.266667 {layer=13}
+T {@#18:name} 225 -130 2 0 0.266667 0.266667 {}
+L 3 230 -330 260 -330 {}
+B 5 257.5 -332.5 262.5 -327.5 {pinnumber=23
+pinseq=23
+name=(ADC0)\\ PC0
+dir=inout
+}
+T {@#19:pinnumber} 240 -335 2 1 0.266667 0.266667 {layer=13}
+T {@#19:name} 225 -330 2 0 0.266667 0.266667 {}
+L 3 230 -310 260 -310 {}
+B 5 257.5 -312.5 262.5 -307.5 {pinnumber=24
+pinseq=24
+name=(ADC1)\\ PC1
+dir=inout
+}
+T {@#20:pinnumber} 240 -315 2 1 0.266667 0.266667 {layer=13}
+T {@#20:name} 225 -310 2 0 0.266667 0.266667 {}
+L 3 230 -290 260 -290 {}
+B 5 257.5 -292.5 262.5 -287.5 {pinnumber=25
+pinseq=25
+name=(ADC2)\\ PC2
+dir=inout
+}
+T {@#21:pinnumber} 240 -295 2 1 0.266667 0.266667 {layer=13}
+T {@#21:name} 225 -290 2 0 0.266667 0.266667 {}
+L 3 230 -270 260 -270 {}
+B 5 257.5 -272.5 262.5 -267.5 {pinnumber=26
+pinseq=26
+name=(ADC3)\\ PC3
+dir=inout
+}
+T {@#22:pinnumber} 240 -275 2 1 0.266667 0.266667 {layer=13}
+T {@#22:name} 225 -270 2 0 0.266667 0.266667 {}
+L 3 230 -250 260 -250 {}
+B 5 257.5 -252.5 262.5 -247.5 {pinnumber=27
+pinseq=27
+name=(ADC4/SDA)\\ PC4
+dir=inout
+}
+T {@#23:pinnumber} 240 -255 2 1 0.266667 0.266667 {layer=13}
+T {@#23:name} 225 -250 2 0 0.266667 0.266667 {}
+L 3 230 -230 260 -230 {}
+B 5 257.5 -232.5 262.5 -227.5 {pinnumber=28
+pinseq=28
+name=(ADC5/SCL)\\ PC5
+dir=inout
+}
+T {@#24:pinnumber} 240 -235 2 1 0.266667 0.266667 {layer=13}
+T {@#24:name} 225 -230 2 0 0.266667 0.266667 {}

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>COMPONENT PROPERTY SYNTAX</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="symbol_property_syntax.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="creating_schematic.html" class="next">NEXT</a>
+ <!-- slide title -->
+ <h1>COMPONENT PROPERTY SYNTAX</h1><br>
+ <p>
+  Component property strings can be set in the usual way with the <kbd>'q'</kbd> on a selected
+  component instance or by menu <kbd>Properties&nbsp;--&gt;&nbsp;Edit</kbd>
+ </p> 
+ <img src="component_properties.png">
+ <p>
+  The dialog box allows to change the property string as well as the symbol reference. The property string
+  is essentially a list of <kbd>attribute=value</kbd> items. As with symbol properties if a <kbd>value</kbd>
+  has white space it should be double-quoted.
+  The following property definitions are identical:
+ </p>
+ <pre class=code>
+name=mchanged_name model=nmos w=20u l=3u m=10
+ </pre><br>
+ <pre class=code>
+name="mchanged_name" model="nmos" w="20u" l="3u" m="10"
+ </pre><br>
+ <p> 
+  Given the role of the <kbd>"</kbd> character, if quoted values are needed escapes must be used, like in 
+  the following example where the model name will be with quotes in netlist:
+ </p>
+ <pre class=code>
+name="mchanged_name" model="\"nmos\"" w="20u" l="3u" m="10"
+ </pre>
+ <p>or</p>
+ <pre class=code>
+name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
+ </pre>
+ <p>
+  the resulting SPICE netlist will be:<br>
+  <kbd>mchanged_name DRAIN GATE SOURCE BODY "nmos" w=20u l=3u m=10</kbd>
+ </p>
+ <p> 
+  There is no limit on the number of <kbd>attribute=value</kbd> items, each attribute should have a corresponding 
+  <kbd>@attribute</kbd> in the symbol definition format, but this is not a requirement. There are a number
+  of special attributes as we will see later.
+ </p>
+ <p class="important"> 
+  Important: a <kbd>name=&lt;inst_name&gt;</kbd> item is mandatory and must be placed  
+  in component property string to get a valid netlist, as this is the partname or so-called refdes (reference designator).
+  If <kbd>&lt;inst_name&gt;</kbd> is already used in another component XSCHEM will
+  auto-rename it to a unique name preserving the first letter (which ts a device type indicator
+  for SPICE like netlists).
+ </p>
+ <h3>PREDEFINED COMPONENT ATTRIBUTES</h3>
+ <ul>
+  <li><kbd>name</kbd></li>
+  <p> This defines the name of the instance. 
+    Names are unique, so if for example multiple MOS components are
+    placed in the design one should be named <kbd>m1</kbd> and the second <kbd>m2</kbd> or anything 
+    else, provided the names are different. XSCHEM enforces this, 
+    unless <kbd>Options -&gt; allow duplicated instance names</kbd> is set. If a name is given that already
+    exist in the current schematic it will be renamed. Normally the template string defines a default
+    name for a given component, and expecially for SPICE compatibility, the first character must NOT 
+    be changed. For example, the default name for a MOS transistor is <kbd>m1</kbd>, it can be renamed
+    for example to <kbd>mcurr_source</kbd> but not for example to <kbd>dcurr_source</kbd>. XSCHEM 
+    does not enforce that the first character is preserved, it's up to the designer to keep it 
+    consistent with the component type.</p>
+  <li><kbd>embed</kbd></li>
+  <p>
+   When the <kbd>embed=true</kbd> is set on a component instance
+   the corresponding symbol will be saved into the schematic (.sch) file on the next save operation.
+   This allows to distribute schematic files that contain the used symbols so these
+   will not depend on external library symbols.
+   When this attribute is set on a component instance, all instances in the schematic referring to the same 
+   symbol will use the embedded symbol definition.
+   When descending into an embedded symbol, any changes will be local, meaning that no library symbol
+   will be affected. The changes will be saved using the embedded tag (<kbd>[...]</kbd>) into the
+   schematic file.
+   Removing this attribute will revert to external symbols after saving and reloading the schematic file.
+
+  </p>
+  <li><kbd>url</kbd></li>
+  <p> This attribute defines a location (web page, file) that can be viewed when hitting the
+    <kbd>&lt;shift&gt;H</kbd> key (or <kbd>&lt;Alt&gt; left mouse buttoni</kbd>) on a selected component. 
+    This is very useful to link a datasheet to a
+    component, for example. The default program used to open the url is <kbd>xdg-open</kbd>. 
+    this can be changed in the <kbd>~/xschemrc</kbd> configuration file with the <kbd>launcher_default_program</kbd>
+    variable.
+    <kbd>url</kbd> can be an http link or a local file that has a default association known to xdg-open.</p>
+  <li><kbd>program</kbd></li>
+  <p> this attribute can be used to specify an application to be used to open the <kbd>url</kbd> link,
+      if the default application has to be changed or the file type is unknown.
+      for example <kbd>program=evince</kbd> may be given to specify an application for a pdf file
+      specified with <kbd>url</kbd></p>
+  <li><kbd>tclcommand</kbd></li>
+  <p> this can be any tcl statement (or group of statements separated by semicolons) including all xschem-specific
+      commands, the statement will be executed when pressing the <kbd>&lt;shift&gt;H</kbd> key 
+      (or <kbd>&lt;Alt&gt; left mouse button</kbd>) on the selected instance.
+      <br>The <kbd>tclcommand</kbd> and <kbd>url</kbd> properties are mutually exclusive.</p>
+  <img src="component_properties3.png">
+  <li><kbd>only_toplevel</kbd></li>
+  <p>this attribute is valid only on <kbd>netlist_commands</kbd> type symbols and specifies that the 
+    symbol should be netlisted only if it is instantiated in the top-most hierarchy. This is very usefull
+    for spice commands. Spice commands are placed in a special <kbd>netlist</kbd> component as we will see
+    and are meaningfull only when simulating the block, but should be skipped if the component
+    is simulated as part of a bigger system which has its own (at higher hierarchy level)
+    <kbd>netlist</kbd>component for Spice commands.</p>
+  <img src="component_properties0.png">
+  <li><kbd>lock</kbd></li>
+  <p> A <kbd>lock=true</kbd> attribute will make the symbol not editable. the only way to make it editable again is 
+      to right click on it to bring up the edit attributes dialog box and set to false. This is useful for title
+      symbols. </p>
+  <li><kbd>place</kbd></li>
+  <p> This 
+    <kbd>place=end</kbd> attribute is only valid only for <kbd>netlist_commands</kbd> type symbols, and tells
+    XSCHEM that this component must be netlisted last. This is necessary for some spice commands 
+    that need to be placed <b>after</b> the rest of the netlist.</p>
+  <li><kbd>spice_ignore</kbd></li>
+  <p> This tells XSCHEM that for SPICE netlist this component will be <b>completely</b> ignored.</p>
+  <li><kbd>verilog_ignore</kbd></li>
+  <p> This tells XSCHEM that for Verilog netlist this component will be <b>completely</b> ignored.</p>
+  <li><kbd>vhdl_ignore</kbd></li>
+  <p> This tells XSCHEM that for VHDL netlist this component will be <b>completely</b> ignored.</p>
+  <li><kbd>sig_type</kbd></li>
+  <p> For VHDL type netlist, this tells that the current label names a signal (or constant) of
+    type <kbd>sig_type</kbd>. For example a label can be placed with name <kbd>TEST</kbd> and 
+    <kbd>sig_type=BIT</kbd>. The default type for VHDL if this property is missing  is <kbd>std_logic</kbd>.
+    The following picture shows the usage of <kbd>sig_type</kbd> and the resulting VHDL netlist.
+    This property is applicable only to <kbd>label</kbd> type components: <kbd>ipin.sym</kbd>, 
+    <kbd>iopin.sym</kbd>, <kbd>opin.sym</kbd>, <kbd>lab_pin.sym</kbd>, <kbd>lab_wire.sym</kbd>.
+  </p>
+  <img src="component_properties1.png">
+  <li><kbd>verilog_type</kbd></li>
+  <p>This is the same as sig_type but for verilog netlisting: can be used to declare a <kbd>wire</kbd>
+     or a <kbd>reg</kbd> or any other datatype supported by the verilog language.
+  </p>
+  <li><kbd>generic_type</kbd></li>
+  <p><kbd>generic_type</kbd> defines the type of parameters passed to VHDL components.
+    Consider the following examples of placement of <kbd>generic_pin</kbd> components in a 
+    VHDL design: 
+  </p>
+  <img src="component_properties2.png">
+  <p> As you will see in the <a href="parameters.html">parameters</a> slide, generics (they are just
+    parameters passed to components) can be passed also via property strings in addition to using 
+    <kbd>generic_pin</kbd> components.</p>
+   
+  <li><kbd>class</kbd></li>
+  <p>The <kbd>class</kbd> attribute is used to declare the class of a VHDL signal, most used classes are
+    <kbd>signal</kbd> and <kbd>constant</kbd>. Default if missing is <kbd>signal</kbd>.</p>
+  <li><kbd>device_model</kbd></li>
+  <p>
+   This attribute contains a SPICE .model or .subckt specification (<kbd>device_model=".model D1N4148 D ...."</kbd>)
+   that will be printed at end of netlist only once for the specified component (D1N4148 in the example).
+   <kbd>device_model</kbd> attributes defined at instance level override the <kbd>device_model</kbd> set
+   in the symbol if any.
+  </p>
+
+  <li><kbd>pinnumber(name)</kbd></li>
+  <p> This will override at instance level the value of attribute <kbd>pinnumber</kbd> of pin <kbd>name</kbd> of the symbol.
+      This is mainly used for tedax, where by back annotation a connection to a symbol must be changed.</p>
+  <li><kbd>pinnumber(index)</kbd></li>
+  <p> This will override at instance level the value of attribute <kbd>pinnumber</kbd> of <kbd>index</kbd>th pin of the symbol.
+      This is mainly used for tedax, where by back annotation a connection to a symbol must be changed.
+      This notation is faster since xschem does not have to find a pin by string matching.</p>
+ </ul><br>
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

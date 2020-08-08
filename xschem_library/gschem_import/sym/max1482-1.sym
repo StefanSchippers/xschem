@@ -1,0 +1,102 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX1482
+template="device=MAX1482
+name=U?
+footprint=DIP14
+description=\\"1/8-unit-load, slew-rate-limited RS-485 transceiver\\"
+numslots=0
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1482-MAX1483.pdf
+GND=GND
+Vcc=Vcc
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND @Vcc"
+
+extra="GND Vcc"
+extra_pinnumber="6,7 14"
+}
+V {}
+S {}
+E {}
+T {@name} 230 -210 2 0 0.333333 0.333333 {}
+T {MAX1482} 30 -205 2 1 0.333333 0.333333 {}
+
+L 4 30 0 230 0 {}
+L 4 230 -200 230 0 {}
+L 4 30 -200 230 -200 {}
+L 4 30 -200 30 0 {}
+
+
+A 4 25 -180 5 0 360 {}
+
+
+
+
+
+L 3 230 -180 260 -180 {}
+B 5 257.5 -182.5 262.5 -177.5 {pinnumber=2
+pinseq=2
+name=RO
+dir=out
+}
+T {@#0:pinnumber} 240 -185 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 225 -180 2 0 0.266667 0.266667 {}
+L 3 0 -180 20 -180 {}
+B 5 -2.5 -182.5 2.5 -177.5 {pinnumber=3
+pinseq=3
+name=\_RE\_
+dir=in
+}
+T {@#1:pinnumber} 20 -185 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -180 2 1 0.266667 0.266667 {}
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=4
+pinseq=4
+name=DE
+dir=in
+}
+T {@#2:pinnumber} 20 -145 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -140 2 1 0.266667 0.266667 {}
+L 3 0 -100 30 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=5
+pinseq=5
+name=DI
+dir=in
+}
+T {@#3:pinnumber} 20 -105 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -100 2 1 0.266667 0.266667 {}
+L 3 230 -140 260 -140 {}
+B 5 257.5 -142.5 262.5 -137.5 {pinnumber=9
+pinseq=9
+name=Y
+dir=inout
+}
+T {@#4:pinnumber} 240 -145 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 225 -140 2 0 0.266667 0.266667 {}
+L 3 230 -100 260 -100 {}
+B 5 257.5 -102.5 262.5 -97.5 {pinnumber=10
+pinseq=10
+name=Z
+dir=inout
+}
+T {@#5:pinnumber} 240 -105 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 225 -100 2 0 0.266667 0.266667 {}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=11
+pinseq=11
+name=B
+dir=in
+}
+T {@#6:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -20 2 1 0.266667 0.266667 {}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=12
+pinseq=12
+name=A
+dir=in
+}
+T {@#7:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#7:name} 35 -60 2 1 0.266667 0.266667 {}

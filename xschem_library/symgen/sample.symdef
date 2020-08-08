@@ -1,0 +1,58 @@
+# This is a sample symbol definition for documenting djboxsym.  Some
+# of the pins have been intentionally mistyped in order to demonstrate
+# all combinations of flags.  DO NOT USE AS A CP2201 REFERENCE!
+
+[labels]
+
+SAMPLE
+refdes=U?
+DEMO ONLY
+! copryright=2006 DJ Delorie
+! author=DJ Delorie
+! uselicense=unlimited
+! distlicense=GPL
+! device=sample device
+! description=ethernet controller
+! footprint=QFN-28
+
+[left]
+24 ! CS
+.bus
+11  AD0
+12  AD1
+13  AD2
+14  AD3
+15  AD4
+16  AD4
+17  AD6
+18  AD7
+
+21 > ALE
+22 ! RD/(DS)
+23 !> WR/(R/!W)
+
+25 ! INT
+29 ! \_RESET\_
+[right]
+10 ! RST
+26 > MOTEN
+1 !> LA
+
+6 TX+
+7 TX-
+
+5 RX+
+4 RX-
+
+28 XTAL1
+27 XTAL2
+[top]
+3 AV+
+8 VDD1
+30 !> \_CLK\_
+19 VDD2
+
+[bottom]
+2 AGND
+9 DGND1
+20 DGND2

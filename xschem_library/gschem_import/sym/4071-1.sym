@@ -1,0 +1,63 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4071
+template="device=4071
+slot=1
+numslots=4
+name=U?
+footprint=DIP14
+description=\\"4 OR gates with 2 inputs\\"
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4071B_CNV_3.pdf
+VDD=VDD
+VSS=VSS
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VDD @VSS"
+
+extra="VDD VSS"
+extra_pinnumber="14 7"
+}
+V {}
+S {}
+E {}
+T {@name} 25 -70 2 1 0.333333 0.333333 {}
+T {4071} 80 -65 2 1 0.333333 0.333333 {}
+
+
+L 4 26.5 0 60 0 {}
+L 4 26.5 -60 60 -60 {}
+
+
+A 4 0 -30 40 312 96 {}
+A 4 60 -40 40 270 76 {}
+A 4 60 -20 40 14 76 {}
+
+
+
+
+L 3 0 -50 34.7 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {
+pinseq=1
+dir=in
+name=A
+pinnumber=1:5:8:12
+}
+T {@#0:pinnumber} 20 -55 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -10 34.7 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {
+pinseq=2
+dir=in
+name=B
+pinnumber=2:6:9:13
+}
+T {@#1:pinnumber} 20 -15 2 0 0.266667 0.266667 {layer=13}
+L 3 98.8 -30 120 -30 {}
+B 5 117.5 -32.5 122.5 -27.5 {
+pinseq=3
+dir=out
+name=Y
+pinnumber=3:4:10:11
+}
+T {@#2:pinnumber} 100 -35 2 1 0.266667 0.266667 {layer=13}

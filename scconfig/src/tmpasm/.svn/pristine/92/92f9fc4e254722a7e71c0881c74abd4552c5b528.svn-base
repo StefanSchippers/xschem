@@ -1,0 +1,6 @@
+error: Excess "end" at 3:4
+if {1} [at 1:8]
+then:
+ (NOP)
+else:
+ (NOP)

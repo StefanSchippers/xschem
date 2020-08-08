@@ -1,0 +1,102 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=ADG620
+template="device=ADG620
+numslots=0
+name=U?
+footprint=MSOP8
+description=\\"ADG620 CMOS 5 V/+5 V Single SPDT Switches \\"
+documentation=http://www.analog.com/UploadedFiles/Data_Sheets/36565145644741ADG619_20_a.pdf
+symversion=0.1
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="4 7"
+}
+V {}
+S {}
+E {}
+T {@name} 130 -160 2 0 0.333333 0.333333 {}
+T {ADG620} 30 -145 2 1 0.333333 0.333333 {}
+
+L 4 30 0 130 0 {}
+L 4 130 -140 130 0 {}
+L 4 30 -140 130 -140 {}
+L 4 30 -140 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinnumber=1
+pinseq=1
+name=D
+dir=inout
+}
+T {@#0:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -110 2 1 0.266667 0.266667 {}
+L 3 0 -80 30 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=2
+pinseq=2
+name=S1
+dir=inout
+}
+T {@#1:pinnumber} 20 -85 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -80 2 1 0.266667 0.266667 {}
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=3
+pinseq=3
+name=GND
+dir=inout
+}
+T {@#2:pinnumber} 20 -55 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -50 2 1 0.266667 0.266667 {}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=4
+pinseq=4
+name=Vdd
+dir=inout
+}
+T {@#3:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -20 2 1 0.266667 0.266667 {}
+L 3 130 -20 160 -20 {}
+B 5 157.5 -22.5 162.5 -17.5 {pinnumber=5
+pinseq=5
+name=NC
+dir=inout
+}
+T {@#4:pinnumber} 140 -25 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 125 -20 2 0 0.266667 0.266667 {}
+L 3 130 -50 160 -50 {}
+B 5 157.5 -52.5 162.5 -47.5 {pinnumber=6
+pinseq=6
+name=IN
+dir=in
+}
+T {@#5:pinnumber} 140 -55 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 125 -50 2 0 0.266667 0.266667 {}
+L 3 130 -80 160 -80 {}
+B 5 157.5 -82.5 162.5 -77.5 {pinnumber=7
+pinseq=7
+name=Vss
+dir=inout
+}
+T {@#6:pinnumber} 140 -85 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 125 -80 2 0 0.266667 0.266667 {}
+L 3 130 -110 160 -110 {}
+B 5 157.5 -112.5 162.5 -107.5 {pinnumber=8
+pinseq=8
+name=S2
+dir=inout
+}
+T {@#7:pinnumber} 140 -115 2 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 125 -110 2 0 0.266667 0.266667 {}

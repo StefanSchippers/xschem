@@ -1,0 +1,78 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX6674
+template="name=U?
+device=MAX6674
+description=\\"Cold-Junction-Compensated K-Thermocuple-to-Digital Converter (0'C to +128'C)\\"
+footprint=SO8
+numslots=0
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX667.pdf
+GND=GND
+Vcc=Vcc
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND @Vcc"
+
+extra="GND Vcc"
+extra_pinnumber="1 4"
+}
+V {}
+S {}
+E {}
+T {@name} 35 -165 2 1 0.333333 0.333333 {}
+T {MAX6674} 100 -10 1 1 0.333333 0.333333 {}
+
+L 4 30 0 110 0 {}
+L 4 110 -160 110 0 {}
+L 4 30 -160 110 -160 {}
+L 4 30 -160 30 0 {}
+
+
+A 4 25 -20 5.2 0 360 {}
+
+
+
+
+
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=2
+pinseq=1
+name=T-
+dir=in
+}
+T {@#0:pinnumber} 20 -145 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -140 2 1 0.266667 0.266667 {}
+L 3 0 -100 30 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=3
+pinseq=2
+name=T+
+dir=in
+}
+T {@#1:pinnumber} 20 -105 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -100 2 1 0.266667 0.266667 {}
+L 3 0 -20 20 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=6
+pinseq=3
+name=\_CS\_
+dir=in
+}
+T {@#2:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -20 2 1 0.266667 0.266667 {}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=5
+pinseq=4
+name=SCK
+dir=inout
+}
+T {@#3:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -60 2 1 0.266667 0.266667 {}
+L 3 110 -140 140 -140 {}
+B 5 137.5 -142.5 142.5 -137.5 {pinnumber=7
+pinseq=5
+name=SO
+dir=out
+}
+T {@#4:pinnumber} 120 -145 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 105 -140 2 0 0.266667 0.266667 {}

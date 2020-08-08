@@ -1,0 +1,65 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4066
+template="device=4066
+name=U?
+footprint=DIP14
+description=\\"4 bilateral switches\\"
+numslots=4
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4066B_CNV_3.pdf
+slot=1
+VDD=VDD
+VSS=VSS
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VDD @VSS"
+
+extra="VDD VSS"
+extra_pinnumber="14 7"
+}
+V {}
+S {}
+E {}
+T {@name} 130 -90 2 0 0.333333 0.333333 {}
+T {4066} 30 -85 2 1 0.266667 0.266667 {}
+
+L 4 30 0 130 0 {}
+L 4 130 -80 130 0 {}
+L 4 30 -80 130 -80 {}
+L 4 30 -80 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {
+pinseq=1
+name=Y
+dir=inout
+pinnumber=1:3:8:11
+}
+T {@#0:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -60 2 1 0.266667 0.266667 {}
+L 3 130 -60 160 -60 {}
+B 5 157.5 -62.5 162.5 -57.5 {
+pinseq=2
+name=Z
+dir=inout
+pinnumber=2:4:9:10
+}
+T {@#1:pinnumber} 140 -65 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 125 -60 2 0 0.266667 0.266667 {}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {
+pinseq=3
+name=EN
+dir=in
+pinnumber=13:5:6:12
+}
+T {@#2:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -20 2 1 0.266667 0.266667 {}

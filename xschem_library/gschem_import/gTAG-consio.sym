@@ -1,0 +1,50 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=none
+template="name=S?
+device=none
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {gTAG-consio} 212.333 -108.333 0 1 0.333333 0.333333 {}
+T {@name} 30 -210 2 1 0.333333 0.333333 {}
+
+L 4 30 0 290 0 {}
+L 4 290 -200 290 0 {}
+L 4 30 -200 290 -200 {}
+L 4 30 -200 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {name=usb_io+
+pinnumber=1
+pinseq=1
+dir=inout
+}
+T {@#0:name} 40 -110 2 1 0.333333 0.333333 {}
+L 3 0 -80 30 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=2
+pinseq=2
+name=usb_io-
+dir=inout
+}
+T {@#1:name} 40 -80 2 1 0.333333 0.333333 {}
+L 3 150 -230 150 -200 {}
+B 5 147.5 -232.5 152.5 -227.5 {name=usb_power
+pinnumber=3
+pinseq=3
+dir=inout
+}
+T {@#2:name} 100 -180 2 1 0.333333 0.333333 {}

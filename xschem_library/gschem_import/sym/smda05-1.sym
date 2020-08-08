@@ -1,0 +1,55 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=SMDA05
+template="device=SMDA05
+name=U?
+slot=1
+numslots=4
+footprint=SO8
+symversion=0.1
+documentation=http://www.semtech.com/pdf/tvs_sg.pdf
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 20 -50 2 1 0.333333 0.333333 {}
+T {slot=1} 20 -70 2 1 0.333333 0.333333 {}
+
+
+L 4 60 -40 60 0 {}
+L 4 30 -20 60 0 {}
+L 4 30 -20 60 -40 {}
+L 4 30 -40 30 0 {}
+L 4 20 -20 30 -20 {}
+L 4 60 -20 70 -20 {}
+L 4 27.5 -40 40 -40 {}
+L 4 20 0 30 0 {}
+L 4 27.5 -40 27.5 0 {}
+
+
+
+
+
+
+L 3 0 -20 20 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {
+pinseq=1
+name=1
+dir=inout
+pinnumber=1:2:3:4
+}
+T {@#0:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+L 3 70 -20 90 -20 {}
+B 5 87.5 -22.5 92.5 -17.5 {
+pinseq=2
+name=8
+dir=inout
+pinnumber=8:7:6:5
+}
+T {@#1:pinnumber} 80 -25 2 0 0.266667 0.266667 {layer=13}

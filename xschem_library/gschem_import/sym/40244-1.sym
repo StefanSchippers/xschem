@@ -1,0 +1,120 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=40244
+template="name=U?
+device=40244
+footprint=DIP20
+slot=1
+numslots=2
+description=\\"2 quad bus driver\\"
+documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF40244B_CNV_3.pdf
+VSS=VSS
+VDD=VDD
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VSS @VDD"
+
+extra="VSS VDD"
+extra_pinnumber="10 20"
+}
+V {}
+S {}
+E {}
+T {@name} 50 -280 2 0 0.333333 0.333333 {}
+T {40244} 30 -5 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 130 -30 {}
+L 4 130 -270 130 -30 {}
+L 4 30 -270 130 -270 {}
+L 4 30 -270 30 -30 {}
+
+
+A 4 25 -70 5 0 360 {}
+
+
+
+
+
+L 3 0 -70 20 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {
+pinseq=1
+name=\_OE\_
+dir=in
+pinnumber=1:19
+}
+T {@#0:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -70 2 1 0.266667 0.266667 {}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {
+pinseq=2
+name=D4
+dir=in
+pinnumber=8:17
+}
+T {@#1:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -110 2 1 0.266667 0.266667 {}
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {
+pinseq=3
+name=D3
+dir=in
+pinnumber=6:15
+}
+T {@#2:pinnumber} 20 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -150 2 1 0.266667 0.266667 {}
+L 3 0 -190 30 -190 {}
+B 5 -2.5 -192.5 2.5 -187.5 {
+pinseq=4
+name=D2
+dir=in
+pinnumber=4:13
+}
+T {@#3:pinnumber} 20 -195 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -190 2 1 0.266667 0.266667 {}
+L 3 0 -230 30 -230 {}
+B 5 -2.5 -232.5 2.5 -227.5 {
+pinseq=5
+name=D1
+dir=in
+pinnumber=2:11
+}
+T {@#4:pinnumber} 20 -235 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -230 2 1 0.266667 0.266667 {}
+L 3 130 -110 160 -110 {}
+B 5 157.5 -112.5 162.5 -107.5 {
+pinseq=6
+name=Q4
+dir=inout
+pinnumber=12:3
+}
+T {@#5:pinnumber} 140 -115 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 125 -110 2 0 0.266667 0.266667 {}
+L 3 130 -150 160 -150 {}
+B 5 157.5 -152.5 162.5 -147.5 {
+pinseq=7
+name=Q3
+dir=inout
+pinnumber=14:5
+}
+T {@#6:pinnumber} 140 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 125 -150 2 0 0.266667 0.266667 {}
+L 3 130 -190 160 -190 {}
+B 5 157.5 -192.5 162.5 -187.5 {
+pinseq=8
+name=Q2
+dir=inout
+pinnumber=16:7
+}
+T {@#7:pinnumber} 140 -195 2 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 125 -190 2 0 0.266667 0.266667 {}
+L 3 130 -230 160 -230 {}
+B 5 157.5 -232.5 162.5 -227.5 {
+pinseq=9
+name=Q1
+dir=inout
+pinnumber=18:9
+}
+T {@#8:pinnumber} 140 -235 2 1 0.266667 0.266667 {layer=13}
+T {@#8:name} 125 -230 2 0 0.266667 0.266667 {}

@@ -1,0 +1,56 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=photo-transistor
+type=PS2501-1
+template="device=PS2501-1
+name=Q?
+device=photo-transistor
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 26 -10 2 1 0.333333 0.333333 {}
+
+
+L 4 2 -21 6 -20 {}
+L 4 2 -21 5 -24 {}
+L 4 5 -24 6 -20 {}
+L 4 2 -14 6 -13 {}
+L 4 2 -14 5 -17 {}
+L 4 5 -17 6 -13 {}
+L 4 10 -30 10 -10 {}
+L 4 10 -17 20 -10 {}
+L 4 10 -23 20 -30 {}
+L 4 0 -26 4 -22 {}
+L 4 0 -26 0 -23 {}
+L 4 -4 -27 0 -23 {}
+L 4 0 -19 4 -15 {}
+L 4 0 -19 0 -16 {}
+L 4 -4 -20 0 -16 {}
+L 4 17 -14 20 -10 {}
+L 4 15 -11 17 -14 {}
+L 4 15 -11 20 -10 {}
+
+
+
+
+
+
+L 3 20 -40 20 -30 {}
+B 5 17.5 -42.5 22.5 -37.5 {pinnumber=1
+pinseq=1
+name=COLLECTOR
+dir=inout
+}
+L 3 20 -10 20 0 {}
+B 5 17.5 -2.5 22.5 2.5 {pinnumber=2
+pinseq=2
+name=EMITTER
+dir=inout
+}

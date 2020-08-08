@@ -1,0 +1,111 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4078
+template="name=U?
+device=4078
+footprint=DIP14
+description=\\"NOR gate with 8 inputs\\"
+numslots=0
+comment=\\"/Q is not available on all devices\\"
+VDD=VDD
+VSS=VSS
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VDD @VSS"
+
+extra="VDD VSS"
+extra_pinnumber="14 7"
+}
+V {}
+S {}
+E {}
+T {@name} 50 -200 2 1 0.333333 0.333333 {}
+T {4078} 40 -110 2 1 0.333333 0.333333 {}
+
+
+L 4 30 -320 30 -190 {}
+L 4 30 -190 65 -190 {}
+L 4 30 -130 65 -130 {}
+L 4 30 -130 30 0 {}
+
+A 4 100 -180 5 0 360 {}
+
+A 4 65 -175 45 270 71 {}
+A 4 65 -145 45 20 70 {}
+A 4 5 -160 39.5 310 100 {}
+
+
+
+
+L 3 0 -300 30 -300 {}
+B 5 -2.5 -302.5 2.5 -297.5 {pinnumber=2
+pinseq=1
+dir=in
+name=A
+}
+T {@#0:pinnumber} 20 -305 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -260 30 -260 {}
+B 5 -2.5 -262.5 2.5 -257.5 {pinnumber=3
+pinseq=2
+dir=in
+name=B
+}
+T {@#1:pinnumber} 20 -265 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -220 30 -220 {}
+B 5 -2.5 -222.5 2.5 -217.5 {pinnumber=4
+pinseq=3
+dir=in
+name=C
+}
+T {@#2:pinnumber} 20 -225 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -180 30 -180 {}
+B 5 -2.5 -182.5 2.5 -177.5 {pinnumber=5
+pinseq=4
+dir=in
+name=D
+}
+T {@#3:pinnumber} 20 -185 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=9
+pinseq=5
+dir=in
+name=E
+}
+T {@#4:pinnumber} 20 -145 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -100 30 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=10
+pinseq=6
+dir=in
+name=F
+}
+T {@#5:pinnumber} 20 -105 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=11
+pinseq=7
+dir=in
+name=G
+}
+T {@#6:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=12
+pinseq=8
+dir=in
+name=H
+}
+T {@#7:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+L 3 105 -180 130 -180 {}
+B 5 127.5 -182.5 132.5 -177.5 {pinnumber=13
+pinseq=9
+dir=out
+name=Q
+}
+T {@#8:pinnumber} 110 -185 2 1 0.266667 0.266667 {layer=13}
+L 3 95 -140 130 -140 {}
+B 5 127.5 -142.5 132.5 -137.5 {pinnumber=1
+pinseq=10
+dir=out
+name=/Q
+}
+T {@#9:pinnumber} 110 -145 2 1 0.266667 0.266667 {layer=13}

@@ -1,0 +1,34 @@
+
+unit n
+voltage 5
+slope 1
+format hspice_simple
+
+buswidth A 8 [ ]
+
+beginfile stimuli_greycnt.cir
+set VDD 5
+; set GND 0
+s 100
+set A 00
+s 100
+set A 01
+s 100
+set A 02
+s 100
+set A 03
+s 100
+set A 04
+s 100
+set A 05
+s 100
+set A 06
+s 100
+set A 07
+s 100
+
+
+
+endfile
+
+

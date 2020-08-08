@@ -1,0 +1,230 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=ATtiny28_DIP
+template="name=U?
+device=ATtiny28_DIP
+footprint=DIP28
+description=\\"8-bit RISC micro controller (Atmel)\\"
+numslots=0
+author=\\"Werner Hoch <werner.hoATgmx.de>\\"
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="7,20 8,22"
+}
+V {}
+S {}
+E {}
+T {@name} 240 -590 2 0 0.333333 0.333333 {}
+T {ATtiny28} 40 -585 2 1 0.333333 0.333333 {}
+
+L 4 40 -40 240 -40 {}
+L 4 240 -580 240 -40 {}
+L 4 40 -580 240 -580 {}
+L 4 40 -580 40 -40 {}
+
+
+A 4 35 -80 5 0 360 {}
+
+
+
+
+
+L 3 170 -40 170 -10 {}
+B 5 167.5 -12.5 172.5 -7.5 {pinnumber=10
+pinseq=1
+name=XTAL2
+dir=out
+}
+T {@#0:pinnumber} 175 -20 2 1 0.266667 0.266667 {layer=13}
+T {@#0:name} 147.333 -45 2 1 0.266667 0.266667 {}
+L 3 110 -40 110 -10 {}
+B 5 107.5 -12.5 112.5 -7.5 {pinnumber=9
+pinseq=2
+name=XTAL1
+dir=in
+}
+T {@#1:pinnumber} 115 -20 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 87.3333 -45 2 1 0.266667 0.266667 {}
+L 3 10 -80 30 -80 {}
+B 5 7.5 -82.5 12.5 -77.5 {pinnumber=1
+pinseq=3
+name=\_Reset\_
+dir=in
+}
+T {@#2:pinnumber} 30 -85 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 45 -80 2 1 0.266667 0.266667 {}
+L 3 10 -260 40 -260 {}
+B 5 7.5 -262.5 12.5 -257.5 {pinnumber=13
+pinseq=4
+name=PD7
+dir=inout
+}
+T {@#3:pinnumber} 30 -265 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 45 -260 2 1 0.266667 0.266667 {}
+L 3 10 -300 40 -300 {}
+B 5 7.5 -302.5 12.5 -297.5 {pinnumber=12
+pinseq=5
+name=PD6
+dir=inout
+}
+T {@#4:pinnumber} 30 -305 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 45 -300 2 1 0.266667 0.266667 {}
+L 3 10 -340 40 -340 {}
+B 5 7.5 -342.5 12.5 -337.5 {pinnumber=11
+pinseq=6
+name=PD5
+dir=inout
+}
+T {@#5:pinnumber} 30 -345 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 45 -340 2 1 0.266667 0.266667 {}
+L 3 10 -380 40 -380 {}
+B 5 7.5 -382.5 12.5 -377.5 {pinnumber=6
+pinseq=7
+name=PD4
+dir=inout
+}
+T {@#6:pinnumber} 30 -385 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 45 -380 2 1 0.266667 0.266667 {}
+L 3 10 -420 40 -420 {}
+B 5 7.5 -422.5 12.5 -417.5 {pinnumber=5
+pinseq=8
+name=PD3
+dir=inout
+}
+T {@#7:pinnumber} 30 -425 2 0 0.266667 0.266667 {layer=13}
+T {@#7:name} 45 -420 2 1 0.266667 0.266667 {}
+L 3 10 -460 40 -460 {}
+B 5 7.5 -462.5 12.5 -457.5 {pinnumber=4
+pinseq=9
+name=PD2
+dir=inout
+}
+T {@#8:pinnumber} 30 -465 2 0 0.266667 0.266667 {layer=13}
+T {@#8:name} 45 -460 2 1 0.266667 0.266667 {}
+L 3 10 -500 40 -500 {}
+B 5 7.5 -502.5 12.5 -497.5 {pinnumber=3
+pinseq=10
+name=PD1
+dir=inout
+}
+T {@#9:pinnumber} 30 -505 2 0 0.266667 0.266667 {layer=13}
+T {@#9:name} 45 -500 2 1 0.266667 0.266667 {}
+L 3 10 -540 40 -540 {}
+B 5 7.5 -542.5 12.5 -537.5 {pinnumber=2
+pinseq=11
+name=PD0
+dir=inout
+}
+T {@#10:pinnumber} 30 -545 2 0 0.266667 0.266667 {layer=13}
+T {@#10:name} 45 -540 2 1 0.266667 0.266667 {}
+L 3 10 -120 40 -120 {}
+B 5 7.5 -122.5 12.5 -117.5 {pinnumber=21
+pinseq=12
+name=NC.
+dir=inout
+}
+T {@#11:pinnumber} 30 -125 2 0 0.266667 0.266667 {layer=13}
+T {@#11:name} 45 -120 2 1 0.266667 0.266667 {}
+L 3 240 -80 270 -80 {}
+B 5 267.5 -82.5 272.5 -77.5 {pinnumber=24
+pinseq=13
+name=PB7
+dir=inout
+}
+T {@#12:pinnumber} 250 -85 2 1 0.266667 0.266667 {layer=13}
+T {@#12:name} 235 -80 2 0 0.266667 0.266667 {}
+L 3 240 -120 270 -120 {}
+B 5 267.5 -122.5 272.5 -117.5 {pinnumber=23
+pinseq=14
+name=PB6
+dir=inout
+}
+T {@#13:pinnumber} 250 -125 2 1 0.266667 0.266667 {layer=13}
+T {@#13:name} 235 -120 2 0 0.266667 0.266667 {}
+L 3 240 -160 270 -160 {}
+B 5 267.5 -162.5 272.5 -157.5 {pinnumber=19
+pinseq=15
+name=PB5
+dir=inout
+}
+T {@#14:pinnumber} 250 -165 2 1 0.266667 0.266667 {layer=13}
+T {@#14:name} 235 -160 2 0 0.266667 0.266667 {}
+L 3 240 -200 270 -200 {}
+B 5 267.5 -202.5 272.5 -197.5 {pinnumber=18
+pinseq=16
+name=(INT1)\\ PB4
+dir=inout
+}
+T {@#15:pinnumber} 250 -205 2 1 0.266667 0.266667 {layer=13}
+T {@#15:name} 235 -200 2 0 0.266667 0.266667 {}
+L 3 240 -240 270 -240 {}
+B 5 267.5 -242.5 272.5 -237.5 {pinnumber=17
+pinseq=17
+name=(INT0)\\ PB3
+dir=inout
+}
+T {@#16:pinnumber} 250 -245 2 1 0.266667 0.266667 {layer=13}
+T {@#16:name} 235 -240 2 0 0.266667 0.266667 {}
+L 3 240 -280 270 -280 {}
+B 5 267.5 -282.5 272.5 -277.5 {pinnumber=16
+pinseq=18
+name=(T0)\\ PB2
+dir=inout
+}
+T {@#17:pinnumber} 250 -285 2 1 0.266667 0.266667 {layer=13}
+T {@#17:name} 235 -280 2 0 0.266667 0.266667 {}
+L 3 240 -320 270 -320 {}
+B 5 267.5 -322.5 272.5 -317.5 {pinnumber=15
+pinseq=19
+name=(AIN1)\\ PB1
+dir=inout
+}
+T {@#18:pinnumber} 250 -325 2 1 0.266667 0.266667 {layer=13}
+T {@#18:name} 235 -320 2 0 0.266667 0.266667 {}
+L 3 240 -360 270 -360 {}
+B 5 267.5 -362.5 272.5 -357.5 {pinnumber=14
+pinseq=20
+name=(AIN0)\\ PB0
+dir=inout
+}
+T {@#19:pinnumber} 250 -365 2 1 0.266667 0.266667 {layer=13}
+T {@#19:name} 235 -360 2 0 0.266667 0.266667 {}
+L 3 240 -420 270 -420 {}
+B 5 267.5 -422.5 272.5 -417.5 {pinnumber=26
+pinseq=21
+name=PA3
+dir=inout
+}
+T {@#20:pinnumber} 250 -425 2 1 0.266667 0.266667 {layer=13}
+T {@#20:name} 235 -420 2 0 0.266667 0.266667 {}
+L 3 240 -460 270 -460 {}
+B 5 267.5 -462.5 272.5 -457.5 {pinnumber=25
+pinseq=22
+name=(IR)\\ PA2
+dir=inout
+}
+T {@#21:pinnumber} 250 -465 2 1 0.266667 0.266667 {layer=13}
+T {@#21:name} 235 -460 2 0 0.266667 0.266667 {}
+L 3 240 -500 270 -500 {}
+B 5 267.5 -502.5 272.5 -497.5 {pinnumber=27
+pinseq=23
+name=PA1
+dir=inout
+}
+T {@#22:pinnumber} 250 -505 2 1 0.266667 0.266667 {layer=13}
+T {@#22:name} 235 -500 2 0 0.266667 0.266667 {}
+L 3 240 -540 270 -540 {}
+B 5 267.5 -542.5 272.5 -537.5 {pinnumber=28
+pinseq=24
+name=PA0
+dir=inout
+}
+T {@#23:pinnumber} 250 -545 2 1 0.266667 0.266667 {layer=13}
+T {@#23:name} 235 -540 2 0 0.266667 0.266667 {}

@@ -1,0 +1,96 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=CONNECTOR_8
+template="name=CONN?
+device=CONNECTOR_8
+footprint=SIP8N
+author=\\"Leon Kos\\"
+description=\\"generic connector\\"
+numslots=0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 70 -370 2 0 0.333333 0.333333 {}
+
+L 4 30 0 70 0 {}
+L 4 70 -360 70 0 {}
+L 4 30 -360 70 -360 {}
+L 4 30 -360 30 0 {}
+
+
+A 4 25 -320 5 0 360 {}
+A 4 25 -280 5 0 360 {}
+A 4 25 -240 5 0 360 {}
+A 4 25 -200 5 0 360 {}
+A 4 25 -160 5 0 360 {}
+A 4 25 -120 5 0 360 {}
+A 4 25 -80 5 0 360 {}
+A 4 25 -40 5 0 360 {}
+
+
+
+
+
+L 3 0 -320 20 -320 {}
+B 5 -2.5 -322.5 2.5 -317.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:name} 35 -320 2 1 0.266667 0.266667 {}
+L 3 0 -280 20 -280 {}
+B 5 -2.5 -282.5 2.5 -277.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:name} 35 -280 2 1 0.266667 0.266667 {}
+L 3 0 -240 20 -240 {}
+B 5 -2.5 -242.5 2.5 -237.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#2:name} 35 -240 2 1 0.266667 0.266667 {}
+L 3 0 -200 20 -200 {}
+B 5 -2.5 -202.5 2.5 -197.5 {pinnumber=4
+pinseq=4
+name=4
+dir=inout
+}
+T {@#3:name} 35 -200 2 1 0.266667 0.266667 {}
+L 3 0 -160 20 -160 {}
+B 5 -2.5 -162.5 2.5 -157.5 {pinnumber=5
+pinseq=5
+name=5
+dir=inout
+}
+T {@#4:name} 35 -160 2 1 0.266667 0.266667 {}
+L 3 0 -120 20 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=6
+pinseq=6
+name=6
+dir=inout
+}
+T {@#5:name} 35 -120 2 1 0.266667 0.266667 {}
+L 3 0 -80 20 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=7
+pinseq=7
+name=7
+dir=inout
+}
+T {@#6:name} 35 -80 2 1 0.266667 0.266667 {}
+L 3 0 -40 20 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinnumber=8
+pinseq=8
+name=8
+dir=inout
+}
+T {@#7:name} 35 -40 2 1 0.266667 0.266667 {}

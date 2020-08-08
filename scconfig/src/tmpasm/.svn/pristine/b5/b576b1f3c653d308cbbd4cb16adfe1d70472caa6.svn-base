@@ -1,0 +1,36 @@
+put [at 4:1]
+ arg: myvar
+ arg: {Hello world!
+}
+print [at 7:1]
+ arg: myvar
+print [at 11:1]
+ arg: {Hello universe! }
+ arg: myvar
+put [at 15:1]
+ arg: str
+ arg: {cats raining from the sky}
+put [at 16:1]
+ arg: tmp
+ arg: str
+print [at 17:1]
+ arg: str
+ arg: {==}
+ arg: tmp
+ arg: {
+}
+print [at 21:1]
+ arg: {safe get: '}
+ arg: ?nonexist
+ arg: {'
+}
+print [at 25:1]
+ arg: {exists (no):  }
+ arg: &nonexist
+ arg: {
+}
+print [at 26:1]
+ arg: {exists (yes): }
+ arg: &myvar
+ arg: {
+}

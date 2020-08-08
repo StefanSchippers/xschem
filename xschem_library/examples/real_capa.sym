@@ -1,0 +1,23 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1 cap=10.0"
+generic_type="cap=real"
+}
+V {}
+S {}
+E {}
+L 4 0 5 0 30 {}
+L 4 0 -30 0 -5 {}
+L 4 -10 -5 10 -5 {}
+L 4 -10 5 10 5 {}
+L 4 2.5 -22.5 7.5 -22.5 {}
+L 4 5 -25 5 -20 {}
+L 4 -5 30 5 30 {}
+L 4 0 35 5 30 {}
+L 4 -5 30 0 35 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=USC sig_type=rreal verilog_type=wire dir=inout }
+T {@symname} 14.5 -6 0 0 0.3 0.3 {}
+T {@name} 15 -17 0 0 0.2 0.2 {}
+T {USC} -5 -24 0 1 0.2 0.2 {}
+T {@cap pF} 14.5 14 0 0 0.3 0.3 {}

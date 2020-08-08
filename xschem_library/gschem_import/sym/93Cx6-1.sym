@@ -1,0 +1,85 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=93Cx6
+template="device=93Cx6
+name=U?
+footprint=DIP8
+description=\\"256 Bit/1k 5V cmos serial eeprom\\"
+numslots=0
+author=\\"Werner Hoch <werner.hoATgmx.de>\\"
+VCC=VCC
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VCC @GND"
+
+extra="VCC GND"
+extra_pinnumber="8 5"
+}
+V {}
+S {}
+E {}
+T {@name} 100 -100 2 1 0.333333 0.333333 {}
+T {93Cx6} 30 -95 2 1 0.266667 0.266667 {}
+
+L 4 30 0 100 0 {}
+L 4 100 -90 100 0 {}
+L 4 30 -90 100 -90 {}
+L 4 30 -90 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {pinnumber=1
+pinseq=1
+name=CS
+dir=in
+}
+T {@#0:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -70 2 1 0.266667 0.266667 {}
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=2
+pinseq=2
+name=SK
+dir=in
+}
+T {@#1:pinnumber} 20 -55 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -50 2 1 0.266667 0.266667 {}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {pinnumber=3
+pinseq=3
+name=DI
+dir=in
+}
+T {@#2:pinnumber} 20 -35 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -30 2 1 0.266667 0.266667 {}
+L 3 0 -10 30 -10 {}
+B 5 -2.5 -12.5 2.5 -7.5 {pinnumber=4
+pinseq=4
+name=DO
+dir=inout
+}
+T {@#3:pinnumber} 20 -15 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -10 2 1 0.266667 0.266667 {}
+L 3 100 -30 130 -30 {}
+B 5 127.5 -32.5 132.5 -27.5 {pinnumber=6
+pinseq=6
+name=n/c
+dir=inout
+}
+T {@#4:pinnumber} 110 -35 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 95 -30 2 0 0.266667 0.266667 {}
+L 3 100 -50 130 -50 {}
+B 5 127.5 -52.5 132.5 -47.5 {pinnumber=7
+pinseq=7
+name=n/c
+dir=inout
+}
+T {@#5:pinnumber} 110 -55 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 95 -50 2 0 0.266667 0.266667 {}

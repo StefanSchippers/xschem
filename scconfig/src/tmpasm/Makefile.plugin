@@ -1,0 +1,16 @@
+TMPASM_OBJS = \
+  $(BIN)/tmpasm/tmpasm.o \
+  $(BIN)/tmpasm/tmpasm_scconfig.o \
+  $(BIN)/tmpasm/openfiles.o
+
+TMPASM_CFLAGS = -I$(SRC)/tmpasm
+
+$(BIN)/tmpasm/tmpasm.o: $(SRC)/tmpasm/tmpasm.c $(SRC)/tmpasm/tmpasm.h $(SRC)/default/dep.h $(SRC)/default/log.h $(SRC)/default/regex.h
+	$(CC) $(CFLAGS) -c $(SRC)/tmpasm/tmpasm.c -o $(BIN)/tmpasm/tmpasm.o
+
+$(BIN)/tmpasm/tmpasm_scconfig.o: $(SRC)/tmpasm/tmpasm_scconfig.c $(SRC)/tmpasm/tmpasm.h $(SRC)/default/libs.h $(SRC)/default/log.h $(SRC)/default/regex.h
+	$(CC) $(CFLAGS) -c $(SRC)/tmpasm/tmpasm_scconfig.c -o $(BIN)/tmpasm/tmpasm_scconfig.o
+
+$(BIN)/tmpasm/openfiles.o: $(SRC)/tmpasm/openfiles.c
+	$(CC) $(CFLAGS) -c $(SRC)/tmpasm/openfiles.c -o $(BIN)/tmpasm/openfiles.o
+

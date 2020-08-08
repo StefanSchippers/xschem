@@ -1,0 +1,35 @@
+# The only loop tmpasm implements is a foreach that iterates on a list.
+# How the list is split into items is up to the environment. In scconfig
+# the list is white space separated by default. The word following foreach
+# must be the name of a variable (that will be set to the next item before
+# each iteration). The word after "in" is data (string, variable, block).
+
+foreach item in {this is a list of words}
+	print item {\n}
+end
+
+# Like any other control, foreach can be nested. The following
+# example will iterate item on foo, bar and baz, printing 3 words
+# for each from a block: {next:}, the item and a newline. The newline
+# is specified as a vairable since \ escaping does not work in blocks.
+put nl {\n}
+foreach item in {foo bar baz}
+	foreach w in [@next: @item@@nl@@]
+		print w
+	end
+end
+
+# Foreach makes a copy of the list before the first iteration. This
+# is relevant if the list is a variable that may change during the
+# loop. The following exmaple takes a list of libs and if -lsdl is
+# present on the list, appends -lsvga to the list and inserts -lm;
+# these changes to "libs" will not alter the loop.
+put libs {-lsdl -ltcl8.4}
+foreach l in libs
+	print {l=} l {\n}
+	switch l
+		case {^-lsdl}   put libs [@-lm @libs@ -lsvga@]; end
+	end
+end
+print {libs=} libs {\n}
+

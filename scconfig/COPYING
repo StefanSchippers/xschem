@@ -1,0 +1,7 @@
+Most source files are under the LGPL with a very few exceptions: the regex
+library is public domain. The explicit copyright banner can be found in each
+source file should be considered. For files not having the banner, assume
+Copyright (C) 2009..2019 Tibor Palinkas and license GNU LGPL2 (or
+later versions of the GNU LGPL).
+
+

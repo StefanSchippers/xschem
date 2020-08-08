@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM TUTORIAL: CREATE SYMBOL</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="xschem_man.html" class="home">UP</a>
+
+ <!-- slide title -->
+ <h1> TUTORIAL: CREATE AN XSCHEM SYMBOL </h1>
+ <p>
+  In this tutorial we will build a 4011 CMOS quad 2-input NAND symbol.
+  This IC has 4 nand gates (3 pins each, total 4*3=12 pins + VDD,VSS power pins)
+  This device comes in a dual in line 14 pin package.<br>
+  <img src="tutorial_create_symbol_000.png"> 
+  <img src="tutorial_create_symbol_001.png"> 
+ </p>
+ <ol>
+
+ <li>
+  Start xschem giving <kbd> 4011-1.sym</kbd> as filename:<br>
+  <img src="tutorial_create_symbol_00.png"> 
+ </li>
+
+ <li> 
+  use layer 4 (the default) to draw the following shapes, use <kbd>l</kbd> to draw lines
+  and use <kbd>Shift-c</kbd> to draw arcs, use <kbd>Ctrl-Shift-c</kbd> to draw circles.
+  Arcs and circles are drawn by specifying start - end point and a 3rd way point.
+  You will need to change the grid snap to '5' for drawing the smallest objects
+  using the <kbd>g</kbd> key. Be sure to restore the grid snap to the default value
+  with <kbd>Shift-g</kbd> as soon as you are done. Also ensure that the gate terminals 
+  are on grid with the default '10' snap setting.
+  Use the <kbd>m</kbd> key after selecting objects to move them around.
+  <br>
+  <img src="tutorial_create_symbol_01.png"> 
+  <p class="important"> Do <b>NOT</b> forget to reset the grid setting to the default (10) value
+     as soon as you finished drawing small objects, otherwise the rest of the objects will be all
+     off grid making the symbol unusable</p><br>
+ </li>
+
+
+
+ <li>
+  Create pins, select layer 5 from the <kbd>Layers</kbd> menu.
+  Set grid snap to 2.5 to allow drawing small rectangles centered on gate terminals.
+  Start from the 'A' input of the nand gate (we assume A to be the left-top input), then
+  the 'B' input (the lower left input terminal), then the 'Z' output (the right terminal).
+  If you click and hold the mouse selecting the rectangles the 'w' and 'h' dimensions are shown. 
+  They should be equal to 5. remember to reset the grid to default 10 when done. <br>
+ </li>
+  <img src="tutorial_create_symbol_02.png"> 
+ 
+ <li>
+  Now when <b>no object is selected</b> press <kbd>q</kbd> to edit the symbol global attributes. Type the following
+  text: <br><br>
+  <pre class="code">
+type=nand
+tedax_format="footprint @name @footprint
+device @name @device"
+template="name=U1 device=CD4011B footprint=\"dip(14)\" numslots=4 power=VCC ground=GND"
+extra="power ground"
+extra_pinnumber="14 7"
+  </pre><br>
+  <p class="important">Instead of the <kbd>q</kbd> key the attribute dialog box can also be displayed
+  by pressing the <kbd>right</kbd> mouse button</p><br>
+
+  these attributes specify the gate type, the format for tedax netlist, the <kbd>template</kbd> attribute
+  specifies default values for attributes and defines pin connection for VDD and VSS that are
+  associated to package pins 14 and 7. The <kbd>device</kbd> attribute specifies the component name
+  to be used in the tEDAx netlist (this is usually the name of the IC as shown in the datasheet).
+  The <kbd>extra</kbd>  and <kbd>extra_pinnumber</kbd> attributes specify extra pin connections that are
+  implicit, not drawn on the symbol. This is one of the possible styles to handle power connections on 
+  slotted devices.<br>
+  <img src="tutorial_create_symbol_03.png"> 
+ </li>
+
+ <li>
+  Press the <kbd>t</kbd> to place some text; set text v and h size to 0.2 and write <kbd>@name</kbd>; 
+  this will be replaced with the instance name (aka refdes) when using the symbol in a schematic.
+  Place a similar string with text <kbd>@symname</kbd> and place it under the @name string.<br>
+  <img src="tutorial_create_symbol_04.png"> 
+ </li>
+
+ <li>
+  select the red pins (click the mouse close to the interior side of the rectangle corners) 
+  and press <kbd>q</kbd>, set attribute <br>
+  <kbd>name=A dir=in pinnumber=1:5:8:12</kbd> for the upper left pin, 
+  <kbd>name=B dir=in pinnumber=2:6:9:13</kbd> for the lower
+  left pin, <kbd>name=Z dir=out pinnumber=3:4:10:11</kbd> 
+  for the right output pin. As you can see pin numbers 7 and 14 are missing from the list of pins; they 
+  used for VSS and VDD power supplies, which are implicit (no explicit pins).
+  Since we are creating a slotted device (an IC containing 4 identical nand gates) the 
+  <kbd>pinnumber</kbd> attribute for each pin specifies the pin number for each slot, so the 
+  following: <kbd>name=A dir=in pinnumber=1:5:8:12</kbd> specifies that pin A of the nand gate is connected 
+  to package pin 1 for nand slot 1, to package pin 5 for nand slot 2 and so on.i
+  The <kbd>dir</kbd> attribute specifies the direction of the pin; XSCHEM supports 
+  <kbd>in</kbd>, <kbd>out</kbd> and <kbd>inout</kbd> types. These attributes are used mainly for
+  digital simulators (Verilog and VHDL), but specifying pin direction is good practice anyway.<br>
+  <img src="tutorial_create_symbol_05.png"> 
+  <p class="important">Instead of the <kbd>q</kbd> key the attribute dialog box can also be displayed
+  by placing the mouse pointer over the pin object and pressing the <kbd>right</kbd> mouse button</p><br>
+ </li>
+
+ <li>
+  We want now to place some text near the gate pins to display the pin number: again, use the <kbd>t</kbd> key
+  and place the following text, with hsize and vsize set to 0.2:<br>
+  <img src="tutorial_create_symbol_06.png"> <br>
+  The complicated syntax of these text labels has the following meaning:<br>
+  <ul>
+   <li> The <kbd>@</kbd> is the variable expansion (macro) identifier, as usual.</li>
+   <li> The <kbd>#0</kbd> specifies pin with index 0, this is the first pin we have created, the upper left
+        nand input. The index of a pin can be viewed by selecting the pin and pressing 
+        <kbd>Shift-s</kbd>.</li>
+   <li> The <kbd>pinnumber</kbd> specifies the attribute we want to be substituted with the actual value
+        when placing the gate in a schematic as we will see shortly.</li>
+  </ul><br>
+  
+ </li>
+
+ <li> 
+  There is another syntax that can be used to display pin numbers, instead of specifying the pin index
+  in XSCHEM list (that reflects the creation order) you can reference pins by their name;
+  The only reason to use the previous syntax with pin index numbers is efficiency when dealing with
+  extremely big symbols (SoC or similar high pin count chips).<br>
+  <img src="tutorial_create_symbol_07.png"> 
+  
+ <li>
+  The symbol is now complete; save it and close XSCHEM. Now open again xschem with an empty schematic,
+  for example <kbd>xschem test.sch</kbd>. Press the <kbd>Insert</kbd> key and place the 4011-1 symbol:<br>
+  <img src="tutorial_create_symbol_08.png"> <br>
+  We see that all pin numbers are shown for each pin; this reminds us that this is a slotted device!
+  slotted devices should specify the slot number in the instance <kbd>name</kbd> so, select the component, press
+  <kbd>q</kbd> and change the <kbd>U1</kbd> name attribute to <kbd>U1:1</kbd>.
+  You can also remove the <kbd>.sym</kbd> extension in the 'Symbol' entry of the dialog box, 
+  for more compactness:<br>
+  <img src="tutorial_create_symbol_09.png"> <br>
+  As you can see now the slot is resolved and the right pin numbers are displayed.
+  Now select and copy the component (use the <kbd>c</kbd> key), and change the <kbd>name</kbd>
+  attribute of the new copy to <kbd>U1:3</kbd>:<br>
+  <img src="tutorial_create_symbol_10.png"> <br>
+ </li>
+
+ <li>
+  Now draw some wires, for example to create an SR latch as shown, use the <kbd>w</kbd> key 
+  to draw wires; when done with the wiring insert a net label by pressing the <kbd>Insert</kbd>
+  key and navigating to <kbd>.../share/xschem/xschem_library/devices</kbd> (the XSCHEM system 
+  symbol library) and selecting <kbd>lab_pin</kbd>:<br>
+  <img src="tutorial_create_symbol_11.png"> <br>
+  Place 4 of these <kbd>lab_pin</kbd> symbols and set their <kbd>lab</kbd> attribute 
+  to <kbd>S_, R_, Q, Q_</kbd> respectively; 
+  place the 4 labels as shown (use the <kbd>Shift-f</kbd> key to flip the <kbd>Q, Q_</kbd> labels):<br>
+  <img src="tutorial_create_symbol_12.png"> <br>
+ </li>
+ 
+ <li> 
+  The test circuit for this tutorial is now complete: its time to extract the tEDAx netlist;
+  press the <kbd>Shift-A</kbd> key to enable showing the netlist window, press 
+  <kbd>Shift-v</kbd> multiple times to set the netlisting mode as shown in the bottom status bar
+  to <kbd>tedax</kbd>, and finally press the <kbd>Netlist</kbd> button located in the top-right
+  region of the window: <br>
+  <img src="tutorial_create_symbol_13.png"> <br>
+  This is the resulting netlist you should get:<br><br>
+  <pre class="code">
+tEDAx v1
+begin netlist v1 test
+conn Q U1 8
+pinslot U1 8 3
+pinidx U1 8 1
+pinname U1 8 A
+conn R_ U1 9
+pinslot U1 9 3
+pinidx U1 9 2
+pinname U1 9 B
+conn S_ U1 1
+pinslot U1 1 1
+pinidx U1 1 1
+pinname U1 1 A
+conn Q_ U1 10
+pinslot U1 10 3
+pinidx U1 10 3
+pinname U1 10 Z
+conn Q_ U1 2
+pinslot U1 2 1
+pinidx U1 2 2
+pinname U1 2 B
+pinslot U1 11 4
+pinidx U1 11 3
+pinname U1 11 Z
+conn Q U1 3
+pinslot U1 3 1
+pinidx U1 3 3
+pinname U1 3 Z
+pinslot U1 4 2
+pinidx U1 4 3
+pinname U1 4 Z
+pinslot U1 12 4
+pinidx U1 12 1
+pinname U1 12 A
+pinslot U1 13 4
+pinidx U1 13 2
+pinname U1 13 B
+pinslot U1 5 2
+pinidx U1 5 1
+pinname U1 5 A
+conn VCC U1 14
+pinname U1 14 power
+pinslot U1 6 2
+pinidx U1 6 2
+pinname U1 6 B
+conn GND U1 7
+pinname U1 7 ground
+footprint U1 dip(14)
+device U1 CD4011B
+end netlist
+  </pre>
+ </li>
+
+ <p>
+  This concludes the tutorial; of course this is not a complete circuit, connectors
+  are missing among other things, 
+  but the basics of creating a new component should now be less obscure.
+ </p>
+
+ </ol>
+ <br>
+ <br>
+ <br>
+
+
+
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

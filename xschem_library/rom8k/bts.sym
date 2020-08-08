@@ -1,0 +1,23 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=subcircuit
+format="@name @pinlist @VCCPIN @VSSPIN @symname"
+template="name=x1 m=1 VCCPIN=VCC VSSPIN=VSS"
+extra="VCCPIN VSSPIN"
+generic_type="m=integer VCCPIN=string VSSPIN=string"
+verilog_stop=true
+}
+V {}
+S {}
+E {}
+L 4 -40 0 -25 0 {}
+L 4 -25 -20 -25 20 {}
+L 4 -25 -20 25 0 {}
+L 4 -25 20 25 0 {}
+L 4 25 0 40 0 {}
+L 4 -40 -30 0 -30 {}
+L 4 0 -30 0 -10 {}
+B 5 37.5 -2.5 42.5 2.5 {name=Z dir=out}
+B 5 -42.5 -2.5 -37.5 2.5 {name=A dir=in}
+B 5 -42.5 -32.5 -37.5 -27.5 {name=E dir=in}
+T {@name} -23.75 -5 0 0 0.2 0.2 {}
+T {@symname} 1.25 -32.5 0 0 0.2 0.2 {}

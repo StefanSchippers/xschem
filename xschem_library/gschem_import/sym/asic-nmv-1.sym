@@ -1,0 +1,69 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=NMOS_TRANSISTOR
+template="device=NMOS_TRANSISTOR
+name=M?
+model-name=nmv
+w=10u
+l=3u
+description=\\"medium voltage NMOS\\"
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 80 -80 2 1 0.333333 0.333333 {}
+T {@model-name} 80 -60 2 1 0.266667 0.266667 {}
+T {w=10u} 80 -30 2 1 0.266667 0.266667 {}
+T {l=3u} 80 -10 2 1 0.266667 0.266667 {}
+
+L 4 25 -35 30 -35 {}
+L 4 30 -65 30 -35 {}
+L 4 25 -65 30 -65 {}
+L 4 25 -65 25 -35 {}
+L 4 35 -65 50 -65 {}
+L 4 50 -70 50 -65 {}
+L 4 35 -70 50 -70 {}
+L 4 35 -70 35 -65 {}
+
+L 4 35 -75 35 -25 {}
+L 4 35 -30 60 -30 {}
+L 4 35 -50 60 -50 {}
+L 4 35 -50 45 -55 {}
+L 4 35 -50 45 -45 {}
+L 4 50 -70 60 -70 {}
+
+
+
+
+
+
+L 3 60 -100 60 -70 {}
+B 5 57.5 -102.5 62.5 -97.5 {pinnumber=D
+pinseq=1
+name=D
+dir=inout
+}
+L 3 0 -50 25 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=G
+pinseq=2
+name=G
+dir=inout
+}
+L 3 60 -30 60 0 {}
+B 5 57.5 -2.5 62.5 2.5 {pinnumber=S
+pinseq=3
+name=S
+dir=inout
+}
+L 3 60 -50 70 -50 {}
+B 5 67.5 -52.5 72.5 -47.5 {pinnumber=B
+pinseq=4
+name=B
+dir=inout
+}

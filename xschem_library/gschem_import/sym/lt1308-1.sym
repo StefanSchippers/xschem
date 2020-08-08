@@ -1,0 +1,96 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=LT1308
+template="name=U?
+device=LT1308
+pins=8
+class=IC
+footprint=SO8
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {LT1308} 164 -178.333 0 1 0.333333 0.333333 {}
+T {@name} 20 -320 2 1 0.333333 0.333333 {}
+
+L 4 20 -20 230 -20 {}
+L 4 230 -290 230 -20 {}
+L 4 20 -290 230 -290 {}
+L 4 20 -290 20 -20 {}
+
+
+
+
+
+
+
+L 3 80 -20 80 0 {}
+B 5 77.5 -2.5 82.5 2.5 {pinnumber=1
+pinseq=1
+name=Vc
+dir=inout
+}
+T {@#0:pinnumber} 87.5 -2.5 2 1 0.333333 0.333333 {layer=13}
+T {@#0:name} 68.6667 -30 2 1 0.333333 0.333333 {}
+L 3 230 -120 250 -120 {}
+B 5 247.5 -122.5 252.5 -117.5 {pinnumber=2
+pinseq=2
+name=FB
+dir=inout
+}
+T {@#1:pinnumber} 237.5 -125 2 1 0.333333 0.333333 {layer=13}
+T {@#1:name} 220 -128.333 0 1 0.333333 0.333333 {}
+L 3 0 -120 20 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=3
+pinseq=3
+name=_SHDN
+dir=inout
+}
+T {@#2:pinnumber} 7.5 -125 2 1 0.333333 0.333333 {layer=13}
+T {@#2:name} 30 -128.333 0 0 0.333333 0.333333 {}
+L 3 170 -20 170 0 {}
+B 5 167.5 -2.5 172.5 2.5 {pinnumber=4
+pinseq=4
+name=GND
+dir=inout
+}
+T {@#3:pinnumber} 175 -2.5 2 1 0.333333 0.333333 {layer=13}
+T {@#3:name} 153 -27.5 2 1 0.333333 0.333333 {}
+L 3 170 -310 170 -290 {}
+B 5 167.5 -312.5 172.5 -307.5 {pinnumber=5
+pinseq=5
+name=SW
+dir=inout
+}
+T {@#4:pinnumber} 157.5 -295 2 1 0.333333 0.333333 {layer=13}
+T {@#4:name} 158.667 -280 0 0 0.333333 0.333333 {}
+L 3 80 -310 80 -290 {}
+B 5 77.5 -312.5 82.5 -307.5 {pinnumber=6
+pinseq=6
+name=Vin
+dir=inout
+}
+T {@#5:pinnumber} 67.5 -295 2 1 0.333333 0.333333 {layer=13}
+T {@#5:name} 63 -280 0 0 0.333333 0.333333 {}
+L 3 0 -240 20 -240 {}
+B 5 -2.5 -242.5 2.5 -237.5 {pinnumber=7
+pinseq=7
+name=LBI
+dir=inout
+}
+T {@#6:pinnumber} 7.5 -245 2 1 0.333333 0.333333 {layer=13}
+T {@#6:name} 30 -248.333 0 0 0.333333 0.333333 {}
+L 3 230 -240 250 -240 {}
+B 5 247.5 -242.5 252.5 -237.5 {pinnumber=8
+pinseq=8
+name=LBO
+dir=inout
+}
+T {@#7:pinnumber} 237.5 -245 2 1 0.333333 0.333333 {layer=13}
+T {@#7:name} 220 -231.667 2 0 0.333333 0.333333 {}

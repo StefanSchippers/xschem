@@ -1,0 +1,210 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=SmartMedia
+template="device=SmartMedia
+name=CONN?
+footprint=DIP22
+numslots=0
+symversion=1.1
+description=\\"smart media connector\\"
+documentation=http://www.iodata.com/catalogs/sm_1.pdf
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 180 -470 2 0 0.333333 0.333333 {}
+T {SmartMedia} 30 -5 2 1 0.333333 0.333333 {}
+
+L 4 30 -20 180 -20 {}
+L 4 180 -460 180 -20 {}
+L 4 30 -460 180 -460 {}
+L 4 30 -460 30 -20 {}
+
+
+
+
+
+
+
+L 3 0 -440 30 -440 {}
+B 5 -2.5 -442.5 2.5 -437.5 {pinnumber=1
+pinseq=1
+name=Vss
+dir=inout
+}
+T {@#0:pinnumber} 20 -445 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -440 2 1 0.266667 0.266667 {}
+L 3 0 -400 30 -400 {}
+B 5 -2.5 -402.5 2.5 -397.5 {pinnumber=2
+pinseq=2
+name=CLE
+dir=in
+}
+T {@#1:pinnumber} 20 -405 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -400 2 1 0.266667 0.266667 {}
+L 3 0 -360 30 -360 {}
+B 5 -2.5 -362.5 2.5 -357.5 {pinnumber=3
+pinseq=3
+dir=in
+name=ALE
+}
+T {@#2:pinnumber} 20 -365 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -360 2 1 0.266667 0.266667 {}
+L 3 0 -320 30 -320 {}
+B 5 -2.5 -322.5 2.5 -317.5 {pinnumber=4
+pinseq=4
+name=\_WE\_
+dir=in
+}
+T {@#3:pinnumber} 20 -325 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -320 2 1 0.266667 0.266667 {}
+L 3 0 -280 30 -280 {}
+B 5 -2.5 -282.5 2.5 -277.5 {pinnumber=5
+pinseq=5
+name=\_WP\_
+dir=in
+}
+T {@#4:pinnumber} 20 -285 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -280 2 1 0.266667 0.266667 {}
+L 3 0 -240 30 -240 {}
+B 5 -2.5 -242.5 2.5 -237.5 {pinnumber=6
+pinseq=6
+name=IO0
+dir=inout
+}
+T {@#5:pinnumber} 20 -245 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -240 2 1 0.266667 0.266667 {}
+L 3 0 -200 30 -200 {}
+B 5 -2.5 -202.5 2.5 -197.5 {pinnumber=7
+pinseq=7
+name=IO1
+dir=inout
+}
+T {@#6:pinnumber} 20 -205 2 0 0.266667 0.266667 {layer=13}
+T {@#6:name} 35 -200 2 1 0.266667 0.266667 {}
+L 3 0 -160 30 -160 {}
+B 5 -2.5 -162.5 2.5 -157.5 {pinnumber=8
+pinseq=8
+name=IO2
+dir=inout
+}
+T {@#7:pinnumber} 20 -165 2 0 0.266667 0.266667 {layer=13}
+T {@#7:name} 35 -160 2 1 0.266667 0.266667 {}
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=9
+pinseq=9
+name=IO3
+dir=inout
+}
+T {@#8:pinnumber} 20 -125 2 0 0.266667 0.266667 {layer=13}
+T {@#8:name} 35 -120 2 1 0.266667 0.266667 {}
+L 3 0 -80 30 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=10
+pinseq=10
+name=Vss
+dir=inout
+}
+T {@#9:pinnumber} 20 -85 2 0 0.266667 0.266667 {layer=13}
+T {@#9:name} 35 -80 2 1 0.266667 0.266667 {}
+L 3 0 -40 30 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinnumber=11
+pinseq=11
+name=Vss
+dir=inout
+}
+T {@#10:pinnumber} 20 -45 2 0 0.266667 0.266667 {layer=13}
+T {@#10:name} 35 -40 2 1 0.266667 0.266667 {}
+L 3 180 -40 210 -40 {}
+B 5 207.5 -42.5 212.5 -37.5 {pinnumber=12
+pinseq=12
+name=Vcc
+dir=inout
+}
+T {@#11:pinnumber} 190 -45 2 1 0.266667 0.266667 {layer=13}
+T {@#11:name} 175 -40 2 0 0.266667 0.266667 {}
+L 3 180 -80 210 -80 {}
+B 5 207.5 -82.5 212.5 -77.5 {pinnumber=13
+pinseq=13
+name=IO4
+dir=inout
+}
+T {@#12:pinnumber} 190 -85 2 1 0.266667 0.266667 {layer=13}
+T {@#12:name} 175 -80 2 0 0.266667 0.266667 {}
+L 3 180 -120 210 -120 {}
+B 5 207.5 -122.5 212.5 -117.5 {pinnumber=14
+pinseq=14
+name=IO5
+dir=inout
+}
+T {@#13:pinnumber} 190 -125 2 1 0.266667 0.266667 {layer=13}
+T {@#13:name} 175 -120 2 0 0.266667 0.266667 {}
+L 3 180 -160 210 -160 {}
+B 5 207.5 -162.5 212.5 -157.5 {pinnumber=15
+pinseq=15
+name=IO6
+dir=inout
+}
+T {@#14:pinnumber} 190 -165 2 1 0.266667 0.266667 {layer=13}
+T {@#14:name} 175 -160 2 0 0.266667 0.266667 {}
+L 3 180 -200 210 -200 {}
+B 5 207.5 -202.5 212.5 -197.5 {pinnumber=16
+pinseq=16
+name=IO7
+dir=inout
+}
+T {@#15:pinnumber} 190 -205 2 1 0.266667 0.266667 {layer=13}
+T {@#15:name} 175 -200 2 0 0.266667 0.266667 {}
+L 3 180 -240 210 -240 {}
+B 5 207.5 -242.5 212.5 -237.5 {pinnumber=17
+pinseq=17
+name=LVD
+dir=out
+}
+T {@#16:pinnumber} 190 -245 2 1 0.266667 0.266667 {layer=13}
+T {@#16:name} 175 -240 2 0 0.266667 0.266667 {}
+L 3 180 -280 210 -280 {}
+B 5 207.5 -282.5 212.5 -277.5 {pinnumber=18
+pinseq=18
+name=GND
+dir=inout
+}
+T {@#17:pinnumber} 190 -285 2 1 0.266667 0.266667 {layer=13}
+T {@#17:name} 175 -280 2 0 0.266667 0.266667 {}
+L 3 180 -320 210 -320 {}
+B 5 207.5 -322.5 212.5 -317.5 {pinnumber=19
+pinseq=19
+name=RY/\_BY\_
+dir=inout
+}
+T {@#18:pinnumber} 190 -325 2 1 0.266667 0.266667 {layer=13}
+T {@#18:name} 175 -320 2 0 0.266667 0.266667 {}
+L 3 180 -360 210 -360 {}
+B 5 207.5 -362.5 212.5 -357.5 {pinnumber=20
+pinseq=20
+name=\_RE\_
+dir=in
+}
+T {@#19:pinnumber} 190 -365 2 1 0.266667 0.266667 {layer=13}
+T {@#19:name} 175 -360 2 0 0.266667 0.266667 {}
+L 3 180 -400 210 -400 {}
+B 5 207.5 -402.5 212.5 -397.5 {pinnumber=21
+pinseq=21
+name=\_CE\_
+dir=in
+}
+T {@#20:pinnumber} 190 -405 2 1 0.266667 0.266667 {layer=13}
+T {@#20:name} 175 -400 2 0 0.266667 0.266667 {}
+L 3 180 -440 210 -440 {}
+B 5 207.5 -442.5 212.5 -437.5 {pinnumber=22
+pinseq=22
+name=Vcc
+dir=inout
+}
+T {@#21:pinnumber} 190 -445 2 1 0.266667 0.266667 {layer=13}
+T {@#21:name} 175 -440 2 0 0.266667 0.266667 {}

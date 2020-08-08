@@ -1,0 +1,45 @@
+v {xschem version=2.9.5 file_version=1.1}
+G {type=nmos
+format="@name @pinlist @model w=@w l=@l 
++ ad='@w *4.3u' as='@w *4.3u' 
++ pd='@w *2+8.6u' ps='@w *2+8.6u' 
++ m=@m"
+template="name=m1 model=cmosn w=4u l=2.4u m=1"
+generic_type="model=string"
+}
+V {}
+S {}
+E {}
+L 3 26.25 -28.75 26.25 -21.25 {}
+L 3 26.25 -28.75 27.5 -28.75 {}
+L 3 27.5 -28.75 28.75 -26.25 {}
+L 3 28.75 -26.25 28.75 -23.75 {}
+L 3 27.5 -21.25 28.75 -23.75 {}
+L 3 26.25 -21.25 27.5 -21.25 {}
+L 4 5 -30 5 30 {}
+L 4 5 -20 20 -20 {}
+L 4 20 -30 20 -20 {}
+L 4 5 20 20 20 {}
+L 4 20 20 20 30 {}
+L 4 -5 -15 -5 15 {type=nmos
+format="@name @pinlist @model w=@w l=@l 
++ ad=\{@w *4.4u\}
++ as=\{@w *4.4u\}
++ pd=\{@w *2+8.8\}
++ ps=\{@w *2+8.8u\}
++ SA=8u SB=8u m=@m"
+template="name=m1 model=cmosn w=2u l=1.2u m=1"
+generic_type="model=string"
+}
+L 4 -5 0 -5 5 {}
+L 4 -20 0 -12.5 0 {}
+L 4 -20 0 -5 0 {}
+L 4 10 0 20 0 {}
+L 4 5 -5 10 0 {}
+L 4 5 5 10 0 {}
+B 5 17.5 -32.5 22.5 -27.5 {name=d dir=inout}
+B 5 -22.5 -2.5 -17.5 2.5 {name=g dir=in}
+B 5 17.5 27.5 22.5 32.5 {name=s dir=inout}
+B 5 17.5 -2.5 22.5 2.5 {name=b dir=in}
+T {@w\\/@l\\/@m} 7.5 -17.5 0 0 0.2 0.2 {}
+T {@name} 7.5 5 0 0 0.2 0.2 {}

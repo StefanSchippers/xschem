@@ -1,0 +1,33 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1
+device=xTAG-jtagio"
+}
+V {}
+S {}
+E {}
+L 4 -130 -80 130 -80 {}
+L 4 -130 80 130 80 {}
+L 4 -130 -80 -130 80 {}
+L 4 130 -80 130 80 {}
+L 4 130 -20 150 -20 {}
+L 4 130 0 150 0 {}
+L 4 130 20 150 20 {}
+L 4 130 40 150 40 {}
+L 7 0 -100 0 -80 {}
+L 7 130 -40 150 -40 {}
+B 5 -2.5 -102.5 2.5 -97.5 {name=jtag_power dir=out }
+B 5 147.5 -42.5 152.5 -37.5 {name=tdi_ttl dir=out }
+B 5 147.5 -22.5 152.5 -17.5 {name=tdo_ttl dir=in }
+B 5 147.5 -2.5 152.5 2.5 {name=tms_ttl dir=in }
+B 5 147.5 17.5 152.5 22.5 {name=tck_ttl dir=in }
+B 5 147.5 37.5 152.5 42.5 {name=trst_ttl dir=in }
+T {@device} -54.5 -6 0 0 0.4 0.4 {}
+T {@name} 130 -107 0 1 0.4 0.4 {}
+T {jtag_power} 35 -76.5 0 1 0.3 0.3 {}
+T {tdi_ttl} 125 -46.5 0 1 0.3 0.3 {}
+T {tdo_ttl} 125 -26.5 0 1 0.3 0.3 {}
+T {tms_ttl} 125 -6.5 0 1 0.3 0.3 {}
+T {tck_ttl} 125 13.5 0 1 0.3 0.3 {}
+T {trst_ttl} 125 33.5 0 1 0.3 0.3 {}

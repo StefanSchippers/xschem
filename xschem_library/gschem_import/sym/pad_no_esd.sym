@@ -1,0 +1,40 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=pad
+template="name=P?
+device=pad
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 50 -83.1 2 1 0.333333 0.333333 {}
+T {No ESD} 67.2 -21.6667 0 1 0.266667 0.266667 {}
+
+L 4 0 0 80 0 {}
+L 4 80 -80 80 0 {}
+L 4 0 -80 80 -80 {}
+L 4 0 -80 0 0 {}
+L 4 5 -5 75 -5 {}
+L 4 75 -75 75 -5 {}
+L 4 5 -75 75 -75 {}
+L 4 5 -75 5 -5 {}
+
+
+A 4 40 -40 10 0 360 {}
+
+
+
+
+
+L 3 40 -40 110 -40 {}
+B 5 107.5 -42.5 112.5 -37.5 {pinnumber=pin
+pinseq=1
+name=pin
+dir=inout
+}

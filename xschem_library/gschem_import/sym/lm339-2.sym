@@ -1,0 +1,61 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=LM339
+template="device=LM339
+numslots=4
+slot=1
+name=U?
+GND=GND
+V+=V+
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND @V+"
+
+extra="GND V+"
+extra_pinnumber="12 3"
+}
+V {}
+S {}
+E {}
+T {LM339} 22.5 -35 2 1 0.266667 0.266667 {}
+T {@name} 20 -90 2 1 0.333333 0.333333 {}
+
+
+L 4 20 -80 20 0 {}
+L 4 20 -80 80 -40 {}
+L 4 30 -65 30 -55 {}
+L 4 25 -60 35 -60 {}
+L 4 25 -20 35 -20 {}
+L 4 20 0 80 -40 {}
+
+
+
+
+
+
+L 3 0 -60 20 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {
+pinseq=1
+name=5
+dir=inout
+pinnumber=5:7:9:11
+}
+T {@#0:pinnumber} 5 -62.5 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -20 20 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {
+pinseq=2
+name=4
+dir=inout
+pinnumber=4:6:8:10
+}
+T {@#1:pinnumber} 5 -22.5 2 1 0.266667 0.266667 {layer=13}
+L 3 80 -40 100 -40 {}
+B 5 97.5 -42.5 102.5 -37.5 {
+pinseq=3
+name=2
+dir=inout
+pinnumber=2:1:14:13
+}
+T {@#2:pinnumber} 87.5 -42.5 2 1 0.266667 0.266667 {layer=13}

@@ -1,0 +1,63 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4001
+template="device=4001
+slot=1
+numslots=4
+name=U?
+footprint=DIP14
+description=\\"4 NOR-gates with 2 inputs\\"
+VDD=VDD
+VSS=VSS
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VDD @VSS"
+
+extra="VDD VSS"
+extra_pinnumber="14 7"
+}
+V {}
+S {}
+E {}
+T {@name} 25 -90 2 1 0.333333 0.333333 {}
+T {4001} 30 -5 2 1 0.266667 0.266667 {}
+
+
+L 4 22.5 -20 60 -20 {}
+L 4 22.5 -80 60 -80 {}
+
+A 4 103.8 -50 5 0 360 {}
+
+A 4 -5 -50 40 312 96 {}
+A 4 60 -60 40 270 76 {}
+A 4 60 -40 40 14 76 {}
+
+
+
+
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {
+pinseq=1
+name=A
+dir=in
+pinnumber=1:5:8:12
+}
+T {@#0:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {
+pinseq=2
+name=B
+dir=in
+pinnumber=2:6:9:13
+}
+T {@#1:pinnumber} 20 -35 2 0 0.266667 0.266667 {layer=13}
+L 3 108.8 -50 130 -50 {}
+B 5 127.5 -52.5 132.5 -47.5 {
+pinseq=3
+name=Y
+dir=out
+pinnumber=3:4:10:11
+}
+T {@#2:pinnumber} 110 -55 2 1 0.266667 0.266667 {layer=13}

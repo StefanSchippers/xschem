@@ -1,0 +1,57 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=7818
+template="device=7818
+name=U?
+pins=3
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND"
+
+extra="GND"
+extra_pinnumber="2"
+}
+V {}
+S {}
+E {}
+T {IN} 40 -60 2 1 0.266667 0.266667 {}
+T {OUT} 94.8 -60 2 1 0.266667 0.266667 {}
+T {7818} 90 -10 2 1 0.266667 0.266667 {}
+T {GND} 65.6 -40.1 2 1 0.266667 0.266667 {}
+T {@name} 140 -100 2 0 0.333333 0.333333 {}
+
+L 4 30 -30 130 -30 {}
+L 4 130 -90 130 -30 {}
+L 4 30 -90 130 -90 {}
+L 4 30 -90 30 -30 {}
+
+
+
+
+
+
+
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 10 -65 2 1 0.266667 0.266667 {layer=13}
+L 3 80 -30 80 0 {}
+B 5 77.5 -2.5 82.5 2.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 70 -10 2 1 0.266667 0.266667 {layer=13}
+L 3 130 -60 160 -60 {}
+B 5 157.5 -62.5 162.5 -57.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#2:pinnumber} 143 -65 2 1 0.266667 0.266667 {layer=13}

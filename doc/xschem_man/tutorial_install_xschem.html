@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM TUTORIAL</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="xschem_man.html" class="home">UP</a>
+
+ <!-- slide title -->
+ <h1> TUTORIAL: INSTALL XSCHEM </h1>
+ <p> 
+  This short tutorial will illustrate all the steps needed to install XSCHEM on a linux system, 
+  getting the files from the SVN repository.
+ </p>
+
+ <ol>
+
+ <li> 
+  Remove all previous xschem related data from old installs, i assume here
+  previous stuff was in <kbd>/usr/local</kbd>, if not change the root prefix accordingly:
+ <pre class=code>
+schippes@mazinga:~$ sudo rm -rf /usr/local/share/xschem/ /usr/local/share/doc/xschem/
+schippes@mazinga:~$ rm -f  ~/xschemrc ~/.xschem/xschemrc
+ </pre>
+ </li><br>
+
+ <li> Create a build directory (here i use ~/build, choose whatever name you like):
+ <pre class="code">
+schippes@mazinga:~$ mkdir build
+ </pre>
+ </li><br>
+
+ <li> Go into the build directory
+ <pre class="code">
+schippes@mazinga:~$ cd build
+ </pre>
+ </li><br>
+
+ <li> Checkout xschem from the svn repository:
+ <pre class="code">
+schippes@mazinga:~/build$ svn checkout svn://repo.hu/xschem/trunk
+ </pre>
+ </li><br>
+
+ <li> Cd into trunk directory:
+ <pre class="code">
+schippes@mazinga:~/build$ cd trunk
+ </pre>
+ </li><br>
+
+ <li> Configure xschem. In this tutorial we want xschem to be installed in <kbd>/usr/local/bin</kbd>, 
+      xschem data installed in <kbd>/usr/local/share/xschem</kbd>, xschem documentation and example circuits
+      installed in <kbd>/usr/local/share/doc/xschem</kbd>, xschem system-wide component symbols
+      installed in <kbd>/usr/local/share/xschem/xschem_library</kbd> and xschem user configuration
+      stored in user's home directory under <kbd>~/.xschem</kbd>:
+ <pre class="code">
+schippes@mazinga:~/build/trunk$ ./configure --prefix=/usr/local --user-conf-dir=~/.xschem \
+--user-lib-path=~/share/xschem/xschem_library \
+--sys-lib-path=/usr/local/share/xschem/xschem_library
+ </pre>
+ </li><br>
+
+ <li> If all required libraries, header files and tools that are needed to build xschem are present
+      on the system, the configuration will end with this message (details may vary depending on
+      the host system):
+ <pre class="code">
+...
+...
+--- Generating build and config files
+config.h:      ok
+Makefile.conf: ok
+src/Makefile:  ok
+
+
+=====================
+Configuration summary
+=====================
+
+Compilation:
+ CC:        gcc
+ debug:     no
+ profiling: no
+
+Paths:
+ prefix:        /usr/local
+ user-conf-dir: ~/.xschem
+ user-lib-path: ~/share/xschem/xschem_library
+ sys-lib-path:  /usr/local/share/xschem/xschem_library
+
+Libs &amp; features:
+ tcl:       -ltcl8.6
+ tk:        -ltcl8.6  -ltk8.6
+ cairo:     yes
+ xrender:   yes
+ xcb:       yes
+
+Configuration complete, ready to compile.
+
+schippes@mazinga:~/build/trunk$ 
+ </pre>
+ </li><br>
+
+ <li> Build xschem by running 'make'
+ <pre class="code">
+schippes@mazinga:~/build/trunk$ make
+ </pre>
+ </li><br>
+
+ <li> If compilation of source files completed with no errors xschem will be ready for installation:
+ <pre class="code">
+schippes@mazinga:~/build/trunk$ sudo make install
+ </pre>
+ <br>Note that since we are installing in /usr/local we need root rights (sudo) for doing the installation.
+ </li><br>
+
+ <li> Test xschem by launching 'xschem' from the terminal:
+ <pre class="code">
+schippes@mazinga:~/build/trunk$ cd
+schippes@mazinga:~$ xschem
+ </pre>
+ <img src="tutorial_install_xschem_00.png"><br>
+ if /usr/local/bin is not in your PATH variable use the full xschem path:
+ <pre class="code">
+schippes@mazinga:~$ /usr/local/bin/xschem
+ </pre>
+ </li><br>
+
+ <li> Close xschem (menu <kbd>File - Exit</kbd>)
+ </li><br>
+
+ <li> 
+  Copy the xschemrc file in the <kbd>trunk/src</kbd> directory to the <kbd>~/.xschem</kbd>
+  directory. If <kbd>~/.xschem</kbd> does not exist create it with <kbd>mkdir ~/.xschem</kbd>    
+ <pre class="code">
+schippes@mazinga:~$ cp build/trunk/src/xschemrc ~/.xschem
+ </pre>
+ <br>The <kbd>~/.xschem/xschemrc</kbd> is the user xschem configuration file. You may change it later
+ to change xschem defaults or  add / remove / change component and schematic directories. For first
+ tests it is recommended to leave xschemrc as it is.
+ </li><br>
+
+ <li> Run xschem again to try some schematic load tests:
+ <pre class="code">
+schippes@mazinga:~$ xschem
+ </pre>
+ </li><br>
+
+ <li> Select menu <kbd>File - Open</kbd> and navigate to <kbd>/usr/local/share/doc/xschem/examples</kbd>:<br>
+ <img src="tutorial_install_xschem_01.png"><br>
+ </li><br>
+
+ <li>Select <kbd>0_examples_top.sch</kbd> and press 'OK':<br>
+ <img src="tutorial_install_xschem_02.png"><br>
+ </li>
+ <li> 
+  This schematic contains a set of sub-schematics. Select one of them by clicking it with 
+  the left mouse button (test_lm324 in this example) and press the <kbd>Alt-e</kbd> key combination:
+  another xschem window will be opened with the schematic view of the selected symbol:<br>
+ <img src="tutorial_install_xschem_03.png"><br>
+ </li><br>
+
+ <li> Click on the lm324 symbol, it can now be edited using the <kbd>Alt-i</kbd> key combination:<br>
+ <img src="tutorial_install_xschem_04.png"><br>
+ </li><br>
+
+ <li> Now close all xschem windows and restart a new xschem instance from terminal:
+ <pre class="code">
+schippes@mazinga:~$ xschem
+ </pre>
+ </li><br>
+
+ <li> 
+  We want to create a simple circuit in this empty schematic window: 
+  press the <kbd>Insert</kbd> key  (this is used to place components) in the file selector
+  navigate to <kbd>/usr/local/share/xschem/xschem_library</kbd> and select <kbd>res.sym</kbd>:<br>
+ <img src="tutorial_install_xschem_05.png"><br>
+ </li><br>
+
+ <li> 
+  Lets add another component: press <kbd>Insert</kbd> key again and navigate to 
+  <kbd>/usr/local/share/doc/xschem/examples</kbd> and select <kbd>lm324.sym</kbd>:<br>
+ <img src="tutorial_install_xschem_06.png"><br>
+ </li><br>
+
+ <li> Select (click on it) the lm324 symbol and move it by pressing the <kbd>m</kbd> key: <br>
+ <img src="tutorial_install_xschem_07.png"><br>
+ </li><br>
+
+ <li> 
+  Place the lm324 component where you want in the schematic by placing the mouse and
+  clicking the left button:<br>
+ <img src="tutorial_install_xschem_08.png"><br>
+ </li><br>
+
+ <li> 
+  The lm324.sym component has a schematic (<kbd>.sch</kbd>) representation, while the resistor is a primitive,
+  it has only a symbol view (<kbd>.sym</kbd>). you can see the schematic of the lm324 by selecting it and 
+  pressing <kbd>Alt-e</kbd>: <br>
+ <img src="tutorial_install_xschem_09.png"><br>
+ </li><br>
+
+ <li> 
+  Close the lm324.sch window and view the symbol view of the resistor by selecting it and
+  pressing <kbd>Alt-i</kbd>:<br>
+ <img src="tutorial_install_xschem_10.png"><br>
+ </li><br>
+ </ol>
+
+ <h3> 
+  This concludes the tutorial, if all the steps were successful there is a good probability
+   that xschem is correctly installed on your system.<br><br>
+ </h3>
+
+
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

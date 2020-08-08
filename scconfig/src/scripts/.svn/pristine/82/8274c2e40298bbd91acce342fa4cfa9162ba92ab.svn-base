@@ -1,0 +1,62 @@
+SCRIPT_CFLAGS = -DPLUGIN_SCRIPTS
+SCRIPT_OBJS = \
+  $(BIN)/scripts/scripts.o \
+  $(BIN)/scripts/find_gpmi.o \
+  $(BIN)/scripts/find_tcl.o \
+  $(BIN)/scripts/find_ruby.o \
+  $(BIN)/scripts/find_mruby.o \
+  $(BIN)/scripts/find_python.o \
+  $(BIN)/scripts/find_perl.o \
+  $(BIN)/scripts/find_mawk.o \
+  $(BIN)/scripts/find_lua.o \
+  $(BIN)/scripts/find_guile.o \
+  $(BIN)/scripts/find_stutter.o \
+  $(BIN)/scripts/find_funlisp.o \
+  $(BIN)/scripts/find_duktape.o \
+  $(BIN)/scripts/find_fungw.o \
+  $(BIN)/scripts/find_m4.o
+
+$(BIN)/scripts/scripts.o: $(SRC)/scripts/scripts.c
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/scripts.c -o $(BIN)/scripts/scripts.o
+
+$(BIN)/scripts/find_tcl.o: $(SRC)/scripts/find_tcl.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_tcl.c -o $(BIN)/scripts/find_tcl.o
+
+$(BIN)/scripts/find_gpmi.o: $(SRC)/scripts/find_gpmi.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_gpmi.c -o $(BIN)/scripts/find_gpmi.o
+
+$(BIN)/scripts/find_ruby.o: $(SRC)/scripts/find_ruby.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_ruby.c -o $(BIN)/scripts/find_ruby.o
+
+$(BIN)/scripts/find_mruby.o: $(SRC)/scripts/find_mruby.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_mruby.c -o $(BIN)/scripts/find_mruby.o
+
+$(BIN)/scripts/find_python.o: $(SRC)/scripts/find_python.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_python.c -o $(BIN)/scripts/find_python.o
+
+$(BIN)/scripts/find_perl.o: $(SRC)/scripts/find_perl.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_perl.c -o $(BIN)/scripts/find_perl.o
+
+$(BIN)/scripts/find_mawk.o: $(SRC)/scripts/find_mawk.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_mawk.c -o $(BIN)/scripts/find_mawk.o
+
+$(BIN)/scripts/find_lua.o: $(SRC)/scripts/find_lua.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_lua.c -o $(BIN)/scripts/find_lua.o
+
+$(BIN)/scripts/find_guile.o: $(SRC)/scripts/find_guile.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_guile.c -o $(BIN)/scripts/find_guile.o
+
+$(BIN)/scripts/find_stutter.o: $(SRC)/scripts/find_stutter.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_stutter.c -o $(BIN)/scripts/find_stutter.o
+
+$(BIN)/scripts/find_m4.o: $(SRC)/scripts/find_m4.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_m4.c -o $(BIN)/scripts/find_m4.o
+
+$(BIN)/scripts/find_duktape.o: $(SRC)/scripts/find_duktape.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_duktape.c -o $(BIN)/scripts/find_duktape.o
+
+$(BIN)/scripts/find_funlisp.o: $(SRC)/scripts/find_funlisp.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_funlisp.c -o $(BIN)/scripts/find_funlisp.o
+
+$(BIN)/scripts/find_fungw.o: $(SRC)/scripts/find_fungw.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_fungw.c -o $(BIN)/scripts/find_fungw.o

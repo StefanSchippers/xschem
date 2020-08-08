@@ -1,0 +1,61 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=7409
+template="device=7409
+slot=1
+numslots=4
+name=U?
+footprint=DIP14
+description=\\"4 AND gates with 2 inputs and open collector outputs\\"
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="14 7"
+}
+V {}
+S {}
+E {}
+T {7409} 30 0 2 1 0.266667 0.266667 {}
+T {@name} 30 -90 2 1 0.333333 0.333333 {}
+
+
+L 4 30 -80 30 -20 {}
+L 4 30 -80 70 -80 {}
+L 4 30 -20 70 -20 {}
+
+
+A 4 70 -50 30 270 180 {}
+
+
+
+
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {
+pinseq=1
+name=A
+dir=in
+pinnumber=1:4:9:12
+}
+T {@#0:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {
+pinseq=2
+name=B
+dir=in
+pinnumber=2:5:10:13
+}
+T {@#1:pinnumber} 20 -35 2 0 0.266667 0.266667 {layer=13}
+L 3 100 -50 130 -50 {}
+B 5 127.5 -52.5 132.5 -47.5 {
+pinseq=3
+name=Y
+dir=inout
+pinnumber=3:6:8:11
+}
+T {@#2:pinnumber} 110 -55 2 1 0.266667 0.266667 {layer=13}

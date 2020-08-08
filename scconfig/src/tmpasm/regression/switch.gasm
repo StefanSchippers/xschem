@@ -1,0 +1,8 @@
+put swdata {lol}
+switch swdata
+	case data1            print {1a} {11}; print {1b} 12; print {1c} 13; print {1d} 14; end;
+	case [~data2 ~a~~]    print {2a} 21;   print {2b} 22; print {2c} 23; print {2d} 24; end;
+	default               print {3a} 31;   print {3b} 32; print {3c} 33; print {3d} 34; end;
+end;
+print {i1}
+print {i2}

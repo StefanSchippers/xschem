@@ -1,0 +1,53 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=SWITCAP-vcvs
+template="device=SWITCAP-vcvs
+name=E?
+gain=1
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND"
+
+extra="GND"
+extra_pinnumber="2"
+}
+V {}
+S {}
+E {}
+T {@name} 60 -80 2 1 0.4 0.4 {}
+T {@gain} 25 -45 2 1 0.4 0.4 {}
+
+
+L 4 20 -100 20 0 {}
+L 4 20 -100 120 -50 {}
+L 4 20 0 120 -50 {}
+L 4 25 -30 35 -30 {}
+L 4 25 -70 35 -70 {}
+L 4 30 -75 30 -65 {}
+
+
+
+
+
+
+L 3 120 -50 140 -50 {}
+B 5 137.5 -52.5 142.5 -47.5 {pinnumber=1
+pinseq=1
+name=OP
+dir=out
+}
+L 3 0 -70 20 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {pinnumber=3
+pinseq=3
+name=IP
+dir=in
+}
+L 3 0 -30 20 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {pinnumber=4
+pinseq=4
+name=IM
+dir=in
+}

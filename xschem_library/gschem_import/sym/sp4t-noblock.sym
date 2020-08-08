@@ -1,0 +1,30 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=symbol
+template=""
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+
+
+L 4 38 -64 48 -68 {}
+L 4 44 -58 48 -68 {}
+L 4 38 -64 44 -58 {}
+L 4 22 -42 41 -61 {}
+
+A 4 20 -40 3 0 360 {}
+A 4 50 -10 3 0 360 {}
+A 4 61 -50 3 0 360 {}
+A 4 61 -30 3 0 360 {}
+A 4 50 -70 3 0 360 {}
+
+
+
+
+

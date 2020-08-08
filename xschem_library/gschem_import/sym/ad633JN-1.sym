@@ -1,0 +1,77 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=AD633JN
+template="device=AD633JN
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {1+} 22.5 -105 2 1 0.266667 0.266667 {}
+T {1-} 22.5 -75 2 1 0.266667 0.266667 {}
+T {2+} 22.5 -45 2 1 0.266667 0.266667 {}
+T {2-} 22.5 -15 2 1 0.266667 0.266667 {}
+T {W} 80 -105 2 1 0.266667 0.266667 {}
+T {X} 85 -75 2 1 0.266667 0.266667 {}
+T {AD633JN} 20 -132.5 2 1 0.266667 0.266667 {}
+T {@name} 110 -140 2 1 0.333333 0.333333 {}
+
+L 4 20 0 100 0 {}
+L 4 100 -130 100 0 {}
+L 4 20 -130 100 -130 {}
+L 4 20 -130 20 0 {}
+
+
+
+
+
+
+
+L 3 0 -110 20 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 5 -112.5 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -80 20 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 5 -82.5 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -50 20 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#2:pinnumber} 5 -52.5 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -20 20 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=4
+pinseq=4
+name=4
+dir=inout
+}
+T {@#3:pinnumber} 5 -22.5 2 1 0.266667 0.266667 {layer=13}
+L 3 100 -80 120 -80 {}
+B 5 117.5 -82.5 122.5 -77.5 {pinnumber=6
+pinseq=6
+name=6
+dir=inout
+}
+T {@#4:pinnumber} 107.5 -82.5 2 1 0.266667 0.266667 {layer=13}
+L 3 100 -110 120 -110 {}
+B 5 117.5 -112.5 122.5 -107.5 {pinnumber=7
+pinseq=7
+name=7
+dir=inout
+}
+T {@#5:pinnumber} 107.5 -112.5 2 1 0.266667 0.266667 {layer=13}

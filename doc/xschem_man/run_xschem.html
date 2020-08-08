@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM TUTORIAL</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 10px  30px 10px;}
+
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="install_xschem.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="xschem_elements.html" class="next">NEXT</a>
+
+ <!-- slide title -->
+ <h1>RUN XSCHEM</h1><br>
+ <p> Assuming <kbd>xschem</kbd> is installed in one of the <kbd>${PATH}</kbd> search paths just execute:</p>
+
+ <pre class="code">
+user:~$ xschem
+ </pre>
+ <p> the xschem window should appear. If <kbd>xschem</kbd> is not in the search path then specify 
+     its full pathname.
+ </p>
+ <img src="xschem_home.png"> 
+
+ <p> if a filename is given that file will be loaded on startup: </p>
+ <pre class="code">
+user:~$ xschem .../xschem_library/examples/0_examples_top.sch
+ </pre>
+ <img src="xschem_home1.png">
+
+
+
+ <h3>XSCHEM COMMAND LINE OPTIONS </H3>
+ <p>
+  xschem accepts short (-h) or long (--help) options:
+ </p>
+ <pre class="code">
+usage: xschem [options] [schematic | symbol ]
+Options:
+  -h  --help           Print this help.
+  -n  --netlist        Do a netlist of the given schematic cell.
+  -v  --version        Print version information and exit.
+  -V  --vhdl           Set netlist type to VHDL.
+  -S  --simulate       Run a simulation of the current schematc file
+                       (spice/Verilog/VHDL, depending on the netlist
+                       type chosen).
+  -w  --verilog        Set netlist type to Verilog.
+  --tcl &lt;tcl_script&gt;   Execute specified tcl instructions before any other action,
+                       this can be used to change xschemrc variables.
+  --script &lt;file&gt;      Execute specified tcl file as a command script (perhaps with xschem  commands).
+  --tcp_port &lt;number&gt;  Listen to specified tcp port for client connections. (number &gt;=1024).
+  -i  --no_rcload      Do not load any xschemrc file.
+  -o &lt;file&gt;            Set output path for netlist.
+  --netlist_path &lt;file&gt;
+  -N &lt;file&gt;            Set name (only name, not path) of top level netlist file.
+  --netlist_filename &lt;file&gt;
+  -t  --tedax          Set netlist type to tEDAx.
+  -s  --spice          Set netlist type to SPICE.
+  -3  --a3page         Set page size for pdf export to A3.
+  -x  --no_x           Don't use X (only command mode).
+      --events         Do not use tclreadline, empty tcl shell prompt, dump
+                       activity on stdout for remote controlling other software.
+  -z  --rainbow        Use a raibow-looking layer color table.
+  -W  --waves          Show simulation waveforms.
+  -f  --flat_netlist   Set flat netlist (for spice format only).
+  -r  --no_readline    Start without the tclreadline package ( this is
+                       necessary if stdin and stdout are to be redirected
+                       for example to /dev/null).
+  -c  --color_ps       Set color postscript.
+  --plotfile &lt;file&gt;    Use &lt;file&gt; as output for plot (png, svg, ps).
+  --rcfile &lt;file&gt;      Use &lt;file&gt; as a rc file for startup instead of the
+                       default xschemrc.
+  -p  --postscript
+      --pdf            Export pdf schematic.
+      --png            Export png schematic.
+      --svg            Export svg schematic.
+  -q  --quit           Quit after doing things (no interactive mode).
+  -l &lt;file&gt;
+  --log &lt;file&gt;         Set a log file.
+  -d &lt;n&gt;
+  --debug &lt;n&gt;          Set debug level:  1,  2,  3,..  C program debug.
+                                       -1, -2, -3...  TCL frontend debug.
+
+xschem: interactive schematic capture program
+
+Example:   xschem counter.sch
+the schematic file `counter.sch' will be loaded.
+ </pre>
+ <h3> CREATING A NEW SCHEMATIC</H3>
+ <p>
+  To create a new schematic  run xschem and give a non existent filename:<br>
+  <kbd>xschem aaa.sch</kbd>
+ </p>
+ <img src="xschem_new_file.png"> 
+ <p>
+   You can save the schematic by pressing <kbd>'&lt;ctrl shift&gt;s'</kbd> or
+   by using the menu <kbd>File - Save As</kbd>:
+ </p>
+ <img src="xschem_saveas.png"> 
+ <p>
+  If no filename change is needed you can just use <kbd>File - Save</kbd>.
+  Now a new empty schematic file is created. You can use this <kbd>test.sch</kbd> for testing while
+  reading the manual.
+  After exiting XSCHEM you can load directly this schematic with the following commands, they are
+  all equivalent.
+ <pre class="code">
+# xschem defaults its search to the 
+# XSCHEM_LIBRARY_PATH root path
+# .sch may be omitted, it is added by default ...
+xschem test
+# or ...
+xschem /home/schippes/x/test.sch
+# or ...
+xschem ${HOME}/schippes/x/test
+ </pre>
+ </p>
+ <p>
+ you can load <kbd>test.sch</kbd> when xschem is running by using the load command <kbd>'&lt;ctrl&gt;o'</kbd> key or 
+ by menu <kbd>Open</kbd> command. Use the file selector dialog to locate the schematic and load it in.
+ When loading a new file XSCHEM asks to save the currently loaded schematic if it has been modified.
+ </p>
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

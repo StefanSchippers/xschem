@@ -1,0 +1,26 @@
+XSCHEM : schematic capture and netlisting EDA tool
+
+Xschem is a schematic capture program, it allows creation of hierarchical representation
+of circuits with a top down approach . By focusing on interfaces, hierarchy and instance
+properties a complex system can be described in terms of simpler building blocks. A VHDL
+or Verilog or Spice netlist can be generated from the drawn schematic, allowing the 
+simulation of the circuit. Key feature of the program is its drawing engine written in C
+and using directly the Xlib drawing primitives; this gives very good speed performance,
+even on very big circuits. The user interface is built with the Tcl-Tk toolkit, tcl is
+also the extension language used.
+
+DOCUMENTATION AND MANUAL
+
+http://repo.hu/projects/xschem
+
+BUILDING & INSTALLING
+
+Please read the instructions in file INSTALL.
+
+SUBDIRECTORIES
+
+doc:             xschem homepage, reference manual and man pages
+scconfig:        the whole ./configure system (all dependencies included)
+src:             C source for the xschem executable and scripts for GUI and I/O
+src/utile:       stimuli generator/converter scripts
+xschem_library:  standard symbol libs and example libs

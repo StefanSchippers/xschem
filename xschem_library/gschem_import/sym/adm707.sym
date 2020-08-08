@@ -1,0 +1,89 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=ADM707
+template="comment=\\"pin numbers for SOIC/DIP only, microSOIC different\\"
+name=U?
+device=ADM707
+footprint=SO8
+footprint2=DIP8
+symversion=1.0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 190 -255 2 1 0.333333 0.333333 {}
+T {@device} 80 -210 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 210 -30 {}
+L 4 210 -250 210 -30 {}
+L 4 30 -250 210 -250 {}
+L 4 30 -250 30 -30 {}
+
+
+
+
+
+
+
+L 3 0 -160 30 -160 {}
+B 5 -2.5 -162.5 2.5 -157.5 {name=/MR
+pinnumber=1
+pinseq=1
+dir=inout
+}
+T {@#0:name} 35 -155 2 1 0.333333 0.333333 {}
+T {@#0:pinnumber} 15 -165 2 1 0.333333 0.333333 {layer=13}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {name=Vcc
+pinnumber=2
+pinseq=2
+dir=inout
+}
+T {@#1:name} 35 -105 2 1 0.333333 0.333333 {}
+T {@#1:pinnumber} 10 -115 2 1 0.333333 0.333333 {layer=13}
+L 3 120 -30 120 0 {}
+B 5 117.5 -2.5 122.5 2.5 {name=GND
+pinnumber=3
+pinseq=3
+dir=inout
+}
+T {@#2:name} 140 -50 0 1 0.333333 0.333333 {}
+T {@#2:pinnumber} 110 -10 2 1 0.333333 0.333333 {layer=13}
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {name=PFI
+pinnumber=4
+pinseq=4
+dir=inout
+}
+T {@#3:name} 35 -65 2 1 0.333333 0.333333 {}
+T {@#3:pinnumber} 10 -75 2 1 0.333333 0.333333 {layer=13}
+L 3 210 -70 240 -70 {}
+B 5 237.5 -72.5 242.5 -67.5 {pinnumber=5
+pinseq=5
+name=/PFO
+dir=inout
+}
+T {@#4:pinnumber} 220 -75 2 1 0.333333 0.333333 {layer=13}
+T {@#4:name} 160 -65 2 1 0.333333 0.333333 {}
+L 3 210 -130 240 -130 {}
+B 5 237.5 -132.5 242.5 -127.5 {name=/RESET
+pinnumber=7
+pinseq=7
+dir=inout
+}
+T {@#5:name} 135 -125 2 1 0.333333 0.333333 {}
+T {@#5:pinnumber} 220 -135 2 1 0.333333 0.333333 {layer=13}
+L 3 210 -170 240 -170 {}
+B 5 237.5 -172.5 242.5 -167.5 {name=RESET
+pinnumber=8
+pinseq=8
+dir=inout
+}
+T {@#6:name} 145 -165 2 1 0.333333 0.333333 {}
+T {@#6:pinnumber} 220 -175 2 1 0.333333 0.333333 {layer=13}

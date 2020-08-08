@@ -1,0 +1,33 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=label
+template="device=none
+description=\\"Input module port\\"
+value=INPUT
+lab=INPUT
+"
+
+}
+V {}
+S {}
+E {}
+T {} 0 -20 2 1 0.333333 0.333333 {}
+T {@value} 50 -18.3333 0 1 0.333333 0.333333 {}
+
+
+L 4 60 -20 60 0 {}
+L 4 60 -20 110 -20 {}
+L 4 110 -20 120 -10 {}
+L 4 110 0 120 -10 {}
+L 4 60 0 110 0 {}
+
+
+
+
+
+
+L 3 120 -10 140 -10 {}
+B 5 137.5 -12.5 142.5 -7.5 {pinnumber=1
+name=INPUT
+pinseq=1
+dir=out
+}

@@ -1,0 +1,12 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=generic
+template="name=g1 generic_type=time value=\\"2 ns\\" lab=xxx"}
+V {}
+S {}
+E {}
+L 8 -15 -5 -5 -5 {}
+L 8 -5 -5 0 0 {}
+L 8 -5 5 0 0 {}
+L 8 -15 5 -5 5 {}
+L 8 -15 -5 -15 5 {}
+T {@lab : @generic_type := @value} -17.5 -7.5 0 1 0.3 0.3 {}

@@ -1,0 +1,31 @@
+put myvar {true}
+
+# The simplest flow control is an if. It takes its first argument and
+# calls the environment to decide if it is true or false. If it's true
+# the "then" branch is executed, if it's false, the "else" branch runs.
+if myvar then
+	print {myvar is true (1)\n}
+else
+	print {myvar is false (1)\n}
+end
+
+
+# it is possible to omit the else branch
+if myvar then
+	print {myvar is true (2)\n}
+end
+
+# the then branch may be empty:
+if myvar then else
+	print {myvar is false (3)\n}
+end
+
+# embedding controls is legal:
+put foo {false}
+if myvar then
+	if foo then
+		print {myvar and bar are true (4)\n}
+	else
+		print {myvar is true, bar is false (4)\n}
+	end
+end

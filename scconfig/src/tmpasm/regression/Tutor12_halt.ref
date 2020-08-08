@@ -1,0 +1,17 @@
+put [at 6:1]
+ arg: tmp
+ arg: {true}
+if tmp [at 7:8]
+then:
+ foreach item in {foo bar true baz} [at 8:2]
+  print [at 9:3]
+   arg: item
+   arg: {
+}
+  if item [at 10:11]
+  then:
+   halt [at 11:4]
+  else:
+   (NOP)
+else:
+ (NOP)

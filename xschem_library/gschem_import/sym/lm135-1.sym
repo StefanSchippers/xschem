@@ -1,0 +1,63 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=LM135
+template="device=LM135
+name=U?
+footprint=TO92
+description=\\"precision temperature sensor\\"
+numslots=0
+documentation=http://www.national.com/ds.cgi/LM/LM135.pdf
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 30 -80 2 1 0.333333 0.333333 {}
+T {LM135} 20 -65 2 1 0.266667 0.266667 {}
+
+
+L 4 30 -60 30 -20 {}
+L 4 30 -20 60 -40 {}
+L 4 30 -60 60 -40 {}
+L 4 60 -60 60 -40 {}
+L 4 50 -60 60 -60 {}
+L 4 60 -40 60 -20 {}
+L 4 60 -20 70 -20 {}
+L 4 20 -40 30 -40 {}
+L 4 60 -40 70 -40 {}
+L 4 40.2 -26.2 40.2 -19.8 {}
+
+
+
+
+
+
+L 3 0 -40 20 -40 {}
+B 5 -2.5 -42.5 2.5 -37.5 {pinnumber=1
+pinseq=1
+name=-
+dir=inout
+}
+T {@#0:pinnumber} 15 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 10 -45 2 1 0.266667 0.266667 {}
+L 3 70 -40 90 -40 {}
+B 5 87.5 -42.5 92.5 -37.5 {pinnumber=2
+pinseq=2
+name=+
+dir=inout
+}
+T {@#1:pinnumber} 75 -25 2 1 0.266667 0.266667 {layer=13}
+T {@#1:name} 85 -45 2 0 0.266667 0.266667 {}
+L 3 40 -20 40 0 {}
+B 5 37.5 -2.5 42.5 2.5 {pinnumber=3
+pinseq=3
+name=ADJ
+dir=inout
+}
+T {@#2:pinnumber} 30 -5 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 46.4 -5 2 1 0.266667 0.266667 {}

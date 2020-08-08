@@ -1,0 +1,101 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=DS2450
+template="device=DS2450
+name=U?
+footprint=SMD8
+numslots=0
+description=\\"Dallas Semiconductor 1-Wire A/D Converter (Travis Sawyer)\\"
+documentation=http://pdfserv.maxim-ic.com/en/ds/DS2450.pdf
+GND=GND
+Vcc=Vcc
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND @Vcc"
+
+extra="GND Vcc"
+extra_pinnumber="4 1"
+}
+V {}
+S {}
+E {}
+T {@name} 180 -170 2 0 0.333333 0.333333 {}
+T {DS2450} 40 -165 2 1 0.266667 0.266667 {}
+
+L 4 40 0 180 0 {}
+L 4 180 -160 180 0 {}
+L 4 40 -160 180 -160 {}
+L 4 40 -160 40 0 {}
+
+
+
+
+
+
+
+L 3 10 -140 40 -140 {}
+B 5 7.5 -142.5 12.5 -137.5 {pinnumber=1
+pinseq=1
+dir=inout
+name=Vcc
+}
+T {@#0:pinnumber} 30 -145 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 45 -140 2 1 0.266667 0.266667 {}
+L 3 10 -100 40 -100 {}
+B 5 7.5 -102.5 12.5 -97.5 {pinnumber=2
+pinseq=2
+dir=inout
+name=NC
+}
+T {@#1:pinnumber} 30 -105 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 45 -100 2 1 0.266667 0.266667 {}
+L 3 10 -60 40 -60 {}
+B 5 7.5 -62.5 12.5 -57.5 {pinnumber=3
+pinseq=3
+dir=inout
+name=DATA
+}
+T {@#2:pinnumber} 30 -65 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 45 -60 2 1 0.266667 0.266667 {}
+L 3 10 -20 40 -20 {}
+B 5 7.5 -22.5 12.5 -17.5 {pinnumber=4
+pinseq=4
+dir=inout
+name=GND
+}
+T {@#3:pinnumber} 30 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 45 -20 2 1 0.266667 0.266667 {}
+L 3 180 -20 210 -20 {}
+B 5 207.5 -22.5 212.5 -17.5 {pinnumber=5
+pinseq=5
+dir=inout
+name=AIN-A
+}
+T {@#4:pinnumber} 190 -25 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 175 -20 2 0 0.266667 0.266667 {}
+L 3 180 -60 210 -60 {}
+B 5 207.5 -62.5 212.5 -57.5 {pinnumber=6
+pinseq=6
+dir=inout
+name=AIN-B
+}
+T {@#5:pinnumber} 190 -65 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 175 -60 2 0 0.266667 0.266667 {}
+L 3 180 -100 210 -100 {}
+B 5 207.5 -102.5 212.5 -97.5 {pinnumber=7
+pinseq=7
+dir=inout
+name=AIN-C
+}
+T {@#6:pinnumber} 190 -105 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 175 -100 2 0 0.266667 0.266667 {}
+L 3 180 -140 210 -140 {}
+B 5 207.5 -142.5 212.5 -137.5 {pinnumber=8
+pinseq=8
+dir=inout
+name=AIN-D
+}
+T {@#7:pinnumber} 190 -145 2 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 175 -140 2 0 0.266667 0.266667 {}

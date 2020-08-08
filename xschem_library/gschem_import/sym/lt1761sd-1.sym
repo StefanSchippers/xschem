@@ -1,0 +1,72 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=LT1761SD
+template="name=U?
+footprint=SOT23-5
+class=IC
+pins=5
+device=LT1761SD
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {LT1761SD} 40 -70 2 1 0.333333 0.333333 {}
+T {@name} 70 -140 2 1 0.333333 0.333333 {}
+
+L 4 20 -20 140 -20 {}
+L 4 140 -130 140 -20 {}
+L 4 20 -130 140 -130 {}
+L 4 20 -130 20 -20 {}
+
+
+
+
+
+
+
+L 3 0 -100 20 -100 {}
+B 5 -2.5 -102.5 2.5 -97.5 {name=Vin
+pinnumber=1
+pinseq=1
+dir=inout
+}
+T {@#0:name} 25 -95 2 1 0.266667 0.266667 {}
+T {@#0:pinnumber} 10 -105 2 1 0.333333 0.333333 {layer=13}
+L 3 80 -20 80 0 {}
+B 5 77.5 -2.5 82.5 2.5 {name=GND
+pinnumber=2
+pinseq=2
+dir=inout
+}
+T {@#1:name} 65 -25 2 1 0.266667 0.266667 {}
+T {@#1:pinnumber} 85 -5 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -50 20 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {name=/SHDN
+pinnumber=3
+pinseq=3
+dir=inout
+}
+T {@#2:name} 20 -45 2 1 0.266667 0.266667 {}
+T {@#2:pinnumber} 5 -55 2 1 0.333333 0.333333 {layer=13}
+L 3 140 -50 160 -50 {}
+B 5 157.5 -52.5 162.5 -47.5 {name=ADJ
+pinnumber=4
+pinseq=4
+dir=inout
+}
+T {@#3:name} 105 -45 2 1 0.266667 0.266667 {}
+T {@#3:pinnumber} 145 -55 2 1 0.333333 0.333333 {layer=13}
+L 3 140 -100 160 -100 {}
+B 5 157.5 -102.5 162.5 -97.5 {name=Vout
+pinnumber=5
+pinseq=5
+dir=inout
+}
+T {@#4:name} 105 -95 2 1 0.266667 0.266667 {}
+T {@#4:pinnumber} 145 -105 2 1 0.333333 0.333333 {layer=13}

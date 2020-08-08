@@ -1,0 +1,141 @@
+DEFAULT_NOMAIN_OBJS = \
+  $(BIN)/default/find_cc.o \
+  $(BIN)/default/lib_compile.o \
+  $(BIN)/default/lib_uniqinc.o \
+  $(BIN)/default/lib_file.o \
+  $(BIN)/default/lib_try.o \
+  $(BIN)/default/str.o \
+  $(BIN)/default/ht.o \
+  $(BIN)/default/log.o \
+  $(BIN)/default/arg.o \
+  $(BIN)/default/db.o \
+  $(BIN)/default/dep.o \
+  $(BIN)/default/deps_default.o \
+  $(BIN)/default/find_libs.o \
+  $(BIN)/default/find_fscalls.o \
+  $(BIN)/default/find_printf.o \
+  $(BIN)/default/find_proc.o \
+  $(BIN)/default/find_fstools.o \
+  $(BIN)/default/find_uname.o \
+  $(BIN)/default/find_target.o \
+  $(BIN)/default/find_thread.o \
+  $(BIN)/default/find_io.o \
+  $(BIN)/default/find_time.o \
+  $(BIN)/default/find_types.o \
+  $(BIN)/default/find_signal.o \
+  $(BIN)/default/find_environ.o \
+  $(BIN)/default/regex.o \
+  $(BIN)/default/lib_filelist.o \
+  $(BIN)/default/lib_srctree.o \
+  $(BIN)/default/lib_pkg_config.o \
+  $(BIN)/default/find_str.o \
+  $(BIN)/default/find_sys.o
+
+DEFAULT_MAIN_OBJS = \
+  $(BIN)/default/main.o \
+  $(BIN)/default/main_custom_args.o \
+  $(BIN)/default/main_lib.o
+
+DEFAULT_OBJS = $(DEFAULT_NOMAIN_OBJS) $(DEFAULT_MAIN_OBJS)
+
+$(BIN)/default/lib_compile.o: $(SRC)/default/lib_compile.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/lib_compile.c -o $(BIN)/default/lib_compile.o
+
+$(BIN)/default/lib_file.o: $(SRC)/default/lib_file.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/lib_file.c -o $(BIN)/default/lib_file.o
+
+$(BIN)/default/lib_try.o: $(SRC)/default/lib_try.c $(SRC)/default/log.h $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/lib_try.c -o $(BIN)/default/lib_try.o
+
+$(BIN)/default/str.o: $(SRC)/default/str.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/str.c -o $(BIN)/default/str.o
+
+$(BIN)/default/ht.o: $(SRC)/default/ht.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/ht.c -o $(BIN)/default/ht.o
+
+$(BIN)/default/log.o: $(SRC)/default/log.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/log.c -o $(BIN)/default/log.o
+
+$(BIN)/default/arg.o: $(SRC)/default/arg.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/arg.c -o $(BIN)/default/arg.o
+
+$(BIN)/default/db.o: $(SRC)/default/db.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/db.c -o $(BIN)/default/db.o
+
+$(BIN)/default/dep.o: $(SRC)/default/dep.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/dep.c -o $(BIN)/default/dep.o
+
+$(BIN)/default/deps_default.o: $(SRC)/default/deps_default.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/deps_default.c -o $(BIN)/default/deps_default.o
+
+$(BIN)/default/find_libs.o: $(SRC)/default/find_libs.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_libs.c -o $(BIN)/default/find_libs.o
+
+$(BIN)/default/find_fscalls.o: $(SRC)/default/find_fscalls.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_fscalls.c -o $(BIN)/default/find_fscalls.o
+
+$(BIN)/default/find_signal.o: $(SRC)/default/find_signal.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_signal.c -o $(BIN)/default/find_signal.o
+
+$(BIN)/default/find_printf.o: $(SRC)/default/find_printf.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_printf.c -o $(BIN)/default/find_printf.o
+
+$(BIN)/default/find_proc.o: $(SRC)/default/find_proc.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_proc.c -o $(BIN)/default/find_proc.o
+
+$(BIN)/default/find_fstools.o: $(SRC)/default/find_fstools.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_fstools.c -o $(BIN)/default/find_fstools.o
+
+$(BIN)/default/find_uname.o: $(SRC)/default/find_uname.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_uname.c -o $(BIN)/default/find_uname.o
+
+$(BIN)/default/find_target.o: $(SRC)/default/find_target.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_target.c -o $(BIN)/default/find_target.o
+
+$(BIN)/default/regex.o: $(SRC)/default/regex.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/regex.c -o $(BIN)/default/regex.o
+
+$(BIN)/default/lib_filelist.o: $(SRC)/default/lib_filelist.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/lib_filelist.c -o $(BIN)/default/lib_filelist.o
+
+$(BIN)/default/lib_srctree.o: $(SRC)/default/lib_srctree.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/lib_srctree.c -o $(BIN)/default/lib_srctree.o
+
+$(BIN)/default/lib_pkg_config.o: $(SRC)/default/lib_pkg_config.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/lib_pkg_config.c -o $(BIN)/default/lib_pkg_config.o
+
+$(BIN)/default/lib_uniqinc.o: $(SRC)/default/lib_uniqinc.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/lib_uniqinc.c -o $(BIN)/default/lib_uniqinc.o
+
+$(BIN)/default/find_sys.o: $(SRC)/default/find_sys.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_sys.c -o $(BIN)/default/find_sys.o
+
+$(BIN)/default/find_str.o: $(SRC)/default/find_str.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_str.c -o $(BIN)/default/find_str.o
+
+$(BIN)/default/find_cc.o: $(SRC)/default/find_cc.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_cc.c -o $(BIN)/default/find_cc.o
+
+$(BIN)/default/find_environ.o: $(SRC)/default/find_environ.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_environ.c -o $(BIN)/default/find_environ.o
+
+$(BIN)/default/find_io.o: $(SRC)/default/find_io.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_io.c -o $(BIN)/default/find_io.o
+
+$(BIN)/default/find_time.o: $(SRC)/default/find_time.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_time.c -o $(BIN)/default/find_time.o
+
+$(BIN)/default/find_types.o: $(SRC)/default/find_types.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_types.c -o $(BIN)/default/find_types.o
+
+$(BIN)/default/main.o: $(SRC)/default/main.c $(SRC)/default/dep.h $(SRC)/default/libs.h Makefile
+	$(CC) $(CFLAGS) -c $(SRC)/default/main.c -o $(BIN)/default/main.o
+
+$(BIN)/default/main_custom_args.o: $(SRC)/default/main_custom_args.c
+	$(CC) $(CFLAGS) -c $(SRC)/default/main_custom_args.c -o $(BIN)/default/main_custom_args.o
+
+$(BIN)/default/main_lib.o: $(SRC)/default/main_lib.c
+	$(CC) $(CFLAGS) -c $(SRC)/default/main_lib.c -o $(BIN)/default/main_lib.o
+
+$(BIN)/default/find_thread.o: $(SRC)/default/find_thread.c $(SRC)/default/dep.h $(SRC)/default/libs.h
+	$(CC) $(CFLAGS) -c $(SRC)/default/find_thread.c -o $(BIN)/default/find_thread.o

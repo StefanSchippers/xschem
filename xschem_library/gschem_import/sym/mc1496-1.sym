@@ -1,0 +1,87 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MC1496
+template="device=MC1496
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {Gain-} 126 -30 2 1 0.266667 0.266667 {}
+T {Sig in-} 36 -30 2 1 0.266667 0.266667 {}
+T {Out+} 136 -150 2 1 0.266667 0.266667 {}
+T {Bias} 136 -180 2 1 0.266667 0.266667 {}
+T {Carr-} 36 -140 2 1 0.266667 0.266667 {}
+T {Out-} 136 -120 2 1 0.266667 0.266667 {}
+T {Carr+} 36 -170 2 1 0.266667 0.266667 {}
+T {MC1496} 30 -214 2 1 0.333333 0.333333 {}
+T {Sig in+} 36 -60 2 1 0.266667 0.266667 {}
+T {Gain+} 126 -60 2 1 0.266667 0.266667 {}
+T {@name} 170 -220 2 0 0.333333 0.333333 {}
+
+L 4 30 0 170 0 {}
+L 4 170 -210 170 0 {}
+L 4 30 -210 170 -210 {}
+L 4 30 -210 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 10 -65 2 1 0.266667 0.266667 {layer=13}
+L 3 170 -60 200 -60 {}
+B 5 197.5 -62.5 202.5 -57.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 180 -65 2 1 0.266667 0.266667 {layer=13}
+L 3 170 -30 200 -30 {}
+B 5 197.5 -32.5 202.5 -27.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#2:pinnumber} 180 -35 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {pinnumber=4
+pinseq=4
+name=4
+dir=inout
+}
+T {@#3:pinnumber} 10 -35 2 1 0.266667 0.266667 {layer=13}
+L 3 170 -180 200 -180 {}
+B 5 197.5 -182.5 202.5 -177.5 {pinnumber=5
+pinseq=5
+name=5
+dir=inout
+}
+T {@#4:pinnumber} 180 -185 2 1 0.266667 0.266667 {layer=13}
+L 3 170 -150 200 -150 {}
+B 5 197.5 -152.5 202.5 -147.5 {pinnumber=6
+pinseq=6
+name=6
+dir=inout
+}
+T {@#5:pinnumber} 180 -155 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=8
+pinseq=8
+name=8
+dir=inout
+}
+T {@#6:pinnumber} 10 -145 2 1 0.266667 0.266667 {layer=13}

@@ -1,0 +1,197 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=HIP4080A
+template="device=HIP4080A
+description=\\"High Frequency Full Bridge FET Driver\\"
+footprint=DIP20
+numslots=0
+name=U?
+AGND=AGND
+VCCA=VCCA
+VDDA=VDDA
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @AGND @VCCA @VDDA"
+
+extra="AGND VCCA VDDA"
+extra_pinnumber="4 15 16"
+}
+V {}
+S {}
+E {}
+T {HIP4080A} 30 -430 2 1 0.333333 0.333333 {}
+T {@name} 160 -430 2 1 0.333333 0.333333 {}
+
+L 4 30 0 180 0 {}
+L 4 180 -420 180 0 {}
+L 4 30 -420 180 -420 {}
+L 4 30 -420 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -390 30 -390 {}
+B 5 -2.5 -392.5 2.5 -387.5 {pinseq=1
+pinnumber=1
+name=BHB
+dir=in
+}
+T {@#0:pinnumber} 10 -395 2 1 0.333333 0.333333 {layer=13}
+T {@#0:name} 40 -390 2 1 0.333333 0.333333 {}
+L 3 0 -350 30 -350 {}
+B 5 -2.5 -352.5 2.5 -347.5 {pinseq=2
+pinnumber=2
+name=HEN
+dir=in
+}
+T {@#1:pinnumber} 10 -355 2 1 0.333333 0.333333 {layer=13}
+T {@#1:name} 40 -350 2 1 0.333333 0.333333 {}
+L 3 0 -310 30 -310 {}
+B 5 -2.5 -312.5 2.5 -307.5 {pinseq=3
+pinnumber=3
+dir=in
+name=DIS
+}
+T {@#2:pinnumber} 10 -315 2 1 0.333333 0.333333 {layer=13}
+T {@#2:name} 40 -310 2 1 0.333333 0.333333 {}
+L 3 0 -270 30 -270 {}
+B 5 -2.5 -272.5 2.5 -267.5 {pinnumber=4
+pinseq=4
+dir=inout
+name=Vss
+}
+T {@#3:pinnumber} 10 -275 2 1 0.333333 0.333333 {layer=13}
+T {@#3:name} 40 -270 2 1 0.333333 0.333333 {}
+L 3 0 -230 30 -230 {}
+B 5 -2.5 -232.5 2.5 -227.5 {pinnumber=5
+pinseq=5
+dir=out
+name=OUT
+}
+T {@#4:pinnumber} 10 -235 2 1 0.333333 0.333333 {layer=13}
+T {@#4:name} 40 -230 2 1 0.333333 0.333333 {}
+L 3 0 -190 30 -190 {}
+B 5 -2.5 -192.5 2.5 -187.5 {pinnumber=6
+pinseq=6
+dir=in
+name=IN+
+}
+T {@#5:pinnumber} 10 -195 2 1 0.333333 0.333333 {layer=13}
+T {@#5:name} 40 -190 2 1 0.333333 0.333333 {}
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=7
+pinseq=7
+dir=in
+name=IN-
+}
+T {@#6:pinnumber} 10 -155 2 1 0.333333 0.333333 {layer=13}
+T {@#6:name} 40 -150 2 1 0.333333 0.333333 {}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinnumber=8
+pinseq=8
+dir=in
+name=HDEL
+}
+T {@#7:pinnumber} 10 -115 2 1 0.333333 0.333333 {layer=13}
+T {@#7:name} 40 -110 2 1 0.333333 0.333333 {}
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {pinnumber=9
+pinseq=9
+dir=in
+name=LDEL
+}
+T {@#8:pinnumber} 10 -75 2 1 0.333333 0.333333 {layer=13}
+T {@#8:name} 40 -70 2 1 0.333333 0.333333 {}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {pinnumber=10
+pinseq=10
+dir=in
+name=AHB
+}
+T {@#9:pinnumber} 10 -35 2 1 0.333333 0.333333 {layer=13}
+T {@#9:name} 40 -30 2 1 0.333333 0.333333 {}
+L 3 180 -30 210 -30 {}
+B 5 207.5 -32.5 212.5 -27.5 {pinnumber=11
+pinseq=11
+dir=out
+name=AHO
+}
+T {@#10:pinnumber} 185 -35 2 1 0.333333 0.333333 {layer=13}
+T {@#10:name} 130 -30 2 1 0.333333 0.333333 {}
+L 3 180 -70 210 -70 {}
+B 5 207.5 -72.5 212.5 -67.5 {pinnumber=12
+pinseq=12
+dir=out
+name=AHS
+}
+T {@#11:pinnumber} 185 -75 2 1 0.333333 0.333333 {layer=13}
+T {@#11:name} 130 -70 2 1 0.333333 0.333333 {}
+L 3 180 -110 210 -110 {}
+B 5 207.5 -112.5 212.5 -107.5 {dir=out
+name=ALO
+pinnumber=13
+pinseq=13
+}
+T {@#12:name} 130 -110 2 1 0.333333 0.333333 {}
+T {@#12:pinnumber} 185 -115 2 1 0.333333 0.333333 {layer=13}
+L 3 180 -150 210 -150 {}
+B 5 207.5 -152.5 212.5 -147.5 {pinnumber=14
+pinseq=14
+dir=out
+name=ALS
+}
+T {@#13:pinnumber} 185 -155 2 1 0.333333 0.333333 {layer=13}
+T {@#13:name} 130 -150 2 1 0.333333 0.333333 {}
+L 3 180 -190 210 -190 {}
+B 5 207.5 -192.5 212.5 -187.5 {pinnumber=15
+pinseq=15
+dir=inout
+name=Vcc
+}
+T {@#14:pinnumber} 185 -195 2 1 0.333333 0.333333 {layer=13}
+T {@#14:name} 130 -190 2 1 0.333333 0.333333 {}
+L 3 180 -230 210 -230 {}
+B 5 207.5 -232.5 212.5 -227.5 {pinnumber=16
+pinseq=16
+dir=inout
+name=Vdd
+}
+T {@#15:pinnumber} 185 -235 2 1 0.333333 0.333333 {layer=13}
+T {@#15:name} 130 -230 2 1 0.333333 0.333333 {}
+L 3 180 -270 210 -270 {}
+B 5 207.5 -272.5 212.5 -267.5 {pinnumber=17
+pinseq=17
+dir=out
+name=BLS
+}
+T {@#16:pinnumber} 185 -275 2 1 0.333333 0.333333 {layer=13}
+T {@#16:name} 130 -270 2 1 0.333333 0.333333 {}
+L 3 180 -310 210 -310 {}
+B 5 207.5 -312.5 212.5 -307.5 {pinnumber=18
+pinseq=18
+dir=out
+name=BLO
+}
+T {@#17:pinnumber} 185 -315 2 1 0.333333 0.333333 {layer=13}
+T {@#17:name} 130 -310 2 1 0.333333 0.333333 {}
+L 3 180 -350 210 -350 {}
+B 5 207.5 -352.5 212.5 -347.5 {pinnumber=19
+pinseq=19
+dir=out
+name=BHS
+}
+T {@#18:pinnumber} 185 -355 2 1 0.333333 0.333333 {layer=13}
+T {@#18:name} 130 -350 2 1 0.333333 0.333333 {}
+L 3 180 -390 210 -390 {}
+B 5 207.5 -392.5 212.5 -387.5 {pinnumber=20
+pinseq=20
+dir=out
+name=BHO
+}
+T {@#19:pinnumber} 185 -395 2 1 0.333333 0.333333 {layer=13}
+T {@#19:name} 130 -390 2 1 0.333333 0.333333 {}

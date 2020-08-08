@@ -1,0 +1,50 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=SPEAKER
+template="device=SPEAKER
+name=SPK?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {SPEAKER} 30 -40 2 1 0.333333 0.333333 {}
+T {@name} 60 -200 2 1 0.333333 0.333333 {}
+
+L 4 120 -70 140 -70 {}
+L 4 140 -190 140 -70 {}
+L 4 120 -190 140 -190 {}
+L 4 120 -190 120 -70 {}
+
+L 4 180 -250 180 0 {}
+L 4 140 -190 180 -250 {}
+L 4 140 -70 180 0 {}
+
+
+A 4 100 -160 10 270 180 {}
+A 4 100 -140 10 270 180 {}
+A 4 100 -120 10 270 180 {}
+A 4 100 -100 10 270 180 {}
+A 4 100 -180 10 270 180 {}
+A 4 100 -80 10 270 180 {}
+
+
+
+
+L 3 0 -190 100 -190 {}
+B 5 -2.5 -192.5 2.5 -187.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+L 3 0 -70 100 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}

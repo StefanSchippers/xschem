@@ -1,0 +1,31 @@
+# The following regex sub utils are scconfig specific.
+
+# Regex: substitute the first match of a pattern with str in a variable:
+#   sub address pattern str
+
+put myvar {Hello world!\n}
+sub myvar {l} {2}
+print myvar
+
+# Address must resolve to an existing variable, pattern and str are data;
+# this means address can be a string that holds a variable name, it's the
+# same as if it was an addreess:
+sub {myvar} {l} {3}
+print myvar
+
+# Or it can be a block, which makes indirect addressing possible:
+# in [@@pointer@@] the @pointer@ part will be substituted with
+# the value of pointer, which is "myvar".
+put pointer {myvar}
+sub [@@pointer@@] {l} {4}
+print myvar
+
+# Since pattern and str are also data, address and blocks work there as well
+# (but this is _not_ a regex backreference):
+put punctuation {[!?.]}
+sub [@@pointer@@] punctuation [@ PUNCT:@punctuation@@]
+print myvar
+
+# gsub does the same, but substutites all matches, not only the first:
+gsub [@@pointer@@] {o} {_0_}
+print myvar

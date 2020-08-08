@@ -1,0 +1,42 @@
+# Switch is similar to case in posix shell and switch in C. It takes a
+# data argument and matches is against cases until the first match. It
+# executes the code for that match and stops executing the switch (unlike
+# in C, and like in sh, there is no fall-thru). A default case can be
+# defined as a catch-all rule.
+#
+# Scconfig uses regex matching (unlike sh (shell globbing) and C (integer)).
+#
+# The first word after the switch keyword is the string that is matched
+# against case patterns; the first word after a case is the pattern
+# the string is matched against. Each branch must be terminated by an "end",
+# just as the whole switch. Default doesn't have pattern, instructions start
+# immediately.
+
+put myvar {foobar}
+switch myvar
+	case {baz}  put res {1}; print {this is baz.\n}; end;
+	case {^oob} put res {2}; print {did you mean out-of-band?\n}; end;
+	case {^f}   put res {3}; print {starts with f.\n}; end;
+	case {oob}  put res {4}; print {OOB!\n}; end;
+	default     put res {0}; print {none.\n}; end;
+end;
+
+print {result is: } res {\n}
+
+
+# data is data - can be block as well, anywhere, in switch or case:
+put patt {^number$}
+put REF {3}
+switch [@num @res@ ber@]
+	case patt            print {empty\n}; end;
+	case [!^num !REF!!]  print {reference\n}; end;
+end
+
+# one of the uses of switch is to construct an if-then-else that uses
+# matching instead of checking for true/false; the following example
+# demonstrates how an "if cond matches {lob}" is done with switch.
+put cond {blobb}
+switch cond
+	case {lob}   print {"then"\n}; end
+	default      print {"else"\n}; end
+end

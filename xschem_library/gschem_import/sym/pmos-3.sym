@@ -1,0 +1,54 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=PMOS_TRANSISTOR
+template="device=PMOS_TRANSISTOR
+numslots=0
+description=\\"generic P channel MOS transistor (enhancement type)\\"
+name=Q?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 70 -60 2 1 0.333333 0.333333 {}
+
+
+L 4 25 -60 50 -60 {}
+L 4 25 -20 50 -20 {}
+L 4 30 -35 40 -40 {}
+L 4 30 -45 40 -40 {}
+L 4 25 -67.5 25 -52.5 {}
+L 4 25 -47.5 25 -32.5 {}
+L 4 25 -27.5 25 -12.5 {}
+L 4 20 -60 20 -20 {}
+L 4 25 -40 40 -40 {}
+L 4 40 -40 40 -20 {}
+
+
+
+
+
+
+L 3 50 -80 50 -60 {}
+B 5 47.5 -82.5 52.5 -77.5 {pinnumber=D
+name=D
+pinseq=1
+dir=inout
+}
+L 3 0 -20 20 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=G
+name=G
+pinseq=2
+dir=inout
+}
+L 3 50 -20 50 0 {}
+B 5 47.5 -2.5 52.5 2.5 {pinnumber=S
+name=S
+pinseq=3
+dir=inout
+}

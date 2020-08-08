@@ -1,0 +1,65 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=LM324
+template="device=LM324
+numslots=4
+slot=1
+name=U?
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {LM324} 22.5 -35 2 1 0.266667 0.266667 {}
+T {@name} 20 -90 2 1 0.333333 0.333333 {}
+
+
+L 4 20 -80 20 0 {}
+L 4 20 -80 80 -40 {}
+L 4 20 0 80 -40 {}
+L 4 25 -60 35 -60 {}
+L 4 30 -65 30 -55 {}
+L 4 25 -20 35 -20 {}
+
+
+
+
+
+
+L 3 80 -40 100 -40 {}
+B 5 97.5 -42.5 102.5 -37.5 {
+pinseq=1
+name=1
+dir=inout
+pinnumber=1:7:8:14
+}
+T {@#0:pinnumber} 87.5 -42.5 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -20 20 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {
+pinseq=2
+name=2
+dir=inout
+pinnumber=2:6:9:13
+}
+T {@#1:pinnumber} 5 -22.5 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -60 20 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {
+pinseq=3
+name=3
+dir=inout
+pinnumber=3:5:10:12
+}
+T {@#2:pinnumber} 5 -62.5 2 1 0.266667 0.266667 {layer=13}
+L 3 50 -80 50 -60 {}
+B 5 47.5 -82.5 52.5 -77.5 {
+pinseq=4
+name=4
+dir=inout
+pinnumber=
+}
+T {@#3:pinnumber} 52.5 -65 2 1 0.266667 0.266667 {layer=13}

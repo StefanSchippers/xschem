@@ -1,0 +1,62 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=74HCT01
+template="name=U?
+device=74HCT01
+footprint=DIP14
+slot=1
+numslots=4
+description=\\"4 NAND gates with 2 inputs and open collector output\\"
+GND=GND
+Vcc=Vcc
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @GND @Vcc"
+
+extra="GND Vcc"
+extra_pinnumber="7 14"
+}
+V {}
+S {}
+E {}
+T {@name} 30 -90 2 1 0.333333 0.333333 {}
+T {74HCT01} 30 0 2 1 0.266667 0.266667 {}
+
+
+L 4 30 -80 30 -20 {}
+L 4 30 -20 70 -20 {}
+L 4 30 -80 70 -80 {}
+
+A 4 105 -50 5 0 360 {}
+
+A 4 70 -50 30 270 180 {}
+
+
+
+
+L 3 110 -50 130 -50 {}
+B 5 127.5 -52.5 132.5 -47.5 {
+pinseq=1
+name=Y
+dir=inout
+pinnumber=1:4:10:13
+}
+T {@#0:pinnumber} 110 -55 2 1 0.266667 0.266667 {layer=13}
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {
+pinseq=2
+name=A
+dir=in
+pinnumber=2:5:8:11
+}
+T {@#1:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -30 30 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {
+pinseq=3
+name=B
+dir=in
+pinnumber=3:6:9:12
+}
+T {@#2:pinnumber} 20 -35 2 0 0.266667 0.266667 {layer=13}

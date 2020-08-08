@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM PRESENTATION</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+.content{ background-image:url('xschem_bg2.png');}
+th,td {font-size: 60%;padding: 3px;}
+</style>
+
+</head>
+<body>
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="tutorial_xschem_slides07.html" class="prev">PREV</a>
+<a href="tutorial_xschem_slides01.html" class="home">UP</a>
+<a href="tutorial_xschem_slides081.html" class="next">NEXT</a>
+
+
+ <!-- slide title -->
+ <h1>SIMULATION</h1>
+ <h3 style="text-align:left; max-width: 60%;margin-left:0;">
+  <ul style="margin-left:0;">
+   <li>In XSCHEM a schematic usually contains all the details needed to run a simulation.</li>
+   <li> When a schematic is correctly drawn just generate the netlist pushing the Netlist button, and then start simulation
+        by pressing the Simulate button.</li>
+   <li> XSCHEM has bindings to waveform viewers as well as simulators. Press the Waves button after simulation
+        is completed to view the results.<br>
+    <table style="float: left;margin-top:10px;margin-bottom: 10px;">
+     <tr><th>TOOL</th><th>TYPE</th><th>XSCHEM<br>SUPPORT</th></tr>
+     <tr><td>ngspice</td><td>Simulator</td><td>Works</td></tr>
+     <tr><td>Xyce</td><td>Parallel<br>Simulator</td><td>Works</td></tr>
+     <tr><td>Icarus Verilog</td><td>Simulator</td><td>Works</td></tr>
+     <tr><td>GHDL</td><td>Simulator</td><td>Works</td></tr>
+     <tr><td>ModelSim</td><td>Proprietary<br>Simulator</td><td>Works</td></tr>
+     <tr><td>NcSim</td><td>Proprietary<br>Simulator</td><td>Works</td></tr>
+    </table>
+
+    <table style="float: left;margin-top:10px;margin-bottom: 10px;">
+     <tr><th>TOOL</th><th>TYPE</th><th>XSCHEM<br>SUPPORT</th></tr>
+     <tr><td>Hspice</td><td>Proprietary<br>Simulator</td><td>Works</td></tr>
+     <tr><td>Finesim</td><td>Proprietary<br>Simulator</td><td>Works</td></tr>
+     <tr><td>Gtkwave</td><td>Viewer</td><td>Works</td></tr>
+     <tr><td>Gaw</td><td>Viewer</td><td>Works</td></tr>
+     <tr><td>Waveview</td><td>Proprietary<br>Viewer</td><td>Works</td></tr>
+    </table>
+   </li>
+   <li style="clear: both;"> With proper netlisting attributes on leaf cells the same design can be simulated unchanged in Spice, Verilog, VHDL.
+   <li> DC Operating point information back-annotation into the schematic is possible.</li>
+  </ul>
+ </h3>
+ <img src="tutorial_xschem_slides07.png" style="position:fixed; top:15%; right:6%; max-width: 35%;">
+ <img src="tutorial_xschem_slides13.png" style="border: 4px solid grey;position:fixed; top:50%; right:2%; max-width: 25%;">
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

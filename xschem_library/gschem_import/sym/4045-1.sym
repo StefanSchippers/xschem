@@ -1,0 +1,84 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=4045
+template="name=U?
+device=4045
+footprint=DIP16
+description=\\"21-stage counter\\"
+numslots=0
+VSS=VSS
+VDD=VDD
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @VSS @VDD"
+
+extra="VSS VDD"
+extra_pinnumber="14 3"
+}
+V {}
+S {}
+E {}
+T {@name} 50 -240 2 0 0.333333 0.333333 {}
+T {4045} 30 -5 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 130 -30 {}
+L 4 130 -230 130 -30 {}
+L 4 30 -230 130 -230 {}
+L 4 30 -230 30 -30 {}
+
+
+
+
+
+
+
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinnumber=16
+pinseq=1
+name=X1
+dir=in
+}
+T {@#0:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -110 2 1 0.266667 0.266667 {}
+L 3 0 -150 30 -150 {}
+B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=15
+pinseq=2
+name=X0
+dir=in
+}
+T {@#1:pinnumber} 20 -155 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -150 2 1 0.266667 0.266667 {}
+L 3 0 -70 30 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {pinnumber=1
+pinseq=3
+name=PS
+dir=in
+}
+T {@#2:pinnumber} 20 -75 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -70 2 1 0.266667 0.266667 {}
+L 3 0 -190 30 -190 {}
+B 5 -2.5 -192.5 2.5 -187.5 {pinnumber=2
+pinseq=4
+name=NS
+dir=in
+}
+T {@#3:pinnumber} 20 -195 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -190 2 1 0.266667 0.266667 {}
+L 3 130 -110 160 -110 {}
+B 5 157.5 -112.5 162.5 -107.5 {pinnumber=8
+pinseq=5
+name=QB
+dir=out
+}
+T {@#4:pinnumber} 140 -115 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 125 -110 2 0 0.266667 0.266667 {}
+L 3 130 -150 160 -150 {}
+B 5 157.5 -152.5 162.5 -147.5 {pinnumber=7
+pinseq=6
+name=QA
+dir=out
+}
+T {@#5:pinnumber} 140 -155 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 125 -150 2 0 0.266667 0.266667 {}

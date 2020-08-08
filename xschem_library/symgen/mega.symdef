@@ -1,0 +1,131 @@
+# This is a the symbol definition for ATXmegaA1 to be read by djboxsym.
+# -<)kmk(>-
+
+[labels]
+refdes=U?
+#value=ATXmega128A1U-AU
+value=ATXmega
+#footprint=TQFP100-05
+footprint=TQFP
+! documentation=http://www.atmel.com/dyn/resources/prod_documents/doc8067.pdf
+! values=ATXmega128A1U-AU, ATXmega64A1U-AU
+! description=ATXmegaA1, TQFP-100 
+! symversion=1.0
+! author=Kai-Martin Knaak, kmk@lilalaser.de
+! uselicense=no restrictions
+! distlicense=GPL3
+--xvmode
+[left]
+101 ! \_RESET4\_
+
+95 PA0
+96 PA1
+97 PA2
+98 PA3
+99 PA4
+100 PA5
+1 PA6
+2 PA7
+.bus
+5 PB0
+6 PB1
+7 PB2
+8 PB3
+9 PB4
+10 PB5
+11 PB6
+12 PB7
+
+15 PC0
+16 PC1
+17 PC2
+18 PC3
+19 PC4
+20 PC5
+21 PC6
+22 PC7
+
+25 PD0
+26 PD1
+27 PD2
+28 PD3
+29 PD4
+30 PD5
+31 PD6
+32 PD7
+
+35 PE0
+36 PE1
+37 PE2
+38 PE3
+39 PE4
+40 PE5
+41 PE6
+42 PE7
+[right]
+45 PF0
+46 PF1
+47 PF2
+48 PF3
+49 PF4
+50 PF5
+51 PF6
+52 PF7
+
+55 PH0
+56 PH1
+57 PH2
+58 PH3
+59 PH4
+60 PH5
+61 PH6
+62 PH7
+
+65 PJ0
+66 PJ1
+67 PJ2
+68 PJ3
+69 PJ4
+70 PJ5
+71 PJ6
+72 PJ7
+
+75 PK0
+76 PK1
+77 PK2
+78 PK3
+79 PK4
+80 PK5
+81 PK6
+82 PK7
+
+85 PQ0
+86 PQ1
+87 PQ2
+88 PQ3
+89 PDI
+90 ! \_RESET\_
+91 PR0
+92 PR1
+[top]
+4 AVCC
+94 AVCC
+14 VCC
+24 ! \_RESET2\_
+34 AAVCC
+44 VCC
+54 VCC
+64 VCC
+74 VCC
+83 VDD
+[bottom]
+3 GND
+13 GND
+23 GND
+33 ! \_RESET3\_
+43 GND
+53 GND
+63 GND
+73 GND
+84 GND
+93 GND

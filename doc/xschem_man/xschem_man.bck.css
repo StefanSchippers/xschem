@@ -1,0 +1,62 @@
+/* stefan 20121120 */
+
+* {
+ margin-top:0;
+ margin-bottom:0;
+ font-family: arial;
+ border: none;
+ /*
+ padding-top: 0;
+ padding-bottom: 0;
+ */
+}
+body, .content { 
+  height: 100%;
+  min-height: 100%;
+  margin:0 auto 0;
+}
+.footer{
+  margin:0;
+  width: 100%;
+  border: none;
+  padding:0;
+  height: 35px;
+  background: #223388; /* background in footer as IE8 does not set background in iframe */
+  overflow: hidden;
+}
+
+.footer_iframe{
+  height: 35px;
+  margin:0;
+  margin-bottom:-5px;  /* to avoid vertical scrollbars on firefox*/
+  width: 100%;
+  border: none;
+  padding:0;
+  background: #223388;
+}
+
+.content{ 		/* this is where user content goes */
+  background:#ccddff;
+  margin-bottom: -35px; /* space for footer */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.prev { position: fixed ; left:0px;}
+.home { position: fixed ; left:20px;}
+.next { position: fixed ; left:45px;}
+
+a{
+  text-decoration:none;
+}
+
+a:hover{
+  background-color: red;
+  color: white;
+  text-shadow: 15px 15px 15px #FF0000;
+}
+  
+ul{ font-size:20px;}
+ul ul{ font-size:16px;}
+h1{font-size:30px;text-align:center;}
+

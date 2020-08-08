@@ -1,0 +1,223 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=A3967SLB
+template="device=A3967SLB
+name=U?
+footprint=\\"DW 24\\"
+symversion=1.0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 230 -500 2 0 0.333333 0.333333 {}
+T {A3967SLB} 40 -500 2 1 0.333333 0.333333 {}
+
+L 4 30 0 230 0 {}
+L 4 230 -490 230 0 {}
+L 4 30 -490 230 -490 {}
+L 4 30 -490 30 0 {}
+
+
+
+
+
+
+
+L 3 230 -390 260 -390 {}
+B 5 257.5 -392.5 262.5 -387.5 {pinnumber=1
+pinseq=1
+name=REF
+dir=inout
+}
+T {@#0:pinnumber} 240 -400 2 1 0.333333 0.333333 {layer=13}
+T {@#0:name} 220 -390 2 0 0.333333 0.333333 {}
+L 3 230 -360 260 -360 {}
+B 5 257.5 -362.5 262.5 -357.5 {pinnumber=2
+pinseq=2
+name=RC2
+dir=inout
+}
+T {@#1:pinnumber} 240 -370 2 1 0.333333 0.333333 {layer=13}
+T {@#1:name} 220 -360 2 0 0.333333 0.333333 {}
+L 3 0 -420 30 -420 {}
+B 5 -2.5 -422.5 2.5 -417.5 {pinnumber=3
+pinseq=3
+name=/SLEEP
+dir=inout
+}
+T {@#2:pinnumber} 20 -430 2 0 0.333333 0.333333 {layer=13}
+T {@#2:name} 40 -420 2 1 0.333333 0.333333 {}
+L 3 230 -120 260 -120 {}
+B 5 257.5 -122.5 262.5 -117.5 {pinnumber=4
+pinseq=4
+name=2B
+dir=inout
+}
+T {@#3:pinnumber} 240 -130 2 1 0.333333 0.333333 {layer=13}
+T {@#3:name} 220 -120 2 0 0.333333 0.333333 {}
+L 3 0 -450 30 -450 {}
+B 5 -2.5 -452.5 2.5 -447.5 {pinnumber=5
+pinseq=5
+name=VBB2
+dir=inout
+}
+T {@#4:pinnumber} 20 -460 2 0 0.333333 0.333333 {layer=13}
+T {@#4:name} 40 -450 2 1 0.333333 0.333333 {}
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=6
+pinseq=6
+name=GND
+dir=inout
+}
+T {@#5:pinnumber} 20 -150 2 0 0.333333 0.333333 {layer=13}
+T {@#5:name} 40 -140 2 1 0.333333 0.333333 {}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinnumber=7
+pinseq=7
+name=GND
+dir=inout
+}
+T {@#6:pinnumber} 20 -120 2 0 0.333333 0.333333 {layer=13}
+T {@#6:name} 40 -110 2 1 0.333333 0.333333 {}
+L 3 230 -320 260 -320 {}
+B 5 257.5 -322.5 262.5 -317.5 {pinnumber=8
+pinseq=8
+name=SENSE\\ 2
+dir=inout
+}
+T {@#7:pinnumber} 240 -330 2 1 0.333333 0.333333 {layer=13}
+T {@#7:name} 220 -320 2 0 0.333333 0.333333 {}
+L 3 230 -150 260 -150 {}
+B 5 257.5 -152.5 262.5 -147.5 {pinnumber=9
+pinseq=9
+name=2A
+dir=inout
+}
+T {@#8:pinnumber} 240 -160 2 1 0.333333 0.333333 {layer=13}
+T {@#8:name} 220 -150 2 0 0.333333 0.333333 {}
+L 3 0 -270 30 -270 {}
+B 5 -2.5 -272.5 2.5 -267.5 {pinnumber=10
+pinseq=10
+name=STEP
+dir=inout
+}
+T {@#9:pinnumber} 20 -280 2 0 0.333333 0.333333 {layer=13}
+T {@#9:name} 40 -270 2 1 0.333333 0.333333 {}
+L 3 0 -300 30 -300 {}
+B 5 -2.5 -302.5 2.5 -297.5 {pinnumber=11
+pinseq=11
+name=DIR
+dir=inout
+}
+T {@#10:pinnumber} 20 -310 2 0 0.333333 0.333333 {layer=13}
+T {@#10:name} 40 -300 2 1 0.333333 0.333333 {}
+L 3 0 -360 30 -360 {}
+B 5 -2.5 -362.5 2.5 -357.5 {pinnumber=12
+pinseq=12
+name=MS1
+dir=inout
+}
+T {@#11:pinnumber} 20 -370 2 0 0.333333 0.333333 {layer=13}
+T {@#11:name} 40 -360 2 1 0.333333 0.333333 {}
+L 3 0 -330 30 -330 {}
+B 5 -2.5 -332.5 2.5 -327.5 {pinnumber=13
+pinseq=13
+name=MS2
+dir=inout
+}
+T {@#12:pinnumber} 20 -340 2 0 0.333333 0.333333 {layer=13}
+T {@#12:name} 40 -330 2 1 0.333333 0.333333 {}
+L 3 230 -450 260 -450 {}
+B 5 257.5 -452.5 262.5 -447.5 {pinnumber=14
+pinseq=14
+name=VCC
+dir=inout
+}
+T {@#13:pinnumber} 240 -460 2 1 0.333333 0.333333 {layer=13}
+T {@#13:name} 220 -450 2 0 0.333333 0.333333 {}
+L 3 0 -240 30 -240 {}
+B 5 -2.5 -242.5 2.5 -237.5 {pinnumber=15
+pinseq=15
+name=/ENABLE
+dir=inout
+}
+T {@#14:pinnumber} 20 -250 2 0 0.333333 0.333333 {layer=13}
+T {@#14:name} 40 -240 2 1 0.333333 0.333333 {}
+L 3 230 -210 260 -210 {}
+B 5 257.5 -212.5 262.5 -207.5 {pinnumber=16
+pinseq=16
+name=1A
+dir=inout
+}
+T {@#15:pinnumber} 240 -220 2 1 0.333333 0.333333 {layer=13}
+T {@#15:name} 220 -210 2 0 0.333333 0.333333 {}
+L 3 230 -280 260 -280 {}
+B 5 257.5 -282.5 262.5 -277.5 {pinnumber=17
+pinseq=17
+name=SENSE\\ 1
+dir=inout
+}
+T {@#16:pinnumber} 240 -290 2 1 0.333333 0.333333 {layer=13}
+T {@#16:name} 220 -280 2 0 0.333333 0.333333 {}
+L 3 0 -80 30 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=18
+pinseq=18
+name=GND
+dir=inout
+}
+T {@#17:pinnumber} 20 -90 2 0 0.333333 0.333333 {layer=13}
+T {@#17:name} 40 -80 2 1 0.333333 0.333333 {}
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=19
+pinseq=19
+name=GND
+dir=inout
+}
+T {@#18:pinnumber} 20 -60 2 0 0.333333 0.333333 {layer=13}
+T {@#18:name} 40 -50 2 1 0.333333 0.333333 {}
+L 3 230 -420 260 -420 {}
+B 5 257.5 -422.5 262.5 -417.5 {pinnumber=20
+pinseq=20
+name=VBB1
+dir=inout
+}
+T {@#19:pinnumber} 240 -430 2 1 0.333333 0.333333 {layer=13}
+T {@#19:name} 220 -420 2 0 0.333333 0.333333 {}
+L 3 230 -180 260 -180 {}
+B 5 257.5 -182.5 262.5 -177.5 {pinnumber=21
+pinseq=21
+name=1B
+dir=inout
+}
+T {@#20:pinnumber} 240 -190 2 1 0.333333 0.333333 {layer=13}
+T {@#20:name} 220 -180 2 0 0.333333 0.333333 {}
+L 3 0 -390 30 -390 {}
+B 5 -2.5 -392.5 2.5 -387.5 {pinnumber=22
+pinseq=22
+name=/RST
+dir=inout
+}
+T {@#21:pinnumber} 20 -400 2 0 0.333333 0.333333 {layer=13}
+T {@#21:name} 40 -390 2 1 0.333333 0.333333 {}
+L 3 230 -60 260 -60 {}
+B 5 257.5 -62.5 262.5 -57.5 {pinnumber=23
+pinseq=23
+name=RC1
+dir=inout
+}
+T {@#22:pinnumber} 240 -70 2 1 0.333333 0.333333 {layer=13}
+T {@#22:name} 220 -60 2 0 0.333333 0.333333 {}
+L 3 0 -210 30 -210 {}
+B 5 -2.5 -212.5 2.5 -207.5 {pinnumber=24
+pinseq=24
+name=PFD
+dir=inout
+}
+T {@#23:pinnumber} 20 -220 2 0 0.333333 0.333333 {layer=13}
+T {@#23:name} 40 -210 2 1 0.333333 0.333333 {}

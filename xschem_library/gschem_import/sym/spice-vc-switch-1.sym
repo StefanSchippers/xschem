@@ -1,0 +1,66 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=SPICE-VC-switch
+template="device=SPICE-VC-switch
+name=S?
+model-name=swmod
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {+} 70 -90 2 1 0.333333 0.333333 {}
+T {-} 70 -40 2 1 0.333333 0.333333 {}
+T {@name} 90 -120 2 1 0.4 0.4 {}
+T {@model-name} 70 -15 2 1 0.266667 0.266667 {}
+
+
+L 4 120 -100 150 -100 {}
+L 4 120 -40 150 -40 {}
+L 4 150 -110 150 -30 {}
+L 4 40 -40 70 -40 {}
+L 4 40 -100 70 -100 {}
+L 4 40 -110 40 -30 {}
+L 4 40 -110 150 -110 {}
+L 4 40 -30 150 -30 {}
+L 4 106.7 -84.2 119.1 -55.3 {}
+L 4 80 -70 112.9 -70.1 {}
+L 4 120 -52.5 120 -40 {}
+L 4 120 -100 120 -87.5 {}
+
+A 4 120 -53.9 1.4 0 360 {}
+A 4 119.9 -86.2 1.4 0 360 {}
+
+
+
+
+
+L 3 150 -100 170 -100 {}
+B 5 167.5 -102.5 172.5 -97.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+L 3 150 -40 170 -40 {}
+B 5 167.5 -42.5 172.5 -37.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+L 3 20 -100 40 -100 {}
+B 5 17.5 -102.5 22.5 -97.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+L 3 20 -40 40 -40 {}
+B 5 17.5 -42.5 22.5 -37.5 {pinnumber=4
+pinseq=4
+name=4
+dir=inout
+}

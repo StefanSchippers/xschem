@@ -1,0 +1,99 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=TFDS4500
+template="name=U?
+description=\\"This is a physical layer infrared transceiver mainly used for IRDA\\"
+device=TFDS4500
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 250 -160 2 1 0.333333 0.333333 {}
+T {TFDS4500} 30 -160 2 1 0.333333 0.333333 {}
+T {IR-TRX} 111 -85 2 1 0.333333 0.333333 {}
+
+L 4 30 -30 270 -30 {}
+L 4 270 -150 270 -30 {}
+L 4 30 -150 270 -150 {}
+L 4 30 -150 30 -30 {}
+
+L 4 82 -85 97 -100 {}
+L 4 92 -100 97 -100 {}
+L 4 97 -100 97 -95 {}
+L 4 92 -85 107 -100 {}
+L 4 102 -100 107 -100 {}
+L 4 107 -100 107 -95 {}
+L 4 177 -85 192 -100 {}
+L 4 177 -90 177 -85 {}
+L 4 177 -85 182 -85 {}
+L 4 187 -90 187 -85 {}
+L 4 187 -85 192 -85 {}
+L 4 187 -85 202 -100 {}
+
+
+
+
+
+
+L 3 270 -60 300 -60 {}
+B 5 297.5 -62.5 302.5 -57.5 {name=IR\\ K
+pinnumber=1
+pinseq=1
+dir=inout
+}
+T {@#0:name} 230 -60 2 1 0.333333 0.333333 {}
+T {@#0:pinnumber} 280 -70 2 1 0.333333 0.333333 {layer=13}
+L 3 270 -120 300 -120 {}
+B 5 297.5 -122.5 302.5 -117.5 {name=RxD
+pinnumber=2
+pinseq=2
+dir=inout
+}
+T {@#1:name} 230 -120 2 1 0.333333 0.333333 {}
+T {@#1:pinnumber} 280 -130 2 1 0.333333 0.333333 {layer=13}
+L 3 150 -180 150 -150 {}
+B 5 147.5 -182.5 152.5 -177.5 {name=Vcc1/SD
+pinnumber=3
+pinseq=3
+dir=inout
+}
+T {@#2:name} 190 -140 0 1 0.333333 0.333333 {}
+T {@#2:pinnumber} 160 -160 2 1 0.333333 0.333333 {layer=13}
+L 3 150 -30 150 0 {}
+B 5 147.5 -2.5 152.5 2.5 {name=GND
+pinnumber=4
+pinseq=4
+dir=inout
+}
+T {@#3:name} 130 -40 2 1 0.333333 0.333333 {}
+T {@#3:pinnumber} 160 -10 2 1 0.333333 0.333333 {layer=13}
+L 3 0 -120 30 -120 {}
+B 5 -2.5 -122.5 2.5 -117.5 {name=SC
+pinnumber=5
+pinseq=5
+dir=inout
+}
+T {@#4:name} 40 -120 2 1 0.333333 0.333333 {}
+T {@#4:pinnumber} 20 -130 2 0 0.333333 0.333333 {layer=13}
+L 3 0 -60 30 -60 {}
+B 5 -2.5 -62.5 2.5 -57.5 {name=TxD
+pinnumber=7
+pinseq=7
+dir=inout
+}
+T {@#5:name} 40 -60 2 1 0.333333 0.333333 {}
+T {@#5:pinnumber} 20 -70 2 0 0.333333 0.333333 {layer=13}
+L 3 270 -90 300 -90 {}
+B 5 297.5 -92.5 302.5 -87.5 {name=IR\\ A
+pinnumber=8
+pinseq=8
+dir=inout
+}
+T {@#6:name} 230 -90 2 1 0.333333 0.333333 {}
+T {@#6:pinnumber} 280 -100 2 1 0.333333 0.333333 {layer=13}

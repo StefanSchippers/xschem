@@ -1,0 +1,133 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=PIC16C505
+template="device=PIC16C505
+name=U?
+footprint=DIP14
+description=\\"8-bit CMOS microcontroller\\"
+numslots=0
+documentation=http://www.microchip.com/download/lit/pline/picmicro/families/16c5x/40192c.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="1 14"
+}
+V {}
+S {}
+E {}
+T {@name} 200 -210 2 0 0.333333 0.333333 {}
+T {PIC16C505} 30 -204 2 1 0.333333 0.333333 {}
+
+L 4 30 0 200 0 {}
+L 4 200 -200 200 0 {}
+L 4 30 -200 200 -200 {}
+L 4 30 -200 30 0 {}
+
+
+
+
+
+
+
+L 3 0 -170 30 -170 {}
+B 5 -2.5 -172.5 2.5 -167.5 {pinnumber=2
+pinseq=2
+name=RB5/CLKIN
+dir=inout
+}
+T {@#0:pinnumber} 20 -175 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -170 2 1 0.266667 0.266667 {}
+L 3 0 -140 30 -140 {}
+B 5 -2.5 -142.5 2.5 -137.5 {pinnumber=3
+pinseq=3
+name=RB4/CLKOUT
+dir=inout
+}
+T {@#1:pinnumber} 20 -145 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -140 2 1 0.266667 0.266667 {}
+L 3 0 -110 30 -110 {}
+B 5 -2.5 -112.5 2.5 -107.5 {pinnumber=4
+pinseq=4
+name=RB3/\_MCLR\_
+dir=in
+}
+T {@#2:pinnumber} 20 -115 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -110 2 1 0.266667 0.266667 {}
+L 3 0 -80 30 -80 {}
+B 5 -2.5 -82.5 2.5 -77.5 {pinnumber=5
+pinseq=5
+name=RC5/TOCKI
+dir=inout
+}
+T {@#3:pinnumber} 20 -85 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 35 -80 2 1 0.266667 0.266667 {}
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=6
+pinseq=6
+name=RC4
+dir=inout
+}
+T {@#4:pinnumber} 20 -55 2 0 0.266667 0.266667 {layer=13}
+T {@#4:name} 35 -50 2 1 0.266667 0.266667 {}
+L 3 0 -20 30 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=7
+pinseq=7
+name=RC3
+dir=inout
+}
+T {@#5:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
+T {@#5:name} 35 -20 2 1 0.266667 0.266667 {}
+L 3 200 -20 230 -20 {}
+B 5 227.5 -22.5 232.5 -17.5 {pinnumber=8
+pinseq=8
+name=RC2
+dir=inout
+}
+T {@#6:pinnumber} 210 -25 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 195 -20 2 0 0.266667 0.266667 {}
+L 3 200 -50 230 -50 {}
+B 5 227.5 -52.5 232.5 -47.5 {pinnumber=9
+pinseq=9
+name=RC1
+dir=inout
+}
+T {@#7:pinnumber} 210 -55 2 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 195 -50 2 0 0.266667 0.266667 {}
+L 3 200 -80 230 -80 {}
+B 5 227.5 -82.5 232.5 -77.5 {pinnumber=10
+pinseq=10
+name=RC0
+dir=inout
+}
+T {@#8:pinnumber} 210 -85 2 1 0.266667 0.266667 {layer=13}
+T {@#8:name} 195 -80 2 0 0.266667 0.266667 {}
+L 3 200 -110 230 -110 {}
+B 5 227.5 -112.5 232.5 -107.5 {pinnumber=11
+pinseq=11
+name=RB2
+dir=inout
+}
+T {@#9:pinnumber} 210 -115 2 1 0.266667 0.266667 {layer=13}
+T {@#9:name} 195 -110 2 0 0.266667 0.266667 {}
+L 3 200 -140 230 -140 {}
+B 5 227.5 -142.5 232.5 -137.5 {pinnumber=12
+pinseq=12
+name=RB1
+dir=inout
+}
+T {@#10:pinnumber} 210 -145 2 1 0.266667 0.266667 {layer=13}
+T {@#10:name} 195 -140 2 0 0.266667 0.266667 {}
+L 3 200 -170 230 -170 {}
+B 5 227.5 -172.5 232.5 -167.5 {pinnumber=13
+pinseq=13
+name=RB0
+dir=inout
+}
+T {@#11:pinnumber} 210 -175 2 1 0.266667 0.266667 {layer=13}
+T {@#11:name} 195 -170 2 0 0.266667 0.266667 {}

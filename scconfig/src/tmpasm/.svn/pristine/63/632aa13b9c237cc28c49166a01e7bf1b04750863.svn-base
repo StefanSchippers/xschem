@@ -1,0 +1,6 @@
+# test if without an else
+if cnd then
+	print a1 a2 a3
+end
+
+print a1 a2 a3

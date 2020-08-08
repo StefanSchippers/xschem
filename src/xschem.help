@@ -1,0 +1,50 @@
+usage: xschem [options] [schematic | symbol ]
+Options:
+  -h  --help           Print this help.
+  -n  --netlist        Do a netlist of the given schematic cell.
+  -v  --version        Print version information and exit.
+  -V  --vhdl           Set netlist type to VHDL.
+  -S  --simulate       Run a simulation of the current schematc file 
+                       (spice/Verilog/VHDL, depending on the netlist 
+                       type chosen).
+  -w  --verilog        Set netlist type to Verilog.
+  --tcl <tcl_script>   Execute specified tcl instructions before any other action,
+                       this can be used to change xschemrc variables.
+  --script <file>      Execute specified tcl file as a command script (perhaps with xschem  commands).
+  --tcp_port <number>  Listen to specified tcp port for client connections. (number >=1024).
+  -i  --no_rcload      Do not load any xschemrc file.
+  -o <file>            Set output path for netlist.
+  --netlist_path <file>
+  -N <file>            Set name (only name, not path) of top level netlist file.
+  --netlist_filename <file>    
+  -t  --tedax          Set netlist type to tEDAx.
+  -s  --spice          Set netlist type to SPICE.
+  -3  --a3page         Set page size for pdf export to A3.
+  -x  --no_x           Don't use X (only command mode).
+      --events         Do not use tclreadline, empty tcl shell prompt, dump
+                       activity on stdout for remote controlling other software.
+  -z  --rainbow        Use a raibow-looking layer color table.
+  -W  --waves          Show simulation waveforms.
+  -f  --flat_netlist   Set flat netlist (for spice format only).
+  -r  --no_readline    Start without the tclreadline package ( this is
+                       necessary if stdin and stdout are to be redirected
+                       for example to /dev/null).
+  -c  --color_ps       Set color postscript.
+  --plotfile <file>    Use <file> as output for plot (png, svg, ps).
+  --rcfile <file>      Use <file> as a rc file for startup instead of the
+                       default xschemrc.
+  -p  --postscript
+      --pdf            Export pdf schematic.
+      --png            Export png schematic.
+      --svg            Export svg schematic.
+  -q  --quit           Quit after doing things (no interactive mode).
+  -l <file>
+  --log <file>         Set a log file.
+  -d <n>
+  --debug <n>          Set debug level:  1,  2,  3,..  C program debug.
+                                       -1, -2, -3...  TCL frontend debug.
+
+xschem: interactive schematic capture program
+
+Example:   xschem counter.sch
+the schematic file `counter.sch' will be loaded.

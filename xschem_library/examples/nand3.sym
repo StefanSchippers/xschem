@@ -1,0 +1,23 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=nand3
+verilog_format="nand #(@risedel , @falldel ) @name ( @@Z , @@A , @@B , @@C );"
+template="name=x1 risedel=100 falldel=200"
+}
+V {}
+S {}
+E {}
+L 4 -40 -20 -25 -20 {}
+L 4 -25 -30 -25 30 {}
+L 4 -25 -30 5 -30 {}
+L 4 -25 30 5 30 {}
+L 4 -40 0 -25 0 {}
+L 4 45 0 60 0 {}
+L 4 -40 20 -25 20 {}
+B 5 57.5 -2.5 62.5 2.5 {name=Z dir=out verilog_type=wire}
+B 5 -42.5 -22.5 -37.5 -17.5 {name=A dir=in}
+B 5 -42.5 -2.5 -37.5 2.5 {name=B dir=in}
+B 5 -42.5 17.5 -37.5 22.5 {name=C dir=in}
+A 4 40 0 5 180 360 {}
+A 4 5 0 30 270 180 {}
+T {@symname} -22.5 -15 0 0 0.2 0.2 {}
+T {@name} -22.5 0 0 0 0.2 0.2 {}

@@ -1,0 +1,47 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=POLARIZED_CAPACITOR
+template="device=POLARIZED_CAPACITOR
+name=C?
+description=\\"polarized capacitor\\"
+numslots=0
+symversion=0.1
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 20 -50 2 1 0.333333 0.333333 {}
+
+
+L 4 40 -40 40 0 {}
+L 4 50 -20 70 -20 {}
+L 4 20 -20 40 -20 {}
+L 4 28.9 -40 28.9 -30 {}
+L 4 24 -34.9 34 -34.9 {}
+
+
+A 4 120 -20 70 165 30 {}
+
+
+
+
+L 3 0 -20 20 -20 {}
+B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=P
+pinseq=1
+name=+
+dir=inout
+}
+T {@#0:pinnumber} 15 -25 2 0 0.266667 0.266667 {layer=13}
+L 3 70 -20 90 -20 {}
+B 5 87.5 -22.5 92.5 -17.5 {pinnumber=N
+pinseq=2
+name=-
+dir=inout
+}
+T {@#1:pinnumber} 75 -25 2 1 0.266667 0.266667 {layer=13}

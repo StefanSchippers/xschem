@@ -1,0 +1,31 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=none
+template="device=none
+graphical=1
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+
+
+L 4 0 -10 10 -20 {}
+L 4 -10 -20 0 -10 {}
+
+
+
+
+
+
+L 3 0 -10 0 0 {}
+B 5 -2.5 -2.5 2.5 2.5 {pinseq=1
+pinnumber=1
+dir=inout
+name=netside
+}

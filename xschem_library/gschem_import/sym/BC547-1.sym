@@ -1,0 +1,55 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=BC547
+template="device=BC547
+name=Q?
+footprint=TO92
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 90 -50 2 1 0.333333 0.333333 {}
+T {BC547} 90 -30 2 1 0.333333 0.333333 {}
+
+
+L 4 40 -40 60 -20 {}
+L 4 40 -60 60 -80 {}
+L 4 40 -70 40 -30 {}
+L 4 18.4 -50 40 -50 {}
+L 4 56.4 -27.2 60 -20 {}
+L 4 52.8 -23.6 60 -20 {}
+L 4 52.8 -23.6 56.4 -27.2 {}
+
+A 4 50 -50.1 31.6 0 360 {}
+
+
+
+
+
+L 3 60 -100 60 -80 {}
+B 5 57.5 -102.5 62.5 -97.5 {pinnumber=1
+pinseq=1
+name=1
+dir=inout
+}
+T {@#0:pinnumber} 50 -85 2 1 0.2 0.2 {layer=13}
+L 3 0 -50 18.4 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=2
+pinseq=2
+name=2
+dir=inout
+}
+T {@#1:pinnumber} 10 -55 2 1 0.2 0.2 {layer=13}
+L 3 60 -20 60 0 {}
+B 5 57.5 -2.5 62.5 2.5 {pinnumber=3
+pinseq=3
+name=3
+dir=inout
+}
+T {@#2:pinnumber} 50 -5 2 1 0.2 0.2 {layer=13}

@@ -1,0 +1,26 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=pmos
+format="@name @pinlist @model w=@w l=@l number=@m"
+template="name=X1 model=tepbsim3 m=1 w=5u l=0.7u"}
+V {}
+S {}
+E {}
+L 4 5 -27.5 5 27.5 {11}
+L 4 5 20 20 20 {}
+L 4 5 -20 20 -20 {}
+L 4 20 -30 20 -20 {}
+L 4 -5 -15 -5 15 {}
+L 4 -20 0 -12.5 -0 {}
+L 4 10 0 20 0 {}
+L 4 5 -5 10 0 {}
+L 4 5 5 10 -0 {}
+L 4 20 20 20 30 {}
+B 5 17.5 27.5 22.5 32.5 {name=d dir=inout}
+B 5 -22.5 -2.5 -17.5 2.5 {name=g dir=in}
+B 5 17.5 -32.5 22.5 -27.5 {name=s dir=inout}
+B 5 17.5 -2.5 22.5 2.5 {name=b dir=in}
+A 4 -8.75 -0 3.75 180 360 {}
+T {@w\\/@l\\/@m} 7.5 5 0 0 0.25 0.2 {}
+T {@name} 7.5 -17.5 0 0 0.2 0.2 {999}
+T {HV} -20 -20 0 0 0.2 0.2 {}
+T {D} 11.875 23.125 0 0 0.15 0.15 {}

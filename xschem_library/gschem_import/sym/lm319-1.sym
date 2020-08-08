@@ -1,0 +1,87 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=LM319
+template="name=U?
+device=LM319
+documentation=http://www.national.com/pf/LM/LM319.html
+description=comparator
+numslots=2
+slot=1
+footprint=DIP14
+symversion=1.0
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value "
+
+}
+V {}
+S {}
+E {}
+T {@name} 20 -100 2 1 0.333333 0.333333 {}
+T {@device} 72.5 -79.6 2 1 0.333333 0.333333 {}
+
+
+L 4 20 -97.5 20 -2.5 {}
+L 4 20 -97.5 100 -50 {}
+L 4 20 -2.5 100 -50 {}
+
+
+
+
+
+
+L 3 0 -70 20 -70 {}
+B 5 -2.5 -72.5 2.5 -67.5 {
+pinseq=1
+dir=in
+name=+
+pinnumber=4:9
+}
+T {@#0:pinnumber} 16.6 -75 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 22.7 -62.6 2 1 0.4 0.4 {}
+L 3 0 -30 20 -30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {
+pinseq=2
+dir=in
+name=-
+pinnumber=5:10
+}
+T {@#1:pinnumber} 16.9 -34.2 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 23.6 -22.9 2 1 0.4 0.4 {}
+L 3 50 -100 50 -80 {}
+B 5 47.5 -102.5 52.5 -97.5 {
+pinseq=3
+dir=inout
+name=V+
+pinnumber=11:11
+}
+T {@#2:pinnumber} 55 -85 2 1 0.266667 0.266667 {layer=13}
+T {@#2:name} 60.6 -64 2 0 0.266667 0.266667 {}
+L 3 50 -20 50 0 {}
+B 5 47.5 -2.5 52.5 2.5 {
+pinseq=4
+dir=inout
+name=V-
+pinnumber=6:6
+}
+T {@#3:pinnumber} 47.5 0.8 2 0 0.266667 0.266667 {layer=13}
+T {@#3:name} 60.8 -24.4 2 0 0.266667 0.266667 {}
+L 3 70 -31.7 70 -10 {}
+B 5 67.5 -12.5 72.5 -7.5 {
+pinseq=5
+dir=inout
+name=GND
+pinnumber=3:8
+}
+T {@#4:pinnumber} 75.8 -20.2 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 80 -40 2 0 0.2 0.2 {}
+L 3 100 -50 120 -50 {}
+B 5 117.5 -52.5 122.5 -47.5 {
+pinseq=6
+dir=out
+name=out
+pinnumber=12:7
+}
+T {@#5:pinnumber} 99.4 -55.4 2 1 0.266667 0.266667 {layer=13}

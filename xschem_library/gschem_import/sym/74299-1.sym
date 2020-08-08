@@ -1,0 +1,186 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=74299
+template="device=74299
+name=U?
+footprint=DIP20
+description=\\"8-bit universal shift/storage registers\\"
+numslots=0
+documentation=http://www-s.ti.com/sc/ds/sn74ls299.pdf
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="20 10"
+}
+V {}
+S {}
+E {}
+T {@name} 170 -400 2 0 0.333333 0.333333 {}
+T {74299} 30 -394 2 1 0.333333 0.333333 {}
+
+L 4 30 0 170 0 {}
+L 4 170 -390 170 0 {}
+L 4 30 -390 170 -390 {}
+L 4 30 -390 30 0 {}
+
+L 4 30 -215 37.5 -210 {}
+L 4 30 -205 37.5 -210 {}
+
+A 4 25 -360 5 0 360 {}
+A 4 25 -330 5 0 360 {}
+A 4 25 -300 5 0 360 {}
+
+
+
+
+
+L 3 0 -270 30 -270 {}
+B 5 -2.5 -272.5 2.5 -267.5 {pinnumber=1
+pinseq=1
+name=S0
+dir=in
+}
+T {@#0:pinnumber} 20 -275 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -270 2 1 0.266667 0.266667 {}
+L 3 0 -330 20 -330 {}
+B 5 -2.5 -332.5 2.5 -327.5 {name=\_G1\_
+pinnumber=2
+pinseq=2
+dir=in
+}
+T {@#1:name} 35 -330 2 1 0.266667 0.266667 {}
+T {@#1:pinnumber} 20 -335 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -300 20 -300 {}
+B 5 -2.5 -302.5 2.5 -297.5 {name=\_G2\_
+pinnumber=3
+pinseq=3
+dir=in
+}
+T {@#2:name} 35 -300 2 1 0.266667 0.266667 {}
+T {@#2:pinnumber} 20 -305 2 0 0.266667 0.266667 {layer=13}
+L 3 170 -110 200 -110 {}
+B 5 197.5 -112.5 202.5 -107.5 {pinnumber=4
+pinseq=4
+name=G/QG
+dir=inout
+}
+T {@#3:pinnumber} 180 -115 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 165 -110 2 0 0.266667 0.266667 {}
+L 3 170 -170 200 -170 {}
+B 5 197.5 -172.5 202.5 -167.5 {pinnumber=5
+pinseq=5
+name=E/QE
+dir=inout
+}
+T {@#4:pinnumber} 180 -175 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 165 -170 2 0 0.266667 0.266667 {}
+L 3 170 -230 200 -230 {}
+B 5 197.5 -232.5 202.5 -227.5 {pinnumber=6
+pinseq=6
+name=C/QC
+dir=inout
+}
+T {@#5:pinnumber} 180 -235 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 165 -230 2 0 0.266667 0.266667 {}
+L 3 170 -290 200 -290 {}
+B 5 197.5 -292.5 202.5 -287.5 {pinnumber=7
+pinseq=7
+name=A/QA
+dir=inout
+}
+T {@#6:pinnumber} 180 -295 2 1 0.266667 0.266667 {layer=13}
+T {@#6:name} 165 -290 2 0 0.266667 0.266667 {}
+L 3 170 -340 200 -340 {}
+B 5 197.5 -342.5 202.5 -337.5 {pinnumber=8
+pinseq=8
+name=QAP
+dir=out
+}
+T {@#7:pinnumber} 180 -345 2 1 0.266667 0.266667 {layer=13}
+T {@#7:name} 165 -340 2 0 0.266667 0.266667 {}
+L 3 0 -360 20 -360 {}
+B 5 -2.5 -362.5 2.5 -357.5 {name=\_CLR\_
+pinnumber=9
+pinseq=9
+dir=in
+}
+T {@#8:name} 35 -360 2 1 0.266667 0.266667 {}
+T {@#8:pinnumber} 20 -365 2 0 0.266667 0.266667 {layer=13}
+L 3 0 -130 30 -130 {}
+B 5 -2.5 -132.5 2.5 -127.5 {pinnumber=11
+pinseq=11
+name=SR
+dir=in
+}
+T {@#9:pinnumber} 20 -135 2 0 0.266667 0.266667 {layer=13}
+T {@#9:name} 35 -130 2 1 0.266667 0.266667 {}
+L 3 0 -210 30 -210 {}
+B 5 -2.5 -212.5 2.5 -207.5 {pinnumber=12
+pinseq=12
+name=CLK
+dir=inout
+}
+T {@#10:pinnumber} 20 -215 2 0 0.266667 0.266667 {layer=13}
+T {@#10:name} 37.5 -210 2 1 0.266667 0.266667 {}
+L 3 170 -260 200 -260 {}
+B 5 197.5 -262.5 202.5 -257.5 {pinnumber=13
+pinseq=13
+name=B/QB
+dir=inout
+}
+T {@#11:pinnumber} 180 -265 2 1 0.266667 0.266667 {layer=13}
+T {@#11:name} 165 -260 2 0 0.266667 0.266667 {}
+L 3 170 -200 200 -200 {}
+B 5 197.5 -202.5 202.5 -197.5 {pinnumber=14
+pinseq=14
+name=D/QD
+dir=inout
+}
+T {@#12:pinnumber} 180 -205 2 1 0.266667 0.266667 {layer=13}
+T {@#12:name} 165 -200 2 0 0.266667 0.266667 {}
+L 3 170 -140 200 -140 {}
+B 5 197.5 -142.5 202.5 -137.5 {pinnumber=15
+pinseq=15
+name=F/QF
+dir=inout
+}
+T {@#13:pinnumber} 180 -145 2 1 0.266667 0.266667 {layer=13}
+T {@#13:name} 165 -140 2 0 0.266667 0.266667 {}
+L 3 170 -80 200 -80 {}
+B 5 197.5 -82.5 202.5 -77.5 {pinnumber=16
+pinseq=16
+name=H/QH
+dir=inout
+}
+T {@#14:pinnumber} 180 -85 2 1 0.266667 0.266667 {layer=13}
+T {@#14:name} 165 -80 2 0 0.266667 0.266667 {}
+L 3 170 -20 200 -20 {}
+B 5 197.5 -22.5 202.5 -17.5 {pinnumber=17
+pinseq=17
+name=QHP
+dir=out
+}
+T {@#15:pinnumber} 180 -25 2 1 0.266667 0.266667 {layer=13}
+T {@#15:name} 165 -20 2 0 0.266667 0.266667 {}
+L 3 0 -50 30 -50 {}
+B 5 -2.5 -52.5 2.5 -47.5 {pinnumber=18
+pinseq=18
+name=SL
+dir=in
+}
+T {@#16:pinnumber} 20 -55 2 0 0.266667 0.266667 {layer=13}
+T {@#16:name} 35 -50 2 1 0.266667 0.266667 {}
+L 3 0 -240 30 -240 {}
+B 5 -2.5 -242.5 2.5 -237.5 {pinnumber=19
+pinseq=19
+name=S1
+dir=in
+}
+T {@#17:pinnumber} 20 -245 2 0 0.266667 0.266667 {layer=13}
+T {@#17:name} 35 -240 2 1 0.266667 0.266667 {}

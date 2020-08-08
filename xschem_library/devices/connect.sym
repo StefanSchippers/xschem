@@ -1,0 +1,25 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=resistor
+format="@name @pinlist 0.01 m=@m"
+template="name=R1 m=1"}
+V {}
+S {}
+E {}
+L 4 2.5 -22.5 7.5 -22.5 {}
+L 4 5 -25 5 -20 {}
+L 4 0 -30 -0 -15 {}
+L 4 0 -15 5 -15 {}
+L 4 5 -15 5 15 {}
+L 4 -5 15 5 15 {}
+L 4 -5 -15 -5 15 {}
+L 4 -5 -15 0 -15 {}
+L 4 -0 15 -0 30 {}
+L 4 -5 -10 -0 -15 {}
+L 4 -5 -5 5 -15 {}
+L 4 -5 -0 5 -10 {}
+L 4 -5 5 5 -5 {}
+L 4 -5 10 5 0 {}
+L 4 -5 15 5 5 {}
+L 4 0 15 5 10 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=out propagate_to=1}
+B 5 -2.5 27.5 2.5 32.5 {name=m dir=in propagate_to=0}

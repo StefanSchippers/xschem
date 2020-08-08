@@ -1,0 +1,111 @@
+v {xschem version=2.9.7 file_version=1.1}
+G {type=MAX233
+template="device=MAX233
+name=U?
+comment=\\"DIP package only: Pins 8, 10 -14 different on SO\\"
+footprint=DIP20
+description=\\"multichannel RS-232 driver/receiver\\"
+numslots=0
+documentation=http://pdfserv.maxim-ic.com/en/ds/MAX220-MAX249.pdf
+symversion=1.0
+Vcc=Vcc
+GND=GND
+"
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+@comptag"
+format="@name @pinlist @value @Vcc @GND"
+
+extra="Vcc GND"
+extra_pinnumber="7 6,9"
+}
+V {}
+S {}
+E {}
+T {MAX233} 30 -465 2 1 0.266667 0.266667 {}
+T {@name} 230 -470 2 0 0.333333 0.333333 {}
+
+L 4 30 -30 230 -30 {}
+L 4 230 -460 230 -30 {}
+L 4 30 -460 230 -460 {}
+L 4 30 -460 30 -30 {}
+
+L 4 110 -450 110 -410 {}
+L 4 110 -410 150 -430 {}
+L 4 110 -450 150 -430 {}
+L 4 155 -410 155 -370 {}
+L 4 115 -390 155 -370 {}
+L 4 115 -390 155 -410 {}
+L 4 110 -350 110 -310 {}
+L 4 110 -310 150 -330 {}
+L 4 110 -350 150 -330 {}
+L 4 155 -310 155 -270 {}
+L 4 115 -290 155 -270 {}
+L 4 115 -290 155 -310 {}
+L 4 155 -430 180 -430 {}
+L 4 90 -430 110 -430 {}
+L 4 90 -390 110 -390 {}
+L 4 155 -390 180 -390 {}
+L 4 90 -330 110 -330 {}
+L 4 155 -330 180 -330 {}
+L 4 155 -290 180 -290 {}
+L 4 90 -290 110 -290 {}
+
+A 4 152.5 -430 2.5 0 360 {}
+A 4 112.5 -390 2.5 0 360 {}
+A 4 152.5 -330 2.5 0 360 {}
+A 4 112.5 -290 2.5 0 360 {}
+
+
+
+
+
+L 3 0 -330 30 -330 {}
+B 5 -2.5 -332.5 2.5 -327.5 {pinnumber=1
+pinseq=1
+name=T2in
+dir=in
+}
+T {@#0:pinnumber} 20 -335 2 0 0.266667 0.266667 {layer=13}
+T {@#0:name} 35 -330 2 1 0.266667 0.266667 {}
+L 3 0 -430 30 -430 {}
+B 5 -2.5 -432.5 2.5 -427.5 {pinnumber=2
+pinseq=2
+name=T1in
+dir=in
+}
+T {@#1:pinnumber} 20 -435 2 0 0.266667 0.266667 {layer=13}
+T {@#1:name} 35 -430 2 1 0.266667 0.266667 {}
+L 3 0 -390 30 -390 {}
+B 5 -2.5 -392.5 2.5 -387.5 {pinnumber=3
+pinseq=3
+name=R1out
+dir=out
+}
+T {@#2:pinnumber} 20 -395 2 0 0.266667 0.266667 {layer=13}
+T {@#2:name} 35 -390 2 1 0.266667 0.266667 {}
+L 3 230 -390 260 -390 {}
+B 5 257.5 -392.5 262.5 -387.5 {pinnumber=4
+pinseq=4
+name=R1in
+dir=in
+}
+T {@#3:pinnumber} 240 -395 2 1 0.266667 0.266667 {layer=13}
+T {@#3:name} 225 -390 2 0 0.266667 0.266667 {}
+L 3 230 -430 260 -430 {}
+B 5 257.5 -432.5 262.5 -427.5 {pinnumber=5
+pinseq=5
+name=T1out
+dir=out
+}
+T {@#4:pinnumber} 240 -435 2 1 0.266667 0.266667 {layer=13}
+T {@#4:name} 225 -430 2 0 0.266667 0.266667 {}
+L 3 230 -70 260 -70 {}
+B 5 257.5 -72.5 262.5 -67.5 {pinnumber=8
+pinseq=8
+name=C1+
+dir=inout
+}
+T {@#5:pinnumber} 240 -75 2 1 0.266667 0.266667 {layer=13}
+T {@#5:name} 225 -70 2 0 0.266667 0.266667 {}

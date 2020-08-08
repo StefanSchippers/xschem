@@ -1,0 +1,9 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=label
+format=".alias @lab"
+template="name=l1 lab=lll value=xxx"}
+V {}
+S {}
+E {}
+B 5 -1.25 -1.25 1.25 1.25 {name=p dir=in}
+T {@lab = @value} -7.5 -5 0 1 0.3 0.3 {}

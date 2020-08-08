@@ -1,0 +1,59 @@
+v {xschem version=2.9.5_RC6 file_version=1.1}
+G {type=connector
+verilog_ignore=true
+format="*connector(8,1) @pinlist"
+tedax_format="footprint @name @footprint
+device @name @device
+value @name @value
+@comptag"
+template="name=C1 footprint=connector(14,1)"
+}
+V {}
+S {}
+E {}
+B 5 18.75 -131.25 21.25 -128.75 {name=conn_1 dir=inout pinnumber=1}
+B 5 18.75 -111.25 21.25 -108.75 {name=conn_2 dir=inout pinnumber=2}
+B 5 18.75 -91.25 21.25 -88.75 {name=conn_3 dir=inout pinnumber=3}
+B 5 18.75 -71.25 21.25 -68.75 {name=conn_4 dir=inout pinnumber=4}
+B 5 18.75 -51.25 21.25 -48.75 {name=conn_5 dir=inout pinnumber=5}
+B 5 18.75 -31.25 21.25 -28.75 {name=conn_6 dir=inout pinnumber=6}
+B 5 18.75 -11.25 21.25 -8.75 {name=conn_7 dir=inout pinnumber=7}
+B 5 18.75 8.75 21.25 11.25 {name=conn_8 dir=inout pinnumber=8}
+B 5 18.75 28.75 21.25 31.25 {name=conn_9 dir=inout pinnumber=9}
+B 5 18.75 48.75 21.25 51.25 {name=conn_10 dir=inout pinnumber=10}
+B 5 18.75 68.75 21.25 71.25 {name=conn_11 dir=inout pinnumber=11}
+B 5 18.75 88.75 21.25 91.25 {name=conn_12 dir=inout pinnumber=12}
+B 5 18.75 108.75 21.25 111.25 {name=conn_13 dir=inout pinnumber=13}
+B 5 18.75 128.75 21.25 131.25 {name=conn_14 dir=inout pinnumber=14
+}
+A 4 15 -130 5 270 360 {}
+A 4 15 -110 5 270 360 {}
+A 4 15 -90 5 270 360 {}
+A 4 15 -70 5 270 360 {}
+A 4 15 -50 5 270 360 {}
+A 4 15 -30 5 270 360 {}
+A 4 15 -10 5 270 360 {}
+A 4 15 10 5 270 360 {}
+A 4 15 30 5 270 360 {}
+A 4 15 50 5 270 360 {}
+A 4 15 70 5 270 360 {}
+A 4 15 90 5 270 360 {}
+A 4 15 110 5 270 360 {}
+A 4 15 130 5 270 360 {}
+P 4 5 10 140 -10 140 -10 -140 10 -140 10 140 {}
+T {@#0:pinnumber} 6.25 -136.25 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} 6.25 -116.25 0 1 0.2 0.2 {layer=13}
+T {@#2:pinnumber} 6.25 -96.25 0 1 0.2 0.2 {layer=13}
+T {@name} -18.75 -153.75 0 0 0.2 0.2 {}
+T {@#3:pinnumber} 6.25 -76.25 0 1 0.2 0.2 {layer=13}
+T {@#4:pinnumber} 6.25 -56.25 0 1 0.2 0.2 {layer=13}
+T {@#5:pinnumber} 6.25 -36.25 0 1 0.2 0.2 {layer=13}
+T {@#6:pinnumber} 6.25 -16.25 0 1 0.2 0.2 {layer=13}
+T {@#7:pinnumber} 6.25 3.75 0 1 0.2 0.2 {layer=13}
+T {@#8:pinnumber} 6.25 23.75 0 1 0.2 0.2 {layer=13}
+T {@#9:pinnumber} 6.25 43.75 0 1 0.2 0.2 {layer=13}
+T {@#10:pinnumber} 6.25 63.75 0 1 0.2 0.2 {layer=13}
+T {@#11:pinnumber} 6.25 83.75 0 1 0.2 0.2 {layer=13}
+T {@#12:pinnumber} 6.25 103.75 0 1 0.2 0.2 {layer=13}
+T {@#13:pinnumber} 6.25 123.75 0 1 0.2 0.2 {layer=13}
+T {@value} -18.75 -173.75 0 0 0.2 0.2 {}

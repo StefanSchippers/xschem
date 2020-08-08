@@ -1,0 +1,21 @@
+v {xschem version=2.9.5_RC5 file_version=1.1}
+G {type=subcircuit
+format="@name @pinlist @symname"
+template="name=d1 del=200"}
+V {}
+S {}
+E {}
+L 4 -40 0 -30 0 {}
+L 4 -30 -5 -30 5 {}
+L 4 -30 5 30 5 {}
+L 4 30 -5 30 5 {}
+L 4 -30 -5 30 -5 {}
+L 4 30 -0 40 -0 {}
+L 6 -0 -2.5 20 -0 {}
+L 6 -0 -2.5 0 2.5 {}
+L 6 0 2.5 20 -0 {}
+L 6 -25 0 -0 -0 {}
+B 5 -42.5 -2.5 -37.5 2.5 {name=inp dir=in}
+B 5 37.5 -2.5 42.5 2.5 {name=outp dir=out verilog_type=wire}
+T {del=@del} -37.5 6.25 0 0 0.15 0.12 {}
+T {@name} -20 -12.5 0 0 0.12 0.12 {}
