@@ -1,0 +1,47 @@
+put [at 1:1]
+ arg: swdata
+ arg: {lol}
+switch swdata [at 2:1]
+ case data1
+  print [at 3:24]
+   arg: {1a}
+   arg: {11}
+  print [at 3:41]
+   arg: {1b}
+   arg: 12
+  print [at 3:56]
+   arg: {1c}
+   arg: 13
+  print [at 3:71]
+   arg: {1d}
+   arg: 14
+ case [~data2 ~a~~]
+  print [at 4:24]
+   arg: {2a}
+   arg: 21
+  print [at 4:41]
+   arg: {2b}
+   arg: 22
+  print [at 4:56]
+   arg: {2c}
+   arg: 23
+  print [at 4:71]
+   arg: {2d}
+   arg: 24
+ default
+  print [at 5:24]
+   arg: {3a}
+   arg: 31
+  print [at 5:41]
+   arg: {3b}
+   arg: 32
+  print [at 5:56]
+   arg: {3c}
+   arg: 33
+  print [at 5:71]
+   arg: {3d}
+   arg: 34
+print [at 7:1]
+ arg: {i1}
+print [at 8:1]
+ arg: {i2}

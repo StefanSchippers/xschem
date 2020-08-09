@@ -1,0 +1,35 @@
+print [at 7:1]
+ arg: {this is a string}
+ arg: {
+}
+print [at 9:1]
+ arg: {--
+}
+put [at 11:1]
+ arg: myblk
+ arg: {a block
+of multiline
+data.
+}
+print [at 16:1]
+ arg: myblk
+put [at 24:1]
+ arg: myvar
+ arg: {world}
+print [at 25:1]
+ arg: {--
+}
+print [at 26:1]
+ arg: [~ hello ~myvar~! ~]
+ arg: {
+}
+print [at 27:1]
+ arg: {--
+}
+print [at 28:1]
+ arg: {
+	hi @myvar@!
+}
+print [at 31:1]
+ arg: {--
+}

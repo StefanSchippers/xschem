@@ -1,0 +1,10 @@
+if ?a [at 5:7]
+then:
+ print [at 6:2]
+  arg: {empty}
+else:
+ print [at 8:2]
+  arg: {not empty}
+put [at 11:1]
+ arg: b
+ arg: ?a

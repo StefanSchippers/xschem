@@ -1,0 +1,11 @@
+put [at 9:1]
+ arg: myvar
+ arg: {!
+}
+report [at 10:1]
+ arg: {hello }
+ arg: {world}
+ arg: myvar
+report [at 11:1]
+ arg: [~hello world~myvar~~]
+abort [at 15:1]

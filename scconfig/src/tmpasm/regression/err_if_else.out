@@ -1,0 +1,6 @@
+error: unexpected 'else' - must be in a 'then' block before an else at 2:5
+if *NULL - broken AST* [at 1:1]
+then:
+ (NOP)
+else:
+ (NOP)

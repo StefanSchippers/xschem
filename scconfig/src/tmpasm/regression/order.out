@@ -1,0 +1,159 @@
+put [at 2:1]
+ arg: list
+ arg: {one two three four}
+print [at 4:1]
+ arg: list
+ arg: {
+}
+print [at 6:1]
+ arg: {
+nothing:
+}
+order [at 9:1]
+ arg: out
+ arg: list
+ arg: {one}
+ arg: {before}
+ arg: {two}
+print [at 10:1]
+ arg: out
+ arg: {
+}
+order [at 12:1]
+ arg: out
+ arg: list
+ arg: {one}
+ arg: {before}
+ arg: {one}
+print [at 13:1]
+ arg: out
+ arg: {
+}
+order [at 15:1]
+ arg: out
+ arg: list
+ arg: {one}
+ arg: {after}
+ arg: {one}
+print [at 16:1]
+ arg: out
+ arg: {
+}
+order [at 18:1]
+ arg: out
+ arg: list
+ arg: {two}
+ arg: {after}
+ arg: {one}
+print [at 19:1]
+ arg: out
+ arg: {
+}
+order [at 22:1]
+ arg: out
+ arg: list
+ arg: {nine}
+ arg: {after}
+ arg: {one}
+print [at 23:1]
+ arg: out
+ arg: {
+}
+order [at 24:1]
+ arg: out
+ arg: list
+ arg: {one}
+ arg: {after}
+ arg: {nine}
+print [at 25:1]
+ arg: out
+ arg: {
+}
+print [at 27:1]
+ arg: {
+before:
+}
+order [at 28:1]
+ arg: out
+ arg: list
+ arg: {two}
+ arg: {before}
+ arg: {one}
+print [at 29:1]
+ arg: out
+ arg: {
+}
+order [at 31:1]
+ arg: out
+ arg: list
+ arg: {four}
+ arg: {before}
+ arg: {one}
+print [at 32:1]
+ arg: out
+ arg: {
+}
+order [at 34:1]
+ arg: out
+ arg: list
+ arg: {four}
+ arg: {before}
+ arg: {three}
+print [at 35:1]
+ arg: out
+ arg: {
+}
+order [at 37:1]
+ arg: out
+ arg: list
+ arg: {three}
+ arg: {before}
+ arg: {two}
+print [at 38:1]
+ arg: out
+ arg: {
+}
+print [at 40:1]
+ arg: {
+after:
+}
+order [at 41:1]
+ arg: out
+ arg: list
+ arg: {one}
+ arg: {after}
+ arg: {two}
+print [at 42:1]
+ arg: out
+ arg: {
+}
+order [at 44:1]
+ arg: out
+ arg: list
+ arg: {one}
+ arg: {after}
+ arg: {four}
+print [at 45:1]
+ arg: out
+ arg: {
+}
+order [at 47:1]
+ arg: out
+ arg: list
+ arg: {two}
+ arg: {after}
+ arg: {three}
+print [at 48:1]
+ arg: out
+ arg: {
+}
+order [at 50:1]
+ arg: out
+ arg: list
+ arg: {two}
+ arg: {after}
+ arg: {four}
+print [at 51:1]
+ arg: out
+ arg: {
+}

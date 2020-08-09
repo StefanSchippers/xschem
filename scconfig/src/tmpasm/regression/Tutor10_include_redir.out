@@ -1,0 +1,20 @@
+print [at 14:1]
+ arg: {this goes to the default output
+}
+redir [at 18:1]
+ arg: {Tutor10.inc}
+print [at 19:1]
+ arg: {# this is a generated file.}
+print [at 20:1]
+ arg: {
+	print {hello world from my include!\n}
+}
+redir [at 25:1]
+print [at 26:1]
+ arg: {back at default output.
+}
+print [at 45:1]
+ arg: {Include:
+}
+include [at 46:1]
+ arg: {Tutor10.inc}
