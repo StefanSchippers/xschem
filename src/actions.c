@@ -521,12 +521,13 @@ void ask_new_file(void)
     }
 }
 
-/*  20071007 */
-/*  remove last symbol and decrement lastinstdef */
-void remove_symbol(void)
+/* remove symbol and decrement lastinstdef */
+/* Warning: removing a symbol with a loaded schematic will make all symbol references corrupt */
+/* you should clear_drawing() first or load_schematic() or link_symbols_to_instances()
+   immediately afterwards */
+void remove_symbol(int j)
 {
-  int i,c,j;
-  j = lastinstdef-1;
+  int i,c;
   dbg(1, "remove_symbol(): removing symbol %d\n", j);
   if(instdef[j].prop_ptr != NULL) {
     my_free(666, &instdef[j].prop_ptr);
@@ -597,6 +598,9 @@ void remove_symbol(void)
   my_free(683, &instdef[j].txtptr);
   my_free(684, &instdef[j].name);
 
+  for(i = j + 1; i < lastinstdef; i++) {
+    instdef[i-1] = instdef[i];
+  }
   lastinstdef--;
 }
 
@@ -606,7 +610,7 @@ void remove_symbols(void)
  
  for(j=lastinstdef-1;j>=0;j--) {
    dbg(2, "remove_symbols(): removing symbol %d\n",j);
-   remove_symbol();
+   remove_symbol(j);
  }
   dbg(1, "remove_symbols(): done\n");
   if(event_reporting) {

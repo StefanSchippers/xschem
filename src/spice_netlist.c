@@ -116,9 +116,6 @@ void global_spice_netlist(int global)  /* netlister driver */
 
  spice_netlist(fd, 0);
  
- /* 20100217 */
-
- /* 20150922 */
  first = 0;
  for(i=0;i<lastinst;i++) /* print netlist_commands of top level cell with no 'place=end' property */
  {

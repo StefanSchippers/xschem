@@ -1,2 +1,0 @@
-int find_cairo(const char *name, int logdepth, int fatal);
-

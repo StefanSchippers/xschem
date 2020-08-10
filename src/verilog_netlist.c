@@ -165,7 +165,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  if(!stat(str_tmp, &buf)) {
    load_sym_def(str_tmp, NULL );
    print_verilog_param(fd,lastinstdef-1);  /* added print top level params */
-   remove_symbol();
+   remove_symbol(lastinstdef - 1);
  }
  /* 20071006 end */
 

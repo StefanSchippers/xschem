@@ -826,7 +826,7 @@ extern void verilog_block_netlist(FILE *fd, int i);
 extern void spice_block_netlist(FILE *fd, int i);
 extern void tedax_block_netlist(FILE *fd, int i);
 extern void remove_symbols(void);
-extern void remove_symbol(void);
+extern void remove_symbol(int i);
 extern void clear_drawing(void);
 extern int load_sym_def(const char name[], FILE *embed_fd);
 extern void descend_symbol(void);

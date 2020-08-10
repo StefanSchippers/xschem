@@ -1248,7 +1248,7 @@ int sym_vs_sch_pins()
     my_free(848, &pin_dir);
   } /* for(i=0;i<n_syms;i++) */
 
-  while(lastinstdef > n_syms) remove_symbol();
+  while(lastinstdef > n_syms) remove_symbol(lastinstdef - 1);
   return 0;
 }
 

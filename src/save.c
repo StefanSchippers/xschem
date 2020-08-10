@@ -895,48 +895,18 @@ int save_schematic(char *schname) /* 20171020 added return value */
 
 void link_symbols_to_instances(void) /* 20150326 separated from load_schematic() */
 {
-  int i,symbol, missing;
+  int i;
   char *type=NULL; /* 20150407 added static  */
-  char *symreference;
   int cond;
 
-  missing = 0;
   for(i=0;i<lastinst;i++)
   {
-    symreference=inst_ptr[i].name; /*05112003 */
-
     dbg(2, "link_symbols_to_instances(): inst=%d\n", i);
     dbg(2, "link_symbols_to_instances(): matching inst %d name=%s \n",i, inst_ptr[i].name);
     dbg(2, "link_symbols_to_instances(): -------\n");
-    
-    symbol = match_symbol(symreference);
-    if(symbol == -1) 
-    {
-      dbg(2, "link_symbols_to_instances(): missing symbol, skipping...\n");
-      my_free(892, &inst_ptr[i].prop_ptr);  /* 06052001 remove properties */
-      delete_inst_node(i);
-      my_free(893, &inst_ptr[i].name);      /* 06052001 remove symname */
-      my_free(894, &inst_ptr[i].instname);  /* 20150409 */
-      missing++;
-      continue;
-    }
-    dbg(2, "link_symbols_to_instances(): \n");
-    inst_ptr[i].ptr = symbol;
-    dbg(2, "link_symbols_to_instances(): missing=%d\n",missing);
-    if(missing) 
-    {
-      inst_ptr[i-missing] = inst_ptr[i];
-      inst_ptr[i].prop_ptr=NULL;
-      inst_ptr[i].instname=NULL; /* 20150409 */
-      inst_ptr[i].node=NULL;
-      inst_ptr[i].ptr=-1;  /*04112003 was 0 */
-      inst_ptr[i].flags=0;
-      inst_ptr[i].name=NULL;
-    }
+    inst_ptr[i].ptr = match_symbol(inst_ptr[i].name);
   } 
-  lastinst -= missing;
   for(i=0;i<lastinst;i++) {
-    if(inst_ptr[i].ptr <0) continue;
     symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1,
                       &inst_ptr[i].x2, &inst_ptr[i].y2);
     type=instdef[inst_ptr[i].ptr].type; /* 20150409 */
@@ -1572,7 +1542,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
       my_strdup2(316, &symtype, instdef[current_sym].type);
       dbg(1, "load_sym_def(): level=%d, current_sym=%d symname=%s symtype=%s\n", 
                                  level, current_sym, symname, symtype);
-      if(lastinstdef> save) remove_symbol(); /* if previous match_symbol() caused a symbol to be loaded unload it now */
+      if(lastinstdef> save) remove_symbol(lastinstdef - 1); /* if previous match_symbol() caused a symbol to be loaded unload it now */
       lastinstdef--; /* restore symbol we are loading */
 
       if(  /* add here symbol types not to consider when loading schematic-as-symbol instances */
@@ -1817,7 +1787,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
       Gcurrent_sym = current_sym;
       qsort(instdef[save-1].boxptr[PINLAYER], instdef[save-1].rects[PINLAYER], sizeof(Box), CmpSchBbox);
     }
-    if(lastinstdef > save) remove_symbol(); /* if previous match_symbol() caused a symbol to be loaded unload it now */
+    if(lastinstdef > save) remove_symbol(lastinstdef - 1); /* if previous match_symbol() caused a symbol to be loaded unload it now */
   }
   recursion_counter--;
   dbg(1, "load_sym_def(): exiting, recursion_counter=%d\n", recursion_counter);

@@ -1,3 +1,0 @@
-print data1 # this is a comment; until the end of this line
-print data2 # this shall be a second print
-

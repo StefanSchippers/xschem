@@ -125,7 +125,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  if(!stat(str_tmp, &buf)) {
    load_sym_def(str_tmp, NULL );
    print_generic(fd,"entity", lastinstdef-1);  /* added print top level params */
-   remove_symbol();
+   remove_symbol(lastinstdef - 1);
  } else {
     fprintf(fd,"entity %s is\n", skip_dir( schematic[currentsch]) );
  }
