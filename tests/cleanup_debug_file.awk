@@ -28,6 +28,7 @@ function replace_pattern(old, new)
 {
   ## sample code to delete a line in file.
   # if($0 ~ /pattern_to_delete/) {found = 1; next}
+  if($0 ~ /failed to create.*$/) {found = 1; next}
   replace_pattern("v {xschem version=.* file_version=.*}", "v {xschem version=2.9.5 file_version=1.1}")
   replace_pattern("drawing window ID.*$", "drawing window ID ***Removed***")
   replace_pattern("top window ID.*$", "top window ID ***Removed***")
@@ -42,6 +43,8 @@ function replace_pattern(old, new)
   replace_pattern("global_vhdl_netlist[:(:][:):]: opening.*$", "global_vhdl_netlist(): opening ***Removed***")
   replace_pattern("global_tedax_netlist[:(:][:):]: opening.*$", "global_tedax_netlist(): opening***Removed***")
   replace_pattern("global_spice_netlist[:(:][:):]: opening.*$", "global_spice_netlist(): opening ***Removed***")
+  replace_pattern("load_sym_def[:(:][:):]: fopen.*$", "load_sym_def(): fopen ***Removed***")
+  replace_pattern("load_sym_def[:(:][:):]: fclose.*$", "load_sym_def(): fclose ***Removed***")
   __a[__lines++] = $0
 }
 

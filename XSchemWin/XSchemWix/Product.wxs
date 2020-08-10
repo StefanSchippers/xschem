@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="XSchem" Language="1033" Version="1.0.0.9" Manufacturer="XSchem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+	<Product Id="*" Name="XSchem" Language="1033" Version="1.0.0.10" Manufacturer="XSchem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
@@ -1414,9 +1414,6 @@
                     <Component Id="cmp57B3D157A556BA80FAB6B71C884B428E" Guid="{590E6410-08DA-411E-8379-73A0400635BA}">
                         <File Id="filF21C8241A458C7C8CCAED51878FAB732" KeyPath="yes" Source="../../xschem_library\devices\flash_cell.sym" />
                     </Component>
-                    <Component Id="cmpFCA7A56286CBBFF1233C5F0A628B9135" Guid="{6394513D-7E15-42E1-9800-33140363459B}">
-                        <File Id="fil2D3C4592C92DE87D5E9D410EE00332E3" KeyPath="yes" Source="../../xschem_library\devices\generic.sym" />
-                    </Component>
                     <Component Id="cmp42E11C2F09797CC21564DFCB13C30A02" Guid="{13C6D277-14AB-4EB3-91A5-8AA73C2AFAFE}">
                         <File Id="fil14E91E9003E91791EC581A431BBE3BED" KeyPath="yes" Source="../../xschem_library\devices\generic_pin.sym" />
                     </Component>
@@ -1449,6 +1446,9 @@
                     </Component>
                     <Component Id="cmp6C0D769630B1C4287304667E42E8799F" Guid="{548989D8-D735-4E4D-958A-4E91888C51B9}">
                         <File Id="fil00DFD7352463FAB53FC6D492E64B2638" KeyPath="yes" Source="../../xschem_library\devices\k.sym" />
+                    </Component>
+                    <Component Id="cmp6B59BDD10233B043F2C7290A08F9EE15" Guid="{1DB8DDB9-1ED1-431D-8082-7797A8587043}">
+                      <File Id="fil14E930F5475D2CEF0BA4323F9DDAC2AD" KeyPath="yes" Source="../../xschem_library/devices\lab_generic.sym" />
                     </Component>
                     <Component Id="cmpD6B8231E142BB1E2AC3D266CED7EA801" Guid="{ED8AFD6D-F5FC-48A0-B238-E29F8C793055}">
                         <File Id="fil4BB9252C0F5D2EE7597D51A329008FE5" KeyPath="yes" Source="../../xschem_library\devices\lab_pin.sym" />
@@ -6391,7 +6391,6 @@
             <ComponentRef Id="cmpC76E87493CC16B6F4B801E70C35146D0" />
             <ComponentRef Id="cmp43AD928529BAA1DDDEBE800D6AB026C6" />
             <ComponentRef Id="cmp57B3D157A556BA80FAB6B71C884B428E" />
-            <ComponentRef Id="cmpFCA7A56286CBBFF1233C5F0A628B9135" />
             <ComponentRef Id="cmp42E11C2F09797CC21564DFCB13C30A02" />
             <ComponentRef Id="cmp46D01F213E3E8C61F5CDF62D06EDD1AC" />
             <ComponentRef Id="cmp41C308AECB402141278ABB7430C652F3" />
@@ -6403,6 +6402,7 @@
             <ComponentRef Id="cmp7D9772EC7F4514D3F4E805D153C6154A" />
             <ComponentRef Id="cmpB62C12F72618BD739CB62F7EF8CFA734" />
             <ComponentRef Id="cmp6C0D769630B1C4287304667E42E8799F" />
+            <ComponentRef Id="cmp6B59BDD10233B043F2C7290A08F9EE15" />
             <ComponentRef Id="cmpD6B8231E142BB1E2AC3D266CED7EA801" />
             <ComponentRef Id="cmp83ACD9EEB6424099DC3E3994A23DDA02" />
             <ComponentRef Id="cmp959DCA1017056F08472B765ADA789B18" />

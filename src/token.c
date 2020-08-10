@@ -2005,12 +2005,13 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
  my_strdup(514, &name, inst_ptr[inst].instname);
  if(!name) my_strdup(50, &name, get_tok_value(template, "name", 0));
 
+ my_strdup(516, &format, get_tok_value((inst_ptr[inst].ptr+instdef)->prop_ptr,"vhdl_format",2)); /* 20071217 */
  if((name==NULL) || (format==NULL) ) {
    my_free(1047, &template);
    my_free(1048, &name);
+   my_free(1151, &format);
    return; /*do no netlist unwanted insts(no format) */
  }
- my_strdup(516, &format, get_tok_value((inst_ptr[inst].ptr+instdef)->prop_ptr,"vhdl_format",2)); /* 20071217 */
  no_of_pins= (inst_ptr[inst].ptr+instdef)->rects[PINLAYER];
  s=format;
  dbg(1, "print_vhdl_primitive: name=%s, format=%s netlist_count=%d\n",name,format, netlist_count);
