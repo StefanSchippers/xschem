@@ -1026,10 +1026,11 @@ int callback(int event, int mx, int my, KeySym key,
     draw();
     break;
    }
-   if(1 && (key=='u') && (state==ControlMask))                   /* testmode */
+   if(0 && (key=='u') && (state==ControlMask))                   /* testmode */
    {
     int mult;
     remove_symbol(2);
+    link_symbols_to_instances();
     expandlabel("/RST", &mult);
     expandlabel("/CCC[3:0]", &mult);
     expandlabel("CCC[AA:BB:DD]", &mult);
