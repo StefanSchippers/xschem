@@ -894,7 +894,6 @@ void print_vhdl_element(FILE *fd, int inst) /* 20071217 */
   int token_pos=0, value_pos=0;
   int quote=0;
   int escape=0;
-  int token_number=0;
  
   if(get_tok_value((inst_ptr[inst].ptr+instdef)->prop_ptr,"vhdl_format",2)[0] != '\0') {  /* 20071217 */
    print_vhdl_primitive(fd, inst); /*20071217 */
@@ -966,24 +965,20 @@ void print_vhdl_element(FILE *fd, int inst) /* 20071217 */
      value_pos=0;
      get_tok_value(template, token, 0);
      if(get_tok_size) {
-       token_number++;
-       if(value[0] != '\0') /* token has a value */
+       if(strcmp(token, "name") && value[0] != '\0') /* token has a value */
        {
-        if(token_number>1)
-        {
-          if(tmp == 0) {fprintf(fd, "generic map(\n");tmp++;tmp1=0;}
-          if(tmp1) fprintf(fd, " ,\n");
+         if(tmp == 0) {fprintf(fd, "generic map(\n");tmp++;tmp1=0;}
+         if(tmp1) fprintf(fd, " ,\n");
       
-          /* 20080213  put "" around string type generics! */
-          if( generic_type && !strcmp(get_tok_value(generic_type,token, 2), "string")  ) {
-            fprintf(fd, "  %s => \"%s\"", token, value);
-          } else {
-            fprintf(fd, "  %s => %s", token, value);
-          }
-          /* /20080213 */
+         /* 20080213  put "" around string type generics! */
+         if( generic_type && !strcmp(get_tok_value(generic_type,token, 2), "string")  ) {
+           fprintf(fd, "  %s => \"%s\"", token, value);
+         } else {
+           fprintf(fd, "  %s => %s", token, value);
+         }
+         /* /20080213 */
     
-          tmp1=1;
-        }
+         tmp1=1;
        }
      }
      state=XBEGIN;
@@ -1783,8 +1778,19 @@ void print_tedax_element(FILE *fd, int inst)
  my_free(1039, &token);
 }
 
-
-
+/* verilog module instantiation:
+     cmos_inv
+     #(
+     .WN ( 1.5e-05 ) ,
+     .WP ( 4.5e-05 ) ,
+     .LLN ( 3e-06 ) ,
+     .LLP ( 3e-06 )
+     )
+     Xinv ( 
+      .A( AA ),
+      .Z( Z )
+     );
+*/
 void print_verilog_element(FILE *fd, int inst)
 {
  int i=0, mult, tmp;
@@ -1800,7 +1806,6 @@ void print_verilog_element(FILE *fd, int inst)
  int sizetok=0, sizeval=0;
  int token_pos=0, value_pos=0;
  int quote=0;
- int token_number=0;
  
  if(get_tok_value((inst_ptr[inst].ptr+instdef)->prop_ptr,"verilog_format",2)[0] != '\0') {
   print_verilog_primitive(fd, inst); /*15112003 */
@@ -1868,28 +1873,25 @@ void print_verilog_element(FILE *fd, int inst)
     }
   } else if(state==XEND) 
   {
-   token_number++;
    value[value_pos]='\0';
    value_pos=0;
-
-   if(value[0] != '\0') /* token has a value */
-   {
-    if(token_number>1)
-    {
-      /* 20080915 put "" around string params */
-      if(strcmp(token,"spice_ignore") && strcmp(token,"vhdl_ignore") && strcmp(token,"tedax_ignore")) {
-        if(tmp == 0) {fprintf(fd, "#(\n---- start parameters\n");tmp++;tmp1=0;}
-        if(tmp1) fprintf(fd, " ,\n");
-        if( !generic_type || strcmp(get_tok_value(generic_type,token, 2), "time")  ) {
-          if( generic_type && !strcmp(get_tok_value(generic_type,token, 2), "string")  ) {
-            fprintf(fd, "  .%s ( \"%s\" )", token, value);
-          } else {
-            fprintf(fd, "  .%s ( %s )", token, value);
-          }
-          tmp1=1;
-        }
-      }
-    }
+   get_tok_value(template, token, 0);
+   if(strcmp(token, "name") && get_tok_size) {
+     if(value[0] != '\0') /* token has a value */
+     {
+       if(strcmp(token,"spice_ignore") && strcmp(token,"vhdl_ignore") && strcmp(token,"tedax_ignore")) {
+         if(tmp == 0) {fprintf(fd, "#(\n---- start parameters\n");tmp++;tmp1=0;}
+         if(tmp1) fprintf(fd, " ,\n");
+         if( !generic_type || strcmp(get_tok_value(generic_type,token, 2), "time")  ) {
+           if( generic_type && !strcmp(get_tok_value(generic_type,token, 2), "string")  ) {
+             fprintf(fd, "  .%s ( \"%s\" )", token, value);
+           } else {
+             fprintf(fd, "  .%s ( %s )", token, value);
+           }
+           tmp1=1;
+         }
+       }
+     }
    }
    state=XBEGIN;
   }
@@ -2152,6 +2154,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
  my_free(1053, &token);
 }
 
+/* print verilog element if verilog_format is specified */
 void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primitives, 15112003 */
 {
   int i=0, mult, tmp;
