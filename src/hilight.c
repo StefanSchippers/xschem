@@ -24,7 +24,6 @@
 
 static struct hilight_hashentry *hilight_table[HASHSIZE];
 static int nelements=0; /* 20161221 */
-
 static int *inst_color=NULL;
 
 static unsigned int hash(char *tok)
@@ -295,6 +294,7 @@ void delete_hilight_net(void)
  for(i=0;i<lastinst;i++) {
    inst_ptr[i].flags &= ~4 ;
  }
+ dbg(1, "delete_hilight_net(): clearing\n");
  my_free(766, &inst_color);
  hilight_color=0;
 }
@@ -889,6 +889,7 @@ void draw_hilight_net(int on_window)
         }
       }
  }
+ dbg(1, "draw_hilight_net() : allocating inst_color %d bytes \n", lastinst*sizeof(int));
  my_realloc(145, &inst_color,lastinst*sizeof(int)); 
  for(i=0;i<lastinst;i++)
  {

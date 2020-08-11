@@ -494,6 +494,7 @@ void saveas(const char *f) /*  changed name from ask_save_file to saveas 2012120
     my_strncpy(current_name, rel_sym_path(res), S(current_name)); /* 20190519 */
     return;
 }
+
 void ask_new_file(void)
 {
     char fullname[PATH_MAX]; /*  overflow safe 20161125 */
@@ -528,6 +529,7 @@ void ask_new_file(void)
 void remove_symbol(int j)
 {
   int i,c;
+  Instdef save;
   dbg(1, "remove_symbol(): removing symbol %d\n", j);
   if(instdef[j].prop_ptr != NULL) {
     my_free(666, &instdef[j].prop_ptr);
@@ -598,9 +600,11 @@ void remove_symbol(int j)
   my_free(683, &instdef[j].txtptr);
   my_free(684, &instdef[j].name);
 
+  save = instdef[j];
   for(i = j + 1; i < lastinstdef; i++) {
     instdef[i-1] = instdef[i];
   }
+  instdef[lastinstdef-1] = save;
   lastinstdef--;
 }
 

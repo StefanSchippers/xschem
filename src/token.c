@@ -252,7 +252,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
   /* dbg(1, "match_symbol(): name=%s, instdef[i].name=%s\n",name, instdef[i].name);*/
   if(strcmp(name, instdef[i].name) == 0)
   {
-   dbg(2, "match_symbol(): found matching symbol:%s\n",name);
+   dbg(1, "match_symbol(): found matching symbol:%s\n",name);
    found=1;break;
   }
  }
@@ -261,7 +261,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
   dbg(1, "match_symbol(): matching symbol not found:%s, loading\n",name);
   load_sym_def(name, NULL); /* append another symbol to the instdef[] array */
  }
- dbg(2, "match_symbol(): returning %d\n",i);
+ dbg(1, "match_symbol(): returning %d\n",i);
  return i;
 }
 

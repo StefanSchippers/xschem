@@ -322,8 +322,8 @@ void my_realloc(int id, void *ptr,size_t size)
  a = *(void **)ptr;
  if(size == 0) {
    free(*(void **)ptr);
+   dbg(3, "my_free(%d,):  my_realloc_freeing %p\n",id, *(void **)ptr);
    *(void **)ptr=NULL;
-   dbg(3, "my_free():  my_realloc_freeing %p\n",*(void **)ptr);
  } else {
    *(void **)ptr=realloc(*(void **)ptr,size);
     if(*(void **)ptr == NULL) fprintf(errfp,"my_realloc(%d,): allocation failure\n", id);
@@ -340,7 +340,7 @@ void my_free(int id, void *ptr)
    dbg(3, "my_free(%d,):  freeing %p\n", id, *(void **)ptr);
    *(void **)ptr=NULL;
  } else {
-   dbg(3, "my_free(%d,): trying to free NULL pointer\n", id);
+   dbg(3, "--> my_free(%d,): trying to free NULL pointer\n", id);
  }
 }
 
