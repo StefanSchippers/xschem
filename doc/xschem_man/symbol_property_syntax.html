@@ -33,13 +33,16 @@ p{padding: 15px  30px 10px;}
     <li><kbd>subcircuit</kbd>: the symbol has an underlining schematic representation,
      when producing the netlist XSCHEM has to descend into the corresponding schematic.
      This will be covered in the subcircuits chapter. </li>
-    <li><kbd>primitive</kbd>: the symbol has a schematic representation but the netlister 
+    <li><kbd>primitive</kbd>: the symbol has a schematic representation, you can descend into it  but the netlister 
      will not use it. This is very useful if you want to netlist a symbol using only
      the <kbd>format</kbd> (or <kbd>vhdl_format</kbd> or <kbd>verilog_format</kbd> depending 
      on the netlist type) attribute or use the underlying schematic. By setting the
-     attribute back to <kbd>subcircuit</kbd> you can quickly change the behavior.</li>
+     attribute back to <kbd>subcircuit</kbd> and deleting (or setting to <kbd>false</kbd>) the
+     <kbd>verilog_format</kbd> of <kbd>vhdl_format</kbd> attribute you can quickly change the behavior.
+     For spice netlists the <kbd>format</kbd> attribute is always used also for subcircuits
+     instantiation so always leave it there.</li>
     <li> Any value different from <kbd>subcircuit</kbd> or <kbd>primitive</kbd> will cause xschem to not use any schematic 
-     file even if it exists.</li>
+     file even if it exists. Xschem will not allow to descend into an existing schematic.</li>
     <li><kbd>label</kbd>: the symbol is used to label a net. These type of symbols must have
      one and only one pin, and the template string must define a <kbd>lab</kbd> attribute
      that is passed at component instantiationi to name the net it is attached to. </li>

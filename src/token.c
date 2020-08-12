@@ -2466,7 +2466,7 @@ char *translate(int inst, char* s)
     memcpy(result+result_pos, value, tmp+1); /* 20180923 */
     result_pos+=tmp;
    } else if(strcmp(token,"@symname")==0) {
-    tmp_sym_name=get_cell_w_ext(inst_ptr[inst].name, 0);
+    tmp_sym_name=inst_ptr[inst].name ? get_cell(inst_ptr[inst].name, 0) : "";
     tmp=strlen(tmp_sym_name);
     if(result_pos + tmp>=size) {
      size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
@@ -2474,6 +2474,16 @@ char *translate(int inst, char* s)
     }
     memcpy(result+result_pos,tmp_sym_name, tmp+1); /* 20180923 */
     result_pos+=tmp;
+   } else if(strcmp(token,"@symname_ext")==0) {
+    tmp_sym_name=inst_ptr[inst].name ? get_cell_w_ext(inst_ptr[inst].name, 0) : "";
+    tmp=strlen(tmp_sym_name);
+    if(result_pos + tmp>=size) {
+     size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
+     my_realloc(531, &result,size);
+    }
+    memcpy(result+result_pos,tmp_sym_name, tmp+1); /* 20180923 */
+    result_pos+=tmp;
+
    } else if(token[0]=='@' && token[1]=='#') {  /* 20180911 */
      int n;
      char *pin_attr = my_malloc(532, sizetok * sizeof(char));
@@ -2743,6 +2753,16 @@ char* translate2(struct Lcc *lcc, int level, char* s)
         result_pos += tmp + 1;
       }
       else if (strcmp(token, "@symname") == 0) {
+        tmp_sym_name = lcc[level].symname ? get_cell(lcc[level].symname, 0) : "";
+        tmp = strlen(tmp_sym_name);
+        if (result_pos + tmp >= size) {
+          size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
+          my_realloc(665, &result, size);
+        }
+        memcpy(result + result_pos, tmp_sym_name, tmp + 1);
+        result_pos += tmp;
+      }
+      else if (strcmp(token, "@symname_ext") == 0) {
         tmp_sym_name = lcc[level].symname ? get_cell_w_ext(lcc[level].symname, 0) : "";
         tmp = strlen(tmp_sym_name);
         if (result_pos + tmp >= size) {
@@ -2752,6 +2772,7 @@ char* translate2(struct Lcc *lcc, int level, char* s)
         memcpy(result + result_pos, tmp_sym_name, tmp + 1);
         result_pos += tmp;
       }
+
       if (c == '@') s--;
       else result[result_pos++] = c;
       state = XBEGIN;
