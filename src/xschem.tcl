@@ -1216,25 +1216,36 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}} {
 }
 
 
-# used in scheduler.c  20121111
-# get last 2 path components: example /aaa/bbb/ccc/ddd.sch -> ccc/ddd
-# optionally with extension if present and $ext==1
-proc get_cell {s {ext 1} } {
+# get last n path components: example , n=1 --> /aaa/bbb/ccc/ddd.sch -> ccc/ddd.sch
+proc get_cell {s n } {
   set slist [file split $s]
-  if { [llength $slist] >1 } {
-    if {$ext} {
-      return [lindex $slist end-1]/[lindex $slist end]
-    } else {
-      return [lindex $slist end-1]/[file rootname [lindex $slist end]]
-    }
-  } else {
-    if {$ext} {
-      return [lindex $slist end]
-    } else {
-      return [file rootname [lindex $slist end]]
+  set l [llength $slist]
+  if { $n >= $l } {set n [expr $l - 1]}
+  set p {}
+  for {set i [expr $l-1-$n]} {$i < $l} { incr i } {
+    append p [lindex $slist $i]
+    if {$i < $l - 1} {
+      append p {/}
     }
   }
+  return $p
 }
+
+# chop last n path components from s
+proc path_head {s n } {
+  set slist [file split $s]
+  set l [llength $slist]
+  if { $n < 0 } { set n 0 }
+  set p {}
+  for {set i 0} {$i < [expr $l - $n]} { incr i } {
+    append p [lindex $slist $i]
+    if {$i < $l -$n- 1 && ([lindex $slist $i] ne {/})} {
+      append p {/}
+    }
+  }
+  return $p
+}
+
 
 proc delete_files { dir } { 
  if  { [ info tclversion]  >=8.4} {
@@ -2013,13 +2024,20 @@ proc edit_prop {txtlabel} {
 
    button .dialog.f1.b1 -text "OK" -command   {
      set retval [.dialog.e1 get 1.0 {end - 1 chars}] 
-     set abssymbol [abs_sym_path [ .dialog.f1.e2 get]]
      set symbol [.dialog.f1.e2 get]
+     set abssymbol [abs_sym_path $symbol]
      set rcode {ok}
      set editprop_semaphore 0
      set user_wants_copy_cell $copy_cell
      set prev_symbol [abs_sym_path $prev_symbol]
      if { ($abssymbol ne $prev_symbol) && $copy_cell } {
+
+       if { ![regexp {^/} $symbol] } {
+         set symlist [file split $symbol]
+         set symlen [llength $symlist]
+         set abssymbol "[path_head $prev_symbol $symlen]/$symbol"
+       }
+
        # puts "$abssymbol   $prev_symbol"
        if { [file exists "[file rootname $prev_symbol].sch"] } {
          if { ! [file exists "[file rootname ${abssymbol}].sch"] } {
@@ -2061,7 +2079,9 @@ proc edit_prop {txtlabel} {
    }
    checkbutton .dialog.f2.r1 -text "No change properties" -variable no_change_attrs -state normal
    checkbutton .dialog.f2.r2 -text "Preserve unchanged props" -variable preserve_unchanged_attrs -state normal
-   checkbutton .dialog.f2.r3 -text "Copy cell" -variable copy_cell -state normal
+   checkbutton .dialog.f2.r3 -text "Copy cell" -variable copy_cell -state normal -command {
+
+   }
 
    pack .dialog.f1.l2 .dialog.f1.e2 .dialog.f1.b1 .dialog.f1.b2 .dialog.f1.b3 .dialog.f1.b4 .dialog.f1.b5 -side left -expand 1
    pack .dialog.f4 -side top  -anchor nw
