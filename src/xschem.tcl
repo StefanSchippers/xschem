@@ -2420,6 +2420,7 @@ proc rel_sym_path {symbol} {
     set pl [string length $path_elem]
     if { [string equal -length $pl $path_elem $symbol] } {
       set name [string range $symbol [expr $pl+1] end]
+      break
     }
   }
   if { ![string compare $name {} ] } {
@@ -2454,7 +2455,6 @@ proc abs_sym_path {fname {ext {} } } {
   } elseif {[regexp {^\./} $fname ] } {
     regsub {^\./} $fname {} fname
   }
-  set lib_cell [get_cell $fname]
   set name {}
   if { ![regexp {^/} $fname] } {
     foreach path_elem $pathlist {
