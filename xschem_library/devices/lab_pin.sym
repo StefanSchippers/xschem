@@ -1,4 +1,4 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=2.9.7 file_version=1.2}
 G {type=label
 format="*.alias @lab"
 template="name=l1 sig_type=std_logic lab=xxx"}

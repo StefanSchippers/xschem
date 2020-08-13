@@ -28,13 +28,13 @@ p{padding: 15px  30px 10px;}
  </li>
  <li>
   second approach: define a <kbd>XSCHEM_LIBRARY_PATH</kbd> that is a list of paths
-  one level above the directories containing .sym/.sch files
+  one or more levels above the directories containing .sym/.sch files
  </li>
  </ul>
  <p>
   In the first approach a '<kbd>npn.sym</kbd>' symbol placed in a schematic will be
   saved as '<kbd>npn.sym</kbd>' in the .sch file, when loading back the parent
-  schematic xschem will go through the <kbd>XSCHEM_LIBRARY_PATH</kbd> and look for
+  schematic xschem will go through the elements of <kbd>XSCHEM_LIBRARY_PATH</kbd> and look for
   a directory containing <kbd>npn.sym</kbd>.
  </p>
 
@@ -50,10 +50,19 @@ p{padding: 15px  30px 10px;}
  <p>
   The first approach is preferred by pcb hobbysts, people working on
   small designs.
-  the second approach is preferred for big designs where a one level
+  the second approach is preferred for big designs where a one or more directory level
   indirection is desired for symbols, so any symbol in xschem is given
-  as '<kbd>libname/symname.sym</kbd>' instead of just '<kbd>symname.sym</kbd>'<br>
+  as '<kbd>libname/symname.sym</kbd>' (one level directory specification in symbol references)
+  or '<kbd>libgroup/libname/symname.sym</kbd>' (2 level directory specification in symbol references)
+  instead of just '<kbd>symname.sym</kbd>'<br>
+ </p>
+ <p>
+  In any case the real path of the symbol reference is obtained by prepending 
+  the XSCHEM_LIBRARY_PATH paths to the symbol reference until the resulting file is found in
+  the machine filesystem.
+ </p>
 
+ <p>
   For VLSI / big designs I <b>strongly</b> suggest using the second approach,
   just as an example i have the following dirs:
  </p>

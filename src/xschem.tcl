@@ -977,7 +977,7 @@ proc myload_set_home {dir} {
 proc setglob {dir} {
       global globfilter myload_files2
       set myload_files2 [lsort [glob -nocomplain -directory $dir -tails -type d \{.*,*\}]]
-      set myload_files2 ${myload_files2}\ [lsort [glob -nocomplain -directory $dir -tails -type {f l} \{.*,$globfilter\}]]
+      set myload_files2 ${myload_files2}\ [lsort [glob -nocomplain -directory $dir -tails -type {f} \{.*,$globfilter\}]]
 }
 
 proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}} {
@@ -2411,28 +2411,16 @@ proc viewdata {data {ro {}}} {
 proc rel_sym_path {symbol} {
   global pathlist current_dirname
 
-  set lib_cell [get_cell $symbol]
-  set cell [file tail $symbol]
   set name {}
+  if {[regexp {^/} $symbol]} {set symbol [file normalize $symbol]}
   foreach path_elem $pathlist {
     if { ![string compare $path_elem .]  && [info exist current_dirname]} {
       set path_elem $current_dirname
     }
-    # libname/symname[.ext] and libname in $path_elem 
-    # --> libname/symname
-    if { [file exists [file dirname "${path_elem}/${lib_cell}"]] && 
-       (![string compare $symbol $lib_cell ]) } {
-      set name ${lib_cell} ;# was lib_cell
-    # /.../path/.../libname/cellname[.ext] and libname in $path_elem 
-    # --> libname/cellname
-    } elseif { (![string compare $symbol  "${path_elem}/${lib_cell}" ]) 
-             && [file exists [file dirname "${path_elem}/${lib_cell}"]] } {
-      set name ${lib_cell} ;# was lib_cell
-    } elseif { (![string compare $symbol "${path_elem}/${cell}" ]) 
-             && [file exists "${path_elem}/${cell}"] } {
-      set name ${cell}
-    } 
-    if {$name ne {} } { break} 
+    set pl [string length $path_elem]
+    if { [string equal -length $pl $path_elem $symbol] } {
+      set name [string range $symbol [expr $pl+1] end]
+    }
   }
   if { ![string compare $name {} ] } {
     # no known lib, so return full path
@@ -2445,6 +2433,8 @@ proc rel_sym_path {symbol} {
 # given a library/symbol return its absolute path
 proc abs_sym_path {fname {ext {} } } {
   global pathlist current_dirname
+
+  if {$fname eq {} } return {}
   if {$::OS == "Windows"} {
     if { [regexp {^[A-Za-z]\:/$} $fname ] } {
       return $fname;
@@ -2458,46 +2448,32 @@ proc abs_sym_path {fname {ext {} } } {
   if { $ext ne {} } { 
     set fname [file rootname $fname]$ext
   }
-  # transform ./file_or_path to file_or_path
+  # transform ./file_or_path to file_or_path, resolve (normalize) ../file_or_path
   if { [regexp {^\.\./} $fname ] } {
     set fname [file normalize $fname]
   } elseif {[regexp {^\./} $fname ] } {
     regsub {^\./} $fname {} fname
   }
   set lib_cell [get_cell $fname]
-  if {$fname eq {} } return {}
   set name {}
-  # fname is of type libname/cellname[.ext] but not ./cellname[.ext] or
-  # ../cellname[.ext] and has a slash, so no cellname[.ext] 
-  # no ./cell.sym
-  if {![string compare $fname $lib_cell ]} {
+  if { ![regexp {^/} $fname] } {
     foreach path_elem $pathlist {
       if { ![string compare $path_elem .]  && [info exist current_dirname]} {
         set path_elem $current_dirname
       }
-      # libname/cellname and libname is in pathlist
-      # --> $pathlist/libname/cellname
-      # cellname and $pathlist/cellname exists
-      # --> $pathlist/cellname
-      if { [regexp {/} $fname] && [file exists "${path_elem}/${fname}"] } {
-        set name  "$path_elem/$lib_cell"
+      set fullpath "$path_elem/$fname"
+      if { [file exists $fullpath] } {
+        set name $fullpath
         break
       }
-      if { [file exists "${path_elem}/${fname}"] &&
-        ![regexp {/} $fname] 
-      } {
-        set name  "$path_elem/$lib_cell"
-        break
-      }
-    }
-    # if no abs path, no existing items elsewhere, 
-    # set name relative to $current_dirname
-    if { ![string compare $name {}] } {
-      set name "$current_dirname/$fname"
     }
   }
   if { ![string compare $name {}] } {
-     set name $fname
+    if { [regexp {^/} $fname] } {
+      set name $fname
+    } else {
+      set name "$current_dirname/$fname"
+    }
   }
   regsub {/\.$} $name {} name
   return $name
