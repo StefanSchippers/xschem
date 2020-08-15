@@ -260,8 +260,8 @@ C {cmos_inv.sch} 140 -300 0 0 {name=Xinv WN=15u WP=45u LLN=3u LLP=3u embed=true}
 [
 v {xschem version=2.9.7 file_version=1.2}
 G {type=subcircuit
-format="@name @pinlist @symname WN=@WN WP=@WP LLN=@LLN LLP=@LLP"
-template="name=X1 WN=15u WP=45u LLN=3u LLP=3u"
+format="@name @pinlist @symname WN=@WN WP=@WP LLN=@LLN LLP=@LLP m=@m"
+template="name=X1 WN=15u WP=45u LLN=3u LLP=3u m=1"
 }
 V {}
 S {}
@@ -343,6 +343,8 @@ C {cmos_inv.sym} 280 -230 0 0 {name=Xinv2 WN=15u WP=45u LLN=3u LLP=3u embed=true
 v {xschem version=2.9.7 file_version=1.2}
 G {type=subcircuit
 format="@name @pinlist @symname WN=@WN WP=@WP LLN=@LLN LLP=@LLP m=@m"
+verilog_primitive=true
+verilog_format="assign #80 @@Z = ~ @@A ;"
 template="name=X1 WN=15u WP=45u LLN=3u LLP=3u m=1"
 }
 V {}
@@ -496,7 +498,7 @@ B 7 348.75 -741.25 351.25 -738.75 {name=p dir=in}
 T {@name} 250 -915 0 0 0.5 0.5 {}
 T {@symname} 253.75 -115 0 0 0.5 0.5 {}
 T {$X2} 300 -475 0 0 0.2 0.2 {}
-T {cmos_inv.sch} 303.75 -155 0 0 0.2 0.2 {}
+T {cmos_inv} 303.75 -155 0 0 0.2 0.2 {}
 T {$15u\\/$3u\\/$1} 367.5 -258.75 0 0 0.2 0.2 {}
 T {$M1} 367.5 -233.75 0 0 0.2 0.2 {}
 T {D} 385 -267.5 0 0 0.15 0.15 {}
@@ -510,7 +512,7 @@ T {$Z} 426.25 -316.25 0 1 0.2 0.2 {}
 T {$0} 387.5 -248.125 0 0 0.33 0.33 {}
 T {$VDD} 387.5 -368.125 0 0 0.33 0.33 {}
 T {$X1} 430 -855 0 1 0.2 0.2 {}
-T {cmos_inv.sch} 426.25 -535 0 1 0.2 0.2 {}
+T {cmos_inv} 426.25 -535 0 1 0.2 0.2 {}
 T {$WN_FB\\/$3u\\/$1} 362.5 -638.75 0 1 0.2 0.2 {}
 T {$M1} 362.5 -613.75 0 1 0.2 0.2 {}
 T {D} 345 -647.5 0 1 0.15 0.15 {}

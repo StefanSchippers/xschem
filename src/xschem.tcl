@@ -1969,7 +1969,7 @@ proc change_color {} {
 }
 
 proc edit_prop {txtlabel} {
-   global edit_prop_default_geometry infowindow_text
+   global edit_prop_default_geometry infowindow_text selected_tok
    global prev_symbol retval symbol rcode no_change_attrs preserve_unchanged_attrs copy_cell tcl_debug editprop_semaphore
    global user_wants_copy_cell editprop_sympath
    set user_wants_copy_cell 0
@@ -2032,7 +2032,7 @@ proc edit_prop {txtlabel} {
      set prev_symbol [abs_sym_path $prev_symbol]
      if { ($abssymbol ne $prev_symbol) && $copy_cell } {
 
-       if { ![regexp {^/} $symbol] } {
+       if { ![regexp {^/} $symbol] && ![regexp {^[a-zA-Z]:} $symbol] } {
          set symlist [file split $symbol]
          set symlen [llength $symlist]
          set abssymbol "[path_head $prev_symbol $symlen]/$symbol"
@@ -2079,9 +2079,11 @@ proc edit_prop {txtlabel} {
    }
    checkbutton .dialog.f2.r1 -text "No change properties" -variable no_change_attrs -state normal
    checkbutton .dialog.f2.r2 -text "Preserve unchanged props" -variable preserve_unchanged_attrs -state normal
-   checkbutton .dialog.f2.r3 -text "Copy cell" -variable copy_cell -state normal -command {
-
-   }
+   checkbutton .dialog.f2.r3 -text "Copy cell" -variable copy_cell -state normal
+   set tok_list "<ALL> [xschem list_tokens $retval 0]"
+   set selected_tok {<ALL>}
+   label .dialog.f2.r4 -text {   Edit Attr:}
+   ttk::combobox .dialog.f2.r5 -values $tok_list -textvariable selected_tok -state readonly -width 10
 
    pack .dialog.f1.l2 .dialog.f1.e2 .dialog.f1.b1 .dialog.f1.b2 .dialog.f1.b3 .dialog.f1.b4 .dialog.f1.b5 -side left -expand 1
    pack .dialog.f4 -side top  -anchor nw
@@ -2092,6 +2094,8 @@ proc edit_prop {txtlabel} {
    pack .dialog.f2.r1 -side left
    pack .dialog.f2.r2 -side left
    pack .dialog.f2.r3 -side left
+   # pack .dialog.f2.r4 -side left
+   # pack .dialog.f2.r5 -side left
    pack .dialog.yscroll -side right -fill y 
    pack .dialog.xscroll -side bottom -fill x
    pack .dialog.e1  -fill both -expand yes
@@ -2432,7 +2436,7 @@ proc rel_sym_path {symbol} {
   global pathlist current_dirname
 
   set name {}
-  if {[regexp {^/} $symbol]} {set symbol [file normalize $symbol]}
+  if {[regexp {^/} $symbol] || [regexp {^[A-Za-z]:} $symbol]} {set symbol [file normalize $symbol]}
   foreach path_elem $pathlist {
     if { ![string compare $path_elem .]  && [info exist current_dirname]} {
       set path_elem $current_dirname
@@ -2476,7 +2480,7 @@ proc abs_sym_path {fname {ext {} } } {
     regsub {^\./} $fname {} fname
   }
   set name {}
-  if { ![regexp {^/} $fname] } {
+  if { ![regexp {^/} $fname] && ![regexp {^[A-Za-z]:} $fname] } {
     foreach path_elem $pathlist {
       if { ![string compare $path_elem .]  && [info exist current_dirname]} {
         set path_elem $current_dirname
@@ -2489,7 +2493,7 @@ proc abs_sym_path {fname {ext {} } } {
     }
   }
   if { ![string compare $name {}] } {
-    if { [regexp {^/} $fname] } {
+    if { [regexp {^/} $fname] || [regexp {^[a-zA-Z]:} $fname] } {
       set name $fname
     } else {
       set name "$current_dirname/$fname"

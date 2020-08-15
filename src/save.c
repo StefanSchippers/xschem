@@ -820,26 +820,22 @@ void load_ascii_string(char **ptr, FILE *fd)
     return;
   }
   if(begin) {
-    if(c=='\\') {
-     escape=1;
-     c=fgetc(fd);
-     if(c==EOF) {
-       fprintf(errfp, "EOF reached, malformed {...} string input, missing close brace\n");
-       my_free(1150, ptr);
-       my_free(890, &str);
-       return;
-     }
-    } else escape=0;
-    str[i]=c;
-    if(c=='}' && !escape) {
-     str[i]='\0';
-     break;
+    if(!escape) {
+      if(c=='}') {
+        str[i]='\0';
+        break;
+      }
+      if(c=='\\') {
+        escape=1;
+        continue;
+      }
     }
+    str[i]=c;
+    escape = 0;
     i++;
   } else if(c=='{') begin=1;
  }
  dbg(2, "load_ascii_string(): string read=%s\n",str? str:"<NULL>");
- /* fscanf(fd, " "); */
  my_strdup(329, ptr, str);
  dbg(2, "load_ascii_string(): loaded %s\n",*ptr? *ptr:"<NULL>");
  my_free(891, &str);

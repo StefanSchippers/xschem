@@ -1344,6 +1344,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    enable_layers(); 
    Tcl_ResetResult(interp);
  }
+ else if(argc == 4 && !strcmp(argv[1], "list_tokens")) {
+   Tcl_ResetResult(interp);
+   Tcl_AppendResult(interp, list_tokens(argv[2], atoi(argv[3])), NULL);
+ }
 
  else if(!strcmp(argv[1],"select_connected_nets"))
  {
@@ -1428,28 +1432,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     return TCL_OK;
   }
  }
-
- /* 20171010 allows to retrieve name of n-th parent schematic */
- else if(argc >= 3 && !strcmp(argv[1],"get") && !strcmp(argv[2],"schname") ) {
-   int x;
-   if(argc == 4) x = atoi(argv[3]);
-   else x = currentsch;
-   if(x<0 && currentsch+x>=0) {
-     Tcl_AppendResult(interp, schematic[currentsch+x], NULL);
-   } else if(x<=currentsch) {
-     Tcl_AppendResult(interp, schematic[x], NULL);
-   }
- }
- else if(argc >=3 && !strcmp(argv[1],"get") && !strcmp(argv[2],"sch_path"))  {  /* 20121121 */
-   int x;
-   if(argc == 4) x = atoi(argv[3]);
-   else x = currentsch;
-   if(x<0 && currentsch+x>=0) {
-     Tcl_AppendResult(interp, sch_path[currentsch+x], NULL);
-   } else if(x<=currentsch) {
-     Tcl_AppendResult(interp, sch_path[x], NULL);
-   }
- }
  else if(!strcmp(argv[1],"instance_bbox")) {
    int i;
    char s[200];
@@ -1508,6 +1490,27 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   * ********** xschem get subcommands
   */
 
+ /* 20171010 allows to retrieve name of n-th parent schematic */
+ else if(argc >= 3 && !strcmp(argv[1],"get") && !strcmp(argv[2],"schname") ) {
+   int x;
+   if(argc == 4) x = atoi(argv[3]);
+   else x = currentsch;
+   if(x<0 && currentsch+x>=0) {
+     Tcl_AppendResult(interp, schematic[currentsch+x], NULL);
+   } else if(x<=currentsch) {
+     Tcl_AppendResult(interp, schematic[x], NULL);
+   }
+ }
+ else if(argc >=3 && !strcmp(argv[1],"get") && !strcmp(argv[2],"sch_path"))  {  /* 20121121 */
+   int x;
+   if(argc == 4) x = atoi(argv[3]);
+   else x = currentsch;
+   if(x<0 && currentsch+x>=0) {
+     Tcl_AppendResult(interp, sch_path[currentsch+x], NULL);
+   } else if(x<=currentsch) {
+     Tcl_AppendResult(interp, sch_path[x], NULL);
+   }
+ }
  else if(argc == 4 && !strcmp(argv[1],"get") && !strcmp(argv[2],"expandlabel"))  {  /* 20121121 */
    int tmp, llen;
    char *result=NULL;

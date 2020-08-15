@@ -399,6 +399,65 @@ int set_different_token(char **s,char *new, char *old, int object, int n)
  return mod;
 }
 
+/* return a string containing the list of all tokens in s */
+/* with_quotes: */
+/* 0: eat non escaped quotes (") */
+/* 1: return unescaped quotes as part of the token value if they are present */
+/* 2: eat backslashes */
+const char *list_tokens(const char *s, int with_quotes)
+{
+  static char *token=NULL;
+  static int  sizetok=0;
+  register int c, state=XBEGIN, space;
+  register int token_pos=0;
+  int quote=0;
+  int escape=0;
+ 
+  if(s==NULL) {
+    my_free(435, &token);
+    sizetok = 0;
+    return "";;
+  }
+  while(1) {
+    c=*s++;
+    space=SPACE(c) ;
+    if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') state=XTOKEN;
+    else if( state==XTOKEN && space && !quote && !escape) state=XENDTOK;
+    else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
+    else if( state==XSEPARATOR && !space) state=XVALUE;
+    else if( state==XVALUE && space && !quote && !escape ) state=XEND;
+    if(token_pos>=sizetok) {
+      sizetok+=CADCHUNKALLOC;
+      my_realloc(434, &token,sizetok);
+      token[0] = '\0';
+    }
+    if(c=='"') {
+      if(!escape) quote=!quote;
+    }
+    if(state==XTOKEN) {
+      if(c=='"') {
+        if((with_quotes & 1) || escape)  token[token_pos++]=c;
+      }
+      else if( !(c == '\\' && (with_quotes & 2)) ) token[token_pos++]=c;
+      else if(escape && c == '\\') token[token_pos++]=c;
+    } else if(state==XVALUE) {
+      /* do nothing */
+    } else if(state==XENDTOK || state==XSEPARATOR) {
+        if(token_pos) {
+          token[token_pos++]= ' ';
+        }
+    } else if(state==XEND) {
+      state=XBEGIN;
+    }
+    escape = (c=='\\' && !escape);
+    if(c=='\0') {
+      if(token_pos) {
+        token[token_pos-1]= (c != '\0' ) ? ' ' : '\0';
+      }
+      return token;
+    }
+  }
+}
 
 /* state machine that parses a string made up of <token>=<value> ... */
 /* couples and returns the value of the given token  */
@@ -428,12 +487,6 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     return "";
   }
   get_tok_value_size = get_tok_size = 0;
-  if(!size) {
-    size=CADCHUNKALLOC;
-    sizetok=CADCHUNKALLOC;
-    my_realloc(434, &result,size);
-    my_realloc(435, &token,sizetok);
-  }
   dbg(2, "get_tok_value(): looking for <%s> in <%s>\n",tok,s);
   while(1) {
     c=*s++;
@@ -866,18 +919,17 @@ const char *get_cell_w_ext(const char *str, int no_of_dir)
 }
 
 
-
- int count_labels(char *s)
+/* not used? */
+int count_labels(char *s)
 {
- int i=1;
- int c;
+  int i=1;
+  int c;
  
- if(s==NULL) return 1;
- while( (c=(*s++)) )
- {
-  if(c==',') i++;
- }
- return i;
+  if(s==NULL) return 1;
+  while( (c=(*s++)) ) {
+    if(c==',') i++;
+  }
+  return i;
 }
 
 void print_vhdl_element(FILE *fd, int inst) /* 20071217 */

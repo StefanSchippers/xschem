@@ -899,6 +899,7 @@ extern void print_verilog_element(FILE *fd, int inst);
 extern void print_verilog_primitive(FILE *fd, int inst);
 extern void print_vhdl_primitive(FILE *fd, int inst);
 extern const char *get_tok_value(const char *s,const char *tok,int with_quotes);
+extern const char *list_tokens(const char *s, int with_quotes);
 extern int  my_snprintf(char *str, int size, const char *fmt, ...);
 extern size_t my_strdup(int id, char **dest, const char *src);
 extern void my_strndup(int id, char **dest, const char *src, int n);
