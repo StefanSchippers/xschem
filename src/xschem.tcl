@@ -2108,7 +2108,7 @@ proc edit_prop {txtlabel} {
      if {$selected_tok eq {<ALL>} } { 
        set retval $retval_orig
      } else {
-       set retval [xschem gettok $retval_orig $selected_tok]
+       set retval [xschem get_tok $retval_orig $selected_tok]
        regsub -all {\\?"} $retval {"} retval
      }
      .dialog.e1 delete 1.0 end
@@ -2120,7 +2120,7 @@ proc edit_prop {txtlabel} {
      if {$selected_tok eq {<ALL>} } {
        set retval $retval_orig
      } else {
-       set retval [xschem gettok $retval_orig $selected_tok]
+       set retval [xschem get_tok $retval_orig $selected_tok]
        regsub -all {\\?"} $retval {"} retval
      }
      .dialog.e1 delete 1.0 end
@@ -2259,7 +2259,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
      if {$selected_tok eq {<ALL>} } { 
        set retval $retval_orig
      } else {
-       set retval [xschem gettok $retval_orig $selected_tok]
+       set retval [xschem get_tok $retval_orig $selected_tok]
        regsub -all {\\?"} $retval {"} retval
      }
      .dialog.e1 delete 1.0 end
@@ -2273,7 +2273,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
      if {$selected_tok eq {<ALL>} } {
        set retval $retval_orig
      } else {
-       set retval [xschem gettok $retval_orig $selected_tok]
+       set retval [xschem get_tok $retval_orig $selected_tok]
        regsub -all {\\?"} $retval {"} retval
      }
      .dialog.e1 delete 1.0 end

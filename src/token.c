@@ -283,10 +283,6 @@ int set_different_token(char **s,char *new, char *old, int object, int n)
  my_new = new;
  dbg(1, "set_different_token(): *s=%s, new=%s, old=%s n=%d\n",*s, new, old, n);
  if(new==NULL) return 0;
- sizetok=CADCHUNKALLOC;
- token=my_malloc(427, sizetok);
- sizeval=CADCHUNKALLOC;
- value=my_malloc(429, sizeval);
  /* parse new string and add / change attributes that are missing / different from old */
  while(1) {
   c=*my_new++; 
@@ -478,7 +474,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
   register int token_pos=0, value_pos=0;
   int quote=0;
   int escape=0;
-  int tok_size = 0;
+  int cmp = 1;
  
   if(s==NULL) {
     my_free(976, &result);
@@ -508,6 +504,11 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
       if(!escape) quote=!quote;
     }
     if(state==XTOKEN) {
+      if(!cmp) { /* previous token matched search and was without value, return get_tok_size */
+        result[0] = '\0';
+        get_tok_value_size = 0;
+        return result;
+      }
       if(c=='"') {
         if((with_quotes & 1) || escape)  token[token_pos++]=c;
       }
@@ -521,15 +522,16 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
       else if( (c == '\\') && escape ) result[value_pos++]=c; /* 20170414 add escaped backslashes */
     } else if(state==XENDTOK || state==XSEPARATOR) {
         if(token_pos) {
-          tok_size = token_pos;
           token[token_pos]='\0';
+          if( !(cmp = strcmp(token,tok)) ) {
+            get_tok_size = token_pos; /* report back also token size, useful to check if requested token exists */
+          }
           dbg(2, "get_tok_value(): token=%s\n", token);
           token_pos=0;
         }
     } else if(state==XEND) {
       result[value_pos]='\0';
-      if( !strcmp(token,tok) ) {
-        get_tok_size = tok_size; /* report back also token size, useful to check if requested token exists */
+      if( !cmp ) {
         get_tok_value_size = value_pos; /* return also size so to avoid using strlen 20180926 */
         return result;
       }
@@ -769,6 +771,7 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
  int token_pos=0, result_pos=0, result_save_pos = 0;
  int quote=0;
  int done_subst=0;
+ int done_delete = 0;
  int escape=0;
  int cmptok = 1;
 
@@ -776,7 +779,7 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
    my_free(989, &result);
    return "";
  }
- dbg(1, "subst_token(%s, %s, %s)\n", s, tok, new_val);
+ dbg(0, "subst_token(%s, %s, %s)\n", s, tok, new_val);
  sizetok=CADCHUNKALLOC;
  token=my_malloc(451, sizetok);
  size=CADCHUNKALLOC;
@@ -808,7 +811,8 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
        result[result_pos++] = c;
   } else if(state==XSEPARATOR) {
        token[token_pos] = '\0'; 
-       if(!(cmptok = strcmp(token,tok)) && !new_val) {
+       if(!(cmptok = strcmp(token,tok)) && !new_val && !done_delete) {
+         done_delete = 1;
          result_pos = result_save_pos;
          dbg(3, "subst_token(): result_pos=%d\n", result_pos);
        } else {
@@ -843,6 +847,11 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
     else result[result_pos++]=c;
   } else if(state==XENDTOK) {
      token[token_pos]='\0';
+     if(!(strcmp(token,tok)) && !new_val && !done_delete) {
+       done_delete = 1;
+       result_pos = result_save_pos;
+       dbg(3, "subst_token(): result_pos=%d\n", result_pos);
+     }
      result[result_pos++] = c;
   } else if(state == XEND) {
        if(c=='\0' || !(result_save_pos == 0 && !cmptok && !new_val) ) result[result_pos++] = c;

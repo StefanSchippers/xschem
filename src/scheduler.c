@@ -1145,12 +1145,26 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
  }
 
- else if(!strcmp(argv[1],"gettok") )
+ else if(!strcmp(argv[1],"subst_tok") )
  {
    char *s=NULL;
-   Tcl_ResetResult(interp);
+   my_strdup(894, &s, subst_token(argv[2], argv[3], strcmp(argv[4], "NULL") ? argv[4] : NULL));
+   Tcl_SetResult(interp, s, TCL_VOLATILE);
+   my_free(1150, &s);
+ }
+
+ else if(!strcmp(argv[1],"get_tok_size") )
+ {
+   char s[30];
+   my_snprintf(s, S(s), "%d", (int)get_tok_size);
+   Tcl_SetResult(interp, s, TCL_VOLATILE);
+ }
+
+ else if(!strcmp(argv[1],"get_tok") )
+ {
+   char *s=NULL;
    my_strdup(648, &s, get_tok_value(argv[2], argv[3], 0));
-   Tcl_AppendResult(interp, s, NULL);
+   Tcl_SetResult(interp, s, TCL_VOLATILE);
    my_free(649, &s);
  }
  else if(!strcmp(argv[1],"load_symbol") )
