@@ -165,7 +165,7 @@ void windowid()
     mainwindow=Tk_MainWindow(interp);
     display = Tk_Display(mainwindow);
     tcleval( "winfo id .");
-    sscanf(Tcl_GetStringResult(interp), "0x%x", (unsigned int *) &ww);
+    sscanf(tclresult(), "0x%x", (unsigned int *) &ww);
     framewin = ww;
     XQueryTree(display, framewin, &rootwindow, &parent_of_topwindow, &framewin_child_ptr, &framewindow_nchildren);
     dbg(1,"framewinID=%x\n", (unsigned int) framewin);
@@ -393,9 +393,9 @@ void init_color_array(double dim)
  for(i=0;i<cadlayers;i++) {
    my_snprintf(s, S(s), "lindex $colors %d",i);
    tcleval(s);
-   dbg(2, "init_color_array(): color:%s\n",Tcl_GetStringResult(interp));
+   dbg(2, "init_color_array(): color:%s\n",tclresult());
 
-   sscanf(Tcl_GetStringResult(interp), "#%02x%02x%02x", &r, &g, &b);/* 20171123 */
+   sscanf(tclresult(), "#%02x%02x%02x", &r, &g, &b);/* 20171123 */
    rr=r; gg=g; bb=b;
   
    if( (i!=BACKLAYER) ) {
@@ -672,17 +672,17 @@ int build_colors(double dim) /* 20171113 */
     int i;
     if(dark_colorscheme) {
       tcleval("llength $dark_colors");
-      if(atoi(Tcl_GetStringResult(interp))>=cadlayers){
+      if(atoi(tclresult())>=cadlayers){
         tcleval("set colors $dark_colors");
       }
     } else {
       tcleval("llength $light_colors");
-      if(atoi(Tcl_GetStringResult(interp)) >=cadlayers){
+      if(atoi(tclresult()) >=cadlayers){
         tcleval("set colors $light_colors");
       }
     }
     tcleval("llength $colors");
-    if(atoi(Tcl_GetStringResult(interp))<cadlayers){
+    if(atoi(tclresult())<cadlayers){
       fprintf(errfp,"Tcl var colors not set correctly\n");
       return -1; /* fail */
     }
@@ -738,11 +738,11 @@ int source_tcl_file(char *s)
   char tmp[1024];
   if(Tcl_EvalFile(interp, s)==TCL_ERROR) { 
     fprintf(errfp, "Tcl_AppInit() error: can not execute %s, please fix:\n", s);
-    fprintf(errfp, "%s", Tcl_GetStringResult(interp));
+    fprintf(errfp, "%s", tclresult());
     fprintf(errfp, "\n");
     my_snprintf(tmp, S(tmp), "tk_messageBox -icon error -type ok -message \
        {Tcl_AppInit() err 1: can not execute %s, please fix:\n %s}",
-       s, Tcl_GetStringResult(interp));
+       s, tclresult());
     if(has_x) {
       tcleval( "wm withdraw ."); /* 20161217 */
       tcleval( tmp); /* 20161217 */
@@ -882,7 +882,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 #ifdef __unix__
  my_snprintf(tmp, S(tmp),"regsub -all {~/} {.:%s} {%s/}", XSCHEM_LIBRARY_PATH, home_dir);
  tcleval(tmp);
- tclsetvar("XSCHEM_LIBRARY_PATH", Tcl_GetStringResult(interp));
+ tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
  
  running_in_src_dir = 0;
  /* test if running xschem in src/ dir (usually for testing) */
@@ -891,7 +891,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tclsetvar("XSCHEM_SHAREDIR",pwd_dir); /* for testing xschem builds in src dir*/
    my_snprintf(tmp, S(tmp), "subst .:[file normalize \"%s/../xschem_library/devices\"]", pwd_dir);
    tcleval(tmp);
-   tclsetvar("XSCHEM_LIBRARY_PATH", Tcl_GetStringResult(interp));
+   tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
  } else if( !stat(XSCHEM_SHAREDIR, &buf) ) {  /* 20180918 */
    tclsetvar("XSCHEM_SHAREDIR",XSCHEM_SHAREDIR);
    /* ... else give up searching, may set later after loading xschemrc */
@@ -899,12 +899,12 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* create user conf dir , remove ~ if present */
  my_snprintf(tmp, S(tmp),"regsub {^~/} {%s} {%s/}", USER_CONF_DIR, home_dir);
  tcleval(tmp);
- my_snprintf(user_conf_dir, S(user_conf_dir), "%s", Tcl_GetStringResult(interp));
+ my_snprintf(user_conf_dir, S(user_conf_dir), "%s", tclresult());
  tclsetvar("USER_CONF_DIR", user_conf_dir);
 #else
    my_snprintf(tmp, S(tmp),"regsub -all {~/} {.;%s} {%s/}", XSCHEM_LIBRARY_PATH, home_dir);
    tcleval(tmp);
-   tclsetvar("XSCHEM_LIBRARY_PATH", Tcl_GetStringResult(interp));
+   tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
    char install_dir[MAX_PATH];
    GetModuleFileNameA(NULL, install_dir, MAX_PATH);
    change_to_unix_fn(install_dir);
@@ -914,7 +914,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_snprintf(tmp, S(tmp), "regexp {bin$} \"%s\"", install_dir); /* debugging in Visual Studio will not have bin */
    tcleval(tmp);
    running_in_src_dir = 0;
-   if (atoi(Tcl_GetStringResult(interp)) == 0)
+   if (atoi(tclresult()) == 0)
      running_in_src_dir = 1; /* no bin, so it's running in Visual studio source directory*/
  char* gxschem_library=NULL, *xschem_sharedir=NULL;
  if ((xschem_sharedir=getenv("XSCHEM_SHAREDIR")) != NULL) {
@@ -1371,7 +1371,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
     remove_symbols();
     my_snprintf(s, S(s), "file normalize \"%s\"", filename);
     tcleval(s);
-    load_schematic(1, abs_sym_path(Tcl_GetStringResult(interp), ""), 1); /* 20180925.1 */
+    load_schematic(1, abs_sym_path(tclresult(), ""), 1); /* 20180925.1 */
  }
  else { 
    char * tmp; /* 20121110 */

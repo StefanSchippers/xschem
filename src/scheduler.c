@@ -213,7 +213,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  else if(!strcmp(argv[1],"make_symbol"))
  {
    if(has_x) tcleval("tk_messageBox -type okcancel -message {do you want to make symbol view ?}");
-   if(!has_x || strcmp(Tcl_GetStringResult(interp),"ok")==0) 
+   if(!has_x || strcmp(tclresult(),"ok")==0) 
       if(current_type==SCHEMATIC)
       {
        save_schematic(schematic[currentsch]);
@@ -373,7 +373,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  {
    if(modified && has_x) {
      tcleval("tk_messageBox -type okcancel -message {UNSAVED data: want to exit?}");
-     if(strcmp(Tcl_GetStringResult(interp),"ok")==0) tcleval( "exit");
+     if(strcmp(tclresult(),"ok")==0) tcleval( "exit");
    }
    else tcleval( "exit");
    Tcl_ResetResult(interp);
@@ -1109,12 +1109,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
  }
 
- else if(!strcmp(argv[1],"fill_symbol_editprop_form") ) {
-   fill_symbol_editprop_form(0);
- }
-
  else if(!strcmp(argv[1],"update_symbol") ) {
    if(argc >= 3) update_symbol(argv[2],0);
+   else update_symbol(NULL, 0);
  }
 
  else if(!strcmp(argv[1], "print_hilight_net") && argc == 3) {
@@ -1941,9 +1938,13 @@ void tcleval(const char str[])
 {
   dbg(2, "tcleval(): %s\n", str);
   /* if( Tcl_EvalEx(interp, str, -1, TCL_EVAL_GLOBAL) != TCL_OK) {*/
-  if( Tcl_Eval(interp, str) != TCL_OK) {
+  if( Tcl_GlobalEval(interp, str) != TCL_OK) {
     fprintf(errfp, "tcleval(): evaluation of script: %s failed\n", str);
   }
+}
+const char *tclresult(void) 
+{
+  return Tcl_GetStringResult(interp);
 }
 
 void tclsetvar(const char *s, const char *value)

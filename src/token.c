@@ -1544,7 +1544,7 @@ void print_spice_element(FILE *fd, int inst)
         my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, inst_ptr[inst].name);
         dbg(1, "tclpropeval {%s} {%s} {%s}", token, name, inst_ptr[inst].name);
         tcleval(tclcmd);
-        fprintf(fd, "%s", Tcl_GetStringResult(interp));
+        fprintf(fd, "%s", tclresult());
         my_free(1018, &tclcmd);
       } /* /20171029 */
                     /* 20151028 dont print escaping backslashes */
@@ -1798,7 +1798,7 @@ void print_tedax_element(FILE *fd, int inst)
       Tcl_ResetResult(interp);
       my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, inst_ptr[inst].name);
       tcleval(tclcmd);
-      fprintf(fd, "%s", Tcl_GetStringResult(interp));
+      fprintf(fd, "%s", tclresult());
       my_free(1032, &tclcmd);
       /* fprintf(errfp, "%s\n", tclcmd); */
     } /* /20171029 */
@@ -2175,7 +2175,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
      Tcl_ResetResult(interp);
      my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, inst_ptr[inst].name);
      tcleval(tclcmd);
-     fprintf(fd, "%s", Tcl_GetStringResult(interp));
+     fprintf(fd, "%s", tclresult());
      my_free(1049, &tclcmd);
    }
 
@@ -2347,7 +2347,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
       Tcl_ResetResult(interp);
       my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, inst_ptr[inst].name);
       tcleval(tclcmd);
-      fprintf(fd, "%s", Tcl_GetStringResult(interp));
+      fprintf(fd, "%s", tclresult());
       my_free(1057, &tclcmd);
     }
                   /* 20180911 dont print escaping backslashes */

@@ -654,7 +654,7 @@ int callback(int event, int mx, int my, KeySym key,
      if(semaphore >= 2) break;
      if(modified) {
        tcleval("tk_messageBox -type okcancel -message {UNSAVED data: want to exit?}");
-       if(strcmp(Tcl_GetStringResult(interp),"ok")==0) {
+       if(strcmp(tclresult(),"ok")==0) {
          tcleval( "exit");
        }
      } 
@@ -755,7 +755,7 @@ int callback(int event, int mx, int my, KeySym key,
     if(semaphore >= 2) break; /* 20180914 */
     if(current_type==SCHEMATIC) {
       tcleval("tk_messageBox -type okcancel -message {do you want to make symbol view ?}");
-      if(strcmp(Tcl_GetStringResult(interp),"ok")==0) 
+      if(strcmp(tclresult(),"ok")==0) 
       {
        save_schematic(schematic[currentsch]);
        make_symbol();
@@ -893,7 +893,7 @@ int callback(int event, int mx, int my, KeySym key,
    {
     if(semaphore >= 2) break;
      tcleval("tk_messageBox -type okcancel -message {Are you sure you want to reload from disk?}");
-     if(strcmp(Tcl_GetStringResult(interp),"ok")==0) {
+     if(strcmp(tclresult(),"ok")==0) {
         char filename[PATH_MAX];
         unselect_all();
         remove_symbols();
@@ -1440,9 +1440,9 @@ int callback(int event, int mx, int my, KeySym key,
      ui_state |= STARTPAN2;
      break;
    }
-   else if(semaphore >= 2) {
-     if(button==Button1 && state==0) {
-       tcleval("set editprop_semaphore 2"); /* 20160423 */
+   else if(semaphore >= 2) { /* button1 click to select another instance while edit prop dialog open */
+     if(button==Button1 && state==0 && tclgetvar("edit_symbol_prop_new_sel")[0]) {
+       tcleval("set edit_symbol_prop_new_sel 1; .dialog.f1.b1 invoke"); /* invoke 'OK' of edit prop dialog */
      }
      break;
    }

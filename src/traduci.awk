@@ -17,10 +17,11 @@ END  { endfile(_filename_) }
 BEGIN{
 }
 
-/if(.*)  *my_free/{
-  $0 =   gensub(/( +)(if\(.*\) +)(my_free.*)/, "\\1\\3","1")
+/Tcl_GetStringResult\(interp\)/{
   found = 1
+  gsub(/Tcl_GetStringResult\(interp\)/, "tclresult()")
 }
+
 
 function replace_pattern(old, new)
 {

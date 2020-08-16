@@ -367,7 +367,7 @@ static void fill_ps_colors()
  for(i=0;i<cadlayers;i++) {
    my_snprintf(s, S(s), "lindex $ps_colors %d", i);
    tcleval( s);
-   sscanf(Tcl_GetStringResult(interp),"%x", &c);
+   sscanf(tclresult(),"%x", &c);
    ps_colors[i].red   = (c & 0xff0000) >> 16;
    ps_colors[i].green = (c & 0x00ff00) >> 8;
    ps_colors[i].blue  = (c & 0x0000ff);
@@ -389,7 +389,7 @@ void ps_draw(void)
    my_strdup(59, &tmp, "tk_getSaveFile -title {Select destination file} -initialdir $env(PWD)");
    tcleval(tmp);
    my_free(878, &tmp);
-   r = Tcl_GetStringResult(interp);
+   r = tclresult();
    if(r[0]) my_strncpy(plotfile, r, S(plotfile));
    else {
      return;

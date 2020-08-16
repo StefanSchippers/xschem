@@ -1,4 +1,4 @@
-v {xschem version=2.9.5_RC6 file_version=1.1}
+v {xschem version=2.9.7 file_version=1.2}
 G {type=pnp
 format="@spiceprefix@name @pinlist @model area=@area"
 tedax_format="footprint @name @footprint
@@ -19,7 +19,7 @@ B 5 17.5 27.5 22.5 32.5 {name=C dir=inout pinnumber=3}
 B 5 -22.5 -2.5 -17.5 2.5 {name=B dir=in pinnumber=1}
 B 5 17.5 -32.5 22.5 -27.5 {name=E dir=inout pinnumber=2}
 P 4 4 0 -10 15 -15 5 -25 0 -10 {fill=true}
-T {@device} 20 -13.75 0 0 0.2 0.2 {}
+T {@model} 20 -13.75 0 0 0.2 0.2 {}
 T {@name} 20 1.25 0 0 0.2 0.2 {}
 T {@#2:pinnumber} 25 -28.75 0 0 0.2 0.2 {layer=13}
 T {@#0:pinnumber} 25 17.5 0 0 0.2 0.2 {layer=13}

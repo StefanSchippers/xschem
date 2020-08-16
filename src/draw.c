@@ -51,7 +51,7 @@ void print_image()
   if(!plotfile[0]) {
     my_strdup(60, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir $env(PWD)");
     tcleval(tmpstring);
-    r = Tcl_GetStringResult(interp);
+    r = tclresult();
     my_free(717, &tmpstring);
     if(r[0]) my_strncpy(plotfile, r, S(plotfile));
     else return;

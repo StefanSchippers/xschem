@@ -149,7 +149,7 @@ int set_netlist_dir(int force, char *dir)
   if(dir) my_snprintf(cmd, S(cmd), "select_netlist_dir %d %s", force, dir);
   else    my_snprintf(cmd, S(cmd), "select_netlist_dir %d", force);
   tcleval(cmd);
-  if(!strcmp("", Tcl_GetStringResult(interp)) ) {
+  if(!strcmp("", tclresult()) ) {
     return 0;
   }
   return 1;
@@ -161,7 +161,7 @@ const char *abs_sym_path(const char *s, const char *ext)
   char c[PATH_MAX+1000];
   my_snprintf(c, S(c), "abs_sym_path {%s} {%s}", s, ext);
   tcleval(c);
-  return Tcl_GetStringResult(interp);
+  return tclresult();
 }
 
 /* Wrapper to Tcl function */
@@ -170,7 +170,7 @@ const char *rel_sym_path(const char *s)
   char c[PATH_MAX+1000];
   my_snprintf(c, S(c), "rel_sym_path {%s}", s);
   tcleval(c);
-  return Tcl_GetStringResult(interp);
+  return tclresult();
 }
 
 const char *add_ext(const char *f, const char *ext)
@@ -437,7 +437,7 @@ const char *get_file_path(char *f)
   char tmp[2*PATH_MAX+100];
   my_snprintf(tmp, S(tmp),"get_file_path \"%s\"", f);
   tcleval(tmp);
-  return Tcl_GetStringResult(interp);
+  return tclresult();
 }
 
 int save(int confirm) /* 20171006 add confirm */
@@ -451,8 +451,8 @@ int save(int confirm) /* 20171006 add confirm */
      {
        if(confirm) {
          tcleval("ask_save");
-         if(!strcmp(Tcl_GetStringResult(interp), "") ) cancel=1;
-         if(!strcmp(Tcl_GetStringResult(interp), "yes") ) save_ok = save_schematic(schematic[currentsch]);
+         if(!strcmp(tclresult(), "") ) cancel=1;
+         if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(schematic[currentsch]);
        } else {
          save_ok = save_schematic(schematic[currentsch]);
        }
@@ -479,7 +479,7 @@ void saveas(const char *f) /*  changed name from ask_save_file to saveas 2012120
       }
 
       tcleval(name);
-      my_strncpy(res, Tcl_GetStringResult(interp), S(res));
+      my_strncpy(res, tclresult(), S(res));
     }
     else if(f) {
       my_strncpy(res, f, S(res));
@@ -505,7 +505,7 @@ void ask_new_file(void)
       if(save(1)) return; /*  user cancels save, so do nothing. */
     }
     tcleval("load_file_dialog {Load Schematic} .sch.sym INITIALLOADDIR");
-    my_snprintf(fullname, S(fullname),"%s", Tcl_GetStringResult(interp));
+    my_snprintf(fullname, S(fullname),"%s", tclresult());
 
 
     if( fullname[0] ) {
@@ -893,7 +893,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, 
  if(current_type==SYMBOL) return 0; /*  20161210 dont allow components placed inside symbols */
  if(symbol_name==NULL) {
    tcleval("load_file_dialog {Choose symbol} .sym INITIALINSTDIR");
-   my_strncpy(name, Tcl_GetStringResult(interp), S(name));
+   my_strncpy(name, tclresult(), S(name));
  } else {
    my_strncpy(name, symbol_name, S(name));
  }
@@ -1094,7 +1094,7 @@ void descend_schematic(void)
     my_strncpy(filename, schematic[currentsch], S(filename));
     my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} .sch.sym INITIALLOADDIR {%s}", filename);
     tcleval(cmd);
-    my_strncpy(res, Tcl_GetStringResult(interp), S(res));
+    my_strncpy(res, tclresult(), S(res));
     if(!res[0]) return; /* 20071104 */
     dbg(1, "descend_schematic(): saving: %s\n",res);
     save_ok = save_schematic(res);
@@ -1139,7 +1139,7 @@ void descend_schematic(void)
     Tcl_VarEval(interp, "input_line ", "{input instance number (leftmost = 1) to descend into:\n" 
       "negative numbers select instance starting\nfrom the right (rightmost = -1)}"
       " {} 1 6", NULL);
-    inum = Tcl_GetStringResult(interp);
+    inum = tclresult();
     dbg(1, "descend_schematic(): inum=%s\n", inum);
     if(!inum[0]) {
       my_free(710, &sch_path[currentsch+1]);
@@ -1203,8 +1203,8 @@ void go_back(int confirm) /*  20171006 add confirm */
   {
     if(confirm) {
       tcleval("ask_save");
-      if(!strcmp(Tcl_GetStringResult(interp), "yes") ) save_ok = save_schematic(schematic[currentsch]);
-      else if(!strcmp(Tcl_GetStringResult(interp), "") ) return;
+      if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(schematic[currentsch]);
+      else if(!strcmp(tclresult(), "") ) return;
     } else {
       save_ok = save_schematic(schematic[currentsch]);
     }

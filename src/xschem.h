@@ -872,6 +872,7 @@ extern void edit_property(int x);
 extern int xschem(ClientData clientdata, Tcl_Interp *interp, 
            int argc, const char * argv[]);
 extern void tcleval(const char str[]);
+extern const char *tclresult(void);
 extern const char *tclgetvar(const char *s);
 extern void tclsetvar(const char *s, const char *value);
 extern void statusmsg(char str[],int n);
@@ -983,7 +984,6 @@ extern void preview_window(const char *what, const char *tk_win_path, const char
 extern int window_state (Display *disp, Window win, char *arg);
 extern void toggle_fullscreen();
 extern void toggle_only_probes(); /*  20110112 */
-extern void fill_symbol_editprop_form(int x);
 extern void update_symbol(const char *result, int x);
 extern void tclexit(ClientData s);
 extern int build_colors(double dim); /*  reparse the TCL 'colors' list and reassign colors 20171113 */

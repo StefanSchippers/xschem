@@ -1969,12 +1969,11 @@ proc change_color {} {
 }
 
 proc edit_prop {txtlabel} {
-   global edit_prop_default_geometry infowindow_text selected_tok
-   global prev_symbol retval symbol rcode no_change_attrs preserve_unchanged_attrs copy_cell tcl_debug editprop_semaphore
+   global edit_prop_size infowindow_text selected_tok edit_symbol_prop_new_sel edit_prop_pos
+   global prev_symbol retval symbol rcode no_change_attrs preserve_unchanged_attrs copy_cell tcl_debug
    global user_wants_copy_cell editprop_sympath
    set user_wants_copy_cell 0
    set rcode {}
-   set editprop_semaphore 1
    if $tcl_debug<=-1 then {puts " edit_prop{}: retval=$retval"}
    if { [winfo exists .dialog] } return
    toplevel .dialog  -class Dialog 
@@ -1982,18 +1981,14 @@ proc edit_prop {txtlabel} {
    set X [expr [winfo pointerx .dialog] - 60]
    set Y [expr [winfo pointery .dialog] - 35]
 
-   # 20100203
-   if { $::wm_fix } { tkwait visibility .dialog }
-
-   wm geometry .dialog "${edit_prop_default_geometry}+$X+$Y"
-
    # 20160325 change and remember widget size
    bind .dialog <Configure> { 
      # puts [wm geometry .dialog]
      set geom [wm geometry .dialog]
-     regsub {\+.*} $geom {} geom
-     set edit_prop_default_geometry $geom
+     regsub {\+.*} $geom {} edit_prop_size
+     regsub {[^+]*\+} $geom {+} edit_prop_pos
    }
+   wm geometry .dialog "${edit_prop_size}+$X+$Y"
 
    set prev_symbol $symbol
    set editprop_sympath [file dirname [abs_sym_path $symbol]]
@@ -2027,7 +2022,6 @@ proc edit_prop {txtlabel} {
      set symbol [.dialog.f1.e2 get]
      set abssymbol [abs_sym_path $symbol]
      set rcode {ok}
-     set editprop_semaphore 0
      set user_wants_copy_cell $copy_cell
      set prev_symbol [abs_sym_path $prev_symbol]
      if { ($abssymbol ne $prev_symbol) && $copy_cell } {
@@ -2051,19 +2045,21 @@ proc edit_prop {txtlabel} {
            # puts "file copy [file rootname $prev_symbol].sym [file rootname $abssymbol].sym"
          }
        }
-       ## 20190326
      }
      #puts "symbol: $symbol , prev_symbol: $prev_symbol"
      set copy_cell 0 ;# 20120919
+     destroy .dialog
    }
    button .dialog.f1.b2 -text "Cancel" -command  {
      set rcode {}
-     set editprop_semaphore 0
+     set edit_symbol_prop_new_sel {}
+     destroy .dialog
    }
 
    wm protocol .dialog  WM_DELETE_WINDOW {
      set rcode {}
-     set editprop_semaphore 0
+     set edit_symbol_prop_new_sel {}
+     destroy .dialog
    }
 
    button .dialog.f1.b3 -text "Load" -command {
@@ -2106,39 +2102,12 @@ proc edit_prop {txtlabel} {
        .dialog.f1.b2 invoke
      }
    }
-   #tkwait visibility .dialog
-   #grab set .dialog
-   #focus .dialog.e1
-   #tkwait window .dialog
-   while {1} {
-     tkwait  variable editprop_semaphore
-     if { $editprop_semaphore == 2 } {
-       set retval [.dialog.e1 get 1.0 {end - 1 chars}] 
-       set symbol [ .dialog.f1.e2 get]
-       xschem update_symbol ok 
-       set editprop_semaphore 1
-       xschem fill_symbol_editprop_form
-       set editprop_sympath [file dirname [abs_sym_path $symbol]]
-    
-       # 20160423 no more setected stuff--> close
-       if {$editprop_semaphore==0 } {
-         break
-       }
-       # 20110325 update symbol variable after clicking another element to avoid 
-       #          modified flag to be set even when nothing changed
-       ## set symbol [ .dialog.f1.e2 get]
 
-       .dialog.e1 delete 1.0 end
-       .dialog.e1 insert 1.0 $retval
-       .dialog.f1.e2  delete 0 end
-       .dialog.f1.e2 insert 0 $symbol
-     } else {
-       break
-     }
-    
+   if {$edit_symbol_prop_new_sel == 1} { 
+     wm geometry .dialog $edit_prop_pos
    }
-   destroy .dialog
-   set editprop_semaphore 0
+   set edit_symbol_prop_new_sel 0
+   tkwait window .dialog
    return $rcode
 }
 
@@ -2602,7 +2571,9 @@ proc reconfigure_layers_menu {} {
 
 proc get_file_path {ff} {
   global env
-  if { [regexp {/} $ff] } { return $ff } 
+  # Absolute path ? return as is.
+  #        Linux                Windows
+  if { [regexp {^/} $ff] || [regexp {^[a-zA-Z]:} $ff] } { return $ff }
   if {$::OS == "Windows"} {
     set pathlist [split $env(PATH) \;]
   } else {
@@ -2612,6 +2583,7 @@ proc get_file_path {ff} {
     set ii $i/$ff
     if { [file exists $ii]} {return $ii}
   }
+  # nothing found, return $ff as is and hope for the best :-)
   return $ff
 }
 
@@ -2865,10 +2837,10 @@ set_ne disable_unique_names 1
 set_ne sym_txt 1
 set_ne show_infowindow 0 
 set_ne symbol_width 150
-set_ne editprop_semaphore 0
 set_ne editor {gvim -f}
 set_ne rainbow_colors 0
 set_ne initial_geometry {700x448+10+10}
+set_ne edit_symbol_prop_new_sel {}
 #20161102
 set_ne launcher_var {}
 set_ne launcher_default_program {xdg-open}
@@ -2879,7 +2851,7 @@ set_ne auto_hilight 0
 set_ne to_png {gm convert} 
 
 ## 20160325 remember edit_prop widget size
-set_ne edit_prop_default_geometry 80x12
+set_ne edit_prop_size 80x12
 set_ne text_line_default_geometry 80x12
 set_ne terminal xterm
 

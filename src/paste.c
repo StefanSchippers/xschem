@@ -290,8 +290,8 @@ void merge_file(int selection_load, const char ext[])
      if(!strcmp(ext,"")) {      /* 20071215 */
        my_snprintf(tmp, S(tmp), "load_file_dialog {Merge file} {.sch.sym} INITIALLOADDIR", ext);
        tcleval(tmp);
-       if(!strcmp(Tcl_GetStringResult(interp),"")) return;
-       my_strncpy(name, (char *)Tcl_GetStringResult(interp), S(name)); /* 20180925 */
+       if(!strcmp(tclresult(),"")) return;
+       my_strncpy(name, (char *)tclresult(), S(name)); /* 20180925 */
      } 
      else {                     /* 20071215 */
        my_strncpy(name, ext, S(name));

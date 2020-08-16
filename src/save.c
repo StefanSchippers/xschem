@@ -1838,7 +1838,7 @@ void create_sch_from_sym(void)
       my_strcat(354, &savecmd, schname);
       my_strcat(355, &savecmd, " ?\nWARNING: This schematic file already exists, it will be overwritten\"");
       tcleval(savecmd);
-      if(strcmp(Tcl_GetStringResult(interp), "yes") ) {
+      if(strcmp(tclresult(), "yes") ) {
         my_free(914, &savecmd);
         return;
       }

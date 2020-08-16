@@ -393,7 +393,7 @@ static void fill_svg_colors()
  for(i=0;i<cadlayers;i++) {
    my_snprintf(s, S(s), "lindex $svg_colors %d", i);
    tcleval( s);
-   sscanf(Tcl_GetStringResult(interp),"%x", &c);
+   sscanf(tclresult(),"%x", &c);
    svg_colors[i].red   = (c & 0xff0000) >> 16;
    svg_colors[i].green = (c & 0x00ff00) >> 8;
    svg_colors[i].blue  = (c & 0x0000ff);
@@ -419,7 +419,7 @@ void svg_draw(void)
  if(!plotfile[0]) {
    my_strdup(61, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir $env(PWD)");
    tcleval(tmpstring);
-   r = Tcl_GetStringResult(interp);
+   r = tclresult();
    my_free(963, &tmpstring);
    if(r[0]) my_strncpy(plotfile, r, S(plotfile));
    else return;

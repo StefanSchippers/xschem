@@ -793,34 +793,6 @@ static char *old_prop=NULL;
 static int i=-1;
 static int netlist_commands;
 
-void fill_symbol_editprop_form(int x) 
-{
-   /* 20160423 if no more stuff selected close editprop toplevel form */
-   if(lastselected==0 || selectedgroup[0].type!=ELEMENT) {
-     Tcl_GlobalEval(interp, "set editprop_semaphore 0");
-     return;
-   }
-   i=selectedgroup[0].n;
-   dbg(1, "fill_symbol_editprop_form(): element %d property=%s\n",i,inst_ptr[i].prop_ptr);
-   dbg(1, "fill_symbol_editprop_form(): modified=%d\n", modified);
-   dbg(1, "fill_symbol_editprop_form(): symbol=%s\n", inst_ptr[i].name);
-   if(inst_ptr[i].prop_ptr!=NULL) {
-    dbg(1, "fill_symbol_editprop_form(): element %d property=%s\n",i,inst_ptr[i].prop_ptr);
- 
-    if(netlist_commands && x==1) {
-    /* 20070318 */
-      tclsetvar("retval",get_tok_value( inst_ptr[i].prop_ptr,"value",0));
-    } else {
-      tclsetvar("retval",inst_ptr[i].prop_ptr);
-    }
-   }
-   else {
-     tclsetvar("retval","");
-   }
-   my_strdup(91, &old_prop, inst_ptr[i].prop_ptr);
-   tclsetvar("symbol",inst_ptr[i].name);
-}
-
 /* x=0 use text widget   x=1 use vim editor */
 void edit_symbol_property(int x)
 {
@@ -831,11 +803,22 @@ void edit_symbol_property(int x)
    if ((inst_ptr[i].ptr + instdef)->type!=NULL)
      netlist_commands =  !strcmp( (inst_ptr[i].ptr+instdef)->type, "netlist_commands");
 
-   fill_symbol_editprop_form( x);
+   if(inst_ptr[i].prop_ptr!=NULL) {
+     if(netlist_commands && x==1) {
+       tclsetvar("retval",get_tok_value( inst_ptr[i].prop_ptr,"value",0));
+     } else {
+       tclsetvar("retval",inst_ptr[i].prop_ptr);
+     }
+   }
+   else {
+     tclsetvar("retval","");
+   }
+   my_strdup(91, &old_prop, inst_ptr[i].prop_ptr);
+   tclsetvar("symbol",inst_ptr[i].name);
 
    if(x==0) {
      tcleval("edit_prop {Input property:}");
-     my_strdup(77, &result, Tcl_GetStringResult(interp));
+     my_strdup(77, &result, tclresult());
    }
    else {
      /* edit_vi_netlist_prop will replace \" with " before editing,
@@ -844,7 +827,7 @@ void edit_symbol_property(int x)
      if(netlist_commands && x==1)    tcleval("edit_vi_netlist_prop {Input property:}");
      else if(x==1)    tcleval("edit_vi_prop {Input property:}");
      else if(x==2)    tcleval("viewdata $::retval");
-     my_strdup(78, &result, Tcl_GetStringResult(interp));
+     my_strdup(78, &result, tclresult());
    }
    dbg(1, "edit_symbol_property(): before update_symbol, modified=%d\n", modified);
    update_symbol(result, x);
@@ -868,6 +851,7 @@ void update_symbol(const char *result, int x)
   int cond, allow_change_name;
   int pushed=0; /* 20150327 */
 
+  dbg(1, "update_symbol(): entering\n");
   i=selectedgroup[0].n; /* 20110413 */
   if(!result) {
    dbg(1, "update_symbol(): edit symbol prop aborted\n");
@@ -1035,14 +1019,6 @@ void update_symbol(const char *result, int x)
   dbg(1, "update_symbol(): redrawing inst_ptr.txtprop string\n");
   draw();
   bbox(END,0.0,0.0,0.0,0.0);
-  /* 20160308 added if(), leave edited objects selected after updating properties */
-  /* unless i am clicking another element with edit property dialog box open */
-  /* in this latter case the last pointed element remains selected. */
-  if( !strcmp(tclgetvar("editprop_semaphore"), "2")) {
-    unselect_all();
-    select_object(mousex,mousey,SELECTED, 0);
-  }
-  rebuild_selected_array();
   my_free(731, &name);
   my_free(732, &ptr);
   my_free(733, &new_prop);
@@ -1147,7 +1123,7 @@ void edit_property(int x)
       tcleval("edit_vi_prop {Global schematic property:}");
    }
    else if(x==2)    tcleval("viewdata $::retval");
-   dbg(1, "edit_property(): done executing edit_vi_prop, result=%s\n",Tcl_GetStringResult(interp));
+   dbg(1, "edit_property(): done executing edit_vi_prop, result=%s\n",tclresult());
    dbg(1, "edit_property(): rcode=%s\n",tclgetvar("rcode") );
    if(strcmp(tclgetvar("rcode"),"") )
    {
@@ -1202,6 +1178,17 @@ void edit_property(int x)
  {
   case ELEMENT:
    edit_symbol_property(x);
+   while( x == 0 && tclgetvar("edit_symbol_prop_new_sel")[0] == '1' ) {
+     unselect_all();
+     select_object(mousex, mousey, SELECTED, 0);
+     rebuild_selected_array();
+     if(lastselected && selectedgroup[0].type ==ELEMENT) {
+       edit_symbol_property(0);
+     } else {
+       break;
+     }
+   }
+   tclsetvar("edit_symbol_prop_new_sel", "");
    break;
   case ARC:
    edit_arc_property();
