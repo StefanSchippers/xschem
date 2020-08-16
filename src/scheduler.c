@@ -1109,11 +1109,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
  }
 
- else if(!strcmp(argv[1],"update_symbol") ) {
-   if(argc >= 3) update_symbol(argv[2],0);
-   else update_symbol(NULL, 0);
- }
-
  else if(!strcmp(argv[1], "print_hilight_net") && argc == 3) {
    print_hilight_net(atoi(argv[2]));
  }
@@ -1137,6 +1132,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     }
  }
+
  else if(!strcmp(argv[1],"print") ) { /* 20171022 added png, svg */
    if(argc==2 || (argc==3 && !strcmp(argv[2],"pdf")) ) {
      ps_draw();
@@ -1149,6 +1145,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
  }
 
+ else if(!strcmp(argv[1],"gettok") )
+ {
+   char *s=NULL;
+   Tcl_ResetResult(interp);
+   my_strdup(648, &s, get_tok_value(argv[2], argv[3], 0));
+   Tcl_AppendResult(interp, s, NULL);
+   my_free(649, &s);
+ }
  else if(!strcmp(argv[1],"load_symbol") )
  {
     if(argc==3) {

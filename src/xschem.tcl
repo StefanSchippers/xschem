@@ -1929,7 +1929,7 @@ proc edit_vi_netlist_prop {txtlabel} {
  if [string compare $tmp $retval] {
         set retval $tmp
         regsub -all {\\?"} $retval {\\"} retval
-        set retval "\"${retval}\"" 
+        set retval \"${retval}\" 
         if $tcl_debug<=-1 then {puts "modified"}
         set rcode ok
         return  $rcode
@@ -1971,9 +1971,10 @@ proc change_color {} {
 proc edit_prop {txtlabel} {
    global edit_prop_size infowindow_text selected_tok edit_symbol_prop_new_sel edit_prop_pos
    global prev_symbol retval symbol rcode no_change_attrs preserve_unchanged_attrs copy_cell tcl_debug
-   global user_wants_copy_cell editprop_sympath
+   global user_wants_copy_cell editprop_sympath retval_orig
    set user_wants_copy_cell 0
    set rcode {}
+   set retval_orig $retval
    if $tcl_debug<=-1 then {puts " edit_prop{}: retval=$retval"}
    if { [winfo exists .dialog] } return
    toplevel .dialog  -class Dialog 
@@ -2079,7 +2080,7 @@ proc edit_prop {txtlabel} {
    set tok_list "<ALL> [xschem list_tokens $retval 0]"
    set selected_tok {<ALL>}
    label .dialog.f2.r4 -text {   Edit Attr:}
-   ttk::combobox .dialog.f2.r5 -values $tok_list -textvariable selected_tok -state readonly -width 10
+   ttk::combobox .dialog.f2.r5 -values $tok_list -textvariable selected_tok -width 14
 
    pack .dialog.f1.l2 .dialog.f1.e2 .dialog.f1.b1 .dialog.f1.b2 .dialog.f1.b3 .dialog.f1.b4 .dialog.f1.b5 -side left -expand 1
    pack .dialog.f4 -side top  -anchor nw
@@ -2090,8 +2091,8 @@ proc edit_prop {txtlabel} {
    pack .dialog.f2.r1 -side left
    pack .dialog.f2.r2 -side left
    pack .dialog.f2.r3 -side left
-   # pack .dialog.f2.r4 -side left
-   # pack .dialog.f2.r5 -side left
+   pack .dialog.f2.r4 -side left
+   pack .dialog.f2.r5 -side left
    pack .dialog.yscroll -side right -fill y 
    pack .dialog.xscroll -side bottom -fill x
    pack .dialog.e1  -fill both -expand yes
@@ -2102,6 +2103,30 @@ proc edit_prop {txtlabel} {
        .dialog.f1.b2 invoke
      }
    }
+
+   bind .dialog.f2.r5 <<ComboboxSelected>> {
+     if {$selected_tok eq {<ALL>} } { 
+       set retval $retval_orig
+     } else {
+       set retval [xschem gettok $retval_orig $selected_tok]
+       regsub -all {\\?"} $retval {"} retval
+     }
+     .dialog.e1 delete 1.0 end
+     .dialog.e1 insert 1.0 $retval
+   }
+
+   bind .dialog.f2.r5 <KeyRelease> {
+     set selected_tok [.dialog.f2.r5 get]
+     if {$selected_tok eq {<ALL>} } {
+       set retval $retval_orig
+     } else {
+       set retval [xschem gettok $retval_orig $selected_tok]
+       regsub -all {\\?"} $retval {"} retval
+     }
+     .dialog.e1 delete 1.0 end
+     .dialog.e1 insert 1.0 $retval
+   }
+
 
    if {$edit_symbol_prop_new_sel == 1} { 
      wm geometry .dialog $edit_prop_pos
@@ -2143,7 +2168,8 @@ proc write_data {data f} {
 
 proc text_line {txtlabel clear {preserve_disabled disabled} } {
    global text_line_default_geometry preserve_unchanged_attrs
-   global retval rcode tcl_debug
+   global retval rcode tcl_debug tok_list selected_tok retval_orig
+   set retval_orig $retval
    if $clear==1 then {set retval ""}
    if $tcl_debug<=-1 then {puts " text_line{}: clear=$clear"}
    if $tcl_debug<=-1 then {puts " text_line{}: retval=$retval"}
@@ -2154,6 +2180,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
    set X [expr [winfo pointerx .dialog] - 60]
    set Y [expr [winfo pointery .dialog] - 35]
 
+   set tok_list "<ALL> [xschem list_tokens $retval 0]"
+   set selected_tok {<ALL>}
    # 20160325 change and remember widget size
    bind .dialog <Configure> {
      # puts [wm geometry .dialog]
@@ -2201,6 +2229,10 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
    {
      .dialog.e1 delete 1.0 end
    }
+   set selected_tok {<ALL>}
+   label .dialog.f1.r4 -text {   Edit Attr:}
+   ttk::combobox .dialog.f1.r5 -values $tok_list -textvariable selected_tok -width 14
+
    checkbutton .dialog.f0.l2 -text "preserve unchanged props" -variable preserve_unchanged_attrs -state $preserve_disabled
    pack .dialog.f0 -fill x
    pack .dialog.f0.l2 -side left
@@ -2210,6 +2242,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
    pack .dialog.f1.b2 -side left -fill x -expand yes
    pack .dialog.f1.b3 -side left -fill x -expand yes
    pack .dialog.f1.b4 -side left -fill x -expand yes
+   pack .dialog.f1.r4 -side left
+   pack .dialog.f1.r5 -side left
  
 
    pack .dialog.yscroll -side right -fill y 
@@ -2220,6 +2254,33 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
        .dialog.f1.b2 invoke
      }
    }
+
+   bind .dialog.f1.r5 <<ComboboxSelected>> {
+     if {$selected_tok eq {<ALL>} } { 
+       set retval $retval_orig
+     } else {
+       set retval [xschem gettok $retval_orig $selected_tok]
+       regsub -all {\\?"} $retval {"} retval
+     }
+     .dialog.e1 delete 1.0 end
+     .dialog.e1 insert 1.0 $retval
+   }
+
+
+
+   bind .dialog.f1.r5 <KeyRelease> {
+     set selected_tok [.dialog.f1.r5 get]
+     if {$selected_tok eq {<ALL>} } {
+       set retval $retval_orig
+     } else {
+       set retval [xschem gettok $retval_orig $selected_tok]
+       regsub -all {\\?"} $retval {"} retval
+     }
+     .dialog.e1 delete 1.0 end
+     .dialog.e1 insert 1.0 $retval
+   }
+
+
    bind .dialog <Control-Return> {.dialog.f1.b1 invoke}
    #tkwait visibility .dialog
    #grab set .dialog

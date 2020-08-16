@@ -867,7 +867,21 @@ void update_symbol(const char *result, int x)
     dbg(1, "update_symbol(): tcl retval==%s\n", tclgetvar("retval"));
   }
   else {
-    my_strdup(80, &new_prop, (char *) tclgetvar("retval"));
+
+    const char *tok;
+    tok = tclgetvar("selected_tok");
+    
+    if(x == 0 && strcmp(tok, "<ALL>")) {
+
+      tcleval("regsub -all {\\\\?\"} $retval {\\\\\"} retval");
+      tcleval("set retval \\\"${retval}\\\"");
+
+      my_strdup(656,  &new_prop,
+        subst_token(old_prop, tok, (char *) tclgetvar("retval") )
+      );
+    } else {
+      my_strdup(80, &new_prop, (char *) tclgetvar("retval"));
+    }
     dbg(1, "update_symbol(): new_prop=%s\n", new_prop);
   }
 
@@ -1082,10 +1096,15 @@ void change_elem_order(void)
 void edit_property(int x)
 {
  int j;
+
  if(!has_x) return;
  rebuild_selected_array(); /* from the .sel field in objects build */
  if(lastselected==0 )      /* the array of selected objs */
  {
+   const char *tok;
+   char *old_prop = NULL;
+   char *new_prop = NULL;
+
    if(netlist_type==CAD_SYMBOL_ATTRS && current_type==SCHEMATIC) {
     if(schsymbolprop!=NULL)    /*09112003 */
       tclsetvar("retval",schsymbolprop);
@@ -1117,6 +1136,8 @@ void edit_property(int x)
       tclsetvar("retval","");
    }
 
+   my_strdup(660, &old_prop, tclgetvar("retval"));
+
    if(x==0)         tcleval("text_line {Global schematic property:} 0");          
    else if(x==1) {
       dbg(1, "edit_property(): executing edit_vi_prop\n");
@@ -1125,6 +1146,24 @@ void edit_property(int x)
    else if(x==2)    tcleval("viewdata $::retval");
    dbg(1, "edit_property(): done executing edit_vi_prop, result=%s\n",tclresult());
    dbg(1, "edit_property(): rcode=%s\n",tclgetvar("rcode") );
+
+   tok = tclgetvar("selected_tok");
+   if(x == 0 && strcmp(tok, "<ALL>")) {
+
+     tcleval("regsub -all {\\\\?\"} $retval {\\\\\"} retval");
+     tcleval("set retval \\\"${retval}\\\"");
+
+     my_strdup(890,  &new_prop,
+       subst_token(old_prop, tok, (char *) tclgetvar("retval") )
+     );
+   } else {
+     my_strdup(650, &new_prop, (char *) tclgetvar("retval"));
+   }
+   tclsetvar("retval", new_prop);
+   my_free(892, &old_prop);
+   my_free(893, &new_prop);
+
+
    if(strcmp(tclgetvar("rcode"),"") )
    {
      if(current_type==SYMBOL && /* 20120404 added case for symbol editing, use schvhdlprop regardless of netlisting mode */

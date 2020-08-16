@@ -372,9 +372,6 @@ int set_different_token(char **s,char *new, char *old, int object, int n)
      token[token_pos]='\0';
      token_pos=0;
    }
-  } else if(state==XEND) {
-   value[value_pos]='\0';
-   value_pos=0;
    get_tok_value(new,token,1);
    if(get_tok_size == 0 ) {
 
@@ -390,6 +387,9 @@ int set_different_token(char **s,char *new, char *old, int object, int n)
     mod=1;
     my_strdup(443, s, subst_token(*s, token, NULL) );
    }
+  } else if(state==XEND) {
+   value[value_pos]='\0';
+   value_pos=0;
    state=XBEGIN;
   }
   if(c=='\0') break;
@@ -2531,7 +2531,7 @@ char *translate(int inst, char* s)
     tmp=strlen(tmp_sym_name);
     if(result_pos + tmp>=size) {
      size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-     my_realloc(531, &result,size);
+     my_realloc(453, &result,size);
     }
     memcpy(result+result_pos,tmp_sym_name, tmp+1); /* 20180923 */
     result_pos+=tmp;
@@ -2809,7 +2809,7 @@ char* translate2(struct Lcc *lcc, int level, char* s)
         tmp = strlen(tmp_sym_name);
         if (result_pos + tmp >= size) {
           size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-          my_realloc(665, &result, size);
+          my_realloc(655, &result, size);
         }
         memcpy(result + result_pos, tmp_sym_name, tmp + 1);
         result_pos += tmp;
