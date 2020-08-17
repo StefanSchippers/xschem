@@ -859,7 +859,7 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
     }
     else result[result_pos++]=c;
   } else if(state == XEND || state == XBEGIN) {
-    if(cmptok || new_val) result[result_pos++] = c; /* if deleting a token skip also following spaces up to next token */
+    if(c == '\0' || cmptok || new_val) result[result_pos++] = c; /* if deleting a token skip also following spaces up to next token */
     state = XBEGIN;
   }
   if(c == '\0')  break;
