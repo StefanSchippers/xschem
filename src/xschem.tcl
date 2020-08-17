@@ -1985,9 +1985,11 @@ proc edit_prop {txtlabel} {
    # 20160325 change and remember widget size
    bind .dialog <Configure> { 
      # puts [wm geometry .dialog]
-     set geom [wm geometry .dialog]
-     regsub {\+.*} $geom {} edit_prop_size
-     regsub {[^+]*\+} $geom {+} edit_prop_pos
+     if { $edit_symbol_prop_new_sel != 1 } {
+       set geom [wm geometry .dialog]
+       regsub {\+.*} $geom {} edit_prop_size
+       regsub {[^+]*\+} $geom {+} edit_prop_pos
+     }
    }
    wm geometry .dialog "${edit_prop_size}+$X+$Y"
 
