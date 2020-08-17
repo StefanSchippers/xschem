@@ -771,7 +771,6 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
  int token_pos=0, result_pos=0, result_save_pos = 0;
  int quote=0;
  int done_subst=0;
- int done_delete = 0;
  int escape=0;
  int cmptok = 1;
 
@@ -779,7 +778,7 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
    my_free(989, &result);
    return "";
  }
- dbg(0, "subst_token(%s, %s, %s)\n", s, tok, new_val);
+ dbg(1, "subst_token(%s, %s, %s)\n", s, tok, new_val);
  sizetok=CADCHUNKALLOC;
  token=my_malloc(451, sizetok);
  size=CADCHUNKALLOC;
@@ -788,31 +787,50 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
  while( s ) {
   c=*s++; 
   space=SPACE(c);
-  if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') {
-    result_save_pos = result_pos-1;
-    if(result_save_pos < 0) result_save_pos = 0;
+  if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') { 
+    if(!cmptok) { /* add value to a (previously) matching token with no value */
+      if(!done_subst && new_val) {
+        result[result_pos-1]='=';
+        if(new_val[0]) {
+          tmp = strlen(new_val)+1; /* add 1 char for space at end */
+        } else {
+          new_val = "\"\"";
+          tmp = 3; /* add 1 char for space at end */
+        }
+        if(result_pos + tmp >= size) {
+          size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
+          my_realloc(457, &result, size);
+        }
+        memcpy(result + result_pos ,new_val, tmp + 1);/* copy new_val and add 1 char for space */
+        result_pos += tmp;
+        result[result_pos-1]= ' '; /* space at end */
+        done_subst = 1;
+      }
+    }
+    result_save_pos = result_pos;
     token_pos=0 ;
     state=XTOKEN; 
   } else if( state==XTOKEN && space) state=XENDTOK;
   else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
   else if( state==XSEPARATOR && !space) state=XVALUE;
   else if( state==XVALUE && space && !quote && !escape) state=XEND;
+
+  /* alloc data */
   if(result_pos >= size) {
-   size += CADCHUNKALLOC;
-   my_realloc(455, &result, size);
+    size += CADCHUNKALLOC;
+    my_realloc(455, &result, size);
   }
   if(token_pos >= sizetok) {
-   sizetok += CADCHUNKALLOC;
-   my_realloc(456, &token, sizetok); /* 20171104 **Long** standing bug fixed, was doing realloc on result instead of token. */
-                               /* causing the program to crash on first very long token encountered */
+    sizetok += CADCHUNKALLOC;
+    my_realloc(456, &token, sizetok);
   }
+
   if(state==XTOKEN) {
        token[token_pos++] = c;
        result[result_pos++] = c;
-  } else if(state==XSEPARATOR) {
+  } else if(state==XSEPARATOR || state == XENDTOK) {
        token[token_pos] = '\0'; 
-       if(!(cmptok = strcmp(token,tok)) && !new_val && !done_delete) {
-         done_delete = 1;
+       if(!(cmptok = strcmp(token,tok)) && !new_val) { /* matching token with value and NULL new_val: delete token */
          result_pos = result_save_pos;
          dbg(3, "subst_token(): result_pos=%d\n", result_pos);
        } else {
@@ -822,64 +840,39 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
     if(c == '"' && !escape) quote=!quote;
     if(c == '\\') escape = 1;
     else escape = 0;
-    if(!cmptok)
-    {
-     if(!done_subst)
-     {
-       if(new_val && new_val[0]) {
-         tmp = strlen(new_val);
-       } else if(new_val) {
-         new_val = "\"\"";
-         tmp = 2;
-       }
-       if(new_val) {
-         if(result_pos + tmp >= size)
-         {
-           size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-           my_realloc(457, &result, size);
-         }
-         memcpy(result + result_pos ,new_val, tmp + 1); /* 20180923 */
-         result_pos += tmp;
-       }
-       done_subst = 1;
-     }
+    if(!cmptok ) { /* if matching token found end NULL new_val skip also value */
+      if(!done_subst && new_val) { /* replace value of a matching token */
+        if(new_val[0]) {
+          tmp = strlen(new_val);
+        } else {
+          new_val = "\"\"";
+          tmp = 2;
+        }
+        if(result_pos + tmp >= size) {
+          size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
+          my_realloc(457, &result, size);
+        }
+        memcpy(result + result_pos ,new_val, tmp + 1); /* 20180923 */
+        result_pos += tmp;
+        done_subst = 1;
+      }
     }
     else result[result_pos++]=c;
-  } else if(state==XENDTOK) {
-     token[token_pos]='\0';
-     if(!(strcmp(token,tok)) && !new_val && !done_delete) {
-       done_delete = 1;
-       result_pos = result_save_pos;
-       dbg(3, "subst_token(): result_pos=%d\n", result_pos);
-     }
-     result[result_pos++] = c;
-  } else if(state == XEND) {
-       if(c=='\0' || !(result_save_pos == 0 && !cmptok && !new_val) ) result[result_pos++] = c;
-       state = XBEGIN;
-  } else if(state == XBEGIN) {
-       if(c=='\0' || !(result_save_pos == 0 && !cmptok && !new_val) ) result[result_pos++] = c;
+  } else if(state == XEND || state == XBEGIN) {
+    if(cmptok || new_val) result[result_pos++] = c; /* if deleting a token skip also following spaces up to next token */
+    state = XBEGIN;
   }
   if(c == '\0')  break;
  } /* end while */
  if(!done_subst) { /* 04052001 if tok not found add tok=new_value at end */
-  if(result[0] == '\0' && new_val) {
-   if(!new_val[0]) new_val = "\"\"";
-   tmp = strlen(new_val) + strlen(tok) + 2;
-   if(result_pos + tmp >= size) {
-     size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-     my_realloc(458, &result,size);
-   }
-   my_realloc(459, &result, size);
-   my_snprintf(result, size, "%s=%s", tok, new_val ); /* overflow safe 20161122 */
-  }
-  else if(new_val) {
-   if(!new_val[0]) new_val = "\"\"";
-   tmp = strlen(new_val) + strlen(tok) + 2; /* 20171104 */
-   if(result_pos + tmp >= size) {
-     size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-     my_realloc(460, &result,size);
-   }
-   my_snprintf(result + result_pos - 1, size, " %s=%s", tok, new_val ); /* 20171104, 20171201 -> result_pos-1 */
+  if(new_val) {
+    if(!new_val[0]) new_val = "\"\"";
+    tmp = strlen(new_val) + strlen(tok) + 2; /* 20171104 */
+    if(result_pos + tmp >= size) {
+      size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
+      my_realloc(460, &result,size);
+    }
+    my_snprintf(result + result_pos - 1, size, " %s=%s", tok, new_val ); /* 20171104, 20171201 -> result_pos-1 */
   }
  }
  dbg(2, "subst_token(): returning: %s\n",result);
