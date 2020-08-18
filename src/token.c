@@ -791,8 +791,7 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
     c=*s++; 
     space=SPACE(c);
     if(c == '"' && !escape) quote=!quote;
-    escape = (c=='\\' && !escape);
-
+    dbg(0, "--> c=%c, escape=%d\n", c, escape);
     /* alloc data */
     if(result_pos >= size) {
       size += CADCHUNKALLOC;
@@ -825,7 +824,7 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
       result_save_pos = result_pos;
       token_pos = 0;
       state = XTOKEN;
-    } else if(state == XENDTOK  && !space && c != '=' ) {
+    } else if(state == XENDTOK  && (!space || c == '\0') && c != '=' ) {
       if(!done_subst && matched_tok) {
         if(new_val) { /* add new_val to matching token with no value */
           if(new_val[0]) {
@@ -885,6 +884,7 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
       }
       state=XVALUE;
     } else if( state == XVALUE && space && !quote && !escape) {
+      dbg(0, "XVALUE: c=%c, quote=%d escape=%d\n", c, quote, escape);
       state=XBEGIN;
     }
     /* state actions */
@@ -900,6 +900,7 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
     } else if(state==XVALUE) {
       if(!matched_tok) result[result_pos++] = c; /* skip value for matching token */
     }
+    escape = (c=='\\' && !escape);
     if(c == '\0') break;
   }
   if(!done_subst) { /* if tok not found add tok=new_value at end */
@@ -911,14 +912,7 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
         my_realloc(460, &result,size);
       }
       my_snprintf(result + result_pos - 1, size, " %s=%s", tok, new_val );
-    } else {
-      tmp = strlen(tok) + 1;
-      if(result_pos + tmp >= size) {
-        size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-        my_realloc(459, &result,size);
-      }
-      my_snprintf(result + result_pos - 1, size, " %s", tok);
-    }
+    } 
   }
   dbg(2, "subst_token(): returning: %s\n",result);
   my_free(990, &token);
