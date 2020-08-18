@@ -852,6 +852,32 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
       token[token_pos] = '\0';
       token_pos = 0;
       matched_tok = !strcmp(token, tok) && !done_subst;
+
+      if(c == '\0' && !done_subst && matched_tok) {
+        if(new_val) { /* add new_val to matching token with no value  at end of string: "....token\0"*/
+          if(new_val[0]) {
+            tmp = strlen(new_val);
+          } else {
+            new_val = "\"\"";
+            tmp = 2;
+          }
+          if(result_pos+tmp+2 >= size) {
+            size = (1+(result_pos+tmp+2) / CADCHUNKALLOC) * CADCHUNKALLOC;
+            my_realloc(1154, &result, size);
+          }
+          memcpy(result + result_pos, "=", 1);
+          memcpy(result + result_pos+1, new_val, tmp);
+          memcpy(result + result_pos+1+tmp, " ", 1);
+          result_pos += tmp + 2;
+          done_subst = 1;
+        } else { /* remove token (and value if any) */
+          result_pos = result_save_pos;
+          done_subst = 1;
+        }
+      }
+
+
+
       state=XENDTOK;
     } else if(state == XTOKEN && c=='=') {
       token[token_pos] = '\0';
