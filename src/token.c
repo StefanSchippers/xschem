@@ -413,7 +413,7 @@ const char *list_tokens(const char *s, int with_quotes)
   if(s==NULL) {
     my_free(435, &token);
     sizetok = 0;
-    return "";;
+    return "";
   }
   sizetok = CADCHUNKALLOC;
   my_realloc(451, &token, sizetok);
@@ -428,7 +428,6 @@ const char *list_tokens(const char *s, int with_quotes)
     if(token_pos>=sizetok) {
       sizetok+=CADCHUNKALLOC;
       my_realloc(434, &token,sizetok);
-      token[0] = '\0';
     }
     if(c=='"') {
       if(!escape) quote=!quote;
