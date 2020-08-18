@@ -854,12 +854,12 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
     } else if( state == XTOKEN && space) {
       token[token_pos] = '\0';
       token_pos = 0;
-      matched_tok = !strcmp(token, tok);
+      matched_tok = !strcmp(token, tok) && !done_subst;
       state=XENDTOK;
     } else if(state == XTOKEN && c=='=') {
       token[token_pos] = '\0';
       token_pos = 0;
-      matched_tok = !strcmp(token, tok);
+      matched_tok = !strcmp(token, tok) && !done_subst;
       state=XSEPARATOR;
     } else if(state == XENDTOK && c=='=') {
       state=XSEPARATOR;
