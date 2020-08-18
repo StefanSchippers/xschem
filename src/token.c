@@ -791,7 +791,6 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
     c=*s++; 
     space=SPACE(c);
     if(c == '"' && !escape) quote=!quote;
-    dbg(0, "--> c=%c, escape=%d\n", c, escape);
     /* alloc data */
     if(result_pos >= size) {
       size += CADCHUNKALLOC;
@@ -884,7 +883,6 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
       }
       state=XVALUE;
     } else if( state == XVALUE && space && !quote && !escape) {
-      dbg(0, "XVALUE: c=%c, quote=%d escape=%d\n", c, quote, escape);
       state=XBEGIN;
     }
     /* state actions */
