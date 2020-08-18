@@ -52,7 +52,7 @@ value="
 .save all
 "}
 C {code.sym} 760 -170 0 0 {name=MODEL
-only_toplevel=true
+only_toplevel="true"
 tclcommand="xschem edit_vi_prop"
 value="************************************************
 *         NOMINAL N-Channel Transistor         *
