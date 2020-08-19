@@ -975,7 +975,7 @@ extern void hilight_child_pins(void);
 extern void hilight_parent_pins(void);
 extern struct node_hashentry **get_node_table_ptr(void);
 extern void change_elem_order(void);
-extern int set_different_token(char **s,char *new, char *old, int object, int n);
+extern int set_different_token(char **s,const char *new, const char *old, int object, int n);
 extern void print_hilight_net(int show);
 extern void change_layer();
 extern void launcher(); /*  20161102 */

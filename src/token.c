@@ -268,7 +268,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
 /* update **s modifying only the token values that are */
 /* different between *new and *old */
 /* return 1 if s modified 20081221 */
-int set_different_token(char **s,char *new, char *old, int object, int n)
+int set_different_token(char **s,const char *new, const char *old, int object, int n)
 {
  register int c, state=XBEGIN, space;
  char *token=NULL, *value=NULL;
@@ -277,7 +277,7 @@ int set_different_token(char **s,char *new, char *old, int object, int n)
  int quote=0;
  int escape=0;
  int mod;
- char *my_new;
+ const char *my_new;
 
  mod=0;
  my_new = new;
@@ -292,6 +292,7 @@ int set_different_token(char **s,char *new, char *old, int object, int n)
  while(1) {
   c=*my_new++; 
   space=SPACE(c) ;
+  if(c=='"' && !escape) quote=!quote;
   if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') state=XTOKEN;
   else if( state==XTOKEN && space) state=XENDTOK;
   else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
@@ -307,9 +308,7 @@ int set_different_token(char **s,char *new, char *old, int object, int n)
   }
   if(state==XTOKEN) token[token_pos++]=c;
   else if(state==XVALUE) {
-   if(c=='"' && !escape) quote=!quote;
    value[value_pos++]=c;
-   escape = (c=='\\' && !escape);
   }
   else if(state==XENDTOK || state==XSEPARATOR) {
    if(token_pos) {
@@ -336,6 +335,7 @@ int set_different_token(char **s,char *new, char *old, int object, int n)
    }
    state=XBEGIN;
   }
+  escape = (c=='\\' && !escape);
   if(c=='\0') break;
  }
 
@@ -345,6 +345,7 @@ int set_different_token(char **s,char *new, char *old, int object, int n)
  while(old) {
   c=*old++;
   space=SPACE(c) ;
+  if(c=='"' && !escape) quote=!quote;
   if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') state=XTOKEN;
   else if( state==XTOKEN && space) state=XENDTOK;
   else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
@@ -360,9 +361,7 @@ int set_different_token(char **s,char *new, char *old, int object, int n)
   }
   if(state==XTOKEN) token[token_pos++]=c;
   else if(state==XVALUE) {
-   if(c=='"' && !escape) quote=!quote;
    value[value_pos++]=c;
-   escape = (c=='\\' && !escape);
   }
   else if(state==XENDTOK || state==XSEPARATOR) {
    if(token_pos) {
@@ -389,6 +388,7 @@ int set_different_token(char **s,char *new, char *old, int object, int n)
    value_pos=0;
    state=XBEGIN;
   }
+  escape = (c=='\\' && !escape);
   if(c=='\0') break;
  }
  my_free(974, &token);
@@ -775,7 +775,6 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
   int escape=0, matched_tok=0;
  
   if(s==NULL){
-    size = 0;
     my_free(989, &result);
     return "";
   }

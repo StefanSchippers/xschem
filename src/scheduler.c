@@ -1148,8 +1148,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  else if(!strcmp(argv[1],"subst_tok") )
  {
    char *s=NULL;
-   my_strdup(894, &s, subst_token(argv[2], argv[3], strcmp(argv[4], "NULL") ? argv[4] : NULL));
    Tcl_ResetResult(interp);
+   if(argc < 5) {Tcl_AppendResult(interp, "Missing arguments", NULL);return TCL_ERROR;}
+   my_strdup(894, &s, subst_token(argv[2], argv[3], strcmp(argv[4], "NULL") ? argv[4] : NULL));
    Tcl_AppendResult(interp, s, NULL);
    my_free(1150, &s);
  }
@@ -1161,12 +1162,22 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    Tcl_ResetResult(interp);
    Tcl_AppendResult(interp, s, NULL);
  }
-
+ else if(!strcmp(argv[1],"set_different_tok") )
+ {
+   char *s = NULL;
+   Tcl_ResetResult(interp);
+   if(argc < 5) {Tcl_AppendResult(interp, "Missing arguments", NULL);return TCL_ERROR;}
+   my_strdup(459, &s, argv[2]);
+   set_different_token(&s, argv[3], argv[4], 0, 0);
+   Tcl_AppendResult(interp, s, NULL);
+   my_free(1156, &s);
+ }  
  else if(!strcmp(argv[1],"get_tok") )
  {
    char *s=NULL;
-   my_strdup(648, &s, get_tok_value(argv[2], argv[3], 0));
    Tcl_ResetResult(interp);
+   if(argc < 4) {Tcl_AppendResult(interp, "Missing arguments", NULL);return TCL_ERROR;}
+   my_strdup(648, &s, get_tok_value(argv[2], argv[3], 0));
    Tcl_AppendResult(interp, s, NULL);
    my_free(649, &s);
  }
