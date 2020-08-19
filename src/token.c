@@ -852,12 +852,11 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
       token[token_pos] = '\0';
       token_pos = 0;
       matched_tok = !strcmp(token, tok) && !done_subst;
+      state=XENDTOK;
       if(c == '\0') {
-        state=XENDTOK;
-        s--; /* go to next iteration and process \0 as XENDTOK */
+        s--; /* go to next iteration and process '\0' as XENDTOK */
         continue;
       }
-      state=XENDTOK;
     } else if(state == XTOKEN && c=='=') {
       token[token_pos] = '\0';
       token_pos = 0;
