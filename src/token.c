@@ -760,9 +760,9 @@ void new_prop_string(int i, const char *old_prop, int fast, int disable_unique_n
 char *subst_token(const char *s, const char *tok, const char *new_val)
 /* given a string <s> with multiple "token=value ..." assignments */
 /* substitute <tok>'s value with <new_val> */
-/* if tok not found in s add tok=new_val at end. 04052001 */
+/* if tok not found in s and new_val!=NULL add tok=new_val at end.*/
 /* if new_val is empty ('\0') set token value to "" (token="") */
-/* if new_val is NULL *remove* 'token=val' from s */
+/* if new_val is NULL *remove* 'token (and =val if any)' from s */
 {
   static char *result=NULL;
   int size=0;
@@ -836,35 +836,6 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
             size = (1+(result_pos+tmp+2) / CADCHUNKALLOC) * CADCHUNKALLOC;
             my_realloc(1154, &result, size);
           }
-          memcpy(result + result_pos-1, "=", 1);
-          memcpy(result + result_pos, new_val, tmp);
-          memcpy(result + result_pos+tmp, " ", 1);
-          result_pos += tmp + 1;
-          done_subst = 1;
-        } else { /* remove token (and value if any) */
-          result_pos = result_save_pos;
-          done_subst = 1;
-        }
-      }
-      result_save_pos = result_pos;
-      state = XTOKEN;
-    } else if( state == XTOKEN && space) {
-      token[token_pos] = '\0';
-      token_pos = 0;
-      matched_tok = !strcmp(token, tok) && !done_subst;
-
-      if(c == '\0' && !done_subst && matched_tok) {
-        if(new_val) { /* add new_val to matching token with no value  at end of string: "....token\0"*/
-          if(new_val[0]) {
-            tmp = strlen(new_val);
-          } else {
-            new_val = "\"\"";
-            tmp = 2;
-          }
-          if(result_pos+tmp+2 >= size) {
-            size = (1+(result_pos+tmp+2) / CADCHUNKALLOC) * CADCHUNKALLOC;
-            my_realloc(1154, &result, size);
-          }
           memcpy(result + result_pos, "=", 1);
           memcpy(result + result_pos+1, new_val, tmp);
           memcpy(result + result_pos+1+tmp, " ", 1);
@@ -875,9 +846,17 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
           done_subst = 1;
         }
       }
-
-
-
+      result_save_pos = result_pos;
+      if(c != '\0') state = XTOKEN; /* if end of string remain in XENDTOK state */
+    } else if( state == XTOKEN && space) {
+      token[token_pos] = '\0';
+      token_pos = 0;
+      matched_tok = !strcmp(token, tok) && !done_subst;
+      if(c == '\0') {
+        state=XENDTOK;
+        s--; /* go to next iteration and process \0 as XENDTOK */
+        continue;
+      }
       state=XENDTOK;
     } else if(state == XTOKEN && c=='=') {
       token[token_pos] = '\0';
