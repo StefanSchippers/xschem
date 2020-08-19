@@ -3578,10 +3578,10 @@ font configure Underline-Font -underline true -size 24
    label .statusbar.1   -text "STATUS BAR 1"  
    label .statusbar.2   -text "SNAP:"
    entry .statusbar.3 -textvariable snap -relief sunken -bg white \
-          -width 10 -foreground black 
+          -width 10 -foreground black -takefocus 0
    label .statusbar.4   -text "GRID:"
    entry .statusbar.5 -textvariable grid -relief sunken -bg white \
-          -width 10 -foreground black 
+          -width 10 -foreground black -takefocus 0
    label .statusbar.6   -text "NETLIST MODE:"
    entry .statusbar.7 -textvariable netlist_type -relief sunken -bg white \
           -width 10 -state disabled -disabledforeground black 

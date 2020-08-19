@@ -1,4 +1,4 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=2.9.7 file_version=1.2}
 G {type=subcircuit
 format="@name @pinlist @symname"
 template="name=x1 val=4.5 conduct=10.0"
@@ -14,7 +14,7 @@ L 4 70 0 90 0 {}
 L 4 -100 0 -80 0 {}
 B 5 87.5 -2.5 92.5 2.5 {name=USC sig_type=rreal verilog_type=wire dir=inout }
 B 5 -102.5 -2.5 -97.5 2.5 {name=ING sig_type=std_logic verilog_type=wire dir=in }
-T {@symname} -45 -6 0 0 0.3 0.3 {}
+T {@symname} -48.75 -9.25 0 0 0.3 0.3 {}
 T {@name} 75 -22 0 0 0.2 0.2 {}
 T {USC} 65 -4 0 1 0.2 0.2 {}
 T {ING} -75 -4 0 0 0.2 0.2 {}
