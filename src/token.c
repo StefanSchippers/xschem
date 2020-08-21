@@ -774,18 +774,19 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
   int done_subst=0;
   int escape=0, matched_tok=0;
  
-  if(s==NULL){
+  if(s==NULL && tok == NULL){
     my_free(989, &result);
     return "";
   }
-  if(tok == NULL || tok[0]=='\0'){
-    my_strdup(458, &result, s);
+  if((tok == NULL || tok[0]=='\0') && s ){
+    my_strdup2(458, &result, s);
     return result;
   }
   dbg(1, "subst_token(%s, %s, %s)\n", s, tok, new_val);
   sizetok = size = CADCHUNKALLOC;
   my_realloc(1152, &result, size);
   my_realloc(1153, &token, sizetok);
+  result[0] = '\0';
   while( s ) {
     c=*s++; 
     space=SPACE(c);
@@ -905,14 +906,15 @@ char *subst_token(const char *s, const char *tok, const char *new_val)
     if(c == '\0') break;
   }
   if(!done_subst) { /* if tok not found add tok=new_value at end */
+    if(result_pos == 0 ) result_pos = 1; /* result="" */
     if(new_val) {
       if(!new_val[0]) new_val = "\"\"";
       tmp = strlen(new_val) + strlen(tok) + 2;
-      if(result_pos + tmp >= size) {
+      if(result_pos + tmp  >= size) {
         size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
         my_realloc(460, &result,size);
       }
-      my_snprintf(result + result_pos - 1, size, " %s=%s", tok, new_val );
+      my_snprintf(result + result_pos - 1, size, " %s=%s", tok, new_val ); /* result_pos guaranteed to be > 0 */
     } 
   }
   dbg(2, "subst_token(): returning: %s\n",result);
