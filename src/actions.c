@@ -2053,7 +2053,7 @@ int text_bbox(char *str, double xscale, double yscale,
     int rot, int flip, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2)
 {
-  int c=0, length =0;
+  int c=0;
   char *str_ptr;
   double size;
   cairo_text_extents_t ext;
@@ -2071,7 +2071,6 @@ int text_bbox(char *str, double xscale, double yscale,
 
   ww=0.; hh=1.;
   c=0;
-  cairo_longest_line=0;
   cairo_lines=1;
   str_ptr = str;
   while( str && str[c] ) {
@@ -2079,7 +2078,6 @@ int text_bbox(char *str, double xscale, double yscale,
       str[c]='\0';
       hh++;
       cairo_lines++;
-      length=0;
       if(str_ptr[0]!='\0') {
         cairo_text_extents(ctx, str_ptr, &ext);
         if(ext.x_advance > ww) ww= ext.x_advance;
@@ -2087,10 +2085,6 @@ int text_bbox(char *str, double xscale, double yscale,
       str[c]='\n';
       str_ptr = str+c+1;
     } else {
-      length++;
-    }
-    if(length > cairo_longest_line) {
-      cairo_longest_line = length;
     }
     c++;
   }
