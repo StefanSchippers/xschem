@@ -43,6 +43,13 @@ void merge_text(FILE *fd)
      textelement[i].sel=0;
      load_ascii_string(&textelement[i].prop_ptr,fd);
      my_strdup(302, &textelement[i].font, get_tok_value(textelement[i].prop_ptr, "font", 0));/*20171206 */
+
+
+     strlayer = get_tok_value(textelement[i].prop_ptr, "hcenter", 0);
+     textelement[i].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
+     strlayer = get_tok_value(textelement[i].prop_ptr, "vcenter", 0);
+     textelement[i].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
+
      strlayer = get_tok_value(textelement[i].prop_ptr, "layer", 0); /*20171206 */
      if(strlayer[0]) textelement[i].layer = atoi(strlayer);
      else textelement[i].layer = -1;

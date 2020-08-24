@@ -215,7 +215,7 @@ void draw_selection(GC g, int interruptable)
      draw_temp_string(g,ADD, textelement[n].txt_ptr,
       (textelement[n].rot +
       ( (flip && (textelement[n].rot & 1) ) ? rot+2 : rot) ) & 0x3,
-       textelement[n].flip^flip,
+       textelement[n].flip^flip, textelement[n].hcenter, textelement[n].vcenter,
        rx1+deltax, ry1+deltay,
        textelement[n].xscale, textelement[n].yscale);
      #ifdef HAS_CAIRO
@@ -701,7 +701,7 @@ void copy_objects(int what)
       customfont = set_text_custom_font(&textelement[n]);
       #endif
       text_bbox(textelement[n].txt_ptr, textelement[n].xscale,
-             textelement[n].yscale, textelement[n].rot,textelement[n].flip,
+             textelement[n].yscale, textelement[n].rot,textelement[n].flip, textelement[n].hcenter, textelement[n].vcenter,
                 textelement[n].x0, textelement[n].y0,
                 &rx1,&ry1, &rx2,&ry2);
       #ifdef HAS_CAIRO
@@ -729,6 +729,13 @@ void copy_objects(int what)
       textelement[lasttext].font=NULL;
       my_strdup(230, &textelement[lasttext].prop_ptr, textelement[n].prop_ptr);
       my_strdup(231, &textelement[lasttext].font, get_tok_value(textelement[lasttext].prop_ptr, "font", 0));/*20171206 */
+
+
+      strlayer = get_tok_value(textelement[lasttext].prop_ptr, "hcenter", 0);
+      textelement[lasttext].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
+      strlayer = get_tok_value(textelement[lasttext].prop_ptr, "vcenter", 0);
+      textelement[lasttext].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
+
       strlayer = get_tok_value(textelement[lasttext].prop_ptr, "layer", 0); /*20171206 */
       if(strlayer[0]) textelement[lasttext].layer = atoi(strlayer);
       else textelement[lasttext].layer = -1;
@@ -749,7 +756,7 @@ void copy_objects(int what)
       }
       #endif
       draw_string(textlayer, ADD, textelement[lasttext].txt_ptr,        /* draw moved txt */
-       textelement[lasttext].rot, textelement[lasttext].flip,
+       textelement[lasttext].rot, textelement[lasttext].flip, textelement[lasttext].hcenter, textelement[lasttext].vcenter,
        rx1+deltax,ry1+deltay,
        textelement[lasttext].xscale, textelement[lasttext].yscale);
       #ifdef HAS_CAIRO
@@ -1181,7 +1188,7 @@ void move_objects(int what, int merge, double dx, double dy)
       customfont = set_text_custom_font(&textelement[n]);
       #endif
       text_bbox(textelement[n].txt_ptr, textelement[n].xscale,
-             textelement[n].yscale, textelement[n].rot,textelement[n].flip,
+             textelement[n].yscale, textelement[n].rot,textelement[n].flip, textelement[n].hcenter, textelement[n].vcenter,
                 textelement[n].x0, textelement[n].y0,
                 &rx1,&ry1, &rx2,&ry2);
       #ifdef HAS_CAIRO
@@ -1215,7 +1222,7 @@ void move_objects(int what, int merge, double dx, double dy)
       }
       #endif
       draw_string(textlayer, ADD, textelement[n].txt_ptr,        /* draw moved txt */
-       textelement[n].rot, textelement[n].flip,
+       textelement[n].rot, textelement[n].flip, textelement[n].hcenter, textelement[n].vcenter,
        textelement[n].x0, textelement[n].y0,
        textelement[n].xscale, textelement[n].yscale);
       #ifdef HAS_CAIRO

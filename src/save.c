@@ -475,6 +475,12 @@ static void load_text(FILE *fd)
    textelement[i].sel=0;
    load_ascii_string(&textelement[i].prop_ptr,fd);
    if( textelement[i].prop_ptr) my_strdup(318, &textelement[i].font, get_tok_value(textelement[i].prop_ptr, "font", 0));/*20171206 */
+
+   strlayer = get_tok_value(textelement[i].prop_ptr, "hcenter", 0);
+   textelement[i].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
+   strlayer = get_tok_value(textelement[i].prop_ptr, "vcenter", 0);
+   textelement[i].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
+
    strlayer = get_tok_value(textelement[i].prop_ptr, "layer", 0); /*20171206 */
    if(strlayer[0]) textelement[i].layer = atoi(strlayer);
    else textelement[i].layer = -1;
@@ -1485,6 +1491,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
       dbg(2, "l_d_s(): loaded text\n");
 
      my_strdup(351, &tt[i].font, get_tok_value(tt[i].prop_ptr, "font", 0));/*20171206 */
+
+     strlayer = get_tok_value(tt[i].prop_ptr, "hcenter", 0);
+     tt[i].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
+     strlayer = get_tok_value(tt[i].prop_ptr, "vcenter", 0);
+     tt[i].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
+
      strlayer = get_tok_value(tt[i].prop_ptr, "layer", 0); /*20171206 */
      if(strlayer[0]) tt[i].layer = atoi(strlayer);
      else tt[i].layer = -1;

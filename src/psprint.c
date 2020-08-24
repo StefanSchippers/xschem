@@ -165,7 +165,7 @@ static void ps_drawline(int gc, double linex1,double liney1,double linex2,double
 }
 
 static void ps_draw_string(int gctext,  char *str, 
-                 int rot, int flip, 
+                 int rot, int flip, int hcenter, int vcenter, 
                  double x1,double y1,
                  double xscale, double yscale)  
 
@@ -176,9 +176,9 @@ static void ps_draw_string(int gctext,  char *str,
 
  if(str==NULL) return;
  #ifdef HAS_CAIRO
- text_bbox_nocairo(str, xscale, yscale, rot, flip, x1,y1, &rx1,&ry1,&rx2,&ry2);
+ text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1, &rx1,&ry1,&rx2,&ry2);
  #else
- text_bbox(str, xscale, yscale, rot, flip, x1,y1, &rx1,&ry1,&rx2,&ry2);
+ text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1, &rx1,&ry1,&rx2,&ry2);
  #endif
  xscale*=nocairo_font_xscale;
  yscale*=nocairo_font_yscale;
@@ -347,7 +347,7 @@ static void ps_draw_symbol(int n,int layer,int tmp_flip, int rot,
      ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
      ps_draw_string(layer, text.txt_ptr,
        (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
-       flip^text.flip,
+       flip^text.flip, text.hcenter, text.vcenter,
        x0+x1, y0+y1, text.xscale, text.yscale);                    
     }
     restore_lw();
@@ -472,7 +472,7 @@ void ps_draw(void)
  for(i=0;i<lasttext;i++) 
  {
    ps_draw_string(TEXTLAYER, textelement[i].txt_ptr,
-     textelement[i].rot, textelement[i].flip,
+     textelement[i].rot, textelement[i].flip, textelement[i].hcenter, textelement[i].vcenter,
      textelement[i].x0,textelement[i].y0,
      textelement[i].xscale, textelement[i].yscale); 
  }

@@ -78,7 +78,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      #endif
      text_bbox(tmp_txt, text.xscale, text.yscale, 
        (text.rot + ( (sym_flip && (text.rot & 1) ) ? sym_rot+2 : sym_rot)) &0x3,
-       sym_flip ^ text.flip,
+       sym_flip ^ text.flip, text.hcenter, text.vcenter,
        x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2);
      #ifdef HAS_CAIRO
      if(customfont) cairo_restore(ctx);
@@ -217,7 +217,7 @@ void delete(void)
    customfont = set_text_custom_font(&textelement[i]);
    #endif
    text_bbox(textelement[i].txt_ptr, textelement[i].xscale,
-             textelement[i].yscale, rot, flip,
+             textelement[i].yscale, rot, flip, textelement[i].hcenter, textelement[i].vcenter,
              textelement[i].x0, textelement[i].y0,
              &xx1,&yy1, &xx2,&yy2);
    #ifdef HAS_CAIRO
@@ -495,7 +495,7 @@ void unselect_all(void)
       customfont = set_text_custom_font(& textelement[i]); /* needed for bbox calculation */
       #endif
       draw_temp_string(gctiled,ADD, textelement[i].txt_ptr,
-       textelement[i].rot, textelement[i].flip,
+       textelement[i].rot, textelement[i].flip, textelement[i].hcenter, textelement[i].vcenter,
        textelement[i].x0, textelement[i].y0,
        textelement[i].xscale, textelement[i].yscale);
       #ifdef HAS_CAIRO
@@ -666,12 +666,12 @@ void select_text(int i,unsigned short select_mode, int fast)
   #endif
   if(select_mode)
     draw_temp_string(gc[SELLAYER],ADD, textelement[i].txt_ptr,
-     textelement[i].rot, textelement[i].flip,
+     textelement[i].rot, textelement[i].flip, textelement[i].hcenter, textelement[i].vcenter,
      textelement[i].x0, textelement[i].y0,
      textelement[i].xscale, textelement[i].yscale);
   else
     draw_temp_string(gctiled,NOW, textelement[i].txt_ptr,
-     textelement[i].rot, textelement[i].flip,
+     textelement[i].rot, textelement[i].flip, textelement[i].hcenter, textelement[i].vcenter,
      textelement[i].x0, textelement[i].y0,
      textelement[i].xscale, textelement[i].yscale);
   #ifdef HAS_CAIRO
@@ -910,7 +910,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /* 201509
   customfont = set_text_custom_font(&textelement[i]);
   #endif
   text_bbox(textelement[i].txt_ptr, 
-             textelement[i].xscale, textelement[i].yscale, rot, flip,
+             textelement[i].xscale, textelement[i].yscale, rot, flip, textelement[i].hcenter, textelement[i].vcenter,
              textelement[i].x0, textelement[i].y0,
              &xx1,&yy1, &xx2,&yy2);
   #ifdef HAS_CAIRO

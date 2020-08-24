@@ -278,7 +278,8 @@ void cairo_draw_string_line(cairo_t *ctx, char *s,
 }
 
 /* CAIRO version */
-void draw_string(int layer, int what, char *s, int rot, int flip, double x, double y, double xscale, double yscale)
+void draw_string(int layer, int what, char *s, int rot, int flip, int hcenter, int vcenter,
+                 double x, double y, double xscale, double yscale)
 {
   char *tt, *ss;
   char c;
@@ -294,7 +295,7 @@ void draw_string(int layer, int what, char *s, int rot, int flip, double x, doub
   if(size*mooz<3.0) return; /* too small */
   if(size*mooz>800) return; /* too big */
 
-  text_bbox(s, xscale, yscale, rot, flip, x,y, &textx1,&texty1,&textx2,&texty2);
+  text_bbox(s, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &textx1,&texty1,&textx2,&texty2);
   if(!textclip(areax1,areay1,areax2,areay2,textx1,texty1,textx2,texty2)) {
     return;
   }
@@ -338,7 +339,7 @@ void draw_string(int layer, int what, char *s, int rot, int flip, double x, doub
 #else /* !HAS_CAIRO */
 
 /* no CAIRO version */
-void draw_string(int layer, int what, char *str, int rot, int flip, 
+void draw_string(int layer, int what, char *str, int rot, int flip, int hcenter, int vcenter, 
                  double x1,double y1, double xscale, double yscale)  
 {
  double a=0.0,yy;
@@ -357,7 +358,7 @@ void draw_string(int layer, int what, char *str, int rot, int flip,
    return;
  }
  else {
-  text_bbox(str, xscale, yscale, rot, flip, x1,y1, &textx1,&texty1,&textx2,&texty2);
+  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1, &textx1,&texty1,&textx2,&texty2);
   xscale*=nocairo_font_xscale;
   yscale*=nocairo_font_yscale;
   if(!textclip(areax1,areay1,areax2,areay2,textx1,texty1,textx2,texty2)) return;
@@ -399,12 +400,12 @@ void draw_string(int layer, int what, char *str, int rot, int flip,
 
 #endif /* HAS_CAIRO */
 
-void draw_temp_string(GC gctext, int what, char *str, int rot, int flip, 
+void draw_temp_string(GC gctext, int what, char *str, int rot, int flip, int hcenter, int vcenter,
                  double x1,double y1, double xscale, double yscale)  
 {
  if(!has_x) return;
  dbg(2, "draw_string(): string=%s\n",str);
- if(!text_bbox(str, xscale, yscale, rot, flip, x1,y1, &textx1,&texty1,&textx2,&texty2)) return;
+ if(!text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1, &textx1,&texty1,&textx2,&texty2)) return;
  drawtemprect(gctext,what, textx1,texty1,textx2,texty2);
 }
 
@@ -539,7 +540,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
         #endif
         draw_string(textlayer, what, text.txt_ptr,
           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
-          flip^text.flip,
+          flip^text.flip, text.hcenter, text.vcenter, 
           x0+x1, y0+y1, text.xscale, text.yscale);                    
         #ifdef HAS_CAIRO
         if(textfont && textfont[0]) {
@@ -665,7 +666,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
    #endif
    if(text.txt_ptr[0]) draw_temp_string(gc, what, text.txt_ptr,
      (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
-     flip^text.flip, x0+x1, y0+y1, text.xscale, text.yscale);                    
+     flip^text.flip, text.hcenter, text.vcenter, x0+x1, y0+y1, text.xscale, text.yscale);                    
    #ifdef HAS_CAIRO
    if(customfont) cairo_restore(ctx);
    #endif
@@ -1616,7 +1617,7 @@ void draw(void)
             }
             #endif
             draw_string(textlayer, ADD, textelement[i].txt_ptr,
-              textelement[i].rot, textelement[i].flip,
+              textelement[i].rot, textelement[i].flip, textelement[i].hcenter, textelement[i].vcenter,
               textelement[i].x0,textelement[i].y0,
               textelement[i].xscale, textelement[i].yscale); 
             #ifdef HAS_CAIRO

@@ -1971,7 +1971,7 @@ proc change_color {} {
 proc edit_prop {txtlabel} {
    global edit_prop_size infowindow_text selected_tok edit_symbol_prop_new_sel edit_prop_pos
    global prev_symbol retval symbol rcode no_change_attrs preserve_unchanged_attrs copy_cell tcl_debug
-   global user_wants_copy_cell editprop_sympath retval_orig
+   global user_wants_copy_cell editprop_sympath retval_orig old_selected_tok
    set user_wants_copy_cell 0
    set rcode {}
    set retval_orig $retval
@@ -2021,7 +2021,15 @@ proc edit_prop {txtlabel} {
    }
 
    button .dialog.f1.b1 -text "OK" -command   {
-     set retval [.dialog.e1 get 1.0 {end - 1 chars}] 
+
+     set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+     if { $selected_tok ne {<ALL>} } {
+       regsub -all {\\?"} $retval {\\"} retval
+       set retval \"${retval}\"
+       set retval [xschem subst_tok $retval_orig $selected_tok $retval]
+       set selected_tok {<ALL>}
+     }
+
      set symbol [.dialog.f1.e2 get]
      set abssymbol [abs_sym_path $symbol]
      set rcode {ok}
@@ -2081,6 +2089,7 @@ proc edit_prop {txtlabel} {
    checkbutton .dialog.f2.r3 -text "Copy cell" -variable copy_cell -state normal
    set tok_list "<ALL> [xschem list_tokens $retval 0]"
    set selected_tok {<ALL>}
+   set old_selected_tok {<ALL>}
    label .dialog.f2.r4 -text {   Edit Attr:}
    ttk::combobox .dialog.f2.r5 -values $tok_list -textvariable selected_tok -width 14
 
@@ -2107,6 +2116,16 @@ proc edit_prop {txtlabel} {
    }
 
    bind .dialog.f2.r5 <<ComboboxSelected>> {
+     if {$old_selected_tok ne $selected_tok} {
+       if { $old_selected_tok eq {<ALL>} } {
+         set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
+       } else {
+         set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+         regsub -all {\\?"} $retval {\\"} retval
+         set retval \"${retval}\"
+         set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+       }
+     }
      if {$selected_tok eq {<ALL>} } { 
        set retval $retval_orig
      } else {
@@ -2115,10 +2134,21 @@ proc edit_prop {txtlabel} {
      }
      .dialog.e1 delete 1.0 end
      .dialog.e1 insert 1.0 $retval
+     set old_selected_tok $selected_tok
    }
 
    bind .dialog.f2.r5 <KeyRelease> {
      set selected_tok [.dialog.f2.r5 get]
+     if { $old_selected_tok eq {<ALL>}} {
+       set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
+     } else {
+       set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+       if {$retval ne {}} {
+         regsub -all {\\?"} $retval {\\"} retval
+         set retval \"${retval}\"
+         set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+       }
+     }
      if {$selected_tok eq {<ALL>} } {
        set retval $retval_orig
      } else {
@@ -2127,6 +2157,7 @@ proc edit_prop {txtlabel} {
      }
      .dialog.e1 delete 1.0 end
      .dialog.e1 insert 1.0 $retval
+     set old_selected_tok $selected_tok
    }
 
 
@@ -2170,7 +2201,7 @@ proc write_data {data f} {
 
 proc text_line {txtlabel clear {preserve_disabled disabled} } {
    global text_line_default_geometry preserve_unchanged_attrs
-   global retval rcode tcl_debug tok_list selected_tok retval_orig
+   global retval rcode tcl_debug tok_list selected_tok retval_orig old_selected_tok
    set retval_orig $retval
    if $clear==1 then {set retval ""}
    if $tcl_debug<=-1 then {puts " text_line{}: clear=$clear"}
@@ -2184,6 +2215,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
 
    set tok_list "<ALL> [xschem list_tokens $retval 0]"
    set selected_tok {<ALL>}
+   set old_selected_tok {<ALL>}
    # 20160325 change and remember widget size
    bind .dialog <Configure> {
      # puts [wm geometry .dialog]
@@ -2208,7 +2240,13 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
    .dialog.e1 insert 1.0 $retval
    button .dialog.f1.b1 -text "OK" -command  \
    {
-     set retval [.dialog.e1 get 1.0 {end - 1 chars}] 
+     set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+     if { $selected_tok ne {<ALL>} } {
+       regsub -all {\\?"} $retval {\\"} retval
+       set retval \"${retval}\"
+       set retval [xschem subst_tok $retval_orig $selected_tok $retval]
+       set selected_tok {<ALL>}
+     }
      destroy .dialog
      set rcode {ok}
    }
@@ -2231,7 +2269,6 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
    {
      .dialog.e1 delete 1.0 end
    }
-   set selected_tok {<ALL>}
    label .dialog.f1.r4 -text {   Edit Attr:}
    ttk::combobox .dialog.f1.r5 -values $tok_list -textvariable selected_tok -width 14
 
@@ -2258,7 +2295,17 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
    }
 
    bind .dialog.f1.r5 <<ComboboxSelected>> {
-     if {$selected_tok eq {<ALL>} } { 
+     if {$old_selected_tok ne $selected_tok} {
+       if { $old_selected_tok eq {<ALL>} } {
+         set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
+       } else {
+         set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+         regsub -all {\\?"} $retval {\\"} retval
+         set retval \"${retval}\"
+         set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+       }
+     }
+     if {$selected_tok eq {<ALL>} } {
        set retval $retval_orig
      } else {
        set retval [xschem get_tok $retval_orig $selected_tok]
@@ -2266,8 +2313,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
      }
      .dialog.e1 delete 1.0 end
      .dialog.e1 insert 1.0 $retval
+     set old_selected_tok $selected_tok
    }
-
 
 
    bind .dialog.f1.r5 <KeyRelease> {
@@ -2280,6 +2327,29 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
      }
      .dialog.e1 delete 1.0 end
      .dialog.e1 insert 1.0 $retval
+   }
+
+   bind .dialog.f1.r5 <KeyRelease> {
+     set selected_tok [.dialog.f1.r5 get]
+     if { $old_selected_tok eq {<ALL>}} {
+       set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
+     } else {
+       set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+       if {$retval ne {}} {
+         regsub -all {\\?"} $retval {\\"} retval
+         set retval \"${retval}\"
+         set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+       }
+     }
+     if {$selected_tok eq {<ALL>} } {
+       set retval $retval_orig
+     } else {
+       set retval [xschem get_tok $retval_orig $selected_tok]
+       regsub -all {\\?"} $retval {"} retval
+     }
+     .dialog.e1 delete 1.0 end
+     .dialog.e1 insert 1.0 $retval
+     set old_selected_tok $selected_tok
    }
 
 

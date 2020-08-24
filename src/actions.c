@@ -1374,7 +1374,7 @@ void calc_drawing_bbox(Box *boundbox, int selected)
    customfont = set_text_custom_font(&textelement[i]);
    #endif
    if(text_bbox(textelement[i].txt_ptr, textelement[i].xscale,
-         textelement[i].yscale,textelement[i].rot, textelement[i].flip,
+         textelement[i].yscale,textelement[i].rot, textelement[i].flip, textelement[i].hcenter, textelement[i].vcenter, 
          textelement[i].x0, textelement[i].y0,
          &tmp.x1,&tmp.y1, &tmp.x2,&tmp.y2) ) {
      count++;
@@ -2050,7 +2050,7 @@ void new_polygon(int what) /*  20171115 */
 
 #ifdef HAS_CAIRO
 int text_bbox(char *str, double xscale, double yscale,
-    int rot, int flip, double x1,double y1, double *rx1, double *ry1,
+    int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2)
 {
   int c=0;
@@ -2106,11 +2106,11 @@ int text_bbox(char *str, double xscale, double yscale,
   return 1;
 }
 int text_bbox_nocairo(char * str,double xscale, double yscale,
-    int rot, int flip, double x1,double y1, double *rx1, double *ry1,
+    int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2)
 #else
 int text_bbox(char * str,double xscale, double yscale,
-    int rot, int flip, double x1,double y1, double *rx1, double *ry1,
+    int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2)
 #endif
 {
@@ -2184,6 +2184,12 @@ void place_text(int draw_text, double mx, double my)
   /*  debug ... */
   /*  textelement[lasttext].prop_ptr=NULL; */
   dbg(1, "place_text(): done text input\n");
+
+  strlayer = get_tok_value(textelement[lasttext].prop_ptr, "hcenter", 0);
+  textelement[lasttext].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
+  strlayer = get_tok_value(textelement[lasttext].prop_ptr, "vcenter", 0);
+  textelement[lasttext].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
+
   strlayer = get_tok_value(textelement[lasttext].prop_ptr, "layer", 0);
   if(strlayer[0]) textelement[lasttext].layer = atoi(strlayer);
   else textelement[lasttext].layer = -1;
@@ -2202,7 +2208,7 @@ void place_text(int draw_text, double mx, double my)
   #endif
   save_draw=draw_window; /* 20181009 */
   draw_window=1;
-  if(draw_text) draw_string(textlayer, NOW, textelement[lasttext].txt_ptr, 0, 0, 
+  if(draw_text) draw_string(textlayer, NOW, textelement[lasttext].txt_ptr, 0, 0, textelement[lasttext].hcenter, textelement[lasttext].vcenter,
               textelement[lasttext].x0,textelement[lasttext].y0,
               textelement[lasttext].xscale, textelement[lasttext].yscale);
   draw_window = save_draw;

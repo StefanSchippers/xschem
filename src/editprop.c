@@ -700,7 +700,7 @@ void edit_text_property(int x)
        customfont = set_text_custom_font(&textelement[sel]);
        #endif
        text_bbox(textelement[sel].txt_ptr, textelement[sel].xscale,
-                 textelement[sel].yscale, rot, flip, 
+                 textelement[sel].yscale, rot, flip, textelement[sel].hcenter, textelement[sel].vcenter,
                  textelement[sel].x0, textelement[sel].y0,
                  &xx1,&yy1,&xx2,&yy2);
        #ifdef HAS_CAIRO
@@ -722,7 +722,7 @@ void edit_text_property(int x)
                customfont = set_text_custom_font(&textelement[sel]);
                #endif
                text_bbox(textelement[sel].txt_ptr, textelement[sel].xscale,
-               textelement[sel].yscale, rot, flip,
+               textelement[sel].yscale, rot, flip, textelement[sel].hcenter, textelement[sel].vcenter,
                textelement[sel].x0, textelement[sel].y0,
                &xx1,&yy1,&xx2,&yy2);
                #ifdef HAS_CAIRO
@@ -761,6 +761,12 @@ void edit_text_property(int x)
        if(x==0) {
        my_strdup(75, &textelement[sel].prop_ptr,(char *) tclgetvar("props"));
        my_strdup(76, &textelement[sel].font, get_tok_value(textelement[sel].prop_ptr, "font", 0));/*20171206 */
+
+       strlayer = get_tok_value(textelement[sel].prop_ptr, "hcenter", 0);
+       textelement[sel].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
+       strlayer = get_tok_value(textelement[sel].prop_ptr, "vcenter", 0);
+       textelement[sel].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
+
        strlayer = get_tok_value(textelement[sel].prop_ptr, "layer", 0); /* 20171206 */
        if(strlayer[0]) textelement[sel].layer = atoi(strlayer);
        else textelement[sel].layer=-1;
@@ -773,7 +779,7 @@ void edit_text_property(int x)
        customfont = set_text_custom_font(&textelement[sel]);
        #endif
        text_bbox(textelement[sel].txt_ptr, textelement[sel].xscale,
-                 textelement[sel].yscale, rot, flip, 
+                 textelement[sel].yscale, rot, flip, textelement[sel].hcenter, textelement[sel].vcenter,
                  textelement[sel].x0, textelement[sel].y0,
                  &xx1,&yy1,&xx2,&yy2);
        #ifdef HAS_CAIRO
@@ -873,7 +879,9 @@ void update_symbol(const char *result, int x)
     
     if(x == 0 && strcmp(tok, "<ALL>")) {
 
+      /* replace any occurrence of " in retval with \" */
       tcleval("regsub -all {\\\\?\"} $retval {\\\\\"} retval");
+      /* put double quotes around retval */
       tcleval("set retval \\\"${retval}\\\"");
 
       my_strdup(656,  &new_prop,
@@ -1150,7 +1158,9 @@ void edit_property(int x)
    tok = tclgetvar("selected_tok");
    if(x == 0 && strcmp(tok, "<ALL>")) {
 
+     /* replace any occurrence of " in retval with \" */
      tcleval("regsub -all {\\\\?\"} $retval {\\\\\"} retval");
+     /* put double quotes around retval */
      tcleval("set retval \\\"${retval}\\\"");
 
      my_strdup(890,  &new_prop,
