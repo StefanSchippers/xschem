@@ -1,7 +1,0 @@
-.MODEL Q2N2222A NPN IS =3.0611E-14 NF =1.00124 BF =220 IKF=0.52 
-+              VAF=104 ISE=7.5E-15 NE =1.41 NR =1.005 BR =4 IKR=0.24 
-+              VAR=28 ISC=1.06525E-11 NC =1.3728 RB =0.13 RE =0.22 
-+              RC =0.12 CJC=9.12E-12 MJC=0.3508 VJC=0.4089 
-+              CJE=27.01E-12 TF =0.325E-9 TR =100E-9
-+              vce_max=45 vbe_max=6
-
