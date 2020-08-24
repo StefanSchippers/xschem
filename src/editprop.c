@@ -873,23 +873,7 @@ void update_symbol(const char *result, int x)
     dbg(1, "update_symbol(): tcl retval==%s\n", tclgetvar("retval"));
   }
   else {
-
-    const char *tok;
-    tok = tclgetvar("selected_tok");
-    
-    if(x == 0 && strcmp(tok, "<ALL>")) {
-
-      /* replace any occurrence of " in retval with \" */
-      tcleval("regsub -all {\\\\?\"} $retval {\\\\\"} retval");
-      /* put double quotes around retval */
-      tcleval("set retval \\\"${retval}\\\"");
-
-      my_strdup(656,  &new_prop,
-        subst_token(old_prop, tok, (char *) tclgetvar("retval") )
-      );
-    } else {
-      my_strdup(80, &new_prop, (char *) tclgetvar("retval"));
-    }
+    my_strdup(80, &new_prop, (char *) tclgetvar("retval"));
     dbg(1, "update_symbol(): new_prop=%s\n", new_prop);
   }
 
@@ -1109,7 +1093,6 @@ void edit_property(int x)
  rebuild_selected_array(); /* from the .sel field in objects build */
  if(lastselected==0 )      /* the array of selected objs */
  {
-   const char *tok;
    char *old_prop = NULL;
    char *new_prop = NULL;
 
@@ -1155,20 +1138,7 @@ void edit_property(int x)
    dbg(1, "edit_property(): done executing edit_vi_prop, result=%s\n",tclresult());
    dbg(1, "edit_property(): rcode=%s\n",tclgetvar("rcode") );
 
-   tok = tclgetvar("selected_tok");
-   if(x == 0 && strcmp(tok, "<ALL>")) {
-
-     /* replace any occurrence of " in retval with \" */
-     tcleval("regsub -all {\\\\?\"} $retval {\\\\\"} retval");
-     /* put double quotes around retval */
-     tcleval("set retval \\\"${retval}\\\"");
-
-     my_strdup(890,  &new_prop,
-       subst_token(old_prop, tok, (char *) tclgetvar("retval") )
-     );
-   } else {
-     my_strdup(650, &new_prop, (char *) tclgetvar("retval"));
-   }
+   my_strdup(650, &new_prop, (char *) tclgetvar("retval"));
    tclsetvar("retval", new_prop);
    my_free(892, &old_prop);
    my_free(893, &new_prop);
