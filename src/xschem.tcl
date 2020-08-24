@@ -1485,8 +1485,8 @@ proc select_netlist_dir { force {dir {} }} {
    return $netlist_dir
 }
 
-proc enter_text {textlabel} {
-   global txt rcode has_cairo
+proc enter_text {textlabel {preserve_disabled disabled}} {
+   global retval rcode has_cairo preserve_unchanged_attrs
    set rcode {}
    toplevel .t -class Dialog
    wm title .t {Enter text}
@@ -1497,11 +1497,16 @@ proc enter_text {textlabel} {
    # 20100203
    if { $::wm_fix } { tkwait visibility .t }
    wm geometry .t "+$X+$Y"
-   label .t.txtlab -text $textlabel
+   frame .t.f1
+   label .t.f1.txtlab -text $textlabel
    text .t.txt -width 100 -height 12
    .t.txt delete 1.0 end
-   .t.txt insert 1.0 $txt
-   pack .t.txtlab .t.txt -side top -fill x
+   .t.txt insert 1.0 $retval
+   checkbutton .t.f1.l1 -text "preserve unchanged props" -variable preserve_unchanged_attrs -state $preserve_disabled
+   pack .t.f1 -side top -fill x -expand yes
+   pack .t.f1.l1 -side left
+   pack .t.f1.txtlab -side left -expand yes -fill x
+
    pack .t.txt -side top -fill  both -expand yes
    frame .t.edit
      frame .t.edit.lab
@@ -1526,7 +1531,7 @@ proc enter_text {textlabel} {
    frame .t.buttons
    button .t.buttons.ok -text "OK" -command  \
    {
-    set txt [.t.txt get 1.0 {end - 1 chars}]
+    set retval [.t.txt get 1.0 {end - 1 chars}]
     if {$has_cairo} { 
       set hsize $vsize
     }
@@ -1535,7 +1540,7 @@ proc enter_text {textlabel} {
    }
    button .t.buttons.cancel -text "Cancel" -command  \
    {
-    set txt {}
+    set retval {}
     set rcode {}
     destroy .t 
    }
@@ -1559,14 +1564,14 @@ proc enter_text {textlabel} {
    pack .t.buttons.b4  -side left -fill x -expand yes
    pack .t.buttons -side bottom -fill x
    bind .t <Escape> {
-     if ![string compare $txt [.t.txt get 1.0 {end - 1 chars}]] {
+     if ![string compare $retval [.t.txt get 1.0 {end - 1 chars}]] {
        .t.buttons.cancel invoke
      }
    }
    bind .t <Control-Return> {.t.buttons.ok invoke}
    #grab set .t
    tkwait window .t
-   return $txt
+   return $retval
 }
 
 # evaluate a tcl command from GUI

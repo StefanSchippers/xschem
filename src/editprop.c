@@ -638,49 +638,41 @@ void edit_text_property(int x)
    int customfont;
    #endif
    int sel, k, text_changed; 
-   int c,l;
+   int c,l, preserve;
    double xx1,yy1,xx2,yy2;
    double pcx,pcy;      /* pin center 20070317 */
    char property[1024];/* used for float 2 string conv (xscale  and yscale) overflow safe */
    const char *strlayer;
+   char *oldprop = NULL;
 
    dbg(1, "edit_text_property(): entering\n");
    sel = selectedgroup[0].n;
+   my_strdup(656, &oldprop, textelement[sel].prop_ptr);
    if(textelement[sel].prop_ptr !=NULL)
       tclsetvar("props",textelement[sel].prop_ptr); 
    else
       tclsetvar("props",""); /* 20171112 */
 
-   tclsetvar("txt",textelement[sel].txt_ptr);
-   tclsetvar("retval",textelement[sel].txt_ptr); /* for viewdata */
+   tclsetvar("retval",textelement[sel].txt_ptr);
    my_snprintf(property, S(property), "%.16g",textelement[sel].yscale); 
    tclsetvar("vsize",property);
    my_snprintf(property, S(property), "%.16g",textelement[sel].xscale); 
    tclsetvar("hsize",property);
-   if(x==0) tcleval("enter_text {text:}");
+   if(x==0) tcleval("enter_text {text:} normal");
    else if(x==2) tcleval("viewdata $::retval");
    else if(x==1) tcleval("edit_vi_prop {Text:}");
    else {
      fprintf(errfp, "edit_text_property() : unknown parameter x=%d\n",x); exit(EXIT_FAILURE);
    }
-
+   preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
+   
    text_changed=0;
-   if(x==0) {
-     if( strcmp(textelement[sel].txt_ptr, tclgetvar("txt") ) ) {
-       dbg(1, "edit_text_property(): x=0, text_changed=1\n");
-       text_changed=1;
-     } else {
-       dbg(1, "edit_text_property(): x=0, text_changed=0\n");
-       text_changed=0;
-     }
-   } else if(x==1) {
-
-   /* 20080804 */
+   if(x == 0 || x == 1) {
      if( strcmp(textelement[sel].txt_ptr, tclgetvar("retval") ) ) {
-       dbg(1, "edit_text_property(): x=1, text_changed=1\n");
+       dbg(1, "edit_text_property(): x=%d, text_changed=1\n", x);
        text_changed=1;
      } else {
-       dbg(1, "edit_text_property(): x=1, text_changed=0\n");
+       dbg(1, "edit_text_property(): x=%d, text_changed=0\n", x);
        text_changed=0;
      }
    }
@@ -711,7 +703,7 @@ void edit_text_property(int x)
     
        dbg(1, "edit_property(): text props: props=%s  text=%s\n",
          tclgetvar("props"),
-         tclgetvar("txt") );
+         tclgetvar("retval") );
        if(text_changed) {
          if(current_type==SYMBOL) {
            c = lastrect[PINLAYER];
@@ -743,7 +735,7 @@ void edit_text_property(int x)
                  if(x==0)  /* 20080804 */
                    my_strdup(71, &rect[PINLAYER][l].prop_ptr, 
                      subst_token(rect[PINLAYER][l].prop_ptr, "name", 
-                     (char *) tclgetvar("txt")) );
+                     (char *) tclgetvar("retval")) );
                  else
                    my_strdup(72, &rect[PINLAYER][l].prop_ptr, 
                      subst_token(rect[PINLAYER][l].prop_ptr, "name", 
@@ -752,26 +744,26 @@ void edit_text_property(int x)
              }
            } 
          }
-         if(x==0)  /* 20080804 */
-           my_strdup(73, &textelement[sel].txt_ptr, (char *) tclgetvar("txt"));
-         else /* 20080804 */
-           my_strdup(74, &textelement[sel].txt_ptr, (char *) tclgetvar("retval"));
+         my_strdup(74, &textelement[sel].txt_ptr, (char *) tclgetvar("retval"));
          
        }
        if(x==0) {
-       my_strdup(75, &textelement[sel].prop_ptr,(char *) tclgetvar("props"));
-       my_strdup(76, &textelement[sel].font, get_tok_value(textelement[sel].prop_ptr, "font", 0));/*20171206 */
+         if(preserve) 
+          set_different_token(&textelement[sel].prop_ptr, (char *) tclgetvar("props"), oldprop, 0, 0);
+         else 
+           my_strdup(75, &textelement[sel].prop_ptr,(char *) tclgetvar("props"));
+         my_strdup(76, &textelement[sel].font, get_tok_value(textelement[sel].prop_ptr, "font", 0));/*20171206 */
 
-       strlayer = get_tok_value(textelement[sel].prop_ptr, "hcenter", 0);
-       textelement[sel].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
-       strlayer = get_tok_value(textelement[sel].prop_ptr, "vcenter", 0);
-       textelement[sel].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
+         strlayer = get_tok_value(textelement[sel].prop_ptr, "hcenter", 0);
+         textelement[sel].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
+         strlayer = get_tok_value(textelement[sel].prop_ptr, "vcenter", 0);
+         textelement[sel].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
 
-       strlayer = get_tok_value(textelement[sel].prop_ptr, "layer", 0); /* 20171206 */
-       if(strlayer[0]) textelement[sel].layer = atoi(strlayer);
-       else textelement[sel].layer=-1;
-       textelement[sel].xscale=atof(tclgetvar("hsize"));
-       textelement[sel].yscale=atof(tclgetvar("vsize"));
+         strlayer = get_tok_value(textelement[sel].prop_ptr, "layer", 0); /* 20171206 */
+         if(strlayer[0]) textelement[sel].layer = atoi(strlayer);
+         else textelement[sel].layer=-1;
+         textelement[sel].xscale=atof(tclgetvar("hsize"));
+         textelement[sel].yscale=atof(tclgetvar("vsize"));
        }
     
                                 /* calculate bbox, some cleanup needed here */
@@ -793,6 +785,7 @@ void edit_text_property(int x)
      draw();
      bbox(END,0.0,0.0,0.0,0.0);
    }
+   my_free(890, &oldprop);
 }
 
 static char *old_prop=NULL;

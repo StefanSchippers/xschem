@@ -2197,18 +2197,18 @@ void place_text(int draw_text, double mx, double my)
   #endif
 
   tclsetvar("props","");
-  tclsetvar("txt","");
+  tclsetvar("retval","");
 
   if(tclgetvar("hsize")==NULL)
    tclsetvar("hsize","0.4");
   if(tclgetvar("vsize")==NULL)
    tclsetvar("vsize","0.4");
-  tcleval("enter_text {text:}");
+  tcleval("enter_text {text:} normal");
 
   dbg(1, "place_text(): hsize=%s vsize=%s\n",tclgetvar("hsize"),
            tclgetvar("vsize") );
   
-  txt =  (char *)tclgetvar("txt");
+  txt =  (char *)tclgetvar("retval");
   if(!strcmp(txt,"")) return;   /*  01112004 dont allocate text object if empty string given */
   push_undo(); /*  20150327 */
   check_text_storage();
