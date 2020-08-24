@@ -2316,19 +2316,6 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
      set old_selected_tok $selected_tok
    }
 
-
-   bind .dialog.f1.r5 <KeyRelease> {
-     set selected_tok [.dialog.f1.r5 get]
-     if {$selected_tok eq {<ALL>} } {
-       set retval $retval_orig
-     } else {
-       set retval [xschem get_tok $retval_orig $selected_tok]
-       regsub -all {\\?"} $retval {"} retval
-     }
-     .dialog.e1 delete 1.0 end
-     .dialog.e1 insert 1.0 $retval
-   }
-
    bind .dialog.f1.r5 <KeyRelease> {
      set selected_tok [.dialog.f1.r5 get]
      if { $old_selected_tok eq {<ALL>}} {
@@ -2351,7 +2338,6 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
      .dialog.e1 insert 1.0 $retval
      set old_selected_tok $selected_tok
    }
-
 
    bind .dialog <Control-Return> {.dialog.f1.b1 invoke}
    #tkwait visibility .dialog
