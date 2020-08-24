@@ -2096,6 +2096,29 @@ int text_bbox(char *str, double xscale, double yscale,
   cairo_longest_line = ww;
 
   *rx1=x1;*ry1=y1; 
+  if(hcenter) {
+    if(rot==0 && flip == 0) { *rx1-= ww*zoom/2;}
+    if(rot==1 && flip == 0) { *ry1-= ww*zoom/2;}
+    if(rot==2 && flip == 0) { *rx1+= ww*zoom/2;}
+    if(rot==3 && flip == 0) { *ry1+= ww*zoom/2;}
+    if(rot==0 && flip == 1) { *rx1+= ww*zoom/2;}
+    if(rot==1 && flip == 1) { *ry1+= ww*zoom/2;}
+    if(rot==2 && flip == 1) { *rx1-= ww*zoom/2;}
+    if(rot==3 && flip == 1) { *ry1-= ww*zoom/2;}
+  }
+
+  if(vcenter) {
+    if(rot==0 && flip == 0) { *ry1-= hh*zoom/2;}
+    if(rot==1 && flip == 0) { *rx1+= hh*zoom/2;}
+    if(rot==2 && flip == 0) { *ry1+= hh*zoom/2;}
+    if(rot==3 && flip == 0) { *rx1-= hh*zoom/2;}
+    if(rot==0 && flip == 1) { *ry1-= hh*zoom/2;}
+    if(rot==1 && flip == 1) { *rx1+= hh*zoom/2;}
+    if(rot==2 && flip == 1) { *ry1+= hh*zoom/2;}
+    if(rot==3 && flip == 1) { *rx1-= hh*zoom/2;}
+  }
+
+
   ROTATION(0.0,0.0, ww*zoom,hh*zoom,(*rx2),(*ry2));
   *rx2+=*rx1;*ry2+=*ry1;
   if     (rot==0) {*ry1-=cairo_vert_correct; *ry2-=cairo_vert_correct;}
@@ -2132,6 +2155,28 @@ int text_bbox(char * str,double xscale, double yscale,
   else if(rot==1) *rx1+=nocairo_vert_correct;
   else if(rot==2) *ry1+=nocairo_vert_correct;
   else            *rx1-=nocairo_vert_correct;
+
+  if(hcenter) {
+    if(rot==0 && flip == 0) { *rx1-= w/2;}
+    if(rot==1 && flip == 0) { *ry1-= w/2;}
+    if(rot==2 && flip == 0) { *rx1+= w/2;}
+    if(rot==3 && flip == 0) { *ry1+= w/2;}
+    if(rot==0 && flip == 1) { *rx1+= w/2;}
+    if(rot==1 && flip == 1) { *ry1+= w/2;}
+    if(rot==2 && flip == 1) { *rx1-= w/2;}
+    if(rot==3 && flip == 1) { *ry1-= w/2;}
+  }
+
+  if(vcenter) {
+    if(rot==0 && flip == 0) { *ry1-= h/2;}
+    if(rot==1 && flip == 0) { *rx1+= h/2;}
+    if(rot==2 && flip == 0) { *ry1+= h/2;}
+    if(rot==3 && flip == 0) { *rx1-= h/2;}
+    if(rot==0 && flip == 1) { *ry1-= h/2;}
+    if(rot==1 && flip == 1) { *rx1+= h/2;}
+    if(rot==2 && flip == 1) { *ry1+= h/2;}
+    if(rot==3 && flip == 1) { *rx1-= h/2;}
+  }
 
   ROTATION(0.0,0.0,w,h,(*rx2),(*ry2));
   *rx2+=*rx1;*ry2+=*ry1;

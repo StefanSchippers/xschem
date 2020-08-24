@@ -300,6 +300,27 @@ void draw_string(int layer, int what, char *s, int rot, int flip, int hcenter, i
     return;
   }
 
+  if(hcenter) {
+    if(rot == 0 && flip == 0 ) { x=textx1;}
+    if(rot == 1 && flip == 0 ) { y=texty1;}
+    if(rot == 2 && flip == 0 ) { x=textx2;}
+    if(rot == 3 && flip == 0 ) { y=texty2;}
+    if(rot == 0 && flip == 1 ) { x=textx2;}
+    if(rot == 1 && flip == 1 ) { y=texty2;}
+    if(rot == 2 && flip == 1 ) { x=textx1;}
+    if(rot == 3 && flip == 1 ) { y=texty1;}
+  }
+  if(vcenter) {
+    if(rot == 0 && flip == 0 ) { y=texty1;}
+    if(rot == 1 && flip == 0 ) { x=textx2;}
+    if(rot == 2 && flip == 0 ) { y=texty2;}
+    if(rot == 3 && flip == 0 ) { x=textx1;}
+    if(rot == 0 && flip == 1 ) { y=texty1;}
+    if(rot == 1 && flip == 1 ) { x=textx2;}
+    if(rot == 2 && flip == 1 ) { y=texty2;}
+    if(rot == 3 && flip == 1 ) { x=textx1;}
+  }
+
   cairo_set_source_rgb(ctx,
     (double)xcolor_array[layer].red/65535.0,
     (double)xcolor_array[layer].green/65535.0,
