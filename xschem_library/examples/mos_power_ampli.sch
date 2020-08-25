@@ -187,7 +187,7 @@ rload out 0 4
 .include \\"models_poweramp.txt\\"
 .dc vplus '-1.5' '1.5' 0.1
 .save all
-* .op
+.op
 *.probe dc v(plus,vdc)
 "}
 C {lab_wire.sym} 990 -760 0 0 {name=l1 lab=GA}
