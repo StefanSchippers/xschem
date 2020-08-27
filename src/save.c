@@ -860,7 +860,7 @@ void make_symbol(void)
          
 }
 
-int save_schematic(char *schname) /* 20171020 added return value */
+int save_schematic(const char *schname) /* 20171020 added return value */
 {
   FILE *fd;
   char name[PATH_MAX]; /* overflow safe 20161122 */

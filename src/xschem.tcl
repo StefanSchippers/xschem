@@ -3183,28 +3183,28 @@ font configure Underline-Font -underline true -size 24
    frame .menubar -relief raised -bd 2 
    toolbar_toolbar
 
-   menubutton .menubar.file -text "File" -menu .menubar.file.menu
+   menubutton .menubar.file -text "File" -menu .menubar.file.menu -padx 3 -pady 0
    menu .menubar.file.menu -tearoff 0
-   menubutton .menubar.edit -text "Edit" -menu .menubar.edit.menu
+   menubutton .menubar.edit -text "Edit" -menu .menubar.edit.menu -padx 3 -pady 0
    menu .menubar.edit.menu -tearoff 0
-   menubutton .menubar.option -text "Options" -menu .menubar.option.menu
+   menubutton .menubar.option -text "Options" -menu .menubar.option.menu -padx 3 -pady 0
    menu .menubar.option.menu -tearoff 0
-   menubutton .menubar.zoom -text "View" -menu .menubar.zoom.menu
+   menubutton .menubar.zoom -text "View" -menu .menubar.zoom.menu -padx 3 -pady 0
    menu .menubar.zoom.menu -tearoff 0
-   menubutton .menubar.prop -text "Properties" -menu .menubar.prop.menu
+   menubutton .menubar.prop -text "Properties" -menu .menubar.prop.menu -padx 3 -pady 0
    menu .menubar.prop.menu -tearoff 0
-   menubutton .menubar.layers -text "Layers" -menu .menubar.layers.menu \
+   menubutton .menubar.layers -text "Layers" -menu .menubar.layers.menu -padx 3 -pady 0 \
     -background [lindex $colors 4]
    menu .menubar.layers.menu -tearoff 0
-   menubutton .menubar.tools -text "Tools" -menu .menubar.tools.menu
+   menubutton .menubar.tools -text "Tools" -menu .menubar.tools.menu -padx 3 -pady 0
    menu .menubar.tools.menu -tearoff 0
-   menubutton .menubar.sym -text "Symbol" -menu .menubar.sym.menu
+   menubutton .menubar.sym -text "Symbol" -menu .menubar.sym.menu -padx 3 -pady 0
    menu .menubar.sym.menu -tearoff 0
-   menubutton .menubar.hilight -text "Highlight" -menu .menubar.hilight.menu
+   menubutton .menubar.hilight -text "Highlight" -menu .menubar.hilight.menu -padx 3 -pady 0
    menu .menubar.hilight.menu -tearoff 0
-   menubutton .menubar.simulation -text "Simulation" -menu .menubar.simulation.menu
+   menubutton .menubar.simulation -text "Simulation" -menu .menubar.simulation.menu -padx 3 -pady 0
    menu .menubar.simulation.menu -tearoff 0
-   menubutton .menubar.help -text "Help" -menu .menubar.help.menu
+   menubutton .menubar.help -text "Help" -menu .menubar.help.menu -padx 3 -pady 0
    menu .menubar.help.menu -tearoff 0
    .menubar.help.menu add command -label "Help" -command "textwindow \"${XSCHEM_SHAREDIR}/xschem.help\" ro" \
         -accelerator {?}
@@ -3383,11 +3383,11 @@ font configure Underline-Font -underline true -size 24
    toolbar_create EditPushSym "xschem descend_symbol" "Push symbol"
    .menubar.edit.menu add command -label "Pop" -command "xschem go_back" -accelerator Ctrl+E
    toolbar_create EditPop "xschem go_back" "Pop"
-   button .menubar.waves -text "Waves"  -activebackground red  -takefocus 0\
+   button .menubar.waves -text "Waves"  -activebackground red  -takefocus 0 -padx 2 -pady 0 \
      -command {
        waves
       }
-   button .menubar.simulate -text "Simulate"  -activebackground red  -takefocus 0\
+   button .menubar.simulate -text "Simulate"  -activebackground red  -takefocus 0 -padx 2 -pady 0 \
      -command {
        if { ![info exists simulate_oldbg] } {
          set simulate_oldbg [.menubar.simulate cget -bg]
@@ -3395,7 +3395,7 @@ font configure Underline-Font -underline true -size 24
          simulate {.menubar.simulate configure -bg $::simulate_oldbg; unset ::simulate_oldbg}
        }
       }
-   button .menubar.netlist -text "Netlist"  -activebackground red  -takefocus 0\
+   button .menubar.netlist -text "Netlist"  -activebackground red  -takefocus 0 -padx 2 -pady 0 \
      -command {
        xschem netlist
       }

@@ -836,7 +836,7 @@ extern int place_symbol(int pos, const char *symbol_name, double x, double y, in
 extern void attach_labels_to_inst(void);
 extern int sym_vs_sch_pins(void);
 extern int match_symbol(const char name[]);
-extern int save_schematic(char *); /*  20171020 added return value */
+extern int save_schematic(const char *); /*  20171020 added return value */
 extern void push_undo(void);
 extern void pop_undo(int redo);
 extern void delete_undo(void);
