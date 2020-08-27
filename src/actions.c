@@ -452,9 +452,9 @@ int save(int confirm) /* 20171006 add confirm */
        if(confirm) {
          tcleval("ask_save");
          if(!strcmp(tclresult(), "") ) cancel=1;
-         if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(schematic[currentsch]);
+         if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(abs_sym_path(schematic[currentsch],""));
        } else {
-         save_ok = save_schematic(schematic[currentsch]);
+         save_ok = save_schematic(abs_sym_path(schematic[currentsch],""));
        }
      }
      if(save_ok==-1) return 1;
