@@ -972,8 +972,8 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       else my_snprintf(name, S(name), "%s-%d.sch", "untitled", i);
       if(stat(name, &buf)) break;
     }
-    my_strncpy(schematic[currentsch], name, S(schematic[currentsch]));
-    my_strncpy(current_name, rel_sym_path(schematic[currentsch]), S(current_name)); /* 20190519 */
+    my_snprintf(schematic[currentsch], S(schematic[currentsch]), "%s/%s", pwd_dir, name);
+    my_strncpy(current_name, name, S(current_name)); /* 20190519 */
   }
   if(has_x) { /* 20161207 moved after if( (fd=..))  */
     if(strcmp(get_cell(schematic[currentsch],1), "systemlib/font")) {

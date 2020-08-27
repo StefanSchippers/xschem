@@ -406,8 +406,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
          if(stat(name, &buf)) break;
        }
-       my_strncpy(schematic[currentsch], name, S(schematic[currentsch]));
-       my_strncpy(current_name, rel_sym_path(schematic[currentsch]), S(current_name));
+       my_snprintf(schematic[currentsch], S(schematic[currentsch]), "%s/%s", pwd_dir, name);
+       my_strncpy(current_name, name, S(current_name));
        current_type=SYMBOL;
      } else {
        for(i=0;;i++) {
@@ -415,8 +415,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          else my_snprintf(name, S(name), "%s-%d.sch", "untitled", i);
          if(stat(name, &buf)) break;
        }
-       my_strncpy(schematic[currentsch], name, S(schematic[currentsch]));
-       my_strncpy(current_name, rel_sym_path(schematic[currentsch]), S(current_name));
+       my_snprintf(schematic[currentsch], S(schematic[currentsch]), "%s/%s", pwd_dir, name);
+       my_strncpy(current_name, name, S(current_name));
        current_type=SCHEMATIC;
      }
      draw();

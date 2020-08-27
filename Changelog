@@ -1,3 +1,26 @@
+2.9.8
+- LCC function (Local Custom Cell):
+  schematics (.sch) can be instantiated just like symbol (.sym) files in a parent schematic.
+- Open Recent menu entry to quickly open recent edited/saved files.
+- when descending into vector instances (example: x1[7:0]) ask in which instance to descend
+  (example: x1[2]). This is needed to correctly build the hierarchy paths and to send correct
+  signal names to spice waveform viewers. This also allows to follow single bits of bussed 
+  signals thru the hierarchy. 
+- symbol attribute @symname will display symbol name without extension as it used to be
+  in earlier versions. @symname_ext will print full rootname of symbol. 
+  Some doc updates on symbol attributes
+- changed tcl procs abs_sym_path and rel_sym_path, now the real symbol filename is obtained by
+  prepending one of the XSCHEM_LIBRARY_PATH paths until the symbol is found.
+  This allows more than one directory levels in symbol references.
+- when copying a symbol with edit_property dialog ("q" key) and enabling "Copy cell" if a relative
+  path name is supplied for new symbol it will inherit the same path prefix as the original symbol.
+- edit property dialog box has a (combobox in tk slang) token selector, so if a specific token 
+  is set the text edit will be restricted to that token value instead of the whole attribute string.
+- snap and grid entries in main window will not annoyingly receive keyboard focus with TAB key
+- implemented text attributes "hcenter=true" (center text in reading direction) and
+  "vcenter=true" (center text in direction perpendicular to reading direction).
+  These can both be set for full centered text block.
+
 2.9.7
 - store symbol wires (if any) as Instdef lines on layer WIRELAYER (1) so they are visible when instances are placed.
 - spice netlister: if ".param m=10 n=5" is given and "R1[m:n]" instance name is present resolve parameters
