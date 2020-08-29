@@ -772,9 +772,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      Tcl_AppendResult(interp, "xschem select: missing arguments.", NULL);
      return TCL_ERROR;
    }
-   drawtempline(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0);
-   drawtemprect(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0);
-   drawtemparc(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0, 0.0);
  
    if(!strcmp(argv[2],"instance") && argc==4) {
      char *endptr;

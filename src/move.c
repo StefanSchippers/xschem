@@ -193,9 +193,6 @@ void draw_selection(GC g, int interruptable)
   #ifdef HAS_CAIRO
   int customfont;
   #endif
-  drawtemparc(g, BEGIN, 0.0, 0.0, 0.0, 0.0, 0.0);
-  drawtempline(g, BEGIN, 0.0, 0.0, 0.0, 0.0);
-  drawtemprect(g, BEGIN, 0.0, 0.0, 0.0, 0.0);
 
   if(g == gc[SELLAYER]) lastsel = lastselected;
   for(i=0;i<lastsel;i++)
@@ -515,10 +512,6 @@ void copy_objects(int what)
 
   for(k=0;k<cadlayers;k++)
   {
-   drawarc(k, BEGIN, 0.0, 0.0, 0.0, 0.0, 0.0, 0);
-   drawline(k, BEGIN, 0.0, 0.0, 0.0, 0.0);
-   drawrect(k, BEGIN, 0.0, 0.0, 0.0, 0.0);
-   filledrect(k, BEGIN, 0.0, 0.0, 0.0, 0.0);
    for(i=0;i<lastselected;i++)
    {
     c = selectedgroup[i].col;n = selectedgroup[i].n;
@@ -927,10 +920,6 @@ void move_objects(int what, int merge, double dx, double dy)
   }
   for(k=0;k<cadlayers;k++)
   {
-   drawarc(k, BEGIN, 0.0, 0.0, 0.0, 0.0, 0.0, 0);
-   drawline(k, BEGIN, 0.0, 0.0, 0.0, 0.0);
-   drawrect(k, BEGIN, 0.0, 0.0, 0.0, 0.0);
-   filledrect(k, BEGIN, 0.0, 0.0, 0.0, 0.0); 
    for(i=0;i<lastselected;i++)
    {
     c = selectedgroup[i].col;n = selectedgroup[i].n;

@@ -1491,10 +1491,6 @@ void draw(void)
         for(c=0;c<cadlayers;c++)
         {
           if(draw_single_layer!=-1 && c != draw_single_layer) continue; /* 20151117 */
-          drawline(c, BEGIN, 0.0, 0.0, 0.0, 0.0);
-          drawrect(c, BEGIN, 0.0, 0.0, 0.0, 0.0);
-          drawarc(c, BEGIN, 0.0, 0.0, 0.0, 0.0, 0.0, 0);
-          filledrect(c, BEGIN, 0.0, 0.0, 0.0, 0.0);
         
           for(i=0;i<lastline[c];i++) 
             drawline(c, ADD, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
@@ -1590,8 +1586,6 @@ void draw(void)
           drawline(c, END, 0.0, 0.0, 0.0, 0.0);
         }
         if(draw_single_layer==-1 || draw_single_layer==WIRELAYER){ /* 20151117 */
-          drawline(WIRELAYER,BEGIN, 0.0, 0.0, 0.0, 0.0);
-          filledrect(WIRELAYER, BEGIN, 0.0, 0.0, 0.0, 0.0);
 
           if(use_hash) {
             dbg(3, "using spatial hash table iterator\n");
@@ -1635,10 +1629,6 @@ void draw(void)
             }
             #endif
 
-            #ifndef HAS_CAIRO
-            drawline(textlayer,BEGIN, 0.0, 0.0, 0.0, 0.0);
-            drawrect(textlayer,BEGIN, 0.0, 0.0, 0.0, 0.0);
-            #endif
             draw_string(textlayer, ADD, textelement[i].txt_ptr,
               textelement[i].rot, textelement[i].flip, textelement[i].hcenter, textelement[i].vcenter,
               textelement[i].x0,textelement[i].y0,

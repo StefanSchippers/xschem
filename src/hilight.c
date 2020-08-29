@@ -426,11 +426,6 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
  if(regcomp(&re, val , REG_EXTENDED)) return TCL_ERROR;
 #endif
  dbg(1, "search():val=%s\n", val);
- if(sel==1) {
-   drawtempline(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0);
-   drawtemprect(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0);
-   drawtemparc(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0, 0.0);
- }
  if(what==ADD || what==NOW) {
    
     if(!sel) { /* 20190525 */
@@ -948,10 +943,6 @@ void draw_hilight_net(int on_window)
       y2=Y_TO_SCREEN(inst_ptr[i].y2);
       if(OUTSIDE(x1,y1,x2,y2,areax1,areay1,areax2,areay2)) continue;
       dbg(1, "draw_hilight_net(): instance:%d\n",i);
-      drawline(inst_color[i], BEGIN, 0.0, 0.0, 0.0, 0.0);
-      drawrect(inst_color[i], BEGIN, 0.0, 0.0, 0.0, 0.0);
-      filledrect(inst_color[i], BEGIN, 0.0, 0.0, 0.0, 0.0);
-      drawarc(inst_color[i], BEGIN, 0.0, 0.0, 0.0, 0.0, 0.0, 0);
       /* 20160414 from draw() */
       symptr = (inst_ptr[i].ptr+instdef);
       if( c==0 || /*draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */

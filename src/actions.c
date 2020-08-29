@@ -971,9 +971,6 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, 
   /*   hilight new element 24122002 */
 
   if(draw_sym & 4 ) {
-    drawtempline(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0);
-    drawtemprect(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0);
-    drawtemparc(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0, 0.0);
     select_element(n, SELECTED,0, 0);
     ui_state |= SELECTION;
     drawtemparc(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -2264,8 +2261,6 @@ void place_text(int draw_text, double mx, double my)
     cairo_restore(save_ctx);
   }
   #endif
-  drawtempline(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0);
-  drawtemprect(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0);
   select_text(lasttext, SELECTED, 0);
   drawtemprect(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
   drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);

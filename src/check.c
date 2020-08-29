@@ -133,7 +133,6 @@ void update_conn_cues(int draw_cues, int dr_win)
   dbg(3, "update_conn_cues(): check3\n");
   if(draw_cues) {
     save_draw = draw_window; draw_window = dr_win;
-    filledarc(WIRELAYER, BEGIN, 0.0, 0.0, 0.0, 0.0, 0.0);
     for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
       i = wireptr->n;
       /* optimization when editing small areas (detailed zoom)  of a huge schematic */

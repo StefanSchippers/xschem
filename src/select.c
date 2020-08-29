@@ -454,10 +454,6 @@ void unselect_all(void)
     ui_state = 0; 
     lastselected = 0;
    
-    drawtemparc(gctiled,BEGIN, 0.0, 0.0, 0.0, 0.0, 0.0);
-    drawtempline(gctiled,BEGIN, 0.0, 0.0, 0.0, 0.0);
-    drawtemprect(gctiled, BEGIN, 0.0, 0.0, 0.0, 0.0); 
-   
      for(i=0;i<lastwire;i++)
      {
       if(wire[i].sel)
@@ -832,9 +828,6 @@ unsigned short select_object(double mousex,double mousey, unsigned short select_
    Selected sel;
    sel = find_closest_obj(mousex,mousey);
 
-   drawtemparc(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0, 0.0);
-   drawtempline(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0);
-   drawtemprect(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0);
    dbg(1, "select_object(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type);
 
    switch(sel.type)
@@ -880,9 +873,6 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /* 201509
  #ifdef HAS_CAIRO
  int customfont;
  #endif
- drawtemparc(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0, 0.0);
- drawtemprect(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0); 
- drawtempline(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0);
 
  for(i=0;i<lastwire;i++)
  {
@@ -1050,9 +1040,6 @@ void select_all(void)
 {
  int c,i;
 
- drawtemparc(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0, 0.0);
- drawtempline(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0);
- drawtemprect(gc[SELLAYER], BEGIN, 0.0, 0.0, 0.0, 0.0); 
  ui_state |= SELECTION;
  for(i=0;i<lastwire;i++)
  {
