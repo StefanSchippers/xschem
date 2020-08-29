@@ -743,10 +743,10 @@ void copy_objects(int what)
       textelement[lasttext].xscale=textelement[n].xscale;
       textelement[lasttext].yscale=textelement[n].yscale;
 
-      textlayer = TEXTLAYER;
-      #ifdef HAS_CAIRO
       textlayer = textelement[lasttext].layer; /* 20171206 */
       if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
+
+      #ifdef HAS_CAIRO
       textfont = textelement[lasttext].font; /* 20171206 */
       if(textfont && textfont[0]) {
         cairo_save(ctx);
@@ -759,6 +759,10 @@ void copy_objects(int what)
        textelement[lasttext].rot, textelement[lasttext].flip, textelement[lasttext].hcenter, textelement[lasttext].vcenter,
        rx1+deltax,ry1+deltay,
        textelement[lasttext].xscale, textelement[lasttext].yscale);
+      #ifndef HAS_CAIRO
+      drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0);
+      drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0);
+      #endif
       #ifdef HAS_CAIRO
       if(textfont && textfont[0]) {
         /* cairo_select_font_face (ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL); */
@@ -1208,11 +1212,9 @@ void move_objects(int what, int merge, double dx, double dy)
        ( (flip && (textelement[n].rot & 1) ) ? rot+2 : rot) ) & 0x3;
       textelement[n].flip=flip^textelement[n].flip;
  
-      /* 20171112 */
-      textlayer = TEXTLAYER;
-      #ifdef HAS_CAIRO
       textlayer = textelement[n].layer; /* 20171206 */
       if(textlayer < 0 || textlayer >=  cadlayers) textlayer = TEXTLAYER;
+      #ifdef HAS_CAIRO
       textfont = textelement[n].font; /* 20171206 */
       if(textfont && textfont[0]) {
         cairo_save(ctx);
@@ -1225,6 +1227,10 @@ void move_objects(int what, int merge, double dx, double dy)
        textelement[n].rot, textelement[n].flip, textelement[n].hcenter, textelement[n].vcenter,
        textelement[n].x0, textelement[n].y0,
        textelement[n].xscale, textelement[n].yscale);
+      #ifndef HAS_CAIRO
+      drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0);
+      drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0);
+      #endif
       #ifdef HAS_CAIRO
       if(textfont && textfont[0]) {
         /*cairo_select_font_face (ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL); */

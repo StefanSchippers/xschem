@@ -278,7 +278,7 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
 {                           /* a "for(i=0;i<cadlayers;i++)" loop */
  int j;
  double x0,y0,x1,y1,x2,y2;
- int flip;
+ int flip, textlayer;
  Line line;
  Box box;
  Text text;
@@ -372,6 +372,12 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
      text.txt_ptr= 
        translate(n, text.txt_ptr);
      ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
+     textlayer = layer;
+     if( !(layer == PINLAYER && (inst_ptr[n].flags & 4))) {
+       textlayer = (inst_ptr[n].ptr+instdef)->txtptr[j].layer;
+       if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
+     }
+
      svg_draw_string(layer, text.txt_ptr,
        (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
        flip^text.flip, text.hcenter, text.vcenter, 
@@ -408,7 +414,7 @@ static void fill_svg_colors()
 void svg_draw(void)
 {
  double dx, dy;
- int c,i; 
+ int c,i, textlayer; 
  int filledrect;
  int old_grid;
  int modified_save; /* 20161121 */
@@ -488,7 +494,10 @@ void svg_draw(void)
    set_svg_colors(TEXTLAYER);
    for(i=0;i<lasttext;i++) 
    {
-     svg_draw_string(TEXTLAYER, textelement[i].txt_ptr,
+     textlayer = textelement[i].layer; /*20171206 */
+     if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
+
+     svg_draw_string(textlayer, textelement[i].txt_ptr,
        textelement[i].rot, textelement[i].flip, textelement[i].hcenter, textelement[i].vcenter,
        textelement[i].x0,textelement[i].y0,
        textelement[i].xscale, textelement[i].yscale); 

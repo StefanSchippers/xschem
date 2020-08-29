@@ -2239,10 +2239,9 @@ void place_text(int draw_text, double mx, double my)
   if(strlayer[0]) textelement[lasttext].layer = atoi(strlayer);
   else textelement[lasttext].layer = -1;
   my_strdup(21, &textelement[lasttext].font, get_tok_value(textelement[lasttext].prop_ptr, "font", 0));/* 20171206 */
-  textlayer = TEXTLAYER;
-  #ifdef HAS_CAIRO
   textlayer = textelement[lasttext].layer;
   if(textlayer < 0 || textlayer >= cadlayers) textlayer = TEXTLAYER;
+  #ifdef HAS_CAIRO
   textfont = textelement[lasttext].font;
   if(textfont && textfont[0]) {
     cairo_save(ctx);

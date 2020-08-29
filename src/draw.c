@@ -543,12 +543,10 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
       ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
 
       textlayer = c;
-      #ifdef HAS_CAIRO
       if( !(c == PINLAYER && (inst_ptr[n].flags & 4))) {
         textlayer = symptr->txtptr[j].layer;
         if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
       }
-      #endif
       if((c == PINLAYER && inst_ptr[n].flags & 4) ||  enable_layer[textlayer]) {
         #ifdef HAS_CAIRO
         textfont = symptr->txtptr[j].font;
@@ -563,6 +561,10 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
           flip^text.flip, text.hcenter, text.vcenter, 
           x0+x1, y0+y1, text.xscale, text.yscale);                    
+        #ifndef HAS_CAIRO
+        drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0);
+        drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0);
+        #endif
         #ifdef HAS_CAIRO
         if(textfont && textfont[0]) {
           cairo_restore(ctx);
@@ -1618,17 +1620,12 @@ void draw(void)
           drawline(WIRELAYER, END, 0.0, 0.0, 0.0, 0.0);
         }
         if(draw_single_layer ==-1 || draw_single_layer==TEXTLAYER) { /* 20151117 */
-          #ifndef HAS_CAIRO
-          drawline(TEXTLAYER,BEGIN, 0.0, 0.0, 0.0, 0.0);
-          drawrect(TEXTLAYER,BEGIN, 0.0, 0.0, 0.0, 0.0);
-          #endif
           for(i=0;i<lasttext;i++) 
           {
-            textlayer = TEXTLAYER;
-            dbg(1, "draw(): drawing string %d = %s\n",i, textelement[i].txt_ptr);
-            #ifdef HAS_CAIRO
             textlayer = textelement[i].layer; /*20171206 */
             if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
+            dbg(1, "draw(): drawing string %d = %s\n",i, textelement[i].txt_ptr);
+            #ifdef HAS_CAIRO
             textfont = textelement[i].font; /* 20171206 */
             if(textfont && textfont[0]) {
               cairo_save(ctx);
@@ -1636,6 +1633,11 @@ void draw(void)
               cairo_select_font_face (ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
               cairo_select_font_face (save_ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
             }
+            #endif
+
+            #ifndef HAS_CAIRO
+            drawline(textlayer,BEGIN, 0.0, 0.0, 0.0, 0.0);
+            drawrect(textlayer,BEGIN, 0.0, 0.0, 0.0, 0.0);
             #endif
             draw_string(textlayer, ADD, textelement[i].txt_ptr,
               textelement[i].rot, textelement[i].flip, textelement[i].hcenter, textelement[i].vcenter,
@@ -1647,11 +1649,11 @@ void draw(void)
               cairo_restore(save_ctx);
             }
             #endif
+            #ifndef HAS_CAIRO
+            drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0);
+            drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0);
+            #endif
           }
-          #ifndef HAS_CAIRO
-          drawrect(TEXTLAYER, END, 0.0, 0.0, 0.0, 0.0);
-          drawline(TEXTLAYER, END, 0.0, 0.0, 0.0, 0.0);
-          #endif
         }
     } /* !only_probes, 20110112 */
     draw_hilight_net(draw_window);

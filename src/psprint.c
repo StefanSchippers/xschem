@@ -184,6 +184,7 @@ static void ps_draw_string(int gctext,  char *str,
  yscale*=nocairo_font_yscale;
 
  if(!textclip(areax1,areay1,areax2,areay2,rx1,ry1,rx2,ry2)) return;
+ set_ps_colors(gctext);
  x1=rx1;y1=ry1;
  if(rot&1) {y1=ry2;rot=3;}
  else rot=0;
@@ -251,7 +252,7 @@ static void ps_draw_symbol(int n,int layer,int tmp_flip, int rot,
 {                           /* a "for(i=0;i<cadlayers;i++)" loop */
  int j;
  double x0,y0,x1,y1,x2,y2;
- int flip;
+ int flip, textlayer;
  Line line;
  Box box;
  Text text;
@@ -345,7 +346,12 @@ static void ps_draw_symbol(int n,int layer,int tmp_flip, int rot,
      text.txt_ptr= 
        translate(n, text.txt_ptr);
      ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
-     ps_draw_string(layer, text.txt_ptr,
+     textlayer = layer;
+     if( !(layer == PINLAYER && (inst_ptr[n].flags & 4))) {
+       textlayer = (inst_ptr[n].ptr+instdef)->txtptr[j].layer;
+       if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
+     }
+     ps_draw_string(textlayer, text.txt_ptr,
        (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
        flip^text.flip, text.hcenter, text.vcenter,
        x0+x1, y0+y1, text.xscale, text.yscale);                    
@@ -379,7 +385,7 @@ static void fill_ps_colors()
 void ps_draw(void)
 {
  double dx, dy, delta,scale;
- int c,i; 
+ int c,i, textlayer; 
  char *tmp=NULL; /* 20161121 */
  int old_grid;
  int modified_save;
@@ -468,10 +474,11 @@ void ps_draw(void)
  restore_lw();
  ps_drawgrid();
 
- set_ps_colors(TEXTLAYER);
  for(i=0;i<lasttext;i++) 
  {
-   ps_draw_string(TEXTLAYER, textelement[i].txt_ptr,
+   textlayer = textelement[i].layer; /*20171206 */
+   if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
+   ps_draw_string(textlayer, textelement[i].txt_ptr,
      textelement[i].rot, textelement[i].flip, textelement[i].hcenter, textelement[i].vcenter,
      textelement[i].x0,textelement[i].y0,
      textelement[i].xscale, textelement[i].yscale); 
