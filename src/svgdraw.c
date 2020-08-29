@@ -378,7 +378,7 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
        if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
      }
 
-     svg_draw_string(layer, text.txt_ptr,
+     svg_draw_string(textlayer, text.txt_ptr,
        (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
        flip^text.flip, text.hcenter, text.vcenter, 
        x0+x1, y0+y1, text.xscale, text.yscale);                    
@@ -496,7 +496,6 @@ void svg_draw(void)
    {
      textlayer = textelement[i].layer; /*20171206 */
      if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-
      svg_draw_string(textlayer, textelement[i].txt_ptr,
        textelement[i].rot, textelement[i].flip, textelement[i].hcenter, textelement[i].vcenter,
        textelement[i].x0,textelement[i].y0,
