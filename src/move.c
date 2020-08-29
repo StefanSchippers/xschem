@@ -745,7 +745,12 @@ void copy_objects(int what)
 
       textlayer = textelement[lasttext].layer; /* 20171206 */
       if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-
+      #ifndef HAS_CAIRO
+      if(textlayer > k) { /* ensure BEGIN is executed, if textlayer<=k already done at beginning of for(k) loop */ 
+        drawrect(textlayer, BEGIN, 0.0, 0.0, 0.0, 0.0);
+        drawline(textlayer, BEGIN, 0.0, 0.0, 0.0, 0.0);
+      }
+      #endif
       #ifdef HAS_CAIRO
       textfont = textelement[lasttext].font; /* 20171206 */
       if(textfont && textfont[0]) {
@@ -1214,6 +1219,12 @@ void move_objects(int what, int merge, double dx, double dy)
  
       textlayer = textelement[n].layer; /* 20171206 */
       if(textlayer < 0 || textlayer >=  cadlayers) textlayer = TEXTLAYER;
+      #ifndef HAS_CAIRO
+      if(textlayer > k) { /* ensure BEGIN is executed, if textlayer<=k already done at beginning of for(k) loop */ 
+        drawrect(textlayer, BEGIN, 0.0, 0.0, 0.0, 0.0);
+        drawline(textlayer, BEGIN, 0.0, 0.0, 0.0, 0.0);
+      }
+      #endif
       #ifdef HAS_CAIRO
       textfont = textelement[n].font; /* 20171206 */
       if(textfont && textfont[0]) {
