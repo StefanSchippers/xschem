@@ -156,7 +156,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  else if(!strcmp(argv[1],"fullscreen"))
  {
    dbg(1, "scheduler: xschem fullscreen, fullscreen=%d\n", fullscreen);
-   if(fullscreen>=1) fullscreen=2;
    toggle_fullscreen();
    Tcl_ResetResult(interp);
  }
