@@ -1079,12 +1079,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  my_strdup(44, &xschem_executable, get_file_path(xschem_executable));
  dbg(1, "Tcl_AppInit(): resolved xschem_executable=%s\n", xschem_executable);
 
- /* READ COLORS */
- my_snprintf(name, S(name), "%s/colors", user_conf_dir);
- if(!stat(name, &buf)) {
-   source_tcl_file(name);
- }
-   
  /* set global variables fetching data from tcl code 25122002 */
  if(tclgetvar("dark_colorscheme")[0] == '1') dark_colorscheme = 1; 
  else dark_colorscheme = 0;

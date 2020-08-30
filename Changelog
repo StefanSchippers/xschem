@@ -1,4 +1,6 @@
 2.9.8
+- NO_CAIRO builds also use 'layer=' attribute to display text on custom layers.
+- pdf and svg exports follow the enable_layer[] array to display/hide layers as does draw() 
 - LCC function (Local Custom Cell):
   schematics (.sch) can be instantiated just like symbol (.sym) files in a parent schematic.
 - Open Recent menu entry to quickly open recent edited/saved files.
