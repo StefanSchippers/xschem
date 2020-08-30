@@ -46,8 +46,18 @@ void print_image()
   char cmd[PATH_MAX+100];
   const char *r;
   char *tmpstring=NULL;
+  double saveorx, saveory, savezoom;
 
   if(!has_x) return ;
+
+  ww = xschem_w;
+  hh = xschem_h;
+  my_snprintf(cmd, S(cmd), "input_line {Enter image size} {} {%dx%d}", xschem_w, xschem_h);
+  tcleval(cmd);
+  if(sscanf(tclresult(), "%dx%d", &w, &h) != 2) {
+    w = xschem_w; h = xschem_h;
+  }
+
   if(!plotfile[0]) {
     my_strdup(60, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir $env(PWD)");
     tcleval(tmpstring);
@@ -57,29 +67,25 @@ void print_image()
     else return;
   }
 
-
   modified_save=modified; /* 20161121 save state */
   push_undo(); /* 20161121 */
   trim_wires();    /* 20161121 add connection boxes on wires but undo at end */
 
   XUnmapWindow(display, window);
 
-  ww=areaw-4*lw; hh=areah-4*lw;
- 
-  /*  use this if you want huge pixmap */
-  /*w=3200; h=2000; */
-  w=ww; h=hh;  /* 20121122  */
-
   xrect[0].x = 0;
   xrect[0].y = 0; 
-  xrect[0].width = w;
-  xrect[0].height = h;
+  xschem_w = xrect[0].width = w;
+  xschem_h = xrect[0].height = h;
   areax2 = w+2*lw;
   areay2 = h+2*lw;
   areax1 = -2*lw;
   areay1 = -2*lw;
   areaw = areax2-areax1;
   areah = areay2-areay1;
+  saveorx = xorigin;
+  saveory = yorigin;
+  savezoom = zoom;
 #ifdef __unix__
   XFreePixmap(display,save_pixmap);
   /* save_pixmap = XCreatePixmap(display,window,areaw,areah,depth); */
@@ -125,7 +131,8 @@ void print_image()
   save_draw_grid = draw_grid;
   draw_grid=0;
   draw_pixmap=1;
-  /* zoom_full(0, 0); */
+  zoom_full(0, 0);
+  
   draw();
 #ifdef __unix__
   XpmWriteFileFromPixmap(display, "plot.xpm", save_pixmap,0, NULL ); /* .gz ???? */
@@ -143,14 +150,18 @@ void print_image()
   w=ww;h=hh;
   xrect[0].x = 0;
   xrect[0].y = 0; 
-  xrect[0].width = w;
-  xrect[0].height = h;
+  xschem_w = xrect[0].width = w;
+  xschem_h = xrect[0].height = h;
   areax2 = w+2*lw;
   areay2 = h+2*lw;
   areax1 = -2*lw;
   areay1 = -2*lw;
   areaw = areax2-areax1;
   areah = areay2-areay1;
+  zoom = savezoom;
+  mooz = 1/zoom;
+  xorigin = saveorx;
+  yorigin = saveory;
 #ifdef __unix__
   XFreePixmap(display,save_pixmap);
   save_pixmap = XCreatePixmap(display,window,areaw,areah,depth);
