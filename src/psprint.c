@@ -259,7 +259,8 @@ static void ps_draw_symbol(int n,int layer,int tmp_flip, int rot,
  xArc arc;
  xPolygon polygon;
 
-
+  if(inst_ptr[n].ptr == -1) return;
+  if( (layer != PINLAYER && !enable_layer[layer]) ) return;
   if(layer==0)
   {
    x1=X_TO_PS(inst_ptr[n].x1);
@@ -328,7 +329,7 @@ static void ps_draw_symbol(int n,int layer,int tmp_flip, int rot,
      ROTATION(0.0,0.0,arc.x,arc.y,x1,y1);
      ps_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b);
    }
-   for(j=0;j< (inst_ptr[n].ptr+instdef)->rects[layer];j++)
+   if( (layer != PINLAYER || enable_layer[layer]) ) for(j=0;j< (inst_ptr[n].ptr+instdef)->rects[layer];j++)
    {
     box = ((inst_ptr[n].ptr+instdef)->boxptr[layer])[j];
     ROTATION(0.0,0.0,box.x1,box.y1,x1,y1);
@@ -351,10 +352,12 @@ static void ps_draw_symbol(int n,int layer,int tmp_flip, int rot,
        textlayer = (inst_ptr[n].ptr+instdef)->txtptr[j].layer;
        if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
      }
-     ps_draw_string(textlayer, text.txt_ptr,
-       (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
-       flip^text.flip, text.hcenter, text.vcenter,
-       x0+x1, y0+y1, text.xscale, text.yscale);                    
+     if((layer == PINLAYER && inst_ptr[n].flags & 4) ||  enable_layer[textlayer]) {
+       ps_draw_string(textlayer, text.txt_ptr,
+         (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
+         flip^text.flip, text.hcenter, text.vcenter,
+         x0+x1, y0+y1, text.xscale, text.yscale);                    
+     }
     }
     restore_lw();
    }

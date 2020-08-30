@@ -596,7 +596,6 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
  #endif
 
  if(inst_ptr[n].ptr == -1) return;
- /* if(layer != PINLAYER && !enable_layer[layer] ) return; */
  if(!has_x) return;
 
  flip = inst_ptr[n].flip;
