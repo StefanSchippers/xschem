@@ -481,7 +481,7 @@ void svg_draw(void)
  }
  fprintf(fd, "</style>\n");
 
- if(color_ps) {
+ if(dark_colorscheme) {
    /* black background */
    fprintf(fd,"<rect x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" fill=\"rgb(%d,%d,%d)\" stroke=\"rgb(%d,%d,%d)\" stroke-width=\"%g\" />\n",
                    0.0,      0.0,      dx,           dy,    0, 0, 0,

@@ -1407,7 +1407,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      tcleval( "exit");
    }
    if(do_print==1) ps_draw();
-   else if(do_print == 2) print_image();
+   else if(do_print == 2) { tcleval("tkwait visibility .drw"); print_image(); }
    else svg_draw();
  }
 

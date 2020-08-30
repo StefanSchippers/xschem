@@ -50,15 +50,14 @@ void print_image()
 
   if(!has_x) return ;
 
-  ww = xschem_w;
-  hh = xschem_h;
-  my_snprintf(cmd, S(cmd), "input_line {Enter image size} {} {%dx%d}", xschem_w, xschem_h);
-  tcleval(cmd);
-  if(sscanf(tclresult(), "%dx%d", &w, &h) != 2) {
-    w = xschem_w; h = xschem_h;
-  }
-
+  w = ww = xschem_w;
+  h = hh = xschem_h;
   if(!plotfile[0]) {
+    my_snprintf(cmd, S(cmd), "input_line {Enter image size} {} {%dx%d}", xschem_w, xschem_h);
+    tcleval(cmd);
+    if(sscanf(tclresult(), "%dx%d", &w, &h) != 2) {
+      w = xschem_w; h = xschem_h;
+    }
     my_strdup(60, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir $env(PWD)");
     tcleval(tmpstring);
     r = tclresult();
