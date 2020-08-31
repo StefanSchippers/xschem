@@ -674,7 +674,7 @@ extern double mx_double_save, my_double_save; /*  20070322 */
 extern struct instentry *insttable[NBOXES][NBOXES];
 extern size_t get_tok_value_size;
 extern size_t get_tok_size;
-
+extern int batch_mode; /* no TCL console */
 /*  functions */
 extern void dbg(int level, char *fmt, ...);
 extern void here(void);

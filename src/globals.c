@@ -268,7 +268,7 @@ struct wireentry *wiretable[NBOXES][NBOXES];
 struct instentry *insttable[NBOXES][NBOXES];
 size_t get_tok_value_size;
 size_t get_tok_size;
-
+int batch_mode = 0; /* no tcl console if set; batch mode */
 
 #ifdef HAS_CAIRO
 cairo_surface_t *sfc, *save_sfc;

@@ -1454,7 +1454,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* */
 
 
- if(!no_readline) {
+ if(
+#ifdef __unix__
+    !batch_mode && 
+#endif
+    !no_readline) {
    tcleval( "if {![catch {package require tclreadline}]} "
       "{::tclreadline::readline customcompleter  completer; ::tclreadline::Loop }" ) ;
  }

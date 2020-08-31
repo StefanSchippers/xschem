@@ -38,6 +38,10 @@ hierarchical representation of circuits with a top down approach.
 Print help and exit.
 .TP
 
+.B -n, --batch
+Detach xschem from console.
+.TP
+
 .B -n, --netlist
 Do a netlist of the given schematic cell.
 .TP

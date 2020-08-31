@@ -1,6 +1,7 @@
 usage: xschem [options] [schematic | symbol ]
 Options:
   -h  --help           Print this help.
+  -b  --batch          Detach Xschem from console.
   -n  --netlist        Do a netlist of the given schematic cell.
   -v  --version        Print version information and exit.
   -V  --vhdl           Set netlist type to VHDL.

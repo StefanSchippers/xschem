@@ -26,10 +26,10 @@
 #endif
 
 void sig_handler(int s){
-  #ifndef IN_MEMORY_UNDO
+#ifndef IN_MEMORY_UNDO
   char emergency_prefix[PATH_MAX];
   const char *emergency_dir;
-  #endif
+#endif
 
   /* 20150410 */
   if(s==SIGINT) {
@@ -37,7 +37,7 @@ void sig_handler(int s){
     return;
   }
 
-  #ifndef IN_MEMORY_UNDO
+#ifndef IN_MEMORY_UNDO
   /* 20180923 no more mkdtemp */
   my_snprintf(emergency_prefix, S(emergency_prefix), "xschem_emergencysave_%s_", 
            skip_dir(schematic[currentsch]));
@@ -51,7 +51,7 @@ void sig_handler(int s){
     fprintf(errfp, "rename dir %s to %s failed\n", undo_dirname, emergency_dir);
   }
   fprintf(errfp, "EMERGENCY SAVE DIR: %s\n", emergency_dir);
-  #endif
+#endif
   fprintf(errfp, "\nFATAL: signal %d\n", s);
   fprintf(errfp, "while editing: %s\n", skip_dir(schematic[currentsch]));
   exit(EXIT_FAILURE);
@@ -83,6 +83,30 @@ int main(int argc, char **argv)
   process_options(argc, argv);
   if(debug_var>=1 && !has_x) 
     fprintf(errfp, "main(): no DISPLAY set, assuming no X available\n");
+
+/* detach from console (fork a child and close std file descriptors) */
+#ifdef __unix__
+  if(batch_mode) {
+    pid_t pid = fork();
+    if(pid < 0) {
+      fprintf(errfp, "main(): fork() failed\n");
+      exit(EXIT_FAILURE);
+    }
+    if(pid == 0) {
+      /* The child becomes the daemon. */
+      /* Detach all standard I/O descriptors */
+      close(0); /* stdin */
+      close(1); /* stdout */
+      close(2); /* stderr */
+      setsid(); /* new session */
+      /* Ok, now detached */
+    }
+    else {
+      /* terminate parent */
+      exit(0);
+    }
+  }
+#endif
 
   if(has_x) Tk_Main(1, argv, Tcl_AppInit);
   else     Tcl_Main(1, argv, Tcl_AppInit);
