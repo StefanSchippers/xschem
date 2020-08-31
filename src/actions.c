@@ -2046,12 +2046,12 @@ void new_polygon(int what) /*  20171115 */
 }
 
 #ifdef HAS_CAIRO
-int text_bbox(char *str, double xscale, double yscale,
+int text_bbox(const char *str, double xscale, double yscale,
     int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2)
 {
   int c=0;
-  char *str_ptr;
+  char *str_ptr, *s = NULL;
   double size;
   cairo_text_extents_t ext;
   cairo_font_extents_t fext;
@@ -2069,18 +2069,19 @@ int text_bbox(char *str, double xscale, double yscale,
   ww=0.; hh=1.;
   c=0;
   cairo_lines=1;
-  str_ptr = str;
-  while( str && str[c] ) {
-    if(str[c] == '\n') {
-      str[c]='\0';
+  my_strdup2(1158, &s, str);
+  str_ptr = s;
+  while( s && s[c] ) {
+    if(s[c] == '\n') {
+      s[c]='\0';
       hh++;
       cairo_lines++;
       if(str_ptr[0]!='\0') {
         cairo_text_extents(ctx, str_ptr, &ext);
         if(ext.x_advance > ww) ww= ext.x_advance;
       }
-      str[c]='\n';
-      str_ptr = str+c+1;
+      s[c]='\n';
+      str_ptr = s+c+1;
     } else {
     }
     c++;
@@ -2089,6 +2090,7 @@ int text_bbox(char *str, double xscale, double yscale,
     cairo_text_extents(ctx, str_ptr, &ext);
     if(ext.x_advance > ww) ww= ext.x_advance;
   }
+  my_free(1159, &s);
   hh = hh*fext.height*cairo_font_line_spacing;
   cairo_longest_line = ww;
 
@@ -2125,11 +2127,11 @@ int text_bbox(char *str, double xscale, double yscale,
   RECTORDER((*rx1),(*ry1),(*rx2),(*ry2));
   return 1;
 }
-int text_bbox_nocairo(char * str,double xscale, double yscale,
+int text_bbox_nocairo(const char * str,double xscale, double yscale,
     int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2)
 #else
-int text_bbox(char * str,double xscale, double yscale,
+int text_bbox(const char * str,double xscale, double yscale,
     int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2)
 #endif

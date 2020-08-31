@@ -32,7 +32,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
 {
    int j;
    Text text;
-   char *tmp_txt;
+   const char *tmp_txt;
    int rot,flip;
    double x0, y0 ;
    double text_x0, text_y0;

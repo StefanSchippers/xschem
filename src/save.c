@@ -1479,7 +1479,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      fscanf(lcc[level].fd, "%lf %lf %d %d %lf %lf ",&tt[i].x0, &tt[i].y0, &tt[i].rot,
         &tt[i].flip, &tt[i].xscale, &tt[i].yscale);
      if (level>0) {
-       char* tmp = translate2(lcc, level, tt[i].txt_ptr);
+       const char* tmp = translate2(lcc, level, tt[i].txt_ptr);
        if (tmp) my_strdup(651, &tt[i].txt_ptr, tmp);
        ROTATION(0.0, 0.0, tt[i].x0, tt[i].y0, rx1, ry1);
        tt[i].x0 = lcc[level].x0 + rx1;  tt[i].y0 = lcc[level].y0 + ry1;
@@ -1488,7 +1488,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      }
      tt[i].prop_ptr=NULL;
      load_ascii_string(&tt[i].prop_ptr, lcc[level].fd);
-      dbg(2, "l_d_s(): loaded text\n");
+     dbg(1, "l_d_s(): loaded text : t=%s p=%s\n", tt[i].txt_ptr, tt[i].prop_ptr);
 
      my_strdup(351, &tt[i].font, get_tok_value(tt[i].prop_ptr, "font", 0));/*20171206 */
 

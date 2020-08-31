@@ -757,7 +757,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int disable_unique_n
  my_free(988, &new_name);
 }
 
-char *subst_token(const char *s, const char *tok, const char *new_val)
+const char *subst_token(const char *s, const char *tok, const char *new_val)
 /* given a string <s> with multiple "token=value ..." assignments */
 /* substitute <tok>'s value with <new_val> */
 /* if tok not found in s and new_val!=NULL add tok=new_val at end.*/
@@ -2454,8 +2454,9 @@ const char *find_nth(const char *str, char sep, int n)
 /* substitute given tokens in a string with their corresponding values */
 /* ex.: name=@name w=@w l=@l ---> name=m112 w=3e-6 l=0.8e-6 */
 /* if s==NULL return emty string */
-char *translate(int inst, char* s)
+const char *translate(int inst, char* s)
 {
+ static char empty[]="";
  static char *result=NULL;
  int size=0, tmp;
  register int c, state=XBEGIN, space;
@@ -2474,7 +2475,7 @@ char *translate(int inst, char* s)
 
  if(!s) {
    my_free(1063, &result);
-   return "";
+   return empty;
  }
     
  size=CADCHUNKALLOC;
@@ -2748,8 +2749,9 @@ char *translate(int inst, char* s)
  return result;
 }
 
-char* translate2(struct Lcc *lcc, int level, char* s)
+const char *translate2(struct Lcc *lcc, int level, char* s)
 {
+  static char empty[]="";
   static char *result = NULL;
   int i, size = 0, tmp, save_tok_size, save_value_size;
   register int c, state = XBEGIN, space;
@@ -2764,7 +2766,7 @@ char* translate2(struct Lcc *lcc, int level, char* s)
 
   if(!s) {
     my_free(1068, &result);
-    return "";
+    return empty;
   }
   size = CADCHUNKALLOC;
   my_realloc(661, &result, size);

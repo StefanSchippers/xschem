@@ -717,7 +717,7 @@ extern void polygon_bbox(double *x, double *y, int points, double *bx1, double *
 extern void arc_bbox(double x, double y, double r, double a, double b, double *bx1, double *by1, double *bx2, double *by2);
 extern void bbox(int what,double x1,double y1, double x2, double y2);
 extern int set_text_custom_font(Text *txt);
-extern int text_bbox(char * str,double xscale, double yscale,
+extern int text_bbox(const char * str,double xscale, double yscale,
             int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
             double *rx2, double *ry2);
 
@@ -733,7 +733,7 @@ extern struct int_hashentry *int_hash_lookup(struct int_hashentry **table, int t
 extern void free_int_hash(struct int_hashentry **table); /*  20180104 */
 
 #ifdef HAS_CAIRO
-extern int text_bbox_nocairo(char * str,double xscale, double yscale,
+extern int text_bbox_nocairo(const char * str,double xscale, double yscale,
             int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
             double *rx2, double *ry2);
 #endif
@@ -759,7 +759,7 @@ extern Selected find_closest_obj(double mx,double my);
 extern void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y);
 
 extern void drawline(int c, int what, double x1,double y1,double x2,double y2);
-extern void draw_string(int layer,int what, char *str, int rot, int flip, int hcenter, int vcenter, 
+extern void draw_string(int layer,int what, const char *str, int rot, int flip, int hcenter, int vcenter, 
        double x1, double y1, double xscale, double yscale);
 extern void draw_symbol(int what,int c, int n,int layer,
             int tmp_flip, int tmp_rot, double xoffset, double yoffset);
@@ -780,7 +780,7 @@ extern void drawtemppolygon(GC gc, int what, double *x, double *y, int points);
 extern void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill);
 extern void draw_temp_symbol(int what, GC gc, int n,int layer,
             int tmp_flip, int tmp_rot, double xoffset, double yoffset);
-extern void draw_temp_string(GC gc,int what, char *str, int rot, int flip, int hcenter, int vcenter, 
+extern void draw_temp_string(GC gc,int what, const char *str, int rot, int flip, int hcenter, int vcenter, 
        double x1, double y1, double xscale, double yscale);
 
 
@@ -891,8 +891,8 @@ extern struct hashentry *hash_lookup(struct hashentry **table, const char *token
 
 extern const char *find_nth(const char *str, char sep, int n);
 extern int isonlydigit(const char *s);
-extern char *translate(int inst, char* s);
-extern char* translate2(struct Lcc *lcc, int level, char* s);
+extern const char *translate(int inst, char* s);
+extern const char* translate2(struct Lcc *lcc, int level, char* s);
 extern void print_tedax_element(FILE *fd, int inst);
 extern void print_spice_element(FILE *fd, int inst);
 extern void print_spice_subckt(FILE *fd, int symbol);
@@ -915,7 +915,7 @@ extern void my_realloc(int id, void *ptr,size_t size);
 extern void *my_calloc(int id, size_t nmemb, size_t size);
 extern void my_free(int id, void *ptr);
 extern size_t my_strcat(int id, char **, const char *);
-extern char *subst_token(const char *s, const char *tok, const char *new_val);
+extern const char *subst_token(const char *s, const char *tok, const char *new_val);
 extern void new_prop_string(int i, const char *old_prop,int fast, int disable_unique_names);
 extern void hash_name(char *token, int remove);
 extern void hash_all_names(int n);

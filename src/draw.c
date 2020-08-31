@@ -288,10 +288,10 @@ void cairo_draw_string_line(cairo_t *ctx, char *s,
 }
 
 /* CAIRO version */
-void draw_string(int layer, int what, char *s, int rot, int flip, int hcenter, int vcenter,
+void draw_string(int layer, int what, const char *s, int rot, int flip, int hcenter, int vcenter,
                  double x, double y, double xscale, double yscale)
 {
-  char *tt, *ss;
+  char *tt, *ss, *sss=NULL;
   char c;
   int lineno=0; 
   double size;
@@ -343,9 +343,9 @@ void draw_string(int layer, int what, char *s, int rot, int flip, int hcenter, i
   cairo_set_font_size (ctx, size*mooz);
   cairo_set_font_size (save_ctx, size*mooz);
   cairo_font_extents(ctx, &fext);
-  /*fprintf(errfp, "cairo_draw_string(): s=%s lines=%d\n", s, cairo_lines); */
   llength=0;
-  tt=ss=s;
+  my_strdup2(73, &sss, s);
+  tt=ss=sss;
   for(;;) {
     c=*ss;
     if(c=='\n' || c==0) {
@@ -365,12 +365,13 @@ void draw_string(int layer, int what, char *s, int rot, int flip, int hcenter, i
     }
     ss++;
   }
+  my_free(1157, &sss);
 }
 
 #else /* !HAS_CAIRO */
 
 /* no CAIRO version */
-void draw_string(int layer, int what, char *str, int rot, int flip, int hcenter, int vcenter, 
+void draw_string(int layer, int what, const char *str, int rot, int flip, int hcenter, int vcenter, 
                  double x1,double y1, double xscale, double yscale)  
 {
  double a=0.0,yy;
@@ -431,7 +432,7 @@ void draw_string(int layer, int what, char *str, int rot, int flip, int hcenter,
 
 #endif /* HAS_CAIRO */
 
-void draw_temp_string(GC gctext, int what, char *str, int rot, int flip, int hcenter, int vcenter,
+void draw_temp_string(GC gctext, int what, const char *str, int rot, int flip, int hcenter, int vcenter,
                  double x1,double y1, double xscale, double yscale)  
 {
  if(!has_x) return;
@@ -545,11 +546,12 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
   }
   if( (layer==TEXTWIRELAYER && !(inst_ptr[n].flags&2) ) || 
       (sym_txt && (layer==TEXTLAYER) && (inst_ptr[n].flags&2) ) ) {
+    const char *txtptr;
     for(j=0;j< symptr->texts;j++)
     {
       text = symptr->txtptr[j];
       if(text.xscale*FONTWIDTH*mooz<1) continue;
-      text.txt_ptr= translate(n, text.txt_ptr);
+      txtptr= translate(n, text.txt_ptr);
       ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
 
       textlayer = c;
@@ -567,7 +569,8 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
           cairo_select_font_face (save_ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
         }
         #endif
-        draw_string(textlayer, what, text.txt_ptr,
+        dbg(1, "drawing string: str=%s prop=%s\n", txtptr, text.prop_ptr);
+        draw_string(textlayer, what, txtptr,
           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
           flip^text.flip, text.hcenter, text.vcenter, 
           x0+x1, y0+y1, text.xscale, text.yscale);                    
@@ -686,17 +689,17 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
 
  if(layer==PROPERTYLAYER && sym_txt)
  {
+  const char *txtptr;
   for(j=0;j< symptr->texts;j++)
   {
    text = symptr->txtptr[j];
    if(text.xscale*FONTWIDTH*mooz<1) continue;
-   text.txt_ptr= 
-     translate(n, text.txt_ptr);
+   txtptr= translate(n, text.txt_ptr);
    ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
    #ifdef HAS_CAIRO
    customfont = set_text_custom_font(&text);
    #endif
-   if(text.txt_ptr[0]) draw_temp_string(gc, what, text.txt_ptr,
+   if(txtptr[0]) draw_temp_string(gc, what, txtptr,
      (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
      flip^text.flip, text.hcenter, text.vcenter, x0+x1, y0+y1, text.xscale, text.yscale);                    
    #ifdef HAS_CAIRO

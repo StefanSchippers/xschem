@@ -192,7 +192,7 @@ static void svg_drawline(int gc, double linex1,double liney1,double linex2,doubl
   }
 }
 
-static void svg_draw_string(int gctext,  char *str, 
+static void svg_draw_string(int gctext, const char *str, 
                  int rot, int flip, int hcenter, int vcenter, 
                  double x1,double y1,
                  double xscale, double yscale)  
@@ -367,12 +367,12 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
    if(  (layer==TEXTWIRELAYER  && !(inst_ptr[n].flags&2) ) || 
         (sym_txt && (layer==TEXTLAYER)   && (inst_ptr[n].flags&2) ) )
    {
+    const char *txtptr;
     for(j=0;j< (inst_ptr[n].ptr+instdef)->texts;j++)
     {
      text = (inst_ptr[n].ptr+instdef)->txtptr[j];
      /* if(text.xscale*FONTWIDTH* mooz<1) continue; */
-     text.txt_ptr= 
-       translate(n, text.txt_ptr);
+     txtptr= translate(n, text.txt_ptr);
      ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
      textlayer = layer;
      if( !(layer == PINLAYER && (inst_ptr[n].flags & 4))) {
@@ -380,7 +380,7 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
        if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
      }
      if((layer == PINLAYER && inst_ptr[n].flags & 4) ||  enable_layer[textlayer]) {
-       svg_draw_string(textlayer, text.txt_ptr,
+       svg_draw_string(textlayer, txtptr,
          (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
          flip^text.flip, text.hcenter, text.vcenter, 
          x0+x1, y0+y1, text.xscale, text.yscale);                    
