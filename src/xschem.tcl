@@ -2870,6 +2870,70 @@ proc toolbar_hide {} {
     set $toolbar_visible 0
 }
 
+
+## this function sets up all tk windows and binds X events. It is executed by xinit.c after completing 
+## all X initialization. This avoids race conditions.
+## In previous flow xschem.tcl was setting up windows and events before X initialization was completed by xinit.c.
+## this could lead to crashes on some (may be slow) systems due to Configure/Expose events being delivered
+## before xschem being ready to handle them.
+proc build_windows {} {
+  global env
+  if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] > 0 )
+     && ![info exists no_x]} {
+    pack .statusbar.2 -side left 
+    pack .statusbar.3 -side left 
+    pack .statusbar.4 -side left 
+    pack .statusbar.5 -side left 
+    pack .statusbar.6 -side left 
+    pack .statusbar.7 -side left 
+    pack .statusbar.1 -side left -fill x
+    pack .drw -anchor n -side top -fill both -expand true
+    pack .menubar -anchor n -side top -fill x  -before .drw
+    toolbar_show
+    pack .statusbar -after .drw -anchor sw  -fill x 
+    bind .statusbar.5 <Leave> { xschem set cadgrid $grid; focus .drw}
+    bind .statusbar.3 <Leave> { xschem set cadsnap $snap; focus .drw}
+    ###
+    ### Tk event handling
+    ###
+    ### bind .drv <event> {xschem callback <type> <x> <y> <keysym> <button of w> <h> <state>}
+    ###
+    bind . <Visibility> {
+      if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
+        raise .dialog .drw 
+      }
+    }
+    bind .drw <Double-Button-1> {xschem callback -3 %x %y 0 %b 0 %s}
+    bind .drw <Double-Button-2> {xschem callback -3 %x %y 0 %b 0 %s}
+    bind .drw <Double-Button-3> {xschem callback -3 %x %y 0 %b 0 %s}
+    bind .drw <Expose> {xschem callback %T %x %y 0 %w %h %s}
+    bind .drw <Configure> {xschem windowid; xschem callback %T %x %y 0 %w %h 0}
+    bind .drw <ButtonPress> {xschem callback %T %x %y 0 %b 0 %s}
+ 
+    if {$::OS == "Windows"} {
+      bind .drw <MouseWheel> {
+        if {%D<0} {
+          xschem callback 4 %x %y 0 5 0 %s
+        } else {
+          xschem callback 4 %x %y 0 4 0 %s
+        }
+      }
+    }
+ 
+    bind .drw <ButtonRelease> {xschem callback %T %x %y 0 %b 0 %s}
+    bind .drw <KeyPress> {xschem callback %T %x %y %N 0 0 %s}
+    bind .drw <KeyRelease> {xschem callback %T %x %y %N 0 0 %s} ;# 20161118
+    bind .drw <Motion> {xschem callback %T %x %y 0 0 0 %s}
+    bind .drw  <Enter> {xschem callback %T %x %y 0 0 0 0 }
+    bind .drw <Leave> {}
+    bind .drw <Unmap> {
+     wm withdraw .infotext
+     set show_infowindow 0
+    }
+    bind .drw  "?" { textwindow "${XSCHEM_SHAREDIR}/xschem.help" }
+  }
+}
+
 ### 
 ###   MAIN PROGRAM
 ###
@@ -3635,57 +3699,13 @@ font configure Underline-Font -underline true -size 24
    label .statusbar.6   -text "NETLIST MODE:"
    entry .statusbar.7 -textvariable netlist_type -relief sunken -bg white \
           -width 10 -state disabled -disabledforeground black 
-   pack .statusbar.2 -side left 
-   pack .statusbar.3 -side left 
-   pack .statusbar.4 -side left 
-   pack .statusbar.5 -side left 
-   pack .statusbar.6 -side left 
-   pack .statusbar.7 -side left 
-   pack .statusbar.1 -side left -fill x
-   pack .drw -anchor n -side top -fill both -expand true
-   pack .menubar -anchor n -side top -fill x  -before .drw
-   toolbar_show
-   pack .statusbar -after .drw -anchor sw  -fill x 
-   bind .statusbar.5 <Leave> { xschem set cadgrid $grid; focus .drw}
-   bind .statusbar.3 <Leave> { xschem set cadsnap $snap; focus .drw}
-###
-### Tk event handling
-###
-### bind .drv <event> {xschem callback <type> <x> <y> <keysym> <button of w> <h> <state>}
-###
-   bind . <Visibility> {
-     if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
-       raise .dialog .drw 
-     }
-   }
-   bind .drw <Double-Button-1> {xschem callback -3 %x %y 0 %b 0 %s}
-   bind .drw <Double-Button-2> {xschem callback -3 %x %y 0 %b 0 %s}
-   bind .drw <Double-Button-3> {xschem callback -3 %x %y 0 %b 0 %s}
-   bind .drw <Expose> {xschem callback %T %x %y 0 %w %h %s}
-   bind .drw <Configure> {xschem windowid; xschem callback %T %x %y 0 %w %h 0}
-   bind .drw <ButtonPress> {xschem callback %T %x %y 0 %b 0 %s}
 
-   if {$::OS == "Windows"} {
-     bind .drw <MouseWheel> {
-       if {%D<0} {
-         xschem callback 4 %x %y 0 5 0 %s
-       } else {
-         xschem callback 4 %x %y 0 4 0 %s
-       }
-     }
-   }
 
-   bind .drw <ButtonRelease> {xschem callback %T %x %y 0 %b 0 %s}
-   bind .drw <KeyPress> {xschem callback %T %x %y %N 0 0 %s}
-   bind .drw <KeyRelease> {xschem callback %T %x %y %N 0 0 %s} ;# 20161118
-   bind .drw <Motion> {xschem callback %T %x %y 0 0 0 %s}
-   bind .drw  <Enter> {xschem callback %T %x %y 0 0 0 0 }
-   bind .drw <Leave> {}
-   bind .drw <Unmap> {
-    wm withdraw .infotext
-    set show_infowindow 0
-   }
-   bind .drw  "?" { textwindow "${XSCHEM_SHAREDIR}/xschem.help" }
+   ##
+   ## building windows (pack instructions) and event binding (bind instructions) done in proc build_windows
+   ## executed by xinit.c after finalizing X initialization. This avoid potential race conditions
+   ## like Configure or Expose events being generated before xschem being ready to handle them.
+   ##
 
    if {[array exists replace_key]} {
      foreach i [array names replace_key] {
@@ -3724,3 +3744,4 @@ if { [info exists xschem_listen_port] && ($xschem_listen_port ne {}) } {
     puts $err
   }
 }
+

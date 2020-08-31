@@ -1340,6 +1340,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
  init_done=1;  /* 20171008 moved before option processing, otherwise xwin_exit will not be invoked */
                /* leaving undo buffer and other garbage around. */
 
+
+ /*                                                                                  */
+ /* Completing tk windows creation (see xschem.tcl, build_windows) and event binding */
+ /* *AFTER* X initialization done                                                    */ 
+ /*                                                                                  */
+ tcleval("build_windows");
+
  /*                                */
  /*  START PROCESSING USER OPTIONS */
  /*                                */
@@ -1403,11 +1410,18 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
  if(do_print) {
    if(!filename) {
-     fprintf(errfp, "xschem: can't do a print without a filename\n");
+     dbg(0, "xschem: can't do a print without a filename\n");
      tcleval( "exit");
    }
    if(do_print==1) ps_draw();
-   else if(do_print == 2) { tcleval("tkwait visibility .drw"); print_image(); }
+   else if(do_print == 2) {
+     if(!has_x) {
+       dbg(0, "xschem: can not do a png export if no X11 present / Xserver running (check if DISPLAY set).\n");
+     } else {
+       tcleval("tkwait visibility .drw");
+       print_image();
+     }
+   }
    else svg_draw();
  }
 
@@ -1438,6 +1452,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* */
  /*  END PROCESSING USER OPTIONS */
  /* */
+
 
  if(!no_readline) {
    tcleval( "if {![catch {package require tclreadline}]} "
