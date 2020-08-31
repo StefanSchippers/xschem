@@ -1963,10 +1963,10 @@ proc change_color {} {
       set dark_colors $cc
     } else {
       set light_colors $cc
-      regsub -all {\"} $cc  {} ps_colors
+      regsub -all {"} $cc  {} ps_colors
       regsub -all {#} $ps_colors  {0x} ps_colors
     }
-    regsub -all {\"} $colors {} svg_colors
+    regsub -all {"} $colors {} svg_colors
     regsub -all {#} $svg_colors {0x} svg_colors
 
     xschem change_colors
@@ -3118,9 +3118,9 @@ if {!$rainbow_colors} {
 }
 
 # for svg and pdf draw 20121108
-regsub -all {\"} $dark_colors  {} svg_colors
+regsub -all {"} $dark_colors  {} svg_colors
 regsub -all {#} $svg_colors  {0x} svg_colors
-regsub -all {\"} $light_colors  {} ps_colors
+regsub -all {"} $light_colors  {} ps_colors
 regsub -all {#} $ps_colors  {0x} ps_colors
 
 ## pad missing colors with black
@@ -3311,7 +3311,7 @@ font configure Underline-Font -underline true -size 24
         if { $show_infowindow != 0 } {wm deiconify .infotext
         } else {wm withdraw .infotext}
       }
-   .menubar.option.menu add checkbutton -label "Color postscript" -variable color_ps \
+   .menubar.option.menu add checkbutton -label "Color Postscript/SVG" -variable color_ps \
       -command {
          if { $color_ps==1 } {xschem set color_ps 1} else { xschem set color_ps 0}
       }
@@ -3727,9 +3727,9 @@ if { $dark_colorscheme == 1} {
 } else {
   set colors $light_colors
 }
-regsub -all {\"} $light_colors  {} ps_colors
+regsub -all {"} $light_colors  {} ps_colors
 regsub -all {#} $ps_colors  {0x} ps_colors
-regsub -all {\"} $colors {} svg_colors
+regsub -all {"} $colors {} svg_colors
 regsub -all {#} $svg_colors {0x} svg_colors
 
 if { $show_infowindow } { wm deiconify .infotext } 

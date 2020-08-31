@@ -50,9 +50,15 @@ static void set_svg_colors(unsigned int pixel)
      svg_stroke.green = svg_colors[pixel].green;
      svg_stroke.blue = svg_colors[pixel].blue;
    } else {
-     svg_stroke.red = 0;
-     svg_stroke.green = 0;
-     svg_stroke.blue = 0;
+     if(dark_colorscheme == 0 ) {
+       svg_stroke.red = 0;
+       svg_stroke.green = 0;
+       svg_stroke.blue = 0;
+     } else {
+       svg_stroke.red = 255;
+       svg_stroke.green = 255;
+       svg_stroke.blue = 255;
+     }
    }
 
 }
@@ -400,12 +406,22 @@ static void fill_svg_colors()
    tcleval( "puts $svg_colors"); 
  }
  for(i=0;i<cadlayers;i++) {
-   my_snprintf(s, S(s), "lindex $svg_colors %d", i);
-   tcleval( s);
-   sscanf(tclresult(),"%x", &c);
-   svg_colors[i].red   = (c & 0xff0000) >> 16;
-   svg_colors[i].green = (c & 0x00ff00) >> 8;
-   svg_colors[i].blue  = (c & 0x0000ff);
+   if(color_ps) {
+     my_snprintf(s, S(s), "lindex $svg_colors %d", i);
+     tcleval( s);
+     sscanf(tclresult(),"%x", &c);
+     svg_colors[i].red   = (c & 0xff0000) >> 16;
+     svg_colors[i].green = (c & 0x00ff00) >> 8;
+     svg_colors[i].blue  = (c & 0x0000ff);
+   } else if(dark_colorscheme) {
+     svg_colors[i].red   = 255;
+     svg_colors[i].green = 255;
+     svg_colors[i].blue  = 255;
+   } else {
+     svg_colors[i].red   = 0;
+     svg_colors[i].green = 0;
+     svg_colors[i].blue  = 0;
+   }
    if(debug_var>=1) {
      fprintf(errfp, "svg_colors: %d %d %d\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue); 
    }

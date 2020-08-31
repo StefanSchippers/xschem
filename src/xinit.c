@@ -685,6 +685,9 @@ int build_colors(double dim) /* 20171113 */
     if(atoi(tclresult())<cadlayers){
       fprintf(errfp,"Tcl var colors not set correctly\n");
       return -1; /* fail */
+    } else {
+      tcleval("regsub -all {\"} $colors {} svg_colors");
+      tcleval("regsub -all {#} $svg_colors {0x} svg_colors");
     }
     init_color_array(dim);
     for(i=0;i<cadlayers;i++)
