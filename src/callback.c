@@ -154,7 +154,6 @@ int callback(int event, int mx, int my, KeySym key,
       /* *NOT* a solution but at least makes the program useable. 20171130 */
       XSetClipRectangles(display, gctiled, 0,0, xrect, 1, Unsorted);
       #endif
-      if(ui_state & SELECTION) rebuild_selected_array(); /* 20171129 */
       my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.16g h=%.16g", 
         mousex_snap, mousey_snap, 
         lastselected ,
@@ -236,6 +235,7 @@ int callback(int event, int mx, int my, KeySym key,
         }
         if(abs(mx-mx_save) > 8 || abs(my-my_save) > 8 ) {  /* 20121130 set some reasonable threshold before unselecting */
           select_object(X_TO_XSCHEM(mx_save), Y_TO_XSCHEM(my_save), 0, 0); /* 20121130 remove near object if dragging */
+          rebuild_selected_array();
         }
       }
     }
@@ -1398,6 +1398,7 @@ int callback(int event, int mx, int my, KeySym key,
        last_command = 0;
        unselect_all();
        select_object(mousex,mousey,SELECTED, 1);
+       rebuild_selected_array();
        if(state & ShiftMask) {
          edit_property(1);
        } else {
@@ -1434,6 +1435,7 @@ int callback(int event, int mx, int my, KeySym key,
        if(lastselected==0) ui_state &=~SELECTION;
      }
      select_object(mousex, mousey, 0, 0);
+     rebuild_selected_array();
    }
    else if(button==Button2 && (state == 0)) {
      pan2(BEGIN, mx, my);
@@ -1606,6 +1608,7 @@ int callback(int event, int mx, int my, KeySym key,
        break;
      }
      if( !(ui_state & STARTSELECT) && !(ui_state & STARTWIRE) && !(ui_state & STARTLINE)  ) {
+       int prev_last_sel = lastselected;
        mx_save = mx; my_save = my;
        mx_double_save=mousex_snap; /* 20070322 */
        my_double_save=mousey_snap; /* 20070322 */
@@ -1617,6 +1620,7 @@ int callback(int event, int mx, int my, KeySym key,
 #endif
        }
        sel = select_object(mousex, mousey, SELECTED, 0);
+       rebuild_selected_array();
 #ifndef __unix__
        draw_selection(gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
 #endif
@@ -1626,14 +1630,16 @@ int callback(int event, int mx, int my, KeySym key,
        if( !(state & ShiftMask) )  {
          Box boundbox;
          if(auto_hilight && hilight_nets && sel == 0 ) { /* 20160413 20160503 */
-           calc_drawing_bbox(&boundbox, 2);
-           delete_hilight_net();
-           /* undraw_hilight_net(1); */
-           bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
-           bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-           bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-           draw();
-           bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+           if(!prev_last_sel) {
+             calc_drawing_bbox(&boundbox, 2);
+             delete_hilight_net();
+             /* undraw_hilight_net(1); */
+             bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+             bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+             bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+             draw();
+             bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+           }
          }
        }
        if(auto_hilight) { /* 20160413 */
@@ -1668,6 +1674,11 @@ int callback(int event, int mx, int my, KeySym key,
        /* 20150927 filter out button4 and button5 events */
        if(!(state&(Button4Mask|Button5Mask) ) ) select_rect(END,-1);
      }
+     rebuild_selected_array();
+     my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s", 
+       mousex_snap, mousey_snap, lastselected, sch_path[currentsch] );
+     statusmsg(str,1);
+
    }
    break;
   case -3:  /* double click  : edit prop */
@@ -1691,20 +1702,6 @@ int callback(int event, int mx, int my, KeySym key,
     draw();
   }
 #endif
-/*
- * else if(button==Button3) {
- *   if(state==0 || state == ShiftMask) {
- *      select_object(mousex,mousey,SELECTED, 0);
- *      rebuild_selected_array();
- *      if(lastselected ==1 &&  selectedgroup[0].type==ELEMENT) {
- *        if(state==0) descend_schematic();
- *        if(state==ShiftMask) descend_symbol();
- *      }
- *      else  go_back(1);
- *    }
- *    
- * }
- */
    break;
     
   default:

@@ -3283,7 +3283,7 @@ font configure Underline-Font -underline true -size 24
 
    .menubar.file.menu add command -label "Save" -command "xschem save" -accelerator {Ctrl+S}
    toolbar_create FileSave "xschem save" "Save File"
-   .menubar.file.menu add command -label "Merge" -command "xschem merge" -accelerator B
+   .menubar.file.menu add command -label "Merge" -command "xschem merge" -accelerator {Shift+B}
    toolbar_create FileMerge "xschem merge" "Merge File"
    .menubar.file.menu add command -label "Reload" -accelerator {Alt+S} \
      -command {
