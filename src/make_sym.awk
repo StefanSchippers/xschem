@@ -91,6 +91,7 @@ function beginfile(f)
   index_pin[n_pin] = n_pin # one level indirection for sorting pins 20140519
   value_pin[n_pin]=value
   label_pin[n_pin] = pin_label
+  props_pin[n_pin] = rest_of_props()
   n_pin++
   ip++
 }
@@ -105,6 +106,7 @@ function beginfile(f)
   index_pin[n_pin] = n_pin # one level indirection 20140519
   value_pin[n_pin]=value
   label_pin[n_pin] = pin_label
+  props_pin[n_pin] = rest_of_props()
   n_pin++
   ip++
 }
@@ -119,6 +121,7 @@ $0 ~ /^C \{.*opin(\.sym)?\}/ && $0 !~ /^C \{.*iopin(\.sym)?\}/ {
   index_pin[n_pin] = n_pin # one level indirection 20140519
   value_pin[n_pin]=value
   label_pin[n_pin] = pin_label
+  props_pin[n_pin] = rest_of_props()
   n_pin++
   op++
 }
@@ -134,11 +137,22 @@ $0 ~ /^C \{.*opin(\.sym)?\}/ && $0 !~ /^C \{.*iopin(\.sym)?\}/ {
   index_pin[n_pin] = n_pin # one level indirection 20140519
   value_pin[n_pin]=value
   label_pin[n_pin] = pin_label
+  props_pin[n_pin] = rest_of_props()
   n_pin++
   op++
 }
 
-
+function rest_of_props()
+{
+  sub(/^C \{[^}]+\}.*\{/,"")
+  sub(/\}[ \t]*$/, "")
+  sub(/verilog_type[ \t]*=[ \t]*[^ \t]+[ \t]?/, "")
+  sub(/sig_type[ \t]*=[ \t]*[^ \t]+[ \t]?/, "")
+  sub(/lab[ \t]*=[ \t]*[^ \t]+[ \t]?/, "")
+  sub(/value[ \t]*=[ \t]*[^ \t]+[ \t]?/, "")
+  sub(/^[ \t]*$/, "")
+  return $0
+}
 
 function process_line()
 {
@@ -245,8 +259,9 @@ function endfile(f) {
   {
    printf "B 3 " (x-size) " " (y+num_i*space-size) " " (x+size) " " (y+num_i*space+size) \
          " {name=" label_pin[i] " generic_type=" sig_type " " >sym
-   if(value !="") printf "value=" value "}\n" >sym
-   else printf "}\n" >sym
+   if(value !="") printf "value=" value " " >sym
+   printf props_pin[i] > sym
+   printf "}\n" >sym
    print "L 4 " x,y+num_i*space,x+lwidth, y+num_i*space,"{}" >sym
    print "T {" label_pin[i] "}",x+lwidth+textdist,y+num_i*space-lab_voffset,0,0,labsize, labsize, "{}" >sym
    num_i++ # 20140519
@@ -255,8 +270,9 @@ function endfile(f) {
   {
    printf "B 5 " (x-size) " " (y+num_i*space-size) " " (x+size) " " (y+num_i*space+size) \
          " {name=" label_pin[i] vhdt vert " dir=in " >sym
-   if(value !="") printf "value=" value "}\n" >sym
-   else printf "}\n" >sym
+   if(value !="") printf "value=" value " " >sym
+   printf props_pin[i] > sym
+   printf "}\n" >sym
    print "L 4 " x,y+num_i*space,x+lwidth, y+num_i*space,"{}" >sym
    print "T {" label_pin[i] "}",x+lwidth+textdist,y+num_i*space-lab_voffset,0,0,labsize, labsize, "{}" >sym
    num_i++ # 20140519
@@ -265,8 +281,9 @@ function endfile(f) {
   {
    printf "B 5 " (-x-size) " " (y+num_o*space-size) " " (-x+size) " " (y+num_o*space+size) \
          " {name=" label_pin[i] vhdt vert " dir=out " >sym
-   if(value !="") printf "value=" value "}\n" >sym
-   else printf "}\n" >sym
+   if(value !="") printf "value=" value " " >sym
+   printf props_pin[i] > sym
+   printf "}\n" >sym
    print "L 4 " (-x-lwidth),(y+num_o*space),-x, (y+num_o*space),"{}" >sym
    print "T {" label_pin[i] "}",-x-lwidth-textdist,y+num_o*space-lab_voffset,0,1,labsize, labsize, "{}" >sym
    num_o++ # 20140519
@@ -275,8 +292,9 @@ function endfile(f) {
   {
    printf "B 5 " (-x-size) " " (y+num_o*space-size) " " (-x+size) " " (y+num_o*space+size) \
          " {name=" label_pin[i] vhdt vert " dir=inout " >sym
-   if(value !="") printf "value=" value "}\n" >sym
-   else printf "}\n" >sym
+   if(value !="") printf "value=" value " " >sym
+   printf props_pin[i] > sym
+   printf "}\n" >sym
    print "L 7 " (-x-lwidth),(y+num_o*space),-x, (y+num_o*space),"{}" >sym
    print "T {" label_pin[i] "}",-x-lwidth-textdist,y+num_o*space-lab_voffset,0,1,labsize, labsize, "{}" >sym
    num_o++ # 20140519

@@ -414,12 +414,12 @@ void verilog_block_netlist(FILE *fd, int i)  /*20081205 */
   tmp=0;
   for(j=0;j<instdef[i].rects[PINLAYER];j++)
   {
-    my_strdup(562, &port_value, get_tok_value(
-              instdef[i].boxptr[PINLAYER][j].prop_ptr,"value",2) );
-    str_tmp = get_tok_value(instdef[i].boxptr[PINLAYER][j].prop_ptr,"name",0);
-    if(tmp) fprintf(fd, " ,\n"); 
-    tmp++;
-    fprintf(fd,"  %s", str_tmp ? str_tmp : "<NULL>");
+    if(strcmp(get_tok_value(instdef[i].boxptr[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
+      str_tmp = get_tok_value(instdef[i].boxptr[PINLAYER][j].prop_ptr,"name",0);
+      if(tmp) fprintf(fd, " ,\n"); 
+      tmp++;
+      fprintf(fd,"  %s", str_tmp ? str_tmp : "<NULL>");
+    }
   }
   fprintf(fd, "\n);\n");
 
@@ -435,26 +435,28 @@ void verilog_block_netlist(FILE *fd, int i)  /*20081205 */
   tmp=0;
   for(j=0;j<instdef[i].rects[PINLAYER];j++)
   {
-    my_strdup(564, &sig_type,get_tok_value(
-              instdef[i].boxptr[PINLAYER][j].prop_ptr,"verilog_type",0));
-    my_strdup(565, &port_value, get_tok_value(
-              instdef[i].boxptr[PINLAYER][j].prop_ptr,"value",2) );
-    my_strdup(566, &dir_tmp, get_tok_value(instdef[i].boxptr[PINLAYER][j].prop_ptr,"dir",0) );
-    if(strcmp(dir_tmp,"in")){
-       if(!sig_type || sig_type[0]=='\0') my_strdup(567, &sig_type,"wire"); /* 20070720 changed reg to wire */
-    } else {
-       if(!sig_type || sig_type[0]=='\0') my_strdup(568, &sig_type,"wire");
+    if(strcmp(get_tok_value(instdef[i].boxptr[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
+      my_strdup(564, &sig_type,get_tok_value(
+                instdef[i].boxptr[PINLAYER][j].prop_ptr,"verilog_type",0));
+      my_strdup(565, &port_value, get_tok_value(
+                instdef[i].boxptr[PINLAYER][j].prop_ptr,"value",2) );
+      my_strdup(566, &dir_tmp, get_tok_value(instdef[i].boxptr[PINLAYER][j].prop_ptr,"dir",0) );
+      if(strcmp(dir_tmp,"in")){
+         if(!sig_type || sig_type[0]=='\0') my_strdup(567, &sig_type,"wire"); /* 20070720 changed reg to wire */
+      } else {
+         if(!sig_type || sig_type[0]=='\0') my_strdup(568, &sig_type,"wire");
+      }
+      str_tmp = get_tok_value(instdef[i].boxptr[PINLAYER][j].prop_ptr,"name",0);
+      fprintf(fd,"  %s %s ;\n", 
+        strcmp(dir_tmp,"in")? ( strcmp(dir_tmp,"out")? "inout" :"output"  ) : "input",
+        str_tmp ? str_tmp : "<NULL>");
+      fprintf(fd,"  %s %s", 
+        sig_type, 
+        str_tmp ? str_tmp : "<NULL>");
+      if(port_value &&port_value[0])
+        fprintf(fd," = %s", port_value);
+      fprintf(fd," ;\n");
     }
-    str_tmp = get_tok_value(instdef[i].boxptr[PINLAYER][j].prop_ptr,"name",0);
-    fprintf(fd,"  %s %s ;\n", 
-      strcmp(dir_tmp,"in")? ( strcmp(dir_tmp,"out")? "inout" :"output"  ) : "input",
-      str_tmp ? str_tmp : "<NULL>");
-    fprintf(fd,"  %s %s", 
-      sig_type, 
-      str_tmp ? str_tmp : "<NULL>");
-    if(port_value &&port_value[0])
-      fprintf(fd," = %s", port_value);
-    fprintf(fd," ;\n");
   }
 
   dbg(1, "verilog_block_netlist():       netlisting %s\n", skip_dir( schematic[currentsch]));
@@ -541,8 +543,8 @@ void verilog_netlist(FILE *fd , int verilog_stop)
      else print_verilog_element(fd, i) ;  /* this is the element line  */
     }
    }
+   my_free(1084, &type);
  }
  dbg(1, "verilog_netlist():       end\n");
  if(!netlist_count) redraw_hilights(); /*draw_hilight_net(1); */
- my_free(1084, &type);
 }

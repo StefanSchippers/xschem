@@ -270,21 +270,23 @@ void global_vhdl_netlist(int global)  /* netlister driver */
      tmp=0;
      for(i=0;i<instdef[j].rects[PINLAYER];i++)
      {
-       my_strdup(587, &sig_type,get_tok_value(
-                 instdef[j].boxptr[PINLAYER][i].prop_ptr,"sig_type",0));
-       my_strdup(588, &port_value, get_tok_value(
-                 instdef[j].boxptr[PINLAYER][i].prop_ptr,"value",2) );
-       if(!sig_type || sig_type[0]=='\0') my_strdup(589, &sig_type,"std_logic");
-       my_strdup(590, &dir_tmp, get_tok_value(instdef[j].boxptr[PINLAYER][i].prop_ptr,"dir",0) );
-       str_tmp = get_tok_value(instdef[j].boxptr[PINLAYER][i].prop_ptr,"name",0);
-       if(!tmp) fprintf(fd, "port (\n");
-       if(tmp) fprintf(fd, " ;\n");
-       fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>", 
-                            dir_tmp ? dir_tmp : "<NULL>", sig_type);
-       my_free(1085, &dir_tmp);
-       if(port_value &&port_value[0])
-         fprintf(fd," := %s", port_value);
-       tmp=1;
+       if(strcmp(get_tok_value(instdef[j].boxptr[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
+         my_strdup(587, &sig_type,get_tok_value(
+                   instdef[j].boxptr[PINLAYER][i].prop_ptr,"sig_type",0));
+         my_strdup(588, &port_value, get_tok_value(
+                   instdef[j].boxptr[PINLAYER][i].prop_ptr,"value",2) );
+         if(!sig_type || sig_type[0]=='\0') my_strdup(589, &sig_type,"std_logic");
+         my_strdup(590, &dir_tmp, get_tok_value(instdef[j].boxptr[PINLAYER][i].prop_ptr,"dir",0) );
+         str_tmp = get_tok_value(instdef[j].boxptr[PINLAYER][i].prop_ptr,"name",0);
+         if(!tmp) fprintf(fd, "port (\n");
+         if(tmp) fprintf(fd, " ;\n");
+         fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>", 
+                              dir_tmp ? dir_tmp : "<NULL>", sig_type);
+         my_free(1085, &dir_tmp);
+         if(port_value &&port_value[0])
+           fprintf(fd," := %s", port_value);
+         tmp=1;
+       }
      }
      if(tmp) fprintf(fd, "\n);\n");
      fprintf(fd, "end component ;\n\n");
@@ -465,21 +467,23 @@ void  vhdl_block_netlist(FILE *fd, int i)  /*20081204 */
   tmp=0;
   for(j=0;j<instdef[i].rects[PINLAYER];j++)
   {
-    my_strdup(592, &sig_type,get_tok_value(
-              instdef[i].boxptr[PINLAYER][j].prop_ptr,"sig_type",0));
-    my_strdup(593, &port_value, get_tok_value(
-              instdef[i].boxptr[PINLAYER][j].prop_ptr,"value",2) );
-    if(!sig_type || sig_type[0]=='\0') my_strdup(594, &sig_type,"std_logic");
-    my_strdup(595, &dir_tmp, get_tok_value(instdef[i].boxptr[PINLAYER][j].prop_ptr,"dir",0) );
-    str_tmp = get_tok_value(instdef[i].boxptr[PINLAYER][j].prop_ptr,"name",0);
-    if(tmp) fprintf(fd, " ;\n");
-    if(!tmp)  fprintf(fd,"port (\n");
-    fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>", 
-                                       dir_tmp ? dir_tmp : "<NULL>", sig_type);
-    my_free(1092, &dir_tmp);
-    if(port_value &&port_value[0])
-      fprintf(fd," := %s", port_value);
-    tmp=1;
+    if(strcmp(get_tok_value(instdef[i].boxptr[PINLAYER][j].prop_ptr,"vhdl_ignore",0), "true")) {
+      my_strdup(592, &sig_type,get_tok_value(
+                instdef[i].boxptr[PINLAYER][j].prop_ptr,"sig_type",0));
+      my_strdup(593, &port_value, get_tok_value(
+                instdef[i].boxptr[PINLAYER][j].prop_ptr,"value",2) );
+      if(!sig_type || sig_type[0]=='\0') my_strdup(594, &sig_type,"std_logic");
+      my_strdup(595, &dir_tmp, get_tok_value(instdef[i].boxptr[PINLAYER][j].prop_ptr,"dir",0) );
+      str_tmp = get_tok_value(instdef[i].boxptr[PINLAYER][j].prop_ptr,"name",0);
+      if(tmp) fprintf(fd, " ;\n");
+      if(!tmp)  fprintf(fd,"port (\n");
+      fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>", 
+                                         dir_tmp ? dir_tmp : "<NULL>", sig_type);
+      my_free(1092, &dir_tmp);
+      if(port_value &&port_value[0])
+        fprintf(fd," := %s", port_value);
+      tmp=1;
+    }
   }
   if(tmp) fprintf(fd, "\n);\n");
 
@@ -541,22 +545,24 @@ void  vhdl_block_netlist(FILE *fd, int i)  /*20081204 */
       tmp=0;
       for(k=0;k<instdef[j].rects[PINLAYER];k++)
       {
-       my_strdup(597, &sig_type,get_tok_value(
-                 instdef[j].boxptr[PINLAYER][k].prop_ptr,"sig_type",0));
-       my_strdup(598, &port_value, get_tok_value(
-                 instdef[j].boxptr[PINLAYER][k].prop_ptr,"value",2) );
-  
-       if(!sig_type || sig_type[0]=='\0') my_strdup(599, &sig_type,"std_logic");
-        my_strdup(600, &dir_tmp, get_tok_value(instdef[j].boxptr[PINLAYER][k].prop_ptr,"dir",0) );
-        str_tmp = get_tok_value(instdef[j].boxptr[PINLAYER][k].prop_ptr,"name",0);
-        if(!tmp) fprintf(fd, "port (\n");
-        if(tmp) fprintf(fd, " ;\n");
-        fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>", 
-                                       dir_tmp ? dir_tmp : "<NULL>", sig_type);
-        my_free(1093, &dir_tmp);
-        if(port_value &&port_value[0])
-          fprintf(fd," := %s", port_value);
-        tmp=1;
+        if(strcmp(get_tok_value(instdef[j].boxptr[PINLAYER][k].prop_ptr,"vhdl_ignore",0), "true")) {
+          my_strdup(597, &sig_type,get_tok_value(
+                    instdef[j].boxptr[PINLAYER][k].prop_ptr,"sig_type",0));
+          my_strdup(598, &port_value, get_tok_value(
+                    instdef[j].boxptr[PINLAYER][k].prop_ptr,"value",2) );
+     
+          if(!sig_type || sig_type[0]=='\0') my_strdup(599, &sig_type,"std_logic");
+          my_strdup(600, &dir_tmp, get_tok_value(instdef[j].boxptr[PINLAYER][k].prop_ptr,"dir",0) );
+          str_tmp = get_tok_value(instdef[j].boxptr[PINLAYER][k].prop_ptr,"name",0);
+          if(!tmp) fprintf(fd, "port (\n");
+          if(tmp) fprintf(fd, " ;\n");
+          fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>", 
+                                          dir_tmp ? dir_tmp : "<NULL>", sig_type);
+          my_free(1093, &dir_tmp);
+          if(port_value &&port_value[0])
+            fprintf(fd," := %s", port_value);
+          tmp=1;
+        }
       }
       if(tmp) fprintf(fd, "\n);\n");
       fprintf(fd, "end component ;\n\n");

@@ -1118,13 +1118,15 @@ void print_vhdl_element(FILE *fd, int inst) /* 20071217 */
   tmp=0;
   for(i=0;i<no_of_pins;i++)
   {
-    if( (str_ptr =  pin_node(inst,i, &mult, 0)) )
-    {
-      if(tmp) fprintf(fd, " ,\n");
-      fprintf(fd, "   %s => %s",
-        get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"name",0),
-        str_ptr);
-      tmp=1;
+    if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
+      if( (str_ptr =  pin_node(inst,i, &mult, 0)) )
+      {
+        if(tmp) fprintf(fd, " ,\n");
+        fprintf(fd, "   %s => %s",
+          get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"name",0),
+          str_ptr);
+        tmp=1;
+      }
     }
   }
   fprintf(fd, "\n);\n\n");
@@ -1413,21 +1415,30 @@ void print_spice_subckt(FILE *fd, int symbol)
    else if(strcmp(token, "@pinlist")==0) {
     for(i=0;i<no_of_pins;i++)
     {
-      str_ptr=
-        expandlabel(get_tok_value(instdef[symbol].boxptr[PINLAYER][i].prop_ptr,"name",0), &mult);
-      fprintf(fd, "%s ", str_ptr);
+      if(strcmp(get_tok_value(instdef[symbol].boxptr[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
+        str_ptr=
+          expandlabel(get_tok_value(instdef[symbol].boxptr[PINLAYER][i].prop_ptr,"name",0), &mult);
+        fprintf(fd, "%s ", str_ptr);
+      }
     }
    }
    else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
-     fprintf(fd, "%s ", expandlabel(token+2, &mult));
+     for(i = 0; i<no_of_pins; i++) {
+       if(!strcmp(get_tok_value(instdef[symbol].boxptr[PINLAYER][i].prop_ptr,"name",0), token + 2)) break;
+     }
+     if(i<no_of_pins && strcmp(get_tok_value(instdef[symbol].boxptr[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
+       fprintf(fd, "%s ", expandlabel(token+2, &mult));
+     }
    }
    /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
    else if(token[0]=='@' && token[1]=='#') {
-       pin_number = atoi(token+2); 
-       if(pin_number < no_of_pins) {
-         str_ptr =  get_tok_value(instdef[symbol].boxptr[PINLAYER][pin_number].prop_ptr,"name",0);
-         fprintf(fd, "%s ",  expandlabel(str_ptr, &mult));
+     pin_number = atoi(token+2); 
+     if(pin_number < no_of_pins) {
+       if(strcmp(get_tok_value(instdef[symbol].boxptr[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), "true")) {
+       str_ptr =  get_tok_value(instdef[symbol].boxptr[PINLAYER][pin_number].prop_ptr,"name",0);
+       fprintf(fd, "%s ",  expandlabel(str_ptr, &mult));
        }
+     }
    }
    if(c != '@' && c!='\0' && (c!='\\'  || escape) ) fputc(c,fd);
    if(c == '@') s--;
@@ -1555,9 +1566,11 @@ void print_spice_element(FILE *fd, int inst)
       {                                    /* and node number: m1 n1 m2 n2 .... */
         for(i=0;i<no_of_pins;i++)
         {
-          str_ptr =  pin_node(inst,i, &mult, 0);
-          /* fprintf(errfp, "inst: %s  --> %s\n", name, str_ptr); */
-          fprintf(fd, "@%d %s ", mult, str_ptr);
+          if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
+            str_ptr =  pin_node(inst,i, &mult, 0);
+            /* fprintf(errfp, "inst: %s  --> %s\n", name, str_ptr); */
+            fprintf(fd, "@%d %s ", mult, str_ptr);
+          }
         }
       }
       else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
@@ -1565,8 +1578,10 @@ void print_spice_element(FILE *fd, int inst)
           if (!strcmp(
             get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"name",0),
             token+2)) {
-            str_ptr =  pin_node(inst,i, &mult, 0);
-            fprintf(fd, "@%d %s", mult, str_ptr);
+            if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
+              str_ptr =  pin_node(inst,i, &mult, 0);
+              fprintf(fd, "@%d %s", mult, str_ptr);
+            }
             break; /* 20171029 */
           }
         }
@@ -1575,8 +1590,10 @@ void print_spice_element(FILE *fd, int inst)
       else if (token[0]=='@' && token[1]=='#') {
         pin_number = atoi(token+2); 
         if (pin_number < no_of_pins) {
-          str_ptr =  pin_node(inst,pin_number, &mult, 0);
-          fprintf(fd, "@%d %s ", mult, str_ptr);
+          if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), "true")) {
+            str_ptr =  pin_node(inst,pin_number, &mult, 0);
+            fprintf(fd, "@%d %s ", mult, str_ptr);
+          }
         }
       }
       else if (!strncmp(token,"@tcleval", 8)) { /* 20171029 */
@@ -2013,14 +2030,15 @@ void print_verilog_element(FILE *fd, int inst)
  tmp=0;
  for(i=0;i<no_of_pins;i++)
  {
-   if( (str_ptr =  pin_node(inst,i, &mult, 0)) )
-   {
-     /*printf("print_verilog_element(): expandlabel: str=%s mult=%d\n", str_ptr, mult); */
-     if(tmp) fprintf(fd,"\n");
-     fprintf(fd, "  @%d %s %s ", mult, 
-       get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"name",0),
-       str_ptr);
-     tmp=1;
+   if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
+     if( (str_ptr =  pin_node(inst,i, &mult, 0)) )
+     {
+       if(tmp) fprintf(fd,"\n");
+       fprintf(fd, "  @%d %s %s ", mult, 
+         get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"name",0),
+         str_ptr);
+       tmp=1;
+     }
    }
  }
  fprintf(fd, "\n);\n\n");
@@ -2185,9 +2203,10 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
    {                                    /* and node number: m1 n1 m2 n2 .... */
     for(i=0;i<no_of_pins;i++)
     {
-      str_ptr =  pin_node(inst,i, &mult, 0);
-      /*fprintf(fd, "@%d %s ", mult, str_ptr); */ /* 25122004 disabled bus handling, until verilog.awk knows about it */
-      fprintf(fd, "----pin(%s) ", str_ptr);
+      if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
+        str_ptr =  pin_node(inst,i, &mult, 0);
+        fprintf(fd, "----pin(%s) ", str_ptr);
+      }
     }
    }
    else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
@@ -2195,11 +2214,11 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
      if(!strcmp(
           get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"name",0),
           token+2
-         )
-       ) {
-       str_ptr =  pin_node(inst,i, &mult, 0);
-       /*fprintf(fd, "@%d %s ", mult, str_ptr); */ /* 25122004 disabled bus handling, until verilog.awk knows about it */
-       fprintf(fd, "----pin(%s) ", str_ptr);
+         )) {
+       if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
+         str_ptr =  pin_node(inst,i, &mult, 0);
+         fprintf(fd, "----pin(%s) ", str_ptr);
+       }
        break; /* 20171029 */
      }
     }
@@ -2208,8 +2227,10 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
    else if(token[0]=='@' && token[1]=='#') {
        pin_number = atoi(token+2);
        if(pin_number < no_of_pins) {
-         str_ptr =  pin_node(inst,pin_number, &mult, 0);
-         fprintf(fd, "----pin(%s) ", str_ptr);
+         if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][pin_number].prop_ptr,"vhdl_ignore",0), "true")) {
+           str_ptr =  pin_node(inst,pin_number, &mult, 0);
+           fprintf(fd, "----pin(%s) ", str_ptr);
+         }
        }
    }
    else if(!strncmp(token,"@tcleval", 8)) { /* 20171029 */
@@ -2351,21 +2372,21 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
     {                                    /* and node number: m1 n1 m2 n2 .... */
      for(i=0;i<no_of_pins;i++)
      {
-       str_ptr =  pin_node(inst,i, &mult, 0);
-       /*fprintf(fd, "@%d %s ", mult, str_ptr); */ /* 25122004 disabled bus handling, until verilog.awk knows about it */
-       fprintf(fd, "----pin(%s) ", str_ptr);
+       if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
+         str_ptr =  pin_node(inst,i, &mult, 0);
+         fprintf(fd, "----pin(%s) ", str_ptr);
+       }
      }
     }
     else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
      for(i=0;i<no_of_pins;i++) {
       if(!strcmp(
            get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"name",0),
-           token+2
-          )
-        ) {
-        str_ptr =  pin_node(inst,i, &mult, 0);
-        /*fprintf(fd, "@%d %s ", mult, str_ptr); */ /* 25122004 disabled bus handling, until verilog.awk knows about it */
-        fprintf(fd, "----pin(%s) ", str_ptr);
+           token+2)) {
+        if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
+          str_ptr =  pin_node(inst,i, &mult, 0);
+          fprintf(fd, "----pin(%s) ", str_ptr);
+        }
         break; /* 20171029 */
       }
      }
@@ -2374,8 +2395,10 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
     else if(token[0]=='@' && token[1]=='#') {
         pin_number = atoi(token+2);
         if(pin_number < no_of_pins) {
-          str_ptr =  pin_node(inst,pin_number, &mult, 0);
-          fprintf(fd, "----pin(%s) ", str_ptr);
+          if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][pin_number].prop_ptr,"verilog_ignore",0), "true")) {
+            str_ptr =  pin_node(inst,pin_number, &mult, 0);
+            fprintf(fd, "----pin(%s) ", str_ptr);
+          }
         }
     }
     else if(!strncmp(token,"@tcleval", 8)) { /* 20171029 */
