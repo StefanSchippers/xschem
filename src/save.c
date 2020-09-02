@@ -595,7 +595,8 @@ static void load_polygon(FILE *fd)
       ptr[i].fill =0;
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
-      ptr[i].dash = atoi(dash);
+      int d = atoi(dash);
+      ptr[i].dash = d >= 0 ? d : 0;
     } else {
       ptr[i].dash = 0;
     }
@@ -634,7 +635,8 @@ static void load_arc(FILE *fd)
       ptr[i].fill =0;
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
-      ptr[i].dash = atoi(dash);
+      int d = atoi(dash); 
+      ptr[i].dash = d >= 0 ? d : 0;
     } else {
       ptr[i].dash = 0;
     }
@@ -669,7 +671,8 @@ static void load_box(FILE *fd)
     load_ascii_string( &ptr[i].prop_ptr, fd);
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
-      ptr[i].dash = atoi(dash);
+      int d = atoi(dash);
+      ptr[i].dash = d >= 0 ? d : 0;
     } else {
       ptr[i].dash = 0;
     }
@@ -704,7 +707,8 @@ static void load_line(FILE *fd)
     load_ascii_string( &ptr[i].prop_ptr, fd);
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
-      ptr[i].dash = atoi(dash);
+      int d = atoi(dash);
+      ptr[i].dash = d >= 0 ? d : 0;
     } else {
       ptr[i].dash = 0;
     }
@@ -1397,9 +1401,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
      dbg(2, "l_d_s(): loaded line: ptr=%lx\n", (unsigned long)ll[c]);
 
      dash = get_tok_value(ll[c][i].prop_ptr,"dash", 0);
-     if( strcmp(dash, "") )
-       ll[c][i].dash = atoi(dash);
-     else 
+     if( strcmp(dash, "") ) {
+       int d = atoi(dash);
+       ll[c][i].dash = d >= 0 ? d : 0;
+     } else 
        ll[c][i].dash = 0;
      ll[c][i].sel = 0;
      lastl[c]++;
@@ -1440,9 +1445,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
        pp[c][i].fill =0;
 
      dash = get_tok_value(pp[c][i].prop_ptr,"dash", 0);
-     if( strcmp(dash, "") )
-       pp[c][i].dash = atoi(dash);
-     else 
+     if( strcmp(dash, "") ) {
+       int d = atoi(dash);
+       pp[c][i].dash = d >= 0 ? d : 0;
+     } else 
        pp[c][i].dash = 0;
      pp[c][i].sel = 0;
 
@@ -1486,9 +1492,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
        aa[c][i].fill =0;
 
      dash = get_tok_value(aa[c][i].prop_ptr,"dash", 0);
-     if( strcmp(dash, "") )
-       aa[c][i].dash = atoi(dash);
-     else
+     if( strcmp(dash, "") ) {
+       int d = atoi(dash);
+       aa[c][i].dash = d >= 0 ? d : 0;
+     } else
        aa[c][i].dash = 0;
      aa[c][i].sel = 0;
 
@@ -1520,9 +1527,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
      load_ascii_string( &bb[c][i].prop_ptr, lcc[level].fd);
      dbg(2, "l_d_s(): loaded rect: ptr=%lx\n", (unsigned long)bb[c]);
      dash = get_tok_value(bb[c][i].prop_ptr,"dash", 0);
-     if( strcmp(dash, "") )
-       bb[c][i].dash = atoi(dash);
-     else
+     if( strcmp(dash, "") ) {
+       int d = atoi(dash);
+       bb[c][i].dash = d >= 0 ? d : 0;
+     } else
        bb[c][i].dash = 0;
      bb[c][i].sel = 0;
 

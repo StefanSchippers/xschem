@@ -427,9 +427,10 @@ void edit_rect_property(void)
       }
       old_dash = rect[c][n].dash;
       dash = get_tok_value(rect[c][n].prop_ptr,"dash",0);
-      if( strcmp(dash, "") )
-        rect[c][n].dash = atoi(dash);
-      else
+      if( strcmp(dash, "") ) {
+        int d = atoi(dash);
+        rect[c][n].dash = d >= 0? d : 0;
+      } else
         rect[c][n].dash = 0;
       if(old_dash != rect[c][n].dash) {
          if(!drw) {
@@ -481,9 +482,10 @@ void edit_line_property(void)
       }
       old_dash = line[c][n].dash;
       dash = get_tok_value(line[c][n].prop_ptr,"dash",0);
-      if( strcmp(dash, "") )
-        line[c][n].dash = atoi(dash);
-      else
+      if( strcmp(dash, "") ) {
+        int d = atoi(dash);
+        line[c][n].dash = d >= 0? d : 0;
+      } else
         line[c][n].dash = 0;
       if(old_dash != line[c][n].dash) {
          if(!drw) {
@@ -607,9 +609,10 @@ void edit_arc_property(void)
        arc[c][i].fill =0;
      old_dash = arc[c][i].dash;
      dash = get_tok_value(arc[c][i].prop_ptr,"dash",0);
-     if( strcmp(dash, "") )
-       arc[c][i].dash = atoi(dash);
-     else
+     if( strcmp(dash, "") ) {
+       int d = atoi(dash);
+       arc[c][i].dash = d >= 0 ? d : 0;
+     } else
        arc[c][i].dash = 0;
   
 
@@ -673,9 +676,10 @@ void edit_polygon_property(void)
      else 
        polygon[c][i].fill =0;
      dash = get_tok_value(polygon[c][i].prop_ptr,"dash",0);
-     if( strcmp(dash, "") )
-       polygon[c][i].dash = atoi(dash);
-     else 
+     if( strcmp(dash, "") ) {
+       int d = atoi(dash);
+       polygon[c][i].dash = d >= 0 ? d : 0;
+     } else 
        polygon[c][i].dash = 0;
      if(old_fill != polygon[c][i].fill || old_dash != polygon[c][i].dash) {
        if(!drw) {

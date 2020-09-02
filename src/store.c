@@ -175,9 +175,10 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
   else
     arc[rectcolor][n].fill =0;
   dash = get_tok_value(arc[rectcolor][n].prop_ptr,"dash",0);
-  if( strcmp(dash, "") )
-    arc[rectcolor][n].dash = atoi(dash);
-  else
+  if( strcmp(dash, "") ) {
+    int d = atoi(dash);
+    arc[rectcolor][n].dash = d >= 0 ? d : 0;
+  } else
     arc[rectcolor][n].dash = 0;
 
   lastarc[rectcolor]++;
@@ -221,9 +222,10 @@ void store_polygon(int pos, double *x, double *y, int points, unsigned int rectc
   else
     polygon[rectcolor][n].fill =0;
   dash = get_tok_value(polygon[rectcolor][n].prop_ptr,"dash",0);
-  if( strcmp(dash, "") )
-    polygon[rectcolor][n].dash = atoi(dash);
-  else
+  if( strcmp(dash, "") ) {
+    int d = atoi(dash);
+    polygon[rectcolor][n].dash = d >= 0 ? d : 0;
+  } else
     polygon[rectcolor][n].dash = 0;
 
 
@@ -259,9 +261,10 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      my_strdup(412, &line[rectcolor][n].prop_ptr, prop_ptr);
      line[rectcolor][n].sel=sel;
      dash = get_tok_value(line[rectcolor][n].prop_ptr,"dash",0);
-     if( strcmp(dash, "") )
-       line[rectcolor][n].dash = atoi(dash);
-     else
+     if( strcmp(dash, "") ) {
+       int d = atoi(dash);
+       line[rectcolor][n].dash = d >= 0 ? d : 0;
+     } else
        line[rectcolor][n].dash = 0;
      lastline[rectcolor]++;
      set_modify(1);
@@ -287,9 +290,10 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      my_strdup(413, &rect[rectcolor][n].prop_ptr, prop_ptr);
      rect[rectcolor][n].sel=sel;
      dash = get_tok_value(rect[rectcolor][n].prop_ptr,"dash",0);
-     if( strcmp(dash, "") )
-       rect[rectcolor][n].dash = atoi(dash);
-     else
+     if( strcmp(dash, "") ) {
+       int d = atoi(dash);
+       rect[rectcolor][n].dash = d >= 0 ? d : 0;
+     } else
        rect[rectcolor][n].dash = 0;
      lastrect[rectcolor]++;
      set_modify(1);
