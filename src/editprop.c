@@ -396,7 +396,9 @@ void set_inst_prop(int i)
 
 void edit_rect_property(void) 
 {
-  int i;
+  int i, c, n, old_dash;
+  int drw = 0;
+  const char *dash;
   int preserve;
   char *oldprop=NULL;
   if(rect[selectedgroup[0].col][selectedgroup[0].n].prop_ptr!=NULL) {
@@ -414,14 +416,33 @@ void edit_rect_property(void)
     set_modify(1);
     for(i=0; i<lastselected; i++) {
       if(selectedgroup[i].type != xRECT) continue;
-
+      c = selectedgroup[i].col;
+      n = selectedgroup[i].n;
       if(preserve == 1) {
-        set_different_token(&rect[selectedgroup[i].col][selectedgroup[i].n].prop_ptr, 
+        set_different_token(&rect[c][n].prop_ptr, 
                (char *) tclgetvar("retval"), oldprop, 0, 0);
       } else {
-        my_strdup(99, &rect[selectedgroup[i].col][selectedgroup[i].n].prop_ptr,
+        my_strdup(99, &rect[c][n].prop_ptr,
                (char *) tclgetvar("retval"));
       }
+      old_dash = rect[c][n].dash;
+      dash = get_tok_value(rect[c][n].prop_ptr,"dash",0);
+      if( strcmp(dash, "") )
+        rect[c][n].dash = atoi(dash);
+      else
+        rect[c][n].dash = 0;
+      if(old_dash != rect[c][n].dash) {
+         if(!drw) {
+           bbox(BEGIN,0.0,0.0,0.0,0.0);
+           drw = 1;
+         }
+         bbox(ADD, rect[c][n].x1, rect[c][n].y1, rect[c][n].x2, rect[c][n].y2);
+      }
+    }
+    if(drw) { 
+      bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+      draw();
+      bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     }
   }
   my_free(725, &oldprop);
@@ -430,7 +451,9 @@ void edit_rect_property(void)
 
 void edit_line_property(void)
 {
-  int i;
+  int i, c, n, old_dash;
+  int drw=0;
+  const char *dash;
   int preserve;
   char *oldprop=NULL;
   if(line[selectedgroup[0].col][selectedgroup[0].n].prop_ptr!=NULL) {
@@ -447,14 +470,33 @@ void edit_line_property(void)
     set_modify(1);
     for(i=0; i<lastselected; i++) {
       if(selectedgroup[i].type != LINE) continue;
-
+      c = selectedgroup[i].col;
+      n = selectedgroup[i].n;
       if(preserve == 1) {
-        set_different_token(&line[selectedgroup[i].col][selectedgroup[i].n].prop_ptr, 
+        set_different_token(&line[c][n].prop_ptr, 
                (char *) tclgetvar("retval"), oldprop, 0, 0);
       } else {
-        my_strdup(102, &line[selectedgroup[i].col][selectedgroup[i].n].prop_ptr,
+        my_strdup(102, &line[c][n].prop_ptr,
                (char *) tclgetvar("retval"));
       }
+      old_dash = line[c][n].dash;
+      dash = get_tok_value(line[c][n].prop_ptr,"dash",0);
+      if( strcmp(dash, "") )
+        line[c][n].dash = atoi(dash);
+      else
+        line[c][n].dash = 0;
+      if(old_dash != line[c][n].dash) {
+         if(!drw) {
+           bbox(BEGIN,0.0,0.0,0.0,0.0);
+           drw = 1;
+         }
+         bbox(ADD, line[c][n].x1, line[c][n].y1, line[c][n].x2, line[c][n].y2);
+      }
+    }
+    if(drw) {
+      bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+      draw();
+      bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     }
   }
   my_free(726, &oldprop);
@@ -579,8 +621,10 @@ void edit_polygon_property(void)
   int old_fill; /* 20180914 */
   int k;
   double x1=0., y1=0., x2=0., y2=0.;
-  int c, i, ii;
+  int c, i, ii, old_dash;
+  int drw = 0;
   char *oldprop = NULL;
+  const char *dash;
   int preserve;
 
   dbg(1, "edit_property(): input property:\n");
@@ -609,12 +653,21 @@ void edit_polygon_property(void)
         my_strdup(113, &polygon[c][i].prop_ptr, (char *) tclgetvar("retval"));
      }
      old_fill = polygon[c][i].fill;
+     old_dash = polygon[c][i].dash;
      if( !strcmp(get_tok_value(polygon[c][i].prop_ptr,"fill",0),"true") )
        polygon[c][i].fill =1;
      else 
        polygon[c][i].fill =0;
-     if(old_fill != polygon[c][i].fill) {
-       bbox(BEGIN,0.0,0.0,0.0,0.0);
+     dash = get_tok_value(polygon[c][i].prop_ptr,"dash",0);
+     if( strcmp(dash, "") )
+       polygon[c][i].dash = atoi(dash);
+     else 
+       polygon[c][i].dash = 0;
+     if(old_fill != polygon[c][i].fill || old_dash != polygon[c][i].dash) {
+       if(!drw) {
+         bbox(BEGIN,0.0,0.0,0.0,0.0);
+         drw = 1;
+       }
        for(k=0; k<polygon[c][i].points; k++) {
          if(k==0 || polygon[c][i].x[k] < x1) x1 = polygon[c][i].x[k];
          if(k==0 || polygon[c][i].y[k] < y1) y1 = polygon[c][i].y[k];
@@ -622,10 +675,12 @@ void edit_polygon_property(void)
          if(k==0 || polygon[c][i].y[k] > y2) y2 = polygon[c][i].y[k];
        }
        bbox(ADD, x1, y1, x2, y2);
-       bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-       draw();
-       bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
      }
+   }
+   if(drw) {
+     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+     draw();
+     bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
    }
   }
 }

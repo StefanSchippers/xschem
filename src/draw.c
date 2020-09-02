@@ -425,7 +425,7 @@ void draw_string(int layer, int what, const char *str, int rot, int flip, int hc
         ROTATION(x1,y1,curr_x1,curr_y1,rx1,ry1);
         ROTATION(x1,y1,curr_x2,curr_y2,rx2,ry2);
         ORDER(rx1,ry1,rx2,ry2);
-        drawline(layer, what, rx1, ry1, rx2, ry2);
+        drawline(layer, what, rx1, ry1, rx2, ry2, 0);
      }
      pos++;
      a += FONTWIDTH+FONTWHITESPACE;
@@ -504,7 +504,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
     ROTATION(0.0,0.0,line.x1,line.y1,x1,y1);
     ROTATION(0.0,0.0,line.x2,line.y2,x2,y2);
     ORDER(x1,y1,x2,y2);
-    drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
+    drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
   }
   for(j=0;j< symptr->polygons[layer];j++) /* 20171115 */
   { 
@@ -518,7 +518,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
         x[k]+= x0;
         y[k] += y0;
       }
-      drawpolygon(c, NOW, x, y, polygon.points, polygon.fill); /* 20180914 added fill */
+      drawpolygon(c, NOW, x, y, polygon.points, polygon.fill, polygon.dash); /* 20180914 added fill */
       my_free(718, &x);
       my_free(719, &y);
     }
@@ -544,7 +544,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
     ROTATION(0.0,0.0,box.x1,box.y1,x1,y1);
     ROTATION(0.0,0.0,box.x2,box.y2,x2,y2);
     RECTORDER(x1,y1,x2,y2); 
-    drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
+    drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
     filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
   }
   if( (layer==TEXTWIRELAYER && !(inst_ptr[n].flags&2) ) || 
@@ -578,8 +578,8 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
           flip^text.flip, text.hcenter, text.vcenter, 
           x0+x1, y0+y1, text.xscale, text.yscale);                    
         #ifndef HAS_CAIRO
-        drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0);
-        drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0);
+        drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
+        drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
         #endif
         #ifdef HAS_CAIRO
         if(textfont && textfont[0]) {
@@ -758,7 +758,7 @@ void drawgrid()
 }
 
 
-void drawline(int c, int what, double linex1, double liney1, double linex2, double liney2)
+void drawline(int c, int what, double linex1, double liney1, double linex2, double liney2, int dash)
 {
   static int i = 0;
 #ifndef __unix__
@@ -767,6 +767,9 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
  static XSegment r[CADDRAWBUFFERSIZE];
  double x1,y1,x2,y2;
  register XSegment *rr;
+ char dash_arr[2];
+
+ if(dash) what = NOW;
 
  if(!has_x) return;
  rr=r;
@@ -811,9 +814,17 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
   if(!only_probes && (x2-x1)< 0.3 && fabs(y2-y1)< 0.3) return; /* 20171206 */
   if( clip(&x1,&y1,&x2,&y2) )
   {
+   if(dash) {
+     dash_arr[0] = dash_arr[1] = dash;
+     XSetDashes(display, gc[c], 0, dash_arr, 2);
+     XSetLineAttributes (display, gc[c], lw ,LineDoubleDash, CapRound , JoinRound);
+   }
    if(draw_window) XDrawLine(display, window, gc[c], x1, y1, x2, y2);
    if(draw_pixmap) 
     XDrawLine(display, save_pixmap, gc[c], x1, y1, x2, y2);
+   if(dash) {
+     XSetLineAttributes (display, gc[c], lw ,LineSolid, CapRound , JoinRound);
+   }
   }
  } 
 
@@ -826,7 +837,13 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
   if(!only_probes && (x2-x1)< 0.3 && fabs(y2-y1)< 0.3) return; /* 20171206 */
   if( clip(&x1,&y1,&x2,&y2) )
   {
-   XSetLineAttributes (display, gc[c], bus_width , LineSolid, CapRound , JoinRound);
+   if(dash) {
+     dash_arr[0] = dash_arr[1] = dash;
+     XSetDashes(display, gc[c], 0, dash_arr, 2);
+     XSetLineAttributes (display, gc[c], bus_width ,LineDoubleDash, CapRound , JoinRound);
+   } else {
+     XSetLineAttributes (display, gc[c], bus_width , LineSolid, CapRound , JoinRound);
+   }
    if(draw_window) XDrawLine(display, window, gc[c], x1, y1, x2, y2);
    if(draw_pixmap) XDrawLine(display, save_pixmap, gc[c], x1, y1, x2, y2);
    XSetLineAttributes (display, gc[c], lw, LineSolid, CapRound , JoinRound);
@@ -908,10 +925,7 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
    XSetLineAttributes (display, gc, bus_width, LineSolid, CapRound , JoinRound); /* 20150410 */
 
    XDrawLine(display, window, gc, x1, y1, x2, y2);
-   if(gc==gctiled) 
-     XSetLineAttributes (display, gc, lw, LineSolid, CapRound , JoinRound);
-   else
-     XSetLineAttributes (display, gc, lw, LineSolid, CapRound , JoinRound);
+   XSetLineAttributes (display, gc, lw, LineSolid, CapRound , JoinRound);
   }
  }
 
@@ -1299,7 +1313,7 @@ void arc_bbox(double x, double y, double r, double a, double b,
 /* Convex Nonconvex Complex */
 #define Polygontype Nonconvex
 /* 20180914 added fill param */
-void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill)
+void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash)
 {
   double x1,y1,x2,y2;
   XPoint *p;
@@ -1321,6 +1335,12 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     p[i].x = X_TO_SCREEN(x[i]);
     p[i].y = Y_TO_SCREEN(y[i]);
   }
+  if(dash) {
+    char dash_arr[2];
+    dash_arr[0] = dash_arr[1] = dash;
+    XSetDashes(display, gc[c], 0, dash_arr, 2);
+    XSetLineAttributes (display, gc[c], lw ,LineDoubleDash, CapRound , JoinRound);
+  }
   if(draw_window) XDrawLines(display, window, gc[c], p, points, CoordModeOrigin);
   if(draw_pixmap)
     XDrawLines(display, save_pixmap, gc[c], p, points, CoordModeOrigin);
@@ -1331,6 +1351,10 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
          XFillPolygon(display, save_pixmap, gcstipple[c], p, points, Polygontype, CoordModeOrigin);
     }
   }
+  if(dash) {
+    XSetLineAttributes (display, gc[c], lw ,LineSolid, CapRound , JoinRound);
+  }
+
   my_free(722, &p);
 }
 
@@ -1356,13 +1380,15 @@ void drawtemppolygon(GC g, int what, double *x, double *y, int points)
   my_free(723, &p);
 }
 
-void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double recty2)
+void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double recty2, int dash)
 {
  static int i=0;
  static XRectangle r[CADDRAWBUFFERSIZE];
  double x1,y1,x2,y2;
+ char dash_arr[2];
 
  if(!has_x) return;
+ if(dash) what = NOW;
  if(what & NOW)
  {
   x1=X_TO_SCREEN(rectx1);
@@ -1372,6 +1398,11 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
   if(!only_probes && (x2-x1)< 0.3 && (y2-y1)< 0.3) return; /* 20171206 */
   if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
   {
+   if(dash) {
+     dash_arr[0] = dash_arr[1] = dash;
+     XSetDashes(display, gc[c], 0, dash_arr, 2);
+     XSetLineAttributes (display, gc[c], lw ,LineDoubleDash, CapRound , JoinRound);
+   }
    if(draw_window) XDrawRectangle(display, window, gc[c], (int)x1, (int)y1,
     (unsigned int)x2 - (unsigned int)x1,
     (unsigned int)y2 - (unsigned int)y1);
@@ -1380,6 +1411,9 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
     XDrawRectangle(display, save_pixmap, gc[c], (int)x1, (int)y1,
     (unsigned int)x2 - (unsigned int)x1,
     (unsigned int)y2 - (unsigned int)y1);
+   }
+   if(dash) {
+     XSetLineAttributes (display, gc[c], lw ,LineSolid, CapRound , JoinRound);
    }
   }
  }
@@ -1508,10 +1542,10 @@ void draw(void)
           if(draw_single_layer!=-1 && c != draw_single_layer) continue; /* 20151117 */
         
           for(i=0;i<lastline[c];i++) 
-            drawline(c, ADD, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
+            drawline(c, ADD, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2, line[c][i].dash);
           for(i=0;i<lastrect[c];i++) 
           {
-            drawrect(c, ADD, rect[c][i].x1, rect[c][i].y1, rect[c][i].x2, rect[c][i].y2);
+            drawrect(c, ADD, rect[c][i].x1, rect[c][i].y1, rect[c][i].x2, rect[c][i].y2, rect[c][i].dash);
             filledrect(c, ADD, rect[c][i].x1, rect[c][i].y1, rect[c][i].x2, rect[c][i].y2);
           }
           for(i=0;i<lastarc[c];i++) 
@@ -1520,7 +1554,7 @@ void draw(void)
           }
           for(i=0;i<lastpolygon[c];i++) {
             /* 20180914 added fill */
-            drawpolygon(c, NOW, polygon[c][i].x, polygon[c][i].y, polygon[c][i].points, polygon[c][i].fill);
+            drawpolygon(c, NOW, polygon[c][i].x, polygon[c][i].y, polygon[c][i].points, polygon[c][i].fill, polygon[c][i].dash);
           }
           if(use_hash) {
   
@@ -1597,8 +1631,8 @@ void draw(void)
         
           filledrect(c, END, 0.0, 0.0, 0.0, 0.0);
           drawarc(c, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0);
-          drawrect(c, END, 0.0, 0.0, 0.0, 0.0);
-          drawline(c, END, 0.0, 0.0, 0.0, 0.0);
+          drawrect(c, END, 0.0, 0.0, 0.0, 0.0, 0);
+          drawline(c, END, 0.0, 0.0, 0.0, 0.0, 0);
         }
         if(draw_single_layer==-1 || draw_single_layer==WIRELAYER){ /* 20151117 */
 
@@ -1609,24 +1643,24 @@ void draw(void)
             for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
               ii=wireptr->n;
               if(wire[ii].bus) {
-                drawline(WIRELAYER, THICK, wire[ii].x1,wire[ii].y1,wire[ii].x2,wire[ii].y2);
+                drawline(WIRELAYER, THICK, wire[ii].x1,wire[ii].y1,wire[ii].x2,wire[ii].y2, 0);
               }
               else
-                drawline(WIRELAYER, ADD, wire[ii].x1,wire[ii].y1,wire[ii].x2,wire[ii].y2);
+                drawline(WIRELAYER, ADD, wire[ii].x1,wire[ii].y1,wire[ii].x2,wire[ii].y2, 0);
             }
           } else {
             for(i=0;i<lastwire;i++)
             {
               if(wire[i].bus) {
-                drawline(WIRELAYER, THICK, wire[i].x1,wire[i].y1,wire[i].x2,wire[i].y2);
+                drawline(WIRELAYER, THICK, wire[i].x1,wire[i].y1,wire[i].x2,wire[i].y2, 0);
               }
               else
-                drawline(WIRELAYER, ADD, wire[i].x1,wire[i].y1,wire[i].x2,wire[i].y2);
+                drawline(WIRELAYER, ADD, wire[i].x1,wire[i].y1,wire[i].x2,wire[i].y2, 0);
             }
           }
           update_conn_cues(1, draw_window);
           filledrect(WIRELAYER, END, 0.0, 0.0, 0.0, 0.0);
-          drawline(WIRELAYER, END, 0.0, 0.0, 0.0, 0.0);
+          drawline(WIRELAYER, END, 0.0, 0.0, 0.0, 0.0, 0);
         }
         if(draw_single_layer ==-1 || draw_single_layer==TEXTLAYER) { /* 20151117 */
           for(i=0;i<lasttext;i++) 
@@ -1655,8 +1689,8 @@ void draw(void)
             }
             #endif
             #ifndef HAS_CAIRO
-            drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0);
-            drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0);
+            drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
+            drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
             #endif
           }
         }

@@ -552,6 +552,7 @@ static void load_polygon(FILE *fd)
 {
     int i,c, j, points;
     xPolygon *ptr;
+    const char *dash;
 
     dbg(3, "load_polygon(): start\n");
     if(fscanf(fd, "%d %d",&c, &points)<2) {
@@ -592,6 +593,12 @@ static void load_polygon(FILE *fd)
       ptr[i].fill =1;
     else
       ptr[i].fill =0;
+    dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
+    if(strcmp(dash, "")) {
+      ptr[i].dash = atoi(dash);
+    } else {
+      ptr[i].dash = 0;
+    }
 
     lastpolygon[c]++;
 }
@@ -631,6 +638,7 @@ static void load_box(FILE *fd)
 {
     int i,c;
     Box *ptr;
+    const char *dash;
 
     dbg(3, "load_box(): start\n");
     fscanf(fd, "%d",&c);
@@ -652,6 +660,12 @@ static void load_box(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
+    dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
+    if(strcmp(dash, "")) {
+      ptr[i].dash = atoi(dash);
+    } else {
+      ptr[i].dash = 0;
+    }
     lastrect[c]++;
 }
 
@@ -659,6 +673,7 @@ static void load_line(FILE *fd)
 {
     int i,c;
     Line *ptr;
+    const char *dash;
 
     dbg(3, "load_line(): start\n");
     fscanf(fd, "%d",&c);
@@ -680,6 +695,12 @@ static void load_line(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
+    dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
+    if(strcmp(dash, "")) {
+      ptr[i].dash = atoi(dash);
+    } else {
+      ptr[i].dash = 0;
+    }
     lastline[c]++;
 }
 
@@ -1241,6 +1262,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   const char *label;
   char *pin_label = NULL, *recover_str=NULL;
   char *skip_line;
+  const char *dash;
 
   dbg(1, "load_sym_def(): recursion_counter=%d\n", recursion_counter);
   recursion_counter++;
@@ -1365,7 +1387,14 @@ int load_sym_def(const char *name, FILE *embed_fd)
      ORDER(ll[c][i].x1, ll[c][i].y1, ll[c][i].x2, ll[c][i].y2); /* 20180108 */
      ll[c][i].prop_ptr=NULL;
      load_ascii_string( &ll[c][i].prop_ptr, lcc[level].fd);
-      dbg(2, "l_d_s(): loaded line: ptr=%lx\n", (unsigned long)ll[c]);
+     dbg(2, "l_d_s(): loaded line: ptr=%lx\n", (unsigned long)ll[c]);
+
+     dash = get_tok_value(ll[c][i].prop_ptr,"dash", 0);
+     if( strcmp(dash, "") )
+       ll[c][i].dash = atoi(dash);
+     else 
+       ll[c][i].dash = 0;
+     ll[c][i].sel = 0;
      lastl[c]++;
      break;
     case 'P': /* 20171115 */
@@ -1402,6 +1431,13 @@ int load_sym_def(const char *name, FILE *embed_fd)
        pp[c][i].fill =1;
      else
        pp[c][i].fill =0;
+
+     dash = get_tok_value(pp[c][i].prop_ptr,"dash", 0);
+     if( strcmp(dash, "") )
+       pp[c][i].dash = atoi(dash);
+     else 
+       pp[c][i].dash = 0;
+     pp[c][i].sel = 0;
 
      dbg(2, "l_d_s(): loaded polygon: ptr=%lx\n", (unsigned long)pp[c]);
      lastp[c]++;
@@ -1468,6 +1504,13 @@ int load_sym_def(const char *name, FILE *embed_fd)
      bb[c][i].prop_ptr=NULL;
      load_ascii_string( &bb[c][i].prop_ptr, lcc[level].fd);
      dbg(2, "l_d_s(): loaded rect: ptr=%lx\n", (unsigned long)bb[c]);
+     dash = get_tok_value(bb[c][i].prop_ptr,"dash", 0);
+     if( strcmp(dash, "") )
+       bb[c][i].dash = atoi(dash);
+     else
+       bb[c][i].dash = 0;
+     bb[c][i].sel = 0;
+
      lastr[c]++;
      break;
     case 'T':
@@ -1521,7 +1564,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
      ORDER(ll[WIRELAYER][i].x1, ll[WIRELAYER][i].y1, ll[WIRELAYER][i].x2, ll[WIRELAYER][i].y2); /* 20180108 */
      ll[WIRELAYER][i].prop_ptr=NULL;
      load_ascii_string( &ll[WIRELAYER][i].prop_ptr, lcc[level].fd);
-      dbg(2, "l_d_s(): loaded line: ptr=%lx\n", (unsigned long)ll[WIRELAYER]);
+     dbg(2, "l_d_s(): loaded line: ptr=%lx\n", (unsigned long)ll[WIRELAYER]);
+     ll[WIRELAYER][i].dash = 0;
+     ll[WIRELAYER][i].sel = 0;
      lastl[WIRELAYER]++;
      break;
     case 'C':

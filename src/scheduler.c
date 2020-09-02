@@ -840,7 +840,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      push_undo();
      storeobject(pos, x1,y1,x2,y2,WIRE,0,0,prop);
      save = draw_window; draw_window = 1;
-     drawline(WIRELAYER,NOW, x1,y1,x2,y2);
+     drawline(WIRELAYER,NOW, x1,y1,x2,y2, 0);
      draw_window = save;
    }
    else ui_state |= MENUSTARTWIRE;
@@ -857,7 +857,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      if(argc==7) pos=atol(argv[6]);
      storeobject(pos, x1,y1,x2,y2,LINE,rectcolor,0,NULL);
      save = draw_window; draw_window = 1;
-     drawline(rectcolor,NOW, x1,y1,x2,y2);
+     drawline(rectcolor,NOW, x1,y1,x2,y2, 0);
      draw_window = save;
    } 
    else ui_state |= MENUSTARTLINE;
@@ -874,7 +874,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      if(argc==7) pos=atol(argv[6]);
      storeobject(pos, x1,y1,x2,y2,xRECT,rectcolor,0,NULL);
      save = draw_window; draw_window = 1;
-     drawrect(rectcolor,NOW, x1,y1,x2,y2);
+     drawrect(rectcolor,NOW, x1,y1,x2,y2, 0);
      draw_window = save;
    }  
    else ui_state |= MENUSTARTRECT;

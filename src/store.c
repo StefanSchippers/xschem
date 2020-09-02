@@ -180,6 +180,7 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
 void store_polygon(int pos, double *x, double *y, int points, unsigned int rectcolor, unsigned short sel, char *prop_ptr)
 {
   int n, j;
+  const char *dash;
   check_polygon_storage(rectcolor);
   if(pos==-1) n=lastpolygon[rectcolor];
   else
@@ -212,6 +213,11 @@ void store_polygon(int pos, double *x, double *y, int points, unsigned int rectc
     polygon[rectcolor][n].fill =1;
   else
     polygon[rectcolor][n].fill =0;
+  dash = get_tok_value(polygon[rectcolor][n].prop_ptr,"dash",0);
+  if( strcmp(dash, "") )
+    polygon[rectcolor][n].dash = atoi(dash);
+  else
+    polygon[rectcolor][n].dash = 0;
 
 
   lastpolygon[rectcolor]++;
@@ -223,6 +229,7 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
                  unsigned short sel, const char *prop_ptr)
 {
  int n, j;
+ const char * dash;
     if(type == LINE)
     {
      check_line_storage(rectcolor);
@@ -244,6 +251,11 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      line[rectcolor][n].prop_ptr=NULL;
      my_strdup(412, &line[rectcolor][n].prop_ptr, prop_ptr);
      line[rectcolor][n].sel=sel;
+     dash = get_tok_value(line[rectcolor][n].prop_ptr,"dash",0);
+     if( strcmp(dash, "") )
+       line[rectcolor][n].dash = atoi(dash);
+     else
+       line[rectcolor][n].dash = 0;
      lastline[rectcolor]++;
      set_modify(1);
     }
@@ -259,7 +271,7 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
       }
       n=pos;
      }
-     dbg(2, "storeobject(): storing LINE %d\n",n);
+     dbg(2, "storeobject(): storing RECT %d\n",n);
      rect[rectcolor][n].x1=x1;
      rect[rectcolor][n].x2=x2;
      rect[rectcolor][n].y1=y1;
@@ -267,6 +279,11 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      rect[rectcolor][n].prop_ptr=NULL;
      my_strdup(413, &rect[rectcolor][n].prop_ptr, prop_ptr);
      rect[rectcolor][n].sel=sel;
+     dash = get_tok_value(rect[rectcolor][n].prop_ptr,"dash",0);
+     if( strcmp(dash, "") )
+       rect[rectcolor][n].dash = atoi(dash);
+     else
+       rect[rectcolor][n].dash = 0;
      lastrect[rectcolor]++;
      set_modify(1);
     }

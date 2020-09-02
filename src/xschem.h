@@ -314,6 +314,7 @@ typedef struct
    double y2;
    unsigned short sel;
    char *prop_ptr;
+   int dash;
 } Line;
 
 typedef struct
@@ -324,6 +325,7 @@ typedef struct
    double y2;
    unsigned short sel;
    char *prop_ptr;
+   int dash;
 } Box;
 
 typedef struct /*  20171115 */
@@ -337,6 +339,7 @@ typedef struct /*  20171115 */
   unsigned short sel;
   char *prop_ptr;
   int fill; /*  20180914 */
+  int dash;
 } xPolygon; 
 
 typedef struct /* 20181012 */
@@ -758,13 +761,13 @@ extern void find_closest_text(double mx,double my);
 extern Selected find_closest_obj(double mx,double my);
 extern void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y);
 
-extern void drawline(int c, int what, double x1,double y1,double x2,double y2);
+extern void drawline(int c, int what, double x1,double y1,double x2,double y2, int dash);
 extern void draw_string(int layer,int what, const char *str, int rot, int flip, int hcenter, int vcenter, 
        double x1, double y1, double xscale, double yscale);
 extern void draw_symbol(int what,int c, int n,int layer,
             int tmp_flip, int tmp_rot, double xoffset, double yoffset);
 extern void drawrect(int c, int what, double rectx1,double recty1,
-            double rectx2,double recty2);
+            double rectx2,double recty2, int dash);
 extern void filledrect(int c, int what, double rectx1,double recty1,
             double rectx2,double recty2);
 
@@ -777,7 +780,7 @@ extern void drawtemparc(GC gc, int what, double x, double y, double r, double a,
 extern void drawarc(int c, int what, double x, double y, double r, double a, double b, int arc_fill);
 extern void filledarc(int c, int what, double x, double y, double r, double a, double b);
 extern void drawtemppolygon(GC gc, int what, double *x, double *y, int points);
-extern void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill);
+extern void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash);
 extern void draw_temp_symbol(int what, GC gc, int n,int layer,
             int tmp_flip, int tmp_rot, double xoffset, double yoffset);
 extern void draw_temp_string(GC gc,int what, const char *str, int rot, int flip, int hcenter, int vcenter, 

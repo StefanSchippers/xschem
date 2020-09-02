@@ -516,10 +516,10 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
               if(what == NOW) {
                 if(wire[i].bus) /* 20171201 */
                   drawline(hilight_layer, THICK,
-                     wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2);
+                     wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2, 0);
                 else
                   drawline(hilight_layer, NOW,
-                     wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2);
+                     wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2, 0);
                 if(cadhalfdotsize*mooz>=0.7) {
                   if( wire[i].end1 >1 ) {
                     filledarc(hilight_layer, NOW, wire[i].x1, wire[i].y1, cadhalfdotsize, 0, 360);
@@ -852,10 +852,10 @@ void draw_hilight_net(int on_window)
       if( (entry = bus_hilight_lookup(wire[i].node, 0, XLOOKUP)) ) {
         if(wire[i].bus) /* 20171201 */
           drawline(get_color(entry->value), THICK,
-             wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2);
+             wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2, 0);
         else
           drawline(get_color(entry->value), NOW,
-             wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2);
+             wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2, 0);
         if(cadhalfdotsize*mooz>=0.7) {
           if( wire[i].end1 >1 ) { /* 20150331 draw_dots */
             filledarc(get_color(entry->value), NOW, wire[i].x1, wire[i].y1, cadhalfdotsize, 0, 360);
@@ -870,10 +870,10 @@ void draw_hilight_net(int on_window)
       if( (entry = bus_hilight_lookup(wire[i].node, 0, XLOOKUP)) ) {
         if(wire[i].bus) /* 20171201 */
           drawline(get_color(entry->value), THICK,
-             wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2);
+             wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2, 0);
         else
           drawline(get_color(entry->value), NOW,
-             wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2);
+             wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2, 0);
         if(cadhalfdotsize*mooz>=0.7) {
           if( wire[i].end1 >1 ) { /* 20150331 draw_dots */
             filledarc(get_color(entry->value), NOW, wire[i].x1, wire[i].y1, cadhalfdotsize, 0, 360);
@@ -955,8 +955,8 @@ void draw_hilight_net(int on_window)
       }
       filledrect(inst_color[i], END, 0.0, 0.0, 0.0, 0.0);
       drawarc(inst_color[i], END, 0.0, 0.0, 0.0, 0.0, 0.0, 0);
-      drawrect(inst_color[i], END, 0.0, 0.0, 0.0, 0.0);
-      drawline(inst_color[i], END, 0.0, 0.0, 0.0, 0.0);
+      drawrect(inst_color[i], END, 0.0, 0.0, 0.0, 0.0, 0);
+      drawline(inst_color[i], END, 0.0, 0.0, 0.0, 0.0, 0);
      }
    }
  }

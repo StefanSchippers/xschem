@@ -696,6 +696,7 @@ int build_colors(double dim) /* 20171113 */
     }
     for(i=0;i<cadlayers;i++)
     {
+      XSetBackground(display, gc[i], color_index[0]); /* for dashed lines 'off' color */
       XSetForeground(display, gc[i], color_index[i]);
       XSetForeground(display, gcstipple[i], color_index[i]);
     }

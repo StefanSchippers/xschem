@@ -561,9 +561,9 @@ void copy_objects(int what)
        else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
       }
       if(wire[n].bus) /* 20171201 */
-        drawline(k, THICK, rx1,ry1,rx2,ry2);
+        drawline(k, THICK, rx1,ry1,rx2,ry2, 0);
       else
-        drawline(k, ADD, rx1,ry1,rx2,ry2);
+        drawline(k, ADD, rx1,ry1,rx2,ry2, 0);
         
       selectedgroup[i].n=lastwire;
       storeobject(-1, rx1,ry1,rx2,ry2,WIRE,0,wire[n].sel,wire[n].prop_ptr);
@@ -597,7 +597,7 @@ void copy_objects(int what)
        if(line[c][n].sel == SELECTED1) line[c][n].sel = SELECTED2;
        else if(line[c][n].sel == SELECTED2) line[c][n].sel = SELECTED1;
       }
-      drawline(k, ADD, rx1,ry1,rx2,ry2);
+      drawline(k, ADD, rx1,ry1,rx2,ry2, line[c][n].dash);
       selectedgroup[i].n=lastline[c];
       storeobject(-1, rx1, ry1, rx2, ry2, LINE, c, line[c][n].sel, line[c][n].prop_ptr);
       line[c][n].sel=0;
@@ -629,7 +629,7 @@ void copy_objects(int what)
           }
           bbox(ADD, bx1, by1, bx2, by2); /* 20181009 */
         }
-        drawpolygon(k,  NOW, x, y, polygon[c][n].points, polygon[c][n].fill); /* 20180914 added fill */
+        drawpolygon(k,  NOW, x, y, polygon[c][n].points, polygon[c][n].fill, polygon[c][n].dash); /* 20180914 added fill */
         selectedgroup[i].n=lastpolygon[c];
         store_polygon(-1, x, y, polygon[c][n].points, c, polygon[c][n].sel, polygon[c][n].prop_ptr);
         polygon[c][n].sel=0;
@@ -680,7 +680,7 @@ void copy_objects(int what)
       }
       RECTORDER(rx1,ry1,rx2,ry2);
       rect[c][n].sel=0;
-      drawrect(k, ADD, rx1+deltax, ry1+deltay, rx2+deltax, ry2+deltay);
+      drawrect(k, ADD, rx1+deltax, ry1+deltay, rx2+deltax, ry2+deltay, rect[c][n].dash);
       filledrect(k, ADD, rx1+deltax, ry1+deltay, rx2+deltax, ry2+deltay);
       selectedgroup[i].n=lastrect[c];
       storeobject(-1, rx1+deltax, ry1+deltay, 
@@ -753,8 +753,8 @@ void copy_objects(int what)
        rx1+deltax,ry1+deltay,
        textelement[lasttext].xscale, textelement[lasttext].yscale);
       #ifndef HAS_CAIRO
-      drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0);
-      drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0);
+      drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
+      drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
       #endif
       #ifdef HAS_CAIRO
       if(textfont && textfont[0]) {
@@ -814,8 +814,8 @@ void copy_objects(int what)
    }
    filledrect(k, END, 0.0, 0.0, 0.0, 0.0);
    drawarc(k, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0);
-   drawrect(k, END, 0.0, 0.0, 0.0, 0.0);
-   drawline(k, END, 0.0, 0.0, 0.0, 0.0);
+   drawrect(k, END, 0.0, 0.0, 0.0, 0.0, 0);
+   drawline(k, END, 0.0, 0.0, 0.0, 0.0, 0);
    
   } /* end for(k ... */
   check_collapsing_objects();
@@ -973,9 +973,9 @@ void move_objects(int what, int merge, double dx, double dy)
       wire[n].x2=rx2;
       wire[n].y2=ry2;
       if(wire[n].bus) /* 20171201 */
-        drawline(k, THICK, wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2);
+        drawline(k, THICK, wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, 0);
       else
-        drawline(k, ADD, wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2);
+        drawline(k, ADD, wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, 0);
       break;
      case LINE:
       if(c!=k) break;   
@@ -1010,7 +1010,7 @@ void move_objects(int what, int merge, double dx, double dy)
       line[c][n].y1=ry1;
       line[c][n].x2=rx2;
       line[c][n].y2=ry2;
-      drawline(k, ADD, line[c][n].x1, line[c][n].y1, line[c][n].x2, line[c][n].y2);
+      drawline(k, ADD, line[c][n].x1, line[c][n].y1, line[c][n].x2, line[c][n].y2, line[c][n].dash);
       break;
 
      case POLYGON: /* 20171115 */
@@ -1042,7 +1042,7 @@ void move_objects(int what, int merge, double dx, double dy)
         bbox(ADD, bx1, by1, bx2, by2);
       }
       /* 20180914 added fill */
-      drawpolygon(k,  NOW, polygon[c][n].x, polygon[c][n].y, polygon[c][n].points, polygon[c][n].fill);
+      drawpolygon(k,  NOW, polygon[c][n].x, polygon[c][n].y, polygon[c][n].points, polygon[c][n].fill, polygon[c][n].dash);
       break;
 
      case ARC:
@@ -1169,7 +1169,7 @@ void move_objects(int what, int merge, double dx, double dy)
       rect[c][n].y1 = ry1;
       rect[c][n].x2 = rx2;
       rect[c][n].y2 = ry2;
-      drawrect(k, ADD, rect[c][n].x1, rect[c][n].y1, rect[c][n].x2, rect[c][n].y2);
+      drawrect(k, ADD, rect[c][n].x1, rect[c][n].y1, rect[c][n].x2, rect[c][n].y2, rect[c][n].dash);
       filledrect(c, ADD, rect[c][n].x1, rect[c][n].y1, 
                  rect[c][n].x2, rect[c][n].y2);
   
@@ -1217,8 +1217,8 @@ void move_objects(int what, int merge, double dx, double dy)
        textelement[n].x0, textelement[n].y0,
        textelement[n].xscale, textelement[n].yscale);
       #ifndef HAS_CAIRO
-      drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0);
-      drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0);
+      drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
+      drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
       #endif
       #ifdef HAS_CAIRO
       if(textfont && textfont[0]) {
@@ -1257,8 +1257,8 @@ void move_objects(int what, int merge, double dx, double dy)
 
    filledrect(k, END, 0.0, 0.0, 0.0, 0.0); 
    drawarc(k, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0);
-   drawrect(k, END, 0.0, 0.0, 0.0, 0.0);
-   drawline(k, END, 0.0, 0.0, 0.0, 0.0);
+   drawrect(k, END, 0.0, 0.0, 0.0, 0.0, 0);
+   drawline(k, END, 0.0, 0.0, 0.0, 0.0, 0);
   } /*end for(k ... */
   check_collapsing_objects();
   update_conn_cues(1, 1); 

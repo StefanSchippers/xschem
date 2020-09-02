@@ -1619,32 +1619,32 @@ void new_wire(int what, double mx_snap, double my_snap)
            xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
            ORDER(xx1,yy1,xx2,yy1);
            storeobject(-1, xx1,yy1,xx2,yy1,WIRE,0,0,NULL);
-           drawline(WIRELAYER,NOW, xx1,yy1,xx2,yy1);
+           drawline(WIRELAYER,NOW, xx1,yy1,xx2,yy1, 0);
          }
          if(yy2!=yy1) {
            xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
            ORDER(xx2,yy1,xx2,yy2);
            storeobject(-1, xx2,yy1,xx2,yy2,WIRE,0,0,NULL);
-           drawline(WIRELAYER,NOW, xx2,yy1,xx2,yy2);
+           drawline(WIRELAYER,NOW, xx2,yy1,xx2,yy2, 0);
          }
        } else if(manhattan_lines==2) {
          if(yy2!=yy1) {
            xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
            ORDER(xx1,yy1,xx1,yy2);
            storeobject(-1, xx1,yy1,xx1,yy2,WIRE,0,0,NULL);
-           drawline(WIRELAYER,NOW, xx1,yy1,xx1,yy2);
+           drawline(WIRELAYER,NOW, xx1,yy1,xx1,yy2, 0);
          }
          if(xx2!=xx1) {
            xx1=x1;yy1=y1;xx2=x2;yy2=y2;
            ORDER(xx1,yy2,xx2,yy2);
            storeobject(-1, xx1,yy2,xx2,yy2,WIRE,0,0,NULL);
-           drawline(WIRELAYER,NOW, xx1,yy2,xx2,yy2);
+           drawline(WIRELAYER,NOW, xx1,yy2,xx2,yy2, 0);
          }
        } else {
          xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
          ORDER(xx1,yy1,xx2,yy2);
          storeobject(-1, xx1,yy1,xx2,yy2,WIRE,0,0,NULL);
-         drawline(WIRELAYER,NOW, xx1,yy1,xx2,yy2);
+         drawline(WIRELAYER,NOW, xx1,yy1,xx2,yy2, 0);
        }
        if(event_reporting) {
          printf("xschem wire %g %g %g %g %d\n", xx1, yy1, xx2, yy2, -1);
@@ -1851,32 +1851,32 @@ void new_line(int what)
            xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
            ORDER(xx1,yy1,xx2,yy1);
            storeobject(-1, xx1,yy1,xx2,yy1,LINE,rectcolor,0,NULL);
-           drawline(rectcolor,NOW, xx1,yy1,xx2,yy1);
+           drawline(rectcolor,NOW, xx1,yy1,xx2,yy1, 0);
          }
          if(yy2!=yy1) {
            xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
            ORDER(xx2,yy1,xx2,yy2);
            storeobject(-1, xx2,yy1,xx2,yy2,LINE,rectcolor,0,NULL);
-           drawline(rectcolor,NOW, xx2,yy1,xx2,yy2);
+           drawline(rectcolor,NOW, xx2,yy1,xx2,yy2, 0);
          }
        } else if(manhattan_lines==2) {
          if(yy2!=yy1) {
            xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
            ORDER(xx1,yy1,xx1,yy2);
            storeobject(-1, xx1,yy1,xx1,yy2,LINE,rectcolor,0,NULL);
-           drawline(rectcolor,NOW, xx1,yy1,xx1,yy2);
+           drawline(rectcolor,NOW, xx1,yy1,xx1,yy2, 0);
          }
          if(xx2!=xx1) {
            xx1=x1;yy1=y1;xx2=x2;yy2=y2;
            ORDER(xx1,yy2,xx2,yy2);
            storeobject(-1, xx1,yy2,xx2,yy2,LINE,rectcolor,0,NULL);
-           drawline(rectcolor,NOW, xx1,yy2,xx2,yy2);
+           drawline(rectcolor,NOW, xx1,yy2,xx2,yy2, 0);
          }
        } else {
          xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
          ORDER(xx1,yy1,xx2,yy2);
          storeobject(-1, xx1,yy1,xx2,yy2,LINE,rectcolor,0,NULL);
-         drawline(rectcolor,NOW, xx1,yy1,xx2,yy2);
+         drawline(rectcolor,NOW, xx1,yy1,xx2,yy2, 0);
        }
      }
      x1=x2=mousex_snap;y1=y2=mousey_snap;
@@ -1950,7 +1950,7 @@ void new_rect(int what)
      int save_draw;
      RECTORDER(x1,y1,x2,y2); 
      push_undo();
-     drawrect(rectcolor, NOW, x1,y1,x2,y2);
+     drawrect(rectcolor, NOW, x1,y1,x2,y2, 0);
      save_draw = draw_window;
      draw_window = 1; /* 20181009 */
      filledrect(rectcolor, NOW, x1,y1,x2,y2); /* draw fill pattern even in XCopyArea mode */
@@ -2030,7 +2030,7 @@ void new_polygon(int what) /*  20171115 */
      /* fprintf(errfp, "new_poly: finish: points=%d\n", points); */
      drawtemppolygon(gc[rectcolor], NOW, x, y, points);
      ui_state &= ~STARTPOLYGON;
-     drawpolygon(rectcolor, NOW, x, y, points, 0); /*  20180914 added fill param */
+     drawpolygon(rectcolor, NOW, x, y, points, 0, 0);
      my_free(711, &x);
      my_free(712, &y);
      maxpoints = points = 0;
