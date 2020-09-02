@@ -10,7 +10,7 @@ L 4 -130 -50 130 -50 {}
 L 4 -130 50 130 50 {}
 L 4 -130 -50 -130 50 {}
 L 4 130 -50 130 50 {}
-B 5 -152.5 -42.5 -147.5 -37.5 {name=MINUS dir=in name=p1 spice_ignore=true verilog_ignore=true vhdl_ignore=true}
+B 5 -152.5 -42.5 -147.5 -37.5 {name=MINUS dir=in name=p1 }
 L 4 -150 -40 -130 -40 {}
 T {MINUS} -125 -44 0 0 0.2 0.2 {}
 B 5 -152.5 -22.5 -147.5 -17.5 {name=PLUS dir=in name=p0 }
