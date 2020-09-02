@@ -505,7 +505,8 @@ void  vhdl_block_netlist(FILE *fd, int i)  /*20081204 */
 
   dbg(1, "vhdl_block_netlist():       architecture\n");
   fprintf(fd,"architecture arch_%s of %s is\n\n",  
-     skip_dir( schematic[currentsch]), skip_dir( schematic[currentsch]));
+     skip_dir(instdef[i].name), skip_dir(instdef[i].name) );
+  /*    skip_dir( schematic[currentsch]), skip_dir( schematic[currentsch])); */
   /* load current schematic to print used components */
 
   dbg(1, "vhdl_block_netlist():       used components\n");
@@ -592,7 +593,7 @@ void  vhdl_block_netlist(FILE *fd, int i)  /*20081204 */
 
 
   if(schvhdlprop && schvhdlprop[0]) fprintf(fd, "%s\n", schvhdlprop);
-  fprintf(fd, "end arch_%s ;\n\n", skip_dir( schematic[currentsch]) );
+  fprintf(fd, "end arch_%s ;\n\n", skip_dir(instdef[i].name) ); /* skip_dir( schematic[currentsch]) ); */
   if(split_files) { /* 20081204 */
     fclose(fd);
     my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} noshow {%s}", netl_filename, cellname);
