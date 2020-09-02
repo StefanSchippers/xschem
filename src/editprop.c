@@ -571,8 +571,9 @@ void edit_arc_property(void)
 {
   int old_fill; /* 20180914 */
   double x1, y1, x2, y2;
-  int c, i, ii;
+  int c, i, ii, old_dash, drw = 0;
   char *oldprop = NULL;
+  const char *dash;
   int preserve;
 
   if(arc[selectedgroup[0].col][selectedgroup[0].n].prop_ptr!=NULL) {
@@ -604,14 +605,27 @@ void edit_arc_property(void)
        arc[c][i].fill =1;
      else 
        arc[c][i].fill =0;
-     if(old_fill != arc[c][i].fill) {
-       bbox(BEGIN,0.0,0.0,0.0,0.0);
+     old_dash = arc[c][i].dash;
+     dash = get_tok_value(arc[c][i].prop_ptr,"dash",0);
+     if( strcmp(dash, "") )
+       arc[c][i].dash = atoi(dash);
+     else
+       arc[c][i].dash = 0;
+  
+
+     if(old_fill != arc[c][i].fill || old_dash != arc[c][i].dash) {
+       if(!drw) {
+         bbox(BEGIN,0.0,0.0,0.0,0.0);
+         drw = 1;
+       }
        arc_bbox(arc[c][i].x, arc[c][i].y, arc[c][i].r, 0, 360, &x1,&y1,&x2,&y2);
        bbox(ADD, x1, y1, x2, y2);
-       bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-       draw();
-       bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
      }
+   }
+   if(drw) {
+     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+     draw();
+     bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
    }
   }
 }

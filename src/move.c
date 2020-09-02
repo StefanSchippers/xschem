@@ -662,7 +662,7 @@ void copy_objects(int what)
 
 
       arc[c][n].sel=0;
-      drawarc(k, ADD, rx1+deltax, ry1+deltay, arc[c][n].r, angle, arc[c][n].b, arc[c][n].fill);
+      drawarc(k, ADD, rx1+deltax, ry1+deltay, arc[c][n].r, angle, arc[c][n].b, arc[c][n].fill, arc[c][n].dash);
       selectedgroup[i].n=lastarc[c];
       store_arc(-1, rx1+deltax, ry1+deltay,
                  arc[c][n].r, angle, arc[c][n].b, c, SELECTED, arc[c][n].prop_ptr);
@@ -813,7 +813,7 @@ void copy_objects(int what)
     }
    }
    filledrect(k, END, 0.0, 0.0, 0.0, 0.0);
-   drawarc(k, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0);
+   drawarc(k, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
    drawrect(k, END, 0.0, 0.0, 0.0, 0.0, 0);
    drawline(k, END, 0.0, 0.0, 0.0, 0.0, 0);
    
@@ -1095,7 +1095,7 @@ void move_objects(int what, int merge, double dx, double dy)
         arc[c][n].y = ry1;
         arc[c][n].b = angle;
       }
-      drawarc(k, ADD, arc[c][n].x, arc[c][n].y, arc[c][n].r, arc[c][n].a, arc[c][n].b, arc[c][n].fill);
+      drawarc(k, ADD, arc[c][n].x, arc[c][n].y, arc[c][n].r, arc[c][n].a, arc[c][n].b, arc[c][n].fill, arc[c][n].dash);
       break;
 
      case xRECT:
@@ -1256,7 +1256,7 @@ void move_objects(int what, int merge, double dx, double dy)
    
 
    filledrect(k, END, 0.0, 0.0, 0.0, 0.0); 
-   drawarc(k, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0);
+   drawarc(k, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
    drawrect(k, END, 0.0, 0.0, 0.0, 0.0, 0);
    drawline(k, END, 0.0, 0.0, 0.0, 0.0, 0);
   } /*end for(k ... */

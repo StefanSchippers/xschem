@@ -954,7 +954,7 @@ void draw_hilight_net(int on_window)
         draw_symbol(ADD, inst_color[i], i,c,0,0,0.0,0.0);
       }
       filledrect(inst_color[i], END, 0.0, 0.0, 0.0, 0.0);
-      drawarc(inst_color[i], END, 0.0, 0.0, 0.0, 0.0, 0.0, 0);
+      drawarc(inst_color[i], END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
       drawrect(inst_color[i], END, 0.0, 0.0, 0.0, 0.0, 0);
       drawline(inst_color[i], END, 0.0, 0.0, 0.0, 0.0, 0);
      }

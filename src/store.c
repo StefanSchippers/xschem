@@ -151,6 +151,7 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
                unsigned int rectcolor, unsigned short sel, char *prop_ptr)
 {
   int n, j;
+  const char *dash;
   check_arc_storage(rectcolor);
   if(pos==-1) n=lastarc[rectcolor];
   else
@@ -173,6 +174,12 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
     arc[rectcolor][n].fill =1;
   else
     arc[rectcolor][n].fill =0;
+  dash = get_tok_value(arc[rectcolor][n].prop_ptr,"dash",0);
+  if( strcmp(dash, "") )
+    arc[rectcolor][n].dash = atoi(dash);
+  else
+    arc[rectcolor][n].dash = 0;
+
   lastarc[rectcolor]++;
   set_modify(1);
 }

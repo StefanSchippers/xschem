@@ -352,6 +352,7 @@ typedef struct /* 20181012 */
   unsigned short sel;
   char *prop_ptr;
   int fill;
+  int dash;
 } xArc;
 
 typedef struct
@@ -777,7 +778,7 @@ extern void drawgrid(void);
 extern void drawtemprect(GC gc, int what, double rectx1,double recty1,
             double rectx2,double recty2);
 extern void drawtemparc(GC gc, int what, double x, double y, double r, double a, double b);
-extern void drawarc(int c, int what, double x, double y, double r, double a, double b, int arc_fill);
+extern void drawarc(int c, int what, double x, double y, double r, double a, double b, int arc_fill, int dash);
 extern void filledarc(int c, int what, double x, double y, double r, double a, double b);
 extern void drawtemppolygon(GC gc, int what, double *x, double *y, int points);
 extern void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash);

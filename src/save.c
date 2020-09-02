@@ -607,6 +607,7 @@ static void load_arc(FILE *fd)
 {
     int i,c;
     xArc *ptr;
+    const char *dash;
 
     dbg(3, "load_arc(): start\n");
     fscanf(fd, "%d",&c);
@@ -631,6 +632,12 @@ static void load_arc(FILE *fd)
       ptr[i].fill =1;
     else
       ptr[i].fill =0;
+    dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
+    if(strcmp(dash, "")) {
+      ptr[i].dash = atoi(dash);
+    } else {
+      ptr[i].dash = 0;
+    }
     lastarc[c]++;
 }
 
@@ -1477,6 +1484,14 @@ int load_sym_def(const char *name, FILE *embed_fd)
        aa[c][i].fill =1;
      else
        aa[c][i].fill =0;
+
+     dash = get_tok_value(aa[c][i].prop_ptr,"dash", 0);
+     if( strcmp(dash, "") )
+       aa[c][i].dash = atoi(dash);
+     else
+       aa[c][i].dash = 0;
+     aa[c][i].sel = 0;
+
 
      dbg(2, "l_d_s(): loaded arc: ptr=%lx\n", (unsigned long)aa[c]);
      lasta[c]++;
