@@ -41,7 +41,7 @@ int textclip(int x1,int y1,int x2,int y2,
 
 void print_image()
 {
-  int w, h, tmp, ww, hh, save_draw_grid;
+  int w, h, tmp, ww, hh, save_draw_grid, changed_size;
   int modified_save; /* 20161121 */
   char cmd[PATH_MAX+100];
   const char *r;
@@ -50,6 +50,7 @@ void print_image()
 
   if(!has_x) return ;
 
+  changed_size = 0;
   w = ww = xschem_w;
   h = hh = xschem_h;
   if(!plotfile[0]) {
@@ -57,6 +58,8 @@ void print_image()
     tcleval(cmd);
     if(sscanf(tclresult(), "%dx%d", &w, &h) != 2) {
       w = xschem_w; h = xschem_h;
+    } else {
+     if(w != xschem_w || h != xschem_h) changed_size = 1;
     }
     my_strdup(60, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir $env(PWD)");
     tcleval(tmpstring);
@@ -130,7 +133,7 @@ void print_image()
   save_draw_grid = draw_grid;
   draw_grid=0;
   draw_pixmap=1;
-  zoom_full(0, 0);
+  if(changed_size) zoom_full(0, 0);
   
   draw();
 #ifdef __unix__
