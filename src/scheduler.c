@@ -1130,15 +1130,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  }
 
  else if(!strcmp(argv[1],"print") ) { /* 20171022 added png, svg */
-   if(argc==2 || (argc==3 && !strcmp(argv[2],"pdf")) ) {
+   if(argc >= 4) {
+     my_strncpy(plotfile, argv[3], S(plotfile));
+   } else {
+     plotfile[0] = '\0';
+   }
+   if(argc==2 || (argc>=3 && !strcmp(argv[2],"pdf")) ) {
      ps_draw();
    }
-   else if(argc==3 && !strcmp(argv[2],"png") ) {
+   else if(argc>=3 && !strcmp(argv[2],"png") ) {
      print_image();
    }
-   else if(argc==3 && !strcmp(argv[2],"svg") ) {
+   else if(argc>=3 && !strcmp(argv[2],"svg") ) {
      svg_draw();
    }
+   Tcl_ResetResult(interp);
  }
 
  else if(!strcmp(argv[1],"subst_tok") )

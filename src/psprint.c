@@ -87,10 +87,11 @@ static void ps_xfillrectange(int layer, double x1, double y1, double x2,
 
 /* Convex Nonconvex Complex */
 #define Polygontype Nonconvex
-static void ps_drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill)
+static void ps_drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash)
 {
   double x1,y1,x2,y2;
   double xx, yy;
+  double psdash;
   int i;
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
   x1=X_TO_PS(x1);
@@ -101,23 +102,35 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points, in
     return;
   }
 
+  psdash = dash / zoom;
+  if(dash) {
+    fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
+  }
   for(i=0;i<points; i++) {
     xx = X_TO_PS(x[i]);
     yy = Y_TO_PS(y[i]);
-    if(i==0) fprintf(fd, "%.16g %.16g MT\n", xx, yy);
+    if(i==0) fprintf(fd, "newpath\n%.16g %.16g MT\n", xx, yy);
     else fprintf(fd, "%.16g %.16g LT\n", xx, yy);
   }
-  fprintf(fd, "closepath gsave stroke\n");
-  fprintf(fd, "grestore\n");
   if(fill && fill_type[c] && poly_fill) {
+    fprintf(fd, "closepath gsave stroke\n");
+    fprintf(fd, "grestore\n");
     fprintf(fd, " fill\n");
+  } else {
+    fprintf(fd, "closepath stroke\n");
+  }
+
+  
+  if(dash) {
+    fprintf(fd, "[] 0 setdash\n");
   }
 }
 
 
-static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,double recty2)
+static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,double recty2, int dash)
 {
  double x1,y1,x2,y2;
+ double psdash;
 
   x1=X_TO_PS(rectx1);
   y1=Y_TO_PS(recty1);
@@ -125,14 +138,22 @@ static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,doub
   y2=Y_TO_PS(recty2);
   if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
   {
-   ps_xfillrectange(gc, x1,y1,x2,y2);
+    psdash = dash / zoom;
+    if(dash) {
+      fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
+    }
+    ps_xfillrectange(gc, x1,y1,x2,y2);
+    if(dash) {
+      fprintf(fd, "[] 0 setdash\n");
+    }
   }
 }
 
-static void ps_drawarc(int gc, int fillarc, double x,double y,double r,double a, double b)
+static void ps_drawarc(int gc, int fillarc, double x,double y,double r,double a, double b, int dash)
 {
  double xx,yy,rr;
  double x1, y1, x2, y2;
+ double psdash;
 
   xx=X_TO_PS(x);
   yy=Y_TO_PS(y);
@@ -145,14 +166,22 @@ static void ps_drawarc(int gc, int fillarc, double x,double y,double r,double a,
 
   if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
   {
-   ps_xdrawarc(gc, fillarc, xx, yy, rr, a, b);
+    psdash = dash / zoom;
+    if(dash) {
+      fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
+    }
+    ps_xdrawarc(gc, fillarc, xx, yy, rr, a, b);
+    if(dash) {
+      fprintf(fd, "[] 0 setdash\n");
+    }
   }
 }
 
 
-static void ps_drawline(int gc, double linex1,double liney1,double linex2,double liney2)
+static void ps_drawline(int gc, double linex1,double liney1,double linex2,double liney2, int dash)
 {
  double x1,y1,x2,y2;
+ double psdash;
 
   x1=X_TO_PS(linex1);
   y1=Y_TO_PS(liney1);
@@ -160,7 +189,14 @@ static void ps_drawline(int gc, double linex1,double liney1,double linex2,double
   y2=Y_TO_PS(liney2);
   if( clip(&x1,&y1,&x2,&y2) )
   {
-   ps_xdrawline(gc, x1, y1, x2, y2);
+    psdash = dash / zoom;
+    if(dash) {
+      fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
+    }
+    ps_xdrawline(gc, x1, y1, x2, y2);
+    if(dash) {
+      fprintf(fd, "[] 0 setdash\n");
+    }
   }
 }
 
@@ -209,7 +245,7 @@ static void ps_draw_string(int gctext,  const char *str,
    ROTATION(x1,y1,curr_x1,curr_y1,rx1,ry1);
    ROTATION(x1,y1,curr_x2,curr_y2,rx2,ry2);
    ORDER(rx1,ry1,rx2,ry2);
-   ps_drawline(gctext,  rx1, ry1, rx2, ry2);
+   ps_drawline(gctext,  rx1, ry1, rx2, ry2, 0);
   }
   pos++;
  }
@@ -295,7 +331,7 @@ static void ps_draw_symbol(int n,int layer,int tmp_flip, int rot,
     ROTATION(0.0,0.0,line.x1,line.y1,x1,y1);
     ROTATION(0.0,0.0,line.x2,line.y2,x2,y2);
     ORDER(x1,y1,x2,y2);
-    ps_drawline(layer, x0+x1, y0+y1, x0+x2, y0+y2);
+    ps_drawline(layer, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
    }
    for(j=0;j< (inst_ptr[n].ptr+instdef)->polygons[layer];j++) /* 20171115 */
    {
@@ -309,7 +345,7 @@ static void ps_draw_symbol(int n,int layer,int tmp_flip, int rot,
          x[k]+= x0;
          y[k] += y0;
        }
-       ps_drawpolygon(layer, NOW, x, y, polygon.points, polygon.fill);
+       ps_drawpolygon(layer, NOW, x, y, polygon.points, polygon.fill, polygon.dash);
        my_free(876, &x);
        my_free(877, &y);
      }
@@ -327,7 +363,7 @@ static void ps_draw_symbol(int n,int layer,int tmp_flip, int rot,
      angle = fmod(angle, 360.);
      if(angle<0.) angle+=360.;
      ROTATION(0.0,0.0,arc.x,arc.y,x1,y1);
-     ps_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b);
+     ps_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
    }
    if( (layer != PINLAYER || enable_layer[layer]) ) for(j=0;j< (inst_ptr[n].ptr+instdef)->rects[layer];j++)
    {
@@ -335,7 +371,7 @@ static void ps_draw_symbol(int n,int layer,int tmp_flip, int rot,
     ROTATION(0.0,0.0,box.x1,box.y1,x1,y1);
     ROTATION(0.0,0.0,box.x2,box.y2,x2,y2);
     RECTORDER(x1,y1,x2,y2); 
-    ps_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2);
+    ps_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
    }
    if(  (layer==TEXTWIRELAYER  && !(inst_ptr[n].flags&2) ) || 
         (sym_txt && (layer==TEXTLAYER)   && (inst_ptr[n].flags&2) ) )
@@ -492,17 +528,17 @@ void ps_draw(void)
  {
   set_ps_colors(c);
   for(i=0;i<lastline[c];i++) 
-   ps_drawline(c, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
+   ps_drawline(c, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2, line[c][i].dash);
   for(i=0;i<lastrect[c];i++) 
   {
-   ps_filledrect(c, rect[c][i].x1, rect[c][i].y1, rect[c][i].x2, rect[c][i].y2);
+   ps_filledrect(c, rect[c][i].x1, rect[c][i].y1, rect[c][i].x2, rect[c][i].y2, rect[c][i].dash);
   }
   for(i=0;i<lastarc[c];i++)
   {
-    ps_drawarc(c, arc[c][i].fill, arc[c][i].x, arc[c][i].y, arc[c][i].r, arc[c][i].a, arc[c][i].b);
+    ps_drawarc(c, arc[c][i].fill, arc[c][i].x, arc[c][i].y, arc[c][i].r, arc[c][i].a, arc[c][i].b, arc[c][i].dash);
   }
   for(i=0;i<lastpolygon[c];i++) {
-    ps_drawpolygon(c, NOW, polygon[c][i].x, polygon[c][i].y, polygon[c][i].points, polygon[c][i].fill);
+    ps_drawpolygon(c, NOW, polygon[c][i].x, polygon[c][i].y, polygon[c][i].points, polygon[c][i].fill, polygon[c][i].dash);
   }
 
 
@@ -513,7 +549,7 @@ void ps_draw(void)
  set_ps_colors(WIRELAYER);
  for(i=0;i<lastwire;i++)
  {
-    ps_drawline(WIRELAYER, wire[i].x1,wire[i].y1,wire[i].x2,wire[i].y2);
+    ps_drawline(WIRELAYER, wire[i].x1,wire[i].y1,wire[i].x2,wire[i].y2, 0);
  }
 
  {
@@ -529,10 +565,10 @@ void ps_draw(void)
    for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
      i = wireptr->n;
      if( wire[i].end1 >1 ) { /* 20150331 draw_dots */
-       ps_drawarc(WIRELAYER, 1, wire[i].x1, wire[i].y1, cadhalfdotsize, 0, 360);
+       ps_drawarc(WIRELAYER, 1, wire[i].x1, wire[i].y1, cadhalfdotsize, 0, 360, 0);
      }
      if( wire[i].end2 >1 ) { /* 20150331 draw_dots */
-       ps_drawarc(WIRELAYER, 1, wire[i].x2, wire[i].y2, cadhalfdotsize, 0, 360);
+       ps_drawarc(WIRELAYER, 1, wire[i].x2, wire[i].y2, cadhalfdotsize, 0, 360, 0);
      }
    }
  }
