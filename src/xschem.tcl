@@ -170,6 +170,8 @@ proc convert_to_pdf {filename dest} {
     if { ![xschem get debug_var] } {
       file delete $filename
     }
+  } else {
+    puts stderr "problems converting postscript to pdf: $msg"
   }
 }
 
@@ -182,6 +184,8 @@ proc convert_to_png {filename dest} {
     if { ![xschem get debug_var] } {
       file delete $filename
     }
+  } else {
+    puts stderr "problems converting xpm to png: $msg"
   }
 }
 

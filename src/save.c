@@ -1533,7 +1533,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
      } else
        bb[c][i].dash = 0;
      bb[c][i].sel = 0;
-
      lastr[c]++;
      break;
     case 'T':
@@ -1655,6 +1654,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
           my_snprintf(pin_label, save, "name=%s dir=inout ", label);
         }
         my_strdup(463, &bb[PINLAYER][i].prop_ptr, pin_label);
+        bb[PINLAYER][i].dash = 0;
+        bb[PINLAYER][i].sel = 0;
 
         /* add to symbol pins remaining attributes from schematic pins, except name= and lab= */
 
