@@ -550,8 +550,11 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
       ROTATION(0.0,0.0,arc.x,arc.y,x1,y1);
       drawarc(c,what, x0+x1, y0+y1, arc.r, angle, arc.b, arc.fill, arc.dash);
     }
-  
-    if( (layer != PINLAYER || enable_layer[layer]) ) for(j=0;j< symptr->rects[layer];j++)
+  } /* if(!hide) */
+
+  if( (!hide && (layer != PINLAYER || enable_layer[layer]))  || 
+      (hide && layer == PINLAYER && enable_layer[layer]) ) {
+    for(j=0;j< symptr->rects[layer];j++)
     {
       box = (symptr->boxptr[layer])[j];
       ROTATION(0.0,0.0,box.x1,box.y1,x1,y1);
@@ -560,7 +563,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
       drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
       filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
     }
-  } /*if (!hide) */
+  }
   if( (layer==TEXTWIRELAYER && !(inst_ptr[n].flags&2) ) || 
       (sym_txt && (layer==TEXTLAYER) && (inst_ptr[n].flags&2) ) ) {
     const char *txtptr;
