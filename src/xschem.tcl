@@ -3059,6 +3059,8 @@ set_ne computerfarm {} ;# 20151007
 # set a port number in xschemrc if you want accept remote connections.
 set_ne xschem_listen_port {}
 
+# hide instance details (show only bbox) 
+set_ne hide_symbols 0
 # gaw tcp {host port} 
 set_ne gaw_tcp_address {localhost 2020}
 
@@ -3571,6 +3573,8 @@ font configure Underline-Font -underline true -size 24
    .menubar.prop.menu add command -label "View" -command "xschem view_prop" -accelerator Ctrl+Q
    .menubar.prop.menu add command -background red -label "Edit file (danger!)" -command "xschem edit_file" -accelerator Alt+Q
 
+   .menubar.sym.menu add checkbutton -label "Show only instance Bounding boxes" -variable hide_symbols \
+      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
    .menubar.sym.menu add command -label "Make symbol from schematic" -command "xschem make_symbol" -accelerator A
    .menubar.sym.menu add command -label "Make schematic from symbol" -command "xschem make_sch" -accelerator Ctrl+L
    .menubar.sym.menu add command -label "Attach pins to component instance" -command "xschem attach_pins" -accelerator Shift+H

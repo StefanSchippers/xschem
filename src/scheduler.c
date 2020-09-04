@@ -1828,6 +1828,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      int s = atoi(argv[3]);
      no_draw=s;
    }
+   else if(!strcmp(argv[2],"hide_symbols"))  { /* 20171204 */
+     int s = atoi(argv[3]);
+     hide_symbols=s;
+   }
    else if(!strcmp(argv[2],"user_top_netl_name"))  { /* 20171204 */
      my_strncpy(user_top_netl_name, argv[3], S(user_top_netl_name));
    }

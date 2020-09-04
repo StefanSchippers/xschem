@@ -269,6 +269,7 @@ struct instentry *insttable[NBOXES][NBOXES];
 size_t get_tok_value_size;
 size_t get_tok_size;
 int batch_mode = 0; /* no tcl console if set; batch mode */
+int hide_symbols = 0; /* draw only a bounding box for component instances and @symname, @name texts */
 
 #ifdef HAS_CAIRO
 cairo_surface_t *sfc, *save_sfc;

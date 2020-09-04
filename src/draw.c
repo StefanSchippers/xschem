@@ -459,6 +459,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
   register int j;
   register double x0,y0,x1,y1,x2,y2;
   int flip;
+  int hide = 0;
   Line line;
   Box box;
   xArc arc;
@@ -470,17 +471,23 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
   #ifdef HAS_CAIRO
   char *textfont;
   #endif
-
   if(inst_ptr[n].ptr == -1) return;
   if( (layer != PINLAYER && !enable_layer[layer]) ) return;
   if(!has_x) return;
+  if(hide_symbols && (inst_ptr[n].ptr+instdef)->prop_ptr && 
+     !strcmp(get_tok_value( (inst_ptr[n].ptr+instdef)->prop_ptr, "type",0 ), "subcircuit") ) {
+    hide = 1;
+  } else {
+    hide = 0;
+  }
+  if(hide && layer == 0) {
+    drawrect(PINLAYER, what, inst_ptr[n].xx1, inst_ptr[n].yy1, inst_ptr[n].xx2, inst_ptr[n].yy2, 2);
+  }
   if(layer==0) {
     x1=X_TO_SCREEN(inst_ptr[n].x1+xoffset);  /* 20150729 added xoffset, yoffset */
     x2=X_TO_SCREEN(inst_ptr[n].x2+xoffset);
     y1=Y_TO_SCREEN(inst_ptr[n].y1+yoffset);
     y2=Y_TO_SCREEN(inst_ptr[n].y2+yoffset);
- 
- 
     if(!only_probes && (x2-x1)< 0.3 && (y2-y1)< 0.3) {
       inst_ptr[n].flags|=1;
       return; /* 20171210 */
@@ -491,70 +498,69 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
      return;
     }
     else inst_ptr[n].flags&=~1;
- 
-    /* following code handles different text color for labels/pins 06112002 */
- 
+  
   } else if(inst_ptr[n].flags&1) {  
     dbg(2, "draw_symbol(): skipping inst %d\n", n);
     return;
   }
-
   flip = inst_ptr[n].flip;
   if(tmp_flip) flip = !flip;
   rot = (inst_ptr[n].rot + rot ) & 0x3;
- 
+  
   x0=inst_ptr[n].x0 + xoffset;
   y0=inst_ptr[n].y0 + yoffset;
   symptr = (inst_ptr[n].ptr+instdef);
-  for(j=0;j< symptr->lines[layer];j++)
-  {
-    line = (symptr->lineptr[layer])[j];
-    ROTATION(0.0,0.0,line.x1,line.y1,x1,y1);
-    ROTATION(0.0,0.0,line.x2,line.y2,x2,y2);
-    ORDER(x1,y1,x2,y2);
-    drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
-  }
-  for(j=0;j< symptr->polygons[layer];j++) /* 20171115 */
-  { 
-    polygon = (symptr->polygonptr[layer])[j];
-    {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
-      int k;
-      double *x = my_malloc(34, sizeof(double) * polygon.points);
-      double *y = my_malloc(35, sizeof(double) * polygon.points);
-      for(k=0;k<polygon.points;k++) {
-        ROTATION(0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
-        x[k]+= x0;
-        y[k] += y0;
+  if(!hide) {
+    for(j=0;j< symptr->lines[layer];j++)
+    {
+      line = (symptr->lineptr[layer])[j];
+      ROTATION(0.0,0.0,line.x1,line.y1,x1,y1);
+      ROTATION(0.0,0.0,line.x2,line.y2,x2,y2);
+      ORDER(x1,y1,x2,y2);
+      drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
+    }
+    for(j=0;j< symptr->polygons[layer];j++) /* 20171115 */
+    { 
+      polygon = (symptr->polygonptr[layer])[j];
+      {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
+        int k;
+        double *x = my_malloc(34, sizeof(double) * polygon.points);
+        double *y = my_malloc(35, sizeof(double) * polygon.points);
+        for(k=0;k<polygon.points;k++) {
+          ROTATION(0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
+          x[k]+= x0;
+          y[k] += y0;
+        }
+        drawpolygon(c, NOW, x, y, polygon.points, polygon.fill, polygon.dash); /* 20180914 added fill */
+        my_free(718, &x);
+        my_free(719, &y);
       }
-      drawpolygon(c, NOW, x, y, polygon.points, polygon.fill, polygon.dash); /* 20180914 added fill */
-      my_free(718, &x);
-      my_free(719, &y);
     }
-  }
-  for(j=0;j< symptr->arcs[layer];j++)
-  { 
-    
-    arc = (symptr->arcptr[layer])[j];
-    if(flip) {
-      angle = 270.*rot+180.-arc.b-arc.a;
-    } else {
-      angle = arc.a+rot*270.;
+    for(j=0;j< symptr->arcs[layer];j++)
+    { 
+      
+      arc = (symptr->arcptr[layer])[j];
+      if(flip) {
+        angle = 270.*rot+180.-arc.b-arc.a;
+      } else {
+        angle = arc.a+rot*270.;
+      }
+      angle = fmod(angle, 360.);
+      if(angle<0.) angle+=360.;
+      ROTATION(0.0,0.0,arc.x,arc.y,x1,y1);
+      drawarc(c,what, x0+x1, y0+y1, arc.r, angle, arc.b, arc.fill, arc.dash);
     }
-    angle = fmod(angle, 360.);
-    if(angle<0.) angle+=360.;
-    ROTATION(0.0,0.0,arc.x,arc.y,x1,y1);
-    drawarc(c,what, x0+x1, y0+y1, arc.r, angle, arc.b, arc.fill, arc.dash);
-  }
-
-  if( (layer != PINLAYER || enable_layer[layer]) ) for(j=0;j< symptr->rects[layer];j++)
-  {
-    box = (symptr->boxptr[layer])[j];
-    ROTATION(0.0,0.0,box.x1,box.y1,x1,y1);
-    ROTATION(0.0,0.0,box.x2,box.y2,x2,y2);
-    RECTORDER(x1,y1,x2,y2); 
-    drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
-    filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
-  }
+  
+    if( (layer != PINLAYER || enable_layer[layer]) ) for(j=0;j< symptr->rects[layer];j++)
+    {
+      box = (symptr->boxptr[layer])[j];
+      ROTATION(0.0,0.0,box.x1,box.y1,x1,y1);
+      ROTATION(0.0,0.0,box.x2,box.y2,x2,y2);
+      RECTORDER(x1,y1,x2,y2); 
+      drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
+      filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
+    }
+  } /*if (!hide) */
   if( (layer==TEXTWIRELAYER && !(inst_ptr[n].flags&2) ) || 
       (sym_txt && (layer==TEXTLAYER) && (inst_ptr[n].flags&2) ) ) {
     const char *txtptr;
@@ -562,6 +568,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
     {
       text = symptr->txtptr[j];
       if(text.xscale*FONTWIDTH*mooz<1) continue;
+      if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
       ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
 

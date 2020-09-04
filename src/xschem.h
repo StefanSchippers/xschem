@@ -679,6 +679,8 @@ extern struct instentry *insttable[NBOXES][NBOXES];
 extern size_t get_tok_value_size;
 extern size_t get_tok_size;
 extern int batch_mode; /* no TCL console */
+extern int hide_symbols; /* draw only a bounding box for component instances and @symname, @name texts */
+
 /*  functions */
 extern void dbg(int level, char *fmt, ...);
 extern void here(void);

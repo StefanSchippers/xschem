@@ -64,6 +64,7 @@ ctrl        'a'         Select all
 shift       'A'         Toggle show netlist
 -           'b'         Merge file
 ctrl        'b'         Toggle show text in symbol
+alt         'b'         Toggle show symbol details / only bounding boxes
 shift       'B'         Delete files
 -           'c'         Copy selected obj. 
 ctrl        'c'         Save to clipboard

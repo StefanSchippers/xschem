@@ -1283,6 +1283,15 @@ int callback(int event, int mx, int my, KeySym key,
     merge_file(0, ""); /* 2nd parameter not used any more for merge 25122002 */
     break;
    }
+   if(key=='b' && state==Mod1Mask)                     /* hide/show instance details */
+   {
+    if(semaphore >= 2) break;
+    hide_symbols = !hide_symbols;
+    if(hide_symbols) tclsetvar("hide_symbols", "1");
+    else             tclsetvar("hide_symbols", "0");
+    draw();
+    break;
+   }
    if(key=='B' && state==ShiftMask)                     /* delete files */
    {
 
