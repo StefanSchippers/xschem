@@ -1553,6 +1553,13 @@ int load_sym_def(const char *name, FILE *embed_fd)
      }
      tt[i].prop_ptr=NULL;
      load_ascii_string(&tt[i].prop_ptr, lcc[level].fd);
+
+     if(level > 0 && symtype && !strcmp(symtype, "label")) {
+       char lay[30];
+       my_snprintf(lay, S(lay), " layer=%d", WIRELAYER);
+       my_strcat(1, &tt[i].prop_ptr, lay);
+     }
+     
      dbg(1, "l_d_s(): loaded text : t=%s p=%s\n", tt[i].txt_ptr, tt[i].prop_ptr);
 
      my_strdup(351, &tt[i].font, get_tok_value(tt[i].prop_ptr, "font", 0));/*20171206 */
