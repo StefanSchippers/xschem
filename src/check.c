@@ -87,6 +87,7 @@ void update_conn_cues(int draw_cues, int dr_win)
   double x1, y1, x2, y2;
   struct wireentry *wireptr;
   
+  hash_wires(); /* must be done also if lastwire==0 to clear wiretable */
   if(!lastwire) return;
   if(!draw_dots) return;
   if(cadhalfdotsize*mooz<0.7) return;
@@ -94,7 +95,6 @@ void update_conn_cues(int draw_cues, int dr_win)
   y1 = Y_TO_XSCHEM(areay1);
   x2 = X_TO_XSCHEM(areax2);
   y2 = Y_TO_XSCHEM(areay2);
-  hash_wires();
   for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
     k=wireptr->n;
     /* optimization when editing small areas (detailed zoom)  of a huge schematic */

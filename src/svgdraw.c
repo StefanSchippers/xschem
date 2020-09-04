@@ -63,11 +63,11 @@ static void set_svg_colors(unsigned int pixel)
 
 }
 
-static void svg_xdrawline(int layer, double x1, double y1, double x2, double y2)
+static void svg_xdrawline(int layer, double x1, double y1, double x2, double y2, int dash)
 {
-
- fprintf(fd,"<path class=\"l%d\" d=\"", layer);
- fprintf(fd,"M%g %gL%g %g\"/>\n", x1, y1, x2, y2);
+ fprintf(fd,"<path class=\"l%d\" ", layer);
+ if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/zoom, 1.4*dash/zoom);
+ fprintf(fd,"d=\"M%g %gL%g %g\"/>\n", x1, y1, x2, y2);
 }
 
 static void svg_xdrawpoint(int layer, double x1, double y1)
@@ -76,13 +76,14 @@ static void svg_xdrawpoint(int layer, double x1, double y1)
  fprintf(fd,"M%g %gL%g %gL%g%gL%g %gL%g %gz\"/>\n", x1, y1, x1+1.0, y1, x1+1.0, y1+1.0, x1, y1+1.0, x1, y1);
 }
 
-static void svg_xfillrectangle(int layer, double x1, double y1, double x2, double y2)
+static void svg_xfillrectangle(int layer, double x1, double y1, double x2, double y2, int dash)
 {
- fprintf(fd,"<path class=\"l%d\" d=\"", layer);
- fprintf(fd,"M%g %gL%g %gL%g %gL%g %gL%g %gz\"/>\n", x1, y1, x2, y1, x2, y2, x1, y2, x1, y1);
+ fprintf(fd,"<path class=\"l%d\" ", layer);
+ if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/zoom, 1.4*dash/zoom);
+ fprintf(fd,"d=\"M%g %gL%g %gL%g %gL%g %gL%g %gz\"/>\n", x1, y1, x2, y1, x2, y2, x1, y2, x1, y1);
 }
 
-static void svg_drawpolygon(int c, int what, double *x, double *y, int points)
+static void svg_drawpolygon(int c, int what, double *x, double *y, int points, int fill, int dash)
 {
   double x1,y1,x2,y2;
   double xx, yy;
@@ -95,18 +96,24 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points)
   if( !rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) ) {
     return;
   }
-
-  fprintf(fd,"<path class=\"l%d\" d=\"", c);
+  fprintf(fd, "<path class=\"l%d\" ", c);
+  if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/zoom, 1.4*dash/zoom);
+  if(fill) {
+    fprintf(fd,"style=\"fill:#%02x%02x%02x;\" d=\"", svg_stroke.red, svg_stroke.green, svg_stroke.blue);
+  } else {
+    fprintf(fd,"style=\"fill:none;\" d=\"");
+  }
   for(i=0;i<points; i++) {
     xx = X_TO_SVG(x[i]);
     yy = Y_TO_SVG(y[i]);
     if(i==0) fprintf(fd, "M%g %g", xx, yy);
     else fprintf(fd, "L%g %g", xx, yy);
   }
-  fprintf(fd, "z\"/>\n");
+  /* fprintf(fd, "z\"/>\n"); */
+  fprintf(fd, "\"/>\n");
 }
 
-static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,double recty2)
+static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,double recty2, int dash)
 {
  double x1,y1,x2,y2;
 
@@ -116,7 +123,7 @@ static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,dou
   y2=Y_TO_SVG(recty2);
   if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
   {
-   svg_xfillrectangle(gc, x1,y1,x2,y2);
+   svg_xfillrectangle(gc, x1,y1,x2,y2, dash);
   }
 }
 
@@ -141,7 +148,7 @@ static void svg_drawcircle(int gc, int fillarc, double x,double y,double r,doubl
   }
 }
 
-static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a, double b)
+static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a, double b, int dash)
 {
  double xx,yy,rr;
  double x1, y1, x2, y2;
@@ -160,12 +167,16 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
   if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
   {
     if(b == 360.) {
+      fprintf(fd, "<circle cx=\"%g\" cy=\"%g\" r=\"%g\" ", xx, yy, rr);
+      if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/zoom, 1.4*dash/zoom);
       if(fillarc) 
-        fprintf(fd, "<circle cx=\"%g\" cy=\"%g\" r=\"%g\" class=\"l%d\" stroke=\"rgb(%d,%d,%d)\" stroke-width=\"%g\"/>\n",
-           xx, yy, rr, gc, svg_stroke.red, svg_stroke.green, svg_stroke.blue, svg_linew);
+        fprintf(fd, 
+         "fill=\"rgb(%d,%d,%d)\" stroke=\"rgb(%d,%d,%d)\" stroke-width=\"%g\"/>\n",
+           svg_stroke.red, svg_stroke.green, svg_stroke.blue, 
+           svg_stroke.red, svg_stroke.green, svg_stroke.blue, svg_linew);
       else
-        fprintf(fd, "<circle cx=\"%g\" cy=\"%g\" r=\"%g\" stroke=\"rgb(%d,%d,%d)\" fill=\"none\" stroke-width=\"%g\"/>\n",
-           xx, yy, rr, svg_stroke.red, svg_stroke.green, svg_stroke.blue, svg_linew);
+        fprintf(fd, "stroke=\"rgb(%d,%d,%d)\" fill=\"none\" stroke-width=\"%g\"/>\n",
+           svg_stroke.red, svg_stroke.green, svg_stroke.blue, svg_linew);
     } else {
       xx1 = rr * cos(a * XSCH_PI / 180.) + xx;
       yy1 = -rr * sin(a * XSCH_PI / 180.) + yy;
@@ -174,17 +185,19 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
       fa = b > 180 ? 1 : 0;
       fs = b > 0 ? 0 : 1;
      
+      fprintf(fd,"<path class=\"l%d\" ", gc);
+      if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/zoom, 1.4*dash/zoom);
       if(fillarc) 
-        fprintf(fd,"<path class=\"l%d\" d=\"", gc);
+        fprintf(fd,"style=\"fill:%02x%02x%02x;\" d=\"", svg_stroke.red, svg_stroke.green, svg_stroke.blue);
       else
-        fprintf(fd,"<path class=\"l%d\" style=\"fill:none\" d=\"", gc);
+        fprintf(fd,"style=\"fill:none\" d=\"");
       fprintf(fd, "M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2);
     }
   }
 }
 
 
-static void svg_drawline(int gc, double linex1,double liney1,double linex2,double liney2)
+static void svg_drawline(int gc, double linex1,double liney1,double linex2,double liney2, int dash)
 {
  double x1,y1,x2,y2;
 
@@ -194,7 +207,7 @@ static void svg_drawline(int gc, double linex1,double liney1,double linex2,doubl
   y2=Y_TO_SVG(liney2);
   if( clip(&x1,&y1,&x2,&y2) )
   {
-   svg_xdrawline(gc, x1, y1, x2, y2);
+   svg_xdrawline(gc, x1, y1, x2, y2, dash);
   }
 }
 
@@ -241,7 +254,7 @@ static void svg_draw_string(int gctext, const char *str,
    ROTATION(x1,y1,curr_x1,curr_y1,rx1,ry1);
    ROTATION(x1,y1,curr_x2,curr_y2,rx2,ry2);
    ORDER(rx1,ry1,rx2,ry2);
-   svg_drawline(gctext,  rx1, ry1, rx2, ry2);
+   svg_drawline(gctext,  rx1, ry1, rx2, ry2, 0);
   }
   pos++;
  }
@@ -259,11 +272,11 @@ static void svg_drawgrid()
  set_svg_colors(GRIDLAYER);
  if(y>areay1 && y<areay2)
  {
-  svg_xdrawline(GRIDLAYER,areax1+1,(int)y, areax2-1, (int)y);
+  svg_xdrawline(GRIDLAYER,areax1+1,(int)y, areax2-1, (int)y, 0);
  }
  if(x>areax1 && x<areax2)
  {
-  svg_xdrawline(GRIDLAYER,(int)x,areay1+1, (int)x, areay2-1);
+  svg_xdrawline(GRIDLAYER,(int)x,areay1+1, (int)x, areay2-1, 0);
  }
  set_svg_colors(GRIDLAYER);
  tmp = floor((areay1+1)/delta)*delta-fmod(-yorigin* mooz,delta);
@@ -327,7 +340,7 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
     ROTATION(0.0,0.0,line.x1,line.y1,x1,y1);
     ROTATION(0.0,0.0,line.x2,line.y2,x2,y2);
     ORDER(x1,y1,x2,y2);
-    svg_drawline(layer, x0+x1, y0+y1, x0+x2, y0+y2);
+    svg_drawline(layer, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
    }
 
    for(j=0;j< (inst_ptr[n].ptr+instdef)->polygons[layer];j++) /* 20171115 */
@@ -342,7 +355,7 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
          x[k]+= x0;
          y[k] += y0;
        }
-       svg_drawpolygon(layer, NOW, x, y, polygon.points);
+       svg_drawpolygon(layer, NOW, x, y, polygon.points, polygon.fill, polygon.dash);
        my_free(961, &x);
        my_free(962, &y);
      }
@@ -359,7 +372,7 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
      angle = fmod(angle, 360.);
      if(angle<0.) angle+=360.;
      ROTATION(0.0,0.0,arc.x,arc.y,x1,y1);
-     svg_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b);
+     svg_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
    }
 
    if( (layer != PINLAYER || enable_layer[layer]) ) for(j=0;j< (inst_ptr[n].ptr+instdef)->rects[layer];j++)
@@ -368,7 +381,7 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
     ROTATION(0.0,0.0,box.x1,box.y1,x1,y1);
     ROTATION(0.0,0.0,box.x2,box.y2,x2,y2);
     RECTORDER(x1,y1,x2,y2); 
-    svg_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2);
+    svg_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
    }
    if(  (layer==TEXTWIRELAYER  && !(inst_ptr[n].flags&2) ) || 
         (sym_txt && (layer==TEXTLAYER)   && (inst_ptr[n].flags&2) ) )
@@ -525,17 +538,17 @@ void svg_draw(void)
    {
     set_svg_colors(c);
     for(i=0;i<lastline[c];i++) 
-     svg_drawline(c, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
+     svg_drawline(c, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2, line[c][i].dash);
     for(i=0;i<lastrect[c];i++) 
     {
-     svg_filledrect(c, rect[c][i].x1, rect[c][i].y1, rect[c][i].x2, rect[c][i].y2);
+     svg_filledrect(c, rect[c][i].x1, rect[c][i].y1, rect[c][i].x2, rect[c][i].y2, rect[c][i].dash);
     }
     for(i=0;i<lastarc[c];i++)
     {
-      svg_drawarc(c, arc[c][i].fill, arc[c][i].x, arc[c][i].y, arc[c][i].r, arc[c][i].a, arc[c][i].b);
+      svg_drawarc(c, arc[c][i].fill, arc[c][i].x, arc[c][i].y, arc[c][i].r, arc[c][i].a, arc[c][i].b, arc[c][i].dash);
     }
     for(i=0;i<lastpolygon[c];i++) {
-      svg_drawpolygon(c, NOW, polygon[c][i].x, polygon[c][i].y, polygon[c][i].points);
+      svg_drawpolygon(c, NOW, polygon[c][i].x, polygon[c][i].y, polygon[c][i].points, polygon[c][i].fill, polygon[c][i].dash);
     }
     for(i=0;i<lastinst;i++) {
       svg_draw_symbol(i,c,0,0,0.0,0.0);
@@ -546,7 +559,7 @@ void svg_draw(void)
    set_svg_colors(WIRELAYER);
    for(i=0;i<lastwire;i++)
    {
-      svg_drawline(WIRELAYER, wire[i].x1,wire[i].y1,wire[i].x2,wire[i].y2);
+      svg_drawline(WIRELAYER, wire[i].x1,wire[i].y1,wire[i].x2,wire[i].y2, 0);
    }
    {
      double x1, y1, x2, y2;
