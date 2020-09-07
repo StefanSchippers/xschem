@@ -315,6 +315,7 @@ typedef struct
    unsigned short sel;
    char *prop_ptr;
    int dash;
+   int bus;
 } Line;
 
 typedef struct

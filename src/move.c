@@ -356,15 +356,24 @@ void draw_selection(GC g, int interruptable)
      ORDER(rx1,ry1,rx2,ry2);
      if(line[c][n].sel==SELECTED)
      {
-      drawtempline(g, ADD, rx1+deltax, ry1+deltay, rx2+deltax, ry2+deltay);
+       if(line[c][n].bus)
+         drawtempline(g, THICK, rx1+deltax, ry1+deltay, rx2+deltax, ry2+deltay);
+       else
+         drawtempline(g, ADD, rx1+deltax, ry1+deltay, rx2+deltax, ry2+deltay);
      }
      else if(line[c][n].sel==SELECTED1)
      {
-      drawtempline(g, ADD, rx1+deltax, ry1+deltay, rx2, ry2);
+       if(line[c][n].bus)
+         drawtempline(g, THICK, rx1+deltax, ry1+deltay, rx2, ry2);
+       else
+         drawtempline(g, ADD, rx1+deltax, ry1+deltay, rx2, ry2);
      }
      else if(line[c][n].sel==SELECTED2)
      {
-      drawtempline(g, ADD, rx1, ry1, rx2+deltax, ry2+deltay);
+       if(line[c][n].bus)
+         drawtempline(g, THICK, rx1, ry1, rx2+deltax, ry2+deltay);
+       else
+         drawtempline(g, ADD, rx1, ry1, rx2+deltax, ry2+deltay);
      }
      break;
     case ARC:
@@ -597,7 +606,10 @@ void copy_objects(int what)
        if(line[c][n].sel == SELECTED1) line[c][n].sel = SELECTED2;
        else if(line[c][n].sel == SELECTED2) line[c][n].sel = SELECTED1;
       }
-      drawline(k, ADD, rx1,ry1,rx2,ry2, line[c][n].dash);
+      if(line[c][n].bus)
+        drawline(k, THICK, rx1,ry1,rx2,ry2, line[c][n].dash);
+      else
+        drawline(k, ADD, rx1,ry1,rx2,ry2, line[c][n].dash);
       selectedgroup[i].n=lastline[c];
       storeobject(-1, rx1, ry1, rx2, ry2, LINE, c, line[c][n].sel, line[c][n].prop_ptr);
       line[c][n].sel=0;
@@ -1010,7 +1022,10 @@ void move_objects(int what, int merge, double dx, double dy)
       line[c][n].y1=ry1;
       line[c][n].x2=rx2;
       line[c][n].y2=ry2;
-      drawline(k, ADD, line[c][n].x1, line[c][n].y1, line[c][n].x2, line[c][n].y2, line[c][n].dash);
+      if(line[c][n].bus) 
+        drawline(k, THICK, line[c][n].x1, line[c][n].y1, line[c][n].x2, line[c][n].y2, line[c][n].dash);
+      else
+        drawline(k, ADD, line[c][n].x1, line[c][n].y1, line[c][n].x2, line[c][n].y2, line[c][n].dash);
       break;
 
      case POLYGON: /* 20171115 */

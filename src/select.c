@@ -123,7 +123,15 @@ static void del_rect_line_arc_poly(void)
    if(line[c][i].sel == SELECTED)
    {
     j++;
-    bbox(ADD, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
+    if(line[c][i].bus){ /* 20171201 */
+      int ov, y1, y2;
+      ov = bus_width;
+      if(line[c][i].y1 < line[c][i].y2) { y1 = line[c][i].y1-ov; y2 = line[c][i].y2+ov; }
+      else                        { y1 = line[c][i].y1+ov; y2 = line[c][i].y2-ov; }
+      bbox(ADD, line[c][i].x1-ov, y1 , line[c][i].x2+ov , y2 );
+    } else {
+      bbox(ADD, line[c][i].x1, line[c][i].y1 , line[c][i].x2 , line[c][i].y2 );
+    }
     set_modify(1);
     my_free(929, &line[c][i].prop_ptr);
     continue;
@@ -522,7 +530,10 @@ void unselect_all(void)
       if(line[c][i].sel)
       {
        line[c][i].sel = 0;
-       drawtempline(gctiled, ADD, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
+       if(line[c][i].bus) 
+         drawtempline(gctiled, THICK, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
+       else
+         drawtempline(gctiled, ADD, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
       }
      }
      for(i=0;i<lastpolygon[c];i++)
@@ -815,10 +826,16 @@ void select_line(int c, int i, unsigned short select_mode, int fast )
   else 
    line[c][i].sel = select_mode;
   if(select_mode) {
-   drawtempline(gc[SELLAYER], ADD, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
+   if(line[c][i].bus) 
+     drawtempline(gc[SELLAYER], THICK, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
+   else
+     drawtempline(gc[SELLAYER], ADD, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
   }
   else
-   drawtempline(gctiled, NOW, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
+   if(line[c][i].bus) 
+     drawtempline(gctiled, THICK, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
+   else
+     drawtempline(gctiled, NOW, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2);
   need_rebuild_selected_array=1;
 }
 

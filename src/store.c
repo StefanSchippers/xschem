@@ -260,6 +260,10 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      line[rectcolor][n].prop_ptr=NULL;
      my_strdup(412, &line[rectcolor][n].prop_ptr, prop_ptr);
      line[rectcolor][n].sel=sel;
+     if( !strcmp(get_tok_value(line[rectcolor][n].prop_ptr, "bus", 0), "true") ) 
+       line[rectcolor][n].bus = 1;
+     else
+       line[rectcolor][n].bus = 0;
      dash = get_tok_value(line[rectcolor][n].prop_ptr,"dash",0);
      if( strcmp(dash, "") ) {
        int d = atoi(dash);

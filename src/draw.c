@@ -517,7 +517,10 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
       ROTATION(0.0,0.0,line.x1,line.y1,x1,y1);
       ROTATION(0.0,0.0,line.x2,line.y2,x2,y2);
       ORDER(x1,y1,x2,y2);
-      drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
+      if(line.bus) 
+        drawline(c,THICK, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
+      else
+        drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
     }
     for(j=0;j< symptr->polygons[layer];j++) /* 20171115 */
     { 
@@ -1565,8 +1568,12 @@ void draw(void)
         {
           if(draw_single_layer!=-1 && c != draw_single_layer) continue; /* 20151117 */
         
-          for(i=0;i<lastline[c];i++) 
-            drawline(c, ADD, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2, line[c][i].dash);
+          for(i=0;i<lastline[c];i++) {
+            if(line[c][i].bus)
+              drawline(c, THICK, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2, line[c][i].dash);
+            else
+              drawline(c, ADD, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2, line[c][i].dash);
+          }
           for(i=0;i<lastrect[c];i++) 
           {
             drawrect(c, ADD, rect[c][i].x1, rect[c][i].y1, rect[c][i].x2, rect[c][i].y2, rect[c][i].dash);

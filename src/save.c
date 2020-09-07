@@ -705,6 +705,12 @@ static void load_line(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
+
+    if(!strcmp(get_tok_value(ptr[i].prop_ptr, "bus", 0), "true") )
+      ptr[i].bus = 1;
+    else
+      ptr[i].bus = 0;
+
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
@@ -1400,6 +1406,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
      load_ascii_string( &ll[c][i].prop_ptr, lcc[level].fd);
      dbg(2, "l_d_s(): loaded line: ptr=%lx\n", (unsigned long)ll[c]);
 
+     if(!strcmp(get_tok_value(ll[c][i].prop_ptr,"bus", 0), "true") )
+       ll[c][i].bus = 1;
+     else 
+       ll[c][i].bus = 0;
      dash = get_tok_value(ll[c][i].prop_ptr,"dash", 0);
      if( strcmp(dash, "") ) {
        int d = atoi(dash);
@@ -1595,6 +1605,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
      load_ascii_string( &ll[WIRELAYER][i].prop_ptr, lcc[level].fd);
      dbg(2, "l_d_s(): loaded line: ptr=%lx\n", (unsigned long)ll[WIRELAYER]);
      ll[WIRELAYER][i].dash = 0;
+     if(!strcmp(get_tok_value(ll[WIRELAYER][i].prop_ptr, "bus", 0), "true"))
+       ll[WIRELAYER][i].bus = 1;
+     else
+       ll[WIRELAYER][i].bus = 0;
      ll[WIRELAYER][i].sel = 0;
      lastl[WIRELAYER]++;
      break;

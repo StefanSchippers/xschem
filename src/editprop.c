@@ -452,8 +452,7 @@ void edit_rect_property(void)
 
 void edit_line_property(void)
 {
-  int i, c, n, old_dash;
-  int drw=0;
+  int i, c, n;
   const char *dash;
   int preserve;
   char *oldprop=NULL;
@@ -467,8 +466,10 @@ void edit_line_property(void)
   preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
   if(strcmp(tclgetvar("rcode"),"") )
   {
+    int y1, y2;
     push_undo();
     set_modify(1);
+    bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
     for(i=0; i<lastselected; i++) {
       if(selectedgroup[i].type != LINE) continue;
       c = selectedgroup[i].col;
@@ -480,26 +481,20 @@ void edit_line_property(void)
         my_strdup(102, &line[c][n].prop_ptr,
                (char *) tclgetvar("retval"));
       }
-      old_dash = line[c][n].dash;
       dash = get_tok_value(line[c][n].prop_ptr,"dash",0);
+      line[c][n].bus = !strcmp(get_tok_value(line[c][n].prop_ptr,"bus",0), "true");
       if( strcmp(dash, "") ) {
         int d = atoi(dash);
         line[c][n].dash = d >= 0? d : 0;
       } else
         line[c][n].dash = 0;
-      if(old_dash != line[c][n].dash) {
-         if(!drw) {
-           bbox(BEGIN,0.0,0.0,0.0,0.0);
-           drw = 1;
-         }
-         bbox(ADD, line[c][n].x1, line[c][n].y1, line[c][n].x2, line[c][n].y2);
-      }
+      if(line[c][n].y1 < line[c][n].y2) { y1 = line[c][n].y1-bus_width; y2 = line[c][n].y2+bus_width; }
+      else                        { y1 = line[c][n].y1+bus_width; y2 = line[c][n].y2-bus_width; }
+      bbox(ADD, line[c][n].x1-bus_width, y1 , line[c][n].x2+bus_width , y2 );
     }
-    if(drw) {
-      bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-      draw();
-      bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
-    }
+    bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+    draw();
+    bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   }
   my_free(726, &oldprop);
 }
@@ -524,6 +519,7 @@ void edit_wire_property(void)
   {
     push_undo(); /* 20150327 */
     set_modify(1); 
+    bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
     for(i=0; i<lastselected; i++) {
       int oldbus=0;
       int k = selectedgroup[i].n;
@@ -541,30 +537,25 @@ void edit_wire_property(void)
       bus_ptr = get_tok_value(wire[k].prop_ptr,"bus",0);
       if(!strcmp(bus_ptr, "true")) {
         int ov, y1, y2;
-        bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
         ov = bus_width > cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
         if(wire[k].y1 < wire[k].y2) { y1 = wire[k].y1-ov; y2 = wire[k].y2+ov; }
         else                        { y1 = wire[k].y1+ov; y2 = wire[k].y2-ov; }
         bbox(ADD, wire[k].x1-ov, y1 , wire[k].x2+ov , y2 );
         wire[k].bus=1;
-        bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-        draw();
-        bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
       } else {
         if(oldbus){ /* 20171201 */
           int ov, y1, y2;
-          bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
           ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
           if(wire[k].y1 < wire[k].y2) { y1 = wire[k].y1-ov; y2 = wire[k].y2+ov; }
           else                        { y1 = wire[k].y1+ov; y2 = wire[k].y2-ov; }
           bbox(ADD, wire[k].x1-ov, y1 , wire[k].x2+ov , y2 );
           wire[k].bus=0;
-          bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-          draw();
-          bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
         }
       }
     }
+    bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+    draw();
+    bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   }
   my_free(727, &oldprop);
 }
