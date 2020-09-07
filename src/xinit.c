@@ -1339,6 +1339,16 @@ int Tcl_AppInit(Tcl_Interp *inter)
     set_grid(0); /* set default value specified in xschemrc as 'grid' else CADGRID */
  } /* if(has_x) */
  dbg(1, "Tcl_AppInit(): done X init\n");
+
+/* pass to tcl values of Alt, Shift, COntrol key masks so bind Alt-KeyPress events will work for windows */
+#ifndef __unix__ 
+ my_snprintf(tmp, S(tmp), "%d", Mod1Mask);
+ tclsetvar("Mod1Mask", tmp);
+ my_snprintf(tmp, S(tmp), "%d", ShiftMask);
+ tclsetvar("ShiftMask", tmp);
+ my_snprintf(tmp, S(tmp), "%d", ControlMask);
+ tclsetvar("ControlMask", tmp);
+#endif
  /*  END X INITIALIZATION */
 
  init_done=1;  /* 20171008 moved before option processing, otherwise xwin_exit will not be invoked */

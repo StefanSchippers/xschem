@@ -1439,12 +1439,16 @@ int callback(int event, int mx, int my, KeySym key,
      mx_save = mx; my_save = my;        /* 20171218 */
      mx_double_save=mousex_snap;
      my_double_save=mousey_snap;
-     if(semaphore<2) { /* 20160425 */
+
+     /* useless code ? 20200905 */
+     /* if(semaphore<2) {
        rebuild_selected_array();
        if(lastselected==0) ui_state &=~SELECTION;
-     }
+     } */
+
      select_object(mousex, mousey, 0, 0);
      rebuild_selected_array();
+     if(lastselected==0) ui_state &=~SELECTION;
    }
    else if(button==Button2 && (state == 0)) {
      pan2(BEGIN, mx, my);
