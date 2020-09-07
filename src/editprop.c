@@ -481,8 +481,8 @@ void edit_line_property(void)
         my_strdup(102, &line[c][n].prop_ptr,
                (char *) tclgetvar("retval"));
       }
-      dash = get_tok_value(line[c][n].prop_ptr,"dash",0);
       line[c][n].bus = !strcmp(get_tok_value(line[c][n].prop_ptr,"bus",0), "true");
+      dash = get_tok_value(line[c][n].prop_ptr,"dash",0);
       if( strcmp(dash, "") ) {
         int d = atoi(dash);
         line[c][n].dash = d >= 0? d : 0;

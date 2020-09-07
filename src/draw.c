@@ -793,7 +793,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
  register XSegment *rr;
  char dash_arr[2];
 
- if(dash) what = NOW;
+ if(dash && what !=THICK) what = NOW;
 
  if(!has_x) return;
  rr=r;
