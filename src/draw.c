@@ -667,7 +667,10 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
   ROTATION(0.0,0.0,line.x1,line.y1,x1,y1);
   ROTATION(0.0,0.0,line.x2,line.y2,x2,y2);
   ORDER(x1,y1,x2,y2);
-  drawtempline(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
+  if(line.bus)
+    drawtempline(gc,THICK, x0+x1, y0+y1, x0+x2, y0+y2);
+  else
+    drawtempline(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
  }
  for(j=0;j< symptr->polygons[layer];j++) /* 20171115 */
  {
