@@ -1102,7 +1102,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  split_files=atoi(tclgetvar("split_files"));
  netlist_show=atoi(tclgetvar("netlist_show"));
- fullscreen=atoi(tclgetvar("fullscreen"));
  unzoom_nodrift=atoi(tclgetvar("unzoom_nodrift"));
  
  if(color_ps==-1) 
@@ -1351,15 +1350,22 @@ int Tcl_AppInit(Tcl_Interp *inter)
 #endif
  /*  END X INITIALIZATION */
 
+
  init_done=1;  /* 20171008 moved before option processing, otherwise xwin_exit will not be invoked */
                /* leaving undo buffer and other garbage around. */
-
 
  /*                                                                                  */
  /* Completing tk windows creation (see xschem.tcl, build_windows) and event binding */
  /* *AFTER* X initialization done                                                    */ 
  /*                                                                                  */
  tcleval("build_windows");
+
+ fullscreen=atoi(tclgetvar("fullscreen"));
+ if(fullscreen) {
+   fullscreen = 0;
+   tcleval("update");
+   toggle_fullscreen();
+ }
 
  /*                                */
  /*  START PROCESSING USER OPTIONS */
