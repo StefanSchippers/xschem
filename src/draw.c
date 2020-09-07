@@ -481,7 +481,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
     hide = 0;
   }
   if(hide && layer == 0) {
-    drawrect(PINLAYER, what, inst_ptr[n].xx1, inst_ptr[n].yy1, inst_ptr[n].xx2, inst_ptr[n].yy2, 2);
+    drawrect(4, what, inst_ptr[n].xx1, inst_ptr[n].yy1, inst_ptr[n].xx2, inst_ptr[n].yy2, 2);
   }
   if(layer==0) {
     x1=X_TO_SCREEN(inst_ptr[n].x1+xoffset);  /* 20150729 added xoffset, yoffset */
