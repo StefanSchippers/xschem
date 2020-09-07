@@ -2934,7 +2934,6 @@ proc build_windows {} {
     }
 
     bind .drw <KeyPress> {xschem callback %T %x %y %N 0 0 %s}
-    bind .drw <KeyPress> {xschem callback %T %x %y %N 0 0 %s}
     bind .drw <KeyRelease> {xschem callback %T %x %y %N 0 0 %s} ;# 20161118
     bind .drw <Motion> {xschem callback %T %x %y 0 0 0 %s}
     bind .drw  <Enter> {xschem callback %T %x %y 0 0 0 0 }
