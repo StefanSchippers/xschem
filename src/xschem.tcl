@@ -2928,7 +2928,7 @@ proc build_windows {} {
 
     # on Windows Alt key mask is reported as 131072 (1<<17) so build masks manually with values passed from C code 
     if {$::OS == "Windows" } {
-      bind .drw <Alt-KeyPress> {puts xxx; xschem callback %T %x %y %N 0 0 [expr $Mod1Mask]}
+      bind .drw <Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr $Mod1Mask]}
       bind .drw <Control-Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr $ShiftMask + $Mod1Mask]}
       bind .drw <Shift-Alt-KeyPress> {xschem callback %T %x %y %N 0 0 9 [expr $ControlMask + $Mod1Mask]}
     }
