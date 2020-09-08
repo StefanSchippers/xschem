@@ -56,13 +56,15 @@ p{padding: 15px  30px 10px;}
   <h3> POLYGONS </h3>
   <p>
    Polygons are paths that can be drawn on any layer. Placements begins with the <kbd>'ctrl-w'</kbd> key
-   and continues as long as the user clicks points on the drawing area. Placement ends when:
+   and continues as long as the user clicks points on the drawing area. Placement ends when:</p>
    <ul>
    <li> the last point is coincident to the first point.</li>
    <li>  or by clicking the <kbd>right mouse button</kbd>,  for an open polygon. </li>
    <li>  or by hitting the <kbd>Return</kbd> key, for a closed polygon
          (this can be done also by clicking the last point coincident to the first polygon point).</li>
    </ul>
+  <p>
+  A <kbd>fill=true</kbd> attribute may be given to have the shape filled with the layer fill style.
   </p>
   <img src="xschem_polygons.png">
   <h3> CIRCLES / ARCS </h3>
@@ -77,6 +79,7 @@ p{padding: 15px  30px 10px;}
    - (start point selected in stretch mode):by starting a move (<kbd>m</kbd>) operation and moving the mouse the start arc angle may be changed.<br>
    - (arch center selected in stretch mode): by starting a move (<kbd>m</kbd>) operation and moving the mouse the arc radius may be changed.<br>
    If a circle is needed then use the <kbd>Ctrl-Shift-C</kbd> key combination.
+   <br>A <kbd>fill=true</kbd> attribute may be given to have the shape filled with the layer fill style.
   </p>
   <img src="xschem_elements_01.png">
 

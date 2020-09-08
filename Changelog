@@ -1,4 +1,14 @@
 2.9.8
+- enable "bus=true" attribute for lines as well as for wires.
+  As a side effect LCC schematics with bussed wires will display thick buses
+- added command <Alt-b> (menu Symbol->Show only instance Bounding boxes) to toggle
+  displaying instance detals / only bounding box.
+- added "dash=n" (n=integer) attribute for lines, polygons, rectangles, arcs to set dashed line style.
+  n is the dash length in pixels.
+- verilog_ignore, spice_ignore, vhdl_ignore attributes on schematic pins are propagated to symbol pin attributes
+  (if using make symbol from schematic, otherwise propagate by hand). 
+  These pins are not netlisted in the respective netlist format
+- -b option to detach xschem from terminal
 - NO_CAIRO builds also use 'layer=' attribute to display text on custom layers.
 - pdf and svg exports follow the enable_layer[] array to display/hide layers as does draw() 
 - LCC function (Local Custom Cell):
