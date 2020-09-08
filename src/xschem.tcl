@@ -2950,8 +2950,6 @@ proc build_windows {} {
 ###   MAIN PROGRAM
 ###
 
-namespace import -force ttk::*
-
 set OS [lindex $tcl_platform(os) 0]
 
 # tcl variable XSCHEM_LIBRARY_PATH  should already be set in xschemrc
