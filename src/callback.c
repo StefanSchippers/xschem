@@ -709,8 +709,8 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='s' && (state == ControlMask) )      /* save 20121201 */
    {
      if(semaphore >= 2) break;
-     if(!strcmp(schematic[currentsch],"")) { /* 20170622 check if unnamed schematic, use saveas in this case... */
-       saveas(NULL);
+     if(!strcmp(schematic[currentsch],"") || strstr(schematic[currentsch], "untitled")) { /* check if unnamed schematic, use saveas in this case */
+       saveas(NULL, current_type);
      } else {
        save(1);
      }
@@ -719,14 +719,13 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='s' && state == (ControlMask | Mod1Mask) )           /* save as symbol */
    {
      if(semaphore >= 2) break;
-     current_type=SYMBOL;
-     saveas(NULL);
+     saveas(NULL, SYMBOL);
      break;
    }
    if(key=='S' && state == (ShiftMask | ControlMask)) /* save as schematic */
    {
      if(semaphore >= 2) break;
-     saveas(NULL);
+     saveas(NULL, current_type);
      break;
    }
    if(key=='e' && state == 0)           /* descend to schematic */

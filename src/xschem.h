@@ -696,7 +696,7 @@ extern void schematic_in_new_window(void);
 extern void symbol_in_new_window(void);
 extern void new_window(const char *cell, int symbol);
 extern void ask_new_file(void);
-extern void saveas(const char *f);
+extern void saveas(const char *f, int type);
 extern const char *get_file_path(char *f);
 extern int save(int confirm);
 extern struct hilight_hashentry *bus_hilight_lookup(const char *token, int value, int remove) ;

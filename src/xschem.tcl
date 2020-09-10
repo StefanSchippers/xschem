@@ -3312,7 +3312,7 @@ font configure Underline-Font -underline true -size 24
      } "Reload File"
    .menubar.file.menu add command -label "Save as" -command "xschem saveas" -accelerator {Ctrl+Shift+S}
    .menubar.file.menu add command -label "Save as symbol" \
-      -command "xschem set current_type SYMBOL; xschem saveas" -accelerator {Ctrl+Alt+S}
+      -command "xschem saveas {} SYMBOL" -accelerator {Ctrl+Alt+S}
    # added svg, png 20171022
    .menubar.file.menu add command -label "PDF Export" -command "xschem print pdf" -accelerator {*}
    .menubar.file.menu add command -label "PNG Export" -command "xschem print png" -accelerator {Ctrl+*}

@@ -890,13 +890,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     prepared_hilight_structs=0;
     draw();
  } else if(!strcmp(argv[1],"saveas")) {
-   if(argc == 3) saveas(argv[2]);
-   else saveas(NULL);
+   if(argc == 4) {
+     const char *f;
+     f = !strcmp(argv[2],"") ? NULL : argv[2];
+     if(!strcmp(argv[3], "SCHEMATIC")) saveas(f, SCHEMATIC);
+     else if(!strcmp(argv[3], "SYMBOL")) saveas(f, SYMBOL);
+     else saveas(f, current_type);
+   }
+   else if(argc == 3) {
+     const char *f;
+     f = !strcmp(argv[2],"") ? NULL : argv[2];
+     saveas(f, current_type);
+   }
+   else saveas(NULL, current_type);
  } else if(!strcmp(argv[1],"save")) {
    dbg(1, "xschem(): saving: current schematic\n");
 
    if(!strcmp(schematic[currentsch],"")) {   /* 20170622 check if unnamed schematic, use saveas in this case... */
-     saveas(NULL);
+     saveas(NULL, current_type);
    } else {
      save(0);
    }

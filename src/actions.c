@@ -461,7 +461,7 @@ int save(int confirm) /* 20171006 add confirm */
      return cancel;
 }
 
-void saveas(const char *f) /*  changed name from ask_save_file to saveas 20121201 */
+void saveas(const char *f, int type) /*  changed name from ask_save_file to saveas 20121201 */
 {
     char name[PATH_MAX+1000];
     char filename[PATH_MAX];
@@ -469,7 +469,7 @@ void saveas(const char *f) /*  changed name from ask_save_file to saveas 2012120
     char *p;
     if(!f && has_x) {
       my_strncpy(filename , abs_sym_path(schematic[currentsch], ""), S(filename));
-      if(current_type == SCHEMATIC) {
+      if(type == SCHEMATIC) {
         my_snprintf(name, S(name), "save_file_dialog {Save file} .sch.sym INITIALLOADDIR {%s}", filename);
       } else {
         if( (p = strrchr(filename, '.')) && !strcmp(p, ".sch") ) {
@@ -487,6 +487,7 @@ void saveas(const char *f) /*  changed name from ask_save_file to saveas 2012120
     else res[0]='\0';
 
     if(!res[0]) return; /* 20071104 */
+    current_type = type;
     dbg(1, "saveas(): res = %s\n", res);
     save_schematic(res);
     Tcl_VarEval(interp, "update_recent_file {", res,"}",  NULL);
