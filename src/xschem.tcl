@@ -2900,13 +2900,28 @@ proc build_windows {} {
     ###
     ### Tk event handling
     ###
-    ### bind .drv <event> {xschem callback <type> <x> <y> <keysym> <button of w> <h> <state>}
-    ###
-    bind . <Visibility> {
+
+    #    bind . <Enter> {
+    #      if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
+    #        raise .dialog .drw 
+    #      }
+    #    }
+    bind . <Expose> {
       if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
         raise .dialog .drw 
       }
     }
+    bind . <Visibility> {
+      if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
+        raise .dialog .drw
+      }
+    }
+    bind . <FocusIn> {
+      if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
+        raise .dialog .drw
+      }
+    }
+
     bind .drw <Double-Button-1> {xschem callback -3 %x %y 0 %b 0 %s}
     bind .drw <Double-Button-2> {xschem callback -3 %x %y 0 %b 0 %s}
     bind .drw <Double-Button-3> {xschem callback -3 %x %y 0 %b 0 %s}
