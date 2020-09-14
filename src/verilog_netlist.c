@@ -39,12 +39,6 @@ void global_verilog_netlist(int global)  /* netlister driver */
  struct stat buf;
  char *subckt_name;
 
- if(current_type==SYMBOL) {
-   tcleval("alert_ {This is a symbol, no netlisting can be done.\n"
-           "If this is a schematic delete any 'type=...'\n"
-           "from global properties, save and restart xschem}");
-   return;
- }
  if(modified) {
    save_ok = save_schematic(schematic[currentsch]);
    if(save_ok == -1) return;

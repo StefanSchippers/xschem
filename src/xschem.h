@@ -536,7 +536,6 @@ extern int tcp_port;
 extern int debug_var; 
 extern char **color_array;
 extern Colormap colormap;
-extern int current_type;
 extern char current_name[PATH_MAX];
 extern unsigned int color_index[];
 extern int lw; /*  line width */

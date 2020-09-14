@@ -73,8 +73,8 @@ p{padding: 15px  30px 10px;}
   schematic (.sch) or symbol window (.sym). 
   <p class="important">
   There is actually one different global property
-  string defined for any available netlisting modes, so if XSCHEM is set to produce SPICE
-  netlists the SPICE global property string is displayed.
+  string defined for any available netlisting modes plus one global property string for symbol definition (file format 1.2), 
+  so if XSCHEM is set to produce SPICE netlists the SPICE global property string is displayed.
   </p>
   <p>
   So, in addition to properties associated to graphical objects and
@@ -82,7 +82,7 @@ p{padding: 15px  30px 10px;}
  </p>
  <img src="global_property.png">
  <p>
-  The <kbd>format</kbd> attribute defines the format of the SPICE netlist. 
+  In the above 'Symbol' global property string, the <kbd>format</kbd> attribute defines the format of the SPICE netlist. 
   The SPICE netlist element line starts with the 
   symbol name (in this case a resistor so 'rxxxxx'), the list of pins, the
   resistor value and a multiplicity factor (m).<br>

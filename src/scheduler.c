@@ -212,12 +212,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  else if(!strcmp(argv[1],"make_symbol"))
  {
    if(has_x) tcleval("tk_messageBox -type okcancel -message {do you want to make symbol view ?}");
-   if(!has_x || strcmp(tclresult(),"ok")==0) 
-      if(current_type==SCHEMATIC)
-      {
-       save_schematic(schematic[currentsch]);
-       make_symbol();
-      }
+   if(!has_x || strcmp(tclresult(),"ok")==0) {
+     save_schematic(schematic[currentsch]);
+     make_symbol();
+   }
    Tcl_ResetResult(interp);
  }
 
@@ -407,7 +405,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        }
        my_snprintf(schematic[currentsch], S(schematic[currentsch]), "%s/%s", pwd_dir, name);
        my_strncpy(current_name, name, S(current_name));
-       current_type=SYMBOL;
      } else {
        for(i=0;;i++) {
          if(i == 0) my_snprintf(name, S(name), "%s.sch", "untitled");
@@ -416,7 +413,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        }
        my_snprintf(schematic[currentsch], S(schematic[currentsch]), "%s/%s", pwd_dir, name);
        my_strncpy(current_name, name, S(current_name));
-       current_type=SCHEMATIC;
      }
      draw();
      set_modify(0); /* 20171025 */
@@ -895,19 +891,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      f = !strcmp(argv[2],"") ? NULL : argv[2];
      if(!strcmp(argv[3], "SCHEMATIC")) saveas(f, SCHEMATIC);
      else if(!strcmp(argv[3], "SYMBOL")) saveas(f, SYMBOL);
-     else saveas(f, current_type);
+     else saveas(f, SCHEMATIC);
    }
    else if(argc == 3) {
      const char *f;
      f = !strcmp(argv[2],"") ? NULL : argv[2];
-     saveas(f, current_type);
+     saveas(f, SCHEMATIC);
    }
-   else saveas(NULL, current_type);
+   else saveas(NULL, SCHEMATIC);
  } else if(!strcmp(argv[1],"save")) {
    dbg(1, "xschem(): saving: current schematic\n");
 
    if(!strcmp(schematic[currentsch],"")) {   /* 20170622 check if unnamed schematic, use saveas in this case... */
-     saveas(NULL, current_type);
+     saveas(NULL, SCHEMATIC);
    } else {
      save(0);
    }
@@ -915,7 +911,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   printf("top win:%lx\n", Tk_WindowId(Tk_Parent(Tk_MainWindow(interp))));
  } else if(!strcmp(argv[1],"globals")) {
   printf("*******global variables:*******\n");
-  printf("current_type=%s\n", current_type == SCHEMATIC ? "SCHEMATIC" : "SYMBOL");
   printf("netlist_dir=%s\n", netlist_dir? netlist_dir: "<NULL>");
   printf("lw=%d\n", lw);
   printf("lastwire=%d\n", lastwire);
@@ -1567,13 +1562,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  }
  else if(!strcmp(argv[1],"get") && argc==3)
  {
-  if(!strcmp(argv[2],"current_type"))  { /* 20171025 */
-     if( current_type == SYMBOL )
-        Tcl_AppendResult(interp, "SYMBOL",NULL);
-     else 
-        Tcl_AppendResult(interp, "SCHEMATIC",NULL);
-  }
-  else if(!strcmp(argv[2],"incr_hilight"))  {
+  if(!strcmp(argv[2],"incr_hilight"))  {
      if( incr_hilight != 0 )
         Tcl_AppendResult(interp, "1",NULL);
      else
@@ -1876,13 +1865,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    else if(!strcmp(argv[2],"nocairo_vert_correct"))  {
      double s = atof(argv[3]);
      if(s>-20. && s<20.) nocairo_vert_correct = s;
-   }
-   else if(!strcmp(argv[2],"current_type")) { /* 20171025 */
-     if(!strcmp(argv[3],"SYMBOL")) {
-       current_type=SYMBOL;
-     } else {
-       current_type=SCHEMATIC;
-     }
    }
    else if(!strcmp(argv[2],"persistent_command")) { /* 20171025 */
      if(!strcmp(argv[3],"1")) {

@@ -710,7 +710,7 @@ int callback(int event, int mx, int my, KeySym key,
    {
      if(semaphore >= 2) break;
      if(!strcmp(schematic[currentsch],"") || strstr(schematic[currentsch], "untitled")) { /* check if unnamed schematic, use saveas in this case */
-       saveas(NULL, current_type);
+       saveas(NULL, SCHEMATIC);
      } else {
        save(1);
      }
@@ -725,7 +725,7 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='S' && state == (ShiftMask | ControlMask)) /* save as schematic */
    {
      if(semaphore >= 2) break;
-     saveas(NULL, current_type);
+     saveas(NULL, SCHEMATIC);
      break;
    }
    if(key=='e' && state == 0)           /* descend to schematic */
@@ -752,13 +752,11 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='a' && state == 0)   /* make symbol */
    {
     if(semaphore >= 2) break; /* 20180914 */
-    if(current_type==SCHEMATIC) {
-      tcleval("tk_messageBox -type okcancel -message {do you want to make symbol view ?}");
-      if(strcmp(tclresult(),"ok")==0) 
-      {
-       save_schematic(schematic[currentsch]);
-       make_symbol();
-      }
+    tcleval("tk_messageBox -type okcancel -message {do you want to make symbol view ?}");
+    if(strcmp(tclresult(),"ok")==0) 
+    {
+     save_schematic(schematic[currentsch]);
+     make_symbol();
     }
     break;
    }

@@ -840,8 +840,7 @@ proc save_file_dialog { msg ext global_initdir {initialfile {}} {overwrt 1} } {
 }
 
 proc is_xschem_file {f} {
-  set fd [open $f r]
-  set a [catch "open \"$f\" r" fd]
+  set a [catch {open "$f" r} fd]
   set ret 0
   set score 0
   set instances 0
@@ -849,7 +848,7 @@ proc is_xschem_file {f} {
     puts stderr "Can not open file $f"
   } else {
     while { [gets $fd line] >=0 } {
-      if { [regexp {^[TGVSE] \{} $line] } { incr score }
+      if { [regexp {^[TKGVSE] \{} $line] } { incr score }
       if { [regexp {^[BL] +[0-9]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +\{} $line] } { incr score }
       if { [regexp {^N +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +\{} $line] } { incr score }
       if { [regexp {^C +\{[^{}]+\} +[-0-9.eE]+ +[-0-9.eE]+ +[0-3]+ +[0-3]+ +\{} $line] } { incr instances; incr score }

@@ -31,12 +31,6 @@ void global_tedax_netlist(int global)  /* netlister driver */
  char tcl_cmd_netlist[PATH_MAX + 100]; /* 20081211 overflow safe 20161122 */
  char cellname[PATH_MAX]; /* 20081211 overflow safe 20161122 */
 
- if(current_type==SYMBOL) {
-   tcleval("alert_ {This is a symbol, no netlisting can be done.\n"
-           "If this is a schematic delete any 'type=...'\n"
-           "from global properties, save and restart xschem}");
-   return;
- }
  if(modified) {
    save_ok = save_schematic(schematic[currentsch]);
    if(save_ok == -1) return;

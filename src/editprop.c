@@ -769,47 +769,44 @@ void edit_text_property(int x)
          tclgetvar("props"),
          tclgetvar("retval") );
        if(text_changed) {
-         if(current_type==SYMBOL) {
-           c = lastrect[PINLAYER];
-           for(l=0;l<c;l++) {
-             if(!strcmp( (get_tok_value(rect[PINLAYER][l].prop_ptr, "name",0)),
-                          textelement[sel].txt_ptr) ) {
-               #ifdef HAS_CAIRO
-               customfont = set_text_custom_font(&textelement[sel]);
-               #endif
-               text_bbox(textelement[sel].txt_ptr, textelement[sel].xscale,
-               textelement[sel].yscale, rot, flip, textelement[sel].hcenter, textelement[sel].vcenter,
-               textelement[sel].x0, textelement[sel].y0,
-               &xx1,&yy1,&xx2,&yy2);
-               #ifdef HAS_CAIRO
-               if(customfont) cairo_restore(ctx);
-               #endif
+         c = lastrect[PINLAYER];
+         for(l=0;l<c;l++) {
+           if(!strcmp( (get_tok_value(rect[PINLAYER][l].prop_ptr, "name",0)),
+                        textelement[sel].txt_ptr) ) {
+             #ifdef HAS_CAIRO
+             customfont = set_text_custom_font(&textelement[sel]);
+             #endif
+             text_bbox(textelement[sel].txt_ptr, textelement[sel].xscale,
+             textelement[sel].yscale, rot, flip, textelement[sel].hcenter, textelement[sel].vcenter,
+             textelement[sel].x0, textelement[sel].y0,
+             &xx1,&yy1,&xx2,&yy2);
+             #ifdef HAS_CAIRO
+             if(customfont) cairo_restore(ctx);
+             #endif
 
-               pcx = (rect[PINLAYER][l].x1+rect[PINLAYER][l].x2)/2.0;
-               pcy = (rect[PINLAYER][l].y1+rect[PINLAYER][l].y2)/2.0;
+             pcx = (rect[PINLAYER][l].x1+rect[PINLAYER][l].x2)/2.0;
+             pcy = (rect[PINLAYER][l].y1+rect[PINLAYER][l].y2)/2.0;
 
-               if(
-                   /* 20171206 20171221 */
-                   (fabs( (yy1+yy2)/2 - pcy) < cadgrid/2 && 
-                   (fabs(xx1 - pcx) < cadgrid*3 || fabs(xx2 - pcx) < cadgrid*3) )
-                   || 
-                   (fabs( (xx1+xx2)/2 - pcx) < cadgrid/2 && 
-                   (fabs(yy1 - pcy) < cadgrid*3 || fabs(yy2 - pcy) < cadgrid*3) )
-               ) {
-                 if(x==0)  /* 20080804 */
-                   my_strdup(71, &rect[PINLAYER][l].prop_ptr, 
-                     subst_token(rect[PINLAYER][l].prop_ptr, "name", 
-                     (char *) tclgetvar("retval")) );
-                 else
-                   my_strdup(72, &rect[PINLAYER][l].prop_ptr, 
-                     subst_token(rect[PINLAYER][l].prop_ptr, "name", 
-                     (char *) tclgetvar("retval")) );
-               }
+             if(
+                 /* 20171206 20171221 */
+                 (fabs( (yy1+yy2)/2 - pcy) < cadgrid/2 && 
+                 (fabs(xx1 - pcx) < cadgrid*3 || fabs(xx2 - pcx) < cadgrid*3) )
+                 || 
+                 (fabs( (xx1+xx2)/2 - pcx) < cadgrid/2 && 
+                 (fabs(yy1 - pcy) < cadgrid*3 || fabs(yy2 - pcy) < cadgrid*3) )
+             ) {
+               if(x==0)  /* 20080804 */
+                 my_strdup(71, &rect[PINLAYER][l].prop_ptr, 
+                   subst_token(rect[PINLAYER][l].prop_ptr, "name", 
+                   (char *) tclgetvar("retval")) );
+               else
+                 my_strdup(72, &rect[PINLAYER][l].prop_ptr, 
+                   subst_token(rect[PINLAYER][l].prop_ptr, "name", 
+                   (char *) tclgetvar("retval")) );
              }
-           } 
-         }
+           }
+         } 
          my_strdup(74, &textelement[sel].txt_ptr, (char *) tclgetvar("retval"));
-         
        }
        if(x==0) {
          if(preserve) 
@@ -1153,37 +1150,36 @@ void edit_property(int x)
    char *old_prop = NULL;
    char *new_prop = NULL;
 
-   if(netlist_type==CAD_SYMBOL_ATTRS && current_type==SCHEMATIC) {
+   if(netlist_type==CAD_SYMBOL_ATTRS) {
     if(schsymbolprop!=NULL)    /*09112003 */
       tclsetvar("retval",schsymbolprop);
     else
       tclsetvar("retval","");
    }
-   else if(netlist_type==CAD_VERILOG_NETLIST && current_type==SCHEMATIC) {
+   else if(netlist_type==CAD_VHDL_NETLIST) {
+    if(schvhdlprop!=NULL)    /*09112003 */
+      tclsetvar("retval",schvhdlprop);
+    else
+      tclsetvar("retval","");
+   }
+   else if(netlist_type==CAD_VERILOG_NETLIST) {
     if(schverilogprop!=NULL)    /*09112003 */
       tclsetvar("retval",schverilogprop);
     else
       tclsetvar("retval","");
    }
-   else if(netlist_type==CAD_SPICE_NETLIST && current_type==SCHEMATIC) { /* 20100217 */
+   else if(netlist_type==CAD_SPICE_NETLIST) { /* 20100217 */
     if(schprop!=NULL) 
       tclsetvar("retval",schprop);
     else
       tclsetvar("retval","");
    }
-   else if(netlist_type==CAD_TEDAX_NETLIST && current_type==SCHEMATIC) { /* 20100217 */
+   else if(netlist_type==CAD_TEDAX_NETLIST) { /* 20100217 */
     if(schtedaxprop!=NULL) 
       tclsetvar("retval",schtedaxprop);
     else
       tclsetvar("retval","");
    }
-   else { /* this is used for symbol global props also */
-    if(schvhdlprop!=NULL)
-      tclsetvar("retval",schvhdlprop);
-    else
-      tclsetvar("retval","");
-   }
-
    my_strdup(660, &old_prop, tclgetvar("retval"));
 
    if(x==0)         tcleval("text_line {Global schematic property:} 0");          
@@ -1203,31 +1199,27 @@ void edit_property(int x)
 
    if(strcmp(tclgetvar("rcode"),"") )
    {
-     if(current_type==SYMBOL && /* 20120404 added case for symbol editing, use schvhdlprop regardless of netlisting mode */
-        (!schvhdlprop || strcmp(schvhdlprop, tclgetvar("retval") ) ) ) { /* symbol edit */
-        set_modify(1); push_undo(); /* 20150327 */
-        my_strdup(93, &schvhdlprop, (char *) tclgetvar("retval"));
-     } else if(netlist_type==CAD_VERILOG_NETLIST && current_type==SCHEMATIC && /* 20120228 check if schverilogprop NULL */
+     if(netlist_type==CAD_VERILOG_NETLIST && /* 20120228 check if schverilogprop NULL */
         (!schverilogprop || strcmp(schverilogprop, tclgetvar("retval") ) ) ) { /* 20120209 */
         set_modify(1); push_undo(); /* 20150327 */
         my_strdup(94, &schverilogprop, (char *) tclgetvar("retval")); /*09112003 */
     
-     } else if(netlist_type==CAD_SPICE_NETLIST && current_type==SCHEMATIC && /* 20120228 check if schprop NULL */
+     } else if(netlist_type==CAD_SPICE_NETLIST && /* 20120228 check if schprop NULL */
         (!schprop || strcmp(schprop, tclgetvar("retval") ) ) ) { /* 20120209 */
         set_modify(1); push_undo(); /* 20150327 */
         my_strdup(95, &schprop, (char *) tclgetvar("retval")); /*09112003  */
 
-     } else if(netlist_type==CAD_SYMBOL_ATTRS && current_type==SCHEMATIC && /* 20120228 check if schprop NULL */
+     } else if(netlist_type==CAD_SYMBOL_ATTRS && /* 20120228 check if schprop NULL */
         (!schsymbolprop || strcmp(schsymbolprop, tclgetvar("retval") ) ) ) { /* 20120209 */
         set_modify(1); push_undo(); /* 20150327 */
         my_strdup(422, &schsymbolprop, (char *) tclgetvar("retval")); /*09112003  */
 
-     } else if(netlist_type==CAD_TEDAX_NETLIST && current_type==SCHEMATIC && /* 20120228 check if schprop NULL */
+     } else if(netlist_type==CAD_TEDAX_NETLIST && /* 20120228 check if schprop NULL */
         (!schtedaxprop || strcmp(schtedaxprop, tclgetvar("retval") ) ) ) { /* 20120209 */
         set_modify(1); push_undo(); /* 20150327 */
         my_strdup(96, &schtedaxprop, (char *) tclgetvar("retval")); /*09112003  */
 
-     } else if(netlist_type==CAD_VHDL_NETLIST && current_type==SCHEMATIC && /* 20120228 check if schvhdlprop NULL */
+     } else if(netlist_type==CAD_VHDL_NETLIST && /* 20120228 check if schvhdlprop NULL */
         (!schvhdlprop || strcmp(schvhdlprop, tclgetvar("retval") ) ) ) { /* netlist_type==CAD_VHDL_NETLIST */
         set_modify(1); push_undo(); /* 20150327 */
         my_strdup(97, &schvhdlprop, (char *) tclgetvar("retval"));

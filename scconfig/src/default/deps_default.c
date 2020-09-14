@@ -109,6 +109,7 @@ void deps_default_init(void)
 	dep_add("libs/fs/makedev/*",        find_fs_makedev);
 
 	dep_add("libs/io/pipe/*",           find_io_pipe);
+	dep_add("libs/io/_pipe/*",          find_io__pipe);
 	dep_add("libs/io/dup2/*",           find_io_dup2);
 	dep_add("libs/io/fileno/*",         find_io_fileno);
 	dep_add("libs/io/lseek/*",          find_io_lseek);

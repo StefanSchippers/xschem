@@ -469,13 +469,13 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
     char *p;
     if(!f && has_x) {
       my_strncpy(filename , abs_sym_path(schematic[currentsch], ""), S(filename));
-      if(type == SCHEMATIC) {
-        my_snprintf(name, S(name), "save_file_dialog {Save file} .sch.sym INITIALLOADDIR {%s}", filename);
-      } else {
+      if(type == SYMBOL) {
         if( (p = strrchr(filename, '.')) && !strcmp(p, ".sch") ) {
           my_strncpy(filename, add_ext(filename, ".sym"), S(filename));
         }
         my_snprintf(name, S(name), "save_file_dialog {Save file} .sym.sch INITIALLOADDIR {%s}", filename);
+      } else {
+        my_snprintf(name, S(name), "save_file_dialog {Save file} .sch.sym INITIALLOADDIR {%s}", filename);
       }
 
       tcleval(name);
@@ -487,7 +487,6 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
     else res[0]='\0';
 
     if(!res[0]) return; /* 20071104 */
-    current_type = type;
     dbg(1, "saveas(): res = %s\n", res);
     save_schematic(res);
     Tcl_VarEval(interp, "update_recent_file {", res,"}",  NULL);
@@ -891,7 +890,6 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, 
  static char name[PATH_MAX];
  char *type;
  int cond;
- if(current_type==SYMBOL) return 0; /*  20161210 dont allow components placed inside symbols */
  if(symbol_name==NULL) {
    tcleval("load_file_dialog {Choose symbol} .sym INITIALINSTDIR");
    my_strncpy(name, tclresult(), S(name));
@@ -1071,7 +1069,6 @@ void descend_schematic(void)
  int inst_mult, inst_number;
  int save_ok = 0;
 
- if(!(current_type==SCHEMATIC)) return; /*20180928 */
 
  rebuild_selected_array();
  if(lastselected !=1 || selectedgroup[0].type!=ELEMENT) 
@@ -1186,7 +1183,6 @@ void descend_schematic(void)
 
 void go_back(int confirm) /*  20171006 add confirm */
 {
- int prev_curr_type=0;
  int save_ok;  /*  20171020 */
  int from_embedded_sym;
  int save_modified;
@@ -1195,7 +1191,6 @@ void go_back(int confirm) /*  20171006 add confirm */
  save_ok=0;
  if(currentsch>0)
  {
-  prev_curr_type=current_type; /* 20190521 */
   /* if current sym/schematic is changed ask save before going up */
   if(modified)
   {
@@ -1227,9 +1222,7 @@ void go_back(int confirm) /*  20171006 add confirm */
   load_schematic(1, filename, 1);
   if(from_embedded_sym) modified=save_modified; /* to force ask save embedded sym in parent schematic */
 
-  if(prev_curr_type==SCHEMATIC) {
-    hilight_parent_pins();
-  }
+  hilight_parent_pins();
   if(enable_drill) drill_hilight(); /*  20171212 */
   xorigin=zoom_array[currentsch].x;
   yorigin=zoom_array[currentsch].y;
@@ -1239,7 +1232,6 @@ void go_back(int confirm) /*  20171006 add confirm */
   change_linewidth(-1.);
   draw();
 
-  current_type=SCHEMATIC;
   dbg(1, "go_back(): current path: %s\n", sch_path[currentsch]);
  }
 }

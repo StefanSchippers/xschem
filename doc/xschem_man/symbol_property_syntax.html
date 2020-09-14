@@ -24,7 +24,7 @@ p{padding: 15px  30px 10px;}
 <h3>GENERAL RULES</h3>
  <p>
   For symbols a global property string (to show it press <kbd>'q'</kbd> when nothing
-  is selected). defines at least 3 attributes:
+  is selected and <kbd>Options-&gt;Symbol global attrs</kbd> is selected) defines at least 3 attributes:
  </p>
  <ul>
  <li><kbd>type</kbd> defines the the type of symbol. Normally the type attribute describes the symbol 
@@ -110,9 +110,20 @@ type=nmos
   need to escape the '$' in property strings a different and less used character was chosen.<br>
   A literal <kbd>@</kbd> must be escaped to prevent it to be interpreted as the start of a token to be
   substituted (<kbd>\@</kbd>). If a non space character (different than <kbd>@</kbd>) ends a token it must be escaped.
-  Attribute substitution takes place in symbol format attribute and in every text, as shown in below picture.
+  Attribute substitution with values defined in instance attributes takes place in symbol
+  format attribute and in every text, as shown in below picture.
+ </p>
+ <br>
+ <p class="important">
+  In recent xschem versions a <kbd>$</kbd> prefixed attribute (example: <kbd>$var</kbd>) can be used
+  instead of a <lbd>@</kbd> prefix. The only difference is that if no matching attribute is defined
+  in instance the <kbd>$var</kbd> resolves to <kbd>var</kbd> instead of an empty string.
  </p>
  <img src="attribute_substitution.png">
+ <p>
+  If no matching attribute is defined in instance (for example we have <kbd>@W</kbd> in symbol and no <kbd>W=...</kbd> in instance) 
+  the <kbd>@W</kbd> string is substituted with an empty string.
+ </p>
  <h3>OTHER PREDEFINED SYMBOL ATTRIBUTES</h3>
  <ul>
   <li><kbd>vhdl_ignore</kbd></li>

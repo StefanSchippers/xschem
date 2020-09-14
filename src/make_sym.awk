@@ -52,7 +52,7 @@ function beginfile(f)
  print "**** symbol-izing: " sym "  ****"
   template="" ; start=0
   while((getline symline <sym) >0) {
-   if(symline ~ /^G \{/ ) start=1
+   if(symline ~ /^[GK] \{/ ) start=1
    if(start) template=template symline "\n"
    if(symline ~ /\} *$/) start=0
   }
@@ -70,7 +70,7 @@ function beginfile(f)
  ip=op=n_pin=0
  print "v {xschem version=2.9.7 file_version=1.1}" > sym
  if(template=="") {
-  printf "%s", "G {type=subcircuit\nformat=\"@name @pinlist @symname\"\n"  >sym
+  printf "%s", "K {type=subcircuit\nformat=\"@name @pinlist @symname\"\n"  >sym
   printf "%s\n", "template=\"name=x1\""  >sym
   printf "%s", "}\n"  >sym
  } 

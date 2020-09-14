@@ -64,7 +64,6 @@ int draw_window=0; /* 20181009 */
 int draw_grid=1;
 double cadgrid = CADGRID;
 double cadhalfdotsize = CADHALFDOTSIZE;
-int current_type=SCHEMATIC;
 char current_name[PATH_MAX]; /* 20190519 */
 int change_lw=0; /* allow change linewidth */
 int incr_hilight=1;
