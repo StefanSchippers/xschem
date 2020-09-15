@@ -59,6 +59,7 @@ ctrl       Enter        Confirm closing dialog boxes
 -           '#'         Highlight components with duplicated name (refdes)
 ctrl        '#'         Rename components with duplicated name (refdes)
 -           '5'         View only probes
+ctrl        '0-9'       set current layer (4 -13)
 -           'a'         Make symbol from pin list of current schematic
 ctrl        'a'         Select all
 shift       'A'         Toggle show netlist

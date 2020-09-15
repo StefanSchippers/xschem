@@ -45,11 +45,13 @@ proc read_ngspice_raw {arr fp} {
   }
   if {$variables} {
     set bindata [read $fp [expr 8 * $n_vars * $n_points]]
-    binary scan $bindata d[expr $n_vars * $n_points] data
-    for {set p 0} {$p < $n_points} { incr p} {
-      for {set v 0} {$v < $n_vars} { incr v} {
-        lappend var($idx($v)) [lindex $data [expr $p * $n_vars + $v]]
-        # puts "-->|$idx($v)|$var($idx($v))|"
+    if { $n_points == 1} {
+      binary scan $bindata d[expr $n_vars * $n_points] data
+      for {set p 0} {$p < $n_points} { incr p} {
+        for {set v 0} {$v < $n_vars} { incr v} {
+          lappend var($idx($v)) [lindex $data [expr $p * $n_vars + $v]]
+          # puts "-->|$idx($v)|$var($idx($v))|"
+        }
       }
     }
     set var(n\ vars) $n_vars
@@ -122,6 +124,7 @@ proc annotate {} {
     } else break;
   }
   close $fp
+  puts {Raw file read ...} 
   if { $op_point_read } {
     ### disable screen redraw and undo when looping to speed up performance
     ### but save state on undo stack before doing backannotations.
@@ -169,4 +172,4 @@ proc annotate {} {
   }
 }
 
-if { ![info exists no_x] } {bind .drw <Alt-a> {annotate} }
+if { ![info exists no_x] } {bind .drw <Alt-a> {puts {Annotating...}; annotate} }

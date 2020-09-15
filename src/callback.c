@@ -616,7 +616,10 @@ int callback(int event, int mx, int my, KeySym key,
    }  /* /20110112 */
    if(key<='9' && key >='0' && state==ControlMask)              /* choose layer */
    {
+    char n[30];
     rectcolor = key - '0'+4;
+    my_snprintf(n, S(n), "%d", rectcolor);
+    Tcl_VarEval(interp, "xschem set rectcolor ", n, "; reconfigure_layers_button", NULL);
     dbg(1, "callback(): new color: %d\n",color_index[rectcolor]);
     break;
    }
