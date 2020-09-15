@@ -59,7 +59,8 @@ p{padding: 15px  30px 10px;}
      character is a 'substitution character', it means that the token that follows is a parameter
      that will be substituted with the value passed at component instantiation. If no 
      value is given there a value will be picked from the attribute declared in the <kbd>template</kbd>
-     string.<br>
+     string.
+     <br>
      The <kbd>@pinlist</kbd> is a special token that will be substituted with the name of the wires that 
      connect to symbol pins, in the order they are created in the symbol. See the
      <a href="xschem_properties.html">pin ordering</a> section in the xschem properties slide.
@@ -71,7 +72,15 @@ p{padding: 15px  30px 10px;}
      the correct pin ordering in the symbol pins will make netlist generation faster. This is important
      for very big components with lot of pins, and <kbd>@pinlist</kbd> is the default when symbol is generated
      automatically (<kbd>Symbol -&gt;Make symbol</kbd> menu of <kbd>&lt;Shift&gt;A</kbd> key).
+     <br>
+     The <kbd>format</kbd> attribute may contain a <kbd>@spiceprefix</kbd> string immediately preceding
+     (with no spaces) the <kbd>@name</kbd> attribute.. This will be substituted with 
+     value given in instance (example: <kbd>spiceprefix=X</kbd>) but *ONLY* if
+     <kbd>Simulation-&gt;Use 'spiceprefix' attribute</kbd> is set.
+     This allows to create different netlists for simulation (example: all MOS are defined as subcircuits)
+     or LVS (no device subcircuits).
      </li>
+     <img src="spiceprefix.png">
  <li><kbd>template</kbd>: Specifies default values for symbol parameters</li>
  </ul>
 <img src="general_rules.png">
