@@ -2042,7 +2042,7 @@ proc edit_prop {txtlabel} {
    entry .dialog.f1.e2 -width 30
    .dialog.f1.e2 insert 0 $symbol
    button .dialog.f1.b5 -text "Browse" -command {
-     set r [save_file_dialog  {New symbol} .sym INITIALINSTDIR {} 0]
+     set r [tk_getOpenFile -parent .dialog -initialdir $INITIALINSTDIR ]
      if {$r ne {} } {
        .dialog.f1.e2 delete 0 end
        .dialog.f1.e2 insert 0 $r

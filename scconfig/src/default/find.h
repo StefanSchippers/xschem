@@ -127,6 +127,7 @@ int find_shell(const char *name, int logdepth, int fatal);
 
 /* find_io.c */
 int find_io_pipe(const char *name, int logdepth, int fatal);
+int find_io_pipe2(const char *name, int logdepth, int fatal);
 int find_io__pipe(const char *name, int logdepth, int fatal);
 int find_io_dup2(const char *name, int logdepth, int fatal);
 int find_io_fileno(const char *name, int logdepth, int fatal);

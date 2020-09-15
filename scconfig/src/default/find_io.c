@@ -52,6 +52,28 @@ int find_io_pipe(const char *name, int logdepth, int fatal)
 	return try_fail(logdepth, "libs/io/pipe");
 }
 
+int find_io_pipe2(const char *name, int logdepth, int fatal)
+{
+	const char *test_c =
+		NL "#include <unistd.h>"
+		NL "int main() {"
+		NL "	int fd[2];"
+		NL "	if (pipe2(fd, 0) == 0)"
+		NL "		puts(\"OK\");"
+		NL "	return 0;"
+		NL "}"
+		NL;
+
+	require("cc/cc", logdepth, fatal);
+
+	report("Checking for pipe2(2)... ");
+	logprintf(logdepth, "find_io_pipe2: trying to find pipe2(2)...\n");
+	logdepth++;
+
+	if (try_icl(logdepth, "libs/io/pipe2", test_c, "#include <unistd.h>\n", NULL, NULL)) return 0;
+	return try_fail(logdepth, "libs/io/pipe2");
+}
+
 int find_io__pipe(const char *name, int logdepth, int fatal)
 {
 	const char *test_c =
