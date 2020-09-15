@@ -966,6 +966,8 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   static char msg[PATH_MAX+100];
   struct stat buf;
   int i;
+  static int save_netlist_type = 0;
+  static int loaded_symbol = 0;
 
   prepared_hilight_structs=0; /* 20171212 */
   prepared_netlist_structs=0; /* 20171212 */
@@ -1000,6 +1002,25 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       set_modify(0);
       dbg(2, "load_schematic(): loaded file:wire=%d inst=%d\n",lastwire , lastinst);
       if(load_symbols) link_symbols_to_instances();
+      if(reset_undo) {
+        Tcl_VarEval(interp, "is_xschem_file ", schematic[currentsch], NULL);
+        if(!strcmp(tclresult(), "SYMBOL")) {
+          save_netlist_type = netlist_type;
+          netlist_type = CAD_SYMBOL_ATTRS;
+          loaded_symbol = 1;
+          tclsetvar("netlist_type","symbol");
+        } else {
+          if(loaded_symbol) {
+            netlist_type = save_netlist_type;
+            if(netlist_type==CAD_VHDL_NETLIST)  tclsetvar("netlist_type","vhdl");
+            else if(netlist_type==CAD_VERILOG_NETLIST)  tclsetvar("netlist_type","verilog");
+            else if(netlist_type==CAD_TEDAX_NETLIST)  tclsetvar("netlist_type","tedax");
+            else if(netlist_type==CAD_SYMBOL_ATTRS)  tclsetvar("netlist_type","symbol");
+            else tclsetvar("netlist_type","spice");
+          }
+          loaded_symbol = 0;
+        }
+      }
     }
     dbg(1, "load_schematic(): %s, returning\n", schematic[currentsch]);
   } else {
@@ -1567,7 +1588,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      if(level > 0 && symtype && !strcmp(symtype, "label")) {
        char lay[30];
        my_snprintf(lay, S(lay), " layer=%d", WIRELAYER);
-       my_strcat(1, &tt[i].prop_ptr, lay);
+       my_strcat(1163, &tt[i].prop_ptr, lay);
      }
      
      dbg(1, "l_d_s(): loaded text : t=%s p=%s\n", tt[i].txt_ptr, tt[i].prop_ptr);

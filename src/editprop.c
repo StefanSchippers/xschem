@@ -1199,7 +1199,12 @@ void edit_property(int x)
 
    if(strcmp(tclgetvar("rcode"),"") )
    {
-     if(netlist_type==CAD_VERILOG_NETLIST && /* 20120228 check if schverilogprop NULL */
+     if(netlist_type==CAD_SYMBOL_ATTRS && /* 20120228 check if schprop NULL */
+        (!schsymbolprop || strcmp(schsymbolprop, tclgetvar("retval") ) ) ) { /* 20120209 */
+        set_modify(1); push_undo(); /* 20150327 */
+        my_strdup(422, &schsymbolprop, (char *) tclgetvar("retval")); /*09112003  */
+
+     } else if(netlist_type==CAD_VERILOG_NETLIST && /* 20120228 check if schverilogprop NULL */
         (!schverilogprop || strcmp(schverilogprop, tclgetvar("retval") ) ) ) { /* 20120209 */
         set_modify(1); push_undo(); /* 20150327 */
         my_strdup(94, &schverilogprop, (char *) tclgetvar("retval")); /*09112003 */
@@ -1208,11 +1213,6 @@ void edit_property(int x)
         (!schprop || strcmp(schprop, tclgetvar("retval") ) ) ) { /* 20120209 */
         set_modify(1); push_undo(); /* 20150327 */
         my_strdup(95, &schprop, (char *) tclgetvar("retval")); /*09112003  */
-
-     } else if(netlist_type==CAD_SYMBOL_ATTRS && /* 20120228 check if schprop NULL */
-        (!schsymbolprop || strcmp(schsymbolprop, tclgetvar("retval") ) ) ) { /* 20120209 */
-        set_modify(1); push_undo(); /* 20150327 */
-        my_strdup(422, &schsymbolprop, (char *) tclgetvar("retval")); /*09112003  */
 
      } else if(netlist_type==CAD_TEDAX_NETLIST && /* 20120228 check if schprop NULL */
         (!schtedaxprop || strcmp(schtedaxprop, tclgetvar("retval") ) ) ) { /* 20120209 */

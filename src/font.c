@@ -31,7 +31,7 @@ void compile_font(void)
  my_snprintf(name, S(name), "%s/systemlib/font.sch", tclgetvar("XSCHEM_SHAREDIR"));
  unselect_all();
  remove_symbols();
- load_schematic(1,name,1);
+ load_schematic(1,name,0);
  for(code=0;code<127;code++)
  {
   unselect_all();
