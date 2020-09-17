@@ -391,7 +391,7 @@ int callback(int event, int mx, int my, KeySym key,
      print_hilight_net(3);
      break;
    }
-   if(key == 'J' && state==ShiftMask) { /* testmode */
+   if(key == 'J' && state==ShiftMask) {
     create_plot_cmd(NGSPICE);
     break;
    }
