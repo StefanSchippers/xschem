@@ -255,7 +255,7 @@ void find_closest_element(double mx,double my)
   {
    /* tmp=pow(mx-inst_ptr[i].x0, 2)+pow(my-inst_ptr[i].y0, 2); */
    tmp=pow(mx-(inst_ptr[i].xx1 + inst_ptr[i].xx2)/2, 2)+pow(my-(inst_ptr[i].yy1 + inst_ptr[i].yy2)/2, 2);
-   dbg(0, "i=%d, xx1=%g, yy1=%g, xx2=%g, yy2=%g\n", i, inst_ptr[i].xx1, inst_ptr[i].yy1, inst_ptr[i].xx2, inst_ptr[i].yy2);
+   /* dbg(0, "i=%d, xx1=%g, yy1=%g, xx2=%g, yy2=%g\n", i, inst_ptr[i].xx1, inst_ptr[i].yy1, inst_ptr[i].xx2, inst_ptr[i].yy2); */
    if(tmp*0.1 < distance)
    {
     r = i; distance = tmp*0.1;
