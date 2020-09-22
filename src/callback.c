@@ -79,7 +79,6 @@ int callback(int event, int mx, int my, KeySym key,
  unsigned short sel;
  static int capslock = 0;
  static int numlock = 0;
- state &=~Mod2Mask; /* 20170511 filter out NumLock status */
 #ifndef __unix__
   short cstate = GetKeyState(VK_CAPITAL);
   short nstate = GetKeyState(VK_NUMLOCK);
@@ -123,6 +122,7 @@ int callback(int event, int mx, int my, KeySym key,
      numlock = 0;
  }
 #endif
+ state &=~Mod2Mask; /* 20170511 filter out NumLock status */
  if(semaphore)
  {
    if(debug_var>=2) 
