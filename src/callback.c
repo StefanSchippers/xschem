@@ -77,17 +77,31 @@ int callback(int event, int mx, int my, KeySym key,
  static char sel_or_clip[PATH_MAX] = "";/* overflow safe 20161122 */
  struct stat buf;
  unsigned short sel;
+ static int capslock = 0;
+ static int numlock = 0;
+ XKeyboardState kbdstate;
 
  state &=~Mod2Mask; /* 20170511 filter out NumLock status */
-
- if(event == KeyPress && key == XK_Caps_Lock && !(state & LockMask)) {
+ XGetKeyboardControl(display, &kbdstate);
+ if(capslock == 0 && (kbdstate.led_mask & 1)) {
      tcleval(".statusbar.8 configure -state active -text {CAPS LOCK SET! }");
+     capslock = 1;
  }
- 
- if(event == KeyPress && key == XK_Caps_Lock && (state & LockMask)) {
-     tcleval(".statusbar.8 configure -state  normal -text {}");
+ if(capslock == 1 && !(kbdstate.led_mask & 1)) {
+     if(numlock) tcleval(".statusbar.8 configure -state active -text {NUM LOCK SET! }");
+     else tcleval(".statusbar.8 configure -state  normal -text {}");
+     capslock = 0;
  }
-   
+ if(numlock == 0 && (kbdstate.led_mask & 2)) {
+     tcleval(".statusbar.8 configure -state active -text {NUM LOCK SET! }");
+     numlock = 1;
+ }
+ if(numlock == 1 && !(kbdstate.led_mask & 2)) {
+     if(capslock) tcleval(".statusbar.8 configure -state active -text {CAPS LOCK SET! }");
+     else tcleval(".statusbar.8 configure -state  normal -text {}");
+     numlock = 0;
+ }
+
  if(semaphore)
  {
    if(debug_var>=2) 
