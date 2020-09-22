@@ -2931,6 +2931,7 @@ proc build_windows {} {
     pack .statusbar.5 -side left 
     pack .statusbar.6 -side left 
     pack .statusbar.7 -side left 
+    pack .statusbar.8 -side left 
     pack .statusbar.1 -side left -fill x
     pack .drw -anchor n -side top -fill both -expand true
     pack .menubar -anchor n -side top -fill x  -before .drw
@@ -3769,7 +3770,8 @@ font configure Underline-Font -underline true -size 24
           -width 10 -foreground black -takefocus 0
    label .statusbar.6   -text "NETLIST MODE:"
    entry .statusbar.7 -textvariable netlist_type -relief sunken -bg white \
-          -width 10 -state disabled -disabledforeground black 
+          -width 8 -state disabled -disabledforeground black 
+   label .statusbar.8 -activebackground red -text {} 
 
 
    ##

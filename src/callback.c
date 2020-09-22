@@ -79,6 +79,15 @@ int callback(int event, int mx, int my, KeySym key,
  unsigned short sel;
 
  state &=~Mod2Mask; /* 20170511 filter out NumLock status */
+
+ if(event == KeyPress && key == XK_Caps_Lock && !(state & LockMask)) {
+     tcleval(".statusbar.8 configure -state active -text {CAPS LOCK SET! }");
+ }
+ 
+ if(event == KeyPress && key == XK_Caps_Lock && (state & LockMask)) {
+     tcleval(".statusbar.8 configure -state  normal -text {}");
+ }
+   
  if(semaphore)
  {
    if(debug_var>=2) 
