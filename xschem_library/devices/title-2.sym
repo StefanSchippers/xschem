@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC6 file_version=1.1}
-G {type=logo
+v {xschem version=2.9.7 file_version=1.2}
+G {}
+K {type=logo
 template="name=l1 author=\\"Stefan Schippers\\" rev=1.0"
 verilog_ignore=true
 vhdl_ignore=true
@@ -24,5 +25,5 @@ T {SCHEM} 165 -25 0 0 1 1 {}
 T {@time_last_modified} 2750 -60 0 0 0.8 0.8 {}
 T {@author} 2120 -140 0 0 0.8 0.8 {}
 T {Page @page of @pages} 2120 -60 0 0 0.8 0.8 {}
-T {@title} 2750 -140 0 0 0.8 0.8 {}
+T {@title} 2750 -120 0 0 0.6 0.6 {vcenter=true}
 T {Rev. @rev} 2460 -60 0 0 0.8 0.8 {}
