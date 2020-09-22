@@ -635,6 +635,7 @@ proc xschem_server {sock addr port} {
 ## highlight the specified net.
 proc probe_net {net} {
 
+  xschem unselect_all
   xschem set no_draw 1
   # return to top level if not already there
   while { [xschem get currentsch] } { xschem go_back } 
@@ -643,15 +644,21 @@ proc probe_net {net} {
     regsub {\..*} $inst {} inst
     regsub {[^.]+\.} $net {} net
     xschem search exact 1 name $inst
-    xschem descend
+    set full_inst [split [lindex [xschem get expandlabel [xschem selected_set]] 0] {,}]
+    set instnum [expr [lsearch -exact  $full_inst $inst] + 1]
+    puts "$full_inst --> $instnum"
+    xschem descend $instnum
+
+#  set a [lindex [split [lindex [xschem get expandlabel {xrdec[31:0]}] 0] ,] 3]
+
   }
-  set res [xschem search exact 0 lab $net]
+  set res [xschem hilight_netname $net]
   if {$res==0  && [regexp {^net[0-9]+$} $net]} {
-    xschem search exact 0 lab \#$net
+    set res [xschem hilight_netname \#$net]
   }
   xschem set no_draw 0
   xschem redraw
-
+  return $res
 }
 
 proc simulate {{callback {}}} { 
@@ -722,6 +729,25 @@ proc gaw_setup_tcp {} {
   chan configure $gaw_fd -blocking 1 -buffering line -encoding binary -translation binary
   fileevent $gaw_fd readable gaw_echoline
   puts $gaw_fd "table_set $s.raw"
+}
+
+proc gaw_cmd {cmd} {
+  global gaw_fd gaw_tcp_address netlist_dir no_x
+  if { [catch {eval socket $gaw_tcp_address} gaw_fd] } {
+    puts "Problems opening socket to gaw on address $gaw_tcp_address"
+    unset gaw_fd
+    if {![info exists no_x]} {
+      tk_messageBox -type ok -title {Tcp socket error} \
+       -message [concat "Problems opening socket to gaw on address $gaw_tcp_address. " \
+         "If you recently closed gaw the port may be in a TIME_WAIT state for a minute or so ." \
+         "Close gaw, Wait a minute or two, then send waves to gaw again."]
+    }
+    return
+  }
+  chan configure $gaw_fd -blocking 1 -buffering line -encoding binary -translation binary
+  puts $gaw_fd "$cmd"
+  fileevent $gaw_fd readable gaw_echoline
+  close $gaw_fd; unset gaw_fd;
 }
 
 proc waves {} { 
@@ -2678,7 +2704,6 @@ proc launcher {} {
   ## puts ">>> $launcher_program $launcher_var "
   # 20170413
   if { ![string compare $launcher_program {}] } { set launcher_program $launcher_default_program}
-
   eval exec  [subst $launcher_program] {[subst $launcher_var]} &
 }
 

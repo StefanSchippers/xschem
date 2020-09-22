@@ -1041,6 +1041,10 @@ void launcher(void) /*  20161102 */
   rebuild_selected_array();
   if(lastselected ==1 && selectedgroup[0].type==ELEMENT) 
   {
+    double mx=mousex, my=mousey;
+    select_object(mx,my,SELECTED, 0);
+    tcleval("update; after 300");
+    select_object(mx,my,0, 0);
     n=selectedgroup[0].n;
     my_strncpy(program, get_tok_value(inst_ptr[n].prop_ptr,"program",2), S(program)); /*  20170414 handle backslashes */
     str = get_tok_value(inst_ptr[n].prop_ptr,"url",2); /*  20170414 handle backslashes */
@@ -1062,7 +1066,7 @@ void launcher(void) /*  20161102 */
   } 
 }
 
-void descend_schematic(void)
+void descend_schematic(int instnumber)
 {
  const char *str;
  char filename[PATH_MAX];
@@ -1130,17 +1134,22 @@ void descend_schematic(void)
   inst_number = 1;
   if(inst_mult > 1) { /* on multiple instances ask where to descend, to correctly evaluate 
                          the hierarchy path you descend to */
-    const char *inum;
-    Tcl_VarEval(interp, "input_line ", "{input instance number (leftmost = 1) to descend into:\n" 
-      "negative numbers select instance starting\nfrom the right (rightmost = -1)}"
-      " {} 1 6", NULL);
-    inum = tclresult();
-    dbg(1, "descend_schematic(): inum=%s\n", inum);
-    if(!inum[0]) {
-      my_free(710, &sch_path[currentsch+1]);
-      return;
+
+    if(instnumber <= 0 ) {
+      const char *inum;
+      Tcl_VarEval(interp, "input_line ", "{input instance number (leftmost = 1) to descend into:\n" 
+        "negative numbers select instance starting\nfrom the right (rightmost = -1)}"
+        " {} 1 6", NULL);
+      inum = tclresult();
+      dbg(1, "descend_schematic(): inum=%s\n", inum);
+      if(!inum[0]) {
+        my_free(710, &sch_path[currentsch+1]);
+        return;
+      }
+      inst_number=atoi(inum);
+    } else {
+      inst_number = instnumber;
     }
-    inst_number=atoi(inum);
     if(inst_number < 0 ) inst_number += inst_mult+1;
     if(inst_number <1 || inst_number > inst_mult) inst_number = 1; /* any invalid number->descend to leftmost inst */
   }

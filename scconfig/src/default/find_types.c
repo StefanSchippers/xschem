@@ -277,7 +277,7 @@ int find_types_something_t(const char *name, int logdepth, int fatal, const char
 
 	for(include = first_include; *include != NULL; include++) {
 		sprintf(test_c, test_c_include, define, *include, typ);
-		if ((compile_run(logdepth, test_c, NULL, NULL, NULL, &out) == 0) && (strncmp(out, "OK", 2) == 0)) {
+		if ((compile_run(logdepth, test_c, NULL, NULL, NULL, &out) == 0) && out != NULL && (strncmp(out, "OK", 2) == 0)) {
 			report("Found; ");
 			logprintf(logdepth+1, "include %s works\n", *include);
 			sprintf(nodeend, "includes");

@@ -1,5 +1,6 @@
-v {xschem version=2.9.6 file_version=1.1}
+v {xschem version=2.9.7 file_version=1.2}
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -95,7 +96,7 @@ C {code_shown.sym} 245 -245 0 0 {name=CONTROL value="* .control
 * .endc
 .option savecurrents
 .save all
-.tran 5n 1000u uic
+.tran 5n 600u uic
 * .dc VP 0 21 0.01
 "}
 C {code.sym} 15 -225 0 0 {name=MODELS value=".MODEL DIODE D(IS=1.139e-08 RS=0.99 CJO=9.3e-12 VJ=1.6 M=0.411 BV=30 EG=0.7 ) 
@@ -180,3 +181,6 @@ C {isource_table.sym} 1140 -320 0 0 {name=G2[9..0] CTRL="V(LED)" TABLE="
 }
 C {ammeter.sym} 650 -650 3 0 {name=Vsw}
 C {ammeter.sym} 860 -400 2 0 {name=Vdiode}
+C {launcher.sym} 655 -165 0 0 {name=h1 
+descr="Simulate + gaw reload" 
+tclcommand="set sim(spice,default) 1; set sim(spice,1,fg) 1; set sim(spice,1,st) 0;xschem netlist; xschem simulate; gaw_cmd reload_all"}

@@ -734,7 +734,7 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='e' && state == 0)           /* descend to schematic */
    {
     if(semaphore >= 2) break;
-    descend_schematic();break;
+    descend_schematic(0);break;
    }
    if(key=='e' && state == Mod1Mask)            /* edit schematic in new window */
    {

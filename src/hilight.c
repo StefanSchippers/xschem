@@ -26,7 +26,7 @@ static struct hilight_hashentry *hilight_table[HASHSIZE];
 static int nelements=0; /* 20161221 */
 static int *inst_color=NULL;
 
-static unsigned int hash(char *tok)
+static unsigned int hash(const char *tok)
 {
   unsigned int hash = 0;
   char *str;
@@ -53,16 +53,18 @@ static struct hilight_hashentry *free_hilight_entry(struct hilight_hashentry *en
   return NULL;
 }
 
-/* for debug only */
-void display_hilights()
+void display_hilights(char **str)
 {
   int i;
+  int first = 1;
   struct hilight_hashentry *entry;
-  fprintf(errfp, "-----------------\n");
   for(i=0;i<HASHSIZE;i++) {
     entry = hilight_table[i];
     while(entry) {
-      fprintf(errfp, "\nhilight hash content: token=%s, path=%s, value=%d\n", entry->token, entry->path, entry->value);
+      if(!first) my_strcat(93, str, ",");
+      my_strcat(562, str, entry->path+1);
+      my_strcat(1160, str, entry->token);
+      first = 0;
       entry = entry->next;
     }
   }
@@ -166,7 +168,7 @@ void create_plot_cmd(int viewer)
   }
 }
 
-struct hilight_hashentry *hilight_lookup(char *token, int value, int remove)
+struct hilight_hashentry *hilight_lookup(const char *token, int value, int remove)
 /*    token           remove    ... what ... */
 /* -------------------------------------------------------------------------- */
 /* "whatever"         0,XINSERT insert in hash table if not in and return NULL */
@@ -464,9 +466,9 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
       if(str && has_token) {
 #ifdef __unix__
         if( (!regexec(&re, str,0 , NULL, 0) && !sub) ||           /* 20071120 regex instead of strcmp */
-            (!strcmp(str,val) && sub) ) 
+            (!strcmp(str, val) && sub && !bus) || (strstr(str,val) && sub && bus)) 
 #else
-        if (!strcmp(str, val) && sub)
+        if ((!strcmp(str, val) && sub && !bus) || (strstr(str,val) && sub && bus))
 #endif
         {
           if(!sel) { /*20190525 */
@@ -692,6 +694,24 @@ void send_net_to_gaw(char *node)
     }
   }
 }
+
+int hilight_netname(const char *name)
+{
+  int ret = 0;
+  struct node_hashentry *node_entry;
+  prepare_netlist_structs(0);
+  dbg(1, "hilight_netname(): entering\n");
+  rebuild_selected_array();
+  node_entry = bus_hash_lookup(name, "", XLOOKUP, 0, "", "", "", "");
+  ret = node_entry ? 1 : 0;
+  if(ret && !bus_hilight_lookup(name, hilight_color, XINSERT)) {
+    hilight_nets=1;
+    if(incr_hilight) hilight_color++;
+  }
+  redraw_hilights();
+  return ret;
+}
+
 
 void hilight_net(int to_waveform)
 {

@@ -221,7 +221,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
  else if(!strcmp(argv[1],"descend"))
  {
-   descend_schematic();
+   if(argc >=3) {
+     int n = atoi(argv[2]);
+     descend_schematic(n);
+   } else {
+     descend_schematic(0);
+   }
    Tcl_ResetResult(interp);
  }
 
@@ -1066,8 +1071,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   printf("                   make symbol view from current schematic\n");
   printf("      xschem place_text\n");
   printf("                   place new text\n");
-  printf("      xschem sleep #ms\n");
-  printf("                   sleep some ms\n");
   printf("      xschem debug  n\n");
   printf("                   set debug level to n: 1, 2, 3 for C Program \n");
   printf("                                        -1,-2,-3 for Tcl frontend\n");
@@ -1113,6 +1116,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
  else if(!strcmp(argv[1], "print_hilight_net") && argc == 3) {
    print_hilight_net(atoi(argv[2]));
+ }
+
+ else if(!strcmp(argv[1], "display_hilights")) {
+   char *str = NULL;
+   display_hilights(&str);
+   Tcl_ResetResult(interp);
+   Tcl_AppendResult(interp, str, NULL);
+   my_free(1161, &str);
  }
    
  else if(!strcmp(argv[1],"clear_netlist_dir") ) {
@@ -1418,6 +1429,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    /* draw_hilight_net(1); */
    redraw_hilights();
    Tcl_ResetResult(interp);
+ }
+
+ else if(!strcmp(argv[1],"hilight_netname"))
+ {
+   int ret = 0;
+   if(argc>=3) {
+     ret = hilight_netname(argv[2]);
+   }
+   Tcl_ResetResult(interp);
+   Tcl_AppendResult(interp,ret ? "1" : "0" , NULL);
  }
 
  else if(!strcmp(argv[1],"send_to_gaw"))
