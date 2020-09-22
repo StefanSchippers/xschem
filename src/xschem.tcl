@@ -646,7 +646,7 @@ proc probe_net {net} {
     xschem search exact 1 name $inst
     set full_inst [split [lindex [xschem get expandlabel [xschem selected_set]] 0] {,}]
     set instnum [expr [lsearch -exact  $full_inst $inst] + 1]
-    puts "$full_inst --> $instnum"
+    # puts "$full_inst --> $instnum"
     xschem descend $instnum
 
 #  set a [lindex [split [lindex [xschem get expandlabel {xrdec[31:0]}] 0] ,] 3]
