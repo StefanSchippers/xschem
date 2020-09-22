@@ -238,6 +238,7 @@ extern char win_temp_dir[PATH_MAX];
 #define XINSERT 0
 #define XLOOKUP 1
 #define XDELETE 2
+#define XINSERT_NOREPLACE 3 /* do not replace token value in hash if already present */ 
 
 #define S(a) (sizeof(a)/sizeof(char))
 #define BUS_WIDTH 4

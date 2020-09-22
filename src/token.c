@@ -75,6 +75,7 @@ int name_strcmp(char *s, char *d) /* compare strings up to '\0' or'[' */
 /* remove:
  * 0,XINSERT : lookup and insert in hash table (return NULL if token was not found)
  *    if token was found update value
+   3,XINSERT_NOREPLACE : same as XINSERT but do not replace existing value if token found.
  * 1,XDELETE : delete token entry, return NULL
  * 2,XLOOKUP : lookup only 
  */
@@ -92,7 +93,7 @@ static struct inst_hashentry *inst_hash_lookup(struct inst_hashentry **table, ch
   preventry=&table[index];
   while(1) {
     if( !entry ) {                         /* empty slot */
-      if(remove == XINSERT) {            /* insert data */
+      if(remove == XINSERT || remove == XINSERT_NOREPLACE) {            /* insert data */
         s=sizeof( struct inst_hashentry );
         entry=(struct inst_hashentry *) my_malloc(425, s);
         *preventry=entry;
@@ -198,7 +199,7 @@ void check_unique_names(int rename)
         comma_pos = strchr(start, ',');
         if(comma_pos) *comma_pos = '\0';
         dbg(1, "check_unique_names: checking %s\n", start);
-        if( (entry = inst_hash_lookup(table, start, i, XINSERT, strlen(start)) ) && entry->value != i) {
+        if( (entry = inst_hash_lookup(table, start, i, XINSERT_NOREPLACE, strlen(start)) ) && entry->value != i) {
           inst_ptr[i].flags |=4;
           hilight_nets=1;
           if(rename == 1) {

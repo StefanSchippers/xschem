@@ -437,6 +437,7 @@ static unsigned int hash(const char *tok)
  * "whatever"    "whatever"  XINSERT     insert in hash table if not in.
  *                                      if already present update value if not NULL, 
  *                                      return entry address.
+ * "whatever"    "whatever"  XINSERT_NOREPLACE   same as XINSERT but do not replace existing value
  *                                      return NULL if not found.
  * "whatever"    "whatever"  XLOOKUP     lookup in hash table,return entry addr.
  *                                      return NULL if not found
@@ -457,7 +458,7 @@ struct hashentry *hash_lookup(struct hashentry **table, const char *token, const
   {
     if( !entry )          /* empty slot */
     {
-      if(what==XINSERT)            /* insert data */
+      if(what==XINSERT || what == XINSERT_NOREPLACE)            /* insert data */
       {
         s=sizeof( struct hashentry );
         entry=(struct hashentry *)my_malloc(313, s);
