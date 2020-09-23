@@ -1,5 +1,6 @@
 v {xschem version=2.9.7 file_version=1.2}
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -36,13 +37,13 @@ T {Components} 1010 -210 0 0 0.6 0.6 {layer=4}
 T {TEXT} 890 -620 0 0 0.5 0.5 {layer=8}
 T {TEXT} 890 -670 1 0 0.7 0.7 {layer=6 font=FreeMono}
 T {Text} 900 -660 0 0 0.5 0.5 {layer=7 font="Times"}
-T {TEXT} 990 -660 1 0 0.5 0.5 {}
+T {TEXT} 990 -660 1 0 0.5 0.5 {weight=bold}
 T {Text} 1010 -650 0 0 0.6 0.6 {layer=4}
 T {Arcs/Circles} 1010 -120 0 0 0.6 0.6 {layer=4}
 T {Select the components here under
 and press'<Ctrl>-h' or <Ctrl>-click
 them to visit xschem websites
-or local docs} 400 -360 0 0 0.3 0.3 {}
+or local docs} 400 -360 0 0 0.3 0.3 {slant=oblique }
 N 870 -300 990 -300 {lab=#net1}
 N 910 -340 910 -250 {lab=#net2}
 N 910 -270 970 -270 {lab=#net2}

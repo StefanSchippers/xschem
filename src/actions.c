@@ -2057,7 +2057,7 @@ int text_bbox(const char *str, double xscale, double yscale,
   double size;
   cairo_text_extents_t ext;
   cairo_font_extents_t fext;
-  double ww, hh;
+  double ww, hh, maxw;
 
   if(!has_x) return 0;
   size = xscale*52.*cairo_font_scale;
@@ -2080,7 +2080,8 @@ int text_bbox(const char *str, double xscale, double yscale,
       cairo_lines++;
       if(str_ptr[0]!='\0') {
         cairo_text_extents(ctx, str_ptr, &ext);
-        if(ext.x_advance > ww) ww= ext.x_advance;
+        maxw = ext.x_advance > ext.width ? ext.x_advance : ext.width;
+        if(maxw > ww) ww= maxw;
       }
       s[c]='\n';
       str_ptr = s+c+1;
@@ -2090,7 +2091,8 @@ int text_bbox(const char *str, double xscale, double yscale,
   }
   if(str_ptr && str_ptr[0]!='\0') {
     cairo_text_extents(ctx, str_ptr, &ext);
-    if(ext.x_advance > ww) ww= ext.x_advance;
+    maxw = ext.x_advance > ext.width ? ext.x_advance : ext.width;
+    if(maxw > ww) ww= maxw;
   }
   my_free(1159, &s);
   hh = hh*fext.height*cairo_font_line_spacing;
@@ -2098,25 +2100,25 @@ int text_bbox(const char *str, double xscale, double yscale,
 
   *rx1=x1;*ry1=y1; 
   if(hcenter) {
-    if(rot==0 && flip == 0) { *rx1-= ww*zoom/2;}
-    if(rot==1 && flip == 0) { *ry1-= ww*zoom/2;}
-    if(rot==2 && flip == 0) { *rx1+= ww*zoom/2;}
-    if(rot==3 && flip == 0) { *ry1+= ww*zoom/2;}
-    if(rot==0 && flip == 1) { *rx1+= ww*zoom/2;}
-    if(rot==1 && flip == 1) { *ry1+= ww*zoom/2;}
-    if(rot==2 && flip == 1) { *rx1-= ww*zoom/2;}
-    if(rot==3 && flip == 1) { *ry1-= ww*zoom/2;}
+    if     (rot==0 && flip == 0) { *rx1-= ww*zoom/2;}
+    else if(rot==1 && flip == 0) { *ry1-= ww*zoom/2;}
+    else if(rot==2 && flip == 0) { *rx1+= ww*zoom/2;}
+    else if(rot==3 && flip == 0) { *ry1+= ww*zoom/2;}
+    else if(rot==0 && flip == 1) { *rx1+= ww*zoom/2;}
+    else if(rot==1 && flip == 1) { *ry1+= ww*zoom/2;}
+    else if(rot==2 && flip == 1) { *rx1-= ww*zoom/2;}
+    else if(rot==3 && flip == 1) { *ry1-= ww*zoom/2;}
   }
 
   if(vcenter) {
-    if(rot==0 && flip == 0) { *ry1-= hh*zoom/2;}
-    if(rot==1 && flip == 0) { *rx1+= hh*zoom/2;}
-    if(rot==2 && flip == 0) { *ry1+= hh*zoom/2;}
-    if(rot==3 && flip == 0) { *rx1-= hh*zoom/2;}
-    if(rot==0 && flip == 1) { *ry1-= hh*zoom/2;}
-    if(rot==1 && flip == 1) { *rx1+= hh*zoom/2;}
-    if(rot==2 && flip == 1) { *ry1+= hh*zoom/2;}
-    if(rot==3 && flip == 1) { *rx1-= hh*zoom/2;}
+    if     (rot==0 && flip == 0) { *ry1-= hh*zoom/2;}
+    else if(rot==1 && flip == 0) { *rx1+= hh*zoom/2;}
+    else if(rot==2 && flip == 0) { *ry1+= hh*zoom/2;}
+    else if(rot==3 && flip == 0) { *rx1-= hh*zoom/2;}
+    else if(rot==0 && flip == 1) { *ry1-= hh*zoom/2;}
+    else if(rot==1 && flip == 1) { *rx1+= hh*zoom/2;}
+    else if(rot==2 && flip == 1) { *ry1+= hh*zoom/2;}
+    else if(rot==3 && flip == 1) { *rx1-= hh*zoom/2;}
   }
 
 
@@ -2158,25 +2160,25 @@ int text_bbox(const char * str,double xscale, double yscale,
   else            *rx1-=nocairo_vert_correct;
 
   if(hcenter) {
-    if(rot==0 && flip == 0) { *rx1-= w/2;}
-    if(rot==1 && flip == 0) { *ry1-= w/2;}
-    if(rot==2 && flip == 0) { *rx1+= w/2;}
-    if(rot==3 && flip == 0) { *ry1+= w/2;}
-    if(rot==0 && flip == 1) { *rx1+= w/2;}
-    if(rot==1 && flip == 1) { *ry1+= w/2;}
-    if(rot==2 && flip == 1) { *rx1-= w/2;}
-    if(rot==3 && flip == 1) { *ry1-= w/2;}
+    if     (rot==0 && flip == 0) { *rx1-= w/2;}
+    else if(rot==1 && flip == 0) { *ry1-= w/2;}
+    else if(rot==2 && flip == 0) { *rx1+= w/2;}
+    else if(rot==3 && flip == 0) { *ry1+= w/2;}
+    else if(rot==0 && flip == 1) { *rx1+= w/2;}
+    else if(rot==1 && flip == 1) { *ry1+= w/2;}
+    else if(rot==2 && flip == 1) { *rx1-= w/2;}
+    else if(rot==3 && flip == 1) { *ry1-= w/2;}
   }
 
   if(vcenter) {
-    if(rot==0 && flip == 0) { *ry1-= h/2;}
-    if(rot==1 && flip == 0) { *rx1+= h/2;}
-    if(rot==2 && flip == 0) { *ry1+= h/2;}
-    if(rot==3 && flip == 0) { *rx1-= h/2;}
-    if(rot==0 && flip == 1) { *ry1-= h/2;}
-    if(rot==1 && flip == 1) { *rx1+= h/2;}
-    if(rot==2 && flip == 1) { *ry1+= h/2;}
-    if(rot==3 && flip == 1) { *rx1-= h/2;}
+    if     (rot==0 && flip == 0) { *ry1-= h/2;}
+    else if(rot==1 && flip == 0) { *rx1+= h/2;}
+    else if(rot==2 && flip == 0) { *ry1+= h/2;}
+    else if(rot==3 && flip == 0) { *rx1-= h/2;}
+    else if(rot==0 && flip == 1) { *ry1-= h/2;}
+    else if(rot==1 && flip == 1) { *rx1+= h/2;}
+    else if(rot==2 && flip == 1) { *ry1+= h/2;}
+    else if(rot==3 && flip == 1) { *rx1-= h/2;}
   }
 
   ROTATION(0.0,0.0,w,h,(*rx2),(*ry2));

@@ -3610,7 +3610,7 @@ font configure Underline-Font -underline true -size 24
            color_dim
            xschem color_dim
         }
-   .menubar.zoom.menu add command -label "Symbol visible layers"  -accelerator {} -command {
+   .menubar.zoom.menu add command -label "Visible layers"  -accelerator {} -command {
            select_layers
            xschem redraw
         }

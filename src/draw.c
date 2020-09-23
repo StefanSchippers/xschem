@@ -267,7 +267,7 @@ void cairo_draw_string_line(cairo_t *ctx, char *s,
   if(s==NULL) return;
   if(llength==0) return;
   cairo_text_extents(ctx, s, &ext);
-  xadvance = ext.x_advance;
+  xadvance = ext.x_advance > ext.width? ext.x_advance : ext.width;
 
   line_delta = lineno*fontheight*cairo_font_line_spacing;
   lines = (cairo_lines-1)*fontheight*cairo_font_line_spacing;
@@ -320,7 +320,7 @@ void draw_string(int layer, int what, const char *s, int rot, int flip, int hcen
   size = xscale*52.*cairo_font_scale;
   /*fprintf(errfp, "size=%.16g\n", size*mooz); */
   if(size*mooz<3.0) return; /* too small */
-  if(size*mooz>800) return; /* too big */
+  if(size*mooz>1600) return; /* too big */
 
   text_bbox(s, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &textx1,&texty1,&textx2,&texty2);
   if(!textclip(areax1,areay1,areax2,areay2,textx1,texty1,textx2,texty2)) {
@@ -1585,22 +1585,22 @@ void draw(void)
         {
           if(draw_single_layer!=-1 && c != draw_single_layer) continue; /* 20151117 */
         
-          for(i=0;i<lastline[c];i++) {
+          if(enable_layer[c]) for(i=0;i<lastline[c];i++) {
             if(line[c][i].bus)
               drawline(c, THICK, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2, line[c][i].dash);
             else
               drawline(c, ADD, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2, line[c][i].dash);
           }
-          for(i=0;i<lastrect[c];i++) 
+          if(enable_layer[c]) for(i=0;i<lastrect[c];i++) 
           {
             drawrect(c, ADD, rect[c][i].x1, rect[c][i].y1, rect[c][i].x2, rect[c][i].y2, rect[c][i].dash);
             filledrect(c, ADD, rect[c][i].x1, rect[c][i].y1, rect[c][i].x2, rect[c][i].y2);
           }
-          for(i=0;i<lastarc[c];i++) 
+          if(enable_layer[c]) for(i=0;i<lastarc[c];i++) 
           {
             drawarc(c, ADD, arc[c][i].x, arc[c][i].y, arc[c][i].r, arc[c][i].a, arc[c][i].b, arc[c][i].fill, arc[c][i].dash);
           }
-          for(i=0;i<lastpolygon[c];i++) {
+          if(enable_layer[c]) for(i=0;i<lastpolygon[c];i++) {
             /* 20180914 added fill */
             drawpolygon(c, NOW, polygon[c][i].x, polygon[c][i].y, polygon[c][i].points, polygon[c][i].fill, polygon[c][i].dash);
           }
@@ -1717,6 +1717,7 @@ void draw(void)
             if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
             dbg(1, "draw(): drawing string %d = %s\n",i, textelement[i].txt_ptr);
             #ifdef HAS_CAIRO
+            if(!enable_layer[textlayer]) continue;
             textfont = textelement[i].font; /* 20171206 */
             if( (textfont && textfont[0]) || textelement[i].flags) {
               cairo_font_slant_t slant;
