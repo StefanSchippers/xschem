@@ -453,7 +453,7 @@ void copy_objects(int what)
  int newpropcnt;
  double tmpx, tmpy;
  int textlayer;
- const char *strlayer;
+ const char *str;
 
  /* 20171112 */
  #ifdef HAS_CAIRO
@@ -737,14 +737,21 @@ void copy_objects(int what)
       my_strdup(231, &textelement[lasttext].font, get_tok_value(textelement[lasttext].prop_ptr, "font", 0));/*20171206 */
 
 
-      strlayer = get_tok_value(textelement[lasttext].prop_ptr, "hcenter", 0);
-      textelement[lasttext].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
-      strlayer = get_tok_value(textelement[lasttext].prop_ptr, "vcenter", 0);
-      textelement[lasttext].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
+      str = get_tok_value(textelement[lasttext].prop_ptr, "hcenter", 0);
+      textelement[lasttext].hcenter = strcmp(str, "true")  ? 0 : 1;
+      str = get_tok_value(textelement[lasttext].prop_ptr, "vcenter", 0);
+      textelement[lasttext].vcenter = strcmp(str, "true")  ? 0 : 1;
 
-      strlayer = get_tok_value(textelement[lasttext].prop_ptr, "layer", 0); /*20171206 */
-      if(strlayer[0]) textelement[lasttext].layer = atoi(strlayer);
+      str = get_tok_value(textelement[lasttext].prop_ptr, "layer", 0); /*20171206 */
+      if(str[0]) textelement[lasttext].layer = atoi(str);
       else textelement[lasttext].layer = -1;
+
+      textelement[lasttext].flags = 0;
+      str = get_tok_value(textelement[lasttext].prop_ptr, "slant", 0);
+      textelement[lasttext].flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
+      textelement[lasttext].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
+      str = get_tok_value(textelement[lasttext].prop_ptr, "weight", 0);
+      textelement[lasttext].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
 
       textelement[lasttext].xscale=textelement[n].xscale;
       textelement[lasttext].yscale=textelement[n].yscale;
@@ -753,11 +760,18 @@ void copy_objects(int what)
       if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
       #ifdef HAS_CAIRO
       textfont = textelement[lasttext].font; /* 20171206 */
-      if(textfont && textfont[0]) {
+      if((textfont && textfont[0]) || textelement[lasttext].flags) {
+        cairo_font_slant_t slant;
+        cairo_font_weight_t weight;
+        textfont = (textelement[lasttext].font && textelement[lasttext].font[0]) ? textelement[lasttext].font : cairo_font_name;
+        weight = ( textelement[lasttext].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
+        slant = CAIRO_FONT_SLANT_NORMAL;
+        if(textelement[lasttext].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
+        if(textelement[lasttext].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
         cairo_save(ctx);
         cairo_save(save_ctx);
-        cairo_select_font_face (ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-        cairo_select_font_face (save_ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+        cairo_select_font_face (ctx, textfont, slant, weight);
+        cairo_select_font_face (save_ctx, textfont, slant, weight);
       }
       #endif
       draw_string(textlayer, ADD, textelement[lasttext].txt_ptr,        /* draw moved txt */
@@ -769,9 +783,7 @@ void copy_objects(int what)
       drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
       #endif
       #ifdef HAS_CAIRO
-      if(textfont && textfont[0]) {
-        /* cairo_select_font_face (ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL); */
-        /* cairo_select_font_face (save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL); */
+      if( (textfont && textfont[0]) || textelement[lasttext].flags) {
         cairo_restore(ctx);
         cairo_restore(save_ctx);
       }
@@ -1220,11 +1232,18 @@ void move_objects(int what, int merge, double dx, double dy)
       if(textlayer < 0 || textlayer >=  cadlayers) textlayer = TEXTLAYER;
       #ifdef HAS_CAIRO
       textfont = textelement[n].font; /* 20171206 */
-      if(textfont && textfont[0]) {
+      if((textfont && textfont[0]) || textelement[n].flags) {
+        cairo_font_slant_t slant;
+        cairo_font_weight_t weight;
+        textfont = (textelement[n].font && textelement[n].font[0]) ? textelement[n].font : cairo_font_name;
+        weight = ( textelement[n].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
+        slant = CAIRO_FONT_SLANT_NORMAL;
+        if(textelement[n].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
+        if(textelement[n].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
         cairo_save(ctx);
         cairo_save(save_ctx);
-        cairo_select_font_face (ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-        cairo_select_font_face (save_ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+        cairo_select_font_face (ctx, textfont, slant, weight);
+        cairo_select_font_face (save_ctx, textfont, slant, weight);
       }
       #endif
       draw_string(textlayer, ADD, textelement[n].txt_ptr,        /* draw moved txt */
@@ -1236,9 +1255,7 @@ void move_objects(int what, int merge, double dx, double dy)
       drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
       #endif
       #ifdef HAS_CAIRO
-      if(textfont && textfont[0]) {
-        /*cairo_select_font_face (ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL); */
-        /*cairo_select_font_face (save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL); */
+      if( (textfont && textfont[0]) || textelement[n].flags) {
         cairo_restore(ctx);
         cairo_restore(save_ctx);
       }

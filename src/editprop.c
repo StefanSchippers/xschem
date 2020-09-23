@@ -706,7 +706,7 @@ void edit_text_property(int x)
    double xx1,yy1,xx2,yy2;
    double pcx,pcy;      /* pin center 20070317 */
    char property[1024];/* used for float 2 string conv (xscale  and yscale) overflow safe */
-   const char *strlayer;
+   const char *str;
    char *oldprop = NULL;
 
    dbg(1, "edit_text_property(): entering\n");
@@ -815,14 +815,23 @@ void edit_text_property(int x)
            my_strdup(75, &textelement[sel].prop_ptr,(char *) tclgetvar("props"));
          my_strdup(76, &textelement[sel].font, get_tok_value(textelement[sel].prop_ptr, "font", 0));/*20171206 */
 
-         strlayer = get_tok_value(textelement[sel].prop_ptr, "hcenter", 0);
-         textelement[sel].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
-         strlayer = get_tok_value(textelement[sel].prop_ptr, "vcenter", 0);
-         textelement[sel].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
+         str = get_tok_value(textelement[sel].prop_ptr, "hcenter", 0);
+         textelement[sel].hcenter = strcmp(str, "true")  ? 0 : 1;
+         str = get_tok_value(textelement[sel].prop_ptr, "vcenter", 0);
+         textelement[sel].vcenter = strcmp(str, "true")  ? 0 : 1;
 
-         strlayer = get_tok_value(textelement[sel].prop_ptr, "layer", 0); /* 20171206 */
-         if(strlayer[0]) textelement[sel].layer = atoi(strlayer);
+         str = get_tok_value(textelement[sel].prop_ptr, "layer", 0); /* 20171206 */
+         if(str[0]) textelement[sel].layer = atoi(str);
          else textelement[sel].layer=-1;
+
+
+         textelement[sel].flags = 0;
+         str = get_tok_value(textelement[sel].prop_ptr, "slant", 0);
+         textelement[sel].flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
+         textelement[sel].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
+         str = get_tok_value(textelement[sel].prop_ptr, "weight", 0);
+         textelement[sel].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
+
          textelement[sel].xscale=atof(tclgetvar("hsize"));
          textelement[sel].yscale=atof(tclgetvar("vsize"));
        }

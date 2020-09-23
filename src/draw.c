@@ -203,8 +203,7 @@ void print_image()
   cairo_set_line_width(save_ctx, 1);
   cairo_set_line_join(save_ctx, CAIRO_LINE_JOIN_ROUND);
   cairo_set_line_cap(save_ctx, CAIRO_LINE_CAP_ROUND);
-  cairo_select_font_face (save_ctx, cairo_font_name,
-       CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_select_font_face (save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size (save_ctx, 20);
   #endif /*HAS_CAIRO */
 
@@ -228,9 +227,16 @@ int set_text_custom_font(Text *txt) /* 20171122 for correct text_bbox calculatio
   char *textfont;
 
   textfont = txt->font;
-  if(textfont && textfont[0]) {
+  if((textfont && textfont[0]) || txt->flags) {
+    cairo_font_slant_t slant;
+    cairo_font_weight_t weight;
+    textfont = (txt->font && txt->font[0]) ? txt->font : cairo_font_name;
+    weight = ( txt->flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
+    slant = CAIRO_FONT_SLANT_NORMAL;
+    if(txt->flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
+    if(txt->flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
     cairo_save(ctx);
-    cairo_select_font_face (ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face (ctx, textfont, slant, weight);
     return 1;
   }
   return 0;
@@ -586,11 +592,19 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
       if((c == PINLAYER && inst_ptr[n].flags & 4) ||  enable_layer[textlayer]) {
         #ifdef HAS_CAIRO
         textfont = symptr->txtptr[j].font;
-        if(textfont && textfont[0]) {
+        if((textfont && textfont[0]) || symptr->txtptr[j].flags) {
+          cairo_font_slant_t slant;
+          cairo_font_weight_t weight;
+          textfont = (symptr->txtptr[j].font && symptr->txtptr[j].font[0]) ? symptr->txtptr[j].font : cairo_font_name;
+          weight = ( symptr->txtptr[j].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
+          slant = CAIRO_FONT_SLANT_NORMAL;
+          if(symptr->txtptr[j].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
+          if(symptr->txtptr[j].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
+
           cairo_save(ctx);
           cairo_save(save_ctx);
-          cairo_select_font_face (ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-          cairo_select_font_face (save_ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+          cairo_select_font_face (ctx, textfont, slant, weight);
+          cairo_select_font_face (save_ctx, textfont, slant, weight);
         }
         #endif
         dbg(1, "drawing string: str=%s prop=%s\n", txtptr, text.prop_ptr);
@@ -603,7 +617,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
         drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
         #endif
         #ifdef HAS_CAIRO
-        if(textfont && textfont[0]) {
+        if( (textfont && textfont[0]) || symptr->txtptr[j].flags) {
           cairo_restore(ctx);
           cairo_restore(save_ctx);
         }
@@ -1704,11 +1718,19 @@ void draw(void)
             dbg(1, "draw(): drawing string %d = %s\n",i, textelement[i].txt_ptr);
             #ifdef HAS_CAIRO
             textfont = textelement[i].font; /* 20171206 */
-            if(textfont && textfont[0]) {
+            if( (textfont && textfont[0]) || textelement[i].flags) {
+              cairo_font_slant_t slant;
+              cairo_font_weight_t weight;
+              textfont = (textelement[i].font && textelement[i].font[0]) ? textelement[i].font : cairo_font_name;
+              weight = ( textelement[i].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
+              slant = CAIRO_FONT_SLANT_NORMAL;
+              if(textelement[i].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
+              if(textelement[i].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
+
               cairo_save(ctx);
               cairo_save(save_ctx);
-              cairo_select_font_face (ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-              cairo_select_font_face (save_ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+              cairo_select_font_face (ctx, textfont, slant, weight);
+              cairo_select_font_face (save_ctx, textfont, slant, weight);
             }
             #endif
 
@@ -1717,7 +1739,7 @@ void draw(void)
               textelement[i].x0,textelement[i].y0,
               textelement[i].xscale, textelement[i].yscale); 
             #ifdef HAS_CAIRO
-            if(textfont && textfont[0]) {
+            if((textfont && textfont[0]) || textelement[i].flags ) {
               cairo_restore(ctx);
               cairo_restore(save_ctx);
             }

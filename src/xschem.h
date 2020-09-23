@@ -240,6 +240,11 @@ extern char win_temp_dir[PATH_MAX];
 #define XDELETE 2
 #define XINSERT_NOREPLACE 3 /* do not replace token value in hash if already present */ 
 
+/* Cairo text flags */
+#define TEXT_BOLD 1
+#define TEXT_OBLIQUE 2
+#define TEXT_ITALIC 4
+
 #define S(a) (sizeof(a)/sizeof(char))
 #define BUS_WIDTH 4
 #define POINTINSIDE(xa,ya,x1,y1,x2,y2)  \
@@ -370,6 +375,7 @@ typedef struct
   int layer; /*  20171201 for cairo  */
   int hcenter, vcenter;
   char *font; /*  20171201 for cairo */
+  int flags;
 } Text;
 
 typedef struct

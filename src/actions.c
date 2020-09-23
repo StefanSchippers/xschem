@@ -2189,7 +2189,7 @@ void place_text(int draw_text, double mx, double my)
 {
   char *txt;
   int textlayer;
-  const char *strlayer;
+  const char *str;
   int save_draw;
 
   /*  20171112 */
@@ -2231,24 +2231,39 @@ void place_text(int draw_text, double mx, double my)
   /*  textelement[lasttext].prop_ptr=NULL; */
   dbg(1, "place_text(): done text input\n");
 
-  strlayer = get_tok_value(textelement[lasttext].prop_ptr, "hcenter", 0);
-  textelement[lasttext].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
-  strlayer = get_tok_value(textelement[lasttext].prop_ptr, "vcenter", 0);
-  textelement[lasttext].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
+  str = get_tok_value(textelement[lasttext].prop_ptr, "hcenter", 0);
+  textelement[lasttext].hcenter = strcmp(str, "true")  ? 0 : 1;
+  str = get_tok_value(textelement[lasttext].prop_ptr, "vcenter", 0);
+  textelement[lasttext].vcenter = strcmp(str, "true")  ? 0 : 1;
 
-  strlayer = get_tok_value(textelement[lasttext].prop_ptr, "layer", 0);
-  if(strlayer[0]) textelement[lasttext].layer = atoi(strlayer);
+  str = get_tok_value(textelement[lasttext].prop_ptr, "layer", 0);
+  if(str[0]) textelement[lasttext].layer = atoi(str);
   else textelement[lasttext].layer = -1;
+
+  textelement[lasttext].flags = 0;
+  str = get_tok_value(textelement[lasttext].prop_ptr, "slant", 0);
+  textelement[lasttext].flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
+  textelement[lasttext].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
+  str = get_tok_value(textelement[lasttext].prop_ptr, "weight", 0);
+  textelement[lasttext].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
+
   my_strdup(21, &textelement[lasttext].font, get_tok_value(textelement[lasttext].prop_ptr, "font", 0));/* 20171206 */
   textlayer = textelement[lasttext].layer;
   if(textlayer < 0 || textlayer >= cadlayers) textlayer = TEXTLAYER;
   #ifdef HAS_CAIRO
   textfont = textelement[lasttext].font;
-  if(textfont && textfont[0]) {
+  if((textfont && textfont[0]) || textelement[lasttext].flags) {
+    cairo_font_slant_t slant;
+    cairo_font_weight_t weight;
+    textfont = (textelement[lasttext].font && textelement[lasttext].font[0]) ? textelement[lasttext].font : cairo_font_name;
+    weight = ( textelement[lasttext].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
+    slant = CAIRO_FONT_SLANT_NORMAL;
+    if(textelement[lasttext].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
+    if(textelement[lasttext].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
     cairo_save(ctx);
     cairo_save(save_ctx);
-    cairo_select_font_face (ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_select_font_face (save_ctx, textfont, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face (ctx, textfont, slant, weight);
+    cairo_select_font_face (save_ctx, textfont, slant, weight);
   }
   #endif
   save_draw=draw_window; /* 20181009 */
@@ -2258,9 +2273,7 @@ void place_text(int draw_text, double mx, double my)
               textelement[lasttext].xscale, textelement[lasttext].yscale);
   draw_window = save_draw;
   #ifdef HAS_CAIRO
-  if(textfont && textfont[0]) {
-    cairo_select_font_face (ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_select_font_face (save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  if((textfont && textfont[0]) || textelement[lasttext].flags) {
     cairo_restore(ctx);
     cairo_restore(save_ctx);
   }

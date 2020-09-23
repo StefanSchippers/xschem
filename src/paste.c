@@ -29,7 +29,7 @@
 void merge_text(FILE *fd)
 {
    int i;
-   const char *strlayer;
+   const char *str;
     check_text_storage();
     i=lasttext;
      textelement[i].txt_ptr=NULL;
@@ -45,14 +45,21 @@ void merge_text(FILE *fd)
      my_strdup(302, &textelement[i].font, get_tok_value(textelement[i].prop_ptr, "font", 0));/*20171206 */
 
 
-     strlayer = get_tok_value(textelement[i].prop_ptr, "hcenter", 0);
-     textelement[i].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
-     strlayer = get_tok_value(textelement[i].prop_ptr, "vcenter", 0);
-     textelement[i].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
+     str = get_tok_value(textelement[i].prop_ptr, "hcenter", 0);
+     textelement[i].hcenter = strcmp(str, "true")  ? 0 : 1;
+     str = get_tok_value(textelement[i].prop_ptr, "vcenter", 0);
+     textelement[i].vcenter = strcmp(str, "true")  ? 0 : 1;
 
-     strlayer = get_tok_value(textelement[i].prop_ptr, "layer", 0); /*20171206 */
-     if(strlayer[0]) textelement[i].layer = atoi(strlayer);
+     str = get_tok_value(textelement[i].prop_ptr, "layer", 0); /*20171206 */
+     if(str[0]) textelement[i].layer = atoi(str);
      else textelement[i].layer = -1;
+
+     textelement[i].flags = 0;
+     str = get_tok_value(textelement[i].prop_ptr, "slant", 0);
+     textelement[i].flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
+     textelement[i].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
+     str = get_tok_value(textelement[i].prop_ptr, "weight", 0);
+     textelement[i].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
 
      select_text(i,SELECTED, 1);
      set_modify(1);

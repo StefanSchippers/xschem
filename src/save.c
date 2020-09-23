@@ -449,7 +449,7 @@ void write_xschem_file(FILE *fd)
 static void load_text(FILE *fd)
 {
   int i;
-  const char *strlayer;
+  const char *str;
    dbg(3, "load_text(): start\n");
    check_text_storage();
    i=lasttext;
@@ -469,14 +469,21 @@ static void load_text(FILE *fd)
    load_ascii_string(&textelement[i].prop_ptr,fd);
    if( textelement[i].prop_ptr) my_strdup(318, &textelement[i].font, get_tok_value(textelement[i].prop_ptr, "font", 0));/*20171206 */
 
-   strlayer = get_tok_value(textelement[i].prop_ptr, "hcenter", 0);
-   textelement[i].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
-   strlayer = get_tok_value(textelement[i].prop_ptr, "vcenter", 0);
-   textelement[i].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
+   str = get_tok_value(textelement[i].prop_ptr, "hcenter", 0);
+   textelement[i].hcenter = strcmp(str, "true")  ? 0 : 1;
+   str = get_tok_value(textelement[i].prop_ptr, "vcenter", 0);
+   textelement[i].vcenter = strcmp(str, "true")  ? 0 : 1;
 
-   strlayer = get_tok_value(textelement[i].prop_ptr, "layer", 0); /*20171206 */
-   if(strlayer[0]) textelement[i].layer = atoi(strlayer);
+   str = get_tok_value(textelement[i].prop_ptr, "layer", 0); /*20171206 */
+   if(str[0]) textelement[i].layer = atoi(str);
    else textelement[i].layer = -1;
+   textelement[i].flags = 0;
+   str = get_tok_value(textelement[i].prop_ptr, "slant", 0);
+   textelement[i].flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
+   textelement[i].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
+   str = get_tok_value(textelement[i].prop_ptr, "weight", 0);
+   textelement[i].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
+
    lasttext++;
 }
 
@@ -1296,7 +1303,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   int lastt; /* 20171115 lastp */
   Text *tt;
   int endfile;
-  const char *strlayer;
+  const char *str;
   const char *label;
   char *pin_label = NULL, *recover_str=NULL;
   char *skip_line;
@@ -1595,14 +1602,22 @@ int load_sym_def(const char *name, FILE *embed_fd)
 
      my_strdup(351, &tt[i].font, get_tok_value(tt[i].prop_ptr, "font", 0));/*20171206 */
 
-     strlayer = get_tok_value(tt[i].prop_ptr, "hcenter", 0);
-     tt[i].hcenter = strcmp(strlayer, "true")  ? 0 : 1;
-     strlayer = get_tok_value(tt[i].prop_ptr, "vcenter", 0);
-     tt[i].vcenter = strcmp(strlayer, "true")  ? 0 : 1;
+     str = get_tok_value(tt[i].prop_ptr, "hcenter", 0);
+     tt[i].hcenter = strcmp(str, "true")  ? 0 : 1;
+     str = get_tok_value(tt[i].prop_ptr, "vcenter", 0);
+     tt[i].vcenter = strcmp(str, "true")  ? 0 : 1;
 
-     strlayer = get_tok_value(tt[i].prop_ptr, "layer", 0); /*20171206 */
-     if(strlayer[0]) tt[i].layer = atoi(strlayer);
+     str = get_tok_value(tt[i].prop_ptr, "layer", 0); /*20171206 */
+     if(str[0]) tt[i].layer = atoi(str);
      else tt[i].layer = -1;
+
+     tt[i].flags = 0;
+     str = get_tok_value(tt[i].prop_ptr, "slant", 0);
+     tt[i].flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
+     tt[i].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
+     str = get_tok_value(tt[i].prop_ptr, "weight", 0);
+     tt[i].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
+
      lastt++;
      break;
     case 'N': /* store wires as lines on layer WIRELAYER. */
