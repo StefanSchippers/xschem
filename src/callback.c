@@ -1330,9 +1330,9 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='b' && state==Mod1Mask)                     /* hide/show instance details */
    {
     if(semaphore >= 2) break;
-    hide_symbols = !hide_symbols;
-    if(hide_symbols) tclsetvar("hide_symbols", "1");
-    else             tclsetvar("hide_symbols", "0");
+    hide_symbols++;
+    if(hide_symbols == 3) hide_symbols = 0;
+    tclsetvar("hide_symbols", hide_symbols == 2 ? "2" : hide_symbols == 1 ? "1" : "0");
     draw();
     break;
    }

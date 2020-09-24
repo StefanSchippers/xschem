@@ -3640,7 +3640,11 @@ font configure Underline-Font -underline true -size 24
    .menubar.prop.menu add command -label "Edit with editor" -command "xschem edit_vi_prop" -accelerator Shift+Q
    .menubar.prop.menu add command -label "View" -command "xschem view_prop" -accelerator Ctrl+Q
    .menubar.prop.menu add command -background red -label "Edit file (danger!)" -command "xschem edit_file" -accelerator Alt+Q
-   .menubar.sym.menu add checkbutton -label "Show only instance Bounding boxes" -variable hide_symbols \
+   .menubar.sym.menu add radiobutton -label "Show Symbols" -variable hide_symbols -value 0 \
+      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
+   .menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for subcircuit symbols" -variable hide_symbols -value 1 \
+      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
+   .menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for all symbols" -variable hide_symbols -value 2 \
       -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
    .menubar.sym.menu add command -label "Make symbol from schematic" -command "xschem make_symbol" -accelerator A
    .menubar.sym.menu add command -label "Make schematic from symbol" -command "xschem make_sch" -accelerator Ctrl+L

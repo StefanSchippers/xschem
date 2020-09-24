@@ -480,8 +480,10 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
   if(inst_ptr[n].ptr == -1) return;
   if( (layer != PINLAYER && !enable_layer[layer]) ) return;
   if(!has_x) return;
-  if(hide_symbols && (inst_ptr[n].ptr+instdef)->prop_ptr && 
-     !strcmp(get_tok_value( (inst_ptr[n].ptr+instdef)->prop_ptr, "type",0 ), "subcircuit") ) {
+  if(
+    (hide_symbols==1 && (inst_ptr[n].ptr+instdef)->prop_ptr && 
+     !strcmp(get_tok_value( (inst_ptr[n].ptr+instdef)->prop_ptr, "type",0 ), "subcircuit") )  ||
+    (hide_symbols == 2) ) {
     hide = 1;
   } else {
     hide = 0;
