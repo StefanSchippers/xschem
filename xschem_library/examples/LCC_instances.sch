@@ -1,5 +1,6 @@
 v {xschem version=2.9.7 file_version=1.2}
 G {}
+K {}
 V {}
 S {
 }

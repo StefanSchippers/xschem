@@ -1360,6 +1360,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
 
   while(1)
   {
+   if(endfile && embed_fd) break; /* ']' line encountered --> exit */
    if(fscanf(lcc[level].fd," %c",tag)==EOF) {
      if (level) {
          dbg(1, "load_sym_def(): fclose1, level=%d, fd=%p\n", level, lcc[level].fd);
@@ -1370,7 +1371,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
          continue;
      } else break;
    }
-   if(endfile) continue;
+   if(endfile) { /* endfile due to max hierarchy: throw away rest of file and do the above '--level' cleanups */
+     read_record(tag[0], lcc[level].fd);
+     continue;
+   }
    incremented_level = 0;
    switch(tag[0])
    {
