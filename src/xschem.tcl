@@ -39,7 +39,7 @@ proc set_ne { var val } {
 ###
 # execute service function
 proc execute_fileevent {id} {
-  global execute_id execute_pipe execute_data execute_cmd execute_wait_flag simulate_oldbg
+  global execute_pipe execute_data execute_cmd  simulate_oldbg
   global execute_status execute_callback
   append execute_data($id) [read $execute_pipe($id) 1024]
   if {[eof $execute_pipe($id)]} {
@@ -56,6 +56,7 @@ proc execute_fileevent {id} {
             }
         } else {
           if { $execute_status($id) } {
+            set status 1
             viewdata "Completed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
           }
         }
@@ -75,13 +76,11 @@ proc execute_fileevent {id} {
 
 
 proc execute_wait {status args} {
-  global execute_pipe execute_wait_flag
+  global execute_pipe 
   xschem set semaphore [expr [xschem get semaphore] +1]
-  set execute_wait_flag 1
   set id [eval execute $status $args]
   vwait execute_pipe($id)
   xschem set semaphore [expr [xschem get semaphore] -1]
-  unset execute_wait_flag
   return $id
 }
 
@@ -98,15 +97,15 @@ proc execute {status args} {
   } else {
       incr execute_id
   }
-  set pipe [open "|$args" r]
-  set execute_status($execute_id) $status
-  set execute_pipe($execute_id) $pipe
-  set execute_cmd($execute_id) $args
-  set execute_data($execute_id) ""
   set id $execute_id
+  set pipe [open "|$args" r]
+  set execute_status($id) $status
+  set execute_pipe($id) $pipe
+  set execute_cmd($id) $args
+  set execute_data($id) ""
   fconfigure $pipe -blocking 0
   fileevent $pipe readable "execute_fileevent $id"
-  return $execute_id
+  return $id
 }
 
 proc netlist {source_file show netlist_file} {
@@ -668,7 +667,7 @@ proc simulate {{callback {}}} {
   ## $d : netlist directory
 
   global netlist_dir netlist_type computerfarm terminal current_dirname sim
-  global execute_callback
+  global execute_callback XSCHEM_SHAREDIR
   set_sim_defaults
   
   if { [select_netlist_dir 0] ne {}} {
@@ -695,9 +694,13 @@ proc simulate {{callback {}}} {
     } else {
       set id [$fg $st sh -c "cd $netlist_dir; $cmd"]
       set execute_callback($id) $callback
+      if {$fg eq {execute_wait}} { 
+        eval $execute_callback($id); unset execute_callback($id) 
+      }
     }
   }
 }
+
 proc gaw_echoline {} {
   global gaw_fd
   gets $gaw_fd line
@@ -756,7 +759,7 @@ proc waves {} {
   ## $s : schematic name (opamp)
   ## $d : netlist directory
 
-  global netlist_dir netlist_type computerfarm terminal current_dirname sim gaw_fd
+  global netlist_dir netlist_type computerfarm terminal current_dirname sim gaw_fd XSCHEM_SHAREDIR
   set_sim_defaults
   
   if { [select_netlist_dir 0] ne {}} {
