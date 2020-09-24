@@ -1358,7 +1358,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   instdef[lastinstdef].name=NULL;
   my_strdup(352, &instdef[lastinstdef].name,name); 
 
-  while(!endfile)
+  while(1)
   {
    if(fscanf(lcc[level].fd," %c",tag)==EOF) {
      if (level) {
@@ -1370,6 +1370,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
          continue;
      } else break;
    }
+   if(endfile) continue;
    incremented_level = 0;
    switch(tag[0])
    {
@@ -1782,7 +1783,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         }
         my_strdup(654, &lcc[level].prop_ptr, prop_ptr);
         my_strdup(657, &lcc[level].symname, symname);
-        dbg(1, "level incremented: level=%d, symname=%s, name4=%s\n", level, symname, name4);
+        dbg(1, "level incremented: level=%d, symname=%s, prop_ptr = %s name4=%s\n", level, symname, prop_ptr, name4);
       }
       break;
     case '[':
