@@ -171,7 +171,7 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
 
 void find_closest_arc(double mx,double my)
 {
- double thres = 0.2*cadgrid*cadgrid/400;
+ double thres = CADWIREMINDIST * CADWIREMINDIST * cadgrid*cadgrid/400;
  double dist, angle, angle1, angle2;
  int i,c,r=-1, col;
  int match;
@@ -180,7 +180,8 @@ void find_closest_arc(double mx,double my)
  {
   for(i=0;i<lastarc[c];i++)
   {
-    dist = fabs(pow(mx-arc[c][i].x,2) + pow(my-arc[c][i].y,2) - pow(arc[c][i].r,2));
+    dist = sqrt(pow(mx-arc[c][i].x,2) + pow(my-arc[c][i].y,2)) - arc[c][i].r;
+    dist *= dist; /* square distance */
     angle = fmod(atan2(arc[c][i].y-my, mx-arc[c][i].x)*180./XSCH_PI, 360.);
     if(angle<0.) angle +=360.;
     angle1 = arc[c][i].a;
@@ -210,7 +211,7 @@ void find_closest_arc(double mx,double my)
     }
   } /* end for i */
  } /* end for c */
- if( r!=-1 && distance <= thres* pow(arc[col][r].r,2))
+ if( r!=-1 && distance <= thres ) /*  * pow(arc[col][r].r,2)) */
  {
   sel.n = r; sel.type = ARC; sel.col = col;
  }
