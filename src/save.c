@@ -1300,7 +1300,7 @@ void get_symbol_type(const char *symname, char **type)
     /* ... if not found open file and look for 'type' into the global attributes. */
     if((fd=fopen(name,"r"))==NULL)
     {
-      dbg(0, "get_symbol_type(): Symbol not found: %s\n",name);
+      dbg(1, "get_symbol_type(): Symbol not found: %s\n",name);
       my_strdup2(1162, type, "");
     } else {
       while(1) {
@@ -1328,7 +1328,7 @@ void get_symbol_type(const char *symname, char **type)
       fclose(fd);
     }
   }
-  dbg(0, "get_symbol_type(): symbol=%s --> type=%s\n", symname, *type);
+  dbg(1, "get_symbol_type(): symbol=%s --> type=%s\n", symname, *type);
 }
 
 /* replace i/o/iopin instances of LCC schematics with symbol pins (boxes on PINLAYER layer) */
