@@ -172,8 +172,8 @@ extern char win_temp_dir[PATH_MAX];
 #define STARTPAN2     16384 /*  new pan method with mouse button3 */
 #define MENUSTARTTEXT 32768 /*  20161201 click to place text if action starts from menu */
 #define MENUSTARTSNAPWIRE 65536   /*  start wire invoked from menu, snap to pin variant 20171022 */
-#define STARTPOLYGON 131072 /*  20171115 */
-#define MENUSTARTPOLYGON 262144   /*  20171117 */
+#define STARTPOLYGON 131072
+#define MENUSTARTPOLYGON 262144
 #define STARTARC 524288
 #define MENUSTARTARC 1048576
 #define MENUSTARTCIRCLE 2097152
@@ -191,7 +191,7 @@ extern char win_temp_dir[PATH_MAX];
 #define LINE 4
 #define ELEMENT 8
 #define xTEXT 16
-#define POLYGON 32 /*  20171115 */
+#define POLYGON 32
 #define ARC 64
 
 /*  for netlist.c */

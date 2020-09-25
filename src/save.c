@@ -197,7 +197,7 @@ void save_embedded_symbol(Instdef *s, FILE *fd)
   fputc('\n' ,fd);
   fprintf(fd, "V {}\n");
   fprintf(fd, "S {}\n");
-  fprintf(fd, "E {}\n"); /* 20180912 */
+  fprintf(fd, "E {}\n");
   for(c=0;c<cadlayers;c++)
   {
    Line *ptr;
@@ -535,11 +535,11 @@ static void load_inst(int k, FILE *fd)
       inst_ptr[i].sel=0;
       inst_ptr[i].ptr=-1; /*04112003 was 0 */
       inst_ptr[i].prop_ptr=NULL;
-      inst_ptr[i].instname=NULL; /* 20150409 */
+      inst_ptr[i].instname=NULL;
       inst_ptr[i].node=NULL;
       load_ascii_string(&prop_ptr,fd);
       my_strdup(319, &inst_ptr[i].prop_ptr, prop_ptr);
-      my_strdup2(320, &inst_ptr[i].instname, get_tok_value(inst_ptr[i].prop_ptr, "name", 0)); /* 20150409 */
+      my_strdup2(320, &inst_ptr[i].instname, get_tok_value(inst_ptr[i].prop_ptr, "name", 0));
       dbg(2, "load_inst(): n=%d name=%s prop=%s\n",
             i, inst_ptr[i].name? inst_ptr[i].name:"<NULL>", inst_ptr[i].prop_ptr? inst_ptr[i].prop_ptr:"<NULL>");
       lastinst++;
@@ -588,7 +588,6 @@ static void load_polygon(FILE *fd)
       }
     }
     load_ascii_string( &ptr[i].prop_ptr, fd);
-    /* 20180914 */
     if( !strcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
       ptr[i].fill =1;
     else
@@ -665,7 +664,7 @@ static void load_box(FILE *fd)
       read_line(fd, 0);
       return;
     }
-    RECTORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2); /* 20180108 */
+    RECTORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
@@ -701,7 +700,7 @@ static void load_line(FILE *fd)
       read_line(fd, 0);
       return;
     }
-    ORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2); /* 20180108 */
+    ORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
@@ -721,7 +720,7 @@ static void load_line(FILE *fd)
     lastline[c]++;
 }
 
-void read_xschem_file(FILE *fd) /* 20180912 */
+void read_xschem_file(FILE *fd)
 {
   int i, found, endfile;
   char name_embedded[PATH_MAX];
@@ -918,23 +917,23 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   dbg(1, "save_schematic(): abs_sym_path=%s\n", abs_sym_path(schematic[currentsch], ""));
   my_strncpy(name, schematic[currentsch], S(name));
   if(has_x) {
-    tcleval( "wm title . \"xschem - [file tail [xschem get schname]]\"");    /* 20161207 */
-    tcleval( "wm iconname . \"xschem - [file tail [xschem get schname]]\""); /* 20161207 */
+    tcleval( "wm title . \"xschem - [file tail [xschem get schname]]\"");
+    tcleval( "wm iconname . \"xschem - [file tail [xschem get schname]]\"");
   }
   if(!(fd=fopen(name,"w")))
   {
     fprintf(errfp, "save_schematic(): problems opening file %s \n",name);
-    tcleval("alert_ {file opening for write failed!} {}"); /* 20171020 */
+    tcleval("alert_ {file opening for write failed!} {}");
     return -1;
   }
   unselect_all();
   write_xschem_file(fd);
   fclose(fd);
-  my_strncpy(current_name, rel_sym_path(name), S(current_name)); /* 20190519 */
-  prepared_hilight_structs=0; /* 20171212 */
-  prepared_netlist_structs=0; /* 20171212 */
-  prepared_hash_instances=0; /* 20171224 */
-  prepared_hash_wires=0; /* 20171224 */
+  my_strncpy(current_name, rel_sym_path(name), S(current_name));
+  prepared_hilight_structs=0;
+  prepared_netlist_structs=0;
+  prepared_hash_instances=0;
+  prepared_hash_wires=0;
   if(!strstr(schematic[currentsch], ".xschem_embedded_")) {
      set_modify(0);
   }
@@ -957,7 +956,7 @@ void link_symbols_to_instances(void) /* 20150326 separated from load_schematic()
   for(i=0;i<lastinst;i++) {
     symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1,
                       &inst_ptr[i].x2, &inst_ptr[i].y2);
-    type=instdef[inst_ptr[i].ptr].type; /* 20150409 */
+    type=instdef[inst_ptr[i].ptr].type;
     cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") &&
          strcmp(type,"opin") &&  strcmp(type,"iopin"));
     if(cond) inst_ptr[i].flags|=2;
@@ -976,10 +975,10 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   static int save_netlist_type = 0;
   static int loaded_symbol = 0;
 
-  prepared_hilight_structs=0; /* 20171212 */
-  prepared_netlist_structs=0; /* 20171212 */
-  prepared_hash_instances=0; /* 20171224 */
-  prepared_hash_wires=0; /* 20171224 */
+  prepared_hilight_structs=0;
+  prepared_netlist_structs=0;
+  prepared_hash_instances=0;
+  prepared_hash_wires=0;
   if(reset_undo) clear_undo();
   if(filename && filename[0]) {
     my_strncpy(name, filename, S(name));
@@ -1052,7 +1051,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
 
 #ifndef IN_MEMORY_UNDO
 
-void delete_undo(void)  /* 20150327 */
+void delete_undo(void)
 {
   int i;
   char diff_name[PATH_MAX]; /* overflow safe 20161122 */
@@ -1065,14 +1064,14 @@ void delete_undo(void)  /* 20150327 */
   my_free(895, &undo_dirname);
 }
     
-void clear_undo(void) /* 20150327 */
+void clear_undo(void)
 {
   cur_undo_ptr = 0;
   tail_undo_ptr = 0;
   head_undo_ptr = 0;
 }
 
-void push_undo(void) /* 20150327 */
+void push_undo(void)
 {
     #if HAS_PIPE==1
     int pd[2];
@@ -1143,7 +1142,7 @@ void push_undo(void) /* 20150327 */
     #endif
 }
 
-void pop_undo(int redo)  /* 20150327 */
+void pop_undo(int redo)
 {
   FILE *fd;
   char diff_name[PATH_MAX+12];
@@ -1230,10 +1229,10 @@ void pop_undo(int redo)  /* 20150327 */
   dbg(2, "pop_undo(): loaded file:wire=%d inst=%d\n",lastwire , lastinst);
   link_symbols_to_instances();
   set_modify(1);
-  prepared_hash_instances=0; /* 20171224 */
-  prepared_hash_wires=0; /* 20171224 */
-  prepared_netlist_structs=0; /* 20171224 */
-  prepared_hilight_structs=0; /* 20171224 */
+  prepared_hash_instances=0;
+  prepared_hash_wires=0;
+  prepared_netlist_structs=0;
+  prepared_hilight_structs=0;
   update_conn_cues(0, 0);
   dbg(2, "pop_undo(): returning\n");
   if(event_reporting) {
@@ -2213,14 +2212,14 @@ void save_selection(int what)
 
  dbg(3, "save_selection():\n");
  if(what==1)
-   my_snprintf(name, S(name), "%s/%s.sch",user_conf_dir , ".selection"); /* 20150502 changed PWD to HOME */
+   my_snprintf(name, S(name), "%s/%s.sch",user_conf_dir , ".selection");
  else /* what=2 */
-   my_snprintf(name, S(name), "%s/%s.sch",user_conf_dir , ".clipboard"); /* 20150502 changed PWD to HOME */
+   my_snprintf(name, S(name), "%s/%s.sch",user_conf_dir , ".clipboard");
 
  if(!(fd=fopen(name,"w")))
  {
     fprintf(errfp, "save_selection(): problems opening file %s \n", name);
-    tcleval("alert_ {file opening for write failed!} {}"); /* 20171020 */
+    tcleval("alert_ {file opening for write failed!} {}");
     return;
  }
  fprintf(fd, "v {xschem version=%s file_version=%s}\n", XSCHEM_VERSION, XSCHEM_FILE_VERSION);
@@ -2254,7 +2253,7 @@ void save_selection(int what)
       fputc('\n' ,fd);
      break;
 
-     case POLYGON: /* 20171117 */
+     case POLYGON:
       fprintf(fd, "P %d %d ", c, polygon[c][n].points);
       for(k=0; k<polygon[c][n].points; k++) {
         fprintf(fd, "%.16g %.16g ", polygon[c][n].x[k], polygon[c][n].y[k]);
