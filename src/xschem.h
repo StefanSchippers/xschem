@@ -856,7 +856,7 @@ extern void link_symbols_to_instances(void);
 extern void load_ascii_string(char **ptr, FILE *fd);
 extern void read_xschem_file(FILE *fd); /*  20180912 */
 extern char *read_line(FILE *fp, int dbg_level);
-extern void read_record(int firstchar, FILE *fp);
+extern void read_record(int firstchar, FILE *fp, int dbg_level);
 extern void create_sch_from_sym(void);
 extern void descend_schematic(int instnumber);
 extern void go_back(int confirm);

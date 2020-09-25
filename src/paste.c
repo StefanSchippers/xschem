@@ -379,7 +379,7 @@ void merge_file(int selection_load, const char ext[])
         break;
        default:
         if( tag[0] == '{' ) ungetc(tag[0], fd);
-        read_record(tag[0], fd);
+        read_record(tag[0], fd, 0);
         break;
       }
       read_line(fd, 0); /* discard any remaining characters till (but not including) newline */

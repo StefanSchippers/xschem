@@ -34,27 +34,27 @@ until a '\n' (outside the '{' '}' brackets)  or EOF is found.
 within the brackets use load_ascii_string so escapes and string
 newlines are correctly handled
 */
-void read_record(int firstchar, FILE *fp)
+void read_record(int firstchar, FILE *fp, int dbg_level)
 {
   int c;
   char *str = NULL;
-  dbg(0, "\n-----1- SKIPPING -------\n");
-  if(firstchar != '{') dbg(0, "%c", firstchar);
+  dbg(dbg_level, "\n-----1- SKIPPING -------\n");
+  if(firstchar != '{') dbg(dbg_level, "%c", firstchar);
   while((c = fgetc(fp)) != EOF) {
     if(c == '\n') {
-      dbg(0, "\n");
+      dbg(dbg_level, "\n");
       ungetc(c, fp); /* so following read_line does not skip next line */
       break;
     }
     if(c == '{') {
       ungetc(c, fp);
       load_ascii_string(&str, fp);
-      dbg(0, "{%s}", str);
+      dbg(dbg_level, "{%s}", str);
     } else {
-      dbg(0, "%c", c);
+      dbg(dbg_level, "%c", c);
     }
   }
-  dbg(0,   "------------------------\n");
+  dbg(dbg_level,   "------------------------\n");
   my_free(881, &str);
 }
 
@@ -830,7 +830,7 @@ void read_xschem_file(FILE *fd)
       break;
      default:
       if( tag[0] == '{' ) ungetc(tag[0], fd);
-      read_record(tag[0], fd);
+      read_record(tag[0], fd, 0);
       break;
     }
     read_line(fd, 0); /* discard any remaining characters till (but not including) newline */
@@ -1269,6 +1269,127 @@ int CmpSchBbox(const void *a, const void *b)
 }
 
 
+/* given a 'symname' component instantiation in a LCC schematic instance 
+ * get the type attribute from symbol global properties.
+ * first look in already loaded symbols else inspect symbol file
+ * do not load in symname, just get the type */
+void get_symbol_type(const char *symname, char **type)
+{
+  int i;
+  char name[PATH_MAX];
+  FILE *fd;
+  char tag[1];
+  char *globalprop=NULL;
+  int found = 0;
+
+  if(!strcmp(file_version,"1.0")) {
+    my_strncpy(name, abs_sym_path(symname, ".sym"), S(name));
+  } else {
+    my_strncpy(name, abs_sym_path(symname, ""), S(name));
+  }
+  found=0;
+  /* first look in already loaded symbols in instdef[] array... */
+  for(i=0;i<lastinstdef;i++) { 
+    if(strcmp(symname, instdef[i].name) == 0) {
+      my_strdup2(316, type, instdef[i].type);
+      found = 1;
+      break;
+    }
+  }
+  if( !found ) {
+    /* ... if not found open file and look for 'type' into the global attributes. */
+    if((fd=fopen(name,"r"))==NULL)
+    {
+      dbg(0, "get_symbol_type(): Symbol not found: %s\n",name);
+      my_strdup2(1162, type, "");
+    } else {
+      while(1) {
+        if(fscanf(fd," %c",tag)==EOF) break;
+        switch(tag[0]) {
+          case 'G':
+            load_ascii_string(&globalprop,fd);
+            if(!found) {
+              my_strdup2(1164, type, get_tok_value(globalprop, "type", 0));
+            }
+            break;
+          case 'K':
+            load_ascii_string(&globalprop,fd);
+            my_strdup2(1165, type, get_tok_value(globalprop, "type", 0));
+            found = 1;
+            break;
+          default:
+            if( tag[0] == '{' ) ungetc(tag[0], fd);
+            read_record(tag[0], fd, 1);
+            break;
+        }
+        read_line(fd, 0); /* discard any remaining characters till (but not including) newline */
+      }
+      my_free(1166, &globalprop);
+      fclose(fd);
+    }
+  }
+  dbg(0, "get_symbol_type(): symbol=%s --> type=%s\n", symname, *type);
+}
+
+/* replace i/o/iopin instances of LCC schematics with symbol pins (boxes on PINLAYER layer) */
+void add_pinlayer_boxes(int *lastr, Box **bb, const char *symtype, char *prop_ptr, double inst_x0, double inst_y0)
+{
+
+  int i, save;
+  const char *label;
+  char *pin_label = NULL;
+  i = lastr[PINLAYER];
+  my_realloc(652, &bb[PINLAYER], (i + 1) * sizeof(Box));
+  bb[PINLAYER][i].x1 = inst_x0 - 2.5; bb[PINLAYER][i].x2 = inst_x0 + 2.5;
+  bb[PINLAYER][i].y1 = inst_y0 - 2.5; bb[PINLAYER][i].y2 = inst_y0 + 2.5;
+  RECTORDER(bb[PINLAYER][i].x1, bb[PINLAYER][i].y1, bb[PINLAYER][i].x2, bb[PINLAYER][i].y2);
+  bb[PINLAYER][i].prop_ptr = NULL;
+  
+  label = get_tok_value(prop_ptr, "lab", 0);
+  save = strlen(label)+30;
+  pin_label = my_malloc(315, save);
+  pin_label[0] = '\0';
+  if (!strcmp(symtype, "ipin")) {
+    my_snprintf(pin_label, save, "name=%s dir=in ", label);
+  } else if (!strcmp(symtype, "opin")) {
+    my_snprintf(pin_label, save, "name=%s dir=out ", label);
+  } else if (!strcmp(symtype, "iopin")) {
+    my_snprintf(pin_label, save, "name=%s dir=inout ", label);
+  }
+  my_strdup(463, &bb[PINLAYER][i].prop_ptr, pin_label);
+  bb[PINLAYER][i].dash = 0;
+  bb[PINLAYER][i].sel = 0;
+  
+  /* add to symbol pins remaining attributes from schematic pins, except name= and lab= */
+  
+  my_strdup(157, &pin_label, get_sym_template(prop_ptr, "lab"));   /* remove name=...  and lab=... */
+  my_strcat(159, &bb[PINLAYER][i].prop_ptr, pin_label);
+  
+  my_free(900, &pin_label);
+  lastr[PINLAYER]++;
+}
+
+void use_lcc_pins(int level, char *symtype, char (*filename)[PATH_MAX])
+{
+  if(level == 0) {
+    if (!strcmp(symtype, "ipin")) {
+       my_snprintf(*filename, S(*filename), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/ipin_lcc_top.sym");
+    } else if (!strcmp(symtype, "opin")) {
+       my_snprintf(*filename, S(*filename), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/opin_lcc_top.sym");
+    } else if (!strcmp(symtype, "iopin")) {
+       my_snprintf(*filename, S(*filename), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/iopin_lcc_top.sym");
+    }
+  } else {
+    if (!strcmp(symtype, "ipin")) {
+       my_snprintf(*filename, S(*filename), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/ipin_lcc.sym");
+    } else if (!strcmp(symtype, "opin")) {
+       my_snprintf(*filename, S(*filename), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/opin_lcc.sym");
+    } else if (!strcmp(symtype, "iopin")) {
+       my_snprintf(*filename, S(*filename), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/iopin_lcc.sym");
+    }
+  }
+}
+
 /* Global (or static global) variables used: 
  * cadlayers
  * errfp
@@ -1290,7 +1411,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   int current_sym;
   int incremented_level=0;
   int level = 0;
-  int max_level, save;
+  int max_level;
   char name2[PATH_MAX];
   char name3[PATH_MAX];
   char name4[PATH_MAX];
@@ -1314,12 +1435,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
   Text *tt;
   int endfile;
   const char *str;
-  const char *label;
-  char *pin_label = NULL, *recover_str=NULL;
   char *skip_line;
   const char *dash;
 
-  dbg(1, "load_sym_def(): recursion_counter=%d\n", recursion_counter);
+  dbg(1, "load_sym_def(): recursion_counter=%d, name=%s\n", recursion_counter, name);
   recursion_counter++;
 
   dbg(1, "load_sym_def(): name=%s\n", name);
@@ -1353,11 +1472,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
   endfile=0;
   for(c=0;c<cadlayers;c++) 
   {
-   lasta[c]=lastl[c]=lastr[c]=lastp[c]=0;
-   ll[c]=NULL;
-   bb[c]=NULL;
-   pp[c]=NULL;
-   aa[c]=NULL;
+   lasta[c] = lastl[c] = lastr[c] = lastp[c] = 0;
+   ll[c] = NULL; bb[c] = NULL; pp[c] = NULL; aa[c] = NULL;
   }
   lastt=0;
   tt=NULL;
@@ -1382,7 +1498,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      } else break;
    }
    if(endfile) { /* endfile due to max hierarchy: throw away rest of file and do the above '--level' cleanups */
-     read_record(tag[0], lcc[level].fd);
+     read_record(tag[0], lcc[level].fd, 0);
      continue;
    }
    incremented_level = 0;
@@ -1677,19 +1793,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
         endfile = 1;
         continue;
       }
-      lastinstdef++; /* do not allow match_symbol() to overwrite current symbol we are loading */
-      save = lastinstdef;
-      dbg(1, "load_sym_def(): call1 match_symbol\n");
-      if ((recover_str = strrchr(symname, '.')) && !strcmp(recover_str, ".sch")) 
-        current_sym = match_symbol(add_ext(symname, ".sym"));
-      else 
-        current_sym=match_symbol(symname);
+      dbg(1, "load_sym_def(): call get_symbol_type(), symname=%s\n", symname);
 
-      my_strdup2(316, &symtype, instdef[current_sym].type);
-      dbg(1, "load_sym_def(): level=%d, current_sym=%d symname=%s symtype=%s\n", 
-                                 level, current_sym, symname, symtype);
-      if(lastinstdef> save) remove_symbol(lastinstdef - 1); /* if previous match_symbol() caused a symbol to be loaded unload it now */
-      lastinstdef--; /* restore symbol we are loading */
+      /* get symbol type by looking into list of loaded symbols or (if not found) by
+       * opening/closing the symbol file and getting the 'type' attribute from global symbol attributes */
+      get_symbol_type(symname, &symtype);
+      dbg(1, "load_sym_def(): level=%d, symname=%s symtype=%s\n", level, symname, symtype);
 
       if(  /* add here symbol types not to consider when loading schematic-as-symbol instances */
           !strcmp(symtype, "logo") ||
@@ -1704,63 +1813,21 @@ int load_sym_def(const char *name, FILE *embed_fd)
           !strcmp(symtype, "verilog_preprocessor") ||
           !strcmp(symtype, "timescale") 
         ) break;
+
+
       /* add PINLAYER boxes (symbol pins) at schematic i/o/iopin coordinates. */
       if (level==0 && (!strcmp(symtype, "ipin") || !strcmp(symtype, "opin") || !strcmp(symtype, "iopin"))) {
-        i = lastr[PINLAYER];
-        my_realloc(652, &bb[PINLAYER], (i + 1) * sizeof(Box));
-        bb[PINLAYER][i].x1 = inst_x0 - 2.5; bb[PINLAYER][i].x2 = inst_x0 + 2.5;
-        bb[PINLAYER][i].y1 = inst_y0 - 2.5; bb[PINLAYER][i].y2 = inst_y0 + 2.5;
-        RECTORDER(bb[PINLAYER][i].x1, bb[PINLAYER][i].y1, bb[PINLAYER][i].x2, bb[PINLAYER][i].y2);
-        bb[PINLAYER][i].prop_ptr = NULL;
-        
-        label = get_tok_value(prop_ptr, "lab", 0);
-        save = strlen(label)+30;
-        pin_label = my_malloc(315, save);
-        pin_label[0] = '\0';
-        if (!strcmp(symtype, "ipin")) {
-          my_snprintf(pin_label, save, "name=%s dir=in ", label);
-        } else if (!strcmp(symtype, "opin")) {
-          my_snprintf(pin_label, save, "name=%s dir=out ", label);
-        } else if (!strcmp(symtype, "iopin")) {
-          my_snprintf(pin_label, save, "name=%s dir=inout ", label);
-        }
-        my_strdup(463, &bb[PINLAYER][i].prop_ptr, pin_label);
-        bb[PINLAYER][i].dash = 0;
-        bb[PINLAYER][i].sel = 0;
-
-        /* add to symbol pins remaining attributes from schematic pins, except name= and lab= */
-
-        my_strdup(157, &pin_label, get_sym_template(prop_ptr, "lab"));   /* remove name=...  and lab=... */
-        my_strcat(159, &bb[PINLAYER][i].prop_ptr, pin_label);
-
-        my_free(900, &pin_label);
-        lastr[PINLAYER]++;
+        add_pinlayer_boxes(lastr, bb, symtype, prop_ptr, inst_x0, inst_y0);
       }
+      /* build symbol filename to be loaded */
       if (!strcmp(file_version, "1.0")) {
         my_strncpy(name4, abs_sym_path(symname, ".sym"), S(name4));
       }
       else {
         my_strncpy(name4, abs_sym_path(symname, ""), S(name4));
       }
-
-      /* replace i/o/iopin.sym with better looking (for symbol) pins */
-      if(level == 0) {
-        if (!strcmp(symtype, "ipin")) {
-           my_snprintf(name4, S(name4), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/ipin_lcc_top.sym");
-        } else if (!strcmp(symtype, "opin")) {
-           my_snprintf(name4, S(name4), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/opin_lcc_top.sym");
-        } else if (!strcmp(symtype, "iopin")) {
-           my_snprintf(name4, S(name4), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/iopin_lcc_top.sym");
-        }
-      } else {
-        if (!strcmp(symtype, "ipin")) {
-           my_snprintf(name4, S(name4), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/ipin_lcc.sym");
-        } else if (!strcmp(symtype, "opin")) {
-           my_snprintf(name4, S(name4), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/opin_lcc.sym");
-        } else if (!strcmp(symtype, "iopin")) {
-           my_snprintf(name4, S(name4), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/iopin_lcc.sym");
-        }
-      }
+      /* replace i/o/iopin.sym filename with better looking (for LCC symbol) pins */
+      use_lcc_pins(level, symtype, &name4);
 
       if ((fd_tmp = fopen(name4, "r")) == NULL) {
         fprintf(errfp, "load_sym_def(): unable to open file to read schematic: %s\n", name4);
@@ -1817,7 +1884,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      break;
     default:
      if( tag[0] == '{' ) ungetc(tag[0], lcc[level].fd);
-     read_record(tag[0], lcc[level].fd);
+     read_record(tag[0], lcc[level].fd, 0);
      break;
    }
    /* if a 'C' line was encountered and level was incremented, rest of line must be read
@@ -1895,7 +1962,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   }
 /*
 *   do not include symbol text in bounding box, since text length
-*   is variable from one instance to another.
+*   is variable from one instance to another due to '@' variable replacement
 *
 *   for(i=0;i<lastt;i++)
 *   { 
@@ -1928,17 +1995,18 @@ int load_sym_def(const char *name, FILE *embed_fd)
   my_free(913, &symtype);
   my_strncpy(name4, name, S(name4));
   if ((prop_ptr = strrchr(name4, '.')) && !strcmp(prop_ptr, ".sch")) {
+    int save;
     save = lastinstdef; /* save idx because match_symbol may call load_symbol_definition */
     dbg(1, "load_sym_def(): call2 match_symbol\n");
     current_sym = match_symbol(add_ext(name4, ".sym"));
-    if ( instdef[current_sym].type && strcmp(instdef[current_sym].type, "missing")) { /* To ensure SCH's BOX's PINLAYER matches SYM so netlisting will be corect */
+    if ( instdef[current_sym].type && strcmp(instdef[current_sym].type, "missing")) {
+    /* To ensure SCH's BOX's PINLAYER matches SYM so netlisting will be correct */
       Gcurrent_sym = current_sym;
       qsort(instdef[save-1].boxptr[PINLAYER], instdef[save-1].rects[PINLAYER], sizeof(Box), CmpSchBbox);
     }
     if(lastinstdef > save) remove_symbol(lastinstdef - 1); /* if previous match_symbol() caused a symbol to be loaded unload it now */
   }
   recursion_counter--;
-  dbg(1, "load_sym_def(): exiting, recursion_counter=%d\n", recursion_counter);
   return 1;
 }
 

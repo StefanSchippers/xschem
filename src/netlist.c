@@ -1182,7 +1182,7 @@ int sym_vs_sch_pins()
               break;
             default: 
               if( tag[0] == '{' ) ungetc(tag[0], fd);
-              read_record(tag[0], fd);
+              read_record(tag[0], fd, 0);
               break;
           }
           read_line(fd, 0); /* discard any remaining characters till (but not including) newline */
