@@ -1292,17 +1292,17 @@ int load_sym_def(const char *name, FILE *embed_fd)
   int incremented_level=0;
   int level = 0;
   int max_level, save;
-  char name2[PATH_MAX];  /* 20161122 overflow safe */
-  char name3[PATH_MAX];  /* 20161122 overflow safe */
-  char name4[PATH_MAX];  /* 20161122 overflow safe */
+  char name2[PATH_MAX];
+  char name3[PATH_MAX];
+  char name4[PATH_MAX];
   Box tmp,boundbox;
-  int i,c,count=0, k, poly_points; /* 20171115 polygon stuff */
+  int i,c,count=0, k, poly_points;
   char *aux_ptr=NULL;
   char *prop_ptr=NULL, *symtype=NULL;
   double inst_x0, inst_y0;
   int inst_rot, inst_flip;
   char *symname = NULL;
-  char tag[1]; /* overflow safe 20161122 */
+  char tag[1];
   int *lastl = my_malloc(333, cadlayers * sizeof(lastl)); 
   int *lastr = my_malloc(334, cadlayers * sizeof(int));
   int *lastp = my_malloc(335, cadlayers * sizeof(int));
@@ -1311,7 +1311,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   Box **bb = my_malloc(338, cadlayers * sizeof(Box *));
   xArc **aa = my_malloc(339, cadlayers * sizeof(xArc *));
   xPolygon **pp = my_malloc(340, cadlayers * sizeof(xPolygon *));
-  int lastt; /* 20171115 lastp */
+  int lastt;
   Text *tt;
   int endfile;
   const char *str;
@@ -1354,7 +1354,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   endfile=0;
   for(c=0;c<cadlayers;c++) 
   {
-   lasta[c]=lastl[c]=lastr[c]=lastp[c]=0; /* 20171115 lastp */
+   lasta[c]=lastl[c]=lastr[c]=lastp[c]=0;
    ll[c]=NULL;
    bb[c]=NULL;
    pp[c]=NULL;
@@ -1364,8 +1364,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
   tt=NULL;
   check_symbol_storage();
   instdef[lastinstdef].prop_ptr = NULL;
-  instdef[lastinstdef].type = NULL; /* 20150409 */
-  instdef[lastinstdef].templ = NULL; /* 20150409 */
+  instdef[lastinstdef].type = NULL;
+  instdef[lastinstdef].templ = NULL;
   instdef[lastinstdef].name=NULL;
   my_strdup(352, &instdef[lastinstdef].name,name); 
 
@@ -1405,8 +1405,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
      if (level==0) {
        load_ascii_string(&instdef[lastinstdef].prop_ptr, lcc[level].fd);
        if(!instdef[lastinstdef].prop_ptr) break;
-       my_strdup2(424, &instdef[lastinstdef].templ, get_tok_value(instdef[lastinstdef].prop_ptr, "template",2)); /* 20150409 */
-       my_strdup2(515, &instdef[lastinstdef].type, get_tok_value(instdef[lastinstdef].prop_ptr, "type",0)); /* 20150409 */
+       my_strdup2(424, &instdef[lastinstdef].templ, get_tok_value(instdef[lastinstdef].prop_ptr, "template",2));
+       my_strdup2(515, &instdef[lastinstdef].type, get_tok_value(instdef[lastinstdef].prop_ptr, "type",0));
      } 
      else {
        load_ascii_string(&aux_ptr, lcc[level].fd);
@@ -1416,8 +1416,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
      if (level==0 && !instdef[lastinstdef].prop_ptr) {
        load_ascii_string(&instdef[lastinstdef].prop_ptr, lcc[level].fd);
        if(!instdef[lastinstdef].prop_ptr) break;
-       my_strdup2(341, &instdef[lastinstdef].templ, get_tok_value(instdef[lastinstdef].prop_ptr, "template",2)); /* 20150409 */
-       my_strdup2(342, &instdef[lastinstdef].type, get_tok_value(instdef[lastinstdef].prop_ptr, "type",0)); /* 20150409 */
+       my_strdup2(341, &instdef[lastinstdef].templ, get_tok_value(instdef[lastinstdef].prop_ptr, "template",2));
+       my_strdup2(342, &instdef[lastinstdef].type, get_tok_value(instdef[lastinstdef].prop_ptr, "type",0));
      } 
      else {
        load_ascii_string(&aux_ptr, lcc[level].fd);
@@ -1429,7 +1429,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        fprintf(errfp,"WARNING: wrong line layer\n");
        read_line(lcc[level].fd, 0);
        continue;
-     } /* 20150408 */
+     }
      i=lastl[c];
      my_realloc(343, &ll[c],(i+1)*sizeof(Line));
      if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&ll[c][i].x1, &ll[c][i].y1,
@@ -1445,7 +1445,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        ll[c][i].x1 = lcc[level].x0 + rx1;  ll[c][i].y1 = lcc[level].y0 + ry1;
        ll[c][i].x2 = lcc[level].x0 + rx2;  ll[c][i].y2 = lcc[level].y0 + ry2;
      }
-     ORDER(ll[c][i].x1, ll[c][i].y1, ll[c][i].x2, ll[c][i].y2); /* 20180108 */
+     ORDER(ll[c][i].x1, ll[c][i].y1, ll[c][i].x2, ll[c][i].y2);
      ll[c][i].prop_ptr=NULL;
      load_ascii_string( &ll[c][i].prop_ptr, lcc[level].fd);
      dbg(2, "l_d_s(): loaded line: ptr=%lx\n", (unsigned long)ll[c]);
@@ -1463,7 +1463,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      ll[c][i].sel = 0;
      lastl[c]++;
      break;
-    case 'P': /* 20171115 */
+    case 'P':
      if(fscanf(lcc[level].fd, "%d %d",&c, &poly_points) < 2 ) {
        fprintf(errfp,"WARNING: missing fields for POLYGON object, ignoring\n");
        read_line(lcc[level].fd, 0);
@@ -1473,7 +1473,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        fprintf(errfp,"WARNING: wrong polygon layer\n");
        read_line(lcc[level].fd, 0);
        continue;
-     } /* 20150408 */
+     }
      i=lastp[c];
      my_realloc(344, &pp[c],(i+1)*sizeof(xPolygon));
      pp[c][i].x = my_calloc(345, poly_points, sizeof(double));
@@ -1492,7 +1492,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
      }
      pp[c][i].prop_ptr=NULL;
      load_ascii_string( &pp[c][i].prop_ptr, lcc[level].fd);
-     /* 20180914 */
      if( !strcmp(get_tok_value(pp[c][i].prop_ptr,"fill",0),"true") )
        pp[c][i].fill =1;
      else
@@ -1562,7 +1561,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      if(c>=cadlayers) {
        fprintf(errfp,"FATAL: box layer > defined cadlayers, increase cadlayers\n");
        tcleval( "exit");
-     } /* 20150408 */
+     }
      if (level>0 && c == PINLAYER)  /* Don't care about pins inside SYM */
        c = 7;
      i=lastr[c];
@@ -1576,7 +1575,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        bb[c][i].x1 = lcc[level].x0 + rx1;  bb[c][i].y1 = lcc[level].y0 + ry1;
        bb[c][i].x2 = lcc[level].x0 + rx2;  bb[c][i].y2 = lcc[level].y0 + ry2;
      }
-     RECTORDER(bb[c][i].x1, bb[c][i].y1, bb[c][i].x2, bb[c][i].y2); /* 20180108 */
+     RECTORDER(bb[c][i].x1, bb[c][i].y1, bb[c][i].x2, bb[c][i].y2);
      bb[c][i].prop_ptr=NULL;
      load_ascii_string( &bb[c][i].prop_ptr, lcc[level].fd);
      dbg(2, "l_d_s(): loaded rect: ptr=%lx\n", (unsigned long)bb[c]);
@@ -1616,14 +1615,14 @@ int load_sym_def(const char *name, FILE *embed_fd)
      
      dbg(1, "l_d_s(): loaded text : t=%s p=%s\n", tt[i].txt_ptr, tt[i].prop_ptr);
 
-     my_strdup(351, &tt[i].font, get_tok_value(tt[i].prop_ptr, "font", 0));/*20171206 */
+     my_strdup(351, &tt[i].font, get_tok_value(tt[i].prop_ptr, "font", 0));
 
      str = get_tok_value(tt[i].prop_ptr, "hcenter", 0);
      tt[i].hcenter = strcmp(str, "true")  ? 0 : 1;
      str = get_tok_value(tt[i].prop_ptr, "vcenter", 0);
      tt[i].vcenter = strcmp(str, "true")  ? 0 : 1;
 
-     str = get_tok_value(tt[i].prop_ptr, "layer", 0); /*20171206 */
+     str = get_tok_value(tt[i].prop_ptr, "layer", 0);
      if(str[0]) tt[i].layer = atoi(str);
      else tt[i].layer = -1;
 
@@ -1652,7 +1651,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        ll[WIRELAYER][i].x1 = lcc[level].x0 + rx1;  ll[WIRELAYER][i].y1 = lcc[level].y0 + ry1;
        ll[WIRELAYER][i].x2 = lcc[level].x0 + rx2;  ll[WIRELAYER][i].y2 = lcc[level].y0 + ry2;
      }
-     ORDER(ll[WIRELAYER][i].x1, ll[WIRELAYER][i].y1, ll[WIRELAYER][i].x2, ll[WIRELAYER][i].y2); /* 20180108 */
+     ORDER(ll[WIRELAYER][i].x1, ll[WIRELAYER][i].y1, ll[WIRELAYER][i].x2, ll[WIRELAYER][i].y2);
      ll[WIRELAYER][i].prop_ptr=NULL;
      load_ascii_string( &ll[WIRELAYER][i].prop_ptr, lcc[level].fd);
      dbg(2, "l_d_s(): loaded line: ptr=%lx\n", (unsigned long)ll[WIRELAYER]);
@@ -1712,7 +1711,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         my_realloc(652, &bb[PINLAYER], (i + 1) * sizeof(Box));
         bb[PINLAYER][i].x1 = inst_x0 - 2.5; bb[PINLAYER][i].x2 = inst_x0 + 2.5;
         bb[PINLAYER][i].y1 = inst_y0 - 2.5; bb[PINLAYER][i].y2 = inst_y0 + 2.5;
-        RECTORDER(bb[PINLAYER][i].x1, bb[PINLAYER][i].y1, bb[PINLAYER][i].x2, bb[PINLAYER][i].y2); /* 20180108 */
+        RECTORDER(bb[PINLAYER][i].x1, bb[PINLAYER][i].y1, bb[PINLAYER][i].x2, bb[PINLAYER][i].y2);
         bb[PINLAYER][i].prop_ptr = NULL;
         
         label = get_tok_value(prop_ptr, "lab", 0);
@@ -1879,7 +1878,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
     tmp.x1=bb[c][i].x1;tmp.y1=bb[c][i].y1;tmp.x2=bb[c][i].x2;tmp.y2=bb[c][i].y2;
     updatebbox(count,&boundbox,&tmp);
    }
-   for(i=0;i<lastp[c];i++) /* 20171115 */
+   for(i=0;i<lastp[c];i++)
    {
      double x1=0., y1=0., x2=0., y2=0.;
      int k;
@@ -1944,7 +1943,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
   return 1;
 }
 
-/* 20171004 */
 void create_sch_from_sym(void)
 {
   Instdef *ptr;
@@ -2000,7 +1998,7 @@ void create_sch_from_sym(void)
     if(!(fd=fopen(schname,"w")))
     {
       fprintf(errfp, "create_sch_from_sym(): problems opening file %s \n",schname);
-      tcleval("alert_ {file opening for write failed!} {}"); /* 20171020 */
+      tcleval("alert_ {file opening for write failed!} {}");
       my_free(915, &savecmd);
       return;
     }
@@ -2009,7 +2007,7 @@ void create_sch_from_sym(void)
     fputc('\n', fd);
     fprintf(fd, "V {}");
     fputc('\n', fd);
-    fprintf(fd, "E {}"); /* 20180912 */
+    fprintf(fd, "E {}");
     fputc('\n', fd);
     fprintf(fd, "S {}");
     fputc('\n', fd);
@@ -2078,9 +2076,9 @@ void descend_symbol(void)
   char name[PATH_MAX];
   char name_embedded[PATH_MAX];
   rebuild_selected_array();
-  if(lastselected > 1)  return; /*20121122 */
+  if(lastselected > 1)  return;
   if(lastselected==1 && selectedgroup[0].type==ELEMENT) {
-    if(modified) { /* 20161209 */
+    if(modified) {
       if(save(1)) return;
     }
     my_snprintf(name, S(name), "%s", inst_ptr[selectedgroup[0].n].name);
@@ -2091,7 +2089,7 @@ void descend_symbol(void)
   else return;
 
   /* build up current hierarchy path */
-  my_strdup(363,  &str, inst_ptr[selectedgroup[0].n].instname);  /* 20180911 */
+  my_strdup(363,  &str, inst_ptr[selectedgroup[0].n].instname);
   my_strdup(364, &sch_path[currentsch+1], sch_path[currentsch]);
   my_strcat(365, &sch_path[currentsch+1], str);
   my_strcat(366, &sch_path[currentsch+1], ".");

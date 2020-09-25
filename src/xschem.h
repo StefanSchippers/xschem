@@ -23,7 +23,7 @@
 #ifndef CADGLOBALS
 #define CADGLOBALS
 
-#define XSCHEM_VERSION "2.9.7"
+#define XSCHEM_VERSION "2.9.8"
 #define XSCHEM_FILE_VERSION "1.2"
 
 #if HAS_PIPE == 1
@@ -100,7 +100,6 @@ extern char win_temp_dir[PATH_MAX];
 
 #include <tcl.h>
 #include <tk.h>
-/*  #include "memwatch.h" */
 
 #define CADHEIGHT 700                   /*  initial window size */
 #define CADWIDTH 1000
@@ -141,7 +140,7 @@ extern char win_temp_dir[PATH_MAX];
 #define CADCHUNKALLOC 512 /*  was 256  20102004 */
 #define CADDRAWBUFFERSIZE 128
 
-/*  20180104 when x-width of drawing area s below this threshold use spatial */
+/*  when x-width of drawing area s below this threshold use spatial */
 /*  hash table for drawing wires and instances (for faster lookup) instead of */
 /*  looping through the whole wire[] and inst_ptr[] arrays */
 /*  when drawing area is very big using spatial hash table may take longer than */
@@ -170,7 +169,7 @@ extern char win_temp_dir[PATH_MAX];
 #define MENUSTARTLINE 2048  /*  start line invoked from menu */
 #define MENUSTARTRECT 4096  /*  start rect invoked from menu */
 #define MENUSTARTZOOM 8192  /*  start zoom box invoked from menu */
-#define STARTPAN2     16384 /*  new pan method with mouse button3 20121123 */
+#define STARTPAN2     16384 /*  new pan method with mouse button3 */
 #define MENUSTARTTEXT 32768 /*  20161201 click to place text if action starts from menu */
 #define MENUSTARTSNAPWIRE 65536   /*  start wire invoked from menu, snap to pin variant 20171022 */
 #define STARTPOLYGON 131072 /*  20171115 */
