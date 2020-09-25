@@ -1269,6 +1269,17 @@ int CmpSchBbox(const void *a, const void *b)
   return(aa-bb);
 }
 
+
+/* Global (or static global) variables used: 
+ * cadlayers
+ * errfp
+ * file_version
+ * instdef
+ * lastinstdef
+ * has_x
+ * lcc (static global)
+ * Gcurrent_sym (static global)
+ */
 int load_sym_def(const char *name, FILE *embed_fd)
 {
   static int recursion_counter=0;

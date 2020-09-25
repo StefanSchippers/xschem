@@ -504,7 +504,7 @@ struct instentry {
  int n;
 };
 
-
+/* GLOBAL VARIABLES */
 extern int help; /* 20140406 */
 extern char *cad_icon[];
 extern int semaphore;
@@ -608,7 +608,6 @@ extern int split_files;
 extern char *netlist_dir;
 extern char user_top_netl_name[PATH_MAX];
 extern char bus_replacement_char[];
-extern void set_modify(int mod);
 
 extern unsigned long ui_state ; /*  this signals that we are doing a net place, */
                               /*  panning etc... */
@@ -622,7 +621,6 @@ extern int draw_dots;
 extern int draw_single_layer; /*  20151117 */
 extern int check_version; 
 extern int yyparse_error;
-extern void enable_layers(void);
 extern Window window;
 extern Window pre_window;
 extern Window parent_of_topwindow;
@@ -646,9 +644,6 @@ extern double mousex_snap,mousey_snap; /*  mouse coord. snapped to grid */
 extern double cadsnap;
 extern int horizontal_move; /*  20171023 */
 extern int vertical_move; /*  20171023 */
-
-extern void set_snap(double); /*  20161212 */
-extern void set_grid(double); /*  20161212 */
 extern double *character[256];
 extern int netlist_show;
 extern int flat_netlist;
@@ -662,7 +657,6 @@ extern int spiceprefix;
 extern int quit;
 extern int show_erc;
 extern int hilight_nets;
-extern void create_plot_cmd(int viewer);
 extern char *sch_path[];
 extern int sch_inst_number[CADMAXHIER];
 extern int modified;
@@ -678,7 +672,6 @@ extern int dark_colorscheme; /*  20171113 */
 extern double color_dim;
 extern int no_undo; /*  20171204 */
 extern int enable_drill;
-
 extern struct wireentry *wiretable[NBOXES][NBOXES];
 extern struct instpinentry *instpintable[NBOXES][NBOXES];
 extern double mx_double_save, my_double_save; /*  20070322 */
@@ -689,6 +682,11 @@ extern int batch_mode; /* no TCL console */
 extern int hide_symbols; /* draw only a bounding box for component instances and @symname, @name texts */
 
 /*  functions */
+extern void enable_layers(void);
+extern void set_snap(double); /*  20161212 */
+extern void set_grid(double); /*  20161212 */
+extern void create_plot_cmd(int viewer);
+extern void set_modify(int mod);
 extern void dbg(int level, char *fmt, ...);
 extern void here(void);
 extern void print_version(void);
