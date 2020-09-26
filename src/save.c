@@ -68,12 +68,12 @@ char *read_line(FILE *fp, int dbg_level)
   while(fscanf(fp, "%298[^\n]s", s)>0) {
     if(!s[0]) break;
     if(!first) {
-      dbg(dbg_level, "\n-----2- SKIPPING -------\n");
+      dbg(dbg_level, "\n-----2- SKIPPING -------\n|");
       first = 1;
     }
-    dbg(dbg_level, "|%s|", s);
+    dbg(dbg_level, "%s", s);
   }
-  if(first) dbg(dbg_level, "\n------------------------\n");
+  if(first) dbg(dbg_level, "|\n------------------------\n");
   return s[0] ? s : NULL;
 }
 
@@ -1303,7 +1303,7 @@ void get_symbol_type(const char *symname, char **type)
       dbg(1, "get_symbol_type(): Symbol not found: %s\n",name);
       my_strdup2(1162, type, "");
     } else {
-      while(1) {
+      while(!found) {
         if(fscanf(fd," %c",tag)==EOF) break;
         switch(tag[0]) {
           case 'G':
@@ -1315,7 +1315,7 @@ void get_symbol_type(const char *symname, char **type)
           case 'K':
             load_ascii_string(&globalprop,fd);
             my_strdup2(1165, type, get_tok_value(globalprop, "type", 0));
-            found = 1;
+            if(type[0]) found = 1;
             break;
           default:
             if( tag[0] == '{' ) ungetc(tag[0], fd);
