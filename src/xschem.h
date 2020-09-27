@@ -458,11 +458,12 @@ struct hashentry {
                   char *value;
                  };
 
-struct int_hashentry { /*  20180104 */
+struct int_hashentry {
                   struct int_hashentry *next;
-                  unsigned int token;
+                  unsigned int hash;
+                  char *token;
+                  int value;
                  };
-
 
 struct node_hashentry {
                   struct node_hashentry *next;
@@ -739,9 +740,6 @@ extern void hash_wires(void);
 extern void hash_wire(int what, int n);
 extern void hash_instances(void); /*  20171203 insert instance bbox in spatial hash table */
 
-extern struct int_hashentry *int_hash_lookup(struct int_hashentry **table, int token, int remove); /*  20180104 */
-extern void free_int_hash(struct int_hashentry **table); /*  20180104 */
-
 #ifdef HAS_CAIRO
 extern int text_bbox_nocairo(const char * str,double xscale, double yscale,
             int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
@@ -898,6 +896,8 @@ extern void clear_instance_hash();
 
 extern void free_hash(struct hashentry **table);
 extern struct hashentry *hash_lookup(struct hashentry **table, const char *token, const char *value, int what);
+extern void free_int_hash(struct int_hashentry **table);
+extern struct int_hashentry *int_hash_lookup(struct int_hashentry **table, const char *token, const int value, int what);
 
 extern const char *find_nth(const char *str, char sep, int n);
 extern int isonlydigit(const char *s);

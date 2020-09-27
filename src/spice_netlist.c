@@ -515,3 +515,88 @@ void free_hash(struct hashentry **table)
     table[i] = free_hash_entry( table[i] );
   }
 }
+
+/* GENERIC PURPOSE INT HASH TABLE */
+
+
+/*    token        value      what    ... what ...
+ * --------------------------------------------------------------------------
+ * "whatever"    "whatever"  XINSERT     insert in hash table if not in.
+ *                                      if already present update value if not NULL, 
+ *                                      return entry address.
+ * "whatever"    "whatever"  XINSERT_NOREPLACE   same as XINSERT but do not replace existing value
+ *                                      return NULL if not found.
+ * "whatever"    "whatever"  XLOOKUP     lookup in hash table,return entry addr.
+ *                                      return NULL if not found
+ * "whatever"    "whatever"  XDELETE     delete entry if found,return NULL
+ */
+struct int_hashentry *int_hash_lookup(struct int_hashentry **table, const char *token, const int value, int what)
+{
+  unsigned int hashcode, index;
+  struct int_hashentry *entry, *saveptr, **preventry;
+  int s ;
+ 
+  if(token==NULL) return NULL;
+  hashcode=hash(token);
+  index=hashcode % HASHSIZE;
+  entry=table[index];
+  preventry=&table[index];
+  while(1)
+  {
+    if( !entry )          /* empty slot */
+    {
+      if(what==XINSERT || what == XINSERT_NOREPLACE)            /* insert data */
+      {
+        s=sizeof( struct int_hashentry );
+        entry=(struct int_hashentry *)my_malloc(659, s);
+        entry->next=NULL;
+        entry->token=NULL;
+        my_strdup(658, &entry->token, token);
+        entry->value = value;
+        entry->hash=hashcode;
+        *preventry=entry;
+      }
+      return NULL; /* if element inserted return NULL since it was not in table */
+    }
+    if( entry -> hash==hashcode && strcmp(token,entry->token)==0 ) /* found a matching token */
+    {
+      if(what==XDELETE)             /* remove token from the hash table ... */
+      {
+        saveptr=entry->next;
+        my_free(896, &entry->token);
+        my_free(897, &entry);
+        *preventry=saveptr;
+      }
+      else if(what == XINSERT ) {
+        entry->value = value;
+      }
+      return entry;   /* found matching entry, return the address */
+    }
+    preventry=&entry->next; /* descend into the list. */
+    entry = entry->next;
+  }
+}
+
+static struct int_hashentry *free_int_hash_entry(struct int_hashentry *entry)
+{
+  struct int_hashentry *tmp;
+  while( entry ) {
+    tmp = entry -> next;
+    my_free(1171, &(entry->token));
+    my_free(1172, &entry);
+    entry = tmp;
+  }
+  return NULL;
+}
+
+
+void free_int_hash(struct int_hashentry **table)
+{
+  int i;
+
+  for(i=0;i<HASHSIZE;i++)
+  {
+    table[i] = free_int_hash_entry( table[i] );
+  }
+}
+

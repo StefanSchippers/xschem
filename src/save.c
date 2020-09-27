@@ -1245,43 +1245,19 @@ void pop_undo(int redo)
 
 #endif /* ifndef IN_MEMORY_UNDO */
 
-static int Gcurrent_sym=0;
-int CmpSchBbox(const void *a, const void *b)
-{
-  char *labela, *labelb;
-  const char *name;
-  Box *boxa = (Box*)a;
-  Box *boxb = (Box*)b;
-  int i, aa = -1, bb = -1;
-  labela=NULL; labelb=NULL;
-  my_strdup(658, &labela, get_tok_value(boxa->prop_ptr, "name", 0));
-  my_strdup(659, &labelb, get_tok_value(boxb->prop_ptr, "name", 0));
-  for (i = 0; i < instdef[Gcurrent_sym].rects[PINLAYER]; ++i)
-  {
-    name = get_tok_value(instdef[Gcurrent_sym].boxptr[PINLAYER][i].prop_ptr, "name", 0);
-    if (!strcmp(name, labela)) {aa = i;}
-    if (!strcmp(name, labelb)) {bb = i;}
-    if (aa>=0 && bb>=0) break;
-  }
-  my_free(896, &labela);
-  my_free(897, &labelb);
-  return(aa-bb);
-}
-
-
 /* given a 'symname' component instantiation in a LCC schematic instance 
  * get the type attribute from symbol global properties.
  * first look in already loaded symbols else inspect symbol file
- * do not load in symname, just get the type */
-void get_symbol_type(const char *symname, char **type)
+ * do not load all symname data, just get the type 
+ * return symbol type in type pointer or "" if no type or no symbol found
+ * if pintable given (!=NULL) hash all symbol pins */
+void get_sym_type(const char *symname, char **type, struct int_hashentry **pintable)
 {
-  int i;
+  int i, c, n = 0;
   char name[PATH_MAX];
   FILE *fd;
   char tag[1];
-  char *globalprop=NULL;
   int found = 0;
-
   if(!strcmp(file_version,"1.0")) {
     my_strncpy(name, abs_sym_path(symname, ".sym"), S(name));
   } else {
@@ -1296,14 +1272,23 @@ void get_symbol_type(const char *symname, char **type)
       break;
     }
   }
+  /* hash pins to get LCC schematic have same order as corresponding symbol */
+  if(found && pintable) for(c = 0; c < instdef[i].rects[PINLAYER]; c++) {
+    int_hash_lookup(pintable, get_tok_value(instdef[i].boxptr[PINLAYER][c].prop_ptr, "name", 0), c, XINSERT);
+  }
   if( !found ) {
+    dbg(1, "get_sym_type(): open file %s, pintable %s\n",name, pintable ? "set" : "null");
     /* ... if not found open file and look for 'type' into the global attributes. */
     if((fd=fopen(name,"r"))==NULL)
     {
-      dbg(1, "get_symbol_type(): Symbol not found: %s\n",name);
+      dbg(1, "get_sym_type(): Symbol not found: %s\n",name);
       my_strdup2(1162, type, "");
     } else {
-      while(!found) {
+      char *globalprop=NULL;
+      Box box;
+
+      box.prop_ptr = NULL;
+      while(1) {
         if(fscanf(fd," %c",tag)==EOF) break;
         switch(tag[0]) {
           case 'G':
@@ -1317,6 +1302,21 @@ void get_symbol_type(const char *symname, char **type)
             my_strdup2(1165, type, get_tok_value(globalprop, "type", 0));
             if(type[0]) found = 1;
             break;
+          case 'B':
+           fscanf(fd, "%d",&c);
+           if(c>=cadlayers) {
+             fprintf(errfp,"FATAL: box layer > defined cadlayers, increase cadlayers\n");
+             tcleval( "exit");
+           }
+           fscanf(fd, "%lf %lf %lf %lf ",&box.x1, &box.y1, &box.x2, &box.y2);
+           load_ascii_string( &box.prop_ptr, fd);
+           dbg(1, "get_sym_type(): %s box.prop_ptr=%s\n", symname, box.prop_ptr);
+           if (pintable && c == PINLAYER) {
+             /* hash pins to get LCC schematic have same order as corresponding symbol */
+             int_hash_lookup(pintable, get_tok_value(box.prop_ptr, "name", 0), n++, XINSERT);
+             dbg(1, "get_sym_type() : hashing %s\n", get_tok_value(box.prop_ptr, "name", 0));
+           } 
+           break;
           default:
             if( tag[0] == '{' ) ungetc(tag[0], fd);
             read_record(tag[0], fd, 1);
@@ -1325,26 +1325,71 @@ void get_symbol_type(const char *symname, char **type)
         read_line(fd, 0); /* discard any remaining characters till (but not including) newline */
       }
       my_free(1166, &globalprop);
+      my_free(1167, &box.prop_ptr);
       fclose(fd);
     }
   }
-  dbg(1, "get_symbol_type(): symbol=%s --> type=%s\n", symname, *type);
+  dbg(1, "get_sym_type(): symbol=%s --> type=%s\n", symname, *type);
+}
+
+
+/* given a .sch file used as instance in LCC schematics, order its pin 
+ * as in corresponding .sym file if it exists */
+void align_sch_pins_with_sym(const char *name, int pos)
+{
+  char *ptr;
+  char symname[PATH_MAX];
+  char *symtype = NULL;
+  const char *pinname;
+  int i, fail = 0;
+  struct int_hashentry *pintable[HASHSIZE];
+
+  if ((ptr = strrchr(name, '.')) && !strcmp(ptr, ".sch")) {
+    my_strncpy(symname, add_ext(name, ".sym"), S(symname));
+    for(i = 0; i < HASHSIZE; i++) pintable[i] = NULL;
+    /* hash all symbol pins with their position into pintable hash*/
+    get_sym_type(symname, &symtype, pintable);
+    if(symtype[0]) { /* found a .sym for current .sch LCC instance */
+      Box *box = NULL;
+      box = (Box *) my_malloc(1168, sizeof(Box) * instdef[pos].rects[PINLAYER]);
+      dbg(1, "align_sch_pins_with_sym(): symbol: %s\n", symname);
+      for(i=0; i < instdef[pos].rects[PINLAYER]; i++) {
+        struct int_hashentry *entry;
+        pinname = get_tok_value(instdef[pos].boxptr[PINLAYER][i].prop_ptr, "name", 0);
+        entry = int_hash_lookup(pintable, pinname, 0 , XLOOKUP);
+        if(!entry) { 
+          dbg(0, " align_sch_pins_with_sym(): warning: pin mismatch between %s and %s : %s\n", name, symname, pinname);
+          fail = 1;
+          break;
+        }
+        box[entry->value] = instdef[pos].boxptr[PINLAYER][i]; /* box[] is the pin array ordered as in symbol */
+        dbg(1, "align_sch_pins_with_sym(): i=%d, pin name=%s entry->value=%d\n", i, pinname, entry->value);
+      }
+      if(!fail) {
+        for(i=0; i < instdef[pos].rects[PINLAYER]; i++) { /* copy box[] ordererd array to LCC schematic instance */
+          instdef[pos].boxptr[PINLAYER][i] = box[i];
+        }
+      }
+      free_int_hash(pintable);
+      my_free(1169, &box);
+    }
+    my_free(1170, &symtype);
+  }
 }
 
 /* replace i/o/iopin instances of LCC schematics with symbol pins (boxes on PINLAYER layer) */
 void add_pinlayer_boxes(int *lastr, Box **bb, const char *symtype, char *prop_ptr, double inst_x0, double inst_y0)
 {
-
   int i, save;
   const char *label;
   char *pin_label = NULL;
+
   i = lastr[PINLAYER];
   my_realloc(652, &bb[PINLAYER], (i + 1) * sizeof(Box));
   bb[PINLAYER][i].x1 = inst_x0 - 2.5; bb[PINLAYER][i].x2 = inst_x0 + 2.5;
   bb[PINLAYER][i].y1 = inst_y0 - 2.5; bb[PINLAYER][i].y2 = inst_y0 + 2.5;
   RECTORDER(bb[PINLAYER][i].x1, bb[PINLAYER][i].y1, bb[PINLAYER][i].x2, bb[PINLAYER][i].y2);
   bb[PINLAYER][i].prop_ptr = NULL;
-  
   label = get_tok_value(prop_ptr, "lab", 0);
   save = strlen(label)+30;
   pin_label = my_malloc(315, save);
@@ -1359,12 +1404,9 @@ void add_pinlayer_boxes(int *lastr, Box **bb, const char *symtype, char *prop_pt
   my_strdup(463, &bb[PINLAYER][i].prop_ptr, pin_label);
   bb[PINLAYER][i].dash = 0;
   bb[PINLAYER][i].sel = 0;
-  
   /* add to symbol pins remaining attributes from schematic pins, except name= and lab= */
-  
   my_strdup(157, &pin_label, get_sym_template(prop_ptr, "lab"));   /* remove name=...  and lab=... */
   my_strcat(159, &bb[PINLAYER][i].prop_ptr, pin_label);
-  
   my_free(900, &pin_label);
   lastr[PINLAYER]++;
 }
@@ -1390,6 +1432,75 @@ void use_lcc_pins(int level, char *symtype, char (*filename)[PATH_MAX])
   }
 }
 
+void calc_symbol_bbox(int pos)
+{
+  int c, i, count = 0; 
+  Box boundbox, tmp;
+
+  boundbox.x1 = boundbox.x2 = boundbox.y1 = boundbox.y2 = 0;
+  for(c=0;c<cadlayers;c++)
+  {
+   for(i=0;i<instdef[pos].lines[c];i++)
+   {
+    count++;
+    tmp.x1=instdef[pos].lineptr[c][i].x1;tmp.y1=instdef[pos].lineptr[c][i].y1;
+    tmp.x2=instdef[pos].lineptr[c][i].x2;tmp.y2=instdef[pos].lineptr[c][i].y2;
+    updatebbox(count,&boundbox,&tmp);
+    dbg(2, "calc_symbol_bbox(): line[%d][%d]: %g %g %g %g\n", 
+			c, i, tmp.x1,tmp.y1,tmp.x2,tmp.y2);
+   }
+   for(i=0;i<instdef[pos].arcs[c];i++)
+   {
+    count++;
+    arc_bbox(instdef[pos].arcptr[c][i].x, instdef[pos].arcptr[c][i].y, instdef[pos].arcptr[c][i].r, 
+             instdef[pos].arcptr[c][i].a, instdef[pos].arcptr[c][i].b, 
+             &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
+    /* printf("arc bbox: %g %g %g %g\n", tmp.x1, tmp.y1, tmp.x2, tmp.y2); */
+    updatebbox(count,&boundbox,&tmp);
+   }
+   for(i=0;i<instdef[pos].rects[c];i++)
+   {
+    count++;
+    tmp.x1=instdef[pos].boxptr[c][i].x1;tmp.y1=instdef[pos].boxptr[c][i].y1;
+    tmp.x2=instdef[pos].boxptr[c][i].x2;tmp.y2=instdef[pos].boxptr[c][i].y2;
+    updatebbox(count,&boundbox,&tmp);
+   }
+   for(i=0;i<instdef[pos].polygons[c];i++)
+   {
+     double x1=0., y1=0., x2=0., y2=0.;
+     int k;
+     count++;
+     for(k=0; k<instdef[pos].polygonptr[c][i].points; k++) {
+       /*fprintf(errfp, "  poly: point %d: %.16g %.16g\n", k, pp[c][i].x[k], pp[c][i].y[k]); */
+       if(k==0 || instdef[pos].polygonptr[c][i].x[k] < x1) x1 = instdef[pos].polygonptr[c][i].x[k];
+       if(k==0 || instdef[pos].polygonptr[c][i].y[k] < y1) y1 = instdef[pos].polygonptr[c][i].y[k];
+       if(k==0 || instdef[pos].polygonptr[c][i].x[k] > x2) x2 = instdef[pos].polygonptr[c][i].x[k];
+       if(k==0 || instdef[pos].polygonptr[c][i].y[k] > y2) y2 = instdef[pos].polygonptr[c][i].y[k];
+     }
+     tmp.x1=x1;tmp.y1=y1;tmp.x2=x2;tmp.y2=y2;
+     updatebbox(count,&boundbox,&tmp);
+   }
+  }
+/*
+*   do not include symbol text in bounding box, since text length
+*   is variable from one instance to another due to '@' variable expansions
+*
+*   for(i=0;i<lastt;i++)
+*   { 
+*    count++;
+*    rot=tt[i].rot;flip=tt[i].flip;
+*    text_bbox(tt[i].txt_ptr, tt[i].xscale, tt[i].yscale, rot, flip,
+*    tt[i].x0, tt[i].y0, &rx1,&ry1,&rx2,&ry2);
+*    tmp.x1=rx1;tmp.y1=ry1;tmp.x2=rx2;tmp.y2=ry2;
+*    updatebbox(count,&boundbox,&tmp);
+*  }
+*/
+  instdef[pos].minx = boundbox.x1;
+  instdef[pos].maxx = boundbox.x2;
+  instdef[pos].miny = boundbox.y1;
+  instdef[pos].maxy = boundbox.y2;
+}
+
 /* Global (or static global) variables used: 
  * cadlayers
  * errfp
@@ -1398,7 +1509,6 @@ void use_lcc_pins(int level, char *symtype, char (*filename)[PATH_MAX])
  * lastinstdef
  * has_x
  * lcc (static global)
- * Gcurrent_sym (static global)
  */
 int load_sym_def(const char *name, FILE *embed_fd)
 {
@@ -1408,15 +1518,11 @@ int load_sym_def(const char *name, FILE *embed_fd)
   int rot,flip;
   double angle;
   double rx1,ry1,rx2,ry2;
-  int current_sym;
   int incremented_level=0;
   int level = 0;
   int max_level;
-  char name2[PATH_MAX];
-  char name3[PATH_MAX];
-  char name4[PATH_MAX];
-  Box tmp,boundbox;
-  int i,c,count=0, k, poly_points;
+  char sympath[PATH_MAX];
+  int i,c, k, poly_points;
   char *aux_ptr=NULL;
   char *prop_ptr=NULL, *symtype=NULL;
   double inst_x0, inst_y0;
@@ -1438,37 +1544,33 @@ int load_sym_def(const char *name, FILE *embed_fd)
   char *skip_line;
   const char *dash;
 
-  dbg(1, "load_sym_def(): recursion_counter=%d, name=%s\n", recursion_counter, name);
+  dbg(1, "l_s_d(): recursion_counter=%d, name=%s\n", recursion_counter, name);
   recursion_counter++;
-
-  dbg(1, "load_sym_def(): name=%s\n", name);
+  dbg(1, "l_s_d(): name=%s\n", name);
   lcc=NULL;
   my_realloc(647, &lcc, (level + 1) * sizeof(struct Lcc));
   max_level = level + 1;
   if(!strcmp(file_version,"1.0")) {
-    my_strncpy(name3, abs_sym_path(name, ".sym"), S(name3));
+    my_strncpy(sympath, abs_sym_path(name, ".sym"), S(sympath));
   } else {
-    my_strncpy(name3, abs_sym_path(name, ""), S(name3));
+    my_strncpy(sympath, abs_sym_path(name, ""), S(sympath));
   }
-    
   if(!embed_fd) {
-    if((lcc[level].fd=fopen(name3,"r"))==NULL)
+    if((lcc[level].fd=fopen(sympath,"r"))==NULL)
     {
-      if(recursion_counter == 1) dbg(0, "load_sym_def(): Symbol not found: %s\n",name3);
-      my_snprintf(name2, S(name2), "%s/%s.sym", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing");
-      if((lcc[level].fd=fopen(name2, "r"))==NULL)
+      if(recursion_counter == 1) dbg(0, "l_s_d(): Symbol not found: %s\n",sympath);
+      my_snprintf(sympath, S(sympath), "%s/%s.sym", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing");
+      if((lcc[level].fd=fopen(sympath, "r"))==NULL)
       { 
-       fprintf(errfp, "load_sym_def(): systemlib/missing.sym missing, I give up\n");
+       fprintf(errfp, "l_s_d(): systemlib/missing.sym missing, I give up\n");
        tcleval( "exit");
       }
-      my_strncpy(name3, name2, S(name3));
     }
-    dbg(1, "load_sym_def(): fopen1(%s), level=%d, fd=%p\n",name3, level, lcc[level].fd);
+    dbg(1, "l_s_d(): fopen1(%s), level=%d, fd=%p\n",sympath, level, lcc[level].fd);
   } else {
-    dbg(1, "load_sym_def(): getting embed_fd, level=%d\n", level);
+    dbg(1, "l_s_d(): getting embed_fd, level=%d\n", level);
     lcc[level].fd = embed_fd;
   }
-
   endfile=0;
   for(c=0;c<cadlayers;c++) 
   {
@@ -1483,13 +1585,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
   instdef[lastinstdef].templ = NULL;
   instdef[lastinstdef].name=NULL;
   my_strdup(352, &instdef[lastinstdef].name,name); 
-
   while(1)
   {
    if(endfile && embed_fd) break; /* ']' line encountered --> exit */
    if(fscanf(lcc[level].fd," %c",tag)==EOF) {
      if (level) {
-         dbg(1, "load_sym_def(): fclose1, level=%d, fd=%p\n", level, lcc[level].fd);
+         dbg(1, "l_s_d(): fclose1, level=%d, fd=%p\n", level, lcc[level].fd);
          fclose(lcc[level].fd);
          my_free(898, &lcc[level].prop_ptr);
          my_free(899, &lcc[level].symname);
@@ -1564,7 +1665,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
      ll[c][i].prop_ptr=NULL;
      load_ascii_string( &ll[c][i].prop_ptr, lcc[level].fd);
      dbg(2, "l_d_s(): loaded line: ptr=%lx\n", (unsigned long)ll[c]);
-
      if(!strcmp(get_tok_value(ll[c][i].prop_ptr,"bus", 0), "true") )
        ll[c][i].bus = 1;
      else 
@@ -1666,8 +1766,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
      } else
        aa[c][i].dash = 0;
      aa[c][i].sel = 0;
-
-
      dbg(2, "l_d_s(): loaded arc: ptr=%lx\n", (unsigned long)aa[c]);
      lasta[c]++;
      break;
@@ -1721,33 +1819,26 @@ int load_sym_def(const char *name, FILE *embed_fd)
      }
      tt[i].prop_ptr=NULL;
      load_ascii_string(&tt[i].prop_ptr, lcc[level].fd);
-
      if(level > 0 && symtype && !strcmp(symtype, "label")) {
        char lay[30];
        my_snprintf(lay, S(lay), " layer=%d", WIRELAYER);
        my_strcat(1163, &tt[i].prop_ptr, lay);
      }
-     
-     dbg(1, "l_d_s(): loaded text : t=%s p=%s\n", tt[i].txt_ptr, tt[i].prop_ptr);
-
+     dbg(1, "l_d_s(): loaded text : t=%s p=%s\n", tt[i].txt_ptr, tt[i].prop_ptr ? tt[i].prop_ptr : "NULL");
      my_strdup(351, &tt[i].font, get_tok_value(tt[i].prop_ptr, "font", 0));
-
      str = get_tok_value(tt[i].prop_ptr, "hcenter", 0);
      tt[i].hcenter = strcmp(str, "true")  ? 0 : 1;
      str = get_tok_value(tt[i].prop_ptr, "vcenter", 0);
      tt[i].vcenter = strcmp(str, "true")  ? 0 : 1;
-
      str = get_tok_value(tt[i].prop_ptr, "layer", 0);
      if(str[0]) tt[i].layer = atoi(str);
      else tt[i].layer = -1;
-
      tt[i].flags = 0;
      str = get_tok_value(tt[i].prop_ptr, "slant", 0);
      tt[i].flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
      tt[i].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
      str = get_tok_value(tt[i].prop_ptr, "weight", 0);
      tt[i].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
-
      lastt++;
      break;
     case 'N': /* store wires as lines on layer WIRELAYER. */
@@ -1793,13 +1884,11 @@ int load_sym_def(const char *name, FILE *embed_fd)
         endfile = 1;
         continue;
       }
-      dbg(1, "load_sym_def(): call get_symbol_type(), symname=%s\n", symname);
-
+      dbg(1, "l_s_d(): call get_sym_type(), symname=%s\n", symname);
       /* get symbol type by looking into list of loaded symbols or (if not found) by
        * opening/closing the symbol file and getting the 'type' attribute from global symbol attributes */
-      get_symbol_type(symname, &symtype);
-      dbg(1, "load_sym_def(): level=%d, symname=%s symtype=%s\n", level, symname, symtype);
-
+      get_sym_type(symname, &symtype, NULL);
+      dbg(1, "l_s_d(): level=%d, symname=%s symtype=%s\n", level, symname, symtype);
       if(  /* add here symbol types not to consider when loading schematic-as-symbol instances */
           !strcmp(symtype, "logo") ||
           !strcmp(symtype, "netlist_commands") ||
@@ -1813,31 +1902,29 @@ int load_sym_def(const char *name, FILE *embed_fd)
           !strcmp(symtype, "verilog_preprocessor") ||
           !strcmp(symtype, "timescale") 
         ) break;
-
-
       /* add PINLAYER boxes (symbol pins) at schematic i/o/iopin coordinates. */
       if (level==0 && (!strcmp(symtype, "ipin") || !strcmp(symtype, "opin") || !strcmp(symtype, "iopin"))) {
         add_pinlayer_boxes(lastr, bb, symtype, prop_ptr, inst_x0, inst_y0);
       }
       /* build symbol filename to be loaded */
       if (!strcmp(file_version, "1.0")) {
-        my_strncpy(name4, abs_sym_path(symname, ".sym"), S(name4));
+        my_strncpy(sympath, abs_sym_path(symname, ".sym"), S(sympath));
       }
       else {
-        my_strncpy(name4, abs_sym_path(symname, ""), S(name4));
+        my_strncpy(sympath, abs_sym_path(symname, ""), S(sympath));
       }
       /* replace i/o/iopin.sym filename with better looking (for LCC symbol) pins */
-      use_lcc_pins(level, symtype, &name4);
+      use_lcc_pins(level, symtype, &sympath);
 
-      if ((fd_tmp = fopen(name4, "r")) == NULL) {
-        fprintf(errfp, "load_sym_def(): unable to open file to read schematic: %s\n", name4);
+      if ((fd_tmp = fopen(sympath, "r")) == NULL) {
+        fprintf(errfp, "l_s_d(): unable to open file to read schematic: %s\n", sympath);
       } else {
         if (level+1 >= max_level) {
           
           my_realloc(653, &lcc, (max_level + 1) * sizeof(struct Lcc));
           max_level++;
         }
-        dbg(1, "load_sym_def(): fopen2(%s), level=%d, fd=%p\n", name4, level, fd_tmp);
+        dbg(1, "l_s_d(): fopen2(%s), level=%d, fd=%p\n", sympath, level, fd_tmp);
         ++level;
         incremented_level = 1;
         lcc[level].fd = fd_tmp;
@@ -1863,7 +1950,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         }
         my_strdup(654, &lcc[level].prop_ptr, prop_ptr);
         my_strdup(657, &lcc[level].symname, symname);
-        dbg(1, "level incremented: level=%d, symname=%s, prop_ptr = %s name4=%s\n", level, symname, prop_ptr, name4);
+        dbg(1, "level incremented: level=%d, symname=%s, prop_ptr = %s sympath=%s\n", level, symname, prop_ptr, sympath);
       }
       break;
     case '[':
@@ -1895,7 +1982,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      read_line(lcc[level].fd, 0); /* discard any remaining characters till (but not including) newline */
   }
   if(!embed_fd) {
-    dbg(1, "load_sym_def(): fclose2, level=%d, fd=%p\n", level, lcc[0].fd);
+    dbg(1, "l_s_d(): fclose2, level=%d, fd=%p\n", level, lcc[0].fd);
     fclose(lcc[0].fd);
   }
   if(embed_fd || strstr(name, ".xschem_embedded_")) {
@@ -1917,69 +2004,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
   }
   instdef[lastinstdef].texts = lastt;
   instdef[lastinstdef].txtptr = tt;
-   
-
-  boundbox.x1 = boundbox.x2 = boundbox.y1 = boundbox.y2 = 0;
-  for(c=0;c<cadlayers;c++)
-  {
-   for(i=0;i<lastl[c];i++)
-   {
-    count++;
-    tmp.x1=ll[c][i].x1;tmp.y1=ll[c][i].y1;tmp.x2=ll[c][i].x2;tmp.y2=ll[c][i].y2;
-    updatebbox(count,&boundbox,&tmp);
-    dbg(2, "l_d_s(): line[%d][%d]: %g %g %g %g\n", 
-			c, i, tmp.x1,tmp.y1,tmp.x2,tmp.y2);
-   }
-   for(i=0;i<lasta[c];i++)
-   {
-    count++;
-    arc_bbox(aa[c][i].x, aa[c][i].y, aa[c][i].r, aa[c][i].a, aa[c][i].b, 
-             &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-    /* printf("arc bbox: %g %g %g %g\n", tmp.x1, tmp.y1, tmp.x2, tmp.y2); */
-    updatebbox(count,&boundbox,&tmp);
-   }
-   for(i=0;i<lastr[c];i++)
-   {
-    count++;
-    tmp.x1=bb[c][i].x1;tmp.y1=bb[c][i].y1;tmp.x2=bb[c][i].x2;tmp.y2=bb[c][i].y2;
-    updatebbox(count,&boundbox,&tmp);
-   }
-   for(i=0;i<lastp[c];i++)
-   {
-     double x1=0., y1=0., x2=0., y2=0.;
-     int k;
-     count++;
-     for(k=0; k<pp[c][i].points; k++) {
-       /*fprintf(errfp, "  poly: point %d: %.16g %.16g\n", k, pp[c][i].x[k], pp[c][i].y[k]); */
-       if(k==0 || pp[c][i].x[k] < x1) x1 = pp[c][i].x[k];
-       if(k==0 || pp[c][i].y[k] < y1) y1 = pp[c][i].y[k];
-       if(k==0 || pp[c][i].x[k] > x2) x2 = pp[c][i].x[k];
-       if(k==0 || pp[c][i].y[k] > y2) y2 = pp[c][i].y[k];
-     }
-     tmp.x1=x1;tmp.y1=y1;tmp.x2=x2;tmp.y2=y2;
-     updatebbox(count,&boundbox,&tmp);
-   }
-  }
-/*
-*   do not include symbol text in bounding box, since text length
-*   is variable from one instance to another due to '@' variable replacement
-*
-*   for(i=0;i<lastt;i++)
-*   { 
-*    count++;
-*    rot=tt[i].rot;flip=tt[i].flip;
-*    text_bbox(tt[i].txt_ptr, tt[i].xscale, tt[i].yscale, rot, flip,
-*    tt[i].x0, tt[i].y0, &rx1,&ry1,&rx2,&ry2);
-*    tmp.x1=rx1;tmp.y1=ry1;tmp.x2=rx2;tmp.y2=ry2;
-*    updatebbox(count,&boundbox,&tmp);
-*  }
-*/
-  instdef[lastinstdef].minx = boundbox.x1;
-  instdef[lastinstdef].maxx = boundbox.x2;
-  instdef[lastinstdef].miny = boundbox.y1;
-  instdef[lastinstdef].maxy = boundbox.y2;
-
+  calc_symbol_bbox(lastinstdef);
+  /* given a .sch file used as instance in LCC schematics, order its pin 
+   * as in corresponding .sym file if it exists */
+  align_sch_pins_with_sym(name, lastinstdef);
   lastinstdef++;
+  my_free(910, &prop_ptr);
   my_free(901, &lastl);
   my_free(902, &lastr);
   my_free(903, &lastp);
@@ -1989,23 +2019,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
   my_free(907, &aa);
   my_free(908, &pp);
   my_free(909, &lcc);
-  my_free(910, &prop_ptr);
   my_free(911, &aux_ptr);
   my_free(912, &symname);
   my_free(913, &symtype);
-  my_strncpy(name4, name, S(name4));
-  if ((prop_ptr = strrchr(name4, '.')) && !strcmp(prop_ptr, ".sch")) {
-    int save;
-    save = lastinstdef; /* save idx because match_symbol may call load_symbol_definition */
-    dbg(1, "load_sym_def(): call2 match_symbol\n");
-    current_sym = match_symbol(add_ext(name4, ".sym"));
-    if ( instdef[current_sym].type && strcmp(instdef[current_sym].type, "missing")) {
-    /* To ensure SCH's BOX's PINLAYER matches SYM so netlisting will be correct */
-      Gcurrent_sym = current_sym;
-      qsort(instdef[save-1].boxptr[PINLAYER], instdef[save-1].rects[PINLAYER], sizeof(Box), CmpSchBbox);
-    }
-    if(lastinstdef > save) remove_symbol(lastinstdef - 1); /* if previous match_symbol() caused a symbol to be loaded unload it now */
-  }
   recursion_counter--;
   return 1;
 }
