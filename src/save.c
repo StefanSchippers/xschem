@@ -25,8 +25,6 @@
 #include <sys/wait.h>  /* waitpid */
 #endif
 
-struct Lcc *lcc;
-
 /* 
 read an unknown xschem record usually like:  
 text {string} text {string}....
@@ -38,7 +36,7 @@ void read_record(int firstchar, FILE *fp, int dbg_level)
 {
   int c;
   char *str = NULL;
-  dbg(dbg_level, "\n-----1- SKIPPING -------\n");
+  dbg(dbg_level, "SKIP RECORD\n");
   if(firstchar != '{') dbg(dbg_level, "%c", firstchar);
   while((c = fgetc(fp)) != EOF) {
     if(c == '\n') {
@@ -54,29 +52,29 @@ void read_record(int firstchar, FILE *fp, int dbg_level)
       dbg(dbg_level, "%c", c);
     }
   }
-  dbg(dbg_level,   "------------------------\n");
+  dbg(dbg_level,   "END SKIP RECORD\n");
   my_free(881, &str);
 }
 
 /* skip line of text from file, stopping before '\n' or EOF */
+/* return first portion of line if found or NULL if EOF */
 char *read_line(FILE *fp, int dbg_level)
 {
   char s[300];  
   static char ret[300];  
-  int first = 0;
+  int first = 0, items;
 
-  s[0] = '\0';
-  while(fscanf(fp, "%298[^\n]s", s)>0) {
-    if(!s[0]) break;
+  ret[0] = '\0';
+  while((items = fscanf(fp, "%298[^\n]s", s)) > 0) {
     if(!first) {
-      dbg(dbg_level, "\n-----2- SKIPPING -------\n|");
+      dbg(dbg_level, "SKIPPING |");
       my_strncpy(ret, s, S(ret)); /* store beginning of line for return */
       first = 1;
     }
     dbg(dbg_level, "%s", s);
   }
-  if(first) dbg(dbg_level, "|\n------------------------\n");
-  return s[0] ? ret : NULL;
+  if(first) dbg(dbg_level, "|\n");
+  return !first && items == EOF ? NULL : ret;
 }
 
 /* */
@@ -815,17 +813,13 @@ void read_xschem_file(FILE *fd)
            found=1;break;
          }
         }
+        read_line(fd, 0); /* skip garbage after '[' */
         if(!found) load_sym_def(inst_ptr[lastinst-1].name, fd);
         else {
-          read_line(fd, dbg_level);
-          fscanf(fd, "\n");
           while(1) { /* skip embedded [ ... ] */
             str = read_line(fd, dbg_level);
-            if(!str) {
-              break;
-            }
-            if(!strncmp(str, "]", 1)) break;
-            fscanf(fd, "\n");
+            if(!str || !strncmp(str, "]", 1)) break;
+            fscanf(fd, "%*1[\n]");
           }
         }
       }
@@ -1954,15 +1948,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
       }
       break;
     case '[':
-     read_line(lcc[level].fd, 0);
-     fscanf(lcc[level].fd, "\n");
      while(1) { /* skip embedded [ ... ] */
        skip_line = read_line(lcc[level].fd, 0);
-       if(!skip_line) {
-         break;
-       }
-       if(!strncmp(skip_line, "]", 1)) break;
-       fscanf(lcc[level].fd, "\n");
+       if(!skip_line || !strncmp(skip_line, "]", 1)) break;
+       fscanf(lcc[level].fd, "%*1[\n]");
      }
      break;
     case ']':

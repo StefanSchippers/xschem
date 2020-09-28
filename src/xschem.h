@@ -681,7 +681,7 @@ extern size_t get_tok_size;
 extern int batch_mode; /* no TCL console */
 extern int hide_symbols; /* draw only a bounding box for component instances and @symname, @name texts */
 
-/*  functions */
+/*  FUNCTIONS */
 extern void enable_layers(void);
 extern void set_snap(double); /*  20161212 */
 extern void set_grid(double); /*  20161212 */
