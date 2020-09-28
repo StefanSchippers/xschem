@@ -61,7 +61,8 @@ void read_record(int firstchar, FILE *fp, int dbg_level)
 /* skip line of text from file, stopping before '\n' or EOF */
 char *read_line(FILE *fp, int dbg_level)
 {
-  static char s[300];  
+  char s[300];  
+  static char ret[300];  
   int first = 0;
 
   s[0] = '\0';
@@ -69,12 +70,13 @@ char *read_line(FILE *fp, int dbg_level)
     if(!s[0]) break;
     if(!first) {
       dbg(dbg_level, "\n-----2- SKIPPING -------\n|");
+      my_strncpy(ret, s, S(ret)); /* store beginning of line for return */
       first = 1;
     }
     dbg(dbg_level, "%s", s);
   }
   if(first) dbg(dbg_level, "|\n------------------------\n");
-  return s[0] ? s : NULL;
+  return s[0] ? ret : NULL;
 }
 
 /* */
@@ -822,7 +824,7 @@ void read_xschem_file(FILE *fd)
             if(!str) {
               break;
             }
-            if(!strcmp(str, "]")) break;
+            if(!strncmp(str, "]", 1)) break;
             fscanf(fd, "\n");
           }
         }
@@ -1758,7 +1760,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
        aa[c][i].fill =1;
      else
        aa[c][i].fill =0;
-
      dash = get_tok_value(aa[c][i].prop_ptr,"dash", 0);
      if( strcmp(dash, "") ) {
        int d = atoi(dash);
@@ -1920,7 +1921,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
         fprintf(errfp, "l_s_d(): unable to open file to read schematic: %s\n", sympath);
       } else {
         if (level+1 >= max_level) {
-          
           my_realloc(653, &lcc, (max_level + 1) * sizeof(struct Lcc));
           max_level++;
         }
@@ -1961,7 +1961,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        if(!skip_line) {
          break;
        }
-       if(!strcmp(skip_line, "]")) break;
+       if(!strncmp(skip_line, "]", 1)) break;
        fscanf(lcc[level].fd, "\n");
      }
      break;

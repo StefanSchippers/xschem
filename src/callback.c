@@ -245,7 +245,6 @@ int callback(int event, int mx, int my, KeySym key,
       if(vertical_move) mousex_snap = mx_double_save;
       new_polygon(RUBBER); /* 20171115 */
     }
-
     if(!(ui_state & STARTPOLYGON) && (state&Button1Mask) && !(ui_state & STARTWIRE) && !(ui_state & STARTPAN2) &&
          !(state & Mod1Mask) && !(state & ShiftMask) && !(ui_state & PLACE_SYMBOL))  /* start of a mouse area selection */
     {
@@ -264,7 +263,6 @@ int callback(int event, int mx, int my, KeySym key,
         }
       }
     }
- 
     if((state & Button1Mask)  && (state & Mod1Mask) && !(state & ShiftMask) &&
        !(ui_state & STARTPAN2) && !(ui_state & PLACE_SYMBOL)) { /* 20150927 unselect area */
       if( !(ui_state & STARTSELECT)) {
