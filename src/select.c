@@ -39,6 +39,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
    int sym_rot, sym_flip;
    double xx1,yy1,xx2,yy2;
 
+
    #ifdef HAS_CAIRO
    int customfont;
    #endif
@@ -248,17 +249,25 @@ void delete(void)
  }
  lasttext -= j;                
  j = 0;
+
+ prepared_hash_instances=0;
+ prepared_netlist_structs=0;
+ prepared_hilight_structs=0;
+ /* first calculate bbox, because symbol_bbox() needs translate (@#0:net_name) which needs prepare_netlist_structs
+  * which needs a consistent inst_ptr[] data structure */
+ for(i=0;i<lastinst;i++)
+ {
+  if(inst_ptr[i].sel == SELECTED)
+  {
+   symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1, &inst_ptr[i].x2, &inst_ptr[i].y2); /*20171201 */
+   bbox(ADD, inst_ptr[i].x1, inst_ptr[i].y1, inst_ptr[i].x2, inst_ptr[i].y2);
+  }
+ }
  for(i=0;i<lastinst;i++)
  {
   if(inst_ptr[i].sel == SELECTED)
   {
    set_modify(1);
-   prepared_hash_instances=0;
-   prepared_netlist_structs=0;
-   prepared_hilight_structs=0;
-
-   symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1, &inst_ptr[i].x2, &inst_ptr[i].y2); /*20171201 */
-   bbox(ADD, inst_ptr[i].x1, inst_ptr[i].y1, inst_ptr[i].x2, inst_ptr[i].y2);
    if(inst_ptr[i].prop_ptr != NULL) 
    {
     my_free(938, &inst_ptr[i].prop_ptr);
@@ -476,6 +485,7 @@ void unselect_all(void)
       }
      }
    
+    prepared_hilight_structs = 0;
     for(i=0;i<lastinst;i++)
     {
      if(inst_ptr[i].sel == SELECTED)
@@ -620,7 +630,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
     statusmsg(str,2);
     /* 20190526 */ /*Why this? 20191125 only on small schematics. slow down on big schematics */
     if(lastinst < 150) {
-      prepare_netlist_structs(1);
+      prepare_netlist_structs(0);
       for(j=0;j< (inst_ptr[i].ptr+instdef)->rects[PINLAYER] ;j++) 
       {
         if(inst_ptr[i].node && (inst_ptr[i].ptr+instdef)->boxptr[PINLAYER][j].prop_ptr)

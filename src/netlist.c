@@ -618,7 +618,6 @@ void prepare_netlist_structs(int for_netlist)
   double rx1,ry1;
   struct wireentry *wptr;
   struct instpinentry *iptr;
-  struct node_hashentry;
   int i,j, rects, generic_rects;
   char *dir=NULL;
   char *type=NULL;
@@ -712,11 +711,14 @@ void prepare_netlist_structs(int for_netlist)
       }
 
       my_strdup(262, &inst_ptr[i].node[0], get_tok_value(inst_ptr[i].prop_ptr,"lab",1));
+
+      /* taking node lab from sym template has no sense */
+      #if 0
       if (!(inst_ptr[i].node[0])) {
         my_strdup(65, &inst_ptr[i].node[0], get_tok_value((inst_ptr[i].ptr+instdef)->templ, "lab",1));
         dbg(1, "no lab attr on instance, pick from symbol: %s\n", inst_ptr[i].node[0]);
       }
-
+      #endif
       /* handle global nodes (global=1 set as symbol property) 28032003 */
       if (!strcmp(type,"label") && global_node && !strcmp(global_node, "true")) {
         dbg(1, "prepare_netlist_structs(): global node: %s\n",inst_ptr[i].node[0]);

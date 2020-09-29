@@ -1,0 +1,12 @@
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=show_label
+template="name=l1"
+net_name=true
+highlight=true}
+V {}
+S {}
+E {}
+L 4 -20 -20 0 0 {}
+B 5 -1.25 -1.25 1.25 1.25 {name=p dir=in}
+T {@#0:net_name} -22.5 -30.625 0 1 0.33 0.33 {}

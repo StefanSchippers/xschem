@@ -123,6 +123,11 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
   <p> A <kbd>lock=true</kbd> attribute will make the symbol not editable. the only way to make it editable again is 
       to right click on it to bring up the edit attributes dialog box and set to false. This is useful for title
       symbols. </p>
+  <li><kbd>highlight</kbd></li>
+  <p>If set to <kbd>true</kbd> the symbol will be highlighted when one of the nets attached to its pins are highlighted.</p>
+  <li><kbd>net_name</kbd></li>
+  <p>If set to <kbd>true</kbd> the <kbd>#n:net_name</kbd> symbol attributes will display the net names attached to pin terminals.
+     the <kbd>n</kbd> is a pin number or name.</p>
   <li><kbd>place</kbd></li>
   <p> This 
     <kbd>place=end</kbd> attribute is only valid only for <kbd>netlist_commands</kbd> type symbols, and tells

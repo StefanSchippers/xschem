@@ -474,7 +474,7 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
           if(!sel) { /*20190525 */
             type = (inst_ptr[i].ptr+instdef)->type;
             if( type && 
-                !(strcmp(type,"label") && strcmp(type,"ipin") &&
+                !(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
                   strcmp(type,"iopin") && strcmp(type,"opin")) 
               ) {
               if(!bus_hilight_lookup(inst_ptr[i].node[0], col, XINSERT)) hilight_nets = 1;
@@ -647,15 +647,15 @@ void drill_hilight(void)
       npin = symbol->rects[PINLAYER];
       rect=symbol->boxptr[PINLAYER];
       for(j=0; j<npin;j++) {
-        my_strdup(143, &netname, pin_node(i, j, &mult, 1));
+        my_strdup(143, &netname, net_name(i, j, &mult, 1));
         propagate_str=get_tok_value(rect[j].prop_ptr, "propagate_to", 0);
         if(propagate_str[0] && (entry=bus_hilight_lookup(netname, 0, XLOOKUP))) {
           propagate = atoi(propagate_str);
-          my_strdup(144, &propagated_net, pin_node(i, propagate, &mult, 1)); /* get net to propagate highlight to... */
+          my_strdup(144, &propagated_net, net_name(i, propagate, &mult, 1)); /* get net to propagate highlight to... */
           propag_entry = bus_hilight_lookup(propagated_net, entry->value, XINSERT); /* add net to highlight list */
           if(!propag_entry) {
             /* fprintf(errfp, "inst %s: j=%d  count=%d propagate=%d --> net %s, propagate to --> %s color %d\n",  */
-            /*   inst_ptr[i].instname, j, count, propagate, netname, pin_node(i, propagate, &mult, 1), entry->value); */
+            /*   inst_ptr[i].instname, j, count, propagate, netname, net_name(i, propagate, &mult, 1), entry->value); */
             found=1; /* keep looping until no more nets are found. */
           }
           
@@ -742,7 +742,7 @@ void hilight_net(int to_waveform)
      type = (inst_ptr[n].ptr+instdef)->type;
      if( type &&
          inst_ptr[n].node &&   /* instance must have a pin! */
-         !(strcmp(type,"label") && strcmp(type,"ipin") &&
+         !(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
            strcmp(type,"iopin") && strcmp(type,"opin") )
        )
      {
@@ -805,7 +805,7 @@ void unhilight_net(void)
      type = (inst_ptr[n].ptr+instdef)->type;
      if( type &&
          inst_ptr[n].node &&   /* instance must have a pin! */
-         !(strcmp(type,"label") && strcmp(type,"ipin") &&
+         !(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
            strcmp(type,"iopin") && strcmp(type,"opin") )
        )
      {
@@ -919,7 +919,8 @@ void draw_hilight_net(int on_window)
 
   type = (inst_ptr[i].ptr+instdef)->type; /* 20150409 */
 
-  hilight_connected_inst = !strcmp(get_tok_value((inst_ptr[i].ptr+instdef)->prop_ptr, "highlight", 0), "true");
+  hilight_connected_inst = !strcmp(get_tok_value((inst_ptr[i].ptr+instdef)->prop_ptr, "highlight", 0), "true") ||
+                           !strcmp(get_tok_value(inst_ptr[i].prop_ptr, "highlight", 0), "true");
   if( inst_ptr[i].flags & 4) {
     dbg(1, "draw_hilight_net(): instance %d flags &4 true\n", i);
     inst_color[i]=PINLAYER;
@@ -939,7 +940,7 @@ void draw_hilight_net(int on_window)
       }
     }
   } else if( type &&
-      !(strcmp(type,"label") && strcmp(type,"ipin") &&
+      !(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
         strcmp(type,"iopin") && strcmp(type,"opin") )
     )
   {

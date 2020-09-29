@@ -275,7 +275,7 @@ void match_merged_inst(int old)
                        &inst_ptr[i].x2, &inst_ptr[i].y2);
      /* type=get_tok_value(instdef[inst_ptr[i].ptr].prop_ptr,"type",0); */
      type=instdef[inst_ptr[i].ptr].type; /* 20150409 */
-     cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") &&
+     cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
            strcmp(type,"opin") &&  strcmp(type,"iopin"));
      if(cond) inst_ptr[i].flags|=2;
      else inst_ptr[i].flags &=~2;

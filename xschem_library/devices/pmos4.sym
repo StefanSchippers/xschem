@@ -1,5 +1,6 @@
-v {xschem version=2.9.7 file_version=1.2}
-G {type=pmos
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=pmos
 format="@spiceprefix@name @pinlist @model w=@w l=@l @extra m=@m"
 template="name=M1 model=pmos w=5u l=0.18u m=1"}
 V {}
@@ -28,5 +29,9 @@ B 5 -22.5 -2.5 -17.5 2.5 {name=g dir=in}
 B 5 17.5 -32.5 22.5 -27.5 {name=s dir=inout}
 B 5 17.5 -2.5 22.5 2.5 {name=b dir=in}
 T {@w\\/@l\\/@m} 7.5 -17.5 0 0 0.2 0.2 {}
-T {@spiceprefix@name} 7.5 6.25 0 0 0.2 0.2 {}
+T {@spiceprefix@name} 7.5 7.5 0 0 0.2 0.2 {}
 T {D} 25 20 0 0 0.15 0.15 {}
+T {@#2:net_name} 25 -42.5 0 0 0.15 0.15 {layer=15}
+T {@#0:net_name} 25 32.5 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} -25 -12.5 0 1 0.15 0.15 {layer=15}
+T {@#3:net_name} 25 1.25 0 0 0.15 0.15 {layer=15}

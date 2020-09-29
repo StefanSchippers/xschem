@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC8 file_version=1.1}
-G {type=isource
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=isource
 format="@name @pinlist TABLE \{ @CTRL \} = @TABLE"
 template="name=G1 CTRL=\\"V(plus,minus)\\" TABLE=\\"(0, 0) (1, 100m) (2, 300m)\\""}
 V {}
@@ -18,3 +19,5 @@ A 4 0 0 15 270 360 {}
 T {@name} 20 -17.5 0 0 0.2 0.2 {}
 T {@CTRL
 @TABLE} 20 0 0 0 0.2 0.2 {}
+T {@#0:net_name} 5 -42.5 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} 5 32.5 0 0 0.15 0.15 {layer=15}

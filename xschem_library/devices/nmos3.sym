@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
-G {type=nmos
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=nmos
 format="@name @pinlist @model m=@m"
 template="name=X1 model=irf540 m=1"}
 V {}
@@ -21,3 +22,6 @@ T {@model x @m} 8.75 -6.25 0 0 0.2 0.2 {}
 T {@#0:pinnumber} 25 -27.5 0 0 0.2 0.2 {layer=13}
 T {@#2:pinnumber} 25 17.5 0 0 0.2 0.2 {layer=13}
 T {@#1:pinnumber} -10 6.25 0 1 0.2 0.2 {layer=13}
+T {@#0:net_name} 25 -42.5 0 0 0.15 0.15 {layer=15}
+T {@#2:net_name} 25 32.5 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} -25 -12.5 0 1 0.15 0.15 {layer=15}

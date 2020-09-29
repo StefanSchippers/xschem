@@ -944,7 +944,7 @@ void link_symbols_to_instances(void) /* 20150326 separated from load_schematic()
     symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1,
                       &inst_ptr[i].x2, &inst_ptr[i].y2);
     type=instdef[inst_ptr[i].ptr].type;
-    cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") &&
+    cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
          strcmp(type,"opin") &&  strcmp(type,"iopin"));
     if(cond) inst_ptr[i].flags|=2;
     else inst_ptr[i].flags &=~2;

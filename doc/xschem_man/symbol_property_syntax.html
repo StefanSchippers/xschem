@@ -155,6 +155,11 @@ type=nmos
   <p> same as above <kbd>_stop</kbd> attributes, but in this case the schematic subcircuit is completely ignored,
    only the 'format' string is dumped to netlist. No component/entity is generated in vhdl netlist, 
    no module declaration in verilog, no .subckt in spice, no schematic global attributes are exported to netlist.</p>
+  <li><kbd>highlight</kbd></li>
+  <p>If set to <kbd>true</kbd> the symbol will be highlighted when one of the nets attached to its pins are highlighted.</p>
+  <li><kbd>net_name</kbd></li>
+  <p>If set to <kbd>true</kbd> the <kbd>#n:net_name</kbd> symbol attributes will display the net names attached to pin terminals.
+     the <kbd>n</kbd> is a pin number or name.</p>
   <li><kbd>place</kbd></li>
   <p> this attribute is only useable in <kbd>netlist_commands</kbd> type symbols (<kbd>netlist.sym, code.sym,...</kbd>) 
     if set to <kbd>end</kbd> it tells XSCHEM that 
@@ -356,6 +361,9 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
     information defined in the instance name (example: U1:2, slot number 2 of IC U1).
     These tokens may be placed as text in the symbol graphic window, not in format strings.
   </p>
+  <li><kbd>@#pin_name:net_name</kbd></li>
+  <li><kbd>@#n:net_name</kbd></li>
+  <p> these expand to the net name attached to pin with name <kbd>pin_name</kbd> or with sequence number <kbd>n</kbd>. </p>
   <li><kbd>@sch_last_modified</kbd></li>
   <p>
    this indicates the last modification time of the <kbd>.sch</kbd> file of the symbol.

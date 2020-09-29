@@ -805,7 +805,6 @@ void copy_objects(int what)
          ROTATION(x1, y_1, inst_ptr[n].x0, inst_ptr[n].y0, rx1,ry1);
        }
        inst_ptr[lastinst] = inst_ptr[n];
-       inst_ptr[lastinst].flags &= ~4; /* do not propagate hilight */
        inst_ptr[lastinst].prop_ptr=NULL;
        inst_ptr[lastinst].instname=NULL; /* 20150409 */
        inst_ptr[lastinst].node=NULL;
@@ -814,6 +813,8 @@ void copy_objects(int what)
        my_strdup(233, &inst_ptr[lastinst].prop_ptr, inst_ptr[n].prop_ptr);
        my_strdup2(234, &inst_ptr[lastinst].instname, get_tok_value(inst_ptr[n].prop_ptr, "name",0)); /* 20150409 */
        inst_ptr[n].sel=0;
+       inst_ptr[lastinst].flags = inst_ptr[n].flags;
+       inst_ptr[lastinst].flags &= ~4; /* do not propagate hilight */
        inst_ptr[lastinst].x0 = rx1+deltax;
        inst_ptr[lastinst].y0 = ry1+deltay;
        inst_ptr[lastinst].sel = SELECTED;
@@ -826,13 +827,13 @@ void copy_objects(int what)
        /* new_prop_string() for cleaning some internal caches. */
        my_strdup2(235, &inst_ptr[lastinst].instname, get_tok_value(inst_ptr[lastinst].prop_ptr, "name", 0)); /* 20150409 */
        n=selectedgroup[i].n=lastinst;
-       symbol_bbox(lastinst, &inst_ptr[lastinst].x1, &inst_ptr[lastinst].y1,
-                         &inst_ptr[lastinst].x2, &inst_ptr[lastinst].y2);
-       bbox(ADD, inst_ptr[lastinst].x1, inst_ptr[lastinst].y1, inst_ptr[lastinst].x2, inst_ptr[lastinst].y2 );
+       prepared_netlist_structs=0;
+       prepared_hilight_structs=0;
        lastinst++;
+       symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1,
+                         &inst_ptr[n].x2, &inst_ptr[n].y2);
+       bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
       }
-
-      /* draw_symbol(ADD,k, n,k, 0, 0, 0.0, 0.0); */
       break;
     }
    }
@@ -840,7 +841,6 @@ void copy_objects(int what)
    drawarc(k, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
    drawrect(k, END, 0.0, 0.0, 0.0, 0.0, 0);
    drawline(k, END, 0.0, 0.0, 0.0, 0.0, 0);
-   
   } /* end for(k ... */
   check_collapsing_objects();
   update_conn_cues(1, 1); 
@@ -927,7 +927,6 @@ void move_objects(int what, int merge, double dx, double dy)
   prepared_hash_wires=0; /* 20171224 */
   prepared_netlist_structs=0;
   prepared_hilight_structs=0;
-
   
   if( !(ui_state & (STARTMERGE | PLACE_SYMBOL)) ) {
     dbg(1, "move_objects(): push undo state\n");
@@ -1277,6 +1276,9 @@ void move_objects(int what, int merge, double dx, double dy)
        inst_ptr[n].rot = (inst_ptr[n].rot + 
         ( (flip && (inst_ptr[n].rot & 1) ) ? rot+2 : rot) ) & 0x3;
        inst_ptr[n].flip = flip ^ inst_ptr[n].flip;
+
+       prepared_netlist_structs=0;
+       prepared_hilight_structs=0;
        symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1,
                          &inst_ptr[n].x2, &inst_ptr[n].y2);
       }

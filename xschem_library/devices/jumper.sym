@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC6 file_version=1.1}
-G {type=jumper
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=jumper
 format="* @name @pinlist"
 verilog_format="// @name (@@P\\\\, @@M\\\\);"
 tedax_format="footprint @name @footprint
@@ -23,3 +24,5 @@ T {@name} 15 -13.75 0 0 0.2 0.2 {}
 T {@value} 15 1.25 0 0 0.2 0.2 {}
 T {@#0:pinnumber} -10 -26.25 0 1 0.2 0.2 {layer=13}
 T {@#1:pinnumber} -10 16.25 0 1 0.2 0.2 {layer=13}
+T {@#0:net_name} 5 -42.5 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} 5 32.5 0 0 0.15 0.15 {layer=15}

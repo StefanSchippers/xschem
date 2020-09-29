@@ -527,7 +527,7 @@ int callback(int event, int mx, int my, KeySym key,
        for(i=0;i<npin;i++) {
          my_strdup(24, &labname,get_tok_value(rect[i].prop_ptr,"name",0));
          my_strdup(25, &lab, expandlabel(labname, &mult));
-         my_strdup(26, &netname, pin_node(j,i,&mult, 0));
+         my_strdup(26, &netname, net_name(j,i,&mult, 0));
          dbg(1, "i=%d labname=%s explabname = %s  net = %s\n", i, labname, lab, netname);
          if(netname && strcmp(lab, netname)) { 
            dbg(1, "hilight: %s\n", netname);
@@ -1376,6 +1376,12 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(0 && key=='~' && (state & ControlMask))    /* testmode */
    {
+
+    int i;
+    dbg(0, "prepared_netlist_structs=%d prepared_hilight_structs=%d\n", prepared_netlist_structs, prepared_hilight_structs);
+    for(i = 0 ; i < lastinst; i++) {
+      dbg(0, "instance: %s, %s flags=%d\n", inst_ptr[i].name, inst_ptr[i].instname, inst_ptr[i].flags);
+    }
     break;
    }
    if(0 && (key=='|') && !(state&ControlMask))         /* testmode */

@@ -1,5 +1,6 @@
-v {xschem version=2.9.7 file_version=1.2}
+v {xschem version=2.9.8 file_version=1.2}
 G {}
+K {}
 V {}
 S {
 .probe v(ga,sa) v(gb,sb)
@@ -121,23 +122,23 @@ C {ipin.sym} 530 -100 0 0 {name=p3 lab=VNN}
 C {nmos3.sym} 1090 -440 0 0 {name=xm2 model=irf540 m=1
 program=evince
 url="https://www.vishay.com/docs/91021/91021.pdf"
-}
-C {res.sym} 1030 -410 0 1 {name=R7 m=1 value=190}
+ net_name=true}
+C {res.sym} 1030 -410 0 1 {name=R7 m=1 value=190 net_name=true}
 C {nmos3.sym} 1090 -760 0 0 {name=xm1 model=irf540 m=1
 program=evince
-url="https://www.vishay.com/docs/91021/91021.pdf"}
-C {res.sym} 1030 -730 0 1 {name=R0 m=1 value=190}
+url="https://www.vishay.com/docs/91021/91021.pdf" net_name=true}
+C {res.sym} 1030 -730 0 1 {name=R0 m=1 value=190 net_name=true}
 C {lab_pin.sym} 1390 -590 0 1 {name=p14 lab=OUT}
 C {lab_pin.sym} 1110 -280 0 0 {name=p18 lab=VNN}
 C {lab_wire.sym} 990 -440 0 0 {name=l8 lab=GB}
-C {res.sym} 340 -1050 0 1 {name=R2 m=1 value=50}
-C {res.sym} 180 -1050 0 1 {name=R3 m=1 value=50}
+C {res.sym} 340 -1050 0 1 {name=R2 m=1 value=50 net_name=true}
+C {res.sym} 180 -1050 0 1 {name=R3 m=1 value=50 net_name=true}
 C {lab_pin.sym} 340 -1080 0 0 {name=p10 lab=VPP}
-C {npn.sym} 160 -530 0 0 {name=Q5 model=q2n2222 area=1}
-C {pnp.sym} 820 -950 0 0 {name=Q4 model=q2n2907p area=1}
-C {res.sym} 840 -1050 0 1 {name=R9 m=1 value=50}
-C {pnp.sym} 540 -790 0 0 {name=Q6 model=q2n2907p area=1}
-C {res.sym} 560 -1050 0 1 {name=R4 m=1 value=50}
+C {npn.sym} 160 -530 0 0 {name=Q5 model=q2n2222 area=1 net_name=true}
+C {pnp.sym} 820 -950 0 0 {name=Q4 model=q2n2907p area=1 net_name=true}
+C {res.sym} 840 -1050 0 1 {name=R9 m=1 value=50 net_name=true}
+C {pnp.sym} 540 -790 0 0 {name=Q6 model=q2n2907p area=1 net_name=true}
+C {res.sym} 560 -1050 0 1 {name=R4 m=1 value=50 net_name=true}
 C {lab_pin.sym} 180 -580 0 0 {name=p15 lab=C5}
 C {lab_pin.sym} 340 -580 0 1 {name=p16 lab=C9}
 C {lab_pin.sym} 180 -1000 0 0 {name=p17 lab=E1}
@@ -146,14 +147,14 @@ C {lab_pin.sym} 340 -970 0 1 {name=p23 lab=E2}
 C {lab_pin.sym} 560 -970 0 1 {name=p28 lab=E6}
 C {lab_pin.sym} 840 -1000 0 1 {name=p29 lab=E4}
 C {lab_pin.sym} 180 -1120 0 0 {name=p34 lab=VBOOST}
-C {ammeter.sym} 1110 -540 0 0 {name=vd current=0.2093}
-C {ammeter.sym} 1110 -640 0 0 {name=vu current=0.2336}
+C {ammeter.sym} 1110 -540 0 0 {name=vd current=0.2093 net_name=true}
+C {ammeter.sym} 1110 -640 0 0 {name=vu current=0.2336 net_name=true}
 C {lab_pin.sym} 60 -1180 0 0 {name=p27 lab=VPP}
-C {pnp.sym} 200 -950 0 1 {name=Q1 model=q2n2907p area=1}
-C {pnp.sym} 360 -790 0 1 {name=Q2 model=q2n2907p area=1}
+C {pnp.sym} 200 -950 0 1 {name=Q1 model=q2n2907p area=1 net_name=true}
+C {pnp.sym} 360 -790 0 1 {name=Q2 model=q2n2907p area=1 net_name=true}
 C {lab_pin.sym} 140 -530 0 0 {name=p6 lab=PLUS}
 C {lab_pin.sym} 380 -530 0 1 {name=p24 lab=MINUS}
-C {npn.sym} 360 -530 0 1 {name=Q9 model=q2n2222 area=1}
+C {npn.sym} 360 -530 0 1 {name=Q9 model=q2n2222 area=1 net_name=true}
 C {lab_pin.sym} 560 -670 0 0 {name=p9 lab=C6}
 C {code.sym} 1040 -180 0 0 {name=STIMULI
 only_toplevel=true
@@ -191,29 +192,29 @@ rload out 0 4
 *.probe dc v(plus,vdc)
 "}
 C {lab_wire.sym} 990 -760 0 0 {name=l1 lab=GA}
-C {res.sym} 870 -440 1 1 {name=R11 m=1 value=1300}
-C {pnp.sym} 540 -490 0 0 {name=Q8 model=q2n2907p area=1}
-C {capa.sym} 1200 -930 0 0 {name=C12 m=1 value="40u"}
+C {res.sym} 870 -440 1 1 {name=R11 m=1 value=1300 net_name=true}
+C {pnp.sym} 540 -490 0 0 {name=Q8 model=q2n2907p area=1 net_name=true}
+C {capa.sym} 1200 -930 0 0 {name=C12 m=1 value="40u" net_name=true}
 C {diode.sym} 1200 -1150 0 0 {name=D0 model=d1n4148 area=1
-url="http://pdf.datasheetcatalog.com/datasheet/bytes/1N5406.pdf"}
-C {res.sym} 1200 -840 0 1 {name=R18 m=1 value=200}
+url="http://pdf.datasheetcatalog.com/datasheet/bytes/1N5406.pdf" net_name=true}
+C {res.sym} 1200 -840 0 1 {name=R18 m=1 value=200 net_name=true}
 C {zener.sym} 1330 -1150 0 0 {name=D1 model=d1n758 area=1
-url="http://www.futurlec.com/Datasheet/Diodes/1N746-1N759.pdf"}
-C {res.sym} 690 -760 0 1 {name=R14 m=1 value=4k}
-C {pnp.sym} 820 -810 0 0 {name=Q11 model=q2n2907p area=1}
-C {res.sym} 690 -850 0 1 {name=R15 m=1 value=4k}
-C {res.sym} 260 -430 0 1 {name=R5 m=1 value=600}
-C {res.sym} 260 -370 0 1 {name=R6 m=1 value=700}
+url="http://www.futurlec.com/Datasheet/Diodes/1N746-1N759.pdf" net_name=true}
+C {res.sym} 690 -760 0 1 {name=R14 m=1 value=4k net_name=true}
+C {pnp.sym} 820 -810 0 0 {name=Q11 model=q2n2907p area=1 net_name=true}
+C {res.sym} 690 -850 0 1 {name=R15 m=1 value=4k net_name=true}
+C {res.sym} 260 -430 0 1 {name=R5 m=1 value=600 net_name=true}
+C {res.sym} 260 -370 0 1 {name=R6 m=1 value=700 net_name=true}
 C {zener.sym} 180 -180 2 0 {name=D2 model=d1n755 area=1
 url="http://www.futurlec.com/Datasheet/Diodes/1N746-1N759.pdf"
-}
-C {npn.sym} 240 -210 0 0 {name=Q3 model=q2n2222 area=1}
-C {res.sym} 180 -240 0 1 {name=R1 m=1 value=10k}
+ net_name=true}
+C {npn.sym} 240 -210 0 0 {name=Q3 model=q2n2222 area=1 net_name=true}
+C {res.sym} 180 -240 0 1 {name=R1 m=1 value=10k net_name=true}
 C {lab_pin.sym} 180 -270 0 0 {name=p7 lab=VSS}
-C {res.sym} 260 -100 0 1 {name=R10 m=1 value=170}
+C {res.sym} 260 -100 0 1 {name=R10 m=1 value=170 net_name=true}
 C {lab_pin.sym} 50 -70 0 0 {name=p11 lab=VNN}
-C {capa.sym} 50 -180 0 0 {name=C3 m=1 value=100n}
-C {res.sym} 560 -610 0 1 {name=R12 m=1 value=1300}
+C {capa.sym} 50 -180 0 0 {name=C3 m=1 value=100n net_name=true}
+C {res.sym} 560 -610 0 1 {name=R12 m=1 value=1300 net_name=true}
 C {lab_pin.sym} 690 -800 0 0 {name=p12 lab=B1}
 C {lab_pin.sym} 340 -470 0 1 {name=p13 lab=E9}
 C {lab_pin.sym} 560 -440 0 0 {name=p19 lab=C8}
@@ -223,21 +224,21 @@ C {lab_pin.sym} 260 -160 0 1 {name=p22 lab=E3}
 C {lab_pin.sym} 260 -270 0 1 {name=p26 lab=C3}
 C {lab_pin.sym} 50 -210 0 0 {name=p30 lab=B3}
 C {lab_pin.sym} 520 -490 0 0 {name=p33 lab=VSS}
-C {res.sym} 340 -660 0 1 {name=R13 m=1 value=300}
-C {npn.sym} 200 -630 0 1 {name=Q7 model=q2n2222 area=1}
+C {res.sym} 340 -660 0 1 {name=R13 m=1 value=300 net_name=true}
+C {npn.sym} 200 -630 0 1 {name=Q7 model=q2n2222 area=1 net_name=true}
 C {lab_pin.sym} 180 -690 0 0 {name=p8 lab=C7}
 C {lab_pin.sym} 340 -690 0 1 {name=p31 lab=C2}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan Schippers"}
 C {lab_pin.sym} 930 -700 0 0 {name=p32 lab=SA}
-C {ammeter.sym} 1110 -350 0 0 {name=v0 current=0.2288}
+C {ammeter.sym} 1110 -350 0 0 {name=v0 current=0.2288 net_name=true}
 C {lab_pin.sym} 930 -380 0 0 {name=p35 lab=SB}
-C {ammeter.sym} 560 -890 0 0 {name=v1 current=0.01956}
-C {ammeter.sym} 340 -890 0 0 {name=v2 current=0.01947}
-C {ammeter.sym} 260 -310 0 0 {name=v3 current=0.03924}
-C {ammeter.sym} 770 -440 3 0 {name=v4 current=0.01942}
-C {ammeter.sym} 690 -680 0 0 {name=v5 current=0.006271}
-C {ammeter.sym} 180 -870 0 1 {name=v6 current=0.01955}
-C {ammeter.sym} 840 -890 0 0 {name=v7 current=0.0195}
+C {ammeter.sym} 560 -890 0 0 {name=v1 current=0.01956 net_name=true}
+C {ammeter.sym} 340 -890 0 0 {name=v2 current=0.01947 net_name=true}
+C {ammeter.sym} 260 -310 0 0 {name=v3 current=0.03924 net_name=true}
+C {ammeter.sym} 770 -440 3 0 {name=v4 current=0.01942 net_name=true}
+C {ammeter.sym} 690 -680 0 0 {name=v5 current=0.006271 net_name=true}
+C {ammeter.sym} 180 -870 0 1 {name=v6 current=0.01955 net_name=true}
+C {ammeter.sym} 840 -890 0 0 {name=v7 current=0.0195 net_name=true}
 C {spice_probe.sym} 1010 -440 0 0 {name=p36 analysis=tran voltage=-46.31}
 C {spice_probe_vdiff.sym} 930 -410 0 0 {name=p37 analysis=tran voltage=3.689}
 C {spice_probe_vdiff.sym} 930 -730 0 0 {name=p38 analysis=tran voltage=3.691}
@@ -251,7 +252,7 @@ C {spice_probe.sym} 280 -950 0 0 {name=p45 analysis=tran voltage=48.22}
 C {spice_probe.sym} 730 -810 0 0 {name=p46 analysis=tran voltage=25.21}
 C {spice_probe.sym} 610 -1180 0 0 {name=p47 analysis=tran voltage=50}
 C {spice_probe.sym} 760 -1120 0 0 {name=p48 analysis=tran voltage=50}
-C {ammeter.sym} 1300 -590 3 0 {name=v8 current=0.03055}
+C {ammeter.sym} 1300 -590 3 0 {name=v8 current=0.03055 net_name=true}
 C {spice_probe.sym} 1110 -280 0 0 {name=p49 analysis=tran voltage=-50}
 C {spice_probe.sym} 280 -630 0 1 {name=p50 analysis=tran voltage=42.36}
 C {spice_probe.sym} 340 -820 0 1 {name=p51 analysis=tran voltage=49.03}

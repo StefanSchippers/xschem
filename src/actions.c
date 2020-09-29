@@ -947,21 +947,21 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, 
   my_strdup2(13, &inst_ptr[n].instname, get_tok_value(inst_ptr[n].prop_ptr,"name",0) ); /*  20150409 */
 
   type = instdef[inst_ptr[n].ptr].type; /* 20150409 */
-  cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") &&
+  cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
         strcmp(type,"opin") &&  strcmp(type,"iopin"));
   if(cond) inst_ptr[n].flags|=2;
   else inst_ptr[n].flags &=~2;
 
   if(first_call && (draw_sym & 3) ) bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
 
-  symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1,
-                    &inst_ptr[n].x2, &inst_ptr[n].y2);
-  if(draw_sym & 3) bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2);
   lastinst++;
-  set_modify(1);
   prepared_hash_instances=0; /*  20171224 */
   prepared_netlist_structs=0;
   prepared_hilight_structs=0;
+  symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1,
+                    &inst_ptr[n].x2, &inst_ptr[n].y2);
+  if(draw_sym & 3) bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2);
+  set_modify(1);
   if(draw_sym&1) {
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
     draw();
@@ -1394,7 +1394,8 @@ void calc_drawing_bbox(Box *boundbox, int selected)
     int j, rects, found, hilight_connected_inst;
     type = (inst_ptr[i].ptr+instdef)->type; /* 20150409 */
     found = 0;
-    hilight_connected_inst = !strcmp(get_tok_value((inst_ptr[i].ptr+instdef)->prop_ptr, "highlight", 0), "true");
+    hilight_connected_inst = !strcmp(get_tok_value((inst_ptr[i].ptr+instdef)->prop_ptr, "highlight", 0), "true") || 
+                             !strcmp(get_tok_value(inst_ptr[i].prop_ptr, "highlight", 0), "true");
     if( hilight_connected_inst && (rects = (inst_ptr[i].ptr+instdef)->rects[PINLAYER]) > 0 ) {
       prepare_netlist_structs(0);
       for(j=0;j<rects;j++) {

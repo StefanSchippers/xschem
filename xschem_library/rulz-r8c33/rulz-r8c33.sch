@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC6 file_version=1.1}
+v {xschem version=2.9.8 file_version=1.2}
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -293,7 +294,7 @@ manifacturer FTDI
 vendor_part_number 768-1007-1-ND
 vendor digikey"}
 C {gnd.sym} 290 -1350 0 0 {name=l2 lab=GND}
-C {noconn.sym} 290 -1380 1 0 {name=l3}
+C {noconn.sym} 290 -1380 2 0 {name=l3}
 C {noconn.sym} 190 -1270 3 0 {name=l4}
 C {vdd.sym} 160 -1660 0 0 {name=l5 lab=+5V}
 C {led.sym} 160 -1630 0 0 {name=LED8 
@@ -419,7 +420,7 @@ C {gnd.sym} 1490 -1790 0 0 {name=l15 lab=GND}
 C {vdd.sym} 1630 -1880 0 0 {name=l16 lab=+5V}
 C {lab_wire.sym} 1210 -1360 0 0 {name=l17 sig_type=std_logic lab=MODE}
 C {lab_wire.sym} 1150 -1560 0 0 {name=l18 sig_type=std_logic lab=PWREN}
-C {noconn.sym} 1080 -1320 1 0 {name=l19}
+C {noconn.sym} 1080 -1320 2 0 {name=l19}
 C {lab_wire.sym} 1210 -1200 0 0 {name=l20 sig_type=std_logic lab=RESET}
 C {vdd.sym} 2060 -2140 0 0 {name=l21 lab=+5V}
 C {gnd.sym} 2170 -2070 0 1 {name=l22 lab=GND}
@@ -473,12 +474,12 @@ C {gnd.sym} 340 -860 0 0 {name=l29 lab=GND}
 C {gnd.sym} 410 -860 0 0 {name=l30 lab=GND}
 C {lab_wire.sym} 560 -1440 0 0 {name=l35 lab=USBDM}
 C {lab_wire.sym} 560 -1400 0 0 {name=l36 lab=USBDP}
-C {noconn.sym} 640 -1280 3 0 {name=l31}
-C {noconn.sym} 640 -1320 3 0 {name=l32}
-C {noconn.sym} 640 -1360 3 0 {name=l33}
-C {noconn.sym} 1080 -1120 1 1 {name=l34}
-C {noconn.sym} 1080 -1080 1 1 {name=l37}
-C {noconn.sym} 1080 -1040 1 1 {name=l38}
+C {noconn.sym} 640 -1280 0 0 {name=l31}
+C {noconn.sym} 640 -1320 0 0 {name=l32}
+C {noconn.sym} 640 -1360 0 0 {name=l33}
+C {noconn.sym} 1080 -1120 0 1 {name=l34}
+C {noconn.sym} 1080 -1080 0 1 {name=l37}
+C {noconn.sym} 1080 -1040 0 1 {name=l38}
 C {gnd.sym} 720 -820 0 0 {name=l39 lab=GND}
 C {gnd.sym} 780 -820 0 0 {name=l40 lab=GND}
 C {gnd.sym} 840 -820 0 0 {name=l41 lab=GND}

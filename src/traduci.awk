@@ -17,9 +17,11 @@ END  { endfile(_filename_) }
 BEGIN{
 }
 
-/Tcl_GetStringResult\(interp\)/{
+
+#  T {@#3:net_name} 25 1.25 0 0 0.15 0.15 {layer=2}
+/^T {.*net_name.*layer=12/{
   found = 1
-  gsub(/Tcl_GetStringResult\(interp\)/, "tclresult()")
+  sub(/layer=12/, "layer=15")
 }
 
 

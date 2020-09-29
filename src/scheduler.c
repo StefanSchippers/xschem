@@ -583,7 +583,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          my_strdup2(372, &inst_ptr[inst].instname, get_tok_value(inst_ptr[inst].prop_ptr, "name",0)); /* 20150409 */
   
          type=instdef[inst_ptr[inst].ptr].type; /* 20150409 */
-         cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") &&
+         cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
              strcmp(type,"opin") &&  strcmp(type,"iopin"));
          if(cond) inst_ptr[inst].flags|=2;
          else inst_ptr[inst].flags &=~2;
@@ -745,7 +745,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    for(p=0;p<no_of_pins;p++) {
      if(!strcmp( get_tok_value((inst_ptr[i].ptr+instdef)->boxptr[PINLAYER][p].prop_ptr,"name",0), argv[3])) {
        /*str_ptr =  inst_ptr[i].node[p] ? inst_ptr[i].node[p]: "<UNCONNECTED PIN>"; */
-       str_ptr =  pin_node(i,p,&mult, 0);
+       str_ptr =  net_name(i,p,&mult, 0);
        break;
      }
    } /* /20171029 */

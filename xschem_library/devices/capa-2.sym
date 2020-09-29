@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC6 file_version=1.1}
-G {type=polarized_capacitor
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=polarized_capacitor
 format="@name @pinlist @value m=@m"
 tedax_format="footprint @name @footprint 
 value @name @value
@@ -27,3 +28,5 @@ T {@value} 15 0 0 0 0.25 0.2 {}
 T {@name} 15 -13.75 0 0 0.2 0.2 {}
 T {@#0:pinnumber} -5 -26.25 0 1 0.2 0.2 {layer=13}
 T {@#1:pinnumber} -5 16.25 0 1 0.2 0.2 {layer=13}
+T {@#0:net_name} 5 -42.5 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} 5 32.5 0 0 0.15 0.15 {layer=15}

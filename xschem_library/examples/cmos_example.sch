@@ -1,5 +1,6 @@
-v {xschem version=2.9.7 file_version=1.2}
+v {xschem version=2.9.8 file_version=1.2}
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -77,21 +78,21 @@ end
 "}
 C {lab_pin.sym} 30 -150 0 0 {name=p17 lab=0}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
-C {nmos4.sym} 480 -180 0 0 {name=m1 model=cmosn w=5u l=2u m=1}
-C {pmos4.sym} 550 -430 0 0 {name=m2 model=cmosp w=5u l=2u m=1}
-C {vsource.sym} 30 -180 0 0 {name=VVCC value=5}
+C {nmos4.sym} 480 -180 0 0 {name=m1 model=cmosn w=5u l=2u m=1 net_name=true}
+C {pmos4.sym} 550 -430 0 0 {name=m2 model=cmosp w=5u l=2u m=1 net_name=true}
+C {vsource.sym} 30 -180 0 0 {name=VVCC value=5 net_name=true}
 C {lab_pin.sym} 500 -120 0 0 {name=p1 lab=0}
 C {lab_pin.sym} 60 -240 0 1 {name=p2 lab=VCC}
-C {nmos4.sym} 260 -180 0 1 {name=m3 model=cmosn w=5u l=2u m=1}
+C {nmos4.sym} 260 -180 0 1 {name=m3 model=cmosn w=5u l=2u m=1 net_name=true}
 C {lab_pin.sym} 240 -120 0 0 {name=p3 lab=0}
-C {isource.sym} 240 -290 0 0 {name=IBIAS value=100u}
+C {isource.sym} 240 -290 0 0 {name=IBIAS value=100u net_name=true}
 C {lab_pin.sym} 240 -320 0 0 {name=p4 lab=0}
-C {nmos4.sym} 410 -280 0 0 {name=m4 model=cmosn w=10u l=1u m=1}
+C {nmos4.sym} 410 -280 0 0 {name=m4 model=cmosn w=10u l=1u m=1 net_name=true}
 C {lab_pin.sym} 450 -280 0 1 {name=p5 lab=0}
-C {nmos4.sym} 590 -280 0 1 {name=m5 model=cmosn w=10u l=1u m=1}
+C {nmos4.sym} 590 -280 0 1 {name=m5 model=cmosn w=10u l=1u m=1 net_name=true}
 C {lab_pin.sym} 550 -280 0 0 {name=p0 lab=0}
 C {lab_pin.sym} 590 -430 0 1 {name=p6 lab=VCC}
-C {pmos4.sym} 450 -430 0 1 {name=m6 model=cmosp w=5u l=2u m=1}
+C {pmos4.sym} 450 -430 0 1 {name=m6 model=cmosp w=5u l=2u m=1 net_name=true}
 C {lab_pin.sym} 410 -430 0 0 {name=p7 lab=VCC}
 C {lab_pin.sym} 500 -520 0 0 {name=p8 lab=VCC}
 C {lab_pin.sym} 370 -280 0 0 {name=p9 lab=PLUS}
@@ -100,15 +101,15 @@ C {lab_pin.sym} 830 -360 0 1 {name=p11 lab=DIFFOUT}
 C {lab_pin.sym} 430 -380 0 0 {name=p12 lab=GP}
 C {lab_pin.sym} 240 -230 0 0 {name=p13 lab=GN}
 C {lab_pin.sym} 30 -280 0 0 {name=p14 lab=0}
-C {vsource.sym} 30 -310 0 0 {name=VPLUS value="2.5 pwl 0 2.4 10n 2.4 10.1n 2.6"}
+C {vsource.sym} 30 -310 0 0 {name=VPLUS value="2.5 pwl 0 2.4 10n 2.4 10.1n 2.6" net_name=true}
 C {lab_pin.sym} 60 -370 0 1 {name=p15 lab=PLUS}
 C {lab_pin.sym} 30 -430 0 0 {name=p16 lab=0}
-C {vsource.sym} 30 -460 0 0 {name=V1 value=2.5}
+C {vsource.sym} 30 -460 0 0 {name=V1 value=2.5 net_name=true}
 C {lab_pin.sym} 60 -520 0 1 {name=p18 lab=MINUS}
 C {lab_pin.sym} 500 -230 0 0 {name=p19 lab=SN}
 C {capa.sym} 750 -330 0 0 {name=CL
 m=1
 value=2p
 footprint=1206
-device="ceramic capacitor"}
+device="ceramic capacitor" net_name=true}
 C {lab_pin.sym} 750 -300 0 0 {name=p20 lab=0}

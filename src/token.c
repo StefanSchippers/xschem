@@ -1120,7 +1120,7 @@ void print_vhdl_element(FILE *fd, int inst) /* 20071217 */
   for(i=0;i<no_of_pins;i++)
   {
     if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
-      if( (str_ptr =  pin_node(inst,i, &mult, 0)) )
+      if( (str_ptr =  net_name(inst,i, &mult, 0)) )
       {
         if(tmp) fprintf(fd, " ,\n");
         fprintf(fd, "   %s => %s",
@@ -1568,7 +1568,7 @@ void print_spice_element(FILE *fd, int inst)
         for(i=0;i<no_of_pins;i++)
         {
           if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
-            str_ptr =  pin_node(inst,i, &mult, 0);
+            str_ptr =  net_name(inst,i, &mult, 0);
             /* fprintf(errfp, "inst: %s  --> %s\n", name, str_ptr); */
             fprintf(fd, "@%d %s ", mult, str_ptr);
           }
@@ -1580,7 +1580,7 @@ void print_spice_element(FILE *fd, int inst)
             get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"name",0),
             token+2)) {
             if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
-              str_ptr =  pin_node(inst,i, &mult, 0);
+              str_ptr =  net_name(inst,i, &mult, 0);
               fprintf(fd, "@%d %s", mult, str_ptr);
             }
             break; /* 20171029 */
@@ -1592,7 +1592,7 @@ void print_spice_element(FILE *fd, int inst)
         pin_number = atoi(token+2); 
         if (pin_number < no_of_pins) {
           if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), "true")) {
-            str_ptr =  pin_node(inst,pin_number, &mult, 0);
+            str_ptr =  net_name(inst,pin_number, &mult, 0);
             fprintf(fd, "@%d %s ", mult, str_ptr);
           }
         }
@@ -1690,7 +1690,7 @@ void print_tedax_element(FILE *fd, int inst)
      my_strdup2(500, &pinnumber, get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"pinnumber",0));
    }
    if(!get_tok_size) my_strdup(501, &pinnumber, "--UNDEF--");
-   tmp = pin_node(inst,i, &mult, 0);
+   tmp = net_name(inst,i, &mult, 0);
    if(tmp && strcmp(tmp, "<UNCONNECTED_PIN>")) {
      fprintf(fd, "conn %s %s %s %s %d\n",
            name,
@@ -1788,7 +1788,7 @@ void print_tedax_element(FILE *fd, int inst)
     {                                   /* and node number: m1 n1 m2 n2 .... */
      for(i=0;i<no_of_pins;i++)
      {
-       str_ptr =  pin_node(inst,i, &mult, 0);
+       str_ptr =  net_name(inst,i, &mult, 0);
        /* fprintf(errfp, "inst: %s  --> %s\n", name, str_ptr); */
        fprintf(fd, "@%d %s ", mult, str_ptr);
      }
@@ -1800,7 +1800,7 @@ void print_tedax_element(FILE *fd, int inst)
            token+2
           )
         ) {
-        str_ptr =  pin_node(inst,i, &mult, 0);
+        str_ptr =  net_name(inst,i, &mult, 0);
         fprintf(fd, "%s", str_ptr);
         break; /* 20171029 */
       }
@@ -1847,7 +1847,7 @@ void print_tedax_element(FILE *fd, int inst)
         /* @#n --> return net name attached to pin of index 'n' */
         pin_number = atoi(token+2);
         if(pin_number < no_of_pins) {
-          str_ptr =  pin_node(inst,pin_number, &mult, 0);
+          str_ptr =  net_name(inst,pin_number, &mult, 0);
           fprintf(fd, "%s", str_ptr);
         }
       }
@@ -2032,7 +2032,7 @@ void print_verilog_element(FILE *fd, int inst)
  for(i=0;i<no_of_pins;i++)
  {
    if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
-     if( (str_ptr =  pin_node(inst,i, &mult, 0)) )
+     if( (str_ptr =  net_name(inst,i, &mult, 0)) )
      {
        if(tmp) fprintf(fd,"\n");
        fprintf(fd, "  @%d %s %s ", mult, 
@@ -2052,19 +2052,19 @@ void print_verilog_element(FILE *fd, int inst)
 }
 
 
-const char *pin_node(int i, int j, int *mult, int hash_prefix_unnamed_net)
+const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net)
 {
  int tmp;
  char errstr[2048];
  static const char unconn[]="<UNCONNECTED_PIN>";
  char str_node[40]; /* 20161122 overflow safe */
- if(inst_ptr[i].node[j]!=NULL)
+ if(inst_ptr[i].node && inst_ptr[i].node[j]!=NULL)
  {
   if((inst_ptr[i].node[j])[0] == '#') /* unnamed net */
   {
    /* get unnamed node multiplicity ( minimum mult found in circuit) */
    *mult = get_unnamed_node(3, 0, atoi((inst_ptr[i].node[j])+4) );
-    dbg(2, "pin_node(): node = %s  n=%d mult=%d\n",
+    dbg(2, "net_name(): node = %s  n=%d mult=%d\n",
      inst_ptr[i].node[j], atoi(inst_ptr[i].node[j]), *mult);
    if(hash_prefix_unnamed_net) {
      if(*mult>1)   /* unnamed is a bus */
@@ -2205,7 +2205,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
     for(i=0;i<no_of_pins;i++)
     {
       if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
-        str_ptr =  pin_node(inst,i, &mult, 0);
+        str_ptr =  net_name(inst,i, &mult, 0);
         fprintf(fd, "----pin(%s) ", str_ptr);
       }
     }
@@ -2217,7 +2217,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
           token+2
          )) {
        if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
-         str_ptr =  pin_node(inst,i, &mult, 0);
+         str_ptr =  net_name(inst,i, &mult, 0);
          fprintf(fd, "----pin(%s) ", str_ptr);
        }
        break; /* 20171029 */
@@ -2229,7 +2229,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
        pin_number = atoi(token+2);
        if(pin_number < no_of_pins) {
          if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][pin_number].prop_ptr,"vhdl_ignore",0), "true")) {
-           str_ptr =  pin_node(inst,pin_number, &mult, 0);
+           str_ptr =  net_name(inst,pin_number, &mult, 0);
            fprintf(fd, "----pin(%s) ", str_ptr);
          }
        }
@@ -2374,7 +2374,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
      for(i=0;i<no_of_pins;i++)
      {
        if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
-         str_ptr =  pin_node(inst,i, &mult, 0);
+         str_ptr =  net_name(inst,i, &mult, 0);
          fprintf(fd, "----pin(%s) ", str_ptr);
        }
      }
@@ -2385,7 +2385,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
            get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"name",0),
            token+2)) {
         if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
-          str_ptr =  pin_node(inst,i, &mult, 0);
+          str_ptr =  net_name(inst,i, &mult, 0);
           fprintf(fd, "----pin(%s) ", str_ptr);
         }
         break; /* 20171029 */
@@ -2397,7 +2397,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
         pin_number = atoi(token+2);
         if(pin_number < no_of_pins) {
           if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][pin_number].prop_ptr,"verilog_ignore",0), "true")) {
-            str_ptr =  pin_node(inst,pin_number, &mult, 0);
+            str_ptr =  net_name(inst,pin_number, &mult, 0);
             fprintf(fd, "----pin(%s) ", str_ptr);
           }
         }
@@ -2546,9 +2546,11 @@ const char *translate(int inst, char* s)
    if(!spiceprefix && !strcmp(token, "@spiceprefix")) {
      value = NULL;
      get_tok_size = 0;
+   } else if(!strcmp(token, "@lab")) { /* don't get '@lab' value from symbol template, makes no sense */ 
+     value = get_tok_value(inst_ptr[inst].prop_ptr, token+1, 2);
    } else {
      value = get_tok_value(inst_ptr[inst].prop_ptr, token+1, 2);
-     if(!get_tok_size) value=get_tok_value((inst_ptr[inst].ptr+instdef)->templ, token+1, 2); /* 20190310 2 instead of 0 */
+     if(!get_tok_size) value=get_tok_value((inst_ptr[inst].ptr+instdef)->templ, token+1, 2); 
    }
 
    if(!get_tok_size && token[0] =='$') {
@@ -2612,7 +2614,18 @@ const char *translate(int inst, char* s)
        if(!pinnumber) {
          my_strdup2(499, &pinnumber, get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][n].prop_ptr, pin_attr, 2));
        }
-       if(!get_tok_size) my_strdup(379, &pinnumber, "--UNDEF--");
+       /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin
+        * if 'net_name=true' attribute is set in instance or symbol */
+       if(!pinnumber[0] && !strcmp(pin_attr, "net_name")) {
+         prepare_netlist_structs(0);
+         if(!strcmp(get_tok_value(inst_ptr[inst].prop_ptr, "net_name", 0), "true") ||
+            !strcmp(get_tok_value( (inst_ptr[inst].ptr + instdef)->prop_ptr, "net_name", 0), "true")
+           ) {
+           my_strdup2(1175, &pinnumber, inst_ptr[inst].node && inst_ptr[inst].node[n] ? inst_ptr[inst].node[n] : "");
+         }
+       } else {
+         if(!pinnumber[0]) my_strdup(379, &pinnumber, "--UNDEF--");
+       }
        value = pinnumber;
        if(value[0] != 0) {
          char *ss;
