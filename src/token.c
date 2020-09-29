@@ -2621,7 +2621,7 @@ const char *translate(int inst, char* s)
          if(!strcmp(get_tok_value(inst_ptr[inst].prop_ptr, "net_name", 0), "true") ||
             !strcmp(get_tok_value( (inst_ptr[inst].ptr + instdef)->prop_ptr, "net_name", 0), "true")
            ) {
-           my_strdup2(1175, &pinnumber, inst_ptr[inst].node && inst_ptr[inst].node[n] ? inst_ptr[inst].node[n] : "");
+           my_strdup2(1175, &pinnumber, inst_ptr[inst].node && inst_ptr[inst].node[n] ? inst_ptr[inst].node[n] : "<UNCONN>");
          }
        } else {
          if(!pinnumber[0]) my_strdup(379, &pinnumber, "--UNDEF--");
