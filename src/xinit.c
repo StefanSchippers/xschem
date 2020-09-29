@@ -806,6 +806,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     remove_symbols();
     my_strncpy(schematic[currentsch] , "", S(schematic[currentsch]));
     currentsch--;
+    clear_drawing();
     pop_undo(0);
     modified = save_mod;
     set_modify(modified);

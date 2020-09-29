@@ -284,8 +284,8 @@ void save_inst(FILE *fd)
   fprintf(fd, " %.16g %.16g %d %d ",ptr[i].x0, ptr[i].y0, ptr[i].rot, ptr[i].flip ); 
   save_ascii_string(ptr[i].prop_ptr,fd);
   fputc('\n' ,fd);
-  if( !strcmp(get_tok_value(ptr[i].prop_ptr, "embed", 0), "true") && 
-      !(instdef[ptr[i].ptr].flags & EMBEDDED)) {
+  if( !strcmp(get_tok_value(ptr[i].prop_ptr, "embed", 0), "true") ) {
+      /* && !(instdef[ptr[i].ptr].flags & EMBEDDED)) {  */
     fprintf(fd, "[\n");
     save_embedded_symbol( instdef+ptr[i].ptr, fd);
     fprintf(fd, "]\n");
@@ -786,7 +786,6 @@ void read_xschem_file(FILE *fd)
 
       if(inst_ptr[lastinst-1].name) {
         char *str;
-        int dbg_level = 1;
         my_snprintf(name_embedded, S(name_embedded),
            "%s/.xschem_embedded_%d_%s", tclgetvar("XSCHEM_TMP_DIR"), getpid(), get_cell_w_ext(inst_ptr[lastinst-1].name, 0));
         found=0;
@@ -796,20 +795,12 @@ void read_xschem_file(FILE *fd)
          dbg(1, "read_xschem_file(): inst_ptr[lastinst-1].name=%s\n", inst_ptr[lastinst-1].name);
          /* symbol has already been loaded: skip [..] */
          if(!strcmp(instdef[i].name, inst_ptr[lastinst-1].name)) {
-           if(netlist_count)
-             dbg_level = 1; /* when doing netlists symbols are not deleted when descending: perfectly normal
-                               to have redundant embedded definitions */
-           else
-             dbg_level = 0; /* this is an abnormal situation,  so redundant [ ... ] should be skipped and reported */
-   
            found=1; break;
          }
          /* if loading file coming back from embedded symbol delete temporary file */
          if(!strcmp(name_embedded, instdef[i].name)) {
            my_strdup(325, &instdef[i].name, inst_ptr[lastinst-1].name);
            xunlink(name_embedded);
-           dbg_level = 1; /* when returning from embedded symbol, that symbol is already loaded in instdef[] by go_back() 
-                             so it's perfectly normal (and should not be logged) to skip these lines */
            found=1;break;
          }
         }
@@ -817,7 +808,7 @@ void read_xschem_file(FILE *fd)
         if(!found) load_sym_def(inst_ptr[lastinst-1].name, fd);
         else {
           while(1) { /* skip embedded [ ... ] */
-            str = read_line(fd, dbg_level);
+            str = read_line(fd, 1);
             if(!str || !strncmp(str, "]", 1)) break;
             fscanf(fd, "%*1[\n]");
           }
@@ -1246,8 +1237,9 @@ void pop_undo(int redo)
  * first look in already loaded symbols else inspect symbol file
  * do not load all symname data, just get the type 
  * return symbol type in type pointer or "" if no type or no symbol found
- * if pintable given (!=NULL) hash all symbol pins */
-void get_sym_type(const char *symname, char **type, struct int_hashentry **pintable)
+ * if pintable given (!=NULL) hash all symbol pins
+ * if embed_fd is not NULL read symbol from embedded '[...]' tags using embed_fd file pointer */
+void get_sym_type(const char *symname, char **type, struct int_hashentry **pintable, FILE *embed_fd)
 {
   int i, c, n = 0;
   char name[PATH_MAX];
@@ -1275,8 +1267,11 @@ void get_sym_type(const char *symname, char **type, struct int_hashentry **pinta
   if( !found ) {
     dbg(1, "get_sym_type(): open file %s, pintable %s\n",name, pintable ? "set" : "null");
     /* ... if not found open file and look for 'type' into the global attributes. */
-    if((fd=fopen(name,"r"))==NULL)
-    {
+
+    if(embed_fd) fd = embed_fd;
+    else fd=fopen(name,"r");
+
+    if(fd==NULL) {
       dbg(1, "get_sym_type(): Symbol not found: %s\n",name);
       my_strdup2(1162, type, "");
     } else {
@@ -1286,6 +1281,7 @@ void get_sym_type(const char *symname, char **type, struct int_hashentry **pinta
       box.prop_ptr = NULL;
       while(1) {
         if(fscanf(fd," %c",tag)==EOF) break;
+        if(embed_fd && tag[0] == ']') break;
         switch(tag[0]) {
           case 'G':
             load_ascii_string(&globalprop,fd);
@@ -1322,7 +1318,7 @@ void get_sym_type(const char *symname, char **type, struct int_hashentry **pinta
       }
       my_free(1166, &globalprop);
       my_free(1167, &box.prop_ptr);
-      fclose(fd);
+      if(!embed_fd) fclose(fd);
     }
   }
   dbg(1, "get_sym_type(): symbol=%s --> type=%s\n", symname, *type);
@@ -1344,7 +1340,7 @@ void align_sch_pins_with_sym(const char *name, int pos)
     my_strncpy(symname, add_ext(name, ".sym"), S(symname));
     for(i = 0; i < HASHSIZE; i++) pintable[i] = NULL;
     /* hash all symbol pins with their position into pintable hash*/
-    get_sym_type(symname, &symtype, pintable);
+    get_sym_type(symname, &symtype, pintable, NULL);
     if(symtype[0]) { /* found a .sym for current .sch LCC instance */
       Box *box = NULL;
       box = (Box *) my_malloc(1168, sizeof(Box) * instdef[pos].rects[PINLAYER]);
@@ -1504,7 +1500,6 @@ void calc_symbol_bbox(int pos)
  * instdef
  * lastinstdef
  * has_x
- * lcc (static global)
  */
 int load_sym_def(const char *name, FILE *embed_fd)
 {
@@ -1517,6 +1512,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   int incremented_level=0;
   int level = 0;
   int max_level;
+  long filepos;
   char sympath[PATH_MAX];
   int i,c, k, poly_points;
   char *aux_ptr=NULL;
@@ -1583,7 +1579,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   my_strdup(352, &instdef[lastinstdef].name,name); 
   while(1)
   {
-   if(endfile && embed_fd) break; /* ']' line encountered --> exit */
+   if(endfile && embed_fd && level == 0) break; /* ']' line encountered --> exit */
    if(fscanf(lcc[level].fd," %c",tag)==EOF) {
      if (level) {
          dbg(1, "l_s_d(): fclose1, level=%d, fd=%p\n", level, lcc[level].fd);
@@ -1879,10 +1875,25 @@ int load_sym_def(const char *name, FILE *embed_fd)
         endfile = 1;
         continue;
       }
-      dbg(1, "l_s_d(): call get_sym_type(), symname=%s\n", symname);
-      /* get symbol type by looking into list of loaded symbols or (if not found) by
-       * opening/closing the symbol file and getting the 'type' attribute from global symbol attributes */
-      get_sym_type(symname, &symtype, NULL);
+
+      { 
+        char c;
+        filepos = ftell(lcc[level].fd); /* store file pointer position to inspect next line */
+        fd_tmp = NULL;
+        read_line(lcc[level].fd, 1);
+        fscanf(lcc[level].fd, "%*1[\n]");
+        if(fscanf(lcc[level].fd," %c",&c)!=EOF) {
+          if( c == '[') {
+            fd_tmp = lcc[level].fd;
+          }
+        }
+        /* get symbol type by looking into list of loaded symbols or (if not found) by
+         * opening/closing the symbol file and getting the 'type' attribute from global symbol attributes
+         * if fd_tmp set read symbol from embedded tags '[...]' */
+        get_sym_type(symname, &symtype, NULL, fd_tmp);
+        fseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
+      }
+
       dbg(1, "l_s_d(): level=%d, symname=%s symtype=%s\n", level, symname, symtype);
       if(  /* add here symbol types not to consider when loading schematic-as-symbol instances */
           !strcmp(symtype, "logo") ||
@@ -1911,14 +1922,26 @@ int load_sym_def(const char *name, FILE *embed_fd)
       /* replace i/o/iopin.sym filename with better looking (for LCC symbol) pins */
       use_lcc_pins(level, symtype, &sympath);
 
+      /* find out if symbol is in an external file or embedded, set fd_tmp accordingly */
       if ((fd_tmp = fopen(sympath, "r")) == NULL) {
+        char c;
         fprintf(errfp, "l_s_d(): unable to open file to read schematic: %s\n", sympath);
-      } else {
+        filepos = ftell(lcc[level].fd); /* store file pointer position to inspect next char */
+        read_line(lcc[level].fd, 1);
+        fscanf(lcc[level].fd, "%*1[\n]");
+        if(fscanf(lcc[level].fd," %c",&c)!=EOF) {
+          if( c == '[') {
+            fd_tmp = lcc[level].fd;
+          } else {
+            fseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
+          }
+        }
+      }
+      if(fd_tmp) {
         if (level+1 >= max_level) {
           my_realloc(653, &lcc, (max_level + 1) * sizeof(struct Lcc));
           max_level++;
         }
-        dbg(1, "l_s_d(): fopen2(%s), level=%d, fd=%p\n", sympath, level, fd_tmp);
         ++level;
         incremented_level = 1;
         lcc[level].fd = fd_tmp;
@@ -1949,14 +1972,19 @@ int load_sym_def(const char *name, FILE *embed_fd)
       break;
     case '[':
      while(1) { /* skip embedded [ ... ] */
-       skip_line = read_line(lcc[level].fd, 0);
+       skip_line = read_line(lcc[level].fd, 1);
        if(!skip_line || !strncmp(skip_line, "]", 1)) break;
        fscanf(lcc[level].fd, "%*1[\n]");
      }
      break;
     case ']':
-     read_line(lcc[level].fd, 0);
-     endfile=1;
+     if(level) {
+       my_free(0, &lcc[level].prop_ptr);
+       my_free(0, &lcc[level].symname);
+       --level;
+     } else {
+       endfile=1;
+     }
      break;
     default:
      if( tag[0] == '{' ) ungetc(tag[0], lcc[level].fd);
@@ -2270,8 +2298,6 @@ void round_schematic_to_grid(double cadsnap)
      break;
    }
  }
-
-
 }
 
 /* what: */
