@@ -1979,8 +1979,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
      break;
     case ']':
      if(level) {
-       my_free(0, &lcc[level].prop_ptr);
-       my_free(0, &lcc[level].symname);
+       my_free(1173, &lcc[level].prop_ptr);
+       my_free(1174, &lcc[level].symname);
        --level;
      } else {
        endfile=1;

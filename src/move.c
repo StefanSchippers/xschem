@@ -821,15 +821,18 @@ void copy_objects(int what)
        inst_ptr[lastinst].rot = (inst_ptr[lastinst].rot + 
           ( (flip && (inst_ptr[lastinst].rot & 1) ) ? rot+2 : rot) ) & 0x3;
        inst_ptr[lastinst].flip = (flip? !inst_ptr[n].flip:inst_ptr[n].flip);
+       /* the newpropcnt argument is zero for the 1st call and used in  */
+       /* new_prop_string() for cleaning some internal caches. */
        if(!newpropcnt) hash_all_names(lastinst);
        new_prop_string(lastinst, inst_ptr[n].prop_ptr,newpropcnt++, disable_unique_names);
-       /* the final newpropcnt argument is zero for the 1st call and used in  */
-       /* new_prop_string() for cleaning some internal caches. */
        my_strdup2(235, &inst_ptr[lastinst].instname, get_tok_value(inst_ptr[lastinst].prop_ptr, "name", 0)); /* 20150409 */
        n=selectedgroup[i].n=lastinst;
+       /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
+        * to translate @#n:net_name texts */
        prepared_netlist_structs=0;
        prepared_hilight_structs=0;
-       lastinst++;
+
+       lastinst++; /* must be updated before calling symbol_bbox which triggers prepare_netlist_structs(0) */
        symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1,
                          &inst_ptr[n].x2, &inst_ptr[n].y2);
        bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
@@ -1277,6 +1280,8 @@ void move_objects(int what, int merge, double dx, double dy)
         ( (flip && (inst_ptr[n].rot & 1) ) ? rot+2 : rot) ) & 0x3;
        inst_ptr[n].flip = flip ^ inst_ptr[n].flip;
 
+       /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
+        * to translate @#n:net_name texts */
        prepared_netlist_structs=0;
        prepared_hilight_structs=0;
        symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1,

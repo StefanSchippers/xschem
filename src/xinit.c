@@ -1393,9 +1393,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
     remove_symbols();
     my_snprintf(s, S(s), "file normalize \"%s\"", filename);
     tcleval(s);
-    load_schematic(1, abs_sym_path(tclresult(), ""), 1); /* 20180925.1 */
- }
- else { 
+    my_strncpy(s, abs_sym_path(tclresult(), ""), S(s));
+    load_schematic(1, s, 1); /* 20180925.1 */
+    Tcl_VarEval(interp, "update_recent_file {", s, "}", NULL);
+
+ } else { 
    char * tmp; /* 20121110 */
    char filename[PATH_MAX];
    tmp = (char *) tclgetvar("XSCHEM_START_WINDOW"); /* 20121110 */
@@ -1403,6 +1405,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_strncpy(filename, abs_sym_path(tmp, ""), S(filename));
    load_schematic(1, filename, 1);
  }
+ 
+
+
  zoom_full(0, 0);   /* Necessary to tell xschem the 
                   * initial area to display
                   */
