@@ -467,7 +467,8 @@ static void load_text(FILE *fd)
    textelement[i].font=NULL;
    textelement[i].sel=0;
    load_ascii_string(&textelement[i].prop_ptr,fd);
-   if( textelement[i].prop_ptr) my_strdup(318, &textelement[i].font, get_tok_value(textelement[i].prop_ptr, "font", 0));/*20171206 */
+   if( textelement[i].prop_ptr) 
+     my_strdup(318, &textelement[i].font, get_tok_value(textelement[i].prop_ptr, "font", 0));
 
    str = get_tok_value(textelement[i].prop_ptr, "hcenter", 0);
    textelement[i].hcenter = strcmp(str, "true")  ? 0 : 1;
@@ -1802,7 +1803,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         &tt[i].flip, &tt[i].xscale, &tt[i].yscale);
      if (level>0) {
        const char* tmp = translate2(lcc, level, tt[i].txt_ptr);
-       rot = lcc[level].rot; flip = lcc[level].flip; /* >>>>> */
+       rot = lcc[level].rot; flip = lcc[level].flip;
        if (tmp) my_strdup(651, &tt[i].txt_ptr, tmp);
        ROTATION(0.0, 0.0, tt[i].x0, tt[i].y0, rx1, ry1);
        tt[i].x0 = lcc[level].x0 + rx1;  tt[i].y0 = lcc[level].y0 + ry1;

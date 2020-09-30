@@ -251,8 +251,10 @@ void delete(void)
  j = 0;
 
  prepared_hash_instances=0;
+
  prepared_netlist_structs=0;
  prepared_hilight_structs=0;
+
  /* first calculate bbox, because symbol_bbox() needs translate (@#0:net_name) which needs prepare_netlist_structs
   * which needs a consistent inst_ptr[] data structure */
  for(i=0;i<lastinst;i++)
@@ -355,6 +357,10 @@ void bbox(int what,double x1,double y1, double x2, double y2)
  static int savew, saveh, savex1, savex2, savey1, savey2;
  static int sem=0;
 
+/* for close zooms draw whole viewing area, 
+   this updates whole viewing area so all symbol pin @#n:net_name 
+   attributes will be updated when that net label or pin "lab" attribute is changed. */
+ if(what == SET && (X_TO_XSCHEM(areax2) - X_TO_XSCHEM(areax1) < ITERATOR_THRESHOLD)) what = END;
  /* fprintf(errfp, "bbox: what=%d\n", what); */
  switch(what)
  {
@@ -484,8 +490,6 @@ void unselect_all(void)
        }
       }
      }
-   
-    /* prepared_hilight_structs = 0; */
     for(i=0;i<lastinst;i++)
     {
      if(inst_ptr[i].sel == SELECTED)

@@ -631,7 +631,6 @@ void prepare_netlist_structs(int for_netlist)
   if (for_netlist>0 && prepared_netlist_structs) return; /* 20160413 */
   else if (!for_netlist && prepared_hilight_structs) return; /* 20171210 */
   else delete_netlist_structs(); 
-
   if (for_netlist>0) {
     my_snprintf(nn, S(nn), "-----------%s", schematic[currentsch]);
     statusmsg(nn,2);
@@ -712,13 +711,10 @@ void prepare_netlist_structs(int for_netlist)
 
       my_strdup(262, &inst_ptr[i].node[0], get_tok_value(inst_ptr[i].prop_ptr,"lab",1));
 
-      /* taking node lab from sym template has no sense */
-      #if 0
       if (!(inst_ptr[i].node[0])) {
         my_strdup(65, &inst_ptr[i].node[0], get_tok_value((inst_ptr[i].ptr+instdef)->templ, "lab",1));
         dbg(1, "no lab attr on instance, pick from symbol: %s\n", inst_ptr[i].node[0]);
       }
-      #endif
       /* handle global nodes (global=1 set as symbol property) 28032003 */
       if (!strcmp(type,"label") && global_node && !strcmp(global_node, "true")) {
         dbg(1, "prepare_netlist_structs(): global node: %s\n",inst_ptr[i].node[0]);
@@ -1146,7 +1142,8 @@ int sym_vs_sch_pins()
                         )
                       ) {
                       char str[2048];
-                      my_snprintf(str, S(str), "Symbol %s: Unmatched subcircuit schematic pin direction: %s", instdef[i].name, lab);
+                      my_snprintf(str, S(str), "Symbol %s: Unmatched subcircuit schematic pin direction: %s",
+                                  instdef[i].name, lab);
                       statusmsg(str,2);
                       my_snprintf(str, S(str), "    %s <--> %s", type, pin_dir);
                       statusmsg(str,2);
@@ -1218,7 +1215,8 @@ int sym_vs_sch_pins()
           if(!pin_match) {
             char str[2048];
             /* fprintf(errfp, "  unmatched sch / sym pin: %s\n", lab); */
-            my_snprintf(str, S(str), "Symbol %s: symbol pin: %s not in schematic", instdef[i].name, pin_name ? pin_name : "<NULL>");
+            my_snprintf(str, S(str), "Symbol %s: symbol pin: %s not in schematic", 
+                        instdef[i].name, pin_name ? pin_name : "<NULL>");
             statusmsg(str,2);
             for(k = 0; k < lastinst; k++) {
               if(!strcmp(inst_ptr[k].name, instdef[i].name)) {

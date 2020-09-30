@@ -149,7 +149,8 @@ void create_plot_cmd(int viewer)
           char *t=NULL, *p=NULL;
           my_strdup(241, &t, tok);
           my_strdup2(245, &p, (entry->path)+1);
-          Tcl_VarEval(interp, "puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t), ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+          Tcl_VarEval(interp, "puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t), 
+                      ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
           my_free(759, &p);
           my_free(760, &t);
         }
@@ -688,7 +689,8 @@ void send_net_to_gaw(char *node)
     for(k=1; k<=tok_mult; k++) {
       my_strdup(246, &t, find_nth(expanded_tok, ',', k));
       my_strdup2(254, &p, sch_path[currentsch]+1);
-      Tcl_VarEval(interp, "puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t), ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+      Tcl_VarEval(interp, "puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t), 
+                  ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
       my_free(774, &p);
       my_free(775, &t);
     }

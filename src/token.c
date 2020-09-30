@@ -79,7 +79,8 @@ int name_strcmp(char *s, char *d) /* compare strings up to '\0' or'[' */
  * 1,XDELETE : delete token entry, return NULL
  * 2,XLOOKUP : lookup only 
  */
-static struct inst_hashentry *inst_hash_lookup(struct inst_hashentry **table, char *token, int value, int remove, size_t token_size)
+static struct inst_hashentry *inst_hash_lookup(struct inst_hashentry **table, char *token,
+                                               int value, int remove, size_t token_size)
 {
   unsigned int hashcode; 
   unsigned int index;
@@ -1591,7 +1592,9 @@ void print_spice_element(FILE *fd, int inst)
       else if (token[0]=='@' && token[1]=='#') {
         pin_number = atoi(token+2); 
         if (pin_number < no_of_pins) {
-          if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), "true")) {
+          const char *si;
+          si  = get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][pin_number].prop_ptr,"spice_ignore",0);
+          if(strcmp(si, "true")) {
             str_ptr =  net_name(inst,pin_number, &mult, 0);
             fprintf(fd, "@%d %s ", mult, str_ptr);
           }
@@ -1748,7 +1751,8 @@ void print_tedax_element(FILE *fd, int inst)
    if( state==XBEGIN && (c=='$' || c=='@') && !escape) state=XTOKEN;
  
    /* 20171029 added !escape, !quote */
-   else if( state==XTOKEN && (space || c == '$' || c == '@' || c == '\\')  && token_pos > 1 && !escape && !quote) state=XSEPARATOR;
+   else if( state==XTOKEN && (space || c == '$' || 
+            c == '@' || c == '\\')  && token_pos > 1 && !escape && !quote) state=XSEPARATOR;
  
    if(token_pos>=sizetok)
    {
@@ -2092,7 +2096,8 @@ const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net)
  {
    *mult=1;
 
-   my_snprintf(errstr, S(errstr), "Warning: unconnected pin,  Inst idx: %d, Pin idx: %d  Inst:%s\n", i, j, inst_ptr[i].instname ) ;
+   my_snprintf(errstr, S(errstr), "Warning: unconnected pin,  Inst idx: %d, Pin idx: %d  Inst:%s\n",
+               i, j, inst_ptr[i].instname ) ;
    statusmsg(errstr,2);
    if(!netlist_count) {
      inst_ptr[i].flags |=4;
@@ -2396,7 +2401,9 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
     else if(token[0]=='@' && token[1]=='#') {
         pin_number = atoi(token+2);
         if(pin_number < no_of_pins) {
-          if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][pin_number].prop_ptr,"verilog_ignore",0), "true")) {
+          const char *vi;
+          vi = get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][pin_number].prop_ptr,"verilog_ignore",0);
+          if(strcmp(vi, "true")) {
             str_ptr =  net_name(inst,pin_number, &mult, 0);
             fprintf(fd, "----pin(%s) ", str_ptr);
           }
@@ -2546,8 +2553,6 @@ const char *translate(int inst, char* s)
    if(!spiceprefix && !strcmp(token, "@spiceprefix")) {
      value = NULL;
      get_tok_size = 0;
-   } else if(!strcmp(token, "@lab")) { /* don't get '@lab' value from symbol template, makes no sense */ 
-     value = get_tok_value(inst_ptr[inst].prop_ptr, token+1, 2);
    } else {
      value = get_tok_value(inst_ptr[inst].prop_ptr, token+1, 2);
      if(!get_tok_size) value=get_tok_value((inst_ptr[inst].ptr+instdef)->templ, token+1, 2); 
@@ -2617,8 +2622,8 @@ const char *translate(int inst, char* s)
        /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin
         * if 'net_name=true' attribute is set in instance or symbol */
        if(!pinnumber[0] && !strcmp(pin_attr, "net_name")) {
-         if(!strcmp(get_tok_value(inst_ptr[inst].prop_ptr, "net_name", 0), "true") ||
-            !strcmp(get_tok_value( (inst_ptr[inst].ptr + instdef)->prop_ptr, "net_name", 0), "true")) {
+         if( show_pin_net_names && (!strcmp(get_tok_value(inst_ptr[inst].prop_ptr, "net_name", 0), "true") ||
+            !strcmp(get_tok_value( (inst_ptr[inst].ptr + instdef)->prop_ptr, "net_name", 0), "true")) ) {
            prepare_netlist_structs(0);
            my_strdup2(1175, &pinnumber, inst_ptr[inst].node && inst_ptr[inst].node[n] ? inst_ptr[inst].node[n] : "<UNCONN>");
          }

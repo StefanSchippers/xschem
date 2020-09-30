@@ -754,7 +754,8 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='s' && (state == ControlMask) )      /* save 20121201 */
    {
      if(semaphore >= 2) break;
-     if(!strcmp(schematic[currentsch],"") || strstr(schematic[currentsch], "untitled")) { /* check if unnamed schematic, use saveas in this case */
+     /* check if unnamed schematic, use saveas in this case */
+     if(!strcmp(schematic[currentsch],"") || strstr(schematic[currentsch], "untitled")) {
        saveas(NULL, SCHEMATIC);
      } else {
        save(1);

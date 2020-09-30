@@ -517,8 +517,10 @@ void copy_objects(int what)
   set_modify(1); push_undo(); /* 20150327 push_undo */
   prepared_hash_instances=0; /* 20171224 */
   prepared_hash_wires=0; /* 20171224 */
+  /*
   prepared_netlist_structs=0;
   prepared_hilight_structs=0;
+  */
 
   for(k=0;k<cadlayers;k++)
   {
@@ -928,9 +930,10 @@ void move_objects(int what, int merge, double dx, double dy)
   set_modify(1); 
   prepared_hash_instances=0; /* 20171224 */
   prepared_hash_wires=0; /* 20171224 */
+  /*
   prepared_netlist_structs=0;
   prepared_hilight_structs=0;
-  
+  */
   if( !(ui_state & (STARTMERGE | PLACE_SYMBOL)) ) {
     dbg(1, "move_objects(): push undo state\n");
     push_undo(); /* 20150327 push_undo */

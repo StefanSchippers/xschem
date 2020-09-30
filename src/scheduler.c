@@ -580,7 +580,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          my_strdup(371, &ptr,subst_token(inst_ptr[inst].prop_ptr, "name", name) );
          hash_all_names(inst);
          new_prop_string(inst, ptr,0, disable_unique_names); /* set new prop_ptr */
-         my_strdup2(372, &inst_ptr[inst].instname, get_tok_value(inst_ptr[inst].prop_ptr, "name",0)); /* 20150409 */
+         my_strdup2(372, &inst_ptr[inst].instname, get_tok_value(inst_ptr[inst].prop_ptr, "name",0));
   
          type=instdef[inst_ptr[inst].ptr].type; /* 20150409 */
          cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
@@ -1601,6 +1601,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      else
         Tcl_AppendResult(interp, "0",NULL);
   }
+  else if(!strcmp(argv[2],"show_pin_net_names"))  {
+     if( show_pin_net_names != 0 )
+        Tcl_AppendResult(interp, "1",NULL);
+     else
+        Tcl_AppendResult(interp, "0",NULL);
+  }
   else if(!strcmp(argv[2],"flat_netlist"))  {
      if( flat_netlist != 0 )
         Tcl_AppendResult(interp, "1",NULL);
@@ -1852,6 +1858,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    else if(!strcmp(argv[2],"hide_symbols"))  { /* 20171204 */
      int s = atoi(argv[3]);
      hide_symbols=s;
+   }
+   else if(!strcmp(argv[2],"show_pin_net_names"))  { /* 20171204 */
+     int s = atoi(argv[3]);
+     show_pin_net_names=s;
    }
    else if(!strcmp(argv[2],"user_top_netl_name"))  { /* 20171204 */
      my_strncpy(user_top_netl_name, argv[3], S(user_top_netl_name));

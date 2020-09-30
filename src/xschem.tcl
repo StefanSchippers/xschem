@@ -3129,6 +3129,9 @@ set_ne xschem_listen_port {}
 
 # hide instance details (show only bbox) 
 set_ne hide_symbols 0
+# show net names if symbol has attributes like @#n:net_name (where n = pin number or pin name) 
+# and net_name=true global attribute set on symbol or instance.
+set_ne show_pin_net_names 0
 # gaw tcp {host port} 
 set_ne gaw_tcp_address {localhost 2020}
 
@@ -3628,6 +3631,11 @@ font configure Underline-Font -underline true -size 24
    .menubar.zoom.menu add checkbutton -label "Show Toolbar" -variable toolbar_visible \
       -command {
          if { $toolbar_visible } { toolbar_show } else { toolbar_hide }
+      }
+   .menubar.zoom.menu add checkbutton -label "Enable show net names on symbol pins" -variable show_pin_net_names \
+      -command {
+         xschem set show_pin_net_names $show_pin_net_names
+         xschem redraw
       }
    .menubar.zoom.menu add checkbutton -label "Horizontal Toolbar" -variable toolbar_horiz \
       -command { 

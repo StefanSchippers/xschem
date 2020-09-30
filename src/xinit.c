@@ -1104,6 +1104,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  split_files=atoi(tclgetvar("split_files"));
  netlist_show=atoi(tclgetvar("netlist_show"));
  unzoom_nodrift=atoi(tclgetvar("unzoom_nodrift"));
+ show_pin_net_names = atoi(tclgetvar("show_pin_net_names"));
  
  if(color_ps==-1) 
    color_ps=atoi(tclgetvar("color_ps"));
@@ -1271,7 +1272,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
       #else
       format = XRenderFindStandardFormat(display, PictStandardRGB24);
       sfc = cairo_xlib_surface_create_with_xrender_format (display, window, DefaultScreenOfDisplay(display), format, 1, 1); 
-      save_sfc = cairo_xlib_surface_create_with_xrender_format (display, save_pixmap, DefaultScreenOfDisplay(display), format, 1, 1); 
+      save_sfc = cairo_xlib_surface_create_with_xrender_format(
+                 display, save_pixmap, DefaultScreenOfDisplay(display), format, 1, 1); 
       #endif 
       #else
       sfc = cairo_xlib_surface_create(display, window, visual, wattr.width, wattr.height);

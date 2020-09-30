@@ -1773,7 +1773,8 @@ void draw(void)
 
 #ifndef __unix__
 /* place holder for Windows to show that these XLib functions are not supported in Windows. */
-int XSetClipRectangles(register Display* dpy, GC gc, int clip_x_origin, int clip_y_origin, XRectangle* rectangles, int n, int ordering)
+int XSetClipRectangles(register Display* dpy, GC gc, int clip_x_origin, int clip_y_origin,
+                       XRectangle* rectangles, int n, int ordering)
 {
   return 0;
 }

@@ -680,6 +680,7 @@ extern size_t get_tok_value_size;
 extern size_t get_tok_size;
 extern int batch_mode; /* no TCL console */
 extern int hide_symbols; /* draw only a bounding box for component instances and @symname, @name texts */
+extern int show_pin_net_names;
 
 /*  FUNCTIONS */
 extern void enable_layers(void);

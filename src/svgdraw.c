@@ -143,8 +143,10 @@ static void svg_drawcircle(int gc, int fillarc, double x,double y,double r,doubl
 
   if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
   {
-    fprintf(fd, "<circle cx=\"%g\" cy=\"%g\" r=\"%g\" stroke=\"rgb(%d,%d,%d)\" fill=\"rgb(%d,%d,%d)\" stroke-width=\"%g\"/>\n",
-       xx, yy, rr, svg_stroke.red, svg_stroke.green, svg_stroke.blue, svg_stroke.red, svg_stroke.green, svg_stroke.blue, svg_linew/4);
+    fprintf(fd, 
+       "<circle cx=\"%g\" cy=\"%g\" r=\"%g\" stroke=\"rgb(%d,%d,%d)\" fill=\"rgb(%d,%d,%d)\" stroke-width=\"%g\"/>\n",
+       xx, yy, rr, svg_stroke.red, svg_stroke.green, svg_stroke.blue, 
+                   svg_stroke.red, svg_stroke.green, svg_stroke.blue, svg_linew/4);
   }
 }
 
@@ -512,14 +514,16 @@ void svg_draw(void)
 
  if(dark_colorscheme) {
    /* black background */
-   fprintf(fd,"<rect x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" fill=\"rgb(%d,%d,%d)\" stroke=\"rgb(%d,%d,%d)\" stroke-width=\"%g\" />\n",
-                   0.0,      0.0,      dx,           dy,    0, 0, 0,
-                                                            0, 0, 0, svg_linew);
+   fprintf(fd,
+     "<rect x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" fill=\"rgb(%d,%d,%d)\" "
+     "stroke=\"rgb(%d,%d,%d)\" stroke-width=\"%g\" />\n",
+                   0.0, 0.0, dx, dy, 0, 0, 0, 0, 0, 0, svg_linew);
  } else {
    /* white background */
-   fprintf(fd,"<rect x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" fill=\"rgb(%d,%d,%d)\" stroke=\"rgb(%d,%d,%d)\" stroke-width=\"%g\" />\n",
-                   0.0,      0.0,      dx,           dy,    255, 255, 255,
-                                                            255, 255, 255, svg_linew);
+   fprintf(fd,
+     "<rect x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" fill=\"rgb(%d,%d,%d)\" "
+     "stroke=\"rgb(%d,%d,%d)\" stroke-width=\"%g\" />\n",
+                   0.0, 0.0, dx, dy, 255, 255, 255, 255, 255, 255, svg_linew);
 
  }
    svg_drawgrid();
@@ -545,10 +549,12 @@ void svg_draw(void)
     }
     for(i=0;i<lastarc[c];i++)
     {
-      svg_drawarc(c, arc[c][i].fill, arc[c][i].x, arc[c][i].y, arc[c][i].r, arc[c][i].a, arc[c][i].b, arc[c][i].dash);
+      svg_drawarc(c, arc[c][i].fill, arc[c][i].x, arc[c][i].y, arc[c][i].r,
+                   arc[c][i].a, arc[c][i].b, arc[c][i].dash);
     }
     for(i=0;i<lastpolygon[c];i++) {
-      svg_drawpolygon(c, NOW, polygon[c][i].x, polygon[c][i].y, polygon[c][i].points, polygon[c][i].fill, polygon[c][i].dash);
+      svg_drawpolygon(c, NOW, polygon[c][i].x, polygon[c][i].y, polygon[c][i].points, 
+                      polygon[c][i].fill, polygon[c][i].dash);
     }
     for(i=0;i<lastinst;i++) {
       svg_draw_symbol(i,c,0,0,0.0,0.0);

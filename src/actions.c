@@ -960,7 +960,6 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, 
    * to translate @#n:net_name texts */
   prepared_netlist_structs=0;
   prepared_hilight_structs=0;
-
   symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1,
                     &inst_ptr[n].x2, &inst_ptr[n].y2);
   if(draw_sym & 3) bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2);
@@ -2274,7 +2273,8 @@ void place_text(int draw_text, double mx, double my)
   #endif
   save_draw=draw_window; /* 20181009 */
   draw_window=1;
-  if(draw_text) draw_string(textlayer, NOW, textelement[lasttext].txt_ptr, 0, 0, textelement[lasttext].hcenter, textelement[lasttext].vcenter,
+  if(draw_text) draw_string(textlayer, NOW, textelement[lasttext].txt_ptr, 0, 0, 
+              textelement[lasttext].hcenter, textelement[lasttext].vcenter,
               textelement[lasttext].x0,textelement[lasttext].y0,
               textelement[lasttext].xscale, textelement[lasttext].yscale);
   draw_window = save_draw;
