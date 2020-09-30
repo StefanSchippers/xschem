@@ -2617,10 +2617,9 @@ const char *translate(int inst, char* s)
        /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin
         * if 'net_name=true' attribute is set in instance or symbol */
        if(!pinnumber[0] && !strcmp(pin_attr, "net_name")) {
-         prepare_netlist_structs(0);
          if(!strcmp(get_tok_value(inst_ptr[inst].prop_ptr, "net_name", 0), "true") ||
-            !strcmp(get_tok_value( (inst_ptr[inst].ptr + instdef)->prop_ptr, "net_name", 0), "true")
-           ) {
+            !strcmp(get_tok_value( (inst_ptr[inst].ptr + instdef)->prop_ptr, "net_name", 0), "true")) {
+           prepare_netlist_structs(0);
            my_strdup2(1175, &pinnumber, inst_ptr[inst].node && inst_ptr[inst].node[n] ? inst_ptr[inst].node[n] : "<UNCONN>");
          }
        } else {
