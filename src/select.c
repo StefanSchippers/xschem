@@ -485,7 +485,7 @@ void unselect_all(void)
       }
      }
    
-    prepared_hilight_structs = 0;
+    /* prepared_hilight_structs = 0; */
     for(i=0;i<lastinst;i++)
     {
      if(inst_ptr[i].sel == SELECTED)
