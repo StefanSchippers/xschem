@@ -517,10 +517,16 @@ void copy_objects(int what)
   set_modify(1); push_undo(); /* 20150327 push_undo */
   prepared_hash_instances=0; /* 20171224 */
   prepared_hash_wires=0; /* 20171224 */
-  /*
-  prepared_netlist_structs=0;
-  prepared_hilight_structs=0;
-  */
+
+  /* calculate copied symbols bboxes before actually doing the move */
+  for(i=0;i<lastselected;i++)
+  {
+    n = selectedgroup[i].n;
+    if( selectedgroup[i].type == ELEMENT) {
+       symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 ); /* 20171201 */
+       bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
+    }
+  }
 
   for(k=0;k<cadlayers;k++)
   {
@@ -530,55 +536,56 @@ void copy_objects(int what)
     switch(selectedgroup[i].type)
     {
      case WIRE:
-      if(k!=WIRELAYER) break;
-      check_wire_storage();
-      if(wire[n].bus){ /* 20171201 */
-        int ov, y1, y2;
-        bbox(ADD, wire[n].x1-bus_width, wire[n].y1-bus_width , wire[n].x2+bus_width , wire[n].y2+bus_width );
-        ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
-        if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
-        else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
-        bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
-      } else {
-        int ov, y1, y2;
-        ov = cadhalfdotsize;
-        if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
-        else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
-        bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
+      if(k == 0) {
+        check_wire_storage();
+        if(wire[n].bus){ /* 20171201 */
+          int ov, y1, y2;
+          bbox(ADD, wire[n].x1-bus_width, wire[n].y1-bus_width , wire[n].x2+bus_width , wire[n].y2+bus_width );
+          ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
+          if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
+          else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
+          bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
+        } else {
+          int ov, y1, y2;
+          ov = cadhalfdotsize;
+          if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
+          else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
+          bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
+        }
+        if(rotatelocal) {
+          ROTATION(wire[n].x1, wire[n].y1, wire[n].x1, wire[n].y1, rx1,ry1);
+          ROTATION(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, rx2,ry2);
+        } else {
+          ROTATION(x1, y_1, wire[n].x1, wire[n].y1, rx1,ry1);
+          ROTATION(x1, y_1, wire[n].x2, wire[n].y2, rx2,ry2);
+        }
+        if( wire[n].sel & (SELECTED|SELECTED1) )
+        {
+         rx1+=deltax;
+         ry1+=deltay;
+        }
+        if( wire[n].sel & (SELECTED|SELECTED2) )
+        {
+         rx2+=deltax;
+         ry2+=deltay;
+        }
+        tmpx=rx1; /* used as temporary storage */
+        tmpy=ry1;
+        ORDER(rx1,ry1,rx2,ry2);
+        if( tmpx == rx2 &&  tmpy == ry2)
+        {
+         if(wire[n].sel == SELECTED1) wire[n].sel = SELECTED2;
+         else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
+        }
+        selectedgroup[i].n=lastwire;
+        storeobject(-1, rx1,ry1,rx2,ry2,WIRE,0,wire[n].sel,wire[n].prop_ptr);
+        wire[n].sel=0;
+      } else if(k == WIRELAYER) {
+        if(wire[n].bus) /* 20171201 */
+          drawline(WIRELAYER, THICK, rx1,ry1,rx2,ry2, 0);
+        else
+          drawline(WIRELAYER, ADD, rx1,ry1,rx2,ry2, 0);
       }
-      if(rotatelocal) {
-        ROTATION(wire[n].x1, wire[n].y1, wire[n].x1, wire[n].y1, rx1,ry1);
-        ROTATION(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, rx2,ry2);
-      } else {
-        ROTATION(x1, y_1, wire[n].x1, wire[n].y1, rx1,ry1);
-        ROTATION(x1, y_1, wire[n].x2, wire[n].y2, rx2,ry2);
-      }
-      if( wire[n].sel & (SELECTED|SELECTED1) )
-      {
-       rx1+=deltax;
-       ry1+=deltay;
-      }
-      if( wire[n].sel & (SELECTED|SELECTED2) )
-      {
-       rx2+=deltax;
-       ry2+=deltay;
-      }
-      tmpx=rx1; /* used as temporary storage */
-      tmpy=ry1;
-      ORDER(rx1,ry1,rx2,ry2);
-      if( tmpx == rx2 &&  tmpy == ry2)
-      {
-       if(wire[n].sel == SELECTED1) wire[n].sel = SELECTED2;
-       else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
-      }
-      if(wire[n].bus) /* 20171201 */
-        drawline(k, THICK, rx1,ry1,rx2,ry2, 0);
-      else
-        drawline(k, ADD, rx1,ry1,rx2,ry2, 0);
-        
-      selectedgroup[i].n=lastwire;
-      storeobject(-1, rx1,ry1,rx2,ry2,WIRE,0,wire[n].sel,wire[n].prop_ptr);
-      wire[n].sel=0;
       break;
      case LINE:
       if(c!=k) break; 
@@ -797,9 +804,6 @@ void copy_objects(int what)
      case ELEMENT:
       if(k==0) {
        check_inst_storage();
-       /* 20181009 */
-       symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 ); /* 20171201 */
-       bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
 
        if(rotatelocal) {
          ROTATION(inst_ptr[n].x0, inst_ptr[n].y0, inst_ptr[n].x0, inst_ptr[n].y0, rx1,ry1);
@@ -829,24 +833,39 @@ void copy_objects(int what)
        new_prop_string(lastinst, inst_ptr[n].prop_ptr,newpropcnt++, disable_unique_names);
        my_strdup2(235, &inst_ptr[lastinst].instname, get_tok_value(inst_ptr[lastinst].prop_ptr, "name", 0)); /* 20150409 */
        n=selectedgroup[i].n=lastinst;
-       /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
-        * to translate @#n:net_name texts */
-       prepared_netlist_structs=0;
-       prepared_hilight_structs=0;
 
        lastinst++; /* must be updated before calling symbol_bbox which triggers prepare_netlist_structs(0) */
-       symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1,
-                         &inst_ptr[n].x2, &inst_ptr[n].y2);
-       bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
       }
       break;
-    }
+    } /* end switch(selectedgroup[i].type) */
+   } /* end for(i=0;i<lastselected;i++) */
+
+
+   need_rebuild_selected_array=1;
+   rebuild_selected_array();
+
+   if(k == 0 ) {
+     /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
+      * to translate @#n:net_name texts */
+     prepared_netlist_structs=0;
+     prepared_hilight_structs=0;
    }
+   for(i = 0; i < lastselected; i++) {
+     n = selectedgroup[i].n;
+     if(k == 0) {
+       if(selectedgroup[i].type == ELEMENT) {
+         symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 ); /* 20171201 */
+         bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
+       }
+     }
+     /* draw_symbol(ADD,k, n,k, 0, 0, 0.0, 0.0); */
+   }
+
    filledrect(k, END, 0.0, 0.0, 0.0, 0.0);
    drawarc(k, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
    drawrect(k, END, 0.0, 0.0, 0.0, 0.0, 0);
    drawline(k, END, 0.0, 0.0, 0.0, 0.0, 0);
-  } /* end for(k ... */
+  } /* end for(k=0;k<cadlayers;k++) */
   check_collapsing_objects();
   update_conn_cues(1, 1); 
   ui_state &= ~STARTCOPY;
@@ -854,7 +873,6 @@ void copy_objects(int what)
   bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
   draw();
   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
-  need_rebuild_selected_array=1;
   rotatelocal=0;
   draw_window = save_draw;
  }
@@ -930,10 +948,6 @@ void move_objects(int what, int merge, double dx, double dy)
   set_modify(1); 
   prepared_hash_instances=0; /* 20171224 */
   prepared_hash_wires=0; /* 20171224 */
-  /*
-  prepared_netlist_structs=0;
-  prepared_hilight_structs=0;
-  */
   if( !(ui_state & (STARTMERGE | PLACE_SYMBOL)) ) {
     dbg(1, "move_objects(): push undo state\n");
     push_undo(); /* 20150327 push_undo */
@@ -948,6 +962,16 @@ void move_objects(int what, int merge, double dx, double dy)
     printf("xschem move_objects %g %g\n", deltax, deltay);
     fflush(stdout);
   }
+
+  /* calculate moving symbols bboxes before actually doing the move */
+  for(i=0;i<lastselected;i++)
+  {
+    n = selectedgroup[i].n;
+    if( selectedgroup[i].type == ELEMENT) {
+       symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 ); /* 20171201 */
+       bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
+    }
+  }
   for(k=0;k<cadlayers;k++)
   {
    for(i=0;i<lastselected;i++)
@@ -956,55 +980,57 @@ void move_objects(int what, int merge, double dx, double dy)
     switch(selectedgroup[i].type)
     {
      case WIRE:
-      if(k!=WIRELAYER) break;
-      if(wire[n].bus){ /* 20171201 */
-        int ov, y1, y2;
-        bbox(ADD, wire[n].x1-bus_width, wire[n].y1-bus_width , wire[n].x2+bus_width , wire[n].y2+bus_width );
-        ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
-        if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
-        else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
-        bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
-      } else {
-        int ov, y1, y2;
-        ov = cadhalfdotsize;
-        if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
-        else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
-        bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
+      if(k == 0) {
+        if(wire[n].bus){ /* 20171201 */
+          int ov, y1, y2;
+          bbox(ADD, wire[n].x1-bus_width, wire[n].y1-bus_width , wire[n].x2+bus_width , wire[n].y2+bus_width );
+          ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
+          if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
+          else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
+          bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
+        } else {
+          int ov, y1, y2;
+          ov = cadhalfdotsize;
+          if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
+          else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
+          bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
+        }
+        if(rotatelocal) {
+          ROTATION(wire[n].x1, wire[n].y1, wire[n].x1, wire[n].y1, rx1,ry1);
+          ROTATION(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, rx2,ry2);
+        } else {
+          ROTATION(x1, y_1, wire[n].x1, wire[n].y1, rx1,ry1);
+          ROTATION(x1, y_1, wire[n].x2, wire[n].y2, rx2,ry2);
+        }
+  
+        if( wire[n].sel & (SELECTED|SELECTED1) )
+        {
+         rx1+=deltax;
+         ry1+=deltay;
+        }
+        if( wire[n].sel & (SELECTED|SELECTED2) )
+        {
+         rx2+=deltax;
+         ry2+=deltay;
+        }
+        wire[n].x1=rx1;
+        wire[n].y1=ry1;
+        ORDER(rx1,ry1,rx2,ry2);
+        if( wire[n].x1 == rx2 &&  wire[n].y1 == ry2)
+        {
+         if(wire[n].sel == SELECTED1) wire[n].sel = SELECTED2;
+         else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
+        }
+        wire[n].x1=rx1;
+        wire[n].y1=ry1;
+        wire[n].x2=rx2;
+        wire[n].y2=ry2;
+      } else if(k == WIRELAYER) {
+        if(wire[n].bus)
+          drawline(WIRELAYER, THICK, wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, 0);
+        else
+          drawline(WIRELAYER, ADD, wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, 0);
       }
-      if(rotatelocal) {
-        ROTATION(wire[n].x1, wire[n].y1, wire[n].x1, wire[n].y1, rx1,ry1);
-        ROTATION(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, rx2,ry2);
-      } else {
-        ROTATION(x1, y_1, wire[n].x1, wire[n].y1, rx1,ry1);
-        ROTATION(x1, y_1, wire[n].x2, wire[n].y2, rx2,ry2);
-      }
-
-      if( wire[n].sel & (SELECTED|SELECTED1) )
-      {
-       rx1+=deltax;
-       ry1+=deltay;
-      }
-      if( wire[n].sel & (SELECTED|SELECTED2) )
-      {
-       rx2+=deltax;
-       ry2+=deltay;
-      }
-      wire[n].x1=rx1;
-      wire[n].y1=ry1;
-      ORDER(rx1,ry1,rx2,ry2);
-      if( wire[n].x1 == rx2 &&  wire[n].y1 == ry2)
-      {
-       if(wire[n].sel == SELECTED1) wire[n].sel = SELECTED2;
-       else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
-      }
-      wire[n].x1=rx1;
-      wire[n].y1=ry1;
-      wire[n].x2=rx2;
-      wire[n].y2=ry2;
-      if(wire[n].bus) /* 20171201 */
-        drawline(k, THICK, wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, 0);
-      else
-        drawline(k, ADD, wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, 0);
       break;
      case LINE:
       if(c!=k) break;   
@@ -1269,46 +1295,51 @@ void move_objects(int what, int merge, double dx, double dy)
  
      case ELEMENT:
       if(k==0) {
-       symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 ); /* 20171201 */
-       bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
        if(rotatelocal) {
          ROTATION(inst_ptr[n].x0, inst_ptr[n].y0, inst_ptr[n].x0, inst_ptr[n].y0, rx1,ry1);
        } else {
          ROTATION(x1, y_1, inst_ptr[n].x0, inst_ptr[n].y0, rx1,ry1);
        }
-
        inst_ptr[n].x0 = rx1+deltax;
        inst_ptr[n].y0 = ry1+deltay;
        inst_ptr[n].rot = (inst_ptr[n].rot + 
         ( (flip && (inst_ptr[n].rot & 1) ) ? rot+2 : rot) ) & 0x3;
        inst_ptr[n].flip = flip ^ inst_ptr[n].flip;
 
-       /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
-        * to translate @#n:net_name texts */
-       prepared_netlist_structs=0;
-       prepared_hilight_structs=0;
-       symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1,
-                         &inst_ptr[n].x2, &inst_ptr[n].y2);
       }
-      
-      draw_symbol(ADD,k, n,k, 0, 0, 0.0, 0.0);
       break;
-    }
+    } /* end switch(selectedgroup[i].type) */
+   } /* end for(i=0;i<lastselected;i++) */
+
+   if(k == 0 ) {
+     /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
+      * to translate @#n:net_name texts */
+     prepared_netlist_structs=0;
+     prepared_hilight_structs=0;
    }
-   
+   for(i = 0; i < lastselected; i++) {
+     n = selectedgroup[i].n;
+     if(k == 0) {
+       if(selectedgroup[i].type == ELEMENT) {
+         symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 ); /* 20171201 */
+         bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
+       }
+     }
+     /* draw_symbol(ADD,k, n,k, 0, 0, 0.0, 0.0); */
+   }
 
    filledrect(k, END, 0.0, 0.0, 0.0, 0.0); 
    drawarc(k, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
    drawrect(k, END, 0.0, 0.0, 0.0, 0.0, 0);
    drawline(k, END, 0.0, 0.0, 0.0, 0.0, 0);
-  } /*end for(k ... */
+  } /*end for(k=0;k<cadlayers;k++) */
   check_collapsing_objects();
   update_conn_cues(1, 1); 
   ui_state &= ~STARTMOVE;
   ui_state &= ~STARTMERGE;
   x1=y_1=x2=y_2=rot=flip=deltax=deltay=0;
   bbox(SET , 0.0 , 0.0 , 0.0 , 0.0); 
-  dbg(1, "move_objects(): bbox= %d %d %d %d\n", areax1, areay1, areaw, areah);
+  dbg(2, "move_objects(): bbox= %d %d %d %d\n", areax1, areay1, areaw, areah);
   draw();
   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   rotatelocal=0;
@@ -1316,4 +1347,3 @@ void move_objects(int what, int merge, double dx, double dy)
  }
  draw_selection(gc[SELLAYER], 0);
 }
-

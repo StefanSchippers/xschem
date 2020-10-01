@@ -357,10 +357,6 @@ void bbox(int what,double x1,double y1, double x2, double y2)
  static int savew, saveh, savex1, savex2, savey1, savey2;
  static int sem=0;
 
-/* for close zooms draw whole viewing area, 
-   this updates whole viewing area so all symbol pin @#n:net_name 
-   attributes will be updated when that net label or pin "lab" attribute is changed. */
- if(what == SET && (X_TO_XSCHEM(areax2) - X_TO_XSCHEM(areax1) < ITERATOR_THRESHOLD)) what = END;
  /* fprintf(errfp, "bbox: what=%d\n", what); */
  switch(what)
  {
