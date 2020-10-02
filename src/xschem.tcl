@@ -1801,7 +1801,14 @@ proc property_search {} {
         destroy .dialog 
   }
   button .dialog.but.cancel -text Cancel -command { destroy .dialog }
-  checkbutton .dialog.but.sub -text Exact_search -variable search_exact 
+  
+  # Window doesn't support regular expression, has to be exact match for now
+  if {$::OS == "Windows"} {
+    set search_exact 1 
+    checkbutton .dialog.but.sub -text Exact_search -variable search_exact -state disable
+  } else {
+    checkbutton .dialog.but.sub -text Exact_search -variable search_exact 
+  }
   radiobutton .dialog.but.nosel -text {Highlight} -variable search_select -value 0
   radiobutton .dialog.but.sel -text {Select} -variable search_select -value 1
   # 20171211 added unselect

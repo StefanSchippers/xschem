@@ -1615,9 +1615,17 @@ void new_wire(int what, double mx_snap, double my_snap)
 {
  static double x1,y1,x2,y2;
  static double xx1,yy1,xx2,yy2;
+ int savelastwire;
 
    if( (what & PLACE) ) {
      if( (ui_state & STARTWIRE) && (x1!=x2 || y1!=y2) ) {
+       savelastwire = lastwire;
+       /* 
+       prepared_netlist_structs = 0; 
+       prepared_hash_wires = 0;
+       prepared_hilight_structs = 0;
+       prepare_netlist_structs(0);
+       */
        push_undo();
        if(manhattan_lines==1) {
          if(xx2!=xx1) {
@@ -1655,7 +1663,47 @@ void new_wire(int what, double mx_snap, double my_snap)
          printf("xschem wire %g %g %g %g %d\n", xx1, yy1, xx2, yy2, -1);
          fflush(stdout);
        }
- 
+       if(show_pin_net_names) {
+         int w;
+         /*
+         int i, p, rot, flip, save;
+         double x0, y0, rx1, ry1;
+         Box * rect;
+         */ 
+         bbox(BEGIN , 0.0 , 0.0 , 0.0 , 0.0);
+         /*
+         save = lastwire; 
+         lastwire=savelastwire;
+         for (i=0;i<lastinst;i++) {
+           for(p=0; p< (inst_ptr[i].ptr + instdef) -> rects[PINLAYER]; p++) {
+             rect=(inst_ptr[i].ptr+instdef)->boxptr[PINLAYER];
+             x0=(rect[p].x1+rect[p].x2)/2;
+             y0=(rect[p].y1+rect[p].y2)/2;
+             rot=inst_ptr[i].rot;
+             flip=inst_ptr[i].flip;
+             ROTATION(0.0,0.0,x0,y0,rx1,ry1);
+             x0=inst_ptr[i].x0+rx1;
+             y0=inst_ptr[i].y0+ry1;
+             for(w=savelastwire; w<save; w++) {
+               if(touch(wire[w].x1, wire[w].y1, wire[w].x2, wire[w].y2, x0, y0)) {
+                 symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1, &inst_ptr[i].x2, &inst_ptr[i].y2 );
+                 bbox(ADD, inst_ptr[i].x1, inst_ptr[i].y1, inst_ptr[i].x2, inst_ptr[i].y2 );
+               }
+             }
+           }
+         }
+         lastwire = save;
+         */
+         prepared_hash_wires = 0;
+         prepared_hilight_structs = 0;
+         prepare_netlist_structs(0);
+         for(w=savelastwire; w<lastwire; w++) {
+           find_inst_to_be_redrawn(wire[w].node);
+         }
+         bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+         draw();
+         bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+       }
      }
      if(! (what &END)) {
        x1=mx_snap;

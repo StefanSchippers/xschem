@@ -180,7 +180,7 @@ void print_verilog_signals(FILE *fd)
 
 /* wrapper to node_hash_lookup that handles buses */
 /* warning, in case of buses return only pointer to first bus element */
-struct node_hashentry *bus_hash_lookup(const char *token, const char *dir,int remove,int port,
+struct node_hashentry *bus_hash_lookup(const char *token, const char *dir, int what, int port,
        char *sig_type,char *verilog_type, char *value, char *class)
 {
  char *start, *string_ptr, c;
@@ -208,7 +208,7 @@ struct node_hashentry *bus_hash_lookup(const char *token, const char *dir,int re
   {
     *string_ptr='\0';  /* set end string at comma position.... */
     /* insert one bus element at a time in hash table */
-    ptr1=node_hash_lookup(start, dir, remove,port, sig_type, verilog_type, value, class, token);
+    ptr1=node_hash_lookup(start, dir, what,port, sig_type, verilog_type, value, class, token);
     if(!ptr2) ptr2=ptr1;
     dbg(3, "bus_hash_lookup(): processing node: %s\n", start);
     *string_ptr=c;     /* ....restore original char */
@@ -223,17 +223,18 @@ struct node_hashentry *bus_hash_lookup(const char *token, const char *dir,int re
 }
 
 
-struct node_hashentry *node_hash_lookup(const char *token, const char *dir,int remove,int port,
+struct node_hashentry *node_hash_lookup(const char *token, const char *dir,int what,int port,
        char *sig_type, char *verilog_type, char *value, char *class, const char *orig_tok)
-/*    token        dir      remove    ... what ... */
-/* -------------------------------------------------------------------------- */
-/* "whatever"     "in"/"out"    0,XINSERT  insert in hash table if not in and return NULL */
-/*                                        if already present just return entry address  */
-/*                                        and update in/out fields sum up port field */
-/*                                        return NULL otherwise */
-/* */
-/* "whatever"     whatever      1,XDELETE  delete entry if found return NULL */
-/* "whatever"     whatever      2,XLOOKUP  only look up element, dont insert */
+/*    token        dir et all      what           ... action ... 
+ * -------------------------------------------------------------------------- 
+ * "whatever"     "in"/"out"    0,XINSERT insert in hash table if not in and return NULL
+ *                                        if already present just return entry address
+ *                                        and update in/out fields sum up port field
+ *                                        return NULL otherwise
+ * "whatever"     "in"/"out"    0,XINSERT_NOREPLACE same as XINSERT but do not replace existing value
+ *
+ * "whatever"     whatever      2,XDELETE  delete entry if found return NULL
+ * "whatever"     whatever      1,XLOOKUP  only look up element, dont insert */
 {
  unsigned int hashcode, index;
  struct node_hashentry *entry, *saveptr, **preventry;
@@ -242,8 +243,8 @@ struct node_hashentry *node_hash_lookup(const char *token, const char *dir,int r
  struct drivers d;
 
  if(token==NULL || token[0]==0 ) return NULL;
- dbg(3, "node_hash_lookup(): called with: %s dir=%s remove=%d port=%d\n",
-        token, dir, remove, port);
+ dbg(3, "node_hash_lookup(): called with: %s dir=%s what=%d port=%d\n",
+        token, dir, what, port);
  d.in=d.out=d.inout=0;
  if(!strcmp(dir,"in") )  d.in=1;
  else if(!strcmp(dir,"out") ) d.out=1;
@@ -257,7 +258,7 @@ struct node_hashentry *node_hash_lookup(const char *token, const char *dir,int r
  {
   if( !entry )                  /* empty slot */
   {
-   if( remove==XINSERT )              /* insert data */
+   if( what==XINSERT || what==XINSERT_NOREPLACE)          /* insert data */
    {
     s=sizeof( struct node_hashentry );
     ptr= my_malloc(281, s );
@@ -286,7 +287,7 @@ struct node_hashentry *node_hash_lookup(const char *token, const char *dir,int r
   }
   if( entry -> hash==hashcode && strcmp(token,entry->token)==0 ) /* found matching tok */
   {
-   if(remove==XDELETE)                /* remove token from the hash table ... */
+   if(what==XDELETE)                /* remove token from the hash table ... */
    {
     saveptr=entry->next;
     my_free(854, &entry->token);

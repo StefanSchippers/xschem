@@ -146,12 +146,18 @@ int callback(int event, int mx, int my, KeySym key,
  {
   case EnterNotify:
     if(!sel_or_clip[0]) my_snprintf(sel_or_clip, S(sel_or_clip), "%s/%s", user_conf_dir, ".selection.sch"); /* 20181002 */
+
+    /* xschem window *sending* selected objects 
+       when the pointer comes back in abort copy operation since it has been done 
+       in another xschem window; STARTCOPY set and selection file does not exist any more */
     if( stat(sel_or_clip, &buf)  && (ui_state & STARTCOPY) ) 
     {
       copy_objects(ABORT); /* also unlinks sel_or_flip file */
       unselect_all(); 
     }
-    if(lastselected == 0 ) {
+    /* xschem window *receiving* selected objects */
+    /* no selected objects and selection file exists */
+    if(lastselected == 0  && !stat(sel_or_clip, &buf)) {
       dbg(2, "callback(): Enter event\n");
       mousex_snap = 490;
       mousey_snap = -340;
@@ -1410,6 +1416,8 @@ int callback(int event, int mx, int my, KeySym key,
       ORDER(x1, y1, x2, y2);
       storeobject(-1, x1, y1, x2, y2, WIRE,0,0,NULL);
     }
+    prepared_netlist_structs = 0;
+    prepared_hilight_structs = 0;
 
 
     zoom_full(1, 0);

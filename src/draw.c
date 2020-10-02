@@ -1581,7 +1581,6 @@ void draw(void)
       hash_wires();
     }
     if(!only_probes) { /* 20110112 */
-        
         dbg(3, "draw(): check4\n");
         for(c=0;c<cadlayers;c++)
         {
@@ -1649,6 +1648,7 @@ void draw(void)
             }
             /* --------------------------------- /20171224 */
           } else {
+
             for(i=0;i<lastinst;i++) {
               if(inst_ptr[i].ptr == -1) continue;
               symptr = (inst_ptr[i].ptr+instdef);

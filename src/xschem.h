@@ -87,7 +87,8 @@
 #include <X11/Xatom.h>
 #include <X11/xpm.h>
 #define xunlink unlink
-
+#define xfseek fseek
+#define xftell ftell
 #else
 #include <tkWinInt.h>
 #define xunlink _unlink
@@ -96,6 +97,8 @@ extern int XSetClipRectangles(register Display* dpy, GC gc, int clip_x_origin, i
 extern int XSetTile(Display* display, GC gctiled, Pixmap save_pixmap);
 extern void change_to_unix_fn(char* fn);
 extern char win_temp_dir[PATH_MAX];
+#define xfseek _fseeki64
+#define xftell _ftelli64
 #endif
 
 #include <tcl.h>
@@ -869,6 +872,7 @@ extern void arc_3_points(double x1, double y1, double x2, double y2, double x3, 
          double *x, double *y, double *r, double *a, double *b);
 extern void move_objects(int what,int merge, double dx, double dy);
 extern void copy_objects(int what);
+extern void find_inst_to_be_redrawn(const char *node);
 extern void pan(int what);
 extern void pan2(int what, int mx, int my);
 extern void zoom_box(int what);
@@ -962,11 +966,11 @@ extern int count_labels(char *s);
 extern int get_unnamed_node(int what, int mult, int node);
 extern void free_node_hash(void);
 extern struct node_hashentry 
-                *node_hash_lookup(const char *token, const char *dir,int remove, int port, char *sig_type, 
+                *node_hash_lookup(const char *token, const char *dir,int what, int port, char *sig_type, 
                 char *verilog_type, char *value, char *class, const char *orig_tok);
 extern void traverse_node_hash();
 extern struct node_hashentry 
-                *bus_hash_lookup(const char *token, const char *dir,int remove, int port, char *sig_type, 
+                *bus_hash_lookup(const char *token, const char *dir,int what, int port, char *sig_type, 
                 char *verilog_type, char *value, char *class);
 /* extern void insert_missing_pin(); */
 extern void round_schematic_to_grid(double cadsnap);
@@ -1019,6 +1023,7 @@ extern double nocairo_font_yscale;
 extern double cairo_font_line_spacing; /*  allows to change line spacing: default: 1.0 */
 extern double cairo_vert_correct;
 extern double nocairo_vert_correct;
+extern const char fopen_read_mode[];
 #ifdef HAS_CAIRO /*  20171105 */
 #include <cairo.h>
 #include <cairo-xlib.h>

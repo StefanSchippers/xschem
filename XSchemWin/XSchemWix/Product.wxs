@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="XSchem" Language="1033" Version="1.0.0.10" Manufacturer="XSchem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+	<Product Id="*" Name="XSchem" Language="1033" Version="1.0.0.11" Manufacturer="XSchem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
@@ -484,6 +484,9 @@
                     <Component Id="cmp27E7659104A411842F0420D7053BD27F" Guid="{5AC0422A-4AFF-46CF-8981-3E8C86218DDD}">
                         <File Id="filD6C6A5660AF3BDE07EC6A7E384F25685" KeyPath="yes" Source="../../doc\xschem_man\creating_symbols.html" />
                     </Component>
+                    <Component Id="cmpDEB74D0D620417EA4BA538766CB06A02" Guid="{1B201BC2-B20C-4110-9B63-8855E51DEEC8}">
+                      <File Id="filFE5A37A7845194D0997D8ECFC2BDBC88" KeyPath="yes" Source="../../doc\xschem_man\dashes.png" />
+                    </Component>
                     <Component Id="cmpE49B2AD390E78D91ADE0465806C4C919" Guid="{522F8BF6-850A-467F-9AC0-909AF3462DEA}">
                         <File Id="fil8511A5BD6B6DC90068C3259E5569E588" KeyPath="yes" Source="../../doc\xschem_man\developer_info.html" />
                     </Component>
@@ -690,6 +693,9 @@
                     </Component>
                     <Component Id="cmp59F023E27FDD7B234ECC639EE2522976" Guid="{93F91814-ECBC-40A5-9404-E195FF599674}">
                         <File Id="fil9B0609A35E6BAF4D23349C23B0810A0B" KeyPath="yes" Source="../../doc\xschem_man\special1.png" />
+                    </Component>
+                    <Component Id="cmpDD44C20809ECD127A88F7DE88096611B" Guid="{1386D03B-F14A-4215-B916-017B962904AE}">
+                      <File Id="filD92F807682A4CA83B3B3D159FCC28686" KeyPath="yes" Source="../../doc\xschem_man\spiceprefix.png" />
                     </Component>
                     <Component Id="cmp732E5B2D49C27C570ABDB29084D05C51" Guid="{4499136D-D415-477B-9F36-F11DAAFD501C}">
                         <File Id="filFB1CBAC7934327E0A7BCC596B737DDBA" KeyPath="yes" Source="../../doc\xschem_man\spice_backannotate.png" />
@@ -985,6 +991,9 @@
                     <Component Id="cmp3452F4393032E2BCF466F796BE5B8BC1" Guid="{06281A40-68AB-4138-AB56-5882A69611D6}">
                         <File Id="fil00883A873D49F2054B69E270D230D1D2" KeyPath="yes" Source="../../doc\xschem_man\xschem_elements_01.png" />
                     </Component>
+                    <Component Id="cmp9ACBF8902D10F23B410D1E5DF213E367" Guid="{C6149939-F0C2-4106-B425-C0ED5346E73E}">
+                      <File Id="fil4DB55A390AFDA2DE5176604EB0366630" KeyPath="yes" Source="../../doc\xschem_man\xschem_elements_02.png" />
+                    </Component>
                     <Component Id="cmpA8EFC822F728321D727C148FFCC1087E" Guid="{0FA02A87-EA57-4A1D-818A-4FF390F84E0F}">
                         <File Id="fil4AE90C6BCC0CE9714D22AE0D3C7E9968" KeyPath="yes" Source="../../doc\xschem_man\xschem_footer.html" />
                     </Component>
@@ -1107,6 +1116,7 @@
             <ComponentRef Id="cmp6CBE46479E7664346599B1EF23A21D31" />
             <ComponentRef Id="cmp088C9DD67B52A3BFF280B5B03611A1A2" />
             <ComponentRef Id="cmp27E7659104A411842F0420D7053BD27F" />
+            <ComponentRef Id="cmpDEB74D0D620417EA4BA538766CB06A02" />
             <ComponentRef Id="cmpE49B2AD390E78D91ADE0465806C4C919" />
             <ComponentRef Id="cmp4741CC8232567664140F33AEE03B38EB" />
             <ComponentRef Id="cmp668A06750E550AE50E1E502FC90FF9B8" />
@@ -1176,6 +1186,7 @@
             <ComponentRef Id="cmpE14EAA5599BC259217D3F2681EFFF54F" />
             <ComponentRef Id="cmpF5359475429AC9229DF1525D1CE5CBD9" />
             <ComponentRef Id="cmp59F023E27FDD7B234ECC639EE2522976" />
+            <ComponentRef Id="cmpDD44C20809ECD127A88F7DE88096611B" />
             <ComponentRef Id="cmp732E5B2D49C27C570ABDB29084D05C51" />
             <ComponentRef Id="cmpDEE941524809D6E54F8694EF265A5B62" />
             <ComponentRef Id="cmpA42615759AC426408A2751D3EE30399B" />
@@ -1274,6 +1285,7 @@
             <ComponentRef Id="cmp9F057B79775C11138DAC9F1536354C5F" />
             <ComponentRef Id="cmpD3DEDB3C114AAE2DB365CD35D9783E48" />
             <ComponentRef Id="cmp3452F4393032E2BCF466F796BE5B8BC1" />
+            <ComponentRef Id="cmp9ACBF8902D10F23B410D1E5DF213E367" />
             <ComponentRef Id="cmpA8EFC822F728321D727C148FFCC1087E" />
             <ComponentRef Id="cmpE0DE35DD51025BCC6111820E3A05FA78" />
             <ComponentRef Id="cmpA8D772FA90BF83FAE361088389726619" />
@@ -1452,6 +1464,9 @@
                     </Component>
                     <Component Id="cmpD6B8231E142BB1E2AC3D266CED7EA801" Guid="{ED8AFD6D-F5FC-48A0-B238-E29F8C793055}">
                         <File Id="fil4BB9252C0F5D2EE7597D51A329008FE5" KeyPath="yes" Source="../../xschem_library\devices\lab_pin.sym" />
+                    </Component>
+                    <Component Id="cmp43D63007EC7C7651A38CD2F5D76A6071" Guid="{65EE9537-1889-4742-BA4A-545A18E9F727}">
+                      <File Id="fil3B33DC095BA0A70C126F163911775C69" KeyPath="yes" Source="../../xschem_library\devices\lab_show.sym" />
                     </Component>
                     <Component Id="cmp83ACD9EEB6424099DC3E3994A23DDA02" Guid="{9C849D89-E0C8-495A-B158-32CA55C6CD26}">
                         <File Id="fil3E1E2A51D31C9417462F0A1AECA3E794" KeyPath="yes" Source="../../xschem_library\devices\lab_wire.sym" />
@@ -6404,6 +6419,7 @@
             <ComponentRef Id="cmp6C0D769630B1C4287304667E42E8799F" />
             <ComponentRef Id="cmp6B59BDD10233B043F2C7290A08F9EE15" />
             <ComponentRef Id="cmpD6B8231E142BB1E2AC3D266CED7EA801" />
+            <ComponentRef Id="cmp43D63007EC7C7651A38CD2F5D76A6071" />
             <ComponentRef Id="cmp83ACD9EEB6424099DC3E3994A23DDA02" />
             <ComponentRef Id="cmp959DCA1017056F08472B765ADA789B18" />
             <ComponentRef Id="cmp21004F1B65ACEBF807C81932002A0548" />

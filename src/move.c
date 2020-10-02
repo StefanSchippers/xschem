@@ -445,6 +445,23 @@ void draw_selection(GC g, int interruptable)
   lastsel = i;
 }
 
+void find_inst_to_be_redrawn(const char *node)
+{
+  int i, p, rects;
+  Instdef * sym;
+
+  for(i=0; i< lastinst; i++) {
+    sym = inst_ptr[i].ptr + instdef;
+    rects = sym->rects[PINLAYER];
+    for(p = 0; p < rects; p++) {
+      if(node && inst_ptr[i].node[p] && !strcmp(inst_ptr[i].node[p], node )) {
+        symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1, &inst_ptr[i].x2, &inst_ptr[i].y2 );
+        bbox(ADD, inst_ptr[i].x1, inst_ptr[i].y1, inst_ptr[i].x2, inst_ptr[i].y2 );
+      }
+    }
+  }
+}
+
 void copy_objects(int what)
 {
  int c, i, n, k;
@@ -516,7 +533,7 @@ void copy_objects(int what)
   newpropcnt=0;
   set_modify(1); push_undo(); /* 20150327 push_undo */
   prepared_hash_instances=0; /* 20171224 */
-  prepared_hash_wires=0; /* 20171224 */
+  prepared_hash_wires=0;
 
   /* calculate copied symbols bboxes before actually doing the move */
   for(i=0;i<lastselected;i++)
@@ -528,6 +545,62 @@ void copy_objects(int what)
     }
   }
 
+  for(i=0;i<lastselected;i++)
+  {
+   n = selectedgroup[i].n;
+   if(selectedgroup[i].type == WIRE)
+   {
+       check_wire_storage();
+       if(wire[n].bus){ /* 20171201 */
+         int ov, y1, y2;
+         ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
+         if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
+         else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
+         bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
+       } else {
+         int ov, y1, y2;
+         ov = cadhalfdotsize;
+         if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
+         else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
+         bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
+       }
+       if(rotatelocal) {
+         ROTATION(wire[n].x1, wire[n].y1, wire[n].x1, wire[n].y1, rx1,ry1);
+         ROTATION(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, rx2,ry2);
+       } else {
+         ROTATION(x1, y_1, wire[n].x1, wire[n].y1, rx1,ry1);
+         ROTATION(x1, y_1, wire[n].x2, wire[n].y2, rx2,ry2);
+       }
+       if( wire[n].sel & (SELECTED|SELECTED1) )
+       {
+        rx1+=deltax;
+        ry1+=deltay;
+       }
+       if( wire[n].sel & (SELECTED|SELECTED2) )
+       {
+        rx2+=deltax;
+        ry2+=deltay;
+       }
+       tmpx=rx1; /* used as temporary storage */
+       tmpy=ry1;
+       ORDER(rx1,ry1,rx2,ry2);
+       if( tmpx == rx2 &&  tmpy == ry2)
+       {
+        if(wire[n].sel == SELECTED1) wire[n].sel = SELECTED2;
+        else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
+       }
+       selectedgroup[i].n=lastwire;
+       storeobject(-1, rx1,ry1,rx2,ry2,WIRE,0,wire[n].sel,wire[n].prop_ptr);
+       wire[n].sel=0;
+       if(wire[n].bus) /* 20171201 */
+         drawline(WIRELAYER, THICK, rx1,ry1,rx2,ry2, 0);
+       else
+         drawline(WIRELAYER, ADD, rx1,ry1,rx2,ry2, 0);
+   }
+   drawline(WIRELAYER, END, 0.0, 0.0, 0.0, 0.0, 0);
+  }
+
+
   for(k=0;k<cadlayers;k++)
   {
    for(i=0;i<lastselected;i++)
@@ -535,58 +608,6 @@ void copy_objects(int what)
     c = selectedgroup[i].col;n = selectedgroup[i].n;
     switch(selectedgroup[i].type)
     {
-     case WIRE:
-      if(k == 0) {
-        check_wire_storage();
-        if(wire[n].bus){ /* 20171201 */
-          int ov, y1, y2;
-          bbox(ADD, wire[n].x1-bus_width, wire[n].y1-bus_width , wire[n].x2+bus_width , wire[n].y2+bus_width );
-          ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
-          if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
-          else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
-          bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
-        } else {
-          int ov, y1, y2;
-          ov = cadhalfdotsize;
-          if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
-          else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
-          bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
-        }
-        if(rotatelocal) {
-          ROTATION(wire[n].x1, wire[n].y1, wire[n].x1, wire[n].y1, rx1,ry1);
-          ROTATION(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, rx2,ry2);
-        } else {
-          ROTATION(x1, y_1, wire[n].x1, wire[n].y1, rx1,ry1);
-          ROTATION(x1, y_1, wire[n].x2, wire[n].y2, rx2,ry2);
-        }
-        if( wire[n].sel & (SELECTED|SELECTED1) )
-        {
-         rx1+=deltax;
-         ry1+=deltay;
-        }
-        if( wire[n].sel & (SELECTED|SELECTED2) )
-        {
-         rx2+=deltax;
-         ry2+=deltay;
-        }
-        tmpx=rx1; /* used as temporary storage */
-        tmpy=ry1;
-        ORDER(rx1,ry1,rx2,ry2);
-        if( tmpx == rx2 &&  tmpy == ry2)
-        {
-         if(wire[n].sel == SELECTED1) wire[n].sel = SELECTED2;
-         else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
-        }
-        selectedgroup[i].n=lastwire;
-        storeobject(-1, rx1,ry1,rx2,ry2,WIRE,0,wire[n].sel,wire[n].prop_ptr);
-        wire[n].sel=0;
-      } else if(k == WIRELAYER) {
-        if(wire[n].bus) /* 20171201 */
-          drawline(WIRELAYER, THICK, rx1,ry1,rx2,ry2, 0);
-        else
-          drawline(WIRELAYER, ADD, rx1,ry1,rx2,ry2, 0);
-      }
-      break;
      case LINE:
       if(c!=k) break; 
       bbox(ADD, line[c][n].x1, line[c][n].y1, line[c][n].x2, line[c][n].y2); /* 20181009 */
@@ -841,21 +862,35 @@ void copy_objects(int what)
    } /* end for(i=0;i<lastselected;i++) */
 
 
-   need_rebuild_selected_array=1;
-   rebuild_selected_array();
 
    if(k == 0 ) {
      /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
       * to translate @#n:net_name texts */
+     need_rebuild_selected_array=1;
+     rebuild_selected_array();
+     prepared_hash_wires=0;
      prepared_netlist_structs=0;
      prepared_hilight_structs=0;
+     if(show_pin_net_names) {
+       prepare_netlist_structs(0);
+     }
    }
+   
    for(i = 0; i < lastselected; i++) {
      n = selectedgroup[i].n;
      if(k == 0) {
        if(selectedgroup[i].type == ELEMENT) {
+         int p;
          symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 ); /* 20171201 */
          bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
+         if(show_pin_net_names) for(p = 0;  p < (inst_ptr[n].ptr + instdef)->rects[PINLAYER]; p++) {
+           if( inst_ptr[n].node && inst_ptr[n].node[p]) {
+              find_inst_to_be_redrawn(inst_ptr[n].node[p]);
+           }
+         }
+       }
+       if(show_pin_net_names && selectedgroup[i].type == WIRE) {
+         find_inst_to_be_redrawn(wire[n].node);
        }
      }
      /* draw_symbol(ADD,k, n,k, 0, 0, 0.0, 0.0); */
@@ -878,6 +913,7 @@ void copy_objects(int what)
  }
  draw_selection(gc[SELLAYER], 0);
 }
+
 
 /* merge param unused, RFU */
 void move_objects(int what, int merge, double dx, double dy)
@@ -947,7 +983,7 @@ void move_objects(int what, int merge, double dx, double dy)
   bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
   set_modify(1); 
   prepared_hash_instances=0; /* 20171224 */
-  prepared_hash_wires=0; /* 20171224 */
+  prepared_hash_wires=0;
   if( !(ui_state & (STARTMERGE | PLACE_SYMBOL)) ) {
     dbg(1, "move_objects(): push undo state\n");
     push_undo(); /* 20150327 push_undo */
@@ -968,8 +1004,17 @@ void move_objects(int what, int merge, double dx, double dy)
   {
     n = selectedgroup[i].n;
     if( selectedgroup[i].type == ELEMENT) {
+       int p;
        symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 ); /* 20171201 */
        bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
+       if(show_pin_net_names) for(p = 0;  p < (inst_ptr[n].ptr + instdef)->rects[PINLAYER]; p++) {
+         if( inst_ptr[n].node && inst_ptr[n].node[p]) {
+            find_inst_to_be_redrawn(inst_ptr[n].node[p]);
+         }
+       }
+    }
+    if(show_pin_net_names && selectedgroup[i].type == WIRE) {
+      find_inst_to_be_redrawn(wire[n].node);
     }
   }
   for(k=0;k<cadlayers;k++)
@@ -983,7 +1028,6 @@ void move_objects(int what, int merge, double dx, double dy)
       if(k == 0) {
         if(wire[n].bus){ /* 20171201 */
           int ov, y1, y2;
-          bbox(ADD, wire[n].x1-bus_width, wire[n].y1-bus_width , wire[n].x2+bus_width , wire[n].y2+bus_width );
           ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
           if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
           else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
@@ -1316,13 +1360,26 @@ void move_objects(int what, int merge, double dx, double dy)
       * to translate @#n:net_name texts */
      prepared_netlist_structs=0;
      prepared_hilight_structs=0;
+     prepared_hash_wires=0;
+     if(show_pin_net_names) {
+       prepare_netlist_structs(0);
+     }
    }
    for(i = 0; i < lastselected; i++) {
      n = selectedgroup[i].n;
      if(k == 0) {
        if(selectedgroup[i].type == ELEMENT) {
+         int p;
          symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 ); /* 20171201 */
          bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
+         if(show_pin_net_names) for(p = 0;  p < (inst_ptr[n].ptr + instdef)->rects[PINLAYER]; p++) {
+           if( inst_ptr[n].node && inst_ptr[n].node[p]) {
+              find_inst_to_be_redrawn(inst_ptr[n].node[p]);
+           }
+         }
+       }
+       if(show_pin_net_names && selectedgroup[i].type == WIRE) {
+         find_inst_to_be_redrawn(wire[n].node);
        }
      }
      /* draw_symbol(ADD,k, n,k, 0, 0, 0.0, 0.0); */

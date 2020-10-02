@@ -982,7 +982,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       printf("xschem load %s\n", escape_chars(n, name, PATH_MAX));
       fflush(stdout);
     }
-    if( (fd=fopen(name,"r"))== NULL) {
+    if( (fd=fopen(name,fopen_read_mode))== NULL) {
       fprintf(errfp, "load_schematic(): unable to open file: %s, filename=%s\n", 
           name, filename ? filename : "<NULL>");
       my_snprintf(msg, S(msg), "alert_ {Unable to open file: %s}", filename ? filename: "(null)");
@@ -1203,7 +1203,6 @@ void pop_undo(int redo)
     return;
   }
   #endif
-
   read_xschem_file(fd);
 
   #if HAS_POPEN==1
@@ -1222,6 +1221,7 @@ void pop_undo(int redo)
   prepared_netlist_structs=0;
   prepared_hilight_structs=0;
   update_conn_cues(0, 0);
+
   dbg(2, "pop_undo(): returning\n");
   if(event_reporting) {
     if(redo) printf("xschem redo\n");
@@ -1270,7 +1270,7 @@ void get_sym_type(const char *symname, char **type, struct int_hashentry **pinta
     /* ... if not found open file and look for 'type' into the global attributes. */
 
     if(embed_fd) fd = embed_fd;
-    else fd=fopen(name,"r");
+    else fd=fopen(name,fopen_read_mode);
 
     if(fd==NULL) {
       dbg(1, "get_sym_type(): Symbol not found: %s\n",name);
@@ -1549,11 +1549,11 @@ int load_sym_def(const char *name, FILE *embed_fd)
     my_strncpy(sympath, abs_sym_path(name, ""), S(sympath));
   }
   if(!embed_fd) {
-    if((lcc[level].fd=fopen(sympath,"r"))==NULL)
+    if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL)
     {
       if(recursion_counter == 1) dbg(0, "l_s_d(): Symbol not found: %s\n",sympath);
       my_snprintf(sympath, S(sympath), "%s/%s.sym", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing");
-      if((lcc[level].fd=fopen(sympath, "r"))==NULL)
+      if((lcc[level].fd=fopen(sympath, fopen_read_mode))==NULL)
       { 
        fprintf(errfp, "l_s_d(): systemlib/missing.sym missing, I give up\n");
        tcleval( "exit");
@@ -1880,7 +1880,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
 
       { 
         char c;
-        filepos = ftell(lcc[level].fd); /* store file pointer position to inspect next line */
+        filepos = xftell(lcc[level].fd); /* store file pointer position to inspect next line */
         fd_tmp = NULL;
         read_line(lcc[level].fd, 1);
         fscanf(lcc[level].fd, "%*1[\n]");
@@ -1893,7 +1893,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
          * opening/closing the symbol file and getting the 'type' attribute from global symbol attributes
          * if fd_tmp set read symbol from embedded tags '[...]' */
         get_sym_type(symname, &symtype, NULL, fd_tmp);
-        fseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
+        xfseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
       }
 
       dbg(1, "l_s_d(): level=%d, symname=%s symtype=%s\n", level, symname, symtype);
@@ -1925,17 +1925,17 @@ int load_sym_def(const char *name, FILE *embed_fd)
       use_lcc_pins(level, symtype, &sympath);
 
       /* find out if symbol is in an external file or embedded, set fd_tmp accordingly */
-      if ((fd_tmp = fopen(sympath, "r")) == NULL) {
+      if ((fd_tmp = fopen(sympath, fopen_read_mode)) == NULL) {
         char c;
         fprintf(errfp, "l_s_d(): unable to open file to read schematic: %s\n", sympath);
-        filepos = ftell(lcc[level].fd); /* store file pointer position to inspect next char */
+        filepos = xftell(lcc[level].fd); /* store file pointer position to inspect next char */
         read_line(lcc[level].fd, 1);
         fscanf(lcc[level].fd, "%*1[\n]");
         if(fscanf(lcc[level].fd," %c",&c)!=EOF) {
           if( c == '[') {
             fd_tmp = lcc[level].fd;
           } else {
-            fseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
+            xfseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
           }
         }
       }

@@ -206,135 +206,162 @@ static void del_rect_line_arc_poly(void)
 
 void delete(void)
 {
- int i,j;
- #ifdef HAS_CAIRO
- int customfont;
- #endif
+  int i, j, n;
+  #ifdef HAS_CAIRO
+  int customfont;
+  #endif
 
- dbg(3, "delete(): start\n");
- j = 0;
- bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
- rebuild_selected_array();
- if(lastselected) push_undo(); /* 20150327 */
- for(i=0;i<lasttext;i++)
- {
-  if(textelement[i].sel == SELECTED)
-  {
-   rot = textelement[i].rot;
-   flip = textelement[i].flip;
-   #ifdef HAS_CAIRO
-   customfont = set_text_custom_font(&textelement[i]);
-   #endif
-   text_bbox(textelement[i].txt_ptr, textelement[i].xscale,
-             textelement[i].yscale, rot, flip, textelement[i].hcenter, textelement[i].vcenter,
-             textelement[i].x0, textelement[i].y0,
-             &xx1,&yy1, &xx2,&yy2);
-   #ifdef HAS_CAIRO
-   if(customfont) cairo_restore(ctx);
-   #endif
-   bbox(ADD, xx1, yy1, xx2, yy2 );
-   my_free(935, &textelement[i].prop_ptr);
-   my_free(936, &textelement[i].font);
-   my_free(937, &textelement[i].txt_ptr);
-   set_modify(1);
-   j++;
-   continue;
-  }
-  if(j)
-  {
-   dbg(1, "select(); deleting string %d\n",i-j);
-   textelement[i-j] = textelement[i];
-   dbg(1, "select(); new string %d = %s\n",i-j,textelement[i-j].txt_ptr);
-  }
- }
- lasttext -= j;                
- j = 0;
+  dbg(3, "delete(): start\n");
+  j = 0;
+  bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+  rebuild_selected_array();
+  if(lastselected) push_undo(); /* 20150327 */
 
- prepared_hash_instances=0;
 
- prepared_netlist_structs=0;
- prepared_hilight_structs=0;
 
- /* first calculate bbox, because symbol_bbox() needs translate (@#0:net_name) which needs prepare_netlist_structs
-  * which needs a consistent inst_ptr[] data structure */
- for(i=0;i<lastinst;i++)
- {
-  if(inst_ptr[i].sel == SELECTED)
-  {
-   symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1, &inst_ptr[i].x2, &inst_ptr[i].y2); /*20171201 */
-   bbox(ADD, inst_ptr[i].x1, inst_ptr[i].y1, inst_ptr[i].x2, inst_ptr[i].y2);
-  }
- }
- for(i=0;i<lastinst;i++)
- {
-  if(inst_ptr[i].sel == SELECTED)
-  {
-   set_modify(1);
-   if(inst_ptr[i].prop_ptr != NULL) 
-   {
-    my_free(938, &inst_ptr[i].prop_ptr);
+  /* first calculate bbox, because symbol_bbox() needs translate (@#0:net_name) which needs prepare_netlist_structs
+   * which needs a consistent inst_ptr[] data structure */
+   prepared_netlist_structs=0;
+   prepared_hilight_structs=0;
+   if(show_pin_net_names) {
+     prepare_netlist_structs(0);
    }
-   delete_inst_node(i);
-   my_free(939, &inst_ptr[i].name);
-   my_free(940, &inst_ptr[i].instname); /* 20150409 */
-   j++;
-   continue;
-  }
-  if(j) 
-  {
-   inst_ptr[i-j] = inst_ptr[i];
-  }
- }
- lastinst-=j;
+   for(i = 0; i < lastselected; i++) {
+     n = selectedgroup[i].n;
+     if(selectedgroup[i].type == ELEMENT) {
+       int p;
+       symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 ); /* 20171201 */
+       bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
+       if(show_pin_net_names) for(p = 0;  p < (inst_ptr[n].ptr + instdef)->rects[PINLAYER]; p++) {
+         if( inst_ptr[n].node && inst_ptr[n].node[p]) {
+            find_inst_to_be_redrawn(inst_ptr[n].node[p]);
+         }
+       }
+     }
+     if(show_pin_net_names && selectedgroup[i].type == WIRE && wire[n].node) {
+       find_inst_to_be_redrawn(wire[n].node);
+     }
+   }
 
+
+
+
+  for(i=0;i<lastinst;i++)
+  {
+    if(inst_ptr[i].sel == SELECTED)
+    {
+      symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1, &inst_ptr[i].x2, &inst_ptr[i].y2); /*20171201 */
+      bbox(ADD, inst_ptr[i].x1, inst_ptr[i].y1, inst_ptr[i].x2, inst_ptr[i].y2);
+    }
+  }
+
+  for(i=0;i<lasttext;i++)
+  {
+    if(textelement[i].sel == SELECTED)
+    {
+      rot = textelement[i].rot;
+      flip = textelement[i].flip;
+      #ifdef HAS_CAIRO
+      customfont = set_text_custom_font(&textelement[i]);
+      #endif
+      text_bbox(textelement[i].txt_ptr, textelement[i].xscale,
+                textelement[i].yscale, rot, flip, textelement[i].hcenter, textelement[i].vcenter,
+                textelement[i].x0, textelement[i].y0,
+                &xx1,&yy1, &xx2,&yy2);
+      #ifdef HAS_CAIRO
+      if(customfont) cairo_restore(ctx);
+      #endif
+      bbox(ADD, xx1, yy1, xx2, yy2 );
+      my_free(935, &textelement[i].prop_ptr);
+      my_free(936, &textelement[i].font);
+      my_free(937, &textelement[i].txt_ptr);
+      set_modify(1);
+      j++;
+      continue;
+    }
+    if(j)
+    {
+      dbg(1, "select(); deleting string %d\n",i-j);
+      textelement[i-j] = textelement[i];
+      dbg(1, "select(); new string %d = %s\n",i-j,textelement[i-j].txt_ptr);
+    }
+  }
+  lasttext -= j;                
+  j = 0;
+
+  for(i=0;i<lastinst;i++)
+  {
+    if(inst_ptr[i].sel == SELECTED)
+    {
+      set_modify(1);
+      if(inst_ptr[i].prop_ptr != NULL) 
+      {
+        my_free(938, &inst_ptr[i].prop_ptr);
+      }
+      delete_inst_node(i);
+      my_free(939, &inst_ptr[i].name);
+      my_free(940, &inst_ptr[i].instname); /* 20150409 */
+      j++;
+      continue;
+    }
+    if(j) 
+    {
+      inst_ptr[i-j] = inst_ptr[i];
+    }
+  }
+  lastinst-=j;
+ 
+  if(j) {
+    prepared_netlist_structs=0;
+    prepared_hilight_structs=0;
+  }
   j = 0; 
   for(i=0;i<lastwire;i++)
   {
-   if(wire[i].sel == SELECTED)
-   {
-    j++; 
-    if(wire[i].bus){ /* 20171201 */
-      int ov, y1, y2;
-      ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
-      if(wire[i].y1 < wire[i].y2) { y1 = wire[i].y1-ov; y2 = wire[i].y2+ov; }
-      else                        { y1 = wire[i].y1+ov; y2 = wire[i].y2-ov; }
-      bbox(ADD, wire[i].x1-ov, y1 , wire[i].x2+ov , y2 );
-    } else {
-      int ov, y1, y2;
-      ov = cadhalfdotsize;
-      if(wire[i].y1 < wire[i].y2) { y1 = wire[i].y1-ov; y2 = wire[i].y2+ov; }
-      else                        { y1 = wire[i].y1+ov; y2 = wire[i].y2-ov; }
-      bbox(ADD, wire[i].x1-ov, y1 , wire[i].x2+ov , y2 );
+    if(wire[i].sel == SELECTED) {
+      j++; 
+      if(wire[i].bus){ /* 20171201 */
+        int ov, y1, y2;
+        ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
+        if(wire[i].y1 < wire[i].y2) { y1 = wire[i].y1-ov; y2 = wire[i].y2+ov; }
+        else                        { y1 = wire[i].y1+ov; y2 = wire[i].y2-ov; }
+        bbox(ADD, wire[i].x1-ov, y1 , wire[i].x2+ov , y2 );
+      } else {
+        int ov, y1, y2;
+        ov = cadhalfdotsize;
+        if(wire[i].y1 < wire[i].y2) { y1 = wire[i].y1-ov; y2 = wire[i].y2+ov; }
+        else                        { y1 = wire[i].y1+ov; y2 = wire[i].y2-ov; }
+        bbox(ADD, wire[i].x1-ov, y1 , wire[i].x2+ov , y2 );
+      }
+  
+      my_free(941, &wire[i].prop_ptr);
+      my_free(942, &wire[i].node);
+  
+      set_modify(1);
+      prepared_hash_wires=0;
+      continue;
     }
-    my_free(941, &wire[i].prop_ptr);
-    my_free(942, &wire[i].node);
-
-    set_modify(1);
-    prepared_hash_wires=0;
-    prepared_netlist_structs=0;
-    prepared_hilight_structs=0;
-    
-    continue;
-   }
-   if(j) 
-   {
-    wire[i-j] = wire[i];
-   }
+    if(j) {
+      wire[i-j] = wire[i];
+    }
   }
   lastwire -= j; 
+  if(j) {
+    prepared_netlist_structs=0;
+    prepared_hilight_structs=0;
+  }
 
- del_rect_line_arc_poly();
- update_conn_cues(0, 0);
- lastselected = 0;
- bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
- draw();
- bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
- ui_state &= ~SELECTION;
- if(event_reporting) {
-   printf("xschem delete\n");
-   fflush(stdout);
- }
-
+  del_rect_line_arc_poly();
+  update_conn_cues(0, 0);
+  lastselected = 0;
+  bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+  draw();
+  bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+  ui_state &= ~SELECTION;
+  if(event_reporting) {
+    printf("xschem delete\n");
+    fflush(stdout);
+  }
 }
 
 
@@ -452,12 +479,6 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    cairo_clip(save_ctx);
    #endif
    break;
-  /* 
-  case DRAW:
-   XCopyArea(display, save_pixmap, window, gctiled, xrect[0].x, xrect[0].y,
-       xrect[0].width, xrect[0].height, xrect[0].x, xrect[0].y);
-  */
-
   default: 
    break;
  }

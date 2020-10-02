@@ -43,8 +43,8 @@ function replace_pattern(old, new)
   replace_pattern("global_vhdl_netlist[:(:][:):]: opening.*$", "global_vhdl_netlist(): opening ***Removed***")
   replace_pattern("global_tedax_netlist[:(:][:):]: opening.*$", "global_tedax_netlist(): opening***Removed***")
   replace_pattern("global_spice_netlist[:(:][:):]: opening.*$", "global_spice_netlist(): opening ***Removed***")
-  replace_pattern("load_sym_def[:(:][:):]: fopen.*$", "load_sym_def(): fopen ***Removed***")
-  replace_pattern("load_sym_def[:(:][:):]: fclose.*$", "load_sym_def(): fclose ***Removed***")
+  replace_pattern("l_s_d[:(:][:):]: fopen.*$", "load_sym_def(): fopen ***Removed***")
+  replace_pattern("l_s_d[:(:][:):]: fclose.*$", "load_sym_def(): fclose ***Removed***")
   __a[__lines++] = $0
 }
 

@@ -840,6 +840,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      else prop = NULL;
      push_undo();
      storeobject(pos, x1,y1,x2,y2,WIRE,0,0,prop);
+     prepared_hilight_structs=0;
+     prepared_netlist_structs=0;
+     prepared_hash_wires=0;
+
      save = draw_window; draw_window = 1;
      drawline(WIRELAYER,NOW, x1,y1,x2,y2, 0);
      draw_window = save;

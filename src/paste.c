@@ -226,9 +226,6 @@ void merge_inst(int k,FILE *fd)
     my_free(871, &prop_ptr);
     lastinst++;
     set_modify(1);
-    prepared_hash_instances=0;
-    prepared_netlist_structs=0;
-    prepared_hilight_structs=0;
 }
 
 
@@ -246,7 +243,7 @@ void match_merged_inst(int old)
      symbol = match_symbol(inst_ptr[i].name);
      if(symbol == -1)
      {
-      dbg(1, "merge_inst(): missing symbol, skipping...\n");
+      dbg(1, "match_merged_inst(): missing symbol, skipping...\n");
       my_free(872, &inst_ptr[i].prop_ptr);  /* 06052001 remove properties */
       my_free(873, &inst_ptr[i].name);      /* 06052001 remove symname   */
       my_free(874, &inst_ptr[i].instname);
@@ -299,6 +296,7 @@ void merge_file(int selection_load, const char ext[])
     char *aux_ptr=NULL;
     int got_mouse;
 
+
     if(selection_load==0)
     {
      if(!strcmp(ext,"")) {      /* 20071215 */
@@ -320,8 +318,11 @@ void merge_file(int selection_load, const char ext[])
     {
       my_snprintf(name, S(name), "%s/.clipboard.sch", user_conf_dir);
     }
-    if( (fd=fopen(name,"r"))!= NULL)
-    {
+    if( (fd=fopen(name,"r"))!= NULL) {
+     prepared_hilight_structs=0;
+     prepared_netlist_structs=0;
+     prepared_hash_instances=0;
+     prepared_hash_wires=0;
      got_mouse = 0;
      push_undo(); /* 20150327 */
      unselect_all();
@@ -400,5 +401,7 @@ void merge_file(int selection_load, const char ext[])
      mousex_snap = mx_double_save;
      mousey_snap = my_double_save;
      move_objects(RUBBER,0,0,0);
+    } else {
+      dbg(0, "merge_file(): can not open %s\n", name);
     }
 }

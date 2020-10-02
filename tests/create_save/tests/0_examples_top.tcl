@@ -22,7 +22,7 @@ xschem instance ../../../xschem_library/devices/title.sym 160 -30 0 0 {name=l1 a
 xschem instance ../../../xschem_library/examples/cmos_example.sym 160 -350 0 0 {name=x6}
 xschem instance ../../../xschem_library/examples/greycnt.sym 160 -390 0 0 {name=x8}
 xschem instance ../../../xschem_library/examples/loading.sym 160 -430 0 0 {name=x9}
-xschem instance ../../../xschem_library/examples/inv.sym 930 -200 0 0 {name=E1 TABLE="1.4 3.0 1.6 0.0"}
+xschem instance ../../../xschem_library/examples/and.sym 930 -200 0 0 {name=E1 TABLE="1.4 3.0 1.6 0.0"}
 xschem instance ../../../xschem_library/devices/launcher.sym 460 -210 0 0 {name=h1 descr="XSCHEM ON REPO.HU" url="http://repo.hu/projects/xschem"program=x-www-browser}
 xschem instance ../../../xschem_library/devices/launcher.sym 460 -160 0 0 {name=h3 descr="Toggle light/dark colorscheme" tclcommand="xschem toggle_colorscheme"}
 xschem instance ../../../xschem_library/devices/launcher.sym 460 -260 0 0 {name=h2 descr="LOCAL DOCUMENTATION" url="$\{XSCHEM_SHAREDIR\}/../doc/xschem/index.html"program=x-www-browser}

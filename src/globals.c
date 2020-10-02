@@ -41,6 +41,9 @@ char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
 char pwd_dir[PATH_MAX];  /* obtained via getcwd() */
 #ifndef __unix__
 char win_temp_dir[PATH_MAX]="";
+const char fopen_read_mode[] = "rb";
+#else
+const char fopen_read_mode[] = "r";
 #endif
 int load_initfile=1;
 char plotfile[PATH_MAX] = {'\0'};

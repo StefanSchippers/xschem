@@ -946,6 +946,16 @@ void update_symbol(const char *result, int x)
   only_different=atoi(tclgetvar("preserve_unchanged_attrs") );
   copy_cell=atoi(tclgetvar("user_wants_copy_cell") ); /* 20150911 */
 
+  bbox(BEGIN,0.0,0.0,0.0,0.0);
+  if(show_pin_net_names) {
+    prepare_netlist_structs(0);
+    for(k = 0;  k < (inst_ptr[i].ptr + instdef)->rects[PINLAYER]; k++) {
+      if( inst_ptr[i].node && inst_ptr[i].node[k]) {
+         find_inst_to_be_redrawn(inst_ptr[i].node[k]);
+      }
+    }
+  }
+
   /* 20191227 necessary? --> Yes since a symbol copy has already been done 
      in edit_symbol_property() -> tcl edit_prop, this ensures new symbol is loaded from disk.
      if for some reason a symbol with matching name is loaded in xschem this
@@ -969,7 +979,6 @@ void update_symbol(const char *result, int x)
       prefix=(get_tok_value((instdef+sym_number)->templ, "name",0))[0]; /* get new symbol prefix  */
     }
   }
-  bbox(BEGIN,0.0,0.0,0.0,0.0);
 
   /* instance name prefix (1st char) changed? --> allow_change_name=1 */
   allow_change_name = 0;
@@ -1083,6 +1092,16 @@ void update_symbol(const char *result, int x)
  
    bbox(ADD, inst_ptr[i].x1, inst_ptr[i].y1, inst_ptr[i].x2, inst_ptr[i].y2);
   } 
+
+  if(show_pin_net_names) {
+    prepare_netlist_structs(0);
+    for(k = 0;  k < (inst_ptr[i].ptr + instdef)->rects[PINLAYER]; k++) {
+      if( inst_ptr[i].node && inst_ptr[i].node[k]) {
+         find_inst_to_be_redrawn(inst_ptr[i].node[k]);
+      }
+    }
+  }
+
   /* redraw symbol with new props */
   bbox(SET,0.0,0.0,0.0,0.0);
   dbg(1, "update_symbol(): redrawing inst_ptr.txtprop string\n");
