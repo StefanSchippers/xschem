@@ -1354,16 +1354,26 @@ void calc_drawing_bbox(Box *boundbox, int selected)
  }
  for(i=0;i<lastwire;i++)
  { 
+   int ov, y1, y2;
    if(selected == 1 && !wire[i].sel) continue;
    if(selected == 2) {
      const char *str;
      str = get_tok_value(wire[i].prop_ptr, "lab",0);
      if(!str[0] || !bus_hilight_lookup(str, 0,XLOOKUP)) continue;
    }
-   tmp.x1=wire[i].x1;
-   tmp.x2=wire[i].x2;
-   tmp.y1=wire[i].y1;
-   tmp.y2=wire[i].y2;
+   if(wire[i].bus){ /* 20171201 */
+     ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
+     if(wire[i].y1 < wire[i].y2) { y1 = wire[i].y1-ov; y2 = wire[i].y2+ov; }
+     else                        { y1 = wire[i].y1+ov; y2 = wire[i].y2-ov; }
+   } else {
+     ov = cadhalfdotsize;
+     if(wire[i].y1 < wire[i].y2) { y1 = wire[i].y1-ov; y2 = wire[i].y2+ov; }
+     else                        { y1 = wire[i].y1+ov; y2 = wire[i].y2-ov; }
+   }
+   tmp.x1 = wire[i].x1-ov;
+   tmp.x2 = wire[i].x2+ov;
+   tmp.y1 = y1;
+   tmp.y2 = y2;
    count++;
    updatebbox(count,boundbox,&tmp);
  }
