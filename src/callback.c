@@ -139,7 +139,7 @@ int callback(int event, int mx, int my, KeySym key,
  mousey=Y_TO_XSCHEM(my); 
  mousex_snap=ROUND(mousex / cadsnap) * cadsnap;
  mousey_snap=ROUND(mousey / cadsnap) * cadsnap;
- my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s", 
+ if(lastselected > 1) my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s", 
    mousex_snap, mousey_snap, lastselected, sch_path[currentsch] );
  statusmsg(str,1);
  switch(event)
