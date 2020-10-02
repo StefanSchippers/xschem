@@ -654,16 +654,18 @@ const char *find_bracket(const char *s)
  return s;
 }
 
+/* caller is responsible for freeing up storage for return value
+ * return NULL if no matching token found */
 char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
 { 
    int attr_size;
-   char *pinname = NULL, *pname = NULL, *pinnumber = NULL;
+   char *pinname = NULL, *pname = NULL, *pin_attr_value = NULL;
    char *pnumber = NULL;
    const char *str;
 
 
    dbg(1, "get_pin_attr_from_inst: inst=%d pin=%d attr=%s\n", inst, pin, attr);
-   pinnumber = NULL;
+   pin_attr_value = NULL;
    str = get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][pin].prop_ptr,"name",0);
    if(str[0]) {
      attr_size = strlen(attr);
@@ -673,17 +675,17 @@ char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
      my_free(981, &pinname);
      str = get_tok_value(inst_ptr[inst].prop_ptr, pname, 0);
      my_free(982, &pname);
-     if(get_tok_size) my_strdup2(51, &pinnumber, str);
+     if(get_tok_size) my_strdup2(51, &pin_attr_value, str);
      else {
        pnumber = my_malloc(52, attr_size + 100);
        my_snprintf(pnumber, attr_size + 100, "%s(%d)", attr, pin);
        str = get_tok_value(inst_ptr[inst].prop_ptr, pnumber, 0);
        dbg(1, "get_pin_attr_from_inst: pnumber=%s\n", pnumber);
        my_free(983, &pnumber);
-       if(get_tok_size) my_strdup2(40, &pinnumber, str);
+       if(get_tok_size) my_strdup2(40, &pin_attr_value, str);
      }
    }
-   return pinnumber; /* caller is responsible for freeing up storage for pinnumber */
+   return pin_attr_value; /* caller is responsible for freeing up storage for pin_attr_value */
 }
 
 void new_prop_string(int i, const char *old_prop, int fast, int disable_unique_names)
@@ -2614,39 +2616,55 @@ const char *translate(int inst, char* s)
        }
      }
      if(n>=0  && pin_attr[0] && n < (inst_ptr[inst].ptr+instdef)->rects[PINLAYER]) {
-       char *pinnumber;
-       pinnumber = get_pin_attr_from_inst(inst, n, pin_attr);
-       if(!pinnumber) {
-         my_strdup2(499, &pinnumber, get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][n].prop_ptr, pin_attr, 2));
+       char *pin_attr_value = NULL;
+
+       /* get pin_attr value from instance: "pinnumber(ENABLE)=5" --> return 5, attr "pinnumber" of pin "ENABLE"
+        *                                   "pinnumber(3)=6       --> return 6, attr "pinnumber" of 4th pin */
+       if(!pin_attr_value) pin_attr_value = get_pin_attr_from_inst(inst, n, pin_attr);
+       /* get pin_attr from instance pin attribute string */
+       if(!pin_attr_value) {
+        my_strdup(499, &pin_attr_value, 
+           get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][n].prop_ptr, pin_attr, 2));
        }
+
        /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin
         * if 'net_name=true' attribute is set in instance or symbol */
-       if(!pinnumber[0] && !strcmp(pin_attr, "net_name")) {
-         if( show_pin_net_names && (!strcmp(get_tok_value(inst_ptr[inst].prop_ptr, "net_name", 0), "true") ||
+       if(  !pin_attr_value && !strcmp(pin_attr, "net_name")) {
+         if( 
+            show_pin_net_names && (!strcmp(get_tok_value(inst_ptr[inst].prop_ptr, "net_name", 0), "true") ||
             !strcmp(get_tok_value( (inst_ptr[inst].ptr + instdef)->prop_ptr, "net_name", 0), "true")) ) {
-           prepare_netlist_structs(0);
-           my_strdup2(1175, &pinnumber, inst_ptr[inst].node && inst_ptr[inst].node[n] ? inst_ptr[inst].node[n] : "?");
+            prepare_netlist_structs(0);
+            my_strdup2(1175, &pin_attr_value, inst_ptr[inst].node && inst_ptr[inst].node[n] ? inst_ptr[inst].node[n] : "?");
+         /* do not show net_name: set to empty string */
+         } else {
+            my_strdup2(1178, &pin_attr_value, "");
          }
-       } else {
-         if(!pinnumber[0]) my_strdup(379, &pinnumber, "--UNDEF--");
        }
-       value = pinnumber;
-       if(value[0] != 0) {
+       if(!pin_attr_value ) my_strdup(379, &pin_attr_value, "--UNDEF--");
+       value = pin_attr_value;
+       /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
+       if(value && value[0] != 0 && !strcmp(pin_attr, "pinnumber") ) {
          char *ss;
          int slot;
+         char *tmpstr = NULL;
+         tmpstr = my_malloc(1176, sizeof(inst_ptr[inst].instname));
          if( (ss=strchr(inst_ptr[inst].instname, ':')) ) {
-           sscanf(ss+1, "%d", &slot);
-           if(strstr(value,":")) value = find_nth(value, ':', slot);
+           sscanf(ss+1, "%s", tmpstr);
+           if(isonlydigit(tmpstr)) {
+             slot = atoi(tmpstr);
+             if(strstr(value,":")) value = find_nth(value, ':', slot);
+           }
+           my_free(1177, &tmpstr);
          }
-         tmp=strlen(value);
-         if(result_pos + tmp>=size) {
-           size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-           my_realloc(533, &result,size);
-         }
-         memcpy(result+result_pos, value, tmp+1); /* 20180923 */
-         result_pos+=tmp;
        }
-       my_free(1064, &pinnumber);
+       tmp=strlen(value);
+       if(result_pos + tmp>=size) {
+         size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
+         my_realloc(533, &result,size);
+       }
+       memcpy(result+result_pos, value, tmp+1); /* 20180923 */
+       result_pos+=tmp;
+       my_free(1064, &pin_attr_value);
      }
      my_free(1065, &pin_attr);
      my_free(1066, &pin_num_or_name);
