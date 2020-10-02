@@ -1381,14 +1381,12 @@ int callback(int event, int mx, int my, KeySym key,
     draw();
     break;
    }
-   if(0 && key=='~' && (state & ControlMask))    /* testmode */
+   if(key=='~' && (state & ControlMask))    /* testmode */
    {
-
-    int i;
-    dbg(0, "prepared_netlist_structs=%d prepared_hilight_structs=%d\n", prepared_netlist_structs, prepared_hilight_structs);
-    for(i = 0 ; i < lastinst; i++) {
-      dbg(0, "instance: %s, %s flags=%d\n", inst_ptr[i].name, inst_ptr[i].instname, inst_ptr[i].flags);
-    }
+    dbg(0, "test mode\n");
+    prepared_hilight_structs = 0;
+    prepared_hash_wires=0;
+    prepare_netlist_structs(0);
     break;
    }
    if(0 && (key=='|') && !(state&ControlMask))         /* testmode */
