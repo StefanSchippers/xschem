@@ -949,6 +949,7 @@ void update_symbol(const char *result, int x)
   bbox(BEGIN,0.0,0.0,0.0,0.0);
   if(show_pin_net_names) {
     prepare_netlist_structs(0);
+    find_inst_hash_clear();
     for(k = 0;  k < (inst_ptr[i].ptr + instdef)->rects[PINLAYER]; k++) {
       if( inst_ptr[i].node && inst_ptr[i].node[k]) {
          find_inst_to_be_redrawn(inst_ptr[i].node[k]);
@@ -1095,6 +1096,7 @@ void update_symbol(const char *result, int x)
 
   if(show_pin_net_names) {
     prepare_netlist_structs(0);
+    find_inst_hash_clear();
     for(k = 0;  k < (inst_ptr[i].ptr + instdef)->rects[PINLAYER]; k++) {
       if( inst_ptr[i].node && inst_ptr[i].node[k]) {
          find_inst_to_be_redrawn(inst_ptr[i].node[k]);

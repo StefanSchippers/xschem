@@ -224,6 +224,7 @@ void delete(void)
    prepared_netlist_structs=0;
    prepared_hilight_structs=0;
    if(show_pin_net_names) {
+     find_inst_hash_clear();
      prepare_netlist_structs(0);
    }
    for(i = 0; i < lastselected; i++) {

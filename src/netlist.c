@@ -631,7 +631,6 @@ void prepare_netlist_structs(int for_netlist)
   if (for_netlist>0 && prepared_netlist_structs) return; /* 20160413 */
   else if (!for_netlist && prepared_hilight_structs) return; /* 20171210 */
   else delete_netlist_structs(); 
-  here();
   if (for_netlist>0) {
     my_snprintf(nn, S(nn), "-----------%s", schematic[currentsch]);
     statusmsg(nn,2);

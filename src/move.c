@@ -445,11 +445,21 @@ void draw_selection(GC g, int interruptable)
   lastsel = i;
 }
 
+static struct int_hashentry *nodetable[HASHSIZE];
+
+void find_inst_hash_clear(void)
+{
+  free_int_hash(nodetable);
+}
+
 void find_inst_to_be_redrawn(const char *node)
 {
   int i, p, rects;
   Instdef * sym;
 
+
+  if(int_hash_lookup(nodetable, node, 0, XINSERT_NOREPLACE)) return;
+  
   for(i=0; i< lastinst; i++) {
     sym = inst_ptr[i].ptr + instdef;
     rects = sym->rects[PINLAYER];
@@ -534,7 +544,7 @@ void copy_objects(int what)
   set_modify(1); push_undo(); /* 20150327 push_undo */
   prepared_hash_instances=0; /* 20171224 */
   prepared_hash_wires=0;
-
+  if(show_pin_net_names) find_inst_hash_clear();
   /* calculate copied symbols bboxes before actually doing the move */
   for(i=0;i<lastselected;i++)
   {
@@ -984,6 +994,7 @@ void move_objects(int what, int merge, double dx, double dy)
   set_modify(1); 
   prepared_hash_instances=0; /* 20171224 */
   prepared_hash_wires=0;
+  if(show_pin_net_names) find_inst_hash_clear();
   if( !(ui_state & (STARTMERGE | PLACE_SYMBOL)) ) {
     dbg(1, "move_objects(): push undo state\n");
     push_undo(); /* 20150327 push_undo */
