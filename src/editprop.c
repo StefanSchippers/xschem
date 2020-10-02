@@ -988,8 +988,7 @@ void update_symbol(const char *result, int x)
     new_name = get_tok_value(new_prop, "name", 0);
     if(!name || new_name[0] != name[0]) allow_change_name = 1;
   }
-  for(k=0;k<lastselected;k++) 
-  {
+  for(k=0;k<lastselected;k++) {
    dbg(1, "update_symbol(): for k loop: k=%d\n", k);
    if(selectedgroup[k].type!=ELEMENT) continue;
    i=selectedgroup[k].n;
@@ -1086,13 +1085,22 @@ void update_symbol(const char *result, int x)
      set_different_token(&ss, new_prop, old_prop, ELEMENT, i);
      my_free(730, &ss);
    }
-
    my_strdup2(90, &inst_ptr[i].instname, get_tok_value(inst_ptr[i].prop_ptr, "name",0)); /* 20150409 */
+  }  /* end for(k=0;k<lastselected;k++) */
+
    /* new symbol bbox after prop changes (may change due to text length) */
-   symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1, &inst_ptr[i].x2, &inst_ptr[i].y2);
- 
-   bbox(ADD, inst_ptr[i].x1, inst_ptr[i].y1, inst_ptr[i].x2, inst_ptr[i].y2);
-  } 
+  if(modified) {
+    prepared_hash_instances=0;
+    prepared_netlist_structs=0;
+    prepared_hilight_structs=0;
+    for(k=0;k<lastselected;k++) {
+      if(selectedgroup[k].type!=ELEMENT) continue;
+      i=selectedgroup[k].n;
+      symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1, &inst_ptr[i].x2, &inst_ptr[i].y2);
+      bbox(ADD, inst_ptr[i].x1, inst_ptr[i].y1, inst_ptr[i].x2, inst_ptr[i].y2);
+    }
+  }
+
 
   if(show_pin_net_names) {
     prepare_netlist_structs(0);
