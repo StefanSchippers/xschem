@@ -145,7 +145,7 @@ C {lab_pin.sym} 180 -1000 0 0 {name=p17 lab=E1}
 C {lab_pin.sym} 560 -1080 0 0 {name=p25 lab=VPP}
 C {lab_pin.sym} 340 -970 0 1 {name=p23 lab=E2}
 C {lab_pin.sym} 560 -970 0 1 {name=p28 lab=E6}
-C {lab_pin.sym} 840 -1000 0 1 {name=p29 lab=E4}
+C {lab_pin.sym} 840 -1000 0 0 {name=p29 lab=E4}
 C {lab_pin.sym} 180 -1120 0 0 {name=p34 lab=VBOOST}
 C {ammeter.sym} 1110 -540 0 0 {name=vd current=0.2093 net_name=true}
 C {ammeter.sym} 1110 -640 0 0 {name=vu current=0.2336 net_name=true}
@@ -218,16 +218,16 @@ C {res.sym} 560 -610 0 1 {name=R12 m=1 value=1300 net_name=true}
 C {lab_pin.sym} 690 -800 0 0 {name=p12 lab=B1}
 C {lab_pin.sym} 340 -470 0 1 {name=p13 lab=E9}
 C {lab_pin.sym} 560 -440 0 0 {name=p19 lab=C8}
-C {lab_pin.sym} 560 -530 0 1 {name=p20 lab=E8}
-C {lab_pin.sym} 840 -850 0 1 {name=p21 lab=E11}
+C {lab_pin.sym} 560 -560 0 1 {name=p20 lab=E8}
+C {lab_pin.sym} 840 -850 0 0 {name=p21 lab=E11}
 C {lab_pin.sym} 260 -160 0 1 {name=p22 lab=E3}
-C {lab_pin.sym} 260 -270 0 1 {name=p26 lab=C3}
+C {lab_pin.sym} 260 -270 0 0 {name=p26 lab=C3}
 C {lab_pin.sym} 50 -210 0 0 {name=p30 lab=B3}
 C {lab_pin.sym} 520 -490 0 0 {name=p33 lab=VSS}
 C {res.sym} 340 -660 0 1 {name=R13 m=1 value=300 net_name=true}
 C {npn.sym} 200 -630 0 1 {name=Q7 model=q2n2222 area=1 net_name=true}
 C {lab_pin.sym} 180 -690 0 0 {name=p8 lab=C7}
-C {lab_pin.sym} 340 -690 0 1 {name=p31 lab=C2}
+C {lab_pin.sym} 340 -710 0 1 {name=p31 lab=C2}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan Schippers"}
 C {lab_pin.sym} 930 -700 0 0 {name=p32 lab=SA}
 C {ammeter.sym} 1110 -350 0 0 {name=v0 current=0.2288 net_name=true}

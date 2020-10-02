@@ -79,16 +79,17 @@ N 830 -650 860 -650 {lab=SW}
 N 80 -450 170 -450 {lab=SRC}
 N 860 -250 1050 -250 {lab=0}
 N 570 -250 860 -250 {lab=0}
-N 1020 -650 1050 -650 {lab=VO}
-N 325 -450 325 -420 {lab=PANEL}
-N 325 -360 325 -310 {lab=0}
+N 1040 -650 1050 -650 {lab=VO}
+N 345 -450 345 -420 {lab=PANEL}
+N 345 -360 345 -310 {lab=0}
 N 1140 -480 1180 -480 {lab=LED}
 N 1140 -480 1140 -350 {lab=LED}
 N 230 -450 250 -450 {lab=#net2}
 N 310 -450 400 -450 {lab=PANEL}
-N 860 -470 860 -430 {lab=#net3}
 N 860 -370 860 -250 {lab=0}
-C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers"}
+N 860 -470 860 -430 { lab=#net3}
+N 960 -650 980 -650 { lab=#net4}
+C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
 C {code_shown.sym} 245 -245 0 0 {name=CONTROL value="* .control
 * save all
 * tran 5n 500u uic
@@ -98,51 +99,51 @@ C {code_shown.sym} 245 -245 0 0 {name=CONTROL value="* .control
 .save all
 .tran 5n 200u uic
 * .dc VP 0 21 0.01
-"}
+" net_name=true}
 C {code.sym} 15 -225 0 0 {name=MODELS value=".MODEL DIODE D(IS=1.139e-08 RS=0.99 CJO=9.3e-12 VJ=1.6 M=0.411 BV=30 EG=0.7 ) 
 .MODEL swmod SW(VT=0.1 VH=0.01 RON=0.01 ROFF=10000000)
-"}
-C {vsource.sym} 80 -340 0 0 {name=V1 value=21}
-C {lab_pin.sym} 80 -310 0 0 {name=l3 sig_type=std_logic lab=0}
+" net_name=true}
+C {vsource.sym} 80 -340 0 0 {name=V1 value=21 net_name=true}
+C {lab_pin.sym} 80 -310 0 0 {name=l3 sig_type=std_logic lab=0 net_name=true}
 C {res.sym} 80 -400 0 0 {name=R1
 value=1.4
 footprint=1206
 device=resistor
-m=1}
-C {lab_pin.sym} 400 -450 0 1 {name=l4 sig_type=std_logic lab=PANEL}
-C {lab_pin.sym} 80 -450 0 0 {name=l5 sig_type=std_logic lab=SRC}
-C {lab_pin.sym} 570 -250 0 0 {name=l6 sig_type=std_logic lab=0}
-C {ammeter.sym} 1110 -480 3 0 {name=Vled}
+m=1 net_name=true}
+C {lab_pin.sym} 400 -450 0 1 {name=l4 sig_type=std_logic lab=PANEL net_name=true}
+C {lab_pin.sym} 80 -450 0 0 {name=l5 sig_type=std_logic lab=SRC net_name=true}
+C {lab_pin.sym} 570 -250 0 0 {name=l6 sig_type=std_logic lab=0 net_name=true}
+C {ammeter.sym} 1110 -480 3 0 {name=Vled net_name=true}
 C {ind.sym} 930 -650 3 1 {name=L1
 m=1
 value=40u
 footprint=1206
-device=inductor}
-C {lab_pin.sym} 1180 -480 0 1 {name=l7 sig_type=std_logic lab=LED}
-C {lab_pin.sym} 610 -870 0 0 {name=l8 sig_type=std_logic lab=CTRL1}
-C {lab_pin.sym} 860 -590 0 1 {name=l9 sig_type=std_logic lab=SW}
+device=inductor net_name=true}
+C {lab_pin.sym} 1180 -480 0 1 {name=l7 sig_type=std_logic lab=LED net_name=true}
+C {lab_pin.sym} 610 -870 0 0 {name=l8 sig_type=std_logic lab=CTRL1 net_name=true}
+C {lab_pin.sym} 860 -590 0 1 {name=l9 sig_type=std_logic lab=SW net_name=true}
 C {capa.sym} 1050 -320 0 0 {name=C1
 m=1
 value=10u
 footprint=1206
-device="ceramic capacitor"}
-C {ammeter.sym} 280 -450 3 0 {name=Vpanel}
-C {lab_pin.sym} 1050 -440 0 1 {name=l10 sig_type=std_logic lab=VO}
+device="ceramic capacitor" net_name=true}
+C {ammeter.sym} 280 -450 3 1 {name=Vpanel net_name=true}
+C {lab_pin.sym} 1050 -440 0 1 {name=l10 sig_type=std_logic lab=VO net_name=true}
 C {res.sym} 860 -500 0 0 {name=R2
 value="r='V(SW) < 0 ? 0.01 : 1e9'"
 footprint=1206
 device=resistor
 m=1
-}
-C {vsource.sym} 610 -780 0 0 {name=Vset1 value="pulse 0 1 0 1n 1n 1.9u 5u"}
-C {lab_pin.sym} 610 -750 0 0 {name=l13 sig_type=std_logic lab=0}
+ net_name=true}
+C {vsource.sym} 610 -780 0 0 {name=Vset1 value="pulse 0 1 0 1n 1n 1.9u 5u" net_name=true}
+C {lab_pin.sym} 610 -750 0 0 {name=l13 sig_type=std_logic lab=0 net_name=true}
 C {res.sym} 800 -650 3 0 {name=R3
 value="r='V(CTRL1) > 0.5 ? 0.01 : 1e7'"
 footprint=1206
 device=resistor
 m=1
-}
-C {lab_pin.sym} 570 -650 0 0 {name=l2 sig_type=std_logic lab=PANEL}
+ net_name=true}
+C {lab_pin.sym} 570 -650 0 0 {name=l2 sig_type=std_logic lab=PANEL net_name=true}
 C {res.sym} 200 -450 1 1 {name=R4
 value="r='(15-V(PANEL) > 0) ?
 + (15-V(PANEL))/2.5 + 1.12 : 
@@ -152,17 +153,17 @@ value="r='(15-V(PANEL) > 0) ?
 footprint=1206
 device=resistor
 m=1
-}
-C {ammeter.sym} 990 -650 3 0 {name=Vind}
-C {capa.sym} 325 -390 0 0 {name=C2
+ net_name=true}
+C {ammeter.sym} 1010 -650 3 0 {name=Vind net_name=true}
+C {capa.sym} 345 -390 0 0 {name=C2
 m=1
 value=10u
 footprint=1206
-device="ceramic capacitor"}
-C {lab_pin.sym} 325 -310 0 0 {name=l11 sig_type=std_logic lab=0}
+device="ceramic capacitor" net_name=true}
+C {lab_pin.sym} 345 -310 0 0 {name=l11 sig_type=std_logic lab=0 net_name=true}
 C {launcher.sym} 655 -105 0 0 {name=h2 
 descr="Simulate" 
-tclcommand="xschem netlist; xschem simulate"}
+tclcommand="xschem netlist; xschem simulate" net_name=true}
 C {isource_table.sym} 1140 -320 0 0 {name=G2[9..0] CTRL="V(LED)" TABLE="
 + (0, 0)
 + (4.8, 5m)
@@ -178,9 +179,9 @@ C {isource_table.sym} 1140 -320 0 0 {name=G2[9..0] CTRL="V(LED)" TABLE="
 + (7.2, 395m)
 + (7.4, 470m)
 + (8.0, 750m)"
-}
-C {ammeter.sym} 650 -650 3 0 {name=Vsw}
-C {ammeter.sym} 860 -400 2 0 {name=Vdiode}
+ net_name=true}
+C {ammeter.sym} 650 -650 3 0 {name=Vsw net_name=true}
+C {ammeter.sym} 860 -400 2 0 {name=Vdiode net_name=true}
 C {launcher.sym} 655 -165 0 0 {name=h1 
 descr="Simulate + gaw reload" 
-tclcommand="set sim(spice,default) 1; set sim(spice,1,fg) 1; set sim(spice,1,st) 0;xschem netlist; xschem simulate; gaw_cmd reload_all"}
+tclcommand="set sim(spice,default) 1; set sim(spice,1,fg) 1; set sim(spice,1,st) 0;xschem netlist; xschem simulate; gaw_cmd reload_all" net_name=true}
