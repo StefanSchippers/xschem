@@ -66,7 +66,7 @@ char *read_line(FILE *fp, int dbg_level)
   int first = 0, items;
 
   ret[0] = '\0';
-  while((items = fscanf(fp, "%298[^\r\n]s", s)) > 0) {
+  while((items = fscanf(fp, "%298[^\r\n]", s)) > 0) {
     if(!first) {
       dbg(dbg_level, "SKIPPING |");
       my_strncpy(ret, s, S(ret)); /* store beginning of line for return */
