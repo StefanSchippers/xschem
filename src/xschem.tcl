@@ -3371,12 +3371,12 @@ font configure Underline-Font -underline true -size 24
    toolbar_create FileMerge "xschem merge" "Merge File"
    .menubar.file.menu add command -label "Reload" -accelerator {Alt+S} \
      -command {
-      if { [string compare [tk_messageBox -type okcancel -message {sure wanna reload?}] ok]==0 } {
+      if { [string compare [tk_messageBox -type okcancel -message {Are you sure you want to reload?}] ok]==0 } {
               xschem reload
          }
      }
    toolbar_create FileReload {
-      if { [string compare [tk_messageBox -type okcancel -message {sure wanna reload?}] ok]==0 } {
+      if { [string compare [tk_messageBox -type okcancel -message {Are you sure you want to reload?}] ok]==0 } {
               xschem reload
          }
      } "Reload File"
