@@ -221,8 +221,11 @@ void delete(void)
 
   /* first calculate bbox, because symbol_bbox() needs translate (@#0:net_name) which needs prepare_netlist_structs
    * which needs a consistent inst_ptr[] data structure */
+ 
+   /* does not seem to be needed
    prepared_netlist_structs=0;
    prepared_hilight_structs=0;
+   */ 
    if(show_pin_net_names) {
      find_inst_hash_clear();
      prepare_netlist_structs(0);
@@ -246,15 +249,16 @@ void delete(void)
 
 
 
-
+  /* already done above 
   for(i=0;i<lastinst;i++)
   {
     if(inst_ptr[i].sel == SELECTED)
     {
-      symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1, &inst_ptr[i].x2, &inst_ptr[i].y2); /*20171201 */
+      symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1, &inst_ptr[i].x2, &inst_ptr[i].y2);
       bbox(ADD, inst_ptr[i].x1, inst_ptr[i].y1, inst_ptr[i].x2, inst_ptr[i].y2);
     }
   }
+  */
 
   for(i=0;i<lasttext;i++)
   {
@@ -313,6 +317,7 @@ void delete(void)
   lastinst-=j;
  
   if(j) {
+    prepared_hash_instances=0;
     prepared_netlist_structs=0;
     prepared_hilight_structs=0;
   }
@@ -339,7 +344,6 @@ void delete(void)
       my_free(942, &wire[i].node);
   
       set_modify(1);
-      prepared_hash_wires=0;
       continue;
     }
     if(j) {
@@ -348,6 +352,7 @@ void delete(void)
   }
   lastwire -= j; 
   if(j) {
+    prepared_hash_wires=0;
     prepared_netlist_structs=0;
     prepared_hilight_structs=0;
   }
@@ -1124,6 +1129,7 @@ void select_all(void)
  drawtemparc(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0); 
  drawtemprect(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0); 
  drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+ rebuild_selected_array();
 }
 
 

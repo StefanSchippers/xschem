@@ -475,7 +475,7 @@ void find_inst_to_be_redrawn(const char *node)
 void copy_objects(int what)
 {
  int c, i, n, k;
- Box tmp;
+ /* Box tmp; */
  double angle;
  int newpropcnt;
  double tmpx, tmpy;
@@ -485,7 +485,7 @@ void copy_objects(int what)
  /* 20171112 */
  #ifdef HAS_CAIRO
  char *textfont;
- int customfont; /* 20181009 */
+ /* int customfont; */
  #endif
 
  if(what & BEGIN)
@@ -546,14 +546,17 @@ void copy_objects(int what)
   prepared_hash_wires=0;
   if(show_pin_net_names) find_inst_hash_clear();
   /* calculate copied symbols bboxes before actually doing the move */
+  
+  /* 
   for(i=0;i<lastselected;i++)
   {
     n = selectedgroup[i].n;
     if( selectedgroup[i].type == ELEMENT) {
-       symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 ); /* 20171201 */
+       symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 );
        bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
     }
   }
+  */
 
   for(i=0;i<lastselected;i++)
   {
@@ -561,7 +564,8 @@ void copy_objects(int what)
    if(selectedgroup[i].type == WIRE)
    {
        check_wire_storage();
-       if(wire[n].bus){ /* 20171201 */
+       /* 
+       if(wire[n].bus){
          int ov, y1, y2;
          ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
          if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
@@ -574,6 +578,7 @@ void copy_objects(int what)
          else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
          bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
        }
+       */
        if(rotatelocal) {
          ROTATION(wire[n].x1, wire[n].y1, wire[n].x1, wire[n].y1, rx1,ry1);
          ROTATION(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, rx2,ry2);
@@ -620,7 +625,7 @@ void copy_objects(int what)
     {
      case LINE:
       if(c!=k) break; 
-      bbox(ADD, line[c][n].x1, line[c][n].y1, line[c][n].x2, line[c][n].y2); /* 20181009 */
+      /* bbox(ADD, line[c][n].x1, line[c][n].y1, line[c][n].x2, line[c][n].y2) */
       if(rotatelocal) {
         ROTATION(line[c][n].x1, line[c][n].y1, line[c][n].x1, line[c][n].y1, rx1,ry1);
         ROTATION(line[c][n].x1, line[c][n].y1, line[c][n].x2, line[c][n].y2, rx2,ry2);
@@ -658,15 +663,17 @@ void copy_objects(int what)
      case POLYGON: /* 20171115 */
       if(c!=k) break;
       {
-        double bx1, by1, bx2, by2;
+        /* double bx1, by1, bx2, by2; */
         double *x = my_malloc(227, sizeof(double) *polygon[c][n].points);
         double *y = my_malloc(228, sizeof(double) *polygon[c][n].points);
         int j;
         for(j=0; j<polygon[c][n].points; j++) {
+          /*
           if(j==0 || polygon[c][n].x[j] < bx1) bx1 = polygon[c][n].x[j];
           if(j==0 || polygon[c][n].y[j] < by1) by1 = polygon[c][n].y[j];
           if(j==0 || polygon[c][n].x[j] > bx2) bx2 = polygon[c][n].x[j];
           if(j==0 || polygon[c][n].y[j] > by2) by2 = polygon[c][n].y[j];
+          */
           if( polygon[c][n].sel==SELECTED || polygon[c][n].selected_point[j]) {
             if(rotatelocal) {
               ROTATION(polygon[c][n].x[0], polygon[c][n].y[0], polygon[c][n].x[j], polygon[c][n].y[j], rx1,ry1);
@@ -679,8 +686,8 @@ void copy_objects(int what)
             x[j] = polygon[c][n].x[j];
             y[j] = polygon[c][n].y[j];
           }
-          bbox(ADD, bx1, by1, bx2, by2); /* 20181009 */
         }
+        /* bbox(ADD, bx1, by1, bx2, by2); */
         drawpolygon(k,  NOW, x, y, polygon[c][n].points, polygon[c][n].fill, polygon[c][n].dash); /* 20180914 added fill */
         selectedgroup[i].n=lastpolygon[c];
         store_polygon(-1, x, y, polygon[c][n].points, c, polygon[c][n].sel, polygon[c][n].prop_ptr);
@@ -691,10 +698,11 @@ void copy_objects(int what)
       break;
      case ARC:
       if(c!=k) break;
+      /*
       arc_bbox(arc[c][n].x, arc[c][n].y, arc[c][n].r, arc[c][n].a, arc[c][n].b,
                &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
       bbox(ADD, tmp.x1, tmp.y1, tmp.x2, tmp.y2);
-
+      */
       if(rotatelocal) {
         /* rotate center wrt itself: do nothing */
         rx1 = arc[c][n].x;
@@ -722,7 +730,7 @@ void copy_objects(int what)
 
      case xRECT:
       if(c!=k) break;
-      bbox(ADD, rect[c][n].x1, rect[c][n].y1, rect[c][n].x2, rect[c][n].y2); /* 20181009 */
+      /* bbox(ADD, rect[c][n].x1, rect[c][n].y1, rect[c][n].x2, rect[c][n].y2); */
       if(rotatelocal) {
         ROTATION(rect[c][n].x1, rect[c][n].y1, rect[c][n].x1, rect[c][n].y1, rx1,ry1);
         ROTATION(rect[c][n].x1, rect[c][n].y1, rect[c][n].x2, rect[c][n].y2, rx2,ry2);
@@ -742,7 +750,7 @@ void copy_objects(int what)
      case xTEXT:
       if(k!=TEXTLAYER) break;
       check_text_storage();
-      /* 20181009 */
+      /*
       #ifdef HAS_CAIRO
       customfont = set_text_custom_font(&textelement[n]);
       #endif
@@ -754,7 +762,7 @@ void copy_objects(int what)
       if(customfont) cairo_restore(ctx);
       #endif
       bbox(ADD, rx1, ry1, rx2, ry2 );
-
+      */
       if(rotatelocal) {
         ROTATION(textelement[n].x0, textelement[n].y0, textelement[n].x0, textelement[n].y0, rx1,ry1);
       } else {
@@ -903,7 +911,6 @@ void copy_objects(int what)
          find_inst_to_be_redrawn(wire[n].node);
        }
      }
-     /* draw_symbol(ADD,k, n,k, 0, 0, 0.0, 0.0); */
    }
 
    filledrect(k, END, 0.0, 0.0, 0.0, 0.0);
