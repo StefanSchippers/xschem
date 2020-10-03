@@ -39,6 +39,7 @@ void read_record(int firstchar, FILE *fp, int dbg_level)
   dbg(dbg_level, "SKIP RECORD\n");
   if(firstchar != '{') dbg(dbg_level, "%c", firstchar);
   while((c = fgetc(fp)) != EOF) {
+    if (c=='\r') continue;
     if(c == '\n') {
       dbg(dbg_level, "\n");
       ungetc(c, fp); /* so following read_line does not skip next line */
@@ -65,7 +66,7 @@ char *read_line(FILE *fp, int dbg_level)
   int first = 0, items;
 
   ret[0] = '\0';
-  while((items = fscanf(fp, "%298[^\n]s", s)) > 0) {
+  while((items = fscanf(fp, "%298[^\r\n]s", s)) > 0) {
     if(!first) {
       dbg(dbg_level, "SKIPPING |");
       my_strncpy(ret, s, S(ret)); /* store beginning of line for return */
@@ -811,7 +812,7 @@ void read_xschem_file(FILE *fd)
           while(1) { /* skip embedded [ ... ] */
             str = read_line(fd, 1);
             if(!str || !strncmp(str, "]", 1)) break;
-            fscanf(fd, "%*1[\n]");
+            fscanf(fd, " ");
           }
         }
       }
@@ -852,6 +853,7 @@ void load_ascii_string(char **ptr, FILE *fd)
  {
   if(i+5>strlength) my_realloc(326, &str,(strlength+=CADCHUNKALLOC));
   c=fgetc(fd);
+  if (c=='\r') continue;
   if(c==EOF) {
     fprintf(errfp, "EOF reached, malformed {...} string input, missing close brace\n");
     my_free(1149, ptr);
@@ -1883,7 +1885,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         filepos = xftell(lcc[level].fd); /* store file pointer position to inspect next line */
         fd_tmp = NULL;
         read_line(lcc[level].fd, 1);
-        fscanf(lcc[level].fd, "%*1[\n]");
+        fscanf(lcc[level].fd, " ");
         if(fscanf(lcc[level].fd," %c",&c)!=EOF) {
           if( c == '[') {
             fd_tmp = lcc[level].fd;
@@ -1930,7 +1932,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         fprintf(errfp, "l_s_d(): unable to open file to read schematic: %s\n", sympath);
         filepos = xftell(lcc[level].fd); /* store file pointer position to inspect next char */
         read_line(lcc[level].fd, 1);
-        fscanf(lcc[level].fd, "%*1[\n]");
+        fscanf(lcc[level].fd, " ");
         if(fscanf(lcc[level].fd," %c",&c)!=EOF) {
           if( c == '[') {
             fd_tmp = lcc[level].fd;
@@ -1976,7 +1978,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      while(1) { /* skip embedded [ ... ] */
        skip_line = read_line(lcc[level].fd, 1);
        if(!skip_line || !strncmp(skip_line, "]", 1)) break;
-       fscanf(lcc[level].fd, "%*1[\n]");
+       fscanf(lcc[level].fd, " ");
      }
      break;
     case ']':
