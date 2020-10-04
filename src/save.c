@@ -947,10 +947,9 @@ void link_symbols_to_instances(void) /* 20150326 separated from load_schematic()
     symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1,
                       &inst_ptr[i].x2, &inst_ptr[i].y2);
     type=instdef[inst_ptr[i].ptr].type;
-    cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
-         strcmp(type,"opin") &&  strcmp(type,"iopin"));
-    if(cond) inst_ptr[i].flags|=2;
-    else inst_ptr[i].flags &=~2;
+    cond= !type || !IS_LABEL_SH_OR_PIN(type);
+    if(cond) inst_ptr[i].flags|=2; /* ordinary symbol */
+    else inst_ptr[i].flags &=~2; /* label or pin */
   }
 
 }
@@ -1913,7 +1912,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           !strcmp(symtype, "timescale") 
         ) break;
       /* add PINLAYER boxes (symbol pins) at schematic i/o/iopin coordinates. */
-      if (level==0 && (!strcmp(symtype, "ipin") || !strcmp(symtype, "opin") || !strcmp(symtype, "iopin"))) {
+      if( level==0 && IS_PIN(symtype) ) {
         add_pinlayer_boxes(lastr, bb, symtype, prop_ptr, inst_x0, inst_y0);
       }
       /* build symbol filename to be loaded */

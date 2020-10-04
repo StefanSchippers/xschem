@@ -765,7 +765,7 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
     if(strcmp(rot_txt,"")) rotated_text=atoi(rot_txt); /*  20171208 */
 
     my_strdup(7, &type,(inst_ptr[selectedgroup[j].n].ptr+instdef)->type); /*  20150409 */
-    if( type && (strcmp(type,"label") && strcmp(type,"ipin")&&strcmp(type,"opin")&&strcmp(type,"iopin") )==0) {
+    if( type && IS_LABEL_OR_PIN(type) ) {
       continue;
     }
 
@@ -947,8 +947,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, 
   my_strdup2(13, &inst_ptr[n].instname, get_tok_value(inst_ptr[n].prop_ptr,"name",0) ); /*  20150409 */
 
   type = instdef[inst_ptr[n].ptr].type; /* 20150409 */
-  cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
-        strcmp(type,"opin") &&  strcmp(type,"iopin"));
+  cond= !type || !IS_LABEL_SH_OR_PIN(type);
   if(cond) inst_ptr[n].flags|=2;
   else inst_ptr[n].flags &=~2;
 
@@ -1420,7 +1419,7 @@ void calc_drawing_bbox(Box *boundbox, int selected)
         }
       }
     }
-    else if( type && !(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"iopin") && strcmp(type,"opin") )) {
+    else if( type && IS_LABEL_OR_PIN(type)) {
       entry=bus_hilight_lookup( get_tok_value(inst_ptr[i].prop_ptr,"lab",0) , 0, XLOOKUP );
       if(entry) found = 1;
     }

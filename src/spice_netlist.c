@@ -97,8 +97,7 @@ void global_spice_netlist(int global)  /* netlister driver */
   if( type && !strcmp(type,"netlist_options") ) {
     continue;
   }
-  if( type && !(strcmp(type,"ipin")&&strcmp(type,"opin")&&strcmp(type,"iopin")) )
-  {
+  if( type && IS_PIN(type)) {
    str_tmp = expandlabel ( get_tok_value(inst_ptr[i].prop_ptr,"lab",0) ,&mult);
    dbg(1, "global_spice_netlist(): |%s|\n", 
        get_tok_value(inst_ptr[i].prop_ptr,"lab",0));
@@ -374,8 +373,7 @@ void spice_netlist(FILE *fd, int spice_stop )
       continue;
     }
     my_strdup(388, &type,(inst_ptr[i].ptr+instdef)->type); /* 20150409 */
-    if( type && (/*strcmp(type,"label") && */ strcmp(type,"ipin")&&strcmp(type,"opin")&&strcmp(type,"iopin") )==0)
-    {
+    if( type && IS_PIN(type) ) {
       print_spice_element(fd, i) ;  /* this is the element line  */
     }
    }
@@ -389,8 +387,7 @@ void spice_netlist(FILE *fd, int spice_stop )
     }                                                                                             /*20070726 */
   
     my_strdup(390, &type,(inst_ptr[i].ptr+instdef)->type); /* 20150409 */
-    if( type && (strcmp(type,"label")&&strcmp(type,"ipin")&& strcmp(type,"opin")&&strcmp(type,"iopin")))
-    {
+    if( type && !IS_LABEL_OR_PIN(type) ) {
       if(!strcmp(type,"netlist_commands") && netlist_count==0) continue; /* already done in global_spice_netlist */
       if(netlist_count && 
          !strcmp(get_tok_value(inst_ptr[i].prop_ptr, "only_toplevel", 0), "true")) continue; /* 20160418 */

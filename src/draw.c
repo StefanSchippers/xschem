@@ -1628,15 +1628,11 @@ void draw(void)
                        type  &&
                        (
                         (
-                          !(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
-                            strcmp(type,"iopin") && strcmp(type,"opin")) &&
-                            inst_ptr[i].node && inst_ptr[i].node[0] &&
+                            IS_LABEL_SH_OR_PIN(type) && inst_ptr[i].node && inst_ptr[i].node[0] &&
                             bus_hilight_lookup(inst_ptr[i].node[0], 0, XLOOKUP )
                         ) ||
                         (
-                          (strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
-                           strcmp(type,"iopin") && strcmp(type,"opin")) && 
-                          (inst_ptr[i].flags & 4) 
+                           !IS_LABEL_SH_OR_PIN(type) && (inst_ptr[i].flags & 4) 
                         )
                        )
                       )
@@ -1666,15 +1662,11 @@ void draw(void)
                      type  &&
                      (
                       (
-                        !(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
-                          strcmp(type,"iopin") && strcmp(type,"opin")) &&
-                          inst_ptr[i].node && inst_ptr[i].node[0] &&
-                          bus_hilight_lookup(inst_ptr[i].node[0], 0, XLOOKUP )
+                        IS_LABEL_SH_OR_PIN(type) && inst_ptr[i].node && inst_ptr[i].node[0] &&
+                        bus_hilight_lookup(inst_ptr[i].node[0], 0, XLOOKUP )
                       ) ||
                       (
-                        (strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
-                         strcmp(type,"iopin") && strcmp(type,"opin")) && 
-                        (inst_ptr[i].flags & 4) 
+                        !IS_LABEL_SH_OR_PIN(type) && (inst_ptr[i].flags & 4) 
                       )
                      )
                     )

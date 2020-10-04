@@ -191,135 +191,6 @@ void windowid()
     Tcl_SetResult(interp,"",TCL_STATIC);
 }
 
-void free_xschem_data()
-{
-  int i;
-  my_free(1098, &wire);
-  my_free(1100, &textelement);
-  for(i=0;i<cadlayers;i++) {
-       my_free(1103, &rect[i]);
-       my_free(1104, &line[i]);
-       my_free(1105, &polygon[i]);
-       my_free(1106, &arc[i]);
-  }
-  my_free(1107, &inst_ptr);
-  for(i=0;i<max_symbols;i++) {
-     my_free(1109, &instdef[i].lineptr);
-     my_free(1110, &instdef[i].boxptr);
-     my_free(1111, &instdef[i].arcptr);
-     my_free(1112, &instdef[i].polygonptr);
-     my_free(1113, &instdef[i].lines);
-     my_free(1114, &instdef[i].polygons); /* 20171115 */
-     my_free(1115, &instdef[i].arcs); /* 20181012 */
-     my_free(1116, &instdef[i].rects);
-  }
-  my_free(1117, &instdef);
-  my_free(1118, &rect);
-  my_free(1119, &line);
-  my_free(1125, &polygon); /* 20171115 */
-  my_free(1126, &arc); /* 20171115 */
-  my_free(1124, &lastrect);
-  my_free(1127, &lastpolygon); /* 20171115 */
-  my_free(1128, &lastarc); /* 20171115 */
-  my_free(1129, &lastline);
-  my_free(1130, &max_rects);
-  my_free(1131, &max_polygons); /* 20171115 */
-  my_free(1132, &max_arcs); /* 20171115 */
-  my_free(1133, &max_lines);
-}
-
-void xwin_exit(void)
-{
- int i;
-  
- if(!init_done) {
-   dbg(1, "xwin_exit() double call, doing nothing...\n");
-   return;  /* 20150409 */
- }
- delete_netlist_structs();
- delete_hilight_net();
- get_unnamed_node(0, 0, 0);
-
- if(has_x) {
-    #ifdef HAS_CAIRO /* 20171105 */
-    cairo_destroy(ctx);
-    cairo_destroy(save_ctx);
-    cairo_surface_destroy(sfc);
-    cairo_surface_destroy(save_sfc);
-    #endif
-#ifdef __unix__
-    XFreePixmap(display,save_pixmap);
-    for(i=0;i<cadlayers;i++)XFreePixmap(display,pixmap[i]);
-#else
-    Tk_FreePixmap(display, save_pixmap);
-    for (i = 0; i < cadlayers; i++)Tk_FreePixmap(display, pixmap[i]);
-#endif
-    dbg(1, "xwin_exit(): Releasing pixmaps\n");
-    for(i=0;i<cadlayers;i++) 
-    {
-     XFreeGC(display,gc[i]);
-     XFreeGC(display,gcstipple[i]);
-    }
-    XFreeGC(display,gctiled);
-    dbg(1, "xwin_exit(): destroying tk windows and releasing X11 stuff\n");
-    Tk_DestroyWindow(mainwindow);
-#ifdef __unix__
-    if(cad_icon_pixmap) XFreePixmap(display, cad_icon_pixmap);
-#else
-    if (cad_icon_pixmap) Tk_FreePixmap(display, cad_icon_pixmap);
-#endif
- }
- dbg(1, "xwin_exit(): clearing drawing data structures\n"); 
- clear_drawing();
- remove_symbols();
-
- free_xschem_data();
-
- /* global context - graphic preferences/settings */
- for(i=0;i<cadlayers;i++) {
-   my_free(1101, &color_array[i]);
-   my_free(1102, &pixdata[i]);
- }
- my_free(1108, &selectedgroup);
- my_free(1120, &fill_type);
- my_free(1121, &active_layer);
- my_free(1122, &pixdata);
- my_free(1123, &enable_layer);
- my_free(1099, &gridpoint);
- my_free(1134, &pixmap);
- my_free(1135, &gc);
- my_free(1136, &gcstipple);
- my_free(1137, &color_array);
- my_free(1138, &tcl_command);
- clear_expandlabel_data();
- get_sym_template(NULL, NULL); /* clear static data in function */
- get_tok_value(NULL, NULL, 0); /* clear static data in function */
- list_tokens(NULL, 0); /* clear static data in function */
- translate(0, NULL); /* clear static data in function */
- translate2(NULL, 0, NULL); /* clear static data in function */
- subst_token(NULL, NULL, NULL); /* clear static data in function */
- find_nth(NULL, '\0', 0); /* clear static data in function */
-
- for(i=0;i<CADMAXHIER;i++) my_free(1139, &sch_path[i]);
-
- dbg(1, "xwin_exit(): removing font\n");
- for(i=0;i<127;i++) my_free(1140, &character[i]);
-
- dbg(1, "xwin_exit(): closed display\n");
- my_free(1141, &filename);
- 
- delete_undo(); /* 20150327 */
- my_free(1142, &netlist_dir);
- my_free(1143, &xschem_executable);
- record_global_node(2, NULL, NULL); /* delete global node array */
- dbg(1, "xwin_exit(): deleted undo buffer\n");
- if(errfp!=stderr) fclose(errfp);
- errfp=stderr;
- printf("\n");
- init_done=0; /* 20150409 to avoid multiple calls */
-}
-
-
 int err(Display *display, XErrorEvent *xev)
 {
  char s[1024];  /* overflow safe 20161122 */
@@ -456,6 +327,42 @@ void init_pixdata()
  }
 }
 
+void free_xschem_data()
+{
+  int i;
+  my_free(1098, &wire);
+  my_free(1100, &textelement);
+  for(i=0;i<cadlayers;i++) {
+       my_free(1103, &rect[i]);
+       my_free(1104, &line[i]);
+       my_free(1105, &polygon[i]);
+       my_free(1106, &arc[i]);
+  }
+  my_free(1107, &inst_ptr);
+  for(i=0;i<max_symbols;i++) {
+     my_free(1109, &instdef[i].lineptr);
+     my_free(1110, &instdef[i].boxptr);
+     my_free(1111, &instdef[i].arcptr);
+     my_free(1112, &instdef[i].polygonptr);
+     my_free(1113, &instdef[i].lines);
+     my_free(1114, &instdef[i].polygons); /* 20171115 */
+     my_free(1115, &instdef[i].arcs); /* 20181012 */
+     my_free(1116, &instdef[i].rects);
+  }
+  my_free(1117, &instdef);
+  my_free(1118, &rect);
+  my_free(1119, &line);
+  my_free(1125, &polygon); /* 20171115 */
+  my_free(1126, &arc); /* 20171115 */
+  my_free(1124, &lastrect);
+  my_free(1127, &lastpolygon); /* 20171115 */
+  my_free(1128, &lastarc); /* 20171115 */
+  my_free(1129, &lastline);
+  my_free(1130, &max_rects);
+  my_free(1131, &max_polygons); /* 20171115 */
+  my_free(1132, &max_arcs); /* 20171115 */
+  my_free(1133, &max_lines);
+}
 
 void alloc_xschem_data()
 {
@@ -616,6 +523,56 @@ void alloc_xschem_data()
   }
 }
 
+void save_xschem_data(int what)
+{
+  static Xschem_ctx xc;
+
+  if(what == 1) {
+    xc.wire = wire;
+    xc.textelement = textelement;
+    xc.rect = rect;
+    xc.line = line;
+    xc.polygon = polygon;
+    xc.arc = arc;
+    xc.inst_ptr = inst_ptr;
+    xc.instdef = instdef;
+    xc.lastwire = lastwire;
+    xc.lastinst = lastinst;
+    xc.lastinstdef = lastinstdef;
+    xc.lasttext = lasttext;
+    xc.lastrect = lastrect;
+    xc.lastpolygon = lastpolygon;
+    xc.lastarc = lastarc;
+    xc.lastline = lastline;
+    xc.max_rects = max_rects;
+    xc.max_polygons = max_polygons;
+    xc.max_arcs = max_arcs;
+    xc.max_lines = max_lines;
+  }
+  else if(what == 2) {
+    wire = xc.wire;
+    textelement = xc.textelement;
+    rect = xc.rect;
+    line = xc.line;
+    polygon = xc.polygon;
+    arc = xc.arc;
+    inst_ptr = xc.inst_ptr;
+    instdef = xc.instdef;
+    lastwire = xc.lastwire;
+    lastinst = xc.lastinst;
+    lastinstdef = xc.lastinstdef;
+    lasttext = xc.lasttext;
+    lastrect = xc.lastrect;
+    lastpolygon = xc.lastpolygon;
+    lastarc = xc.lastarc;
+    lastline = xc.lastline;
+    max_rects = xc.max_rects;
+    max_polygons = xc.max_polygons;
+    max_arcs = xc.max_arcs;
+    max_lines = xc.max_lines;
+  }
+}
+
 void alloc_data()
 {
  int i;
@@ -679,6 +636,96 @@ void alloc_data()
  enable_layer=my_calloc(87, cadlayers, sizeof(int));
 }
 
+void xwin_exit(void)
+{
+ int i;
+  
+ if(!init_done) {
+   dbg(1, "xwin_exit() double call, doing nothing...\n");
+   return;  /* 20150409 */
+ }
+ delete_netlist_structs();
+ delete_hilight_net();
+ get_unnamed_node(0, 0, 0);
+
+ if(has_x) {
+    #ifdef HAS_CAIRO /* 20171105 */
+    cairo_destroy(ctx);
+    cairo_destroy(save_ctx);
+    cairo_surface_destroy(sfc);
+    cairo_surface_destroy(save_sfc);
+    #endif
+#ifdef __unix__
+    XFreePixmap(display,save_pixmap);
+    for(i=0;i<cadlayers;i++)XFreePixmap(display,pixmap[i]);
+#else
+    Tk_FreePixmap(display, save_pixmap);
+    for (i = 0; i < cadlayers; i++)Tk_FreePixmap(display, pixmap[i]);
+#endif
+    dbg(1, "xwin_exit(): Releasing pixmaps\n");
+    for(i=0;i<cadlayers;i++) 
+    {
+     XFreeGC(display,gc[i]);
+     XFreeGC(display,gcstipple[i]);
+    }
+    XFreeGC(display,gctiled);
+    dbg(1, "xwin_exit(): destroying tk windows and releasing X11 stuff\n");
+    Tk_DestroyWindow(mainwindow);
+#ifdef __unix__
+    if(cad_icon_pixmap) XFreePixmap(display, cad_icon_pixmap);
+#else
+    if (cad_icon_pixmap) Tk_FreePixmap(display, cad_icon_pixmap);
+#endif
+ }
+ dbg(1, "xwin_exit(): clearing drawing data structures\n"); 
+ clear_drawing();
+ remove_symbols();
+
+ free_xschem_data();
+
+ /* global context - graphic preferences/settings */
+ for(i=0;i<cadlayers;i++) {
+   my_free(1101, &color_array[i]);
+   my_free(1102, &pixdata[i]);
+ }
+ my_free(1108, &selectedgroup);
+ my_free(1120, &fill_type);
+ my_free(1121, &active_layer);
+ my_free(1122, &pixdata);
+ my_free(1123, &enable_layer);
+ my_free(1099, &gridpoint);
+ my_free(1134, &pixmap);
+ my_free(1135, &gc);
+ my_free(1136, &gcstipple);
+ my_free(1137, &color_array);
+ my_free(1138, &tcl_command);
+ clear_expandlabel_data();
+ get_sym_template(NULL, NULL); /* clear static data in function */
+ get_tok_value(NULL, NULL, 0); /* clear static data in function */
+ list_tokens(NULL, 0); /* clear static data in function */
+ translate(0, NULL); /* clear static data in function */
+ translate2(NULL, 0, NULL); /* clear static data in function */
+ subst_token(NULL, NULL, NULL); /* clear static data in function */
+ find_nth(NULL, '\0', 0); /* clear static data in function */
+
+ for(i=0;i<CADMAXHIER;i++) my_free(1139, &sch_path[i]);
+
+ dbg(1, "xwin_exit(): removing font\n");
+ for(i=0;i<127;i++) my_free(1140, &character[i]);
+
+ dbg(1, "xwin_exit(): closed display\n");
+ my_free(1141, &filename);
+ 
+ delete_undo(); /* 20150327 */
+ my_free(1142, &netlist_dir);
+ my_free(1143, &xschem_executable);
+ record_global_node(2, NULL, NULL); /* delete global node array */
+ dbg(1, "xwin_exit(): deleted undo buffer\n");
+ if(errfp!=stderr) fclose(errfp);
+ errfp=stderr;
+ printf("\n");
+ init_done=0; /* 20150409 to avoid multiple calls */
+}
 
 int build_colors(double dim) /* 20171113 */
 {

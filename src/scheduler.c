@@ -583,8 +583,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          my_strdup2(372, &inst_ptr[inst].instname, get_tok_value(inst_ptr[inst].prop_ptr, "name",0));
   
          type=instdef[inst_ptr[inst].ptr].type; /* 20150409 */
-         cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
-             strcmp(type,"opin") &&  strcmp(type,"iopin"));
+         cond= !type || !IS_LABEL_SH_OR_PIN(type);
          if(cond) inst_ptr[inst].flags|=2;
          else inst_ptr[inst].flags &=~2;
          my_free(922, &ptr);

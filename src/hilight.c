@@ -474,10 +474,7 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
         {
           if(!sel) { /*20190525 */
             type = (inst_ptr[i].ptr+instdef)->type;
-            if( type && 
-                !(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
-                  strcmp(type,"iopin") && strcmp(type,"opin")) 
-              ) {
+            if( type && IS_LABEL_SH_OR_PIN(type) ) {
               if(!bus_hilight_lookup(inst_ptr[i].node[0], col, XINSERT)) hilight_nets = 1;
               if(what==NOW) for(c=0;c<cadlayers;c++)
                 draw_symbol(NOW, hilight_layer, i,c,0,0,0.0,0.0);
@@ -742,12 +739,7 @@ void hilight_net(int to_waveform)
       break;
     case ELEMENT:
      type = (inst_ptr[n].ptr+instdef)->type;
-     if( type &&
-         inst_ptr[n].node &&   /* instance must have a pin! */
-         !(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
-           strcmp(type,"iopin") && strcmp(type,"opin") )
-       )
-     {
+     if( type && inst_ptr[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
        if(event_reporting) {
          char s[PATH_MAX];
          printf("xschem search exact %d lab %s\n", 0, escape_chars(s, inst_ptr[n].node[0], PATH_MAX));
@@ -806,11 +798,7 @@ void unhilight_net(void)
     case ELEMENT:
      type = (inst_ptr[n].ptr+instdef)->type;
      if( type &&
-         inst_ptr[n].node &&   /* instance must have a pin! */
-         !(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
-           strcmp(type,"iopin") && strcmp(type,"opin") )
-       )
-     {
+         inst_ptr[n].node && IS_LABEL_SH_OR_PIN(type) ) {  /* instance must have a pin! */
       if(event_reporting) {
         printf("xschem unhilight\n");
         fflush(stdout);
@@ -941,11 +929,7 @@ void draw_hilight_net(int on_window)
         }
       }
     }
-  } else if( type &&
-      !(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
-        strcmp(type,"iopin") && strcmp(type,"opin") )
-    )
-  {
+  } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
    entry=bus_hilight_lookup( get_tok_value(inst_ptr[i].prop_ptr,"lab",0) , 0, XLOOKUP);
    if(entry) inst_color[i]=get_color(entry->value);
   }

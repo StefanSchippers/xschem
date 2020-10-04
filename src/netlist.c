@@ -662,11 +662,7 @@ void prepare_netlist_structs(int for_netlist)
     if (inst_ptr[i].ptr<0) continue;
 
     my_strdup(248, &type,(inst_ptr[i].ptr+instdef)->type); /* 20150409 */
-    if (type &&
-        inst_ptr[i].node &&   /* instance must have a pin! */
-        !(strcmp(type,"label") && strcmp(type,"ipin") &&
-          strcmp(type,"iopin") && strcmp(type,"opin")))
-    {  
+    if(type && inst_ptr[i].node && IS_LABEL_OR_PIN(type) ) { /* instance must have a pin! */
       if (for_netlist>0) {
         /* 20150918 skip labels / pins if ignore property specified on instance */
         if( netlist_type == CAD_VERILOG_NETLIST && 
@@ -789,12 +785,7 @@ void prepare_netlist_structs(int for_netlist)
   if(for_netlist) for (i=0;i<lastinst;i++) { /* ... assign node fields on all (non label) instances */
     if (inst_ptr[i].ptr<0) continue;
     my_strdup(267, &type,(inst_ptr[i].ptr+instdef)->type); /* 20150409 */
-    if (type &&
-      strcmp(type,"label") &&
-      strcmp(type,"ipin")  &&
-      strcmp(type,"opin")  &&
-      strcmp(type,"iopin"))
-    {
+    if (type && !IS_LABEL_OR_PIN(type) ) {
       if ((generic_rects = (inst_ptr[i].ptr+instdef)->rects[GENERICLAYER]) > 0)
       {
         rects = (inst_ptr[i].ptr+instdef)->rects[PINLAYER];
@@ -865,12 +856,7 @@ void prepare_netlist_structs(int for_netlist)
     if(inst_ptr[i].ptr<0) continue;
     expandlabel(inst_ptr[i].instname, &inst_mult); /* 20171210 */
     my_strdup(272, &type,(inst_ptr[i].ptr+instdef)->type); /* 20150409 */
-    if (type &&
-      strcmp(type,"label") &&
-      strcmp(type,"ipin")  &&
-      strcmp(type,"opin")  &&
-      strcmp(type,"iopin"))
-    { 
+    if (type && !IS_LABEL_OR_PIN(type) ) {
       if ((rects = (inst_ptr[i].ptr+instdef)->rects[PINLAYER]) > 0)
       { 
         for (j=0;j<rects;j++)
@@ -1120,7 +1106,7 @@ int sym_vs_sch_pins()
               load_ascii_string(&tmp,fd);
               symbol = match_symbol(name);
               my_strdup(276, &type, instdef[symbol].type);
-              if(type && (!strcmp(type, "ipin") || !strcmp(type, "opin") || !strcmp(type, "iopin"))) { 
+              if(type && IS_PIN(type)) { 
                 my_strdup(292, &lab, get_tok_value(tmp, "lab", 0));
                 if(pin_cnt >= lab_array_size) {
                   lab_array_size += CADCHUNKALLOC;

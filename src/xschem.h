@@ -288,6 +288,12 @@ extern char win_temp_dir[PATH_MAX];
 #define MINOR(a,b) ( (a) <= (b) ? (a) : (b) )
 #define ROUND(a) ((a) > 0.0 ? ceil((a) - 0.5) : floor((a) + 0.5))
 
+#define IS_LABEL_SH_OR_PIN(type) (!(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"opin") && \
+                                 strcmp(type,"show_label") && strcmp(type,"iopin")))
+#define IS_LABEL_OR_PIN(type) (!(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
+#define IS_PIN(type) (!(strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
+ 
+
 #define X_TO_SCREEN(x) ( floor((x+xorigin)* mooz) )
 #define Y_TO_SCREEN(y) ( floor((y+yorigin)* mooz) )
 #define X_TO_XSCHEM(x) ((x)*zoom -xorigin)
@@ -427,6 +433,29 @@ typedef struct
    char **node;
    char *instname; /*  20150409 instance name (example: I23)  */
 } Instance;
+
+typedef struct {
+  Wire *wire;
+  Text *textelement;
+  Box **rect;
+  Line **line;
+  xPolygon **polygon;
+  xArc **arc;
+  Instance *inst_ptr;
+  Instdef *instdef;
+  int lastwire;
+  int lastinst;
+  int lastinstdef;
+  int lasttext;
+  int *lastrect;
+  int *lastpolygon;
+  int *lastarc;
+  int *lastline;
+  int *max_rects;
+  int *max_polygons;
+  int *max_arcs;
+  int *max_lines;
+} Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
   double x0;

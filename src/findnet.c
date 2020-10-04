@@ -124,10 +124,7 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
     if(!type) continue;
 
     no_of_pin_rects = (inst_ptr[i].ptr+instdef)->rects[PINLAYER];
-    if( !strcmp(type, "label") ) no_of_pin_rects=1;
-    if( !strcmp(type, "ipin") ) no_of_pin_rects=1;
-    if( !strcmp(type, "opin") ) no_of_pin_rects=1;
-    if( !strcmp(type, "iopin") ) no_of_pin_rects=1;
+    if(IS_LABEL_OR_PIN(type)) no_of_pin_rects=1;
     for(j=0; j<no_of_pin_rects; j++) {
       box = ((inst_ptr[i].ptr+instdef)->boxptr[PINLAYER])[j];
       ROTATION(0.0,0.0,box.x1,box.y1,x1,y1);

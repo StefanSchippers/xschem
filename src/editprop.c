@@ -1073,8 +1073,7 @@ void update_symbol(const char *result, int x)
      new_prop_string(i, ptr, k, disable_unique_names); /* set new prop_ptr */
  
      type=instdef[inst_ptr[i].ptr].type; /* 20150409 */
-     cond= !type || (strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"show_label") &&
-           strcmp(type,"opin") &&  strcmp(type,"iopin"));
+     cond= !type || !IS_LABEL_SH_OR_PIN(type);
      if(cond) inst_ptr[i].flags|=2; /* bit 1: flag for different textlayer for pin/labels */
      else inst_ptr[i].flags &=~2;
    }

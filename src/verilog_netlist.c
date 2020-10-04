@@ -521,10 +521,7 @@ void verilog_netlist(FILE *fd , int verilog_stop)
     dbg(2, "verilog_netlist():       into the netlisting loop\n");
     my_strdup(570, &type,(inst_ptr[i].ptr+instdef)->type);
     if( type && 
-       ( strcmp(type,"label")&&
-         strcmp(type,"ipin")&&
-         strcmp(type,"opin")&&
-         strcmp(type,"iopin")&&
+       ( !IS_LABEL_OR_PIN(type) && 
          strcmp(type,"netlist_commands")&& /* 20180124 */
          strcmp(type,"timescale")&&
          strcmp(type,"verilog_preprocessor")

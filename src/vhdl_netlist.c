@@ -661,11 +661,8 @@ void vhdl_netlist(FILE *fd , int vhdl_stop)
     dbg(2, "vhdl_netlist():       into the netlisting loop\n");
     my_strdup(603, &type,(inst_ptr[i].ptr+instdef)->type);
     if( type && 
-       ( strcmp(type,"label")&&
-         strcmp(type,"ipin")&&
+       ( !IS_LABEL_OR_PIN(type) &&
          strcmp(type,"generic")&&
-         strcmp(type,"opin")&&
-         strcmp(type,"iopin")&&
          strcmp(type,"use")&&
          strcmp(type,"netlist_commands")&& /* 20180124 */
          strcmp(type,"package")  &&

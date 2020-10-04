@@ -525,7 +525,7 @@ int callback(int event, int mx, int my, KeySym key,
        j = selectedgroup[k].n ;
        /* my_strdup(22, &type,get_tok_value((inst_ptr[j].ptr+instdef)->prop_ptr,"type",0)); */
        my_strdup(23, &type,(inst_ptr[j].ptr+instdef)->type); /* 20150409 */
-       if( type && (strcmp(type,"label") && strcmp(type,"ipin")&&strcmp(type,"opin")&&strcmp(type,"iopin") )==0) break;
+       if( type && IS_LABEL_SH_OR_PIN(type)) break;
        symbol = instdef + inst_ptr[j].ptr;
        npin = symbol->rects[PINLAYER];
        rect=symbol->boxptr[PINLAYER];
