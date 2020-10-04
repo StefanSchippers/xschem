@@ -191,6 +191,42 @@ void windowid()
     Tcl_SetResult(interp,"",TCL_STATIC);
 }
 
+void free_xschem_data()
+{
+  int i;
+  my_free(1098, &wire);
+  my_free(1100, &textelement);
+  for(i=0;i<cadlayers;i++) {
+       my_free(1103, &rect[i]);
+       my_free(1104, &line[i]);
+       my_free(1105, &polygon[i]);
+       my_free(1106, &arc[i]);
+  }
+  my_free(1107, &inst_ptr);
+  for(i=0;i<max_symbols;i++) {
+     my_free(1109, &instdef[i].lineptr);
+     my_free(1110, &instdef[i].boxptr);
+     my_free(1111, &instdef[i].arcptr);
+     my_free(1112, &instdef[i].polygonptr);
+     my_free(1113, &instdef[i].lines);
+     my_free(1114, &instdef[i].polygons); /* 20171115 */
+     my_free(1115, &instdef[i].arcs); /* 20181012 */
+     my_free(1116, &instdef[i].rects);
+  }
+  my_free(1117, &instdef);
+  my_free(1118, &rect);
+  my_free(1119, &line);
+  my_free(1125, &polygon); /* 20171115 */
+  my_free(1126, &arc); /* 20171115 */
+  my_free(1124, &lastrect);
+  my_free(1127, &lastpolygon); /* 20171115 */
+  my_free(1128, &lastarc); /* 20171115 */
+  my_free(1129, &lastline);
+  my_free(1130, &max_rects);
+  my_free(1131, &max_polygons); /* 20171115 */
+  my_free(1132, &max_arcs); /* 20171115 */
+  my_free(1133, &max_lines);
+}
 
 void xwin_exit(void)
 {
@@ -235,55 +271,21 @@ void xwin_exit(void)
  }
  dbg(1, "xwin_exit(): clearing drawing data structures\n"); 
  clear_drawing();
- dbg(1, "xwin_exit(): freeing graphic primitive arrays\n"); 
- my_free(1098, &wire);
- dbg(1, "xwin_exit(): wire\n"); 
- my_free(1099, &gridpoint);
- dbg(1, "xwin_exit(): gridpoint\n"); 
- my_free(1100, &textelement);
- dbg(1, "xwin_exit(): textelement\n"); 
- for(i=0;i<cadlayers;i++) {
-      my_free(1101, &color_array[i]);
-      my_free(1102, &pixdata[i]);
-      my_free(1103, &rect[i]);
-      my_free(1104, &line[i]);
-      my_free(1105, &polygon[i]);
-      my_free(1106, &arc[i]);
- }
- dbg(1, "xwin_exit(): freeing instances\n");
- my_free(1107, &inst_ptr);
- dbg(1, "xwin_exit(): freeing selected group array\n");
-  my_free(1108, &selectedgroup);
- dbg(1, "xwin_exit(): removing symbols\n");
  remove_symbols();
- for(i=0;i<max_symbols;i++) {
-    my_free(1109, &instdef[i].lineptr);
-    my_free(1110, &instdef[i].boxptr);
-    my_free(1111, &instdef[i].arcptr);
-    my_free(1112, &instdef[i].polygonptr);
-    my_free(1113, &instdef[i].lines);
-    my_free(1114, &instdef[i].polygons); /* 20171115 */
-    my_free(1115, &instdef[i].arcs); /* 20181012 */
-    my_free(1116, &instdef[i].rects);
+
+ free_xschem_data();
+
+ /* global context - graphic preferences/settings */
+ for(i=0;i<cadlayers;i++) {
+   my_free(1101, &color_array[i]);
+   my_free(1102, &pixdata[i]);
  }
- my_free(1117, &instdef);
- my_free(1118, &rect);
- my_free(1119, &line);
+ my_free(1108, &selectedgroup);
  my_free(1120, &fill_type);
  my_free(1121, &active_layer);
  my_free(1122, &pixdata);
  my_free(1123, &enable_layer);
- my_free(1124, &lastrect);
- my_free(1125, &polygon); /* 20171115 */
- my_free(1126, &arc); /* 20171115 */
- my_free(1127, &lastpolygon); /* 20171115 */
- my_free(1128, &lastarc); /* 20171115 */
- my_free(1129, &lastline);
- my_free(1130, &max_rects);
- my_free(1131, &max_polygons); /* 20171115 */
- my_free(1132, &max_arcs); /* 20171115 */
- my_free(1133, &max_lines);
- /* graphic preferences/settings */
+ my_free(1099, &gridpoint);
  my_free(1134, &pixmap);
  my_free(1135, &gc);
  my_free(1136, &gcstipple);
@@ -454,175 +456,184 @@ void init_pixdata()
  }
 }
 
+
+void alloc_xschem_data()
+{
+  int i;
+
+  max_texts=CADMAXTEXT;
+  max_wires=CADMAXWIRES;
+  max_instances=ELEMINST;
+  max_symbols=ELEMDEF;
+  textelement=my_calloc(606, max_texts,sizeof(Text));
+  if(textelement==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+ 
+  wire=my_calloc(607, max_wires,sizeof(Wire));
+  if(wire==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+ 
+  inst_ptr=my_calloc(609, max_instances , sizeof(Instance) );
+  if(inst_ptr==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+ 
+  instdef=my_calloc(610, max_symbols , sizeof(Instdef) );
+  if(instdef==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+  for(i=0;i<max_symbols;i++) {
+    instdef[i].lineptr=my_calloc(611, cadlayers, sizeof(Line *));
+    if(instdef[i].lineptr==NULL){
+      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+    }
+ 
+    instdef[i].polygonptr=my_calloc(612, cadlayers, sizeof(xPolygon *));
+    if(instdef[i].polygonptr==NULL){
+      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+    }
+ 
+    instdef[i].arcptr=my_calloc(613, cadlayers, sizeof(xArc *));
+    if(instdef[i].arcptr==NULL){
+      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+    }
+ 
+    instdef[i].boxptr=my_calloc(614, cadlayers, sizeof(Box *));
+    if(instdef[i].boxptr==NULL){
+      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+    }
+ 
+    instdef[i].lines=my_calloc(615, cadlayers, sizeof(int));
+    if(instdef[i].lines==NULL){
+      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+    }
+ 
+    instdef[i].rects=my_calloc(616, cadlayers, sizeof(int));
+    if(instdef[i].rects==NULL){
+      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+    }
+    instdef[i].arcs=my_calloc(617, cadlayers, sizeof(int));
+    if(instdef[i].arcs==NULL){
+      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+    }
+    instdef[i].polygons=my_calloc(618, cadlayers, sizeof(int)); /* 20171115 */
+    if(instdef[i].polygons==NULL){
+      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+    }
+  }
+ 
+  max_rects=my_calloc(620, cadlayers, sizeof(int));
+  if(max_rects==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+ 
+  max_arcs=my_calloc(621, cadlayers, sizeof(int));
+  if(max_arcs==NULL){
+    fprintf(errfp, "Tcl_AppInit(): max_arcscalloc error\n");tcleval( "exit");
+  }
+ 
+  max_polygons=my_calloc(622, cadlayers, sizeof(int)); /* 20171115 */
+  if(max_polygons==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+ 
+  max_lines=my_calloc(623, cadlayers, sizeof(int));
+  if(max_lines==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+ 
+  for(i=0;i<cadlayers;i++)
+  {
+   max_rects[i]=CADMAXOBJECTS;
+   max_polygons[i]=CADMAXOBJECTS; /* 20171115 */
+   max_lines[i]=CADMAXOBJECTS;
+   max_arcs[i]=CADMAXOBJECTS;
+  }
+ 
+  rect=my_calloc(624, cadlayers, sizeof(Box *));
+  if(rect==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+ 
+  line=my_calloc(625, cadlayers, sizeof(Line *));
+  if(rect==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+ 
+  polygon=my_calloc(626, cadlayers, sizeof(xPolygon *));
+  if(polygon==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+ 
+  arc=my_calloc(627, cadlayers, sizeof(xArc *));
+  if(arc==NULL){
+    fprintf(errfp, "Tcl_AppInit(): arc calloc error\n");tcleval( "exit");
+  }
+ 
+  for(i=0;i<cadlayers;i++)
+  {
+   rect[i]=my_calloc(628, max_rects[i],sizeof(Box));
+   if(rect[i]==NULL){
+     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+   }
+ 
+   arc[i]=my_calloc(629, max_arcs[i],sizeof(xArc));
+   if(arc[i]==NULL){
+     fprintf(errfp, "Tcl_AppInit(): arc[] calloc error\n");tcleval( "exit");
+   }
+ 
+   polygon[i]=my_calloc(630, max_polygons[i],sizeof(xPolygon));
+   if(polygon[i]==NULL){
+     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+   }
+ 
+   line[i]=my_calloc(631, max_lines[i],sizeof(Line));
+   if(line[i]==NULL){
+     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+   }
+  }
+ 
+  lastrect=my_calloc(632, cadlayers, sizeof(int));
+  if(lastrect==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+ 
+  lastpolygon=my_calloc(633, cadlayers, sizeof(int)); /* 20171115 */
+  if(lastpolygon==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+ 
+  lastarc=my_calloc(634, cadlayers, sizeof(int)); /* 20171115 */
+  if(lastarc==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+ 
+  lastline=my_calloc(635, cadlayers, sizeof(int));
+  if(lastline==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+}
+
 void alloc_data()
 {
  int i;
- max_texts=CADMAXTEXT;
- max_wires=CADMAXWIRES;
- max_instances=ELEMINST;
- max_symbols=ELEMDEF;
+
+ alloc_xschem_data();
+ /* global context / graphic preferences/settings */
+
  max_selected=MAXGROUP;
- textelement=my_calloc(606, max_texts,sizeof(Text));
- if(textelement==NULL){
+ selectedgroup=my_calloc(619, max_selected, sizeof(Selected));
+ if(selectedgroup==NULL){
    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
  }
-
- wire=my_calloc(607, max_wires,sizeof(Wire));
- if(wire==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
+ 
  gridpoint=(XPoint*)my_calloc(608, CADMAXGRIDPOINTS,sizeof(XPoint));
  if(gridpoint==NULL){
    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
  }
 
- inst_ptr=my_calloc(609, max_instances , sizeof(Instance) );
- if(inst_ptr==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
- instdef=my_calloc(610, max_symbols , sizeof(Instdef) );
- if(instdef==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
- for(i=0;i<max_symbols;i++) {
-   instdef[i].lineptr=my_calloc(611, cadlayers, sizeof(Line *));
-   if(instdef[i].lineptr==NULL){
-     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-   }
-
-   instdef[i].polygonptr=my_calloc(612, cadlayers, sizeof(xPolygon *));
-   if(instdef[i].polygonptr==NULL){
-     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-   }
-
-   instdef[i].arcptr=my_calloc(613, cadlayers, sizeof(xArc *));
-   if(instdef[i].arcptr==NULL){
-     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-   }
-
-   instdef[i].boxptr=my_calloc(614, cadlayers, sizeof(Box *));
-   if(instdef[i].boxptr==NULL){
-     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-   }
-
-   instdef[i].lines=my_calloc(615, cadlayers, sizeof(int));
-   if(instdef[i].lines==NULL){
-     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-   }
-
-   instdef[i].rects=my_calloc(616, cadlayers, sizeof(int));
-   if(instdef[i].rects==NULL){
-     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-   }
-   instdef[i].arcs=my_calloc(617, cadlayers, sizeof(int));
-   if(instdef[i].arcs==NULL){
-     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-   }
-   instdef[i].polygons=my_calloc(618, cadlayers, sizeof(int)); /* 20171115 */
-   if(instdef[i].polygons==NULL){
-     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-   }
- }
-
- selectedgroup=my_calloc(619, max_selected, sizeof(Selected));
- if(selectedgroup==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
- max_rects=my_calloc(620, cadlayers, sizeof(int));
- if(max_rects==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
- max_arcs=my_calloc(621, cadlayers, sizeof(int));
- if(max_arcs==NULL){
-   fprintf(errfp, "Tcl_AppInit(): max_arcscalloc error\n");tcleval( "exit");
- }
-
- max_polygons=my_calloc(622, cadlayers, sizeof(int)); /* 20171115 */
- if(max_polygons==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
- max_lines=my_calloc(623, cadlayers, sizeof(int));
- if(max_lines==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
- for(i=0;i<cadlayers;i++)
- {
-  max_rects[i]=CADMAXOBJECTS;
-  max_polygons[i]=CADMAXOBJECTS; /* 20171115 */
-  max_lines[i]=CADMAXOBJECTS;
-  max_arcs[i]=CADMAXOBJECTS;
- }
-
- rect=my_calloc(624, cadlayers, sizeof(Box *));
- if(rect==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
- line=my_calloc(625, cadlayers, sizeof(Line *));
- if(rect==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
- polygon=my_calloc(626, cadlayers, sizeof(xPolygon *));
- if(polygon==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
- arc=my_calloc(627, cadlayers, sizeof(xArc *));
- if(arc==NULL){
-   fprintf(errfp, "Tcl_AppInit(): arc calloc error\n");tcleval( "exit");
- }
-
- for(i=0;i<cadlayers;i++)
- {
-  rect[i]=my_calloc(628, max_rects[i],sizeof(Box));
-  if(rect[i]==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
-  arc[i]=my_calloc(629, max_arcs[i],sizeof(xArc));
-  if(arc[i]==NULL){
-    fprintf(errfp, "Tcl_AppInit(): arc[] calloc error\n");tcleval( "exit");
-  }
-
-  polygon[i]=my_calloc(630, max_polygons[i],sizeof(xPolygon));
-  if(polygon[i]==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
-  line[i]=my_calloc(631, max_lines[i],sizeof(Line));
-  if(line[i]==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
- }
-
- lastrect=my_calloc(632, cadlayers, sizeof(int));
- if(lastrect==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
- lastpolygon=my_calloc(633, cadlayers, sizeof(int)); /* 20171115 */
- if(lastpolygon==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
- lastarc=my_calloc(634, cadlayers, sizeof(int)); /* 20171115 */
- if(lastarc==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
- lastline=my_calloc(635, cadlayers, sizeof(int));
- if(lastline==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
- /* graphic preferences/settings */
  pixmap=my_calloc(636, cadlayers, sizeof(Pixmap));
  if(pixmap==NULL){
    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
