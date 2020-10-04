@@ -232,6 +232,7 @@ void delete(void)
    }
    for(i = 0; i < lastselected; i++) {
      n = selectedgroup[i].n;
+     /* should be done only for ipin, opin, iopin, label <<<<< */
      if(selectedgroup[i].type == ELEMENT) {
        int p;
        symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 ); /* 20171201 */

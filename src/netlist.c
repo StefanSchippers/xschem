@@ -783,11 +783,10 @@ void prepare_netlist_structs(int for_netlist)
 
 
   /* NAME GENERICS  */
-
+  
   /* name generic pins from attached labels */
   dbg(2, "prepare_netlist_structs(): naming generics from attached labels\n");
-  for (i=0;i<lastinst;i++) /* ... assign node fields on all (non label) instances */
-  {
+  if(for_netlist) for (i=0;i<lastinst;i++) { /* ... assign node fields on all (non label) instances */
     if (inst_ptr[i].ptr<0) continue;
     my_strdup(267, &type,(inst_ptr[i].ptr+instdef)->type); /* 20150409 */
     if (type &&

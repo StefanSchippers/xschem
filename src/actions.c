@@ -1625,11 +1625,9 @@ void new_wire(int what, double mx_snap, double my_snap)
 {
  static double x1,y1,x2,y2;
  static double xx1,yy1,xx2,yy2;
- int savelastwire;
 
    if( (what & PLACE) ) {
      if( (ui_state & STARTWIRE) && (x1!=x2 || y1!=y2) ) {
-       savelastwire = lastwire;
        /* 
        prepared_netlist_structs = 0; 
        prepared_hash_wires = 0;
@@ -1676,13 +1674,10 @@ void new_wire(int what, double mx_snap, double my_snap)
        prepared_hash_wires = 0;
        prepared_hilight_structs = 0;
        if(show_pin_net_names) {
-         int w;
          prepare_netlist_structs(0);
          find_inst_hash_clear();
          bbox(BEGIN , 0.0 , 0.0 , 0.0 , 0.0);
-         for(w=savelastwire; w<lastwire; w++) {
-           find_inst_to_be_redrawn(wire[w].node);
-         }
+         find_inst_to_be_redrawn(wire[lastwire-1].node);
          bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
          draw();
          bbox(END , 0.0 , 0.0 , 0.0 , 0.0);

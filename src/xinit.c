@@ -283,6 +283,7 @@ void xwin_exit(void)
  my_free(1131, &max_polygons); /* 20171115 */
  my_free(1132, &max_arcs); /* 20171115 */
  my_free(1133, &max_lines);
+ /* graphic preferences/settings */
  my_free(1134, &pixmap);
  my_free(1135, &gc);
  my_free(1136, &gcstipple);
@@ -621,6 +622,7 @@ void alloc_data()
    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
  }
 
+ /* graphic preferences/settings */
  pixmap=my_calloc(636, cadlayers, sizeof(Pixmap));
  if(pixmap==NULL){
    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
@@ -768,8 +770,8 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
   }
   else if(!strcmp(what, "draw")) {
     double xor, yor, z;
-    int save_mod, save_ev;
- 
+    int save_mod, save_ev, save_show_pin;
+     
     /* save context */
     xor = xorigin;
     yor = yorigin;
@@ -778,6 +780,8 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     save_mod = modified;
     save_ev = event_reporting;
     event_reporting = 0;
+    save_show_pin = show_pin_net_names;
+    show_pin_net_names = 0;
     my_strncpy(save_name, current_name, S(save_name));
     my_strdup(117, &saveptr, tclgetvar("current_dirname"));
     push_undo();
@@ -791,8 +795,8 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     remove_symbols();
 
     /* preview */
-    check_version = 0; /* if set refuse to load and preview anything if not an xschem file */
-                       /* heuristics is done in xschem.tcl to ensure it is an xschem file */
+    check_version = 0; /* if set refuse to load and preview anything if not a rel 1.1+ xschem file */
+                       /* if not set heuristics is done in xschem.tcl to ensure it is an xschem file */
     load_schematic(1,filename, 0);
     window = pre_window;
     resetwin();
@@ -807,6 +811,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     my_strncpy(schematic[currentsch] , "", S(schematic[currentsch]));
     currentsch--;
     clear_drawing();
+    show_pin_net_names = save_show_pin;
     pop_undo(0);
     modified = save_mod;
     set_modify(modified);

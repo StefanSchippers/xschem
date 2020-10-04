@@ -459,7 +459,7 @@ void find_inst_to_be_redrawn(const char *node)
 
 
   if(int_hash_lookup(nodetable, node, 0, XINSERT_NOREPLACE)) return;
-  
+  dbg(1, "find_inst_to_be_redrawn(): node=%s\n", node);
   for(i=0; i< lastinst; i++) {
     sym = inst_ptr[i].ptr + instdef;
     rects = sym->rects[PINLAYER];
