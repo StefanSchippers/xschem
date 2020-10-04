@@ -569,7 +569,7 @@ extern char *tcl_command;
 extern char tcl_script[PATH_MAX];
 extern char plotfile[PATH_MAX];
 extern int persistent_command;
-extern int disable_unique_names;
+extern int dis_uniq_names;
 
 extern int tcp_port;
 extern int debug_var; 
@@ -961,7 +961,7 @@ extern void *my_calloc(int id, size_t nmemb, size_t size);
 extern void my_free(int id, void *ptr);
 extern size_t my_strcat(int id, char **, const char *);
 extern const char *subst_token(const char *s, const char *tok, const char *new_val);
-extern void new_prop_string(int i, const char *old_prop,int fast, int disable_unique_names);
+extern void new_prop_string(int i, const char *old_prop,int fast, int dis_uniq_names);
 extern void hash_name(char *token, int remove);
 extern void hash_all_names(int n);
 extern void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2);
@@ -1069,7 +1069,7 @@ extern const char fopen_read_mode[];
 #  endif  /*  HAS_XCB */
 
 extern cairo_surface_t *sfc, *save_sfc;
-extern cairo_t *ctx, *save_ctx;
+extern cairo_t *cairo_ctx, *cairo_save_ctx;
 extern XRenderPictFormat *format;
 
 

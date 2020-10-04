@@ -389,7 +389,7 @@ void set_inst_prop(int i)
   my_strdup2(70, &inst_ptr[i].instname, get_tok_value(ptr, "name",0)); /* 20150409 */
   if(inst_ptr[i].instname[0]) {
     my_strdup(101, &tmp, inst_ptr[i].prop_ptr);
-    new_prop_string(i, tmp, 0, disable_unique_names);
+    new_prop_string(i, tmp, 0, dis_uniq_names);
     my_free(724, &tmp);
   }
 }
@@ -760,7 +760,7 @@ void edit_text_property(int x)
                  textelement[sel].x0, textelement[sel].y0,
                  &xx1,&yy1,&xx2,&yy2);
        #ifdef HAS_CAIRO
-       if(customfont) cairo_restore(ctx);
+       if(customfont) cairo_restore(cairo_ctx);
        #endif
 
        bbox(ADD, xx1, yy1, xx2, yy2 );        
@@ -781,7 +781,7 @@ void edit_text_property(int x)
              textelement[sel].x0, textelement[sel].y0,
              &xx1,&yy1,&xx2,&yy2);
              #ifdef HAS_CAIRO
-             if(customfont) cairo_restore(ctx);
+             if(customfont) cairo_restore(cairo_ctx);
              #endif
 
              pcx = (rect[PINLAYER][l].x1+rect[PINLAYER][l].x2)/2.0;
@@ -845,7 +845,7 @@ void edit_text_property(int x)
                  textelement[sel].x0, textelement[sel].y0,
                  &xx1,&yy1,&xx2,&yy2);
        #ifdef HAS_CAIRO
-       if(customfont) cairo_restore(ctx);
+       if(customfont) cairo_restore(cairo_ctx);
        #endif
 
        bbox(ADD, xx1, yy1, xx2, yy2 );        
@@ -1070,7 +1070,7 @@ void update_symbol(const char *result, int x)
  
      if(!pushed) { push_undo(); pushed=1;}
      if(!k) hash_all_names(i);
-     new_prop_string(i, ptr, k, disable_unique_names); /* set new prop_ptr */
+     new_prop_string(i, ptr, k, dis_uniq_names); /* set new prop_ptr */
  
      type=instdef[inst_ptr[i].ptr].type; /* 20150409 */
      cond= !type || !IS_LABEL_SH_OR_PIN(type);

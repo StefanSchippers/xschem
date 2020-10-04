@@ -51,7 +51,7 @@ char rcfile[PATH_MAX] = {'\0'};
 char *tcl_command = NULL;
 char tcl_script[PATH_MAX] = {'\0'};
 int persistent_command=0; /* remember last command 20181022 */
-int disable_unique_names=0; /* if set allow instances with duplicate names */
+int dis_uniq_names=0; /* if set allow instances with duplicate names */
 int quit=0;  /* set from process_options (ex netlist from cmdline and quit) */
 int debug_var=-10;  /* will be set to 0 in xinit.c */
 int tcp_port = 0;
@@ -276,7 +276,7 @@ int show_pin_net_names = 0;
 
 #ifdef HAS_CAIRO
 cairo_surface_t *sfc, *save_sfc;
-cairo_t *ctx, *save_ctx;
+cairo_t *cairo_ctx, *cairo_save_ctx;
 XRenderPictFormat *format;
 
 #if HAS_XCB==1

@@ -268,7 +268,7 @@ void resetwin(void)
       }
 #endif
       #ifdef HAS_CAIRO
-      cairo_destroy(save_ctx);
+      cairo_destroy(cairo_save_ctx);
       cairo_surface_destroy(save_sfc);
 
       #if HAS_XRENDER==1
@@ -286,12 +286,12 @@ void resetwin(void)
         fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
          exit(-1);
       }
-      save_ctx = cairo_create(save_sfc);
-      cairo_set_line_width(save_ctx, 1);
-      cairo_set_line_join(save_ctx, CAIRO_LINE_JOIN_ROUND);
-      cairo_set_line_cap(save_ctx, CAIRO_LINE_CAP_ROUND);
-      cairo_select_font_face (save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-      cairo_set_font_size (save_ctx, 20);
+      cairo_save_ctx = cairo_create(save_sfc);
+      cairo_set_line_width(cairo_save_ctx, 1);
+      cairo_set_line_join(cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
+      cairo_set_line_cap(cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
+      cairo_select_font_face (cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size (cairo_save_ctx, 20);
       /* 20171125 select xlib or xcb :-) */
       #if HAS_XCB==1 && HAS_XRENDER==1
       cairo_xcb_surface_set_size(sfc, xschem_w, xschem_h); /*  20171123 */
@@ -937,7 +937,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, 
   dbg(1, "place_symbol() :all inst_ptr members set\n");  /*  03-02-2000 */
   if(first_call) hash_all_names(n);
   if(inst_props) {
-    new_prop_string(n, inst_props,!first_call, disable_unique_names); /*  20171214 first_call */
+    new_prop_string(n, inst_props,!first_call, dis_uniq_names); /*  20171214 first_call */
   }
   else {
     set_inst_prop(n); /* no props, get from sym template, also calls new_prop_string() */
@@ -1391,7 +1391,7 @@ void calc_drawing_bbox(Box *boundbox, int selected)
      updatebbox(count,boundbox,&tmp);
    }
    #ifdef HAS_CAIRO
-   if(customfont) cairo_restore(ctx);
+   if(customfont) cairo_restore(cairo_ctx);
    #endif
  }
  for(i=0;i<lastinst;i++)
@@ -2093,8 +2093,8 @@ int text_bbox(const char *str, double xscale, double yscale,
   /*  if(size*mooz>800.) { */
   /*    return 0; */
   /*  } */
-  cairo_set_font_size (ctx, size*mooz);
-  cairo_font_extents(ctx, &fext);
+  cairo_set_font_size (cairo_ctx, size*mooz);
+  cairo_font_extents(cairo_ctx, &fext);
 
   ww=0.; hh=1.;
   c=0;
@@ -2107,7 +2107,7 @@ int text_bbox(const char *str, double xscale, double yscale,
       hh++;
       cairo_lines++;
       if(str_ptr[0]!='\0') {
-        cairo_text_extents(ctx, str_ptr, &ext);
+        cairo_text_extents(cairo_ctx, str_ptr, &ext);
         maxw = ext.x_advance > ext.width ? ext.x_advance : ext.width;
         if(maxw > ww) ww= maxw;
       }
@@ -2118,7 +2118,7 @@ int text_bbox(const char *str, double xscale, double yscale,
     c++;
   }
   if(str_ptr && str_ptr[0]!='\0') {
-    cairo_text_extents(ctx, str_ptr, &ext);
+    cairo_text_extents(cairo_ctx, str_ptr, &ext);
     maxw = ext.x_advance > ext.width ? ext.x_advance : ext.width;
     if(maxw > ww) ww= maxw;
   }
@@ -2221,8 +2221,7 @@ void place_text(int draw_text, double mx, double my)
   int textlayer;
   const char *str;
   int save_draw;
-
-  /*  20171112 */
+  Text *t = &textelement[lasttext];
   #ifdef HAS_CAIRO
   char  *textfont;
   #endif
@@ -2236,77 +2235,73 @@ void place_text(int draw_text, double mx, double my)
    tclsetvar("vsize","0.4");
   tcleval("enter_text {text:} normal");
 
-  dbg(1, "place_text(): hsize=%s vsize=%s\n",tclgetvar("hsize"),
-           tclgetvar("vsize") );
+  dbg(1, "place_text(): hsize=%s vsize=%s\n",tclgetvar("hsize"), tclgetvar("vsize") );
   
   txt =  (char *)tclgetvar("retval");
-  if(!strcmp(txt,"")) return;   /*  01112004 dont allocate text object if empty string given */
+  if(!strcmp(txt,"")) return;   /*  dont allocate text object if empty string given */
   push_undo(); /*  20150327 */
   check_text_storage();
-  textelement[lasttext].txt_ptr=NULL;
-  textelement[lasttext].prop_ptr=NULL;  /*  20111006 added missing initialization of pointer */
-  textelement[lasttext].font=NULL;  /*  20171206 */
-  my_strdup(19, &textelement[lasttext].txt_ptr, txt);
-  textelement[lasttext].x0=mx;
-  textelement[lasttext].y0=my;
-  textelement[lasttext].rot=0;
-  textelement[lasttext].flip=0;
-  textelement[lasttext].sel=0;
-  textelement[lasttext].xscale=
-   atof(tclgetvar("hsize"));
-  textelement[lasttext].yscale=
-   atof(tclgetvar("vsize"));
-   my_strdup(20, &textelement[lasttext].prop_ptr, (char *)tclgetvar("props"));
+  t->txt_ptr=NULL;
+  t->prop_ptr=NULL;  /*  20111006 added missing initialization of pointer */
+  t->font=NULL;  /*  20171206 */
+  my_strdup(19, &t->txt_ptr, txt);
+  t->x0=mx;
+  t->y0=my;
+  t->rot=0;
+  t->flip=0;
+  t->sel=0;
+  t->xscale= atof(tclgetvar("hsize"));
+  t->yscale= atof(tclgetvar("vsize"));
+  my_strdup(20, &t->prop_ptr, (char *)tclgetvar("props"));
   /*  debug ... */
-  /*  textelement[lasttext].prop_ptr=NULL; */
+  /*  t->prop_ptr=NULL; */
   dbg(1, "place_text(): done text input\n");
 
-  str = get_tok_value(textelement[lasttext].prop_ptr, "hcenter", 0);
-  textelement[lasttext].hcenter = strcmp(str, "true")  ? 0 : 1;
-  str = get_tok_value(textelement[lasttext].prop_ptr, "vcenter", 0);
-  textelement[lasttext].vcenter = strcmp(str, "true")  ? 0 : 1;
+  str = get_tok_value(t->prop_ptr, "hcenter", 0);
+  t->hcenter = strcmp(str, "true")  ? 0 : 1;
+  str = get_tok_value(t->prop_ptr, "vcenter", 0);
+  t->vcenter = strcmp(str, "true")  ? 0 : 1;
 
-  str = get_tok_value(textelement[lasttext].prop_ptr, "layer", 0);
-  if(str[0]) textelement[lasttext].layer = atoi(str);
-  else textelement[lasttext].layer = -1;
+  str = get_tok_value(t->prop_ptr, "layer", 0);
+  if(str[0]) t->layer = atoi(str);
+  else t->layer = -1;
 
-  textelement[lasttext].flags = 0;
-  str = get_tok_value(textelement[lasttext].prop_ptr, "slant", 0);
-  textelement[lasttext].flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
-  textelement[lasttext].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
-  str = get_tok_value(textelement[lasttext].prop_ptr, "weight", 0);
-  textelement[lasttext].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
+  t->flags = 0;
+  str = get_tok_value(t->prop_ptr, "slant", 0);
+  t->flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
+  t->flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
+  str = get_tok_value(t->prop_ptr, "weight", 0);
+  t->flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
 
-  my_strdup(21, &textelement[lasttext].font, get_tok_value(textelement[lasttext].prop_ptr, "font", 0));/* 20171206 */
-  textlayer = textelement[lasttext].layer;
+  my_strdup(21, &t->font, get_tok_value(t->prop_ptr, "font", 0));/* 20171206 */
+  textlayer = t->layer;
   if(textlayer < 0 || textlayer >= cadlayers) textlayer = TEXTLAYER;
   #ifdef HAS_CAIRO
-  textfont = textelement[lasttext].font;
-  if((textfont && textfont[0]) || textelement[lasttext].flags) {
+  textfont = t->font;
+  if((textfont && textfont[0]) || t->flags) {
     cairo_font_slant_t slant;
     cairo_font_weight_t weight;
-    textfont = (textelement[lasttext].font && textelement[lasttext].font[0]) ? textelement[lasttext].font : cairo_font_name;
-    weight = ( textelement[lasttext].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
+    textfont = (t->font && t->font[0]) ? t->font : cairo_font_name;
+    weight = ( t->flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
     slant = CAIRO_FONT_SLANT_NORMAL;
-    if(textelement[lasttext].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
-    if(textelement[lasttext].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
-    cairo_save(ctx);
-    cairo_save(save_ctx);
-    cairo_select_font_face (ctx, textfont, slant, weight);
-    cairo_select_font_face (save_ctx, textfont, slant, weight);
+    if(t->flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
+    if(t->flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
+    cairo_save(cairo_ctx);
+    cairo_save(cairo_save_ctx);
+    cairo_select_font_face (cairo_ctx, textfont, slant, weight);
+    cairo_select_font_face (cairo_save_ctx, textfont, slant, weight);
   }
   #endif
   save_draw=draw_window; /* 20181009 */
   draw_window=1;
-  if(draw_text) draw_string(textlayer, NOW, textelement[lasttext].txt_ptr, 0, 0, 
-              textelement[lasttext].hcenter, textelement[lasttext].vcenter,
-              textelement[lasttext].x0,textelement[lasttext].y0,
-              textelement[lasttext].xscale, textelement[lasttext].yscale);
+  if(draw_text) {
+    draw_string(textlayer, NOW, t->txt_ptr, 0, 0, t->hcenter, t->vcenter, t->x0,t->y0, t->xscale, t->yscale);
+  }
   draw_window = save_draw;
   #ifdef HAS_CAIRO
-  if((textfont && textfont[0]) || textelement[lasttext].flags) {
-    cairo_restore(ctx);
-    cairo_restore(save_ctx);
+  if((textfont && textfont[0]) || t->flags) {
+    cairo_restore(cairo_ctx);
+    cairo_restore(cairo_save_ctx);
   }
   #endif
   select_text(lasttext, SELECTED, 0);

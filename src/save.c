@@ -788,8 +788,8 @@ void read_xschem_file(FILE *fd)
 
       if(inst_ptr[lastinst-1].name) {
         char *str;
-        my_snprintf(name_embedded, S(name_embedded),
-           "%s/.xschem_embedded_%d_%s", tclgetvar("XSCHEM_TMP_DIR"), getpid(), get_cell_w_ext(inst_ptr[lastinst-1].name, 0));
+        my_snprintf(name_embedded, S(name_embedded), "%s/.xschem_embedded_%d_%s", 
+                    tclgetvar("XSCHEM_TMP_DIR"), getpid(), get_cell_w_ext(inst_ptr[lastinst-1].name, 0));
         found=0;
         for(i=0;i<lastinstdef;i++)
         {

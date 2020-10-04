@@ -217,7 +217,7 @@ void draw_selection(GC g, int interruptable)
        rx1+deltax, ry1+deltay,
        textelement[n].xscale, textelement[n].yscale);
      #ifdef HAS_CAIRO
-     if(customfont) cairo_restore(ctx);
+     if(customfont) cairo_restore(cairo_ctx);
      #endif
 
      break;
@@ -759,7 +759,7 @@ void copy_objects(int what)
                 textelement[n].x0, textelement[n].y0,
                 &rx1,&ry1, &rx2,&ry2);
       #ifdef HAS_CAIRO
-      if(customfont) cairo_restore(ctx);
+      if(customfont) cairo_restore(cairo_ctx);
       #endif
       bbox(ADD, rx1, ry1, rx2, ry2 );
       */
@@ -809,17 +809,19 @@ void copy_objects(int what)
       #ifdef HAS_CAIRO
       textfont = textelement[lasttext].font; /* 20171206 */
       if((textfont && textfont[0]) || textelement[lasttext].flags) {
+        char *font = textelement[lasttext].font;
+        int flags = textelement[lasttext].flags;
         cairo_font_slant_t slant;
         cairo_font_weight_t weight;
-        textfont = (textelement[lasttext].font && textelement[lasttext].font[0]) ? textelement[lasttext].font : cairo_font_name;
-        weight = ( textelement[lasttext].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
+        textfont = (font && font[0]) ? font : cairo_font_name;
+        weight = ( flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
         slant = CAIRO_FONT_SLANT_NORMAL;
-        if(textelement[lasttext].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
-        if(textelement[lasttext].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
-        cairo_save(ctx);
-        cairo_save(save_ctx);
-        cairo_select_font_face (ctx, textfont, slant, weight);
-        cairo_select_font_face (save_ctx, textfont, slant, weight);
+        if(flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
+        if(flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
+        cairo_save(cairo_ctx);
+        cairo_save(cairo_save_ctx);
+        cairo_select_font_face (cairo_ctx, textfont, slant, weight);
+        cairo_select_font_face (cairo_save_ctx, textfont, slant, weight);
       }
       #endif
       draw_string(textlayer, ADD, textelement[lasttext].txt_ptr,        /* draw moved txt */
@@ -832,8 +834,8 @@ void copy_objects(int what)
       #endif
       #ifdef HAS_CAIRO
       if( (textfont && textfont[0]) || textelement[lasttext].flags) {
-        cairo_restore(ctx);
-        cairo_restore(save_ctx);
+        cairo_restore(cairo_ctx);
+        cairo_restore(cairo_save_ctx);
       }
       #endif
       selectedgroup[i].n=lasttext;
@@ -869,7 +871,7 @@ void copy_objects(int what)
        /* the newpropcnt argument is zero for the 1st call and used in  */
        /* new_prop_string() for cleaning some internal caches. */
        if(!newpropcnt) hash_all_names(lastinst);
-       new_prop_string(lastinst, inst_ptr[n].prop_ptr,newpropcnt++, disable_unique_names);
+       new_prop_string(lastinst, inst_ptr[n].prop_ptr,newpropcnt++, dis_uniq_names);
        my_strdup2(235, &inst_ptr[lastinst].instname, get_tok_value(inst_ptr[lastinst].prop_ptr, "name", 0)); /* 20150409 */
        n=selectedgroup[i].n=lastinst;
 
@@ -1305,7 +1307,7 @@ void move_objects(int what, int merge, double dx, double dy)
                 textelement[n].x0, textelement[n].y0,
                 &rx1,&ry1, &rx2,&ry2);
       #ifdef HAS_CAIRO
-      if(customfont) cairo_restore(ctx);
+      if(customfont) cairo_restore(cairo_ctx);
       #endif
       bbox(ADD, rx1, ry1, rx2, ry2 );
  
@@ -1333,10 +1335,10 @@ void move_objects(int what, int merge, double dx, double dy)
         slant = CAIRO_FONT_SLANT_NORMAL;
         if(textelement[n].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
         if(textelement[n].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
-        cairo_save(ctx);
-        cairo_save(save_ctx);
-        cairo_select_font_face (ctx, textfont, slant, weight);
-        cairo_select_font_face (save_ctx, textfont, slant, weight);
+        cairo_save(cairo_ctx);
+        cairo_save(cairo_save_ctx);
+        cairo_select_font_face (cairo_ctx, textfont, slant, weight);
+        cairo_select_font_face (cairo_save_ctx, textfont, slant, weight);
       }
       #endif
       draw_string(textlayer, ADD, textelement[n].txt_ptr,        /* draw moved txt */
@@ -1349,8 +1351,8 @@ void move_objects(int what, int merge, double dx, double dy)
       #endif
       #ifdef HAS_CAIRO
       if( (textfont && textfont[0]) || textelement[n].flags) {
-        cairo_restore(ctx);
-        cairo_restore(save_ctx);
+        cairo_restore(cairo_ctx);
+        cairo_restore(cairo_save_ctx);
       }
       #endif
       break;

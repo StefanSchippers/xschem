@@ -650,8 +650,8 @@ void xwin_exit(void)
 
  if(has_x) {
     #ifdef HAS_CAIRO /* 20171105 */
-    cairo_destroy(ctx);
-    cairo_destroy(save_ctx);
+    cairo_destroy(cairo_ctx);
+    cairo_destroy(cairo_save_ctx);
     cairo_surface_destroy(sfc);
     cairo_surface_destroy(save_sfc);
     #endif
@@ -1330,11 +1330,14 @@ int Tcl_AppInit(Tcl_Interp *inter)
       XGetWindowAttributes(display, window, &wattr);
       #if HAS_XRENDER==1
       #if HAS_XCB==1
-      sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, window, &format_rgb, 1 , 1);
-      save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, save_pixmap, &format_rgb, 1 , 1);
+      sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, 
+            screen_xcb, window, &format_rgb, 1 , 1);
+      save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, 
+                 screen_xcb, save_pixmap, &format_rgb, 1 , 1);
       #else
       format = XRenderFindStandardFormat(display, PictStandardRGB24);
-      sfc = cairo_xlib_surface_create_with_xrender_format (display, window, DefaultScreenOfDisplay(display), format, 1, 1); 
+      sfc = cairo_xlib_surface_create_with_xrender_format (display, 
+            window, DefaultScreenOfDisplay(display), format, 1, 1); 
       save_sfc = cairo_xlib_surface_create_with_xrender_format(
                  display, save_pixmap, DefaultScreenOfDisplay(display), format, 1, 1); 
       #endif 
@@ -1350,34 +1353,34 @@ int Tcl_AppInit(Tcl_Interp *inter)
         fprintf(errfp, "ERROR: invalid cairo surface\n");
         return 1;
       }
-      ctx = cairo_create(sfc);
-      save_ctx = cairo_create(save_sfc);
+      cairo_ctx = cairo_create(sfc);
+      cairo_save_ctx = cairo_create(save_sfc);
 
       #if 0
       {
         cairo_font_options_t *cfo;
         cfo = cairo_font_options_create ();
         cairo_font_options_set_antialias(cfo, CAIRO_ANTIALIAS_DEFAULT); /* CAIRO_ANTIALIAS_NONE */
-        cairo_set_font_options (ctx, cfo);
-        cairo_set_font_options (save_ctx, cfo);
+        cairo_set_font_options (cairo_ctx, cfo);
+        cairo_set_font_options (cairo_save_ctx, cfo);
       }
       #endif
 
       /* load font from tcl 20171112 */
       tcleval("xschem set cairo_font_name $cairo_font_name");
       tclsetvar("has_cairo","1");
-      cairo_select_font_face (ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-      cairo_set_font_size (ctx, 20);
-      cairo_select_font_face (save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-      cairo_set_font_size (save_ctx, 20);
+      cairo_select_font_face (cairo_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size (cairo_ctx, 20);
+      cairo_select_font_face (cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size (cairo_save_ctx, 20);
 
-      save_ctx = cairo_create(save_sfc);
-      cairo_set_line_width(ctx, 1);
-      cairo_set_line_width(save_ctx, 1);
-      cairo_set_line_join(ctx, CAIRO_LINE_JOIN_ROUND);
-      cairo_set_line_cap(ctx, CAIRO_LINE_CAP_ROUND);
-      cairo_set_line_join(save_ctx, CAIRO_LINE_JOIN_ROUND);
-      cairo_set_line_cap(save_ctx, CAIRO_LINE_CAP_ROUND);
+      cairo_save_ctx = cairo_create(save_sfc);
+      cairo_set_line_width(cairo_ctx, 1);
+      cairo_set_line_width(cairo_save_ctx, 1);
+      cairo_set_line_join(cairo_ctx, CAIRO_LINE_JOIN_ROUND);
+      cairo_set_line_cap(cairo_ctx, CAIRO_LINE_CAP_ROUND);
+      cairo_set_line_join(cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
+      cairo_set_line_cap(cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
 
     }
     #endif /* HAS_CAIRO */

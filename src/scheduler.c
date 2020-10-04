@@ -510,10 +510,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      }
      hash_all_names(inst);
      if(argc >= 5) {
-       new_prop_string(inst, subst_token(inst_ptr[inst].prop_ptr, argv[3], argv[4]),0, disable_unique_names); 
+       new_prop_string(inst, subst_token(inst_ptr[inst].prop_ptr, argv[3], argv[4]),0, dis_uniq_names); 
    
      } else {/* assume argc == 4 */
-       new_prop_string(inst, subst_token(inst_ptr[inst].prop_ptr, argv[3], NULL),0, disable_unique_names); 
+       new_prop_string(inst, subst_token(inst_ptr[inst].prop_ptr, argv[3], NULL),0, dis_uniq_names); 
      }
      my_strdup2(367, &inst_ptr[inst].instname, get_tok_value(inst_ptr[inst].prop_ptr, "name",0));
      /* new symbol bbox after prop changes (may change due to text length) */
@@ -579,7 +579,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   
          my_strdup(371, &ptr,subst_token(inst_ptr[inst].prop_ptr, "name", name) );
          hash_all_names(inst);
-         new_prop_string(inst, ptr,0, disable_unique_names); /* set new prop_ptr */
+         new_prop_string(inst, ptr,0, dis_uniq_names); /* set new prop_ptr */
          my_strdup2(372, &inst_ptr[inst].instname, get_tok_value(inst_ptr[inst].prop_ptr, "name",0));
   
          type=instdef[inst_ptr[inst].ptr].type; /* 20150409 */
@@ -1845,8 +1845,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    if(!strcmp(argv[2],"cairo_font_name"))  {
      if( strlen(argv[3]) < sizeof(cairo_font_name) ) {
        my_strncpy(cairo_font_name, argv[3], S(cairo_font_name));
-       cairo_select_font_face (ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-       cairo_select_font_face (save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+       cairo_select_font_face (cairo_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+       cairo_select_font_face (cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
      }
    } else
    #endif
@@ -1909,9 +1909,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
    else if(!strcmp(argv[2],"disable_unique_names")) { /* 20171025 */
      if(!strcmp(argv[3],"1")) {
-       disable_unique_names=1;
+       dis_uniq_names=1;
      } else {
-       disable_unique_names=0;
+       dis_uniq_names=0;
      }
    }
    else if(!strcmp(argv[2],"incr_hilight"))  {

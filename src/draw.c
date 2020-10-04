@@ -108,14 +108,15 @@ void print_image()
   XSetTile(display, gctiled, save_pixmap);
 
   #ifdef HAS_CAIRO
-  cairo_destroy(save_ctx);
+  cairo_destroy(cairo_save_ctx);
   cairo_surface_destroy(save_sfc);
 
   #if HAS_XRENDER==1
   #if HAS_XCB==1
   save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, save_pixmap, &format_rgb, w, h);
   #else
-  save_sfc = cairo_xlib_surface_create_with_xrender_format (display, save_pixmap, DefaultScreenOfDisplay(display), format, w, h);
+  save_sfc = cairo_xlib_surface_create_with_xrender_format(display, 
+             save_pixmap, DefaultScreenOfDisplay(display), format, w, h);
   #endif /*HAS_XCB */
   #else
   save_sfc = cairo_xlib_surface_create(display, save_pixmap, visual, w, h);
@@ -124,13 +125,13 @@ void print_image()
     fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
      exit(-1);
   }
-  save_ctx = cairo_create(save_sfc);
-  cairo_set_line_width(save_ctx, 1);
-  cairo_set_line_join(save_ctx, CAIRO_LINE_JOIN_ROUND);
-  cairo_set_line_cap(save_ctx, CAIRO_LINE_CAP_ROUND);
-  cairo_select_font_face (save_ctx, cairo_font_name, 
+  cairo_save_ctx = cairo_create(save_sfc);
+  cairo_set_line_width(cairo_save_ctx, 1);
+  cairo_set_line_join(cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
+  cairo_set_line_cap(cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
+  cairo_select_font_face (cairo_save_ctx, cairo_font_name, 
        CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size (save_ctx, 20);
+  cairo_set_font_size (cairo_save_ctx, 20);
   #endif /*HAS_CAIRO */
   for(tmp=0;tmp<cadlayers;tmp++)
   {
@@ -183,14 +184,15 @@ void print_image()
 
 
 #ifdef HAS_CAIRO
-  cairo_destroy(save_ctx);
+  cairo_destroy(cairo_save_ctx);
   cairo_surface_destroy(save_sfc);
 
   #if HAS_XRENDER==1
   #if HAS_XCB==1
   save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, save_pixmap, &format_rgb, w, h);
   #else
-  save_sfc = cairo_xlib_surface_create_with_xrender_format (display, save_pixmap, DefaultScreenOfDisplay(display), format, w, h);
+  save_sfc = cairo_xlib_surface_create_with_xrender_format (display, 
+             save_pixmap, DefaultScreenOfDisplay(display), format, w, h);
   #endif /*HAS_XCB */
   #else
   save_sfc = cairo_xlib_surface_create(display, save_pixmap, visual, w, h);
@@ -199,12 +201,12 @@ void print_image()
     fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
      exit(-1);
   }
-  save_ctx = cairo_create(save_sfc);
-  cairo_set_line_width(save_ctx, 1);
-  cairo_set_line_join(save_ctx, CAIRO_LINE_JOIN_ROUND);
-  cairo_set_line_cap(save_ctx, CAIRO_LINE_CAP_ROUND);
-  cairo_select_font_face (save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size (save_ctx, 20);
+  cairo_save_ctx = cairo_create(save_sfc);
+  cairo_set_line_width(cairo_save_ctx, 1);
+  cairo_set_line_join(cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
+  cairo_set_line_cap(cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
+  cairo_select_font_face (cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size (cairo_save_ctx, 20);
   #endif /*HAS_CAIRO */
 
   for(tmp=0;tmp<cadlayers;tmp++)
@@ -221,7 +223,7 @@ void print_image()
 }
 
 #ifdef HAS_CAIRO
-/* remember to call cairo_restore(ctx) when done !! */
+/* remember to call cairo_restore(cairo_ctx) when done !! */
 int set_text_custom_font(Text *txt) /* 20171122 for correct text_bbox calculation */
 {
   char *textfont;
@@ -235,8 +237,8 @@ int set_text_custom_font(Text *txt) /* 20171122 for correct text_bbox calculatio
     slant = CAIRO_FONT_SLANT_NORMAL;
     if(txt->flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
     if(txt->flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
-    cairo_save(ctx);
-    cairo_select_font_face (ctx, textfont, slant, weight);
+    cairo_save(cairo_ctx);
+    cairo_select_font_face (cairo_ctx, textfont, slant, weight);
     return 1;
   }
   return 0;
@@ -250,7 +252,7 @@ int set_text_custom_font(Text *txt)
 
 
 #ifdef HAS_CAIRO
-void cairo_draw_string_line(cairo_t *ctx, char *s,
+void cairo_draw_string_line(cairo_t *cairo_ctx, char *s,
     double x, double y, double size, int rot, int flip, 
     int lineno, double fontheight, double fontascent, double fontdescent, int llength)
 {
@@ -266,7 +268,7 @@ void cairo_draw_string_line(cairo_t *ctx, char *s,
   /* GC gcclear; */
   if(s==NULL) return;
   if(llength==0) return;
-  cairo_text_extents(ctx, s, &ext);
+  cairo_text_extents(cairo_ctx, s, &ext);
   xadvance = ext.x_advance > ext.width? ext.x_advance : ext.width;
 
   line_delta = lineno*fontheight*cairo_font_line_spacing;
@@ -293,15 +295,15 @@ void cairo_draw_string_line(cairo_t *ctx, char *s,
   else if(rot==2 && flip==1) {iy=iy-fontheight-lines+line_delta+fontascent+vc;}
   else if(rot==3 && flip==1) {iy=iy+xadvance+line_offset;ix+=line_delta+fontascent-vc;}
 
-  cairo_save(ctx);
-  cairo_translate(ctx, ix, iy);
-  cairo_rotate(ctx, XSCH_PI/2*rot1);
+  cairo_save(cairo_ctx);
+  cairo_translate(cairo_ctx, ix, iy);
+  cairo_rotate(cairo_ctx, XSCH_PI/2*rot1);
 
   /* fprintf(errfp, "string_line: |%s|, y_bearing: %f descent: %f ascent: %f height: %f\n", */
   /*     s, ext.y_bearing, fontdescent, fontascent, fontheight); */
-  cairo_move_to(ctx, 0,0);
-  cairo_show_text(ctx, s);
-  cairo_restore(ctx);
+  cairo_move_to(cairo_ctx, 0,0);
+  cairo_show_text(cairo_ctx, s);
+  cairo_restore(cairo_ctx);
 }
 
 /* CAIRO version */
@@ -348,18 +350,18 @@ void draw_string(int layer, int what, const char *s, int rot, int flip, int hcen
     if(rot == 3 && flip == 1 ) { x=textx1;}
   }
 
-  cairo_set_source_rgb(ctx,
+  cairo_set_source_rgb(cairo_ctx,
     (double)xcolor_array[layer].red/65535.0,
     (double)xcolor_array[layer].green/65535.0,
     (double)xcolor_array[layer].blue/65535.0);
-  cairo_set_source_rgb(save_ctx,
+  cairo_set_source_rgb(cairo_save_ctx,
     (double)xcolor_array[layer].red/65535.0,
     (double)xcolor_array[layer].green/65535.0,
     (double)xcolor_array[layer].blue/65535.0);
 
-  cairo_set_font_size (ctx, size*mooz);
-  cairo_set_font_size (save_ctx, size*mooz);
-  cairo_font_extents(ctx, &fext);
+  cairo_set_font_size (cairo_ctx, size*mooz);
+  cairo_set_font_size (cairo_save_ctx, size*mooz);
+  cairo_font_extents(cairo_ctx, &fext);
   llength=0;
   my_strdup2(73, &sss, s);
   tt=ss=sss;
@@ -368,9 +370,9 @@ void draw_string(int layer, int what, const char *s, int rot, int flip, int hcen
     if(c=='\n' || c==0) {
       *ss='\0';
       /*fprintf(errfp, "cairo_draw_string(): tt=%s, longest line: %d\n", tt, cairo_longest_line); */
-      if(draw_window) cairo_draw_string_line(ctx, tt, x, y, size, rot, flip, 
+      if(draw_window) cairo_draw_string_line(cairo_ctx, tt, x, y, size, rot, flip, 
          lineno, fext.height, fext.ascent, fext.descent, llength);
-      if(draw_pixmap) cairo_draw_string_line(save_ctx, tt, x, y, size, rot, flip, 
+      if(draw_pixmap) cairo_draw_string_line(cairo_save_ctx, tt, x, y, size, rot, flip, 
          lineno, fext.height, fext.ascent, fext.descent, llength);
       lineno++;
       if(c==0) break;
@@ -603,10 +605,10 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
           if(symptr->txtptr[j].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
           if(symptr->txtptr[j].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
 
-          cairo_save(ctx);
-          cairo_save(save_ctx);
-          cairo_select_font_face (ctx, textfont, slant, weight);
-          cairo_select_font_face (save_ctx, textfont, slant, weight);
+          cairo_save(cairo_ctx);
+          cairo_save(cairo_save_ctx);
+          cairo_select_font_face (cairo_ctx, textfont, slant, weight);
+          cairo_select_font_face (cairo_save_ctx, textfont, slant, weight);
         }
         #endif
         dbg(1, "drawing string: str=%s prop=%s\n", txtptr, text.prop_ptr);
@@ -620,8 +622,8 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
         #endif
         #ifdef HAS_CAIRO
         if( (textfont && textfont[0]) || symptr->txtptr[j].flags) {
-          cairo_restore(ctx);
-          cairo_restore(save_ctx);
+          cairo_restore(cairo_ctx);
+          cairo_restore(cairo_save_ctx);
         }
         #endif
       }
@@ -746,7 +748,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
      (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
      flip^text.flip, text.hcenter, text.vcenter, x0+x1, y0+y1, text.xscale, text.yscale);                    
    #ifdef HAS_CAIRO
-   if(customfont) cairo_restore(ctx);
+   if(customfont) cairo_restore(cairo_ctx);
    #endif
 
   }
@@ -1587,23 +1589,26 @@ void draw(void)
           if(draw_single_layer!=-1 && c != draw_single_layer) continue; /* 20151117 */
         
           if(enable_layer[c]) for(i=0;i<lastline[c];i++) {
-            if(line[c][i].bus)
-              drawline(c, THICK, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2, line[c][i].dash);
+            Line *l = &line[c][i];
+            if(l->bus)
+              drawline(c, THICK, l->x1, l->y1, l->x2, l->y2, l->dash);
             else
-              drawline(c, ADD, line[c][i].x1, line[c][i].y1, line[c][i].x2, line[c][i].y2, line[c][i].dash);
+              drawline(c, ADD, l->x1, l->y1, l->x2, l->y2, l->dash);
           }
           if(enable_layer[c]) for(i=0;i<lastrect[c];i++) 
           {
-            drawrect(c, ADD, rect[c][i].x1, rect[c][i].y1, rect[c][i].x2, rect[c][i].y2, rect[c][i].dash);
-            filledrect(c, ADD, rect[c][i].x1, rect[c][i].y1, rect[c][i].x2, rect[c][i].y2);
+            Box *r = &rect[c][i];
+            drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
+            filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
           }
           if(enable_layer[c]) for(i=0;i<lastarc[c];i++) 
           {
-            drawarc(c, ADD, arc[c][i].x, arc[c][i].y, arc[c][i].r, arc[c][i].a, arc[c][i].b, arc[c][i].fill, arc[c][i].dash);
+            xArc *a = &arc[c][i];
+            drawarc(c, ADD, a->x, a->y, a->r, a->a, a->b, a->fill, a->dash);
           }
           if(enable_layer[c]) for(i=0;i<lastpolygon[c];i++) {
-            /* 20180914 added fill */
-            drawpolygon(c, NOW, polygon[c][i].x, polygon[c][i].y, polygon[c][i].points, polygon[c][i].fill, polygon[c][i].dash);
+            xPolygon *p = &polygon[c][i];
+            drawpolygon(c, NOW, p->x, p->y, p->points, p->fill, p->dash);
           }
           if(use_hash) {
   
@@ -1728,10 +1733,10 @@ void draw(void)
               if(textelement[i].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
               if(textelement[i].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
 
-              cairo_save(ctx);
-              cairo_save(save_ctx);
-              cairo_select_font_face (ctx, textfont, slant, weight);
-              cairo_select_font_face (save_ctx, textfont, slant, weight);
+              cairo_save(cairo_ctx);
+              cairo_save(cairo_save_ctx);
+              cairo_select_font_face (cairo_ctx, textfont, slant, weight);
+              cairo_select_font_face (cairo_save_ctx, textfont, slant, weight);
             }
             #endif
 
@@ -1741,8 +1746,8 @@ void draw(void)
               textelement[i].xscale, textelement[i].yscale); 
             #ifdef HAS_CAIRO
             if((textfont && textfont[0]) || textelement[i].flags ) {
-              cairo_restore(ctx);
-              cairo_restore(save_ctx);
+              cairo_restore(cairo_ctx);
+              cairo_restore(cairo_save_ctx);
             }
             #endif
             #ifndef HAS_CAIRO

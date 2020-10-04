@@ -82,7 +82,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
        sym_flip ^ text.flip, text.hcenter, text.vcenter,
        x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2);
      #ifdef HAS_CAIRO
-     if(customfont) cairo_restore(ctx);
+     if(customfont) cairo_restore(cairo_ctx);
      #endif
      if(xx1<*x1) *x1=xx1;
      if(yy1<*y1) *y1=yy1;
@@ -275,7 +275,7 @@ void delete(void)
                 textelement[i].x0, textelement[i].y0,
                 &xx1,&yy1, &xx2,&yy2);
       #ifdef HAS_CAIRO
-      if(customfont) cairo_restore(ctx);
+      if(customfont) cairo_restore(cairo_ctx);
       #endif
       bbox(ADD, xx1, yy1, xx2, yy2 );
       my_free(935, &textelement[i].prop_ptr);
@@ -451,8 +451,8 @@ void bbox(int what,double x1,double y1, double x2, double y2)
     XSetClipMask(display, gcstipple[i], None); /* 20171110 optimization, clipping already done in software */
    }
    #ifdef HAS_CAIRO
-   cairo_reset_clip(ctx);
-   cairo_reset_clip(save_ctx);
+   cairo_reset_clip(cairo_ctx);
+   cairo_reset_clip(cairo_save_ctx);
    #endif
    sem=0;
    break;
@@ -480,10 +480,10 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    XSetClipRectangles(display, gctiled, 0,0, xrect, 1, Unsorted);
    dbg(1, "bbox(): bbox= %d %d %d %d\n",areax1,areay1,areax2,areay2);     
    #ifdef HAS_CAIRO
-   cairo_rectangle(ctx, xrect[0].x, xrect[0].y, xrect[0].width, xrect[0].height);
-   cairo_clip(ctx);
-   cairo_rectangle(save_ctx, xrect[0].x, xrect[0].y, xrect[0].width, xrect[0].height);
-   cairo_clip(save_ctx);
+   cairo_rectangle(cairo_ctx, xrect[0].x, xrect[0].y, xrect[0].width, xrect[0].height);
+   cairo_clip(cairo_ctx);
+   cairo_rectangle(cairo_save_ctx, xrect[0].x, xrect[0].y, xrect[0].width, xrect[0].height);
+   cairo_clip(cairo_save_ctx);
    #endif
    break;
   default: 
@@ -541,7 +541,7 @@ void unselect_all(void)
        textelement[i].x0, textelement[i].y0,
        textelement[i].xscale, textelement[i].yscale);
       #ifdef HAS_CAIRO
-      if(customfont) cairo_restore(ctx);
+      if(customfont) cairo_restore(cairo_ctx);
       #endif
      }
     }          
@@ -720,7 +720,7 @@ void select_text(int i,unsigned short select_mode, int fast)
      textelement[i].x0, textelement[i].y0,
      textelement[i].xscale, textelement[i].yscale);
   #ifdef HAS_CAIRO
-  if(customfont) cairo_restore(ctx);
+  if(customfont) cairo_restore(cairo_ctx);
   #endif
   need_rebuild_selected_array=1;
 }
@@ -959,7 +959,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /* 201509
              textelement[i].x0, textelement[i].y0,
              &xx1,&yy1, &xx2,&yy2);
   #ifdef HAS_CAIRO
-  if(customfont) cairo_restore(ctx);
+  if(customfont) cairo_restore(cairo_ctx);
   #endif
   if(RECTINSIDE(xx1,yy1, xx2, yy2,x1,y1,x2,y2))
   {

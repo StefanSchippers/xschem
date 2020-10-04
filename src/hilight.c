@@ -336,11 +336,13 @@ void hilight_parent_pins(void)
     currentsch--;
     if(entry)
     {
-      bus_hilight_lookup(find_nth(net_node, ',', ((inst_number - 1) * mult + k - 1) % net_mult + 1), entry->value, XINSERT);
+      bus_hilight_lookup(find_nth(net_node, ',', 
+          ((inst_number - 1) * mult + k - 1) % net_mult + 1), entry->value, XINSERT);
     }
     else
     {
-      bus_hilight_lookup(find_nth(net_node, ',', ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XDELETE);
+      bus_hilight_lookup(find_nth(net_node, ',', 
+          ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XDELETE);
     }
    }
  }
@@ -376,7 +378,8 @@ void hilight_child_pins(void)
   for(k = 1; k<=mult; k++) {
     dbg(1, "hilight_child_pins():looking nth net:%d, k=%d, inst_number=%d, mult=%d\n", 
                                (inst_number-1)*mult+k, k, inst_number, mult);
-    dbg(1, "hilight_child_pins():looking net:%s\n",  find_nth(net_node, ',', ((inst_number - 1) * mult + k - 1) % net_mult + 1));
+    dbg(1, "hilight_child_pins():looking net:%s\n",  find_nth(net_node, ',', 
+        ((inst_number - 1) * mult + k - 1) % net_mult + 1));
     currentsch--;
     entry = bus_hilight_lookup(find_nth(net_node, ',', ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XLOOKUP);
     currentsch++;
@@ -443,8 +446,8 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
       if(!strcmp(tok,"cell::name")) {
         has_token = (inst_ptr[i].name != NULL) && inst_ptr[i].name[0];
         str = inst_ptr[i].name;
-      } else if(!strncmp(tok,"cell::", 6)) {
-        my_strdup(142, &tmpname,get_tok_value((inst_ptr[i].ptr+instdef)->prop_ptr,tok+6,0)); /* flexible cell__ search 20140408 */
+      } else if(!strncmp(tok,"cell::", 6)) { /* cell::xxx looks for xxx in global symbol attributes */
+        my_strdup(142, &tmpname,get_tok_value((inst_ptr[i].ptr+instdef)->prop_ptr,tok+6,0));
         has_token = get_tok_size;
         if(tmpname) {
           str = tmpname;

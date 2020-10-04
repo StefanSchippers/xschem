@@ -251,9 +251,7 @@ void find_closest_element(double mx,double my)
                            inst_ptr[i].instname, inst_ptr[i].x1,inst_ptr[i].y1,inst_ptr[i].x2,inst_ptr[i].y2);
   if( POINTINSIDE(mx,my,inst_ptr[i].x1,inst_ptr[i].y1,inst_ptr[i].x2,inst_ptr[i].y2) )
   {
-   /* tmp=pow(mx-inst_ptr[i].x0, 2)+pow(my-inst_ptr[i].y0, 2); */
    tmp=pow(mx-(inst_ptr[i].xx1 + inst_ptr[i].xx2)/2, 2)+pow(my-(inst_ptr[i].yy1 + inst_ptr[i].yy2)/2, 2);
-   /* dbg(0, "i=%d, xx1=%g, yy1=%g, xx2=%g, yy2=%g\n", i, inst_ptr[i].xx1, inst_ptr[i].yy1, inst_ptr[i].xx2, inst_ptr[i].yy2); */
    if(tmp*0.1 < distance)
    {
     r = i; distance = tmp*0.1;
@@ -288,7 +286,7 @@ void find_closest_text(double mx,double my)
              textelement[i].x0, textelement[i].y0,
              &xx1,&yy1, &xx2,&yy2);
    #ifdef HAS_CAIRO
-   if(customfont) cairo_restore(ctx);
+   if(customfont) cairo_restore(cairo_ctx);
    #endif
    if(POINTINSIDE(mx,my,xx1,yy1, xx2, yy2))
    {
