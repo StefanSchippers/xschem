@@ -470,7 +470,6 @@ void find_inst_to_be_redrawn(const char *node)
       }
     }
   }
-  /* 
   for(i=0;i < lastwire; i++) {
     if(node && wire[i].node && !strcmp(wire[i].node, node )) {
       if(wire[i].bus){
@@ -488,7 +487,6 @@ void find_inst_to_be_redrawn(const char *node)
       }
     }
   }
-  */
 }
 
 void copy_objects(int what)

@@ -1672,6 +1672,7 @@ void new_wire(int what, double mx_snap, double my_snap)
        }
        prepared_hash_wires = 0;
        prepared_hilight_structs = 0;
+       update_conn_cues(1,1);
        if(show_pin_net_names) {
          prepare_netlist_structs(0);
          find_inst_hash_clear();
@@ -1718,7 +1719,6 @@ void new_wire(int what, double mx_snap, double my_snap)
    }
    if( what & END) {
      ui_state &= ~STARTWIRE;
-     update_conn_cues(1,1);
    }
    if( (what & RUBBER)  ) {
      if(manhattan_lines==1) {

@@ -17,8 +17,8 @@ N 60 -230 100 -230 {lab=A}
 N 140 -230 190 -230 {lab=Z}
 N 140 -340 140 -320 {lab=VDD}
 N 140 -140 140 -120 {lab=0}
-C {nmos4.sym} 120 -170 0 0 {name=M1 model=n w=WN l=LLN m=1 net_name=true}
-C {pmos4.sym} 120 -290 0 0 {name=M2 model=p w=WP l=LLP m=1 net_name=true}
+C {nmos4.sym} 120 -170 0 0 {name=M1 model=n w=WN l=LLN m=1}
+C {pmos4.sym} 120 -290 0 0 {name=M2 model=p w=WP l=LLP m=1}
 C {vdd.sym} 140 -340 0 0 {name=l1 lab=VDD}
 C {lab_pin.sym} 140 -120 0 0 {name=l2 sig_type=std_logic lab=0}
 C {ipin.sym} 60 -230 0 0 {name=p1 lab=A}
