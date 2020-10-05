@@ -460,7 +460,7 @@ void find_inst_to_be_redrawn(const char *node)
 
   if(int_hash_lookup(nodetable, node, 0, XINSERT_NOREPLACE)) return;
   dbg(1, "find_inst_to_be_redrawn(): node=%s\n", node);
-  for(i=0; i< lastinst; i++) {
+  for(i=0; i < lastinst; i++) {
     sym = inst_ptr[i].ptr + instdef;
     rects = sym->rects[PINLAYER];
     for(p = 0; p < rects; p++) {
@@ -470,6 +470,25 @@ void find_inst_to_be_redrawn(const char *node)
       }
     }
   }
+  /* 
+  for(i=0;i < lastwire; i++) {
+    if(node && wire[i].node && !strcmp(wire[i].node, node )) {
+      if(wire[i].bus){
+        int ov, y1, y2;
+        ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
+        if(wire[i].y1 < wire[i].y2) { y1 = wire[i].y1-ov; y2 = wire[i].y2+ov; }
+        else                        { y1 = wire[i].y1+ov; y2 = wire[i].y2-ov; }
+        bbox(ADD, wire[i].x1-ov, y1 , wire[i].x2+ov , y2 );
+      } else {
+        int ov, y1, y2;
+        ov = cadhalfdotsize;
+        if(wire[i].y1 < wire[i].y2) { y1 = wire[i].y1-ov; y2 = wire[i].y2+ov; }
+        else                        { y1 = wire[i].y1+ov; y2 = wire[i].y2-ov; }
+        bbox(ADD, wire[i].x1-ov, y1 , wire[i].x2+ov , y2 );
+      }
+    }
+  }
+  */
 }
 
 void copy_objects(int what)
@@ -663,35 +682,36 @@ void copy_objects(int what)
      case POLYGON: /* 20171115 */
       if(c!=k) break;
       {
+        xPolygon *p = &polygon[c][n];
         /* double bx1, by1, bx2, by2; */
-        double *x = my_malloc(227, sizeof(double) *polygon[c][n].points);
-        double *y = my_malloc(228, sizeof(double) *polygon[c][n].points);
+        double *x = my_malloc(227, sizeof(double) *p->points);
+        double *y = my_malloc(228, sizeof(double) *p->points);
         int j;
-        for(j=0; j<polygon[c][n].points; j++) {
+        for(j=0; j<p->points; j++) {
           /*
-          if(j==0 || polygon[c][n].x[j] < bx1) bx1 = polygon[c][n].x[j];
-          if(j==0 || polygon[c][n].y[j] < by1) by1 = polygon[c][n].y[j];
-          if(j==0 || polygon[c][n].x[j] > bx2) bx2 = polygon[c][n].x[j];
-          if(j==0 || polygon[c][n].y[j] > by2) by2 = polygon[c][n].y[j];
+          if(j==0 || p->x[j] < bx1) bx1 = p->x[j];
+          if(j==0 || p->y[j] < by1) by1 = p->y[j];
+          if(j==0 || p->x[j] > bx2) bx2 = p->x[j];
+          if(j==0 || p->y[j] > by2) by2 = p->y[j];
           */
-          if( polygon[c][n].sel==SELECTED || polygon[c][n].selected_point[j]) {
+          if( p->sel==SELECTED || p->selected_point[j]) {
             if(rotatelocal) {
-              ROTATION(polygon[c][n].x[0], polygon[c][n].y[0], polygon[c][n].x[j], polygon[c][n].y[j], rx1,ry1);
+              ROTATION(p->x[0], p->y[0], p->x[j], p->y[j], rx1,ry1);
             } else {
-              ROTATION(x1, y_1, polygon[c][n].x[j], polygon[c][n].y[j], rx1,ry1);
+              ROTATION(x1, y_1, p->x[j], p->y[j], rx1,ry1);
             }
             x[j] = rx1+deltax;
             y[j] = ry1+deltay;
           } else {
-            x[j] = polygon[c][n].x[j];
-            y[j] = polygon[c][n].y[j];
+            x[j] = p->x[j];
+            y[j] = p->y[j];
           }
         }
         /* bbox(ADD, bx1, by1, bx2, by2); */
-        drawpolygon(k,  NOW, x, y, polygon[c][n].points, polygon[c][n].fill, polygon[c][n].dash); /* 20180914 added fill */
+        drawpolygon(k,  NOW, x, y, p->points, p->fill, p->dash); /* 20180914 added fill */
         selectedgroup[i].n=lastpolygon[c];
-        store_polygon(-1, x, y, polygon[c][n].points, c, polygon[c][n].sel, polygon[c][n].prop_ptr);
-        polygon[c][n].sel=0;
+        store_polygon(-1, x, y, p->points, c, p->sel, p->prop_ptr);
+        p->sel=0;
         my_free(819, &x);
         my_free(820, &y);
       }
@@ -755,9 +775,9 @@ void copy_objects(int what)
       customfont = set_text_custom_font(&textelement[n]);
       #endif
       text_bbox(textelement[n].txt_ptr, textelement[n].xscale,
-             textelement[n].yscale, textelement[n].rot,textelement[n].flip, textelement[n].hcenter, textelement[n].vcenter,
-                textelement[n].x0, textelement[n].y0,
-                &rx1,&ry1, &rx2,&ry2);
+        textelement[n].yscale, textelement[n].rot,textelement[n].flip, textelement[n].hcenter, textelement[n].vcenter,
+        textelement[n].x0, textelement[n].y0,
+        &rx1,&ry1, &rx2,&ry2);
       #ifdef HAS_CAIRO
       if(customfont) cairo_restore(cairo_ctx);
       #endif
@@ -782,7 +802,7 @@ void copy_objects(int what)
       textelement[lasttext].prop_ptr=NULL;
       textelement[lasttext].font=NULL;
       my_strdup(230, &textelement[lasttext].prop_ptr, textelement[n].prop_ptr);
-      my_strdup(231, &textelement[lasttext].font, get_tok_value(textelement[lasttext].prop_ptr, "font", 0));/*20171206 */
+      my_strdup(231, &textelement[lasttext].font, get_tok_value(textelement[lasttext].prop_ptr, "font", 0));
 
 
       str = get_tok_value(textelement[lasttext].prop_ptr, "hcenter", 0);
@@ -824,8 +844,9 @@ void copy_objects(int what)
         cairo_select_font_face (cairo_save_ctx, textfont, slant, weight);
       }
       #endif
-      draw_string(textlayer, ADD, textelement[lasttext].txt_ptr,        /* draw moved txt */
-       textelement[lasttext].rot, textelement[lasttext].flip, textelement[lasttext].hcenter, textelement[lasttext].vcenter,
+      draw_string(textlayer, ADD, textelement[lasttext].txt_ptr,    /* draw moved txt */
+       textelement[lasttext].rot, textelement[lasttext].flip, 
+       textelement[lasttext].hcenter, textelement[lasttext].vcenter,
        rx1+deltax,ry1+deltay,
        textelement[lasttext].xscale, textelement[lasttext].yscale);
       #ifndef HAS_CAIRO
@@ -872,10 +893,10 @@ void copy_objects(int what)
        /* new_prop_string() for cleaning some internal caches. */
        if(!newpropcnt) hash_all_names(lastinst);
        new_prop_string(lastinst, inst_ptr[n].prop_ptr,newpropcnt++, dis_uniq_names);
-       my_strdup2(235, &inst_ptr[lastinst].instname, get_tok_value(inst_ptr[lastinst].prop_ptr, "name", 0)); /* 20150409 */
+       my_strdup2(235, &inst_ptr[lastinst].instname, get_tok_value(inst_ptr[lastinst].prop_ptr, "name", 0));
        n=selectedgroup[i].n=lastinst;
 
-       lastinst++; /* must be updated before calling symbol_bbox which triggers prepare_netlist_structs(0) */
+       lastinst++; /* must be updated before calling symbol_bbox which triggers prepare_netlist_structs(0)*/
       }
       break;
     } /* end switch(selectedgroup[i].type) */
@@ -1138,33 +1159,33 @@ void move_objects(int what, int merge, double dx, double dy)
      case POLYGON: /* 20171115 */
       if(c!=k) break;
       {
+        xPolygon *p = &polygon[c][n];
         double bx1=0., by1=0., bx2=0., by2=0.;
         int j;
         double savex0, savey0;
-        savex0 = polygon[c][n].x[0];
-        savey0 = polygon[c][n].y[0];
-        for(j=0; j<polygon[c][n].points; j++) {
-          if(j==0 || polygon[c][n].x[j] < bx1) bx1 = polygon[c][n].x[j];
-          if(j==0 || polygon[c][n].y[j] < by1) by1 = polygon[c][n].y[j];
-          if(j==0 || polygon[c][n].x[j] > bx2) bx2 = polygon[c][n].x[j];
-          if(j==0 || polygon[c][n].y[j] > by2) by2 = polygon[c][n].y[j];
+        savex0 = p->x[0];
+        savey0 = p->y[0];
+        for(j=0; j<p->points; j++) {
+          if(j==0 || p->x[j] < bx1) bx1 = p->x[j];
+          if(j==0 || p->y[j] < by1) by1 = p->y[j];
+          if(j==0 || p->x[j] > bx2) bx2 = p->x[j];
+          if(j==0 || p->y[j] > by2) by2 = p->y[j];
 
-          if( polygon[c][n].sel==SELECTED || polygon[c][n].selected_point[j]) {
+          if( p->sel==SELECTED || p->selected_point[j]) {
             if(rotatelocal) {
-              ROTATION(savex0, savey0, polygon[c][n].x[j], polygon[c][n].y[j], rx1,ry1);
+              ROTATION(savex0, savey0, p->x[j], p->y[j], rx1,ry1);
             } else {
-              ROTATION(x1, y_1, polygon[c][n].x[j], polygon[c][n].y[j], rx1,ry1);
+              ROTATION(x1, y_1, p->x[j], p->y[j], rx1,ry1);
             }
 
-            polygon[c][n].x[j] =  rx1+deltax;
-            polygon[c][n].y[j] =  ry1+deltay;
+            p->x[j] =  rx1+deltax;
+            p->y[j] =  ry1+deltay;
           }
            
         }
         bbox(ADD, bx1, by1, bx2, by2);
+        drawpolygon(k,  NOW, p->x, p->y, p->points, p->fill, p->dash);
       }
-      /* 20180914 added fill */
-      drawpolygon(k,  NOW, polygon[c][n].x, polygon[c][n].y, polygon[c][n].points, polygon[c][n].fill, polygon[c][n].dash);
       break;
 
      case ARC:
@@ -1303,9 +1324,8 @@ void move_objects(int what, int merge, double dx, double dy)
       customfont = set_text_custom_font(&textelement[n]);
       #endif
       text_bbox(textelement[n].txt_ptr, textelement[n].xscale,
-             textelement[n].yscale, textelement[n].rot,textelement[n].flip, textelement[n].hcenter, textelement[n].vcenter,
-                textelement[n].x0, textelement[n].y0,
-                &rx1,&ry1, &rx2,&ry2);
+         textelement[n].yscale, textelement[n].rot,textelement[n].flip, textelement[n].hcenter,
+         textelement[n].vcenter, textelement[n].x0, textelement[n].y0, &rx1,&ry1, &rx2,&ry2);
       #ifdef HAS_CAIRO
       if(customfont) cairo_restore(cairo_ctx);
       #endif

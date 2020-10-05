@@ -553,7 +553,7 @@ int callback(int event, int mx, int my, KeySym key,
      /* /20130628 */
      break;
    }
-   if(key== 'W' && state == ShiftMask) {                        /* 20171022 create wire snapping to closest instance pin */
+   if(key== 'W' && state == ShiftMask) {  /* create wire snapping to closest instance pin */
      double x, y;
      int xx, yy;
      if(semaphore >= 2) break;

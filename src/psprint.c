@@ -538,7 +538,8 @@ void ps_draw(void)
     ps_drawarc(c, arc[c][i].fill, arc[c][i].x, arc[c][i].y, arc[c][i].r, arc[c][i].a, arc[c][i].b, arc[c][i].dash);
   }
   for(i=0;i<lastpolygon[c];i++) {
-    ps_drawpolygon(c, NOW, polygon[c][i].x, polygon[c][i].y, polygon[c][i].points, polygon[c][i].fill, polygon[c][i].dash);
+    ps_drawpolygon(c, NOW, polygon[c][i].x, polygon[c][i].y, polygon[c][i].points, 
+       polygon[c][i].fill, polygon[c][i].dash);
   }
 
 
