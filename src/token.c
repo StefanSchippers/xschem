@@ -2661,8 +2661,8 @@ const char *translate(int inst, char* s)
              slot = atoi(tmpstr);
              if(strstr(value,":")) value = find_nth(value, ':', slot);
            }
-           my_free(1177, &tmpstr);
          }
+         my_free(1177, &tmpstr);
        }
        tmp=strlen(value);
        if(result_pos + tmp>=size) {

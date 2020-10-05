@@ -198,8 +198,8 @@ extern char win_temp_dir[PATH_MAX];
 #define ARC 64
 
 /*  for netlist.c */
-#define BOXSIZE 3000
-#define NBOXES 40
+#define BOXSIZE 400
+#define NBOXES 100
 
 #define MAX_UNDO 80
 

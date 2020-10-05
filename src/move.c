@@ -552,6 +552,7 @@ void copy_objects(int what)
  }
  if(what & END)                                 /* copy selected objects */
  {
+  int firstw, firsti;
   int save_draw; /* 20181009 */
   save_draw = draw_window;
   draw_window=1; /* temporarily re-enable draw to window together with pixmap */
@@ -559,27 +560,16 @@ void copy_objects(int what)
   bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0); /* 20181009 */
   newpropcnt=0;
   set_modify(1); push_undo(); /* 20150327 push_undo */
-  prepared_hash_instances=0; /* 20171224 */
-  prepared_hash_wires=0;
-  if(show_pin_net_names) find_inst_hash_clear();
-  /* calculate copied symbols bboxes before actually doing the move */
-  
-  /* 
-  for(i=0;i<lastselected;i++)
-  {
-    n = selectedgroup[i].n;
-    if( selectedgroup[i].type == ELEMENT) {
-       symbol_bbox(n, &inst_ptr[n].x1, &inst_ptr[n].y1, &inst_ptr[n].x2, &inst_ptr[n].y2 );
-       bbox(ADD, inst_ptr[n].x1, inst_ptr[n].y1, inst_ptr[n].x2, inst_ptr[n].y2 );
-    }
-  }
-  */
-
+  firstw = firsti = 1;
   for(i=0;i<lastselected;i++)
   {
    n = selectedgroup[i].n;
    if(selectedgroup[i].type == WIRE)
    {
+       if(firstw) {
+         prepared_hash_wires=0;
+         firstw = 0;
+       }
        check_wire_storage();
        /* 
        if(wire[n].bus){
@@ -863,6 +853,10 @@ void copy_objects(int what)
       break;
      case ELEMENT:
       if(k==0) {
+       if(firsti) {
+         prepared_hash_instances = 0;
+         firsti = 0;
+       }
        check_inst_storage();
 
        if(rotatelocal) {
@@ -907,9 +901,10 @@ void copy_objects(int what)
       * to translate @#n:net_name texts */
      need_rebuild_selected_array=1;
      rebuild_selected_array();
-     prepared_hash_wires=0;
-     prepared_netlist_structs=0;
-     prepared_hilight_structs=0;
+     if(!firsti || !firstw) {
+       prepared_netlist_structs=0;
+       prepared_hilight_structs=0;
+     }
      if(show_pin_net_names) {
        prepare_netlist_structs(0);
      }
@@ -933,6 +928,7 @@ void copy_objects(int what)
        }
      }
    }
+   if(show_pin_net_names) find_inst_hash_clear();
 
    filledrect(k, END, 0.0, 0.0, 0.0, 0.0);
    drawarc(k, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
@@ -1014,15 +1010,13 @@ void move_objects(int what, int merge, double dx, double dy)
  }
  if(what & END)                                 /* move selected objects */
  {
+  int firsti, firstw;
   int save_draw; /* 20181009 */
   save_draw = draw_window;
   draw_window=1; /* temporarily re-enable draw to window together with pixmap */
   draw_selection(gctiled,0);
   bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
   set_modify(1); 
-  prepared_hash_instances=0; /* 20171224 */
-  prepared_hash_wires=0;
-  if(show_pin_net_names) find_inst_hash_clear();
   if( !(ui_state & (STARTMERGE | PLACE_SYMBOL)) ) {
     dbg(1, "move_objects(): push undo state\n");
     push_undo(); /* 20150327 push_undo */
@@ -1039,6 +1033,7 @@ void move_objects(int what, int merge, double dx, double dy)
   }
 
   /* calculate moving symbols bboxes before actually doing the move */
+  firsti = firstw = 1;
   for(i=0;i<lastselected;i++)
   {
     n = selectedgroup[i].n;
@@ -1056,6 +1051,7 @@ void move_objects(int what, int merge, double dx, double dy)
       find_inst_to_be_redrawn(wire[n].node);
     }
   }
+  if(show_pin_net_names) find_inst_hash_clear();
   for(k=0;k<cadlayers;k++)
   {
    for(i=0;i<lastselected;i++)
@@ -1064,6 +1060,10 @@ void move_objects(int what, int merge, double dx, double dy)
     switch(selectedgroup[i].type)
     {
      case WIRE:
+      if(firstw) {
+        prepared_hash_wires=0;
+        firstw = 0;
+      }
       if(k == 0) {
         if(wire[n].bus){ /* 20171201 */
           int ov, y1, y2;
@@ -1377,6 +1377,10 @@ void move_objects(int what, int merge, double dx, double dy)
  
      case ELEMENT:
       if(k==0) {
+       if(firsti) {
+         prepared_hash_instances=0;
+         firsti = 0;
+       }
        if(rotatelocal) {
          ROTATION(inst_ptr[n].x0, inst_ptr[n].y0, inst_ptr[n].x0, inst_ptr[n].y0, rx1,ry1);
        } else {
@@ -1396,9 +1400,10 @@ void move_objects(int what, int merge, double dx, double dy)
    if(k == 0 ) {
      /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
       * to translate @#n:net_name texts */
-     prepared_netlist_structs=0;
-     prepared_hilight_structs=0;
-     prepared_hash_wires=0;
+     if(!firsti || !firstw) {
+       prepared_netlist_structs=0;
+       prepared_hilight_structs=0;
+     }
      if(show_pin_net_names) {
        prepare_netlist_structs(0);
      }
@@ -1422,6 +1427,7 @@ void move_objects(int what, int merge, double dx, double dy)
      }
      /* draw_symbol(ADD,k, n,k, 0, 0, 0.0, 0.0); */
    }
+   if(show_pin_net_names) find_inst_hash_clear();
 
    filledrect(k, END, 0.0, 0.0, 0.0, 0.0); 
    drawarc(k, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);

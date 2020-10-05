@@ -227,7 +227,6 @@ void delete(void)
    prepared_hilight_structs=0;
    */ 
    if(show_pin_net_names) {
-     find_inst_hash_clear();
      prepare_netlist_structs(0);
    }
    for(i = 0; i < lastselected; i++) {
@@ -246,6 +245,9 @@ void delete(void)
      if(show_pin_net_names && selectedgroup[i].type == WIRE && wire[n].node) {
        find_inst_to_be_redrawn(wire[n].node);
      }
+   }
+   if(show_pin_net_names) {
+     find_inst_hash_clear();
    }
 
 
