@@ -1,5 +1,6 @@
-v {xschem version=2.9.7 file_version=1.2}
+v {xschem version=2.9.8 file_version=1.2}
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -14,9 +15,9 @@ L 18 880 -530 900 -580 {}
 L 18 880 -530 880 -450 {}
 L 18 900 -580 900 -400 {}
 T {actual value
-50u} 410 -820 0 0 0.4 0.4 {}
+50u} 400 -820 0 0 0.4 0.4 {}
 T {actual value
-50u} 420 -360 0 0 0.4 0.4 {}
+50u} 400 -360 0 0 0.4 0.4 {}
 T {actual value
 50u} 50 -750 0 0 0.4 0.4 {}
 T {actual value

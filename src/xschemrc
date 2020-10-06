@@ -59,8 +59,8 @@
 ## hex code must be enclosed in braces
 ###########################################################################
 
-# set dircolor(/share/xschem/) red
-# set dircolor(/share/doc/xschem/) {#00aa00}
+set dircolor(devices$) red
+set dircolor(examples$) {darkgreen}
 
 ###########################################################################
 ## Window to open on startup XSCHEM_START_WINDOW
