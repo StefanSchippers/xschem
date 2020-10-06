@@ -1074,7 +1074,6 @@ void descend_schematic(int instnumber)
  int inst_mult, inst_number;
  int save_ok = 0;
 
-
  rebuild_selected_array();
  if(lastselected !=1 || selectedgroup[0].type!=ELEMENT) 
  {

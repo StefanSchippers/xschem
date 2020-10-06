@@ -54,10 +54,9 @@
 
 ###########################################################################
 ## set custom colors for xschem libraries matching certain patterns
-## each line contains a pattern followed by a color
+## each line contains a dircolor(pattern) followed by a color
 ## color can be an ordinary name (grey, brown, blue) or a hex code {#77aaff}
 ## hex code must be enclosed in braces
-## don't forget backslash at end of line
 ###########################################################################
 
 # set dircolor(/share/xschem/) red
@@ -67,11 +66,7 @@
 ## Window to open on startup XSCHEM_START_WINDOW
 ###########################################################################
 
-# Start without a design:
-#
-# set XSCHEM_START_WINDOW {}
-
-# Start with a design
+# Start without a design if no filename given on command line:
 # To avoid absolute paths, use a path that is relative to one of the
 # XSCHEM_LIBRARY_PATH directories.
 #

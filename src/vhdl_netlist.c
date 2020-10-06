@@ -386,6 +386,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  my_free(1089, &sig_type);
  my_free(1090, &type);
  my_free(1091, &port_value);
+ netlist_count = 0;
 }
 
 

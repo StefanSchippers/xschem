@@ -120,6 +120,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
   tcleval(tcl_cmd_netlist);
  }
  if(!debug_var) xunlink(netl_filename);
+ netlist_count = 0;
 }
 
 

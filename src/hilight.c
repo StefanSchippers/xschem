@@ -1091,8 +1091,9 @@ void print_hilight_net(int show)
 
  /* 20170323 this delete_netlist_structs is necessary, without it segfaults when going back (ctrl-e)  */
  /* from a schematic after placing pins (ctrl-j) and changing some pin direction (ipin -->iopin) */
- prepared_hilight_structs=0; /* 20171212 */
- prepared_netlist_structs=0; /* 20171212 */
+ prepared_hilight_structs=0;
+ prepared_netlist_structs=0;
+
  /* delete_netlist_structs(); */
  my_free(781, &filetmp1);
  my_free(782, &filetmp2);

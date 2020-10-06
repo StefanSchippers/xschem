@@ -992,10 +992,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
  else {
    if (running_in_src_dir ==1) {
-     my_snprintf(tmp, S(tmp), "%s/../src", pwd_dir);
+     my_snprintf(tmp, S(tmp), "[file dirname %s]/src", pwd_dir);
    }
    else {
-     my_snprintf(tmp, S(tmp), "%s/../share", install_dir);
+     my_snprintf(tmp, S(tmp), "[file dirname %s]/share", install_dir);
    }
    tclsetvar("XSCHEM_SHAREDIR", tmp);
  }
@@ -1456,14 +1456,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
  enable_layers();
 
  if(filename) {
-    char s[PATH_MAX+100];
     dbg(1, "Tcl_AppInit(): filename %s given, removing symbols\n", filename);
     remove_symbols();
-    my_snprintf(s, S(s), "file normalize \"%s\"", filename);
-    tcleval(s);
-    my_strncpy(s, abs_sym_path(tclresult(), ""), S(s));
-    load_schematic(1, s, 1); /* 20180925.1 */
-    Tcl_VarEval(interp, "update_recent_file {", s, "}", NULL);
+    load_schematic(1, filename, 1);
+    Tcl_VarEval(interp, "update_recent_file {", filename, "}", NULL);
 
  } else { 
    char * tmp; /* 20121110 */

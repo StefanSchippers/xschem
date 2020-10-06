@@ -387,7 +387,7 @@ function print_header()
        "device @name @device\n" \
        "@comptag\"\n"
   }
-  print "v {xschem version=2.9.7 file_version=1.1}"
+  print "v {xschem version=2.9.8 file_version=1.2}"
   template_attrs = "template=\"" template_attrs "\"\n"
 
   if(FILENAME ~/\.sym$/) {
@@ -397,16 +397,17 @@ function print_header()
     } else {
       global_attrs = "type=symbol\n" global_attrs
     }
-    print "G {" global_attrs template_attrs tedax_attrs spice_attrs 
+    print "K {" global_attrs template_attrs tedax_attrs spice_attrs 
     if(extra) {
       print extra
       print extra_pinnumber
     }
     print "}"
   } else {
-    print "G {}"
+    print "K {}"
   }
 
+  print "G {}"
   print "V {}"
   print "S {}"
   print "E {}"

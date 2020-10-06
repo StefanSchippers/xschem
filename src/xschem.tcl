@@ -2590,7 +2590,6 @@ proc rel_sym_path {symbol} {
   global pathlist current_dirname
 
   set name {}
-  if {[regexp {^/} $symbol] || [regexp {^[A-Za-z]:} $symbol]} {set symbol [file normalize $symbol]}
   foreach path_elem $pathlist {
     if { ![string compare $path_elem .]  && [info exist current_dirname]} {
       set path_elem $current_dirname
@@ -2622,14 +2621,20 @@ proc abs_sym_path {fname {ext {} } } {
     if { $fname eq "/"} {
       return $fname;
     }
+    # if fname is just "." return $current_dirname
+    if {$fname eq "."} {
+      return $current_dirname
+    }
   }
   # add extension for 1.0 file format compatibility
   if { $ext ne {} } { 
     set fname [file rootname $fname]$ext
   }
-  # transform ./file_or_path to file_or_path, resolve (normalize) ../file_or_path
+  # transform ./file_or_path to file_or_path, resolve ../file_or_path
   if { [regexp {^\.\./} $fname ] } {
-    set fname [file normalize $fname]
+    if { [regexp {^/} $current_dirname] } {
+      set fname "[file dirname $current_dirname][regsub {^\.\.} $fname {}]"
+    }
   } elseif {[regexp {^\./} $fname ] } {
     regsub {^\./} $fname {} fname
   }
@@ -3032,7 +3037,7 @@ if { [info exists XSCHEM_LIBRARY_PATH] } {
     if { ![string compare $i .] } {
       lappend pathlist $i
     } elseif { [ file exists $i] } {
-      lappend pathlist [file normalize ${i}]
+      lappend pathlist ${i}
     }
   }
 }

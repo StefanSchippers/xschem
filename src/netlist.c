@@ -627,10 +627,15 @@ void prepare_netlist_structs(int for_netlist)
   char *class=NULL;
   char *global_node=NULL;
   int inst_mult, pin_mult;
+  int print_erc;
+  static int startlevel = 0;
 
   if (for_netlist>0 && prepared_netlist_structs) return; /* 20160413 */
   else if (!for_netlist && prepared_hilight_structs) return; /* 20171210 */
   else delete_netlist_structs(); 
+  if(netlist_count == 0 ) startlevel = currentsch;
+  print_erc =  netlist_count == 0 || startlevel < currentsch;
+
   if (for_netlist>0) {
     my_snprintf(nn, S(nn), "-----------%s", schematic[currentsch]);
     statusmsg(nn,2);
@@ -662,6 +667,20 @@ void prepare_netlist_structs(int for_netlist)
     if (inst_ptr[i].ptr<0) continue;
 
     my_strdup(248, &type,(inst_ptr[i].ptr+instdef)->type); /* 20150409 */
+    if(print_erc && (!inst_ptr[i].instname || !inst_ptr[i].instname[0]) ) {
+      char str[2048];
+      my_snprintf(str, S(str), "instance: %d (%s): no name attribute set", i, inst_ptr[i].name);
+      statusmsg(str,2);
+      inst_ptr[i].flags |=4;
+      hilight_nets=1;
+    }
+    if(print_erc && (!type || !type[0]) ) {
+      char str[2048];
+      my_snprintf(str, S(str), "Symbol: %s: no type attribute set", inst_ptr[i].name);
+      statusmsg(str,2);
+      inst_ptr[i].flags |=4;
+      hilight_nets=1;
+    }
     if(type && inst_ptr[i].node && IS_LABEL_OR_PIN(type) ) { /* instance must have a pin! */
       if (for_netlist>0) {
         /* 20150918 skip labels / pins if ignore property specified on instance */
@@ -983,8 +1002,10 @@ void prepare_netlist_structs(int for_netlist)
   } /* end for(i...) */
   /*---------------------- */
   rebuild_selected_array();
-  if (for_netlist>0) prepared_netlist_structs=1;
-  else prepared_hilight_structs=1;
+  if (for_netlist>0) {
+    prepared_netlist_structs=1;
+    prepared_hilight_structs=1;
+  } else prepared_hilight_structs=1;
 
   my_free(835, &dir);
   my_free(836, &type);

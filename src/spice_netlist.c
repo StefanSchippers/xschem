@@ -197,10 +197,8 @@ void global_spice_netlist(int global)  /* netlister driver */
    prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    sym_vs_sch_pins();
-
    /* restore hilight flags from errors found analyzing top level before descending hierarchy */
    for(i=0;i<lastinst; i++) inst_ptr[i].flags |= stored_flags[i];
-
    draw_hilight_net(1);
  }
  my_free(945, &stored_flags);
@@ -271,6 +269,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  }
  my_free(946, &type);
  my_free(947, &place);
+ netlist_count = 0;
 }
 
 static char *model_name_result = NULL;

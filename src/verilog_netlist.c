@@ -335,6 +335,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  my_free(1076, &port_value);
  my_free(1077, &tmp_string);
  my_free(1078, &type);
+ netlist_count = 0;
 }
 
 
