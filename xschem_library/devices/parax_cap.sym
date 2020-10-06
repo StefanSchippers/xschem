@@ -3,7 +3,7 @@ G {}
 K {type=parax_cap
 format="@name @pinlist @gnd @value m=@m"
 verilog_ignore=true
-template="name=X1 gnd=0 value=4f m=1"}
+template="name=C1 gnd=0 value=4f m=1"}
 V {}
 S {}
 E {}
