@@ -2652,7 +2652,7 @@ proc abs_sym_path {fname {ext {} } } {
     }
   }
   if { ![string compare $name {}] } {
-    if { [regexp {^/} $fname] || [regexp {^[a-zA-Z]:} $fname] } {
+    if { [regexp {^/} $fname] || [regexp {^[a-zA-Z]:} $fname] || [regexp ^$current_dirname $fname]} {
       set name $fname
     } else {
       set name "$current_dirname/$fname"

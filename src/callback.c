@@ -591,6 +591,7 @@ int callback(int event, int mx, int my, KeySym key,
     if(semaphore >= 2) break;
     tcleval("set vertical_move 0; set horizontal_move 0" );
     last_command=0;
+    manhattan_lines = 0;
     horizontal_move = vertical_move = 0; /* 20171023 */
     dbg(1, "callback(): Escape: ui_state=%ld\n", ui_state);
     if(ui_state & STARTMOVE)

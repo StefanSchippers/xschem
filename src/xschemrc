@@ -21,31 +21,39 @@
 ## xschem system-wide design library paths XSCHEM_LIBRARY_PATH
 ###########################################################################
 
-# If unset xschem starts with the default set compile time, typically:
-# set XSCHEM_LIBRARY_PATH .:~/.xschem/xschem_library:${XSCHEM_SHAREDIR}/xschem_library/devices
+# If unset xschem starts with XSCHEM_LIBRARY_PATH set to the default, typically:
+# .
+# /home/schippes/.xschem/xschem_library
+# /home/schippes/share/xschem/xschem_library/devices
+# /home/schippes/share/doc/xschem/examples
+# /home/schippes/share/doc/xschem/ngspice
+# /home/schippes/share/doc/xschem/logic
+# /home/schippes/share/doc/xschem/binto7seg
+# /home/schippes/share/doc/xschem/pcb
+# /home/schippes/share/doc/xschem/rom8k
 
 # For testing in build src directory
-#
-# set XSCHEM_LIBRARY_PATH .:../xschem_library/devices
+# if unset following paths are set:
+# .
+# ../xschem_library/devices
 
-# for testing after installation:
+# For testing after installation:
 #
 # set XSCHEM_LIBRARY_PATH {}
-# append XSCHEM_LIBRARY_PATH :.
+# set xschem_doc_dir [file dirname ${XSCHEM_SHAREDIR}]/doc/xschem
 # append XSCHEM_LIBRARY_PATH :~/.xschem/xschem_library
 # append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/xschem_library/devices
-# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/logic
-# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/examples
-# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/binto7seg
-# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/xTAG
-# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/rulz-r8c33
-# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/ngspice
-# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/rom8k
-# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/pcb
-# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/symgen
-# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/gschem_import
-# append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/gschem_import/sym
-
+# append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/logic
+# append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/examples
+# append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/binto7seg
+# append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/xTAG
+# append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/rulz-r8c33
+# append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/ngspice
+# append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/rom8k
+# append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/pcb
+# append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/symgen
+# append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/gschem_import
+# append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/gschem_import/sym
 
 # For Windows, use ; instead of :, and enclosed pathname with ""
 #append XSCHEM_LIBRARY_PATH ";."

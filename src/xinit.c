@@ -957,7 +957,12 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if( !stat("./xschem.tcl", &buf) && !stat("./systemlib", &buf) && !stat("./xschem", &buf)) {
    running_in_src_dir = 1;
    tclsetvar("XSCHEM_SHAREDIR",pwd_dir); /* for testing xschem builds in src dir*/
+/* 
    my_snprintf(tmp, S(tmp), "subst .:[file normalize \"%s/../xschem_library/devices\"]", pwd_dir);
+   tcleval(tmp);
+   tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
+*/ 
+   my_snprintf(tmp, S(tmp), "subst .:[file dirname \"%s\"]/xschem_library/devices", pwd_dir);
    tcleval(tmp);
    tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
  } else if( !stat(XSCHEM_SHAREDIR, &buf) ) {  /* 20180918 */
@@ -992,10 +997,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
  else {
    if (running_in_src_dir ==1) {
-     my_snprintf(tmp, S(tmp), "[file dirname %s]/src", pwd_dir);
+     my_snprintf(tmp, S(tmp), "%s/../src", pwd_dir);
    }
    else {
-     my_snprintf(tmp, S(tmp), "[file dirname %s]/share", install_dir);
+     my_snprintf(tmp, S(tmp), "%s/../share", install_dir);
    }
    tclsetvar("XSCHEM_SHAREDIR", tmp);
  }
