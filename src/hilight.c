@@ -669,12 +669,13 @@ void drill_hilight(void)
   my_free(773, &propagated_net);
 }
 
-void send_net_to_gaw(char *node)
+static void send_net_to_gaw(const char *node)
 {
   int c, k, tok_mult;
   struct node_hashentry *node_entry;
   const char *expanded_tok;
-  char *tok, color_str[8];
+  const char *tok; 
+  char color_str[8];
   
   if(!node || !node[0]) return;
   tok = node;
@@ -691,11 +692,38 @@ void send_net_to_gaw(char *node)
       my_strdup2(254, &p, sch_path[currentsch]+1);
       Tcl_VarEval(interp, "puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t), 
                   ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
-      my_free(774, &p);
-      my_free(775, &t);
     }
+    my_free(774, &p);
+    my_free(775, &t);
   }
 }
+
+static void send_current_to_gaw(const char *node)
+{
+  int c, k, tok_mult;
+  const char *expanded_tok;
+  const char *tok; 
+  char color_str[8];
+  char *t=NULL, *p=NULL;
+
+  if(!node || !node[0]) return;
+  tok = node;
+  /* c = get_color(hilight_color); */
+  c = PINLAYER;
+  sprintf(color_str, "%02x%02x%02x", xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
+  expanded_tok = expandlabel(tok, &tok_mult);
+  tcleval("if { ![info exists gaw_fd] } { gaw_setup_tcp }\n");
+  for(k=1; k<=tok_mult; k++) {
+    my_strdup(246, &t, find_nth(expanded_tok, ',', k));
+    my_strdup2(254, &p, sch_path[currentsch]+1);
+    Tcl_VarEval(interp, "puts $gaw_fd {copyvar i(", strtolower(p), strtolower(t),
+                ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+  }
+  my_free(774, &p);
+  my_free(775, &t);
+  
+}
+
 
 int hilight_netname(const char *name)
 {
@@ -762,6 +790,13 @@ void hilight_net(int to_waveform)
        dbg(1, "hilight_net(): setting hilight flag on inst %d\n",n);
        hilight_nets=1;
        inst_ptr[n].flags |= 4;
+     }
+     if(type &&  !strcmp(type, "current_probe") ) {
+       int size = sizeof(inst_ptr[n].instname) + 10;
+       char *str = my_malloc(1179, size);
+       my_snprintf(str, size, "%s", inst_ptr[n].instname);
+       if(to_waveform == GAW) send_current_to_gaw(str);
+       my_free(1180, &str);
      }
      break;
     default:
