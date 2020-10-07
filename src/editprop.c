@@ -989,102 +989,102 @@ void update_symbol(const char *result, int x)
     if(!name || new_name[0] != name[0]) allow_change_name = 1;
   }
   for(k=0;k<lastselected;k++) {
-   dbg(1, "update_symbol(): for k loop: k=%d\n", k);
-   if(selectedgroup[k].type!=ELEMENT) continue;
-   i=selectedgroup[k].n;
-
-   /* 20171220 calculate bbox before changes to correctly redraw areas */
-   /* must be recalculated as cairo text extents vary with zoom factor. */
-   symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1, &inst_ptr[i].x2, &inst_ptr[i].y2);
-
-   if(sym_number>=0) /* changing symbol ! */
-   {
-     if(!pushed) { push_undo(); pushed=1;}
-     delete_inst_node(i); /* 20180208 fix crashing bug: delete node info if changing symbol */
-                          /* if number of pins is different we must delete these data *before* */
-                          /* changing ysmbol, otherwise i might end up deleting non allocated data. */
-     my_strdup(82, &inst_ptr[i].name, rel_sym_path(symbol));
-     if(event_reporting) {
-       char n1[PATH_MAX];
-       char n2[PATH_MAX];
-       printf("xschem replace_symbol instance %s %s\n",
-           escape_chars(n1, inst_ptr[i].instname, PATH_MAX),
-           escape_chars(n2, symbol, PATH_MAX)
-       );
-       fflush(stdout);
-     }
-     inst_ptr[i].ptr=sym_number; /* update instance to point to new symbol */
-   }
-   bbox(ADD, inst_ptr[i].x1, inst_ptr[i].y1, inst_ptr[i].x2, inst_ptr[i].y2);
-
-   /* update property string from tcl dialog */
-   if(!no_change_props)
-   {
-     dbg(1, "update_symbol(): no_change_props=%d\n", no_change_props);
-     if(only_different) {
-       char * ss=NULL;
-       my_strdup(119, &ss, inst_ptr[i].prop_ptr);
-       if( set_different_token(&ss, new_prop, old_prop, 0, 0) ) {
-         if(!pushed) { push_undo(); pushed=1;}
-         my_strdup(111, &inst_ptr[i].prop_ptr, ss);
-         set_modify(1);
-         prepared_hash_instances=0; /* 20171224 */
-         prepared_netlist_structs=0;
-         prepared_hilight_structs=0;
-       }
-       my_free(729, &ss);
-     }
-     else {
-       if(new_prop) {  /* 20111205 */
-         if(!inst_ptr[i].prop_ptr || strcmp(inst_ptr[i].prop_ptr, new_prop)) {
-           dbg(1, "update_symbol(): changing prop: |%s| -> |%s|\n", inst_ptr[i].prop_ptr, new_prop);
-           if(!pushed) { push_undo(); pushed=1;}
-           my_strdup(84, &inst_ptr[i].prop_ptr, new_prop);
-           set_modify(1);
-           prepared_hash_instances=0; /* 20171224 */
-           prepared_netlist_structs=0;
-           prepared_hilight_structs=0;
-         }
-       }  else {  /* 20111205 */
-         if(!pushed) { push_undo(); pushed=1;}
-         my_strdup(86, &inst_ptr[i].prop_ptr, "");
-         set_modify(1);
-         prepared_hash_instances=0; /* 20171224 */
-         prepared_netlist_structs=0;
-         prepared_hilight_structs=0;
-       }
-     }
-   }
-
-   /* if symbol changed ensure instance name (with new prefix char) is unique */
-   my_strdup(152, &name, get_tok_value(inst_ptr[i].prop_ptr, "name", 0));
-   if(name && name[0] ) {  
-     dbg(1, "update_symbol(): prefix!='\\0', name=%s\n", name);
-     new_name = get_tok_value(inst_ptr[i].prop_ptr, "name", 0);
-     if(allow_change_name || (lastselected == 1) ) my_strdup(153, &name, new_name);
-     /* 20110325 only modify prefix if prefix not NUL */
-     if(prefix) name[0]=prefix; /* change prefix if changing symbol type; */
-     dbg(1, "update_symbol(): name=%s, inst_ptr[i].prop_ptr=%s\n", name, inst_ptr[i].prop_ptr);
-     my_strdup(89, &ptr,subst_token(inst_ptr[i].prop_ptr, "name", name) );
-                    /* set name of current inst */
+    dbg(1, "update_symbol(): for k loop: k=%d\n", k);
+    if(selectedgroup[k].type!=ELEMENT) continue;
+    i=selectedgroup[k].n;
  
-     if(!pushed) { push_undo(); pushed=1;}
-     if(!k) hash_all_names(i);
-     new_prop_string(i, ptr, k, dis_uniq_names); /* set new prop_ptr */
+    /* 20171220 calculate bbox before changes to correctly redraw areas */
+    /* must be recalculated as cairo text extents vary with zoom factor. */
+    symbol_bbox(i, &inst_ptr[i].x1, &inst_ptr[i].y1, &inst_ptr[i].x2, &inst_ptr[i].y2);
  
-     type=instdef[inst_ptr[i].ptr].type; /* 20150409 */
-     cond= !type || !IS_LABEL_SH_OR_PIN(type);
-     if(cond) inst_ptr[i].flags|=2; /* bit 1: flag for different textlayer for pin/labels */
-     else inst_ptr[i].flags &=~2;
-   }
-
-   if(event_reporting) {
-     char *ss=NULL;
-     my_strdup(120, &ss, inst_ptr[i].prop_ptr);
-     set_different_token(&ss, new_prop, old_prop, ELEMENT, i);
-     my_free(730, &ss);
-   }
-   my_strdup2(90, &inst_ptr[i].instname, get_tok_value(inst_ptr[i].prop_ptr, "name",0)); /* 20150409 */
+    if(sym_number>=0) /* changing symbol ! */
+    {
+      if(!pushed) { push_undo(); pushed=1;}
+      delete_inst_node(i); /* 20180208 fix crashing bug: delete node info if changing symbol */
+                           /* if number of pins is different we must delete these data *before* */
+                           /* changing ysmbol, otherwise i might end up deleting non allocated data. */
+      my_strdup(82, &inst_ptr[i].name, rel_sym_path(symbol));
+      if(event_reporting) {
+        char n1[PATH_MAX];
+        char n2[PATH_MAX];
+        printf("xschem replace_symbol instance %s %s\n",
+            escape_chars(n1, inst_ptr[i].instname, PATH_MAX),
+            escape_chars(n2, symbol, PATH_MAX)
+        );
+        fflush(stdout);
+      }
+      inst_ptr[i].ptr=sym_number; /* update instance to point to new symbol */
+    }
+    bbox(ADD, inst_ptr[i].x1, inst_ptr[i].y1, inst_ptr[i].x2, inst_ptr[i].y2);
+ 
+    /* update property string from tcl dialog */
+    if(!no_change_props)
+    {
+      dbg(1, "update_symbol(): no_change_props=%d\n", no_change_props);
+      if(only_different) {
+        char * ss=NULL;
+        my_strdup(119, &ss, inst_ptr[i].prop_ptr);
+        if( set_different_token(&ss, new_prop, old_prop, 0, 0) ) {
+          if(!pushed) { push_undo(); pushed=1;}
+          my_strdup(111, &inst_ptr[i].prop_ptr, ss);
+          set_modify(1);
+          prepared_hash_instances=0; /* 20171224 */
+          prepared_netlist_structs=0;
+          prepared_hilight_structs=0;
+        }
+        my_free(729, &ss);
+      }
+      else {
+        if(new_prop) {  /* 20111205 */
+          if(!inst_ptr[i].prop_ptr || strcmp(inst_ptr[i].prop_ptr, new_prop)) {
+            dbg(1, "update_symbol(): changing prop: |%s| -> |%s|\n", inst_ptr[i].prop_ptr, new_prop);
+            if(!pushed) { push_undo(); pushed=1;}
+            my_strdup(84, &inst_ptr[i].prop_ptr, new_prop);
+            set_modify(1);
+            prepared_hash_instances=0; /* 20171224 */
+            prepared_netlist_structs=0;
+            prepared_hilight_structs=0;
+          }
+        }  else {  /* 20111205 */
+          if(!pushed) { push_undo(); pushed=1;}
+          my_strdup(86, &inst_ptr[i].prop_ptr, "");
+          set_modify(1);
+          prepared_hash_instances=0; /* 20171224 */
+          prepared_netlist_structs=0;
+          prepared_hilight_structs=0;
+        }
+      }
+    }
+ 
+    /* if symbol changed ensure instance name (with new prefix char) is unique */
+    my_strdup(152, &name, get_tok_value(inst_ptr[i].prop_ptr, "name", 0));
+    if(name && name[0] ) {  
+      dbg(1, "update_symbol(): prefix!='\\0', name=%s\n", name);
+      new_name = get_tok_value(inst_ptr[i].prop_ptr, "name", 0);
+      if(allow_change_name || (lastselected == 1) ) my_strdup(153, &name, new_name);
+      /* 20110325 only modify prefix if prefix not NUL */
+      if(prefix) name[0]=prefix; /* change prefix if changing symbol type; */
+      dbg(1, "update_symbol(): name=%s, inst_ptr[i].prop_ptr=%s\n", name, inst_ptr[i].prop_ptr);
+      my_strdup(89, &ptr,subst_token(inst_ptr[i].prop_ptr, "name", name) );
+                     /* set name of current inst */
+  
+      if(!pushed) { push_undo(); pushed=1;}
+      if(!k) hash_all_names(i);
+      new_prop_string(i, ptr, k, dis_uniq_names); /* set new prop_ptr */
+  
+      type=instdef[inst_ptr[i].ptr].type; /* 20150409 */
+      cond= !type || !IS_LABEL_SH_OR_PIN(type);
+      if(cond) inst_ptr[i].flags|=2; /* bit 1: flag for different textlayer for pin/labels */
+      else inst_ptr[i].flags &=~2;
+    }
+ 
+    if(event_reporting) {
+      char *ss=NULL;
+      my_strdup(120, &ss, inst_ptr[i].prop_ptr);
+      set_different_token(&ss, new_prop, old_prop, ELEMENT, i);
+      my_free(730, &ss);
+    }
+    my_strdup2(90, &inst_ptr[i].instname, get_tok_value(inst_ptr[i].prop_ptr, "name",0));
   }  /* end for(k=0;k<lastselected;k++) */
 
    /* new symbol bbox after prop changes (may change due to text length) */
@@ -1100,8 +1100,12 @@ void update_symbol(const char *result, int x)
     }
   }
 
-
-  if(show_pin_net_names) {
+  /* in case of net hilights, when changing 'lab' of net labels/pins we must re-run 
+     prepare_netlist_structs() so the .node field of that instance will be reset
+     and drawn back unhilighted .
+                                |
+                               \|/  */
+  if(show_pin_net_names || hilight_nets) {
     prepare_netlist_structs(0);
     for(k = 0;  k < (inst_ptr[i].ptr + instdef)->rects[PINLAYER]; k++) {
       if( inst_ptr[i].node && inst_ptr[i].node[k]) {
