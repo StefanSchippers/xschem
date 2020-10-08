@@ -716,7 +716,8 @@ static void send_current_to_gaw(const char *node)
   for(k=1; k<=tok_mult; k++) {
     my_strdup(246, &t, find_nth(expanded_tok, ',', k));
     my_strdup2(254, &p, sch_path[currentsch]+1);
-    Tcl_VarEval(interp, "puts $gaw_fd {copyvar i(", strtolower(p), strtolower(t),
+    Tcl_VarEval(interp, "puts $gaw_fd {copyvar i(", currentsch>0 ? "v." : "",
+                strtolower(p), strtolower(t),
                 ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
   }
   my_free(774, &p);
