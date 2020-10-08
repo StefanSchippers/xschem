@@ -1,5 +1,6 @@
-v {xschem version=2.9.7 file_version=1.2}
+v {xschem version=2.9.8 file_version=1.2}
 G {}
+K {}
 V {}
 S {
 .save xrpre1.ldzi[15]
@@ -112,6 +113,9 @@ C {code.sym} 590 -160 0 0 {name=STIMULI value="
 
 vvss vss 0 0
 
+** to generate following file: 
+** copy .../share/doc/xschem/rom8k/stimuli.rom8k to simulation directory
+** then do 'Simulation->Utile Stimuli Editor (GUI)' and press 'Translate'
 .include stimuli_rom8k.cir
 
 * .op ALL  4n
