@@ -339,6 +339,19 @@ proc setup_recent_menu {} {
   }
 }
 
+proc sim_is_xyce {} {
+  global sim
+
+  set_sim_defaults
+
+  if { [info exists sim(spice,default)] } {
+    set idx $sim(spice,default)
+    if { [regexp {[xX]yce} $sim(spice,$idx,cmd)] } {
+      return 1
+    }
+  }
+  return 0
+}
 
 
 proc set_sim_defaults {} {

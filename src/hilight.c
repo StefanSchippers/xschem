@@ -669,7 +669,24 @@ void drill_hilight(void)
   my_free(773, &propagated_net);
 }
 
-static void send_net_to_gaw(const char *node)
+int hilight_netname(const char *name)
+{
+  int ret = 0;
+  struct node_hashentry *node_entry;
+  prepare_netlist_structs(0);
+  dbg(1, "hilight_netname(): entering\n");
+  rebuild_selected_array();
+  node_entry = bus_hash_lookup(name, "", XLOOKUP, 0, "", "", "", "");
+  ret = node_entry ? 1 : 0;
+  if(ret && !bus_hilight_lookup(name, hilight_color, XINSERT)) {
+    hilight_nets=1;
+    if(incr_hilight) hilight_color++;
+  }
+  redraw_hilights();
+  return ret;
+}
+
+static void send_net_to_gaw(int simtype, const char *node)
 {
   int c, k, tok_mult;
   struct node_hashentry *node_entry;
@@ -690,15 +707,25 @@ static void send_net_to_gaw(const char *node)
     for(k=1; k<=tok_mult; k++) {
       my_strdup(246, &t, find_nth(expanded_tok, ',', k));
       my_strdup2(254, &p, sch_path[currentsch]+1);
-      Tcl_VarEval(interp, "puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t), 
-                  ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+      if(simtype == 0 ) { /* spice */
+        Tcl_VarEval(interp, "puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t), 
+                    ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+      } else { /* Xyce */
+        char *c=p;
+        while(*c){
+          if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
+          c++;
+        }
+        Tcl_VarEval(interp, "puts $gaw_fd {copyvar ", strtoupper(p), strtoupper(t), 
+                    " p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+      }
     }
     my_free(774, &p);
     my_free(775, &t);
   }
 }
 
-static void send_current_to_gaw(const char *node)
+static void send_current_to_gaw(int simtype, const char *node)
 {
   int c, k, tok_mult;
   const char *expanded_tok;
@@ -716,9 +743,21 @@ static void send_current_to_gaw(const char *node)
   for(k=1; k<=tok_mult; k++) {
     my_strdup(246, &t, find_nth(expanded_tok, ',', k));
     my_strdup2(254, &p, sch_path[currentsch]+1);
-    Tcl_VarEval(interp, "puts $gaw_fd {copyvar i(", currentsch>0 ? "v." : "",
-                strtolower(p), strtolower(t),
-                ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+    if(!simtype) { /* spice */
+      Tcl_VarEval(interp, "puts $gaw_fd {copyvar i(", currentsch>0 ? "v." : "",
+                  strtolower(p), strtolower(t),
+                  ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+    } else {       /* Xyce */
+      char *c=p;
+      while(*c){
+        if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
+        c++;
+      }
+      Tcl_VarEval(interp, "puts $gaw_fd {copyvar ", currentsch>0 ? "V:" : "",
+                  strtoupper(p), strtoupper( currentsch>0 ? t+1 : t ), "#branch", 
+                  " p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+
+    }
   }
   my_free(774, &p);
   my_free(775, &t);
@@ -726,32 +765,17 @@ static void send_current_to_gaw(const char *node)
 }
 
 
-int hilight_netname(const char *name)
-{
-  int ret = 0;
-  struct node_hashentry *node_entry;
-  prepare_netlist_structs(0);
-  dbg(1, "hilight_netname(): entering\n");
-  rebuild_selected_array();
-  node_entry = bus_hash_lookup(name, "", XLOOKUP, 0, "", "", "", "");
-  ret = node_entry ? 1 : 0;
-  if(ret && !bus_hilight_lookup(name, hilight_color, XINSERT)) {
-    hilight_nets=1;
-    if(incr_hilight) hilight_color++;
-  }
-  redraw_hilights();
-  return ret;
-}
-
-
 void hilight_net(int to_waveform)
 {
   int i, n;
   char *type;
+  int sim_is_xyce;
 
   prepare_netlist_structs(0);
   dbg(1, "hilight_net(): entering\n");
   rebuild_selected_array();
+  tcleval("sim_is_xyce");
+  sim_is_xyce = atoi( tclresult() );
   for(i=0;i<lastselected;i++)
   {
    n = selectedgroup[i].n;
@@ -765,7 +789,7 @@ void hilight_net(int to_waveform)
       }
       hilight_nets=1;
       if(!bus_hilight_lookup(wire[n].node, hilight_color, XINSERT)) {
-        if(to_waveform == GAW) send_net_to_gaw(wire[n].node);
+        if(to_waveform == GAW) send_net_to_gaw(sim_is_xyce, wire[n].node);
         if(incr_hilight) hilight_color++;
       }
       break;
@@ -778,7 +802,7 @@ void hilight_net(int to_waveform)
          fflush(stdout);
        }
        if(!bus_hilight_lookup(inst_ptr[n].node[0], hilight_color, XINSERT)) {
-         if(to_waveform == GAW) send_net_to_gaw(inst_ptr[n].node[0]);
+         if(to_waveform == GAW) send_net_to_gaw(sim_is_xyce, inst_ptr[n].node[0]);
          hilight_nets=1;
          if(incr_hilight) hilight_color++;
        }
@@ -793,11 +817,7 @@ void hilight_net(int to_waveform)
        inst_ptr[n].flags |= 4;
      }
      if(type &&  !strcmp(type, "current_probe") ) {
-       int size = sizeof(inst_ptr[n].instname) + 10;
-       char *str = my_malloc(1179, size);
-       my_snprintf(str, size, "%s", inst_ptr[n].instname);
-       if(to_waveform == GAW) send_current_to_gaw(str);
-       my_free(1180, &str);
+       if(to_waveform == GAW) send_current_to_gaw(sim_is_xyce, inst_ptr[n].instname);
      }
      break;
     default:
