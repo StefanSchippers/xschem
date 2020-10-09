@@ -549,6 +549,22 @@ void save_xschem_data(int what)
     xc.max_polygons = max_polygons;
     xc.max_arcs = max_arcs;
     xc.max_lines = max_lines;
+
+
+    xc.schprop = schprop;
+    xc.schtedaxprop = schtedaxprop;
+    xc.schvhdlprop = schvhdlprop;
+    xc.schsymbolprop = schsymbolprop;
+    xc.schverilogprop = schverilogprop;
+    xc.xschem_version_string = xschem_version_string;
+
+    schprop = NULL;
+    schtedaxprop = NULL;
+    schvhdlprop = NULL;
+    schsymbolprop = NULL;
+    schverilogprop = NULL;
+    xschem_version_string = NULL;
+
     /*non malloc'd storage */
     xc.max_texts = max_texts;
     xc.max_wires = max_wires;
@@ -578,6 +594,15 @@ void save_xschem_data(int what)
     max_polygons = xc.max_polygons;
     max_arcs = xc.max_arcs;
     max_lines = xc.max_lines;
+
+
+    schprop = xc.schprop;
+    schtedaxprop = xc.schtedaxprop;
+    schvhdlprop = xc.schvhdlprop;
+    schsymbolprop = xc.schsymbolprop;
+    schverilogprop = xc.schverilogprop;
+    xschem_version_string = xc.xschem_version_string;
+
     /*non malloc'd storage */
     max_texts = xc.max_texts;
     max_wires = xc.max_wires;

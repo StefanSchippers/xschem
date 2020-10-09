@@ -1382,15 +1382,15 @@ int callback(int event, int mx, int my, KeySym key,
     draw();
     break;
    }
-   if(key=='~' && (state & ControlMask))    /* testmode */
-   {
-    dbg(0, "test mode\n");
-    prepared_hilight_structs = 0;
-    prepared_hash_wires=0;
-    prepare_netlist_structs(0);
+   if(0 && key=='~' && (state & ControlMask)) {  /* testmode */
+
     break;
    }
-   if(0 && (key=='|') && !(state&ControlMask))         /* testmode */
+   if(0 && key=='|' && !(state & ControlMask)) {            /* testmode */
+
+    break;
+   }
+   if(0 && key=='|' && (state & ControlMask))      /* testmode */
    {
     double w, x1, y1, x2, y2;
     int i;

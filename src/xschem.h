@@ -460,6 +460,12 @@ typedef struct {
   int max_wires;
   int max_instances;
   int max_symbols;
+  char *schprop;
+  char *schtedaxprop;
+  char *schvhdlprop;
+  char *schsymbolprop;
+  char *schverilogprop;
+  char *xschem_version_string;
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */

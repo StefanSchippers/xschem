@@ -816,7 +816,7 @@ void hilight_net(int to_waveform)
        hilight_nets=1;
        inst_ptr[n].flags |= 4;
      }
-     if(type &&  !strcmp(type, "current_probe") ) {
+     if(type &&  (!strcmp(type, "current_probe") || !strcmp(type, "vsource")) ) {
        if(to_waveform == GAW) send_current_to_gaw(sim_is_xyce, inst_ptr[n].instname);
      }
      break;
