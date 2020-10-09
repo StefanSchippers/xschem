@@ -3408,11 +3408,6 @@ font configure Underline-Font -underline true -size 24
    .menubar.file.menu add separator
    .menubar.file.menu add command -label "Exit" -command {xschem exit} -accelerator {Ctrl+Q}
    
-   .menubar.option.menu add checkbutton -label "Show info win" -variable show_infowindow \
-     -command {
-        if { $show_infowindow != 0 } {wm deiconify .infotext
-        } else {wm withdraw .infotext}
-      }
    .menubar.option.menu add checkbutton -label "Color Postscript/SVG" -variable color_ps \
       -command {
          if { $color_ps==1 } {xschem set color_ps 1} else { xschem set color_ps 0}
@@ -3598,6 +3593,11 @@ font configure Underline-Font -underline true -size 24
      incr j
      
    }
+   .menubar.zoom.menu add checkbutton -label "Show ERC Info window" -variable show_infowindow \
+     -command {
+        if { $show_infowindow != 0 } {wm deiconify .infotext
+        } else {wm withdraw .infotext}
+      }
    .menubar.zoom.menu add command -label "Redraw" -command "xschem redraw" -accelerator Esc
    toolbar_create ViewRedraw "xschem redraw" "Redraw"
    .menubar.zoom.menu add checkbutton -label "Fullscreen" -variable fullscreen \
