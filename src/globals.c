@@ -67,7 +67,6 @@ int draw_window=0; /* 20181009 */
 int draw_grid=1;
 double cadgrid = CADGRID;
 double cadhalfdotsize = CADHALFDOTSIZE;
-char current_name[PATH_MAX]; /* 20190519 */
 int change_lw=0; /* allow change linewidth */
 int incr_hilight=1;
 int auto_hilight=0;
@@ -185,21 +184,13 @@ double zoom=CADINITIALZOOM;
 double mooz=1/CADINITIALZOOM;
 double xorigin=CADINITIALX;
 double yorigin=CADINITIALY;
-double *character[256];
- int lastselected = 0;
+double *character[256]; /* array or per-char coordinates of xschem internal vector font */
+int lastselected = 0;
+int max_selected;
 Selected *selectedgroup;     /*  array of selected objects to be */
                              /*  drawn while moving if < MAXGROUP selected */
 XPoint *gridpoint;           /* pointer to array of gridpoints, used in draw() */
 Tcl_Interp *interp;
- int max_texts;
- int max_wires;
- int max_instances;
- int max_symbols;
- int max_selected;
- int *max_rects;
- int *max_polygons; /* 20171115 */
- int *max_arcs; /* 20181012 */
- int *max_lines;     
 
 int do_netlist=0;  /* set by process_options if user wants netllist from cmdline */
 int do_simulation=0;  /* 20171007 */
@@ -215,50 +206,16 @@ int prepared_netlist_structs=0;
 int prepared_hilight_structs=0;
 int prepared_hash_instances=0;
 int prepared_hash_wires=0;
-/* */
-/* following data is relative to the current schematic */
-/* */
-Wire *wire;
-int lastwire = 0;
-Instance *inst_ptr;          /* Pointer to element INSTANCE */
-int lastinst = 0;
-Instdef *instdef;            /* Pointer to element definition */
-int lastinstdef = 0;
-Box  **rect;
-int *lastrect;
-xPolygon **polygon; /* 20171115 */
-int *lastpolygon; /* 20171115 */
-xArc **arc;
-int *lastarc;
-Line **line;
-int *lastline;
-Text *textelement;
-int lasttext=0;
-char schematic[CADMAXHIER][PATH_MAX];
-int currentsch = 0;
-char *schprop=NULL;  /* spice */
-char *schtedaxprop=NULL;  /* tEDAx */
-char *schvhdlprop=NULL; /* vhdl and symbol property string */
-char *schsymbolprop=NULL; /* vhdl and symbol property string */
-char *xschem_version_string=NULL; /* vhdl and symbol property string */
-char file_version[100];
-char *schverilogprop=NULL;/* verilog */
-int show_erc=1;
-int hilight_nets=0;
-char *sch_path[CADMAXHIER];
-int sch_inst_number[CADMAXHIER];
-int previous_instance[CADMAXHIER]; /* to remember the instance we came from when going up the hier. */
+int horizontal_move=0; /* 20171023 */
+int vertical_move=0; /* 20171023 */
 int modified = 0;
 int color_ps=-1;
 int only_probes=0; /* 20110112 */
 int hilight_color=0;
-Zoom zoom_array[CADMAXHIER];
 int pending_fullzoom=0;
 int split_files=0; /* split netlist files 20081202 */
 char *netlist_dir=NULL; /* user set netlist directory via cmd-option or menu or xschemrc */
 char user_top_netl_name[PATH_MAX] = ""; /* user set netlist name via cmd option -N <name> */
-int horizontal_move=0; /* 20171023 */
-int vertical_move=0; /* 20171023 */
 XColor xcolor_array[256];/* 20171109 */
 Visual *visual; /*20171111 */
 int dark_colorscheme=1; /* 20171113 */
@@ -301,4 +258,46 @@ double cairo_font_line_spacing=1.0; /* allows to change line spacing: default: 1
 /* allowed values should be in the range [-4, 4] */
 double cairo_vert_correct=0.0;
 double nocairo_vert_correct=0.0;
+int show_erc=1;
+int hilight_nets=0;
                                
+/* following data is relative to the current schematic */
+int max_texts;
+int max_wires;
+int max_instances;
+int max_symbols;
+int *max_rects;
+int *max_polygons;
+int *max_arcs;
+int *max_lines;     
+Wire *wire;
+int lastwire = 0;
+Instance *inst_ptr;          /* Pointer to element INSTANCE */
+int lastinst = 0;
+Instdef *instdef;            /* Pointer to element definition */
+int lastinstdef = 0;
+Box  **rect;
+int *lastrect;
+xPolygon **polygon;
+int *lastpolygon;
+xArc **arc;
+int *lastarc;
+Line **line;
+int *lastline;
+Text *textelement;
+int lasttext=0;
+char schematic[CADMAXHIER][PATH_MAX];
+int currentsch = 0;
+char current_name[PATH_MAX];
+char *schprop=NULL;  /* spice */
+char *schtedaxprop=NULL;  /* tEDAx */
+char *schvhdlprop=NULL; /* vhdl property string */
+char *schsymbolprop=NULL; /* symbol property string */
+char *schverilogprop=NULL;/* verilog */
+char *xschem_version_string=NULL;
+char file_version[100];
+char *sch_path[CADMAXHIER];
+int sch_inst_number[CADMAXHIER];
+int previous_instance[CADMAXHIER]; /* to remember the instance we came from when going up the hier. */
+Zoom zoom_array[CADMAXHIER];
+

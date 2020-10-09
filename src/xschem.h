@@ -299,6 +299,7 @@ extern char win_temp_dir[PATH_MAX];
 #define X_TO_XSCHEM(x) ((x)*zoom -xorigin)
 #define Y_TO_XSCHEM(y) ((y)*zoom -yorigin)
 
+
 typedef struct
 {
    unsigned short type;
@@ -455,6 +456,10 @@ typedef struct {
   int *max_polygons;
   int *max_arcs;
   int *max_lines;
+  int max_texts;
+  int max_wires;
+  int max_instances;
+  int max_symbols;
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */

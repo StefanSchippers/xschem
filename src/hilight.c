@@ -741,8 +741,8 @@ static void send_current_to_gaw(int simtype, const char *node)
   expanded_tok = expandlabel(tok, &tok_mult);
   tcleval("if { ![info exists gaw_fd] } { gaw_setup_tcp }\n");
   for(k=1; k<=tok_mult; k++) {
-    my_strdup(246, &t, find_nth(expanded_tok, ',', k));
-    my_strdup2(254, &p, sch_path[currentsch]+1);
+    my_strdup(1179, &t, find_nth(expanded_tok, ',', k));
+    my_strdup2(1180, &p, sch_path[currentsch]+1);
     if(!simtype) { /* spice */
       Tcl_VarEval(interp, "puts $gaw_fd {copyvar i(", currentsch>0 ? "v." : "",
                   strtolower(p), strtolower(t),
@@ -759,8 +759,8 @@ static void send_current_to_gaw(int simtype, const char *node)
 
     }
   }
-  my_free(774, &p);
-  my_free(775, &t);
+  my_free(1181, &p);
+  my_free(1182, &t);
   
 }
 

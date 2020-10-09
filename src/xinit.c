@@ -345,22 +345,22 @@ void free_xschem_data()
      my_free(1111, &instdef[i].arcptr);
      my_free(1112, &instdef[i].polygonptr);
      my_free(1113, &instdef[i].lines);
-     my_free(1114, &instdef[i].polygons); /* 20171115 */
-     my_free(1115, &instdef[i].arcs); /* 20181012 */
+     my_free(1114, &instdef[i].polygons); 
+     my_free(1115, &instdef[i].arcs); 
      my_free(1116, &instdef[i].rects);
   }
   my_free(1117, &instdef);
   my_free(1118, &rect);
   my_free(1119, &line);
-  my_free(1125, &polygon); /* 20171115 */
-  my_free(1126, &arc); /* 20171115 */
+  my_free(1125, &polygon); 
+  my_free(1126, &arc); 
   my_free(1124, &lastrect);
-  my_free(1127, &lastpolygon); /* 20171115 */
-  my_free(1128, &lastarc); /* 20171115 */
+  my_free(1127, &lastpolygon); 
+  my_free(1128, &lastarc); 
   my_free(1129, &lastline);
   my_free(1130, &max_rects);
-  my_free(1131, &max_polygons); /* 20171115 */
-  my_free(1132, &max_arcs); /* 20171115 */
+  my_free(1131, &max_polygons); 
+  my_free(1132, &max_arcs); 
   my_free(1133, &max_lines);
 }
 
@@ -528,6 +528,7 @@ void save_xschem_data(int what)
   static Xschem_ctx xc;
 
   if(what == 1) {
+    /* malloc'd storage */
     xc.wire = wire;
     xc.textelement = textelement;
     xc.rect = rect;
@@ -548,8 +549,15 @@ void save_xschem_data(int what)
     xc.max_polygons = max_polygons;
     xc.max_arcs = max_arcs;
     xc.max_lines = max_lines;
+    /*non malloc'd storage */
+    xc.max_texts = max_texts;
+    xc.max_wires = max_wires;
+    xc.max_instances = max_instances;
+    xc.max_symbols = max_symbols;
+
   }
   else if(what == 2) {
+    /* malloc'd storage */
     wire = xc.wire;
     textelement = xc.textelement;
     rect = xc.rect;
@@ -570,6 +578,11 @@ void save_xschem_data(int what)
     max_polygons = xc.max_polygons;
     max_arcs = xc.max_arcs;
     max_lines = xc.max_lines;
+    /*non malloc'd storage */
+    max_texts = xc.max_texts;
+    max_wires = xc.max_wires;
+    max_instances = xc.max_instances;
+    max_symbols = xc.max_symbols;
   }
 }
 

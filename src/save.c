@@ -400,7 +400,12 @@ void save_line(FILE *fd)
 void write_xschem_file(FILE *fd)
 {
   int ty=0;
-  fprintf(fd, "v {xschem version=%s file_version=%s}\n", XSCHEM_VERSION, XSCHEM_FILE_VERSION);
+
+  my_strdup2(1183, &xschem_version_string, subst_token(xschem_version_string, "version", XSCHEM_VERSION));
+  my_strdup2(1184, &xschem_version_string, subst_token(xschem_version_string, "file_version", XSCHEM_FILE_VERSION));
+  /* fprintf(fd, "v {xschem version=%s file_version=%s}\n", XSCHEM_VERSION, XSCHEM_FILE_VERSION); */
+  fprintf(fd, "v {%s}\n", xschem_version_string);
+  
   
   if(schvhdlprop && !schsymbolprop) {
     get_tok_value(schvhdlprop,"type",0);
