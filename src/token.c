@@ -1147,7 +1147,7 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
 {
   int tmp;
   register int c, state=XBEGIN, space;
-  char *template=NULL,*format=NULL, *s, *value=NULL,  *token=NULL;
+  char *template=NULL, *s, *value=NULL,  *token=NULL;
   char *type=NULL, *generic_type=NULL, *generic_value=NULL;
   const char *str_tmp;
   int i, sizetok=0, sizeval=0;
@@ -1161,7 +1161,6 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
     my_free(998, &template);
     return;
   }
-  my_strdup(470, &format, get_tok_value(instdef[symbol].prop_ptr,"format",0));
   my_strdup(471, &generic_type, get_tok_value(instdef[symbol].prop_ptr,"generic_type",0));
   dbg(2, "print_generic(): symbol=%d template=%s \n", symbol, template);
  
@@ -1256,7 +1255,6 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
   }
   if(tmp) fprintf(fd, "\n);\n");
   my_free(999, &template);
-  my_free(1000, &format);
   my_free(1001, &value);
   my_free(1002, &token);
   my_free(1003, &type);
@@ -1487,8 +1485,10 @@ void print_spice_element(FILE *fd, int inst)
     /* my_strdup(485, &name,get_tok_value(inst_ptr[inst].prop_ptr,"name",0)); */
   if (!name) my_strdup(43, &name, get_tok_value(template, "name", 0));
 
-  my_strdup(486, &format,
-    get_tok_value((inst_ptr[inst].ptr+instdef)->prop_ptr,"format",2));
+  /* allow format string override in instance */
+  my_strdup(470, &format, get_tok_value(inst_ptr[inst].prop_ptr,"format",2));
+  if(!format || !format[0]) 
+     my_strdup(486, &format, get_tok_value((inst_ptr[inst].ptr+instdef)->prop_ptr,"format",2));
 
   if ((name==NULL) || (format==NULL)) {
     my_free(1015, &template); 
@@ -1674,8 +1674,10 @@ void print_tedax_element(FILE *fd, int inst)
  /* my_strdup(496, &name,get_tok_value(inst_ptr[inst].prop_ptr,"name",0)); */
  if(!name) my_strdup(2, &name, get_tok_value(template, "name", 0));
 
- my_strdup(497, &format,
-     get_tok_value((inst_ptr[inst].ptr+instdef)->prop_ptr,"tedax_format",2));
+ /* allow format string override in instance */
+ my_strdup(1185, &format, get_tok_value(inst_ptr[inst].prop_ptr,"tedax_format",2));
+ if(!format || !format[0]) 
+   my_strdup(497, &format, get_tok_value((inst_ptr[inst].ptr+instdef)->prop_ptr,"tedax_format",2));
  if(name==NULL || !format || !format[0]) {
    my_free(1023, &extra);
    my_free(1024, &extra_pinnumber);
@@ -1931,7 +1933,7 @@ void print_verilog_element(FILE *fd, int inst)
  int quote=0;
  
  if(get_tok_value((inst_ptr[inst].ptr+instdef)->prop_ptr,"verilog_format",2)[0] != '\0') {
-  print_verilog_primitive(fd, inst); /*15112003 */
+  print_verilog_primitive(fd, inst);
   return;
  }
  my_strdup(506, &template,
@@ -2130,7 +2132,10 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
  my_strdup(514, &name, inst_ptr[inst].instname);
  if(!name) my_strdup(50, &name, get_tok_value(template, "name", 0));
 
- my_strdup(516, &format, get_tok_value((inst_ptr[inst].ptr+instdef)->prop_ptr,"vhdl_format",2)); /* 20071217 */
+ /* allow format string override in instance */
+ my_strdup(1000, &format, get_tok_value(inst_ptr[inst].prop_ptr,"vhdl_format",2));
+ if(!format || !format[0]) 
+   my_strdup(516, &format, get_tok_value((inst_ptr[inst].ptr+instdef)->prop_ptr,"vhdl_format",2)); /* 20071217 */
  if((name==NULL) || (format==NULL) ) {
    my_free(1047, &template);
    my_free(1048, &name);
@@ -2301,8 +2306,10 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
   my_strdup(520, &name,inst_ptr[inst].instname); /*20161210 */
   if(!name) my_strdup(4, &name, get_tok_value(template, "name", 0));
  
-  my_strdup(522, &format,
-      get_tok_value((inst_ptr[inst].ptr+instdef)->prop_ptr,"verilog_format",2));
+  /* allow format string override in instance */
+  my_strdup(1186, &format, get_tok_value(inst_ptr[inst].prop_ptr,"verilog_format",2));
+  if(!format || !format[0]) 
+    my_strdup(522, &format, get_tok_value((inst_ptr[inst].ptr+instdef)->prop_ptr,"verilog_format",2));
   if((name==NULL) || (format==NULL) ) {
     my_free(1054, &template);
     my_free(1055, &name);
