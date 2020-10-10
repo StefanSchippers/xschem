@@ -1565,7 +1565,7 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
    .t.txt delete 1.0 end
    .t.txt insert 1.0 $retval
    checkbutton .t.f1.l1 -text "preserve unchanged props" -variable preserve_unchanged_attrs -state $preserve_disabled
-   pack .t.f1 -side top -fill x -expand yes
+   pack .t.f1 -side top -fill x ;# -expand yes
    pack .t.f1.l1 -side left
    pack .t.f1.txtlab -side left -expand yes -fill x
 

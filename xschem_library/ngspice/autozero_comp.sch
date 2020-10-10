@@ -1,5 +1,6 @@
-v {xschem version=2.9.5 file_version=1.1}
+v {xschem version=2.9.8 file_version=1.2}
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -214,7 +215,7 @@ value="* .option SCALE=1e-6
       reset
       set appendwrite
     end
-    save saout cal i(vvcc) en plus minus
+    save saout cal i(vvcc) en plus minus saoutf outdiff
     tran 0.1n 900n uic
     write autozero_comp.raw
     let run = run + 1
