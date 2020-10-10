@@ -1,11 +1,11 @@
-v {xschem version=2.9.7 file_version=1.2}
-G {type=timescale
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=timescale
 spice_ignore=true
 vhdl_ignore=true
 tedax_ignore=true
 template="name=s1 timestep=\\"100ps\\" precision=\\"100ps\\" "
-verilog_format="`timescale @timestep\\/@precision"
-format="`timescale @timestep\\/@precision"}
+verilog_format="`timescale @timestep\\/@precision"}
 V {}
 S {}
 E {}

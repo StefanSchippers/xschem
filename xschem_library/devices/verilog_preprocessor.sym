@@ -1,10 +1,11 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
-G {type=verilog_preprocessor
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=verilog_preprocessor
 vhdl_ignore=true
 spice_ignore=true
 tedax_ignore=true
-template="name=s1 string=\\"`include \\\\\\"file\\\\\\"\\""
-format="@string"
+template="name=s1  string=\\"`include \\\\\\"file\\\\\\"\\""
+verilog_format="@string"
 }
 V {}
 S {}

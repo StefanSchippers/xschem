@@ -1199,7 +1199,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    char *s=NULL;
    Tcl_ResetResult(interp);
    if(argc < 4) {Tcl_AppendResult(interp, "Missing arguments", NULL);return TCL_ERROR;}
-   my_strdup(648, &s, get_tok_value(argv[2], argv[3], 0));
+   if(argc == 5) 
+     my_strdup(648, &s, get_tok_value(argv[2], argv[3], atoi(argv[4])));
+   else 
+     my_strdup(648, &s, get_tok_value(argv[2], argv[3], 0));
    Tcl_AppendResult(interp, s, NULL);
    my_free(649, &s);
  }

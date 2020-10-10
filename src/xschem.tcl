@@ -2002,7 +2002,7 @@ proc edit_vi_netlist_prop {txtlabel} {
  if $tcl_debug<=-1 then {puts "edit_vi_prop{}:\n--------\n$tmp\n---------\n"}
  if [string compare $tmp $retval] {
         set retval $tmp
-        regsub -all {\\?"} $retval {\\"} retval
+        regsub -all {(["\\])} $retval {\\\1} retval
         set retval \"${retval}\" 
         if $tcl_debug<=-1 then {puts "modified"}
         set rcode ok
@@ -2103,7 +2103,7 @@ proc edit_prop {txtlabel} {
 
      set retval [.dialog.e1 get 1.0 {end - 1 chars}]
      if { $selected_tok ne {<ALL>} } {
-       regsub -all {\\?"} $retval {\\"} retval
+       regsub -all {(["\\])} $retval {\\\1} retval
        set retval \"${retval}\"
        set retval [xschem subst_tok $retval_orig $selected_tok $retval]
        set selected_tok {<ALL>}
@@ -2200,7 +2200,7 @@ proc edit_prop {txtlabel} {
          set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
        } else {
          set retval [.dialog.e1 get 1.0 {end - 1 chars}]
-         regsub -all {\\?"} $retval {\\"} retval
+         regsub -all {(["\\])} $retval {\\\1} retval
          set retval \"${retval}\"
          set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
        }
@@ -2208,8 +2208,8 @@ proc edit_prop {txtlabel} {
      if {$selected_tok eq {<ALL>} } { 
        set retval $retval_orig
      } else {
-       set retval [xschem get_tok $retval_orig $selected_tok]
-       regsub -all {\\?"} $retval {"} retval
+       set retval [xschem get_tok $retval_orig $selected_tok 2]
+       # regsub -all {\\?"} $retval {"} retval
      }
      .dialog.e1 delete 1.0 end
      .dialog.e1 insert 1.0 $retval
@@ -2223,7 +2223,7 @@ proc edit_prop {txtlabel} {
      } else {
        set retval [.dialog.e1 get 1.0 {end - 1 chars}]
        if {$retval ne {}} {
-         regsub -all {\\?"} $retval {\\"} retval
+         regsub -all {(["\\])} $retval {\\\1} retval
          set retval \"${retval}\"
          set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
        }
@@ -2231,8 +2231,8 @@ proc edit_prop {txtlabel} {
      if {$selected_tok eq {<ALL>} } {
        set retval $retval_orig
      } else {
-       set retval [xschem get_tok $retval_orig $selected_tok]
-       regsub -all {\\?"} $retval {"} retval
+       set retval [xschem get_tok $retval_orig $selected_tok 2]
+       # regsub -all {\\?"} $retval {"} retval
      }
      .dialog.e1 delete 1.0 end
      .dialog.e1 insert 1.0 $retval
@@ -2321,7 +2321,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
    {
      set retval [.dialog.e1 get 1.0 {end - 1 chars}]
      if { $selected_tok ne {<ALL>} } {
-       regsub -all {\\?"} $retval {\\"} retval
+       regsub -all {(["\\])} $retval {\\\1} retval
        set retval \"${retval}\"
        set retval [xschem subst_tok $retval_orig $selected_tok $retval]
        set selected_tok {<ALL>}
@@ -2379,7 +2379,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
          set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
        } else {
          set retval [.dialog.e1 get 1.0 {end - 1 chars}]
-         regsub -all {\\?"} $retval {\\"} retval
+         regsub -all {(["\\])} $retval {\\\1} retval
          set retval \"${retval}\"
          set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
        }
@@ -2387,8 +2387,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
      if {$selected_tok eq {<ALL>} } {
        set retval $retval_orig
      } else {
-       set retval [xschem get_tok $retval_orig $selected_tok]
-       regsub -all {\\?"} $retval {"} retval
+       set retval [xschem get_tok $retval_orig $selected_tok 2]
+       # regsub -all {\\?"} $retval {"} retval
      }
      .dialog.e1 delete 1.0 end
      .dialog.e1 insert 1.0 $retval
@@ -2402,7 +2402,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
      } else {
        set retval [.dialog.e1 get 1.0 {end - 1 chars}]
        if {$retval ne {}} {
-         regsub -all {\\?"} $retval {\\"} retval
+         regsub -all {(["\\])} $retval {\\\1} retval
          set retval \"${retval}\"
          set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
        }
@@ -2410,8 +2410,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
      if {$selected_tok eq {<ALL>} } {
        set retval $retval_orig
      } else {
-       set retval [xschem get_tok $retval_orig $selected_tok]
-       regsub -all {\\?"} $retval {"} retval
+       set retval [xschem get_tok $retval_orig $selected_tok 2]
+       # regsub -all {\\?"} $retval {"} retval
      }
      .dialog.e1 delete 1.0 end
      .dialog.e1 insert 1.0 $retval

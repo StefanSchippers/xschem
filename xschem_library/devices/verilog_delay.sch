@@ -8,5 +8,5 @@ assign outp = x;
 }
 S {}
 E {}
-C {devices/ipin.sym} 60 -50 0 0 {name=p1 lab=inp}
-C {devices/opin.sym} 160 -50 0 0 {name=p2 lab=outp verilog_type=wire}
+C {ipin.sym} 60 -50 0 0 {name=p1 lab=inp}
+C {opin.sym} 160 -50 0 0 {name=p2 lab=outp verilog_type=wire}

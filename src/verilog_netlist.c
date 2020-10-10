@@ -77,7 +77,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
   my_strdup(105, &type,(inst_ptr[i].ptr+instdef)->type);
   if( type && (strcmp(type,"timescale")==0 || strcmp(type,"verilog_preprocessor")==0) )
   {
-   str_tmp = get_tok_value( (inst_ptr[i].ptr+instdef)->prop_ptr ,"format",0);
+   str_tmp = get_tok_value( (inst_ptr[i].ptr+instdef)->prop_ptr ,"verilog_format",0);
    my_strdup(106, &tmp_string, str_tmp);
    fprintf(fd, "%s\n", str_tmp ? translate(i, tmp_string) : "(NULL)");
   }
@@ -394,7 +394,7 @@ void verilog_block_netlist(FILE *fd, int i)  /*20081205 */
     my_strdup(544, &type,(inst_ptr[j].ptr+instdef)->type);
     if( type && ( strcmp(type,"timescale")==0  || strcmp(type,"verilog_preprocessor")==0) )
     {
-     str_tmp = get_tok_value( (inst_ptr[j].ptr+instdef)->prop_ptr ,"format",0);
+     str_tmp = get_tok_value( (inst_ptr[j].ptr+instdef)->prop_ptr ,"verilog_format",0);
      my_strdup(545, &tmp_string, str_tmp);
      fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string) : "(NULL)");
     }
