@@ -156,7 +156,7 @@ ID_EXT_PARENTHESIS [-#+/=_a-zA-Z][-#@\\/:.=_+a-zA-Z0-9]*\([-#@\\/:.=_+a-zA-Z0-9]
 ^\*.*                   {              /* a comment, return as LINE token */
                           yylval.ptr.str=NULL; /*19102004 */
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): B_LINE: %s\n",yytext);
-                          my_strdup(299, &yylval.ptr.str, yytext); /* these things are freed after use in expandlabel.y */
+                          my_strdup(299, &yylval.ptr.str, yytext); /* freed after use in expandlabel.y */
                           return B_LINE;
                         }
 <label>{
@@ -216,7 +216,7 @@ ID_EXT_PARENTHESIS [-#+/=_a-zA-Z][-#@\\/:.=_+a-zA-Z0-9]*\([-#@\\/:.=_+a-zA-Z0-9]
                         /* recognize the most esotheric identifiers */
 {ID_EXT}|{ID_EXT_PARENTHESIS} {
                           yylval.ptr.str=NULL;/*19102004 */
-                          my_strdup(300, &yylval.ptr.str, yytext); /* these things are freed after use in expandlabel.y */
+                          my_strdup(300, &yylval.ptr.str, yytext); /* freed after use in expandlabel.y */
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME: %s\n", yytext);
                           return B_NAME;
                         }
@@ -239,7 +239,7 @@ ID_EXT_PARENTHESIS [-#+/=_a-zA-Z][-#@\\/:.=_+a-zA-Z0-9]*\([-#@\\/:.=_+a-zA-Z0-9]
 <rest>{                 /* treat rest of line as a single LINE token */
 (.|\n)*                 {
                           yylval.ptr.str=NULL; /*19102004 */
-                          my_strdup(301, &yylval.ptr.str, yytext); /* these things are freed after use in expandlabel.y */
+                          my_strdup(301, &yylval.ptr.str, yytext); /* freed after use in expandlabel.y */
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): <rest> B_LINE: %s\n",yytext);
                           BEGIN(INITIAL);
                           return B_LINE;

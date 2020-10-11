@@ -524,9 +524,10 @@ void edit_wire_property(void)
       int oldbus=0;
       int k = selectedgroup[i].n;
       if(selectedgroup[i].type != WIRE) continue; 
-      prepared_hash_wires=0; /* 20181025 */
-      prepared_netlist_structs=0;
-      prepared_hilight_structs=0;
+      /* does not seem to be necessary */
+     /*  prepared_hash_wires=0;
+      *  prepared_netlist_structs=0;
+      *  prepared_hilight_structs=0; */
       oldbus = wire[k].bus;
       if(preserve == 1) {
         set_different_token(&wire[k].prop_ptr, 

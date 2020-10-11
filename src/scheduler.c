@@ -366,7 +366,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  else if(!strcmp(argv[1],"log"))
  {
    static int opened=0;
-   if(argc==3 && opened==0  )  { errfp = fopen(argv[2], "w");opened=1; } /* added check to avoid multiple open 07102004 */
+   if(argc==3 && opened==0  )  { errfp = fopen(argv[2], "w");opened=1; } /* added check to avoid multiple open */
    else if(argc==2 && opened==1) { fclose(errfp); errfp=stderr;opened=0; }
    Tcl_ResetResult(interp);
  }

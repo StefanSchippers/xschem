@@ -1570,9 +1570,9 @@ void print_spice_element(FILE *fd, int inst)
       {                                    /* and node number: m1 n1 m2 n2 .... */
         for(i=0;i<no_of_pins;i++)
         {
-          if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
+          char *prop = (inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr;
+          if(strcmp(get_tok_value(prop, "spice_ignore", 0), "true")) {
             str_ptr =  net_name(inst,i, &mult, 0);
-            /* fprintf(errfp, "inst: %s  --> %s\n", name, str_ptr); */
             fprintf(fd, "@%d %s ", mult, str_ptr);
           }
         }
@@ -2293,7 +2293,6 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
   const char *lab;
   char *template=NULL,*format=NULL,*s=NULL, *name=NULL, *token=NULL;
   const char *value;
-  int pin_number; /* 20180911 */
   int sizetok=0;
   int token_pos=0, escape=0;
   int no_of_pins=0;
@@ -2399,10 +2398,9 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
     }
     else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
      for(i=0;i<no_of_pins;i++) {
-      if(!strcmp(
-           get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"name",0),
-           token+2)) {
-        if(strcmp(get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
+      char *prop = (inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][i].prop_ptr;
+      if(!strcmp( get_tok_value(prop,"name",0), token+2)) {
+        if(strcmp(get_tok_value(prop, "verilog_ignore",0), "true")) {
           str_ptr =  net_name(inst,i, &mult, 0);
           fprintf(fd, "----pin(%s) ", str_ptr);
         }
@@ -2412,15 +2410,16 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
     }
     /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
     else if(token[0]=='@' && token[1]=='#') {
-        pin_number = atoi(token+2);
-        if(pin_number < no_of_pins) {
-          const char *vi;
-          vi = get_tok_value((inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][pin_number].prop_ptr,"verilog_ignore",0);
-          if(strcmp(vi, "true")) {
-            str_ptr =  net_name(inst,pin_number, &mult, 0);
-            fprintf(fd, "----pin(%s) ", str_ptr);
-          }
+      int pin_number = atoi(token+2);
+      if(pin_number < no_of_pins) {
+        const char *vi;
+        char *prop = (inst_ptr[inst].ptr+instdef)->boxptr[PINLAYER][pin_number].prop_ptr;
+        vi = get_tok_value(prop,"verilog_ignore",0);
+        if(strcmp(vi, "true")) {
+          str_ptr =  net_name(inst,pin_number, &mult, 0);
+          fprintf(fd, "----pin(%s) ", str_ptr);
         }
+      }
     }
     else if(!strncmp(token,"@tcleval", 8)) { /* 20171029 */
       /* char tclcmd[strlen(token)+100] ; */

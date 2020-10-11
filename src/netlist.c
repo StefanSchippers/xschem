@@ -315,6 +315,7 @@ void hash_wire(int what, int n)
   double tmpd;
   double x1, y1, x2, y2;
   int x1a, x2a, y1a, y2a;
+  struct wireentry *wptr;
 
   /* 20190606 */
   /* wire[n].node=NULL; */ 
@@ -351,6 +352,11 @@ void hash_wire(int what, int n)
     /* insert wire[n] in region [tmpi, tmpj] */
     if(what==XINSERT) wireinsert(n, tmpi, tmpj);
     else  wiredelete(n, tmpi, tmpj);
+    
+    /* reset ends of all wires that *could* touch wire[n] */
+    for(wptr = wiretable[tmpi][tmpj] ; wptr ; wptr = wptr->next) {
+      wire[wptr->n].end1 = wire[wptr->n].end2 = -1;
+    }
    }
   }
 }

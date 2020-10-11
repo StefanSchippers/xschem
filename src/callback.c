@@ -145,7 +145,7 @@ int callback(int event, int mx, int my, KeySym key,
  switch(event)
  {
   case EnterNotify:
-    if(!sel_or_clip[0]) my_snprintf(sel_or_clip, S(sel_or_clip), "%s/%s", user_conf_dir, ".selection.sch"); /* 20181002 */
+    if(!sel_or_clip[0]) my_snprintf(sel_or_clip, S(sel_or_clip), "%s/%s", user_conf_dir, ".selection.sch");
 
     /* xschem window *sending* selected objects 
        when the pointer comes back in abort copy operation since it has been done 
@@ -252,7 +252,7 @@ int callback(int event, int mx, int my, KeySym key,
       new_polygon(RUBBER); /* 20171115 */
     }
     if(!(ui_state & STARTPOLYGON) && (state&Button1Mask) && !(ui_state & STARTWIRE) && !(ui_state & STARTPAN2) &&
-         !(state & Mod1Mask) && !(state & ShiftMask) && !(ui_state & PLACE_SYMBOL))  /* start of a mouse area selection */
+         !(state & Mod1Mask) && !(state & ShiftMask) && !(ui_state & PLACE_SYMBOL)) /* start of a mouse area select */
     {
       static int onetime=0;
       if(mx != mx_save || my != my_save) {
@@ -260,7 +260,7 @@ int callback(int event, int mx, int my, KeySym key,
           select_rect(BEGIN,1);
           onetime=1;
         }
-        if(abs(mx-mx_save) > 8 || abs(my-my_save) > 8 ) { /* 20121123 set some reasonable threshold before unselecting */
+        if(abs(mx-mx_save) > 8 || abs(my-my_save) > 8 ) { /* set some reasonable threshold before unselecting */
           if(onetime) {
             unselect_all(); /* 20171026 avoid multiple calls of unselect_all() */
             onetime=0;
@@ -281,7 +281,7 @@ int callback(int event, int mx, int my, KeySym key,
         if( !(ui_state & STARTSELECT)) {
           select_rect(BEGIN,1);
         }
-        if(abs(mx-mx_save) > 8 || abs(my-my_save) > 8 ) {  /* 20121130 set some reasonable threshold before unselecting */
+        if(abs(mx-mx_save) > 8 || abs(my-my_save) > 8 ) {  /* set some reasonable threshold before unselecting */
           select_object(X_TO_XSCHEM(mx_save), Y_TO_XSCHEM(my_save), 0, 0); /* 20121130 remove near object if dragging */
           rebuild_selected_array();
         }

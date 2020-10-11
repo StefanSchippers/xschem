@@ -1626,12 +1626,6 @@ void new_wire(int what, double mx_snap, double my_snap)
 
    if( (what & PLACE) ) {
      if( (ui_state & STARTWIRE) && (x1!=x2 || y1!=y2) ) {
-       /* 
-       prepared_netlist_structs = 0; 
-       prepared_hash_wires = 0;
-       prepared_hilight_structs = 0;
-       prepare_netlist_structs(0);
-       */
        push_undo();
        if(manhattan_lines==1) {
          if(xx2!=xx1) {
@@ -1669,7 +1663,8 @@ void new_wire(int what, double mx_snap, double my_snap)
          printf("xschem wire %g %g %g %g %d\n", xx1, yy1, xx2, yy2, -1);
          fflush(stdout);
        }
-       prepared_hash_wires = 0;
+       hash_wire(XINSERT, lastwire-1);
+       /* prepared_hash_wires = 0; */
        prepared_hilight_structs = 0;
        update_conn_cues(1,1);
        if(show_pin_net_names) {
@@ -1681,6 +1676,7 @@ void new_wire(int what, double mx_snap, double my_snap)
          draw();
          bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
        }
+       draw_hilight_net(1);/* for updating connection bubbles on hilight nets */
      }
      if(! (what &END)) {
        x1=mx_snap;
