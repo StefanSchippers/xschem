@@ -3526,7 +3526,6 @@ font configure Underline-Font -underline true -size 24
       -command "xschem set horizontal_move" -accelerator H
    .menubar.edit.menu add checkbutton -label "Constrained Vertical move" -variable vertical_move \
       -command "xschem set vertical_move" -accelerator V
-   # added collapse/join/break wires menu command  (& key) 20171022
    .menubar.edit.menu add command -label "Push schematic" -command "xschem descend" -accelerator E
    toolbar_create EditPushSch "xschem move_objects" "Push schematic"
    .menubar.edit.menu add command -label "Push symbol" -command "xschem descend_symbol" -accelerator I
@@ -3724,8 +3723,8 @@ font configure Underline-Font -underline true -size 24
    .menubar.tools.menu add command -label "Align to Grid" -accelerator Alt+U -command  "xschem align"
    .menubar.tools.menu add command -label "Execute TCL command" -command  "tclcmd"
    .menubar.tools.menu add command -label "Join/Trim wires" \
-      -command "xschem collapse_wires" -accelerator {&}
-    toolbar_create ToolJoinTrim "xschem collapse_wires" "Join/Trim Wires"
+      -command "xschem trim_wires" -accelerator {&}
+    toolbar_create ToolJoinTrim "xschem trim_wires" "Join/Trim Wires"
    .menubar.tools.menu add command -label "Break wires" \
       -command "xschem break_wires" -accelerator {!}
     toolbar_create ToolBreak "xschem break_wires" "Break Wires"
