@@ -90,7 +90,7 @@ proc get_diff_voltage {arr p m } {
 proc get_current {arr n } {
   global current_probe
   upvar $arr var
-  if { [xschem get currentsch] > 0 } {
+  if { [xschem get currsch] > 0 } {
     set n "i(v.$n)"
   } else {
     set n "i($n)"
@@ -131,7 +131,7 @@ proc annotate {} {
     xschem push_undo
     xschem set no_undo 1
     xschem set no_draw 1
-    set lastinst [xschem get lastinst]
+    set lastinst [xschem get instances]
     set path [string range [xschem get sch_path] 1 end]
     for { set i 0 } { $i < $lastinst } {incr i } {
       set name [xschem getprop instance $i name]

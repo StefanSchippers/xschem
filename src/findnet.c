@@ -1,7 +1,7 @@
 /* File: findnet.c
- * 
+ *
  * This file is part of XSCHEM,
- * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+ * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
  * simulation.
  * Copyright (C) 1998-2020 Stefan Frederik Schippers
  *
@@ -33,9 +33,9 @@ void find_closest_net(double mx,double my)
  int i,w=-1;
  double threshold = CADWIREMINDIST * CADWIREMINDIST * cadgrid * cadgrid / 400;
 
- for(i=0;i<lastwire;i++)
+ for(i=0;i<xctx.wires;i++)
  {
-  if( (tmp = dist(wire[i].x1,wire[i].y1,wire[i].x2,wire[i].y2,mx,my)) < distance )
+  if( (tmp = dist(xctx.wire[i].x1,xctx.wire[i].y1,xctx.wire[i].x2,xctx.wire[i].y2,mx,my)) < distance )
   {
    w = i; distance = tmp;
   }
@@ -56,14 +56,14 @@ void find_closest_polygon(double mx,double my)
  double threshold = CADWIREMINDIST * CADWIREMINDIST * cadgrid * cadgrid / 400;
  for(c=0;c<cadlayers;c++)
  {
-  for(i=0;i<lastpolygon[c];i++)
+  for(i=0;i<xctx.polygons[c];i++)
   {
-    /*fprintf(errfp, "points=%d\n", polygon[c][i].points); */
-    for(j=0; j<polygon[c][i].points-1; j++) {
-      x1 = polygon[c][i].x[j];
-      y1 = polygon[c][i].y[j];
-      x2 = polygon[c][i].x[j+1];
-      y2 = polygon[c][i].y[j+1];
+    /*fprintf(errfp, "points=%d\n", xctx.poly[c][i].points); */
+    for(j=0; j<xctx.poly[c][i].points-1; j++) {
+      x1 = xctx.poly[c][i].x[j];
+      y1 = xctx.poly[c][i].y[j];
+      x2 = xctx.poly[c][i].x[j+1];
+      y2 = xctx.poly[c][i].y[j+1];
       ORDER(x1,y1,x2,y2);
       if( (tmp = dist(x1, y1, x2, y2, mx, my)) < distance )
       {
@@ -89,9 +89,9 @@ void find_closest_line(double mx,double my)
  double threshold = CADWIREMINDIST * CADWIREMINDIST * cadgrid * cadgrid / 400;
  for(c=0;c<cadlayers;c++)
  {
-  for(i=0;i<lastline[c];i++)
+  for(i=0;i<xctx.lines[c];i++)
   {
-   if( (tmp = dist(line[c][i].x1,line[c][i].y1,line[c][i].x2,line[c][i].y2,mx,my)) 
+   if( (tmp = dist(xctx.line[c][i].x1,xctx.line[c][i].y1,xctx.line[c][i].x2,xctx.line[c][i].y2,mx,my))
          < distance )
    {
     l = i; distance = tmp;col = c;
@@ -110,23 +110,23 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
 {
   int i, j, no_of_pin_rects;
   double x0, x1, x2, y0, y1, y2, xx, yy, dist, min_dist_x=0, min_dist_y=0;
-  Box box;
+  xRect box;
   int rot, flip;
   char *type=NULL;
 
   distance = DBL_MAX;
-  for(i=0;i<lastinst;i++) {
-    x0=inst_ptr[i].x0;
-    y0=inst_ptr[i].y0;
-    rot = inst_ptr[i].rot;
-    flip = inst_ptr[i].flip;
-    my_strdup(133, &type,(inst_ptr[i].ptr+instdef)->type);
+  for(i=0;i<xctx.instances;i++) {
+    x0=xctx.inst[i].x0;
+    y0=xctx.inst[i].y0;
+    rot = xctx.inst[i].rot;
+    flip = xctx.inst[i].flip;
+    my_strdup(133, &type,(xctx.inst[i].ptr+ xctx.sym)->type);
     if(!type) continue;
 
-    no_of_pin_rects = (inst_ptr[i].ptr+instdef)->rects[PINLAYER];
+    no_of_pin_rects = (xctx.inst[i].ptr+ xctx.sym)->rects[PINLAYER];
     if(IS_LABEL_OR_PIN(type)) no_of_pin_rects=1;
     for(j=0; j<no_of_pin_rects; j++) {
-      box = ((inst_ptr[i].ptr+instdef)->boxptr[PINLAYER])[j];
+      box = ((xctx.inst[i].ptr+ xctx.sym)->rect[PINLAYER])[j];
       ROTATION(0.0,0.0,box.x1,box.y1,x1,y1);
       ROTATION(0.0,0.0,box.x2,box.y2,x2,y2);
       x1 += x0;
@@ -137,23 +137,23 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
       yy = (y1+y2)/2;
       dist = (mx - xx) * (mx - xx) + (my - yy) * (my - yy);
       if(dist < distance) {
-        distance = dist; 
+        distance = dist;
         min_dist_x = xx;
         min_dist_y = yy;
       }
     }
   }
-  for(i=0;i<lastwire; i++) {
-    xx=wire[i].x1; 
-    yy = wire[i].y1;
+  for(i=0;i<xctx.wires; i++) {
+    xx=xctx.wire[i].x1;
+    yy = xctx.wire[i].y1;
     dist = (mx - xx) * (mx - xx) + (my - yy) * (my - yy);
     if(dist < distance) {
       distance = dist;
       min_dist_x = xx;
       min_dist_y = yy;
     }
-    xx=wire[i].x2; 
-    yy = wire[i].y2;
+    xx=xctx.wire[i].x2;
+    yy = xctx.wire[i].y2;
     dist = (mx - xx) * (mx - xx) + (my - yy) * (my - yy);
     if(dist < distance) {
       distance = dist;
@@ -175,18 +175,18 @@ void find_closest_arc(double mx,double my)
 
  for(c=0;c<cadlayers;c++)
  {
-  for(i=0;i<lastarc[c];i++)
+  for(i=0;i<xctx.arcs[c];i++)
   {
-    dist = sqrt(pow(mx-arc[c][i].x,2) + pow(my-arc[c][i].y,2)) - arc[c][i].r;
+    dist = sqrt(pow(mx-xctx.arc[c][i].x,2) + pow(my-xctx.arc[c][i].y,2)) - xctx.arc[c][i].r;
     dist *= dist; /* square distance */
-    angle = fmod(atan2(arc[c][i].y-my, mx-arc[c][i].x)*180./XSCH_PI, 360.);
+    angle = fmod(atan2(xctx.arc[c][i].y-my, mx-xctx.arc[c][i].x)*180./XSCH_PI, 360.);
     if(angle<0.) angle +=360.;
-    angle1 = arc[c][i].a;
-    angle2 = fmod(arc[c][i].a + arc[c][i].b, 360.);
+    angle1 = xctx.arc[c][i].a;
+    angle2 = fmod(xctx.arc[c][i].a + xctx.arc[c][i].b, 360.);
 
     match=0;
     if(dist < distance) {
-      if(arc[c][i].b==360.) match=1;
+      if(xctx.arc[c][i].b==360.) match=1;
       if(angle2<angle1) {
         if(angle >= angle1 || angle<= angle2) {
           match=1;
@@ -198,17 +198,17 @@ void find_closest_arc(double mx,double my)
       }
     }
     dbg(1, "find_closest_arc(): dist = %g, angle = %g\n", dist, angle);
-    dbg(1, "find_closest_arc(): center=%g,%g: mouse: %g:%g\n", 
-                             arc[c][i].x, arc[c][i].y, mx, my);
+    dbg(1, "find_closest_arc(): center=%g,%g: mouse: %g:%g\n",
+                             xctx.arc[c][i].x, xctx.arc[c][i].y, mx, my);
     if(match ) {
       dbg(1, "find_closest_arc(): i = %d\n", i);
-      r = i; 
+      r = i;
       distance = dist;
       col = c;
     }
   } /* end for i */
  } /* end for c */
- if( r!=-1 && distance <= thres ) /*  * pow(arc[col][r].r,2)) */
+ if( r!=-1 && distance <= thres ) /*  * pow(xctx.arc[col][r].r,2)) */
  {
   sel.n = r; sel.type = ARC; sel.col = col;
  }
@@ -221,12 +221,12 @@ void find_closest_box(double mx,double my)
  int i,c,r=-1, col = 0;
  for(c=0;c<cadlayers;c++)
  {
-  for(i=0;i<lastrect[c];i++)
+  for(i=0;i<xctx.rects[c];i++)
   {
-   if( POINTINSIDE(mx,my,rect[c][i].x1,rect[c][i].y1,rect[c][i].x2,rect[c][i].y2) )
+   if( POINTINSIDE(mx,my,xctx.rect[c][i].x1,xctx.rect[c][i].y1,xctx.rect[c][i].x2,xctx.rect[c][i].y2) )
    {
-    tmp=dist_from_rect(mx,my,rect[c][i].x1,rect[c][i].y1,
-                                  rect[c][i].x2,rect[c][i].y2);
+    tmp=dist_from_rect(mx,my,xctx.rect[c][i].x1,xctx.rect[c][i].y1,
+                                  xctx.rect[c][i].x2,xctx.rect[c][i].y2);
     if(tmp < distance)
     {
      r = i; distance = tmp;col = c;
@@ -245,18 +245,18 @@ void find_closest_element(double mx,double my)
 {
  double tmp;
  int i,r=-1;
- for(i=0;i<lastinst;i++)
+ for(i=0;i<xctx.instances;i++)
  {
-  dbg(2, "find_closest_element(): %s: %g %g %g %g\n", 
-                           inst_ptr[i].instname, inst_ptr[i].x1,inst_ptr[i].y1,inst_ptr[i].x2,inst_ptr[i].y2);
-  if( POINTINSIDE(mx,my,inst_ptr[i].x1,inst_ptr[i].y1,inst_ptr[i].x2,inst_ptr[i].y2) )
+  dbg(2, "find_closest_element(): %s: %g %g %g %g\n",
+                           xctx.inst[i].instname, xctx.inst[i].x1,xctx.inst[i].y1,xctx.inst[i].x2,xctx.inst[i].y2);
+  if( POINTINSIDE(mx,my,xctx.inst[i].x1,xctx.inst[i].y1,xctx.inst[i].x2,xctx.inst[i].y2) )
   {
-   tmp=pow(mx-(inst_ptr[i].xx1 + inst_ptr[i].xx2)/2, 2)+pow(my-(inst_ptr[i].yy1 + inst_ptr[i].yy2)/2, 2);
+   tmp=pow(mx-(xctx.inst[i].xx1 + xctx.inst[i].xx2)/2, 2)+pow(my-(xctx.inst[i].yy1 + xctx.inst[i].yy2)/2, 2);
    if(tmp*0.1 < distance)
    {
     r = i; distance = tmp*0.1;
    }
-    dbg(2, "find_closest_element(): finding closest element, lastinst=%d, dist=%.16g\n",i,tmp);
+    dbg(2, "find_closest_element(): finding closest element, xctx.instances=%d, dist=%.16g\n",i,tmp);
   }
  } /* end for i */
  if( r!=-1 )
@@ -274,16 +274,16 @@ void find_closest_text(double mx,double my)
  #ifdef HAS_CAIRO
  int customfont;
  #endif
-  for(i=0;i<lasttext;i++)
+  for(i=0;i<xctx.texts;i++)
   {
-   rot = textelement[i].rot;
-   flip = textelement[i].flip;
+   rot = xctx.text[i].rot;
+   flip = xctx.text[i].flip;
    #ifdef HAS_CAIRO
-   customfont = set_text_custom_font(&textelement[i]);
+   customfont = set_text_custom_font(&xctx.text[i]);
    #endif
-   text_bbox(textelement[i].txt_ptr, 
-             textelement[i].xscale, textelement[i].yscale, rot, flip, textelement[i].hcenter, textelement[i].vcenter,
-             textelement[i].x0, textelement[i].y0,
+   text_bbox(xctx.text[i].txt_ptr,
+             xctx.text[i].xscale, xctx.text[i].yscale, rot, flip, xctx.text[i].hcenter, xctx.text[i].vcenter,
+             xctx.text[i].x0, xctx.text[i].y0,
              &xx1,&yy1, &xx2,&yy2);
    #ifdef HAS_CAIRO
    if(customfont) cairo_restore(cairo_ctx);
@@ -291,14 +291,14 @@ void find_closest_text(double mx,double my)
    if(POINTINSIDE(mx,my,xx1,yy1, xx2, yy2))
    {
     r = i; distance = 0;
-     dbg(2, "find_closest_text(): finding closest text, lasttext=%d, dist=%.16g\n",i,distance);
+     dbg(2, "find_closest_text(): finding closest text, xctx.texts=%d, dist=%.16g\n",i,distance);
    }
   } /* end for i */
  if( distance <= threshold && r!=-1)
  {
   sel.n = r; sel.type = xTEXT;
  }
-}               
+}
 
 Selected find_closest_obj(double mx,double my)
 {

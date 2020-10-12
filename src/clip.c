@@ -1,7 +1,7 @@
 /* File: clip.c
- * 
+ *
  * This file is part of XSCHEM,
- * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+ * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
  * simulation.
  * Copyright (C) 1998-2020 Stefan Frederik Schippers
  *
@@ -42,7 +42,7 @@ int clip( double *xa,double *ya,double *xb,double *yb)
 {
  int outa, outb,outpoint;
  double x,y;
- 
+
  outa=outcode(*xa, *ya);
  outb=outcode(*xb, *yb);
  while(1)
@@ -88,7 +88,7 @@ int rectclip(int x1,int y1,int x2,int y2,
 double dist_from_rect(double mx, double my, double x1, double y1, double x2, double y2)
 {/* return square of dist... */
  double dist, tmp;
- 
+
  dist=mx-x1;
  tmp=x2-mx;
  if(tmp < dist) dist=tmp;
@@ -110,7 +110,7 @@ double dist(double x1,double y1,double x2,double y2,double xa,double ya)
  double distance1,distance2,distance3,denom,a,b,c,ab,xb,yb,tmp;
  double xa1,ya1,xa2,ya2;
 
- if( (x1==x2) && (y1==y2) ) 
+ if( (x1==x2) && (y1==y2) )
   return (x1-xa)*(x1-xa)+(y1-ya)*(y1-ya);
  xa1 = xa - x1; xa1*=xa1;
  ya1 = ya - y1; ya1*=ya1;

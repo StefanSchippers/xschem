@@ -1,7 +1,7 @@
 /* File: globals.c
- * 
+ *
  * This file is part of XSCHEM,
- * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+ * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
  * simulation.
  * Copyright (C) 1998-2020 Stefan Frederik Schippers
  *
@@ -34,7 +34,7 @@ int sym_txt=1;
 int event_reporting=0;
 int rainbow_colors=0;
 int manhattan_lines=0;
-FILE *errfp; 
+FILE *errfp;
 char *filename=NULL; /* filename given on cmdline */
 char user_conf_dir[PATH_MAX];
 char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
@@ -59,11 +59,11 @@ int do_print=0;
 int no_readline=0;
 Colormap colormap;
 int lw=0; /* line width */
-int bus_width = BUS_WIDTH; 
+int bus_width = BUS_WIDTH;
 double lw_double=0.0; /* line width */
 int fill=1; /* filled rectangles */
 int draw_pixmap=1; /* use pixmap for double buffer */
-int draw_window=0; /* 20181009 */
+int draw_window=0;
 int draw_grid=1;
 double cadgrid = CADGRID;
 double cadhalfdotsize = CADHALFDOTSIZE;
@@ -75,13 +75,13 @@ unsigned int rectcolor ; /* this is the currently used layer */
 unsigned long ui_state = 0; /* this signals that we are doing a net place,panning etc. */
                           /* used to prevent nesting of some commands */
 
-char *undo_dirname = NULL; /* 20150327 */
+char *undo_dirname = NULL;
 int cur_undo_ptr=0;
 int tail_undo_ptr=0;
 int head_undo_ptr=0;
 int max_undo=MAX_UNDO;
-int draw_dots=1; /*20150331 */
-int draw_single_layer=-1; /* 20151117 */
+int draw_dots=1;
+int draw_single_layer=-1;
 int check_version = 0; /* if set ensures 'v' version header line is present before loading file */
 int yyparse_error = 0;
 unsigned short enable_stretch=0;
@@ -175,15 +175,9 @@ XRectangle xrect[1] = {{0,0,0,0}};
 int xschem_h, xschem_w; /* 20171130 window size */
 double mousex,mousey; /* mouse coord. */
 double mousex_snap,mousey_snap; /* mouse coord. snapped to grid */
-double mx_double_save, my_double_save; /* 20070322 */
+double mx_double_save, my_double_save;
 
-/*double xorigin=-CADWIDTH/2.0,yorigin=-CADHEIGHT/2.0; */
 double cadsnap = CADSNAP;
-
-double zoom=CADINITIALZOOM;
-double mooz=1/CADINITIALZOOM;
-double xorigin=CADINITIALX;
-double yorigin=CADINITIALY;
 double *character[256]; /* array or per-char coordinates of xschem internal vector font */
 int lastselected = 0;
 int max_selected;
@@ -193,8 +187,8 @@ XPoint *gridpoint;           /* pointer to array of gridpoints, used in draw() *
 Tcl_Interp *interp;
 
 int do_netlist=0;  /* set by process_options if user wants netllist from cmdline */
-int do_simulation=0;  /* 20171007 */
-int do_waves=0;  /* 20171007 */
+int do_simulation=0;
+int do_waves=0;
 int netlist_count=0; /* netlist counter incremented at any cell being netlisted */
 int top_subckt = 0;
 int spiceprefix = 1;
@@ -206,21 +200,21 @@ int prepared_netlist_structs=0;
 int prepared_hilight_structs=0;
 int prepared_hash_instances=0;
 int prepared_hash_wires=0;
-int horizontal_move=0; /* 20171023 */
-int vertical_move=0; /* 20171023 */
+int horizontal_move=0;
+int vertical_move=0;
 int modified = 0;
 int color_ps=-1;
-int only_probes=0; /* 20110112 */
+int only_probes=0;
 int hilight_color=0;
 int pending_fullzoom=0;
 int split_files=0; /* split netlist files 20081202 */
 char *netlist_dir=NULL; /* user set netlist directory via cmd-option or menu or xschemrc */
 char user_top_netl_name[PATH_MAX] = ""; /* user set netlist name via cmd option -N <name> */
-XColor xcolor_array[256];/* 20171109 */
-Visual *visual; /*20171111 */
-int dark_colorscheme=1; /* 20171113 */
-double color_dim=0.0; /* 20171123 */
-int no_undo=0; /* 20171204 */
+XColor xcolor_array[256];
+Visual *visual;
+int dark_colorscheme=1;
+double color_dim=0.0;
+int no_undo=0;
 int enable_drill=0; /* 20171211 pass net hilights through components with 'propagate_to' property set on pins */
 struct instpinentry *instpintable[NBOXES][NBOXES];
 struct wireentry *wiretable[NBOXES][NBOXES];
@@ -237,7 +231,7 @@ cairo_t *cairo_ctx, *cairo_save_ctx;
 XRenderPictFormat *format;
 
 #if HAS_XCB==1
-xcb_connection_t *xcbconn; /* 20171125 */
+xcb_connection_t *xcbconn;
 xcb_render_pictforminfo_t format_rgb, format_rgba;
 xcb_screen_t *screen_xcb;
 xcb_visualtype_t *visual_xcb;
@@ -260,44 +254,6 @@ double cairo_vert_correct=0.0;
 double nocairo_vert_correct=0.0;
 int show_erc=1;
 int hilight_nets=0;
-                               
-/* following data is relative to the current schematic */
-int max_texts;
-int max_wires;
-int max_instances;
-int max_symbols;
-int *max_rects;
-int *max_polygons;
-int *max_arcs;
-int *max_lines;     
-Wire *wire;
-int lastwire = 0;
-Instance *inst_ptr;          /* Pointer to element INSTANCE */
-int lastinst = 0;
-Instdef *instdef;            /* Pointer to element definition */
-int lastinstdef = 0;
-Box  **rect;
-int *lastrect;
-xPolygon **polygon;
-int *lastpolygon;
-xArc **arc;
-int *lastarc;
-Line **line;
-int *lastline;
-Text *textelement;
-int lasttext=0;
-char schematic[CADMAXHIER][PATH_MAX];
-int currentsch = 0;
-char current_name[PATH_MAX];
-char *schprop=NULL;  /* spice */
-char *schtedaxprop=NULL;  /* tEDAx */
-char *schvhdlprop=NULL; /* vhdl property string */
-char *schsymbolprop=NULL; /* symbol property string */
-char *schverilogprop=NULL;/* verilog */
-char *xschem_version_string=NULL;
-char file_version[100];
-char *sch_path[CADMAXHIER];
-int sch_inst_number[CADMAXHIER];
-int previous_instance[CADMAXHIER]; /* to remember the instance we came from when going up the hier. */
-Zoom zoom_array[CADMAXHIER];
 
+/* following data is relative to the current schematic */
+Xschem_ctx xctx;

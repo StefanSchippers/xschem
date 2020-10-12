@@ -1,7 +1,7 @@
 /* File: rawtovcd.c
- * 
+ *
  * This file is part of XSCHEM,
- * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+ * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
  * simulation.
  * Copyright (C) 1998-2020 Stefan Frederik Schippers
  *
@@ -52,7 +52,7 @@ void replace_bracket(char *s)
 /* get a short unique ascii identifier to identify node */
 const char *get_vcd_id(int idx)
 {
-  static const char syms[] = 
+  static const char syms[] =
     "0123456789abcdefghijklmnopqrstuvwxyz"
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ=+-_)(*&^%$#@!~`:;',\"<.>/?|";
   static const int n = sizeof(syms)-1;
@@ -88,11 +88,11 @@ void read_binary_block()
   if(debug) fprintf(stderr, "done reading binary block\n");
 }
 
-/* parse ascii raw header section: 
+/* parse ascii raw header section:
  * returns: 1 if dataset and variables were read.
  *          0 if transient sim dataset not found
  *         -1 on EOF
- * Typical ascii header of raw file looks like: 
+ * Typical ascii header of raw file looks like:
  *
  * Title: **.subckt poweramp
  * Date: Thu Nov 21 18:36:25  2019
@@ -118,7 +118,7 @@ int read_dataset(void)
   const char *id;
   char *ptr;
   int transient = 0;
-  npoints = 0; 
+  npoints = 0;
   nvars = 0;
   while((ptr = fgets(line, sizeof(line), fd)) ) {
     if(!strncmp(line, "Binary:", 7)) break; /* start of binary block */
@@ -178,7 +178,7 @@ void write_vcd_header()
   char t[20];
   int v;
   printf("$timescale\n");
-  strcpy(t, 
+  strcpy(t,
       timescale == 1e12 ? "1ps"   :
       timescale == 1e11 ? "10ps"  :
       timescale == 1e10 ? "100ps" :
@@ -232,7 +232,7 @@ void dump_vcd_waves()
         } else {
           if(
              (val != 0.0 &&  fabs((val - lastvalue[v]) / val) > rel_timestep_precision) ||
-             (val == 0.0 && fabs(val - lastvalue[v]) > abs_timestep_precision) 
+             (val == 0.0 && fabs(val - lastvalue[v]) > abs_timestep_precision)
             ) {
             printf("r%.3g %s\n", val, vcd_ids[v]);
             lastvalue[v] = val;

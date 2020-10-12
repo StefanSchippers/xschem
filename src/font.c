@@ -1,7 +1,7 @@
 /* File: font.c
- * 
+ *
  * This file is part of XSCHEM,
- * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+ * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
  * simulation.
  * Copyright (C) 1998-2020 Stefan Frederik Schippers
  *
@@ -27,7 +27,7 @@ void compile_font(void)
  int code, i;
  char name[PATH_MAX];
 
- currentsch = 0;
+ xctx.currsch = 0;
  my_snprintf(name, S(name), "%s/systemlib/font.sch", tclgetvar("XSCHEM_SHAREDIR"));
  unselect_all();
  remove_symbols();
@@ -43,14 +43,14 @@ void compile_font(void)
   dbg(2, "compile_font(): character[%d][]={%.16g",code,character[code][0]);
   for(i=0;i<lastselected;i++)
   {
-   character[code][i*4+1] = 
-      line[selectedgroup[i].col][selectedgroup[i].n].x1-code*FONTOFFSET;
-   character[code][i*4+2] = 
-      line[selectedgroup[i].col][selectedgroup[i].n].y1+FONTHEIGHT;
-   character[code][i*4+3] = 
-      line[selectedgroup[i].col][selectedgroup[i].n].x2-code*FONTOFFSET;
-   character[code][i*4+4] = 
-      line[selectedgroup[i].col][selectedgroup[i].n].y2+FONTHEIGHT;
+   character[code][i*4+1] =
+      xctx.line[selectedgroup[i].col][selectedgroup[i].n].x1-code*FONTOFFSET;
+   character[code][i*4+2] =
+      xctx.line[selectedgroup[i].col][selectedgroup[i].n].y1+FONTHEIGHT;
+   character[code][i*4+3] =
+      xctx.line[selectedgroup[i].col][selectedgroup[i].n].x2-code*FONTOFFSET;
+   character[code][i*4+4] =
+      xctx.line[selectedgroup[i].col][selectedgroup[i].n].y2+FONTHEIGHT;
    dbg(2, ",\n%.16g,%.16g,%.16g,%.16g",
     character[code][i*4+1],character[code][i*4+2],
     character[code][i*4+3],character[code][i*4+4]);
@@ -59,8 +59,8 @@ void compile_font(void)
  }
  clear_drawing();
  unselect_all();
- currentsch = 0;
- my_strncpy(schematic[currentsch], "", S(schematic[currentsch]));
+ xctx.currsch = 0;
+ my_strncpy(xctx.sch[xctx.currsch], "", S(xctx.sch[xctx.currsch]));
  if(event_reporting) {
    printf("xschem clear_drawing\n");
    printf("xschem unselect_all\n");

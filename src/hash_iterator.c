@@ -1,7 +1,7 @@
 /* File: hash_iterator.c
- * 
+ *
  * This file is part of XSCHEM,
- * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+ * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
  * simulation.
  * Copyright (C) 1998-2020 Stefan Frederik Schippers
  *
@@ -33,9 +33,9 @@ static unsigned short *wireflag=NULL;
 
 void init_inst_iterator(double x1, double y1, double x2, double y2)
 {
-      dbg(3, "init_inst_iterator(): lastinst=%d\n", lastinst);
-      my_realloc(135, &instflag, lastinst*sizeof(unsigned short));
-      memset(instflag, 0, lastinst*sizeof(unsigned short));
+      dbg(3, "init_inst_iterator(): xctx.instances=%d\n", xctx.instances);
+      my_realloc(135, &instflag, xctx.instances*sizeof(unsigned short));
+      memset(instflag, 0, xctx.instances*sizeof(unsigned short));
       /* calculate square 4 1st corner of drawing area */
       x1a=floor(x1/BOXSIZE) ;
       y1a=floor(y1/BOXSIZE) ;
@@ -58,7 +58,7 @@ void init_inst_iterator(double x1, double y1, double x2, double y2)
 struct instentry *inst_iterator_next()
 {
   struct instentry *ptr;
-  dbg(3, "inst_iterator_next(): lastinst=%d\n", lastinst);
+  dbg(3, "inst_iterator_next(): xctx.instances=%d\n", xctx.instances);
   while(1) {
     while(instanceptr) {
       ptr = instanceptr;
@@ -91,9 +91,9 @@ struct instentry *inst_iterator_next()
 
 void init_wire_iterator(double x1, double y1, double x2, double y2)
 {
-      dbg(3, "init_wire_iterator(): lastwire=%d\n", lastwire);
-      my_realloc(136, &wireflag, lastwire*sizeof(unsigned short));
-      memset(wireflag, 0, lastwire*sizeof(unsigned short));
+      dbg(3, "init_wire_iterator(): xctx.wires=%d\n", xctx.wires);
+      my_realloc(136, &wireflag, xctx.wires*sizeof(unsigned short));
+      memset(wireflag, 0, xctx.wires*sizeof(unsigned short));
       /* calculate square 4 1st corner of drawing area */
       x1a=floor(x1/BOXSIZE) ;
       y1a=floor(y1/BOXSIZE) ;
@@ -116,13 +116,13 @@ void init_wire_iterator(double x1, double y1, double x2, double y2)
 struct wireentry *wire_iterator_next()
 {
   struct wireentry *ptr;
-  dbg(3, "wire_iterator_next(): lastwire=%d\n", lastwire);
+  dbg(3, "wire_iterator_next(): xctx.wires=%d\n", xctx.wires);
   while(1) {
     while(wireptr) {
       ptr = wireptr;
       wireptr = wireptr -> next;
       if(!wireflag[ptr->n]) {
-        wireflag[ptr->n]=1; 
+        wireflag[ptr->n]=1;
         return ptr;
       }
     }
