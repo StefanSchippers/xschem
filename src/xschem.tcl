@@ -1860,6 +1860,18 @@ proc tclpropeval {s instname symname} {
   return [eval $s]
 }
 
+# this hook is called in translate() if whole string is contained in a tcleval(...) construct
+proc tclpropeval2 {s instname symname} {
+  # puts ">>>> $s $instname $symname"
+  regsub {^tcleval\(} $s {} s
+  regsub {\) *$} $s {} s
+  if { [catch {subst $s} res] } {
+    puts "tclpropeval2: $res  instance: $instname"
+    set res {}
+  }
+  return $res
+}
+
 #20171005
 proc attach_labels_to_inst {} {
   global use_lab_wire use_label_prefix custom_label_prefix rcode do_all_inst rotated_text

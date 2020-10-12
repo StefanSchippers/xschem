@@ -2739,28 +2739,6 @@ const char *translate(int inst, char* s)
      /* memcpy(result+result_pos,xctx.sch[xctx.currsch], tmp+1); */
      memcpy(result+result_pos, xctx.current_name, tmp+1);
      result_pos+=tmp;
-   } else if (!strncmp(token,"@tcleval", 8)) {
-     size_t s;
-     char *tclcmd=NULL;
-     char *instname = NULL;
-     const char *c;
-     my_strdup(643, &instname,xctx.inst[inst].instname);
-     if (!instname) my_strdup(1188, &instname, get_tok_value((xctx.inst[inst].ptr+ xctx.sym)->templ, "name", 0));
-     s = token_pos + strlen(instname) + strlen(xctx.inst[inst].name) + 100;
-     tclcmd = my_malloc(1191, s);
-     Tcl_ResetResult(interp);
-     my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, instname, xctx.inst[inst].name);
-     dbg(1, "tclpropeval {%s} {%s} {%s}", token, instname, xctx.inst[inst].name);
-     tcleval(tclcmd);
-     tmp = strlen( c = tclresult());
-     if(result_pos + tmp>=size) {
-       size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-       my_realloc(1189, &result,size);
-     }
-     memcpy(result+result_pos, c, tmp+1);
-     result_pos+=tmp;
-     my_free(1190, &tclcmd);
-     my_free(1192, &instname);
    } else if(strcmp(token,"@prop_ptr")==0 && xctx.inst[inst].prop_ptr) {
      tmp=strlen(xctx.inst[inst].prop_ptr);
      if(result_pos + tmp>=size)
@@ -2845,6 +2823,22 @@ const char *translate(int inst, char* s)
  }
  dbg(2, "translate(): returning %s\n", result);
  my_free(1067, &token);
+
+ if(result && strstr(result, "tcleval(")== result) {
+   size_t s;
+   char *tclcmd=NULL;
+   char *instname = NULL;
+   my_strdup(643, &instname,xctx.inst[inst].instname);
+   if (!instname) my_strdup(1188, &instname, get_tok_value((xctx.inst[inst].ptr+ xctx.sym)->templ, "name", 0));
+   s = result_pos + strlen(instname) + strlen(xctx.inst[inst].name) + 100;
+   tclcmd = my_malloc(1191, s);
+   my_snprintf(tclcmd, s, "tclpropeval2 {%s} {%s} {%s}", result, instname, xctx.inst[inst].name);
+   dbg(1, "tclpropeval2 {%s} {%s} {%s}", result, instname, xctx.inst[inst].name);
+   tcleval(tclcmd);
+   my_strdup2(1189, &result, tclresult());
+   my_free(1190, &tclcmd);
+   my_free(1192, &instname);
+ } 
  return result;
 }
 
