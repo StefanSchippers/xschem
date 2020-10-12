@@ -1426,7 +1426,7 @@ void print_spice_subckt(FILE *fd, int symbol)
     }
    }
    else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
-     char *prop;
+     char *prop=NULL;
      for(i = 0; i<no_of_pins; i++) {
        prop = xctx.sym[symbol].rect[PINLAYER][i].prop_ptr;
        if(!strcmp(get_tok_value(prop, "name",0), token + 2)) break;
@@ -1478,7 +1478,6 @@ void print_spice_element(FILE *fd, int inst)
   int sizetok=0;
   int token_pos=0, escape=0;
   int no_of_pins=0;
-  int quote=0;
   /* struct inst_hashentry *ptr; */
 
   my_strdup(483, &template,
@@ -1508,19 +1507,20 @@ void print_spice_element(FILE *fd, int inst)
   while(1)
   {
     c=*s++;
-    if(c=='"' && !escape) {
-      quote=!quote;
-      c = *s++;
+
+    if(c=='\\') {
+      escape=1;
+      c=*s++;
     }
+    else escape=0;
     if (c=='\n' && escape) c=*s++; /* 20171030 eat escaped newlines */
     /* 20150317 use SPACE2() instead of SPACE() */
-    space=SPACE2(c);
+    space=SPACE(c);
 
     if (state==XBEGIN && (c=='@'|| c=='$')  && !escape) state=XTOKEN;
 
-    /* 20171029 added !escape, !quote */
-    else if (state==XTOKEN && (space || c == '$' || c == '@' || c == '\\')  && token_pos > 1 && !escape && !quote) {
-      dbg(1, "print_spice_element: c=%c, space=%d, escape=%d, quote=%d\n", c, space, escape, quote);
+    else if(state==XTOKEN && (escape || (space || c == '$' || c == '@' || c == '\\'))  && token_pos > 1 ) {
+      dbg(1, "print_spice_element: c=%c, space=%d, escape=%d roken_pos=%d\n", c, space, escape, token_pos);
       state=XSEPARATOR;
     }
 
@@ -1531,7 +1531,7 @@ void print_spice_element(FILE *fd, int inst)
     }
 
     if(state==XTOKEN) {
-      if (c!='\\' || escape) token[token_pos++]=c; /* 20171029 remove escaping backslashes */
+      token[token_pos++]=c;
     }
     else if (state==XSEPARATOR)                    /* got a token */
     {
@@ -1619,18 +1619,17 @@ void print_spice_element(FILE *fd, int inst)
         my_free(1018, &tclcmd);
       } /* /20171029 */
                     /* 20151028 dont print escaping backslashes */
-      if (c != '$' && c != '@' && c!='\0' && (c!='\\'  || escape)) fputc(c,fd);
-      if (c == '@' || c == '$' ) s--;
+      if(c != '$' && c != '@' && c!='\0' ) fputc(c,fd);
+      if(c == '@' || c == '$' ) s--;
       state=XBEGIN;
     }
                    /* 20151028 dont print escaping backslashes */
-    else if(state==XBEGIN && c!='\0' && (c!='\\' || escape))  fputc(c,fd);
+    else if(state==XBEGIN && c!='\0')  fputc(c,fd);
     if(c=='\0')
     {
       fputc('\n',fd);
       break;
     }
-    if (c=='\\') escape=1; else escape=0;
   }
   my_free(1019, &template);
   my_free(1020, &format);

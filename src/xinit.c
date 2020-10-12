@@ -1427,11 +1427,19 @@ int Tcl_AppInit(Tcl_Interp *inter)
  enable_layers();
 
  if(filename) {
+    char f[PATH_MAX];
+    if(filename[0] !='/') {
+      /* can not use pwd_dir since it dereferences symlinks
+                                             |   
+                                            \|/  */
+      my_snprintf(f, S(f), "%s/%s", tclgetvar("env(PWD)"), filename);
+    } else {
+      my_snprintf(f, S(f), "%s", filename);
+    }
     dbg(1, "Tcl_AppInit(): filename %s given, removing symbols\n", filename);
     remove_symbols();
-    load_schematic(1, filename, 1);
+    load_schematic(1, f, 1);
     Tcl_VarEval(interp, "update_recent_file {", filename, "}", NULL);
-
  } else {
    char * tmp;
    char filename[PATH_MAX];

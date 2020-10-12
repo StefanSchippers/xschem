@@ -270,7 +270,7 @@ v {xschem version=2.9.5_RC5 file_version=1.1}
 G {type=timescale
 spice_ignore=true
 template="name=s1 timestep=\\"100ps\\" precision=\\"100ps\\" "
-format="`timescale @timestep/@precision"}
+verilog_format="`timescale @timestep/@precision"}
 V {}
 S {}
 E {}
