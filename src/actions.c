@@ -467,9 +467,9 @@ int save(int confirm) /* 20171006 add confirm */
        if(confirm) {
          tcleval("ask_save");
          if(!strcmp(tclresult(), "") ) cancel=1;
-         if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(abs_sym_path(xctx.sch[xctx.currsch],""));
+         if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx.sch[xctx.currsch]);
        } else {
-         save_ok = save_schematic(abs_sym_path(xctx.sch[xctx.currsch],""));
+         save_ok = save_schematic(xctx.sch[xctx.currsch]);
        }
      }
      if(save_ok==-1) return 1;
@@ -483,7 +483,7 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
     char res[PATH_MAX];
     char *p;
     if(!f && has_x) {
-      my_strncpy(filename , abs_sym_path(xctx.sch[xctx.currsch], ""), S(filename));
+      my_strncpy(filename , xctx.sch[xctx.currsch], S(filename));
       if(type == SYMBOL) {
         if( (p = strrchr(filename, '.')) && !strcmp(p, ".sch") ) {
           my_strncpy(filename, add_ext(filename, ".sym"), S(filename));
@@ -1242,7 +1242,7 @@ void go_back(int confirm) /*  20171006 add confirm */
   save_modified = modified; /* we propagate modified flag (cleared by load_schematic */
                             /* by default) to parent schematic if going back from embedded symbol */
 
-  my_strncpy(filename, abs_sym_path(xctx.sch[xctx.currsch], ""), S(filename));
+  my_strncpy(filename, xctx.sch[xctx.currsch], S(filename));
   load_schematic(1, filename, 1);
   if(from_embedded_sym) modified=save_modified; /* to force ask save embedded sym in parent schematic */
 

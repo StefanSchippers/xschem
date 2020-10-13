@@ -1110,13 +1110,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
  }
 
- else if(!strcmp(argv[1], "samefile") && argc == 4) {
-   int r;
-   r = samefile(argv[2], argv[3]);
-   Tcl_ResetResult(interp);
-   Tcl_AppendResult(interp, r ? "1" : "0" , NULL);
- }
-
  else if(!strcmp(argv[1],"create_plot_cmd") ) {
    if(argc>2) {
      if(!strcmp(argv[2], "gaw")) {
