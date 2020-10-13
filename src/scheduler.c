@@ -1110,6 +1110,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
  }
 
+ else if(!strcmp(argv[1], "samefile") && argc == 4) {
+   int r;
+   r = samefile(argv[2], argv[3]);
+   Tcl_ResetResult(interp);
+   Tcl_AppendResult(interp, r ? "1" : "0" , NULL);
+ }
+
  else if(!strcmp(argv[1],"create_plot_cmd") ) {
    if(argc>2) {
      if(!strcmp(argv[2], "gaw")) {
@@ -1220,7 +1227,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       unselect_all();
       remove_symbols();
       /* load_symbol(argv[2]); */
-      load_schematic(0, argv[2], 1);
+      load_schematic(0, abs_sym_path(argv[2], ""), 1);
       my_strdup(374, &xctx.sch_path[xctx.currsch],".");
       xctx.sch_inst_number[xctx.currsch] = 1;
       zoom_full(1, 0);

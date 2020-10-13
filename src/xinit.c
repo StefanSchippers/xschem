@@ -1433,17 +1433,15 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  enable_layers();
 
+ /* prefer using env(PWD) if existing since it does not dereference symlinks */
+ if(tcleval("info exists env(PWD)")[0] == '1') {
+   my_snprintf(pwd_dir, S(pwd_dir), "%s", tclgetvar("env(PWD)"));
+ }
+
  if(filename) {
     char f[PATH_MAX];
     if(filename[0] !='/') {
-      /* prefer not use pwd_dir since it dereferences symlinks
-                                             |   
-                                            \|/  */
-      if(tcleval("info exists env(PWD)")[0] == '1') {
-        my_snprintf(f, S(f), "%s/%s", tclgetvar("env(PWD)"), filename);
-      } else {
-        my_snprintf(f, S(f), "%s/%s", pwd_dir, filename);
-      }
+      my_snprintf(f, S(f), "%s/%s", pwd_dir, filename);
     } else {
       my_snprintf(f, S(f), "%s", filename);
     }

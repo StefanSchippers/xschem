@@ -2625,7 +2625,7 @@ proc rel_sym_path {symbol} {
       break
     }
   }
-  if { ![string compare $name {} ] } {
+  if {$name eq {} } {
     # no known lib, so return full path
     set name ${symbol}
   }
@@ -2655,8 +2655,8 @@ proc abs_sym_path {fname {ext {} } } {
     while { [regsub {^\./} $fname {} fname] } {}
     if { $fname eq {} } { set fname . } 
 
-    # if fname is just "."  or "./" return $current_dirname
-    if {[regexp {^\./*$} $fname] } {
+    # if fname is just "." return $current_dirname
+    if {[regexp {^\.$} $fname] } {
       return $current_dirname
     }
   }

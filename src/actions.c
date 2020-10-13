@@ -440,6 +440,21 @@ const char *get_file_path(char *f)
   return tclresult();
 }
 
+
+int samefile(const char *fa, const char *fb)
+{
+
+   struct stat a, b;
+   int statusa, statusb;
+
+   statusa = stat(fa, &a);
+   statusb = stat(fb, &b);
+   if(statusa == 0 && statusb == 0 && a.st_ino == b.st_ino) {
+     return 1;
+   }
+   return 0; /* not same of one of the two not existing */
+}
+
 int save(int confirm) /* 20171006 add confirm */
 {
      int cancel;

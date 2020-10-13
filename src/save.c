@@ -901,6 +901,7 @@ void make_symbol(void)
 
 }
 
+/* ALWAYS call with absolute path in schname!!! */
 int save_schematic(const char *schname) /* 20171020 added return value */
 {
   FILE *fd;
@@ -959,7 +960,7 @@ void link_symbols_to_instances(void) /* 20150326 separated from load_schematic()
   }
 
 }
-
+/* ALWAYS use absolute pathname for filename!!! */
 void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 20150327 added reset_undo */
 {
   FILE *fd;

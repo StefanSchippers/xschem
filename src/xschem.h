@@ -717,6 +717,7 @@ extern void schematic_in_new_window(void);
 extern void symbol_in_new_window(void);
 extern void new_window(const char *cell, int symbol);
 extern void ask_new_file(void);
+extern int samefile(const char *fa, const char *fb);
 extern void saveas(const char *f, int type);
 extern const char *get_file_path(char *f);
 extern int save(int confirm);
