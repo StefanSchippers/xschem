@@ -1498,16 +1498,13 @@ void print_spice_element(FILE *fd, int inst)
     my_free(1017, &name);
     return; /* do no netlist unwanted insts(no format) */
   }
-
   no_of_pins= (xctx.inst[inst].ptr+ xctx.sym)->rects[PINLAYER];
   s=format;
   dbg(1, "print_spice_element: name=%s, format=%s netlist_count=%d\n",name,format, netlist_count);
-
   /* begin parsing format string */
   while(1)
   {
     c=*s++;
-
     if(c=='\\') {
       escape=1;
       c=*s++;
@@ -1516,14 +1513,16 @@ void print_spice_element(FILE *fd, int inst)
     if (c=='\n' && escape) c=*s++; /* 20171030 eat escaped newlines */
     /* 20150317 use SPACE2() instead of SPACE() */
     space=SPACE(c);
-
     if (state==XBEGIN && (c=='@'|| c=='$')  && !escape) state=XTOKEN;
-
-    else if(state==XTOKEN && (escape || (space || c == '$' || c == '@' || c == '\\'))  && token_pos > 1 ) {
+    else if(state==XTOKEN && token_pos > 1 &&
+       (
+         ( (space  || c == '$' || c == '@') && !escape ) ||
+         ( (!space && c != '$' && c != '@') && escape  )
+       )
+      ) {
       dbg(1, "print_spice_element: c=%c, space=%d, escape=%d roken_pos=%d\n", c, space, escape, token_pos);
       state=XSEPARATOR;
     }
-
     if (token_pos>=sizetok)
     {
       sizetok+=CADCHUNKALLOC;
@@ -1618,12 +1617,10 @@ void print_spice_element(FILE *fd, int inst)
         fprintf(fd, "%s", tclresult());
         my_free(1018, &tclcmd);
       } /* /20171029 */
-                    /* 20151028 dont print escaping backslashes */
       if(c != '$' && c != '@' && c!='\0' ) fputc(c,fd);
       if(c == '@' || c == '$' ) s--;
       state=XBEGIN;
     }
-                   /* 20151028 dont print escaping backslashes */
     else if(state==XBEGIN && c!='\0')  fputc(c,fd);
     if(c=='\0')
     {
@@ -1660,7 +1657,6 @@ void print_tedax_element(FILE *fd, int inst)
  int sizetok=0;
  int token_pos=0, escape=0;
  int no_of_pins=0;
- int quote=0;
  /* struct inst_hashentry *ptr; */
 
  my_strdup(489, &extra, get_tok_value((xctx.inst[inst].ptr+ xctx.sym)->prop_ptr,"extra",2));
@@ -1748,19 +1744,24 @@ void print_tedax_element(FILE *fd, int inst)
   while(1)
   {
    c=*s++;
-   if(c=='"' && !escape) {
-     quote=!quote;
-     c = *s++;
+   if(c=='\\') {
+     escape=1;
+     c=*s++;
    }
+   else escape=0;
    if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
    /* 20150317 use SPACE2() instead of SPACE() */
    space=SPACE2(c);
 
    if( state==XBEGIN && (c=='$' || c=='@') && !escape) state=XTOKEN;
-
-   /* 20171029 added !escape, !quote */
-   else if( state==XTOKEN && (space || c == '$' ||
-            c == '@' || c == '\\')  && token_pos > 1 && !escape && !quote) state=XSEPARATOR;
+   else if(state==XTOKEN && token_pos > 1 &&
+      (
+        ( (space  || c == '$' || c == '@') && !escape ) ||
+        ( (!space && c != '$' && c != '@') && escape  )
+      )
+     ) {
+     state=XSEPARATOR;
+   }
 
    if(token_pos>=sizetok)
    {
@@ -1769,7 +1770,7 @@ void print_tedax_element(FILE *fd, int inst)
    }
 
    if(state==XTOKEN) {
-     if(c!='\\' || escape) token[token_pos++]=c; /* 20171029 remove escaping backslashes */
+     token[token_pos++]=c; /* 20171029 remove escaping backslashes */
    }
    else if(state==XSEPARATOR)                   /* got a token */
    {
@@ -1880,21 +1881,16 @@ void print_tedax_element(FILE *fd, int inst)
     } /* /20171029 */
 
 
-                  /* 20151028 dont print escaping backslashes */
-    if(c!='$' && c!='@' && c!='\0' && (c!='\\'  || escape) ) fputc(c,fd);
+    if(c!='$' && c!='@' && c!='\0') fputc(c,fd);
     if(c == '@' || c == '$' ) s--;
     state=XBEGIN;
    }
-                  /* 20151028 dont print escaping backslashes */
-   else if(state==XBEGIN && c!='\0' && (c!='\\' || escape))  fputc(c,fd);
+   else if(state==XBEGIN && c!='\0')  fputc(c,fd);
    if(c=='\0')
    {
     fputc('\n',fd);
     break ;
    }
-   escape = (c=='\\' && !escape);
-
-
   }
  } /* if(format) */
  fprintf(fd,"end_inst\n");
@@ -1959,7 +1955,7 @@ void print_verilog_element(FILE *fd, int inst)
 
 /* print instance  subckt */
   dbg(2, "print_verilog_element(): printing inst name & subcircuit name\n");
-   fprintf(fd, "%s\n", skip_dir(xctx.inst[inst].name) );
+  fprintf(fd, "%s\n", skip_dir(xctx.inst[inst].name) );
 
  /* -------- print generics passed as properties */
  tmp=0;
@@ -2130,7 +2126,6 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
  int sizetok=0;
  int token_pos=0, escape=0;
  int no_of_pins=0;
- int quote=0;
  /* struct inst_hashentry *ptr; */
 
  my_strdup(513, &template, (xctx.inst[inst].ptr+ xctx.sym)->templ);
@@ -2158,16 +2153,21 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
  while(1)
  {
   c=*s++;
-  if(c=='"' && !escape) {
-    quote=!quote;
-    c = *s++;
+  if(c=='\\') {
+    escape=1;
+    c=*s++;
   }
+  else escape=0;
   if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
   space=SPACE(c);
 
   if( state==XBEGIN && (c=='@' || c=='$') && !escape ) state=XTOKEN;
-  /* 20171029 added !escape, !quote */
-  else if( state==XTOKEN && (space || c=='$' || c=='@' || c == '\\') && token_pos > 1 && !escape && !quote) {
+  else if(state==XTOKEN && token_pos > 1 &&
+     (
+       ( (space  || c == '$' || c == '@') && !escape ) ||
+       ( (!space && c != '$' && c != '@') && escape  )
+     )
+    ) {
     state=XSEPARATOR;
   }
   if(token_pos>=sizetok)
@@ -2177,7 +2177,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
   }
 
   if(state==XTOKEN) {
-    if(c!='\\' || escape) token[token_pos++]=c; /* 20171029 remove escaping backslashes */
+    token[token_pos++]=c; /* 20171029 remove escaping backslashes */
   }
   else if(state==XSEPARATOR)                    /* got a token */
   {
@@ -2189,7 +2189,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
    value=get_tok_value(template, token+1, 0);
    if(!get_tok_size && token[0] =='$') {
      fputs(token + 1, fd);
-   } else if(value[0]!='\0')
+   } else if(value && value[0]!='\0')
    {  /* instance names (name) and node labels (lab) go thru the expandlabel function. */
       /*if something else must be parsed, put an if here! */
 
@@ -2266,13 +2266,11 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
      my_free(1049, &tclcmd);
    }
 
-                 /* 20180911 dont print escaping backslashes */
-   if(c!='$' && c!='@' && c!='\0' && (c!='\\'  || escape) ) fputc(c,fd);
+   if(c!='$' && c!='@' && c!='\0' ) fputc(c,fd);
    if(c == '@' || c == '$') s--;
    state=XBEGIN;
   }
-                 /* 20180911 dont print escaping backslashes */
-  else if(state==XBEGIN && c!='\0' && (c!='\\' || escape))  fputc(c,fd);
+  else if(state==XBEGIN && c!='\0')  fputc(c,fd);
 
   if(c=='\0')
   {
@@ -2280,7 +2278,6 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
    fprintf(fd, "---- end primitive\n");
    break ;
   }
-  escape = (c=='\\' && !escape);
  }
  my_free(1050, &template);
  my_free(1051, &format);
@@ -2300,7 +2297,6 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
   int sizetok=0;
   int token_pos=0, escape=0;
   int no_of_pins=0;
-  int quote=0;
   /* struct inst_hashentry *ptr; */
 
   my_strdup(519, &template,
@@ -2330,15 +2326,21 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
   while(1)
   {
    c=*s++;
-   if(c=='"' && !escape) {
-     quote=!quote;
-     c = *s++;
+   if(c=='\\') {
+     escape=1;
+     c=*s++;
    }
+   else escape=0;
    if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
    space=SPACE(c);
    if( state==XBEGIN && (c=='@' || c=='$') && !escape ) state=XTOKEN;
-   /* 20171029 added !escape, !quote */
-   else if(state==XTOKEN && (space || c == '$' || c == '@' || c == '\\') && token_pos > 1 && !escape && !quote) {
+   else if(state==XTOKEN && token_pos > 1 &&
+      (
+        ( (space  || c == '$' || c == '@') && !escape ) || 
+        ( (!space && c != '$' && c != '@') && escape  )
+      )
+     
+     ) { 
      state=XSEPARATOR;
    }
    if(token_pos>=sizetok)
@@ -2348,7 +2350,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
    }
 
    if(state==XTOKEN) {
-     if(c!='\\' || escape) token[token_pos++]=c; /* 20171029 remove escaping backslashes */
+      token[token_pos++]=c;
    }
    else if(state==XSEPARATOR)                    /* got a token */
    {
@@ -2360,7 +2362,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
     value=get_tok_value(template, token+1, 0);
     if(!get_tok_size && token[0] =='$') {
       fputs(token + 1, fd);
-    } else if(value[0]!='\0') {
+    } else if(value && value[0]!='\0') {
        /* instance names (name) and node labels (lab) go thru the expandlabel function. */
        /*if something else must be parsed, put an if here! */
 
@@ -2438,20 +2440,17 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
       fprintf(fd, "%s", tclresult());
       my_free(1057, &tclcmd);
     }
-                  /* 20180911 dont print escaping backslashes */
-    if(c!='$' && c!='@' && c!='\0' && (c!='\\'  || escape) ) fputc(c,fd);
+    if(c!='$' && c!='@' && c!='\0') fputc(c,fd);
     if(c == '@' || c == '$') s--;
     state=XBEGIN;
    }
-                  /* 20180911 dont print escaping backslashes */
-   else if(state==XBEGIN && c!='\0' && (c!='\\' || escape))  fputc(c,fd);
+   else if(state==XBEGIN && c!='\0')  fputc(c,fd);
    if(c=='\0')
    {
     fputc('\n',fd);
     fprintf(fd, "---- end primitive\n");
     break ;
    }
-   escape = (c=='\\' && !escape);
   }
   my_free(1058, &template);
   my_free(1059, &format);
