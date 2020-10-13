@@ -66,7 +66,7 @@ END{
     stale++
     leak+= address[i]
     print "  address[ " i ", " idx[i] " ]= " address[i]
-    pipe = "grep -n 'my_.*(" idx[i] ",' *.c"
+    pipe = "grep -n 'my_.*(" idx[i] ",' *.c xschem.h"
     while( pipe | getline a) print "    " a
     close(pipe)
   }

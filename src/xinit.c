@@ -963,7 +963,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
  else {
    if (running_in_src_dir ==1) {
-     my_snprintf(tmp, S(tmp), "%s/../src", pwd_dir);
+     /* pwd_dir can be working directory specified as "Working Directory" in settings */
+     my_snprintf(tmp, S(tmp), "%s/../../../src", install_dir);
    }
    else {
      my_snprintf(tmp, S(tmp), "%s/../share", install_dir);
@@ -1440,11 +1441,16 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  if(filename) {
     char f[PATH_MAX];
+
+#ifdef __unix__
     if(filename[0] !='/') {
       my_snprintf(f, S(f), "%s/%s", pwd_dir, filename);
     } else {
       my_snprintf(f, S(f), "%s", filename);
     }
+#else
+    my_strncpy(f, abs_sym_path(filename, ""), S(f));
+#endif
     dbg(1, "Tcl_AppInit(): filename %s given, removing symbols\n", filename);
     remove_symbols();
     load_schematic(1, f, 1);

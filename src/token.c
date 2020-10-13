@@ -21,11 +21,7 @@
  */
 
 #include "xschem.h"
-#define SPACE(c) ( c=='\n' || c==' ' || c=='\t' || \
-                   c=='\0' || c==';' )
-
-
-#define SPACE2(c) ( SPACE(c) || c=='\'' || c== '"')
+#define SPACE(c)  ( c=='\n' || c==' ' || c=='\t' || c=='\0' || c==';' )
 
 /* instance name (refdes) hash table, for unique name checking */
 struct inst_hashentry {
@@ -300,14 +296,8 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
   else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
   else if( state==XSEPARATOR && !space) state=XVALUE;
   else if( state==XVALUE && space && !quote && !escape) state=XEND;
-  if(value_pos>=sizeval) {
-   sizeval+=CADCHUNKALLOC;
-   my_realloc(431, &value,sizeval);
-  }
-  if(token_pos>=sizetok) {
-   sizetok+=CADCHUNKALLOC;
-   my_realloc(432, &token,sizetok);
-  }
+  ALLOC(value, 100, value_pos, sizeval);
+  ALLOC(token, 100, token_pos, sizetok);
   if(state==XTOKEN) token[token_pos++]=c;
   else if(state==XVALUE) {
    value[value_pos++]=c;
@@ -353,14 +343,8 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
   else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
   else if( state==XSEPARATOR && !space) state=XVALUE;
   else if( state==XVALUE && space && !quote && !escape) state=XEND;
-  if(value_pos>=sizeval) {
-   sizeval+=CADCHUNKALLOC;
-   my_realloc(415, &value,sizeval);
-  }
-  if(token_pos>=sizetok) {
-   sizetok+=CADCHUNKALLOC;
-   my_realloc(416, &token,sizetok);
-  }
+  ALLOC(value, 100, value_pos, sizeval);
+  ALLOC(token, 100, token_pos, sizetok);
   if(state==XTOKEN) token[token_pos++]=c;
   else if(state==XVALUE) {
    value[value_pos++]=c;
@@ -427,10 +411,7 @@ const char *list_tokens(const char *s, int with_quotes)
     else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
     else if( state==XSEPARATOR && !space) state=XVALUE;
     else if( state==XVALUE && space && !quote && !escape ) state=XEND;
-    if(token_pos>=sizetok) {
-      sizetok+=CADCHUNKALLOC;
-      my_realloc(434, &token,sizetok);
-    }
+    ALLOC(token, 100, token_pos, sizetok);
     if(c=='"') {
       if(!escape) quote=!quote;
     }
@@ -499,14 +480,8 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
     else if( state==XSEPARATOR && !space) state=XVALUE;
     else if( state==XVALUE && space && !quote && !escape ) state=XEND;
-    if(value_pos>=size) {
-      size+=CADCHUNKALLOC;
-      my_realloc(436, &result,size);
-    }
-    if(token_pos>=sizetok) {
-      sizetok+=CADCHUNKALLOC;
-      my_realloc(437, &token,sizetok);
-    }
+    ALLOC(result, 100, value_pos, size);
+    ALLOC(token, 100, token_pos, sizetok);
     if(c=='"') {
       if(!escape) quote=!quote;
     }
@@ -582,10 +557,7 @@ const char *get_sym_template(char *s,char *extra)
    return "";
  }
  l = strlen(s);
- if(l >= sizeres) {
-   sizeres = l+1;
-   my_realloc(330, &result,sizeres);
- }
+ ALLOC(result, l+100, 0, sizeres);
  sizetok = sizeval = CADCHUNKALLOC;
  my_realloc(438, &value,sizeval);
  my_realloc(439, &token,sizetok);
@@ -597,14 +569,8 @@ const char *get_sym_template(char *s,char *extra)
   else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
   else if( state==XSEPARATOR && !space) state=XVALUE;
   else if( state==XVALUE && space && !quote) state=XEND;
-  if(value_pos>=sizeval) {
-    sizeval+=CADCHUNKALLOC;
-    my_realloc(441, &value,sizeval);
-  }
-  if(token_pos>=sizetok) {
-    sizetok+=CADCHUNKALLOC;
-    my_realloc(442, &token,sizetok);
-  }
+  ALLOC(value, 100, value_pos, sizeval);
+  ALLOC(token, 100, token_pos, sizetok);
   if(state==XBEGIN) {
     result[result_pos++] = c;
   } else if(state==XTOKEN) {
@@ -797,14 +763,8 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
     space=SPACE(c);
     if(c == '"' && !escape) quote=!quote;
     /* alloc data */
-    if(result_pos >= size) {
-      size += CADCHUNKALLOC;
-      my_realloc(455, &result, size);
-    }
-    if(token_pos >= sizetok) {
-      sizetok += CADCHUNKALLOC;
-      my_realloc(456, &token, sizetok);
-    }
+    ALLOC(result, 100, result_pos, size);
+    ALLOC(token, 100, token_pos, sizetok);
 
     /* parsing state machine                                    */
     /* states:                                                  */
@@ -837,10 +797,8 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
             new_val = "\"\"";
             tmp = 2;
           }
-          if(result_pos+tmp+2 >= size) {
-            size = (1+(result_pos+tmp+2) / CADCHUNKALLOC) * CADCHUNKALLOC;
-            my_realloc(1154, &result, size);
-          }
+
+          ALLOC(result, tmp+2, result_pos, size);
           memcpy(result + result_pos, "=", 1);
           memcpy(result + result_pos+1, new_val, tmp);
           memcpy(result + result_pos+1+tmp, " ", 1);
@@ -878,10 +836,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
             new_val = "\"\"";
             tmp = 2;
           }
-          if(result_pos + tmp >= size) {
-            size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-            my_realloc(1155, &result, size);
-          }
+          ALLOC(result, tmp, result_pos, size);
           memcpy(result + result_pos ,new_val, tmp + 1);
           result_pos += tmp;
           done_subst = 1;
@@ -915,10 +870,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
     if(new_val) {
       if(!new_val[0]) new_val = "\"\"";
       tmp = strlen(new_val) + strlen(tok) + 2;
-      if(result_pos + tmp  >= size) {
-        size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-        my_realloc(460, &result,size);
-      }
+      ALLOC(result, tmp, result_pos, size);
       my_snprintf(result + result_pos - 1, size, " %s=%s", tok, new_val ); /* result_pos guaranteed to be > 0 */
     }
   }
@@ -1043,14 +995,8 @@ void print_vhdl_element(FILE *fd, int inst)
    else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
    else if( state==XSEPARATOR && !space) state=XVALUE;
    else if( state==XVALUE && space && !quote) state=XEND;
-   if(value_pos>=sizeval) {
-    sizeval+=CADCHUNKALLOC;
-    my_realloc(465, &value,sizeval);
-   }
-   if(token_pos>=sizetok) {
-    sizetok+=CADCHUNKALLOC;
-    my_realloc(466, &token,sizetok);
-   }
+   ALLOC(value, 100, value_pos, sizeval);
+   ALLOC(token, 100, token_pos, sizetok);
    if(state==XTOKEN) token[token_pos++]=c;
    else if(state==XVALUE) {
      if(c=='"' && !escape) quote=!quote;
@@ -1188,16 +1134,8 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
    else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
    else if( state==XSEPARATOR && !space) state=XVALUE;
    else if( state==XVALUE && space && !quote) state=XEND;
-   if(value_pos>=sizeval)
-   {
-    sizeval+=CADCHUNKALLOC;
-    my_realloc(473, &value,sizeval);
-   }
-   if(token_pos>=sizetok)
-   {
-    sizetok+=CADCHUNKALLOC;
-    my_realloc(474, &token,sizetok);
-   }
+   ALLOC(value, 100, value_pos, sizeval);
+   ALLOC(token, 100, token_pos, sizetok);
    if(state==XTOKEN) token[token_pos++]=c;
    else if(state==XVALUE)
    {
@@ -1274,7 +1212,6 @@ void print_verilog_param(FILE *fd, int symbol)
  int escape=0;
  int token_number=0;
 
- /* my_strdup(478, &template, get_tok_value(xctx.sym[symbol].prop_ptr,"template",0)); */
  my_strdup(479, &template, xctx.sym[symbol].templ); /* 20150409 20171103 */
  my_strdup(480, &generic_type, get_tok_value(xctx.sym[symbol].prop_ptr,"generic_type",0));
  if( !template || !(template[0]) )  {
@@ -1302,18 +1239,8 @@ void print_verilog_param(FILE *fd, int symbol)
   else if( state==XSEPARATOR && !space) state=XVALUE;
   else if( state==XVALUE && space && !quote) state=XEND;
 
-  if(value_pos>=sizeval)
-  {
-   sizeval+=CADCHUNKALLOC;
-   my_realloc(481, &value,sizeval);
-  }
-
-  if(token_pos>=sizetok)
-  {
-   sizetok+=CADCHUNKALLOC;
-   my_realloc(482, &token,sizetok);
-  }
-
+  ALLOC(value, 100, value_pos, sizeval);
+  ALLOC(token, 100, token_pos, sizetok);
   if(state==XTOKEN) token[token_pos++]=c;
   else if(state==XVALUE)
   {
@@ -1403,11 +1330,8 @@ void print_spice_subckt(FILE *fd, int symbol)
     ) {
     state = XSEPARATOR;
   }
-  if(token_pos>=sizetok)
-  {
-   sizetok+=CADCHUNKALLOC;
-   my_realloc(104, &token,sizetok);
-  }
+
+  ALLOC(token, 100, token_pos, sizetok);
   if(state==XTOKEN) {
     token[token_pos++]=c;
   }
@@ -1479,7 +1403,14 @@ void print_spice_element(FILE *fd, int inst)
   int sizetok=0;
   int token_pos=0, escape=0;
   int no_of_pins=0;
+  char *result = NULL;
+  int result_pos = 0;
+  int size = 0;
   /* struct inst_hashentry *ptr; */
+
+  size = CADCHUNKALLOC;
+  my_realloc(1211, &result, size);
+  result[0] = '\0';
 
   my_strdup(483, &template,
     (xctx.inst[inst].ptr+ xctx.sym)->templ);
@@ -1497,6 +1428,7 @@ void print_spice_element(FILE *fd, int inst)
     my_free(1015, &template);
     my_free(1016, &format);
     my_free(1017, &name);
+    my_free(1193, &result);
     return; /* do no netlist unwanted insts(no format) */
   }
   no_of_pins= (xctx.inst[inst].ptr+ xctx.sym)->rects[PINLAYER];
@@ -1505,6 +1437,8 @@ void print_spice_element(FILE *fd, int inst)
   /* begin parsing format string */
   while(1)
   {
+    /* always make room for some characters so the single char writes to result do not need reallocs */
+    ALLOC(result, 100, result_pos, size);
     c=*s++;
     if(c=='\\') {
       escape=1;
@@ -1512,7 +1446,6 @@ void print_spice_element(FILE *fd, int inst)
     }
     else escape=0;
     if (c=='\n' && escape) c=*s++; /* 20171030 eat escaped newlines */
-    /* 20150317 use SPACE2() instead of SPACE() */
     space=SPACE(c);
     if (state==XBEGIN && (c=='@'|| c=='$')  && !escape) state=XTOKEN;
     else if(state==XTOKEN && token_pos > 1 &&
@@ -1524,12 +1457,7 @@ void print_spice_element(FILE *fd, int inst)
       dbg(1, "print_spice_element: c=%c, space=%d, escape=%d roken_pos=%d\n", c, space, escape, token_pos);
       state=XSEPARATOR;
     }
-    if (token_pos>=sizetok)
-    {
-      sizetok+=CADCHUNKALLOC;
-      my_realloc(487, &token,sizetok);
-    }
-
+    ALLOC(token, 100, token_pos, sizetok);
     if(state==XTOKEN) {
       token[token_pos++]=c;
     }
@@ -1547,26 +1475,56 @@ void print_spice_element(FILE *fd, int inst)
         value=get_tok_value(template, token+1, 0);
       }
       if(!get_tok_size && token[0] =='$') {
-        fputs(token + 1, fd);
+
+
+        tmp = strlen(token + 1) +100 ; /* always make room for some extra chars 
+                                        * so 1-char writes to result do not need reallocs */
+        ALLOC(result, tmp, result_pos, size);
+        result_pos += my_snprintf(result + result_pos, tmp, "%s", token + 1);
+        /* fputs(token + 1, fd); */
       } else if (value && value[0]!='\0') {
          /* instance names (name) and node labels (lab) go thru the expandlabel function. */
         /*if something else must be parsed, put an if here! */
 
         if (!(strcmp(token+1,"name") && strcmp(token+1,"lab"))  /* expand name/labels */
-              && ((lab = expandlabel(value, &tmp)) != NULL))
-          fputs(lab,fd);
-        else fputs(value,fd);
+              && ((lab = expandlabel(value, &tmp)) != NULL)) {
+
+          tmp = strlen(lab) +100 ; /* always make room for some extra chars 
+                                    * so 1-char writes to result do not need reallocs */
+          ALLOC(result, tmp, result_pos, size);
+          result_pos += my_snprintf(result + result_pos, tmp, "%s", lab);
+          /* fputs(lab,fd); */
+
+
+ 
+        } else { 
+
+          tmp = strlen(value) +100 ; /* always make room for some extra chars 
+                                      * so 1-char writes to result do not need reallocs */
+          ALLOC(result, tmp, result_pos, size);
+          result_pos += my_snprintf(result + result_pos, tmp, "%s", value);
+          /* fputs(value,fd); */
+        }
       }
       else if (strcmp(token,"@symname")==0) /* of course symname must not be present  */
-                                           /* in hash table */
+                                            /* in hash table */
       {
-        fputs(skip_dir(xctx.inst[inst].name),fd);
+        const char *s = skip_dir(xctx.inst[inst].name);
+        tmp = strlen(s) +100 ; /* always make room for some extra chars 
+                                * so 1-char writes to result do not need reallocs */
+        ALLOC(result, tmp, result_pos, size);
+        result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
+        /* fputs(s,fd); */
       }
       else if(strcmp(token,"@schname")==0) /* of course schname must not be present  */
                                            /* in hash table */
       {
-        /* fputs(xctx.sch[xctx.currsch],fd); */
-        fputs(xctx.current_name, fd);
+        tmp = strlen(xctx.current_name) +100 ; /* always make room for some extra chars 
+                                                * so 1-char writes to result do not need reallocs */
+        ALLOC(result, tmp, result_pos, size);
+        result_pos += my_snprintf(result + result_pos, tmp, "%s", xctx.current_name);
+        /* fputs(xctx.current_name, fd); */
+
       }
       else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present  */
                                            /* in hash table. print multiplicity */
@@ -1576,7 +1534,12 @@ void print_spice_element(FILE *fd, int inst)
           char *prop = (xctx.inst[inst].ptr+ xctx.sym)->rect[PINLAYER][i].prop_ptr;
           if(strcmp(get_tok_value(prop, "spice_ignore", 0), "true")) {
             str_ptr =  net_name(inst,i, &mult, 0);
-            fprintf(fd, "@%d %s ", mult, str_ptr);
+
+            tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
+                                          * so 1-char writes to result do not need reallocs */
+            ALLOC(result, tmp, result_pos, size);
+            result_pos += my_snprintf(result + result_pos, tmp, "@%d %s ", mult, str_ptr);
+            /* fprintf(fd, "@%d %s ", mult, str_ptr); */
           }
         }
       }
@@ -1586,7 +1549,12 @@ void print_spice_element(FILE *fd, int inst)
           if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
             if(strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
               str_ptr =  net_name(inst,i, &mult, 0);
-              fprintf(fd, "@%d %s", mult, str_ptr);
+
+              tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
+                                            * so 1-char writes to result do not need reallocs */
+              ALLOC(result, tmp, result_pos, size);
+              result_pos += my_snprintf(result + result_pos, tmp, "@%d %s ", mult, str_ptr);
+              /* fprintf(fd, "@%d %s ", mult, str_ptr); */
             }
             break;
           }
@@ -1601,38 +1569,75 @@ void print_spice_element(FILE *fd, int inst)
           si  = get_tok_value(prop, "spice_ignore",0);
           if(strcmp(si, "true")) {
             str_ptr =  net_name(inst,pin_number, &mult, 0);
-            fprintf(fd, "@%d %s ", mult, str_ptr);
+
+            tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
+                                          * so 1-char writes to result do not need reallocs */
+            ALLOC(result, tmp, result_pos, size);
+            result_pos += my_snprintf(result + result_pos, tmp, "@%d %s ", mult, str_ptr);
+            /* fprintf(fd, "@%d %s ", mult, str_ptr); */
           }
         }
       }
       else if (!strncmp(token,"@tcleval", 8)) {
-        /* char tclcmd[strlen(token)+100]; */
         size_t s;
         char *tclcmd=NULL;
+        const char *res;
         s = token_pos + strlen(name) + strlen(xctx.inst[inst].name) + 100;
         tclcmd = my_malloc(488, s);
         Tcl_ResetResult(interp);
         my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, xctx.inst[inst].name);
         dbg(1, "tclpropeval {%s} {%s} {%s}", token, name, xctx.inst[inst].name);
-        tcleval(tclcmd);
-        fprintf(fd, "%s", tclresult());
+        res = tcleval(tclcmd);
+
+        tmp = strlen(res) + 100; /* always make room for some extra chars 
+                                  * so 1-char writes to result do not need reallocs */
+        ALLOC(result, tmp, result_pos, size);
+        result_pos += my_snprintf(result + result_pos, tmp, "%s", res);
+        /* fprintf(fd, "%s", tclresult()); */
         my_free(1018, &tclcmd);
       } /* /20171029 */
-      if(c != '$' && c != '@' && c!='\0' ) fputc(c,fd);
+
+
+      if(c != '$' && c != '@' && c!='\0' ) {
+        result_pos += my_snprintf(result + result_pos, 2, "%c", c); /* no realloc needed */
+        /* fputc(c,fd); */
+      }
       if(c == '@' || c == '$' ) s--;
       state=XBEGIN;
     }
-    else if(state==XBEGIN && c!='\0')  fputc(c,fd);
+    else if(state==XBEGIN && c!='\0') {
+      result_pos += my_snprintf(result + result_pos, 2, "%c", c); /* no realloc needed */
+      /* fputc(c,fd); */
+    }
     if(c=='\0')
     {
-      fputc('\n',fd);
+      result_pos += my_snprintf(result + result_pos, 2, "%c", '\n'); /* no realloc needed */
+      /* fputc('\n',fd); */
       break;
     }
+  } /* while(1) */
+
+  if(result && strstr(result, "tcleval(")== result) {
+    size_t s;
+    char *tclcmd=NULL;
+    char *instname = NULL;
+    my_strdup(1195, &instname,xctx.inst[inst].instname);
+    if (!instname) my_strdup(1196, &instname, get_tok_value((xctx.inst[inst].ptr+ xctx.sym)->templ, "name", 0));
+    s = result_pos + strlen(instname) + strlen(xctx.inst[inst].name) + 100;
+    tclcmd = my_malloc(1197, s);
+    my_snprintf(tclcmd, s, "tclpropeval2 {%s} {%s} {%s}", result, instname, xctx.inst[inst].name);
+    dbg(1, "tclpropeval2 {%s} {%s} {%s}", result, instname, xctx.inst[inst].name);
+    tcleval(tclcmd);
+    my_strdup2(1198, &result, tclresult());
+    my_free(1199, &tclcmd);
+    my_free(1200, &instname);
   }
+  fprintf(fd, "%s", result);
   my_free(1019, &template);
   my_free(1020, &format);
   my_free(1021, &name);
   my_free(1022, &token);
+  my_free(1194, &result);
 }
 
 
@@ -1751,8 +1756,7 @@ void print_tedax_element(FILE *fd, int inst)
    }
    else escape=0;
    if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
-   /* 20150317 use SPACE2() instead of SPACE() */
-   space=SPACE2(c);
+   space=SPACE(c);
 
    if( state==XBEGIN && (c=='$' || c=='@') && !escape) state=XTOKEN;
    else if(state==XTOKEN && token_pos > 1 &&
@@ -1764,12 +1768,7 @@ void print_tedax_element(FILE *fd, int inst)
      state=XSEPARATOR;
    }
 
-   if(token_pos>=sizetok)
-   {
-    sizetok+=CADCHUNKALLOC;
-    my_realloc(502, &token,sizetok);
-   }
-
+   ALLOC(token, 100, token_pos, sizetok);
    if(state==XTOKEN) {
      token[token_pos++]=c; /* 20171029 remove escaping backslashes */
    }
@@ -1975,18 +1974,8 @@ void print_verilog_element(FILE *fd, int inst)
   else if( state==XSEPARATOR && !space) state=XVALUE;
   else if( state==XVALUE && space && !quote) state=XEND;
 
-  if(value_pos>=sizeval)
-  {
-   sizeval+=CADCHUNKALLOC;
-   my_realloc(509, &value,sizeval);
-  }
-
-  if(token_pos>=sizetok)
-  {
-   sizetok+=CADCHUNKALLOC;
-   my_realloc(510, &token,sizetok);
-  }
-
+  ALLOC(value, 100, value_pos, sizeval);
+  ALLOC(token, 100, token_pos, sizetok);
   if(state==XTOKEN) token[token_pos++]=c;
   else if(state==XVALUE)
   {
@@ -2171,12 +2160,8 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
     ) {
     state=XSEPARATOR;
   }
-  if(token_pos>=sizetok)
-  {
-   sizetok+=CADCHUNKALLOC;
-   my_realloc(517, &token,sizetok);
-  }
 
+  ALLOC(token, 100, token_pos, sizetok);
   if(state==XTOKEN) {
     token[token_pos++]=c; /* 20171029 remove escaping backslashes */
   }
@@ -2344,12 +2329,8 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
      ) { 
      state=XSEPARATOR;
    }
-   if(token_pos>=sizetok)
-   {
-    sizetok+=CADCHUNKALLOC;
-    my_realloc(523, &token,sizetok);
-   }
 
+   ALLOC(token, 100, token_pos, sizetok);
    if(state==XTOKEN) {
       token[token_pos++]=c;
    }
@@ -2541,7 +2522,7 @@ const char *translate(int inst, char* s)
     c=*s++;
   }
   else escape=0;
-  space=SPACE2(c);
+  space=SPACE(c);
   if( state==XBEGIN && (c=='@' || c=='$' ) && !escape  ) state=XTOKEN; /* 20161210 escape */
   else if( state==XTOKEN && (
                               (space && !escape)  ||
@@ -2550,17 +2531,9 @@ const char *translate(int inst, char* s)
                             )
                          && token_pos > 1 ) state=XSEPARATOR;
 
-  if(result_pos>=size)
-  {
-   size+=CADCHUNKALLOC;
-   my_realloc(528, &result,size);
-  }
 
-  if(token_pos>=sizetok)
-  {
-   sizetok+=CADCHUNKALLOC;
-   my_realloc(529, &token,sizetok);
-  }
+  ALLOC(result, 100, result_pos, size);
+  ALLOC(token, 100, token_pos, sizetok);
   if(state==XTOKEN) token[token_pos++]=c;
   else if(state==XSEPARATOR)
   {
@@ -2576,11 +2549,8 @@ const char *translate(int inst, char* s)
    }
 
    if(!get_tok_size && token[0] =='$') {
-    tmp=token_pos - 1; /* strlen(token+1), excluding leading '$' */
-    if(result_pos + tmp>=size) {
-     size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-     my_realloc(368, &result,size);
-    }
+    tmp=token_pos + 100; /* we need token_pos -1 chars, ( strlen(token+1) ) , excluding leading '$' */
+    ALLOC(result, tmp, result_pos, size);
     dbg(2, "translate(): token=%s, token_pos = %d\n", token, token_pos);
     memcpy(result+result_pos, token + 1, tmp+1);
     result_pos+=tmp;
@@ -2588,28 +2558,19 @@ const char *translate(int inst, char* s)
    token_pos = 0;
    if(get_tok_size) {
     tmp=get_tok_value_size;  /* strlen(value); */
-    if(result_pos + tmp>=size) {
-     size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-     my_realloc(530, &result,size);
-    }
+    ALLOC(result, tmp, result_pos, size);
     memcpy(result+result_pos, value, tmp+1);
     result_pos+=tmp;
    } else if(strcmp(token,"@symname")==0) {
     tmp_sym_name=xctx.inst[inst].name ? get_cell(xctx.inst[inst].name, 0) : "";
     tmp=strlen(tmp_sym_name);
-    if(result_pos + tmp>=size) {
-     size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-     my_realloc(531, &result,size);
-    }
+    ALLOC(result, tmp, result_pos, size);
     memcpy(result+result_pos,tmp_sym_name, tmp+1);
     result_pos+=tmp;
    } else if(strcmp(token,"@symname_ext")==0) {
     tmp_sym_name=xctx.inst[inst].name ? get_cell_w_ext(xctx.inst[inst].name, 0) : "";
     tmp=strlen(tmp_sym_name);
-    if(result_pos + tmp>=size) {
-     size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-     my_realloc(453, &result,size);
-    }
+    ALLOC(result, tmp, result_pos, size);
     memcpy(result+result_pos,tmp_sym_name, tmp+1);
     result_pos+=tmp;
 
@@ -2676,10 +2637,7 @@ const char *translate(int inst, char* s)
          my_free(1177, &tmpstr);
        }
        tmp=strlen(value);
-       if(result_pos + tmp>=size) {
-         size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-         my_realloc(533, &result,size);
-       }
+       ALLOC(result, tmp, result_pos, size);
        memcpy(result+result_pos, value, tmp+1);
        result_pos+=tmp;
        my_free(1064, &pin_attr_value);
@@ -2697,10 +2655,7 @@ const char *translate(int inst, char* s)
     if(!stat(file_name , &time_buf)) {
       tm=localtime(&(time_buf.st_mtime) );
       tmp=strftime(date, sizeof(date), "%Y-%m-%d  %H:%M:%S", tm);
-      if(result_pos + tmp>=size) {
-       size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-       my_realloc(534, &result,size);
-      }
+      ALLOC(result, tmp, result_pos, size);
       memcpy(result+result_pos, date, tmp+1);
       result_pos+=tmp;
     }
@@ -2709,10 +2664,7 @@ const char *translate(int inst, char* s)
     if(!stat(file_name , &time_buf)) {
       tm=localtime(&(time_buf.st_mtime) );
       tmp=strftime(date, sizeof(date), "%Y-%m-%d  %H:%M:%S", tm);
-      if(result_pos + tmp>=size) {
-       size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-       my_realloc(535, &result,size);
-      }
+      ALLOC(result, tmp, result_pos, size);
       memcpy(result+result_pos, date, tmp+1);
       result_pos+=tmp;
     }
@@ -2721,41 +2673,27 @@ const char *translate(int inst, char* s)
     if(!stat(file_name , &time_buf)) {
       tm=localtime(&(time_buf.st_mtime) );
       tmp=strftime(date, sizeof(date), "%Y-%m-%d  %H:%M:%S", tm);
-      if(result_pos + tmp>=size) {
-       size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-       my_realloc(536, &result,size);
-      }
+      ALLOC(result, tmp, result_pos, size);
       memcpy(result+result_pos, date, tmp+1);
       result_pos+=tmp;
     }
    } else if(strcmp(token,"@schname")==0) {
      /* tmp=strlen(xctx.sch[xctx.currsch]);*/
      tmp = strlen(xctx.current_name);
-     if(result_pos + tmp>=size) {
-      size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-      my_realloc(537, &result,size);
-     }
+     ALLOC(result, tmp, result_pos, size);
      /* memcpy(result+result_pos,xctx.sch[xctx.currsch], tmp+1); */
      memcpy(result+result_pos, xctx.current_name, tmp+1);
      result_pos+=tmp;
    } else if(strcmp(token,"@prop_ptr")==0 && xctx.inst[inst].prop_ptr) {
      tmp=strlen(xctx.inst[inst].prop_ptr);
-     if(result_pos + tmp>=size)
-     {
-      size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-      my_realloc(538, &result,size);
-     }
+     ALLOC(result, tmp, result_pos, size);
      memcpy(result+result_pos,xctx.inst[inst].prop_ptr, tmp+1);
      result_pos+=tmp;
    }
    else if(strcmp(token,"@schvhdlprop")==0 && xctx.schvhdlprop)
    {
      tmp=strlen(xctx.schvhdlprop);
-     if(result_pos + tmp>=size)
-     {
-      size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-      my_realloc(539, &result,size);
-     }
+     ALLOC(result, tmp, result_pos, size);
      memcpy(result+result_pos,xctx.schvhdlprop, tmp+1);
      result_pos+=tmp;
    }
@@ -2763,11 +2701,7 @@ const char *translate(int inst, char* s)
    else if(strcmp(token,"@schprop")==0 && xctx.schprop)
    {
      tmp=strlen(xctx.schprop);
-     if(result_pos + tmp>=size)
-     {
-      size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-      my_realloc(331, &result,size);
-     }
+     ALLOC(result, tmp, result_pos, size);
      memcpy(result+result_pos,xctx.schprop, tmp+1);
      result_pos+=tmp;
    }
@@ -2776,22 +2710,14 @@ const char *translate(int inst, char* s)
    else if(strcmp(token,"@schsymbolprop")==0 && xctx.schsymbolprop)
    {
      tmp=strlen(xctx.schsymbolprop);
-     if(result_pos + tmp>=size)
-     {
-      size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-      my_realloc(540, &result,size);
-     }
+     ALLOC(result, tmp, result_pos, size);
      memcpy(result+result_pos,xctx.schsymbolprop, tmp+1);
      result_pos+=tmp;
    }
    else if(strcmp(token,"@schtedaxprop")==0 && xctx.schtedaxprop)
    {
      tmp=strlen(xctx.schtedaxprop);
-     if(result_pos + tmp>=size)
-     {
-      size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-      my_realloc(541, &result,size);
-     }
+     ALLOC(result, tmp, result_pos, size);
      memcpy(result+result_pos,xctx.schtedaxprop, tmp+1);
      result_pos+=tmp;
    }
@@ -2800,11 +2726,7 @@ const char *translate(int inst, char* s)
    else if(strcmp(token,"@schverilogprop")==0 && xctx.schverilogprop)
    {
      tmp=strlen(xctx.schverilogprop);
-     if(result_pos + tmp>=size)
-     {
-      size=(1+(result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-      my_realloc(542, &result,size);
-     }
+     ALLOC(result, tmp, result_pos, size);
      memcpy(result+result_pos,xctx.schverilogprop, tmp+1);
      result_pos+=tmp;
    }
@@ -2873,19 +2795,13 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
       /* c = *s++; */
     }
     else escape = 0;
-    space = SPACE2(c);
+    space = SPACE(c);
     if (state == XBEGIN && c == '@' && !escape) state = XTOKEN;
     else if (state == XTOKEN && ( (space && !escape) || c == '@' || (!space && escape)) && token_pos > 1) {
       state = XSEPARATOR;
     }
-    if (result_pos >= size) {
-      size += CADCHUNKALLOC;
-      my_realloc(662, &result, size);
-    }
-    if (token_pos >= sizetok) {
-      sizetok += CADCHUNKALLOC;
-      my_realloc(663, &token, sizetok);
-    }
+    ALLOC(result, 100, result_pos, size);
+    ALLOC(token, 100, token_pos, sizetok);
     if (state == XTOKEN) token[token_pos++] = c;
     else if (state == XSEPARATOR) {
       token[token_pos] = '\0';
@@ -2918,10 +2834,7 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
           i--;
         }
         tmp = get_tok_value_size;  /* strlen(value); */
-        if (result_pos + tmp + 1 >= size) { /* +1 to add leading '$' */
-          size = (1 + (result_pos + tmp + 1) / CADCHUNKALLOC) * CADCHUNKALLOC;
-          my_realloc(664, &result, size);
-        }
+        ALLOC(result, tmp + 1, result_pos, size); /* +1 to add leading '$' */
         /* prefix substituted token with a '$' so it will be recognized by translate() for last level translation with
            instance placement prop_ptr attributes  at drawing/netlisting time. */
         memcpy(result + result_pos , "$", 1);
@@ -2931,20 +2844,14 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
       else if (strcmp(token, "@symname") == 0) {
         tmp_sym_name = lcc[level].symname ? get_cell(lcc[level].symname, 0) : "";
         tmp = strlen(tmp_sym_name);
-        if (result_pos + tmp >= size) {
-          size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-          my_realloc(655, &result, size);
-        }
+        ALLOC(result, tmp, result_pos, size);
         memcpy(result + result_pos, tmp_sym_name, tmp + 1);
         result_pos += tmp;
       }
       else if (strcmp(token, "@symname_ext") == 0) {
         tmp_sym_name = lcc[level].symname ? get_cell_w_ext(lcc[level].symname, 0) : "";
         tmp = strlen(tmp_sym_name);
-        if (result_pos + tmp >= size) {
-          size = (1 + (result_pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;
-          my_realloc(665, &result, size);
-        }
+        ALLOC(result, tmp, result_pos, size);
         memcpy(result + result_pos, tmp_sym_name, tmp + 1);
         result_pos += tmp;
       }

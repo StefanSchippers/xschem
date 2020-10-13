@@ -1864,7 +1864,7 @@ proc tclpropeval {s instname symname} {
 proc tclpropeval2 {s instname symname} {
   # puts ">>>> $s $instname $symname"
   regsub {^tcleval\(} $s {} s
-  regsub {\) *$} $s {} s
+  regsub {\)([ \n\t]*)$} $s {\1} s
   if { [catch {subst $s} res] } {
     puts "tclpropeval2: $res  instance: $instname"
     set res {}

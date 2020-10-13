@@ -264,7 +264,6 @@ extern char win_temp_dir[PATH_MAX];
   else            {rx = x0 + y - y0; ry = y0 - xxtmp + x0;} \
 }
 
-
 #define ORDER(x1,y1,x2,y2) {\
   double xxtmp; \
   if(x2 < x1) {xxtmp=x1;x1=x2;x2=xxtmp;xxtmp=y1;y1=y2;y2=xxtmp;} \
@@ -299,6 +298,16 @@ extern char win_temp_dir[PATH_MAX];
 #define X_TO_XSCHEM(x) ((x)*xctx.zoom -xctx.xorigin)
 #define Y_TO_XSCHEM(y) ((y)*xctx.zoom -xctx.yorigin)
 
+/* given a dest_string of size 'size', allocate space to make sure it can
+ * hold additional 'add' characters starting at position 'pos' */
+#define ALLOC(dest_string, add, pos, size)                            \
+do {                                                                  \
+  int tmp = add;                                                      \
+  if (pos + tmp >= size) {                                            \
+    size = (1 + (pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;         \
+    my_realloc(1212, &dest_string, size);                             \
+  }                                                                   \
+} while(0)
 
 typedef struct
 {
