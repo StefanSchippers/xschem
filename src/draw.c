@@ -69,7 +69,7 @@ void print_image()
     } else {
      if(w != xschem_w || h != xschem_h) changed_size = 1;
     }
-    my_strdup(60, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir $env(PWD)");
+    my_strdup(60, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir [pwd]");
     tcleval(tmpstring);
     r = tclresult();
     my_free(717, &tmpstring);

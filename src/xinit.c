@@ -1199,8 +1199,15 @@ int Tcl_AppInit(Tcl_Interp *inter)
  my_strncpy(xctx.file_version, XSCHEM_FILE_VERSION, S(xctx.file_version));
  compile_font();
  /* restore current dir after loading font */
+ if(tcleval("info exists env(PWD)")[0] == '1') {
+   tcleval("set current_dirname $env(PWD)"); /* $env(PWD) better than pwd_dir as it does not dereference symlinks */
+ } else {
+   Tcl_VarEval(interp, "set current_dirname ", pwd_dir, NULL);
+ }
+ /* 
  my_snprintf(tmp, S(tmp), "set current_dirname \"%s\"", pwd_dir);
  tcleval(tmp);
+ */
 
  /*                      */
  /*  X INITIALIZATION    */
@@ -1429,10 +1436,14 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(filename) {
     char f[PATH_MAX];
     if(filename[0] !='/') {
-      /* can not use pwd_dir since it dereferences symlinks
+      /* prefer not use pwd_dir since it dereferences symlinks
                                              |   
                                             \|/  */
-      my_snprintf(f, S(f), "%s/%s", tclgetvar("env(PWD)"), filename);
+      if(tcleval("info exists env(PWD)")[0] == '1') {
+        my_snprintf(f, S(f), "%s/%s", tclgetvar("env(PWD)"), filename);
+      } else {
+        my_snprintf(f, S(f), "%s/%s", pwd_dir, filename);
+      }
     } else {
       my_snprintf(f, S(f), "%s", filename);
     }

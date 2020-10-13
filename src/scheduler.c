@@ -947,9 +947,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     printf("maxr[%d]=%d\n", i, xctx.maxr[i]);
     printf("maxl[%d]=%d\n", i, xctx.maxl[i]);
   }
-  for(i=0;i<cadlayers;i++) {
-    printf("enable_layer[%d]=%d\n", i, enable_layer[i]);
-  }
+  printf("current_name=%s\n", xctx.current_name);
   printf("currsch=%d\n", xctx.currsch);
   for(i=0;i<=xctx.currsch;i++)
   {
@@ -2001,13 +1999,13 @@ const char *tclgetvar(const char *s)
   return Tcl_GetVar(interp,s, TCL_GLOBAL_ONLY);
 }
 
-void tcleval(const char str[])
+const char *tcleval(const char str[])
 {
   dbg(2, "tcleval(): %s\n", str);
-  /* if( Tcl_EvalEx(interp, str, -1, TCL_EVAL_GLOBAL) != TCL_OK) {*/
   if( Tcl_GlobalEval(interp, str) != TCL_OK) {
     fprintf(errfp, "tcleval(): evaluation of script: %s failed\n", str);
   }
+  return Tcl_GetStringResult(interp);
 }
 const char *tclresult(void)
 {

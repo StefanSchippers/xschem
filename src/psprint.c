@@ -431,7 +431,7 @@ void ps_draw(void)
  const char *r;
 
  if(!plotfile[0]) {
-   my_strdup(59, &tmp, "tk_getSaveFile -title {Select destination file} -initialdir $env(PWD)");
+   my_strdup(59, &tmp, "tk_getSaveFile -title {Select destination file} -initialdir [pwd]");
    tcleval(tmp);
    my_free(878, &tmp);
    r = tclresult();

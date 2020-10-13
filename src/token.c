@@ -1374,9 +1374,8 @@ void print_spice_subckt(FILE *fd, int symbol)
  int sizetok=0;
  int token_pos=0, escape=0;
  int no_of_pins=0;
- int quote=0;
 
- my_strdup(103, &format, get_tok_value(xctx.sym[symbol].prop_ptr,"format",0));
+ my_strdup(103, &format, get_tok_value(xctx.sym[symbol].prop_ptr,"format",2));
  if( (format==NULL) ) {
    my_free(1012, &format);
    return; /* no format */
@@ -1388,22 +1387,29 @@ void print_spice_subckt(FILE *fd, int symbol)
  while(1)
  {
   c=*s++;
-  if(c=='"' && escape) {
-    quote=!quote;
+  if(c=='\\') {
+    escape=1;
+    c=*s++;
   }
-  if(c=='"' && !escape ) c=*s++;
+  else escape=0;
   if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
-  /* 20150317 use SPACE2() instead of SPACE() */
-  space=SPACE2(c);
-  if( state==XBEGIN && c=='@' && !escape) state=XTOKEN;
-  else if( state==XTOKEN && (space || c == '@' || c == '\\')  && token_pos > 1 && !escape && !quote) state=XSEPARATOR;
+  space=SPACE(c);
+  if( state==XBEGIN && (c=='@' || c=='$')  && !escape) state=XTOKEN;
+  else if(state==XTOKEN && token_pos > 1 &&
+     (
+       ( (space  || c == '$' || c == '@') && !escape ) ||
+       ( (!space && c != '$' && c != '@') && escape  )
+     )
+    ) {
+    state = XSEPARATOR;
+  }
   if(token_pos>=sizetok)
   {
    sizetok+=CADCHUNKALLOC;
    my_realloc(104, &token,sizetok);
   }
   if(state==XTOKEN) {
-    if(c!='\\' || escape) token[token_pos++]=c; /* 20171029 remove escaping backslashes */
+    token[token_pos++]=c;
   }
   else if(state==XSEPARATOR)                    /* got a token */
   {
@@ -1445,27 +1451,22 @@ void print_spice_subckt(FILE *fd, int symbol)
        }
      }
    }
-   if(c != '@' && c!='\0' && (c!='\\'  || escape) ) fputc(c,fd);
-   if(c == '@') s--;
+   if(c!='$' && c!='@' && c!='\0' ) fputc(c,fd);
+   if(c == '@' || c =='$') s--;
    state=XBEGIN;
   }
                  /* 20151028 dont print escaping backslashes */
-  else if(state==XBEGIN && c!='\0' && (c!='\\' || escape)) {
+  else if(state==XBEGIN && c!='\0') {
    /* do nothing */
   }
   if(c=='\0')
   {
    break ;
   }
-  escape = (c=='\\' && !escape);
-
  }
  my_free(1013, &format);
  my_free(1014, &token);
 }
-
-
-
 
 void print_spice_element(FILE *fd, int inst)
 {

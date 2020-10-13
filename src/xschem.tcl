@@ -1527,7 +1527,7 @@ proc select_netlist_dir { force {dir {} }} {
        if {$::OS == "Windows"} {
          set initdir  $env(windir)
        } else {
-         set initdir  $env(PWD) 
+         set initdir  [pwd]
        }
      }
      # 20140409 do not change netlist_dir if user Cancels action
@@ -2586,7 +2586,7 @@ proc viewdata {data {ro {}}} {
        if {$::OS == "Windows"} {
          set fff [tk_getSaveFile -initialdir $env(windir) ]
        } else {
-         set fff [tk_getSaveFile -initialdir $env(PWD) ]
+         set fff [tk_getSaveFile -initialdir [pwd] ]
        }
        if { $fff != "" } {
          set fileid [open $fff "w"]
@@ -2637,17 +2637,26 @@ proc rel_sym_path {symbol} {
 proc abs_sym_path {fname {ext {} } } {
   global pathlist current_dirname
 
+  # empty: do nothing
   if {$fname eq {} } return {}
+
   if {$::OS == "Windows"} {
+    # absolute path: return as is
     if { [regexp {^[A-Za-z]\:/$} $fname ] } {
       return $fname;
     } 
   } else {
+    # absolute path: return as is
     if { $fname eq "/"} {
       return $fname;
     }
-    # if fname is just "." return $current_dirname
-    if {$fname eq "."} {
+
+    # remove any leading './'
+    while { [regsub {^\./} $fname {} fname] } {}
+    if { $fname eq {} } { set fname . } 
+
+    # if fname is just "."  or "./" return $current_dirname
+    if {[regexp {^\./*$} $fname] } {
       return $current_dirname
     }
   }
@@ -2655,20 +2664,26 @@ proc abs_sym_path {fname {ext {} } } {
   if { $ext ne {} } { 
     set fname [file rootname $fname]$ext
   }
-  # transform ./file_or_path to file_or_path, resolve ../file_or_path
+  # prepend current_dirname to ../file_or_path --> $current_dirname/file_or_path
   if { [regexp {^\.\./} $fname ] } {
     if { [regexp {^/} $current_dirname] } {
-      set fname "[file dirname $current_dirname][regsub {^\.\.} $fname {}]"
+      set fname "${current_dirname}[regsub {^\.\.} $fname {}]"
     }
+  # transform ./file_or_path to file_or_path
   } elseif {[regexp {^\./} $fname ] } {
     regsub {^\./} $fname {} fname
   }
+
   set name {}
+
   if { ![regexp {^/} $fname] && ![regexp {^[A-Za-z]:} $fname] } {
+    # if fname is present in one of the pathlist paths get the absolute path
     foreach path_elem $pathlist {
+      # in xschem a . in pathlist means the directory of currently loaded  schematic/symbol
       if { ![string compare $path_elem .]  && [info exist current_dirname]} {
         set path_elem $current_dirname
       }
+
       set fullpath "$path_elem/$fname"
       if { [file exists $fullpath] } {
         set name $fullpath
@@ -2677,8 +2692,10 @@ proc abs_sym_path {fname {ext {} } } {
     }
   }
   if { ![string compare $name {}] } {
+    # if absolute path do nothing
     if { [regexp {^/} $fname] || [regexp {^[a-zA-Z]:} $fname] || [regexp ^$current_dirname $fname]} {
       set name $fname
+    # if fname is a relative path just prepend current_dirname
     } else {
       set name "$current_dirname/$fname"
     }
@@ -3265,8 +3282,8 @@ if {$::OS == "Windows"} {
   set filetmp1 $env(windir)/.tmp1
   set filetmp2 $env(windir)/.tmp2
 } else {
-  set filetmp1 $env(PWD)/.tmp1
-  set filetmp2 $env(PWD)/.tmp2
+  set filetmp1 [pwd]/.tmp1
+  set filetmp2 [pwd]/.tmp2
 }
 # /20111106
 

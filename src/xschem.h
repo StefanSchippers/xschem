@@ -899,7 +899,7 @@ extern void rebuild_selected_array(void);
 extern void edit_property(int x);
 extern int xschem(ClientData clientdata, Tcl_Interp *interp,
            int argc, const char * argv[]);
-extern void tcleval(const char str[]);
+extern const char *tcleval(const char str[]);
 extern const char *tclresult(void);
 extern const char *tclgetvar(const char *s);
 extern void tclsetvar(const char *s, const char *value);
