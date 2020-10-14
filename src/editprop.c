@@ -1072,14 +1072,18 @@ void update_symbol(const char *result, int x)
       }
     }
 
-    /* if symbol changed ensure instance name (with new prefix char) is unique */
-    my_strdup(152, &name, get_tok_value(xctx.inst[i].prop_ptr, "name", 0));
-    if(name && name[0] ) {
-      dbg(1, "update_symbol(): prefix!='\\0', name=%s\n", name);
-      new_name = get_tok_value(xctx.inst[i].prop_ptr, "name", 0);
+
+
+    new_name = get_tok_value(xctx.inst[i].prop_ptr, "name", 1); /* retain quotes in name if any */
+    if(new_name[0]) {
       if(allow_change_name || (lastselected == 1) ) my_strdup(153, &name, new_name);
       /* 20110325 only modify prefix if prefix not NUL */
-      if(prefix) name[0]=prefix; /* change prefix if changing symbol type; */
+      if(prefix) {
+        if(name[0] != '"') 
+          name[0]=prefix; /* change prefix if changing symbol type; */
+        else
+          name[1]=prefix; /* change prefix if changing symbol type; */
+      }
       dbg(1, "update_symbol(): name=%s, xctx.inst[i].prop_ptr=%s\n", name, xctx.inst[i].prop_ptr);
       my_strdup(89, &ptr,subst_token(xctx.inst[i].prop_ptr, "name", name) );
                      /* set name of current inst */

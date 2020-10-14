@@ -1180,6 +1180,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  init_color_array(0.0);
  my_snprintf(tmp, S(tmp), "%d",debug_var);
  tclsetvar("tcl_debug",tmp );
+ tclsetvar("menu_tcl_debug",debug_var ? "1" : "0" );
  if(flat_netlist) tclsetvar("flat_netlist","1");
 
  lw=1;
