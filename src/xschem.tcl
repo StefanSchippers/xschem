@@ -2642,66 +2642,57 @@ proc abs_sym_path {fname {ext {} } } {
 
   if {$::OS == "Windows"} {
     # absolute path: return as is
-    if { [regexp {^[A-Za-z]\:/$} $fname ] } {
-      return $fname;
+    if { [regexp {^[A-Za-z]\:/} $fname ] } {
+      return "$fname"
     } 
   } else {
     # absolute path: return as is
-    if { $fname eq "/"} {
-      return $fname;
+    if { [regexp {^/} $fname] } {
+      return "$fname"
     }
-
-    # remove any leading './'
-    while { [regsub {^\./} $fname {} fname] } {}
-    if { $fname eq {} } { set fname . } 
-
-    # if fname is just "." return $current_dirname
-    if {[regexp {^\.$} $fname] } {
-      return $current_dirname
-    }
+  }
+  # remove any leading './'
+  while { [regsub {^\./} $fname {} fname] } {}
+  # if previous operation left fname empty set to '.'
+  if { $fname eq {} } { set fname . } 
+  # if fname is just "." return $current_dirname
+  if {[regexp {^\.$} $fname] } {
+    return "$current_dirname"
   }
   # add extension for 1.0 file format compatibility
   if { $ext ne {} } { 
     set fname [file rootname $fname]$ext
   }
-  # prepend current_dirname to ../file_or_path --> [file dirname $current_dirname]/file_or_path
-  if { [regexp {^/} $current_dirname] } {
-    set tmpdir $current_dirname
-    while { [regexp {^\.\./} $fname ] } {
-      set tmpdir [file dirname $tmpdir]
-      regsub {^\.\./} $fname {} fname
-    }
-    set fname "${tmpdir}/$fname"
-  # transform ./file_or_path to file_or_path
-  } elseif {[regexp {^\./} $fname ] } {
-    regsub {^\./} $fname {} fname
+  # remove trailing '/'s to non empty path
+  regsub {([^/]+)/+$} $fname {\1} fname
+  # transform  a/b/../c to a/c or a/b/c/.. to a/b
+  while {[regsub {/[^/]+/\.\.(/|$)} $fname {\1} fname] } {}  
+  # if fname is ../../e/f
+  # and current_dirname is /a/b/c
+  # set fname to /a/e/f
+  set tmpdir $current_dirname
+  set found 0 
+  while { [regexp {^\.\./} $fname ] } {
+    set found 1
+    set tmpdir [file dirname $tmpdir]
+    regsub {^\.\./} $fname {} fname
   }
-
+  if {$found } {set fname "${tmpdir}/$fname"}
+  # if fname is present in one of the pathlist paths get the absolute path
   set name {}
-
-  if { ![regexp {^/} $fname] && ![regexp {^[A-Za-z]:} $fname] } {
-    # if fname is present in one of the pathlist paths get the absolute path
-    foreach path_elem $pathlist {
-      # in xschem a . in pathlist means the directory of currently loaded  schematic/symbol
-      if { ![string compare $path_elem .]  && [info exist current_dirname]} {
-        set path_elem $current_dirname
-      }
-
-      set fullpath "$path_elem/$fname"
-      if { [file exists $fullpath] } {
-        set name $fullpath
-        break
-      }
+  foreach path_elem $pathlist {
+    # in xschem a . in pathlist means the directory of currently loaded  schematic/symbol
+    if { ![string compare $path_elem .]  && [info exist current_dirname]} {
+      set path_elem $current_dirname
+    }
+    set fullpath "$path_elem/$fname"
+    if { [file exists $fullpath] } {
+      set name $fullpath
+      break
     }
   }
-  if { ![string compare $name {}] } {
-    # if absolute path do nothing
-    if { [regexp {^/} $fname] || [regexp {^[a-zA-Z]:} $fname] || [regexp ^$current_dirname $fname]} {
-      set name $fname
-    # if fname is a relative path just prepend current_dirname
-    } else {
-      set name "$current_dirname/$fname"
-    }
+  if {$name eq {} } {
+    set name "$current_dirname/$fname"
   }
   regsub {/\.$} $name {} name
   return $name
