@@ -1430,7 +1430,6 @@ void print_spice_element(FILE *fd, int inst)
   my_strdup(483, &template, (xctx.inst[inst].ptr+ xctx.sym)->templ);
   /* my_strdup(483, &template, translate(inst, (xctx.inst[inst].ptr+ xctx.sym)->templ) ); */
   /* tcl_hook(&template); */
-  dbg(0, "template=%s\n", template);
   my_strdup(484, &name,xctx.inst[inst].instname);
   if (!name) my_strdup(43, &name, get_tok_value(template, "name", 0));
 
