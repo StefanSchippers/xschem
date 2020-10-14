@@ -914,6 +914,7 @@ extern const char *tcleval(const char str[]);
 extern const char *tclresult(void);
 extern const char *tclgetvar(const char *s);
 extern void tclsetvar(const char *s, const char *value);
+extern void tcl_hook(char **res);
 extern void statusmsg(char str[],int n);
 extern void place_text(int draw_text, double mx, double my);
 extern void init_inst_iterator(double x1, double y1, double x2, double y2);

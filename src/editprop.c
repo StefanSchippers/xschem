@@ -379,10 +379,12 @@ char *strtoupper(char* s) {
 
 void set_inst_prop(int i)
 {
-  char *ptr;
+  char *ptr = NULL;
   char *tmp = NULL;
 
-  ptr = (xctx.inst[i].ptr+ xctx.sym)->templ;
+  my_strdup(104, &ptr, (xctx.inst[i].ptr+ xctx.sym)->templ);
+  /* my_strdup(104, &ptr, translate(i, (xctx.inst[i].ptr+ xctx.sym)->templ)); */
+  /* tcl_hook(&ptr); */
   dbg(1, "set_inst_prop(): i=%d, name=%s, prop_ptr = %s, template=%s\n",
      i, xctx.inst[i].name, xctx.inst[i].prop_ptr, ptr);
   my_strdup(69, &xctx.inst[i].prop_ptr, ptr);
@@ -392,6 +394,7 @@ void set_inst_prop(int i)
     new_prop_string(i, tmp, 0, dis_uniq_names);
     my_free(724, &tmp);
   }
+  my_free(330, &ptr);
 }
 
 void edit_rect_property(void)
