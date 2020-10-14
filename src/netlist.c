@@ -673,7 +673,9 @@ void prepare_netlist_structs(int for_netlist)
     if (xctx.inst[i].ptr<0) continue;
 
     my_strdup(248, &type,(xctx.inst[i].ptr+ xctx.sym)->type);
-    if(print_erc && (!xctx.inst[i].instname || !xctx.inst[i].instname[0]) ) {
+    if(print_erc && (!xctx.inst[i].instname || !xctx.inst[i].instname[0]) &&
+      !get_tok_value((xctx.inst[i].ptr+ xctx.sym)->templ, "name", 0)[0]
+        ) {
       char str[2048];
       if(  strcmp(type, "package") &&
            strcmp(type, "port_attributes") &&
