@@ -156,19 +156,16 @@ void hash_all_names(int n)
 }
 
 
-void tcl_hook(char **res)
+void tcl_hook(char **res, int inst)
 {
   char * result = *res;
   if(result && strstr(result, "tcleval(")== result) {
-    size_t s;
-    char *tclcmd=NULL;
-    s = strlen(result) + 100;
-    tclcmd = my_malloc(1197, s);
-    my_snprintf(tclcmd, s, "tclpropeval2 {%s}", result);
-    dbg(1, "tclpropeval2 {%s}", result);
-    tcleval(tclcmd);
+    dbg(1, "tcl_hook(): %s %s %s\n", result, xctx.inst[inst].instname, 
+     get_cell((xctx.inst[inst].ptr + xctx.sym)->name, 0));
+    Tcl_VarEval(interp, 
+      "tclpropeval2 {", result, "} {", xctx.inst[inst].instname, "} {", 
+       get_cell((xctx.inst[inst].ptr + xctx.sym)->name, 0), "}", NULL);
     my_strdup2(1198, res, tclresult());
-    my_free(1199, &tclcmd);
   }
 }
 
@@ -1429,7 +1426,7 @@ void print_spice_element(FILE *fd, int inst)
 
   my_strdup(483, &template, (xctx.inst[inst].ptr+ xctx.sym)->templ);
   /* my_strdup(483, &template, translate(inst, (xctx.inst[inst].ptr+ xctx.sym)->templ) ); */
-  /* tcl_hook(&template); */
+  /* tcl_hook(&template, inst); */
   my_strdup(484, &name,xctx.inst[inst].instname);
   if (!name) my_strdup(43, &name, get_tok_value(template, "name", 0));
 
@@ -1452,16 +1449,17 @@ void print_spice_element(FILE *fd, int inst)
   while(1)
   {
     /* always make room for some characters so the single char writes to result do not need reallocs */
-    str_alloc(&result, 0, result_pos, &size);
+    str_alloc(&result, 100, result_pos, &size);
     c=*s++;
     if(c=='\\') {
       escape=1;
       c=*s++;
     }
     else escape=0;
+
     if (c=='\n' && escape) c=*s++; /* 20171030 eat escaped newlines */
     space=SPACE(c);
-    if (state==XBEGIN && (c=='@'|| c=='$')  && !escape) state=XTOKEN;
+    if ( state==XBEGIN && (c=='@'|| c=='$')  && !escape ) state=XTOKEN;
     else if(state==XTOKEN && token_pos > 1 &&
        (
          ( (space  || c == '$' || c == '@') && !escape ) ||
@@ -1530,6 +1528,16 @@ void print_spice_element(FILE *fd, int inst)
         result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
         /* fputs(s,fd); */
       }
+      else if (strcmp(token,"@symname_ext")==0) /* of course symname must not be present  */
+                                            /* in hash table */
+      {
+        const char *s = get_cell_w_ext(xctx.inst[inst].name, 0);
+        tmp = strlen(s) +100 ; /* always make room for some extra chars 
+                                * so 1-char writes to result do not need reallocs */
+        str_alloc(&result, tmp, result_pos, &size);
+        result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
+        /* fputs(s,fd); */
+      }
       else if(strcmp(token,"@schname")==0) /* of course schname must not be present  */
                                            /* in hash table */
       {
@@ -1553,7 +1561,6 @@ void print_spice_element(FILE *fd, int inst)
                                           * so 1-char writes to result do not need reallocs */
             str_alloc(&result, tmp, result_pos, &size);
             result_pos += my_snprintf(result + result_pos, tmp, "@%d %s ", mult, str_ptr);
-            /* fprintf(fd, "@%d %s ", mult, str_ptr); */
           }
         }
       }
@@ -1568,7 +1575,6 @@ void print_spice_element(FILE *fd, int inst)
                                             * so 1-char writes to result do not need reallocs */
               str_alloc(&result, tmp, result_pos, &size);
               result_pos += my_snprintf(result + result_pos, tmp, "@%d %s ", mult, str_ptr);
-              /* fprintf(fd, "@%d %s ", mult, str_ptr); */
             }
             break;
           }
@@ -1588,7 +1594,6 @@ void print_spice_element(FILE *fd, int inst)
                                           * so 1-char writes to result do not need reallocs */
             str_alloc(&result, tmp, result_pos, &size);
             result_pos += my_snprintf(result + result_pos, tmp, "@%d %s ", mult, str_ptr);
-            /* fprintf(fd, "@%d %s ", mult, str_ptr); */
           }
         }
       }
@@ -1634,7 +1639,9 @@ void print_spice_element(FILE *fd, int inst)
 
   /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
    * can be calculated */
-  tcl_hook(&result);
+
+  /* do one level of substitutions to resolve @params and equations*/
+  /* my_strdup(22, &result, translate(inst, result)); */
 
   fprintf(fd, "%s", result);
   my_free(1019, &template);
@@ -1793,6 +1800,10 @@ void print_tedax_element(FILE *fd, int inst)
                                         /* in hash table */
     {
      fputs(skip_dir(xctx.inst[inst].name),fd);
+    }
+    else if (strcmp(token,"@symname_ext")==0) 
+    {
+      fputs(get_cell_w_ext(xctx.inst[inst].name, 0), fd);
     }
     else if(strcmp(token,"@schname")==0)        /* of course schname must not be present  */
                                         /* in hash table */
@@ -2202,6 +2213,10 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
    {
     fprintf( fd, "%s",skip_dir(xctx.inst[inst].name) );
    }
+   else if (strcmp(token,"@symname_ext")==0) 
+   {
+     fputs(get_cell_w_ext(xctx.inst[inst].name, 0), fd);
+   }
    else if(strcmp(token,"@schname")==0) /* of course schname must not be present  */
                                         /* in hash table */
    {
@@ -2369,7 +2384,11 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
     else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
                                          /* in hash table */
     {
-     fprintf( fd, "%s",skip_dir(xctx.inst[inst].name) );
+     fprintf( fd, "%s",skip_dir(xctx.inst[inst]. name) );
+    }
+    else if (strcmp(token,"@symname_ext")==0) 
+    {
+      fputs(get_cell_w_ext(xctx.inst[inst].name, 0), fd);
     }
     else if(strcmp(token,"@schname")==0) /* of course schname must not be present  */
                                          /* in hash table */
@@ -2514,7 +2533,7 @@ const char *translate(int inst, const char* s)
  my_realloc(527, &result,size);
  result[0]='\0';
 
- dbg(2, "translate(): substituting props in <%s>, instance <%s>\n",
+ dbg(1, "translate(): substituting props in <%s>, instance <%s>\n",
         s?s:"NULL",xctx.inst[inst].instname?xctx.inst[inst].instname:"NULL");
 
  while(1)
@@ -2750,7 +2769,7 @@ const char *translate(int inst, const char* s)
 
  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
   * can be calculated */
- tcl_hook(&result);
+ tcl_hook(&result, inst);
  return result;
 }
 
@@ -2857,9 +2876,6 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
       break;
     }
   }
-  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
-   * can be calculated */
-  tcl_hook(&result);
   my_free(1070, &token);
   my_free(1071, &value1);
   my_free(1072, &value2);

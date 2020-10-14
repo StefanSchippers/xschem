@@ -393,7 +393,7 @@ void set_inst_prop(int i)
 
   my_strdup(104, &ptr, (xctx.inst[i].ptr+ xctx.sym)->templ);
   /* my_strdup(104, &ptr, translate(i, (xctx.inst[i].ptr+ xctx.sym)->templ)); */
-  /* tcl_hook(&ptr); */
+  /* tcl_hook(&ptr, i); */
   dbg(1, "set_inst_prop(): i=%d, name=%s, prop_ptr = %s, template=%s\n",
      i, xctx.inst[i].name, xctx.inst[i].prop_ptr, ptr);
   my_strdup(69, &xctx.inst[i].prop_ptr, ptr);

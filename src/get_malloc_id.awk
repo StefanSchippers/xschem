@@ -7,10 +7,12 @@ BEGIN{
 
 
 $0 ~ pattern "[0-9]+" {
-  a = $0
-  sub("^.*" pattern,"", a)
-  sub(/ *,.*/,"", a)
-  print a "\t" FILENAME "\t" $0
+  if($0 !~/^ *\/\*/) {
+    a = $0
+    sub("^.*" pattern,"", a)
+    sub(/ *,.*/,"", a)
+    print a "\t" FILENAME "\t" $0
+  }
 }
 '  \
 actions.c \

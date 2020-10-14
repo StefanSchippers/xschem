@@ -1854,20 +1854,20 @@ proc property_search {} {
 # attributes.
 #
 proc tclpropeval {s instname symname} {
-  # puts ">>>> $s $instname $symname"
+  # puts "tclpropeval: $s $instname $symname"
   regsub {^@tcleval\(} $s {} s
   regsub {\)$} $s {} s
   return [eval $s]
 }
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
-proc tclpropeval2 {s} {
-  # puts ">>>> $s $instname $symname"
+proc tclpropeval2 {s instname symname} {
+  # puts "tclpropeval2: $s $instname $symname"
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s
   if { [catch {subst $s} res] } {
     puts "tclpropeval2: $res"
-    set res {<ERROR>}
+    set res $s
   }
   return $res
 }
