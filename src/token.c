@@ -156,15 +156,11 @@ void hash_all_names(int n)
 }
 
 
-void tcl_hook(char **res, int inst)
+void tcl_hook(char **res)
 {
   char * result = *res;
   if(result && strstr(result, "tcleval(")== result) {
-    dbg(1, "tcl_hook(): %s %s %s\n", result, xctx.inst[inst].instname, 
-     get_cell((xctx.inst[inst].ptr + xctx.sym)->name, 0));
-    Tcl_VarEval(interp, 
-      "tclpropeval2 {", result, "} {", xctx.inst[inst].instname, "} {", 
-       get_cell((xctx.inst[inst].ptr + xctx.sym)->name, 0), "}", NULL);
+    Tcl_VarEval(interp, "tclpropeval2 {", result, "}" , NULL);
     my_strdup2(1198, res, tclresult());
   }
 }
@@ -1425,8 +1421,6 @@ void print_spice_element(FILE *fd, int inst)
   result[0] = '\0';
 
   my_strdup(483, &template, (xctx.inst[inst].ptr+ xctx.sym)->templ);
-  /* my_strdup(483, &template, translate(inst, (xctx.inst[inst].ptr+ xctx.sym)->templ) ); */
-  /* tcl_hook(&template, inst); */
   my_strdup(484, &name,xctx.inst[inst].instname);
   if (!name) my_strdup(43, &name, get_tok_value(template, "name", 0));
 
@@ -2771,7 +2765,7 @@ const char *translate(int inst, const char* s)
 
  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
   * can be calculated */
- tcl_hook(&result, inst);
+ tcl_hook(&result);
  return result;
 }
 
@@ -2877,6 +2871,9 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
       result[result_pos] = '\0';
       break;
     }
+  }
+  if(result && strstr(result, "tcleval(")== result) {
+    tcl_hook(&result);
   }
   my_free(1070, &token);
   my_free(1071, &value1);

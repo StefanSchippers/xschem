@@ -1861,7 +1861,7 @@ proc tclpropeval {s instname symname} {
 }
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
-proc tclpropeval2 {s instname symname} {
+proc tclpropeval2 {s} {
   # puts "tclpropeval2: $s $instname $symname"
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s
