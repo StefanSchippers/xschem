@@ -1560,7 +1560,7 @@ void print_spice_element(FILE *fd, int inst)
             tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
                                           * so 1-char writes to result do not need reallocs */
             str_alloc(&result, tmp, result_pos, &size);
-            result_pos += my_snprintf(result + result_pos, tmp, "@%d %s ", mult, str_ptr);
+            result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", mult, str_ptr);
           }
         }
       }
@@ -1574,7 +1574,7 @@ void print_spice_element(FILE *fd, int inst)
               tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
                                             * so 1-char writes to result do not need reallocs */
               str_alloc(&result, tmp, result_pos, &size);
-              result_pos += my_snprintf(result + result_pos, tmp, "@%d %s ", mult, str_ptr);
+              result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", mult, str_ptr);
             }
             break;
           }
@@ -1593,7 +1593,7 @@ void print_spice_element(FILE *fd, int inst)
             tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
                                           * so 1-char writes to result do not need reallocs */
             str_alloc(&result, tmp, result_pos, &size);
-            result_pos += my_snprintf(result + result_pos, tmp, "@%d %s ", mult, str_ptr);
+            result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", mult, str_ptr);
           }
         }
       }
@@ -1641,7 +1641,9 @@ void print_spice_element(FILE *fd, int inst)
    * can be calculated */
 
   /* do one level of substitutions to resolve @params and equations*/
-  /* my_strdup(22, &result, translate(inst, result)); */
+  if(result && strstr(result, "tcleval(")== result) {
+    my_strdup(22, &result, translate(inst, result));
+  }
 
   fprintf(fd, "%s", result);
   my_free(1019, &template);
@@ -1818,7 +1820,7 @@ void print_tedax_element(FILE *fd, int inst)
      {
        str_ptr =  net_name(inst,i, &mult, 0);
        /* fprintf(errfp, "inst: %s  --> %s\n", name, str_ptr); */
-       fprintf(fd, "@%d %s ", mult, str_ptr);
+       fprintf(fd, "?%d %s ", mult, str_ptr);
      }
     }
     else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
@@ -2050,7 +2052,7 @@ void print_verilog_element(FILE *fd, int inst)
      if( (str_ptr =  net_name(inst,i, &mult, 0)) )
      {
        if(tmp) fprintf(fd,"\n");
-       fprintf(fd, "  @%d %s %s ", mult,
+       fprintf(fd, "  ?%d %s %s ", mult,
          get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"name",0),
          str_ptr);
        tmp=1;

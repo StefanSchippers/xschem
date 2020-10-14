@@ -225,7 +225,7 @@ begin_module && $1 ~/^\);$/ {
 
 /^---- instance / {
   on_single_line()
-## ---- instance xsl[0],xsl[1],xsl[2],xsl[3],xsl[4],xsl[5],xsl[6],xsl[7] ( @32 I[0:31] DEL[0],DEL[1] ...
+## ---- instance xsl[0],xsl[1],xsl[2],xsl[3],xsl[4],xsl[5],xsl[6],xsl[7] ( ?32 I[0:31] DEL[0],DEL[1] ...
   num=split($3,name,",")
   for(j=7;j<=NF-1;j+=3)
   {
@@ -245,7 +245,7 @@ begin_module && $1 ~/^\);$/ {
    {
     pin=""
     if(j>7) {printf ","}
-    if($j !~ /^@/)
+    if($j !~ /^?/)
     {
       pin=pin $j # if not a node just print it
     }
@@ -253,7 +253,7 @@ begin_module && $1 ~/^\);$/ {
     {
      nmult=$(j++);j++
 
-     sub(/@/,"",nmult)
+     sub(/?/,"",nmult)
      nmult=nmult+0
      if(nmult==-1) nmult=arg_num[j]
      for(l=0;l<nmult;l++)

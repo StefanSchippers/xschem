@@ -1,5 +1,6 @@
-v {xschem version=2.9.7 file_version=1.2}
-G {type=architecture
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=architecture
 spice_ignore=true
 verilog_ignore=true
 tedax_ignore=true
@@ -10,14 +11,4 @@ S {}
 E {}
 L 4 0 -10 355 -10 {}
 T {ARCHITECTURE} 5 -30 0 0 0.3 0.3 {}
-T {SPICE
-=====================
-@schprop
-
-VERILOG
-=====================
-@schverilogprop
-
-VHDL
-=====================
-@schvhdlprop} 45 5 0 0 0.3 0.3 {}
+T {@schprop@schverilogprop@schvhdlprop@schsymbolprop} 45 5 0 0 0.3 0.3 {font=monospace layer=8}

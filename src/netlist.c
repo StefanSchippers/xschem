@@ -675,10 +675,17 @@ void prepare_netlist_structs(int for_netlist)
     my_strdup(248, &type,(xctx.inst[i].ptr+ xctx.sym)->type);
     if(print_erc && (!xctx.inst[i].instname || !xctx.inst[i].instname[0]) ) {
       char str[2048];
-      my_snprintf(str, S(str), "instance: %d (%s): no name attribute set", i, xctx.inst[i].name);
-      statusmsg(str,2);
-      xctx.inst[i].flags |=4;
-      hilight_nets=1;
+      if(  strcmp(type, "package") &&
+           strcmp(type, "port_attributes") &&
+           strcmp(type, "architecture") &&
+           strcmp(type, "arch_declarations") &&
+           strcmp(type, "attributes") &&
+           strcmp(type, "use")) {
+        my_snprintf(str, S(str), "instance: %d (%s): no name attribute set", i, xctx.inst[i].name);
+        statusmsg(str,2);
+        xctx.inst[i].flags |=4;
+        hilight_nets=1;
+      }
     }
     if(print_erc && (!type || !type[0]) ) {
       char str[2048];

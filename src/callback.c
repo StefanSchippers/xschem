@@ -1383,7 +1383,6 @@ int callback(int event, int mx, int my, KeySym key,
     break;
    }
    if(0 && key=='~' && (state & ControlMask)) {  /* testmode */
-
     break;
    }
    if(0 && key=='|' && !(state & ControlMask)) {            /* testmode */
