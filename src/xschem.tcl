@@ -2640,6 +2640,11 @@ proc abs_sym_path {fname {ext {} } } {
   # empty: do nothing
   if {$fname eq {} } return {}
 
+  # add extension for 1.0 file format compatibility
+  if { $ext ne {} } { 
+    set fname [file rootname $fname]$ext
+  }
+
   if {$::OS == "Windows"} {
     # absolute path: return as is
     if { [regexp {^[A-Za-z]\:/} $fname ] } {
@@ -2651,22 +2656,10 @@ proc abs_sym_path {fname {ext {} } } {
       return "$fname"
     }
   }
-  # remove any leading './'
-  while { [regsub {^\./} $fname {} fname] } {}
-  # if previous operation left fname empty set to '.'
-  if { $fname eq {} } { set fname . } 
-  # if fname is just "." return $current_dirname
-  if {[regexp {^\.$} $fname] } {
-    return "$current_dirname"
-  }
-  # add extension for 1.0 file format compatibility
-  if { $ext ne {} } { 
-    set fname [file rootname $fname]$ext
-  }
+  # transform  a/b/../c to a/c or a/b/c/.. to a/b
+  while {[regsub {[^/]+/\.\./?} $fname {} fname] } {}  
   # remove trailing '/'s to non empty path
   regsub {([^/]+)/+$} $fname {\1} fname
-  # transform  a/b/../c to a/c or a/b/c/.. to a/b
-  while {[regsub {/[^/]+/\.\.(/|$)} $fname {\1} fname] } {}  
   # if fname is ../../e/f
   # and current_dirname is /a/b/c
   # set fname to /a/e/f
@@ -2678,6 +2671,14 @@ proc abs_sym_path {fname {ext {} } } {
     regsub {^\.\./} $fname {} fname
   }
   if {$found } {set fname "${tmpdir}/$fname"}
+  # remove any leading './'
+  while { [regsub {^\./} $fname {} fname] } {}
+  # if previous operation left fname empty set to '.'
+  if { $fname eq {} } { set fname . }
+  # if fname is just "." return $current_dirname
+  if {[regexp {^\.$} $fname] } {
+    return "$current_dirname"
+  }
   # if fname is present in one of the pathlist paths get the absolute path
   set name {}
   foreach path_elem $pathlist {
