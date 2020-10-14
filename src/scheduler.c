@@ -1172,6 +1172,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    Tcl_ResetResult(interp);
  }
 
+ else if(!strcmp(argv[1],"translate") )
+ {
+   if(argc>3) {
+     Tcl_ResetResult(interp);
+     Tcl_AppendResult(interp, translate(atoi(argv[2]), argv[3]), NULL);
+   }
+ }
+ else if(!strcmp(argv[1],"print_spice_element") )
+ {
+   if(argc>2) print_spice_element(stderr, atoi(argv[2]));
+ }
  else if(!strcmp(argv[1],"subst_tok") )
  {
    char *s=NULL;

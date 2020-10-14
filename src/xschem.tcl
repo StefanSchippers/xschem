@@ -1861,13 +1861,13 @@ proc tclpropeval {s instname symname} {
 }
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
-proc tclpropeval2 {s instname symname} {
+proc tclpropeval2 {s} {
   # puts ">>>> $s $instname $symname"
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s
   if { [catch {subst $s} res] } {
-    puts "tclpropeval2: $res  instance: $instname"
-    set res {}
+    puts "tclpropeval2: $res"
+    set res {<ERROR>}
   }
   return $res
 }

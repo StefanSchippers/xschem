@@ -155,6 +155,23 @@ void hash_all_names(int n)
   }
 }
 
+
+void tcl_hook(char **res)
+{
+  char * result = *res;
+  if(result && strstr(result, "tcleval(")== result) {
+    size_t s;
+    char *tclcmd=NULL;
+    s = strlen(result) + 100;
+    tclcmd = my_malloc(1197, s);
+    my_snprintf(tclcmd, s, "tclpropeval2 {%s}", result);
+    dbg(1, "tclpropeval2 {%s}", result);
+    tcleval(tclcmd);
+    my_strdup2(1198, res, tclresult());
+    my_free(1199, &tclcmd);
+  }
+}
+
 void clear_instance_hash()
 {
   inst_free_hash(table);
@@ -296,8 +313,8 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
   else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
   else if( state==XSEPARATOR && !space) state=XVALUE;
   else if( state==XVALUE && space && !quote && !escape) state=XEND;
-  ALLOC(value, 100, value_pos, sizeval);
-  ALLOC(token, 100, token_pos, sizetok);
+  ALLOC(value, 0, value_pos, sizeval);
+  ALLOC(token, 0, token_pos, sizetok);
   if(state==XTOKEN) token[token_pos++]=c;
   else if(state==XVALUE) {
    value[value_pos++]=c;
@@ -343,8 +360,8 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
   else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
   else if( state==XSEPARATOR && !space) state=XVALUE;
   else if( state==XVALUE && space && !quote && !escape) state=XEND;
-  ALLOC(value, 100, value_pos, sizeval);
-  ALLOC(token, 100, token_pos, sizetok);
+  ALLOC(value, 0, value_pos, sizeval);
+  ALLOC(token, 0, token_pos, sizetok);
   if(state==XTOKEN) token[token_pos++]=c;
   else if(state==XVALUE) {
    value[value_pos++]=c;
@@ -411,7 +428,7 @@ const char *list_tokens(const char *s, int with_quotes)
     else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
     else if( state==XSEPARATOR && !space) state=XVALUE;
     else if( state==XVALUE && space && !quote && !escape ) state=XEND;
-    ALLOC(token, 100, token_pos, sizetok);
+    ALLOC(token, 0, token_pos, sizetok);
     if(c=='"') {
       if(!escape) quote=!quote;
     }
@@ -480,8 +497,8 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
     else if( state==XSEPARATOR && !space) state=XVALUE;
     else if( state==XVALUE && space && !quote && !escape ) state=XEND;
-    ALLOC(result, 100, value_pos, size);
-    ALLOC(token, 100, token_pos, sizetok);
+    ALLOC(result, 0, value_pos, size);
+    ALLOC(token, 0, token_pos, sizetok);
     if(c=='"') {
       if(!escape) quote=!quote;
     }
@@ -531,7 +548,6 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
 }
 
 /* return template string excluding name=... and token=value where token listed in extra */
-
 const char *get_sym_template(char *s,char *extra)
 {
  static char *result=NULL;
@@ -557,7 +573,7 @@ const char *get_sym_template(char *s,char *extra)
    return "";
  }
  l = strlen(s);
- ALLOC(result, l+100, 0, sizeres);
+ ALLOC(result, l+1, 0, sizeres);
  sizetok = sizeval = CADCHUNKALLOC;
  my_realloc(438, &value,sizeval);
  my_realloc(439, &token,sizetok);
@@ -569,8 +585,8 @@ const char *get_sym_template(char *s,char *extra)
   else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
   else if( state==XSEPARATOR && !space) state=XVALUE;
   else if( state==XVALUE && space && !quote) state=XEND;
-  ALLOC(value, 100, value_pos, sizeval);
-  ALLOC(token, 100, token_pos, sizetok);
+  ALLOC(value, 0, value_pos, sizeval);
+  ALLOC(token, 0, token_pos, sizetok);
   if(state==XBEGIN) {
     result[result_pos++] = c;
   } else if(state==XTOKEN) {
@@ -763,8 +779,8 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
     space=SPACE(c);
     if(c == '"' && !escape) quote=!quote;
     /* alloc data */
-    ALLOC(result, 100, result_pos, size);
-    ALLOC(token, 100, token_pos, sizetok);
+    ALLOC(result, 0, result_pos, size);
+    ALLOC(token, 0, token_pos, sizetok);
 
     /* parsing state machine                                    */
     /* states:                                                  */
@@ -995,8 +1011,8 @@ void print_vhdl_element(FILE *fd, int inst)
    else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
    else if( state==XSEPARATOR && !space) state=XVALUE;
    else if( state==XVALUE && space && !quote) state=XEND;
-   ALLOC(value, 100, value_pos, sizeval);
-   ALLOC(token, 100, token_pos, sizetok);
+   ALLOC(value, 0, value_pos, sizeval);
+   ALLOC(token, 0, token_pos, sizetok);
    if(state==XTOKEN) token[token_pos++]=c;
    else if(state==XVALUE) {
      if(c=='"' && !escape) quote=!quote;
@@ -1134,8 +1150,8 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
    else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
    else if( state==XSEPARATOR && !space) state=XVALUE;
    else if( state==XVALUE && space && !quote) state=XEND;
-   ALLOC(value, 100, value_pos, sizeval);
-   ALLOC(token, 100, token_pos, sizetok);
+   ALLOC(value, 0, value_pos, sizeval);
+   ALLOC(token, 0, token_pos, sizetok);
    if(state==XTOKEN) token[token_pos++]=c;
    else if(state==XVALUE)
    {
@@ -1239,8 +1255,8 @@ void print_verilog_param(FILE *fd, int symbol)
   else if( state==XSEPARATOR && !space) state=XVALUE;
   else if( state==XVALUE && space && !quote) state=XEND;
 
-  ALLOC(value, 100, value_pos, sizeval);
-  ALLOC(token, 100, token_pos, sizetok);
+  ALLOC(value, 0, value_pos, sizeval);
+  ALLOC(token, 0, token_pos, sizetok);
   if(state==XTOKEN) token[token_pos++]=c;
   else if(state==XVALUE)
   {
@@ -1331,7 +1347,7 @@ void print_spice_subckt(FILE *fd, int symbol)
     state = XSEPARATOR;
   }
 
-  ALLOC(token, 100, token_pos, sizetok);
+  ALLOC(token, 0, token_pos, sizetok);
   if(state==XTOKEN) {
     token[token_pos++]=c;
   }
@@ -1406,17 +1422,16 @@ void print_spice_element(FILE *fd, int inst)
   char *result = NULL;
   int result_pos = 0;
   int size = 0;
-  /* struct inst_hashentry *ptr; */
 
   size = CADCHUNKALLOC;
   my_realloc(1211, &result, size);
   result[0] = '\0';
 
-  my_strdup(483, &template,
-    (xctx.inst[inst].ptr+ xctx.sym)->templ);
-
+  my_strdup(483, &template, (xctx.inst[inst].ptr+ xctx.sym)->templ);
+  /* my_strdup(483, &template, translate(inst, (xctx.inst[inst].ptr+ xctx.sym)->templ) ); */
+  /* tcl_hook(&template); */
+  dbg(0, "template=%s\n", template);
   my_strdup(484, &name,xctx.inst[inst].instname);
-    /* my_strdup(485, &name,get_tok_value(xctx.inst[inst].prop_ptr,"name",0)); */
   if (!name) my_strdup(43, &name, get_tok_value(template, "name", 0));
 
   /* allow format string override in instance */
@@ -1438,7 +1453,7 @@ void print_spice_element(FILE *fd, int inst)
   while(1)
   {
     /* always make room for some characters so the single char writes to result do not need reallocs */
-    ALLOC(result, 100, result_pos, size);
+    ALLOC(result, 0, result_pos, size);
     c=*s++;
     if(c=='\\') {
       escape=1;
@@ -1457,7 +1472,7 @@ void print_spice_element(FILE *fd, int inst)
       dbg(1, "print_spice_element: c=%c, space=%d, escape=%d roken_pos=%d\n", c, space, escape, token_pos);
       state=XSEPARATOR;
     }
-    ALLOC(token, 100, token_pos, sizetok);
+    ALLOC(token, 0, token_pos, sizetok);
     if(state==XTOKEN) {
       token[token_pos++]=c;
     }
@@ -1617,21 +1632,11 @@ void print_spice_element(FILE *fd, int inst)
     }
   } /* while(1) */
 
-  if(result && strstr(result, "tcleval(")== result) {
-    size_t s;
-    char *tclcmd=NULL;
-    char *instname = NULL;
-    my_strdup(1195, &instname,xctx.inst[inst].instname);
-    if (!instname) my_strdup(1196, &instname, get_tok_value((xctx.inst[inst].ptr+ xctx.sym)->templ, "name", 0));
-    s = result_pos + strlen(instname) + strlen(xctx.inst[inst].name) + 100;
-    tclcmd = my_malloc(1197, s);
-    my_snprintf(tclcmd, s, "tclpropeval2 {%s} {%s} {%s}", result, instname, xctx.inst[inst].name);
-    dbg(1, "tclpropeval2 {%s} {%s} {%s}", result, instname, xctx.inst[inst].name);
-    tcleval(tclcmd);
-    my_strdup2(1198, &result, tclresult());
-    my_free(1199, &tclcmd);
-    my_free(1200, &instname);
-  }
+
+  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
+   * can be calculated */
+  tcl_hook(&result);
+
   fprintf(fd, "%s", result);
   my_free(1019, &template);
   my_free(1020, &format);
@@ -1768,7 +1773,7 @@ void print_tedax_element(FILE *fd, int inst)
      state=XSEPARATOR;
    }
 
-   ALLOC(token, 100, token_pos, sizetok);
+   ALLOC(token, 0, token_pos, sizetok);
    if(state==XTOKEN) {
      token[token_pos++]=c; /* 20171029 remove escaping backslashes */
    }
@@ -1974,8 +1979,8 @@ void print_verilog_element(FILE *fd, int inst)
   else if( state==XSEPARATOR && !space) state=XVALUE;
   else if( state==XVALUE && space && !quote) state=XEND;
 
-  ALLOC(value, 100, value_pos, sizeval);
-  ALLOC(token, 100, token_pos, sizetok);
+  ALLOC(value, 0, value_pos, sizeval);
+  ALLOC(token, 0, token_pos, sizetok);
   if(state==XTOKEN) token[token_pos++]=c;
   else if(state==XVALUE)
   {
@@ -2161,7 +2166,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
     state=XSEPARATOR;
   }
 
-  ALLOC(token, 100, token_pos, sizetok);
+  ALLOC(token, 0, token_pos, sizetok);
   if(state==XTOKEN) {
     token[token_pos++]=c; /* 20171029 remove escaping backslashes */
   }
@@ -2330,7 +2335,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
      state=XSEPARATOR;
    }
 
-   ALLOC(token, 100, token_pos, sizetok);
+   ALLOC(token, 0, token_pos, sizetok);
    if(state==XTOKEN) {
       token[token_pos++]=c;
    }
@@ -2483,7 +2488,7 @@ const char *find_nth(const char *str, char sep, int n)
 /* substitute given tokens in a string with their corresponding values */
 /* ex.: name=@name w=@w l=@l ---> name=m112 w=3e-6 l=0.8e-6 */
 /* if s==NULL return emty string */
-const char *translate(int inst, char* s)
+const char *translate(int inst, const char* s)
 {
  static char empty[]="";
  static char *result=NULL;
@@ -2500,7 +2505,6 @@ const char *translate(int inst, char* s)
  const char *value;
  int escape=0;
  char date[200];
-
 
  if(!s) {
    my_free(1063, &result);
@@ -2532,8 +2536,8 @@ const char *translate(int inst, char* s)
                          && token_pos > 1 ) state=XSEPARATOR;
 
 
-  ALLOC(result, 100, result_pos, size);
-  ALLOC(token, 100, token_pos, sizetok);
+  ALLOC(result, 0, result_pos, size);
+  ALLOC(token, 0, token_pos, sizetok);
   if(state==XTOKEN) token[token_pos++]=c;
   else if(state==XSEPARATOR)
   {
@@ -2549,7 +2553,7 @@ const char *translate(int inst, char* s)
    }
 
    if(!get_tok_size && token[0] =='$') {
-    tmp=token_pos + 100; /* we need token_pos -1 chars, ( strlen(token+1) ) , excluding leading '$' */
+    tmp=token_pos -1 ; /* we need token_pos -1 chars, ( strlen(token+1) ) , excluding leading '$' */
     ALLOC(result, tmp, result_pos, size);
     dbg(2, "translate(): token=%s, token_pos = %d\n", token, token_pos);
     memcpy(result+result_pos, token + 1, tmp+1);
@@ -2745,21 +2749,9 @@ const char *translate(int inst, char* s)
  dbg(2, "translate(): returning %s\n", result);
  my_free(1067, &token);
 
- if(result && strstr(result, "tcleval(")== result) {
-   size_t s;
-   char *tclcmd=NULL;
-   char *instname = NULL;
-   my_strdup(643, &instname,xctx.inst[inst].instname);
-   if (!instname) my_strdup(1188, &instname, get_tok_value((xctx.inst[inst].ptr+ xctx.sym)->templ, "name", 0));
-   s = result_pos + strlen(instname) + strlen(xctx.inst[inst].name) + 100;
-   tclcmd = my_malloc(1191, s);
-   my_snprintf(tclcmd, s, "tclpropeval2 {%s} {%s} {%s}", result, instname, xctx.inst[inst].name);
-   dbg(1, "tclpropeval2 {%s} {%s} {%s}", result, instname, xctx.inst[inst].name);
-   tcleval(tclcmd);
-   my_strdup2(1189, &result, tclresult());
-   my_free(1190, &tclcmd);
-   my_free(1192, &instname);
- } 
+ /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
+  * can be calculated */
+ tcl_hook(&result);
  return result;
 }
 
@@ -2800,8 +2792,8 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
     else if (state == XTOKEN && ( (space && !escape) || c == '@' || (!space && escape)) && token_pos > 1) {
       state = XSEPARATOR;
     }
-    ALLOC(result, 100, result_pos, size);
-    ALLOC(token, 100, token_pos, sizetok);
+    ALLOC(result, 0, result_pos, size);
+    ALLOC(token, 0, token_pos, sizetok);
     if (state == XTOKEN) token[token_pos++] = c;
     else if (state == XSEPARATOR) {
       token[token_pos] = '\0';
@@ -2866,6 +2858,9 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
       break;
     }
   }
+  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
+   * can be calculated */
+  tcl_hook(&result);
   my_free(1070, &token);
   my_free(1071, &value1);
   my_free(1072, &value2);

@@ -302,12 +302,13 @@ extern char win_temp_dir[PATH_MAX];
  * hold additional 'add' characters starting at position 'pos' */
 #define ALLOC(dest_string, add, pos, size)                            \
 do {                                                                  \
-  int tmp = add;                                                      \
-  if (pos + tmp >= size) {                                            \
-    size = (1 + (pos + tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;         \
+  int _xx_tmp = add;                                                  \
+  if (pos + _xx_tmp >= size) {                                        \
+    size = (1 + (pos + _xx_tmp) / CADCHUNKALLOC) * CADCHUNKALLOC;     \
     my_realloc(1212, &dest_string, size);                             \
   }                                                                   \
 } while(0)
+
 
 typedef struct
 {
@@ -930,7 +931,7 @@ extern struct int_hashentry *int_hash_lookup(struct int_hashentry **table, const
 
 extern const char *find_nth(const char *str, char sep, int n);
 extern int isonlydigit(const char *s);
-extern const char *translate(int inst, char* s);
+extern const char *translate(int inst, const char* s);
 extern const char* translate2(struct Lcc *lcc, int level, char* s);
 extern void print_tedax_element(FILE *fd, int inst);
 extern void print_spice_element(FILE *fd, int inst);
