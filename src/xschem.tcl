@@ -2664,11 +2664,14 @@ proc abs_sym_path {fname {ext {} } } {
   if { $ext ne {} } { 
     set fname [file rootname $fname]$ext
   }
-  # prepend current_dirname to ../file_or_path --> $current_dirname/file_or_path
-  if { [regexp {^\.\./} $fname ] } {
-    if { [regexp {^/} $current_dirname] } {
-      set fname "${current_dirname}[regsub {^\.\.} $fname {}]"
+  # prepend current_dirname to ../file_or_path --> [file dirname $current_dirname]/file_or_path
+  if { [regexp {^/} $current_dirname] } {
+    set tmpdir $current_dirname
+    while { [regexp {^\.\./} $fname ] } {
+      set tmpdir [file dirname $tmpdir]
+      regsub {^\.\./} $fname {} fname
     }
+    set fname "${tmpdir}/$fname"
   # transform ./file_or_path to file_or_path
   } elseif {[regexp {^\./} $fname ] } {
     regsub {^\./} $fname {} fname
