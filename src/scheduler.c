@@ -290,7 +290,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
    Tcl_ResetResult(interp);
  }
-
+ else if(!strcmp(argv[1], "load_symbol")) 
+ { 
+   int save, missing = 0;
+   if(argc > 2) { 
+      save = xctx.symbols;
+      match_symbol(argv[2]);
+      if( xctx.symbols != save && !strcmp( xctx.sym[xctx.symbols - 1].type, "missing") )  {
+        missing = 1;
+        remove_symbol( xctx.symbols - 1);
+      }
+   }
+   Tcl_ResetResult(interp);
+   Tcl_AppendResult(interp, missing ? "0" : "1", NULL);
+ }
  else if(!strcmp(argv[1],"place_symbol"))
  {
    int ret;

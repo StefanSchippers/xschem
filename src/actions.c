@@ -546,16 +546,11 @@ void remove_symbol(int j)
   int i,c;
   xSymbol save;
   dbg(1, "remove_symbol(): removing symbol %d\n", j);
-  if(xctx.sym[j].prop_ptr != NULL) {
-    my_free(666, &xctx.sym[j].prop_ptr);
-  }
 
-  if(xctx.sym[j].templ != NULL) {
-    my_free(667, &xctx.sym[j].templ);
-  }
-  if(xctx.sym[j].type != NULL) {
-    my_free(668, &xctx.sym[j].type);
-  }
+  my_free(666, &xctx.sym[j].prop_ptr);
+  my_free(667, &xctx.sym[j].templ);
+  my_free(668, &xctx.sym[j].type);
+  my_free(684, &xctx.sym[j].name);
   /*  /20150409 */
   for(c=0;c<cadlayers;c++)
   {
@@ -613,7 +608,6 @@ void remove_symbol(int j)
    }
   }
   my_free(683, &xctx.sym[j].text);
-  my_free(684, &xctx.sym[j].name);
 
   save = xctx.sym[j];
   for(i = j + 1; i < xctx.symbols; i++) {

@@ -1560,7 +1560,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
     if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL)
     {
       if(recursion_counter == 1) dbg(0, "l_s_d(): Symbol not found: %s\n",sympath);
-      my_snprintf(sympath, S(sympath), "%s/%s.sym", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing");
+      my_snprintf(sympath, S(sympath), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing.sym");
       if((lcc[level].fd=fopen(sympath, fopen_read_mode))==NULL)
       {
        fprintf(errfp, "l_s_d(): systemlib/missing.sym missing, I give up\n");

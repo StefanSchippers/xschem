@@ -523,7 +523,6 @@ int callback(int event, int mx, int my, KeySym key,
      for(k=0; k<lastselected; k++) {
        if(selectedgroup[k].type!=ELEMENT) continue;
        j = selectedgroup[k].n ;
-       /* my_strdup(22, &type,get_tok_value((xctx.inst[j].ptr+ xctx.sym)->prop_ptr,"type",0)); */
        my_strdup(23, &type,(xctx.inst[j].ptr+ xctx.sym)->type);
        if( type && IS_LABEL_SH_OR_PIN(type)) break;
        symbol = xctx.sym + xctx.inst[j].ptr;

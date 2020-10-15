@@ -484,8 +484,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
   if(!has_x) return;
   if(
     (hide_symbols==1 && (xctx.inst[n].ptr+ xctx.sym)->prop_ptr &&
-     !strcmp(get_tok_value( (xctx.inst[n].ptr+ xctx.sym)->prop_ptr, "type",0 ), "subcircuit") )  ||
-    (hide_symbols == 2) ) {
+     !strcmp( (xctx.inst[n].ptr+ xctx.sym)->type, "subcircuit") ) || (hide_symbols == 2) ) {
     hide = 1;
   } else {
     hide = 0;

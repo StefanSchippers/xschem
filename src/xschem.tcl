@@ -1608,10 +1608,11 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
    }
    button .t.buttons.b3 -text "Load" -command \
    {
-     global INITIALPROPDIR
-     set a [tk_getOpenFile -parent .t -initialdir $INITIALPROPDIR ]
+     global INITIALTEXTDIR
+     if { ![info exists INITIALTEXTDIR] } { set INITIALTEXTDIR $current_dirname }
+     set a [tk_getOpenFile -parent .t -initialdir $INITIALTEXTDIR ]
      if [string compare $a ""] {
-      set INITIALPROPDIR [file dirname $a]
+      set INITIALTEXTDIR [file dirname $a]
       read_data_window  .t.txt  $a
      }
    }
