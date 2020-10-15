@@ -245,7 +245,7 @@ begin_module && $1 ~/^\);$/ {
    {
     pin=""
     if(j>7) {printf ","}
-    if($j !~ /^?/)
+    if($j !~ /^\?[0-9]+$/)
     {
       pin=pin $j # if not a node just print it
     }
@@ -253,7 +253,7 @@ begin_module && $1 ~/^\);$/ {
     {
      nmult=$(j++);j++
 
-     sub(/?/,"",nmult)
+     sub(/\?/,"",nmult)
      nmult=nmult+0
      if(nmult==-1) nmult=arg_num[j]
      for(l=0;l<nmult;l++)

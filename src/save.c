@@ -1281,7 +1281,7 @@ void get_sym_type(const char *symname, char **type, struct int_hashentry **pinta
     else fd=fopen(name,fopen_read_mode);
 
     if(fd==NULL) {
-      dbg(1, "get_sym_type(): xSymbol not found: %s\n",name);
+      dbg(1, "get_sym_type(): Symbol not found: %s\n",name);
       my_strdup2(1162, type, "");
     } else {
       char *globalprop=NULL;
@@ -1559,7 +1559,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   if(!embed_fd) {
     if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL)
     {
-      if(recursion_counter == 1) dbg(0, "l_s_d(): xSymbol not found: %s\n",sympath);
+      if(recursion_counter == 1) dbg(0, "l_s_d(): Symbol not found: %s\n",sympath);
       my_snprintf(sympath, S(sympath), "%s/%s.sym", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing");
       if((lcc[level].fd=fopen(sympath, fopen_read_mode))==NULL)
       {

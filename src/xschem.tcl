@@ -2645,7 +2645,7 @@ proc abs_sym_path {fname {ext {} } } {
     set fname [file rootname $fname]$ext
   }
 
-  if {$::OS == "Windows"} {
+  if {$::OS eq "Windows"} {
     # absolute path: return as is
     if { [regexp {^[A-Za-z]\:/} $fname ] } {
       return "$fname"
@@ -2656,21 +2656,32 @@ proc abs_sym_path {fname {ext {} } } {
       return "$fname"
     }
   }
-  # transform  a/b/../c to a/c or a/b/c/.. to a/b
-  while {[regsub {[^/]+/\.\./?} $fname {} fname] } {}  
+  if { $::OS ne {Windows}} {
+    # transform  a/b/../c to a/c or a/b/c/.. to a/b
+    while {[regsub {[^/.]+/\.\./?} $fname {} fname] } {}  
+  }
   # remove trailing '/'s to non empty path
   regsub {([^/]+)/+$} $fname {\1} fname
-  # if fname is ../../e/f
-  # and current_dirname is /a/b/c
-  # set fname to /a/e/f
-  set tmpdir $current_dirname
+  # if fname copy tmpfname is ../../e/f
+  # and current_dirname copy tmpdirname is /a/b/c
+  # set tmpfname to /a/e/f
+  set tmpdirname $current_dirname
+  set tmpfname $fname
   set found 0 
-  while { [regexp {^\.\./} $fname ] } {
+  while { [regexp {^\.\./} $tmpfname ] } {
     set found 1
-    set tmpdir [file dirname $tmpdir]
-    regsub {^\.\./} $fname {} fname
+    set tmpdirname [file dirname $tmpdirname]
+    regsub {^\.\./} $tmpfname {} tmpfname
   }
-  if {$found } {set fname "${tmpdir}/$fname"}
+  if {$found } {
+    if { [regexp {/$} $tmpdirname] } { set tmpfname "${tmpdirname}$tmpfname" 
+    } else { set tmpfname "${tmpdirname}/$tmpfname" }
+    if { [file exists "$tmpfname"] } { return "$tmpfname" }
+    ## should we return path if directory exists ? 
+    if { $::OS ne {Windows} } {
+      if { [file exists [file dirname "$tmpfname"]] } { return "$tmpfname" }
+    }
+  }
   # remove any leading './'
   while { [regsub {^\./} $fname {} fname] } {}
   # if previous operation left fname empty set to '.'
