@@ -627,7 +627,7 @@ void select_wire(int i,unsigned short select_mode, int fast)
   else
    xctx.wire[i].sel = select_mode;
   if(select_mode) {
-   dbg(1, "select(): xctx.wire[%d].end1=%d, ,end2=%d\n", i, xctx.wire[i].end1, xctx.wire[i].end2);
+   dbg(1, "select(): wire[%d].end1=%d, ,end2=%d\n", i, xctx.wire[i].end1, xctx.wire[i].end2);
    if(xctx.wire[i].bus)
      drawtempline(gc[SELLAYER], THICK, xctx.wire[i].x1, xctx.wire[i].y1, xctx.wire[i].x2, xctx.wire[i].y2);
    else

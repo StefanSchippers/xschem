@@ -33,7 +33,7 @@ static unsigned short *wireflag=NULL;
 
 void init_inst_iterator(double x1, double y1, double x2, double y2)
 {
-      dbg(3, "init_inst_iterator(): xctx.instances=%d\n", xctx.instances);
+      dbg(3, "init_inst_iterator(): instances=%d\n", xctx.instances);
       my_realloc(135, &instflag, xctx.instances*sizeof(unsigned short));
       memset(instflag, 0, xctx.instances*sizeof(unsigned short));
       /* calculate square 4 1st corner of drawing area */
@@ -58,7 +58,7 @@ void init_inst_iterator(double x1, double y1, double x2, double y2)
 struct instentry *inst_iterator_next()
 {
   struct instentry *ptr;
-  dbg(3, "inst_iterator_next(): xctx.instances=%d\n", xctx.instances);
+  dbg(3, "inst_iterator_next(): instances=%d\n", xctx.instances);
   while(1) {
     while(instanceptr) {
       ptr = instanceptr;
@@ -91,7 +91,7 @@ struct instentry *inst_iterator_next()
 
 void init_wire_iterator(double x1, double y1, double x2, double y2)
 {
-      dbg(3, "init_wire_iterator(): xctx.wires=%d\n", xctx.wires);
+      dbg(3, "init_wire_iterator(): wires=%d\n", xctx.wires);
       my_realloc(136, &wireflag, xctx.wires*sizeof(unsigned short));
       memset(wireflag, 0, xctx.wires*sizeof(unsigned short));
       /* calculate square 4 1st corner of drawing area */
@@ -116,7 +116,7 @@ void init_wire_iterator(double x1, double y1, double x2, double y2)
 struct wireentry *wire_iterator_next()
 {
   struct wireentry *ptr;
-  dbg(3, "wire_iterator_next(): xctx.wires=%d\n", xctx.wires);
+  dbg(3, "wire_iterator_next(): wires=%d\n", xctx.wires);
   while(1) {
     while(wireptr) {
       ptr = wireptr;

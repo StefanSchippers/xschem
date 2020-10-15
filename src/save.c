@@ -799,8 +799,8 @@ void read_xschem_file(FILE *fd)
         found=0;
         for(i=0;i<xctx.symbols;i++)
         {
-         dbg(1, "read_xschem_file(): xctx.sym[i].name=%s, name_embedded=%s\n", xctx.sym[i].name, name_embedded);
-         dbg(1, "read_xschem_file(): xctx.inst[xctx.instances-1].name=%s\n", xctx.inst[xctx.instances-1].name);
+         dbg(1, "read_xschem_file(): sym[i].name=%s, name_embedded=%s\n", xctx.sym[i].name, name_embedded);
+         dbg(1, "read_xschem_file(): inst[instances-1].name=%s\n", xctx.inst[xctx.instances-1].name);
          /* symbol has already been loaded: skip [..] */
          if(!strcmp(xctx.sym[i].name, xctx.inst[xctx.instances-1].name)) {
            found=1; break;
@@ -843,7 +843,7 @@ void read_xschem_file(FILE *fd)
     if(check_version && !version_found) return;
     if(!xctx.file_version[0]) {
       my_snprintf(xctx.file_version, S(xctx.file_version), "1.0");
-      dbg(1, "read_xschem_file(): no xctx.file_version, assuming xctx.file_version=%s\n", xctx.file_version);
+      dbg(1, "read_xschem_file(): no file_version, assuming file_version=%s\n", xctx.file_version);
     }
   }
 }
@@ -909,8 +909,8 @@ int save_schematic(const char *schname) /* 20171020 added return value */
 
   if( strcmp(schname,"") ) my_strncpy(xctx.sch[xctx.currsch], schname, S(xctx.sch[xctx.currsch]));
   else return -1;
-  dbg(1, "save_schematic(): xctx.currsch=%d name=%s\n",xctx.currsch, schname);
-  dbg(1, "save_schematic(): xctx.sch[xctx.currsch]=%s\n", xctx.sch[xctx.currsch]);
+  dbg(1, "save_schematic(): currsch=%d name=%s\n",xctx.currsch, schname);
+  dbg(1, "save_schematic(): sch[currsch]=%s\n", xctx.sch[xctx.currsch]);
   dbg(1, "save_schematic(): abs_sym_path=%s\n", abs_sym_path(xctx.sch[xctx.currsch], ""));
   my_strncpy(name, xctx.sch[xctx.currsch], S(name));
   if(has_x) {
@@ -983,7 +983,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     tcleval(msg);
     my_strncpy(xctx.current_name, rel_sym_path(name), S(xctx.current_name));
     dbg(1, "load_schematic(): opening file for loading:%s, filename=%s\n", name, filename);
-    dbg(1, "load_schematic(): xctx.sch[xctx.currsch]=%s\n", xctx.sch[xctx.currsch]);
+    dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx.sch[xctx.currsch]);
     if(!name[0]) return;
     if(event_reporting) {
       char n[PATH_MAX];
@@ -1447,7 +1447,7 @@ void calc_symbol_bbox(int pos)
     tmp.x1=xctx.sym[pos].line[c][i].x1;tmp.y1=xctx.sym[pos].line[c][i].y1;
     tmp.x2=xctx.sym[pos].line[c][i].x2;tmp.y2=xctx.sym[pos].line[c][i].y2;
     updatebbox(count,&boundbox,&tmp);
-    dbg(2, "calc_symbol_bbox(): xctx.line[%d][%d]: %g %g %g %g\n",
+    dbg(2, "calc_symbol_bbox(): line[%d][%d]: %g %g %g %g\n",
 			c, i, tmp.x1,tmp.y1,tmp.x2,tmp.y2);
    }
    for(i=0;i<xctx.sym[pos].arcs[c];i++)

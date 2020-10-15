@@ -91,7 +91,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  unselect_all();
  remove_symbols();  /* removed 25122002, readded 04112003 */
 
- dbg(1, "global_verilog_netlist(): xctx.sch[xctx.currsch]=%s\n", xctx.sch[xctx.currsch]);
+ dbg(1, "global_verilog_netlist(): sch[currsch]=%s\n", xctx.sch[xctx.currsch]);
 
  load_schematic(1,xctx.sch[xctx.currsch] ,0);
 

@@ -55,7 +55,7 @@ void check_symbol_storage(void)
  int i;
  if(xctx.symbols >= xctx.maxs)
  {
-  dbg(1, "check_symbol_storage(): more than xctx.maxs, %s\n",
+  dbg(1, "check_symbol_storage(): more than maxs, %s\n",
         xctx.sch[xctx.currsch] );
   xctx.maxs=(1 + xctx.symbols / ELEMDEF) * ELEMDEF;
   my_realloc(395, &xctx.sym, sizeof(xSymbol)*xctx.maxs);

@@ -256,7 +256,7 @@ void find_closest_element(double mx,double my)
    {
     r = i; distance = tmp*0.1;
    }
-    dbg(2, "find_closest_element(): finding closest element, xctx.instances=%d, dist=%.16g\n",i,tmp);
+    dbg(2, "find_closest_element(): finding closest element, instances=%d, dist=%.16g\n",i,tmp);
   }
  } /* end for i */
  if( r!=-1 )
@@ -291,7 +291,7 @@ void find_closest_text(double mx,double my)
    if(POINTINSIDE(mx,my,xx1,yy1, xx2, yy2))
    {
     r = i; distance = 0;
-     dbg(2, "find_closest_text(): finding closest text, xctx.texts=%d, dist=%.16g\n",i,distance);
+     dbg(2, "find_closest_text(): finding closest text, texts=%d, dist=%.16g\n",i,distance);
    }
   } /* end for i */
  if( distance <= threshold && r!=-1)

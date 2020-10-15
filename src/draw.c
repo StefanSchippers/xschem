@@ -405,7 +405,7 @@ void draw_string(int layer, int what, const char *str, int rot, int flip, int hc
  if(str==NULL || !has_x ) return;
  dbg(2, "draw_string(): string=%s\n",str);
  if(xscale*FONTWIDTH*xctx.mooz<1) {
-   dbg(1, "draw_string(): xscale=%.16g xctx.zoom=%.16g \n",xscale,xctx.zoom);
+   dbg(1, "draw_string(): xscale=%.16g zoom=%.16g \n",xscale,xctx.zoom);
    return;
  }
  else {

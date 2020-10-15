@@ -509,7 +509,7 @@ void alloc_xschem_data()
 
    xctx.arc[i]=my_calloc(629, xctx.maxa[i],sizeof(xArc));
    if(xctx.arc[i]==NULL){
-     fprintf(errfp, "Tcl_AppInit(): xctx.arc[] calloc error\n");tcleval( "exit");
+     fprintf(errfp, "Tcl_AppInit(): arc[] calloc error\n");tcleval( "exit");
    }
 
    xctx.poly[i]=my_calloc(630, xctx.maxp[i],sizeof(xPoly));

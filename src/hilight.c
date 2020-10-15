@@ -315,7 +315,7 @@ void hilight_parent_pins(void)
  prepare_netlist_structs(0);
  i=xctx.previous_instance[xctx.currsch];
  inst_number = xctx.sch_inst_number[xctx.currsch+1];
- dbg(1, "hilight_parent_pins(): xctx.previous_instance=%d\n", xctx.previous_instance[xctx.currsch]);
+ dbg(1, "hilight_parent_pins(): previous_instance=%d\n", xctx.previous_instance[xctx.currsch]);
  dbg(1, "hilight_parent_pins(): inst_number=%d\n", inst_number);
 
  rects = (xctx.inst[i].ptr+ xctx.sym)->rects[PINLAYER];

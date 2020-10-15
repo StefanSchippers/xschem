@@ -925,7 +925,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, 
    n=pos;
   }
   /*  03-02-2000 */
-  dbg(1, "place_symbol(): checked inst_ptr storage, xctx.sym number i=%d\n", i);
+  dbg(1, "place_symbol(): checked inst_ptr storage, sym number i=%d\n", i);
   xctx.inst[n].ptr = i;
   xctx.inst[n].name=NULL;
   xctx.inst[n].instname=NULL;
@@ -1194,7 +1194,7 @@ void descend_schematic(int instnumber)
     prepare_netlist_structs(0);
     if(enable_drill) drill_hilight();
   }
-  dbg(1, "descend_schematic(): before xctx.zoom(): prepared_hash_instances=%d\n", prepared_hash_instances);
+  dbg(1, "descend_schematic(): before zoom(): prepared_hash_instances=%d\n", prepared_hash_instances);
   zoom_full(1, 0);
  }
 }
@@ -1545,7 +1545,7 @@ void zoom_box(int what)
     xctx.mooz=1/xctx.zoom;
     change_linewidth(-1.);
     draw();
-    dbg(1, "zoom_box(): coord: %.16g %.16g %.16g %.16g xctx.zoom=%.16g\n",x1,y1,mousex_snap, mousey_snap,xctx.zoom);
+    dbg(1, "zoom_box(): coord: %.16g %.16g %.16g %.16g zoom=%.16g\n",x1,y1,mousex_snap, mousey_snap,xctx.zoom);
   }
   if(what & RUBBER)
   {

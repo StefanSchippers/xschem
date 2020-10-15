@@ -1082,7 +1082,7 @@ void update_symbol(const char *result, int x)
         else
           name[1]=prefix; /* change prefix if changing symbol type; */
       }
-      dbg(1, "update_symbol(): name=%s, xctx.inst[i].prop_ptr=%s\n", name, xctx.inst[i].prop_ptr);
+      dbg(1, "update_symbol(): name=%s, inst[i].prop_ptr=%s\n", name, xctx.inst[i].prop_ptr);
       my_strdup(89, &ptr,subst_token(xctx.inst[i].prop_ptr, "name", name) );
                      /* set name of current inst */
 
