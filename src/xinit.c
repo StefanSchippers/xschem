@@ -362,6 +362,8 @@ void free_xschem_data()
   my_free(1131, &xctx.maxp);
   my_free(1132, &xctx.maxa);
   my_free(1133, &xctx.maxl);
+  for(i=0;i<CADMAXHIER;i++) my_free(1139, &xctx.sch_path[i]);
+
 }
 
 void alloc_xschem_data()
@@ -676,8 +678,6 @@ void xwin_exit(void)
  translate2(NULL, 0, NULL); /* clear static data in function */
  subst_token(NULL, NULL, NULL); /* clear static data in function */
  find_nth(NULL, '\0', 0); /* clear static data in function */
-
- for(i=0;i<CADMAXHIER;i++) my_free(1139, &xctx.sch_path[i]);
 
  dbg(1, "xwin_exit(): removing font\n");
  for(i=0;i<127;i++) my_free(1140, &character[i]);
