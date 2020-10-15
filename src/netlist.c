@@ -677,7 +677,8 @@ void prepare_netlist_structs(int for_netlist)
       !get_tok_value((xctx->inst[i].ptr+ xctx->sym)->templ, "name", 0)[0]
         ) {
       char str[2048];
-      if(  strcmp(type, "package") &&
+      if(  type && 
+           strcmp(type, "package") &&
            strcmp(type, "port_attributes") &&
            strcmp(type, "architecture") &&
            strcmp(type, "arch_declarations") &&
