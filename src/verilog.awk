@@ -245,7 +245,7 @@ begin_module && $1 ~/^\);$/ {
    {
     pin=""
     if(j>7) {printf ","}
-    if($j !~ /^\?[0-9]+$/)
+    if($j !~ /^\?-?[0-9]+$/)
     {
       pin=pin $j # if not a node just print it
     }

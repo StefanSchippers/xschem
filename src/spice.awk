@@ -212,7 +212,7 @@ function process(        i, iprefix)
 
 
  # .probe tran v( ?1 DL[3],DL[2],DL[1],DL[0] , ?1 WL[3],WL{2],WL[1],WL[0] )
- if($1 ==".probe" && $4 ~/^\?[0-9]+$/ && $7 ~/^\?[0-9]+$/ && NF==9) {
+ if($1 ==".probe" && $4 ~/^\?-?0-9]+$/ && $7 ~/^\?-?[0-9]+$/ && NF==9) {
    num1=split($5,name,",")
    num2=split($8,name2,",")
 
@@ -222,7 +222,7 @@ function process(        i, iprefix)
    }
 
  # .save v( ?1 DL[3],DL[2],DL[1],DL[0] , ?1 WL[3],WL{2],WL[1],WL[0] )
- } else if($1 ==".save" && $3 ~/^\?[0-9]+$/ && $6 ~/^\?[0-9]+$/ && NF==8) {
+ } else if($1 ==".save" && $3 ~/^\?-?[0-9]+$/ && $6 ~/^\?-?[0-9]+$/ && NF==8) {
    num1=split($4,name,",")
    num2=split($7,name2,",")
 
@@ -233,13 +233,13 @@ function process(        i, iprefix)
 
 
  # .probe tran v( ?1 LDY1_B[1],LDY1_B[0]  )
- } else if($1 ==".probe" && $4 ~/^\?[0-9]+$/ && NF==6) {
+ } else if($1 ==".probe" && $4 ~/^\?-?[0-9]+$/ && NF==6) {
    num=split($5,name,",")
    for(i=1;i<=num;i++) {
      print $1 " " $2 " " $3 " " name[i] " " $6
    }
  # .save v( ?1 LDY1_B[1],LDY1_B[0]  )
- } else if($1 ==".save" && $3 ~/^\?[0-9]+$/ && NF==5) {
+ } else if($1 ==".save" && $3 ~/^\?-?[0-9]+$/ && NF==5) {
    num=split($4,name,",")
    for(i=1;i<=num;i++) { 
      print $1 " " $2 " " name[i] " " $5
@@ -277,7 +277,7 @@ function process(        i, iprefix)
  
   for(j=2;j<=NF;j+=1)  		# start from 2 not from 3 20070221
   {
-    if($j ~/^\?[0-9]+$/) continue	# handle the case that $2 not pinlist  20070221
+    if($j ~/^\?-?[0-9]+$/) continue	# handle the case that $2 not pinlist  20070221
     arg_num[j]=split($j,tmp,",")
     for(k=1;k<=arg_num[j]; k++) {
      arg_name[j,k]=tmp[k]
@@ -289,7 +289,7 @@ function process(        i, iprefix)
 
    for(j=2;j<=NF;j++)
    {
-    if($j !~ /^\?[0-9]+$/)
+    if($j !~ /^\?-?[0-9]+$/)
     {
       printf "%s ", $j # if not a node just print it
     }

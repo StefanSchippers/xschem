@@ -2657,10 +2657,8 @@ proc abs_sym_path {fname {ext {} } } {
       return "$fname"
     }
   }
-  if { $::OS ne {Windows}} {
-    # transform  a/b/../c to a/c or a/b/c/.. to a/b
-    while {[regsub {([^/]*\.*[^./]+[^/]*)/\.\./?} $fname {} fname] } {}  
-  }
+  # transform  a/b/../c to a/c or a/b/c/.. to a/b
+  while {[regsub {([^/]*\.*[^./]+[^/]*)/\.\./?} $fname {} fname] } {}  
   # remove trailing '/'s to non empty path
   regsub {([^/]+)/+$} $fname {\1} fname
   # if fname copy tmpfname is ../../e/f
@@ -2679,9 +2677,7 @@ proc abs_sym_path {fname {ext {} } } {
     } else { set tmpfname "${tmpdirname}/$tmpfname" }
     if { [file exists "$tmpfname"] } { return "$tmpfname" }
     ## should we return path if directory exists ? 
-    if { $::OS ne {Windows} } {
-      if { [file exists [file dirname "$tmpfname"]] } { return "$tmpfname" }
-    }
+    if { [file exists [file dirname "$tmpfname"]] } { return "$tmpfname" }
   }
   # remove any leading './'
   while { [regsub {^\./} $fname {} fname] } {}
