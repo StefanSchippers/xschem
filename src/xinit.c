@@ -790,38 +790,29 @@ int source_tcl_file(char *s)
 
 void preview_window(const char *what, const char *tk_win_path, const char *filename)
 {
-  char *saveptr = NULL;
-  char save_name[PATH_MAX];
   if(!strcmp(what, "create")) {
     tkpre_window = Tk_NameToWindow(interp, tk_win_path, mainwindow);
     Tk_MakeWindowExist(tkpre_window);
     pre_window = Tk_WindowId(tkpre_window);
   }
   else if(!strcmp(what, "draw")) {
-    double xor, yor, z;
+    Xschem_ctx *save_xctx = NULL; /* save pointer to current schematic context structure */
+    char *saveptr = NULL;
     int save_mod, save_ev, save_show_pin;
 
-    /* save context */
-    xor = xctx->xorigin;
-    yor = xctx->yorigin;
-    z = xctx->zoom;
+
+    save_xctx = xctx; /* save current schematic */
+    xctx = NULL;      /* reset for preview */
+    alloc_xschem_data(); /* alloc data into xctx */
+
+    /* save some relevant global context */
     save_window = window;
     save_mod = modified;
     save_ev = event_reporting;
     event_reporting = 0;
     save_show_pin = show_pin_net_names;
     show_pin_net_names = 0;
-    my_strncpy(save_name, xctx->current_name, S(save_name));
     my_strdup(117, &saveptr, tclgetvar("current_dirname"));
-    push_undo();
-    my_strdup(114, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
-    my_strcat(115, &xctx->sch_path[xctx->currsch+1], "___preview___");
-    my_strcat(116, &xctx->sch_path[xctx->currsch+1], ".");
-    xctx->sch_inst_number[xctx->currsch+1] = 1;
-    xctx->currsch++;
-
-    unselect_all();
-    remove_symbols();
 
     /* preview */
     check_version = 0; /* if set refuse to load and preview anything if not a rel 1.1+ xschem file */
@@ -837,21 +828,18 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     my_free(1144, &saveptr);
     unselect_all();
     remove_symbols();
-    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
-    xctx->currsch--;
     clear_drawing();
+    free_xschem_data();
+
     show_pin_net_names = save_show_pin;
-    pop_undo(0);
     modified = save_mod;
     set_modify(modified);
+
+    xctx = save_xctx; /* restore schematic */
+
     window = save_window;
-    xctx->xorigin = xor;
-    xctx->yorigin = yor;
-    xctx->zoom = z;
-    xctx->mooz = 1/z;
     resetwin();
     change_linewidth(-1.);
-    my_strncpy(xctx->current_name, save_name, S(save_name));
     draw();
     event_reporting = save_ev;
   }
