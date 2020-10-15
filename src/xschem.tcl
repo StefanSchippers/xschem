@@ -2659,7 +2659,7 @@ proc abs_sym_path {fname {ext {} } } {
   }
   if { $::OS ne {Windows}} {
     # transform  a/b/../c to a/c or a/b/c/.. to a/b
-    while {[regsub {[^/.]+/\.\./?} $fname {} fname] } {}  
+    while {[regsub {([^/]*\.*[^./]+[^/]*)/\.\./?} $fname {} fname] } {}  
   }
   # remove trailing '/'s to non empty path
   regsub {([^/]+)/+$} $fname {\1} fname
