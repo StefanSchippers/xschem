@@ -750,7 +750,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    no_of_pins= (xctx.inst[i].ptr+ xctx.sym)->rects[PINLAYER];
    for(p=0;p<no_of_pins;p++) {
      if(!strcmp( get_tok_value((xctx.inst[i].ptr+ xctx.sym)->rect[PINLAYER][p].prop_ptr,"name",0), argv[3])) {
-       /*str_ptr =  xctx.inst[i].node[p] ? xctx.inst[i].node[p]: "<UNCONNECTED PIN>"; */
        str_ptr =  net_name(i,p,&mult, 0);
        break;
      }

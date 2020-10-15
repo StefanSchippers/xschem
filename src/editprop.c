@@ -1193,7 +1193,7 @@ void change_elem_order(void)
       xctx.wire[selectedgroup[0].n]=tmpwire;
       dbg(1, "change_elem_order(): selected element %d\n", selectedgroup[0].n);
      }
-
+     need_rebuild_selected_array = 1;
     }
 }
 

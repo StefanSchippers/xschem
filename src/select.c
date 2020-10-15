@@ -672,7 +672,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
           my_snprintf(str, S(str), "pin:%s -> %s",
             get_tok_value(
                (xctx.inst[i].ptr+ xctx.sym)->rect[PINLAYER][j].prop_ptr,"name",0) ,
-            xctx.inst[i].node[j] ? xctx.inst[i].node[j] : "<UNCONNECTED_PIN>");
+            xctx.inst[i].node[j] ? xctx.inst[i].node[j] : "__UNCONNECTED_PIN__");
           statusmsg(str,2);
         }
       }

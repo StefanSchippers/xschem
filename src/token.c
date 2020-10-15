@@ -1711,7 +1711,7 @@ void print_tedax_element(FILE *fd, int inst)
    }
    if(!get_tok_size) my_strdup(501, &pinnumber, "--UNDEF--");
    tmp = net_name(inst,i, &mult, 0);
-   if(tmp && strcmp(tmp, "<UNCONNECTED_PIN>")) {
+   if(tmp && strcmp(tmp, "__UNCONNECTED_PIN__")) {
      fprintf(fd, "conn %s %s %s %s %d\n",
            name,
            tmp,
@@ -2067,7 +2067,7 @@ const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net)
 {
  int tmp;
  char errstr[2048];
- static const char unconn[]="<UNCONNECTED_PIN>";
+ static const char unconn[]="__UNCONNECTED_PIN__";
  char str_node[40]; /* 20161122 overflow safe */
  if(xctx.inst[i].node && xctx.inst[i].node[j]!=NULL)
  {
