@@ -330,216 +330,218 @@ void init_pixdata()
 void free_xschem_data()
 {
   int i;
-  my_free(1098, &xctx.wire);
-  my_free(1100, &xctx.text);
-  my_free(1107, &xctx.inst);
+  my_free(1098, &xctx->wire);
+  my_free(1100, &xctx->text);
+  my_free(1107, &xctx->inst);
   for(i=0;i<cadlayers;i++) {
-       my_free(1103, &xctx.rect[i]);
-       my_free(1104, &xctx.line[i]);
-       my_free(1105, &xctx.poly[i]);
-       my_free(1106, &xctx.arc[i]);
+       my_free(1103, &xctx->rect[i]);
+       my_free(1104, &xctx->line[i]);
+       my_free(1105, &xctx->poly[i]);
+       my_free(1106, &xctx->arc[i]);
   }
-  for(i=0;i<xctx.maxs;i++) {
-     my_free(1109, &xctx.sym[i].line);
-     my_free(1110, &xctx.sym[i].rect);
-     my_free(1111, &xctx.sym[i].arc);
-     my_free(1112, &xctx.sym[i].poly);
-     my_free(1113, &xctx.sym[i].lines);
-     my_free(1114, &xctx.sym[i].polygons);
-     my_free(1115, &xctx.sym[i].arcs);
-     my_free(1116, &xctx.sym[i].rects);
+  for(i=0;i<xctx->maxs;i++) {
+     my_free(1109, &xctx->sym[i].line);
+     my_free(1110, &xctx->sym[i].rect);
+     my_free(1111, &xctx->sym[i].arc);
+     my_free(1112, &xctx->sym[i].poly);
+     my_free(1113, &xctx->sym[i].lines);
+     my_free(1114, &xctx->sym[i].polygons);
+     my_free(1115, &xctx->sym[i].arcs);
+     my_free(1116, &xctx->sym[i].rects);
   }
-  my_free(1117, &xctx.sym);
-  my_free(1118, &xctx.rect);
-  my_free(1119, &xctx.line);
-  my_free(1125, &xctx.poly);
-  my_free(1126, &xctx.arc);
-  my_free(1124, &xctx.rects);
-  my_free(1127, &xctx.polygons);
-  my_free(1128, &xctx.arcs);
-  my_free(1129, &xctx.lines);
-  my_free(1130, &xctx.maxr);
-  my_free(1131, &xctx.maxp);
-  my_free(1132, &xctx.maxa);
-  my_free(1133, &xctx.maxl);
-  for(i=0;i<CADMAXHIER;i++) my_free(1139, &xctx.sch_path[i]);
+  my_free(1117, &xctx->sym);
+  my_free(1118, &xctx->rect);
+  my_free(1119, &xctx->line);
+  my_free(1125, &xctx->poly);
+  my_free(1126, &xctx->arc);
+  my_free(1124, &xctx->rects);
+  my_free(1127, &xctx->polygons);
+  my_free(1128, &xctx->arcs);
+  my_free(1129, &xctx->lines);
+  my_free(1130, &xctx->maxr);
+  my_free(1131, &xctx->maxp);
+  my_free(1132, &xctx->maxa);
+  my_free(1133, &xctx->maxl);
+  for(i=0;i<CADMAXHIER;i++) my_free(1139, &xctx->sch_path[i]);
+  
+  my_free(269, &xctx);
 
 }
 
 void alloc_xschem_data()
 {
   int i;
+  xctx = my_calloc(152, 1, sizeof(Xschem_ctx));
+  xctx->zoom=CADINITIALZOOM;
+  xctx->mooz=1/CADINITIALZOOM;
+  xctx->xorigin=CADINITIALX;
+  xctx->yorigin=CADINITIALY;
+  xctx->wires = 0;
+  xctx->instances = 0;
+  xctx->symbols = 0;
+  xctx->texts = 0;
+  xctx->schprop = NULL;     /* SPICE */
+  xctx->schtedaxprop=NULL;  /* tEDAx */
+  xctx->schvhdlprop=NULL;   /* vhdl property string */
+  xctx->schsymbolprop=NULL; /* symbol property string */
+  xctx->schverilogprop=NULL;/* verilog */
+  xctx->version_string = NULL;
+  xctx->currsch = 0;
+  for(i=0;i<CADMAXHIER;i++) xctx->sch_path[i]=NULL;
+  my_strdup(1187, &xctx->sch_path[0],".");
+  xctx->sch_inst_number[0] = 1;
 
-  xctx.zoom=CADINITIALZOOM;
-  xctx.mooz=1/CADINITIALZOOM;
-  xctx.xorigin=CADINITIALX;
-  xctx.yorigin=CADINITIALY;
-  xctx.wires = 0;
-  xctx.instances = 0;
-  xctx.symbols = 0;
-  xctx.texts = 0;
-  xctx.schprop = NULL;     /* SPICE */
-  xctx.schtedaxprop=NULL;  /* tEDAx */
-  xctx.schvhdlprop=NULL;   /* vhdl property string */
-  xctx.schsymbolprop=NULL; /* symbol property string */
-  xctx.schverilogprop=NULL;/* verilog */
-  xctx.version_string = NULL;
-  xctx.currsch = 0;
-  for(i=0;i<CADMAXHIER;i++) xctx.sch_path[i]=NULL;
-  my_strdup(1187, &xctx.sch_path[0],".");
-  xctx.sch_inst_number[0] = 1;
-
-  xctx.maxt=CADMAXTEXT;
-  xctx.maxw=CADMAXWIRES;
-  xctx.maxi=ELEMINST;
-  xctx.maxs=ELEMDEF;
-  xctx.text=my_calloc(606, xctx.maxt,sizeof(xText));
-  if(xctx.text==NULL){
+  xctx->maxt=CADMAXTEXT;
+  xctx->maxw=CADMAXWIRES;
+  xctx->maxi=ELEMINST;
+  xctx->maxs=ELEMDEF;
+  xctx->text=my_calloc(606, xctx->maxt,sizeof(xText));
+  if(xctx->text==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
 
-  xctx.wire=my_calloc(607, xctx.maxw,sizeof(xWire));
-  if(xctx.wire==NULL){
+  xctx->wire=my_calloc(607, xctx->maxw,sizeof(xWire));
+  if(xctx->wire==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
 
-  xctx.inst=my_calloc(609, xctx.maxi , sizeof(xInstance) );
-  if(xctx.inst==NULL){
+  xctx->inst=my_calloc(609, xctx->maxi , sizeof(xInstance) );
+  if(xctx->inst==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
 
-  xctx.sym=my_calloc(610, xctx.maxs , sizeof(xSymbol) );
-  if(xctx.sym==NULL){
+  xctx->sym=my_calloc(610, xctx->maxs , sizeof(xSymbol) );
+  if(xctx->sym==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
-  for(i=0;i<xctx.maxs;i++) {
-    xctx.sym[i].line=my_calloc(611, cadlayers, sizeof(xLine *));
-    if(xctx.sym[i].line==NULL){
+  for(i=0;i<xctx->maxs;i++) {
+    xctx->sym[i].line=my_calloc(611, cadlayers, sizeof(xLine *));
+    if(xctx->sym[i].line==NULL){
       fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
     }
 
-    xctx.sym[i].poly=my_calloc(612, cadlayers, sizeof(xPoly *));
-    if(xctx.sym[i].poly==NULL){
+    xctx->sym[i].poly=my_calloc(612, cadlayers, sizeof(xPoly *));
+    if(xctx->sym[i].poly==NULL){
       fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
     }
 
-    xctx.sym[i].arc=my_calloc(613, cadlayers, sizeof(xArc *));
-    if(xctx.sym[i].arc==NULL){
+    xctx->sym[i].arc=my_calloc(613, cadlayers, sizeof(xArc *));
+    if(xctx->sym[i].arc==NULL){
       fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
     }
 
-    xctx.sym[i].rect=my_calloc(614, cadlayers, sizeof(xRect *));
-    if(xctx.sym[i].rect==NULL){
+    xctx->sym[i].rect=my_calloc(614, cadlayers, sizeof(xRect *));
+    if(xctx->sym[i].rect==NULL){
       fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
     }
 
-    xctx.sym[i].lines=my_calloc(615, cadlayers, sizeof(int));
-    if(xctx.sym[i].lines==NULL){
+    xctx->sym[i].lines=my_calloc(615, cadlayers, sizeof(int));
+    if(xctx->sym[i].lines==NULL){
       fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
     }
 
-    xctx.sym[i].rects=my_calloc(616, cadlayers, sizeof(int));
-    if(xctx.sym[i].rects==NULL){
+    xctx->sym[i].rects=my_calloc(616, cadlayers, sizeof(int));
+    if(xctx->sym[i].rects==NULL){
       fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
     }
-    xctx.sym[i].arcs=my_calloc(617, cadlayers, sizeof(int));
-    if(xctx.sym[i].arcs==NULL){
+    xctx->sym[i].arcs=my_calloc(617, cadlayers, sizeof(int));
+    if(xctx->sym[i].arcs==NULL){
       fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
     }
-    xctx.sym[i].polygons=my_calloc(618, cadlayers, sizeof(int));
-    if(xctx.sym[i].polygons==NULL){
+    xctx->sym[i].polygons=my_calloc(618, cadlayers, sizeof(int));
+    if(xctx->sym[i].polygons==NULL){
       fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
     }
   }
 
-  xctx.maxr=my_calloc(620, cadlayers, sizeof(int));
-  if(xctx.maxr==NULL){
+  xctx->maxr=my_calloc(620, cadlayers, sizeof(int));
+  if(xctx->maxr==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
 
-  xctx.maxa=my_calloc(621, cadlayers, sizeof(int));
-  if(xctx.maxa==NULL){
+  xctx->maxa=my_calloc(621, cadlayers, sizeof(int));
+  if(xctx->maxa==NULL){
     fprintf(errfp, "Tcl_AppInit(): max_arcscalloc error\n");tcleval( "exit");
   }
 
-  xctx.maxp=my_calloc(622, cadlayers, sizeof(int));
-  if(xctx.maxp==NULL){
+  xctx->maxp=my_calloc(622, cadlayers, sizeof(int));
+  if(xctx->maxp==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
 
-  xctx.maxl=my_calloc(623, cadlayers, sizeof(int));
-  if(xctx.maxl==NULL){
+  xctx->maxl=my_calloc(623, cadlayers, sizeof(int));
+  if(xctx->maxl==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
 
   for(i=0;i<cadlayers;i++)
   {
-   xctx.maxr[i]=CADMAXOBJECTS;
-   xctx.maxp[i]=CADMAXOBJECTS;
-   xctx.maxl[i]=CADMAXOBJECTS;
-   xctx.maxa[i]=CADMAXOBJECTS;
+   xctx->maxr[i]=CADMAXOBJECTS;
+   xctx->maxp[i]=CADMAXOBJECTS;
+   xctx->maxl[i]=CADMAXOBJECTS;
+   xctx->maxa[i]=CADMAXOBJECTS;
   }
 
-  xctx.rect=my_calloc(624, cadlayers, sizeof(xRect *));
-  if(xctx.rect==NULL){
+  xctx->rect=my_calloc(624, cadlayers, sizeof(xRect *));
+  if(xctx->rect==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
 
-  xctx.line=my_calloc(625, cadlayers, sizeof(xLine *));
-  if(xctx.line==NULL){
+  xctx->line=my_calloc(625, cadlayers, sizeof(xLine *));
+  if(xctx->line==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
 
-  xctx.poly=my_calloc(626, cadlayers, sizeof(xPoly *));
-  if(xctx.poly==NULL){
+  xctx->poly=my_calloc(626, cadlayers, sizeof(xPoly *));
+  if(xctx->poly==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
 
-  xctx.arc=my_calloc(627, cadlayers, sizeof(xArc *));
-  if(xctx.arc==NULL){
+  xctx->arc=my_calloc(627, cadlayers, sizeof(xArc *));
+  if(xctx->arc==NULL){
     fprintf(errfp, "Tcl_AppInit(): arc calloc error\n");tcleval( "exit");
   }
 
   for(i=0;i<cadlayers;i++)
   {
-   xctx.rect[i]=my_calloc(628, xctx.maxr[i],sizeof(xRect));
-   if(xctx.rect[i]==NULL){
+   xctx->rect[i]=my_calloc(628, xctx->maxr[i],sizeof(xRect));
+   if(xctx->rect[i]==NULL){
      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
    }
 
-   xctx.arc[i]=my_calloc(629, xctx.maxa[i],sizeof(xArc));
-   if(xctx.arc[i]==NULL){
+   xctx->arc[i]=my_calloc(629, xctx->maxa[i],sizeof(xArc));
+   if(xctx->arc[i]==NULL){
      fprintf(errfp, "Tcl_AppInit(): arc[] calloc error\n");tcleval( "exit");
    }
 
-   xctx.poly[i]=my_calloc(630, xctx.maxp[i],sizeof(xPoly));
-   if(xctx.poly[i]==NULL){
+   xctx->poly[i]=my_calloc(630, xctx->maxp[i],sizeof(xPoly));
+   if(xctx->poly[i]==NULL){
      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
    }
 
-   xctx.line[i]=my_calloc(631, xctx.maxl[i],sizeof(xLine));
-   if(xctx.line[i]==NULL){
+   xctx->line[i]=my_calloc(631, xctx->maxl[i],sizeof(xLine));
+   if(xctx->line[i]==NULL){
      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
    }
   }
 
-  xctx.rects=my_calloc(632, cadlayers, sizeof(int));
-  if(xctx.rects==NULL){
+  xctx->rects=my_calloc(632, cadlayers, sizeof(int));
+  if(xctx->rects==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
 
-  xctx.polygons=my_calloc(633, cadlayers, sizeof(int));
-  if(xctx.polygons==NULL){
+  xctx->polygons=my_calloc(633, cadlayers, sizeof(int));
+  if(xctx->polygons==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
 
-  xctx.arcs=my_calloc(634, cadlayers, sizeof(int));
-  if(xctx.arcs==NULL){
+  xctx->arcs=my_calloc(634, cadlayers, sizeof(int));
+  if(xctx->arcs==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
 
-  xctx.lines=my_calloc(635, cadlayers, sizeof(int));
-  if(xctx.lines==NULL){
+  xctx->lines=my_calloc(635, cadlayers, sizeof(int));
+  if(xctx->lines==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
 }
@@ -800,23 +802,23 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     int save_mod, save_ev, save_show_pin;
 
     /* save context */
-    xor = xctx.xorigin;
-    yor = xctx.yorigin;
-    z = xctx.zoom;
+    xor = xctx->xorigin;
+    yor = xctx->yorigin;
+    z = xctx->zoom;
     save_window = window;
     save_mod = modified;
     save_ev = event_reporting;
     event_reporting = 0;
     save_show_pin = show_pin_net_names;
     show_pin_net_names = 0;
-    my_strncpy(save_name, xctx.current_name, S(save_name));
+    my_strncpy(save_name, xctx->current_name, S(save_name));
     my_strdup(117, &saveptr, tclgetvar("current_dirname"));
     push_undo();
-    my_strdup(114, &xctx.sch_path[xctx.currsch+1], xctx.sch_path[xctx.currsch]);
-    my_strcat(115, &xctx.sch_path[xctx.currsch+1], "___preview___");
-    my_strcat(116, &xctx.sch_path[xctx.currsch+1], ".");
-    xctx.sch_inst_number[xctx.currsch+1] = 1;
-    xctx.currsch++;
+    my_strdup(114, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
+    my_strcat(115, &xctx->sch_path[xctx->currsch+1], "___preview___");
+    my_strcat(116, &xctx->sch_path[xctx->currsch+1], ".");
+    xctx->sch_inst_number[xctx->currsch+1] = 1;
+    xctx->currsch++;
 
     unselect_all();
     remove_symbols();
@@ -835,21 +837,21 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     my_free(1144, &saveptr);
     unselect_all();
     remove_symbols();
-    my_strncpy(xctx.sch[xctx.currsch] , "", S(xctx.sch[xctx.currsch]));
-    xctx.currsch--;
+    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
+    xctx->currsch--;
     clear_drawing();
     show_pin_net_names = save_show_pin;
     pop_undo(0);
     modified = save_mod;
     set_modify(modified);
     window = save_window;
-    xctx.xorigin = xor;
-    xctx.yorigin = yor;
-    xctx.zoom = z;
-    xctx.mooz = 1/z;
+    xctx->xorigin = xor;
+    xctx->yorigin = yor;
+    xctx->zoom = z;
+    xctx->mooz = 1/z;
     resetwin();
     change_linewidth(-1.);
-    my_strncpy(xctx.current_name, save_name, S(save_name));
+    my_strncpy(xctx->current_name, save_name, S(save_name));
     draw();
     event_reporting = save_ev;
   }
@@ -1198,7 +1200,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  xrect[0].height = CADHEIGHT;
 
 
- my_strncpy(xctx.file_version, XSCHEM_FILE_VERSION, S(xctx.file_version));
+ my_strncpy(xctx->file_version, XSCHEM_FILE_VERSION, S(xctx->file_version));
  compile_font();
  /* restore current dir after loading font */
  if(tcleval("info exists env(PWD)")[0] == '1') {

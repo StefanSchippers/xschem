@@ -93,9 +93,9 @@ void print_image()
   areay1 = -2*lw;
   areaw = areax2-areax1;
   areah = areay2-areay1;
-  saveorx = xctx.xorigin;
-  saveory = xctx.yorigin;
-  savezoom = xctx.zoom;
+  saveorx = xctx->xorigin;
+  saveory = xctx->yorigin;
+  savezoom = xctx->zoom;
 #ifdef __unix__
   XFreePixmap(display,save_pixmap);
   /* save_pixmap = XCreatePixmap(display,window,areaw,areah,depth); */
@@ -169,10 +169,10 @@ void print_image()
   areay1 = -2*lw;
   areaw = areax2-areax1;
   areah = areay2-areay1;
-  xctx.zoom = savezoom;
-  xctx.mooz = 1/xctx.zoom;
-  xctx.xorigin = saveorx;
-  xctx.yorigin = saveory;
+  xctx->zoom = savezoom;
+  xctx->mooz = 1/xctx->zoom;
+  xctx->xorigin = saveorx;
+  xctx->yorigin = saveory;
 #ifdef __unix__
   XFreePixmap(display,save_pixmap);
   save_pixmap = XCreatePixmap(display,window,areaw,areah,depth);
@@ -284,7 +284,7 @@ void cairo_draw_string_line(cairo_t *cairo_ctx, char *s,
     rot1=3;
   } else rot1=0;
 
-  vc = cairo_vert_correct*xctx.mooz; /* converted to device (pixel) space */
+  vc = cairo_vert_correct*xctx->mooz; /* converted to device (pixel) space */
 
   if(     rot==0 && flip==0) {iy+=line_delta+fontascent-vc;}
   else if(rot==1 && flip==0) {iy+=xadvance+line_offset;ix=ix-fontheight+fontascent+vc-lines+line_delta;}
@@ -320,9 +320,9 @@ void draw_string(int layer, int what, const char *s, int rot, int flip, int hcen
   (void)what; /* UNUSED in cairo version, avoid compiler warning */
   if(s==NULL || !has_x ) return;
   size = xscale*52.*cairo_font_scale;
-  /*fprintf(errfp, "size=%.16g\n", size*xctx.mooz); */
-  if(size*xctx.mooz<3.0) return; /* too small */
-  if(size*xctx.mooz>1600) return; /* too big */
+  /*fprintf(errfp, "size=%.16g\n", size*xctx->mooz); */
+  if(size*xctx->mooz<3.0) return; /* too small */
+  if(size*xctx->mooz>1600) return; /* too big */
 
   text_bbox(s, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &textx1,&texty1,&textx2,&texty2);
   if(!textclip(areax1,areay1,areax2,areay2,textx1,texty1,textx2,texty2)) {
@@ -359,8 +359,8 @@ void draw_string(int layer, int what, const char *s, int rot, int flip, int hcen
     (double)xcolor_array[layer].green/65535.0,
     (double)xcolor_array[layer].blue/65535.0);
 
-  cairo_set_font_size (cairo_ctx, size*xctx.mooz);
-  cairo_set_font_size (cairo_save_ctx, size*xctx.mooz);
+  cairo_set_font_size (cairo_ctx, size*xctx->mooz);
+  cairo_set_font_size (cairo_save_ctx, size*xctx->mooz);
   cairo_font_extents(cairo_ctx, &fext);
   llength=0;
   my_strdup2(73, &sss, s);
@@ -404,8 +404,8 @@ void draw_string(int layer, int what, const char *str, int rot, int flip, int hc
 
  if(str==NULL || !has_x ) return;
  dbg(2, "draw_string(): string=%s\n",str);
- if(xscale*FONTWIDTH*xctx.mooz<1) {
-   dbg(1, "draw_string(): xscale=%.16g zoom=%.16g \n",xscale,xctx.zoom);
+ if(xscale*FONTWIDTH*xctx->mooz<1) {
+   dbg(1, "draw_string(): xscale=%.16g zoom=%.16g \n",xscale,xctx->zoom);
    return;
  }
  else {
@@ -479,46 +479,46 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
   #ifdef HAS_CAIRO
   char *textfont;
   #endif
-  if(xctx.inst[n].ptr == -1) return;
+  if(xctx->inst[n].ptr == -1) return;
   if( (layer != PINLAYER && !enable_layer[layer]) ) return;
   if(!has_x) return;
   if(
-    (hide_symbols==1 && (xctx.inst[n].ptr+ xctx.sym)->prop_ptr &&
-     !strcmp( (xctx.inst[n].ptr+ xctx.sym)->type, "subcircuit") ) || (hide_symbols == 2) ) {
+    (hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
+     !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") ) || (hide_symbols == 2) ) {
     hide = 1;
   } else {
     hide = 0;
   }
   if(hide && layer == 0) {
-    drawrect(4, what, xctx.inst[n].xx1, xctx.inst[n].yy1, xctx.inst[n].xx2, xctx.inst[n].yy2, 2);
+    drawrect(4, what, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2);
   }
   if(layer==0) {
-    x1=X_TO_SCREEN(xctx.inst[n].x1+xoffset);  /* 20150729 added xoffset, yoffset */
-    x2=X_TO_SCREEN(xctx.inst[n].x2+xoffset);
-    y1=Y_TO_SCREEN(xctx.inst[n].y1+yoffset);
-    y2=Y_TO_SCREEN(xctx.inst[n].y2+yoffset);
+    x1=X_TO_SCREEN(xctx->inst[n].x1+xoffset);  /* 20150729 added xoffset, yoffset */
+    x2=X_TO_SCREEN(xctx->inst[n].x2+xoffset);
+    y1=Y_TO_SCREEN(xctx->inst[n].y1+yoffset);
+    y2=Y_TO_SCREEN(xctx->inst[n].y2+yoffset);
     if(!only_probes && (x2-x1)< 0.3 && (y2-y1)< 0.3) {
-      xctx.inst[n].flags|=1;
+      xctx->inst[n].flags|=1;
       return;
     }
     else if(OUTSIDE(x1,y1,x2,y2,areax1,areay1,areax2,areay2))
     {
-     xctx.inst[n].flags|=1;
+     xctx->inst[n].flags|=1;
      return;
     }
-    else xctx.inst[n].flags&=~1;
+    else xctx->inst[n].flags&=~1;
 
-  } else if(xctx.inst[n].flags&1) {
+  } else if(xctx->inst[n].flags&1) {
     dbg(2, "draw_symbol(): skipping inst %d\n", n);
     return;
   }
-  flip = xctx.inst[n].flip;
+  flip = xctx->inst[n].flip;
   if(tmp_flip) flip = !flip;
-  rot = (xctx.inst[n].rot + rot ) & 0x3;
+  rot = (xctx->inst[n].rot + rot ) & 0x3;
 
-  x0=xctx.inst[n].x0 + xoffset;
-  y0=xctx.inst[n].y0 + yoffset;
-  symptr = (xctx.inst[n].ptr+ xctx.sym);
+  x0=xctx->inst[n].x0 + xoffset;
+  y0=xctx->inst[n].y0 + yoffset;
+  symptr = (xctx->inst[n].ptr+ xctx->sym);
   if(!hide) {
     for(j=0;j< symptr->lines[layer];j++)
     {
@@ -576,23 +576,23 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
       filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
     }
   }
-  if( (layer==TEXTWIRELAYER && !(xctx.inst[n].flags&2) ) ||
-      (sym_txt && (layer==TEXTLAYER) && (xctx.inst[n].flags&2) ) ) {
+  if( (layer==TEXTWIRELAYER && !(xctx->inst[n].flags&2) ) ||
+      (sym_txt && (layer==TEXTLAYER) && (xctx->inst[n].flags&2) ) ) {
     const char *txtptr;
     for(j=0;j< symptr->texts;j++)
     {
       text = symptr->text[j];
-      if(text.xscale*FONTWIDTH*xctx.mooz<1) continue;
+      if(text.xscale*FONTWIDTH*xctx->mooz<1) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
       ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
 
       textlayer = c;
-      if( !(c == PINLAYER && (xctx.inst[n].flags & 4))) {
+      if( !(c == PINLAYER && (xctx->inst[n].flags & 4))) {
         textlayer = symptr->text[j].layer;
         if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
       }
-      if((c == PINLAYER && xctx.inst[n].flags & 4) ||  enable_layer[textlayer]) {
+      if((c == PINLAYER && xctx->inst[n].flags & 4) ||  enable_layer[textlayer]) {
         #ifdef HAS_CAIRO
         textfont = symptr->text[j].font;
         if((textfont && textfont[0]) || symptr->text[j].flags) {
@@ -649,35 +649,35 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
  int customfont;
  #endif
 
- if(xctx.inst[n].ptr == -1) return;
+ if(xctx->inst[n].ptr == -1) return;
  if(!has_x) return;
 
- flip = xctx.inst[n].flip;
+ flip = xctx->inst[n].flip;
  if(tmp_flip) flip = !flip;
- rot = (xctx.inst[n].rot + rot ) & 0x3;
+ rot = (xctx->inst[n].rot + rot ) & 0x3;
 
  if(layer==0) {
-   x1=X_TO_SCREEN(xctx.inst[n].x1+xoffset); /* 20150729 added xoffset, yoffset */
-   x2=X_TO_SCREEN(xctx.inst[n].x2+xoffset);
-   y1=Y_TO_SCREEN(xctx.inst[n].y1+yoffset);
-   y2=Y_TO_SCREEN (xctx.inst[n].y2+yoffset);
+   x1=X_TO_SCREEN(xctx->inst[n].x1+xoffset); /* 20150729 added xoffset, yoffset */
+   x2=X_TO_SCREEN(xctx->inst[n].x2+xoffset);
+   y1=Y_TO_SCREEN(xctx->inst[n].y1+yoffset);
+   y2=Y_TO_SCREEN (xctx->inst[n].y2+yoffset);
    if(OUTSIDE(x1,y1,x2,y2,areax1,areay1,areax2,areay2))
    {
-    xctx.inst[n].flags|=1;
+    xctx->inst[n].flags|=1;
     return;
    }
-   else xctx.inst[n].flags&=~1;
+   else xctx->inst[n].flags&=~1;
 
    /* following code handles different text color for labels/pins 06112002 */
 
- } else if(xctx.inst[n].flags&1) {
+ } else if(xctx->inst[n].flags&1) {
    dbg(2, "draw_symbol(): skipping inst %d\n", n);
    return;
  } /* /20150424 */
 
- x0=xctx.inst[n].x0 + xoffset;
- y0=xctx.inst[n].y0 + yoffset;
- symptr = (xctx.inst[n].ptr+ xctx.sym);
+ x0=xctx->inst[n].x0 + xoffset;
+ y0=xctx->inst[n].y0 + yoffset;
+ symptr = (xctx->inst[n].ptr+ xctx->sym);
  for(j=0;j< symptr->lines[layer];j++)
  {
   line = (symptr->line[layer])[j];
@@ -737,7 +737,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
   for(j=0;j< symptr->texts;j++)
   {
    text = symptr->text[j];
-   if(text.xscale*FONTWIDTH*xctx.mooz<1) continue;
+   if(text.xscale*FONTWIDTH*xctx->mooz<1) continue;
    txtptr= translate(n, text.txt_ptr);
    ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
    #ifdef HAS_CAIRO
@@ -760,9 +760,9 @@ void drawgrid()
  double delta,tmp;
  int i=0;
  if( !draw_grid || !has_x) return;
- delta=cadgrid*xctx.mooz;
+ delta=cadgrid*xctx->mooz;
  while(delta<CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
- x = xctx.xorigin*xctx.mooz;y = xctx.yorigin*xctx.mooz;
+ x = xctx->xorigin*xctx->mooz;y = xctx->yorigin*xctx->mooz;
  if(y>areay1 && y<areay2)
  {
   if(draw_window) XDrawLine(display, window, gc[GRIDLAYER],areax1+1,(int)y, areax2-1, (int)y);
@@ -775,8 +775,8 @@ void drawgrid()
   if(draw_pixmap)
     XDrawLine(display, save_pixmap, gc[GRIDLAYER],(int)x,areay1+1, (int)x, areay2-1);
  }
- tmp = floor((areay1+1)/delta)*delta-fmod(-xctx.yorigin*xctx.mooz,delta);
- for(x=floor((areax1+1)/delta)*delta-fmod(-xctx.xorigin*xctx.mooz,delta);x<areax2;x+=delta)
+ tmp = floor((areay1+1)/delta)*delta-fmod(-xctx->yorigin*xctx->mooz,delta);
+ for(x=floor((areax1+1)/delta)*delta-fmod(-xctx->xorigin*xctx->mooz,delta);x<areax2;x+=delta)
  {
   for(y=tmp;y<areay2;y+=delta)
   {
@@ -1575,7 +1575,7 @@ void draw(void)
     y1 = Y_TO_XSCHEM(areay1);
     x2 = X_TO_XSCHEM(areax2);
     y2 = Y_TO_XSCHEM(areay2);
-    use_hash =  (xctx.wires> 2000 || xctx.instances > 2000 ) &&  (x2 - x1  < ITERATOR_THRESHOLD);
+    use_hash =  (xctx->wires> 2000 || xctx->instances > 2000 ) &&  (x2 - x1  < ITERATOR_THRESHOLD);
 
     if(use_hash) {
       hash_instances();
@@ -1587,26 +1587,26 @@ void draw(void)
         {
           if(draw_single_layer!=-1 && c != draw_single_layer) continue;
 
-          if(enable_layer[c]) for(i=0;i<xctx.lines[c];i++) {
-            xLine *l = &xctx.line[c][i];
+          if(enable_layer[c]) for(i=0;i<xctx->lines[c];i++) {
+            xLine *l = &xctx->line[c][i];
             if(l->bus)
               drawline(c, THICK, l->x1, l->y1, l->x2, l->y2, l->dash);
             else
               drawline(c, ADD, l->x1, l->y1, l->x2, l->y2, l->dash);
           }
-          if(enable_layer[c]) for(i=0;i<xctx.rects[c];i++)
+          if(enable_layer[c]) for(i=0;i<xctx->rects[c];i++)
           {
-            xRect *r = &xctx.rect[c][i];
+            xRect *r = &xctx->rect[c][i];
             drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
             filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
           }
-          if(enable_layer[c]) for(i=0;i<xctx.arcs[c];i++)
+          if(enable_layer[c]) for(i=0;i<xctx->arcs[c];i++)
           {
-            xArc *a = &xctx.arc[c][i];
+            xArc *a = &xctx->arc[c][i];
             drawarc(c, ADD, a->x, a->y, a->r, a->a, a->b, a->fill, a->dash);
           }
-          if(enable_layer[c]) for(i=0;i<xctx.polygons[c];i++) {
-            xPoly *p = &xctx.poly[c][i];
+          if(enable_layer[c]) for(i=0;i<xctx->polygons[c];i++) {
+            xPoly *p = &xctx->poly[c][i];
             drawpolygon(c, NOW, p->x, p->y, p->points, p->fill, p->dash);
           }
           if(use_hash) {
@@ -1616,9 +1616,9 @@ void draw(void)
             for(init_inst_iterator(x1, y1, x2, y2); ( instanceptr = inst_iterator_next() ) ;) {
               int ptr;
               i = instanceptr->n;
-              ptr = xctx.inst[i].ptr;
+              ptr = xctx->inst[i].ptr;
               if( ptr !=-1) {
-                symptr = ptr+xctx.sym;
+                symptr = ptr+xctx->sym;
                 if( c==0 || /*20150408 draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
                     symptr->lines[c] ||
                     symptr->arcs[c] ||
@@ -1632,11 +1632,11 @@ void draw(void)
                        type  &&
                        (
                         (
-                            IS_LABEL_SH_OR_PIN(type) && xctx.inst[i].node && xctx.inst[i].node[0] &&
-                            bus_hilight_lookup(xctx.inst[i].node[0], 0, XLOOKUP )
+                            IS_LABEL_SH_OR_PIN(type) && xctx->inst[i].node && xctx->inst[i].node[0] &&
+                            bus_hilight_lookup(xctx->inst[i].node[0], 0, XLOOKUP )
                         ) ||
                         (
-                           !IS_LABEL_SH_OR_PIN(type) && (xctx.inst[i].flags & 4)
+                           !IS_LABEL_SH_OR_PIN(type) && (xctx->inst[i].flags & 4)
                         )
                        )
                       )
@@ -1649,9 +1649,9 @@ void draw(void)
             /* --------------------------------- /20171224 */
           } else {
 
-            for(i=0;i<xctx.instances;i++) {
-              if(xctx.inst[i].ptr == -1) continue;
-              symptr = (xctx.inst[i].ptr+ xctx.sym);
+            for(i=0;i<xctx->instances;i++) {
+              if(xctx->inst[i].ptr == -1) continue;
+              symptr = (xctx->inst[i].ptr+ xctx->sym);
               if( c==0 || /*20150408 draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
                   symptr->lines[c] ||
                   symptr->arcs[c] ||
@@ -1660,17 +1660,17 @@ void draw(void)
                   ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts)) {
 
 
-                type = (xctx.inst[i].ptr+ xctx.sym)->type;
+                type = (xctx->inst[i].ptr+ xctx->sym)->type;
                 if(!(
                      hilight_nets &&
                      type  &&
                      (
                       (
-                        IS_LABEL_SH_OR_PIN(type) && xctx.inst[i].node && xctx.inst[i].node[0] &&
-                        bus_hilight_lookup(xctx.inst[i].node[0], 0, XLOOKUP )
+                        IS_LABEL_SH_OR_PIN(type) && xctx->inst[i].node && xctx->inst[i].node[0] &&
+                        bus_hilight_lookup(xctx->inst[i].node[0], 0, XLOOKUP )
                       ) ||
                       (
-                        !IS_LABEL_SH_OR_PIN(type) && (xctx.inst[i].flags & 4)
+                        !IS_LABEL_SH_OR_PIN(type) && (xctx->inst[i].flags & 4)
                       )
                      )
                     )
@@ -1694,20 +1694,20 @@ void draw(void)
 
             for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
               ii=wireptr->n;
-              if(xctx.wire[ii].bus) {
-                drawline(WIRELAYER, THICK, xctx.wire[ii].x1,xctx.wire[ii].y1,xctx.wire[ii].x2,xctx.wire[ii].y2, 0);
+              if(xctx->wire[ii].bus) {
+                drawline(WIRELAYER, THICK, xctx->wire[ii].x1,xctx->wire[ii].y1,xctx->wire[ii].x2,xctx->wire[ii].y2, 0);
               }
               else
-                drawline(WIRELAYER, ADD, xctx.wire[ii].x1,xctx.wire[ii].y1,xctx.wire[ii].x2,xctx.wire[ii].y2, 0);
+                drawline(WIRELAYER, ADD, xctx->wire[ii].x1,xctx->wire[ii].y1,xctx->wire[ii].x2,xctx->wire[ii].y2, 0);
             }
           } else {
-            for(i=0;i<xctx.wires;i++)
+            for(i=0;i<xctx->wires;i++)
             {
-              if(xctx.wire[i].bus) {
-                drawline(WIRELAYER, THICK, xctx.wire[i].x1,xctx.wire[i].y1,xctx.wire[i].x2,xctx.wire[i].y2, 0);
+              if(xctx->wire[i].bus) {
+                drawline(WIRELAYER, THICK, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
               }
               else
-                drawline(WIRELAYER, ADD, xctx.wire[i].x1,xctx.wire[i].y1,xctx.wire[i].x2,xctx.wire[i].y2, 0);
+                drawline(WIRELAYER, ADD, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
             }
           }
           update_conn_cues(1, draw_window);
@@ -1715,22 +1715,22 @@ void draw(void)
           drawline(WIRELAYER, END, 0.0, 0.0, 0.0, 0.0, 0);
         }
         if(draw_single_layer ==-1 || draw_single_layer==TEXTLAYER) {
-          for(i=0;i<xctx.texts;i++)
+          for(i=0;i<xctx->texts;i++)
           {
-            textlayer = xctx.text[i].layer;
+            textlayer = xctx->text[i].layer;
             if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-            dbg(1, "draw(): drawing string %d = %s\n",i, xctx.text[i].txt_ptr);
+            dbg(1, "draw(): drawing string %d = %s\n",i, xctx->text[i].txt_ptr);
             #ifdef HAS_CAIRO
             if(!enable_layer[textlayer]) continue;
-            textfont = xctx.text[i].font;
-            if( (textfont && textfont[0]) || xctx.text[i].flags) {
+            textfont = xctx->text[i].font;
+            if( (textfont && textfont[0]) || xctx->text[i].flags) {
               cairo_font_slant_t slant;
               cairo_font_weight_t weight;
-              textfont = (xctx.text[i].font && xctx.text[i].font[0]) ? xctx.text[i].font : cairo_font_name;
-              weight = ( xctx.text[i].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
+              textfont = (xctx->text[i].font && xctx->text[i].font[0]) ? xctx->text[i].font : cairo_font_name;
+              weight = ( xctx->text[i].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
               slant = CAIRO_FONT_SLANT_NORMAL;
-              if(xctx.text[i].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
-              if(xctx.text[i].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
+              if(xctx->text[i].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
+              if(xctx->text[i].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
 
               cairo_save(cairo_ctx);
               cairo_save(cairo_save_ctx);
@@ -1739,12 +1739,12 @@ void draw(void)
             }
             #endif
 
-            draw_string(textlayer, ADD, xctx.text[i].txt_ptr,
-              xctx.text[i].rot, xctx.text[i].flip, xctx.text[i].hcenter, xctx.text[i].vcenter,
-              xctx.text[i].x0,xctx.text[i].y0,
-              xctx.text[i].xscale, xctx.text[i].yscale);
+            draw_string(textlayer, ADD, xctx->text[i].txt_ptr,
+              xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+              xctx->text[i].x0,xctx->text[i].y0,
+              xctx->text[i].xscale, xctx->text[i].yscale);
             #ifdef HAS_CAIRO
-            if((textfont && textfont[0]) || xctx.text[i].flags ) {
+            if((textfont && textfont[0]) || xctx->text[i].flags ) {
               cairo_restore(cairo_ctx);
               cairo_restore(cairo_save_ctx);
             }

@@ -21,8 +21,8 @@
  */
 
 #include "xschem.h"
-#define X_TO_SVG(x) ( (x+xctx.xorigin)* xctx.mooz )
-#define Y_TO_SVG(y) ( (y+xctx.yorigin)* xctx.mooz )
+#define X_TO_SVG(x) ( (x+xctx->xorigin)* xctx->mooz )
+#define Y_TO_SVG(y) ( (y+xctx->yorigin)* xctx->mooz )
 
 static FILE *fd;
 
@@ -66,7 +66,7 @@ static void set_svg_colors(unsigned int pixel)
 static void svg_xdrawline(int layer, double x1, double y1, double x2, double y2, int dash)
 {
  fprintf(fd,"<path class=\"l%d\" ", layer);
- if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx.zoom, 1.4*dash/xctx.zoom);
+ if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
  fprintf(fd,"d=\"M%g %gL%g %g\"/>\n", x1, y1, x2, y2);
 }
 
@@ -79,7 +79,7 @@ static void svg_xdrawpoint(int layer, double x1, double y1)
 static void svg_xfillrectangle(int layer, double x1, double y1, double x2, double y2, int dash)
 {
  fprintf(fd,"<path class=\"l%d\" ", layer);
- if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx.zoom, 1.4*dash/xctx.zoom);
+ if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
  fprintf(fd,"d=\"M%g %gL%g %gL%g %gL%g %gL%g %gz\"/>\n", x1, y1, x2, y1, x2, y2, x1, y2, x1, y1);
 }
 
@@ -97,7 +97,7 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points, i
     return;
   }
   fprintf(fd, "<path class=\"l%d\" ", c);
-  if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx.zoom, 1.4*dash/xctx.zoom);
+  if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
   if(fill) {
     fprintf(fd,"style=\"fill:#%02x%02x%02x;\" d=\"", svg_stroke.red, svg_stroke.green, svg_stroke.blue);
   } else {
@@ -134,7 +134,7 @@ static void svg_drawcircle(int gc, int fillarc, double x,double y,double r,doubl
 
   xx=X_TO_SVG(x);
   yy=Y_TO_SVG(y);
-  rr=r*xctx.mooz;
+  rr=r*xctx->mooz;
   arc_bbox(x, y, r, a, b, &x1,&y1,&x2,&y2);
   x1=X_TO_SVG(x1);
   y1=Y_TO_SVG(y1);
@@ -159,7 +159,7 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
 
   xx=X_TO_SVG(x);
   yy=Y_TO_SVG(y);
-  rr=r*xctx.mooz;
+  rr=r*xctx->mooz;
   arc_bbox(x, y, r, a, b, &x1,&y1,&x2,&y2);
   x1=X_TO_SVG(x1);
   y1=Y_TO_SVG(y1);
@@ -170,7 +170,7 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
   {
     if(b == 360.) {
       fprintf(fd, "<circle cx=\"%g\" cy=\"%g\" r=\"%g\" ", xx, yy, rr);
-      if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx.zoom, 1.4*dash/xctx.zoom);
+      if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
       if(fillarc)
         fprintf(fd,
          "fill=\"rgb(%d,%d,%d)\" stroke=\"rgb(%d,%d,%d)\" stroke-width=\"%g\"/>\n",
@@ -188,7 +188,7 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
       fs = b > 0 ? 0 : 1;
 
       fprintf(fd,"<path class=\"l%d\" ", gc);
-      if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx.zoom, 1.4*dash/xctx.zoom);
+      if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
       if(fillarc)
         fprintf(fd,"style=\"fill:%02x%02x%02x;\" d=\"", svg_stroke.red, svg_stroke.green, svg_stroke.blue);
       else
@@ -268,9 +268,9 @@ static void svg_drawgrid()
  double x,y;
  double delta,tmp;
  if(!draw_grid) return;
- delta=cadgrid* xctx.mooz;
+ delta=cadgrid* xctx->mooz;
  while(delta<CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
- x = xctx.xorigin* xctx.mooz;y = xctx.yorigin* xctx.mooz;
+ x = xctx->xorigin* xctx->mooz;y = xctx->yorigin* xctx->mooz;
  set_svg_colors(GRIDLAYER);
  if(y>areay1 && y<areay2)
  {
@@ -281,8 +281,8 @@ static void svg_drawgrid()
   svg_xdrawline(GRIDLAYER,(int)x,areay1+1, (int)x, areay2-1, 0);
  }
  set_svg_colors(GRIDLAYER);
- tmp = floor((areay1+1)/delta)*delta-fmod(-xctx.yorigin* xctx.mooz,delta);
- for(x=floor((areax1+1)/delta)*delta-fmod(-xctx.xorigin* xctx.mooz,delta);x<areax2;x+=delta)
+ tmp = floor((areay1+1)/delta)*delta-fmod(-xctx->yorigin* xctx->mooz,delta);
+ for(x=floor((areax1+1)/delta)*delta-fmod(-xctx->xorigin* xctx->mooz,delta);x<areax2;x+=delta)
  {
   for(y=tmp;y<areay2;y+=delta)
   {
@@ -306,48 +306,48 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
  xArc arc;
  xPoly polygon;
 
-  if(xctx.inst[n].ptr == -1) return;
+  if(xctx->inst[n].ptr == -1) return;
   if( (layer != PINLAYER && !enable_layer[layer]) ) return;
   if(layer==0)
   {
-   x1=X_TO_SVG(xctx.inst[n].x1);
-   x2=X_TO_SVG(xctx.inst[n].x2);
-   y1=Y_TO_SVG(xctx.inst[n].y1);
-   y2=Y_TO_SVG(xctx.inst[n].y2);
+   x1=X_TO_SVG(xctx->inst[n].x1);
+   x2=X_TO_SVG(xctx->inst[n].x2);
+   y1=Y_TO_SVG(xctx->inst[n].y1);
+   y2=Y_TO_SVG(xctx->inst[n].y2);
    if(OUTSIDE(x1,y1,x2,y2,areax1,areay1,areax2,areay2))
    {
-    xctx.inst[n].flags|=1;
+    xctx->inst[n].flags|=1;
     return;
    }
-   else xctx.inst[n].flags&=~1;
+   else xctx->inst[n].flags&=~1;
 
    /* following code handles different text color for labels/pins 06112002 */
 
   }
-  else if(xctx.inst[n].flags&1)
+  else if(xctx->inst[n].flags&1)
   {
    dbg(1, "draw_symbol(): skippinginst %d\n", n);
    return;
   }
 
-  flip = xctx.inst[n].flip;
+  flip = xctx->inst[n].flip;
   if(tmp_flip) flip = !flip;
-  rot = (xctx.inst[n].rot + rot ) & 0x3;
+  rot = (xctx->inst[n].rot + rot ) & 0x3;
 
-  x0=xctx.inst[n].x0 + xoffset;
-  y0=xctx.inst[n].y0 + yoffset;
-   for(j=0;j< (xctx.inst[n].ptr+ xctx.sym)->lines[layer];j++)
+  x0=xctx->inst[n].x0 + xoffset;
+  y0=xctx->inst[n].y0 + yoffset;
+   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->lines[layer];j++)
    {
-    line = ((xctx.inst[n].ptr+ xctx.sym)->line[layer])[j];
+    line = ((xctx->inst[n].ptr+ xctx->sym)->line[layer])[j];
     ROTATION(0.0,0.0,line.x1,line.y1,x1,y1);
     ROTATION(0.0,0.0,line.x2,line.y2,x2,y2);
     ORDER(x1,y1,x2,y2);
     svg_drawline(layer, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
    }
 
-   for(j=0;j< (xctx.inst[n].ptr+ xctx.sym)->polygons[layer];j++)
+   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->polygons[layer];j++)
    {
-     polygon = ((xctx.inst[n].ptr+ xctx.sym)->poly[layer])[j];
+     polygon = ((xctx->inst[n].ptr+ xctx->sym)->poly[layer])[j];
      {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
        int k;
        double *x = my_malloc(417, sizeof(double) * polygon.points);
@@ -362,10 +362,10 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
        my_free(962, &y);
      }
    }
-   for(j=0;j< (xctx.inst[n].ptr+ xctx.sym)->arcs[layer];j++)
+   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->arcs[layer];j++)
    {
      double angle;
-     arc = ((xctx.inst[n].ptr+ xctx.sym)->arc[layer])[j];
+     arc = ((xctx->inst[n].ptr+ xctx->sym)->arc[layer])[j];
      if(flip) {
        angle = 270.*rot+180.-arc.b-arc.a;
      } else {
@@ -377,30 +377,30 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
      svg_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
    }
 
-   if( (layer != PINLAYER || enable_layer[layer]) ) for(j=0;j< (xctx.inst[n].ptr+ xctx.sym)->rects[layer];j++)
+   if( (layer != PINLAYER || enable_layer[layer]) ) for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer];j++)
    {
-    box = ((xctx.inst[n].ptr+ xctx.sym)->rect[layer])[j];
+    box = ((xctx->inst[n].ptr+ xctx->sym)->rect[layer])[j];
     ROTATION(0.0,0.0,box.x1,box.y1,x1,y1);
     ROTATION(0.0,0.0,box.x2,box.y2,x2,y2);
     RECTORDER(x1,y1,x2,y2);
     svg_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
    }
-   if(  (layer==TEXTWIRELAYER  && !(xctx.inst[n].flags&2) ) ||
-        (sym_txt && (layer==TEXTLAYER)   && (xctx.inst[n].flags&2) ) )
+   if(  (layer==TEXTWIRELAYER  && !(xctx->inst[n].flags&2) ) ||
+        (sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) )
    {
     const char *txtptr;
-    for(j=0;j< (xctx.inst[n].ptr+ xctx.sym)->texts;j++)
+    for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->texts;j++)
     {
-     text = (xctx.inst[n].ptr+ xctx.sym)->text[j];
-     /* if(text.xscale*FONTWIDTH* xctx.mooz<1) continue; */
+     text = (xctx->inst[n].ptr+ xctx->sym)->text[j];
+     /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
      txtptr= translate(n, text.txt_ptr);
      ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
      textlayer = layer;
-     if( !(layer == PINLAYER && (xctx.inst[n].flags & 4))) {
-       textlayer = (xctx.inst[n].ptr+ xctx.sym)->text[j].layer;
+     if( !(layer == PINLAYER && (xctx->inst[n].flags & 4))) {
+       textlayer = (xctx->inst[n].ptr+ xctx->sym)->text[j].layer;
        if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
      }
-     if((layer == PINLAYER && xctx.inst[n].flags & 4) ||  enable_layer[textlayer]) {
+     if((layer == PINLAYER && xctx->inst[n].flags & 4) ||  enable_layer[textlayer]) {
        svg_draw_string(textlayer, txtptr,
          (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
          flip^text.flip, text.hcenter, text.vcenter,
@@ -528,46 +528,46 @@ void svg_draw(void)
  }
    svg_drawgrid();
    set_svg_colors(TEXTLAYER);
-   for(i=0;i<xctx.texts;i++)
+   for(i=0;i<xctx->texts;i++)
    {
-     textlayer = xctx.text[i].layer;
+     textlayer = xctx->text[i].layer;
      if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-     svg_draw_string(textlayer, xctx.text[i].txt_ptr,
-       xctx.text[i].rot, xctx.text[i].flip, xctx.text[i].hcenter, xctx.text[i].vcenter,
-       xctx.text[i].x0,xctx.text[i].y0,
-       xctx.text[i].xscale, xctx.text[i].yscale);
+     svg_draw_string(textlayer, xctx->text[i].txt_ptr,
+       xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+       xctx->text[i].x0,xctx->text[i].y0,
+       xctx->text[i].xscale, xctx->text[i].yscale);
    }
 
    for(c=0;c<cadlayers;c++)
    {
     set_svg_colors(c);
-    for(i=0;i<xctx.lines[c];i++)
-     svg_drawline(c, xctx.line[c][i].x1, xctx.line[c][i].y1,
-                     xctx.line[c][i].x2, xctx.line[c][i].y2, xctx.line[c][i].dash);
-    for(i=0;i<xctx.rects[c];i++)
+    for(i=0;i<xctx->lines[c];i++)
+     svg_drawline(c, xctx->line[c][i].x1, xctx->line[c][i].y1,
+                     xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
+    for(i=0;i<xctx->rects[c];i++)
     {
-     svg_filledrect(c, xctx.rect[c][i].x1, xctx.rect[c][i].y1,
-                       xctx.rect[c][i].x2, xctx.rect[c][i].y2, xctx.rect[c][i].dash);
+     svg_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
+                       xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash);
     }
-    for(i=0;i<xctx.arcs[c];i++)
+    for(i=0;i<xctx->arcs[c];i++)
     {
-      svg_drawarc(c, xctx.arc[c][i].fill, xctx.arc[c][i].x, xctx.arc[c][i].y, xctx.arc[c][i].r,
-                   xctx.arc[c][i].a, xctx.arc[c][i].b, xctx.arc[c][i].dash);
+      svg_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r,
+                   xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].dash);
     }
-    for(i=0;i<xctx.polygons[c];i++) {
-      svg_drawpolygon(c, NOW, xctx.poly[c][i].x, xctx.poly[c][i].y, xctx.poly[c][i].points,
-                      xctx.poly[c][i].fill, xctx.poly[c][i].dash);
+    for(i=0;i<xctx->polygons[c];i++) {
+      svg_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
+                      xctx->poly[c][i].fill, xctx->poly[c][i].dash);
     }
-    for(i=0;i<xctx.instances;i++) {
+    for(i=0;i<xctx->instances;i++) {
       svg_draw_symbol(i,c,0,0,0.0,0.0);
     }
    }
 
 
    set_svg_colors(WIRELAYER);
-   for(i=0;i<xctx.wires;i++)
+   for(i=0;i<xctx->wires;i++)
    {
-      svg_drawline(WIRELAYER, xctx.wire[i].x1,xctx.wire[i].y1,xctx.wire[i].x2,xctx.wire[i].y2, 0);
+      svg_drawline(WIRELAYER, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
    }
    {
      double x1, y1, x2, y2;
@@ -581,11 +581,11 @@ void svg_draw(void)
      y2 = Y_TO_XSCHEM(areay2);
      for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
        i = wireptr->n;
-       if( xctx.wire[i].end1 >1 ) { /* 20150331 draw_dots */
-         svg_drawcircle(WIRELAYER, 1, xctx.wire[i].x1, xctx.wire[i].y1, cadhalfdotsize, 0, 360);
+       if( xctx->wire[i].end1 >1 ) { /* 20150331 draw_dots */
+         svg_drawcircle(WIRELAYER, 1, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360);
        }
-       if( xctx.wire[i].end2 >1 ) { /* 20150331 draw_dots */
-         svg_drawcircle(WIRELAYER, 1, xctx.wire[i].x2, xctx.wire[i].y2, cadhalfdotsize, 0, 360);
+       if( xctx->wire[i].end2 >1 ) { /* 20150331 draw_dots */
+         svg_drawcircle(WIRELAYER, 1, xctx->wire[i].x2, xctx->wire[i].y2, cadhalfdotsize, 0, 360);
        }
      }
    }

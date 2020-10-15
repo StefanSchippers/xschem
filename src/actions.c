@@ -36,7 +36,7 @@ void set_modify(int mod)
   modified = mod;
   if(mod != prev) {
     prev = mod;
-    if(has_x && strcmp(get_cell(xctx.sch[xctx.currsch],1), "systemlib/font")) {
+    if(has_x && strcmp(get_cell(xctx->sch[xctx->currsch],1), "systemlib/font")) {
       if(mod == 1) {
         tcleval( "wm title . \"xschem - [file tail [xschem get schname]]*\"");
         tcleval( "wm iconname . \"xschem - [file tail [xschem get schname]]*\"");
@@ -467,9 +467,9 @@ int save(int confirm) /* 20171006 add confirm */
        if(confirm) {
          tcleval("ask_save");
          if(!strcmp(tclresult(), "") ) cancel=1;
-         if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx.sch[xctx.currsch]);
+         if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch]);
        } else {
-         save_ok = save_schematic(xctx.sch[xctx.currsch]);
+         save_ok = save_schematic(xctx->sch[xctx->currsch]);
        }
      }
      if(save_ok==-1) return 1;
@@ -483,7 +483,7 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
     char res[PATH_MAX];
     char *p;
     if(!f && has_x) {
-      my_strncpy(filename , xctx.sch[xctx.currsch], S(filename));
+      my_strncpy(filename , xctx->sch[xctx->currsch], S(filename));
       if(type == SYMBOL) {
         if( (p = strrchr(filename, '.')) && !strcmp(p, ".sch") ) {
           my_strncpy(filename, add_ext(filename, ".sym"), S(filename));
@@ -506,7 +506,7 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
     save_schematic(res);
     Tcl_VarEval(interp, "update_recent_file {", res,"}",  NULL);
 
-    my_strncpy(xctx.current_name, rel_sym_path(res), S(xctx.current_name));
+    my_strncpy(xctx->current_name, rel_sym_path(res), S(xctx->current_name));
     return;
 }
 
@@ -526,18 +526,18 @@ void ask_new_file(void)
     if( fullname[0] ) {
      dbg(1, "ask_new_file(): load file: %s\n", fullname);
      delete_hilight_net();
-     xctx.currsch = 0;
+     xctx->currsch = 0;
      unselect_all();
      remove_symbols();
      load_schematic(1, fullname,1); /* 20180925.1 */
      Tcl_VarEval(interp, "update_recent_file {", fullname, "}", NULL);
-     my_strdup(1, &xctx.sch_path[xctx.currsch],".");
-     xctx.sch_inst_number[xctx.currsch] = 1;
+     my_strdup(1, &xctx->sch_path[xctx->currsch],".");
+     xctx->sch_inst_number[xctx->currsch] = 1;
      zoom_full(1, 0);
     }
 }
 
-/* remove symbol and decrement xctx.symbols */
+/* remove symbol and decrement xctx->symbols */
 /* Warning: removing a symbol with a loaded schematic will make all symbol references corrupt */
 /* you should clear_drawing() first or load_schematic() or link_symbols_to_instances()
    immediately afterwards */
@@ -547,81 +547,81 @@ void remove_symbol(int j)
   xSymbol save;
   dbg(1, "remove_symbol(): removing symbol %d\n", j);
 
-  my_free(666, &xctx.sym[j].prop_ptr);
-  my_free(667, &xctx.sym[j].templ);
-  my_free(668, &xctx.sym[j].type);
-  my_free(684, &xctx.sym[j].name);
+  my_free(666, &xctx->sym[j].prop_ptr);
+  my_free(667, &xctx->sym[j].templ);
+  my_free(668, &xctx->sym[j].type);
+  my_free(684, &xctx->sym[j].name);
   /*  /20150409 */
   for(c=0;c<cadlayers;c++)
   {
-   for(i=0;i<xctx.sym[j].polygons[c];i++)
+   for(i=0;i<xctx->sym[j].polygons[c];i++)
    {
-     if(xctx.sym[j].poly[c][i].prop_ptr != NULL) {
-       my_free(669, &xctx.sym[j].poly[c][i].prop_ptr);
+     if(xctx->sym[j].poly[c][i].prop_ptr != NULL) {
+       my_free(669, &xctx->sym[j].poly[c][i].prop_ptr);
      }
-     my_free(670, &xctx.sym[j].poly[c][i].x);
-     my_free(671, &xctx.sym[j].poly[c][i].y);
-     my_free(672, &xctx.sym[j].poly[c][i].selected_point);
+     my_free(670, &xctx->sym[j].poly[c][i].x);
+     my_free(671, &xctx->sym[j].poly[c][i].y);
+     my_free(672, &xctx->sym[j].poly[c][i].selected_point);
    }
-   my_free(673, &xctx.sym[j].poly[c]);
+   my_free(673, &xctx->sym[j].poly[c]);
 
-   for(i=0;i<xctx.sym[j].lines[c];i++)
+   for(i=0;i<xctx->sym[j].lines[c];i++)
    {
-    if(xctx.sym[j].line[c][i].prop_ptr != NULL)
+    if(xctx->sym[j].line[c][i].prop_ptr != NULL)
     {
-     my_free(674, &xctx.sym[j].line[c][i].prop_ptr);
+     my_free(674, &xctx->sym[j].line[c][i].prop_ptr);
     }
    }
-   my_free(675, &xctx.sym[j].line[c]);
+   my_free(675, &xctx->sym[j].line[c]);
 
-   for(i=0;i<xctx.sym[j].arcs[c];i++)
+   for(i=0;i<xctx->sym[j].arcs[c];i++)
    {
-    if(xctx.sym[j].arc[c][i].prop_ptr != NULL)
+    if(xctx->sym[j].arc[c][i].prop_ptr != NULL)
     {
-     my_free(676, &xctx.sym[j].arc[c][i].prop_ptr);
+     my_free(676, &xctx->sym[j].arc[c][i].prop_ptr);
     }
    }
-   my_free(677, &xctx.sym[j].arc[c]);
+   my_free(677, &xctx->sym[j].arc[c]);
 
-   for(i=0;i<xctx.sym[j].rects[c];i++)
+   for(i=0;i<xctx->sym[j].rects[c];i++)
    {
-    if(xctx.sym[j].rect[c][i].prop_ptr != NULL)
+    if(xctx->sym[j].rect[c][i].prop_ptr != NULL)
     {
-     my_free(678, &xctx.sym[j].rect[c][i].prop_ptr);
+     my_free(678, &xctx->sym[j].rect[c][i].prop_ptr);
     }
    }
-   my_free(679, &xctx.sym[j].rect[c]);
+   my_free(679, &xctx->sym[j].rect[c]);
   }
-  for(i=0;i<xctx.sym[j].texts;i++)
+  for(i=0;i<xctx->sym[j].texts;i++)
   {
-   if(xctx.sym[j].text[i].prop_ptr != NULL)
+   if(xctx->sym[j].text[i].prop_ptr != NULL)
    {
-    my_free(680, &xctx.sym[j].text[i].prop_ptr);
+    my_free(680, &xctx->sym[j].text[i].prop_ptr);
    }
-   if(xctx.sym[j].text[i].txt_ptr != NULL)
+   if(xctx->sym[j].text[i].txt_ptr != NULL)
    {
-    my_free(681, &xctx.sym[j].text[i].txt_ptr);
+    my_free(681, &xctx->sym[j].text[i].txt_ptr);
    }
-   if(xctx.sym[j].text[i].font != NULL)
+   if(xctx->sym[j].text[i].font != NULL)
    {
-    my_free(682, &xctx.sym[j].text[i].font);
+    my_free(682, &xctx->sym[j].text[i].font);
    }
   }
-  my_free(683, &xctx.sym[j].text);
+  my_free(683, &xctx->sym[j].text);
 
-  save = xctx.sym[j];
-  for(i = j + 1; i < xctx.symbols; i++) {
-    xctx.sym[i-1] = xctx.sym[i];
+  save = xctx->sym[j];
+  for(i = j + 1; i < xctx->symbols; i++) {
+    xctx->sym[i-1] = xctx->sym[i];
   }
-  xctx.sym[xctx.symbols-1] = save;
-  xctx.symbols--;
+  xctx->sym[xctx->symbols-1] = save;
+  xctx->symbols--;
 }
 
 void remove_symbols(void)
 {
  int j;
 
- for(j=xctx.symbols-1;j>=0;j--) {
+ for(j=xctx->symbols-1;j>=0;j--) {
    dbg(2, "remove_symbols(): removing symbol %d\n",j);
    remove_symbol(j);
  }
@@ -638,57 +638,57 @@ void clear_drawing(void)
  int i,j;
  del_inst_table();
  del_wire_table();
- my_free(685, &xctx.schtedaxprop);
- my_free(686, &xctx.schsymbolprop);
- my_free(687, &xctx.schprop);
- my_free(688, &xctx.schvhdlprop);
- my_free(689, &xctx.version_string);
- my_free(690, &xctx.schverilogprop);
- for(i=0;i<xctx.wires;i++)
+ my_free(685, &xctx->schtedaxprop);
+ my_free(686, &xctx->schsymbolprop);
+ my_free(687, &xctx->schprop);
+ my_free(688, &xctx->schvhdlprop);
+ my_free(689, &xctx->version_string);
+ my_free(690, &xctx->schverilogprop);
+ for(i=0;i<xctx->wires;i++)
  {
-  my_free(691, &xctx.wire[i].prop_ptr);
-  my_free(692, &xctx.wire[i].node);
+  my_free(691, &xctx->wire[i].prop_ptr);
+  my_free(692, &xctx->wire[i].node);
  }
- xctx.wires = 0;
- for(i=0;i<xctx.instances;i++)
+ xctx->wires = 0;
+ for(i=0;i<xctx->instances;i++)
  {
-  my_free(693, &xctx.inst[i].prop_ptr);
-  my_free(694, &xctx.inst[i].name);
-  my_free(695, &xctx.inst[i].instname);
+  my_free(693, &xctx->inst[i].prop_ptr);
+  my_free(694, &xctx->inst[i].name);
+  my_free(695, &xctx->inst[i].instname);
   delete_inst_node(i);
  }
- xctx.instances = 0;
- for(i=0;i<xctx.texts;i++)
+ xctx->instances = 0;
+ for(i=0;i<xctx->texts;i++)
  {
-  my_free(696, &xctx.text[i].font);
-  my_free(697, &xctx.text[i].prop_ptr);
-  my_free(698, &xctx.text[i].txt_ptr);
+  my_free(696, &xctx->text[i].font);
+  my_free(697, &xctx->text[i].prop_ptr);
+  my_free(698, &xctx->text[i].txt_ptr);
  }
- xctx.texts = 0;
+ xctx->texts = 0;
  for(i=0;i<cadlayers;i++)
  {
-  for(j=0;j<xctx.lines[i];j++)
+  for(j=0;j<xctx->lines[i];j++)
   {
-   my_free(699, &xctx.line[i][j].prop_ptr);
+   my_free(699, &xctx->line[i][j].prop_ptr);
   }
-  for(j=0;j<xctx.rects[i];j++)
+  for(j=0;j<xctx->rects[i];j++)
   {
-   my_free(700, &xctx.rect[i][j].prop_ptr);
+   my_free(700, &xctx->rect[i][j].prop_ptr);
   }
-  for(j=0;j<xctx.arcs[i];j++)
+  for(j=0;j<xctx->arcs[i];j++)
   {
-   my_free(701, &xctx.arc[i][j].prop_ptr);
+   my_free(701, &xctx->arc[i][j].prop_ptr);
   }
-  for(j=0;j<xctx.polygons[i]; j++) {
-    my_free(702, &xctx.poly[i][j].x);
-    my_free(703, &xctx.poly[i][j].y);
-    my_free(704, &xctx.poly[i][j].prop_ptr);
-    my_free(705, &xctx.poly[i][j].selected_point);
+  for(j=0;j<xctx->polygons[i]; j++) {
+    my_free(702, &xctx->poly[i][j].x);
+    my_free(703, &xctx->poly[i][j].y);
+    my_free(704, &xctx->poly[i][j].prop_ptr);
+    my_free(705, &xctx->poly[i][j].selected_point);
   }
-  xctx.lines[i] = 0;
-  xctx.arcs[i] = 0;
-  xctx.rects[i] = 0;
-  xctx.polygons[i] = 0;
+  xctx->lines[i] = 0;
+  xctx->arcs[i] = 0;
+  xctx->rects[i] = 0;
+  xctx->polygons[i] = 0;
  }
  dbg(1, "clear drawing(): deleted data structures, now deleting hash\n");
  clear_instance_hash();
@@ -755,7 +755,7 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
   for(j=0;j<k;j++) if(selectedgroup[j].type==ELEMENT) {
 
     found=1;
-    my_strdup(5, &prop, xctx.inst[selectedgroup[j].n].instname);
+    my_strdup(5, &prop, xctx->inst[selectedgroup[j].n].instname);
     my_strcat(6, &prop, "_");
     tclsetvar("custom_label_prefix",prop);
 
@@ -773,7 +773,7 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
     rot_txt = tclgetvar("rotated_text");
     if(strcmp(rot_txt,"")) rotated_text=atoi(rot_txt);
 
-    my_strdup(7, &type,(xctx.inst[selectedgroup[j].n].ptr+ xctx.sym)->type);
+    my_strdup(7, &type,(xctx->inst[selectedgroup[j].n].ptr+ xctx->sym)->type);
     if( type && IS_LABEL_OR_PIN(type) ) {
       continue;
     }
@@ -781,16 +781,16 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
     if(!do_all_inst && !strcmp(tclgetvar("do_all_inst"),"1")) do_all_inst=1;
 
     dbg(1, " 200711 1--> %s %.16g %.16g   %s\n",
-        xctx.inst[selectedgroup[j].n].name,
-        xctx.inst[selectedgroup[j].n].x0,
-        xctx.inst[selectedgroup[j].n].y0,
-        xctx.sym[xctx.inst[selectedgroup[j].n].ptr].name);
+        xctx->inst[selectedgroup[j].n].name,
+        xctx->inst[selectedgroup[j].n].x0,
+        xctx->inst[selectedgroup[j].n].y0,
+        xctx->sym[xctx->inst[selectedgroup[j].n].ptr].name);
 
-    x0 = xctx.inst[selectedgroup[j].n].x0;
-    y0 = xctx.inst[selectedgroup[j].n].y0;
-    rot = xctx.inst[selectedgroup[j].n].rot;
-    flip = xctx.inst[selectedgroup[j].n].flip;
-    symbol = xctx.sym + xctx.inst[selectedgroup[j].n].ptr;
+    x0 = xctx->inst[selectedgroup[j].n].x0;
+    y0 = xctx->inst[selectedgroup[j].n].y0;
+    rot = xctx->inst[selectedgroup[j].n].rot;
+    flip = xctx->inst[selectedgroup[j].n].flip;
+    symbol = xctx->sym + xctx->inst[selectedgroup[j].n].ptr;
     npin = symbol->rects[PINLAYER];
     rct=symbol->rect[PINLAYER];
 
@@ -831,8 +831,8 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
          iptr = iptr->next;
        }
        while(wptr) {
-         if( touch(xctx.wire[wptr->n].x1, xctx.wire[wptr->n].y1,
-             xctx.wire[wptr->n].x2, xctx.wire[wptr->n].y2, pinx0, piny0) ) {
+         if( touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
+             xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, pinx0, piny0) ) {
            skip=1;
            break;
          }
@@ -915,34 +915,34 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, 
  if(i!=-1)
  {
   check_inst_storage();
-  if(pos==-1 || pos > xctx.instances) n=xctx.instances;
+  if(pos==-1 || pos > xctx->instances) n=xctx->instances;
   else
   {
-   for(j=xctx.instances;j>pos;j--)
+   for(j=xctx->instances;j>pos;j--)
    {
-    xctx.inst[j]=xctx.inst[j-1];
+    xctx->inst[j]=xctx->inst[j-1];
    }
    n=pos;
   }
   /*  03-02-2000 */
   dbg(1, "place_symbol(): checked inst_ptr storage, sym number i=%d\n", i);
-  xctx.inst[n].ptr = i;
-  xctx.inst[n].name=NULL;
-  xctx.inst[n].instname=NULL;
+  xctx->inst[n].ptr = i;
+  xctx->inst[n].name=NULL;
+  xctx->inst[n].instname=NULL;
   dbg(1, "place_symbol(): entering my_strdup: name=%s\n",name);  /*  03-02-2000 */
-  my_strdup(12, &xctx.inst[n].name ,name);
+  my_strdup(12, &xctx->inst[n].name ,name);
   dbg(1, "place_symbol(): done my_strdup: name=%s\n",name);  /*  03-02-2000 */
-  /*  xctx.inst[n].x0=symbol_name ? x : mousex_snap; */
-  /*  xctx.inst[n].y0=symbol_name ? y : mousey_snap; */
-  xctx.inst[n].x0= x ; /*  20070228 x and y given in callback */
-  xctx.inst[n].y0= y ;
-  xctx.inst[n].rot=symbol_name ? rot : 0;
-  xctx.inst[n].flip=symbol_name ? flip : 0;
+  /*  xctx->inst[n].x0=symbol_name ? x : mousex_snap; */
+  /*  xctx->inst[n].y0=symbol_name ? y : mousey_snap; */
+  xctx->inst[n].x0= x ; /*  20070228 x and y given in callback */
+  xctx->inst[n].y0= y ;
+  xctx->inst[n].rot=symbol_name ? rot : 0;
+  xctx->inst[n].flip=symbol_name ? flip : 0;
 
-  xctx.inst[n].flags=0;
-  xctx.inst[n].sel=0;
-  xctx.inst[n].node=NULL;
-  xctx.inst[n].prop_ptr=NULL;
+  xctx->inst[n].flags=0;
+  xctx->inst[n].sel=0;
+  xctx->inst[n].node=NULL;
+  xctx->inst[n].prop_ptr=NULL;
   dbg(1, "place_symbol() :all inst_ptr members set\n");  /*  03-02-2000 */
   if(first_call) hash_all_names(n);
   if(inst_props) {
@@ -953,24 +953,24 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, 
   }
   dbg(1, "place_symbol(): done set_inst_prop()\n");  /*  03-02-2000 */
 
-  my_strdup2(13, &xctx.inst[n].instname, get_tok_value(xctx.inst[n].prop_ptr,"name",0) );
+  my_strdup2(13, &xctx->inst[n].instname, get_tok_value(xctx->inst[n].prop_ptr,"name",0) );
 
-  type = xctx.sym[xctx.inst[n].ptr].type;
+  type = xctx->sym[xctx->inst[n].ptr].type;
   cond= !type || !IS_LABEL_SH_OR_PIN(type);
-  if(cond) xctx.inst[n].flags|=2;
-  else xctx.inst[n].flags &=~2;
+  if(cond) xctx->inst[n].flags|=2;
+  else xctx->inst[n].flags &=~2;
 
   if(first_call && (draw_sym & 3) ) bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
 
-  xctx.instances++; /* must be updated before calling symbol_bbox() */
+  xctx->instances++; /* must be updated before calling symbol_bbox() */
   prepared_hash_instances=0;
   /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
    * to translate @#n:net_name texts */
   prepared_netlist_structs=0;
   prepared_hilight_structs=0;
-  symbol_bbox(n, &xctx.inst[n].x1, &xctx.inst[n].y1,
-                    &xctx.inst[n].x2, &xctx.inst[n].y2);
-  if(draw_sym & 3) bbox(ADD, xctx.inst[n].x1, xctx.inst[n].y1, xctx.inst[n].x2, xctx.inst[n].y2);
+  symbol_bbox(n, &xctx->inst[n].x1, &xctx->inst[n].y1,
+                    &xctx->inst[n].x2, &xctx->inst[n].y2);
+  if(draw_sym & 3) bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2);
   set_modify(1);
   if(draw_sym&1) {
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
@@ -998,11 +998,11 @@ void symbol_in_new_window(void)
  rebuild_selected_array();
  if(lastselected !=1 || selectedgroup[0].type!=ELEMENT)
  {
-  new_window(xctx.sch[xctx.currsch],1);
+  new_window(xctx->sch[xctx->currsch],1);
  }
  else
  {
-  new_window(abs_sym_path(xctx.inst[selectedgroup[0].n].name, ""),1);
+  new_window(abs_sym_path(xctx->inst[selectedgroup[0].n].name, ""),1);
  }
 
 }
@@ -1015,28 +1015,28 @@ void schematic_in_new_window(void)
  if(lastselected !=1 || selectedgroup[0].type!=ELEMENT)
  {
   /*  new_window("", 0); */
-  new_window(xctx.sch[xctx.currsch], 0); /*  20111007 duplicate current schematic if no inst selected */
+  new_window(xctx->sch[xctx->currsch], 0); /*  20111007 duplicate current schematic if no inst selected */
   return;
  }
  else
  {
   if(                   /*  do not descend if not subcircuit */
-     (xctx.inst[selectedgroup[0].n].ptr+ xctx.sym)->type &&
+     (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type &&
      strcmp(
-        (xctx.inst[selectedgroup[0].n].ptr+ xctx.sym)->type,
+        (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type,
          "subcircuit"
      ) &&
      strcmp(
-        (xctx.inst[selectedgroup[0].n].ptr+ xctx.sym)->type,
+        (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type,
          "primitive"
      )
   ) return;
 
   my_strncpy(filename, abs_sym_path(get_tok_value(
-    (xctx.inst[selectedgroup[0].n].ptr+ xctx.sym)->prop_ptr, "schematic",0 ), "")
+    (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ), "")
     , S(filename));
   if(!filename[0]) {
-    my_strncpy(filename, add_ext(abs_sym_path(xctx.inst[selectedgroup[0].n].name, ""), ".sch"), S(filename));
+    my_strncpy(filename, add_ext(abs_sym_path(xctx->inst[selectedgroup[0].n].name, ""), ".sch"), S(filename));
   }
 
   new_window(filename, 0);
@@ -1056,8 +1056,8 @@ void launcher(void)
     tcleval("update; after 300");
     select_object(mx,my,0, 0);
     n=selectedgroup[0].n;
-    my_strncpy(program, get_tok_value(xctx.inst[n].prop_ptr,"program",2), S(program)); /* handle backslashes */
-    str = get_tok_value(xctx.inst[n].prop_ptr,"url",2); /* handle backslashes */
+    my_strncpy(program, get_tok_value(xctx->inst[n].prop_ptr,"program",2), S(program)); /* handle backslashes */
+    str = get_tok_value(xctx->inst[n].prop_ptr,"url",2); /* handle backslashes */
     dbg(1, "launcher(): str=%s\n", str);
     if(str[0] || (program[0])) {
       tclsetvar("launcher_var",str);
@@ -1068,7 +1068,7 @@ void launcher(void)
       }
       tcleval( "launcher");
     } else {
-      my_strncpy(program, get_tok_value(xctx.inst[n].prop_ptr,"tclcommand",2), S(program));
+      my_strncpy(program, get_tok_value(xctx->inst[n].prop_ptr,"tclcommand",2), S(program));
       if(program[0]) { /*  20170415 execute tcl command */
         tcleval(program);
       }
@@ -1091,15 +1091,15 @@ void descend_schematic(int instnumber)
  }
  else
  {
-  dbg(1, "descend_schematic(): selected:%s\n", xctx.inst[selectedgroup[0].n].name);
+  dbg(1, "descend_schematic(): selected:%s\n", xctx->inst[selectedgroup[0].n].name);
   /* no name set for current schematic: save it before descending*/
-  if(!strcmp(xctx.sch[xctx.currsch],""))
+  if(!strcmp(xctx->sch[xctx->currsch],""))
   {
     char cmd[PATH_MAX+1000];
     char filename[PATH_MAX];
     char res[PATH_MAX];
 
-    my_strncpy(filename, xctx.sch[xctx.currsch], S(filename));
+    my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
     my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} .sch.sym INITIALLOADDIR {%s}", filename);
     tcleval(cmd);
     my_strncpy(res, tclresult(), S(res));
@@ -1109,16 +1109,16 @@ void descend_schematic(int instnumber)
     if(save_ok==-1) return;
   }
 
-  dbg(1, "type of instance: %s\n", (xctx.inst[selectedgroup[0].n].ptr+ xctx.sym)->type);
+  dbg(1, "type of instance: %s\n", (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type);
 
   if(                   /*  do not descend if not subcircuit */
-     (xctx.inst[selectedgroup[0].n].ptr+ xctx.sym)->type &&
+     (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type &&
      strcmp(
-        (xctx.inst[selectedgroup[0].n].ptr+ xctx.sym)->type,
+        (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type,
          "subcircuit"
      ) &&
      strcmp(
-        (xctx.inst[selectedgroup[0].n].ptr+ xctx.sym)->type,
+        (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type,
          "primitive"
      )
   ) return;
@@ -1129,16 +1129,16 @@ void descend_schematic(int instnumber)
   }
 
   /*  build up current hierarchy path */
-  dbg(1, "descend_schematic(): selected instname=%s\n", xctx.inst[selectedgroup[0].n].instname);
+  dbg(1, "descend_schematic(): selected instname=%s\n", xctx->inst[selectedgroup[0].n].instname);
 
 
-  if(xctx.inst[selectedgroup[0].n].instname && xctx.inst[selectedgroup[0].n].instname[0]) {
-    str=expandlabel(xctx.inst[selectedgroup[0].n].instname, &inst_mult);
+  if(xctx->inst[selectedgroup[0].n].instname && xctx->inst[selectedgroup[0].n].instname[0]) {
+    str=expandlabel(xctx->inst[selectedgroup[0].n].instname, &inst_mult);
   } else {
     str = "";
     inst_mult = 1;
   }
-  my_strdup(14, &xctx.sch_path[xctx.currsch+1], xctx.sch_path[xctx.currsch]);
+  my_strdup(14, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
 
   inst_number = 1;
   if(inst_mult > 1) { /* on multiple instances ask where to descend, to correctly evaluate
@@ -1152,7 +1152,7 @@ void descend_schematic(int instnumber)
       inum = tclresult();
       dbg(1, "descend_schematic(): inum=%s\n", inum);
       if(!inum[0]) {
-        my_free(710, &xctx.sch_path[xctx.currsch+1]);
+        my_free(710, &xctx->sch_path[xctx->currsch+1]);
         return;
       }
       inst_number=atoi(inum);
@@ -1163,22 +1163,22 @@ void descend_schematic(int instnumber)
     if(inst_number <1 || inst_number > inst_mult) inst_number = 1; /* any invalid number->descend to leftmost inst */
   }
   dbg(1," inst_number=%d\n", inst_number);
-  my_strcat(15, &xctx.sch_path[xctx.currsch+1], find_nth(str, ',', inst_number));
+  my_strcat(15, &xctx->sch_path[xctx->currsch+1], find_nth(str, ',', inst_number));
   dbg(1," inst_number=%d\n", inst_number);
-  my_strcat(16, &xctx.sch_path[xctx.currsch+1], ".");
-  xctx.sch_inst_number[xctx.currsch+1] = inst_number;
-  dbg(1, "descend_schematic(): current path: %s\n", xctx.sch_path[xctx.currsch+1]);
+  my_strcat(16, &xctx->sch_path[xctx->currsch+1], ".");
+  xctx->sch_inst_number[xctx->currsch+1] = inst_number;
+  dbg(1, "descend_schematic(): current path: %s\n", xctx->sch_path[xctx->currsch+1]);
   dbg(1, "descend_schematic(): inst_number=%d\n", inst_number);
 
-  xctx.previous_instance[xctx.currsch]=selectedgroup[0].n;
-  xctx.zoom_array[xctx.currsch].x=xctx.xorigin;
-  xctx.zoom_array[xctx.currsch].y=xctx.yorigin;
-  xctx.zoom_array[xctx.currsch].zoom=xctx.zoom;
-  xctx.currsch++;
+  xctx->previous_instance[xctx->currsch]=selectedgroup[0].n;
+  xctx->zoom_array[xctx->currsch].x=xctx->xorigin;
+  xctx->zoom_array[xctx->currsch].y=xctx->yorigin;
+  xctx->zoom_array[xctx->currsch].zoom=xctx->zoom;
+  xctx->currsch++;
   hilight_child_pins();
 
   my_strncpy(filename, abs_sym_path(get_tok_value(
-     (xctx.inst[selectedgroup[0].n].ptr+ xctx.sym)->prop_ptr, "schematic",0 ), "")
+     (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ), "")
      , S(filename));
 
   unselect_all();
@@ -1186,7 +1186,7 @@ void descend_schematic(int instnumber)
   if(filename[0]) {
     load_schematic(1,filename, 1);
   } else {
-    my_strncpy(filename, add_ext(abs_sym_path(xctx.inst[selectedgroup[0].n].name, ""), ".sch"), S(filename));
+    my_strncpy(filename, add_ext(abs_sym_path(xctx->inst[selectedgroup[0].n].name, ""), ".sch"), S(filename));
     load_schematic(1, filename, 1);
   }
   if(hilight_nets)
@@ -1207,50 +1207,50 @@ void go_back(int confirm) /*  20171006 add confirm */
  char filename[PATH_MAX];
 
  save_ok=0;
- if(xctx.currsch>0)
+ if(xctx->currsch>0)
  {
   /* if current sym/schematic is changed ask save before going up */
   if(modified)
   {
     if(confirm) {
       tcleval("ask_save");
-      if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx.sch[xctx.currsch]);
+      if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch]);
       else if(!strcmp(tclresult(), "") ) return;
     } else {
-      save_ok = save_schematic(xctx.sch[xctx.currsch]);
+      save_ok = save_schematic(xctx->sch[xctx->currsch]);
     }
   }
   if(save_ok==-1) return;
   unselect_all();
   remove_symbols();
   from_embedded_sym=0;
-  if(strstr(xctx.sch[xctx.currsch], ".xschem_embedded_")) {
+  if(strstr(xctx->sch[xctx->currsch], ".xschem_embedded_")) {
     /* when returning after editing an embedded symbol
      * load immediately symbol definition before going back (.xschem_embedded... file will be lost)
      */
-    load_sym_def(xctx.sch[xctx.currsch], NULL);
+    load_sym_def(xctx->sch[xctx->currsch], NULL);
     from_embedded_sym=1;
   }
-  my_strncpy(xctx.sch[xctx.currsch] , "", S(xctx.sch[xctx.currsch]));
-  xctx.currsch--;
+  my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
+  xctx->currsch--;
   save_modified = modified; /* we propagate modified flag (cleared by load_schematic */
                             /* by default) to parent schematic if going back from embedded symbol */
 
-  my_strncpy(filename, xctx.sch[xctx.currsch], S(filename));
+  my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
   load_schematic(1, filename, 1);
   if(from_embedded_sym) modified=save_modified; /* to force ask save embedded sym in parent schematic */
 
   hilight_parent_pins();
   if(enable_drill) drill_hilight();
-  xctx.xorigin=xctx.zoom_array[xctx.currsch].x;
-  xctx.yorigin=xctx.zoom_array[xctx.currsch].y;
-  xctx.zoom=xctx.zoom_array[xctx.currsch].zoom;
-  xctx.mooz=1/xctx.zoom;
+  xctx->xorigin=xctx->zoom_array[xctx->currsch].x;
+  xctx->yorigin=xctx->zoom_array[xctx->currsch].y;
+  xctx->zoom=xctx->zoom_array[xctx->currsch].zoom;
+  xctx->mooz=1/xctx->zoom;
 
   change_linewidth(-1.);
   draw();
 
-  dbg(1, "go_back(): current path: %s\n", xctx.sch_path[xctx.currsch]);
+  dbg(1, "go_back(): current path: %s\n", xctx->sch_path[xctx->currsch]);
  }
 }
 
@@ -1262,8 +1262,8 @@ void change_linewidth(double w)
   /* choose line width automatically based on zoom */
   if(w<0.) {
     if(change_lw)  {
-      lw_double=xctx.mooz * 0.09 * cadsnap;
-      bus_width = BUS_WIDTH * xctx.mooz * 0.09 * cadsnap;
+      lw_double=xctx->mooz * 0.09 * cadsnap;
+      bus_width = BUS_WIDTH * xctx->mooz * 0.09 * cadsnap;
       cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (cadsnap-10);
       changed=1;
     }
@@ -1307,94 +1307,94 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  boundbox->y2=100;
  for(c=0;c<cadlayers;c++)
  {
-  for(i=0;i<xctx.lines[c];i++)
+  for(i=0;i<xctx->lines[c];i++)
   {
-   if(selected == 1 && !xctx.line[c][i].sel) continue;
+   if(selected == 1 && !xctx->line[c][i].sel) continue;
    if(selected == 2) continue;
-   tmp.x1=xctx.line[c][i].x1;
-   tmp.x2=xctx.line[c][i].x2;
-   tmp.y1=xctx.line[c][i].y1;
-   tmp.y2=xctx.line[c][i].y2;
+   tmp.x1=xctx->line[c][i].x1;
+   tmp.x2=xctx->line[c][i].x2;
+   tmp.y1=xctx->line[c][i].y1;
+   tmp.y2=xctx->line[c][i].y2;
    count++;
    updatebbox(count,boundbox,&tmp);
   }
 
-  for(i=0;i<xctx.polygons[c];i++)
+  for(i=0;i<xctx->polygons[c];i++)
   {
     double x1=0., y1=0., x2=0., y2=0.;
     int k;
-    if(selected == 1 && !xctx.poly[c][i].sel) continue;
+    if(selected == 1 && !xctx->poly[c][i].sel) continue;
     if(selected == 2) continue;
     count++;
-    for(k=0; k<xctx.poly[c][i].points; k++) {
+    for(k=0; k<xctx->poly[c][i].points; k++) {
       /* fprintf(errfp, "  poly: point %d: %.16g %.16g\n", k, pp[c][i].x[k], pp[c][i].y[k]); */
-      if(k==0 || xctx.poly[c][i].x[k] < x1) x1 = xctx.poly[c][i].x[k];
-      if(k==0 || xctx.poly[c][i].y[k] < y1) y1 = xctx.poly[c][i].y[k];
-      if(k==0 || xctx.poly[c][i].x[k] > x2) x2 = xctx.poly[c][i].x[k];
-      if(k==0 || xctx.poly[c][i].y[k] > y2) y2 = xctx.poly[c][i].y[k];
+      if(k==0 || xctx->poly[c][i].x[k] < x1) x1 = xctx->poly[c][i].x[k];
+      if(k==0 || xctx->poly[c][i].y[k] < y1) y1 = xctx->poly[c][i].y[k];
+      if(k==0 || xctx->poly[c][i].x[k] > x2) x2 = xctx->poly[c][i].x[k];
+      if(k==0 || xctx->poly[c][i].y[k] > y2) y2 = xctx->poly[c][i].y[k];
     }
     tmp.x1=x1;tmp.y1=y1;tmp.x2=x2;tmp.y2=y2;
     updatebbox(count,boundbox,&tmp);
   }
 
-  for(i=0;i<xctx.arcs[c];i++)
+  for(i=0;i<xctx->arcs[c];i++)
   {
-    if(selected == 1 && !xctx.arc[c][i].sel) continue;
+    if(selected == 1 && !xctx->arc[c][i].sel) continue;
     if(selected == 2) continue;
-    arc_bbox(xctx.arc[c][i].x, xctx.arc[c][i].y, xctx.arc[c][i].r, xctx.arc[c][i].a, xctx.arc[c][i].b,
+    arc_bbox(xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b,
              &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
     count++;
     updatebbox(count,boundbox,&tmp);
   }
 
-  for(i=0;i<xctx.rects[c];i++)
+  for(i=0;i<xctx->rects[c];i++)
   {
-   if(selected == 1 && !xctx.rect[c][i].sel) continue;
+   if(selected == 1 && !xctx->rect[c][i].sel) continue;
    if(selected == 2) continue;
-   tmp.x1=xctx.rect[c][i].x1;
-   tmp.x2=xctx.rect[c][i].x2;
-   tmp.y1=xctx.rect[c][i].y1;
-   tmp.y2=xctx.rect[c][i].y2;
+   tmp.x1=xctx->rect[c][i].x1;
+   tmp.x2=xctx->rect[c][i].x2;
+   tmp.y1=xctx->rect[c][i].y1;
+   tmp.y2=xctx->rect[c][i].y2;
    count++;
    updatebbox(count,boundbox,&tmp);
   }
  }
- for(i=0;i<xctx.wires;i++)
+ for(i=0;i<xctx->wires;i++)
  {
    int ov, y1, y2;
-   if(selected == 1 && !xctx.wire[i].sel) continue;
+   if(selected == 1 && !xctx->wire[i].sel) continue;
    if(selected == 2) {
      const char *str;
-     str = get_tok_value(xctx.wire[i].prop_ptr, "lab",0);
+     str = get_tok_value(xctx->wire[i].prop_ptr, "lab",0);
      if(!str[0] || !bus_hilight_lookup(str, 0,XLOOKUP)) continue;
    }
-   if(xctx.wire[i].bus){
+   if(xctx->wire[i].bus){
      ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
-     if(xctx.wire[i].y1 < xctx.wire[i].y2) { y1 = xctx.wire[i].y1-ov; y2 = xctx.wire[i].y2+ov; }
-     else                        { y1 = xctx.wire[i].y1+ov; y2 = xctx.wire[i].y2-ov; }
+     if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
+     else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
    } else {
      ov = cadhalfdotsize;
-     if(xctx.wire[i].y1 < xctx.wire[i].y2) { y1 = xctx.wire[i].y1-ov; y2 = xctx.wire[i].y2+ov; }
-     else                        { y1 = xctx.wire[i].y1+ov; y2 = xctx.wire[i].y2-ov; }
+     if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
+     else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
    }
-   tmp.x1 = xctx.wire[i].x1-ov;
-   tmp.x2 = xctx.wire[i].x2+ov;
+   tmp.x1 = xctx->wire[i].x1-ov;
+   tmp.x2 = xctx->wire[i].x2+ov;
    tmp.y1 = y1;
    tmp.y2 = y2;
    count++;
    updatebbox(count,boundbox,&tmp);
  }
- if(has_x) for(i=0;i<xctx.texts;i++)
+ if(has_x) for(i=0;i<xctx->texts;i++)
  {
-   if(selected == 1 && !xctx.text[i].sel) continue;
+   if(selected == 1 && !xctx->text[i].sel) continue;
    if(selected == 2) continue;
    #ifdef HAS_CAIRO
-   customfont = set_text_custom_font(&xctx.text[i]);
+   customfont = set_text_custom_font(&xctx->text[i]);
    #endif
-   if(text_bbox(xctx.text[i].txt_ptr, xctx.text[i].xscale,
-         xctx.text[i].yscale,xctx.text[i].rot, xctx.text[i].flip,
-         xctx.text[i].hcenter, xctx.text[i].vcenter,
-         xctx.text[i].x0, xctx.text[i].y0,
+   if(text_bbox(xctx->text[i].txt_ptr, xctx->text[i].xscale,
+         xctx->text[i].yscale,xctx->text[i].rot, xctx->text[i].flip,
+         xctx->text[i].hcenter, xctx->text[i].vcenter,
+         xctx->text[i].x0, xctx->text[i].y0,
          &tmp.x1,&tmp.y1, &tmp.x2,&tmp.y2) ) {
      count++;
      updatebbox(count,boundbox,&tmp);
@@ -1403,24 +1403,24 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
    if(customfont) cairo_restore(cairo_ctx);
    #endif
  }
- for(i=0;i<xctx.instances;i++)
+ for(i=0;i<xctx->instances;i++)
  {
   char *type;
   struct hilight_hashentry *entry;
 
-  if(selected == 1 && !xctx.inst[i].sel) continue;
+  if(selected == 1 && !xctx->inst[i].sel) continue;
 
   if(selected == 2) {
-    int j, rects, found, hilight_connected_inst;
-    type = (xctx.inst[i].ptr+ xctx.sym)->type;
+    int j, rects, found, hilight_conn_inst;
+    type = (xctx->inst[i].ptr+ xctx->sym)->type;
     found = 0;
-    hilight_connected_inst = !strcmp(get_tok_value((xctx.inst[i].ptr+ xctx.sym)->prop_ptr, "highlight", 0), "true") ||
-                             !strcmp(get_tok_value(xctx.inst[i].prop_ptr, "highlight", 0), "true");
-    if( hilight_connected_inst && (rects = (xctx.inst[i].ptr+ xctx.sym)->rects[PINLAYER]) > 0 ) {
+    hilight_conn_inst = !strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true") ||
+                             !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true");
+    if( hilight_conn_inst && (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
       prepare_netlist_structs(0);
       for(j=0;j<rects;j++) {
-        if( xctx.inst[i].node && xctx.inst[i].node[j]) {
-          entry=bus_hilight_lookup(xctx.inst[i].node[j], 0, XLOOKUP);
+        if( xctx->inst[i].node && xctx->inst[i].node[j]) {
+          entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
           if(entry) {
             found = 1;
             break;
@@ -1429,10 +1429,10 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
       }
     }
     else if( type && IS_LABEL_OR_PIN(type)) {
-      entry=bus_hilight_lookup( get_tok_value(xctx.inst[i].prop_ptr,"lab",0) , 0, XLOOKUP );
+      entry=bus_hilight_lookup( get_tok_value(xctx->inst[i].prop_ptr,"lab",0) , 0, XLOOKUP );
       if(entry) found = 1;
     }
-    else if( (xctx.inst[i].flags & 4) ) {
+    else if( (xctx->inst[i].flags & 4) ) {
       found = 1;
     }
     if(!found) continue;
@@ -1442,11 +1442,11 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
 
 
   /* cpu hog 20171206 */
-  /*  symbol_bbox(i, &xctx.inst[i].x1, &xctx.inst[i].y1, &xctx.inst[i].x2, &xctx.inst[i].y2); */
-  tmp.x1=xctx.inst[i].x1;
-  tmp.y1=xctx.inst[i].y1;
-  tmp.x2=xctx.inst[i].x2;
-  tmp.y2=xctx.inst[i].y2;
+  /*  symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2); */
+  tmp.x1=xctx->inst[i].x1;
+  tmp.y1=xctx->inst[i].y1;
+  tmp.x2=xctx->inst[i].x2;
+  tmp.y2=xctx->inst[i].y2;
   count++;
   updatebbox(count,boundbox,&tmp);
  }
@@ -1470,13 +1470,13 @@ void zoom_full(int dr, int sel)
   areah = areay2 - areay1;
 
   calc_drawing_bbox(&boundbox, sel);
-  xctx.zoom=(boundbox.x2-boundbox.x1)/(areaw-4*lw);
+  xctx->zoom=(boundbox.x2-boundbox.x1)/(areaw-4*lw);
   yy1=(boundbox.y2-boundbox.y1)/(areah-4*lw);
-  if(yy1>xctx.zoom) xctx.zoom=yy1;
-  xctx.zoom*=1.05;
-  xctx.mooz=1/xctx.zoom;
-  xctx.xorigin=-boundbox.x1+(areaw-4*lw)/40*xctx.zoom;
-  xctx.yorigin=(areah-4*lw)*xctx.zoom-boundbox.y2 - (areah-4*lw)/40*xctx.zoom;
+  if(yy1>xctx->zoom) xctx->zoom=yy1;
+  xctx->zoom*=1.05;
+  xctx->mooz=1/xctx->zoom;
+  xctx->xorigin=-boundbox.x1+(areaw-4*lw)/40*xctx->zoom;
+  xctx->yorigin=(areah-4*lw)*xctx->zoom-boundbox.y2 - (areah-4*lw)/40*xctx->zoom;
   dbg(1, "zoom_full(): areaw=%d, areah=%d\n", areaw, areah);
 
   change_linewidth(-1.);
@@ -1493,11 +1493,11 @@ void view_zoom(double z)
     double factor;
     /*  int i; */
     factor = z!=0.0 ? z : CADZOOMSTEP;
-    if(xctx.zoom<CADMINZOOM) return;
-    xctx.zoom/= factor;
-    xctx.mooz=1/xctx.zoom;
-    xctx.xorigin=-mousex_snap+(mousex_snap+xctx.xorigin)/factor;
-    xctx.yorigin=-mousey_snap+(mousey_snap+xctx.yorigin)/factor;
+    if(xctx->zoom<CADMINZOOM) return;
+    xctx->zoom/= factor;
+    xctx->mooz=1/xctx->zoom;
+    xctx->xorigin=-mousex_snap+(mousex_snap+xctx->xorigin)/factor;
+    xctx->yorigin=-mousey_snap+(mousey_snap+xctx->yorigin)/factor;
     change_linewidth(-1.);
     draw();
 }
@@ -1507,17 +1507,17 @@ void view_unzoom(double z)
   double factor;
   /*  int i; */
   factor = z!=0.0 ? z : CADZOOMSTEP;
-  if(xctx.zoom>CADMAXZOOM) return;
-  xctx.zoom*= factor;
-  xctx.mooz=1/xctx.zoom;
+  if(xctx->zoom>CADMAXZOOM) return;
+  xctx->zoom*= factor;
+  xctx->mooz=1/xctx->zoom;
   /* 20181022 make unzoom and zoom symmetric  */
   /* keeping the mouse pointer as the origin */
   if(unzoom_nodrift) {
-    xctx.xorigin=-mousex_snap+(mousex_snap+xctx.xorigin)*factor;
-    xctx.yorigin=-mousey_snap+(mousey_snap+xctx.yorigin)*factor;
+    xctx->xorigin=-mousex_snap+(mousex_snap+xctx->xorigin)*factor;
+    xctx->yorigin=-mousey_snap+(mousey_snap+xctx->yorigin)*factor;
   } else {
-    xctx.xorigin=xctx.xorigin+areaw*xctx.zoom*(1-1/factor)/2;
-    xctx.yorigin=xctx.yorigin+areah*xctx.zoom*(1-1/factor)/2;
+    xctx->xorigin=xctx->xorigin+areaw*xctx->zoom*(1-1/factor)/2;
+    xctx->yorigin=xctx->yorigin+areah*xctx->zoom*(1-1/factor)/2;
   }
   change_linewidth(-1.);
   draw();
@@ -1538,14 +1538,14 @@ void zoom_box(int what)
     ui_state &= ~STARTZOOM;
     RECTORDER(x1,y1,x2,y2);
     drawtemprect(gctiled, NOW, xx1,yy1,xx2,yy2);
-    xctx.xorigin=-x1;xctx.yorigin=-y1;
-    xctx.zoom=(x2-x1)/(areaw-4*lw);
+    xctx->xorigin=-x1;xctx->yorigin=-y1;
+    xctx->zoom=(x2-x1)/(areaw-4*lw);
     yy1=(y2-y1)/(areah-4*lw);
-    if(yy1>xctx.zoom) xctx.zoom=yy1;
-    xctx.mooz=1/xctx.zoom;
+    if(yy1>xctx->zoom) xctx->zoom=yy1;
+    xctx->mooz=1/xctx->zoom;
     change_linewidth(-1.);
     draw();
-    dbg(1, "zoom_box(): coord: %.16g %.16g %.16g %.16g zoom=%.16g\n",x1,y1,mousex_snap, mousey_snap,xctx.zoom);
+    dbg(1, "zoom_box(): coord: %.16g %.16g %.16g %.16g zoom=%.16g\n",x1,y1,mousex_snap, mousey_snap,xctx->zoom);
   }
   if(what & RUBBER)
   {
@@ -1577,10 +1577,10 @@ void draw_stuff(void)
    view_unzoom(40);
    for(i=0;i<=210000;i++)
     {
-     w=(float)(areaw*xctx.zoom/800) * rand() / (RAND_MAX+1.0);
-     h=(float)(areah*xctx.zoom/80) * rand() / (RAND_MAX+1.0);
-     x1=(float)(areaw*xctx.zoom) * rand() / (RAND_MAX+1.0)-xctx.xorigin;
-     y1=(float)(areah*xctx.zoom) * rand() / (RAND_MAX+1.0)-xctx.yorigin;
+     w=(float)(areaw*xctx->zoom/800) * rand() / (RAND_MAX+1.0);
+     h=(float)(areah*xctx->zoom/80) * rand() / (RAND_MAX+1.0);
+     x1=(float)(areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
+     y1=(float)(areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
      x2=x1+w;
      y2=y1+h;
      ORDER(x1,y1,x2,y2);
@@ -1590,10 +1590,10 @@ void draw_stuff(void)
 
    for(i=0;i<=210000;i++)
     {
-     w=(float)(areaw*xctx.zoom/80) * rand() / (RAND_MAX+1.0);
-     h=(float)(areah*xctx.zoom/800) * rand() / (RAND_MAX+1.0);
-     x1=(float)(areaw*xctx.zoom) * rand() / (RAND_MAX+1.0)-xctx.xorigin;
-     y1=(float)(areah*xctx.zoom) * rand() / (RAND_MAX+1.0)-xctx.yorigin;
+     w=(float)(areaw*xctx->zoom/80) * rand() / (RAND_MAX+1.0);
+     h=(float)(areah*xctx->zoom/800) * rand() / (RAND_MAX+1.0);
+     x1=(float)(areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
+     y1=(float)(areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
      x2=x1+w;
      y2=y1+h;
      ORDER(x1,y1,x2,y2);
@@ -1603,10 +1603,10 @@ void draw_stuff(void)
 
    for(i=0;i<=210000;i++)
    {
-     w=(float)xctx.zoom * rand() / (RAND_MAX+1.0);
+     w=(float)xctx->zoom * rand() / (RAND_MAX+1.0);
      h=w;
-     x1=(float)(areaw*xctx.zoom) * rand() / (RAND_MAX+1.0)-xctx.xorigin;
-     y1=(float)(areah*xctx.zoom) * rand() / (RAND_MAX+1.0)-xctx.yorigin;
+     x1=(float)(areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
+     y1=(float)(areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
      x2=x1+w;
      y2=y1+h;
      rectcolor = (int) (10.0*rand()/(RAND_MAX+1.0))+4;
@@ -1673,14 +1673,14 @@ void new_wire(int what, double mx_snap, double my_snap)
          printf("xschem wire %g %g %g %g %d\n", xx1, yy1, xx2, yy2, -1);
          fflush(stdout);
        }
-       hash_wire(XINSERT, xctx.wires-1);
+       hash_wire(XINSERT, xctx->wires-1);
        /* prepared_hash_wires = 0; */
        prepared_hilight_structs = 0;
        update_conn_cues(1,1);
        if(show_pin_net_names) {
          prepare_netlist_structs(0);
          bbox(BEGIN , 0.0 , 0.0 , 0.0 , 0.0);
-         find_inst_to_be_redrawn(xctx.wire[xctx.wires-1].node);
+         find_inst_to_be_redrawn(xctx->wire[xctx->wires-1].node);
          find_inst_hash_clear();
          bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
          draw();
@@ -1787,31 +1787,31 @@ void change_layer()
      n=selectedgroup[k].n;
      type=selectedgroup[k].type;
      c=selectedgroup[k].col;
-     if(type==LINE && xctx.line[c][n].sel==SELECTED) {
-       x1 = xctx.line[c][n].x1;
-       y1 = xctx.line[c][n].y1;
-       x2 = xctx.line[c][n].x2;
-       y2 = xctx.line[c][n].y2;
-       storeobject(-1, x1,y1,x2,y2,LINE,rectcolor, 0, xctx.line[c][n].prop_ptr);
+     if(type==LINE && xctx->line[c][n].sel==SELECTED) {
+       x1 = xctx->line[c][n].x1;
+       y1 = xctx->line[c][n].y1;
+       x2 = xctx->line[c][n].x2;
+       y2 = xctx->line[c][n].y2;
+       storeobject(-1, x1,y1,x2,y2,LINE,rectcolor, 0, xctx->line[c][n].prop_ptr);
      }
-     if(type==ARC && xctx.arc[c][n].sel==SELECTED) {
-       x1 = xctx.arc[c][n].x;
-       y1 = xctx.arc[c][n].y;
-       r = xctx.arc[c][n].r;
-       a = xctx.arc[c][n].a;
-       b = xctx.arc[c][n].b;
-       store_arc(-1, x1, y1, r, a, b, rectcolor, 0, xctx.arc[c][n].prop_ptr);
+     if(type==ARC && xctx->arc[c][n].sel==SELECTED) {
+       x1 = xctx->arc[c][n].x;
+       y1 = xctx->arc[c][n].y;
+       r = xctx->arc[c][n].r;
+       a = xctx->arc[c][n].a;
+       b = xctx->arc[c][n].b;
+       store_arc(-1, x1, y1, r, a, b, rectcolor, 0, xctx->arc[c][n].prop_ptr);
      }
-     if(type==POLYGON && xctx.poly[c][n].sel==SELECTED) {
-        store_poly(-1, xctx.poly[c][n].x, xctx.poly[c][n].y, 
-                       xctx.poly[c][n].points, rectcolor, 0, xctx.poly[c][n].prop_ptr);
+     if(type==POLYGON && xctx->poly[c][n].sel==SELECTED) {
+        store_poly(-1, xctx->poly[c][n].x, xctx->poly[c][n].y, 
+                       xctx->poly[c][n].points, rectcolor, 0, xctx->poly[c][n].prop_ptr);
      }
-     else if(type==xRECT && xctx.rect[c][n].sel==SELECTED) {
-       x1 = xctx.rect[c][n].x1;
-       y1 = xctx.rect[c][n].y1;
-       x2 = xctx.rect[c][n].x2;
-       y2 = xctx.rect[c][n].y2;
-       storeobject(-1, x1,y1,x2,y2,xRECT,rectcolor, 0, xctx.rect[c][n].prop_ptr);
+     else if(type==xRECT && xctx->rect[c][n].sel==SELECTED) {
+       x1 = xctx->rect[c][n].x1;
+       y1 = xctx->rect[c][n].y1;
+       x2 = xctx->rect[c][n].x2;
+       y2 = xctx->rect[c][n].y2;
+       storeobject(-1, x1,y1,x2,y2,xRECT,rectcolor, 0, xctx->rect[c][n].prop_ptr);
      }
    }
    if(lastselected) delete_only_rect_line_arc_poly();
@@ -2096,10 +2096,10 @@ int text_bbox(const char *str, double xscale, double yscale,
   if(!has_x) return 0;
   size = xscale*52.*cairo_font_scale;
 
-  /*  if(size*xctx.mooz>800.) { */
+  /*  if(size*xctx->mooz>800.) { */
   /*    return 0; */
   /*  } */
-  cairo_set_font_size (cairo_ctx, size*xctx.mooz);
+  cairo_set_font_size (cairo_ctx, size*xctx->mooz);
   cairo_font_extents(cairo_ctx, &fext);
 
   ww=0.; hh=1.;
@@ -2134,29 +2134,29 @@ int text_bbox(const char *str, double xscale, double yscale,
 
   *rx1=x1;*ry1=y1;
   if(hcenter) {
-    if     (rot==0 && flip == 0) { *rx1-= ww*xctx.zoom/2;}
-    else if(rot==1 && flip == 0) { *ry1-= ww*xctx.zoom/2;}
-    else if(rot==2 && flip == 0) { *rx1+= ww*xctx.zoom/2;}
-    else if(rot==3 && flip == 0) { *ry1+= ww*xctx.zoom/2;}
-    else if(rot==0 && flip == 1) { *rx1+= ww*xctx.zoom/2;}
-    else if(rot==1 && flip == 1) { *ry1+= ww*xctx.zoom/2;}
-    else if(rot==2 && flip == 1) { *rx1-= ww*xctx.zoom/2;}
-    else if(rot==3 && flip == 1) { *ry1-= ww*xctx.zoom/2;}
+    if     (rot==0 && flip == 0) { *rx1-= ww*xctx->zoom/2;}
+    else if(rot==1 && flip == 0) { *ry1-= ww*xctx->zoom/2;}
+    else if(rot==2 && flip == 0) { *rx1+= ww*xctx->zoom/2;}
+    else if(rot==3 && flip == 0) { *ry1+= ww*xctx->zoom/2;}
+    else if(rot==0 && flip == 1) { *rx1+= ww*xctx->zoom/2;}
+    else if(rot==1 && flip == 1) { *ry1+= ww*xctx->zoom/2;}
+    else if(rot==2 && flip == 1) { *rx1-= ww*xctx->zoom/2;}
+    else if(rot==3 && flip == 1) { *ry1-= ww*xctx->zoom/2;}
   }
 
   if(vcenter) {
-    if     (rot==0 && flip == 0) { *ry1-= hh*xctx.zoom/2;}
-    else if(rot==1 && flip == 0) { *rx1+= hh*xctx.zoom/2;}
-    else if(rot==2 && flip == 0) { *ry1+= hh*xctx.zoom/2;}
-    else if(rot==3 && flip == 0) { *rx1-= hh*xctx.zoom/2;}
-    else if(rot==0 && flip == 1) { *ry1-= hh*xctx.zoom/2;}
-    else if(rot==1 && flip == 1) { *rx1+= hh*xctx.zoom/2;}
-    else if(rot==2 && flip == 1) { *ry1+= hh*xctx.zoom/2;}
-    else if(rot==3 && flip == 1) { *rx1-= hh*xctx.zoom/2;}
+    if     (rot==0 && flip == 0) { *ry1-= hh*xctx->zoom/2;}
+    else if(rot==1 && flip == 0) { *rx1+= hh*xctx->zoom/2;}
+    else if(rot==2 && flip == 0) { *ry1+= hh*xctx->zoom/2;}
+    else if(rot==3 && flip == 0) { *rx1-= hh*xctx->zoom/2;}
+    else if(rot==0 && flip == 1) { *ry1-= hh*xctx->zoom/2;}
+    else if(rot==1 && flip == 1) { *rx1+= hh*xctx->zoom/2;}
+    else if(rot==2 && flip == 1) { *ry1+= hh*xctx->zoom/2;}
+    else if(rot==3 && flip == 1) { *rx1-= hh*xctx->zoom/2;}
   }
 
 
-  ROTATION(0.0,0.0, ww*xctx.zoom,hh*xctx.zoom,(*rx2),(*ry2));
+  ROTATION(0.0,0.0, ww*xctx->zoom,hh*xctx->zoom,(*rx2),(*ry2));
   *rx2+=*rx1;*ry2+=*ry1;
   if     (rot==0) {*ry1-=cairo_vert_correct; *ry2-=cairo_vert_correct;}
   else if(rot==1) {*rx1+=cairo_vert_correct; *rx2+=cairo_vert_correct;}
@@ -2227,7 +2227,7 @@ void place_text(int draw_text, double mx, double my)
   int textlayer;
   const char *str;
   int save_draw;
-  xText *t = &xctx.text[xctx.texts];
+  xText *t = &xctx->text[xctx->texts];
   #ifdef HAS_CAIRO
   char  *textfont;
   #endif
@@ -2310,10 +2310,10 @@ void place_text(int draw_text, double mx, double my)
     cairo_restore(cairo_save_ctx);
   }
   #endif
-  select_text(xctx.texts, SELECTED, 0);
+  select_text(xctx->texts, SELECTED, 0);
   drawtemprect(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
   drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
-  xctx.texts++;
+  xctx->texts++;
   set_modify(1);
 }
 
@@ -2326,8 +2326,8 @@ void pan2(int what, int mx, int my)
   if(what & BEGIN) {
     mmx_save = mx_save = mx;
     mmy_save = my_save = my;
-    xorig_save = xctx.xorigin;
-    yorig_save = xctx.yorigin;
+    xorig_save = xctx->xorigin;
+    yorig_save = xctx->yorigin;
   }
   else if(what == RUBBER) {
     dx = mx - mx_save;
@@ -2335,8 +2335,8 @@ void pan2(int what, int mx, int my)
     ddx = abs(mx -mmx_save);
     ddy = abs(my -mmy_save);
     if(ddx>5 || ddy>5) {
-      xctx.xorigin = xorig_save + dx*xctx.zoom;
-      xctx.yorigin = yorig_save + dy*xctx.zoom;
+      xctx->xorigin = xorig_save + dx*xctx->zoom;
+      xctx->yorigin = yorig_save + dy*xctx->zoom;
       draw();
       mmx_save = mx;
       mmy_save = my;
@@ -2366,7 +2366,7 @@ void pan(int what)
  if(what & END)
  {
     ui_state &= ~STARTPAN;
-    xctx.xorigin+=-xpan+mousex_snap;xctx.yorigin+=-ypan+mousey_snap;
+    xctx->xorigin+=-xpan+mousex_snap;xctx->yorigin+=-ypan+mousey_snap;
     draw();
  }
 }

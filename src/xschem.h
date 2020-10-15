@@ -293,10 +293,10 @@ extern char win_temp_dir[PATH_MAX];
 #define IS_PIN(type) (!(strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
 
 
-#define X_TO_SCREEN(x) ( floor((x+xctx.xorigin)* xctx.mooz) )
-#define Y_TO_SCREEN(y) ( floor((y+xctx.yorigin)* xctx.mooz) )
-#define X_TO_XSCHEM(x) ((x)*xctx.zoom -xctx.xorigin)
-#define Y_TO_XSCHEM(y) ((y)*xctx.zoom -xctx.yorigin)
+#define X_TO_SCREEN(x) ( floor((x+xctx->xorigin)* xctx->mooz) )
+#define Y_TO_SCREEN(y) ( floor((y+xctx->yorigin)* xctx->mooz) )
+#define X_TO_XSCHEM(x) ((x)*xctx->zoom -xctx->xorigin)
+#define Y_TO_XSCHEM(y) ((y)*xctx->zoom -xctx->yorigin)
 
 typedef struct
 {
@@ -557,7 +557,7 @@ struct instentry {
 };
 
 /* GLOBAL VARIABLES */
-extern Xschem_ctx xctx;
+extern Xschem_ctx *xctx;
 extern int help;
 extern char *cad_icon[];
 extern int semaphore;

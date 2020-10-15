@@ -256,4 +256,4 @@ int show_erc=1;
 int hilight_nets=0;
 
 /* following data is relative to the current schematic */
-Xschem_ctx xctx;
+Xschem_ctx *xctx;

@@ -140,7 +140,7 @@ int callback(int event, int mx, int my, KeySym key,
  mousex_snap=ROUND(mousex / cadsnap) * cadsnap;
  mousey_snap=ROUND(mousey / cadsnap) * cadsnap;
  my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
-   mousex_snap, mousey_snap, lastselected, xctx.sch_path[xctx.currsch] );
+   mousex_snap, mousey_snap, lastselected, xctx->sch_path[xctx->currsch] );
  statusmsg(str,1);
  switch(event)
  {
@@ -523,9 +523,9 @@ int callback(int event, int mx, int my, KeySym key,
      for(k=0; k<lastselected; k++) {
        if(selectedgroup[k].type!=ELEMENT) continue;
        j = selectedgroup[k].n ;
-       my_strdup(23, &type,(xctx.inst[j].ptr+ xctx.sym)->type);
+       my_strdup(23, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
        if( type && IS_LABEL_SH_OR_PIN(type)) break;
-       symbol = xctx.sym + xctx.inst[j].ptr;
+       symbol = xctx->sym + xctx->inst[j].ptr;
        npin = symbol->rects[PINLAYER];
        rct=symbol->rect[PINLAYER];
        dbg(1, "\n");
@@ -654,7 +654,7 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key=='P' && state == ShiftMask)                   /* pan, other way to. */
    {
-    xctx.xorigin=-mousex_snap+areaw*xctx.zoom/2.0;xctx.yorigin=-mousey_snap+areah*xctx.zoom/2.0;
+    xctx->xorigin=-mousex_snap+areaw*xctx->zoom/2.0;xctx->yorigin=-mousey_snap+areah*xctx->zoom/2.0;
     draw();
     break;
    }
@@ -678,25 +678,25 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key==XK_Right)                    /* left */
    {
-    xctx.xorigin+=-CADMOVESTEP*xctx.zoom;
+    xctx->xorigin+=-CADMOVESTEP*xctx->zoom;
     draw();
     break;
    }
    if(key==XK_Left)                     /* right */
    {
-    xctx.xorigin-=-CADMOVESTEP*xctx.zoom;
+    xctx->xorigin-=-CADMOVESTEP*xctx->zoom;
     draw();
     break;
    }
    if(key==XK_Down)                     /* down */
    {
-    xctx.yorigin+=-CADMOVESTEP*xctx.zoom;
+    xctx->yorigin+=-CADMOVESTEP*xctx->zoom;
     draw();
     break;
    }
    if(key==XK_Up)                       /* up */
    {
-    xctx.yorigin-=-CADMOVESTEP*xctx.zoom;
+    xctx->yorigin-=-CADMOVESTEP*xctx->zoom;
     draw();
     break;
    }
@@ -761,7 +761,7 @@ int callback(int event, int mx, int my, KeySym key,
    {
      if(semaphore >= 2) break;
      /* check if unnamed schematic, use saveas in this case */
-     if(!strcmp(xctx.sch[xctx.currsch],"") || strstr(xctx.sch[xctx.currsch], "untitled")) {
+     if(!strcmp(xctx->sch[xctx->currsch],"") || strstr(xctx->sch[xctx->currsch], "untitled")) {
        saveas(NULL, SCHEMATIC);
      } else {
        save(1);
@@ -807,7 +807,7 @@ int callback(int event, int mx, int my, KeySym key,
     tcleval("tk_messageBox -type okcancel -message {do you want to make symbol view ?}");
     if(strcmp(tclresult(),"ok")==0)
     {
-     save_schematic(xctx.sch[xctx.currsch]);
+     save_schematic(xctx->sch[xctx->currsch]);
      make_symbol();
     }
     break;
@@ -900,12 +900,12 @@ int callback(int event, int mx, int my, KeySym key,
     if(semaphore >= 2) break;
     rebuild_selected_array();
     if(lastselected==0 ) {
-      my_snprintf(str, S(str), "edit_file {%s}", abs_sym_path(xctx.sch[xctx.currsch], ""));
+      my_snprintf(str, S(str), "edit_file {%s}", abs_sym_path(xctx->sch[xctx->currsch], ""));
       tcleval(str);
     }
     else if(selectedgroup[0].type==ELEMENT) {
       my_snprintf(str, S(str), "edit_file {%s}",
-         abs_sym_path(xctx.inst[selectedgroup[0].n].name, ""));
+         abs_sym_path(xctx->inst[selectedgroup[0].n].name, ""));
       tcleval(str);
 
     }
@@ -946,7 +946,7 @@ int callback(int event, int mx, int my, KeySym key,
         char filename[PATH_MAX];
         unselect_all();
         remove_symbols();
-        my_strncpy(filename, abs_sym_path(xctx.sch[xctx.currsch], ""), S(filename));
+        my_strncpy(filename, abs_sym_path(xctx->sch[xctx->currsch], ""), S(filename));
         load_schematic(1, filename, 1);
         draw();
      }
@@ -1348,10 +1348,10 @@ int callback(int event, int mx, int my, KeySym key,
     rebuild_selected_array();
     if(lastselected && selectedgroup[0].type==ELEMENT) {
       my_snprintf(str, S(str), "delete_files {%s}",
-           abs_sym_path(xctx.inst[selectedgroup[0].n].name, ""));
+           abs_sym_path(xctx->inst[selectedgroup[0].n].name, ""));
     } else {
       my_snprintf(str, S(str), "delete_files {%s}",
-           abs_sym_path(xctx.sch[xctx.currsch], ""));
+           abs_sym_path(xctx->sch[xctx->currsch], ""));
     }
 
     tcleval(str);
@@ -1473,19 +1473,19 @@ int callback(int event, int mx, int my, KeySym key,
    else if(button==Button4 && state == 0 ) view_zoom(CADZOOMSTEP);
 
    else if(button==Button4 && (state & ShiftMask) && !(state & Button2Mask)) {
-    xctx.xorigin+=-CADMOVESTEP*xctx.zoom/2.;
+    xctx->xorigin+=-CADMOVESTEP*xctx->zoom/2.;
     draw();
    }
    else if(button==Button5 && (state & ShiftMask) && !(state & Button2Mask)) {
-    xctx.xorigin-=-CADMOVESTEP*xctx.zoom/2.;
+    xctx->xorigin-=-CADMOVESTEP*xctx->zoom/2.;
     draw();
    }
    else if(button==Button4 && (state & ControlMask) && !(state & Button2Mask)) {
-    xctx.yorigin+=-CADMOVESTEP*xctx.zoom/2.;
+    xctx->yorigin+=-CADMOVESTEP*xctx->zoom/2.;
     draw();
    }
    else if(button==Button5 && (state & ControlMask) && !(state & Button2Mask)) {
-    xctx.yorigin-=-CADMOVESTEP*xctx.zoom/2.;
+    xctx->yorigin-=-CADMOVESTEP*xctx->zoom/2.;
     draw();
    }
    else if(button==Button1 && (state & Mod1Mask) ) {
@@ -1743,7 +1743,7 @@ int callback(int event, int mx, int my, KeySym key,
      }
      rebuild_selected_array();
      my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
-       mousex_snap, mousey_snap, lastselected, xctx.sch_path[xctx.currsch] );
+       mousex_snap, mousey_snap, lastselected, xctx->sch_path[xctx->currsch] );
      statusmsg(str,1);
 
    }
@@ -1765,7 +1765,7 @@ int callback(int event, int mx, int my, KeySym key,
 #ifndef __unix__
   case MOUSE_WHEEL_UP:  /* windows do not use button4 and button5 like X */
   {
-    xctx.xorigin += -CADMOVESTEP * xctx.zoom / 2.;
+    xctx->xorigin += -CADMOVESTEP * xctx->zoom / 2.;
     draw();
   }
 #endif
