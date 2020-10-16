@@ -821,10 +821,9 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     free_xschem_data();
 
     show_pin_net_names = save_show_pin;
+    xctx = save_xctx; /* restore schematic */
     modified = save_mod;
     set_modify(modified);
-
-    xctx = save_xctx; /* restore schematic */
 
     window = save_window;
     resetwin();
