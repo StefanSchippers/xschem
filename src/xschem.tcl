@@ -895,7 +895,7 @@ proc is_xschem_file {f} {
     } 
     if { $score > 6 }  { set ret 1} ;# Heuristic decision :-)
     if { $ret } {
-      if { $instances>2} {
+      if { $instances} {
         set ret SCHEMATIC
       } else { 
         set ret SYMBOL
