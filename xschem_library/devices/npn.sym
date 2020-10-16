@@ -22,11 +22,11 @@ B 5 17.5 -32.5 22.5 -27.5 {name=C dir=inout pinnumber=3}
 B 5 -22.5 -2.5 -17.5 2.5 {name=B dir=in pinnumber=1}
 B 5 17.5 27.5 22.5 32.5 {name=E dir=inout pinnumber=2}
 P 4 4 20 30 13.75 13.75 3.75 23.75 20 30 {fill=true}
-T {@model} 20 -15 0 0 0.2 0.2 {}
-T {@name} 20 5 0 0 0.2 0.2 {}
-T {@#0:pinnumber} 25 -28.75 0 0 0.2 0.2 {layer=13}
-T {@#2:pinnumber} 25 18.75 0 0 0.2 0.2 {layer=13}
+T {@model} 20 -12.5 0 0 0.2 0.2 {}
+T {@name} 20 0 0 0 0.2 0.2 {}
+T {@#0:pinnumber} 25 -25 0 0 0.2 0.2 {layer=13}
+T {@#2:pinnumber} 25 12.5 0 0 0.2 0.2 {layer=13}
 T {@#1:pinnumber} -5 6.25 0 1 0.2 0.2 {layer=13}
-T {@#0:net_name} 25 -42.5 0 0 0.15 0.15 {layer=15}
-T {@#2:net_name} 25 32.5 0 0 0.15 0.15 {layer=15}
-T {@#1:net_name} -25 -12.5 0 1 0.15 0.15 {layer=15}
+T {@#0:net_name} 25 -33.75 0 0 0.15 0.15 {layer=15}
+T {@#2:net_name} 25 23.75 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} -6.25 -12.5 0 1 0.15 0.15 {layer=15}
