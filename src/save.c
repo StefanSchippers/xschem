@@ -1037,7 +1037,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     my_strncpy(xctx->current_name, name, S(xctx->current_name));
   }
   if(has_x) { /* 20161207 moved after if( (fd=..))  */
-    if(strcmp(get_cell(xctx->sch[xctx->currsch],1), "systemlib/font")) {
+    if(reset_undo) {
       tcleval( "wm title . \"xschem - [file tail [xschem get schname]]\""); /* 20150417 set window and icon title */
       tcleval( "wm iconname . \"xschem - [file tail [xschem get schname]]\"");
     }

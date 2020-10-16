@@ -840,7 +840,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     window = save_window;
     resetwin();
     change_linewidth(-1.);
-    draw();
+    /* draw(); */ /* not needed: event loop takes care of this. */
     event_reporting = save_ev;
   }
   else if(!strcmp(what, "destroy")) {

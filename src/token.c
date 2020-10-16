@@ -465,9 +465,9 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
   static char *token=NULL;
   int size=0;
   int  sizetok=0;
-  register int c, state=XBEGIN, space;
+  register int c, space;
   register int token_pos=0, value_pos=0;
-  int quote=0;
+  int quote=0, state=XBEGIN;
   int escape=0;
   int cmp = 1;
 
