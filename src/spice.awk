@@ -212,7 +212,7 @@ function process(        i, iprefix)
 
 
  # .probe tran v( ?1 DL[3],DL[2],DL[1],DL[0] , ?1 WL[3],WL{2],WL[1],WL[0] )
- if($1 ==".probe" && $4 ~/^\?-?0-9]+$/ && $7 ~/^\?-?[0-9]+$/ && NF==9) {
+ if($1 ==".probe" && $4 ~/^\?-?[0-9]+$/ && $7 ~/^\?-?[0-9]+$/ && NF==9) {
    num1=split($5,name,",")
    num2=split($8,name2,",")
 

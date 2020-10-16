@@ -1544,9 +1544,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
   const char *str;
   char *skip_line;
   const char *dash;
-  xSymbol * const symbol = xctx->sym;
-  int const symbols = xctx->symbols;
+  xSymbol * const symbol;
+  int const symbols;
 
+  check_symbol_storage();
+  symbol = xctx->sym;
+  symbols = xctx->symbols;
   dbg(1, "l_s_d(): recursion_counter=%d, name=%s\n", recursion_counter, name);
   recursion_counter++;
   dbg(1, "l_s_d(): name=%s\n", name);
@@ -1582,7 +1585,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
   }
   lastt=0;
   tt=NULL;
-  check_symbol_storage();
   symbol[symbols].prop_ptr = NULL;
   symbol[symbols].type = NULL;
   symbol[symbols].templ = NULL;
