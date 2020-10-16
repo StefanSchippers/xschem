@@ -294,17 +294,6 @@ void init_color_array(double dim)
 
 }
 
-void set_fill(int n)
-{
-#ifdef __unix__
-     XFreePixmap(display,pixmap[rectcolor]);
-#else
-     Tk_FreePixmap(display, pixmap[rectcolor]);
-#endif
-     pixmap[rectcolor] = XCreateBitmapFromData(display, window, (char*)(pixdata[n]),16,16);
-     XSetStipple(display,gcstipple[rectcolor],pixmap[rectcolor]);
-}
-
 void init_pixdata()
 {
  int i,j, full, empty;

@@ -1031,8 +1031,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   printf("                   back from selected element\n");
   printf("      xschem unselect\n");
   printf("                   unselect selected objects\n");
-  printf("      xschem set_fill n\n");
-  printf("                   set fill style of current layer (rectcolor) to fill pattern n (pixdata)\n");
   printf("      xschem zoom_out\n");
   printf("                   zoom out\n");
   printf("      xschem zoom_in\n");
@@ -1274,11 +1272,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  else if(!strcmp(argv[1],"test"))
  {
   /*XSetWMHints(display, topwindow, hints_ptr); */
- }
-
- else if(!strcmp(argv[1],"set_fill") && argc==3)
- {
-  set_fill(atoi(argv[2]));
  }
 
  else if(!strcmp(argv[1],"redraw"))

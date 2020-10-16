@@ -754,7 +754,6 @@ extern void netlist_options(int i);
 extern int  check_lib(char * s);
 extern void select_all(void);
 extern void change_linewidth(double w);
-extern void set_fill(int n);
 extern void schematic_in_new_window(void);
 extern void symbol_in_new_window(void);
 extern void new_window(const char *cell, int symbol);
