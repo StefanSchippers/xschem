@@ -298,6 +298,17 @@ extern char win_temp_dir[PATH_MAX];
 #define X_TO_XSCHEM(x) ((x)*xctx->zoom -xctx->xorigin)
 #define Y_TO_XSCHEM(y) ((y)*xctx->zoom -xctx->yorigin)
 
+/* given a dest_string of size 'size', allocate space to make sure it can
+ * hold additional 'add' characters starting at position 'pos' */
+#define  STR_ALLOC(dest_string, add, size) \
+do { \
+  register int __str_alloc_tmp__ = add; \
+  if( __str_alloc_tmp__ >= *size) { \
+    *size = __str_alloc_tmp__ + CADCHUNKALLOC; \
+    my_realloc(1212, dest_string, *size); \
+  } \
+} while(0) \
+
 typedef struct
 {
    unsigned short type;
@@ -753,7 +764,7 @@ extern void hash_inst(int what, int n);
 extern void hash_inst_pin(int what, int i, int j);
 extern void del_inst_table(void);
 extern void hash_wires(void);
-extern void hash_wire(int what, int n);
+extern void hash_wire(int what, int n, int incremental);
 extern void hash_instances(void); /*  20171203 insert instance bbox in spatial hash table */
 
 #ifdef HAS_CAIRO
@@ -941,7 +952,6 @@ extern char* strtolower(char* s);
 extern char* strtoupper(char* s);
 extern void *my_malloc(int id, size_t size);
 extern void my_realloc(int id, void *ptr,size_t size);
-extern void str_alloc( char **dest_string, int add, int pos, int *size);
 extern void *my_calloc(int id, size_t nmemb, size_t size);
 extern void my_free(int id, void *ptr);
 extern size_t my_strcat(int id, char **, const char *);

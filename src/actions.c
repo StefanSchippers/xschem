@@ -1673,7 +1673,7 @@ void new_wire(int what, double mx_snap, double my_snap)
          printf("xschem wire %g %g %g %g %d\n", xx1, yy1, xx2, yy2, -1);
          fflush(stdout);
        }
-       hash_wire(XINSERT, xctx->wires-1);
+       hash_wire(XINSERT, xctx->wires-1, 1);
        /* prepared_hash_wires = 0; */
        prepared_hilight_structs = 0;
        update_conn_cues(1,1);

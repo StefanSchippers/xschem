@@ -1544,6 +1544,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
   const char *str;
   char *skip_line;
   const char *dash;
+  xSymbol * const symbol = xctx->sym;
+  int const symbols = xctx->symbols;
 
   dbg(1, "l_s_d(): recursion_counter=%d, name=%s\n", recursion_counter, name);
   recursion_counter++;
@@ -1581,11 +1583,11 @@ int load_sym_def(const char *name, FILE *embed_fd)
   lastt=0;
   tt=NULL;
   check_symbol_storage();
-  xctx->sym[xctx->symbols].prop_ptr = NULL;
-  xctx->sym[xctx->symbols].type = NULL;
-  xctx->sym[xctx->symbols].templ = NULL;
-  xctx->sym[xctx->symbols].name=NULL;
-  my_strdup(352, &xctx->sym[xctx->symbols].name,name);
+  symbol[symbols].prop_ptr = NULL;
+  symbol[symbols].type = NULL;
+  symbol[symbols].templ = NULL;
+  symbol[symbols].name=NULL;
+  my_strdup(352, &symbol[symbols].name,name);
   while(1)
   {
    if(endfile && embed_fd && level == 0) break; /* ']' line encountered --> exit */
@@ -1620,25 +1622,25 @@ int load_sym_def(const char *name, FILE *embed_fd)
      break;
     case 'K': /* 1.2 file format: symbol attributes for schematics placed as symbols */
      if (level==0) {
-       load_ascii_string(&xctx->sym[xctx->symbols].prop_ptr, lcc[level].fd);
-       if(!xctx->sym[xctx->symbols].prop_ptr) break;
-       my_strdup2(424, &xctx->sym[xctx->symbols].templ,
-                  get_tok_value(xctx->sym[xctx->symbols].prop_ptr, "template",2));
-       my_strdup2(515, &xctx->sym[xctx->symbols].type,
-                  get_tok_value(xctx->sym[xctx->symbols].prop_ptr, "type",0));
+       load_ascii_string(&symbol[symbols].prop_ptr, lcc[level].fd);
+       if(!symbol[symbols].prop_ptr) break;
+       my_strdup2(424, &symbol[symbols].templ,
+                  get_tok_value(symbol[symbols].prop_ptr, "template",2));
+       my_strdup2(515, &symbol[symbols].type,
+                  get_tok_value(symbol[symbols].prop_ptr, "type",0));
      }
      else {
        load_ascii_string(&aux_ptr, lcc[level].fd);
      }
      break;
     case 'G': /* .sym files or pre-1.2 symbol attributes for schematics placed as symbols */
-     if (level==0 && !xctx->sym[xctx->symbols].prop_ptr) {
-       load_ascii_string(&xctx->sym[xctx->symbols].prop_ptr, lcc[level].fd);
-       if(!xctx->sym[xctx->symbols].prop_ptr) break;
-       my_strdup2(341, &xctx->sym[xctx->symbols].templ,
-                  get_tok_value(xctx->sym[xctx->symbols].prop_ptr, "template",2));
-       my_strdup2(342, &xctx->sym[xctx->symbols].type,
-                  get_tok_value(xctx->sym[xctx->symbols].prop_ptr, "type",0));
+     if (level==0 && !symbol[symbols].prop_ptr) {
+       load_ascii_string(&symbol[symbols].prop_ptr, lcc[level].fd);
+       if(!symbol[symbols].prop_ptr) break;
+       my_strdup2(341, &symbol[symbols].templ,
+                  get_tok_value(symbol[symbols].prop_ptr, "template",2));
+       my_strdup2(342, &symbol[symbols].type,
+                  get_tok_value(symbol[symbols].prop_ptr, "type",0));
      }
      else {
        load_ascii_string(&aux_ptr, lcc[level].fd);
@@ -2017,28 +2019,28 @@ int load_sym_def(const char *name, FILE *embed_fd)
     fclose(lcc[0].fd);
   }
   if(embed_fd || strstr(name, ".xschem_embedded_")) {
-    xctx->sym[xctx->symbols].flags |= EMBEDDED;
+    symbol[symbols].flags |= EMBEDDED;
   } else {
-    xctx->sym[xctx->symbols].flags &= ~EMBEDDED;
+    symbol[symbols].flags &= ~EMBEDDED;
   }
   dbg(2, "l_d_s(): finished parsing file\n");
   for(c=0;c<cadlayers;c++)
   {
-   xctx->sym[xctx->symbols].arcs[c] = lasta[c];
-   xctx->sym[xctx->symbols].lines[c] = lastl[c];
-   xctx->sym[xctx->symbols].rects[c] = lastr[c];
-   xctx->sym[xctx->symbols].polygons[c] = lastp[c];
-   xctx->sym[xctx->symbols].arc[c] = aa[c];
-   xctx->sym[xctx->symbols].line[c] = ll[c];
-   xctx->sym[xctx->symbols].poly[c] = pp[c];
-   xctx->sym[xctx->symbols].rect[c] = bb[c];
+   symbol[symbols].arcs[c] = lasta[c];
+   symbol[symbols].lines[c] = lastl[c];
+   symbol[symbols].rects[c] = lastr[c];
+   symbol[symbols].polygons[c] = lastp[c];
+   symbol[symbols].arc[c] = aa[c];
+   symbol[symbols].line[c] = ll[c];
+   symbol[symbols].poly[c] = pp[c];
+   symbol[symbols].rect[c] = bb[c];
   }
-  xctx->sym[xctx->symbols].texts = lastt;
-  xctx->sym[xctx->symbols].text = tt;
-  calc_symbol_bbox(xctx->symbols);
+  symbol[symbols].texts = lastt;
+  symbol[symbols].text = tt;
+  calc_symbol_bbox(symbols);
   /* given a .sch file used as instance in LCC schematics, order its pin
    * as in corresponding .sym file if it exists */
-  align_sch_pins_with_sym(name, xctx->symbols);
+  align_sch_pins_with_sym(name, symbols);
   xctx->symbols++;
   my_free(910, &prop_ptr);
   my_free(901, &lastl);

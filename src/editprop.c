@@ -376,16 +376,6 @@ char *strtoupper(char* s) {
   return s;
 }
 
-/* given a dest_string of size 'size', allocate space to make sure it can
- * hold additional 'add' characters starting at position 'pos' */
-void str_alloc( char **dest_string, int add, int pos, int *size)
-{
-  if (pos + add >= *size) {
-    *size = (1 + (pos + add) / CADCHUNKALLOC) * CADCHUNKALLOC;
-    my_realloc(1212, dest_string, *size);
-  }          
-}
-
 void set_inst_prop(int i)
 {
   char *ptr = NULL;
