@@ -1544,8 +1544,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
   const char *str;
   char *skip_line;
   const char *dash;
-  xSymbol * const symbol;
-  int const symbols;
+  xSymbol * symbol;
+  int symbols;
 
   check_symbol_storage();
   symbol = xctx->sym;

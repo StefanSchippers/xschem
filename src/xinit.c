@@ -803,6 +803,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     show_pin_net_names = 0;
     my_strdup(117, &saveptr, tclgetvar("current_dirname"));
 
+    /* dbg(0, "preview_window(): %d %d %d %d\n", areax1, areay1, areaw, areah); */
     /* preview */
     check_version = 0; /* if set refuse to load and preview anything if not a rel 1.1+ xschem file */
                        /* if not set heuristics is done in xschem.tcl to ensure it is an xschem file */
@@ -810,6 +811,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     window = pre_window;
     resetwin();
     zoom_full(1, 0); /* draw */
+    /* dbg(0, "preview_window(): %d %d %d %d\n", areax1, areay1, areaw, areah); */
     check_version = 0;
 
     /* restore context */
@@ -827,6 +829,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
 
     window = save_window;
     resetwin();
+    /* dbg(0, "preview_window(): %d %d %d %d\n", areax1, areay1, areaw, areah); */
     change_linewidth(-1.);
     /* draw(); */ /* not needed: event loop takes care of this. */
     event_reporting = save_ev;
