@@ -162,33 +162,33 @@ void windowid()
   unsigned int framewindow_nchildren;
 
   framewindow_nchildren =0;
-    mainwindow=Tk_MainWindow(interp);
-    display = Tk_Display(mainwindow);
-    tcleval( "winfo id .");
-    sscanf(tclresult(), "0x%x", (unsigned int *) &ww);
-    framewin = ww;
-    XQueryTree(display, framewin, &rootwindow, &parent_of_topwindow, &framewin_child_ptr, &framewindow_nchildren);
-    dbg(1,"framewinID=%x\n", (unsigned int) framewin);
-    dbg(1,"framewin nchilds=%d\n", (unsigned int)framewindow_nchildren);
-    dbg(1,"framewin parentID=%x\n", (unsigned int) parent_of_topwindow);
-    if (debug_var>=1) {
-      if (framewindow_nchildren==0) fprintf(errfp, "no framewin child\n");
-      else fprintf(errfp, "framewin child 0=%x\n", (unsigned int)framewin_child_ptr[0]);
-    }
+  mainwindow=Tk_MainWindow(interp);
+  display = Tk_Display(mainwindow);
+  tcleval( "winfo id .");
+  sscanf(tclresult(), "0x%x", (unsigned int *) &ww);
+  framewin = ww;
+  XQueryTree(display, framewin, &rootwindow, &parent_of_topwindow, &framewin_child_ptr, &framewindow_nchildren);
+  dbg(1,"framewinID=%x\n", (unsigned int) framewin);
+  dbg(1,"framewin nchilds=%d\n", (unsigned int)framewindow_nchildren);
+  dbg(1,"framewin parentID=%x\n", (unsigned int) parent_of_topwindow);
+  if (debug_var>=1) {
+    if (framewindow_nchildren==0) fprintf(errfp, "no framewin child\n");
+    else fprintf(errfp, "framewin child 0=%x\n", (unsigned int)framewin_child_ptr[0]);
+  }
 
-    /* here I create the icon pixmap,to be used when iconified,  */
+  /* here I create the icon pixmap,to be used when iconified,  */
 #ifdef __unix__
-    if(!cad_icon_pixmap) {
-      i=XpmCreatePixmapFromData(display,framewin, cad_icon,&cad_icon_pixmap, NULL, NULL);
-      dbg(1, "Tcl_AppInit(): creating icon pixmap returned: %d\n",i);
-      hints_ptr = XAllocWMHints();
-      hints_ptr->icon_pixmap = cad_icon_pixmap ;
-      hints_ptr->flags = IconPixmapHint ;
-      XSetWMHints(display, parent_of_topwindow, hints_ptr);
-      XFree(hints_ptr);
-    }
+  if(!cad_icon_pixmap) {
+    i=XpmCreatePixmapFromData(display,framewin, cad_icon,&cad_icon_pixmap, NULL, NULL);
+    dbg(1, "Tcl_AppInit(): creating icon pixmap returned: %d\n",i);
+    hints_ptr = XAllocWMHints();
+    hints_ptr->icon_pixmap = cad_icon_pixmap ;
+    hints_ptr->flags = IconPixmapHint ;
+    XSetWMHints(display, parent_of_topwindow, hints_ptr);
+    XFree(hints_ptr);
+  }
 #endif
-    Tcl_SetResult(interp,"",TCL_STATIC);
+  Tcl_SetResult(interp,"",TCL_STATIC);
 }
 
 int err(Display *display, XErrorEvent *xev)

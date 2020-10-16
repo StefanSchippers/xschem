@@ -101,6 +101,16 @@ extern char win_temp_dir[PATH_MAX];
 #define xftell _ftelli64
 #endif
 
+#ifdef HAS_CAIRO
+#include <cairo.h>
+#include <cairo-xlib.h>
+#include "cairo-xlib-xrender.h"
+#if HAS_XCB==1
+#include <X11/Xlib-xcb.h>
+#include <cairo-xcb.h>
+#endif
+#endif
+
 #include <tcl.h>
 #include <tk.h>
 
@@ -187,7 +197,6 @@ extern char win_temp_dir[PATH_MAX];
 #define SELECTED2 4         /*  second point selected... */
 #define SELECTED3 8
 #define SELECTED4 16
-
 
 #define WIRE 1              /*  types of defined objects */
 #define xRECT  2
@@ -299,7 +308,7 @@ extern char win_temp_dir[PATH_MAX];
 #define Y_TO_XSCHEM(y) ((y)*xctx->zoom -xctx->yorigin)
 
 /* given a dest_string of size 'size', allocate space to make sure it can
- * hold additional 'add' characters starting at position 'pos' */
+ * hold 'add' characters */
 #define  STR_ALLOC(dest_string, add, size) \
 do { \
   register int __str_alloc_tmp__ = add; \
@@ -606,7 +615,6 @@ extern int dis_uniq_names;
 extern int tcp_port;
 extern int debug_var;
 extern char **color_array;
-extern Colormap colormap;
 extern unsigned int color_index[];
 extern int lw; /*  line width */
 extern int bus_width; /*  line width */
@@ -628,8 +636,6 @@ extern KeySym key;
 extern unsigned short enable_stretch;
 extern unsigned int button;
 extern unsigned int state; /*  status of shift,ctrl etc.. */
-extern XPoint *gridpoint;
-extern XRectangle *rectangle;
 extern Selected *selectedgroup; /*  array of selected objs to draw while moving */
 extern int lastselected;
 extern int currentsch;
@@ -652,18 +658,10 @@ extern int draw_dots;
 extern int draw_single_layer;
 extern int check_version;
 extern int yyparse_error;
-extern Window window;
-extern Window pre_window;
-extern Window parent_of_topwindow;
 extern char *xschem_executable;
-extern Pixmap cad_icon_pixmap, *pixmap,save_pixmap;
 extern int depth;
 extern int *fill_type; /* 20171117 for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
-extern unsigned char **pixdata;
-extern unsigned char pixdata_init[22][32];
 extern int  areax1,areay1,areax2,areay2,areaw,areah;
-extern GC *gc, *gcstipple, gctiled;
-extern Display *display;
 extern Tcl_Interp *interp;
 extern XRectangle xrect[];
 extern int xschem_h, xschem_w; /*  20171130 window size */
@@ -691,8 +689,6 @@ extern int only_probes;
 extern int pending_fullzoom;
 extern int fullscreen;
 extern int unzoom_nodrift;
-extern XColor xcolor_array[];
-extern Visual *visual;
 extern int dark_colorscheme;
 extern double color_dim;
 extern int no_undo;
@@ -706,6 +702,43 @@ extern size_t get_tok_size;
 extern int batch_mode; /* no TCL console */
 extern int hide_symbols; /* draw only a bounding box for component instances and @symname, @name texts */
 extern int show_pin_net_names;
+/* CAIRO specific global variables */
+extern char cairo_font_name[1024]; /*  should be monospaced */
+extern int cairo_longest_line;
+extern int cairo_lines;
+extern double cairo_font_scale; /*  default: 1.0, allows to adjust font size */
+extern double nocairo_font_xscale;
+extern double nocairo_font_yscale;
+extern double cairo_font_line_spacing; /*  allows to change line spacing: default: 1.0 */
+extern double cairo_vert_correct;
+extern double nocairo_vert_correct;
+extern const char fopen_read_mode[];
+
+/* X11 specific globals */
+extern Colormap colormap;
+extern Window window;
+extern Window pre_window;
+extern Window parent_of_topwindow;
+extern unsigned char **pixdata;
+extern unsigned char pixdata_init[22][32];
+extern GC *gc, *gcstipple, gctiled;
+extern Display *display;
+extern XRectangle *rectangle;
+extern XPoint *gridpoint;
+extern Pixmap cad_icon_pixmap, *pixmap,save_pixmap;
+extern XColor xcolor_array[];
+extern Visual *visual;
+#ifdef HAS_CAIRO
+extern cairo_surface_t *sfc, *save_sfc;
+extern cairo_t *cairo_ctx, *cairo_save_ctx;
+extern XRenderPictFormat *format;
+#if HAS_XCB==1
+extern xcb_connection_t *xcbconn;
+extern xcb_screen_t *screen_xcb;
+extern xcb_render_pictforminfo_t format_rgb, format_rgba;
+extern xcb_visualtype_t *visual_xcb;
+#endif  /*  HAS_XCB */
+#endif /*  HAS_CAIRO */
 
 /*  FUNCTIONS */
 extern void enable_layers(void);
@@ -1039,39 +1072,4 @@ extern const char *create_tmpdir(char *prefix);
 extern FILE *open_tmpfile(char *prefix, char **filename);
 extern void child_handler(int signum);
 
-/* CAIRO specific global variables */
-extern char cairo_font_name[1024]; /*  should be monospaced */
-extern int cairo_longest_line;
-extern int cairo_lines;
-extern double cairo_font_scale; /*  default: 1.0, allows to adjust font size */
-extern double nocairo_font_xscale;
-extern double nocairo_font_yscale;
-
-extern double cairo_font_line_spacing; /*  allows to change line spacing: default: 1.0 */
-extern double cairo_vert_correct;
-extern double nocairo_vert_correct;
-extern const char fopen_read_mode[];
-#ifdef HAS_CAIRO
-#include <cairo.h>
-#include <cairo-xlib.h>
-#include "cairo-xlib-xrender.h"
-
-#  if HAS_XCB==1
-#  include <X11/Xlib-xcb.h>
-#  include <cairo-xcb.h>
-  extern xcb_connection_t *xcbconn;
-  extern xcb_screen_t *screen_xcb;
-  extern xcb_render_pictforminfo_t format_rgb, format_rgba;
-  extern xcb_visualtype_t *visual_xcb;
-#  endif  /*  HAS_XCB */
-
-extern cairo_surface_t *sfc, *save_sfc;
-extern cairo_t *cairo_ctx, *cairo_save_ctx;
-extern XRenderPictFormat *format;
-
-
-#endif /*  HAS_CAIRO */
-
-#endif
-
-
+#endif /*CADGLOBALS */

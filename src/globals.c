@@ -22,79 +22,12 @@
 
 #include "xschem.h"
 
-int help=0; /* help option set to global scope, printing help is deferred */
-            /* when configuration ~/.schem has been read 20140406 */
-int fullscreen=0;
-int semaphore=0; /* needed at global scope as it is set by tcl */
-int unzoom_nodrift=1;
-int a3page=-1;
-int has_x=1;
-int no_draw=0;
-int sym_txt=1;
-int event_reporting=0;
-int rainbow_colors=0;
-int manhattan_lines=0;
-FILE *errfp;
-char *filename=NULL; /* filename given on cmdline */
-char user_conf_dir[PATH_MAX];
-char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
-char pwd_dir[PATH_MAX];  /* obtained via getcwd() */
-#ifndef __unix__
-char win_temp_dir[PATH_MAX]="";
-const char fopen_read_mode[] = "rb";
-#else
-const char fopen_read_mode[] = "r";
-#endif
-int load_initfile=1;
-char plotfile[PATH_MAX] = {'\0'};
-char rcfile[PATH_MAX] = {'\0'};
-char *tcl_command = NULL;
-char tcl_script[PATH_MAX] = {'\0'};
-int persistent_command=0; /* remember last command 20181022 */
-int dis_uniq_names=0; /* if set allow instances with duplicate names */
-int quit=0;  /* set from process_options (ex netlist from cmdline and quit) */
-int debug_var=-10;  /* will be set to 0 in xinit.c */
-int tcp_port = 0;
-int do_print=0;
-int no_readline=0;
-Colormap colormap;
-int lw=0; /* line width */
-int bus_width = BUS_WIDTH;
-double lw_double=0.0; /* line width */
-int fill=1; /* filled rectangles */
-int draw_pixmap=1; /* use pixmap for double buffer */
-int draw_window=0;
-int draw_grid=1;
-double cadgrid = CADGRID;
-double cadhalfdotsize = CADHALFDOTSIZE;
-int change_lw=0; /* allow change linewidth */
-int incr_hilight=1;
-int auto_hilight=0;
-unsigned int color_index[256]; /* layer color lookup table */
-unsigned int rectcolor ; /* this is the currently used layer */
-unsigned long ui_state = 0; /* this signals that we are doing a net place,panning etc. */
-                          /* used to prevent nesting of some commands */
 
-char *undo_dirname = NULL;
-int cur_undo_ptr=0;
-int tail_undo_ptr=0;
-int head_undo_ptr=0;
-int max_undo=MAX_UNDO;
-int draw_dots=1;
-int draw_single_layer=-1;
-int check_version = 0; /* if set ensures 'v' version header line is present before loading file */
-int yyparse_error = 0;
-unsigned short enable_stretch=0;
-int cadlayers=0;
-int *enable_layer;
-int n_active_layers=0;
-int *active_layer;
-int need_rebuild_selected_array=1;
+/* X11 specific globals */
+Colormap colormap;
 Window window; /* window is the drawing area, topwindow is the root win */
 Window pre_window; /* preview when opening files */
 Window parent_of_topwindow;
-int depth;
-int *fill_type; /*20171117 for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
 unsigned char **pixdata;
 unsigned char pixdata_init[22][32]={    /* fill patterns... indexed by laynumb. */
 {0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff, 0xff,/*0 */
@@ -163,29 +96,108 @@ unsigned char pixdata_init[22][32]={    /* fill patterns... indexed by laynumb. 
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},/*20 */
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}/*21 */
 };
-
-char **color_array;
-
-char *xschem_executable=NULL;
-Pixmap cad_icon_pixmap=0, *pixmap,save_pixmap;  /* save_pixmap used to restore window */
-int areax1,areay1,areax2,areay2,areaw,areah; /* window corners / size */
 GC *gcstipple,*gc, gctiled;
 Display *display;
 XRectangle xrect[1] = {{0,0,0,0}};
+Pixmap cad_icon_pixmap=0, *pixmap,save_pixmap;  /* save_pixmap used to restore window */
+XPoint *gridpoint;           /* pointer to array of gridpoints, used in draw() */
+XColor xcolor_array[256];
+Visual *visual;
+#ifdef HAS_CAIRO
+cairo_surface_t *sfc, *save_sfc;
+cairo_t *cairo_ctx, *cairo_save_ctx;
+XRenderPictFormat *format;
+
+#if HAS_XCB==1
+xcb_connection_t *xcbconn;
+xcb_render_pictforminfo_t format_rgb, format_rgba;
+xcb_screen_t *screen_xcb;
+xcb_visualtype_t *visual_xcb;
+#endif /*HAS_XCB */
+#endif /*HAS_CAIRO */
+
+
+int help=0; /* help option set to global scope, printing help is deferred */
+            /* when configuration ~/.schem has been read 20140406 */
+int fullscreen=0;
+int semaphore=0; /* needed at global scope as it is set by tcl */
+int unzoom_nodrift=1;
+int a3page=-1;
+int has_x=1;
+int no_draw=0;
+int sym_txt=1;
+int event_reporting=0;
+int rainbow_colors=0;
+int manhattan_lines=0;
+FILE *errfp;
+char *filename=NULL; /* filename given on cmdline */
+char user_conf_dir[PATH_MAX];
+char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
+char pwd_dir[PATH_MAX];  /* obtained via getcwd() */
+#ifndef __unix__
+char win_temp_dir[PATH_MAX]="";
+const char fopen_read_mode[] = "rb";
+#else
+const char fopen_read_mode[] = "r";
+#endif
+int load_initfile=1;
+char plotfile[PATH_MAX] = {'\0'};
+char rcfile[PATH_MAX] = {'\0'};
+char *tcl_command = NULL;
+char tcl_script[PATH_MAX] = {'\0'};
+int persistent_command=0; /* remember last command 20181022 */
+int dis_uniq_names=0; /* if set allow instances with duplicate names */
+int quit=0;  /* set from process_options (ex netlist from cmdline and quit) */
+int debug_var=-10;  /* will be set to 0 in xinit.c */
+int tcp_port = 0;
+int do_print=0;
+int no_readline=0;
+int lw=0; /* line width */
+int bus_width = BUS_WIDTH;
+double lw_double=0.0; /* line width */
+int fill=1; /* filled rectangles */
+int draw_pixmap=1; /* use pixmap for double buffer */
+int draw_window=0;
+int draw_grid=1;
+double cadgrid = CADGRID;
+double cadhalfdotsize = CADHALFDOTSIZE;
+int change_lw=0; /* allow change linewidth */
+int incr_hilight=1;
+int auto_hilight=0;
+unsigned int color_index[256]; /* layer color lookup table */
+unsigned int rectcolor ; /* this is the currently used layer */
+unsigned long ui_state = 0; /* this signals that we are doing a net place,panning etc. */
+                          /* used to prevent nesting of some commands */
+char *undo_dirname = NULL;
+int cur_undo_ptr=0;
+int tail_undo_ptr=0;
+int head_undo_ptr=0;
+int max_undo=MAX_UNDO;
+int draw_dots=1;
+int draw_single_layer=-1;
+int check_version = 0; /* if set ensures 'v' version header line is present before loading file */
+int yyparse_error = 0;
+unsigned short enable_stretch=0;
+int cadlayers=0;
+int *enable_layer;
+int n_active_layers=0;
+int *active_layer;
+int need_rebuild_selected_array=1;
+int depth;
+int *fill_type; /*20171117 for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
+char **color_array;
+int areax1,areay1,areax2,areay2,areaw,areah; /* window corners / size */
 int xschem_h, xschem_w; /* 20171130 window size */
 double mousex,mousey; /* mouse coord. */
 double mousex_snap,mousey_snap; /* mouse coord. snapped to grid */
 double mx_double_save, my_double_save;
-
+char *xschem_executable=NULL;
 double cadsnap = CADSNAP;
 double *character[256]; /* array or per-char coordinates of xschem internal vector font */
 int lastselected = 0;
 int max_selected;
 Selected *selectedgroup;     /*  array of selected objects to be */
-                             /*  drawn while moving if < MAXGROUP selected */
-XPoint *gridpoint;           /* pointer to array of gridpoints, used in draw() */
 Tcl_Interp *interp;
-
 int do_netlist=0;  /* set by process_options if user wants netllist from cmdline */
 int do_simulation=0;
 int do_waves=0;
@@ -210,8 +222,6 @@ int pending_fullzoom=0;
 int split_files=0; /* split netlist files 20081202 */
 char *netlist_dir=NULL; /* user set netlist directory via cmd-option or menu or xschemrc */
 char user_top_netl_name[PATH_MAX] = ""; /* user set netlist name via cmd option -N <name> */
-XColor xcolor_array[256];
-Visual *visual;
 int dark_colorscheme=1;
 double color_dim=0.0;
 int no_undo=0;
@@ -225,19 +235,6 @@ int batch_mode = 0; /* no tcl console if set; batch mode */
 int hide_symbols = 0; /* draw only a bounding box for component instances and @symname, @name texts */
 int show_pin_net_names = 0;
 
-#ifdef HAS_CAIRO
-cairo_surface_t *sfc, *save_sfc;
-cairo_t *cairo_ctx, *cairo_save_ctx;
-XRenderPictFormat *format;
-
-#if HAS_XCB==1
-xcb_connection_t *xcbconn;
-xcb_render_pictforminfo_t format_rgb, format_rgba;
-xcb_screen_t *screen_xcb;
-xcb_visualtype_t *visual_xcb;
-#endif /*HAS_XCB */
-
-#endif /*HAS_CAIRO */
 char cairo_font_name[1024]="Monospace";
 int cairo_longest_line;
 int cairo_lines;
