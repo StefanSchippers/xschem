@@ -274,8 +274,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      if(factor == 0.) factor = 1.;
      RECTORDER(x1,y1,x2,y2);
      xctx->xorigin=-x1;xctx->yorigin=-y1;
-     xctx->zoom=(x2-x1)/(areaw-4*lw);
-     yy1=(y2-y1)/(areah-4*lw);
+     xctx->zoom=(x2-x1)/(areaw-4*INT_WIDTH(xctx->lw));
+     yy1=(y2-y1)/(areah-4*INT_WIDTH(xctx->lw));
      if(yy1>xctx->zoom) xctx->zoom=yy1;
      xctx->mooz=1/xctx->zoom;
      xctx->xorigin=xctx->xorigin+areaw*xctx->zoom*(1-1/factor)/2;
@@ -939,7 +939,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  } else if(!strcmp(argv[1],"globals")) {
   printf("*******global variables:*******\n");
   printf("netlist_dir=%s\n", netlist_dir? netlist_dir: "<NULL>");
-  printf("lw=%d\n", lw);
+  printf("INT_WIDTH(xctx->lw)=%d\n", INT_WIDTH(xctx->lw));
   printf("wires=%d\n", xctx->wires);
   printf("instances=%d\n", xctx->instances);
   printf("symbols=%d\n", xctx->symbols);

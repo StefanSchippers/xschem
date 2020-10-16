@@ -40,7 +40,7 @@ static Svg_color svg_stroke;
 
 static void restore_lw(void)
 {
-   svg_linew = lw_double*0.7;
+   svg_linew = xctx->lw*0.7;
 }
 
 static void set_svg_colors(unsigned int pixel)
@@ -590,7 +590,7 @@ void svg_draw(void)
      }
    }
 
- dbg(1, "svg_draw(): lw=%d\n",lw);
+ dbg(1, "svg_draw(): INT_WIDTH(xctx->lw)=%d\n",INT_WIDTH(xctx->lw));
  fprintf(fd, "</svg>\n");
  fclose(fd);
  draw_grid=old_grid;

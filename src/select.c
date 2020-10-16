@@ -126,7 +126,7 @@ static void del_rect_line_arc_poly(void)
     j++;
     if(xctx->line[c][i].bus){
       int ov, y1, y2;
-      ov = bus_width;
+      ov = INT_BUS_WIDTH(xctx->lw);
       if(xctx->line[c][i].y1 < xctx->line[c][i].y2) { y1 = xctx->line[c][i].y1-ov; y2 = xctx->line[c][i].y2+ov; }
       else                        { y1 = xctx->line[c][i].y1+ov; y2 = xctx->line[c][i].y2-ov; }
       bbox(ADD, xctx->line[c][i].x1-ov, y1 , xctx->line[c][i].x2+ov , y2 );
@@ -331,7 +331,7 @@ void delete(void)
       j++;
       if(xctx->wire[i].bus){
         int ov, y1, y2;
-        ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
+        ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
         if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
         else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
         bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
@@ -442,8 +442,8 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    areah =  saveh;
    xrect[0].x = 0;
    xrect[0].y = 0;
-   xrect[0].width = areaw-4*lw;
-   xrect[0].height = areah-4*lw;
+   xrect[0].width = areaw-4*INT_WIDTH(xctx->lw);
+   xrect[0].height = areah-4*INT_WIDTH(xctx->lw);
 
    XSetClipMask(display, gctiled, None); /* 20171110 optimization, clipping already done in software */
 
@@ -463,17 +463,17 @@ void bbox(int what,double x1,double y1, double x2, double y2)
      fprintf(errfp, "ERROR: bbox(SET) call before bbox(BEGIN)\n");
      tcleval("alert_ {ERROR: bbox(SET) call before bbox(BEGIN)} {}");
    }
-   areax1 = bbx1-2*lw;
-   areax2 = bbx2+2*lw;
-   areay1 = bby1-2*lw;
-   areay2 = bby2+2*lw;
+   areax1 = bbx1-2*INT_WIDTH(xctx->lw);
+   areax2 = bbx2+2*INT_WIDTH(xctx->lw);
+   areay1 = bby1-2*INT_WIDTH(xctx->lw);
+   areay2 = bby2+2*INT_WIDTH(xctx->lw);
    areaw = (areax2-areax1);
    areah = (areay2-areay1);
 
-   xrect[0].x = bbx1-lw;
-   xrect[0].y = bby1-lw;
-   xrect[0].width = bbx2-bbx1+2*lw;
-   xrect[0].height = bby2-bby1+2*lw;
+   xrect[0].x = bbx1-INT_WIDTH(xctx->lw);
+   xrect[0].y = bby1-INT_WIDTH(xctx->lw);
+   xrect[0].width = bbx2-bbx1+2*INT_WIDTH(xctx->lw);
+   xrect[0].height = bby2-bby1+2*INT_WIDTH(xctx->lw);
    for(i=0;i<cadlayers;i++)
    {
      XSetClipRectangles(display, gc[i], 0,0, xrect, 1, Unsorted);

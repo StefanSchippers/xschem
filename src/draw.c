@@ -87,10 +87,10 @@ void print_image()
   xrect[0].y = 0;
   xschem_w = xrect[0].width = w;
   xschem_h = xrect[0].height = h;
-  areax2 = w+2*lw;
-  areay2 = h+2*lw;
-  areax1 = -2*lw;
-  areay1 = -2*lw;
+  areax2 = w+2*INT_WIDTH(xctx->lw);
+  areay2 = h+2*INT_WIDTH(xctx->lw);
+  areax1 = -2*INT_WIDTH(xctx->lw);
+  areay1 = -2*INT_WIDTH(xctx->lw);
   areaw = areax2-areax1;
   areah = areay2-areay1;
   saveorx = xctx->xorigin;
@@ -163,10 +163,10 @@ void print_image()
   xrect[0].y = 0;
   xschem_w = xrect[0].width = w;
   xschem_h = xrect[0].height = h;
-  areax2 = w+2*lw;
-  areay2 = h+2*lw;
-  areax1 = -2*lw;
-  areay1 = -2*lw;
+  areax2 = w+2*INT_WIDTH(xctx->lw);
+  areay2 = h+2*INT_WIDTH(xctx->lw);
+  areax1 = -2*INT_WIDTH(xctx->lw);
+  areay1 = -2*INT_WIDTH(xctx->lw);
   areaw = areax2-areax1;
   areah = areay2-areay1;
   xctx->zoom = savezoom;
@@ -858,13 +858,13 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    if(dash) {
      dash_arr[0] = dash_arr[1] = dash;
      XSetDashes(display, gc[c], 0, dash_arr, 2);
-     XSetLineAttributes (display, gc[c], lw, xDashType, CapButt, JoinBevel);
+     XSetLineAttributes (display, gc[c], INT_WIDTH(xctx->lw), xDashType, CapButt, JoinBevel);
    }
    if(draw_window) XDrawLine(display, window, gc[c], x1, y1, x2, y2);
    if(draw_pixmap)
     XDrawLine(display, save_pixmap, gc[c], x1, y1, x2, y2);
    if(dash) {
-     XSetLineAttributes (display, gc[c], lw, LineSolid, CapRound, JoinRound);
+     XSetLineAttributes (display, gc[c], INT_WIDTH(xctx->lw), LineSolid, CapRound, JoinRound);
    }
   }
  }
@@ -881,13 +881,13 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    if(dash) {
      dash_arr[0] = dash_arr[1] = dash;
      XSetDashes(display, gc[c], 0, dash_arr, 2);
-     XSetLineAttributes (display, gc[c], bus_width, xDashType, CapButt, JoinBevel);
+     XSetLineAttributes (display, gc[c], INT_BUS_WIDTH(xctx->lw), xDashType, CapButt, JoinBevel);
    } else {
-     XSetLineAttributes (display, gc[c], bus_width, LineSolid, CapRound, JoinRound);
+     XSetLineAttributes (display, gc[c], INT_BUS_WIDTH(xctx->lw), LineSolid, CapRound, JoinRound);
    }
    if(draw_window) XDrawLine(display, window, gc[c], x1, y1, x2, y2);
    if(draw_pixmap) XDrawLine(display, save_pixmap, gc[c], x1, y1, x2, y2);
-   XSetLineAttributes (display, gc[c], lw, LineSolid, CapRound , JoinRound);
+   XSetLineAttributes (display, gc[c], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
   }
  }
  else if(what & BEGIN) i=0;
@@ -963,10 +963,10 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
   y2=Y_TO_SCREEN(liney2);
   if( clip(&x1,&y1,&x2,&y2) )
   {
-   XSetLineAttributes (display, gc, bus_width, LineSolid, CapRound , JoinRound);
+   XSetLineAttributes (display, gc, INT_BUS_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
 
    XDrawLine(display, window, gc, x1, y1, x2, y2);
-   XSetLineAttributes (display, gc, lw, LineSolid, CapRound , JoinRound);
+   XSetLineAttributes (display, gc, INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
   }
  }
 
@@ -1199,7 +1199,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
      char dash_arr[2];
      dash_arr[0] = dash_arr[1] = dash;
      XSetDashes(display, gc[c], 0, dash_arr, 2);
-     XSetLineAttributes (display, gc[c], lw, xDashType, CapButt, JoinBevel);
+     XSetLineAttributes (display, gc[c], INT_WIDTH(xctx->lw), xDashType, CapButt, JoinBevel);
    }
 
    if(draw_window) {
@@ -1218,7 +1218,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
      }
    }
    if(dash) {
-     XSetLineAttributes (display, gc[c], lw ,LineSolid, CapRound , JoinRound);
+     XSetLineAttributes (display, gc[c], INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
    }
   }
  }
@@ -1386,7 +1386,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     char dash_arr[2];
     dash_arr[0] = dash_arr[1] = dash;
     XSetDashes(display, gc[c], 0, dash_arr, 2);
-    XSetLineAttributes (display, gc[c], lw, xDashType, CapButt, JoinBevel);
+    XSetLineAttributes (display, gc[c], INT_WIDTH(xctx->lw), xDashType, CapButt, JoinBevel);
   }
   if(draw_window) XDrawLines(display, window, gc[c], p, points, CoordModeOrigin);
   if(draw_pixmap)
@@ -1399,7 +1399,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     }
   }
   if(dash) {
-    XSetLineAttributes (display, gc[c], lw ,LineSolid, CapRound , JoinRound);
+    XSetLineAttributes (display, gc[c], INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
   }
 
   my_free(722, &p);
@@ -1448,7 +1448,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
    if(dash) {
      dash_arr[0] = dash_arr[1] = dash;
      XSetDashes(display, gc[c], 0, dash_arr, 2);
-     XSetLineAttributes (display, gc[c], lw, xDashType, CapButt, JoinBevel);
+     XSetLineAttributes (display, gc[c], INT_WIDTH(xctx->lw), xDashType, CapButt, JoinBevel);
    }
    if(draw_window) XDrawRectangle(display, window, gc[c], (int)x1, (int)y1,
     (unsigned int)x2 - (unsigned int)x1,
@@ -1460,7 +1460,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
     (unsigned int)y2 - (unsigned int)y1);
    }
    if(dash) {
-     XSetLineAttributes (display, gc[c], lw ,LineSolid, CapRound , JoinRound);
+     XSetLineAttributes (display, gc[c], INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
    }
   }
  }
@@ -1763,7 +1763,7 @@ void draw(void)
     }
     draw_selection(gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
 
-    dbg(1, "draw(): lw=%d\n",lw);
+    dbg(1, "draw(): INT_WIDTH(xctx->lw)=%d\n",INT_WIDTH(xctx->lw));
  } /* if(has_x) */
 }
 

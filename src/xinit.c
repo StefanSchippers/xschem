@@ -26,7 +26,6 @@
 #endif
 
 static int init_done=0; /* 20150409 to avoid double call by Xwindows close and TclExitHandler */
-static Window save_window;
 static XSetWindowAttributes winattr;
 static int screen_number;
 static Tk_Window  tkwindow, mainwindow, tkpre_window;
@@ -788,6 +787,8 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     Xschem_ctx *save_xctx = NULL; /* save pointer to current schematic context structure */
     char *saveptr = NULL;
     int save_mod, save_ev, save_show_pin;
+    Pixmap save_save_pixmap;
+    Window save_window;
 
 
     save_xctx = xctx; /* save current schematic */
@@ -796,6 +797,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
 
     /* save some relevant global context */
     save_window = window;
+    save_save_pixmap = save_pixmap;
     save_mod = modified;
     save_ev = event_reporting;
     event_reporting = 0;
@@ -803,15 +805,13 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     show_pin_net_names = 0;
     my_strdup(117, &saveptr, tclgetvar("current_dirname"));
 
-    /* dbg(0, "preview_window(): %d %d %d %d\n", areax1, areay1, areaw, areah); */
     /* preview */
     check_version = 0; /* if set refuse to load and preview anything if not a rel 1.1+ xschem file */
                        /* if not set heuristics is done in xschem.tcl to ensure it is an xschem file */
     load_schematic(1,filename, 0);
     window = pre_window;
-    resetwin();
+    resetwin(1, 0);
     zoom_full(1, 0); /* draw */
-    /* dbg(0, "preview_window(): %d %d %d %d\n", areax1, areay1, areaw, areah); */
     check_version = 0;
 
     /* restore context */
@@ -826,12 +826,22 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     xctx = save_xctx; /* restore schematic */
     modified = save_mod;
     set_modify(modified);
-
+    /* free the pixmap used for preview */
+#ifdef __unix__
+    XFreePixmap(display,save_pixmap);
+#else
+    Tk_FreePixmap(display, save_pixmap);
+#endif 
     window = save_window;
-    resetwin();
-    /* dbg(0, "preview_window(): %d %d %d %d\n", areax1, areay1, areaw, areah); */
+    save_pixmap = save_save_pixmap;
+    /* reset window, but don't delete and create a pixmap since we
+       have preserved the main window pixmap and already erased the preview pixmap
+       the goal of this complicated pixmap saving is to avoid a draw() call in the main window
+       to regenerate the save_pixmap every time user browses a new symbol */
+    resetwin(0, 0);
     change_linewidth(-1.);
-    /* draw(); */ /* not needed: event loop takes care of this. */
+    /* not needed: event loop takes care of this and don't need to regenerate save_pixmap. */
+    /* draw(); */
     event_reporting = save_ev;
   }
   else if(!strcmp(what, "destroy")) {
@@ -1164,15 +1174,14 @@ int Tcl_AppInit(Tcl_Interp *inter)
  tclsetvar("menu_tcl_debug",debug_var ? "1" : "0" );
  if(flat_netlist) tclsetvar("flat_netlist","1");
 
- lw=1;
  xschem_w = CADWIDTH;
  xschem_h = CADHEIGHT;
- areaw = CADWIDTH+4*lw;  /* clip area extends 1 pixel beyond physical window area */
- areah = CADHEIGHT+4*lw; /* to avoid drawing clipped rectangle borders at window edges */
- areax1 = -2*lw;
- areay1 = -2*lw;
- areax2 = areaw-2*lw;
- areay2 = areah-2*lw;
+ areaw = CADWIDTH+4*INT_WIDTH(xctx->lw);  /* clip area extends 1 pixel beyond physical window area */
+ areah = CADHEIGHT+4*INT_WIDTH(xctx->lw); /* to avoid drawing clipped rectangle borders at window edges */
+ areax1 = -2*INT_WIDTH(xctx->lw);
+ areay1 = -2*INT_WIDTH(xctx->lw);
+ areax2 = areaw-2*INT_WIDTH(xctx->lw);
+ areay2 = areah-2*INT_WIDTH(xctx->lw);
  xrect[0].x = 0;
  xrect[0].y = 0;
  xrect[0].width = CADWIDTH;

@@ -152,16 +152,13 @@ int debug_var=-10;  /* will be set to 0 in xinit.c */
 int tcp_port = 0;
 int do_print=0;
 int no_readline=0;
-int lw=0; /* line width */
-int bus_width = BUS_WIDTH;
-double lw_double=0.0; /* line width */
 int fill=1; /* filled rectangles */
 int draw_pixmap=1; /* use pixmap for double buffer */
 int draw_window=0;
 int draw_grid=1;
 double cadgrid = CADGRID;
 double cadhalfdotsize = CADHALFDOTSIZE;
-int change_lw=0; /* allow change linewidth */
+int change_lw=0; /* allow change xctx->lw */
 int incr_hilight=1;
 int auto_hilight=0;
 unsigned int color_index[256]; /* layer color lookup table */

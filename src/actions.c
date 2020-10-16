@@ -194,7 +194,7 @@ const char *add_ext(const char *f, const char *ext)
   return ff;
 }
 
-void resetwin(void)
+void resetwin(int create_pixmap, int clear_pixmap)
 {
   int i;
   XWindowAttributes wattr;
@@ -209,10 +209,10 @@ void resetwin(void)
 
     xschem_w=wattr.width;
     xschem_h=wattr.height;
-    areax2 = xschem_w+2*lw;
-    areay2 = xschem_h+2*lw;
-    areax1 = -2*lw;
-    areay1 = -2*lw;
+    areax2 = xschem_w+2*INT_WIDTH(xctx->lw);
+    areay2 = xschem_h+2*INT_WIDTH(xctx->lw);
+    areax1 = -2*INT_WIDTH(xctx->lw);
+    areay1 = -2*INT_WIDTH(xctx->lw);
     areaw = areax2-areax1;
     areah = areay2-areay1;
 
@@ -225,7 +225,7 @@ void resetwin(void)
       xrect[0].width = xschem_w;
       xrect[0].height = xschem_h;
 
-      XFreePixmap(display,save_pixmap);
+      if(clear_pixmap) XFreePixmap(display,save_pixmap);
 
       /*
       {
@@ -236,7 +236,9 @@ void resetwin(void)
       }
       */
 
-      save_pixmap = XCreatePixmap(display, window, xschem_w, xschem_h, depth);
+      if(create_pixmap) {
+        save_pixmap = XCreatePixmap(display, window, xschem_w, xschem_h, depth);
+      }
       XSetTile(display,gctiled, save_pixmap);
 #else
     Tk_Window mainwindow = Tk_MainWindow(interp);
@@ -248,10 +250,10 @@ void resetwin(void)
       unsigned int height = rct.bottom - rct.top;
       xschem_w = width;
       xschem_h = height;
-      areax2 = xschem_w + 2 * lw;
-      areay2 = xschem_h + 2 * lw;
-      areax1 = -2 * lw;
-      areay1 = -2 * lw;
+      areax2 = xschem_w + 2 * INT_WIDTH(xctx->lw);
+      areay2 = xschem_h + 2 * INT_WIDTH(xctx->lw);
+      areax1 = -2 * INT_WIDTH(xctx->lw);
+      areay1 = -2 * INT_WIDTH(xctx->lw);
       areaw = areax2 - areax1;
       areah = areay2 - areay1;
       if (xschem_w != xrect[0].width || xschem_h != xrect[0].height) { /* avoid unnecessary work if no resize */
@@ -262,8 +264,10 @@ void resetwin(void)
         xrect[0].y = 0;
         xrect[0].width = xschem_w;
         xrect[0].height = xschem_h;
-        Tk_FreePixmap(display, save_pixmap);
-        save_pixmap = Tk_GetPixmap(display, window, xschem_w, xschem_h, depth);
+        if(clear_pixmap) Tk_FreePixmap(display, save_pixmap);
+        if(create_pixmap) {
+          save_pixmap = Tk_GetPixmap(display, window, xschem_w, xschem_h, depth);
+        }
         XSetTile(display, gctiled, save_pixmap);
       }
 #endif
@@ -315,10 +319,10 @@ void toggle_only_probes()
 {
    static double save_lw;
    if(!only_probes) {
-     save_lw = lw_double;
-     lw_double=3.0;
+     save_lw = xctx->lw;
+     xctx->lw=3.0;
    } else {
-     lw_double= save_lw;
+     xctx->lw= save_lw;
    }
    only_probes =!only_probes;
    if(only_probes) {
@@ -327,7 +331,7 @@ void toggle_only_probes()
    else {
        tclsetvar("only_probes","0");
    }
-   change_linewidth(lw_double);
+   change_linewidth(xctx->lw);
    draw();
 }
 
@@ -1262,31 +1266,26 @@ void change_linewidth(double w)
   /* choose line width automatically based on zoom */
   if(w<0.) {
     if(change_lw)  {
-      lw_double=xctx->mooz * 0.09 * cadsnap;
-      bus_width = BUS_WIDTH * xctx->mooz * 0.09 * cadsnap;
+      xctx->lw=xctx->mooz * 0.09 * cadsnap;
       cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (cadsnap-10);
       changed=1;
     }
   /* explicitly set line width */
   } else {
-    lw_double=w;
-    bus_width = BUS_WIDTH * w;
+    xctx->lw=w;
     changed=1;
   }
   if(!changed) return;
-  lw=lw_double;
-  if(lw==0) lw=1;     /*  on some servers zero width */
-                      /*  draws fast but not good... */
   if(has_x) {
     for(i=0;i<cadlayers;i++) {
-        XSetLineAttributes (display, gc[i], lw, LineSolid, CapRound , JoinRound);
+        XSetLineAttributes (display, gc[i], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
     }
-    XSetLineAttributes (display, gctiled, lw, LineSolid, CapRound , JoinRound);
+    XSetLineAttributes (display, gctiled, INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
   }
-  areax1 = -2*lw;
-  areay1 = -2*lw;
-  areax2 = xrect[0].width+2*lw;
-  areay2 = xrect[0].height+2*lw;
+  areax1 = -2*INT_WIDTH(xctx->lw);
+  areay1 = -2*INT_WIDTH(xctx->lw);
+  areax2 = xrect[0].width+2*INT_WIDTH(xctx->lw);
+  areay2 = xrect[0].height+2*INT_WIDTH(xctx->lw);
   areaw = areax2-areax1;
   areah = areay2 - areay1;
 }
@@ -1369,7 +1368,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
      if(!str[0] || !bus_hilight_lookup(str, 0,XLOOKUP)) continue;
    }
    if(xctx->wire[i].bus){
-     ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
+     ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
      if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
      else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
    } else {
@@ -1459,24 +1458,23 @@ void zoom_full(int dr, int sel)
   double yy1;
 
   if(change_lw) {
-    lw = lw_double=1.;
-    bus_width = BUS_WIDTH * lw_double;
+    xctx->lw = 1.;
   }
-  areax1 = -2*lw;
-  areay1 = -2*lw;
-  areax2 = xrect[0].width+2*lw;
-  areay2 = xrect[0].height+2*lw;
+  areax1 = -2*INT_WIDTH(xctx->lw);
+  areay1 = -2*INT_WIDTH(xctx->lw);
+  areax2 = xrect[0].width+2*INT_WIDTH(xctx->lw);
+  areay2 = xrect[0].height+2*INT_WIDTH(xctx->lw);
   areaw = areax2-areax1;
   areah = areay2 - areay1;
 
   calc_drawing_bbox(&boundbox, sel);
-  xctx->zoom=(boundbox.x2-boundbox.x1)/(areaw-4*lw);
-  yy1=(boundbox.y2-boundbox.y1)/(areah-4*lw);
+  xctx->zoom=(boundbox.x2-boundbox.x1)/(areaw-4*INT_WIDTH(xctx->lw));
+  yy1=(boundbox.y2-boundbox.y1)/(areah-4*INT_WIDTH(xctx->lw));
   if(yy1>xctx->zoom) xctx->zoom=yy1;
   xctx->zoom*=1.05;
   xctx->mooz=1/xctx->zoom;
-  xctx->xorigin=-boundbox.x1+(areaw-4*lw)/40*xctx->zoom;
-  xctx->yorigin=(areah-4*lw)*xctx->zoom-boundbox.y2 - (areah-4*lw)/40*xctx->zoom;
+  xctx->xorigin=-boundbox.x1+(areaw-4*INT_WIDTH(xctx->lw))/40*xctx->zoom;
+  xctx->yorigin=(areah-4*INT_WIDTH(xctx->lw))*xctx->zoom-boundbox.y2 - (areah-4*INT_WIDTH(xctx->lw))/40*xctx->zoom;
   dbg(1, "zoom_full(): areaw=%d, areah=%d\n", areaw, areah);
 
   change_linewidth(-1.);
@@ -1539,8 +1537,8 @@ void zoom_box(int what)
     RECTORDER(x1,y1,x2,y2);
     drawtemprect(gctiled, NOW, xx1,yy1,xx2,yy2);
     xctx->xorigin=-x1;xctx->yorigin=-y1;
-    xctx->zoom=(x2-x1)/(areaw-4*lw);
-    yy1=(y2-y1)/(areah-4*lw);
+    xctx->zoom=(x2-x1)/(areaw-4*INT_WIDTH(xctx->lw));
+    yy1=(y2-y1)/(areah-4*INT_WIDTH(xctx->lw));
     if(yy1>xctx->zoom) xctx->zoom=yy1;
     xctx->mooz=1/xctx->zoom;
     change_linewidth(-1.);

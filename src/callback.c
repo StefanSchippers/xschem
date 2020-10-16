@@ -183,7 +183,7 @@ int callback(int event, int mx, int my, KeySym key,
     dbg(1, "callback(): Expose\n");
     break;
   case ConfigureNotify:
-    resetwin();
+    resetwin(1, 1);
     draw();
     break;
 
@@ -491,16 +491,16 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key == '+'  && state&ControlMask)         /* change line width */
    {
-    lw_double+=0.1;
-    change_linewidth(lw_double);
+    xctx->lw+=0.1;
+    change_linewidth(xctx->lw);
     draw();
     break;
    }
 
    if(key == '-'  && state&ControlMask)         /* change line width */
    {
-    lw_double-=0.1;if(lw_double<0.0) lw_double=0.0;
-    change_linewidth(lw_double);
+    xctx->lw-=0.1;if(xctx->lw<0.0) xctx->lw=0.0;
+    change_linewidth(xctx->lw);
     draw();
     break;
    }

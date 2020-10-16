@@ -36,11 +36,11 @@ static Ps_color *ps_colors;
 
 static void restore_lw(void)
 {
- if(lw_double==0.0)
+ if(xctx->lw==0.0)
    fprintf(fd, "%.16g setlinewidth\n",0.5);
  else
-   if(a3page) fprintf(fd, "%.16g setlinewidth\n",lw_double/1.2/sqrt(2));
-   else fprintf(fd, "%.16g setlinewidth\n",lw_double/1.2);
+   if(a3page) fprintf(fd, "%.16g setlinewidth\n",xctx->lw/1.2/sqrt(2));
+   else fprintf(fd, "%.16g setlinewidth\n",xctx->lw/1.2);
 }
 
 static void set_ps_colors(unsigned int pixel)
@@ -582,7 +582,7 @@ void ps_draw(void)
 
 
 
- dbg(1, "ps_draw(): lw=%d plotfile=%s\n",lw, plotfile);
+ dbg(1, "ps_draw(): INT_WIDTH(xctx->lw)=%d plotfile=%s\n",INT_WIDTH(xctx->lw), plotfile);
  fprintf(fd, "showpage\n\n");
  fprintf(fd, "%%%%EOF\n");
  fclose(fd);

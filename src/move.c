@@ -475,7 +475,7 @@ void find_inst_to_be_redrawn(const char *node)
     if(node && xctx->wire[i].node && !strcmp(xctx->wire[i].node, node )) {
       if(xctx->wire[i].bus){
         int ov, y1, y2;
-        ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
+        ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
         if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
         else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
         bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
@@ -579,7 +579,7 @@ void copy_objects(int what)
        /*
        if(wire[n].bus){
          int ov, y1, y2;
-         ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
+         ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
          if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
          else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
          bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
@@ -1077,7 +1077,7 @@ void move_objects(int what, int merge, double dx, double dy)
       if(k == 0) {
         if(wire[n].bus){
           int ov, y1, y2;
-          ov = bus_width> cadhalfdotsize ? bus_width : CADHALFDOTSIZE;
+          ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
           if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
           else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
           bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
