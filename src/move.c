@@ -506,9 +506,6 @@ void copy_objects(int what)
  /* int customfont; */
  #endif
 
- xInstance * const inst = xctx->inst;
- xLine ** const line = xctx->line;
- xWire * const wire = xctx->wire;
  if(what & BEGIN)
  {
   rotatelocal=0;
@@ -576,33 +573,33 @@ void copy_objects(int what)
        }
        check_wire_storage();
        /*
-       if(wire[n].bus){
+       if(xctx->wire[n].bus){
          int ov, y1, y2;
          ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
-         if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
-         else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
-         bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
+         if(xctx->wire[n].y1 < xctx->wire[n].y2) { y1 = xctx->wire[n].y1-ov; y2 = xctx->wire[n].y2+ov; }
+         else                        { y1 = xctx->wire[n].y1+ov; y2 = xctx->wire[n].y2-ov; }
+         bbox(ADD, xctx->wire[n].x1-ov, y1 , xctx->wire[n].x2+ov , y2 );
        } else {
          int ov, y1, y2;
          ov = cadhalfdotsize;
-         if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
-         else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
-         bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
+         if(xctx->wire[n].y1 < xctx->wire[n].y2) { y1 = xctx->wire[n].y1-ov; y2 = xctx->wire[n].y2+ov; }
+         else                        { y1 = xctx->wire[n].y1+ov; y2 = xctx->wire[n].y2-ov; }
+         bbox(ADD, xctx->wire[n].x1-ov, y1 , xctx->wire[n].x2+ov , y2 );
        }
        */
        if(rotatelocal) {
-         ROTATION(wire[n].x1, wire[n].y1, wire[n].x1, wire[n].y1, rx1,ry1);
-         ROTATION(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, rx2,ry2);
+         ROTATION(xctx->wire[n].x1, xctx->wire[n].y1, xctx->wire[n].x1, xctx->wire[n].y1, rx1,ry1);
+         ROTATION(xctx->wire[n].x1, xctx->wire[n].y1, xctx->wire[n].x2, xctx->wire[n].y2, rx2,ry2);
        } else {
-         ROTATION(x1, y_1, wire[n].x1, wire[n].y1, rx1,ry1);
-         ROTATION(x1, y_1, wire[n].x2, wire[n].y2, rx2,ry2);
+         ROTATION(x1, y_1, xctx->wire[n].x1, xctx->wire[n].y1, rx1,ry1);
+         ROTATION(x1, y_1, xctx->wire[n].x2, xctx->wire[n].y2, rx2,ry2);
        }
-       if( wire[n].sel & (SELECTED|SELECTED1) )
+       if( xctx->wire[n].sel & (SELECTED|SELECTED1) )
        {
         rx1+=deltax;
         ry1+=deltay;
        }
-       if( wire[n].sel & (SELECTED|SELECTED2) )
+       if( xctx->wire[n].sel & (SELECTED|SELECTED2) )
        {
         rx2+=deltax;
         ry2+=deltay;
@@ -612,13 +609,13 @@ void copy_objects(int what)
        ORDER(rx1,ry1,rx2,ry2);
        if( tmpx == rx2 &&  tmpy == ry2)
        {
-        if(wire[n].sel == SELECTED1) wire[n].sel = SELECTED2;
-        else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
+        if(xctx->wire[n].sel == SELECTED1) xctx->wire[n].sel = SELECTED2;
+        else if(xctx->wire[n].sel == SELECTED2) xctx->wire[n].sel = SELECTED1;
        }
        selectedgroup[i].n=xctx->wires;
-       storeobject(-1, rx1,ry1,rx2,ry2,WIRE,0,wire[n].sel,wire[n].prop_ptr);
-       wire[n].sel=0;
-       if(wire[n].bus)
+       storeobject(-1, rx1,ry1,rx2,ry2,WIRE,0,xctx->wire[n].sel,xctx->wire[n].prop_ptr);
+       xctx->wire[n].sel=0;
+       if(xctx->wire[n].bus)
          drawline(WIRELAYER, THICK, rx1,ry1,rx2,ry2, 0);
        else
          drawline(WIRELAYER, ADD, rx1,ry1,rx2,ry2, 0);
@@ -636,20 +633,20 @@ void copy_objects(int what)
     {
      case LINE:
       if(c!=k) break;
-      /* bbox(ADD, line[c][n].x1, line[c][n].y1, line[c][n].x2, line[c][n].y2) */
+      /* bbox(ADD, xctx->line[c][n].x1, xctx->line[c][n].y1, xctx->line[c][n].x2, xctx->line[c][n].y2) */
       if(rotatelocal) {
-        ROTATION(line[c][n].x1, line[c][n].y1, line[c][n].x1, line[c][n].y1, rx1,ry1);
-        ROTATION(line[c][n].x1, line[c][n].y1, line[c][n].x2, line[c][n].y2, rx2,ry2);
+        ROTATION(xctx->line[c][n].x1, xctx->line[c][n].y1, xctx->line[c][n].x1, xctx->line[c][n].y1, rx1,ry1);
+        ROTATION(xctx->line[c][n].x1, xctx->line[c][n].y1, xctx->line[c][n].x2, xctx->line[c][n].y2, rx2,ry2);
       } else {
-        ROTATION(x1, y_1, line[c][n].x1, line[c][n].y1, rx1,ry1);
-        ROTATION(x1, y_1, line[c][n].x2, line[c][n].y2, rx2,ry2);
+        ROTATION(x1, y_1, xctx->line[c][n].x1, xctx->line[c][n].y1, rx1,ry1);
+        ROTATION(x1, y_1, xctx->line[c][n].x2, xctx->line[c][n].y2, rx2,ry2);
       }
-      if( line[c][n].sel & (SELECTED|SELECTED1) )
+      if( xctx->line[c][n].sel & (SELECTED|SELECTED1) )
       {
        rx1+=deltax;
        ry1+=deltay;
       }
-      if( line[c][n].sel & (SELECTED|SELECTED2) )
+      if( xctx->line[c][n].sel & (SELECTED|SELECTED2) )
       {
        rx2+=deltax;
        ry2+=deltay;
@@ -659,16 +656,16 @@ void copy_objects(int what)
       ORDER(rx1,ry1,rx2,ry2);
       if( tmpx == rx2 &&  tmpy == ry2)
       {
-       if(line[c][n].sel == SELECTED1) line[c][n].sel = SELECTED2;
-       else if(line[c][n].sel == SELECTED2) line[c][n].sel = SELECTED1;
+       if(xctx->line[c][n].sel == SELECTED1) xctx->line[c][n].sel = SELECTED2;
+       else if(xctx->line[c][n].sel == SELECTED2) xctx->line[c][n].sel = SELECTED1;
       }
-      if(line[c][n].bus)
-        drawline(k, THICK, rx1,ry1,rx2,ry2, line[c][n].dash);
+      if(xctx->line[c][n].bus)
+        drawline(k, THICK, rx1,ry1,rx2,ry2, xctx->line[c][n].dash);
       else
-        drawline(k, ADD, rx1,ry1,rx2,ry2, line[c][n].dash);
+        drawline(k, ADD, rx1,ry1,rx2,ry2, xctx->line[c][n].dash);
       selectedgroup[i].n=xctx->lines[c];
-      storeobject(-1, rx1, ry1, rx2, ry2, LINE, c, line[c][n].sel, line[c][n].prop_ptr);
-      line[c][n].sel=0;
+      storeobject(-1, rx1, ry1, rx2, ry2, LINE, c, xctx->line[c][n].sel, xctx->line[c][n].prop_ptr);
+      xctx->line[c][n].sel=0;
       break;
 
      case POLYGON:
@@ -863,35 +860,34 @@ void copy_objects(int what)
          firsti = 0;
        }
        check_inst_storage();
-
        if(rotatelocal) {
-         ROTATION(inst[n].x0, inst[n].y0, inst[n].x0, inst[n].y0, rx1,ry1);
+         ROTATION(xctx->inst[n].x0, xctx->inst[n].y0, xctx->inst[n].x0, xctx->inst[n].y0, rx1,ry1);
        } else {
-         ROTATION(x1, y_1, inst[n].x0, inst[n].y0, rx1,ry1);
+         ROTATION(x1, y_1, xctx->inst[n].x0, xctx->inst[n].y0, rx1,ry1);
        }
-       inst[xctx->instances] = inst[n];
-       inst[xctx->instances].prop_ptr=NULL;
-       inst[xctx->instances].instname=NULL;
-       inst[xctx->instances].node=NULL;
-       inst[xctx->instances].name=NULL;
-       my_strdup(232, &inst[xctx->instances].name, inst[n].name);
-       my_strdup(233, &inst[xctx->instances].prop_ptr, inst[n].prop_ptr);
-       my_strdup2(234, &inst[xctx->instances].instname, get_tok_value(inst[n].prop_ptr, "name",0));
-       inst[n].sel=0;
-       inst[xctx->instances].flags = inst[n].flags;
-       inst[xctx->instances].flags &= ~4; /* do not propagate hilight */
-       inst[xctx->instances].x0 = rx1+deltax;
-       inst[xctx->instances].y0 = ry1+deltay;
-       inst[xctx->instances].sel = SELECTED;
-       inst[xctx->instances].rot = (inst[xctx->instances].rot +
-          ( (flip && (inst[xctx->instances].rot & 1) ) ? rot+2 : rot) ) & 0x3;
-       inst[xctx->instances].flip = (flip? !inst[n].flip:inst[n].flip);
+       xctx->inst[xctx->instances] = xctx->inst[n];
+       xctx->inst[xctx->instances].prop_ptr=NULL;
+       xctx->inst[xctx->instances].instname=NULL;
+       xctx->inst[xctx->instances].node=NULL;
+       xctx->inst[xctx->instances].name=NULL;
+       my_strdup(232, &xctx->inst[xctx->instances].name, xctx->inst[n].name);
+       my_strdup(233, &xctx->inst[xctx->instances].prop_ptr, xctx->inst[n].prop_ptr);
+       my_strdup2(234, &xctx->inst[xctx->instances].instname, get_tok_value(xctx->inst[n].prop_ptr, "name",0));
+       xctx->inst[n].sel=0;
+       xctx->inst[xctx->instances].flags = xctx->inst[n].flags;
+       xctx->inst[xctx->instances].flags &= ~4; /* do not propagate hilight */
+       xctx->inst[xctx->instances].x0 = rx1+deltax;
+       xctx->inst[xctx->instances].y0 = ry1+deltay;
+       xctx->inst[xctx->instances].sel = SELECTED;
+       xctx->inst[xctx->instances].rot = (xctx->inst[xctx->instances].rot +
+          ( (flip && (xctx->inst[xctx->instances].rot & 1) ) ? rot+2 : rot) ) & 0x3;
+       xctx->inst[xctx->instances].flip = (flip? !xctx->inst[n].flip:xctx->inst[n].flip);
        /* the newpropcnt argument is zero for the 1st call and used in  */
        /* new_prop_string() for cleaning some internal caches. */
        if(!newpropcnt) hash_all_names(xctx->instances);
-       new_prop_string(xctx->instances, inst[n].prop_ptr,newpropcnt++, dis_uniq_names);
-       my_strdup2(235, &inst[xctx->instances].instname,
-                   get_tok_value(inst[xctx->instances].prop_ptr, "name", 0));
+       new_prop_string(xctx->instances, xctx->inst[n].prop_ptr,newpropcnt++, dis_uniq_names);
+       my_strdup2(235, &xctx->inst[xctx->instances].instname,
+                   get_tok_value(xctx->inst[xctx->instances].prop_ptr, "name", 0));
        n=selectedgroup[i].n=xctx->instances;
 
        xctx->instances++;
@@ -921,16 +917,16 @@ void copy_objects(int what)
      if(k == 0) {
        if(selectedgroup[i].type == ELEMENT) {
          int p;
-         symbol_bbox(n, &inst[n].x1, &inst[n].y1, &inst[n].x2, &inst[n].y2 );
-         bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
-         if(show_pin_net_names) for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
-           if( inst[n].node && inst[n].node[p]) {
-              find_inst_to_be_redrawn(inst[n].node[p]);
+         symbol_bbox(n, &xctx->inst[n].x1, &xctx->inst[n].y1, &xctx->inst[n].x2, &xctx->inst[n].y2 );
+         bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2 );
+         if(show_pin_net_names) for(p = 0;  p < (xctx->inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
+           if( xctx->inst[n].node && xctx->inst[n].node[p]) {
+              find_inst_to_be_redrawn(xctx->inst[n].node[p]);
            }
          }
        }
        if(show_pin_net_names && selectedgroup[i].type == WIRE) {
-         find_inst_to_be_redrawn(wire[n].node);
+         find_inst_to_be_redrawn(xctx->wire[n].node);
        }
      }
    }
