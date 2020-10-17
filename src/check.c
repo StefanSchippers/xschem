@@ -160,11 +160,10 @@ void trim_wires(void)
  unsigned short parallel,breaks,broken,touches,included,includes;
  double xt=0,yt=0;
  int loops=0;
- xWire * const wire = xctx->wire;
 
  do {
    loops++;
-   for(i=0;i<xctx->wires;i++)  wire[i].end1=wire[i].end2=0;
+   for(i=0;i<xctx->wires;i++)  xctx->wire[i].end1=xctx->wire[i].end2=0;
    changed=0;
    for(i=0;i<xctx->wires;i++)
    {
@@ -191,65 +190,65 @@ void trim_wires(void)
          {
            check_wire_storage();
            changed=1;
-           wire[xctx->wires].x1=wire[i].x1;
-           wire[xctx->wires].y1=wire[i].y1;
-           wire[xctx->wires].end1=wire[i].end1;
-           wire[xctx->wires].end2=1;
-           wire[xctx->wires].x2=xt;
-           wire[xctx->wires].y2=yt;
-           wire[xctx->wires].sel=0;
-           wire[xctx->wires].prop_ptr=NULL;
-           my_strdup(27, &wire[xctx->wires].prop_ptr, wire[i].prop_ptr);
-           if(!strcmp(get_tok_value(wire[xctx->wires].prop_ptr,"bus",0), "true"))
-             wire[xctx->wires].bus=1;
+           xctx->wire[xctx->wires].x1=xctx->wire[i].x1;
+           xctx->wire[xctx->wires].y1=xctx->wire[i].y1;
+           xctx->wire[xctx->wires].end1=xctx->wire[i].end1;
+           xctx->wire[xctx->wires].end2=1;
+           xctx->wire[xctx->wires].x2=xt;
+           xctx->wire[xctx->wires].y2=yt;
+           xctx->wire[xctx->wires].sel=0;
+           xctx->wire[xctx->wires].prop_ptr=NULL;
+           my_strdup(27, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
+           if(!strcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
+             xctx->wire[xctx->wires].bus=1;
            else
-             wire[xctx->wires].bus=0;
-           wire[xctx->wires].node=NULL;
-           my_strdup(28, &wire[xctx->wires].node, wire[i].node);
+             xctx->wire[xctx->wires].bus=0;
+           xctx->wire[xctx->wires].node=NULL;
+           my_strdup(28, &xctx->wire[xctx->wires].node, xctx->wire[i].node);
            xctx->wires++;
 
-           wire[i].x1 = xt;
-           wire[i].y1 = yt;
-           wire[i].end1 = 1;
+           xctx->wire[i].x1 = xt;
+           xctx->wire[i].y1 = yt;
+           xctx->wire[i].end1 = 1;
          } /* end if broken */
-         else if(breaks) /*wire[i] breaks wire[j] */
+         else if(breaks) /*xctx->wire[i] breaks xctx->wire[j] */
          {
            changed=1;
-           if(wire[i].x1==xt && wire[i].y1==yt) wire[i].end1+=1;
-           else if(wire[i].x2==xt && wire[i].y2==yt) wire[i].end2+=1;
+           if(xctx->wire[i].x1==xt && xctx->wire[i].y1==yt) xctx->wire[i].end1+=1;
+           else if(xctx->wire[i].x2==xt && xctx->wire[i].y2==yt) xctx->wire[i].end2+=1;
 
            check_wire_storage();
-           wire[xctx->wires].x1=wire[j].x1;
-           wire[xctx->wires].y1=wire[j].y1;
-           wire[xctx->wires].end1=wire[j].end1;
-           wire[xctx->wires].end2=1;
-           wire[xctx->wires].x2=xt;
-           wire[xctx->wires].y2=yt;
-           wire[xctx->wires].sel=0;
-           wire[xctx->wires].prop_ptr=NULL;
-           my_strdup(29, &wire[xctx->wires].prop_ptr, wire[j].prop_ptr);
-           if(!strcmp(get_tok_value(wire[xctx->wires].prop_ptr,"bus",0), "true"))
-             wire[xctx->wires].bus=1;
+           xctx->wire[xctx->wires].x1=xctx->wire[j].x1;
+           xctx->wire[xctx->wires].y1=xctx->wire[j].y1;
+           xctx->wire[xctx->wires].end1=xctx->wire[j].end1;
+           xctx->wire[xctx->wires].end2=1;
+           xctx->wire[xctx->wires].x2=xt;
+           xctx->wire[xctx->wires].y2=yt;
+           xctx->wire[xctx->wires].sel=0;
+           xctx->wire[xctx->wires].prop_ptr=NULL;
+           my_strdup(29, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[j].prop_ptr);
+           if(!strcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
+             xctx->wire[xctx->wires].bus=1;
            else
-             wire[xctx->wires].bus=0;
-           wire[xctx->wires].node=NULL;
-           my_strdup(30, &wire[xctx->wires].node, wire[j].node);
+             xctx->wire[xctx->wires].bus=0;
+           xctx->wire[xctx->wires].node=NULL;
+           my_strdup(30, &xctx->wire[xctx->wires].node, xctx->wire[j].node);
            xctx->wires++;
 
-           wire[j].x1 = xt;
-           wire[j].y1 = yt;
-           wire[j].end1 = 1;
+           xctx->wire[j].x1 = xt;
+           xctx->wire[j].y1 = yt;
+           xctx->wire[j].end1 = 1;
          } /* end else if breaks */
-         else  /* wire[i] touches but does not break wire[j] */
+         else  /* xctx->wire[i] touches but does not break xctx->wire[j] */
          {
-          if(wire[i].x1==wire[j].x1 && wire[i].y1==wire[j].y1)
-            {wire[i].end1++;wire[j].end1++;}
-          else if(wire[i].x1==wire[j].x2 && wire[i].y1==wire[j].y2)
-            {wire[i].end1++;wire[j].end2++;}
-          else if(wire[i].x2==wire[j].x1 && wire[i].y2==wire[j].y1)
-            {wire[i].end2++;wire[j].end1++;}
+          if(xctx->wire[i].x1==xctx->wire[j].x1 && xctx->wire[i].y1==xctx->wire[j].y1)
+            {xctx->wire[i].end1++;xctx->wire[j].end1++;}
+          else if(xctx->wire[i].x1==xctx->wire[j].x2 && xctx->wire[i].y1==xctx->wire[j].y2)
+            {xctx->wire[i].end1++;xctx->wire[j].end2++;}
+          else if(xctx->wire[i].x2==xctx->wire[j].x1 && xctx->wire[i].y2==xctx->wire[j].y1)
+            {xctx->wire[i].end2++;xctx->wire[j].end1++;}
           else
-            {wire[i].end2++;wire[j].end2++;}
+            {xctx->wire[i].end2++;xctx->wire[j].end2++;}
          }
       } /* end if touches */
     } /* end for j */
@@ -259,13 +258,13 @@ void trim_wires(void)
       check_touch(i,j, &parallel,&breaks,&broken,&touches,&included,&includes, &xt,&yt);
       if( touches && parallel)
       {
-         if(wire[j].x1 == xt && wire[j].y1 == yt) /* touch in x1, y1 */
+         if(xctx->wire[j].x1 == xt && xctx->wire[j].y1 == yt) /* touch in x1, y1 */
          {
-            if(wire[i].end2 == 1 && wire[j].end1 == 1)  /* merge wire */
+            if(xctx->wire[i].end2 == 1 && xctx->wire[j].end1 == 1)  /* merge xctx->wire */
             {
                changed=1;
-               wire[i].x2 = wire[j].x2;wire[i].y2 = wire[j].y2;
-               wire[i].end2=wire[j].end2;
+               xctx->wire[i].x2 = xctx->wire[j].x2;xctx->wire[i].y2 = xctx->wire[j].y2;
+               xctx->wire[i].end2=xctx->wire[j].end2;
                freenet_nocheck(j);
                j--;
                break;
@@ -273,11 +272,11 @@ void trim_wires(void)
          }
          else  /* touch in x2,y2 */
          {
-            if(wire[i].end1 == 1 && wire[j].end2 == 1)  /* merge wire */
+            if(xctx->wire[i].end1 == 1 && xctx->wire[j].end2 == 1)  /* merge xctx->wire */
             {
                changed=1;
-               wire[i].x1 = wire[j].x1;wire[i].y1 = wire[j].y1;
-               wire[i].end1=wire[j].end1;
+               xctx->wire[i].x1 = xctx->wire[j].x1;xctx->wire[i].y1 = xctx->wire[j].y1;
+               xctx->wire[i].end1=xctx->wire[j].end1;
                freenet_nocheck(j);
                j--;
                break;
@@ -304,8 +303,6 @@ void break_wires_at_pins(void)
   xRect *rct;
   double x0, y0, rx1, ry1;
   int changed=0;
-  xWire * const wire = xctx->wire;
-  int const wires = xctx->wires;
 
   hash_wires();
   need_rebuild_selected_array=1;
@@ -329,31 +326,31 @@ void break_wires_at_pins(void)
         get_square(x0, y0, &sqx, &sqy);
         for(wptr=wiretable[sqx][sqy]; wptr; wptr=wptr->next) {
           i = wptr->n;
-          if( touch(wire[i].x1, wire[i].y1,
-                    wire[i].x2, wire[i].y2, x0,y0) )
+          if( touch(xctx->wire[i].x1, xctx->wire[i].y1,
+                    xctx->wire[i].x2, xctx->wire[i].y2, x0,y0) )
           {
-            if( (x0!=wire[i].x1 && x0!=wire[i].x2) ||
-                (y0!=wire[i].y1 && y0!=wire[i].y2) ) {
+            if( (x0!=xctx->wire[i].x1 && x0!=xctx->wire[i].x2) ||
+                (y0!=xctx->wire[i].y1 && y0!=xctx->wire[i].y2) ) {
               if(!changed) { push_undo(); changed=1;}
               check_wire_storage();
-              wire[wires].x1=wire[i].x1;
-              wire[wires].y1=wire[i].y1;
-              wire[wires].x2=x0;
-              wire[wires].y2=y0;
-              wire[wires].sel=SELECTED;
-              wire[wires].prop_ptr=NULL;
-              my_strdup(31, &wire[wires].prop_ptr, wire[i].prop_ptr);
-              if(!strcmp(get_tok_value(wire[wires].prop_ptr,"bus",0), "true"))
-                wire[wires].bus=1;
+              xctx->wire[xctx->wires].x1=xctx->wire[i].x1;
+              xctx->wire[xctx->wires].y1=xctx->wire[i].y1;
+              xctx->wire[xctx->wires].x2=x0;
+              xctx->wire[xctx->wires].y2=y0;
+              xctx->wire[xctx->wires].sel=SELECTED;
+              xctx->wire[xctx->wires].prop_ptr=NULL;
+              my_strdup(31, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
+              if(!strcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
+                xctx->wire[xctx->wires].bus=1;
               else
-                wire[wires].bus=0;
-              wire[wires].node=NULL;
-              hash_wire(XINSERT, wires, 0);
-              my_strdup(32, &wire[wires].node, wire[i].node);
+                xctx->wire[xctx->wires].bus=0;
+              xctx->wire[xctx->wires].node=NULL;
+              hash_wire(XINSERT, xctx->wires, 0);
+              my_strdup(32, &xctx->wire[xctx->wires].node, xctx->wire[i].node);
               need_rebuild_selected_array=1;
               xctx->wires++;
-              wire[i].x1 = x0;
-              wire[i].y1 = y0;
+              xctx->wire[i].x1 = x0;
+              xctx->wire[i].y1 = y0;
             }
           }
         }
@@ -364,51 +361,51 @@ void break_wires_at_pins(void)
   /* hash_wires(); */
   rebuild_selected_array();
   for(j=0;j<lastselected;j++) if(selectedgroup[j].type==WIRE) {
-  /* for(k=0; k < wires; k++) { */
+  /* for(k=0; k < xctx->wires; k++) { */
     int l;
 
     k = selectedgroup[j].n;
     for(l=0;l<2;l++) {
       if(l==0 ) {
-        x0 = wire[k].x1;
-        y0 = wire[k].y1;
+        x0 = xctx->wire[k].x1;
+        y0 = xctx->wire[k].y1;
       } else {
-        x0 = wire[k].x2;
-        y0 = wire[k].y2;
+        x0 = xctx->wire[k].x2;
+        y0 = xctx->wire[k].y2;
       }
       get_square(x0, y0, &sqx, &sqy);
       /* printf("  k=%d, x0=%g, y0=%g\n", k, x0, y0); */
       for(wptr=wiretable[sqx][sqy] ; wptr ; wptr = wptr->next) {
         i = wptr->n;
-        /* printf("check wire %d to wire %d\n", k, i); */
+        /* printf("check xctx->wire %d to xctx->wire %d\n", k, i); */
         if(i==k) {
-          continue; /* no check wire against itself */
+          continue; /* no check xctx->wire against itself */
         }
-        if( touch(wire[i].x1, wire[i].y1,
-                  wire[i].x2, wire[i].y2, x0,y0) )
+        if( touch(xctx->wire[i].x1, xctx->wire[i].y1,
+                  xctx->wire[i].x2, xctx->wire[i].y2, x0,y0) )
         {
-          if( (x0!=wire[i].x1 && x0!=wire[i].x2) ||
-              (y0!=wire[i].y1 && y0!=wire[i].y2) ) {
+          if( (x0!=xctx->wire[i].x1 && x0!=xctx->wire[i].x2) ||
+              (y0!=xctx->wire[i].y1 && y0!=xctx->wire[i].y2) ) {
             /* printf("touch in mid point: %d\n", l+1); */
             if(!changed) { push_undo(); changed=1;}
             check_wire_storage();
-            wire[wires].x1=wire[i].x1;
-            wire[wires].y1=wire[i].y1;
-            wire[wires].x2=x0;
-            wire[wires].y2=y0;
-            wire[wires].sel=SELECTED;
-            wire[wires].prop_ptr=NULL;
-            my_strdup(33, &wire[wires].prop_ptr, wire[i].prop_ptr);
-            if(!strcmp(get_tok_value(wire[wires].prop_ptr,"bus",0), "true"))
-              wire[wires].bus=1;
+            xctx->wire[xctx->wires].x1=xctx->wire[i].x1;
+            xctx->wire[xctx->wires].y1=xctx->wire[i].y1;
+            xctx->wire[xctx->wires].x2=x0;
+            xctx->wire[xctx->wires].y2=y0;
+            xctx->wire[xctx->wires].sel=SELECTED;
+            xctx->wire[xctx->wires].prop_ptr=NULL;
+            my_strdup(33, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
+            if(!strcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
+              xctx->wire[xctx->wires].bus=1;
             else
-              wire[wires].bus=0;
-            wire[wires].node=NULL;
-            hash_wire(XINSERT, wires, 0);
+              xctx->wire[xctx->wires].bus=0;
+            xctx->wire[xctx->wires].node=NULL;
+            hash_wire(XINSERT, xctx->wires, 0);
             need_rebuild_selected_array=1;
             xctx->wires++;
-            wire[i].x1 = x0;
-            wire[i].y1 = y0;
+            xctx->wire[i].x1 = x0;
+            xctx->wire[i].y1 = y0;
           }
         }
       }
