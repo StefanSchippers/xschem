@@ -506,7 +506,6 @@ void copy_objects(int what)
  /* int customfont; */
  #endif
 
- int const instances =  xctx->instances;
  xInstance * const inst = xctx->inst;
  xLine ** const line = xctx->line;
  xWire * const wire = xctx->wire;
@@ -870,30 +869,30 @@ void copy_objects(int what)
        } else {
          ROTATION(x1, y_1, inst[n].x0, inst[n].y0, rx1,ry1);
        }
-       inst[instances] = inst[n];
-       inst[instances].prop_ptr=NULL;
-       inst[instances].instname=NULL;
-       inst[instances].node=NULL;
-       inst[instances].name=NULL;
-       my_strdup(232, &inst[instances].name, inst[n].name);
-       my_strdup(233, &inst[instances].prop_ptr, inst[n].prop_ptr);
-       my_strdup2(234, &inst[instances].instname, get_tok_value(inst[n].prop_ptr, "name",0));
+       inst[xctx->instances] = inst[n];
+       inst[xctx->instances].prop_ptr=NULL;
+       inst[xctx->instances].instname=NULL;
+       inst[xctx->instances].node=NULL;
+       inst[xctx->instances].name=NULL;
+       my_strdup(232, &inst[xctx->instances].name, inst[n].name);
+       my_strdup(233, &inst[xctx->instances].prop_ptr, inst[n].prop_ptr);
+       my_strdup2(234, &inst[xctx->instances].instname, get_tok_value(inst[n].prop_ptr, "name",0));
        inst[n].sel=0;
-       inst[instances].flags = inst[n].flags;
-       inst[instances].flags &= ~4; /* do not propagate hilight */
-       inst[instances].x0 = rx1+deltax;
-       inst[instances].y0 = ry1+deltay;
-       inst[instances].sel = SELECTED;
-       inst[instances].rot = (inst[instances].rot +
-          ( (flip && (inst[instances].rot & 1) ) ? rot+2 : rot) ) & 0x3;
-       inst[instances].flip = (flip? !inst[n].flip:inst[n].flip);
+       inst[xctx->instances].flags = inst[n].flags;
+       inst[xctx->instances].flags &= ~4; /* do not propagate hilight */
+       inst[xctx->instances].x0 = rx1+deltax;
+       inst[xctx->instances].y0 = ry1+deltay;
+       inst[xctx->instances].sel = SELECTED;
+       inst[xctx->instances].rot = (inst[xctx->instances].rot +
+          ( (flip && (inst[xctx->instances].rot & 1) ) ? rot+2 : rot) ) & 0x3;
+       inst[xctx->instances].flip = (flip? !inst[n].flip:inst[n].flip);
        /* the newpropcnt argument is zero for the 1st call and used in  */
        /* new_prop_string() for cleaning some internal caches. */
-       if(!newpropcnt) hash_all_names(instances);
-       new_prop_string(instances, inst[n].prop_ptr,newpropcnt++, dis_uniq_names);
-       my_strdup2(235, &inst[instances].instname,
-                   get_tok_value(inst[instances].prop_ptr, "name", 0));
-       n=selectedgroup[i].n=instances;
+       if(!newpropcnt) hash_all_names(xctx->instances);
+       new_prop_string(xctx->instances, inst[n].prop_ptr,newpropcnt++, dis_uniq_names);
+       my_strdup2(235, &inst[xctx->instances].instname,
+                   get_tok_value(inst[xctx->instances].prop_ptr, "name", 0));
+       n=selectedgroup[i].n=xctx->instances;
 
        xctx->instances++;
       }
