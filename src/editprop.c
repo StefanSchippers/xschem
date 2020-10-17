@@ -920,8 +920,7 @@ void update_symbol(const char *result, int x)
   char *name = NULL, *ptr = NULL, *new_prop = NULL;
   char symbol[PATH_MAX];
   char *type;
-  const char *new_name;
-  int cond, allow_change_name;
+  int cond;
   int pushed=0;
 
   dbg(1, "update_symbol(): entering\n");
@@ -985,13 +984,6 @@ void update_symbol(const char *result, int x)
     }
   }
 
-  /* instance name prefix (1st char) changed? --> allow_change_name=1 */
-  allow_change_name = 0;
-  if(new_prop) {
-    my_strdup(88, &name, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
-    new_name = get_tok_value(new_prop, "name", 0);
-    if(!name || new_name[0] != name[0]) allow_change_name = 1;
-  }
   for(k=0;k<lastselected;k++) {
     dbg(1, "update_symbol(): for k loop: k=%d\n", k);
     if(selectedgroup[k].type!=ELEMENT) continue;
@@ -1060,19 +1052,13 @@ void update_symbol(const char *result, int x)
       }
     }
 
-
-
-    new_name = get_tok_value(xctx->inst[i].prop_ptr, "name", 1); /* retain quotes in name if any */
-    if(new_name[0]) {
-      if(allow_change_name || (lastselected == 1) ) my_strdup(153, &name, new_name);
+    /* if symbol changed ensure instance name (with new prefix char) is unique */
+    my_strdup(152, &name, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
+    if(name && name[0] ) {
+      dbg(1, "update_symbol(): prefix!='\\0', name=%s\n", name);
       /* 20110325 only modify prefix if prefix not NUL */
-      if(prefix) {
-        if(name[0] != '"') 
-          name[0]=prefix; /* change prefix if changing symbol type; */
-        else
-          name[1]=prefix; /* change prefix if changing symbol type; */
-      }
-      dbg(1, "update_symbol(): name=%s, inst[i].prop_ptr=%s\n", name, xctx->inst[i].prop_ptr);
+      if(prefix) name[0]=prefix; /* change prefix if changing symbol type; */
+      dbg(1, "update_symbol(): name=%s, xctx->inst[i].prop_ptr=%s\n", name, xctx->inst[i].prop_ptr);
       my_strdup(89, &ptr,subst_token(xctx->inst[i].prop_ptr, "name", name) );
                      /* set name of current inst */
 

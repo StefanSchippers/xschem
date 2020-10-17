@@ -1444,15 +1444,19 @@ int Tcl_AppInit(Tcl_Interp *inter)
 #endif
     dbg(1, "Tcl_AppInit(): filename %s given, removing symbols\n", filename);
     remove_symbols();
-    load_schematic(1, f, 1);
-    Tcl_VarEval(interp, "update_recent_file {", filename, "}", NULL);
+    /* if do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
+       to tcl is_xschem_file that could change netlist_type to symbol */
+    load_schematic(1, f, !do_netlist);
+    Tcl_VarEval(interp, "update_recent_file {", f, "}", NULL);
  } else {
    char * tmp;
    char filename[PATH_MAX];
    tmp = (char *) tclgetvar("XSCHEM_START_WINDOW");
    dbg(1, "Tcl_AppInit(): tmp=%s\n", tmp? tmp: "NULL");
    my_strncpy(filename, abs_sym_path(tmp, ""), S(filename));
-   load_schematic(1, filename, 1);
+    /* if do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
+       to tcl is_xschem_file that could change netlist_type to symbol */
+   load_schematic(1, filename, !do_netlist);
  }
 
 
