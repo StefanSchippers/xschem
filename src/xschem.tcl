@@ -1739,13 +1739,15 @@ proc select_layers {} {
 proc color_dim {} {
   toplevel .dim -class dialog
   wm title .dim {Dim colors}
+  checkbutton .dim.bg -text {Dim background} -variable dim_background
   scale .dim.scale -digits 2 -label {Dim factor} -length 256 \
      -showvalue 1 -command {xschem color_dim} -orient horizontal \
      -from -5 -to 5 -resolution 0.1
   button .dim.ok -text OK -command {destroy .dim}
   .dim.scale set [xschem get dim]
   pack .dim.scale
-  pack .dim.ok
+  pack .dim.bg -side left
+  pack .dim.ok -side right -anchor e
 }
 proc about {} {
 
@@ -3210,6 +3212,7 @@ set_ne cairo_font_name {Arial}
 set has_cairo 0 
 set rotated_text {} ;#20171208
 set_ne dark_colorscheme 1
+set_ne dim_background 0
 ##### set colors
 if {!$rainbow_colors} {
   set_ne cadlayers 22

@@ -261,8 +261,12 @@ void init_color_array(double dim)
 {
  char s[256]; /* overflow safe 20161122 */
  int i;
+ int dim_bg;
  unsigned int r, g, b;
  double rr, gg, bb;
+ static int done=0;
+
+ dim_bg = tclgetvar("dim_background")[0] == '1' ? 1: 0;
  for(i=0;i<cadlayers;i++) {
    my_snprintf(s, S(s), "lindex $colors %d",i);
    tcleval(s);
@@ -271,7 +275,8 @@ void init_color_array(double dim)
    sscanf(tclresult(), "#%02x%02x%02x", &r, &g, &b);
    rr=r; gg=g; bb=b;
 
-   if( (i!=BACKLAYER) ) {
+   
+   if(dim_bg || i!=BACKLAYER ) {
      if(dim>=0.) {
        rr +=(51.-rr/5.)*dim;
        gg +=(51.-gg/5.)*dim;
@@ -288,7 +293,12 @@ void init_color_array(double dim)
      if(b>0xff) b=0xff;
    }
    my_snprintf(s, S(s), "#%02x%02x%02x", r, g, b);
-   my_strdup(605, &color_array[i], s);
+   if(!done) {
+     my_strdup(605, &color_array[i], s);
+     done = 1;
+   } else if(dim_bg || i!=BACKLAYER ) {
+     my_strdup(605, &color_array[i], s);
+   }
  }
 
 }
