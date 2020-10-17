@@ -294,7 +294,7 @@ void init_color_array(double dim)
    }
    my_snprintf(s, S(s), "#%02x%02x%02x", r, g, b);
    if(!done) {
-     my_strdup(605, &color_array[i], s);
+     my_strdup(643, &color_array[i], s);
      done = 1;
    } else if(dim_bg || i!=BACKLAYER ) {
      my_strdup(605, &color_array[i], s);
@@ -369,7 +369,7 @@ void free_xschem_data()
 void alloc_xschem_data()
 {
   int i;
-  xctx = my_calloc(152, 1, sizeof(Xschem_ctx));
+  xctx = my_calloc(153, 1, sizeof(Xschem_ctx));
   xctx->zoom=CADINITIALZOOM;
   xctx->mooz=1/CADINITIALZOOM;
   xctx->xorigin=CADINITIALX;
