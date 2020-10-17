@@ -463,7 +463,7 @@ static void signal_short( char *n1, char *n2)
  }
 }
 
-static void wirecheck(int k)    /* recursive routine */
+void wirecheck(int k)    /* recursive routine */
 {
  int tmpi,tmpj, counti,countj,i,j;
  int touches;

@@ -1674,6 +1674,7 @@ void new_wire(int what, double mx_snap, double my_snap)
        hash_wire(XINSERT, xctx->wires-1, 1);
        /* prepared_hash_wires = 0; */
        prepared_hilight_structs = 0;
+
        update_conn_cues(1,1);
        if(show_pin_net_names) {
          prepare_netlist_structs(0);

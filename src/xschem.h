@@ -302,8 +302,8 @@ extern char win_temp_dir[PATH_MAX];
 #define IS_PIN(type) (!(strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
 
 
-#define X_TO_SCREEN(x) ( floor((x+xctx->xorigin)* xctx->mooz) )
-#define Y_TO_SCREEN(y) ( floor((y+xctx->yorigin)* xctx->mooz) )
+#define X_TO_SCREEN(x) ( floor(((x)+xctx->xorigin)* xctx->mooz) )
+#define Y_TO_SCREEN(y) ( floor(((y)+xctx->yorigin)* xctx->mooz) )
 #define X_TO_XSCHEM(x) ((x)*xctx->zoom -xctx->xorigin)
 #define Y_TO_XSCHEM(y) ((y)*xctx->zoom -xctx->yorigin)
 
@@ -798,6 +798,7 @@ extern void hash_inst_pin(int what, int i, int j);
 extern void del_inst_table(void);
 extern void hash_wires(void);
 extern void hash_wire(int what, int n, int incremental);
+extern void wirecheck(int k);
 extern void hash_instances(void); /*  20171203 insert instance bbox in spatial hash table */
 
 #ifdef HAS_CAIRO

@@ -927,6 +927,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   write_xschem_file(fd);
   fclose(fd);
   my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
+  /* <<<<< >>>> why clear all these? */
   prepared_hilight_structs=0;
   prepared_netlist_structs=0;
   prepared_hash_instances=0;
