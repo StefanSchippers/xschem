@@ -3,8 +3,8 @@ G {}
 K {}
 V {}
 S {
-.probe v(ga,sa) v(gb,sb)
-.probe p(q*) p(r*) i(r*) p(xm1) p(xm2) i(d*)}
+* .probe v(ga,sa) v(gb,sb)
+* .probe p(q*) p(r*) i(r*) p(xm1) p(xm2) i(d*)}
 E {}
 T {CURRENT
 MEASURE} 1040 -660 0 0 0.2 0.2 {}
@@ -147,8 +147,8 @@ C {lab_pin.sym} 340 -970 0 1 {name=p23 lab=E2}
 C {lab_pin.sym} 560 -970 0 1 {name=p28 lab=E6}
 C {lab_pin.sym} 840 -1000 0 0 {name=p29 lab=E4}
 C {lab_pin.sym} 180 -1120 0 0 {name=p34 lab=VBOOST}
-C {ammeter.sym} 1110 -540 0 0 {name=vd current=0.2093 net_name=true}
-C {ammeter.sym} 1110 -640 0 0 {name=vu current=0.2336 net_name=true}
+C {ammeter.sym} 1110 -540 0 0 {name=vd current=0.2229 net_name=true}
+C {ammeter.sym} 1110 -640 0 0 {name=vu current=0.2165 net_name=true}
 C {lab_pin.sym} 60 -1180 0 0 {name=p27 lab=VPP}
 C {pnp.sym} 200 -950 0 1 {name=Q1 model=q2n2907p area=1 net_name=true}
 C {pnp.sym} 360 -790 0 1 {name=Q2 model=q2n2907p area=1 net_name=true}
@@ -230,33 +230,33 @@ C {lab_pin.sym} 180 -690 0 0 {name=p8 lab=C7}
 C {lab_pin.sym} 340 -710 0 1 {name=p31 lab=C2}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan Schippers"}
 C {lab_pin.sym} 930 -700 0 0 {name=p32 lab=SA}
-C {ammeter.sym} 1110 -350 0 0 {name=v0 current=0.2288 net_name=true}
+C {ammeter.sym} 1110 -350 0 0 {name=v0 current=0.2423 net_name=true}
 C {lab_pin.sym} 930 -380 0 0 {name=p35 lab=SB}
-C {ammeter.sym} 560 -890 0 0 {name=v1 current=0.01956 net_name=true}
-C {ammeter.sym} 340 -890 0 0 {name=v2 current=0.01947 net_name=true}
+C {ammeter.sym} 560 -890 0 0 {name=v1 current=0.01959 net_name=true}
+C {ammeter.sym} 340 -890 0 0 {name=v2 current=0.01949 net_name=true}
 C {ammeter.sym} 260 -310 0 0 {name=v3 current=0.03924 net_name=true}
-C {ammeter.sym} 770 -440 3 0 {name=v4 current=0.01942 net_name=true}
-C {ammeter.sym} 690 -680 0 0 {name=v5 current=0.006271 net_name=true}
-C {ammeter.sym} 180 -870 0 1 {name=v6 current=0.01955 net_name=true}
-C {ammeter.sym} 840 -890 0 0 {name=v7 current=0.0195 net_name=true}
-C {spice_probe.sym} 1010 -440 0 0 {name=p36 analysis=tran voltage=-46.31}
-C {spice_probe_vdiff.sym} 930 -410 0 0 {name=p37 analysis=tran voltage=3.689}
-C {spice_probe_vdiff.sym} 930 -730 0 0 {name=p38 analysis=tran voltage=3.691}
-C {spice_probe.sym} 1010 -760 0 0 {name=p39 analysis=tran voltage=3.814}
-C {spice_probe.sym} 1220 -590 0 0 {name=p40 analysis=tran voltage=0.1231}
+C {ammeter.sym} 770 -440 3 0 {name=v4 current=0.01944 net_name=true}
+C {ammeter.sym} 690 -680 0 0 {name=v5 current=0.006183 net_name=true}
+C {ammeter.sym} 180 -870 0 1 {name=v6 current=0.01952 net_name=true}
+C {ammeter.sym} 840 -890 0 0 {name=v7 current=0.01947 net_name=true}
+C {spice_probe.sym} 1010 -440 0 0 {name=p36 analysis=tran voltage=-46.14}
+C {spice_probe_vdiff.sym} 930 -410 0 0 {name=p37 analysis=tran voltage=3.693}
+C {spice_probe_vdiff.sym} 930 -730 0 0 {name=p38 analysis=tran voltage=3.685}
+C {spice_probe.sym} 1010 -760 0 0 {name=p39 analysis=tran voltage=3.548}
+C {spice_probe.sym} 1220 -590 0 0 {name=p40 analysis=tran voltage=-0.1372}
 C {spice_probe.sym} 380 -530 0 0 {name=p41 analysis=tran voltage=21.3}
 C {spice_probe.sym} 140 -530 0 1 {name=p42 analysis=tran voltage=21.3}
-C {spice_probe.sym} 250 -470 0 1 {name=p43 analysis=tran voltage=20.61}
-C {spice_probe.sym} 440 -790 0 0 {name=p44 analysis=tran voltage=48.22}
-C {spice_probe.sym} 280 -950 0 0 {name=p45 analysis=tran voltage=48.22}
-C {spice_probe.sym} 730 -810 0 0 {name=p46 analysis=tran voltage=25.21}
+C {spice_probe.sym} 250 -470 0 1 {name=p43 analysis=tran voltage=20.38}
+C {spice_probe.sym} 440 -790 0 0 {name=p44 analysis=tran voltage=48.05}
+C {spice_probe.sym} 280 -950 0 0 {name=p45 analysis=tran voltage=47.26}
+C {spice_probe.sym} 730 -810 0 0 {name=p46 analysis=tran voltage=24.6}
 C {spice_probe.sym} 610 -1180 0 0 {name=p47 analysis=tran voltage=50}
-C {spice_probe.sym} 760 -1120 0 0 {name=p48 analysis=tran voltage=50}
-C {ammeter.sym} 1300 -590 3 0 {name=v8 current=0.03055 net_name=true}
+C {spice_probe.sym} 760 -1120 0 0 {name=p48 analysis=tran voltage=49.03}
+C {ammeter.sym} 1300 -590 3 0 {name=v8 current=-2.1207e-04 net_name=true}
 C {spice_probe.sym} 1110 -280 0 0 {name=p49 analysis=tran voltage=-50}
-C {spice_probe.sym} 280 -630 0 1 {name=p50 analysis=tran voltage=42.36}
-C {spice_probe.sym} 340 -820 0 1 {name=p51 analysis=tran voltage=49.03}
-C {spice_probe.sym} 120 -210 0 1 {name=p52 analysis=tran voltage=-42.58}
+C {spice_probe.sym} 280 -630 0 1 {name=p50 analysis=tran voltage=42.18}
+C {spice_probe.sym} 340 -820 0 1 {name=p51 analysis=tran voltage=48.86}
+C {spice_probe.sym} 120 -210 0 1 {name=p52 analysis=tran voltage=-42.41}
 C {spice_probe.sym} 130 -70 0 1 {name=p53 analysis=tran voltage=-50}
 C {opin.sym} 600 -130 0 0 {name=p5 lab=OUT}
 C {ipin.sym} 530 -180 0 0 {name=p1 lab=MINUS}

@@ -458,7 +458,7 @@ const char *list_tokens(const char *s, int with_quotes)
 /* with_quotes: */
 /* 0: eat non escaped quotes (") */
 /* 1: return unescaped quotes as part of the token value if they are present */
-/* 2: eat backslashes */
+/* 2: eat backslashes and unescaped double quotes (") */
 const char *get_tok_value(const char *s,const char *tok, int with_quotes)
 {
   static char *result=NULL;

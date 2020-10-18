@@ -26,25 +26,25 @@ T {actual value
 200} 870 -1330 0 0 0.4 0.4 {}
 N 160 -1250 160 -1230 {lab=#net1}
 N 160 -1110 160 -1090 {lab=#net2}
-N 280 -1170 340 -1170 {lab=VSS}
+N 370 -1170 380 -1170 {lab=VSS}
 N 710 -700 860 -700 {lab=OUTM}
 N 510 -1200 580 -1200 {lab=VSS}
 N 580 -1200 580 -1190 {lab=VSS}
 N 580 -1190 620 -1190 {lab=VSS}
 N 550 -1240 580 -1240 {lab=IN}
 N 620 -1250 710 -1250 {lab=REFP}
-N 280 -1180 280 -1170 {lab=VSS}
-N 280 -1250 280 -1240 {lab=VPP}
-N 270 -1100 270 -1090 {lab=VNN}
-N 270 -1170 270 -1160 {lab=VSS}
+N 280 -1180 280 -1170 {lab=#net3}
+N 280 -1250 280 -1240 {lab=#net4}
+N 270 -1100 270 -1090 {lab=#net5}
+N 270 -1170 270 -1160 {lab=#net3}
 N 160 -1090 190 -1090 {lab=#net2}
-N 270 -1090 340 -1090 {lab=VNN}
+N 370 -1090 380 -1090 {lab=VNN}
 N 160 -1250 190 -1250 {lab=#net1}
-N 280 -1250 340 -1250 {lab=VPP}
-N 270 -1170 280 -1170 {lab=VSS}
-N 250 -1250 280 -1250 {lab=VPP}
-N 250 -1090 270 -1090 {lab=VNN}
-N 160 -1170 270 -1170 {lab=VSS}
+N 370 -1250 380 -1250 {lab=VPP}
+N 270 -1170 280 -1170 {lab=#net3}
+N 250 -1250 280 -1250 {lab=#net4}
+N 250 -1090 270 -1090 {lab=#net5}
+N 160 -1170 270 -1170 {lab=#net3}
 N 550 -950 710 -950 {lab=OUTM}
 N 400 -890 550 -890 {lab=FBN}
 N 550 -770 550 -750 {lab=IN}
@@ -87,6 +87,9 @@ N 350 -890 400 -890 {lab=FBN}
 N 350 -430 400 -430 {lab=FB}
 N 580 -1110 620 -1110 {lab=VSS}
 N 580 -1120 580 -1110 {lab=VSS}
+N 280 -1250 310 -1250 {lab=#net4}
+N 270 -1090 310 -1090 {lab=#net5}
+N 280 -1170 310 -1170 {lab=#net3}
 C {code.sym} 1020 -210 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
@@ -99,7 +102,8 @@ vvss vss 0 dc 0
 
 .param frequ=20k
 .param gain=42
-.tran  6e-7 0.009 uic
+.op
+* .tran  6e-7 0.009 uic
 
 
 ** models are generally not free: you must download
@@ -111,18 +115,17 @@ vvss vss 0 dc 0
 * .probe i(*) 
 * .probe p(r*) p(v*)
 "}
-C {vsource.sym} 160 -1200 0 0 {name=V1 value="pwl 0 0 1m 50"}
-C {vsource.sym} 160 -1140 0 0 {name=V0 value="pwl 0 0 1m 50"}
-C {lab_pin.sym} 340 -1250 0 1 {name=p5 lab=VPP}
-C {lab_pin.sym} 340 -1090 0 1 {name=p6 lab=VNN}
-C {lab_pin.sym} 340 -1170 0 1 {name=p3 lab=VSS}
+C {vsource.sym} 160 -1200 0 0 {name=V1 value="dc 50 pwl 0 0 1m 50"}
+C {vsource.sym} 160 -1140 0 0 {name=V0 value="dc 50 pwl 0 0 1m 50"}
+C {lab_pin.sym} 380 -1250 0 1 {name=p5 lab=VPP}
+C {lab_pin.sym} 380 -1090 0 1 {name=p6 lab=VNN}
+C {lab_pin.sym} 380 -1170 0 1 {name=p3 lab=VSS}
 C {lab_pin.sym} 860 -240 0 1 {name=p14 lab=OUTP}
 C {res.sym} 860 -490 0 1 {name=R1 m=1 value=8}
 C {lab_pin.sym} 510 -1200 0 0 {name=p26 lab=VSS}
 C {lab_pin.sym} 550 -1240 0 0 {name=p31 lab=IN}
 C {vcvs.sym} 620 -1220 0 0 {name=E3 value='gain*0.99'}
 C {lab_pin.sym} 710 -1250 0 1 {name=p32 lab=REFP}
-C {capa.sym} 280 -1210 0 0 {name=C2 m=1 value="100u"}
 C {capa.sym} 270 -1130 0 0 {name=C3 m=1 value="100u"}
 C {res.sym} 220 -1250 1 1 {name=R11 m=1 value=0.3}
 C {res.sym} 220 -1090 1 1 {name=R9 m=1 value=0.3}
@@ -178,3 +181,8 @@ C {lab_pin.sym} 350 -270 0 0 {name=p19 lab=FB}
 C {lab_pin.sym} 350 -730 0 0 {name=p25 lab=FBN}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan Schippers"}
 C {lab_pin.sym} 880 -1250 0 0 {name=p27 lab=IN_INT}
+C {ammeter.sym} 340 -1250 3 0 {name=vcurrvpp current=0.5636 net_name=true}
+C {spice_probe.sym} 790 -700 0 0 {name=p40 analysis=tran voltage=-0.1372}
+C {spice_probe.sym} 770 -240 0 0 {name=p29 analysis=tran voltage=-0.1372}
+C {ammeter.sym} 340 -1090 3 0 {name=vcurrvnn current=-0.5715 net_name=true}
+C {ammeter.sym} 340 -1170 3 0 {name=vcurrvss current=0.007914 net_name=true}
