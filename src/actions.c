@@ -922,6 +922,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, 
   if(pos==-1 || pos > xctx->instances) n=xctx->instances;
   else
   {
+   prepared_hash_instances = 0; /* instances moved so need to rebuild hash */
    for(j=xctx->instances;j>pos;j--)
    {
     xctx->inst[j]=xctx->inst[j-1];
@@ -967,7 +968,12 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, 
   if(first_call && (draw_sym & 3) ) bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
 
   xctx->instances++; /* must be updated before calling symbol_bbox() */
-  prepared_hash_instances=0;
+
+
+  if(prepared_hash_instances) hash_inst(XINSERT, n); /* no need to rehash, add item */
+  /* prepared_hash_instances=0; */
+
+
   /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
    * to translate @#n:net_name texts */
   prepared_netlist_structs=0;

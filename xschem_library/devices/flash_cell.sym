@@ -1,8 +1,9 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
-G {type=flash
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=flash
 vhdl_stop=true
 format="@name @pinlist @model dvt=@dvt width=@width length=@length m=1" 
-template="name=x1 model=flash1 dvt=0 width=0.16u length=0.3u m=1"}
+template="name=X1 model=flash1 dvt=0 width=0.16u length=0.3u m=1"}
 V {}
 S {}
 E {}

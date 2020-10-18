@@ -642,6 +642,7 @@ void prepare_netlist_structs(int for_netlist)
 
   if (for_netlist>0 && prepared_netlist_structs) return;
   else if (!for_netlist && prepared_hilight_structs) return;
+  /* delete instance pins spatial hash, wires spatial hash, node_hash, wires and inst nodes.*/
   else delete_netlist_structs();
   if(netlist_count == 0 ) startlevel = xctx->currsch;
   print_erc =  netlist_count == 0 || startlevel < xctx->currsch;
@@ -651,12 +652,12 @@ void prepare_netlist_structs(int for_netlist)
     statusmsg(nn,2);
   }
   /* reset wire & inst node labels */
-  dbg(1, "prepare_netlist_structs(): resetting node hash tables\n");
+  dbg(2, "prepare_netlist_structs(): rehashing wires and instances in spatial hash table\n");
   hash_wires();
   for (i=0;i<instances;i++)
   {
     if (inst[i].ptr<0) continue;
-    delete_inst_node(i);
+    /* delete_inst_node(i); */ /* done in delete_netlist_structs() */
     rects=(inst[i].ptr+ xctx->sym)->rects[PINLAYER] +
           (inst[i].ptr+ xctx->sym)->rects[GENERICLAYER];
     if (rects > 0)
@@ -1034,7 +1035,7 @@ void prepare_netlist_structs(int for_netlist)
   my_free(839, &value);
   my_free(840, &class);
   my_free(841, &global_node);
-  dbg(1, "prepare_netlist_structs(): returning\n");
+  dbg(2, "prepare_netlist_structs(): returning\n");
 }
 
 int sym_vs_sch_pins()
