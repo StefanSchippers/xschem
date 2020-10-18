@@ -1423,15 +1423,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  else if(!strcmp(argv[1],"unhilight"))
  {
    xRect boundbox;
+   int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
    enable_drill=0;
-   calc_drawing_bbox(&boundbox, 2);
+   if(!big) calc_drawing_bbox(&boundbox, 2);
    delete_hilight_net();
    /* undraw_hilight_net(1); */
-   bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
-   bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-   bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+   if(!big) {
+     bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+     bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+   }
    draw();
-   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+   if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
 
    /*
    enable_drill = 0;

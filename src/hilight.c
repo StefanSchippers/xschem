@@ -881,13 +881,16 @@ void unhilight_net(void)
 void redraw_hilights(void)
 {
   xRect boundbox;
+  int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
   if(!has_x) return;
-  calc_drawing_bbox(&boundbox, 2);
-  bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
-  bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-  bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+  if(!big) {
+    calc_drawing_bbox(&boundbox, 2);
+    bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+    bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+    bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+  }
   draw();
-  bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+  if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
 }
 
 void draw_hilight_net(int on_window)

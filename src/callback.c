@@ -972,16 +972,18 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='k' && state==ControlMask)                           /* unhilight net */
    {
     xRect boundbox;
+    int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
     if(semaphore >= 2) break;
-    calc_drawing_bbox(&boundbox, 2);
-
+    if(!big) calc_drawing_bbox(&boundbox, 2);
     unhilight_net();
     /* undraw_hilight_net(1); */
-    bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
-    bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-    bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+    if(!big) {
+      bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+      bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+      bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+    }
     draw();
-    bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+    if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     break;
    }
    if(key=='K' && state==(ControlMask|ShiftMask))       /* hilight net drilling thru elements  */
@@ -1006,16 +1008,19 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='K' && state == ShiftMask)                           /* delete hilighted nets */
    {
     xRect boundbox;
+    int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
     if(semaphore >= 2) break;
     enable_drill=0;
-    calc_drawing_bbox(&boundbox, 2);
+    if(!big) calc_drawing_bbox(&boundbox, 2);
     delete_hilight_net();
     /* undraw_hilight_net(1); */
-    bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
-    bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-    bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+    if(!big) {
+      bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+      bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+      bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+    }
     draw();
-    bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+    if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     break;
    }
    if(key=='g' && state==Mod1Mask) { /* highlight net and send to gaw viewer */
@@ -1698,14 +1703,17 @@ int callback(int event, int mx, int my, KeySym key,
          xRect boundbox;
          if(auto_hilight && hilight_nets && sel == 0 ) { /* 20160413 20160503 */
            if(!prev_last_sel) {
-             calc_drawing_bbox(&boundbox, 2);
+             int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
+             if(!big) calc_drawing_bbox(&boundbox, 2);
              delete_hilight_net();
              /* undraw_hilight_net(1); */
-             bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
-             bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-             bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+             if(!big) {
+               bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+               bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+               bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+             }
              draw();
-             bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+             if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
            }
          }
        }
