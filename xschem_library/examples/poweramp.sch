@@ -102,8 +102,8 @@ vvss vss 0 dc 0
 
 .param frequ=20k
 .param gain=42
-.op
-* .tran  6e-7 0.009 uic
+* .op
+.tran  6e-7 0.009 uic
 
 
 ** models are generally not free: you must download

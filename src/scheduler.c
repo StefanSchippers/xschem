@@ -515,31 +515,33 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      Tcl_AppendResult(interp, "xschem setprop: instance not found", NULL);
      return TCL_ERROR;
    } else {
-     bbox(BEGIN,0.0,0.0,0.0,0.0);
-     symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-     bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
-     push_undo();
-     set_modify(1);
      if(!fast) {
-       prepared_hash_instances=0;
-       prepared_netlist_structs=0;
-       prepared_hilight_structs=0;
+       bbox(BEGIN,0.0,0.0,0.0,0.0);
+       symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
+       bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
+       push_undo();
      }
-     hash_all_names(inst);
+     set_modify(1);
+     prepared_hash_instances=0;
+     prepared_netlist_structs=0;
+     prepared_hilight_structs=0;
+     if(!strcmp(argv[3], "name")) hash_all_names(inst);
      if(argc >= 5) {
-       new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], argv[4]),0, dis_uniq_names);
-
+       new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], argv[4]),fast, dis_uniq_names);
      } else {/* assume argc == 4 */
-       new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], NULL),0, dis_uniq_names);
+       new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], NULL),fast, dis_uniq_names);
      }
      my_strdup2(367, &xctx->inst[inst].instname, get_tok_value(xctx->inst[inst].prop_ptr, "name",0));
-     /* new symbol bbox after prop changes (may change due to text length) */
-     symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-     bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
-     /* redraw symbol with new props */
-     bbox(SET,0.0,0.0,0.0,0.0);
-     draw();
-     bbox(END,0.0,0.0,0.0,0.0);
+
+     if(!fast) {
+       /* new symbol bbox after prop changes (may change due to text length) */
+       symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
+       bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
+       /* redraw symbol with new props */
+       bbox(SET,0.0,0.0,0.0,0.0);
+       draw();
+       bbox(END,0.0,0.0,0.0,0.0);
+     }
    }
    Tcl_ResetResult(interp);
 
@@ -756,7 +758,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      return TCL_ERROR;
    }
    if( (i = get_instance(argv[2])) < 0 ) {
-     Tcl_AppendResult(interp, "xschem getprop: instance not found", NULL);
+     Tcl_AppendResult(interp, "xschem instance_net: instance not found", NULL);
      return TCL_ERROR;
    }
    prepare_netlist_structs(0);
