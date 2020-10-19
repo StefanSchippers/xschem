@@ -2601,7 +2601,22 @@ const char *translate(int inst, const char* s)
     STR_ALLOC(&result, tmp + result_pos, &size);
     memcpy(result+result_pos,tmp_sym_name, tmp+1);
     result_pos+=tmp;
-
+   } else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
+     int i, mult;
+     int no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
+     prepare_netlist_structs(0);
+     for(i=0;i<no_of_pins;i++) {
+       char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr;
+       if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
+         if(strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
+           const char *str_ptr =  net_name(inst,i, &mult, 0);
+           tmp = strlen(str_ptr) +100 ;
+           STR_ALLOC(&result, tmp + result_pos, &size);
+           result_pos += my_snprintf(result + result_pos, tmp, "%s", str_ptr);
+         }
+         break;
+       }
+     }
    } else if(token[0]=='@' && token[1]=='#') {
      int n;
      char *pin_attr = my_malloc(532, sizetok * sizeof(char));

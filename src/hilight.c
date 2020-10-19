@@ -1032,6 +1032,10 @@ void draw_hilight_net(int on_window)
 }
 
 /* show == 0   ==> create pins from highlight nets */
+/* show == 1   ==> print list of highlight net */
+/* show == 2   ==> create labels with i prefix from hilight nets */
+/* show == 3   ==> print list of highlight net with path and label expansion  */
+/* show == 4   ==> create labels without i prefix from hilight nets */
 void print_hilight_net(int show)
 {
  int i;
@@ -1099,8 +1103,15 @@ void print_hilight_net(int show)
      /* before invoking this function, in this case --> skip */
      if(node_entry && !strcmp(xctx->sch_path[xctx->currsch], entry->path)) {
        if(show==3) {
+         if(netlist_type == CAD_SPICE_NETLIST) 
+           fprintf(fd, ".save v(%s%s)\n", 
+              entry->path + 1, 
+              entry->token[0] == '#' ? entry->token + 1 : entry->token  );
+         else
+           fprintf(fd, "%s%s\n", 
+              entry->path + 1, 
+              entry->token[0] == '#' ? entry->token + 1 : entry->token  );
 
-         fprintf(fd, "%s%s\n", !strcmp(entry->path, ".") ? "" : entry->path, entry->token);
 
        } else if(show==1) {
          fprintf(fd, "%s\n",  entry->token);

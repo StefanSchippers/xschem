@@ -1866,11 +1866,12 @@ proc tclpropeval {s instname symname} {
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s} {
   # puts "tclpropeval2: $s $instname $symname"
+  set path [string range [xschem get sch_path] 1 end]
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s
   if { [catch {subst $s} res] } {
-    puts "tclpropeval2: $res"
-    set res $s
+    puts "tclpropeval2 warning: $res"
+    set res {?}
   }
   return $res
 }

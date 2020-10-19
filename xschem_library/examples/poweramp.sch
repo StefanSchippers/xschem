@@ -102,7 +102,7 @@ vvss vss 0 dc 0
 
 .param frequ=20k
 .param gain=42
-* .op
+.op
 .tran  6e-7 0.009 uic
 
 
@@ -111,6 +111,7 @@ vvss vss 0 dc 0
 ** referenced file in simulation directory.
 .include \\"models_poweramp.txt\\"
 .save all
+.option savecurrents
 * .FOUR 20k v(outm,outp)
 * .probe i(*) 
 * .probe p(r*) p(v*)
@@ -181,8 +182,37 @@ C {lab_pin.sym} 350 -270 0 0 {name=p19 lab=FB}
 C {lab_pin.sym} 350 -730 0 0 {name=p25 lab=FBN}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan Schippers"}
 C {lab_pin.sym} 880 -1250 0 0 {name=p27 lab=IN_INT}
-C {ammeter.sym} 340 -1250 3 0 {name=vcurrvpp current=0.5636 net_name=true}
-C {spice_probe.sym} 790 -700 0 0 {name=p40 analysis=tran voltage=-0.1372}
-C {spice_probe.sym} 770 -240 0 0 {name=p29 analysis=tran voltage=-0.1372}
-C {ammeter.sym} 340 -1090 3 0 {name=vcurrvnn current=-0.5715 net_name=true}
-C {ammeter.sym} 340 -1170 3 0 {name=vcurrvss current=0.007914 net_name=true}
+C {ammeter.sym} 340 -1250 3 0 {name=vcurrvpp  net_name=true      current=0.5636}
+C {spice_probe.sym} 790 -700 0 0 {name=p40 analysis=tran       voltage=-0.1372}
+C {spice_probe.sym} 770 -240 0 0 {name=p29 analysis=tran       voltage=-0.1372}
+C {ammeter.sym} 340 -1090 3 0 {name=vcurrvnn  net_name=true      current=-0.5715}
+C {ammeter.sym} 340 -1170 3 0 {name=vcurrvss  net_name=true      current=0.007914}
+C {launcher.sym} 780 -120 0 0 {name=h2
+descr="Ctrl-Click
+Clear all probes" 
+tclcommand="
+    xschem push_undo
+    xschem set no_undo 1
+    xschem set no_draw 1
+ 
+    set lastinst [xschem get instances]
+    for \{ set i 0 \} \{ $i < $lastinst \} \{incr i \} \{
+      set type [xschem getprop instance $i cell::type]
+      if \{ [regexp \{(^|/)probe$\} $type ] \} \{
+        xschem setprop $i voltage fast
+      \}
+      if \{ [regexp \{current_probe$\} $type ] \} \{
+        xschem setprop $i current fast
+      \}
+      if \{ [regexp \{differential_probe$\} $type ] \} \{
+        xschem setprop $i voltage fast
+      \}
+    \}
+    xschem set no_undo 0
+    xschem set no_draw 0
+    xschem redraw
+"
+}
+C {spice_probe.sym} 250 -220 0 0 {name=p30 analysis=tran       voltage=21.07}
+C {spice_probe.sym} 250 -680 0 0 {name=p33 analysis=tran       voltage=21.07}
+C {spice_probe_dynamic.sym} 350 -810 0 1 {name=p55}

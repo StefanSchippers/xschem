@@ -103,6 +103,9 @@ write cmos_example.raw
 set appendwrite
 let cap = cap + 2e-12
 end
+op
+write cmos_example.raw
+
 .endc
 
 ** ngspice
@@ -111,3 +114,12 @@ end
 ** xyce, not needed if -r given om cmdline
 * .print tran format=raw v(diffout) v(plus) v(minus)
 "  net_name=true}
+C {spice_probe_dynamic.sym} 430 -350 0 0 {name=r1}
+C {spice_probe_dynamic.sym} 480 -430 0 0 {name=r2}
+C {spice_probe_dynamic.sym} 550 -500 0 0 {name=r3}
+C {spice_probe_dynamic.sym} 620 -360 0 0 {name=r4}
+C {spice_probe_dynamic.sym} 330 -180 0 0 {name=r5}
+C {spice_probe_dynamic.sym} 30 -370 0 0 {name=r6}
+C {spice_probe_dynamic.sym} 30 -240 0 0 {name=r7}
+C {spice_probe_dynamic.sym} 30 -520 0 0 {name=r8}
+C {spice_probe_dynamic.sym} 500 -210 0 0 {name=r9}

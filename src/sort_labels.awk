@@ -11,7 +11,7 @@ BEGIN{
 # LDYMS[12]
 
 { 
-  line[lines++] = $1 " " hash_string($1)
+  line[lines++] = $0 " " hash_string($1)
 }
 
 
@@ -22,8 +22,8 @@ END{
     print line[i] > FILENAME
   }
   close(FILENAME)
-  system("sort -k 2 " FILENAME " | awk '{ print $1}' > " FILENAME ".xxxxx")
-  system("mv " FILENAME ".xxxxx " FILENAME)
+  system("sort -k 2 " FILENAME " | awk '{$NF=\"\";  print $0}' > " "." FILENAME ".xxxxx")
+  system("mv ." FILENAME ".xxxxx " FILENAME)
 }
 
 

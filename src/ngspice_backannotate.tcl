@@ -21,7 +21,12 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
-proc read_ngspice_raw {arr fp} {
+namespace eval ngspice {
+  # Create a variable inside the namespace
+  variable ngspice_data
+}
+
+proc ngspice::read_ngspice_raw {arr fp} {
   upvar $arr var
   unset -nocomplain var
 
@@ -59,7 +64,7 @@ proc read_ngspice_raw {arr fp} {
   }
 }
 
-proc get_voltage {arr n } {
+proc ngspice::get_voltage {arr n } {
   upvar $arr var
   set m "v($n)"
   if { ! [info exists var([string tolower $m])] } {
@@ -73,7 +78,7 @@ proc get_voltage {arr n } {
   # return DELETE
 }
 
-proc get_diff_voltage {arr p m } {
+proc ngspice::get_diff_voltage {arr p m } {
   upvar $arr var
   set pp "v($p)"
   set mm "v($m)"
@@ -87,8 +92,7 @@ proc get_diff_voltage {arr p m } {
   # return DELETE
 }
 
-proc get_current {arr n } {
-  global current_probe
+proc ngspice::get_current {arr n } {
   upvar $arr var
   if { [xschem get currsch] > 0 } {
     set n "i(v.$n)"
@@ -104,9 +108,18 @@ proc get_current {arr n } {
 }
 
 
-
+proc get_ngspice_node {n} {
+  set n [string tolower $n]
+  set err [catch {set ::ngspice::ngspice_data($n)} res]
+  if { $err } { 
+    puts $res
+    set res {}
+  }
+  return $res
+}
 
 proc annotate {} {
+  upvar ::ngspice::ngspice_data arr
   set rawfile "[xschem get netlist_dir]/[file rootname [file tail [xschem get schname 0]]].raw"
   if { ![file exists $rawfile] } {
     puts "no raw file found: $rawfile"
@@ -116,7 +129,7 @@ proc annotate {} {
   fconfigure $fp -translation binary
   set op_point_read 0 
   while 1 {
-    read_ngspice_raw arr $fp
+    ngspice::read_ngspice_raw arr $fp
     if { [info exists arr(n\ points)] } {
       if { $arr(n\ points) == 1 } {
         set op_point_read 1; break
@@ -136,22 +149,22 @@ proc annotate {} {
     for { set i 0 } { $i < $lastinst } {incr i } {
       set name [xschem getprop instance $i name]
       set type [xschem getprop instance $i cell::type]
-      if { [regexp {(^|/)probe$} $type ] } {
+      if { $type eq {probe} } {
         set net $path[xschem instance_net $i p]
-        if {[catch {xschem setprop $i voltage [get_voltage arr $net] fast} err]} {
-          puts "Error 1: ${err}, net: $net"
+        if {[catch {xschem setprop $i voltage [ngspice::get_voltage arr $net] fast} err]} {
+          puts "Warning 1: ${err}, net: $net"
         }
       }
-      if { [regexp {current_probe$} $type ] } {
-        if {[catch {xschem setprop $i current [get_current arr $path$name] fast} err]} {
-          puts "Error 2: $err"
+      if { $type eq {current_probe} } {
+        if {[catch {xschem setprop $i current [ngspice::get_current arr $path$name] fast} err]} {
+          puts "Warning 2: $err"
         }
       }
-      if { [regexp {differential_probe$} $type ] } {
+      if { $type eq {differential_probe} } {
         set netp $path[xschem instance_net $i p]
         set netm $path[xschem instance_net $i m]
-        if {[catch {xschem setprop $i voltage [get_diff_voltage arr $netp $netm] fast} err]} {
-          puts "Error 3: $err"
+        if {[catch {xschem setprop $i voltage [ngspice::get_diff_voltage arr $netp $netm] fast} err]} {
+          puts "Warning 3: $err"
         }
       }
       # puts "$i $name $type"
