@@ -64,7 +64,7 @@ proc ngspice::read_ngspice_raw {arr fp} {
   }
 }
 
-proc ngspice::get_voltage {arr n } {
+proc ngspice::get_voltage_probe {arr n } {
   upvar $arr var
   set m "v($n)"
   if { ! [info exists var([string tolower $m])] } {
@@ -78,7 +78,7 @@ proc ngspice::get_voltage {arr n } {
   # return DELETE
 }
 
-proc ngspice::get_diff_voltage {arr p m } {
+proc ngspice::get_diff_probe {arr p m } {
   upvar $arr var
   set pp "v($p)"
   set mm "v($m)"
@@ -92,7 +92,7 @@ proc ngspice::get_diff_voltage {arr p m } {
   # return DELETE
 }
 
-proc ngspice::get_current {arr n } {
+proc ngspice::get_curr_probe {arr n } {
   upvar $arr var
   if { [xschem get currsch] > 0 } {
     set n "i(v.$n)"
@@ -108,23 +108,64 @@ proc ngspice::get_current {arr n } {
 }
 
 
-proc get_ngspice_node {n} {
+proc ngspice::get_current {n} {
   set n [string tolower $n]
-  if { [regexp -all \\. $n] == 1} {
-    regsub {@.\.} $n {@} n
+  set prefix [string range $n 0 0]
+  set path [string range [xschem get sch_path] 1 end]
+  set n $path$n
+  if { $path ne {} } {
+    set n $prefix.$n
   }
-
+  
+  if { ![regexp $prefix {[ve]}] } {
+    set n @$n
+  }
+  set n i($n)
   set err [catch {set ::ngspice::ngspice_data($n)} res]
-  if { $err } { 
+  if { $err } {
+    set res {?}
+  } else {
+    set res [ format %.4g $res ]
+  }
+  # puts "$n --> $res"
+  return $res
+}
+
+proc ngspice::get_voltage {n} {
+  set n [string tolower $n]
+  set path [string range [xschem get sch_path] 1 end]
+
+  set n v($path$n)
+  set err [catch {set ::ngspice::ngspice_data($n)} res]
+  if { $err } {
     # puts "get_ngspice_node: $res"
-    set res {}
+    set res {?}
   } else {
     set res [ format %.4g $res ]
   }
   return $res
 }
 
-proc annotate {} {
+proc ngspice::get_node {n} {
+  set n [string tolower $n]
+  if { [regexp -all \\. $n] == 1} {
+    regsub {@.\.} $n {@} n
+  }
+  set err [catch {set ::ngspice::ngspice_data($n)} res]
+  if { $err } { 
+    # puts "get_ngspice_node: $res"
+    set res {?}
+  } else {
+    set res [ format %.4g $res ]
+  }
+  return $res
+}
+
+proc ngspice::resetdata {} {
+  array unset ::ngspice::ngspice_data
+}
+
+proc ngspice::annotate {} {
   upvar ::ngspice::ngspice_data arr
   set rawfile "[xschem get netlist_dir]/[file rootname [file tail [xschem get schname 0]]].raw"
   if { ![file exists $rawfile] } {
@@ -157,19 +198,19 @@ proc annotate {} {
       set type [xschem getprop instance $i cell::type]
       if { $type eq {probe} } {
         set net $path[xschem instance_net $i p]
-        if {[catch {xschem setprop $i voltage [ngspice::get_voltage arr $net] fast} err]} {
+        if {[catch {xschem setprop $i voltage [ngspice::get_voltage_probe arr $net] fast} err]} {
           puts "Warning 1: ${err}, net: $net"
         }
       }
       if { $type eq {current_probe} } {
-        if {[catch {xschem setprop $i current [ngspice::get_current arr $path$name] fast} err]} {
+        if {[catch {xschem setprop $i current [ngspice::get_curr_probe arr $path$name] fast} err]} {
           puts "Warning 2: $err"
         }
       }
       if { $type eq {differential_probe} } {
         set netp $path[xschem instance_net $i p]
         set netm $path[xschem instance_net $i m]
-        if {[catch {xschem setprop $i voltage [ngspice::get_diff_voltage arr $netp $netm] fast} err]} {
+        if {[catch {xschem setprop $i voltage [ngspice::get_diff_probe arr $netp $netm] fast} err]} {
           puts "Warning 3: $err"
         }
       }
@@ -191,4 +232,4 @@ proc annotate {} {
   }
 }
 
-if { ![info exists no_x] } {bind .drw <Alt-a> {puts {Annotating...}; annotate} }
+if { ![info exists no_x] } {bind .drw <Alt-a> {puts {Annotating...}; ngspice::annotate} }

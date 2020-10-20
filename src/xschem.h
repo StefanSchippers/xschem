@@ -816,7 +816,7 @@ extern int Tcl_AppInit(Tcl_Interp *interp);
 extern int source_tcl_file(char *s);
 extern int callback(int event, int mx, int my, KeySym key,
                         int button, int aux, int state);
-extern void resetwin(int create_pixmap, int clear_pixmap);
+extern void resetwin(int create_pixmap, int clear_pixmap, int preview_window);
 extern void find_closest_net(double mx,double my);
 extern void find_closest_box(double mx,double my);
 extern void find_closest_arc(double mx,double my);

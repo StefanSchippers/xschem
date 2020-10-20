@@ -183,7 +183,7 @@ int callback(int event, int mx, int my, KeySym key,
     dbg(1, "callback(): Expose\n");
     break;
   case ConfigureNotify:
-    resetwin(1, 1);
+    resetwin(1, 1, 0);
     draw();
     break;
 
@@ -954,7 +954,9 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key=='o' && state == ControlMask)   /* load */
    {
+
     if(semaphore >= 2) break;
+    tcleval("catch { ngspice::resetdata }");
     ask_new_file();
     break;
    }

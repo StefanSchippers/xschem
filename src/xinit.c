@@ -820,7 +820,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
                        /* if not set heuristics is done in xschem.tcl to ensure it is an xschem file */
     load_schematic(1,filename, 0);
     window = pre_window;
-    resetwin(1, 0);
+    resetwin(1, 0, 1);
     zoom_full(1, 0); /* draw */
     check_version = 0;
 
@@ -840,15 +840,16 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
 #ifdef __unix__
     XFreePixmap(display,save_pixmap);
 #else
-    Tk_FreePixmap(display, save_pixmap);
+    if (save_pixmap != save_save_pixmap)
+      Tk_FreePixmap(display, save_pixmap);
 #endif 
     window = save_window;
     save_pixmap = save_save_pixmap;
-    /* reset window, but don't delete and create a pixmap since we
+    /* reset window (back to main window), but don't delete and create a pixmap since we
        have preserved the main window pixmap and already erased the preview pixmap
        the goal of this complicated pixmap saving is to avoid a draw() call in the main window
        to regenerate the save_pixmap every time user browses a new symbol */
-    resetwin(0, 0);
+    resetwin(0, 0, 0);
     change_linewidth(-1.);
     /* not needed: event loop takes care of this and don't need to regenerate save_pixmap. */
     /* draw(); */

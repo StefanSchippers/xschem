@@ -1870,7 +1870,7 @@ proc tclpropeval2 {s} {
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s
   if { [catch {subst $s} res] } {
-    puts "tclpropeval2 warning: $res"
+    # puts "tclpropeval2 warning: $res"
     set res {?}
   }
   return $res

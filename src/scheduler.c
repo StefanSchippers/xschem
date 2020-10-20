@@ -1252,6 +1252,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
  else if(!strcmp(argv[1],"load") )
  {
+    tcleval("catch { ngspice::resetdata }");
     if(argc==3) {
       if(!has_x || !modified  || !save(1) ) { /* save(1)==1 --> user cancel */
         dbg(1, "xschem(): load: filename=%s\n", argv[2]);

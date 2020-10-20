@@ -20,10 +20,10 @@ N 370 -280 390 -280 {lab=PLUS}
 N 610 -280 630 -280 {lab=MINUS}
 N 570 -430 620 -430 {lab=VCC}
 N 380 -430 430 -430 {lab=VCC}
-N 470 -430 530 -430 {lab=#net2}
-N 470 -430 470 -400 {lab=#net2}
-N 430 -400 470 -400 {lab=#net2}
-N 430 -400 430 -310 {lab=#net2}
+N 470 -430 530 -430 {lab=G}
+N 470 -430 470 -400 {lab=G}
+N 430 -400 470 -400 {lab=G}
+N 430 -400 430 -310 {lab=G}
 N 570 -400 570 -310 {lab=DIFFOUT}
 N 570 -500 570 -460 {lab=VCC}
 N 430 -500 570 -500 {lab=VCC}
@@ -124,7 +124,21 @@ C {ngspice_probe.sym} 30 -370 0 0 {name=r6}
 C {ngspice_probe.sym} 30 -240 0 0 {name=r7}
 C {ngspice_probe.sym} 30 -520 0 0 {name=r8}
 C {ngspice_probe.sym} 500 -210 0 0 {name=r9}
-C {ngspice_get_value.sym} 590 -440 0 0 {name=r10 node=i(@m6[id])}
 C {ngspice_get_value.sym} 410 -440 0 1 {name=r11 node=i(@m6[id])}
-C {ngspice_get_value.sym} 530 -180 0 0 {name=r12 node=i(@m1[id])}
-C {ngspice_get_value.sym} 210 -180 0 1 {name=r13 node=i(@m3[id])}
+C {ngspice_get_expr.sym} 590 -450 0 0 {name=r18 
+node="[ngspice::get_current \{m2[id]\}]"
+descr = Id
+ }
+C {lab_pin.sym} 430 -370 0 0 {name=p12 lab=G  net_name=true}
+C {ngspice_get_expr.sym} 550 -450 0 1 {name=r10 
+node="[format %.4g [expr [ngspice::get_voltage vcc] - [ngspice::get_voltage g]]]"
+descr = Vsg
+ }
+C {ngspice_get_expr.sym} 530 -170 0 0 {name=r14 
+node="[ngspice::get_current \{m1[id]\}]"
+descr = Id
+ }
+C {ngspice_get_expr.sym} 210 -170 0 1 {name=r12 
+node="[ngspice::get_current \{m3[id]\}]"
+descr = Id
+ }

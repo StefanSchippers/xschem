@@ -555,6 +555,9 @@ void copy_objects(int what)
  {
   int firstw, firsti;
   int save_draw;
+  /* if the copy operation involved flip or rotations the original element bboxes were changed. 
+     restore them now */
+  update_symbol_bboxes(0, 0);
   save_draw = draw_window;
   draw_window=1; /* temporarily re-enable draw to window together with pixmap */
   draw_selection(gctiled,0);
@@ -855,9 +858,6 @@ void copy_objects(int what)
       break;
      case ELEMENT:
       if(k==0) {
-       /* if the copy operation involved flip or rotations the original element bboxes were changed. 
-          restore them now */
-       update_symbol_bboxes(0, 0);
        if(firsti) {
          prepared_hash_instances = 0;
          firsti = 0;

@@ -194,7 +194,7 @@ const char *add_ext(const char *f, const char *ext)
   return ff;
 }
 
-void resetwin(int create_pixmap, int clear_pixmap)
+void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
 {
   int i;
   XWindowAttributes wattr;
@@ -241,8 +241,14 @@ void resetwin(int create_pixmap, int clear_pixmap)
       }
       XSetTile(display,gctiled, save_pixmap);
 #else
-    Tk_Window mainwindow = Tk_MainWindow(interp);
-    HWND hwnd = Tk_GetHWND(Tk_WindowId(mainwindow));
+    HWND hwnd;
+    if (preview_window) {
+      hwnd = Tk_GetHWND(pre_window);
+    }
+    else {
+      Tk_Window mainwindow = Tk_MainWindow(interp);
+      hwnd = Tk_GetHWND(Tk_WindowId(mainwindow));
+    }
     RECT rct;
     if (GetWindowRect(hwnd, &rct))
     {
