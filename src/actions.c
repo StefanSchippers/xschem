@@ -216,7 +216,8 @@ void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
     areaw = areax2-areax1;
     areah = areay2-areay1;
 
-    if( xschem_w !=xrect[0].width || xschem_h !=xrect[0].height) { /* 20171123 avoid unnecessary work if no resize */
+    /* if no preview window avoid unnecessary work if no resize */
+    if(preview_window || xschem_w !=xrect[0].width || xschem_h !=xrect[0].height) {
       dbg(1, "resetwin(): x=%d y=%d   xschem_w=%d xschem_h=%d\n",
                        wattr.x, wattr.y, xschem_w,xschem_h);
       dbg(1, "resetwin(): changing size\n\n");
