@@ -836,9 +836,10 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     xctx = save_xctx; /* restore schematic */
     modified = save_mod;
     set_modify(modified);
-    /* free the pixmap used for preview */
+    /* free the pixmap (if a different one) used for preview */
 #ifdef __unix__
-    XFreePixmap(display,save_pixmap);
+    if (save_pixmap != save_save_pixmap)
+      XFreePixmap(display,save_pixmap);
 #else
     if (save_pixmap != save_save_pixmap)
       Tk_FreePixmap(display, save_pixmap);
