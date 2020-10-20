@@ -216,7 +216,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
     areaw = areax2-areax1;
     areah = areay2-areay1;
 
-    /* if no preview_window or create_pixmap==0  avoid unnecessary work if no resize */
+    /* if no preview_window or create_pixmap==1  avoid unnecessary work if no resize */
     /* !create_pixmap ensures the XSetTile is executed when done with the preview */
     if( preview_window || !create_pixmap || xschem_w !=xrect[0].width || xschem_h !=xrect[0].height) {
       dbg(1, "resetwin(): x=%d y=%d   xschem_w=%d xschem_h=%d\n",
