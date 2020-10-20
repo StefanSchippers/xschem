@@ -1,0 +1,13 @@
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=raw_data_show
+vhdl_ignore=true
+spice_ignore=false
+verilog_ignore=true
+tedax_ignore=true
+template="name=r1 node=xxx"}
+V {}
+S {}
+E {}
+T {tcleval([ get_ngspice_node [subst -nocommand \{@node\\\}] ] )} 6.875 -8.59375 0 0 0.25 0.25 {vcenter=true layer=15}
+T {tcleval([regsub \{\\@(.*\\\\.)?\} [subst -nocommand \{@node\\\}] \{\} ] )} 6.875 -23.59375 0 0 0.25 0.25 {vcenter=true layer=15}

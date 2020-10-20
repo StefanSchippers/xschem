@@ -215,4 +215,4 @@ tclcommand="
 }
 C {spice_probe.sym} 250 -220 0 0 {name=p30 analysis=tran       voltage=21.07}
 C {spice_probe.sym} 250 -680 0 0 {name=p33 analysis=tran       voltage=21.07}
-C {spice_probe_dynamic.sym} 350 -810 0 1 {name=p55}
+C {ngspice_probe.sym} 350 -810 0 1 {name=p55}

@@ -92,6 +92,7 @@ value="
 ** models are generally not free: you must download
 ** SPICE models for active devices and put them  into the below 
 ** referenced file in netlist/simulation directory.
+.option savecurrents
 .include \\"models_cmos_example.txt\\"
 .control
 let cap = 2e-12
@@ -114,12 +115,16 @@ write cmos_example.raw
 ** xyce, not needed if -r given om cmdline
 * .print tran format=raw v(diffout) v(plus) v(minus)
 "  net_name=true}
-C {spice_probe_dynamic.sym} 430 -350 0 0 {name=r1}
-C {spice_probe_dynamic.sym} 480 -430 0 0 {name=r2}
-C {spice_probe_dynamic.sym} 550 -500 0 0 {name=r3}
-C {spice_probe_dynamic.sym} 620 -360 0 0 {name=r4}
-C {spice_probe_dynamic.sym} 330 -180 0 0 {name=r5}
-C {spice_probe_dynamic.sym} 30 -370 0 0 {name=r6}
-C {spice_probe_dynamic.sym} 30 -240 0 0 {name=r7}
-C {spice_probe_dynamic.sym} 30 -520 0 0 {name=r8}
-C {spice_probe_dynamic.sym} 500 -210 0 0 {name=r9}
+C {ngspice_probe.sym} 430 -350 0 0 {name=r1}
+C {ngspice_probe.sym} 480 -430 0 0 {name=r2}
+C {ngspice_probe.sym} 550 -500 0 0 {name=r3}
+C {ngspice_probe.sym} 620 -360 0 0 {name=r4}
+C {ngspice_probe.sym} 330 -180 0 0 {name=r5}
+C {ngspice_probe.sym} 30 -370 0 0 {name=r6}
+C {ngspice_probe.sym} 30 -240 0 0 {name=r7}
+C {ngspice_probe.sym} 30 -520 0 0 {name=r8}
+C {ngspice_probe.sym} 500 -210 0 0 {name=r9}
+C {ngspice_get_value.sym} 590 -440 0 0 {name=r10 node=i(@m6[id])}
+C {ngspice_get_value.sym} 410 -440 0 1 {name=r11 node=i(@m6[id])}
+C {ngspice_get_value.sym} 530 -180 0 0 {name=r12 node=i(@m1[id])}
+C {ngspice_get_value.sym} 210 -180 0 1 {name=r13 node=i(@m3[id])}

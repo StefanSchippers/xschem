@@ -110,10 +110,16 @@ proc ngspice::get_current {arr n } {
 
 proc get_ngspice_node {n} {
   set n [string tolower $n]
+  if { [regexp -all \\. $n] == 1} {
+    regsub {@.\.} $n {@} n
+  }
+
   set err [catch {set ::ngspice::ngspice_data($n)} res]
   if { $err } { 
-    puts $res
+    # puts "get_ngspice_node: $res"
     set res {}
+  } else {
+    set res [ format %.4g $res ]
   }
   return $res
 }
