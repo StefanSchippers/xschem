@@ -30,9 +30,9 @@ BEGIN{
 
  # list of cmos_t9 symbol pin coordinates, generated with build_cmoslib.awk
 
- while ( "ls $HOME/xschem/library/TECHLIB/*.sym"|getline sym )
+ while ( "ls $HOME/.xschem/xschem_library/sky130_symbols/*.sym"|getline sym )
  {
-   insert_symbol(sym, "TECHLIB")
+   insert_symbol(sym, "sky130_symbols")
  } 
  
 
@@ -42,13 +42,17 @@ BEGIN{
 #  }
 
 
- $0=""
-
-
-
-
+   inherited_pin["VGND"]=1
+   inherited_pin["VPWR"]=1
+   inherited_pin["VNB"]=1
+   inherited_pin["VPB"]=1
+ 
+   skip_symbol_prefix= "sky130_fd_sc_hd__"
+   # sym_type = "subcircuit"
+   sym_type = "primitive" # do not use schematics although they will be generated
 
    all_signals=""
+   $0=""
 
 ##########################   JOIN   ##########################
    netlist_lines=0
@@ -123,22 +127,40 @@ function insert_symbol(sym, lib,          n,cellname, name, dir, tmp)
 }
 
 
-function process_subckts(         i,name)
+function process_subckts(         j, i,name)
 {
  if(skip==1 && toupper($1) ==".ENDS") { skip=0; return } 
  if(skip==1) return
  if(toupper($1) ==".SUBCKT") {
    curr_subckt=$2
+   sub(skip_symbol_prefix, "", curr_subckt)
+   pin_ar[curr_subckt, "name"] = $2
+
    print " process_subckt(): curr_subckt=|" curr_subckt "|"
    if(curr_subckt in cell) {print " process_subckt(); skipping " curr_subckt ; skip=1; return }
    subckt[curr_subckt]=1
    template=0
+   j = 1
    for(i=3;i<=NF;i++) {
      if($i~ /=/) { template=i; break}
-     pin_ar[curr_subckt,i-2]=$i
+     if(!($i in inherited_pin)) {
+       pin_ar[curr_subckt,j]=$i
+       pin_ar[curr_subckt,"format"]=pin_ar[curr_subckt,"format"] " @@" $i
+       j++
+     } else {
+       if(pin_ar[curr_subckt,"extra"]) 
+         pin_ar[curr_subckt,"extra"] = pin_ar[curr_subckt,"extra"] " " $i
+       else
+         pin_ar[curr_subckt,"extra"] = $i
+       pin_ar[curr_subckt,"template"] = pin_ar[curr_subckt,"template"] " " $i "=" $i
+       pin_ar[curr_subckt,"format"]=pin_ar[curr_subckt,"format"] " @" $i
+     }
    }
-   pin_ar[curr_subckt,"n"]=i-3
-   pin_ar[curr_subckt,"template"] = get_template(template) 
+
+   pin_ar[curr_subckt,"n"]=j-1
+   if(skip_symbol_prefix) pin_ar[curr_subckt,"template"] = pin_ar[curr_subckt,"template"] " prefix=" skip_symbol_prefix
+   get_template(template) 
+   if(skip_symbol_prefix) pin_ar[curr_subckt,"extra"] = pin_ar[curr_subckt,"extra"] " prefix"
    print "\n\n\n process_subckt() : " curr_subckt "--> " 
    for(i=1; i<= pin_ar[curr_subckt,"n"]; i++) printf "%s ", pin_ar[curr_subckt,i]; printf "\n"
  }
@@ -164,7 +186,7 @@ function get_template(t,         templ, i)
  if(t) for(i=t;i<=NF;i++) {
   templ = templ $i " " 
  }
- return templ
+ pin_ar[curr_subckt,"template"] = pin_ar[curr_subckt,"template"] " " templ
 }
 
 
@@ -176,6 +198,7 @@ function process(         i,name,param)
  if(skip==1) return
  if(toupper($1) ==".SUBCKT") {
    curr_subckt=$2
+   sub(skip_symbol_prefix, "", curr_subckt)
    if(curr_subckt in cell) {print "process(): skipping " curr_subckt ; skip=1; return }
    space=20
    width=150
@@ -206,7 +229,9 @@ function process(         i,name,param)
    print "\n\n"
          
    print_sch(curr_subckt, dir_ret, pin_ret)
-   print_sym(curr_subckt, pin_ar[curr_subckt,"template"], dir_ret, pin_ret)
+   print_sym(curr_subckt, pin_ar[curr_subckt,"template"], \
+     pin_ar[curr_subckt,"format"], pin_ar[curr_subckt,"name"], \
+     sym_type, pin_ar[curr_subckt,"extra"], dir_ret, pin_ret)
    print "----------------------------------------------------------"
 
 
@@ -640,7 +665,7 @@ function print_signals( inst_name, component_name, param, pin,dir,net,
 
 #------------------------------
 
-function print_sym(sym, template, dir, pin,
+function print_sym(sym, template, format, subckt_name, sym_type, extra, dir, pin,
 		size,space,width,lwidth,textdist,labsize,titlesize,
 		i,name,text_voffset,lab_voffset,ip,op,n_pin ,m,x,y,n,
 		iii,ooo) 
@@ -667,13 +692,23 @@ function print_sym(sym, template, dir, pin,
 
 
  print "start print symbol: " sym
+ print "v {xschem version=2.9.8 file_version=1.2}"
+ print "K {type=" sym_type > sym
+ # print "format=\"@name @pinlist @symname " format_translate(template)  "\"" > sym
+ iii = format_translate(template, extra)
+ if(iii) iii = " " iii
 
-
- print "G {type=subcircuit" > sym
- print "format=\"@name @pinlist @symname " format_translate(template)  "\"" > sym
- print "template=\"name=x1 " template "\"}" > sym
- print "T {@symname}" ,-length(name)/2*titlesize*30, -text_voffset*titlesize,0,0,
-       titlesize, titlesize, "{}" >sym
+ # since awk strings use backslash escapes and sub also uses backslash escapes (example for \& substitution) 
+ # there are 2 levels of escape substitutions, we need \\\\ to generate one \.
+ # in the xschem file \\\\ is reduced to \\ in the format string and finally format contains one \ 
+ if(skip_symbol_prefix) sub(skip_symbol_prefix, "@prefix\\\\\\\\\\\\\\\\", subckt_name)
+ print "format=\"@name" format " " subckt_name iii  "\"" > sym
+ print "template=\"name=x1" template "\"" > sym
+ print "extra=\"" extra "\"}" > sym
+ # print "T {@symname}" ,-length(name)/2*titlesize*30, -text_voffset*titlesize,0,0,
+ #       titlesize, titlesize, "{}" >sym
+ print "T {@symname}" ,0, -text_voffset*titlesize,0,0,
+       titlesize, titlesize, "{hcenter=true}" >sym
  
  n_pin=pin["n"]
  ip=op=0 
@@ -742,7 +777,7 @@ function abs(a)
  return a>0 ? a: -a
 }
 
-function format_translate(s,             c,quote,str,n,i,ss,sss) 
+function format_translate(s, extra,            n_extra, extra_arr, extra_hash, c,quote,str,n,i,ss,sss) 
 {
 
  # 20140321
@@ -758,17 +793,23 @@ function format_translate(s,             c,quote,str,n,i,ss,sss)
  # /20140321
 
  str=""
+ n_extra = split(extra, extra_arr)
+ for(i = 1; i <= n_extra; i++) extra_hash[ extra_arr[i] ] = 1
+ 
+
  n=split(s,ss)
  for(i=1;i<=n;i++) {
    gsub(SUBSEP," ", ss[i])
    print "subckt params: " ss[i]
    if(ss[i] ~ /[^=]+=[^=]+/) {
      split(ss[i],sss,"=") 
-     ss[i] = sss[1] "=@" sss[1]
+     if(!(sss[1] in extra_hash)) ss[i] = sss[1] "=@" sss[1]
+     else ss[i] = ""
    }
    str = str ss[i]
-   if(i<n) str=str " " 
+   if(i<n && ss[i] ) str=str " " 
  }
+ delete extra_hash
  return str
 }
 

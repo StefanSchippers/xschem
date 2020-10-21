@@ -321,8 +321,11 @@ void spice_block_netlist(FILE *fd, int i)
   print_spice_subckt(fd, i);
 
   my_strdup(387, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
-  fprintf(fd, "%s ", extra ? extra : "" );
-
+  /* this is now done in print_spice_subckt */
+  /*
+   * fprintf(fd, "%s ", extra ? extra : "" );
+   */
+ 
   /* 20081206 new get_sym_template does not return token=value pairs where token listed in extra */
   fprintf(fd, "%s", get_sym_template(xctx->sym[i].templ, extra));
   my_free(950, &extra);

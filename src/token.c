@@ -1394,6 +1394,12 @@ void print_spice_subckt(FILE *fd, int symbol)
        }
      }
    }
+   /* this will print the other @parameters, usually "extra" nodes so they will be in the order
+    * specified by the format string. The 'extra' attribute is no more used to print extra nodes
+    * in spice_block_netlist(). */
+   else if(token[0] == '@') { /* given previous if() conditions not followed by @ or # */
+     fprintf(fd, "%s ",  token + 1);
+   }
    if(c!='$' && c!='@' && c!='\0' ) fputc(c,fd);
    if(c == '@' || c =='$') s--;
    state=XBEGIN;
@@ -1646,7 +1652,9 @@ void print_spice_element(FILE *fd, int inst)
 
   /* do one level of substitutions to resolve @params and equations*/
   if(result && strstr(result, "tcleval(")== result) {
+    dbg(1, "print_spice_element(): before translate()result=%s\n", result);
     my_strdup(22, &result, translate(inst, result));
+    dbg(1, "print_spice_element(): after  translate()result=%s\n", result);
   }
 
   fprintf(fd, "%s", result);
