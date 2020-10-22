@@ -309,7 +309,10 @@ proc update_recent_file {f} {
       lappend recentfile [abs_sym_path $i]
     }
   }
-  set recentfile [lreplace $recentfile 10 10]
+  # tcl8.4 errors if using lreplace past the last element
+  if { [llength $recentfile] > 10  } {
+    set recentfile [lreplace $recentfile 10 end]
+  }
   write_recent_file
   if { ![info exists ::no_x] } setup_recent_menu
 }
@@ -2187,7 +2190,9 @@ proc edit_prop {txtlabel} {
    set selected_tok {<ALL>}
    set old_selected_tok {<ALL>}
    label .dialog.f2.r4 -text {   Edit Attr:}
-   ttk::combobox .dialog.f2.r5 -values $tok_list -textvariable selected_tok -width 14
+   if  { [ info tclversion] > 8.4} {
+     ttk::combobox .dialog.f2.r5 -values $tok_list -textvariable selected_tok -width 14
+   }
 
    pack .dialog.f1.l2 .dialog.f1.e2 .dialog.f1.b1 .dialog.f1.b2 .dialog.f1.b3 .dialog.f1.b4 .dialog.f1.b5 -side left -expand 1
    pack .dialog.f4 -side top  -anchor nw
@@ -2199,7 +2204,7 @@ proc edit_prop {txtlabel} {
    pack .dialog.f2.r2 -side left
    pack .dialog.f2.r3 -side left
    pack .dialog.f2.r4 -side left
-   pack .dialog.f2.r5 -side left
+   if { [ info tclversion] > 8.4 } { pack .dialog.f2.r5 -side left }
    pack .dialog.yscroll -side right -fill y 
    pack .dialog.xscroll -side bottom -fill x
    pack .dialog.e1  -fill both -expand yes
@@ -2211,49 +2216,51 @@ proc edit_prop {txtlabel} {
      }
    }
 
-   bind .dialog.f2.r5 <<ComboboxSelected>> {
-     if {$old_selected_tok ne $selected_tok} {
-       if { $old_selected_tok eq {<ALL>} } {
+   if  { [ info tclversion] > 8.4} {
+     bind .dialog.f2.r5 <<ComboboxSelected>> {
+       if {$old_selected_tok ne $selected_tok} {
+         if { $old_selected_tok eq {<ALL>} } {
+           set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
+         } else {
+           set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+           regsub -all {(["\\])} $retval {\\\1} retval
+           set retval \"${retval}\"
+           set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+         }
+       }
+       if {$selected_tok eq {<ALL>} } { 
+         set retval $retval_orig
+       } else {
+         set retval [xschem get_tok $retval_orig $selected_tok 2]
+         # regsub -all {\\?"} $retval {"} retval
+       }
+       .dialog.e1 delete 1.0 end
+       .dialog.e1 insert 1.0 $retval
+       set old_selected_tok $selected_tok
+     }
+  
+     bind .dialog.f2.r5 <KeyRelease> {
+       set selected_tok [.dialog.f2.r5 get]
+       if { $old_selected_tok eq {<ALL>}} {
          set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
        } else {
          set retval [.dialog.e1 get 1.0 {end - 1 chars}]
-         regsub -all {(["\\])} $retval {\\\1} retval
-         set retval \"${retval}\"
-         set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+         if {$retval ne {}} {
+           regsub -all {(["\\])} $retval {\\\1} retval
+           set retval \"${retval}\"
+           set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+         }
        }
-     }
-     if {$selected_tok eq {<ALL>} } { 
-       set retval $retval_orig
-     } else {
-       set retval [xschem get_tok $retval_orig $selected_tok 2]
-       # regsub -all {\\?"} $retval {"} retval
-     }
-     .dialog.e1 delete 1.0 end
-     .dialog.e1 insert 1.0 $retval
-     set old_selected_tok $selected_tok
-   }
-
-   bind .dialog.f2.r5 <KeyRelease> {
-     set selected_tok [.dialog.f2.r5 get]
-     if { $old_selected_tok eq {<ALL>}} {
-       set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
-     } else {
-       set retval [.dialog.e1 get 1.0 {end - 1 chars}]
-       if {$retval ne {}} {
-         regsub -all {(["\\])} $retval {\\\1} retval
-         set retval \"${retval}\"
-         set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+       if {$selected_tok eq {<ALL>} } {
+         set retval $retval_orig
+       } else {
+         set retval [xschem get_tok $retval_orig $selected_tok 2]
+         # regsub -all {\\?"} $retval {"} retval
        }
+       .dialog.e1 delete 1.0 end
+       .dialog.e1 insert 1.0 $retval
+       set old_selected_tok $selected_tok
      }
-     if {$selected_tok eq {<ALL>} } {
-       set retval $retval_orig
-     } else {
-       set retval [xschem get_tok $retval_orig $selected_tok 2]
-       # regsub -all {\\?"} $retval {"} retval
-     }
-     .dialog.e1 delete 1.0 end
-     .dialog.e1 insert 1.0 $retval
-     set old_selected_tok $selected_tok
    }
 
 
