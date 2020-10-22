@@ -30,9 +30,9 @@ BEGIN{
 
  # list of cmos_t9 symbol pin coordinates, generated with build_cmoslib.awk
 
- while ( "ls $HOME/.xschem/xschem_library/sky130_symbols/*.sym"|getline sym )
+ while ( "ls $HOME/.xschem/xschem_library/xschem_sky130/sky130_stdcells/*.sym"|getline sym )
  {
-   insert_symbol(sym, "sky130_symbols")
+   insert_symbol(sym, "sky130_stdcells")
  } 
  
 

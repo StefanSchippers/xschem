@@ -1492,6 +1492,19 @@
                     <Component Id="cmp2383077BA3BA4E305E08CD22806D33CA" Guid="{25E69E00-C984-49FD-9A15-FDCC58134CEA}">
                         <File Id="filD4FB33FC30CC4F76E360B9DCD9ADADE4" KeyPath="yes" Source="../../xschem_library\devices\netlist_options.sym" />
                     </Component>
+                  
+                    
+                  <Component Id="cmp7A29A44CA041DB20C86DCAD03DEB0AFE" Guid="{3D0620DD-3EAC-46F9-9E1B-6794DCD728F5}">
+                        <File Id="filD718F7E2100D9C973902F7BCB484CBEA" KeyPath="yes" Source="../../xschem_library\devices\ngspice_get_expr.sym" />
+                    </Component>
+                    <Component Id="cmp8F78F078F38C1DEA11359D3F1A8D0CB5" Guid="{440A0CCD-167E-4400-9904-D624A4176AD0}">
+                        <File Id="fil0D1E96FD1C2BFA45F99BC1994A5281D8" KeyPath="yes" Source="../../xschem_library\devices\ngspice_get_value.sym" />
+                    </Component>
+                    <Component Id="cmp4C42A5427DCDE215EA9B29CDEA4129F8" Guid="{70544128-89D0-435A-95EF-0E5A4EC60E1B}">
+                        <File Id="fil7C1A8EF1787511CB4E32B2D55C247041" KeyPath="yes" Source="../../xschem_library\devices\ngspice_probe.sym" />
+                    </Component>
+                        
+                  
                     <Component Id="cmp559E2685724E5699C4FC3EB9F364D167" Guid="{854B77E4-A5E7-4B1D-838F-811B8E0C328C}">
                         <File Id="fil51FF4F5F2B86B577077A97B8D09290E2" KeyPath="yes" Source="../../xschem_library\devices\nmos-sub.sym" />
                     </Component>
@@ -1563,6 +1576,9 @@
                     </Component>
                     <Component Id="cmp6BF221962D9026975A71AA23EE99D9C5" Guid="{A4D31AB0-13DC-4DD9-ADFA-49FE193CA01F}">
                         <File Id="filC39A484163FD62EF5BDA7F6401DEFC08" KeyPath="yes" Source="../../xschem_library\devices\spice_probe_vdiff.sym" />
+                    </Component>
+                    <Component Id="cmp64CBA66644EB7339C5E383900EEC0E69" Guid="{90B83EF4-9FB1-4B6D-93B1-B8B84F1ACA85}">
+                        <File Id="filE8D0B2F748212587430546E5A9F66F6C" KeyPath="yes" Source="../../xschem_library\devices\sqwsource.sym" />
                     </Component>
                     <Component Id="cmpC667FA0C47B3200F4F152E775AE9829D" Guid="{229F6255-44D0-450C-B9E8-61C00E59055D}">
                         <File Id="fil6BCF2F65CD8C5088E8D41754F1850589" KeyPath="yes" Source="../../xschem_library\devices\switch.sym" />
@@ -6428,6 +6444,10 @@
             <ComponentRef Id="cmp598C701B17658BE75ECBDB62BCE17518" />
             <ComponentRef Id="cmp0D8F6780654ED19AEB6C8070C1453133" />
             <ComponentRef Id="cmp2383077BA3BA4E305E08CD22806D33CA" />
+            <ComponentRef Id="cmp7A29A44CA041DB20C86DCAD03DEB0AFE" />
+            <ComponentRef Id="cmp8F78F078F38C1DEA11359D3F1A8D0CB5" />
+            <ComponentRef Id="cmp4C42A5427DCDE215EA9B29CDEA4129F8" />
+            <ComponentRef Id="cmp559E2685724E5699C4FC3EB9F364D167" />
             <ComponentRef Id="cmp559E2685724E5699C4FC3EB9F364D167" />
             <ComponentRef Id="cmp3EE1340C8CAE3D194457766C56C3780B" />
             <ComponentRef Id="cmp762ACB29A44E6CEE2976FF2D061AEA0C" />
@@ -6452,6 +6472,7 @@
             <ComponentRef Id="cmp241BFBE20D2D631CE1429BE9A6F2135D" />
             <ComponentRef Id="cmp8E6288F41AE01E3A93AD707A3F9C794E" />
             <ComponentRef Id="cmp6BF221962D9026975A71AA23EE99D9C5" />
+            <ComponentRef Id="cmp64CBA66644EB7339C5E383900EEC0E69" />
             <ComponentRef Id="cmpC667FA0C47B3200F4F152E775AE9829D" />
             <ComponentRef Id="cmp7CDB5F797E51448AA0ACCD2EFC3A5C80" />
             <ComponentRef Id="cmpD0E5414BFC89554E63125CEFF09C3C18" />

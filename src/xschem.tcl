@@ -3221,7 +3221,7 @@ set_ne cairo_font_name {Arial}
 set has_cairo 0 
 set rotated_text {} ;#20171208
 set_ne dark_colorscheme 1
-set_ne dim_background 0
+set_ne dim_background 1
 ##### set colors
 if {!$rainbow_colors} {
   set_ne cadlayers 22

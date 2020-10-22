@@ -31,8 +31,8 @@ BEGIN{ quote=0 }
  first = substr($0,1,1)
 
  # dont break .include lines as ngspice chokes on these.
- if(tolower($1) ~ /include/) include = 1
- else include = 0
+ if(tolower($1) ~ /\.include|\.lib|\.title/) nobreak = 1
+ else nobreak = 0
  # 20151203 faster executionif no {}' present
  if($0 ~/[{}']/ || quote) {
    l = length($0)
@@ -40,7 +40,7 @@ BEGIN{ quote=0 }
      pos++
      c = substr($0,i,1)
      if(c ~/[{}']/) quote=!quote 
-     if(!include && pos> 100 && !quote && (c ~/[ \t]/)) {
+     if(!nobreak && pos> 100 && !quote && (c ~/[ \t]/)) {
        if(first=="*") 
          c = "\n*+" c
        else
@@ -54,7 +54,7 @@ BEGIN{ quote=0 }
    split($0, a, /[^ \t]+/)
    for(i=1;i<=NF;i++) {
      pos += length($i)+length(a[i])
-     if(!include && pos>100) {
+     if(!nobreak && pos>100) {
        if(first=="*") {
          printf "%s", "\n*+"
        } else {
