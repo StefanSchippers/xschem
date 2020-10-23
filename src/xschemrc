@@ -197,6 +197,8 @@ set terminal {xterm -geometry 100x35 -fn 9x15 -bg black -fg white -cr white -ms 
 ## editor must not detach from launching shell (-f mandatory for gvim)
 # set editor { xterm -geometry 100x40 -e nano }
 # set editor { xterm -geometry 100x40 -e pico }
+# For Windows
+# set editor {notepad.exe}
 set editor {gvim -f -geometry 90x28}
 
 #### show info window (ERC rules errors warnings etc) 

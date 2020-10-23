@@ -843,11 +843,26 @@ proc edit_netlist {schname } {
    if { $netlist_type=="verilog" } {
      execute 0  sh -c "cd $netlist_dir; $editor $ftype  \"${tmpname}.v\""
    } elseif { $netlist_type=="spice" } {
-     execute 0  sh -c "cd $netlist_dir; $editor $ftype \"${tmpname}.spice\""
+     if {$::OS == "Windows"} {
+       set cmd "$editor \"$netlist_dir/${tmpname}.spice\""
+       eval exec $cmd
+     } else {
+       execute 0  sh -c "cd $netlist_dir; $editor $ftype \"${tmpname}.spice\""
+     }
    } elseif { $netlist_type=="tedax" } {
-     execute 0 sh -c "cd $netlist_dir; $editor $ftype \"${tmpname}.tdx\""
+     if {$::OS == "Windows"} {
+       set cmd "$editor \"$netlist_dir/${tmpname}.tdx\""
+       eval exec $cmd
+     } else {
+       execute 0 sh -c "cd $netlist_dir; $editor $ftype \"${tmpname}.tdx\""
+     }
    } elseif { $netlist_type=="vhdl" } { 
-     execute 0 sh -c "cd $netlist_dir; $editor $ftype \"${tmpname}.vhdl\""
+     if {$::OS == "Windows"} {
+       set cmd "$editor \"$netlist_dir/${tmpname}.vhdl\""
+       eval exec $cmd
+     } else {
+       execute 0 sh -c "cd $netlist_dir; $editor $ftype \"${tmpname}.vhdl\""
+     }
    }
  }
  return {}
@@ -1868,14 +1883,14 @@ proc tclpropeval {s instname symname} {
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s} {
-  global tcl_debug
+  global tcl_debug env
   if {$tcl_debug <=-1} {puts "tclpropeval2: $s"}
   set path [string range [xschem get sch_path] 1 end]
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s
   if { [catch {subst $s} res] } {
-    # puts "tclpropeval2 warning: $res"
-    set res {?}
+    if { $tcl_debug<=-1 } { puts "tclpropeval2 warning: $res"}
+    set res ?\n
   }
   return $res
 }
@@ -2013,6 +2028,7 @@ proc edit_vi_netlist_prop {txtlabel} {
  if ![string compare $netlist_type "vhdl"] { set suffix vhd } else { set suffix v }
  set filename $filename.$suffix
  regsub -all {\\?"} $retval {"} retval
+ regsub -all {\\?\\} $retval {\\} retval
  write_data $retval $XSCHEM_TMP_DIR/$filename
  if { [regexp vim $editor] } { set ftype "\{-c :set filetype=$netlist_type\}" } else { set ftype {} }
  eval execute_wait 0 $editor  $ftype $XSCHEM_TMP_DIR/$filename
@@ -2022,7 +2038,7 @@ proc edit_vi_netlist_prop {txtlabel} {
  if $tcl_debug<=-1 then {puts "edit_vi_prop{}:\n--------\n$tmp\n---------\n"}
  if [string compare $tmp $retval] {
         set retval $tmp
-        regsub -all {(["\\])} $retval {\\\1} retval
+        regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
         set retval \"${retval}\" 
         if $tcl_debug<=-1 then {puts "modified"}
         set rcode ok
@@ -2123,7 +2139,7 @@ proc edit_prop {txtlabel} {
 
      set retval [.dialog.e1 get 1.0 {end - 1 chars}]
      if { $selected_tok ne {<ALL>} } {
-       regsub -all {(["\\])} $retval {\\\1} retval
+       regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
        set retval \"${retval}\"
        set retval [xschem subst_tok $retval_orig $selected_tok $retval]
        set selected_tok {<ALL>}
@@ -2223,7 +2239,7 @@ proc edit_prop {txtlabel} {
            set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
          } else {
            set retval [.dialog.e1 get 1.0 {end - 1 chars}]
-           regsub -all {(["\\])} $retval {\\\1} retval
+           regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
            set retval \"${retval}\"
            set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
          }
@@ -2246,7 +2262,7 @@ proc edit_prop {txtlabel} {
        } else {
          set retval [.dialog.e1 get 1.0 {end - 1 chars}]
          if {$retval ne {}} {
-           regsub -all {(["\\])} $retval {\\\1} retval
+           regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
            set retval \"${retval}\"
            set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
          }
@@ -2345,7 +2361,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
    {
      set retval [.dialog.e1 get 1.0 {end - 1 chars}]
      if { $selected_tok ne {<ALL>} } {
-       regsub -all {(["\\])} $retval {\\\1} retval
+       regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
        set retval \"${retval}\"
        set retval [xschem subst_tok $retval_orig $selected_tok $retval]
        set selected_tok {<ALL>}
@@ -2373,7 +2389,9 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
      .dialog.e1 delete 1.0 end
    }
    label .dialog.f1.r4 -text {   Edit Attr:}
-   ttk::combobox .dialog.f1.r5 -values $tok_list -textvariable selected_tok -width 14
+   if  { [ info tclversion] > 8.4} {
+     ttk::combobox .dialog.f1.r5 -values $tok_list -textvariable selected_tok -width 14
+   }
 
    checkbutton .dialog.f0.l2 -text "preserve unchanged props" -variable preserve_unchanged_attrs -state $preserve_disabled
    pack .dialog.f0 -fill x
@@ -2385,7 +2403,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
    pack .dialog.f1.b3 -side left -fill x -expand yes
    pack .dialog.f1.b4 -side left -fill x -expand yes
    pack .dialog.f1.r4 -side left
-   pack .dialog.f1.r5 -side left
+   if  { [ info tclversion] > 8.4} {pack .dialog.f1.r5 -side left}
  
 
    pack .dialog.yscroll -side right -fill y 
@@ -2397,49 +2415,51 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
      }
    }
 
-   bind .dialog.f1.r5 <<ComboboxSelected>> {
-     if {$old_selected_tok ne $selected_tok} {
-       if { $old_selected_tok eq {<ALL>} } {
+   if  { [ info tclversion] > 8.4} {
+     bind .dialog.f1.r5 <<ComboboxSelected>> {
+       if {$old_selected_tok ne $selected_tok} {
+         if { $old_selected_tok eq {<ALL>} } {
+           set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
+         } else {
+           set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+           regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
+           set retval \"${retval}\"
+           set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+         }
+       }
+       if {$selected_tok eq {<ALL>} } {
+         set retval $retval_orig
+       } else {
+         set retval [xschem get_tok $retval_orig $selected_tok 2]
+         # regsub -all {\\?"} $retval {"} retval
+       }
+       .dialog.e1 delete 1.0 end
+       .dialog.e1 insert 1.0 $retval
+       set old_selected_tok $selected_tok
+     }
+  
+     bind .dialog.f1.r5 <KeyRelease> {
+       set selected_tok [.dialog.f1.r5 get]
+       if { $old_selected_tok eq {<ALL>}} {
          set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
        } else {
          set retval [.dialog.e1 get 1.0 {end - 1 chars}]
-         regsub -all {(["\\])} $retval {\\\1} retval
-         set retval \"${retval}\"
-         set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+         if {$retval ne {}} {
+           regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
+           set retval \"${retval}\"
+           set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+         }
        }
-     }
-     if {$selected_tok eq {<ALL>} } {
-       set retval $retval_orig
-     } else {
-       set retval [xschem get_tok $retval_orig $selected_tok 2]
-       # regsub -all {\\?"} $retval {"} retval
-     }
-     .dialog.e1 delete 1.0 end
-     .dialog.e1 insert 1.0 $retval
-     set old_selected_tok $selected_tok
-   }
-
-   bind .dialog.f1.r5 <KeyRelease> {
-     set selected_tok [.dialog.f1.r5 get]
-     if { $old_selected_tok eq {<ALL>}} {
-       set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
-     } else {
-       set retval [.dialog.e1 get 1.0 {end - 1 chars}]
-       if {$retval ne {}} {
-         regsub -all {(["\\])} $retval {\\\1} retval
-         set retval \"${retval}\"
-         set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+       if {$selected_tok eq {<ALL>} } {
+         set retval $retval_orig
+       } else {
+         set retval [xschem get_tok $retval_orig $selected_tok 2]
+         # regsub -all {\\?"} $retval {"} retval
        }
+       .dialog.e1 delete 1.0 end
+       .dialog.e1 insert 1.0 $retval
+       set old_selected_tok $selected_tok
      }
-     if {$selected_tok eq {<ALL>} } {
-       set retval $retval_orig
-     } else {
-       set retval [xschem get_tok $retval_orig $selected_tok 2]
-       # regsub -all {\\?"} $retval {"} retval
-     }
-     .dialog.e1 delete 1.0 end
-     .dialog.e1 insert 1.0 $retval
-     set old_selected_tok $selected_tok
    }
 
    bind .dialog <Control-Return> {.dialog.f1.b1 invoke}

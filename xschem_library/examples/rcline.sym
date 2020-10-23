@@ -1,0 +1,24 @@
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=subcircuit
+format="tcleval(@name @pinlist @symname [ calc_rc @L @W ])"
+template="name=x1 Res=1e4 Cap=1e-6"
+
+}
+V {}
+S {}
+E {}
+L 4 -130 -20 130 -20 {}
+L 4 -130 20 130 20 {}
+L 4 -130 -20 -130 20 {}
+L 4 130 -20 130 20 {}
+L 4 130 0 150 0 {}
+L 4 -150 0 -130 0 {}
+B 5 147.5 -2.5 152.5 2.5 {name=OUT dir=out name=p2 }
+B 5 -152.5 -2.5 -147.5 2.5 {name=IN dir=in name=p1 }
+T {@symname} 2 -6 0 0 0.3 0.3 {hcenter=true}
+T {@name} 135 -32 0 0 0.2 0.2 {}
+T {OUT} 125 -4 0 1 0.2 0.2 {}
+T {IN} -125 -4 0 0 0.2 0.2 {}
+T {L=@L
+W=@W} -70 -70 0 0 0.4 0.4 {}

@@ -520,7 +520,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
       if(c=='"') {
         if((with_quotes & 1) || escape)  result[value_pos++]=c;
       }
-      else if( !((c == '\\') && (with_quotes & 2)) ) result[value_pos++]=c; /* skip unescaped backslashes */
+      else if( !quote || !((c == '\\') && (with_quotes & 2)) ) result[value_pos++]=c; /* skip unescaped backslashes */
       else if( (c == '\\') && escape ) result[value_pos++]=c; /* 20170414 add escaped backslashes */
     } else if(state==XENDTOK || state==XSEPARATOR) {
         if(token_pos) {
@@ -1656,7 +1656,11 @@ void print_spice_element(FILE *fd, int inst)
     my_strdup(22, &result, translate(inst, result));
     dbg(1, "print_spice_element(): after  translate()result=%s\n", result);
   }
-
+  /* do a second round of substitutions, but without calling tcl */
+  if(result && strstr(result, "eval(") == result) {
+    result[strlen(result)-1] = '\0';
+    my_strdup2(88, &result, translate(inst, result+5));
+  }
   fprintf(fd, "%s", result);
   my_free(1019, &template);
   my_free(1020, &format);
@@ -1664,10 +1668,6 @@ void print_spice_element(FILE *fd, int inst)
   my_free(1022, &token);
   my_free(1194, &result);
 }
-
-
-
-
 
 void print_tedax_element(FILE *fd, int inst)
 {
@@ -2585,10 +2585,17 @@ const char *translate(int inst, const char* s)
    }
 
    if(!get_tok_size && token[0] =='$') {
-    tmp=token_pos -1 ; /* we need token_pos -1 chars, ( strlen(token+1) ) , excluding leading '$' */
-    STR_ALLOC(&result, tmp + result_pos, &size);
-    dbg(2, "translate(): token=%s, token_pos = %d\n", token, token_pos);
-    memcpy(result+result_pos, token + 1, tmp+1);
+    char *env = getenv(token + 1);
+    if(env) { /* do environment var substitution if no xschem definition for $token */
+      tmp = strlen(env);
+      STR_ALLOC(&result, tmp + result_pos, &size);
+      memcpy(result+result_pos, env, tmp+1);
+    } else { /* no definition found -> subst with token without leading $ */
+      tmp=token_pos -1 ; /* we need token_pos -1 chars, ( strlen(token+1) ) , excluding leading '$' */
+      STR_ALLOC(&result, tmp + result_pos, &size);
+      dbg(2, "translate(): token=%s, token_pos = %d\n", token, token_pos);
+      memcpy(result+result_pos, token + 1, tmp+1);
+    }
     result_pos+=tmp;
    }
    token_pos = 0;
