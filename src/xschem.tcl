@@ -3768,7 +3768,7 @@ font configure Underline-Font -underline true -size 24
       -command {
         if { $persistent_command == 1} { xschem set persistent_command 1} else { xschem set persistent_command 0}
       }
-   .menubar.tools.menu add command -label "Insert symbol" -command "xschem place_symbol" -accelerator Ins
+   .menubar.tools.menu add command -label "Insert symbol" -command "xschem place_symbol" -accelerator {Ins, Shift-I}
    toolbar_create ToolInsertSymbol "xschem place_symbol" "Insert Symbol"
    .menubar.tools.menu add command -label "Insert wire label" -command "xschem net_label 1" -accelerator {Alt-L}
    .menubar.tools.menu add command -label "Insert wire label 2" -command "xschem net_label 0" -accelerator {Alt-Shift-L}
