@@ -1477,6 +1477,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    } 
    Tcl_ResetResult(interp);
  }
+ else if(!strcmp(argv[1],"delete_files"))
+ {
+   delete_files();
+ }
  else if(!strcmp(argv[1],"rotate"))
  {
 

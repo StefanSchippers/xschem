@@ -66,12 +66,12 @@ shift       'A'         Toggle show netlist
 -           'b'         Merge file
 ctrl        'b'         Toggle show text in symbol
 alt         'b'         Toggle show symbol details / only bounding boxes
-shift       'B'         Delete files
 -           'c'         Copy selected obj. 
 ctrl        'c'         Save to clipboard
 shift       'C'         Start arc placement
 shift+ctrl  'C'         Start circle placement
 alt         'C'         Toggle dim/brite background with rest of layers
+shift       'D'         Delete files
 ctrl        'e'         Back to parent schematic
 -           'e'         Descend to schematic
 alt         'e'         Edit selected schematic in a new window

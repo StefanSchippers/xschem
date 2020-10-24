@@ -73,7 +73,7 @@ void start_wire(double mx, double my)
 int callback(int event, int mx, int my, KeySym key,
                  int button, int aux, int state)
 {
- char str[PATH_MAX];/* overflow safe 20161122 */
+ char str[PATH_MAX + 100]; /* overflow safe 20161122 */
  static char sel_or_clip[PATH_MAX] = "";/* overflow safe 20161122 */
  struct stat buf;
  unsigned short sel;
@@ -1286,25 +1286,15 @@ int callback(int event, int mx, int my, KeySym key,
    {
     if(semaphore >= 2) break;
     hide_symbols++;
-    if(hide_symbols == 3) hide_symbols = 0;
+    if(hide_symbols >= 3) hide_symbols = 0;
     tclsetvar("hide_symbols", hide_symbols == 2 ? "2" : hide_symbols == 1 ? "1" : "0");
     draw();
     break;
    }
-   if(key=='B' && state==ShiftMask)                     /* delete files */
+   if(key=='D' && state==ShiftMask)                     /* delete files */
    {
-
     if(semaphore >= 2) break;
-    rebuild_selected_array();
-    if(lastselected && selectedgroup[0].type==ELEMENT) {
-      my_snprintf(str, S(str), "delete_files {%s}",
-           abs_sym_path(xctx->inst[selectedgroup[0].n].name, ""));
-    } else {
-      my_snprintf(str, S(str), "delete_files {%s}",
-           abs_sym_path(xctx->sch[xctx->currsch], ""));
-    }
-
-    tcleval(str);
+    delete_files();
     break;
    }
    if(key=='x' && state == 0 )                  /* new cad session */

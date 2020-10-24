@@ -895,6 +895,19 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
   draw();
   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
 }
+void delete_files(void)
+{
+  char str[PATH_MAX + 100];
+  rebuild_selected_array();
+  if(lastselected && selectedgroup[0].type==ELEMENT) {
+    my_snprintf(str, S(str), "delete_files {%s}",
+         abs_sym_path(xctx->inst[selectedgroup[0].n].name, ""));
+  } else {
+    my_snprintf(str, S(str), "delete_files {%s}",
+         abs_sym_path(xctx->sch[xctx->currsch], ""));
+  }
+  tcleval(str);
+}
 
 void place_net_label(int type)
 {

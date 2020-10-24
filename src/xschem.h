@@ -904,6 +904,7 @@ extern int place_symbol(int pos, const char *symbol_name, double x, double y, in
                          const char *inst_props, int draw_sym, int first_call);
 extern void place_net_label(int type);
 extern void attach_labels_to_inst(void);
+extern void delete_files(void);
 extern int sym_vs_sch_pins(void);
 extern int match_symbol(const char name[]);
 extern int save_schematic(const char *); /*  20171020 added return value */
