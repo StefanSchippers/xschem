@@ -925,6 +925,7 @@ int callback(int event, int mx, int my, KeySym key,
    {
     if(semaphore >= 2) break;
     last_command = 0;
+    unselect_all();
 
     /* place_symbol(-1,NULL,mousex_snap, mousey_snap, 0, 0, NULL,3, 1);*/
     mx_save = mx; my_save = my;
