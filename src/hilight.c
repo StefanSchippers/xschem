@@ -301,6 +301,48 @@ void delete_hilight_net(void)
  my_free(766, &inst_color);
  hilight_color=0;
 }
+void hilight_net_pin_mismatches(void)
+{
+  int i,j,k;
+  xSymbol *symbol;
+  int npin;
+  char *type=NULL;
+  char *labname=NULL;
+  char *lab=NULL;
+  char *netname=NULL;
+  int mult;
+  xRect *rct;
+
+  rebuild_selected_array();
+  prepare_netlist_structs(0);
+  for(k=0; k<lastselected; k++) {
+    if(selectedgroup[k].type!=ELEMENT) continue;
+    j = selectedgroup[k].n ;
+    my_strdup(23, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
+    if( type && IS_LABEL_SH_OR_PIN(type)) break;
+    symbol = xctx->sym + xctx->inst[j].ptr;
+    npin = symbol->rects[PINLAYER];
+    rct=symbol->rect[PINLAYER];
+    dbg(1, "\n");
+    for(i=0;i<npin;i++) {
+      my_strdup(24, &labname,get_tok_value(rct[i].prop_ptr,"name",0));
+      my_strdup(25, &lab, expandlabel(labname, &mult));
+      my_strdup(26, &netname, net_name(j,i,&mult, 0));
+      dbg(1, "i=%d labname=%s explabname = %s  net = %s\n", i, labname, lab, netname);
+      if(netname && strcmp(lab, netname)) {
+        dbg(1, "hilight: %s\n", netname);
+        bus_hilight_lookup(netname, hilight_color, XINSERT);
+        if(incr_hilight) hilight_color++;
+      }
+    }
+
+  }
+  my_free(713, &type);
+  my_free(714, &labname);
+  my_free(715, &lab);
+  my_free(716, &netname);
+  redraw_hilights();
+}
 
 void hilight_parent_pins(void)
 {

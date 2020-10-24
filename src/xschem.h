@@ -902,6 +902,7 @@ extern int load_sym_def(const char name[], FILE *embed_fd);
 extern void descend_symbol(void);
 extern int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, int flip,
                          const char *inst_props, int draw_sym, int first_call);
+extern void place_net_label(int type);
 extern void attach_labels_to_inst(void);
 extern int sym_vs_sch_pins(void);
 extern int match_symbol(const char name[]);
@@ -1050,6 +1051,7 @@ extern void delete_inst_node(int i);
 extern void delete_hilight_net(void);
 extern void hilight_child_pins(void);
 extern void hilight_parent_pins(void);
+extern void hilight_net_pin_mismatches(void);
 extern struct node_hashentry **get_node_table_ptr(void);
 extern void change_elem_order(void);
 extern int set_different_token(char **s,const char *new, const char *old, int object, int n);

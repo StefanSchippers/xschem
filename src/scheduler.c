@@ -100,7 +100,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  else if(!strcmp(argv[1],"set_netlist_dir") && argc==3) {
    dbg(1, "xschem set_netlist_dir: argv[2] = %s\n", argv[2]);
    my_strdup(0, &netlist_dir, argv[2]);
-   Tcl_ResetResult(interp);
  }
 
  else if(!strcmp(argv[1],"copy"))
@@ -1462,10 +1461,42 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    if(argc>=3) {
      ret = hilight_netname(argv[2]);
    }
-   Tcl_ResetResult(interp);
-   Tcl_AppendResult(interp,ret ? "1" : "0" , NULL);
+   /* 
+    * Tcl_ResetResult(interp);
+    * Tcl_AppendResult(interp,ret ? "1" : "0" , NULL); */
+    Tcl_SetResult(interp,ret ? "1" : "0" , TCL_STATIC);
  }
 
+ else if(!strcmp(argv[1],"flip"))
+ {
+   if(! (ui_state & (STARTMOVE | STARTCOPY) ) ) { 
+     rebuild_selected_array();
+     move_objects(BEGIN,0,0,0);
+     move_objects(FLIP|ROTATELOCAL,0,0,0);
+     move_objects(END,0,0,0);
+   } 
+   Tcl_ResetResult(interp);
+ }
+ else if(!strcmp(argv[1],"rotate"))
+ {
+
+
+   if(! (ui_state & (STARTMOVE | STARTCOPY) ) ) { 
+     rebuild_selected_array();
+     move_objects(BEGIN,0,0,0);
+     move_objects(ROTATE|ROTATELOCAL,0,0,0);
+     move_objects(END,0,0,0);
+   } 
+   Tcl_ResetResult(interp);
+ }
+ else if(!strcmp(argv[1],"net_label"))
+ {
+   if(argc>=3) place_net_label(atoi(argv[2]));
+ }
+ else if(!strcmp(argv[1],"net_pin_mismatch"))
+ {
+   hilight_net_pin_mismatches();
+ }
  else if(!strcmp(argv[1],"send_to_gaw"))
  {
    enable_drill = 0;
@@ -1490,8 +1521,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   int select, what, r;
   what = NOW;
   if(argc < 6) {
-    Tcl_ResetResult(interp);
-    Tcl_AppendResult(interp,"xschem search requires 4 or 5 additional fields.", NULL);
+    Tcl_SetResult(interp,"xschem search requires 4 or 5 additional fields.", TCL_STATIC);
     return TCL_ERROR;
   }
   if(argc == 7) {
@@ -1507,10 +1537,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     Tcl_ResetResult(interp);
     if(r == 0) {
       if(has_x && !strcmp(argv[1],"searchmenu")) tcleval("tk_messageBox -type ok -message {Not found.}");
-      Tcl_ResetResult(interp);
-      Tcl_AppendResult(interp,"0", NULL);
+      Tcl_SetResult(interp,"0", TCL_STATIC);
     } else {
-      Tcl_AppendResult(interp,"1", NULL);
+      Tcl_SetResult(interp,"1", TCL_STATIC);
     }
     return TCL_OK;
   }

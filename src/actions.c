@@ -896,6 +896,25 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
 }
 
+void place_net_label(int type)
+{
+  struct stat buf;
+  if(type == 1) {
+    if(!stat(abs_sym_path("lab_pin.sym", ""), &buf)) {
+      place_symbol(-1, "lab_pin.sym", mousex_snap, mousey_snap, 0, 0, NULL, 4, 1);
+    } else if(!stat(abs_sym_path("devices/lab_pin.sym", ""), &buf)) {
+      place_symbol(-1, "devices/lab_pin.sym", mousex_snap, mousey_snap, 0, 0, NULL, 4, 1);
+    }
+  } else {
+    if(!stat(abs_sym_path("lab_wire.sym", ""), &buf)) {
+      place_symbol(-1, "lab_wire.sym", mousex_snap, mousey_snap, 0, 0, NULL, 4, 1);
+    } else if(!stat(abs_sym_path("devices/lab_wire.sym", ""), &buf)) {
+      place_symbol(-1, "devices/lab_wire.sym", mousex_snap, mousey_snap, 0, 0, NULL, 4, 1);
+    }
+  }
+  move_objects(BEGIN,0,0,0);
+  ui_state |= START_SYMPIN;
+}
 
 /*  draw_sym==4 select element after placing */
 /*  draw_sym==2 begin bbox if(first_call), add bbox */

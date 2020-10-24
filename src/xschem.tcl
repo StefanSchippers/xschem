@@ -3586,6 +3586,8 @@ font configure Underline-Font -underline true -size 24
    toolbar_create EditDuplicate "xschem copy_objects" "Duplicate objects"
    .menubar.edit.menu add command -label "Move objects" -command "xschem move_objects" -accelerator M
    toolbar_create EditMove "xschem move_objects" "Move objects"
+   .menubar.edit.menu add command -label "Flip selected objects" -command "xschem flip" -accelerator {Alt-F}
+   .menubar.edit.menu add command -label "Rotate selected objects" -command "xschem rotate" -accelerator {Alt-R}
    .menubar.edit.menu add checkbutton -label "Constrained Horizontal move" -variable horizontal_move \
       -command "xschem set horizontal_move" -accelerator H
    .menubar.edit.menu add checkbutton -label "Constrained Vertical move" -variable vertical_move \
@@ -3738,7 +3740,8 @@ font configure Underline-Font -underline true -size 24
    .menubar.prop.menu add command -background red -label "Edit file (danger!)" -command "xschem edit_file" -accelerator Alt+Q
    .menubar.sym.menu add radiobutton -label "Show Symbols" -variable hide_symbols -value 0 \
       -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
-   .menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for subcircuit symbols" -variable hide_symbols -value 1 \
+   .menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for subcircuit symbols" \
+      -variable hide_symbols -value 1 \
       -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
    .menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for all symbols" -variable hide_symbols -value 2 \
       -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
@@ -3767,6 +3770,8 @@ font configure Underline-Font -underline true -size 24
       }
    .menubar.tools.menu add command -label "Insert symbol" -command "xschem place_symbol" -accelerator Ins
    toolbar_create ToolInsertSymbol "xschem place_symbol" "Insert Symbol"
+   .menubar.tools.menu add command -label "Insert wire label" -command "xschem net_label 1" -accelerator {Alt-L}
+   .menubar.tools.menu add command -label "Insert wire label 2" -command "xschem net_label 0" -accelerator {Alt-Shift-L}
    .menubar.tools.menu add command -label "Insert text" -command "xschem place_text" -accelerator T
    toolbar_create ToolInsertText "xschem place_text" "Insert Text"
    .menubar.tools.menu add command -label "Insert wire" -command "xschem wire" -accelerator W
@@ -3793,11 +3798,17 @@ font configure Underline-Font -underline true -size 24
       -command "xschem break_wires" -accelerator {!}
     toolbar_create ToolBreak "xschem break_wires" "Break Wires"
 
-   .menubar.hilight.menu add command -label {Highlight duplicate instance names} -command "xschem check_unique_names 0" -accelerator {#} 
-   .menubar.hilight.menu add command -label {Rename duplicate instance names} -command "xschem check_unique_names 1" -accelerator {Ctrl+#}
+   .menubar.hilight.menu add command -label {Highlight net-pin name mismatches on selected instancs} \
+    -command "xschem net_pin_mismatch" \
+    -accelerator {Shift-X} 
+   .menubar.hilight.menu add command -label {Highlight duplicate instance names} -command "xschem check_unique_names 0" \
+    -accelerator {#} 
+   .menubar.hilight.menu add command -label {Rename duplicate instance names} -command "xschem check_unique_names 1" \
+    -accelerator {Ctrl+#}
    .menubar.hilight.menu add command -label {Highlight selected net/pins} -command "xschem hilight" -accelerator K
    .menubar.hilight.menu add command -label {Send selected net/pins to GAW} -command "xschem send_to_gaw" -accelerator Alt+G
-   .menubar.hilight.menu add command -label {Select connected nets / pins} -command "xschem select_connected_nets" -accelerator Alt+K
+   .menubar.hilight.menu add command -label {Select connected nets / pins} -command "xschem select_connected_nets" \
+    -accelerator Alt+K
    .menubar.hilight.menu add command -label {Un-highlight all net/pins} \
         -command "xschem clear_hilights" -accelerator Shift+K
    .menubar.hilight.menu add command -label {Un-highlight selected net/pins} \
@@ -3821,9 +3832,12 @@ font configure Underline-Font -underline true -size 24
            input_line {Set netlist file name} {xschem set user_top_netl_name} [xschem get user_top_netl_name] 40
      }
    .menubar.simulation.menu add command -label {Configure simulators and tools} -command {simconf}
-   .menubar.simulation.menu add command -label {Utile Stimuli Editor (GUI)} -command {utile_gui [file tail [xschem get schname]]}
-   .menubar.simulation.menu add command -label "Utile Stimuli Editor ([lindex $editor 0])" -command {utile_edit [file tail [xschem get schname]]}
-   .menubar.simulation.menu add command -label {Utile Stimuli Translate} -command {utile_translate [file tail [xschem get schname]]}
+   .menubar.simulation.menu add command -label {Utile Stimuli Editor (GUI)} \
+    -command {utile_gui [file tail [xschem get schname]]}
+   .menubar.simulation.menu add command -label "Utile Stimuli Editor ([lindex $editor 0])" \
+    -command {utile_edit [file tail [xschem get schname]]}
+   .menubar.simulation.menu add command -label {Utile Stimuli Translate} \
+    -command {utile_translate [file tail [xschem get schname]]}
    .menubar.simulation.menu add command -label {Shell [simulation path]} \
       -command {
          if { [select_netlist_dir 0] ne "" } {
@@ -3832,7 +3846,8 @@ font configure Underline-Font -underline true -size 24
        }
    .menubar.simulation.menu add command -label {Edit Netlist} -command {edit_netlist [file tail [xschem get schname]]}
    .menubar.simulation.menu add command -label {Send highlighted nets to GAW} -command {xschem create_plot_cmd gaw}
-   .menubar.simulation.menu add command -label {Create Ngspice 'xplot' file} -command {xschem create_plot_cmd ngspice} -accelerator Shift+J
+   .menubar.simulation.menu add command -label {Create Ngspice 'xplot' file} \
+   -command {xschem create_plot_cmd ngspice} -accelerator Shift+J
    .menubar.simulation.menu add separator
    .menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" -variable top_subckt 
    .menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
