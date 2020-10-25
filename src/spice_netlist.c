@@ -278,13 +278,18 @@ static char *model_name(const char *m)
 {
   char *m_lower = NULL;
   char *modelname = NULL;
-
+  int n;
+  int l = strlen(m) + 1;
   my_strdup(255, &m_lower, m);
   strtolower(m_lower);
-  my_realloc(256, &modelname, strlen(m) + 1);
-  my_realloc(257, &model_name_result, strlen(m) + 1);
-  sscanf(m_lower, " %s %s", model_name_result, modelname);
-  my_strcat(296, &model_name_result, modelname);
+  my_realloc(256, &modelname, l);
+  my_realloc(257, &model_name_result, l);
+  n = sscanf(m_lower, " %s %s", model_name_result, modelname);
+  if(n<2) my_strncpy(model_name_result, m_lower, l);
+  else {
+    /* build a hash key value with no spaces to make device_model attributes with different spaces equivalent*/
+    my_strcat(296, &model_name_result, modelname);
+  }
   my_free(948, &modelname);
   my_free(949, &m_lower);
   return model_name_result;

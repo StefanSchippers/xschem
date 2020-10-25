@@ -1659,7 +1659,11 @@ void print_spice_element(FILE *fd, int inst)
   /* do a second round of substitutions, but without calling tcl */
   if(result && strstr(result, "eval(") == result) {
     char *c = strrchr(result, ')');
-    if(c) *c = '\0';
+    if(c) while(1) { /* shift following characters back 1 char */
+      *c = c[1];
+      c++;
+      if(!*c) break;
+    }
     my_strdup2(88, &result, translate(inst, result+5));
   }
   fprintf(fd, "%s", result);

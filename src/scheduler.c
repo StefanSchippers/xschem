@@ -720,7 +720,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        }
      }
      if(!found) {
-       Tcl_AppendResult(interp, "xSymbol not found", NULL);
+       Tcl_AppendResult(interp, "Symbol not found", NULL);
        return TCL_ERROR;
      }
      if(argc == 4)
@@ -1557,7 +1557,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      }
    }
    if(i<xctx->instances) {
-   my_snprintf(s, S(s), "xInstance: %g %g %g %g", xctx->inst[i].x1, xctx->inst[i].y1,
+   my_snprintf(s, S(s), "Instance: %g %g %g %g", xctx->inst[i].x1, xctx->inst[i].y1,
                                                   xctx->inst[i].x2, xctx->inst[i].y2);
    Tcl_AppendResult(interp, s, NULL);
    my_snprintf(s, S(s), "\nSymbol: %g %g %g %g",

@@ -1876,9 +1876,15 @@ proc property_search {} {
 #
 proc tclpropeval {s instname symname} {
   # puts "tclpropeval: $s $instname $symname"
+  global env tcl_debug
+  if {$tcl_debug <=-1} {puts "tclpropeval: $s"}
   regsub {^@tcleval\(} $s {} s
-  regsub {\)$} $s {} s
-  return [eval $s]
+  regsub {\)([ \t\n]*)$} $s {\1} s
+  if { [catch {eval $s} res] } {
+    if { $tcl_debug<=-1 } { puts "tclpropeval warning: $res"}
+    set res ?\n
+  }
+  return $res
 }
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
