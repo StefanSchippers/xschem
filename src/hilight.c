@@ -100,7 +100,7 @@ void create_plot_cmd(int viewer)
   struct node_hashentry *node_entry;
   char *tok;
   char plotfile[PATH_MAX];
-  char color_str[8];
+  char color_str[18];
   FILE *fd = NULL;
   char *str = NULL;
 
@@ -125,7 +125,7 @@ void create_plot_cmd(int viewer)
       if(node_entry && !strcmp(xctx->sch_path[xctx->currsch], entry->path) &&
          (node_entry->d.port == 0 || !strcmp(entry->path, ".") )) {
         c = get_color(entry->value);
-        sprintf(color_str, "%02x%02x%02x", xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
+        sprintf(color_str, "%02x/%02x/%02x", xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
         idx++;
         if(viewer == NGSPICE) {
           if(idx > 9) {
