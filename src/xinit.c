@@ -1446,7 +1446,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
     char f[PATH_MAX];
 
 #ifdef __unix__
-    if(filename[0] !='/') {
+    if(filename[0] == '~' && filename[1] == '/') {
+      here();
+      my_snprintf(f, S(f), "%s%s", home_dir, filename + 1);
+    } else if(filename[0] !='/') {
       my_snprintf(f, S(f), "%s/%s", pwd_dir, filename);
     } else {
       my_snprintf(f, S(f), "%s", filename);
