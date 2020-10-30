@@ -56,9 +56,14 @@
 # append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/gschem_import/sym
 
 # For Windows, use ; instead of :, and enclosed pathname with ""
-#append XSCHEM_LIBRARY_PATH ";."
 #append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library"
 #append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/devices"
+#append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/examples"
+#append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/ngspice"
+#append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/logic"
+#append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/binto7seg"
+#append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/pcb"
+#append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/rom8k"
 
 ###########################################################################
 ## set custom colors for xschem libraries matching certain patterns

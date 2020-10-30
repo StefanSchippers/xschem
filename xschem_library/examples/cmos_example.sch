@@ -104,7 +104,7 @@ write cmos_example.raw
 set appendwrite
 let cap = cap + 2e-12
 end
-op
+* op
 write cmos_example.raw
 
 .endc

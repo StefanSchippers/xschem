@@ -3159,8 +3159,10 @@ set tclcmd_txt {}
 ### user preferences: set default values
 ###
 
-set_ne dircolor(/share/xschem/) red
-set_ne dircolor(/share/doc/xschem/) {#338844}
+if { ![info exists dircolor] } {
+  set_ne dircolor(/share/xschem/) red
+  set_ne dircolor(/share/doc/xschem/) {#338844}
+}
 
 set_ne globfilter {*}
 ## list of tcl procedures to load at end of xschem.tcl
