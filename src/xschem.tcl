@@ -44,27 +44,28 @@ proc execute_fileevent {id} {
   append execute_data($id) [read $execute_pipe($id) 1024]
   if {[eof $execute_pipe($id)]} {
       fileevent $execute_pipe($id) readable ""
-      # setting pipe to blocking before closing allows to see if pipeline failed
-      fconfigure $execute_pipe($id) -blocking 1
-      set status 0
-      if {[catch {close $execute_pipe($id)} err options]} {
-        set details [dict get $options -errorcode]
-        if {[lindex $details 0] eq "CHILDSTATUS"} {
-            set status [lindex $details 2]
-            if { $execute_status($id) } {
+      if { $execute_status($id) } {
+        # setting pipe to blocking before closing allows to see if pipeline failed
+        # do not ask status for processes that close stdout/stderr, as eof might
+        # occur before process ends and following close blocks until process terminates.
+        fconfigure $execute_pipe($id) -blocking 1
+        set status 0
+        if {[catch {close $execute_pipe($id)} err options]} {
+          set details [dict get $options -errorcode]
+          if {[lindex $details 0] eq "CHILDSTATUS"} {
+              set status [lindex $details 2]
               viewdata "Failed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
-            }
-        } else {
-          if { $execute_status($id) } {
+          } else {
             set status 1
             viewdata "Completed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
           }
         }
-      } 
-      if { $status == 0 } {
-        if { $execute_status($id) } {
+        if { $status == 0 } {
           viewdata "Completed: $execute_cmd($id)\ndata:\n$execute_data($id)" ro
         }
+      } else {
+        # nonblocking close always succeed 
+        close $execute_pipe($id)
       }
       if { [info exists execute_callback($id)] } { eval $execute_callback($id); unset execute_callback($id) } 
       unset execute_pipe($id)
