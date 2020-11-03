@@ -34,7 +34,7 @@ struct inst_hashentry {
 
 static struct inst_hashentry *table[HASHSIZE];
 
-enum status {XBEGIN, XTOKEN, XSEPARATOR, XVALUE, XEND, XENDTOK};
+enum status {TOK_BEGIN, TOK_TOKEN, TOK_SEP, TOK_VALUE, TOK_END, TOK_ENDTOK};
 
 /* calculate the hash function relative to string s */
 static unsigned int hash(char *tok)
@@ -190,7 +190,7 @@ void check_unique_names(int rename)
     delete_hilight_net();
     /* undraw_hilight_net(1); */
     if(!big) {
-      bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+      bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
       bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
       bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
     }
@@ -214,7 +214,7 @@ void check_unique_names(int rename)
           hilight_nets=1;
           if(rename == 1) {
             if(first) {
-              bbox(BEGIN,0.0,0.0,0.0,0.0);
+              bbox(START,0.0,0.0,0.0,0.0);
               set_modify(1); push_undo();
               prepared_hash_instances=0;
               prepared_netlist_structs=0;
@@ -281,7 +281,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
 /* return 1 if s modified 20081221 */
 int set_different_token(char **s,const char *new, const char *old, int object, int n)
 {
- register int c, state=XBEGIN, space;
+ register int c, state=TOK_BEGIN, space;
  char *token=NULL, *value=NULL;
  int sizetok=0, sizeval=0;
  int token_pos=0, value_pos=0;
@@ -304,23 +304,23 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
   c=*my_new++;
   space=SPACE(c) ;
   if(c=='"' && !escape) quote=!quote;
-  if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') state=XTOKEN;
-  else if( state==XTOKEN && space) state=XENDTOK;
-  else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
-  else if( state==XSEPARATOR && !space) state=XVALUE;
-  else if( state==XVALUE && space && !quote && !escape) state=XEND;
+  if( (state==TOK_BEGIN || state==TOK_ENDTOK) && !space && c != '=') state=TOK_TOKEN;
+  else if( state==TOK_TOKEN && space) state=TOK_ENDTOK;
+  else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
+  else if( state==TOK_SEP && !space) state=TOK_VALUE;
+  else if( state==TOK_VALUE && space && !quote && !escape) state=TOK_END;
   STR_ALLOC(&value, value_pos, &sizeval);
   STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==XTOKEN) token[token_pos++]=c;
-  else if(state==XVALUE) {
+  if(state==TOK_TOKEN) token[token_pos++]=c;
+  else if(state==TOK_VALUE) {
    value[value_pos++]=c;
   }
-  else if(state==XENDTOK || state==XSEPARATOR) {
+  else if(state==TOK_ENDTOK || state==TOK_SEP) {
    if(token_pos) {
      token[token_pos]='\0';
      token_pos=0;
    }
-  } else if(state==XEND) {
+  } else if(state==TOK_END) {
    value[value_pos]='\0';
    value_pos=0;
    if(strcmp(value, get_tok_value(old,token,1))) {
@@ -338,31 +338,31 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
     mod=1;
     my_strdup(433, s, subst_token(*s, token, value) );
    }
-   state=XBEGIN;
+   state=TOK_BEGIN;
   }
   escape = (c=='\\' && !escape);
   if(c=='\0') break;
  }
 
- state = XBEGIN;
+ state = TOK_BEGIN;
  escape = quote = token_pos = value_pos = 0;
  /* parse old string and remove attributes that are not present in new */
  while(old) {
   c=*old++;
   space=SPACE(c) ;
   if(c=='"' && !escape) quote=!quote;
-  if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') state=XTOKEN;
-  else if( state==XTOKEN && space) state=XENDTOK;
-  else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
-  else if( state==XSEPARATOR && !space) state=XVALUE;
-  else if( state==XVALUE && space && !quote && !escape) state=XEND;
+  if( (state==TOK_BEGIN || state==TOK_ENDTOK) && !space && c != '=') state=TOK_TOKEN;
+  else if( state==TOK_TOKEN && space) state=TOK_ENDTOK;
+  else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
+  else if( state==TOK_SEP && !space) state=TOK_VALUE;
+  else if( state==TOK_VALUE && space && !quote && !escape) state=TOK_END;
   STR_ALLOC(&value, value_pos, &sizeval);
   STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==XTOKEN) token[token_pos++]=c;
-  else if(state==XVALUE) {
+  if(state==TOK_TOKEN) token[token_pos++]=c;
+  else if(state==TOK_VALUE) {
    value[value_pos++]=c;
   }
-  else if(state==XENDTOK || state==XSEPARATOR) {
+  else if(state==TOK_ENDTOK || state==TOK_SEP) {
    if(token_pos) {
      token[token_pos]='\0';
      token_pos=0;
@@ -382,10 +382,10 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
     mod=1;
     my_strdup(443, s, subst_token(*s, token, NULL) );
    }
-  } else if(state==XEND) {
+  } else if(state==TOK_END) {
    value[value_pos]='\0';
    value_pos=0;
-   state=XBEGIN;
+   state=TOK_BEGIN;
   }
   escape = (c=='\\' && !escape);
   if(c=='\0') break;
@@ -404,7 +404,7 @@ const char *list_tokens(const char *s, int with_quotes)
 {
   static char *token=NULL;
   int  sizetok=0;
-  register int c, state=XBEGIN, space;
+  register int c, state=TOK_BEGIN, space;
   register int token_pos=0;
   int quote=0;
   int escape=0;
@@ -419,29 +419,29 @@ const char *list_tokens(const char *s, int with_quotes)
   while(1) {
     c=*s++;
     space=SPACE(c) ;
-    if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') state=XTOKEN;
-    else if( state==XTOKEN && space && !quote && !escape) state=XENDTOK;
-    else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
-    else if( state==XSEPARATOR && !space) state=XVALUE;
-    else if( state==XVALUE && space && !quote && !escape ) state=XEND;
+    if( (state==TOK_BEGIN || state==TOK_ENDTOK) && !space && c != '=') state=TOK_TOKEN;
+    else if( state==TOK_TOKEN && space && !quote && !escape) state=TOK_ENDTOK;
+    else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
+    else if( state==TOK_SEP && !space) state=TOK_VALUE;
+    else if( state==TOK_VALUE && space && !quote && !escape ) state=TOK_END;
     STR_ALLOC(&token, token_pos, &sizetok);
     if(c=='"') {
       if(!escape) quote=!quote;
     }
-    if(state==XTOKEN) {
+    if(state==TOK_TOKEN) {
       if(c=='"') {
         if((with_quotes & 1) || escape)  token[token_pos++]=c;
       }
       else if( !(c == '\\' && (with_quotes & 2)) ) token[token_pos++]=c;
       else if(escape && c == '\\') token[token_pos++]=c;
-    } else if(state==XVALUE) {
+    } else if(state==TOK_VALUE) {
       /* do nothing */
-    } else if(state==XENDTOK || state==XSEPARATOR) {
+    } else if(state==TOK_ENDTOK || state==TOK_SEP) {
         if(token_pos) {
           token[token_pos++]= ' ';
         }
-    } else if(state==XEND) {
-      state=XBEGIN;
+    } else if(state==TOK_END) {
+      state=TOK_BEGIN;
     }
     escape = (c=='\\' && !escape);
     if(c=='\0') {
@@ -470,7 +470,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
   int  sizetok=0;
   register int c, space;
   register int token_pos=0, value_pos=0;
-  int quote=0, state=XBEGIN;
+  int quote=0, state=TOK_BEGIN;
   int escape=0;
   int cmp = 1;
 
@@ -488,11 +488,11 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
   while(1) {
     c=*s++;
     space=SPACE(c) ;
-    if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') state=XTOKEN;
-    else if( state==XTOKEN && space && !quote && !escape) state=XENDTOK;
-    else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
-    else if( state==XSEPARATOR && !space) state=XVALUE;
-    else if( state==XVALUE && space && !quote && !escape ) state=XEND;
+    if( (state==TOK_BEGIN || state==TOK_ENDTOK) && !space && c != '=') state=TOK_TOKEN;
+    else if( state==TOK_TOKEN && space && !quote && !escape) state=TOK_ENDTOK;
+    else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
+    else if( state==TOK_SEP && !space) state=TOK_VALUE;
+    else if( state==TOK_VALUE && space && !quote && !escape ) state=TOK_END;
     /* don't use STR_ALLOC() for efficiency reasons */
     if(value_pos>=size) {
       size+=CADCHUNKALLOC;
@@ -505,7 +505,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     if(c=='"') {
       if(!escape) quote=!quote;
     }
-    if(state==XTOKEN) {
+    if(state==TOK_TOKEN) {
       if(!cmp) { /* previous token matched search and was without value, return get_tok_size */
         result[0] = '\0';
         get_tok_value_size = 0;
@@ -516,13 +516,13 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
       }
       else if( !(c == '\\' && (with_quotes & 2)) ) token[token_pos++]=c;
       else if(escape && c == '\\') token[token_pos++]=c;
-    } else if(state==XVALUE) {
+    } else if(state==TOK_VALUE) {
       if(c=='"') {
         if((with_quotes & 1) || escape)  result[value_pos++]=c;
       }
       else if( !quote || !((c == '\\') && (with_quotes & 2)) ) result[value_pos++]=c; /* skip unescaped backslashes */
       else if( (c == '\\') && escape ) result[value_pos++]=c; /* 20170414 add escaped backslashes */
-    } else if(state==XENDTOK || state==XSEPARATOR) {
+    } else if(state==TOK_ENDTOK || state==TOK_SEP) {
         if(token_pos) {
           token[token_pos]='\0';
           if( !(cmp = strcmp(token,tok)) ) {
@@ -531,14 +531,14 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
           dbg(2, "get_tok_value(): token=%s\n", token);
           token_pos=0;
         }
-    } else if(state==XEND) {
+    } else if(state==TOK_END) {
       result[value_pos]='\0';
       if( !cmp ) {
         get_tok_value_size = value_pos; /* return also size so to avoid using strlen 20180926 */
         return result;
       }
       value_pos=0;
-      state=XBEGIN;
+      state=TOK_BEGIN;
     }
     escape = (c=='\\' && !escape);
     if(c=='\0') {
@@ -559,7 +559,7 @@ const char *get_sym_template(char *s,char *extra)
  int sizeval=0;
  char *value=NULL;
  char *token=NULL;
- register int c, state=XBEGIN, space;
+ register int c, state=TOK_BEGIN, space;
  register int token_pos=0, value_pos=0, result_pos=0;
  int quote=0;
  int escape=0;
@@ -583,18 +583,18 @@ const char *get_sym_template(char *s,char *extra)
  while(1) {
   c=*s++;
   space=SPACE(c) ;
-  if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') state=XTOKEN;
-  else if( state==XTOKEN && space) state=XENDTOK;
-  else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
-  else if( state==XSEPARATOR && !space) state=XVALUE;
-  else if( state==XVALUE && space && !quote) state=XEND;
+  if( (state==TOK_BEGIN || state==TOK_ENDTOK) && !space && c != '=') state=TOK_TOKEN;
+  else if( state==TOK_TOKEN && space) state=TOK_ENDTOK;
+  else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
+  else if( state==TOK_SEP && !space) state=TOK_VALUE;
+  else if( state==TOK_VALUE && space && !quote) state=TOK_END;
   STR_ALLOC(&value, value_pos, &sizeval);
   STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==XBEGIN) {
+  if(state==TOK_BEGIN) {
     result[result_pos++] = c;
-  } else if(state==XTOKEN) {
+  } else if(state==TOK_TOKEN) {
     token[token_pos++]=c;
-  } else if(state==XVALUE) {
+  } else if(state==TOK_VALUE) {
     if(c=='"') {
      if(!escape) quote=!quote;
      if((with_quotes & 1) || escape)  value[value_pos++]=c;
@@ -603,7 +603,7 @@ const char *get_sym_template(char *s,char *extra)
     else value[value_pos++]=c;
     escape = (c=='\\' && !escape);
 
-  } else if(state==XEND) {
+  } else if(state==TOK_END) {
     value[value_pos]='\0';
     if((!extra || !strstr(extra, token)) && strcmp(token,"name")) {
       memcpy(result+result_pos, value, value_pos+1);
@@ -612,8 +612,8 @@ const char *get_sym_template(char *s,char *extra)
     result[result_pos++] = c;
     value_pos=0;
     token_pos=0;
-    state=XBEGIN;
-  } else if(state==XENDTOK || state==XSEPARATOR) {
+    state=TOK_BEGIN;
+  } else if(state==TOK_ENDTOK || state==TOK_SEP) {
     if(token_pos) {
       token[token_pos]='\0';
       if((!extra || !strstr(extra, token)) && strcmp(token,"name")) {
@@ -756,7 +756,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
 {
   static char *result=NULL;
   int size=0;
-  register int c, state=XBEGIN, space;
+  register int c, state=TOK_BEGIN, space;
   int sizetok=0;
   char *token=NULL;
   int token_pos=0, result_pos=0, result_save_pos = 0;
@@ -787,27 +787,27 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
 
     /* parsing state machine                                    */
     /* states:                                                  */
-    /*    XBEGIN XTOKEN XENDTOK XSEPARATOR XVALUE               */
+    /*    TOK_BEGIN TOK_TOKEN TOK_ENDTOK TOK_SEP TOK_VALUE            */
     /*                                                          */
     /*                                                          */
-    /* XBEGIN                                                   */
-    /* |      XTOKEN                                            */
-    /* |      |   XENDTOK                                       */
-    /* |      |   |  XSEPARATOR                                 */
-    /* |      |   |  | XVALUE                                   */
-    /* |      |   |  | | XBEGIN                                 */
-    /* |      |   |  | | |   XTOKEN                             */
-    /* |      |   |  | | |   |     XENDTOK                      */
-    /* |      |   |  | | |   |     |  XTOKEN                    */
+    /* TOK_BEGIN                                                */
+    /* |      TOK_TOKEN                                            */
+    /* |      |   TOK_ENDTOK                                       */
+    /* |      |   |  TOK_SEP                                 */
+    /* |      |   |  | TOK_VALUE                                   */
+    /* |      |   |  | | TOK_BEGIN                              */
+    /* |      |   |  | | |   TOK_TOKEN                             */
+    /* |      |   |  | | |   |     TOK_ENDTOK                      */
+    /* |      |   |  | | |   |     |  TOK_TOKEN                    */
     /* |      |   |  | | |   |     |  |                         */
     /* .......name...=.x1....format...type..=..subcircuit....   */
     /* . : space                                                */
 
-    if(state == XBEGIN && !space && c != '=' ) {
+    if(state == TOK_BEGIN && !space && c != '=' ) {
       result_save_pos = result_pos;
       token_pos = 0;
-      state = XTOKEN;
-    } else if(state == XENDTOK  && (!space || c == '\0') && c != '=' ) {
+      state = TOK_TOKEN;
+    } else if(state == TOK_ENDTOK  && (!space || c == '\0') && c != '=' ) {
       if(!done_subst && matched_tok) {
         if(new_val) { /* add new_val to matching token with no value */
           if(new_val[0]) {
@@ -829,24 +829,24 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
         }
       }
       result_save_pos = result_pos;
-      if(c != '\0') state = XTOKEN; /* if end of string remain in XENDTOK state */
-    } else if( state == XTOKEN && space) {
+      if(c != '\0') state = TOK_TOKEN; /* if end of string remain in TOK_ENDTOK state */
+    } else if( state == TOK_TOKEN && space) {
       token[token_pos] = '\0';
       token_pos = 0;
       matched_tok = !strcmp(token, tok) && !done_subst;
-      state=XENDTOK;
+      state=TOK_ENDTOK;
       if(c == '\0') {
-        s--; /* go to next iteration and process '\0' as XENDTOK */
+        s--; /* go to next iteration and process '\0' as TOK_ENDTOK */
         continue;
       }
-    } else if(state == XTOKEN && c=='=') {
+    } else if(state == TOK_TOKEN && c=='=') {
       token[token_pos] = '\0';
       token_pos = 0;
       matched_tok = !strcmp(token, tok) && !done_subst;
-      state=XSEPARATOR;
-    } else if(state == XENDTOK && c=='=') {
-      state=XSEPARATOR;
-    } else if( state == XSEPARATOR && !space) {
+      state=TOK_SEP;
+    } else if(state == TOK_ENDTOK && c=='=') {
+      state=TOK_SEP;
+    } else if( state == TOK_SEP && !space) {
       if(!done_subst && matched_tok) {
         if(new_val) { /* replace token value with new_val */
           if(new_val[0]) {
@@ -864,21 +864,21 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
           done_subst = 1;
         }
       }
-      state=XVALUE;
-    } else if( state == XVALUE && space && !quote && !escape) {
-      state=XBEGIN;
+      state=TOK_VALUE;
+    } else if( state == TOK_VALUE && space && !quote && !escape) {
+      state=TOK_BEGIN;
     }
     /* state actions */
-    if(state == XBEGIN) {
+    if(state == TOK_BEGIN) {
       result[result_pos++] = c;
-    } else if(state == XTOKEN) {
+    } else if(state == TOK_TOKEN) {
       token[token_pos++] = c;
       result[result_pos++] = c;
-    } else if(state == XENDTOK) {
+    } else if(state == TOK_ENDTOK) {
       result[result_pos++] = c;
-    } else if(state == XSEPARATOR) {
+    } else if(state == TOK_SEP) {
       result[result_pos++] = c;
-    } else if(state==XVALUE) {
+    } else if(state==TOK_VALUE) {
       if(!matched_tok) result[result_pos++] = c; /* skip value for matching token */
     }
     escape = (c=='\\' && !escape);
@@ -956,7 +956,7 @@ void print_vhdl_element(FILE *fd, int inst)
 {
   int i=0, mult, tmp, tmp1;
   const char *str_ptr;
-  register int c, state=XBEGIN, space;
+  register int c, state=TOK_BEGIN, space;
   const char *lab;
   char *name=NULL;
   char  *generic_value=NULL, *generic_type=NULL;
@@ -1009,24 +1009,24 @@ void print_vhdl_element(FILE *fd, int inst)
    else
     escape=0;
    space=SPACE(c);
-   if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') state=XTOKEN;
-   else if( state==XTOKEN && space) state=XENDTOK;
-   else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
-   else if( state==XSEPARATOR && !space) state=XVALUE;
-   else if( state==XVALUE && space && !quote) state=XEND;
+   if( (state==TOK_BEGIN || state==TOK_ENDTOK) && !space && c != '=') state=TOK_TOKEN;
+   else if( state==TOK_TOKEN && space) state=TOK_ENDTOK;
+   else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
+   else if( state==TOK_SEP && !space) state=TOK_VALUE;
+   else if( state==TOK_VALUE && space && !quote) state=TOK_END;
    STR_ALLOC(&value, value_pos, &sizeval);
    STR_ALLOC(&token, token_pos, &sizetok);
-   if(state==XTOKEN) token[token_pos++]=c;
-   else if(state==XVALUE) {
+   if(state==TOK_TOKEN) token[token_pos++]=c;
+   else if(state==TOK_VALUE) {
      if(c=='"' && !escape) quote=!quote;
      else value[value_pos++]=c;
    }
-   else if(state==XENDTOK || state==XSEPARATOR) {
+   else if(state==TOK_ENDTOK || state==TOK_SEP) {
      if(token_pos) {
        token[token_pos]='\0';
        token_pos=0;
      }
-   } else if(state==XEND) {
+   } else if(state==TOK_END) {
      value[value_pos]='\0';
      value_pos=0;
      get_tok_value(template, token, 0);
@@ -1047,7 +1047,7 @@ void print_vhdl_element(FILE *fd, int inst)
          tmp1=1;
        }
      }
-     state=XBEGIN;
+     state=TOK_BEGIN;
    }
    if(c=='\0')  /* end string */
    {
@@ -1112,7 +1112,7 @@ void print_vhdl_element(FILE *fd, int inst)
 void print_generic(FILE *fd, char *ent_or_comp, int symbol)
 {
   int tmp;
-  register int c, state=XBEGIN, space;
+  register int c, state=TOK_BEGIN, space;
   char *template=NULL, *s, *value=NULL,  *token=NULL;
   char *type=NULL, *generic_type=NULL, *generic_value=NULL;
   const char *str_tmp;
@@ -1148,25 +1148,25 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
    else
     escape=0;
    space=SPACE(c);
-   if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') state=XTOKEN;
-   else if( state==XTOKEN && space) state=XENDTOK;
-   else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
-   else if( state==XSEPARATOR && !space) state=XVALUE;
-   else if( state==XVALUE && space && !quote) state=XEND;
+   if( (state==TOK_BEGIN || state==TOK_ENDTOK) && !space && c != '=') state=TOK_TOKEN;
+   else if( state==TOK_TOKEN && space) state=TOK_ENDTOK;
+   else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
+   else if( state==TOK_SEP && !space) state=TOK_VALUE;
+   else if( state==TOK_VALUE && space && !quote) state=TOK_END;
    STR_ALLOC(&value, value_pos, &sizeval);
    STR_ALLOC(&token, token_pos, &sizetok);
-   if(state==XTOKEN) token[token_pos++]=c;
-   else if(state==XVALUE)
+   if(state==TOK_TOKEN) token[token_pos++]=c;
+   else if(state==TOK_VALUE)
    {
     if(c=='"' && !escape) quote=!quote;
     else value[value_pos++]=c;
    }
-   else if(state==XENDTOK || state==XSEPARATOR) {
+   else if(state==TOK_ENDTOK || state==TOK_SEP) {
      if(token_pos) {
        token[token_pos]='\0';
        token_pos=0;
      }
-   } else if(state==XEND)                    /* got a token */
+   } else if(state==TOK_END)                    /* got a token */
    {
     token_number++;
     value[value_pos]='\0';
@@ -1188,7 +1188,7 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
        tmp=1;
      }
     }
-    state=XBEGIN;
+    state=TOK_BEGIN;
    }
    if(c=='\0')  /* end string */
    {
@@ -1223,7 +1223,7 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
 
 void print_verilog_param(FILE *fd, int symbol)
 {
- register int c, state=XBEGIN, space;
+ register int c, state=TOK_BEGIN, space;
  char *template=NULL, *s, *value=NULL,  *generic_type=NULL, *token=NULL;
  int sizetok=0, sizeval=0;
  int token_pos=0, value_pos=0;
@@ -1252,26 +1252,26 @@ void print_verilog_param(FILE *fd, int symbol)
   else
    escape=0;
   space=SPACE(c);
-  if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') state=XTOKEN;
-  else if( state==XTOKEN && space) state=XENDTOK;
-  else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
-  else if( state==XSEPARATOR && !space) state=XVALUE;
-  else if( state==XVALUE && space && !quote) state=XEND;
+  if( (state==TOK_BEGIN || state==TOK_ENDTOK) && !space && c != '=') state=TOK_TOKEN;
+  else if( state==TOK_TOKEN && space) state=TOK_ENDTOK;
+  else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
+  else if( state==TOK_SEP && !space) state=TOK_VALUE;
+  else if( state==TOK_VALUE && space && !quote) state=TOK_END;
 
   STR_ALLOC(&value, value_pos, &sizeval);
   STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==XTOKEN) token[token_pos++]=c;
-  else if(state==XVALUE)
+  if(state==TOK_TOKEN) token[token_pos++]=c;
+  else if(state==TOK_VALUE)
   {
    if(c=='"' && !escape) quote=!quote;
    else value[value_pos++]=c;
   }
-  else if(state==XENDTOK || state==XSEPARATOR) {
+  else if(state==TOK_ENDTOK || state==TOK_SEP) {
     if(token_pos) {
       token[token_pos]='\0';
       token_pos=0;
     }
-  } else if(state==XEND)                    /* got a token */
+  } else if(state==TOK_END)                    /* got a token */
   {
    token_number++;
    value[value_pos]='\0';
@@ -1293,7 +1293,7 @@ void print_verilog_param(FILE *fd, int symbol)
       }
     }
    }
-   state=XBEGIN;
+   state=TOK_BEGIN;
   }
   if(c=='\0')  /* end string */
   {
@@ -1314,7 +1314,7 @@ void print_spice_subckt(FILE *fd, int symbol)
 {
  int i=0, mult;
  const char *str_ptr=NULL;
- register int c, state=XBEGIN, space;
+ register int c, state=TOK_BEGIN, space;
  char *format=NULL,*s, *token=NULL;
  int pin_number;
  int sizetok=0;
@@ -1340,21 +1340,21 @@ void print_spice_subckt(FILE *fd, int symbol)
   else escape=0;
   if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
   space=SPACE(c);
-  if( state==XBEGIN && (c=='@' || c=='$')  && !escape) state=XTOKEN;
-  else if(state==XTOKEN && token_pos > 1 &&
+  if( state==TOK_BEGIN && (c=='@' || c=='$')  && !escape) state=TOK_TOKEN;
+  else if(state==TOK_TOKEN && token_pos > 1 &&
      (
        ( (space  || c == '$' || c == '@') && !escape ) ||
        ( (!space && c != '$' && c != '@') && escape  )
      )
     ) {
-    state = XSEPARATOR;
+    state = TOK_SEP;
   }
 
   STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==XTOKEN) {
+  if(state==TOK_TOKEN) {
     token[token_pos++]=c;
   }
-  else if(state==XSEPARATOR)                    /* got a token */
+  else if(state==TOK_SEP)                    /* got a token */
   {
    token[token_pos]='\0';
    token_pos=0;
@@ -1402,10 +1402,10 @@ void print_spice_subckt(FILE *fd, int symbol)
    }
    if(c!='$' && c!='@' && c!='\0' ) fputc(c,fd);
    if(c == '@' || c =='$') s--;
-   state=XBEGIN;
+   state=TOK_BEGIN;
   }
                  /* 20151028 dont print escaping backslashes */
-  else if(state==XBEGIN && c!='\0') {
+  else if(state==TOK_BEGIN && c!='\0') {
    /* do nothing */
   }
   if(c=='\0')
@@ -1421,7 +1421,7 @@ void print_spice_element(FILE *fd, int inst)
 {
   int i=0, mult, tmp;
   const char *str_ptr=NULL;
-  register int c, state=XBEGIN, space;
+  register int c, state=TOK_BEGIN, space;
   char *template=NULL,*format=NULL,*s, *name=NULL,  *token=NULL;
   const char *lab, *value = NULL;
   int pin_number;
@@ -1469,21 +1469,21 @@ void print_spice_element(FILE *fd, int inst)
 
     if (c=='\n' && escape) c=*s++; /* 20171030 eat escaped newlines */
     space=SPACE(c);
-    if ( state==XBEGIN && (c=='@'|| c=='$')  && !escape ) state=XTOKEN;
-    else if(state==XTOKEN && token_pos > 1 &&
+    if ( state==TOK_BEGIN && (c=='@'|| c=='$')  && !escape ) state=TOK_TOKEN;
+    else if(state==TOK_TOKEN && token_pos > 1 &&
        (
          ( (space  || c == '$' || c == '@') && !escape ) ||
          ( (!space && c != '$' && c != '@') && escape  )
        )
       ) {
       dbg(1, "print_spice_element: c=%c, space=%d, escape=%d roken_pos=%d\n", c, space, escape, token_pos);
-      state=XSEPARATOR;
+      state=TOK_SEP;
     }
     STR_ALLOC(&token, token_pos, &sizetok);
-    if(state==XTOKEN) {
+    if(state==TOK_TOKEN) {
       token[token_pos++]=c;
     }
-    else if (state==XSEPARATOR)                    /* got a token */
+    else if (state==TOK_SEP)                    /* got a token */
     {
       token[token_pos]='\0';
       token_pos=0;
@@ -1632,9 +1632,9 @@ void print_spice_element(FILE *fd, int inst)
         /* fputc(c,fd); */
       }
       if(c == '@' || c == '$' ) s--;
-      state=XBEGIN;
+      state=TOK_BEGIN;
     }
-    else if(state==XBEGIN && c!='\0') {
+    else if(state==TOK_BEGIN && c!='\0') {
       result_pos += my_snprintf(result + result_pos, 2, "%c", c); /* no realloc needed */
       /* fputc(c,fd); */
     }
@@ -1678,7 +1678,7 @@ void print_tedax_element(FILE *fd, int inst)
 {
  int i=0, mult;
  const char *str_ptr=NULL;
- register int c, state=XBEGIN, space;
+ register int c, state=TOK_BEGIN, space;
  char *template=NULL,*format=NULL,*s, *name=NULL, *token=NULL;
  const char *value;
  char *extra=NULL, *extra_pinnumber=NULL;
@@ -1788,21 +1788,21 @@ void print_tedax_element(FILE *fd, int inst)
    if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
    space=SPACE(c);
 
-   if( state==XBEGIN && (c=='$' || c=='@') && !escape) state=XTOKEN;
-   else if(state==XTOKEN && token_pos > 1 &&
+   if( state==TOK_BEGIN && (c=='$' || c=='@') && !escape) state=TOK_TOKEN;
+   else if(state==TOK_TOKEN && token_pos > 1 &&
       (
         ( (space  || c == '$' || c == '@') && !escape ) ||
         ( (!space && c != '$' && c != '@') && escape  )
       )
      ) {
-     state=XSEPARATOR;
+     state=TOK_SEP;
    }
 
    STR_ALLOC(&token, token_pos, &sizetok);
-   if(state==XTOKEN) {
+   if(state==TOK_TOKEN) {
      token[token_pos++]=c; /* 20171029 remove escaping backslashes */
    }
-   else if(state==XSEPARATOR)                   /* got a token */
+   else if(state==TOK_SEP)                   /* got a token */
    {
     token[token_pos]='\0';
     token_pos=0;
@@ -1917,9 +1917,9 @@ void print_tedax_element(FILE *fd, int inst)
 
     if(c!='$' && c!='@' && c!='\0') fputc(c,fd);
     if(c == '@' || c == '$' ) s--;
-    state=XBEGIN;
+    state=TOK_BEGIN;
    }
-   else if(state==XBEGIN && c!='\0')  fputc(c,fd);
+   else if(state==TOK_BEGIN && c!='\0')  fputc(c,fd);
    if(c=='\0')
    {
     fputc('\n',fd);
@@ -1960,7 +1960,7 @@ void print_verilog_element(FILE *fd, int inst)
  char *template=NULL,*s;
  int no_of_pins=0;
  int  tmp1 = 0;
- register int c, state=XBEGIN, space;
+ register int c, state=TOK_BEGIN, space;
  char *value=NULL,  *token=NULL;
  int sizetok=0, sizeval=0;
  int token_pos=0, value_pos=0;
@@ -2002,25 +2002,25 @@ void print_verilog_element(FILE *fd, int inst)
     c=*s++;
   }
   space=SPACE(c);
-  if( (state==XBEGIN || state==XENDTOK) && !space && c != '=') state=XTOKEN;
-  else if( state==XTOKEN && space) state=XENDTOK;
-  else if( (state==XTOKEN || state==XENDTOK) && c=='=') state=XSEPARATOR;
-  else if( state==XSEPARATOR && !space) state=XVALUE;
-  else if( state==XVALUE && space && !quote) state=XEND;
+  if( (state==TOK_BEGIN || state==TOK_ENDTOK) && !space && c != '=') state=TOK_TOKEN;
+  else if( state==TOK_TOKEN && space) state=TOK_ENDTOK;
+  else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
+  else if( state==TOK_SEP && !space) state=TOK_VALUE;
+  else if( state==TOK_VALUE && space && !quote) state=TOK_END;
 
   STR_ALLOC(&value, value_pos, &sizeval);
   STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==XTOKEN) token[token_pos++]=c;
-  else if(state==XVALUE)
+  if(state==TOK_TOKEN) token[token_pos++]=c;
+  else if(state==TOK_VALUE)
   {
     value[value_pos++]=c;
   }
-  else if(state==XENDTOK || state==XSEPARATOR) {
+  else if(state==TOK_ENDTOK || state==TOK_SEP) {
     if(token_pos) {
       token[token_pos]='\0';
       token_pos=0;
     }
-  } else if(state==XEND)
+  } else if(state==TOK_END)
   {
    value[value_pos]='\0';
    value_pos=0;
@@ -2042,7 +2042,7 @@ void print_verilog_element(FILE *fd, int inst)
        }
      }
    }
-   state=XBEGIN;
+   state=TOK_BEGIN;
   }
   if(c=='\0')  /* end string */
   {
@@ -2142,7 +2142,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
 {
  int i=0, mult, tmp;
  const char *str_ptr;
- register int c, state=XBEGIN, space;
+ register int c, state=TOK_BEGIN, space;
  const char *lab;
  char *template=NULL,*format=NULL,*s, *name=NULL, *token=NULL;
  const char *value;
@@ -2185,21 +2185,21 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
   if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
   space=SPACE(c);
 
-  if( state==XBEGIN && (c=='@' || c=='$') && !escape ) state=XTOKEN;
-  else if(state==XTOKEN && token_pos > 1 &&
+  if( state==TOK_BEGIN && (c=='@' || c=='$') && !escape ) state=TOK_TOKEN;
+  else if(state==TOK_TOKEN && token_pos > 1 &&
      (
        ( (space  || c == '$' || c == '@') && !escape ) ||
        ( (!space && c != '$' && c != '@') && escape  )
      )
     ) {
-    state=XSEPARATOR;
+    state=TOK_SEP;
   }
 
   STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==XTOKEN) {
+  if(state==TOK_TOKEN) {
     token[token_pos++]=c; /* 20171029 remove escaping backslashes */
   }
-  else if(state==XSEPARATOR)                    /* got a token */
+  else if(state==TOK_SEP)                    /* got a token */
   {
    token[token_pos]='\0';
    token_pos=0;
@@ -2292,9 +2292,9 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
 
    if(c!='$' && c!='@' && c!='\0' ) fputc(c,fd);
    if(c == '@' || c == '$') s--;
-   state=XBEGIN;
+   state=TOK_BEGIN;
   }
-  else if(state==XBEGIN && c!='\0')  fputc(c,fd);
+  else if(state==TOK_BEGIN && c!='\0')  fputc(c,fd);
 
   if(c=='\0')
   {
@@ -2314,7 +2314,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
 {
   int i=0, mult, tmp;
   const char *str_ptr;
-  register int c, state=XBEGIN, space;
+  register int c, state=TOK_BEGIN, space;
   const char *lab;
   char *template=NULL,*format=NULL,*s=NULL, *name=NULL, *token=NULL;
   const char *value;
@@ -2357,22 +2357,22 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
    else escape=0;
    if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
    space=SPACE(c);
-   if( state==XBEGIN && (c=='@' || c=='$') && !escape ) state=XTOKEN;
-   else if(state==XTOKEN && token_pos > 1 &&
+   if( state==TOK_BEGIN && (c=='@' || c=='$') && !escape ) state=TOK_TOKEN;
+   else if(state==TOK_TOKEN && token_pos > 1 &&
       (
         ( (space  || c == '$' || c == '@') && !escape ) || 
         ( (!space && c != '$' && c != '@') && escape  )
       )
      
      ) { 
-     state=XSEPARATOR;
+     state=TOK_SEP;
    }
 
    STR_ALLOC(&token, token_pos, &sizetok);
-   if(state==XTOKEN) {
+   if(state==TOK_TOKEN) {
       token[token_pos++]=c;
    }
-   else if(state==XSEPARATOR)                    /* got a token */
+   else if(state==TOK_SEP)                    /* got a token */
    {
     token[token_pos]='\0';
     token_pos=0;
@@ -2466,9 +2466,9 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
     }
     if(c!='$' && c!='@' && c!='\0') fputc(c,fd);
     if(c == '@' || c == '$') s--;
-    state=XBEGIN;
+    state=TOK_BEGIN;
    }
-   else if(state==XBEGIN && c!='\0')  fputc(c,fd);
+   else if(state==TOK_BEGIN && c!='\0')  fputc(c,fd);
    if(c=='\0')
    {
     fputc('\n',fd);
@@ -2530,7 +2530,7 @@ const char *translate(int inst, const char* s)
  static char empty[]="";
  static char *result=NULL;
  int size=0, tmp;
- register int c, state=XBEGIN, space;
+ register int c, state=TOK_BEGIN, space;
  char *token=NULL;
  const char *tmp_sym_name;
  int sizetok=0;
@@ -2564,19 +2564,19 @@ const char *translate(int inst, const char* s)
   }
   else escape=0;
   space=SPACE(c);
-  if( state==XBEGIN && (c=='@' || c=='$' ) && !escape  ) state=XTOKEN; /* 20161210 escape */
-  else if( state==XTOKEN && (
+  if( state==TOK_BEGIN && (c=='@' || c=='$' ) && !escape  ) state=TOK_TOKEN; /* 20161210 escape */
+  else if( state==TOK_TOKEN && (
                               (space && !escape)  ||
                                (c =='@' || c == '$') ||
                               (!space && escape)
                             )
-                         && token_pos > 1 ) state=XSEPARATOR;
+                         && token_pos > 1 ) state=TOK_SEP;
 
 
   STR_ALLOC(&result, result_pos, &size);
   STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==XTOKEN) token[token_pos++]=c;
-  else if(state==XSEPARATOR)
+  if(state==TOK_TOKEN) token[token_pos++]=c;
+  else if(state==TOK_SEP)
   {
    token[token_pos]='\0';
    dbg(2, "translate(): token=%s\n", token);
@@ -2796,9 +2796,9 @@ const char *translate(int inst, const char* s)
 
    if(c == '@' || c == '$') s--;
    else result[result_pos++]=c;
-   state=XBEGIN;
+   state=TOK_BEGIN;
   }
-  else if(state==XBEGIN) result[result_pos++]=c;
+  else if(state==TOK_BEGIN) result[result_pos++]=c;
   if(c=='\0')
   {
    result[result_pos]='\0';
@@ -2819,7 +2819,7 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
   static char empty[]="";
   static char *result = NULL;
   int i, size = 0, tmp, save_tok_size, save_value_size;
-  register int c, state = XBEGIN, space;
+  register int c, state = TOK_BEGIN, space;
   char *token = NULL;
   const char *tmp_sym_name;
   int sizetok = 0;
@@ -2847,14 +2847,14 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
     }
     else escape = 0;
     space = SPACE(c);
-    if (state == XBEGIN && c == '@' && !escape) state = XTOKEN;
-    else if (state == XTOKEN && ( (space && !escape) || c == '@' || (!space && escape)) && token_pos > 1) {
-      state = XSEPARATOR;
+    if (state == TOK_BEGIN && c == '@' && !escape) state = TOK_TOKEN;
+    else if (state == TOK_TOKEN && ( (space && !escape) || c == '@' || (!space && escape)) && token_pos > 1) {
+      state = TOK_SEP;
     }
     STR_ALLOC(&result, result_pos, &size);
     STR_ALLOC(&token, token_pos, &sizetok);
-    if (state == XTOKEN) token[token_pos++] = c;
-    else if (state == XSEPARATOR) {
+    if (state == TOK_TOKEN) token[token_pos++] = c;
+    else if (state == TOK_SEP) {
       token[token_pos] = '\0';
       token_pos = 0;
 
@@ -2909,9 +2909,9 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
 
       if (c == '@') s--;
       else result[result_pos++] = c;
-      state = XBEGIN;
+      state = TOK_BEGIN;
     }
-    else if (state == XBEGIN) result[result_pos++] = c;
+    else if (state == TOK_BEGIN) result[result_pos++] = c;
     if (c == '\0') {
       result[result_pos] = '\0';
       break;

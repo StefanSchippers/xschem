@@ -24,7 +24,7 @@
 
 static struct node_hashentry *node_table[HASHSIZE];
 
-static unsigned int hash(const char *tok)
+static unsigned int nh_hash(const char *tok)
 {
   unsigned int hash = 0;
   int c;
@@ -250,7 +250,7 @@ struct node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
  else if(!strcmp(dir,"out") ) d.out=1;
  else if(!strcmp(dir,"inout") ) d.inout=1;
  d.port=port;
- hashcode=hash(token);
+ hashcode=nh_hash(token);
  index=hashcode % HASHSIZE;
  entry=node_table[index];
  preventry=&node_table[index];

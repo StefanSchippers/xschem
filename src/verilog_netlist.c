@@ -287,9 +287,9 @@ void global_verilog_netlist(int global)  /* netlister driver */
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(xctx->sym[i].name)) {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(328, &subckt_name, get_cell(xctx->sym[i].name, 0));
-      if (hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)
+      if (str_hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
-        hash_lookup(subckt_table, subckt_name, "", XINSERT);
+        str_hash_lookup(subckt_table, subckt_name, "", XINSERT);
         if( split_files && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
           vhdl_block_netlist(fd, i);
         else if(split_files && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_netlist",0),"true")==0 )

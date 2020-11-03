@@ -38,7 +38,7 @@ static Svg_color *svg_colors;
 static double svg_linew;      /* current width of lines / rectangles */
 static Svg_color svg_stroke;
 
-static void restore_lw(void)
+static void svg_restore_lw(void)
 {
    svg_linew = xctx->lw*0.7;
 }
@@ -253,8 +253,8 @@ static void svg_draw_string(int gctext, const char *str,
    curr_y1 = ( character[cc][i+2] ) * yscale+yy;
    curr_x2 = ( character[cc][i+3]+ a ) * xscale + x1;
    curr_y2 = ( character[cc][i+4] ) * yscale+yy;
-   ROTATION(x1,y1,curr_x1,curr_y1,rx1,ry1);
-   ROTATION(x1,y1,curr_x2,curr_y2,rx2,ry2);
+   ROTATION(rot, flip, x1,y1,curr_x1,curr_y1,rx1,ry1);
+   ROTATION(rot, flip, x1,y1,curr_x2,curr_y2,rx2,ry2);
    ORDER(rx1,ry1,rx2,ry2);
    svg_drawline(gctext,  rx1, ry1, rx2, ry2, 0);
   }
@@ -339,8 +339,8 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
    for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->lines[layer];j++)
    {
     line = ((xctx->inst[n].ptr+ xctx->sym)->line[layer])[j];
-    ROTATION(0.0,0.0,line.x1,line.y1,x1,y1);
-    ROTATION(0.0,0.0,line.x2,line.y2,x2,y2);
+    ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
+    ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
     ORDER(x1,y1,x2,y2);
     svg_drawline(layer, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
    }
@@ -353,7 +353,7 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
        double *x = my_malloc(417, sizeof(double) * polygon.points);
        double *y = my_malloc(418, sizeof(double) * polygon.points);
        for(k=0;k<polygon.points;k++) {
-         ROTATION(0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
+         ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
          x[k]+= x0;
          y[k] += y0;
        }
@@ -373,15 +373,15 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
      }
      angle = fmod(angle, 360.);
      if(angle<0.) angle+=360.;
-     ROTATION(0.0,0.0,arc.x,arc.y,x1,y1);
+     ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
      svg_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
    }
 
    if( (layer != PINLAYER || enable_layer[layer]) ) for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer];j++)
    {
     box = ((xctx->inst[n].ptr+ xctx->sym)->rect[layer])[j];
-    ROTATION(0.0,0.0,box.x1,box.y1,x1,y1);
-    ROTATION(0.0,0.0,box.x2,box.y2,x2,y2);
+    ROTATION(rot, flip, 0.0,0.0,box.x1,box.y1,x1,y1);
+    ROTATION(rot, flip, 0.0,0.0,box.x2,box.y2,x2,y2);
     RECTORDER(x1,y1,x2,y2);
     svg_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
    }
@@ -394,7 +394,7 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
      text = (xctx->inst[n].ptr+ xctx->sym)->text[j];
      /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
      txtptr= translate(n, text.txt_ptr);
-     ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
+     ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
      textlayer = layer;
      if( !(layer == PINLAYER && (xctx->inst[n].flags & 4))) {
        textlayer = (xctx->inst[n].ptr+ xctx->sym)->text[j].layer;
@@ -465,7 +465,7 @@ void svg_draw(void)
    else return;
  }
 
- restore_lw();
+ svg_restore_lw();
 
  svg_colors=my_calloc(419, cadlayers, sizeof(Svg_color));
  if(svg_colors==NULL){

@@ -320,7 +320,7 @@ void break_wires_at_pins(void)
         y0=(rct[r].y1+rct[r].y2)/2;
         rot=xctx->inst[k].rot;
         flip=xctx->inst[k].flip;
-        ROTATION(0.0,0.0,x0,y0,rx1,ry1);
+        ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
         x0=xctx->inst[k].x0+rx1;
         y0=xctx->inst[k].y0+ry1;
         get_square(x0, y0, &sqx, &sqy);

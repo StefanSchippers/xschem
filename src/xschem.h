@@ -225,7 +225,7 @@ extern char win_temp_dir[PATH_MAX];
 
                    /*  parameters passed to action functions, see actions.c */
 #define END      1 /*  endop */
-#define BEGIN    2 /*  begin placing something */
+#define START    2 /*  begin placing something */
 #define PLACE    4 /*  place something */
 #define ADD      8 /*  add something */
 #define RUBBER  16 /*  used for drawing rubber objects while placing them */
@@ -264,7 +264,7 @@ extern char win_temp_dir[PATH_MAX];
 #define RECTINSIDE(xa,ya,xb,yb,x1,y1,x2,y2)  \
  (xa>=x1 && xa<=x2 && xb>=x1 && xb<=x2 && ya>=y1 && ya<=y2 && yb>=y1 && yb<=y2 )
 
-#define ROTATION(x0, y0, x, y, rx, ry) \
+#define ROTATION(rot, flip, x0, y0, x, y, rx, ry) \
 { \
   double xxtmp = (flip ? 2 * x0 -x : x); \
   if(rot==0)      {rx = xxtmp;  ry = y;} \
@@ -961,7 +961,7 @@ extern void check_unique_names(int rename);
 extern void clear_instance_hash();
 
 extern void free_hash(struct hashentry **table);
-extern struct hashentry *hash_lookup(struct hashentry **table, const char *token, const char *value, int what);
+extern struct hashentry *str_hash_lookup(struct hashentry **table, const char *token, const char *value, int what);
 extern void free_int_hash(struct int_hashentry **table);
 extern struct int_hashentry *int_hash_lookup(struct int_hashentry **table, const char *token, const int value, int what);
 

@@ -26,7 +26,7 @@ static struct hilight_hashentry *hilight_table[HASHSIZE];
 static int nelements=0;
 static int *inst_color=NULL;
 
-static unsigned int hash(const char *tok)
+static unsigned int hi_hash(const char *tok)
 {
   unsigned int hash = 0;
   char *str;
@@ -186,7 +186,7 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int remov
  int depth=0;
 
  if(token==NULL) return NULL;
- hashcode=hash(token);
+ hashcode=hi_hash(token);
  index=hashcode % HASHSIZE;
  entry=hilight_table[index];
  preventry=&hilight_table[index];
@@ -927,7 +927,7 @@ void redraw_hilights(void)
   if(!has_x) return;
   if(!big) {
     calc_drawing_bbox(&boundbox, 2);
-    bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+    bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
   }

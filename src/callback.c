@@ -257,7 +257,7 @@ int callback(int event, int mx, int my, KeySym key,
       static int onetime=0;
       if(mx != mx_save || my != my_save) {
         if( !(ui_state & STARTSELECT)) {
-          select_rect(BEGIN,1);
+          select_rect(START,1);
           onetime=1;
         }
         if(abs(mx-mx_save) > 8 || abs(my-my_save) > 8 ) { /* set some reasonable threshold before unselecting */
@@ -272,14 +272,14 @@ int callback(int event, int mx, int my, KeySym key,
     if((state & Button1Mask)  && (state & Mod1Mask) && !(state & ShiftMask) &&
        !(ui_state & STARTPAN2) && !(ui_state & PLACE_SYMBOL)) { /* 20150927 unselect area */
       if( !(ui_state & STARTSELECT)) {
-        select_rect(BEGIN,0);
+        select_rect(START,0);
       }
     }
     else if((state&Button1Mask) && (state & ShiftMask) && !(ui_state & PLACE_SYMBOL) &&
              !(ui_state & STARTPAN2) ) {
       if(mx != mx_save || my != my_save) {
         if( !(ui_state & STARTSELECT)) {
-          select_rect(BEGIN,1);
+          select_rect(START,1);
         }
         if(abs(mx-mx_save) > 8 || abs(my-my_save) > 8 ) {  /* set some reasonable threshold before unselecting */
           select_object(X_TO_XSCHEM(mx_save), Y_TO_XSCHEM(my_save), 0, 0); /* remove near object if dragging */
@@ -308,7 +308,7 @@ int callback(int event, int mx, int my, KeySym key,
          rebuild_selected_array();
          if(lastselected==0) ui_state &=~SELECTION;
        }
-       pan2(BEGIN, mx, my);
+       pan2(START, mx, my);
        ui_state |= STARTPAN2;
      }
      break;
@@ -577,7 +577,7 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='z' && state == 0)                   /* zoom box */
    {
     dbg(1, "callback(): zoom_box call\n");
-    zoom_box(BEGIN);break;
+    zoom_box(START);break;
    }
    if(key=='Z' && state == ShiftMask)                   /* zoom in */
    {
@@ -590,7 +590,7 @@ int callback(int event, int mx, int my, KeySym key,
                 xRECT, PINLAYER, SELECTED, "name=XXX\ndir=inout");
     need_rebuild_selected_array=1;
     rebuild_selected_array();
-    move_objects(BEGIN,0,0,0);
+    move_objects(START,0,0,0);
     ui_state |= START_SYMPIN;
     break;
    }
@@ -607,7 +607,7 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key=='p' && state == ControlMask)                         /* pan */
    {
-    pan(BEGIN);break;
+    pan(START);break;
    }
    if(key=='P' && state == ShiftMask)                   /* pan, other way to. */
    {
@@ -891,7 +891,7 @@ int callback(int event, int mx, int my, KeySym key,
     if(place_symbol(-1,NULL,mousex_snap, mousey_snap, 0, 0, NULL, 4, 1) ) {
       mousey_snap = my_double_save;
       mousex_snap = mx_double_save;
-      move_objects(BEGIN,0,0,0);
+      move_objects(START,0,0,0);
       ui_state |= PLACE_SYMBOL;
     }
     break;
@@ -938,7 +938,7 @@ int callback(int event, int mx, int my, KeySym key,
     unhilight_net();
     /* undraw_hilight_net(1); */
     if(!big) {
-      bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+      bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
       bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
       bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
     }
@@ -975,7 +975,7 @@ int callback(int event, int mx, int my, KeySym key,
     delete_hilight_net();
     /* undraw_hilight_net(1); */
     if(!big) {
-      bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+      bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
       bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
       bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
     }
@@ -1106,7 +1106,7 @@ int callback(int event, int mx, int my, KeySym key,
       mx_save = mx; my_save = my;
       mx_double_save=mousex_snap;
       my_double_save=mousey_snap;
-      move_objects(BEGIN,0,0,0);
+      move_objects(START,0,0,0);
       if(lastselected>1) move_objects(FLIP,0,0,0);
       else               move_objects(FLIP|ROTATELOCAL,0,0,0);
       move_objects(END,0,0,0);
@@ -1128,7 +1128,7 @@ int callback(int event, int mx, int my, KeySym key,
       mx_save = mx; my_save = my;
       mx_double_save=mousex_snap;
       my_double_save=mousey_snap;
-      move_objects(BEGIN,0,0,0);
+      move_objects(START,0,0,0);
       move_objects(FLIP|ROTATELOCAL,0,0,0);
       move_objects(END,0,0,0);
     }
@@ -1143,7 +1143,7 @@ int callback(int event, int mx, int my, KeySym key,
       mx_save = mx; my_save = my;
       mx_double_save=mousex_snap;
       my_double_save=mousey_snap;
-      move_objects(BEGIN,0,0,0);
+      move_objects(START,0,0,0);
       if(lastselected>1) move_objects(ROTATE,0,0,0);
       else               move_objects(ROTATE|ROTATELOCAL,0,0,0);
       move_objects(END,0,0,0);
@@ -1160,7 +1160,7 @@ int callback(int event, int mx, int my, KeySym key,
       mx_save = mx; my_save = my;
       mx_double_save=mousex_snap;
       my_double_save=mousey_snap;
-      move_objects(BEGIN,0,0,0);
+      move_objects(START,0,0,0);
       move_objects(ROTATE|ROTATELOCAL,0,0,0);
       move_objects(END,0,0,0);
     }
@@ -1171,7 +1171,7 @@ int callback(int event, int mx, int my, KeySym key,
     mx_save = mx; my_save = my;
     mx_double_save=mousex_snap;
     my_double_save=mousey_snap;
-    move_objects(BEGIN,0,0,0);
+    move_objects(START,0,0,0);
     break;
    }
 
@@ -1182,7 +1182,7 @@ int callback(int event, int mx, int my, KeySym key,
     mx_save = mx; my_save = my;
     mx_double_save=mousex_snap;
     my_double_save=mousey_snap;
-    copy_objects(BEGIN);
+    copy_objects(START);
     break;
    }
    if(key=='n' && state==ControlMask)              /* New schematic */
@@ -1445,7 +1445,7 @@ int callback(int event, int mx, int my, KeySym key,
      if(lastselected==0) ui_state &=~SELECTION;
    }
    else if(button==Button2 && (state == 0)) {
-     pan2(BEGIN, mx, my);
+     pan2(START, mx, my);
      ui_state |= STARTPAN2;
      break;
    }
@@ -1538,7 +1538,7 @@ int callback(int event, int mx, int my, KeySym key,
        break;
      }
      if(ui_state & MENUSTARTZOOM) {
-       zoom_box(BEGIN);
+       zoom_box(START);
        ui_state &=~MENUSTARTZOOM;
        break;
      }
@@ -1643,7 +1643,7 @@ int callback(int event, int mx, int my, KeySym key,
              delete_hilight_net();
              /* undraw_hilight_net(1); */
              if(!big) {
-               bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+               bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
                bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
                bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
              }

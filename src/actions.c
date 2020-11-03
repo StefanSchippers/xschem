@@ -821,7 +821,7 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
        /*  opin or iopin on left of symbol--> reverse orientation 20171205 */
        if(rotated_text ==-1 && dir==1 && pinx0<0) dir=0;
 
-       ROTATION(0.0, 0.0, pinx0, piny0, pinx0, piny0);
+       ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, pinx0, piny0);
 
        pinx0 += x0;
        piny0 += y0;
@@ -925,7 +925,7 @@ void place_net_label(int type)
       place_symbol(-1, "devices/lab_wire.sym", mousex_snap, mousey_snap, 0, 0, NULL, 4, 1);
     }
   }
-  move_objects(BEGIN,0,0,0);
+  move_objects(START,0,0,0);
   ui_state |= START_SYMPIN;
 }
 
@@ -1007,7 +1007,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, 
   if(cond) xctx->inst[n].flags|=2;
   else xctx->inst[n].flags &=~2;
 
-  if(first_call && (draw_sym & 3) ) bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+  if(first_call && (draw_sym & 3) ) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
 
   xctx->instances++; /* must be updated before calling symbol_bbox() */
 
@@ -1574,7 +1574,7 @@ void zoom_box(int what)
   static double x1,y1,x2,y2;
   static double xx1,yy1,xx2,yy2;
 
-  if( (what & BEGIN) )
+  if( (what & START) )
   {
     x1=x2=mousex_snap;y1=y2=mousey_snap;
     ui_state |= STARTZOOM;
@@ -1603,7 +1603,7 @@ void zoom_box(int what)
 
     /*  20171211 update selected objects while dragging */
     rebuild_selected_array();
-    bbox(BEGIN,0.0, 0.0, 0.0, 0.0);
+    bbox(START,0.0, 0.0, 0.0, 0.0);
     bbox(ADD, xx1, yy1, xx2, yy2);
     bbox(SET,0.0, 0.0, 0.0, 0.0);
     draw_selection(gc[SELLAYER], 0);
@@ -1668,7 +1668,7 @@ void restore_selection(double x1, double y1, double x2, double y2)
   RECTORDER(xx1,yy1,xx2,yy2);
   rebuild_selected_array();
   if(!lastselected) return;
-  bbox(BEGIN,0.0, 0.0, 0.0, 0.0);
+  bbox(START,0.0, 0.0, 0.0, 0.0);
   bbox(ADD, xx1, yy1, xx2, yy2);
   bbox(SET,0.0, 0.0, 0.0, 0.0);
   draw_selection(gc[SELLAYER], 0);
@@ -1726,7 +1726,7 @@ void new_wire(int what, double mx_snap, double my_snap)
        update_conn_cues(1,1);
        if(show_pin_net_names) {
          prepare_netlist_structs(0);
-         bbox(BEGIN , 0.0 , 0.0 , 0.0 , 0.0);
+         bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
          find_inst_to_be_redrawn(xctx->wire[xctx->wires-1].node);
          find_inst_hash_clear();
          bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
@@ -2203,7 +2203,7 @@ int text_bbox(const char *str, double xscale, double yscale,
   }
 
 
-  ROTATION(0.0,0.0, ww*xctx->zoom,hh*xctx->zoom,(*rx2),(*ry2));
+  ROTATION(rot, flip, 0.0,0.0, ww*xctx->zoom,hh*xctx->zoom,(*rx2),(*ry2));
   *rx2+=*rx1;*ry2+=*ry1;
   if     (rot==0) {*ry1-=cairo_vert_correct; *ry2-=cairo_vert_correct;}
   else if(rot==1) {*rx1+=cairo_vert_correct; *rx2+=cairo_vert_correct;}
@@ -2262,7 +2262,7 @@ int text_bbox(const char * str,double xscale, double yscale,
     else if(rot==3 && flip == 1) { *rx1-= h/2;}
   }
 
-  ROTATION(0.0,0.0,w,h,(*rx2),(*ry2));
+  ROTATION(rot, flip, 0.0,0.0,w,h,(*rx2),(*ry2));
   *rx2+=*rx1;*ry2+=*ry1;
   RECTORDER((*rx1),(*ry1),(*rx2),(*ry2));
   return 1;
@@ -2370,7 +2370,7 @@ void pan2(int what, int mx, int my)
   static int mx_save, my_save;
   static int mmx_save, mmy_save;
   static double xorig_save, yorig_save;
-  if(what & BEGIN) {
+  if(what & START) {
     mmx_save = mx_save = mx;
     mmy_save = my_save = my;
     xorig_save = xctx->xorigin;
@@ -2405,7 +2405,7 @@ void pan(int what)
     ORDER(xx1,yy1,xx2,yy2);
     drawtempline(gc[SELLAYER], NOW, xx1,yy1,xx2,yy2);
  }
- if(what & BEGIN)
+ if(what & START)
  {
     ui_state |= STARTPAN;
     xpan=mousex_snap;ypan=mousey_snap;xpan2=xpan;ypan2=ypan;
@@ -2429,8 +2429,8 @@ void select_rect(int what, int select)
  if(what & RUBBER)
  {
     if(sem==0) {
-      fprintf(errfp, "ERROR: select_rect() RUBBER called before BEGIN\n");
-      tcleval("alert_ {ERROR: select_rect() RUBBER called before BEGIN} {}");
+      fprintf(errfp, "ERROR: select_rect() RUBBER called before START\n");
+      tcleval("alert_ {ERROR: select_rect() RUBBER called before START} {}");
     }
     xx1=xr;xx2=xr2;yy1=yr;yy2=yr2;
     RECTORDER(xx1,yy1,xx2,yy2);
@@ -2439,7 +2439,7 @@ void select_rect(int what, int select)
 
     /*  20171026 update unselected objects while dragging */
     rebuild_selected_array();
-    bbox(BEGIN,0.0, 0.0, 0.0, 0.0);
+    bbox(START,0.0, 0.0, 0.0, 0.0);
     bbox(ADD, xx1, yy1, xx2, yy2);
     bbox(SET,0.0, 0.0, 0.0, 0.0);
     draw_selection(gc[SELLAYER], 0);
@@ -2449,7 +2449,7 @@ void select_rect(int what, int select)
     RECTORDER(xx1,yy1,xx2,yy2);
     drawtemprect(gc[SELLAYER],NOW, xx1,yy1,xx2,yy2);
  }
- else if(what & BEGIN)
+ else if(what & START)
  {
     /*
      * if(sem==1) {
@@ -2478,7 +2478,7 @@ void select_rect(int what, int select)
     select_inside(xr,yr,xr2,yr2, sel);
 
 
-    bbox(BEGIN,0.0, 0.0, 0.0, 0.0);
+    bbox(START,0.0, 0.0, 0.0, 0.0);
     bbox(ADD, xr, yr, xr2, yr2);
     bbox(SET,0.0, 0.0, 0.0, 0.0);
     draw_selection(gc[SELLAYER], 0);

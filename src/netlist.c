@@ -297,7 +297,7 @@ void hash_inst_pin(int what, int i, int j)
   }
   rot=xctx->inst[i].rot;
   flip=xctx->inst[i].flip;
-  ROTATION(0.0,0.0,x0,y0,rx1,ry1);
+  ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
   x0=xctx->inst[i].x0+rx1;
   y0=xctx->inst[i].y0+ry1;
   get_square(x0, y0, &sqx, &sqy);
@@ -774,7 +774,7 @@ void prepare_netlist_structs(int for_netlist)
       y0=(rct[0].y1+rct[0].y2)/2;
       rot=inst[i].rot;
       flip=inst[i].flip;
-      ROTATION(0.0,0.0,x0,y0,rx1,ry1);
+      ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
       x0=inst[i].x0+rx1;
       y0=inst[i].y0+ry1;
       get_square(x0, y0, &sqx, &sqy);
@@ -837,7 +837,7 @@ void prepare_netlist_structs(int for_netlist)
           y0=(rct[j-rects].y1+rct[j-rects].y2)/2;
           rot=inst[i].rot;
           flip=inst[i].flip;
-          ROTATION(0.0,0.0,x0,y0,rx1,ry1);
+          ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
           x0=inst[i].x0+rx1;
           y0=inst[i].y0+ry1;
           get_square(x0, y0, &sqx, &sqy);
@@ -908,7 +908,7 @@ void prepare_netlist_structs(int for_netlist)
           y0=(rct[j].y1+rct[j].y2)/2;
           rot=inst[i].rot;
           flip=inst[i].flip;
-          ROTATION(0.0,0.0,x0,y0,rx1,ry1);
+          ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
           x0=inst[i].x0+rx1;
           y0=inst[i].y0+ry1;
           get_square(x0, y0, &sqx, &sqy);

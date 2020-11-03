@@ -173,9 +173,9 @@ void global_spice_netlist(int global)  /* netlister driver */
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(391, &subckt_name, get_cell(xctx->sym[i].name, 0));
-      if (hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)
+      if (str_hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
-        hash_lookup(subckt_table, subckt_name, "", XINSERT);
+        str_hash_lookup(subckt_table, subckt_name, "", XINSERT);
         if( split_files && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
           vhdl_block_netlist(fd, i);
         else if(split_files && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_netlist",0),"true")==0 )
@@ -407,10 +407,10 @@ void spice_netlist(FILE *fd, int spice_stop )
         print_spice_element(fd, i) ;  /* this is the element line  */
         /* hash device_model attribute if any */
         m = get_tok_value(xctx->inst[i].prop_ptr, "device_model", 2);
-        if(m[0]) hash_lookup(model_table, model_name(m), m, XINSERT);
+        if(m[0]) str_hash_lookup(model_table, model_name(m), m, XINSERT);
         else {
           m = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "device_model", 2);
-          if(m[0]) hash_lookup(model_table, model_name(m), m, XINSERT);
+          if(m[0]) str_hash_lookup(model_table, model_name(m), m, XINSERT);
         }
         my_free(951, &model_name_result);
       }
@@ -422,7 +422,7 @@ void spice_netlist(FILE *fd, int spice_stop )
 }
 
 /* calculate the hash function relative to string s */
-static unsigned int hash(const char *tok)
+static unsigned int str_hash(const char *tok)
 {
   unsigned int hash = 0;
   int c;
@@ -447,14 +447,14 @@ static unsigned int hash(const char *tok)
  *                                      return NULL if not found
  * "whatever"    "whatever"  XDELETE     delete entry if found,return NULL
  */
-struct hashentry *hash_lookup(struct hashentry **table, const char *token, const char *value, int what)
+struct hashentry *str_hash_lookup(struct hashentry **table, const char *token, const char *value, int what)
 {
   unsigned int hashcode, index;
   struct hashentry *entry, *saveptr, **preventry;
   int s ;
 
   if(token==NULL) return NULL;
-  hashcode=hash(token);
+  hashcode=str_hash(token);
   index=hashcode % HASHSIZE;
   entry=table[index];
   preventry=&table[index];
@@ -496,7 +496,7 @@ struct hashentry *hash_lookup(struct hashentry **table, const char *token, const
   }
 }
 
-static struct hashentry *free_hash_entry(struct hashentry *entry)
+static struct hashentry *str_free_hash_entry(struct hashentry *entry)
 {
   struct hashentry *tmp;
   while( entry ) {
@@ -516,7 +516,7 @@ void free_hash(struct hashentry **table)
 
   for(i=0;i<HASHSIZE;i++)
   {
-    table[i] = free_hash_entry( table[i] );
+    table[i] = str_free_hash_entry( table[i] );
   }
 }
 
@@ -541,7 +541,7 @@ struct int_hashentry *int_hash_lookup(struct int_hashentry **table, const char *
   int s ;
 
   if(token==NULL) return NULL;
-  hashcode=hash(token);
+  hashcode=str_hash(token);
   index=hashcode % HASHSIZE;
   entry=table[index];
   preventry=&table[index];

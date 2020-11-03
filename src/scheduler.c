@@ -204,7 +204,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                 xRECT, PINLAYER, SELECTED, "name=XXX\ndir=inout");
     need_rebuild_selected_array=1;
     rebuild_selected_array();
-    move_objects(BEGIN,0,0,0);
+    move_objects(START,0,0,0);
     ui_state |= START_SYMPIN;
     Tcl_ResetResult(interp);
  }
@@ -320,7 +320,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    if(ret) {
      mousey_snap = my_double_save;
      mousex_snap = mx_double_save;
-     move_objects(BEGIN,0,0,0);
+     move_objects(START,0,0,0);
      ui_state |= PLACE_SYMBOL;
    }
    semaphore--;
@@ -331,7 +331,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  {
    ui_state |= MENUSTARTTEXT;
    /* place_text(0,mousex_snap, mousey_snap); */
-   /* move_objects(BEGIN,0,0,0); */
+   /* move_objects(START,0,0,0); */
    Tcl_ResetResult(interp);
  }
 
@@ -361,17 +361,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
  else if(!strcmp(argv[1],"copy_objects"))
  {
-   copy_objects(BEGIN);
+   copy_objects(START);
    Tcl_ResetResult(interp);
  }
 
  else if(!strcmp(argv[1],"move_objects"))
  {
    if(argc==4) {
-     move_objects(BEGIN,0,0,0);
+     move_objects(START,0,0,0);
      move_objects( END,0,atof(argv[2]), atof(argv[3]));
    }
-   else move_objects(BEGIN,0,0,0);
+   else move_objects(START,0,0,0);
    Tcl_ResetResult(interp);
  }
 
@@ -484,7 +484,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        draw();
        bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
      } else if(!strcmp(argv[2], "begin")) {
-       bbox(BEGIN,0.0, 0.0, 0.0, 0.0);
+       bbox(START,0.0, 0.0, 0.0, 0.0);
      }
    }
    Tcl_ResetResult(interp);
@@ -515,7 +515,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      return TCL_ERROR;
    } else {
      if(!fast) {
-       bbox(BEGIN,0.0,0.0,0.0,0.0);
+       bbox(START,0.0,0.0,0.0,0.0);
        symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
        bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
        push_undo();
@@ -567,7 +567,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        char *name=NULL;
        char *ptr=NULL;
 
-       bbox(BEGIN,0.0,0.0,0.0,0.0);
+       bbox(START,0.0,0.0,0.0,0.0);
        my_strncpy(symbol, argv[4], S(symbol));
        push_undo();
        set_modify(1);
@@ -1431,7 +1431,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    delete_hilight_net();
    /* undraw_hilight_net(1); */
    if(!big) {
-     bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
      bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
      bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
    }
@@ -1471,7 +1471,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  {
    if(! (ui_state & (STARTMOVE | STARTCOPY) ) ) { 
      rebuild_selected_array();
-     move_objects(BEGIN,0,0,0);
+     move_objects(START,0,0,0);
      move_objects(FLIP|ROTATELOCAL,0,0,0);
      move_objects(END,0,0,0);
    } 
@@ -1487,7 +1487,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
    if(! (ui_state & (STARTMOVE | STARTCOPY) ) ) { 
      rebuild_selected_array();
-     move_objects(BEGIN,0,0,0);
+     move_objects(START,0,0,0);
      move_objects(ROTATE|ROTATELOCAL,0,0,0);
      move_objects(END,0,0,0);
    } 

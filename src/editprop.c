@@ -434,7 +434,7 @@ void edit_rect_property(void)
         xctx->rect[c][n].dash = 0;
       if(old_dash != xctx->rect[c][n].dash) {
          if(!drw) {
-           bbox(BEGIN,0.0,0.0,0.0,0.0);
+           bbox(START,0.0,0.0,0.0,0.0);
            drw = 1;
          }
          bbox(ADD, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x2, xctx->rect[c][n].y2);
@@ -469,7 +469,7 @@ void edit_line_property(void)
     int y1, y2;
     push_undo();
     set_modify(1);
-    bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+    bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     for(i=0; i<lastselected; i++) {
       if(selectedgroup[i].type != LINE) continue;
       c = selectedgroup[i].col;
@@ -522,7 +522,7 @@ void edit_wire_property(void)
   {
     push_undo();
     set_modify(1);
-    bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+    bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     for(i=0; i<lastselected; i++) {
       int oldbus=0;
       int k = selectedgroup[i].n;
@@ -613,7 +613,7 @@ void edit_arc_property(void)
 
      if(old_fill != xctx->arc[c][i].fill || old_dash != xctx->arc[c][i].dash) {
        if(!drw) {
-         bbox(BEGIN,0.0,0.0,0.0,0.0);
+         bbox(START,0.0,0.0,0.0,0.0);
          drw = 1;
        }
        arc_bbox(xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, 0, 360, &x1,&y1,&x2,&y2);
@@ -678,7 +678,7 @@ void edit_polygon_property(void)
        xctx->poly[c][i].dash = 0;
      if(old_fill != xctx->poly[c][i].fill || old_dash != xctx->poly[c][i].dash) {
        if(!drw) {
-         bbox(BEGIN,0.0,0.0,0.0,0.0);
+         bbox(START,0.0,0.0,0.0,0.0);
          drw = 1;
        }
        for(k=0; k<xctx->poly[c][i].points; k++) {
@@ -748,7 +748,7 @@ void edit_text_property(int x)
    {
      dbg(1, "edit_text_property(): rcode !=\"\"\n");
      set_modify(1); push_undo();
-     bbox(BEGIN,0.0,0.0,0.0,0.0);
+     bbox(START,0.0,0.0,0.0,0.0);
      for(k=0;k<lastselected;k++)
      {
        if(selectedgroup[k].type!=xTEXT) continue;
@@ -949,7 +949,7 @@ void update_symbol(const char *result, int x)
   only_different=atoi(tclgetvar("preserve_unchanged_attrs") );
   copy_cell=atoi(tclgetvar("user_wants_copy_cell") );
 
-  bbox(BEGIN,0.0,0.0,0.0,0.0);
+  bbox(START,0.0,0.0,0.0,0.0);
   if(show_pin_net_names) {
     prepare_netlist_structs(0);
     for(k = 0;  k < (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER]; k++) {

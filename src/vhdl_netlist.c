@@ -255,8 +255,8 @@ void global_vhdl_netlist(int global)  /* netlister driver */
   {
    /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
    my_strdup(317, &subckt_name, get_cell(xctx->sym[j].name, 0));
-   if (hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL) {
-     hash_lookup(subckt_table, subckt_name, "", XINSERT);
+   if (str_hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL) {
+     str_hash_lookup(subckt_table, subckt_name, "", XINSERT);
      /* component generics */
      print_generic(fd,"component", j);
 
@@ -340,9 +340,9 @@ void global_vhdl_netlist(int global)  /* netlister driver */
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(327, &subckt_name, get_cell(xctx->sym[i].name, 0));
-      if (hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)
+      if (str_hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
-        hash_lookup(subckt_table, subckt_name, "", XINSERT);
+        str_hash_lookup(subckt_table, subckt_name, "", XINSERT);
         if( split_files && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_netlist",0),"true")==0 )
           verilog_block_netlist(fd, i);
         else if( split_files && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_netlist",0),"true")==0 )

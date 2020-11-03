@@ -22,8 +22,8 @@
 
 #include "xschem.h"
 
-static int rot = 0;
-static int  flip = 0;
+static int select_rot = 0;
+static int  select_flip = 0;
 static double xx1,yy1,xx2,yy2;
 
 
@@ -48,9 +48,9 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
    rot = xctx->inst[i].rot;
    x0=xctx->inst[i].x0;
    y0=xctx->inst[i].y0;
-   ROTATION(0.0,0.0,(xctx->inst[i].ptr+ xctx->sym)->minx,
+   ROTATION(rot, flip, 0.0,0.0,(xctx->inst[i].ptr+ xctx->sym)->minx,
                     (xctx->inst[i].ptr+ xctx->sym)->miny,*x1,*y1);
-   ROTATION(0.0,0.0,(xctx->inst[i].ptr+ xctx->sym)->maxx,
+   ROTATION(rot, flip, 0.0,0.0,(xctx->inst[i].ptr+ xctx->sym)->maxx,
                     (xctx->inst[i].ptr+ xctx->sym)->maxy,*x2,*y2);
    RECTORDER(*x1,*y1,*x2,*y2);
    *x1+=x0;*y1+=y0;
@@ -73,7 +73,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      tmp_txt = translate(i, text.txt_ptr);
 
       dbg(2, "symbol_bbox(): translated text: %s\n", tmp_txt);
-     ROTATION(0.0,0.0,text.x0, text.y0,text_x0,text_y0);
+     ROTATION(rot, flip, 0.0,0.0,text.x0, text.y0,text_x0,text_y0);
      #ifdef HAS_CAIRO
      customfont=set_text_custom_font(&text);
      #endif
@@ -213,7 +213,7 @@ void delete(void)
 
   dbg(3, "delete(): start\n");
   j = 0;
-  bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+  bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   rebuild_selected_array();
   if(lastselected) push_undo();
 
@@ -269,13 +269,13 @@ void delete(void)
   {
     if(xctx->text[i].sel == SELECTED)
     {
-      rot = xctx->text[i].rot;
-      flip = xctx->text[i].flip;
+      select_rot = xctx->text[i].rot;
+      select_flip = xctx->text[i].flip;
       #ifdef HAS_CAIRO
       customfont = set_text_custom_font(&xctx->text[i]);
       #endif
       text_bbox(xctx->text[i].txt_ptr, xctx->text[i].xscale,
-                xctx->text[i].yscale, rot, flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+                xctx->text[i].yscale, select_rot, select_flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
                 xctx->text[i].x0, xctx->text[i].y0,
                 &xx1,&yy1, &xx2,&yy2);
       #ifdef HAS_CAIRO
@@ -378,7 +378,7 @@ void delete(void)
 
 void delete_only_rect_line_arc_poly(void)
 {
- bbox(BEGIN, 0.0 , 0.0 , 0.0 , 0.0);
+ bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
  del_rect_line_arc_poly();
  lastselected = 0;
  bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
@@ -398,7 +398,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
  /* fprintf(errfp, "bbox: what=%d\n", what); */
  switch(what)
  {
-  case BEGIN:
+  case START:
    if(sem==1) {
      fprintf(errfp, "ERROR: rentrant bbox() call\n");
      tcleval("alert_ {ERROR: reentrant bbox() call} {}");
@@ -417,8 +417,8 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    break;
   case ADD:
    if(sem==0) {
-     fprintf(errfp, "ERROR: bbox(ADD) call before bbox(BEGIN)\n");
-     tcleval("alert_ {ERROR: bbox(ADD) call before bbox(BEGIN)} {}");
+     fprintf(errfp, "ERROR: bbox(ADD) call before bbox(START)\n");
+     tcleval("alert_ {ERROR: bbox(ADD) call before bbox(START)} {}");
    }
    x1=X_TO_SCREEN(x1);
    y1=Y_TO_SCREEN(y1);
@@ -462,8 +462,8 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    break;
   case SET:
    if(sem==0) {
-     fprintf(errfp, "ERROR: bbox(SET) call before bbox(BEGIN)\n");
-     tcleval("alert_ {ERROR: bbox(SET) call before bbox(BEGIN)} {}");
+     fprintf(errfp, "ERROR: bbox(SET) call before bbox(START)\n");
+     tcleval("alert_ {ERROR: bbox(SET) call before bbox(START)} {}");
    }
    areax1 = bbx1-2*INT_WIDTH(xctx->lw);
    areax2 = bbx2+2*INT_WIDTH(xctx->lw);
@@ -966,13 +966,13 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /* 201509
  }
  for(i=0;i<xctx->texts;i++)
  {
-  rot = xctx->text[i].rot;
-  flip = xctx->text[i].flip;
+  select_rot = xctx->text[i].rot;
+  select_flip = xctx->text[i].flip;
   #ifdef HAS_CAIRO
   customfont = set_text_custom_font(&xctx->text[i]);
   #endif
   text_bbox(xctx->text[i].txt_ptr,
-             xctx->text[i].xscale, xctx->text[i].yscale, rot, flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+             xctx->text[i].xscale, xctx->text[i].yscale, select_rot, select_flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2);
   #ifdef HAS_CAIRO

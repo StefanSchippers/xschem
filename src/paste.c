@@ -395,7 +395,7 @@ void merge_file(int selection_load, const char ext[])
      ui_state |= STARTMERGE;
      dbg(1, "merge_file(): loaded file:wire=%d inst=%d ui_state=%ld\n",
              xctx->wires , xctx->instances, ui_state);
-     move_objects(BEGIN,0,0,0);
+     move_objects(START,0,0,0);
      mousex_snap = mx_double_save;
      mousey_snap = my_double_save;
      move_objects(RUBBER,0,0,0);

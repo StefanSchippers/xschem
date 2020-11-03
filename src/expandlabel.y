@@ -28,13 +28,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
+#ifndef STRINGPTR
+#define STRINGPTR
 typedef struct          /* used in expandlabel.y */
 {
  char *str;             /* label name */
  int m;                /* label multiplicity, number of wires */
 } Stringptr;
-
+#endif
 
 #define YYERROR_VERBOSE 
 #define SIGN(x) ( (x) < 0 ? -1: 1 )
@@ -48,7 +49,7 @@ extern FILE *errfp;
 extern void *my_malloc(int id, size_t size);
 extern void my_free(int id, void *ptr);
 extern void my_realloc(int id, void *ptr,size_t size);
-extern void my_strdup(int id, char **dest, char *src);
+extern size_t my_strdup(int id, char **dest, const char *src);
 extern int debug_var;
 extern void dbg(int level, char *fmt, ...);
 extern int  my_snprintf(char *str, int size, const char *fmt, ...);

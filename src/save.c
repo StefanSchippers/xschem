@@ -1667,8 +1667,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
      }
      if (level>0) {
        rot = lcc[level].rot; flip = lcc[level].flip;
-       ROTATION(0.0, 0.0, ll[c][i].x1, ll[c][i].y1, rx1, ry1);
-       ROTATION(0.0, 0.0, ll[c][i].x2, ll[c][i].y2, rx2, ry2);
+       ROTATION(rot, flip, 0.0, 0.0, ll[c][i].x1, ll[c][i].y1, rx1, ry1);
+       ROTATION(rot, flip, 0.0, 0.0, ll[c][i].x2, ll[c][i].y2, rx2, ry2);
        ll[c][i].x1 = lcc[level].x0 + rx1;  ll[c][i].y1 = lcc[level].y0 + ry1;
        ll[c][i].x2 = lcc[level].x0 + rx2;  ll[c][i].y2 = lcc[level].y0 + ry2;
      }
@@ -1712,7 +1712,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        }
        if (level>0) {
          rot = lcc[level].rot; flip = lcc[level].flip;
-         ROTATION(0.0, 0.0, pp[c][i].x[k], pp[c][i].y[k], rx1, ry1);
+         ROTATION(rot, flip, 0.0, 0.0, pp[c][i].x[k], pp[c][i].y[k], rx1, ry1);
          pp[c][i].x[k] = lcc[level].x0 + rx1;  pp[c][i].y[k] = lcc[level].y0 + ry1;
        }
      }
@@ -1759,7 +1759,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        }
        angle = fmod(angle, 360.);
        if (angle < 0.) angle += 360.;
-       ROTATION(0.0, 0.0, aa[c][i].x, aa[c][i].y, rx1, ry1);
+       ROTATION(rot, flip, 0.0, 0.0, aa[c][i].x, aa[c][i].y, rx1, ry1);
        aa[c][i].x = lcc[level].x0 + rx1;  aa[c][i].y = lcc[level].y0 + ry1;
        aa[c][i].a = angle;
      }
@@ -1793,8 +1793,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
         &bb[c][i].x2, &bb[c][i].y2);
      if (level>0) {
        rot = lcc[level].rot; flip = lcc[level].flip;
-       ROTATION(0.0, 0.0, bb[c][i].x1, bb[c][i].y1, rx1, ry1);
-       ROTATION(0.0, 0.0, bb[c][i].x2, bb[c][i].y2, rx2, ry2);
+       ROTATION(rot, flip, 0.0, 0.0, bb[c][i].x1, bb[c][i].y1, rx1, ry1);
+       ROTATION(rot, flip, 0.0, 0.0, bb[c][i].x2, bb[c][i].y2, rx2, ry2);
        bb[c][i].x1 = lcc[level].x0 + rx1;  bb[c][i].y1 = lcc[level].y0 + ry1;
        bb[c][i].x2 = lcc[level].x0 + rx2;  bb[c][i].y2 = lcc[level].y0 + ry2;
      }
@@ -1823,7 +1823,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        const char* tmp = translate2(lcc, level, tt[i].txt_ptr);
        rot = lcc[level].rot; flip = lcc[level].flip;
        if (tmp) my_strdup(651, &tt[i].txt_ptr, tmp);
-       ROTATION(0.0, 0.0, tt[i].x0, tt[i].y0, rx1, ry1);
+       ROTATION(rot, flip, 0.0, 0.0, tt[i].x0, tt[i].y0, rx1, ry1);
        tt[i].x0 = lcc[level].x0 + rx1;  tt[i].y0 = lcc[level].y0 + ry1;
        tt[i].rot = (tt[i].rot + ((lcc[level].flip && (tt[i].rot & 1)) ? lcc[level].rot + 2 : lcc[level].rot)) & 0x3;
        tt[i].flip = lcc[level].flip ^ tt[i].flip;
@@ -1863,8 +1863,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
      }
      if (level>0) {
        rot = lcc[level].rot; flip = lcc[level].flip;
-       ROTATION(0.0, 0.0, ll[WIRELAYER][i].x1, ll[WIRELAYER][i].y1, rx1, ry1);
-       ROTATION(0.0, 0.0, ll[WIRELAYER][i].x2, ll[WIRELAYER][i].y2, rx2, ry2);
+       ROTATION(rot, flip, 0.0, 0.0, ll[WIRELAYER][i].x1, ll[WIRELAYER][i].y1, rx1, ry1);
+       ROTATION(rot, flip, 0.0, 0.0, ll[WIRELAYER][i].x2, ll[WIRELAYER][i].y2, rx2, ry2);
        ll[WIRELAYER][i].x1 = lcc[level].x0 + rx1;  ll[WIRELAYER][i].y1 = lcc[level].y0 + ry1;
        ll[WIRELAYER][i].x2 = lcc[level].x0 + rx2;  ll[WIRELAYER][i].y2 = lcc[level].y0 + ry2;
      }
@@ -1978,7 +1978,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
 
           flip = lcc[level-1].flip;
           rot = lcc[level-1].rot;
-          ROTATION(0.0, 0.0, lcc[level].x0, lcc[level].y0,lcc[level].x0, lcc[level].y0);
+          ROTATION(rot, flip, 0.0, 0.0, lcc[level].x0, lcc[level].y0,lcc[level].x0, lcc[level].y0);
           lcc[level].rot = (lcc[(level-1)].flip ? map[lcc[level].rot] : lcc[level].rot) + lcc[(level-1)].rot;
           lcc[level].rot &= 0x3;
           lcc[level].flip = lcc[level].flip ^ lcc[level-1].flip;

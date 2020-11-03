@@ -438,8 +438,8 @@ void draw_string(int layer, int what, const char *str, int rot, int flip, int hc
         curr_y1 = ( char_ptr_y1[i] ) * yscale+yy;
         curr_x2 = ( char_ptr_x2[i]+ zx1 ) * xscale ;
         curr_y2 = ( char_ptr_y2[i] ) * yscale+yy;
-        ROTATION(x1,y1,curr_x1,curr_y1,rx1,ry1);
-        ROTATION(x1,y1,curr_x2,curr_y2,rx2,ry2);
+        ROTATION(rot, flip, x1,y1,curr_x1,curr_y1,rx1,ry1);
+        ROTATION(rot, flip, x1,y1,curr_x2,curr_y2,rx2,ry2);
         ORDER(rx1,ry1,rx2,ry2);
         drawline(layer, what, rx1, ry1, rx2, ry2, 0);
      }
@@ -523,8 +523,8 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
     for(j=0;j< symptr->lines[layer];j++)
     {
       line = (symptr->line[layer])[j];
-      ROTATION(0.0,0.0,line.x1,line.y1,x1,y1);
-      ROTATION(0.0,0.0,line.x2,line.y2,x2,y2);
+      ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
+      ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
       ORDER(x1,y1,x2,y2);
       if(line.bus)
         drawline(c,THICK, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
@@ -539,7 +539,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
         double *x = my_malloc(34, sizeof(double) * polygon.points);
         double *y = my_malloc(35, sizeof(double) * polygon.points);
         for(k=0;k<polygon.points;k++) {
-          ROTATION(0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
+          ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
           x[k]+= x0;
           y[k] += y0;
         }
@@ -559,7 +559,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
       }
       angle = fmod(angle, 360.);
       if(angle<0.) angle+=360.;
-      ROTATION(0.0,0.0,arc.x,arc.y,x1,y1);
+      ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
       drawarc(c,what, x0+x1, y0+y1, arc.r, angle, arc.b, arc.fill, arc.dash);
     }
   } /* if(!hide) */
@@ -569,8 +569,8 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
     for(j=0;j< symptr->rects[layer];j++)
     {
       box = (symptr->rect[layer])[j];
-      ROTATION(0.0,0.0,box.x1,box.y1,x1,y1);
-      ROTATION(0.0,0.0,box.x2,box.y2,x2,y2);
+      ROTATION(rot, flip, 0.0,0.0,box.x1,box.y1,x1,y1);
+      ROTATION(rot, flip, 0.0,0.0,box.x2,box.y2,x2,y2);
       RECTORDER(x1,y1,x2,y2);
       drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
       filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
@@ -585,7 +585,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
       if(text.xscale*FONTWIDTH*xctx->mooz<1) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
-      ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
+      ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
 
       textlayer = c;
       if( !(c == PINLAYER && (xctx->inst[n].flags & 4))) {
@@ -681,8 +681,8 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
  for(j=0;j< symptr->lines[layer];j++)
  {
   line = (symptr->line[layer])[j];
-  ROTATION(0.0,0.0,line.x1,line.y1,x1,y1);
-  ROTATION(0.0,0.0,line.x2,line.y2,x2,y2);
+  ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
+  ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
   ORDER(x1,y1,x2,y2);
   if(line.bus)
     drawtempline(gc,THICK, x0+x1, y0+y1, x0+x2, y0+y2);
@@ -699,7 +699,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
      double *x = my_malloc(36, sizeof(double) * polygon.points);
      double *y = my_malloc(37, sizeof(double) * polygon.points);
      for(k=0;k<polygon.points;k++) {
-       ROTATION(0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
+       ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
        x[k] += x0;
        y[k] += y0;
      }
@@ -712,8 +712,8 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
  for(j=0;j< symptr->rects[layer];j++)
  {
   box = (symptr->rect[layer])[j];
-  ROTATION(0.0,0.0,box.x1,box.y1,x1,y1);
-  ROTATION(0.0,0.0,box.x2,box.y2,x2,y2);
+  ROTATION(rot, flip, 0.0,0.0,box.x1,box.y1,x1,y1);
+  ROTATION(rot, flip, 0.0,0.0,box.x2,box.y2,x2,y2);
   RECTORDER(x1,y1,x2,y2);
   drawtemprect(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
  }
@@ -727,7 +727,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
    }
    angle = fmod(angle, 360.);
    if(angle<0.) angle+=360.;
-   ROTATION(0.0,0.0,arc.x,arc.y,x1,y1);
+   ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
    drawtemparc(gc, what, x0+x1, y0+y1, arc.r, angle, arc.b);
  }
 
@@ -739,7 +739,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
    text = symptr->text[j];
    if(text.xscale*FONTWIDTH*xctx->mooz<1) continue;
    txtptr= translate(n, text.txt_ptr);
-   ROTATION(0.0,0.0,text.x0,text.y0,x1,y1);
+   ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
    #ifdef HAS_CAIRO
    customfont = set_text_custom_font(&text);
    #endif
@@ -890,7 +890,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    XSetLineAttributes (display, gc[c], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
   }
  }
- else if(what & BEGIN) i=0;
+ else if(what & START) i=0;
  else if((what & END) && i)
  {
 #ifdef __unix__
@@ -970,7 +970,7 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
   }
  }
 
- else if(what & BEGIN) i=0;
+ else if(what & START) i=0;
  else if((what & END) && i)
  {
 #ifdef __unix__
@@ -1035,7 +1035,7 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
    XDrawArc(display, window, gc, xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
   }
  }
- else if(what & BEGIN) i=0;
+ else if(what & START) i=0;
  else if((what & END) && i)
  {
   XDrawArcs(display, window, gc, xarc,i);
@@ -1131,7 +1131,7 @@ void filledarc(int c, int what, double x, double y, double r, double a, double b
    if(draw_pixmap) XFillArc(display, save_pixmap, gc[c], xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
   }
  }
- else if(what & BEGIN) i=0;
+ else if(what & START) i=0;
  else if((what & END) && i)
  {
   if(draw_window) XFillArcs(display, window, gc[c], xarc,i);
@@ -1222,7 +1222,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
    }
   }
  }
- else if(what & BEGIN) i=0;
+ else if(what & START) i=0;
  else if((what & END) && i)
  {
   if(draw_window) XDrawArcs(display, window, gc[c], xarc,i);
@@ -1258,7 +1258,7 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
       (unsigned int)y2 - (unsigned int)y1);
   }
  }
- else if(what & BEGIN) i=0;
+ else if(what & START) i=0;
  else if(what & ADD)
  {
   if(i>=CADDRAWBUFFERSIZE)
@@ -1464,7 +1464,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
    }
   }
  }
- else if(what & BEGIN) i=0;
+ else if(what & START) i=0;
  else if(what & ADD)
  {
   if(i>=CADDRAWBUFFERSIZE)
@@ -1517,7 +1517,7 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
     (unsigned int)y2 - (unsigned int)y1);
   }
  }
- else if(what & BEGIN) i=0;
+ else if(what & START) i=0;
  else if(what & ADD)
  {
   if(i>=CADDRAWBUFFERSIZE)
