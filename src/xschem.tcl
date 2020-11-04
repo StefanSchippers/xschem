@@ -78,10 +78,10 @@ proc execute_fileevent {id} {
 
 proc execute_wait {status args} {
   global execute_pipe 
-  xschem set semaphore [expr [xschem get semaphore] +1]
+  xschem set semaphore [expr {[xschem get semaphore] +1}]
   set id [eval execute $status $args]
   vwait execute_pipe($id)
-  xschem set semaphore [expr [xschem get semaphore] -1]
+  xschem set semaphore [expr {[xschem get semaphore] -1}]
   return $id
 }
 
@@ -1301,9 +1301,9 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
 proc get_cell {s n } {
   set slist [file split $s]
   set l [llength $slist]
-  if { $n >= $l } {set n [expr $l - 1]}
+  if { $n >= $l } {set n [expr {$l - 1}]}
   set p {}
-  for {set i [expr $l-1-$n]} {$i < $l} { incr i } {
+  for {set i [expr {$l-1-$n}]} {$i < $l} { incr i } {
     append p [lindex $slist $i]
     if {$i < $l - 1} {
       append p {/}
@@ -1318,7 +1318,7 @@ proc path_head {s n } {
   set l [llength $slist]
   if { $n < 0 } { set n 0 }
   set p {}
-  for {set i 0} {$i < [expr $l - $n]} { incr i } {
+  for {set i 0} {$i < [expr {$l - $n}]} { incr i } {
     append p [lindex $slist $i]
     if {$i < $l -$n- 1 && ([lindex $slist $i] ne {/})} {
       append p {/}
@@ -1473,9 +1473,9 @@ proc add_lab_no_prefix {} {
   set fd [open $USER_CONF_DIR/.clipboard.sch "w"]
   foreach i $lines {
     if {$indirect} {
-      puts $fd "C \{devices/lab_pin.sym\} 0 [set y [expr $y+20]]  0 0 \{ name=p[incr pcnt] verilog_type=wire lab=[lindex $i 0] \}"
+      puts $fd "C \{devices/lab_pin.sym\} 0 [set y [expr {$y+20}]]  0 0 \{ name=p[incr pcnt] verilog_type=wire lab=[lindex $i 0] \}"
     } else {
-      puts $fd "C \{lab_pin.sym\} 0 [set y [expr $y+20]]  0 0 \{ name=p[incr pcnt] verilog_type=wire lab=[lindex $i 0] \}"
+      puts $fd "C \{lab_pin.sym\} 0 [set y [expr {$y+20}]]  0 0 \{ name=p[incr pcnt] verilog_type=wire lab=[lindex $i 0] \}"
     }
   }
   close $fd
@@ -1502,9 +1502,9 @@ proc add_lab_prefix {} {
   set fd [open $USER_CONF_DIR/.clipboard.sch "w"]
   foreach i $lines {
     if {$indirect} {
-      puts $fd "C \{devices/lab_pin.sym\} 0 [set y [expr $y+20]]  0 0 \{ name=p[incr pcnt] verilog_type=reg lab=i[lindex $i 0] \}"
+      puts $fd "C \{devices/lab_pin.sym\} 0 [set y [expr {$y+20}]]  0 0 \{ name=p[incr pcnt] verilog_type=reg lab=i[lindex $i 0] \}"
     } else {
-      puts $fd "C \{lab_pin.sym\} 0 [set y [expr $y+20]]  0 0 \{ name=p[incr pcnt] verilog_type=reg lab=i[lindex $i 0] \}"
+      puts $fd "C \{lab_pin.sym\} 0 [set y [expr {$y+20}]]  0 0 \{ name=p[incr pcnt] verilog_type=reg lab=i[lindex $i 0] \}"
     }
   }
   close $fd
@@ -1572,8 +1572,8 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
    toplevel .t -class Dialog
    wm title .t {Enter text}
 
-   set X [expr [winfo pointerx .t] - 30]
-   set Y [expr [winfo pointery .t] - 25]
+   set X [expr {[winfo pointerx .t] - 30}]
+   set Y [expr {[winfo pointery .t] - 25}]
 
    # 20100203
    if { $::wm_fix } { tkwait visibility .t }
@@ -1746,7 +1746,7 @@ proc select_layers {} {
          }
      pack .sl.f0.f$f.cb$j -side top -fill x
      incr j
-     if { [expr $j%10] == 0 } {
+     if { [expr {$j%10}] == 0 } {
        incr f
        frame .sl.f0.f$f
        pack .sl.f0.f$f -side left  -fill y
@@ -1809,8 +1809,8 @@ proc property_search {} {
   wm title .dialog {Search}
   ## 
   # 20100408
-  set X [expr [winfo pointerx .dialog] - 60]
-  set Y [expr [winfo pointery .dialog] - 35]
+  set X [expr {[winfo pointerx .dialog] - 60}]
+  set Y [expr {[winfo pointery .dialog] - 35}]
   wm geometry .dialog "+$X+$Y"
   frame .dialog.custom 
   label .dialog.custom.l -text "Token"
@@ -1912,8 +1912,8 @@ proc attach_labels_to_inst {} {
   wm title .dialog {Add labels to instances}
 
   # 20100408
-  set X [expr [winfo pointerx .dialog] - 60]
-  set Y [expr [winfo pointery .dialog] - 35]
+  set X [expr {[winfo pointerx .dialog] - 60}]
+  set Y [expr {[winfo pointery .dialog] - 35}]
   wm geometry .dialog "+$X+$Y"
 
   frame .dialog.custom 
@@ -1964,8 +1964,8 @@ proc ask_save { {ask {save file?}} } {
    toplevel .dialog -class Dialog
    wm title .dialog {Ask Save}
 
-   set X [expr [winfo pointerx .dialog] - 60]
-   set Y [expr [winfo pointery .dialog] - 35]
+   set X [expr {[winfo pointerx .dialog] - 60}]
+   set Y [expr {[winfo pointery .dialog] - 35}]
 
    # 20100203
    if { $::wm_fix } { tkwait visibility .dialog }
@@ -2101,8 +2101,8 @@ proc edit_prop {txtlabel} {
    if { [winfo exists .dialog] } return
    toplevel .dialog  -class Dialog 
    wm title .dialog {Edit Properties}
-   set X [expr [winfo pointerx .dialog] - 60]
-   set Y [expr [winfo pointery .dialog] - 35]
+   set X [expr {[winfo pointerx .dialog] - 60}]
+   set Y [expr {[winfo pointery .dialog] - 35}]
 
    # 20160325 change and remember widget size
    bind .dialog <Configure> { 
@@ -2336,8 +2336,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
    if { [winfo exists .dialog] } return
    toplevel .dialog  -class Dialog
    wm title .dialog {Text input}
-   set X [expr [winfo pointerx .dialog] - 60]
-   set Y [expr [winfo pointery .dialog] - 35]
+   set X [expr {[winfo pointerx .dialog] - 60}]
+   set Y [expr {[winfo pointery .dialog] - 35}]
 
    set tok_list "<ALL> [xschem list_tokens $retval 0]"
    set selected_tok {<ALL>}
@@ -2484,8 +2484,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
 proc alert_ {txtlabel {position +200+300} {nowait {0}}} {
    toplevel .alert -class Dialog
    wm title .alert {Alert}
-   set X [expr [winfo pointerx .alert] - 60]
-   set Y [expr [winfo pointery .alert] - 60]
+   set X [expr {[winfo pointerx .alert] - 60}]
+   set Y [expr {[winfo pointery .alert] - 60}]
 
    if { [string compare $position ""] != 0 } {
      wm geometry .alert $position
@@ -2562,7 +2562,7 @@ proc textwindow {filename {ro {}}} {
    global textwindow_w
    # set textwindow_w .win$textwindow_wcounter
    # catch {destroy $textwindow_w}
-   set textwindow_wcounter [expr $textwindow_wcounter+1]
+   set textwindow_wcounter [expr {$textwindow_wcounter+1}]
    set textwindow_w .win$textwindow_wcounter
 
 
@@ -2609,7 +2609,7 @@ proc viewdata {data {ro {}}} {
    global viewdata_w
    # set viewdata_w .view$viewdata_wcounter
    # catch {destroy $viewdata_w}
-   set viewdata_wcounter [expr $viewdata_wcounter+1]
+   set viewdata_wcounter [expr {$viewdata_wcounter+1}]
    set viewdata_w .view$viewdata_wcounter
    set rcode {}
    toplevel $viewdata_w
@@ -2660,7 +2660,7 @@ proc rel_sym_path {symbol} {
     }
     set pl [string length $path_elem]
     if { [string equal -length $pl $path_elem $symbol] } {
-      set name [string range $symbol [expr $pl+1] end]
+      set name [string range $symbol [expr {$pl+1}] end]
       break
     }
   }
@@ -2760,8 +2760,8 @@ proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
   if { [winfo exists .dialog] } return
   toplevel .dialog -class Dialog
   wm title .dialog {Input number}
-  set X [expr [winfo pointerx .dialog] - 60]
-  set Y [expr [winfo pointery .dialog] - 35]
+  set X [expr {[winfo pointerx .dialog] - 60}]
+  set Y [expr {[winfo pointery .dialog] - 35}]
   # 20100203
   if { $::wm_fix } { tkwait visibility .dialog }
   wm geometry .dialog "+$X+$Y"
@@ -2930,7 +2930,7 @@ proc balloon_show {w arg} {
     pack [message $top.txt -aspect 10000 -bg lightyellow \
         -font fixed -text $arg]
     set wmx [winfo rootx $w]
-    set wmy [expr [winfo rooty $w]+[winfo height $w]]
+    set wmy [expr {[winfo rooty $w]+[winfo height $w]}]
     wm geometry $top [winfo reqwidth $top.txt]x[
         winfo reqheight $top.txt]+$wmx+$wmy
     raise $top
@@ -3083,9 +3083,9 @@ proc build_windows {} {
 
     # on Windows Alt key mask is reported as 131072 (1<<17) so build masks manually with values passed from C code 
     if {$::OS == "Windows" } {
-      bind .drw <Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr $Mod1Mask]}
-      bind .drw <Control-Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr $ControlMask + $Mod1Mask]}
-      bind .drw <Shift-Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr $ShiftMask + $Mod1Mask]}
+      bind .drw <Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr {$Mod1Mask}]}
+      bind .drw <Control-Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr {$ControlMask + $Mod1Mask}]}
+      bind .drw <Shift-Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr {$ShiftMask + $Mod1Mask}]}
     }
 
     bind .drw <KeyPress> {xschem callback %T %x %y %N 0 0 %s}
@@ -3664,7 +3664,7 @@ font configure Underline-Font -underline true -size 24
      .menubar.layers.menu add command -label $laylab  -activeforeground $layfg \
         -foreground $layfg -background $i -activebackground $i \
         -command "xschem set rectcolor $j; reconfigure_layers_button"
-     if { [expr $j%10] == 0 } { .menubar.layers.menu entryconfigure $j -columnbreak 1 }
+     if { [expr {$j%10}] == 0 } { .menubar.layers.menu entryconfigure $j -columnbreak 1 }
      incr j
      
    }
@@ -3687,10 +3687,10 @@ font configure Underline-Font -underline true -size 24
    .menubar.zoom.menu add command -label "Zoom box" -command "xschem zoom_box" -accelerator Z
    toolbar_create ViewZoomBox "xschem zoom_box" "Zoom Box"
    .menubar.zoom.menu add command -label "Half Snap Threshold" -accelerator G -command {
-          xschem set cadsnap [expr [xschem get cadsnap] / 2.0 ]
+          xschem set cadsnap [expr {[xschem get cadsnap] / 2.0} ]
         }
    .menubar.zoom.menu add command -label "Double Snap Threshold" -accelerator Shift-G -command {
-          xschem set cadsnap [expr [xschem get cadsnap] * 2.0 ]
+          xschem set cadsnap [expr {[xschem get cadsnap] * 2.0} ]
         }
    .menubar.zoom.menu add command -label "Set snap value" \
           -command {
