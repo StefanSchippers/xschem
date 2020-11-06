@@ -1,14 +1,15 @@
 v {xschem version=2.9.8 file_version=1.2}
 G {}
 K {type=pnp
-format="@spiceprefix@name @pinlist @model area=@area"
+format="@spiceprefix@name @pinlist @model area=@area m=@m"
 tedax_format="footprint @name @footprint
 device @name @device"
 template="name=Q1
 model=Q2N2907
 device=2N2907
 footprint=TO92
-area=1"}
+area=1
+m=1"}
 V {}
 S {}
 E {}

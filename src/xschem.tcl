@@ -1569,90 +1569,90 @@ proc select_netlist_dir { force {dir {} }} {
 proc enter_text {textlabel {preserve_disabled disabled}} {
    global retval rcode has_cairo preserve_unchanged_attrs
    set rcode {}
-   toplevel .t -class Dialog
-   wm title .t {Enter text}
+   toplevel .dialog -class Dialog
+   wm title .dialog {Enter text}
 
-   set X [expr {[winfo pointerx .t] - 30}]
-   set Y [expr {[winfo pointery .t] - 25}]
+   set X [expr {[winfo pointerx .dialog] - 30}]
+   set Y [expr {[winfo pointery .dialog] - 25}]
 
    # 20100203
-   if { $::wm_fix } { tkwait visibility .t }
-   wm geometry .t "+$X+$Y"
-   frame .t.f1
-   label .t.f1.txtlab -text $textlabel
-   text .t.txt -width 100 -height 12
-   .t.txt delete 1.0 end
-   .t.txt insert 1.0 $retval
-   checkbutton .t.f1.l1 -text "preserve unchanged props" -variable preserve_unchanged_attrs -state $preserve_disabled
-   pack .t.f1 -side top -fill x ;# -expand yes
-   pack .t.f1.l1 -side left
-   pack .t.f1.txtlab -side left -expand yes -fill x
+   if { $::wm_fix } { tkwait visibility .dialog }
+   wm geometry .dialog "+$X+$Y"
+   frame .dialog.f1
+   label .dialog.f1.txtlab -text $textlabel
+   text .dialog.txt -width 100 -height 12
+   .dialog.txt delete 1.0 end
+   .dialog.txt insert 1.0 $retval
+   checkbutton .dialog.f1.l1 -text "preserve unchanged props" -variable preserve_unchanged_attrs -state $preserve_disabled
+   pack .dialog.f1 -side top -fill x ;# -expand yes
+   pack .dialog.f1.l1 -side left
+   pack .dialog.f1.txtlab -side left -expand yes -fill x
 
-   pack .t.txt -side top -fill  both -expand yes
-   frame .t.edit
-     frame .t.edit.lab
-     frame .t.edit.entries
-     pack  .t.edit.lab -side left 
-     pack  .t.edit.entries -side left -fill x  -expand yes
-     pack .t.edit  -side top  -fill x 
+   pack .dialog.txt -side top -fill  both -expand yes
+   frame .dialog.edit
+     frame .dialog.edit.lab
+     frame .dialog.edit.entries
+     pack  .dialog.edit.lab -side left 
+     pack  .dialog.edit.entries -side left -fill x  -expand yes
+     pack .dialog.edit  -side top  -fill x 
        if {$has_cairo } {
-         entry .t.edit.entries.hsize -relief sunken -textvariable vsize -width 20
+         entry .dialog.edit.entries.hsize -relief sunken -textvariable vsize -width 20
        } else {
-         entry .t.edit.entries.hsize -relief sunken -textvariable hsize -width 20
+         entry .dialog.edit.entries.hsize -relief sunken -textvariable hsize -width 20
        }
-       entry .t.edit.entries.vsize -relief sunken -textvariable vsize -width 20
-       entry .t.edit.entries.props -relief sunken -textvariable props -width 20 
-       pack .t.edit.entries.hsize .t.edit.entries.vsize  \
-        .t.edit.entries.props -side top  -fill x -expand yes
-       label .t.edit.lab.hlab -text "hsize:"
-       label .t.edit.lab.vlab -text "vsize:"
-       label .t.edit.lab.proplab -text "props:"
-       pack .t.edit.lab.hlab .t.edit.lab.vlab  \
-        .t.edit.lab.proplab -side top
-   frame .t.buttons
-   button .t.buttons.ok -text "OK" -command  \
+       entry .dialog.edit.entries.vsize -relief sunken -textvariable vsize -width 20
+       entry .dialog.edit.entries.props -relief sunken -textvariable props -width 20 
+       pack .dialog.edit.entries.hsize .dialog.edit.entries.vsize  \
+        .dialog.edit.entries.props -side top  -fill x -expand yes
+       label .dialog.edit.lab.hlab -text "hsize:"
+       label .dialog.edit.lab.vlab -text "vsize:"
+       label .dialog.edit.lab.proplab -text "props:"
+       pack .dialog.edit.lab.hlab .dialog.edit.lab.vlab  \
+        .dialog.edit.lab.proplab -side top
+   frame .dialog.buttons
+   button .dialog.buttons.ok -text "OK" -command  \
    {
-    set retval [.t.txt get 1.0 {end - 1 chars}]
+    set retval [.dialog.txt get 1.0 {end - 1 chars}]
     if {$has_cairo} { 
       set hsize $vsize
     }
     set rcode {ok}
-    destroy .t 
+    destroy .dialog 
    }
-   button .t.buttons.cancel -text "Cancel" -command  \
+   button .dialog.buttons.cancel -text "Cancel" -command  \
    {
     set retval {}
     set rcode {}
-    destroy .t 
+    destroy .dialog 
    }
-   button .t.buttons.b3 -text "Load" -command \
+   button .dialog.buttons.b3 -text "Load" -command \
    {
      global INITIALTEXTDIR
      if { ![info exists INITIALTEXTDIR] } { set INITIALTEXTDIR $current_dirname }
-     set a [tk_getOpenFile -parent .t -initialdir $INITIALTEXTDIR ]
+     set a [tk_getOpenFile -parent .dialog -initialdir $INITIALTEXTDIR ]
      if [string compare $a ""] {
       set INITIALTEXTDIR [file dirname $a]
-      read_data_window  .t.txt  $a
+      read_data_window  .dialog.txt  $a
      }
    }
-   button .t.buttons.b4 -text "Del" -command \
+   button .dialog.buttons.b4 -text "Del" -command \
    {
-     .t.txt delete 1.0 end
+     .dialog.txt delete 1.0 end
    }
 
-   pack .t.buttons.ok  -side left -fill x -expand yes
-   pack .t.buttons.cancel  -side left -fill x -expand yes
-   pack .t.buttons.b3  -side left -fill x -expand yes
-   pack .t.buttons.b4  -side left -fill x -expand yes
-   pack .t.buttons -side bottom -fill x
-   bind .t <Escape> {
-     if ![string compare $retval [.t.txt get 1.0 {end - 1 chars}]] {
-       .t.buttons.cancel invoke
+   pack .dialog.buttons.ok  -side left -fill x -expand yes
+   pack .dialog.buttons.cancel  -side left -fill x -expand yes
+   pack .dialog.buttons.b3  -side left -fill x -expand yes
+   pack .dialog.buttons.b4  -side left -fill x -expand yes
+   pack .dialog.buttons -side bottom -fill x
+   bind .dialog <Escape> {
+     if ![string compare $retval [.dialog.txt get 1.0 {end - 1 chars}]] {
+       .dialog.buttons.cancel invoke
      }
    }
-   bind .t <Control-Return> {.t.buttons.ok invoke}
-   #grab set .t
-   tkwait window .t
+   bind .dialog <Control-Return> {.dialog.buttons.ok invoke}
+   #grab set .dialog
+   tkwait window .dialog
    return $retval
 }
 

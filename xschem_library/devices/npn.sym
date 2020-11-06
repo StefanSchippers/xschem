@@ -1,14 +1,15 @@
 v {xschem version=2.9.8 file_version=1.2}
 G {}
 K {type=npn
-format="@name @pinlist  @model area=@area"
+format="@name @pinlist  @model area=@area m=@m"
 tedax_format="footprint @name @footprint
 device @name @device"
 template="name=Q1
 model=MMBT2222
 device=MMBT2222
 footprint=SOT23
-area=1"
+area=1
+m=1"
 }
 V {}
 S {}
