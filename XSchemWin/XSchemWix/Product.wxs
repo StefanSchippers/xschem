@@ -1,69 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="XSchem" Language="1033" Version="1.0.0.11" Manufacturer="XSchem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.8.1" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
-
+    <WixVariable Id="WixUILicenseRtf" 
+                 Value="License.rtf" />
+    <UIRef Id="WixUI_InstallDir" />
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
-		<MediaTemplate />
+    <Media Id="1" Cabinet="xschemMedia1.cab" EmbedCab="yes" />
 
-		<Feature Id="ProductFeature" Title="XSchem" Level="1">
+		<Feature Id="MainProduct" Title="Xschem" Level="1">
 			<ComponentGroupRef Id="ProductComponents" />
       <ComponentGroupRef Id="src" />
       <ComponentGroupRef Id="share" />
       <ComponentGroupRef Id="doc" />
       <ComponentGroupRef Id="xschem_library" />
-      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="CMP_ApplicationShortcut" />
 		</Feature>
-	</Product>
-
-	<Fragment>
-		<Directory Id="TARGETDIR" Name="SourceDir">
+  
+  <Directory Id="TARGETDIR" Name="SourceDir">
 		  <Directory Id="ProgramFiles64Folder">
-				<Directory Id="INSTALLFOLDER" Name="XSchem">
+				<Directory Id="INSTALLFOLDER" Name="Xschem">
           <Directory Id="BINFOLDER" Name="bin" />
+          <Directory Id="DOCFOLDER" Name="doc" />
         </Directory>
 			</Directory>
 
       <Directory Id="ProgramMenuFolder">
-        <Directory Id="ApplicationProgramsFolder" Name="XSchem"/>
+        <Directory Id="ApplicationProgramsFolder" Name="Xschem"/>
       </Directory>
       
 		</Directory>
-	</Fragment>
-
-	<Fragment>
-    <ComponentGroup Id="ProductComponents" Directory="BINFOLDER">
-      <Component Id="ProductComponent">
-        <File Id='XSchemEXE' Name='XSchem.exe' Source="$(var.XSchemWin.TargetPath)" />
+  <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
       
-        <ProgId Id='XSchem.schfile' Description='XSchem schematic data file'>
+  <DirectoryRef Id="ApplicationProgramsFolder">
+    <Component Id="CMP_ApplicationShortcut" Guid="3f598b68-fa90-4e61-8c84-ad7401175fcf">
+      <Shortcut Id="ApplicationStartMenuShortcut"
+                Name="Xschem"
+                Description="A schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit simulation."
+                Target="[BINFOLDER]/Xschem.exe"
+                WorkingDirectory="PersonalFolder"/>    
+      <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+      <Shortcut Id="DocumentationStartMenuShortcut"
+                Name="Xschem Documentation"
+                Description="Helpful Xschem Documentation"
+                Target="[DOCFOLDER]/xschem_man/XSCHEM_2.9.2_Manual_Tutorials.pdf" />
+      <RegistryValue Root="HKCU" Key="Software\CoralEDA\Xschem" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+    </Component>
+  </DirectoryRef>
+    
+  <ComponentGroup Id="ProductComponents" Directory="BINFOLDER">
+    <Component Id="ProductComponent">
+      <File Id='XschemEXE' Name='Xschem.exe' Source="$(var.XSchemWin.TargetPath)" />
+        <ProgId Id='Xschem.schfile' Description='Xschem schematic data file'>
           <Extension Id='sch' ContentType='application/sch'>
-            <Verb Id='open' Command='Open' TargetFile='XSchemEXE' Argument='"%1"' />
+            <Verb Id='open' Command='Open' TargetFile='XschemEXE' Argument='"%1"' />
           </Extension>
         </ProgId>
         
-        <ProgId Id='XSchem.symfile' Description='XSchem symbol data file'>
+        <ProgId Id='Xschem.symfile' Description='Xschem symbol data file'>
           <Extension Id='sym' ContentType='application/sym'>
-            <Verb Id='open' Command='Open' TargetFile='XSchemEXE' Argument='"%1"' />
+            <Verb Id='open' Command='Open' TargetFile='XschemEXE' Argument='"%1"' />
           </Extension>
         </ProgId>
       </Component>      
 		</ComponentGroup>
-	</Fragment>
+  
+	</Product>
 
   <Fragment>
-    <DirectoryRef Id="ApplicationProgramsFolder">
-      <Component Id="ApplicationShortcut" Guid="3f598b68-fa90-4e61-8c84-ad7401175fcf">
-        <Shortcut Id="ApplicationStartMenuShortcut"
-                  Name="XSchem"
-                  Description="A schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit simulation."
-                  Target="[#XSchemEXE]"
-                  WorkingDirectory="PersonalFolder"/>
-        <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
-        <RegistryValue Root="HKCU" Key="Software\CoralEDA\XSchem" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
-      </Component>
-    </DirectoryRef>
-    
     <DirectoryRef Id="INSTALLFOLDER">      
       <Directory Id="SHAREFOLDER" Name="share">
         <Component Id="CMPBREAKAWK">
@@ -1059,7 +1063,7 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
-    <ComponentGroup Id="doc">
+    <ComponentGroup Id="doc" Directory="DOCFOLDER">
             <ComponentRef Id="cmp4AE9625947156D8AAF28E900BB26A7A5" />
             <ComponentRef Id="cmp744010F5F723B104908971092AE88BB5" />
             <ComponentRef Id="cmp140562213882934019C2CF7394F7AA50" />
@@ -1804,6 +1808,12 @@
                     <Component Id="cmp1B34E18A503C479FD4665BB0E9DD856C" Guid="{C7619F97-1DE4-48DF-8AEE-03F0D933EA59}">
                         <File Id="filCE38CEA03D1E0401586F9C44E772BB9C" KeyPath="yes" Source="../../xschem_library\examples\Q2.sym" />
                     </Component>
+                    <Component Id="cmp9AEC8C65C68EB1DB5DA849B609979027" Guid="{61AAFFDF-B52E-4B86-AEAD-FE40B47743D0}">
+                        <File Id="fil1E23A85540C1480994B7A4772F3824D9" KeyPath="yes" Source="../../xschem_library\examples\rcline.sch" />
+                    </Component>
+                    <Component Id="cmp32515926013B18FBC1006B0B9122895D" Guid="{803F642F-6940-484A-81B1-B1A21F197F34}">
+                        <File Id="fil643DDB5D2B082F1BE7C53DFFC68BE4B6" KeyPath="yes" Source="../../xschem_library\examples\rcline.sym" />
+                    </Component>
                     <Component Id="cmp394300C55A38B9B412832CB9B24BA905" Guid="{240E648B-83D8-43B2-9571-F48C5A1D4096}">
                         <File Id="filF54412936E4477AAA77F074F80B38A3B" KeyPath="yes" Source="../../xschem_library\examples\real_capa.sch" />
                     </Component>
@@ -1842,6 +1852,12 @@
                     </Component>
                     <Component Id="cmp3E477EA8BA4E56743E833A8E0E8AF29F" Guid="{3897074F-2B8F-4C5C-85E4-A72AC41D4300}">
                         <File Id="filDB4EE6A36A472801370968133E59C22E" KeyPath="yes" Source="../../xschem_library\examples\test2.sch" />
+                    </Component>
+                    <Component Id="cmp7C2EDB65E4BD38C839FEF47762A221EE" Guid="{F49FFF24-CAD7-496B-87DC-C37A7823DE1B}">
+                        <File Id="fil0EB984D8BD1D0E2325508653254BA2A5" KeyPath="yes" Source="../../xschem_library\examples\test_backannotated_subckt.sch" />
+                    </Component>
+                    <Component Id="cmp652B831FE57C8E8537C82120184DD697" Guid="{5F40894C-53CD-4CEC-B545-47A8E7DAFE9A}">
+                        <File Id="fil2A79CD249914ECAA305694A3435B0F17" KeyPath="yes" Source="../../xschem_library\examples\test_backannotated_subckt.sym" />
                     </Component>
                     <Component Id="cmpA7ABF279933E1016F7F54B649CF04073" Guid="{2C2670C8-E95A-4418-A9F9-17E595789B89}">
                         <File Id="fil4D590E4935F4414D9F6D529ADD9F6CC8" KeyPath="yes" Source="../../xschem_library\examples\test_lm324.sch" />
@@ -6547,6 +6563,8 @@
             <ComponentRef Id="cmpE2311A3F707D0A68F2F97BF7328AAEF0" />
             <ComponentRef Id="cmp056593246BE57BA40039DAC810031C38" />
             <ComponentRef Id="cmp1B34E18A503C479FD4665BB0E9DD856C" />
+            <ComponentRef Id="cmp9AEC8C65C68EB1DB5DA849B609979027" />
+            <ComponentRef Id="cmp32515926013B18FBC1006B0B9122895D" />
             <ComponentRef Id="cmp394300C55A38B9B412832CB9B24BA905" />
             <ComponentRef Id="cmpBD1FA4DB3A11502B6D0E5A1843D810F9" />
             <ComponentRef Id="cmpED71E09CE2F0483DBA5319CCA388D565" />
@@ -6560,6 +6578,8 @@
             <ComponentRef Id="cmpE24CE21FAA0F44E69A4F49294EFAE969" />
             <ComponentRef Id="cmp72F056749977EC486D363AA5D5898371" />
             <ComponentRef Id="cmp3E477EA8BA4E56743E833A8E0E8AF29F" />
+            <ComponentRef Id="cmp7C2EDB65E4BD38C839FEF47762A221EE" />
+            <ComponentRef Id="cmp652B831FE57C8E8537C82120184DD697" />
             <ComponentRef Id="cmpA7ABF279933E1016F7F54B649CF04073" />
             <ComponentRef Id="cmp4BBC4D99A1C7C3BA9E9D80750C380849" />
             <ComponentRef Id="cmp1C5F3E41A00BB2B5D7C343FC1556ACA9" />
