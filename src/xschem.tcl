@@ -725,9 +725,10 @@ proc gaw_echoline {} {
      puts "finishing connection from gaw"
      close $gaw_fd
      unset gaw_fd
+  } else {
+    # generate a variable event we can vwait for
+    set gaw_fd $gaw_fd
   }
-  # generate a variable event we can vwait for
-  set gaw_fd $gaw_fd
   puts "gaw -> $line"
 }
 
@@ -735,7 +736,7 @@ proc gaw_setup_tcp {} {
   global gaw_fd gaw_tcp_address netlist_dir no_x
   set s [file tail [file rootname [xschem get schname 0]]]
 
-  if { [catch {eval socket $gaw_tcp_address} gaw_fd] } {
+  if { ![info exists gaw_fd] && [catch {eval socket $gaw_tcp_address} gaw_fd] } {
     puts "Problems opening socket to gaw on address $gaw_tcp_address"
     unset gaw_fd
     if {![info exists no_x]} {
@@ -753,7 +754,7 @@ proc gaw_setup_tcp {} {
 
 proc gaw_cmd {cmd} {
   global gaw_fd gaw_tcp_address netlist_dir no_x
-  if { [catch {eval socket $gaw_tcp_address} gaw_fd] } {
+  if { ![info exists gaw_fd] && [catch {eval socket $gaw_tcp_address} gaw_fd] } {
     puts "Problems opening socket to gaw on address $gaw_tcp_address"
     unset gaw_fd
     if {![info exists no_x]} {
@@ -767,7 +768,7 @@ proc gaw_cmd {cmd} {
   chan configure $gaw_fd -blocking 1 -buffering line -encoding binary -translation binary
   puts $gaw_fd "$cmd"
   fileevent $gaw_fd readable gaw_echoline
-  close $gaw_fd; unset gaw_fd;
+  vwait gaw_fd
 }
 
 proc waves {} { 
@@ -776,7 +777,7 @@ proc waves {} {
   ## $s : schematic name (opamp)
   ## $d : netlist directory
 
-  global netlist_dir netlist_type computerfarm terminal current_dirname sim gaw_fd XSCHEM_SHAREDIR
+  global netlist_dir netlist_type computerfarm terminal current_dirname sim XSCHEM_SHAREDIR
   set_sim_defaults
   
   if { [select_netlist_dir 0] ne {}} {

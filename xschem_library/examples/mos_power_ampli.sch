@@ -125,8 +125,8 @@ C {lab_pin.sym} 340 -970 0 1 {name=p23 lab=E2}
 C {lab_pin.sym} 560 -970 0 1 {name=p28 lab=E6}
 C {lab_pin.sym} 840 -1000 0 0 {name=p29 lab=E4}
 C {lab_pin.sym} 180 -1120 0 0 {name=p34 lab=VBOOST}
-C {ammeter.sym} 1110 -540 0 0 {name=vd  net_name=true          current=0.2069}
-C {ammeter.sym} 1110 -640 0 0 {name=vu  net_name=true          current=0.2005}
+C {ammeter.sym} 1110 -540 0 0 {name=vd  net_name=true          }
+C {ammeter.sym} 1110 -640 0 0 {name=vu  net_name=true          }
 C {lab_pin.sym} 60 -1180 0 0 {name=p27 lab=VPP}
 C {pnp.sym} 200 -950 0 1 {name=Q1 model=q2n2907p area=1 net_name=true}
 C {pnp.sym} 360 -790 0 1 {name=Q2 model=q2n2907p area=1 net_name=true}
@@ -167,7 +167,7 @@ rload out 0 4
 .include \\"models_poweramp.txt\\"
 .dc vplus '-1.5' '1.5' 0.1
 .save all
-.op
+* .op
 *.probe dc v(plus,vdc)
 "}
 C {lab_wire.sym} 920 -760 0 0 {name=l1 lab=GA}
@@ -209,18 +209,18 @@ C {lab_pin.sym} 180 -690 0 0 {name=p8 lab=C7}
 C {lab_pin.sym} 340 -710 0 1 {name=p31 lab=C2}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan Schippers"}
 C {lab_pin.sym} 860 -700 0 0 {name=p32 lab=SA}
-C {ammeter.sym} 1110 -350 0 0 {name=v0  net_name=true          current=0.2263}
+C {ammeter.sym} 1110 -350 0 0 {name=v0  net_name=true          }
 C {lab_pin.sym} 860 -380 0 0 {name=p35 lab=SB}
-C {ammeter.sym} 560 -890 0 0 {name=v1  net_name=true          current=0.01956}
-C {ammeter.sym} 340 -890 0 0 {name=v2  net_name=true          current=0.01947}
-C {ammeter.sym} 260 -310 0 0 {name=v3  net_name=true          current=0.03918}
-C {ammeter.sym} 700 -440 3 0 {name=v4  net_name=true          current=0.01941}
-C {ammeter.sym} 690 -680 0 0 {name=v5  net_name=true          current=0.006184}
-C {ammeter.sym} 180 -870 0 1 {name=v6  net_name=true          current=0.01949}
-C {ammeter.sym} 840 -890 0 0 {name=v7  net_name=true          current=0.01944}
-C {spice_probe_vdiff.sym} 860 -410 0 0 {name=p37 analysis=tran           voltage=3.688}
-C {spice_probe_vdiff.sym} 860 -730 0 0 {name=p38 analysis=tran           voltage=3.68}
-C {ammeter.sym} 1300 -590 3 0 {name=v8  net_name=true          current=-2.1216e-04}
+C {ammeter.sym} 560 -890 0 0 {name=v1  net_name=true          }
+C {ammeter.sym} 340 -890 0 0 {name=v2  net_name=true          }
+C {ammeter.sym} 260 -310 0 0 {name=v3  net_name=true          }
+C {ammeter.sym} 700 -440 3 0 {name=v4  net_name=true          }
+C {ammeter.sym} 690 -680 0 0 {name=v5  net_name=true          }
+C {ammeter.sym} 180 -870 0 1 {name=v6  net_name=true          }
+C {ammeter.sym} 840 -890 0 0 {name=v7  net_name=true          }
+C {spice_probe_vdiff.sym} 860 -410 0 0 {name=p37 analysis=tran           }
+C {spice_probe_vdiff.sym} 860 -730 0 0 {name=p38 analysis=tran           }
+C {ammeter.sym} 1300 -590 3 0 {name=v8  net_name=true          }
 C {opin.sym} 600 -130 0 0 {name=p5 lab=OUT}
 C {ipin.sym} 530 -180 0 0 {name=p1 lab=MINUS}
 C {ipin.sym} 530 -140 0 0 {name=p4 lab=VSS}
@@ -393,4 +393,10 @@ descr = power
 C {ngspice_get_expr.sym} 150 -160 2 0 {name=r33 
 node="[format %.4g [expr -[ngspice::get_voltage b3] * [ngspice::get_current \{d2[id]\}]]] W"
 descr = power
+}
+C {launcher.sym} 800 -140 0 0 {name=h3
+descr="Load file into gaw" 
+tclcommand="gaw_cmd \\"tabledel mos_power_ampli.raw
+load $netlist_dir/mos_power_ampli.raw
+table_set mos_power_ampli.raw\\""
 }
