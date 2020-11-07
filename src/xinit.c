@@ -957,7 +957,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tcleval(tmp);
    running_in_src_dir = 0;
    if (atoi(tclresult()) == 0)
+   {
      running_in_src_dir = 1; /* no bin, so it's running in Visual studio source directory*/
+     my_snprintf(tmp, S(tmp), "subst [regsub {\\w+/\\w+/\\w+$} \"%s\" {}]xschem_library/devices", install_dir);
+     tcleval(tmp);
+     my_snprintf(tmp, S(tmp), ".;%s", tclresult());
+     tclsetvar("XSCHEM_LIBRARY_PATH", tmp);
+   }
  char* gxschem_library=NULL, *xschem_sharedir=NULL;
  if ((xschem_sharedir=getenv("XSCHEM_SHAREDIR")) != NULL) {
    if (!stat(xschem_sharedir, &buf)) {
