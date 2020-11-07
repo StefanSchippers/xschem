@@ -396,7 +396,15 @@ descr = power
 }
 C {launcher.sym} 800 -140 0 0 {name=h3
 descr="Load file into gaw" 
-tclcommand="gaw_cmd \\"tabledel mos_power_ampli.raw
-load $netlist_dir/mos_power_ampli.raw
-table_set mos_power_ampli.raw\\""
+comment="
+  This launcher gets raw filename from current schematic using 'xschem get schname'
+  and stripping off path and suffix.  It then loads raw file into gaw.
+  This allow to use it in any schematic without changes.
+"
+tclcommand="
+set rawfile [file tail [file rootname [xschem get schname]]].raw
+gaw_cmd \\"tabledel $rawfile
+load $netlist_dir/$rawfile
+table_set $rawfile\\"
+unset rawfile"
 }

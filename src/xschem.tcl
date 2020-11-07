@@ -765,10 +765,26 @@ proc gaw_cmd {cmd} {
     }
     return
   }
-  chan configure $gaw_fd -blocking 1 -buffering line -encoding binary -translation binary
+  chan configure $gaw_fd -blocking 0 -buffering line -encoding binary -translation binary
   puts $gaw_fd "$cmd"
+  set n [regexp -all \n $cmd]
+  incr n
+  puts "gaw command lines: $n"
   fileevent $gaw_fd readable gaw_echoline
-  vwait gaw_fd
+  while { $n} { 
+    #timeout for abnormal deadlocks 
+    after 10000 set gaw_fd stalled
+    vwait gaw_fd
+    if { $gaw_fd ne {stalled} } {
+      after cancel set gaw_fd stalled
+    } else { 
+      puts "timeout waiting for gaw response.."
+      break
+    }
+    incr n -1
+  }
+  close $gaw_fd
+  unset gaw_fd
 }
 
 proc waves {} { 

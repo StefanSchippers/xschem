@@ -240,3 +240,17 @@ C {ngspice_get_expr.sym} 820 -510 2 0 {name=r29
 node="[format %.4g [expr ([ngspice::get_voltage outm] - [ngspice::get_voltage outp]) * [ngspice::get_current \{r1[i]\}]]] W"
 descr = power
 }
+C {launcher.sym} 780 -190 0 0 {name=h3
+descr="Load file into gaw" 
+comment="
+  This launcher gets raw filename from current schematic using 'xschem get schname'
+  and stripping off path and suffix.  It then loads raw file into gaw.
+  This allow to use it in any schematic without changes.
+"
+tclcommand="
+set rawfile [file tail [file rootname [xschem get schname]]].raw
+gaw_cmd \\"tabledel $rawfile
+load $netlist_dir/$rawfile
+table_set $rawfile\\"
+unset rawfile"
+}
