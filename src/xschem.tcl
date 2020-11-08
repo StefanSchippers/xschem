@@ -773,10 +773,10 @@ proc gaw_cmd {cmd} {
   fileevent $gaw_fd readable gaw_echoline
   while { $n} { 
     #timeout for abnormal deadlocks 
-    after 10000 set gaw_fd stalled
+    set wd [after 10000 set gaw_fd stalled]
     vwait gaw_fd
     if { $gaw_fd ne {stalled} } {
-      after cancel set gaw_fd stalled
+      after cancel $wd
     } else { 
       puts "timeout waiting for gaw response.."
       break
