@@ -1053,11 +1053,11 @@ proc myload_set_home {dir} {
 }
 proc setglob {dir} {
       global globfilter myload_files2
-      set myload_files2 [lsort [glob -nocomplain -directory $dir -tails -type d \{.*,*\}]]
+      set myload_files2 [lsort [glob -nocomplain -directory $dir -tails -type d .* *]]
       if { $globfilter eq {*}} {
-        set myload_files2 ${myload_files2}\ [lsort [glob -nocomplain -directory $dir -tails -type {f} \{.*,$globfilter\}]]
+        set myload_files2 ${myload_files2}\ [lsort [glob -nocomplain -directory $dir -tails -type {f} .* $globfilter]]
       } else {
-        set myload_files2 ${myload_files2}\ [lsort [glob -nocomplain -directory $dir -tails -type {f} \{$globfilter\}]]
+        set myload_files2 ${myload_files2}\ [lsort [glob -nocomplain -directory $dir -tails -type {f} $globfilter]]
       }
 }
 
