@@ -178,11 +178,12 @@ void windowid()
   /* here I create the icon pixmap,to be used when iconified,  */
 #ifdef __unix__
   if(!cad_icon_pixmap) {
-    i=XpmCreatePixmapFromData(display,framewin, cad_icon,&cad_icon_pixmap, NULL, NULL);
+    i=XpmCreatePixmapFromData(display,framewin, cad_icon,&cad_icon_pixmap, &cad_icon_mask, NULL);
     dbg(1, "Tcl_AppInit(): creating icon pixmap returned: %d\n",i);
     hints_ptr = XAllocWMHints();
     hints_ptr->icon_pixmap = cad_icon_pixmap ;
-    hints_ptr->flags = IconPixmapHint ;
+    hints_ptr->icon_mask = cad_icon_mask ;
+    hints_ptr->flags = IconPixmapHint | IconMaskHint;
     XSetWMHints(display, parent_of_topwindow, hints_ptr);
     XFree(hints_ptr);
   }
@@ -643,7 +644,10 @@ void xwin_exit(void)
     dbg(1, "xwin_exit(): destroying tk windows and releasing X11 stuff\n");
     Tk_DestroyWindow(mainwindow);
 #ifdef __unix__
-    if(cad_icon_pixmap) XFreePixmap(display, cad_icon_pixmap);
+    if(cad_icon_pixmap) {
+      XFreePixmap(display, cad_icon_pixmap);
+      XFreePixmap(display, cad_icon_mask);
+    }
 #else
     if (cad_icon_pixmap) Tk_FreePixmap(display, cad_icon_pixmap);
 #endif

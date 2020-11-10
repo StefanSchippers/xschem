@@ -726,7 +726,7 @@ extern GC *gc, *gcstipple, gctiled;
 extern Display *display;
 extern XRectangle *rectangle;
 extern XPoint *gridpoint;
-extern Pixmap cad_icon_pixmap, *pixmap,save_pixmap;
+extern Pixmap cad_icon_pixmap, cad_icon_mask, *pixmap,save_pixmap;
 extern XColor xcolor_array[];
 extern Visual *visual;
 #ifdef HAS_CAIRO

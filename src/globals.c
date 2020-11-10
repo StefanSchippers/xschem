@@ -99,7 +99,7 @@ unsigned char pixdata_init[22][32]={    /* fill patterns... indexed by laynumb. 
 GC *gcstipple,*gc, gctiled;
 Display *display;
 XRectangle xrect[1] = {{0,0,0,0}};
-Pixmap cad_icon_pixmap=0, *pixmap,save_pixmap;  /* save_pixmap used to restore window */
+Pixmap cad_icon_pixmap=0, cad_icon_mask=0, *pixmap,save_pixmap;  /* save_pixmap used to restore window */
 XPoint *gridpoint;           /* pointer to array of gridpoints, used in draw() */
 XColor xcolor_array[256];
 Visual *visual;
