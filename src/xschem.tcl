@@ -550,6 +550,8 @@ XSCHEM before sending commands to the shell:
    (example: /home/schippes/.xschem/simulations/opamp.v for verilog)
  - n: complete filename of netlist as above but without extension
    (example: /home/schippes/.xschem/simulations/opamp)
+ - S: full pathname of schematic being used (example: 
+      /home/schippes/.xschem/xschem_library/opamp.sch)
  - s: name of schematic being used (example: opamp)
  - d: simulation directory (example: /home/schippes/.xschem/simulations)
  - terminal: terminal to be used for applications that need to be
@@ -681,6 +683,7 @@ proc simulate {{callback {}}} {
   ## $N : netlist file full path (/home/schippes/simulations/opamp.spice) 
   ## $n : netlist file full path with extension chopped (/home/schippes/simulations/opamp)
   ## $s : schematic name (opamp)
+  ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
   ## $d : netlist directory
 
   global netlist_dir netlist_type computerfarm terminal current_dirname sim
@@ -690,7 +693,8 @@ proc simulate {{callback {}}} {
   if { [select_netlist_dir 0] ne {}} {
     set d ${netlist_dir}
     set tool $netlist_type
-    set s [file tail [file rootname [xschem get schname]]]
+    set S [xschem get schname]
+    set s [file tail [file rootname $S]]
     set n ${netlist_dir}/${s}
     if {$tool eq {verilog}} {
       set N ${n}.v
@@ -791,6 +795,7 @@ proc waves {} {
   ## $N : netlist file full path (/home/schippes/simulations/opamp.spice) 
   ## $n : netlist file full path with extension chopped (/home/schippes/simulations/opamp)
   ## $s : schematic name (opamp)
+  ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
   ## $d : netlist directory
 
   global netlist_dir netlist_type computerfarm terminal current_dirname sim XSCHEM_SHAREDIR
@@ -799,7 +804,8 @@ proc waves {} {
   if { [select_netlist_dir 0] ne {}} {
     set d ${netlist_dir}
     set tool ${netlist_type}
-    set s [file tail [file rootname [xschem get schname]]]
+    set S [xschem get schname]
+    set s [file tail [file rootname $S]]
     set n ${netlist_dir}/${s}
     if {$tool eq {verilog}} {
       set N ${n}.v
