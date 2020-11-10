@@ -705,7 +705,7 @@ proc simulate {{callback {}}} {
     } else {
       set fg {execute}
     }
-    set cmd [subst -nocommands $sim($tool,$def,cmd)]
+    set cmd [subst $sim($tool,$def,cmd)]
     if {$::OS == "Windows"} {
       eval exec $cmd # $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
     } else {
@@ -816,7 +816,7 @@ proc waves {} {
     } else {
       set fg {execute}
     }
-    set cmd [subst -nocommands $sim($tool,$def,cmd)]
+    set cmd [subst $sim($tool,$def,cmd)]
     $fg $st sh -c "cd $netlist_dir; $cmd"
   }
 }
