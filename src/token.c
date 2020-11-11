@@ -466,8 +466,8 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
 {
   static char *result=NULL;
   static char *token=NULL;
-  int size=0;
-  int  sizetok=0;
+  static int size=0;
+  static int  sizetok=0;
   register int c, space;
   register int token_pos=0, value_pos=0;
   int quote=0, state=TOK_BEGIN;
@@ -477,14 +477,17 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
   if(s==NULL) {
     my_free(976, &result);
     my_free(977, &token);
+    size = sizetok = 0;
     get_tok_value_size = get_tok_size = 0;
     return "";
   }
   get_tok_value_size = get_tok_size = 0;
   dbg(2, "get_tok_value(): looking for <%s> in <%s>\n",tok,s);
-  sizetok = size = CADCHUNKALLOC;
-  my_realloc(454, &result, size);
-  my_realloc(457, &token, sizetok);
+  if( size == 0 ) {
+    sizetok = size = CADCHUNKALLOC;
+    my_realloc(454, &result, size);
+    my_realloc(457, &token, sizetok);
+  }
   while(1) {
     c=*s++;
     space=SPACE(c) ;
