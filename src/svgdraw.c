@@ -238,7 +238,8 @@ static void svg_draw_string(int gctext, const char *str,
  flip = 0; yy=y1;
  while(str[pos2])
  {
-  cc = (int)str[pos2++];
+  cc = (unsigned char)str[pos2++];
+  if(cc>127) cc= '?';
   if(cc=='\n')
   {
    yy+=(FONTHEIGHT+FONTDESCENT+FONTWHITESPACE)*

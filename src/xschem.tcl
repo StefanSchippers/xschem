@@ -3751,7 +3751,7 @@ font configure Underline-Font -underline true -size 24
           -command {
            if { $draw_window == 1} { xschem set draw_window 1} else { xschem set draw_window 0}
         }
-   .menubar.zoom.menu add checkbutton -label "Enable show net names on symbol pins" -variable show_pin_net_names \
+   .menubar.zoom.menu add checkbutton -label "Show net names on symbol pins" -variable show_pin_net_names \
       -command {
          xschem set show_pin_net_names $show_pin_net_names
          xschem redraw
