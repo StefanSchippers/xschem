@@ -363,6 +363,7 @@ void trim_wires(void)
     dbg(1, "trim_wires(): delete_2: %g\n", timer(1));
 
     if(changed) {
+      need_rebuild_selected_array = 1;
       prepared_netlist_structs=0;
       prepared_hilight_structs=0;
       set_modify(1);
@@ -421,7 +422,7 @@ void break_wires_at_pins(void)
               else
                 xctx->wire[xctx->wires].bus=0;
               xctx->wire[xctx->wires].node=NULL;
-              hash_wire(XINSERT, xctx->wires, 0);
+              hash_wire(XINSERT, xctx->wires, 0);  /* insertion happens at beginning of list */
               my_strdup(32, &xctx->wire[xctx->wires].node, xctx->wire[i].node);
               need_rebuild_selected_array=1;
               xctx->wires++;
@@ -477,7 +478,7 @@ void break_wires_at_pins(void)
             else
               xctx->wire[xctx->wires].bus=0;
             xctx->wire[xctx->wires].node=NULL;
-            hash_wire(XINSERT, xctx->wires, 0);
+            hash_wire(XINSERT, xctx->wires, 0);  /* insertion happens at beginning of list */
             need_rebuild_selected_array=1;
             xctx->wires++;
             xctx->wire[i].x1 = x0;
