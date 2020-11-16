@@ -328,7 +328,7 @@ void hilight_net_pin_mismatches(void)
     for(i=0;i<npin;i++) {
       my_strdup(24, &labname,get_tok_value(rct[i].prop_ptr,"name",0));
       my_strdup(25, &lab, expandlabel(labname, &mult));
-      my_strdup(26, &netname, net_name(j,i,&mult, 0));
+      my_strdup(26, &netname, net_name(j,i,&mult, 0, 1));
       dbg(1, "delete_hilight_net(): i=%d labname=%s explabname = %s  net = %s\n", i, labname, lab, netname);
       if(netname && strcmp(lab, netname)) {
         dbg(1, "delete_hilight_net(): hilight: %s\n", netname);
@@ -692,11 +692,11 @@ void drill_hilight(void)
       npin = symbol->rects[PINLAYER];
       rct=symbol->rect[PINLAYER];
       for(j=0; j<npin;j++) {
-        my_strdup(143, &netname, net_name(i, j, &mult, 1));
+        my_strdup(143, &netname, net_name(i, j, &mult, 1, 1));
         propagate_str=get_tok_value(rct[j].prop_ptr, "propagate_to", 0);
         if(propagate_str[0] && (entry=bus_hilight_lookup(netname, 0, XLOOKUP))) {
           propagate = atoi(propagate_str);
-          my_strdup(144, &propagated_net, net_name(i, propagate, &mult, 1)); /* get net to propagate hilight to...*/
+          my_strdup(144, &propagated_net, net_name(i, propagate, &mult, 1, 1)); /* get net to propagate hilight to...*/
           propag_entry = bus_hilight_lookup(propagated_net, entry->value, XINSERT); /* add net to highlight list */
           if(!propag_entry) {
             found=1; /* keep looping until no more nets are found. */
@@ -936,6 +936,56 @@ void redraw_hilights(void)
   draw();
   if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
 }
+
+
+void select_hilight_net(void)
+{
+ char *type=NULL;
+ int i;
+ struct hilight_hashentry *entry;
+ int hilight_connected_inst;
+
+ if(!hilight_nets) return;
+ prepare_netlist_structs(0);
+ for(i=0;i<xctx->wires;i++) {
+   if( (entry = bus_hilight_lookup(xctx->wire[i].node, 0, XLOOKUP)) ) {
+      xctx->wire[i].sel = SELECTED;
+   }
+ }
+ for(i=0;i<xctx->instances;i++) {
+
+  type = (xctx->inst[i].ptr+ xctx->sym)->type;
+  hilight_connected_inst = !strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true") ||
+                           !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true");
+  if( xctx->inst[i].flags & 4) {
+    dbg(1, "draw_hilight_net(): instance %d flags &4 true\n", i);
+     xctx->inst[i].sel = SELECTED;
+  }
+  else if(hilight_connected_inst) {
+    int rects, j;
+    dbg(2, "draw_hilight_net(): hilight_connected_inst inst=%d, node=%s\n", i, xctx->inst[i].node[0]);
+    if( (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
+      for(j=0;j<rects;j++) {
+        if( xctx->inst[i].node && xctx->inst[i].node[j]) {
+          entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
+          if(entry) {
+            xctx->inst[i].sel = SELECTED;
+            break;
+          }
+        }
+      }
+    }
+  } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
+   entry=bus_hilight_lookup( get_tok_value(xctx->inst[i].prop_ptr,"lab",0) , 0, XLOOKUP);
+   if(entry) xctx->inst[i].sel = SELECTED;
+  }
+ }
+ need_rebuild_selected_array = 1;
+ rebuild_selected_array();
+ redraw_hilights();
+ 
+}
+
 
 void draw_hilight_net(int on_window)
 {

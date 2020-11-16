@@ -3840,7 +3840,7 @@ font configure Underline-Font -underline true -size 24
     -accelerator {Ctrl+#}
    .menubar.hilight.menu add command -label {Highlight selected net/pins} -command "xschem hilight" -accelerator K
    .menubar.hilight.menu add command -label {Send selected net/pins to GAW} -command "xschem send_to_gaw" -accelerator Alt+G
-   .menubar.hilight.menu add command -label {Select connected nets / pins} -command "xschem select_connected_nets" \
+   .menubar.hilight.menu add command -label {Select hilight nets / pins} -command "xschem select_hilight_net" \
     -accelerator Alt+K
    .menubar.hilight.menu add command -label {Un-highlight all net/pins} \
         -command "xschem clear_hilights" -accelerator Shift+K

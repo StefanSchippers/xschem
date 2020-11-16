@@ -1092,7 +1092,7 @@ void print_vhdl_element(FILE *fd, int inst)
   for(i=0;i<no_of_pins;i++)
   {
     if(strcmp(get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
-      if( (str_ptr =  net_name(inst,i, &mult, 0)) )
+      if( (str_ptr =  net_name(inst,i, &mult, 0, 1)) )
       {
         if(tmp) fprintf(fd, " ,\n");
         fprintf(fd, "   %s => %s",
@@ -1568,7 +1568,7 @@ void print_spice_element(FILE *fd, int inst)
         {
           char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr;
           if(strcmp(get_tok_value(prop, "spice_ignore", 0), "true")) {
-            str_ptr =  net_name(inst,i, &mult, 0);
+            str_ptr =  net_name(inst,i, &mult, 0, 1);
 
             tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
                                           * so 1-char writes to result do not need reallocs */
@@ -1582,7 +1582,7 @@ void print_spice_element(FILE *fd, int inst)
           char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr;
           if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
             if(strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
-              str_ptr =  net_name(inst,i, &mult, 0);
+              str_ptr =  net_name(inst,i, &mult, 0, 1);
 
               tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
                                             * so 1-char writes to result do not need reallocs */
@@ -1601,7 +1601,7 @@ void print_spice_element(FILE *fd, int inst)
           char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][pin_number].prop_ptr;
           si  = get_tok_value(prop, "spice_ignore",0);
           if(strcmp(si, "true")) {
-            str_ptr =  net_name(inst,pin_number, &mult, 0);
+            str_ptr =  net_name(inst,pin_number, &mult, 0, 1);
 
             tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
                                           * so 1-char writes to result do not need reallocs */
@@ -1736,7 +1736,7 @@ void print_tedax_element(FILE *fd, int inst)
             get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr,"pinnumber",0));
    }
    if(!get_tok_size) my_strdup(501, &pinnumber, "--UNDEF--");
-   tmp = net_name(inst,i, &mult, 0);
+   tmp = net_name(inst,i, &mult, 0, 1);
    if(tmp && strcmp(tmp, "__UNCONNECTED_PIN__")) {
      fprintf(fd, "conn %s %s %s %s %d\n",
            name,
@@ -1838,7 +1838,7 @@ void print_tedax_element(FILE *fd, int inst)
     {                                   /* and node number: m1 n1 m2 n2 .... */
      for(i=0;i<no_of_pins;i++)
      {
-       str_ptr =  net_name(inst,i, &mult, 0);
+       str_ptr =  net_name(inst,i, &mult, 0, 1);
        /* fprintf(errfp, "inst: %s  --> %s\n", name, str_ptr); */
        fprintf(fd, "?%d %s ", mult, str_ptr);
      }
@@ -1850,7 +1850,7 @@ void print_tedax_element(FILE *fd, int inst)
            token+2
           )
         ) {
-        str_ptr =  net_name(inst,i, &mult, 0);
+        str_ptr =  net_name(inst,i, &mult, 0, 1);
         fprintf(fd, "%s", str_ptr);
         break;
       }
@@ -1898,7 +1898,7 @@ void print_tedax_element(FILE *fd, int inst)
         /* @#n --> return net name attached to pin of index 'n' */
         pin_number = atoi(token+2);
         if(pin_number < no_of_pins) {
-          str_ptr =  net_name(inst,pin_number, &mult, 0);
+          str_ptr =  net_name(inst,pin_number, &mult, 0, 1);
           fprintf(fd, "%s", str_ptr);
         }
       }
@@ -2069,7 +2069,7 @@ void print_verilog_element(FILE *fd, int inst)
  {
    xSymbol *ptr = xctx->inst[inst].ptr+ xctx->sym;
    if(strcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
-     if( (str_ptr =  net_name(inst,i, &mult, 0)) )
+     if( (str_ptr =  net_name(inst,i, &mult, 0, 1)) )
      {
        if(tmp) fprintf(fd,"\n");
        fprintf(fd, "  ?%d %s %s ", mult,
@@ -2089,7 +2089,7 @@ void print_verilog_element(FILE *fd, int inst)
 }
 
 
-const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net)
+const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net, int erc)
 {
  int tmp;
  char errstr[2048];
@@ -2129,12 +2129,14 @@ const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net)
  {
    *mult=1;
 
-   my_snprintf(errstr, S(errstr), "Warning: unconnected pin,  Inst idx: %d, Pin idx: %d  Inst:%s\n",
-               i, j, xctx->inst[i].instname ) ;
-   statusmsg(errstr,2);
-   if(!netlist_count) {
-     xctx->inst[i].flags |=4;
-     hilight_nets=1;
+   if(erc) {
+     my_snprintf(errstr, S(errstr), "Warning: unconnected pin,  Inst idx: %d, Pin idx: %d  Inst:%s\n",
+                 i, j, xctx->inst[i].instname ) ;
+     statusmsg(errstr,2);
+     if(!netlist_count) {
+       xctx->inst[i].flags |=4;
+       hilight_nets=1;
+     }
    }
    return unconn;
  }
@@ -2252,7 +2254,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
     {
       char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr;
       if(strcmp(get_tok_value(prop,"vhdl_ignore",0), "true")) {
-        str_ptr =  net_name(inst,i, &mult, 0);
+        str_ptr =  net_name(inst,i, &mult, 0, 1);
         fprintf(fd, "----pin(%s) ", str_ptr);
       }
     }
@@ -2262,7 +2264,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
      xSymbol *ptr = xctx->inst[inst].ptr+ xctx->sym;
      if(!strcmp( get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"name",0), token+2)) {
        if(strcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
-         str_ptr =  net_name(inst,i, &mult, 0);
+         str_ptr =  net_name(inst,i, &mult, 0, 1);
          fprintf(fd, "----pin(%s) ", str_ptr);
        }
        break;
@@ -2275,7 +2277,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
        if(pin_number < no_of_pins) {
          char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][pin_number].prop_ptr;
          if(strcmp(get_tok_value(prop,"vhdl_ignore",0), "true")) {
-           str_ptr =  net_name(inst,pin_number, &mult, 0);
+           str_ptr =  net_name(inst,pin_number, &mult, 0, 1);
            fprintf(fd, "----pin(%s) ", str_ptr);
          }
        }
@@ -2425,7 +2427,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
      {
        char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr;
        if(strcmp(get_tok_value(prop, "verilog_ignore",0), "true")) {
-         str_ptr =  net_name(inst,i, &mult, 0);
+         str_ptr =  net_name(inst,i, &mult, 0, 1);
          fprintf(fd, "----pin(%s) ", str_ptr);
        }
      }
@@ -2435,7 +2437,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
       char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr;
       if(!strcmp( get_tok_value(prop,"name",0), token+2)) {
         if(strcmp(get_tok_value(prop, "verilog_ignore",0), "true")) {
-          str_ptr =  net_name(inst,i, &mult, 0);
+          str_ptr =  net_name(inst,i, &mult, 0, 1);
           fprintf(fd, "----pin(%s) ", str_ptr);
         }
         break;
@@ -2450,7 +2452,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
         char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][pin_number].prop_ptr;
         vi = get_tok_value(prop,"verilog_ignore",0);
         if(strcmp(vi, "true")) {
-          str_ptr =  net_name(inst,pin_number, &mult, 0);
+          str_ptr =  net_name(inst,pin_number, &mult, 0, 1);
           fprintf(fd, "----pin(%s) ", str_ptr);
         }
       }
@@ -2632,7 +2634,7 @@ const char *translate(int inst, const char* s)
        char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr;
        if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
          if(strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
-           const char *str_ptr =  net_name(inst,i, &mult, 0);
+           const char *str_ptr =  net_name(inst,i, &mult, 0, 0);
            tmp = strlen(str_ptr) +100 ;
            STR_ALLOC(&result, tmp + result_pos, &size);
            result_pos += my_snprintf(result + result_pos, tmp, "%s", str_ptr);

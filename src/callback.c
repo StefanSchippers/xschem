@@ -926,7 +926,7 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key=='k' && state==Mod1Mask)        /* select whole net (all attached wires/labels/pins) */
    {
-     select_connected_nets();
+     select_hilight_net();
      break;
    }
    if(key=='k' && state==ControlMask)                           /* unhilight net */

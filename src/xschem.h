@@ -1002,7 +1002,7 @@ extern char *escape_chars(char *dest, const char *source, int size);
 
 extern void set_inst_prop(int i);
 extern void unselect_wire(int i);
-extern void select_connected_nets(void);
+extern void select_hilight_net(void);
 extern void check_wire_storage(void);
 extern void check_text_storage(void);
 extern void check_inst_storage(void);
@@ -1023,7 +1023,7 @@ extern void select_box(int c, int i, unsigned short select_mode, int fast);
 extern void select_arc(int c, int i, unsigned short select_mode, int fast);
 extern void select_line(int c, int i, unsigned short select_mode, int fast);
 extern void select_polygon(int c, int i, unsigned short select_mode, int fast );
-extern const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net);
+extern const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net, int erc);
 extern int record_global_node(int what, FILE *fp, char *node);
 extern int count_labels(char *s);
 extern int get_unnamed_node(int what, int mult, int node);

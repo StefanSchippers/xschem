@@ -764,7 +764,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
    for(p=0;p<no_of_pins;p++) {
      if(!strcmp( get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr,"name",0), argv[3])) {
-       str_ptr =  net_name(i,p,&mult, 0);
+       str_ptr =  net_name(i,p,&mult, 0, 1);
        break;
      }
    } /* /20171029 */
@@ -1418,9 +1418,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    Tcl_AppendResult(interp, list_tokens(argv[2], atoi(argv[3])), NULL);
  }
 
- else if(!strcmp(argv[1],"select_connected_nets"))
+ else if(!strcmp(argv[1],"select_hilight_net"))
  {
-   select_connected_nets();
+   select_hilight_net();
  }
  else if(!strcmp(argv[1],"unhilight"))
  {
