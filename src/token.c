@@ -113,7 +113,7 @@ static struct inst_hashentry *inst_hash_lookup(struct inst_hashentry **table, ch
       } else if(remove == XINSERT) {
         entry->value = value;
       }
-      /* dbg(1, "inst_hash_lookup: returning: %s , %d\n", entry->token, entry->value); */
+      /* dbg(1, "inst_hash_lookup(): returning: %s , %d\n", entry->token, entry->value); */
       return entry;        /* found matching entry, return the address */
     }
     preventry=&entry->next; /* descend into the list. */
@@ -208,7 +208,7 @@ void check_unique_names(int rename)
         else start = comma_pos;
         comma_pos = strchr(start, ',');
         if(comma_pos) *comma_pos = '\0';
-        dbg(1, "check_unique_names: checking %s\n", start);
+        dbg(1, "check_unique_names(): checking %s\n", start);
         if( (entry = inst_hash_lookup(table, start, i, XINSERT_NOREPLACE, strlen(start)) ) && entry->value != i) {
           xctx->inst[i].flags |=4;
           hilight_nets=1;
@@ -652,7 +652,7 @@ char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
    const char *str;
 
 
-   dbg(1, "get_pin_attr_from_inst: inst=%d pin=%d attr=%s\n", inst, pin, attr);
+   dbg(1, "get_pin_attr_from_inst(): inst=%d pin=%d attr=%s\n", inst, pin, attr);
    pin_attr_value = NULL;
    str = get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][pin].prop_ptr,"name",0);
    if(str[0]) {
@@ -668,7 +668,7 @@ char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
        pnumber = my_malloc(52, attr_size + 100);
        my_snprintf(pnumber, attr_size + 100, "%s(%d)", attr, pin);
        str = get_tok_value(xctx->inst[inst].prop_ptr, pnumber, 0);
-       dbg(1, "get_pin_attr_from_inst: pnumber=%s\n", pnumber);
+       dbg(1, "get_pin_attr_from_inst(): pnumber=%s\n", pnumber);
        my_free(983, &pnumber);
        if(get_tok_size) my_strdup2(40, &pin_attr_value, str);
      }
@@ -775,7 +775,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
     my_strdup2(458, &result, s);
     return result;
   }
-  dbg(1, "subst_token(%s, %s, %s)\n", s, tok, new_val);
+  dbg(1, "subst_token(): %s, %s, %s\n", s, tok, new_val);
   sizetok = size = CADCHUNKALLOC;
   my_realloc(1152, &result, size);
   my_realloc(1153, &token, sizetok);
@@ -1457,7 +1457,7 @@ void print_spice_element(FILE *fd, int inst)
   }
   no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
   s=format;
-  dbg(1, "print_spice_element: name=%s, format=%s netlist_count=%d\n",name,format, netlist_count);
+  dbg(1, "print_spice_element(): name=%s, format=%s netlist_count=%d\n",name,format, netlist_count);
   /* begin parsing format string */
   while(1)
   {
@@ -1479,7 +1479,7 @@ void print_spice_element(FILE *fd, int inst)
          ( (!space && c != '$' && c != '@') && escape  )
        )
       ) {
-      dbg(1, "print_spice_element: c=%c, space=%d, escape=%d roken_pos=%d\n", c, space, escape, token_pos);
+      dbg(1, "print_spice_element(): c=%c, space=%d, escape=%d roken_pos=%d\n", c, space, escape, token_pos);
       state=TOK_SEP;
     }
     STR_ALLOC(&token, token_pos, &sizetok);
@@ -1618,7 +1618,7 @@ void print_spice_element(FILE *fd, int inst)
         tclcmd = my_malloc(488, s);
         Tcl_ResetResult(interp);
         my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
-        dbg(1, "tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
+        dbg(1, "print_spice_element(): tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
         res = tcleval(tclcmd);
 
         tmp = strlen(res) + 100; /* always make room for some extra chars 
@@ -1778,7 +1778,7 @@ void print_tedax_element(FILE *fd, int inst)
 
  if(format) {
   s=format;
-  dbg(1, "print_tedax_element: name=%s, tedax_format=%s netlist_count=%d\n",name,format, netlist_count);
+  dbg(1, "print_tedax_element(): name=%s, tedax_format=%s netlist_count=%d\n",name,format, netlist_count);
   /* begin parsing format string */
   while(1)
   {
@@ -2171,7 +2171,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
  }
  no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
  s=format;
- dbg(1, "print_vhdl_primitive: name=%s, format=%s netlist_count=%d\n",name,format, netlist_count);
+ dbg(1, "print_vhdl_primitive(): name=%s, format=%s netlist_count=%d\n",name,format, netlist_count);
 
  fprintf(fd, "---- start primitive ");
  lab=expandlabel(name, &tmp);
@@ -2344,7 +2344,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
   }
   no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
   s=format;
-  dbg(1, "print_verilog_primitive: name=%s, format=%s netlist_count=%d\n",name,format, netlist_count);
+  dbg(1, "print_verilog_primitive(): name=%s, format=%s netlist_count=%d\n",name,format, netlist_count);
 
   fprintf(fd, "---- start primitive ");
   lab=expandlabel(name, &tmp);

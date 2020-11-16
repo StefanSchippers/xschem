@@ -266,7 +266,7 @@ struct hilight_hashentry *bus_hilight_lookup(const char *token, int value, int r
   {
     *string_ptr='\0';  /* set end string at comma position.... */
     /* insert one bus element at a time in hash table */
-    dbg(2, "bus_hilight_lookup: inserting: %s, value:%d\n", start,value);
+    dbg(2, "bus_hilight_lookup(): inserting: %s, value:%d\n", start,value);
     ptr1=hilight_lookup(start, value, remove);
     if(ptr1 && !ptr2) {
       ptr2=ptr1; /*return first non null entry */
@@ -323,14 +323,14 @@ void hilight_net_pin_mismatches(void)
     symbol = xctx->sym + xctx->inst[j].ptr;
     npin = symbol->rects[PINLAYER];
     rct=symbol->rect[PINLAYER];
-    dbg(1, "\n");
+    dbg(1, "delete_hilight_net(): \n");
     for(i=0;i<npin;i++) {
       my_strdup(24, &labname,get_tok_value(rct[i].prop_ptr,"name",0));
       my_strdup(25, &lab, expandlabel(labname, &mult));
       my_strdup(26, &netname, net_name(j,i,&mult, 0));
-      dbg(1, "i=%d labname=%s explabname = %s  net = %s\n", i, labname, lab, netname);
+      dbg(1, "delete_hilight_net(): i=%d labname=%s explabname = %s  net = %s\n", i, labname, lab, netname);
       if(netname && strcmp(lab, netname)) {
-        dbg(1, "hilight: %s\n", netname);
+        dbg(1, "delete_hilight_net(): hilight: %s\n", netname);
         bus_hilight_lookup(netname, hilight_color, XINSERT);
         if(incr_hilight) hilight_color++;
       }
@@ -408,7 +408,7 @@ void hilight_child_pins(void)
  inst_number = xctx->sch_inst_number[xctx->currsch];
  for(j=0;j<rects;j++)
  {
-  dbg(1, "inst_number=%d\n", inst_number);
+  dbg(1, "hilight_child_pins(): inst_number=%d\n", inst_number);
 
   if(!xctx->inst[i].node[j]) continue;
   my_strdup(508, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
@@ -418,9 +418,9 @@ void hilight_child_pins(void)
   my_strdup(521, &pin_node, expandlabel(pin_name, &mult));
   dbg(1, "hilight_child_pins(): pin_node=%s\n", pin_node);
   for(k = 1; k<=mult; k++) {
-    dbg(1, "hilight_child_pins():looking nth net:%d, k=%d, inst_number=%d, mult=%d\n",
+    dbg(1, "hilight_child_pins(): looking nth net:%d, k=%d, inst_number=%d, mult=%d\n",
                                (inst_number-1)*mult+k, k, inst_number, mult);
-    dbg(1, "hilight_child_pins():looking net:%s\n",  find_nth(net_node, ',',
+    dbg(1, "hilight_child_pins(): looking net:%s\n",  find_nth(net_node, ',',
         ((inst_number - 1) * mult + k - 1) % net_mult + 1));
     xctx->currsch--;
     entry = bus_hilight_lookup(find_nth(net_node, ',', ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XLOOKUP);

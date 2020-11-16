@@ -183,14 +183,14 @@ const char *add_ext(const char *f, const char *ext)
   if((p=strrchr(f,'.'))) {
     my_strncpy(ff, f, (p-f) + 1);
     p = ff + (p-f);
-    dbg(1, "add_ext() 1: ff=%s\n", ff);
+    dbg(1, "add_ext(): 1: ff=%s\n", ff);
   } else {
     i = my_strncpy(ff, f, S(ff));
     p = ff+i;
-    dbg(1, "add_ext() 2: ff=%s\n", ff);
+    dbg(1, "add_ext(): 2: ff=%s\n", ff);
   }
   my_strncpy(p, ext, S(ff)-(p-ff));
-  dbg(1, "add_ext() 3: ff=%s\n", ff);
+  dbg(1, "add_ext(): 3: ff=%s\n", ff);
   return ff;
 }
 
@@ -794,7 +794,7 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
 
     if(!do_all_inst && !strcmp(tclgetvar("do_all_inst"),"1")) do_all_inst=1;
 
-    dbg(1, " 200711 1--> %s %.16g %.16g   %s\n",
+    dbg(1, "attach_labels_to_inst(): 1--> %s %.16g %.16g   %s\n",
         xctx->inst[selectedgroup[j].n].name,
         xctx->inst[selectedgroup[j].n].x0,
         xctx->inst[selectedgroup[j].n].y0,
@@ -810,7 +810,7 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
 
     for(i=0;i<npin;i++) {
        my_strdup(8, &labname,get_tok_value(rct[i].prop_ptr,"name",1));
-       dbg(1,"200711 2 --> labname=%s\n", labname);
+       dbg(1,"attach_labels_to_inst(): 2 --> labname=%s\n", labname);
 
        pinx0 = (rct[i].x1+rct[i].x2)/2;
        piny0 = (rct[i].y1+rct[i].y2)/2;
@@ -883,7 +883,7 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
            first_call=0;
          }
        }
-       dbg(1, "%d   %.16g %.16g %s\n", i, pinx0, piny0,labname);
+       dbg(1, "attach_labels_to_inst(): %d   %.16g %.16g %s\n", i, pinx0, piny0,labname);
     }
   }
   my_free(707, &prop);
@@ -1161,7 +1161,7 @@ void descend_schematic(int instnumber)
     if(save_ok==-1) return;
   }
 
-  dbg(1, "type of instance: %s\n", (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type);
+  dbg(1, "descend_schematic(): type of instance: %s\n", (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type);
 
   if(                   /*  do not descend if not subcircuit */
      (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type &&
@@ -1214,9 +1214,9 @@ void descend_schematic(int instnumber)
     if(inst_number < 0 ) inst_number += inst_mult+1;
     if(inst_number <1 || inst_number > inst_mult) inst_number = 1; /* any invalid number->descend to leftmost inst */
   }
-  dbg(1," inst_number=%d\n", inst_number);
+  dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
   my_strcat(15, &xctx->sch_path[xctx->currsch+1], find_nth(str, ',', inst_number));
-  dbg(1," inst_number=%d\n", inst_number);
+  dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
   my_strcat(16, &xctx->sch_path[xctx->currsch+1], ".");
   xctx->sch_inst_number[xctx->currsch+1] = inst_number;
   dbg(1, "descend_schematic(): current path: %s\n", xctx->sch_path[xctx->currsch+1]);

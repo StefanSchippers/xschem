@@ -75,7 +75,7 @@ static char *expandlabel_strdup(char *src)
  {
   ptr=NULL;
   my_strdup(122, &ptr,src);
-  dbg(3, "expandlabel_strdup: duplicated %lu string %s\n",(unsigned long)ptr,src);
+  dbg(3, "expandlabel_strdup(): duplicated %lu string %s\n",(unsigned long)ptr,src);
   return ptr;
  }
 }
@@ -112,7 +112,7 @@ static char *my_strmult2(int n, char *s)
  register char *pos,*prev;
  char *str, *ss;
 
- dbg(3, "my_strmult2: n=%d s=%s\n", n, s);
+ dbg(3, "my_strmult2(): n=%d s=%s\n", n, s);
  if(n==0) return expandlabel_strdup("");
  len=strlen(s);
  prev=s;

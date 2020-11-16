@@ -71,7 +71,7 @@ void del_inst_table(void)
     for(j=0;j<NBOXES;j++)
       insttable[i][j] = delinstentry(insttable[i][j]);
   prepared_hash_instances=0;
-  dbg(1, "cleared object hash table\n");
+  dbg(1, "del_inst_table(): cleared object hash table\n");
 }
 
 /* what:
@@ -749,7 +749,7 @@ void prepare_netlist_structs(int for_netlist)
 
       if (!(inst[i].node[0])) {
         my_strdup(65, &inst[i].node[0], get_tok_value((inst[i].ptr+ xctx->sym)->templ, "lab",1));
-        dbg(1, "no lab attr on instance, pick from symbol: %s\n", inst[i].node[0]);
+        dbg(1, "prepare_netlist_structs(): no lab attr on instance, pick from symbol: %s\n", inst[i].node[0]);
       }
       /* handle global nodes (global=1 set as symbol property) 28032003 */
       if (!strcmp(type,"label") && global_node && !strcmp(global_node, "true")) {

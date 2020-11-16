@@ -37,7 +37,7 @@ void statusmsg(char str[],int n)
  {
   my_snprintf(s, S(s), ".statusbar.1 configure -text $infowindow_text", str);
   dbg(3, "statusmsg(): n = %d, %s\n", n, s);
-  dbg(3, "           --> $infowindow_text = %s\n", tclgetvar("infowindow_text"));
+  dbg(3, "statusmsg(): -> $infowindow_text = %s\n", tclgetvar("infowindow_text"));
 
   tcleval(s);
  }
@@ -98,7 +98,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  }
 
  else if(!strcmp(argv[1],"set_netlist_dir") && argc==3) {
-   dbg(1, "xschem set_netlist_dir: argv[2] = %s\n", argv[2]);
+   dbg(1, "scheduler(): xschem set_netlist_dir: argv[2] = %s\n", argv[2]);
    my_strdup(0, &netlist_dir, argv[2]);
  }
 
@@ -154,7 +154,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
  else if(!strcmp(argv[1],"fullscreen"))
  {
-   dbg(1, "scheduler: xschem fullscreen, fullscreen=%d\n", fullscreen);
+   dbg(1, "scheduler(): xschem fullscreen, fullscreen=%d\n", fullscreen);
    toggle_fullscreen();
    Tcl_ResetResult(interp);
  }
@@ -262,7 +262,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  else if(!strcmp(argv[1],"zoom_box"))
  {
    double x1, y1, x2, y2, yy1, factor;
-   dbg(1, "xschem zoom_box: argc=%d, argv[2]=%s\n", argc, argv[2]);
+   dbg(1, "scheduler(): xschem zoom_box: argc=%d, argv[2]=%s\n", argc, argv[2]);
    if(argc==6 || argc == 7) {
      x1 = atof(argv[2]);
      y1 = atof(argv[3]);
@@ -649,7 +649,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        Tcl_AppendResult(interp, tmp, NULL);
      } else if(strstr(argv[4], "cell::") ) {
        tmp = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, argv[4]+6, 0);
-       dbg(1, "xschem getprop: looking up instance %d prop cell::|%s| : |%s|\n", i, argv[4]+6, tmp);
+       dbg(1, "scheduler(): xschem getprop: looking up instance %d prop cell::|%s| : |%s|\n", i, argv[4]+6, tmp);
        Tcl_AppendResult(interp, tmp, NULL);
      } else {
        Tcl_AppendResult(interp, get_tok_value(xctx->inst[i].prop_ptr, argv[4], 0), NULL);
@@ -928,7 +928,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
    else saveas(NULL, SCHEMATIC);
  } else if(!strcmp(argv[1],"save")) {
-   dbg(1, "xschem(): saving: current schematic\n");
+   dbg(1, "scheduler(): saving: current schematic\n");
 
    if(!strcmp(xctx->sch[xctx->currsch],"")) {   /* 20170622 check if unnamed schematic, use saveas in this case... */
      saveas(NULL, SCHEMATIC);
@@ -1236,7 +1236,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  else if(!strcmp(argv[1],"load_symbol") )
  {
     if(argc==3) {
-      dbg(1, "xschem(): load: filename=%s\n", argv[2]);
+      dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
       delete_hilight_net();
       xctx->currsch = 0;
       unselect_all();
@@ -1254,7 +1254,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     tcleval("catch { ngspice::resetdata }");
     if(argc==3) {
       if(!has_x || !modified  || !save(1) ) { /* save(1)==1 --> user cancel */
-        dbg(1, "xschem(): load: filename=%s\n", argv[2]);
+        dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
         delete_hilight_net();
         xctx->currsch = 0;
         unselect_all();
@@ -1859,7 +1859,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           int slen = strlen(s);
           if (s[slen - 1] == '/') s[slen - 1] = '\0';
           strcpy(win_temp_dir, s);
-          dbg(2, "win_temp_dir is %s\n", win_temp_dir);
+          dbg(2, "scheduler(): win_temp_dir is %s\n", win_temp_dir);
           Tcl_AppendResult(interp, s, NULL);
         }
       }

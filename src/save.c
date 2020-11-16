@@ -123,11 +123,11 @@ const char *create_tmpdir(char *prefix)
   for(i=0; i<5;i++) {
     my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix));
     if(stat(str, &buf) && !mkdir(str, 0700) ) { /* dir must not exist */
-      dbg(1, "created dir: %s\n", str);
+      dbg(1, "create_tmpdir(): created dir: %s\n", str);
       return str;
       break;
     }
-    dbg(1, "failed to create %s\n", str);
+    dbg(1, "create_tmpdir(): failed to create %s\n", str);
   }
   fprintf(errfp, "create_tmpdir(): failed to create %s, aborting\n", str);
   return NULL; /* failed to create random dir 5 times */
@@ -150,11 +150,11 @@ FILE *open_tmpfile(char *prefix, char **filename)
     my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix));
     *filename = str;
     if(stat(str, &buf) && (fd = fopen(str, "w")) ) { /* file must not exist */
-      dbg(1, "created file: %s\n", str);
+      dbg(1, "open_tmpfile(): created file: %s\n", str);
       return fd;
       break;
     }
-    dbg(1, "failed to create %s\n", str);
+    dbg(1, "open_tmpfile(): failed to create %s\n", str);
   }
   fprintf(errfp, "open_tmpfile(): failed to create %s, aborting\n", str);
   return NULL; /* failed to create random filename 5 times */
@@ -524,14 +524,14 @@ static void load_inst(int k, FILE *fd)
     if(!tmp) return;
     dbg(1, "load_inst(): tmp=%s\n", tmp);
     my_strncpy(name, tmp, S(name));
-    dbg(1, "load_inst() 1: name=%s\n", name);
+    dbg(1, "load_inst(): 1: name=%s\n", name);
     if(!strcmp(xctx->file_version,"1.0") ) {
       dbg(1, "load_inst(): add_ext(name,\".sym\") = %s\n", add_ext(name, ".sym") );
       my_strncpy(name, add_ext(name, ".sym"), S(name));
     }
     xctx->inst[i].name=NULL;
     my_strdup2(56, &xctx->inst[i].name, name);
-    dbg(1, "load_inst() 2: name=%s\n", name);
+    dbg(1, "load_inst(): 2: name=%s\n", name);
 
     if(fscanf(fd, "%lf %lf %d %d",&xctx->inst[i].x0, &xctx->inst[i].y0,&xctx->inst[i].rot, &xctx->inst[i].flip) < 4) {
       fprintf(errfp,"WARNING: missing fields for INSTANCE object, ignoring.\n");
@@ -1675,7 +1675,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      ORDER(ll[c][i].x1, ll[c][i].y1, ll[c][i].x2, ll[c][i].y2);
      ll[c][i].prop_ptr=NULL;
      load_ascii_string( &ll[c][i].prop_ptr, lcc[level].fd);
-     dbg(2, "l_d_s(): loaded line: ptr=%lx\n", (unsigned long)ll[c]);
+     dbg(2, "l_s_d(): loaded line: ptr=%lx\n", (unsigned long)ll[c]);
      if(!strcmp(get_tok_value(ll[c][i].prop_ptr,"bus", 0), "true") )
        ll[c][i].bus = 1;
      else
@@ -1731,7 +1731,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        pp[c][i].dash = 0;
      pp[c][i].sel = 0;
 
-     dbg(2, "l_d_s(): loaded polygon: ptr=%lx\n", (unsigned long)pp[c]);
+     dbg(2, "l_s_d(): loaded polygon: ptr=%lx\n", (unsigned long)pp[c]);
      lastp[c]++;
      break;
     case 'A':
@@ -1776,7 +1776,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      } else
        aa[c][i].dash = 0;
      aa[c][i].sel = 0;
-     dbg(2, "l_d_s(): loaded arc: ptr=%lx\n", (unsigned long)aa[c]);
+     dbg(2, "l_s_d(): loaded arc: ptr=%lx\n", (unsigned long)aa[c]);
      lasta[c]++;
      break;
     case 'B':
@@ -1801,7 +1801,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      RECTORDER(bb[c][i].x1, bb[c][i].y1, bb[c][i].x2, bb[c][i].y2);
      bb[c][i].prop_ptr=NULL;
      load_ascii_string( &bb[c][i].prop_ptr, lcc[level].fd);
-     dbg(2, "l_d_s(): loaded rect: ptr=%lx\n", (unsigned long)bb[c]);
+     dbg(2, "l_s_d(): loaded rect: ptr=%lx\n", (unsigned long)bb[c]);
      dash = get_tok_value(bb[c][i].prop_ptr,"dash", 0);
      if( strcmp(dash, "") ) {
        int d = atoi(dash);
@@ -1835,7 +1835,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        my_snprintf(lay, S(lay), " layer=%d", WIRELAYER);
        my_strcat(1163, &tt[i].prop_ptr, lay);
      }
-     dbg(1, "l_d_s(): loaded text : t=%s p=%s\n", tt[i].txt_ptr, tt[i].prop_ptr ? tt[i].prop_ptr : "NULL");
+     dbg(1, "l_s_d(): loaded text : t=%s p=%s\n", tt[i].txt_ptr, tt[i].prop_ptr ? tt[i].prop_ptr : "NULL");
      my_strdup(351, &tt[i].font, get_tok_value(tt[i].prop_ptr, "font", 0));
      str = get_tok_value(tt[i].prop_ptr, "hcenter", 0);
      tt[i].hcenter = strcmp(str, "true")  ? 0 : 1;
@@ -1871,7 +1871,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      ORDER(ll[WIRELAYER][i].x1, ll[WIRELAYER][i].y1, ll[WIRELAYER][i].x2, ll[WIRELAYER][i].y2);
      ll[WIRELAYER][i].prop_ptr=NULL;
      load_ascii_string( &ll[WIRELAYER][i].prop_ptr, lcc[level].fd);
-     dbg(2, "l_d_s(): loaded line: ptr=%lx\n", (unsigned long)ll[WIRELAYER]);
+     dbg(2, "l_s_d(): loaded line: ptr=%lx\n", (unsigned long)ll[WIRELAYER]);
      ll[WIRELAYER][i].dash = 0;
      if(!strcmp(get_tok_value(ll[WIRELAYER][i].prop_ptr, "bus", 0), "true"))
        ll[WIRELAYER][i].bus = 1;
@@ -1882,7 +1882,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      break;
     case 'C':
       load_ascii_string(&symname, lcc[level].fd);
-      dbg(1, "C line: symname=%s\n", symname);
+      dbg(1, "l_s_d(): C line: symname=%s\n", symname);
       if (fscanf(lcc[level].fd, "%lf %lf %d %d", &inst_x0, &inst_y0, &inst_rot, &inst_flip) < 4) {
         fprintf(errfp, "WARNING: missing fields for COMPONENT object, ignoring\n");
         read_line(lcc[level].fd, 0);
@@ -2027,7 +2027,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   } else {
     symbol[symbols].flags &= ~EMBEDDED;
   }
-  dbg(2, "l_d_s(): finished parsing file\n");
+  dbg(2, "l_s_d(): finished parsing file\n");
   for(c=0;c<cadlayers;c++)
   {
    symbol[symbols].arcs[c] = lasta[c];
