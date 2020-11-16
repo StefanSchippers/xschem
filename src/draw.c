@@ -1619,7 +1619,7 @@ void draw(void)
               ptr = xctx->inst[i].ptr;
               if( ptr !=-1) {
                 symptr = ptr+xctx->sym;
-                if( c==0 || /*20150408 draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
+                if( c==0 || /*draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
                     symptr->lines[c] ||
                     symptr->arcs[c] ||
                     symptr->rects[c] ||
@@ -1695,19 +1695,23 @@ void draw(void)
             for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
               ii=wireptr->n;
               if(xctx->wire[ii].bus) {
-                drawline(WIRELAYER, THICK, xctx->wire[ii].x1,xctx->wire[ii].y1,xctx->wire[ii].x2,xctx->wire[ii].y2, 0);
+                drawline(WIRELAYER, THICK, xctx->wire[ii].x1,xctx->wire[ii].y1,
+                  xctx->wire[ii].x2,xctx->wire[ii].y2, 0);
               }
               else
-                drawline(WIRELAYER, ADD, xctx->wire[ii].x1,xctx->wire[ii].y1,xctx->wire[ii].x2,xctx->wire[ii].y2, 0);
+                drawline(WIRELAYER, ADD, xctx->wire[ii].x1,xctx->wire[ii].y1,
+                  xctx->wire[ii].x2,xctx->wire[ii].y2, 0);
             }
           } else {
             for(i=0;i<xctx->wires;i++)
             {
               if(xctx->wire[i].bus) {
-                drawline(WIRELAYER, THICK, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
+                drawline(WIRELAYER, THICK, xctx->wire[i].x1,xctx->wire[i].y1,
+                  xctx->wire[i].x2,xctx->wire[i].y2, 0);
               }
               else
-                drawline(WIRELAYER, ADD, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
+                drawline(WIRELAYER, ADD, xctx->wire[i].x1,xctx->wire[i].y1,
+                  xctx->wire[i].x2,xctx->wire[i].y2, 0);
             }
           }
           update_conn_cues(1, draw_window);

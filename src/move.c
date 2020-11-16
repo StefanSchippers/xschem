@@ -223,8 +223,10 @@ void draw_selection(GC g, int interruptable)
      break;
     case xRECT:
      if(rotatelocal) {
-       ROTATION(move_rot, move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x1, xctx->rect[c][n].y1, rx1,ry1);
-       ROTATION(move_rot, move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x2, xctx->rect[c][n].y2, rx2,ry2);
+       ROTATION(move_rot, move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
+         xctx->rect[c][n].x1, xctx->rect[c][n].y1, rx1,ry1);
+       ROTATION(move_rot, move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
+         xctx->rect[c][n].x2, xctx->rect[c][n].y2, rx2,ry2);
      } else {
        ROTATION(move_rot, move_flip, x1, y_1, xctx->rect[c][n].x1, xctx->rect[c][n].y1, rx1,ry1);
        ROTATION(move_rot, move_flip, x1, y_1, xctx->rect[c][n].x2, xctx->rect[c][n].y2, rx2,ry2);
@@ -348,8 +350,10 @@ void draw_selection(GC g, int interruptable)
      break;
     case LINE:
      if(rotatelocal) {
-       ROTATION(move_rot, move_flip, xctx->line[c][n].x1, xctx->line[c][n].y1, xctx->line[c][n].x1, xctx->line[c][n].y1, rx1,ry1);
-       ROTATION(move_rot, move_flip, xctx->line[c][n].x1, xctx->line[c][n].y1, xctx->line[c][n].x2, xctx->line[c][n].y2, rx2,ry2);
+       ROTATION(move_rot, move_flip, xctx->line[c][n].x1, xctx->line[c][n].y1,
+         xctx->line[c][n].x1, xctx->line[c][n].y1, rx1,ry1);
+       ROTATION(move_rot, move_flip, xctx->line[c][n].x1, xctx->line[c][n].y1,
+         xctx->line[c][n].x2, xctx->line[c][n].y2, rx2,ry2);
      } else {
        ROTATION(move_rot, move_flip, x1, y_1, xctx->line[c][n].x1, xctx->line[c][n].y1, rx1,ry1);
        ROTATION(move_rot, move_flip, x1, y_1, xctx->line[c][n].x2, xctx->line[c][n].y2, rx2,ry2);
@@ -591,8 +595,10 @@ void copy_objects(int what)
        }
        */
        if(rotatelocal) {
-         ROTATION(move_rot, move_flip, xctx->wire[n].x1, xctx->wire[n].y1, xctx->wire[n].x1, xctx->wire[n].y1, rx1,ry1);
-         ROTATION(move_rot, move_flip, xctx->wire[n].x1, xctx->wire[n].y1, xctx->wire[n].x2, xctx->wire[n].y2, rx2,ry2);
+         ROTATION(move_rot, move_flip, xctx->wire[n].x1, xctx->wire[n].y1,
+           xctx->wire[n].x1, xctx->wire[n].y1, rx1,ry1);
+         ROTATION(move_rot, move_flip, xctx->wire[n].x1, xctx->wire[n].y1,
+           xctx->wire[n].x2, xctx->wire[n].y2, rx2,ry2);
        } else {
          ROTATION(move_rot, move_flip, x1, y_1, xctx->wire[n].x1, xctx->wire[n].y1, rx1,ry1);
          ROTATION(move_rot, move_flip, x1, y_1, xctx->wire[n].x2, xctx->wire[n].y2, rx2,ry2);
@@ -638,8 +644,10 @@ void copy_objects(int what)
       if(c!=k) break;
       /* bbox(ADD, xctx->line[c][n].x1, xctx->line[c][n].y1, xctx->line[c][n].x2, xctx->line[c][n].y2) */
       if(rotatelocal) {
-        ROTATION(move_rot, move_flip, xctx->line[c][n].x1, xctx->line[c][n].y1, xctx->line[c][n].x1, xctx->line[c][n].y1, rx1,ry1);
-        ROTATION(move_rot, move_flip, xctx->line[c][n].x1, xctx->line[c][n].y1, xctx->line[c][n].x2, xctx->line[c][n].y2, rx2,ry2);
+        ROTATION(move_rot, move_flip, xctx->line[c][n].x1, xctx->line[c][n].y1,
+          xctx->line[c][n].x1, xctx->line[c][n].y1, rx1,ry1);
+        ROTATION(move_rot, move_flip, xctx->line[c][n].x1, xctx->line[c][n].y1,
+          xctx->line[c][n].x2, xctx->line[c][n].y2, rx2,ry2);
       } else {
         ROTATION(move_rot, move_flip, x1, y_1, xctx->line[c][n].x1, xctx->line[c][n].y1, rx1,ry1);
         ROTATION(move_rot, move_flip, x1, y_1, xctx->line[c][n].x2, xctx->line[c][n].y2, rx2,ry2);
@@ -745,8 +753,10 @@ void copy_objects(int what)
       if(c!=k) break;
       /* bbox(ADD, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x2, xctx->rect[c][n].y2); */
       if(rotatelocal) {
-        ROTATION(move_rot, move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x1, xctx->rect[c][n].y1, rx1,ry1);
-        ROTATION(move_rot, move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x2, xctx->rect[c][n].y2, rx2,ry2);
+        ROTATION(move_rot, move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
+          xctx->rect[c][n].x1, xctx->rect[c][n].y1, rx1,ry1);
+        ROTATION(move_rot, move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
+          xctx->rect[c][n].x2, xctx->rect[c][n].y2, rx2,ry2);
       } else {
         ROTATION(move_rot, move_flip, x1, y_1, xctx->rect[c][n].x1, xctx->rect[c][n].y1, rx1,ry1);
         ROTATION(move_rot, move_flip, x1, y_1, xctx->rect[c][n].x2, xctx->rect[c][n].y2, rx2,ry2);
@@ -777,7 +787,8 @@ void copy_objects(int what)
       bbox(ADD, rx1, ry1, rx2, ry2 );
       */
       if(rotatelocal) {
-        ROTATION(move_rot, move_flip, xctx->text[n].x0, xctx->text[n].y0, xctx->text[n].x0, xctx->text[n].y0, rx1,ry1);
+        ROTATION(move_rot, move_flip, xctx->text[n].x0, xctx->text[n].y0,
+         xctx->text[n].x0, xctx->text[n].y0, rx1,ry1);
       } else {
         ROTATION(move_rot, move_flip, x1, y_1, xctx->text[n].x0, xctx->text[n].y0, rx1,ry1);
       }
@@ -864,7 +875,8 @@ void copy_objects(int what)
        }
        check_inst_storage();
        if(rotatelocal) {
-         ROTATION(move_rot, move_flip, xctx->inst[n].x0, xctx->inst[n].y0, xctx->inst[n].x0, xctx->inst[n].y0, rx1,ry1);
+         ROTATION(move_rot, move_flip, xctx->inst[n].x0, xctx->inst[n].y0,
+           xctx->inst[n].x0, xctx->inst[n].y0, rx1,ry1);
        } else {
          ROTATION(move_rot, move_flip, x1, y_1, xctx->inst[n].x0, xctx->inst[n].y0, rx1,ry1);
        }
@@ -1254,8 +1266,10 @@ void move_objects(int what, int merge, double dx, double dy)
       if(c!=k) break;
       bbox(ADD, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x2, xctx->rect[c][n].y2);
       if(rotatelocal) {
-        ROTATION(move_rot, move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x1, xctx->rect[c][n].y1, rx1,ry1);
-        ROTATION(move_rot, move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x2, xctx->rect[c][n].y2, rx2,ry2);
+        ROTATION(move_rot, move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
+          xctx->rect[c][n].x1, xctx->rect[c][n].y1, rx1,ry1);
+        ROTATION(move_rot, move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
+          xctx->rect[c][n].x2, xctx->rect[c][n].y2, rx2,ry2);
       } else {
         ROTATION(move_rot, move_flip, x1, y_1, xctx->rect[c][n].x1, xctx->rect[c][n].y1, rx1,ry1);
         ROTATION(move_rot, move_flip, x1, y_1, xctx->rect[c][n].x2, xctx->rect[c][n].y2, rx2,ry2);
@@ -1342,7 +1356,8 @@ void move_objects(int what, int merge, double dx, double dy)
       bbox(ADD, rx1, ry1, rx2, ry2 );
 
       if(rotatelocal) {
-        ROTATION(move_rot, move_flip, xctx->text[n].x0, xctx->text[n].y0, xctx->text[n].x0, xctx->text[n].y0, rx1,ry1);
+        ROTATION(move_rot, move_flip, xctx->text[n].x0, xctx->text[n].y0,
+          xctx->text[n].x0, xctx->text[n].y0, rx1,ry1);
       } else {
         ROTATION(move_rot, move_flip, x1, y_1, xctx->text[n].x0, xctx->text[n].y0, rx1,ry1);
       }

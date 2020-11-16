@@ -679,7 +679,8 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
         }
       }
     }
-    my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  w = %.16g h = %.16g",i, xctx->inst[i].xx1, xctx->inst[i].yy1,
+    my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  w = %.16g h = %.16g",i, 
+       xctx->inst[i].xx1, xctx->inst[i].yy1,
        xctx->inst[i].xx2-xctx->inst[i].xx1, xctx->inst[i].yy2-xctx->inst[i].yy1
     );
     statusmsg(str,1);

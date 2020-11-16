@@ -1361,7 +1361,8 @@ void align_sch_pins_with_sym(const char *name, int pos)
         pinname = get_tok_value(xctx->sym[pos].rect[PINLAYER][i].prop_ptr, "name", 0);
         entry = int_hash_lookup(pintable, pinname, 0 , XLOOKUP);
         if(!entry) {
-          dbg(0, " align_sch_pins_with_sym(): warning: pin mismatch between %s and %s : %s\n", name, symname, pinname);
+          dbg(0, " align_sch_pins_with_sym(): warning: pin mismatch between %s and %s : %s\n",
+            name, symname, pinname);
           fail = 1;
           break;
         }
@@ -1987,7 +1988,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
         }
         my_strdup(654, &lcc[level].prop_ptr, prop_ptr);
         my_strdup(657, &lcc[level].symname, symname);
-        dbg(1, "level incremented: level=%d, symname=%s, prop_ptr=%s sympath=%s\n", level, symname, prop_ptr, sympath);
+        dbg(1, "level incremented: level=%d, symname=%s, prop_ptr=%s sympath=%s\n", 
+          level, symname, prop_ptr, sympath);
       }
       break;
     case '[':
@@ -2382,14 +2384,15 @@ void save_selection(int what)
      break;
 
      case WIRE:
-      fprintf(fd, "N %.16g %.16g %.16g %.16g ",xctx->wire[n].x1, xctx->wire[n].y1, xctx->wire[n].x2, xctx->wire[n].y2);
+      fprintf(fd, "N %.16g %.16g %.16g %.16g ",xctx->wire[n].x1, xctx->wire[n].y1,
+        xctx->wire[n].x2, xctx->wire[n].y2);
       save_ascii_string(xctx->wire[n].prop_ptr,fd);
       fputc('\n' ,fd);
      break;
 
      case LINE:
-      fprintf(fd, "L %d %.16g %.16g %.16g %.16g ", c,xctx->line[c][n].x1, xctx->line[c][n].y1,xctx->line[c][n].x2,
-       xctx->line[c][n].y2 );
+      fprintf(fd, "L %d %.16g %.16g %.16g %.16g ", c,xctx->line[c][n].x1, xctx->line[c][n].y1,
+       xctx->line[c][n].x2, xctx->line[c][n].y2 );
       save_ascii_string(xctx->line[c][n].prop_ptr,fd);
       fputc('\n' ,fd);
      break;
@@ -2397,7 +2400,8 @@ void save_selection(int what)
      case ELEMENT:
       fprintf(fd, "C ");
       save_ascii_string(xctx->inst[n].name,fd);
-      fprintf(fd, " %.16g %.16g %d %d ",xctx->inst[n].x0, xctx->inst[n].y0, xctx->inst[n].rot, xctx->inst[n].flip );
+      fprintf(fd, " %.16g %.16g %d %d ",xctx->inst[n].x0, xctx->inst[n].y0,
+        xctx->inst[n].rot, xctx->inst[n].flip );
       save_ascii_string(xctx->inst[n].prop_ptr,fd);
       fputc('\n' ,fd);
      break;

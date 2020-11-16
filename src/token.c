@@ -1182,7 +1182,7 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
      {
        if(!tmp) {fprintf(fd, "generic (\n");}
        if(tmp) fprintf(fd, " ;\n");
-       if(!type || strcmp(type,"string") ) { /* 20080213 print "" around string values 20080418 check for type==NULL */
+       if(!type || strcmp(type,"string") ) { /* print "" around string values 20080418 check for type==NULL */
          fprintf(fd, "  %s : %s := %s", token, type? type:"integer", value);
        } else {
          fprintf(fd, "  %s : %s := \"%s\"", token, type? type:"integer", value);

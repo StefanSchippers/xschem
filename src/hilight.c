@@ -125,7 +125,8 @@ void create_plot_cmd(int viewer)
       if(node_entry && !strcmp(xctx->sch_path[xctx->currsch], entry->path) &&
          (node_entry->d.port == 0 || !strcmp(entry->path, ".") )) {
         c = get_color(entry->value);
-        sprintf(color_str, "%02x/%02x/%02x", xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
+        sprintf(color_str, "%02x/%02x/%02x", 
+          xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
         idx++;
         if(viewer == NGSPICE) {
           if(idx > 9) {
@@ -423,7 +424,8 @@ void hilight_child_pins(void)
     dbg(1, "hilight_child_pins(): looking net:%s\n",  find_nth(net_node, ',',
         ((inst_number - 1) * mult + k - 1) % net_mult + 1));
     xctx->currsch--;
-    entry = bus_hilight_lookup(find_nth(net_node, ',', ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XLOOKUP);
+    entry = bus_hilight_lookup(find_nth(net_node, ',', 
+      ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XLOOKUP);
     xctx->currsch++;
     if(entry) {
       bus_hilight_lookup(find_nth(pin_node, ',', k), entry->value, XINSERT);
