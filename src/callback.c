@@ -1325,7 +1325,6 @@ int callback(int event, int mx, int my, KeySym key,
     break;
    }
    if(0 && key=='|' && !(state & ControlMask)) {            /* testmode */
-
     break;
    }
    if(0 && key=='|' && (state & ControlMask))      /* testmode */
@@ -1335,19 +1334,19 @@ int callback(int event, int mx, int my, KeySym key,
     int snap=100;
 
     clear_drawing();
-    for(i=0;i<1000; i++) {
-      w = (1+ROUND(rand()%700/snap))*snap;
-      x1 = 40000+ROUND(rand()%10000/snap)*snap;
-      y1 = 40000+ROUND(rand()%10000/snap)*snap;
+    for(i=0;i<5000; i++) {
+      w = (1+ROUND(rand()%1200/snap))*snap;
+      x1 = 40000+ROUND(rand()%30000/snap)*snap;
+      y1 = 40000+ROUND(rand()%30000/snap)*snap;
       x2=x1+w;
       y2=y1;
       ORDER(x1, y1, x2, y2);
       storeobject(-1, x1, y1, x2, y2 ,WIRE,0,0,NULL);
     }
-    for(i=0;i<1000; i++) {
-      w = (1+ROUND(rand()%700/snap))*snap;
-      x1 = 40000+ROUND(rand()%10000/snap)*snap;
-      y1 = 40000+ROUND(rand()%10000/snap)*snap;
+    for(i=0;i<5000; i++) {
+      w = (1+ROUND(rand()%1200/snap))*snap;
+      x1 = 40000+ROUND(rand()%30000/snap)*snap;
+      y1 = 40000+ROUND(rand()%30000/snap)*snap;
       x2=x1;
       y2=y1+w;
       ORDER(x1, y1, x2, y2);
@@ -1355,8 +1354,7 @@ int callback(int event, int mx, int my, KeySym key,
     }
     prepared_netlist_structs = 0;
     prepared_hilight_structs = 0;
-
-
+    prepared_hash_wires = 0;
     zoom_full(1, 0);
     break;
    }

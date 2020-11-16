@@ -972,7 +972,8 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /* 201509
   customfont = set_text_custom_font(&xctx->text[i]);
   #endif
   text_bbox(xctx->text[i].txt_ptr,
-             xctx->text[i].xscale, xctx->text[i].yscale, select_rot, select_flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+             xctx->text[i].xscale, xctx->text[i].yscale, select_rot, select_flip, 
+             xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2);
   #ifdef HAS_CAIRO
@@ -994,6 +995,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /* 201509
  }
  for(c=0;c<cadlayers;c++)
  {
+  if(!enable_layer[c]) continue;
   for(i=0;i<xctx->polygons[c]; i++) {
     int k, selected_points, flag;
 

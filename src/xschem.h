@@ -93,7 +93,8 @@
 #include <tkWinInt.h>
 #define xunlink _unlink
 #define MOUSE_WHEEL_UP 38
-extern int XSetClipRectangles(register Display* dpy, GC gc, int clip_x_origin, int clip_y_origin, XRectangle* rectangles, int n, int ordering);
+extern int XSetClipRectangles(register Display* dpy, GC gc, int clip_x_origin, 
+            int clip_y_origin, XRectangle* rectangles, int n, int ordering);
 extern int XSetTile(Display* display, GC gctiled, Pixmap save_pixmap);
 extern void change_to_unix_fn(char* fn);
 extern char win_temp_dir[PATH_MAX];
@@ -742,6 +743,7 @@ extern xcb_visualtype_t *visual_xcb;
 #endif /*  HAS_CAIRO */
 
 /*  FUNCTIONS */
+extern double timer(int start);
 extern void enable_layers(void);
 extern void set_snap(double);
 extern void set_grid(double);

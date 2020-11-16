@@ -56,6 +56,7 @@ void find_closest_polygon(double mx,double my)
  double threshold = CADWIREMINDIST * CADWIREMINDIST * cadgrid * cadgrid / 400;
  for(c=0;c<cadlayers;c++)
  {
+  if(!enable_layer[c]) continue;
   for(i=0;i<xctx->polygons[c];i++)
   {
     /*fprintf(errfp, "points=%d\n", xctx->poly[c][i].points); */
@@ -89,6 +90,7 @@ void find_closest_line(double mx,double my)
  double threshold = CADWIREMINDIST * CADWIREMINDIST * cadgrid * cadgrid / 400;
  for(c=0;c<cadlayers;c++)
  {
+  if(!enable_layer[c]) continue;
   for(i=0;i<xctx->lines[c];i++)
   {
    if( (tmp = dist(xctx->line[c][i].x1,xctx->line[c][i].y1,xctx->line[c][i].x2,xctx->line[c][i].y2,mx,my))
@@ -175,6 +177,7 @@ void find_closest_arc(double mx,double my)
 
  for(c=0;c<cadlayers;c++)
  {
+  if(!enable_layer[c]) continue;
   for(i=0;i<xctx->arcs[c];i++)
   {
     dist = sqrt(pow(mx-xctx->arc[c][i].x,2) + pow(my-xctx->arc[c][i].y,2)) - xctx->arc[c][i].r;
@@ -221,6 +224,7 @@ void find_closest_box(double mx,double my)
  int i,c,r=-1, col = 0;
  for(c=0;c<cadlayers;c++)
  {
+  if(!enable_layer[c]) continue;
   for(i=0;i<xctx->rects[c];i++)
   {
    if( POINTINSIDE(mx,my,xctx->rect[c][i].x1,xctx->rect[c][i].y1,xctx->rect[c][i].x2,xctx->rect[c][i].y2) )

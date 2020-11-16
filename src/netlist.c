@@ -192,7 +192,7 @@ static void wiredelete(int n, int x, int y)
   struct wireentry *saveptr, **prevptr, *ptr;
 
   prevptr = &wiretable[x][y];
-  ptr = *prevptr;
+  ptr = wiretable[x][y];
   while(ptr) {
     if(ptr -> n == n) {
       saveptr = ptr->next;
@@ -201,9 +201,9 @@ static void wiredelete(int n, int x, int y)
       return;
     }
     prevptr = &ptr->next;
-    ptr = *prevptr;
+    ptr = ptr->next;
+    
   }
-
 }
 
 static void wireinsert(int n, int x, int y)
