@@ -1211,6 +1211,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
 
  my_strncpy(xctx->file_version, XSCHEM_FILE_VERSION, S(xctx->file_version));
+ /* compile_font() needs enabled layers, these are set after xschem.tcl loading completed
+  * so we temporarily enable all them here */
+ for(i = 0; i < cadlayers; i++) enable_layer[i] = 1;
  compile_font();
  /* restore current dir after loading font */
  if(tcleval("info exists env(PWD)")[0] == '1') {
