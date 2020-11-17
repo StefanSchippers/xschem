@@ -523,13 +523,15 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
       if(c=='"') {
         if((with_quotes & 1) || escape)  result[value_pos++]=c;
       }
-      else if( !quote || !((c == '\\') && (with_quotes & 2)) ) result[value_pos++]=c; /* skip unescaped backslashes */
-      else if( (c == '\\') && escape ) result[value_pos++]=c; /* 20170414 add escaped backslashes */
+      /* skip unescaped backslashes */
+      else if( !quote || !((c == '\\') && (with_quotes & 2)) ) result[value_pos++]=c;
+      else if( (c == '\\') && escape ) result[value_pos++]=c; /* add escaped backslashes */
     } else if(state==TOK_ENDTOK || state==TOK_SEP) {
         if(token_pos) {
           token[token_pos]='\0';
           if( !(cmp = strcmp(token,tok)) ) {
-            get_tok_size = token_pos; /* report back also token size, useful to check if requested token exists */
+            /* report back also token size, useful to check if requested token exists */
+            get_tok_size = token_pos;
           }
           dbg(2, "get_tok_value(): token=%s\n", token);
           token_pos=0;
@@ -537,7 +539,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     } else if(state==TOK_END) {
       result[value_pos]='\0';
       if( !cmp ) {
-        get_tok_value_size = value_pos; /* return also size so to avoid using strlen 20180926 */
+        get_tok_value_size = value_pos; /* return also size so to avoid using strlen */
         return result;
       }
       value_pos=0;
@@ -547,7 +549,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     if(c=='\0') {
       result[0]='\0';
       get_tok_size = 0;
-      get_tok_value_size = 0; /* return also size so to avoid using strlen 20180926 */
+      get_tok_value_size = 0; /* return also size so to avoid using strlen  */
       return result;
     }
   }
@@ -969,6 +971,7 @@ void print_vhdl_element(FILE *fd, int inst)
   int token_pos=0, value_pos=0;
   int quote=0;
   int escape=0;
+  xRect *pinptr;
 
   if(get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"vhdl_format",2)[0] != '\0') {
    print_vhdl_primitive(fd, inst);
@@ -1089,9 +1092,10 @@ void print_vhdl_element(FILE *fd, int inst)
   /* print port map */
   fprintf(fd, "port map(\n" );
   tmp=0;
+  pinptr = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER];
   for(i=0;i<no_of_pins;i++)
   {
-    if(strcmp(get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
+    if(strcmp(get_tok_value(pinptr[i].prop_ptr,"vhdl_ignore",0), "true")) {
       if( (str_ptr =  net_name(inst,i, &mult, 0, 1)) )
       {
         if(tmp) fprintf(fd, " ,\n");
@@ -2891,8 +2895,9 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
         }
         tmp = get_tok_value_size;  /* strlen(value); */
         STR_ALLOC(&result, tmp + 1 + result_pos, &size); /* +1 to add leading '$' */
-        /* prefix substituted token with a '$' so it will be recognized by translate() for last level translation with
-           instance placement prop_ptr attributes  at drawing/netlisting time. */
+        /* prefix substituted token with a '$' so it will be recognized by translate()
+         * for last level translation with instance placement prop_ptr attributes at
+         * drawing/netlisting time. */
         memcpy(result + result_pos , "$", 1);
         memcpy(result + result_pos + 1 , value, tmp + 1);
         result_pos += tmp + 1;

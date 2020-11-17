@@ -533,7 +533,8 @@ static void load_inst(int k, FILE *fd)
     my_strdup2(56, &xctx->inst[i].name, name);
     dbg(1, "load_inst(): 2: name=%s\n", name);
 
-    if(fscanf(fd, "%lf %lf %d %d",&xctx->inst[i].x0, &xctx->inst[i].y0,&xctx->inst[i].rot, &xctx->inst[i].flip) < 4) {
+    if(fscanf(fd, "%lf %lf %d %d", &xctx->inst[i].x0, &xctx->inst[i].y0,
+       &xctx->inst[i].rot, &xctx->inst[i].flip) < 4) {
       fprintf(errfp,"WARNING: missing fields for INSTANCE object, ignoring.\n");
       read_line(fd, 0);
     } else {

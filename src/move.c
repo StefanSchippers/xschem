@@ -203,7 +203,8 @@ void draw_selection(GC g, int interruptable)
    {
     case xTEXT:
      if(rotatelocal) {
-       ROTATION(move_rot, move_flip, xctx->text[n].x0, xctx->text[n].y0, xctx->text[n].x0, xctx->text[n].y0, rx1,ry1);
+       ROTATION(move_rot, move_flip, xctx->text[n].x0, xctx->text[n].y0, 
+         xctx->text[n].x0, xctx->text[n].y0, rx1,ry1);
      } else {
        ROTATION(move_rot, move_flip, x1, y_1, xctx->text[n].x0, xctx->text[n].y0, rx1,ry1);
      }
@@ -318,8 +319,10 @@ void draw_selection(GC g, int interruptable)
 
     case WIRE:
      if(rotatelocal) {
-       ROTATION(move_rot, move_flip, xctx->wire[n].x1, xctx->wire[n].y1, xctx->wire[n].x1, xctx->wire[n].y1, rx1,ry1);
-       ROTATION(move_rot, move_flip, xctx->wire[n].x1, xctx->wire[n].y1, xctx->wire[n].x2, xctx->wire[n].y2, rx2,ry2);
+       ROTATION(move_rot, move_flip, xctx->wire[n].x1, xctx->wire[n].y1,
+         xctx->wire[n].x1, xctx->wire[n].y1, rx1,ry1);
+       ROTATION(move_rot, move_flip, xctx->wire[n].x1, xctx->wire[n].y1,
+         xctx->wire[n].x2, xctx->wire[n].y2, rx2,ry2);
      } else {
        ROTATION(move_rot, move_flip, x1, y_1, xctx->wire[n].x1, xctx->wire[n].y1, rx1,ry1);
        ROTATION(move_rot, move_flip, x1, y_1, xctx->wire[n].x2, xctx->wire[n].y2, rx2,ry2);
@@ -414,7 +417,8 @@ void draw_selection(GC g, int interruptable)
      break;
     case ELEMENT:
      if(rotatelocal) {
-       ROTATION(move_rot, move_flip, xctx->inst[n].x0, xctx->inst[n].y0, xctx->inst[n].x0, xctx->inst[n].y0, rx1,ry1);
+       ROTATION(move_rot, move_flip, xctx->inst[n].x0, xctx->inst[n].y0,
+         xctx->inst[n].x0, xctx->inst[n].y0, rx1,ry1);
      } else {
        ROTATION(move_rot, move_flip, x1, y_1, xctx->inst[n].x0, xctx->inst[n].y0, rx1,ry1);
      }

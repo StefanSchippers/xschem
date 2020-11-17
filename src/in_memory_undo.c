@@ -267,7 +267,8 @@ void push_undo(void)
       uslot[slot].pptr[c][i].selected_point = my_malloc(189, points * sizeof(unsigned short));
       memcpy(uslot[slot].pptr[c][i].x, xctx->poly[c][i].x, points * sizeof(double));
       memcpy(uslot[slot].pptr[c][i].y, xctx->poly[c][i].y, points * sizeof(double));
-      memcpy(uslot[slot].pptr[c][i].selected_point, xctx->poly[c][i].selected_point, points * sizeof(unsigned short));
+      memcpy(uslot[slot].pptr[c][i].selected_point, xctx->poly[c][i].selected_point, 
+        points * sizeof(unsigned short));
       my_strdup(190, &uslot[slot].pptr[c][i].prop_ptr, xctx->poly[c][i].prop_ptr);
     }
   }
@@ -378,7 +379,8 @@ void pop_undo(int redo)
       my_realloc(212, &xctx->poly[c][i].selected_point, points * sizeof(unsigned short));
       memcpy(xctx->poly[c][i].x, uslot[slot].pptr[c][i].x, points * sizeof(double));
       memcpy(xctx->poly[c][i].y, uslot[slot].pptr[c][i].y, points * sizeof(double));
-      memcpy(xctx->poly[c][i].selected_point, uslot[slot].pptr[c][i].selected_point, points * sizeof(unsigned short));
+      memcpy(xctx->poly[c][i].selected_point, uslot[slot].pptr[c][i].selected_point, 
+        points * sizeof(unsigned short));
     }
 
   }

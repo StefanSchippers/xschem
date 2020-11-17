@@ -24,21 +24,13 @@
 
 static void instdelete(int n, int x, int y)
 {
-  struct instentry *saveptr, **prevptr, *ptr;
+  struct instentry *saveptr, **prevptr;
 
   prevptr = &insttable[x][y];
-  ptr = *prevptr;
-  while(ptr) {
-    if(ptr -> n == n) {
-      saveptr = ptr->next;
-      my_free(821, &ptr);
-      *prevptr = saveptr;
-      return;
-    }
-    prevptr = &ptr->next;
-    ptr = *prevptr;
-  }
-
+  while( (*prevptr)->n != n) prevptr = &(*prevptr)->next;
+  saveptr = (*prevptr)->next;
+  my_free(821, prevptr);
+  *prevptr = saveptr;
 }
 
 static void instinsert(int n, int x, int y)
@@ -146,7 +138,6 @@ static void instpindelete(int n,int pin, int x, int y)
     prevptr = &ptr->next;
     ptr = *prevptr;
   }
-
 }
 
 /*                                      --pin coordinates--  -square coord- */
@@ -187,23 +178,16 @@ static void del_inst_pin_table(void)
    instpintable[i][j] = delinstpinentry(instpintable[i][j]);
 }
 
+
 static void wiredelete(int n, int x, int y)
 {
-  struct wireentry *saveptr, **prevptr, *ptr;
+  struct wireentry *saveptr, **prevptr;
 
   prevptr = &wiretable[x][y];
-  ptr = wiretable[x][y];
-  while(ptr) {
-    if(ptr -> n == n) {
-      saveptr = ptr->next;
-      my_free(825, &ptr);
-      *prevptr = saveptr;
-      return;
-    }
-    prevptr = &ptr->next;
-    ptr = ptr->next;
-    
-  }
+  while( (*prevptr)->n != n) prevptr = &(*prevptr)->next;
+  saveptr = (*prevptr)->next;
+  my_free(825, prevptr);
+  *prevptr = saveptr;
 }
 
 static void wireinsert(int n, int x, int y)

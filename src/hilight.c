@@ -696,8 +696,10 @@ void drill_hilight(void)
         propagate_str=get_tok_value(rct[j].prop_ptr, "propagate_to", 0);
         if(propagate_str[0] && (entry=bus_hilight_lookup(netname, 0, XLOOKUP))) {
           propagate = atoi(propagate_str);
-          my_strdup(144, &propagated_net, net_name(i, propagate, &mult, 1, 1)); /* get net to propagate hilight to...*/
-          propag_entry = bus_hilight_lookup(propagated_net, entry->value, XINSERT); /* add net to highlight list */
+          /* get net to propagate hilight to...*/
+          my_strdup(144, &propagated_net, net_name(i, propagate, &mult, 1, 1));
+          /* add net to highlight list */
+          propag_entry = bus_hilight_lookup(propagated_net, entry->value, XINSERT);
           if(!propag_entry) {
             found=1; /* keep looping until no more nets are found. */
           }
@@ -955,8 +957,9 @@ void select_hilight_net(void)
  for(i=0;i<xctx->instances;i++) {
 
   type = (xctx->inst[i].ptr+ xctx->sym)->type;
-  hilight_connected_inst = !strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true") ||
-                           !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true");
+  hilight_connected_inst =
+    !strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true") ||
+    !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true");
   if( xctx->inst[i].flags & 4) {
     dbg(1, "draw_hilight_net(): instance %d flags &4 true\n", i);
      xctx->inst[i].sel = SELECTED;
@@ -1063,8 +1066,9 @@ void draw_hilight_net(int on_window)
 
   type = (xctx->inst[i].ptr+ xctx->sym)->type;
 
-  hilight_connected_inst = !strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true") ||
-                           !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true");
+  hilight_connected_inst =
+    !strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true") ||
+    !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true");
   if( xctx->inst[i].flags & 4) {
     dbg(1, "draw_hilight_net(): instance %d flags &4 true\n", i);
     inst_color[i]=PINLAYER;

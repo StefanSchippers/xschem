@@ -197,11 +197,13 @@ void trim_wires(void)
           xctx->wire[j].x1 = x0;
           xctx->wire[j].y1 = y0;
           hash_wire(XINSERT, xctx->wires, 0);
+
+          i--; /* redo current i iteration, since we break the 'j' loop due to changed wire hash table */
           hash_wire(XDELETE, j, 0); /* rehash since endpoint x1, y1 changed */
           hash_wire(XINSERT, j, 0);
+
           xctx->wires++;
           changed = 1;
-          i--; /* redo current i iteration, since we break the 'j' loop due to changed wire hash table */
           break;
         }
       }
