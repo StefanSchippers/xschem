@@ -10,5 +10,5 @@ V {}
 S {}
 E {}
 A 15 0 0 1.875 90 360 {fill=true}
-T {tcleval(@node\\)} 6.875 -8.59375 0 0 0.2 0.2 {vcenter=true layer=15}
-T {@descr} 6.875 -21.09375 0 0 0.2 0.2 {vcenter=true layer=15}
+T {tcleval(@node\\)} 6.875 -16.09375 0 0 0.2 0.2 {layer=15}
+T {@descr} 6.875 -28.59375 0 0 0.2 0.2 {layer=15}

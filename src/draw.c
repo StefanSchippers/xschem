@@ -252,8 +252,8 @@ int set_text_custom_font(xText *txt)
 
 
 #ifdef HAS_CAIRO
-void cairo_draw_string_line(cairo_t *cairo_ctx, char *s,
-    double x, double y, double size, int rot, int flip,
+static void cairo_draw_string_line(cairo_t *cairo_ctx, char *s,
+    double x, double y, int rot, int flip,
     int lineno, double fontheight, double fontascent, double fontdescent, int llength)
 {
   double ix, iy;
@@ -261,7 +261,6 @@ void cairo_draw_string_line(cairo_t *cairo_ctx, char *s,
   cairo_text_extents_t ext;
   int line_delta;
   int line_offset;
-  double xadvance;
   double lines;
   double vc; /* 20171121 vert correct */
   /*int rx1, ry1, rx2, ry2, save_rot, save_flip; */
@@ -269,14 +268,10 @@ void cairo_draw_string_line(cairo_t *cairo_ctx, char *s,
   if(s==NULL) return;
   if(llength==0) return;
   cairo_text_extents(cairo_ctx, s, &ext);
-  xadvance = ext.x_advance > ext.width? ext.x_advance : ext.width;
 
   line_delta = lineno*fontheight*cairo_font_line_spacing;
   lines = (cairo_lines-1)*fontheight*cairo_font_line_spacing;
-  line_offset=cairo_longest_line-xadvance;
-
-  /* 20171215 NO! will skip drawing of long strings */
-  /* if(xadvance>14000) return; */ /* too big: close to short overflow */
+  line_offset=cairo_longest_line;
 
   ix=X_TO_SCREEN(x);
   iy=Y_TO_SCREEN(y);
@@ -287,13 +282,13 @@ void cairo_draw_string_line(cairo_t *cairo_ctx, char *s,
   vc = cairo_vert_correct*xctx->mooz; /* converted to device (pixel) space */
 
   if(     rot==0 && flip==0) {iy+=line_delta+fontascent-vc;}
-  else if(rot==1 && flip==0) {iy+=xadvance+line_offset;ix=ix-fontheight+fontascent+vc-lines+line_delta;}
-  else if(rot==2 && flip==0) {iy=iy-fontheight-lines+line_delta+fontascent+vc; ix=ix-xadvance-line_offset;}
+  else if(rot==1 && flip==0) {iy+=line_offset;ix=ix-fontheight+fontascent+vc-lines+line_delta;}
+  else if(rot==2 && flip==0) {iy=iy-fontheight-lines+line_delta+fontascent+vc; ix=ix-line_offset;}
   else if(rot==3 && flip==0) {ix+=line_delta+fontascent-vc;}
-  else if(rot==0 && flip==1) {ix=ix-xadvance-line_offset;iy+=line_delta+fontascent-vc;}
+  else if(rot==0 && flip==1) {ix=ix-line_offset;iy+=line_delta+fontascent-vc;}
   else if(rot==1 && flip==1) {ix=ix-fontheight+line_delta-lines+fontascent+vc;}
   else if(rot==2 && flip==1) {iy=iy-fontheight-lines+line_delta+fontascent+vc;}
-  else if(rot==3 && flip==1) {iy=iy+xadvance+line_offset;ix+=line_delta+fontascent-vc;}
+  else if(rot==3 && flip==1) {iy=iy+line_offset;ix+=line_delta+fontascent-vc;}
 
   cairo_save(cairo_ctx);
   cairo_translate(cairo_ctx, ix, iy);
@@ -328,7 +323,7 @@ void draw_string(int layer, int what, const char *str, int rot, int flip, int hc
   if(!textclip(areax1,areay1,areax2,areay2,textx1,texty1,textx2,texty2)) {
     return;
   }
-
+  
   if(hcenter) {
     if(rot == 0 && flip == 0 ) { x=textx1;}
     if(rot == 1 && flip == 0 ) { y=texty1;}
@@ -362,6 +357,8 @@ void draw_string(int layer, int what, const char *str, int rot, int flip, int hc
   cairo_set_font_size (cairo_ctx, size*xctx->mooz);
   cairo_set_font_size (cairo_save_ctx, size*xctx->mooz);
   cairo_font_extents(cairo_ctx, &fext);
+  dbg(1, "draw_string(): size * mooz=%g height=%g ascent=%g descent=%g\n",
+       size * xctx->mooz, fext.height, fext.ascent, fext.descent);
   llength=0;
   my_strdup2(73, &sss, str);
   tt=ss=sss;
@@ -370,9 +367,9 @@ void draw_string(int layer, int what, const char *str, int rot, int flip, int hc
     if(c=='\n' || c==0) {
       *ss='\0';
       /*fprintf(errfp, "cairo_draw_string(): tt=%s, longest line: %d\n", tt, cairo_longest_line); */
-      if(draw_window) cairo_draw_string_line(cairo_ctx, tt, x, y, size, rot, flip,
+      if(draw_window) cairo_draw_string_line(cairo_ctx, tt, x, y, rot, flip,
          lineno, fext.height, fext.ascent, fext.descent, llength);
-      if(draw_pixmap) cairo_draw_string_line(cairo_save_ctx, tt, x, y, size, rot, flip,
+      if(draw_pixmap) cairo_draw_string_line(cairo_save_ctx, tt, x, y, rot, flip,
          lineno, fext.height, fext.ascent, fext.descent, llength);
       lineno++;
       if(c==0) break;

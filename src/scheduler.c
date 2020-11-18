@@ -1734,6 +1734,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      else
         Tcl_AppendResult(interp, "0",NULL);
   }
+  else if(!strcmp(argv[2],"text_svg"))  {
+     if( text_svg != 0 )
+        Tcl_AppendResult(interp, "1",NULL);
+     else
+        Tcl_AppendResult(interp, "0",NULL);
+  }
   else if(!strcmp(argv[2],"sym_txt"))  {
      if( sym_txt != 0 )
         Tcl_AppendResult(interp, "1",NULL);
@@ -1897,6 +1903,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
  else if(!strcmp(argv[1],"set") && argc==4)
  {
+   if(!strcmp(argv[2],"svg_font_name"))  {
+     if( strlen(argv[3]) < sizeof(svg_font_name) ) {
+       my_strncpy(svg_font_name, argv[3], S(svg_font_name));
+     }
+   }
    #ifdef HAS_CAIRO
    if(!strcmp(argv[2],"cairo_font_name"))  {
      if( strlen(argv[3]) < sizeof(cairo_font_name) ) {
@@ -2015,6 +2026,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
    else if(!strcmp(argv[2],"draw_grid"))  {
          draw_grid=atoi(argv[3]);
+   }
+   else if(!strcmp(argv[2],"text_svg"))  {
+         text_svg=atoi(argv[3]);
    }
    else if(!strcmp(argv[2],"sym_txt"))  {
          sym_txt=atoi(argv[3]);

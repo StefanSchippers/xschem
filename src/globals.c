@@ -156,6 +156,7 @@ int fill=1; /* filled rectangles */
 int draw_pixmap=1; /* use pixmap for double buffer */
 int draw_window=0;
 int draw_grid=1;
+int text_svg=1; /* use <text> svg element for text instead of xschem's internal vector font */
 double cadgrid = CADGRID;
 double cadhalfdotsize = CADHALFDOTSIZE;
 int change_lw=0; /* allow change xctx->lw */
@@ -232,7 +233,8 @@ int batch_mode = 0; /* no tcl console if set; batch mode */
 int hide_symbols = 0; /* draw only a bounding box for component instances and @symname, @name texts */
 int show_pin_net_names = 0;
 
-char cairo_font_name[1024]="Monospace";
+char cairo_font_name[1024]="Sans Serif";
+char svg_font_name[1024]="Sans Serif";
 int cairo_longest_line;
 int cairo_lines;
 double cairo_font_scale=1.0; /* default: 1.0, allows to adjust font size */

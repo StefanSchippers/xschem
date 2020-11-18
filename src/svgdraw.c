@@ -34,13 +34,15 @@ typedef struct {
 } Svg_color;
 
 static Svg_color *svg_colors;
-
+static char svg_font_weight[80] = "normal"; /* normal, bold, bolder, lighter */
+static char svg_font_family[80] = "sans-serif"; /* serif, monospace, Helvetica, Arial */
+static char svg_font_style[80] = "normal"; /* normal, italic, oblique */
 static double svg_linew;      /* current width of lines / rectangles */
 static Svg_color svg_stroke;
 
 static void svg_restore_lw(void)
 {
-   svg_linew = xctx->lw*0.7;
+   svg_linew = xctx->lw*1.2;
 }
 
 static void set_svg_colors(unsigned int pixel)
@@ -99,6 +101,7 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points, i
   fprintf(fd, "<path class=\"l%d\" ", c);
   if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
   if(fill) {
+    /* if(fill_type[c] == 2) fprintf(fd, "fill-opacity=\"0.5\" "); */
     fprintf(fd,"style=\"fill:#%02x%02x%02x;\" d=\"", svg_stroke.red, svg_stroke.green, svg_stroke.blue);
   } else {
     fprintf(fd,"style=\"fill:none;\" d=\"");
@@ -146,7 +149,7 @@ static void svg_drawcircle(int gc, int fillarc, double x,double y,double r,doubl
     fprintf(fd,
        "<circle cx=\"%g\" cy=\"%g\" r=\"%g\" stroke=\"rgb(%d,%d,%d)\" fill=\"rgb(%d,%d,%d)\" stroke-width=\"%g\"/>\n",
        xx, yy, rr, svg_stroke.red, svg_stroke.green, svg_stroke.blue,
-                   svg_stroke.red, svg_stroke.green, svg_stroke.blue, svg_linew/4);
+                   svg_stroke.red, svg_stroke.green, svg_stroke.blue, svg_linew);
   }
 }
 
@@ -213,15 +216,133 @@ static void svg_drawline(int gc, double linex1,double liney1,double linex2,doubl
   }
 }
 
-/* TODO use regular svg text:
-  <text  fill="red"    font-family="Sans" font-size="30" transform="translate(40, 160) rotate(0)">I qgv SVG</text>
-  <text  fill="yellow" font-size="30" transform="translate(30, 200) rotate(-90)">I love SVG</text>
- */
-static void svg_draw_string(int layer, const char *str,
-                 int rot, int flip, int hcenter, int vcenter,
-                 double x1,double y1,
-                 double xscale, double yscale)
+static double textx1,textx2,texty1,texty2;
 
+static void svg_draw_string_line(int layer, char *s, double x, double y, double size, int rot, int flip,
+    int lineno, double fontheight, double fontascent, double fontdescent, int llength)
+{
+  double ix, iy;
+  int rot1;
+  int line_delta;
+  int line_offset;
+  double lines;
+  char col[20];
+  my_snprintf(col, S(col), "#%02x%02x%02x",
+    xcolor_array[layer].red >> 8, xcolor_array[layer].green >> 8, xcolor_array[layer].blue >> 8);
+  if(s==NULL) return;
+  if(llength==0) return;
+  
+  line_delta = lineno*fontheight;
+  lines = (cairo_lines-1)*fontheight;
+  line_offset=cairo_longest_line;
+  
+  ix=X_TO_SVG(x);
+  iy=Y_TO_SVG(y);
+  if(rot&1) {
+    rot1=3;
+  } else rot1=0;
+  
+  if(     rot==0 && flip==0) {iy+=line_delta+fontascent;}
+  else if(rot==1 && flip==0) {iy+=line_offset;ix=ix-fontheight+fontascent-lines+line_delta;}
+  else if(rot==2 && flip==0) {iy=iy-fontheight-lines+line_delta+fontascent; ix=ix-line_offset;}
+  else if(rot==3 && flip==0) {ix+=line_delta+fontascent;}
+  else if(rot==0 && flip==1) {ix=ix-line_offset;iy+=line_delta+fontascent;}
+  else if(rot==1 && flip==1) {ix=ix-fontheight+line_delta-lines+fontascent;}
+  else if(rot==2 && flip==1) {iy=iy-fontheight-lines+line_delta+fontascent;}
+  else if(rot==3 && flip==1) {iy=iy+line_offset;ix+=line_delta+fontascent;}
+  
+  fprintf(fd,"<text fill=\"%s\"  xml:space=\"preserve\" font-family=\"%s\" font-size=\"%g\" "
+    "font-weight=\"%s \" font-style=\"%s\" "
+    "transform=\"translate(%g, %g) rotate(%d)\">",
+     col, svg_font_family, size*xctx->mooz, svg_font_weight, svg_font_style, ix, iy, rot1*90);
+
+  while(*s) {
+    switch(*s) {
+      case '<':
+        fputs("&lt;", fd); 
+        break;
+      case '>':
+        fputs("&gt;", fd); 
+        break;
+      case '&':
+        fputs("&amp;", fd); 
+        break;
+      default:
+       fputc(*s, fd);
+    }
+    s++;
+  }
+  fprintf(fd, "</text>\n");
+}
+
+static void svg_draw_string(int layer, const char *str, int rot, int flip, int hcenter, int vcenter,
+                 double x,double y, double xscale, double yscale)
+{
+  char *tt, *ss, *sss=NULL;
+  char c;
+  int lineno=0;
+  double size, height, ascent, descent;
+  int llength=0;
+  if(str==NULL || !has_x ) return;
+  size = xscale*52.;
+  if(size*xctx->mooz<3.0) return; /* too small */
+  if(size*xctx->mooz>1600) return; /* too big */
+
+  height =  size*xctx->mooz * 1.147;
+  ascent =  size*xctx->mooz * 0.908;
+  descent = size*xctx->mooz * 0.219;
+
+  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &textx1,&texty1,&textx2,&texty2);
+  if(!textclip(areax1,areay1,areax2,areay2,textx1,texty1,textx2,texty2)) {
+    return;
+  }
+  if(hcenter) {
+    if(rot == 0 && flip == 0 ) { x=textx1;}
+    if(rot == 1 && flip == 0 ) { y=texty1;}
+    if(rot == 2 && flip == 0 ) { x=textx2;}
+    if(rot == 3 && flip == 0 ) { y=texty2;}
+    if(rot == 0 && flip == 1 ) { x=textx2;}
+    if(rot == 1 && flip == 1 ) { y=texty2;}
+    if(rot == 2 && flip == 1 ) { x=textx1;}
+    if(rot == 3 && flip == 1 ) { y=texty1;}
+  }
+  if(vcenter) {
+    if(rot == 0 && flip == 0 ) { y=texty1;}
+    if(rot == 1 && flip == 0 ) { x=textx2;}
+    if(rot == 2 && flip == 0 ) { y=texty2;}
+    if(rot == 3 && flip == 0 ) { x=textx1;}
+    if(rot == 0 && flip == 1 ) { y=texty1;}
+    if(rot == 1 && flip == 1 ) { x=textx2;}
+    if(rot == 2 && flip == 1 ) { y=texty2;}
+    if(rot == 3 && flip == 1 ) { x=textx1;}
+  }
+  llength=0;
+  my_strdup2(73, &sss, str);
+  tt=ss=sss;
+  for(;;) {
+    c=*ss;
+    if(c=='\n' || c==0) {
+      *ss='\0';
+      svg_draw_string_line(layer, tt, x, y, size, rot, flip, lineno, height, ascent, descent, llength);
+      lineno++;
+      if(c==0) break;
+      *ss='\n';
+      tt=ss+1;
+      llength=0;
+    } else {
+      llength++;
+    }
+    ss++;
+  }
+  my_free(1157, &sss);
+}
+
+
+
+static void old_svg_draw_string(int layer, const char *str,
+                 int rot, int flip, int hcenter, int vcenter,
+                 double x,double y,
+                 double xscale, double yscale)
 {
  double a,yy,curr_x1,curr_y1,curr_x2,curr_y2,rx1,rx2,ry1,ry2;
  int pos=0,cc,pos2=0;
@@ -229,17 +350,17 @@ static void svg_draw_string(int layer, const char *str,
 
  if(str==NULL) return;
  #ifdef HAS_CAIRO
- text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1, &rx1,&ry1,&rx2,&ry2);
+ text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &rx1,&ry1,&rx2,&ry2);
  #else
- text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1, &rx1,&ry1,&rx2,&ry2);
+ text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &rx1,&ry1,&rx2,&ry2);
  #endif
  xscale*=nocairo_font_xscale;
  yscale*=nocairo_font_yscale;
  if(!textclip(areax1,areay1,areax2,areay2,rx1,ry1,rx2,ry2)) return;
- x1=rx1;y1=ry1;
- if(rot&1) {y1=ry2;rot=3;}
+ x=rx1;y=ry1;
+ if(rot&1) {y=ry2;rot=3;}
  else rot=0;
- flip = 0; yy=y1;
+ flip = 0; yy=y;
  while(str[pos2])
  {
   cc = (unsigned char)str[pos2++];
@@ -253,12 +374,12 @@ static void svg_draw_string(int layer, const char *str,
   a = pos*(FONTWIDTH+FONTWHITESPACE);
   for(i=0;i<character[cc][0]*4;i+=4)
   {
-   curr_x1 = ( character[cc][i+1]+ a ) * xscale + x1;
+   curr_x1 = ( character[cc][i+1]+ a ) * xscale + x;
    curr_y1 = ( character[cc][i+2] ) * yscale+yy;
-   curr_x2 = ( character[cc][i+3]+ a ) * xscale + x1;
+   curr_x2 = ( character[cc][i+3]+ a ) * xscale + x;
    curr_y2 = ( character[cc][i+4] ) * yscale+yy;
-   ROTATION(rot, flip, x1,y1,curr_x1,curr_y1,rx1,ry1);
-   ROTATION(rot, flip, x1,y1,curr_x2,curr_y2,rx2,ry2);
+   ROTATION(rot, flip, x,y,curr_x1,curr_y1,rx1,ry1);
+   ROTATION(rot, flip, x,y,curr_x2,curr_y2,rx2,ry2);
    ORDER(rx1,ry1,rx2,ry2);
    svg_drawline(layer,  rx1, ry1, rx2, ry2, 0);
   }
@@ -309,6 +430,8 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
  xText text;
  xArc arc;
  xPoly polygon;
+ xSymbol *symptr;
+ char *textfont;
 
   if(xctx->inst[n].ptr == -1) return;
   if( (layer != PINLAYER && !enable_layer[layer]) ) return;
@@ -340,6 +463,7 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
 
   x0=xctx->inst[n].x0 + xoffset;
   y0=xctx->inst[n].y0 + yoffset;
+  symptr = (xctx->inst[n].ptr+ xctx->sym);
    for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->lines[layer];j++)
    {
     line = ((xctx->inst[n].ptr+ xctx->sym)->line[layer])[j];
@@ -404,11 +528,34 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
        textlayer = (xctx->inst[n].ptr+ xctx->sym)->text[j].layer;
        if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
      }
+     my_snprintf(svg_font_family, S(svg_font_family), svg_font_name);
+     my_snprintf(svg_font_style, S(svg_font_style), "normal");
+     my_snprintf(svg_font_weight, S(svg_font_weight), "normal");
+
+     textfont = symptr->text[j].font;
+     if( (textfont && textfont[0])) {
+       my_snprintf(svg_font_family, S(svg_font_family), textfont);
+     }
+
+
+     if( symptr->text[j].flags & TEXT_BOLD)
+       my_snprintf(svg_font_weight, S(svg_font_weight), "bold");
+     if( symptr->text[j].flags & TEXT_ITALIC)
+       my_snprintf(svg_font_style, S(svg_font_style), "italic");
+     if( symptr->text[j].flags & TEXT_OBLIQUE)
+       my_snprintf(svg_font_style, S(svg_font_style), "oblique");
+
      if((layer == PINLAYER && xctx->inst[n].flags & 4) ||  enable_layer[textlayer]) {
-       svg_draw_string(textlayer, txtptr,
-         (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
-         flip^text.flip, text.hcenter, text.vcenter,
-         x0+x1, y0+y1, text.xscale, text.yscale);
+       if(text_svg) 
+         svg_draw_string(textlayer, txtptr,
+           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
+           flip^text.flip, text.hcenter, text.vcenter,
+           x0+x1, y0+y1, text.xscale, text.yscale);
+       else
+         old_svg_draw_string(textlayer, txtptr,
+           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
+           flip^text.flip, text.hcenter, text.vcenter,
+           x0+x1, y0+y1, text.xscale, text.yscale);
      }
     }
    }
@@ -453,11 +600,10 @@ void svg_draw(void)
 {
  double dx, dy;
  int c,i, textlayer;
- int filledrect;
  int old_grid;
  int modified_save;
  char *tmpstring=NULL;
- const char *r;
+ const char *r, *textfont;
 
 
  if(!plotfile[0]) {
@@ -500,14 +646,14 @@ void svg_draw(void)
 
  fprintf(fd, "<style type=\"text/css\">\n");  /* use css stylesheet 20121119 */
  for(i=0;i<cadlayers;i++){
-
-   filledrect=0;
-   if( (i==PINLAYER || i==WIRELAYER || i==4) && fill) {
-     filledrect=1;
-   }
    fprintf(fd, ".l%d{\n", i);
-   if(filledrect) fprintf(fd, "  fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
-   else           fprintf(fd, "  fill: none;\n");
+   if(fill_type[i] == 1) 
+      fprintf(fd, "  fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
+   else if(fill_type[i] == 2) 
+      fprintf(fd, "  fill: #%02x%02x%02x; fill-opacity: 0.5;\n", 
+        svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
+   else
+      fprintf(fd, "  fill: none;\n");
    fprintf(fd, "  stroke: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
    fprintf(fd, "  stroke-linecap:round;\n");
    fprintf(fd, "  stroke-linejoin:round;\n");
@@ -536,10 +682,33 @@ void svg_draw(void)
    {
      textlayer = xctx->text[i].layer;
      if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-     svg_draw_string(textlayer, xctx->text[i].txt_ptr,
-       xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-       xctx->text[i].x0,xctx->text[i].y0,
-       xctx->text[i].xscale, xctx->text[i].yscale);
+
+
+     my_snprintf(svg_font_family, S(svg_font_family), svg_font_name);
+     my_snprintf(svg_font_style, S(svg_font_style), "normal");
+     my_snprintf(svg_font_weight, S(svg_font_weight), "normal");
+
+     textfont = xctx->text[i].font;
+     if( (textfont && textfont[0])) {
+       my_snprintf(svg_font_family, S(svg_font_family), textfont);
+     }
+     if( xctx->text[i].flags & TEXT_BOLD)
+       my_snprintf(svg_font_weight, S(svg_font_weight), "bold");
+     if( xctx->text[i].flags & TEXT_ITALIC)
+       my_snprintf(svg_font_style, S(svg_font_style), "italic");
+     if( xctx->text[i].flags & TEXT_OBLIQUE)
+       my_snprintf(svg_font_style, S(svg_font_style), "oblique");
+
+     if(text_svg) 
+       svg_draw_string(textlayer, xctx->text[i].txt_ptr,
+         xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+         xctx->text[i].x0,xctx->text[i].y0,
+         xctx->text[i].xscale, xctx->text[i].yscale);
+     else
+       old_svg_draw_string(textlayer, xctx->text[i].txt_ptr,
+         xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+         xctx->text[i].x0,xctx->text[i].y0,
+         xctx->text[i].xscale, xctx->text[i].yscale);
    }
 
    for(c=0;c<cadlayers;c++)

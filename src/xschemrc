@@ -174,7 +174,8 @@ set disable_unique_names 0
 # set cairo_font_line_spacing 1.0
 
 #### Specify a font
-set cairo_font_name {Liberation Sans}
+# set cairo_font_name {Sans Serif}
+# set svg_font_name {Sans Serif}
 
 #### Lift up text by some zoom-corrected pixels for
 #### better compatibility wrt no cairo version.

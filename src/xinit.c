@@ -1362,6 +1362,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
       #endif
 
       /* load font from tcl 20171112 */
+      tcleval("xschem set svg_font_name $svg_font_name");
       tcleval("xschem set cairo_font_name $cairo_font_name");
       tclsetvar("has_cairo","1");
       cairo_select_font_face (cairo_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
