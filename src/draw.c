@@ -307,7 +307,7 @@ void cairo_draw_string_line(cairo_t *cairo_ctx, char *s,
 }
 
 /* CAIRO version */
-void draw_string(int layer, int what, const char *s, int rot, int flip, int hcenter, int vcenter,
+void draw_string(int layer, int what, const char *str, int rot, int flip, int hcenter, int vcenter,
                  double x, double y, double xscale, double yscale)
 {
   char *tt, *ss, *sss=NULL;
@@ -318,13 +318,13 @@ void draw_string(int layer, int what, const char *s, int rot, int flip, int hcen
   int llength=0;
 
   (void)what; /* UNUSED in cairo version, avoid compiler warning */
-  if(s==NULL || !has_x ) return;
+  if(str==NULL || !has_x ) return;
   size = xscale*52.*cairo_font_scale;
   /*fprintf(errfp, "size=%.16g\n", size*xctx->mooz); */
   if(size*xctx->mooz<3.0) return; /* too small */
   if(size*xctx->mooz>1600) return; /* too big */
 
-  text_bbox(s, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &textx1,&texty1,&textx2,&texty2);
+  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &textx1,&texty1,&textx2,&texty2);
   if(!textclip(areax1,areay1,areax2,areay2,textx1,texty1,textx2,texty2)) {
     return;
   }
@@ -363,7 +363,7 @@ void draw_string(int layer, int what, const char *s, int rot, int flip, int hcen
   cairo_set_font_size (cairo_save_ctx, size*xctx->mooz);
   cairo_font_extents(cairo_ctx, &fext);
   llength=0;
-  my_strdup2(73, &sss, s);
+  my_strdup2(73, &sss, str);
   tt=ss=sss;
   for(;;) {
     c=*ss;

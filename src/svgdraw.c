@@ -192,7 +192,7 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
       if(fillarc)
         fprintf(fd,"style=\"fill:%02x%02x%02x;\" d=\"", svg_stroke.red, svg_stroke.green, svg_stroke.blue);
       else
-        fprintf(fd,"style=\"fill:none\" d=\"");
+        fprintf(fd,"style=\"fill:none;\" d=\"");
       fprintf(fd, "M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2);
     }
   }
@@ -213,7 +213,11 @@ static void svg_drawline(int gc, double linex1,double liney1,double linex2,doubl
   }
 }
 
-static void svg_draw_string(int gctext, const char *str,
+/* TODO use regular svg text:
+  <text  fill="red"    font-family="Sans" font-size="30" transform="translate(40, 160) rotate(0)">I qgv SVG</text>
+  <text  fill="yellow" font-size="30" transform="translate(30, 200) rotate(-90)">I love SVG</text>
+ */
+static void svg_draw_string(int layer, const char *str,
                  int rot, int flip, int hcenter, int vcenter,
                  double x1,double y1,
                  double xscale, double yscale)
@@ -242,8 +246,7 @@ static void svg_draw_string(int gctext, const char *str,
   if(cc>127) cc= '?';
   if(cc=='\n')
   {
-   yy+=(FONTHEIGHT+FONTDESCENT+FONTWHITESPACE)*
-    yscale;
+   yy+=(FONTHEIGHT+FONTDESCENT+FONTWHITESPACE)* yscale;
    pos=0;
    continue;
   }
@@ -257,7 +260,7 @@ static void svg_draw_string(int gctext, const char *str,
    ROTATION(rot, flip, x1,y1,curr_x1,curr_y1,rx1,ry1);
    ROTATION(rot, flip, x1,y1,curr_x2,curr_y2,rx2,ry2);
    ORDER(rx1,ry1,rx2,ry2);
-   svg_drawline(gctext,  rx1, ry1, rx2, ry2, 0);
+   svg_drawline(layer,  rx1, ry1, rx2, ry2, 0);
   }
   pos++;
  }
