@@ -258,7 +258,6 @@ static void cairo_draw_string_line(cairo_t *cairo_ctx, char *s,
 {
   double ix, iy;
   int rot1;
-  cairo_text_extents_t ext;
   int line_delta;
   int line_offset;
   double lines;
@@ -267,7 +266,6 @@ static void cairo_draw_string_line(cairo_t *cairo_ctx, char *s,
   /* GC gcclear; */
   if(s==NULL) return;
   if(llength==0) return;
-  cairo_text_extents(cairo_ctx, s, &ext);
 
   line_delta = lineno*fontheight*cairo_font_line_spacing;
   lines = (cairo_lines-1)*fontheight*cairo_font_line_spacing;
@@ -294,8 +292,6 @@ static void cairo_draw_string_line(cairo_t *cairo_ctx, char *s,
   cairo_translate(cairo_ctx, ix, iy);
   cairo_rotate(cairo_ctx, XSCH_PI/2*rot1);
 
-  /* fprintf(errfp, "string_line: |%s|, y_bearing: %f descent: %f ascent: %f height: %f\n", */
-  /*     s, ext.y_bearing, fontdescent, fontascent, fontheight); */
   cairo_move_to(cairo_ctx, 0,0);
   cairo_show_text(cairo_ctx, s);
   cairo_restore(cairo_ctx);
