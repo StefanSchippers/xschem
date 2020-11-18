@@ -279,7 +279,7 @@ C {ngspice_probe.sym} 730 -810 2 1 {name=p46}
 C {ngspice_probe.sym} 440 -950 0 0 {name=p50}
 C {ngspice_probe.sym} 200 -470 0 0 {name=p45}
 C {ngspice_probe.sym} 340 -600 0 0 {name=p51}
-C {ngspice_get_expr.sym} 350 -860 0 0 {name=r17 
+C {ngspice_get_expr.sym} 330 -900 0 1 {name=r17 
 node="[ngspice::get_current v2]" 
 descr = current
 }

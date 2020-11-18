@@ -1907,7 +1907,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      if( strlen(argv[3]) < sizeof(svg_font_name) ) {
        my_strncpy(svg_font_name, argv[3], S(svg_font_name));
      }
-   }
+   } else
    #ifdef HAS_CAIRO
    if(!strcmp(argv[2],"cairo_font_name"))  {
      if( strlen(argv[3]) < sizeof(cairo_font_name) ) {

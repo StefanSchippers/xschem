@@ -35,8 +35,8 @@ wires} 1010 -330 0 0 0.6 0.6 {layer=4}
 T {XSCHEM OBJECTS} 910 -720 0 0 0.6 0.6 {layer=7}
 T {Components} 1010 -210 0 0 0.6 0.6 {layer=4}
 T {TEXT} 890 -620 0 0 0.5 0.5 {layer=8}
-T {TEXT} 890 -670 1 0 0.7 0.7 {layer=6 font=FreeMono}
-T {Text} 900 -660 0 0 0.5 0.5 {layer=7 font="Times"}
+T {TEXT} 890 -670 1 0 0.7 0.7 {layer=6 font=Monospace}
+T {Text} 900 -660 0 0 0.5 0.5 {layer=7 font="serif"}
 T {TEXT} 990 -660 1 0 0.5 0.5 {weight=bold}
 T {Text} 1010 -650 0 0 0.6 0.6 {layer=4}
 T {Arcs/Circles} 1010 -120 0 0 0.6 0.6 {layer=4}

@@ -35,7 +35,7 @@ typedef struct {
 
 static Svg_color *svg_colors;
 static char svg_font_weight[80] = "normal"; /* normal, bold, bolder, lighter */
-static char svg_font_family[80] = "sans-serif"; /* serif, monospace, Helvetica, Arial */
+static char svg_font_family[80] = "Sans Serif"; /* serif, monospace, Helvetica, Arial */
 static char svg_font_style[80] = "normal"; /* normal, italic, oblique */
 static double svg_linew;      /* current width of lines / rectangles */
 static Svg_color svg_stroke;
@@ -146,10 +146,13 @@ static void svg_drawcircle(int gc, int fillarc, double x,double y,double r,doubl
 
   if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
   {
+    /*
     fprintf(fd,
        "<circle cx=\"%g\" cy=\"%g\" r=\"%g\" stroke=\"rgb(%d,%d,%d)\" fill=\"rgb(%d,%d,%d)\" stroke-width=\"%g\"/>\n",
        xx, yy, rr, svg_stroke.red, svg_stroke.green, svg_stroke.blue,
                    svg_stroke.red, svg_stroke.green, svg_stroke.blue, svg_linew);
+    */
+    fprintf(fd, "<circle class=\"l%d\" cx=\"%g\" cy=\"%g\" r=\"%g\"/>\n", gc, xx, yy, rr);
   }
 }
 
@@ -172,16 +175,10 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
   if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
   {
     if(b == 360.) {
-      fprintf(fd, "<circle cx=\"%g\" cy=\"%g\" r=\"%g\" ", xx, yy, rr);
+      fprintf(fd, "<circle class=\"l%d\" cx=\"%g\" cy=\"%g\" r=\"%g\" ", gc, xx, yy, rr);
       if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
-      if(fillarc)
-        fprintf(fd,
-         "fill=\"rgb(%d,%d,%d)\" stroke=\"rgb(%d,%d,%d)\" stroke-width=\"%g\"/>\n",
-           svg_stroke.red, svg_stroke.green, svg_stroke.blue,
-           svg_stroke.red, svg_stroke.green, svg_stroke.blue, svg_linew);
-      else
-        fprintf(fd, "stroke=\"rgb(%d,%d,%d)\" fill=\"none\" stroke-width=\"%g\"/>\n",
-           svg_stroke.red, svg_stroke.green, svg_stroke.blue, svg_linew);
+      if(!fillarc) fprintf(fd, "style=\"fill:none;\"");
+      fprintf(fd, "/>\n");
     } else {
       xx1 = rr * cos(a * XSCH_PI / 180.) + xx;
       yy1 = -rr * sin(a * XSCH_PI / 180.) + yy;
@@ -192,11 +189,8 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
 
       fprintf(fd,"<path class=\"l%d\" ", gc);
       if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
-      if(fillarc)
-        fprintf(fd,"style=\"fill:%02x%02x%02x;\" d=\"", svg_stroke.red, svg_stroke.green, svg_stroke.blue);
-      else
-        fprintf(fd,"style=\"fill:none;\" d=\"");
-      fprintf(fd, "M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2);
+      if(!fillarc) fprintf(fd,"style=\"fill:none;\" ");
+      fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2);
     }
   }
 }
@@ -251,11 +245,13 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   else if(rot==2 && flip==1) {iy=iy-fontheight-lines+line_delta+fontascent;}
   else if(rot==3 && flip==1) {iy=iy+line_offset;ix+=line_delta+fontascent;}
   
-  fprintf(fd,"<text fill=\"%s\"  xml:space=\"preserve\" font-family=\"%s\" font-size=\"%g\" "
-    "font-weight=\"%s \" font-style=\"%s\" "
-    "transform=\"translate(%g, %g) rotate(%d)\">",
-     col, svg_font_family, size*xctx->mooz, svg_font_weight, svg_font_style, ix, iy, rot1*90);
-
+  fprintf(fd,"<text fill=\"%s\"  xml:space=\"preserve\" font-size=\"%g\" ", col, size*xctx->mooz);
+  if(strcmp(svg_font_weight, "normal")) fprintf(fd, "font-weight=\"%s\" ", svg_font_weight);
+  if(strcmp(svg_font_style, "normal")) fprintf(fd, "font-style=\"%s\" ", svg_font_style);
+  if(strcmp(svg_font_family, "Sans Serif")) fprintf(fd, "font-family=\"%s\" ", svg_font_family);
+  if(rot1) fprintf(fd, "transform=\"translate(%g, %g) rotate(%d)\" ", ix, iy, rot1*90);
+  else fprintf(fd, "transform=\"translate(%g, %g)\" ", ix, iy);
+  fprintf(fd, ">");
   while(*s) {
     switch(*s) {
       case '<':
@@ -285,9 +281,6 @@ static void svg_draw_string(int layer, const char *str, int rot, int flip, int h
   int llength=0;
   if(str==NULL || !has_x ) return;
   size = xscale*52.;
-  if(size*xctx->mooz<3.0) return; /* too small */
-  if(size*xctx->mooz>1600) return; /* too big */
-
   height =  size*xctx->mooz * 1.147;
   ascent =  size*xctx->mooz * 0.908;
   descent = size*xctx->mooz * 0.219;
@@ -660,6 +653,8 @@ void svg_draw(void)
    fprintf(fd, "  stroke-width: %g;\n", svg_linew);
    fprintf(fd, "}\n");
  }
+
+ fprintf(fd, "text {font-family: Sans Serif;}\n");
  fprintf(fd, "</style>\n");
 
  if(dark_colorscheme) {
