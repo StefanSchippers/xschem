@@ -1,4 +1,7 @@
 2.9.8:
+- svg export uses true fonts (svg <text> element) 
+- select highlight net function made faster (highlight -> select highlight nets) 
+- great trim_wires() improvement (>2 oom speed) 
 - guard against extended ascii characters in nocairo/svgdraw/psprint functions
 - added variable "S" containing full schematic path in "Simulations->Configure simulators
   and tools". This can be used to add search paths to simulators.
