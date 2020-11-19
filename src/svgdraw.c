@@ -38,31 +38,10 @@ static char svg_font_weight[80] = "normal"; /* normal, bold, bolder, lighter */
 static char svg_font_family[80] = "Sans Serif"; /* serif, monospace, Helvetica, Arial */
 static char svg_font_style[80] = "normal"; /* normal, italic, oblique */
 static double svg_linew;      /* current width of lines / rectangles */
-static Svg_color svg_stroke;
 
 static void svg_restore_lw(void)
 {
    svg_linew = xctx->lw*1.2;
-}
-
-static void set_svg_colors(unsigned int pixel)
-{
-   if(color_ps) {
-     svg_stroke.red = svg_colors[pixel].red;
-     svg_stroke.green = svg_colors[pixel].green;
-     svg_stroke.blue = svg_colors[pixel].blue;
-   } else {
-     if(dark_colorscheme == 0 ) {
-       svg_stroke.red = 0;
-       svg_stroke.green = 0;
-       svg_stroke.blue = 0;
-     } else {
-       svg_stroke.red = 255;
-       svg_stroke.green = 255;
-       svg_stroke.blue = 255;
-     }
-   }
-
 }
 
 static void svg_xdrawline(int layer, double x1, double y1, double x2, double y2, int dash)
@@ -100,12 +79,10 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points, i
   }
   fprintf(fd, "<path class=\"l%d\" ", c);
   if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
-  if(fill) {
-    /* if(fill_type[c] == 2) fprintf(fd, "fill-opacity=\"0.5\" "); */
-    fprintf(fd,"style=\"fill:#%02x%02x%02x;\" d=\"", svg_stroke.red, svg_stroke.green, svg_stroke.blue);
-  } else {
-    fprintf(fd,"style=\"fill:none;\" d=\"");
+  if(!fill) {
+    fprintf(fd,"style=\"fill:none;\" ");
   }
+  fprintf(fd, "d=\"");
   for(i=0;i<points; i++) {
     xx = X_TO_SVG(x[i]);
     yy = Y_TO_SVG(y[i]);
@@ -146,12 +123,6 @@ static void svg_drawcircle(int gc, int fillarc, double x,double y,double r,doubl
 
   if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
   {
-    /*
-    fprintf(fd,
-       "<circle cx=\"%g\" cy=\"%g\" r=\"%g\" stroke=\"rgb(%d,%d,%d)\" fill=\"rgb(%d,%d,%d)\" stroke-width=\"%g\"/>\n",
-       xx, yy, rr, svg_stroke.red, svg_stroke.green, svg_stroke.blue,
-                   svg_stroke.red, svg_stroke.green, svg_stroke.blue, svg_linew);
-    */
     fprintf(fd, "<circle class=\"l%d\" cx=\"%g\" cy=\"%g\" r=\"%g\"/>\n", gc, xx, yy, rr);
   }
 }
@@ -248,7 +219,7 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   fprintf(fd,"<text fill=\"%s\"  xml:space=\"preserve\" font-size=\"%g\" ", col, size*xctx->mooz);
   if(strcmp(svg_font_weight, "normal")) fprintf(fd, "font-weight=\"%s\" ", svg_font_weight);
   if(strcmp(svg_font_style, "normal")) fprintf(fd, "font-style=\"%s\" ", svg_font_style);
-  if(strcmp(svg_font_family, "Sans Serif")) fprintf(fd, "font-family=\"%s\" ", svg_font_family);
+  if(strcmp(svg_font_family, "Sans Serif")) fprintf(fd, "style=\"font-family:%s;\" ", svg_font_family);
   if(rot1) fprintf(fd, "transform=\"translate(%g, %g) rotate(%d)\" ", ix, iy, rot1*90);
   else fprintf(fd, "transform=\"translate(%g, %g)\" ", ix, iy);
   fprintf(fd, ">");
@@ -389,7 +360,6 @@ static void svg_drawgrid()
  delta=cadgrid* xctx->mooz;
  while(delta<CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
  x = xctx->xorigin* xctx->mooz;y = xctx->yorigin* xctx->mooz;
- set_svg_colors(GRIDLAYER);
  if(y>areay1 && y<areay2)
  {
   svg_xdrawline(GRIDLAYER,areax1+1,(int)y, areax2-1, (int)y, 0);
@@ -398,7 +368,6 @@ static void svg_drawgrid()
  {
   svg_xdrawline(GRIDLAYER,(int)x,areay1+1, (int)x, areay2-1, 0);
  }
- set_svg_colors(GRIDLAYER);
  tmp = floor((areay1+1)/delta)*delta-fmod(-xctx->yorigin* xctx->mooz,delta);
  for(x=floor((areax1+1)/delta)*delta-fmod(-xctx->xorigin* xctx->mooz,delta);x<areax2;x+=delta)
  {
@@ -672,7 +641,6 @@ void svg_draw(void)
 
  }
    svg_drawgrid();
-   set_svg_colors(TEXTLAYER);
    for(i=0;i<xctx->texts;i++)
    {
      textlayer = xctx->text[i].layer;
@@ -708,7 +676,6 @@ void svg_draw(void)
 
    for(c=0;c<cadlayers;c++)
    {
-    set_svg_colors(c);
     for(i=0;i<xctx->lines[c];i++)
      svg_drawline(c, xctx->line[c][i].x1, xctx->line[c][i].y1,
                      xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
@@ -732,7 +699,6 @@ void svg_draw(void)
    }
 
 
-   set_svg_colors(WIRELAYER);
    for(i=0;i<xctx->wires;i++)
    {
       svg_drawline(WIRELAYER, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
