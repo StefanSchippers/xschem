@@ -260,12 +260,11 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->line[rectcolor][n].prop_ptr=NULL;
      my_strdup(412, &xctx->line[rectcolor][n].prop_ptr, prop_ptr);
      xctx->line[rectcolor][n].sel=sel;
-     if( !strcmp(get_tok_value(xctx->line[rectcolor][n].prop_ptr, "bus", 0), "true") )
+     if( prop_ptr && !strcmp(get_tok_value(prop_ptr, "bus", 0), "true") )
        xctx->line[rectcolor][n].bus = 1;
      else
        xctx->line[rectcolor][n].bus = 0;
-     dash = get_tok_value(xctx->line[rectcolor][n].prop_ptr,"dash",0);
-     if( strcmp(dash, "") ) {
+     if(prop_ptr && (dash = get_tok_value(prop_ptr,"dash",0))[0]) {
        int d = atoi(dash);
        xctx->line[rectcolor][n].dash = d >= 0 ? d : 0;
      } else
@@ -293,8 +292,7 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->rect[rectcolor][n].prop_ptr=NULL;
      my_strdup(413, &xctx->rect[rectcolor][n].prop_ptr, prop_ptr);
      xctx->rect[rectcolor][n].sel=sel;
-     dash = get_tok_value(xctx->rect[rectcolor][n].prop_ptr,"dash",0);
-     if( strcmp(dash, "") ) {
+     if(prop_ptr && (dash = get_tok_value(prop_ptr,"dash",0))[0]) {
        int d = atoi(dash);
        xctx->rect[rectcolor][n].dash = d >= 0 ? d : 0;
      } else
@@ -324,9 +322,8 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->wire[n].end1=0;
      xctx->wire[n].end2=0;
      my_strdup(414, &xctx->wire[n].prop_ptr, prop_ptr);
-     if(!strcmp(get_tok_value(xctx->wire[n].prop_ptr,"bus",0), "true")) xctx->wire[n].bus=1;
+     if(prop_ptr && !strcmp(get_tok_value(prop_ptr,"bus",0), "true")) xctx->wire[n].bus=1;
      else xctx->wire[n].bus=0;
-
      xctx->wire[n].sel=sel;
      xctx->wires++;
      set_modify(1);
