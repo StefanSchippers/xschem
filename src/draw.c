@@ -222,6 +222,19 @@ void print_image()
   draw();
 }
 
+
+void set_cairo_color(int layer) 
+{
+  cairo_set_source_rgb(cairo_ctx,
+    (double)xcolor_array[layer].red/65535.0,
+    (double)xcolor_array[layer].green/65535.0,
+    (double)xcolor_array[layer].blue/65535.0);
+  cairo_set_source_rgb(cairo_save_ctx,
+    (double)xcolor_array[layer].red/65535.0,
+    (double)xcolor_array[layer].green/65535.0,
+    (double)xcolor_array[layer].blue/65535.0);
+}
+
 #ifdef HAS_CAIRO
 /* remember to call cairo_restore(cairo_ctx) when done !! */
 int set_text_custom_font(xText *txt) /* 20171122 for correct text_bbox calculation */
@@ -341,15 +354,7 @@ void draw_string(int layer, int what, const char *str, int rot, int flip, int hc
     if(rot == 3 && flip == 1 ) { x=textx1;}
   }
 
-  cairo_set_source_rgb(cairo_ctx,
-    (double)xcolor_array[layer].red/65535.0,
-    (double)xcolor_array[layer].green/65535.0,
-    (double)xcolor_array[layer].blue/65535.0);
-  cairo_set_source_rgb(cairo_save_ctx,
-    (double)xcolor_array[layer].red/65535.0,
-    (double)xcolor_array[layer].green/65535.0,
-    (double)xcolor_array[layer].blue/65535.0);
-
+  set_cairo_color(layer);
   cairo_set_font_size (cairo_ctx, size*xctx->mooz);
   cairo_set_font_size (cairo_save_ctx, size*xctx->mooz);
   cairo_font_extents(cairo_ctx, &fext);

@@ -700,6 +700,39 @@ void xwin_exit(void)
  init_done=0; /* 20150409 to avoid multiple calls */
 }
 
+
+/* 
+ *  color structures in xschem:
+ *  - color_array[]: 
+ *      array of color character  names ("#xxxxxx" hex) indexed by xschem layer number.
+ *      these are set from tcl 'color' list variable in init_color_array()
+ *  - color_index[]: 
+ *      array of integers, pixel values, color lookup table, indexed by xschem layer num.
+ *      this array is initialized in build_colors() by calling find_best_color()
+ *      indexes are returned from XAllocNamedColor()
+ *      these are used in XSetForeground and XSetBackground calls:
+ *        XSetForeground(display, gc, color_index[i]) 
+ *  - xcolor_array[]: 
+ *      array of 256 XColor structures:
+ *      typedef struct {
+ *        unsigned long pixel; //  pixel value 
+ *        unsigned short red, green, blue; // rgb values
+ *        char flags; // DoRed, DoGreen, DoBlue 	
+ *        char pad;
+ *      } XColor;
+ *      This array is used temporarily in find_best_color() to store all
+ *      allocated colors in case of pseudocolor visuals to find best substitute when
+ *      XAllocNamedColor fails to find the requested "color_array[i]".
+ *      When all color_index[] are populated with pixel values xcolor_array[]
+ *      is reset with the xschem layer colors in build_colors() using XLookupColor():
+ *        for(i=0;i<cadlayers;i++) {
+ *          XLookupColor(display, colormap, color_array[i], &xcolor_exact, &xcolor);
+ *          xcolor_array[i] = xcolor;
+ *        }
+ *
+ *
+ *
+ */
 int build_colors(double dim)
 {
     int i;
