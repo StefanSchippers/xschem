@@ -117,7 +117,7 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points, in
     fprintf(fd, "grestore\n");
     fprintf(fd, " fill\n");
   } else {
-    fprintf(fd, "closepath stroke\n");
+    fprintf(fd, "stroke\n");
   }
 
 
