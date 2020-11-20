@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.8.2" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.8.4" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
     <WixVariable Id="WixUILicenseRtf" 
                  Value="License.rtf" />
+    <!-- 
+    <WixVariable Id="WixUIDialogBmp" Value="xschem_logo.bmp" /> 
+    -->
+    <Icon Id="xschem_icon.ico" SourceFile="xschem_icon.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="xschem_icon.ico" />
     <UIRef Id="WixUI_InstallDir" />
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <Media Id="1" Cabinet="xschemMedia1.cab" EmbedCab="yes" />
@@ -39,7 +44,8 @@
                 Name="Xschem"
                 Description="A schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit simulation."
                 Target="[BINFOLDER]/Xschem.exe"
-                WorkingDirectory="PersonalFolder"/>    
+                WorkingDirectory="PersonalFolder"
+                Icon="xschem_icon.ico"/>    
       <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
       <Shortcut Id="DocumentationStartMenuShortcut"
                 Name="Xschem Documentation"
@@ -48,10 +54,10 @@
       <RegistryValue Root="HKCU" Key="Software\CoralEDA\Xschem" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
     </Component>
   </DirectoryRef>
-    
   <ComponentGroup Id="ProductComponents" Directory="BINFOLDER">
     <Component Id="ProductComponent">
       <File Id='XschemEXE' Name='Xschem.exe' Source="$(var.XSchemWin.TargetPath)" />
+        
         <ProgId Id='Xschem.schfile' Description='Xschem schematic data file'>
           <Extension Id='sch' ContentType='application/sch'>
             <Verb Id='open' Command='Open' TargetFile='XschemEXE' Argument='"%1"' />

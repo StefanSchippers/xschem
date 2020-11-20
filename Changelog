@@ -1,4 +1,6 @@
 2.9.8:
+- allow tcleval(...) in instance attributes , example for a for a 
+  MOS: W=2 L=0.13 AD="tcleva([expr @W*0.29])" 
 - svg export uses true fonts (svg <text> element) 
 - select highlight net function made faster (highlight -> select highlight nets) 
 - great trim_wires() improvement (>2 oom speed) 
