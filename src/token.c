@@ -1504,7 +1504,9 @@ void print_spice_element(FILE *fd, int inst)
         if (value[0] == '\0') value=get_tok_value(template, token+1, 0);
 
          if (!strncmp(value,"tcleval(", 8)) {
-           my_strdup2(62, &translatedvalue, translate(inst, value));
+           dbg(1, "print_spice_element(): value=%s\n", value);
+           my_strdup2(442, &translatedvalue, value);
+           my_strdup2(453, &translatedvalue, translate(inst, translatedvalue));
            value = translatedvalue;
          }
       }
@@ -1694,7 +1696,7 @@ void print_spice_element(FILE *fd, int inst)
   my_free(1021, &name);
   my_free(1022, &token);
   my_free(1194, &result);
-  my_free(63, &translatedvalue);
+  my_free(455, &translatedvalue);
 }
 
 void print_tedax_element(FILE *fd, int inst)
