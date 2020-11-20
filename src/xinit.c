@@ -981,10 +981,18 @@ int Tcl_AppInit(Tcl_Interp *inter)
  my_snprintf(user_conf_dir, S(user_conf_dir), "%s", tclresult());
  tclsetvar("USER_CONF_DIR", user_conf_dir);
 #else
-   my_snprintf(tmp, S(tmp),"regsub -all {~/} {.;%s} {%s/}", XSCHEM_LIBRARY_PATH, home_dir);
-   tcleval(tmp);
-   tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
-   char install_dir[MAX_PATH];
+   char install_dir[MAX_PATH]="";
+   char *up_hier=NULL, *win_xschem_library_path=NULL;
+   #define WIN_XSCHEM_LIBRARY_PATH_NUM 8
+   const char *WIN_XSCHEM_LIBRARY_PATH[WIN_XSCHEM_LIBRARY_PATH_NUM] = {
+     /*1*/ "xschem_library",
+     /*2*/ "xschem_library/devices", 
+     /*3*/ "xschem_library/examples", 
+     /*4*/ "xschem_library/ngspice", 
+     /*5*/ "xschem_library/logic", 
+     /*6*/ "xschem_library/binto7seg", 
+     /*7*/ "xschem_library/pcb", 
+     /*8*/ "xschem_library/rom8k"};
    GetModuleFileNameA(NULL, install_dir, MAX_PATH);
    change_to_unix_fn(install_dir);
    int dir_len=strlen(install_dir);
@@ -996,11 +1004,21 @@ int Tcl_AppInit(Tcl_Interp *inter)
    if (atoi(tclresult()) == 0)
    {
      running_in_src_dir = 1; /* no bin, so it's running in Visual studio source directory*/
-     my_snprintf(tmp, S(tmp), "subst [regsub {\\w+/\\w+/\\w+$} \"%s\" {}]xschem_library/devices", install_dir);
-     tcleval(tmp);
-     my_snprintf(tmp, S(tmp), ".;%s", tclresult());
-     tclsetvar("XSCHEM_LIBRARY_PATH", tmp);
+     my_strdup(62, &up_hier, "../../..");
    }
+   else my_strdup(63, &up_hier, "..");
+   my_strcat(415, &win_xschem_library_path, ".");
+   for (i = 0; i < WIN_XSCHEM_LIBRARY_PATH_NUM; ++i) {
+     my_snprintf(tmp, S(tmp),"%s/%s/%s", install_dir, up_hier, WIN_XSCHEM_LIBRARY_PATH[i]);
+     my_strcat(416, &win_xschem_library_path, "\;"); 
+     my_strcat(431, &win_xschem_library_path, tmp);
+   }
+   my_snprintf(tmp, S(tmp), "set tmp2 \"%s\"; while {[regsub {([^/]*\\.*[^./]+[^/]*)/\\.\\./?} $tmp2 {} tmp2]} {}; ", win_xschem_library_path); 
+   const char *result2 = tcleval(tmp);
+   const char *win_xschem_library_path_clean = tclgetvar("tmp2");
+   tclsetvar("XSCHEM_LIBRARY_PATH", win_xschem_library_path_clean);
+   my_free(432, &win_xschem_library_path);
+   my_free(441, &up_hier);
  char* gxschem_library=NULL, *xschem_sharedir=NULL;
  if ((xschem_sharedir=getenv("XSCHEM_SHAREDIR")) != NULL) {
    if (!stat(xschem_sharedir, &buf)) {

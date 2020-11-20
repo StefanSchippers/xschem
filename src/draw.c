@@ -223,6 +223,7 @@ void print_image()
 }
 
 
+#ifdef HAS_CAIRO
 void set_cairo_color(int layer) 
 {
   cairo_set_source_rgb(cairo_ctx,
@@ -235,7 +236,6 @@ void set_cairo_color(int layer)
     (double)xcolor_array[layer].blue/65535.0);
 }
 
-#ifdef HAS_CAIRO
 /* remember to call cairo_restore(cairo_ctx) when done !! */
 int set_text_custom_font(xText *txt) /* 20171122 for correct text_bbox calculation */
 {

@@ -1431,6 +1431,7 @@ void print_spice_element(FILE *fd, int inst)
   register int c, state=TOK_BEGIN, space;
   char *template=NULL,*format=NULL,*s, *name=NULL,  *token=NULL;
   const char *lab, *value = NULL;
+  char *translatedvalue = NULL;
   int pin_number;
   int sizetok=0;
   int token_pos=0, escape=0;
@@ -1500,10 +1501,14 @@ void print_spice_element(FILE *fd, int inst)
       } else {
         dbg(1, "print_spice_element(): token: |%s|\n", token);
         value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 2);
-        if (value[0] == '\0')
-        value=get_tok_value(template, token+1, 0);
+        if (value[0] == '\0') value=get_tok_value(template, token+1, 0);
+
+         if (!strncmp(value,"tcleval(", 8)) {
+           my_strdup2(62, &translatedvalue, translate(inst, value));
+           value = translatedvalue;
+         }
       }
-      if(!get_tok_size && token[0] =='$') {
+      if(!value[0] && token[0] =='$') {
 
 
         tmp = strlen(token + 1) +100 ; /* always make room for some extra chars 
@@ -1663,6 +1668,13 @@ void print_spice_element(FILE *fd, int inst)
     my_strdup(22, &result, translate(inst, result));
     dbg(1, "print_spice_element(): after  translate()result=%s\n", result);
   }
+
+
+/* can't remember what the f**k this is supposed to do. 
+   why eval( and not tcleval( ? 
+   disable until some regression pops out
+*/
+#if 0
   /* do a second round of substitutions, but without calling tcl */
   if(result && strstr(result, "eval(") == result) {
     char *c = strrchr(result, ')');
@@ -1673,12 +1685,16 @@ void print_spice_element(FILE *fd, int inst)
     }
     my_strdup2(88, &result, translate(inst, result+5));
   }
+#endif
+
+
   fprintf(fd, "%s", result);
   my_free(1019, &template);
   my_free(1020, &format);
   my_free(1021, &name);
   my_free(1022, &token);
   my_free(1194, &result);
+  my_free(63, &translatedvalue);
 }
 
 void print_tedax_element(FILE *fd, int inst)

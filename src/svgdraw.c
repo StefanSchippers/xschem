@@ -281,7 +281,7 @@ static void svg_draw_string(int layer, const char *str, int rot, int flip, int h
     if(rot == 3 && flip == 1 ) { x=textx1;}
   }
   llength=0;
-  my_strdup2(73, &sss, str);
+  my_strdup2(434, &sss, str);
   tt=ss=sss;
   for(;;) {
     c=*ss;
@@ -298,7 +298,7 @@ static void svg_draw_string(int layer, const char *str, int rot, int flip, int h
     }
     ss++;
   }
-  my_free(1157, &sss);
+  my_free(1154, &sss);
 }
 
 

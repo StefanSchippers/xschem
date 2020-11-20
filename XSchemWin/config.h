@@ -18,9 +18,6 @@
 /* Define to 1 if popen(3) is not available but fork(2) and pipe(2) are available */
 /*#undef HAS_PIPE */
 
-#ifndef XSCHEM_LIBRARY_PATH
-#define XSCHEM_LIBRARY_PATH  "C:/Program Files/XSchem/xschem_library;C:/Program Files/XSchem/xschem_library/devices;C:/Program Files/XSchem/xschem_library/examples;C:/Program Files/XSchem/xschem_library/ngspice;C:/Program Files/XSchem/xschem_library/logic;C:/Program Files/XSchem/xschem_library/binto7seg;C:/Program Files/XSchem/xschem_library/pcb;C:/Program Files/XSchem/xschem_library/rom8k"
-#endif
 #define USER_CONF_DIR        "userConf"
 
 /* Extra includes required by the detected libs (may be empty): */
