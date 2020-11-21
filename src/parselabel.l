@@ -96,12 +96,14 @@ const char *expandlabel(const char *s, int *m)
    l = strlen(s)+120;
    cmd = my_malloc(526, l);
    fprintf(errfp, "syntax error in %s\n", s);
-   my_snprintf(cmd, l, "tk_messageBox -icon error -type ok -message {Syntax error in identifier expansion: %s}", s);
+   my_snprintf(cmd, l, 
+     "tk_messageBox -icon error -type ok -message {Syntax error in identifier expansion: %s}", s);
    if(has_x) tcleval(cmd);
    my_free(543, &cmd);
 
  }
- if(dbg_var >= 3) fprintf(errfp, "expandlabel(): returning %s  from %s mult=%d\n",dest_string.str, s, dest_string.m);
+ if(dbg_var >= 3) 
+   fprintf(errfp, "expandlabel(): returning %s  from %s mult=%d\n",dest_string.str, s, dest_string.m);
  if(dest_string.str)
     *m = dest_string.m;
  else

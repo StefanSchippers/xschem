@@ -1484,7 +1484,7 @@ void print_spice_element(FILE *fd, int inst)
          ( (!space && c != '$' && c != '@') && escape  )
        )
       ) {
-      dbg(1, "print_spice_element(): c=%c, space=%d, escape=%d roken_pos=%d\n", c, space, escape, token_pos);
+      dbg(1, "print_spice_element(): c=%c, space=%d, escape=%d token_pos=%d\n", c, space, escape, token_pos);
       state=TOK_SEP;
     }
     STR_ALLOC(&token, token_pos, &sizetok);

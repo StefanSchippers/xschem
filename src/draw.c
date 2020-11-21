@@ -1650,7 +1650,7 @@ void draw(void)
             for(i=0;i<xctx->instances;i++) {
               if(xctx->inst[i].ptr == -1) continue;
               symptr = (xctx->inst[i].ptr+ xctx->sym);
-              if( c==0 || /*20150408 draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
+              if( c==0 || /*draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
                   symptr->lines[c] ||
                   symptr->arcs[c] ||
                   symptr->rects[c] ||

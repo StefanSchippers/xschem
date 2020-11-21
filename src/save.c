@@ -1371,7 +1371,8 @@ void align_sch_pins_with_sym(const char *name, int pos)
         dbg(1, "align_sch_pins_with_sym(): i=%d, pin name=%s entry->value=%d\n", i, pinname, entry->value);
       }
       if(!fail) {
-        for(i=0; i < xctx->sym[pos].rects[PINLAYER]; i++) { /* copy box[] ordererd array to LCC schematic instance */
+        /* copy box[] ordererd array to LCC schematic instance */
+        for(i=0; i < xctx->sym[pos].rects[PINLAYER]; i++) {
           xctx->sym[pos].rect[PINLAYER][i] = box[i];
         }
       }

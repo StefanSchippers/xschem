@@ -442,7 +442,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      prepared_netlist_structs=0;
      prepared_hilight_structs=0;
      if(has_x) {
-       tcleval( "wm title . \"xschem - [file tail [xschem get schname]]\""); /* 20150417 set window and icon title */
+       tcleval( "wm title . \"xschem - [file tail [xschem get schname]]\""); /* set window and icon title */
        tcleval( "wm iconname . \"xschem - [file tail [xschem get schname]]\"");
      }
    }
@@ -943,7 +943,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  } else if(!strcmp(argv[1],"save")) {
    dbg(1, "scheduler(): saving: current schematic\n");
 
-   if(!strcmp(xctx->sch[xctx->currsch],"")) {   /* 20170622 check if unnamed schematic, use saveas in this case... */
+   if(!strcmp(xctx->sch[xctx->currsch],"")) {   /* check if unnamed schematic, use saveas in this case... */
      saveas(NULL, SCHEMATIC);
    } else {
      save(0);

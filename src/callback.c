@@ -126,7 +126,8 @@ int callback(int event, int mx, int my, KeySym key,
  if(semaphore)
  {
    if(debug_var>=2)
-     if(event != MotionNotify) fprintf(errfp, "callback(): reentrant call of callback(), semaphore=%d\n", semaphore);
+     if(event != MotionNotify) 
+       fprintf(errfp, "callback(): reentrant call of callback(), semaphore=%d\n", semaphore);
    /* if(event==Expose) {
     *   XCopyArea(display, save_pixmap, window, gctiled, mx,my,button,aux,mx,my);
     *
@@ -251,8 +252,9 @@ int callback(int event, int mx, int my, KeySym key,
       if(vertical_move) mousex_snap = mx_double_save;
       new_polygon(RUBBER);
     }
-    if(!(ui_state & STARTPOLYGON) && (state&Button1Mask) && !(ui_state & STARTWIRE) && !(ui_state & STARTPAN2) &&
-         !(state & Mod1Mask) && !(state & ShiftMask) && !(ui_state & PLACE_SYMBOL)) /* start of a mouse area select */
+    /* start of a mouse area select */
+    if(!(ui_state & STARTPOLYGON) && (state&Button1Mask) && !(ui_state & STARTWIRE) && 
+       !(ui_state & STARTPAN2) && !(state & Mod1Mask) && !(state & ShiftMask) && !(ui_state & PLACE_SYMBOL))
     {
       static int onetime=0;
       if(mx != mx_save || my != my_save) {
@@ -1318,7 +1320,6 @@ int callback(int event, int mx, int my, KeySym key,
    if( 0 && (key==';') && (state & ControlMask) )    /* testmode:  for performance testing */
    {
     draw_stuff();
-    draw();
     break;
    }
    if(0 && key=='~' && (state & ControlMask)) {  /* testmode */

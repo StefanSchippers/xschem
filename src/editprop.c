@@ -493,7 +493,7 @@ void edit_line_property(void)
       } else {
         y1 = xctx->line[c][n].y1+INT_BUS_WIDTH(xctx->lw); y2 = xctx->line[c][n].y2-INT_BUS_WIDTH(xctx->lw);
       }
-      bbox(ADD, xctx->line[c][n].x1-INT_BUS_WIDTH(xctx->lw), y1 , xctx->line[c][n].x2+INT_BUS_WIDTH(xctx->lw) , y2 );
+      bbox(ADD, xctx->line[c][n].x1-INT_BUS_WIDTH(xctx->lw), y1, xctx->line[c][n].x2+INT_BUS_WIDTH(xctx->lw), y2);
     }
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
     draw();

@@ -1212,7 +1212,8 @@ void descend_schematic(int instnumber)
       inst_number = instnumber;
     }
     if(inst_number < 0 ) inst_number += inst_mult+1;
-    if(inst_number <1 || inst_number > inst_mult) inst_number = 1; /* any invalid number->descend to leftmost inst */
+    /* any invalid number->descend to leftmost inst */
+    if(inst_number <1 || inst_number > inst_mult) inst_number = 1;
   }
   dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
   my_strcat(15, &xctx->sch_path[xctx->currsch+1], find_nth(str, ',', inst_number));
@@ -1615,50 +1616,75 @@ void zoom_box(int what)
   }
 }
 
+#define STORE
 void draw_stuff(void)
 {
    double x1,y1,w,h, x2, y2;
    int i;
+   int n = 200000;
    clear_drawing();
    view_unzoom(40);
-   for(i=0;i<=210000;i++)
-    {
-     w=(float)(areaw*xctx->zoom/800) * rand() / (RAND_MAX+1.0);
-     h=(float)(areah*xctx->zoom/80) * rand() / (RAND_MAX+1.0);
-     x1=(float)(areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
-     y1=(float)(areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
-     x2=x1+w;
-     y2=y1+h;
-     ORDER(x1,y1,x2,y2);
-     rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
-     storeobject(-1, x1,y1,x2,y2, xRECT,rectcolor, 0, NULL);
+   #ifndef STORE
+   n /= (cadlayers - 4);
+   for(rectcolor = 4; rectcolor < cadlayers; rectcolor++) {
+   #else
+   #endif
+     for(i = 0; i < n; i++)
+      {
+       w=(float)(areaw*xctx->zoom/800) * rand() / (RAND_MAX+1.0);
+       h=(float)(areah*xctx->zoom/80) * rand() / (RAND_MAX+1.0);
+       x1=(float)(areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
+       y1=(float)(areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
+       x2=x1+w;
+       y2=y1+h;
+       ORDER(x1,y1,x2,y2);
+       #ifdef STORE
+       rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
+       storeobject(-1, x1, y1, x2, y2, xRECT,rectcolor, 0, NULL);
+       #else 
+       drawtemprect(gc[rectcolor], ADD, x1, y1, x2, y2);
+       #endif
+     }
+  
+     for(i = 0; i < n; i++)
+      {
+       w=(float)(areaw*xctx->zoom/80) * rand() / (RAND_MAX+1.0);
+       h=(float)(areah*xctx->zoom/800) * rand() / (RAND_MAX+1.0);
+       x1=(float)(areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
+       y1=(float)(areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
+       x2=x1+w;
+       y2=y1+h;
+       ORDER(x1,y1,x2,y2);
+       #ifdef STORE
+       rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
+       storeobject(-1, x1, y1, x2, y2,xRECT,rectcolor, 0, NULL);
+       #else 
+       drawtemprect(gc[rectcolor], ADD, x1, y1, x2, y2);
+       #endif
+     }
+  
+     for(i = 0; i < n; i++)
+     {
+       w=(float)xctx->zoom * rand() / (RAND_MAX+1.0);
+       h=w;
+       x1=(float)(areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
+       y1=(float)(areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
+       x2=x1+w;
+       y2=y1+h;
+       RECTORDER(x1,y1,x2,y2);
+       #ifdef STORE
+       rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
+       storeobject(-1, x1, y1, x2, y2,xRECT,rectcolor, 0, NULL);
+       #else 
+       drawtemprect(gc[rectcolor], ADD, x1, y1, x2, y2);
+       #endif
+     }
+   #ifndef STORE
+     drawtemprect(gc[rectcolor], END, 0.0, 0.0, 0.0, 0.0);
    }
-
-   for(i=0;i<=210000;i++)
-    {
-     w=(float)(areaw*xctx->zoom/80) * rand() / (RAND_MAX+1.0);
-     h=(float)(areah*xctx->zoom/800) * rand() / (RAND_MAX+1.0);
-     x1=(float)(areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
-     y1=(float)(areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
-     x2=x1+w;
-     y2=y1+h;
-     ORDER(x1,y1,x2,y2);
-     rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
-     storeobject(-1, x1,y1,x2,y2,xRECT,rectcolor, 0, NULL);
-   }
-
-   for(i=0;i<=210000;i++)
-   {
-     w=(float)xctx->zoom * rand() / (RAND_MAX+1.0);
-     h=w;
-     x1=(float)(areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
-     y1=(float)(areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
-     x2=x1+w;
-     y2=y1+h;
-     rectcolor = (int) (10.0*rand()/(RAND_MAX+1.0))+4;
-     RECTORDER(x1,y1,x2,y2);
-     storeobject(-1, x1,y1,x2,y2,xRECT,rectcolor, 0, NULL);
-   }
+   #else
+   draw();
+   #endif
 }
 
 void restore_selection(double x1, double y1, double x2, double y2)

@@ -185,7 +185,8 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
   set_modify(1);
 }
 
-void store_poly(int pos, double *x, double *y, int points, unsigned int rectcolor, unsigned short sel, char *prop_ptr)
+void store_poly(int pos, double *x, double *y, int points, unsigned int rectcolor, 
+                unsigned short sel, char *prop_ptr)
 {
   int n, j;
   const char *dash;

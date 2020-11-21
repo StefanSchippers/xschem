@@ -655,7 +655,8 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
   my_strncpy(s,xctx->inst[i].prop_ptr!=NULL?xctx->inst[i].prop_ptr:"<NULL>",S(s));
   if(event_reporting) {
     char n[PATH_MAX];
-    printf("xschem search exact %d name %s\n", select_mode? 1:-1, escape_chars(n, xctx->inst[i].instname, PATH_MAX));
+    printf("xschem search exact %d name %s\n", 
+      select_mode? 1:-1, escape_chars(n, xctx->inst[i].instname, PATH_MAX));
     fflush(stdout);
   }
   if( !fast )

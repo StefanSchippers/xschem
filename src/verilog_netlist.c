@@ -49,7 +49,8 @@ void global_verilog_netlist(int global)  /* netlister driver */
  /* top sch properties used for library use declarations and type definitions */
  /* to be printed before any entity declarations */
 
- my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", netlist_dir, skip_dir(xctx->sch[xctx->currsch]),getpid());
+ my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
+   netlist_dir, skip_dir(xctx->sch[xctx->currsch]),getpid());
  fd=fopen(netl_filename, "w");
 
  if(user_top_netl_name[0]) {

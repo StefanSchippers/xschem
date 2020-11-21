@@ -81,7 +81,8 @@ int window_state (Display *disp, Window win, char *arg) {/*{{{*/
     Atom prop1 = 0;
     Atom prop2 = 0;
     char *p1, *p2;
-    const char *argerr = "expects a list of comma separated parameters: \"(remove|add|toggle),<PROP1>[,<PROP2>]\"\n";
+    const char *argerr = "expects a list of comma separated parameters: "
+                         "\"(remove|add|toggle),<PROP1>[,<PROP2>]\"\n";
 
 
     my_strdup(604, &arg_copy, arg);
@@ -1013,7 +1014,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
      my_strcat(416, &win_xschem_library_path, "\;"); 
      my_strcat(431, &win_xschem_library_path, tmp);
    }
-   my_snprintf(tmp, S(tmp), "set tmp2 \"%s\"; while {[regsub {([^/]*\\.*[^./]+[^/]*)/\\.\\./?} $tmp2 {} tmp2]} {}; ", win_xschem_library_path); 
+   my_snprintf(tmp, S(tmp), "set tmp2 \"%s\"; "
+     "while {[regsub {([^/]*\\.*[^./]+[^/]*)/\\.\\./?} $tmp2 {} tmp2]} {}; ", win_xschem_library_path); 
    const char *result2 = tcleval(tmp);
    const char *win_xschem_library_path_clean = tclgetvar("tmp2");
    tclsetvar("XSCHEM_LIBRARY_PATH", win_xschem_library_path_clean);

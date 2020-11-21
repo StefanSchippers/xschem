@@ -331,6 +331,7 @@ function compact_pinlist(inst,inst_sub                  , prevgroup, group,i,ii,
              else net_ret[ii] = compact_label(inst,net_ar,curr_n,i-1)
            }
            dir_ret[ii] = pin_ar[inst_sub,"dir",pin_ar[inst_sub,i-1] ]
+           if(dir_ret[ii] == "") dir_ret[ii] = "B"
            ii++
            curr=base;curr_n=i
            prevgroup=group
@@ -345,6 +346,7 @@ function compact_pinlist(inst,inst_sub                  , prevgroup, group,i,ii,
    }
 
    dir_ret[ii] = pin_ar[inst_sub,"dir",pin_ar[inst_sub,np] ]
+   if(dir_ret[ii] == "") dir_ret[ii] = "B"
    pin_ret["n"] =  dir_ret["n"] = ii
    if(inst) net_ret["n"] = ii
 }
