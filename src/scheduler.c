@@ -786,6 +786,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
    Tcl_AppendResult(interp, res, NULL);
    my_free(925, &res);
+ } else if(!strcmp(argv[1],"selected_wire")) {
+   int n, i;
+   char *res = NULL;
+   rebuild_selected_array();
+   for(n=0; n < lastselected; n++) {
+     if(selectedgroup[n].type == WIRE) {
+       i = selectedgroup[n].n;
+       my_strcat(434, &res, get_tok_value(xctx->wire[i].prop_ptr,"lab",0));
+       if(n < lastselected-1) my_strcat(442, &res, " ");
+     }
+   }
+   Tcl_AppendResult(interp, res, NULL);
+   my_free(453, &res);
  } else if(!strcmp(argv[1],"select")) {
    if(argc<3) {
      Tcl_AppendResult(interp, "xschem select: missing arguments.", NULL);

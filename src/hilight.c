@@ -1188,9 +1188,17 @@ void print_hilight_net(int show)
    my_free(780, &filetmp2);
    return;
  }
+#ifdef __unix__
  my_snprintf(cmd, S(cmd), "\"%s/order_labels.awk\"", tclgetvar("XSCHEM_SHAREDIR"));
+#else
+ my_snprintf(cmd, S(cmd), "awk -f \"%s/order_labels.awk\"", tclgetvar("XSCHEM_SHAREDIR"));
+#endif
  my_snprintf(cmd2, S(cmd2), "%s %s > %s", cmd, filetmp1, filetmp2);
+#ifdef __unix__
  my_snprintf(cmd3, S(cmd3), "\"%s/sort_labels.awk\" %s", tclgetvar("XSCHEM_SHAREDIR"), filetmp1);
+#else
+ my_snprintf(cmd3, S(cmd3), "awk -f \"%s/sort_labels.awk\" %s", tclgetvar("XSCHEM_SHAREDIR"), filetmp1);
+#endif
  for(i=0;i<HASHSIZE;i++) {
    entry=hilight_table[i];
    while(entry) {

@@ -792,18 +792,18 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
 
     /* parsing state machine                                    */
     /* states:                                                  */
-    /*    TOK_BEGIN TOK_TOKEN TOK_ENDTOK TOK_SEP TOK_VALUE            */
+    /*    TOK_BEGIN TOK_TOKEN TOK_ENDTOK TOK_SEP TOK_VALUE      */
     /*                                                          */
     /*                                                          */
     /* TOK_BEGIN                                                */
-    /* |      TOK_TOKEN                                            */
-    /* |      |   TOK_ENDTOK                                       */
-    /* |      |   |  TOK_SEP                                 */
-    /* |      |   |  | TOK_VALUE                                   */
+    /* |      TOK_TOKEN                                         */
+    /* |      |   TOK_ENDTOK                                    */
+    /* |      |   |  TOK_SEP                                    */
+    /* |      |   |  | TOK_VALUE                                */
     /* |      |   |  | | TOK_BEGIN                              */
-    /* |      |   |  | | |   TOK_TOKEN                             */
-    /* |      |   |  | | |   |     TOK_ENDTOK                      */
-    /* |      |   |  | | |   |     |  TOK_TOKEN                    */
+    /* |      |   |  | | |   TOK_TOKEN                          */
+    /* |      |   |  | | |   |     TOK_ENDTOK                   */
+    /* |      |   |  | | |   |     |  TOK_TOKEN                 */
     /* |      |   |  | | |   |     |  |                         */
     /* .......name...=.x1....format...type..=..subcircuit....   */
     /* . : space                                                */
@@ -1493,6 +1493,7 @@ void print_spice_element(FILE *fd, int inst)
     }
     else if (state==TOK_SEP)                    /* got a token */
     {
+      int token_exists = 0;
       token[token_pos]='\0';
       token_pos=0;
 
@@ -1501,8 +1502,9 @@ void print_spice_element(FILE *fd, int inst)
       } else {
         dbg(1, "print_spice_element(): token: |%s|\n", token);
         value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 2);
-        if (value[0] == '\0') value=get_tok_value(template, token+1, 0);
-
+        /* get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
+        if (!get_tok_size) value=get_tok_value(template, token+1, 0);
+        token_exists = get_tok_size;
          if (!strncmp(value,"tcleval(", 8)) {
            dbg(1, "print_spice_element(): value=%s\n", value);
            my_strdup2(442, &translatedvalue, value);
@@ -1510,7 +1512,7 @@ void print_spice_element(FILE *fd, int inst)
            value = translatedvalue;
          }
       }
-      if(!value[0] && token[0] =='$') {
+      if(!token_exists && token[0] =='$') {
 
 
         tmp = strlen(token + 1) +100 ; /* always make room for some extra chars 
@@ -1833,6 +1835,7 @@ void print_tedax_element(FILE *fd, int inst)
     token_pos=0;
 
     value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
+     /* get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
     if(!get_tok_size) value=get_tok_value(template, token+1, 0);
     if(!get_tok_size && token[0] =='$') {
       fputs(token + 1, fd);
@@ -2232,7 +2235,8 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
    token_pos=0;
 
    value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 2);
-   if(value[0] == '\0')
+   /* get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
+   if(!get_tok_size)
    value=get_tok_value(template, token+1, 0);
    if(!get_tok_size && token[0] =='$') {
      fputs(token + 1, fd);
@@ -2405,7 +2409,8 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
     token_pos=0;
 
     value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 2);
-    if(value[0] == '\0')
+    /* get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
+    if(!get_tok_size)
     value=get_tok_value(template, token+1, 0);
     if(!get_tok_size && token[0] =='$') {
       fputs(token + 1, fd);
