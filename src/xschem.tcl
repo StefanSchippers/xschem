@@ -2420,7 +2420,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
    }
    label .dialog.f1.r4 -text {   Edit Attr:}
    if  { [ info tclversion] > 8.4} {
-     ttk::combobox .dialog.f1.r5 -values $tok_list -textvariable selected_tok -width 14
+     ttk::combobox .dialog.f1.r5 -values [list $tok_list] -textvariable selected_tok -width 14
    }
 
    checkbutton .dialog.f0.l2 -text "preserve unchanged props" -variable preserve_unchanged_attrs -state $preserve_disabled

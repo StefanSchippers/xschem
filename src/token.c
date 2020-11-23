@@ -416,6 +416,7 @@ const char *list_tokens(const char *s, int with_quotes)
   }
   sizetok = CADCHUNKALLOC;
   my_realloc(451, &token, sizetok);
+  token[0] = '\0';
   while(1) {
     c=*s++;
     space=SPACE(c) ;
