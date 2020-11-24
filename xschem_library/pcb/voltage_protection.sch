@@ -9,7 +9,7 @@ E {}
 B 2 170 -840 1010 -100 {dash=4}
 T {@name} 1010 -870 0 1 0.4 0.4 {}
 T {@symname} 170 -870 0 0 0.4 0.4 {}
-N 920 -520 920 -390 {lab=VCC\\ FIVE}
+N 920 -520 920 -390 {lab=VCC_FIVE}
 N 750 -360 880 -360 {lab=G}
 N 920 -300 1010 -300 {lab=VOUT}
 N 920 -170 920 -150 {lab=VSS}
@@ -18,7 +18,7 @@ N 480 -310 480 -220 {lab=Z}
 N 480 -390 710 -390 {lab=B}
 N 480 -160 480 -130 {lab=VSSA}
 N 480 -430 480 -390 {lab=B}
-N 750 -520 750 -420 {lab=VCC\\ FIVE}
+N 750 -520 750 -420 {lab=VCC_FIVE}
 N 750 -260 750 -230 {lab=#net1}
 N 750 -170 750 -150 {lab=VSS}
 N 480 -390 480 -370 {lab=B}
@@ -28,12 +28,12 @@ N 400 -160 400 -130 {lab=VSSA}
 N 400 -220 480 -220 {lab=Z}
 N 700 -320 800 -320 {lab=G}
 N 700 -260 800 -260 {lab=#net1}
-N 480 -520 480 -490 { lab=VCC\\ FIVE}
-N 480 -520 920 -520 { lab=VCC\\ FIVE}
-N 920 -710 920 -520 { lab=VCC\\ FIVE}
+N 480 -520 480 -490 { lab=VCC_FIVE}
+N 480 -520 920 -520 { lab=VCC_FIVE}
+N 920 -710 920 -520 { lab=VCC_FIVE}
 N 170 -710 310 -710 { lab=VCC_UNREG}
 N 170 -630 310 -630 { lab=VSSA}
-N 820 -710 920 -710 { lab=VCC\\ FIVE}
+N 820 -710 920 -710 { lab=VCC_FIVE}
 N 230 -740 230 -710 { lab=VCC_UNREG}
 C {conn_3x1.sym} 300 -360 0 0 {name=C1}
 C {opin.sym} 1010 -300 0 0 {name=p0 lab=VOUT}
@@ -52,11 +52,11 @@ device=BZX5V1
 footprint=acy(300)
 xxxspiceprefix="#D#"}
 C {lab_pin.sym} 480 -130 0 0 {name=l13 lab=VSSA}
-C {res.sym} 480 -460 0 0 {name=Rdivider\\ upper m=1 value=4.7K footprint=1206 device=resistor}
+C {res.sym} 480 -460 0 0 {name=Rdivider_upper m=1 value=4.7K footprint=1206 device=resistor}
 C {res.sym} 750 -200 0 0 {name=R5 m=1 value=470 footprint=1206 device=resistor}
 C {gnd.sym} 750 -150 0 0 {name=l16 lab=VSS}
 C {lab_wire.sym} 510 -390 0 0 {name=l0 lab=B}
-C {res.sym} 480 -340 0 0 {name=Rdivider\\ lower m=1 value=510 footprint=1206 device=resistor}
+C {res.sym} 480 -340 0 0 {name=Rdivider_lower m=1 value=510 footprint=1206 device=resistor}
 C {pmos.sym} 900 -360 0 0 {name=M2 
 model=IRLML6402 
 device=IRLML6402 
@@ -81,6 +81,6 @@ C {lab_wire.sym} 480 -260 0 0 {name=l3 lab=Z}
 C {reg.sch} -120 -520 0 0 {name=x2}
 C {ipin.sym} 170 -710 0 0 {name=p3 lab=VCC_UNREG}
 C {ipin.sym} 170 -630 0 0 {name=p1 lab=VSSA}
-C {lab_wire.sym} 690 -520 0 0 {name=l4 lab=VCC\\ FIVE}
+C {lab_wire.sym} 690 -520 0 0 {name=l4 lab=VCC_FIVE}
 C {diode.sym} 230 -770 0 0 {name=D1 model=D1N914 area=1 device=D1N914 footprint=acy(300)}
 C {vdd.sym} 230 -800 0 0 {name=l5 lab=VCC}

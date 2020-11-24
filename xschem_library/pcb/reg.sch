@@ -20,7 +20,7 @@ N 430 -110 590 -110 { lab=ANALOG_GND}
 N 430 -190 490 -190 { lab=VCC_IN}
 C {capa.sym} 590 -160 0 0 {name=C0 m=1 value=100u device="electrolitic capacitor"}
 C {7805.sym} 730 -190 0 0 {name=U0
-device=7805
+device=7805 footprint=TO220W
 spiceprefix=X
 url="https://www.sparkfun.com/datasheets/Components/LM7805.pdf"}
 C {capa.sym} 890 -160 0 0 {name=C4 m=1 value=10u device="tantalium capacitor"}

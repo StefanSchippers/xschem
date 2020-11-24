@@ -19,9 +19,9 @@ N 540 -100 540 -80 {lab=VSS}
 N 540 -200 540 -160 {lab=VREF}
 N 540 -200 630 -200 {lab=VREF}
 N 540 -320 540 -290 {lab=VCC}
-N 630 -380 630 -280 {lab=VSS\\ LOAD}
-N 630 -380 1130 -380 {lab=VSS\\ LOAD}
-N 1130 -380 1130 -360 {lab=VSS\\ LOAD}
+N 630 -380 630 -280 {lab=VSSLOAD}
+N 630 -380 1130 -380 {lab=VSSLOAD}
+N 1130 -380 1130 -360 {lab=VSSLOAD}
 N 1130 -300 1130 -270 {lab=D}
 N 860 -120 880 -120 {lab=#net1}
 N 770 -120 800 -120 {lab=RST}
@@ -37,7 +37,7 @@ N 390 -440 390 -420 {lab=VSS}
 N 310 -500 390 -500 { lab=VSS_ANALOG}
 N 310 -440 310 -420 {lab=VSS}
 N 540 -230 540 -200 {lab=VREF}
-N 1130 -430 1130 -380 {lab=VSS\\ LOAD}
+N 1130 -430 1130 -380 {lab=VSSLOAD}
 N 920 -240 920 -170 {lab=#net2}
 N 990 -220 990 -210 {lab=G}
 N 1020 -790 1070 -790 { lab=VOUT_PROTECTED1}
@@ -48,7 +48,7 @@ N 390 -500 450 -500 { lab=VSS_ANALOG}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan"}
 C {lab_pin.sym} 70 -470 0 1 {name=p8 lab=VCC12}
 C {conn_8x1.sym} 50 -450 0 0 {name=C2}
-C {lab_pin.sym} 1130 -400 0 0 {name=p1 lab=VSS\\ LOAD}
+C {lab_pin.sym} 1130 -400 0 0 {name=p1 lab=VSSLOAD}
 C {lm358.sym} 710 -240 0 0 {name=U3:1
 spiceprefix=X
 VCC=VCC 

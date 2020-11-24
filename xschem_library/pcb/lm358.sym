@@ -12,7 +12,7 @@ comptag @name @comptag"
 
 template="name=U1:1 
 model=LM358 device=LM358 
-footprint=\\"SO(8)\\" 
+footprint=so(8) 
 numslots=2 
 VCC=VCC 
 VNN=VNN"
