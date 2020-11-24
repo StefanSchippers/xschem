@@ -52,7 +52,7 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
       subinst=$3
       subpos = i
       sub(/__subcircuit__/, "subcircuit", $0)
-      print spaces(hier * 2) "#" $0
+      print "#" spaces(hier * 2 - 1) $0
       for(i++; ;i++) {
         $0 = netlist[i]
         if($1 != "__map__") break
@@ -60,7 +60,7 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
         $4 = resolve_node($4, path, maplist)
         submaplist = submaplist " " $2 " " $4
         sub(/__map__/, "map", $0)
-        print spaces(hier * 2) "#" $0
+        print "#" spaces(hier * 2 - 1) $0
       }
       expand(subcell, subinst, path subinst hiersep, submaplist)
     }
