@@ -1,0 +1,24 @@
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1"
+}
+V {}
+S {}
+E {}
+L 4 -130 -20 130 -20 {}
+L 4 -130 20 130 20 {}
+L 4 -130 -20 -130 20 {}
+L 4 130 -20 130 20 {}
+L 4 -150 -10 -130 -10 {}
+L 4 -150 10 -130 10 {}
+L 4 130 -10 150 -10 {}
+B 5 -152.5 -12.5 -147.5 -7.5 {name=VCC_UNREG dir=in name=p3 }
+B 5 -152.5 7.5 -147.5 12.5 {name=VSSA dir=in name=p1 }
+B 5 147.5 -12.5 152.5 -7.5 {name=VOUT dir=out name=p0 }
+T {@symname} -79 -46 0 0 0.3 0.3 {}
+T {@name} 135 -32 0 0 0.2 0.2 {}
+T {VCC_UNREG} -125 -14 0 0 0.2 0.2 {}
+T {VSSA} -125 6 0 0 0.2 0.2 {}
+T {VOUT} 125 -14 0 1 0.2 0.2 {}
