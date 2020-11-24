@@ -2716,7 +2716,7 @@ const char *translate(int inst, const char* s)
   c=*s++;
   if(c=='\\') {
     escape=1;
-    c=*s++;
+    c=*s++; /* do not remove: breaks translation of format strings in netlists (escaping $) */
   }
   else escape=0;
   space=SPACE(c);
@@ -2992,7 +2992,6 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
   size = CADCHUNKALLOC;
   my_realloc(661, &result, size);
   result[0] = '\0';
-
   while (1) {
     c = *s++;
     if (c == '\\') {
@@ -3020,7 +3019,6 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
       } else {
         my_strdup2(332, &value1, get_tok_value(lcc[level].prop_ptr, token + 1, 2));
       }
-
       value = "";
       if(get_tok_size) {
         value = value1;

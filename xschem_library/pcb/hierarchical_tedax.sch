@@ -48,7 +48,7 @@ N 390 -500 450 -500 { lab=VSS_ANALOG}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan"}
 C {lab_pin.sym} 70 -470 0 1 {name=p8 lab=VCC12}
 C {conn_8x1.sym} 50 -450 0 0 {name=C2}
-C {lab_pin.sym} 1130 -400 0 0 {name=p1 lab=VSSLOAD}
+C {lab_pin.sym} 1130 -400 0 0 {name=p1 lab=VSS\\ LOAD}
 C {lm358.sym} 710 -240 0 0 {name=U3:1
 spiceprefix=X
 VCC=VCC 

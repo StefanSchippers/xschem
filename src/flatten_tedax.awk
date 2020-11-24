@@ -7,6 +7,10 @@ BEGIN{
   hiersep="."
 }
 
+{
+  reparse()
+}
+
 /^begin netlist/{
   cell = $4
   if(first) {
@@ -44,6 +48,7 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
   hier++
   for(i = start[cell]+1; i <= end[cell]-1; i++) {
     $0 = netlist[i]
+    reparse()
     # __subcircuit__ pcb_voltage_protection x0 
     # __map__ VOUT -> VOUTXX
     # __map__  ... -> ...
@@ -55,6 +60,7 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
       out("#" spaces(hier * 2 - 1) $0)
       for(i++; ;i++) {
         $0 = netlist[i]
+        reparse()
         if($1 != "__map__") break
         dbg("expand: $4=" $4)
         $4 = resolve_node($4, path, maplist)
@@ -64,6 +70,7 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
       }
       expand(subcell, subinst, path subinst hiersep, submaplist)
       $0 = netlist[i] # restore $0 after recursive call
+      reparse()
     }
     if($1 == "conn") {
       dbg("conn: $2=" $2)
@@ -102,7 +109,13 @@ function dbg(s)
 function resolve_node(node, path, maplist,     arr, n, retnode, i) 
 {
   dbg("resolve_node: node=" node " maplist=" maplist)
+  gsub(/\\ /, SUBSEP "s", maplist)
+  gsub(/\\\t/, SUBSEP "t", maplist)
   n = split(maplist, arr)
+  for(i = 1; i <= n; i++) {
+    gsub(SUBSEP "s", "\\ ", arr[i])
+    gsub(SUBSEP "t", "\\\t", arr[i])
+  }
   if(node in global) retnode = node
   else for(i = 1; i <= n; i += 2) {
     if(node == arr[i]) {
@@ -113,3 +126,15 @@ function resolve_node(node, path, maplist,     arr, n, retnode, i)
   if(retnode =="") retnode = path node
   return retnode
 }
+
+# avoid considering escaped white spaces as field separators
+function reparse(    i)
+{
+  gsub(/\\ /, SUBSEP "s")
+  gsub(/\\\t/, SUBSEP "t")
+  for(i = 1; i <= NF; i++) {
+    gsub(SUBSEP "s", "\\ ", $i)
+    gsub(SUBSEP "t", "\\\t", $i)
+  }
+}
+

@@ -159,8 +159,10 @@ $1 ~ /^(comptag|spicedev|spiceval|value)$/ {
 # avoid considering escaped spaces as field separators
 function reparse(    i)
 {
-  gsub(/\\ /, SUBSEP)
+  gsub(/\\ /, SUBSEP "s")
+  gsub(/\\\t/, SUBSEP "t")
   for(i = 1; i <= NF; i++) {
-    gsub(SUBSEP, "\\ ", $i)
+    gsub(SUBSEP "s", "\\ ", $i)
+    gsub(SUBSEP "t", "\\\t", $i)
   }
 }
