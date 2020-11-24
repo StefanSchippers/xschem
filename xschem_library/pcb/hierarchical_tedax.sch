@@ -38,8 +38,7 @@ N 1130 -430 1130 -380 {lab=VSSLOAD}
 N 920 -240 920 -170 {lab=#net2}
 N 990 -220 990 -210 {lab=G}
 N 1020 -790 1070 -790 { lab=VOUT_PROTECTED1}
-N 70 -350 90 -350 { lab=#net3}
-N 70 -330 90 -330 { lab=#net4}
+N 70 -330 90 -330 { lab=#net3}
 N 2190 -840 2190 -790 { lab=VOUT_PROTECTED2}
 N 2140 -790 2190 -790 { lab=VOUT_PROTECTED2}
 N 390 -500 450 -500 { lab=VSS_ANALOG}
@@ -95,11 +94,10 @@ C {lab_pin.sym} 450 -500 0 1 {name=p7 lab=VSS_ANALOG}
 C {lab_pin.sym} 180 -1120 0 0 {name=p11 lab=VSS_ANALOG}
 C {capa.sym} 310 -470 0 0 {name=C0 m=1 value=100u device="electrolitic capacitor"}
 C {gnd.sym} 310 -420 0 0 {name=l4 lab=VSS}
-C {lab_pin.sym} 70 -410 0 1 {name=p12 lab=VOUT_PROTECTED}
-C {lab_pin.sym} 70 -390 0 1 {name=p13 lab=VSS_ANALOG}
-C {lab_pin.sym} 70 -370 0 1 {name=p14 lab=VSSLOAD}
-C {noconn.sym} 90 -350 0 1 {name=l5}
-C {noconn.sym} 90 -330 0 1 {name=l9}
+C {lab_pin.sym} 70 -390 0 1 {name=p12 lab=VOUT_PROTECTED2}
+C {lab_pin.sym} 70 -370 0 1 {name=p13 lab=VSS_ANALOG}
+C {lab_pin.sym} 70 -350 0 1 {name=p14 lab=VSSLOAD}
+C {noconn.sym} 90 -330 0 1 {name=l5}
 C {netlist_options.sym} 30 -260 0 0 {hiersep=.
 }
 C {voltage_protection.sch} 1130 -490 0 0 {name=xprot2}
@@ -108,3 +106,4 @@ C {lab_pin.sym} 1300 -1200 0 0 {name=p16 lab=VCC12}
 C {diode.sym} 2190 -870 0 0 {name=D2 model=D1N914 area=1 device=D1N914 footprint=acy(300)}
 C {vdd.sym} 2190 -900 0 0 {name=l10 lab=VCC}
 C {lab_pin.sym} 1300 -1120 0 0 {name=p17 lab=VSS_ANALOG}
+C {lab_pin.sym} 70 -410 0 1 {name=p18 lab=VOUT_PROTECTED1}
