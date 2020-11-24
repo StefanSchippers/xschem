@@ -1,9 +1,22 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
-G {type=opamp
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=opamp
 format="@spiceprefix@name @#0 @#1 @VCC @VNN @#2 @model"
+
 tedax_format="footprint @name @footprint
-device @name @symname"
-template="name=U1:1 model=LM358 device=LM358 footprint=\\"SO(8)\\" numslots=2 VCC=VCC VNN=VNN"
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=U1:1 
+model=LM358 device=LM358 
+footprint=\\"SO(8)\\" 
+numslots=2 
+VCC=VCC 
+VNN=VNN"
+
 extra="VCC VNN"
 extra_pinnumber="8 4"}
 V {}

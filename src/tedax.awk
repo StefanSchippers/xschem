@@ -37,6 +37,7 @@ BEGIN{
 ##        inst  net      pin  pinnumber   pinindex
 # conn    U1:2  INPUT_A  A    1:4:9:12    1
 
+/^[ \t]*#/{ print; next}
 /^begin netlist/{ 
   print
   next
@@ -70,13 +71,6 @@ $1=="device"||$1=="footprint"{
   next
 }
 
-#skip if empty value field
-/^value/{ 
-  if(NF <= 2) next
-  print
-  next
-}
-
 /^device/{
   if(NF>=3) {
     reparse()
@@ -107,7 +101,7 @@ $1=="device"||$1=="footprint"{
   # conn lines need not to be printed but pinslot and pinidx lines do.
   for(i=1; i<=numslots;i++) {
     curr_pin = (nn>1) ? pinlist_arr[i]: pinlist_arr[1]
-    if(!(inst_name, curr_pin) in arr || arr[inst_name, curr_pin]=="" || arr[inst_name, curr_pin] ~/^--UNCONN--/) {
+    if(!((inst_name, curr_pin) in arr) || arr[inst_name, curr_pin]=="" || arr[inst_name, curr_pin] ~/^--UNCONN--/) {
       if(curr_pin == pin_number) {
         arr[inst_name, curr_pin]=net_name SUBSEP pin_index SUBSEP pin_name SUBSEP i SUBSEP slotted
       } else {
@@ -123,7 +117,7 @@ $1=="device"||$1=="footprint"{
   next
 }
 
-/^tEDAx v1/{
+/^(__subcircuit__|__map__|tEDAx v1|__GLOBAL__|__HIERSEP__)/ {
   print
   next
 }
@@ -150,11 +144,15 @@ $1=="device"||$1=="footprint"{
   for(i in footprint) print "footprint", i, footprint[i]
   for(i in device) print "device", i, device[i]
   print $0
+  delete arr
+  delete footprint
+  delete device
   next
 }
 
-NF>=2{
-  print "comptag", current_name, $0
+$1 ~ /^(comptag|spicedev|spiceval|value)$/ {
+  if($1 == "comptag") for(i = 3; i<=NF; i+=2) print "comptag", $2, $i, $(i+1)
+  else if(NF > 2) print $0
   next
 }
 

@@ -1317,6 +1317,113 @@ void print_verilog_param(FILE *fd, int symbol)
 
 
 
+void print_tedax_subckt(FILE *fd, int symbol)
+{
+ int i=0, mult;
+ const char *str_ptr=NULL;
+ register int c, state=TOK_BEGIN, space;
+ char *format=NULL,*s, *token=NULL;
+ int pin_number;
+ int sizetok=0;
+ int token_pos=0, escape=0;
+ int no_of_pins=0;
+
+ my_strdup(460, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
+ if( (format==NULL) ) {
+   my_free(473, &format);
+   return; /* no format */
+ }
+ no_of_pins= xctx->sym[symbol].rects[PINLAYER];
+ s=format;
+
+ /* begin parsing format string */
+ while(1)
+ {
+  c=*s++;
+  if(c=='\\') {
+    escape=1;
+    c=*s++;
+  }
+  else escape=0;
+  if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
+  space=SPACE(c);
+  if( state==TOK_BEGIN && (c=='@' || c=='$')  && !escape) state=TOK_TOKEN;
+  else if(state==TOK_TOKEN && token_pos > 1 &&
+     (
+       ( (space  || c == '$' || c == '@') && !escape ) ||
+       ( (!space && c != '$' && c != '@') && escape  )
+     )
+    ) {
+    state = TOK_SEP;
+  }
+
+  STR_ALLOC(&token, token_pos, &sizetok);
+  if(state==TOK_TOKEN) {
+    token[token_pos++]=c;
+  }
+  else if(state==TOK_SEP)                    /* got a token */
+  {
+   token[token_pos]='\0';
+   token_pos=0;
+   if(!strcmp(token, "@name")) {
+     /* do nothing */
+   }
+   else if(strcmp(token, "@symname")==0) {
+     break ;
+   }
+   else if(strcmp(token, "@pinlist")==0) {
+    for(i=0;i<no_of_pins;i++)
+    {
+      if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
+        str_ptr=
+          expandlabel(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0), &mult);
+        fprintf(fd, "%s ", str_ptr);
+      }
+    }
+   }
+   else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
+     char *prop=NULL;
+     for(i = 0; i<no_of_pins; i++) {
+       prop = xctx->sym[symbol].rect[PINLAYER][i].prop_ptr;
+       if(!strcmp(get_tok_value(prop, "name",0), token + 2)) break;
+     }
+     if(i<no_of_pins && strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
+       fprintf(fd, "%s ", expandlabel(token+2, &mult));
+     }
+   }
+   /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
+   else if(token[0]=='@' && token[1]=='#') {
+     pin_number = atoi(token+2);
+     if(pin_number < no_of_pins) {
+       if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), "true")) {
+       str_ptr =  get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"name",0);
+       fprintf(fd, "%s ",  expandlabel(str_ptr, &mult));
+       }
+     }
+   }
+   /* this will print the other @parameters, usually "extra" nodes so they will be in the order
+    * specified by the format string. The 'extra' attribute is no more used to print extra nodes
+    * in spice_block_netlist(). */
+   else if(token[0] == '@') { /* given previous if() conditions not followed by @ or # */
+     fprintf(fd, "%s ",  token + 1);
+   }
+   if(c!='$' && c!='@' && c!='\0' ) fputc(c,fd);
+   if(c == '@' || c =='$') s--;
+   state=TOK_BEGIN;
+  }
+                 /* 20151028 dont print escaping backslashes */
+  else if(state==TOK_BEGIN && c!='\0') {
+   /* do nothing */
+  }
+  if(c=='\0')
+  {
+   break ;
+  }
+ }
+ my_free(474, &format);
+ my_free(478, &token);
+}
+
 
 void print_spice_subckt(FILE *fd, int symbol)
 {
@@ -1508,8 +1615,8 @@ void print_spice_element(FILE *fd, int inst)
         token_exists = get_tok_size;
          if (!strncmp(value,"tcleval(", 8)) {
            dbg(1, "print_spice_element(): value=%s\n", value);
-           my_strdup2(442, &translatedvalue, value);
-           my_strdup2(453, &translatedvalue, translate(inst, translatedvalue));
+           my_strdup2(466, &translatedvalue, value);
+           my_strdup2(456, &translatedvalue, translate(inst, translatedvalue));
            value = translatedvalue;
          }
       }
@@ -1721,6 +1828,7 @@ void print_tedax_element(FILE *fd, int inst)
  int sizetok=0;
  int token_pos=0, escape=0;
  int no_of_pins=0;
+ int subcircuit = 0;
  /* struct inst_hashentry *ptr; */
 
  my_strdup(489, &extra, get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"extra",2));
@@ -1741,6 +1849,21 @@ void print_tedax_element(FILE *fd, int inst)
  my_strdup(1185, &format, get_tok_value(xctx->inst[inst].prop_ptr,"tedax_format",2));
  if(!format || !format[0])
    my_strdup(497, &format, get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"tedax_format",2));
+
+ no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
+ if( !format && !strcmp((xctx->inst[inst].ptr+ xctx->sym)->type, "subcircuit") ) {
+    subcircuit = 1;
+    fprintf(fd, "__subcircuit__ %s %s\n", skip_dir(xctx->inst[inst].name), xctx->inst[inst].instname);
+    for(i=0;i<no_of_pins; i++) {
+     net_name(inst,i, &mult, 0, 1); /* only to trigger erc errors if any */
+      fprintf(fd, "__map__ %s -> %s\n", 
+        get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0),
+        (xctx->inst[inst].node && xctx->inst[inst].node[i]) ? 
+             xctx->inst[inst].node[i] : "__UNCONNECTED_PIN__");
+     }
+     fprintf(fd, "\n");
+ }
+
  if(name==NULL || !format || !format[0]) {
    my_free(1023, &extra);
    my_free(1024, &extra_pinnumber);
@@ -1750,57 +1873,57 @@ void print_tedax_element(FILE *fd, int inst)
    my_free(1028, &name);
    return;
  }
- no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
 
- fprintf(fd, "begin_inst %s numslots %s\n", name, numslots);
- for(i=0;i<no_of_pins; i++) {
-   char *pinnumber;
-   pinnumber = get_pin_attr_from_inst(inst, i, "pinnumber");
-   if(!pinnumber) {
-     my_strdup2(500, &pinnumber,
-            get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr,"pinnumber",0));
+ if(!subcircuit) {
+   fprintf(fd, "begin_inst %s numslots %s\n", name, numslots);
+   for(i=0;i<no_of_pins; i++) {
+     char *pinnumber;
+     pinnumber = get_pin_attr_from_inst(inst, i, "pinnumber");
+     if(!pinnumber) {
+       my_strdup2(500, &pinnumber,
+              get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr,"pinnumber",0));
+     }
+     if(!get_tok_size) my_strdup(501, &pinnumber, "--UNDEF--");
+     tmp = net_name(inst,i, &mult, 0, 1);
+     if(tmp && strcmp(tmp, "__UNCONNECTED_PIN__")) {
+       fprintf(fd, "conn %s %s %s %s %d\n",
+             name,
+             tmp,
+             get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0),
+             pinnumber,
+             i+1);
+     }
+     my_free(1029, &pinnumber);
    }
-   if(!get_tok_size) my_strdup(501, &pinnumber, "--UNDEF--");
-   tmp = net_name(inst,i, &mult, 0, 1);
-   if(tmp && strcmp(tmp, "__UNCONNECTED_PIN__")) {
-     fprintf(fd, "conn %s %s %s %s %d\n",
-           name,
-           tmp,
-           get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0),
-           pinnumber,
-           i+1);
+  
+   if(extra){
+     char netstring[40];
+     /* fprintf(errfp, "extra_pinnumber: |%s|\n", extra_pinnumber); */
+     /* fprintf(errfp, "extra: |%s|\n", extra); */
+     for(extra_ptr = extra, extra_pinnumber_ptr = extra_pinnumber; ; extra_ptr=NULL, extra_pinnumber_ptr=NULL) {
+       extra_pinnumber_token=my_strtok_r(extra_pinnumber_ptr, " ", &saveptr1);
+       extra_token=my_strtok_r(extra_ptr, " ", &saveptr2);
+       if(!extra_token) break;
+       /* fprintf(errfp, "extra_pinnumber_token: |%s|\n", extra_pinnumber_token); */
+       /* fprintf(errfp, "extra_token: |%s|\n", extra_token); */
+       instance_based=0;
+  
+       /* alternate instance based extra net naming: net:<pinumber>=netname */
+       my_snprintf(netstring, S(netstring), "net:%s", extra_pinnumber_token);
+       dbg(1, "print_tedax_element(): netstring=%s\n", netstring);
+       extra_token_val=get_tok_value(xctx->inst[inst].prop_ptr, extra_token, 0);
+       if(!extra_token_val[0]) extra_token_val=get_tok_value(xctx->inst[inst].prop_ptr, netstring, 0);
+       if(!extra_token_val[0]) extra_token_val=get_tok_value(template, extra_token, 0);
+       else instance_based=1;
+       if(!extra_token_val[0]) extra_token_val="--UNDEF--";
+  
+       fprintf(fd, "conn %s %s %s %s %d", name, extra_token_val, extra_token, extra_pinnumber_token, i+1);
+       i++;
+       if(instance_based) fprintf(fd, " # instance_based");
+       fprintf(fd,"\n");
+     }
    }
-   my_free(1029, &pinnumber);
  }
-
- if(extra){
-   char netstring[40];
-   /* fprintf(errfp, "extra_pinnumber: |%s|\n", extra_pinnumber); */
-   /* fprintf(errfp, "extra: |%s|\n", extra); */
-   for(extra_ptr = extra, extra_pinnumber_ptr = extra_pinnumber; ; extra_ptr=NULL, extra_pinnumber_ptr=NULL) {
-     extra_pinnumber_token=my_strtok_r(extra_pinnumber_ptr, " ", &saveptr1);
-     extra_token=my_strtok_r(extra_ptr, " ", &saveptr2);
-     if(!extra_token) break;
-     /* fprintf(errfp, "extra_pinnumber_token: |%s|\n", extra_pinnumber_token); */
-     /* fprintf(errfp, "extra_token: |%s|\n", extra_token); */
-     instance_based=0;
-
-     /* alternate instance based extra net naming: net:<pinumber>=netname */
-     my_snprintf(netstring, S(netstring), "net:%s", extra_pinnumber_token);
-     dbg(1, "print_tedax_element(): netstring=%s\n", netstring);
-     extra_token_val=get_tok_value(xctx->inst[inst].prop_ptr, extra_token, 0);
-     if(!extra_token_val[0]) extra_token_val=get_tok_value(xctx->inst[inst].prop_ptr, netstring, 0);
-     if(!extra_token_val[0]) extra_token_val=get_tok_value(template, extra_token, 0);
-     else instance_based=1;
-     if(!extra_token_val[0]) extra_token_val="--UNDEF--";
-
-     fprintf(fd, "conn %s %s %s %s %d", name, extra_token_val, extra_token, extra_pinnumber_token, i+1);
-     i++;
-     if(instance_based) fprintf(fd, " # instance_based");
-     fprintf(fd,"\n");
-   }
- }
-
  if(format) {
   s=format;
   dbg(1, "print_tedax_element(): name=%s, tedax_format=%s netlist_count=%d\n",name,format, netlist_count);
@@ -1956,7 +2079,7 @@ void print_tedax_element(FILE *fd, int inst)
    }
   }
  } /* if(format) */
- fprintf(fd,"end_inst\n");
+ if(!subcircuit) fprintf(fd,"end_inst\n");
  my_free(1033, &extra);
  my_free(1034, &extra_pinnumber);
  my_free(1035, &template);

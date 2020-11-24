@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=2.9.8 file_version=1.2}
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -67,3 +68,4 @@ C {zener.sym} 920 -190 0 0 {name=x10 model=XXX device=XXX}
 C {pcb_current_protection.sym} 170 -460 0 0 {name=x1}
 C {pcb_voltage_protection.sym} 170 -420 0 0 {name=x0}
 C {pcb_test1.sym} 170 -380 0 0 {name=x2}
+C {hierarchical_tedax.sym} 170 -340 0 0 {name=x3}

@@ -2,10 +2,14 @@ v {xschem version=2.9.8 file_version=1.2}
 G {}
 K {type=diode
 format="@spiceprefix@name @pinlist @model"
+
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
-@comptag"
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
 template="name=X1 model=XXX device=XXX"}
 V {}
 S {}

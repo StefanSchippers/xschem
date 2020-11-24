@@ -2,8 +2,14 @@ v {xschem version=2.9.8 file_version=1.2}
 G {}
 K {type=pnp
 format="@spiceprefix@name @pinlist @model area=@area m=@m"
+
 tedax_format="footprint @name @footprint
-device @name @device"
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
 template="name=Q1
 model=Q2N2907
 device=2N2907

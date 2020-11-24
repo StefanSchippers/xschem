@@ -202,6 +202,7 @@ int do_waves=0;
 int netlist_count=0; /* netlist counter incremented at any cell being netlisted */
 int top_subckt = 0;
 int spiceprefix = 1;
+char hiersep[20]=".";
 int netlist_show=0;
 int flat_netlist=0;
 int netlist_type=-1;

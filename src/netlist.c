@@ -400,6 +400,11 @@ void netlist_options(int i)
     /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
     if(!strcmp(str, "false")) spiceprefix = 0;
   }
+
+  str = get_tok_value(xctx->inst[i].prop_ptr, "hiersep", 0);
+  if(str[0]) {
+    my_snprintf(hiersep, S(hiersep), "%s", str);
+  }
 }
 
 /* used only for debug */
@@ -587,6 +592,7 @@ int record_global_node(int what, FILE *fp, char *node)
  } else if(what == 0 || what == 2) {
     for(i=0;i<max_globals;i++) {
        if(what == 0 && netlist_type == CAD_SPICE_NETLIST) fprintf(fp, ".GLOBAL %s\n", globals[i]);
+       if(what == 0 && netlist_type == CAD_TEDAX_NETLIST) fprintf(fp, "__GLOBAL__ %s\n", globals[i]);
        my_free(829, &globals[i]);
     }
     my_free(830, &globals);
@@ -672,6 +678,7 @@ void prepare_netlist_structs(int for_netlist)
            strcmp(type, "architecture") &&
            strcmp(type, "arch_declarations") &&
            strcmp(type, "attributes") &&
+           strcmp(type, "netlist_options") &&
            strcmp(type, "use")) {
         my_snprintf(str, S(str), "instance: %d (%s): no name attribute set", i, inst[i].name);
         statusmsg(str,2);

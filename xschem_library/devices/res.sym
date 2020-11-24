@@ -2,11 +2,16 @@ v {xschem version=2.9.8 file_version=1.2}
 G {}
 K {type=resistor
 format="@name @pinlist @value m=@m"
+
 verilog_format="tran @name (@@P\\\\, @@M\\\\);"
+
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
-@comptag"
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
 template="name=R1
 value=1k
 footprint=1206

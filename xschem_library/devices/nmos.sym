@@ -1,8 +1,15 @@
-v {xschem version=2.9.5 file_version=1.1}
-G {type=nmos
-format="@spiceprefix@name @pinlist @model @extra m=@m "
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=nmos
+format="@spiceprefix@name @pinlist @model @extra m=@m"
+
 tedax_format="footprint @name @footprint
-device @name @device"
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
 template="name=M1 model=M2N7002 device=2N7002 footprint=SOT23 m=1"
 verilog_format="@symname #@del @name ( @@d , @@s , @@g );"}
 V {}

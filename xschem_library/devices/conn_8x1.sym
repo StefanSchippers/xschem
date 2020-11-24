@@ -3,7 +3,14 @@ G {}
 K {type=connector
 verilog_ignore=true
 format="*connector(8,1) @pinlist"
-tedax_format="footprint @name @footprint"
+
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
 template="name=c1 footprint=connector(8,1)"
 }
 V {}

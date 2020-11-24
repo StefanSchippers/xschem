@@ -137,7 +137,7 @@ proc netlist {source_file show netlist_file} {
    }
  }
  if {$netlist_type eq {tedax}} {
-   eval exec {awk -f $XSCHEM_SHAREDIR/tedax.awk $source_file \
+   eval exec {awk -f $XSCHEM_SHAREDIR/tedax.awk $source_file | $XSCHEM_SHAREDIR/flatten_tedax.awk \
               > $netlist_dir/$netlist_file}
    if ![string compare $show "show"] {
      textwindow $netlist_dir/$netlist_file

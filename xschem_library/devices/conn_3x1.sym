@@ -2,7 +2,14 @@ v {xschem version=2.9.8 file_version=1.2}
 G {}
 K {type=connector
 format="*connector(3,1) @pinlist"
-tedax_format="footprint @name @footprint"
+
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
 template="name=c1 footprint=connector(3,1)"
 }
 V {}

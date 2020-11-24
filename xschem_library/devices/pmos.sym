@@ -1,11 +1,16 @@
-v {xschem version=2.9.5 file_version=1.1}
-G {type=pmos
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=pmos
 format="@spiceprefix@name @pinlist @model @extra m=@m"
 verilog_format="@symname #@del @name ( @@d , @@s , @@g );"
+
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
-@comptag"
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
 template="name=M1 
 model=DMP2035U 
 device=DMP2035U 

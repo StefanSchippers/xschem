@@ -1,9 +1,16 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
-G {type=regulator
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=regulator
 format="@spiceprefix@name @pinlist r@symname"
 verilog_format="assign @#2 = @#0 ;"
+
 tedax_format="footprint @name @footprint
-device @name @device"
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
 template="name=U1 device=7805 footprint=TO220"}
 V {}
 S {}

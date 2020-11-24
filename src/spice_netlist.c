@@ -52,6 +52,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  top_subckt = 0;
  spiceprefix=1;
  bus_replacement_char[0] = bus_replacement_char[1] = '\0';
+ hiersep[0]='.'; hiersep[1]='\0';
  str_tmp = tclgetvar("bus_replacement_char");
  if(str_tmp && str_tmp[0] && str_tmp[1]) {
    bus_replacement_char[0] = str_tmp[0];
@@ -349,14 +350,11 @@ void spice_block_netlist(FILE *fd, int i)
   spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
   netlist_count++;
 
-
   if(xctx->schprop && xctx->schprop[0]) {
     fprintf(fd,"**** begin user architecture code\n");
     fprintf(fd, "%s\n", xctx->schprop);
     fprintf(fd,"**** end user architecture code\n");
   }
-  /* /20100217 */
-
   fprintf(fd, ".ends\n\n");
   if(split_files) {
     fclose(fd);
@@ -368,61 +366,60 @@ void spice_block_netlist(FILE *fd, int i)
 
 void spice_netlist(FILE *fd, int spice_stop )
 {
- int i;
- char *type=NULL;
-
- prepared_netlist_structs = 0;
- prepare_netlist_structs(1);
- /* set_modify(1); */ /* 20160302 prepare_netlist_structs could change schematic (wire node naming for example) */
- traverse_node_hash();  /* print all warnings about unconnected floatings etc */
- if(!spice_stop) {
-   for(i=0;i<xctx->instances;i++) /* print first ipin/opin defs ... */
-   {
-    if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
-    if(xctx->inst[i].ptr<0) continue;
-    if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "spice_ignore",0 ), "true") ) {
-      continue;
+  int i;
+  char *type=NULL;
+ 
+  prepared_netlist_structs = 0;
+  prepare_netlist_structs(1);
+  /* set_modify(1); */ /* 20160302 prepare_netlist_structs could change schematic (wire node naming for example) */
+  traverse_node_hash();  /* print all warnings about unconnected floatings etc */
+  if(!spice_stop) {
+    for(i=0;i<xctx->instances;i++) /* print first ipin/opin defs ... */
+    {
+     if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
+     if(xctx->inst[i].ptr<0) continue;
+     if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "spice_ignore",0 ), "true") ) {
+       continue;
+     }
+     my_strdup(388, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+     if( type && IS_PIN(type) ) {
+       print_spice_element(fd, i) ;  /* this is the element line  */
+     }
     }
-    my_strdup(388, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-    if( type && IS_PIN(type) ) {
-      print_spice_element(fd, i) ;  /* this is the element line  */
+    for(i=0;i<xctx->instances;i++) /* ... then print other lines */
+    {
+     if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
+     if(xctx->inst[i].ptr<0) continue;
+     if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "spice_ignore",0 ), "true") ) {
+       continue;
+     }
+     my_strdup(390, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+ 
+     if( type && !IS_LABEL_OR_PIN(type) ) {
+       if(!strcmp(type,"netlist_commands") && netlist_count==0) continue; /* already done in global_spice_netlist */
+       if(netlist_count &&
+          !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "only_toplevel", 0), "true")) continue;
+       if(!strcmp(type,"netlist_commands")) {
+         fprintf(fd,"**** begin user architecture code\n");
+         print_spice_element(fd, i) ;  /* this is the element line  */
+         fprintf(fd,"**** end user architecture code\n");
+       } else {
+         const char *m;
+         print_spice_element(fd, i) ;  /* this is the element line  */
+         /* hash device_model attribute if any */
+         m = get_tok_value(xctx->inst[i].prop_ptr, "device_model", 2);
+         if(m[0]) str_hash_lookup(model_table, model_name(m), m, XINSERT);
+         else {
+           m = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "device_model", 2);
+           if(m[0]) str_hash_lookup(model_table, model_name(m), m, XINSERT);
+         }
+         my_free(951, &model_name_result);
+       }
+     }
     }
-   }
-
-   for(i=0;i<xctx->instances;i++) /* ... then print other lines */
-   {
-    if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
-    if(xctx->inst[i].ptr<0) continue;
-    if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "spice_ignore",0 ), "true") ) {
-      continue;
-    }
-
-    my_strdup(390, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-    if( type && !IS_LABEL_OR_PIN(type) ) {
-      if(!strcmp(type,"netlist_commands") && netlist_count==0) continue; /* already done in global_spice_netlist */
-      if(netlist_count &&
-         !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "only_toplevel", 0), "true")) continue;
-      if(!strcmp(type,"netlist_commands")) {
-        fprintf(fd,"**** begin user architecture code\n");
-        print_spice_element(fd, i) ;  /* this is the element line  */
-        fprintf(fd,"**** end user architecture code\n");
-      } else {
-        const char *m;
-        print_spice_element(fd, i) ;  /* this is the element line  */
-        /* hash device_model attribute if any */
-        m = get_tok_value(xctx->inst[i].prop_ptr, "device_model", 2);
-        if(m[0]) str_hash_lookup(model_table, model_name(m), m, XINSERT);
-        else {
-          m = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "device_model", 2);
-          if(m[0]) str_hash_lookup(model_table, model_name(m), m, XINSERT);
-        }
-        my_free(951, &model_name_result);
-      }
-    }
-   }
- }
- if(!netlist_count) redraw_hilights(); /* draw_hilight_net(1); */
- my_free(952, &type);
+  }
+  if(!netlist_count) redraw_hilights(); /* draw_hilight_net(1); */
+  my_free(952, &type);
 }
 
 /* calculate the hash function relative to string s */

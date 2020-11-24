@@ -81,4 +81,3 @@ url="http://html.alldatasheet.com/html-pdf/17919/PHILIPS/MMBT2222/499/2/MMBT2222
 C {gnd.sym} 810 -170 0 0 {name=l11 lab=VSS}
 C {res.sym} 810 -280 2 0 {name=R1 m=1 value=20k footprint=1206}
 C {vdd.sym} 810 -310 0 0 {name=l13 lab=VCC}
-C {noconn.sym} 430 -500 0 0 {name=l1}

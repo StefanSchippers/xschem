@@ -2,6 +2,14 @@ v {xschem version=2.9.8 file_version=1.2}
 G {}
 K {type=diode
 format="@name @pinlist @model area=@area"
+
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
 template="name=D1 model=D1N914 area=1"}
 V {}
 S {}

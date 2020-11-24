@@ -1,11 +1,16 @@
 v {xschem version=2.9.8 file_version=1.2}
 G {}
 K {type=netlist_options
-template="name=n1"
+template="
+bus_replacement_char="[]"
+top_subckt=false
+spiceprefix=true
+hiersep=.
+"
 }
 V {}
 S {}
 E {}
 L 4 -0 -10 355 -10 {}
 T {NETLIST_OPTIONS} 5 -25 0 0 0.3 0.3 {}
-T {@prop_ptr} 45 5 0 0 0.2 0.2 {}
+T {@prop_ptr} 45 5 0 0 0.3 0.3 {layer=8}
