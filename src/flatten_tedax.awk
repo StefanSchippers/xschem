@@ -32,10 +32,10 @@ BEGIN{
 }
 
 END{
-  print "tEDAx v1"
-  print "begin netlist v1 " topcell
+  out("tEDAx v1")
+  out("begin netlist v1 " topcell)
   expand(topcell, "", "", "")
-  print "end netlist"
+  out("end netlist")
 }
 
 
@@ -52,7 +52,7 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
       subinst=$3
       subpos = i
       sub(/__subcircuit__/, "subcircuit", $0)
-      print "#" spaces(hier * 2 - 1) $0
+      out("#" spaces(hier * 2 - 1) $0)
       for(i++; ;i++) {
         $0 = netlist[i]
         if($1 != "__map__") break
@@ -60,9 +60,10 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
         $4 = resolve_node($4, path, maplist)
         submaplist = submaplist " " $2 " " $4
         sub(/__map__/, "map", $0)
-        print "#" spaces(hier * 2 - 1) $0
+        out("#" spaces(hier * 2 - 1) $0)
       }
       expand(subcell, subinst, path subinst hiersep, submaplist)
+      $0 = netlist[i] # restore $0 after recursive call
     }
     if($1 == "conn") {
       dbg("conn: $2=" $2)
@@ -72,7 +73,7 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
     if($1 ~/^(device|footprint|value|spiceval|spicedev|comptag|pinname|pinslot|pinidx)$/) {
       $2 = path $2 #refdes
     }
-    print spaces(hier * 2) $0
+    out(spaces(hier * 2) $0)
     if($0 ~ /^end netlist/) break
   }
   hier--
@@ -84,6 +85,13 @@ function spaces(n,     s)
   s ="                        "
   while(length(s) < n) s = s s
   return substr(s,1,n)
+}
+
+function out(s)
+{
+  if(length(s) > 512) 
+    print "flatten_tedax: WARNING: >> " s "\n  line length > 512 chars, this breaks tEDAx" > "/dev/stderr"
+  print s
 }
 
 function dbg(s)
