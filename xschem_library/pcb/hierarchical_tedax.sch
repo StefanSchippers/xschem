@@ -7,7 +7,11 @@ E {}
 T {Example of hierarchical schematic
 to be netlisted in tEDAx format.
 Hierarchy is flattened and hierarchical 
-node names are mangled to avoid collisions.} 1330 -520 0 0 0.8 0.8 {}
+node names and refdes's are mangled to 
+avoid collisions.} 1330 -520 0 0 0.8 0.8 {}
+T {NOTE: circuit is doing nothing useful,
+just a collection of schematics to show
+hierarchical tEDAx netlisting} 1330 -220 0 0 0.8 0.8 {}
 N 540 -100 540 -80 {lab=VSS}
 N 540 -200 540 -160 {lab=VREF}
 N 540 -200 630 -200 {lab=VREF}
