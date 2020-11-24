@@ -2507,6 +2507,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
 }
 
 proc alert_ {txtlabel {position +200+300} {nowait {0}}} {
+   global no_x
+   if {[info exists no_x] } {return}
    toplevel .alert -class Dialog
    wm title .alert {Alert}
    set X [expr {[winfo pointerx .alert] - 60}]

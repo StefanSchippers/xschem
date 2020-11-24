@@ -330,7 +330,10 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
    load_schematic(1, xctx->sch[xctx->currsch], 0);
 
+   my_strdup(502, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
+   my_strcat(509, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->currsch++;
+
     dbg(2, "global_vhdl_netlist(): last defined symbol=%d\n",xctx->symbols);
    subckt_name=NULL;
    for(i=0;i<xctx->symbols;i++)

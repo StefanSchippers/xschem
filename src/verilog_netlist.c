@@ -278,7 +278,10 @@ void global_verilog_netlist(int global)  /* netlister driver */
 
    load_schematic(1, xctx->sch[xctx->currsch], 0);
 
+   my_strdup(487, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
+   my_strcat(496, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->currsch++;
+
    dbg(2, "global_verilog_netlist(): last defined symbol=%d\n",xctx->symbols);
    subckt_name=NULL;
    for(i=0;i<xctx->symbols;i++)

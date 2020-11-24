@@ -68,9 +68,10 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
         sub(/__map__/, "map", $0)
         out("#" spaces(hier * 2 - 1) $0)
       }
+      
       expand(subcell, subinst, path subinst hiersep, submaplist)
-      $0 = netlist[i] # restore $0 after recursive call
-      reparse()
+ 
+      i--; continue; # redo processing of current line
     }
     if($1 == "conn") {
       dbg("conn: $2=" $2)

@@ -19,9 +19,9 @@ N 540 -100 540 -80 {lab=VSS}
 N 540 -200 540 -160 {lab=VREF}
 N 540 -200 630 -200 {lab=VREF}
 N 540 -320 540 -290 {lab=VCC}
-N 630 -380 630 -280 {lab=VSSLOAD}
-N 630 -380 1130 -380 {lab=VSSLOAD}
-N 1130 -380 1130 -360 {lab=VSSLOAD}
+N 630 -380 630 -280 {lab=VSS\\ LOAD}
+N 630 -380 1130 -380 {lab=VSS\\ LOAD}
+N 1130 -380 1130 -360 {lab=VSS\\ LOAD}
 N 1130 -300 1130 -270 {lab=D}
 N 860 -120 880 -120 {lab=#net1}
 N 770 -120 800 -120 {lab=RST}
@@ -37,7 +37,7 @@ N 390 -440 390 -420 {lab=VSS}
 N 310 -500 390 -500 { lab=VSS_ANALOG}
 N 310 -440 310 -420 {lab=VSS}
 N 540 -230 540 -200 {lab=VREF}
-N 1130 -430 1130 -380 {lab=VSSLOAD}
+N 1130 -430 1130 -380 {lab=VSS\\ LOAD}
 N 920 -240 920 -170 {lab=#net2}
 N 990 -220 990 -210 {lab=G}
 N 1020 -790 1070 -790 { lab=VOUT_PROTECTED1}
@@ -101,8 +101,6 @@ C {lab_pin.sym} 70 -390 0 1 {name=p12 lab=VOUT_PROTECTED2}
 C {lab_pin.sym} 70 -370 0 1 {name=p13 lab=VSS_ANALOG}
 C {lab_pin.sym} 70 -350 0 1 {name=p14 lab=VSSLOAD}
 C {noconn.sym} 90 -330 0 1 {name=l5}
-C {netlist_options.sym} 30 -260 0 0 {hiersep=.
-}
 C {voltage_protection.sym} 1880 -860 0 0 {name=xprot2}
 C {lab_pin.sym} 2080 -870 0 1 {name=p15 lab=VOUT_PROTECTED2}
 C {lab_pin.sym} 1730 -870 0 0 {name=p16 lab=VCC12}
@@ -110,3 +108,5 @@ C {diode.sym} 2080 -950 0 0 {name=D2 model=D1N914 area=1 device=D1N914 footprint
 C {vdd.sym} 2080 -980 0 0 {name=l10 lab=VCC}
 C {lab_pin.sym} 1730 -850 0 0 {name=p17 lab=VSS_ANALOG}
 C {lab_pin.sym} 70 -410 0 1 {name=p18 lab=VOUT_PROTECTED1}
+C {netlist_options.sym} 30 -260 0 0 {hiersep=.
+}

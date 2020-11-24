@@ -1165,14 +1165,8 @@ void descend_schematic(int instnumber)
 
   if(                   /*  do not descend if not subcircuit */
      (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type &&
-     strcmp(
-        (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type,
-         "subcircuit"
-     ) &&
-     strcmp(
-        (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type,
-         "primitive"
-     )
+     strcmp( (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type, "subcircuit") &&
+     strcmp( (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type, "primitive")
   ) return;
 
   if(modified)
