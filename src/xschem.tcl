@@ -748,6 +748,7 @@ proc gaw_setup_tcp {} {
     if {![info exists no_x]} {
       tk_messageBox -type ok -title {Tcp socket error} \
        -message [concat "Problems opening socket to gaw on address $gaw_tcp_address. " \
+         "Ensure the following line is present uncommented in ~/.gaw/gawrc: up_listenPort = 2020." \
          "If you recently closed gaw the port may be in a TIME_WAIT state for a minute or so ." \
          "Close gaw, Wait a minute or two, then send waves to gaw again."]
     }
