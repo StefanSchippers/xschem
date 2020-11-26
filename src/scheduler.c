@@ -491,6 +491,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    Tcl_ResetResult(interp);
  }
 
+ /*   0       1    2   3      4     5
+  * xschem setprop R4 value [30k] [fast] */
  else if(!strcmp(argv[1], "setprop")) {
    int inst, fast=0;
 
@@ -528,7 +530,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      if(!strcmp(argv[3], "name")) hash_all_names(inst);
      if(argc >= 5) {
        new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], argv[4]),fast, dis_uniq_names);
-     } else {/* assume argc == 4 */
+     } else {/* assume argc == 4 , delete attribute */
        new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], NULL),fast, dis_uniq_names);
      }
      my_strdup2(367, &xctx->inst[inst].instname, get_tok_value(xctx->inst[inst].prop_ptr, "name",0));
@@ -543,81 +545,85 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        bbox(END,0.0,0.0,0.0,0.0);
      }
    }
-   Tcl_ResetResult(interp);
-
+   Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
+ 
+ /* xschem replace_symbol R3 capa.sym */
  } else if(!strcmp(argv[1], "replace_symbol")) {
    int inst, fast = 0;
-   if(argc == 6) {
-     if(!strcmp(argv[5], "fast")) {
+   char *newname = NULL;
+   if(argc == 5) {
+     if(!strcmp(argv[4], "fast")) {
        fast = 1;
-       argc = 5;
+       argc = 4;
      }
    }
-   if(argc!=5) {
-     Tcl_AppendResult(interp, "xschem replace_symbol needs 3 additional arguments", NULL);
+   if(argc!=4) {
+     Tcl_AppendResult(interp, "xschem replace_symbol needs 2 additional arguments", NULL);
      return TCL_ERROR;
    }
-   if(!strcmp(argv[2],"instance")) {
-     if( (inst = get_instance(argv[3])) < 0 ) {
-       Tcl_AppendResult(interp, "xschem replace_symbol: instance not found", NULL);
-       return TCL_ERROR;
-     } else {
-       char symbol[PATH_MAX];
-       int sym_number, prefix, cond;
-       char *type;
-       char *name=NULL;
-       char *ptr=NULL;
+   if( (inst = get_instance(argv[2])) < 0 ) {
+     Tcl_AppendResult(interp, "xschem replace_symbol: instance not found", NULL);
+     return TCL_ERROR;
+   } else {
+     char symbol[PATH_MAX];
+     int sym_number, prefix, cond;
+     char *type;
+     char *name=NULL;
+     char *ptr=NULL;
 
-       bbox(START,0.0,0.0,0.0,0.0);
-       my_strncpy(symbol, argv[4], S(symbol));
-       push_undo();
-       set_modify(1);
-       if(!fast) {
-         prepared_hash_instances=0;
-         prepared_netlist_structs=0;
-         prepared_hilight_structs=0;
-       }
-       sym_number=match_symbol(symbol);
-       if(sym_number>=0)
-       {
-         prefix=(get_tok_value( (xctx->sym+sym_number)->templ , "name",0))[0]; /* get new symbol prefix  */
-       }
-       else prefix = 'x';
-       delete_inst_node(inst); /* 20180208 fix crashing bug: delete node info if changing symbol */
-                            /* if number of pins is different we must delete these data *before* */
-                            /* changing ysmbol, otherwise i might end up deleting non allocated data. */
-       my_strdup(369, &xctx->inst[inst].name,symbol);
-       xctx->inst[inst].ptr=sym_number;
-       bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
-
-       my_strdup(370, &name, xctx->inst[inst].instname);
-       if(name && name[0] )
-       {
-         /* 20110325 only modify prefix if prefix not NUL */
-         if(prefix) name[0]=prefix; /* change prefix if changing symbol type; */
-
-         my_strdup(371, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
-         hash_all_names(inst);
-         new_prop_string(inst, ptr,0, dis_uniq_names); /* set new prop_ptr */
-         my_strdup2(372, &xctx->inst[inst].instname, get_tok_value(xctx->inst[inst].prop_ptr, "name",0));
-
-         type=xctx->sym[xctx->inst[inst].ptr].type;
-         cond= !type || !IS_LABEL_SH_OR_PIN(type);
-         if(cond) xctx->inst[inst].flags|=2;
-         else xctx->inst[inst].flags &=~2;
-         my_free(922, &ptr);
-       }
-       my_free(923, &name);
-       /* new symbol bbox after prop changes (may change due to text length) */
-       symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-       bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
-       /* redraw symbol */
-       bbox(SET,0.0,0.0,0.0,0.0);
-       draw();
-       bbox(END,0.0,0.0,0.0,0.0);
+     bbox(START,0.0,0.0,0.0,0.0);
+     my_strncpy(symbol, argv[3], S(symbol));
+     push_undo();
+     set_modify(1);
+     if(!fast) {
+       prepared_hash_instances=0;
+       prepared_netlist_structs=0;
+       prepared_hilight_structs=0;
      }
+     sym_number=match_symbol(symbol);
+     if(sym_number>=0)
+     {
+       prefix=(get_tok_value( (xctx->sym+sym_number)->templ , "name",0))[0]; /* get new symbol prefix  */
+     }
+     else prefix = 'x';
+     delete_inst_node(inst); /* 20180208 fix crashing bug: delete node info if changing symbol */
+                          /* if number of pins is different we must delete these data *before* */
+                          /* changing ysmbol, otherwise i might end up deleting non allocated data. */
+     my_strdup(369, &xctx->inst[inst].name,symbol);
+     xctx->inst[inst].ptr=sym_number;
+     bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
+
+     my_strdup(370, &name, xctx->inst[inst].instname);
+     my_strdup2(510, &newname, name);
+     if(name && name[0] )
+     {
+       /* 20110325 only modify prefix if prefix not NUL */
+       if(prefix) name[0]=prefix; /* change prefix if changing symbol type; */
+
+       my_strdup(371, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
+       hash_all_names(inst);
+       new_prop_string(inst, ptr,0, dis_uniq_names); /* set new prop_ptr */
+       my_strdup2(517, &newname, get_tok_value(xctx->inst[inst].prop_ptr, "name",0));
+       my_strdup2(372, &xctx->inst[inst].instname, newname);
+
+       type=xctx->sym[xctx->inst[inst].ptr].type;
+       cond= !type || !IS_LABEL_SH_OR_PIN(type);
+       if(cond) xctx->inst[inst].flags|=2;
+       else xctx->inst[inst].flags &=~2;
+       my_free(922, &ptr);
+     }
+     my_free(923, &name);
+     /* new symbol bbox after prop changes (may change due to text length) */
+     symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
+     bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
+     /* redraw symbol */
+     bbox(SET,0.0,0.0,0.0,0.0);
+     draw();
+     bbox(END,0.0,0.0,0.0,0.0);
+     Tcl_SetResult(interp, newname , TCL_VOLATILE);
+     my_free(528, &newname);
    }
-   Tcl_ResetResult(interp);
+   
  }
 
  else if( !strcmp(argv[1],"symbols")) {
@@ -657,8 +663,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      }
    } else if(argc > 2 && !strcmp(argv[2], "instance_pin")) {
      /*   0       1        2         3   4       5     */
-     /* xschem getprop instance_pin X10 PLUS pin_attr  */
-     /* xschem getprop instance_pin X10  1   pin_attr  */
+     /* xschem getprop instance_pin X10 PLUS [pin_attr]  */
+     /* xschem getprop instance_pin X10  1   [pin_attr]  */
      int inst, n=-1, tmp;
      char *subtok=NULL;
      const char *value=NULL;
@@ -708,6 +714,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          my_free(924, &subtok);
        }
      }
+   /* xschem getprop symbol lm358.sym [type] */
    } else if( !strcmp(argv[2],"symbol")) {
      int i, found=0;
      if(argc!=5 && argc !=4) {
@@ -1608,8 +1615,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    my_free(1195, &pins);
  }
 
-
- /* xschem instance_pin_coord m12 pinnumber 2
+ /*   0            1           2       3     4
+  * xschem instance_pin_coord m12  pinnumber 2
+  * xschem instance_pin_coord U3:2 pinnumber 5
   * xschem instance_pin_coord m12 name p
   * returns pin_name x y */
  else if(!strcmp(argv[1],"instance_pin_coord")) {
@@ -1618,7 +1626,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    int flip, rot;
    double x0,y0, pinx0, piny0;
    char num[60];
-   int p, i, no_of_pins;
+   int p, i, no_of_pins, slot;
+   const char *pin;
+   char *ss;
+   char *tmpstr = NULL;
+
    if(argc < 5) {
      Tcl_SetResult(interp,
        "xschem instance_pin_coord requires an instance, a pin attribute and a value", TCL_STATIC);
@@ -1629,7 +1641,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      Tcl_SetResult(interp,"", TCL_STATIC);
      return TCL_OK;
    }
-
    x0 = xctx->inst[i].x0;
    y0 = xctx->inst[i].y0;
    rot = xctx->inst[i].rot;
@@ -1637,9 +1648,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    symbol = xctx->sym + xctx->inst[i].ptr;
    no_of_pins= symbol->rects[PINLAYER];
    rct=symbol->rect[PINLAYER];
+   /* slotted devices: name= U1:2, pinnumber=2:5 */
+   slot = -1;
+   tmpstr = my_malloc(529, sizeof(xctx->inst[i].instname));
+   if( (ss=strchr(xctx->inst[i].instname, ':')) ) {
+     sscanf(ss+1, "%s", tmpstr);
+     if(isonlydigit(tmpstr)) {
+       slot = atoi(tmpstr);
+     }
+   }
    for(p = 0;p < no_of_pins; p++) {
-     const char *pin;
      pin = get_tok_value(rct[p].prop_ptr,argv[3],0);
+     if(slot > 0 && !strcmp(argv[3], "pinnumber") && strstr(pin,":")) pin = find_nth(pin, ':', slot);
      if(!strcmp(pin, argv[4])) break;
    }
    if(p >= no_of_pins) {
@@ -1652,7 +1672,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    pinx0 += x0;
    piny0 += y0;
    my_snprintf(num, S(num), "{%s} %g %g", get_tok_value(rct[p].prop_ptr, "name", 2), pinx0, piny0);
-   Tcl_SetResult(interp, num, TCL_STATIC);
+   Tcl_SetResult(interp, num, TCL_VOLATILE);
+   my_free(530, &tmpstr);
  }
 
  /* xschem instances_to_net PLUS */

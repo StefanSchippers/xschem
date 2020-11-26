@@ -1003,7 +1003,7 @@ void update_symbol(const char *result, int x)
       if(event_reporting) {
         char n1[PATH_MAX];
         char n2[PATH_MAX];
-        printf("xschem replace_symbol instance %s %s\n",
+        printf("xschem replace_symbol %s %s\n",
             escape_chars(n1, xctx->inst[i].instname, PATH_MAX),
             escape_chars(n2, symbol, PATH_MAX)
         );
