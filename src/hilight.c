@@ -61,9 +61,11 @@ void display_hilights(char **str)
   for(i=0;i<HASHSIZE;i++) {
     entry = hilight_table[i];
     while(entry) {
-      if(!first) my_strcat(93, str, ",");
-      my_strcat(562, str, entry->path+1);
+      if(!first) my_strcat(93, str, " ");
+      my_strcat(943, str,"{");
+      my_strcat(1190, str, entry->path+1);
       my_strcat(1160, str, entry->token);
+      my_strcat(562, str,"}");
       first = 0;
       entry = entry->next;
     }
@@ -725,8 +727,8 @@ int hilight_netname(const char *name)
   if(ret && !bus_hilight_lookup(name, hilight_color, XINSERT)) {
     hilight_nets=1;
     if(incr_hilight) hilight_color++;
+    redraw_hilights();
   }
-  redraw_hilights();
   return ret;
 }
 

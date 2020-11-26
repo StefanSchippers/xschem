@@ -651,34 +651,122 @@ proc xschem_server {sock addr port} {
   fileevent $sock readable [list xschem_getdata $sock]
 }
 
-## given a hierarchical net name x1.xamp.netname go down in the hierarchy and 
-## highlight the specified net.
-proc probe_net {net} {
 
-  xschem unselect_all
-  xschem set no_draw 1
+## given a path (x1.x2.m4) descend into x1.x2 and return m4 whether m4 found or not 
+proc descend_hierarchy {path {redraw 1}} {
   # return to top level if not already there
+  xschem set no_draw 1
   while { [xschem get currsch] } { xschem go_back } 
-  while { [regexp {\.} $net] } {
-    set inst $net
-    regsub {\..*} $inst {} inst
-    regsub {[^.]+\.} $net {} net
+  while { [regexp {\.} $path] } {
+    xschem unselect_all
+    set inst $path
+    regsub {\..*} $inst {} inst    ;# take 1st path component: xlev1[3].xlev2.m3 -> xlev1[3]
+    regsub {[^.]+\.} $path {} path ;# take remaining path: xlev1[3].xlev2.m3 -> xlev2.m3
     xschem search exact 1 name $inst
-    set full_inst [split [lindex [xschem get expandlabel [xschem selected_set]] 0] {,}]
-    set instnum [expr [lsearch -exact  $full_inst $inst] + 1]
-    # puts "$full_inst --> $instnum"
+    # handle vector instances: xlev1[3:0] -> xlev1[3],xlev1[2],xlev1[1],xlev1[0]
+    # descend into the right one
+    set inst_list [split [lindex [xschem expandlabel [lindex [xschem selected_set] 0 ] ] 0] {,}]
+    set instnum [expr [lsearch -exact  $inst_list $inst] + 1]
     xschem descend $instnum
-
-#  set a [lindex [split [lindex [xschem get expandlabel {xrdec[31:0]}] 0] ,] 3]
-
-  }
-  set res [xschem hilight_netname $net]
-  if {$res==0  && [regexp {^net[0-9]+$} $net]} {
-    set res [xschem hilight_netname \#$net]
   }
   xschem set no_draw 0
-  xschem redraw
-  return $res
+  if {$redraw} {xschem redraw}
+  return $path
+}
+
+
+## given a hierarchical instname name (x1.xamp.m1) go down in the hierarchy and 
+## select the specified instance (m1).
+## this search assumes it is given from the top of hierarchy
+proc select_inst {fullinst {redraw 1 } } {
+  xschem set no_draw 1
+  set inst [descend_hierarchy $fullinst 0] 
+  set res [xschem select instance $inst]
+  # if nothing found return to top
+  if {!$res} {
+    while { [xschem get currsch] } { xschem go_back } 
+  }
+  xschem set no_draw 0
+  if {$redraw} {xschem redraw}
+  if {$res} {return $inst} else { return {} } 
+}
+
+proc pin_label {} {
+  if { [file exists [abs_sym_path devices/lab_pin.sym]] } {
+    return {devices/lab_pin.sym}
+  }
+  return {lab_pin.sym}
+}
+
+## given a hierarchical net name x1.xamp.netname go down in the hierarchy and 
+## highlight the specified net.
+## this search assumes it is given from the top of hierarchy
+proc probe_net {fullnet {redraw 1} } {
+  xschem set no_draw 1
+  set net [descend_hierarchy $fullnet 0]
+  set res [xschem hilight_netname $net]
+  if {$res==0  && [regexp {^net[0-9]+$} $net]} {
+    set net \#$net
+    set res [xschem hilight_netname $net]
+  }
+  if {!$res} {
+    while { [xschem get currsch] } { xschem go_back } 
+  }
+  xschem set no_draw 0
+  if {$redraw} {xschem redraw}
+  if {$res} {return $net} else { return {} } 
+}
+
+proc reroute_inst {fullinst pinattr pinval newnet} {
+  if { [regexp {\.} $fullinst] } { set hier 1 } else { set hier 0 } 
+  set res [descend_hierarchy $fullinst 0]
+  if {$res ne {} } {
+    set coord [xschem instance_pin_coord $res $pinattr $pinval]
+    if { $coord eq {} } {
+      while { [xschem get currsch] } { xschem go_back } 
+      return 0
+    }
+    set pinname [lindex $coord 0]
+    set x [expr [lindex $coord 1] - 10 ]
+    set y [expr [lindex $coord 2] - 10 ]
+    set oldnet [xschem instance_net $res $pinname]
+
+    regsub {.*\.} $newnet {} newnet
+    if { $oldnet eq $newnet } {
+      while { [xschem get currsch] } { xschem go_back } 
+      puts "Warning: netlist patch already done? "
+      return 0
+    }
+ 
+    xschem instance [pin_label] $x $y 0 0 [list name=l1 lab=$newnet]
+    xschem hilight_netname $newnet
+    xschem select instance $res
+    xschem hilight_netname $oldnet
+    if {$hier} { xschem save}
+    xschem redraw
+    return 1
+  }
+  return 0
+}
+
+## put $new net labels close to pins on all elements connected to $old
+proc reroute_net {old new} {
+  xschem push_undo
+  xschem set no_undo 1
+  xschem clear_hilights
+  probe_net $old
+  set old_nopath [regsub {.*\.} $old {}]
+  set new_nopath [regsub {.*\.} $new {}]
+  set devlist [xschem instances_to_net $old_nopath]
+  foreach i $devlist {
+    set instname [lindex $i 0]
+    set x  [expr [lindex $i 2] - 10]
+    set y  [expr [lindex $i 3] - 10]
+    xschem instance [pin_label] $x $y 0 0 [list name=l1 lab=$new_nopath]
+    xschem select instance $instname
+  }
+  xschem hilight_netname $new_nopath
+  xschem set no_undo 0
 }
 
 proc simulate {{callback {}}} { 

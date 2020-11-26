@@ -34,7 +34,7 @@ N 920 -710 920 -520 { lab=VCC_FIVE}
 N 170 -710 310 -710 { lab=VCC_UNREG}
 N 170 -630 310 -630 { lab=VSSA}
 N 820 -710 920 -710 { lab=VCC_FIVE}
-N 230 -740 230 -710 { lab=VCC_UNREG}
+N 260 -740 260 -710 { lab=VCC_UNREG}
 C {conn_3x1.sym} 300 -360 0 0 {name=C1}
 C {opin.sym} 1010 -300 0 0 {name=p0 lab=VOUT}
 C {lab_wire.sym} 810 -360 0 0 {name=l9 lab=G}
@@ -82,5 +82,5 @@ C {reg.sch} -120 -520 0 0 {name=x2}
 C {ipin.sym} 170 -710 0 0 {name=p3 lab=VCC_UNREG}
 C {ipin.sym} 170 -630 0 0 {name=p1 lab=VSSA}
 C {lab_wire.sym} 690 -520 0 0 {name=l4 lab=VCC_FIVE}
-C {diode.sym} 230 -770 0 0 {name=D1 model=D1N914 area=1 device=D1N914 footprint=acy(300)}
-C {vdd.sym} 230 -800 0 0 {name=l5 lab=VCC}
+C {diode.sym} 260 -770 0 1 {name=D1 model=D1N914 area=1 device=D1N914 footprint=acy(300)}
+C {vdd.sym} 260 -800 0 0 {name=l5 lab=VCC}

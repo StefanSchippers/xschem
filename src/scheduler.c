@@ -451,6 +451,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
  else if(!strcmp(argv[1],"set_modify"))
  {
+   if(argc == 3 && argv[2][0] == '0') set_modify(0);
    set_modify(1);
    Tcl_ResetResult(interp);
  }
@@ -748,6 +749,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      }
 
    }
+ /* xschem instance_net inst pin */
  } else if(!strcmp(argv[1],"instance_net")) {
    int no_of_pins, i, p, mult;
    const char *str_ptr=NULL;
@@ -780,7 +782,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    for(n=0; n < lastselected; n++) {
      if(selectedgroup[n].type == ELEMENT) {
        i = selectedgroup[n].n;
-       my_strcat(645, &res, xctx->inst[i].instname);
+       my_strcat(1191, &res, "{");
+       my_strcat(1192, &res, xctx->inst[i].instname);
+       my_strcat(645, &res, "}");
        if(n < lastselected-1) my_strcat(646, &res, " ");
      }
    }
@@ -806,29 +810,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
 
    if(!strcmp(argv[2],"instance") && argc==4) {
-     char *endptr;
-     int i,found=0;
-     int n;
-     n=strtol(argv[3], &endptr, 10);
-
-     /* 20171006 find by instance name */
-     for(i=0;i<xctx->instances;i++) {
-       if(!strcmp(xctx->inst[i].instname, argv[3])) {
-         select_element(i, SELECTED, 0, 0);
-         found=1;
-         break;
-       }
+     int i;
+     /* find by instance name  or number*/
+     i = get_instance(argv[3]);
+     if(i >= 0) {
+       select_element(i, SELECTED, 0, 0);
      }
-     if(!found && !(endptr == argv[3]) && n<xctx->instances && n >= 0) {
-       select_element(n, SELECTED, 0, 0);
-       found = 1;
-     }
-     if(!found) {
-       Tcl_ResetResult(interp);
-       Tcl_AppendResult(interp, "xschem select instance: instance not found", NULL);
-       return TCL_ERROR;
-     }
-
+     Tcl_SetResult(interp, (i >= 0) ? "1" : "0" , TCL_STATIC);
    }
    else if(!strcmp(argv[2],"wire") && argc==4) {
      int n=atol(argv[3]);
@@ -843,6 +831,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
  } else if(!strcmp(argv[1],"instance")) {
    if(argc==7)
+    /*           pos sym_name      x                y             rot          flip      prop draw first */
      place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), atoi(argv[5]), atoi(argv[6]),NULL, 3, 1);
    else if(argc==8)
      place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), atoi(argv[5]), atoi(argv[6]), argv[7], 3, 1);
@@ -1434,6 +1423,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  else if(!strcmp(argv[1],"select_hilight_net"))
  {
    select_hilight_net();
+   Tcl_ResetResult(interp);
  }
  else if(!strcmp(argv[1],"unhilight"))
  {
@@ -1609,12 +1599,163 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      const char *pin;
      pin = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr,"name",0);
      if(!pin[0]) pin = "--ERROR--";
-     my_strcat(376, &pins, pin);
+     my_strcat(376, &pins, "{");
+     my_strcat(523, &pins, pin);
+     my_strcat(533, &pins, "}");
      if(p< no_of_pins-1) my_strcat(377, &pins, " ");
    }
    Tcl_AppendResult(interp, pins, NULL);
-   my_free(926, &pins);
+   my_free(1195, &pins);
  }
+
+
+ /* xschem instance_pin_coord m12 pinnumber 2
+  * xschem instance_pin_coord m12 name p
+  * returns pin_name x y */
+ else if(!strcmp(argv[1],"instance_pin_coord")) {
+   xSymbol *symbol;
+   xRect *rct;
+   int flip, rot;
+   double x0,y0, pinx0, piny0;
+   char num[60];
+   int p, i, no_of_pins;
+   if(argc < 5) {
+     Tcl_SetResult(interp,
+       "xschem instance_pin_coord requires an instance, a pin attribute and a value", TCL_STATIC);
+     return TCL_ERROR;
+   }
+   i = get_instance(argv[2]);
+   if(i < 0) {
+     Tcl_SetResult(interp,"", TCL_STATIC);
+     return TCL_OK;
+   }
+
+   x0 = xctx->inst[i].x0;
+   y0 = xctx->inst[i].y0;
+   rot = xctx->inst[i].rot;
+   flip = xctx->inst[i].flip;
+   symbol = xctx->sym + xctx->inst[i].ptr;
+   no_of_pins= symbol->rects[PINLAYER];
+   rct=symbol->rect[PINLAYER];
+   for(p = 0;p < no_of_pins; p++) {
+     const char *pin;
+     pin = get_tok_value(rct[p].prop_ptr,argv[3],0);
+     if(!strcmp(pin, argv[4])) break;
+   }
+   if(p >= no_of_pins) {
+     Tcl_SetResult(interp,"", TCL_STATIC);
+     return TCL_OK;
+   }
+   pinx0 = (rct[p].x1+rct[p].x2)/2;
+   piny0 = (rct[p].y1+rct[p].y2)/2;
+   ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, pinx0, piny0);
+   pinx0 += x0;
+   piny0 += y0;
+   my_snprintf(num, S(num), "{%s} %g %g", get_tok_value(rct[p].prop_ptr, "name", 2), pinx0, piny0);
+   Tcl_SetResult(interp, num, TCL_STATIC);
+ }
+
+ /* xschem instances_to_net PLUS */
+ else if(!strcmp(argv[1],"instances_to_net")) {
+   xSymbol *symbol;
+   xRect *rct;
+   int flip, rot;
+   double x0,y0, pinx0, piny0;
+   char num[40];
+
+   char *pins = NULL;
+   int p, i, no_of_pins;
+   prepare_netlist_structs(0);
+   if(argc < 3) {
+     Tcl_SetResult(interp,"xschem instances_to_net requires a net name argument", TCL_STATIC);
+     return TCL_ERROR;
+   }
+   for(i = 0;i < xctx->instances; i++) {
+     x0 = xctx->inst[i].x0;
+     y0 = xctx->inst[i].y0;
+     rot = xctx->inst[i].rot;
+     flip = xctx->inst[i].flip;
+     symbol = xctx->sym + xctx->inst[i].ptr;
+     no_of_pins= symbol->rects[PINLAYER];
+     rct=symbol->rect[PINLAYER];
+     for(p = 0;p < no_of_pins; p++) {
+       const char *pin;
+       pin = get_tok_value(rct[p].prop_ptr,"name",0);
+       if(!pin[0]) pin = "--ERROR--";
+       if(xctx->inst[i].node[p] && !strcmp(xctx->inst[i].node[p], argv[2]) &&
+          !IS_LABEL_SH_OR_PIN( (xctx->inst[i].ptr+xctx->sym)->type )) {
+         my_strcat(534, &pins, "{ {");
+         my_strcat(535, &pins,  xctx->inst[i].instname);
+         my_strcat(536, &pins, "} {");
+         my_strcat(537, &pins, pin);
+
+         pinx0 = (rct[p].x1+rct[p].x2)/2;
+         piny0 = (rct[p].y1+rct[p].y2)/2;
+         ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, pinx0, piny0);
+         pinx0 += x0;
+         piny0 += y0;
+
+         my_strcat(538, &pins, "} {");
+         my_snprintf(num, S(num), "%g", pinx0);
+         my_strcat(539, &pins, num);
+         my_strcat(540, &pins, "} {");
+         my_snprintf(num, S(num), "%g", piny0);
+         my_strcat(541, &pins, num);
+         my_strcat(542, &pins, "} } ");
+       }
+     }
+     Tcl_AppendResult(interp, pins ? pins : "", NULL);
+     my_free(926, &pins);
+   }
+ }
+
+ else if(argc == 3 && !strcmp(argv[1],"expandlabel"))  {
+   int tmp, llen;
+   char *result=NULL;
+   const char *l;
+
+   l = expandlabel(argv[2], &tmp);
+   llen = strlen(l);
+   result = my_malloc(378, llen + 30);
+   my_snprintf(result, llen + 30, "%s %d", l, tmp);
+   Tcl_AppendResult(interp, result, NULL);
+   my_free(927, &result);
+ }
+
+ /* xschem instance_nodemap [instance_name] */
+ else if(!strcmp(argv[1],"instance_nodemap")) {
+   char *pins = NULL;
+   int p, i, no_of_pins;
+   int inst = -1;
+   prepare_netlist_structs(0);
+
+   if(argc>=3) inst = get_instance(argv[2]);
+   for(i=0;i<xctx->instances;i++) {
+     if(inst>=0 && i != inst) continue;
+     my_strcat(573, &pins, "{ {");
+     my_strcat(574, &pins,  xctx->inst[i].instname);
+     my_strcat(575, &pins, "} ");
+     no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
+     for(p=0;p<no_of_pins;p++) {
+       const char *pin;
+       pin = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr,"name",0);
+       if(!pin[0]) pin = "--ERROR--";
+       if(argc>=4 && strcmp(argv[3], pin)) continue;
+       my_strcat(576, &pins, "{ ");
+       my_strcat(655, &pins, "{");
+       my_strcat(662, &pins, pin);
+       my_strcat(663, &pins, "} {");
+       my_strcat(664, &pins, xctx->inst[i].node[p] ? xctx->inst[i].node[p] : "");
+       my_strcat(665, &pins, "} ");
+       my_strcat(1155, &pins, "} ");
+     }
+     my_strcat(1188, &pins, "} ");
+     Tcl_AppendResult(interp, pins, NULL);
+     my_free(1189, &pins);
+   }
+ }
+
+ 
 
  /*
   * ********** xschem get subcommands
@@ -1640,18 +1781,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    } else if(x<=xctx->currsch) {
      Tcl_AppendResult(interp, xctx->sch_path[x], NULL);
    }
- }
- else if(argc == 4 && !strcmp(argv[1],"get") && !strcmp(argv[2],"expandlabel"))  {
-   int tmp, llen;
-   char *result=NULL;
-   const char *l;
-
-   l = expandlabel(argv[3], &tmp);
-   llen = strlen(l);
-   result = my_malloc(378, llen + 30);
-   my_snprintf(result, llen + 30, "%s %d", l, tmp);
-   Tcl_AppendResult(interp, result, NULL);
-   my_free(927, &result);
  }
  else if(!strcmp(argv[1],"get") && argc==3)
  {
