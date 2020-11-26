@@ -137,7 +137,7 @@ proc netlist {source_file show netlist_file} {
    }
  }
  if {$netlist_type eq {tedax}} {
-   if {[catch {eval exec {awk -f $XSCHEM_SHAREDIR/tedax.awk $source_file | $XSCHEM_SHAREDIR/flatten_tedax.awk \
+    if {[catch {eval exec {awk -f $XSCHEM_SHAREDIR/tedax.awk $source_file | awk -f $XSCHEM_SHAREDIR/flatten_tedax.awk \
               > $netlist_dir/$netlist_file} } err] } {
      puts stderr "tEDAx errors: $err"
    }
@@ -717,6 +717,9 @@ proc probe_net {fullnet {redraw 1} } {
   if {$res} {return $net} else { return {} } 
 }
 
+# backannotate newnet to be connected to specified hierarchical instance name and pin.
+# places a label close to the instance pin to be re-routed.
+# actual reconnect is human assisted! 
 proc reroute_inst {fullinst pinattr pinval newnet} {
   if { [regexp {\.} $fullinst] } { set hier 1 } else { set hier 0 } 
   set res [descend_hierarchy $fullinst 0]
@@ -742,7 +745,7 @@ proc reroute_inst {fullinst pinattr pinval newnet} {
     xschem hilight_netname $newnet
     xschem select instance $res
     xschem hilight_netname $oldnet
-    if {$hier} { xschem save}
+    if {$hier} { xschem save} ;# save so we can process other reroute_inst without beink asked to save.
     xschem redraw
     return 1
   }

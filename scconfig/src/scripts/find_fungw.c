@@ -83,6 +83,44 @@ int find_script_fungw_user_call_ctx(const char *name, int logdepth, int fatal)
 	return try_fail(logdepth, "libs/script/fungw/user_call_ctx");
 }
 
+int find_script_fungw_cfg_pupdir(const char *name, int logdepth, int fatal)
+{
+	const char *lf, *cf, *inc, *out;
+	char *test_c =
+		NL "#include <libfungw/fungw.h>"
+		NL "int main() {"
+		NL "	puts(FGW_CFG_PUPDIR);"
+		NL "	return 0;"
+		NL "}"
+		NL;
+
+	require("cc/cc", logdepth, fatal);
+	require("libs/script/fungw/presents", logdepth, fatal);
+
+	report("Checking for fungw configured pupdir... ");
+	logprintf(logdepth, "find_fungw_cfg_pupdir: trying to find fungw pupdir...\n");
+	logdepth++;
+
+	inc = get("libs/script/fungw/includes");
+	lf  = get("libs/script/fungw/ldflags");
+	cf  = get("libs/script/fungw/cflags");
+
+	if ((compile_run(logdepth, test_c, NULL, cf, lf, &out) == 0) && (out != NULL)) {
+		char *end = strpbrk(out, "\r\n");
+		if (end != NULL) *end = '\0';
+		report("Found: %s\n", out);
+		logprintf(logdepth+1, "found: %s\n", out);
+		put("libs/script/fungw/cfg_pupdir/path", out);
+		put("libs/script/fungw/cfg_pupdir/presents", strue);
+		free(out);
+		return 1;
+	}
+	report("Not found\n");
+	logprintf(logdepth+1, "not found\n");
+	put("libs/script/fungw/cfg_pupdir/presents", sfalse);
+	return 0;
+}
+
 
 int find_script_fungw_all(const char *name, int logdepth, int fatal)
 {

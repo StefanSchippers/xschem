@@ -4812,6 +4812,12 @@
           <Component Id="cmpB6DD55BDB1CE510E5D5C0DBB8579983E" Guid="{98CC39DD-3689-4627-88B5-7FB2C432EE06}">
             <File Id="fil57BC580AAEE78C7D56B17F756EB9AB8C" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\pcb\bc817.sym" />
           </Component>
+          <Component Id="cmpDC6164D9212DCDC1A1535CA89F8DF323" Guid="{49A1B9EF-08FE-4A85-8FCE-0D6BEF933380}">
+              <File Id="filFF3833BA49CB0EB1B3ED7D45F8C19E8B" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\pcb\hierarchical_tedax.sch" />
+          </Component>
+          <Component Id="cmp7C12F8B4AA9EB1BECA3BBE632EC72A40" Guid="{5A42E94E-DADC-4561-BF6E-6E7E0B1E3F61}">
+              <File Id="filD5611E66E0B4E245FF0B118B0895BF3D" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\pcb\hierarchical_tedax.sym" />
+          </Component>
           <Component Id="cmp3B463CE78921C68C23417034F63D2516" Guid="{05A5FD34-D432-450C-8205-4286520189D7}">
             <File Id="filCCA739120867CAD50EE2ED3B020A746E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\pcb\lm358.sym" />
           </Component>
@@ -4845,8 +4851,17 @@
           <Component Id="cmpDAF01DCB0916503DC0244B49626AADA0" Guid="{1E5542F0-9292-479C-A0E0-C5DE8C991E07}">
             <File Id="fil350BFF115F2D0853E21DFC20C192A47E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\pcb\pcb_voltage_protection_embed.sch" />
           </Component>
+          <Component Id="cmpBCA767BF12C696C11A067258F8233D18" Guid="{D8F721F2-D8BE-4344-AA24-C70AC7E95690}">
+            <File Id="filFB1FB7C6057508CF8DEBAF0421229772" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\pcb\reg.sch" />
+          </Component>
           <Component Id="cmpB5FA4EE340BC89DC7EE91DA0116D5184" Guid="{286EE5D8-2E1B-41DD-B1E7-7B60AA64EA63}">
             <File Id="fil3E925FE01C43CD9E404505B6611F6549" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\pcb\si2306.sym" />
+          </Component>
+          <Component Id="cmp37D6363AC6D7572FAA18C8D93A7C9489" Guid="{FD1AF04C-7D7C-4AB0-B923-1582D0EA2EC1}">
+            <File Id="fil3E7FDC02C795AF25625DCCE5FD488F8B" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\pcb\voltage_protection.sch" />
+          </Component>
+          <Component Id="cmpA78FCC9F8E084F9E1147CFDCCA2D9B4D" Guid="{E63D3B55-7068-40B0-9ABC-F5AEB7FC5EE1}">
+            <File Id="fil0787884CF073F397FDB45854CB6FBA0F" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\pcb\voltage_protection.sym" />
           </Component>
         </Directory>
         <Directory Id="dir1E616ACC74AC007CA18D32B578D0C49E" Name="rom8k">
@@ -6688,6 +6703,8 @@
       <ComponentRef Id="cmp5B93C1BFDDB73CBE28A4459E3406D3AC" />
       <ComponentRef Id="cmpD2BA7901024C4B03C6958EAA2A1F633D" />
       <ComponentRef Id="cmpB6DD55BDB1CE510E5D5C0DBB8579983E" />
+      <ComponentRef Id="cmpDC6164D9212DCDC1A1535CA89F8DF323" />
+      <ComponentRef Id="cmp7C12F8B4AA9EB1BECA3BBE632EC72A40" />
       <ComponentRef Id="cmp3B463CE78921C68C23417034F63D2516" />
       <ComponentRef Id="cmp3F307CFFE36A359B2616597213269484" />
       <ComponentRef Id="cmp283C623DB025C34E9EEF75154F58E723" />
@@ -6699,7 +6716,10 @@
       <ComponentRef Id="cmpE9EA5CF50BA1A4B79070C701875D38A5" />
       <ComponentRef Id="cmpDE1B8F3DAB82C6FAD53F6C5AA5DBE573" />
       <ComponentRef Id="cmpDAF01DCB0916503DC0244B49626AADA0" />
+      <ComponentRef Id="cmpBCA767BF12C696C11A067258F8233D18" />
       <ComponentRef Id="cmpB5FA4EE340BC89DC7EE91DA0116D5184" />
+      <ComponentRef Id="cmp37D6363AC6D7572FAA18C8D93A7C9489" />
+      <ComponentRef Id="cmpA78FCC9F8E084F9E1147CFDCCA2D9B4D" />
       <ComponentRef Id="cmpA72594A4F0570B48B0DE9EE298022E4B" />
       <ComponentRef Id="cmp3BBBC15CA27DC0728CE67A1492652D2C" />
       <ComponentRef Id="cmpB7064A934A6A0C189E2604AA62AE6AD9" />

@@ -45,6 +45,7 @@ void deps_scripts_init()
 
 	dep_add("libs/script/fungw/presents",         find_script_fungw);
 	dep_add("libs/script/fungw/user_call_ctx/*",  find_script_fungw_user_call_ctx);
+	dep_add("libs/script/fungw/cfg_pupdir/*",     find_script_fungw_cfg_pupdir);
 	dep_add("libs/script/fungw/*",                find_script_fungw_all);
 }
 
