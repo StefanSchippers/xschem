@@ -1197,7 +1197,7 @@ int callback(int event, int mx, int my, KeySym key,
      if(semaphore >= 2) break;
      tcleval("xschem clear SYMBOL");
    }
-   if(key=='N' && state==ShiftMask)              /* hierarchical netlist */
+   if(key=='n' && state==0)              /* hierarchical netlist */
    {
     yyparse_error = 0;
     if(semaphore >= 2) break;
@@ -1219,7 +1219,7 @@ int callback(int event, int mx, int my, KeySym key,
     }
     break;
    }
-   if(key=='n' && state==0)              /* netlist */
+   if(key=='N' && state==ShiftMask)              /* current level only netlist */
    {
     yyparse_error = 0;
     if(semaphore >= 2) break;

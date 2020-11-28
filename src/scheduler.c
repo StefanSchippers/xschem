@@ -1213,6 +1213,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    my_free(1150, &s);
  }
 
+ else if(!strcmp(argv[1],"find_nth") )
+ {
+   if(argc>4) {
+     char *r = NULL;
+     my_strdup(1202, &r, find_nth(argv[2], argv[3][0], atoi(argv[4])));
+     Tcl_SetResult(interp, r ? r : "<NULL>", TCL_VOLATILE);
+     my_free(1203, &r);
+   }
+ }
+
  else if(!strcmp(argv[1],"get_tok_size") )
  {
    char s[30];

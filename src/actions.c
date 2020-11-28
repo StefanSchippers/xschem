@@ -809,7 +809,7 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
     rct=symbol->rect[PINLAYER];
 
     for(i=0;i<npin;i++) {
-       my_strdup(8, &labname,get_tok_value(rct[i].prop_ptr,"name",1));
+       my_strdup(8, &labname,get_tok_value(rct[i].prop_ptr,"name",0));
        dbg(1,"attach_labels_to_inst(): 2 --> labname=%s\n", labname);
 
        pinx0 = (rct[i].x1+rct[i].x2)/2;

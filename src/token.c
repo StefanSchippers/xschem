@@ -1852,16 +1852,36 @@ void print_tedax_element(FILE *fd, int inst)
 
  no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
  if( !format && !strcmp((xctx->inst[inst].ptr+ xctx->sym)->type, "subcircuit") ) {
-    subcircuit = 1;
-    fprintf(fd, "__subcircuit__ %s %s\n", skip_dir(xctx->inst[inst].name), xctx->inst[inst].instname);
-    for(i=0;i<no_of_pins; i++) {
-     net_name(inst,i, &mult, 0, 1); /* only to trigger erc errors if any */
-      fprintf(fd, "__map__ %s -> %s\n", 
-        get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0),
-        (xctx->inst[inst].node && xctx->inst[inst].node[i]) ? 
-             xctx->inst[inst].node[i] : "__UNCONNECTED_PIN__");
+   char *net = NULL;
+   char *pinname = NULL;
+   char *pin = NULL;
+   char *netbit=NULL;
+   char *pinbit = NULL;
+   int net_mult;
+   int pin_mult;
+   int n;
+   subcircuit = 1;
+   fprintf(fd, "__subcircuit__ %s %s\n", skip_dir(xctx->inst[inst].name), xctx->inst[inst].instname);
+   for(i=0;i<no_of_pins; i++) {
+     my_strdup2(531, &net, net_name(inst,i, &net_mult, 0, 1));
+     my_strdup2(1196, &pinname, 
+       get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0));
+     my_strdup2(1197, &pin, expandlabel(pinname, &pin_mult));
+     dbg(1, "#net=%s pinname=%s pin=%s net_mult=%d pin_mult=%d\n", net, pinname, pin, net_mult, pin_mult);
+     for(n = 0; n < net_mult; n++) {
+       my_strdup(1204, &netbit, find_nth(net, ',', n+1));
+       my_strdup(1205, &pinbit, find_nth(pin, ',', n+1));
+       fprintf(fd, "__map__ %s -> %s\n", 
+         pinbit ? pinbit : "__UNCONNECTED_PIN__", 
+         netbit ? netbit : "__UNCONNECTED_PIN__");
      }
-     fprintf(fd, "\n");
+   }
+   my_free(1199, &net);
+   my_free(1200, &pin);
+   my_free(1201, &pinname);
+   my_free(1206, &pinbit);
+   my_free(1207, &netbit);
+   fprintf(fd, "\n");
  }
 
  if(name==NULL || !format || !format[0]) {
@@ -2263,14 +2283,14 @@ const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net, int e
      else
       my_snprintf(str_node, S(str_node), "%s", (xctx->inst[i].node[j])+1 );
    }
-   expandlabel(get_tok_value(
-           (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",1), mult);
+   expandlabel(get_tok_value(                            /*  remove quotes --. */
+           (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), mult);
    return expandlabel(str_node, &tmp);
   }
   else
   {
-   expandlabel(get_tok_value(
-           (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",1), mult);
+   expandlabel(get_tok_value(                             /* remove quotes --. */
+           (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), mult);
    return expandlabel(xctx->inst[i].node[j], &tmp);
   }
  }
