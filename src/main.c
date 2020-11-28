@@ -24,6 +24,7 @@
 #ifdef __unix__
 #include <sys/wait.h>
 #endif
+#include <locale.h>
 
 void sig_handler(int s){
 #ifndef IN_MEMORY_UNDO

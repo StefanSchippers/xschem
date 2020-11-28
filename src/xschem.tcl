@@ -3225,6 +3225,7 @@ proc build_windows {} {
 ###
 
 set OS [lindex $tcl_platform(os) 0]
+set env(LC_ALL) C
 
 # tcl variable XSCHEM_LIBRARY_PATH  should already be set in xschemrc
 set pathlist {}
