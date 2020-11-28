@@ -130,7 +130,7 @@ const char *expandlabel(const char *s, int *m)
 %x rest
 
 
-ID [-#+_\\/=a-zA-Z0-9]*[-#@+/_\\/=a-zA-Z]+[-#@+_\\/=a-zA-Z0-9]*
+ID [-#+_\\/=a-zA-Z0-9]*[-#@+_\\/=a-zA-Z]+[-#@+_\\/=a-zA-Z0-9]*
 ID_NUM [-#+_\\/=a-zA-Z0-9]+
 
 ID_EXT ([-~#+/=_a-zA-Z][-~#@\\/:.=_+a-zA-Z0-9]*)|([-~#+/.=_a-zA-Z][-~#@\\/:=_+a-zA-Z0-9]*)

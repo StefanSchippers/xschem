@@ -12,7 +12,7 @@ end process;}
 K {}
 V {initial begin
   $dumpfile("dumpfile.vcd");
-  $dumpvars;
+  $dumpvars(0, greycnt);
   A=0;
 end
 
