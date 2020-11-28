@@ -688,7 +688,7 @@ void prepare_netlist_structs(int for_netlist)
     }
     if(print_erc && (!type || !type[0]) ) {
       char str[2048];
-      my_snprintf(str, S(str), "xSymbol: %s: no type attribute set", inst[i].name);
+      my_snprintf(str, S(str), "Symbol: %s: no type attribute set", inst[i].name);
       statusmsg(str,2);
       inst[i].flags |=4;
       hilight_nets=1;
@@ -736,10 +736,10 @@ void prepare_netlist_structs(int for_netlist)
         my_strdup(261, &class,get_tok_value(inst[i].prop_ptr,"class",0));
       }
 
-      my_strdup(262, &inst[i].node[0], get_tok_value(inst[i].prop_ptr,"lab",1));
+      my_strdup(262, &inst[i].node[0], get_tok_value(inst[i].prop_ptr,"lab",0));
 
       if (!(inst[i].node[0])) {
-        my_strdup(65, &inst[i].node[0], get_tok_value((inst[i].ptr+ xctx->sym)->templ, "lab",1));
+        my_strdup(65, &inst[i].node[0], get_tok_value((inst[i].ptr+ xctx->sym)->templ, "lab",0));
         dbg(1, "prepare_netlist_structs(): no lab attr on instance, pick from symbol: %s\n", inst[i].node[0]);
       }
       /* handle global nodes (global=1 set as symbol property) 28032003 */
