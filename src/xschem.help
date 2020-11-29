@@ -22,8 +22,6 @@ Options:
   -s  --spice          Set netlist type to SPICE.
   -3  --a3page         Set page size for pdf export to A3.
   -x  --no_x           Don't use X (only command mode).
-      --events         Do not use tclreadline, empty tcl shell prompt, dump
-                       activity on stdout for remote controlling other software.
   -z  --rainbow        Use a raibow-looking layer color table.
   -W  --waves          Show simulation waveforms.
   -f  --flat_netlist   Set flat netlist (for spice format only).

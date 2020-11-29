@@ -126,7 +126,6 @@ int a3page=-1;
 int has_x=1;
 int no_draw=0;
 int sym_txt=1;
-int event_reporting=0;
 int rainbow_colors=0;
 int manhattan_lines=0;
 FILE *errfp;

@@ -1000,15 +1000,6 @@ void update_symbol(const char *result, int x)
                            /* if number of pins is different we must delete these data *before* */
                            /* changing ysmbol, otherwise i might end up deleting non allocated data. */
       my_strdup(82, &xctx->inst[i].name, rel_sym_path(symbol));
-      if(event_reporting) {
-        char n1[PATH_MAX];
-        char n2[PATH_MAX];
-        printf("xschem replace_symbol %s %s\n",
-            escape_chars(n1, xctx->inst[i].instname, PATH_MAX),
-            escape_chars(n2, symbol, PATH_MAX)
-        );
-        fflush(stdout);
-      }
       xctx->inst[i].ptr=sym_number; /* update instance to point to new symbol */
     }
     bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
@@ -1070,13 +1061,6 @@ void update_symbol(const char *result, int x)
       cond= !type || !IS_LABEL_SH_OR_PIN(type);
       if(cond) xctx->inst[i].flags|=2; /* bit 1: flag for different textlayer for pin/labels */
       else xctx->inst[i].flags &=~2;
-    }
-
-    if(event_reporting) {
-      char *ss=NULL;
-      my_strdup(120, &ss, xctx->inst[i].prop_ptr);
-      set_different_token(&ss, new_prop, old_prop, ELEMENT, i);
-      my_free(730, &ss);
     }
     my_strdup2(90, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name",0));
   }  /* end for(k=0;k<lastselected;k++) */

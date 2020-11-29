@@ -291,10 +291,6 @@ void delete_hilight_net(void)
  int i;
  if(!hilight_nets) return;
  free_hilight_hash();
- if(event_reporting) {
-   printf("xschem clear_hilights\n");
-   fflush(stdout);
- }
 
  hilight_nets=0;
  for(i=0;i<xctx->instances;i++) {
@@ -658,10 +654,6 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
 #endif
  draw_window = save_draw;
 
- if(event_reporting) {
-   printf("xschem search %s %d %s %s\n", (sub ? "exact" : "regex"), sel, tok, val);
-   fflush(stdout);
- }
  my_free(771, &tmpname);
  if(found) return 1; else return 0;
 }
@@ -828,11 +820,6 @@ void hilight_net(int to_waveform)
    switch(selectedgroup[i].type)
    {
     case WIRE:
-      if(event_reporting) {
-        char s[PATH_MAX];
-        printf("xschem search exact %d lab %s\n", 0, escape_chars(s, xctx->wire[n].node, PATH_MAX));
-        fflush(stdout);
-      }
       hilight_nets=1;
       if(!bus_hilight_lookup(xctx->wire[n].node, hilight_color, XINSERT)) {
         if(to_waveform == GAW) send_net_to_gaw(sim_is_xyce, xctx->wire[n].node);
@@ -842,22 +829,12 @@ void hilight_net(int to_waveform)
     case ELEMENT:
      type = (xctx->inst[n].ptr+ xctx->sym)->type;
      if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
-       if(event_reporting) {
-         char s[PATH_MAX];
-         printf("xschem search exact %d lab %s\n", 0, escape_chars(s, xctx->inst[n].node[0], PATH_MAX));
-         fflush(stdout);
-       }
        if(!bus_hilight_lookup(xctx->inst[n].node[0], hilight_color, XINSERT)) {
          if(to_waveform == GAW) send_net_to_gaw(sim_is_xyce, xctx->inst[n].node[0]);
          hilight_nets=1;
          if(incr_hilight) hilight_color++;
        }
      } else {
-       if(event_reporting) {
-         char s[PATH_MAX];
-         printf("xschem search exact %d name %s\n", 0, escape_chars(s, xctx->inst[n].instname, PATH_MAX));
-         fflush(stdout);
-       }
        dbg(1, "hilight_net(): setting hilight flag on inst %d\n",n);
        hilight_nets=1;
        xctx->inst[n].flags |= 4;
@@ -892,30 +869,14 @@ void unhilight_net(void)
    switch(selectedgroup[i].type)
    {
     case WIRE:
-      if(event_reporting) {
-        char s[PATH_MAX];
-        printf("xschem search exact %d lab %s\n", 1, escape_chars(s, xctx->wire[n].node, PATH_MAX));
-        printf("xschem unhilight\n");
-        fflush(stdout);
-      }
       bus_hilight_lookup(xctx->wire[n].node, hilight_color, XDELETE);
      break;
     case ELEMENT:
      type = (xctx->inst[n].ptr+ xctx->sym)->type;
      if( type &&
          xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) {  /* instance must have a pin! */
-      if(event_reporting) {
-        printf("xschem unhilight\n");
-        fflush(stdout);
-      }
       bus_hilight_lookup(xctx->inst[n].node[0], hilight_color, XDELETE);
      } else {
-      if(event_reporting) {
-        char s[PATH_MAX];
-        printf("xschem search exact %d name %s\n", 1, escape_chars(s, xctx->inst[n].instname, PATH_MAX));
-        printf("xschem unhilight\n");
-        fflush(stdout);
-      }
      }
      xctx->inst[n].flags &= ~4;
      break;

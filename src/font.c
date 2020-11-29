@@ -61,10 +61,5 @@ void compile_font(void)
  unselect_all();
  xctx->currsch = 0;
  my_strncpy(xctx->sch[xctx->currsch], "", S(xctx->sch[xctx->currsch]));
- if(event_reporting) {
-   printf("xschem clear_drawing\n");
-   printf("xschem unselect_all\n");
-   fflush(stdout);
- }
 }
 

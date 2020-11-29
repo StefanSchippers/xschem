@@ -1051,11 +1051,6 @@ void move_objects(int what, int merge, double dx, double dy)
     deltay = dy;
   }
 
-  if(event_reporting) {
-    printf("xschem move_objects %g %g\n", deltax, deltay);
-    fflush(stdout);
-  }
-
   /* calculate moving symbols bboxes before actually doing the move */
   firsti = firstw = 1;
   for(i=0;i<lastselected;i++)

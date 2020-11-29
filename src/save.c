@@ -988,11 +988,6 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     dbg(1, "load_schematic(): opening file for loading:%s, filename=%s\n", name, filename);
     dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
     if(!name[0]) return;
-    if(event_reporting) {
-      char n[PATH_MAX];
-      printf("xschem load %s\n", escape_chars(n, name, PATH_MAX));
-      fflush(stdout);
-    }
     if( (fd=fopen(name,fopen_read_mode))== NULL) {
       fprintf(errfp, "load_schematic(): unable to open file: %s, filename=%s\n",
           name, filename ? filename : "<NULL>");
@@ -1234,12 +1229,6 @@ void pop_undo(int redo)
   update_conn_cues(0, 0);
 
   dbg(2, "pop_undo(): returning\n");
-  if(event_reporting) {
-    if(redo) printf("xschem redo\n");
-    else     printf("xschem undo\n");
-    printf("xschem redraw\n");
-    fflush(stdout);
-  }
 }
 
 #endif /* ifndef IN_MEMORY_UNDO */

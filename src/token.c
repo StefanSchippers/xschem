@@ -324,17 +324,6 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
    value[value_pos]='\0';
    value_pos=0;
    if(strcmp(value, get_tok_value(old,token,1))) {
-    if(event_reporting && object == ELEMENT) {
-      char n1[PATH_MAX];
-      char n2[PATH_MAX];
-      char n3[PATH_MAX];
-      printf("xschem setprop %s %s %s\n",
-           escape_chars(n1, xctx->inst[n].instname, PATH_MAX),
-           escape_chars(n2, token, PATH_MAX),
-           escape_chars(n3, value, PATH_MAX)
-      );
-      fflush(stdout);
-    }
     mod=1;
     my_strdup(433, s, subst_token(*s, token, value) );
    }
@@ -369,16 +358,6 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
    }
    get_tok_value(new,token,1);
    if(get_tok_size == 0 ) {
-
-    if(event_reporting && object == ELEMENT) {
-      char n1[PATH_MAX];
-      char n2[PATH_MAX];
-      printf("xschem setprop %s %s\n",
-           escape_chars(n1, xctx->inst[n].instname, PATH_MAX),
-           escape_chars(n2, token, PATH_MAX)
-      );
-      fflush(stdout);
-    }
     mod=1;
     my_strdup(443, s, subst_token(*s, token, NULL) );
    }

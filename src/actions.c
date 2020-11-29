@@ -640,11 +640,6 @@ void remove_symbols(void)
    remove_symbol(j);
  }
   dbg(1, "remove_symbols(): done\n");
-  if(event_reporting) {
-    printf("xschem remove_symbols\n");
-    fflush(stdout);
-  }
-
 }
 
 void clear_drawing(void)
@@ -1734,10 +1729,6 @@ void new_wire(int what, double mx_snap, double my_snap)
          ORDER(xx1,yy1,xx2,yy2);
          storeobject(-1, xx1,yy1,xx2,yy2,WIRE,0,0,NULL);
          drawline(WIRELAYER,NOW, xx1,yy1,xx2,yy2, 0);
-       }
-       if(event_reporting) {
-         printf("xschem wire %g %g %g %g %d\n", xx1, yy1, xx2, yy2, -1);
-         fflush(stdout);
        }
        hash_wire(XINSERT, xctx->wires-1, 1);
        /* prepared_hash_wires = 0; */

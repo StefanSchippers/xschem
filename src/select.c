@@ -369,10 +369,6 @@ void delete(void)
   draw();
   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   ui_state &= ~SELECTION;
-  if(event_reporting) {
-    printf("xschem delete\n");
-    fflush(stdout);
-  }
 }
 
 
@@ -525,11 +521,6 @@ void unselect_all(void)
       xctx->inst[i].sel = 0;
       for(c=0;c<cadlayers;c++)
         draw_temp_symbol(ADD, gctiled, i, c,0,0,0.0,0.0);
-      if(event_reporting) {
-        char n[PATH_MAX];
-        printf("xschem search exact %d name %s\n", -1, escape_chars(n, xctx->inst[i].instname, PATH_MAX));
-        fflush(stdout);
-      }
      }
     }
     for(i=0;i<xctx->texts;i++)
@@ -600,10 +591,6 @@ void unselect_all(void)
     /*\statusmsg("",2); */
     my_snprintf(str, S(str), "%s/%s", user_conf_dir, ".selection.sch"); /* 20161115  PWD->HOME */
     xunlink(str);
-    if(event_reporting) {
-      printf("xschem unselect_all\n");
-      fflush(stdout);
-    }
 
 }
 
@@ -653,12 +640,6 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
   if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr, "lock", 0), "true") &&
       select_mode == SELECTED && !override_lock) return;
   my_strncpy(s,xctx->inst[i].prop_ptr!=NULL?xctx->inst[i].prop_ptr:"<NULL>",S(s));
-  if(event_reporting) {
-    char n[PATH_MAX];
-    printf("xschem search exact %d name %s\n", 
-      select_mode? 1:-1, escape_chars(n, xctx->inst[i].instname, PATH_MAX));
-    fflush(stdout);
-  }
   if( !fast )
   {
     my_snprintf(str, S(str), "selected element %d: %s properties: %s", i, xctx->inst[i].name,s);

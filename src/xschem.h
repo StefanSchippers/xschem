@@ -601,7 +601,6 @@ extern int prepared_hash_wires;
 extern int has_x;
 extern int no_draw;
 extern int sym_txt;
-extern int event_reporting;
 extern int rainbow_colors;
 extern FILE *errfp;
 extern int no_readline;

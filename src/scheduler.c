@@ -1889,12 +1889,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      else
         Tcl_AppendResult(interp, "0",NULL);
   }
-  else if(!strcmp(argv[2],"event_reporting"))  {
-     if( event_reporting != 0 )
-        Tcl_AppendResult(interp, "1",NULL);
-     else
-        Tcl_AppendResult(interp, "0",NULL);
-  }
   else if(!strcmp(argv[2],"a3page"))  {
      if( a3page != 0 )
         Tcl_AppendResult(interp, "1",NULL);
@@ -2193,9 +2187,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
    else if(!strcmp(argv[2],"only_probes"))  {
          only_probes=atoi(argv[3]);
-   }
-   else if(!strcmp(argv[2],"event_reporting"))  {
-         event_reporting=atoi(argv[3]);
    }
    else if(!strcmp(argv[2],"draw_grid"))  {
          draw_grid=atoi(argv[3]);

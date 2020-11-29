@@ -834,7 +834,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
   else if(!strcmp(what, "draw")) {
     Xschem_ctx *save_xctx = NULL; /* save pointer to current schematic context structure */
     char *saveptr = NULL;
-    int save_mod, save_ev, save_show_pin;
+    int save_mod, save_show_pin;
     Pixmap save_save_pixmap;
     Window save_window;
 
@@ -847,8 +847,6 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     save_window = window;
     save_save_pixmap = save_pixmap;
     save_mod = modified;
-    save_ev = event_reporting;
-    event_reporting = 0;
     save_show_pin = show_pin_net_names;
     show_pin_net_names = 0;
     my_strdup(117, &saveptr, tclgetvar("current_dirname"));
@@ -892,7 +890,6 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     change_linewidth(-1.);
     /* not needed: event loop takes care of this and don't need to regenerate save_pixmap. */
     /* draw(); */
-    event_reporting = save_ev;
   }
   else if(!strcmp(what, "destroy")) {
     Tk_DestroyWindow(tkpre_window);
@@ -1488,12 +1485,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*                                */
  /*  START PROCESSING USER OPTIONS */
  /*                                */
-
- if(event_reporting) {
-   tcleval("set tcl_prompt1 {}");
-   tcleval("set tcl_prompt2 {}");
- }
-
 
  /* set tcl netlist_dir if netlist_dir given on cmdline */
  if(netlist_dir && netlist_dir[0]) tclsetvar("netlist_dir", netlist_dir);
