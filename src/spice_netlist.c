@@ -410,10 +410,10 @@ void spice_netlist(FILE *fd, int spice_stop )
          const char *m;
          print_spice_element(fd, i) ;  /* this is the element line  */
          /* hash device_model attribute if any */
-         m = get_tok_value(xctx->inst[i].prop_ptr, "device_model", 2);
+         m = get_tok_value(xctx->inst[i].prop_ptr, "device_model", 0);
          if(m[0]) str_hash_lookup(model_table, model_name(m), m, XINSERT);
          else {
-           m = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "device_model", 2);
+           m = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "device_model", 0);
            if(m[0]) str_hash_lookup(model_table, model_name(m), m, XINSERT);
          }
          my_free(951, &model_name_result);

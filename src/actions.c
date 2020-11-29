@@ -1108,8 +1108,8 @@ void launcher(void)
     tcleval("update; after 300");
     select_object(mx,my,0, 0);
     n=selectedgroup[0].n;
-    my_strncpy(program, get_tok_value(xctx->inst[n].prop_ptr,"program",2), S(program)); /* handle backslashes */
-    str = get_tok_value(xctx->inst[n].prop_ptr,"url",2); /* handle backslashes */
+    my_strncpy(program, get_tok_value(xctx->inst[n].prop_ptr,"program",0), S(program)); /* handle backslashes */
+    str = get_tok_value(xctx->inst[n].prop_ptr,"url",0); /* handle backslashes */
     dbg(1, "launcher(): str=%s\n", str);
     if(str[0] || (program[0])) {
       tclsetvar("launcher_var",str);
@@ -1120,7 +1120,7 @@ void launcher(void)
       }
       tcleval( "launcher");
     } else {
-      my_strncpy(program, get_tok_value(xctx->inst[n].prop_ptr,"tclcommand",2), S(program));
+      my_strncpy(program, get_tok_value(xctx->inst[n].prop_ptr,"tclcommand",0), S(program));
       if(program[0]) { /*  20170415 execute tcl command */
         tcleval(program);
       }

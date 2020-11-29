@@ -2008,7 +2008,7 @@ proc tclpropeval {s instname symname} {
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s} {
   global tcl_debug env
-  if {$tcl_debug <=-1} {puts "tclpropeval2: $s"}
+  if {$tcl_debug <=-0} {puts "tclpropeval2: $s"}
   set path [string range [xschem get sch_path] 1 end]
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s

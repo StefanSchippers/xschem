@@ -732,7 +732,7 @@ void prepare_netlist_structs(int for_netlist)
       } else {
         my_strdup(258, &sig_type,get_tok_value(inst[i].prop_ptr,"sig_type",0));
         my_strdup(259, &verilog_type,get_tok_value(inst[i].prop_ptr,"verilog_type",0));
-        my_strdup(260, &value,get_tok_value(inst[i].prop_ptr,"value",2));
+        my_strdup(260, &value,get_tok_value(inst[i].prop_ptr,"value",0));
         my_strdup(261, &class,get_tok_value(inst[i].prop_ptr,"class",0));
       }
 
@@ -849,8 +849,7 @@ void prepare_netlist_structs(int for_netlist)
                 dbg(2, "prepare_netlist_structs(): naming generic %s\n",
                   inst[iptr->n].node[iptr->pin]);
 
-                my_strdup(268,  &inst[i].node[j],
-                  get_tok_value(inst[iptr->n].prop_ptr,"value",2) );
+                my_strdup(268,  &inst[i].node[j], get_tok_value(inst[iptr->n].prop_ptr,"value",0) );
 
                 /*my_strdup(269,  &inst[i].node[j], inst[iptr->n].node[iptr->pin] ); */
 

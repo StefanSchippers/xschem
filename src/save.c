@@ -1632,7 +1632,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        load_ascii_string(&symbol[symbols].prop_ptr, lcc[level].fd);
        if(!symbol[symbols].prop_ptr) break;
        my_strdup2(424, &symbol[symbols].templ,
-                  get_tok_value(symbol[symbols].prop_ptr, "template",2));
+                  get_tok_value(symbol[symbols].prop_ptr, "template", 0));
        my_strdup2(515, &symbol[symbols].type,
                   get_tok_value(symbol[symbols].prop_ptr, "type",0));
      }
@@ -1645,7 +1645,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        load_ascii_string(&symbol[symbols].prop_ptr, lcc[level].fd);
        if(!symbol[symbols].prop_ptr) break;
        my_strdup2(341, &symbol[symbols].templ,
-                  get_tok_value(symbol[symbols].prop_ptr, "template",2));
+                  get_tok_value(symbol[symbols].prop_ptr, "template", 0));
        my_strdup2(342, &symbol[symbols].type,
                   get_tok_value(symbol[symbols].prop_ptr, "type",0));
      }

@@ -249,7 +249,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
    }
    my_strdup(561, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
    if(type && !strcmp(type,"netlist_commands")) {
-     fprintf(fd, "%s\n", get_tok_value(xctx->inst[i].prop_ptr,"value",2));
+     fprintf(fd, "%s\n", get_tok_value(xctx->inst[i].prop_ptr,"value", 0));
    }
  }
 
@@ -437,8 +437,8 @@ void verilog_block_netlist(FILE *fd, int i)
     if(strcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
       my_strdup(564, &sig_type,get_tok_value(
                 xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_type",0));
-      my_strdup(565, &port_value, get_tok_value(
-                xctx->sym[i].rect[PINLAYER][j].prop_ptr,"value",2) );
+      my_strdup(565, &port_value, 
+        get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"value", 0) );
       my_strdup(566, &dir_tmp, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"dir",0) );
       if(strcmp(dir_tmp,"in")){
          if(!sig_type || sig_type[0]=='\0') my_strdup(567, &sig_type,"wire"); /* 20070720 changed reg to wire */
@@ -473,7 +473,7 @@ void verilog_block_netlist(FILE *fd, int i)
 
     my_strdup(569, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
     if(type && !strcmp(type,"netlist_commands")) {
-      fprintf(fd, "%s\n", get_tok_value(xctx->inst[l].prop_ptr,"value",2));
+      fprintf(fd, "%s\n", get_tok_value(xctx->inst[l].prop_ptr,"value", 0));
     }
   }
 

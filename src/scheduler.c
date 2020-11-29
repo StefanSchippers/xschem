@@ -1681,7 +1681,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, pinx0, piny0);
    pinx0 += x0;
    piny0 += y0;
-   my_snprintf(num, S(num), "{%s} %g %g", get_tok_value(rct[p].prop_ptr, "name", 2), pinx0, piny0);
+   my_snprintf(num, S(num), "{%s} %g %g", get_tok_value(rct[p].prop_ptr, "name", 0), pinx0, piny0);
    Tcl_SetResult(interp, num, TCL_VOLATILE);
    my_free(530, &tmpstr);
  }
