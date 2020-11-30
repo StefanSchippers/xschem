@@ -137,7 +137,8 @@ const char *expandlabel(const char *s, int *m)
 %x index
 %x mult
 
-SP [ \t]*
+SP [ \t\n]*
+NOTSP [^ \t\n]
 INT [0-9]+
 DDOT {SP}".."{SP}
 CLN {SP}":"{SP}
@@ -195,7 +196,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#@\\/:.=_+a-zA-Z0-9]*\([-~"#@\\/:.=_+a-zA-
                           BEGIN(INITIAL);
                           return yytext[0];
                         }
-[^ ]                    {
+{NOTSP}                 {
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): idx character: |%s|\n", yytext);
                           return yytext[0];
                         }
@@ -283,7 +284,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#@\\/:.=_+a-zA-Z0-9]*\([-~"#@\\/:.=_+a-zA-
                           BEGIN(mult);
                           return '*';
                         }
-[^ ]                    {
+{NOTSP}                 {
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): character: |%s|\n", yytext);
                           BEGIN(INITIAL);
                           return yytext[0];

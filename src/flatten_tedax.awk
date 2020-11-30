@@ -58,6 +58,7 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
       subpos = i
       sub(/__subcircuit__/, "subcircuit", $0)
       out("#" spaces(hier * 2 - 1) $0)
+      submaplist = "" 
       for(i++; ;i++) {
         $0 = netlist[i]
         reparse()

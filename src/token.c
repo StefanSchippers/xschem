@@ -730,6 +730,40 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  my_free(988, &new_name);
 }
 
+
+
+int is_quoted(const char *s)
+{
+  int c, escape = 0;
+  int openquote = 0;
+  int closequote = 0;
+
+  while( (c = *s++) ) {
+
+    if(c == '\\' && !escape) {
+      escape = 1;
+      c = *s++;
+    } else escape = 0;
+
+    if(c == '"' && !escape && !openquote ) {
+      openquote = 1;
+      continue;
+    }
+    else if(c == '"' && !escape && openquote && !closequote) {
+      closequote = 1;
+      continue;
+    }
+    else if(c == '"' && !escape ) {
+      return 0;
+    }
+
+    if(!isspace(c) && !openquote) return 0;
+    if(!isspace(c) && openquote && closequote) return 0;
+  }
+  if(openquote && closequote) return 1;
+  return 0;
+}
+
 const char *subst_token(const char *s, const char *tok, const char *new_val)
 /* given a string <s> with multiple "token=value ..." assignments */
 /* substitute <tok>'s value with <new_val> */
@@ -746,6 +780,8 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
   int quote=0, tmp;
   int done_subst=0;
   int escape=0, matched_tok=0;
+  char *new_val_copy = NULL;
+  size_t new_val_len;
 
   if(s==NULL && tok == NULL){
     my_free(989, &result);
@@ -755,6 +791,15 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
     my_strdup2(458, &result, s);
     return result;
   }
+  /* quote new_val if it contains newlines */
+  if(new_val) {
+    new_val_len = strlen(new_val);
+    if(!is_quoted(new_val) && strpbrk(new_val, "\n \t")) {
+      new_val_copy = my_malloc(1210, new_val_len+3);
+      my_snprintf(new_val_copy, new_val_len+3, "\"%s\"", new_val);
+     }
+     else my_strdup(1212, &new_val_copy, new_val);
+   } else new_val_copy = NULL;
   dbg(1, "subst_token(): %s, %s, %s\n", s, tok, new_val);
   sizetok = size = CADCHUNKALLOC;
   my_realloc(1152, &result, size);
@@ -792,17 +837,17 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
       state = TOK_TOKEN;
     } else if(state == TOK_ENDTOK  && (!space || c == '\0') && c != '=' ) {
       if(!done_subst && matched_tok) {
-        if(new_val) { /* add new_val to matching token with no value */
-          if(new_val[0]) {
-            tmp = strlen(new_val);
+        if(new_val_copy) { /* add new_val_copy to matching token with no value */
+          if(new_val_copy[0]) {
+            tmp = strlen(new_val_copy);
           } else {
-            new_val = "\"\"";
+            new_val_copy = "\"\"";
             tmp = 2;
           }
 
           STR_ALLOC(&result, tmp+2 + result_pos, &size);
           memcpy(result + result_pos, "=", 1);
-          memcpy(result + result_pos+1, new_val, tmp);
+          memcpy(result + result_pos+1, new_val_copy, tmp);
           memcpy(result + result_pos+1+tmp, " ", 1);
           result_pos += tmp + 2;
           done_subst = 1;
@@ -831,15 +876,15 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
       state=TOK_SEP;
     } else if( state == TOK_SEP && !space) {
       if(!done_subst && matched_tok) {
-        if(new_val) { /* replace token value with new_val */
-          if(new_val[0]) {
-            tmp = strlen(new_val);
+        if(new_val_copy) { /* replace token value with new_val_copy */
+          if(new_val_copy[0]) {
+            tmp = strlen(new_val_copy);
           } else {
-            new_val = "\"\"";
+            new_val_copy = "\"\"";
             tmp = 2;
           }
           STR_ALLOC(&result, tmp + result_pos, &size);
-          memcpy(result + result_pos ,new_val, tmp + 1);
+          memcpy(result + result_pos ,new_val_copy, tmp + 1);
           result_pos += tmp;
           done_subst = 1;
         } else { /* remove token (and value if any) */
@@ -867,17 +912,18 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
     escape = (c=='\\' && !escape);
     if(c == '\0') break;
   }
-  if(!done_subst) { /* if tok not found add tok=new_value at end */
+  if(!done_subst) { /* if tok not found add tok=new_val_copy at end */
     if(result_pos == 0 ) result_pos = 1; /* result="" */
-    if(new_val) {
-      if(!new_val[0]) new_val = "\"\"";
-      tmp = strlen(new_val) + strlen(tok) + 2;
+    if(new_val_copy) {
+      if(!new_val_copy[0]) new_val_copy = "\"\"";
+      tmp = strlen(new_val_copy) + strlen(tok) + 2;
       STR_ALLOC(&result, tmp + result_pos, &size);
-      my_snprintf(result + result_pos - 1, size, " %s=%s", tok, new_val ); /* result_pos guaranteed to be > 0 */
+      my_snprintf(result + result_pos - 1, size, " %s=%s", tok, new_val_copy ); /* result_pos guaranteed to be > 0 */
     }
   }
   dbg(2, "subst_token(): returning: %s\n",result);
   my_free(990, &token);
+  my_free(1209, &new_val_copy);
   return result;
 }
 
@@ -1611,7 +1657,6 @@ void print_spice_element(FILE *fd, int inst)
 
         if (!(strcmp(token+1,"name") && strcmp(token+1,"lab"))  /* expand name/labels */
               && ((lab = expandlabel(value, &tmp)) != NULL)) {
-
           tmp = strlen(lab) +100 ; /* always make room for some extra chars 
                                     * so 1-char writes to result do not need reallocs */
           STR_ALLOC(&result, tmp + result_pos, &size);
