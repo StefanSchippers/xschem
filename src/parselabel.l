@@ -146,13 +146,13 @@ LAB [-a-zA-Z_%$~"#/\\<>]
   /* includes numbers */
 LAB_NUM [-a-zA-Z_%$~"#/\\<>0-9]
   /* includes numbers and space and *+(). */
-IDX_LAB_NUM_SP [-a-zA-Z_%$~"#/\\<> \t0-9*+().]
+IDX_LAB_NUM_SP [-a-zA-Z_%$~"#/\\<> \t\n0-9*+().]
   /* identifier, may start with a number */
 IDX_ID_N ({LAB_NUM}+({IDX_LAB_NUM_SP}*{LAB_NUM})*)
   /* identifier, not starting with a number */
 IDX_ID (("("|{LAB})+{IDX_LAB_NUM_SP}*)
   /* includes numbers and space and +().  and :*/
-LAB_NUM_SP [-a-zA-Z_%$~"#:/\\<> \t0-9+().]
+LAB_NUM_SP [-a-zA-Z_%$~"#:/\\<> \t\n0-9+().]
   /* identifier, may start with a number */
 ID_NUM ({LAB_NUM}+({LAB_NUM_SP}*{LAB_NUM})*)
   /* identifier, not starting with a number */

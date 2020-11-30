@@ -1,10 +1,23 @@
-v {xschem version=2.9.5_RC6 file_version=1.1}
-G {type=nand
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=nand
 format="@name @pinlist @value"
 verilog_format="nand #(@risedel , @falldel ) @name ( @#2 , @#0 , @#1 );"
+risedel=100
+falldel=200 
+
 tedax_format="footprint @name @footprint
-device @name @symname"
-template="name=U1 footprint=\\"dip(14)\\" risedel=100 falldel=200 numslots=4 power=VCC ground=GND"
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=U1 footprint=\\"dip(14)\\" 
+numslots=4 
+power=VCC 
+ground=GND"
+
 extra="power ground"
 extra_pinnumber="14 7"}
 V {}
