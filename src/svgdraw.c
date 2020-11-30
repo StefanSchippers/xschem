@@ -44,10 +44,11 @@ static void svg_restore_lw(void)
    svg_linew = xctx->lw*1.2;
 }
 
-static void svg_xdrawline(int layer, double x1, double y1, double x2, double y2, int dash)
+static void svg_xdrawline(int layer, int bus, double x1, double y1, double x2, double y2, int dash)
 {
  fprintf(fd,"<path class=\"l%d\" ", layer);
  if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
+ if(bus) fprintf(fd, "style=\"stroke-width:%g;\" ", BUS_WIDTH * svg_linew);
  fprintf(fd,"d=\"M%g %gL%g %g\"/>\n", x1, y1, x2, y2);
 }
 
@@ -167,7 +168,7 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
 }
 
 
-static void svg_drawline(int gc, double linex1,double liney1,double linex2,double liney2, int dash)
+static void svg_drawline(int gc, int bus, double linex1,double liney1,double linex2,double liney2, int dash)
 {
  double x1,y1,x2,y2;
 
@@ -177,7 +178,7 @@ static void svg_drawline(int gc, double linex1,double liney1,double linex2,doubl
   y2=Y_TO_SVG(liney2);
   if( clip(&x1,&y1,&x2,&y2) )
   {
-   svg_xdrawline(gc, x1, y1, x2, y2, dash);
+   svg_xdrawline(gc, bus, x1, y1, x2, y2, dash);
   }
 }
 
@@ -345,7 +346,7 @@ static void old_svg_draw_string(int layer, const char *str,
    ROTATION(rot, flip, x,y,curr_x1,curr_y1,rx1,ry1);
    ROTATION(rot, flip, x,y,curr_x2,curr_y2,rx2,ry2);
    ORDER(rx1,ry1,rx2,ry2);
-   svg_drawline(layer,  rx1, ry1, rx2, ry2, 0);
+   svg_drawline(layer, 0, rx1, ry1, rx2, ry2, 0);
   }
   pos++;
  }
@@ -362,18 +363,18 @@ static void svg_drawgrid()
  x = xctx->xorigin* xctx->mooz;y = xctx->yorigin* xctx->mooz;
  if(y>areay1 && y<areay2)
  {
-  svg_xdrawline(GRIDLAYER,areax1+1,(int)y, areax2-1, (int)y, 0);
+  svg_xdrawline(GRIDLAYER, 0, areax1+1,(int)y, areax2-1, (int)y, 0);
  }
  if(x>areax1 && x<areax2)
  {
-  svg_xdrawline(GRIDLAYER,(int)x,areay1+1, (int)x, areay2-1, 0);
+  svg_xdrawline(GRIDLAYER, 0, (int)x,areay1+1, (int)x, areay2-1, 0);
  }
  tmp = floor((areay1+1)/delta)*delta-fmod(-xctx->yorigin* xctx->mooz,delta);
  for(x=floor((areax1+1)/delta)*delta-fmod(-xctx->xorigin* xctx->mooz,delta);x<areax2;x+=delta)
  {
   for(y=tmp;y<areay2;y+=delta)
   {
-   svg_xdrawpoint(GRIDLAYER,(int)(x), (int)(y));
+   svg_xdrawpoint(GRIDLAYER, (int)(x), (int)(y));
   }
  }
 }
@@ -432,7 +433,7 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
     ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
     ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
     ORDER(x1,y1,x2,y2);
-    svg_drawline(layer, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
+    svg_drawline(layer, line.bus, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
    }
 
    for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->polygons[layer];j++)
@@ -677,7 +678,7 @@ void svg_draw(void)
    for(c=0;c<cadlayers;c++)
    {
     for(i=0;i<xctx->lines[c];i++)
-     svg_drawline(c, xctx->line[c][i].x1, xctx->line[c][i].y1,
+     svg_drawline(c, xctx->line[c][i].bus, xctx->line[c][i].x1, xctx->line[c][i].y1,
                      xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
     for(i=0;i<xctx->rects[c];i++)
     {
@@ -701,7 +702,7 @@ void svg_draw(void)
 
    for(i=0;i<xctx->wires;i++)
    {
-      svg_drawline(WIRELAYER, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
+      svg_drawline(WIRELAYER, xctx->wire[i].bus, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
    }
    {
      double x1, y1, x2, y2;
