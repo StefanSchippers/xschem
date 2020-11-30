@@ -495,19 +495,25 @@ static void load_text(FILE *fd)
 
 static void load_wire(FILE *fd)
 {
+    xWire *ptr;
+    int i;
 
-    double x1,y1,x2,y2;
-    char *ptr=NULL;
+    check_wire_storage();
+    ptr = xctx->wire;
+    i = xctx->wires;
     dbg(3, "load_wire(): start\n");
-    if(fscanf(fd, "%lf %lf %lf %lf",&x1, &y1, &x2, &y2 )<4) {
+    if(fscanf(fd, "%lf %lf %lf %lf",&ptr[i].x1, &ptr[i].y1, &ptr[i].x2, &ptr[i].y2 )<4) {
       fprintf(errfp,"WARNING:  missing fields for WIRE object, ignoring\n");
       read_line(fd, 0);
-    } else {
-      load_ascii_string( &ptr, fd);
-      ORDER(x1, y1, x2, y2);
-      storeobject(-1, x1,y1,x2,y2,WIRE,0,0,ptr);
+      return;
     }
-    my_free(883, &ptr);
+    ptr[i].prop_ptr = NULL;
+    ptr[i].end1 = ptr[i].end2 = ptr[i].bus = ptr[i].sel = 0;
+    load_ascii_string( &ptr[i].prop_ptr, fd);
+    ORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
+    if(!strcmp(get_tok_value(ptr[i].prop_ptr, "bus", 0), "true") ) ptr[i].bus = 1;
+    ptr[i].node = NULL;
+    xctx->wires++;
 }
 
 static void load_inst(int k, FILE *fd)
@@ -701,8 +707,7 @@ static void load_line(FILE *fd)
     check_line_storage(c);
     i=xctx->lines[c];
     ptr=xctx->line[c];
-    if(fscanf(fd, "%lf %lf %lf %lf ",&ptr[i].x1, &ptr[i].y1,
-       &ptr[i].x2, &ptr[i].y2) < 4) {
+    if(fscanf(fd, "%lf %lf %lf %lf ",&ptr[i].x1, &ptr[i].y1, &ptr[i].x2, &ptr[i].y2) < 4) {
       fprintf(errfp,"WARNING:  missing fields for LINE object, ignoring\n");
       read_line(fd, 0);
       return;

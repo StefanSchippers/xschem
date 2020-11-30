@@ -34,6 +34,7 @@ void set_modify(int mod)
 {
   static int prev = -1;
   modified = mod;
+  dbg(1, "set_modify(): %d\n", mod);
   if(mod != prev) {
     prev = mod;
     if(has_x && strcmp(get_cell(xctx->sch[xctx->currsch],1), "systemlib/font")) {
