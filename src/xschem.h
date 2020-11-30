@@ -1016,6 +1016,7 @@ extern void check_arc_storage(int c);
 extern void check_line_storage(int c);
 extern void check_polygon_storage(int c);
 extern const char *expandlabel(const char *s, int *m);
+extern void parse(const char *s);
 extern void clear_expandlabel_data(void);
 extern void merge_inst(int k, FILE *fd);
 extern void merge_file(int selection_load, const char ext[]);

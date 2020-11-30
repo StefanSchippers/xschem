@@ -22,6 +22,11 @@
 
 #include "xschem.h"
 
+extern char yytext[];
+extern int yylex (void);
+typedef struct yy_buffer_state *YY_BUFFER_STATE;
+YY_BUFFER_STATE yy_scan_string ( const char *yy_str  );
+
 void statusmsg(char str[],int n)
 {
  static char s[2048];
@@ -1740,6 +1745,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    }
  }
 
+ else if(argc == 3 && !strcmp(argv[1],"parselabel"))  {
+   parse( argv[2]);
+ }
  else if(argc == 3 && !strcmp(argv[1],"expandlabel"))  {
    int tmp, llen;
    char *result=NULL;

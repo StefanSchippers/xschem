@@ -32,7 +32,7 @@
 
 #define CAD_SPICE_NETLIST 1
 
-int dbg_var = 0;
+int dbg_var = 3;
 extern int netlist_type;
 extern int has_x;
 extern FILE *errfp;
@@ -57,9 +57,9 @@ typedef struct          /* used in expandlabel.y */
 
 Stringptr dest_string={NULL,0};  /*19102004; */
 
-static int bracket=0;
 extern int yyparse(void) ;
 extern int yyparse_error;
+extern int yylex();
 
 void clear_expandlabel_data(void)
 {
@@ -79,6 +79,16 @@ void strreplace(char s[], char chr, char repl_chr)
      }
 }
 
+void parse(const char *s)
+{
+  YY_BUFFER_STATE buf;
+  buf=yy_scan_string(s);
+  while(yylex()){
+    fprintf(errfp, "token:|%s|\n", yytext);
+  }
+  yy_delete_buffer(buf);
+}
+
 const char *expandlabel(const char *s, int *m)
 {
  YY_BUFFER_STATE buf;
@@ -86,7 +96,6 @@ const char *expandlabel(const char *s, int *m)
 
  if(dbg_var >= 3) fprintf(errfp, "expandlabel(): entering\n");
  buf=yy_scan_string(s);
- bracket=0;
  yyparse();
  yy_delete_buffer(buf);
  if(yyparse_error==1) {
@@ -125,131 +134,161 @@ const char *expandlabel(const char *s, int *m)
    Lexical analyzer
 */
 
-%x net_label
-%x next_to_alias
-%x rest
+%x index
+%x mult
 
-
-ID [-#+_\\/=a-zA-Z0-9]*[-#@+_\\/=a-zA-Z]+[-#@+_\\/=a-zA-Z0-9]*
-ID_NUM [-#+_\\/=a-zA-Z0-9]+
-
-ID_EXT            ([-~#+/=_a-zA-Z][-~#@\\/ :.=_+a-zA-Z0-9]*)|([-~#+/.=_a-zA-Z][-~#@\\/ :=_+a-zA-Z0-9]*)
-ID_EXT_PARENTHESIS [-~#+/=_a-zA-Z][-#@\\/:.=_+a-zA-Z0-9]*\([-#@\\/:.=_+a-zA-Z0-9]*\)
+SP [ \t]*
+INT [0-9]+
+DDOT {SP}".."{SP}
+CLN {SP}":"{SP}
+LAB [-a-zA-Z_%$~#/\\<>]
+  /* includes numbers */
+LAB_NUM [-a-zA-Z_%$~#/\\<>0-9]
+  /* includes numbers and space and *+(). */
+IDX_LAB_NUM_SP [-a-zA-Z_%$~#/\\<> \t0-9*+().]
+  /* identifier, may start with a number */
+IDX_ID_NUM ({LAB_NUM}+({IDX_LAB_NUM_SP}*{LAB_NUM})*)
+  /* identifier, not starting with a number */
+IDX_ID (("("|{LAB})+{IDX_LAB_NUM_SP}*)
+  /* includes numbers and space and +(). */
+LAB_NUM_SP [-a-zA-Z_%$~#/\\<> \t0-9+().]
+  /* identifier, may start with a number */
+ID_NUM ({LAB_NUM}+({LAB_NUM_SP}*{LAB_NUM})*)
+  /* identifier, not starting with a number */
+ID (("("|{LAB})+{LAB_NUM_SP}*)
+  /* ~#diUV=9_(\#-hgvUY=) */
+ID_EXT_PARENTHESIS ([-~#+/=_a-zA-Z][-#@\\/:.=_+a-zA-Z0-9]*\([-#@\\/:.=_+a-zA-Z0-9]*\))
 
 %%
-^(alias|ipin|iopin|opin)[+ \n]+[^+\n ]+/[\n +]+ { 
-                          yylval.ptr.str=NULL; /*19102004 */
-       			  /* these things are freed after use in expandlabel.y */
-			  my_strdup(298, &yylval.ptr.str, yytext);
-                          BEGIN(next_to_alias);
-			  if(dbg_var >= 3) fprintf(errfp, "yylex(): alias, yytext = %s\n", yytext);
-                          return B_LINE;
-                        }
-<next_to_alias>[\n +]+  {       /* get all white space and return a single separator */
-                          BEGIN(net_label);
-			  if(dbg_var >= 3) fprintf(errfp, "yylex(): next_to_alias, yytext = %s\n", yytext);
-                          yylval.val=yytext[0];
-                          return B_CAR;
-                        }
-^[^*]                   {
+  /* this action resets initial condition at start of line. This is extremely useful if previously lexer
+   * bailed out in the middle of some non INITIAL start condition due to yyparse() syntax errors */
+<mult,index>^.           {
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): matched: ^[^*] |%s|, push back\n",yytext);
                           yyless(0);    /* push entire token back to input */
-                          BEGIN(net_label); /* we know that a label follows. */
-                                       /* so go and process it. */
-                        }
-^\*.*                   {              /* a comment, return as LINE token */
-                          yylval.ptr.str=NULL; /*19102004 */
-                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_LINE: %s\n",yytext);
-                          my_strdup(299, &yylval.ptr.str, yytext); /* freed after use in expandlabel.y */
-                          return B_LINE;
-                        }
-<net_label>{
+                          BEGIN(INITIAL); /* reset parser */
+                         }
 
-[ \n]+                  {       /* this ends the <net_label> start condition */
-                          BEGIN(rest);
-                          yylval.val=yytext[0];
-                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_CAR: %s\n",yytext);
-                          return B_CAR;
+<mult>{
+  /* postfix multiplier */
+{INT}                   {
+                          sscanf(yytext, "%d",&yylval.val);
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): postmult B_NUM: |%s|\n", yytext);
+                          BEGIN(INITIAL);
+                          return B_NUM;
                         }
-\.\.                    {
-                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_DOUBLEDOT: %s\n", yytext);
+}  /* end <mult> */
+
+  /* node indexes: "3:2" "5:1:2" "5..1" "7..1..2" "b:a" "c:b:a" .... */
+<index>{
+{INT}                   {
+                          sscanf(yytext, "%d",&yylval.val);
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_IDXNUM: |%s|\n", yytext);
+                          return B_IDXNUM;
+                        }
+{SP}\.\.{SP}            {
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_DOUBLEDOT: |%s|\n", yytext);
                           return B_DOUBLEDOT;
                         }
-[0-9]+{ID_EXT} {
-                          yylval.ptr.str=NULL;
-                          my_strdup(452, &yylval.ptr.str, yytext);
-                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME 3: %s\n", yytext);
-                          return B_NAME;
+  /* end vector node index "...]" */
+\]                      {
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): close bracket: %s\n", yytext);
+                          BEGIN(INITIAL);
+                          return yytext[0];
                         }
-
+[^ ]                    {
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): idx character: |%s|\n", yytext);
+                          return yytext[0];
+                        }
   /* recognize AA[aa:bb:33] or AA[33:cc:dd] or AA[aa..bb..11] .... */
-({ID}\.\.{ID_NUM}\.\.{ID_NUM})|({ID_NUM}\.\.{ID}\.\.{ID_NUM})|({ID_NUM}\.\.{ID_NUM}\.\.{ID}) {
+({IDX_ID}{DDOT}{IDX_ID_NUM}{DDOT}{IDX_ID_NUM})|({IDX_ID_NUM}{DDOT}{IDX_ID}{DDOT}{IDX_ID_NUM})|({IDX_ID_NUM}{DDOT}{IDX_ID_NUM}{DDOT}{IDX_ID}) {
                           yylval.ptr.str=NULL;
                           my_strdup(428, &yylval.ptr.str, yytext);
-                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME 2: %s\n", yytext);
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME3: |%s|\n", yytext);
                           return B_NAME;
                         }
 
-({ID}:{ID_NUM}:{ID_NUM})|({ID_NUM}:{ID}:{ID_NUM})|({ID_NUM}:{ID_NUM}:{ID}) {
+({IDX_ID}{CLN}{IDX_ID_NUM}{CLN}{IDX_ID_NUM})|({IDX_ID_NUM}{CLN}{IDX_ID}{CLN}{IDX_ID_NUM})|({IDX_ID_NUM}{CLN}{IDX_ID_NUM}{CLN}{IDX_ID}) {
                           yylval.ptr.str=NULL;
                           my_strdup(430, &yylval.ptr.str, yytext);
-                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME 2: %s\n", yytext);
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME2: |%s|\n", yytext);
                           return B_NAME;
                         }
 
   /* recognize AA[width-1:0], AA[0:width-1], AA[width-1..4], AA[3..width+3], AA[aa:bb] AA[aa..bb] */
-({ID}:{ID_NUM})|({ID_NUM}:{ID})|({ID}\.\.{ID_NUM})|({ID_NUM}\.\.{ID}) {
+({IDX_ID}{CLN}{IDX_ID_NUM})|({IDX_ID_NUM}{CLN}{IDX_ID})|({IDX_ID}{DDOT}{IDX_ID_NUM})|({IDX_ID_NUM}{DDOT}{IDX_ID}) {
                           yylval.ptr.str=NULL;
                           my_strdup(92, &yylval.ptr.str, yytext);
-                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME 1: %s\n", yytext);
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME1: |%s|\n", yytext);
                           return B_NAME;
                         }
+}  /* end <index> */
 
-[0-9]+                  {
-                          sscanf(yytext, "%d",&yylval.val);
-                          if(bracket) {
-                            if(dbg_var >= 3) fprintf(errfp, "yylex(): B_IDXNUM: %s\n", yytext);
-                            return B_IDXNUM;
-                          }
-                          else {
-                            if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NUM: %s\n", yytext);
-                            return B_NUM;
-                          }
-                        }
-
-                        /* recognize the most esotheric identifiers */
-{ID_EXT}|{ID_EXT_PARENTHESIS} {
-                          yylval.ptr.str=NULL;/*19102004 */
-                          my_strdup(300, &yylval.ptr.str, yytext); /* freed after use in expandlabel.y */
-                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME: %s\n", yytext);
-                          return B_NAME;
-                        }
-\[                      {
-                          bracket++;
-                          if(dbg_var >= 3) fprintf(errfp, "yylex(): open bracket: %s\n", yytext);
-                          return yytext[0];
-                        }
-\]                      {
-                          bracket--;
-                          if(dbg_var >= 3) fprintf(errfp, "yylex(): close bracket: %s\n", yytext);
-                          return yytext[0];
-                        }
-[^ ]                    {
-                          if(dbg_var >= 3) fprintf(errfp, "yylex(): returning character: %s\n", yytext);
-                          return yytext[0];
-                        }
-} /* end <net_label> */
-
-<rest>{                 /* treat rest of line as a single LINE token */
-(.|\n)*                 {
+  /* a comment, return as LINE token */
+^\*.*                   {
                           yylval.ptr.str=NULL; /*19102004 */
-                          my_strdup(301, &yylval.ptr.str, yytext); /* freed after use in expandlabel.y */
-                          if(dbg_var >= 3) fprintf(errfp, "yylex(): <rest> B_LINE: %s\n",yytext);
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_LINE: |%s|\n",yytext);
+                          my_strdup(299, &yylval.ptr.str, yytext); /* freed after use in expandlabel.y */
                           BEGIN(INITIAL);
                           return B_LINE;
                         }
+  /* prefix multiplier */
+{INT}/{SP}\*{SP}        {
+                          sscanf(yytext, "%d",&yylval.val);
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): premult B_NUM: |%s|\n", yytext);
+                          BEGIN(INITIAL);
+                          return B_NUM;
+                        }
+  /* a number: if not a multiplier nor a node index return as a node name */
+{INT}                   {
+                          yylval.ptr.str=NULL;
+                          my_strdup(120, &yylval.ptr.str, yytext);
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME4: |%s|\n", yytext);
+                          BEGIN(INITIAL);
+                          return B_NAME;
+                        }
+{SP}                    {
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): skipping: |%s|\n", yytext);
+                        }
+  /* comma separator between nodes: chop spaces "a,b ,  c" */
+{SP},{SP}               {
+                          yylval.val=',';
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): comma: |%s|\n", yytext);
+                          BEGIN(INITIAL);
+                          return ',';
+                        }
 
-} /* end rest */
+  /* recognize the most esotheric identifiers */
+{ID_NUM}|{ID_EXT_PARENTHESIS} {
+                          yylval.ptr.str=NULL;/*19102004 */
+                          my_strdup(300, &yylval.ptr.str, yytext); /* freed after use in expandlabel.y */
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME0: |%s|\n", yytext);
+                          BEGIN(INITIAL);
+                          return B_NAME;
+                        }
+  /* start vector node index: "aa[" */
+\[                      {
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): open bracket: %s\n", yytext);
+                          BEGIN(index);
+                          return yytext[0];
+                        }
+  /* "*(aa,bb,cc)" or "*aaa" prefix multiplication*/
+{SP}\*{SP}/({ID}|[(])   {
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): pre *: |%s|\n", yytext);
+                          BEGIN(INITIAL);
+                          return '*';
+                        }
+  /* "*16" postfix multiplication */
+{SP}\*{SP}/{INT}        {
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): post *: |%s|\n", yytext);
+                          BEGIN(mult);
+                          return '*';
+                        }
+[^ ]                    {
+                          if(dbg_var >= 3) fprintf(errfp, "yylex(): character: |%s|\n", yytext);
+                          BEGIN(INITIAL);
+                          return yytext[0];
+                        }
+
 <*><<EOF>>              {
                           BEGIN(INITIAL);
                           return 0;
