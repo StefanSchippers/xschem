@@ -32,7 +32,7 @@
 
 #define CAD_SPICE_NETLIST 1
 
-int dbg_var = 3;
+int dbg_var = 0;
 extern int netlist_type;
 extern int has_x;
 extern FILE *errfp;
@@ -141,23 +141,23 @@ SP [ \t]*
 INT [0-9]+
 DDOT {SP}".."{SP}
 CLN {SP}":"{SP}
-LAB [-a-zA-Z_%$~#/\\<>]
+LAB [-a-zA-Z_%$~"#/\\<>]
   /* includes numbers */
-LAB_NUM [-a-zA-Z_%$~#/\\<>0-9]
+LAB_NUM [-a-zA-Z_%$~"#/\\<>0-9]
   /* includes numbers and space and *+(). */
-IDX_LAB_NUM_SP [-a-zA-Z_%$~#/\\<> \t0-9*+().]
+IDX_LAB_NUM_SP [-a-zA-Z_%$~"#/\\<> \t0-9*+().]
   /* identifier, may start with a number */
-IDX_ID_NUM ({LAB_NUM}+({IDX_LAB_NUM_SP}*{LAB_NUM})*)
+IDX_ID_N ({LAB_NUM}+({IDX_LAB_NUM_SP}*{LAB_NUM})*)
   /* identifier, not starting with a number */
 IDX_ID (("("|{LAB})+{IDX_LAB_NUM_SP}*)
   /* includes numbers and space and +(). */
-LAB_NUM_SP [-a-zA-Z_%$~#/\\<> \t0-9+().]
+LAB_NUM_SP [-a-zA-Z_%$~"#/\\<> \t0-9+().]
   /* identifier, may start with a number */
 ID_NUM ({LAB_NUM}+({LAB_NUM_SP}*{LAB_NUM})*)
   /* identifier, not starting with a number */
 ID (("("|{LAB})+{LAB_NUM_SP}*)
   /* ~#diUV=9_(\#-hgvUY=) */
-ID_EXT_PARENTHESIS ([-~#+/=_a-zA-Z][-#@\\/:.=_+a-zA-Z0-9]*\([-#@\\/:.=_+a-zA-Z0-9]*\))
+ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#@\\/:.=_+a-zA-Z0-9]*\([-~"#@\\/:.=_+a-zA-Z0-9]*\))
 
 %%
   /* this action resets initial condition at start of line. This is extremely useful if previously lexer
@@ -185,7 +185,7 @@ ID_EXT_PARENTHESIS ([-~#+/=_a-zA-Z][-#@\\/:.=_+a-zA-Z0-9]*\([-#@\\/:.=_+a-zA-Z0-
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): B_IDXNUM: |%s|\n", yytext);
                           return B_IDXNUM;
                         }
-{SP}\.\.{SP}            {
+{DDOT}                  {
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): B_DOUBLEDOT: |%s|\n", yytext);
                           return B_DOUBLEDOT;
                         }
@@ -200,14 +200,14 @@ ID_EXT_PARENTHESIS ([-~#+/=_a-zA-Z][-#@\\/:.=_+a-zA-Z0-9]*\([-#@\\/:.=_+a-zA-Z0-
                           return yytext[0];
                         }
   /* recognize AA[aa:bb:33] or AA[33:cc:dd] or AA[aa..bb..11] .... */
-({IDX_ID}{DDOT}{IDX_ID_NUM}{DDOT}{IDX_ID_NUM})|({IDX_ID_NUM}{DDOT}{IDX_ID}{DDOT}{IDX_ID_NUM})|({IDX_ID_NUM}{DDOT}{IDX_ID_NUM}{DDOT}{IDX_ID}) {
+({IDX_ID}{DDOT}{IDX_ID_N}{DDOT}{IDX_ID_N})|({IDX_ID_N}{DDOT}{IDX_ID}{DDOT}{IDX_ID_N})|({IDX_ID_N}{DDOT}{IDX_ID_N}{DDOT}{IDX_ID}) {
                           yylval.ptr.str=NULL;
                           my_strdup(428, &yylval.ptr.str, yytext);
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME3: |%s|\n", yytext);
                           return B_NAME;
                         }
 
-({IDX_ID}{CLN}{IDX_ID_NUM}{CLN}{IDX_ID_NUM})|({IDX_ID_NUM}{CLN}{IDX_ID}{CLN}{IDX_ID_NUM})|({IDX_ID_NUM}{CLN}{IDX_ID_NUM}{CLN}{IDX_ID}) {
+({IDX_ID}{CLN}{IDX_ID_N}{CLN}{IDX_ID_N})|({IDX_ID_N}{CLN}{IDX_ID}{CLN}{IDX_ID_N})|({IDX_ID_N}{CLN}{IDX_ID_N}{CLN}{IDX_ID}) {
                           yylval.ptr.str=NULL;
                           my_strdup(430, &yylval.ptr.str, yytext);
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME2: |%s|\n", yytext);
@@ -215,7 +215,7 @@ ID_EXT_PARENTHESIS ([-~#+/=_a-zA-Z][-#@\\/:.=_+a-zA-Z0-9]*\([-#@\\/:.=_+a-zA-Z0-
                         }
 
   /* recognize AA[width-1:0], AA[0:width-1], AA[width-1..4], AA[3..width+3], AA[aa:bb] AA[aa..bb] */
-({IDX_ID}{CLN}{IDX_ID_NUM})|({IDX_ID_NUM}{CLN}{IDX_ID})|({IDX_ID}{DDOT}{IDX_ID_NUM})|({IDX_ID_NUM}{DDOT}{IDX_ID}) {
+({IDX_ID}{CLN}{IDX_ID_N})|({IDX_ID_N}{CLN}{IDX_ID})|({IDX_ID}{DDOT}{IDX_ID_N})|({IDX_ID_N}{DDOT}{IDX_ID}) {
                           yylval.ptr.str=NULL;
                           my_strdup(92, &yylval.ptr.str, yytext);
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME1: |%s|\n", yytext);
