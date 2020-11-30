@@ -151,8 +151,8 @@ IDX_LAB_NUM_SP [-a-zA-Z_%$~"#/\\<> \t0-9*+().]
 IDX_ID_N ({LAB_NUM}+({IDX_LAB_NUM_SP}*{LAB_NUM})*)
   /* identifier, not starting with a number */
 IDX_ID (("("|{LAB})+{IDX_LAB_NUM_SP}*)
-  /* includes numbers and space and +(). */
-LAB_NUM_SP [-a-zA-Z_%$~"#/\\<> \t0-9+().]
+  /* includes numbers and space and +().  and :*/
+LAB_NUM_SP [-a-zA-Z_%$~"#:/\\<> \t0-9+().]
   /* identifier, may start with a number */
 ID_NUM ({LAB_NUM}+({LAB_NUM_SP}*{LAB_NUM})*)
   /* identifier, not starting with a number */
