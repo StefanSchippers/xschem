@@ -176,11 +176,13 @@ void update_symbol_bboxes(int rot, int flip)
   for(i=0;i<lastsel;i++)
   {
     n = selectedgroup[i].n;
+    dbg(0, "update_symbol_bboxes(): i=%d, lastsel=%d, n=%d\n", i, lastsel, n);
+    dbg(0, "update_symbol_bboxes(): symbol flip=%d, rot=%d\n",  xctx->inst[n].flip, xctx->inst[n].rot);
     if(selectedgroup[i].type == ELEMENT) {
       save_flip = xctx->inst[n].flip;
       save_rot = xctx->inst[n].rot;
       xctx->inst[n].flip = flip ^ xctx->inst[n].flip;
-      xctx->inst[n].rot = (xctx->inst[n].rot + ( flip && (xctx->inst[n].rot & 1) ) ? rot+2 : rot) &0x3;
+      xctx->inst[n].rot = (xctx->inst[n].rot + rot) & 0x3;
       symbol_bbox(n, &xctx->inst[n].x1, &xctx->inst[n].y1, &xctx->inst[n].x2, &xctx->inst[n].y2 );
       xctx->inst[n].rot = save_rot;
       xctx->inst[n].flip = save_flip;
@@ -535,7 +537,7 @@ void copy_objects(int what)
   my_strdup(225, &str, user_conf_dir);
   my_strcat(226, &str, "/.selection.sch");
   xunlink(str);
-  update_symbol_bboxes(move_rot, move_flip);
+  update_symbol_bboxes(0, 0);
   my_free(818, &str);
  }
  if(what & RUBBER)                              /* draw objects while moving */
@@ -1036,6 +1038,7 @@ void move_objects(int what, int merge, double dx, double dy)
  {
   int firsti, firstw;
   int save_draw;
+
   save_draw = draw_window;
   draw_window=1; /* temporarily re-enable draw to window together with pixmap */
   draw_selection(gctiled,0);
