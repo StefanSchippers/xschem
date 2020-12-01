@@ -1505,8 +1505,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
 #ifdef __unix__
     if(filename[0] == '~' && filename[1] == '/') {
-      here();
       my_snprintf(f, S(f), "%s%s", home_dir, filename + 1);
+    } else if(filename[0] == '.' && filename[1] == '/') {
+      my_snprintf(f, S(f), "%s%s", pwd_dir, filename + 1);
     } else if(filename[0] !='/') {
       my_snprintf(f, S(f), "%s/%s", pwd_dir, filename);
     } else {
