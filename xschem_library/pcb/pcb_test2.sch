@@ -1,12 +1,13 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=2.9.8 file_version=1.2}
 G {}
+K {}
 V {}
 S {}
 E {}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan"}
-C {74ls00-2.sym} 320 -280 0 0 {name=U\\ 5:3
+C {74ls00-2.sym} 320 -280 0 0 {name=U\\\\\\ 5:3
 url="http://www.engrcs.com/components/74LS00.pdf"}
-C {74ls00-2.sym} 230 -450 0 0 {name=U\\ 5:1
+C {74ls00-2.sym} 230 -450 0 0 {name=U\\\\\\ 5:1 pippo=ccc\\ ddd
 url="http://www.engrcs.com/components/74LS00.pdf"
 }
 C {lab_pin.sym} 280 -300 0 0 {name=p1 lab=U51_A}

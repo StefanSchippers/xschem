@@ -493,20 +493,12 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
         get_tok_value_size = 0;
         return result;
       }
-      if(c=='"') {
-        if((with_quotes & 1) || escape)  token[token_pos++]=c;
-      }
-      /* skip unescaped backslashes */
-      else if( escape || c != '\\' ) token[token_pos++]=c;
-    } else if(state==TOK_VALUE) {
-      if(c=='"') {
-        if((with_quotes & 1) || escape)  result[value_pos++]=c;
-      }
-      /* skip unescaped backslashes */
-      else if( escape || c != '\\' ) result[value_pos++]=c;
-    } else if(state==TOK_ENDTOK || state==TOK_SEP) {
+      if(with_quotes || escape || (c != '\\' && c != '"')) token[token_pos++]=c;
+    } else if(state == TOK_VALUE) {
+      if(with_quotes || escape || (c != '\\' && c != '"')) result[value_pos++]=c;
+    } else if(state == TOK_ENDTOK || state == TOK_SEP) {
         if(token_pos) {
-          token[token_pos]='\0';
+          token[token_pos] = '\0';
           if( !(cmp = strcmp(token,tok)) ) {
             /* report back also token size, useful to check if requested token exists */
             get_tok_size = token_pos;
@@ -791,15 +783,15 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
     my_strdup2(458, &result, s);
     return result;
   }
-  /* quote new_val if it contains newlines */
+  /* quote new_val if it contains newlines and not "name" token */
   if(new_val) {
     new_val_len = strlen(new_val);
-    if(!is_quoted(new_val) && strpbrk(new_val, "\n \t")) {
+    if(strcmp(tok, "name") && !is_quoted(new_val) && strpbrk(new_val, "\n \t")) {
       new_val_copy = my_malloc(1210, new_val_len+3);
       my_snprintf(new_val_copy, new_val_len+3, "\"%s\"", new_val);
-     }
-     else my_strdup(1212, &new_val_copy, new_val);
-   } else new_val_copy = NULL;
+    }
+    else my_strdup(1212, &new_val_copy, new_val);
+  } else new_val_copy = NULL;
   dbg(1, "subst_token(): %s, %s, %s\n", s, tok, new_val);
   sizetok = size = CADCHUNKALLOC;
   my_realloc(1152, &result, size);

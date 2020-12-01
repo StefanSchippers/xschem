@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
-G {type=nand
+v {xschem version=2.9.8 file_version=1.2}
+G {}
+K {type=nand
 verilog_format="nand #(@risedel , @falldel ) @name ( @#2 , @#0 , @#1 );"
 format="@name @pinlist @symname"
 tedax_format="footprint @name @footprint
