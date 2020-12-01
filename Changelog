@@ -1,4 +1,18 @@
 2.9.8:
+- ERC checks: do sch/sym node equivalence check on expandlabel()'ed nodes,
+  avoid flagging DATA[5,3,1] != DATA[5:1:2] != DATA[5],DATA[3],DATA[1]
+- bounding box fix while copying objects done in r1224 was not correct. Object rotation fixed now
+- allow spaces in bussed nodes (A B,CC,D\ C, A B[3:0]),
+- switch LC_ALL to "C" locale to avoid output file format issues in foreign 
+  localized systems. 
+- various commands for schematic backannotation:
+  Added various procedures to select flat / hierarchical instances and re-route
+  a terminal to a different net. 
+  reroute_inst -> change a pin connection, 
+  reroute_net -> change net updating all connected components.
+  "xschem instances_to_net", "xschem instance_nodemap", "xschem instance_pin_coord" 
+  new query commands added. "xschem get expandlabel node" renamed to "xschem expandlabel node".
+- allow tEDAx (flattened) netlisting of hierarchical schematics
 - allow tcleval(...) in instance attributes , example for a for a 
   MOS: W=2 L=0.13 AD="tcleva([expr @W*0.29])" 
 - svg export uses true fonts (svg <text> element) 
