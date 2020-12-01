@@ -1032,7 +1032,7 @@ int sym_vs_sch_pins()
 {
   char **lab_array =NULL;
   int lab_array_size = 0;
-  int i, j, k, symbol, n_syms, rects, pin_cnt=0, pin_match;
+  int i, j, k, symbol, n_syms, rects, pin_cnt=0, pin_match, mult;
   struct stat buf;
   char name[PATH_MAX];
   char *type = NULL;
@@ -1140,7 +1140,7 @@ int sym_vs_sch_pins()
               symbol = match_symbol(name);
               my_strdup(276, &type, xctx->sym[symbol].type);
               if(type && IS_PIN(type)) {
-                my_strdup(292, &lab, get_tok_value(tmp, "lab", 0));
+                my_strdup(292, &lab, expandlabel(get_tok_value(tmp, "lab", 0), &mult));
                 if(pin_cnt >= lab_array_size) {
                   lab_array_size += CADCHUNKALLOC;
                   my_realloc(154, &lab_array, lab_array_size * sizeof(char *));
@@ -1150,7 +1150,8 @@ int sym_vs_sch_pins()
                 pin_cnt++;
                 pin_match = 0;
                 for(j=0; j < rects; j++) {
-                  my_strdup(293, &pin_name, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0));
+                  my_strdup(293, &pin_name, 
+                    expandlabel(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0), &mult));
                   my_strdup(294, &pin_dir, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "dir", 0));
                   if( pin_name && !strcmp(pin_name, lab)) {
                     if(!(
@@ -1223,7 +1224,8 @@ int sym_vs_sch_pins()
           }
         }
         for(j=0; j < rects; j++) {
-          my_strdup(295, &pin_name, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0));
+          my_strdup(295, &pin_name,
+             expandlabel(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0), &mult));
           pin_match = 0;
           for(k=0; k<pin_cnt; k++) {
             if(pin_name && !strcmp(lab_array[k], pin_name)) {
