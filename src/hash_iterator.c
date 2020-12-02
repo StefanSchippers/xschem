@@ -50,7 +50,7 @@ void init_inst_iterator(double x1, double y1, double x2, double y2)
       tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
       counti=0;
       /* printf("init_inst_iterator(): tmpi=%d, tmpj=%d\n", tmpi, tmpj); */
-      instanceptr=insttable[tmpi][tmpj];
+      instanceptr=xctx->insttable[tmpi][tmpj];
       countj=0;
 }
 
@@ -73,7 +73,7 @@ struct instentry *inst_iterator_next()
       /* printf("inst_iterator_next(): j=%d\n", j); */
       tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
       /* printf("j inst_iterator_next(): tmpi=%d tmpj=%d\n", tmpi, tmpj); */
-      instanceptr=insttable[tmpi][tmpj];
+      instanceptr=xctx->insttable[tmpi][tmpj];
     } else if(i<x2a && counti++<NBOXES) {
       i++;
       j=y1a;
@@ -81,7 +81,7 @@ struct instentry *inst_iterator_next()
       tmpi=i%NBOXES; if(tmpi<0) tmpi+=NBOXES;
       tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
       /* printf("i inst_iterator_next(): tmpi=%d tmpj=%d\n", tmpi, tmpj); */
-      instanceptr=insttable[tmpi][tmpj];
+      instanceptr=xctx->insttable[tmpi][tmpj];
     } else {
       my_free(753, &instflag);
       return NULL;
@@ -108,7 +108,7 @@ void init_wire_iterator(double x1, double y1, double x2, double y2)
       tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
       counti=0;
       /* printf("init_inst_iterator(): tmpi=%d, tmpj=%d\n", tmpi, tmpj); */
-      wireptr=wiretable[tmpi][tmpj];
+      wireptr=xctx->wiretable[tmpi][tmpj];
       countj=0;
 }
 
@@ -129,14 +129,14 @@ struct wireentry *wire_iterator_next()
     if(j<y2a && countj++<NBOXES) {
       j++;
       tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
-      wireptr=wiretable[tmpi][tmpj];
+      wireptr=xctx->wiretable[tmpi][tmpj];
     } else if(i<x2a && counti++<NBOXES) {
       i++;
       j=y1a;
       countj=0;
       tmpi=i%NBOXES; if(tmpi<0) tmpi+=NBOXES;
       tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
-      wireptr=wiretable[tmpi][tmpj];
+      wireptr=xctx->wiretable[tmpi][tmpj];
     } else {
       my_free(754, &wireflag);
       return NULL;

@@ -38,7 +38,7 @@ extern int has_x;
 extern FILE *errfp;
 extern size_t my_strdup(int id, char **dest, const char *src);
 extern void my_free(int id, void *ptr);
-extern char bus_replacement_char[];
+extern char bus_char[];
 extern const char *tcleval(const char str[]);
 extern void *my_malloc(int id, size_t size);
 extern int  my_snprintf(char *str, int size, const char *fmt, ...);
@@ -118,9 +118,9 @@ const char *expandlabel(const char *s, int *m)
  else
     *m=-1;
  if(dest_string.str) {
-   if(netlist_type == CAD_SPICE_NETLIST && bus_replacement_char[0]) {
-     strreplace(dest_string.str, '[', bus_replacement_char[0]);
-     strreplace(dest_string.str, ']', bus_replacement_char[1]);
+   if(netlist_type == CAD_SPICE_NETLIST && bus_char[0] && bus_char[1]) {
+     strreplace(dest_string.str, '[', bus_char[0]);
+     strreplace(dest_string.str, ']', bus_char[1]);
    }
    return dest_string.str;
  } else {

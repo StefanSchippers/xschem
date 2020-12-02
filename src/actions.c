@@ -823,8 +823,8 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
        piny0 += y0;
 
        get_square(pinx0, piny0, &sqx, &sqy);
-       iptr=instpintable[sqx][sqy];
-       wptr=wiretable[sqx][sqy];
+       iptr=xctx->instpintable[sqx][sqy];
+       wptr=xctx->wiretable[sqx][sqy];
 
        skip=0;
        while(iptr) {

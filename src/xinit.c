@@ -397,6 +397,7 @@ void alloc_xschem_data()
   xctx->prep_hash_wires = 0;
   xctx->modified = 0;
   xctx->netlist_name[0] = '\0';
+
   for(i=0;i<CADMAXHIER;i++) xctx->sch_path[i]=NULL;
   my_strdup(1187, &xctx->sch_path[0],".");
   xctx->sch_inst_number[0] = 1;

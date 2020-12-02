@@ -194,7 +194,7 @@ char hiersep[20]=".";
 int netlist_show=0;
 int flat_netlist=0;
 int netlist_type=-1;
-char bus_replacement_char[3] = {0, 0, 0};
+char bus_char[3] = {0, 0, 0};
 int horizontal_move=0;
 int vertical_move=0;
 int color_ps=-1;
@@ -207,9 +207,6 @@ int dark_colorscheme=1;
 double color_dim=0.0;
 int no_undo=0;
 int enable_drill=0; /* 20171211 pass net hilights through components with 'propagate_to' property set on pins */
-struct instpinentry *instpintable[NBOXES][NBOXES];
-struct wireentry *wiretable[NBOXES][NBOXES];
-struct instentry *insttable[NBOXES][NBOXES];
 size_t get_tok_value_size;
 size_t get_tok_size;
 int batch_mode = 0; /* no tcl console if set; batch mode */

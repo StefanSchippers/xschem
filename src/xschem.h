@@ -525,6 +525,9 @@ typedef struct {
   int prep_hash_wires;
   int modified;
   char netlist_name[PATH_MAX];
+  struct instpinentry *instpintable[NBOXES][NBOXES];
+  struct wireentry *wiretable[NBOXES][NBOXES];
+  struct instentry *insttable[NBOXES][NBOXES];
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
@@ -611,10 +614,6 @@ extern int *enable_layer;
 extern int n_active_layers;
 extern int hilight_color;
 extern int do_print;
-extern int prepared_netlist_structs;
-extern int prepared_hilight_structs;
-extern int prepared_hash_instances;
-extern int prepared_hash_wires;
 extern int has_x;
 extern int no_draw;
 extern int sym_txt;
@@ -648,22 +647,17 @@ extern double cadgrid;
 extern double cadhalfdotsize;
 extern int draw_pixmap; /*  pixmap used as 2nd buffer */
 extern int draw_window;
-extern int need_rebuild_selected_array;
 extern unsigned int rectcolor;
 extern XEvent xev;
 extern KeySym key;
 extern unsigned short enable_stretch;
 extern unsigned int button;
 extern unsigned int state; /*  status of shift,ctrl etc.. */
-extern Selected *selectedgroup; /*  array of selected objs to draw while moving */
-extern int lastselected;
 extern int currentsch;
 extern char *xschem_version_string;
-extern int max_selected;
 extern int split_files;
 extern char *netlist_dir;
-extern char user_top_netl_name[PATH_MAX];
-extern char bus_replacement_char[];
+extern char bus_char[];
 extern char *undo_dirname;
 extern int cur_undo_ptr;
 extern int tail_undo_ptr;
@@ -676,12 +670,8 @@ extern int yyparse_error;
 extern char *xschem_executable;
 extern int depth;
 extern int *fill_type; /* 20171117 for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
-extern int  areax1,areay1,areax2,areay2,areaw,areah;
 extern Tcl_Interp *interp;
 extern XRectangle xrect[];
-extern int xschem_h, xschem_w; /*  20171130 window size */
-extern double mousex,mousey; /*  mouse coord. */
-extern double mousex_snap,mousey_snap; /*  mouse coord. snapped to grid */
 extern double cadsnap;
 extern int horizontal_move;
 extern int vertical_move;
@@ -699,7 +689,6 @@ extern char hiersep[20];
 extern int quit;
 extern int show_erc;
 extern int hilight_nets;
-extern int modified;
 extern int color_ps;
 extern int only_probes;
 extern int pending_fullzoom;
@@ -709,10 +698,6 @@ extern int dark_colorscheme;
 extern double color_dim;
 extern int no_undo;
 extern int enable_drill;
-extern struct wireentry *wiretable[NBOXES][NBOXES];
-extern struct instpinentry *instpintable[NBOXES][NBOXES];
-extern double mx_double_save, my_double_save;
-extern struct instentry *insttable[NBOXES][NBOXES];
 extern size_t get_tok_value_size;
 extern size_t get_tok_size;
 extern int batch_mode; /* no TCL console */

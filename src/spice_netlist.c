@@ -51,12 +51,12 @@ void global_spice_netlist(int global)  /* netlister driver */
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
  top_subckt = 0;
  spiceprefix=1;
- bus_replacement_char[0] = bus_replacement_char[1] = '\0';
+ bus_char[0] = bus_char[1] = '\0';
  hiersep[0]='.'; hiersep[1]='\0';
  str_tmp = tclgetvar("bus_replacement_char");
  if(str_tmp && str_tmp[0] && str_tmp[1]) {
-   bus_replacement_char[0] = str_tmp[0];
-   bus_replacement_char[1] = str_tmp[1];
+   bus_char[0] = str_tmp[0];
+   bus_char[1] = str_tmp[1];
  }
  netlist_count=0;
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 

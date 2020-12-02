@@ -958,12 +958,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   printf("wires=%d\n", xctx->wires);
   printf("instances=%d\n", xctx->instances);
   printf("symbols=%d\n", xctx->symbols);
-  printf("xctx->lastsel=%d\n", xctx->lastsel);
+  printf("lastsel=%d\n", xctx->lastsel);
   printf("texts=%d\n", xctx->texts);
   printf("maxt=%d\n", xctx->maxt);
   printf("maxw=%d\n", xctx->maxw);
   printf("maxi=%d\n", xctx->maxi);
-  printf("xctx->maxsel=%d\n", xctx->maxsel);
+  printf("maxsel=%d\n", xctx->maxsel);
   printf("zoom=%.16g\n", xctx->zoom);
   printf("xorigin=%.16g\n", xctx->xorigin);
   printf("yorigin=%.16g\n", xctx->yorigin);
@@ -982,11 +982,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     printf("sch_path[%d]=%s\n",i,xctx->sch_path[i]? xctx->sch_path[i]:"<NULL>");
     printf("sch[%d]=%s\n",i,xctx->sch[i]);
   }
-  printf("xctx->modified=%d\n", xctx->modified);
+  printf("modified=%d\n", xctx->modified);
   printf("color_ps=%d\n", color_ps);
   printf("a3page=%d\n", a3page);
   printf("hilight_nets=%d\n", hilight_nets);
-  printf("xctx->need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr);
+  printf("need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr);
   printf("******* end global variables:*******\n");
  } else if(!strcmp(argv[1],"help")) {
   printf("xschem : function used to communicate with the C program\n");
@@ -1924,7 +1924,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   else if(!strcmp(argv[2],"cadsnap_default"))  {
         Tcl_AppendResult(interp, tclgetvar("snap"),NULL);
   }
-  else if(!strcmp(argv[2],"xctx->netlist_name"))  {
+  else if(!strcmp(argv[2],"netlist_name"))  {
     Tcl_AppendResult(interp, xctx->netlist_name);
   }
   else if(!strcmp(argv[2],"cadsnap"))  {
@@ -1962,7 +1962,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_snprintf(s, S(s), "%d",draw_window);
         Tcl_AppendResult(interp, s,NULL);
   }
-  else if(!strcmp(argv[2],"xctx->ui_state"))  {
+  else if(!strcmp(argv[2],"ui_state"))  {
         char s[30]; /* overflow safe 20161122 */
         my_snprintf(s, S(s), "%d",xctx->ui_state);
         Tcl_AppendResult(interp, s,NULL);
@@ -2108,7 +2108,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      int s = atoi(argv[3]);
      show_pin_net_names=s;
    }
-   else if(!strcmp(argv[2],"xctx->netlist_name"))  {
+   else if(!strcmp(argv[2],"netlist_name"))  {
      my_strncpy(xctx->netlist_name, argv[3], S(xctx->netlist_name));
    }
    else if(!strcmp(argv[2],"dim"))  {
@@ -2219,7 +2219,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    else if(!strcmp(argv[2],"draw_window"))  {
       draw_window=atoi(argv[3]);
    }
-   else if(!strcmp(argv[2],"xctx->ui_state"))  {
+   else if(!strcmp(argv[2],"ui_state"))  {
       xctx->ui_state=atoi(argv[3]);
    }
    else {

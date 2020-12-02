@@ -3289,7 +3289,6 @@ set_ne globfilter {*}
 ## list of tcl procedures to load at end of xschem.tcl
 set_ne tcl_files {}
 set_ne netlist_dir "$USER_CONF_DIR/simulations"
-set_ne user_top_netl_name {}
 set_ne bus_replacement_char {} ;# use {<>} to replace [] with <> in bussed signals
 set_ne hspice_netlist 0
 set_ne top_subckt 0
@@ -3961,7 +3960,7 @@ font configure Underline-Font -underline true -size 24
      }
    .menubar.simulation.menu add command -label "Set top level netlist name" \
      -command {
-           input_line {Set netlist file name} {xschem set user_top_netl_name} [xschem get user_top_netl_name] 40
+           input_line {Set netlist file name} {xschem set netlist_name} [xschem get netlist_name] 40
      }
    .menubar.simulation.menu add command -label {Configure simulators and tools} -command {simconf}
    .menubar.simulation.menu add command -label {Utile Stimuli Editor (GUI)} \
