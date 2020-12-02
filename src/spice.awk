@@ -126,6 +126,14 @@ function sign(x)
 function process(        i, iprefix)
 {
 
+  if($0 ~/\*\*\*\* end_element/){
+    spiceprefix=""
+    return
+  }
+  if($0 ~/\*\*\*\* spice_prefix/){
+    spiceprefix=$3
+    return
+  }
   if($0 ~/\*\*\*\* begin user architecture code/){ #20180129
     user_code=1
     print
@@ -212,6 +220,7 @@ function process(        i, iprefix)
 
 
  # .probe tran v( ?1 DL[3],DL[2],DL[1],DL[0] , ?1 WL[3],WL{2],WL[1],WL[0] )
+ #                        ............          .......... --> matches ?n and ?-n
  if($1 ==".probe" && $4 ~/^\?-?[0-9]+$/ && $7 ~/^\?-?[0-9]+$/ && NF==9) {
    num1=split($5,name,",")
    num2=split($8,name2,",")
@@ -222,6 +231,7 @@ function process(        i, iprefix)
    }
 
  # .save v( ?1 DL[3],DL[2],DL[1],DL[0] , ?1 WL[3],WL{2],WL[1],WL[0] )
+ #                              ............          .......... --> matches ?n and ?-n
  } else if($1 ==".save" && $3 ~/^\?-?[0-9]+$/ && $6 ~/^\?-?[0-9]+$/ && NF==8) {
    num1=split($4,name,",")
    num2=split($7,name2,",")
@@ -233,12 +243,14 @@ function process(        i, iprefix)
 
 
  # .probe tran v( ?1 LDY1_B[1],LDY1_B[0]  )
+ #                               ............ --> matches ?n and ?-n
  } else if($1 ==".probe" && $4 ~/^\?-?[0-9]+$/ && NF==6) {
    num=split($5,name,",")
    for(i=1;i<=num;i++) {
      print $1 " " $2 " " $3 " " name[i] " " $6
    }
  # .save v( ?1 LDY1_B[1],LDY1_B[0]  )
+ #                              ............ --> matches ?n and ?-n
  } else if($1 ==".save" && $3 ~/^\?-?[0-9]+$/ && NF==5) {
    num=split($4,name,",")
    for(i=1;i<=num;i++) { 
@@ -277,6 +289,7 @@ function process(        i, iprefix)
  
   for(j=2;j<=NF;j+=1)  		# start from 2 not from 3 20070221
   {
+    #       ............ --> matches ?n and ?-n         
     if($j ~/^\?-?[0-9]+$/) continue	# handle the case that $2 not pinlist  20070221
     arg_num[j]=split($j,tmp,",")
     for(k=1;k<=arg_num[j]; k++) {
@@ -285,10 +298,11 @@ function process(        i, iprefix)
   }
   for(i=1;i<=num;i++)
   {
-   printf "%s ", name[i]
+   printf "%s ", spiceprefix name[i]
 
    for(j=2;j<=NF;j++)
    {
+    #         ............ --> matches ?n and ?-n
     if($j !~ /^\?-?[0-9]+$/)
     {
       printf "%s ", $j # if not a node just print it

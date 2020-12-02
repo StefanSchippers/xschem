@@ -1563,6 +1563,7 @@ void print_spice_element(FILE *fd, int inst)
   char *result = NULL;
   int result_pos = 0;
   int size = 0;
+  char *spiceprefixtag = NULL;
 
   size = CADCHUNKALLOC;
   my_realloc(1211, &result, size);
@@ -1621,11 +1622,17 @@ void print_spice_element(FILE *fd, int inst)
       token[token_pos]='\0';
       token_pos=0;
 
+      /* if spiceprefix==0 and token == @spiceprefix then set empty value */
       if (!spiceprefix && !strcmp(token, "@spiceprefix")) {
         value=NULL;
       } else {
         dbg(1, "print_spice_element(): token: |%s|\n", token);
         value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
+        if(!strcmp(token, "@spiceprefix")) {
+          spiceprefixtag = my_malloc(301, get_tok_value_size+22);
+          my_snprintf(spiceprefixtag, get_tok_value_size+22, "**** spice_prefix %s\n", value);
+          value = spiceprefixtag;
+        }
         /* get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
         if (!get_tok_size) value=get_tok_value(template, token+1, 0);
         token_exists = get_tok_size;
@@ -1821,6 +1828,7 @@ void print_spice_element(FILE *fd, int inst)
   my_free(1021, &name);
   my_free(1022, &token);
   my_free(1194, &result);
+  my_free(298, &spiceprefixtag);
   my_free(455, &translatedvalue);
 }
 
@@ -2772,6 +2780,7 @@ const char *translate(int inst, const char* s)
    token[token_pos]='\0';
    dbg(2, "translate(): token=%s\n", token);
 
+   /* if spiceprefix==0 and token == @spiceprefix then set empty value */
    if(!spiceprefix && !strcmp(token, "@spiceprefix")) {
      value = NULL;
      get_tok_size = 0;
@@ -3048,6 +3057,7 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
       token[token_pos] = '\0';
       token_pos = 0;
 
+      /* if spiceprefix==0 and token == @spiceprefix then set empty value */
       if(!spiceprefix && !strcmp(token, "@spiceprefix")) {
         my_free(1069, &value1);
         get_tok_size = 0;
