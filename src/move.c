@@ -176,8 +176,8 @@ void update_symbol_bboxes(int rot, int flip)
   for(i=0;i<lastsel;i++)
   {
     n = selectedgroup[i].n;
-    dbg(0, "update_symbol_bboxes(): i=%d, lastsel=%d, n=%d\n", i, lastsel, n);
-    dbg(0, "update_symbol_bboxes(): symbol flip=%d, rot=%d\n",  xctx->inst[n].flip, xctx->inst[n].rot);
+    dbg(1, "update_symbol_bboxes(): i=%d, lastsel=%d, n=%d\n", i, lastsel, n);
+    dbg(1, "update_symbol_bboxes(): symbol flip=%d, rot=%d\n",  xctx->inst[n].flip, xctx->inst[n].rot);
     if(selectedgroup[i].type == ELEMENT) {
       save_flip = xctx->inst[n].flip;
       save_rot = xctx->inst[n].rot;
