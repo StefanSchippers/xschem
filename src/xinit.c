@@ -387,6 +387,16 @@ void alloc_xschem_data()
   xctx->schverilogprop=NULL;/* verilog */
   xctx->version_string = NULL;
   xctx->currsch = 0;
+  xctx->ui_state = 0;
+  xctx->need_reb_sel_arr = 1;
+  xctx->lastsel = 0;
+  xctx->maxsel = 0;
+  xctx->prep_net_structs = 0;
+  xctx->prep_hi_structs = 0;
+  xctx->prep_hash_inst = 0;
+  xctx->prep_hash_wires = 0;
+  xctx->modified = 0;
+  xctx->netlist_name[0] = '\0';
   for(i=0;i<CADMAXHIER;i++) xctx->sch_path[i]=NULL;
   my_strdup(1187, &xctx->sch_path[0],".");
   xctx->sch_inst_number[0] = 1;
@@ -553,9 +563,9 @@ void alloc_data()
  alloc_xschem_data();
  /* global context / graphic preferences/settings */
 
- max_selected=MAXGROUP;
- selectedgroup=my_calloc(619, max_selected, sizeof(Selected));
- if(selectedgroup==NULL){
+ xctx->maxsel=MAXGROUP;
+ xctx->sel_array=my_calloc(619, xctx->maxsel, sizeof(Selected));
+ if(xctx->sel_array==NULL){
    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
  }
 
@@ -664,7 +674,7 @@ void xwin_exit(void)
    my_free(1101, &color_array[i]);
    my_free(1102, &pixdata[i]);
  }
- my_free(1108, &selectedgroup);
+ my_free(1108, &xctx->sel_array);
  my_free(1120, &fill_type);
  my_free(1121, &active_layer);
  my_free(1122, &pixdata);
@@ -846,7 +856,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     /* save some relevant global context */
     save_window = window;
     save_save_pixmap = save_pixmap;
-    save_mod = modified;
+    save_mod = xctx->modified;
     save_show_pin = show_pin_net_names;
     show_pin_net_names = 0;
     my_strdup(117, &saveptr, tclgetvar("current_dirname"));
@@ -870,8 +880,8 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
 
     show_pin_net_names = save_show_pin;
     xctx = save_xctx; /* restore schematic */
-    modified = save_mod;
-    set_modify(modified);
+    xctx->modified = save_mod;
+    set_modify(xctx->modified);
     /* free the pixmap (if a different one) used for preview */
 #ifdef __unix__
     if (save_pixmap != save_save_pixmap)
@@ -996,7 +1006,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
    int dir_len=strlen(install_dir);
    if (dir_len>11)
      install_dir[dir_len-11] = '\0'; /* 11 = remove /xschem.exe */
-   my_snprintf(tmp, S(tmp), "regexp {bin$} \"%s\"", install_dir); /* debugging in Visual Studio will not have bin */
+   /* debugging in Visual Studio will not have bin */
+   my_snprintf(tmp, S(tmp), "regexp {bin$} \"%s\"", install_dir);
    tcleval(tmp);
    running_in_src_dir = 0;
    if (atoi(tclresult()) == 0)
@@ -1246,14 +1257,14 @@ int Tcl_AppInit(Tcl_Interp *inter)
  tclsetvar("menu_tcl_debug",debug_var ? "1" : "0" );
  if(flat_netlist) tclsetvar("flat_netlist","1");
 
- xschem_w = CADWIDTH;
- xschem_h = CADHEIGHT;
- areaw = CADWIDTH+4*INT_WIDTH(xctx->lw);  /* clip area extends 1 pixel beyond physical window area */
- areah = CADHEIGHT+4*INT_WIDTH(xctx->lw); /* to avoid drawing clipped rectangle borders at window edges */
- areax1 = -2*INT_WIDTH(xctx->lw);
- areay1 = -2*INT_WIDTH(xctx->lw);
- areax2 = areaw-2*INT_WIDTH(xctx->lw);
- areay2 = areah-2*INT_WIDTH(xctx->lw);
+ xctx->xschem_w = CADWIDTH;
+ xctx->xschem_h = CADHEIGHT;
+ xctx->areaw = CADWIDTH+4*INT_WIDTH(xctx->lw);  /* clip area extends 1 pixel beyond physical window area */
+ xctx->areah = CADHEIGHT+4*INT_WIDTH(xctx->lw); /* to avoid drawing clipped rectangle borders at window edges */
+ xctx->areax1 = -2*INT_WIDTH(xctx->lw);
+ xctx->areay1 = -2*INT_WIDTH(xctx->lw);
+ xctx->areax2 = xctx->areaw-2*INT_WIDTH(xctx->lw);
+ xctx->areay2 = xctx->areah-2*INT_WIDTH(xctx->lw);
  xrect[0].x = 0;
  xrect[0].y = 0;
  xrect[0].width = CADWIDTH;
@@ -1267,7 +1278,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
  compile_font();
  /* restore current dir after loading font */
  if(tcleval("info exists env(PWD)")[0] == '1') {
-   tcleval("set current_dirname $env(PWD)"); /* $env(PWD) better than pwd_dir as it does not dereference symlinks */
+   /* $env(PWD) better than pwd_dir as it does not dereference symlinks */
+   tcleval("set current_dirname $env(PWD)");
  } else {
    Tcl_VarEval(interp, "set current_dirname ", pwd_dir, NULL);
  }

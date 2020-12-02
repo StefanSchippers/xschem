@@ -314,9 +314,9 @@ void hilight_net_pin_mismatches(void)
 
   rebuild_selected_array();
   prepare_netlist_structs(0);
-  for(k=0; k<lastselected; k++) {
-    if(selectedgroup[k].type!=ELEMENT) continue;
-    j = selectedgroup[k].n ;
+  for(k=0; k<xctx->lastsel; k++) {
+    if(xctx->sel_array[k].type!=ELEMENT) continue;
+    j = xctx->sel_array[k].n ;
     my_strdup(23, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
     if( type && IS_LABEL_SH_OR_PIN(type)) break;
     symbol = xctx->sym + xctx->inst[j].ptr;
@@ -534,7 +534,7 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
           }
           if(sel==1) {
             select_element(i, SELECTED, 1, 0);
-            ui_state|=SELECTION;
+            xctx->ui_state|=SELECTION;
           }
 
           if(sel==-1) { /* 20171211 unselect */
@@ -577,7 +577,7 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
             }
             if(sel==1) {
               select_wire(i,SELECTED, 1);
-              ui_state|=SELECTION;
+              xctx->ui_state|=SELECTION;
             }
             if(sel==-1) {
               select_wire(i,0, 1);
@@ -601,7 +601,7 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
         {
             if(sel==1) {
               select_line(c, i,SELECTED, 1);
-              ui_state|=SELECTION;
+              xctx->ui_state|=SELECTION;
             }
             if(sel==-1) {
               select_line(c, i,0, 1);
@@ -626,7 +626,7 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
         {
             if(sel==1) {
               select_box(c, i,SELECTED, 1);
-              ui_state|=SELECTION;
+              xctx->ui_state|=SELECTION;
             }
             if(sel==-1) {
               select_box(c, i,0, 1);
@@ -814,10 +814,10 @@ void hilight_net(int to_waveform)
   rebuild_selected_array();
   tcleval("sim_is_xyce");
   sim_is_xyce = atoi( tclresult() );
-  for(i=0;i<lastselected;i++)
+  for(i=0;i<xctx->lastsel;i++)
   {
-   n = selectedgroup[i].n;
-   switch(selectedgroup[i].type)
+   n = xctx->sel_array[i].n;
+   switch(xctx->sel_array[i].type)
    {
     case WIRE:
       hilight_nets=1;
@@ -863,10 +863,10 @@ void unhilight_net(void)
   prepare_netlist_structs(0);
   dbg(1, "unhilight_net(): entering\n");
   rebuild_selected_array();
-  for(i=0;i<lastselected;i++)
+  for(i=0;i<xctx->lastsel;i++)
   {
-   n = selectedgroup[i].n;
-   switch(selectedgroup[i].type)
+   n = xctx->sel_array[i].n;
+   switch(xctx->sel_array[i].type)
    {
     case WIRE:
       bus_hilight_lookup(xctx->wire[n].node, hilight_color, XDELETE);
@@ -946,7 +946,7 @@ void select_hilight_net(void)
    if(entry) xctx->inst[i].sel = SELECTED;
   }
  }
- need_rebuild_selected_array = 1;
+ xctx->need_reb_sel_arr = 1;
  rebuild_selected_array();
  redraw_hilights();
  
@@ -969,10 +969,10 @@ void draw_hilight_net(int on_window)
  prepare_netlist_structs(0);
  save_draw = draw_window;
  draw_window = on_window;
- x1 = X_TO_XSCHEM(areax1);
- y1 = Y_TO_XSCHEM(areay1);
- x2 = X_TO_XSCHEM(areax2);
- y2 = Y_TO_XSCHEM(areay2);
+ x1 = X_TO_XSCHEM(xctx->areax1);
+ y1 = Y_TO_XSCHEM(xctx->areay1);
+ x2 = X_TO_XSCHEM(xctx->areax2);
+ y2 = Y_TO_XSCHEM(xctx->areay2);
  use_hash = (xctx->wires> 2000 || xctx->instances > 2000 ) &&  (x2 - x1  < ITERATOR_THRESHOLD);
  if(use_hash) {
    hash_wires();
@@ -1024,7 +1024,7 @@ void draw_hilight_net(int on_window)
    y1=Y_TO_SCREEN(xctx->inst[i].y1);
    y2=Y_TO_SCREEN(xctx->inst[i].y2);
    inst_color[i]=0;
-   if(OUTSIDE(x1,y1,x2,y2,areax1,areay1,areax2,areay2)) continue;
+   if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) continue;
    /* /20150409 */
 
   type = (xctx->inst[i].ptr+ xctx->sym)->type;
@@ -1069,7 +1069,7 @@ void draw_hilight_net(int on_window)
       x2=X_TO_SCREEN(xctx->inst[i].x2);
       y1=Y_TO_SCREEN(xctx->inst[i].y1);
       y2=Y_TO_SCREEN(xctx->inst[i].y2);
-      if(OUTSIDE(x1,y1,x2,y2,areax1,areay1,areax2,areay2)) continue;
+      if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) continue;
       dbg(1, "draw_hilight_net(): instance:%d\n",i);
       /* 20160414 from draw() */
       symptr = (xctx->inst[i].ptr+ xctx->sym);
@@ -1228,8 +1228,8 @@ void print_hilight_net(int show)
 
  /* 20170323 this delete_netlist_structs is necessary, without it segfaults when going back (ctrl-e)  */
  /* from a schematic after placing pins (ctrl-j) and changing some pin direction (ipin -->iopin) */
- prepared_hilight_structs=0;
- prepared_netlist_structs=0;
+ xctx->prep_hi_structs=0;
+ xctx->prep_net_structs=0;
 
  /* delete_netlist_structs(); */
  my_free(781, &filetmp1);

@@ -934,10 +934,10 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   fclose(fd);
   my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
   /* <<<<< >>>> why clear all these? */
-  prepared_hilight_structs=0;
-  prepared_netlist_structs=0;
-  prepared_hash_instances=0;
-  prepared_hash_wires=0;
+  xctx->prep_hi_structs=0;
+  xctx->prep_net_structs=0;
+  xctx->prep_hash_inst=0;
+  xctx->prep_hash_wires=0;
   if(!strstr(xctx->sch[xctx->currsch], ".xschem_embedded_")) {
      set_modify(0);
   }
@@ -978,10 +978,10 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   static int save_netlist_type = 0;
   static int loaded_symbol = 0;
 
-  prepared_hilight_structs=0;
-  prepared_netlist_structs=0;
-  prepared_hash_instances=0;
-  prepared_hash_wires=0;
+  xctx->prep_hi_structs=0;
+  xctx->prep_net_structs=0;
+  xctx->prep_hash_inst=0;
+  xctx->prep_hash_wires=0;
   if(reset_undo) clear_undo();
   if(filename && filename[0]) {
     my_strncpy(name, filename, S(name));
@@ -1041,7 +1041,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   }
   if(has_x) { /* 20161207 moved after if( (fd=..))  */
     if(reset_undo) {
-      tcleval( "wm title . \"xschem - [file tail [xschem get schname]]\""); /* 20150417 set window and icon title */
+      tcleval( "wm title . \"xschem - [file tail [xschem get schname]]\""); /* set window and icon title */
       tcleval( "wm iconname . \"xschem - [file tail [xschem get schname]]\"");
     }
   }
@@ -1227,10 +1227,10 @@ void pop_undo(int redo)
   dbg(2, "pop_undo(): loaded file:wire=%d inst=%d\n",xctx->wires , xctx->instances);
   link_symbols_to_instances();
   set_modify(1);
-  prepared_hash_instances=0;
-  prepared_hash_wires=0;
-  prepared_netlist_structs=0;
-  prepared_hilight_structs=0;
+  xctx->prep_hash_inst=0;
+  xctx->prep_hash_wires=0;
+  xctx->prep_net_structs=0;
+  xctx->prep_hi_structs=0;
   update_conn_cues(0, 0);
 
   dbg(2, "pop_undo(): returning\n");
@@ -1378,7 +1378,7 @@ void align_sch_pins_with_sym(const char *name, int pos)
 }
 
 /* replace i/o/iopin instances of LCC schematics with symbol pins (boxes on PINLAYER layer) */
-void add_pinlayer_boxes(int *lastr, xRect **bb, const char *symtype, char *prop_ptr, double inst_x0, double inst_y0)
+void add_pinlayer_boxes(int *lastr, xRect **bb, const char *symtype, char *prop_ptr, double i_x0, double i_y0)
 {
   int i, save;
   const char *label;
@@ -1386,8 +1386,8 @@ void add_pinlayer_boxes(int *lastr, xRect **bb, const char *symtype, char *prop_
 
   i = lastr[PINLAYER];
   my_realloc(652, &bb[PINLAYER], (i + 1) * sizeof(xRect));
-  bb[PINLAYER][i].x1 = inst_x0 - 2.5; bb[PINLAYER][i].x2 = inst_x0 + 2.5;
-  bb[PINLAYER][i].y1 = inst_y0 - 2.5; bb[PINLAYER][i].y2 = inst_y0 + 2.5;
+  bb[PINLAYER][i].x1 = i_x0 - 2.5; bb[PINLAYER][i].x2 = i_x0 + 2.5;
+  bb[PINLAYER][i].y1 = i_y0 - 2.5; bb[PINLAYER][i].y2 = i_y0 + 2.5;
   RECTORDER(bb[PINLAYER][i].x1, bb[PINLAYER][i].y1, bb[PINLAYER][i].x2, bb[PINLAYER][i].y2);
   bb[PINLAYER][i].prop_ptr = NULL;
   label = get_tok_value(prop_ptr, "lab", 0);
@@ -1822,7 +1822,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
        if (tmp) my_strdup(651, &tt[i].txt_ptr, tmp);
        ROTATION(rot, flip, 0.0, 0.0, tt[i].x0, tt[i].y0, rx1, ry1);
        tt[i].x0 = lcc[level].x0 + rx1;  tt[i].y0 = lcc[level].y0 + ry1;
-       tt[i].rot = (tt[i].rot + ((lcc[level].flip && (tt[i].rot & 1)) ? lcc[level].rot + 2 : lcc[level].rot)) & 0x3;
+       tt[i].rot = (tt[i].rot + ((lcc[level].flip && (tt[i].rot & 1)) ?
+                   lcc[level].rot + 2 : lcc[level].rot)) & 0x3;
        tt[i].flip = lcc[level].flip ^ tt[i].flip;
      }
      tt[i].prop_ptr=NULL;
@@ -2094,14 +2095,14 @@ void create_sch_from_sym(void)
   /* printf("indirect=%d\n", indirect); */
 
   rebuild_selected_array();
-  if(lastselected > 1)  return;
-  if(lastselected==1 && selectedgroup[0].type==ELEMENT)
+  if(xctx->lastsel > 1)  return;
+  if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT)
   {
     my_strncpy(schname, abs_sym_path(get_tok_value(
-      (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ), "")
+      (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ), "")
       , S(schname));
     if(!schname[0]) {
-      my_strncpy(schname, add_ext(abs_sym_path(xctx->inst[selectedgroup[0].n].name, ""), ".sch"), S(schname));
+      my_strncpy(schname, add_ext(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), ".sch"), S(schname));
     }
     if( !stat(schname, &buf) ) {
       my_strdup(353, &savecmd, "ask_save \" create schematic file: ");
@@ -2129,7 +2130,7 @@ void create_sch_from_sym(void)
     fputc('\n', fd);
     fprintf(fd, "S {}");
     fputc('\n', fd);
-    ptr = xctx->inst[selectedgroup[0].n].ptr+xctx->sym;
+    ptr = xctx->inst[xctx->sel_array[0].n].ptr+xctx->sym;
     npin = ptr->rects[GENERICLAYER];
     rct = ptr->rect[GENERICLAYER];
     ypos=0;
@@ -2179,7 +2180,7 @@ void create_sch_from_sym(void)
       } /* for(i) */
     }  /* for(j) */
     fclose(fd);
-  } /* if(lastselected...) */
+  } /* if(xctx->lastsel...) */
   my_free(916, &dir);
   my_free(917, &prop);
   my_free(918, &savecmd);
@@ -2194,39 +2195,39 @@ void descend_symbol(void)
   char name[PATH_MAX];
   char name_embedded[PATH_MAX];
   rebuild_selected_array();
-  if(lastselected > 1)  return;
-  if(lastselected==1 && selectedgroup[0].type==ELEMENT) {
-    if(modified) {
+  if(xctx->lastsel > 1)  return;
+  if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
+    if(xctx->modified) {
       if(save(1)) return;
     }
-    my_snprintf(name, S(name), "%s", xctx->inst[selectedgroup[0].n].name);
+    my_snprintf(name, S(name), "%s", xctx->inst[xctx->sel_array[0].n].name);
     /* dont allow descend in the default missing symbol */
-    if((xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type &&
-       !strcmp( (xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->type,"missing")) return;
+    if((xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type &&
+       !strcmp( (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type,"missing")) return;
   }
   else return;
 
   /* build up current hierarchy path */
-  my_strdup(363,  &str, xctx->inst[selectedgroup[0].n].instname);
+  my_strdup(363,  &str, xctx->inst[xctx->sel_array[0].n].instname);
   my_strdup(364, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
   my_strcat(365, &xctx->sch_path[xctx->currsch+1], str);
   my_strcat(366, &xctx->sch_path[xctx->currsch+1], ".");
   xctx->sch_inst_number[xctx->currsch+1] = 1;
   my_free(921, &str);
-  xctx->previous_instance[xctx->currsch]=selectedgroup[0].n;
+  xctx->previous_instance[xctx->currsch]=xctx->sel_array[0].n;
   xctx->zoom_array[xctx->currsch].x=xctx->xorigin;
   xctx->zoom_array[xctx->currsch].y=xctx->yorigin;
   xctx->zoom_array[xctx->currsch].zoom=xctx->zoom;
   ++xctx->currsch;
-  if((xctx->inst[selectedgroup[0].n].ptr+ xctx->sym)->flags & EMBEDDED ||
-    !strcmp(get_tok_value(xctx->inst[selectedgroup[0].n].prop_ptr,"embed", 0), "true")) {
+  if((xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->flags & EMBEDDED ||
+    !strcmp(get_tok_value(xctx->inst[xctx->sel_array[0].n].prop_ptr,"embed", 0), "true")) {
     /* save embedded symbol into a temporary file */
     my_snprintf(name_embedded, S(name_embedded),
       "%s/.xschem_embedded_%d_%s", tclgetvar("XSCHEM_TMP_DIR"), getpid(), get_cell_w_ext(name, 0));
     if(!(fd = fopen(name_embedded, "w")) ) {
       fprintf(errfp, "descend_symbol(): problems opening file %s \n", name_embedded);
     }
-    save_embedded_symbol(xctx->inst[selectedgroup[0].n].ptr+xctx->sym, fd);
+    save_embedded_symbol(xctx->inst[xctx->sel_array[0].n].ptr+xctx->sym, fd);
     fclose(fd);
     unselect_all();
     remove_symbols(); /* must follow save (if) embedded */
@@ -2247,10 +2248,10 @@ void round_schematic_to_grid(double cadsnap)
 {
  int i, c, n, p;
  rebuild_selected_array();
- for(i=0;i<lastselected;i++)
+ for(i=0;i<xctx->lastsel;i++)
  {
-   c = selectedgroup[i].col; n = selectedgroup[i].n;
-   switch(selectedgroup[i].type)
+   c = xctx->sel_array[i].col; n = xctx->sel_array[i].n;
+   switch(xctx->sel_array[i].type)
    {
      case xTEXT:
        SNAP_TO_GRID(xctx->text[n].x0);
@@ -2340,11 +2341,11 @@ void save_selection(int what)
     return;
  }
  fprintf(fd, "v {xschem version=%s file_version=%s}\n", XSCHEM_VERSION, XSCHEM_FILE_VERSION);
- fprintf(fd, "G { %.16g %.16g }\n", mousex_snap, mousey_snap);
- for(i=0;i<lastselected;i++)
+ fprintf(fd, "G { %.16g %.16g }\n", xctx->mousex_snap, xctx->mousey_snap);
+ for(i=0;i<xctx->lastsel;i++)
  {
-   c = selectedgroup[i].col;n = selectedgroup[i].n;
-   switch(selectedgroup[i].type)
+   c = xctx->sel_array[i].col;n = xctx->sel_array[i].n;
+   switch(xctx->sel_array[i].type)
    {
      case xTEXT:
       fprintf(fd, "T ");
@@ -2357,7 +2358,8 @@ void save_selection(int what)
      break;
 
      case ARC:
-      fprintf(fd, "A %d %.16g %.16g %.16g %.16g %.16g ", c, xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->arc[c][n].r,
+      fprintf(fd, "A %d %.16g %.16g %.16g %.16g %.16g ",
+        c, xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->arc[c][n].r,
        xctx->arc[c][n].a, xctx->arc[c][n].b);
       save_ascii_string(xctx->arc[c][n].prop_ptr,fd);
       fputc('\n' ,fd);

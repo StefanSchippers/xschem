@@ -163,8 +163,6 @@ int incr_hilight=1;
 int auto_hilight=0;
 unsigned int color_index[256]; /* layer color lookup table */
 unsigned int rectcolor ; /* this is the currently used layer */
-unsigned long ui_state = 0; /* this signals that we are doing a net place,panning etc. */
-                          /* used to prevent nesting of some commands */
 char *undo_dirname = NULL;
 int cur_undo_ptr=0;
 int tail_undo_ptr=0;
@@ -179,21 +177,12 @@ int cadlayers=0;
 int *enable_layer;
 int n_active_layers=0;
 int *active_layer;
-int need_rebuild_selected_array=1;
 int depth;
 int *fill_type; /*20171117 for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
 char **color_array;
-int areax1,areay1,areax2,areay2,areaw,areah; /* window corners / size */
-int xschem_h, xschem_w; /* 20171130 window size */
-double mousex,mousey; /* mouse coord. */
-double mousex_snap,mousey_snap; /* mouse coord. snapped to grid */
-double mx_double_save, my_double_save;
 char *xschem_executable=NULL;
 double cadsnap = CADSNAP;
 double *character[256]; /* array or per-char coordinates of xschem internal vector font */
-int lastselected = 0;
-int max_selected;
-Selected *selectedgroup;     /*  array of selected objects to be */
 Tcl_Interp *interp;
 int do_netlist=0;  /* set by process_options if user wants netllist from cmdline */
 int do_simulation=0;
@@ -206,20 +195,14 @@ int netlist_show=0;
 int flat_netlist=0;
 int netlist_type=-1;
 char bus_replacement_char[3] = {0, 0, 0};
-int prepared_netlist_structs=0;
-int prepared_hilight_structs=0;
-int prepared_hash_instances=0;
-int prepared_hash_wires=0;
 int horizontal_move=0;
 int vertical_move=0;
-int modified = 0;
 int color_ps=-1;
 int only_probes=0;
 int hilight_color=0;
 int pending_fullzoom=0;
 int split_files=0; /* split netlist files 20081202 */
 char *netlist_dir=NULL; /* user set netlist directory via cmd-option or menu or xschemrc */
-char user_top_netl_name[PATH_MAX] = ""; /* user set netlist name via cmd option -N <name> */
 int dark_colorscheme=1;
 double color_dim=0.0;
 int no_undo=0;

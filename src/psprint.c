@@ -98,7 +98,7 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points, in
   y1=Y_TO_PS(y1);
   x2=X_TO_PS(x2);
   y2=Y_TO_PS(y2);
-  if( !rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) ) {
+  if( !rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
     return;
   }
 
@@ -136,7 +136,7 @@ static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,doub
   y1=Y_TO_PS(recty1);
   x2=X_TO_PS(rectx2);
   y2=Y_TO_PS(recty2);
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
     psdash = dash / xctx->zoom;
     if(dash) {
@@ -164,7 +164,7 @@ static void ps_drawarc(int gc, int fillarc, double x,double y,double r,double a,
   x2=X_TO_PS(x2);
   y2=Y_TO_PS(y2);
 
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
     psdash = dash / xctx->zoom;
     if(dash) {
@@ -219,7 +219,7 @@ static void ps_draw_string(int gctext,  const char *str,
  xscale*=nocairo_font_xscale;
  yscale*=nocairo_font_yscale;
 
- if(!textclip(areax1,areay1,areax2,areay2,rx1,ry1,rx2,ry2)) return;
+ if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,rx1,ry1,rx2,ry2)) return;
  set_ps_colors(gctext);
  x1=rx1;y1=ry1;
  if(rot&1) {y1=ry2;rot=3;}
@@ -262,19 +262,19 @@ static void ps_drawgrid()
  while(delta<CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
  x = xctx->xorigin* xctx->mooz;y = xctx->yorigin* xctx->mooz;
  set_ps_colors(GRIDLAYER);
- if(y>areay1 && y<areay2)
+ if(y>xctx->areay1 && y<xctx->areay2)
  {
-  ps_xdrawline(GRIDLAYER,areax1+1,(int)y, areax2-1, (int)y);
+  ps_xdrawline(GRIDLAYER,xctx->areax1+1,(int)y, xctx->areax2-1, (int)y);
  }
- if(x>areax1 && x<areax2)
+ if(x>xctx->areax1 && x<xctx->areax2)
  {
-  ps_xdrawline(GRIDLAYER,(int)x,areay1+1, (int)x, areay2-1);
+  ps_xdrawline(GRIDLAYER,(int)x,xctx->areay1+1, (int)x, xctx->areay2-1);
  }
  set_ps_colors(GRIDLAYER);
- tmp = floor((areay1+1)/delta)*delta-fmod(-xctx->yorigin* xctx->mooz,delta);
- for(x=floor((areax1+1)/delta)*delta-fmod(-xctx->xorigin* xctx->mooz,delta);x<areax2;x+=delta)
+ tmp = floor((xctx->areay1+1)/delta)*delta-fmod(-xctx->yorigin* xctx->mooz,delta);
+ for(x=floor((xctx->areax1+1)/delta)*delta-fmod(-xctx->xorigin* xctx->mooz,delta);x<xctx->areax2;x+=delta)
  {
-  for(y=tmp;y<areay2;y+=delta)
+  for(y=tmp;y<xctx->areay2;y+=delta)
   {
    ps_xdrawpoint(GRIDLAYER,(int)(x), (int)(y));
   }
@@ -304,7 +304,7 @@ static void ps_draw_symbol(int n,int layer,int tmp_flip, int rot,
    x2=X_TO_PS(xctx->inst[n].x2);
    y1=Y_TO_PS(xctx->inst[n].y1);
    y2=Y_TO_PS(xctx->inst[n].y2);
-   if(OUTSIDE(x1,y1,x2,y2,areax1,areay1,areax2,areay2))
+   if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
    {
     xctx->inst[n].flags|=1;
     return;
@@ -441,7 +441,7 @@ void ps_draw(void)
      return;
    }
  }
- modified_save=modified;
+ modified_save=xctx->modified;
  push_undo();
  trim_wires();    /* 20161121 add connection boxes on wires but undo at end */
  ps_colors=my_calloc(311, cadlayers, sizeof(Ps_color));
@@ -453,8 +453,8 @@ void ps_draw(void)
  old_grid=draw_grid;
  draw_grid=0;
 
- dx=areax2-areax1;
- dy=areay2-areay1;
+ dx=xctx->areax2-xctx->areax1;
+ dy=xctx->areay2-xctx->areay1;
  dbg(1, "ps_draw(): dx=%.16g  dy=%.16g\n", dx, dy);
 
  fd=fopen("plot.ps", "w");
@@ -563,10 +563,10 @@ void ps_draw(void)
    int i;
    update_conn_cues(0, 0);
    /* draw connecting dots */
-   x1 = X_TO_XSCHEM(areax1);
-   y1 = Y_TO_XSCHEM(areay1);
-   x2 = X_TO_XSCHEM(areax2);
-   y2 = Y_TO_XSCHEM(areay2);
+   x1 = X_TO_XSCHEM(xctx->areax1);
+   y1 = Y_TO_XSCHEM(xctx->areay1);
+   x2 = X_TO_XSCHEM(xctx->areax2);
+   y2 = Y_TO_XSCHEM(xctx->areay2);
    for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
      i = wireptr->n;
      if( xctx->wire[i].end1 >1 ) { /* 20150331 draw_dots */
@@ -599,6 +599,6 @@ void ps_draw(void)
  tcleval( tmp);
  my_free(880, &tmp);
  pop_undo(0);
- modified=modified_save;
+ xctx->modified=modified_save;
 }
 

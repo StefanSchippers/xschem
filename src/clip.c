@@ -31,9 +31,9 @@
 static int outcode(double x,double y)
 {
  register int code=0;
- if(y > xschem_h) code = UP;
+ if(y > xctx->xschem_h) code = UP;
  else if(y < 0) code = DOWN;
- if(x > xschem_w) code |= RIGHT;
+ if(x > xctx->xschem_w) code |= RIGHT;
  else if(x < 0) code |= LEFT;
  return code;
 }
@@ -53,11 +53,11 @@ int clip( double *xa,double *ya,double *xb,double *yb)
   {
    outpoint=outa? outa:outb;
    if(UP & outpoint)
-     {x= *xa + (*xb-*xa) * (xschem_h - *ya) / (*yb - *ya); y = xschem_h;}
+     {x= *xa + (*xb-*xa) * (xctx->xschem_h - *ya) / (*yb - *ya); y = xctx->xschem_h;}
    else if(DOWN & outpoint)
      {x= *xa + (*xb-*xa) * (0 - *ya) / (*yb - *ya); y = 0;}
    else if(RIGHT & outpoint)
-     {y= *ya + (*yb-*ya) * (xschem_w - *xa) / (*xb - *xa); x = xschem_w;}
+     {y= *ya + (*yb-*ya) * (xctx->xschem_w - *xa) / (*xb - *xa); x = xctx->xschem_w;}
    /* else if(LEFT & outpoint) */
    else
      {y= *ya + (*yb-*ya) * (0 - *xa) / (*xb - *xa); x = 0;}
@@ -98,7 +98,7 @@ double dist_from_rect(double mx, double my, double x1, double y1, double x2, dou
  if(tmp < dist) dist=tmp;
 
  dbg(1, "dist_from_rect(): x1,y1,x2,y2=%.16g,%.16g,%.16g,%.16g\n",x1,y1,x2,y2);
- dbg(1, "dist_from_rect(): mx,my==%.16g,%.16g\n",mousex,mousey);
+ dbg(1, "dist_from_rect(): mx,my==%.16g,%.16g\n",xctx->mousex,xctx->mousey);
  dbg(1, "dist_from_rect(): dist=%.16g\n",dist);
  return dist*dist;
 }

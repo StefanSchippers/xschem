@@ -75,7 +75,7 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points, i
   y1=Y_TO_SVG(y1);
   x2=X_TO_SVG(x2);
   y2=Y_TO_SVG(y2);
-  if( !rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) ) {
+  if( !rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
     return;
   }
   fprintf(fd, "<path class=\"l%d\" ", c);
@@ -102,7 +102,7 @@ static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,dou
   y1=Y_TO_SVG(recty1);
   x2=X_TO_SVG(rectx2);
   y2=Y_TO_SVG(recty2);
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    svg_xfillrectangle(gc, x1,y1,x2,y2, dash);
   }
@@ -122,7 +122,7 @@ static void svg_drawcircle(int gc, int fillarc, double x,double y,double r,doubl
   x2=X_TO_SVG(x2);
   y2=Y_TO_SVG(y2);
 
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
     fprintf(fd, "<circle class=\"l%d\" cx=\"%g\" cy=\"%g\" r=\"%g\"/>\n", gc, xx, yy, rr);
   }
@@ -144,7 +144,7 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
   x2=X_TO_SVG(x2);
   y2=Y_TO_SVG(y2);
 
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
     if(b == 360.) {
       fprintf(fd, "<circle class=\"l%d\" cx=\"%g\" cy=\"%g\" r=\"%g\" ", gc, xx, yy, rr);
@@ -258,7 +258,7 @@ static void svg_draw_string(int layer, const char *str, int rot, int flip, int h
   descent = size*xctx->mooz * 0.219;
 
   text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &textx1,&texty1,&textx2,&texty2);
-  if(!textclip(areax1,areay1,areax2,areay2,textx1,texty1,textx2,texty2)) {
+  if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,textx1,texty1,textx2,texty2)) {
     return;
   }
   if(hcenter) {
@@ -321,7 +321,7 @@ static void old_svg_draw_string(int layer, const char *str,
  #endif
  xscale*=nocairo_font_xscale;
  yscale*=nocairo_font_yscale;
- if(!textclip(areax1,areay1,areax2,areay2,rx1,ry1,rx2,ry2)) return;
+ if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,rx1,ry1,rx2,ry2)) return;
  x=rx1;y=ry1;
  if(rot&1) {y=ry2;rot=3;}
  else rot=0;
@@ -361,18 +361,18 @@ static void svg_drawgrid()
  delta=cadgrid* xctx->mooz;
  while(delta<CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
  x = xctx->xorigin* xctx->mooz;y = xctx->yorigin* xctx->mooz;
- if(y>areay1 && y<areay2)
+ if(y>xctx->areay1 && y<xctx->areay2)
  {
-  svg_xdrawline(GRIDLAYER, 0, areax1+1,(int)y, areax2-1, (int)y, 0);
+  svg_xdrawline(GRIDLAYER, 0, xctx->areax1+1,(int)y, xctx->areax2-1, (int)y, 0);
  }
- if(x>areax1 && x<areax2)
+ if(x>xctx->areax1 && x<xctx->areax2)
  {
-  svg_xdrawline(GRIDLAYER, 0, (int)x,areay1+1, (int)x, areay2-1, 0);
+  svg_xdrawline(GRIDLAYER, 0, (int)x,xctx->areay1+1, (int)x, xctx->areay2-1, 0);
  }
- tmp = floor((areay1+1)/delta)*delta-fmod(-xctx->yorigin* xctx->mooz,delta);
- for(x=floor((areax1+1)/delta)*delta-fmod(-xctx->xorigin* xctx->mooz,delta);x<areax2;x+=delta)
+ tmp = floor((xctx->areay1+1)/delta)*delta-fmod(-xctx->yorigin* xctx->mooz,delta);
+ for(x=floor((xctx->areax1+1)/delta)*delta-fmod(-xctx->xorigin* xctx->mooz,delta);x<xctx->areax2;x+=delta)
  {
-  for(y=tmp;y<areay2;y+=delta)
+  for(y=tmp;y<xctx->areay2;y+=delta)
   {
    svg_xdrawpoint(GRIDLAYER, (int)(x), (int)(y));
   }
@@ -404,7 +404,7 @@ static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
    x2=X_TO_SVG(xctx->inst[n].x2);
    y1=Y_TO_SVG(xctx->inst[n].y1);
    y2=Y_TO_SVG(xctx->inst[n].y2);
-   if(OUTSIDE(x1,y1,x2,y2,areax1,areay1,areax2,areay2))
+   if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
    {
     xctx->inst[n].flags|=1;
     return;
@@ -590,12 +590,12 @@ void svg_draw(void)
  old_grid=draw_grid;
  draw_grid=0;
 
- dx=areax2-areax1;
- dy=areay2-areay1;
+ dx=xctx->areax2-xctx->areax1;
+ dy=xctx->areay2-xctx->areay1;
  dbg(1, "svg_draw(): dx=%g  dy=%g\n", dx, dy);
 
 
- modified_save=modified;
+ modified_save=xctx->modified;
  push_undo();
  trim_wires();    /* 20161121 add connection boxes on wires but undo at end */
 
@@ -702,7 +702,8 @@ void svg_draw(void)
 
    for(i=0;i<xctx->wires;i++)
    {
-      svg_drawline(WIRELAYER, xctx->wire[i].bus, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
+     svg_drawline(WIRELAYER, xctx->wire[i].bus, xctx->wire[i].x1, 
+      xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
    }
    {
      double x1, y1, x2, y2;
@@ -710,10 +711,10 @@ void svg_draw(void)
      int i;
      update_conn_cues(0, 0);
      /* draw connecting dots */
-     x1 = X_TO_XSCHEM(areax1);
-     y1 = Y_TO_XSCHEM(areay1);
-     x2 = X_TO_XSCHEM(areax2);
-     y2 = Y_TO_XSCHEM(areay2);
+     x1 = X_TO_XSCHEM(xctx->areax1);
+     y1 = Y_TO_XSCHEM(xctx->areay1);
+     x2 = X_TO_XSCHEM(xctx->areax2);
+     y2 = Y_TO_XSCHEM(xctx->areay2);
      for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
        i = wireptr->n;
        if( xctx->wire[i].end1 >1 ) { /* 20150331 draw_dots */
@@ -732,7 +733,7 @@ void svg_draw(void)
  my_free(964, &svg_colors);
 
  pop_undo(0);
- modified=modified_save;
+ xctx->modified=modified_save;
 
 }
 

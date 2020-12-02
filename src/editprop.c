@@ -401,8 +401,8 @@ void edit_rect_property(void)
   const char *dash;
   int preserve;
   char *oldprop=NULL;
-  if(xctx->rect[selectedgroup[0].col][selectedgroup[0].n].prop_ptr!=NULL) {
-    my_strdup(67, &oldprop, xctx->rect[selectedgroup[0].col][selectedgroup[0].n].prop_ptr);
+  if(xctx->rect[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr!=NULL) {
+    my_strdup(67, &oldprop, xctx->rect[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
     tclsetvar("retval",oldprop);
   } else {
     tclsetvar("retval","");
@@ -414,10 +414,10 @@ void edit_rect_property(void)
   {
     push_undo();
     set_modify(1);
-    for(i=0; i<lastselected; i++) {
-      if(selectedgroup[i].type != xRECT) continue;
-      c = selectedgroup[i].col;
-      n = selectedgroup[i].n;
+    for(i=0; i<xctx->lastsel; i++) {
+      if(xctx->sel_array[i].type != xRECT) continue;
+      c = xctx->sel_array[i].col;
+      n = xctx->sel_array[i].n;
       if(preserve == 1) {
         set_different_token(&xctx->rect[c][n].prop_ptr,
                (char *) tclgetvar("retval"), oldprop, 0, 0);
@@ -456,8 +456,8 @@ void edit_line_property(void)
   const char *dash;
   int preserve;
   char *oldprop=NULL;
-  if(xctx->line[selectedgroup[0].col][selectedgroup[0].n].prop_ptr!=NULL) {
-    my_strdup(46, &oldprop, xctx->line[selectedgroup[0].col][selectedgroup[0].n].prop_ptr);
+  if(xctx->line[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr!=NULL) {
+    my_strdup(46, &oldprop, xctx->line[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
     tclsetvar("retval", oldprop);
   } else {
     tclsetvar("retval","");
@@ -470,10 +470,10 @@ void edit_line_property(void)
     push_undo();
     set_modify(1);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-    for(i=0; i<lastselected; i++) {
-      if(selectedgroup[i].type != LINE) continue;
-      c = selectedgroup[i].col;
-      n = selectedgroup[i].n;
+    for(i=0; i<xctx->lastsel; i++) {
+      if(xctx->sel_array[i].type != LINE) continue;
+      c = xctx->sel_array[i].col;
+      n = xctx->sel_array[i].n;
       if(preserve == 1) {
         set_different_token(&xctx->line[c][n].prop_ptr,
                (char *) tclgetvar("retval"), oldprop, 0, 0);
@@ -510,8 +510,8 @@ void edit_wire_property(void)
   char *oldprop=NULL;
   const char *bus_ptr;
 
-  if(xctx->wire[selectedgroup[0].n].prop_ptr!=NULL) {
-    my_strdup(47, &oldprop, xctx->wire[selectedgroup[0].n].prop_ptr);
+  if(xctx->wire[xctx->sel_array[0].n].prop_ptr!=NULL) {
+    my_strdup(47, &oldprop, xctx->wire[xctx->sel_array[0].n].prop_ptr);
     tclsetvar("retval", oldprop);
   } else {
     tclsetvar("retval","");
@@ -523,14 +523,14 @@ void edit_wire_property(void)
     push_undo();
     set_modify(1);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-    for(i=0; i<lastselected; i++) {
+    for(i=0; i<xctx->lastsel; i++) {
       int oldbus=0;
-      int k = selectedgroup[i].n;
-      if(selectedgroup[i].type != WIRE) continue;
+      int k = xctx->sel_array[i].n;
+      if(xctx->sel_array[i].type != WIRE) continue;
       /* does not seem to be necessary */
-     /*  prepared_hash_wires=0;
-      *  prepared_netlist_structs=0;
-      *  prepared_hilight_structs=0; */
+     /*  xctx->prep_hash_wires=0;
+      *  xctx->prep_net_structs=0;
+      *  xctx->prep_hi_structs=0; */
       oldbus = xctx->wire[k].bus;
       if(preserve == 1) {
         set_different_token(&xctx->wire[k].prop_ptr,
@@ -573,8 +573,8 @@ void edit_arc_property(void)
   const char *dash;
   int preserve;
 
-  if(xctx->arc[selectedgroup[0].col][selectedgroup[0].n].prop_ptr!=NULL) {
-    my_strdup(98, &oldprop, xctx->arc[selectedgroup[0].col][selectedgroup[0].n].prop_ptr);
+  if(xctx->arc[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr!=NULL) {
+    my_strdup(98, &oldprop, xctx->arc[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
     tclsetvar("retval", oldprop);
   } else {
     tclsetvar("retval","");
@@ -585,11 +585,11 @@ void edit_arc_property(void)
   {
 
    set_modify(1); push_undo();
-   for(ii=0; ii<lastselected; ii++) {
-     if(selectedgroup[ii].type != ARC) continue;
+   for(ii=0; ii<xctx->lastsel; ii++) {
+     if(xctx->sel_array[ii].type != ARC) continue;
 
-     i = selectedgroup[ii].n;
-     c = selectedgroup[ii].col;
+     i = xctx->sel_array[ii].n;
+     c = xctx->sel_array[ii].col;
 
      if(preserve == 1) {
         set_different_token(&xctx->arc[c][i].prop_ptr, (char *) tclgetvar("retval"), oldprop, 0, 0);
@@ -640,8 +640,8 @@ void edit_polygon_property(void)
   int preserve;
 
   dbg(1, "edit_property(): input property:\n");
-  if(xctx->poly[selectedgroup[0].col][selectedgroup[0].n].prop_ptr!=NULL) {
-    my_strdup(112, &oldprop, xctx->poly[selectedgroup[0].col][selectedgroup[0].n].prop_ptr);
+  if(xctx->poly[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr!=NULL) {
+    my_strdup(112, &oldprop, xctx->poly[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
     tclsetvar("retval", oldprop);
   } else {
     tclsetvar("retval","");
@@ -652,11 +652,11 @@ void edit_polygon_property(void)
   {
 
    set_modify(1); push_undo();
-   for(ii=0; ii<lastselected; ii++) {
-     if(selectedgroup[ii].type != POLYGON) continue;
+   for(ii=0; ii<xctx->lastsel; ii++) {
+     if(xctx->sel_array[ii].type != POLYGON) continue;
 
-     i = selectedgroup[ii].n;
-     c = selectedgroup[ii].col;
+     i = xctx->sel_array[ii].n;
+     c = xctx->sel_array[ii].col;
 
      if(preserve == 1) {
         set_different_token(&xctx->poly[c][i].prop_ptr, (char *) tclgetvar("retval"), oldprop, 0, 0);
@@ -714,7 +714,7 @@ void edit_text_property(int x)
    char *oldprop = NULL;
 
    dbg(1, "edit_text_property(): entering\n");
-   sel = selectedgroup[0].n;
+   sel = xctx->sel_array[0].n;
    my_strdup(656, &oldprop, xctx->text[sel].prop_ptr);
    if(xctx->text[sel].prop_ptr !=NULL)
       tclsetvar("props",xctx->text[sel].prop_ptr);
@@ -749,10 +749,10 @@ void edit_text_property(int x)
      dbg(1, "edit_text_property(): rcode !=\"\"\n");
      set_modify(1); push_undo();
      bbox(START,0.0,0.0,0.0,0.0);
-     for(k=0;k<lastselected;k++)
+     for(k=0;k<xctx->lastsel;k++)
      {
-       if(selectedgroup[k].type!=xTEXT) continue;
-       sel=selectedgroup[k].n;
+       if(xctx->sel_array[k].type!=xTEXT) continue;
+       sel=xctx->sel_array[k].n;
 
        rot = xctx->text[sel].rot;      /* calculate bbox, some cleanup needed here */
        flip = xctx->text[sel].flip;
@@ -871,7 +871,7 @@ void edit_symbol_property(int x)
 {
    char *result=NULL;
 
-   i=selectedgroup[0].n;
+   i=xctx->sel_array[0].n;
    netlist_commands = 0;
    if ((xctx->inst[i].ptr + xctx->sym)->type!=NULL)
      netlist_commands =  !strcmp( (xctx->inst[i].ptr+ xctx->sym)->type, "netlist_commands");
@@ -902,10 +902,10 @@ void edit_symbol_property(int x)
      else if(x==2)    tcleval("viewdata $::retval");
      my_strdup(78, &result, tclresult());
    }
-   dbg(1, "edit_symbol_property(): before update_symbol, modified=%d\n", modified);
+   dbg(1, "edit_symbol_property(): before update_symbol, xctx->modified=%d\n", xctx->modified);
    update_symbol(result, x);
    my_free(728, &result);
-   dbg(1, "edit_symbol_property(): done update_symbol, modified=%d\n", modified);
+   dbg(1, "edit_symbol_property(): done update_symbol, xctx->modified=%d\n", xctx->modified);
    i=-1;
 }
 
@@ -924,7 +924,7 @@ void update_symbol(const char *result, int x)
   int pushed=0;
 
   dbg(1, "update_symbol(): entering\n");
-  i=selectedgroup[0].n;
+  i=xctx->sel_array[0].n;
   if(!result) {
    dbg(1, "update_symbol(): edit symbol prop aborted\n");
    return;
@@ -975,19 +975,19 @@ void update_symbol(const char *result, int x)
   sym_number = -1;
   if(strcmp(symbol, xctx->inst[i].name)) {
     set_modify(1);
-    prepared_hash_instances=0;
-    prepared_netlist_structs=0;
-    prepared_hilight_structs=0;
+    xctx->prep_hash_inst=0;
+    xctx->prep_net_structs=0;
+    xctx->prep_hi_structs=0;
     sym_number=match_symbol(symbol); /* check if exist */
     if(sym_number>=0) {
       prefix=(get_tok_value((xctx->sym+sym_number)->templ, "name",0))[0]; /* get new symbol prefix  */
     }
   }
 
-  for(k=0;k<lastselected;k++) {
+  for(k=0;k<xctx->lastsel;k++) {
     dbg(1, "update_symbol(): for k loop: k=%d\n", k);
-    if(selectedgroup[k].type!=ELEMENT) continue;
-    i=selectedgroup[k].n;
+    if(xctx->sel_array[k].type!=ELEMENT) continue;
+    i=xctx->sel_array[k].n;
 
     /* 20171220 calculate bbox before changes to correctly redraw areas */
     /* must be recalculated as cairo text extents vary with zoom factor. */
@@ -1015,9 +1015,9 @@ void update_symbol(const char *result, int x)
           if(!pushed) { push_undo(); pushed=1;}
           my_strdup(111, &xctx->inst[i].prop_ptr, ss);
           set_modify(1);
-          prepared_hash_instances=0;
-          prepared_netlist_structs=0;
-          prepared_hilight_structs=0;
+          xctx->prep_hash_inst=0;
+          xctx->prep_net_structs=0;
+          xctx->prep_hi_structs=0;
         }
         my_free(729, &ss);
       }
@@ -1028,17 +1028,17 @@ void update_symbol(const char *result, int x)
             if(!pushed) { push_undo(); pushed=1;}
             my_strdup(84, &xctx->inst[i].prop_ptr, new_prop);
             set_modify(1);
-            prepared_hash_instances=0;
-            prepared_netlist_structs=0;
-            prepared_hilight_structs=0;
+            xctx->prep_hash_inst=0;
+            xctx->prep_net_structs=0;
+            xctx->prep_hi_structs=0;
           }
         }  else {
           if(!pushed) { push_undo(); pushed=1;}
           my_strdup(86, &xctx->inst[i].prop_ptr, "");
           set_modify(1);
-          prepared_hash_instances=0;
-          prepared_netlist_structs=0;
-          prepared_hilight_structs=0;
+          xctx->prep_hash_inst=0;
+          xctx->prep_net_structs=0;
+          xctx->prep_hi_structs=0;
         }
       }
     }
@@ -1064,16 +1064,16 @@ void update_symbol(const char *result, int x)
       else xctx->inst[i].flags &=~2;
     }
     my_strdup2(90, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name",0));
-  }  /* end for(k=0;k<lastselected;k++) */
+  }  /* end for(k=0;k<xctx->lastsel;k++) */
 
    /* new symbol bbox after prop changes (may change due to text length) */
-  if(modified) {
-    prepared_hash_instances=0;
-    prepared_netlist_structs=0;
-    prepared_hilight_structs=0;
-    for(k=0;k<lastselected;k++) {
-      if(selectedgroup[k].type!=ELEMENT) continue;
-      i=selectedgroup[k].n;
+  if(xctx->modified) {
+    xctx->prep_hash_inst=0;
+    xctx->prep_net_structs=0;
+    xctx->prep_hi_structs=0;
+    for(k=0;k<xctx->lastsel;k++) {
+      if(xctx->sel_array[k].type!=ELEMENT) continue;
+      i=xctx->sel_array[k].n;
       symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
       bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
     }
@@ -1114,47 +1114,47 @@ void change_elem_order(void)
    int c, new_n;
 
     rebuild_selected_array();
-    if(lastselected==1)
+    if(xctx->lastsel==1)
     {
-     my_snprintf(tmp_txt, S(tmp_txt), "%d",selectedgroup[0].n);
+     my_snprintf(tmp_txt, S(tmp_txt), "%d",xctx->sel_array[0].n);
      tclsetvar("retval",tmp_txt);
      tcleval("text_line {Object Sequence number} 0");
      if(strcmp(tclgetvar("rcode"),"") )
      {
       push_undo();
       set_modify(1);
-      prepared_hash_instances=0;
-      prepared_netlist_structs=0;
-      prepared_hilight_structs=0;
+      xctx->prep_hash_inst=0;
+      xctx->prep_net_structs=0;
+      xctx->prep_hi_structs=0;
      }
      sscanf(tclgetvar("retval"), "%d",&new_n);
 
-     if(selectedgroup[0].type==ELEMENT)
+     if(xctx->sel_array[0].type==ELEMENT)
      {
       if(new_n>=xctx->instances) new_n=xctx->instances-1;
       tmpinst=xctx->inst[new_n];
-      xctx->inst[new_n]=xctx->inst[selectedgroup[0].n];
-      xctx->inst[selectedgroup[0].n]=tmpinst;
-      dbg(1, "change_elem_order(): selected element %d\n", selectedgroup[0].n);
+      xctx->inst[new_n]=xctx->inst[xctx->sel_array[0].n];
+      xctx->inst[xctx->sel_array[0].n]=tmpinst;
+      dbg(1, "change_elem_order(): selected element %d\n", xctx->sel_array[0].n);
      }
-     else if(selectedgroup[0].type==xRECT)
+     else if(xctx->sel_array[0].type==xRECT)
      {
-      c=selectedgroup[0].col;
+      c=xctx->sel_array[0].col;
       if(new_n>=xctx->rects[c]) new_n=xctx->rects[c]-1;
       tmpbox=xctx->rect[c][new_n];
-      xctx->rect[c][new_n]=xctx->rect[c][selectedgroup[0].n];
-      xctx->rect[c][selectedgroup[0].n]=tmpbox;
-      dbg(1, "change_elem_order(): selected element %d\n", selectedgroup[0].n);
+      xctx->rect[c][new_n]=xctx->rect[c][xctx->sel_array[0].n];
+      xctx->rect[c][xctx->sel_array[0].n]=tmpbox;
+      dbg(1, "change_elem_order(): selected element %d\n", xctx->sel_array[0].n);
      }
-     else if(selectedgroup[0].type==WIRE)
+     else if(xctx->sel_array[0].type==WIRE)
      {
       if(new_n>=xctx->wires) new_n=xctx->wires-1;
       tmpwire=xctx->wire[new_n];
-      xctx->wire[new_n]=xctx->wire[selectedgroup[0].n];
-      xctx->wire[selectedgroup[0].n]=tmpwire;
-      dbg(1, "change_elem_order(): selected element %d\n", selectedgroup[0].n);
+      xctx->wire[new_n]=xctx->wire[xctx->sel_array[0].n];
+      xctx->wire[xctx->sel_array[0].n]=tmpwire;
+      dbg(1, "change_elem_order(): selected element %d\n", xctx->sel_array[0].n);
      }
-     need_rebuild_selected_array = 1;
+     xctx->need_reb_sel_arr = 1;
     }
 }
 
@@ -1165,7 +1165,7 @@ void edit_property(int x)
 
  if(!has_x) return;
  rebuild_selected_array(); /* from the .sel field in objects build */
- if(lastselected==0 )      /* the array of selected objs */
+ if(xctx->lastsel==0 )      /* the array of selected objs */
  {
    char *old_prop = NULL;
    char *new_prop = NULL;
@@ -1262,15 +1262,15 @@ void edit_property(int x)
    return;
  }
 
- switch(selectedgroup[0].type)
+ switch(xctx->sel_array[0].type)
  {
   case ELEMENT:
    edit_symbol_property(x);
    while( x == 0 && tclgetvar("edit_symbol_prop_new_sel")[0] == '1' ) {
      unselect_all();
-     select_object(mousex, mousey, SELECTED, 0);
+     select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
      rebuild_selected_array();
-     if(lastselected && selectedgroup[0].type ==ELEMENT) {
+     if(xctx->lastsel && xctx->sel_array[0].type ==ELEMENT) {
        edit_symbol_property(0);
      } else {
        break;

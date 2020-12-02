@@ -216,9 +216,9 @@ void check_unique_names(int rename)
             if(first) {
               bbox(START,0.0,0.0,0.0,0.0);
               set_modify(1); push_undo();
-              prepared_hash_instances=0;
-              prepared_netlist_structs=0;
-              prepared_hilight_structs=0;
+              xctx->prep_hash_inst=0;
+              xctx->prep_net_structs=0;
+              xctx->prep_hi_structs=0;
               first = 0;
             }
             bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
@@ -278,7 +278,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
 
 /* update **s modifying only the token values that are */
 /* different between *new and *old */
-/* return 1 if s modified 20081221 */
+/* return 1 if s xctx->modified 20081221 */
 int set_different_token(char **s,const char *new, const char *old, int object, int n)
 {
  register int c, state=TOK_BEGIN, space;
@@ -910,7 +910,8 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
       if(!new_val_copy[0]) new_val_copy = "\"\"";
       tmp = strlen(new_val_copy) + strlen(tok) + 2;
       STR_ALLOC(&result, tmp + result_pos, &size);
-      my_snprintf(result + result_pos - 1, size, " %s=%s", tok, new_val_copy ); /* result_pos guaranteed to be > 0 */
+      /* result_pos guaranteed to be > 0 */
+      my_snprintf(result + result_pos - 1, size, " %s=%s", tok, new_val_copy );
     }
   }
   dbg(2, "subst_token(): returning: %s\n",result);

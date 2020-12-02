@@ -43,7 +43,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  /* top sch properties used for library use declarations and type definitions */
  /* to be printed before any entity declarations */
 
- if(modified) {
+ if(xctx->modified) {
    save_ok = save_schematic(xctx->sch[xctx->currsch]);
    if(save_ok == -1) return;
  }
@@ -54,8 +54,8 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  fd=fopen(netl_filename, "w");
 
 
- if(user_top_netl_name[0]) {
-   my_snprintf(cellname, S(cellname), "%s", get_cell(user_top_netl_name, 0));
+ if(xctx->netlist_name[0]) {
+   my_snprintf(cellname, S(cellname), "%s", get_cell(xctx->netlist_name, 0));
  } else {
    my_snprintf(cellname, S(cellname), "%s.vhdl", skip_dir(xctx->sch[xctx->currsch]));
  }
@@ -605,7 +605,7 @@ void vhdl_netlist(FILE *fd , int vhdl_stop)
  int i,l;
  char *type=NULL;
 
- prepared_netlist_structs = 0;
+ xctx->prep_net_structs = 0;
  prepare_netlist_structs(1);
  /* set_modify(1); */ /* 20160302 prepare_netlist_structs could change schematic (wire node naming for example) */
  traverse_node_hash();  /* print all warnings about unconnected floatings etc */
@@ -671,7 +671,7 @@ void vhdl_netlist(FILE *fd , int vhdl_stop)
          strcmp(type,"arch_declarations")
        ))
     {
-     if(lastselected)
+     if(xctx->lastsel)
      {
       if(xctx->inst[i].sel==SELECTED) {
         print_vhdl_element(fd, i) ;

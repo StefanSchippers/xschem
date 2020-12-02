@@ -31,36 +31,36 @@ static int rotatelocal=0;
 
 
 void rebuild_selected_array() /* can be used only if new selected set is lower */
-                              /* that is, selectedgroup[] size can not increase */
+                              /* that is, xctx->sel_array[] size can not increase */
 {
  int i,c;
 
  dbg(1, "rebuild selected array\n");
- if(!need_rebuild_selected_array) return;
- lastselected=0;
+ if(!xctx->need_reb_sel_arr) return;
+ xctx->lastsel=0;
  for(i=0;i<xctx->texts;i++)
   if(xctx->text[i].sel)
   {
    check_selected_storage();
-   selectedgroup[lastselected].type = xTEXT;
-   selectedgroup[lastselected].n = i;
-   selectedgroup[lastselected++].col = TEXTLAYER;
+   xctx->sel_array[xctx->lastsel].type = xTEXT;
+   xctx->sel_array[xctx->lastsel].n = i;
+   xctx->sel_array[xctx->lastsel++].col = TEXTLAYER;
   }
  for(i=0;i<xctx->instances;i++)
   if(xctx->inst[i].sel)
   {
    check_selected_storage();
-   selectedgroup[lastselected].type = ELEMENT;
-   selectedgroup[lastselected].n = i;
-   selectedgroup[lastselected++].col = WIRELAYER;
+   xctx->sel_array[xctx->lastsel].type = ELEMENT;
+   xctx->sel_array[xctx->lastsel].n = i;
+   xctx->sel_array[xctx->lastsel++].col = WIRELAYER;
   }
  for(i=0;i<xctx->wires;i++)
   if(xctx->wire[i].sel)
   {
    check_selected_storage();
-   selectedgroup[lastselected].type = WIRE;
-   selectedgroup[lastselected].n = i;
-   selectedgroup[lastselected++].col = WIRELAYER;
+   xctx->sel_array[xctx->lastsel].type = WIRE;
+   xctx->sel_array[xctx->lastsel].n = i;
+   xctx->sel_array[xctx->lastsel++].col = WIRELAYER;
   }
  for(c=0;c<cadlayers;c++)
  {
@@ -68,36 +68,36 @@ void rebuild_selected_array() /* can be used only if new selected set is lower *
    if(xctx->arc[c][i].sel)
    {
     check_selected_storage();
-    selectedgroup[lastselected].type = ARC;
-    selectedgroup[lastselected].n = i;
-    selectedgroup[lastselected++].col = c;
+    xctx->sel_array[xctx->lastsel].type = ARC;
+    xctx->sel_array[xctx->lastsel].n = i;
+    xctx->sel_array[xctx->lastsel++].col = c;
    }
   for(i=0;i<xctx->rects[c];i++)
    if(xctx->rect[c][i].sel)
    {
     check_selected_storage();
-    selectedgroup[lastselected].type = xRECT;
-    selectedgroup[lastselected].n = i;
-    selectedgroup[lastselected++].col = c;
+    xctx->sel_array[xctx->lastsel].type = xRECT;
+    xctx->sel_array[xctx->lastsel].n = i;
+    xctx->sel_array[xctx->lastsel++].col = c;
    }
   for(i=0;i<xctx->lines[c];i++)
    if(xctx->line[c][i].sel)
    {
     check_selected_storage();
-    selectedgroup[lastselected].type = LINE;
-    selectedgroup[lastselected].n = i;
-    selectedgroup[lastselected++].col = c;
+    xctx->sel_array[xctx->lastsel].type = LINE;
+    xctx->sel_array[xctx->lastsel].n = i;
+    xctx->sel_array[xctx->lastsel++].col = c;
    }
   for(i=0;i<xctx->polygons[c];i++)
    if(xctx->poly[c][i].sel)
    {
     check_selected_storage();
-    selectedgroup[lastselected].type = POLYGON;
-    selectedgroup[lastselected].n = i;
-    selectedgroup[lastselected++].col = c;
+    xctx->sel_array[xctx->lastsel].type = POLYGON;
+    xctx->sel_array[xctx->lastsel].n = i;
+    xctx->sel_array[xctx->lastsel++].col = c;
    }
  }
- need_rebuild_selected_array=0;
+ xctx->need_reb_sel_arr=0;
 }
 
 void check_collapsing_objects()
@@ -164,7 +164,7 @@ void check_collapsing_objects()
    }
 
   if(found) {
-    need_rebuild_selected_array=1;
+    xctx->need_reb_sel_arr=1;
     rebuild_selected_array();
   }
 }
@@ -175,10 +175,10 @@ void update_symbol_bboxes(int rot, int flip)
 
   for(i=0;i<lastsel;i++)
   {
-    n = selectedgroup[i].n;
+    n = xctx->sel_array[i].n;
     dbg(1, "update_symbol_bboxes(): i=%d, lastsel=%d, n=%d\n", i, lastsel, n);
     dbg(1, "update_symbol_bboxes(): symbol flip=%d, rot=%d\n",  xctx->inst[n].flip, xctx->inst[n].rot);
-    if(selectedgroup[i].type == ELEMENT) {
+    if(xctx->sel_array[i].type == ELEMENT) {
       save_flip = xctx->inst[n].flip;
       save_rot = xctx->inst[n].rot;
       xctx->inst[n].flip = flip ^ xctx->inst[n].flip;
@@ -197,11 +197,11 @@ void draw_selection(GC g, int interruptable)
   int customfont;
   #endif
 
-  if(g == gc[SELLAYER]) lastsel = lastselected;
+  if(g == gc[SELLAYER]) lastsel = xctx->lastsel;
   for(i=0;i<lastsel;i++)
   {
-   c = selectedgroup[i].col;n = selectedgroup[i].n;
-   switch(selectedgroup[i].type)
+   c = xctx->sel_array[i].col;n = xctx->sel_array[i].n;
+   switch(xctx->sel_array[i].type)
    {
     case xTEXT:
      if(rotatelocal) {
@@ -523,17 +523,17 @@ void copy_objects(int what)
   rebuild_selected_array();
   save_selection(1);
   deltax = deltay = 0.0;
-  lastsel = lastselected;
-  x1=mousex_snap;y_1=mousey_snap;
+  lastsel = xctx->lastsel;
+  x1=xctx->mousex_snap;y_1=xctx->mousey_snap;
    move_flip = 0;move_rot = 0;
-  ui_state|=STARTCOPY;
+  xctx->ui_state|=STARTCOPY;
  }
  if(what & ABORT)                               /* draw objects while moving */
  {
   char *str = NULL; /* 20161122 overflow safe */
   draw_selection(gctiled,0);
   move_rot=move_flip=deltax=deltay=0;
-  ui_state&=~STARTCOPY;
+  xctx->ui_state&=~STARTCOPY;
   my_strdup(225, &str, user_conf_dir);
   my_strcat(226, &str, "/.selection.sch");
   xunlink(str);
@@ -542,7 +542,7 @@ void copy_objects(int what)
  }
  if(what & RUBBER)                              /* draw objects while moving */
  {
-  x2=mousex_snap;y_2=mousey_snap;
+  x2=xctx->mousex_snap;y_2=xctx->mousey_snap;
   draw_selection(gctiled,0);
   deltax = x2-x1; deltay = y_2 - y_1;
   draw_selection(gc[SELLAYER],1);
@@ -575,13 +575,13 @@ void copy_objects(int what)
   newpropcnt=0;
   set_modify(1); push_undo(); /* 20150327 push_undo */
   firstw = firsti = 1;
-  for(i=0;i<lastselected;i++)
+  for(i=0;i<xctx->lastsel;i++)
   {
-   n = selectedgroup[i].n;
-   if(selectedgroup[i].type == WIRE)
+   n = xctx->sel_array[i].n;
+   if(xctx->sel_array[i].type == WIRE)
    {
        if(firstw) {
-         prepared_hash_wires=0;
+         xctx->prep_hash_wires=0;
          firstw = 0;
        }
        check_wire_storage();
@@ -627,7 +627,7 @@ void copy_objects(int what)
         if(xctx->wire[n].sel == SELECTED1) xctx->wire[n].sel = SELECTED2;
         else if(xctx->wire[n].sel == SELECTED2) xctx->wire[n].sel = SELECTED1;
        }
-       selectedgroup[i].n=xctx->wires;
+       xctx->sel_array[i].n=xctx->wires;
        storeobject(-1, rx1,ry1,rx2,ry2,WIRE,0,xctx->wire[n].sel,xctx->wire[n].prop_ptr);
        xctx->wire[n].sel=0;
        if(xctx->wire[n].bus)
@@ -641,10 +641,10 @@ void copy_objects(int what)
 
   for(k=0;k<cadlayers;k++)
   {
-   for(i=0;i<lastselected;i++)
+   for(i=0;i<xctx->lastsel;i++)
    {
-    c = selectedgroup[i].col;n = selectedgroup[i].n;
-    switch(selectedgroup[i].type)
+    c = xctx->sel_array[i].col;n = xctx->sel_array[i].n;
+    switch(xctx->sel_array[i].type)
     {
      case LINE:
       if(c!=k) break;
@@ -680,7 +680,7 @@ void copy_objects(int what)
         drawline(k, THICK, rx1,ry1,rx2,ry2, xctx->line[c][n].dash);
       else
         drawline(k, ADD, rx1,ry1,rx2,ry2, xctx->line[c][n].dash);
-      selectedgroup[i].n=xctx->lines[c];
+      xctx->sel_array[i].n=xctx->lines[c];
       storeobject(-1, rx1, ry1, rx2, ry2, LINE, c, xctx->line[c][n].sel, xctx->line[c][n].prop_ptr);
       xctx->line[c][n].sel=0;
       break;
@@ -715,7 +715,7 @@ void copy_objects(int what)
         }
         /* bbox(ADD, bx1, by1, bx2, by2); */
         drawpolygon(k,  NOW, x, y, p->points, p->fill, p->dash); /* 20180914 added fill */
-        selectedgroup[i].n=xctx->polygons[c];
+        xctx->sel_array[i].n=xctx->polygons[c];
         store_poly(-1, x, y, p->points, c, p->sel, p->prop_ptr);
         p->sel=0;
         my_free(819, &x);
@@ -750,7 +750,7 @@ void copy_objects(int what)
       xctx->arc[c][n].sel=0;
       drawarc(k, ADD, rx1+deltax, ry1+deltay, 
                  xctx->arc[c][n].r, angle, xctx->arc[c][n].b, xctx->arc[c][n].fill, xctx->arc[c][n].dash);
-      selectedgroup[i].n=xctx->arcs[c];
+      xctx->sel_array[i].n=xctx->arcs[c];
       store_arc(-1, rx1+deltax, ry1+deltay,
                  xctx->arc[c][n].r, angle, xctx->arc[c][n].b, c, SELECTED, xctx->arc[c][n].prop_ptr);
       break;
@@ -771,7 +771,7 @@ void copy_objects(int what)
       xctx->rect[c][n].sel=0;
       drawrect(k, ADD, rx1+deltax, ry1+deltay, rx2+deltax, ry2+deltay, xctx->rect[c][n].dash);
       filledrect(k, ADD, rx1+deltax, ry1+deltay, rx2+deltax, ry2+deltay);
-      selectedgroup[i].n=xctx->rects[c];
+      xctx->sel_array[i].n=xctx->rects[c];
       storeobject(-1, rx1+deltax, ry1+deltay,
                  rx2+deltax, ry2+deltay,xRECT, c, SELECTED, xctx->rect[c][n].prop_ptr);
       break;
@@ -869,14 +869,14 @@ void copy_objects(int what)
         cairo_restore(cairo_save_ctx);
       }
       #endif
-      selectedgroup[i].n=xctx->texts;
+      xctx->sel_array[i].n=xctx->texts;
       xctx->texts++;
        dbg(2, "copy_objects(): done copy string\n");
       break;
      case ELEMENT:
       if(k==0) {
        if(firsti) {
-         prepared_hash_instances = 0;
+         xctx->prep_hash_inst = 0;
          firsti = 0;
        }
        check_inst_storage();
@@ -909,34 +909,34 @@ void copy_objects(int what)
        new_prop_string(xctx->instances, xctx->inst[n].prop_ptr,newpropcnt++, dis_uniq_names);
        my_strdup2(235, &xctx->inst[xctx->instances].instname,
                    get_tok_value(xctx->inst[xctx->instances].prop_ptr, "name", 0));
-       n=selectedgroup[i].n=xctx->instances;
+       n=xctx->sel_array[i].n=xctx->instances;
 
        xctx->instances++;
       }
       break;
-    } /* end switch(selectedgroup[i].type) */
-   } /* end for(i=0;i<lastselected;i++) */
+    } /* end switch(xctx->sel_array[i].type) */
+   } /* end for(i=0;i<xctx->lastsel;i++) */
 
 
 
    if(k == 0 ) {
      /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
       * to translate @#n:net_name texts */
-     need_rebuild_selected_array=1;
+     xctx->need_reb_sel_arr=1;
      rebuild_selected_array();
      if(!firsti || !firstw) {
-       prepared_netlist_structs=0;
-       prepared_hilight_structs=0;
+       xctx->prep_net_structs=0;
+       xctx->prep_hi_structs=0;
      }
      if(show_pin_net_names) {
        prepare_netlist_structs(0);
      }
    }
 
-   for(i = 0; i < lastselected; i++) {
-     n = selectedgroup[i].n;
+   for(i = 0; i < xctx->lastsel; i++) {
+     n = xctx->sel_array[i].n;
      if(k == 0) {
-       if(selectedgroup[i].type == ELEMENT) {
+       if(xctx->sel_array[i].type == ELEMENT) {
          int p;
          symbol_bbox(n, &xctx->inst[n].x1, &xctx->inst[n].y1, &xctx->inst[n].x2, &xctx->inst[n].y2 );
          bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2 );
@@ -946,7 +946,7 @@ void copy_objects(int what)
            }
          }
        }
-       if(show_pin_net_names && selectedgroup[i].type == WIRE) {
+       if(show_pin_net_names && xctx->sel_array[i].type == WIRE) {
          find_inst_to_be_redrawn(xctx->wire[n].node);
        }
      }
@@ -960,7 +960,7 @@ void copy_objects(int what)
   } /* end for(k=0;k<cadlayers;k++) */
   check_collapsing_objects();
   update_conn_cues(1, 1);
-  ui_state &= ~STARTCOPY;
+  xctx->ui_state &= ~STARTCOPY;
   x1=y_1=x2=y_2=move_rot=move_flip=deltax=deltay=0;
   bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
   draw();
@@ -996,26 +996,26 @@ void move_objects(int what, int merge, double dx, double dy)
   rotatelocal=0;
   deltax = deltay = 0.0;
   rebuild_selected_array();
-  lastsel = lastselected;
-  if(lastselected==1 && selectedgroup[0].type==ARC &&
-          xctx->arc[c=selectedgroup[0].col][n=selectedgroup[0].n].sel!=SELECTED) {
+  lastsel = xctx->lastsel;
+  if(xctx->lastsel==1 && xctx->sel_array[0].type==ARC &&
+          xctx->arc[c=xctx->sel_array[0].col][n=xctx->sel_array[0].n].sel!=SELECTED) {
     x1 = xctx->arc[c][n].x;
     y_1 = xctx->arc[c][n].y;
-  } else {x1=mousex_snap;y_1=mousey_snap;}
+  } else {x1=xctx->mousex_snap;y_1=xctx->mousey_snap;}
   move_flip = 0;move_rot = 0;
-  ui_state|=STARTMOVE;
+  xctx->ui_state|=STARTMOVE;
  }
  if(what & ABORT)                               /* draw objects while moving */
  {
   draw_selection(gctiled,0);
   move_rot=move_flip=deltax=deltay=0;
-  ui_state &= ~STARTMOVE;
-  ui_state &= ~PLACE_SYMBOL;
+  xctx->ui_state &= ~STARTMOVE;
+  xctx->ui_state &= ~PLACE_SYMBOL;
   update_symbol_bboxes(0, 0);
  }
  if(what & RUBBER)                              /* abort operation */
  {
-  x2=mousex_snap;y_2=mousey_snap;
+  x2=xctx->mousex_snap;y_2=xctx->mousey_snap;
   draw_selection(gctiled,0);
   deltax = x2-x1; deltay = y_2 - y_1;
   draw_selection(gc[SELLAYER],1);
@@ -1044,11 +1044,11 @@ void move_objects(int what, int merge, double dx, double dy)
   draw_selection(gctiled,0);
   bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   set_modify(1);
-  if( !(ui_state & (STARTMERGE | PLACE_SYMBOL)) ) {
+  if( !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL)) ) {
     dbg(1, "move_objects(): push undo state\n");
     push_undo(); /* 20150327 push_undo */
   }
-  ui_state &= ~PLACE_SYMBOL;
+  xctx->ui_state &= ~PLACE_SYMBOL;
   if(dx!=0.0 || dy!=0.0) {
     deltax = dx;
     deltay = dy;
@@ -1056,10 +1056,10 @@ void move_objects(int what, int merge, double dx, double dy)
 
   /* calculate moving symbols bboxes before actually doing the move */
   firsti = firstw = 1;
-  for(i=0;i<lastselected;i++)
+  for(i=0;i<xctx->lastsel;i++)
   {
-    n = selectedgroup[i].n;
-    if( selectedgroup[i].type == ELEMENT) {
+    n = xctx->sel_array[i].n;
+    if( xctx->sel_array[i].type == ELEMENT) {
        int p;
        symbol_bbox(n, &inst[n].x1, &inst[n].y1, &inst[n].x2, &inst[n].y2 );
        bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
@@ -1069,21 +1069,21 @@ void move_objects(int what, int merge, double dx, double dy)
          }
        }
     }
-    if(show_pin_net_names && selectedgroup[i].type == WIRE) {
+    if(show_pin_net_names && xctx->sel_array[i].type == WIRE) {
       find_inst_to_be_redrawn(wire[n].node);
     }
   }
   if(show_pin_net_names) find_inst_hash_clear();
   for(k=0;k<cadlayers;k++)
   {
-   for(i=0;i<lastselected;i++)
+   for(i=0;i<xctx->lastsel;i++)
    {
-    c = selectedgroup[i].col;n = selectedgroup[i].n;
-    switch(selectedgroup[i].type)
+    c = xctx->sel_array[i].col;n = xctx->sel_array[i].n;
+    switch(xctx->sel_array[i].type)
     {
      case WIRE:
       if(firstw) {
-        prepared_hash_wires=0;
+        xctx->prep_hash_wires=0;
         firstw = 0;
       }
       if(k == 0) {
@@ -1407,7 +1407,7 @@ void move_objects(int what, int merge, double dx, double dy)
      case ELEMENT:
       if(k==0) {
        if(firsti) {
-         prepared_hash_instances=0;
+         xctx->prep_hash_inst=0;
          firsti = 0;
        }
        if(rotatelocal) {
@@ -1423,24 +1423,24 @@ void move_objects(int what, int merge, double dx, double dy)
 
       }
       break;
-    } /* end switch(selectedgroup[i].type) */
-   } /* end for(i=0;i<lastselected;i++) */
+    } /* end switch(xctx->sel_array[i].type) */
+   } /* end for(i=0;i<xctx->lastsel;i++) */
 
    if(k == 0 ) {
      /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
       * to translate @#n:net_name texts */
      if(!firsti || !firstw) {
-       prepared_netlist_structs=0;
-       prepared_hilight_structs=0;
+       xctx->prep_net_structs=0;
+       xctx->prep_hi_structs=0;
      }
      if(show_pin_net_names) {
        prepare_netlist_structs(0);
      }
    }
-   for(i = 0; i < lastselected; i++) {
-     n = selectedgroup[i].n;
+   for(i = 0; i < xctx->lastsel; i++) {
+     n = xctx->sel_array[i].n;
      if(k == 0) {
-       if(selectedgroup[i].type == ELEMENT) {
+       if(xctx->sel_array[i].type == ELEMENT) {
          int p;
          symbol_bbox(n, &inst[n].x1, &inst[n].y1, &inst[n].x2, &inst[n].y2 );
          bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
@@ -1450,7 +1450,7 @@ void move_objects(int what, int merge, double dx, double dy)
            }
          }
        }
-       if(show_pin_net_names && selectedgroup[i].type == WIRE) {
+       if(show_pin_net_names && xctx->sel_array[i].type == WIRE) {
          find_inst_to_be_redrawn(wire[n].node);
        }
      }
@@ -1465,11 +1465,11 @@ void move_objects(int what, int merge, double dx, double dy)
   } /*end for(k=0;k<cadlayers;k++) */
   check_collapsing_objects();
   update_conn_cues(1, 1);
-  ui_state &= ~STARTMOVE;
-  ui_state &= ~STARTMERGE;
+  xctx->ui_state &= ~STARTMOVE;
+  xctx->ui_state &= ~STARTMERGE;
   x1=y_1=x2=y_2=move_rot=move_flip=deltax=deltay=0;
   bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-  dbg(2, "move_objects(): bbox= %d %d %d %d\n", areax1, areay1, areaw, areah);
+  dbg(2, "move_objects(): bbox= %d %d %d %d\n", xctx->areax1, xctx->areay1, xctx->areaw, xctx->areah);
   draw();
   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   rotatelocal=0;

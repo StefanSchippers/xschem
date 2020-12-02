@@ -41,7 +41,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  char cellname[PATH_MAX]; /* 20081211 overflow safe 20161122 */
  char *subckt_name;
 
- if(modified) {
+ if(xctx->modified) {
    save_ok = save_schematic(xctx->sch[xctx->currsch]);
    if(save_ok == -1) return;
  }
@@ -64,8 +64,8 @@ void global_spice_netlist(int global)  /* netlister driver */
  dbg(1, "global_spice_netlist(): opening %s for writing\n",netl_filename);
  fd=fopen(netl_filename, "w");
 
- if(user_top_netl_name[0]) {
-   my_snprintf(cellname, S(cellname), "%s", get_cell(user_top_netl_name, 0));
+ if(xctx->netlist_name[0]) {
+   my_snprintf(cellname, S(cellname), "%s", get_cell(xctx->netlist_name, 0));
  } else {
    my_snprintf(cellname, S(cellname), "%s.spice", skip_dir(xctx->sch[xctx->currsch]));
  }
@@ -372,9 +372,8 @@ void spice_netlist(FILE *fd, int spice_stop )
   int i;
   char *type=NULL;
  
-  prepared_netlist_structs = 0;
+  xctx->prep_net_structs = 0;
   prepare_netlist_structs(1);
-  /* set_modify(1); */ /* 20160302 prepare_netlist_structs could change schematic (wire node naming for example) */
   traverse_node_hash();  /* print all warnings about unconnected floatings etc */
   if(!spice_stop) {
     for(i=0;i<xctx->instances;i++) /* print first ipin/opin defs ... */
@@ -399,7 +398,8 @@ void spice_netlist(FILE *fd, int spice_stop )
      my_strdup(390, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
  
      if( type && !IS_LABEL_OR_PIN(type) ) {
-       if(!strcmp(type,"netlist_commands") && netlist_count==0) continue; /* already done in global_spice_netlist */
+       /* already done in global_spice_netlist */
+       if(!strcmp(type,"netlist_commands") && netlist_count==0) continue;
        if(netlist_count &&
           !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "only_toplevel", 0), "true")) continue;
        if(!strcmp(type,"netlist_commands")) {

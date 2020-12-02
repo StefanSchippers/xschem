@@ -110,7 +110,7 @@ void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == SHORT && *opt == 'N') || (type == LONG && !strcmp("netlist_filename", opt)) ) {
         dbg(1, "process_options(): set netlist name to %s\n", optval);
-        if(optval) my_strncpy(user_top_netl_name, optval, S(user_top_netl_name));
+        if(optval) my_strncpy(xctx->netlist_name, optval, S(xctx->netlist_name));
 
     } else if( (type == SHORT && *opt == 's') || (type == LONG && !strcmp("spice", opt)) ) {
         dbg(1, "process_options(): set netlist type to spice\n");

@@ -56,10 +56,10 @@ void update_conn_cues(int draw_cues, int dr_win)
   if(!xctx->wires) return;
   if(!draw_dots) return;
   if(cadhalfdotsize*xctx->mooz<0.7) return;
-  x1 = X_TO_XSCHEM(areax1);
-  y1 = Y_TO_XSCHEM(areay1);
-  x2 = X_TO_XSCHEM(areax2);
-  y2 = Y_TO_XSCHEM(areay2);
+  x1 = X_TO_XSCHEM(xctx->areax1);
+  y1 = Y_TO_XSCHEM(xctx->areay1);
+  x2 = X_TO_XSCHEM(xctx->areax2);
+  y2 = Y_TO_XSCHEM(xctx->areay2);
   for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
     k=wireptr->n;
     /* optimization when editing small areas (detailed zoom)  of a huge schematic */
@@ -142,7 +142,7 @@ void trim_wires(void)
   static unsigned short *wireflag=NULL;
 
   doloops = 0;
-  prepared_hash_wires = 0;
+  xctx->prep_hash_wires = 0;
   timer(0);
   do {
     dbg(1, "trim_wires(): start: %g\n", timer(1));
@@ -264,7 +264,7 @@ void trim_wires(void)
     }
     xctx->wires -= j;
     if(j) {
-      prepared_hash_wires=0;
+      xctx->prep_hash_wires=0;
       changed = 1;
     }
     dbg(1, "trim_wires(): delete_1: %g\n", timer(1));
@@ -359,15 +359,15 @@ void trim_wires(void)
     }
     xctx->wires -= j;
     if(j) {
-      prepared_hash_wires=0; /* after wire deletions full rehash is needed */
+      xctx->prep_hash_wires=0; /* after wire deletions full rehash is needed */
       changed = 1;
     }
     dbg(1, "trim_wires(): delete_2: %g\n", timer(1));
 
     if(changed) {
-      need_rebuild_selected_array = 1;
-      prepared_netlist_structs=0;
-      prepared_hilight_structs=0;
+      xctx->need_reb_sel_arr = 1;
+      xctx->prep_net_structs=0;
+      xctx->prep_hi_structs=0;
       set_modify(1);
     }
   } while(changed);
@@ -384,12 +384,12 @@ void break_wires_at_pins(void)
   int changed=0;
 
   hash_wires();
-  need_rebuild_selected_array=1;
+  xctx->need_reb_sel_arr=1;
   rebuild_selected_array();
 
   /* for(k=0;k<xctx->instances;k++) */
-  for(j=0;j<lastselected;j++) if(selectedgroup[j].type==ELEMENT) {
-    k = selectedgroup[j].n;
+  for(j=0;j<xctx->lastsel;j++) if(xctx->sel_array[j].type==ELEMENT) {
+    k = xctx->sel_array[j].n;
     if( (rects = (xctx->inst[k].ptr+ xctx->sym)->rects[PINLAYER]) > 0 )
     {
       for(r=0;r<rects;r++)
@@ -426,7 +426,7 @@ void break_wires_at_pins(void)
               xctx->wire[xctx->wires].node=NULL;
               hash_wire(XINSERT, xctx->wires, 0);  /* insertion happens at beginning of list */
               my_strdup(32, &xctx->wire[xctx->wires].node, xctx->wire[i].node);
-              need_rebuild_selected_array=1;
+              xctx->need_reb_sel_arr=1;
               xctx->wires++;
               xctx->wire[i].x1 = x0;
               xctx->wire[i].y1 = y0;
@@ -436,14 +436,14 @@ void break_wires_at_pins(void)
       }
     }
   }
-  /* prepared_hash_wires=0; */
+  /* xctx->prep_hash_wires=0; */
   /* hash_wires(); */
   rebuild_selected_array();
-  for(j=0;j<lastselected;j++) if(selectedgroup[j].type==WIRE) {
+  for(j=0;j<xctx->lastsel;j++) if(xctx->sel_array[j].type==WIRE) {
   /* for(k=0; k < xctx->wires; k++) { */
     int l;
 
-    k = selectedgroup[j].n;
+    k = xctx->sel_array[j].n;
     for(l=0;l<2;l++) {
       if(l==0 ) {
         x0 = xctx->wire[k].x1;
@@ -481,7 +481,7 @@ void break_wires_at_pins(void)
               xctx->wire[xctx->wires].bus=0;
             xctx->wire[xctx->wires].node=NULL;
             hash_wire(XINSERT, xctx->wires, 0);  /* insertion happens at beginning of list */
-            need_rebuild_selected_array=1;
+            xctx->need_reb_sel_arr=1;
             xctx->wires++;
             xctx->wire[i].x1 = x0;
             xctx->wire[i].y1 = y0;
@@ -491,9 +491,9 @@ void break_wires_at_pins(void)
     }
   }
   set_modify(1);
-  prepared_netlist_structs=0;
-  prepared_hilight_structs=0;
-  prepared_hash_wires=0;
+  xctx->prep_net_structs=0;
+  xctx->prep_hi_structs=0;
+  xctx->prep_hash_wires=0;
   /*update_conn_cues(0, 0); */
 
 }

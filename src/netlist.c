@@ -62,7 +62,7 @@ void del_inst_table(void)
   for(i=0;i<NBOXES;i++)
     for(j=0;j<NBOXES;j++)
       insttable[i][j] = delinstentry(insttable[i][j]);
-  prepared_hash_instances=0;
+  xctx->prep_hash_inst=0;
   dbg(1, "del_inst_table(): cleared object hash table\n");
 }
 
@@ -114,12 +114,12 @@ void hash_instances(void) /* 20171203 insert object bbox in spatial hash table *
 {
  int n;
 
- if(prepared_hash_instances) return;
+ if(xctx->prep_hash_inst) return;
  del_inst_table();
  for(n=0; n<xctx->instances; n++) {
    hash_inst(XINSERT, n);
  }
- prepared_hash_instances=1;
+ xctx->prep_hash_inst=1;
 }
 
 static void instpindelete(int n,int pin, int x, int y)
@@ -221,7 +221,7 @@ void del_wire_table(void)
  for(i=0;i<NBOXES;i++)
   for(j=0;j<NBOXES;j++)
    wiretable[i][j] = delwireentry(wiretable[i][j]);
- prepared_hash_wires=0;
+ xctx->prep_hash_wires=0;
 }
 
 void get_square(double x, double y, int *xx, int *yy)
@@ -349,11 +349,11 @@ void hash_wires(void)
 {
  int n;
 
- if(prepared_hash_wires) return;
+ if(xctx->prep_hash_wires) return;
  del_wire_table();
 
  for(n=0; n<xctx->wires; n++) hash_wire(XINSERT, n, 0);
- prepared_hash_wires=1;
+ xctx->prep_hash_wires=1;
 }
 
 /* return 0 if library path of s matches any lib name in tcl variable $xschem_libs */
@@ -630,8 +630,8 @@ void prepare_netlist_structs(int for_netlist)
   xInstance * const inst = xctx->inst;
   int const instances = xctx->instances;
 
-  if (for_netlist>0 && prepared_netlist_structs) return;
-  else if (!for_netlist && prepared_hilight_structs) return;
+  if (for_netlist>0 && xctx->prep_net_structs) return;
+  else if (!for_netlist && xctx->prep_hi_structs) return;
   /* delete instance pins spatial hash, wires spatial hash, node_hash, wires and inst nodes.*/
   else delete_netlist_structs();
   if(netlist_count == 0 ) startlevel = xctx->currsch;
@@ -803,7 +803,8 @@ void prepare_netlist_structs(int for_netlist)
       my_strdup(265, &xctx->wire[i].node , tmp_str);
       my_strdup(266, &xctx->wire[i].prop_ptr,
       subst_token(xctx->wire[i].prop_ptr, "lab", xctx->wire[i].node));
-      bus_hash_lookup(xctx->wire[i].node,"", XINSERT, 0,"","","","");   /* insert unnamed wire name in hash table */
+      /* insert unnamed wire name in hash table */
+      bus_hash_lookup(xctx->wire[i].node,"", XINSERT, 0,"","","","");
       wirecheck(i);
     }
   }
@@ -1014,9 +1015,9 @@ void prepare_netlist_structs(int for_netlist)
   /*---------------------- */
   rebuild_selected_array();
   if (for_netlist>0) {
-    prepared_netlist_structs=1;
-    prepared_hilight_structs=1;
-  } else prepared_hilight_structs=1;
+    xctx->prep_net_structs=1;
+    xctx->prep_hi_structs=1;
+  } else xctx->prep_hi_structs=1;
 
   my_free(835, &dir);
   my_free(836, &type);
@@ -1132,7 +1133,8 @@ int sym_vs_sch_pins()
               }
 
               if(fscanf(fd, "%lf %lf %d %d", &tmpd, &tmpd, &tmpi, &tmpi) < 4) {
-                fprintf(errfp,"sym_vs_sch_pins() WARNING: missing fields for INST object, filename=%s\n", filename);
+                fprintf(errfp,"sym_vs_sch_pins() WARNING: missing fields for INST object, filename=%s\n",
+                  filename);
                 read_line(fd, 0);
                 break;
               }
@@ -1304,6 +1306,6 @@ void delete_netlist_structs(void)
   del_inst_pin_table();
   free_node_hash();
   dbg(1, "delete_netlist_structs(): end erasing\n");
-  prepared_netlist_structs=0;
-  prepared_hilight_structs=0;
+  xctx->prep_net_structs=0;
+  xctx->prep_hi_structs=0;
 }

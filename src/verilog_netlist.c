@@ -39,7 +39,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  struct stat buf;
  char *subckt_name;
 
- if(modified) {
+ if(xctx->modified) {
    save_ok = save_schematic(xctx->sch[xctx->currsch]);
    if(save_ok == -1) return;
  }
@@ -53,8 +53,8 @@ void global_verilog_netlist(int global)  /* netlister driver */
    netlist_dir, skip_dir(xctx->sch[xctx->currsch]),getpid());
  fd=fopen(netl_filename, "w");
 
- if(user_top_netl_name[0]) {
-   my_snprintf(cellname, S(cellname), "%s", get_cell(user_top_netl_name, 0));
+ if(xctx->netlist_name[0]) {
+   my_snprintf(cellname, S(cellname), "%s", get_cell(xctx->netlist_name, 0));
  } else {
    my_snprintf(cellname, S(cellname), "%s.v", skip_dir(xctx->sch[xctx->currsch]));
  }
@@ -365,7 +365,8 @@ void verilog_block_netlist(FILE *fd, int i)
 
 
   if(split_files) {
-    my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", netlist_dir,  skip_dir(xctx->sym[i].name), getpid());
+    my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
+       netlist_dir,  skip_dir(xctx->sym[i].name), getpid());
     dbg(1, "global_vhdl_netlist(): split_files: netl_filename=%s\n", netl_filename);
     fd=fopen(netl_filename, "w");
     my_snprintf(cellname, S(cellname), "%s.v", skip_dir(xctx->sym[i].name) );
@@ -500,7 +501,7 @@ void verilog_netlist(FILE *fd , int verilog_stop)
  int i;
  char *type=NULL;
 
- prepared_netlist_structs = 0;
+ xctx->prep_net_structs = 0;
  prepare_netlist_structs(1);
  /* set_modify(1); */ /* 20160302 prepare_netlist_structs could change schematic (wire node naming for example) */
  dbg(2, "verilog_netlist(): end prepare_netlist_structs\n");
@@ -532,7 +533,7 @@ void verilog_netlist(FILE *fd , int verilog_stop)
          strcmp(type,"verilog_preprocessor")
        ))
     {
-     if(lastselected)
+     if(xctx->lastsel)
      {
       if(xctx->inst[i].sel==SELECTED) print_verilog_element(fd, i) ;
      }

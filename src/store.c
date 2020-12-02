@@ -34,10 +34,10 @@ void check_wire_storage(void)
 
 void check_selected_storage(void)
 {
- if(lastselected >= max_selected)
+ if(xctx->lastsel >= xctx->maxsel)
  {
-  max_selected=(1+lastselected / MAXGROUP) * MAXGROUP;
-  my_realloc(393, &selectedgroup, sizeof(Selected)*max_selected);
+  xctx->maxsel=(1+xctx->lastsel / MAXGROUP) * MAXGROUP;
+  my_realloc(393, &xctx->sel_array, sizeof(Selected)*xctx->maxsel);
  }
 }
 

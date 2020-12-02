@@ -508,6 +508,23 @@ typedef struct {
   double zoom;
   double mooz;
   double lw;
+  unsigned long ui_state ; /* this signals that we are doing a net place,panning etc.
+                            * used to prevent nesting of some commands */
+  double mousex,mousey; /* mouse coord. */
+  double mousex_snap,mousey_snap; /* mouse coord. snapped to grid */
+  double mx_double_save, my_double_save;
+  int areax1,areay1,areax2,areay2,areaw,areah; /* window corners / size, line width beyond screen edges */
+  int xschem_h, xschem_w; /* true window size from XGetWindowAttributes */
+  int need_reb_sel_arr;
+  int lastsel;
+  int maxsel;
+  Selected *sel_array;
+  int prep_net_structs;
+  int prep_hi_structs;
+  int prep_hash_inst;
+  int prep_hash_wires;
+  int modified;
+  char netlist_name[PATH_MAX];
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
@@ -647,10 +664,6 @@ extern int split_files;
 extern char *netlist_dir;
 extern char user_top_netl_name[PATH_MAX];
 extern char bus_replacement_char[];
-
-extern unsigned long ui_state ; /*  this signals that we are doing a net place, */
-                              /*  panning etc... */
-
 extern char *undo_dirname;
 extern int cur_undo_ptr;
 extern int tail_undo_ptr;

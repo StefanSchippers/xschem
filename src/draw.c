@@ -59,15 +59,15 @@ void print_image()
   if(!has_x) return ;
 
   changed_size = 0;
-  w = ww = xschem_w;
-  h = hh = xschem_h;
+  w = ww = xctx->xschem_w;
+  h = hh = xctx->xschem_h;
   if(!plotfile[0]) {
-    my_snprintf(cmd, S(cmd), "input_line {Enter image size} {} {%dx%d}", xschem_w, xschem_h);
+    my_snprintf(cmd, S(cmd), "input_line {Enter image size} {} {%dx%d}", xctx->xschem_w, xctx->xschem_h);
     tcleval(cmd);
     if(sscanf(tclresult(), "%dx%d", &w, &h) != 2) {
-      w = xschem_w; h = xschem_h;
+      w = xctx->xschem_w; h = xctx->xschem_h;
     } else {
-     if(w != xschem_w || h != xschem_h) changed_size = 1;
+     if(w != xctx->xschem_w || h != xctx->xschem_h) changed_size = 1;
     }
     my_strdup(60, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir [pwd]");
     tcleval(tmpstring);
@@ -77,7 +77,7 @@ void print_image()
     else return;
   }
 
-  modified_save=modified; /* 20161121 save state */
+  modified_save=xctx->modified; /* 20161121 save state */
   push_undo();
   trim_wires();    /* 20161121 add connection boxes on wires but undo at end */
 
@@ -85,20 +85,20 @@ void print_image()
 
   xrect[0].x = 0;
   xrect[0].y = 0;
-  xschem_w = xrect[0].width = w;
-  xschem_h = xrect[0].height = h;
-  areax2 = w+2*INT_WIDTH(xctx->lw);
-  areay2 = h+2*INT_WIDTH(xctx->lw);
-  areax1 = -2*INT_WIDTH(xctx->lw);
-  areay1 = -2*INT_WIDTH(xctx->lw);
-  areaw = areax2-areax1;
-  areah = areay2-areay1;
+  xctx->xschem_w = xrect[0].width = w;
+  xctx->xschem_h = xrect[0].height = h;
+  xctx->areax2 = w+2*INT_WIDTH(xctx->lw);
+  xctx->areay2 = h+2*INT_WIDTH(xctx->lw);
+  xctx->areax1 = -2*INT_WIDTH(xctx->lw);
+  xctx->areay1 = -2*INT_WIDTH(xctx->lw);
+  xctx->areaw = xctx->areax2-xctx->areax1;
+  xctx->areah = xctx->areay2-xctx->areay1;
   saveorx = xctx->xorigin;
   saveory = xctx->yorigin;
   savezoom = xctx->zoom;
 #ifdef __unix__
   XFreePixmap(display,save_pixmap);
-  /* save_pixmap = XCreatePixmap(display,window,areaw,areah,depth); */
+  /* save_pixmap = XCreatePixmap(display,window,xctx->areaw,xctx->areah,depth); */
   save_pixmap = XCreatePixmap(display,window,w,h,depth); /* 20161119 pixmap should be exact size of  */
                                                          /* cliprectangle to avoid random borders */
 #else
@@ -156,29 +156,29 @@ void print_image()
   } else tcleval( "convert_to_png plot.xpm plot.png");
   my_strncpy(plotfile,"", S(plotfile));
   pop_undo(0); /* 20161121 restore state */
-  modified=modified_save;
+  xctx->modified=modified_save;
 
   w=ww;h=hh;
   xrect[0].x = 0;
   xrect[0].y = 0;
-  xschem_w = xrect[0].width = w;
-  xschem_h = xrect[0].height = h;
-  areax2 = w+2*INT_WIDTH(xctx->lw);
-  areay2 = h+2*INT_WIDTH(xctx->lw);
-  areax1 = -2*INT_WIDTH(xctx->lw);
-  areay1 = -2*INT_WIDTH(xctx->lw);
-  areaw = areax2-areax1;
-  areah = areay2-areay1;
+  xctx->xschem_w = xrect[0].width = w;
+  xctx->xschem_h = xrect[0].height = h;
+  xctx->areax2 = w+2*INT_WIDTH(xctx->lw);
+  xctx->areay2 = h+2*INT_WIDTH(xctx->lw);
+  xctx->areax1 = -2*INT_WIDTH(xctx->lw);
+  xctx->areay1 = -2*INT_WIDTH(xctx->lw);
+  xctx->areaw = xctx->areax2-xctx->areax1;
+  xctx->areah = xctx->areay2-xctx->areay1;
   xctx->zoom = savezoom;
   xctx->mooz = 1/xctx->zoom;
   xctx->xorigin = saveorx;
   xctx->yorigin = saveory;
 #ifdef __unix__
   XFreePixmap(display,save_pixmap);
-  save_pixmap = XCreatePixmap(display,window,areaw,areah,depth);
+  save_pixmap = XCreatePixmap(display,window,xctx->areaw,xctx->areah,depth);
 #else
   Tk_FreePixmap(display, save_pixmap);
-  save_pixmap = Tk_GetPixmap(display, window, areaw, areah, depth);
+  save_pixmap = Tk_GetPixmap(display, window, xctx->areaw, xctx->areah, depth);
 #endif
   XSetTile(display, gctiled, save_pixmap);
 
@@ -329,7 +329,7 @@ void draw_string(int layer, int what, const char *str, int rot, int flip, int hc
   if(size*xctx->mooz>1600) return; /* too big */
 
   text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &textx1,&texty1,&textx2,&texty2);
-  if(!textclip(areax1,areay1,areax2,areay2,textx1,texty1,textx2,texty2)) {
+  if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,textx1,texty1,textx2,texty2)) {
     return;
   }
   
@@ -410,7 +410,7 @@ void draw_string(int layer, int what, const char *str, int rot, int flip, int hc
   text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1, &textx1,&texty1,&textx2,&texty2);
   xscale*=nocairo_font_xscale;
   yscale*=nocairo_font_yscale;
-  if(!textclip(areax1,areay1,areax2,areay2,textx1,texty1,textx2,texty2)) return;
+  if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,textx1,texty1,textx2,texty2)) return;
   x1=textx1;y1=texty1;
   if(rot&1) {y1=texty2;rot=3;}
   else rot=0;
@@ -499,7 +499,7 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
       xctx->inst[n].flags|=1;
       return;
     }
-    else if(OUTSIDE(x1,y1,x2,y2,areax1,areay1,areax2,areay2))
+    else if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
     {
      xctx->inst[n].flags|=1;
      return;
@@ -659,7 +659,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
    x2=X_TO_SCREEN(xctx->inst[n].x2+xoffset);
    y1=Y_TO_SCREEN(xctx->inst[n].y1+yoffset);
    y2=Y_TO_SCREEN (xctx->inst[n].y2+yoffset);
-   if(OUTSIDE(x1,y1,x2,y2,areax1,areay1,areax2,areay2))
+   if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
    {
     xctx->inst[n].flags|=1;
     return;
@@ -761,22 +761,22 @@ void drawgrid()
  delta=cadgrid*xctx->mooz;
  while(delta<CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
  x = xctx->xorigin*xctx->mooz;y = xctx->yorigin*xctx->mooz;
- if(y>areay1 && y<areay2)
+ if(y>xctx->areay1 && y<xctx->areay2)
  {
-  if(draw_window) XDrawLine(display, window, gc[GRIDLAYER],areax1+1,(int)y, areax2-1, (int)y);
+  if(draw_window) XDrawLine(display, window, gc[GRIDLAYER],xctx->areax1+1,(int)y, xctx->areax2-1, (int)y);
   if(draw_pixmap)
-    XDrawLine(display, save_pixmap, gc[GRIDLAYER],areax1+1,(int)y, areax2-1, (int)y);
+    XDrawLine(display, save_pixmap, gc[GRIDLAYER],xctx->areax1+1,(int)y, xctx->areax2-1, (int)y);
  }
- if(x>areax1 && x<areax2)
+ if(x>xctx->areax1 && x<xctx->areax2)
  {
-  if(draw_window) XDrawLine(display, window, gc[GRIDLAYER],(int)x,areay1+1, (int)x, areay2-1);
+  if(draw_window) XDrawLine(display, window, gc[GRIDLAYER],(int)x,xctx->areay1+1, (int)x, xctx->areay2-1);
   if(draw_pixmap)
-    XDrawLine(display, save_pixmap, gc[GRIDLAYER],(int)x,areay1+1, (int)x, areay2-1);
+    XDrawLine(display, save_pixmap, gc[GRIDLAYER],(int)x,xctx->areay1+1, (int)x, xctx->areay2-1);
  }
- tmp = floor((areay1+1)/delta)*delta-fmod(-xctx->yorigin*xctx->mooz,delta);
- for(x=floor((areax1+1)/delta)*delta-fmod(-xctx->xorigin*xctx->mooz,delta);x<areax2;x+=delta)
+ tmp = floor((xctx->areay1+1)/delta)*delta-fmod(-xctx->yorigin*xctx->mooz,delta);
+ for(x=floor((xctx->areax1+1)/delta)*delta-fmod(-xctx->xorigin*xctx->mooz,delta);x<xctx->areax2;x+=delta)
  {
-  for(y=tmp;y<areay2;y+=delta)
+  for(y=tmp;y<xctx->areay2;y+=delta)
   {
    if(i>=CADMAXGRIDPOINTS)
    {
@@ -1006,7 +1006,7 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
   y1=Y_TO_SCREEN(y1);
   x2=X_TO_SCREEN(x2);
   y2=Y_TO_SCREEN(y2);
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    xarc[i].x=(short)xx1;
    xarc[i].y=(short)yy1;
@@ -1028,7 +1028,7 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
   y1=Y_TO_SCREEN(y1);
   x2=X_TO_SCREEN(x2);
   y2=Y_TO_SCREEN(y2);
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    XDrawArc(display, window, gc, xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
   }
@@ -1101,7 +1101,7 @@ void filledarc(int c, int what, double x, double y, double r, double a, double b
   y1=Y_TO_SCREEN(y1);
   x2=X_TO_SCREEN(x2);
   y2=Y_TO_SCREEN(y2);
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    xarc[i].x=(short)xx1;
    xarc[i].y=(short)yy1;
@@ -1123,7 +1123,7 @@ void filledarc(int c, int what, double x, double y, double r, double a, double b
   y1=Y_TO_SCREEN(y1);
   x2=X_TO_SCREEN(x2);
   y2=Y_TO_SCREEN(y2);
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    if(draw_window) XFillArc(display, window, gc[c], xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
    if(draw_pixmap) XFillArc(display, save_pixmap, gc[c], xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
@@ -1166,7 +1166,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
   y1=Y_TO_SCREEN(y1);
   x2=X_TO_SCREEN(x2);
   y2=Y_TO_SCREEN(y2);
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    xarc[i].x=(short)xx1;
    xarc[i].y=(short)yy1;
@@ -1191,7 +1191,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
   y1=Y_TO_SCREEN(y1);
   x2=X_TO_SCREEN(x2);
   y2=Y_TO_SCREEN(y2);
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    if(dash) {
      char dash_arr[2];
@@ -1245,7 +1245,7 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
   if(!only_probes && (x2-x1)< 2 && (y2-y1)< 2) return;
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    if(draw_window) XFillRectangle(display, window, gcstipple[c], (int)x1, (int)y1,
     (unsigned int)x2 - (unsigned int)x1,
@@ -1271,7 +1271,7 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
   if(!only_probes && (x2-x1)< 2 && (y2-y1)< 2) return;
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    r[i].x=(short)x1;
    r[i].y=(short)y1;
@@ -1370,7 +1370,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   y1=Y_TO_SCREEN(y1);
   x2=X_TO_SCREEN(x2);
   y2=Y_TO_SCREEN(y2);
-  if( !rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) ) {
+  if( !rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
     return;
   }
   if( !only_probes && (x2-x1)<0.3 && (y2-y1)<0.3) return;
@@ -1415,7 +1415,7 @@ void drawtemppolygon(GC g, int what, double *x, double *y, int points)
   x2=X_TO_SCREEN(x2);
   y2=Y_TO_SCREEN(y2);
   p = my_malloc(39, sizeof(XPoint) * points);
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) ) {
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
     for(i=0;i<points; i++) {
       p[i].x = X_TO_SCREEN(x[i]);
       p[i].y = Y_TO_SCREEN(y[i]);
@@ -1441,7 +1441,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
   if(!only_probes && (x2-x1)< 0.3 && (y2-y1)< 0.3) return;
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    if(dash) {
      dash_arr[0] = dash_arr[1] = dash;
@@ -1477,7 +1477,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
   if(!only_probes && (x2-x1)< 0.3 && (y2-y1)< 0.3) return;
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    r[i].x=(short)x1;
    r[i].y=(short)y1;
@@ -1508,7 +1508,7 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
   if( (x2-x1)< 0.3 && (y2-y1)< 0.3) return;
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    XDrawRectangle(display, window, gc, (int)x1, (int)y1,
     (unsigned int)x2 - (unsigned int)x1,
@@ -1528,7 +1528,7 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
   if( (x2-x1)< 0.3 && (y2-y1)< 0.3) return;
-  if( rectclip(areax1,areay1,areax2,areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    r[i].x=(short)x1;
    r[i].y=(short)y1;
@@ -1565,14 +1565,15 @@ void draw(void)
  rebuild_selected_array();
  if(has_x) {
     if(draw_pixmap)
-      XFillRectangle(display, save_pixmap, gc[BACKLAYER], areax1, areay1, areaw, areah);
-    if(draw_window) XFillRectangle(display, window, gc[BACKLAYER], areax1, areay1, areaw, areah);
-    dbg(2, "draw(): window: %d %d %d %d\n",areax1, areay1, areax2, areay2);
+      XFillRectangle(display, save_pixmap, gc[BACKLAYER], xctx->areax1, xctx->areay1, xctx->areaw, xctx->areah);
+    if(draw_window) 
+      XFillRectangle(display, window, gc[BACKLAYER], xctx->areax1, xctx->areay1, xctx->areaw, xctx->areah);
+    dbg(2, "draw(): window: %d %d %d %d\n",xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
     drawgrid();
-    x1 = X_TO_XSCHEM(areax1);
-    y1 = Y_TO_XSCHEM(areay1);
-    x2 = X_TO_XSCHEM(areax2);
-    y2 = Y_TO_XSCHEM(areay2);
+    x1 = X_TO_XSCHEM(xctx->areax1);
+    y1 = Y_TO_XSCHEM(xctx->areay1);
+    x2 = X_TO_XSCHEM(xctx->areax2);
+    y2 = Y_TO_XSCHEM(xctx->areay2);
     use_hash =  (xctx->wires> 2000 || xctx->instances > 2000 ) &&  (x2 - x1  < ITERATOR_THRESHOLD);
 
     if(use_hash) {

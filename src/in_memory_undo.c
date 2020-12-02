@@ -423,10 +423,10 @@ void pop_undo(int redo)
 
   link_symbols_to_instances();
   set_modify(1);
-  prepared_hash_instances=0;
-  prepared_hash_wires=0;
-  prepared_netlist_structs=0;
-  prepared_hilight_structs=0;
+  xctx->prep_hash_inst=0;
+  xctx->prep_hash_wires=0;
+  xctx->prep_net_structs=0;
+  xctx->prep_hi_structs=0;
   update_conn_cues(0, 0);
 }
 

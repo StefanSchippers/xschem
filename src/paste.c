@@ -317,10 +317,10 @@ void merge_file(int selection_load, const char ext[])
       my_snprintf(name, S(name), "%s/.clipboard.sch", user_conf_dir);
     }
     if( (fd=fopen(name,"r"))!= NULL) {
-     prepared_hilight_structs=0;
-     prepared_netlist_structs=0;
-     prepared_hash_instances=0;
-     prepared_hash_wires=0;
+     xctx->prep_hi_structs=0;
+     xctx->prep_net_structs=0;
+     xctx->prep_hash_inst=0;
+     xctx->prep_hash_wires=0;
      got_mouse = 0;
      push_undo();
      unselect_all();
@@ -349,9 +349,9 @@ void merge_file(int selection_load, const char ext[])
         load_ascii_string(&aux_ptr, fd);
         if(selection_load)
         {
-          mx_double_save = mousex_snap;
-          my_double_save = mousey_snap;
-          sscanf( aux_ptr, "%lf %lf", &mousex_snap, &mousey_snap);
+          xctx->mx_double_save = xctx->mousex_snap;
+          xctx->my_double_save = xctx->mousey_snap;
+          sscanf( aux_ptr, "%lf %lf", &xctx->mousex_snap, &xctx->mousey_snap);
           got_mouse = 1;
         }
         break;
@@ -384,20 +384,20 @@ void merge_file(int selection_load, const char ext[])
       read_line(fd, 0); /* discard any remaining characters till (but not including) newline */
      }
      if(!got_mouse) {
-       mx_double_save = mousex_snap;
-       my_double_save = mousey_snap;
-       mousex_snap = 0.;
-       mousey_snap = 0.;
+       xctx->mx_double_save = xctx->mousex_snap;
+       xctx->my_double_save = xctx->mousey_snap;
+       xctx->mousex_snap = 0.;
+       xctx->mousey_snap = 0.;
      }
      my_free(875, &aux_ptr);
      match_merged_inst(old);
      fclose(fd);
-     ui_state |= STARTMERGE;
-     dbg(1, "merge_file(): loaded file:wire=%d inst=%d ui_state=%ld\n",
-             xctx->wires , xctx->instances, ui_state);
+     xctx->ui_state |= STARTMERGE;
+     dbg(1, "merge_file(): loaded file:wire=%d inst=%d xctx->ui_state=%ld\n",
+             xctx->wires , xctx->instances, xctx->ui_state);
      move_objects(START,0,0,0);
-     mousex_snap = mx_double_save;
-     mousey_snap = my_double_save;
+     xctx->mousex_snap = xctx->mx_double_save;
+     xctx->mousey_snap = xctx->my_double_save;
      move_objects(RUBBER,0,0,0);
     } else {
       dbg(0, "merge_file(): can not open %s\n", name);

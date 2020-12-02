@@ -38,19 +38,19 @@ void compile_font(void)
   select_inside(code*FONTOFFSET-1,-FONTHEIGHT-1,
                  code*FONTOFFSET+FONTWIDTH+1,FONTWHITESPACE + FONTDESCENT+1, 1);
   rebuild_selected_array();
-  character[code] = my_calloc(134, lastselected*4+1, sizeof(double));
-  character[code][0] = (double)lastselected;
+  character[code] = my_calloc(134, xctx->lastsel*4+1, sizeof(double));
+  character[code][0] = (double)xctx->lastsel;
   dbg(2, "compile_font(): character[%d][]={%.16g",code,character[code][0]);
-  for(i=0;i<lastselected;i++)
+  for(i=0;i<xctx->lastsel;i++)
   {
    character[code][i*4+1] =
-      xctx->line[selectedgroup[i].col][selectedgroup[i].n].x1-code*FONTOFFSET;
+      xctx->line[xctx->sel_array[i].col][xctx->sel_array[i].n].x1-code*FONTOFFSET;
    character[code][i*4+2] =
-      xctx->line[selectedgroup[i].col][selectedgroup[i].n].y1+FONTHEIGHT;
+      xctx->line[xctx->sel_array[i].col][xctx->sel_array[i].n].y1+FONTHEIGHT;
    character[code][i*4+3] =
-      xctx->line[selectedgroup[i].col][selectedgroup[i].n].x2-code*FONTOFFSET;
+      xctx->line[xctx->sel_array[i].col][xctx->sel_array[i].n].x2-code*FONTOFFSET;
    character[code][i*4+4] =
-      xctx->line[selectedgroup[i].col][selectedgroup[i].n].y2+FONTHEIGHT;
+      xctx->line[xctx->sel_array[i].col][xctx->sel_array[i].n].y2+FONTHEIGHT;
    dbg(2, ",\n%.16g,%.16g,%.16g,%.16g",
     character[code][i*4+1],character[code][i*4+2],
     character[code][i*4+3],character[code][i*4+4]);
