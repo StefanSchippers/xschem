@@ -201,7 +201,6 @@ static void reset_cairo(int create, int clear)
   /* save_sfc is based on pixmap and pixmaps are not resizeable, so on resize 
    * we must destroy & recreate everything. sfc can be resized using cairo_*_surface_set_size
    * being based on window */
-  cairo_destroy(cairo_save_ctx);
   cairo_surface_destroy(save_sfc);
   #if HAS_XRENDER==1
   #if HAS_XCB==1
@@ -218,7 +217,6 @@ static void reset_cairo(int create, int clear)
     fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
      exit(-1);
   }
-  cairo_save_ctx = cairo_create(save_sfc);
   cairo_set_line_width(cairo_save_ctx, 1);
   cairo_set_line_join(cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
   cairo_set_line_cap(cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
