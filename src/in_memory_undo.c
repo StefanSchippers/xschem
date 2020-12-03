@@ -160,9 +160,9 @@ void free_instances(int slot)
 void clear_undo(void)
 {
   int slot;
-  cur_undo_ptr = 0;
-  tail_undo_ptr = 0;
-  head_undo_ptr = 0;
+  xctx->cur_undo_ptr = 0;
+  xctx->tail_undo_ptr = 0;
+  xctx->head_undo_ptr = 0;
   if(!initialized) return;
   for(slot=0; slot<MAX_UNDO; slot++) {
     free_lines(slot);
@@ -202,7 +202,7 @@ void push_undo(void)
     initialized=1;
     init_undo();
   }
-  slot = cur_undo_ptr%max_undo;
+  slot = xctx->cur_undo_ptr%max_undo;
 
   my_strdup(173, &uslot[slot].gptr, xctx->schvhdlprop);
   my_strdup(174, &uslot[slot].vptr, xctx->schverilogprop);
@@ -303,9 +303,9 @@ void push_undo(void)
   }
 
 
-  cur_undo_ptr++;
-  head_undo_ptr = cur_undo_ptr;
-  tail_undo_ptr = head_undo_ptr <= max_undo? 0: head_undo_ptr-max_undo;
+  xctx->cur_undo_ptr++;
+  xctx->head_undo_ptr = xctx->cur_undo_ptr;
+  xctx->tail_undo_ptr = xctx->head_undo_ptr <= max_undo? 0: xctx->head_undo_ptr-max_undo;
 }
 
 
@@ -315,22 +315,22 @@ void pop_undo(int redo)
 
   if(no_undo)return;
   if(redo) {
-    if(cur_undo_ptr < head_undo_ptr) {
-      cur_undo_ptr++;
+    if(xctx->cur_undo_ptr < xctx->head_undo_ptr) {
+      xctx->cur_undo_ptr++;
     } else {
       return;
     }
   } else {  /*redo=0 (undo) */
-    if(cur_undo_ptr == tail_undo_ptr) return;
-    if(head_undo_ptr == cur_undo_ptr) {
+    if(xctx->cur_undo_ptr == xctx->tail_undo_ptr) return;
+    if(xctx->head_undo_ptr == xctx->cur_undo_ptr) {
       push_undo();
-      head_undo_ptr--;
-      cur_undo_ptr--;
+      xctx->head_undo_ptr--;
+      xctx->cur_undo_ptr--;
     }
-    if(cur_undo_ptr<=0) return; /* check undo tail */
-    cur_undo_ptr--;
+    if(xctx->cur_undo_ptr<=0) return; /* check undo tail */
+    xctx->cur_undo_ptr--;
   }
-  slot = cur_undo_ptr%max_undo;
+  slot = xctx->cur_undo_ptr%max_undo;
   clear_drawing();
   unselect_all();
   my_strdup(198, &xctx->schvhdlprop, uslot[slot].gptr);

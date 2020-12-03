@@ -123,7 +123,7 @@ char *netlist_dir=NULL; /* user set netlist directory via cmd-option or menu or 
 int top_subckt = 0;
 int spiceprefix = 1;
 int unzoom_nodrift=1;
-int change_lw=0; /* allow change xctx->lw */
+int change_lw=0; /* allow change lw */
 int incr_hilight=1;
 unsigned short enable_stretch=0;
 int auto_hilight=0;
@@ -193,10 +193,6 @@ int text_svg=1; /* use <text> svg element for text instead of xschem's internal 
 double cadhalfdotsize = CADHALFDOTSIZE;
 unsigned int color_index[256]; /* layer color lookup table */
 unsigned int rectcolor ; /* this is the currently used layer */
-char *undo_dirname = NULL;
-int cur_undo_ptr=0;
-int tail_undo_ptr=0;
-int head_undo_ptr=0;
 int max_undo=MAX_UNDO;
 int draw_dots=1;
 int draw_single_layer=-1;

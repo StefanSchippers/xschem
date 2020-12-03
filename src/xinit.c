@@ -330,6 +330,7 @@ void init_pixdata()
 void free_xschem_data()
 {
   int i;
+  delete_undo();
   my_free(1098, &xctx->wire);
   my_free(1100, &xctx->text);
   my_free(1107, &xctx->inst);
@@ -371,7 +372,21 @@ void free_xschem_data()
 void alloc_xschem_data()
 {
   int i;
+
   xctx = my_calloc(153, 1, sizeof(Xschem_ctx));
+  xctx->cur_undo_ptr = 0;
+  xctx->head_undo_ptr = 0;
+  xctx->tail_undo_ptr = 0;
+  xctx->undo_dirname = NULL;
+  #ifndef IN_MEMORY_UNDO
+  /* 20150327 create undo directory */
+  /* 20180923 no more mkdtemp (portability issues) */
+  if( !my_strdup(644, &xctx->undo_dirname, create_tmpdir("xschem_undo_") )) {
+    fprintf(errfp, "xinit(): problems creating tmp undo dir\n");
+    tcleval( "exit");
+  }
+  dbg(1, "xctx->undo_dirname=%s\n", xctx->undo_dirname);
+  #endif
   xctx->zoom=CADINITIALZOOM;
   xctx->mooz=1/CADINITIALZOOM;
   xctx->xorigin=CADINITIALX;
@@ -699,7 +714,6 @@ void xwin_exit(void)
  dbg(1, "xwin_exit(): closed display\n");
  my_free(1141, &filename);
 
- delete_undo();
  my_free(1142, &netlist_dir);
  my_free(1143, &xschem_executable);
  record_global_node(2, NULL, NULL); /* delete global node array */
@@ -930,7 +944,7 @@ void new_schematic(const char *what, const char *tk_win_path, const char *filena
     if(n <0) n = 0;
     if(n > cnt) n = cnt;
     xctx = save_xctx[n];
-    resetwin(1, 1, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
+    resetwin(1, 1, 1);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
     draw();
     xctx = save;
     set_modify(xctx->modified);
@@ -952,7 +966,8 @@ void new_schematic(const char *what, const char *tk_win_path, const char *filena
     if(n <0) n = 0;
     if(n > cnt) n = cnt;
     xctx = save_xctx[n];
-    resetwin(1, 1, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
+    resetwin(1, 1, 1);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
+    draw();
     set_modify(xctx->modified);
   }
 }
@@ -1289,16 +1304,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*  [m]allocate dynamic memory */
  /*                             */
  alloc_data();
-
- #ifndef IN_MEMORY_UNDO
- /* 20150327 create undo directory */
- /* 20180923 no more mkdtemp (portability issues) */
- if( !my_strdup(644, &undo_dirname, create_tmpdir("xschem_undo_") )) {
-   fprintf(errfp, "xinit(): problems creating tmp undo dir\n");
-   tcleval( "exit");
- }
- dbg(1, "undo_dirname=%s\n", undo_dirname);
- #endif
 
  init_pixdata();
  init_color_array(0.0);

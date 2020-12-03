@@ -3162,6 +3162,16 @@ proc new_window {what {path {}} {filename {}}} {
   }
 }
 
+proc test1 {} {
+  xschem load /home/schippes/xschem-repo/trunk/xschem_library/rom8k/rom8k.sch
+  new_window create .xx /home/schippes/xschem-repo/trunk/xschem_library/examples/mos_power_ampli.sch
+  new_window create .yy /home/schippes/xschem-repo/trunk/xschem_library/examples/MSA-2643.sch
+  bind .xx <Expose> { new_window redraw 1 } 
+  bind .yy <Expose> { new_window redraw 2 } 
+  bind .xx <Enter> { new_window switch 1 } 
+  bind .yy <Enter> { new_window switch 2 } 
+  bind .drw <Enter>  {+ new_window switch 0}
+}
 
 
 

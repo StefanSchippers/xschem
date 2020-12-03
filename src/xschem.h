@@ -537,6 +537,10 @@ typedef struct {
   cairo_surface_t *save_sfc;
   cairo_t *cairo_save_ctx;
   #endif
+  char *undo_dirname;
+  int cur_undo_ptr;
+  int tail_undo_ptr;
+  int head_undo_ptr;
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
@@ -666,10 +670,6 @@ extern char *xschem_version_string;
 extern int split_files;
 extern char *netlist_dir;
 extern char bus_char[];
-extern char *undo_dirname;
-extern int cur_undo_ptr;
-extern int tail_undo_ptr;
-extern int head_undo_ptr;
 extern int max_undo;
 extern int draw_dots;
 extern int draw_single_layer;
@@ -1071,6 +1071,7 @@ extern void change_layer();
 extern void launcher();
 extern void windowid();
 extern void preview_window(const char *what, const char *tk_win_path, const char *filename);
+extern void new_schematic(const char *what, const char *tk_win_path, const char *filename);
 extern int window_state (Display *disp, Window win, char *arg);
 extern void toggle_fullscreen();
 extern void toggle_only_probes();

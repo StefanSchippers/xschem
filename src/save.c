@@ -1053,18 +1053,18 @@ void delete_undo(void)
   char diff_name[PATH_MAX]; /* overflow safe 20161122 */
 
   for(i=0; i<max_undo; i++) {
-    my_snprintf(diff_name, S(diff_name), "%s/undo%d",undo_dirname, i);
+    my_snprintf(diff_name, S(diff_name), "%s/undo%d",xctx->undo_dirname, i);
     xunlink(diff_name);
   }
-  rmdir(undo_dirname);
-  my_free(895, &undo_dirname);
+  rmdir(xctx->undo_dirname);
+  my_free(895, &xctx->undo_dirname);
 }
 
 void clear_undo(void)
 {
-  cur_undo_ptr = 0;
-  tail_undo_ptr = 0;
-  head_undo_ptr = 0;
+  xctx->cur_undo_ptr = 0;
+  xctx->tail_undo_ptr = 0;
+  xctx->head_undo_ptr = 0;
 }
 
 void push_undo(void)
@@ -1078,12 +1078,12 @@ void push_undo(void)
     char diff_name[PATH_MAX+100]; /* overflow safe 20161122 */
 
     if(no_undo)return;
-    dbg(1, "push_undo(): cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
-       cur_undo_ptr, tail_undo_ptr, head_undo_ptr);
+    dbg(1, "push_undo(): xctx->cur_undo_ptr=%d xctx->tail_undo_ptr=%d xctx->head_undo_ptr=%d\n",
+       xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
 
 
     #if HAS_POPEN==1
-    my_snprintf(diff_name, S(diff_name), "gzip --fast -c > %s/undo%d", undo_dirname, cur_undo_ptr%max_undo);
+    my_snprintf(diff_name, S(diff_name), "gzip --fast -c > %s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
     fd = popen(diff_name,"w");
     if(!fd) {
       fprintf(errfp, "push_undo(): failed to open write pipe %s\n", diff_name);
@@ -1091,7 +1091,7 @@ void push_undo(void)
       return;
     }
     #elif HAS_PIPE==1
-    my_snprintf(diff_name, S(diff_name), "%s/undo%d", undo_dirname, cur_undo_ptr%max_undo);
+    my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
     pipe(pd);
     if((pid = fork()) ==0) {                                    /* child process */
       static char f[PATH_MAX] = "";
@@ -1116,7 +1116,7 @@ void push_undo(void)
     close(pd[0]);                                       /* close read side of pipe */
     fd=fdopen(pd[1],"w");
     #else /* uncompressed undo */
-    my_snprintf(diff_name, S(diff_name), "%s/undo%d", undo_dirname, cur_undo_ptr%max_undo);
+    my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
     fd = fopen(diff_name,"w");
     if(!fd) {
       fprintf(errfp, "push_undo(): failed to open undo file %s\n", diff_name);
@@ -1125,9 +1125,9 @@ void push_undo(void)
     }
     #endif
     write_xschem_file(fd);
-    cur_undo_ptr++;
-    head_undo_ptr = cur_undo_ptr;
-    tail_undo_ptr = head_undo_ptr <= max_undo? 0: head_undo_ptr-max_undo;
+    xctx->cur_undo_ptr++;
+    xctx->head_undo_ptr = xctx->cur_undo_ptr;
+    xctx->tail_undo_ptr = xctx->head_undo_ptr <= max_undo? 0: xctx->head_undo_ptr-max_undo;
     #if HAS_POPEN==1
     pclose(fd);
     #elif HAS_PIPE==1
@@ -1150,30 +1150,30 @@ void pop_undo(int redo)
 
   if(no_undo)return;
   if(redo) {
-    if(cur_undo_ptr < head_undo_ptr) {
-      dbg(1, "pop_undo(): redo; cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
-         cur_undo_ptr, tail_undo_ptr, head_undo_ptr);
-      cur_undo_ptr++;
+    if(xctx->cur_undo_ptr < xctx->head_undo_ptr) {
+      dbg(1, "pop_undo(): redo; xctx->cur_undo_ptr=%d xctx->tail_undo_ptr=%d xctx->head_undo_ptr=%d\n",
+         xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
+      xctx->cur_undo_ptr++;
     } else {
       return;
     }
   } else {  /*redo=0 (undo) */
-    if(cur_undo_ptr == tail_undo_ptr) return;
-    dbg(1, "pop_undo(): undo; cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
-       cur_undo_ptr, tail_undo_ptr, head_undo_ptr);
-    if(head_undo_ptr == cur_undo_ptr) {
+    if(xctx->cur_undo_ptr == xctx->tail_undo_ptr) return;
+    dbg(1, "pop_undo(): undo; xctx->cur_undo_ptr=%d xctx->tail_undo_ptr=%d xctx->head_undo_ptr=%d\n",
+       xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
+    if(xctx->head_undo_ptr == xctx->cur_undo_ptr) {
       push_undo();
-      head_undo_ptr--;
-      cur_undo_ptr--;
+      xctx->head_undo_ptr--;
+      xctx->cur_undo_ptr--;
     }
-    if(cur_undo_ptr<=0) return; /* check undo tail */
-    cur_undo_ptr--;
+    if(xctx->cur_undo_ptr<=0) return; /* check undo tail */
+    xctx->cur_undo_ptr--;
   }
   clear_drawing();
   unselect_all();
 
   #if HAS_POPEN==1
-  my_snprintf(diff_name, S(diff_name), "gunzip -c %s/undo%d", undo_dirname, cur_undo_ptr%max_undo);
+  my_snprintf(diff_name, S(diff_name), "gunzip -c %s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
   fd=popen(diff_name, "r");
   if(!fd) {
     fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);
@@ -1181,7 +1181,7 @@ void pop_undo(int redo)
     return;
   }
   #elif HAS_PIPE==1
-  my_snprintf(diff_name, S(diff_name), "%s/undo%d", undo_dirname, cur_undo_ptr%max_undo);
+  my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
   pipe(pd);
   if((pid = fork())==0) {                                     /* child process */
     static char f[PATH_MAX] = "";
@@ -1203,7 +1203,7 @@ void pop_undo(int redo)
   close(pd[1]);                                       /* close write side of pipe */
   fd=fdopen(pd[0],"r");
   #else /* uncompressed undo */
-  my_snprintf(diff_name, S(diff_name), "%s/undo%d", undo_dirname, cur_undo_ptr%max_undo);
+  my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
   fd=fopen(diff_name, "r");
   if(!fd) {
     fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);

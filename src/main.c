@@ -48,8 +48,8 @@ void sig_handler(int s){
     tcleval("exit");
   }
 
-  if(rename(undo_dirname, emergency_dir)) {
-    fprintf(errfp, "rename dir %s to %s failed\n", undo_dirname, emergency_dir);
+  if(rename(xctx->undo_dirname, emergency_dir)) {
+    fprintf(errfp, "rename dir %s to %s failed\n", xctx->undo_dirname, emergency_dir);
   }
   fprintf(errfp, "EMERGENCY SAVE DIR: %s\n", emergency_dir);
 #endif
