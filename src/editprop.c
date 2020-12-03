@@ -929,7 +929,6 @@ void update_symbol(const char *result, int x)
    dbg(1, "update_symbol(): edit symbol prop aborted\n");
    return;
   }
-
   /* create new_prop updated attribute string */
   if(netlist_commands && x==1) {
     my_strdup(79,  &new_prop,
@@ -942,13 +941,11 @@ void update_symbol(const char *result, int x)
     my_strdup(80, &new_prop, (char *) tclgetvar("retval"));
     dbg(1, "update_symbol(): new_prop=%s\n", new_prop);
   }
-
   my_strncpy(symbol, (char *) tclgetvar("symbol") , S(symbol));
   dbg(1, "update_symbol(): symbol=%s\n", symbol);
   no_change_props=atoi(tclgetvar("no_change_attrs") );
   only_different=atoi(tclgetvar("preserve_unchanged_attrs") );
   copy_cell=atoi(tclgetvar("user_wants_copy_cell") );
-
   bbox(START,0.0,0.0,0.0,0.0);
   if(show_pin_net_names) {
     prepare_netlist_structs(0);
@@ -959,7 +956,6 @@ void update_symbol(const char *result, int x)
     }
     find_inst_hash_clear();
   }
-
   /* 20191227 necessary? --> Yes since a symbol copy has already been done
      in edit_symbol_property() -> tcl edit_prop, this ensures new symbol is loaded from disk.
      if for some reason a symbol with matching name is loaded in xschem this
@@ -968,22 +964,17 @@ void update_symbol(const char *result, int x)
    remove_symbols();
    link_symbols_to_instances();
   }
-
   /* symbol reference changed? --> sym_number >=0, set prefix to 1st char
      to use for inst name (from symbol template) */
   prefix=0;
   sym_number = -1;
   if(strcmp(symbol, xctx->inst[i].name)) {
     set_modify(1);
-    xctx->prep_hash_inst=0;
-    xctx->prep_net_structs=0;
-    xctx->prep_hi_structs=0;
     sym_number=match_symbol(symbol); /* check if exist */
     if(sym_number>=0) {
       prefix=(get_tok_value((xctx->sym+sym_number)->templ, "name",0))[0]; /* get new symbol prefix  */
     }
   }
-
   for(k=0;k<xctx->lastsel;k++) {
     dbg(1, "update_symbol(): for k loop: k=%d\n", k);
     if(xctx->sel_array[k].type!=ELEMENT) continue;
@@ -992,7 +983,6 @@ void update_symbol(const char *result, int x)
     /* 20171220 calculate bbox before changes to correctly redraw areas */
     /* must be recalculated as cairo text extents vary with zoom factor. */
     symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
-
     if(sym_number>=0) /* changing symbol ! */
     {
       if(!pushed) { push_undo(); pushed=1;}
@@ -1015,9 +1005,6 @@ void update_symbol(const char *result, int x)
           if(!pushed) { push_undo(); pushed=1;}
           my_strdup(111, &xctx->inst[i].prop_ptr, ss);
           set_modify(1);
-          xctx->prep_hash_inst=0;
-          xctx->prep_net_structs=0;
-          xctx->prep_hi_structs=0;
         }
         my_free(729, &ss);
       }
@@ -1028,21 +1015,14 @@ void update_symbol(const char *result, int x)
             if(!pushed) { push_undo(); pushed=1;}
             my_strdup(84, &xctx->inst[i].prop_ptr, new_prop);
             set_modify(1);
-            xctx->prep_hash_inst=0;
-            xctx->prep_net_structs=0;
-            xctx->prep_hi_structs=0;
           }
         }  else {
           if(!pushed) { push_undo(); pushed=1;}
           my_strdup(86, &xctx->inst[i].prop_ptr, "");
           set_modify(1);
-          xctx->prep_hash_inst=0;
-          xctx->prep_net_structs=0;
-          xctx->prep_hi_structs=0;
         }
       }
     }
-
     /* if symbol changed ensure instance name (with new prefix char) is unique */
     /* preserve backslashes in name ----------------------------------->. */
     my_strdup(152, &name, get_tok_value(xctx->inst[i].prop_ptr, "name", 1));
@@ -1065,8 +1045,7 @@ void update_symbol(const char *result, int x)
     }
     my_strdup2(90, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name",0));
   }  /* end for(k=0;k<xctx->lastsel;k++) */
-
-   /* new symbol bbox after prop changes (may change due to text length) */
+  /* new symbol bbox after prop changes (may change due to text length) */
   if(xctx->modified) {
     xctx->prep_hash_inst=0;
     xctx->prep_net_structs=0;
@@ -1078,7 +1057,6 @@ void update_symbol(const char *result, int x)
       bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
     }
   }
-
   /* in case of net hilights, when changing 'lab' of net labels/pins we must re-run
      prepare_netlist_structs() so the .node field of that instance will be reset
      and drawn back unhilighted .
@@ -1093,7 +1071,6 @@ void update_symbol(const char *result, int x)
     }
     find_inst_hash_clear();
   }
-
   /* redraw symbol with new props */
   bbox(SET,0.0,0.0,0.0,0.0);
   dbg(1, "update_symbol(): redrawing inst_ptr.txtprop string\n");
