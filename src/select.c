@@ -452,7 +452,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    }
    #ifdef HAS_CAIRO
    cairo_reset_clip(cairo_ctx);
-   cairo_reset_clip(cairo_save_ctx);
+   cairo_reset_clip(xctx->cairo_save_ctx);
    #endif
    sem=0;
    break;
@@ -482,8 +482,8 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    #ifdef HAS_CAIRO
    cairo_rectangle(cairo_ctx, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
    cairo_clip(cairo_ctx);
-   cairo_rectangle(cairo_save_ctx, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
-   cairo_clip(cairo_save_ctx);
+   cairo_rectangle(xctx->cairo_save_ctx, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
+   cairo_clip(xctx->cairo_save_ctx);
    #endif
    break;
   default:

@@ -198,42 +198,46 @@ const char *add_ext(const char *f, const char *ext)
 static void reset_cairo(int create, int clear)
 {
   #ifdef HAS_CAIRO
-  /* save_sfc is based on pixmap and pixmaps are not resizeable, so on resize 
-   * we must destroy & recreate everything. sfc can be resized using cairo_*_surface_set_size
-   * being based on window */
-  cairo_destroy(cairo_save_ctx);
-  cairo_surface_destroy(save_sfc);
-  #if HAS_XRENDER==1
-  #if HAS_XCB==1
-  save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap,
-       &format_rgb, xctx->xschem_w, xctx->xschem_h);
-  #else
-  save_sfc = cairo_xlib_surface_create_with_xrender_format(display, xctx->save_pixmap,
-       DefaultScreenOfDisplay(display), format, xctx->xschem_w, xctx->xschem_h);
-  #endif /* HAS_XCB */
-  #else
-  save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, xctx->xschem_w, xctx->xschem_h);
-  #endif /* HAS_XRENDER */
-  if(cairo_surface_status(save_sfc)!=CAIRO_STATUS_SUCCESS) {
-    fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
-     exit(-1);
+  if(clear) {
+    /* xctx->save_sfc is based on pixmap and pixmaps are not resizeable, so on resize 
+     * we must destroy & recreate everything. sfc can be resized using cairo_*_surface_set_size
+     * being based on window */
+    cairo_destroy(xctx->cairo_save_ctx);
+    cairo_surface_destroy(xctx->save_sfc);
   }
-  cairo_save_ctx = cairo_create(save_sfc);
-  cairo_set_line_width(cairo_save_ctx, 1);
-  cairo_set_line_join(cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
-  cairo_set_line_cap(cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
-  cairo_select_font_face (cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size (cairo_save_ctx, 20);
+  if(create) {
+    #if HAS_XRENDER==1
+    #if HAS_XCB==1
+    xctx->save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap,
+         &format_rgb, xctx->xschem_w, xctx->xschem_h);
+    #else
+    xctx->save_sfc = cairo_xlib_surface_create_with_xrender_format(display, xctx->save_pixmap,
+         DefaultScreenOfDisplay(display), format, xctx->xschem_w, xctx->xschem_h);
+    #endif /* HAS_XCB */
+    #else
+    xctx->save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, xctx->xschem_w, xctx->xschem_h);
+    #endif /* HAS_XRENDER */
+    if(cairo_surface_status(xctx->save_sfc)!=CAIRO_STATUS_SUCCESS) {
+      fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
+       exit(-1);
+    }
+    xctx->cairo_save_ctx = cairo_create(xctx->save_sfc);
+    cairo_set_line_width(xctx->cairo_save_ctx, 1);
+    cairo_set_line_join(xctx->cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
+    cairo_set_line_cap(xctx->cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
+    cairo_select_font_face (xctx->cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size (xctx->cairo_save_ctx, 20);
+  }
   /* 20171125 select xlib or xcb :-) */
   #if HAS_XCB==1 && HAS_XRENDER==1
   cairo_xcb_surface_set_size(sfc, xctx->xschem_w, xctx->xschem_h);
   #else
   cairo_xlib_surface_set_size(sfc, xctx->xschem_w, xctx->xschem_h);
-  #endif /* HAS_XCB */
+  #endif /* HAS_XCB  && HAS_XRENDER */
   #endif /* HAS_CAIRO */
 }
 
-void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
+void resetwin(int create_pixmap, int clear_pixmap, int force)
 {
   int i;
   XWindowAttributes wattr;
@@ -255,9 +259,8 @@ void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
     xctx->areaw = xctx->areax2-xctx->areax1;
     xctx->areah = xctx->areay2-xctx->areay1;
 
-    /* if no preview_window or create_pixmap==1  avoid unnecessary work if no resize */
-    /* !create_pixmap ensures the XSetTile is executed when done with the preview */
-    if( preview_window || xctx->xschem_w !=xctx->xrect[0].width || xctx->xschem_h !=xctx->xrect[0].height) {
+    /* if no force avoid unnecessary work if no resize */
+    if( force || xctx->xschem_w !=xctx->xrect[0].width || xctx->xschem_h !=xctx->xrect[0].height) {
       dbg(1, "resetwin(): x=%d y=%d   xctx->xschem_w=%d xctx->xschem_h=%d\n",
                        wattr.x, wattr.y, xctx->xschem_w,xctx->xschem_h);
       dbg(1, "resetwin(): changing size\n\n");
@@ -278,11 +281,11 @@ void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
         xctx->save_pixmap = XCreatePixmap(display, xctx->window, xctx->xschem_w, xctx->xschem_h, depth);
       }
       XSetTile(display,gctiled, xctx->save_pixmap);
+      reset_cairo(create_pixmap, clear_pixmap);
     }
-    reset_cairo(create_pixmap, clear_pixmap);
 #else
     HWND hwnd;
-    if (preview_window) {
+    if (force) {
       hwnd = Tk_GetHWND(pre_window);
     }
     else {
@@ -302,9 +305,8 @@ void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
       xctx->areay1 = -2 * INT_WIDTH(xctx->lw);
       xctx->areaw = xctx->areax2 - xctx->areax1;
       xctx->areah = xctx->areay2 - xctx->areay1;
-      /* if no preview_window or create_pixmap==1  avoid unnecessary work if no resize */
-      /* !create_pixmap ensures the XSetTile is executed when done with the preview */
-      if( preview_window || xctx->xschem_w !=xctx->xrect[0].width ||
+      /* if no force avoid unnecessary work if no resize */
+      if( force || xctx->xschem_w !=xctx->xrect[0].width ||
           xctx->xschem_h !=xctx->xrect[0].height) {
         dbg(1, "resetwin(): x=%d y=%d   xctx->xschem_w=%d xctx->xschem_h=%d\n",
           rct.right, rct.bottom, xctx->xschem_w, xctx->xschem_h);
@@ -2358,9 +2360,9 @@ void place_text(int draw_text, double mx, double my)
     if(t->flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
     if(t->flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
     cairo_save(cairo_ctx);
-    cairo_save(cairo_save_ctx);
+    cairo_save(xctx->cairo_save_ctx);
     cairo_select_font_face (cairo_ctx, textfont, slant, weight);
-    cairo_select_font_face (cairo_save_ctx, textfont, slant, weight);
+    cairo_select_font_face (xctx->cairo_save_ctx, textfont, slant, weight);
   }
   #endif
   save_draw=draw_window;
@@ -2372,7 +2374,7 @@ void place_text(int draw_text, double mx, double my)
   #ifdef HAS_CAIRO
   if((textfont && textfont[0]) || t->flags) {
     cairo_restore(cairo_ctx);
-    cairo_restore(cairo_save_ctx);
+    cairo_restore(xctx->cairo_save_ctx);
   }
   #endif
   select_text(xctx->texts, SELECTED, 0);

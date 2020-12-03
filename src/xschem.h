@@ -533,6 +533,10 @@ typedef struct {
   Window window;
   Pixmap save_pixmap;
   XRectangle xrect[1];
+  #ifdef HAS_CAIRO
+  cairo_surface_t *save_sfc;
+  cairo_t *cairo_save_ctx;
+  #endif
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
@@ -669,7 +673,6 @@ extern int head_undo_ptr;
 extern int max_undo;
 extern int draw_dots;
 extern int draw_single_layer;
-extern int check_version;
 extern int yyparse_error;
 extern char *xschem_executable;
 extern int depth;
@@ -733,9 +736,10 @@ extern Pixmap cad_icon_pixmap, cad_icon_mask, *pixmap;
 extern XColor xcolor_array[];
 extern Visual *visual;
 #ifdef HAS_CAIRO
-extern cairo_surface_t *sfc, *save_sfc;
-extern cairo_t *cairo_ctx, *cairo_save_ctx;
 extern XRenderPictFormat *format;
+extern cairo_surface_t *sfc;
+extern cairo_t *cairo_ctx;
+
 #if HAS_XCB==1
 extern xcb_connection_t *xcbconn;
 extern xcb_screen_t *screen_xcb;
@@ -820,7 +824,7 @@ extern int Tcl_AppInit(Tcl_Interp *interp);
 extern int source_tcl_file(char *s);
 extern int callback(int event, int mx, int my, KeySym key,
                         int button, int aux, int state);
-extern void resetwin(int create_pixmap, int clear_pixmap, int preview_window);
+extern void resetwin(int create_pixmap, int clear_pixmap, int force);
 extern void find_closest_net(double mx,double my);
 extern void find_closest_box(double mx,double my);
 extern void find_closest_arc(double mx,double my);

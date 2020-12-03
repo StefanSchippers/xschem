@@ -299,7 +299,7 @@ C {ngspice_get_expr.sym} 800 -970 0 1 {name=r1
 node="[ngspice::get_current \{q4[ib]\}]"
 descr = Ib
 }
-C {ngspice_get_expr.sym} 570 -460 0 0 {name=r11 
+C {ngspice_get_expr.sym} 580 -460 0 0 {name=r11 
 node="[format %.4g [expr ([ngspice::get_voltage e8] - [ngspice::get_voltage c8]) * [ngspice::get_current \{q8[ic]\}]]] W"
 descr = power
 }

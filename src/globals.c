@@ -103,9 +103,9 @@ XPoint *gridpoint;         /* pointer to array of gridpoints, used in draw() */
 XColor xcolor_array[256];
 Visual *visual;
 #ifdef HAS_CAIRO
-cairo_surface_t *sfc, *save_sfc;
-cairo_t *cairo_ctx, *cairo_save_ctx;
 XRenderPictFormat *format;
+cairo_surface_t *sfc;
+cairo_t *cairo_ctx;
 
 #if HAS_XCB==1
 xcb_connection_t *xcbconn;
@@ -200,7 +200,6 @@ int head_undo_ptr=0;
 int max_undo=MAX_UNDO;
 int draw_dots=1;
 int draw_single_layer=-1;
-int check_version = 0; /* if set ensures 'v' version header line is present before loading file */
 int yyparse_error = 0;
 int *enable_layer;
 int n_active_layers=0;

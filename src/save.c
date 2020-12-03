@@ -738,7 +738,6 @@ void read_xschem_file(FILE *fd)
   char name_embedded[PATH_MAX];
   char tag[1];
   int inst_cnt;
-  int version_found = 0;
   int ty=0;
 
   dbg(2, "read_xschem_file(): start\n");
@@ -754,7 +753,6 @@ void read_xschem_file(FILE *fd)
       if(xctx->version_string) {
         my_snprintf(xctx->file_version, S(xctx->file_version), "%s",
                     get_tok_value(xctx->version_string, "file_version", 0));
-        version_found = 1;
       }
       dbg(1, "read_xschem_file(): file_version=%s\n", xctx->file_version);
       break;
@@ -846,7 +844,6 @@ void read_xschem_file(FILE *fd)
         xctx->schvhdlprop = str;
       }
     }
-    if(check_version && !version_found) return;
     if(!xctx->file_version[0]) {
       my_snprintf(xctx->file_version, S(xctx->file_version), "1.0");
       dbg(1, "read_xschem_file(): no file_version, assuming file_version=%s\n", xctx->file_version);

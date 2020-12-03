@@ -1043,7 +1043,6 @@ int sym_vs_sch_pins()
   char *pin_dir=NULL;
   double tmpd;
   FILE *fd;
-  int version_found;
   int tmpi;
   int endfile;
   char tag[1];
@@ -1061,7 +1060,6 @@ int sym_vs_sch_pins()
         fd = fopen(filename, "r");
         pin_cnt = 0;
         endfile = 0;
-        version_found=0;
         xctx->file_version[0] = '\0';
         while(!endfile) {
           if(fscanf(fd," %c",tag)==EOF) break;
@@ -1070,7 +1068,6 @@ int sym_vs_sch_pins()
              load_ascii_string(&xctx->version_string, fd);
              my_snprintf(xctx->file_version, S(xctx->file_version), "%s", 
                          get_tok_value(xctx->version_string, "file_version", 0));
-             version_found = 1;
             break;
 
             case 'E':
@@ -1206,7 +1203,6 @@ int sym_vs_sch_pins()
               break;
           }
           read_line(fd, 0); /* discard any remaining characters till (but not including) newline */
-          if(check_version && !version_found) break;
           if(!xctx->file_version[0]) {
             my_snprintf(xctx->file_version, S(xctx->file_version), "1.0");
             dbg(1, "sym_vs_sch_pins(): no file_version, assuming file_version=%s\n", xctx->file_version);

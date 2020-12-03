@@ -562,10 +562,6 @@ void alloc_xschem_data()
   if(xctx->sel_array==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
-  pixmap=my_calloc(636, cadlayers, sizeof(Pixmap));
-  if(pixmap==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
 
 }
 
@@ -619,6 +615,10 @@ void alloc_data()
    }
  }
  enable_layer=my_calloc(87, cadlayers, sizeof(int));
+ pixmap=my_calloc(636, cadlayers, sizeof(Pixmap));
+ if(pixmap==NULL){
+   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+ }
 }
 
 void xwin_exit(void)
@@ -636,9 +636,9 @@ void xwin_exit(void)
  if(has_x) {
     #ifdef HAS_CAIRO
     cairo_destroy(cairo_ctx);
-    cairo_destroy(cairo_save_ctx);
+    cairo_destroy(xctx->cairo_save_ctx);
     cairo_surface_destroy(sfc);
-    cairo_surface_destroy(save_sfc);
+    cairo_surface_destroy(xctx->save_sfc);
     #endif
     dbg(1, "xwin_exit(): Releasing pixmaps\n");
     for(i=0;i<cadlayers;i++)
@@ -833,53 +833,67 @@ int source_tcl_file(char *s)
   return TCL_OK;
 }
 
+void preview_clear(void)
+{
+  dbg(1, "preview_clear()\n");
+  unselect_all();
+  remove_symbols();
+  clear_drawing();
+  resetwin(0, 1, 1); /* delete preview pixmap */
+  free_xschem_data();
+}
+
 void preview_window(const char *what, const char *tk_win_path, const char *filename)
 {
+  static char *current_file = NULL;
+  static Xschem_ctx *save_xctx = NULL; /* save pointer to current schematic context structure */
+  static Xschem_ctx *preview_xctx = NULL; /* save pointer to current schematic context structure */
+
+  dbg(1, "------\n");
   if(!strcmp(what, "create")) {
+    dbg(1, "preview_window() create, save ctx\n");
     tkpre_window = Tk_NameToWindow(interp, tk_win_path, mainwindow);
     Tk_MakeWindowExist(tkpre_window);
     pre_window = Tk_WindowId(tkpre_window);
+    save_xctx = xctx; /* save current schematic */
   }
   else if(!strcmp(what, "draw")) {
-    Xschem_ctx *save_xctx = NULL; /* save pointer to current schematic context structure */
-    int save_show_pin;
-
-    save_xctx = xctx; /* save current schematic */
-    xctx = NULL;      /* reset for preview */
-    alloc_xschem_data(); /* alloc data into xctx */
-
-    /* save some relevant global context */
-    save_show_pin = show_pin_net_names;
-    show_pin_net_names = 0;
-
-    /* preview */
-    check_version = 0; /* if set refuse to load and preview anything if not a rel 1.1+ xschem file */
-                       /* if not set heuristics is done in xschem.tcl to ensure it is an xschem file */
-    load_schematic(1,filename, 0);
-    xctx->window = pre_window;
-    resetwin(1, 0, 1);  /* create preview pixmap resetwin(create_pixmap, clear_pixmap, preview_window) */
+    dbg(1, "preview_window() draw\n");
+    xctx = preview_xctx;
+    if(!current_file || strcmp(filename, current_file) ) { 
+      if(current_file) {
+        preview_clear();
+      }
+      my_strdup(117, &current_file, filename);
+      xctx = NULL;      /* reset for preview */
+      alloc_xschem_data(); /* alloc data into xctx */
+      preview_xctx = xctx;
+      /* save some relevant global context */
+      /* preview */
+      dbg(1, "preview_window() draw, load schematic\n");
+      load_schematic(1,filename, 0);
+      preview_xctx->window = pre_window;
+      resetwin(1, 0, 1);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
+    }
+    resetwin(1, 1, 0);  /* handle resize.  resetwin(create_pixmap, clear_pixmap, force) */
+    XSetTile(display,gctiled, xctx->save_pixmap);
     zoom_full(1, 0); /* draw */
-    check_version = 0;
-
-    /* restore context */
-    unselect_all();
-    remove_symbols();
-    clear_drawing();
-
-    show_pin_net_names = save_show_pin;
-    resetwin(0, 1, 1); /* delete preview pixmap */
-    free_xschem_data();
-    xctx = save_xctx; /* restore schematic */
-    
-    resetwin(0, 0, 0);  /* set window size info back to original value */
-
-    set_modify(xctx->modified);
-    change_linewidth(-1.);
-    /* not needed: event loop takes care of this and don't need to regenerate xctx->save_pixmap. */
-    /* draw(); */
+    xctx = save_xctx;
+    XSetTile(display,gctiled, xctx->save_pixmap);
   }
   else if(!strcmp(what, "destroy")) {
+    dbg(1, "preview_window() destroy\n");
+    xctx = preview_xctx;
+    if(current_file) {
+      preview_clear();
+      preview_xctx = NULL;
+    }
     Tk_DestroyWindow(tkpre_window);
+    my_free(1144, &current_file);
+    xctx = save_xctx; /* restore schematic */
+    save_xctx = NULL;
+    XSetTile(display,gctiled, xctx->save_pixmap);
+    set_modify(xctx->modified);
   }
 }
 
@@ -896,7 +910,6 @@ void change_to_unix_fn(char* fn)
     if (fn[i]!='\\') fn[ii++] = fn[i];
     else { fn[ii++] = '/'; if (fn[i + 1] == '\\') ++i; }
   }
-
 }
 #endif
 
@@ -1362,29 +1375,29 @@ int Tcl_AppInit(Tcl_Interp *inter)
       #if HAS_XCB==1
       sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn,
             screen_xcb, xctx->window, &format_rgb, 1 , 1);
-      save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn,
+      xctx->save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn,
                  screen_xcb, xctx->save_pixmap, &format_rgb, 1 , 1);
       #else
       format = XRenderFindStandardFormat(display, PictStandardRGB24);
       sfc = cairo_xlib_surface_create_with_xrender_format (display,
             xctx->window, DefaultScreenOfDisplay(display), format, 1, 1);
-      save_sfc = cairo_xlib_surface_create_with_xrender_format(
+      xctx->save_sfc = cairo_xlib_surface_create_with_xrender_format(
                  display, xctx->save_pixmap, DefaultScreenOfDisplay(display), format, 1, 1);
       #endif
       #else
       sfc = cairo_xlib_surface_create(display, xctx->window, visual, wattr.width, wattr.height);
-      save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, wattr.width, wattr.height);
+      xctx->save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, wattr.width, wattr.height);
       #endif
       if(cairo_surface_status(sfc)!=CAIRO_STATUS_SUCCESS) {
         fprintf(errfp, "ERROR: invalid cairo surface\n");
         return 1;
       }
-      if(cairo_surface_status(save_sfc)!=CAIRO_STATUS_SUCCESS) {
+      if(cairo_surface_status(xctx->save_sfc)!=CAIRO_STATUS_SUCCESS) {
         fprintf(errfp, "ERROR: invalid cairo surface\n");
         return 1;
       }
       cairo_ctx = cairo_create(sfc);
-      cairo_save_ctx = cairo_create(save_sfc);
+      xctx->cairo_save_ctx = cairo_create(xctx->save_sfc);
 
       #if 0
       {
@@ -1392,7 +1405,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
         cfo = cairo_font_options_create ();
         cairo_font_options_set_antialias(cfo, CAIRO_ANTIALIAS_DEFAULT); /* CAIRO_ANTIALIAS_NONE */
         cairo_set_font_options (cairo_ctx, cfo);
-        cairo_set_font_options (cairo_save_ctx, cfo);
+        cairo_set_font_options (xctx->cairo_save_ctx, cfo);
       }
       #endif
 
@@ -1402,14 +1415,14 @@ int Tcl_AppInit(Tcl_Interp *inter)
       tclsetvar("has_cairo","1");
       cairo_select_font_face(cairo_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
       cairo_set_font_size(cairo_ctx, 20);
-      cairo_select_font_face(cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-      cairo_set_font_size(cairo_save_ctx, 20);
+      cairo_select_font_face(xctx->cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size(xctx->cairo_save_ctx, 20);
       cairo_set_line_width(cairo_ctx, 1);
-      cairo_set_line_width(cairo_save_ctx, 1);
+      cairo_set_line_width(xctx->cairo_save_ctx, 1);
       cairo_set_line_join(cairo_ctx, CAIRO_LINE_JOIN_ROUND);
       cairo_set_line_cap(cairo_ctx, CAIRO_LINE_CAP_ROUND);
-      cairo_set_line_join(cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
-      cairo_set_line_cap(cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
+      cairo_set_line_join(xctx->cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
+      cairo_set_line_cap(xctx->cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
     }
     #endif /* HAS_CAIRO */
 

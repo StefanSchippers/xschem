@@ -2096,7 +2096,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      if( strlen(argv[3]) < sizeof(cairo_font_name) ) {
        my_strncpy(cairo_font_name, argv[3], S(cairo_font_name));
        cairo_select_font_face(cairo_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-       cairo_select_font_face(cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+       cairo_select_font_face(xctx->cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
      }
    } else
    #endif

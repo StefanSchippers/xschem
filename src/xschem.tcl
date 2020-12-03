@@ -1352,7 +1352,9 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
            if { [winfo exists .dialog] } {
              .dialog.l.paneright.pre configure -background {}
              xschem preview_window draw .dialog.l.paneright.pre "$myload_dir1/$myload_dir2"
-             bind .dialog.l.paneright.pre <Expose> {xschem preview_window draw .dialog.l.paneright.pre "$myload_dir1/$myload_dir2"}
+             bind .dialog.l.paneright.pre <Expose> {
+               xschem preview_window draw .dialog.l.paneright.pre "$myload_dir1/$myload_dir2"
+             }
            }
          } else {
            bind .dialog.l.paneright.pre <Expose> {}
@@ -1389,8 +1391,9 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
     }
     set t [is_xschem_file "$myload_dir1/$myload_retval"]
     if { $t eq {0}  } {
-      set answer [tk_messageBox -message  "$myload_dir1/$myload_retval does not seem to be an xschem file...\nContinue?" \
-           -icon warning -parent . -type yesno]
+      set answer [
+        tk_messageBox -message "$myload_dir1/$myload_retval does not seem to be an xschem file...\nContinue?" \
+         -icon warning -parent . -type yesno]
       if { $answer eq "no"} {
         set myload_retval {}
         return {}
@@ -1398,7 +1401,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
         return "$myload_dir1/$myload_retval"
       }
     } elseif { $t ne {SYMBOL} && ($ext eq {.sym}) } {
-      set answer [tk_messageBox -message  "$myload_dir1/$myload_retval does not seem to be a SYMBOL file...\nContinue?" \
+      set answer [
+        tk_messageBox -message "$myload_dir1/$myload_retval does not seem to be a SYMBOL file...\nContinue?" \
            -icon warning -parent . -type yesno]
       if { $answer eq "no"} {
         set myload_retval {}
@@ -3136,6 +3140,65 @@ proc toolbar_hide {} {
     set $toolbar_visible 0
 }
 
+proc set_bindings {window_path} {
+global env no_x
+  ###
+  ### Tk event handling
+  ###
+
+  #    bind . <Enter> {
+  #      if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
+  #        raise .dialog $window_path 
+  #      }
+  #    }
+  bind . <Expose> {
+    if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
+      raise .dialog $window_path 
+    }
+  }
+  bind . <Visibility> {
+    if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
+      raise .dialog $window_path
+    }
+  }
+  bind . <FocusIn> {
+    if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
+      raise .dialog $window_path
+    }
+  }
+  bind $window_path <Double-Button-1> {xschem callback -3 %x %y 0 %b 0 %s}
+  bind $window_path <Double-Button-2> {xschem callback -3 %x %y 0 %b 0 %s}
+  bind $window_path <Double-Button-3> {xschem callback -3 %x %y 0 %b 0 %s}
+  bind $window_path <Expose> {xschem callback %T %x %y 0 %w %h %s}
+  bind $window_path <Configure> {xschem windowid; xschem callback %T %x %y 0 %w %h 0}
+  bind $window_path <ButtonPress> {xschem callback %T %x %y 0 %b 0 %s}
+  if {$::OS == "Windows"} {
+    bind $window_path <MouseWheel> {
+      if {%D<0} {
+        xschem callback 4 %x %y 0 5 0 %s
+      } else {
+        xschem callback 4 %x %y 0 4 0 %s
+      }
+    }
+  }
+  bind $window_path <ButtonRelease> {xschem callback %T %x %y 0 %b 0 %s}
+  # on Windows Alt key mask is reported as 131072 (1<<17) so build masks manually with values passed from C code 
+  if {$::OS == "Windows" } {
+    bind $window_path <Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr {$Mod1Mask}]}
+    bind $window_path <Control-Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr {$ControlMask + $Mod1Mask}]}
+    bind $window_path <Shift-Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr {$ShiftMask + $Mod1Mask}]}
+  }
+  bind $window_path <KeyPress> {xschem callback %T %x %y %N 0 0 %s}
+  bind $window_path <KeyRelease> {xschem callback %T %x %y %N 0 0 %s} ;# 20161118
+  bind $window_path <Motion> {xschem callback %T %x %y 0 0 0 %s}
+  bind $window_path  <Enter> {xschem callback %T %x %y 0 0 0 0 }
+  bind $window_path <Leave> {}
+  bind $window_path <Unmap> {
+   wm withdraw .infotext
+   set show_infowindow 0
+  }
+  bind $window_path  "?" { textwindow "${XSCHEM_SHAREDIR}/xschem.help" }
+}
 
 ## this function sets up all tk windows and binds X events. It is executed by xinit.c after completing 
 ## all X initialization. This avoids race conditions.
@@ -3143,9 +3206,8 @@ proc toolbar_hide {} {
 ## this could lead to crashes on some (may be slow) systems due to Configure/Expose events being delivered
 ## before xschem being ready to handle them.
 proc build_windows {} {
-  global env
-  if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] > 0 )
-     && ![info exists no_x]} {
+  global env no_x
+  if {($::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] > 0 ) && ![info exists no_x]} {
     pack .statusbar.2 -side left 
     pack .statusbar.3 -side left 
     pack .statusbar.4 -side left 
@@ -3160,67 +3222,7 @@ proc build_windows {} {
     pack .statusbar -after .drw -anchor sw  -fill x 
     bind .statusbar.5 <Leave> { xschem set cadgrid $grid; focus .drw}
     bind .statusbar.3 <Leave> { xschem set cadsnap $snap; focus .drw}
-    ###
-    ### Tk event handling
-    ###
-
-    #    bind . <Enter> {
-    #      if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
-    #        raise .dialog .drw 
-    #      }
-    #    }
-    bind . <Expose> {
-      if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
-        raise .dialog .drw 
-      }
-    }
-    bind . <Visibility> {
-      if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
-        raise .dialog .drw
-      }
-    }
-    bind . <FocusIn> {
-      if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
-        raise .dialog .drw
-      }
-    }
-
-    bind .drw <Double-Button-1> {xschem callback -3 %x %y 0 %b 0 %s}
-    bind .drw <Double-Button-2> {xschem callback -3 %x %y 0 %b 0 %s}
-    bind .drw <Double-Button-3> {xschem callback -3 %x %y 0 %b 0 %s}
-    bind .drw <Expose> {xschem callback %T %x %y 0 %w %h %s}
-    bind .drw <Configure> {xschem windowid; xschem callback %T %x %y 0 %w %h 0}
-    bind .drw <ButtonPress> {xschem callback %T %x %y 0 %b 0 %s}
- 
-    if {$::OS == "Windows"} {
-      bind .drw <MouseWheel> {
-        if {%D<0} {
-          xschem callback 4 %x %y 0 5 0 %s
-        } else {
-          xschem callback 4 %x %y 0 4 0 %s
-        }
-      }
-    }
- 
-    bind .drw <ButtonRelease> {xschem callback %T %x %y 0 %b 0 %s}
-
-    # on Windows Alt key mask is reported as 131072 (1<<17) so build masks manually with values passed from C code 
-    if {$::OS == "Windows" } {
-      bind .drw <Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr {$Mod1Mask}]}
-      bind .drw <Control-Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr {$ControlMask + $Mod1Mask}]}
-      bind .drw <Shift-Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr {$ShiftMask + $Mod1Mask}]}
-    }
-
-    bind .drw <KeyPress> {xschem callback %T %x %y %N 0 0 %s}
-    bind .drw <KeyRelease> {xschem callback %T %x %y %N 0 0 %s} ;# 20161118
-    bind .drw <Motion> {xschem callback %T %x %y 0 0 0 %s}
-    bind .drw  <Enter> {xschem callback %T %x %y 0 0 0 0 }
-    bind .drw <Leave> {}
-    bind .drw <Unmap> {
-     wm withdraw .infotext
-     set show_infowindow 0
-    }
-    bind .drw  "?" { textwindow "${XSCHEM_SHAREDIR}/xschem.help" }
+    set_bindings {.drw}
   }
 }
 
