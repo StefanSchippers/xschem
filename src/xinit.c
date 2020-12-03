@@ -636,6 +636,7 @@ void xwin_exit(void)
  if(has_x) {
     #ifdef HAS_CAIRO
     cairo_destroy(cairo_ctx);
+    cairo_destroy(cairo_save_ctx);
     cairo_surface_destroy(sfc);
     cairo_surface_destroy(save_sfc);
     #endif
@@ -1383,7 +1384,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
         return 1;
       }
       cairo_ctx = cairo_create(sfc);
-      cairo_save_ctx = cairo_ctx;
+      cairo_save_ctx = cairo_create(save_sfc);
 
       #if 0
       {

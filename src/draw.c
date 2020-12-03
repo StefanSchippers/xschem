@@ -108,6 +108,7 @@ void print_image()
   XSetTile(display, gctiled, xctx->save_pixmap);
 
   #ifdef HAS_CAIRO
+  cairo_destroy(cairo_save_ctx);
   cairo_surface_destroy(save_sfc);
 
   #if HAS_XRENDER==1
@@ -124,6 +125,7 @@ void print_image()
     fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
      exit(-1);
   }
+  cairo_save_ctx = cairo_create(save_sfc);
   cairo_set_line_width(cairo_save_ctx, 1);
   cairo_set_line_join(cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
   cairo_set_line_cap(cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
@@ -182,6 +184,7 @@ void print_image()
 
 
 #ifdef HAS_CAIRO
+  cairo_destroy(cairo_save_ctx);
   cairo_surface_destroy(save_sfc);
 
   #if HAS_XRENDER==1
@@ -198,6 +201,7 @@ void print_image()
     fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
      exit(-1);
   }
+  cairo_save_ctx = cairo_create(save_sfc);
   cairo_set_line_width(cairo_save_ctx, 1);
   cairo_set_line_join(cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
   cairo_set_line_cap(cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
