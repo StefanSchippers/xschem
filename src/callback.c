@@ -193,7 +193,7 @@ int callback(int event, int mx, int my, KeySym key,
 #ifndef __unix__
     if ((xctx->ui_state & STARTWIRE) || (xctx->ui_state & STARTARC) ||
         (xctx->ui_state & STARTLINE) || (xctx->ui_state & STARTMOVE) ||
-        (xctx->ui_state & STARTCOPY) || (xctx->ui_state & STARTRECT) ||i
+        (xctx->ui_state & STARTCOPY) || (xctx->ui_state & STARTRECT) ||
         (xctx->ui_state & STARTPOLYGON) || (xctx->ui_state & STARTPAN2) ||
         (xctx->ui_state & STARTPAN) || (xctx->ui_state & STARTSELECT)) {
       XCopyArea(display, xctx->save_pixmap, xctx->window, gctiled, xctx->xrect[0].x, xctx->xrect[0].y,

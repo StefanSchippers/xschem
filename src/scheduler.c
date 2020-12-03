@@ -169,6 +169,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    windowid();
  }
 
+ else if(!strcmp(argv[1],"new_schematic"))
+ {
+   if(argc == 3) new_schematic(argv[2], "{}","{}");
+   else if(argc == 4) new_schematic(argv[2], argv[3], "{}");
+   else if(argc == 5) new_schematic(argv[2], argv[3], argv[4]);
+   Tcl_ResetResult(interp);
+ }
+
  else if(!strcmp(argv[1],"preview_window"))
  {
    if(argc == 3) preview_window(argv[2], "{}","{}");

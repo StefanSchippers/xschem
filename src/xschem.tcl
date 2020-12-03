@@ -3146,6 +3146,25 @@ proc raise_dialog {window_path } {
  }
 }
 
+#### TEST MODE #####
+proc new_window {what {path {}} {filename {}}} {
+  if { $what eq {create}} {
+    toplevel $path -bg {}
+    update
+    xschem new_schematic create $path $filename
+    set_bindings $path
+  } elseif { $what eq {destroy}} {
+    xschem new_schematic destroy $path {}
+  } elseif { $what eq {switch}} {
+    xschem new_schematic switch $path {}
+  } elseif { $what eq {redraw}} {
+    xschem new_schematic redraw $path {}
+  }
+}
+
+
+
+
 
 proc set_bindings {window_path} {
 global env no_x
