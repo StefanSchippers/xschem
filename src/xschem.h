@@ -524,10 +524,14 @@ typedef struct {
   int prep_hash_inst;
   int prep_hash_wires;
   int modified;
+  int semaphore;
   char netlist_name[PATH_MAX];
+  char current_dirname[PATH_MAX];
   struct instpinentry *instpintable[NBOXES][NBOXES];
   struct wireentry *wiretable[NBOXES][NBOXES];
   struct instentry *insttable[NBOXES][NBOXES];
+  Window window;
+  Pixmap save_pixmap;
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
@@ -605,7 +609,6 @@ struct instentry {
 extern Xschem_ctx *xctx;
 extern int help;
 extern char *cad_icon[];
-extern int semaphore;
 extern int a3page;
 extern int manhattan_lines;
 extern int cadlayers;
@@ -718,7 +721,6 @@ extern const char fopen_read_mode[];
 
 /* X11 specific globals */
 extern Colormap colormap;
-extern Window window;
 extern Window pre_window;
 extern Window parent_of_topwindow;
 extern unsigned char **pixdata;
@@ -727,7 +729,7 @@ extern GC *gc, *gcstipple, gctiled;
 extern Display *display;
 extern XRectangle *rectangle;
 extern XPoint *gridpoint;
-extern Pixmap cad_icon_pixmap, cad_icon_mask, *pixmap,save_pixmap;
+extern Pixmap cad_icon_pixmap, cad_icon_mask, *pixmap;
 extern XColor xcolor_array[];
 extern Visual *visual;
 #ifdef HAS_CAIRO

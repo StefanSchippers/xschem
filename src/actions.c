@@ -194,6 +194,43 @@ const char *add_ext(const char *f, const char *ext)
   dbg(1, "add_ext(): 3: ff=%s\n", ff);
   return ff;
 }
+static void reset_cairo(void)
+{
+  #ifdef HAS_CAIRO
+  /* save_sfc is based on pixmap and pixmaps are not resizeable, so on resize 
+   * we must destroy & recreate everything. sfc can be resized using cairo_*_surface_set_size
+   * being based on window */
+  cairo_destroy(cairo_save_ctx);
+  cairo_surface_destroy(save_sfc);
+  #if HAS_XRENDER==1
+  #if HAS_XCB==1
+  save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap,
+       &format_rgb, xctx->xschem_w, xctx->xschem_h);
+  #else
+  save_sfc = cairo_xlib_surface_create_with_xrender_format(display, xctx->save_pixmap,
+       DefaultScreenOfDisplay(display), format, xctx->xschem_w, xctx->xschem_h);
+  #endif /* HAS_XCB */
+  #else
+  save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, xctx->xschem_w, xctx->xschem_h);
+  #endif /* HAS_XRENDER */
+  if(cairo_surface_status(save_sfc)!=CAIRO_STATUS_SUCCESS) {
+    fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
+     exit(-1);
+  }
+  cairo_save_ctx = cairo_create(save_sfc);
+  cairo_set_line_width(cairo_save_ctx, 1);
+  cairo_set_line_join(cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
+  cairo_set_line_cap(cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
+  cairo_select_font_face (cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size (cairo_save_ctx, 20);
+  /* 20171125 select xlib or xcb :-) */
+  #if HAS_XCB==1 && HAS_XRENDER==1
+  cairo_xcb_surface_set_size(sfc, xctx->xschem_w, xctx->xschem_h);
+  #else
+  cairo_xlib_surface_set_size(sfc, xctx->xschem_w, xctx->xschem_h);
+  #endif /* HAS_XCB */
+  #endif /* HAS_CAIRO */
+}
 
 void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
 {
@@ -201,7 +238,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
   XWindowAttributes wattr;
   if(has_x) {
 #ifdef __unix__
-    i = XGetWindowAttributes(display, window, &wattr); /*  should call only when resized */
+    i = XGetWindowAttributes(display, xctx->window, &wattr); /*  should call only when resized */
                                               /*  to avoid server roundtrip replies */
     if(!i) {
       return;
@@ -227,22 +264,21 @@ void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
       xrect[0].y = 0;
       xrect[0].width = xctx->xschem_w;
       xrect[0].height = xctx->xschem_h;
-
-      if(clear_pixmap) XFreePixmap(display,save_pixmap);
-
+      if(clear_pixmap) XFreePixmap(display,xctx->save_pixmap);
       /*
       {
         unsigned int w, h;
-        XQueryBestSize(display, TileShape, window,  xctx->xschem_w, xctx->xschem_h, &w, &h);
+        XQueryBestSize(display, TileShape, xctx->window,  xctx->xschem_w, xctx->xschem_h, &w, &h);
         dbg(1, "XQueryBestSize: req: w=%d, h=%d, opt: w=%d h=%d\n",
                          xctx->xschem_w, xctx->xschem_h, w, h);
       }
       */
-
       if(create_pixmap) {
-        save_pixmap = XCreatePixmap(display, window, xctx->xschem_w, xctx->xschem_h, depth);
+        xctx->save_pixmap = XCreatePixmap(display, xctx->window, xctx->xschem_w, xctx->xschem_h, depth);
       }
-      XSetTile(display,gctiled, save_pixmap);
+      XSetTile(display,gctiled, xctx->save_pixmap);
+      reset_cairo();
+    }
 #else
     HWND hwnd;
     if (preview_window) {
@@ -276,55 +312,21 @@ void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
         xrect[0].y = 0;
         xrect[0].width = xctx->xschem_w;
         xrect[0].height = xctx->xschem_h;
-        if(clear_pixmap) Tk_FreePixmap(display, save_pixmap);
+        if(clear_pixmap) Tk_FreePixmap(display, xctx->save_pixmap);
         if(create_pixmap) {
-          save_pixmap = Tk_GetPixmap(display, window, xctx->xschem_w, xctx->xschem_h, depth);
+          xctx->save_pixmap = Tk_GetPixmap(display, xctx->window, xctx->xschem_w, xctx->xschem_h, depth);
         }
-        XSetTile(display, gctiled, save_pixmap);
+        XSetTile(display, gctiled, xctx->save_pixmap);
       }
-#endif
-      #ifdef HAS_CAIRO
-      cairo_destroy(cairo_save_ctx);
-      cairo_surface_destroy(save_sfc);
-
-      #if HAS_XRENDER==1
-      #if HAS_XCB==1
-      save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, save_pixmap,
-           &format_rgb, xctx->xschem_w, xctx->xschem_h);
-      #else
-      save_sfc = cairo_xlib_surface_create_with_xrender_format(display, save_pixmap,
-           DefaultScreenOfDisplay(display), format, xctx->xschem_w, xctx->xschem_h);
-      #endif /* HAS_XCB */
-      #else
-      save_sfc = cairo_xlib_surface_create(display, save_pixmap, visual, xctx->xschem_w, xctx->xschem_h);
-      #endif /* HAS_XRENDER */
-      if(cairo_surface_status(save_sfc)!=CAIRO_STATUS_SUCCESS) {
-        fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
-         exit(-1);
-      }
-      cairo_save_ctx = cairo_create(save_sfc);
-      cairo_set_line_width(cairo_save_ctx, 1);
-      cairo_set_line_join(cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
-      cairo_set_line_cap(cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
-      cairo_select_font_face (cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-      cairo_set_font_size (cairo_save_ctx, 20);
-      /* 20171125 select xlib or xcb :-) */
-      #if HAS_XCB==1 && HAS_XRENDER==1
-      cairo_xcb_surface_set_size(sfc, xctx->xschem_w, xctx->xschem_h);
-      #else
-      cairo_xlib_surface_set_size(sfc, xctx->xschem_w, xctx->xschem_h);
-      #endif /* HAS_XCB */
-      #endif /* HAS_CAIRO */
-
+      reset_cairo();
     }
-
+#endif
     if(pending_fullzoom) {
       zoom_full(0, 0);
       pending_fullzoom=0;
     }
-    /* debug ... */
     dbg(1, "resetwin(): Window reset\n");
-  }
+  } /* end if(has_x) */
 }
 
 void toggle_only_probes()
@@ -552,7 +554,7 @@ void ask_new_file(void)
     }
 }
 
-/* remove symbol and decrement xctx->symbols */
+/* remove symbol and decrement symbols */
 /* Warning: removing a symbol with a loaded schematic will make all symbol references corrupt */
 /* you should clear_drawing() first or load_schematic() or link_symbols_to_instances()
    immediately afterwards */
@@ -1276,7 +1278,7 @@ void go_back(int confirm) /*  20171006 add confirm */
   }
   my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
   xctx->currsch--;
-  save_modified = xctx->modified; /* we propagate xctx->modified flag (cleared by load_schematic */
+  save_modified = xctx->modified; /* we propagate modified flag (cleared by load_schematic */
                             /* by default) to parent schematic if going back from embedded symbol */
 
   my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));

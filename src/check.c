@@ -52,7 +52,7 @@ void update_conn_cues(int draw_cues, int dr_win)
   struct wireentry *wireptr;
   xWire * const wire = xctx->wire;
 
-  hash_wires(); /* must be done also if xctx->wires==0 to clear xctx->wiretable */
+  hash_wires(); /* must be done also if wires==0 to clear wiretable */
   if(!xctx->wires) return;
   if(!draw_dots) return;
   if(cadhalfdotsize*xctx->mooz<0.7) return;

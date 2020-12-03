@@ -362,8 +362,13 @@ void free_xschem_data()
   my_free(1131, &xctx->maxp);
   my_free(1132, &xctx->maxa);
   my_free(1133, &xctx->maxl);
+  my_free(1108, &xctx->sel_array);
   for(i=0;i<CADMAXHIER;i++) my_free(1139, &xctx->sch_path[i]);
-  
+  #ifdef __unix__
+    XFreePixmap(display,xctx->save_pixmap);
+  #else
+    Tk_FreePixmap(display, xctx->save_pixmap);
+  #endif
   my_free(269, &xctx);
 
 }
@@ -396,6 +401,7 @@ void alloc_xschem_data()
   xctx->prep_hash_inst = 0;
   xctx->prep_hash_wires = 0;
   xctx->modified = 0;
+  xctx->semaphore = 0;
   xctx->netlist_name[0] = '\0';
 
   for(i=0;i<CADMAXHIER;i++) xctx->sch_path[i]=NULL;
@@ -555,6 +561,16 @@ void alloc_xschem_data()
   if(xctx->lines==NULL){
     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
   }
+  xctx->maxsel=MAXGROUP;
+  xctx->sel_array=my_calloc(619, xctx->maxsel, sizeof(Selected));
+  if(xctx->sel_array==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+  pixmap=my_calloc(636, cadlayers, sizeof(Pixmap));
+  if(pixmap==NULL){
+    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
+  }
+
 }
 
 void alloc_data()
@@ -564,19 +580,8 @@ void alloc_data()
  alloc_xschem_data();
  /* global context / graphic preferences/settings */
 
- xctx->maxsel=MAXGROUP;
- xctx->sel_array=my_calloc(619, xctx->maxsel, sizeof(Selected));
- if(xctx->sel_array==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
  gridpoint=(XPoint*)my_calloc(608, CADMAXGRIDPOINTS,sizeof(XPoint));
  if(gridpoint==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
- pixmap=my_calloc(636, cadlayers, sizeof(Pixmap));
- if(pixmap==NULL){
    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
  }
 
@@ -639,13 +644,6 @@ void xwin_exit(void)
     cairo_surface_destroy(sfc);
     cairo_surface_destroy(save_sfc);
     #endif
-#ifdef __unix__
-    XFreePixmap(display,save_pixmap);
-    for(i=0;i<cadlayers;i++)XFreePixmap(display,pixmap[i]);
-#else
-    Tk_FreePixmap(display, save_pixmap);
-    for (i = 0; i < cadlayers; i++)Tk_FreePixmap(display, pixmap[i]);
-#endif
     dbg(1, "xwin_exit(): Releasing pixmaps\n");
     for(i=0;i<cadlayers;i++)
     {
@@ -663,7 +661,13 @@ void xwin_exit(void)
 #else
     if (cad_icon_pixmap) Tk_FreePixmap(display, cad_icon_pixmap);
 #endif
+  #ifdef __unix__
+    for(i = 0; i < cadlayers; i++) XFreePixmap(display,pixmap[i]);
+  #else
+    for(i = 0; i < cadlayers; i++) Tk_FreePixmap(display, pixmap[i]);
+  #endif
  }
+ my_free(1134, &pixmap);
  dbg(1, "xwin_exit(): clearing drawing data structures\n");
  clear_drawing();
  remove_symbols();
@@ -675,13 +679,11 @@ void xwin_exit(void)
    my_free(1101, &color_array[i]);
    my_free(1102, &pixdata[i]);
  }
- my_free(1108, &xctx->sel_array);
  my_free(1120, &fill_type);
  my_free(1121, &active_layer);
  my_free(1122, &pixdata);
  my_free(1123, &enable_layer);
  my_free(1099, &gridpoint);
- my_free(1134, &pixmap);
  my_free(1135, &gc);
  my_free(1136, &gcstipple);
  my_free(1137, &color_array);
@@ -844,62 +846,42 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
   }
   else if(!strcmp(what, "draw")) {
     Xschem_ctx *save_xctx = NULL; /* save pointer to current schematic context structure */
-    char *saveptr = NULL;
-    int save_mod, save_show_pin;
-    Pixmap save_save_pixmap;
-    Window save_window;
-
+    int save_show_pin;
 
     save_xctx = xctx; /* save current schematic */
     xctx = NULL;      /* reset for preview */
     alloc_xschem_data(); /* alloc data into xctx */
 
     /* save some relevant global context */
-    save_window = window;
-    save_save_pixmap = save_pixmap;
-    save_mod = xctx->modified;
     save_show_pin = show_pin_net_names;
     show_pin_net_names = 0;
-    my_strdup(117, &saveptr, tclgetvar("current_dirname"));
 
     /* preview */
     check_version = 0; /* if set refuse to load and preview anything if not a rel 1.1+ xschem file */
                        /* if not set heuristics is done in xschem.tcl to ensure it is an xschem file */
     load_schematic(1,filename, 0);
-    window = pre_window;
-    resetwin(1, 0, 1);
+    xctx->window = pre_window;
+    resetwin(1, 0, 1);  /* resetwin( create_pixmap, clear_pixmap, preview_window) */
     zoom_full(1, 0); /* draw */
     check_version = 0;
 
     /* restore context */
-    tclsetvar("current_dirname", saveptr);
-    my_free(1144, &saveptr);
     unselect_all();
     remove_symbols();
     clear_drawing();
     free_xschem_data();
 
     show_pin_net_names = save_show_pin;
-    xctx = save_xctx; /* restore schematic */
-    xctx->modified = save_mod;
-    set_modify(xctx->modified);
     /* free the pixmap (if a different one) used for preview */
-#ifdef __unix__
-    if (save_pixmap != save_save_pixmap)
-      XFreePixmap(display,save_pixmap);
-#else
-    if (save_pixmap != save_save_pixmap)
-      Tk_FreePixmap(display, save_pixmap);
-#endif 
-    window = save_window;
-    save_pixmap = save_save_pixmap;
-    /* reset window (back to main window), but don't delete and create a pixmap since we
+    xctx = save_xctx; /* restore schematic */
+    set_modify(xctx->modified);
+    /* reset window (back to main xctx->window), but don't delete and create a pixmap since we
        have preserved the main window pixmap and already erased the preview pixmap
        the goal of this complicated pixmap saving is to avoid a draw() call in the main window
        to regenerate the save_pixmap every time user browses a new symbol */
-    resetwin(0, 0, 0);
+    resetwin(0, 0, 0); /* preview save_pixmap already deleted in free_xschem_data() */
     change_linewidth(-1.);
-    /* not needed: event loop takes care of this and don't need to regenerate save_pixmap. */
+    /* not needed: event loop takes care of this and don't need to regenerate xctx->save_pixmap. */
     /* draw(); */
   }
   else if(!strcmp(what, "destroy")) {
@@ -1260,8 +1242,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  xctx->xschem_w = CADWIDTH;
  xctx->xschem_h = CADHEIGHT;
- xctx->areaw = CADWIDTH+4*INT_WIDTH(xctx->lw);  /* clip area extends 1 pixel beyond physical window area */
- xctx->areah = CADHEIGHT+4*INT_WIDTH(xctx->lw); /* to avoid drawing clipped rectangle borders at window edges */
+ xctx->areaw = CADWIDTH+4*INT_WIDTH(xctx->lw);  /* clip area extends 1 pixel beyond physical xctx->window area */
+ xctx->areah = CADHEIGHT+4*INT_WIDTH(xctx->lw); /* to avoid drawing clipped rectangle borders at xctx->window edges */
  xctx->areax1 = -2*INT_WIDTH(xctx->lw);
  xctx->areay1 = -2*INT_WIDTH(xctx->lw);
  xctx->areax2 = xctx->areaw-2*INT_WIDTH(xctx->lw);
@@ -1278,16 +1260,12 @@ int Tcl_AppInit(Tcl_Interp *inter)
  for(i = 0; i < cadlayers; i++) enable_layer[i] = 1;
  compile_font();
  /* restore current dir after loading font */
- if(tcleval("info exists env(PWD)")[0] == '1') {
+ if(getenv("PWD")) {
    /* $env(PWD) better than pwd_dir as it does not dereference symlinks */
-   tcleval("set current_dirname $env(PWD)");
+   my_strncpy(xctx->current_dirname, getenv("PWD"), S(xctx->current_dirname));
  } else {
-   Tcl_VarEval(interp, "set current_dirname ", pwd_dir, NULL);
+   my_strncpy(xctx->current_dirname, pwd_dir, S(xctx->current_dirname));
  }
- /* 
- my_snprintf(tmp, S(tmp), "set current_dirname \"%s\"", pwd_dir);
- tcleval(tmp);
- */
 
  /*                      */
  /*  X INITIALIZATION    */
@@ -1301,10 +1279,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
     display = Tk_Display(mainwindow);
     tkwindow = Tk_NameToWindow(interp, ".drw", mainwindow);
     Tk_MakeWindowExist(tkwindow);
-    window = Tk_WindowId(tkwindow);
+    xctx->window = Tk_WindowId(tkwindow);
     topwindow = Tk_WindowId(mainwindow);
 
-    dbg(1, "Tcl_AppInit(): drawing window ID=0x%lx\n",window);
+    dbg(1, "Tcl_AppInit(): drawing window ID=0x%lx\n",xctx->window);
     dbg(1, "Tcl_AppInit(): top window ID=0x%lx\n",topwindow);
     dbg(1, "Tcl_AppInit(): done tkinit()\n");
 
@@ -1363,45 +1341,45 @@ int Tcl_AppInit(Tcl_Interp *inter)
     rectcolor= 4;  /* this is the current layer when xschem started. */
     for(i=0;i<cadlayers;i++)
     {
-     pixmap[i] = XCreateBitmapFromData(display, window, (char*)(pixdata[i]),16,16);
-     gc[i] = XCreateGC(display,window,0L,NULL);
-     gcstipple[i] = XCreateGC(display,window,0L,NULL);
+     pixmap[i] = XCreateBitmapFromData(display, xctx->window, (char*)(pixdata[i]),16,16);
+     gc[i] = XCreateGC(display,xctx->window,0L,NULL);
+     gcstipple[i] = XCreateGC(display,xctx->window,0L,NULL);
      XSetStipple(display,gcstipple[i],pixmap[i]);
      if(fill_type[i]==1)  XSetFillStyle(display,gcstipple[i],FillSolid);
      else XSetFillStyle(display,gcstipple[i],FillStippled);
     }
-    gctiled = XCreateGC(display,window,0L, NULL);
+    gctiled = XCreateGC(display,xctx->window,0L, NULL);
     dbg(1, "Tcl_AppInit(): done step c of xinit()\n");
     if(build_colors(0.0)) exit(-1);
     dbg(1, "Tcl_AppInit(): done step e of xinit()\n");
-    /* save_pixmap must be created as resetwin() frees it before recreating with new size. */
+    /* xctx->save_pixmap must be created as resetwin() frees it before recreating with new size. */
 #ifdef __unix__
-    save_pixmap = XCreatePixmap(display,window,CADWIDTH,CADHEIGHT,depth);
+    xctx->save_pixmap = XCreatePixmap(display,xctx->window,CADWIDTH,CADHEIGHT,depth);
 #else
-    save_pixmap = Tk_GetPixmap(display, window, CADWIDTH, CADHEIGHT, depth);
+    xctx->save_pixmap = Tk_GetPixmap(display, xctx->window, CADWIDTH, CADHEIGHT, depth);
 #endif
-    XSetTile(display, gctiled, save_pixmap);
+    XSetTile(display, gctiled, xctx->save_pixmap);
     XSetFillStyle(display,gctiled,FillTiled);
     #ifdef HAS_CAIRO
     {
       XWindowAttributes wattr;
-      XGetWindowAttributes(display, window, &wattr);
+      XGetWindowAttributes(display, xctx->window, &wattr);
       #if HAS_XRENDER==1
       #if HAS_XCB==1
       sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn,
-            screen_xcb, window, &format_rgb, 1 , 1);
+            screen_xcb, xctx->window, &format_rgb, 1 , 1);
       save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn,
-                 screen_xcb, save_pixmap, &format_rgb, 1 , 1);
+                 screen_xcb, xctx->save_pixmap, &format_rgb, 1 , 1);
       #else
       format = XRenderFindStandardFormat(display, PictStandardRGB24);
       sfc = cairo_xlib_surface_create_with_xrender_format (display,
-            window, DefaultScreenOfDisplay(display), format, 1, 1);
+            xctx->window, DefaultScreenOfDisplay(display), format, 1, 1);
       save_sfc = cairo_xlib_surface_create_with_xrender_format(
-                 display, save_pixmap, DefaultScreenOfDisplay(display), format, 1, 1);
+                 display, xctx->save_pixmap, DefaultScreenOfDisplay(display), format, 1, 1);
       #endif
       #else
-      sfc = cairo_xlib_surface_create(display, window, visual, wattr.width, wattr.height);
-      save_sfc = cairo_xlib_surface_create(display, save_pixmap, visual, wattr.width, wattr.height);
+      sfc = cairo_xlib_surface_create(display, xctx->window, visual, wattr.width, wattr.height);
+      save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, wattr.width, wattr.height);
       #endif
       if(cairo_surface_status(sfc)!=CAIRO_STATUS_SUCCESS) {
         fprintf(errfp, "ERROR: invalid cairo surface\n");
@@ -1428,19 +1406,16 @@ int Tcl_AppInit(Tcl_Interp *inter)
       tcleval("xschem set svg_font_name $svg_font_name");
       tcleval("xschem set cairo_font_name $cairo_font_name");
       tclsetvar("has_cairo","1");
-      cairo_select_font_face (cairo_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-      cairo_set_font_size (cairo_ctx, 20);
-      cairo_select_font_face (cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-      cairo_set_font_size (cairo_save_ctx, 20);
-
-      cairo_save_ctx = cairo_create(save_sfc);
+      cairo_select_font_face(cairo_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size(cairo_ctx, 20);
+      cairo_select_font_face(cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_set_font_size(cairo_save_ctx, 20);
       cairo_set_line_width(cairo_ctx, 1);
       cairo_set_line_width(cairo_save_ctx, 1);
       cairo_set_line_join(cairo_ctx, CAIRO_LINE_JOIN_ROUND);
       cairo_set_line_cap(cairo_ctx, CAIRO_LINE_CAP_ROUND);
       cairo_set_line_join(cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
       cairo_set_line_cap(cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
-
     }
     #endif /* HAS_CAIRO */
 
@@ -1453,8 +1428,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
     dbg(1, "Tcl_AppInit(): sizeof xInstance=%lu , sizeof xSymbol=%lu\n",
              (unsigned long) sizeof(xInstance),(unsigned long) sizeof(xSymbol));
 
-
-    tcleval("xschem line_width $line_width");
 #ifdef __unix__
     dbg(1, "Tcl_AppInit(): xserver max request size: %d\n",
                              (int)XMaxRequestSize(display));

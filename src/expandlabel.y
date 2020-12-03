@@ -245,42 +245,28 @@ int  *idx;  /* for bus index & bus index ranges */
 %type <idx> index_nobracket
 
 /* operator precedences (bottom = highest)  and associativity  */
+%left B_NAME
 %left B_DOUBLEDOT
+%left ':'
 %left B_CAR
 %left ','
-%left ':'
 %left '*'
 
 /* Grammar follows */
 %%
-input:    /* empty string. allows ctrl-D as input */
-        | input line
-;
-line:     list          {
+
+
+line:    /* empty */
+         | list         {
                          my_strdup(129,  &(dest_string.str),$1.str); /*19102004 */
                          my_free(737, &$1.str); /*19102004 */
                          dest_string.m=$1.m;
                         }
-        | B_NUM         {
-                         char n[40];
-                         dbg(3, "yyparse(): B_NUM = %d\n", $1);
-                         sprintf(n, "%d", $1);
-                         my_strdup(158,  &(dest_string.str),n); /*19102004 */
-                         dest_string.m = 1;
-                        }
-          
 ;
 list:     B_NAME        { 
                          dbg(3, "yyparse(): B_NAME, $1=%s\n", $1);
-                         $$.str = expandlabel_strdup($1); /* 19102004 prima era =$1 */
+                         $$.str = expandlabel_strdup($1);
                          my_free(738, &$1);
-                         $$.m = 1;
-                        }
-        | list B_NAME   { 
-                         dbg(3, "yyparse(): list B_NAME, $2=%s\n", $2);
-                         $$.str = expandlabel_strcat($1.str, $2);
-                         my_free(452, &$1);
-                         my_free(1208, &$1.str);
                          $$.m = 1;
                         }
         | B_LINE        {
@@ -289,7 +275,17 @@ list:     B_NAME        {
                          my_free(739, &$1);
                          $$.m = 1;
                         }
-        | list '*' B_NUM{
+
+        | list B_NAME   { 
+                         dbg(3, "yyparse(): list B_NAME, $2=%s\n", $2);
+                         $$.str = expandlabel_strcat($1.str, $2);
+                         my_free(1208, &$1.str);
+                         my_free(452, &$2);
+                         $$.m = $1.m;
+                        }
+
+        | list '*' B_NUM
+                        {
                          dbg(3, "yyparse(): list * B_NUM\n");
                          dbg(3, "yyparse(): |%s| %d \n",$1.str,$3);
                          $$.str=expandlabel_strmult2($3,$1.str);
@@ -297,11 +293,20 @@ list:     B_NAME        {
                          $$.m = $3 * $1.m;
                          my_free(740, &$1.str);
                         }
-        | B_NUM '*' list{
+        | B_NUM '*' list
+                        {
                          dbg(3, "yyparse(): B_NUM * list\n");
                          $$.str=expandlabel_strmult($1,$3.str);
                          $$.m = $1 * $3.m;
                          my_free(741, &$3.str);
+                        }
+        | B_NAME '*' list
+                        {
+                         dbg(3, "yyparse(): B_NAME * list\n");
+                         $$.str=expandlabel_strcat_char($1, '*', $3.str);
+                         $$.m = 1;
+                         my_free(883, &$1);
+                         my_free(158, &$3.str);
                         }
         | list ',' list { 
                          dbg(3, "yyparse(): list , list\n");

@@ -1040,7 +1040,7 @@ void move_objects(int what, int merge, double dx, double dy)
   int save_draw;
 
   save_draw = draw_window;
-  draw_window=1; /* temporarily re-enable draw to window together with pixmap */
+  draw_window=1; /* temporarily re-enable draw to xctx->window together with pixmap */
   draw_selection(gctiled,0);
   bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   set_modify(1);

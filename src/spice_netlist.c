@@ -347,7 +347,7 @@ void spice_block_netlist(FILE *fd, int i)
   } else {
     dbg(1, "spice_block_netlist(): loading: %s -> %s\n", 
       xctx->sym[i].name, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"));
-    dbg(1, "spice_block_netlist(): current_dirname=%s\n", tclgetvar("current_dirname"));
+    dbg(1, "spice_block_netlist(): current_dirname=%s\n", xctx->current_dirname);
     load_schematic(1, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch") ,0);
   }
   spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */

@@ -779,7 +779,7 @@ proc simulate {{callback {}}} {
   ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
   ## $d : netlist directory
 
-  global netlist_dir netlist_type computerfarm terminal current_dirname sim
+  global netlist_dir netlist_type computerfarm terminal sim
   global execute_callback XSCHEM_SHAREDIR
   set_sim_defaults
   
@@ -892,7 +892,7 @@ proc waves {} {
   ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
   ## $d : netlist directory
 
-  global netlist_dir netlist_type computerfarm terminal current_dirname sim XSCHEM_SHAREDIR
+  global netlist_dir netlist_type computerfarm terminal sim XSCHEM_SHAREDIR
   set_sim_defaults
   
   if { [select_netlist_dir 0] ne {}} {
@@ -1122,15 +1122,16 @@ proc myload_set_colors2 {} {
   }
 }
 proc myload_set_home {dir} {
-  global pathlist  myload_files1 myload_index1 current_dirname
+  global pathlist  myload_files1 myload_index1
 
+  set curr_dirname [xschem get current_dirname]
   .dialog.l.paneleft.list selection clear 0 end
-  if { $dir eq {.}} { set dir $current_dirname}
+  if { $dir eq {.}} { set dir $curr_dirname}
   # puts "set home: dir=$dir, pathlist=$pathlist"
   set pl {}
   foreach path_elem $pathlist {
-    if { ![string compare $path_elem .]  && [info exist current_dirname]} {
-      set path_elem $current_dirname
+    if { ![string compare $path_elem .]} {
+      set path_elem $curr_dirname
     }
     lappend pl $path_elem
   }
@@ -1745,7 +1746,7 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
    button .dialog.buttons.b3 -text "Load" -command \
    {
      global INITIALTEXTDIR
-     if { ![info exists INITIALTEXTDIR] } { set INITIALTEXTDIR $current_dirname }
+     if { ![info exists INITIALTEXTDIR] } { set INITIALTEXTDIR [xschem get current_dirname] }
      set a [tk_getOpenFile -parent .dialog -initialdir $INITIALTEXTDIR ]
      if [string compare $a ""] {
       set INITIALTEXTDIR [file dirname $a]
@@ -2770,12 +2771,13 @@ proc viewdata {data {ro {}}} {
 # given an absolute path of a symbol/schematic remove the path prefix
 # if file is in a library directory (a $pathlist dir)
 proc rel_sym_path {symbol} {
-  global pathlist current_dirname
+  global pathlist
 
+  set curr_dirname [xschem get current_dirname]
   set name {}
   foreach path_elem $pathlist {
-    if { ![string compare $path_elem .]  && [info exist current_dirname]} {
-      set path_elem $current_dirname
+    if { ![string compare $path_elem .]  && [info exist curr_dirname]} {
+      set path_elem $curr_dirname
     }
     set pl [string length $path_elem]
     if { [string equal -length $pl $path_elem $symbol] } {
@@ -2793,7 +2795,9 @@ proc rel_sym_path {symbol} {
 
 # given a library/symbol return its absolute path
 proc abs_sym_path {fname {ext {} } } {
-  global pathlist current_dirname
+  global pathlist
+
+  set  curr_dirname [xschem get current_dirname]
 
   # empty: do nothing
   if {$fname eq {} } return {}
@@ -2819,9 +2823,9 @@ proc abs_sym_path {fname {ext {} } } {
   # remove trailing '/'s to non empty path
   regsub {([^/]+)/+$} $fname {\1} fname
   # if fname copy tmpfname is ../../e/f
-  # and current_dirname copy tmpdirname is /a/b/c
+  # and curr_dirname copy tmpdirname is /a/b/c
   # set tmpfname to /a/e/f
-  set tmpdirname $current_dirname
+  set tmpdirname $curr_dirname
   set tmpfname $fname
   set found 0 
   while { [regexp {^\.\./} $tmpfname ] } {
@@ -2840,16 +2844,16 @@ proc abs_sym_path {fname {ext {} } } {
   while { [regsub {^\./} $fname {} fname] } {}
   # if previous operation left fname empty set to '.'
   if { $fname eq {} } { set fname . }
-  # if fname is just "." return $current_dirname
+  # if fname is just "." return $curr_dirname
   if {[regexp {^\.$} $fname] } {
-    return "$current_dirname"
+    return "$curr_dirname"
   }
   # if fname is present in one of the pathlist paths get the absolute path
   set name {}
   foreach path_elem $pathlist {
     # in xschem a . in pathlist means the directory of currently loaded  schematic/symbol
-    if { ![string compare $path_elem .]  && [info exist current_dirname]} {
-      set path_elem $current_dirname
+    if { ![string compare $path_elem .]  && [info exist curr_dirname]} {
+      set path_elem $curr_dirname
     }
     set fullpath "$path_elem/$fname"
     if { [file exists $fullpath] } {
@@ -2858,7 +2862,7 @@ proc abs_sym_path {fname {ext {} } } {
     }
   }
   if {$name eq {} } {
-    set name "$current_dirname/$fname"
+    set name "$curr_dirname/$fname"
   }
   regsub {/\.$} $name {} name
   return $name
@@ -3305,7 +3309,6 @@ set_ne fullscreen 0
 set_ne unzoom_nodrift 1
 set_ne change_lw 0
 set_ne draw_window 0
-set_ne line_width 0
 set_ne incr_hilight 1
 set_ne enable_stretch 0
 set_ne horizontal_move 0 ; # 20171023

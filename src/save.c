@@ -986,9 +986,9 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   if(filename && filename[0]) {
     my_strncpy(name, filename, S(name));
     my_strncpy(xctx->sch[xctx->currsch], name, S(xctx->sch[xctx->currsch]));
-    /* if current_dirname is /some/path/.  remove /. at end */
-    my_snprintf(msg, S(msg), "set current_dirname \"[regsub {/\\.$} [file dirname {%s}] {}]\"", name);
-    tcleval(msg);
+    /* if name is /some/path/.  remove /. at end */
+    my_snprintf(msg, S(msg), "regsub {/\\.$} [file dirname {%s}] {}", name);
+    my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
     my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
     dbg(1, "load_schematic(): opening file for loading:%s, filename=%s\n", name, filename);
     dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);

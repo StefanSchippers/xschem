@@ -311,7 +311,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  else if(!strcmp(argv[1],"place_symbol"))
  {
    int ret;
-   semaphore++;
+   xctx->semaphore++;
    xctx->mx_double_save = xctx->mousex_snap;
    xctx->my_double_save = xctx->mousey_snap;
    if(argc == 4) {
@@ -328,7 +328,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      move_objects(START,0,0,0);
      xctx->ui_state |= PLACE_SYMBOL;
    }
-   semaphore--;
+   xctx->semaphore--;
    Tcl_ResetResult(interp);
  }
 
@@ -1823,7 +1823,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  }
  else if(!strcmp(argv[1],"get") && argc==3)
  {
-  if(!strcmp(argv[2],"incr_hilight"))  {
+  if(!strcmp(argv[2],"current_dirname"))  {
+    Tcl_SetResult(interp, xctx->current_dirname, TCL_VOLATILE);
+  }
+  else if(!strcmp(argv[2],"line_width"))  {
+    char s[40];
+    my_snprintf(s, S(s), "%g", xctx->lw);
+    Tcl_SetResult(interp, s, TCL_VOLATILE);
+  }
+  else if(!strcmp(argv[2],"incr_hilight"))  {
      if( incr_hilight != 0 )
         Tcl_AppendResult(interp, "1",NULL);
      else
@@ -1949,7 +1957,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   }
   else if(!strcmp(argv[2],"semaphore"))  {
         char s[30]; /* overflow safe 20161122 */
-        my_snprintf(s, S(s), "%d",semaphore);
+        my_snprintf(s, S(s), "%d",xctx->semaphore);
         Tcl_AppendResult(interp, s,NULL);
   }
   else if(!strcmp(argv[2],"change_lw"))  {
@@ -2167,7 +2175,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          tclsetvar("netlist_show", netlist_show ? "1" : "0");
    }
    else if(!strcmp(argv[2],"semaphore"))  {
-         semaphore=atoi(argv[3]);
+         xctx->semaphore=atoi(argv[3]);
    }
    else if(!strcmp(argv[2],"cadsnap"))  {
          set_snap( atof(argv[3]) );
