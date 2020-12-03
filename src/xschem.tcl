@@ -3140,6 +3140,13 @@ proc toolbar_hide {} {
     set $toolbar_visible 0
 }
 
+proc raise_dialog {window_path } {
+ if {[winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
+   raise .dialog $window_path
+ }
+}
+
+
 proc set_bindings {window_path} {
 global env no_x
   ###
@@ -3151,21 +3158,9 @@ global env no_x
   #        raise .dialog $window_path 
   #      }
   #    }
-  bind . <Expose> {
-    if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
-      raise .dialog $window_path 
-    }
-  }
-  bind . <Visibility> {
-    if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
-      raise .dialog $window_path
-    }
-  }
-  bind . <FocusIn> {
-    if { [winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped .] && [wm stackorder .dialog isbelow . ]} {
-      raise .dialog $window_path
-    }
-  }
+  bind . <Expose> [list raise_dialog $window_path]
+  bind . <Visibility> [list raise_dialog $window_path]
+  bind . <FocusIn> [list raise_dialog $window_path]
   bind $window_path <Double-Button-1> {xschem callback -3 %x %y 0 %b 0 %s}
   bind $window_path <Double-Button-2> {xschem callback -3 %x %y 0 %b 0 %s}
   bind $window_path <Double-Button-3> {xschem callback -3 %x %y 0 %b 0 %s}
