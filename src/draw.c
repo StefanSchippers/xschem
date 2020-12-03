@@ -83,10 +83,10 @@ void print_image()
 
   XUnmapWindow(display, xctx->window);
 
-  xrect[0].x = 0;
-  xrect[0].y = 0;
-  xctx->xschem_w = xrect[0].width = w;
-  xctx->xschem_h = xrect[0].height = h;
+  xctx->xrect[0].x = 0;
+  xctx->xrect[0].y = 0;
+  xctx->xschem_w = xctx->xrect[0].width = w;
+  xctx->xschem_h = xctx->xrect[0].height = h;
   xctx->areax2 = w+2*INT_WIDTH(xctx->lw);
   xctx->areay2 = h+2*INT_WIDTH(xctx->lw);
   xctx->areax1 = -2*INT_WIDTH(xctx->lw);
@@ -135,10 +135,10 @@ void print_image()
   #endif /*HAS_CAIRO */
   for(tmp=0;tmp<cadlayers;tmp++)
   {
-    XSetClipRectangles(display, gc[tmp], 0,0, xrect, 1, Unsorted);
-    XSetClipRectangles(display, gcstipple[tmp], 0,0, xrect, 1, Unsorted);
+    XSetClipRectangles(display, gc[tmp], 0,0, xctx->xrect, 1, Unsorted);
+    XSetClipRectangles(display, gcstipple[tmp], 0,0, xctx->xrect, 1, Unsorted);
   }
-  XSetClipRectangles(display, gctiled, 0,0, xrect, 1, Unsorted);
+  XSetClipRectangles(display, gctiled, 0,0, xctx->xrect, 1, Unsorted);
   save_draw_grid = draw_grid;
   draw_grid=0;
   draw_pixmap=1;
@@ -159,10 +159,10 @@ void print_image()
   xctx->modified=modified_save;
 
   w=ww;h=hh;
-  xrect[0].x = 0;
-  xrect[0].y = 0;
-  xctx->xschem_w = xrect[0].width = w;
-  xctx->xschem_h = xrect[0].height = h;
+  xctx->xrect[0].x = 0;
+  xctx->xrect[0].y = 0;
+  xctx->xschem_w = xctx->xrect[0].width = w;
+  xctx->xschem_h = xctx->xrect[0].height = h;
   xctx->areax2 = w+2*INT_WIDTH(xctx->lw);
   xctx->areay2 = h+2*INT_WIDTH(xctx->lw);
   xctx->areax1 = -2*INT_WIDTH(xctx->lw);
@@ -1761,8 +1761,8 @@ void draw(void)
     } /* !only_probes, 20110112 */
     draw_hilight_net(draw_window);
     if(!draw_window) {
-      XCopyArea(display, xctx->save_pixmap, xctx->window, gctiled, xrect[0].x, xrect[0].y,
-         xrect[0].width, xrect[0].height, xrect[0].x, xrect[0].y);
+      XCopyArea(display, xctx->save_pixmap, xctx->window, gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
     draw_selection(gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
 

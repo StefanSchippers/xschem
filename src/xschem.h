@@ -532,6 +532,7 @@ typedef struct {
   struct instentry *insttable[NBOXES][NBOXES];
   Window window;
   Pixmap save_pixmap;
+  XRectangle xrect[1];
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
@@ -674,7 +675,6 @@ extern char *xschem_executable;
 extern int depth;
 extern int *fill_type; /* 20171117 for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
 extern Tcl_Interp *interp;
-extern XRectangle xrect[];
 extern double cadsnap;
 extern int horizontal_move;
 extern int vertical_move;

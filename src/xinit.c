@@ -364,11 +364,6 @@ void free_xschem_data()
   my_free(1133, &xctx->maxl);
   my_free(1108, &xctx->sel_array);
   for(i=0;i<CADMAXHIER;i++) my_free(1139, &xctx->sch_path[i]);
-  #ifdef __unix__
-    XFreePixmap(display,xctx->save_pixmap);
-  #else
-    Tk_FreePixmap(display, xctx->save_pixmap);
-  #endif
   my_free(269, &xctx);
 
 }
@@ -403,6 +398,7 @@ void alloc_xschem_data()
   xctx->modified = 0;
   xctx->semaphore = 0;
   xctx->netlist_name[0] = '\0';
+  xctx->xrect[0].width = xctx->xrect[0].height = xctx->xrect[0].x = xctx->xrect[0].y = 0;
 
   for(i=0;i<CADMAXHIER;i++) xctx->sch_path[i]=NULL;
   my_strdup(1187, &xctx->sch_path[0],".");
@@ -861,7 +857,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
                        /* if not set heuristics is done in xschem.tcl to ensure it is an xschem file */
     load_schematic(1,filename, 0);
     xctx->window = pre_window;
-    resetwin(1, 0, 1);  /* resetwin( create_pixmap, clear_pixmap, preview_window) */
+    resetwin(1, 0, 1);  /* create preview pixmap resetwin(create_pixmap, clear_pixmap, preview_window) */
     zoom_full(1, 0); /* draw */
     check_version = 0;
 
@@ -869,17 +865,15 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     unselect_all();
     remove_symbols();
     clear_drawing();
-    free_xschem_data();
 
     show_pin_net_names = save_show_pin;
-    /* free the pixmap (if a different one) used for preview */
+    resetwin(0, 1, 1); /* delete preview pixmap */
+    free_xschem_data();
     xctx = save_xctx; /* restore schematic */
+    
+    resetwin(0, 0, 0);  /* set window size info back to original value */
+
     set_modify(xctx->modified);
-    /* reset window (back to main xctx->window), but don't delete and create a pixmap since we
-       have preserved the main window pixmap and already erased the preview pixmap
-       the goal of this complicated pixmap saving is to avoid a draw() call in the main window
-       to regenerate the save_pixmap every time user browses a new symbol */
-    resetwin(0, 0, 0); /* preview save_pixmap already deleted in free_xschem_data() */
     change_linewidth(-1.);
     /* not needed: event loop takes care of this and don't need to regenerate xctx->save_pixmap. */
     /* draw(); */
@@ -1248,10 +1242,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
  xctx->areay1 = -2*INT_WIDTH(xctx->lw);
  xctx->areax2 = xctx->areaw-2*INT_WIDTH(xctx->lw);
  xctx->areay2 = xctx->areah-2*INT_WIDTH(xctx->lw);
- xrect[0].x = 0;
- xrect[0].y = 0;
- xrect[0].width = CADWIDTH;
- xrect[0].height = CADHEIGHT;
+ xctx->xrect[0].x = 0;
+ xctx->xrect[0].y = 0;
+ xctx->xrect[0].width = CADWIDTH;
+ xctx->xrect[0].height = CADHEIGHT;
 
 
  my_strncpy(xctx->file_version, XSCHEM_FILE_VERSION, S(xctx->file_version));

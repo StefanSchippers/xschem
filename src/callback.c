@@ -196,8 +196,8 @@ int callback(int event, int mx, int my, KeySym key,
         (xctx->ui_state & STARTCOPY) || (xctx->ui_state & STARTRECT) ||i
         (xctx->ui_state & STARTPOLYGON) || (xctx->ui_state & STARTPAN2) ||
         (xctx->ui_state & STARTPAN) || (xctx->ui_state & STARTSELECT)) {
-      XCopyArea(display, xctx->save_pixmap, xctx->window, gctiled, xrect[0].x, xrect[0].y,
-        xrect[0].width, xrect[0].height, xrect[0].x, xrect[0].y);
+      XCopyArea(display, xctx->save_pixmap, xctx->window, gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+        xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
 #endif
     if(xctx->ui_state & STARTPAN2)   pan2(RUBBER, mx, my); /* 20121123 -  20160425 moved up */
@@ -205,7 +205,7 @@ int callback(int event, int mx, int my, KeySym key,
       #ifdef TURBOX_FIX
       /* fix Exceed TurboX bugs when drawing with pixmap tiled fill pattern */
       /* *NOT* a solution but at least makes the program useable. 20171130 */
-      XSetClipRectangles(display, gctiled, 0,0, xrect, 1, Unsorted);
+      XSetClipRectangles(display, gctiled, 0,0, xctx->xrect, 1, Unsorted);
       #endif
       my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.16g h=%.16g",
         xctx->mousex_snap, xctx->mousey_snap,
@@ -1625,8 +1625,8 @@ int callback(int event, int mx, int my, KeySym key,
        if( !(state & ShiftMask) && !(state & Mod1Mask) ) {
          unselect_all();
 #ifndef __unix__
-         XCopyArea(display, xctx->save_pixmap, xctx->window, gctiled, xrect[0].x, xrect[0].y,
-           xrect[0].width, xrect[0].height, xrect[0].x, xrect[0].y);
+         XCopyArea(display, xctx->save_pixmap, xctx->window, gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+           xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
 #endif
        }
        sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);

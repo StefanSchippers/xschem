@@ -438,10 +438,10 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->areay2 = savey2;
    xctx->areaw =  savew;
    xctx->areah =  saveh;
-   xrect[0].x = 0;
-   xrect[0].y = 0;
-   xrect[0].width = xctx->areaw-4*INT_WIDTH(xctx->lw);
-   xrect[0].height = xctx->areah-4*INT_WIDTH(xctx->lw);
+   xctx->xrect[0].x = 0;
+   xctx->xrect[0].y = 0;
+   xctx->xrect[0].width = xctx->areaw-4*INT_WIDTH(xctx->lw);
+   xctx->xrect[0].height = xctx->areah-4*INT_WIDTH(xctx->lw);
 
    XSetClipMask(display, gctiled, None); /* 20171110 optimization, clipping already done in software */
 
@@ -468,21 +468,21 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->areaw = (xctx->areax2-xctx->areax1);
    xctx->areah = (xctx->areay2-xctx->areay1);
 
-   xrect[0].x = bbx1-INT_WIDTH(xctx->lw);
-   xrect[0].y = bby1-INT_WIDTH(xctx->lw);
-   xrect[0].width = bbx2-bbx1+2*INT_WIDTH(xctx->lw);
-   xrect[0].height = bby2-bby1+2*INT_WIDTH(xctx->lw);
+   xctx->xrect[0].x = bbx1-INT_WIDTH(xctx->lw);
+   xctx->xrect[0].y = bby1-INT_WIDTH(xctx->lw);
+   xctx->xrect[0].width = bbx2-bbx1+2*INT_WIDTH(xctx->lw);
+   xctx->xrect[0].height = bby2-bby1+2*INT_WIDTH(xctx->lw);
    for(i=0;i<cadlayers;i++)
    {
-     XSetClipRectangles(display, gc[i], 0,0, xrect, 1, Unsorted);
-     XSetClipRectangles(display, gcstipple[i], 0,0, xrect, 1, Unsorted);
+     XSetClipRectangles(display, gc[i], 0,0, xctx->xrect, 1, Unsorted);
+     XSetClipRectangles(display, gcstipple[i], 0,0, xctx->xrect, 1, Unsorted);
    }
-   XSetClipRectangles(display, gctiled, 0,0, xrect, 1, Unsorted);
+   XSetClipRectangles(display, gctiled, 0,0, xctx->xrect, 1, Unsorted);
    dbg(1, "bbox(): bbox= %d %d %d %d\n",xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2);
    #ifdef HAS_CAIRO
-   cairo_rectangle(cairo_ctx, xrect[0].x, xrect[0].y, xrect[0].width, xrect[0].height);
+   cairo_rectangle(cairo_ctx, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
    cairo_clip(cairo_ctx);
-   cairo_rectangle(cairo_save_ctx, xrect[0].x, xrect[0].y, xrect[0].width, xrect[0].height);
+   cairo_rectangle(cairo_save_ctx, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
    cairo_clip(cairo_save_ctx);
    #endif
    break;

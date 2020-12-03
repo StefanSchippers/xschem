@@ -194,7 +194,8 @@ const char *add_ext(const char *f, const char *ext)
   dbg(1, "add_ext(): 3: ff=%s\n", ff);
   return ff;
 }
-static void reset_cairo(void)
+
+static void reset_cairo(int create, int clear)
 {
   #ifdef HAS_CAIRO
   /* save_sfc is based on pixmap and pixmaps are not resizeable, so on resize 
@@ -256,14 +257,14 @@ void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
 
     /* if no preview_window or create_pixmap==1  avoid unnecessary work if no resize */
     /* !create_pixmap ensures the XSetTile is executed when done with the preview */
-    if( preview_window || !create_pixmap || xctx->xschem_w !=xrect[0].width || xctx->xschem_h !=xrect[0].height) {
+    if( preview_window || xctx->xschem_w !=xctx->xrect[0].width || xctx->xschem_h !=xctx->xrect[0].height) {
       dbg(1, "resetwin(): x=%d y=%d   xctx->xschem_w=%d xctx->xschem_h=%d\n",
                        wattr.x, wattr.y, xctx->xschem_w,xctx->xschem_h);
       dbg(1, "resetwin(): changing size\n\n");
-      xrect[0].x = 0;
-      xrect[0].y = 0;
-      xrect[0].width = xctx->xschem_w;
-      xrect[0].height = xctx->xschem_h;
+      xctx->xrect[0].x = 0;
+      xctx->xrect[0].y = 0;
+      xctx->xrect[0].width = xctx->xschem_w;
+      xctx->xrect[0].height = xctx->xschem_h;
       if(clear_pixmap) XFreePixmap(display,xctx->save_pixmap);
       /*
       {
@@ -277,8 +278,8 @@ void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
         xctx->save_pixmap = XCreatePixmap(display, xctx->window, xctx->xschem_w, xctx->xschem_h, depth);
       }
       XSetTile(display,gctiled, xctx->save_pixmap);
-      reset_cairo();
     }
+    reset_cairo(create_pixmap, clear_pixmap);
 #else
     HWND hwnd;
     if (preview_window) {
@@ -303,22 +304,22 @@ void resetwin(int create_pixmap, int clear_pixmap, int preview_window)
       xctx->areah = xctx->areay2 - xctx->areay1;
       /* if no preview_window or create_pixmap==1  avoid unnecessary work if no resize */
       /* !create_pixmap ensures the XSetTile is executed when done with the preview */
-      if( preview_window || !create_pixmap || xctx->xschem_w !=xrect[0].width ||
-          xctx->xschem_h !=xrect[0].height) {
+      if( preview_window || xctx->xschem_w !=xctx->xrect[0].width ||
+          xctx->xschem_h !=xctx->xrect[0].height) {
         dbg(1, "resetwin(): x=%d y=%d   xctx->xschem_w=%d xctx->xschem_h=%d\n",
           rct.right, rct.bottom, xctx->xschem_w, xctx->xschem_h);
         dbg(1, "resetwin(): changing size\n\n");
-        xrect[0].x = 0;
-        xrect[0].y = 0;
-        xrect[0].width = xctx->xschem_w;
-        xrect[0].height = xctx->xschem_h;
+        xctx->xrect[0].x = 0;
+        xctx->xrect[0].y = 0;
+        xctx->xrect[0].width = xctx->xschem_w;
+        xctx->xrect[0].height = xctx->xschem_h;
         if(clear_pixmap) Tk_FreePixmap(display, xctx->save_pixmap);
         if(create_pixmap) {
           xctx->save_pixmap = Tk_GetPixmap(display, xctx->window, xctx->xschem_w, xctx->xschem_h, depth);
         }
         XSetTile(display, gctiled, xctx->save_pixmap);
       }
-      reset_cairo();
+      reset_cairo(create_pixmap, clear_pixmap);
     }
 #endif
     if(pending_fullzoom) {
@@ -1325,8 +1326,8 @@ void change_linewidth(double w)
   }
   xctx->areax1 = -2*INT_WIDTH(xctx->lw);
   xctx->areay1 = -2*INT_WIDTH(xctx->lw);
-  xctx->areax2 = xrect[0].width+2*INT_WIDTH(xctx->lw);
-  xctx->areay2 = xrect[0].height+2*INT_WIDTH(xctx->lw);
+  xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
+  xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
   xctx->areaw = xctx->areax2-xctx->areax1;
   xctx->areah = xctx->areay2 - xctx->areay1;
 }
@@ -1504,8 +1505,8 @@ void zoom_full(int dr, int sel)
   }
   xctx->areax1 = -2*INT_WIDTH(xctx->lw);
   xctx->areay1 = -2*INT_WIDTH(xctx->lw);
-  xctx->areax2 = xrect[0].width+2*INT_WIDTH(xctx->lw);
-  xctx->areay2 = xrect[0].height+2*INT_WIDTH(xctx->lw);
+  xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
+  xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
   xctx->areaw = xctx->areax2-xctx->areax1;
   xctx->areah = xctx->areay2 - xctx->areay1;
 
