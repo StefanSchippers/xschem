@@ -3,7 +3,8 @@ G {}
 K {type=subcircuit
 format="@name @pinlist @symname"
 template="name=x1"
-net_name=true}
+net_name=true
+verilog_netlist=true}
 V {}
 S {}
 E {}

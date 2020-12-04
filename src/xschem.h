@@ -1056,6 +1056,7 @@ extern void unhilight_net();
 extern void draw_hilight_net(int on_window);
 extern void display_hilights(char **str);
 extern void redraw_hilights(void);
+extern void override_netlist_type(int type);
 extern void prepare_netlist_structs(int for_netlist);
 extern void delete_netlist_structs(void);
 extern void delete_inst_node(int i);

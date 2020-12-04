@@ -315,7 +315,9 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  if(split_files) {
    fclose(fd);
    my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} noshow {%s}", netl_filename, cellname);
+   override_netlist_type(CAD_VHDL_NETLIST);
    tcleval(tcl_cmd_netlist);
+   override_netlist_type(-1); /* restore to netlist_dir default */
    if(debug_var==0) xunlink(netl_filename);
  }
  netlist_count++;
@@ -591,7 +593,9 @@ void  vhdl_block_netlist(FILE *fd, int i)
   if(split_files) {
     fclose(fd);
     my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} noshow {%s}", netl_filename, cellname);
+    override_netlist_type(CAD_VHDL_NETLIST);
     tcleval(tcl_cmd_netlist);
+    override_netlist_type(-1); /* restore to netlist_dir default */
     if(debug_var==0) xunlink(netl_filename);
   }
   netlist_count++;

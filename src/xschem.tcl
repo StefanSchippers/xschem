@@ -111,8 +111,9 @@ proc execute {status args} {
 
 proc netlist {source_file show netlist_file} {
  global XSCHEM_SHAREDIR flat_netlist hspice_netlist netlist_dir
- global verilog_2001 netlist_type
+ global verilog_2001 netlist_type tcl_debug
 
+ if {$tcl_debug <= 0} { puts "netlist: source_file=$source_file, netlist_type=$netlist_type" }
  if {$netlist_type eq {spice}} {
    if { $hspice_netlist == 1 } {
      set hspice {-hspice}
@@ -1948,7 +1949,7 @@ proc property_search {} {
   button .dialog.but.ok -text OK -command {
         set search_value [.dialog.val.e get]
         set custom_token [.dialog.custom.e get]
-        if $tcl_debug<=-1 then { puts stderr "|$custom_token|" }
+        if {$tcl_debug<=-1} { puts stderr "|$custom_token|" }
         set token $custom_token
         if { $search_exact==1 } {
           xschem searchmenu exact $search_select $token $search_value
@@ -2132,14 +2133,14 @@ proc edit_vi_prop {txtlabel} {
  set filename $filename.$suffix
  write_data $retval $XSCHEM_TMP_DIR/$filename
  eval execute_wait 0 $editor $XSCHEM_TMP_DIR/$filename ;# 20161119
- if $tcl_debug<=-1 then {puts "edit_vi_prop{}:\n--------\nretval=$retval\n---------\n"}
- if $tcl_debug<=-1 then {puts "edit_vi_prop{}:\n--------\nsymbol=$symbol\n---------\n"}
+ if {$tcl_debug<=-1} {puts "edit_vi_prop{}:\n--------\nretval=$retval\n---------\n"}
+ if {$tcl_debug<=-1} {puts "edit_vi_prop{}:\n--------\nsymbol=$symbol\n---------\n"}
  set tmp [read_data $XSCHEM_TMP_DIR/$filename]
  file delete $XSCHEM_TMP_DIR/$filename
- if $tcl_debug<=-1 then {puts "edit_vi_prop{}:\n--------\n$tmp\n---------\n"}
+ if {$tcl_debug<=-1} {puts "edit_vi_prop{}:\n--------\n$tmp\n---------\n"}
  if [string compare $tmp $retval] {
         set retval $tmp
-        if $tcl_debug<=-1 then {puts "modified"}
+        if {$tcl_debug<=-1} {puts "modified"}
         set rcode ok
         return  $rcode
  } else {
@@ -2161,15 +2162,15 @@ proc edit_vi_netlist_prop {txtlabel} {
  write_data $retval $XSCHEM_TMP_DIR/$filename
  if { [regexp vim $editor] } { set ftype "\{-c :set filetype=$netlist_type\}" } else { set ftype {} }
  eval execute_wait 0 $editor  $ftype $XSCHEM_TMP_DIR/$filename
- if $tcl_debug<=-1 then {puts "edit_vi_prop{}:\n--------\n$retval\n---------\n"}
+ if {$tcl_debug <= -1}  {puts "edit_vi_prop{}:\n--------\n$retval\n---------\n"}
  set tmp [read_data $XSCHEM_TMP_DIR/$filename]
  file delete $XSCHEM_TMP_DIR/$filename
- if $tcl_debug<=-1 then {puts "edit_vi_prop{}:\n--------\n$tmp\n---------\n"}
+ if {$tcl_debug <= -1}  {puts "edit_vi_prop{}:\n--------\n$tmp\n---------\n"}
  if [string compare $tmp $retval] {
         set retval $tmp
         regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
         set retval \"${retval}\" 
-        if $tcl_debug<=-1 then {puts "modified"}
+        if {$tcl_debug <= -1}  {puts "modified"}
         set rcode ok
         return  $rcode
  } else {
@@ -2219,7 +2220,7 @@ proc edit_prop {txtlabel} {
    set user_wants_copy_cell 0
    set rcode {}
    set retval_orig $retval
-   if $tcl_debug<=-1 then {puts " edit_prop{}: retval=$retval"}
+   if {$tcl_debug <= -1}  {puts " edit_prop{}: retval=$retval"}
    if { [winfo exists .dialog] } return
    toplevel .dialog  -class Dialog 
    wm title .dialog {Edit Properties}
@@ -2452,8 +2453,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
    global retval rcode tcl_debug tok_list selected_tok retval_orig old_selected_tok
    set retval_orig $retval
    if $clear==1 then {set retval ""}
-   if $tcl_debug<=-1 then {puts " text_line{}: clear=$clear"}
-   if $tcl_debug<=-1 then {puts " text_line{}: retval=$retval"}
+   if {$tcl_debug <= -1}  {puts " text_line{}: clear=$clear"}
+   if {$tcl_debug <= -1}  {puts " text_line{}: retval=$retval"}
    set rcode {}
    if { [winfo exists .dialog] } return
    toplevel .dialog  -class Dialog
