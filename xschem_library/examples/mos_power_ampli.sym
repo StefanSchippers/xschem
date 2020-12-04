@@ -4,7 +4,8 @@ K {type=subcircuit
 format="@name @pinlist @symname"
 template="name=x1"
 net_name=true
-verilog_netlist=true}
+verilog_netlist=true
+schematic=bus_keeper.sch}
 V {}
 S {}
 E {}

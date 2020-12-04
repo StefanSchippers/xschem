@@ -113,7 +113,7 @@ proc netlist {source_file show netlist_file} {
  global XSCHEM_SHAREDIR flat_netlist hspice_netlist netlist_dir
  global verilog_2001 netlist_type tcl_debug
 
- if {$tcl_debug <= 0} { puts "netlist: source_file=$source_file, netlist_type=$netlist_type" }
+ if {$tcl_debug <= -1} { puts "netlist: source_file=$source_file, netlist_type=$netlist_type" }
  if {$netlist_type eq {spice}} {
    if { $hspice_netlist == 1 } {
      set hspice {-hspice}
