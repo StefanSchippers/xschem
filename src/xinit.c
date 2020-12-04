@@ -891,7 +891,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
       preview_xctx->window = pre_window;
       resetwin(1, 0, 1);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
     }
-    resetwin(1, 1, 0);  /* handle resize.  resetwin(create_pixmap, clear_pixmap, force) */
+    resetwin(1, 1, 1);  /* handle resize.  resetwin(create_pixmap, clear_pixmap, force) */
     zoom_full(1, 0); /* draw */
     xctx = save_xctx;
   }
@@ -906,7 +906,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     my_free(1144, &current_file);
     xctx = save_xctx; /* restore schematic */
     save_xctx = NULL;
-    XSetTile(display,gctiled, xctx->save_pixmap);
+    resetwin(1, 1, 1);  /* handle resize.  resetwin(create_pixmap, clear_pixmap, force) */
     set_modify(xctx->modified);
   }
 }
