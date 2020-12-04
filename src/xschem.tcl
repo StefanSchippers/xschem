@@ -3174,9 +3174,6 @@ proc test1 {} {
   bind .drw <Enter>  {+ new_window switch 0}
 }
 
-
-
-
 proc set_bindings {window_path} {
 global env no_x
   ###

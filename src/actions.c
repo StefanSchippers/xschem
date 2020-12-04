@@ -284,14 +284,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force)
       reset_cairo(create_pixmap, clear_pixmap);
     }
 #else
-    HWND hwnd;
-    if (force) {
-      hwnd = Tk_GetHWND(pre_window);
-    }
-    else {
-      Tk_Window mainwindow = Tk_MainWindow(interp);
-      hwnd = Tk_GetHWND(Tk_WindowId(mainwindow));
-    }
+    HWND hwnd = Tk_GetHWND(xctx->window);
     RECT rct;
     if (GetWindowRect(hwnd, &rct))
     {

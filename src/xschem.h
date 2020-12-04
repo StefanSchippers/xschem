@@ -95,7 +95,7 @@
 #define MOUSE_WHEEL_UP 38
 extern int XSetClipRectangles(register Display* dpy, GC gc, int clip_x_origin, 
             int clip_y_origin, XRectangle* rectangles, int n, int ordering);
-extern int XSetTile(Display* display, GC gctiled, Pixmap save_pixmap);
+extern int XSetTile(Display* display, GC gctiled, Pixmap s_pixmap);
 extern void change_to_unix_fn(char* fn);
 extern char win_temp_dir[PATH_MAX];
 #define xfseek _fseeki64

@@ -1777,7 +1777,7 @@ int XSetClipRectangles(register Display* dpy, GC gc, int clip_x_origin, int clip
 {
   return 0;
 }
-int XSetTile(Display* display, GC gc, Pixmap save_pixmap)
+int XSetTile(Display* display, GC gc, Pixmap s_pixmap)
 {
   return 0;
 }
