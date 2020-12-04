@@ -894,7 +894,6 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     resetwin(1, 1, 0);  /* handle resize.  resetwin(create_pixmap, clear_pixmap, force) */
     zoom_full(1, 0); /* draw */
     xctx = save_xctx;
-    XSetTile(display,gctiled, xctx->save_pixmap);
   }
   else if(!strcmp(what, "destroy")) {
     dbg(1, "preview_window() destroy\n");
