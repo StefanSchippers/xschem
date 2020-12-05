@@ -1260,7 +1260,19 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
       #.dialog.buttons.entry delete 0 end
     }
   }
-  pack .dialog.buttons.ok .dialog.buttons.up .dialog.buttons.cancel \
+  button .dialog.buttons.pwd -text PWD -command {
+    bind .dialog.l.paneright.pre <Expose> {}
+    .dialog.l.paneright.pre configure -background white
+    set d [xschem get current_dirname]
+    if { [file isdirectory $d]} {
+      myload_set_home $d
+      setglob $d
+      myload_set_colors2
+      set myload_dir1 $d
+      #.dialog.buttons.entry delete 0 end
+    }
+  }
+  pack .dialog.buttons.ok .dialog.buttons.cancel .dialog.buttons.pwd .dialog.buttons.up \
        .dialog.buttons.home .dialog.buttons.label -side left
   pack .dialog.buttons.entry -side left -fill x -expand true
   pack .dialog.buttons.all .dialog.buttons.sym .dialog.buttons.sch -side left

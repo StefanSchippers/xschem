@@ -1531,6 +1531,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       } else if(argc == 3) {
         ret = place_symbol(-1,argv[2],xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1);
       } else {
+        #if 1  /* enable on request also in callback.c */
+        rebuild_selected_array();
+        if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
+          Tcl_VarEval(interp, "set INITIALINSTDIR [file dirname {",
+             abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
+        } 
+        #endif
         ret = place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1);
       }
    

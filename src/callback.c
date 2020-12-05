@@ -888,6 +888,13 @@ int callback(int event, int mx, int my, KeySym key,
    {
     if(xctx->semaphore >= 2) break;
     last_command = 0;
+    #if 1 /* enable on request also in scheduler.c */
+    rebuild_selected_array();
+    if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
+      Tcl_VarEval(interp, "set INITIALINSTDIR [file dirname {",
+           abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
+    } 
+    #endif
     unselect_all();
 
     /* place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL,3, 1);*/
