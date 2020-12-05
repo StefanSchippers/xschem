@@ -69,6 +69,38 @@ int clip( double *xa,double *ya,double *xb,double *yb)
  }
 }
 
+void clip_xy_to_short(double x, double y, short *sx, short *sy)
+{
+  double ax, ay;
+  double r;
+  ax = fabs(x);
+  ay = fabs(y);
+
+  if(ax > ay) {
+    if( x > SHRT_MAX) {
+      r = SHRT_MAX / x;
+    } else if(x < SHRT_MIN) {
+      r = SHRT_MIN / x;
+    } else {
+      r = 1.0;
+    }
+  } else {
+    if( y > SHRT_MAX) {
+      r = SHRT_MAX / y;
+    } else if(y < SHRT_MIN) {
+      r = SHRT_MIN / y;
+    } else {
+      r = 1.0;
+    }
+  }
+  *sx = x * r;
+  *sy = y * r;
+}
+
+short clip_to_short(double n)
+{
+  return n > SHRT_MAX ? SHRT_MAX : n < SHRT_MIN ? SHRT_MIN : n;
+}
 
 int rectclip(int x1,int y1,int x2,int y2,
           double *xa,double *ya,double *xb,double *yb)

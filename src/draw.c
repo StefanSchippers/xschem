@@ -1361,6 +1361,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   double x1,y1,x2,y2;
   XPoint *p;
   int i;
+  short sx, sy;
   if(!has_x) return;
 
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
@@ -1375,8 +1376,9 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
 
   p = my_malloc(38, sizeof(XPoint) * points);
   for(i=0;i<points; i++) {
-    p[i].x = X_TO_SCREEN(x[i]);
-    p[i].y = Y_TO_SCREEN(y[i]);
+    clip_xy_to_short(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), &sx, &sy);
+    p[i].x = sx;
+    p[i].y = sy;
   }
   if(dash) {
     char dash_arr[2];
@@ -1406,6 +1408,7 @@ void drawtemppolygon(GC g, int what, double *x, double *y, int points)
   double x1,y1,x2,y2;
   XPoint *p;
   int i;
+  short sx, sy;
   if(!has_x) return;
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
   x1=X_TO_SCREEN(x1);
@@ -1415,8 +1418,9 @@ void drawtemppolygon(GC g, int what, double *x, double *y, int points)
   p = my_malloc(39, sizeof(XPoint) * points);
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
     for(i=0;i<points; i++) {
-      p[i].x = X_TO_SCREEN(x[i]);
-      p[i].y = Y_TO_SCREEN(y[i]);
+      clip_xy_to_short(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), &sx, &sy);
+      p[i].x = sx;
+      p[i].y = sy;
     }
     XDrawLines(display, xctx->window, g, p, points, CoordModeOrigin);
   }

@@ -860,8 +860,9 @@ extern void draw_temp_symbol(int what, GC gc, int n,int layer,
 extern void draw_temp_string(GC gc,int what, const char *str, short rot, short flip, int hcenter, int vcenter,
        double x1, double y1, double xscale, double yscale);
 
-
 extern void draw(void);
+extern short clip_to_short(double n);
+extern void clip_xy_to_short(double x, double y, short *sx, short *sy);
 extern int clip( double*,double*,double*,double*);
 extern int textclip(int x1,int y1,int x2,int y2,
            double xa,double ya,double xb,double yb);
