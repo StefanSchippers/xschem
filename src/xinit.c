@@ -906,7 +906,9 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     my_free(1144, &current_file);
     xctx = save_xctx; /* restore schematic */
     save_xctx = NULL;
-    resetwin(1, 1, 1);  /* handle resize.  resetwin(create_pixmap, clear_pixmap, force) */
+    resetwin(0, 0, 1);  /* handle resize.  resetwin(create_pixmap, clear_pixmap, force) */
+    change_linewidth(xctx->lw); /* restore correct linewidth since it was changed in preview
+                                 * need to do the XSetLineAttributes */
     set_modify(xctx->modified);
   }
 }
