@@ -60,7 +60,6 @@ int get_instance(const char *s)
     i=atol(s);
   }
   if(i<0 || i>xctx->instances) {
-    Tcl_AppendResult(interp, "Index out of range", NULL);
     return -1;
   }
   return i;
@@ -75,7 +74,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
  Tcl_ResetResult(interp);
  if(argc<2) {
-   Tcl_AppendResult(interp, "Missing arguments.", NULL);
+   Tcl_SetResult(interp, "Missing arguments.", TCL_STATIC);
    return TCL_ERROR;
  }
  if(debug_var>=2) {
@@ -337,8 +336,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       char *str = NULL;
       display_hilights(&str);
-      Tcl_ResetResult(interp);
-      Tcl_AppendResult(interp, str, NULL);
+      Tcl_SetResult(interp, str, TCL_VOLATILE);
       my_free(1161, &str);
     }
   }
@@ -399,7 +397,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       llen = strlen(l);
       result = my_malloc(378, llen + 30);
       my_snprintf(result, llen + 30, "%s %d", l, tmp);
-      Tcl_AppendResult(interp, result, NULL);
+      Tcl_SetResult(interp, result, TCL_VOLATILE);
       my_free(927, &result);
     }
   }
@@ -446,24 +444,22 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc == 4) x = atoi(argv[3]);
       else x = xctx->currsch;
       if(x<0 && xctx->currsch+x>=0) {
-        Tcl_AppendResult(interp, xctx->sch[xctx->currsch+x], NULL);
+        Tcl_SetResult(interp, xctx->sch[xctx->currsch+x], TCL_VOLATILE);
       } else if(x<=xctx->currsch) {
-        Tcl_AppendResult(interp, xctx->sch[x], NULL);
+        Tcl_SetResult(interp, xctx->sch[x], TCL_VOLATILE);
       }
     }
-   
     else if(!strcmp(argv[1],"get") && !strcmp(argv[2],"sch_path") && argc >= 3) 
     {
       int x;
       if(argc == 4) x = atoi(argv[3]);
       else x = xctx->currsch;
       if(x<0 && xctx->currsch+x>=0) {
-        Tcl_AppendResult(interp, xctx->sch_path[xctx->currsch+x], NULL);
+        Tcl_SetResult(interp, xctx->sch_path[xctx->currsch+x], TCL_VOLATILE);
       } else if(x<=xctx->currsch) {
-        Tcl_AppendResult(interp, xctx->sch_path[x], NULL);
+        Tcl_SetResult(interp, xctx->sch_path[x], TCL_VOLATILE);
       }
     }
-
     else if(!strcmp(argv[1],"get") && argc==3)
     {
      if(!strcmp(argv[2],"current_dirname")) {
@@ -475,206 +471,202 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        Tcl_SetResult(interp, s, TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"incr_hilight")) {
-        if( incr_hilight != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
-        else
-           Tcl_AppendResult(interp, "0",NULL);
+       if( incr_hilight != 0 )
+         Tcl_SetResult(interp, "1",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"auto_hilight")) {
-        if( auto_hilight != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
-        else
-           Tcl_AppendResult(interp, "0",NULL);
+       if( auto_hilight != 0 )
+         Tcl_SetResult(interp, "1",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"netlist_show")) {
-        if( netlist_show != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
-        else
-           Tcl_AppendResult(interp, "0",NULL);
+       if( netlist_show != 0 )
+         Tcl_SetResult(interp, "1",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"show_pin_net_names")) {
-        if( show_pin_net_names != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
-        else
-           Tcl_AppendResult(interp, "0",NULL);
+       if( show_pin_net_names != 0 )
+         Tcl_SetResult(interp, "1",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"flat_netlist")) {
-        if( flat_netlist != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
-        else
-           Tcl_AppendResult(interp, "0",NULL);
+       if( flat_netlist != 0 )
+         Tcl_SetResult(interp, "1",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"split_files")) {
-        if( split_files != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
-        else
-           Tcl_AppendResult(interp, "0",NULL);
+       if( split_files != 0 )
+         Tcl_SetResult(interp, "1",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"bbox_selected")) {
        xRect boundbox;
        char res[2048];
        calc_drawing_bbox(&boundbox, 1);
        my_snprintf(res, S(res), "%g %g %g %g", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-       Tcl_AppendResult(interp, res, NULL);
+       Tcl_SetResult(interp, res, TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"bbox_hilighted")) {
        xRect boundbox;
        char res[2048];
        calc_drawing_bbox(&boundbox, 2);
        my_snprintf(res, S(res), "%g %g %g %g", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-       Tcl_AppendResult(interp, res, NULL);
+       Tcl_SetResult(interp, res, TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"enable_stretch")) {
        if( enable_stretch != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
+         Tcl_SetResult(interp, "1",TCL_STATIC);
        else
-           Tcl_AppendResult(interp, "0",NULL);
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"help")) {
        if( help != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
+         Tcl_SetResult(interp, "1",TCL_STATIC);
        else
-           Tcl_AppendResult(interp, "0",NULL);
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"color_ps")) {
        if( color_ps != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
+         Tcl_SetResult(interp, "1",TCL_STATIC);
        else
-           Tcl_AppendResult(interp, "0",NULL);
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"only_probes")) {
        if( only_probes != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
+         Tcl_SetResult(interp, "1",TCL_STATIC);
        else
-           Tcl_AppendResult(interp, "0",NULL);
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"a3page")) {
        if( a3page != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
+         Tcl_SetResult(interp, "1",TCL_STATIC);
        else
-           Tcl_AppendResult(interp, "0",NULL);
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"draw_grid")) {
        if( draw_grid != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
+         Tcl_SetResult(interp, "1",TCL_STATIC);
        else
-           Tcl_AppendResult(interp, "0",NULL);
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"text_svg")) {
        if( text_svg != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
+         Tcl_SetResult(interp, "1",TCL_STATIC);
        else
-           Tcl_AppendResult(interp, "0",NULL);
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"sym_txt")) {
        if( sym_txt != 0 )
-           Tcl_AppendResult(interp, "1",NULL);
+         Tcl_SetResult(interp, "1",TCL_STATIC);
        else
-           Tcl_AppendResult(interp, "0",NULL);
-     }
-     else if(!strcmp(argv[2],"cadsnap_default")) {
-           Tcl_AppendResult(interp, tclgetvar("snap"),NULL);
+         Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"netlist_name")) {
-       Tcl_AppendResult(interp, xctx->netlist_name);
+       Tcl_SetResult(interp, xctx->netlist_name, TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"cadsnap")) {
-           char s[30]; /* overflow safe 20161212 */
-           my_snprintf(s, S(s), "%.9g",cadsnap);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161212 */
+       my_snprintf(s, S(s), "%.9g",cadsnap);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"rectcolor")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",rectcolor);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",rectcolor);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"debug_var")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",debug_var);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",debug_var);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"currsch")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",xctx->currsch);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",xctx->currsch);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"semaphore")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",xctx->semaphore);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",xctx->semaphore);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"change_lw")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",change_lw);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",change_lw);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"draw_window")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",draw_window);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",draw_window);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"ui_state")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",xctx->ui_state);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",xctx->ui_state);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"netlist_dir")) {
-           Tcl_AppendResult(interp, netlist_dir,NULL);
+       Tcl_SetResult(interp, netlist_dir,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"dim")) {
-           char s[40];
-           my_snprintf(s, S(s), "%.2g", color_dim);
-           Tcl_AppendResult(interp, s, NULL);
+       char s[40];
+       my_snprintf(s, S(s), "%.2g", color_dim);
+       Tcl_SetResult(interp, s, TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"instances")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",xctx->instances);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",xctx->instances);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"pinlayer")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",PINLAYER);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",PINLAYER);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"wirelayer")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",WIRELAYER);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",WIRELAYER);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"textlayer")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",TEXTLAYER);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",TEXTLAYER);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"sellayer")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",SELLAYER);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",SELLAYER);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"gridlayer")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",GRIDLAYER);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",GRIDLAYER);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"backlayer")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "%d",BACKLAYER);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",BACKLAYER);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"version")) {
-           char s[30]; /* overflow safe 20161122 */
-           my_snprintf(s, S(s), "XSCHEM V%s",XSCHEM_VERSION);
-           Tcl_AppendResult(interp, s,NULL);
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "XSCHEM V%s",XSCHEM_VERSION);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
-   
      #ifndef __unix__
      else if(!strcmp(argv[2], "temp_dir")) {
-       if(win_temp_dir[0] != '\0') Tcl_AppendResult(interp, win_temp_dir, NULL);
+       if(win_temp_dir[0] != '\0') Tcl_SetResult(interp, win_temp_dir, TCL_VOLATILE);
        else {
          TCHAR tmp_buffer_path[MAX_PATH];
          DWORD ret_val = GetTempPath(MAX_PATH, tmp_buffer_path);
          if(ret_val > MAX_PATH || (ret_val == 0)) {
-           Tcl_AppendResult(interp, "xschem get temp_dir failed\n", NULL);
+           Tcl_SetResult(interp, "xschem get temp_dir failed\n", TCL_STATIC);
            fprintf(errfp, "xschem get temp_dir: path error\n");
            tcleval("exit");
          }
@@ -683,7 +675,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
            size_t num_char_converted;
            int err = wcstombs_s(&num_char_converted, s, MAX_PATH, tmp_buffer_path, MAX_PATH); /*unicode TBD*/
            if(err != 0) {
-             Tcl_AppendResult(interp, "xschem get temp_dir conversion failed\n", NULL);
+             Tcl_SetResult(interp, "xschem get temp_dir conversion failed\n", TCL_STATIC);
              fprintf(errfp, "xschem get temp_dir: conversion error\n");
              tcleval("exit");
            }
@@ -693,7 +685,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
              if(s[slen - 1] == '/') s[slen - 1] = '\0';
              strcpy(win_temp_dir, s);
              dbg(2, "scheduler(): win_temp_dir is %s\n", win_temp_dir);
-             Tcl_AppendResult(interp, s, NULL);
+             Tcl_SetResult(interp, s, TCL_VOLATILE);
            }
          }
        }
@@ -703,16 +695,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        fprintf(errfp, "xschem get %s: invalid command.\n", argv[2]);
      }
     }
+
     else if(!strcmp(argv[1],"get_tok") )
     {
       char *s=NULL;
       int t;
-      Tcl_ResetResult(interp);
-      if(argc < 4) {Tcl_AppendResult(interp, "Missing arguments", NULL);return TCL_ERROR;}
+      if(argc < 4) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
       if(argc == 5) t = atoi(argv[4]);
       else t = 0;
       my_strdup(648, &s, get_tok_value(argv[2], argv[3], t));
-      Tcl_AppendResult(interp, s, NULL);
+      Tcl_SetResult(interp, s, TCL_VOLATILE);
       my_free(649, &s);
     }
    
@@ -720,8 +712,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       char s[30];
       my_snprintf(s, S(s), "%d", (int)get_tok_size);
-      Tcl_ResetResult(interp);
-      Tcl_AppendResult(interp, s, NULL);
+      Tcl_SetResult(interp, s, TCL_VOLATILE);
     }
    
     else if(!strcmp(argv[1],"getprop"))
@@ -730,24 +721,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int i;
         const char *tmp;
         if(argc!=5 && argc !=4) {
-          Tcl_AppendResult(interp, "'xschem getprop instance' needs 1 or 2 additional arguments", NULL);
+          Tcl_SetResult(interp, "'xschem getprop instance' needs 1 or 2 additional arguments", TCL_STATIC);
           return TCL_ERROR;
         }
         if( (i = get_instance(argv[3])) < 0 ) {
-          Tcl_AppendResult(interp, "xschem getprop: instance not found", NULL);
+          Tcl_SetResult(interp, "xschem getprop: instance not found", TCL_STATIC);
           return TCL_ERROR;
         }
         if(argc == 4) {
-          Tcl_AppendResult(interp, xctx->inst[i].prop_ptr, NULL);
+          Tcl_SetResult(interp, xctx->inst[i].prop_ptr, TCL_VOLATILE);
         } else if(!strcmp(argv[4],"cell::name")) {
           tmp = xctx->inst[i].name;
-          Tcl_AppendResult(interp, tmp, NULL);
+          Tcl_SetResult(interp, (char *) tmp, TCL_VOLATILE);
         } else if(strstr(argv[4], "cell::") ) {
           tmp = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, argv[4]+6, 0);
           dbg(1, "scheduler(): xschem getprop: looking up instance %d prop cell::|%s| : |%s|\n", i, argv[4]+6, tmp);
-          Tcl_AppendResult(interp, tmp, NULL);
+          Tcl_SetResult(interp, (char *) tmp, TCL_VOLATILE);
         } else {
-          Tcl_AppendResult(interp, get_tok_value(xctx->inst[i].prop_ptr, argv[4], 0), NULL);
+          Tcl_SetResult(interp, (char *)get_tok_value(xctx->inst[i].prop_ptr, argv[4], 0), TCL_VOLATILE);
         }
       } else if(argc > 2 && !strcmp(argv[2], "instance_pin")) {
         /*   0       1        2         3   4       5     */
@@ -757,12 +748,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         char *subtok=NULL;
         const char *value=NULL;
         if(argc != 6 && argc != 5) {
-          Tcl_AppendResult(interp, "xschem getprop instance_pin needs 2 or 3 additional arguments", NULL);
+          Tcl_SetResult(interp, "xschem getprop instance_pin needs 2 or 3 additional arguments", TCL_STATIC);
           return TCL_ERROR;
         }
-   
         if( (inst = get_instance(argv[3])) < 0 ) {
-          Tcl_AppendResult(interp, "xschem getprop: instance not found", NULL);
+          Tcl_SetResult(interp, "xschem getprop: instance not found", TCL_STATIC);
           return TCL_ERROR;
         }
         if(isonlydigit(argv[4])) {
@@ -777,7 +767,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         if(n>=0  && n < (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER]) {
           if(argc == 5) {
-           Tcl_AppendResult(interp, (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][n].prop_ptr, NULL);
+           Tcl_SetResult(interp, (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][n].prop_ptr, TCL_VOLATILE);
           } else {
             tmp = 100 + strlen(argv[4]) + strlen(argv[5]);
             subtok = my_malloc(83,tmp);
@@ -797,7 +787,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                 sscanf(ss + 1, "%d", &slot);
                 if(strstr(value, ":")) value = find_nth(value, ':', slot);
               }
-              Tcl_AppendResult(interp, value, NULL);
+              Tcl_SetResult(interp, (char *)value, TCL_VOLATILE);
             }
             my_free(924, &subtok);
           }
@@ -806,7 +796,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       } else if( !strcmp(argv[2],"symbol")) {
         int i, found=0;
         if(argc!=5 && argc !=4) {
-          Tcl_AppendResult(interp, "xschem getprop needs 2 or 3 additional arguments", NULL);
+          Tcl_SetResult(interp, "xschem getprop needs 2 or 3 additional arguments", TCL_STATIC);
           return TCL_ERROR;
         }
         for(i=0; i<xctx->symbols; i++) {
@@ -816,13 +806,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         }
         if(!found) {
-          Tcl_AppendResult(interp, "Symbol not found", NULL);
+          Tcl_SetResult(interp, "Symbol not found", TCL_STATIC);
           return TCL_ERROR;
         }
         if(argc == 4)
-          Tcl_AppendResult(interp, xctx->sym[i].prop_ptr, NULL);
+          Tcl_SetResult(interp, xctx->sym[i].prop_ptr, TCL_VOLATILE);
         else
-          Tcl_AppendResult(interp, get_tok_value(xctx->sym[i].prop_ptr, argv[4], 0), NULL);
+          Tcl_SetResult(interp, (char *)get_tok_value(xctx->sym[i].prop_ptr, argv[4], 0), TCL_VOLATILE);
       }
     }
    
@@ -1015,10 +1005,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc>=3) {
         ret = hilight_netname(argv[2]);
       }
-      /* 
-       * Tcl_ResetResult(interp);
-       * Tcl_AppendResult(interp,ret ? "1" : "0" , NULL); */
-       Tcl_SetResult(interp,ret ? "1" : "0" , TCL_STATIC);
+      Tcl_SetResult(interp,ret ? "1" : "0" , TCL_STATIC);
     }
   }
 
@@ -1053,8 +1040,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    	(xctx->inst[i].ptr+ xctx->sym)->minx,
    	(xctx->inst[i].ptr+ xctx->sym)->miny,
    	(xctx->inst[i].ptr+ xctx->sym)->maxx,
-   	(xctx->inst[i].ptr+ xctx->sym)->maxy
-                 );
+   	(xctx->inst[i].ptr+ xctx->sym)->maxy);
       Tcl_AppendResult(interp, s, NULL);
       }
     }
@@ -1066,11 +1052,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       const char *str_ptr=NULL;
    
       if( argc <4) {
-        Tcl_AppendResult(interp, "xschem instance_net needs 2 additional arguments", NULL);
+        Tcl_SetResult(interp, "xschem instance_net needs 2 additional arguments", TCL_STATIC);
         return TCL_ERROR;
       }
       if( (i = get_instance(argv[2])) < 0 ) {
-        Tcl_AppendResult(interp, "xschem instance_net: instance not found", NULL);
+        Tcl_SetResult(interp, "xschem instance_net: instance not found", TCL_STATIC);
         return TCL_ERROR;
       }
       prepare_netlist_structs(0);
@@ -1082,10 +1068,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       } /* /20171029 */
       if(p>=no_of_pins) {
-        Tcl_AppendResult(interp, "Pin not found", NULL);
+        Tcl_SetResult(interp, "Pin not found", TCL_STATIC);
         return TCL_ERROR;
       }
-      Tcl_AppendResult(interp, str_ptr, NULL);
+      Tcl_SetResult(interp, (char *)str_ptr, TCL_VOLATILE);
     }
    
     else if(!strcmp(argv[1],"instance_nodemap"))
@@ -1117,7 +1103,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_strcat(1155, &pins, "} ");
         }
         my_strcat(1188, &pins, "} ");
-        Tcl_AppendResult(interp, pins, NULL);
+        Tcl_SetResult(interp, pins, TCL_VOLATILE);
         my_free(1189, &pins);
       }
     }
@@ -1188,10 +1174,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       char *pins = NULL;
       int p, i, no_of_pins;
+
       prepare_netlist_structs(0);
-   
       if( (i = get_instance(argv[2])) < 0 ) {
-        Tcl_AppendResult(interp, "xschem instance_pins: instance not found", NULL);
+        Tcl_SetResult(interp, "xschem instance_pins: instance not found", TCL_STATIC);
         return TCL_ERROR;
       }
       no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
@@ -1204,7 +1190,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_strcat(533, &pins, "}");
         if(p< no_of_pins-1) my_strcat(377, &pins, " ");
       }
-      Tcl_AppendResult(interp, pins, NULL);
+      Tcl_SetResult(interp, pins, TCL_VOLATILE);
       my_free(1195, &pins);
     }
    
@@ -1219,7 +1205,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       if(i==xctx->instances) i = -1;
       my_snprintf(s, S(s), "%d", i);
-      Tcl_AppendResult(interp, s, NULL);
+      Tcl_SetResult(interp, s, TCL_VOLATILE);
     }
    
     else if(!strcmp(argv[1],"instances_to_net"))
@@ -1272,7 +1258,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             my_strcat(542, &pins, "} } ");
           }
         }
-        Tcl_AppendResult(interp, pins ? pins : "", NULL);
+        Tcl_SetResult(interp, pins ? pins : "", TCL_VOLATILE);
         my_free(926, &pins);
       }
     }
@@ -1308,7 +1294,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "list_tokens") && argc == 4)
     {
       Tcl_ResetResult(interp);
-      Tcl_AppendResult(interp, list_tokens(argv[2], atoi(argv[3])), NULL);
+      Tcl_SetResult(interp, (char *)list_tokens(argv[2], atoi(argv[3])), TCL_VOLATILE);
     }
    
     else if(!strcmp(argv[1],"load") )
@@ -1345,7 +1331,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          }
       }
       Tcl_ResetResult(interp);
-      Tcl_AppendResult(interp, missing ? "0" : "1", NULL);
+      Tcl_SetResult(interp, missing ? "0" : "1", TCL_STATIC);
     }
    
     else if(!strcmp(argv[1],"load_symbol") )
@@ -1515,7 +1501,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int i, p, no_of_pins;
       if( (i = get_instance(argv[2])) < 0 ) {
-        Tcl_AppendResult(interp, "xschem getprop: instance not found", NULL);
+        Tcl_SetResult(interp, "xschem getprop: instance not found", TCL_STATIC);
         return TCL_ERROR;
       }
       no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
@@ -1688,11 +1674,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       if(argc!=4) {
-        Tcl_AppendResult(interp, "xschem replace_symbol needs 2 additional arguments", NULL);
+        Tcl_SetResult(interp, "xschem replace_symbol needs 2 additional arguments", TCL_STATIC);
         return TCL_ERROR;
       }
       if( (inst = get_instance(argv[2])) < 0 ) {
-        Tcl_AppendResult(interp, "xschem replace_symbol: instance not found", NULL);
+        Tcl_SetResult(interp, "xschem replace_symbol: instance not found", TCL_STATIC);
         return TCL_ERROR;
       } else {
         char symbol[PATH_MAX];
@@ -1823,7 +1809,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        select = atoi(argv[3]);
        if( !strcmp(argv[2],"regex") )  r = search(argv[4],argv[5],0,select, what);
        else  r = search(argv[4],argv[5],1,select, what);
-       Tcl_ResetResult(interp);
        if(r == 0) {
          if(has_x && !strcmp(argv[1],"searchmenu")) tcleval("tk_messageBox -type ok -message {Not found.}");
          Tcl_SetResult(interp,"0", TCL_STATIC);
@@ -1837,7 +1822,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"select"))
     {
       if(argc<3) {
-        Tcl_AppendResult(interp, "xschem select: missing arguments.", NULL);
+        Tcl_SetResult(interp, "xschem select: missing arguments.", TCL_STATIC);
         return TCL_ERROR;
       }
    
@@ -1889,7 +1874,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(n < xctx->lastsel-1) my_strcat(646, &res, " ");
         }
       }
-      Tcl_AppendResult(interp, res, NULL);
+      Tcl_SetResult(interp, res, TCL_VOLATILE);
       my_free(925, &res);
     }
    
@@ -1905,7 +1890,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(n < xctx->lastsel-1) my_strcat(442, &res, " ");
         }
       }
-      Tcl_AppendResult(interp, res, NULL);
+      Tcl_SetResult(interp, res, TCL_VOLATILE);
       my_free(453, &res);
     }
    
@@ -2098,11 +2083,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"set_different_tok") )
     {
       char *s = NULL;
-      Tcl_ResetResult(interp);
-      if(argc < 5) {Tcl_AppendResult(interp, "Missing arguments", NULL);return TCL_ERROR;}
+      if(argc < 5) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
       my_strdup(459, &s, argv[2]);
       set_different_token(&s, argv[3], argv[4], 0, 0);
-      Tcl_AppendResult(interp, s, NULL);
+      Tcl_SetResult(interp, s, TCL_VOLATILE);
       my_free(1156, &s);
     }
    
@@ -2137,13 +2121,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           argc = 4;
         }
       }
-   
       if(argc < 4) {
-        Tcl_AppendResult(interp, "xschem setprop needs 2 or 3 additional arguments", NULL);
+        Tcl_SetResult(interp, "xschem setprop needs 2 or 3 additional arguments", TCL_STATIC);
         return TCL_ERROR;
       }
       if( (inst = get_instance(argv[2])) < 0 ) {
-        Tcl_AppendResult(interp, "xschem setprop: instance not found", NULL);
+        Tcl_SetResult(interp, "xschem setprop: instance not found", TCL_STATIC);
         return TCL_ERROR;
       } else {
         if(!fast) {
@@ -2192,10 +2175,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"subst_tok") )
     {
       char *s=NULL;
-      Tcl_ResetResult(interp);
-      if(argc < 5) {Tcl_AppendResult(interp, "Missing arguments", NULL);return TCL_ERROR;}
+      if(argc < 5) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
       my_strdup(894, &s, subst_token(argv[2], argv[3], strcmp(argv[4], "NULL") ? argv[4] : NULL));
-      Tcl_AppendResult(interp, s, NULL);
+      Tcl_SetResult(interp, s, TCL_VOLATILE);
       my_free(1150, &s);
     }
    
@@ -2209,7 +2191,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int i;
       char n[100];
-      Tcl_AppendResult(interp, "\n", NULL);
+      Tcl_SetResult(interp, "\n", TCL_STATIC);
       for(i=0; i<xctx->symbols; i++) {
         my_snprintf(n , S(n), "%d", i);
         Tcl_AppendResult(interp, "  {", n, " ", "{", xctx->sym[i].name, "}", "}\n", NULL);
@@ -2328,7 +2310,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xctx->prep_hi_structs=0;
         xctx->prep_net_structs=0;
         xctx->prep_hash_wires=0;
-   
         save = draw_window; draw_window = 1;
         drawline(WIRELAYER,NOW, x1,y1,x2,y2, 0);
         draw_window = save;
