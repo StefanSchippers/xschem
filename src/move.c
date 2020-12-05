@@ -22,12 +22,12 @@
 
 #include "xschem.h"
 static double rx1, rx2, ry1, ry2;
-static int move_rot = 0;
-static int  move_flip = 0;
+static short move_rot = 0;
+static short  move_flip = 0;
 static double x1=0.0, y_1=0.0, x2=0.0, y_2=0.0, deltax = 0.0, deltay = 0.0;
 /* static int i,c,n,k; */
 static int lastsel;
-static int rotatelocal=0;
+static short rotatelocal=0;
 
 
 void rebuild_selected_array() /* can be used only if new selected set is lower */
@@ -169,9 +169,10 @@ void check_collapsing_objects()
   }
 }
 
-void update_symbol_bboxes(int rot, int flip)
+void update_symbol_bboxes(short rot, short flip)
 {
-  int i, n, save_flip, save_rot;
+  int i, n;
+  short save_flip, save_rot;
 
   for(i=0;i<lastsel;i++)
   {

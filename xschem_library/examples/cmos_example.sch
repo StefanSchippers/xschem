@@ -106,7 +106,7 @@ let cap = cap + 2e-12
 end
 * op
 write cmos_example.raw
-
+plot all.diffout
 .endc
 
 ** ngspice

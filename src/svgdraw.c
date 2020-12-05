@@ -184,11 +184,11 @@ static void svg_drawline(int gc, int bus, double linex1,double liney1,double lin
 
 static double textx1,textx2,texty1,texty2;
 
-static void svg_draw_string_line(int layer, char *s, double x, double y, double size, int rot, int flip,
+static void svg_draw_string_line(int layer, char *s, double x, double y, double size, short rot, short flip,
     int lineno, double fontheight, double fontascent, double fontdescent, int llength)
 {
   double ix, iy;
-  int rot1;
+  short rot1;
   int line_delta;
   int line_offset;
   double lines;
@@ -243,7 +243,7 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   fprintf(fd, "</text>\n");
 }
 
-static void svg_draw_string(int layer, const char *str, int rot, int flip, int hcenter, int vcenter,
+static void svg_draw_string(int layer, const char *str, short rot, short flip, int hcenter, int vcenter,
                  double x,double y, double xscale, double yscale)
 {
   char *tt, *ss, *sss=NULL;
@@ -305,7 +305,7 @@ static void svg_draw_string(int layer, const char *str, int rot, int flip, int h
 
 
 static void old_svg_draw_string(int layer, const char *str,
-                 int rot, int flip, int hcenter, int vcenter,
+                 short rot, short flip, int hcenter, int vcenter,
                  double x,double y,
                  double xscale, double yscale)
 {
@@ -381,13 +381,14 @@ static void svg_drawgrid()
 
 
 
-static void svg_draw_symbol(int n,int layer,int tmp_flip, int rot,
+static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
         double xoffset, double yoffset)
                             /* draws current layer only, should be called within  */
 {                           /* a "for(i=0;i<cadlayers;i++)" loop */
  int j;
  double x0,y0,x1,y1,x2,y2;
- int flip, textlayer;
+ short flip;
+ int textlayer;
  xLine line;
  xRect box;
  xText text;

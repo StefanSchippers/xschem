@@ -31,7 +31,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  int first;
  FILE *fd;
  const char *str_tmp;
- int mult;
+ int multip;
  unsigned int *stored_flags;
  int i, save_ok;
  char *type=NULL;
@@ -100,7 +100,7 @@ void global_spice_netlist(int global)  /* netlister driver */
     continue;
   }
   if( type && IS_PIN(type)) {
-   str_tmp = expandlabel ( get_tok_value(xctx->inst[i].prop_ptr,"lab",0) ,&mult);
+   str_tmp = expandlabel ( get_tok_value(xctx->inst[i].prop_ptr,"lab",0) ,&multip);
    dbg(1, "global_spice_netlist(): |%s|\n",
        get_tok_value(xctx->inst[i].prop_ptr,"lab",0));
    /*must handle  invalid node names */
@@ -311,7 +311,7 @@ void spice_block_netlist(FILE *fd, int i)
   char filename[PATH_MAX];
   const char *str_tmp;
   /* int j; */
-  /* int mult; */
+  /* int multip; */
   char *extra=NULL;
 
   if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"spice_stop",0),"true") )
@@ -458,15 +458,15 @@ static unsigned int str_hash(const char *tok)
  */
 struct hashentry *str_hash_lookup(struct hashentry **table, const char *token, const char *value, int what)
 {
-  unsigned int hashcode, index;
+  unsigned int hashcode, idx;
   struct hashentry *entry, *saveptr, **preventry;
   int s ;
 
   if(token==NULL) return NULL;
   hashcode=str_hash(token);
-  index=hashcode % HASHSIZE;
-  entry=table[index];
-  preventry=&table[index];
+  idx=hashcode % HASHSIZE;
+  entry=table[idx];
+  preventry=&table[idx];
   while(1)
   {
     if( !entry )          /* empty slot */
@@ -545,15 +545,15 @@ void free_hash(struct hashentry **table)
  */
 struct int_hashentry *int_hash_lookup(struct int_hashentry **table, const char *token, const int value, int what)
 {
-  unsigned int hashcode, index;
+  unsigned int hashcode, idx;
   struct int_hashentry *entry, *saveptr, **preventry;
   int s ;
 
   if(token==NULL) return NULL;
   hashcode=str_hash(token);
-  index=hashcode % HASHSIZE;
-  entry=table[index];
-  preventry=&table[index];
+  idx=hashcode % HASHSIZE;
+  entry=table[idx];
+  preventry=&table[idx];
   while(1)
   {
     if( !entry )          /* empty slot */

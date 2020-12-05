@@ -266,17 +266,15 @@ int set_text_custom_font(xText *txt)
 
 #ifdef HAS_CAIRO
 static void cairo_draw_string_line(cairo_t *c_ctx, char *s,
-    double x, double y, int rot, int flip,
+    double x, double y, short rot, short flip,
     int lineno, double fontheight, double fontascent, double fontdescent, int llength)
 {
   double ix, iy;
-  int rot1;
+  short rot1;
   int line_delta;
   int line_offset;
   double lines;
   double vc; /* 20171121 vert correct */
-  /*int rx1, ry1, rx2, ry2, save_rot, save_flip; */
-  /* GC gcclear; */
   if(s==NULL) return;
   if(llength==0) return;
 
@@ -311,7 +309,7 @@ static void cairo_draw_string_line(cairo_t *c_ctx, char *s,
 }
 
 /* CAIRO version */
-void draw_string(int layer, int what, const char *str, int rot, int flip, int hcenter, int vcenter,
+void draw_string(int layer, int what, const char *str, short rot, short flip, int hcenter, int vcenter,
                  double x, double y, double xscale, double yscale)
 {
   char *tt, *ss, *sss=NULL;
@@ -388,7 +386,7 @@ void draw_string(int layer, int what, const char *str, int rot, int flip, int hc
 #else /* !HAS_CAIRO */
 
 /* no CAIRO version */
-void draw_string(int layer, int what, const char *str, int rot, int flip, int hcenter, int vcenter,
+void draw_string(int layer, int what, const char *str, short rot, short flip, int hcenter, int vcenter,
                  double x1,double y1, double xscale, double yscale)
 {
  double a=0.0,yy;
@@ -449,7 +447,7 @@ void draw_string(int layer, int what, const char *str, int rot, int flip, int hc
 
 #endif /* HAS_CAIRO */
 
-void draw_temp_string(GC gctext, int what, const char *str, int rot, int flip, int hcenter, int vcenter,
+void draw_temp_string(GC gctext, int what, const char *str, short rot, short flip, int hcenter, int vcenter,
                  double x1,double y1, double xscale, double yscale)
 {
  if(!has_x) return;
@@ -458,13 +456,13 @@ void draw_temp_string(GC gctext, int what, const char *str, int rot, int flip, i
  drawtemprect(gctext,what, textx1,texty1,textx2,texty2);
 }
 
-void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
+void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         double xoffset, double yoffset)
                             /* draws current layer only, should be called within  */
 {                           /* a "for(i=0;i<cadlayers;i++)" loop */
   register int j;
   register double x0,y0,x1,y1,x2,y2;
-  int flip;
+  short flip;
   int hide = 0;
   xLine line;
   xRect box;
@@ -628,13 +626,13 @@ void draw_symbol(int what,int c, int n,int layer,int tmp_flip, int rot,
   }
 }
 
-void draw_temp_symbol(int what, GC gc, int n,int layer,int tmp_flip, int rot,
+void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot,
         double xoffset, double yoffset)
                             /* draws current layer only, should be called within */
 {                           /* a "for(i=0;i<cadlayers;i++)" loop */
  int j;
  double x0,y0,x1,y1,x2,y2;
- int flip;
+ short flip;
  xLine line;
  xPoly polygon;
  xRect box;

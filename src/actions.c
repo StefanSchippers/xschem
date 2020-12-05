@@ -725,7 +725,7 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
   xSymbol *symbol;
   int npin, i, j;
   double x0,y0, pinx0, piny0;
-  int flip, rot, rot1 ;
+  short flip, rot, rot1 ;
   xRect *rct;
   char *labname=NULL;
   char *prop=NULL; /*  20161122 overflow safe */
@@ -930,7 +930,7 @@ void place_net_label(int type)
 /*  first_call: set to 1 on first invocation for a given set of symbols (same prefix) */
 /*  set to 0 on next calls, this speeds up searching for unique names in prop string */
 /*  returns 1 if symbol successfully placed, 0 otherwise */
-int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, int flip,
+int place_symbol(int pos, const char *symbol_name, double x, double y, short rot, short flip,
                    const char *inst_props, int draw_sym, int first_call)
 /*  if symbol_name is a valid string load specified cell and */
 /*  use the given params, otherwise query user */
@@ -2143,7 +2143,7 @@ void new_polygon(int what)
 
 #ifdef HAS_CAIRO
 int text_bbox(const char *str, double xscale, double yscale,
-    int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
+    short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2)
 {
   int c=0;
@@ -2226,11 +2226,11 @@ int text_bbox(const char *str, double xscale, double yscale,
   return 1;
 }
 int text_bbox_nocairo(const char * str,double xscale, double yscale,
-    int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
+    short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2)
 #else
 int text_bbox(const char * str,double xscale, double yscale,
-    int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
+    short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2)
 #endif
 {

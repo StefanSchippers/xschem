@@ -23,7 +23,7 @@
 #include <stdarg.h>
 #include "xschem.h"
 
-static int rot = 0, flip = 0;
+static short rot = 0, flip = 0;
 
 char *my_strtok_r(char *str, const char *delim, char **saveptr)
 {

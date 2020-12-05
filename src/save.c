@@ -241,7 +241,7 @@ void save_embedded_symbol(xSymbol *s, FILE *fd)
    ptr = s->text;
    fprintf(fd, "T ");
    save_ascii_string(ptr[i].txt_ptr,fd);
-   fprintf(fd, " %.16g %.16g %d %d %.16g %.16g ",
+   fprintf(fd, " %.16g %.16g %hd %hd %.16g %.16g ",
     ptr[i].x0, ptr[i].y0, ptr[i].rot, ptr[i].flip, ptr[i].xscale,
      ptr[i].yscale);
    save_ascii_string(ptr[i].prop_ptr,fd);
@@ -282,7 +282,7 @@ void save_inst(FILE *fd)
     save_ascii_string(rel_sym_path(ptr[i].name), fd);
   }
   my_free(882, &tmp);
-  fprintf(fd, " %.16g %.16g %d %d ",ptr[i].x0, ptr[i].y0, ptr[i].rot, ptr[i].flip );
+  fprintf(fd, " %.16g %.16g %hd %hd ",ptr[i].x0, ptr[i].y0, ptr[i].rot, ptr[i].flip );
   save_ascii_string(ptr[i].prop_ptr,fd);
   fputc('\n' ,fd);
   if( !strcmp(get_tok_value(ptr[i].prop_ptr, "embed", 0), "true") ) {
@@ -319,7 +319,7 @@ void save_text(FILE *fd)
  {
   fprintf(fd, "T ");
   save_ascii_string(ptr[i].txt_ptr,fd);
-  fprintf(fd, " %.16g %.16g %d %d %.16g %.16g ",
+  fprintf(fd, " %.16g %.16g %hd %hd %.16g %.16g ",
    ptr[i].x0, ptr[i].y0, ptr[i].rot, ptr[i].flip, ptr[i].xscale,
     ptr[i].yscale);
   save_ascii_string(ptr[i].prop_ptr,fd);
@@ -460,7 +460,7 @@ static void load_text(FILE *fd)
    i=xctx->texts;
    xctx->text[i].txt_ptr=NULL;
    load_ascii_string(&xctx->text[i].txt_ptr,fd);
-   if(fscanf(fd, "%lf %lf %d %d %lf %lf ",
+   if(fscanf(fd, "%lf %lf %hd %hd %lf %lf ",
      &xctx->text[i].x0, &xctx->text[i].y0, &xctx->text[i].rot,
      &xctx->text[i].flip, &xctx->text[i].xscale,
      &xctx->text[i].yscale)<6) {
@@ -539,7 +539,7 @@ static void load_inst(int k, FILE *fd)
     my_strdup2(56, &xctx->inst[i].name, name);
     dbg(1, "load_inst(): 2: name=%s\n", name);
 
-    if(fscanf(fd, "%lf %lf %d %d", &xctx->inst[i].x0, &xctx->inst[i].y0,
+    if(fscanf(fd, "%lf %lf %hd %hd", &xctx->inst[i].x0, &xctx->inst[i].y0,
        &xctx->inst[i].rot, &xctx->inst[i].flip) < 4) {
       fprintf(errfp,"WARNING: missing fields for INSTANCE object, ignoring.\n");
       read_line(fd, 0);
@@ -1511,7 +1511,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   static int recursion_counter=0;
   struct Lcc *lcc; /* size = level */
   FILE *fd_tmp;
-  int rot,flip;
+  short rot,flip;
   double angle;
   double rx1,ry1,rx2,ry2;
   int incremented_level=0;
@@ -1523,7 +1523,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   char *aux_ptr=NULL;
   char *prop_ptr=NULL, *symtype=NULL;
   double inst_x0, inst_y0;
-  int inst_rot, inst_flip;
+  short inst_rot, inst_flip;
   char *symname = NULL;
   char tag[1];
   int *lastl = my_malloc(333, cadlayers * sizeof(lastl));
@@ -1811,7 +1811,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      tt[i].txt_ptr=NULL;
      tt[i].font=NULL;
      load_ascii_string(&tt[i].txt_ptr, lcc[level].fd);
-     fscanf(lcc[level].fd, "%lf %lf %d %d %lf %lf ",&tt[i].x0, &tt[i].y0, &tt[i].rot,
+     fscanf(lcc[level].fd, "%lf %lf %hd %hd %lf %lf ",&tt[i].x0, &tt[i].y0, &tt[i].rot,
         &tt[i].flip, &tt[i].xscale, &tt[i].yscale);
      if (level>0) {
        const char* tmp = translate2(lcc, level, tt[i].txt_ptr);
@@ -1878,7 +1878,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
     case 'C':
       load_ascii_string(&symname, lcc[level].fd);
       dbg(1, "l_s_d(): C line: symname=%s\n", symname);
-      if (fscanf(lcc[level].fd, "%lf %lf %d %d", &inst_x0, &inst_y0, &inst_rot, &inst_flip) < 4) {
+      if (fscanf(lcc[level].fd, "%lf %lf %hd %hd", &inst_x0, &inst_y0, &inst_rot, &inst_flip) < 4) {
         fprintf(errfp, "WARNING: missing fields for COMPONENT object, ignoring\n");
         read_line(lcc[level].fd, 0);
         continue;
@@ -1968,7 +1968,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         lcc[level].flip = inst_flip;
         /* calculate LCC sub-schematic x0, y0, rotation and flip */
         if (level > 1) {
-          int rot, flip;
+          short rot, flip;
           static int map[4]={0,3,2,1};
 
           flip = lcc[level-1].flip;
@@ -2347,7 +2347,7 @@ void save_selection(int what)
      case xTEXT:
       fprintf(fd, "T ");
       save_ascii_string(xctx->text[n].txt_ptr,fd);
-      fprintf(fd, " %.16g %.16g %d %d %.16g %.16g ",
+      fprintf(fd, " %.16g %.16g %hd %hd %.16g %.16g ",
        xctx->text[n].x0, xctx->text[n].y0, xctx->text[n].rot, xctx->text[n].flip,
        xctx->text[n].xscale, xctx->text[n].yscale);
       save_ascii_string(xctx->text[n].prop_ptr,fd);
@@ -2395,7 +2395,7 @@ void save_selection(int what)
      case ELEMENT:
       fprintf(fd, "C ");
       save_ascii_string(xctx->inst[n].name,fd);
-      fprintf(fd, " %.16g %.16g %d %d ",xctx->inst[n].x0, xctx->inst[n].y0,
+      fprintf(fd, " %.16g %.16g %hd %hd ",xctx->inst[n].x0, xctx->inst[n].y0,
         xctx->inst[n].rot, xctx->inst[n].flip );
       save_ascii_string(xctx->inst[n].prop_ptr,fd);
       fputc('\n' ,fd);

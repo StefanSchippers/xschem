@@ -209,7 +209,7 @@ unsigned int  find_best_color(char colorname[])
  int i;
  double distance=10000000000.0, dist, r, g, b, red, green, blue;
  double deltar,deltag,deltab;
- unsigned int index;
+ unsigned int idx;
 #ifdef __unix__
  if( XAllocNamedColor(display, colormap, colorname, &xcolor_exact, &xcolor) ==0 )
 #else
@@ -232,7 +232,7 @@ unsigned int  find_best_color(char colorname[])
         "find_best_color(): Server failed to allocate requested color, finding substitute\n");
   XLookupColor(display, colormap, colorname, &xcolor_exact, &xcolor);
   red = xcolor.red; green = xcolor.green; blue = xcolor.blue;
-  index=0;
+  idx=0;
   for(i = 0;i<=255; i++)
   {
    r = xcolor_array[i].red ; g = xcolor_array[i].green ; b = xcolor_array[i].blue;
@@ -240,7 +240,7 @@ unsigned int  find_best_color(char colorname[])
    dist = deltar*deltar + deltag*deltag + deltab*deltab;
    if( dist <= distance )
    {
-    index = i;
+    idx = i;
     distance = dist;
    }
   }
@@ -249,13 +249,13 @@ unsigned int  find_best_color(char colorname[])
  {
   /*XLookupColor(display, colormap, colorname, &xcolor_exact, &xcolor); */
 #ifdef __unix__
-  index = xcolor.pixel;
+  idx = xcolor.pixel;
 #else
-  index = xc->pixel;
+  idx = xc->pixel;
 #endif
  }
 
- return index;
+ return idx;
 }
 
 

@@ -34,7 +34,7 @@ void merge_text(FILE *fd)
     i=xctx->texts;
      xctx->text[i].txt_ptr=NULL;
      load_ascii_string(&xctx->text[i].txt_ptr,fd);
-     fscanf(fd, "%lf %lf %d %d %lf %lf ",
+     fscanf(fd, "%lf %lf %hd %hd %lf %lf ",
       &xctx->text[i].x0, &xctx->text[i].y0, &xctx->text[i].rot,
       &xctx->text[i].flip, &xctx->text[i].xscale,
       &xctx->text[i].yscale);
@@ -206,7 +206,7 @@ void merge_inst(int k,FILE *fd)
     ptr=xctx->inst;
     ptr[i].name=NULL;
     load_ascii_string(&ptr[i].name,fd);
-    if(fscanf(fd, "%lf %lf %d %d",&ptr[i].x0, &ptr[i].y0,&ptr[i].rot, &ptr[i].flip) < 4) {
+    if(fscanf(fd, "%lf %lf %hd %hd",&ptr[i].x0, &ptr[i].y0,&ptr[i].rot, &ptr[i].flip) < 4) {
       fprintf(errfp,"WARNING: missing fields for INSTANCE object, ignoring.\n");
       read_line(fd, 0);
       return;

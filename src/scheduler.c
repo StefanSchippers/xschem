@@ -1047,8 +1047,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"instance_net"))
     {
-    /* xschem instance_net inst pin */
-      int no_of_pins, i, p, mult;
+      /* xschem instance_net inst pin */
+      int no_of_pins, i, p, multip;
       const char *str_ptr=NULL;
    
       if( argc <4) {
@@ -1063,7 +1063,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
       for(p=0;p<no_of_pins;p++) {
         if(!strcmp( get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr,"name",0), argv[3])) {
-          str_ptr =  net_name(i,p,&mult, 0, 1);
+          str_ptr =  net_name(i,p,&multip, 0, 1);
           break;
         }
       } /* /20171029 */
@@ -1117,7 +1117,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      * returns pin_name x y */
       xSymbol *symbol;
       xRect *rct;
-      int flip, rot;
+      short flip, rot;
       double x0,y0, pinx0, piny0;
       char num[60];
       int p, i, no_of_pins, slot;
@@ -1213,7 +1213,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* xschem instances_to_net PLUS */
       xSymbol *symbol;
       xRect *rct;
-      int flip, rot;
+      short flip, rot;
       double x0,y0, pinx0, piny0;
       char num[40];
    

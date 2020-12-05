@@ -79,15 +79,15 @@ static struct inst_hashentry *inst_hash_lookup(struct inst_hashentry **table, ch
                                                int value, int remove, size_t token_size)
 {
   unsigned int hashcode;
-  unsigned int index;
+  unsigned int idx;
   struct inst_hashentry *entry, *saveptr, **preventry;
   int s;
 
   if(token==NULL) return NULL;
   hashcode=hash(token);
-  index=hashcode % HASHSIZE;
-  entry=table[index];
-  preventry=&table[index];
+  idx=hashcode % HASHSIZE;
+  entry=table[idx];
+  preventry=&table[idx];
   while(1) {
     if( !entry ) {                         /* empty slot */
       if(remove == XINSERT || remove == XINSERT_NOREPLACE) {            /* insert data */
@@ -175,7 +175,7 @@ void check_unique_names(int rename)
   int i, j, first = 1;
   char *tmp = NULL;
   int newpropcnt = 0;
-  int mult;
+  int multip;
   char *start;
   char *comma_pos;
   char *expanded_instname = NULL;
@@ -201,9 +201,9 @@ void check_unique_names(int rename)
   first = 1;
   for(i=0;i<xctx->instances;i++) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
-      my_strdup(118, &expanded_instname, expandlabel(xctx->inst[i].instname, &mult));
+      my_strdup(118, &expanded_instname, expandlabel(xctx->inst[i].instname, &multip));
       comma_pos = 0;
-      for(j =0; j< mult; j++) {
+      for(j =0; j< multip; j++) {
         if(j == 0) start = expanded_instname;
         else start = comma_pos;
         comma_pos = strchr(start, ',');
@@ -976,7 +976,7 @@ int count_labels(char *s)
 
 void print_vhdl_element(FILE *fd, int inst)
 {
-  int i=0, mult, tmp, tmp1;
+  int i=0, multip, tmp, tmp1;
   const char *str_ptr;
   register int c, state=TOK_BEGIN, space;
   const char *lab;
@@ -1113,7 +1113,7 @@ void print_vhdl_element(FILE *fd, int inst)
   for(i=0;i<no_of_pins;i++)
   {
     if(strcmp(get_tok_value(pinptr[i].prop_ptr,"vhdl_ignore",0), "true")) {
-      if( (str_ptr =  net_name(inst,i, &mult, 0, 1)) )
+      if( (str_ptr =  net_name(inst,i, &multip, 0, 1)) )
       {
         if(tmp) fprintf(fd, " ,\n");
         fprintf(fd, "   %s => %s",
@@ -1335,7 +1335,7 @@ void print_verilog_param(FILE *fd, int symbol)
 
 void print_tedax_subckt(FILE *fd, int symbol)
 {
- int i=0, mult;
+ int i=0, multip;
  const char *str_ptr=NULL;
  register int c, state=TOK_BEGIN, space;
  char *format=NULL,*s, *token=NULL;
@@ -1392,7 +1392,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
     {
       if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
         str_ptr=
-          expandlabel(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0), &mult);
+          expandlabel(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0), &multip);
         fprintf(fd, "%s ", str_ptr);
       }
     }
@@ -1404,7 +1404,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
        if(!strcmp(get_tok_value(prop, "name",0), token + 2)) break;
      }
      if(i<no_of_pins && strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
-       fprintf(fd, "%s ", expandlabel(token+2, &mult));
+       fprintf(fd, "%s ", expandlabel(token+2, &multip));
      }
    }
    /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
@@ -1413,7 +1413,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
      if(pin_number < no_of_pins) {
        if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), "true")) {
        str_ptr =  get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"name",0);
-       fprintf(fd, "%s ",  expandlabel(str_ptr, &mult));
+       fprintf(fd, "%s ",  expandlabel(str_ptr, &multip));
        }
      }
    }
@@ -1443,7 +1443,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
 
 void print_spice_subckt(FILE *fd, int symbol)
 {
- int i=0, mult;
+ int i=0, multip;
  const char *str_ptr=NULL;
  register int c, state=TOK_BEGIN, space;
  char *format=NULL,*s, *token=NULL;
@@ -1500,7 +1500,7 @@ void print_spice_subckt(FILE *fd, int symbol)
     {
       if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
         str_ptr=
-          expandlabel(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0), &mult);
+          expandlabel(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0), &multip);
         fprintf(fd, "%s ", str_ptr);
       }
     }
@@ -1512,7 +1512,7 @@ void print_spice_subckt(FILE *fd, int symbol)
        if(!strcmp(get_tok_value(prop, "name",0), token + 2)) break;
      }
      if(i<no_of_pins && strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
-       fprintf(fd, "%s ", expandlabel(token+2, &mult));
+       fprintf(fd, "%s ", expandlabel(token+2, &multip));
      }
    }
    /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
@@ -1521,7 +1521,7 @@ void print_spice_subckt(FILE *fd, int symbol)
      if(pin_number < no_of_pins) {
        if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), "true")) {
        str_ptr =  get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"name",0);
-       fprintf(fd, "%s ",  expandlabel(str_ptr, &mult));
+       fprintf(fd, "%s ",  expandlabel(str_ptr, &multip));
        }
      }
    }
@@ -1550,7 +1550,7 @@ void print_spice_subckt(FILE *fd, int symbol)
 
 void print_spice_element(FILE *fd, int inst)
 {
-  int i=0, mult, tmp;
+  int i=0, multip, tmp;
   const char *str_ptr=NULL;
   register int c, state=TOK_BEGIN, space;
   char *template=NULL,*format=NULL,*s, *name=NULL,  *token=NULL;
@@ -1711,12 +1711,12 @@ void print_spice_element(FILE *fd, int inst)
         {
           char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr;
           if(strcmp(get_tok_value(prop, "spice_ignore", 0), "true")) {
-            str_ptr =  net_name(inst,i, &mult, 0, 1);
+            str_ptr =  net_name(inst,i, &multip, 0, 1);
 
             tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
                                           * so 1-char writes to result do not need reallocs */
             STR_ALLOC(&result, tmp + result_pos, &size);
-            result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", mult, str_ptr);
+            result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr);
           }
         }
       }
@@ -1725,12 +1725,12 @@ void print_spice_element(FILE *fd, int inst)
           char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr;
           if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
             if(strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
-              str_ptr =  net_name(inst,i, &mult, 0, 1);
+              str_ptr =  net_name(inst,i, &multip, 0, 1);
 
               tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
                                             * so 1-char writes to result do not need reallocs */
               STR_ALLOC(&result, tmp + result_pos, &size);
-              result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", mult, str_ptr);
+              result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr);
             }
             break;
           }
@@ -1744,12 +1744,12 @@ void print_spice_element(FILE *fd, int inst)
           char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][pin_number].prop_ptr;
           si  = get_tok_value(prop, "spice_ignore",0);
           if(strcmp(si, "true")) {
-            str_ptr =  net_name(inst,pin_number, &mult, 0, 1);
+            str_ptr =  net_name(inst,pin_number, &multip, 0, 1);
 
             tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
                                           * so 1-char writes to result do not need reallocs */
             STR_ALLOC(&result, tmp + result_pos, &size);
-            result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", mult, str_ptr);
+            result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr);
           }
         }
       }
@@ -1834,7 +1834,7 @@ void print_spice_element(FILE *fd, int inst)
 
 void print_tedax_element(FILE *fd, int inst)
 {
- int i=0, mult;
+ int i=0, multip;
  const char *str_ptr=NULL;
  register int c, state=TOK_BEGIN, space;
  char *template=NULL,*format=NULL,*s, *name=NULL, *token=NULL;
@@ -1927,7 +1927,7 @@ void print_tedax_element(FILE *fd, int inst)
               get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr,"pinnumber",0));
      }
      if(!get_tok_size) my_strdup(501, &pinnumber, "--UNDEF--");
-     tmp = net_name(inst,i, &mult, 0, 1);
+     tmp = net_name(inst,i, &multip, 0, 1);
      if(tmp && strcmp(tmp, "__UNCONNECTED_PIN__")) {
        fprintf(fd, "conn %s %s %s %s %d\n",
              name,
@@ -2030,9 +2030,9 @@ void print_tedax_element(FILE *fd, int inst)
     {                                   /* and node number: m1 n1 m2 n2 .... */
      for(i=0;i<no_of_pins;i++)
      {
-       str_ptr =  net_name(inst,i, &mult, 0, 1);
+       str_ptr =  net_name(inst,i, &multip, 0, 1);
        /* fprintf(errfp, "inst: %s  --> %s\n", name, str_ptr); */
-       fprintf(fd, "?%d %s ", mult, str_ptr);
+       fprintf(fd, "?%d %s ", multip, str_ptr);
      }
     }
     else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
@@ -2042,7 +2042,7 @@ void print_tedax_element(FILE *fd, int inst)
            token+2
           )
         ) {
-        str_ptr =  net_name(inst,i, &mult, 0, 1);
+        str_ptr =  net_name(inst,i, &multip, 0, 1);
         fprintf(fd, "%s", str_ptr);
         break;
       }
@@ -2090,7 +2090,7 @@ void print_tedax_element(FILE *fd, int inst)
         /* @#n --> return net name attached to pin of index 'n' */
         pin_number = atoi(token+2);
         if(pin_number < no_of_pins) {
-          str_ptr =  net_name(inst,pin_number, &mult, 0, 1);
+          str_ptr =  net_name(inst,pin_number, &multip, 0, 1);
           fprintf(fd, "%s", str_ptr);
         }
       }
@@ -2147,7 +2147,7 @@ void print_tedax_element(FILE *fd, int inst)
 */
 void print_verilog_element(FILE *fd, int inst)
 {
- int i=0, mult, tmp;
+ int i=0, multip, tmp;
  const char *str_ptr;
  const char *lab;
  char *name=NULL;
@@ -2261,10 +2261,10 @@ void print_verilog_element(FILE *fd, int inst)
  {
    xSymbol *ptr = xctx->inst[inst].ptr+ xctx->sym;
    if(strcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
-     if( (str_ptr =  net_name(inst,i, &mult, 0, 1)) )
+     if( (str_ptr =  net_name(inst,i, &multip, 0, 1)) )
      {
        if(tmp) fprintf(fd,"\n");
-       fprintf(fd, "  ?%d %s %s ", mult,
+       fprintf(fd, "  ?%d %s %s ", multip,
          get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"name",0),
          str_ptr);
        tmp=1;
@@ -2281,7 +2281,7 @@ void print_verilog_element(FILE *fd, int inst)
 }
 
 
-const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net, int erc)
+const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int erc)
 {
  int tmp;
  char errstr[2048];
@@ -2291,35 +2291,35 @@ const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net, int e
  {
   if((xctx->inst[i].node[j])[0] == '#') /* unnamed net */
   {
-   /* get unnamed node multiplicity ( minimum mult found in circuit) */
-   *mult = get_unnamed_node(3, 0, atoi((xctx->inst[i].node[j])+4) );
-    dbg(2, "net_name(): node = %s  n=%d mult=%d\n",
-     xctx->inst[i].node[j], atoi(xctx->inst[i].node[j]), *mult);
+   /* get unnamed node multiplicity ( minimum multip found in circuit) */
+   *multip = get_unnamed_node(3, 0, atoi((xctx->inst[i].node[j])+4) );
+    dbg(2, "net_name(): node = %s  n=%d multip=%d\n",
+     xctx->inst[i].node[j], atoi(xctx->inst[i].node[j]), *multip);
    if(hash_prefix_unnamed_net) {
-     if(*mult>1)   /* unnamed is a bus */
-      my_snprintf(str_node, S(str_node), "%s[%d:0]", (xctx->inst[i].node[j]), *mult-1);
+     if(*multip>1)   /* unnamed is a bus */
+      my_snprintf(str_node, S(str_node), "%s[%d:0]", (xctx->inst[i].node[j]), *multip-1);
      else
       my_snprintf(str_node, S(str_node), "%s", (xctx->inst[i].node[j]) );
    } else {
-     if(*mult>1)   /* unnamed is a bus */
-      my_snprintf(str_node, S(str_node), "%s[%d:0]", (xctx->inst[i].node[j])+1, *mult-1);
+     if(*multip>1)   /* unnamed is a bus */
+      my_snprintf(str_node, S(str_node), "%s[%d:0]", (xctx->inst[i].node[j])+1, *multip-1);
      else
       my_snprintf(str_node, S(str_node), "%s", (xctx->inst[i].node[j])+1 );
    }
    expandlabel(get_tok_value(                            /*  remove quotes --. */
-           (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), mult);
+           (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), multip);
    return expandlabel(str_node, &tmp);
   }
   else
   {
    expandlabel(get_tok_value(                             /* remove quotes --. */
-           (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), mult);
+           (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), multip);
    return expandlabel(xctx->inst[i].node[j], &tmp);
   }
  }
  else
  {
-   *mult=1;
+   *multip=1;
 
    if(erc) {
      my_snprintf(errstr, S(errstr), "Warning: unconnected pin,  Inst idx: %d, Pin idx: %d  Inst:%s\n",
@@ -2337,7 +2337,7 @@ const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net, int e
 
 void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 */
 {
- int i=0, mult, tmp;
+ int i=0, multip, tmp;
  const char *str_ptr;
  register int c, state=TOK_BEGIN, space;
  const char *lab;
@@ -2447,7 +2447,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
     {
       char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr;
       if(strcmp(get_tok_value(prop,"vhdl_ignore",0), "true")) {
-        str_ptr =  net_name(inst,i, &mult, 0, 1);
+        str_ptr =  net_name(inst,i, &multip, 0, 1);
         fprintf(fd, "----pin(%s) ", str_ptr);
       }
     }
@@ -2457,7 +2457,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
      xSymbol *ptr = xctx->inst[inst].ptr+ xctx->sym;
      if(!strcmp( get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"name",0), token+2)) {
        if(strcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
-         str_ptr =  net_name(inst,i, &mult, 0, 1);
+         str_ptr =  net_name(inst,i, &multip, 0, 1);
          fprintf(fd, "----pin(%s) ", str_ptr);
        }
        break;
@@ -2470,7 +2470,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
        if(pin_number < no_of_pins) {
          char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][pin_number].prop_ptr;
          if(strcmp(get_tok_value(prop,"vhdl_ignore",0), "true")) {
-           str_ptr =  net_name(inst,pin_number, &mult, 0, 1);
+           str_ptr =  net_name(inst,pin_number, &multip, 0, 1);
            fprintf(fd, "----pin(%s) ", str_ptr);
          }
        }
@@ -2510,7 +2510,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
 /* print verilog element if verilog_format is specified */
 void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primitives, 15112003 */
 {
-  int i=0, mult, tmp;
+  int i=0, multip, tmp;
   const char *str_ptr;
   register int c, state=TOK_BEGIN, space;
   const char *lab;
@@ -2621,7 +2621,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
      {
        char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr;
        if(strcmp(get_tok_value(prop, "verilog_ignore",0), "true")) {
-         str_ptr =  net_name(inst,i, &mult, 0, 1);
+         str_ptr =  net_name(inst,i, &multip, 0, 1);
          fprintf(fd, "----pin(%s) ", str_ptr);
        }
      }
@@ -2631,7 +2631,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
       char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr;
       if(!strcmp( get_tok_value(prop,"name",0), token+2)) {
         if(strcmp(get_tok_value(prop, "verilog_ignore",0), "true")) {
-          str_ptr =  net_name(inst,i, &mult, 0, 1);
+          str_ptr =  net_name(inst,i, &multip, 0, 1);
           fprintf(fd, "----pin(%s) ", str_ptr);
         }
         break;
@@ -2646,7 +2646,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
         char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][pin_number].prop_ptr;
         vi = get_tok_value(prop,"verilog_ignore",0);
         if(strcmp(vi, "true")) {
-          str_ptr =  net_name(inst,pin_number, &mult, 0, 1);
+          str_ptr =  net_name(inst,pin_number, &multip, 0, 1);
           fprintf(fd, "----pin(%s) ", str_ptr);
         }
       }
@@ -2822,14 +2822,14 @@ const char *translate(int inst, const char* s)
     memcpy(result+result_pos,tmp_sym_name, tmp+1);
     result_pos+=tmp;
    } else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
-     int i, mult;
+     int i, multip;
      int no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
      prepare_netlist_structs(0);
      for(i=0;i<no_of_pins;i++) {
        char *prop = (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr;
        if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
          if(strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
-           const char *str_ptr =  net_name(inst,i, &mult, 0, 0);
+           const char *str_ptr =  net_name(inst,i, &multip, 0, 0);
            tmp = strlen(str_ptr) +100 ;
            STR_ALLOC(&result, tmp + result_pos, &size);
            result_pos += my_snprintf(result + result_pos, tmp, "%s", str_ptr);

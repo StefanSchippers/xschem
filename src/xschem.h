@@ -340,7 +340,7 @@ typedef struct
    short sel;
    char  *node;
    char *prop_ptr;
-   int bus; /*  20171201 cache here wire "bus" property, to avoid too many get_tok_value() calls */
+   short bus; /*  20171201 cache here wire "bus" property, to avoid too many get_tok_value() calls */
 } xWire;
 
 typedef struct
@@ -351,8 +351,8 @@ typedef struct
    double y2;
    unsigned short sel;
    char *prop_ptr;
-   int dash;
-   int bus;
+   short dash;
+   short bus;
 } xLine;
 
 typedef struct
@@ -363,7 +363,7 @@ typedef struct
    double y2;
    unsigned short sel;
    char *prop_ptr;
-   int dash;
+   short dash;
 } xRect;
 
 typedef struct
@@ -376,8 +376,8 @@ typedef struct
   unsigned short *selected_point;
   unsigned short sel;
   char *prop_ptr;
-  int fill;
-  int dash;
+  short fill;
+  short dash;
 } xPoly;
 
 typedef struct
@@ -389,24 +389,24 @@ typedef struct
   double b; /* arc angle */
   unsigned short sel;
   char *prop_ptr;
-  int fill;
-  int dash;
+  short fill;
+  short dash;
 } xArc;
 
 typedef struct
 {
   char *txt_ptr;
   double x0,y0;
-  int rot;
-  int flip;
-  int sel;
+  short rot;
+  short flip;
+  short sel;
   double xscale;
   double yscale;
   char *prop_ptr;
-  int layer; /*  20171201 for cairo  */
-  int hcenter, vcenter;
+  short layer; /*  20171201 for cairo  */
+  short hcenter, vcenter;
   char *font; /*  20171201 for cairo */
-  int flags;
+  short flags;
 } xText;
 
 typedef struct
@@ -429,7 +429,7 @@ typedef struct
    char *prop_ptr;
    char *type;
    char *templ;
-   unsigned int flags; /* currently only used for embedded symbols (EMBEDDED) */
+   short flags; /* currently only used for embedded symbols (EMBEDDED) */
 } xSymbol;
 
 typedef struct
@@ -446,10 +446,10 @@ typedef struct
    double yy1;
    double xx2;
    double yy2;
-   int rot;
-   int flip;
-   int sel;
-   int flags; /*  bit 0: skip field, bit 1: flag for different textlayer for pin/labels
+   short rot;
+   short flip;
+   short sel;
+   short flags; /*  bit 0: skip field, bit 1: flag for different textlayer for pin/labels
                *  bit 2 : hilight flag.
                */
    char *prop_ptr;
@@ -546,8 +546,8 @@ typedef struct {
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
   double x0;
   double y0;
-  int rot;
-  int flip;
+  short rot;
+  short flip;
   FILE *fd;
   char *prop_ptr;
   char *symname;
@@ -797,7 +797,7 @@ extern void arc_bbox(double x, double y, double r, double a, double b, double *b
 extern void bbox(int what,double x1,double y1, double x2, double y2);
 extern int set_text_custom_font(xText *txt);
 extern int text_bbox(const char * str,double xscale, double yscale,
-            int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
+            short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
             double *rx2, double *ry2);
 
 
@@ -811,7 +811,7 @@ extern void hash_instances(void); /*  20171203 insert instance bbox in spatial h
 
 #ifdef HAS_CAIRO
 extern int text_bbox_nocairo(const char * str,double xscale, double yscale,
-            int rot, int flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
+            short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
             double *rx2, double *ry2);
 #endif
 
@@ -836,10 +836,10 @@ extern Selected find_closest_obj(double mx,double my);
 extern void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y);
 
 extern void drawline(int c, int what, double x1,double y1,double x2,double y2, int dash);
-extern void draw_string(int layer,int what, const char *str, int rot, int flip, int hcenter, int vcenter,
+extern void draw_string(int layer,int what, const char *str, short rot, short flip, int hcenter, int vcenter,
        double x1, double y1, double xscale, double yscale);
 extern void draw_symbol(int what,int c, int n,int layer,
-            int tmp_flip, int tmp_rot, double xoffset, double yoffset);
+            short tmp_flip, short tmp_rot, double xoffset, double yoffset);
 extern void drawrect(int c, int what, double rectx1,double recty1,
             double rectx2,double recty2, int dash);
 extern void filledrect(int c, int what, double rectx1,double recty1,
@@ -856,8 +856,8 @@ extern void filledarc(int c, int what, double x, double y, double r, double a, d
 extern void drawtemppolygon(GC gc, int what, double *x, double *y, int points);
 extern void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash);
 extern void draw_temp_symbol(int what, GC gc, int n,int layer,
-            int tmp_flip, int tmp_rot, double xoffset, double yoffset);
-extern void draw_temp_string(GC gc,int what, const char *str, int rot, int flip, int hcenter, int vcenter,
+            short tmp_flip, short tmp_rot, double xoffset, double yoffset);
+extern void draw_temp_string(GC gc,int what, const char *str, short rot, short flip, int hcenter, int vcenter,
        double x1, double y1, double xscale, double yscale);
 
 
@@ -908,7 +908,7 @@ extern void remove_symbol(int i);
 extern void clear_drawing(void);
 extern int load_sym_def(const char name[], FILE *embed_fd);
 extern void descend_symbol(void);
-extern int place_symbol(int pos, const char *symbol_name, double x, double y, int rot, int flip,
+extern int place_symbol(int pos, const char *symbol_name, double x, double y, short rot, short flip,
                          const char *inst_props, int draw_sym, int first_call);
 extern void place_net_label(int type);
 extern void attach_labels_to_inst(void);

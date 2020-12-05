@@ -22,8 +22,8 @@
 
 #include "xschem.h"
 
-static int select_rot = 0;
-static int  select_flip = 0;
+static short select_rot = 0;
+static short  select_flip = 0;
 static double xx1,yy1,xx2,yy2;
 
 
@@ -33,10 +33,10 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
    int j;
    xText text;
    const char *tmp_txt;
-   int rot,flip;
+   short rot,flip;
    double x0, y0 ;
    double text_x0, text_y0;
-   int sym_rot, sym_flip;
+   short sym_rot, sym_flip;
    double xx1,yy1,xx2,yy2;
 
 

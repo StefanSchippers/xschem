@@ -113,7 +113,7 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
   int i, j, no_of_pin_rects;
   double x0, x1, x2, y0, y1, y2, xx, yy, dist, min_dist_x=0, min_dist_y=0;
   xRect box;
-  int rot, flip;
+  short rot, flip;
   char *type=NULL;
 
   distance = DBL_MAX;
@@ -271,7 +271,7 @@ void find_closest_element(double mx,double my)
 
 void find_closest_text(double mx,double my)
 {
- int rot,flip;
+ short rot,flip;
  double xx1,xx2,yy1,yy2;
  int i,r=-1;
  double threshold = CADWIREMINDIST * CADWIREMINDIST * cadgrid * cadgrid / 400;

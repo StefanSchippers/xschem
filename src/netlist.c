@@ -248,7 +248,8 @@ void hash_inst_pin(int what, int i, int j)
   xRect *rct;
   char *prop_ptr;
   double x0, y0, rx1, ry1;
-  int rot, flip, sqx, sqy;
+  short rot, flip;
+  int sqx, sqy;
   int rects;
 
   rects=(xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER] ;
@@ -624,8 +625,8 @@ void prepare_netlist_structs(int for_netlist)
   char tmp_str[30]; /* overflow safe */
   char nn[PATH_MAX+30];
   double x0, y0;
-  int rot = 0;
-  int flip = 0;
+  short rot = 0;
+  short flip = 0;
   int sqx, sqy;
   int port;
   int touches=0;
@@ -1062,6 +1063,7 @@ int sym_vs_sch_pins()
   double tmpd;
   FILE *fd;
   int tmpi;
+  short tmps;
   int endfile;
   char tag[1];
   char filename[PATH_MAX];
@@ -1131,7 +1133,7 @@ int sym_vs_sch_pins()
               break;
             case 'T':
               load_ascii_string(&tmp,fd);
-              if(fscanf(fd, "%lf %lf %d %d %lf %lf ", &tmpd, &tmpd, &tmpi, &tmpi, &tmpd, &tmpd) < 6 ) {
+              if(fscanf(fd, "%lf %lf %hd %hd %lf %lf ", &tmpd, &tmpd, &tmps, &tmps, &tmpd, &tmpd) < 6 ) {
                 fprintf(errfp,"WARNING:  missing fields for TEXT object, ignoring\n");
                 read_line(fd, 0);
                 break;
@@ -1147,7 +1149,7 @@ int sym_vs_sch_pins()
                 my_strncpy(name, add_ext(name, ".sym"), S(name));
               }
 
-              if(fscanf(fd, "%lf %lf %d %d", &tmpd, &tmpd, &tmpi, &tmpi) < 4) {
+              if(fscanf(fd, "%lf %lf %hd %hd", &tmpd, &tmpd, &tmps, &tmps) < 4) {
                 fprintf(errfp,"sym_vs_sch_pins() WARNING: missing fields for INST object, filename=%s\n",
                   filename);
                 read_line(fd, 0);

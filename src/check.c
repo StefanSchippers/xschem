@@ -377,7 +377,8 @@ void trim_wires(void)
 
 void break_wires_at_pins(void)
 {
-  int k, i, j, r, rects, rot, flip, sqx, sqy;
+  int k, i, j, r, rects, sqx, sqy;
+  short rot, flip;
   struct wireentry *wptr;
   xRect *rct;
   double x0, y0, rx1, ry1;
