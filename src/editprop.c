@@ -902,10 +902,10 @@ void edit_symbol_property(int x)
      else if(x==2)    tcleval("viewdata $::retval");
      my_strdup(78, &result, tclresult());
    }
-   dbg(1, "edit_symbol_property(): before update_symbol, xctx->modified=%d\n", xctx->modified);
+   dbg(1, "edit_symbol_property(): before update_symbol, modified=%d\n", xctx->modified);
    update_symbol(result, x);
    my_free(728, &result);
-   dbg(1, "edit_symbol_property(): done update_symbol, xctx->modified=%d\n", xctx->modified);
+   dbg(1, "edit_symbol_property(): done update_symbol, modified=%d\n", xctx->modified);
    i=-1;
 }
 
@@ -1030,7 +1030,7 @@ void update_symbol(const char *result, int x)
       dbg(1, "update_symbol(): prefix!='\\0', name=%s\n", name);
       /* 20110325 only modify prefix if prefix not NUL */
       if(prefix) name[0]=prefix; /* change prefix if changing symbol type; */
-      dbg(1, "update_symbol(): name=%s, xctx->inst[i].prop_ptr=%s\n", name, xctx->inst[i].prop_ptr);
+      dbg(1, "update_symbol(): name=%s, inst[i].prop_ptr=%s\n", name, xctx->inst[i].prop_ptr);
       my_strdup(89, &ptr,subst_token(xctx->inst[i].prop_ptr, "name", name) );
                      /* set name of current inst */
 

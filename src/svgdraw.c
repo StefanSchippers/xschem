@@ -727,7 +727,7 @@ void svg_draw(void)
      }
    }
 
- dbg(1, "svg_draw(): INT_WIDTH(xctx->lw)=%d\n",INT_WIDTH(xctx->lw));
+ dbg(1, "svg_draw(): INT_WIDTH(lw)=%d\n",INT_WIDTH(xctx->lw));
  fprintf(fd, "</svg>\n");
  fclose(fd);
  draw_grid=old_grid;

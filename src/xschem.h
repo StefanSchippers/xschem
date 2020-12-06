@@ -548,6 +548,7 @@ typedef struct {
   int *inst_color;
   int hilight_nets;
   int hilight_color;
+  unsigned int rectcolor; /* current layer */
   /* get_unnamed_node() */
   int new_node;
   int *node_mult;
@@ -696,7 +697,6 @@ extern double cadgrid;
 extern double cadhalfdotsize;
 extern int draw_pixmap; /*  pixmap used as 2nd buffer */
 extern int draw_window;
-extern unsigned int rectcolor;
 extern XEvent xev;
 extern KeySym key;
 extern unsigned short enable_stretch;

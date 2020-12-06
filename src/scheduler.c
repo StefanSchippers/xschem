@@ -578,7 +578,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      }
      else if(!strcmp(argv[2],"rectcolor")) {
        char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",rectcolor);
+       my_snprintf(s, S(s), "%d",xctx->rectcolor);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"debug_var")) {
@@ -820,7 +820,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
      printf("*******global variables:*******\n");
      printf("netlist_dir=%s\n", netlist_dir? netlist_dir: "<NULL>");
-     printf("INT_WIDTH(xctx->lw)=%d\n", INT_WIDTH(xctx->lw));
+     printf("INT_WIDTH(lw)=%d\n", INT_WIDTH(xctx->lw));
      printf("wires=%d\n", xctx->wires);
      printf("instances=%d\n", xctx->instances);
      printf("symbols=%d\n", xctx->symbols);
@@ -851,7 +851,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      printf("modified=%d\n", xctx->modified);
      printf("color_ps=%d\n", color_ps);
      printf("a3page=%d\n", a3page);
-     printf("xctx->hilight_nets=%d\n", xctx->hilight_nets);
+     printf("hilight_nets=%d\n", xctx->hilight_nets);
      printf("need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr);
      printf("******* end global variables:*******\n");
     }
@@ -868,7 +868,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
      printf("xschem : function used to communicate with the C program\n");
      printf("Usage:\n");
-     printf("      xschem callback X-event_type xctx->mousex xctx->mousey Xkeysym mouse_button Xstate\n");
+     printf("      xschem callback X-event_type mousex mousey Xkeysym mouse_button Xstate\n");
      printf("                   can be used to send any event to the application\n");
      printf("      xschem netlist\n");
      printf("                   generates a netlist in the selected format for the current schematic\n");
@@ -1277,9 +1277,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         ORDER(x1,y1,x2,y2);
         pos=-1;
         if(argc==7) pos=atol(argv[6]);
-        storeobject(pos, x1,y1,x2,y2,LINE,rectcolor,0,NULL);
+        storeobject(pos, x1,y1,x2,y2,LINE,xctx->rectcolor,0,NULL);
         save = draw_window; draw_window = 1;
-        drawline(rectcolor,NOW, x1,y1,x2,y2, 0);
+        drawline(xctx->rectcolor,NOW, x1,y1,x2,y2, 0);
         draw_window = save;
       }
       else xctx->ui_state |= MENUSTARTLINE;
@@ -1630,9 +1630,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         ORDER(x1,y1,x2,y2);
         pos=-1;
         if(argc==7) pos=atol(argv[6]);
-        storeobject(pos, x1,y1,x2,y2,xRECT,rectcolor,0,NULL);
+        storeobject(pos, x1,y1,x2,y2,xRECT,xctx->rectcolor,0,NULL);
         save = draw_window; draw_window = 1;
-        drawrect(rectcolor,NOW, x1,y1,x2,y2, 0);
+        drawrect(xctx->rectcolor,NOW, x1,y1,x2,y2, 0);
         draw_window = save;
       }
       else xctx->ui_state |= MENUSTARTRECT;
@@ -2041,7 +2041,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             sym_txt=atoi(argv[3]);
       }
       else if(!strcmp(argv[2],"rectcolor")) {
-         rectcolor=atoi(argv[3]);
+         xctx->rectcolor=atoi(argv[3]);
          tcleval("reconfigure_layers_button");
          rebuild_selected_array();
          if(xctx->lastsel) {

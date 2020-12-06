@@ -385,7 +385,7 @@ void alloc_xschem_data()
     fprintf(errfp, "xinit(): problems creating tmp undo dir\n");
     tcleval( "exit");
   }
-  dbg(1, "xctx->undo_dirname=%s\n", xctx->undo_dirname);
+  dbg(1, "undo_dirname=%s\n", xctx->undo_dirname);
   #endif
   xctx->zoom=CADINITIALZOOM;
   xctx->mooz=1/CADINITIALZOOM;
@@ -460,6 +460,7 @@ void alloc_xschem_data()
 
   xctx->hilight_nets = 0;
   xctx->hilight_color = 0;
+  xctx->rectcolor = 0;
   for(i=0;i<CADMAXHIER;i++) xctx->sch_path[i]=NULL;
   my_strdup(1187, &xctx->sch_path[0],".");
   xctx->sch_inst_number[0] = 1;
@@ -1599,7 +1600,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
     visual = vinfo.visual;
     */
     dbg(1, "Tcl_AppInit(): done step b of xinit()\n");
-    rectcolor= 4;  /* this is the current layer when xschem started. */
+    xctx->rectcolor= 4;  /* this is the current layer when xschem started. */
     for(i=0;i<cadlayers;i++)
     {
      pixmap[i] = XCreateBitmapFromData(display, xctx->window, (char*)(pixdata[i]),16,16);

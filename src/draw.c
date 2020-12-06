@@ -1768,7 +1768,7 @@ void draw(void)
     }
     draw_selection(gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
 
-    dbg(1, "draw(): INT_WIDTH(xctx->lw)=%d\n",INT_WIDTH(xctx->lw));
+    dbg(1, "draw(): INT_WIDTH(lw)=%d\n",INT_WIDTH(xctx->lw));
  } /* if(has_x) */
 }
 

@@ -1078,7 +1078,7 @@ void push_undo(void)
     char diff_name[PATH_MAX+100]; /* overflow safe 20161122 */
 
     if(no_undo)return;
-    dbg(1, "push_undo(): xctx->cur_undo_ptr=%d xctx->tail_undo_ptr=%d xctx->head_undo_ptr=%d\n",
+    dbg(1, "push_undo(): cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
        xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
 
 
@@ -1151,7 +1151,7 @@ void pop_undo(int redo)
   if(no_undo)return;
   if(redo) {
     if(xctx->cur_undo_ptr < xctx->head_undo_ptr) {
-      dbg(1, "pop_undo(): redo; xctx->cur_undo_ptr=%d xctx->tail_undo_ptr=%d xctx->head_undo_ptr=%d\n",
+      dbg(1, "pop_undo(): redo; cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
          xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
       xctx->cur_undo_ptr++;
     } else {
@@ -1159,7 +1159,7 @@ void pop_undo(int redo)
     }
   } else {  /*redo=0 (undo) */
     if(xctx->cur_undo_ptr == xctx->tail_undo_ptr) return;
-    dbg(1, "pop_undo(): undo; xctx->cur_undo_ptr=%d xctx->tail_undo_ptr=%d xctx->head_undo_ptr=%d\n",
+    dbg(1, "pop_undo(): undo; cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
        xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
     if(xctx->head_undo_ptr == xctx->cur_undo_ptr) {
       push_undo();

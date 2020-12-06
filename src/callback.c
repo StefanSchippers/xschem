@@ -124,7 +124,7 @@ int callback(int event, int mx, int my, KeySym key,
  {
    if(debug_var>=2)
      if(event != MotionNotify) 
-       fprintf(errfp, "callback(): reentrant call of callback(), xctx->semaphore=%d\n", xctx->semaphore);
+       fprintf(errfp, "callback(): reentrant call of callback(), semaphore=%d\n", xctx->semaphore);
    /* if(event==Expose) {
     *   XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, mx,my,button,aux,mx,my);
     *
@@ -551,7 +551,7 @@ int callback(int event, int mx, int my, KeySym key,
     xctx->last_command=0;
     manhattan_lines = 0;
     horizontal_move = vertical_move = 0;
-    dbg(1, "callback(): Escape: xctx->ui_state=%ld\n", xctx->ui_state);
+    dbg(1, "callback(): Escape: ui_state=%ld\n", xctx->ui_state);
     if(xctx->ui_state & STARTMOVE)
     {
      move_objects(ABORT,0,0,0);
@@ -625,10 +625,10 @@ int callback(int event, int mx, int my, KeySym key,
    if(key<='9' && key >='0' && state==ControlMask)              /* choose layer */
    {
     char n[30];
-    rectcolor = key - '0'+4;
-    my_snprintf(n, S(n), "%d", rectcolor);
-    Tcl_VarEval(interp, "xschem set rectcolor ", n, "; reconfigure_layers_button", NULL);
-    dbg(1, "callback(): new color: %d\n",color_index[rectcolor]);
+    xctx->rectcolor = key - '0'+4;
+    my_snprintf(n, S(n), "%d", xctx->rectcolor);
+    Tcl_VarEval(interp, "xschem set xctx->rectcolor ", n, "; reconfigure_layers_button", NULL);
+    dbg(1, "callback(): new color: %d\n",color_index[xctx->rectcolor]);
     break;
    }
    if(key==XK_Delete && (xctx->ui_state & SELECTION) )        /* delete objects */
@@ -1393,7 +1393,7 @@ int callback(int event, int mx, int my, KeySym key,
    break;
 
   case ButtonPress:                     /* end operation */
-   dbg(1, "callback(): ButtonPress  xctx->ui_state=%ld state=%d\n",xctx->ui_state,state);
+   dbg(1, "callback(): ButtonPress  ui_state=%ld state=%d\n",xctx->ui_state,state);
    if(xctx->ui_state & STARTPAN2) {
      xctx->ui_state &=~STARTPAN2;
      xctx->mx_save = mx; xctx->my_save = my;
@@ -1679,7 +1679,7 @@ int callback(int event, int mx, int my, KeySym key,
 
      break;
    }
-   dbg(1, "callback(): ButtonRelease  xctx->ui_state=%ld state=%d\n",xctx->ui_state,state);
+   dbg(1, "callback(): ButtonRelease  ui_state=%ld state=%d\n",xctx->ui_state,state);
    if(xctx->semaphore >= 2) break;
    if(xctx->ui_state & STARTSELECT) {
      if(state & ControlMask) {
@@ -1700,7 +1700,7 @@ int callback(int event, int mx, int my, KeySym key,
    break;
   case -3:  /* double click  : edit prop */
    if(xctx->semaphore >= 2) break;
-   dbg(1, "callback(): DoubleClick  xctx->ui_state=%ld state=%d\n",xctx->ui_state,state);
+   dbg(1, "callback(): DoubleClick  ui_state=%ld state=%d\n",xctx->ui_state,state);
    if(button==Button1) {
      if(xctx->ui_state == STARTWIRE) {
        xctx->ui_state &= ~STARTWIRE;

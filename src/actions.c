@@ -1103,7 +1103,7 @@ void descend_schematic(int instnumber)
     prepare_netlist_structs(0);
     if(enable_drill) drill_hilight();
   }
-  dbg(1, "descend_schematic(): before zoom(): xctx->prep_hash_inst=%d\n", xctx->prep_hash_inst);
+  dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
   zoom_full(1, 0);
  }
 }
@@ -1366,7 +1366,7 @@ void zoom_full(int dr, int sel)
   xctx->xorigin=-boundbox.x1+(xctx->areaw-4*INT_WIDTH(xctx->lw))/40*xctx->zoom;
   xctx->yorigin=(xctx->areah-4*INT_WIDTH(xctx->lw))*xctx->zoom-boundbox.y2 -
                 (xctx->areah-4*INT_WIDTH(xctx->lw))/40*xctx->zoom;
-  dbg(1, "zoom_full(): xctx->areaw=%d, xctx->areah=%d\n", xctx->areaw, xctx->areah);
+  dbg(1, "zoom_full(): areaw=%d, areah=%d\n", xctx->areaw, xctx->areah);
 
   change_linewidth(-1.);
   if(dr)
@@ -1466,7 +1466,7 @@ void draw_stuff(void)
    view_unzoom(40);
    #ifndef STORE
    n /= (cadlayers - 4);
-   for(rectcolor = 4; rectcolor < cadlayers; rectcolor++) {
+   for(xctx->rectcolor = 4; xctx->rectcolor < cadlayers; xctx->rectcolor++) {
    #else
    #endif
      for(i = 0; i < n; i++)
@@ -1479,10 +1479,10 @@ void draw_stuff(void)
        y2=y1+h;
        ORDER(x1,y1,x2,y2);
        #ifdef STORE
-       rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
-       storeobject(-1, x1, y1, x2, y2, xRECT,rectcolor, 0, NULL);
+       xctx->rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
+       storeobject(-1, x1, y1, x2, y2, xRECT,xctx->rectcolor, 0, NULL);
        #else 
-       drawtemprect(gc[rectcolor], ADD, x1, y1, x2, y2);
+       drawtemprect(gc[xctx->rectcolor], ADD, x1, y1, x2, y2);
        #endif
      }
   
@@ -1496,10 +1496,10 @@ void draw_stuff(void)
        y2=y1+h;
        ORDER(x1,y1,x2,y2);
        #ifdef STORE
-       rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
-       storeobject(-1, x1, y1, x2, y2,xRECT,rectcolor, 0, NULL);
+       xctx->rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
+       storeobject(-1, x1, y1, x2, y2,xRECT,xctx->rectcolor, 0, NULL);
        #else 
-       drawtemprect(gc[rectcolor], ADD, x1, y1, x2, y2);
+       drawtemprect(gc[xctx->rectcolor], ADD, x1, y1, x2, y2);
        #endif
      }
   
@@ -1513,14 +1513,14 @@ void draw_stuff(void)
        y2=y1+h;
        RECTORDER(x1,y1,x2,y2);
        #ifdef STORE
-       rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
-       storeobject(-1, x1, y1, x2, y2,xRECT,rectcolor, 0, NULL);
+       xctx->rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
+       storeobject(-1, x1, y1, x2, y2,xRECT,xctx->rectcolor, 0, NULL);
        #else 
-       drawtemprect(gc[rectcolor], ADD, x1, y1, x2, y2);
+       drawtemprect(gc[xctx->rectcolor], ADD, x1, y1, x2, y2);
        #endif
      }
    #ifndef STORE
-     drawtemprect(gc[rectcolor], END, 0.0, 0.0, 0.0, 0.0);
+     drawtemprect(gc[xctx->rectcolor], END, 0.0, 0.0, 0.0, 0.0);
    }
    #else
    draw();
@@ -1718,7 +1718,7 @@ void change_layer()
        y1 = xctx->line[c][n].y1;
        x2 = xctx->line[c][n].x2;
        y2 = xctx->line[c][n].y2;
-       storeobject(-1, x1,y1,x2,y2,LINE,rectcolor, 0, xctx->line[c][n].prop_ptr);
+       storeobject(-1, x1,y1,x2,y2,LINE,xctx->rectcolor, 0, xctx->line[c][n].prop_ptr);
      }
      if(type==ARC && xctx->arc[c][n].sel==SELECTED) {
        x1 = xctx->arc[c][n].x;
@@ -1726,18 +1726,18 @@ void change_layer()
        r = xctx->arc[c][n].r;
        a = xctx->arc[c][n].a;
        b = xctx->arc[c][n].b;
-       store_arc(-1, x1, y1, r, a, b, rectcolor, 0, xctx->arc[c][n].prop_ptr);
+       store_arc(-1, x1, y1, r, a, b, xctx->rectcolor, 0, xctx->arc[c][n].prop_ptr);
      }
      if(type==POLYGON && xctx->poly[c][n].sel==SELECTED) {
         store_poly(-1, xctx->poly[c][n].x, xctx->poly[c][n].y, 
-                       xctx->poly[c][n].points, rectcolor, 0, xctx->poly[c][n].prop_ptr);
+                       xctx->poly[c][n].points, xctx->rectcolor, 0, xctx->poly[c][n].prop_ptr);
      }
      else if(type==xRECT && xctx->rect[c][n].sel==SELECTED) {
        x1 = xctx->rect[c][n].x1;
        y1 = xctx->rect[c][n].y1;
        x2 = xctx->rect[c][n].x2;
        y2 = xctx->rect[c][n].y2;
-       storeobject(-1, x1,y1,x2,y2,xRECT,rectcolor, 0, xctx->rect[c][n].prop_ptr);
+       storeobject(-1, x1,y1,x2,y2,xRECT,xctx->rectcolor, 0, xctx->rect[c][n].prop_ptr);
      }
    }
    if(xctx->lastsel) delete_only_rect_line_arc_poly();
@@ -1768,8 +1768,8 @@ void new_arc(int what, double sweep)
       if(xctx->nl_sweep_angle==360.) xctx->nl_b=360.;
       if(xctx->nl_r>0.) {
         push_undo();
-        drawarc(rectcolor, NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, 0, 0);
-        store_arc(-1, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, rectcolor, 0, NULL);
+        drawarc(xctx->rectcolor, NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, 0, 0);
+        store_arc(-1, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, xctx->rectcolor, 0, NULL);
       }
       xctx->ui_state &= ~STARTARC;
       xctx->nl_state=0;
@@ -1791,7 +1791,7 @@ void new_arc(int what, double sweep)
       arc_3_points(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2,
           xctx->nl_x3, xctx->nl_y3, &xctx->nl_x, &xctx->nl_y, &xctx->nl_r, &xctx->nl_a, &xctx->nl_b);
       if(xctx->nl_sweep_angle==360.) xctx->nl_b=360.;
-      if(xctx->nl_r>0.) drawtemparc(gc[rectcolor], NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b);
+      if(xctx->nl_r>0.) drawtemparc(gc[xctx->rectcolor], NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b);
     }
   }
 }
@@ -1808,37 +1808,37 @@ void new_line(int what)
           xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
           ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
-          storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1,LINE,rectcolor,0,NULL);
-          drawline(rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1, 0);
+          storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1,LINE,xctx->rectcolor,0,NULL);
+          drawline(xctx->rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1, 0);
         }
         if(xctx->nl_yy2!=xctx->nl_yy1) {
           xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
           ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-          storeobject(-1, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,LINE,rectcolor,0,NULL);
-          drawline(rectcolor,NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0);
+          storeobject(-1, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,LINE,xctx->rectcolor,0,NULL);
+          drawline(xctx->rectcolor,NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0);
         }
       } else if(manhattan_lines==2) {
         if(xctx->nl_yy2!=xctx->nl_yy1) {
           xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
           ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
-          storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2,LINE,rectcolor,0,NULL);
-          drawline(rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2, 0);
+          storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2,LINE,xctx->rectcolor,0,NULL);
+          drawline(xctx->rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2, 0);
         }
         if(xctx->nl_xx2!=xctx->nl_xx1) {
           xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;
           xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
           ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
-          storeobject(-1, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2,LINE,rectcolor,0,NULL);
-          drawline(rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2, 0);
+          storeobject(-1, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2,LINE,xctx->rectcolor,0,NULL);
+          drawline(xctx->rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2, 0);
         }
       } else {
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-        storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,LINE,rectcolor,0,NULL);
-        drawline(rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0);
+        storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,LINE,xctx->rectcolor,0,NULL);
+        drawline(xctx->rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0);
       }
     }
     xctx->nl_x1=xctx->nl_x2=xctx->mousex_snap;xctx->nl_y1=xctx->nl_y2=xctx->mousey_snap;
@@ -1866,11 +1866,11 @@ void new_line(int what)
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
-        drawtempline(gc[rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+        drawtempline(gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(gc[rectcolor], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(gc[xctx->rectcolor], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       }
     } else if(manhattan_lines==2) {
       xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
@@ -1887,11 +1887,11 @@ void new_line(int what)
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
-        drawtempline(gc[rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+        drawtempline(gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(gc[rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
       }
     } else {
       xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
@@ -1904,7 +1904,7 @@ void new_line(int what)
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(gc[rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       }
     }
   }
@@ -1919,13 +1919,13 @@ void new_rect(int what)
     int save_draw;
     RECTORDER(xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
     push_undo();
-    drawrect(rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2, 0);
+    drawrect(xctx->rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2, 0);
     save_draw = draw_window;
     draw_window = 1;
     /* draw fill pattern even in XCopyArea mode */
-    filledrect(rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
+    filledrect(xctx->rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
     draw_window = save_draw;
-    storeobject(-1, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2,xRECT,rectcolor, 0, NULL);
+    storeobject(-1, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2,xRECT,xctx->rectcolor, 0, NULL);
    }
    xctx->nl_x1=xctx->nl_x2=xctx->mousex_snap;xctx->nl_y1=xctx->nl_y2=xctx->mousey_snap;
    xctx->ui_state |= STARTRECT;
@@ -1942,7 +1942,7 @@ void new_rect(int what)
    xctx->nl_x2=xctx->mousex_snap;xctx->nl_y2=xctx->mousey_snap;
    xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
    RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-   drawtemprect(gc[rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+   drawtemprect(gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
   }
 }
 
@@ -1958,7 +1958,7 @@ void new_polygon(int what)
    }
    if( what & PLACE )
    {
-     /* fprintf(errfp, "new_poly: PLACE, xctx->nl_points=%d\n", xctx->nl_points); */
+     /* fprintf(errfp, "new_poly: PLACE, nl_points=%d\n", xctx->nl_points); */
      xctx->nl_polyy[xctx->nl_points]=xctx->mousey_snap;
      xctx->nl_polyx[xctx->nl_points]=xctx->mousex_snap;
      xctx->nl_points++;
@@ -1996,11 +1996,11 @@ void new_polygon(int what)
          xctx->nl_polyy[xctx->nl_points-1] == xctx->nl_polyy[0]) ) {
      push_undo();
      drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
-     store_poly(-1, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, rectcolor, 0, NULL);
-     /* fprintf(errfp, "new_poly: finish: xctx->nl_points=%d\n", xctx->nl_points); */
-     drawtemppolygon(gc[rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points);
+     store_poly(-1, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, xctx->rectcolor, 0, NULL);
+     /* fprintf(errfp, "new_poly: finish: nl_points=%d\n", xctx->nl_points); */
+     drawtemppolygon(gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points);
      xctx->ui_state &= ~STARTPOLYGON;
-     drawpolygon(rectcolor, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0, 0);
+     drawpolygon(xctx->rectcolor, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0, 0);
      my_free(711, &xctx->nl_polyx);
      my_free(712, &xctx->nl_polyy);
      xctx->nl_maxpoints = xctx->nl_points = 0;
@@ -2011,7 +2011,7 @@ void new_polygon(int what)
      drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
      xctx->nl_polyy[xctx->nl_points] = xctx->mousey_snap;
      xctx->nl_polyx[xctx->nl_points] = xctx->mousex_snap;
-     drawtemppolygon(gc[rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
+     drawtemppolygon(gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
    }
 }
 

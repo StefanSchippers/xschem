@@ -457,9 +457,9 @@ void break_wires_at_pins(void)
       /* printf("  k=%d, x0=%g, y0=%g\n", k, x0, y0); */
       for(wptr=xctx->wiretable[sqx][sqy] ; wptr ; wptr = wptr->next) {
         i = wptr->n;
-        /* printf("check xctx->wire %d to xctx->wire %d\n", k, i); */
+        /* printf("check wire %d to wire %d\n", k, i); */
         if(i==k) {
-          continue; /* no check xctx->wire against itself */
+          continue; /* no check wire against itself */
         }
         if( touch(xctx->wire[i].x1, xctx->wire[i].y1,
                   xctx->wire[i].x2, xctx->wire[i].y2, x0,y0) )

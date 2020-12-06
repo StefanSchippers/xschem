@@ -393,7 +393,7 @@ void merge_file(int selection_load, const char ext[])
      match_merged_inst(old);
      fclose(fd);
      xctx->ui_state |= STARTMERGE;
-     dbg(1, "merge_file(): loaded file:wire=%d inst=%d xctx->ui_state=%ld\n",
+     dbg(1, "merge_file(): loaded file:wire=%d inst=%d ui_state=%ld\n",
              xctx->wires , xctx->instances, xctx->ui_state);
      move_objects(START,0,0,0);
      xctx->mousex_snap = xctx->mx_double_save;

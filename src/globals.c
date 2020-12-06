@@ -188,7 +188,6 @@ int draw_window=0;
 int text_svg=1; /* use <text> svg element for text instead of xschem's internal vector font */
 double cadhalfdotsize = CADHALFDOTSIZE;
 unsigned int color_index[256]; /* layer color lookup table */
-unsigned int rectcolor ; /* this is the currently used layer */
 int max_undo=MAX_UNDO;
 int draw_dots=1;
 int draw_single_layer=-1;

@@ -583,7 +583,7 @@ void ps_draw(void)
 
 
 
- dbg(1, "ps_draw(): INT_WIDTH(xctx->lw)=%d plotfile=%s\n",INT_WIDTH(xctx->lw), plotfile);
+ dbg(1, "ps_draw(): INT_WIDTH(lw)=%d plotfile=%s\n",INT_WIDTH(xctx->lw), plotfile);
  fprintf(fd, "showpage\n\n");
  fprintf(fd, "%%%%EOF\n");
  fclose(fd);

@@ -148,157 +148,157 @@ void check_polygon_storage(int c)
 }
 
 void store_arc(int pos, double x, double y, double r, double a, double b,
-               unsigned int rectcolor, unsigned short sel, char *prop_ptr)
+               unsigned int rectc, unsigned short sel, char *prop_ptr)
 {
   int n, j;
   const char *dash;
-  check_arc_storage(rectcolor);
-  if(pos==-1) n=xctx->arcs[rectcolor];
+  check_arc_storage(rectc);
+  if(pos==-1) n=xctx->arcs[rectc];
   else
   {
-   for(j=xctx->arcs[rectcolor];j>pos;j--)
+   for(j=xctx->arcs[rectc];j>pos;j--)
    {
-    xctx->arc[rectcolor][j]=xctx->arc[rectcolor][j-1];
+    xctx->arc[rectc][j]=xctx->arc[rectc][j-1];
    }
    n=pos;
   }
-  xctx->arc[rectcolor][n].x = x;
-  xctx->arc[rectcolor][n].y = y;
-  xctx->arc[rectcolor][n].r = r;
-  xctx->arc[rectcolor][n].a = a;
-  xctx->arc[rectcolor][n].b = b;
-  xctx->arc[rectcolor][n].prop_ptr = NULL;
-  my_strdup(407, &xctx->arc[rectcolor][n].prop_ptr, prop_ptr);
-  xctx->arc[rectcolor][n].sel = sel;
-  if( !strcmp(get_tok_value(xctx->arc[rectcolor][n].prop_ptr,"fill",0),"true") )
-    xctx->arc[rectcolor][n].fill =1;
+  xctx->arc[rectc][n].x = x;
+  xctx->arc[rectc][n].y = y;
+  xctx->arc[rectc][n].r = r;
+  xctx->arc[rectc][n].a = a;
+  xctx->arc[rectc][n].b = b;
+  xctx->arc[rectc][n].prop_ptr = NULL;
+  my_strdup(407, &xctx->arc[rectc][n].prop_ptr, prop_ptr);
+  xctx->arc[rectc][n].sel = sel;
+  if( !strcmp(get_tok_value(xctx->arc[rectc][n].prop_ptr,"fill",0),"true") )
+    xctx->arc[rectc][n].fill =1;
   else
-    xctx->arc[rectcolor][n].fill =0;
-  dash = get_tok_value(xctx->arc[rectcolor][n].prop_ptr,"dash",0);
+    xctx->arc[rectc][n].fill =0;
+  dash = get_tok_value(xctx->arc[rectc][n].prop_ptr,"dash",0);
   if( strcmp(dash, "") ) {
     int d = atoi(dash);
-    xctx->arc[rectcolor][n].dash = d >= 0 ? d : 0;
+    xctx->arc[rectc][n].dash = d >= 0 ? d : 0;
   } else
-    xctx->arc[rectcolor][n].dash = 0;
+    xctx->arc[rectc][n].dash = 0;
 
-  xctx->arcs[rectcolor]++;
+  xctx->arcs[rectc]++;
   set_modify(1);
 }
 
-void store_poly(int pos, double *x, double *y, int points, unsigned int rectcolor, 
+void store_poly(int pos, double *x, double *y, int points, unsigned int rectc, 
                 unsigned short sel, char *prop_ptr)
 {
   int n, j;
   const char *dash;
-  check_polygon_storage(rectcolor);
-  if(pos==-1) n=xctx->polygons[rectcolor];
+  check_polygon_storage(rectc);
+  if(pos==-1) n=xctx->polygons[rectc];
   else
   {
-   for(j=xctx->polygons[rectcolor];j>pos;j--)
+   for(j=xctx->polygons[rectc];j>pos;j--)
    {
-    xctx->poly[rectcolor][j]=xctx->poly[rectcolor][j-1];
+    xctx->poly[rectc][j]=xctx->poly[rectc][j-1];
    }
    n=pos;
   }
   dbg(2, "store_poly(): storing POLYGON %d\n",n);
 
-  xctx->poly[rectcolor][n].x=NULL;
-  xctx->poly[rectcolor][n].y=NULL;
-  xctx->poly[rectcolor][n].selected_point=NULL;
-  xctx->poly[rectcolor][n].prop_ptr=NULL;
-  xctx->poly[rectcolor][n].x= my_calloc(408, points, sizeof(double));
-  xctx->poly[rectcolor][n].y= my_calloc(409, points, sizeof(double));
-  xctx->poly[rectcolor][n].selected_point= my_calloc(410, points, sizeof(unsigned short));
-  my_strdup(411, &xctx->poly[rectcolor][n].prop_ptr, prop_ptr);
+  xctx->poly[rectc][n].x=NULL;
+  xctx->poly[rectc][n].y=NULL;
+  xctx->poly[rectc][n].selected_point=NULL;
+  xctx->poly[rectc][n].prop_ptr=NULL;
+  xctx->poly[rectc][n].x= my_calloc(408, points, sizeof(double));
+  xctx->poly[rectc][n].y= my_calloc(409, points, sizeof(double));
+  xctx->poly[rectc][n].selected_point= my_calloc(410, points, sizeof(unsigned short));
+  my_strdup(411, &xctx->poly[rectc][n].prop_ptr, prop_ptr);
   for(j=0;j<points; j++) {
-    xctx->poly[rectcolor][n].x[j] = x[j];
-    xctx->poly[rectcolor][n].y[j] = y[j];
+    xctx->poly[rectc][n].x[j] = x[j];
+    xctx->poly[rectc][n].y[j] = y[j];
   }
-  xctx->poly[rectcolor][n].points = points;
-  xctx->poly[rectcolor][n].sel = sel;
+  xctx->poly[rectc][n].points = points;
+  xctx->poly[rectc][n].sel = sel;
 
 
-  if( !strcmp(get_tok_value(xctx->poly[rectcolor][n].prop_ptr,"fill",0),"true") )
-    xctx->poly[rectcolor][n].fill =1;
+  if( !strcmp(get_tok_value(xctx->poly[rectc][n].prop_ptr,"fill",0),"true") )
+    xctx->poly[rectc][n].fill =1;
   else
-    xctx->poly[rectcolor][n].fill =0;
-  dash = get_tok_value(xctx->poly[rectcolor][n].prop_ptr,"dash",0);
+    xctx->poly[rectc][n].fill =0;
+  dash = get_tok_value(xctx->poly[rectc][n].prop_ptr,"dash",0);
   if( strcmp(dash, "") ) {
     int d = atoi(dash);
-    xctx->poly[rectcolor][n].dash = d >= 0 ? d : 0;
+    xctx->poly[rectc][n].dash = d >= 0 ? d : 0;
   } else
-    xctx->poly[rectcolor][n].dash = 0;
+    xctx->poly[rectc][n].dash = 0;
 
 
-  xctx->polygons[rectcolor]++;
+  xctx->polygons[rectc]++;
   set_modify(1);
 }
 
 void storeobject(int pos, double x1,double y1,double x2,double y2,
-                 unsigned short type, unsigned int rectcolor,
+                 unsigned short type, unsigned int rectc,
                  unsigned short sel, const char *prop_ptr)
 {
  int n, j;
  const char * dash;
     if(type == LINE)
     {
-     check_line_storage(rectcolor);
+     check_line_storage(rectc);
 
-     if(pos==-1) n=xctx->lines[rectcolor];
+     if(pos==-1) n=xctx->lines[rectc];
      else
      {
-      for(j=xctx->lines[rectcolor];j>pos;j--)
+      for(j=xctx->lines[rectc];j>pos;j--)
       {
-       xctx->line[rectcolor][j]=xctx->line[rectcolor][j-1];
+       xctx->line[rectc][j]=xctx->line[rectc][j-1];
       }
       n=pos;
      }
      dbg(2, "storeobject(): storing LINE %d\n",n);
-     xctx->line[rectcolor][n].x1=x1;
-     xctx->line[rectcolor][n].x2=x2;
-     xctx->line[rectcolor][n].y1=y1;
-     xctx->line[rectcolor][n].y2=y2;
-     xctx->line[rectcolor][n].prop_ptr=NULL;
-     my_strdup(412, &xctx->line[rectcolor][n].prop_ptr, prop_ptr);
-     xctx->line[rectcolor][n].sel=sel;
+     xctx->line[rectc][n].x1=x1;
+     xctx->line[rectc][n].x2=x2;
+     xctx->line[rectc][n].y1=y1;
+     xctx->line[rectc][n].y2=y2;
+     xctx->line[rectc][n].prop_ptr=NULL;
+     my_strdup(412, &xctx->line[rectc][n].prop_ptr, prop_ptr);
+     xctx->line[rectc][n].sel=sel;
      if( prop_ptr && !strcmp(get_tok_value(prop_ptr, "bus", 0), "true") )
-       xctx->line[rectcolor][n].bus = 1;
+       xctx->line[rectc][n].bus = 1;
      else
-       xctx->line[rectcolor][n].bus = 0;
+       xctx->line[rectc][n].bus = 0;
      if(prop_ptr && (dash = get_tok_value(prop_ptr,"dash",0))[0]) {
        int d = atoi(dash);
-       xctx->line[rectcolor][n].dash = d >= 0 ? d : 0;
+       xctx->line[rectc][n].dash = d >= 0 ? d : 0;
      } else
-       xctx->line[rectcolor][n].dash = 0;
-     xctx->lines[rectcolor]++;
+       xctx->line[rectc][n].dash = 0;
+     xctx->lines[rectc]++;
      set_modify(1);
     }
     if(type == xRECT)
     {
-     check_box_storage(rectcolor);
-     if(pos==-1) n=xctx->rects[rectcolor];
+     check_box_storage(rectc);
+     if(pos==-1) n=xctx->rects[rectc];
      else
      {
-      for(j=xctx->rects[rectcolor];j>pos;j--)
+      for(j=xctx->rects[rectc];j>pos;j--)
       {
-       xctx->rect[rectcolor][j]=xctx->rect[rectcolor][j-1];
+       xctx->rect[rectc][j]=xctx->rect[rectc][j-1];
       }
       n=pos;
      }
      dbg(2, "storeobject(): storing RECT %d\n",n);
-     xctx->rect[rectcolor][n].x1=x1;
-     xctx->rect[rectcolor][n].x2=x2;
-     xctx->rect[rectcolor][n].y1=y1;
-     xctx->rect[rectcolor][n].y2=y2;
-     xctx->rect[rectcolor][n].prop_ptr=NULL;
-     my_strdup(413, &xctx->rect[rectcolor][n].prop_ptr, prop_ptr);
-     xctx->rect[rectcolor][n].sel=sel;
+     xctx->rect[rectc][n].x1=x1;
+     xctx->rect[rectc][n].x2=x2;
+     xctx->rect[rectc][n].y1=y1;
+     xctx->rect[rectc][n].y2=y2;
+     xctx->rect[rectc][n].prop_ptr=NULL;
+     my_strdup(413, &xctx->rect[rectc][n].prop_ptr, prop_ptr);
+     xctx->rect[rectc][n].sel=sel;
      if(prop_ptr && (dash = get_tok_value(prop_ptr,"dash",0))[0]) {
        int d = atoi(dash);
-       xctx->rect[rectcolor][n].dash = d >= 0 ? d : 0;
+       xctx->rect[rectc][n].dash = d >= 0 ? d : 0;
      } else
-       xctx->rect[rectcolor][n].dash = 0;
-     xctx->rects[rectcolor]++;
+       xctx->rect[rectc][n].dash = 0;
+     xctx->rects[rectc]++;
      set_modify(1);
     }
     if(type == WIRE)
