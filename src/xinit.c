@@ -180,7 +180,7 @@ void windowid()
 #ifdef __unix__
   if(!cad_icon_pixmap) {
     i=XpmCreatePixmapFromData(display,framewin, cad_icon,&cad_icon_pixmap, &cad_icon_mask, NULL);
-    dbg(1, "Tcl_AppInit(): creating icon pixmap returned: %d\n",i);
+    dbg(1, "windowid(): creating icon pixmap returned: %d\n",i);
     hints_ptr = XAllocWMHints();
     hints_ptr->icon_pixmap = cad_icon_pixmap ;
     hints_ptr->icon_mask = cad_icon_mask ;
@@ -436,7 +436,6 @@ void alloc_xschem_data()
   xctx->new_node = 0;
   xctx->node_mult = NULL;
   xctx->node_mult_size = 0;
-
   /* move.c */
   xctx->rx1 = xctx->rx2 = xctx->ry1 = xctx->ry2 = 0.0;
   xctx->move_rot = 0;
@@ -469,84 +468,23 @@ void alloc_xschem_data()
   xctx->maxi=ELEMINST;
   xctx->maxs=ELEMDEF;
   xctx->text=my_calloc(606, xctx->maxt,sizeof(xText));
-  if(xctx->text==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
   xctx->wire=my_calloc(607, xctx->maxw,sizeof(xWire));
-  if(xctx->wire==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
   xctx->inst=my_calloc(609, xctx->maxi , sizeof(xInstance) );
-  if(xctx->inst==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
   xctx->sym=my_calloc(610, xctx->maxs , sizeof(xSymbol) );
-  if(xctx->sym==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
   for(i=0;i<xctx->maxs;i++) {
     xctx->sym[i].line=my_calloc(611, cadlayers, sizeof(xLine *));
-    if(xctx->sym[i].line==NULL){
-      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-    }
-
     xctx->sym[i].poly=my_calloc(612, cadlayers, sizeof(xPoly *));
-    if(xctx->sym[i].poly==NULL){
-      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-    }
-
     xctx->sym[i].arc=my_calloc(613, cadlayers, sizeof(xArc *));
-    if(xctx->sym[i].arc==NULL){
-      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-    }
-
     xctx->sym[i].rect=my_calloc(614, cadlayers, sizeof(xRect *));
-    if(xctx->sym[i].rect==NULL){
-      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-    }
-
     xctx->sym[i].lines=my_calloc(615, cadlayers, sizeof(int));
-    if(xctx->sym[i].lines==NULL){
-      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-    }
-
     xctx->sym[i].rects=my_calloc(616, cadlayers, sizeof(int));
-    if(xctx->sym[i].rects==NULL){
-      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-    }
     xctx->sym[i].arcs=my_calloc(617, cadlayers, sizeof(int));
-    if(xctx->sym[i].arcs==NULL){
-      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-    }
     xctx->sym[i].polygons=my_calloc(618, cadlayers, sizeof(int));
-    if(xctx->sym[i].polygons==NULL){
-      fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-    }
   }
-
   xctx->maxr=my_calloc(620, cadlayers, sizeof(int));
-  if(xctx->maxr==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
   xctx->maxa=my_calloc(621, cadlayers, sizeof(int));
-  if(xctx->maxa==NULL){
-    fprintf(errfp, "Tcl_AppInit(): max_arcscalloc error\n");tcleval( "exit");
-  }
-
   xctx->maxp=my_calloc(622, cadlayers, sizeof(int));
-  if(xctx->maxp==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
   xctx->maxl=my_calloc(623, cadlayers, sizeof(int));
-  if(xctx->maxl==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
   for(i=0;i<cadlayers;i++)
   {
    xctx->maxr[i]=CADMAXOBJECTS;
@@ -554,75 +492,23 @@ void alloc_xschem_data()
    xctx->maxl[i]=CADMAXOBJECTS;
    xctx->maxa[i]=CADMAXOBJECTS;
   }
-
   xctx->rect=my_calloc(624, cadlayers, sizeof(xRect *));
-  if(xctx->rect==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
   xctx->line=my_calloc(625, cadlayers, sizeof(xLine *));
-  if(xctx->line==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
   xctx->poly=my_calloc(626, cadlayers, sizeof(xPoly *));
-  if(xctx->poly==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
   xctx->arc=my_calloc(627, cadlayers, sizeof(xArc *));
-  if(xctx->arc==NULL){
-    fprintf(errfp, "Tcl_AppInit(): arc calloc error\n");tcleval( "exit");
-  }
-
   for(i=0;i<cadlayers;i++)
   {
    xctx->rect[i]=my_calloc(628, xctx->maxr[i],sizeof(xRect));
-   if(xctx->rect[i]==NULL){
-     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-   }
-
    xctx->arc[i]=my_calloc(629, xctx->maxa[i],sizeof(xArc));
-   if(xctx->arc[i]==NULL){
-     fprintf(errfp, "Tcl_AppInit(): arc[] calloc error\n");tcleval( "exit");
-   }
-
    xctx->poly[i]=my_calloc(630, xctx->maxp[i],sizeof(xPoly));
-   if(xctx->poly[i]==NULL){
-     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-   }
-
    xctx->line[i]=my_calloc(631, xctx->maxl[i],sizeof(xLine));
-   if(xctx->line[i]==NULL){
-     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-   }
   }
-
   xctx->rects=my_calloc(632, cadlayers, sizeof(int));
-  if(xctx->rects==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
   xctx->polygons=my_calloc(633, cadlayers, sizeof(int));
-  if(xctx->polygons==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
   xctx->arcs=my_calloc(634, cadlayers, sizeof(int));
-  if(xctx->arcs==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
   xctx->lines=my_calloc(635, cadlayers, sizeof(int));
-  if(xctx->lines==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
   xctx->maxsel=MAXGROUP;
   xctx->sel_array=my_calloc(619, xctx->maxsel, sizeof(Selected));
-  if(xctx->sel_array==NULL){
-    fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-  }
-
 }
 
 void alloc_data()
@@ -631,54 +517,19 @@ void alloc_data()
 
  alloc_xschem_data();
  /* global context / graphic preferences/settings */
-
  gridpoint=(XPoint*)my_calloc(608, CADMAXGRIDPOINTS,sizeof(XPoint));
- if(gridpoint==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
  color_array=my_calloc(637, cadlayers, sizeof(char*));
- if(color_array==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
  gc=my_calloc(638, cadlayers, sizeof(GC));
- if(gc==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
  gcstipple=my_calloc(639, cadlayers, sizeof(GC));
- if(gcstipple==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
  fill_type=my_calloc(640, cadlayers, sizeof(int));
- if(fill_type==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
  active_layer=my_calloc(563, cadlayers, sizeof(int));
- if(active_layer==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
  pixdata=my_calloc(641, cadlayers, sizeof(char*));
- if(pixdata==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
-
  for(i=0;i<cadlayers;i++)
  {
    pixdata[i]=my_calloc(642, 32, sizeof(char));
-   if(pixdata[i]==NULL){
-     fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
-   }
  }
  enable_layer=my_calloc(87, cadlayers, sizeof(int));
  pixmap=my_calloc(636, cadlayers, sizeof(Pixmap));
- if(pixmap==NULL){
-   fprintf(errfp, "Tcl_AppInit(): calloc error\n");tcleval( "exit");
- }
 }
 
 void xwin_exit(void)
@@ -1586,12 +1437,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
     /* /20171125 */
     #endif /*HAS_XCB */
 
-    screen_number = DefaultScreen(display);
-    colormap = DefaultColormap(display, screen_number);
-    depth = DisplayPlanes(display, screen_number);
+    screen_number = Tk_ScreenNumber(mainwindow);
+    colormap = Tk_Colormap(mainwindow);
+    depth = Tk_Depth(mainwindow);
     dbg(1, "Tcl_AppInit(): screen depth: %d\n",depth);
-
-    visual = DefaultVisual(display, screen_number);
+    visual = Tk_Visual(mainwindow);
 
     /*
     if (!XMatchVisualInfo(
