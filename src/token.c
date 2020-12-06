@@ -183,7 +183,7 @@ void check_unique_names(int rename)
   int big =  xctx->wires> 2000 || xctx->instances > 2000;
   /* int save_draw; */
 
-  if(hilight_nets) {
+  if(xctx->hilight_nets) {
     xRect boundbox;
     if(!big) calc_drawing_bbox(&boundbox, 2);
     enable_drill=0;
@@ -211,7 +211,7 @@ void check_unique_names(int rename)
         dbg(1, "check_unique_names(): checking %s\n", start);
         if( (entry = inst_hash_lookup(table, start, i, XINSERT_NOREPLACE, strlen(start)) ) && entry->value != i) {
           xctx->inst[i].flags |=4;
-          hilight_nets=1;
+          xctx->hilight_nets=1;
           if(rename == 1) {
             if(first) {
               bbox(START,0.0,0.0,0.0,0.0);
@@ -241,7 +241,7 @@ void check_unique_names(int rename)
       my_free(973, &expanded_instname);
     }
   } /* for(i...) */
-  if(rename == 1 && hilight_nets) {
+  if(rename == 1 && xctx->hilight_nets) {
     bbox(SET,0.0,0.0,0.0,0.0);
     draw();
     bbox(END,0.0,0.0,0.0,0.0);
@@ -2327,7 +2327,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
      statusmsg(errstr,2);
      if(!netlist_count) {
        xctx->inst[i].flags |=4;
-       hilight_nets=1;
+       xctx->hilight_nets=1;
      }
    }
    return unconn;

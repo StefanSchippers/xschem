@@ -764,7 +764,7 @@ void edit_text_property(int x)
                  xctx->text[sel].x0, xctx->text[sel].y0,
                  &xx1,&yy1,&xx2,&yy2);
        #ifdef HAS_CAIRO
-       if(customfont) cairo_restore(cairo_ctx);
+       if(customfont) cairo_restore(xctx->cairo_ctx);
        #endif
 
        bbox(ADD, xx1, yy1, xx2, yy2 );
@@ -785,7 +785,7 @@ void edit_text_property(int x)
              xctx->text[sel].x0, xctx->text[sel].y0,
              &xx1,&yy1,&xx2,&yy2);
              #ifdef HAS_CAIRO
-             if(customfont) cairo_restore(cairo_ctx);
+             if(customfont) cairo_restore(xctx->cairo_ctx);
              #endif
 
              pcx = (xctx->rect[PINLAYER][l].x1+xctx->rect[PINLAYER][l].x2)/2.0;
@@ -849,7 +849,7 @@ void edit_text_property(int x)
                  xctx->text[sel].x0, xctx->text[sel].y0,
                  &xx1,&yy1,&xx2,&yy2);
        #ifdef HAS_CAIRO
-       if(customfont) cairo_restore(cairo_ctx);
+       if(customfont) cairo_restore(xctx->cairo_ctx);
        #endif
 
        bbox(ADD, xx1, yy1, xx2, yy2 );
@@ -1062,7 +1062,7 @@ void update_symbol(const char *result, int x)
      and drawn back unhilighted .
                                 |
                                \|/  */
-  if(show_pin_net_names || hilight_nets) {
+  if(show_pin_net_names || xctx->hilight_nets) {
     prepare_netlist_structs(0);
     for(k = 0;  k < (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER]; k++) {
       if( xctx->inst[i].node && xctx->inst[i].node[k]) {

@@ -2939,8 +2939,6 @@ proc launcher {} {
   # XSCHEM_SHAREDIR and netlist_dir not used directly but useful in paths passed thru launcher_var
   global launcher_var launcher_default_program launcher_program env XSCHEM_SHAREDIR netlist_dir
   
-  ## puts ">>> $launcher_program $launcher_var "
-  # 20170413
   if { ![string compare $launcher_program {}] } { set launcher_program $launcher_default_program}
   eval exec  [subst $launcher_program] {[subst $launcher_var]} &
 }
@@ -3162,7 +3160,7 @@ proc raise_dialog {window_path } {
 #### TEST MODE #####
 proc new_window {what {path {}} {filename {}}} {
   if { $what eq {create}} {
-    toplevel $path -bg {}
+    toplevel $path -bg {} -width 400 -height 400
     update
     xschem new_schematic create $path $filename
     set_bindings $path
@@ -3176,14 +3174,19 @@ proc new_window {what {path {}} {filename {}}} {
 }
 
 proc test1 {} {
-  xschem load /home/schippes/xschem-repo/trunk/xschem_library/rom8k/rom8k.sch
-  new_window create .xx /home/schippes/xschem-repo/trunk/xschem_library/examples/mos_power_ampli.sch
-  new_window create .yy /home/schippes/xschem-repo/trunk/xschem_library/examples/MSA-2643.sch
+  xschem load [abs_sym_path rom8k.sch]
+  new_window create .xx [abs_sym_path mos_power_ampli.sch]
+  new_window create .yy [abs_sym_path solar_panel.sch]
   bind .xx <Expose> { new_window redraw 1 } 
   bind .yy <Expose> { new_window redraw 2 } 
   bind .xx <Enter> { new_window switch 1 } 
   bind .yy <Enter> { new_window switch 2 } 
   bind .drw <Enter>  {+ new_window switch 0}
+}
+
+proc test1_end {} {
+  new_window destroy
+  new_window destroy
 }
 
 proc set_bindings {window_path} {

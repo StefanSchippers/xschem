@@ -82,7 +82,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
        sym_flip ^ text.flip, text.hcenter, text.vcenter,
        x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2);
      #ifdef HAS_CAIRO
-     if(customfont) cairo_restore(cairo_ctx);
+     if(customfont) cairo_restore(xctx->cairo_ctx);
      #endif
      if(xx1<*x1) *x1=xx1;
      if(yy1<*y1) *y1=yy1;
@@ -279,7 +279,7 @@ void delete(void)
                 xctx->text[i].x0, xctx->text[i].y0,
                 &xx1,&yy1, &xx2,&yy2);
       #ifdef HAS_CAIRO
-      if(customfont) cairo_restore(cairo_ctx);
+      if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif
       bbox(ADD, xx1, yy1, xx2, yy2 );
       my_free(935, &xctx->text[i].prop_ptr);
@@ -443,7 +443,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->xrect[0].width = xctx->areaw-4*INT_WIDTH(xctx->lw);
    xctx->xrect[0].height = xctx->areah-4*INT_WIDTH(xctx->lw);
 
-   XSetClipMask(display, gctiled, None); /* 20171110 optimization, clipping already done in software */
+   XSetClipMask(display, xctx->gctiled, None); /* 20171110 optimization, clipping already done in software */
 
    for(i=0;i<cadlayers;i++)
    {
@@ -451,7 +451,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
     XSetClipMask(display, gcstipple[i], None); /* 20171110 optimization, clipping already done in software */
    }
    #ifdef HAS_CAIRO
-   cairo_reset_clip(cairo_ctx);
+   cairo_reset_clip(xctx->cairo_ctx);
    cairo_reset_clip(xctx->cairo_save_ctx);
    #endif
    sem=0;
@@ -477,11 +477,11 @@ void bbox(int what,double x1,double y1, double x2, double y2)
      XSetClipRectangles(display, gc[i], 0,0, xctx->xrect, 1, Unsorted);
      XSetClipRectangles(display, gcstipple[i], 0,0, xctx->xrect, 1, Unsorted);
    }
-   XSetClipRectangles(display, gctiled, 0,0, xctx->xrect, 1, Unsorted);
+   XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
    dbg(1, "bbox(): bbox= %d %d %d %d\n",xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2);
    #ifdef HAS_CAIRO
-   cairo_rectangle(cairo_ctx, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
-   cairo_clip(cairo_ctx);
+   cairo_rectangle(xctx->cairo_ctx, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
+   cairo_clip(xctx->cairo_ctx);
    cairo_rectangle(xctx->cairo_save_ctx, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
    cairo_clip(xctx->cairo_save_ctx);
    #endif
@@ -508,9 +508,9 @@ void unselect_all(void)
        xctx->wire[i].sel = 0;
        {
          if(xctx->wire[i].bus)
-           drawtempline(gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
+           drawtempline(xctx->gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
          else
-           drawtempline(gctiled, ADD, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
+           drawtempline(xctx->gctiled, ADD, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
        }
       }
      }
@@ -520,7 +520,7 @@ void unselect_all(void)
      {
       xctx->inst[i].sel = 0;
       for(c=0;c<cadlayers;c++)
-        draw_temp_symbol(ADD, gctiled, i, c,0,0,0.0,0.0);
+        draw_temp_symbol(ADD, xctx->gctiled, i, c,0,0,0.0,0.0);
      }
     }
     for(i=0;i<xctx->texts;i++)
@@ -531,12 +531,12 @@ void unselect_all(void)
       #ifdef HAS_CAIRO
       customfont = set_text_custom_font(& xctx->text[i]); /* needed for bbox calculation */
       #endif
-      draw_temp_string(gctiled,ADD, xctx->text[i].txt_ptr,
+      draw_temp_string(xctx->gctiled,ADD, xctx->text[i].txt_ptr,
        xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
        xctx->text[i].x0, xctx->text[i].y0,
        xctx->text[i].xscale, xctx->text[i].yscale);
       #ifdef HAS_CAIRO
-      if(customfont) cairo_restore(cairo_ctx);
+      if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif
      }
     }
@@ -547,7 +547,7 @@ void unselect_all(void)
       if(xctx->arc[c][i].sel)
       {
        xctx->arc[c][i].sel = 0;
-       drawtemparc(gctiled, ADD, xctx->arc[c][i].x, xctx->arc[c][i].y,
+       drawtemparc(xctx->gctiled, ADD, xctx->arc[c][i].x, xctx->arc[c][i].y,
                                  xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b);
       }
      }
@@ -556,7 +556,7 @@ void unselect_all(void)
       if(xctx->rect[c][i].sel)
       {
        xctx->rect[c][i].sel = 0;
-       drawtemprect(gctiled, ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
+       drawtemprect(xctx->gctiled, ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                                   xctx->rect[c][i].x2, xctx->rect[c][i].y2);
       }
      }
@@ -566,10 +566,10 @@ void unselect_all(void)
       {
        xctx->line[c][i].sel = 0;
        if(xctx->line[c][i].bus)
-         drawtempline(gctiled, THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
+         drawtempline(xctx->gctiled, THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                       xctx->line[c][i].x2, xctx->line[c][i].y2);
        else
-         drawtempline(gctiled, ADD, xctx->line[c][i].x1, xctx->line[c][i].y1,
+         drawtempline(xctx->gctiled, ADD, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                     xctx->line[c][i].x2, xctx->line[c][i].y2);
       }
      }
@@ -580,13 +580,13 @@ void unselect_all(void)
        int k;
        for(k=0;k<xctx->poly[c][i].points; k++) xctx->poly[c][i].selected_point[k] = 0;
        xctx->poly[c][i].sel = 0;
-       drawtemppolygon(gctiled, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
+       drawtemppolygon(xctx->gctiled, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
       }
      }
     }
-    drawtemparc(gctiled, END, 0.0, 0.0, 0.0, 0.0, 0.0);
-    drawtemprect(gctiled, END, 0.0, 0.0, 0.0, 0.0);
-    drawtempline(gctiled,END, 0.0, 0.0, 0.0, 0.0);
+    drawtemparc(xctx->gctiled, END, 0.0, 0.0, 0.0, 0.0, 0.0);
+    drawtemprect(xctx->gctiled, END, 0.0, 0.0, 0.0, 0.0);
+    drawtempline(xctx->gctiled,END, 0.0, 0.0, 0.0, 0.0);
     xctx->ui_state &= ~SELECTION;
     /*\statusmsg("",2); */
     my_snprintf(str, S(str), "%s/%s", user_conf_dir, ".selection.sch"); /* 20161115  PWD->HOME */
@@ -625,9 +625,9 @@ void select_wire(int i,unsigned short select_mode, int fast)
   }
   else {
    if(xctx->wire[i].bus)
-     drawtempline(gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
+     drawtempline(xctx->gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
    else
-     drawtempline(gctiled, NOW, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
+     drawtempline(xctx->gctiled, NOW, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
   }
   xctx->need_reb_sel_arr=1;
 }
@@ -675,7 +675,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
     }
   } else {
     for(c=0;c<cadlayers;c++) {
-      draw_temp_symbol(NOW, gctiled, i,c,0,0,0.0,0.0);
+      draw_temp_symbol(NOW, xctx->gctiled, i,c,0,0,0.0,0.0);
     }
   }
   xctx->need_reb_sel_arr=1;
@@ -707,12 +707,12 @@ void select_text(int i,unsigned short select_mode, int fast)
      xctx->text[i].x0, xctx->text[i].y0,
      xctx->text[i].xscale, xctx->text[i].yscale);
   else
-    draw_temp_string(gctiled,NOW, xctx->text[i].txt_ptr,
+    draw_temp_string(xctx->gctiled,NOW, xctx->text[i].txt_ptr,
      xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
      xctx->text[i].x0, xctx->text[i].y0,
      xctx->text[i].xscale, xctx->text[i].yscale);
   #ifdef HAS_CAIRO
-  if(customfont) cairo_restore(cairo_ctx);
+  if(customfont) cairo_restore(xctx->cairo_ctx);
   #endif
   xctx->need_reb_sel_arr=1;
 }
@@ -743,7 +743,7 @@ void select_box(int c, int i, unsigned short select_mode, int fast)
                                     xctx->rect[c][i].x2, xctx->rect[c][i].y2);
   } else {
     xctx->rect[c][i].sel = 0;
-    drawtemprect(gctiled, NOW, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
+    drawtemprect(xctx->gctiled, NOW, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                                xctx->rect[c][i].x2, xctx->rect[c][i].y2);
   }
 
@@ -774,7 +774,7 @@ void select_arc(int c, int i, unsigned short select_mode, int fast)
                                    xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b);
   } else {
     xctx->arc[c][i].sel = 0;
-    drawtemparc(gctiled, NOW, xctx->arc[c][i].x, xctx->arc[c][i].y,
+    drawtemparc(xctx->gctiled, NOW, xctx->arc[c][i].x, xctx->arc[c][i].y,
                               xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b);
   }
 
@@ -801,7 +801,7 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast )
    drawtemppolygon(gc[SELLAYER], NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
   }
   else
-   drawtemppolygon(gctiled, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
+   drawtemppolygon(xctx->gctiled, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
   xctx->need_reb_sel_arr=1;
 }
 
@@ -836,10 +836,10 @@ void select_line(int c, int i, unsigned short select_mode, int fast )
   }
   else
    if(xctx->line[c][i].bus)
-     drawtempline(gctiled, THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
+     drawtempline(xctx->gctiled, THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                   xctx->line[c][i].x2, xctx->line[c][i].y2);
    else
-     drawtempline(gctiled, NOW, xctx->line[c][i].x1, xctx->line[c][i].y1,
+     drawtempline(xctx->gctiled, NOW, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                 xctx->line[c][i].x2, xctx->line[c][i].y2);
   xctx->need_reb_sel_arr=1;
 }
@@ -927,7 +927,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /* 201509
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2);
   #ifdef HAS_CAIRO
-  if(customfont) cairo_restore(cairo_ctx);
+  if(customfont) cairo_restore(xctx->cairo_ctx);
   #endif
   if(RECTINSIDE(xx1,yy1, xx2, yy2,x1,y1,x2,y2))
   {

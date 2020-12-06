@@ -105,27 +105,27 @@ void print_image()
   Tk_FreePixmap(display, xctx->save_pixmap);
   xctx->save_pixmap = Tk_GetPixmap(display, xctx->window, w, h, depth);
 #endif
-  XSetTile(display, gctiled, xctx->save_pixmap);
+  XSetTile(display, xctx->gctiled, xctx->save_pixmap);
 
   #ifdef HAS_CAIRO
   cairo_destroy(xctx->cairo_save_ctx);
-  cairo_surface_destroy(xctx->save_sfc);
+  cairo_surface_destroy(xctx->cairo_save_sfc);
 
   #if HAS_XRENDER==1
   #if HAS_XCB==1
-  xctx->save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap, &format_rgb, w, h);
+  xctx->cairo_save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap, &format_rgb, w, h);
   #else
-  xctx->save_sfc = cairo_xlib_surface_create_with_xrender_format(display,
+  xctx->cairo_save_sfc = cairo_xlib_surface_create_with_xrender_format(display,
              xctx->save_pixmap, DefaultScreenOfDisplay(display), format, w, h);
   #endif /*HAS_XCB */
   #else
-  xctx->save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, w, h);
+  xctx->cairo_save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, w, h);
   #endif /*HAS_XRENDER */
-  if(cairo_surface_status(xctx->save_sfc)!=CAIRO_STATUS_SUCCESS) {
+  if(cairo_surface_status(xctx->cairo_save_sfc)!=CAIRO_STATUS_SUCCESS) {
     fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
      exit(-1);
   }
-  xctx->cairo_save_ctx = cairo_create(xctx->save_sfc);
+  xctx->cairo_save_ctx = cairo_create(xctx->cairo_save_sfc);
   cairo_set_line_width(xctx->cairo_save_ctx, 1);
   cairo_set_line_join(xctx->cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
   cairo_set_line_cap(xctx->cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
@@ -138,7 +138,7 @@ void print_image()
     XSetClipRectangles(display, gc[tmp], 0,0, xctx->xrect, 1, Unsorted);
     XSetClipRectangles(display, gcstipple[tmp], 0,0, xctx->xrect, 1, Unsorted);
   }
-  XSetClipRectangles(display, gctiled, 0,0, xctx->xrect, 1, Unsorted);
+  XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
   save_draw_grid = draw_grid;
   draw_grid=0;
   draw_pixmap=1;
@@ -180,28 +180,28 @@ void print_image()
   Tk_FreePixmap(display, xctx->save_pixmap);
   xctx->save_pixmap = Tk_GetPixmap(display, xctx->window, xctx->areaw, xctx->areah, depth);
 #endif
-  XSetTile(display, gctiled, xctx->save_pixmap);
+  XSetTile(display, xctx->gctiled, xctx->save_pixmap);
 
 
 #ifdef HAS_CAIRO
   cairo_destroy(xctx->cairo_save_ctx);
-  cairo_surface_destroy(xctx->save_sfc);
+  cairo_surface_destroy(xctx->cairo_save_sfc);
 
   #if HAS_XRENDER==1
   #if HAS_XCB==1
-  xctx->save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap, &format_rgb, w, h);
+  xctx->cairo_save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap, &format_rgb, w, h);
   #else
-  xctx->save_sfc = cairo_xlib_surface_create_with_xrender_format (display,
+  xctx->cairo_save_sfc = cairo_xlib_surface_create_with_xrender_format (display,
              xctx->save_pixmap, DefaultScreenOfDisplay(display), format, w, h);
   #endif /*HAS_XCB */
   #else
-  xctx->save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, w, h);
+  xctx->cairo_save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, w, h);
   #endif /*HAS_XRENDER */
-  if(cairo_surface_status(xctx->save_sfc)!=CAIRO_STATUS_SUCCESS) {
+  if(cairo_surface_status(xctx->cairo_save_sfc)!=CAIRO_STATUS_SUCCESS) {
     fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
      exit(-1);
   }
-  xctx->cairo_save_ctx = cairo_create(xctx->save_sfc);
+  xctx->cairo_save_ctx = cairo_create(xctx->cairo_save_sfc);
   cairo_set_line_width(xctx->cairo_save_ctx, 1);
   cairo_set_line_join(xctx->cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
   cairo_set_line_cap(xctx->cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
@@ -214,7 +214,7 @@ void print_image()
     XSetClipMask(display, gc[tmp], None); /*20171110 no need to clip, already done in software */
     XSetClipMask(display, gcstipple[tmp], None);
   }
-  XSetClipMask(display, gctiled, None);
+  XSetClipMask(display, xctx->gctiled, None);
 
   XMapWindow(display, xctx->window);
   draw_grid=save_draw_grid;
@@ -226,7 +226,7 @@ void print_image()
 #ifdef HAS_CAIRO
 void set_cairo_color(int layer) 
 {
-  cairo_set_source_rgb(cairo_ctx,
+  cairo_set_source_rgb(xctx->cairo_ctx,
     (double)xcolor_array[layer].red/65535.0,
     (double)xcolor_array[layer].green/65535.0,
     (double)xcolor_array[layer].blue/65535.0);
@@ -236,7 +236,7 @@ void set_cairo_color(int layer)
     (double)xcolor_array[layer].blue/65535.0);
 }
 
-/* remember to call cairo_restore(cairo_ctx) when done !! */
+/* remember to call cairo_restore(xctx->cairo_ctx) when done !! */
 int set_text_custom_font(xText *txt) /* 20171122 for correct text_bbox calculation */
 {
   char *textfont;
@@ -250,8 +250,8 @@ int set_text_custom_font(xText *txt) /* 20171122 for correct text_bbox calculati
     slant = CAIRO_FONT_SLANT_NORMAL;
     if(txt->flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
     if(txt->flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
-    cairo_save(cairo_ctx);
-    cairo_select_font_face (cairo_ctx, textfont, slant, weight);
+    cairo_save(xctx->cairo_ctx);
+    cairo_select_font_face (xctx->cairo_ctx, textfont, slant, weight);
     return 1;
   }
   return 0;
@@ -353,9 +353,9 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
   }
 
   set_cairo_color(layer);
-  cairo_set_font_size (cairo_ctx, size*xctx->mooz);
+  cairo_set_font_size (xctx->cairo_ctx, size*xctx->mooz);
   cairo_set_font_size (xctx->cairo_save_ctx, size*xctx->mooz);
-  cairo_font_extents(cairo_ctx, &fext);
+  cairo_font_extents(xctx->cairo_ctx, &fext);
   dbg(1, "draw_string(): size * mooz=%g height=%g ascent=%g descent=%g\n",
        size * xctx->mooz, fext.height, fext.ascent, fext.descent);
   llength=0;
@@ -366,7 +366,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
     if(c=='\n' || c==0) {
       *ss='\0';
       /*fprintf(errfp, "cairo_draw_string(): tt=%s, longest line: %d\n", tt, cairo_longest_line); */
-      if(draw_window) cairo_draw_string_line(cairo_ctx, tt, x, y, rot, flip,
+      if(draw_window) cairo_draw_string_line(xctx->cairo_ctx, tt, x, y, rot, flip,
          lineno, fext.height, fext.ascent, fext.descent, llength);
       if(draw_pixmap) cairo_draw_string_line(xctx->cairo_save_ctx, tt, x, y, rot, flip,
          lineno, fext.height, fext.ascent, fext.descent, llength);
@@ -600,9 +600,9 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           if(symptr->text[j].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
           if(symptr->text[j].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
 
-          cairo_save(cairo_ctx);
+          cairo_save(xctx->cairo_ctx);
           cairo_save(xctx->cairo_save_ctx);
-          cairo_select_font_face (cairo_ctx, textfont, slant, weight);
+          cairo_select_font_face (xctx->cairo_ctx, textfont, slant, weight);
           cairo_select_font_face (xctx->cairo_save_ctx, textfont, slant, weight);
         }
         #endif
@@ -617,7 +617,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         #endif
         #ifdef HAS_CAIRO
         if( (textfont && textfont[0]) || symptr->text[j].flags) {
-          cairo_restore(cairo_ctx);
+          cairo_restore(xctx->cairo_ctx);
           cairo_restore(xctx->cairo_save_ctx);
         }
         #endif
@@ -743,7 +743,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
      (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
      flip^text.flip, text.hcenter, text.vcenter, x0+x1, y0+y1, text.xscale, text.yscale);
    #ifdef HAS_CAIRO
-   if(customfont) cairo_restore(cairo_ctx);
+   if(customfont) cairo_restore(xctx->cairo_ctx);
    #endif
 
   }
@@ -1629,7 +1629,7 @@ void draw(void)
 
                   type = symptr->type;
                   if(!(
-                       hilight_nets &&
+                       xctx->hilight_nets &&
                        type  &&
                        (
                         (
@@ -1663,7 +1663,7 @@ void draw(void)
 
                 type = (xctx->inst[i].ptr+ xctx->sym)->type;
                 if(!(
-                     hilight_nets &&
+                     xctx->hilight_nets &&
                      type  &&
                      (
                       (
@@ -1737,9 +1737,9 @@ void draw(void)
               if(xctx->text[i].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
               if(xctx->text[i].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
 
-              cairo_save(cairo_ctx);
+              cairo_save(xctx->cairo_ctx);
               cairo_save(xctx->cairo_save_ctx);
-              cairo_select_font_face (cairo_ctx, textfont, slant, weight);
+              cairo_select_font_face (xctx->cairo_ctx, textfont, slant, weight);
               cairo_select_font_face (xctx->cairo_save_ctx, textfont, slant, weight);
             }
             #endif
@@ -1750,7 +1750,7 @@ void draw(void)
               xctx->text[i].xscale, xctx->text[i].yscale);
             #ifdef HAS_CAIRO
             if((textfont && textfont[0]) || xctx->text[i].flags ) {
-              cairo_restore(cairo_ctx);
+              cairo_restore(xctx->cairo_ctx);
               cairo_restore(xctx->cairo_save_ctx);
             }
             #endif
@@ -1763,7 +1763,7 @@ void draw(void)
     } /* !only_probes, 20110112 */
     draw_hilight_net(draw_window);
     if(!draw_window) {
-      XCopyArea(display, xctx->save_pixmap, xctx->window, gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+      XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
          xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
     draw_selection(gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */

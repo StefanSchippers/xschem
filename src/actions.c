@@ -59,7 +59,6 @@ void print_version()
   exit(EXIT_SUCCESS);
 }
 
-
 char *escape_chars(char *dest, const char *source, int size)
 {
   int s=0;
@@ -195,241 +194,110 @@ const char *add_ext(const char *f, const char *ext)
   return ff;
 }
 
-static void reset_cairo(int create, int clear)
-{
-  #ifdef HAS_CAIRO
-  if(clear) {
-    /* xctx->save_sfc is based on pixmap and pixmaps are not resizeable, so on resize 
-     * we must destroy & recreate everything. sfc can be resized using cairo_*_surface_set_size
-     * being based on window */
-    cairo_destroy(xctx->cairo_save_ctx);
-    cairo_surface_destroy(xctx->save_sfc);
-  }
-  if(create) {
-    #if HAS_XRENDER==1
-    #if HAS_XCB==1
-    xctx->save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap,
-         &format_rgb, xctx->xschem_w, xctx->xschem_h);
-    #else
-    xctx->save_sfc = cairo_xlib_surface_create_with_xrender_format(display, xctx->save_pixmap,
-         DefaultScreenOfDisplay(display), format, xctx->xschem_w, xctx->xschem_h);
-    #endif /* HAS_XCB */
-    #else
-    xctx->save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, xctx->xschem_w, xctx->xschem_h);
-    #endif /* HAS_XRENDER */
-    if(cairo_surface_status(xctx->save_sfc)!=CAIRO_STATUS_SUCCESS) {
-      fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
-       exit(-1);
-    }
-    xctx->cairo_save_ctx = cairo_create(xctx->save_sfc);
-    cairo_set_line_width(xctx->cairo_save_ctx, 1);
-    cairo_set_line_join(xctx->cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
-    cairo_set_line_cap(xctx->cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
-    cairo_select_font_face (xctx->cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size (xctx->cairo_save_ctx, 20);
-  }
-  /* 20171125 select xlib or xcb :-) */
-  #if HAS_XCB==1 && HAS_XRENDER==1
-  cairo_xcb_surface_set_size(sfc, xctx->xschem_w, xctx->xschem_h);
-  #else
-  cairo_xlib_surface_set_size(sfc, xctx->xschem_w, xctx->xschem_h);
-  #endif /* HAS_XCB  && HAS_XRENDER */
-  #endif /* HAS_CAIRO */
-}
-
-void resetwin(int create_pixmap, int clear_pixmap, int force)
-{
-  int i;
-  XWindowAttributes wattr;
-  if(has_x) {
-#ifdef __unix__
-    i = XGetWindowAttributes(display, xctx->window, &wattr); /*  should call only when resized */
-                                              /*  to avoid server roundtrip replies */
-    if(!i) {
-      return;
-    }
-    /* if(wattr.map_state==IsUnmapped) return; */
-
-    xctx->xschem_w=wattr.width;
-    xctx->xschem_h=wattr.height;
-    xctx->areax2 = xctx->xschem_w+2*INT_WIDTH(xctx->lw);
-    xctx->areay2 = xctx->xschem_h+2*INT_WIDTH(xctx->lw);
-    xctx->areax1 = -2*INT_WIDTH(xctx->lw);
-    xctx->areay1 = -2*INT_WIDTH(xctx->lw);
-    xctx->areaw = xctx->areax2-xctx->areax1;
-    xctx->areah = xctx->areay2-xctx->areay1;
-
-    /* if no force avoid unnecessary work if no resize */
-    if( force || xctx->xschem_w !=xctx->xrect[0].width || xctx->xschem_h !=xctx->xrect[0].height) {
-      dbg(1, "resetwin(): x=%d y=%d   xctx->xschem_w=%d xctx->xschem_h=%d\n",
-                       wattr.x, wattr.y, xctx->xschem_w,xctx->xschem_h);
-      dbg(1, "resetwin(): changing size\n\n");
-      xctx->xrect[0].x = 0;
-      xctx->xrect[0].y = 0;
-      xctx->xrect[0].width = xctx->xschem_w;
-      xctx->xrect[0].height = xctx->xschem_h;
-      if(clear_pixmap) XFreePixmap(display,xctx->save_pixmap);
-      /*
-      {
-        unsigned int w, h;
-        XQueryBestSize(display, TileShape, xctx->window,  xctx->xschem_w, xctx->xschem_h, &w, &h);
-        dbg(1, "XQueryBestSize: req: w=%d, h=%d, opt: w=%d h=%d\n",
-                         xctx->xschem_w, xctx->xschem_h, w, h);
-      }
-      */
-      if(create_pixmap) {
-        xctx->save_pixmap = XCreatePixmap(display, xctx->window, xctx->xschem_w, xctx->xschem_h, depth);
-      }
-      XSetTile(display,gctiled, xctx->save_pixmap);
-      reset_cairo(create_pixmap, clear_pixmap);
-    }
-#else
-    HWND hwnd = Tk_GetHWND(xctx->window);
-    RECT rct;
-    if (GetWindowRect(hwnd, &rct))
-    {
-      unsigned int width = rct.right - rct.left;
-      unsigned int height = rct.bottom - rct.top;
-      xctx->xschem_w = width;
-      xctx->xschem_h = height;
-      xctx->areax2 = xctx->xschem_w + 2 * INT_WIDTH(xctx->lw);
-      xctx->areay2 = xctx->xschem_h + 2 * INT_WIDTH(xctx->lw);
-      xctx->areax1 = -2 * INT_WIDTH(xctx->lw);
-      xctx->areay1 = -2 * INT_WIDTH(xctx->lw);
-      xctx->areaw = xctx->areax2 - xctx->areax1;
-      xctx->areah = xctx->areay2 - xctx->areay1;
-      /* if no force avoid unnecessary work if no resize */
-      if( force || xctx->xschem_w !=xctx->xrect[0].width ||
-          xctx->xschem_h !=xctx->xrect[0].height) {
-        dbg(1, "resetwin(): x=%d y=%d   xctx->xschem_w=%d xctx->xschem_h=%d\n",
-          rct.right, rct.bottom, xctx->xschem_w, xctx->xschem_h);
-        dbg(1, "resetwin(): changing size\n\n");
-        xctx->xrect[0].x = 0;
-        xctx->xrect[0].y = 0;
-        xctx->xrect[0].width = xctx->xschem_w;
-        xctx->xrect[0].height = xctx->xschem_h;
-        if(clear_pixmap) Tk_FreePixmap(display, xctx->save_pixmap);
-        if(create_pixmap) {
-          xctx->save_pixmap = Tk_GetPixmap(display, xctx->window, xctx->xschem_w, xctx->xschem_h, depth);
-        }
-        XSetTile(display, gctiled, xctx->save_pixmap);
-      }
-      reset_cairo(create_pixmap, clear_pixmap);
-    }
-#endif
-    if(pending_fullzoom) {
-      zoom_full(0, 0);
-      pending_fullzoom=0;
-    }
-    dbg(1, "resetwin(): Window reset\n");
-  } /* end if(has_x) */
-}
-
 void toggle_only_probes()
 {
-   static double save_lw;
-   if(!only_probes) {
-     save_lw = xctx->lw;
-     xctx->lw=3.0;
-   } else {
-     xctx->lw= save_lw;
-   }
-   only_probes =!only_probes;
-   if(only_probes) {
-       tclsetvar("only_probes","1");
-   }
-   else {
-       tclsetvar("only_probes","0");
-   }
-   change_linewidth(xctx->lw);
-   draw();
+  static double save_lw;
+  if(!only_probes) {
+    save_lw = xctx->lw;
+    xctx->lw=3.0;
+  } else {
+    xctx->lw= save_lw;
+  }
+  only_probes =!only_probes;
+  if(only_probes) {
+      tclsetvar("only_probes","1");
+  }
+  else {
+      tclsetvar("only_probes","0");
+  }
+  change_linewidth(xctx->lw);
+  draw();
 }
 
 void toggle_fullscreen()
 {
-    char fullscr[]="add,fullscreen";
-    char normal[]="remove,fullscreen";
-    static int menu_removed = 0;
-    fullscreen = (fullscreen+1)%2;
-    if(fullscreen==1) tclsetvar("fullscreen","1");
-    else if(fullscreen==2) tclsetvar("fullscreen","2");
-    else tclsetvar("fullscreen","0");
+  char fullscr[]="add,fullscreen";
+  char normal[]="remove,fullscreen";
+  static int menu_removed = 0;
+  fullscreen = (fullscreen+1)%2;
+  if(fullscreen==1) tclsetvar("fullscreen","1");
+  else if(fullscreen==2) tclsetvar("fullscreen","2");
+  else tclsetvar("fullscreen","0");
 
-    dbg(1, "toggle_fullscreen(): fullscreen=%d\n", fullscreen);
-    if(fullscreen==2) {
-      tcleval("pack forget .menubar .statusbar; update");
-      menu_removed = 1;
-    }
-    if(fullscreen !=2 && menu_removed) {
-      tcleval("pack .menubar -anchor n -side top -fill x  -before .drw\n\
-               pack .statusbar -after .drw -anchor sw  -fill x; update");
-      menu_removed=0;
-    }
+  dbg(1, "toggle_fullscreen(): fullscreen=%d\n", fullscreen);
+  if(fullscreen==2) {
+    tcleval("pack forget .menubar .statusbar; update");
+    menu_removed = 1;
+  }
+  if(fullscreen !=2 && menu_removed) {
+    tcleval("pack .menubar -anchor n -side top -fill x  -before .drw\n\
+             pack .statusbar -after .drw -anchor sw  -fill x; update");
+    menu_removed=0;
+  }
 
 
-    if(fullscreen == 1) {
-      window_state(display , parent_of_topwindow,fullscr);
-    } else if(fullscreen == 2) {
-      window_state(display , parent_of_topwindow,normal);
-      window_state(display , parent_of_topwindow,fullscr);
-    } else {
-      window_state(display , parent_of_topwindow,normal);
-    }
-    pending_fullzoom=1;
+  if(fullscreen == 1) {
+    window_state(display , parent_of_topwindow,fullscr);
+  } else if(fullscreen == 2) {
+    window_state(display , parent_of_topwindow,normal);
+    window_state(display , parent_of_topwindow,fullscr);
+  } else {
+    window_state(display , parent_of_topwindow,normal);
+  }
+  pending_fullzoom=1;
 }
 
 #ifdef __unix__
 void new_window(const char *cell, int symbol)
 {
+  char f[PATH_MAX]; /*  overflow safe 20161122 */
+  struct stat buf;
+  pid_t pid1;
+  pid_t pid2;
+  int status;
 
-     char f[PATH_MAX]; /*  overflow safe 20161122 */
-     struct stat buf;
-     pid_t pid1;
-     pid_t pid2;
-     int status;
+  dbg(1, "new_window(): executable: %s, cell=%s, symbol=%d\n", xschem_executable, cell, symbol);
+  if(stat(xschem_executable,&buf)) {
+    fprintf(errfp, "new_window(): executable not found\n");
+    return;
+  }
 
-     dbg(1, "new_window(): executable: %s, cell=%s, symbol=%d\n", xschem_executable, cell, symbol);
-     if(stat(xschem_executable,&buf)) {
-       fprintf(errfp, "new_window(): executable not found\n");
-       return;
-     }
-
-     /* double fork method to avoid zombies 20180925*/
-     if ( (pid1 = fork()) ) {
-       /* parent process */
-       waitpid(pid1, &status, 0);
-     } else if (!pid1) {
-       /* child process  */
-       if ( (pid2 = fork()) ) {
-         exit(0); /* --> child of child will be reparented to init */
-       } else if (!pid2) {
-         /* child of child */
-         if(!(freopen("/dev/null","w",stdout) && freopen("/dev/null","r",stdin) &&
-           freopen("/dev/null","w",stderr))){
-           fprintf(errfp, "new_window(): freopen error\n");
-           tcleval("exit");
-         }
-         if(!cell || !cell[0]) {
-           execl(xschem_executable,xschem_executable,"-r", NULL);
-         }
-         else if(!symbol) {
-           my_strncpy(f, cell, S(f));
-           execl(xschem_executable,xschem_executable,"-r",f, NULL);
-         }
-         else {
-           my_strncpy(f, cell, S(f));
-           execl(xschem_executable,xschem_executable,"-r",f, NULL);
-         }
-       } else {
-         /* error */
-         fprintf(errfp, "new_window(): fork error 1\n");
-         tcleval( "exit");
-       }
-     } else {
-       /* error */
-       fprintf(errfp, "new_window(): fork error 2\n");
-       tcleval( "exit");
-     }
+  /* double fork method to avoid zombies 20180925*/
+  if ( (pid1 = fork()) ) {
+    /* parent process */
+    waitpid(pid1, &status, 0);
+  } else if (!pid1) {
+    /* child process  */
+    if ( (pid2 = fork()) ) {
+      exit(0); /* --> child of child will be reparented to init */
+    } else if (!pid2) {
+      /* child of child */
+      if(!(freopen("/dev/null","w",stdout) && freopen("/dev/null","r",stdin) &&
+        freopen("/dev/null","w",stderr))){
+        fprintf(errfp, "new_window(): freopen error\n");
+        tcleval("exit");
+      }
+      if(!cell || !cell[0]) {
+        execl(xschem_executable,xschem_executable,"-r", NULL);
+      }
+      else if(!symbol) {
+        my_strncpy(f, cell, S(f));
+        execl(xschem_executable,xschem_executable,"-r",f, NULL);
+      }
+      else {
+        my_strncpy(f, cell, S(f));
+        execl(xschem_executable,xschem_executable,"-r",f, NULL);
+      }
+    } else {
+      /* error */
+      fprintf(errfp, "new_window(): fork error 1\n");
+      tcleval( "exit");
+    }
+  } else {
+    /* error */
+    fprintf(errfp, "new_window(): fork error 2\n");
+    tcleval( "exit");
+  }
 }
 #else
 
@@ -1230,7 +1098,7 @@ void descend_schematic(int instnumber)
     my_strncpy(filename, add_ext(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), ".sch"), S(filename));
     load_schematic(1, filename, 1);
   }
-  if(hilight_nets)
+  if(xctx->hilight_nets)
   {
     prepare_netlist_structs(0);
     if(enable_drill) drill_hilight();
@@ -1295,37 +1163,21 @@ void go_back(int confirm) /*  20171006 add confirm */
  }
 }
 
-void change_linewidth(double w)
+#ifndef __unix__
+/* Source: https://www.tcl.tk/man/tcl8.7/TclCmd/glob.htm */
+/* backslash character has a special meaning to glob command,
+so glob patterns containing Windows style path separators need special care.*/
+void change_to_unix_fn(char* fn)
 {
-  int i, changed;
-
-  changed=0;
-  /* choose line width automatically based on zoom */
-  if(w<0.) {
-    if(change_lw)  {
-      xctx->lw=xctx->mooz * 0.09 * cadsnap;
-      cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (cadsnap-10);
-      changed=1;
-    }
-  /* explicitly set line width */
-  } else {
-    xctx->lw=w;
-    changed=1;
+  int len, i, ii;
+  len = strlen(fn);
+  ii = 0;
+  for (i = 0; i < len; ++i) {
+    if (fn[i]!='\\') fn[ii++] = fn[i];
+    else { fn[ii++] = '/'; if (fn[i + 1] == '\\') ++i; }
   }
-  if(!changed) return;
-  if(has_x) {
-    for(i=0;i<cadlayers;i++) {
-        XSetLineAttributes (display, gc[i], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
-    }
-    XSetLineAttributes (display, gctiled, INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
-  }
-  xctx->areax1 = -2*INT_WIDTH(xctx->lw);
-  xctx->areay1 = -2*INT_WIDTH(xctx->lw);
-  xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
-  xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
-  xctx->areaw = xctx->areax2-xctx->areax1;
-  xctx->areah = xctx->areay2 - xctx->areay1;
 }
+#endif
 
 void calc_drawing_bbox(xRect *boundbox, int selected)
 {
@@ -1436,7 +1288,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
      updatebbox(count,boundbox,&tmp);
    }
    #ifdef HAS_CAIRO
-   if(customfont) cairo_restore(cairo_ctx);
+   if(customfont) cairo_restore(xctx->cairo_ctx);
    #endif
  }
  for(i=0;i<xctx->instances;i++)
@@ -1574,7 +1426,7 @@ void zoom_box(int what)
   {
     xctx->ui_state &= ~STARTZOOM;
     RECTORDER(x1,y1,x2,y2);
-    drawtemprect(gctiled, NOW, xx1,yy1,xx2,yy2);
+    drawtemprect(xctx->gctiled, NOW, xx1,yy1,xx2,yy2);
     xctx->xorigin=-x1;xctx->yorigin=-y1;
     xctx->zoom=(x2-x1)/(xctx->areaw-4*INT_WIDTH(xctx->lw));
     yy1=(y2-y1)/(xctx->areah-4*INT_WIDTH(xctx->lw));
@@ -1589,7 +1441,7 @@ void zoom_box(int what)
   {
     xx1=x1;yy1=y1;xx2=x2;yy2=y2;
     RECTORDER(xx1,yy1,xx2,yy2);
-    drawtemprect(gctiled,NOW, xx1,yy1,xx2,yy2);
+    drawtemprect(xctx->gctiled,NOW, xx1,yy1,xx2,yy2);
     x2=xctx->mousex_snap;y2=xctx->mousey_snap;
 
 
@@ -1789,10 +1641,10 @@ void new_wire(int what, double mx_snap, double my_snap)
      if(manhattan_lines==1) {
        xx1=x1;yy1=y1;xx2=x2;yy2=y2;
        ORDER(xx1,yy1,xx2,yy1);
-       drawtempline(gctiled, NOW, xx1,yy1,xx2,yy1);
+       drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy1);
        xx1=x1;yy1=y1;xx2=x2;yy2=y2;
        ORDER(xx2,yy1,xx2,yy2);
-       drawtempline(gctiled, NOW, xx2,yy1,xx2,yy2);
+       drawtempline(xctx->gctiled, NOW, xx2,yy1,xx2,yy2);
        restore_selection(x1, y1, x2, y2);
        x2 = mx_snap; y2 = my_snap;
        if(!(what & CLEAR)) {
@@ -1806,10 +1658,10 @@ void new_wire(int what, double mx_snap, double my_snap)
      } else if(manhattan_lines==2) {
        xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
        ORDER(xx1,yy1,xx1,yy2);
-       drawtempline(gctiled, NOW, xx1,yy1,xx1,yy2);
+       drawtempline(xctx->gctiled, NOW, xx1,yy1,xx1,yy2);
        xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
        ORDER(xx1,yy2,xx2,yy2);
-       drawtempline(gctiled, NOW, xx1,yy2,xx2,yy2);
+       drawtempline(xctx->gctiled, NOW, xx1,yy2,xx2,yy2);
        restore_selection(x1, y1, x2, y2);
        x2 = mx_snap; y2 = my_snap;
        if(!(what & CLEAR)) {
@@ -1823,7 +1675,7 @@ void new_wire(int what, double mx_snap, double my_snap)
      } else {
        xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
        ORDER(xx1,yy1,xx2,yy2);
-       drawtempline(gctiled, NOW, xx1,yy1,xx2,yy2);
+       drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy2);
        restore_selection(x1, y1, x2, y2);
        x2 = mx_snap; y2 = my_snap;
        if(!(what & CLEAR)) {
@@ -1897,7 +1749,7 @@ void new_arc(int what, double sweep)
     if(state==0) {
       x2 = xctx->mousex_snap;
       y2 = xctx->mousey_snap;
-      drawtempline(gctiled, NOW, xx1,yy1,xx2,yy2);
+      drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy2);
       state=1;
     } else if(state==1) {
       x3 = xctx->mousex_snap;
@@ -1915,7 +1767,7 @@ void new_arc(int what, double sweep)
   }
   if(what & RUBBER) {
     if(state==0) {
-      drawtempline(gctiled, NOW, xx1,yy1,xx2,yy2);
+      drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy2);
       xx2 = xctx->mousex_snap;
       yy2 = xctx->mousey_snap;
       xx1 = x1;yy1 = y1;
@@ -1925,7 +1777,7 @@ void new_arc(int what, double sweep)
     else if(state==1) {
       x3 = xctx->mousex_snap;
       y3 = xctx->mousey_snap;
-      if(r>0.) drawtemparc(gctiled, NOW, x, y, r, a, b);
+      if(r>0.) drawtemparc(xctx->gctiled, NOW, x, y, r, a, b);
       arc_3_points(x1, y1, x2, y2, x3, y3, &x, &y, &r, &a, &b);
       if(sweep_angle==360.) b=360.;
       if(r>0.) drawtemparc(gc[rectcolor], NOW, x, y, r, a, b);
@@ -1988,10 +1840,10 @@ void new_line(int what)
      if(manhattan_lines==1) {
        xx1=x1;yy1=y1;xx2=x2;yy2=y2;
        ORDER(xx1,yy1,xx2,yy1);
-       drawtempline(gctiled, NOW, xx1,yy1,xx2,yy1);
+       drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy1);
        xx1=x1;yy1=y1;xx2=x2;yy2=y2;
        ORDER(xx2,yy1,xx2,yy2);
-       drawtempline(gctiled, NOW, xx2,yy1,xx2,yy2);
+       drawtempline(xctx->gctiled, NOW, xx2,yy1,xx2,yy2);
        restore_selection(x1, y1, x2, y2);
        x2 = xctx->mousex_snap; y2 = xctx->mousey_snap;
        if(!(what & CLEAR)) {
@@ -2005,10 +1857,10 @@ void new_line(int what)
      } else if(manhattan_lines==2) {
        xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
        ORDER(xx1,yy1,xx1,yy2);
-       drawtempline(gctiled, NOW, xx1,yy1,xx1,yy2);
+       drawtempline(xctx->gctiled, NOW, xx1,yy1,xx1,yy2);
        xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
        ORDER(xx1,yy2,xx2,yy2);
-       drawtempline(gctiled, NOW, xx1,yy2,xx2,yy2);
+       drawtempline(xctx->gctiled, NOW, xx1,yy2,xx2,yy2);
        restore_selection(x1, y1, x2, y2);
        x2 = xctx->mousex_snap; y2 = xctx->mousey_snap;
        if(!(what & CLEAR)) {
@@ -2022,7 +1874,7 @@ void new_line(int what)
      } else {
        xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
        ORDER(xx1,yy1,xx2,yy2);
-       drawtempline(gctiled, NOW, xx1,yy1,xx2,yy2);
+       drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy2);
        restore_selection(x1, y1, x2, y2);
        x2 = xctx->mousex_snap; y2 = xctx->mousey_snap;
        if(!(what & CLEAR)) {
@@ -2064,7 +1916,7 @@ void new_rect(int what)
    {
     xx1=x1;yy1=y1;xx2=x2;yy2=y2;
     RECTORDER(xx1,yy1,xx2,yy2);
-    drawtemprect(gctiled,NOW, xx1,yy1,xx2,yy2);
+    drawtemprect(xctx->gctiled,NOW, xx1,yy1,xx2,yy2);
     x2=xctx->mousex_snap;y2=xctx->mousey_snap;
     xx1=x1;yy1=y1;xx2=x2;yy2=y2;
     RECTORDER(xx1,yy1,xx2,yy2);
@@ -2102,7 +1954,7 @@ void new_polygon(int what)
      /* closed poly */
      if(what & END) {
        /* delete last rubber */
-       drawtemppolygon(gctiled, NOW, x, y, points+1);
+       drawtemppolygon(xctx->gctiled, NOW, x, y, points+1);
        x[points] = x[0];
        y[points] = y[0];
      /* add point */
@@ -2121,7 +1973,7 @@ void new_polygon(int what)
         /* closed poly end by clicking on first point */
         ((what & ADD) && x[points-1] == x[0] && y[points-1] == y[0]) ) {
      push_undo();
-     drawtemppolygon(gctiled, NOW, x, y, points+1);
+     drawtemppolygon(xctx->gctiled, NOW, x, y, points+1);
      store_poly(-1, x, y, points, rectcolor, 0, NULL);
      /* fprintf(errfp, "new_poly: finish: points=%d\n", points); */
      drawtemppolygon(gc[rectcolor], NOW, x, y, points);
@@ -2134,7 +1986,7 @@ void new_polygon(int what)
    if(what & RUBBER)
    {
      /* fprintf(errfp, "new_poly: RUBBER\n"); */
-     drawtemppolygon(gctiled, NOW, x, y, points+1);
+     drawtemppolygon(xctx->gctiled, NOW, x, y, points+1);
      y[points] = xctx->mousey_snap;
      x[points] = xctx->mousex_snap;
      drawtemppolygon(gc[rectcolor], NOW, x, y, points+1);
@@ -2159,8 +2011,8 @@ int text_bbox(const char *str, double xscale, double yscale,
   /*  if(size*xctx->mooz>800.) { */
   /*    return 0; */
   /*  } */
-  cairo_set_font_size (cairo_ctx, size*xctx->mooz);
-  cairo_font_extents(cairo_ctx, &fext);
+  cairo_set_font_size (xctx->cairo_ctx, size*xctx->mooz);
+  cairo_font_extents(xctx->cairo_ctx, &fext);
 
   ww=0.; hh=1.;
   c=0;
@@ -2173,7 +2025,7 @@ int text_bbox(const char *str, double xscale, double yscale,
       hh++;
       cairo_lines++;
       if(str_ptr[0]!='\0') {
-        cairo_text_extents(cairo_ctx, str_ptr, &ext);
+        cairo_text_extents(xctx->cairo_ctx, str_ptr, &ext);
         maxw = ext.x_advance > ext.width ? ext.x_advance : ext.width;
         if(maxw > ww) ww= maxw;
       }
@@ -2184,7 +2036,7 @@ int text_bbox(const char *str, double xscale, double yscale,
     c++;
   }
   if(str_ptr && str_ptr[0]!='\0') {
-    cairo_text_extents(cairo_ctx, str_ptr, &ext);
+    cairo_text_extents(xctx->cairo_ctx, str_ptr, &ext);
     maxw = ext.x_advance > ext.width ? ext.x_advance : ext.width;
     if(maxw > ww) ww= maxw;
   }
@@ -2352,9 +2204,9 @@ void place_text(int draw_text, double mx, double my)
     slant = CAIRO_FONT_SLANT_NORMAL;
     if(t->flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
     if(t->flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
-    cairo_save(cairo_ctx);
+    cairo_save(xctx->cairo_ctx);
     cairo_save(xctx->cairo_save_ctx);
-    cairo_select_font_face (cairo_ctx, textfont, slant, weight);
+    cairo_select_font_face (xctx->cairo_ctx, textfont, slant, weight);
     cairo_select_font_face (xctx->cairo_save_ctx, textfont, slant, weight);
   }
   #endif
@@ -2366,7 +2218,7 @@ void place_text(int draw_text, double mx, double my)
   draw_window = save_draw;
   #ifdef HAS_CAIRO
   if((textfont && textfont[0]) || t->flags) {
-    cairo_restore(cairo_ctx);
+    cairo_restore(xctx->cairo_ctx);
     cairo_restore(xctx->cairo_save_ctx);
   }
   #endif
@@ -2412,7 +2264,7 @@ void pan(int what)
  {
     xx1=xpan;yy1=ypan;xx2=xpan2;yy2=ypan2;
     ORDER(xx1,yy1,xx2,yy2);
-    drawtempline(gctiled, NOW, xx1,yy1,xx2,yy2);
+    drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy2);
     xpan2=xctx->mousex_snap;ypan2=xctx->mousey_snap;
     xx1=xpan;yy1=ypan;xx2=xpan2;yy2=ypan2;
     ORDER(xx1,yy1,xx2,yy2);
@@ -2447,7 +2299,7 @@ void select_rect(int what, int select)
     }
     xx1=xr;xx2=xr2;yy1=yr;yy2=yr2;
     RECTORDER(xx1,yy1,xx2,yy2);
-    drawtemprect(gctiled,NOW, xx1,yy1,xx2,yy2);
+    drawtemprect(xctx->gctiled,NOW, xx1,yy1,xx2,yy2);
     xr2=xctx->mousex_snap;yr2=xctx->mousey_snap;
 
     /*  20171026 update unselected objects while dragging */
@@ -2486,7 +2338,7 @@ void select_rect(int what, int select)
  else if(what & END)
  {
     RECTORDER(xr,yr,xr2,yr2);
-    drawtemprect(gctiled, NOW, xr,yr,xr2,yr2);
+    drawtemprect(xctx->gctiled, NOW, xr,yr,xr2,yr2);
     /*  draw_selection(gc[SELLAYER], 0); */
     select_inside(xr,yr,xr2,yr2, sel);
 

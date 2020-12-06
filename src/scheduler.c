@@ -851,7 +851,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      printf("modified=%d\n", xctx->modified);
      printf("color_ps=%d\n", color_ps);
      printf("a3page=%d\n", a3page);
-     printf("hilight_nets=%d\n", hilight_nets);
+     printf("xctx->hilight_nets=%d\n", xctx->hilight_nets);
      printf("need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr);
      printf("******* end global variables:*******\n");
     }
@@ -1924,9 +1924,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!strcmp(argv[2],"cairo_font_name")) {
         if( strlen(argv[3]) < sizeof(cairo_font_name) ) {
           my_strncpy(cairo_font_name, argv[3], S(cairo_font_name));
-          cairo_select_font_face(cairo_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-          cairo_select_font_face(xctx->cairo_save_ctx, cairo_font_name, 
-              CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
         }
       } else
       #endif
@@ -2210,7 +2207,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   else if(argv[1][0] == 't') {   
     if(!strcmp(argv[1],"test"))
     {
-     /*XSetWMHints(display, topwindow, hints_ptr); */
+
     }
    
     else if(!strcmp(argv[1],"toggle_colorscheme"))

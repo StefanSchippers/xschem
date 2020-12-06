@@ -129,7 +129,7 @@ int callback(int event, int mx, int my, KeySym key,
      if(event != MotionNotify) 
        fprintf(errfp, "callback(): reentrant call of callback(), xctx->semaphore=%d\n", xctx->semaphore);
    /* if(event==Expose) {
-    *   XCopyArea(display, xctx->save_pixmap, xctx->window, gctiled, mx,my,button,aux,mx,my);
+    *   XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, mx,my,button,aux,mx,my);
     *
     * }
     */
@@ -168,7 +168,7 @@ int callback(int event, int mx, int my, KeySym key,
     break;
 
   case Expose:
-    XCopyArea(display, xctx->save_pixmap, xctx->window, gctiled, mx,my,button,aux,mx,my);
+    XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, mx,my,button,aux,mx,my);
     {
       XRectangle xr[1];
       xr[0].x=mx;
@@ -196,7 +196,7 @@ int callback(int event, int mx, int my, KeySym key,
         (xctx->ui_state & STARTCOPY) || (xctx->ui_state & STARTRECT) ||
         (xctx->ui_state & STARTPOLYGON) || (xctx->ui_state & STARTPAN2) ||
         (xctx->ui_state & STARTPAN) || (xctx->ui_state & STARTSELECT)) {
-      XCopyArea(display, xctx->save_pixmap, xctx->window, gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+      XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
 #endif
@@ -205,7 +205,7 @@ int callback(int event, int mx, int my, KeySym key,
       #ifdef TURBOX_FIX
       /* fix Exceed TurboX bugs when drawing with pixmap tiled fill pattern */
       /* *NOT* a solution but at least makes the program useable. 20171130 */
-      XSetClipRectangles(display, gctiled, 0,0, xctx->xrect, 1, Unsorted);
+      XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
       #endif
       my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.16g h=%.16g",
         xctx->mousex_snap, xctx->mousey_snap,
@@ -1632,7 +1632,7 @@ int callback(int event, int mx, int my, KeySym key,
        if( !(state & ShiftMask) && !(state & Mod1Mask) ) {
          unselect_all();
 #ifndef __unix__
-         XCopyArea(display, xctx->save_pixmap, xctx->window, gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+         XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
            xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
 #endif
        }
@@ -1646,7 +1646,7 @@ int callback(int event, int mx, int my, KeySym key,
        }
        if( !(state & ShiftMask) )  {
          xRect boundbox;
-         if(auto_hilight && hilight_nets && sel == 0 ) { /* 20160413 20160503 */
+         if(auto_hilight && xctx->hilight_nets && sel == 0 ) { /* 20160413 20160503 */
            if(!prev_last_sel) {
              int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
              if(!big) calc_drawing_bbox(&boundbox, 2);

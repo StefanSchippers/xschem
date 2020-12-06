@@ -221,7 +221,7 @@ void draw_selection(GC g, int interruptable)
        rx1+deltax, ry1+deltay,
        xctx->text[n].xscale, xctx->text[n].yscale);
      #ifdef HAS_CAIRO
-     if(customfont) cairo_restore(cairo_ctx);
+     if(customfont) cairo_restore(xctx->cairo_ctx);
      #endif
 
      break;
@@ -532,7 +532,7 @@ void copy_objects(int what)
  if(what & ABORT)                               /* draw objects while moving */
  {
   char *str = NULL; /* 20161122 overflow safe */
-  draw_selection(gctiled,0);
+  draw_selection(xctx->gctiled,0);
   move_rot=move_flip=deltax=deltay=0;
   xctx->ui_state&=~STARTCOPY;
   my_strdup(225, &str, user_conf_dir);
@@ -544,7 +544,7 @@ void copy_objects(int what)
  if(what & RUBBER)                              /* draw objects while moving */
  {
   x2=xctx->mousex_snap;y_2=xctx->mousey_snap;
-  draw_selection(gctiled,0);
+  draw_selection(xctx->gctiled,0);
   deltax = x2-x1; deltay = y_2 - y_1;
   draw_selection(gc[SELLAYER],1);
  }
@@ -552,13 +552,13 @@ void copy_objects(int what)
   rotatelocal=1;
  }
  if(what & ROTATE) {
-  draw_selection(gctiled,0);
+  draw_selection(xctx->gctiled,0);
   move_rot= (move_rot+1) & 0x3;
   update_symbol_bboxes(move_rot, move_flip);
  }
  if(what & FLIP)
  {
-  draw_selection(gctiled,0);
+  draw_selection(xctx->gctiled,0);
   move_flip = !move_flip;
   update_symbol_bboxes(move_rot, move_flip);
  }
@@ -571,7 +571,7 @@ void copy_objects(int what)
   update_symbol_bboxes(0, 0);
   save_draw = draw_window;
   draw_window=1; /* temporarily re-enable draw to window together with pixmap */
-  draw_selection(gctiled,0);
+  draw_selection(xctx->gctiled,0);
   bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   newpropcnt=0;
   set_modify(1); push_undo(); /* 20150327 push_undo */
@@ -789,7 +789,7 @@ void copy_objects(int what)
         xctx->text[n].x0, xctx->text[n].y0,
         &rx1,&ry1, &rx2,&ry2);
       #ifdef HAS_CAIRO
-      if(customfont) cairo_restore(cairo_ctx);
+      if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif
       bbox(ADD, rx1, ry1, rx2, ry2 );
       */
@@ -849,9 +849,9 @@ void copy_objects(int what)
         slant = CAIRO_FONT_SLANT_NORMAL;
         if(flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
         if(flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
-        cairo_save(cairo_ctx);
+        cairo_save(xctx->cairo_ctx);
         cairo_save(xctx->cairo_save_ctx);
-        cairo_select_font_face (cairo_ctx, textfont, slant, weight);
+        cairo_select_font_face (xctx->cairo_ctx, textfont, slant, weight);
         cairo_select_font_face (xctx->cairo_save_ctx, textfont, slant, weight);
       }
       #endif
@@ -866,7 +866,7 @@ void copy_objects(int what)
       #endif
       #ifdef HAS_CAIRO
       if( (textfont && textfont[0]) || xctx->text[xctx->texts].flags) {
-        cairo_restore(cairo_ctx);
+        cairo_restore(xctx->cairo_ctx);
         cairo_restore(xctx->cairo_save_ctx);
       }
       #endif
@@ -1008,7 +1008,7 @@ void move_objects(int what, int merge, double dx, double dy)
  }
  if(what & ABORT)                               /* draw objects while moving */
  {
-  draw_selection(gctiled,0);
+  draw_selection(xctx->gctiled,0);
   move_rot=move_flip=deltax=deltay=0;
   xctx->ui_state &= ~STARTMOVE;
   xctx->ui_state &= ~PLACE_SYMBOL;
@@ -1017,7 +1017,7 @@ void move_objects(int what, int merge, double dx, double dy)
  if(what & RUBBER)                              /* abort operation */
  {
   x2=xctx->mousex_snap;y_2=xctx->mousey_snap;
-  draw_selection(gctiled,0);
+  draw_selection(xctx->gctiled,0);
   deltax = x2-x1; deltay = y_2 - y_1;
   draw_selection(gc[SELLAYER],1);
  }
@@ -1025,13 +1025,13 @@ void move_objects(int what, int merge, double dx, double dy)
   rotatelocal=1;
  }
  if(what & ROTATE) {
-  draw_selection(gctiled,0);
+  draw_selection(xctx->gctiled,0);
   move_rot= (move_rot+1) & 0x3;
   update_symbol_bboxes(move_rot, move_flip);
  }
  if(what & FLIP)
  {
-  draw_selection(gctiled,0);
+  draw_selection(xctx->gctiled,0);
   move_flip = !move_flip;
   update_symbol_bboxes(move_rot, move_flip);
  }
@@ -1042,7 +1042,7 @@ void move_objects(int what, int merge, double dx, double dy)
 
   save_draw = draw_window;
   draw_window=1; /* temporarily re-enable draw to xctx->window together with pixmap */
-  draw_selection(gctiled,0);
+  draw_selection(xctx->gctiled,0);
   bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   set_modify(1);
   if( !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL)) ) {
@@ -1354,7 +1354,7 @@ void move_objects(int what, int merge, double dx, double dy)
          xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
          xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0, &rx1,&ry1, &rx2,&ry2);
       #ifdef HAS_CAIRO
-      if(customfont) cairo_restore(cairo_ctx);
+      if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif
       bbox(ADD, rx1, ry1, rx2, ry2 );
 
@@ -1383,9 +1383,9 @@ void move_objects(int what, int merge, double dx, double dy)
         slant = CAIRO_FONT_SLANT_NORMAL;
         if(xctx->text[n].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
         if(xctx->text[n].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
-        cairo_save(cairo_ctx);
+        cairo_save(xctx->cairo_ctx);
         cairo_save(xctx->cairo_save_ctx);
-        cairo_select_font_face (cairo_ctx, textfont, slant, weight);
+        cairo_select_font_face (xctx->cairo_ctx, textfont, slant, weight);
         cairo_select_font_face (xctx->cairo_save_ctx, textfont, slant, weight);
       }
       #endif
@@ -1399,7 +1399,7 @@ void move_objects(int what, int merge, double dx, double dy)
       #endif
       #ifdef HAS_CAIRO
       if( (textfont && textfont[0]) || xctx->text[n].flags) {
-        cairo_restore(cairo_ctx);
+        cairo_restore(xctx->cairo_ctx);
         cairo_restore(xctx->cairo_save_ctx);
       }
       #endif

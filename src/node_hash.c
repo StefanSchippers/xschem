@@ -22,8 +22,6 @@
 
 #include "xschem.h"
 
-static struct node_hashentry *node_table[HASHSIZE];
-
 static unsigned int nh_hash(const char *tok)
 {
   unsigned int hash = 0;
@@ -37,7 +35,7 @@ static unsigned int nh_hash(const char *tok)
 
 struct node_hashentry **get_node_table_ptr(void)
 {
- return node_table;
+ return xctx->node_table;
 }
 
 void print_vhdl_signals(FILE *fd)
@@ -50,7 +48,7 @@ void print_vhdl_signals(FILE *fd)
  found=0;
  for(i=0;i<HASHSIZE;i++)
  {
-  ptr = node_table[i];
+  ptr = xctx->node_table[i];
   while(ptr)
   {
    if(strstr(ptr->token, ".")) {
@@ -125,7 +123,7 @@ void print_verilog_signals(FILE *fd)
  found=0;
  for(i=0;i<HASHSIZE;i++)
  {
-  ptr = node_table[i];
+  ptr = xctx->node_table[i];
   while(ptr)
   {
    if(ptr->d.port == 0 )
@@ -252,8 +250,8 @@ struct node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
  d.port=port;
  hashcode=nh_hash(token);
  index=hashcode % HASHSIZE;
- entry=node_table[index];
- preventry=&node_table[index];
+ entry=xctx->node_table[index];
+ preventry=&xctx->node_table[index];
  while(1)
  {
   if( !entry )                  /* empty slot */
@@ -331,43 +329,43 @@ void traverse_node_hash()
  if(!show_erc)return;
  for(i=0;i<HASHSIZE;i++)
  {
-  entry = node_table[i];
+  entry = xctx->node_table[i];
   while(entry)
   {
    if( !record_global_node(3, NULL, entry->token)) {
      if(entry->d.out + entry->d.inout + entry->d.in == 1)
      {
        my_snprintf(str, S(str), "open net: %s", entry->token);
-       if(!netlist_count) bus_hilight_lookup(entry->token, hilight_color, XINSERT);
-       if(incr_hilight) hilight_color++;
+       if(!netlist_count) bus_hilight_lookup(entry->token, xctx->hilight_color, XINSERT);
+       if(incr_hilight) xctx->hilight_color++;
        statusmsg(str,2);
      }
      else if(entry->d.out ==0  && entry->d.inout == 0)
      {
        my_snprintf(str, S(str), "undriven node: %s", entry->token);
-       if(!netlist_count) bus_hilight_lookup(entry->token, hilight_color, XINSERT);
-       if(incr_hilight) hilight_color++;
+       if(!netlist_count) bus_hilight_lookup(entry->token, xctx->hilight_color, XINSERT);
+       if(incr_hilight) xctx->hilight_color++;
        statusmsg(str,2);
      }
      else if(entry->d.out >=2 && entry->d.port>=0)  /*  era d.port>=2   03102001 */
      {
        my_snprintf(str, S(str), "shorted output node: %s", entry->token);
-       if(!netlist_count) bus_hilight_lookup(entry->token, hilight_color, XINSERT);
-       if(incr_hilight) hilight_color++;
+       if(!netlist_count) bus_hilight_lookup(entry->token, xctx->hilight_color, XINSERT);
+       if(incr_hilight) xctx->hilight_color++;
        statusmsg(str,2);
      }
      else if(entry->d.in ==0 && entry->d.inout == 0)
      {
        my_snprintf(str, S(str), "node: %s goes nowhere", entry->token);
-       if(!netlist_count) bus_hilight_lookup(entry->token, hilight_color, XINSERT);
-       if(incr_hilight) hilight_color++;
+       if(!netlist_count) bus_hilight_lookup(entry->token, xctx->hilight_color, XINSERT);
+       if(incr_hilight) xctx->hilight_color++;
        statusmsg(str,2);
      }
      else if(entry->d.out >=2 && entry->d.inout == 0 && entry->d.port>=0)  /*  era d.port>=2   03102001 */
      {
        my_snprintf(str, S(str), "shorted output node: %s", entry->token);
-       if(!netlist_count) bus_hilight_lookup(entry->token, hilight_color, XINSERT);
-       if(incr_hilight) hilight_color++;
+       if(!netlist_count) bus_hilight_lookup(entry->token, xctx->hilight_color, XINSERT);
+       if(incr_hilight) xctx->hilight_color++;
        statusmsg(str,2);
      }
    }
@@ -379,14 +377,11 @@ void traverse_node_hash()
  }
 }
 
-static  int collisions, max_collisions=0, n_elements=0;
-
 static struct node_hashentry *free_hash_entry(struct node_hashentry *entry)
 {
   struct node_hashentry *tmp;
 
   while(entry) {
-    n_elements++; collisions++;
     tmp = entry->next;
     my_free(861, &entry->token);
     my_free(862, &entry->verilog_type);
@@ -405,16 +400,9 @@ void free_node_hash(void) /* remove the whole hash table  */
  int i;
 
  dbg(2, "free_node_hash(): removing hash table\n");
- n_elements=0;
  for(i=0;i<HASHSIZE;i++)
  {
-  collisions=0;
-  node_table[i] = free_hash_entry( node_table[i] );
-  if(collisions>max_collisions) max_collisions=collisions;
+  xctx->node_table[i] = free_hash_entry( xctx->node_table[i] );
  }
- dbg(1, "# free_node_hash(): max_collisions=%d n_elements=%d hashsize=%d\n",
-                   max_collisions, n_elements, HASHSIZE);
- max_collisions=0;
-
 }
 

@@ -534,13 +534,25 @@ typedef struct {
   Pixmap save_pixmap;
   XRectangle xrect[1];
   #ifdef HAS_CAIRO
-  cairo_surface_t *save_sfc;
-  cairo_t *cairo_save_ctx;
+  cairo_surface_t *cairo_sfc, *cairo_save_sfc;
+  cairo_t *cairo_ctx, *cairo_save_ctx;
+  
   #endif
+  GC gctiled;
   char *undo_dirname;
   int cur_undo_ptr;
   int tail_undo_ptr;
   int head_undo_ptr;
+  struct node_hashentry *node_table[HASHSIZE];
+  struct hilight_hashentry *hilight_table[HASHSIZE];
+  int *inst_color;
+  int hilight_nets;
+  int hilight_color;
+  /* get_unnamed_node() */
+  int new_node;
+  int *node_mult;
+  int node_mult_size;
+
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
@@ -624,7 +636,6 @@ extern int cadlayers;
 extern int *active_layer;
 extern int *enable_layer;
 extern int n_active_layers;
-extern int hilight_color;
 extern int do_print;
 extern int has_x;
 extern int no_draw;
@@ -694,7 +705,6 @@ extern int spiceprefix;
 extern char hiersep[20];
 extern int quit;
 extern int show_erc;
-extern int hilight_nets;
 extern int color_ps;
 extern int only_probes;
 extern int pending_fullzoom;
@@ -737,9 +747,6 @@ extern XColor xcolor_array[];
 extern Visual *visual;
 #ifdef HAS_CAIRO
 extern XRenderPictFormat *format;
-extern cairo_surface_t *sfc;
-extern cairo_t *cairo_ctx;
-
 #if HAS_XCB==1
 extern xcb_connection_t *xcbconn;
 extern xcb_screen_t *screen_xcb;
@@ -820,6 +827,7 @@ extern unsigned short select_object(double mx,double my, unsigned short sel_mode
 extern void unselect_all(void);
 extern void select_inside(double x1,double y1, double x2, double y2, int sel);
 extern void xwin_exit(void);
+extern void resetcairo(int create, int clear, int force_or_resize);
 extern int Tcl_AppInit(Tcl_Interp *interp);
 extern int source_tcl_file(char *s);
 extern int callback(int event, int mx, int my, KeySym key,

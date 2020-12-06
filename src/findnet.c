@@ -290,7 +290,7 @@ void find_closest_text(double mx,double my)
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2);
    #ifdef HAS_CAIRO
-   if(customfont) cairo_restore(cairo_ctx);
+   if(customfont) cairo_restore(xctx->cairo_ctx);
    #endif
    if(POINTINSIDE(mx,my,xx1,yy1, xx2, yy2))
    {
