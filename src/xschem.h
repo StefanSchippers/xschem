@@ -552,6 +552,32 @@ typedef struct {
   int new_node;
   int *node_mult;
   int node_mult_size;
+  /* callback.c */
+  int mx_save, my_save, last_command;
+  char sel_or_clip[PATH_MAX];
+  /* move.c */
+  struct int_hashentry *node_redraw_table[HASHSIZE];
+  double rx1, rx2, ry1, ry2;
+  short move_rot;
+  short move_flip;
+  double x1, y_1, x2, y_2, deltax, deltay;
+  int movelastsel;
+  short rotatelocal;
+  /* new_wire, new_line, new_rect*/
+  double nl_x1,nl_y1,nl_x2,nl_y2;
+  double nl_xx1,nl_yy1,nl_xx2,nl_yy2;
+  /* new_arc */
+  double nl_x, nl_y, nl_r, nl_a, nl_b;
+  double nl_x3, nl_y3;
+  int nl_state;
+  double nl_sweep_angle;
+  /* new_polygon */
+  double *nl_polyx, *nl_polyy;
+  int nl_points, nl_maxpoints;
+  /* select_rect */
+  double nl_xr, nl_yr, nl_xr2, nl_yr2;
+  int nl_sel, nl_sem;
+
 
 } Xschem_ctx;
 

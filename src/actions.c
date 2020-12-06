@@ -1414,48 +1414,45 @@ void view_unzoom(double z)
 
 void zoom_box(int what)
 {
-  static double x1,y1,x2,y2;
-  static double xx1,yy1,xx2,yy2;
-
   if( (what & START) )
   {
-    x1=x2=xctx->mousex_snap;y1=y2=xctx->mousey_snap;
+    xctx->nl_x1=xctx->nl_x2=xctx->mousex_snap;xctx->nl_y1=xctx->nl_y2=xctx->mousey_snap;
     xctx->ui_state |= STARTZOOM;
   }
   if( what & END)
   {
     xctx->ui_state &= ~STARTZOOM;
-    RECTORDER(x1,y1,x2,y2);
-    drawtemprect(xctx->gctiled, NOW, xx1,yy1,xx2,yy2);
-    xctx->xorigin=-x1;xctx->yorigin=-y1;
-    xctx->zoom=(x2-x1)/(xctx->areaw-4*INT_WIDTH(xctx->lw));
-    yy1=(y2-y1)/(xctx->areah-4*INT_WIDTH(xctx->lw));
-    if(yy1>xctx->zoom) xctx->zoom=yy1;
+    RECTORDER(xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
+    drawtemprect(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    xctx->xorigin=-xctx->nl_x1;xctx->yorigin=-xctx->nl_y1;
+    xctx->zoom=(xctx->nl_x2-xctx->nl_x1)/(xctx->areaw-4*INT_WIDTH(xctx->lw));
+    xctx->nl_yy1=(xctx->nl_y2-xctx->nl_y1)/(xctx->areah-4*INT_WIDTH(xctx->lw));
+    if(xctx->nl_yy1>xctx->zoom) xctx->zoom=xctx->nl_yy1;
     xctx->mooz=1/xctx->zoom;
     change_linewidth(-1.);
     draw();
     dbg(1, "zoom_box(): coord: %.16g %.16g %.16g %.16g zoom=%.16g\n",
-      x1,y1,xctx->mousex_snap, xctx->mousey_snap,xctx->zoom);
+      xctx->nl_x1,xctx->nl_y1,xctx->mousex_snap, xctx->mousey_snap,xctx->zoom);
   }
   if(what & RUBBER)
   {
-    xx1=x1;yy1=y1;xx2=x2;yy2=y2;
-    RECTORDER(xx1,yy1,xx2,yy2);
-    drawtemprect(xctx->gctiled,NOW, xx1,yy1,xx2,yy2);
-    x2=xctx->mousex_snap;y2=xctx->mousey_snap;
+    xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+    RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    drawtemprect(xctx->gctiled,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    xctx->nl_x2=xctx->mousex_snap;xctx->nl_y2=xctx->mousey_snap;
 
 
     /*  20171211 update selected objects while dragging */
     rebuild_selected_array();
     bbox(START,0.0, 0.0, 0.0, 0.0);
-    bbox(ADD, xx1, yy1, xx2, yy2);
+    bbox(ADD, xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
     bbox(SET,0.0, 0.0, 0.0, 0.0);
     draw_selection(gc[SELLAYER], 0);
     bbox(END,0.0, 0.0, 0.0, 0.0);
 
-    xx1=x1;yy1=y1;xx2=x2;yy2=y2;
-    RECTORDER(xx1,yy1,xx2,yy2);
-    drawtemprect(gc[SELLAYER], NOW, xx1,yy1,xx2,yy2);
+    xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+    RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    drawtemprect(gc[SELLAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
   }
 }
 
@@ -1546,145 +1543,162 @@ void restore_selection(double x1, double y1, double x2, double y2)
 
 void new_wire(int what, double mx_snap, double my_snap)
 {
- static double x1,y1,x2,y2;
- static double xx1,yy1,xx2,yy2;
+  if( (what & PLACE) ) {
+    if( (xctx->ui_state & STARTWIRE) && (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) ) {
+      push_undo();
+      if(manhattan_lines==1) {
+        if(xctx->nl_xx2!=xctx->nl_xx1) {
+          xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+          xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+          ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+          storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1,WIRE,0,0,NULL);
+          drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1, 0);
+        }
+        if(xctx->nl_yy2!=xctx->nl_yy1) {
+          xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1; 
+          xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+          ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+          storeobject(-1, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,WIRE,0,0,NULL);
+          drawline(WIRELAYER,NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0);
+        }
+      } else if(manhattan_lines==2) {
+        if(xctx->nl_yy2!=xctx->nl_yy1) {
+          xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+          xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+          ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+          storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2,WIRE,0,0,NULL);
+          drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2, 0);
+        }
+        if(xctx->nl_xx2!=xctx->nl_xx1) {
+          xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;
+          xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+          ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+          storeobject(-1, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2,WIRE,0,0,NULL);
+          drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2, 0);
+        }
+      } else {
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,WIRE,0,0,NULL);
+        drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0);
+      }
+      hash_wire(XINSERT, xctx->wires-1, 1);
+      /* xctx->prep_hash_wires = 0; */
+      xctx->prep_hi_structs = 0;
 
-   if( (what & PLACE) ) {
-     if( (xctx->ui_state & STARTWIRE) && (x1!=x2 || y1!=y2) ) {
-       push_undo();
-       if(manhattan_lines==1) {
-         if(xx2!=xx1) {
-           xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-           ORDER(xx1,yy1,xx2,yy1);
-           storeobject(-1, xx1,yy1,xx2,yy1,WIRE,0,0,NULL);
-           drawline(WIRELAYER,NOW, xx1,yy1,xx2,yy1, 0);
-         }
-         if(yy2!=yy1) {
-           xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-           ORDER(xx2,yy1,xx2,yy2);
-           storeobject(-1, xx2,yy1,xx2,yy2,WIRE,0,0,NULL);
-           drawline(WIRELAYER,NOW, xx2,yy1,xx2,yy2, 0);
-         }
-       } else if(manhattan_lines==2) {
-         if(yy2!=yy1) {
-           xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-           ORDER(xx1,yy1,xx1,yy2);
-           storeobject(-1, xx1,yy1,xx1,yy2,WIRE,0,0,NULL);
-           drawline(WIRELAYER,NOW, xx1,yy1,xx1,yy2, 0);
-         }
-         if(xx2!=xx1) {
-           xx1=x1;yy1=y1;xx2=x2;yy2=y2;
-           ORDER(xx1,yy2,xx2,yy2);
-           storeobject(-1, xx1,yy2,xx2,yy2,WIRE,0,0,NULL);
-           drawline(WIRELAYER,NOW, xx1,yy2,xx2,yy2, 0);
-         }
-       } else {
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy1,xx2,yy2);
-         storeobject(-1, xx1,yy1,xx2,yy2,WIRE,0,0,NULL);
-         drawline(WIRELAYER,NOW, xx1,yy1,xx2,yy2, 0);
-       }
-       hash_wire(XINSERT, xctx->wires-1, 1);
-       /* xctx->prep_hash_wires = 0; */
-       xctx->prep_hi_structs = 0;
-
-       update_conn_cues(1,1);
-       if(show_pin_net_names) {
-         prepare_netlist_structs(0);
-         bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
-         find_inst_to_be_redrawn(xctx->wire[xctx->wires-1].node);
-         find_inst_hash_clear();
-         bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-         draw();
-         bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
-       }
-       draw_hilight_net(1);/* for updating connection bubbles on hilight nets */
-     }
-     if(! (what &END)) {
-       x1=mx_snap;
-       y1=my_snap;
-       x2=xctx->mousex_snap;
-       y2=xctx->mousey_snap;
-       xx1=x1;
-       yy1=y1;
-       xx2=xctx->mousex_snap;
-       yy2=xctx->mousey_snap;
-       if(manhattan_lines==1) {
-         x2 = mx_snap; y2 = my_snap;
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy1,xx2,yy1);
-         drawtempline(gc[WIRELAYER], NOW, xx1,yy1,xx2,yy1);
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx2,yy1,xx2,yy2);
-         drawtempline(gc[WIRELAYER], NOW, xx2,yy1,xx2,yy2);
-       } else if(manhattan_lines==2) {
-         x2 = mx_snap; y2 = my_snap;
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy1,xx1,yy2);
-         drawtempline(gc[WIRELAYER], NOW, xx1,yy1,xx1,yy2);
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy2,xx2,yy2);
-         drawtempline(gc[WIRELAYER], NOW, xx1,yy2,xx2,yy2);
-       } else {
-         x2 = mx_snap; y2 = my_snap;
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy1,xx2,yy2);
-         drawtempline(gc[WIRELAYER], NOW, xx1,yy1,xx2,yy2);
-       }
-     }
-     xctx->ui_state |= STARTWIRE;
-   }
-   if( what & END) {
-     xctx->ui_state &= ~STARTWIRE;
-   }
-   if( (what & RUBBER)  ) {
-     if(manhattan_lines==1) {
-       xx1=x1;yy1=y1;xx2=x2;yy2=y2;
-       ORDER(xx1,yy1,xx2,yy1);
-       drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy1);
-       xx1=x1;yy1=y1;xx2=x2;yy2=y2;
-       ORDER(xx2,yy1,xx2,yy2);
-       drawtempline(xctx->gctiled, NOW, xx2,yy1,xx2,yy2);
-       restore_selection(x1, y1, x2, y2);
-       x2 = mx_snap; y2 = my_snap;
-       if(!(what & CLEAR)) {
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy1,xx2,yy1);
-         drawtempline(gc[WIRELAYER], NOW, xx1,yy1,xx2,yy1);
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx2,yy1,xx2,yy2);
-         drawtempline(gc[WIRELAYER], NOW, xx2,yy1,xx2,yy2);
-       }
-     } else if(manhattan_lines==2) {
-       xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-       ORDER(xx1,yy1,xx1,yy2);
-       drawtempline(xctx->gctiled, NOW, xx1,yy1,xx1,yy2);
-       xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-       ORDER(xx1,yy2,xx2,yy2);
-       drawtempline(xctx->gctiled, NOW, xx1,yy2,xx2,yy2);
-       restore_selection(x1, y1, x2, y2);
-       x2 = mx_snap; y2 = my_snap;
-       if(!(what & CLEAR)) {
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy1,xx1,yy2);
-         drawtempline(gc[WIRELAYER], NOW, xx1,yy1,xx1,yy2);
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy2,xx2,yy2);
-         drawtempline(gc[WIRELAYER], NOW, xx1,yy2,xx2,yy2);
-       }
-     } else {
-       xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-       ORDER(xx1,yy1,xx2,yy2);
-       drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy2);
-       restore_selection(x1, y1, x2, y2);
-       x2 = mx_snap; y2 = my_snap;
-       if(!(what & CLEAR)) {
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy1,xx2,yy2);
-         drawtempline(gc[WIRELAYER], NOW, xx1,yy1,xx2,yy2);
-       }
-     }
-   }
+      update_conn_cues(1,1);
+      if(show_pin_net_names) {
+        prepare_netlist_structs(0);
+        bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
+        find_inst_to_be_redrawn(xctx->wire[xctx->wires-1].node);
+        find_inst_hash_clear();
+        bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+        draw();
+        bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+      }
+      draw_hilight_net(1);/* for updating connection bubbles on hilight nets */
+    }
+    if(! (what &END)) {
+      xctx->nl_x1=mx_snap;
+      xctx->nl_y1=my_snap;
+      xctx->nl_x2=xctx->mousex_snap;
+      xctx->nl_y2=xctx->mousey_snap;
+      xctx->nl_xx1=xctx->nl_x1;
+      xctx->nl_yy1=xctx->nl_y1;
+      xctx->nl_xx2=xctx->mousex_snap;
+      xctx->nl_yy2=xctx->mousey_snap;
+      if(manhattan_lines==1) {
+        xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      } else if(manhattan_lines==2) {
+        xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+      } else {
+        xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      }
+    }
+    xctx->ui_state |= STARTWIRE;
+  }
+  if( what & END) {
+    xctx->ui_state &= ~STARTWIRE;
+  }
+  if( (what & RUBBER)  ) {
+    if(manhattan_lines==1) {
+      xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;
+      xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+      ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+      xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;
+      xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+      ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      drawtempline(xctx->gctiled, NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
+      xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
+      if(!(what & CLEAR)) {
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      }
+    } else if(manhattan_lines==2) {
+      xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+      xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+      ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+      xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+      xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+      ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+      restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
+      xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
+      if(!(what & CLEAR)) {
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+      }
+    } else {
+      xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+      xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+      ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
+      xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
+      if(!(what & CLEAR)) {
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      }
+    }
+  }
 }
 
 void change_layer()
@@ -1732,221 +1746,226 @@ void change_layer()
 
 void new_arc(int what, double sweep)
 {
-  static double x, y, r, a, b;
-  static double x1, y1, x2, y2, x3, y3;
-  static double xx1, yy1, xx2, yy2;
-  static int state;
-  static double sweep_angle;
   if(what & PLACE) {
-    state=0;
-    r = -1.;
-    sweep_angle=sweep;
-    xx1 = xx2 = x1 = x2 = x3 = xctx->mousex_snap;
-    yy1 = yy2 = y1 = y2 = y3 = xctx->mousey_snap;
+    xctx->nl_state=0;
+    xctx->nl_r = -1.;
+    xctx->nl_sweep_angle=sweep;
+    xctx->nl_xx1 = xctx->nl_xx2 = xctx->nl_x1 = xctx->nl_x2 = xctx->nl_x3 = xctx->mousex_snap;
+    xctx->nl_yy1 = xctx->nl_yy2 = xctx->nl_y1 = xctx->nl_y2 = xctx->nl_y3 = xctx->mousey_snap;
     xctx->ui_state |= STARTARC;
   }
   if(what & SET) {
-    if(state==0) {
-      x2 = xctx->mousex_snap;
-      y2 = xctx->mousey_snap;
-      drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy2);
-      state=1;
-    } else if(state==1) {
-      x3 = xctx->mousex_snap;
-      y3 = xctx->mousey_snap;
-      arc_3_points(x1, y1, x2, y2, x3, y3, &x, &y, &r, &a, &b);
-      if(sweep_angle==360.) b=360.;
-      if(r>0.) {
+    if(xctx->nl_state==0) {
+      xctx->nl_x2 = xctx->mousex_snap;
+      xctx->nl_y2 = xctx->mousey_snap;
+      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      xctx->nl_state=1;
+    } else if(xctx->nl_state==1) {
+      xctx->nl_x3 = xctx->mousex_snap;
+      xctx->nl_y3 = xctx->mousey_snap;
+      arc_3_points(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2,
+          xctx->nl_x3, xctx->nl_y3, &xctx->nl_x, &xctx->nl_y, &xctx->nl_r, &xctx->nl_a, &xctx->nl_b);
+      if(xctx->nl_sweep_angle==360.) xctx->nl_b=360.;
+      if(xctx->nl_r>0.) {
         push_undo();
-        drawarc(rectcolor, NOW, x, y, r, a, b, 0, 0);
-        store_arc(-1, x, y, r, a, b, rectcolor, 0, NULL);
+        drawarc(rectcolor, NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, 0, 0);
+        store_arc(-1, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, rectcolor, 0, NULL);
       }
       xctx->ui_state &= ~STARTARC;
-      state=0;
+      xctx->nl_state=0;
     }
   }
   if(what & RUBBER) {
-    if(state==0) {
-      drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy2);
-      xx2 = xctx->mousex_snap;
-      yy2 = xctx->mousey_snap;
-      xx1 = x1;yy1 = y1;
-      ORDER(xx1,yy1,xx2,yy2);
-      drawtempline(gc[SELLAYER], NOW, xx1,yy1,xx2,yy2);
+    if(xctx->nl_state==0) {
+      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      xctx->nl_xx2 = xctx->mousex_snap;
+      xctx->nl_yy2 = xctx->mousey_snap;
+      xctx->nl_xx1 = xctx->nl_x1;xctx->nl_yy1 = xctx->nl_y1;
+      ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      drawtempline(gc[SELLAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
     }
-    else if(state==1) {
-      x3 = xctx->mousex_snap;
-      y3 = xctx->mousey_snap;
-      if(r>0.) drawtemparc(xctx->gctiled, NOW, x, y, r, a, b);
-      arc_3_points(x1, y1, x2, y2, x3, y3, &x, &y, &r, &a, &b);
-      if(sweep_angle==360.) b=360.;
-      if(r>0.) drawtemparc(gc[rectcolor], NOW, x, y, r, a, b);
+    else if(xctx->nl_state==1) {
+      xctx->nl_x3 = xctx->mousex_snap;
+      xctx->nl_y3 = xctx->mousey_snap;
+      if(xctx->nl_r>0.) drawtemparc(xctx->gctiled, NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b);
+      arc_3_points(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2,
+          xctx->nl_x3, xctx->nl_y3, &xctx->nl_x, &xctx->nl_y, &xctx->nl_r, &xctx->nl_a, &xctx->nl_b);
+      if(xctx->nl_sweep_angle==360.) xctx->nl_b=360.;
+      if(xctx->nl_r>0.) drawtemparc(gc[rectcolor], NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b);
     }
   }
 }
+
 void new_line(int what)
 {
- static double x1,y1,x2,y2;
- static double xx1,yy1,xx2,yy2;
+  if( (what & PLACE) )
+  {
+    if( (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) && (xctx->ui_state & STARTLINE) )
+    {
+      push_undo();
+      if(manhattan_lines==1) {
+        if(xctx->nl_xx2!=xctx->nl_xx1) {
+          xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+          xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+          ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+          storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1,LINE,rectcolor,0,NULL);
+          drawline(rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1, 0);
+        }
+        if(xctx->nl_yy2!=xctx->nl_yy1) {
+          xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+          xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+          ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+          storeobject(-1, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,LINE,rectcolor,0,NULL);
+          drawline(rectcolor,NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0);
+        }
+      } else if(manhattan_lines==2) {
+        if(xctx->nl_yy2!=xctx->nl_yy1) {
+          xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+          xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+          ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+          storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2,LINE,rectcolor,0,NULL);
+          drawline(rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2, 0);
+        }
+        if(xctx->nl_xx2!=xctx->nl_xx1) {
+          xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;
+          xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+          ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+          storeobject(-1, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2,LINE,rectcolor,0,NULL);
+          drawline(rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2, 0);
+        }
+      } else {
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,LINE,rectcolor,0,NULL);
+        drawline(rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0);
+      }
+    }
+    xctx->nl_x1=xctx->nl_x2=xctx->mousex_snap;xctx->nl_y1=xctx->nl_y2=xctx->mousey_snap;
+    xctx->ui_state |= STARTLINE;
+  }
+  if( what & END)
+  {
+    xctx->ui_state &= ~STARTLINE;
+  }
 
-   if( (what & PLACE) )
-   {
-     if( (x1!=x2 || y1!=y2) && (xctx->ui_state & STARTLINE) )
-     {
-       push_undo();
-       if(manhattan_lines==1) {
-         if(xx2!=xx1) {
-           xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-           ORDER(xx1,yy1,xx2,yy1);
-           storeobject(-1, xx1,yy1,xx2,yy1,LINE,rectcolor,0,NULL);
-           drawline(rectcolor,NOW, xx1,yy1,xx2,yy1, 0);
-         }
-         if(yy2!=yy1) {
-           xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-           ORDER(xx2,yy1,xx2,yy2);
-           storeobject(-1, xx2,yy1,xx2,yy2,LINE,rectcolor,0,NULL);
-           drawline(rectcolor,NOW, xx2,yy1,xx2,yy2, 0);
-         }
-       } else if(manhattan_lines==2) {
-         if(yy2!=yy1) {
-           xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-           ORDER(xx1,yy1,xx1,yy2);
-           storeobject(-1, xx1,yy1,xx1,yy2,LINE,rectcolor,0,NULL);
-           drawline(rectcolor,NOW, xx1,yy1,xx1,yy2, 0);
-         }
-         if(xx2!=xx1) {
-           xx1=x1;yy1=y1;xx2=x2;yy2=y2;
-           ORDER(xx1,yy2,xx2,yy2);
-           storeobject(-1, xx1,yy2,xx2,yy2,LINE,rectcolor,0,NULL);
-           drawline(rectcolor,NOW, xx1,yy2,xx2,yy2, 0);
-         }
-       } else {
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy1,xx2,yy2);
-         storeobject(-1, xx1,yy1,xx2,yy2,LINE,rectcolor,0,NULL);
-         drawline(rectcolor,NOW, xx1,yy1,xx2,yy2, 0);
-       }
-     }
-     x1=x2=xctx->mousex_snap;y1=y2=xctx->mousey_snap;
-     xctx->ui_state |= STARTLINE;
-   }
-   if( what & END)
-   {
-     xctx->ui_state &= ~STARTLINE;
-   }
-
-   if(what & RUBBER)
-   {
-     if(manhattan_lines==1) {
-       xx1=x1;yy1=y1;xx2=x2;yy2=y2;
-       ORDER(xx1,yy1,xx2,yy1);
-       drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy1);
-       xx1=x1;yy1=y1;xx2=x2;yy2=y2;
-       ORDER(xx2,yy1,xx2,yy2);
-       drawtempline(xctx->gctiled, NOW, xx2,yy1,xx2,yy2);
-       restore_selection(x1, y1, x2, y2);
-       x2 = xctx->mousex_snap; y2 = xctx->mousey_snap;
-       if(!(what & CLEAR)) {
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy1,xx2,yy1);
-         drawtempline(gc[rectcolor], NOW, xx1,yy1,xx2,yy1);
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx2,yy1,xx2,yy2);
-         drawtempline(gc[rectcolor], NOW, xx2,yy1,xx2,yy2);
-       }
-     } else if(manhattan_lines==2) {
-       xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-       ORDER(xx1,yy1,xx1,yy2);
-       drawtempline(xctx->gctiled, NOW, xx1,yy1,xx1,yy2);
-       xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-       ORDER(xx1,yy2,xx2,yy2);
-       drawtempline(xctx->gctiled, NOW, xx1,yy2,xx2,yy2);
-       restore_selection(x1, y1, x2, y2);
-       x2 = xctx->mousex_snap; y2 = xctx->mousey_snap;
-       if(!(what & CLEAR)) {
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy1,xx1,yy2);
-         drawtempline(gc[rectcolor], NOW, xx1,yy1,xx1,yy2);
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy2,xx2,yy2);
-         drawtempline(gc[rectcolor], NOW, xx1,yy2,xx2,yy2);
-       }
-     } else {
-       xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-       ORDER(xx1,yy1,xx2,yy2);
-       drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy2);
-       restore_selection(x1, y1, x2, y2);
-       x2 = xctx->mousex_snap; y2 = xctx->mousey_snap;
-       if(!(what & CLEAR)) {
-         xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
-         ORDER(xx1,yy1,xx2,yy2);
-         drawtempline(gc[rectcolor], NOW, xx1,yy1,xx2,yy2);
-       }
-     }
-   }
+  if(what & RUBBER)
+  {
+    if(manhattan_lines==1) {
+      xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;
+      xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+      ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+      xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;
+      xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+      ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      drawtempline(xctx->gctiled, NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
+      xctx->nl_x2 = xctx->mousex_snap; xctx->nl_y2 = xctx->mousey_snap;
+      if(!(what & CLEAR)) {
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+        drawtempline(gc[rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(gc[rectcolor], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      }
+    } else if(manhattan_lines==2) {
+      xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+      xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+      ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+      xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+      xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+      ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+      restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
+      xctx->nl_x2 = xctx->mousex_snap; xctx->nl_y2 = xctx->mousey_snap;
+      if(!(what & CLEAR)) {
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+        drawtempline(gc[rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(gc[rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+      }
+    } else {
+      xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+      xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+      ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
+      xctx->nl_x2 = xctx->mousex_snap; xctx->nl_y2 = xctx->mousey_snap;
+      if(!(what & CLEAR)) {
+        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
+        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
+        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(gc[rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      }
+    }
+  }
 }
 
 void new_rect(int what)
 {
- static double x1,y1,x2,y2;
- static double xx1,yy1,xx2,yy2;
-
-   if( (what & PLACE) )
+  if( (what & PLACE) )
+  {
+   if( (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) && (xctx->ui_state & STARTRECT) )
    {
-    if( (x1!=x2 || y1!=y2) && (xctx->ui_state & STARTRECT) )
-    {
-     int save_draw;
-     RECTORDER(x1,y1,x2,y2);
-     push_undo();
-     drawrect(rectcolor, NOW, x1,y1,x2,y2, 0);
-     save_draw = draw_window;
-     draw_window = 1;
-     filledrect(rectcolor, NOW, x1,y1,x2,y2); /* draw fill pattern even in XCopyArea mode */
-     draw_window = save_draw;
-     storeobject(-1, x1,y1,x2,y2,xRECT,rectcolor, 0, NULL);
-    }
-    x1=x2=xctx->mousex_snap;y1=y2=xctx->mousey_snap;
-    xctx->ui_state |= STARTRECT;
+    int save_draw;
+    RECTORDER(xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
+    push_undo();
+    drawrect(rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2, 0);
+    save_draw = draw_window;
+    draw_window = 1;
+    /* draw fill pattern even in XCopyArea mode */
+    filledrect(rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
+    draw_window = save_draw;
+    storeobject(-1, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2,xRECT,rectcolor, 0, NULL);
    }
-   if( what & END)
-   {
-    xctx->ui_state &= ~STARTRECT;
-   }
-   if(what & RUBBER)
-   {
-    xx1=x1;yy1=y1;xx2=x2;yy2=y2;
-    RECTORDER(xx1,yy1,xx2,yy2);
-    drawtemprect(xctx->gctiled,NOW, xx1,yy1,xx2,yy2);
-    x2=xctx->mousex_snap;y2=xctx->mousey_snap;
-    xx1=x1;yy1=y1;xx2=x2;yy2=y2;
-    RECTORDER(xx1,yy1,xx2,yy2);
-    drawtemprect(gc[rectcolor], NOW, xx1,yy1,xx2,yy2);
-   }
+   xctx->nl_x1=xctx->nl_x2=xctx->mousex_snap;xctx->nl_y1=xctx->nl_y2=xctx->mousey_snap;
+   xctx->ui_state |= STARTRECT;
+  }
+  if( what & END)
+  {
+   xctx->ui_state &= ~STARTRECT;
+  }
+  if(what & RUBBER)
+  {
+   xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+   RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+   drawtemprect(xctx->gctiled,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+   xctx->nl_x2=xctx->mousex_snap;xctx->nl_y2=xctx->mousey_snap;
+   xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+   RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+   drawtemprect(gc[rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+  }
 }
 
 
 void new_polygon(int what)
 {
- static double *x=NULL, *y=NULL;
- static int points=0;
- static int maxpoints=0;
+   if( what & PLACE ) xctx->nl_points=0; /*  start new polygon placement */
 
-   if( what & PLACE ) points=0; /*  start new polygon placement */
-
-   if(points >= maxpoints-1) {  /*  check storage for 2 points */
-     maxpoints = (1+points / CADCHUNKALLOC) * CADCHUNKALLOC;
-     my_realloc(17, &x, sizeof(double)*maxpoints);
-     my_realloc(18, &y, sizeof(double)*maxpoints);
+   if(xctx->nl_points >= xctx->nl_maxpoints-1) {  /*  check storage for 2 xctx->nl_points */
+     xctx->nl_maxpoints = (1+xctx->nl_points / CADCHUNKALLOC) * CADCHUNKALLOC;
+     my_realloc(17, &xctx->nl_polyx, sizeof(double)*xctx->nl_maxpoints);
+     my_realloc(18, &xctx->nl_polyy, sizeof(double)*xctx->nl_maxpoints);
    }
    if( what & PLACE )
    {
-     /* fprintf(errfp, "new_poly: PLACE, points=%d\n", points); */
-     y[points]=xctx->mousey_snap;
-     x[points]=xctx->mousex_snap;
-     points++;
-     x[points]=x[points-1]; /* prepare next point for rubber */
-     y[points] = y[points-1];
-     /* fprintf(errfp, "added point: %.16g %.16g\n", x[points-1], y[points-1]); */
+     /* fprintf(errfp, "new_poly: PLACE, xctx->nl_points=%d\n", xctx->nl_points); */
+     xctx->nl_polyy[xctx->nl_points]=xctx->mousey_snap;
+     xctx->nl_polyx[xctx->nl_points]=xctx->mousex_snap;
+     xctx->nl_points++;
+     xctx->nl_polyx[xctx->nl_points]=xctx->nl_polyx[xctx->nl_points-1]; /* prepare next point for rubber */
+     xctx->nl_polyy[xctx->nl_points] = xctx->nl_polyy[xctx->nl_points-1];
+     /* fprintf(errfp, "added point: %.16g %.16g\n", xctx->nl_polyx[xctx->nl_points-1],
+         xctx->nl_polyy[xctx->nl_points-1]); */
      xctx->ui_state |= STARTPOLYGON;
    }
    if( what & ADD)
@@ -1954,42 +1973,45 @@ void new_polygon(int what)
      /* closed poly */
      if(what & END) {
        /* delete last rubber */
-       drawtemppolygon(xctx->gctiled, NOW, x, y, points+1);
-       x[points] = x[0];
-       y[points] = y[0];
+       drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
+       xctx->nl_polyx[xctx->nl_points] = xctx->nl_polyx[0];
+       xctx->nl_polyy[xctx->nl_points] = xctx->nl_polyy[0];
      /* add point */
-     } else if(x[points] != x[points-1] || y[points] != y[points-1]) {
-       x[points] = xctx->mousex_snap;
-       y[points] = xctx->mousey_snap;
+     } else if(xctx->nl_polyx[xctx->nl_points] != xctx->nl_polyx[xctx->nl_points-1] ||
+          xctx->nl_polyy[xctx->nl_points] != xctx->nl_polyy[xctx->nl_points-1]) {
+       xctx->nl_polyx[xctx->nl_points] = xctx->mousex_snap;
+       xctx->nl_polyy[xctx->nl_points] = xctx->mousey_snap;
      } else {
        return;
      }
-     points++;
+     xctx->nl_points++;
      /* prepare next point for rubber */
-     x[points]=x[points-1];y[points]=y[points-1];
+     xctx->nl_polyx[xctx->nl_points]=xctx->nl_polyx[xctx->nl_points-1];
+     xctx->nl_polyy[xctx->nl_points]=xctx->nl_polyy[xctx->nl_points-1];
    }
    /* end open or closed poly  by user request */
    if((what & SET || (what & END)) ||
         /* closed poly end by clicking on first point */
-        ((what & ADD) && x[points-1] == x[0] && y[points-1] == y[0]) ) {
+        ((what & ADD) && xctx->nl_polyx[xctx->nl_points-1] == xctx->nl_polyx[0] &&
+         xctx->nl_polyy[xctx->nl_points-1] == xctx->nl_polyy[0]) ) {
      push_undo();
-     drawtemppolygon(xctx->gctiled, NOW, x, y, points+1);
-     store_poly(-1, x, y, points, rectcolor, 0, NULL);
-     /* fprintf(errfp, "new_poly: finish: points=%d\n", points); */
-     drawtemppolygon(gc[rectcolor], NOW, x, y, points);
+     drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
+     store_poly(-1, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, rectcolor, 0, NULL);
+     /* fprintf(errfp, "new_poly: finish: xctx->nl_points=%d\n", xctx->nl_points); */
+     drawtemppolygon(gc[rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points);
      xctx->ui_state &= ~STARTPOLYGON;
-     drawpolygon(rectcolor, NOW, x, y, points, 0, 0);
-     my_free(711, &x);
-     my_free(712, &y);
-     maxpoints = points = 0;
+     drawpolygon(rectcolor, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0, 0);
+     my_free(711, &xctx->nl_polyx);
+     my_free(712, &xctx->nl_polyy);
+     xctx->nl_maxpoints = xctx->nl_points = 0;
    }
    if(what & RUBBER)
    {
      /* fprintf(errfp, "new_poly: RUBBER\n"); */
-     drawtemppolygon(xctx->gctiled, NOW, x, y, points+1);
-     y[points] = xctx->mousey_snap;
-     x[points] = xctx->mousex_snap;
-     drawtemppolygon(gc[rectcolor], NOW, x, y, points+1);
+     drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
+     xctx->nl_polyy[xctx->nl_points] = xctx->mousey_snap;
+     xctx->nl_polyx[xctx->nl_points] = xctx->mousex_snap;
+     drawtemppolygon(gc[rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
    }
 }
 
@@ -2232,26 +2254,26 @@ void place_text(int draw_text, double mx, double my)
 void pan2(int what, int mx, int my)
 {
   int dx, dy, ddx, ddy;
-  static int mx_save, my_save;
-  static int mmx_save, mmy_save;
+  static int mx_s, my_s;
+  static int mmx_s, mmy_s;
   static double xorig_save, yorig_save;
   if(what & START) {
-    mmx_save = mx_save = mx;
-    mmy_save = my_save = my;
+    mmx_s = mx_s = mx;
+    mmy_s = my_s = my;
     xorig_save = xctx->xorigin;
     yorig_save = xctx->yorigin;
   }
   else if(what == RUBBER) {
-    dx = mx - mx_save;
-    dy = my - my_save;
-    ddx = abs(mx -mmx_save);
-    ddy = abs(my -mmy_save);
+    dx = mx - mx_s;
+    dy = my - my_s;
+    ddx = abs(mx -mmx_s);
+    ddy = abs(my -mmy_s);
     if(ddx>5 || ddy>5) {
       xctx->xorigin = xorig_save + dx*xctx->zoom;
       xctx->yorigin = yorig_save + dy*xctx->zoom;
       draw();
-      mmx_save = mx;
-      mmy_save = my;
+      mmx_s = mx;
+      mmy_s = my;
     }
   }
 }
@@ -2286,72 +2308,67 @@ void pan(int what)
 /*  20150927 select=1: select objects, select=0: unselect objects */
 void select_rect(int what, int select)
 {
- static double xr,yr,xr2,yr2;
- static double xx1,xx2,yy1,yy2;
- static int sel;
- static int sem=0;
-
  if(what & RUBBER)
  {
-    if(sem==0) {
+    if(xctx->nl_sem==0) {
       fprintf(errfp, "ERROR: select_rect() RUBBER called before START\n");
       tcleval("alert_ {ERROR: select_rect() RUBBER called before START} {}");
     }
-    xx1=xr;xx2=xr2;yy1=yr;yy2=yr2;
-    RECTORDER(xx1,yy1,xx2,yy2);
-    drawtemprect(xctx->gctiled,NOW, xx1,yy1,xx2,yy2);
-    xr2=xctx->mousex_snap;yr2=xctx->mousey_snap;
+    xctx->nl_xx1=xctx->nl_xr;xctx->nl_xx2=xctx->nl_xr2;xctx->nl_yy1=xctx->nl_yr;xctx->nl_yy2=xctx->nl_yr2;
+    RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    drawtemprect(xctx->gctiled,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    xctx->nl_xr2=xctx->mousex_snap;xctx->nl_yr2=xctx->mousey_snap;
 
     /*  20171026 update unselected objects while dragging */
     rebuild_selected_array();
     bbox(START,0.0, 0.0, 0.0, 0.0);
-    bbox(ADD, xx1, yy1, xx2, yy2);
+    bbox(ADD, xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
     bbox(SET,0.0, 0.0, 0.0, 0.0);
     draw_selection(gc[SELLAYER], 0);
-    if(!sel) select_inside(xx1, yy1, xx2, yy2, sel);
+    if(!xctx->nl_sel) select_inside(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
     bbox(END,0.0, 0.0, 0.0, 0.0);
-    xx1=xr;xx2=xr2;yy1=yr;yy2=yr2;
-    RECTORDER(xx1,yy1,xx2,yy2);
-    drawtemprect(gc[SELLAYER],NOW, xx1,yy1,xx2,yy2);
+    xctx->nl_xx1=xctx->nl_xr;xctx->nl_xx2=xctx->nl_xr2;xctx->nl_yy1=xctx->nl_yr;xctx->nl_yy2=xctx->nl_yr2;
+    RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    drawtemprect(gc[SELLAYER],NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
  }
  else if(what & START)
  {
     /*
-     * if(sem==1) {
+     * if(xctx->nl_sem==1) {
      *  fprintf(errfp, "ERROR: reentrant call of select_rect()\n");
      *  tcleval("alert_ {ERROR: reentrant call of select_rect()} {}");
      * }
      */
-    sel = select;
+    xctx->nl_sel = select;
     xctx->ui_state |= STARTSELECT;
 
     /*  use m[xy]_double_save instead of mouse[xy]_snap */
     /*  to avoid delays in setting the start point of a */
     /*  selection rectangle, this is noticeable and annoying on */
     /*  networked / slow X servers. 20171218 */
-    /* xr=xr2=xctx->mousex_snap; */
-    /* yr=yr2=xctx->mousey_snap; */
-    xr=xr2=xctx->mx_double_save;
-    yr=yr2=xctx->my_double_save;
-    sem=1;
+    /* xctx->nl_xr=xctx->nl_xr2=xctx->mousex_snap; */
+    /* xctx->nl_yr=xctx->nl_yr2=xctx->mousey_snap; */
+    xctx->nl_xr=xctx->nl_xr2=xctx->mx_double_save;
+    xctx->nl_yr=xctx->nl_yr2=xctx->my_double_save;
+    xctx->nl_sem=1;
  }
  else if(what & END)
  {
-    RECTORDER(xr,yr,xr2,yr2);
-    drawtemprect(xctx->gctiled, NOW, xr,yr,xr2,yr2);
+    RECTORDER(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
+    drawtemprect(xctx->gctiled, NOW, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
     /*  draw_selection(gc[SELLAYER], 0); */
-    select_inside(xr,yr,xr2,yr2, sel);
+    select_inside(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
 
 
     bbox(START,0.0, 0.0, 0.0, 0.0);
-    bbox(ADD, xr, yr, xr2, yr2);
+    bbox(ADD, xctx->nl_xr, xctx->nl_yr, xctx->nl_xr2, xctx->nl_yr2);
     bbox(SET,0.0, 0.0, 0.0, 0.0);
     draw_selection(gc[SELLAYER], 0);
     bbox(END,0.0, 0.0, 0.0, 0.0);
     /*  /20171219 */
 
     xctx->ui_state &= ~STARTSELECT;
-    sem=0;
+    xctx->nl_sem=0;
  }
 }
 

@@ -424,6 +424,7 @@ void alloc_xschem_data()
   for(i = 0 ; i < HASHSIZE; i++) {
     xctx->node_table[i] = NULL;
     xctx->hilight_table[i] = NULL;
+    xctx->node_redraw_table[i] = NULL; /* move.c */
   }
   xctx->inst_color=NULL;
   xctx->window = xctx->save_pixmap = 0;
@@ -435,6 +436,27 @@ void alloc_xschem_data()
   xctx->new_node = 0;
   xctx->node_mult = NULL;
   xctx->node_mult_size = 0;
+
+  /* move.c */
+  xctx->rx1 = xctx->rx2 = xctx->ry1 = xctx->ry2 = 0.0;
+  xctx->move_rot = 0;
+  xctx->move_flip = 0;
+  xctx->x1 = xctx->y_1 = xctx->x2 = xctx->y_2 = xctx->deltax = xctx->deltay = 0.0;
+  xctx->movelastsel = 0;
+  xctx->rotatelocal=0;
+  /* new_wire */
+  xctx->nl_x1 = xctx->nl_y1 = xctx->nl_x2 = xctx->nl_y2 = 0.0;
+  xctx->nl_xx1 = xctx->nl_yy1 = xctx->nl_xx2 = xctx->nl_yy2 = 0.0;
+  /* new_arc */
+  xctx->nl_x = xctx->nl_y = xctx->nl_r = xctx->nl_a = xctx->nl_b = xctx->nl_x3 = xctx->nl_y3 = 0.0;
+  xctx->nl_state = 0;
+  xctx->nl_sweep_angle = 0.0;
+  /* new_polygon */
+  xctx->nl_polyx = xctx->nl_polyy = NULL;
+  xctx->nl_points = xctx->nl_maxpoints = 0;
+  /* select_rect */
+  xctx->nl_xr = xctx->nl_yr = xctx->nl_xr2 = xctx->nl_yr2 = 0.0;
+  xctx->nl_sel = xctx->nl_sem = 0;
 
   xctx->hilight_nets = 0;
   xctx->hilight_color = 0;

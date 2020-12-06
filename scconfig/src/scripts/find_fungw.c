@@ -86,7 +86,7 @@ int find_script_fungw_user_call_ctx(const char *name, int logdepth, int fatal)
 int find_script_fungw_cfg_pupdir(const char *name, int logdepth, int fatal)
 {
 	const char *lf, *cf, *inc;
-        char * out;
+	char * out;
 	char *test_c =
 		NL "#include <libfungw/fungw.h>"
 		NL "int main() {"
