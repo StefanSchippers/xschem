@@ -276,8 +276,6 @@ void init_color_array(double dim)
 
    sscanf(tclresult(), "#%02x%02x%02x", &r, &g, &b);
    rr=r; gg=g; bb=b;
-
-   
    if(dim_bg || i!=BACKLAYER ) {
      if(dim>=0.) {
        rr +=(51.-rr/5.)*dim;
@@ -302,7 +300,6 @@ void init_color_array(double dim)
      my_strdup(605, &color_array[i], s);
    }
  }
-
 }
 
 void init_pixdata()
@@ -335,20 +332,20 @@ void free_xschem_data()
   my_free(1100, &xctx->text);
   my_free(1107, &xctx->inst);
   for(i=0;i<cadlayers;i++) {
-       my_free(1103, &xctx->rect[i]);
-       my_free(1104, &xctx->line[i]);
-       my_free(1105, &xctx->poly[i]);
-       my_free(1106, &xctx->arc[i]);
+    my_free(1103, &xctx->rect[i]);
+    my_free(1104, &xctx->line[i]);
+    my_free(1105, &xctx->poly[i]);
+    my_free(1106, &xctx->arc[i]);
   }
   for(i=0;i<xctx->maxs;i++) {
-     my_free(1109, &xctx->sym[i].line);
-     my_free(1110, &xctx->sym[i].rect);
-     my_free(1111, &xctx->sym[i].arc);
-     my_free(1112, &xctx->sym[i].poly);
-     my_free(1113, &xctx->sym[i].lines);
-     my_free(1114, &xctx->sym[i].polygons);
-     my_free(1115, &xctx->sym[i].arcs);
-     my_free(1116, &xctx->sym[i].rects);
+    my_free(1109, &xctx->sym[i].line);
+    my_free(1110, &xctx->sym[i].rect);
+    my_free(1111, &xctx->sym[i].arc);
+    my_free(1112, &xctx->sym[i].poly);
+    my_free(1113, &xctx->sym[i].lines);
+    my_free(1114, &xctx->sym[i].polygons);
+    my_free(1115, &xctx->sym[i].arcs);
+    my_free(1116, &xctx->sym[i].rects);
   }
   my_free(1117, &xctx->sym);
   my_free(1118, &xctx->rect);
@@ -366,7 +363,6 @@ void free_xschem_data()
   my_free(1108, &xctx->sel_array);
   for(i=0;i<CADMAXHIER;i++) my_free(1139, &xctx->sch_path[i]);
   my_free(269, &xctx);
-
 }
 
 void alloc_xschem_data()
@@ -487,10 +483,10 @@ void alloc_xschem_data()
   xctx->maxl=my_calloc(623, cadlayers, sizeof(int));
   for(i=0;i<cadlayers;i++)
   {
-   xctx->maxr[i]=CADMAXOBJECTS;
-   xctx->maxp[i]=CADMAXOBJECTS;
-   xctx->maxl[i]=CADMAXOBJECTS;
-   xctx->maxa[i]=CADMAXOBJECTS;
+    xctx->maxr[i]=CADMAXOBJECTS;
+    xctx->maxp[i]=CADMAXOBJECTS;
+    xctx->maxl[i]=CADMAXOBJECTS;
+    xctx->maxa[i]=CADMAXOBJECTS;
   }
   xctx->rect=my_calloc(624, cadlayers, sizeof(xRect *));
   xctx->line=my_calloc(625, cadlayers, sizeof(xLine *));
@@ -498,10 +494,10 @@ void alloc_xschem_data()
   xctx->arc=my_calloc(627, cadlayers, sizeof(xArc *));
   for(i=0;i<cadlayers;i++)
   {
-   xctx->rect[i]=my_calloc(628, xctx->maxr[i],sizeof(xRect));
-   xctx->arc[i]=my_calloc(629, xctx->maxa[i],sizeof(xArc));
-   xctx->poly[i]=my_calloc(630, xctx->maxp[i],sizeof(xPoly));
-   xctx->line[i]=my_calloc(631, xctx->maxl[i],sizeof(xLine));
+    xctx->rect[i]=my_calloc(628, xctx->maxr[i],sizeof(xRect));
+    xctx->arc[i]=my_calloc(629, xctx->maxa[i],sizeof(xArc));
+    xctx->poly[i]=my_calloc(630, xctx->maxp[i],sizeof(xPoly));
+    xctx->line[i]=my_calloc(631, xctx->maxl[i],sizeof(xLine));
   }
   xctx->rects=my_calloc(632, cadlayers, sizeof(int));
   xctx->polygons=my_calloc(633, cadlayers, sizeof(int));
