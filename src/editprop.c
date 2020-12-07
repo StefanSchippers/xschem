@@ -702,7 +702,7 @@ void edit_polygon_property(void)
 /* x=0 use text widget   x=1 use vim editor */
 void edit_text_property(int x)
 {
-   #ifdef HAS_CAIRO
+   #if HAS_CAIRO==1
    int customfont;
    #endif
    int sel, k, text_changed;
@@ -756,14 +756,14 @@ void edit_text_property(int x)
 
        rot = xctx->text[sel].rot;      /* calculate bbox, some cleanup needed here */
        flip = xctx->text[sel].flip;
-       #ifdef HAS_CAIRO
+       #if HAS_CAIRO==1
        customfont = set_text_custom_font(&xctx->text[sel]);
        #endif
        text_bbox(xctx->text[sel].txt_ptr, xctx->text[sel].xscale,
                  xctx->text[sel].yscale, rot, flip, xctx->text[sel].hcenter, xctx->text[sel].vcenter,
                  xctx->text[sel].x0, xctx->text[sel].y0,
                  &xx1,&yy1,&xx2,&yy2);
-       #ifdef HAS_CAIRO
+       #if HAS_CAIRO==1
        if(customfont) cairo_restore(xctx->cairo_ctx);
        #endif
 
@@ -777,14 +777,14 @@ void edit_text_property(int x)
          for(l=0;l<c;l++) {
            if(!strcmp( (get_tok_value(xctx->rect[PINLAYER][l].prop_ptr, "name",0)),
                         xctx->text[sel].txt_ptr) ) {
-             #ifdef HAS_CAIRO
+             #if HAS_CAIRO==1
              customfont = set_text_custom_font(&xctx->text[sel]);
              #endif
              text_bbox(xctx->text[sel].txt_ptr, xctx->text[sel].xscale,
              xctx->text[sel].yscale, rot, flip, xctx->text[sel].hcenter, xctx->text[sel].vcenter,
              xctx->text[sel].x0, xctx->text[sel].y0,
              &xx1,&yy1,&xx2,&yy2);
-             #ifdef HAS_CAIRO
+             #if HAS_CAIRO==1
              if(customfont) cairo_restore(xctx->cairo_ctx);
              #endif
 
@@ -841,14 +841,14 @@ void edit_text_property(int x)
        }
 
                                 /* calculate bbox, some cleanup needed here */
-       #ifdef HAS_CAIRO
+       #if HAS_CAIRO==1
        customfont = set_text_custom_font(&xctx->text[sel]);
        #endif
        text_bbox(xctx->text[sel].txt_ptr, xctx->text[sel].xscale,
                  xctx->text[sel].yscale, rot, flip, xctx->text[sel].hcenter, xctx->text[sel].vcenter,
                  xctx->text[sel].x0, xctx->text[sel].y0,
                  &xx1,&yy1,&xx2,&yy2);
-       #ifdef HAS_CAIRO
+       #if HAS_CAIRO==1
        if(customfont) cairo_restore(xctx->cairo_ctx);
        #endif
 

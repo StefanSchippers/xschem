@@ -40,7 +40,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
    double xx1,yy1,xx2,yy2;
 
 
-   #ifdef HAS_CAIRO
+   #if HAS_CAIRO==1
    int customfont;
    #endif
    /* symbol bbox */
@@ -74,14 +74,14 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
 
       dbg(2, "symbol_bbox(): translated text: %s\n", tmp_txt);
      ROTATION(rot, flip, 0.0,0.0,text.x0, text.y0,text_x0,text_y0);
-     #ifdef HAS_CAIRO
+     #if HAS_CAIRO==1
      customfont=set_text_custom_font(&text);
      #endif
      text_bbox(tmp_txt, text.xscale, text.yscale,
        (text.rot + ( (sym_flip && (text.rot & 1) ) ? sym_rot+2 : sym_rot)) &0x3,
        sym_flip ^ text.flip, text.hcenter, text.vcenter,
        x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2);
-     #ifdef HAS_CAIRO
+     #if HAS_CAIRO==1
      if(customfont) cairo_restore(xctx->cairo_ctx);
      #endif
      if(xx1<*x1) *x1=xx1;
@@ -207,7 +207,7 @@ static void del_rect_line_arc_poly(void)
 void delete(void)
 {
   int i, j, n;
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   int customfont;
   #endif
 
@@ -271,14 +271,14 @@ void delete(void)
     {
       select_rot = xctx->text[i].rot;
       select_flip = xctx->text[i].flip;
-      #ifdef HAS_CAIRO
+      #if HAS_CAIRO==1
       customfont = set_text_custom_font(&xctx->text[i]);
       #endif
       text_bbox(xctx->text[i].txt_ptr, xctx->text[i].xscale,
                 xctx->text[i].yscale, select_rot, select_flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
                 xctx->text[i].x0, xctx->text[i].y0,
                 &xx1,&yy1, &xx2,&yy2);
-      #ifdef HAS_CAIRO
+      #if HAS_CAIRO==1
       if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif
       bbox(ADD, xx1, yy1, xx2, yy2 );
@@ -450,7 +450,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
     XSetClipMask(display, gc[i], None); /* 20171110 optimization, clipping already done in software */
     XSetClipMask(display, gcstipple[i], None); /* 20171110 optimization, clipping already done in software */
    }
-   #ifdef HAS_CAIRO
+   #if HAS_CAIRO==1
    cairo_reset_clip(xctx->cairo_ctx);
    cairo_reset_clip(xctx->cairo_save_ctx);
    #endif
@@ -479,7 +479,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    }
    XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
    dbg(1, "bbox(): bbox= %d %d %d %d\n",xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2);
-   #ifdef HAS_CAIRO
+   #if HAS_CAIRO==1
    cairo_rectangle(xctx->cairo_ctx, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
    cairo_clip(xctx->cairo_ctx);
    cairo_rectangle(xctx->cairo_save_ctx, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
@@ -495,7 +495,7 @@ void unselect_all(void)
 {
  int i,c;
  char str[PATH_MAX];
- #ifdef HAS_CAIRO
+ #if HAS_CAIRO==1
  int customfont;
  #endif
     xctx->ui_state = 0;
@@ -528,14 +528,14 @@ void unselect_all(void)
      if(xctx->text[i].sel == SELECTED)
      {
       xctx->text[i].sel = 0;
-      #ifdef HAS_CAIRO
+      #if HAS_CAIRO==1
       customfont = set_text_custom_font(& xctx->text[i]); /* needed for bbox calculation */
       #endif
       draw_temp_string(xctx->gctiled,ADD, xctx->text[i].txt_ptr,
        xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
        xctx->text[i].x0, xctx->text[i].y0,
        xctx->text[i].xscale, xctx->text[i].yscale);
-      #ifdef HAS_CAIRO
+      #if HAS_CAIRO==1
       if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif
      }
@@ -685,7 +685,7 @@ void select_text(int i,unsigned short select_mode, int fast)
 {
   char str[1024];       /* overflow safe */
   char s[256];          /* overflow safe */
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   int customfont;
   #endif
 
@@ -698,7 +698,7 @@ void select_text(int i,unsigned short select_mode, int fast)
   }
   xctx->text[i].sel = select_mode;
 
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   customfont = set_text_custom_font(&xctx->text[i]);
   #endif
   if(select_mode)
@@ -711,7 +711,7 @@ void select_text(int i,unsigned short select_mode, int fast)
      xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
      xctx->text[i].x0, xctx->text[i].y0,
      xctx->text[i].xscale, xctx->text[i].yscale);
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   if(customfont) cairo_restore(xctx->cairo_ctx);
   #endif
   xctx->need_reb_sel_arr=1;
@@ -892,7 +892,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /* 201509
  int c,i;
  double x, y, r, a, b, xa, ya, xb, yb; /* arc */
  xRect tmp;
- #ifdef HAS_CAIRO
+ #if HAS_CAIRO==1
  int customfont;
  #endif
 
@@ -918,7 +918,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /* 201509
  {
   select_rot = xctx->text[i].rot;
   select_flip = xctx->text[i].flip;
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   customfont = set_text_custom_font(&xctx->text[i]);
   #endif
   text_bbox(xctx->text[i].txt_ptr,
@@ -926,7 +926,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /* 201509
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2);
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   if(customfont) cairo_restore(xctx->cairo_ctx);
   #endif
   if(RECTINSIDE(xx1,yy1, xx2, yy2,x1,y1,x2,y2))

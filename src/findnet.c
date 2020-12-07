@@ -275,21 +275,21 @@ void find_closest_text(double mx,double my)
  double xx1,xx2,yy1,yy2;
  int i,r=-1;
  double threshold = CADWIREMINDIST * CADWIREMINDIST * cadgrid * cadgrid / 400;
- #ifdef HAS_CAIRO
+ #if HAS_CAIRO==1
  int customfont;
  #endif
   for(i=0;i<xctx->texts;i++)
   {
    rot = xctx->text[i].rot;
    flip = xctx->text[i].flip;
-   #ifdef HAS_CAIRO
+   #if HAS_CAIRO==1
    customfont = set_text_custom_font(&xctx->text[i]);
    #endif
    text_bbox(xctx->text[i].txt_ptr,
              xctx->text[i].xscale, xctx->text[i].yscale, rot, flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2);
-   #ifdef HAS_CAIRO
+   #if HAS_CAIRO==1
    if(customfont) cairo_restore(xctx->cairo_ctx);
    #endif
    if(POINTINSIDE(mx,my,xx1,yy1, xx2, yy2))

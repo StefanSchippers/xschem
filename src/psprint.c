@@ -211,7 +211,7 @@ static void ps_draw_string(int gctext,  const char *str,
  int i;
 
  if(str==NULL) return;
- #ifdef HAS_CAIRO
+ #if HAS_CAIRO==1
  text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1, &rx1,&ry1,&rx2,&ry2);
  #else
  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1, &rx1,&ry1,&rx2,&ry2);

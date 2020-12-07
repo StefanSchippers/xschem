@@ -425,7 +425,7 @@ void alloc_xschem_data()
   xctx->inst_color=NULL;
   xctx->window = xctx->save_pixmap = 0;
   xctx->xrect[0].width = xctx->xrect[0].height = xctx->xrect[0].x = xctx->xrect[0].y = 0;
-#ifdef HAS_CAIRO
+#if HAS_CAIRO==1
   xctx->cairo_ctx = xctx->cairo_save_ctx = NULL;
   xctx->cairo_sfc = xctx->cairo_save_sfc = NULL;
 #endif
@@ -895,7 +895,7 @@ void change_linewidth(double w)
  * and sets some graphical attributes */
 void resetcairo(int create, int clear, int force_or_resize)
 { 
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   dbg(1, "resetcairo() %d, %d, %d\n", create, clear, force_or_resize);
   if(clear && force_or_resize) {
     /* xctx->cairo_save_sfc is based on pixmap and pixmaps are not resizeable, so on resize 
@@ -936,7 +936,6 @@ void resetcairo(int create, int clear, int force_or_resize)
     xctx->cairo_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn,
           screen_xcb, xctx->window, &format_rgb, xctx->xschem_w, xctx->xschem_h);
     #else
-    render_format = XRenderFindStandardFormat(display, PictStandardRGB24);
     xctx->cairo_sfc = cairo_xlib_surface_create_with_xrender_format (display,
           xctx->window, DefaultScreenOfDisplay(display), render_format, xctx->xschem_w, xctx->xschem_h);
     #endif /* HAS_XCB */
@@ -1038,9 +1037,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* XVisualInfo vinfo; */
 
  #if HAS_XCB==1
+ #if HAS_XRENDER==1
  xcb_render_query_pict_formats_reply_t *formats_reply;
  xcb_render_pictforminfo_t *formats;
  xcb_render_query_pict_formats_cookie_t formats_cookie;
+ #endif
  #endif
  /* get PWD and HOME */
  if(!getcwd(pwd_dir, PATH_MAX)) {
@@ -1411,6 +1412,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
       fprintf(errfp, "got NULL (xcb_visualtype_t)visual");
       return 1;
     }
+    #if HAS_XRENDER==1
     /*/--------------------------Xrender xcb  stuff------- */
     formats_cookie = xcb_render_query_pict_formats(xcbconn);
     formats_reply = xcb_render_query_pict_formats_reply(xcbconn, formats_cookie, 0);
@@ -1432,6 +1434,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
                     format_rgba = formats[i];
     }
     my_free(1145, &formats_reply);
+    #endif /* HAS_XRENDER */
     /*/---------------------------------------------------- */
     /* /20171125 */
     #endif /*HAS_XCB */
@@ -1468,7 +1471,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
     render_format = XRenderFindStandardFormat(display, PictStandardRGB24);
     #endif
     resetwin(1, 0, 1);
-    #ifdef HAS_CAIRO
+    #if HAS_CAIRO==1
     /* load font from tcl 20171112 */
     tcleval("xschem set svg_font_name $svg_font_name");
     tcleval("xschem set cairo_font_name $cairo_font_name");

@@ -107,7 +107,7 @@ void print_image()
 #endif
   XSetTile(display, xctx->gctiled, xctx->save_pixmap);
 
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   cairo_destroy(xctx->cairo_save_ctx);
   cairo_surface_destroy(xctx->cairo_save_sfc);
 
@@ -183,7 +183,7 @@ void print_image()
   XSetTile(display, xctx->gctiled, xctx->save_pixmap);
 
 
-#ifdef HAS_CAIRO
+#if HAS_CAIRO==1
   cairo_destroy(xctx->cairo_save_ctx);
   cairo_surface_destroy(xctx->cairo_save_sfc);
 
@@ -223,7 +223,7 @@ void print_image()
 }
 
 
-#ifdef HAS_CAIRO
+#if HAS_CAIRO==1
 void set_cairo_color(int layer) 
 {
   cairo_set_source_rgb(xctx->cairo_ctx,
@@ -264,7 +264,7 @@ int set_text_custom_font(xText *txt)
 #endif
 
 
-#ifdef HAS_CAIRO
+#if HAS_CAIRO==1
 static void cairo_draw_string_line(cairo_t *c_ctx, char *s,
     double x, double y, short rot, short flip,
     int lineno, double fontheight, double fontascent, double fontdescent, int llength)
@@ -472,7 +472,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   register xSymbol *symptr;
   int textlayer;
   double angle;
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   char *textfont;
   #endif
   if(xctx->inst[n].ptr == -1) return;
@@ -589,7 +589,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
       }
       if((c == PINLAYER && xctx->inst[n].flags & 4) ||  enable_layer[textlayer]) {
-        #ifdef HAS_CAIRO
+        #if HAS_CAIRO==1
         textfont = symptr->text[j].font;
         if((textfont && textfont[0]) || symptr->text[j].flags) {
           cairo_font_slant_t slant;
@@ -611,11 +611,11 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
           flip^text.flip, text.hcenter, text.vcenter,
           x0+x1, y0+y1, text.xscale, text.yscale);
-        #ifndef HAS_CAIRO
+        #if HAS_CAIRO==0
         drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
         drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
         #endif
-        #ifdef HAS_CAIRO
+        #if HAS_CAIRO==1
         if( (textfont && textfont[0]) || symptr->text[j].flags) {
           cairo_restore(xctx->cairo_ctx);
           cairo_restore(xctx->cairo_save_ctx);
@@ -641,7 +641,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  register xSymbol *symptr;
  double angle;
 
- #ifdef HAS_CAIRO
+ #if HAS_CAIRO==1
  int customfont;
  #endif
 
@@ -736,13 +736,13 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
    if(text.xscale*FONTWIDTH*xctx->mooz<1) continue;
    txtptr= translate(n, text.txt_ptr);
    ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
-   #ifdef HAS_CAIRO
+   #if HAS_CAIRO==1
    customfont = set_text_custom_font(&text);
    #endif
    if(txtptr[0]) draw_temp_string(gc, what, txtptr,
      (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
      flip^text.flip, text.hcenter, text.vcenter, x0+x1, y0+y1, text.xscale, text.yscale);
-   #ifdef HAS_CAIRO
+   #if HAS_CAIRO==1
    if(customfont) cairo_restore(xctx->cairo_ctx);
    #endif
 
@@ -1559,7 +1559,7 @@ void draw(void)
  register xSymbol *symptr;
  int textlayer;
 
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   char *textfont;
   #endif
 
@@ -1725,7 +1725,7 @@ void draw(void)
             textlayer = xctx->text[i].layer;
             if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
             dbg(1, "draw(): drawing string %d = %s\n",i, xctx->text[i].txt_ptr);
-            #ifdef HAS_CAIRO
+            #if HAS_CAIRO==1
             if(!enable_layer[textlayer]) continue;
             textfont = xctx->text[i].font;
             if( (textfont && textfont[0]) || xctx->text[i].flags) {
@@ -1748,13 +1748,13 @@ void draw(void)
               xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
               xctx->text[i].x0,xctx->text[i].y0,
               xctx->text[i].xscale, xctx->text[i].yscale);
-            #ifdef HAS_CAIRO
+            #if HAS_CAIRO==1
             if((textfont && textfont[0]) || xctx->text[i].flags ) {
               cairo_restore(xctx->cairo_ctx);
               cairo_restore(xctx->cairo_save_ctx);
             }
             #endif
-            #ifndef HAS_CAIRO
+            #if HAS_CAIRO==0
             drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
             drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
             #endif

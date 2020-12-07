@@ -1185,7 +1185,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  xRect tmp;
  int c, i;
  int count=0;
- #ifdef HAS_CAIRO
+ #if HAS_CAIRO==1
  int customfont;
  #endif
 
@@ -1276,7 +1276,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  {
    if(selected == 1 && !xctx->text[i].sel) continue;
    if(selected == 2) continue;
-   #ifdef HAS_CAIRO
+   #if HAS_CAIRO==1
    customfont = set_text_custom_font(&xctx->text[i]);
    #endif
    if(text_bbox(xctx->text[i].txt_ptr, xctx->text[i].xscale,
@@ -1287,7 +1287,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
      count++;
      updatebbox(count,boundbox,&tmp);
    }
-   #ifdef HAS_CAIRO
+   #if HAS_CAIRO==1
    if(customfont) cairo_restore(xctx->cairo_ctx);
    #endif
  }
@@ -2015,7 +2015,7 @@ void new_polygon(int what)
    }
 }
 
-#ifdef HAS_CAIRO
+#if HAS_CAIRO==1
 int text_bbox(const char *str, double xscale, double yscale,
     short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2)
@@ -2162,7 +2162,7 @@ void place_text(int draw_text, double mx, double my)
   const char *str;
   int save_draw;
   xText *t = &xctx->text[xctx->texts];
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   char  *textfont;
   #endif
 
@@ -2216,7 +2216,7 @@ void place_text(int draw_text, double mx, double my)
   my_strdup(21, &t->font, get_tok_value(t->prop_ptr, "font", 0));
   textlayer = t->layer;
   if(textlayer < 0 || textlayer >= cadlayers) textlayer = TEXTLAYER;
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   textfont = t->font;
   if((textfont && textfont[0]) || t->flags) {
     cairo_font_slant_t slant;
@@ -2238,7 +2238,7 @@ void place_text(int draw_text, double mx, double my)
     draw_string(textlayer, NOW, t->txt_ptr, 0, 0, t->hcenter, t->vcenter, t->x0,t->y0, t->xscale, t->yscale);
   }
   draw_window = save_draw;
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   if((textfont && textfont[0]) || t->flags) {
     cairo_restore(xctx->cairo_ctx);
     cairo_restore(xctx->cairo_save_ctx);

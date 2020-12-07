@@ -186,7 +186,7 @@ void draw_selection(GC g, int interruptable)
 {
   int i, c, k, n;
   double  angle; /* arc */
-  #ifdef HAS_CAIRO
+  #if HAS_CAIRO==1
   int customfont;
   #endif
 
@@ -203,7 +203,7 @@ void draw_selection(GC g, int interruptable)
      } else {
        ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1, xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
      }
-     #ifdef HAS_CAIRO
+     #if HAS_CAIRO==1
      customfont =  set_text_custom_font(&xctx->text[n]);
      #endif
      draw_temp_string(g,ADD, xctx->text[n].txt_ptr,
@@ -212,7 +212,7 @@ void draw_selection(GC g, int interruptable)
        xctx->text[n].flip^xctx->move_flip, xctx->text[n].hcenter, xctx->text[n].vcenter,
        xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
        xctx->text[n].xscale, xctx->text[n].yscale);
-     #ifdef HAS_CAIRO
+     #if HAS_CAIRO==1
      if(customfont) cairo_restore(xctx->cairo_ctx);
      #endif
 
@@ -502,7 +502,7 @@ void copy_objects(int what)
  const char *str;
 
 
- #ifdef HAS_CAIRO
+ #if HAS_CAIRO==1
  char *textfont;
  /* int customfont; */
  #endif
@@ -781,14 +781,14 @@ void copy_objects(int what)
       if(k!=TEXTLAYER) break;
       check_text_storage();
       /*
-      #ifdef HAS_CAIRO
+      #if HAS_CAIRO==1
       customfont = set_text_custom_font(&xctx->text[n]);
       #endif
       text_bbox(xctx->text[n].txt_ptr, xctx->text[n].xscale,
         xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter, xctx->text[n].vcenter,
         xctx->text[n].x0, xctx->text[n].y0,
         &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2);
-      #ifdef HAS_CAIRO
+      #if HAS_CAIRO==1
       if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif
       bbox(ADD, xctx->rx1, xctx->ry1, xctx->rx2, xctx->ry2 );
@@ -838,7 +838,7 @@ void copy_objects(int what)
 
       textlayer = xctx->text[xctx->texts].layer;
       if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-      #ifdef HAS_CAIRO
+      #if HAS_CAIRO==1
       textfont = xctx->text[xctx->texts].font;
       if((textfont && textfont[0]) || xctx->text[xctx->texts].flags) {
         char *font = xctx->text[xctx->texts].font;
@@ -861,11 +861,11 @@ void copy_objects(int what)
        xctx->text[xctx->texts].hcenter, xctx->text[xctx->texts].vcenter,
        xctx->rx1+xctx->deltax,xctx->ry1+xctx->deltay,
        xctx->text[xctx->texts].xscale, xctx->text[xctx->texts].yscale);
-      #ifndef HAS_CAIRO
+      #if HAS_CAIRO==0
       drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
       drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
       #endif
-      #ifdef HAS_CAIRO
+      #if HAS_CAIRO==1
       if( (textfont && textfont[0]) || xctx->text[xctx->texts].flags) {
         cairo_restore(xctx->cairo_ctx);
         cairo_restore(xctx->cairo_save_ctx);
@@ -983,11 +983,11 @@ void move_objects(int what, int merge, double dx, double dy)
  double angle;
  double tx1,ty1; /* temporaries for swapping coordinates 20070302 */
  int textlayer;
- #ifdef HAS_CAIRO
+ #if HAS_CAIRO==1
  int customfont;
  #endif
 
- #ifdef HAS_CAIRO
+ #if HAS_CAIRO==1
  char  *textfont;
  #endif
  xInstance * const inst = xctx->inst;
@@ -1360,13 +1360,13 @@ void move_objects(int what, int merge, double dx, double dy)
 
      case xTEXT:
       if(k!=TEXTLAYER) break;
-      #ifdef HAS_CAIRO
+      #if HAS_CAIRO==1
       customfont = set_text_custom_font(&xctx->text[n]);
       #endif
       text_bbox(xctx->text[n].txt_ptr, xctx->text[n].xscale,
          xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
          xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0, &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2);
-      #ifdef HAS_CAIRO
+      #if HAS_CAIRO==1
       if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif
       bbox(ADD, xctx->rx1, xctx->ry1, xctx->rx2, xctx->ry2 );
@@ -1387,7 +1387,7 @@ void move_objects(int what, int merge, double dx, double dy)
 
       textlayer = xctx->text[n].layer;
       if(textlayer < 0 || textlayer >=  cadlayers) textlayer = TEXTLAYER;
-      #ifdef HAS_CAIRO
+      #if HAS_CAIRO==1
       textfont = xctx->text[n].font;
       if((textfont && textfont[0]) || xctx->text[n].flags) {
         cairo_font_slant_t slant;
@@ -1407,11 +1407,11 @@ void move_objects(int what, int merge, double dx, double dy)
        xctx->text[n].rot, xctx->text[n].flip, xctx->text[n].hcenter, xctx->text[n].vcenter,
        xctx->text[n].x0, xctx->text[n].y0,
        xctx->text[n].xscale, xctx->text[n].yscale);
-      #ifndef HAS_CAIRO
+      #if HAS_CAIRO==0
       drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
       drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
       #endif
-      #ifdef HAS_CAIRO
+      #if HAS_CAIRO==1
       if( (textfont && textfont[0]) || xctx->text[n].flags) {
         cairo_restore(xctx->cairo_ctx);
         cairo_restore(xctx->cairo_save_ctx);
