@@ -772,7 +772,7 @@ extern Pixmap cad_icon_pixmap, cad_icon_mask, *pixmap;
 extern XColor xcolor_array[];
 extern Visual *visual;
 #ifdef HAS_CAIRO
-extern XRenderPictFormat *format;
+extern XRenderPictFormat *render_format;
 #if HAS_XCB==1
 extern xcb_connection_t *xcbconn;
 extern xcb_screen_t *screen_xcb;

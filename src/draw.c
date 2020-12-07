@@ -116,7 +116,7 @@ void print_image()
   xctx->cairo_save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap, &format_rgb, w, h);
   #else
   xctx->cairo_save_sfc = cairo_xlib_surface_create_with_xrender_format(display,
-             xctx->save_pixmap, DefaultScreenOfDisplay(display), format, w, h);
+             xctx->save_pixmap, DefaultScreenOfDisplay(display), render_format, w, h);
   #endif /*HAS_XCB */
   #else
   xctx->cairo_save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, w, h);
@@ -192,7 +192,7 @@ void print_image()
   xctx->cairo_save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap, &format_rgb, w, h);
   #else
   xctx->cairo_save_sfc = cairo_xlib_surface_create_with_xrender_format (display,
-             xctx->save_pixmap, DefaultScreenOfDisplay(display), format, w, h);
+             xctx->save_pixmap, DefaultScreenOfDisplay(display), render_format, w, h);
   #endif /*HAS_XCB */
   #else
   xctx->cairo_save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, w, h);

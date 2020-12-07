@@ -425,8 +425,10 @@ void alloc_xschem_data()
   xctx->inst_color=NULL;
   xctx->window = xctx->save_pixmap = 0;
   xctx->xrect[0].width = xctx->xrect[0].height = xctx->xrect[0].x = xctx->xrect[0].y = 0;
+#ifdef HAS_CAIRO
   xctx->cairo_ctx = xctx->cairo_save_ctx = NULL;
   xctx->cairo_sfc = xctx->cairo_save_sfc = NULL;
+#endif
   xctx->gctiled = 0;
   /* get_unnamed_node() */
   xctx->new_node = 0;
@@ -912,7 +914,7 @@ void resetcairo(int create, int clear, int force_or_resize)
          &format_rgb, xctx->xschem_w, xctx->xschem_h);
     #else
     xctx->cairo_save_sfc = cairo_xlib_surface_create_with_xrender_format(display, xctx->save_pixmap,
-         DefaultScreenOfDisplay(display), format, xctx->xschem_w, xctx->xschem_h);
+         DefaultScreenOfDisplay(display), render_format, xctx->xschem_w, xctx->xschem_h);
     #endif /* HAS_XCB */
     #else
     xctx->cairo_save_sfc = 
@@ -1462,7 +1464,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
     dbg(1, "Tcl_AppInit(): done step e of xinit()\n");
     /* xctx->save_pixmap must be created as resetwin() frees it before recreating with new size. */
 
-
+    #if HAS_XRENDER==1
+    render_format = XRenderFindStandardFormat(display, PictStandardRGB24);
+    #endif
     resetwin(1, 0, 1);
     #ifdef HAS_CAIRO
     /* load font from tcl 20171112 */
