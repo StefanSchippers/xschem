@@ -1059,9 +1059,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  interp=inter;
  Tcl_Init(interp);
- if(has_x) Tk_Init(interp);
- if(!has_x)  tclsetvar("no_x","1");
-
+ if(has_x) {
+   Tk_Init(interp);
+   tclsetvar("has_x","1");
+ }
  Tcl_CreateExitHandler(tclexit, 0);
 #ifdef __unix__
  my_snprintf(tmp, S(tmp),"regsub -all {~/} {.:%s} {%s/}", XSCHEM_LIBRARY_PATH, home_dir);
