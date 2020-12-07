@@ -611,7 +611,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
           flip^text.flip, text.hcenter, text.vcenter,
           x0+x1, y0+y1, text.xscale, text.yscale);
-        #if HAS_CAIRO==0
+        #if HAS_CAIRO!=1
         drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
         drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
         #endif
@@ -1754,7 +1754,7 @@ void draw(void)
               cairo_restore(xctx->cairo_save_ctx);
             }
             #endif
-            #if HAS_CAIRO==0
+            #if HAS_CAIRO!=1
             drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
             drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
             #endif
