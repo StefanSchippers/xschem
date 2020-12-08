@@ -462,16 +462,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
     else if(!strcmp(argv[1],"get") && argc==3)
     {
-     if(!strcmp(argv[2],"current_dirname")) {
-       Tcl_SetResult(interp, xctx->current_dirname, TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"line_width")) {
-       char s[40];
-       my_snprintf(s, S(s), "%g", xctx->lw);
-       Tcl_SetResult(interp, s, TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"incr_hilight")) {
-       if( incr_hilight != 0 )
+     if(!strcmp(argv[2],"a3page")) {
+       if( a3page != 0 )
          Tcl_SetResult(interp, "1",TCL_STATIC);
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
@@ -482,14 +474,77 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
-     else if(!strcmp(argv[2],"netlist_show")) {
-       if( netlist_show != 0 )
+     else if(!strcmp(argv[2],"backlayer")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",BACKLAYER);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"bbox_hilighted")) {
+       xRect boundbox;
+       char res[2048];
+       calc_drawing_bbox(&boundbox, 2);
+       my_snprintf(res, S(res), "%g %g %g %g", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+       Tcl_SetResult(interp, res, TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"bbox_selected")) {
+       xRect boundbox;
+       char res[2048];
+       calc_drawing_bbox(&boundbox, 1);
+       my_snprintf(res, S(res), "%g %g %g %g", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+       Tcl_SetResult(interp, res, TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"cadlayers")) {
+       char s[30]; /* overflow safe 20161212 */
+       my_snprintf(s, S(s), "%d",cadlayers);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"cadsnap")) {
+       char s[30]; /* overflow safe 20161212 */
+       my_snprintf(s, S(s), "%.9g",cadsnap);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"change_lw")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",change_lw);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"color_ps")) {
+       if( color_ps != 0 )
          Tcl_SetResult(interp, "1",TCL_STATIC);
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
-     else if(!strcmp(argv[2],"show_pin_net_names")) {
-       if( show_pin_net_names != 0 )
+     else if(!strcmp(argv[2],"current_dirname")) {
+       Tcl_SetResult(interp, xctx->current_dirname, TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"currsch")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",xctx->currsch);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"debug_var")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",debug_var);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"dim")) {
+       char s[40];
+       my_snprintf(s, S(s), "%.2g", color_dim);
+       Tcl_SetResult(interp, s, TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"draw_grid")) {
+       if( draw_grid != 0 )
+         Tcl_SetResult(interp, "1",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, "0",TCL_STATIC);
+     }
+     else if(!strcmp(argv[2],"draw_window")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",draw_window);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"enable_stretch")) {
+       if( enable_stretch != 0 )
          Tcl_SetResult(interp, "1",TCL_STATIC);
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
@@ -500,31 +555,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
-     else if(!strcmp(argv[2],"split_files")) {
-       if( split_files != 0 )
-         Tcl_SetResult(interp, "1",TCL_STATIC);
-       else
-         Tcl_SetResult(interp, "0",TCL_STATIC);
-     }
-     else if(!strcmp(argv[2],"bbox_selected")) {
-       xRect boundbox;
-       char res[2048];
-       calc_drawing_bbox(&boundbox, 1);
-       my_snprintf(res, S(res), "%g %g %g %g", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-       Tcl_SetResult(interp, res, TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"bbox_hilighted")) {
-       xRect boundbox;
-       char res[2048];
-       calc_drawing_bbox(&boundbox, 2);
-       my_snprintf(res, S(res), "%g %g %g %g", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-       Tcl_SetResult(interp, res, TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"enable_stretch")) {
-       if( enable_stretch != 0 )
-         Tcl_SetResult(interp, "1",TCL_STATIC);
-       else
-         Tcl_SetResult(interp, "0",TCL_STATIC);
+     else if(!strcmp(argv[2],"gridlayer")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",GRIDLAYER);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"help")) {
        if( help != 0 )
@@ -532,8 +566,30 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
-     else if(!strcmp(argv[2],"color_ps")) {
-       if( color_ps != 0 )
+     else if(!strcmp(argv[2],"incr_hilight")) {
+       if( incr_hilight != 0 )
+         Tcl_SetResult(interp, "1",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, "0",TCL_STATIC);
+     }
+     else if(!strcmp(argv[2],"instances")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",xctx->instances);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"line_width")) {
+       char s[40];
+       my_snprintf(s, S(s), "%g", xctx->lw);
+       Tcl_SetResult(interp, s, TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"netlist_dir")) {
+       Tcl_SetResult(interp, netlist_dir,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"netlist_name")) {
+       Tcl_SetResult(interp, xctx->netlist_name, TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"netlist_show")) {
+       if( netlist_show != 0 )
          Tcl_SetResult(interp, "1",TCL_STATIC);
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
@@ -544,20 +600,34 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
-     else if(!strcmp(argv[2],"a3page")) {
-       if( a3page != 0 )
+     else if(!strcmp(argv[2],"pinlayer")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",PINLAYER);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"rectcolor")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",xctx->rectcolor);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"sellayer")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",SELLAYER);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"semaphore")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",xctx->semaphore);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"show_pin_net_names")) {
+       if( show_pin_net_names != 0 )
          Tcl_SetResult(interp, "1",TCL_STATIC);
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
-     else if(!strcmp(argv[2],"draw_grid")) {
-       if( draw_grid != 0 )
-         Tcl_SetResult(interp, "1",TCL_STATIC);
-       else
-         Tcl_SetResult(interp, "0",TCL_STATIC);
-     }
-     else if(!strcmp(argv[2],"text_svg")) {
-       if( text_svg != 0 )
+     else if(!strcmp(argv[2],"split_files")) {
+       if( split_files != 0 )
          Tcl_SetResult(interp, "1",TCL_STATIC);
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
@@ -567,97 +637,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          Tcl_SetResult(interp, "1",TCL_STATIC);
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
-     }
-     else if(!strcmp(argv[2],"netlist_name")) {
-       Tcl_SetResult(interp, xctx->netlist_name, TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"cadsnap")) {
-       char s[30]; /* overflow safe 20161212 */
-       my_snprintf(s, S(s), "%.9g",cadsnap);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"rectcolor")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",xctx->rectcolor);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"debug_var")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",debug_var);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"currsch")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",xctx->currsch);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"semaphore")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",xctx->semaphore);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"change_lw")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",change_lw);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"draw_window")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",draw_window);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"ui_state")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",xctx->ui_state);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"netlist_dir")) {
-       Tcl_SetResult(interp, netlist_dir,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"dim")) {
-       char s[40];
-       my_snprintf(s, S(s), "%.2g", color_dim);
-       Tcl_SetResult(interp, s, TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"instances")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",xctx->instances);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"pinlayer")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",PINLAYER);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"wirelayer")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",WIRELAYER);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"textlayer")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",TEXTLAYER);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"sellayer")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",SELLAYER);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"gridlayer")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",GRIDLAYER);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"backlayer")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",BACKLAYER);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
-     }
-     else if(!strcmp(argv[2],"version")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "XSCHEM V%s",XSCHEM_VERSION);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      #ifndef __unix__
      else if(!strcmp(argv[2], "temp_dir")) {
@@ -691,6 +670,32 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        }
      }
      #endif
+     else if(!strcmp(argv[2],"text_svg")) {
+       if( text_svg != 0 )
+         Tcl_SetResult(interp, "1",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, "0",TCL_STATIC);
+     }
+     else if(!strcmp(argv[2],"textlayer")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",TEXTLAYER);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"ui_state")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",xctx->ui_state);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"version")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "XSCHEM V%s",XSCHEM_VERSION);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"wirelayer")) {
+       char s[30]; /* overflow safe 20161122 */
+       my_snprintf(s, S(s), "%d",WIRELAYER);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
      else {
        fprintf(errfp, "xschem get %s: invalid command.\n", argv[2]);
      }

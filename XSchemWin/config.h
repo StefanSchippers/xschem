@@ -10,7 +10,7 @@
 /*#undef HAS_XCB */
 
 /* Define to 1 if Xlib's xrender is available */
-#define HAS_XRENDER 1
+#define HAS_XRENDER 0
 
 /* Define to 1 if popen(3) is available */
 #define HAS_POPEN 0

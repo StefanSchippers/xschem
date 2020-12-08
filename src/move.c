@@ -1407,7 +1407,7 @@ void move_objects(int what, int merge, double dx, double dy)
        xctx->text[n].rot, xctx->text[n].flip, xctx->text[n].hcenter, xctx->text[n].vcenter,
        xctx->text[n].x0, xctx->text[n].y0,
        xctx->text[n].xscale, xctx->text[n].yscale);
-      #if HAS_CAIRO==0!=1
+      #if HAS_CAIRO!=1
       drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
       drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
       #endif

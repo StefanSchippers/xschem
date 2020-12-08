@@ -3281,6 +3281,11 @@ proc set_missing_colors_to_black {} {
       }
     }
   }
+  foreach i {svg_colors ps_colors light_colors dark_colors} {
+    if { [llength [set $i]] > $cadlayers} {
+       set $i [lrange [set $i] 0 [expr $cadlayers -1]]
+    }
+  }
 }
 
 proc set_initial_dirs {} {

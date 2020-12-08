@@ -86,8 +86,12 @@ int get_color(int value)
 {
   int x;
 
-  x = value%(n_active_layers);
-  return active_layer[x];
+  if(n_active_layers) {
+    x = value%(n_active_layers);
+    return active_layer[x];
+  } else {
+    return cadlayers > 5 ? 5 : cadlayers -1; /* desperate attempt to return a decent tolor */
+  }
 }
 
 /* print all highlight signals which are not ports (in/out/inout). */
