@@ -85,8 +85,8 @@ int find_script_fungw_user_call_ctx(const char *name, int logdepth, int fatal)
 
 int find_script_fungw_cfg_pupdir(const char *name, int logdepth, int fatal)
 {
-	const char *lf, *cf, *inc;
-	char * out;
+	const char *lf, *cf;
+	char *out;
 	char *test_c =
 		NL "#include <libfungw/fungw.h>"
 		NL "int main() {"
@@ -102,7 +102,7 @@ int find_script_fungw_cfg_pupdir(const char *name, int logdepth, int fatal)
 	logprintf(logdepth, "find_fungw_cfg_pupdir: trying to find fungw pupdir...\n");
 	logdepth++;
 
-	inc = get("libs/script/fungw/includes");
+/*	inc = get("libs/script/fungw/includes");*/
 	lf  = get("libs/script/fungw/ldflags");
 	cf  = get("libs/script/fungw/cflags");
 
