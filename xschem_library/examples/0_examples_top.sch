@@ -84,3 +84,4 @@ C {bus_connect_nolab.sym} 400 -530 0 0 {name=r1}
 C {lab_pin.sym} 410 -600 3 1 {name=l4 sig_type=std_logic lab=BUS[2]}
 C {LCC_instances.sym} 160 -240 0 0 {name=x7}
 C {test_backannotated_subckt.sym} 160 -200 0 0 {name=x10}
+C {plot_manipulation.sym} 160 -160 0 0 {name=x11}
