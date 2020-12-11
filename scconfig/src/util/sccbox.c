@@ -1,6 +1,6 @@
 /*
-    scconfig - sccbox: portable copy, link, mkdir and remove
-    Copyright (C) 2016, 2017  Tibor Palinkas
+    scconfig - sccbox: portable copy, link, mkdir, remove, etc.
+    Copyright (C) 2016, 2017, 2020  Tibor Palinkas
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <ctype.h>
+#include <time.h>
 
 /*********************** DOCUMENTATION **************************/
 
@@ -47,6 +48,7 @@ static void help_generic(const char *prg)
 	printf("  error       error handling\n");
 	printf("  rm          remove files (e.g. for make clean)\n");
 	printf("  mkdir       create directories (e.g. for make *install)\n");
+	printf("  mktemp      create a temporary file/directory\n");
 	printf("  ln          create symlink (e.g. for make *install)\n");
 	printf("  install     copy-install files (e.g. for make install)\n");
 	printf("  linstall    symlink-install files (e.g. for make linstall)\n");
@@ -103,6 +105,18 @@ static void help_mkdir(const char *prg)
 	printf("  -c       ignored\n");
 	printf("  -u       do not do anyhting, exit 0\n");
 	printf("  -r       do not do anyhting, exit 0\n\n");
+}
+
+static void help_mktemp(const char *prg)
+{
+	printf("sccbox mktemp [switches]\n\n");
+	printf("Create a temporary file or directory and print its path to stdout\n\n");
+	printf("Switches:\n");
+	printf("  --quiet  don't print error messages and set exit status to 0\n");
+	printf("  --force  ignored (there's nothing to force)\n");
+	printf("  -d       create a directory, not a file\n");
+	printf("  -p tmp   path to tmpdir\n");
+	printf("  -t tpl   use tpl as file name template\n\n");
 }
 
 static void help_ln_common(void)
@@ -183,6 +197,7 @@ static int help(const char *prg, const char *topic)
 	else if (strcmp(topic, "error") == 0) help_error(prg);
 	else if (strcmp(topic, "rm") == 0) help_rm(prg);
 	else if (strcmp(topic, "mkdir") == 0) help_mkdir(prg);
+	else if (strcmp(topic, "mktemp") == 0) help_mktemp(prg);
 	else if (strcmp(topic, "ln") == 0) help_ln(prg);
 	else if (strcmp(topic, "install") == 0) help_install(prg);
 	else if (strcmp(topic, "linstall") == 0) help_linstall(prg);
@@ -212,12 +227,15 @@ typedef enum {
 } scc_mode_t;
 
 #define kill_flag  argv[n] = NULL
+#define kill_flag2  do { argv[n] = NULL; n++; argv[n] = NULL; } while(0)
 
 #define load_flags(code) \
 	do { \
 		int n, flags = 1; \
 		for(n = 1; n < argc; n++) { \
 			char *arg = argv[n]; \
+			char *payload = argv[n+1]; \
+			(void)payload; \
 			if ((*arg == '-') && (flags)) { \
 				if ((arg[1] == '-') && (arg[2] == '\0')) { \
 					kill_flag; \
@@ -794,6 +812,100 @@ int cmd_mkdir(int argc, char *argv[])
 	return err;
 }
 
+int rand_chr(void)
+{
+	static int seeded = 0;
+	static const char map[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+
+	if (!seeded) {
+		FILE *f;
+		long seed;
+
+		f = fopen("/dev/urandom", "rb");
+		if (f != NULL) {
+			int n;
+			for(n = 0; n < 4; n++) {
+				seed <<= 8;
+				seed |= fgetc(f);
+			}
+			fclose(f);
+		}
+		else
+			seed = time(NULL);
+		srand(seed);
+		seeded = 1;
+	}
+	return map[(int)((double)rand() / (double)RAND_MAX * (sizeof(map)-1))];
+}
+
+int cmd_mktemp(int argc, char *argv[])
+{
+	int want_dir = 0, err = 0, quiet = 0, retry;
+	const char *template = "scctmp.^^^^^^^^";
+	const char *tmpdir = "."; /* assume . is the safe place to create temp files the unsafe way */
+	char path[MY_PATH_MAX];
+
+	load_flags(
+		switch(*arg) {
+			case 'q': /* --quiet */
+				quiet = 1; kill_flag; break;
+			case 'd': /* --quiet */
+				want_dir = 1; kill_flag; break;
+			case 't': /* --template */
+				template = payload; kill_flag2; break;
+			case 'p': /* --path */
+				tmpdir = payload; kill_flag2; break;
+			case 'f':
+				kill_flag; break; /* ignore */
+		}
+	);
+
+	for(retry = 0; retry < 8; retry++) {
+		int dlen = strlen(tmpdir), rc = 0;
+		const char *t;
+		char *end;
+
+		/* generate a path */
+		memcpy(path, tmpdir, dlen);
+		end = path+dlen;
+		for(*end++ = '/', t = template; *t != '\0'; end++, t++) {
+			if (*t == '^') {
+				*end = rand_chr();
+				rc++;
+			}
+			else
+				*end = *t;
+		}
+		while(rc < 8) { /* make sure there are at least 8 random characters */
+			*end++ = rand_chr();
+			rc++;
+		}
+		*end = '\0';
+
+		if (want_dir) {
+			if (mkdir(path, 0755) == 0) {
+				printf("%s\n", path);
+				return 0;
+			}
+		}
+		else {
+			FILE *f = fopen(path, "w");
+			if (f != NULL) {
+				fclose(f);
+				printf("%s\n", path);
+				return 0;
+			}
+		}
+	}
+
+	if (quiet)
+		return 0;
+
+	fprintf(stderr, "sccbox: failed to create temporary %s\n", want_dir ? "directory" : "file");
+
+	return err;
+}
+
 int cmd_touch(int argc, char *argv[], int only_new)
 {
 	int n, res = 0;
@@ -829,6 +941,7 @@ int main(int argc, char *argv[])
 		if (strcmp(argv[0], "linstall") == 0)  return cmd_install(argc, argv, LINSTALL, 1);
 		if (strcmp(argv[0], "uninstall") == 0) return cmd_install(argc, argv, UNINSTALL, 1);
 		if (strcmp(argv[0], "mkdir") == 0)     return cmd_mkdir(argc, argv);
+		if (strcmp(argv[0], "mktemp") == 0)    return cmd_mktemp(argc, argv);
 		if (strcmp(argv[0], "ln") == 0)        return cmd_install(argc, argv, LINSTALL, 0);
 		if (strcmp(argv[0], "touch") == 0)     return cmd_touch(argc, argv, 0);
 		if (strcmp(argv[0], "touchnew") == 0)  return cmd_touch(argc, argv, 1);

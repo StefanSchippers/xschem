@@ -124,7 +124,7 @@ int find_io_fileno(const char *name, int logdepth, int fatal)
 	char *test_c_ =
 		NL "#include <stdio.h>"
 		NL "int main() {"
-		NL no_implicit(int, "%s", "%s")
+		    /* NOTE: can not check for implicit declaration as fileno() may be a macro (e.g. on MINIX3) */
 		NL "	if (%s(stdout) >= 0)"
 		NL "		puts(\"OK\"); "
 		NL "	return 0;"
@@ -138,20 +138,26 @@ int find_io_fileno(const char *name, int logdepth, int fatal)
 	logdepth++;
 
 	/* UNIX */
-	sprintf(test_c, test_c_, "fileno", "fileno", "fileno");
+	sprintf(test_c, test_c_, "fileno");
+	if (try_icl(logdepth, "libs/io/fileno", test_c, NULL, NULL, NULL)) {
+		put("libs/io/fileno/call", "fileno");
+		return 0;
+	}
+
+	sprintf(test_c, test_c_, "fileno");
 	if (try_icl(logdepth, "libs/io/fileno", test_c, "#include <unistd.h>\n", NULL, NULL)) {
 		put("libs/io/fileno/call", "fileno");
 		return 0;
 	}
 
-	sprintf(test_c, test_c_, "fileno", "fileno", "fileno");
+	sprintf(test_c, test_c_, "fileno");
 	if (try_icl(logdepth, "libs/io/fileno", test_c, "#define _XOPEN_SOURCE\n#include <unistd.h>\n", NULL, NULL)) {
 		put("libs/io/fileno/call", "fileno");
 		return 0;
 	}
 
 	/* windows */
-	sprintf(test_c, test_c_, "_fileno", "_fileno", "_fileno");
+	sprintf(test_c, test_c_, "_fileno");
 	if (try_icl(logdepth, "libs/io/fileno", test_c, "#include <stdio.h>\n", NULL, NULL)) {
 		put("libs/io/fileno/call", "_fileno");
 		return 0;

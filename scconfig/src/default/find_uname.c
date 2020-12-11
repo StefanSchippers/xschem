@@ -78,6 +78,7 @@ uname_t unames[] = {
 	{"[Bb][Ss][Dd]",         "BSD",    "UNIX",  sys_unix},
 	{"SunOS",                "SunOS",  "UNIX",  sys_unix},
 	{"OSF1",                 "OSF",    "UNIX",  sys_unix}, /* TODO: note the difference in cflags for debugging ("-ms -g") */
+	{"AIX",                  "AIX",    "UNIX",  sys_unix},
 	{"IRIX",                 "IRIX",   "UNIX",  sys_unix},
 	{"SunOS",                "SunOS",  "UNIX",  sys_unix},
 	{"[Mm]inix",             "Minix",  "UNIX",  sys_unix},

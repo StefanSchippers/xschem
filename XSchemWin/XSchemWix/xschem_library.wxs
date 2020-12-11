@@ -470,6 +470,12 @@
           <Component Id="cmp95428DF15E67AEA42FEFB38AD8DB0C25" Guid="{DE0C3032-D210-4988-BF0D-7B957109F99F}">
             <File Id="filB14DF2131B0544A28F996AFC0F045234" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\osc.sym" />
           </Component>
+          <Component Id="cmp610744DE0532E5584ABD8617C8865B35" Guid="{2C578998-34F4-4E28-977C-699BE6E4C8F9}">
+              <File Id="filFA561903106047F046FCAD46E46E2747" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\plot_manipulation.sch" />
+          </Component>
+          <Component Id="cmp11D3F0063EABB6D6807243D2674493C0" Guid="{16C46BD2-2BC4-48E5-A1BB-796338E21800}">
+              <File Id="fil531E58684F5EAF05CA24194A538D4217" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\plot_manipulation.sym" />
+          </Component>
           <Component Id="cmpDA0059CD9B0B7597A1C2A158F52D6018" Guid="{62A2236D-9531-45A7-85A5-C03EDD6DA3C5}">
             <File Id="fil84F2584FB007DEFBC4C629DC49C7A263" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\poweramp.sch" />
           </Component>
@@ -5259,6 +5265,8 @@
       <ComponentRef Id="cmpADFA933DEFE494D671DF34FA0879E9BA" />
       <ComponentRef Id="cmp5E27A15539EC756122E1540FA28AB1A1" />
       <ComponentRef Id="cmp95428DF15E67AEA42FEFB38AD8DB0C25" />
+      <ComponentRef Id="cmp610744DE0532E5584ABD8617C8865B35" />
+      <ComponentRef Id="cmp11D3F0063EABB6D6807243D2674493C0" />
       <ComponentRef Id="cmpDA0059CD9B0B7597A1C2A158F52D6018" />
       <ComponentRef Id="cmp8F4AD0DB3284F789679B6E780DF7616A" />
       <ComponentRef Id="cmp09E02BBAEBC12A661A112103F3DF3185" />

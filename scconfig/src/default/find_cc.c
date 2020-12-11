@@ -798,7 +798,7 @@ static int try_dynlib(int logdepth, const char *cflags, char *concated_ldflags, 
 	libname_dyn = libname = (char *)get("sys/ext_dynlib");
 	if ((compile_code(logdepth, test_lib, &oname, NULL, cflags_c, NULL) != 0) ||
 			(compile_file(logdepth, oname, &libname_dyn, NULL, NULL, concated_ldflags) != 0)) {
-			report("FAILED (compiling dynlib)\n");
+			report("('%s': nope) ", concated_ldflags);
 	}
 	else {
 		sprintf(test_host_app, test_host, ld_include, libname_dyn);
@@ -833,6 +833,7 @@ int find_ldflags_dynlib(const char *name, int logdepth, int fatal)
 
 	if (try_dynlib(logdepth, NULL, concat_nodes("-dynamic -shared", "cc/rdynamic", "libs/ldl", NULL), "cc/ldflags_dynlib", "-dynamic -shared", NULL, get("libs/ldl"))) return 0;
 	if (try_dynlib(logdepth, NULL, concat_nodes("-shared",          "cc/rdynamic", "libs/ldl", NULL), "cc/ldflags_dynlib", "-shared",          NULL, get("libs/ldl"))) return 0;
+	if (try_dynlib(logdepth, NULL, concat_nodes("-G",                              "libs/ldl", NULL), "cc/ldflags_dynlib", "-G",               NULL, get("libs/ldl"))) return 0; /* xlc (on AIX) */
 	report("Not found.\n");
 	return 1;
 }
