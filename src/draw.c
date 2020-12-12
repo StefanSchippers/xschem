@@ -778,18 +778,48 @@ void drawgrid()
   {
    if(i>=CADMAXGRIDPOINTS)
    {
-    if(draw_window) XDrawPoints(display,xctx->window,gc[GRIDLAYER],gridpoint,i,CoordModeOrigin);
-    if(draw_pixmap)
-      XDrawPoints(display,xctx->save_pixmap,gc[GRIDLAYER],gridpoint,i,CoordModeOrigin);
+    if(draw_window) {
+      if(big_grid_points) {
+        XDrawSegments(display,xctx->window,gc[GRIDLAYER],xctx->biggridpoint,i);
+      } else {
+        XDrawPoints(display,xctx->window,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
+      }
+    }
+    if(draw_pixmap) {
+      if(big_grid_points) {
+        XDrawSegments(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->biggridpoint,i);
+      } else {
+        XDrawPoints(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
+      }
+    }
     i=0;
    }
-   gridpoint[i].x=(int)(x);gridpoint[i++].y=(int)(y);
+   if(big_grid_points) {
+     xctx->biggridpoint[i].x1 = xctx->biggridpoint[i].x2 = (short)(x);
+     xctx->biggridpoint[i].y1 =  xctx->biggridpoint[i].y2 = (short)(y);
+     i++;
+   } else {
+     xctx->gridpoint[i].x=(int)(x);
+     xctx->gridpoint[i].y=(int)(y);
+     i++;
+   }
   }
  }
 
- if(draw_window) XDrawPoints(display,xctx->window,gc[GRIDLAYER],gridpoint,i,CoordModeOrigin);
- if(draw_pixmap)
-   XDrawPoints(display,xctx->save_pixmap,gc[GRIDLAYER],gridpoint,i,CoordModeOrigin);
+ if(draw_window) {
+   if(big_grid_points) {
+     XDrawSegments(display,xctx->window,gc[GRIDLAYER],xctx->biggridpoint,i);
+   } else {
+     XDrawPoints(display,xctx->window,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
+   }
+ }
+ if(draw_pixmap) {
+   if(big_grid_points) {
+     XDrawSegments(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->biggridpoint,i);
+   } else {
+     XDrawPoints(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
+   }
+ }
 /* debug ... */
 /* XFlush(display); */
 }

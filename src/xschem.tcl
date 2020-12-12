@@ -3422,6 +3422,7 @@ set_ne enable_stretch 0
 set_ne horizontal_move 0 ; # 20171023
 set_ne vertical_move 0 ; # 20171023
 set_ne draw_grid 1
+set_ne big_grid_points 0
 set_ne snap 10
 set_ne grid 20
 set_ne persistent_command 0
@@ -3733,12 +3734,21 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
          set bus_replacement_char $tmp_bus_char
        } 
      }
-  .menubar.option.menu add checkbutton -label "Verilog 2001 netlist variant" -variable verilog_2001 \
-  
+  .menubar.option.menu add checkbutton -label "Verilog 2001 netlist variant" -variable verilog_2001
   .menubar.option.menu add checkbutton -label "Draw grid" -variable draw_grid \
      -accelerator {%} \
      -command {
        if { $draw_grid == 1} { xschem set draw_grid 1; xschem redraw} else { xschem set draw_grid 0; xschem redraw}
+     }
+  .menubar.option.menu add checkbutton -label "Variable grid point size" -variable big_grid_points \
+     -command {
+       if { $big_grid_points == 1} {
+         xschem set big_grid_points 1
+         xschem redraw
+       } else {
+         xschem set big_grid_points 0
+         xschem redraw
+       }
      }
   .menubar.option.menu add checkbutton -label "Symbol text" -variable sym_txt \
      -accelerator {Ctrl+B} \
@@ -3763,10 +3773,6 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
        -command {
          input_line "Enter Symbol width ($symbol_width)" "set symbol_width" $symbol_width 
        }
-  .menubar.option.menu add checkbutton -label "Allow duplicated instance names (refdes)" \
-      -variable disable_unique_names -command {
-         xschem set disable_unique_names $disable_unique_names
-      }
 
   .menubar.option.menu add separator
   .menubar.option.menu add radiobutton -label "Spice netlist" -variable netlist_type -value spice \
@@ -3952,7 +3958,10 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
           -command "xschem print_hilight_net 2" -accelerator Alt-Shift-J
   .menubar.sym.menu add command -label "Create pins from highlight nets" \
           -command "xschem print_hilight_net 0" -accelerator Ctrl-J
-
+  .menubar.sym.menu add checkbutton -label "Allow duplicated instance names (refdes)" \
+      -variable disable_unique_names -command {
+         xschem set disable_unique_names $disable_unique_names
+      }
   .menubar.tools.menu add checkbutton -label "Remember last command" -variable persistent_command \
      -accelerator {} \
      -command {

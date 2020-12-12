@@ -493,6 +493,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        my_snprintf(res, S(res), "%g %g %g %g", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
        Tcl_SetResult(interp, res, TCL_VOLATILE);
      }
+     else if(!strcmp(argv[2],"big_grid_points")) {
+       if( big_grid_points != 0 )
+         Tcl_SetResult(interp, "1",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, "0",TCL_STATIC);
+     }
      else if(!strcmp(argv[2],"cadlayers")) {
        char s[30]; /* overflow safe 20161212 */
        my_snprintf(s, S(s), "%d",cadlayers);
@@ -1957,6 +1963,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         color_dim = s;
         draw();
         Tcl_ResetResult(interp);
+      }
+      else if(!strcmp(argv[2],"big_grid_points")) {
+            big_grid_points=atoi(argv[3]);
       }
       else if(!strcmp(argv[2],"cairo_font_scale")) {
         double s = atof(argv[3]);

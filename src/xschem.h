@@ -584,7 +584,8 @@ typedef struct {
   /* select_rect */
   double nl_xr, nl_yr, nl_xr2, nl_yr2;
   int nl_sel, nl_sem;
-
+  XSegment *biggridpoint;
+  XPoint *gridpoint;
 
 } Xschem_ctx;
 
@@ -698,6 +699,7 @@ extern int incr_hilight;
 extern int auto_hilight;
 extern int fill; /*  fill rectangles */
 extern int draw_grid;
+extern int big_grid_points;
 extern int text_svg;
 extern double cadgrid;
 extern double cadhalfdotsize;
@@ -773,7 +775,6 @@ extern unsigned char pixdata_init[22][32];
 extern GC *gc, *gcstipple, gctiled;
 extern Display *display;
 extern XRectangle *rectangle;
-extern XPoint *gridpoint;
 extern Pixmap cad_icon_pixmap, cad_icon_mask, *pixmap;
 extern XColor xcolor_array[];
 extern Visual *visual;

@@ -99,7 +99,6 @@ GC *gcstipple,*gc;
 Pixmap *pixmap = NULL;
 Display *display;
 Pixmap cad_icon_pixmap=0, cad_icon_mask=0;
-XPoint *gridpoint;         /* pointer to array of gridpoints, used in draw() */
 XColor xcolor_array[256];
 Visual *visual;
 #if HAS_XRENDER==1
@@ -129,6 +128,7 @@ int split_files=0; /* split netlist files 20081202 */
 double cadgrid = CADGRID;
 double cadsnap = CADSNAP;
 int draw_grid=1;
+int big_grid_points=0;
 int rainbow_colors=0;
 int dis_uniq_names=0; /* if set allow instances with duplicate names */
 int persistent_command=0; /* remember last command 20181022 */
