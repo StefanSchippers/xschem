@@ -752,76 +752,68 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
 
 void drawgrid()
 {
- double x,y;
- double delta,tmp;
- int i=0;
- if( !draw_grid || !has_x) return;
- delta=cadgrid*xctx->mooz;
- while(delta<CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
- x = xctx->xorigin*xctx->mooz;y = xctx->yorigin*xctx->mooz;
- if(y>xctx->areay1 && y<xctx->areay2)
- {
-  if(draw_window) XDrawLine(display, xctx->window, gc[GRIDLAYER],xctx->areax1+1,(int)y, xctx->areax2-1, (int)y);
-  if(draw_pixmap)
-    XDrawLine(display, xctx->save_pixmap, gc[GRIDLAYER],xctx->areax1+1,(int)y, xctx->areax2-1, (int)y);
- }
- if(x>xctx->areax1 && x<xctx->areax2)
- {
-  if(draw_window) XDrawLine(display, xctx->window, gc[GRIDLAYER],(int)x,xctx->areay1+1, (int)x, xctx->areay2-1);
-  if(draw_pixmap)
-    XDrawLine(display, xctx->save_pixmap, gc[GRIDLAYER],(int)x,xctx->areay1+1, (int)x, xctx->areay2-1);
- }
- tmp = floor((xctx->areay1+1)/delta)*delta-fmod(-xctx->yorigin*xctx->mooz,delta);
- for(x=floor((xctx->areax1+1)/delta)*delta-fmod(-xctx->xorigin*xctx->mooz,delta);x<xctx->areax2;x+=delta)
- {
-  for(y=tmp;y<xctx->areay2;y+=delta)
-  {
-   if(i>=CADMAXGRIDPOINTS)
-   {
-    if(draw_window) {
-      if(big_grid_points) {
-        XDrawSegments(display,xctx->window,gc[GRIDLAYER],xctx->biggridpoint,i);
-      } else {
-        XDrawPoints(display,xctx->window,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
-      }
-    }
-    if(draw_pixmap) {
-      if(big_grid_points) {
-        XDrawSegments(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->biggridpoint,i);
-      } else {
-        XDrawPoints(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
-      }
-    }
-    i=0;
-   }
-   if(big_grid_points) {
-     xctx->biggridpoint[i].x1 = xctx->biggridpoint[i].x2 = (short)(x);
-     xctx->biggridpoint[i].y1 =  xctx->biggridpoint[i].y2 = (short)(y);
-     i++;
-   } else {
-     xctx->gridpoint[i].x=(int)(x);
-     xctx->gridpoint[i].y=(int)(y);
-     i++;
-   }
+  double x,y;
+  double delta,tmp;
+  int i=0;
+  if( !draw_grid || !has_x) return;
+  delta=cadgrid*xctx->mooz;
+  while(delta < CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
+  x = xctx->xorigin*xctx->mooz; y = xctx->yorigin*xctx->mooz;
+  if(y>xctx->areay1 && y < xctx->areay2) {
+    if(draw_window) XDrawLine(display, xctx->window, gc[GRIDLAYER],xctx->areax1+1,(int)y, xctx->areax2-1, (int)y);
+    if(draw_pixmap)
+      XDrawLine(display, xctx->save_pixmap, gc[GRIDLAYER],xctx->areax1+1,(int)y, xctx->areax2-1, (int)y);
   }
- }
-
- if(draw_window) {
-   if(big_grid_points) {
-     XDrawSegments(display,xctx->window,gc[GRIDLAYER],xctx->biggridpoint,i);
-   } else {
-     XDrawPoints(display,xctx->window,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
-   }
- }
- if(draw_pixmap) {
-   if(big_grid_points) {
-     XDrawSegments(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->biggridpoint,i);
-   } else {
-     XDrawPoints(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
-   }
- }
-/* debug ... */
-/* XFlush(display); */
+  if(x>xctx->areax1 && x < xctx->areax2) {
+    if(draw_window) XDrawLine(display, xctx->window, gc[GRIDLAYER],(int)x,xctx->areay1+1, (int)x, xctx->areay2-1);
+    if(draw_pixmap)
+      XDrawLine(display, xctx->save_pixmap, gc[GRIDLAYER],(int)x,xctx->areay1+1, (int)x, xctx->areay2-1);
+  }
+  tmp = floor((xctx->areay1+1)/delta)*delta-fmod(-xctx->yorigin*xctx->mooz,delta);
+  for(x=floor((xctx->areax1+1)/delta)*delta-fmod(-xctx->xorigin*xctx->mooz,delta); x < xctx->areax2; x += delta) {
+    for(y=tmp; y < xctx->areay2; y += delta) {
+      if(i>=CADMAXGRIDPOINTS) {
+        if(draw_window) {
+          if(big_grid_points) {
+            XDrawSegments(display,xctx->window,gc[GRIDLAYER],xctx->biggridpoint,i);
+          } else {
+            XDrawPoints(display,xctx->window,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
+          }
+        }
+        if(draw_pixmap) {
+          if(big_grid_points) {
+            XDrawSegments(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->biggridpoint,i);
+          } else {
+            XDrawPoints(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
+          }
+        }
+        i=0;
+      }
+      if(big_grid_points) {
+        xctx->biggridpoint[i].x1 = xctx->biggridpoint[i].x2 = (short)(x);
+        xctx->biggridpoint[i].y1 =  xctx->biggridpoint[i].y2 = (short)(y);
+        i++;
+      } else {
+        xctx->gridpoint[i].x=(int)(x);
+        xctx->gridpoint[i].y=(int)(y);
+        i++;
+      }
+    }
+  }
+  if(draw_window) {
+    if(big_grid_points) {
+      XDrawSegments(display,xctx->window,gc[GRIDLAYER],xctx->biggridpoint,i);
+    } else {
+      XDrawPoints(display,xctx->window,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
+    }
+  }
+  if(draw_pixmap) {
+    if(big_grid_points) {
+      XDrawSegments(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->biggridpoint,i);
+    } else {
+      XDrawPoints(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
+    }
+  }
 }
 
 
