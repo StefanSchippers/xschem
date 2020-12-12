@@ -59,5 +59,5 @@ make
 make install
 ```
 
-The application will be placed in /Users/$(whoami)/xschem-macos/bin and can be started with
-./xschem in that folder.
+The application will be placed in `/Users/$(whoami)/xschem-macos/bin` and can be started with
+`./xschem` in that folder.
