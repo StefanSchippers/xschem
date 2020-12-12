@@ -40,139 +40,117 @@ struct node_hashentry **get_node_table_ptr(void)
 
 void print_vhdl_signals(FILE *fd)
 {
- struct node_hashentry *ptr;
- int i, found;
- int mult,j;
- char *class=NULL;
-
- found=0;
- for(i=0;i<HASHSIZE;i++)
- {
-  ptr = xctx->node_table[i];
-  while(ptr)
-  {
-   if(strstr(ptr->token, ".")) {
-     dbg(2, "print_vhdl_signals(): record field, skipping: %s\n", ptr->token);
-     ptr = ptr->next;
-     continue; /* signal is a record field, no declaration */
-   }
-   if(ptr->d.port == 0 )
-   {
-    found = 1;
-    if(ptr->token[0]=='#')
-    {
-     mult=get_unnamed_node(3, 0,  atoi((ptr->token)+4) );
-    }
-    else
-    {
-     mult=1;
-    }
-    dbg(2, " print_vhdl_signals(): node: %s mult: %d value=%s \n\n",
-           ptr->token,mult, ptr->value?ptr->value:"NULL");
-
-    if( ptr->class && ptr->class[0] )
-     my_strdup(277, &class, ptr->class);
-    else
-     my_strdup(278, &class, "signal");
-
-    if(mult>1)
-    {
-     for(j=mult-1;j>=0;j--)
-     {
-      fprintf(fd, "%s %s[%d] : ", class, ptr->token[0]=='#' ? ptr->token+1 : ptr->token,j);
-      if(ptr->sig_type && ptr->sig_type[0])
-      {
-         fprintf(fd, "%s", ptr->sig_type);
+  struct node_hashentry *ptr;
+  int i, found;
+  int mult,j;
+  char *class=NULL;
+ 
+  found=0;
+  for(i=0;i<HASHSIZE;i++) {
+    ptr = xctx->node_table[i];
+    while(ptr) {
+      if(strstr(ptr->token, ".")) {
+        dbg(2, "print_vhdl_signals(): record field, skipping: %s\n", ptr->token);
+        ptr = ptr->next;
+        continue; /* signal is a record field, no declaration */
       }
-      else
-        fprintf(fd, "std_logic");
-      if(ptr->value && ptr->value[0]) fprintf(fd, " := %s ", ptr->value);
-      fprintf(fd, " ; %s\n", ptr->orig_tok);
-     }
+      if(ptr->d.port == 0 ) {
+        found = 1;
+        if(ptr->token[0]=='#') {
+          mult=get_unnamed_node(3, 0,  atoi((ptr->token)+4) );
+        }
+        else {
+          mult=1;
+        }
+        dbg(2, "print_vhdl_signals(): node: %s mult: %d value=%s \n\n",
+              ptr->token,mult, ptr->value?ptr->value:"NULL");
+        if( ptr->class && ptr->class[0] )
+          my_strdup(277, &class, ptr->class);
+        else
+          my_strdup(278, &class, "signal");
+        if(mult>1) {
+          for(j=mult-1;j>=0;j--) {
+            fprintf(fd, "%s %s[%d] : ", class, ptr->token[0]=='#' ? ptr->token+1 : ptr->token,j);
+            if(ptr->sig_type && ptr->sig_type[0]) {
+              fprintf(fd, "%s", ptr->sig_type);
+            }
+            else {
+             fprintf(fd, "std_logic");
+            }
+            if(ptr->value && ptr->value[0]) fprintf(fd, " := %s ", ptr->value);
+            fprintf(fd, " ; %s\n", ptr->orig_tok);
+          }
+        }
+        else {
+          fprintf(fd, "%s %s : ", class, ptr->token[0]=='#' ? ptr->token+1 : ptr->token);
+          if(ptr->sig_type && ptr->sig_type[0]) {
+            fprintf(fd, "%s", ptr->sig_type);
+          }
+          else {
+            fprintf(fd, "std_logic");
+          }
+          if(ptr->value && ptr->value[0]) fprintf(fd, " := %s ", ptr->value);
+          fprintf(fd, " ; %s\n", ptr->orig_tok);
+        }
+      }
+      ptr = ptr->next;
     }
-    else
-    {
-     fprintf(fd, "%s %s : ", class, ptr->token[0]=='#' ? ptr->token+1 : ptr->token);
-
-     if(ptr->sig_type && ptr->sig_type[0])
-     {
-        fprintf(fd, "%s", ptr->sig_type);
-     }
-     else
-       fprintf(fd, "std_logic");
-     if(ptr->value && ptr->value[0]) fprintf(fd, " := %s ", ptr->value);
-     fprintf(fd, " ; %s\n", ptr->orig_tok);
-    }
-   }
-   ptr = ptr->next;
   }
- }
- if(found) fprintf(fd, "\n" );
- my_free(852, &class);
+  if(found) fprintf(fd, "\n" );
+  my_free(852, &class);
 }
 
 
 
 void print_verilog_signals(FILE *fd)
 {
- struct node_hashentry *ptr;
- int i, found;
- int mult,j;
-
- dbg(2, " print_verilog_signals(): entering routine\n");
- found=0;
- for(i=0;i<HASHSIZE;i++)
- {
-  ptr = xctx->node_table[i];
-  while(ptr)
-  {
-   if(ptr->d.port == 0 )
-   {
-    found = 1;
-    if(ptr->token[0]=='#')
-    {
-     mult=get_unnamed_node(3, 0,  atoi((ptr->token)+4) );
-    }
-    else
-    {
-     mult=1;
-    }
-    dbg(2, " print_verilog_signals(): node: %s mult: %d value=%s \n\n",
-           ptr->token,mult, ptr->value?ptr->value:"NULL");
-
-    if(mult>1)
-    {
-     for(j=mult-1;j>=0;j--)
-     {
-      if(ptr->verilog_type && ptr->verilog_type[0])
-      {
-         fprintf(fd, "%s ", ptr->verilog_type);
+  struct node_hashentry *ptr;
+  int i, found;
+  int mult,j;
+ 
+  dbg(2, " print_verilog_signals(): entering routine\n");
+  found=0;
+  for(i=0;i<HASHSIZE;i++) {
+    ptr = xctx->node_table[i];
+    while(ptr) {
+      if(ptr->d.port == 0 ) {
+        found = 1;
+        if(ptr->token[0]=='#') {
+         mult=get_unnamed_node(3, 0,  atoi((ptr->token)+4) );
+        }
+        else {
+         mult=1;
+        }
+        dbg(2, " print_verilog_signals(): node: %s mult: %d value=%s \n\n",
+               ptr->token,mult, ptr->value?ptr->value:"NULL");
+        if(mult>1) {
+          for(j=mult-1;j>=0;j--) {
+            if(ptr->verilog_type && ptr->verilog_type[0]) {
+              fprintf(fd, "%s ", ptr->verilog_type);
+            }
+            else {
+              fprintf(fd, "wire ");
+            }
+            fprintf(fd, "%s[%d] ", ptr->token[0]=='#' ? ptr->token+1 : ptr->token,j);
+            if(ptr->value && ptr->value[0]) fprintf(fd, "= %s ", ptr->value);
+            fprintf(fd, "; // %s\n", ptr->orig_tok);
+          }
+        }
+        else {
+          if(ptr->verilog_type && ptr->verilog_type[0]) {
+            fprintf(fd, "%s ", ptr->verilog_type);
+          } else {
+            fprintf(fd, "wire ");
+          }
+          fprintf(fd, "%s ", ptr->token[0]=='#' ? ptr->token+1 : ptr->token);
+          if(ptr->value && ptr->value[0]) fprintf(fd, "= %s ", ptr->value);
+          fprintf(fd, "; // %s\n", ptr->orig_tok);
+        }
       }
-      else
-        fprintf(fd, "wire ");
-      fprintf(fd, "%s[%d] ", ptr->token[0]=='#' ? ptr->token+1 : ptr->token,j);
-      if(ptr->value && ptr->value[0]) fprintf(fd, "= %s ", ptr->value);
-      fprintf(fd, "; // %s\n", ptr->orig_tok);
-     }
+      ptr = ptr->next;
     }
-    else
-    {
-
-     if(ptr->verilog_type && ptr->verilog_type[0])
-     {
-        fprintf(fd, "%s ", ptr->verilog_type);
-     }
-     else
-       fprintf(fd, "wire ");
-     fprintf(fd, "%s ", ptr->token[0]=='#' ? ptr->token+1 : ptr->token);
-     if(ptr->value && ptr->value[0]) fprintf(fd, "= %s ", ptr->value);
-     fprintf(fd, "; // %s\n", ptr->orig_tok);
-    }
-   }
-   ptr = ptr->next;
   }
- }
- if(found) fprintf(fd, "\n" );
+  if(found) fprintf(fd, "\n" );
 }
 
 

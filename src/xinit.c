@@ -363,7 +363,7 @@ void free_xschem_data()
   my_free(1108, &xctx->sel_array);
   for(i=0;i<CADMAXHIER;i++) my_free(1139, &xctx->sch_path[i]);
   my_free(1099, &xctx->gridpoint);
-  my_free(1099, &xctx->biggridpoint);
+  my_free(1214, &xctx->biggridpoint);
   my_free(269, &xctx);
 }
 
@@ -509,7 +509,7 @@ void alloc_xschem_data()
   xctx->lines=my_calloc(635, cadlayers, sizeof(int));
   xctx->maxsel=MAXGROUP;
   xctx->sel_array=my_calloc(619, xctx->maxsel, sizeof(Selected));
-  xctx->biggridpoint=(XSegment*)my_calloc(608, CADMAXGRIDPOINTS,sizeof(XSegment));
+  xctx->biggridpoint=(XSegment*)my_calloc(1213, CADMAXGRIDPOINTS,sizeof(XSegment));
   xctx->gridpoint=(XPoint*)my_calloc(608, CADMAXGRIDPOINTS,sizeof(XPoint));
 }
 
