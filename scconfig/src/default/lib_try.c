@@ -206,6 +206,12 @@ int try_icl_(int logdepth, const char *prefix, const char *test_c_in, const char
 		rcflags = str_concat("", prfx, "-I", uprefix, "/include ", rcflags, NULL);
 		if (old != cflags) free(old);
 
+		/* add -I to the db too */
+		old = dbcflags;
+		dbcflags = str_concat("", "-I", uprefix, "/include ", dbcflags, NULL);
+		free(old);
+
+
 		old = rldflags;
 		if ((rldflags != NULL) && (*rldflags == '^')) {
 			rldflags++;
@@ -215,6 +221,11 @@ int try_icl_(int logdepth, const char *prefix, const char *test_c_in, const char
 			prfx = "";
 		rldflags = str_concat("", prfx, "-L", uprefix, "/lib ", rldflags, NULL);
 		if (old != ldflags) free(old);
+
+		/* add -L to the db too */
+		old = dbldflags;
+		dbldflags = str_concat("", "-L", uprefix, "/lib ", dbldflags, NULL);
+		free(old);
 	}
 
 	res = try_icl__(logdepth, prefix, test_c_in, rincludes, rcflags, rldflags, dbincludes, dbcflags, dbldflags, run, accept_res);
