@@ -19,6 +19,7 @@ Extract the Tcl sources and then go to the unix folder:
 ## Tk compilation
 Same procedure as Tcl, but we need to specificy the Tcl and X libraries paths. XQuartz is installed on
 /opt/X11 , so we do:  
+
 `cd <extracted-folder>/unix`  
 `./configure --prefix=/usr/local/opt/tcl-tk \
 --with-tcl=/usr/local/opt/tcl-tk/lib --with-x \
@@ -26,9 +27,10 @@ Same procedure as Tcl, but we need to specificy the Tcl and X libraries paths. X
 `make`  
 `make install`  
 
-##xschem compilation
+## xschem compilation
 Besides referencing the X libraries, we need to also point to the Tcl/Tk installation path. Let's use a recent
 xschem repository and install it on ~/xschem-macos (adapt this to your username):  
+
 `git clone https://github.com/StefanSchippers/xschem.git`  
 `cd xschem`  
 `./configure --prefix=/Users/$(whoami)/xschem-macos`  
@@ -42,6 +44,7 @@ LDFLAGS=-L/opt/X11/lib -L/usr/local/opt/tcl-tk/lib -lm -lcairo \
 -lX11 -lXrender -lxcb -lxcb-render -lX11-xcb -lXpm -ltcl8.6 -ltk8.6`  
 
 Finally, we compile and install the application.  
+
 `make
 make install`  
 
