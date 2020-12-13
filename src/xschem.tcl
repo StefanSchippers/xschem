@@ -651,12 +651,12 @@ proc xschem_server {sock addr port} {
   fileevent $sock readable [list xschem_getdata $sock]
 }
 
-
 ## given a path (x1.x2.m4) descend into x1.x2 and return m4 whether m4 found or not 
 proc descend_hierarchy {path {redraw 1}} {
-  # return to top level if not already there
   xschem set no_draw 1
+  # return to top level if not already there
   while { [xschem get currsch] } { xschem go_back } 
+  # recursively descend into sub-schematics
   while { [regexp {\.} $path] } {
     xschem unselect_all
     set inst $path
@@ -673,7 +673,6 @@ proc descend_hierarchy {path {redraw 1}} {
   if {$redraw} {xschem redraw}
   return $path
 }
-
 
 ## given a hierarchical instname name (x1.xamp.m1) go down in the hierarchy and 
 ## select the specified instance (m1).
