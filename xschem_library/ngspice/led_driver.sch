@@ -61,7 +61,7 @@ C {code_shown.sym} 1050 -240 0 0 {name=s1 value="* .control
 * write led_driver.raw
 * tran 5n 1000u uic
 * .endc
-.save all
+* .save all
 .tran 5n 1000u uic
 "}
 C {ammeter.sym} 750 -470 3 0 {name=VVled}
@@ -107,3 +107,7 @@ C {bsource.sym} 880 -670 0 0 {name=B1 VAR=V FUNC="pwl(V(VLED,VCC),
 }
 C {lab_pin.sym} 880 -640 0 0 {name=l9 sig_type=std_logic lab=0}
 C {lab_pin.sym} 880 -730 0 0 {name=l10 sig_type=std_logic lab=COMP}
+C {spice_probe.sym} 780 -470 0 0 {name=p1 analysis=tran}
+C {spice_probe.sym} 90 -640 0 0 {name=p2 analysis=tran}
+C {spice_probe.sym} 410 -460 0 0 {name=p3 analysis=tran}
+C {spice_probe.sym} 290 -400 0 0 {name=p4 analysis=tran}

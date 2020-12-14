@@ -116,11 +116,11 @@ vvss vss 0 dc 0
 ** SPICE models for active devices and put them  into the below 
 ** referenced file in simulation directory.
 .include \\"models_poweramp.txt\\"
-.save all
-.option savecurrents
+* .save all
+* .option savecurrents
 * .FOUR 20k v(outm,outp)
 * .probe i(*) 
-* .probe p(r*) p(v*)
+.save p(r*) p(v*)
 "}
 C {vsource.sym} 160 -1200 0 0 {name=V1 value="dc 50 pwl 0 0 1m 50"}
 C {vsource.sym} 160 -1140 0 0 {name=V0 value="dc 50 pwl 0 0 1m 50"}
@@ -254,3 +254,8 @@ load $netlist_dir/$rawfile
 table_set $rawfile\\"
 unset rawfile"
 }
+C {spice_probe.sym} 730 -700 0 0 {name=p40 analysis=tran}
+C {spice_probe.sym} 740 -240 0 0 {name=p41 analysis=tran}
+C {spice_probe.sym} 670 -1250 0 0 {name=p42 analysis=tran}
+C {spice_probe.sym} 680 -1170 0 0 {name=p43 analysis=tran}
+C {spice_probe.sym} 960 -1250 0 0 {name=p44 analysis=tran}

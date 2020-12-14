@@ -96,7 +96,7 @@ C {code_shown.sym} 245 -245 0 0 {name=CONTROL value="* .control
 * write led_driver.raw
 * .endc
 .option savecurrents
-.save all
+*.save all
 .tran 5n 200u uic
 * .dc VP 0 21 0.01
 " net_name=true}
@@ -185,3 +185,7 @@ C {ammeter.sym} 860 -400 2 0 {name=Vdiode net_name=true}
 C {launcher.sym} 655 -165 0 0 {name=h1 
 descr="Simulate + gaw reload" 
 tclcommand="set sim(spice,default) 1; set sim(spice,1,fg) 1; set sim(spice,1,st) 0;xschem netlist; xschem simulate; gaw_cmd reload_all" net_name=true}
+C {spice_probe.sym} 1160 -480 0 0 {name=p1 analysis=tran}
+C {spice_probe.sym} 360 -450 0 0 {name=p2 analysis=tran}
+C {spice_probe.sym} 860 -550 0 1 {name=p3 analysis=tran}
+C {spice_probe.sym} 100 -450 0 1 {name=p4 analysis=tran}

@@ -94,6 +94,8 @@ N 340 -1180 560 -1180 {lab=VPP}
 N 1110 -1180 1110 -790 { lab=VPP}
 N 560 -1180 1110 -1180 {lab=VPP}
 N 230 -950 800 -950 { lab=#net2}
+N 1360 -920 1570 -920 {lab=TEST[3:0]}
+N 1360 -860 1360 -840 { lab=VSS}
 C {ipin.sym} 530 -160 0 0 {name=p0 lab=PLUS}
 C {ipin.sym} 530 -120 0 0 {name=p2 lab=VPP}
 C {ipin.sym} 530 -100 0 0 {name=p3 lab=VNN}
@@ -408,3 +410,13 @@ load $netlist_dir/$rawfile
 table_set $rawfile\\"
 unset rawfile"
 }
+C {spice_probe.sym} 1010 -760 0 0 {name=p40 analysis=tran}
+C {spice_probe.sym} 1000 -440 0 0 {name=p56 analysis=tran}
+C {spice_probe.sym} 420 -790 0 0 {name=p57 analysis=tran}
+C {spice_probe.sym} 280 -950 0 0 {name=p58 analysis=tran}
+C {spice_probe.sym} 180 -720 0 0 {name=p59 analysis=tran}
+C {lab_wire.sym} 1420 -920 0 0 {name=l3 lab=TEST[3:0]}
+C {spice_probe.sym} 1510 -920 0 0 {name=p60 analysis=tran}
+C {res.sym} 1360 -890 0 1 {name=R8[3:0] m=1 value=200 net_name=true}
+C {lab_pin.sym} 1360 -840 0 0 {name=p61 lab=VSS}
+C {spice_probe.sym} 1020 -1120 0 0 {name=p62 analysis=tran}

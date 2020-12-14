@@ -19,7 +19,6 @@ C {code_shown.sym} 640 -210 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
 value="
-
 .tran 10n 800u uic
 .save all
 "}
