@@ -1033,6 +1033,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  char name[PATH_MAX]; /* overflow safe 20161122 */
  char tmp[2*PATH_MAX+100]; /* 20161122 overflow safe */
  int i;
+ double l_width;
  struct stat buf;
  const char *home_buff;
  int running_in_src_dir;
@@ -1330,6 +1331,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tclsetvar("color_ps",tmp);
  }
  change_lw=atoi(tclgetvar("change_lw"));
+ l_width=atoi(tclgetvar("line_width"));
+ if(change_lw == 1) l_width = 0.0;
  draw_window=atoi(tclgetvar("draw_window"));
  incr_hilight=atoi(tclgetvar("incr_hilight"));
  if(a3page==-1)
@@ -1339,6 +1342,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tclsetvar("a3page",tmp);
  }
  enable_stretch=atoi(tclgetvar("enable_stretch"));
+ big_grid_points=atoi(tclgetvar("big_grid_points"));
  draw_grid=atoi(tclgetvar("draw_grid"));
  cadlayers=atoi(tclgetvar("cadlayers"));
  if(debug_var==-10) debug_var=0;
@@ -1480,7 +1484,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
     tclsetvar("has_cairo","1");
     #endif
 
-    change_linewidth(0.);
+    change_linewidth(l_width);
     dbg(1, "Tcl_AppInit(): done xinit()\n");
     winattr.backing_store = WhenMapped;
     /* winattr.backing_store = NotUseful;*/

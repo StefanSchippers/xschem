@@ -3416,7 +3416,8 @@ set_ne only_probes 0  ; # 20110112
 set_ne a3page 0
 set_ne fullscreen 0
 set_ne unzoom_nodrift 1
-set_ne change_lw 0
+set_ne change_lw 1
+set_ne line_width 0
 set_ne draw_window 0
 set_ne incr_hilight 1
 set_ne enable_stretch 0

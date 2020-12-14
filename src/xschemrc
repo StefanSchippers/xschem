@@ -112,8 +112,11 @@ set dircolor(examples$) {darkgreen}
 set netlist_type spice ;# allowed : spice, verilog, vhdl, tedax
 set hspice_netlist 1
 set verilog_2001 1
+
+## for following to be effective also set change_lw to 0 
 # set line_width 2
 set change_lw 1
+
 set color_ps 1
 set initial_geometry {900x600}
 # set unzoom_nodrift 0
@@ -131,6 +134,9 @@ set disable_unique_names 0
 
 ## disable some symbol layers
 # set enable_layer(5) 0 ;# example to disable pin red boxes
+
+## enable to scale grid point size as done with lines at close zoom
+# set big_grid_points 0
 
 ###########################################################################
 ## custom grid / snap value settings
