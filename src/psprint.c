@@ -48,7 +48,7 @@ static void set_lw(void)
 static void set_ps_colors(unsigned int pixel)
 {
 
-   if(color_ps) fprintf(fd, "%g %g %g setrgbcolor\n",
+   if(color_ps) fprintf(fd, "%g %g %g RGB\n",
     (double)ps_colors[pixel].red/256.0, (double)ps_colors[pixel].green/256.0,
     (double)ps_colors[pixel].blue/256.0);
 
@@ -557,7 +557,7 @@ static void fill_ps_colors()
 
 void ps_draw(void)
 {
- double dx, dy, scale;
+ double dx, dy, scale, scaley;
  double margin=20; /* in postscript points, (1/72)" */
  xRect boundbox;
  int c,i, textlayer;
@@ -641,9 +641,11 @@ void ps_draw(void)
  fprintf(fd, "%%%%BeginPageSetup\n");
  fprintf(fd, "%%%%EndPageSetup\n");
 
- scale = (595.0-2 * margin) / dy;
- if(dx * scale > (842.0 - 2 * margin)) scale = (842.0 - 2 * margin) / dx;
- fprintf(fd, "%g %g translate\n", -scale * boundbox.x1 + margin, 595 - margin + scale * boundbox.y1);
+ scaley = scale = (595.0-2 * margin) / dy;
+ if(dx * scale > (842.0 - 2 * margin)) {
+   scale = (842.0 - 2 * margin) / dx;
+ }
+ fprintf(fd, "%g %g translate\n", -scale * boundbox.x1 + margin, 595 - (scaley - scale) * dy - margin + scale * boundbox.y1);
  fprintf(fd, "%g %g scale\n", scale, -scale);
  fprintf(fd, "1 setlinejoin 1 setlinecap\n");
  set_lw();
