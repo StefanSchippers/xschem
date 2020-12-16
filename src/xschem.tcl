@@ -167,16 +167,20 @@ proc netlist {source_file show netlist_file} {
 
 # 20161121
 proc convert_to_pdf {filename dest} {
-  global a3page
-  if { $a3page == 1 } { set paper a3 } else { set paper a4 }
-  if { ![catch "exec ps2pdf -sPAPERSIZE=$paper $filename" msg] } {
-    # ps2pdf succeeded, so remove original .ps file
-    file rename -force [file rootname $filename].pdf $dest
-    if { ![xschem get debug_var] } {
-      file delete $filename
+  # puts "convert_to_pdf: $filename --> $dest"
+  if { [regexp -nocase {\.pdf$} $dest] } {
+    set pdffile [file rootname $filename].pdf]
+    if { ![catch "exec ps2pdf $filename $pdffile" msg] } {
+      file rename -force $pdffile $dest
+      # ps2pdf succeeded, so remove original .ps file
+      if { ![xschem get debug_var] } {
+        file delete $filename
+      }
+    } else {
+      puts stderr "problems converting postscript to pdf: $msg"
     }
   } else {
-    puts stderr "problems converting postscript to pdf: $msg"
+    file rename -force $filename $dest
   }
 }
 
@@ -3413,7 +3417,6 @@ set_ne netlist_type vhdl
 set_ne netlist_show 0
 set_ne color_ps 0
 set_ne only_probes 0  ; # 20110112
-set_ne a3page 0
 set_ne fullscreen 0
 set_ne unzoom_nodrift 1
 set_ne change_lw 1
@@ -3478,8 +3481,8 @@ set_ne cairo_vert_correct 0
 set_ne nocairo_vert_correct 0
 
 # Arial, Monospace
-set_ne cairo_font_name {Sans Serif}
-set_ne svg_font_name {Sans Serif}
+set_ne cairo_font_name {Helvetica}
+set_ne svg_font_name {Helvetica}
 
 # has_cairo set by c program if cairo enabled
 set has_cairo 0 
@@ -3686,7 +3689,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   .menubar.file.menu add command -label "Save as symbol" \
      -command "xschem saveas {} SYMBOL" -accelerator {Ctrl+Alt+S}
   # added svg, png 20171022
-  .menubar.file.menu add command -label "PDF Export" -command "xschem print pdf" -accelerator {*}
+  .menubar.file.menu add command -label "PDF/PS Export" -command "xschem print pdf" -accelerator {*}
   .menubar.file.menu add command -label "PNG Export" -command "xschem print png" -accelerator {Ctrl+*}
   .menubar.file.menu add command -label "SVG Export" -command "xschem print svg" -accelerator {Alt+*}
   .menubar.file.menu add separator
@@ -3695,10 +3698,6 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   .menubar.option.menu add checkbutton -label "Color Postscript/SVG" -variable color_ps \
      -command {
         if { $color_ps==1 } {xschem set color_ps 1} else { xschem set color_ps 0}
-     }
-  .menubar.option.menu add checkbutton -label "A3 page" -variable a3page \
-     -command {
-        if { $a3page==1 } {xschem set a3page 1} else { xschem set a3page 0}
      }
   .menubar.option.menu add checkbutton -label "Debug mode" -variable menu_tcl_debug \
      -command {

@@ -161,12 +161,15 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
 
       fprintf(fd,"<path class=\"l%d\" ", gc);
       if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
-      if(!fillarc) fprintf(fd,"style=\"fill:none;\" ");
-      fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2);
+      if(!fillarc) {
+        fprintf(fd,"style=\"fill:none;\" ");
+        fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2);
+      } else {
+        fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2, xx, yy);
+     }
     }
   }
 }
-
 
 static void svg_drawline(int gc, int bus, double linex1,double liney1,double linex2,double liney2, int dash)
 {
@@ -182,8 +185,6 @@ static void svg_drawline(int gc, int bus, double linex1,double liney1,double lin
   }
 }
 
-static double textx1,textx2,texty1,texty2;
-
 static void svg_draw_string_line(int layer, char *s, double x, double y, double size, short rot, short flip,
     int lineno, double fontheight, double fontascent, double fontdescent, int llength)
 {
@@ -193,8 +194,13 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   int line_offset;
   double lines;
   char col[20];
-  my_snprintf(col, S(col), "#%02x%02x%02x",
-    xcolor_array[layer].red >> 8, xcolor_array[layer].green >> 8, xcolor_array[layer].blue >> 8);
+  if(color_ps) 
+    my_snprintf(col, S(col), "#%02x%02x%02x",
+      xcolor_array[layer].red >> 8, xcolor_array[layer].green >> 8, xcolor_array[layer].blue >> 8);
+  else if(dark_colorscheme)
+    my_snprintf(col, S(col), "#%02x%02x%02x", 255, 255, 255);
+  else
+    my_snprintf(col, S(col), "#%02x%02x%02x", 0, 0, 0);
   if(s==NULL) return;
   if(llength==0) return;
   
@@ -247,6 +253,7 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
                  double x,double y, double xscale, double yscale)
 {
   char *tt, *ss, *sss=NULL;
+  double textx1,textx2,texty1,texty2;
   char c;
   int lineno=0;
   double size, height, ascent, descent;

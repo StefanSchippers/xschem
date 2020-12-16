@@ -500,13 +500,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"get") && argc==3)
     {
      cmd_found = 1;
-     if(!strcmp(argv[2],"a3page")) {
-       if( a3page != 0 )
-         Tcl_SetResult(interp, "1",TCL_STATIC);
-       else
-         Tcl_SetResult(interp, "0",TCL_STATIC);
-     }
-     else if(!strcmp(argv[2],"auto_hilight")) {
+     if(!strcmp(argv[2],"auto_hilight")) {
        if( auto_hilight != 0 )
          Tcl_SetResult(interp, "1",TCL_STATIC);
        else
@@ -903,7 +897,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      }
      printf("modified=%d\n", xctx->modified);
      printf("color_ps=%d\n", color_ps);
-     printf("a3page=%d\n", a3page);
      printf("hilight_nets=%d\n", xctx->hilight_nets);
      printf("need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr);
      printf("******* end global variables:*******\n");
@@ -2138,9 +2131,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else if(!strcmp(argv[2],"enable_stretch")) {
             enable_stretch=atoi(argv[3]);
-      }
-      else if(!strcmp(argv[2],"a3page")) {
-            a3page=atoi(argv[3]);
       }
       else if(!strcmp(argv[2],"color_ps")) {
             color_ps=atoi(argv[3]);

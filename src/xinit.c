@@ -1335,12 +1335,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(change_lw == 1) l_width = 0.0;
  draw_window=atoi(tclgetvar("draw_window"));
  incr_hilight=atoi(tclgetvar("incr_hilight"));
- if(a3page==-1)
-   a3page=atoi(tclgetvar("a3page"));
- else  {
-   my_snprintf(tmp, S(tmp), "%d",a3page);
-   tclsetvar("a3page",tmp);
- }
  enable_stretch=atoi(tclgetvar("enable_stretch"));
  big_grid_points=atoi(tclgetvar("big_grid_points"));
  draw_grid=atoi(tclgetvar("draw_grid"));

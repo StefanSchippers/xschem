@@ -90,10 +90,6 @@ void check_opt(char *opt, char *optval, int type)
         dbg(1, "process_options(): set color postscript\n");
         color_ps=1;
 
-    } else if( (type == SHORT && *opt == '3') || (type == LONG && !strcmp("a3page", opt)) ) {
-        dbg(1, "process_options(): set A3 page size\n");
-        a3page=1;
-
     } else if( (type == SHORT && *opt == 'i') || (type == LONG && !strcmp("no_rcload", opt)) ) {
         load_initfile=0;
 

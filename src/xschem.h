@@ -664,7 +664,6 @@ struct instentry {
 extern Xschem_ctx *xctx;
 extern int help;
 extern char *cad_icon[];
-extern int a3page;
 extern int manhattan_lines;
 extern int cadlayers;
 extern int *active_layer;
@@ -701,6 +700,7 @@ extern int fill; /*  fill rectangles */
 extern int draw_grid;
 extern int big_grid_points;
 extern int text_svg;
+extern int text_ps;
 extern double cadgrid;
 extern double cadhalfdotsize;
 extern int draw_pixmap; /*  pixmap used as 2nd buffer */

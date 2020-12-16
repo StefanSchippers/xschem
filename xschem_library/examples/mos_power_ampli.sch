@@ -9,7 +9,7 @@ E {}
 L 15 270 -460 340 -390 {}
 L 15 270 -330 340 -390 {}
 T {ANALOG AUDIO AMPLIFIER
-N-Channel only power stage} 430 -270 0 0 0.5 0.5 {layer=8 font="Liberation Sans"}
+N-Channel only power stage} 430 -270 0 0 0.5 0.5 {layer=8}
 N 180 -500 180 -470 {lab=E9}
 N 260 -470 340 -470 {lab=E9}
 N 340 -500 340 -470 {lab=E9}

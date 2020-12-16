@@ -135,8 +135,8 @@ const char *create_tmpdir(char *prefix)
 
 /* */
 
-/* try to create a tmp file in $HOME */
-/* ${HOME}/<prefix><trailing random chars> */
+/* try to create a tmp file in $XSCHEM_TMP_DIR */
+/* ${XSCHEM_TMP_DIR}/<prefix><trailing random chars> */
 /* after 5 unsuccessfull attemps give up */
 /* and return NULL */
 /* */

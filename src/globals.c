@@ -122,7 +122,6 @@ int change_lw=0; /* allow change lw */
 int incr_hilight=1;
 unsigned short enable_stretch=0;
 int auto_hilight=0;
-int a3page=-1;
 int has_x=1;
 int split_files=0; /* split netlist files 20081202 */
 double cadgrid = CADGRID;
@@ -186,6 +185,7 @@ int fill=1; /* filled rectangles */
 int draw_pixmap=1; /* use pixmap for double buffer */
 int draw_window=0;
 int text_svg=1; /* use <text> svg element for text instead of xschem's internal vector font */
+int text_ps=1;  /* use ps font for text instead of xschem's internal vector font */
 double cadhalfdotsize = CADHALFDOTSIZE;
 unsigned int color_index[256]; /* layer color lookup table */
 int max_undo=MAX_UNDO;
