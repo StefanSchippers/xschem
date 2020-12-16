@@ -558,7 +558,10 @@ static void fill_ps_colors()
 void ps_draw(void)
 {
  double dx, dy, scale, scaley;
- double margin=20; /* in postscript points, (1/72)" */
+ int landscape=1;
+ double margin=0; /* in postscript points, (1/72)". No need to add margin as xschem zoom full already has margins.*/
+ double pagex=842;/* a4, in postscript points, (1/72)" */
+ double pagey=595;/* a4, in postscript points, (1/72)" */
  xRect boundbox;
  int c,i, textlayer;
  char tmp[2*PATH_MAX+40];
@@ -577,7 +580,6 @@ void ps_draw(void)
    }
  }
 
-
  if(!(fd = open_tmpfile("psplot_", &psfile)) ) {
    fprintf(errfp, "ps_draw(): can not create tmpfile %s\n", psfile);
    return;
@@ -585,7 +587,7 @@ void ps_draw(void)
 
  modified_save=xctx->modified;
  push_undo();
- trim_wires();    /* 20161121 add connection boxes on wires but undo at end */
+ trim_wires();    /* add connection bubbles on wires but undo at end */
  ps_colors=my_calloc(311, cadlayers, sizeof(Ps_color));
  if(ps_colors==NULL){
    fprintf(errfp, "ps_draw(): calloc error\n");tcleval( "exit");
@@ -595,20 +597,29 @@ void ps_draw(void)
  old_grid=draw_grid;
  draw_grid=0;
 
- calc_drawing_bbox(&boundbox, 0);
-
-
- boundbox.x1 = X_TO_PS(boundbox.x1);
- boundbox.x2 = X_TO_PS(boundbox.x2);
- boundbox.y1 = Y_TO_PS(boundbox.y1);
- boundbox.y2 = Y_TO_PS(boundbox.y2);
-
-
+ /* calc_drawing_bbox(&boundbox, 0);   ---.
+  *                                       |
+  *                                      \|/          */
+ boundbox.x1 = xctx->areax1; /* X_TO_PS(boundbox.x1); */
+ boundbox.x2 = xctx->areax2; /* X_TO_PS(boundbox.x2); */
+ boundbox.y1 = xctx->areay1; /* Y_TO_PS(boundbox.y1); */
+ boundbox.y2 = xctx->areay2; /* Y_TO_PS(boundbox.y2); */
  dx=boundbox.x2-boundbox.x1;
  dy=boundbox.y2-boundbox.y1;
+
+ /* xschem window aspect ratio decides if portrait or landscape */
+ if(dy > dx) landscape = 0;
+ else landscape = 1;
+ if(!landscape) {
+   double tmp;
+   tmp = pagex;
+   pagex = pagey;
+   pagey = tmp;
+ }
+
  dbg(1, "ps_draw(): bbox: x1=%g y1=%g x2=%g y2=%g\n", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
  fprintf(fd, "%%!PS-Adobe-3.0\n");
- fprintf(fd, "%s\n", "%%DocumentMedia: a4land 842 595 80 () ()");
+ fprintf(fd, "%%%%DocumentMedia: %s %g %g 80 () ()\n", landscape ? "a4land" : "a4", pagex, pagey);
  fprintf(fd, "%%%%Orientation: Portrait\n");
  fprintf(fd, "%%%%Title: xschem plot\n");
  fprintf(fd, "%%%%Creator: xschem\n");
@@ -636,16 +647,19 @@ void ps_draw(void)
  fprintf(fd,"/RF {rectfill} bind def\n");
  fprintf(fd, "%%%%EndProlog\n");
  fprintf(fd, "%%%%BeginSetup\n");
- fprintf(fd, "%s\n", "<< /PageSize [842 595] /Orientation 0 >> setpagedevice");
+ fprintf(fd, "<< /PageSize [%g %g] /Orientation 0 >> setpagedevice\n", pagex, pagey);
  fprintf(fd, "%%%%Page: 1 1\n\n");
  fprintf(fd, "%%%%BeginPageSetup\n");
  fprintf(fd, "%%%%EndPageSetup\n");
 
- scaley = scale = (595.0-2 * margin) / dy;
- if(dx * scale > (842.0 - 2 * margin)) {
-   scale = (842.0 - 2 * margin) / dx;
+ scaley = scale = (pagey-2 * margin) / dy;
+ dbg(1, "scale=%g pagex=%g pagey=%g dx=%g dy=%g\n", scale, pagex, pagey, dx, dy);
+ if(dx * scale > (pagex - 2 * margin)) {
+   scale = (pagex - 2 * margin) / dx;
+   dbg(1, "scale=%g\n", scale);
  }
- fprintf(fd, "%g %g translate\n", -scale * boundbox.x1 + margin, 595 - (scaley - scale) * dy - margin + scale * boundbox.y1);
+ fprintf(fd, "%g %g translate\n", 
+    -scale * boundbox.x1 + margin, pagey - (scaley - scale) * dy - margin + scale * boundbox.y1);
  fprintf(fd, "%g %g scale\n", scale, -scale);
  fprintf(fd, "1 setlinejoin 1 setlinecap\n");
  set_lw();
@@ -682,7 +696,6 @@ void ps_draw(void)
        xctx->text[i].xscale, xctx->text[i].yscale);
    }
  }
-
  for(c=0;c<cadlayers;c++)
  {
   set_ps_colors(c);
@@ -703,11 +716,8 @@ void ps_draw(void)
     ps_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
        xctx->poly[c][i].fill, xctx->poly[c][i].dash);
   }
-
-
   for(i=0;i<xctx->instances;i++)
    ps_draw_symbol(i,c,0,0,0.0,0.0);
-
  }
  set_ps_colors(WIRELAYER);
  for(i=0;i<xctx->wires;i++)
