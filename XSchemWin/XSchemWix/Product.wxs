@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.8.5" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.8.6" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
     <WixVariable Id="WixUILicenseRtf" 
                  Value="License.rtf" />
@@ -96,6 +96,9 @@
       </Component>
       <Component Id="CMPFLATTENAWK">
         <File Id="FLATTENAWK" KeyPath="yes" Source="../../src/flatten.awk" />
+      </Component>
+      <Component Id="CMPFLATTENSAVENODEASAWK">
+        <File Id="FLATTENSAVENODEASAWK" KeyPath="yes" Source="../../src/flatten_savenodes.awk" />
       </Component>
       <Component Id="CMPGSCHEMTOXSCHEMAWK">
         <File Id="GSCHEMTOXSCHEMAWK" KeyPath="yes" Source="../../src/gschemtoxschem.awk" />
@@ -277,6 +280,7 @@
       <ComponentRef Id="CMPKEYSHELP" />
       <ComponentRef Id="CMPEXPAWK" />
       <ComponentRef Id="CMPFLATTENAWK" />
+      <ComponentRef Id="CMPFLATTENSAVENODEASAWK" />
       <ComponentRef Id="CMPGSCHEMTOXSCHEMAWK" />
       <ComponentRef Id="CMPHSPICEBACKANNOTATE" />
       <ComponentRef Id="CMPHERCULESTOSPICEAWK" />
