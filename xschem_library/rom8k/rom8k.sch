@@ -2,63 +2,7 @@ v {xschem version=2.9.8 file_version=1.2}
 G {}
 K {}
 V {}
-S {
-.save xrpre1.ldzi[15]
-.save xrpre1.ldzi[14]
-.save xrpre1.ldzi[13]
-.save xrpre1.ldzi[12]
-.save xrpre1.ldzi[11]
-.save xrpre1.ldzi[10]
-.save xrpre1.ldzi[9]
-.save xrpre1.ldzi[8]
-.save xrpre1.ldzi[7]
-.save xrpre1.ldzi[6]
-.save xrpre1.ldzi[5]
-.save xrpre1.ldzi[4]
-.save xrpre1.ldzi[3]
-.save xrpre1.ldzi[2]
-.save xrpre1.ldzi[1]
-.save xrpre1.ldzi[0]
-
-.save xsa[15].LDQI
-.save xsa[14].LDQI
-.save xsa[13].LDQI
-.save xsa[12].LDQI
-.save xsa[11].LDQI
-.save xsa[10].LDQI
-.save xsa[9].LDQI
-.save xsa[8].LDQI
-.save xsa[7].LDQI
-.save xsa[6].LDQI
-.save xsa[5].LDQI
-.save xsa[4].LDQI
-.save xsa[3].LDQI
-.save xsa[2].LDQI
-.save xsa[1].LDQI
-.save xsa[0].LDQI
-
-.save xsa[15].LDQIB
-.save xsa[14].LDQIB
-.save xsa[13].LDQIB
-.save xsa[12].LDQIB
-.save xsa[11].LDQIB
-.save xsa[10].LDQIB
-.save xsa[9].LDQIB
-.save xsa[8].LDQIB
-.save xsa[7].LDQIB
-.save xsa[6].LDQIB
-.save xsa[5].LDQIB
-.save xsa[4].LDQIB
-.save xsa[3].LDQIB
-.save xsa[2].LDQIB
-.save xsa[1].LDQIB
-.save xsa[0].LDQIB
-
-.save xctrl.xsacell.LDQ_B
-.save xctrl.xsacell.LDQI
-.save xctrl.LDOUTI
-
-}
+S {}
 E {}
 L 3 850 -270 850 -60 {}
 L 3 1050 -270 1050 -60 {}

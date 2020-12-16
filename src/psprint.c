@@ -113,9 +113,7 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points, in
     else fprintf(fd, "%.16g %.16g LT\n", xx, yy);
   }
   if(fill && fill_type[c] && poly_fill) {
-    fprintf(fd, "closepath gsave stroke\n");
-    fprintf(fd, "grestore\n");
-    fprintf(fd, " fill\n");
+    fprintf(fd, "closepath fill stroke\n");
   } else {
     fprintf(fd, "stroke\n");
   }
@@ -424,7 +422,7 @@ static void fill_ps_colors()
 
 void ps_draw(void)
 {
- double dx, dy, delta,scale;
+ double dx, dy, scale;
  int c,i, textlayer;
  char *tmp=NULL;
  int old_grid;
@@ -458,25 +456,14 @@ void ps_draw(void)
  dbg(1, "ps_draw(): dx=%.16g  dy=%.16g\n", dx, dy);
 
  fd=fopen("plot.ps", "w");
- fprintf(fd, "%%!\n");
-
-
- fprintf(fd, "%%%%BoundingBox: (atend)\n");
+ fprintf(fd, "%%!PS-Adobe-3.0\n");
+ fprintf(fd, "%s\n", "%%DocumentMedia: a4land 842 595 80 () ()");
+ fprintf(fd, "%%%%Orientation: Portrait\n");
  fprintf(fd, "%%%%Title: xschem plot\n");
  fprintf(fd, "%%%%Creator: xschem\n");
  fprintf(fd, "%%%%Pages: 1\n");
- fprintf(fd, "%%%%DocumentFonts: (atend)\n");
  fprintf(fd, "%%%%EndComments\n");
  fprintf(fd, "%%%%BeginProlog\n\n");
- fprintf(fd, "%%%%EndProlog\n");
- fprintf(fd, "%%%%BeginSetup\n");
- if(a3page) {
-   fprintf(fd, "%%%%BeginFeature: *PageSize A3\n");
-   fprintf(fd, "<< /PageSize [842 1191]  /ImagingBBox null >> setpagedevice\n");
- }
- fprintf(fd, "%%%%EndSetup\n");
- fprintf(fd, "%%%%Page: 1 1\n\n");
-
  fprintf(fd,"/cm {28.346457 mul} bind def\n");
  fprintf(fd,"/LT {lineto} bind def\n");
  fprintf(fd,"/MT {moveto} bind def\n");
@@ -485,34 +472,24 @@ void ps_draw(void)
  fprintf(fd,"/AF {arcn fill stroke} bind def\n");
  fprintf(fd,"/R {rectstroke} bind def\n");
  fprintf(fd,"/RF {rectfill} bind def\n");
- if(dx/dy>27.7/19 || dy/dx>27.7/19)
- {
-  delta=dx>dy? dx:dy;
-  if(a3page) scale=28.7*28.346457/delta*sqrt(2);
-  else  scale=27.7*28.346457/delta;
- }
- else
- {
-  delta=dx>dy? dy:dx;
-  if(a3page) scale=20*28.346457/delta*sqrt(2);
-  else scale=19*28.346457/delta;
- }
- if(dx>dy)
- {
-  if(a3page) fprintf(fd,"28.99137803 cm 41.29503602 cm translate\n");
-  else fprintf(fd,"20 cm 28.7 cm translate\n");
-  fprintf(fd,"-90 rotate\n");
-  fprintf(fd,"%.16g %.16g scale\n",scale,-scale);
- }
- else
- {
-  fprintf(fd,"1 cm 28.7 cm translate\n");
-  fprintf(fd,"%.16g %.16g scale\n",scale,-scale);
- }
+ fprintf(fd, "%%%%EndProlog\n");
+ fprintf(fd, "%%%%BeginSetup\n");
+ fprintf(fd, "%s\n", "<< /PageSize [842 595] /Orientation 0 >> setpagedevice");
+ fprintf(fd, "%%%%Page: 1 1\n\n");
+ fprintf(fd, "%%%%BeginPageSetup\n");
+ fprintf(fd, "%%%%EndPageSetup\n");
+ fprintf(fd, "0 595 translate\n");
+
+ scale = 595.0 / xctx->areah;
+ if(xctx->areaw * scale > 842.0) scale = 842.0 / xctx->areaw;
+
+ fprintf(fd, "%g %g scale\n", scale, -scale);
+
 
  fprintf(fd, "1 setlinejoin 1 setlinecap\n");
  restore_lw();
  ps_drawgrid();
+
 
  for(i=0;i<xctx->texts;i++)
  {
@@ -578,13 +555,9 @@ void ps_draw(void)
    }
  }
 
-
-
-
-
-
  dbg(1, "ps_draw(): INT_WIDTH(lw)=%d plotfile=%s\n",INT_WIDTH(xctx->lw), plotfile);
  fprintf(fd, "showpage\n\n");
+ fprintf(fd, "%%%%trailer\n");
  fprintf(fd, "%%%%EOF\n");
  fclose(fd);
  draw_grid=old_grid;
