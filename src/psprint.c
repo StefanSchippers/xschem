@@ -237,8 +237,21 @@ static void ps_draw_string_line(int layer, char *s, double x, double y, double s
   fprintf(fd, "%g %g MT\n", ix, iy);
   if(rot1) fprintf(fd, "%d rotate\n", rot1*90);
   fprintf(fd, "1 -1 scale\n");
-  fprintf(fd, "(%s)\n", s);
-
+  fprintf(fd, "(");
+  while(*s) {
+    switch(*s) {
+      case '(':
+        fputs("\\(", fd);
+        break;
+      case ')':
+        fputs("\\)", fd);
+        break;
+      default:
+       fputc(*s, fd);
+    }
+    s++;
+  }
+  fprintf(fd, ")\n");
   if     (rot==1 && flip==0) {fprintf(fd, "dup SW pop neg 0 RMT\n");}
   else if(rot==2 && flip==0) {fprintf(fd, "dup SW pop neg 0 RMT\n");}
   else if(rot==0 && flip==1) {fprintf(fd, "dup SW pop neg 0 RMT\n");}
