@@ -291,7 +291,7 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
     if(rot == 3 && flip == 1 ) { x=textx1;}
   }
   llength=0;
-  my_strdup2(465, &sss, str);
+  my_strdup2(54, &sss, str);
   tt=ss=sss;
   for(;;) {
     c=*ss;
@@ -308,7 +308,7 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
     }
     ss++;
   }
-  my_free(1154, &sss);
+  my_free(53, &sss);
 }
 
 static void old_ps_draw_string(int gctext,  const char *str,

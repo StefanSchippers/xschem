@@ -400,10 +400,16 @@ void save_line(FILE *fd)
 void write_xschem_file(FILE *fd)
 {
   int ty=0;
+  char *ptr;
 
-  my_strdup2(1183, &xctx->version_string, subst_token(xctx->version_string, "version", XSCHEM_VERSION));
-  my_strdup2(1184, &xctx->version_string, subst_token(xctx->version_string, "file_version", XSCHEM_FILE_VERSION));
-  fprintf(fd, "v {%s}\n", xctx->version_string);
+  if( (ptr = strstr(xctx->version_string, "xschem")) && (ptr - xctx->version_string < 50) ) {
+    my_strdup2(59, &xctx->version_string, subst_token(xctx->version_string, "xschem", NULL));
+  }
+  my_strdup2(1183, &xctx->version_string, subst_token(xctx->version_string, "version", NULL));
+  my_strdup2(1184, &xctx->version_string, subst_token(xctx->version_string, "file_version", NULL));
+  ptr = xctx->version_string;
+  while(*ptr == ' ' || *ptr == '\t') ptr++; /* strip leading spaces */
+  fprintf(fd, "v {xschem version=%s file_version=%s %s}\n", XSCHEM_VERSION, XSCHEM_FILE_VERSION, ptr);
 
 
   if(xctx->schvhdlprop && !xctx->schsymbolprop) {
