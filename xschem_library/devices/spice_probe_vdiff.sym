@@ -1,7 +1,8 @@
-v {xschem version=2.9.5_RC6 file_version=1.1}
-G {type=differential_probe
-format=".probe @analysis v( @@p , @@m )"
-template="name=p1 analysis=tran"}
+v {xschem version=2.9.9 file_version=1.2 }
+G {}
+K {type=differential_probe
+format=".save v( @@p , @@m )"
+template="name=p1"}
 V {}
 S {}
 E {}

@@ -1,7 +1,8 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {type=current_probe
-format="@name @pinlist 0"
+format="@name @pinlist 0
+.save I( ?1 @name )"
 template="name=Vmeas"}
 V {}
 S {}

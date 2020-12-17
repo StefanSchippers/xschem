@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC8 file_version=1.1}
+v {xschem version=2.9.9 file_version=1.2 }
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -93,15 +94,7 @@ N 820 -530 860 -530 {lab=SW}
 N 370 -450 385 -450 {lab=PANEL}
 N 570 -250 860 -250 {lab=0}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers"}
-C {code_shown.sym} 345 -235 0 0 {name=CONTROL value="* .control
-* save all
-* tran 5n 1000u uic
-* write led_driver.raw
-* .endc
-* .save all
-.tran 5n 1000u uic
-* .dc VP 0 21 0.01
-"}
+C {code_shown.sym} 305 -205 0 0 {name=CONTROL value=".tran 5n 1000u uic"}
 C {code.sym} 15 -225 0 0 {name=MODELS value=".MODEL DIODE D(IS=1.139e-08 RS=0.99 CJO=9.3e-12 VJ=1.6 M=0.411 BV=30 EG=0.7 ) 
 .MODEL SWMOD1 VSWITCH VON=0.01 VOFF=-0.01 RON=0.01 ROFF=1e7
 "}

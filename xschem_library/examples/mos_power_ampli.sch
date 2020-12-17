@@ -1,10 +1,8 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {}
 V {}
-S {
-* .probe v(ga,sa) v(gb,sb)
-* .probe p(q*) p(r*) i(r*) p(xm1) p(xm2) i(d*)}
+S {}
 E {}
 L 15 270 -460 340 -390 {}
 L 15 270 -330 340 -390 {}
@@ -218,8 +216,8 @@ C {ammeter.sym} 700 -440 3 0 {name=v4  net_name=true current=0.01939}
 C {ammeter.sym} 690 -680 0 0 {name=v5  net_name=true current=0.006273}
 C {ammeter.sym} 180 -870 0 1 {name=v6  net_name=true current=0.01952}
 C {ammeter.sym} 840 -890 0 0 {name=v7  net_name=true current=0.01947}
-C {spice_probe_vdiff.sym} 860 -410 0 0 {name=p37 analysis=tran voltage=3.684}
-C {spice_probe_vdiff.sym} 860 -730 0 0 {name=p38 analysis=tran voltage=3.685}
+C {spice_probe_vdiff.sym} 860 -410 0 0 {name=p37 voltage=3.684}
+C {spice_probe_vdiff.sym} 860 -730 0 0 {name=p38 voltage=3.685}
 C {ammeter.sym} 1300 -590 3 0 {name=v8  net_name=true current=0.02782}
 C {opin.sym} 600 -130 0 0 {name=p5 lab=OUT}
 C {ipin.sym} 530 -180 0 0 {name=p1 lab=MINUS}
@@ -408,9 +406,9 @@ load $netlist_dir/$rawfile
 table_set $rawfile\\"
 unset rawfile"
 }
-C {spice_probe.sym} 1010 -760 0 0 {name=p40 analysis=tran}
-C {spice_probe.sym} 1000 -440 0 0 {name=p56 analysis=tran}
-C {spice_probe.sym} 420 -790 0 0 {name=p57 analysis=tran}
-C {spice_probe.sym} 280 -950 0 0 {name=p58 analysis=tran}
-C {spice_probe.sym} 180 -720 0 0 {name=p59 analysis=tran}
-C {spice_probe.sym} 1020 -1120 0 0 {name=p62 analysis=tran}
+C {spice_probe.sym} 1010 -760 0 0 {name=p40 }
+C {spice_probe.sym} 1000 -440 0 0 {name=p56 }
+C {spice_probe.sym} 420 -790 0 0 {name=p57}
+C {spice_probe.sym} 280 -950 0 0 {name=p58 }
+C {spice_probe.sym} 180 -720 0 0 {name=p59 }
+C {spice_probe.sym} 1020 -1120 0 0 {name=p62 }

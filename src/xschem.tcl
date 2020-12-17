@@ -116,17 +116,22 @@ proc netlist {source_file show netlist_file} {
  if {$tcl_debug <= -1} { puts "netlist: source_file=$source_file, netlist_type=$netlist_type" }
  if {$netlist_type eq {spice}} {
    if { $hspice_netlist == 1 } {
-     set hspice {-hspice}
+     set simulator {-hspice}
    } else {
-     set hspice {}
+     set simulator {}
+   }
+   if { [sim_is_xyce] } {
+     set xyce  {-xyce}
+   } else {
+     set xyce  {}
    }
    if {$flat_netlist==0} {
-     eval exec {awk -f ${XSCHEM_SHAREDIR}/spice.awk -- $hspice $source_file | \
+     eval exec {awk -f ${XSCHEM_SHAREDIR}/spice.awk -- $simulator $xyce $source_file | \
                 awk -f ${XSCHEM_SHAREDIR}/break.awk | \
-                awk -f ${XSCHEM_SHAREDIR}/flatten_savenodes.awk \
+                awk -f ${XSCHEM_SHAREDIR}/flatten_savenodes.awk -- $simulator $xyce \
                 > $netlist_dir/$netlist_file}
    } else {
-     eval exec {awk -f ${XSCHEM_SHAREDIR}/spice.awk -- $hspice $source_file | \
+     eval exec {awk -f ${XSCHEM_SHAREDIR}/spice.awk -- $simulator $xyce $source_file | \
           awk -f ${XSCHEM_SHAREDIR}/flatten.awk | awk -f ${XSCHEM_SHAREDIR}/break.awk > $netlist_dir/$netlist_file}
    }
    if ![string compare $show "show"] {

@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC8 file_version=1.1}
+v {xschem version=2.9.9 file_version=1.2 }
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -89,17 +90,14 @@ N 580 -1120 580 -1110 {lab=VSS}
 C {code.sym} 1050 -580 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
-value=".option PARHIER=LOCAL RUNLVL=6 post MODMONTE=1 warn maxwarns=400
-.option ITL4=20000 ITL5=0
-* .option sampling_method = SRS 
+value="* .option sampling_method = SRS 
 * .option method=gear
 vvss vss 0 dc 0 
-.temp 30
 
 .param frequ=20e3
 .param gain=42
 * .tran \{2e-3/frequ\} \{1e-3 + 160/frequ\} uic
-.tran 1e-7 0.009 uic
+.tran 6e-7 0.06 uic
 
 ** models are generally not free: you must download
 ** SPICE models for active devices and put them  into the below 
@@ -177,3 +175,48 @@ C {lab_pin.sym} 350 -270 0 0 {name=p19 lab=FB}
 C {lab_pin.sym} 350 -730 0 0 {name=p25 lab=FBN}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan Schippers"}
 C {lab_pin.sym} 880 -1250 0 0 {name=p27 lab=IN_INT}
+C {launcher.sym} 990 -120 0 0 {name=h2
+descr="Ctrl-Click
+Clear all probes" 
+tclcommand="
+    xschem push_undo
+    xschem set no_undo 1
+    xschem set no_draw 1
+ 
+    set lastinst [xschem get instances]
+    for \{ set i 0 \} \{ $i < $lastinst \} \{incr i \} \{
+      set type [xschem getprop instance $i cell::type]
+      if \{ [regexp \{(^|/)probe$\} $type ] \} \{
+        xschem setprop $i voltage fast
+      \}
+      if \{ [regexp \{current_probe$\} $type ] \} \{
+        xschem setprop $i current fast
+      \}
+      if \{ [regexp \{differential_probe$\} $type ] \} \{
+        xschem setprop $i voltage fast
+      \}
+    \}
+    xschem set no_undo 0
+    xschem set no_draw 0
+    xschem redraw
+"
+}
+C {launcher.sym} 990 -190 0 0 {name=h3
+descr="Load file into gaw" 
+comment="
+  This launcher gets raw filename from current schematic using 'xschem get schname'
+  and stripping off path and suffix.  It then loads raw file into gaw.
+  This allow to use it in any schematic without changes.
+"
+tclcommand="
+set rawfile [file tail [file rootname [xschem get schname]]].raw
+gaw_cmd \\"tabledel $rawfile
+load $netlist_dir/$rawfile
+table_set $rawfile\\"
+unset rawfile"
+}
+C {spice_probe.sym} 730 -700 0 0 {name=p40 analysis=tran}
+C {spice_probe.sym} 740 -240 0 0 {name=p41 analysis=tran}
+C {spice_probe.sym} 670 -1250 0 0 {name=p42 analysis=tran}
+C {spice_probe.sym} 680 -1170 0 0 {name=p43 analysis=tran}
+C {spice_probe.sym} 960 -1250 0 0 {name=p44 analysis=tran}
