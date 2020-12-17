@@ -1611,8 +1611,21 @@ int Tcl_AppInit(Tcl_Interp *inter)
      dbg(0, "xschem: can't do a print without a filename\n");
      tcleval( "exit");
    }
-   if(do_print==1) ps_draw();
-   else if(do_print == 2) {
+   if(do_print==1) {
+
+     xctx->xrect[0].x = 0;
+     xctx->xrect[0].y = 0;
+     xctx->xschem_w = xctx->xrect[0].width = 842;
+     xctx->xschem_h = xctx->xrect[0].height = 595;
+     xctx->areax2 = 842+2;
+     xctx->areay2 = 595+2;
+     xctx->areax1 = -2;
+     xctx->areay1 = -2;
+     xctx->areaw = xctx->areax2-xctx->areax1;
+     xctx->areah = xctx->areay2-xctx->areay1;
+     zoom_full(0, 0);
+     ps_draw();
+   } else if(do_print == 2) {
      if(!has_x) {
        dbg(0, "xschem: can not do a png export if no X11 present / Xserver running (check if DISPLAY set).\n");
      } else {

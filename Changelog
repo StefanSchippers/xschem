@@ -1,3 +1,14 @@
+
+2.9.9:
+- ps/pdf export uses true postscript fonts
+- spice_probe symbols generate .save instructions and these are flattened by xschem
+  to enable ngspice save hierarchic nodes
+- variable width grid point option (for 4K displays) 
+- Added 'PWD' button il file load dialog
+- almost all global context related to a schematic in xctx structure. This potentially
+  allows to load more schematic windows with 1 running xschem process.
+- fix spiceprefix to be applied on all expanded vector intances in spice netlists
+
 2.9.8:
 - ERC checks: do sch/sym node equivalence check on expandlabel()'ed nodes,
   avoid flagging DATA[5,3,1] != DATA[5:1:2] != DATA[5],DATA[3],DATA[1]

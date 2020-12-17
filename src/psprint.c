@@ -78,7 +78,7 @@ static void ps_xfillrectange(int layer, double x1, double y1, double x2,
                   double y2)
 {
  fprintf(fd, "%g %g %g %g R\n", x1,y1,x2-x1,y2-y1);
- if( (layer==4 || layer==PINLAYER || layer==WIRELAYER) && fill) {
+ if( (fill_type[layer] == 1) && fill) {
    fprintf(fd, "%g %g %g %g RF\n", x1,y1,x2-x1,y2-y1);
    /* fprintf(fd,"fill\n"); */
  }

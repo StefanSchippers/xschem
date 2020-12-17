@@ -402,7 +402,8 @@ void write_xschem_file(FILE *fd)
   int ty=0;
   char *ptr;
 
-  if( (ptr = strstr(xctx->version_string, "xschem")) && (ptr - xctx->version_string < 50) ) {
+  if(xctx->version_string && (ptr = strstr(xctx->version_string, "xschem")) &&
+    (ptr - xctx->version_string < 50)) {
     my_strdup2(59, &xctx->version_string, subst_token(xctx->version_string, "xschem", NULL));
   }
   my_strdup2(1183, &xctx->version_string, subst_token(xctx->version_string, "version", NULL));
