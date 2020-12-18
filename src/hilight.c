@@ -1038,8 +1038,8 @@ void draw_hilight_net(int on_window)
   }
   else if(hilight_connected_inst) {
     int rects, j;
-    dbg(2, "draw_hilight_net(): hilight_connected_inst inst=%d, node=%s\n", i, xctx->inst[i].node[0]);
     if( (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
+      dbg(2, "draw_hilight_net(): hilight_connected_inst inst=%d, node=%s\n", i, xctx->inst[i].node[0]);
       for(j=0;j<rects;j++) {
         if( xctx->inst[i].node && xctx->inst[i].node[j]) {
           entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
