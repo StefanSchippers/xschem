@@ -343,9 +343,11 @@ void hilight_net_pin_mismatches(void)
 
 void hilight_parent_pins(void)
 {
+ int hilight_connected_inst;
  int rects, i, j, k;
  struct hilight_hashentry *entry;
  const char *pin_name;
+ char *type;
  char *pin_node = NULL;
  char *net_node=NULL;
  int mult, net_mult, inst_number;
@@ -383,6 +385,31 @@ void hilight_parent_pins(void)
       bus_hilight_lookup(find_nth(net_node, ',',
           ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XDELETE);
     }
+   }
+ }
+ for(i = 0; i < xctx->instances; i++) {
+   type = (xctx->inst[i].ptr+ xctx->sym)->type;
+   hilight_connected_inst =
+     !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true") ||
+     !strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true");
+   if(hilight_connected_inst && type && !IS_LABEL_SH_OR_PIN(type)) {
+     int rects, j;
+     if( (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
+       dbg(2, "draw_hilight_net(): hilight_connected_inst inst=%d, node=%s\n", i, xctx->inst[i].node[0]);
+       for(j=0;j<rects;j++) {
+         if( xctx->inst[i].node && xctx->inst[i].node[j]) {
+           entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
+          if(entry) {
+              xctx->inst[i].flags |= 4;
+              xctx->inst[i].color=get_color(entry->value);
+             break;
+           }
+         }
+       }
+     }
+   } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
+     entry=bus_hilight_lookup( get_tok_value(xctx->inst[i].prop_ptr,"lab",0) , 0, XLOOKUP);
+     if(entry) xctx->inst[i].color=get_color(entry->value);
    }
  }
  my_free(767, &pin_node);

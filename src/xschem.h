@@ -842,6 +842,7 @@ extern int text_bbox(const char * str,double xscale, double yscale,
             double *rx2, double *ry2);
 
 
+extern int get_color(int value);
 extern void hash_inst(int what, int n);
 extern void hash_inst_pin(int what, int i, int j);
 extern void del_inst_table(void);

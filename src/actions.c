@@ -996,7 +996,11 @@ void descend_schematic(int instnumber)
  const char *str;
  char filename[PATH_MAX];
  int inst_mult, inst_number;
- int save_ok = 0;
+ int i, save_ok = 0;
+ int hilight_connected_inst;
+ char *type;
+ struct hilight_hashentry *entry;
+
 
  rebuild_selected_array();
  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT)
@@ -1102,6 +1106,36 @@ void descend_schematic(int instnumber)
   if(xctx->hilight_nets)
   {
     prepare_netlist_structs(0);
+
+
+    for(i = 0; i < xctx->instances; i++) {
+      type = (xctx->inst[i].ptr+ xctx->sym)->type;
+      hilight_connected_inst =
+        !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true") ||
+        !strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true");
+      if(hilight_connected_inst && type && !IS_LABEL_SH_OR_PIN(type)) {
+        int rects, j;
+        if( (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
+          dbg(2, "draw_hilight_net(): hilight_connected_inst inst=%d, node=%s\n", i, xctx->inst[i].node[0]);
+          for(j=0;j<rects;j++) {
+            if( xctx->inst[i].node && xctx->inst[i].node[j]) {
+              entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
+             if(entry) {
+                 xctx->inst[i].flags |= 4;
+                 xctx->inst[i].color=get_color(entry->value);
+                break;
+              }
+            }
+          }
+        }
+      } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
+        entry=bus_hilight_lookup( get_tok_value(xctx->inst[i].prop_ptr,"lab",0) , 0, XLOOKUP);
+        if(entry) xctx->inst[i].color=get_color(entry->value);
+      }
+    }
+
+
+
     if(enable_drill) drill_hilight();
   }
   dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
