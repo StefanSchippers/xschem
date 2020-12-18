@@ -424,7 +424,6 @@ void alloc_xschem_data()
     xctx->hilight_table[i] = NULL;
     xctx->node_redraw_table[i] = NULL; /* move.c */
   }
-  xctx->inst_color=NULL;
   xctx->window = xctx->save_pixmap = 0;
   xctx->xrect[0].width = xctx->xrect[0].height = xctx->xrect[0].x = xctx->xrect[0].y = 0;
 #if HAS_CAIRO==1

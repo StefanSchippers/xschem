@@ -849,6 +849,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->inst[n].flip=symbol_name ? flip : 0;
 
   xctx->inst[n].flags=0;
+  xctx->inst[n].color=0;
   xctx->inst[n].sel=0;
   xctx->inst[n].node=NULL;
   xctx->inst[n].prop_ptr=NULL;

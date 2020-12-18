@@ -277,6 +277,7 @@ void hash_inst_pin(int what, int i, int j)
     statusmsg(str,2);
     if(!netlist_count) {
       xctx->inst[i].flags |=4;
+      xctx->inst[i].color = PINLAYER;
       xctx->hilight_nets=1;
     }
   }
@@ -699,6 +700,7 @@ void prepare_netlist_structs(int for_netlist)
         my_snprintf(str, S(str), "instance: %d (%s): no name attribute set", i, inst[i].name);
         statusmsg(str,2);
         inst[i].flags |=4;
+        inst[i].color = PINLAYER;
         xctx->hilight_nets=1;
       }
     }
@@ -707,6 +709,7 @@ void prepare_netlist_structs(int for_netlist)
       my_snprintf(str, S(str), "Symbol: %s: no type attribute set", inst[i].name);
       statusmsg(str,2);
       inst[i].flags |=4;
+      inst[i].color = PINLAYER;
       xctx->hilight_nets=1;
     }
     if(type && inst[i].node && IS_LABEL_OR_PIN(type) ) { /* instance must have a pin! */
@@ -1185,6 +1188,7 @@ int sym_vs_sch_pins()
                       for(j = 0; j < xctx->instances; j++) {
                         if(!strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
                           xctx->inst[j].flags |=4;
+                          xctx->inst[i].color = PINLAYER;
                           xctx->hilight_nets=1;
                         }
                       }
@@ -1201,6 +1205,7 @@ int sym_vs_sch_pins()
                   for(j = 0; j < xctx->instances; j++) {
                     if(!strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
                       xctx->inst[j].flags |=4;
+                      xctx->inst[i].color = PINLAYER;
                       xctx->hilight_nets=1;
                     }
                   }
@@ -1234,6 +1239,7 @@ int sym_vs_sch_pins()
           for(j = 0; j < xctx->instances; j++) {
             if(!strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
               xctx->inst[j].flags |=4;
+              xctx->inst[i].color = PINLAYER;
               xctx->hilight_nets=1;
             }
           }
@@ -1257,6 +1263,7 @@ int sym_vs_sch_pins()
             for(k = 0; k < xctx->instances; k++) {
               if(!strcmp(xctx->inst[k].name, xctx->sym[i].name)) {
                 xctx->inst[k].flags |=4;
+                xctx->inst[i].color = PINLAYER;
                 xctx->hilight_nets=1;
               }
             }

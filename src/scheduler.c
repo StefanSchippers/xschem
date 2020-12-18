@@ -247,14 +247,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
-    else if(!strcmp(argv[1],"clear_hilights"))
-    {
-      cmd_found = 1;
-      delete_hilight_net();
-      draw();
-      Tcl_ResetResult(interp);
-    }
-   
     else if(!strcmp(argv[1],"clear_netlist_dir") )
     {
       cmd_found = 1;

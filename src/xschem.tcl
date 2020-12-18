@@ -766,7 +766,7 @@ proc reroute_inst {fullinst pinattr pinval newnet} {
 proc reroute_net {old new} {
   xschem push_undo
   xschem set no_undo 1
-  xschem clear_hilights
+  xschem unhilight
   probe_net $old
   set old_nopath [regsub {.*\.} $old {}]
   set new_nopath [regsub {.*\.} $new {}]
@@ -4018,7 +4018,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   .menubar.hilight.menu add command -label {Select hilight nets / pins} -command "xschem select_hilight_net" \
      -accelerator Alt+K
   .menubar.hilight.menu add command -label {Un-highlight all net/pins} \
-     -command "xschem clear_hilights" -accelerator Shift+K
+     -command "xschem unhilight" -accelerator Shift+K
   .menubar.hilight.menu add command -label {Un-highlight selected net/pins} \
      -command "xschem unhilight" -accelerator Ctrl+K
   # 20160413

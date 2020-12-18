@@ -1574,7 +1574,6 @@ void draw(void)
  double x1, y1, x2, y2;
  struct instentry *instanceptr;
  struct wireentry *wireptr;
- int ii;
  char *type=NULL;
  int use_hash;
  register int c,i;
@@ -1632,74 +1631,44 @@ void draw(void)
             xPoly *p = &xctx->poly[c][i];
             drawpolygon(c, NOW, p->x, p->y, p->points, p->fill, p->dash);
           }
-          if(use_hash) {
 
-            /* --------------------------------- inst_ptr iterator 20171224 */
-            /*loop thru all squares that intersect drawing area */
-            for(init_inst_iterator(x1, y1, x2, y2); ( instanceptr = inst_iterator_next() ) ;) {
-              int ptr;
+          if(use_hash) init_inst_iterator(x1, y1, x2, y2);
+          else i = -1;
+          while(1) {
+            if(use_hash) {
+              if( !(instanceptr = inst_iterator_next())) break;
               i = instanceptr->n;
-              ptr = xctx->inst[i].ptr;
-              if( ptr !=-1) {
-                symptr = ptr+xctx->sym;
-                if( c==0 || /*draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
-                    symptr->lines[c] ||
-                    symptr->arcs[c] ||
-                    symptr->rects[c] ||
-                    symptr->polygons[c] ||
-                    ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts)) {
-
-                  type = symptr->type;
-                  if(!(
-                       xctx->hilight_nets &&
-                       type  &&
-                       (
-                        (
-                            IS_LABEL_SH_OR_PIN(type) && xctx->inst[i].node && xctx->inst[i].node[0] &&
-                            bus_hilight_lookup(xctx->inst[i].node[0], 0, XLOOKUP )
-                        ) ||
-                        (
-                           !IS_LABEL_SH_OR_PIN(type) && (xctx->inst[i].flags & 4)
-                        )
-                       )
-                      )
-                  ) {
-                    draw_symbol(ADD, c, instanceptr->n,c,0,0,0.0,0.0);
-                  }
-                }
-              } /*if( ptr !=-1)  */
             }
-            /* --------------------------------- /20171224 */
-          } else {
+            else {
+              i++;
+              if(i >= xctx->instances) break;
+            }
+            if(xctx->inst[i].ptr == -1) continue;
+            symptr = (xctx->inst[i].ptr+ xctx->sym);
+            if( c==0 || /*draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
+                symptr->lines[c] ||
+                symptr->arcs[c] ||
+                symptr->rects[c] ||
+                symptr->polygons[c] ||
+                ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts)) {
 
-            for(i=0;i<xctx->instances;i++) {
-              if(xctx->inst[i].ptr == -1) continue;
-              symptr = (xctx->inst[i].ptr+ xctx->sym);
-              if( c==0 || /*draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
-                  symptr->lines[c] ||
-                  symptr->arcs[c] ||
-                  symptr->rects[c] ||
-                  symptr->polygons[c] ||
-                  ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts)) {
 
-
-                type = (xctx->inst[i].ptr+ xctx->sym)->type;
-                if(!(
-                     xctx->hilight_nets &&
-                     type  &&
-                     (
-                      (
-                        IS_LABEL_SH_OR_PIN(type) && xctx->inst[i].node && xctx->inst[i].node[0] &&
-                        bus_hilight_lookup(xctx->inst[i].node[0], 0, XLOOKUP )
-                      ) ||
-                      (
-                        !IS_LABEL_SH_OR_PIN(type) && (xctx->inst[i].flags & 4)
-                      )
-                     )
+              type = (xctx->inst[i].ptr+ xctx->sym)->type;
+              if(!(
+                   xctx->hilight_nets &&                  /* if no highlights ...             */
+                   type  &&                               /* ... or no type ...               */
+                   (                                   
+                    (                                     /* ... or inst is not hilighted ... */
+                      IS_LABEL_SH_OR_PIN(type) && xctx->inst[i].node && xctx->inst[i].node[0] &&
+                      bus_hilight_lookup(xctx->inst[i].node[0], 0, XLOOKUP )
+                    ) ||
+                    (
+                      !IS_LABEL_SH_OR_PIN(type) && (xctx->inst[i].flags & 4)
                     )
-                ) {
-                  draw_symbol(ADD, c, i,c,0,0,0.0,0.0);
-                }
+                   )
+                  )
+              ) {
+                draw_symbol(ADD, c, i,c,0,0,0.0,0.0);     /* ... then draw current layer      */
               }
             }
           }
@@ -1709,33 +1678,26 @@ void draw(void)
           drawrect(c, END, 0.0, 0.0, 0.0, 0.0, 0);
           drawline(c, END, 0.0, 0.0, 0.0, 0.0, 0);
         }
-        if(draw_single_layer==-1 || draw_single_layer==WIRELAYER){
+        if(draw_single_layer==-1 || draw_single_layer==WIRELAYER) {
 
-          if(use_hash) {
-            dbg(3, "using spatial hash table iterator\n");
-            /*loop thru all squares that intersect drawing area */
-
-            for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
-              ii=wireptr->n;
-              if(xctx->wire[ii].bus) {
-                drawline(WIRELAYER, THICK, xctx->wire[ii].x1,xctx->wire[ii].y1,
-                  xctx->wire[ii].x2,xctx->wire[ii].y2, 0);
-              }
-              else
-                drawline(WIRELAYER, ADD, xctx->wire[ii].x1,xctx->wire[ii].y1,
-                  xctx->wire[ii].x2,xctx->wire[ii].y2, 0);
+          if(use_hash) init_wire_iterator(x1, y1, x2, y2);
+          else i = -1;
+          while(1) {
+            if(use_hash) {
+              if( !(wireptr = wire_iterator_next())) break;
+              i = wireptr->n;
             }
-          } else {
-            for(i=0;i<xctx->wires;i++)
-            {
-              if(xctx->wire[i].bus) {
-                drawline(WIRELAYER, THICK, xctx->wire[i].x1,xctx->wire[i].y1,
-                  xctx->wire[i].x2,xctx->wire[i].y2, 0);
-              }
-              else
-                drawline(WIRELAYER, ADD, xctx->wire[i].x1,xctx->wire[i].y1,
-                  xctx->wire[i].x2,xctx->wire[i].y2, 0);
+            else {
+              i++;
+              if(i >= xctx->wires) break;
             }
+            if(xctx->wire[i].bus) {
+              drawline(WIRELAYER, THICK, xctx->wire[i].x1,xctx->wire[i].y1,
+                xctx->wire[i].x2,xctx->wire[i].y2, 0);
+            }
+            else
+              drawline(WIRELAYER, ADD, xctx->wire[i].x1,xctx->wire[i].y1,
+                xctx->wire[i].x2,xctx->wire[i].y2, 0);
           }
           update_conn_cues(1, draw_window);
           filledrect(WIRELAYER, END, 0.0, 0.0, 0.0, 0.0);

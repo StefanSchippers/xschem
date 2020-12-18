@@ -259,6 +259,7 @@ void match_merged_inst(int old)
       /* delete_inst_node(i); */  /* probably not needed */
       xctx->inst[i].ptr=-1;  /*04112003 was 0 */
       xctx->inst[i].flags=0;
+      xctx->inst[i].color=0;
       xctx->inst[i].name=NULL;
       xctx->inst[i].instname=NULL;
      }

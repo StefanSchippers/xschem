@@ -211,6 +211,7 @@ void check_unique_names(int rename)
         dbg(1, "check_unique_names(): checking %s\n", start);
         if( (entry = inst_hash_lookup(table, start, i, XINSERT_NOREPLACE, strlen(start)) ) && entry->value != i) {
           xctx->inst[i].flags |=4;
+          xctx->inst[i].color = PINLAYER;
           xctx->hilight_nets=1;
           if(rename == 1) {
             if(first) {
@@ -2327,6 +2328,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
      statusmsg(errstr,2);
      if(!netlist_count) {
        xctx->inst[i].flags |=4;
+       xctx->inst[i].color = PINLAYER;
        xctx->hilight_nets=1;
      }
    }

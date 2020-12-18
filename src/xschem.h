@@ -456,6 +456,7 @@ typedef struct
    short rot;
    short flip;
    short sel;
+   short color;
    short flags; /*  bit 0: skip field, bit 1: flag for different textlayer for pin/labels
                *  bit 2 : hilight flag.
                */
@@ -551,7 +552,6 @@ typedef struct {
   int head_undo_ptr;
   struct node_hashentry *node_table[HASHSIZE];
   struct hilight_hashentry *hilight_table[HASHSIZE];
-  int *inst_color;
   int hilight_nets;
   int hilight_color;
   unsigned int rectcolor; /* current layer */
@@ -586,7 +586,6 @@ typedef struct {
   int nl_sel, nl_sem;
   XSegment *biggridpoint;
   XPoint *gridpoint;
-
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */

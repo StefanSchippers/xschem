@@ -551,6 +551,7 @@ static void load_inst(int k, FILE *fd)
       fprintf(errfp,"WARNING: missing fields for INSTANCE object, ignoring.\n");
       read_line(fd, 0);
     } else {
+      xctx->inst[i].color=0;
       xctx->inst[i].flags=0;
       xctx->inst[i].sel=0;
       xctx->inst[i].ptr=-1; /*04112003 was 0 */
