@@ -276,7 +276,6 @@ void hash_inst_pin(int what, int i, int j)
         xctx->inst[i].name, j, prop_ptr);
     statusmsg(str,2);
     if(!netlist_count) {
-      xctx->inst[i].flags |=4;
       xctx->inst[i].color = PINLAYER;
       xctx->hilight_nets=1;
     }
@@ -699,7 +698,6 @@ void prepare_netlist_structs(int for_netlist)
            strcmp(type, "use")) {
         my_snprintf(str, S(str), "instance: %d (%s): no name attribute set", i, inst[i].name);
         statusmsg(str,2);
-        inst[i].flags |=4;
         inst[i].color = PINLAYER;
         xctx->hilight_nets=1;
       }
@@ -708,7 +706,6 @@ void prepare_netlist_structs(int for_netlist)
       char str[2048];
       my_snprintf(str, S(str), "Symbol: %s: no type attribute set", inst[i].name);
       statusmsg(str,2);
-      inst[i].flags |=4;
       inst[i].color = PINLAYER;
       xctx->hilight_nets=1;
     }
@@ -755,7 +752,7 @@ void prepare_netlist_structs(int for_netlist)
         my_strdup(261, &class,get_tok_value(inst[i].prop_ptr,"class",0));
       }
 
-      my_strdup(262, &inst[i].node[0], get_tok_value(inst[i].prop_ptr,"lab",0));
+      my_strdup(262, &inst[i].node[0], inst[i].lab);
 
       if (!(inst[i].node[0])) {
         my_strdup(65, &inst[i].node[0], get_tok_value((inst[i].ptr+ xctx->sym)->templ, "lab",0));
@@ -771,8 +768,6 @@ void prepare_netlist_structs(int for_netlist)
       bus_hash_lookup(inst[i].node[0],    /* insert node in hash table */
         dir, XINSERT, port, sig_type, verilog_type, value, class);
 
-      dbg(2, "prepare_netlist_structs(): name=%s\n",
-        get_tok_value( inst[i].prop_ptr, "lab",0));
       dbg(2, "prepare_netlist_structs(): pin=%s\n",
         get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][0].prop_ptr, "name",0));
       dbg(2, "prepare_netlist_structs(): dir=%s\n",
@@ -1187,7 +1182,6 @@ int sym_vs_sch_pins()
                       statusmsg(str,2);
                       for(j = 0; j < xctx->instances; j++) {
                         if(!strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
-                          xctx->inst[j].flags |=4;
                           xctx->inst[i].color = PINLAYER;
                           xctx->hilight_nets=1;
                         }
@@ -1204,7 +1198,6 @@ int sym_vs_sch_pins()
                   statusmsg(str,2);
                   for(j = 0; j < xctx->instances; j++) {
                     if(!strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
-                      xctx->inst[j].flags |=4;
                       xctx->inst[i].color = PINLAYER;
                       xctx->hilight_nets=1;
                     }
@@ -1238,7 +1231,6 @@ int sym_vs_sch_pins()
           statusmsg(str,2);
           for(j = 0; j < xctx->instances; j++) {
             if(!strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
-              xctx->inst[j].flags |=4;
               xctx->inst[i].color = PINLAYER;
               xctx->hilight_nets=1;
             }
@@ -1262,7 +1254,6 @@ int sym_vs_sch_pins()
             statusmsg(str,2);
             for(k = 0; k < xctx->instances; k++) {
               if(!strcmp(xctx->inst[k].name, xctx->sym[i].name)) {
-                xctx->inst[k].flags |=4;
                 xctx->inst[i].color = PINLAYER;
                 xctx->hilight_nets=1;
               }

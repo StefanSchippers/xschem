@@ -140,7 +140,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  /*  if( type && (strcmp(type,"generic"))==0) */
  /*  { */
  /*   my_strdup(576, &port_value,get_tok_value(xctx->inst[i].prop_ptr,"value", 0)); */
- /*   str_tmp = get_tok_value(xctx->inst[i].prop_ptr,"lab",0); */
+ /*   str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : ""; */
  /*   if(!tmp)  fprintf(fd,"generic (\n"); */
  /*   if(tmp) fprintf(fd," ;\n"); */
  /*   fprintf(fd, "  %s : %s", str_tmp ? str_tmp : "(NULL)", sig_type ); */
@@ -169,7 +169,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
   my_strdup(579, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"opin"))==0)
   {
-   str_tmp = get_tok_value(xctx->inst[i].prop_ptr,"lab",0);
+   str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
    if(!tmp)  fprintf(fd,"port(\n");
    if(tmp) fprintf(fd," ;\n");
    fprintf(fd, "  %s : out %s", str_tmp ? str_tmp : "(NULL)", sig_type );
@@ -190,7 +190,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
   my_strdup(582, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"iopin"))==0)
   {
-   str_tmp = get_tok_value(xctx->inst[i].prop_ptr,"lab",0);
+   str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
    if(!tmp)  fprintf(fd,"port(\n");
    if(tmp) fprintf(fd," ;\n");
    fprintf(fd, "  %s : inout %s", str_tmp ? str_tmp : "(NULL)", sig_type );
@@ -211,7 +211,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
   my_strdup(585, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"ipin"))==0)
   {
-   str_tmp = get_tok_value(xctx->inst[i].prop_ptr,"lab",0);
+   str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
    if(!tmp)  fprintf(fd,"port(\n");
    if(tmp) fprintf(fd," ;\n");
    fprintf(fd, "  %s :  in %s", str_tmp ? str_tmp : "<NULL>", sig_type );
@@ -324,7 +324,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
 
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(151, xctx->instances, sizeof(unsigned int));
- for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].flags & 4;
+ for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].color;
 
  if(global)
  {
@@ -371,7 +371,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    sym_vs_sch_pins();
 
    /* restore hilight flags from errors found analyzing top level before descending hierarchy */
-   for(i=0;i<xctx->instances; i++) xctx->inst[i].flags |= stored_flags[i];
+   for(i=0;i<xctx->instances; i++) xctx->inst[i].color = stored_flags[i];
 
    draw_hilight_net(1);
  }

@@ -531,6 +531,7 @@ void clear_drawing(void)
   my_free(693, &xctx->inst[i].prop_ptr);
   my_free(694, &xctx->inst[i].name);
   my_free(695, &xctx->inst[i].instname);
+  my_free(874, &xctx->inst[i].lab);
   delete_inst_node(i);
  }
  xctx->instances = 0;
@@ -838,6 +839,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->inst[n].ptr = i;
   xctx->inst[n].name=NULL;
   xctx->inst[n].instname=NULL;
+  xctx->inst[n].lab=NULL;
   dbg(1, "place_symbol(): entering my_strdup: name=%s\n",name);  /*  03-02-2000 */
   my_strdup(12, &xctx->inst[n].name ,name);
   dbg(1, "place_symbol(): done my_strdup: name=%s\n",name);  /*  03-02-2000 */
@@ -864,11 +866,11 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   dbg(1, "place_symbol(): done set_inst_prop()\n");  /*  03-02-2000 */
 
   my_strdup2(13, &xctx->inst[n].instname, get_tok_value(xctx->inst[n].prop_ptr,"name",0) );
-
+  if(!strcmp(get_tok_value(xctx->inst[n].prop_ptr,"highlight",0), "true")) xctx->inst[n].flags |= 4;
   type = xctx->sym[xctx->inst[n].ptr].type;
   cond= !type || !IS_LABEL_SH_OR_PIN(type);
   if(cond) xctx->inst[n].flags|=2;
-  else xctx->inst[n].flags &=~2;
+  else my_strdup(145, &xctx->inst[n].lab, get_tok_value(xctx->inst[n].prop_ptr,"lab",0));
 
   if(first_call && (draw_sym & 3) ) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
 
@@ -996,10 +998,7 @@ void descend_schematic(int instnumber)
  const char *str;
  char filename[PATH_MAX];
  int inst_mult, inst_number;
- int i, save_ok = 0;
- int hilight_connected_inst;
- char *type;
- struct hilight_hashentry *entry;
+ int save_ok = 0;
 
 
  rebuild_selected_array();
@@ -1106,36 +1105,7 @@ void descend_schematic(int instnumber)
   if(xctx->hilight_nets)
   {
     prepare_netlist_structs(0);
-
-
-    for(i = 0; i < xctx->instances; i++) {
-      type = (xctx->inst[i].ptr+ xctx->sym)->type;
-      hilight_connected_inst =
-        !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true") ||
-        !strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true");
-      if(hilight_connected_inst && type && !IS_LABEL_SH_OR_PIN(type)) {
-        int rects, j;
-        if( (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
-          dbg(2, "draw_hilight_net(): hilight_connected_inst inst=%d, node=%s\n", i, xctx->inst[i].node[0]);
-          for(j=0;j<rects;j++) {
-            if( xctx->inst[i].node && xctx->inst[i].node[j]) {
-              entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
-             if(entry) {
-                 xctx->inst[i].flags |= 4;
-                 xctx->inst[i].color=get_color(entry->value);
-                break;
-              }
-            }
-          }
-        }
-      } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
-        entry=bus_hilight_lookup( get_tok_value(xctx->inst[i].prop_ptr,"lab",0) , 0, XLOOKUP);
-        if(entry) xctx->inst[i].color=get_color(entry->value);
-      }
-    }
-
-
-
+    propagate_hilights(1);
     if(enable_drill) drill_hilight();
   }
   dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
@@ -1184,7 +1154,10 @@ void go_back(int confirm) /*  20171006 add confirm */
   load_schematic(1, filename, 1);
   if(from_embedded_sym) xctx->modified=save_modified; /* to force ask save embedded sym in parent schematic */
 
-  hilight_parent_pins();
+  if(xctx->hilight_nets) {
+    hilight_parent_pins();
+    propagate_hilights(1);
+  }
   if(enable_drill) drill_hilight();
   xctx->xorigin=xctx->zoom_array[xctx->currsch].x;
   xctx->yorigin=xctx->zoom_array[xctx->currsch].y;
@@ -1353,10 +1326,10 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
       }
     }
     else if( type && IS_LABEL_OR_PIN(type)) {
-      entry=bus_hilight_lookup( get_tok_value(xctx->inst[i].prop_ptr,"lab",0) , 0, XLOOKUP );
+      entry=bus_hilight_lookup(xctx->inst[i].lab, 0, XLOOKUP );
       if(entry) found = 1;
     }
-    else if( (xctx->inst[i].flags & 4) ) {
+    else if( (xctx->inst[i].color) ) {
       found = 1;
     }
     if(!found) continue;

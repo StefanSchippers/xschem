@@ -291,7 +291,6 @@ void delete_hilight_net(void)
  
   xctx->hilight_nets=0;
   for(i=0;i<xctx->instances;i++) {
-    xctx->inst[i].flags &= ~4 ;
     xctx->inst[i].color = 0 ;
   }
   dbg(1, "delete_hilight_net(): clearing\n");
@@ -343,11 +342,9 @@ void hilight_net_pin_mismatches(void)
 
 void hilight_parent_pins(void)
 {
- int hilight_connected_inst;
  int rects, i, j, k;
  struct hilight_hashentry *entry;
  const char *pin_name;
- char *type;
  char *pin_node = NULL;
  char *net_node=NULL;
  int mult, net_mult, inst_number;
@@ -385,31 +382,6 @@ void hilight_parent_pins(void)
       bus_hilight_lookup(find_nth(net_node, ',',
           ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XDELETE);
     }
-   }
- }
- for(i = 0; i < xctx->instances; i++) {
-   type = (xctx->inst[i].ptr+ xctx->sym)->type;
-   hilight_connected_inst =
-     !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true") ||
-     !strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true");
-   if(hilight_connected_inst && type && !IS_LABEL_SH_OR_PIN(type)) {
-     int rects, j;
-     if( (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
-       dbg(2, "draw_hilight_net(): hilight_connected_inst inst=%d, node=%s\n", i, xctx->inst[i].node[0]);
-       for(j=0;j<rects;j++) {
-         if( xctx->inst[i].node && xctx->inst[i].node[j]) {
-           entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
-          if(entry) {
-              xctx->inst[i].flags |= 4;
-              xctx->inst[i].color=get_color(entry->value);
-             break;
-           }
-         }
-       }
-     }
-   } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
-     entry=bus_hilight_lookup( get_tok_value(xctx->inst[i].prop_ptr,"lab",0) , 0, XLOOKUP);
-     if(entry) xctx->inst[i].color=get_color(entry->value);
    }
  }
  my_free(767, &pin_node);
@@ -552,7 +524,6 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
             else {
               dbg(1, "search(): setting hilight flag on inst %d\n",i);
               xctx->hilight_nets=1;
-              xctx->inst[i].flags |= 4;
               xctx->inst[i].color = hilight_layer;
               if(what==NOW) for(c=0;c<cadlayers;c++)
                 draw_symbol(NOW, hilight_layer, i,c,0,0,0.0,0.0);
@@ -828,14 +799,50 @@ static void send_current_to_gaw(int simtype, const char *node)
 
 }
 
+void propagate_hilights(int set)
+{
+  int i, hilight_connected_inst;
+  struct hilight_hashentry *entry;
+  char *type;
+
+  for(i = 0; i < xctx->instances; i++) {
+    type = (xctx->inst[i].ptr+ xctx->sym)->type;
+    hilight_connected_inst = (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4);
+    if(hilight_connected_inst && type && !IS_LABEL_SH_OR_PIN(type)) {
+      int rects, j, clear;
+      if( (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
+        dbg(2, "draw_hilight_net(): hilight_connected_inst inst=%d, node=%s\n", i, xctx->inst[i].node[0]);
+        clear = 1;
+        for(j=0;j<rects;j++) {
+          if( xctx->inst[i].node && xctx->inst[i].node[j]) {
+            entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
+            if(entry) {
+              if(set) {
+                xctx->inst[i].color=get_color(entry->value);
+              } else {
+                clear = 0;
+              }
+              break;
+            }
+          }
+        }
+        if(clear && !set) {
+          xctx->inst[i].color=0;
+        }
+      }
+    } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
+      entry=bus_hilight_lookup( xctx->inst[i].lab, 0, XLOOKUP);
+      if(entry && set)        xctx->inst[i].color = get_color(entry->value);
+      else if(!entry && !set) xctx->inst[i].color = 0;
+    }
+  }
+}
 
 void hilight_net(int to_waveform)
 {
   int i, n;
   char *type;
   int sim_is_xyce;
-  int hilight_connected_inst;
-  struct hilight_hashentry *entry;
 
   prepare_netlist_structs(0);
   dbg(1, "hilight_net(): entering\n");
@@ -865,7 +872,6 @@ void hilight_net(int to_waveform)
      } else {
        dbg(1, "hilight_net(): setting hilight flag on inst %d\n",n);
        xctx->hilight_nets=1;
-       xctx->inst[n].flags |= 4;
        xctx->inst[n].color = get_color(xctx->hilight_color);
        if(incr_hilight) xctx->hilight_color++;
      }
@@ -877,33 +883,7 @@ void hilight_net(int to_waveform)
      break;
    }
   }
-
-  for(i = 0; i < xctx->instances; i++) {
-    type = (xctx->inst[i].ptr+ xctx->sym)->type;
-    hilight_connected_inst =
-      !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true") ||
-      !strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true");
-    if(hilight_connected_inst && type && !IS_LABEL_SH_OR_PIN(type)) {
-      int rects, j;
-      if( (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
-        dbg(2, "draw_hilight_net(): hilight_connected_inst inst=%d, node=%s\n", i, xctx->inst[i].node[0]);
-        for(j=0;j<rects;j++) {
-          if( xctx->inst[i].node && xctx->inst[i].node[j]) {
-            entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
-           if(entry) {
-               xctx->inst[i].flags |= 4;
-               xctx->inst[i].color=get_color(entry->value);
-              break;
-            }
-          }
-        }
-      }
-    } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
-      entry=bus_hilight_lookup( get_tok_value(xctx->inst[i].prop_ptr,"lab",0) , 0, XLOOKUP);
-      if(entry) xctx->inst[i].color=get_color(entry->value);
-    }
-  }
-
+  propagate_hilights(1);
   if(!incr_hilight) xctx->hilight_color++;
   if(enable_drill) {
     drill_hilight();
@@ -914,10 +894,8 @@ void hilight_net(int to_waveform)
 
 void unhilight_net(void)
 {
-  int i,n, clear;
+  int i,n;
   char *type;
-  int hilight_connected_inst;
-  struct hilight_hashentry *entry;
 
   prepare_netlist_structs(0);
   dbg(1, "unhilight_net(): entering\n");
@@ -939,45 +917,13 @@ void unhilight_net(void)
       bus_hilight_lookup(xctx->inst[n].node[0], xctx->hilight_color, XDELETE);
      } else {
      }
-     xctx->inst[n].flags &= ~4;
      xctx->inst[n].color = 0;
      break;
     default:
      break;
    }
   }
-
-
-  for(i = 0; i < xctx->instances; i++) {
-    type = (xctx->inst[i].ptr+ xctx->sym)->type;
-    hilight_connected_inst =
-      !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true") ||
-      !strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true");
-    if(hilight_connected_inst && type && !IS_LABEL_SH_OR_PIN(type)) {
-      int rects, j;
-      if( (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
-        dbg(2, "draw_hilight_net(): hilight_connected_inst inst=%d, node=%s\n", i, xctx->inst[i].node[0]);
-        for(j=0;j<rects;j++) {
-          clear = 1;
-          if( xctx->inst[i].node && xctx->inst[i].node[j]) {
-            entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
-            if(entry) {
-              clear = 0;
-              break;
-            }
-          }
-        }
-        if(clear) {
-          xctx->inst[i].flags &= ~4;
-          xctx->inst[i].color=0;
-        }
-      }
-    } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
-      entry=bus_hilight_lookup( get_tok_value(xctx->inst[i].prop_ptr,"lab",0) , 0, XLOOKUP);
-      if(!entry) xctx->inst[i].color=0;
-    }
-  }
-
+  propagate_hilights(0);
   unselect_all();
 }
 
@@ -1014,10 +960,8 @@ void select_hilight_net(void)
  for(i=0;i<xctx->instances;i++) {
 
   type = (xctx->inst[i].ptr+ xctx->sym)->type;
-  hilight_connected_inst =
-    !strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true") ||
-    !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true");
-  if( xctx->inst[i].flags & 4) {
+  hilight_connected_inst = (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4);
+  if( xctx->inst[i].color) {
     dbg(1, "select_hilight_net(): instance %d flags &4 true\n", i);
      xctx->inst[i].sel = SELECTED;
   }
@@ -1036,8 +980,8 @@ void select_hilight_net(void)
       }
     }
   } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
-   entry=bus_hilight_lookup( get_tok_value(xctx->inst[i].prop_ptr,"lab",0) , 0, XLOOKUP);
-   if(entry) xctx->inst[i].sel = SELECTED;
+    entry=bus_hilight_lookup(xctx->inst[i].lab , 0, XLOOKUP);
+    if(entry) xctx->inst[i].sel = SELECTED;
   }
  }
  xctx->need_reb_sel_arr = 1;

@@ -557,10 +557,13 @@ static void load_inst(int k, FILE *fd)
       xctx->inst[i].ptr=-1; /*04112003 was 0 */
       xctx->inst[i].prop_ptr=NULL;
       xctx->inst[i].instname=NULL;
+      xctx->inst[i].lab=NULL; /* assigned in link_symbols_to_instances */
       xctx->inst[i].node=NULL;
       load_ascii_string(&prop_ptr,fd);
       my_strdup(319, &xctx->inst[i].prop_ptr, prop_ptr);
       my_strdup2(320, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
+      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"highlight",0), "true")) xctx->inst[i].flags |= 4;
+
       dbg(2, "load_inst(): n=%d name=%s prop=%s\n", i, xctx->inst[i].name? xctx->inst[i].name:"<NULL>",
                xctx->inst[i].prop_ptr? xctx->inst[i].prop_ptr:"<NULL>");
       xctx->instances++;
@@ -949,29 +952,31 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   return 0;
 }
 
-void link_symbols_to_instances(void) /* 20150326 separated from load_schematic() */
+void link_symbols_to_instances(int from)
 {
   int i;
-  char *type=NULL; /* 20150407 added static  */
+  char *type=NULL;
   int cond;
 
-  for(i=0;i<xctx->instances;i++)
+  for(i = from; i < xctx->instances; i++)
   {
     dbg(2, "link_symbols_to_instances(): inst=%d\n", i);
     dbg(2, "link_symbols_to_instances(): matching inst %d name=%s \n",i, xctx->inst[i].name);
     dbg(2, "link_symbols_to_instances(): -------\n");
     xctx->inst[i].ptr = match_symbol(xctx->inst[i].name);
   }
-  for(i=0;i<xctx->instances;i++) {
-    symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1,
-                      &xctx->inst[i].x2, &xctx->inst[i].y2);
+  for(i = from; i < xctx->instances; i++) {
+    symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
     type=xctx->sym[xctx->inst[i].ptr].type;
     cond= !type || !IS_LABEL_SH_OR_PIN(type);
     if(cond) xctx->inst[i].flags|=2; /* ordinary symbol */
-    else xctx->inst[i].flags &=~2; /* label or pin */
+    else {
+      xctx->inst[i].flags &=~2; /* label or pin */
+      my_strdup(1216, &xctx->inst[i].lab, get_tok_value(xctx->inst[i].prop_ptr,"lab",0));
+    }
   }
-
 }
+
 /* ALWAYS use absolute pathname for filename!!! */
 void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 20150327 added reset_undo */
 {
@@ -1011,7 +1016,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       fclose(fd); /* 20150326 moved before load symbols */
       set_modify(0);
       dbg(2, "load_schematic(): loaded file:wire=%d inst=%d\n",xctx->wires , xctx->instances);
-      if(load_symbols) link_symbols_to_instances();
+      if(load_symbols) link_symbols_to_instances(0);
       if(reset_undo) {
         Tcl_VarEval(interp, "is_xschem_file ", xctx->sch[xctx->currsch], NULL);
         if(!strcmp(tclresult(), "SYMBOL")) {
@@ -1230,7 +1235,7 @@ void pop_undo(int redo)
   fclose(fd);
   #endif
   dbg(2, "pop_undo(): loaded file:wire=%d inst=%d\n",xctx->wires , xctx->instances);
-  link_symbols_to_instances();
+  link_symbols_to_instances(0);
   set_modify(1);
   xctx->prep_hash_inst=0;
   xctx->prep_hash_wires=0;
@@ -1634,6 +1639,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
                   get_tok_value(symbol[symbols].prop_ptr, "template", 0));
        my_strdup2(515, &symbol[symbols].type,
                   get_tok_value(symbol[symbols].prop_ptr, "type",0));
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"highlight",0), "true")) symbol[symbols].flags |= 4;
+
      }
      else {
        load_ascii_string(&aux_ptr, lcc[level].fd);
@@ -1647,6 +1654,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
                   get_tok_value(symbol[symbols].prop_ptr, "template", 0));
        my_strdup2(342, &symbol[symbols].type,
                   get_tok_value(symbol[symbols].prop_ptr, "type",0));
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"highlight",0), "true")) symbol[symbols].flags |= 4;
      }
      else {
        load_ascii_string(&aux_ptr, lcc[level].fd);

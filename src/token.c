@@ -210,7 +210,6 @@ void check_unique_names(int rename)
         if(comma_pos) *comma_pos = '\0';
         dbg(1, "check_unique_names(): checking %s\n", start);
         if( (entry = inst_hash_lookup(table, start, i, XINSERT_NOREPLACE, strlen(start)) ) && entry->value != i) {
-          xctx->inst[i].flags |=4;
           xctx->inst[i].color = PINLAYER;
           xctx->hilight_nets=1;
           if(rename == 1) {
@@ -230,7 +229,7 @@ void check_unique_names(int rename)
           comma_pos++;
         }
       } /* for(j...) */
-      if( (xctx->inst[i].flags & 4) && rename) {
+      if( xctx->inst[i].color && rename) {
         my_strdup(511, &tmp, xctx->inst[i].prop_ptr);
         new_prop_string(i, tmp, newpropcnt++, !rename);
         my_strdup2(512, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
@@ -2327,7 +2326,6 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
                  i, j, xctx->inst[i].instname ) ;
      statusmsg(errstr,2);
      if(!netlist_count) {
-       xctx->inst[i].flags |=4;
        xctx->inst[i].color = PINLAYER;
        xctx->hilight_nets=1;
      }

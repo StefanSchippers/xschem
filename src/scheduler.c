@@ -1819,7 +1819,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           type=xctx->sym[xctx->inst[inst].ptr].type;
           cond= !type || !IS_LABEL_SH_OR_PIN(type);
           if(cond) xctx->inst[inst].flags|=2;
-          else xctx->inst[inst].flags &=~2;
+          else {
+            xctx->inst[inst].flags &=~2;
+            my_strdup(1215, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
+          }
           my_free(922, &ptr);
         }
         my_free(923, &name);
@@ -2237,6 +2240,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, "xschem setprop: instance not found", TCL_STATIC);
         return TCL_ERROR;
       } else {
+        char *type;
+        int cond;
         if(!fast) {
           bbox(START,0.0,0.0,0.0,0.0);
           symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
@@ -2254,7 +2259,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], NULL),fast, dis_uniq_names);
         }
         my_strdup2(367, &xctx->inst[inst].instname, get_tok_value(xctx->inst[inst].prop_ptr, "name",0));
-   
+
+        type=xctx->sym[xctx->inst[inst].ptr].type;
+        cond= !type || !IS_LABEL_SH_OR_PIN(type);
+        if(cond) xctx->inst[inst].flags|=2;
+        else {
+          xctx->inst[inst].flags &=~2;
+          my_strdup(1215, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
+        }
+
         if(!fast) {
           /* new symbol bbox after prop changes (may change due to text length) */
           symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);

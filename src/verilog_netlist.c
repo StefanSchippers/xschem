@@ -112,7 +112,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
   {
    if(tmp) fprintf(fd, " ,\n");
    tmp++;
-   str_tmp = get_tok_value(xctx->inst[i].prop_ptr,"lab",0);
+   str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
    fprintf(fd, "  %s", str_tmp ? str_tmp : "(NULL)");
   }
  }
@@ -130,7 +130,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
   {
    if(tmp) fprintf(fd, " ,\n");
    tmp++;
-   str_tmp = get_tok_value(xctx->inst[i].prop_ptr,"lab",0);
+   str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
    fprintf(fd, "  %s", str_tmp ? str_tmp : "(NULL)");
   }
  }
@@ -148,7 +148,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
   {
    if(tmp) fprintf(fd, " ,\n");
    tmp++;
-   str_tmp = get_tok_value(xctx->inst[i].prop_ptr,"lab",0);
+   str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
    fprintf(fd, "  %s", str_tmp ? str_tmp : "<NULL>");
   }
  }
@@ -181,7 +181,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
    my_strdup(550, &port_value,get_tok_value(xctx->inst[i].prop_ptr,"value",0));
    my_strdup(551, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"verilog_type",0));
    if(!sig_type || sig_type[0]=='\0') my_strdup(552, &sig_type,"wire"); /* 20070720 changed reg to wire */
-   str_tmp = get_tok_value(xctx->inst[i].prop_ptr,"lab",0);
+   str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
    fprintf(fd, "  output %s ;\n", str_tmp ? str_tmp : "(NULL)");
    fprintf(fd, "  %s %s ", sig_type, str_tmp ? str_tmp : "(NULL)");
 
@@ -204,7 +204,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
    my_strdup(554, &port_value,get_tok_value(xctx->inst[i].prop_ptr,"value",0));
    my_strdup(555, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"verilog_type",0));
    if(!sig_type || sig_type[0]=='\0') my_strdup(556, &sig_type,"wire");
-   str_tmp = get_tok_value(xctx->inst[i].prop_ptr,"lab",0);
+   str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
    fprintf(fd, "  inout %s ;\n", str_tmp ? str_tmp : "(NULL)");
    fprintf(fd, "  %s %s ", sig_type, str_tmp ? str_tmp : "(NULL)");
 
@@ -227,7 +227,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
    my_strdup(558, &port_value,get_tok_value(xctx->inst[i].prop_ptr,"value",0));
    my_strdup(559, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"verilog_type",0));
    if(!sig_type || sig_type[0]=='\0') my_strdup(560, &sig_type,"wire");
-   str_tmp = get_tok_value(xctx->inst[i].prop_ptr,"lab",0);
+   str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
    fprintf(fd, "  input %s ;\n", str_tmp ? str_tmp : "<NULL>");
    fprintf(fd, "  %s %s ", sig_type, str_tmp ? str_tmp : "<NULL>");
 
@@ -271,7 +271,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
 
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(150, xctx->instances, sizeof(unsigned int));
- for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].flags & 4;
+ for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].color;
 
  if(global)
  {
@@ -318,7 +318,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
    sym_vs_sch_pins();
 
    /* restore hilight flags from errors found analyzing top level before descending hierarchy */
-   for(i=0;i<xctx->instances; i++) xctx->inst[i].flags |= stored_flags[i];
+   for(i=0;i<xctx->instances; i++) xctx->inst[i].color = stored_flags[i];
 
    draw_hilight_net(1);
  }

@@ -378,10 +378,10 @@ char *strtoupper(char* s) {
 
 void set_inst_prop(int i)
 {
-  char *ptr = NULL;
+  char *ptr;
   char *tmp = NULL;
 
-  my_strdup(104, &ptr, (xctx->inst[i].ptr+ xctx->sym)->templ);
+  ptr = (xctx->inst[i].ptr+ xctx->sym)->templ;
   dbg(1, "set_inst_prop(): i=%d, name=%s, prop_ptr = %s, template=%s\n",
      i, xctx->inst[i].name, xctx->inst[i].prop_ptr, ptr);
   my_strdup(69, &xctx->inst[i].prop_ptr, ptr);
@@ -391,7 +391,6 @@ void set_inst_prop(int i)
     new_prop_string(i, tmp, 0, dis_uniq_names);
     my_free(724, &tmp);
   }
-  my_free(330, &ptr);
 }
 
 void edit_rect_property(void)
@@ -962,7 +961,7 @@ void update_symbol(const char *result, int x)
      may be out of sync wrt disk version */
   if(copy_cell) {
    remove_symbols();
-   link_symbols_to_instances();
+   link_symbols_to_instances(0);
   }
   /* symbol reference changed? --> sym_number >=0, set prefix to 1st char
      to use for inst name (from symbol template) */
@@ -1033,17 +1032,19 @@ void update_symbol(const char *result, int x)
       dbg(1, "update_symbol(): name=%s, inst[i].prop_ptr=%s\n", name, xctx->inst[i].prop_ptr);
       my_strdup(89, &ptr,subst_token(xctx->inst[i].prop_ptr, "name", name) );
                      /* set name of current inst */
-
       if(!pushed) { push_undo(); pushed=1;}
       if(!k) hash_all_names(i);
       new_prop_string(i, ptr, k, dis_uniq_names); /* set new prop_ptr */
-
-      type=xctx->sym[xctx->inst[i].ptr].type;
-      cond= !type || !IS_LABEL_SH_OR_PIN(type);
-      if(cond) xctx->inst[i].flags|=2; /* bit 1: flag for different textlayer for pin/labels */
-      else xctx->inst[i].flags &=~2;
     }
     my_strdup2(90, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name",0));
+
+    type=xctx->sym[xctx->inst[i].ptr].type;
+    cond= !type || !IS_LABEL_SH_OR_PIN(type);
+    if(cond) xctx->inst[i].flags |= 2; /* bit 1: flag for different textlayer for pin/labels */
+    else {
+      xctx->inst[i].flags &= ~2;
+      my_strdup(880, &xctx->inst[i].lab, get_tok_value(xctx->inst[i].prop_ptr, "lab",0));
+    }
   }  /* end for(k=0;k<xctx->lastsel;k++) */
   /* new symbol bbox after prop changes (may change due to text length) */
   if(xctx->modified) {

@@ -100,9 +100,7 @@ void global_spice_netlist(int global)  /* netlister driver */
     continue;
   }
   if( type && IS_PIN(type)) {
-   str_tmp = expandlabel ( get_tok_value(xctx->inst[i].prop_ptr,"lab",0) ,&multip);
-   dbg(1, "global_spice_netlist(): |%s|\n",
-       get_tok_value(xctx->inst[i].prop_ptr,"lab",0));
+   str_tmp = expandlabel ( (xctx->inst[i].lab ? xctx->inst[i].lab : ""), &multip);
    /*must handle  invalid node names */
    fprintf(fd, " %s", str_tmp ? str_tmp : "(NULL)" );
   }
@@ -158,7 +156,7 @@ void global_spice_netlist(int global)  /* netlister driver */
 
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(146, xctx->instances, sizeof(unsigned int));
- for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].flags & 4;
+ for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].color;
 
  if(global)
  {
@@ -205,7 +203,7 @@ void global_spice_netlist(int global)  /* netlister driver */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    sym_vs_sch_pins();
    /* restore hilight flags from errors found analyzing top level before descending hierarchy */
-   for(i=0;i<xctx->instances; i++) xctx->inst[i].flags |= stored_flags[i];
+   for(i=0;i<xctx->instances; i++) xctx->inst[i].color = stored_flags[i];
    draw_hilight_net(1);
  }
  my_free(945, &stored_flags);

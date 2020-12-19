@@ -83,7 +83,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
 
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(149, xctx->instances, sizeof(unsigned int));
- for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].flags & 4;
+ for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].color;
 
  if(global) /* was if(global) ... 20180901 no hierarchical tEDAx netlist for now */
  {
@@ -117,7 +117,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
    sym_vs_sch_pins();
 
    /* restore hilight flags from errors found analyzing top level before descending hierarchy */
-   for(i=0;i<xctx->instances; i++) xctx->inst[i].flags |= stored_flags[i];
+   for(i=0;i<xctx->instances; i++) xctx->inst[i].color = stored_flags[i];
    draw_hilight_net(1);
  }
  my_free(965, &stored_flags);

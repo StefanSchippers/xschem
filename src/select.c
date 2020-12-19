@@ -311,6 +311,7 @@ void delete(void)
       delete_inst_node(i);
       my_free(939, &xctx->inst[i].name);
       my_free(940, &xctx->inst[i].instname);
+      my_free(878, &xctx->inst[i].lab);
       j++;
       continue;
     }

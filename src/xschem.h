@@ -436,7 +436,9 @@ typedef struct
    char *prop_ptr;
    char *type;
    char *templ;
-   short flags; /* currently only used for embedded symbols (EMBEDDED) */
+   short flags; /* bit 0: embedded flag 
+                 * bit 1: **free**
+                 * bit 2: highight if connected wire highlighted */
 } xSymbol;
 
 typedef struct
@@ -456,12 +458,13 @@ typedef struct
    short rot;
    short flip;
    short sel;
-   short color;
-   short flags; /*  bit 0: skip field, bit 1: flag for different textlayer for pin/labels
-               *  bit 2 : hilight flag.
-               */
+   short color; /* hilight color */
+   short flags; /* bit 0: skip field, 
+                 * bit 1: flag for different textlayer for pin/labels , 1: ordinary symbol, 0: label/pin/show 
+                 * bit 2: highlight if connected net/label is highlighted */
    char *prop_ptr;
    char **node;
+   char *lab;      /*  lab attribute if any (pin/label) */
    char *instname; /*  20150409 instance name (example: I23)  */
 } xInstance;
 
@@ -965,7 +968,7 @@ extern void pop_undo(int redo);
 extern void delete_undo(void);
 extern void clear_undo(void);
 extern void load_schematic(int load_symbol, const char *abs_name, int reset_undo);
-extern void link_symbols_to_instances(void);
+extern void link_symbols_to_instances(int from);
 extern void load_ascii_string(char **ptr, FILE *fd);
 extern void read_xschem_file(FILE *fd);
 extern char *read_line(FILE *fp, int dbg_level);
@@ -1097,6 +1100,7 @@ extern void print_verilog_param(FILE *fd, int symbol);
 extern void hilight_net(int to_waveform);
 extern int hilight_netname(const char *name);
 extern void unhilight_net();
+extern void propagate_hilights(int set);
 extern void draw_hilight_net(int on_window);
 extern void display_hilights(char **str);
 extern void redraw_hilights(void);

@@ -213,9 +213,11 @@ void merge_inst(int k,FILE *fd)
     }
     ptr[i].sel=0;
     ptr[i].flags=0;
+    ptr[i].color=0;
     ptr[i].ptr=-1;
     ptr[i].prop_ptr=NULL;
     ptr[i].instname=NULL;
+    ptr[i].lab=NULL;  /* assigned in link_symbols_to_instances */
     ptr[i].node=NULL;
     load_ascii_string(&prop_ptr,fd);
     if(!k) hash_all_names(i);
@@ -223,59 +225,11 @@ void merge_inst(int k,FILE *fd)
     /* the final tmp argument is zero for the 1st call and used in */
     /* new_prop_string() for cleaning some internal caches. */
     my_strdup2(306, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
+    if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"highlight",0), "true")) xctx->inst[i].flags |= 4;
+
     my_free(871, &prop_ptr);
     xctx->instances++;
     set_modify(1);
-}
-
-
-
-
-
-void match_merged_inst(int old)
-{
-    int i,missing,symbol;
-    int cond;
-    char *type;
-    missing = 0;
-    for(i=old;i<xctx->instances;i++)
-    {
-     symbol = match_symbol(xctx->inst[i].name);
-     if(symbol == -1)
-     {
-      dbg(1, "match_merged_inst(): missing symbol, skipping...\n");
-      my_free(872, &xctx->inst[i].prop_ptr);  /* 06052001 remove properties */
-      my_free(873, &xctx->inst[i].name);      /* 06052001 remove symname   */
-      my_free(874, &xctx->inst[i].instname);
-      missing++;
-      continue;
-     }
-     xctx->inst[i].ptr = symbol;
-     if(missing)
-     {
-
-      xctx->inst[i-missing] = xctx->inst[i];
-      xctx->inst[i].prop_ptr=NULL;
-      /* delete_inst_node(i); */  /* probably not needed */
-      xctx->inst[i].ptr=-1;  /*04112003 was 0 */
-      xctx->inst[i].flags=0;
-      xctx->inst[i].color=0;
-      xctx->inst[i].name=NULL;
-      xctx->inst[i].instname=NULL;
-     }
-    }
-    xctx->instances -= missing;
-    for(i=old;i<xctx->instances;i++)
-    {
-     if(xctx->inst[i].ptr<0) continue;
-     select_element(i,SELECTED,1, 0);
-     symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1,
-                       &xctx->inst[i].x2, &xctx->inst[i].y2);
-     type=xctx->sym[xctx->inst[i].ptr].type;
-     cond= !type || !IS_LABEL_SH_OR_PIN(type);
-     if(cond) xctx->inst[i].flags|=2;
-     else xctx->inst[i].flags &=~2;
-    }
 }
 
 /* merge selection if selection_load=1, otherwise ask for filename */
@@ -391,7 +345,7 @@ void merge_file(int selection_load, const char ext[])
        xctx->mousey_snap = 0.;
      }
      my_free(875, &aux_ptr);
-     match_merged_inst(old);
+     link_symbols_to_instances(old);
      fclose(fd);
      xctx->ui_state |= STARTMERGE;
      dbg(1, "merge_file(): loaded file:wire=%d inst=%d ui_state=%ld\n",

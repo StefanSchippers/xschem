@@ -511,7 +511,7 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
      txtptr= translate(n, text.txt_ptr);
      ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
      textlayer = layer;
-     if( !(layer == PINLAYER && (xctx->inst[n].flags & 4))) {
+     if( !(layer == PINLAYER && (xctx->inst[n].color))) {
        textlayer = (xctx->inst[n].ptr+ xctx->sym)->text[j].layer;
        if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
      }
@@ -530,7 +530,7 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
      if( symptr->text[j].flags & TEXT_OBLIQUE)
        my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
 
-     if((layer == PINLAYER && xctx->inst[n].flags & 4) ||  enable_layer[textlayer]) {
+     if((layer == PINLAYER && xctx->inst[n].color) ||  enable_layer[textlayer]) {
        if(text_ps) {
          ps_draw_string(textlayer, txtptr,
            (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,

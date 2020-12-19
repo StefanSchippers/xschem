@@ -152,6 +152,7 @@ void free_instances(int slot)
     my_free(800, &uslot[slot].iptr[i].name);
     my_free(801, &uslot[slot].iptr[i].prop_ptr);
     my_free(802, &uslot[slot].iptr[i].instname);
+    my_free(104, &uslot[slot].iptr[i].lab);
   }
   my_free(803, &uslot[slot].iptr);
   uslot[slot].instances = 0;
@@ -278,7 +279,9 @@ void push_undo(void)
     uslot[slot].iptr[i].prop_ptr = NULL;
     uslot[slot].iptr[i].name = NULL;
     uslot[slot].iptr[i].instname = NULL;
+    uslot[slot].iptr[i].lab = NULL;
     uslot[slot].iptr[i].node = NULL;
+    my_strdup(330, &uslot[slot].iptr[i].lab, xctx->inst[i].lab);
     my_strdup2(191, &uslot[slot].iptr[i].instname, xctx->inst[i].instname);
     my_strdup(192, &uslot[slot].iptr[i].prop_ptr, xctx->inst[i].prop_ptr);
     my_strdup(193, &uslot[slot].iptr[i].name, xctx->inst[i].name);
@@ -393,9 +396,11 @@ void pop_undo(int redo)
     xctx->inst[i].prop_ptr=NULL;
     xctx->inst[i].name=NULL;
     xctx->inst[i].instname=NULL;
+    xctx->inst[i].lab=NULL;
     my_strdup(214, &xctx->inst[i].prop_ptr, uslot[slot].iptr[i].prop_ptr);
     my_strdup(215, &xctx->inst[i].name, uslot[slot].iptr[i].name);
     my_strdup2(216, &xctx->inst[i].instname, uslot[slot].iptr[i].instname);
+    my_strdup(766, &xctx->inst[i].lab, uslot[slot].iptr[i].lab);
   }
 
   /* texts */
@@ -421,7 +426,7 @@ void pop_undo(int redo)
     my_strdup(222, &xctx->wire[i].prop_ptr, uslot[slot].wptr[i].prop_ptr);
   }
 
-  link_symbols_to_instances();
+  link_symbols_to_instances(0);
   set_modify(1);
   xctx->prep_hash_inst=0;
   xctx->prep_hash_wires=0;
