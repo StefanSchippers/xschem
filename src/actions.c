@@ -25,9 +25,9 @@
 #include <sys/wait.h>  /* waitpid */
 #endif
 
-void here(void)
+void here(int i)
 {
-  fprintf(stderr, "here\n");
+  fprintf(stderr, "here %d\n", i);
 }
 
 void set_modify(int mod)

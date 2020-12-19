@@ -947,6 +947,7 @@ void select_hilight_net(void)
  for(i=0;i<xctx->wires;i++) {
    if( (entry = bus_hilight_lookup(xctx->wire[i].node, 0, XLOOKUP)) ) {
       xctx->wire[i].sel = SELECTED;
+      xctx->ui_state|=SELECTION;
    }
  }
  for(i=0;i<xctx->instances;i++) {
@@ -956,6 +957,7 @@ void select_hilight_net(void)
   if( xctx->inst[i].color) {
     dbg(1, "select_hilight_net(): instance %d flags &4 true\n", i);
      xctx->inst[i].sel = SELECTED;
+     xctx->ui_state|=SELECTION;
   }
   else if(hilight_connected_inst) {
     int rects, j;
@@ -966,6 +968,7 @@ void select_hilight_net(void)
           entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
           if(entry) {
             xctx->inst[i].sel = SELECTED;
+            xctx->ui_state|=SELECTION;
             break;
           }
         }
@@ -974,6 +977,7 @@ void select_hilight_net(void)
   } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
     entry=bus_hilight_lookup(xctx->inst[i].lab , 0, XLOOKUP);
     if(entry) xctx->inst[i].sel = SELECTED;
+    xctx->ui_state|=SELECTION;
   }
  }
  xctx->need_reb_sel_arr = 1;
@@ -995,6 +999,7 @@ void draw_hilight_net(int on_window)
  struct instentry *instanceptr;
 
  if(!xctx->hilight_nets) return;
+ dbg(3, "draw_hilight_net(): xctx->prep_hi_structs=%d\n", xctx->prep_hi_structs);
  prepare_netlist_structs(0);
  save_draw = draw_window;
  draw_window = on_window;
@@ -1040,6 +1045,7 @@ void draw_hilight_net(int on_window)
    if(use_hash) init_inst_iterator(x1, y1, x2, y2);
    else i = -1;
    while(1) {
+     char *type;
      if(use_hash) {
        if( !(instanceptr = inst_iterator_next())) break;
        i = instanceptr->n;
@@ -1048,9 +1054,14 @@ void draw_hilight_net(int on_window)
        i++;
        if(i >= xctx->instances) break;
      }
+     type = (xctx->inst[i].ptr+ xctx->sym)->type;
+     /* after an undo xctx->inst[i].color is gone, so rebuild it for labels/pins */
+     if( type && xctx->inst[i].color == 0 && IS_LABEL_SH_OR_PIN(type) ) {
+       entry=bus_hilight_lookup(xctx->inst[i].lab, 0, XLOOKUP);
+       if(entry) xctx->inst[i].color = get_color(entry->value);
+     } 
      if(xctx->inst[i].color )
      {
-      dbg(1, "draw_hilight_net(): instance:%d\n",i);
       symptr = (xctx->inst[i].ptr+ xctx->sym);
       if( c==0 || /*draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
           symptr->lines[c] ||

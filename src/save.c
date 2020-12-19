@@ -952,7 +952,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   return 0;
 }
 
-void link_symbols_to_instances(int from)
+void link_symbols_to_instances(int from) /* from > 0 : linking symbols from pasted schematic / clipboard */
 {
   int i;
   char *type=NULL;
@@ -966,6 +966,7 @@ void link_symbols_to_instances(int from)
     xctx->inst[i].ptr = match_symbol(xctx->inst[i].name);
   }
   for(i = from; i < xctx->instances; i++) {
+    if(from) select_element(i,SELECTED,1, 0); /* leave elements selected if a paste/copy from windows is done */
     symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
     type=xctx->sym[xctx->inst[i].ptr].type;
     cond= !type || !IS_LABEL_SH_OR_PIN(type);

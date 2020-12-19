@@ -800,7 +800,7 @@ extern void set_grid(double);
 extern void create_plot_cmd(int viewer);
 extern void set_modify(int mod);
 extern void dbg(int level, char *fmt, ...);
-extern void here(void);
+extern void here(int i);
 extern void print_version(void);
 extern int set_netlist_dir(int force, char *dir);
 extern void netlist_options(int i);
