@@ -1653,15 +1653,15 @@ void draw(void)
               i++;
               if(i >= xctx->instances) break;
             }
-            if(xctx->inst[i].ptr == -1) continue;
+            if(xctx->inst[i].ptr == -1 || (c > 0 && (xctx->inst[i].flags & 1)) ) continue;
             symptr = (xctx->inst[i].ptr+ xctx->sym);
-            if( !(c > 0 && (xctx->inst[i].flags & 1)) && /* skip flag */
-                ( c==0 || /*draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
+            if(
+                c==0 || /*draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
                 symptr->lines[c] ||
                 symptr->arcs[c] ||
                 symptr->rects[c] ||
                 symptr->polygons[c] ||
-                ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts) ) )
+                ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts) )
             {
 
                 draw_symbol(ADD, c, i,c,0,0,0.0,0.0);     /* ... then draw current layer      */

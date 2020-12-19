@@ -518,23 +518,20 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
             type = (xctx->inst[i].ptr+ xctx->sym)->type;
             if( type && IS_LABEL_SH_OR_PIN(type) ) {
               bus_hilight_lookup(xctx->inst[i].node[0], col, XINSERT); /* sets xctx->hilight_nets = 1; */
-              if(what==NOW) for(c=0;c<cadlayers;c++)
-                draw_symbol(NOW, hilight_layer, i,c,0,0,0.0,0.0);
-            }
-            else {
+            } else {
               dbg(1, "search(): setting hilight flag on inst %d\n",i);
               xctx->hilight_nets=1;
               xctx->inst[i].color = hilight_layer;
-              if(what==NOW) for(c=0;c<cadlayers;c++)
-                draw_symbol(NOW, hilight_layer, i,c,0,0,0.0,0.0);
             }
           }
           if(sel==1) {
-            select_element(i, SELECTED, 1, 0);
+            xctx->inst[i].sel = SELECTED;
             xctx->ui_state|=SELECTION;
+            xctx->need_reb_sel_arr=1;
           }
           if(sel==-1) { /* 20171211 unselect */
-            select_element(i, 0, 1, 0);
+            xctx->inst[i].sel = 0;
+            xctx->need_reb_sel_arr=1;
          }
          found  = 1;
         }
@@ -550,34 +547,20 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
         if (!strcmp(str, val) && sub)
         #endif
         {
-            dbg(2, "search(): wire=%d, tok=%s, val=%s \n", i,tok, xctx->wire[i].node);
-            if(!sel) {
-              bus_hilight_lookup(xctx->wire[i].node, col, XINSERT); /* sets xctx->hilight_nets = 1 */
-              if(what == NOW) {
-                if(xctx->wire[i].bus)
-                  drawline(hilight_layer, THICK,
-                     xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, 0);
-                else
-                  drawline(hilight_layer, NOW,
-                     xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, 0);
-                if(cadhalfdotsize*xctx->mooz>=0.7) {
-                  if( xctx->wire[i].end1 >1 ) {
-                    filledarc(hilight_layer, NOW, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360);
-                  }
-                  if( xctx->wire[i].end2 >1 ) {
-                    filledarc(hilight_layer, NOW, xctx->wire[i].x2, xctx->wire[i].y2, cadhalfdotsize, 0, 360);
-                  }
-                }
-              }
-            }
-            if(sel==1) {
-              select_wire(i,SELECTED, 1);
-              xctx->ui_state|=SELECTION;
-            }
-            if(sel==-1) {
-              select_wire(i,0, 1);
-            }
-            found = 1;
+          dbg(2, "search(): wire=%d, tok=%s, val=%s \n", i,tok, xctx->wire[i].node);
+          if(!sel) {
+            bus_hilight_lookup(xctx->wire[i].node, col, XINSERT); /* sets xctx->hilight_nets = 1 */
+          }
+          if(sel==1) {
+            xctx->wire[i].sel = SELECTED;
+            xctx->ui_state|=SELECTION;
+            xctx->need_reb_sel_arr=1;
+          }
+          if(sel==-1) {
+            xctx->wire[i].sel = 0;
+            xctx->need_reb_sel_arr=1;
+          }
+          found = 1;
         }
         else {
           dbg(2, "search():  not found wire=%d, tok=%s, val=%s search=%s\n", i,tok, str,val);
@@ -595,14 +578,16 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
         if ((!strcmp(str, val) && sub))
         #endif
         {
-            if(sel==1) {
-              select_line(c, i,SELECTED, 1);
-              xctx->ui_state|=SELECTION;
-            }
-            if(sel==-1) {
-              select_line(c, i,0, 1);
-            }
-            found = 1;
+          if(sel==1) {
+            xctx->line[c][i].sel = SELECTED;
+            xctx->ui_state|=SELECTION;
+            xctx->need_reb_sel_arr=1;
+          }
+          if(sel==-1) {
+            xctx->line[c][i].sel = 0;
+            xctx->need_reb_sel_arr=1;
+          }
+          found = 1;
         }
         else {
           dbg(2, "search(): not found line=%d col=%d, tok=%s, val=%s search=%s\n",
@@ -621,11 +606,13 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
         #endif
         {
             if(sel==1) {
-              select_box(c, i,SELECTED, 1);
+              xctx->rect[c][i].sel = SELECTED;
               xctx->ui_state|=SELECTION;
+              xctx->need_reb_sel_arr=1;
             }
             if(sel==-1) {
-              select_box(c, i,0, 1);
+              xctx->rect[c][i].sel = 0;
+              xctx->need_reb_sel_arr=1;
             }
             found = 1;
         }
@@ -635,9 +622,17 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
         }
       }
     }
+    if(what == NOW && found) {
+      if(sel) {
+        rebuild_selected_array();
+        draw_selection(gc[SELLAYER], 0);
+      }
+      else redraw_hilights();
+    }
  }
  else if(what==END) {
-   redraw_hilights(); /* draw_hilight_net(1); */
+   if(sel) draw_selection(gc[SELLAYER], 0);
+   else redraw_hilights();
    found = 1; /* no error flagging */
  }
  if(sel) {
@@ -923,6 +918,7 @@ void unhilight_net(void)
   unselect_all();
 }
 
+/* redraws the whole affected rectangle, this avoids artifacts due to antialiased text */
 void redraw_hilights(void)
 {
   xRect boundbox;
