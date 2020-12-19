@@ -456,58 +456,77 @@ void draw_temp_string(GC gctext, int what, const char *str, short rot, short fli
  drawtemprect(gctext,what, textx1,texty1,textx2,texty2);
 }
 
+
+/* 
+ * layer: the set of symbol objects on xschem layer 'layer' to draw
+ * c    : the layer 'c' to draw those objects on (if != layer it is the hilight color)
+ */
 void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         double xoffset, double yoffset)
                             /* draws current layer only, should be called within  */
 {                           /* a "for(i=0;i<cadlayers;i++)" loop */
-  register int j;
-  register double x0,y0,x1,y1,x2,y2;
+  int j, textlayer, hide = 0;
+  double x0,y0,x1,y1,x2,y2;
   short flip;
-  int hide = 0;
   xLine line;
   xRect box;
   xArc arc;
   xPoly polygon;
   xText text;
   register xSymbol *symptr;
-  int textlayer;
   double angle;
+  char *type;
   #if HAS_CAIRO==1
   char *textfont;
   #endif
+
   if(xctx->inst[n].ptr == -1) return;
   if( (layer != PINLAYER && !enable_layer[layer]) ) return;
   if(!has_x) return;
-  if(
-    (hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
-     !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") ) || (hide_symbols == 2) ) {
+  if( (hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
+      !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") ) || (hide_symbols == 2) ) {
     hide = 1;
   } else {
     hide = 0;
   }
-  if(hide && layer == 0) {
-    drawrect(4, what, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2);
-  }
+  type = (xctx->inst[n].ptr+ xctx->sym)->type;
   if(layer==0) {
     x1=X_TO_SCREEN(xctx->inst[n].x1+xoffset);  /* 20150729 added xoffset, yoffset */
     x2=X_TO_SCREEN(xctx->inst[n].x2+xoffset);
     y1=Y_TO_SCREEN(xctx->inst[n].y1+yoffset);
     y2=Y_TO_SCREEN(xctx->inst[n].y2+yoffset);
-    if(!only_probes && (x2-x1)< 0.3 && (y2-y1)< 0.3) {
-      xctx->inst[n].flags|=1;
-      return;
-    }
-    else if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
+    if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
     {
      xctx->inst[n].flags|=1;
      return;
     }
-    else xctx->inst[n].flags&=~1;
-
+    else if(
+         xctx->hilight_nets &&                  /* if highlights...                       */
+         c == 0 &&                              /* we are not drawing highlighted inst    */
+                                                /* otherwise c > layer...                 */
+         type  &&                               /* ... and type...                        */
+         (
+          (                                     /* ... and inst is hilighted ...          */
+            IS_LABEL_SH_OR_PIN(type) && xctx->inst[n].node && xctx->inst[n].node[0] &&
+            bus_hilight_lookup(xctx->inst[n].node[0], 0, XLOOKUP )
+          ) || ( !IS_LABEL_SH_OR_PIN(type) && (xctx->inst[n].color)) )) {
+      xctx->inst[n].flags|=1;                    /* ... then SKIP instance now and for following layers */
+      return;
+    }
+    else if(!only_probes && (xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
+                       (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
+      drawrect(4, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0);
+      xctx->inst[n].flags|=1;
+    }
+    else {
+      xctx->inst[n].flags&=~1;
+    }
+    if(hide) drawrect(4, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2);
   } else if(xctx->inst[n].flags&1) {
     dbg(2, "draw_symbol(): skipping inst %d\n", n);
     return;
   }
+
   flip = xctx->inst[n].flip;
   if(tmp_flip) flip = !flip;
   rot = (xctx->inst[n].rot + rot ) & 0x3;
@@ -530,7 +549,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     for(j=0;j< symptr->polygons[layer];j++)
     {
       polygon = (symptr->poly[layer])[j];
-      {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
+      {   /* scope block so we declare some auxiliary arrays for coord transforms. */
         int k;
         double *x = my_malloc(34, sizeof(double) * polygon.points);
         double *y = my_malloc(35, sizeof(double) * polygon.points);
@@ -539,14 +558,14 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           x[k]+= x0;
           y[k] += y0;
         }
-        drawpolygon(c, NOW, x, y, polygon.points, polygon.fill, polygon.dash); /* 20180914 added fill */
+        drawpolygon(c, NOW, x, y, polygon.points, polygon.fill, polygon.dash); /* added fill */
         my_free(718, &x);
         my_free(719, &y);
       }
     }
     for(j=0;j< symptr->arcs[layer];j++)
     {
-
+  
       arc = (symptr->arc[layer])[j];
       if(flip) {
         angle = 270.*rot+180.-arc.b-arc.a;
@@ -854,7 +873,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
   y1=Y_TO_SCREEN(liney1);
   x2=X_TO_SCREEN(linex2);
   y2=Y_TO_SCREEN(liney2);
-  if(!only_probes && (x2-x1)< 0.3 && fabs(y2-y1) < 0.3) return;
+  /* if(!only_probes && (x2-x1)< 2.0 && fabs(y2-y1) < 2.0) return; */
   if( clip(&x1,&y1,&x2,&y2) )
   {
    rr[i].x1=(short)x1;
@@ -870,7 +889,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
   y1=Y_TO_SCREEN(liney1);
   x2=X_TO_SCREEN(linex2);
   y2=Y_TO_SCREEN(liney2);
-  if(!only_probes && (x2-x1)< 0.3 && fabs(y2-y1)< 0.3) return;
+  /* if(!only_probes && (x2-x1)< 2.0 && fabs(y2-y1)< 2.0) return; */
   if( clip(&x1,&y1,&x2,&y2) )
   {
    if(dash) {
@@ -893,7 +912,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
   y1=Y_TO_SCREEN(liney1);
   x2=X_TO_SCREEN(linex2);
   y2=Y_TO_SCREEN(liney2);
-  if(!only_probes && (x2-x1)< 0.3 && fabs(y2-y1)< 0.3) return;
+  /* if(!only_probes && (x2-x1)< 2.0 && fabs(y2-y1)< 2.0) return; */
   if( clip(&x1,&y1,&x2,&y2) )
   {
    if(dash) {
@@ -1264,7 +1283,7 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
   y1=Y_TO_SCREEN(recty1);
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
-  if(!only_probes && (x2-x1)< 2 && (y2-y1)< 2) return;
+  if(!only_probes && (x2-x1)< 2.0 && (y2-y1)< 2.0) return;
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    if(draw_window) XFillRectangle(display, xctx->window, gcstipple[c], (int)x1, (int)y1,
@@ -1290,7 +1309,7 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
   y1=Y_TO_SCREEN(recty1);
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
-  if(!only_probes && (x2-x1)< 2 && (y2-y1)< 2) return;
+  if(!only_probes && (x2-x1)< 2.0 && (y2-y1)< 2.0) return;
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    r[i].x=(short)x1;
@@ -1394,7 +1413,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   if( !rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
     return;
   }
-  if( !only_probes && (x2-x1)<0.3 && (y2-y1)<0.3) return;
+  if( !only_probes && (x2-x1)<2.0 && (y2-y1)<2.0) return;
 
   p = my_malloc(38, sizeof(XPoint) * points);
   for(i=0;i<points; i++) {
@@ -1464,7 +1483,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
   y1=Y_TO_SCREEN(recty1);
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
-  if(!only_probes && (x2-x1)< 0.3 && (y2-y1)< 0.3) return;
+  /* if(!only_probes && (x2-x1)< 2.0 && (y2-y1)< 2.0) return; */
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    if(dash) {
@@ -1500,7 +1519,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
   y1=Y_TO_SCREEN(recty1);
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
-  if(!only_probes && (x2-x1)< 0.3 && (y2-y1)< 0.3) return;
+  /* if(!only_probes && (x2-x1)< 2.0 && (y2-y1)< 2.0) return; */
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    r[i].x=(short)x1;
@@ -1531,7 +1550,7 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
   y1=Y_TO_SCREEN(recty1);
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
-  if( (x2-x1)< 0.3 && (y2-y1)< 0.3) return;
+  /* if( (x2-x1)< 2.0 && (y2-y1)< 2.0) return; */
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    XDrawRectangle(display, xctx->window, gc, (int)x1, (int)y1,
@@ -1551,7 +1570,7 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
   y1=Y_TO_SCREEN(recty1);
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
-  if( (x2-x1)< 0.3 && (y2-y1)< 0.3) return;
+  /* if( (x2-x1)< 2.0 && (y2-y1)< 2.0) return; */
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    r[i].x=(short)x1;
@@ -1574,16 +1593,14 @@ void draw(void)
  double x1, y1, x2, y2;
  struct instentry *instanceptr;
  struct wireentry *wireptr;
- char *type=NULL;
  int use_hash;
  register int c,i;
  register xSymbol *symptr;
  int textlayer;
 
-  #if HAS_CAIRO==1
-  char *textfont;
-  #endif
-
+ #if HAS_CAIRO==1
+ char *textfont;
+ #endif
  if(no_draw) return;
  rebuild_selected_array();
  if(has_x) {
@@ -1598,32 +1615,26 @@ void draw(void)
     x2 = X_TO_XSCHEM(xctx->areax2);
     y2 = Y_TO_XSCHEM(xctx->areay2);
     use_hash =  (xctx->wires> 2000 || xctx->instances > 2000 ) &&  (x2 - x1  < ITERATOR_THRESHOLD);
-
     if(use_hash) {
       hash_instances();
       hash_wires();
     }
     if(!only_probes) {
         dbg(3, "draw(): check4\n");
-        for(c=0;c<cadlayers;c++)
-        {
+        for(c=0;c<cadlayers;c++) {
           if(draw_single_layer!=-1 && c != draw_single_layer) continue;
 
           if(enable_layer[c]) for(i=0;i<xctx->lines[c];i++) {
             xLine *l = &xctx->line[c][i];
-            if(l->bus)
-              drawline(c, THICK, l->x1, l->y1, l->x2, l->y2, l->dash);
-            else
-              drawline(c, ADD, l->x1, l->y1, l->x2, l->y2, l->dash);
+            if(l->bus) drawline(c, THICK, l->x1, l->y1, l->x2, l->y2, l->dash);
+            else       drawline(c, ADD, l->x1, l->y1, l->x2, l->y2, l->dash);
           }
-          if(enable_layer[c]) for(i=0;i<xctx->rects[c];i++)
-          {
+          if(enable_layer[c]) for(i=0;i<xctx->rects[c];i++) {
             xRect *r = &xctx->rect[c][i];
             drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
             filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
           }
-          if(enable_layer[c]) for(i=0;i<xctx->arcs[c];i++)
-          {
+          if(enable_layer[c]) for(i=0;i<xctx->arcs[c];i++) {
             xArc *a = &xctx->arc[c][i];
             drawarc(c, ADD, a->x, a->y, a->r, a->a, a->b, a->fill, a->dash);
           }
@@ -1631,7 +1642,6 @@ void draw(void)
             xPoly *p = &xctx->poly[c][i];
             drawpolygon(c, NOW, p->x, p->y, p->points, p->fill, p->dash);
           }
-
           if(use_hash) init_inst_iterator(x1, y1, x2, y2);
           else i = -1;
           while(1) {
@@ -1645,41 +1655,24 @@ void draw(void)
             }
             if(xctx->inst[i].ptr == -1) continue;
             symptr = (xctx->inst[i].ptr+ xctx->sym);
-            if( c==0 || /*draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
+            if( !(c > 0 && (xctx->inst[i].flags & 1)) && /* skip flag */
+                ( c==0 || /*draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
                 symptr->lines[c] ||
                 symptr->arcs[c] ||
                 symptr->rects[c] ||
                 symptr->polygons[c] ||
-                ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts)) {
+                ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts) ) )
+            {
 
-
-              type = (xctx->inst[i].ptr+ xctx->sym)->type;
-              if(!(
-                   xctx->hilight_nets &&                  /* if no highlights ...             */
-                   type  &&                               /* ... or no type ...               */
-                   (                                   
-                    (                                     /* ... or inst is not hilighted ... */
-                      IS_LABEL_SH_OR_PIN(type) && xctx->inst[i].node && xctx->inst[i].node[0] &&
-                      bus_hilight_lookup(xctx->inst[i].node[0], 0, XLOOKUP )
-                    ) ||
-                    (
-                      !IS_LABEL_SH_OR_PIN(type) && (xctx->inst[i].color)
-                    )
-                   )
-                  )
-              ) {
                 draw_symbol(ADD, c, i,c,0,0,0.0,0.0);     /* ... then draw current layer      */
-              }
             }
           }
-
           filledrect(c, END, 0.0, 0.0, 0.0, 0.0);
           drawarc(c, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
           drawrect(c, END, 0.0, 0.0, 0.0, 0.0, 0);
           drawline(c, END, 0.0, 0.0, 0.0, 0.0, 0);
         }
         if(draw_single_layer==-1 || draw_single_layer==WIRELAYER) {
-
           if(use_hash) init_wire_iterator(x1, y1, x2, y2);
           else i = -1;
           while(1) {
@@ -1727,7 +1720,6 @@ void draw(void)
               cairo_select_font_face (xctx->cairo_save_ctx, textfont, slant, weight);
             }
             #endif
-
             draw_string(textlayer, ADD, xctx->text[i].txt_ptr,
               xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
               xctx->text[i].x0,xctx->text[i].y0,

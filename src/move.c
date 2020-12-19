@@ -1473,7 +1473,6 @@ void move_objects(int what, int merge, double dx, double dy)
          find_inst_to_be_redrawn(wire[n].node);
        }
      }
-     /* draw_symbol(ADD,k, n,k, 0, 0, 0.0, 0.0); */
    }
    if(show_pin_net_names) find_inst_hash_clear();
 

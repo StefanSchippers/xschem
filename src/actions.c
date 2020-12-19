@@ -2122,9 +2122,10 @@ int text_bbox(const char * str,double xscale, double yscale,
  double w, h;
 
   w=0;h=1;
+  cairo_lines = 1;
   if(str!=NULL) while( str[c] )
   {
-   if((str)[c++]=='\n') {h++;length=0;}
+   if((str)[c++]=='\n') {cairo_lines++; h++; length=0;}
    else length++;
    if(length > w)
      w = length;
