@@ -1640,6 +1640,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        my_strdup2(515, &symbol[symbols].type,
                   get_tok_value(symbol[symbols].prop_ptr, "type",0));
        if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"highlight",0), "true")) symbol[symbols].flags |= 4;
+       else symbol[symbols].flags &= ~4;
 
      }
      else {
@@ -1655,6 +1656,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        my_strdup2(342, &symbol[symbols].type,
                   get_tok_value(symbol[symbols].prop_ptr, "type",0));
        if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"highlight",0), "true")) symbol[symbols].flags |= 4;
+       else symbol[symbols].flags &= ~4;
      }
      else {
        load_ascii_string(&aux_ptr, lcc[level].fd);

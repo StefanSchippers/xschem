@@ -1045,6 +1045,8 @@ void update_symbol(const char *result, int x)
       xctx->inst[i].flags &= ~2;
       my_strdup(880, &xctx->inst[i].lab, get_tok_value(xctx->inst[i].prop_ptr, "lab",0));
     }
+    if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"highlight",0), "true")) xctx->inst[i].flags |= 4;
+    else  xctx->inst[i].flags &= ~4;
   }  /* end for(k=0;k<xctx->lastsel;k++) */
   /* new symbol bbox after prop changes (may change due to text length) */
   if(xctx->modified) {

@@ -1119,8 +1119,10 @@ void go_back(int confirm) /*  20171006 add confirm */
  int from_embedded_sym;
  int save_modified;
  char filename[PATH_MAX];
+ int prev_sch_type;
 
  save_ok=0;
+ prev_sch_type = netlist_type; /* if CAD_SYMBOL_ATTRS do not hilight_parent_pins */
  if(xctx->currsch>0)
  {
   /* if current sym/schematic is changed ask save before going up */
@@ -1155,7 +1157,7 @@ void go_back(int confirm) /*  20171006 add confirm */
   if(from_embedded_sym) xctx->modified=save_modified; /* to force ask save embedded sym in parent schematic */
 
   if(xctx->hilight_nets) {
-    hilight_parent_pins();
+    if(prev_sch_type != CAD_SYMBOL_ATTRS) hilight_parent_pins();
     propagate_hilights(1);
   }
   if(enable_drill) drill_hilight();

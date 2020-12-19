@@ -1821,7 +1821,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(cond) xctx->inst[inst].flags|=2;
           else {
             xctx->inst[inst].flags &=~2;
-            my_strdup(1215, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
+            my_strdup(872, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
           }
           my_free(922, &ptr);
         }
