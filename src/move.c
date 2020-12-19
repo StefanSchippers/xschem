@@ -1049,9 +1049,9 @@ void move_objects(int what, int merge, double dx, double dy)
   draw_selection(xctx->gctiled,0);
   bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   set_modify(1);
-  if( !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL)) ) {
+  if( !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL)) ) { /* no undo push for MERGE ad PLACE, already done before */
     dbg(1, "move_objects(): push undo state\n");
-    push_undo(); /* 20150327 push_undo */
+    push_undo();
   }
   xctx->ui_state &= ~PLACE_SYMBOL;
   if(dx!=0.0 || dy!=0.0) {
@@ -1484,6 +1484,7 @@ void move_objects(int what, int merge, double dx, double dy)
   check_collapsing_objects();
   update_conn_cues(1, 1);
   xctx->ui_state &= ~STARTMOVE;
+  if(xctx->ui_state & STARTMERGE) xctx->ui_state |= SELECTION; /* leave selection state so objects can be deleted */
   xctx->ui_state &= ~STARTMERGE;
   xctx->x1=xctx->y_1=xctx->x2=xctx->y_2=xctx->move_rot=xctx->move_flip=xctx->deltax=xctx->deltay=0;
   bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
