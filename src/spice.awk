@@ -242,7 +242,6 @@ function process(        i, iprefix)
    num1=split($4,name,",")
    num2=split($7,name2,",")
 
-d
    num = num1>num2? num1: num2
    for(i=1;i<=num;i++) {
      print $1 " " $2 " " name[(i-1)%num1+1]  " , " name2[(i-1)%num2+1] " " $8

@@ -21,7 +21,8 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
-# flatten .SAVE netlist lines
+# flatten .SAVE netlist lines transforming 'spice_probe.sym' saved nodes into
+# hierarchical nodes .save v(A) --> .save(.x1.x2.A)
 
 BEGIN{
  # topcell=toupper(ARGV[2])
