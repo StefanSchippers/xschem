@@ -3486,8 +3486,8 @@ set_ne cairo_vert_correct 0
 set_ne nocairo_vert_correct 0
 
 # Arial, Monospace
-set_ne cairo_font_name {Helvetica}
-set_ne svg_font_name {Helvetica}
+set_ne cairo_font_name {SansSerif}
+set_ne svg_font_name {SansSerif}
 
 # has_cairo set by c program if cairo enabled
 set has_cairo 0 
