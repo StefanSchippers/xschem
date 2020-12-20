@@ -1675,6 +1675,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc>2) print_spice_element(stderr, atoi(argv[2]));
     }
    
+    else if(!strcmp(argv[1],"propagate_hilights"))
+    {
+      int set = 1;
+      cmd_found = 1;
+      if(argc>=3) set = atoi(argv[2]);
+      propagate_hilights(set);
+    }
+
     else if(!strcmp(argv[1],"push_undo"))
     {
       cmd_found = 1;
@@ -1691,7 +1699,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->prep_hash_wires=0;
       xctx->prep_net_structs=0;
       xctx->prep_hi_structs=0;
-      prepare_netlist_structs(0);
+      prepare_netlist_structs(1);
       Tcl_ResetResult(interp);
     }
    

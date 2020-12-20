@@ -851,15 +851,17 @@ void hilight_net(int to_waveform)
    switch(xctx->sel_array[i].type)
    {
     case WIRE:
-      if(!bus_hilight_lookup(xctx->wire[n].node, xctx->hilight_color, XINSERT)) { /* sets xctx->hilight_nets=1 */
-        if(to_waveform == GAW) send_net_to_gaw(sim_is_xyce, xctx->wire[n].node);
-        if(incr_hilight) xctx->hilight_color++;
-      }
-      break;
+         /* sets xctx->hilight_nets=1 */
+     if(!bus_hilight_lookup(xctx->wire[n].node, xctx->hilight_color, XINSERT)) {
+       if(to_waveform == GAW) send_net_to_gaw(sim_is_xyce, xctx->wire[n].node);
+       if(incr_hilight) xctx->hilight_color++;
+     }
+     break;
     case ELEMENT:
      type = (xctx->inst[n].ptr+ xctx->sym)->type;
      if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
-       if(!bus_hilight_lookup(xctx->inst[n].node[0], xctx->hilight_color, XINSERT)) { /*sets xctx->hilight_nets=1 */
+           /* sets xctx->hilight_nets=1 */
+       if(!bus_hilight_lookup(xctx->inst[n].node[0], xctx->hilight_color, XINSERT)) {
          if(to_waveform == GAW) send_net_to_gaw(sim_is_xyce, xctx->inst[n].node[0]);
          if(incr_hilight) xctx->hilight_color++;
        }
@@ -877,12 +879,12 @@ void hilight_net(int to_waveform)
      break;
    }
   }
-  propagate_hilights(1);
   if(!incr_hilight) xctx->hilight_color++;
   if(enable_drill) {
     drill_hilight();
     /*traverse_schematic(); */
   }
+  propagate_hilights(1);
   tcleval("if { [info exists gaw_fd] } {close $gaw_fd; unset gaw_fd}\n");
 }
 

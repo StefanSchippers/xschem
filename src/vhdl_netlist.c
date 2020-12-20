@@ -328,6 +328,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
 
  if(global)
  {
+   int saved_hilight_nets = xctx->hilight_nets;
    unselect_all();
    remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
    load_schematic(1, xctx->sch[xctx->currsch], 0);
@@ -370,11 +371,12 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    sym_vs_sch_pins();
 
-   /* restore hilight flags from errors found analyzing top level before descending hierarchy */
-   for(i=0;i<xctx->instances; i++) xctx->inst[i].color = stored_flags[i];
-
-   draw_hilight_net(1);
+   if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
  }
+ /* restore hilight flags from errors found analyzing top level before descending hierarchy */
+ for(i=0;i<xctx->instances; i++) xctx->inst[i].color = stored_flags[i];
+ propagate_hilights(1);
+ draw_hilight_net(1);
  my_free(1088, &stored_flags);
  dbg(1, "global_vhdl_netlist(): starting awk on netlist!\n");
  if(!split_files) {

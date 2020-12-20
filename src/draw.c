@@ -517,6 +517,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
                        (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
       drawrect(4, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0);
       xctx->inst[n].flags|=1;
+      return;
     }
     else {
       xctx->inst[n].flags&=~1;
@@ -681,10 +682,14 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
     xctx->inst[n].flags|=1;
     return;
    }
+   else if(!only_probes && (xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
+                      (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
+     drawtemprect(gc, what, xctx->inst[n].xx1 + xoffset, xctx->inst[n].yy1 + yoffset, 
+                            xctx->inst[n].xx2 + xoffset, xctx->inst[n].yy2 + yoffset);
+     xctx->inst[n].flags|=1;
+     return;
+   }
    else xctx->inst[n].flags&=~1;
-
-   /* following code handles different text color for labels/pins 06112002 */
-
  } else if(xctx->inst[n].flags&1) {
    dbg(2, "draw_symbol(): skipping inst %d\n", n);
    return;
@@ -706,7 +711,6 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  }
  for(j=0;j< symptr->polygons[layer];j++)
  {
-   /*fprintf(errfp, "draw_temp_symbol: polygon\n"); */
    polygon = (symptr->poly[layer])[j];
 
    {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
