@@ -1028,11 +1028,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
         } else {
           if(loaded_symbol) {
             netlist_type = save_netlist_type;
-            if(netlist_type==CAD_VHDL_NETLIST)  tclsetvar("netlist_type","vhdl");
-            else if(netlist_type==CAD_VERILOG_NETLIST)  tclsetvar("netlist_type","verilog");
-            else if(netlist_type==CAD_TEDAX_NETLIST)  tclsetvar("netlist_type","tedax");
-            else if(netlist_type==CAD_SYMBOL_ATTRS)  tclsetvar("netlist_type","symbol");
-            else tclsetvar("netlist_type","spice");
+            override_netlist_type(-1);
           }
           loaded_symbol = 0;
         }

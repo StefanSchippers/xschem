@@ -88,7 +88,7 @@ int get_color(int value)
     x = value%(n_active_layers);
     return active_layer[x];
   } else {
-    return cadlayers > 5 ? 5 : cadlayers -1; /* desperate attempt to return a decent tolor */
+    return cadlayers > 5 ? 5 : cadlayers -1; /* desperate attempt to return a decent color */
   }
 }
 
@@ -794,7 +794,7 @@ static void send_current_to_gaw(int simtype, const char *node)
 
 void propagate_hilights(int set)
 {
-  int i, hilight_connected_inst;
+  int i, hilight_connected_inst, hilights=0;
   struct hilight_hashentry *entry;
   char *type;
 
@@ -810,6 +810,7 @@ void propagate_hilights(int set)
           if( xctx->inst[i].node && xctx->inst[i].node[j]) {
             entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
             if(entry) {
+              hilights = 1;
               if(set) {
                 xctx->inst[i].color=get_color(entry->value);
               } else {
@@ -825,10 +826,12 @@ void propagate_hilights(int set)
       }
     } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
       entry=bus_hilight_lookup( xctx->inst[i].lab, 0, XLOOKUP);
+      if(entry) hilights = 1;
       if(entry && set)        xctx->inst[i].color = get_color(entry->value);
       else if(!entry && !set) xctx->inst[i].color = 0;
     }
   }
+  if(!hilights) xctx->hilight_nets = 0;
 }
 
 void hilight_net(int to_waveform)

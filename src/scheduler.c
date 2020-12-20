@@ -1495,24 +1495,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       if(!strcmp(argv[2],"vhdl")) {
         netlist_type=CAD_VHDL_NETLIST;
-        tclsetvar("netlist_type",argv[2]);
       }
       else if(!strcmp(argv[2],"verilog")) {
         netlist_type=CAD_VERILOG_NETLIST;
-        tclsetvar("netlist_type",argv[2]);
       }
       else if(!strcmp(argv[2],"tedax")) {
         netlist_type=CAD_TEDAX_NETLIST;
-        tclsetvar("netlist_type",argv[2]);
       }
       else if(!strcmp(argv[2],"symbol")) {
         netlist_type=CAD_SYMBOL_ATTRS;
-        tclsetvar("netlist_type",argv[2]);
       }
       else if(!strcmp(argv[2],"spice")){
        netlist_type=CAD_SPICE_NETLIST;
-        tclsetvar("netlist_type",argv[2]);
       }
+      override_netlist_type(-1); /* set tcl netlist_type */
     }
    
     else if(!strcmp(argv[1],"new_schematic"))

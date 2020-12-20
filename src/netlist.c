@@ -631,7 +631,6 @@ void prepare_netlist_structs(int for_netlist)
   double rx1,ry1;
   struct wireentry *wptr;
   struct instpinentry *iptr;
-  struct hilight_hashentry *entry;
   int i,j, rects, generic_rects;
   char *dir=NULL;
   char *type=NULL;
@@ -1043,15 +1042,7 @@ void prepare_netlist_structs(int for_netlist)
   my_free(841, &global_node);
   dbg(2, "prepare_netlist_structs(): returning\n");
 
-  if(xctx->hilight_nets) for(i=0;i<xctx->instances;i++){
-    /* after an undo/load/hierarchy descend/return
-     * xctx->inst[i].color is gone, so rebuild it for labels/pins */
-    char *type = (xctx->inst[i].ptr+ xctx->sym)->type;
-    if(type && xctx->inst[i].color == 0 && IS_LABEL_SH_OR_PIN(type) ) {
-      entry=bus_hilight_lookup(xctx->inst[i].lab, 0, XLOOKUP);
-      if(entry) xctx->inst[i].color = get_color(entry->value);
-    }
-  }
+  propagate_hilights(1);
 }
 
 int sym_vs_sch_pins()

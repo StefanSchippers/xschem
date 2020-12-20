@@ -694,26 +694,7 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='V' && state == ShiftMask)                           /* toggle spice/vhdl netlist  */
    {
     netlist_type++; if(netlist_type==6) netlist_type=1;
-    if(netlist_type == CAD_VHDL_NETLIST)
-    {
-     tclsetvar("netlist_type","vhdl");
-    }
-    else if(netlist_type == CAD_SPICE_NETLIST)
-    {
-     tclsetvar("netlist_type","spice");
-    }
-    else if(netlist_type == CAD_VERILOG_NETLIST)
-    {
-     tclsetvar("netlist_type","verilog");
-    }
-    else if(netlist_type == CAD_TEDAX_NETLIST)
-    {
-     tclsetvar("netlist_type","tedax");
-    }
-    else if(netlist_type == CAD_SYMBOL_ATTRS)
-    {
-     tclsetvar("netlist_type","symbol");
-    }
+    override_netlist_type(-1);
     break;
    }
 

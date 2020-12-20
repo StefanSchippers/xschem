@@ -1311,11 +1311,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
   else if(!strcmp(tclgetvar("netlist_type"),"symbol") ) netlist_type=CAD_SYMBOL_ATTRS;
   else netlist_type=CAD_SPICE_NETLIST;
  } else {
-  if(netlist_type==CAD_VHDL_NETLIST)  tclsetvar("netlist_type","vhdl");
-  else if(netlist_type==CAD_VERILOG_NETLIST)  tclsetvar("netlist_type","verilog");
-  else if(netlist_type==CAD_TEDAX_NETLIST)  tclsetvar("netlist_type","tedax");
-  else if(netlist_type==CAD_SYMBOL_ATTRS)  tclsetvar("netlist_type","symbol");
-  else tclsetvar("netlist_type","spice");
+   override_netlist_type(-1); /* set tcl netlist_type */
  }
 
  split_files=atoi(tclgetvar("split_files"));
