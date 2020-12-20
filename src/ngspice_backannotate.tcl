@@ -232,4 +232,4 @@ proc ngspice::annotate {} {
   }
 }
 
-if { ![info exists no_x] } {bind .drw <Alt-a> {puts {Annotating...}; ngspice::annotate} }
+if { [info exists ::has_x] } {bind .drw <Alt-a> {puts {Annotating...}; ngspice::annotate} }
