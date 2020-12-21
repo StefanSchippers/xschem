@@ -821,8 +821,8 @@ extern int search(const char *tok, const char *val, int sub, int sel, int what);
 extern int process_options(int argc, char **argv);
 extern void calc_drawing_bbox(xRect *boundbox, int selected);
 extern void ps_draw(void);
-extern void svg_draw(void);
-extern void print_image();
+extern void svg_draw(int w, int h);
+extern void print_image(int user_w, int user_h);
 extern const char *skip_dir(const char *str);
 extern const char *get_cell(const char *str, int no_of_dir);
 extern const char *get_cell_w_ext(const char *str, int no_of_dir);
@@ -831,13 +831,14 @@ extern const char *abs_sym_path(const char *s, const char *ext);
 extern const char *add_ext(const char *f, const char *ext);
 extern void make_symbol(void);
 extern const char *get_sym_template(char *s, char *extra);
-extern void zoom_full(int draw, int sel);
+extern void zoom_full(int draw, int sel, int flags); /* bit0: invoke change_linewidth(), bit1: centered zoom */
 extern void updatebbox(int count,xRect *boundbox,xRect *tmp);
 extern void draw_selection(GC g, int interruptable);
 extern void delete(void);
 extern void delete_only_rect_line_arc_poly(void);
 extern void polygon_bbox(double *x, double *y, int points, double *bx1, double *by1, double *bx2, double *by2);
-extern void arc_bbox(double x, double y, double r, double a, double b, double *bx1, double *by1, double *bx2, double *by2);
+extern void arc_bbox(double x, double y, double r, double a, double b,
+                     double *bx1, double *by1, double *bx2, double *by2);
 extern void bbox(int what,double x1,double y1, double x2, double y2);
 extern int set_text_custom_font(xText *txt);
 extern int text_bbox(const char * str,double xscale, double yscale,

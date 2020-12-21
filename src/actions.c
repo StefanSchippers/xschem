@@ -414,7 +414,7 @@ void ask_new_file(void)
      Tcl_VarEval(interp, "update_recent_file {", fullname, "}", NULL);
      my_strdup(1, &xctx->sch_path[xctx->currsch],".");
      xctx->sch_inst_number[xctx->currsch] = 1;
-     zoom_full(1, 0);
+     zoom_full(1, 0, 1);
     }
 }
 
@@ -1109,7 +1109,7 @@ void descend_schematic(int instnumber)
     if(enable_drill) drill_hilight();
   }
   dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
-  zoom_full(1, 0);
+  zoom_full(1, 0, 1);
  }
 }
 
@@ -1352,40 +1352,49 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
 
 }
 
-void zoom_full(int dr, int sel)
+/* bit0: invoke change_linewidth(), bit1: centered zoom */
+void zoom_full(int dr, int sel, int flags)
 {
   xRect boundbox;
-  double yy1;
+  double yzoom;
+  double shrink = 0.98; /* shrink drawing to make room for margins */
+  double bboxw, bboxh, schw, schh;
 
-  if(change_lw) {
-    xctx->lw = 1.;
+  if(flags & 1) {
+    if(change_lw) {
+      xctx->lw = 1.;
+    }
+    xctx->areax1 = -2*INT_WIDTH(xctx->lw);
+    xctx->areay1 = -2*INT_WIDTH(xctx->lw);
+    xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
+    xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
+    xctx->areaw = xctx->areax2-xctx->areax1;
+    xctx->areah = xctx->areay2 - xctx->areay1;
   }
-  xctx->areax1 = -2*INT_WIDTH(xctx->lw);
-  xctx->areay1 = -2*INT_WIDTH(xctx->lw);
-  xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
-  xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
-  xctx->areaw = xctx->areax2-xctx->areax1;
-  xctx->areah = xctx->areay2 - xctx->areay1;
-
   calc_drawing_bbox(&boundbox, sel);
-  xctx->zoom=(boundbox.x2-boundbox.x1)/(xctx->areaw-4*INT_WIDTH(xctx->lw));
-  yy1=(boundbox.y2-boundbox.y1)/(xctx->areah-4*INT_WIDTH(xctx->lw));
-  if(yy1>xctx->zoom) xctx->zoom=yy1;
-  xctx->zoom*=1.05;
-  xctx->mooz=1/xctx->zoom;
-  xctx->xorigin=-boundbox.x1+(xctx->areaw-4*INT_WIDTH(xctx->lw))/40*xctx->zoom;
-  xctx->yorigin=(xctx->areah-4*INT_WIDTH(xctx->lw))*xctx->zoom-boundbox.y2 -
-                (xctx->areah-4*INT_WIDTH(xctx->lw))/40*xctx->zoom;
-  dbg(1, "zoom_full(): areaw=%d, areah=%d\n", xctx->areaw, xctx->areah);
+  schw = xctx->areaw-4*INT_WIDTH(xctx->lw);
+  schh = xctx->areah-4*INT_WIDTH(xctx->lw);
+  bboxw = boundbox.x2-boundbox.x1;
+  bboxh = boundbox.y2-boundbox.y1;
+  xctx->zoom = bboxw / schw;
+  yzoom = bboxh / schh;
+  if(yzoom > xctx->zoom) xctx->zoom = yzoom;
+  xctx->zoom /= shrink;
+  /* we do this here since change_linewidth may not be called  if flags & 1 == 0*/
+  cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (cadsnap-10);
 
-  change_linewidth(-1.);
-  if(dr)
-  {
-   if(!has_x) return;
-   draw();
+  xctx->mooz = 1 / xctx->zoom;
+  if(flags & 2) {
+    xctx->xorigin = -boundbox.x1 + (xctx->zoom * schw - bboxw) / 2; /* centered */
+    xctx->yorigin = -boundbox.y1 + (xctx->zoom * schh - bboxh) / 2; /* centered */
+  } else {
+    xctx->xorigin = -boundbox.x1 + (1 - shrink) / 2 * xctx->zoom * schw;
+    xctx->yorigin = -boundbox.y1 + xctx->zoom * schh - bboxh - (1 - shrink) / 2 * xctx->zoom * schh;
   }
+  dbg(1, "zoom_full(): areaw=%d, areah=%d\n", xctx->areaw, xctx->areah);
+  if(flags & 1) change_linewidth(-1.);
+  if(dr && has_x) draw();
 }
-
 
 void view_zoom(double z)
 {

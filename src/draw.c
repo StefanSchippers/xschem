@@ -47,7 +47,7 @@ int textclip(int x1,int y1,int x2,int y2,
  return 1;
 }
 
-void print_image()
+void print_image(int user_w, int user_h)
 {
   int w, h, tmp, ww, hh, save_draw_grid, changed_size;
   int modified_save;
@@ -61,7 +61,10 @@ void print_image()
   changed_size = 0;
   w = ww = xctx->xschem_w;
   h = hh = xctx->xschem_h;
-  if(!plotfile[0]) {
+  if(user_w > 0 && user_h > 0 ) {
+     w = user_w; h = user_h;
+     if(w != xctx->xschem_w || h != xctx->xschem_h) changed_size = 1;
+  } else if(!plotfile[0]) {
     my_snprintf(cmd, S(cmd), "input_line {Enter image size} {} {%dx%d}", xctx->xschem_w, xctx->xschem_h);
     tcleval(cmd);
     if(sscanf(tclresult(), "%dx%d", &w, &h) != 2) {
@@ -76,7 +79,6 @@ void print_image()
     if(r[0]) my_strncpy(plotfile, r, S(plotfile));
     else return;
   }
-
   modified_save=xctx->modified; /* 20161121 save state */
   push_undo();
   trim_wires();    /* 20161121 add connection boxes on wires but undo at end */
@@ -142,7 +144,7 @@ void print_image()
   save_draw_grid = draw_grid;
   draw_grid=0;
   draw_pixmap=1;
-  if(changed_size) zoom_full(0, 0);
+  if(changed_size) zoom_full(0, 0, 3); /* flags : 2 + 1 , center zoom & change_linewidth */
 
   draw();
 #ifdef __unix__

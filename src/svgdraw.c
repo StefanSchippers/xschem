@@ -567,181 +567,224 @@ static void fill_svg_colors()
 }
 
 
-void svg_draw(void)
+void svg_draw(int w, int h)
 {
- double dx, dy;
- int c,i, textlayer;
- int old_grid;
- int modified_save;
- char *tmpstring=NULL;
- const char *r, *textfont;
+  double dx, dy;
+  int c,i, textlayer;
+  int old_grid;
+  int modified_save;
+  char *tmpstring=NULL;
+  const char *r, *textfont;
 
+  int savew, saveh;
+  double savexor, saveyor, savezoom, savelw;
 
- if(!plotfile[0]) {
-   my_strdup(61, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir [pwd]");
-   tcleval(tmpstring);
-   r = tclresult();
-   my_free(963, &tmpstring);
-   if(r[0]) my_strncpy(plotfile, r, S(plotfile));
-   else return;
- }
+  double xor, yor, zoom, lw;
 
- svg_restore_lw();
-
- svg_colors=my_calloc(419, cadlayers, sizeof(Svg_color));
- if(svg_colors==NULL){
-   fprintf(errfp, "svg_draw(): calloc error\n");tcleval( "exit");
- }
-
- fill_svg_colors();
-
- old_grid=draw_grid;
- draw_grid=0;
-
- dx=xctx->areax2-xctx->areax1;
- dy=xctx->areay2-xctx->areay1;
- dbg(1, "svg_draw(): dx=%g  dy=%g\n", dx, dy);
-
-
- modified_save=xctx->modified;
- push_undo();
- trim_wires();    /* 20161121 add connection boxes on wires but undo at end */
-
-
- if(plotfile[0]) fd=fopen(plotfile, "w");
- else fd=fopen("plot.svg", "w");
- my_strncpy(plotfile,"", S(plotfile));
-
-
- fprintf(fd, "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%g\" height=\"%g\" version=\"1.1\">\n", dx, dy);
-
- fprintf(fd, "<style type=\"text/css\">\n");  /* use css stylesheet 20121119 */
- for(i=0;i<cadlayers;i++){
-   fprintf(fd, ".l%d{\n", i);
-   if(fill_type[i] == 1) 
-      fprintf(fd, "  fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
-   else if(fill_type[i] == 2) 
-      fprintf(fd, "  fill: #%02x%02x%02x; fill-opacity: 0.5;\n", 
-        svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
-   else
-      fprintf(fd, "  fill: none;\n");
-   fprintf(fd, "  stroke: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
-   fprintf(fd, "  stroke-linecap:round;\n");
-   fprintf(fd, "  stroke-linejoin:round;\n");
-   fprintf(fd, "  stroke-width: %g;\n", svg_linew);
-   fprintf(fd, "}\n");
- }
-
- fprintf(fd, "text {font-family: Sans Serif;}\n");
- fprintf(fd, "</style>\n");
-
- if(dark_colorscheme) {
-   /* black background */
-   fprintf(fd,
-     "<rect x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" fill=\"rgb(%d,%d,%d)\" "
-     "stroke=\"rgb(%d,%d,%d)\" stroke-width=\"%g\" />\n",
-                   0.0, 0.0, dx, dy, 0, 0, 0, 0, 0, 0, svg_linew);
- } else {
-   /* white background */
-   fprintf(fd,
-     "<rect x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" fill=\"rgb(%d,%d,%d)\" "
-     "stroke=\"rgb(%d,%d,%d)\" stroke-width=\"%g\" />\n",
-                   0.0, 0.0, dx, dy, 255, 255, 255, 255, 255, 255, svg_linew);
-
- }
-   svg_drawgrid();
-   for(i=0;i<xctx->texts;i++)
-   {
-     textlayer = xctx->text[i].layer;
-     if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-
-
-     my_snprintf(svg_font_family, S(svg_font_family), svg_font_name);
-     my_snprintf(svg_font_style, S(svg_font_style), "normal");
-     my_snprintf(svg_font_weight, S(svg_font_weight), "normal");
-
-     textfont = xctx->text[i].font;
-     if( (textfont && textfont[0])) {
-       my_snprintf(svg_font_family, S(svg_font_family), textfont);
-     }
-     if( xctx->text[i].flags & TEXT_BOLD)
-       my_snprintf(svg_font_weight, S(svg_font_weight), "bold");
-     if( xctx->text[i].flags & TEXT_ITALIC)
-       my_snprintf(svg_font_style, S(svg_font_style), "italic");
-     if( xctx->text[i].flags & TEXT_OBLIQUE)
-       my_snprintf(svg_font_style, S(svg_font_style), "oblique");
-
-     if(text_svg) 
-       svg_draw_string(textlayer, xctx->text[i].txt_ptr,
-         xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-         xctx->text[i].x0,xctx->text[i].y0,
-         xctx->text[i].xscale, xctx->text[i].yscale);
-     else
-       old_svg_draw_string(textlayer, xctx->text[i].txt_ptr,
-         xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-         xctx->text[i].x0,xctx->text[i].y0,
-         xctx->text[i].xscale, xctx->text[i].yscale);
-   }
-
-   for(c=0;c<cadlayers;c++)
-   {
-    for(i=0;i<xctx->lines[c];i++)
-     svg_drawline(c, xctx->line[c][i].bus, xctx->line[c][i].x1, xctx->line[c][i].y1,
-                     xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
-    for(i=0;i<xctx->rects[c];i++)
+  
+  if( w > 0 && h > 0 ) {
+    savew = xctx->xschem_w;
+    saveh = xctx->xschem_h;
+    savelw = xctx->lw;
+    savexor = xctx->xorigin;
+    saveyor = xctx->yorigin;
+    savezoom = xctx->zoom;
+  
+    lw = 0.8;
+    xor = 0.0;
+    yor = 0.0;
+    zoom = 1.0;
+   
+    /* give: w, h, xor, yor, zoom, lw */
+    xctx->xrect[0].x = 0;
+    xctx->xrect[0].y = 0;
+    xctx->xschem_w = xctx->xrect[0].width = w;
+    xctx->xschem_h = xctx->xrect[0].height = h;
+    xctx->areax2 = w+2*INT_WIDTH(lw);
+    xctx->areay2 = h+2*INT_WIDTH(lw);
+    xctx->areax1 = -2*INT_WIDTH(lw);
+    xctx->areay1 = -2*INT_WIDTH(lw);
+    xctx->lw = lw;
+    xctx->areaw = xctx->areax2-xctx->areax1;
+    xctx->areah = xctx->areay2-xctx->areay1;
+    xctx->xorigin = xor;
+    xctx->yorigin = yor;
+    xctx->zoom = zoom;
+    xctx->mooz = 1 / zoom;
+    zoom_full(0, 0, 2); /* draw, sel, center|change_linew */
+  }
+  if(!plotfile[0]) {
+    my_strdup(61, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir [pwd]");
+    tcleval(tmpstring);
+    r = tclresult();
+    my_free(963, &tmpstring);
+    if(r[0]) my_strncpy(plotfile, r, S(plotfile));
+    else return;
+  }
+  svg_restore_lw();
+  svg_colors=my_calloc(419, cadlayers, sizeof(Svg_color));
+  if(svg_colors==NULL){
+    fprintf(errfp, "svg_draw(): calloc error\n");tcleval( "exit");
+  }
+  fill_svg_colors();
+  old_grid=draw_grid;
+  draw_grid=0;
+  dx=xctx->areax2-xctx->areax1;
+  dy=xctx->areay2-xctx->areay1;
+  dbg(1, "svg_draw(): dx=%g  dy=%g\n", dx, dy);
+ 
+ 
+  modified_save=xctx->modified;
+  push_undo();
+  trim_wires();    /* 20161121 add connection boxes on wires but undo at end */
+ 
+ 
+  if(plotfile[0]) fd=fopen(plotfile, "w");
+  else fd=fopen("plot.svg", "w");
+  my_strncpy(plotfile,"", S(plotfile));
+ 
+ 
+  fprintf(fd, "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%g\" height=\"%g\" version=\"1.1\">\n", dx, dy);
+ 
+  fprintf(fd, "<style type=\"text/css\">\n");  /* use css stylesheet 20121119 */
+  for(i=0;i<cadlayers;i++){
+    fprintf(fd, ".l%d{\n", i);
+    if(fill_type[i] == 1) 
+       fprintf(fd, "  fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
+    else if(fill_type[i] == 2) 
+       fprintf(fd, "  fill: #%02x%02x%02x; fill-opacity: 0.5;\n", 
+         svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
+    else
+       fprintf(fd, "  fill: none;\n");
+    fprintf(fd, "  stroke: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
+    fprintf(fd, "  stroke-linecap:round;\n");
+    fprintf(fd, "  stroke-linejoin:round;\n");
+    fprintf(fd, "  stroke-width: %g;\n", svg_linew);
+    fprintf(fd, "}\n");
+  }
+ 
+  fprintf(fd, "text {font-family: Sans Serif;}\n");
+  fprintf(fd, "</style>\n");
+ 
+    /* background */
+    fprintf(fd,
+      "<rect x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" fill=\"rgb(%d,%d,%d)\" "
+      "stroke=\"rgb(%d,%d,%d)\" stroke-width=\"%g\" />\n",
+                    0.0, 0.0, dx, dy, 
+                    svg_colors[0].red, svg_colors[0].green, svg_colors[0].blue,
+                    svg_colors[0].red, svg_colors[0].green, svg_colors[0].blue,
+                    svg_linew);
+    svg_drawgrid();
+    for(i=0;i<xctx->texts;i++)
     {
-     svg_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
-                       xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash);
+      textlayer = xctx->text[i].layer;
+      if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
+ 
+ 
+      my_snprintf(svg_font_family, S(svg_font_family), svg_font_name);
+      my_snprintf(svg_font_style, S(svg_font_style), "normal");
+      my_snprintf(svg_font_weight, S(svg_font_weight), "normal");
+ 
+      textfont = xctx->text[i].font;
+      if( (textfont && textfont[0])) {
+        my_snprintf(svg_font_family, S(svg_font_family), textfont);
+      }
+      if( xctx->text[i].flags & TEXT_BOLD)
+        my_snprintf(svg_font_weight, S(svg_font_weight), "bold");
+      if( xctx->text[i].flags & TEXT_ITALIC)
+        my_snprintf(svg_font_style, S(svg_font_style), "italic");
+      if( xctx->text[i].flags & TEXT_OBLIQUE)
+        my_snprintf(svg_font_style, S(svg_font_style), "oblique");
+ 
+      if(text_svg) 
+        svg_draw_string(textlayer, xctx->text[i].txt_ptr,
+          xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+          xctx->text[i].x0,xctx->text[i].y0,
+          xctx->text[i].xscale, xctx->text[i].yscale);
+      else
+        old_svg_draw_string(textlayer, xctx->text[i].txt_ptr,
+          xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+          xctx->text[i].x0,xctx->text[i].y0,
+          xctx->text[i].xscale, xctx->text[i].yscale);
     }
-    for(i=0;i<xctx->arcs[c];i++)
+ 
+    for(c=0;c<cadlayers;c++)
     {
-      svg_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r,
-                   xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].dash);
-    }
-    for(i=0;i<xctx->polygons[c];i++) {
-      svg_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
-                      xctx->poly[c][i].fill, xctx->poly[c][i].dash);
-    }
-    for(i=0;i<xctx->instances;i++) {
-      svg_draw_symbol(i,c,0,0,0.0,0.0);
-    }
-   }
-
-
-   for(i=0;i<xctx->wires;i++)
-   {
-     svg_drawline(WIRELAYER, xctx->wire[i].bus, xctx->wire[i].x1, 
-      xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
-   }
-   {
-     double x1, y1, x2, y2;
-     struct wireentry *wireptr;
-     int i;
-     update_conn_cues(0, 0);
-     /* draw connecting dots */
-     x1 = X_TO_XSCHEM(xctx->areax1);
-     y1 = Y_TO_XSCHEM(xctx->areay1);
-     x2 = X_TO_XSCHEM(xctx->areax2);
-     y2 = Y_TO_XSCHEM(xctx->areay2);
-     for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
-       i = wireptr->n;
-       if( xctx->wire[i].end1 >1 ) { /* 20150331 draw_dots */
-         svg_drawcircle(WIRELAYER, 1, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360);
-       }
-       if( xctx->wire[i].end2 >1 ) { /* 20150331 draw_dots */
-         svg_drawcircle(WIRELAYER, 1, xctx->wire[i].x2, xctx->wire[i].y2, cadhalfdotsize, 0, 360);
-       }
+     for(i=0;i<xctx->lines[c];i++)
+      svg_drawline(c, xctx->line[c][i].bus, xctx->line[c][i].x1, xctx->line[c][i].y1,
+                      xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
+     for(i=0;i<xctx->rects[c];i++)
+     {
+      svg_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
+                        xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash);
      }
-   }
+     for(i=0;i<xctx->arcs[c];i++)
+     {
+       svg_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r,
+                    xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].dash);
+     }
+     for(i=0;i<xctx->polygons[c];i++) {
+       svg_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
+                       xctx->poly[c][i].fill, xctx->poly[c][i].dash);
+     }
+     for(i=0;i<xctx->instances;i++) {
+       svg_draw_symbol(i,c,0,0,0.0,0.0);
+     }
+    }
+ 
+ 
+    for(i=0;i<xctx->wires;i++)
+    {
+      svg_drawline(WIRELAYER, xctx->wire[i].bus, xctx->wire[i].x1, 
+       xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
+    }
+    {
+      double x1, y1, x2, y2;
+      struct wireentry *wireptr;
+      int i;
+      update_conn_cues(0, 0);
+      /* draw connecting dots */
+      x1 = X_TO_XSCHEM(xctx->areax1);
+      y1 = Y_TO_XSCHEM(xctx->areay1);
+      x2 = X_TO_XSCHEM(xctx->areax2);
+      y2 = Y_TO_XSCHEM(xctx->areay2);
+      for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
+        i = wireptr->n;
+        if( xctx->wire[i].end1 >1 ) { /* 20150331 draw_dots */
+          svg_drawcircle(WIRELAYER, 1, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360);
+        }
+        if( xctx->wire[i].end2 >1 ) { /* 20150331 draw_dots */
+          svg_drawcircle(WIRELAYER, 1, xctx->wire[i].x2, xctx->wire[i].y2, cadhalfdotsize, 0, 360);
+        }
+      }
+    }
+ 
+  dbg(1, "svg_draw(): INT_WIDTH(lw)=%d\n",INT_WIDTH(xctx->lw));
+  fprintf(fd, "</svg>\n");
+  fclose(fd);
 
- dbg(1, "svg_draw(): INT_WIDTH(lw)=%d\n",INT_WIDTH(xctx->lw));
- fprintf(fd, "</svg>\n");
- fclose(fd);
- draw_grid=old_grid;
- my_free(964, &svg_colors);
+  if(w > 0 && h > 0 ) {
+    xctx->xrect[0].x = 0;
+    xctx->xrect[0].y = 0;
+    xctx->xschem_w = xctx->xrect[0].width = savew;
+    xctx->xschem_h = xctx->xrect[0].height = saveh;
+    xctx->areax2 = savew+2*INT_WIDTH(savelw);
+    xctx->areay2 = saveh+2*INT_WIDTH(savelw);
+    xctx->areax1 = -2*INT_WIDTH(savelw);
+    xctx->areay1 = -2*INT_WIDTH(savelw);
+    xctx->lw = savelw;
+    xctx->areaw = xctx->areax2-xctx->areax1;
+    xctx->areah = xctx->areay2-xctx->areay1;
+    xctx->xorigin = savexor;
+    xctx->yorigin = saveyor;
+    xctx->zoom = savezoom;
+    xctx->mooz = 1 / savezoom;
+  }
 
- pop_undo(0);
- xctx->modified=modified_save;
-
+  draw_grid=old_grid;
+  my_free(964, &svg_colors);
+ 
+  pop_undo(0);
+  xctx->modified=modified_save;
 }
 

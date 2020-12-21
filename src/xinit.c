@@ -426,6 +426,7 @@ void alloc_xschem_data()
   }
   xctx->window = xctx->save_pixmap = 0;
   xctx->xrect[0].width = xctx->xrect[0].height = xctx->xrect[0].x = xctx->xrect[0].y = 0;
+  xctx->xschem_w = xctx->xschem_h = 0;
 #if HAS_CAIRO==1
   xctx->cairo_ctx = xctx->cairo_save_ctx = NULL;
   xctx->cairo_sfc = xctx->cairo_save_sfc = NULL;
@@ -779,7 +780,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
       dbg(1, "preview_window() draw, load schematic\n");
       load_schematic(1,filename, 0);
     }
-    zoom_full(1, 0); /* draw */
+    zoom_full(1, 0, 1); /* draw */
     xctx = save_xctx;
   }
   else if(!strcmp(what, "destroy")) {
@@ -824,7 +825,7 @@ void new_schematic(const char *what, const char *tk_win_path, const char *filena
     xctx->window = new_window;
     resetwin(1, 0, 1);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
     load_schematic(1,filename, 0);
-    zoom_full(1, 0); /* draw */
+    zoom_full(1, 0, 1); /* draw */
   } else if(!strcmp(what, "redraw")) {
     Xschem_ctx *save;
     save = xctx;
@@ -1020,7 +1021,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force)
       }
     }
     if(pending_fullzoom) {
-      zoom_full(0, 0);
+      zoom_full(0, 0, 1);
       pending_fullzoom=0;
     }
     dbg(1, "resetwin(): Window reset\n");
@@ -1575,7 +1576,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
 
 
- zoom_full(0, 0);   /* Necessary to tell xschem the
+ zoom_full(0, 0, 1);   /* Necessary to tell xschem the
                   * initial area to display
                   */
  pending_fullzoom=1;
@@ -1618,17 +1619,17 @@ int Tcl_AppInit(Tcl_Interp *inter)
      xctx->areay1 = -2;
      xctx->areaw = xctx->areax2-xctx->areax1;
      xctx->areah = xctx->areay2-xctx->areay1;
-     zoom_full(0, 0);
+     zoom_full(0, 0, 2);
      ps_draw();
    } else if(do_print == 2) {
      if(!has_x) {
        dbg(0, "xschem: can not do a png export if no X11 present / Xserver running (check if DISPLAY set).\n");
      } else {
        tcleval("tkwait visibility .drw");
-       print_image();
+       print_image(0, 0);
      }
    }
-   else svg_draw();
+   else svg_draw(0, 0);
  }
 
  if(do_simulation) {

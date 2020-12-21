@@ -888,6 +888,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        printf("sch[%d]=%s\n",i,xctx->sch[i]);
      }
      printf("modified=%d\n", xctx->modified);
+     printf("areaw=%d\n", xctx->areaw);
+     printf("areah=%d\n", xctx->areah);
      printf("color_ps=%d\n", color_ps);
      printf("hilight_nets=%d\n", xctx->hilight_nets);
      printf("need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr);
@@ -1365,7 +1367,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_VarEval(interp, "update_recent_file {", abs_sym_path(argv[2], ""), "}", NULL);
           my_strdup(375, &xctx->sch_path[xctx->currsch],".");
           xctx->sch_inst_number[xctx->currsch] = 1;
-          zoom_full(1, 0);
+          zoom_full(1, 0, 1);
         }
       }
       else if(argc==2) {
@@ -1402,7 +1404,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         load_schematic(0, abs_sym_path(argv[2], ""), 1);
         my_strdup(374, &xctx->sch_path[xctx->currsch],".");
         xctx->sch_inst_number[xctx->currsch] = 1;
-        zoom_full(1, 0);
+        zoom_full(1, 0, 1);
       }
     }
    
@@ -1644,21 +1646,34 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
+    /*    0     1    2    3       4   5
+     * xschem print png file.png 400 300 */
     else if(!strcmp(argv[1],"print") ) { /* 20171022 added png, svg */
       cmd_found = 1;
-      if(argc >= 4) {
-        my_strncpy(plotfile, argv[3], S(plotfile));
-      } else {
-        plotfile[0] = '\0';
+      if(argc < 3) {
+        Tcl_SetResult(interp, "xschem print needs at least 1 more arguments: plot_type", TCL_STATIC);
+        return TCL_ERROR;
       }
-      if(argc==2 || (argc>=3 && !strcmp(argv[2],"pdf")) ) {
+      if(argc >= 4) my_strncpy(plotfile, argv[3], S(plotfile));
+
+      if(!strcmp(argv[2],"pdf")) {
         ps_draw();
       }
-      else if(argc>=3 && !strcmp(argv[2],"png") ) {
-        print_image();
+      else if(!strcmp(argv[2],"png")) {
+        int w = 0, h = 0;
+        if(argc >= 6) {
+          w = atoi(argv[4]);
+          h = atoi(argv[5]);
+        }
+        print_image(w, h);
       }
-      else if(argc>=3 && !strcmp(argv[2],"svg") ) {
-        svg_draw();
+      else if(!strcmp(argv[2],"svg")) {
+        int w = 0, h = 0;
+        if(argc >= 6) {
+          w = atoi(argv[4]);
+          h = atoi(argv[5]);
+        }
+        svg_draw(w, h);
       }
       Tcl_ResetResult(interp);
     }
@@ -1745,7 +1760,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       remove_symbols();
       load_schematic(1, xctx->sch[xctx->currsch], 1);
       if(argc >= 3 && !strcmp(argv[2], "zoom_full") ) {
-        zoom_full(1, 0);
+        zoom_full(1, 0, 1);
       } else {
         draw();
       }
@@ -2494,14 +2509,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"zoom_full"))
     {
       cmd_found = 1;
-      zoom_full(1, 0);
+      zoom_full(1, 0, 1);
       Tcl_ResetResult(interp);
     }
    
     else if(!strcmp(argv[1],"zoom_hilighted"))
     {
       cmd_found = 1;
-      zoom_full(1, 2);
+      zoom_full(1, 2, 1);
       Tcl_ResetResult(interp);
     }
    
@@ -2522,7 +2537,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"zoom_selected"))
     {
       cmd_found = 1;
-      zoom_full(1, 1);
+      zoom_full(1, 1, 1);
       Tcl_ResetResult(interp);
     }
   }

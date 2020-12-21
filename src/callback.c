@@ -1002,7 +1002,7 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='*' && state==(Mod1Mask|ShiftMask) )         /* svg print , 20121108 */
    {
     if(xctx->semaphore >= 2) break;
-    svg_draw();
+    svg_draw(0, 0);
     break;
    }
    if(key=='*' && state==ShiftMask )                    /* postscript print */
@@ -1014,7 +1014,7 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='*' && state==(ControlMask|ShiftMask) )      /* xpm print */
    {
     if(xctx->semaphore >= 2) break;
-    print_image();
+    print_image(0, 0);
     break;
    }
    if(key=='u' && state==Mod1Mask)                      /* align to grid */
@@ -1345,7 +1345,7 @@ int callback(int event, int mx, int my, KeySym key,
     xctx->prep_net_structs = 0;
     xctx->prep_hi_structs = 0;
     xctx->prep_hash_wires = 0;
-    zoom_full(1, 0);
+    zoom_full(1, 0, 1);
     break;
    }
 
@@ -1357,7 +1357,7 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key=='f' && state == 0 )                  /* full zoom */
    {
-    zoom_full(1, 0);
+    zoom_full(1, 0, 1);
     break;
    }
    if((key=='z' && state==ControlMask))                         /* zoom out */
