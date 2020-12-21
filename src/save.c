@@ -2251,7 +2251,7 @@ void descend_symbol(void)
     remove_symbols(); /* must follow save (if) embedded */
     load_schematic(1, abs_sym_path(name, ""), 1);
   }
-  zoom_full(1, 0, 1);
+  zoom_full(1, 0, 1, 0.97);
 }
 
 /* 20111023 align selected object to current grid setting */

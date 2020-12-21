@@ -567,7 +567,7 @@ static void fill_svg_colors()
 }
 
 
-void svg_draw(int w, int h)
+void svg_draw(void)
 {
   double dx, dy;
   int c,i, textlayer;
@@ -576,43 +576,6 @@ void svg_draw(int w, int h)
   char *tmpstring=NULL;
   const char *r, *textfont;
 
-  int savew, saveh;
-  double savexor, saveyor, savezoom, savelw;
-
-  double xor, yor, zoom, lw;
-
-  
-  if( w > 0 && h > 0 ) {
-    savew = xctx->xschem_w;
-    saveh = xctx->xschem_h;
-    savelw = xctx->lw;
-    savexor = xctx->xorigin;
-    saveyor = xctx->yorigin;
-    savezoom = xctx->zoom;
-  
-    lw = 0.8;
-    xor = 0.0;
-    yor = 0.0;
-    zoom = 1.0;
-   
-    /* give: w, h, xor, yor, zoom, lw */
-    xctx->xrect[0].x = 0;
-    xctx->xrect[0].y = 0;
-    xctx->xschem_w = xctx->xrect[0].width = w;
-    xctx->xschem_h = xctx->xrect[0].height = h;
-    xctx->areax2 = w+2*INT_WIDTH(lw);
-    xctx->areay2 = h+2*INT_WIDTH(lw);
-    xctx->areax1 = -2*INT_WIDTH(lw);
-    xctx->areay1 = -2*INT_WIDTH(lw);
-    xctx->lw = lw;
-    xctx->areaw = xctx->areax2-xctx->areax1;
-    xctx->areah = xctx->areay2-xctx->areay1;
-    xctx->xorigin = xor;
-    xctx->yorigin = yor;
-    xctx->zoom = zoom;
-    xctx->mooz = 1 / zoom;
-    zoom_full(0, 0, 2); /* draw, sel, center|change_linew */
-  }
   if(!plotfile[0]) {
     my_strdup(61, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir [pwd]");
     tcleval(tmpstring);
@@ -629,20 +592,17 @@ void svg_draw(int w, int h)
   fill_svg_colors();
   old_grid=draw_grid;
   draw_grid=0;
-  dx=xctx->areax2-xctx->areax1;
-  dy=xctx->areay2-xctx->areay1;
+  dx=xctx->xschem_w;
+  dy=xctx->xschem_h;
   dbg(1, "svg_draw(): dx=%g  dy=%g\n", dx, dy);
- 
  
   modified_save=xctx->modified;
   push_undo();
   trim_wires();    /* 20161121 add connection boxes on wires but undo at end */
  
- 
   if(plotfile[0]) fd=fopen(plotfile, "w");
   else fd=fopen("plot.svg", "w");
   my_strncpy(plotfile,"", S(plotfile));
- 
  
   fprintf(fd, "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%g\" height=\"%g\" version=\"1.1\">\n", dx, dy);
  
@@ -707,7 +667,6 @@ void svg_draw(int w, int h)
           xctx->text[i].x0,xctx->text[i].y0,
           xctx->text[i].xscale, xctx->text[i].yscale);
     }
- 
     for(c=0;c<cadlayers;c++)
     {
      for(i=0;i<xctx->lines[c];i++)
@@ -731,8 +690,6 @@ void svg_draw(int w, int h)
        svg_draw_symbol(i,c,0,0,0.0,0.0);
      }
     }
- 
- 
     for(i=0;i<xctx->wires;i++)
     {
       svg_drawline(WIRELAYER, xctx->wire[i].bus, xctx->wire[i].x1, 
@@ -758,28 +715,9 @@ void svg_draw(int w, int h)
         }
       }
     }
- 
   dbg(1, "svg_draw(): INT_WIDTH(lw)=%d\n",INT_WIDTH(xctx->lw));
   fprintf(fd, "</svg>\n");
   fclose(fd);
-
-  if(w > 0 && h > 0 ) {
-    xctx->xrect[0].x = 0;
-    xctx->xrect[0].y = 0;
-    xctx->xschem_w = xctx->xrect[0].width = savew;
-    xctx->xschem_h = xctx->xrect[0].height = saveh;
-    xctx->areax2 = savew+2*INT_WIDTH(savelw);
-    xctx->areay2 = saveh+2*INT_WIDTH(savelw);
-    xctx->areax1 = -2*INT_WIDTH(savelw);
-    xctx->areay1 = -2*INT_WIDTH(savelw);
-    xctx->lw = savelw;
-    xctx->areaw = xctx->areax2-xctx->areax1;
-    xctx->areah = xctx->areay2-xctx->areay1;
-    xctx->xorigin = savexor;
-    xctx->yorigin = saveyor;
-    xctx->zoom = savezoom;
-    xctx->mooz = 1 / savezoom;
-  }
 
   draw_grid=old_grid;
   my_free(964, &svg_colors);

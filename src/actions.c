@@ -414,7 +414,7 @@ void ask_new_file(void)
      Tcl_VarEval(interp, "update_recent_file {", fullname, "}", NULL);
      my_strdup(1, &xctx->sch_path[xctx->currsch],".");
      xctx->sch_inst_number[xctx->currsch] = 1;
-     zoom_full(1, 0, 1);
+     zoom_full(1, 0, 1, 0.97);
     }
 }
 
@@ -1109,7 +1109,7 @@ void descend_schematic(int instnumber)
     if(enable_drill) drill_hilight();
   }
   dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
-  zoom_full(1, 0, 1);
+  zoom_full(1, 0, 1, 0.97);
  }
 }
 
@@ -1352,12 +1352,11 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
 
 }
 
-/* bit0: invoke change_linewidth(), bit1: centered zoom */
-void zoom_full(int dr, int sel, int flags)
+/* flags: bit0: invoke change_linewidth()/XSetLineAttributes, bit1: centered zoom */
+void zoom_full(int dr, int sel, int flags, double shrink)
 {
   xRect boundbox;
   double yzoom;
-  double shrink = 0.98; /* shrink drawing to make room for margins */
   double bboxw, bboxh, schw, schh;
 
   if(flags & 1) {
@@ -1431,7 +1430,68 @@ void view_unzoom(double z)
   draw();
 }
 
-void zoom_box(int what)
+void set_viewport_size(int w, int h, double lw)
+{
+    xctx->xrect[0].x = 0;
+    xctx->xrect[0].y = 0;
+    xctx->xschem_w = xctx->xrect[0].width = w;
+    xctx->xschem_h = xctx->xrect[0].height = h;
+    xctx->areax2 = w+2*INT_WIDTH(lw);
+    xctx->areay2 = h+2*INT_WIDTH(lw);
+    xctx->areax1 = -2*INT_WIDTH(lw);
+    xctx->areay1 = -2*INT_WIDTH(lw);
+    xctx->lw = lw;
+    xctx->areaw = xctx->areax2-xctx->areax1;
+    xctx->areah = xctx->areay2-xctx->areay1;
+}
+
+void save_restore_zoom(int save)
+{
+  static int savew, saveh;
+  static double savexor, saveyor, savezoom, savelw;
+
+  if(save) {
+    savew = xctx->xschem_w;
+    saveh = xctx->xschem_h;
+    savelw = xctx->lw;
+    savexor = xctx->xorigin;
+    saveyor = xctx->yorigin;
+    savezoom = xctx->zoom;
+  } else {
+    xctx->xrect[0].x = 0;
+    xctx->xrect[0].y = 0;
+    xctx->xschem_w = xctx->xrect[0].width = savew;
+    xctx->xschem_h = xctx->xrect[0].height = saveh;
+    xctx->areax2 = savew+2*INT_WIDTH(savelw);
+    xctx->areay2 = saveh+2*INT_WIDTH(savelw);
+    xctx->areax1 = -2*INT_WIDTH(savelw);
+    xctx->areay1 = -2*INT_WIDTH(savelw);
+    xctx->lw = savelw;
+    xctx->areaw = xctx->areax2-xctx->areax1;
+    xctx->areah = xctx->areay2-xctx->areay1;
+    xctx->xorigin = savexor;
+    xctx->yorigin = saveyor;
+    xctx->zoom = savezoom;
+    xctx->mooz = 1 / savezoom;
+  }
+}
+
+void zoom_box(double x1, double y1, double x2, double y2, double factor)
+{
+  double yy1;
+  if(factor == 0.) factor = 1.;
+  RECTORDER(x1,y1,x2,y2);
+  xctx->xorigin=-x1;xctx->yorigin=-y1;
+  xctx->zoom=(x2-x1)/(xctx->areaw-4*INT_WIDTH(xctx->lw));
+  yy1=(y2-y1)/(xctx->areah-4*INT_WIDTH(xctx->lw));
+  if(yy1>xctx->zoom) xctx->zoom=yy1;
+  xctx->zoom*= factor;
+  xctx->mooz=1/xctx->zoom;
+  xctx->xorigin=xctx->xorigin+xctx->areaw*xctx->zoom*(1-1/factor)/2;
+  xctx->yorigin=xctx->yorigin+xctx->areah*xctx->zoom*(1-1/factor)/2;
+}
+
+void zoom_rectangle(int what)
 {
   if( (what & START) )
   {
@@ -1450,7 +1510,7 @@ void zoom_box(int what)
     xctx->mooz=1/xctx->zoom;
     change_linewidth(-1.);
     draw();
-    dbg(1, "zoom_box(): coord: %.16g %.16g %.16g %.16g zoom=%.16g\n",
+    dbg(1, "zoom_rectangle(): coord: %.16g %.16g %.16g %.16g zoom=%.16g\n",
       xctx->nl_x1,xctx->nl_y1,xctx->mousex_snap, xctx->mousey_snap,xctx->zoom);
   }
   if(what & RUBBER)

@@ -47,31 +47,15 @@ int textclip(int x1,int y1,int x2,int y2,
  return 1;
 }
 
-void print_image(int user_w, int user_h)
+void print_image()
 {
-  int w, h, tmp, ww, hh, save_draw_grid, changed_size;
-  int modified_save;
+  int modified_save, save_draw_grid;
   char cmd[PATH_MAX+100];
   const char *r;
   char *tmpstring=NULL;
-  double saveorx, saveory, savezoom;
 
   if(!has_x) return ;
-
-  changed_size = 0;
-  w = ww = xctx->xschem_w;
-  h = hh = xctx->xschem_h;
-  if(user_w > 0 && user_h > 0 ) {
-     w = user_w; h = user_h;
-     if(w != xctx->xschem_w || h != xctx->xschem_h) changed_size = 1;
-  } else if(!plotfile[0]) {
-    my_snprintf(cmd, S(cmd), "input_line {Enter image size} {} {%dx%d}", xctx->xschem_w, xctx->xschem_h);
-    tcleval(cmd);
-    if(sscanf(tclresult(), "%dx%d", &w, &h) != 2) {
-      w = xctx->xschem_w; h = xctx->xschem_h;
-    } else {
-     if(w != xctx->xschem_w || h != xctx->xschem_h) changed_size = 1;
-    }
+  if(!plotfile[0]) {
     my_strdup(60, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir [pwd]");
     tcleval(tmpstring);
     r = tclresult();
@@ -82,76 +66,21 @@ void print_image(int user_w, int user_h)
   modified_save=xctx->modified; /* 20161121 save state */
   push_undo();
   trim_wires();    /* 20161121 add connection boxes on wires but undo at end */
-
-  XUnmapWindow(display, xctx->window);
-
-  xctx->xrect[0].x = 0;
-  xctx->xrect[0].y = 0;
-  xctx->xschem_w = xctx->xrect[0].width = w;
-  xctx->xschem_h = xctx->xrect[0].height = h;
-  xctx->areax2 = w+2*INT_WIDTH(xctx->lw);
-  xctx->areay2 = h+2*INT_WIDTH(xctx->lw);
-  xctx->areax1 = -2*INT_WIDTH(xctx->lw);
-  xctx->areay1 = -2*INT_WIDTH(xctx->lw);
-  xctx->areaw = xctx->areax2-xctx->areax1;
-  xctx->areah = xctx->areay2-xctx->areay1;
-  saveorx = xctx->xorigin;
-  saveory = xctx->yorigin;
-  savezoom = xctx->zoom;
-#ifdef __unix__
-  XFreePixmap(display,xctx->save_pixmap);
-  /* xctx->save_pixmap = XCreatePixmap(display,xctx->window,xctx->areaw,xctx->areah,depth); */
-  xctx->save_pixmap = XCreatePixmap(display,xctx->window,w,h,depth); /* 20161119 pixmap should be exact size of  */
-                                                         /* cliprectangle to avoid random borders */
-#else
-  Tk_FreePixmap(display, xctx->save_pixmap);
-  xctx->save_pixmap = Tk_GetPixmap(display, xctx->window, w, h, depth);
-#endif
-  XSetTile(display, xctx->gctiled, xctx->save_pixmap);
-
-  #if HAS_CAIRO==1
-  cairo_destroy(xctx->cairo_save_ctx);
-  cairo_surface_destroy(xctx->cairo_save_sfc);
-
-  #if HAS_XRENDER==1
-  #if HAS_XCB==1
-  xctx->cairo_save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap, &format_rgb, w, h);
-  #else
-  xctx->cairo_save_sfc = cairo_xlib_surface_create_with_xrender_format(display,
-             xctx->save_pixmap, DefaultScreenOfDisplay(display), render_format, w, h);
-  #endif /*HAS_XCB */
-  #else
-  xctx->cairo_save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, w, h);
-  #endif /*HAS_XRENDER */
-  if(cairo_surface_status(xctx->cairo_save_sfc)!=CAIRO_STATUS_SUCCESS) {
-    fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
-     exit(-1);
-  }
-  xctx->cairo_save_ctx = cairo_create(xctx->cairo_save_sfc);
-  cairo_set_line_width(xctx->cairo_save_ctx, 1);
-  cairo_set_line_join(xctx->cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
-  cairo_set_line_cap(xctx->cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
-  cairo_select_font_face (xctx->cairo_save_ctx, cairo_font_name,
-       CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size (xctx->cairo_save_ctx, 20);
-  #endif /*HAS_CAIRO */
-  for(tmp=0;tmp<cadlayers;tmp++)
-  {
+  #if 0
+  for(tmp=0;tmp<cadlayers;tmp++) {
     XSetClipRectangles(display, gc[tmp], 0,0, xctx->xrect, 1, Unsorted);
     XSetClipRectangles(display, gcstipple[tmp], 0,0, xctx->xrect, 1, Unsorted);
   }
   XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
+  #endif
   save_draw_grid = draw_grid;
   draw_grid=0;
   draw_pixmap=1;
-  if(changed_size) zoom_full(0, 0, 3); /* flags : 2 + 1 , center zoom & change_linewidth */
-
   draw();
-#ifdef __unix__
+  #ifdef __unix__
   XpmWriteFileFromPixmap(display, "plot.xpm", xctx->save_pixmap,0, NULL ); /* .gz ???? */
-#endif
+  #endif
   dbg(1, "print_image(): Window image saved\n");
-
   if(plotfile[0]) {
     my_snprintf(cmd, S(cmd), "convert_to_png plot.xpm %s", plotfile);
     tcleval(cmd);
@@ -159,71 +88,9 @@ void print_image(int user_w, int user_h)
   my_strncpy(plotfile,"", S(plotfile));
   pop_undo(0); /* 20161121 restore state */
   xctx->modified=modified_save;
-
-  w=ww;h=hh;
-  xctx->xrect[0].x = 0;
-  xctx->xrect[0].y = 0;
-  xctx->xschem_w = xctx->xrect[0].width = w;
-  xctx->xschem_h = xctx->xrect[0].height = h;
-  xctx->areax2 = w+2*INT_WIDTH(xctx->lw);
-  xctx->areay2 = h+2*INT_WIDTH(xctx->lw);
-  xctx->areax1 = -2*INT_WIDTH(xctx->lw);
-  xctx->areay1 = -2*INT_WIDTH(xctx->lw);
-  xctx->areaw = xctx->areax2-xctx->areax1;
-  xctx->areah = xctx->areay2-xctx->areay1;
-  xctx->zoom = savezoom;
-  xctx->mooz = 1/xctx->zoom;
-  xctx->xorigin = saveorx;
-  xctx->yorigin = saveory;
-#ifdef __unix__
-  XFreePixmap(display,xctx->save_pixmap);
-  xctx->save_pixmap = XCreatePixmap(display,xctx->window,xctx->areaw,xctx->areah,depth);
-#else
-  Tk_FreePixmap(display, xctx->save_pixmap);
-  xctx->save_pixmap = Tk_GetPixmap(display, xctx->window, xctx->areaw, xctx->areah, depth);
-#endif
-  XSetTile(display, xctx->gctiled, xctx->save_pixmap);
-
-
-#if HAS_CAIRO==1
-  cairo_destroy(xctx->cairo_save_ctx);
-  cairo_surface_destroy(xctx->cairo_save_sfc);
-
-  #if HAS_XRENDER==1
-  #if HAS_XCB==1
-  xctx->cairo_save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap, &format_rgb, w, h);
-  #else
-  xctx->cairo_save_sfc = cairo_xlib_surface_create_with_xrender_format (display,
-             xctx->save_pixmap, DefaultScreenOfDisplay(display), render_format, w, h);
-  #endif /*HAS_XCB */
-  #else
-  xctx->cairo_save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual, w, h);
-  #endif /*HAS_XRENDER */
-  if(cairo_surface_status(xctx->cairo_save_sfc)!=CAIRO_STATUS_SUCCESS) {
-    fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
-     exit(-1);
-  }
-  xctx->cairo_save_ctx = cairo_create(xctx->cairo_save_sfc);
-  cairo_set_line_width(xctx->cairo_save_ctx, 1);
-  cairo_set_line_join(xctx->cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
-  cairo_set_line_cap(xctx->cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
-  cairo_select_font_face (xctx->cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size (xctx->cairo_save_ctx, 20);
-  #endif /*HAS_CAIRO */
-
-  for(tmp=0;tmp<cadlayers;tmp++)
-  {
-    XSetClipMask(display, gc[tmp], None); /*20171110 no need to clip, already done in software */
-    XSetClipMask(display, gcstipple[tmp], None);
-  }
-  XSetClipMask(display, xctx->gctiled, None);
-
-  XMapWindow(display, xctx->window);
   draw_grid=save_draw_grid;
   draw_pixmap=1;
-  draw();
 }
-
 
 #if HAS_CAIRO==1
 void set_cairo_color(int layer) 

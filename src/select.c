@@ -400,7 +400,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
      fprintf(errfp, "ERROR: rentrant bbox() call\n");
      tcleval("alert_ {ERROR: reentrant bbox() call} {}");
    }
-   bbx1 = 300000000;
+   bbx1 = 300000000; /* screen coordinates */
    bbx2 = 0;
    bby1 = 300000000;
    bby2 = 0;
@@ -451,6 +451,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
     XSetClipMask(display, gc[i], None); /* 20171110 optimization, clipping already done in software */
     XSetClipMask(display, gcstipple[i], None); /* 20171110 optimization, clipping already done in software */
    }
+
    #if HAS_CAIRO==1
    cairo_reset_clip(xctx->cairo_ctx);
    cairo_reset_clip(xctx->cairo_save_ctx);

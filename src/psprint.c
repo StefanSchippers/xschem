@@ -573,6 +573,8 @@ void ps_draw(void)
  double dx, dy, scale, scaley;
  int landscape=1;
  double margin=0; /* in postscript points, (1/72)". No need to add margin as xschem zoom full already has margins.*/
+
+ /* Legal: 612 792 */
  double pagex=842;/* a4, in postscript points, (1/72)" */
  double pagey=595;/* a4, in postscript points, (1/72)" */
  xRect boundbox;
@@ -632,8 +634,9 @@ void ps_draw(void)
 
  dbg(1, "ps_draw(): bbox: x1=%g y1=%g x2=%g y2=%g\n", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
  fprintf(fd, "%%!PS-Adobe-3.0\n");
- fprintf(fd, "%%%%DocumentMedia: %s %g %g 80 () ()\n", landscape ? "a4land" : "a4", pagex, pagey);
- fprintf(fd, "%%%%Orientation: Portrait\n");
+ /* fprintf(fd, "%%%%DocumentMedia: %s %g %g 80 () ()\n", landscape ? "a4land" : "a4", pagex, pagey); */
+ fprintf(fd, "%%%%DocumentMedia: %s %g %g 80 () ()\n", "a4", pagex, pagey);
+ fprintf(fd, "%%%%PageOrientation: %s\n", landscape ? "Landscape" : "Portrait");
  fprintf(fd, "%%%%Title: xschem plot\n");
  fprintf(fd, "%%%%Creator: xschem\n");
  fprintf(fd, "%%%%Pages: 1\n");

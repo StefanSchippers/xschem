@@ -27,7 +27,6 @@
 
 static int init_done=0; /* 20150409 to avoid double call by Xwindows close and TclExitHandler */
 static XSetWindowAttributes winattr;
-static int screen_number;
 static Tk_Window  tkwindow, mainwindow;
 static XWMHints *hints_ptr;
 static Window topwindow;
@@ -545,7 +544,7 @@ void xwin_exit(void)
  delete_hilight_net();
  get_unnamed_node(0, 0, 0);
  if(has_x) {
-    resetwin(0, 1, 1); /* create_pixmap, clear_pixmap, force */
+    resetwin(0, 1, 1, 0, 0); /* create_pixmap, clear_pixmap, force */
     dbg(1, "xwin_exit(): Releasing pixmaps and cairo data structures\n");
     for(i=0;i<cadlayers;i++)
     {
@@ -744,7 +743,7 @@ void delete_schematic_data(void)
   get_unnamed_node(0, 0, 0); /* net### enumerator used for netlisting */
   remove_symbols();
   clear_drawing();    /* delete instances, wires, lines, rects, ... */
-  resetwin(0, 1, 1);  /* delete preview pixmap, delete cairo surfaces */
+  resetwin(0, 1, 1, 0, 0);  /* delete preview pixmap, delete cairo surfaces */
   free_xschem_data(); /* delete the xctx struct */
 }
 
@@ -776,11 +775,11 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
       alloc_xschem_data(); /* alloc data into xctx */
       preview_xctx = xctx;
       preview_xctx->window = pre_window;
-      resetwin(1, 0, 1);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
+      resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
       dbg(1, "preview_window() draw, load schematic\n");
       load_schematic(1,filename, 0);
     }
-    zoom_full(1, 0, 1); /* draw */
+    zoom_full(1, 0, 1, 0.97); /* draw */
     xctx = save_xctx;
   }
   else if(!strcmp(what, "destroy")) {
@@ -823,9 +822,9 @@ void new_schematic(const char *what, const char *tk_win_path, const char *filena
     save_xctx[cnt] = xctx;
     dbg(1, "new_schematic() draw, load schematic\n");
     xctx->window = new_window;
-    resetwin(1, 0, 1);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
+    resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
     load_schematic(1,filename, 0);
-    zoom_full(1, 0, 1); /* draw */
+    zoom_full(1, 0, 1, 0.97); /* draw */
   } else if(!strcmp(what, "redraw")) {
     Xschem_ctx *save;
     save = xctx;
@@ -964,22 +963,38 @@ void resetcairo(int create, int clear, int force_or_resize)
   #endif /* HAS_CAIRO */
 }
 
-void resetwin(int create_pixmap, int clear_pixmap, int force)
+/* w and h (if > 0 ) parameters force reset pixmap to w x h, regardless of window size */
+void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
 {
   unsigned int width, height;
   XWindowAttributes wattr;
+  int status;
+  #ifndef __unix__
+  HWND hwnd = Tk_GetHWND(xctx->window);
+  RECT rct;
+  #endif
+
   if(has_x) {
-#ifdef __unix__
-    if( XGetWindowAttributes(display, xctx->window, &wattr) ) {
-      width = wattr.width;
-      height = wattr.height;
-#else
-    HWND hwnd = Tk_GetHWND(xctx->window);
-    RECT rct;
-    if (GetWindowRect(hwnd, &rct)) {
-      width = rct.right - rct.left;
-      height = rct.bottom - rct.top;
-#endif
+    if(w && h) {
+      width = w;
+      height = h;
+      status = 1;
+    } else {
+      #ifdef __unix__
+      status = XGetWindowAttributes(display, xctx->window, &wattr);
+      if(status) {
+        width = wattr.width;
+        height = wattr.height;
+      }
+      #else
+      status = GetWindowRect(hwnd, &rct);
+      if(status) {
+        width = rct.right - rct.left;
+        height = rct.bottom - rct.top;
+      }
+      #endif
+    }
+    if(status) {
       /* if(wattr.map_state==IsUnmapped) return; */
       xctx->xschem_w=width;
       xctx->xschem_h=height;
@@ -1021,7 +1036,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force)
       }
     }
     if(pending_fullzoom) {
-      zoom_full(0, 0, 1);
+      zoom_full(0, 0, 1, 0.97);
       pending_fullzoom=0;
     }
     dbg(1, "resetwin(): Window reset\n");
@@ -1466,7 +1481,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
     #if HAS_XRENDER==1
     render_format = XRenderFindStandardFormat(display, PictStandardRGB24);
     #endif
-    resetwin(1, 0, 1);
+    resetwin(1, 0, 1, 0, 0);
     #if HAS_CAIRO==1
     /* load font from tcl 20171112 */
     tcleval("xschem set svg_font_name $svg_font_name");
@@ -1563,7 +1578,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
        to tcl is_xschem_file that could change netlist_type to symbol */
     load_schematic(1, f, !do_netlist);
     Tcl_VarEval(interp, "update_recent_file {", f, "}", NULL);
- } else {
+ } else if(!tcl_script[0]) {
    char * tmp;
    char filename[PATH_MAX];
    tmp = (char *) tclgetvar("XSCHEM_START_WINDOW");
@@ -1576,7 +1591,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
 
 
- zoom_full(0, 0, 1);   /* Necessary to tell xschem the
+ zoom_full(0, 0, 1, 0.97);   /* Necessary to tell xschem the
                   * initial area to display
                   */
  pending_fullzoom=1;
@@ -1619,17 +1634,17 @@ int Tcl_AppInit(Tcl_Interp *inter)
      xctx->areay1 = -2;
      xctx->areaw = xctx->areax2-xctx->areax1;
      xctx->areah = xctx->areay2-xctx->areay1;
-     zoom_full(0, 0, 2);
+     zoom_full(0, 0, 2, 0.97);
      ps_draw();
    } else if(do_print == 2) {
      if(!has_x) {
        dbg(0, "xschem: can not do a png export if no X11 present / Xserver running (check if DISPLAY set).\n");
      } else {
        tcleval("tkwait visibility .drw");
-       print_image(0, 0);
+       print_image();
      }
    }
-   else svg_draw(0, 0);
+   else svg_draw();
  }
 
  if(do_simulation) {
@@ -1649,7 +1664,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
 
  if(tcl_script[0]) {
-   Tcl_VarEval(interp, "source ", tcl_script, NULL);
+   
+   Tcl_VarEval(interp, "update; source ", tcl_script, NULL);
  }
 
  if(quit) {

@@ -624,6 +624,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
+     else if(!strcmp(argv[2],"no_draw")) {
+       if( no_draw != 0 )
+         Tcl_SetResult(interp, "1",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, "0",TCL_STATIC);
+     }
      else if(!strcmp(argv[2],"only_probes")) {
        if( only_probes != 0 )
          Tcl_SetResult(interp, "1",TCL_STATIC);
@@ -892,6 +898,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      printf("areah=%d\n", xctx->areah);
      printf("color_ps=%d\n", color_ps);
      printf("hilight_nets=%d\n", xctx->hilight_nets);
+     printf("semaphore=%d\n", xctx->semaphore);
      printf("need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr);
      printf("******* end global variables:*******\n");
     }
@@ -1367,7 +1374,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_VarEval(interp, "update_recent_file {", abs_sym_path(argv[2], ""), "}", NULL);
           my_strdup(375, &xctx->sch_path[xctx->currsch],".");
           xctx->sch_inst_number[xctx->currsch] = 1;
-          zoom_full(1, 0, 1);
+          zoom_full(1, 0, 1, 0.97);
         }
       }
       else if(argc==2) {
@@ -1404,7 +1411,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         load_schematic(0, abs_sym_path(argv[2], ""), 1);
         my_strdup(374, &xctx->sch_path[xctx->currsch],".");
         xctx->sch_inst_number[xctx->currsch] = 1;
-        zoom_full(1, 0, 1);
+        zoom_full(1, 0, 1, 0.97);
       }
     }
    
@@ -1646,35 +1653,109 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
-    /*    0     1    2    3       4   5
-     * xschem print png file.png 400 300 */
-    else if(!strcmp(argv[1],"print") ) { /* 20171022 added png, svg */
+    /*                          img x   y size    xschem area to export
+     *    0     1    2    3         4   5             6    7   8   9
+     * xschem print png file.png   400 300        [ -300 -200 300 200 ]
+     * xschem print svg file.svg   400 300        [ -300 -200 300 200 ]
+     * xschem print ps  file.ps
+     * xschem print pdf file.pdf
+     */
+    else if(!strcmp(argv[1],"print") ) {
+      int save_nodraw, save_draw_window, save_draw_pixmap;
       cmd_found = 1;
+      save_nodraw = no_draw;
+      save_draw_window = draw_window;
+      save_draw_pixmap = draw_pixmap;
+      no_draw = 1;
+      draw_window = 0;
+      draw_pixmap = 0;
       if(argc < 3) {
         Tcl_SetResult(interp, "xschem print needs at least 1 more arguments: plot_type", TCL_STATIC);
         return TCL_ERROR;
       }
       if(argc >= 4) my_strncpy(plotfile, argv[3], S(plotfile));
 
-      if(!strcmp(argv[2],"pdf")) {
+      if(!strcmp(argv[2],"pdf") || !strcmp(argv[2],"ps")) {
         ps_draw();
       }
       else if(!strcmp(argv[2],"png")) {
         int w = 0, h = 0;
-        if(argc >= 6) {
+        double x1, y1, x2, y2;
+        if(argc == 6) {
           w = atoi(argv[4]);
           h = atoi(argv[5]);
+          save_restore_zoom(1);
+          set_viewport_size(w, h, 0.8);
+          zoom_full(0, 0, 2, 0.97);
+          resetwin(1, 1, 1, w, h);
+          no_draw = 0;
+          draw_pixmap = 1;
+          print_image();
+          draw_pixmap = 0;
+          no_draw = 1;
+          save_restore_zoom(0);
+          resetwin(1, 1, 1, 0, 0);
+          change_linewidth(-1.);
+          draw();
+        } else if( argc == 10) {
+          w = atoi(argv[4]);
+          h = atoi(argv[5]);
+          x1 = atof(argv[6]);
+          y1 = atof(argv[7]);
+          x2 = atof(argv[8]);
+          y2 = atof(argv[9]);
+          save_restore_zoom(1);
+          set_viewport_size(w, h, 0.8);
+          zoom_box(x1, y1, x2, y2, 1.0);
+          resetwin(1, 1, 1, w, h);
+          no_draw = 0;
+          draw_pixmap = 1;
+          print_image();
+          draw_pixmap = 0;
+          no_draw = 1;
+          save_restore_zoom(0);
+          resetwin(1, 1, 1, 0, 0);
+          change_linewidth(-1.);
+          draw();
+        } else {
+          no_draw = 0;
+          draw_pixmap = 1;
+          print_image();
+          draw_pixmap = 0;
+          no_draw = 1;
         }
-        print_image(w, h);
       }
       else if(!strcmp(argv[2],"svg")) {
         int w = 0, h = 0;
-        if(argc >= 6) {
+        double x1, y1, x2, y2;
+        if(argc == 6) {
           w = atoi(argv[4]);
           h = atoi(argv[5]);
+          save_restore_zoom(1);
+          set_viewport_size(w, h, 0.8);
+          zoom_full(0, 0, 2, 0.97);
+          svg_draw();
+          save_restore_zoom(0);
+        } else if( argc == 10) {
+          w = atoi(argv[4]);
+          h = atoi(argv[5]);
+          x1 = atof(argv[6]);
+          y1 = atof(argv[7]);
+          x2 = atof(argv[8]);
+          y2 = atof(argv[9]);
+          save_restore_zoom(1);
+          set_viewport_size(w, h, 0.8);
+          zoom_box(x1, y1, x2, y2, 1.0);
+          svg_draw();
+          save_restore_zoom(0);
+        } else {
+          svg_draw();
         }
-        svg_draw(w, h);
       }
+      no_draw = save_nodraw;
+      draw_window = save_draw_window;
+      draw_pixmap = save_draw_pixmap;
+      draw();
       Tcl_ResetResult(interp);
     }
    
@@ -1760,7 +1841,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       remove_symbols();
       load_schematic(1, xctx->sch[xctx->currsch], 1);
       if(argc >= 3 && !strcmp(argv[2], "zoom_full") ) {
-        zoom_full(1, 0, 1);
+        zoom_full(1, 0, 1, 0.97);
       } else {
         draw();
       }
@@ -2476,7 +2557,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   else if(argv[1][0] == 'z') {      
     if(!strcmp(argv[1],"zoom_box"))
     {
-      double x1, y1, x2, y2, yy1, factor;
+      double x1, y1, x2, y2, factor;
       cmd_found = 1;
       dbg(1, "scheduler(): xschem zoom_box: argc=%d, argv[2]=%s\n", argc, argv[2]);
       if(argc==6 || argc == 7) {
@@ -2487,16 +2568,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc == 7) factor = atof(argv[6]);
         else          factor = 1.;
         if(factor == 0.) factor = 1.;
-        RECTORDER(x1,y1,x2,y2);
-        xctx->xorigin=-x1;xctx->yorigin=-y1;
-        xctx->zoom=(x2-x1)/(xctx->areaw-4*INT_WIDTH(xctx->lw));
-        yy1=(y2-y1)/(xctx->areah-4*INT_WIDTH(xctx->lw));
-        if(yy1>xctx->zoom) xctx->zoom=yy1;
-        xctx->mooz=1/xctx->zoom;
-        xctx->xorigin=xctx->xorigin+xctx->areaw*xctx->zoom*(1-1/factor)/2;
-        xctx->yorigin=xctx->yorigin+xctx->areah*xctx->zoom*(1-1/factor)/2;
-        xctx->zoom*= factor;
-        xctx->mooz=1/xctx->zoom;
+        zoom_box(x1, y1, x2, y2, factor);
         change_linewidth(-1.);
         draw();
       }
@@ -2506,17 +2578,32 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
+    /* xschem zoom_full [center | nodraw | nolinewidth] */
     else if(!strcmp(argv[1],"zoom_full"))
     {
+      int i, flags = 1;
+      int draw = 1;
+      double shrink = 0.97;
+      char * endptr;
+
       cmd_found = 1;
-      zoom_full(1, 0, 1);
+      for(i = 2; i < argc; i++) {
+        if(!strcmp(argv[i], "center")) flags  |= 2;
+        else if(!strcmp(argv[i], "nodraw")) draw = 0;
+        else if(!strcmp(argv[i], "nolinewidth")) flags &= ~1;
+        else {
+          shrink = strtod(argv[i], &endptr);
+          if(endptr == argv[i]) shrink = 1.0;
+        }
+      }
+      zoom_full(draw, 0, flags, shrink);
       Tcl_ResetResult(interp);
     }
    
     else if(!strcmp(argv[1],"zoom_hilighted"))
     {
       cmd_found = 1;
-      zoom_full(1, 2, 1);
+      zoom_full(1, 2, 1, 0.97);
       Tcl_ResetResult(interp);
     }
    
@@ -2537,7 +2624,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"zoom_selected"))
     {
       cmd_found = 1;
-      zoom_full(1, 1, 1);
+      zoom_full(1, 1, 1, 0.97);
       Tcl_ResetResult(interp);
     }
   }

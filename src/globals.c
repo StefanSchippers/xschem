@@ -98,6 +98,7 @@ unsigned char pixdata_init[22][32]={    /* fill patterns... indexed by laynumb. 
 GC *gcstipple,*gc;
 Pixmap *pixmap = NULL;
 Display *display;
+int screen_number;
 Pixmap cad_icon_pixmap=0, cad_icon_mask=0;
 XColor xcolor_array[256];
 Visual *visual;

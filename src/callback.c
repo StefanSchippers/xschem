@@ -181,7 +181,7 @@ int callback(int event, int mx, int my, KeySym key,
     dbg(1, "callback(): Expose\n");
     break;
   case ConfigureNotify:
-    resetwin(1, 1, 0);
+    resetwin(1, 1, 0, 0, 0);
     draw();
     break;
 
@@ -212,7 +212,7 @@ int callback(int event, int mx, int my, KeySym key,
       statusmsg(str,1);
     }
     if(xctx->ui_state & STARTPAN)    pan(RUBBER);
-    if(xctx->ui_state & STARTZOOM)   zoom_box(RUBBER);
+    if(xctx->ui_state & STARTZOOM)   zoom_rectangle(RUBBER);
     if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & PLACE_SYMBOL) && !(xctx->ui_state & STARTPAN2)) {
       if( (state & Button1Mask)  && (state & Mod1Mask)) { /* 20171026 added unselect by area  */
           select_rect(RUBBER,0);
@@ -578,8 +578,8 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key=='z' && state == 0)                   /* zoom box */
    {
-    dbg(1, "callback(): zoom_box call\n");
-    zoom_box(START);break;
+    dbg(1, "callback(): zoom_rectangle call\n");
+    zoom_rectangle(START);break;
    }
    if(key=='Z' && state == ShiftMask)                   /* zoom in */
    {
@@ -1002,7 +1002,7 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='*' && state==(Mod1Mask|ShiftMask) )         /* svg print , 20121108 */
    {
     if(xctx->semaphore >= 2) break;
-    svg_draw(0, 0);
+    svg_draw();
     break;
    }
    if(key=='*' && state==ShiftMask )                    /* postscript print */
@@ -1014,7 +1014,7 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='*' && state==(ControlMask|ShiftMask) )      /* xpm print */
    {
     if(xctx->semaphore >= 2) break;
-    print_image(0, 0);
+    print_image();
     break;
    }
    if(key=='u' && state==Mod1Mask)                      /* align to grid */
@@ -1345,7 +1345,7 @@ int callback(int event, int mx, int my, KeySym key,
     xctx->prep_net_structs = 0;
     xctx->prep_hi_structs = 0;
     xctx->prep_hash_wires = 0;
-    zoom_full(1, 0, 1);
+    zoom_full(1, 0, 1, 0.97);
     break;
    }
 
@@ -1357,7 +1357,7 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key=='f' && state == 0 )                  /* full zoom */
    {
-    zoom_full(1, 0, 1);
+    zoom_full(1, 0, 1, 0.97);
     break;
    }
    if((key=='z' && state==ControlMask))                         /* zoom out */
@@ -1526,7 +1526,7 @@ int callback(int event, int mx, int my, KeySym key,
        break;
      }
      if(xctx->ui_state & MENUSTARTZOOM) {
-       zoom_box(START);
+       zoom_rectangle(START);
        xctx->ui_state &=~MENUSTARTZOOM;
        break;
      }
@@ -1535,7 +1535,7 @@ int callback(int event, int mx, int my, KeySym key,
        break;
      }
      if(xctx->ui_state & STARTZOOM) {
-       zoom_box(END);
+       zoom_rectangle(END);
        break;
      }
      if(xctx->ui_state & STARTWIRE) {

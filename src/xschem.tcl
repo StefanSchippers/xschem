@@ -3190,7 +3190,9 @@ global env has_x
   bind $window_path <Double-Button-3> {xschem callback -3 %x %y 0 %b 0 %s}
   bind $window_path <Expose> {xschem callback %T %x %y 0 %w %h %s}
   bind $window_path <Configure> {xschem windowid; xschem callback %T %x %y 0 %w %h 0}
-  bind $window_path <ButtonPress> {xschem callback %T %x %y 0 %b 0 %s}
+  bind $window_path <ButtonPress> {
+    xschem callback %T %x %y 0 %b 0 %s
+  }
   if {$::OS == "Windows"} {
     bind $window_path <MouseWheel> {
       if {%D<0} {
@@ -3207,7 +3209,9 @@ global env has_x
     bind $window_path <Control-Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr {$ControlMask + $Mod1Mask}]}
     bind $window_path <Shift-Alt-KeyPress> {xschem callback %T %x %y %N 0 0 [expr {$ShiftMask + $Mod1Mask}]}
   }
-  bind $window_path <KeyPress> {xschem callback %T %x %y %N 0 0 %s}
+  bind $window_path <KeyPress> {
+    xschem callback %T %x %y %N 0 0 %s
+  }
   bind $window_path <KeyRelease> {xschem callback %T %x %y %N 0 0 %s} ;# 20161118
   bind $window_path <Motion> {xschem callback %T %x %y 0 0 0 %s}
   bind $window_path  <Enter> {xschem callback %T %x %y 0 0 0 0 }
