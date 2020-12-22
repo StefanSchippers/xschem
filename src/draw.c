@@ -471,7 +471,6 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
-
       textlayer = c;
       /* do not allow custom text color on PINLAYER hilighted instances */
       if( !(xctx->inst[n].color == PINLAYER)) {
@@ -490,7 +489,6 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           slant = CAIRO_FONT_SLANT_NORMAL;
           if(symptr->text[j].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
           if(symptr->text[j].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
-
           cairo_save(xctx->cairo_ctx);
           cairo_save(xctx->cairo_save_ctx);
           cairo_select_font_face (xctx->cairo_ctx, textfont, slant, weight);

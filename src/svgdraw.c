@@ -405,21 +405,18 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
 
   if(xctx->inst[n].ptr == -1) return;
   if( (layer != PINLAYER && !enable_layer[layer]) ) return;
-  if(layer==0)
-  {
+  if(layer==0) {
     x1=X_TO_SVG(xctx->inst[n].x1);
     x2=X_TO_SVG(xctx->inst[n].x2);
     y1=Y_TO_SVG(xctx->inst[n].y1);
     y2=Y_TO_SVG(xctx->inst[n].y2);
-    if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
-    {
+    if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) {
       xctx->inst[n].flags|=1;
       return;
     }
     else xctx->inst[n].flags&=~1;
   }
-  else if(xctx->inst[n].flags&1)
-  {
+  else if(xctx->inst[n].flags&1) {
     dbg(1, "draw_symbol(): skipping inst %d\n", n);
     return;
   }
@@ -429,16 +426,14 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
   x0=xctx->inst[n].x0 + xoffset;
   y0=xctx->inst[n].y0 + yoffset;
   symptr = (xctx->inst[n].ptr+ xctx->sym);
-  for(j=0;j< symptr->lines[layer];j++)
-  {
+  for(j=0;j< symptr->lines[layer];j++) {
     line = (symptr->line[layer])[j];
     ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
     ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
     ORDER(x1,y1,x2,y2);
     svg_drawline(layer, line.bus, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
   }
-  for(j=0;j< symptr->polygons[layer];j++)
-  {
+  for(j=0;j< symptr->polygons[layer];j++) {
     polygon = (symptr->poly[layer])[j];
     { /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
       int k;
@@ -454,8 +449,7 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
       my_free(962, &y);
     }
   }
-  for(j=0;j< symptr->arcs[layer];j++)
-  {
+  for(j=0;j< symptr->arcs[layer];j++) {
     double angle;
     arc = (symptr->arc[layer])[j];
     if(flip) {
@@ -469,8 +463,7 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
     svg_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
   }
 
-  if( enable_layer[layer] ) for(j=0;j< symptr->rects[layer];j++)
-  {
+  if( enable_layer[layer] ) for(j=0;j< symptr->rects[layer];j++) {
     box = (symptr->rect[layer])[j];
     ROTATION(rot, flip, 0.0,0.0,box.x1,box.y1,x1,y1);
     ROTATION(rot, flip, 0.0,0.0,box.x2,box.y2,x2,y2);
@@ -478,11 +471,9 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
     svg_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
   }
   if( (layer==TEXTWIRELAYER  && !(xctx->inst[n].flags&2) ) ||
-      (sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) )
-  {
+      (sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) ) {
     const char *txtptr;
-    for(j=0;j< symptr->texts;j++)
-    {
+    for(j=0;j< symptr->texts;j++) {
       text = symptr->text[j];
       /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
       txtptr= translate(n, text.txt_ptr);
@@ -498,7 +489,6 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
         my_snprintf(svg_font_family, S(svg_font_family), svg_font_name);
         my_snprintf(svg_font_style, S(svg_font_style), "normal");
         my_snprintf(svg_font_weight, S(svg_font_weight), "normal");
-  
         textfont = symptr->text[j].font;
         if( (textfont && textfont[0])) {
           my_snprintf(svg_font_family, S(svg_font_family), textfont);
@@ -555,7 +545,6 @@ static void fill_svg_colors()
  }
 
 }
-
 
 void svg_draw(void)
 {
@@ -678,12 +667,9 @@ void svg_draw(void)
     {
       textlayer = xctx->text[i].layer;
       if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
- 
- 
       my_snprintf(svg_font_family, S(svg_font_family), svg_font_name);
       my_snprintf(svg_font_style, S(svg_font_style), "normal");
       my_snprintf(svg_font_weight, S(svg_font_weight), "normal");
- 
       textfont = xctx->text[i].font;
       if( (textfont && textfont[0])) {
         my_snprintf(svg_font_family, S(svg_font_family), textfont);
