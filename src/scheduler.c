@@ -1661,14 +1661,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      * xschem print pdf file.pdf
      */
     else if(!strcmp(argv[1],"print") ) {
-      int save_nodraw, save_draw_window, save_draw_pixmap;
       cmd_found = 1;
-      save_nodraw = no_draw;
-      save_draw_window = draw_window;
-      save_draw_pixmap = draw_pixmap;
-      no_draw = 1;
-      draw_window = 0;
-      draw_pixmap = 0;
       if(argc < 3) {
         Tcl_SetResult(interp, "xschem print needs at least 1 more arguments: plot_type", TCL_STATIC);
         return TCL_ERROR;
@@ -1688,11 +1681,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           set_viewport_size(w, h, 0.8);
           zoom_full(0, 0, 2, 0.97);
           resetwin(1, 1, 1, w, h);
-          no_draw = 0;
-          draw_pixmap = 1;
           print_image();
-          draw_pixmap = 0;
-          no_draw = 1;
           save_restore_zoom(0);
           resetwin(1, 1, 1, 0, 0);
           change_linewidth(-1.);
@@ -1708,21 +1697,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           set_viewport_size(w, h, 0.8);
           zoom_box(x1, y1, x2, y2, 1.0);
           resetwin(1, 1, 1, w, h);
-          no_draw = 0;
-          draw_pixmap = 1;
           print_image();
-          draw_pixmap = 0;
-          no_draw = 1;
           save_restore_zoom(0);
           resetwin(1, 1, 1, 0, 0);
           change_linewidth(-1.);
           draw();
         } else {
-          no_draw = 0;
-          draw_pixmap = 1;
           print_image();
-          draw_pixmap = 0;
-          no_draw = 1;
         }
       }
       else if(!strcmp(argv[2],"svg")) {
@@ -1752,9 +1733,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           svg_draw();
         }
       }
-      no_draw = save_nodraw;
-      draw_window = save_draw_window;
-      draw_pixmap = save_draw_pixmap;
       draw();
       Tcl_ResetResult(interp);
     }

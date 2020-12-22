@@ -2106,7 +2106,9 @@ int text_bbox(const char *str, double xscale, double yscale,
   cairo_font_extents_t fext;
   double ww, hh, maxw;
 
-  if(!has_x) return 0;
+  /*                will not match exactly font metrics when doing ps/svg output , but better than nothing */
+  if(!has_x) return text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter, x1, y1,
+                                      rx1, ry1, rx2, ry2);
   size = xscale*52.*cairo_font_scale;
 
   /*  if(size*xctx->mooz>800.) { */

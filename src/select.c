@@ -444,18 +444,18 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->xrect[0].width = xctx->areaw-4*INT_WIDTH(xctx->lw);
    xctx->xrect[0].height = xctx->areah-4*INT_WIDTH(xctx->lw);
 
-   XSetClipMask(display, xctx->gctiled, None); /* 20171110 optimization, clipping already done in software */
-
-   for(i=0;i<cadlayers;i++)
-   {
-    XSetClipMask(display, gc[i], None); /* 20171110 optimization, clipping already done in software */
-    XSetClipMask(display, gcstipple[i], None); /* 20171110 optimization, clipping already done in software */
+   if(has_x) {
+     XSetClipMask(display, xctx->gctiled, None); /* clipping already done in software */
+     for(i=0;i<cadlayers;i++)
+     {
+      XSetClipMask(display, gc[i], None); /* clipping already done in software */
+      XSetClipMask(display, gcstipple[i], None); /* optimization, clipping already done in software */
+     }
+     #if HAS_CAIRO==1
+     cairo_reset_clip(xctx->cairo_ctx);
+     cairo_reset_clip(xctx->cairo_save_ctx);
+     #endif
    }
-
-   #if HAS_CAIRO==1
-   cairo_reset_clip(xctx->cairo_ctx);
-   cairo_reset_clip(xctx->cairo_save_ctx);
-   #endif
    sem=0;
    break;
   case SET:
@@ -474,19 +474,23 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->xrect[0].y = bby1-INT_WIDTH(xctx->lw);
    xctx->xrect[0].width = bbx2-bbx1+2*INT_WIDTH(xctx->lw);
    xctx->xrect[0].height = bby2-bby1+2*INT_WIDTH(xctx->lw);
-   for(i=0;i<cadlayers;i++)
-   {
-     XSetClipRectangles(display, gc[i], 0,0, xctx->xrect, 1, Unsorted);
-     XSetClipRectangles(display, gcstipple[i], 0,0, xctx->xrect, 1, Unsorted);
+   if(has_x) {
+     for(i=0;i<cadlayers;i++)
+     {
+       XSetClipRectangles(display, gc[i], 0,0, xctx->xrect, 1, Unsorted);
+       XSetClipRectangles(display, gcstipple[i], 0,0, xctx->xrect, 1, Unsorted);
+     }
+     XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
+     dbg(1, "bbox(): bbox= %d %d %d %d\n",xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2);
+     #if HAS_CAIRO==1
+     cairo_rectangle(xctx->cairo_ctx, xctx->xrect[0].x, xctx->xrect[0].y, 
+                     xctx->xrect[0].width, xctx->xrect[0].height);
+     cairo_clip(xctx->cairo_ctx);
+     cairo_rectangle(xctx->cairo_save_ctx, xctx->xrect[0].x, xctx->xrect[0].y,
+                     xctx->xrect[0].width, xctx->xrect[0].height);
+     cairo_clip(xctx->cairo_save_ctx);
+     #endif
    }
-   XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
-   dbg(1, "bbox(): bbox= %d %d %d %d\n",xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2);
-   #if HAS_CAIRO==1
-   cairo_rectangle(xctx->cairo_ctx, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
-   cairo_clip(xctx->cairo_ctx);
-   cairo_rectangle(xctx->cairo_save_ctx, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
-   cairo_clip(xctx->cairo_save_ctx);
-   #endif
    break;
   default:
    break;

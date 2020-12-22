@@ -35,7 +35,7 @@ typedef struct {
 
 static Svg_color *svg_colors;
 static char svg_font_weight[80] = "normal"; /* normal, bold, bolder, lighter */
-static char svg_font_family[80] = "Sans Serif"; /* serif, monospace, Helvetica, Arial */
+static char svg_font_family[80] = "SansSerif"; /* serif, monospace, Helvetica, Arial */
 static char svg_font_style[80] = "normal"; /* normal, italic, oblique */
 static double svg_linew;      /* current width of lines / rectangles */
 
@@ -196,7 +196,7 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   char col[20];
   if(color_ps) 
     my_snprintf(col, S(col), "#%02x%02x%02x",
-      xcolor_array[layer].red >> 8, xcolor_array[layer].green >> 8, xcolor_array[layer].blue >> 8);
+      svg_colors[layer].red, svg_colors[layer].green, svg_colors[layer].blue);
   else if(dark_colorscheme)
     my_snprintf(col, S(col), "#%02x%02x%02x", 255, 255, 255);
   else
@@ -226,7 +226,7 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   fprintf(fd,"<text fill=\"%s\"  xml:space=\"preserve\" font-size=\"%g\" ", col, size*xctx->mooz);
   if(strcmp(svg_font_weight, "normal")) fprintf(fd, "font-weight=\"%s\" ", svg_font_weight);
   if(strcmp(svg_font_style, "normal")) fprintf(fd, "font-style=\"%s\" ", svg_font_style);
-  if(strcmp(svg_font_family, "Sans Serif")) fprintf(fd, "style=\"font-family:%s;\" ", svg_font_family);
+  if(strcmp(svg_font_family, "SansSerif")) fprintf(fd, "style=\"font-family:%s;\" ", svg_font_family);
   if(rot1) fprintf(fd, "transform=\"translate(%g, %g) rotate(%d)\" ", ix, iy, rot1*90);
   else fprintf(fd, "transform=\"translate(%g, %g)\" ", ix, iy);
   fprintf(fd, ">");
@@ -258,12 +258,11 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
   int lineno=0;
   double size, height, ascent, descent;
   int llength=0;
-  if(str==NULL || !has_x ) return;
+  if(str==NULL) return;
   size = xscale*52.;
   height =  size*xctx->mooz * 1.147;
   ascent =  size*xctx->mooz * 0.908;
   descent = size*xctx->mooz * 0.219;
-
   text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &textx1,&texty1,&textx2,&texty2);
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,textx1,texty1,textx2,texty2)) {
     return;
@@ -623,7 +622,7 @@ void svg_draw(void)
     fprintf(fd, "}\n");
   }
  
-  fprintf(fd, "text {font-family: Sans Serif;}\n");
+  fprintf(fd, "text {font-family: SansSerif;}\n");
   fprintf(fd, "</style>\n");
  
     /* background */
