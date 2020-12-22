@@ -751,9 +751,7 @@ void prepare_netlist_structs(int for_netlist)
         my_strdup(260, &value,get_tok_value(inst[i].prop_ptr,"value",0));
         my_strdup(261, &class,get_tok_value(inst[i].prop_ptr,"class",0));
       }
-
       my_strdup(262, &inst[i].node[0], inst[i].lab);
-
       if (!(inst[i].node[0])) {
         my_strdup(65, &inst[i].node[0], get_tok_value((inst[i].ptr+ xctx->sym)->templ, "lab",0));
         dbg(1, "prepare_netlist_structs(): no lab attr on instance, pick from symbol: %s\n", inst[i].node[0]);

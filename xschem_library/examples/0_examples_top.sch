@@ -1,4 +1,4 @@
-v {xschem version=2.9.8 file_version=1.2 }
+v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -48,7 +48,7 @@ N 870 -300 990 -300 {lab=#net1}
 N 910 -340 910 -250 {lab=#net2}
 N 910 -270 970 -270 {lab=#net2}
 N 930 -310 960 -300 {lab=#net1}
-N 380 -530 700 -530 {lab=BUS[4:0]}
+N 380 -530 700 -530 {lab=xxx}
 N 510 -640 510 -540 {lab=BUS[1]}
 N 410 -600 410 -540 {lab=BUS[2]}
 C {poweramp.sym} 160 -440 0 0 {name=x1

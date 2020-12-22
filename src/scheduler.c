@@ -899,6 +899,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      printf("color_ps=%d\n", color_ps);
      printf("hilight_nets=%d\n", xctx->hilight_nets);
      printf("semaphore=%d\n", xctx->semaphore);
+     printf("prep_net_structs=%d\n", xctx->prep_net_structs);
+     printf("prep_hi_structs=%d\n", xctx->prep_hi_structs);
+     printf("prep_hash_inst=%d\n", xctx->prep_hash_inst);
+     printf("prep_hash_wires=%d\n", xctx->prep_hash_wires);
      printf("need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr);
      printf("******* end global variables:*******\n");
     }

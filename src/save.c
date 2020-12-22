@@ -958,8 +958,7 @@ void link_symbols_to_instances(int from) /* from > 0 : linking symbols from past
   char *type=NULL;
   int cond;
 
-  for(i = from; i < xctx->instances; i++)
-  {
+  for(i = from; i < xctx->instances; i++) {
     dbg(2, "link_symbols_to_instances(): inst=%d\n", i);
     dbg(2, "link_symbols_to_instances(): matching inst %d name=%s \n",i, xctx->inst[i].name);
     dbg(2, "link_symbols_to_instances(): -------\n");
@@ -967,7 +966,6 @@ void link_symbols_to_instances(int from) /* from > 0 : linking symbols from past
   }
   for(i = from; i < xctx->instances; i++) {
     if(from) select_element(i,SELECTED,1, 0); /* leave elements selected if a paste/copy from windows is done */
-    symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
     type=xctx->sym[xctx->inst[i].ptr].type;
     cond= !type || !IS_LABEL_SH_OR_PIN(type);
     if(cond) xctx->inst[i].flags|=2; /* ordinary symbol */
@@ -975,6 +973,11 @@ void link_symbols_to_instances(int from) /* from > 0 : linking symbols from past
       xctx->inst[i].flags &=~2; /* label or pin */
       my_strdup(1216, &xctx->inst[i].lab, get_tok_value(xctx->inst[i].prop_ptr,"lab",0));
     }
+  }
+  /* symbol_bbox() might call translate() that might call prepare_netlist_structs() that 
+   * needs .lab field set above, so this must be done last */
+  for(i = from; i < xctx->instances; i++) {
+    symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
   }
 }
 
