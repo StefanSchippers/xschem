@@ -35,7 +35,7 @@ typedef struct {
 
 static Svg_color *svg_colors;
 static char svg_font_weight[80] = "normal"; /* normal, bold, bolder, lighter */
-static char svg_font_family[80] = "SansSerif"; /* serif, monospace, Helvetica, Arial */
+static char svg_font_family[80] = "Sans-Serif"; /* Serif, Monospace, Helvetica, Arial */
 static char svg_font_style[80] = "normal"; /* normal, italic, oblique */
 static double svg_linew;      /* current width of lines / rectangles */
 
@@ -226,7 +226,7 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   fprintf(fd,"<text fill=\"%s\"  xml:space=\"preserve\" font-size=\"%g\" ", col, size*xctx->mooz);
   if(strcmp(svg_font_weight, "normal")) fprintf(fd, "font-weight=\"%s\" ", svg_font_weight);
   if(strcmp(svg_font_style, "normal")) fprintf(fd, "font-style=\"%s\" ", svg_font_style);
-  if(strcmp(svg_font_family, "SansSerif")) fprintf(fd, "style=\"font-family:%s;\" ", svg_font_family);
+  if(strcmp(svg_font_family, svg_font_name)) fprintf(fd, "style=\"font-family:%s;\" ", svg_font_family);
   if(rot1) fprintf(fd, "transform=\"translate(%g, %g) rotate(%d)\" ", ix, iy, rot1*90);
   else fprintf(fd, "transform=\"translate(%g, %g)\" ", ix, iy);
   fprintf(fd, ">");
@@ -622,17 +622,11 @@ void svg_draw(void)
     fprintf(fd, "}\n");
   }
  
-  fprintf(fd, "text {font-family: SansSerif;}\n");
+  fprintf(fd, "text {font-family: %s;}\n", svg_font_name);
   fprintf(fd, "</style>\n");
  
     /* background */
-    fprintf(fd,
-      "<rect x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" fill=\"rgb(%d,%d,%d)\" "
-      "stroke=\"rgb(%d,%d,%d)\" stroke-width=\"%g\" />\n",
-                    0.0, 0.0, dx, dy, 
-                    svg_colors[0].red, svg_colors[0].green, svg_colors[0].blue,
-                    svg_colors[0].red, svg_colors[0].green, svg_colors[0].blue,
-                    svg_linew);
+    fprintf(fd, "<rect class=\"l0\" x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\"\/>\n", 0.0, 0.0, dx, dy);
     svg_drawgrid();
     for(i=0;i<xctx->texts;i++)
     {

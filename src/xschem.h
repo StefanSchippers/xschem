@@ -755,9 +755,9 @@ extern size_t get_tok_size;
 extern int batch_mode; /* no TCL console */
 extern int hide_symbols; /* draw only a bounding box for component instances and @symname, @name texts */
 extern int show_pin_net_names;
-extern char svg_font_name[1024];
+extern char svg_font_name[80];
 /* CAIRO specific global variables */
-extern char cairo_font_name[1024];
+extern char cairo_font_name[80];
 extern int cairo_longest_line;
 extern int cairo_lines;
 extern double cairo_font_scale; /*  default: 1.0, allows to adjust font size */
