@@ -469,7 +469,7 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
     svg_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
   }
 
-  if( (layer != PINLAYER || enable_layer[layer]) ) for(j=0;j< symptr->rects[layer];j++)
+  if( enable_layer[layer] ) for(j=0;j< symptr->rects[layer];j++)
   {
     box = (symptr->rect[layer])[j];
     ROTATION(rot, flip, 0.0,0.0,box.x1,box.y1,x1,y1);
@@ -488,26 +488,27 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
       txtptr= translate(n, text.txt_ptr);
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
       textlayer = layer;
-      if( !(layer == PINLAYER && (xctx->inst[n].color))) {
+      /* do not allow custom text color on PINLAYER hilighted instances */
+      if( !(xctx->inst[n].color == PINLAYER)) {
         textlayer = symptr->text[j].layer;
         if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
       }
-      my_snprintf(svg_font_family, S(svg_font_family), svg_font_name);
-      my_snprintf(svg_font_style, S(svg_font_style), "normal");
-      my_snprintf(svg_font_weight, S(svg_font_weight), "normal");
+      /* display PINLAYER colored instance texts even if PINLAYER disabled */
+      if(xctx->inst[n].color == PINLAYER ||  enable_layer[textlayer]) {
+        my_snprintf(svg_font_family, S(svg_font_family), svg_font_name);
+        my_snprintf(svg_font_style, S(svg_font_style), "normal");
+        my_snprintf(svg_font_weight, S(svg_font_weight), "normal");
   
-      textfont = symptr->text[j].font;
-      if( (textfont && textfont[0])) {
-        my_snprintf(svg_font_family, S(svg_font_family), textfont);
-      }
-      if( symptr->text[j].flags & TEXT_BOLD)
-        my_snprintf(svg_font_weight, S(svg_font_weight), "bold");
-      if( symptr->text[j].flags & TEXT_ITALIC)
-        my_snprintf(svg_font_style, S(svg_font_style), "italic");
-      if( symptr->text[j].flags & TEXT_OBLIQUE)
-        my_snprintf(svg_font_style, S(svg_font_style), "oblique");
-  
-      if((layer == PINLAYER && xctx->inst[n].color) ||  enable_layer[textlayer]) {
+        textfont = symptr->text[j].font;
+        if( (textfont && textfont[0])) {
+          my_snprintf(svg_font_family, S(svg_font_family), textfont);
+        }
+        if( symptr->text[j].flags & TEXT_BOLD)
+          my_snprintf(svg_font_weight, S(svg_font_weight), "bold");
+        if( symptr->text[j].flags & TEXT_ITALIC)
+          my_snprintf(svg_font_style, S(svg_font_style), "italic");
+        if( symptr->text[j].flags & TEXT_OBLIQUE)
+          my_snprintf(svg_font_style, S(svg_font_style), "oblique");
         if(text_svg) 
           svg_draw_string(textlayer, txtptr,
             (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
@@ -521,7 +522,6 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
       }
     }
   }
-  Tcl_SetResult(interp,"",TCL_STATIC);
 }
 
 
@@ -592,14 +592,24 @@ void svg_draw(void)
   push_undo();
   trim_wires();    /* 20161121 add connection boxes on wires but undo at end */
  
-  if(plotfile[0]) fd=fopen(plotfile, "w");
-  else fd=fopen("plot.svg", "w");
+  if(plotfile[0]) {
+    fd=fopen(plotfile, "w");
+    if(!fd) { 
+      dbg(0, "can not open file: %s\n", plotfile);
+      return;
+    }
+  } else {
+    fd=fopen("plot.svg", "w");
+    if(!fd) { 
+      dbg(0, "can not open file: %s\n", "plot.svg");
+      return;
+    }
+  }
   my_strncpy(plotfile,"", S(plotfile));
 
+  /* Determine used layers */
   used_layer = my_calloc(873, cadlayers, sizeof(int));
-
-#if 0
-/* ================================================================================ */
+  used_layer[0] = 1; /* background */
   for(i=0;i<xctx->texts;i++)
   {
     textlayer = xctx->text[i].layer;
@@ -609,8 +619,9 @@ void svg_draw(void)
   for(c=0;c<cadlayers;c++)
   {
     if(xctx->lines[c] || xctx->rects[c] || xctx->arcs[c] || xctx->polygons[c]) used_layer[c] = 1;
+    if(xctx->wires) used_layer[WIRELAYER] = 1;
     for(i=0;i<xctx->instances;i++) {
-      symptr = (xctx->inst[i].ptr+ xctx->sym);
+      symptr = (xctx->inst[i].ptr + xctx->sym);
       if( (c == PINLAYER || enable_layer[c]) && symptr->lines[c] )  used_layer[c] = 1;
       if( (c == PINLAYER || enable_layer[c]) && symptr->polygons[c] )  used_layer[c] = 1;
       if( (c == PINLAYER || enable_layer[c]) && symptr->arcs[c] )  used_layer[c] = 1;
@@ -618,29 +629,30 @@ void svg_draw(void)
       if( (c==TEXTWIRELAYER  && !(xctx->inst[i].flags&2) ) ||
           (sym_txt && (c==TEXTLAYER)   && (xctx->inst[i].flags&2) ) )
       {
+        int j;
         for(j=0;j< symptr->texts;j++)
         {
-          text = symptr->text[j];
-          /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
           textlayer = c;
-          if( !(c == PINLAYER && (xctx->inst[i].color))) {
-            textlayer = symptr->text[j].c;
+          if( !(xctx->inst[i].color == PINLAYER)) {
+            textlayer = symptr->text[j].layer;
             if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
           }
-          used_layer[textlayer] = 1;
+          /* display PINLAYER colored instance texts even if PINLAYER disabled */
+          if(xctx->inst[i].color == PINLAYER ||  enable_layer[textlayer]) {
+            used_layer[textlayer] = 1;
+          }
         }
       }
     }
+    dbg(1, "used_layer[%d] = %d\n", c, used_layer[c]);
   }
-/* ================================================================================ */
-#endif
-  my_free(1217, &used_layer);
+  /* End determine used layer */
 
- 
   fprintf(fd, "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%g\" height=\"%g\" version=\"1.1\">\n", dx, dy);
  
   fprintf(fd, "<style type=\"text/css\">\n");  /* use css stylesheet 20121119 */
   for(i=0;i<cadlayers;i++){
+    if(!used_layer[i]) continue;
     fprintf(fd, ".l%d{\n", i);
     if(fill_type[i] == 1) 
        fprintf(fd, "  fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
@@ -748,8 +760,9 @@ void svg_draw(void)
 
   draw_grid=old_grid;
   my_free(964, &svg_colors);
- 
+  my_free(1217, &used_layer);
   pop_undo(0);
   xctx->modified=modified_save;
+  Tcl_SetResult(interp,"",TCL_STATIC);
 }
 

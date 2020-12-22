@@ -799,6 +799,7 @@ void propagate_hilights(int set)
   char *type;
 
   for(i = 0; i < xctx->instances; i++) {
+    if(xctx->inst[i].color) hilights = 1; /* some hilight instances -> don't clear xctx->hilight_nets */
     type = (xctx->inst[i].ptr+ xctx->sym)->type;
     hilight_connected_inst = (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4);
     if(hilight_connected_inst && type && !IS_LABEL_SH_OR_PIN(type)) {

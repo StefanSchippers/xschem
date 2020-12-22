@@ -1670,7 +1670,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, "xschem print needs at least 1 more arguments: plot_type", TCL_STATIC);
         return TCL_ERROR;
       }
-      if(argc >= 4) my_strncpy(plotfile, argv[3], S(plotfile));
+      if(argc >= 4) {
+        Tcl_VarEval(interp, "file normalize ", argv[3], NULL);
+        my_strncpy(plotfile, Tcl_GetStringResult(interp), S(plotfile));
+      }
 
       if(!strcmp(argv[2],"pdf") || !strcmp(argv[2],"ps")) {
         ps_draw();

@@ -492,7 +492,7 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
      ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
      ps_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
    }
-   if( (layer != PINLAYER || enable_layer[layer]) ) for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer];j++)
+   if( enable_layer[layer] ) for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer];j++)
    {
     box = ((xctx->inst[n].ptr+ xctx->sym)->rect[layer])[j];
     ROTATION(rot, flip, 0.0,0.0,box.x1,box.y1,x1,y1);
@@ -511,26 +511,26 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
      txtptr= translate(n, text.txt_ptr);
      ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
      textlayer = layer;
-     if( !(layer == PINLAYER && (xctx->inst[n].color))) {
+     /* do not allow custom text color on PINLAYER hilighted instances */
+     if( !(xctx->inst[n].color == PINLAYER)) {
        textlayer = (xctx->inst[n].ptr+ xctx->sym)->text[j].layer;
        if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
      }
-
-     my_snprintf(ps_font_family, S(ps_font_name), "Helvetica");
-     my_snprintf(ps_font_name, S(ps_font_name), "Helvetica");
-     textfont = symptr->text[j].font;
-     if( (textfont && textfont[0])) {
-       my_snprintf(ps_font_family, S(ps_font_family), textfont);
-       my_snprintf(ps_font_name, S(ps_font_name), textfont);
-     }
-     if( symptr->text[j].flags & TEXT_BOLD)
-       my_snprintf(ps_font_family, S(ps_font_family), "%s-Bold", ps_font_name);
-     if( symptr->text[j].flags & TEXT_ITALIC)
-       my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
-     if( symptr->text[j].flags & TEXT_OBLIQUE)
-       my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
-
-     if((layer == PINLAYER && xctx->inst[n].color) ||  enable_layer[textlayer]) {
+      /* display PINLAYER colored instance texts even if PINLAYER disabled */
+     if(xctx->inst[n].color == PINLAYER || enable_layer[textlayer]) {
+       my_snprintf(ps_font_family, S(ps_font_name), "Helvetica");
+       my_snprintf(ps_font_name, S(ps_font_name), "Helvetica");
+       textfont = symptr->text[j].font;
+       if( (textfont && textfont[0])) {
+         my_snprintf(ps_font_family, S(ps_font_family), textfont);
+         my_snprintf(ps_font_name, S(ps_font_name), textfont);
+       }
+       if( symptr->text[j].flags & TEXT_BOLD)
+         my_snprintf(ps_font_family, S(ps_font_family), "%s-Bold", ps_font_name);
+       if( symptr->text[j].flags & TEXT_ITALIC)
+         my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
+       if( symptr->text[j].flags & TEXT_OBLIQUE)
+         my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
        if(text_ps) {
          ps_draw_string(textlayer, txtptr,
            (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
@@ -545,7 +545,6 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
      }
     }
    }
-   Tcl_SetResult(interp,"",TCL_STATIC);
 
 }
 
@@ -778,5 +777,6 @@ void ps_draw(void)
  tcleval( tmp);
  pop_undo(0);
  xctx->modified=modified_save;
+ Tcl_SetResult(interp,"",TCL_STATIC);
 }
 
