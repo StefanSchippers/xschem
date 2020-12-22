@@ -434,18 +434,18 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
   x0=xctx->inst[n].x0 + xoffset;
   y0=xctx->inst[n].y0 + yoffset;
   symptr = (xctx->inst[n].ptr+ xctx->sym);
-   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->lines[layer];j++)
+   for(j=0;j< symptr->lines[layer];j++)
    {
-    line = ((xctx->inst[n].ptr+ xctx->sym)->line[layer])[j];
+    line = (symptr->line[layer])[j];
     ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
     ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
     ORDER(x1,y1,x2,y2);
     svg_drawline(layer, line.bus, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
    }
 
-   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->polygons[layer];j++)
+   for(j=0;j< symptr->polygons[layer];j++)
    {
-     polygon = ((xctx->inst[n].ptr+ xctx->sym)->poly[layer])[j];
+     polygon = (symptr->poly[layer])[j];
      {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
        int k;
        double *x = my_malloc(417, sizeof(double) * polygon.points);
@@ -460,10 +460,10 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
        my_free(962, &y);
      }
    }
-   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->arcs[layer];j++)
+   for(j=0;j< symptr->arcs[layer];j++)
    {
      double angle;
-     arc = ((xctx->inst[n].ptr+ xctx->sym)->arc[layer])[j];
+     arc = (symptr->arc[layer])[j];
      if(flip) {
        angle = 270.*rot+180.-arc.b-arc.a;
      } else {
@@ -475,9 +475,9 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
      svg_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
    }
 
-   if( (layer != PINLAYER || enable_layer[layer]) ) for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer];j++)
+   if( (layer != PINLAYER || enable_layer[layer]) ) for(j=0;j< symptr->rects[layer];j++)
    {
-    box = ((xctx->inst[n].ptr+ xctx->sym)->rect[layer])[j];
+    box = (symptr->rect[layer])[j];
     ROTATION(rot, flip, 0.0,0.0,box.x1,box.y1,x1,y1);
     ROTATION(rot, flip, 0.0,0.0,box.x2,box.y2,x2,y2);
     RECTORDER(x1,y1,x2,y2);
@@ -487,15 +487,15 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
         (sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) )
    {
     const char *txtptr;
-    for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->texts;j++)
+    for(j=0;j< symptr->texts;j++)
     {
-     text = (xctx->inst[n].ptr+ xctx->sym)->text[j];
+     text = symptr->text[j];
      /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
      txtptr= translate(n, text.txt_ptr);
      ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
      textlayer = layer;
      if( !(layer == PINLAYER && (xctx->inst[n].color))) {
-       textlayer = (xctx->inst[n].ptr+ xctx->sym)->text[j].layer;
+       textlayer = symptr->text[j].layer;
        if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
      }
      my_snprintf(svg_font_family, S(svg_font_family), svg_font_name);
@@ -506,8 +506,6 @@ static void svg_draw_symbol(int n,int layer,short tmp_flip, short rot,
      if( (textfont && textfont[0])) {
        my_snprintf(svg_font_family, S(svg_font_family), textfont);
      }
-
-
      if( symptr->text[j].flags & TEXT_BOLD)
        my_snprintf(svg_font_weight, S(svg_font_weight), "bold");
      if( symptr->text[j].flags & TEXT_ITALIC)
@@ -574,6 +572,7 @@ void svg_draw(void)
   int modified_save;
   char *tmpstring=NULL;
   const char *r, *textfont;
+  int *used_layer;
 
   if(!plotfile[0]) {
     my_strdup(61, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir [pwd]");
@@ -602,6 +601,29 @@ void svg_draw(void)
   if(plotfile[0]) fd=fopen(plotfile, "w");
   else fd=fopen("plot.svg", "w");
   my_strncpy(plotfile,"", S(plotfile));
+
+/* ================================================================================ */
+  used_layer = my_calloc(0, cadlayers, sizeof(int));
+
+    for(i=0;i<xctx->texts;i++)
+    {
+      textlayer = xctx->text[i].layer;
+      if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
+      used_layer[textlayer] = 1;
+    }
+    for(c=0;c<cadlayers;c++)
+    {
+      if(xctx->lines[c] || xctx->rects[c] || xctx->arcs[c] || xctx->polygons[c]) used_layer[c] = 1;
+      for(i=0;i<xctx->instances;i++) {
+       /* ..... */
+      }
+
+    }
+    if(xctx->wires) used_layer[WIRELAYER] = 1;
+
+ my_free(0, &used_layer);
+/* ================================================================================ */
+
  
   fprintf(fd, "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%g\" height=\"%g\" version=\"1.1\">\n", dx, dy);
  
@@ -626,7 +648,7 @@ void svg_draw(void)
   fprintf(fd, "</style>\n");
  
     /* background */
-    fprintf(fd, "<rect class=\"l0\" x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\"\/>\n", 0.0, 0.0, dx, dy);
+    fprintf(fd, "<rect class=\"l0\" x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\"/>\n", 0.0, 0.0, dx, dy);
     svg_drawgrid();
     for(i=0;i<xctx->texts;i++)
     {
