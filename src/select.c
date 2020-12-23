@@ -30,7 +30,7 @@ static double xx1,yy1,xx2,yy2;
 
 void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
 {
-   int j, no_of_lines, tmp;
+   int j, tmp;
    xText text;
    const char *tmp_txt;
    short rot,flip;
