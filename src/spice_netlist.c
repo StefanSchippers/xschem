@@ -346,12 +346,11 @@ void spice_block_netlist(FILE *fd, int i)
 
   if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
     my_strncpy(filename, abs_sym_path(str_tmp, ""), S(filename));
-    load_schematic(1,filename, 0);
+    spice_stop? load_schematic(0,filename, 0) : 
+                load_schematic(1,filename, 0);
   } else {
-    dbg(1, "spice_block_netlist(): loading: %s -> %s\n", 
-      xctx->sym[i].name, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"));
-    dbg(1, "spice_block_netlist(): current_dirname=%s\n", xctx->current_dirname);
-    load_schematic(1, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch") ,0);
+    spice_stop? load_schematic(0, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch") ,0) : 
+                load_schematic(1, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch") ,0);
   }
   spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
   netlist_count++;
@@ -377,10 +376,10 @@ void spice_netlist(FILE *fd, int spice_stop )
   int i;
   char *type=NULL;
  
-  xctx->prep_net_structs = 0;
-  prepare_netlist_structs(1);
-  traverse_node_hash();  /* print all warnings about unconnected floatings etc */
   if(!spice_stop) {
+    xctx->prep_net_structs = 0;
+    prepare_netlist_structs(1);
+    traverse_node_hash();  /* print all warnings about unconnected floatings etc */
     for(i=0;i<xctx->instances;i++) /* print first ipin/opin defs ... */
     {
      if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
@@ -427,7 +426,7 @@ void spice_netlist(FILE *fd, int spice_stop )
      }
     }
   }
-  if(!netlist_count) redraw_hilights(); /* draw_hilight_net(1); */
+  if(!spice_stop && !netlist_count) redraw_hilights(); /* draw_hilight_net(1); */
   my_free(952, &type);
 }
 

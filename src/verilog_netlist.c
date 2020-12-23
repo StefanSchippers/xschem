@@ -383,7 +383,8 @@ void verilog_block_netlist(FILE *fd, int i)
 
   if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
     my_strncpy(filename, abs_sym_path(str_tmp, ""), S(filename));
-    load_schematic(1,filename, 0);
+    verilog_stop? load_schematic(0,filename, 0) :
+                  load_schematic(1,filename, 0);
   } else {
     verilog_stop? load_schematic(0, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), 0) :
                   load_schematic(1, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), 0);
@@ -506,17 +507,17 @@ void verilog_netlist(FILE *fd , int verilog_stop)
  int i;
  char *type=NULL;
 
- xctx->prep_net_structs = 0;
- prepare_netlist_structs(1);
- /* set_modify(1); */ /* 20160302 prepare_netlist_structs could change schematic (wire node naming for example) */
- dbg(2, "verilog_netlist(): end prepare_netlist_structs\n");
- traverse_node_hash();  /* print all warnings about unconnected floatings etc */
+ if(!verilog_stop) {
+   xctx->prep_net_structs = 0;
+   prepare_netlist_structs(1);
+   dbg(2, "verilog_netlist(): end prepare_netlist_structs\n");
+   traverse_node_hash();  /* print all warnings about unconnected floatings etc */
+   dbg(2, "verilog_netlist(): end traverse_node_hash\n");
+ }
 
- dbg(2, "verilog_netlist(): end traverse_node_hash\n");
-
- fprintf(fd,"---- begin signal list\n");
+ fprintf(fd,"---- begin signal list\n"); /* these are needed even if signal list empty */
  if(!verilog_stop) print_verilog_signals(fd);
- fprintf(fd,"---- end signal list\n");
+ fprintf(fd,"---- end signal list\n");   /* these are needed even if signal list empty */
 
 
  if(!verilog_stop)
@@ -548,5 +549,5 @@ void verilog_netlist(FILE *fd , int verilog_stop)
    my_free(1084, &type);
  }
  dbg(1, "verilog_netlist():       end\n");
- if(!netlist_count) redraw_hilights(); /*draw_hilight_net(1); */
+ if(!verilog_stop && !netlist_count) redraw_hilights(); /*draw_hilight_net(1); */
 }

@@ -432,7 +432,9 @@ void  vhdl_block_netlist(FILE *fd, int i)
     my_strncpy(filename, abs_sym_path(str_tmp, ""), S(filename));
     load_schematic(1,filename, 0);
   } else {
-    load_schematic(1, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), 0);
+      /* this can not be done im VHDL as vhdl needs "arch_declaration" and "attributes" type instances */
+      /* vhdl_stop ? load_schematic(0, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), 0) :  */
+      load_schematic(1, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), 0);
   }
 
   dbg(1, "vhdl_block_netlist():       packages\n");
@@ -589,7 +591,6 @@ void  vhdl_block_netlist(FILE *fd, int i)
     }
   }
 
-
   if(xctx->schvhdlprop && xctx->schvhdlprop[0]) fprintf(fd, "%s\n", xctx->schvhdlprop);
   fprintf(fd, "end arch_%s ;\n\n", skip_dir(xctx->sym[i].name) ); /* skip_dir( xctx->sch[xctx->currsch]) ); */
   if(split_files) {
@@ -611,11 +612,12 @@ void vhdl_netlist(FILE *fd , int vhdl_stop)
  int i,l;
  char *type=NULL;
 
- xctx->prep_net_structs = 0;
- prepare_netlist_structs(1);
  /* set_modify(1); */ /* 20160302 prepare_netlist_structs could change schematic (wire node naming for example) */
- traverse_node_hash();  /* print all warnings about unconnected floatings etc */
-
+ if(!vhdl_stop) {
+   xctx->prep_net_structs = 0;
+   prepare_netlist_structs(1);
+   traverse_node_hash();  /* print all warnings about unconnected floatings etc */
+ }
 
  dbg(1, "vhdl_netlist():       architecture declarations\n");
  fprintf(fd, "//// begin user declarations\n");
@@ -689,6 +691,6 @@ void vhdl_netlist(FILE *fd , int vhdl_stop)
    }
  }
  dbg(1, "vhdl_netlist():       end\n");
- if(!netlist_count) redraw_hilights(); /* draw_hilight_net(1); */
+ if(!vhdl_stop && !netlist_count) redraw_hilights(); /* draw_hilight_net(1); */
  my_free(1097, &type);
 }

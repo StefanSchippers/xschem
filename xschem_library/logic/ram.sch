@@ -1,4 +1,4 @@
-v {xschem version=2.9.6 file_version=1.1}
+v {xschem version=2.9.9 file_version=1.2 }
 G {
 
     process(data, CEN, OEN) begin
@@ -22,6 +22,7 @@ G {
        end if;
     end process;
 }
+K {}
 V {
 integer i;
 reg [width-1:0] mem[0:(1<<dim)-1] ;
