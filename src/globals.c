@@ -197,7 +197,7 @@ int *enable_layer;
 int n_active_layers=0;
 int *active_layer;
 int depth;
-int *fill_type; /*20171117 for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
+int *fill_type; /* for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
 char **color_array;
 char *xschem_executable=NULL;
 double *character[256]; /* array or per-char coordinates of xschem internal vector font */
@@ -213,7 +213,7 @@ int vertical_move=0;
 int pending_fullzoom=0;
 double color_dim=0.0;
 int no_undo=0;
-int enable_drill=0; /* 20171211 pass net hilights through components with 'propagate_to' property set on pins */
+int enable_drill=0; /* pass net hilights through components with 'propagate_to' property set on pins */
 size_t get_tok_value_size;
 size_t get_tok_size;
 int batch_mode = 0; /* no tcl console if set; batch mode */
