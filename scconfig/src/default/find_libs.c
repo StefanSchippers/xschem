@@ -59,6 +59,9 @@ int find_lib_ldl(const char *name, int logdepth, int fatal)
 	char *test_c =
 		NL "#include <stdio.h>"
 		NL "#include <dlfcn.h>"
+		NL "#ifndef RTLD_NOW"
+		NL "#define RTLD_NOW RTLD_LAZY" /* on old BSD and probably on SunOS */
+		NL "#endif"
 		NL "int main() {"
 		NL "	void *handle;"
 		NL "	handle = dlopen(\"/this file does not exist.\", RTLD_NOW);"

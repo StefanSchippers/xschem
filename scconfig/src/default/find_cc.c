@@ -747,6 +747,9 @@ static const char *test_host =
 		NL "#include <stdlib.h>"
 		NL "#include <stdio.h>"
 		NL "#include %s"
+		NL "#ifndef RTLD_NOW"
+		NL "#define RTLD_NOW RTLD_LAZY" /* on old BSD and probably on SunOS */
+		NL "#endif"
 		NL "int main() {"
 		NL "	void *handle = NULL;"
 		NL "	void (*func)() = NULL;"
