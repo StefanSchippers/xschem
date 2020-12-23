@@ -229,10 +229,10 @@ static void ps_draw_string_line(int layer, char *s, double x, double y, double s
   else if(rot==2 && flip==1) {iy=iy-fontheight-lines+line_delta+fontascent;}
   else if(rot==3 && flip==1) {ix+=line_delta+fontascent;}
 
+  fprintf(fd, "GS\n");
   fprintf(fd, "/%s FF\n", ps_font_family);
   fprintf(fd, "%g SCF\n", size * xctx->mooz);
   fprintf(fd, "SF\n");
-  fprintf(fd, "GS\n");
   fprintf(fd, "NP\n");
   fprintf(fd, "%g %g MT\n", ix, iy);
   if(rot1) fprintf(fd, "%d rotate\n", rot1*90);
