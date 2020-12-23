@@ -217,8 +217,6 @@ int enable_drill=0; /* 20171211 pass net hilights through components with 'propa
 size_t get_tok_value_size;
 size_t get_tok_size;
 int batch_mode = 0; /* no tcl console if set; batch mode */
-int cairo_longest_line;
-int cairo_lines;
 int show_erc=1;
 
 /* following data is relative to the current schematic */

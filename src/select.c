@@ -30,7 +30,7 @@ static double xx1,yy1,xx2,yy2;
 
 void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
 {
-   int j;
+   int j, no_of_lines, tmp;
    xText text;
    const char *tmp_txt;
    short rot,flip;
@@ -74,7 +74,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      text_bbox(tmp_txt, text.xscale, text.yscale,
        (text.rot + ( (sym_flip && (text.rot & 1) ) ? sym_rot+2 : sym_rot)) &0x3,
        sym_flip ^ text.flip, text.hcenter, text.vcenter,
-       x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2);
+       x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2, &tmp, &tmp);
      #if HAS_CAIRO==1
      if(customfont) cairo_restore(xctx->cairo_ctx);
      #endif
@@ -199,7 +199,7 @@ static void del_rect_line_arc_poly(void)
 
 void delete(void)
 {
-  int i, j, n;
+  int i, j, n, tmp;
   #if HAS_CAIRO==1
   int customfont;
   #endif
@@ -268,9 +268,9 @@ void delete(void)
       customfont = set_text_custom_font(&xctx->text[i]);
       #endif
       text_bbox(xctx->text[i].txt_ptr, xctx->text[i].xscale,
-                xctx->text[i].yscale, select_rot, select_flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-                xctx->text[i].x0, xctx->text[i].y0,
-                &xx1,&yy1, &xx2,&yy2);
+                xctx->text[i].yscale, select_rot, select_flip, xctx->text[i].hcenter,
+                xctx->text[i].vcenter, xctx->text[i].x0, xctx->text[i].y0,
+                &xx1,&yy1, &xx2,&yy2, &tmp, &tmp);
       #if HAS_CAIRO==1
       if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif
@@ -886,9 +886,9 @@ unsigned short select_object(double mx,double my, unsigned short select_mode, in
    return sel.type;
 }
 
-void select_inside(double x1,double y1, double x2, double y2, int sel) /* 20150927 added unselect (sel param) */
+void select_inside(double x1,double y1, double x2, double y2, int sel) /*added unselect (sel param) */
 {
- int c,i;
+ int c,i, tmpint;
  double x, y, r, a, b, xa, ya, xb, yb; /* arc */
  xRect tmp;
  #if HAS_CAIRO==1
@@ -924,7 +924,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /* 201509
              xctx->text[i].xscale, xctx->text[i].yscale, select_rot, select_flip, 
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
-             &xx1,&yy1, &xx2,&yy2);
+             &xx1,&yy1, &xx2,&yy2, &tmpint, &tmpint);
   #if HAS_CAIRO==1
   if(customfont) cairo_restore(xctx->cairo_ctx);
   #endif

@@ -1283,7 +1283,8 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
    updatebbox(count,boundbox,&tmp);
  }
  if(has_x) for(i=0;i<xctx->texts;i++)
- {
+ { 
+   int no_of_lines, longest_line;
    if(selected == 1 && !xctx->text[i].sel) continue;
    if(selected == 2) continue;
    #if HAS_CAIRO==1
@@ -1293,7 +1294,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
          xctx->text[i].yscale,xctx->text[i].rot, xctx->text[i].flip,
          xctx->text[i].hcenter, xctx->text[i].vcenter,
          xctx->text[i].x0, xctx->text[i].y0,
-         &tmp.x1,&tmp.y1, &tmp.x2,&tmp.y2) ) {
+         &tmp.x1,&tmp.y1, &tmp.x2,&tmp.y2, &no_of_lines, &longest_line) ) {
      count++;
      updatebbox(count,boundbox,&tmp);
    }
@@ -2101,7 +2102,7 @@ void new_polygon(int what)
 #if HAS_CAIRO==1
 int text_bbox(const char *str, double xscale, double yscale,
     short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
-    double *rx2, double *ry2)
+    double *rx2, double *ry2, int *cairo_lines, int *cairo_longest_line)
 {
   int c=0;
   char *str_ptr, *s = NULL;
@@ -2112,7 +2113,7 @@ int text_bbox(const char *str, double xscale, double yscale,
 
   /*                will not match exactly font metrics when doing ps/svg output , but better than nothing */
   if(!has_x) return text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter, x1, y1,
-                                      rx1, ry1, rx2, ry2);
+                                      rx1, ry1, rx2, ry2, cairo_lines, cairo_longest_line);
   size = xscale*52.*cairo_font_scale;
 
   /*  if(size*xctx->mooz>800.) { */
@@ -2123,14 +2124,14 @@ int text_bbox(const char *str, double xscale, double yscale,
 
   ww=0.; hh=1.;
   c=0;
-  cairo_lines=1;
+  *cairo_lines=1;
   my_strdup2(1158, &s, str);
   str_ptr = s;
   while( s && s[c] ) {
     if(s[c] == '\n') {
       s[c]='\0';
       hh++;
-      cairo_lines++;
+      (*cairo_lines)++;
       if(str_ptr[0]!='\0') {
         cairo_text_extents(xctx->cairo_ctx, str_ptr, &ext);
         maxw = ext.x_advance > ext.width ? ext.x_advance : ext.width;
@@ -2149,7 +2150,7 @@ int text_bbox(const char *str, double xscale, double yscale,
   }
   my_free(1159, &s);
   hh = hh*fext.height*cairo_font_line_spacing;
-  cairo_longest_line = ww;
+  *cairo_longest_line = ww;
 
   *rx1=x1;*ry1=y1;
   if(hcenter) {
@@ -2186,26 +2187,27 @@ int text_bbox(const char *str, double xscale, double yscale,
 }
 int text_bbox_nocairo(const char * str,double xscale, double yscale,
     short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
-    double *rx2, double *ry2)
+    double *rx2, double *ry2, int *cairo_lines, int *cairo_longest_line)
 #else
 int text_bbox(const char * str,double xscale, double yscale,
     short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
-    double *rx2, double *ry2)
+    double *rx2, double *ry2, int *cairo_lines, int *cairo_longest_line)
 #endif
 {
  register int c=0, length =0;
  double w, h;
 
   w=0;h=1;
-  cairo_lines = 1;
+  *cairo_lines = 1;
   if(str!=NULL) while( str[c] )
   {
-   if((str)[c++]=='\n') {cairo_lines++; h++; length=0;}
+   if((str)[c++]=='\n') {(*cairo_lines)++; h++; length=0;}
    else length++;
    if(length > w)
      w = length;
   }
   w *= (FONTWIDTH+FONTWHITESPACE)*xscale*nocairo_font_xscale;
+  *cairo_longest_line = w;
   h *= (FONTHEIGHT+FONTDESCENT+FONTWHITESPACE)*yscale*nocairo_font_yscale;
   *rx1=x1;*ry1=y1;
   if(     rot==0) *ry1-=nocairo_vert_correct;

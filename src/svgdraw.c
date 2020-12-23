@@ -185,13 +185,13 @@ static void svg_drawline(int gc, int bus, double linex1,double liney1,double lin
   }
 }
 
-static void svg_draw_string_line(int layer, char *s, double x, double y, double size, short rot, short flip,
-    int lineno, double fontheight, double fontascent, double fontdescent, int llength)
+static void svg_draw_string_line(int layer, char *s, double x, double y, double size,
+            short rot, short flip, int lineno, double fontheight, double fontascent,
+            double fontdescent, int llength, int no_of_lines, int longest_line)
 {
   double ix, iy;
   short rot1;
   int line_delta;
-  int line_offset;
   double lines;
   char col[20];
   if(color_ps) 
@@ -205,8 +205,7 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   if(llength==0) return;
   
   line_delta = lineno*fontheight;
-  lines = (cairo_lines-1)*fontheight;
-  line_offset=cairo_longest_line;
+  lines = (no_of_lines-1)*fontheight;
   
   ix=X_TO_SVG(x);
   iy=Y_TO_SVG(y);
@@ -215,13 +214,13 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   } else rot1=0;
   
   if(     rot==0 && flip==0) {iy+=line_delta+fontascent;}
-  else if(rot==1 && flip==0) {iy+=line_offset;ix=ix-fontheight+fontascent-lines+line_delta;}
-  else if(rot==2 && flip==0) {iy=iy-fontheight-lines+line_delta+fontascent; ix=ix-line_offset;}
+  else if(rot==1 && flip==0) {iy+=longest_line;ix=ix-fontheight+fontascent-lines+line_delta;}
+  else if(rot==2 && flip==0) {iy=iy-fontheight-lines+line_delta+fontascent; ix=ix-longest_line;}
   else if(rot==3 && flip==0) {ix+=line_delta+fontascent;}
-  else if(rot==0 && flip==1) {ix=ix-line_offset;iy+=line_delta+fontascent;}
+  else if(rot==0 && flip==1) {ix=ix-longest_line;iy+=line_delta+fontascent;}
   else if(rot==1 && flip==1) {ix=ix-fontheight+line_delta-lines+fontascent;}
   else if(rot==2 && flip==1) {iy=iy-fontheight-lines+line_delta+fontascent;}
-  else if(rot==3 && flip==1) {iy=iy+line_offset;ix+=line_delta+fontascent;}
+  else if(rot==3 && flip==1) {iy=iy+longest_line;ix+=line_delta+fontascent;}
   
   fprintf(fd,"<text fill=\"%s\"  xml:space=\"preserve\" font-size=\"%g\" ", col, size*xctx->mooz);
   if(strcmp(svg_font_weight, "normal")) fprintf(fd, "font-weight=\"%s\" ", svg_font_weight);
@@ -257,13 +256,15 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
   char c;
   int lineno=0;
   double size, height, ascent, descent;
-  int llength=0;
+  int llength=0, no_of_lines, longest_line;
+
   if(str==NULL) return;
   size = xscale*52.;
   height =  size*xctx->mooz * 1.147;
   ascent =  size*xctx->mooz * 0.908;
   descent = size*xctx->mooz * 0.219;
-  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &textx1,&texty1,&textx2,&texty2);
+  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y,
+            &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,textx1,texty1,textx2,texty2)) {
     return;
   }
@@ -294,7 +295,8 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
     c=*ss;
     if(c=='\n' || c==0) {
       *ss='\0';
-      svg_draw_string_line(layer, tt, x, y, size, rot, flip, lineno, height, ascent, descent, llength);
+      svg_draw_string_line(layer, tt, x, y, size, rot, flip, lineno, height,
+               ascent, descent, llength, no_of_lines, longest_line);
       lineno++;
       if(c==0) break;
       *ss='\n';
@@ -317,13 +319,15 @@ static void old_svg_draw_string(int layer, const char *str,
 {
  double a,yy,curr_x1,curr_y1,curr_x2,curr_y2,rx1,rx2,ry1,ry2;
  int pos=0,cc,pos2=0;
- int i;
+ int i, no_of_lines, longest_line;
 
  if(str==NULL) return;
  #if HAS_CAIRO==1
- text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &rx1,&ry1,&rx2,&ry2);
+ text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter,
+                   x,y, &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
  #else
- text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &rx1,&ry1,&rx2,&ry2);
+ text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y,
+           &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
  #endif
  xscale*=nocairo_font_xscale;
  yscale*=nocairo_font_yscale;

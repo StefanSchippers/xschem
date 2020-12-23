@@ -200,8 +200,9 @@ static void ps_drawline(int gc, double linex1,double liney1,double linex2,double
 
 
 
-static void ps_draw_string_line(int layer, char *s, double x, double y, double size, short rot, short flip,
-    int lineno, double fontheight, double fontascent, double fontdescent, int llength)
+static void ps_draw_string_line(int layer, char *s, double x, double y, double size, 
+           short rot, short flip, int lineno, double fontheight, double fontascent, 
+           double fontdescent, int llength, int no_of_lines, int longest_line)
 {
   double ix, iy;
   short rot1;
@@ -212,7 +213,7 @@ static void ps_draw_string_line(int layer, char *s, double x, double y, double s
   if(llength==0) return;
 
   line_delta = lineno*fontheight;
-  lines = (cairo_lines-1)*fontheight;
+  lines = (no_of_lines-1)*fontheight;
 
   ix=X_TO_PS(x);
   iy=Y_TO_PS(y);
@@ -271,16 +272,18 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
   char c;
   int lineno=0;
   double size, height, ascent, descent;
-  int llength=0;
+  int llength=0, no_of_lines, longest_line;
+
   if(str==NULL || !has_x ) return;
   size = xscale*53.;
   height =  size*xctx->mooz * 1.147; /* was 1.147 */
   ascent =  size*xctx->mooz * 0.808; /* was 0.908 */
   descent = size*xctx->mooz * 0.219; /* was 0.219 */
 
-  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y, &textx1,&texty1,&textx2,&texty2);
-  /* fprintf(fd, "%% text bbox: %g %g\n", xctx->mooz * (textx2 - textx1), xctx->mooz * (texty2 - texty1)); */
-  if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,textx1,texty1,textx2,texty2)) {
+  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter,
+            x,y, &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
+  if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,
+               xctx->areay2,textx1,texty1,textx2,texty2)) {
     return;
   }
   if(hcenter) {
@@ -310,7 +313,8 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
     c=*ss;
     if(c=='\n' || c==0) {
       *ss='\0';
-      ps_draw_string_line(layer, tt, x, y, size, rot, flip, lineno, height, ascent, descent, llength);
+      ps_draw_string_line(layer, tt, x, y, size, rot, flip, lineno, 
+              height, ascent, descent, llength, no_of_lines, longest_line);
       lineno++;
       if(c==0) break;
       *ss='\n';
@@ -332,13 +336,15 @@ static void old_ps_draw_string(int gctext,  const char *str,
 {
  double a,yy,curr_x1,curr_y1,curr_x2,curr_y2,rx1,rx2,ry1,ry2;
  int pos=0,cc,pos2=0;
- int i;
+ int i, no_of_lines, longest_line;
 
  if(str==NULL) return;
  #if HAS_CAIRO==1
- text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1, &rx1,&ry1,&rx2,&ry2);
+ text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter,
+                   x1,y1, &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
  #else
- text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1, &rx1,&ry1,&rx2,&ry2);
+ text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter,
+           x1,y1, &rx1,&ry1,&rx2,&ry2, &no_of_lines);
  #endif
  xscale*=nocairo_font_xscale;
  yscale*=nocairo_font_yscale;

@@ -1497,10 +1497,11 @@ void calc_symbol_bbox(int pos)
 *
 *   for(i=0;i<lastt;i++)
 *   {
+     int tmp;
 *    count++;
 *    rot=tt[i].rot;flip=tt[i].flip;
 *    text_bbox(tt[i].txt_ptr, tt[i].xscale, tt[i].yscale, rot, flip,
-*    tt[i].x0, tt[i].y0, &rx1,&ry1,&rx2,&ry2);
+*    tt[i].x0, tt[i].y0, &rx1,&ry1,&rx2,&ry2, &tmp);
 *    tmp.x1=rx1;tmp.y1=ry1;tmp.x2=rx2;tmp.y2=ry2;
 *    updatebbox(count,&boundbox,&tmp);
 *  }

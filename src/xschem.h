@@ -758,8 +758,6 @@ extern int show_pin_net_names;
 extern char svg_font_name[80];
 /* CAIRO specific global variables */
 extern char cairo_font_name[80];
-extern int cairo_longest_line;
-extern int cairo_lines;
 extern double cairo_font_scale; /*  default: 1.0, allows to adjust font size */
 extern double nocairo_font_xscale;
 extern double nocairo_font_yscale;
@@ -845,8 +843,9 @@ extern void arc_bbox(double x, double y, double r, double a, double b,
 extern void bbox(int what,double x1,double y1, double x2, double y2);
 extern int set_text_custom_font(xText *txt);
 extern int text_bbox(const char * str,double xscale, double yscale,
-            short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
-            double *rx2, double *ry2);
+            short rot, short flip, int hcenter, int vcenter, 
+            double x1,double y1, double *rx1, double *ry1,
+            double *rx2, double *ry2, int *cairo_lines, int *longest_line);
 
 
 extern int get_color(int value);
@@ -860,8 +859,9 @@ extern void hash_instances(void); /*  20171203 insert instance bbox in spatial h
 
 #if HAS_CAIRO==1
 extern int text_bbox_nocairo(const char * str,double xscale, double yscale,
-            short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
-            double *rx2, double *ry2);
+            short rot, short flip, int hcenter, int vcenter,
+            double x1,double y1, double *rx1, double *ry1,
+            double *rx2, double *ry2, int *cairo_lines, int *longest_line);
 #endif
 
 extern unsigned short select_object(double mx,double my, unsigned short sel_mode,

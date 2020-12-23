@@ -493,7 +493,7 @@ void find_inst_to_be_redrawn(const char *node)
 
 void copy_objects(int what)
 {
- int c, i, n, k;
+ int c, i, n, k /*, tmp */ ;
  /* xRect tmp; */
  double angle;
  int newpropcnt;
@@ -785,9 +785,10 @@ void copy_objects(int what)
       customfont = set_text_custom_font(&xctx->text[n]);
       #endif
       text_bbox(xctx->text[n].txt_ptr, xctx->text[n].xscale,
-        xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter, xctx->text[n].vcenter,
+        xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, 
+        xctx->text[n].hcenter, xctx->text[n].vcenter,
         xctx->text[n].x0, xctx->text[n].y0,
-        &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2);
+        &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmp, &tmp);
       #if HAS_CAIRO==1
       if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif
@@ -980,7 +981,7 @@ void copy_objects(int what)
 /* merge param unused, RFU */
 void move_objects(int what, int merge, double dx, double dy)
 {
- int c, i, n, k;
+ int c, i, n, k, tmpint;
  xRect tmp;
  double angle;
  double tx1,ty1; /* temporaries for swapping coordinates 20070302 */
@@ -1208,9 +1209,11 @@ void move_objects(int what, int merge, double dx, double dy)
 
           if( p->sel==SELECTED || p->selected_point[j]) {
             if(xctx->rotatelocal) {
-              ROTATION(xctx->move_rot, xctx->move_flip, savex0, savey0, p->x[j], p->y[j], xctx->rx1,xctx->ry1);
+              ROTATION(xctx->move_rot, xctx->move_flip, savex0, savey0, p->x[j], p->y[j],
+                       xctx->rx1,xctx->ry1);
             } else {
-              ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1, p->x[j], p->y[j], xctx->rx1,xctx->ry1);
+              ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1, p->x[j], p->y[j],
+                       xctx->rx1,xctx->ry1);
             }
 
             p->x[j] =  xctx->rx1+xctx->deltax;
@@ -1229,7 +1232,8 @@ void move_objects(int what, int merge, double dx, double dy)
         arc_bbox(xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->arc[c][n].r, 0, 360,
                  &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
       else
-        arc_bbox(xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->arc[c][n].r, xctx->arc[c][n].a, xctx->arc[c][n].b,
+        arc_bbox(xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->arc[c][n].r,
+                 xctx->arc[c][n].a, xctx->arc[c][n].b,
                  &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
       dbg(1, "move_objects(): arc_bbox: %g %g %g %g\n", tmp.x1, tmp.y1, tmp.x2, tmp.y2);
       bbox(ADD, tmp.x1, tmp.y1, tmp.x2, tmp.y2);
@@ -1367,7 +1371,8 @@ void move_objects(int what, int merge, double dx, double dy)
       #endif
       text_bbox(xctx->text[n].txt_ptr, xctx->text[n].xscale,
          xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
-         xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0, &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2);
+         xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
+         &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &tmpint);
       #if HAS_CAIRO==1
       if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif
