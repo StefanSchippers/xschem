@@ -1478,9 +1478,11 @@ void draw(void)
  rebuild_selected_array();
  if(has_x) {
     if(draw_pixmap)
-      XFillRectangle(display, xctx->save_pixmap, gc[BACKLAYER], xctx->areax1, xctx->areay1, xctx->areaw, xctx->areah);
+      XFillRectangle(display, xctx->save_pixmap, gc[BACKLAYER], xctx->areax1, xctx->areay1,
+                     xctx->areaw, xctx->areah);
     if(draw_window) 
-      XFillRectangle(display, xctx->window, gc[BACKLAYER], xctx->areax1, xctx->areay1, xctx->areaw, xctx->areah);
+      XFillRectangle(display, xctx->window, gc[BACKLAYER], xctx->areax1, xctx->areay1,
+                     xctx->areaw, xctx->areah);
     dbg(2, "draw(): window: %d %d %d %d\n",xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
     drawgrid();
     x1 = X_TO_XSCHEM(xctx->areax1);
