@@ -344,7 +344,7 @@ static void old_ps_draw_string(int gctext,  const char *str,
                    x1,y1, &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
  #else
  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter,
-           x1,y1, &rx1,&ry1,&rx2,&ry2, &no_of_lines);
+           x1,y1, &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
  #endif
  xscale*=nocairo_font_xscale;
  yscale*=nocairo_font_yscale;

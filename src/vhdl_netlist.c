@@ -689,8 +689,8 @@ void vhdl_netlist(FILE *fd , int vhdl_stop)
      }
     }
    }
+   my_free(1097, &type);
  }
  dbg(1, "vhdl_netlist():       end\n");
  if(!vhdl_stop && !netlist_count) redraw_hilights(); /* draw_hilight_net(1); */
- my_free(1097, &type);
 }

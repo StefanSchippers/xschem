@@ -196,9 +196,11 @@ void tedax_netlist(FILE *fd, int tedax_stop )
   int i;
   char *type=NULL;
 
-  xctx->prep_net_structs = 0;
-  prepare_netlist_structs(1);
-  traverse_node_hash();  /* print all warnings about unconnected floatings etc */
+  if(!tedax_stop) {
+    xctx->prep_net_structs = 0;
+    prepare_netlist_structs(1);
+    traverse_node_hash();  /* print all warnings about unconnected floatings etc */
+  }
   if(!tedax_stop) {
     for(i=0;i<xctx->instances;i++) /* print first ipin/opin defs ... */
     {
@@ -235,9 +237,9 @@ void tedax_netlist(FILE *fd, int tedax_stop )
        }
      }
     }
+    my_free(967, &type);
   }
-  if(!netlist_count) redraw_hilights(); /* draw_hilight_net(1); */
-  my_free(967, &type);
+  if(!tedax_stop && !netlist_count) redraw_hilights(); /* draw_hilight_net(1); */
 }
 
 
