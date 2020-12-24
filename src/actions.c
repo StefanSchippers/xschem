@@ -1027,7 +1027,7 @@ void descend_schematic(int instnumber)
     if(save_ok==-1) return;
   }
 
-  dbg(1, "descend_schematic(): type of instance: %s\n", (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type);
+  dbg(1, "descend_schematic(): inst type: %s\n", (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type);
 
   if(                   /*  do not descend if not subcircuit */
      (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type &&

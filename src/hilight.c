@@ -68,6 +68,15 @@ void display_hilights(char **str)
   }
 }
 
+static int there_are_hilights()
+{
+  int i;
+  for(i=0;i<HASHSIZE;i++) {
+    if(xctx->hilight_table[i]) return 1;
+  }
+  return 0;
+}
+
 void free_hilight_hash(void) /* remove the whole hash table  */
 {
  int i;
@@ -547,7 +556,6 @@ int search(const char *tok, const char *val, int sub, int sel, int what)
         if (!strcmp(str, val) && sub)
         #endif
         {
-          dbg(2, "search(): wire=%d, tok=%s, val=%s \n", i,tok, xctx->wire[i].node);
           if(!sel) {
             bus_hilight_lookup(xctx->wire[i].node, col, XINSERT); /* sets xctx->hilight_nets = 1 */
           }
@@ -794,28 +802,26 @@ static void send_current_to_gaw(int simtype, const char *node)
 
 void propagate_hilights(int set)
 {
-  int i, hilight_connected_inst, hilights=0;
+  int i, hilight_connected_inst;
   struct hilight_hashentry *entry;
   char *type;
 
+  prepare_netlist_structs(0);
   for(i = 0; i < xctx->instances; i++) {
     if(xctx->inst[i].ptr < 0 ) {
       dbg(0, "propagate_hilights(): .ptr < 0, unbound symbol: instance %d, name=%s\n", i, xctx->inst[i].instname);
       continue;
     }
-    if(xctx->inst[i].color) hilights = 1; /* some hilight instances -> don't clear xctx->hilight_nets */
     type = (xctx->inst[i].ptr+ xctx->sym)->type;
     hilight_connected_inst = (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4);
     if(hilight_connected_inst && type && !IS_LABEL_SH_OR_PIN(type)) {
       int rects, j, clear;
       if( (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
-        dbg(2, "draw_hilight_net(): hilight_connected_inst inst=%d, node=%s\n", i, xctx->inst[i].node[0]);
         clear = 1;
         for(j=0;j<rects;j++) {
           if( xctx->inst[i].node && xctx->inst[i].node[j]) {
             entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
             if(entry) {
-              hilights = 1;
               if(set) {
                 xctx->inst[i].color=get_color(entry->value);
               } else {
@@ -831,12 +837,11 @@ void propagate_hilights(int set)
       }
     } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
       entry=bus_hilight_lookup( xctx->inst[i].lab, 0, XLOOKUP);
-      if(entry) hilights = 1;
       if(entry && set)        xctx->inst[i].color = get_color(entry->value);
       else if(!entry && !set) xctx->inst[i].color = 0;
     }
   }
-  if(!hilights) xctx->hilight_nets = 0;
+  xctx->hilight_nets = there_are_hilights();
 }
 
 void hilight_net(int to_waveform)
@@ -972,7 +977,6 @@ void select_hilight_net(void)
   else if(hilight_connected_inst) {
     int rects, j;
     if( (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
-      dbg(2, "select_hilight_net(): hilight_connected_inst inst=%d, node=%s\n", i, xctx->inst[i].node[0]);
       for(j=0;j<rects;j++) {
         if( xctx->inst[i].node && xctx->inst[i].node[j]) {
           entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
