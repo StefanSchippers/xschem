@@ -50,14 +50,25 @@ proc execute_fileevent {id} {
         # occur before process ends and following close blocks until process terminates.
         fconfigure $execute_pipe($id) -blocking 1
         set status 0
-        if {[catch {close $execute_pipe($id)} err options]} {
-          set details [dict get $options -errorcode]
-          if {[lindex $details 0] eq "CHILDSTATUS"} {
-              set status [lindex $details 2]
-              viewdata "Failed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
+
+        if  { [ info tclversion]  > 8.4} {
+           set catch_return [eval catch [ list {close $execute_pipe($id)} err options] ]
+        } else {
+           set catch_return [eval catch [ list {close $execute_pipe($id)} err] ]
+        }
+        if {$catch_return} {
+          if  { [ info tclversion] > 8.4} {
+            set details [dict get $options -errorcode]
+            if {[lindex $details 0] eq "CHILDSTATUS"} {
+                set status [lindex $details 2]
+                viewdata "Failed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
+            } else {
+              set status 1
+              viewdata "Completed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
+            }
           } else {
-            set status 1
-            viewdata "Completed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
+              set status 1
+              viewdata "Completed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
           }
         }
         if { $status == 0 } {
@@ -790,7 +801,7 @@ proc simulate {{callback {}}} {
   ## $d : netlist directory
 
   global netlist_dir netlist_type computerfarm terminal sim
-  global execute_callback XSCHEM_SHAREDIR
+  global execute_callback XSCHEM_SHAREDIR has_x
   set_sim_defaults
   
   if { [select_netlist_dir 0] ne {}} {
@@ -803,6 +814,11 @@ proc simulate {{callback {}}} {
       set N ${n}.v
     } else {
       set N ${n}.${tool}
+    }
+    if { ![info exists  sim($tool,default)] } {
+      if { $has_x} {alert_ "Warning: simulator for $tool is not configured"}
+      puts "Warning: simulator for $tool is not configured"
+      return
     }
     set def $sim($tool,default)
     set fg  $sim($tool,$def,fg)
@@ -903,7 +919,7 @@ proc waves {} {
   ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
   ## $d : netlist directory
 
-  global netlist_dir netlist_type computerfarm terminal sim XSCHEM_SHAREDIR
+  global netlist_dir netlist_type computerfarm terminal sim XSCHEM_SHAREDIR has_x
   set_sim_defaults
   
   if { [select_netlist_dir 0] ne {}} {
@@ -918,6 +934,11 @@ proc waves {} {
       set N ${n}.${tool}
     }
     set tool ${tool}wave
+    if { ![info exists  sim($tool,default)] } {
+      if { $has_x} {alert_ "Warning: viewer for $tool is not configured"}
+      puts "Warning: viewer for $tool is not configured"
+      return
+    }
     set def $sim($tool,default)
     set fg  $sim($tool,$def,fg)
     set st  $sim($tool,$def,st)
@@ -3143,6 +3164,20 @@ proc raise_dialog {window_path } {
   }
 }
 
+proc set_old_tk_fonts {} {
+  if {[info tclversion] <= 8.4} {
+     set myfont {-*-helvetica-*-r-*-*-12-*-*-*-*-*-*-*}
+     set mymonofont fixed
+     option add *Button*font $myfont startupFile
+     option add *Menubutton*font $myfont startupFile
+     option add *Menu*font $myfont startupFile
+     option add *Listbox*font $myfont startupFile
+     option add *Entry*font $mymonofont startupFile
+     option add *Text*font $mymonofont startupFile
+     option add *Label*font $myfont startupFile
+  }
+}
+
 #### TEST MODE #####
 proc new_window {what {path {}} {filename {}}} {
   if { $what eq {create}} {
@@ -3618,13 +3653,8 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   font configure Underline-Font -underline true -size 24
 
   . configure -cursor left_ptr
-  #   option add *Button*font "-*-helvetica-medium-r-normal-*-12-*-*-*-p-*-iso8859-1" startupFile
-  #   option add *Menubutton*font "-*-helvetica-medium-r-normal-*-12-*-*-*-p-*-iso8859-1" startupFile
-  #   option add *Menu*font "-*-helvetica-medium-r-normal-*-12-*-*-*-p-*-iso8859-1" startupFile
-  #   option add *Listbox*font "-*-helvetica-medium-r-normal-*-12-*-*-*-p-*-iso8859-1" startupFile
-  #   option add *Entry*font "-*-helvetica-medium-r-normal-*-12-*-*-*-p-*-iso8859-1" startupFile
-  #   #option add *Text*font "-*-courier-medium-r-normal-*-12-*-*-*-p-*-iso8859-1" startupFile
-  #   option add *Label*font "-*-helvetica-medium-r-normal-*-12-*-*-*-p-*-iso8859-1" startupFile
+
+  set_old_tk_fonts
 
   if { [info exists tk_scaling] } {tk scaling $tk_scaling}
   set infowindow_text {}

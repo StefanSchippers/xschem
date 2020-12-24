@@ -1106,7 +1106,6 @@ void descend_schematic(int instnumber)
   {
     prepare_netlist_structs(0);
     propagate_hilights(1);
-    if(enable_drill) drill_hilight();
   }
   dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
   zoom_full(1, 0, 1, 0.97);
@@ -1160,7 +1159,6 @@ void go_back(int confirm) /*  20171006 add confirm */
     if(prev_sch_type != CAD_SYMBOL_ATTRS) hilight_parent_pins();
     propagate_hilights(1);
   }
-  if(enable_drill) drill_hilight();
   xctx->xorigin=xctx->zoom_array[xctx->currsch].x;
   xctx->yorigin=xctx->zoom_array[xctx->currsch].y;
   xctx->zoom=xctx->zoom_array[xctx->currsch].zoom;

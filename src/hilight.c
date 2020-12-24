@@ -842,6 +842,7 @@ void propagate_hilights(int set)
     }
   }
   xctx->hilight_nets = there_are_hilights();
+  if(xctx->hilight_nets && enable_drill) drill_hilight();
 }
 
 void hilight_net(int to_waveform)
