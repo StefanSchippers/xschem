@@ -49,7 +49,7 @@ int textclip(int x1,int y1,int x2,int y2,
 
 void print_image()
 {
-  int modified_save, save_draw_grid;
+  int save_draw_grid;
   char cmd[PATH_MAX+100];
   const char *r;
   char *tmpstring=NULL;
@@ -63,9 +63,6 @@ void print_image()
     if(r[0]) my_strncpy(plotfile, r, S(plotfile));
     else return;
   }
-  modified_save=xctx->modified; /* 20161121 save state */
-  push_undo();
-  trim_wires();    /* 20161121 add connection boxes on wires but undo at end */
   #if 0
   for(tmp=0;tmp<cadlayers;tmp++) {
     XSetClipRectangles(display, gc[tmp], 0,0, xctx->xrect, 1, Unsorted);
@@ -86,8 +83,6 @@ void print_image()
     tcleval(cmd);
   } else tcleval( "convert_to_png plot.xpm plot.png");
   my_strncpy(plotfile,"", S(plotfile));
-  pop_undo(0); /* 20161121 restore state */
-  xctx->modified=modified_save;
   draw_grid=save_draw_grid;
   draw_pixmap=1;
 }

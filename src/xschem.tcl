@@ -3546,7 +3546,7 @@ if {!$rainbow_colors} {
   set_ne dark_colors {
    "#000000" "#00ccee" "#3f3f3f" "#cccccc" "#88dd00" 
    "#bb2200" "#00ccee" "#ff0000" "#ffff00" "#ffffff"
-   "#ff00ff" "#00ff00" "#0000cc" "#aaaa00" "#aaccaa"
+   "#ff00ff" "#00ff00" "#0044dd" "#aaaa00" "#aaccaa"
    "#ff7777" "#bfff81" "#00ffcc" "#ce0097" "#d2d46b" 
    "#ef6158" "#fdb200"}
 } else {

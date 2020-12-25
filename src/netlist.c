@@ -1041,7 +1041,7 @@ void prepare_netlist_structs(int for_netlist)
   my_free(841, &global_node);
   dbg(2, "prepare_netlist_structs(): returning\n");
 
-  propagate_hilights(1, 0);
+  propagate_hilights(1, 0, XINSERT_NOREPLACE);
 }
 
 int sym_vs_sch_pins()

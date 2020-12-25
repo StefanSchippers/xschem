@@ -1104,7 +1104,7 @@ void descend_schematic(int instnumber)
   if(xctx->hilight_nets)
   {
     prepare_netlist_structs(0);
-    propagate_hilights(1, 0);
+    propagate_hilights(1, 0, XINSERT_NOREPLACE);
   }
   dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
   zoom_full(1, 0, 1, 0.97);
@@ -1156,7 +1156,7 @@ void go_back(int confirm) /*  20171006 add confirm */
 
   if(xctx->hilight_nets) {
     if(prev_sch_type != CAD_SYMBOL_ATTRS) hilight_parent_pins();
-    propagate_hilights(1, 0);
+    propagate_hilights(1, 0, XINSERT_NOREPLACE);
   }
   xctx->xorigin=xctx->zoom_array[xctx->currsch].x;
   xctx->yorigin=xctx->zoom_array[xctx->currsch].y;
@@ -1307,25 +1307,10 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
   if(selected == 1 && !xctx->inst[i].sel) continue;
 
   if(selected == 2) {
-    int j, rects, found, hilight_conn_inst;
+    int found;
     type = (xctx->inst[i].ptr+ xctx->sym)->type;
     found = 0;
-    hilight_conn_inst = !strcmp(
-     get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "highlight", 0), "true") ||
-     !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "highlight", 0), "true");
-    if( hilight_conn_inst && (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
-      prepare_netlist_structs(0);
-      for(j=0;j<rects;j++) {
-        if( xctx->inst[i].node && xctx->inst[i].node[j]) {
-          entry=bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
-          if(entry) {
-            found = 1;
-            break;
-          }
-        }
-      }
-    }
-    else if( type && IS_LABEL_OR_PIN(type)) {
+    if( type && IS_LABEL_OR_PIN(type)) {
       entry=bus_hilight_lookup(xctx->inst[i].lab, 0, XLOOKUP );
       if(entry) found = 1;
     }
@@ -1334,9 +1319,6 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
     }
     if(!found) continue;
   }
-
-
-
 
   /* cpu hog 20171206 */
   /*  symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2); */
@@ -1347,7 +1329,6 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
   count++;
   updatebbox(count,boundbox,&tmp);
  }
-
 }
 
 /* flags: bit0: invoke change_linewidth()/XSetLineAttributes, bit1: centered zoom */

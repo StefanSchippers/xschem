@@ -586,7 +586,6 @@ void ps_draw(void)
  int c,i, textlayer;
  char tmp[2*PATH_MAX+40];
  int old_grid;
- int modified_save;
  const char *r, *textfont;
  char *psfile;
 
@@ -604,10 +603,6 @@ void ps_draw(void)
    fprintf(errfp, "ps_draw(): can not create tmpfile %s\n", psfile);
    return;
  }
-
- modified_save=xctx->modified;
- push_undo();
- trim_wires();    /* add connection bubbles on wires but undo at end */
  ps_colors=my_calloc(311, cadlayers, sizeof(Ps_color));
  if(ps_colors==NULL){
    fprintf(errfp, "ps_draw(): calloc error\n");tcleval( "exit");
@@ -781,8 +776,6 @@ void ps_draw(void)
  }
  my_strncpy(plotfile,"", S(plotfile));
  tcleval( tmp);
- pop_undo(0);
- xctx->modified=modified_save;
  Tcl_SetResult(interp,"",TCL_STATIC);
 }
 

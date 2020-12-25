@@ -555,7 +555,6 @@ void svg_draw(void)
   double dx, dy;
   int c,i, textlayer;
   int old_grid;
-  int modified_save;
   char *tmpstring=NULL;
   const char *r, *textfont;
   int *unused_layer;
@@ -582,10 +581,6 @@ void svg_draw(void)
   dy=xctx->xschem_h;
   dbg(1, "svg_draw(): dx=%g  dy=%g\n", dx, dy);
  
-  modified_save=xctx->modified;
-  push_undo();
-  /* Warning: sets xctx->prep_hi_structs to 0 */
-  trim_wires();  /* add connection boxes on wires but undo at end */
   if(plotfile[0]) {
     fd=fopen(plotfile, "w");
     if(!fd) { 
@@ -767,8 +762,6 @@ void svg_draw(void)
   draw_grid=old_grid;
   my_free(964, &svg_colors);
   my_free(1217, &unused_layer);
-  pop_undo(0);
-  xctx->modified=modified_save;
   Tcl_SetResult(interp,"",TCL_STATIC);
 }
 

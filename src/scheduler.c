@@ -1398,7 +1398,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
            remove_symbol( xctx->symbols - 1);
          }
       }
-      Tcl_ResetResult(interp);
       Tcl_SetResult(interp, missing ? "0" : "1", TCL_STATIC);
     }
    
@@ -1425,7 +1424,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       if(argc==3 && opened==0  ) { errfp = fopen(argv[2], "w");opened=1; } /* added check to avoid multiple open */
       else if(argc==2 && opened==1) { fclose(errfp); errfp=stderr;opened=0; }
-      Tcl_ResetResult(interp);
     }
     else if(!strcmp(argv[1],"logic_set"))
     {
@@ -1434,7 +1432,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       toggle_net_logic_value();
       Tcl_ResetResult(interp);
     }
-    
+    else if(!strcmp(argv[1],"logicx"))
+    {
+      cmd_found = 1;
+      logicx();
+      Tcl_ResetResult(interp);
+    }
   }
 
   else if(argv[1][0] == 'm') {   
@@ -1772,7 +1775,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          set = atoi(argv[2]);
          clear = atoi(argv[3]);
       }
-      propagate_hilights(set, clear);
+      propagate_hilights(set, clear, XINSERT_NOREPLACE);
     }
 
     else if(!strcmp(argv[1],"push_undo"))

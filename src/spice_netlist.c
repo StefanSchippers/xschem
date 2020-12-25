@@ -207,7 +207,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
  for(i=0;i<xctx->instances; i++) xctx->inst[i].color = stored_flags[i];
- propagate_hilights(1, 0);
+ propagate_hilights(1, 0, XINSERT_NOREPLACE);
  draw_hilight_net(1);
  my_free(945, &stored_flags);
 
