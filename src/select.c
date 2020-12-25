@@ -1064,7 +1064,6 @@ void select_all(void)
 {
  int c,i;
 
- xctx->ui_state |= SELECTION;
  for(i=0;i<xctx->wires;i++)
  {
    select_wire(i,SELECTED, 1);
@@ -1099,7 +1098,7 @@ void select_all(void)
  drawtemparc(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
  drawtemprect(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
  drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
- rebuild_selected_array();
+ rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
 }
 
 

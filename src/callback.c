@@ -307,8 +307,7 @@ int callback(int event, int mx, int my, KeySym key,
        new_line(RUBBER);
      } else {
        if(xctx->semaphore<2) {
-         rebuild_selected_array();
-         if(xctx->lastsel==0) xctx->ui_state &=~SELECTION;
+         rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
        }
        pan2(START, mx, my);
        xctx->ui_state |= STARTPAN2;
@@ -1419,12 +1418,10 @@ int callback(int event, int mx, int my, KeySym key,
      /* useless code ? 20200905 */
      /* if(xctx->semaphore<2) {
        rebuild_selected_array();
-       if(xctx->lastsel==0) xctx->ui_state &=~SELECTION;
      } */
 
      select_object(xctx->mousex, xctx->mousey, 0, 0);
-     rebuild_selected_array();
-     if(xctx->lastsel==0) xctx->ui_state &=~SELECTION;
+     rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
    }
    else if(button==Button2 && (state == 0)) {
      pan2(START, mx, my);

@@ -816,7 +816,7 @@ extern const char *get_file_path(char *f);
 extern int save(int confirm);
 extern struct hilight_hashentry *bus_hilight_lookup(const char *token, int value, int what) ;
 extern int  name_strcmp(char *s, char *d) ;
-extern int search(const char *tok, const char *val, int sub, int sel, int what);
+extern int search(const char *tok, const char *val, int sub, int sel);
 extern int process_options(int argc, char **argv);
 extern void calc_drawing_bbox(xRect *boundbox, int selected);
 extern void ps_draw(void);

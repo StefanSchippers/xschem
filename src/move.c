@@ -89,6 +89,8 @@ void rebuild_selected_array() /* can be used only if new selected set is lower *
     xctx->sel_array[xctx->lastsel++].col = c;
    }
  }
+ if(xctx->lastsel==0) xctx->ui_state &= ~SELECTION;
+ else xctx->ui_state |= SELECTION;
  xctx->need_reb_sel_arr=0;
 }
 

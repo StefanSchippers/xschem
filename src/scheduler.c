@@ -1987,26 +1987,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"search") || !strcmp(argv[1],"searchmenu"))
     {
-      /*   0      1         2        3       4   5      6(opt)   */
-      /*                           select                        */
-      /* xschem search regex|exact 0|1|-1   tok val  ADD/END/NOW */
-      int select, what, r;
+      /*   0      1         2        3       4   5   */
+      /*                           select            */
+      /* xschem search regex|exact 0|1|-1   tok val  */
+      int select, r;
       cmd_found = 1;
-      what = NOW;
       if(argc < 6) {
         Tcl_SetResult(interp,"xschem search requires 4 or 5 additional fields.", TCL_STATIC);
         return TCL_ERROR;
       }
-      if(argc == 7) {
-        if(!strcmp(argv[6], "ADD")) what = ADD;
-        else if(!strcmp(argv[6], "END")) what = END;
-        else if(!strcmp(argv[6], "NOW")) what = NOW;
-        argc = 6;
-      }
       if(argc==6) {
         select = atoi(argv[3]);
-        if( !strcmp(argv[2],"regex") )  r = search(argv[4],argv[5],0,select, what);
-        else  r = search(argv[4],argv[5],1,select, what);
+        if( !strcmp(argv[2],"regex") )  r = search(argv[4],argv[5],0,select);
+        else  r = search(argv[4],argv[5],1,select);
         if(r == 0) {
           if(has_x && !strcmp(argv[1],"searchmenu")) tcleval("tk_messageBox -type ok -message {Not found.}");
           Tcl_SetResult(interp,"0", TCL_STATIC);

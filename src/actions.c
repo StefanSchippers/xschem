@@ -898,12 +898,11 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
 
   if(draw_sym & 4 ) {
     select_element(n, SELECTED,0, 0);
-    xctx->ui_state |= SELECTION;
     drawtemparc(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
     drawtemprect(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
     drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
     xctx->need_reb_sel_arr = 1;
-    rebuild_selected_array();
+    rebuild_selected_array(); /* sets  xctx->ui_state |= SELECTION; */
   }
 
  }
@@ -1187,9 +1186,9 @@ void change_to_unix_fn(char* fn)
 }
 #endif
 
+/* selected: 0 -> all, 1 -> selected, 2 -> hilighted */
 void calc_drawing_bbox(xRect *boundbox, int selected)
 {
-
  xRect tmp;
  int c, i;
  int count=0;
