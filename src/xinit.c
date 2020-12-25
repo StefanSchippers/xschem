@@ -541,7 +541,7 @@ void xwin_exit(void)
    return;
  }
  delete_netlist_structs();
- delete_hilight_net();
+ clear_all_hilights();
  get_unnamed_node(0, 0, 0);
  if(has_x) {
     resetwin(0, 1, 1, 0, 0); /* create_pixmap, clear_pixmap, force */
@@ -739,7 +739,7 @@ void delete_schematic_data(void)
   dbg(1, "delete_schematic_data()\n");
   unselect_all();
   delete_netlist_structs();  /* netlist - specific data and hash tables */
-  delete_hilight_net();      /* data structs for hilighting nets/instances */
+  clear_all_hilights();      /* data structs for hilighting nets/instances */
   get_unnamed_node(0, 0, 0); /* net### enumerator used for netlisting */
   remove_symbols();
   clear_drawing();    /* delete instances, wires, lines, rects, ... */

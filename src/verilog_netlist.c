@@ -321,7 +321,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
  for(i=0;i<xctx->instances; i++) xctx->inst[i].color = stored_flags[i];
- propagate_hilights(1);
+ propagate_hilights(1, 0);
  draw_hilight_net(1);
  my_free(1074, &stored_flags);
 

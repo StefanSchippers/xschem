@@ -3709,6 +3709,8 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   setup_recent_menu
   .menubar.file.menu add cascade -label "Open Recent" -menu .menubar.file.menu.recent
 
+  .menubar.file.menu add command -label "Open Most Recent" \
+    -command "eval {xschem load [lindex "$recentfile" 0]}" -accelerator {Ctrl+Shift+O}
   .menubar.file.menu add command -label "Save" -command "xschem save" -accelerator {Ctrl+S}
   toolbar_create FileSave "xschem save" "Save File"
   .menubar.file.menu add command -label "Merge" -command "xschem merge" -accelerator {Shift+B}
@@ -4052,7 +4054,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   .menubar.hilight.menu add command -label {Select hilight nets / pins} -command "xschem select_hilight_net" \
      -accelerator Alt+K
   .menubar.hilight.menu add command -label {Un-highlight all net/pins} \
-     -command "xschem unhilight" -accelerator Shift+K
+     -command "xschem unhilight_all" -accelerator Shift+K
   .menubar.hilight.menu add command -label {Un-highlight selected net/pins} \
      -command "xschem unhilight" -accelerator Ctrl+K
   # 20160413

@@ -406,7 +406,7 @@ void ask_new_file(void)
 
     if( fullname[0] ) {
      dbg(1, "ask_new_file(): load file: %s\n", fullname);
-     delete_hilight_net();
+     clear_all_hilights();
      xctx->currsch = 0;
      unselect_all();
      remove_symbols();
@@ -851,7 +851,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->inst[n].flip=symbol_name ? flip : 0;
 
   xctx->inst[n].flags=0;
-  xctx->inst[n].color=0;
+  xctx->inst[n].color=-1;
   xctx->inst[n].sel=0;
   xctx->inst[n].node=NULL;
   xctx->inst[n].prop_ptr=NULL;
@@ -1105,7 +1105,7 @@ void descend_schematic(int instnumber)
   if(xctx->hilight_nets)
   {
     prepare_netlist_structs(0);
-    propagate_hilights(1);
+    propagate_hilights(1, 0);
   }
   dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
   zoom_full(1, 0, 1, 0.97);
@@ -1157,7 +1157,7 @@ void go_back(int confirm) /*  20171006 add confirm */
 
   if(xctx->hilight_nets) {
     if(prev_sch_type != CAD_SYMBOL_ATTRS) hilight_parent_pins();
-    propagate_hilights(1);
+    propagate_hilights(1, 0);
   }
   xctx->xorigin=xctx->zoom_array[xctx->currsch].x;
   xctx->yorigin=xctx->zoom_array[xctx->currsch].y;
@@ -1330,7 +1330,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
       entry=bus_hilight_lookup(xctx->inst[i].lab, 0, XLOOKUP );
       if(entry) found = 1;
     }
-    else if( (xctx->inst[i].color) ) {
+    else if( xctx->inst[i].color != -1 ) {
       found = 1;
     }
     if(!found) continue;

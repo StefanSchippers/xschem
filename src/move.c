@@ -902,7 +902,7 @@ void copy_objects(int what)
        my_strdup(312, &xctx->inst[xctx->instances].lab, xctx->inst[n].lab);
        xctx->inst[n].sel=0;
        xctx->inst[xctx->instances].flags = xctx->inst[n].flags;
-       xctx->inst[xctx->instances].color = 0;
+       xctx->inst[xctx->instances].color = -1;
        xctx->inst[xctx->instances].x0 = xctx->rx1+xctx->deltax;
        xctx->inst[xctx->instances].y0 = xctx->ry1+xctx->deltay;
        xctx->inst[xctx->instances].sel = SELECTED;

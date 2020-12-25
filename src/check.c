@@ -193,15 +193,14 @@ void trim_wires(void)
           else
             xctx->wire[xctx->wires].bus=0;
           xctx->wire[xctx->wires].node=NULL;
+
           my_strdup(28, &xctx->wire[xctx->wires].node, xctx->wire[j].node);
           xctx->wire[j].x1 = x0;
           xctx->wire[j].y1 = y0;
           hash_wire(XINSERT, xctx->wires, 0);
-
           i--; /* redo current i iteration, since we break the 'j' loop due to changed wire hash table */
           hash_wire(XDELETE, j, 0); /* rehash since endpoint x1, y1 changed */
           hash_wire(XINSERT, j, 0);
-
           xctx->wires++;
           changed = 1;
           break;
@@ -371,8 +370,9 @@ void trim_wires(void)
       set_modify(1);
     }
   } while(changed);
-  dbg(1,"trim_wires(): doloops=%d changed=%d\n", doloops, changed);
+  dbg(1, "trim_wires(): doloops=%d changed=%d\n", doloops, changed);
   my_free(115, &wireflag);
+
 }
 
 void break_wires_at_pins(void)

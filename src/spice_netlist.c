@@ -207,7 +207,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
  for(i=0;i<xctx->instances; i++) xctx->inst[i].color = stored_flags[i];
- propagate_hilights(1);
+ propagate_hilights(1, 0);
  draw_hilight_net(1);
  my_free(945, &stored_flags);
 
@@ -535,12 +535,12 @@ void free_hash(struct hashentry **table)
 /*    token        value      what    ... what ...
  * --------------------------------------------------------------------------
  * "whatever"    "whatever"  XINSERT     insert in hash table if not in.
- *                                      if already present update value if not NULL,
- *                                      return entry address.
+ *                                       if already present update value if not NULL,
+ *                                       return new entry address.
  * "whatever"    "whatever"  XINSERT_NOREPLACE   same as XINSERT but do not replace existing value
- *                                      return NULL if not found.
+ *                                       return NULL if not found.
  * "whatever"    "whatever"  XLOOKUP     lookup in hash table,return entry addr.
- *                                      return NULL if not found
+ *                                       return NULL if not found
  * "whatever"    "whatever"  XDELETE     delete entry if found,return NULL
  */
 struct int_hashentry *int_hash_lookup(struct int_hashentry **table, const char *token, const int value, int what)

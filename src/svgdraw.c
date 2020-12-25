@@ -722,7 +722,7 @@ void svg_draw(void)
      }
      for(i=0;i<xctx->instances;i++) {
        color = c;
-       if(xctx->inst[i].color) color = xctx->inst[i].color;
+       if(xctx->inst[i].color != -1) color = get_color(xctx->inst[i].color);
        svg_draw_symbol(color,i,c,0,0,0.0,0.0);
      }
     }

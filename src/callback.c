@@ -811,6 +811,11 @@ int callback(int event, int mx, int my, KeySym key,
      new_arc(PLACE, 360.);
      break;
    }
+   if(key=='O' && (state == (ControlMask|ShiftMask)) )   /* load most recent tile */
+   {
+     Tcl_VarEval(interp, "xschem load [lindex $recentfile 0]", NULL);
+     break;
+   }
    if(key=='O' && state == ShiftMask)   /* Toggle light/dark colorscheme 20171113 */
    {
      dark_colorscheme=!dark_colorscheme;
@@ -922,19 +927,8 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key=='k' && state==ControlMask)                           /* unhilight net */
    {
-    xRect boundbox;
-    int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
     if(xctx->semaphore >= 2) break;
-    if(!big) calc_drawing_bbox(&boundbox, 2);
     unhilight_net();
-    /* undraw_hilight_net(1); */
-    if(!big) {
-      bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-      bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-      bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-    }
-    draw();
-    if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     break;
    }
    if(key=='K' && state==(ControlMask|ShiftMask))       /* hilight net drilling thru elements  */
@@ -963,7 +957,7 @@ int callback(int event, int mx, int my, KeySym key,
     if(xctx->semaphore >= 2) break;
     enable_drill=0;
     if(!big) calc_drawing_bbox(&boundbox, 2);
-    delete_hilight_net();
+    clear_all_hilights();
     /* undraw_hilight_net(1); */
     if(!big) {
       bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
@@ -1628,7 +1622,7 @@ int callback(int event, int mx, int my, KeySym key,
            if(!prev_last_sel) {
              int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
              if(!big) calc_drawing_bbox(&boundbox, 2);
-             delete_hilight_net();
+             clear_all_hilights();
              /* undraw_hilight_net(1); */
              if(!big) {
                bbox(START, 0.0 , 0.0 , 0.0 , 0.0);

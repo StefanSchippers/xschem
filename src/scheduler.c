@@ -1370,7 +1370,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc==3) {
         if(!has_x || !xctx->modified  || !save(1) ) { /* save(1)==1 --> user cancel */
           dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
-          delete_hilight_net();
+          clear_all_hilights();
           xctx->currsch = 0;
           unselect_all();
           remove_symbols();
@@ -1407,7 +1407,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       if(argc==3) {
         dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
-        delete_hilight_net();
+        clear_all_hilights();
         xctx->currsch = 0;
         unselect_all();
         remove_symbols();
@@ -1427,6 +1427,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(argc==2 && opened==1) { fclose(errfp); errfp=stderr;opened=0; }
       Tcl_ResetResult(interp);
     }
+    else if(!strcmp(argv[1],"logic_set"))
+    {
+      cmd_found = 1;
+      enable_drill = 1;
+      toggle_net_logic_value();
+      Tcl_ResetResult(interp);
+    }
+    
   }
 
   else if(argv[1][0] == 'm') {   
@@ -1758,10 +1766,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"propagate_hilights"))
     {
-      int set = 1;
+      int set = 1, clear = 0;
       cmd_found = 1;
-      if(argc>=3) set = atoi(argv[2]);
-      propagate_hilights(set);
+      if(argc>=4) {
+         set = atoi(argv[2]);
+         clear = atoi(argv[3]);
+      }
+      propagate_hilights(set, clear);
     }
 
     else if(!strcmp(argv[1],"push_undo"))
@@ -2455,14 +2466,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
-    else if(!strcmp(argv[1],"unhilight"))
+    else if(!strcmp(argv[1],"unhilight_all"))
     {
       xRect boundbox;
       int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
       cmd_found = 1;
       enable_drill=0;
       if(!big) calc_drawing_bbox(&boundbox, 2);
-      delete_hilight_net();
+      clear_all_hilights();
       /* undraw_hilight_net(1); */
       if(!big) {
         bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
@@ -2472,12 +2483,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       draw();
       if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
    
-      /*
-      enable_drill = 0;
-      unhilight_net();
-      draw();
-      */
       Tcl_ResetResult(interp);
+    }
+    else if(!strcmp(argv[1],"unhilight"))
+    {
+      cmd_found = 1;
+      unhilight_net();
     }
    
     else if(!strcmp(argv[1],"unselect_all"))

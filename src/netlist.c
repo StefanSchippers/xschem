@@ -303,8 +303,9 @@ void hash_wire(int what, int n, int incremental)
   struct wireentry *wptr;
   xWire * const wire = xctx->wire;
 
-  /* wire[n].node=NULL; */
-  my_free(827, &wire[n].node);
+
+  /* >>>>> THIS IS NOT NEEDED !! delete_netlist_structs() does this... Why this HERE ?? <<<<< */
+  /* my_free(827, &wire[n].node); */
 
   wire[n].end1 = wire[n].end2=-1;
   x1=wire[n].x1;
@@ -1040,7 +1041,7 @@ void prepare_netlist_structs(int for_netlist)
   my_free(841, &global_node);
   dbg(2, "prepare_netlist_structs(): returning\n");
 
-  propagate_hilights(1);
+  propagate_hilights(1, 0);
 }
 
 int sym_vs_sch_pins()

@@ -187,7 +187,7 @@ void check_unique_names(int rename)
     xRect boundbox;
     if(!big) calc_drawing_bbox(&boundbox, 2);
     enable_drill=0;
-    delete_hilight_net();
+    clear_all_hilights();
     /* undraw_hilight_net(1); */
     if(!big) {
       bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
@@ -229,7 +229,7 @@ void check_unique_names(int rename)
           comma_pos++;
         }
       } /* for(j...) */
-      if( xctx->inst[i].color && rename) {
+      if( (xctx->inst[i].color != -1) && rename) {
         my_strdup(511, &tmp, xctx->inst[i].prop_ptr);
         new_prop_string(i, tmp, newpropcnt++, !rename);
         my_strdup2(512, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
