@@ -30,6 +30,8 @@ install: FORCE
 	$(SCCBOX) install -f -d ngspice/stimuli.* "$(XDOCDIR)"/ngspice
 	$(SCCBOX) install -f -d rom8k/*.sym "$(XDOCDIR)"/rom8k
 	$(SCCBOX) install -f -d rom8k/*.sch "$(XDOCDIR)"/rom8k
+	$(SCCBOX) install -f -d xschem_simulator/*.sym "$(XDOCDIR)"/xschem_simulator
+	$(SCCBOX) install -f -d xschem_simulator/*.sch "$(XDOCDIR)"/xschem_simulator
 	$(SCCBOX) install -f -d rom8k/stimuli.* "$(XDOCDIR)"/rom8k
 	$(SCCBOX) install -f -d symgen/*.sym* "$(XDOCDIR)"/symgen
 	$(SCCBOX) install -f -d gschem_import/*.sym "$(XDOCDIR)"/gschem_import
@@ -39,7 +41,7 @@ install: FORCE
 uninstall: FORCE
 	$(SCCBOX) rm -f "$(system_library_dir)"/* "$(XDOCDIR)"/examples/* "$(XDOCDIR)"/pcb/* \
                         "$(XDOCDIR)"/ngspice/* "$(XDOCDIR)"/symgen/* "$(XDOCDIR)"/logic/* "$(XDOCDIR)"/xTAG/* \
-                        "$(XDOCDIR)"/rom8k/* "$(XDOCDIR)"/binto7seg/* "$(XDOCDIR)"/rulz-r8c33/* \
+                        "$(XDOCDIR)"/rom8k/* "$(XDOCDIR)"/xschem_simulator/ "$(XDOCDIR)"/binto7seg/* "$(XDOCDIR)"/rulz-r8c33/* \
                         "$(XDOCDIR)"/gschem_import/*.sym \
                         "$(XDOCDIR)"/gschem_import/*.sch \
                         "$(XDOCDIR)"/gschem_import/sym/*.sym \

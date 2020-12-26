@@ -49,6 +49,7 @@
 # append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/xTAG
 # append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/rulz-r8c33
 # append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/ngspice
+# append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/xschem_simulator
 # append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/rom8k
 # append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/pcb
 # append XSCHEM_LIBRARY_PATH ${xschem_doc_dir}/symgen

@@ -1121,7 +1121,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
       for(p=0;p<no_of_pins;p++) {
         if(!strcmp( get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr,"name",0), argv[3])) {
-          str_ptr =  net_name(i,p,&multip, 0, 1);
+          str_ptr =  net_name(i,p, &multip, 0, 1);
           break;
         }
       } /* /20171029 */
@@ -1428,8 +1428,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"logic_set"))
     {
       cmd_found = 1;
-      enable_drill = 1;
-      toggle_net_logic_value();
+      if(argc > 2) logic_set(atoi(argv[2]));
       Tcl_ResetResult(interp);
     }
     else if(!strcmp(argv[1],"logicx"))
@@ -2021,12 +2020,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         return TCL_ERROR;
       }
    
-      if(!strcmp(argv[2],"instance") && argc==4) {
+      if(!strcmp(argv[2],"instance") && argc>=4) {
         int i;
         /* find by instance name  or number*/
         i = get_instance(argv[3]);
         if(i >= 0) {
-          select_element(i, SELECTED, 0, 0);
+          if(argc>=5 && !strcmp(argv[4], "clear"))
+            select_element(i, 0, 0, 0);
+          else
+            select_element(i, SELECTED, 0, 0);
         }
         Tcl_SetResult(interp, (i >= 0) ? "1" : "0" , TCL_STATIC);
       }
@@ -2146,6 +2148,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         color_dim = s;
         draw();
         Tcl_ResetResult(interp);
+      }
+      else if(!strcmp(argv[2],"en_hilight_conn_inst")) {
+            en_hilight_conn_inst=atoi(argv[3]);
       }
       else if(!strcmp(argv[2],"big_grid_points")) {
             big_grid_points=atoi(argv[3]);

@@ -755,6 +755,7 @@ extern size_t get_tok_size;
 extern int batch_mode; /* no TCL console */
 extern int hide_symbols; /* draw only a bounding box for component instances and @symname, @name texts */
 extern int show_pin_net_names;
+extern int en_hilight_conn_inst;
 extern char svg_font_name[80];
 /* CAIRO specific global variables */
 extern char cairo_font_name[80];
@@ -1104,7 +1105,7 @@ extern void print_verilog_signals(FILE *fd);
 extern void print_generic(FILE *fd, char *ent_or_comp, int symbol);
 extern void print_verilog_param(FILE *fd, int symbol);
 extern void hilight_net(int to_waveform);
-extern void toggle_net_logic_value();
+extern void logic_set(int v);
 extern void logicx();
 extern int hilight_netname(const char *name);
 extern void unhilight_net();

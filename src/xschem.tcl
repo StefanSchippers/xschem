@@ -3489,6 +3489,7 @@ set_ne launcher_default_program {xdg-open}
 set_ne launcher_program {}
 #20160413
 set_ne auto_hilight 0
+set_ne en_hilight_conn_inst 0
 ## 20161121 xpm to png conversion
 set_ne to_png {gm convert} 
 
@@ -4066,6 +4067,8 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
          xschem set auto_hilight 0
        }
      }
+  .menubar.hilight.menu add checkbutton -label {Enable highlight connected instances} \
+    -variable en_hilight_conn_inst  -command {xschem set en_hilight_conn_inst $en_hilight_conn_inst}
 
   .menubar.simulation.menu add command -label "Set netlist Dir" \
     -command {
@@ -4097,6 +4100,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   .menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" -variable top_subckt 
   .menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
          -command {xschem set spiceprefix $spiceprefix; xschem save; xschem reload}
+  .menubar.simulation.menu add checkbutton -label "Forced stop tcl scripts" -variable tclstop
 
   pack .menubar.file -side left
   pack .menubar.edit -side left

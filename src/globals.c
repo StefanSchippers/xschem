@@ -154,7 +154,8 @@ double nocairo_vert_correct=0.0;
 int sym_txt=1;
 int netlist_type=-1;
 int show_pin_net_names = 0;
-
+/* enable hilight instances attached to hilighted nets if they have the "highlight=true attr set */
+int en_hilight_conn_inst = 0; 
 
 
 int help=0; /* help option set to global scope, printing help is deferred */

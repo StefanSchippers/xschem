@@ -324,7 +324,7 @@ void hilight_net_pin_mismatches(void)
     for(i=0;i<npin;i++) {
       my_strdup(24, &labname,get_tok_value(rct[i].prop_ptr,"name",0));
       my_strdup(25, &lab, expandlabel(labname, &mult));
-      my_strdup(26, &netname, net_name(j,i,&mult, 0, 1));
+      my_strdup(26, &netname, net_name(j,i, &mult, 0, 0));
       dbg(1, "hilight_net_pin_mismatches(): i=%d labname=%s explabname = %s  net = %s\n", i, labname, lab, netname);
       if(netname && strcmp(lab, netname)) {
         dbg(1, "hilight_net_pin_mismatches(): hilight: %s\n", netname);
@@ -655,7 +655,7 @@ void drill_hilight(int mode)
   xSymbol *symbol;
   xRect *rct;
   int i, j, npin;
-  const char *propagate_str;
+  char *propagate_str = NULL;
   int propagate;
   struct hilight_hashentry *entry, *propag_entry;
 
@@ -667,17 +667,34 @@ void drill_hilight(int mode)
       npin = symbol->rects[PINLAYER];
       rct=symbol->rect[PINLAYER];
       for(j=0; j<npin;j++) {
-        my_strdup(143, &netname, net_name(i, j, &mult, 1, 1));
+        my_strdup(143, &netname, net_name(i, j, &mult, 1, 0));
         entry=bus_hilight_lookup(netname, 0, XLOOKUP);
-        if(entry) xctx->inst[i].color = entry->value;
-        propagate_str=get_tok_value(rct[j].prop_ptr, "propagate_to", 0);
-        if(propagate_str[0] && entry) {
-          propagate = atoi(propagate_str);
-          /* get net to propagate hilight to...*/
-          my_strdup(144, &propagated_net, net_name(i, propagate, &mult, 1, 1));
-          /* add net to highlight list */
-          propag_entry = bus_hilight_lookup(propagated_net, entry->value, mode);
-          if(!propag_entry) found=1; /* keep looping until no more nets are found. */
+        if(entry && (en_hilight_conn_inst || (symbol->type && IS_LABEL_SH_OR_PIN(symbol->type))) ) {
+          xctx->inst[i].color = entry->value;
+        }
+        my_strdup(1225, &propagate_str, get_tok_value(rct[j].prop_ptr, "propagate_to", 0));
+        if(propagate_str) {
+          int n = 1;
+          const char *propag;
+          dbg(1, "propagate_logic(): inst=%d propagate_str=%s\n", i, propagate_str);
+          while(1) {
+            propag = find_nth(propagate_str, ',', n);
+            n++;
+            if(!propag[0]) break;
+            if(entry) {
+              propagate = atoi(propag);
+              if(propagate < 0 || propagate >= npin) {
+                 dbg(0, "Error: inst: %s, pin %d, propagate_to set to %s <<%d>>\n",
+                   xctx->inst[i].instname, j, propagate_str, propagate);
+                   continue;
+              }
+              /* get net to propagate hilight to...*/
+              my_strdup(144, &propagated_net, net_name(i, propagate, &mult, 1, 0));
+              /* add net to highlight list */
+              propag_entry = bus_hilight_lookup(propagated_net, entry->value, mode);
+              if(!propag_entry) found=1; /* keep looping until no more nets are found. */
+            }
+          }
         }
       } /* for(j...) */
     } /* for(i...) */
@@ -685,6 +702,7 @@ void drill_hilight(int mode)
   } /* while(1) */
   my_free(772, &netname);
   my_free(773, &propagated_net);
+  my_free(1226, &propagate_str);
 }
 
 int hilight_netname(const char *name)
@@ -778,6 +796,7 @@ static void send_current_to_gaw(int simtype, const char *node)
   my_free(1182, &t);
 }
 
+/* hilight_instances: if set to 1 hilight non pin/label symbols with "highlight=true" attribute set */
 void propagate_hilights(int set, int clear, int mode)
 {
   int i, hilight_connected_inst;
@@ -791,7 +810,8 @@ void propagate_hilights(int set, int clear, int mode)
       continue;
     }
     type = (xctx->inst[i].ptr+ xctx->sym)->type;
-    hilight_connected_inst = (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4);
+    hilight_connected_inst = en_hilight_conn_inst && 
+           ( (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4) );
     if(hilight_connected_inst && type && !IS_LABEL_SH_OR_PIN(type)) {
       int rects, j, nohilight_pins;
       if( (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
@@ -829,12 +849,25 @@ void propagate_hilights(int set, int clear, int mode)
 #define LOGIC_1 0
 
 #define STACKMAX 100
-int get_logic_value(int n)
+int get_logic_value(int inst, int n)
 {
-  return 0;
+  int /* mult, */ val;
+  struct hilight_hashentry *entry;
+  char *netname = NULL;
+
+  /* fast option: dont use net_name() (no expandlabel though) */
+  /* my_strdup(1219, &netname, net_name(inst, n, &mult, 1, 0)); */
+  my_strdup(1219, &netname, xctx->inst[inst].node[n]);
+  entry=bus_hilight_lookup(netname, 0, XLOOKUP);
+  if(!entry) return 2; /* LOGIC_X */
+  val = entry->value;
+  val = (val == LOGIC_0) ? 0 : (val == LOGIC_1) ? 1 : 2;
+  dbg(1, "get_logic_value(): inst=%d pin=%d net=%s val=%d\n", inst, n, netname, val);
+  my_free(1221, &netname);
+  return val;
 }
 
-int eval_logic_expr(char *expr)
+int eval_logic_expr(int inst, int output)
 {
   int stack[STACKMAX];
   int i, sp = 0;
@@ -843,15 +876,19 @@ int eval_logic_expr(char *expr)
   char *ptr2;
   char *arg;
   int res = 0;
+  char function[20];
 
-  my_strdup(1218, &saveptr, expr);
+  my_snprintf(function, S(function), "function%d", output);
+  my_strdup(1218, &saveptr, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, function, 0));
+  dbg(1, "eval_logic_expr(): function=%s, saveptr=%s\n", function, saveptr ? saveptr : "NULL");
+  if(!saveptr) return 2; /* no logic function defined, return LOGIC_X */
   ptr2 = saveptr;
   while( (arg = my_strtok_r(ptr2, " ", &ptr1)) ) {
     ptr2 = NULL;
     if(arg[0] == '~') {
       if(sp > 0) {
         sp--;
-        if(stack[sp] != LOGIC_X) stack[sp] = !stack[sp];
+        if(stack[sp] != 2) stack[sp] = !stack[sp];
         ++sp;
       }
     } else if(arg[0] == '|') {
@@ -861,9 +898,8 @@ int eval_logic_expr(char *expr)
           if(stack[i] == 1) {
             res = 1;
             break;
-          }
-          else if(stack[i] == LOGIC_X) {
-            res = LOGIC_X;
+          } else if(stack[i] == 2) {
+            res = 2;
           }
         }
         stack[sp - 2] = res;
@@ -876,9 +912,8 @@ int eval_logic_expr(char *expr)
           if(stack[i] == 0) {
             res = 0;
             break;
-          }
-          else if(stack[i] == LOGIC_X) {
-            res = LOGIC_X;
+          } else if(stack[i] == 2) {
+            res = 2;
           }
         }
         stack[sp - 2] = res;
@@ -888,11 +923,11 @@ int eval_logic_expr(char *expr)
       if(sp > 1) {
         res = 0;
         for(i = sp - 2; i < sp; i++) {
-          if(stack[i] != LOGIC_X) {
+          if(stack[i] != 2) {
             res = res ^ stack[i];
           }
           else {
-            res = LOGIC_X;
+            res = 2;
             break;
           }
         }
@@ -900,10 +935,11 @@ int eval_logic_expr(char *expr)
         sp--;
       }
     } else if(isdigit(arg[0])) {
-      if(sp < STACKMAX) stack[sp++] = get_logic_value(atoi(arg));
+      if(sp < STACKMAX) stack[sp++] = get_logic_value(inst, atoi(arg));
     }
   }
-  free(saveptr);
+  my_free(827, &saveptr);
+  dbg(1, "eval_logic_expr(): inst %d output %d, returning %d\n", inst, output, stack[0]);
   return stack[0];
 }
 
@@ -928,18 +964,80 @@ void logicx()
   draw();
 }
 
-void toggle_net_logic_value()
+void propagate_logic()
 {
-  int i, n, value, newvalue;
+  char *propagated_net=NULL;
+  int found /* , mult */;
+  xSymbol *symbol;
+  xRect *rct;
+  int i, j, npin;
+  char *propagate_str = NULL;
+  int propagate;
+  struct hilight_hashentry  *entry;
+  int val, oldval;
+  static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X};
+
+  prepare_netlist_structs(0);
+  while(1) {
+    found=0;
+    for(i=0; i<xctx->instances;i++) {
+      symbol = xctx->inst[i].ptr+xctx->sym;
+      npin = symbol->rects[PINLAYER];
+      rct=symbol->rect[PINLAYER];
+      for(j=0; j<npin;j++) {
+        my_strdup(1223, &propagate_str, get_tok_value(rct[j].prop_ptr, "propagate_to", 0));
+        if(propagate_str) {
+          int n = 1;
+          const char *propag;
+          dbg(1, "propagate_logic(): inst=%d propagate_str=%s\n", i, propagate_str);
+          while(1) {
+            propag = find_nth(propagate_str, ',', n);
+            n++;
+            if(!propag[0]) break;
+            propagate = atoi(propag);
+            if(propagate < 0 || propagate >= npin) {
+               dbg(0, "Error: inst: %s, pin %d, propagate_to set to %s <<%d>>\n",
+                 xctx->inst[i].instname, j, propagate_str, propagate);
+                 continue;
+            }
+            /* get net to propagate hilight to...*/
+            /* fast option: dont use net_name() (no expandlabel though) */
+            /* my_strdup(1220, &propagated_net, net_name(i, propagate, &mult, 1, 0)); */
+            my_strdup(1220, &propagated_net, xctx->inst[i].node[propagate]);
+            dbg(1, "propagate_logic(): inst %d pin %d propag=%s n=%d\n", i, j, propag, n);
+            dbg(1, "propagate_logic(): inst %d pin %d propagate=%d\n", i, j, propagate);
+            dbg(1, "propagate_logic(): propagated_net=%s\n", propagated_net);
+  
+            /* add net to highlight list */
+            entry = bus_hilight_lookup(propagated_net, 0, XLOOKUP);
+            oldval = (!entry) ? LOGIC_X : entry->value;
+            val =  map[eval_logic_expr(i, propagate)];
+            bus_hilight_lookup(propagated_net, val, XINSERT);
+            if(oldval != val) found=1; /* keep looping until no more nets are found. */
+          }
+        }
+      } /* for(j...) */
+    } /* for(i...) */
+    if(!found) break;
+    /* get out from infinite loops (circuit is oscillating) */
+    Tcl_VarEval(interp, "update; if {$::tclstop == 1} {return 1} else {return 0}", NULL);
+    if( tclresult()[0] == '1') break;
+  } /* while(1) */
+  my_free(1224, &propagate_str);
+  my_free(1222, &propagated_net);
+}
+
+void logic_set(int value)
+{
+  int i, n, newvalue;
   char *type;
-  struct hilight_hashentry *entry;
   xRect boundbox;
   int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
   static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X};
  
   prepare_netlist_structs(0);
   rebuild_selected_array();
-  if(!big) {
+  if(!no_draw && !big) {
     calc_drawing_bbox(&boundbox, 2);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
@@ -949,25 +1047,13 @@ void toggle_net_logic_value()
     n = xctx->sel_array[i].n;
     switch(xctx->sel_array[i].type) {
       case WIRE:
-        entry = bus_hilight_lookup(xctx->wire[n].node, 0, XLOOKUP);
-        if(!entry) value = 2;
-        else if(entry->value == LOGIC_0) value = 0;
-        else if(entry->value == LOGIC_1) value = 1;
-        else value = 2;
-        newvalue = (value + 1) % 3; /* next logic value  0, 1, 2 (LOGIC_X) */
-        here(value);
-        here(newvalue);
+        newvalue = value; /* next logic value  0, 1, 2 (LOGIC_X) */
         bus_hilight_lookup(xctx->wire[n].node, map[newvalue], XINSERT);
         break;
       case ELEMENT:
         type = (xctx->inst[n].ptr+ xctx->sym)->type;
         if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
-          entry = bus_hilight_lookup(xctx->inst[n].node[0], 0, XLOOKUP);
-          if(!entry) value = 2;
-          else if(entry->value == LOGIC_0) value = 0;
-          else if(entry->value == LOGIC_1) value = 1;
-          else value = 2;
-          newvalue = (value + 1) % 3; /* next logic value  0, 1, 2 (LOGIC_X) */
+          newvalue = value; /* next logic value  0, 1, 2 (LOGIC_X) */
           bus_hilight_lookup(xctx->inst[n].node[0], map[newvalue], XINSERT);
         }
         break;
@@ -975,17 +1061,17 @@ void toggle_net_logic_value()
         break;
     }
   }
+  propagate_logic();
   propagate_hilights(1, 0, XINSERT);
-  if(!big) {
+  if(!no_draw && !big) {
     calc_drawing_bbox(&boundbox, 2);
     bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
   }
   draw();
-  if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+  if(!no_draw && !big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   tcleval("if { [info exists gaw_fd] } {close $gaw_fd; unset gaw_fd}\n");
 }
-
 
 
 void hilight_net(int to_waveform)
@@ -1110,7 +1196,8 @@ void select_hilight_net(void)
  for(i=0;i<xctx->instances;i++) {
 
   type = (xctx->inst[i].ptr+ xctx->sym)->type;
-  hilight_connected_inst = (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4);
+  hilight_connected_inst = en_hilight_conn_inst && 
+      ( (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4) );
   if( xctx->inst[i].color != -1) {
     dbg(1, "select_hilight_net(): instance %d flags &4 true\n", i);
      xctx->inst[i].sel = SELECTED;
