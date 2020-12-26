@@ -1006,7 +1006,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
       xctx->areah = xctx->areay2-xctx->areay1;
       /* if no force avoid unnecessary work if no resize */
       if( force || xctx->xschem_w !=xctx->xrect[0].width || xctx->xschem_h !=xctx->xrect[0].height) {
-        dbg(1, "resetwin(): %d, %d, %d, xschem_w=%d xschem_h=%d\n",
+        dbg(1, "resetwin(): create: %d, clear: %d, force: %d, xschem_w=%d xschem_h=%d\n",
                 create_pixmap, clear_pixmap, force, xctx->xschem_w,xctx->xschem_h);
         dbg(1, "resetwin(): changing size\n\n");
         xctx->xrect[0].x = 0;
@@ -1031,6 +1031,8 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
           xctx->gctiled = XCreateGC(display,xctx->window,0L, NULL);
           XSetTile(display,xctx->gctiled, xctx->save_pixmap);
           XSetFillStyle(display,xctx->gctiled,FillTiled);
+          /* whenever a pixmap is recreated all GC attributes must be reissued */
+          change_linewidth(-1.0);
           resetcairo(1, 0, 1); /* create, clear, force */
         }
       }

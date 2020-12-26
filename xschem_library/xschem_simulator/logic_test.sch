@@ -628,7 +628,7 @@ tclcommand="  set count 0
     update ;# allow event loop to come in (update screen, user input etc) 
     incr count
     after 500
-    if \{$count==300 || $tclstop == 1\} break
+    if \{$count==30 || $tclstop == 1\} break
     xschem logic_set $logic_value
     set logic_value [expr !$logic_value]
   \}

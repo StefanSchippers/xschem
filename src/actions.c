@@ -1369,7 +1369,7 @@ void zoom_full(int dr, int sel, int flags, double shrink)
     xctx->xorigin = -boundbox.x1 + (1 - shrink) / 2 * xctx->zoom * schw;
     xctx->yorigin = -boundbox.y1 + xctx->zoom * schh - bboxh - (1 - shrink) / 2 * xctx->zoom * schh;
   }
-  dbg(1, "zoom_full(): areaw=%d, areah=%d\n", xctx->areaw, xctx->areah);
+  dbg(1, "zoom_full(): dr=%d sel=%d flags=%d areaw=%d, areah=%d\n", sel, dr, flags, xctx->areaw, xctx->areah);
   if(flags & 1) change_linewidth(-1.);
   if(dr && has_x) draw();
 }
