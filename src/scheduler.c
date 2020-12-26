@@ -1431,12 +1431,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2) logic_set(atoi(argv[2]));
       Tcl_ResetResult(interp);
     }
-    else if(!strcmp(argv[1],"logicx"))
-    {
-      cmd_found = 1;
-      logicx();
-      Tcl_ResetResult(interp);
-    }
   }
 
   else if(argv[1][0] == 'm') {   

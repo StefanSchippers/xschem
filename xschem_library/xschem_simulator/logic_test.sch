@@ -527,6 +527,7 @@ N 6410 -620 6490 -620 { lab=S3}
 N 6410 -700 6430 -700 { lab=#net51}
 N 6410 -450 6490 -450 { lab=S2}
 N 6250 -110 6290 -110 { lab=VSS}
+N 5740 -300 5820 -300 { lab=Q_FF}
 C {nand2_1.sym} 420 -2020 0 0 {name=x45 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {nand2_1.sym} 650 -1760 0 0 {name=x49 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {nand3_1.sym} 420 -1870 0 0 {name=x51 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
@@ -652,3 +653,8 @@ C {lab_pin.sym} 6490 -450 0 1 {name=l20 sig_type=std_logic lab=S2}
 C {lab_pin.sym} 6490 -280 0 1 {name=l21 sig_type=std_logic lab=S1}
 C {lab_pin.sym} 6490 -110 0 1 {name=l22 sig_type=std_logic lab=S0}
 C {lab_pin.sym} 6250 -110 0 0 {name=l23 sig_type=std_logic lab=VSS}
+C {lab_pin.sym} 5560 -260 0 0 {name=l1 sig_type=std_logic lab=CLEAR_}
+C {lab_pin.sym} 5560 -300 0 0 {name=l24 sig_type=std_logic lab=CLK}
+C {lab_pin.sym} 5820 -300 0 1 {name=l27 sig_type=std_logic lab=Q_FF}
+C {dfrtp_1.sym} 5650 -280 0 0 {name=x2 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
+C {lab_pin.sym} 5560 -280 0 0 {name=l26 sig_type=std_logic lab=DATA}

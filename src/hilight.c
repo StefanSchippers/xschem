@@ -943,27 +943,6 @@ int eval_logic_expr(int inst, int output)
   return stack[0];
 }
 
-void logicx()
-{
-  int i, rects, j;
-  static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X};
-  free_hilight_hash();
-  prepare_netlist_structs(0);
-  for(i=0;i<xctx->instances;i++) {
-    rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
-    for(j=0;j<rects;j++) {
-      if( xctx->inst[i].node && xctx->inst[i].node[j]) {
-         bus_hilight_lookup(xctx->inst[i].node[j], map[2], XINSERT_NOREPLACE);
-      }
-    }
-  }
-  for(i=0;i<xctx->wires;i++) {
-    bus_hilight_lookup(xctx->wire[i].node, 0, XINSERT_NOREPLACE);
-  }
-  propagate_hilights(1, 0, XINSERT_NOREPLACE);
-  draw();
-}
-
 void propagate_logic()
 {
   char *propagated_net=NULL;
