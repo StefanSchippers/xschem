@@ -12,6 +12,8 @@ Simulation will terminate automatically after 30 iterations
 Otherwise go to Simulation ->Force stop tcl scripts} 1390 -700 0 0 2 2 {}
 T {Clicking an input net and pressing '1', '0' or '2' will set the net to logic state 0,1, X respectively} 960 -1030 0 0 2 2 {}
 T {9 Flip Flop Linear Feedback Shift Register} 1660 -3840 0 0 3 3 {layer=11}
+T {Example of multi-output gates
+Full Adder} 6170 -910 0 0 1 1 {}
 N 480 -1900 480 -1870 { lab=#net1}
 N 360 -1970 480 -1900 { lab=#net1}
 N 360 -2000 360 -1970 { lab=#net1}
@@ -507,6 +509,24 @@ N 4200 -3380 4440 -2900 { lab=q6}
 N 6750 -1760 6760 -1760 { lab=q9}
 N 6070 -1760 6130 -1760 { lab=q8}
 N 5300 -2230 5870 -2230 { lab=#net47}
+N 6410 -240 6410 -190 { lab=#net48}
+N 6330 -240 6410 -240 { lab=#net48}
+N 6290 -240 6330 -240 { lab=#net48}
+N 6290 -280 6290 -240 { lab=#net48}
+N 6410 -410 6410 -360 { lab=#net49}
+N 6330 -410 6410 -410 { lab=#net49}
+N 6290 -410 6330 -410 { lab=#net49}
+N 6290 -450 6290 -410 { lab=#net49}
+N 6410 -580 6410 -530 { lab=#net50}
+N 6330 -580 6410 -580 { lab=#net50}
+N 6290 -580 6330 -580 { lab=#net50}
+N 6290 -620 6290 -580 { lab=#net50}
+N 6410 -110 6490 -110 { lab=S0}
+N 6410 -280 6490 -280 { lab=S1}
+N 6410 -620 6490 -620 { lab=S3}
+N 6410 -700 6430 -700 { lab=#net51}
+N 6410 -450 6490 -450 { lab=S2}
+N 6250 -110 6290 -110 { lab=VSS}
 C {nand2_1.sym} 420 -2020 0 0 {name=x45 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {nand2_1.sym} 650 -1760 0 0 {name=x49 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {nand3_1.sym} 420 -1870 0 0 {name=x51 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
@@ -590,12 +610,14 @@ comment="
   This launcher Starts a simple interactive simulation of the LFSR
 "
 tclcommand="  set count 0
+  xschem select instance l23 ;# VSS
   xschem select instance p11 ;# CLEAR
   xschem select instance p8  ;# CLOCK
   xschem logic_set 0         ;# reset pulse (active low) 
   update ;# allow event loop to come in (update screen, user input etc)
   after 1000
   xschem select instance p8 clear ;# release CLOCK
+  xschem select instance l23 clear ;# release VSS
   xschem logic_set 1
   xschem select instance p11 clear ;# release CLEAR
   xschem select instance p8
@@ -612,3 +634,21 @@ tclcommand="  set count 0
   \}
 "
 }
+C {fa_1.sym} 6350 -660 0 0 {name=x7 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
+C {fa_1.sym} 6350 -490 0 0 {name=x8 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
+C {fa_1.sym} 6350 -320 0 0 {name=x9 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
+C {fa_1.sym} 6350 -150 0 0 {name=x10 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
+C {lab_pin.sym} 6290 -700 0 0 {name=l10 sig_type=std_logic lab=q1}
+C {lab_pin.sym} 6290 -660 0 0 {name=l11 sig_type=std_logic lab=q2}
+C {lab_pin.sym} 6290 -490 0 0 {name=l12 sig_type=std_logic lab=q4}
+C {lab_pin.sym} 6290 -530 0 0 {name=l13 sig_type=std_logic lab=q3}
+C {lab_pin.sym} 6290 -320 0 0 {name=l14 sig_type=std_logic lab=q6}
+C {lab_pin.sym} 6290 -360 0 0 {name=l15 sig_type=std_logic lab=q5}
+C {lab_pin.sym} 6290 -150 0 0 {name=l16 sig_type=std_logic lab=q8}
+C {lab_pin.sym} 6290 -190 0 0 {name=l17 sig_type=std_logic lab=q7}
+C {noconn.sym} 6430 -700 2 0 {name=l18}
+C {lab_pin.sym} 6490 -620 0 1 {name=l19 sig_type=std_logic lab=S3}
+C {lab_pin.sym} 6490 -450 0 1 {name=l20 sig_type=std_logic lab=S2}
+C {lab_pin.sym} 6490 -280 0 1 {name=l21 sig_type=std_logic lab=S1}
+C {lab_pin.sym} 6490 -110 0 1 {name=l22 sig_type=std_logic lab=S0}
+C {lab_pin.sym} 6250 -110 0 0 {name=l23 sig_type=std_logic lab=VSS}
