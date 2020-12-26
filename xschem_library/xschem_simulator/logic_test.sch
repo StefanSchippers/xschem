@@ -10,7 +10,7 @@ T {Ctrl-Click here to start a simulation. Xschem will be only partially responsi
 during simulation.
 Simulation will terminate automatically after 30 iterations
 Otherwise go to Simulation ->Force stop tcl scripts} 1390 -700 0 0 2 2 {}
-T {Clicking an input net and pressing '1', '0' or '2' will set the net to logic state 0,1, X respectively} 960 -1030 0 0 2 2 {}
+T {Clicking an input net and pressing '0', '1' or '2' will set the net to logic state 0,1, X respectively} 960 -1030 0 0 2 2 {}
 T {9 Flip Flop Linear Feedback Shift Register} 1660 -3840 0 0 3 3 {layer=11}
 T {Example of multi-output gates
 Full Adder} 6170 -910 0 0 1 1 {}
@@ -628,7 +628,7 @@ tclcommand="  set count 0
     update ;# allow event loop to come in (update screen, user input etc) 
     incr count
     after 500
-    if \{$count==30 || $tclstop == 1\} break
+    if \{$count==300 || $tclstop == 1\} break
     xschem logic_set $logic_value
     set logic_value [expr !$logic_value]
   \}
