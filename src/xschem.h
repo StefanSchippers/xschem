@@ -642,6 +642,7 @@ struct hilight_hashentry {
                   char *token;
                   char *path; /* hierarchy path */
                   int value;  /* hilight color */
+                  int oldvalue;  /* previous hilight color */
                  };
 
 /*  for netlist.c */

@@ -22,8 +22,8 @@ END{
     print line[i] > FILENAME
   }
   close(FILENAME)
-  system("sort -k 2 " FILENAME " | awk '{$NF=\"\";  print $0}' > " "." FILENAME ".xxxxx")
-  system("mv ." FILENAME ".xxxxx " FILENAME)
+  system("sort -k 2 " FILENAME " | awk '{$NF=\"\";  print $0}' > "  FILENAME ".xxxxx")
+  system("mv " FILENAME ".xxxxx " FILENAME)
 }
 
 

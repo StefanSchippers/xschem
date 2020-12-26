@@ -217,6 +217,7 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
         my_strdup(138, &(entry->token),token);
         entry->path = NULL;
         my_strdup(139, &(entry->path),xctx->sch_path[xctx->currsch]);
+        entry->oldvalue=value; /* just created. There is no oldvalue */
         entry->value=value;
         entry->hash=hashcode;
         *preventry=entry;
@@ -233,6 +234,7 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
         my_free(764, &entry);
         *preventry=saveptr;
       } else if(what == XINSERT ) {
+        entry->oldvalue=entry->value;
         entry->value = value;
       }
       return entry; /* found matching entry, return the address */
@@ -1353,17 +1355,9 @@ void print_hilight_net(int show)
    my_free(780, &filetmp2);
    return;
  }
-#ifdef __unix__
- my_snprintf(cmd, S(cmd), "\"%s/order_labels.awk\"", tclgetvar("XSCHEM_SHAREDIR"));
-#else
  my_snprintf(cmd, S(cmd), "awk -f \"%s/order_labels.awk\"", tclgetvar("XSCHEM_SHAREDIR"));
-#endif
  my_snprintf(cmd2, S(cmd2), "%s %s > %s", cmd, filetmp1, filetmp2);
-#ifdef __unix__
- my_snprintf(cmd3, S(cmd3), "\"%s/sort_labels.awk\" %s", tclgetvar("XSCHEM_SHAREDIR"), filetmp1);
-#else
  my_snprintf(cmd3, S(cmd3), "awk -f \"%s/sort_labels.awk\" %s", tclgetvar("XSCHEM_SHAREDIR"), filetmp1);
-#endif
  for(i=0;i<HASHSIZE;i++) {
    entry=xctx->hilight_table[i];
    while(entry) {
@@ -1433,7 +1427,6 @@ void print_hilight_net(int show)
  xctx->prep_hi_structs=0;
  xctx->prep_net_structs=0;
 
- /* delete_netlist_structs(); */
  my_free(781, &filetmp1);
  my_free(782, &filetmp2);
 }
