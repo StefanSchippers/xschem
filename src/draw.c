@@ -51,16 +51,19 @@ void print_image()
 {
   int save_draw_grid;
   char cmd[PATH_MAX+100];
+  static char lastdir[PATH_MAX] = "";
   const char *r;
-  char *tmpstring=NULL;
 
   if(!has_x) return ;
+  if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
   if(!plotfile[0]) {
-    my_strdup(60, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir [pwd]");
-    tcleval(tmpstring);
+    Tcl_VarEval(interp, "tk_getSaveFile -title {Select destination file} -initialdir ", lastdir, NULL);
     r = tclresult();
-    my_free(717, &tmpstring);
-    if(r[0]) my_strncpy(plotfile, r, S(plotfile));
+    if(r[0]) {
+      my_strncpy(plotfile, r, S(plotfile));
+      Tcl_VarEval(interp, "file dirname ", plotfile, NULL);
+      my_strncpy(lastdir, tclresult(), S(lastdir));
+    }
     else return;
   }
   #if 0

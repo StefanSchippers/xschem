@@ -585,20 +585,22 @@ void ps_draw(void)
  xRect boundbox;
  int c,i, textlayer;
  char tmp[2*PATH_MAX+40];
+ static char lastdir[PATH_MAX] = "";
  int old_grid;
  const char *r, *textfont;
  char *psfile;
 
+ if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
  if(!plotfile[0]) {
-   my_snprintf(tmp, S(tmp), "tk_getSaveFile -title {Select destination file} -initialdir [pwd]");
-   tcleval(tmp);
+   Tcl_VarEval(interp, "tk_getSaveFile -title {Select destination file} -initialdir ", lastdir, NULL);
    r = tclresult();
-   if(r[0]) my_strncpy(plotfile, r, S(plotfile));
-   else {
-     return;
+   if(r[0]) {
+     my_strncpy(plotfile, r, S(plotfile));
+     Tcl_VarEval(interp, "file dirname ", plotfile, NULL);
+     my_strncpy(lastdir, tclresult(), S(lastdir));
    }
+   else return;
  }
-
  if(!(fd = open_tmpfile("psplot_", &psfile)) ) {
    fprintf(errfp, "ps_draw(): can not create tmpfile %s\n", psfile);
    return;

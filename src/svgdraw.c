@@ -555,18 +555,21 @@ void svg_draw(void)
   double dx, dy;
   int c,i, textlayer;
   int old_grid;
-  char *tmpstring=NULL;
+  static char lastdir[PATH_MAX] = "";
   const char *r, *textfont;
   int *unused_layer;
   int color;
   struct hilight_hashentry *entry;
   
+  if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
   if(!plotfile[0]) {
-    my_strdup(61, &tmpstring, "tk_getSaveFile -title {Select destination file} -initialdir [pwd]");
-    tcleval(tmpstring);
+    Tcl_VarEval(interp, "tk_getSaveFile -title {Select destination file} -initialdir ", lastdir, NULL);
     r = tclresult();
-    my_free(963, &tmpstring);
-    if(r[0]) my_strncpy(plotfile, r, S(plotfile));
+    if(r[0]) {
+      my_strncpy(plotfile, r, S(plotfile));
+      Tcl_VarEval(interp, "file dirname ", plotfile, NULL);
+      my_strncpy(lastdir, tclresult(), S(lastdir));
+    }
     else return;
   }
   svg_restore_lw();
