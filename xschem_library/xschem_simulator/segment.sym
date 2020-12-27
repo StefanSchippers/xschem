@@ -1,0 +1,10 @@
+v {xschem version=2.9.9 file_version=1.2 }
+G {}
+K {type=label
+format="*.alias @lab"
+template="name=l1 sig_type=std_logic lab=xxx"}
+V {}
+S {}
+E {}
+B 5 -0.3125 29.6875 0.3125 30.3125 {name=p dir=in}
+P 19 9 0 30 -30 0 -530 0 -560 30 -560 50 -530 80 -30 80 0 50 0 30 {fill=true}

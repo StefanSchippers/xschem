@@ -93,11 +93,19 @@ void free_hilight_hash(void) /* remove the whole hash table  */
  }
 }
 
-
+/* by default: 
+ * active_layer[0] = 7
+ * active_layer[1] = 8
+ * active_layer[2] = 10  if 9 is disabled it is skipped
+ * ...
+ * if a layer is disabled (not viewable) it is skipped
+ * active layers is the total number of layers for hilights.
+ */
 int get_color(int value)
 {
   int x;
 
+  if(value < 0) return -value;
   if(n_active_layers) {
     x = value%(n_active_layers);
     return active_layer[x];
@@ -217,8 +225,8 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
         my_strdup(138, &(entry->token),token);
         entry->path = NULL;
         my_strdup(139, &(entry->path),xctx->sch_path[xctx->currsch]);
-        entry->oldvalue=value; /* just created. There is no oldvalue */
         entry->value=value;
+        entry->time=xctx->hilight_time;
         entry->hash=hashcode;
         *preventry=entry;
         xctx->hilight_nets=1; /* some nets should be hilighted ....  07122002 */
@@ -234,8 +242,8 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
         my_free(764, &entry);
         *preventry=saveptr;
       } else if(what == XINSERT ) {
-        entry->oldvalue=entry->value;
         entry->value = value;
+        entry->time=xctx->hilight_time;
       }
       return entry; /* found matching entry, return the address */
     }
@@ -845,10 +853,10 @@ void propagate_hilights(int set, int clear, int mode)
   if(xctx->hilight_nets && enable_drill && set) drill_hilight(mode);
 }
 
-
-#define LOGIC_X 7
-#define LOGIC_0 5
-#define LOGIC_1 0
+/* use negative values to bypass the normal hilight color enumeration */
+#define LOGIC_X -1
+#define LOGIC_0 -12
+#define LOGIC_1 -5
 
 #define STACKMAX 100
 int get_logic_value(int inst, int n)
@@ -959,6 +967,7 @@ void propagate_logic()
   int val, oldval;
   static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X};
 
+  tclsetvar("tclstop", "0");
   prepare_netlist_structs(0);
   while(1) {
     found=0;
@@ -971,6 +980,26 @@ void propagate_logic()
         if(propagate_str) {
           int n = 1;
           const char *propag;
+          int clock_pin, clock_val;
+          const char *clock = get_tok_value(rct[j].prop_ptr, "clock", 0);
+          clock_pin = clock[0] - '0';
+          if(clock_pin != -1) {
+            entry = bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP); /* clock pin */
+            clock_val =  (!entry) ? LOGIC_X : entry->value;
+            if(entry) {
+              if(clock_pin == 0) { /* clock falling edge */
+                if( clock_val != LOGIC_0) continue;
+                if(entry && entry->time != xctx->hilight_time) continue;
+              } else if(clock_pin == 1) { /* clock rising edge */
+                if( clock_val != LOGIC_1) continue;
+                if(entry && entry->time != xctx->hilight_time) continue;
+              } else if(clock_pin == 2) { /* set/clear active low */
+                if( clock_val != LOGIC_0) continue;
+              } else if(clock_pin == 3) { /* set/clear active high */
+                if( clock_val != LOGIC_1) continue;
+              }
+            }
+          }
           dbg(1, "propagate_logic(): inst=%d propagate_str=%s\n", i, propagate_str);
           while(1) {
             propag = find_nth(propagate_str, ',', n);
@@ -981,6 +1010,10 @@ void propagate_logic()
                dbg(0, "Error: inst: %s, pin %d, propagate_to set to %s <<%d>>\n",
                  xctx->inst[i].instname, j, propagate_str, propagate);
                  continue;
+            }
+            if(!xctx->inst[i].node[propagate]) {
+              dbg(0, "Error: inst %s, output in %d unconnected\n", xctx->inst[i].instname, propagate);
+              break;
             }
             /* get net to propagate hilight to...*/
             /* fast option: dont use net_name() (no expandlabel though) */
@@ -1004,6 +1037,7 @@ void propagate_logic()
     /* get out from infinite loops (circuit is oscillating) */
     Tcl_VarEval(interp, "update; if {$::tclstop == 1} {return 1} else {return 0}", NULL);
     if( tclresult()[0] == '1') break;
+    xctx->hilight_time++;
   } /* while(1) */
   my_free(1224, &propagate_str);
   my_free(1222, &propagated_net);

@@ -1078,6 +1078,7 @@ int callback(int event, int mx, int my, KeySym key,
     break;
    }
    if(key >= '0' && key <= '2' && state == 0) {  /* Toggle pin logic level */
+    if(xctx->semaphore >= 2) break;
     logic_set(key - '0');
     break;
    }

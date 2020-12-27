@@ -4,16 +4,20 @@ K {}
 V {}
 S {}
 E {}
+B 1 160 -3040 6800 -2320 {}
 P 4 7 920 -960 110 -960 110 -1040 100 -1040 110 -1080 120 -1040 110 -1040 {}
 P 4 9 1320 -640 920 -640 920 -460 900 -460 920 -420 940 -460 920 -460 920 -640 1320 -640 {}
-T {Ctrl-Click here to start a simulation. Xschem will be only partially responsive 
-during simulation.
+T {This example shows Xschem (very simple) simulation abilities
+Ctrl-Click here to start a simulation.
+Xschem will be only partially responsive during simulation.
 Simulation will terminate automatically after 30 iterations
-Otherwise go to Simulation ->Force stop tcl scripts} 1390 -700 0 0 2 2 {}
+Otherwise go to Simulation ->Forced stop tcl scripts} 1340 -740 0 0 2 2 {}
 T {Clicking an input net and pressing '0', '1' or '2' will set the net to logic state 0,1, X respectively} 960 -1030 0 0 2 2 {}
-T {9 Flip Flop Linear Feedback Shift Register} 1660 -3840 0 0 3 3 {layer=11}
-T {Example of multi-output gates
-Full Adder} 6170 -910 0 0 1 1 {}
+T {9 Flip Flop Linear Feedback Shift Register} 1980 -3440 0 0 3 3 {}
+T {Cyan: Uninitialized or unknown (X)} 4930 -540 0 0 1.5 1.5 {layer=1}
+T {Signal colors:} 4850 -640 0 0 1.5 1.5 {}
+T {Blue: Logic level low (0)} 4930 -440 0 0 1.5 1.5 {layer=12}
+T {Red: Logic level high (1)} 4930 -340 0 0 1.5 1.5 {layer=5}
 N 480 -1900 480 -1870 { lab=#net1}
 N 360 -1970 480 -1900 { lab=#net1}
 N 360 -2000 360 -1970 { lab=#net1}
@@ -439,95 +443,15 @@ N 4380 -1400 4380 -1390 { lab=#net30}
 N 5050 -1400 5050 -1390 { lab=#net35}
 N 5720 -1400 5720 -1390 { lab=#net40}
 N 6400 -1400 6400 -1390 { lab=#net45}
-N 180 -3380 180 -2420 { lab=q1}
-N 180 -3380 420 -2980 { lab=q1}
-N 420 -2980 660 -3380 { lab=q1}
-N 660 -3380 660 -2420 { lab=q1}
-N 840 -2900 840 -2420 { lab=q2}
-N 1500 -2900 1500 -2420 { lab=q3}
-N 4860 -3380 4860 -2420 { lab=q7}
-N 4860 -3380 5100 -2980 { lab=q7}
-N 5100 -2980 5340 -3380 { lab=q7}
-N 5340 -3380 5340 -2420 { lab=q7}
-N 5520 -2700 5520 -2420 { lab=q8}
-N 6000 -2700 6000 -2420 { lab=q8}
-N 2820 -3380 3060 -2880 { lab=q5}
-N 3060 -2880 3300 -3380 { lab=q5}
-N 840 -3380 1320 -3380 { lab=q2}
-N 840 -2900 1200 -2900 { lab=q2}
-N 840 -2420 1320 -2420 { lab=q2}
-N 1500 -3380 1820 -3380 { lab=q3}
-N 1820 -3380 1920 -3300 { lab=q3}
-N 1920 -3300 1980 -3220 { lab=q3}
-N 1980 -3220 1980 -3060 { lab=q3}
-N 1820 -2900 1920 -2980 { lab=q3}
-N 1920 -2980 1980 -3060 { lab=q3}
-N 1700 -2900 1820 -2900 { lab=q3}
-N 1700 -2900 1980 -2420 { lab=q3}
-N 2160 -2900 2160 -2420 { lab=q4}
-N 2160 -3380 2480 -3380 { lab=q4}
-N 2480 -3380 2580 -3300 { lab=q4}
-N 2580 -3300 2640 -3220 { lab=q4}
-N 2640 -3220 2640 -3060 { lab=q4}
-N 2480 -2900 2580 -2980 { lab=q4}
-N 2580 -2980 2640 -3060 { lab=q4}
-N 2360 -2900 2480 -2900 { lab=q4}
-N 2360 -2900 2640 -2420 { lab=q4}
-N 3060 -2880 3060 -2420 { lab=q5}
-N 4440 -2900 4680 -2420 { lab=q6}
-N 5520 -3080 5680 -3380 { lab=q8}
-N 5680 -3380 5840 -3380 { lab=q8}
-N 5840 -3380 6000 -3080 { lab=q8}
-N 5520 -2700 6000 -2700 { lab=q8}
-N 6560 -3380 6660 -3280 { lab=q9}
-N 6280 -3380 6560 -3380 { lab=q9}
-N 6180 -3280 6280 -3380 { lab=q9}
-N 6280 -2900 6560 -2900 { lab=q9}
-N 6180 -3000 6280 -2900 { lab=q9}
-N 6180 -3280 6180 -3000 { lab=q9}
-N 6560 -2900 6660 -2800 { lab=q9}
-N 6660 -2800 6660 -2520 { lab=q9}
-N 6560 -2420 6660 -2520 { lab=q9}
-N 6280 -2420 6560 -2420 { lab=q9}
-N 6180 -2520 6280 -2420 { lab=q9}
-N 4440 -2900 4680 -3380 { lab=q6}
-N 4200 -2420 4440 -2900 { lab=q6}
 N 5990 -2250 6760 -2250 { lab=q9}
 N 6760 -2250 6760 -1760 { lab=q9}
 N 6130 -2210 6130 -1760 { lab=q8}
 N 5990 -2210 6130 -2210 { lab=q8}
 N 120 -2230 5220 -2230 { lab=#net6}
 N 120 -2230 120 -1350 { lab=#net6}
-N 840 -3380 840 -2900 { lab=q2}
-N 1500 -3380 1500 -2900 { lab=q3}
-N 1500 -2900 1700 -2900 { lab=q3}
-N 2160 -3380 2160 -2900 { lab=q4}
-N 2160 -2900 2360 -2900 { lab=q4}
-N 5520 -3080 5520 -2700 { lab=q8}
-N 6000 -3080 6000 -2700 { lab=q8}
-N 4200 -3380 4440 -2900 { lab=q6}
 N 6750 -1760 6760 -1760 { lab=q9}
 N 6070 -1760 6130 -1760 { lab=q8}
 N 5300 -2230 5870 -2230 { lab=#net47}
-N 6410 -240 6410 -190 { lab=#net48}
-N 6330 -240 6410 -240 { lab=#net48}
-N 6290 -240 6330 -240 { lab=#net48}
-N 6290 -280 6290 -240 { lab=#net48}
-N 6410 -410 6410 -360 { lab=#net49}
-N 6330 -410 6410 -410 { lab=#net49}
-N 6290 -410 6330 -410 { lab=#net49}
-N 6290 -450 6290 -410 { lab=#net49}
-N 6410 -580 6410 -530 { lab=#net50}
-N 6330 -580 6410 -580 { lab=#net50}
-N 6290 -580 6330 -580 { lab=#net50}
-N 6290 -620 6290 -580 { lab=#net50}
-N 6410 -110 6490 -110 { lab=S0}
-N 6410 -280 6490 -280 { lab=S1}
-N 6410 -620 6490 -620 { lab=S3}
-N 6410 -700 6430 -700 { lab=#net51}
-N 6410 -450 6490 -450 { lab=S2}
-N 6250 -110 6290 -110 { lab=VSS}
-N 5740 -300 5820 -300 { lab=Q_FF}
 C {nand2_1.sym} 420 -2020 0 0 {name=x45 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {nand2_1.sym} 650 -1760 0 0 {name=x49 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {nand3_1.sym} 420 -1870 0 0 {name=x51 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
@@ -584,15 +508,6 @@ C {nand3_1.sym} 6460 -1870 0 0 {name=x95 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR pre
 C {nand3_1.sym} 6460 -1500 0 0 {name=x96 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {nand3_1.sym} 6690 -1610 0 0 {name=x97 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {nand3_1.sym} 6460 -1350 0 0 {name=x98 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {lab_pin.sym} 180 -2420 0 0 {name=l2 sig_type=std_logic lab=q1}
-C {lab_pin.sym} 840 -2420 0 0 {name=l3 sig_type=std_logic lab=q2}
-C {lab_pin.sym} 1500 -2420 0 0 {name=l4 sig_type=std_logic lab=q3}
-C {lab_pin.sym} 2160 -2420 0 0 {name=l5 sig_type=std_logic lab=q4}
-C {lab_pin.sym} 3060 -2420 0 0 {name=l6 sig_type=std_logic lab=q5}
-C {lab_pin.sym} 4200 -2420 0 0 {name=l7 sig_type=std_logic lab=q6}
-C {lab_pin.sym} 4860 -2420 0 0 {name=l8 sig_type=std_logic lab=q7}
-C {lab_pin.sym} 5520 -2420 0 0 {name=l9 sig_type=std_logic lab=q8}
-C {lab_pin.sym} 6280 -2420 0 0 {name=l28 sig_type=std_logic lab=q9}
 C {lab_pin.sym} 770 -1760 0 1 {name=l29 sig_type=std_logic lab=q1}
 C {lab_pin.sym} 1430 -1760 0 1 {name=l30 sig_type=std_logic lab=q2}
 C {lab_pin.sym} 2090 -1760 0 1 {name=l31 sig_type=std_logic lab=q3}
@@ -635,26 +550,12 @@ tclcommand="  set count 0
   \}
 "
 }
-C {fa_1.sym} 6350 -660 0 0 {name=x7 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {fa_1.sym} 6350 -490 0 0 {name=x8 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {fa_1.sym} 6350 -320 0 0 {name=x9 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {fa_1.sym} 6350 -150 0 0 {name=x10 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {lab_pin.sym} 6290 -700 0 0 {name=l10 sig_type=std_logic lab=q1}
-C {lab_pin.sym} 6290 -660 0 0 {name=l11 sig_type=std_logic lab=q2}
-C {lab_pin.sym} 6290 -490 0 0 {name=l12 sig_type=std_logic lab=q4}
-C {lab_pin.sym} 6290 -530 0 0 {name=l13 sig_type=std_logic lab=q3}
-C {lab_pin.sym} 6290 -320 0 0 {name=l14 sig_type=std_logic lab=q6}
-C {lab_pin.sym} 6290 -360 0 0 {name=l15 sig_type=std_logic lab=q5}
-C {lab_pin.sym} 6290 -150 0 0 {name=l16 sig_type=std_logic lab=q8}
-C {lab_pin.sym} 6290 -190 0 0 {name=l17 sig_type=std_logic lab=q7}
-C {noconn.sym} 6430 -700 2 0 {name=l18}
-C {lab_pin.sym} 6490 -620 0 1 {name=l19 sig_type=std_logic lab=S3}
-C {lab_pin.sym} 6490 -450 0 1 {name=l20 sig_type=std_logic lab=S2}
-C {lab_pin.sym} 6490 -280 0 1 {name=l21 sig_type=std_logic lab=S1}
-C {lab_pin.sym} 6490 -110 0 1 {name=l22 sig_type=std_logic lab=S0}
-C {lab_pin.sym} 6250 -110 0 0 {name=l23 sig_type=std_logic lab=VSS}
-C {lab_pin.sym} 5560 -260 0 0 {name=l1 sig_type=std_logic lab=CLEAR_}
-C {lab_pin.sym} 5560 -300 0 0 {name=l24 sig_type=std_logic lab=CLK}
-C {lab_pin.sym} 5820 -300 0 1 {name=l27 sig_type=std_logic lab=Q_FF}
-C {dfrtp_1.sym} 5650 -280 0 0 {name=x2 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {lab_pin.sym} 5560 -280 0 0 {name=l26 sig_type=std_logic lab=DATA}
+C {giant_label2.sym} 240 -3040 0 0 {name=l1 sig_type=std_logic lab=q1 text=M}
+C {giant_label2.sym} 880 -3040 0 0 {name=l2 sig_type=std_logic lab=q2 text=E}
+C {giant_label2.sym} 1520 -3040 0 0 {name=l3 sig_type=std_logic lab=q3 text=R}
+C {giant_label2.sym} 2160 -3040 0 0 {name=l4 sig_type=std_logic lab=q4 text=R}
+C {giant_label2.sym} 2800 -3040 0 0 {name=l5 sig_type=std_logic lab=q5 text=Y}
+C {giant_label2.sym} 4240 -3040 0 0 {name=l6 sig_type=std_logic lab=q6 text=X}
+C {giant_label2.sym} 4880 -3040 0 0 {name=l7 sig_type=std_logic lab=q7 text=M}
+C {giant_label2.sym} 5520 -3040 0 0 {name=l8 sig_type=std_logic lab=q8 text=A}
+C {giant_label2.sym} 6160 -3040 0 0 {name=l9 sig_type=std_logic lab=q9 text=S}

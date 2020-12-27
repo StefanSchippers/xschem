@@ -557,6 +557,7 @@ typedef struct {
   struct hilight_hashentry *hilight_table[HASHSIZE];
   int hilight_nets;
   int hilight_color;
+  int hilight_time; /* timestamp for sims */
   unsigned int rectcolor; /* current layer */
   /* get_unnamed_node() */
   int new_node;
@@ -642,7 +643,7 @@ struct hilight_hashentry {
                   char *token;
                   char *path; /* hierarchy path */
                   int value;  /* hilight color */
-                  int oldvalue;  /* previous hilight color */
+                  int time; /*delta-time for sims */
                  };
 
 /*  for netlist.c */

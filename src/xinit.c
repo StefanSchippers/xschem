@@ -456,6 +456,7 @@ void alloc_xschem_data()
   xctx->nl_xr = xctx->nl_yr = xctx->nl_xr2 = xctx->nl_yr2 = 0.0;
   xctx->nl_sel = xctx->nl_sem = 0;
 
+  xctx->hilight_time = 0; /* timestamp for sims */
   xctx->hilight_nets = 0;
   xctx->hilight_color = 0;
   xctx->rectcolor = 0;
