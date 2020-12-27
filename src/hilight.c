@@ -245,7 +245,7 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
   }
 }
 
-/* warning, in case of buses return only pointer to first bus element */
+/* warning, in case of buses return only pointer to first found bus element */
 struct hilight_hashentry *bus_hilight_lookup(const char *token, int value, int what)
 {
   char *start, *string_ptr, c;
@@ -858,6 +858,7 @@ int get_logic_value(int inst, int n)
   char *netname = NULL;
 
   /* fast option: dont use net_name() (no expandlabel though) */
+  /* THIS MUST BE DONE TO HANDLE VECTOR INSTANCES/BUSES */
   /* my_strdup(1219, &netname, net_name(inst, n, &mult, 1, 0)); */
   my_strdup(1219, &netname, xctx->inst[inst].node[n]);
   entry=bus_hilight_lookup(netname, 0, XLOOKUP);
@@ -983,14 +984,14 @@ void propagate_logic()
             }
             /* get net to propagate hilight to...*/
             /* fast option: dont use net_name() (no expandlabel though) */
+            /* THIS MUST BE DONE TO HANDLE VECTOR INSTANCES/BUSES */
             /* my_strdup(1220, &propagated_net, net_name(i, propagate, &mult, 1, 0)); */
             my_strdup(1220, &propagated_net, xctx->inst[i].node[propagate]);
             dbg(1, "propagate_logic(): inst %d pin %d propag=%s n=%d\n", i, j, propag, n);
             dbg(1, "propagate_logic(): inst %d pin %d propagate=%d\n", i, j, propagate);
             dbg(1, "propagate_logic(): propagated_net=%s\n", propagated_net);
-  
             /* add net to highlight list */
-            entry = bus_hilight_lookup(propagated_net, 0, XLOOKUP);
+            entry = bus_hilight_lookup(propagated_net, 0, XLOOKUP); /* destination pin */
             oldval = (!entry) ? LOGIC_X : entry->value;
             val =  map[eval_logic_expr(i, propagate)];
             bus_hilight_lookup(propagated_net, val, XINSERT);
