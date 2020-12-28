@@ -1,4 +1,4 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {type=raw_data_show
 vhdl_ignore=true
@@ -11,4 +11,4 @@ S {}
 E {}
 A 15 0 0 1.875 90 360 {fill=true}
 T {tcleval([ ngspice::get_node [subst -nocommand \{@node\\\}] ] )} 4.375 -8.59375 0 0 0.2 0.2 {vcenter=true layer=15}
-T {tcleval([regsub \{\\@(.*\\\\.)?\} [subst -nocommand \{@node\\\}] \{\} ] )} 4.375 -21.09375 0 0 0.2 0.2 {vcenter=true layer=15}
+T {tcleval([regsub \{\\@([^.]*\\\\.)?\} [subst -nocommand \{@node\\\}] \{\} ] )} 4.375 -21.09375 0 0 0.2 0.2 {vcenter=true layer=15}
