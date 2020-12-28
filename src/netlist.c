@@ -303,10 +303,6 @@ void hash_wire(int what, int n, int incremental)
   struct wireentry *wptr;
   xWire * const wire = xctx->wire;
 
-
-  /* >>>>> THIS IS NOT NEEDED !! delete_netlist_structs() does this... Why this HERE ?? <<<<< */
-  /* my_free(827, &wire[n].node); */
-
   wire[n].end1 = wire[n].end2=-1;
   x1=wire[n].x1;
   x2=wire[n].x2;

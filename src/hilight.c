@@ -867,13 +867,16 @@ int get_logic_value(int inst, int n)
 
   /* fast option: dont use net_name() (no expandlabel though) */
   /* THIS MUST BE DONE TO HANDLE VECTOR INSTANCES/BUSES */
-  /* my_strdup(1219, &netname, net_name(inst, n, &mult, 1, 0)); */
+  /* my_strdup(xxxx, &netname, net_name(inst, n, &mult, 1, 0)); */
   my_strdup(1219, &netname, xctx->inst[inst].node[n]);
   entry=bus_hilight_lookup(netname, 0, XLOOKUP);
-  if(!entry) return 2; /* LOGIC_X */
-  val = entry->value;
-  val = (val == LOGIC_0) ? 0 : (val == LOGIC_1) ? 1 : 2;
-  dbg(1, "get_logic_value(): inst=%d pin=%d net=%s val=%d\n", inst, n, netname, val);
+  if(!entry) {
+    val = 2; /* LOGIC_X */
+  } else {
+    val = entry->value;
+    val = (val == LOGIC_0) ? 0 : (val == LOGIC_1) ? 1 : 2;
+    /* dbg(1, "get_logic_value(): inst=%d pin=%d net=%s val=%d\n", inst, n, netname, val); */
+  }
   my_free(1221, &netname);
   return val;
 }
@@ -1007,8 +1010,8 @@ void propagate_logic()
             if(!propag[0]) break;
             propagate = atoi(propag);
             if(propagate < 0 || propagate >= npin) {
-               dbg(0, "Error: inst: %s, pin %d, propagate_to set to %s <<%d>>\n",
-                 xctx->inst[i].instname, j, propagate_str, propagate);
+               /* dbg(0, "Error: inst: %s, pin %d, propagate_to set to %s <<%d>>\n",
+                * xctx->inst[i].instname, j, propagate_str, propagate); */
                  continue;
             }
             if(!xctx->inst[i].node[propagate]) {
@@ -1018,11 +1021,11 @@ void propagate_logic()
             /* get net to propagate hilight to...*/
             /* fast option: dont use net_name() (no expandlabel though) */
             /* THIS MUST BE DONE TO HANDLE VECTOR INSTANCES/BUSES */
-            /* my_strdup(1220, &propagated_net, net_name(i, propagate, &mult, 1, 0)); */
+            /* my_strdup(xxx, &propagated_net, net_name(i, propagate, &mult, 1, 0)); */
             my_strdup(1220, &propagated_net, xctx->inst[i].node[propagate]);
-            dbg(1, "propagate_logic(): inst %d pin %d propag=%s n=%d\n", i, j, propag, n);
-            dbg(1, "propagate_logic(): inst %d pin %d propagate=%d\n", i, j, propagate);
-            dbg(1, "propagate_logic(): propagated_net=%s\n", propagated_net);
+            /* dbg(1, "propagate_logic(): inst %d pin %d propag=%s n=%d\n", i, j, propag, n);
+             * dbg(1, "propagate_logic(): inst %d pin %d propagate=%d\n", i, j, propagate);
+             * dbg(1, "propagate_logic(): propagated_net=%s\n", propagated_net); */
             /* add net to highlight list */
             entry = bus_hilight_lookup(propagated_net, 0, XLOOKUP); /* destination pin */
             oldval = (!entry) ? LOGIC_X : entry->value;

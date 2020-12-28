@@ -214,7 +214,7 @@ static char *expandlabel_strbus_nobracket(char *s, int *n)
  {
   tmplen = sprintf(tmp, "%s%d,", s, n[i]);
   /* strcpy(res+l,tmp); */
-  memcpy(res+l,tmp, tmplen+1); /* 20180923 */
+  memcpy(res+l,tmp, tmplen+1);
   l+=tmplen;
  }
  my_free(736, &tmp);
@@ -258,8 +258,8 @@ int  *idx;  /* for bus index & bus index ranges */
 
 line:    /* empty */
          | list         {
-                         my_strdup(129,  &(dest_string.str),$1.str); /*19102004 */
-                         my_free(737, &$1.str); /*19102004 */
+                         my_strdup(129,  &(dest_string.str),$1.str); 
+                         my_free(737, &$1.str); 
                          dest_string.m=$1.m;
                         }
 ;
@@ -271,7 +271,7 @@ list:     B_NAME        {
                         }
         | B_LINE        {
                          dbg(3, "yyparse(): B_LINE\n");
-                         $$.str = expandlabel_strdup($1); /* 19102004 prima era =$1 */
+                         $$.str = expandlabel_strdup($1); /* prima era =$1 */
                          my_free(739, &$1);
                          $$.m = 1;
                         }
@@ -344,7 +344,7 @@ list:     B_NAME        {
                          my_free(748, &$1); 
                          dbg(3, "yyparse(): done making bus: n=%d\n",$3[0]);
                          $$.m=$3[0];
-                         my_free(749, &$3); /*19102004 */
+                         my_free(749, &$3); 
                          idxsize=INITIALIDXSIZE;
                         }
         | B_NAME  '[' index_nobracket  ']' 
@@ -354,13 +354,13 @@ list:     B_NAME        {
                          my_free(750, &$1);
                          dbg(3, "yyparse(): done making nobracket bus: n=%d\n",$3[0]);
                          $$.m=$3[0];
-                         my_free(751, &$3); /*19102004 */
+                         my_free(751, &$3); 
                          idxsize=INITIALIDXSIZE;
                         }
 ;
 index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                         {
-                         int i;                                 /* 20120229 */
+                         int i;
                          int sign;
 
                          sign = SIGN($3-$1);
@@ -374,7 +374,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
 
                           if(sign==1 && i>=$3) break;
                           if(sign==-1 && i<=$3) break;
-                         }                                      /* /20120229 */
+                         }
                         }
         | B_IDXNUM ':' B_IDXNUM
                         {
@@ -398,7 +398,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                         }
         | index ',' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                         {
-                         int i;                                 /* 20120229 */
+                         int i;                                 
                          int sign;
 
                          sign = SIGN($5-$3);
@@ -409,7 +409,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                           $$[$$[0]]=i;
                           if(sign==1 && i>=$5) break;
                           if(sign==-1 && i<=$5) break;
-                         }                                      /* /20120229 */
+                         }                                      
                         }
         | index ',' B_IDXNUM ':' B_IDXNUM
                         {

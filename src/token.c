@@ -1865,7 +1865,7 @@ void print_tedax_element(FILE *fd, int inst)
  if(!numslots) my_strdup(494, &numslots, "1");
 
  my_strdup(495, &name,xctx->inst[inst].instname);
- /* my_strdup(496, &name,get_tok_value(xctx->inst[inst].prop_ptr,"name",0)); */
+ /* my_strdup(xxx, &name,get_tok_value(xctx->inst[inst].prop_ptr,"name",0)); */
  if(!name) my_strdup(2, &name, get_tok_value(template, "name", 0));
 
  /* allow format string override in instance */
