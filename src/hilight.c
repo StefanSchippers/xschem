@@ -225,7 +225,7 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
         my_strdup(138, &(entry->token),token);
         entry->path = NULL;
         my_strdup(139, &(entry->path),xctx->sch_path[xctx->currsch]);
-        entry->oldvalue = value; /* no old value */
+        entry->oldvalue = value-1000; /* no old value, set different value anyway*/
         entry->value = value;
         entry->time = xctx->hilight_time;
         entry->hash = hashcode;
@@ -748,7 +748,8 @@ static void send_net_to_gaw(int simtype, const char *node)
   if(node_entry  && (node_entry->d.port == 0 || !strcmp(xctx->sch_path[xctx->currsch], ".") )) {
     char *t=NULL, *p=NULL;
     c = get_color(xctx->hilight_color);
-    sprintf(color_str, "%02x%02x%02x", xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
+    sprintf(color_str, "%02x%02x%02x", xcolor_array[c].red>>8, xcolor_array[c].green>>8,
+                                       xcolor_array[c].blue>>8);
     expanded_tok = expandlabel(tok, &tok_mult);
     tcleval("if { ![info exists gaw_fd] } { gaw_setup_tcp }\n");
     for(k=1; k<=tok_mult; k++) {
@@ -783,7 +784,8 @@ static void send_current_to_gaw(int simtype, const char *node)
   if(!node || !node[0]) return;
   tok = node;
   c = PINLAYER;
-  sprintf(color_str, "%02x%02x%02x", xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
+  sprintf(color_str, "%02x%02x%02x", xcolor_array[c].red>>8, xcolor_array[c].green>>8,
+                                     xcolor_array[c].blue>>8);
   expanded_tok = expandlabel(tok, &tok_mult);
   tcleval("if { ![info exists gaw_fd] } { gaw_setup_tcp }\n");
   for(k=1; k<=tok_mult; k++) {
@@ -818,7 +820,7 @@ void propagate_hilights(int set, int clear, int mode)
   prepare_netlist_structs(0);
   for(i = 0; i < xctx->instances; i++) {
     if(xctx->inst[i].ptr < 0 ) {
-      dbg(0, "propagate_hilights(): .ptr < 0, unbound symbol: instance %d, name=%s\n", i, xctx->inst[i].instname);
+      dbg(0, "propagate_hilights(): .ptr < 0, unbound symbol: inst %d, name=%s\n", i, xctx->inst[i].instname);
       continue;
     }
     type = (xctx->inst[i].ptr+ xctx->sym)->type;
@@ -993,19 +995,19 @@ void propagate_logic()
             clock_val =  (!entry) ? LOGIC_X : entry->value;
             clock_oldval =  (!entry) ? LOGIC_X : entry->oldvalue;
             if(entry) {
-              if(clock_pin == 0) { /* clock falling edge */
-                if( clock_val == clock_oldval) continue;
-                if( clock_val != LOGIC_0) continue;
-                if(entry && entry->time != xctx->hilight_time) continue;
-              } else if(clock_pin == 1) { /* clock rising edge */
-                if( clock_val == clock_oldval) continue;
-                if( clock_val != LOGIC_1) continue;
-                if(entry && entry->time != xctx->hilight_time) continue;
-              } else if(clock_pin == 2) { /* set/clear active low */
-                if( clock_val != LOGIC_0) continue;
-              } else if(clock_pin == 3) { /* set/clear active high */
-                if( clock_val != LOGIC_1) continue;
-              }
+                if(clock_pin == 0) { /* clock falling edge */
+                  if( clock_val == clock_oldval) continue;
+                  if( clock_val != LOGIC_0) continue;
+                  if(entry && entry->time != xctx->hilight_time) continue;
+                } else if(clock_pin == 1) { /* clock rising edge */
+                  if( clock_val == clock_oldval) continue;
+                  if( clock_val != LOGIC_1) continue;
+                  if(entry && entry->time != xctx->hilight_time) continue;
+                } else if(clock_pin == 2) { /* set/clear active low */
+                  if( clock_val != LOGIC_0) continue;
+                } else if(clock_pin == 3) { /* set/clear active high */
+                  if( clock_val != LOGIC_1) continue;
+                }
             }
           }
           dbg(1, "propagate_logic(): inst=%d propagate_str=%s\n", i, propagate_str);
@@ -1015,8 +1017,8 @@ void propagate_logic()
             if(!propag[0]) break;
             propagate = atoi(propag);
             if(propagate < 0 || propagate >= npin) {
-               /* dbg(0, "Error: inst: %s, pin %d, propagate_to set to %s <<%d>>\n",
-                * xctx->inst[i].instname, j, propagate_str, propagate); */
+               dbg(0, "Error: inst: %s, pin %d, propagate_to set to %s <<%d>>\n",
+                 xctx->inst[i].instname, j, propagate_str, propagate);
                  continue;
             }
             if(!xctx->inst[i].node[propagate]) {
@@ -1041,11 +1043,11 @@ void propagate_logic()
         }
       } /* for(j...) */
     } /* for(i...) */
+    xctx->hilight_time++;
     if(!found) break;
     /* get out from infinite loops (circuit is oscillating) */
     Tcl_VarEval(interp, "update; if {$::tclstop == 1} {return 1} else {return 0}", NULL);
     if( tclresult()[0] == '1') break;
-    xctx->hilight_time++;
   } /* while(1) */
   my_free(1224, &propagate_str);
   my_free(1222, &propagated_net);
