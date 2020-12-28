@@ -108,19 +108,23 @@ vvss vss 0 dc 0
 
 .param frequ=5k
 .param gain=45
-.op
-.tran  6e-7 0.06 uic
-
+.option savecurrents
 
 ** models are generally not free: you must download
 ** SPICE models for active devices and put them  into the below 
 ** referenced file in simulation directory.
 .include \\"models_poweramp.txt\\"
-* .save all
-* .option savecurrents
+.control
+save all
+tran  6e-7 0.06 uic
 * .FOUR 20k v(outm,outp)
 * .probe i(*) 
-.save p(r*) p(v*)
+plot outp outm
+save all
+save p(r*) p(v*)
+op
+write poweramp.raw
+.endc
 "}
 C {vsource.sym} 160 -1200 0 0 {name=V1 value="dc 50 pwl 0 0 1m 50"}
 C {vsource.sym} 160 -1140 0 0 {name=V0 value="dc 50 pwl 0 0 1m 50"}
@@ -188,9 +192,9 @@ C {lab_pin.sym} 350 -270 0 0 {name=p19 lab=FB}
 C {lab_pin.sym} 350 -730 0 0 {name=p25 lab=FBN}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan Schippers"}
 C {lab_pin.sym} 880 -1250 0 0 {name=p27 lab=IN_INT}
-C {ammeter.sym} 340 -1250 3 0 {name=vcurrvpp  net_name=true      current=0.54}
-C {ammeter.sym} 340 -1090 3 0 {name=vcurrvnn  net_name=true      current=-0.4526}
-C {ammeter.sym} 340 -1170 3 0 {name=vcurrvss  net_name=true      current=-0.08742}
+C {ammeter.sym} 340 -1250 3 0 {name=vcurrvpp  net_name=true       current=0.54}
+C {ammeter.sym} 340 -1090 3 0 {name=vcurrvnn  net_name=true       current=-0.4526}
+C {ammeter.sym} 340 -1170 3 0 {name=vcurrvss  net_name=true       current=-0.08742}
 C {launcher.sym} 780 -120 0 0 {name=h2
 descr="Ctrl-Click
 Clear all probes" 
@@ -254,8 +258,14 @@ load $netlist_dir/$rawfile
 table_set $rawfile\\"
 unset rawfile"
 }
-C {spice_probe.sym} 730 -700 0 0 {name=p40 analysis=tran}
-C {spice_probe.sym} 740 -240 0 0 {name=p41 analysis=tran}
-C {spice_probe.sym} 670 -1250 0 0 {name=p42 analysis=tran}
-C {spice_probe.sym} 680 -1170 0 0 {name=p43 analysis=tran}
-C {spice_probe.sym} 960 -1250 0 0 {name=p44 analysis=tran}
+C {spice_probe.sym} 730 -700 0 0 {name=p40 analysis=tran voltage=-0.1364}
+C {spice_probe.sym} 740 -240 0 0 {name=p41 analysis=tran voltage=-0.1364}
+C {spice_probe.sym} 670 -1250 0 0 {name=p42 analysis=tran voltage=0.0000e+00}
+C {spice_probe.sym} 680 -1170 0 0 {name=p43 analysis=tran voltage=0.0000e+00}
+C {spice_probe.sym} 960 -1250 0 0 {name=p44 analysis=tran voltage=0.0000e+00}
+C {launcher.sym} 1000 -270 0 0 {name=h1
+descr=Backannotate
+tclcommand="ngspice::annotate"}
+C {launcher.sym} 1000 -320 0 0 {name=h4
+descr="View raw file"
+tclcommand="textwindow $netlist_dir/poweramp.raw"}

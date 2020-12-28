@@ -123,8 +123,8 @@ C {lab_pin.sym} 340 -970 0 1 {name=p23 lab=E2}
 C {lab_pin.sym} 560 -970 0 1 {name=p28 lab=E6}
 C {lab_pin.sym} 840 -1000 0 0 {name=p29 lab=E4}
 C {lab_pin.sym} 180 -1120 0 0 {name=p34 lab=VBOOST}
-C {ammeter.sym} 1110 -540 0 0 {name=vd  net_name=true current=0.1944}
-C {ammeter.sym} 1110 -640 0 0 {name=vu  net_name=true current=0.216}
+C {ammeter.sym} 1110 -540 0 0 {name=vd  net_name=true current=0.2069}
+C {ammeter.sym} 1110 -640 0 0 {name=vu  net_name=true current=0.2005}
 C {lab_pin.sym} 60 -1180 0 0 {name=p27 lab=VPP}
 C {pnp.sym} 200 -950 0 1 {name=Q1 model=q2n2907p area=1 net_name=true}
 C {pnp.sym} 360 -790 0 1 {name=Q2 model=q2n2907p area=1 net_name=true}
@@ -207,18 +207,18 @@ C {lab_pin.sym} 180 -690 0 0 {name=p8 lab=C7}
 C {lab_pin.sym} 340 -710 0 1 {name=p31 lab=C2}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan Schippers"}
 C {lab_pin.sym} 860 -700 0 0 {name=p32 lab=SA}
-C {ammeter.sym} 1110 -350 0 0 {name=v0  net_name=true current=0.2138}
+C {ammeter.sym} 1110 -350 0 0 {name=v0  net_name=true current=0.2263}
 C {lab_pin.sym} 860 -380 0 0 {name=p35 lab=SB}
-C {ammeter.sym} 560 -890 0 0 {name=v1  net_name=true current=0.01954}
-C {ammeter.sym} 340 -890 0 0 {name=v2  net_name=true current=0.01944}
-C {ammeter.sym} 260 -310 0 0 {name=v3  net_name=true current=0.03919}
-C {ammeter.sym} 700 -440 3 0 {name=v4  net_name=true current=0.01939}
-C {ammeter.sym} 690 -680 0 0 {name=v5  net_name=true current=0.006273}
-C {ammeter.sym} 180 -870 0 1 {name=v6  net_name=true current=0.01952}
-C {ammeter.sym} 840 -890 0 0 {name=v7  net_name=true current=0.01947}
-C {spice_probe_vdiff.sym} 860 -410 0 0 {name=p37 voltage=3.684}
-C {spice_probe_vdiff.sym} 860 -730 0 0 {name=p38 voltage=3.685}
-C {ammeter.sym} 1300 -590 3 0 {name=v8  net_name=true current=0.02782}
+C {ammeter.sym} 560 -890 0 0 {name=v1  net_name=true current=0.01956}
+C {ammeter.sym} 340 -890 0 0 {name=v2  net_name=true current=0.01947}
+C {ammeter.sym} 260 -310 0 0 {name=v3  net_name=true current=0.03918}
+C {ammeter.sym} 700 -440 3 0 {name=v4  net_name=true current=0.01941}
+C {ammeter.sym} 690 -680 0 0 {name=v5  net_name=true current=0.006184}
+C {ammeter.sym} 180 -870 0 1 {name=v6  net_name=true current=0.01949}
+C {ammeter.sym} 840 -890 0 0 {name=v7  net_name=true current=0.01944}
+C {spice_probe_vdiff.sym} 860 -410 0 0 {name=p37 voltage=3.688}
+C {spice_probe_vdiff.sym} 860 -730 0 0 {name=p38 voltage=3.68}
+C {ammeter.sym} 1300 -590 3 0 {name=v8  net_name=true current=-2.1216e-04}
 C {opin.sym} 600 -130 0 0 {name=p5 lab=OUT}
 C {ipin.sym} 530 -180 0 0 {name=p1 lab=MINUS}
 C {ipin.sym} 530 -140 0 0 {name=p4 lab=VSS}
@@ -251,7 +251,8 @@ tclcommand="
 C {ngspice_probe.sym} 750 -1120 0 0 {name=p54}
 C {ngspice_probe.sym} 180 -760 0 0 {name=p53}
 C {ngspice_probe.sym} 560 -710 0 0 {name=p55}
-C {ngspice_get_value.sym} 1130 -780 0 0 {name=r4 node=i(@r.$\{path\}xm1.rd[i])}
+C {ngspice_get_value.sym} 1130 -780 0 0 {name=nmos1 node=i(@r.$\{path\}xm1.rd[i])
+descr="Id="}
 C {ngspice_get_expr.sym} 800 -1000 0 1 {name=r8 
 node="[format %.4g [expr [ngspice::get_voltage e4] - [ngspice::get_voltage c7]]]"
 descr = veb
@@ -366,7 +367,8 @@ C {ngspice_get_expr.sym} 1370 -1150 0 1 {name=r26
 node="[ngspice::get_current \{d1[id]\}]"
 descr = current
 }
-C {ngspice_get_value.sym} 1130 -460 0 0 {name=r27 node=i(@r.$\{path\}xm2.rd[i])}
+C {ngspice_get_value.sym} 1130 -460 0 0 {name=r27 node=i(@r.$\{path\}xm2.rd[i])
+descr="Id="}
 C {ngspice_get_expr.sym} 160 -230 0 0 {name=r28 
 node="[format %.4g [expr ([ngspice::get_node v(vpp)] - [ngspice::get_voltage b3]) * [ngspice::get_current \{r1[i]\}]]] W"
 descr = power
@@ -392,7 +394,7 @@ C {ngspice_get_expr.sym} 150 -160 2 0 {name=r33
 node="[format %.4g [expr -[ngspice::get_voltage b3] * [ngspice::get_current \{d2[id]\}]]] W"
 descr = power
 }
-C {launcher.sym} 800 -140 0 0 {name=h3
+C {launcher.sym} 770 -70 0 0 {name=h3
 descr="Load file into gaw" 
 comment="
   This launcher gets raw filename from current schematic using 'xschem get schname'
@@ -406,9 +408,15 @@ load $netlist_dir/$rawfile
 table_set $rawfile\\"
 unset rawfile"
 }
-C {spice_probe.sym} 1010 -760 0 0 {name=p40 }
-C {spice_probe.sym} 1000 -440 0 0 {name=p56 }
-C {spice_probe.sym} 420 -790 0 0 {name=p57}
-C {spice_probe.sym} 280 -950 0 0 {name=p58 }
-C {spice_probe.sym} 180 -720 0 0 {name=p59 }
-C {spice_probe.sym} 1020 -1120 0 0 {name=p62 }
+C {spice_probe.sym} 1010 -760 0 0 {name=p40  voltage=3.543}
+C {spice_probe.sym} 1000 -440 0 0 {name=p56  voltage=-46.18}
+C {spice_probe.sym} 420 -790 0 0 {name=p57 voltage=48.06}
+C {spice_probe.sym} 280 -950 0 0 {name=p58  voltage=47.27}
+C {spice_probe.sym} 180 -720 0 0 {name=p59  voltage=47.27}
+C {spice_probe.sym} 1020 -1120 0 0 {name=p62  voltage=49.04}
+C {launcher.sym} 770 -110 0 0 {name=h1
+descr=Backannotate
+tclcommand="ngspice::annotate"}
+C {launcher.sym} 770 -160 0 0 {name=h4
+descr="View raw file"
+tclcommand="textwindow $netlist_dir/poweramp.raw"}
