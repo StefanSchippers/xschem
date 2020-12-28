@@ -1,11 +1,12 @@
 v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {type=primitive
+function4="0 1 2 3 | | |"
 format="@name @@A @@B @@C @@D @VGND @VNB @VPB @VPWR @@X @prefix\\\\or4_1"
 template="name=x1 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ "
 extra="VGND VNB VPB VPWR prefix"
 highlight=true
-function4="0 1 2 3 | | |"
+
 }
 V {}
 S {}

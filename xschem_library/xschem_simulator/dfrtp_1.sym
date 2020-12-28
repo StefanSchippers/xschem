@@ -1,11 +1,12 @@
 v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {type=stdcell
+function3="1 0 2 & & 0 ~ 2 3 & & |"
 format="@name @@CLK @@D @@RESET_B @VGND @VNB @VPB @VPWR @@Q @prefix\\\\dfrtp_1"
 template="name=x1 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ "
 extra="VGND VNB VPB VPWR prefix"
 highlight=true
-function3="1 0 2 & & 0 ~ 2 3 & & |"}
+}
 V {}
 S {}
 E {}

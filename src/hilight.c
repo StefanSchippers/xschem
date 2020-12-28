@@ -861,8 +861,8 @@ void propagate_hilights(int set, int clear, int mode)
 #define LOGIC_X -1
 #define LOGIC_0 -12
 #define LOGIC_1 -5
+#define STACKMAX 200
 
-#define STACKMAX 100
 int get_logic_value(int inst, int n)
 {
   int /* mult, */ val;
@@ -954,6 +954,7 @@ int eval_logic_expr(int inst, int output)
       }
     } else if(isdigit(arg[0])) {
       if(sp < STACKMAX) stack[sp++] = get_logic_value(inst, atoi(arg));
+      else dbg(0, "eval_logic_expr(): stack overflow!\n");
     }
   }
   my_free(827, &saveptr);
@@ -967,7 +968,7 @@ void propagate_logic()
   int found /* , mult */;
   xSymbol *symbol;
   xRect *rct;
-  int i, j, npin, nloops=0;
+  int i, j, npin;
   char *propagate_str = NULL;
   int propagate;
   struct hilight_hashentry  *entry;

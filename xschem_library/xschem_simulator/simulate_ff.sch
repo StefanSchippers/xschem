@@ -341,7 +341,7 @@ tclcommand="  set count 0
 "
 }
 C {inv_2.sym} 2620 -1960 0 0 {name=x1 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {giant_label.sym} 2040 -1430 0 1 {name=l1 sig_type=std_logic lab=CLK text=CLK}
+C {giant_label.sym} 1910 -1430 0 1 {name=l1 sig_type=std_logic lab=CLK text=CLK}
 C {giant_label.sym} 2660 -1960 0 1 {name=l3 sig_type=std_logic lab=R text="RESET
 COUNTER"}
 C {giant_label.sym} 1900 -1180 0 1 {name=l4 sig_type=std_logic lab=CLEAR_ text="CLEAR (active low)"}
