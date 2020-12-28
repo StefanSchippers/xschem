@@ -216,8 +216,6 @@ int pending_fullzoom=0;
 double color_dim=0.0;
 int no_undo=0;
 int enable_drill=0; /* pass net hilights through components with 'propagate_to' property set on pins */
-size_t get_tok_value_size;
-size_t get_tok_size;
 int batch_mode = 0; /* no tcl console if set; batch mode */
 int show_erc=1;
 

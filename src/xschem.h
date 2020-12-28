@@ -536,6 +536,8 @@ typedef struct {
   int prep_hash_wires;
   int modified;
   int semaphore;
+  int get_tok_size;
+  int get_tok_value_size;
   char netlist_name[PATH_MAX];
   char current_dirname[PATH_MAX];
   struct instpinentry *instpintable[NBOXES][NBOXES];

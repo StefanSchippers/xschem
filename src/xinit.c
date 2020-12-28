@@ -409,6 +409,8 @@ void alloc_xschem_data()
   xctx->prep_hash_wires = 0;
   xctx->modified = 0;
   xctx->semaphore = 0;
+  xctx->get_tok_size = 0;
+  xctx->get_tok_value_size = 0;
   xctx->netlist_name[0] = '\0';
   xctx->current_dirname[0] = '\0';
   for(i = 0; i < NBOXES; i++) {
@@ -572,6 +574,7 @@ void xwin_exit(void)
  dbg(1, "xwin_exit(): clearing drawing data structures\n");
  clear_drawing();
  remove_symbols();
+ get_tok_value(NULL, NULL, 0); /* clear static data in function */
  free_xschem_data();
 
  /* global context - graphic preferences/settings */
@@ -589,7 +592,6 @@ void xwin_exit(void)
  my_free(1138, &tcl_command);
  clear_expandlabel_data();
  get_sym_template(NULL, NULL); /* clear static data in function */
- get_tok_value(NULL, NULL, 0); /* clear static data in function */
  list_tokens(NULL, 0); /* clear static data in function */
  translate(0, NULL); /* clear static data in function */
  translate2(NULL, 0, NULL); /* clear static data in function */

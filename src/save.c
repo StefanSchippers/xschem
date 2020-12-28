@@ -415,7 +415,7 @@ void write_xschem_file(FILE *fd)
 
   if(xctx->schvhdlprop && !xctx->schsymbolprop) {
     get_tok_value(xctx->schvhdlprop,"type",0);
-    ty = get_tok_size;
+    ty = xctx->get_tok_size;
     if(ty && !strcmp(xctx->sch[xctx->currsch] + strlen(xctx->sch[xctx->currsch]) - 4,".sym") ) {
       fprintf(fd, "G {}\nK ");
       save_ascii_string(xctx->schvhdlprop,fd);
@@ -848,7 +848,7 @@ void read_xschem_file(FILE *fd)
     if(xctx->schvhdlprop) {
       char *str = xctx->sch[xctx->currsch];
       get_tok_value(xctx->schvhdlprop, "type",0);
-      ty = get_tok_size;
+      ty = xctx->get_tok_size;
       if(!xctx->schsymbolprop && ty && !strcmp(str + strlen(str) - 4,".sym")) {
         str = xctx->schsymbolprop;
         xctx->schsymbolprop = xctx->schvhdlprop;

@@ -760,7 +760,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       char s[30];
       cmd_found = 1;
-      my_snprintf(s, S(s), "%d", (int)get_tok_size);
+      my_snprintf(s, S(s), "%d", (int)xctx->get_tok_size);
       Tcl_SetResult(interp, s, TCL_VOLATILE);
     }
    
