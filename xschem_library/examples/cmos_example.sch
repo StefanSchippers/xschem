@@ -99,24 +99,6 @@ C {lab_pin.sym} 500 -430 0 0 {name=p12 lab=G  net_name=true}
 C {launcher.sym} 700 -60 0 0 {name=h1
 descr=Backannotate
 tclcommand="ngspice::annotate"}
-C {ngspice_probe.sym} 700 -420 0 0 {name=r3}
-C {ngspice_get_value.sym} 510 -320 0 0 {name=r2 node=i(@m4[id])}
 C {launcher.sym} 700 -110 0 0 {name=h2
 descr="View raw file"
 tclcommand="textwindow $netlist_dir/cmos_example.raw"}
-C {ngspice_get_value.sym} 680 -320 0 1 {name=r1 node=i(@m5[id])}
-C {ngspice_get_value.sym} 550 -190 0 1 {name=r4 node=i(@m1[id])}
-C {ngspice_probe.sym} 500 -400 0 0 {name=r5}
-C {ngspice_probe.sym} 350 -160 0 0 {name=r6}
-C {ngspice_probe.sym} 630 -560 0 0 {name=r7}
-C {ngspice_get_value.sym} 720 -310 0 0 {name=r8 node=@m5[gm]}
-C {ngspice_get_value.sym} 470 -310 0 1 {name=r9 node=@m4[gm]}
-C {ngspice_get_value.sym} 580 -190 0 0 {name=r10 node=@m1[gm]}
-C {ngspice_get_expr.sym} 210 -140 0 1 {name=r11 
-node="[format %.4g [expr ([ngspice::get_voltage GN]) * [ngspice::get_current \{m3[id]\}]]] W"
-descr = power
-}
-C {ngspice_get_expr.sym} 650 -160 0 0 {name=r12 
-node="[expr [ngspice::get_node \{@m5[gm]\}] / [ngspice::get_node \{@m1[gm]\}]]"
-descr = "gm ratio m5/m1"
-}
