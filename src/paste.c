@@ -213,7 +213,7 @@ void merge_inst(int k,FILE *fd)
     }
     ptr[i].sel=0;
     ptr[i].flags=0;
-    ptr[i].color=-1;
+    ptr[i].color=-10000;
     ptr[i].ptr=-1;
     ptr[i].prop_ptr=NULL;
     ptr[i].instname=NULL;

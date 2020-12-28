@@ -851,7 +851,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->inst[n].flip=symbol_name ? flip : 0;
 
   xctx->inst[n].flags=0;
-  xctx->inst[n].color=-1;
+  xctx->inst[n].color=-10000; /* small negative values used for simulation */
   xctx->inst[n].sel=0;
   xctx->inst[n].node=NULL;
   xctx->inst[n].prop_ptr=NULL;
@@ -1314,7 +1314,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
       entry=bus_hilight_lookup(xctx->inst[i].lab, 0, XLOOKUP );
       if(entry) found = 1;
     }
-    else if( xctx->inst[i].color != -1 ) {
+    else if( xctx->inst[i].color != -10000 ) {
       found = 1;
     }
     if(!found) continue;

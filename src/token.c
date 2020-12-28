@@ -229,7 +229,7 @@ void check_unique_names(int rename)
           comma_pos++;
         }
       } /* for(j...) */
-      if( (xctx->inst[i].color != -1) && rename) {
+      if( (xctx->inst[i].color != -10000) && rename) {
         my_strdup(511, &tmp, xctx->inst[i].prop_ptr);
         new_prop_string(i, tmp, newpropcnt++, !rename);
         my_strdup2(512, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));

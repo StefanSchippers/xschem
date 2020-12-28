@@ -77,7 +77,7 @@ static int there_are_hilights()
     if(hiptr[i]) return 1;
   }
   for(i = 0; i < xctx->instances; i++) {
-    if(inst[i].color != -1) return 1; 
+    if(inst[i].color != -10000) return 1; 
   }
   return 0;
 }
@@ -302,7 +302,7 @@ void clear_all_hilights(void)
  
   xctx->hilight_nets=0;
   for(i=0;i<xctx->instances;i++) {
-    xctx->inst[i].color = -1 ;
+    xctx->inst[i].color = -10000 ;
   }
   dbg(1, "clear_all_hilights(): clearing\n");
   xctx->hilight_color=0;
@@ -840,13 +840,13 @@ void propagate_hilights(int set, int clear, int mode)
           }
         }
         if(nohilight_pins && clear) {
-          xctx->inst[i].color=-1;
+          xctx->inst[i].color=-10000;
         }
       }
     } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
       entry=bus_hilight_lookup( xctx->inst[i].lab, 0, XLOOKUP);
       if(entry && set)        xctx->inst[i].color = entry->value;
-      else if(!entry && clear) xctx->inst[i].color = -1;
+      else if(!entry && clear) xctx->inst[i].color = -10000;
     }
   }
   xctx->hilight_nets = there_are_hilights();
@@ -1160,7 +1160,7 @@ void unhilight_net(void)
      if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
       bus_hilight_lookup(xctx->inst[n].node[0], xctx->hilight_color, XDELETE);
      }
-     xctx->inst[n].color = -1;
+     xctx->inst[n].color = -10000;
      break;
     default:
      break;
@@ -1214,7 +1214,7 @@ void select_hilight_net(void)
   type = (xctx->inst[i].ptr+ xctx->sym)->type;
   hilight_connected_inst = en_hilight_conn_inst && 
       ( (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4) );
-  if( xctx->inst[i].color != -1) {
+  if( xctx->inst[i].color != -10000) {
     dbg(1, "select_hilight_net(): instance %d flags &4 true\n", i);
      xctx->inst[i].sel = SELECTED;
   }
@@ -1309,7 +1309,7 @@ void draw_hilight_net(int on_window)
        i++;
        if(i >= xctx->instances) break;
      }
-     if(xctx->inst[i].color != -1)
+     if(xctx->inst[i].color != -10000)
      {
       int col = get_color(xctx->inst[i].color);
       symptr = (xctx->inst[i].ptr+ xctx->sym);
