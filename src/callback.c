@@ -1077,9 +1077,10 @@ int callback(int event, int mx, int my, KeySym key,
     place_net_label(1);
     break;
    }
-   if(key >= '0' && key <= '2' && state == 0) {  /* Toggle pin logic level */
+   if(key >= '0' && key <= '3' && state == 0) {  /* Toggle pin logic level */
     if(xctx->semaphore >= 2) break;
-    logic_set(key - '0');
+    if(key == '3') logic_set(-1, 1);
+    else logic_set(key - '0', 1);
     break;
    }
    if(key=='L' && state == (Mod1Mask | ShiftMask)) {                         /* add pin label*/

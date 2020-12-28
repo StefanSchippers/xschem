@@ -967,7 +967,7 @@ void propagate_logic()
   int found /* , mult */;
   xSymbol *symbol;
   xRect *rct;
-  int i, j, npin;
+  int i, j, npin, nloops=0;
   char *propagate_str = NULL;
   int propagate;
   struct hilight_hashentry  *entry;
@@ -1053,42 +1053,56 @@ void propagate_logic()
   my_free(1222, &propagated_net);
 }
 
-void logic_set(int value)
+void logic_set(int value, int num)
 {
-  int i, n, newvalue;
+  int i, j, n, newval;
   char *type;
   xRect boundbox;
   int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
   static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X};
+  struct hilight_hashentry  *entry;
  
   prepare_netlist_structs(0);
   rebuild_selected_array();
+  newval = value;
   if(!no_draw && !big) {
     calc_drawing_bbox(&boundbox, 2);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
   }
-  for(i=0;i<xctx->lastsel;i++)
-  {
-    n = xctx->sel_array[i].n;
-    switch(xctx->sel_array[i].type) {
-      case WIRE:
-        newvalue = value; /* next logic value  0, 1, 2 (LOGIC_X) */
-        bus_hilight_lookup(xctx->wire[n].node, map[newvalue], XINSERT);
-        break;
-      case ELEMENT:
-        type = (xctx->inst[n].ptr+ xctx->sym)->type;
-        if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
-          newvalue = value; /* next logic value  0, 1, 2 (LOGIC_X) */
-          bus_hilight_lookup(xctx->inst[n].node[0], map[newvalue], XINSERT);
-        }
-        break;
-      default:
-        break;
+  for(j = 0; j < num; j++) {
+    for(i=0;i<xctx->lastsel;i++)
+    {
+      n = xctx->sel_array[i].n;
+      switch(xctx->sel_array[i].type) {
+        case WIRE:
+          if(value == -1) {
+            entry = bus_hilight_lookup(xctx->wire[n].node, 0, XLOOKUP);
+            if(entry)
+              newval = (entry->value == LOGIC_1) ? 0 : (entry->value == LOGIC_0) ? 1 : 2;
+            else newval = 2;
+          }
+          bus_hilight_lookup(xctx->wire[n].node, map[newval], XINSERT);
+          break;
+        case ELEMENT:
+          type = (xctx->inst[n].ptr+ xctx->sym)->type;
+          if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
+            if(value == -1) {
+              entry = bus_hilight_lookup(xctx->inst[n].node[0], 0, XLOOKUP);
+              if(entry)
+                newval = (entry->value == LOGIC_1) ? 0 : (entry->value == LOGIC_0) ? 1 : 2;
+              else newval = 2;
+            }
+            bus_hilight_lookup(xctx->inst[n].node[0], map[newval], XINSERT);
+          }
+          break;
+        default:
+          break;
+      }
     }
+    propagate_logic();
+    propagate_hilights(1, 0, XINSERT);
   }
-  propagate_logic();
-  propagate_hilights(1, 0, XINSERT);
   if(!no_draw && !big) {
     calc_drawing_bbox(&boundbox, 2);
     bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
