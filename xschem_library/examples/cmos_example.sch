@@ -5,140 +5,118 @@ V {}
 S {}
 E {}
 T {CMOS DIFFERENTIAL AMPLIFIER
-EXAMPLE} 810 -570 0 0 0.4 0.4 {}
-N 30 -240 30 -210 {lab=VCC}
-N 30 -240 60 -240 {lab=VCC}
-N 240 -260 240 -210 {lab=GN}
-N 240 -210 280 -210 {lab=GN}
-N 280 -210 280 -180 {lab=GN}
-N 280 -180 460 -180 {lab=GN}
-N 500 -250 500 -210 {lab=#net1}
-N 430 -280 450 -280 {lab=0}
-N 550 -280 570 -280 {lab=0}
-N 430 -250 570 -250 {lab=#net1}
-N 370 -280 390 -280 {lab=PLUS}
-N 610 -280 630 -280 {lab=MINUS}
-N 570 -430 620 -430 {lab=VCC}
-N 380 -430 430 -430 {lab=VCC}
-N 470 -430 530 -430 {lab=G}
-N 470 -430 470 -400 {lab=G}
-N 430 -400 470 -400 {lab=G}
-N 430 -400 430 -310 {lab=G}
-N 570 -400 570 -310 {lab=DIFFOUT}
-N 570 -500 570 -460 {lab=VCC}
-N 430 -500 570 -500 {lab=VCC}
-N 430 -500 430 -460 {lab=VCC}
-N 500 -520 500 -500 {lab=VCC}
-N 570 -360 830 -360 {lab=DIFFOUT}
-N 30 -370 30 -340 {lab=PLUS}
-N 30 -370 60 -370 {lab=PLUS}
-N 30 -520 30 -490 {lab=MINUS}
-N 30 -520 60 -520 {lab=MINUS}
-N 500 -150 500 -120 {lab=0}
-N 500 -150 520 -150 {lab=0}
-N 520 -180 520 -150 {lab=0}
-N 500 -180 520 -180 {lab=0}
-N 240 -150 240 -120 {lab=0}
-N 220 -150 240 -150 {lab=0}
-N 220 -180 220 -150 {lab=0}
-N 220 -180 240 -180 {lab=0}
-C {lab_pin.sym} 750 -300 0 0 {name=p20 lab=0  net_name=true}
-C {lab_pin.sym} 30 -150 0 0 {name=p17 lab=0  net_name=true}
+EXAMPLE} 250 -650 0 0 0.4 0.4 {}
+N 30 -310 30 -280 {lab=VCC}
+N 30 -310 60 -310 {lab=VCC}
+N 260 -240 260 -190 {lab=GN}
+N 260 -190 300 -190 {lab=GN}
+N 300 -190 300 -160 {lab=GN}
+N 300 -160 530 -160 {lab=GN}
+N 500 -290 520 -290 {lab=0}
+N 670 -290 690 -290 {lab=0}
+N 500 -260 690 -260 {lab=#net1}
+N 440 -290 460 -290 {lab=PLUS}
+N 730 -290 750 -290 {lab=MINUS}
+N 690 -490 740 -490 {lab=VCC}
+N 450 -490 500 -490 {lab=VCC}
+N 540 -490 650 -490 {lab=G}
+N 540 -490 540 -460 {lab=G}
+N 500 -460 540 -460 {lab=G}
+N 690 -560 690 -520 {lab=VCC}
+N 500 -560 690 -560 {lab=VCC}
+N 500 -560 500 -520 {lab=VCC}
+N 570 -580 570 -560 {lab=VCC}
+N 690 -420 830 -420 {lab=DIFFOUT}
+N 30 -440 30 -410 {lab=PLUS}
+N 30 -440 60 -440 {lab=PLUS}
+N 30 -590 30 -560 {lab=MINUS}
+N 30 -590 60 -590 {lab=MINUS}
+N 570 -130 570 -100 {lab=0}
+N 570 -130 590 -130 {lab=0}
+N 590 -160 590 -130 {lab=0}
+N 570 -160 590 -160 {lab=0}
+N 260 -130 260 -100 {lab=0}
+N 240 -130 260 -130 {lab=0}
+N 240 -160 240 -130 {lab=0}
+N 240 -160 260 -160 {lab=0}
+N 690 -460 690 -380 { lab=DIFFOUT}
+N 500 -460 500 -380 { lab=G}
+N 570 -260 570 -250 { lab=#net1}
+N 690 -380 690 -320 { lab=DIFFOUT}
+N 500 -380 500 -320 { lab=G}
+N 570 -250 570 -190 { lab=#net1}
+C {lab_pin.sym} 750 -360 0 0 {name=p20 lab=0  net_name=true}
+C {lab_pin.sym} 30 -220 0 0 {name=p17 lab=0  net_name=true}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"  net_name=true}
-C {nmos4.sym} 480 -180 0 0 {name=m1 model=cmosn w=5u l=2u m=1  net_name=true}
-C {pmos4.sym} 550 -430 0 0 {name=m2 model=cmosp w=5u l=2u m=1  net_name=true}
-C {vsource.sym} 30 -180 0 0 {name=VVCC value=5  net_name=true}
-C {lab_pin.sym} 500 -120 0 0 {name=p1 lab=0  net_name=true}
-C {lab_pin.sym} 60 -240 0 1 {name=p2 lab=VCC  net_name=true}
-C {nmos4.sym} 260 -180 0 1 {name=m3 model=cmosn w=5u l=2u m=1  net_name=true}
-C {lab_pin.sym} 240 -120 0 0 {name=p3 lab=0  net_name=true}
-C {isource.sym} 240 -290 0 0 {name=IBIAS value=100u  net_name=true}
-C {lab_pin.sym} 240 -320 0 0 {name=p4 lab=0  net_name=true}
-C {nmos4.sym} 410 -280 0 0 {name=m4 model=cmosn w=10u l=1u m=1  net_name=true}
-C {lab_pin.sym} 450 -280 0 1 {name=p5 lab=0  net_name=true}
-C {nmos4.sym} 590 -280 0 1 {name=m5 model=cmosn w=10u l=1u m=1  net_name=true}
-C {lab_pin.sym} 550 -280 0 0 {name=p0 lab=0  net_name=true}
-C {lab_pin.sym} 620 -430 0 1 {name=p6 lab=VCC  net_name=true}
-C {pmos4.sym} 450 -430 0 1 {name=m6 model=cmosp w=5u l=2u m=1  net_name=true}
-C {lab_pin.sym} 380 -430 0 0 {name=p7 lab=VCC  net_name=true}
-C {lab_pin.sym} 500 -520 0 0 {name=p8 lab=VCC  net_name=true}
-C {lab_pin.sym} 370 -280 0 0 {name=p9 lab=PLUS  net_name=true}
-C {lab_pin.sym} 630 -280 0 1 {name=p10 lab=MINUS  net_name=true}
-C {lab_pin.sym} 830 -360 0 1 {name=p11 lab=DIFFOUT  net_name=true}
-C {lab_pin.sym} 240 -230 0 0 {name=p13 lab=GN  net_name=true}
-C {lab_pin.sym} 30 -280 0 0 {name=p14 lab=0  net_name=true}
-C {vsource.sym} 30 -310 0 0 {name=VPLUS value="2.5 pwl 0 2.4 10n 2.4 10.1n 2.6"  net_name=true}
-C {lab_pin.sym} 60 -370 0 1 {name=p15 lab=PLUS  net_name=true}
-C {lab_pin.sym} 30 -430 0 0 {name=p16 lab=0  net_name=true}
-C {vsource.sym} 30 -460 0 0 {name=V1 value=2.5  net_name=true}
-C {lab_pin.sym} 60 -520 0 1 {name=p18 lab=MINUS  net_name=true}
-C {capa.sym} 750 -330 0 0 {name=CL
+C {nmos4.sym} 550 -160 0 0 {name=m1 model=cmosn w=5u l=2u m=1  net_name=true}
+C {pmos4.sym} 670 -490 0 0 {name=m2 model=cmosp w=5u l=2u m=1  net_name=true}
+C {vsource.sym} 30 -250 0 0 {name=VVCC value=5  net_name=true}
+C {lab_pin.sym} 570 -100 0 0 {name=p1 lab=0  net_name=true}
+C {lab_pin.sym} 60 -310 0 1 {name=p2 lab=VCC  net_name=true}
+C {nmos4.sym} 280 -160 0 1 {name=m3 model=cmosn w=5u l=2u m=1  net_name=true}
+C {lab_pin.sym} 260 -100 0 0 {name=p3 lab=0  net_name=true}
+C {isource.sym} 260 -270 0 0 {name=IBIAS value=100u  net_name=true}
+C {lab_pin.sym} 260 -300 0 0 {name=p4 lab=0  net_name=true}
+C {nmos4.sym} 480 -290 0 0 {name=m4 model=cmosn w=10u l=1u m=1  net_name=true}
+C {lab_pin.sym} 520 -290 0 1 {name=p5 lab=0  net_name=true}
+C {nmos4.sym} 710 -290 0 1 {name=m5 model=cmosn w=10u l=1u m=1  net_name=true}
+C {lab_pin.sym} 670 -290 0 0 {name=p0 lab=0  net_name=true}
+C {lab_pin.sym} 740 -490 0 1 {name=p6 lab=VCC  net_name=true}
+C {pmos4.sym} 520 -490 0 1 {name=m6 model=cmosp w=5u l=2u m=1  net_name=true}
+C {lab_pin.sym} 450 -490 0 0 {name=p7 lab=VCC  net_name=true}
+C {lab_pin.sym} 570 -580 0 0 {name=p8 lab=VCC  net_name=true}
+C {lab_pin.sym} 440 -290 0 0 {name=p9 lab=PLUS  net_name=true}
+C {lab_pin.sym} 750 -290 0 1 {name=p10 lab=MINUS  net_name=true}
+C {lab_pin.sym} 830 -420 0 1 {name=p11 lab=DIFFOUT  net_name=true}
+C {lab_pin.sym} 260 -210 0 0 {name=p13 lab=GN  net_name=true}
+C {lab_pin.sym} 30 -350 0 0 {name=p14 lab=0  net_name=true}
+C {vsource.sym} 30 -380 0 0 {name=VPLUS value="2.5 pwl 0 2.4 10n 2.4 10.1n 2.6"  net_name=true}
+C {lab_pin.sym} 60 -440 0 1 {name=p15 lab=PLUS  net_name=true}
+C {lab_pin.sym} 30 -500 0 0 {name=p16 lab=0  net_name=true}
+C {vsource.sym} 30 -530 0 0 {name=V1 value=2.5  net_name=true}
+C {lab_pin.sym} 60 -590 0 1 {name=p18 lab=MINUS  net_name=true}
+C {capa.sym} 750 -390 0 0 {name=CL
 m=1
 value=2p
 footprint=1206
 device="ceramic capacitor"  net_name=true}
-C {code.sym} 870 -190 0 0 {name=STIMULI
+C {code.sym} 900 -190 0 0 {name=STIMULI
 only_toplevel=true
-value="
-** ngspice
-.temp 30
-
-** xyce
-* .step temp list 30
-
-** ngspice
-* .save all
-
+value=".temp 30
 ** models are generally not free: you must download
-** SPICE models for active devices and put them  into the below 
+** SPICE models for active devices and put them into the below 
 ** referenced file in netlist/simulation directory.
-.option savecurrents
 .include \\"models_cmos_example.txt\\"
+.option savecurrents
+.save all @m4[gm] @m5[gm] @m1[gm]
 .control
-let cap = 2e-12
-set filetype=binary
-while cap <= 20e-12
-alter CL cap
-tran 0.8n 2000n
+op
 write cmos_example.raw
-set appendwrite
-let cap = cap + 2e-12
-end
-* op
-write cmos_example.raw
-plot all.diffout
 .endc
 
-** ngspice
-* .save all
-
-** xyce, not needed if -r given om cmdline
-* .print tran format=raw v(diffout) v(plus) v(minus)
 "  net_name=true}
-C {ngspice_probe.sym} 430 -350 0 0 {name=r1}
-C {ngspice_probe.sym} 480 -430 0 0 {name=r2}
-C {ngspice_probe.sym} 550 -500 0 0 {name=r3}
-C {ngspice_probe.sym} 620 -360 0 0 {name=r4}
-C {ngspice_probe.sym} 330 -180 0 0 {name=r5}
-C {ngspice_probe.sym} 30 -370 0 0 {name=r6}
-C {ngspice_probe.sym} 30 -240 0 0 {name=r7}
-C {ngspice_probe.sym} 30 -520 0 0 {name=r8}
-C {ngspice_probe.sym} 500 -210 0 0 {name=r9}
-C {ngspice_get_value.sym} 410 -440 0 1 {name=r11 node=i(@m6[id])}
-C {ngspice_get_expr.sym} 590 -450 0 0 {name=r18 
-node="[ngspice::get_current \{m2[id]\}]"
-descr = Id
- }
-C {lab_pin.sym} 430 -370 0 0 {name=p12 lab=G  net_name=true}
-C {ngspice_get_expr.sym} 550 -450 0 1 {name=r10 
-node="[format %.4g [expr [ngspice::get_voltage vcc] - [ngspice::get_voltage g]]]"
-descr = Vsg
- }
-C {ngspice_get_expr.sym} 530 -170 0 0 {name=r14 
-node="[ngspice::get_current \{m1[id]\}]"
-descr = Id
- }
-C {ngspice_get_expr.sym} 210 -170 0 1 {name=r12 
-node="[ngspice::get_current \{m3[id]\}]"
-descr = Id
- }
+C {lab_pin.sym} 500 -430 0 0 {name=p12 lab=G  net_name=true}
+C {launcher.sym} 700 -60 0 0 {name=h1
+descr=Backannotate
+tclcommand="ngspice::annotate"}
+C {ngspice_probe.sym} 700 -420 0 0 {name=r3}
+C {ngspice_get_value.sym} 510 -320 0 0 {name=r2 node=i(@m4[id])}
+C {launcher.sym} 700 -110 0 0 {name=h2
+descr="View raw file"
+tclcommand="textwindow $netlist_dir/cmos_example.raw"}
+C {ngspice_get_value.sym} 680 -320 0 1 {name=r1 node=i(@m5[id])}
+C {ngspice_get_value.sym} 550 -190 0 1 {name=r4 node=i(@m1[id])}
+C {ngspice_probe.sym} 500 -400 0 0 {name=r5}
+C {ngspice_probe.sym} 350 -160 0 0 {name=r6}
+C {ngspice_probe.sym} 630 -560 0 0 {name=r7}
+C {ngspice_get_value.sym} 720 -310 0 0 {name=r8 node=@m5[gm]}
+C {ngspice_get_value.sym} 470 -310 0 1 {name=r9 node=@m4[gm]}
+C {ngspice_get_value.sym} 580 -190 0 0 {name=r10 node=@m1[gm]}
+C {ngspice_get_expr.sym} 210 -140 0 1 {name=r11 
+node="[format %.4g [expr ([ngspice::get_voltage GN]) * [ngspice::get_current \{m3[id]\}]]] W"
+descr = power
+}
+C {ngspice_get_expr.sym} 650 -160 0 0 {name=r12 
+node="[expr [ngspice::get_node \{@m5[gm]\}] / [ngspice::get_node \{@m1[gm]\}]]"
+descr = "gm ratio m5/m1"
+}

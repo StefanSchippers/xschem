@@ -744,6 +744,7 @@ extern char hiersep[20];
 extern int quit;
 extern int show_erc;
 extern int color_ps;
+extern int transparent_svg;
 extern int only_probes;
 extern int pending_fullzoom;
 extern int fullscreen;

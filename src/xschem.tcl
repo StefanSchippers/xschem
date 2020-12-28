@@ -3460,6 +3460,7 @@ set_ne flat_netlist 0
 set_ne netlist_type vhdl
 set_ne netlist_show 0
 set_ne color_ps 0
+set_ne transparent_svg 0
 set_ne only_probes 0  ; # 20110112
 set_ne fullscreen 0
 set_ne unzoom_nodrift 1
@@ -3740,6 +3741,10 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   .menubar.option.menu add checkbutton -label "Color Postscript/SVG" -variable color_ps \
      -command {
         if { $color_ps==1 } {xschem set color_ps 1} else { xschem set color_ps 0}
+     }
+  .menubar.option.menu add checkbutton -label "Transparent SVG background" -variable transparent_svg \
+     -command {
+        if { $transparent_svg==1 } {xschem set transparent_svg 1} else { xschem set transparent_svg 0}
      }
   .menubar.option.menu add checkbutton -label "Debug mode" -variable menu_tcl_debug \
      -command {

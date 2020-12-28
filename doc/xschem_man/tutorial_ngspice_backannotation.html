@@ -19,11 +19,181 @@ p{padding: 15px  30px 10px;}
  <!-- slide title -->
  <h1> TUTORIAL: Backannotation of NGSPICE simulation operating<br>point data into an XSCHEM schematic</h1>
  <p>
+  The objective of this tutorial is to show into the schematic the operating point data (voltages currents,
+  other electrical parameters) of a SPICE simulation done with the 
+  <a href="https://sourceforge.net/projects/ngspice/">Ngspice</a> simulator.
+  This tutorial is based on the <kbd>cmos_example.sch</kbd> example schematic located in the <kbd>examples/</kbd>
+  directory. Start Xschem from a terminal since we need to give some commands in this tutorial.
+ </p>
+ <img style="box-shadow:none;" src="backannotation1.svg">
+
+ <h3> CONFIGURATION </H3>
+ <p>
+  Open your <kbd>xschemrc</kbd> file (usually <kbd>~/.xschem/xschemrc</kbd>), go to the end of the file,
+  Ensure the following tcl file is appended to the list of scripts loaded on startup by Xschem:
+ <pre class="code">
+#### list of tcl files to preload.
+lappend tcl_files ${XSCHEM_SHAREDIR}/ngspice_backannotate.tcl
+ </pre>
+ 
+ <h3> SETUP </H3>
+ <p>
+  Select the 'STIMULI' code block (click on it) and edit its attributes (press <kbd>q</kbd> or 
+  <kbd>Shift-q</kbd>):
+ </p>
+ <pre class="code">
+.temp 30
+** models are generally not free: you must download
+** SPICE models for active devices and put them into the below 
+** referenced file in netlist/simulation directory.
+.include "models_cmos_example.txt"
+.control
+<span style="color: red;"> op </span>
+<span style="color: red;"> save all </span>
+<span style="color: red;"> write cmos_example.raw </span>
+.endc
+ </pre>
+ <p>
+  The important parts are in red in above text. This ensures all variables are saved into the raw file.
+  These instructions are for an interactive ngspice run.<br>
+  When done open the <kbd>Simulation-&gt; Configure simulators and tools</kbd> dialog box and ensure the 
+  <kbd>Ngspice</kbd> simulator is selected (not Ngspice batch). Also ensure the spice netlist mode is
+  selected (<kbd>Options -&gt; Spice netlist</kbd>).
+ </p>
+ <img src="backannotation2.png">
+
+ <h3> SIMULATION </H3>
+ <p>
+  If you now press the <kbd>Netlist</kbd> followed by the <kbd>Simulate</kbd> button simulation should complete
+  with no errors.
+ </p>
+ <img src="backannotation3.png">
+ <p>
+  You can close the simulator since we need only the <kbd>cmos_example.raw</kbd> file that is now saved
+  in the simulation directory (usually <kbd>~/.xschem/simulations/cmos_example.raw</kbd>).<br>
+  Now verify that xschem is able to read the raw file: issue this command in the xschem console:<br>
+  <kbd>ngspice::annotate</kbd>
+ </p>
+ <pre class="code">
+xschem [~] ngspice::annotate
+Raw file read ...
+xschem [~] 
+ </pre>
+ <p>
+  If there are no errors we are ready and set.
  </p>
 
- <img src="backannotation1.svg">
+ <h3> PUSH ANNOTATION METHOD </H3>
+ <p>
+  Start placing some probe elements into the schematic.
+  The first element is the <kbd>devices/spice_probe.sym</kbd> component. This must be attached to
+  some schematic wires to show the voltage value.
+ </p>
+ <img style="box-shadow:none;" src="backannotation4.svg">
+ <p>
+  Place some of these elements on various nets, issue the above mentioned <kbd>ngspice::annotate</kbd>
+  command and see the voltage values in the schematic.
+ </p>
+ <img style="box-shadow:none;" src="backannotation5.svg">
+ <p>
+  Another useful component is the <kbd>devices/ammeter.sym</kbd> one which allow to monitor branch currents. 
+  Break some wires  and insert this component as shown here:
+ </p>
+ <img style="box-shadow:none;" src="backannotation6.svg">
+ <p class="important">
+  IMPORTANT: When inserting current probes the circuit topology changes (new nodes are created) so you need to 
+  re-create the netlist and re-run the simulation
+ </p><br>
+ <p>
+  Doing again the <kbd>ngspice::annotate</kbd> command after simulation will update the ammeters showing
+  the branch currents.
+ </p>
+ <img style="box-shadow:none;" src="backannotation7.svg">
+ <p>
+  These voltage and current values are inserted in the probe components as <b>attributes</b> and thus can be saved 
+  to file. Remember that if you change the circuit the values shown in the probe elements are no longer valid,
+  you should update the values with a new simulation + annotate operation when done with the changes.<br><br>
+  What i have described so far is the simplest annotation procedure based on a <b>push</b> method: a tcl script
+  reads the simulation raw file and 'pushes' voltage and current values into the probe components as instance
+  attributes. If you do an edit attribute on one of these elements you see the attribute 'pushed' into it by the
+  annotate script. The advantage of this method is that values pushed into probes can be saved to file and are
+  thus persistent. 
+ </p>
+ <img src="backannotation8.png">
 
+ <h3> PULL ANNOTATION METHOD </H3>
+ <p>
+  There is another annotation procedure that is based on a <b>pull</b> method: the probe objects have tcl commands
+  embedded that fetch simulation data from a table that has been read by the annotate script.
+ </p>
 
+ <p>
+  To ensure all currents are saved modify the <kbd>STIMULI</kbd> attributes as follows:
+ </p>
+ <pre class="code">
+.temp 30
+** models are generally not free: you must download
+** SPICE models for active devices and put them into the below 
+** referenced file in netlist/simulation directory.
+.include "models_cmos_example.txt"
+.option savecurrents
+.save all
+.control
+op
+write cmos_example.raw
+.endc
+ </pre>
+ <p>
+  Remove all previous probe elements and place some <kbd>devices/ngspice_probe.sym</kbd> components 
+  and some <kbd>devices/ngspice_get_value.sym</kbd> components.
+  the ngspice_probe.sym is a simple voltage viewer and must be attached to a net. The ngspice_get_value.sym
+  displays a generic variable stored in the raw file. This symbol is usually placed next to the referenced
+  component, but does not need to be attached to any specific point or wire.
+  Edit its attributes and set its <kbd>node</kbd> attribute to an existing saved variable in the raw file.
+ </p>
+ <img src="backannotation9.png">
+ <p>
+  Run again the simulation and the <kbd>ngspice::annotate</kbd> command and values will be updated.
+ </p>
+ <img src="backannotation10.svg">
+ <p>
+  You can add additional variables in the raw file , for example modifying the .save instruction:<br>
+  <kbd>.save all @m4[gm] @m5[gm] @m1[gm]</kbd>
+ </p>
+ <img src="backannotation11.png">
+ <p>
+  Data annotated into the schematic using these components allows more simulation parameters to be viewed into 
+  the schematic, not being restricted to currents and voltages. Since these components get data using a pull method
+  data is not persistent and not saved to file. After reloading the file just do a <kbd>ngspice::annotate</kbd> 
+  to view data again.
+ </p>
+
+ <p> 
+  There is one last probe component, the <kbd>devices/ngspice_get_expr.sym</kbd>. This is the most complex one, and 
+  thus also the most flexible. It allows to insert a generic tcl expression using spice simulated data to report
+  more complex data. In the example below this component is used to display the electrical power of transistor m3,
+  calculated as <kbd>V(GN) * Id(m3)</kbd>.
+ </p>
+ <img src="backannotation12.png">
+ <p> 
+  The example shown uses this component to display a (meaningless, but shows the usage) gm ratio of 2 transistors:
+ </p>
+ <img src="backannotation13.png">
+ <p> 
+  The syntax is a bit clompex, considering the verbosity of TCL and the strange ngspice naming syntax, however
+  once a working one is created changing the expression is easy.
+ </p>
+ 
+ <p class="important">
+  To avoid the need of typing commands in the xschem console a launcher component <kbd>devices/launcher.sym</kbd>
+  can be placed with the tcl command for doing the annotation. Just do a <kbd>Ctrl-Click</kbd> on it to trigger
+  the annotation.
+ </p>
+ <img src="backannotation14.png">
+ <br>
+ <br>
+ <br>
+ <br>
 
  <!-- end of slide -->
  <div class="filler"></div>

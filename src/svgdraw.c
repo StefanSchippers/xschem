@@ -661,6 +661,10 @@ void svg_draw(void)
     fprintf(fd, "  stroke-linecap:round;\n");
     fprintf(fd, "  stroke-linejoin:round;\n");
     fprintf(fd, "  stroke-width: %g;\n", svg_linew);
+    if(i == 0 && transparent_svg) {
+      fprintf(fd, "  fill-opacity: 0;\n");
+      fprintf(fd, "  stroke-opacity: 0;\n");
+    }
     fprintf(fd, "}\n");
   }
  

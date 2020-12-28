@@ -133,6 +133,7 @@ int rainbow_colors=0;
 int dis_uniq_names=0; /* if set allow instances with duplicate names */
 int persistent_command=0; /* remember last command 20181022 */
 int color_ps=-1;
+int transparent_svg=-1;
 int only_probes=0;
 int netlist_show=0;
 int flat_netlist=0;

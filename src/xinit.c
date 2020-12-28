@@ -1344,6 +1344,12 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_snprintf(tmp, S(tmp), "%d",color_ps);
    tclsetvar("color_ps",tmp);
  }
+ if(transparent_svg==-1)
+   transparent_svg=atoi(tclgetvar("transparent_svg"));
+ else  {
+   my_snprintf(tmp, S(tmp), "%d",transparent_svg);
+   tclsetvar("transparent_svg",tmp);
+ }
  change_lw=atoi(tclgetvar("change_lw"));
  l_width=atoi(tclgetvar("line_width"));
  if(change_lw == 1) l_width = 0.0;

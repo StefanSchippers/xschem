@@ -717,6 +717,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        my_snprintf(s, S(s), "%d",TEXTLAYER);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
+     else if(!strcmp(argv[2],"transparent_svg")) {
+       if( transparent_svg != 0 )
+         Tcl_SetResult(interp, "1",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, "0",TCL_STATIC);
+     }
      else if(!strcmp(argv[2],"ui_state")) {
        char s[30]; /* overflow safe 20161122 */
        my_snprintf(s, S(s), "%d",xctx->ui_state);
@@ -2220,6 +2226,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else if(!strcmp(argv[2],"color_ps")) {
             color_ps=atoi(argv[3]);
+      }
+      else if(!strcmp(argv[2],"transparent_svg")) {
+            transparent_svg=atoi(argv[3]);
       }
       else if(!strcmp(argv[2],"only_probes")) {
             only_probes=atoi(argv[3]);
