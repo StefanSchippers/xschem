@@ -225,11 +225,12 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
         my_strdup(138, &(entry->token),token);
         entry->path = NULL;
         my_strdup(139, &(entry->path),xctx->sch_path[xctx->currsch]);
-        entry->value=value;
-        entry->time=xctx->hilight_time;
-        entry->hash=hashcode;
-        *preventry=entry;
-        xctx->hilight_nets=1; /* some nets should be hilighted ....  07122002 */
+        entry->oldvalue = value; /* no old value */
+        entry->value = value;
+        entry->time = xctx->hilight_time;
+        entry->hash = hashcode;
+        *preventry = entry;
+        xctx->hilight_nets = 1; /* some nets should be hilighted ....  07122002 */
       }
       return NULL; /* whether inserted or not return NULL since it was not in */
     }
@@ -242,6 +243,7 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
         my_free(764, &entry);
         *preventry=saveptr;
       } else if(what == XINSERT ) {
+        entry->oldvalue = entry->value;
         entry->value = value;
         entry->time=xctx->hilight_time;
       }
@@ -531,7 +533,7 @@ int search(const char *tok, const char *val, int sub, int sel)
        if(!sel) {
          type = (xctx->inst[i].ptr+ xctx->sym)->type;
          if( type && IS_LABEL_SH_OR_PIN(type) ) {
-           bus_hilight_lookup(xctx->inst[i].node[0], col, XINSERT_NOREPLACE); /* sets xctx->hilight_nets = 1; */
+           bus_hilight_lookup(xctx->inst[i].node[0], col, XINSERT_NOREPLACE); /* sets xctx->hilight_nets=1; */
          } else {
            dbg(1, "search(): setting hilight flag on inst %d\n",i);
            xctx->hilight_nets=1;
@@ -983,17 +985,20 @@ void propagate_logic()
         if(propagate_str) {
           int n = 1;
           const char *propag;
-          int clock_pin, clock_val;
+          int clock_pin, clock_val, clock_oldval;
           const char *clock = get_tok_value(rct[j].prop_ptr, "clock", 0);
-          clock_pin = clock[0] - '0';
+          clock_pin = clock[0] ? clock[0] - '0' : -1;
           if(clock_pin != -1) {
             entry = bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP); /* clock pin */
             clock_val =  (!entry) ? LOGIC_X : entry->value;
+            clock_oldval =  (!entry) ? LOGIC_X : entry->oldvalue;
             if(entry) {
               if(clock_pin == 0) { /* clock falling edge */
+                if( clock_val == clock_oldval) continue;
                 if( clock_val != LOGIC_0) continue;
                 if(entry && entry->time != xctx->hilight_time) continue;
               } else if(clock_pin == 1) { /* clock rising edge */
+                if( clock_val == clock_oldval) continue;
                 if( clock_val != LOGIC_1) continue;
                 if(entry && entry->time != xctx->hilight_time) continue;
               } else if(clock_pin == 2) { /* set/clear active low */

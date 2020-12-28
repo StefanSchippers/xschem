@@ -644,6 +644,7 @@ struct hilight_hashentry {
                   unsigned int hash;
                   char *token;
                   char *path; /* hierarchy path */
+                  int oldvalue;  /* used for FF simulation */
                   int value;  /* hilight color */
                   int time; /*delta-time for sims */
                  };
