@@ -282,7 +282,7 @@ C {ngspice_get_expr.sym} 330 -900 0 1 {name=r17
 node="[ngspice::get_current v2]" 
 descr = current
 }
-C {ngspice_get_expr.sym} 350 -1040 0 0 {name=r18 
+C {ngspice_get_expr.sym} 360 -1040 0 0 {name=r18 
 node="[ngspice::get_current \{r2[i]\}]"
 descr = current
 }
@@ -359,7 +359,7 @@ C {ngspice_get_expr.sym} 1090 -530 0 1 {name=r25
 node="[ngspice::get_current vd]" 
 descr = current
 }
-C {ngspice_get_expr.sym} 1210 -1150 0 1 {name=r5 
+C {ngspice_get_expr.sym} 1210 -1140 0 1 {name=r5 
 node="[ngspice::get_current \{d0[id]\}]"
 descr = current
 }
@@ -417,6 +417,7 @@ C {spice_probe.sym} 1020 -1120 0 0 {name=p62  voltage=49.04}
 C {launcher.sym} 770 -110 0 0 {name=h1
 descr=Backannotate
 tclcommand="ngspice::annotate"}
-C {launcher.sym} 770 -160 0 0 {name=h4
-descr="View raw file"
-tclcommand="textwindow $netlist_dir/poweramp.raw"}
+C {launcher.sym} 770 -150 0 0 {name=h4
+descr="View Raw file" 
+tclcommand="textwindow $netlist_dir/[file tail [file rootname [ xschem get schname 0 ] ] ].raw"
+}

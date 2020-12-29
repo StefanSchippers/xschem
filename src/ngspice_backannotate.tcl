@@ -115,8 +115,7 @@ proc ngspice::get_current {n} {
   set n $path$n
   if { $path ne {} } {
     set n $prefix.$n
-  }
-  
+   }
   if { ![regexp $prefix {[ve]}] } {
     set n @$n
   }
@@ -135,7 +134,6 @@ proc ngspice::get_current {n} {
 proc ngspice::get_voltage {n} {
   set n [string tolower $n]
   set path [string range [xschem get sch_path] 1 end]
-
   set n v($path$n)
   set err [catch {set ::ngspice::ngspice_data($n)} res]
   if { $err } {
@@ -149,12 +147,11 @@ proc ngspice::get_voltage {n} {
 
 proc ngspice::get_node {n} {
   set n [string tolower $n]
-  if { [regexp -all \\. $n] == 1} {
-    regsub {@.\.} $n {@} n
-  }
+  set path [string range [xschem get sch_path] 1 end]
+  # puts "ngspice::get_node  --> $n,  path=$path"
+  set n [ subst -nocommand $n ]
   set err [catch {set ::ngspice::ngspice_data($n)} res]
   if { $err } { 
-    # puts "get_ngspice_node: $res"
     set res {?}
   } else {
     set res [ format %.4g $res ]
