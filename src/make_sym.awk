@@ -150,6 +150,7 @@ function rest_of_props()
   sub(/sig_type[ \t]*=[ \t]*[^ \t]+[ \t]?/, "")
   sub(/lab[ \t]*=[ \t]*[^ \t]+[ \t]?/, "")
   sub(/value[ \t]*=[ \t]*[^ \t]+[ \t]?/, "")
+  sub(/name[ \t]*=[ \t]*[^ \t]+[ \t]?/, "")
   sub(/^[ \t]*$/, "")
   return $0
 }

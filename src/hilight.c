@@ -884,6 +884,15 @@ int get_logic_value(int inst, int n)
   my_free(1221, &netname);
   return val;
 }
+void print_stack(int  *stack, int sp)
+{
+  int i;
+  fprintf(errfp, "stack: ");
+  for(i = 0; i < sp; i++) {
+    fprintf(errfp, "%d ", stack[i]);
+  }
+  fprintf(errfp, "\n");
+}
 
 int eval_logic_expr(int inst, int output)
 {
@@ -903,7 +912,12 @@ int eval_logic_expr(int inst, int output)
   ptr2 = saveptr;
   while( (arg = my_strtok_r(ptr2, " ", &ptr1)) ) {
     ptr2 = NULL;
-    if(arg[0] == '~') {
+    if(arg[0] == 'd') { /* duplicate top element*/
+      if(sp > 0 && sp < STACKMAX) {
+        stack[sp] = stack[sp - 1];
+        sp++;
+      }
+    } else if(arg[0] == '~') {
       if(sp > 0) {
         sp--;
         if(stack[sp] != 2) stack[sp] = !stack[sp];
@@ -953,7 +967,9 @@ int eval_logic_expr(int inst, int output)
         sp--;
       }
     } else if(isdigit(arg[0])) {
-      if(sp < STACKMAX) stack[sp++] = get_logic_value(inst, atoi(arg));
+      if(sp < STACKMAX) {
+        stack[sp++] = get_logic_value(inst, atoi(arg));
+      }
       else dbg(0, "eval_logic_expr(): stack overflow!\n");
     }
   }
