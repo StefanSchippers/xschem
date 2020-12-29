@@ -269,3 +269,7 @@ tclcommand="ngspice::annotate"}
 C {launcher.sym} 1000 -320 0 0 {name=h4
 descr="View raw file"
 tclcommand="textwindow $netlist_dir/poweramp.raw"}
+C {ngspice_get_expr.sym} 220 -1040 0 0 {name=r19 
+node="[ngspice::get_current \{r9[i]\}]"
+descr = current
+}
