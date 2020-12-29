@@ -35,6 +35,8 @@ function replace_pattern(old, new)
   replace_pattern("created dir.*$", "created dir ***Removed***")
   replace_pattern("undo_dirname.*$", "undo_dirname ***Removed***")
   replace_pattern("framewinID.*$", "framewinID ***Removed***")
+  replace_pattern("framewin parentID.*$", "framewin parentID ***Removed***")
+  replace_pattern("framewin child.*$", "framewin child ***Removed***")
   replace_pattern("resetwin.*$", "resetwin ***Removed***")
   replace_pattern("read_xschem_file.*$", "read_xschem_file ***Removed***")
   replace_pattern("EMERGENCY SAVE DIR dir.*$", "EMERGENCY SAVE DIR dir ***Removed***")
@@ -46,6 +48,9 @@ function replace_pattern(old, new)
   replace_pattern("l_s_d[:(:][:):]: fopen.*$", "load_sym_def(): fopen ***Removed***")
   replace_pattern("l_s_d[:(:][:):]: fclose.*$", "load_sym_def(): fclose ***Removed***")
   replace_pattern("drawing string: str=.*$", "drawing string: str=***Removed***")
+  replace_pattern("zoom_full[:(:][:):]:.*$", "zoom_full(): ***Removed***")
+  replace_pattern("bbox[:(:][:):]: bbox=.*$", "bbox(): bbox=***Removed***")
+  replace_pattern("draw_string()[:(:][:):]:.*$", "draw_string(): ***Removed***")
   __a[__lines++] = $0
 }
 

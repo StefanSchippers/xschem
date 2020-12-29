@@ -22,6 +22,31 @@
 
 #include "xschem.h"
 
+void redraw_w_a_l_r_p_rubbers(void)
+{
+  if(xctx->ui_state & STARTWIRE) {
+    if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
+    if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+    new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
+  }
+  if(xctx->ui_state & STARTARC) {
+    if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
+    if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+    new_arc(RUBBER, 0);
+  }
+  if(xctx->ui_state & STARTLINE) {
+    if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
+    if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+    new_line(RUBBER);
+  }
+  if(xctx->ui_state & STARTRECT) new_rect(RUBBER);
+  if(xctx->ui_state & STARTPOLYGON) {
+    if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
+    if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+    new_polygon(RUBBER);
+  }
+}
+
 void start_line(double mx, double my)
 {
     xctx->last_command = STARTLINE;
@@ -220,21 +245,7 @@ int callback(int event, int mx, int my, KeySym key,
           select_rect(RUBBER,1);
       }
     }
-    if(xctx->ui_state & STARTWIRE) {
-      if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-      if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
-      new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
-    }
-    if(xctx->ui_state & STARTARC) {
-      if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-      if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
-      new_arc(RUBBER, 0);
-    }
-    if(xctx->ui_state & STARTLINE) {
-      if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-      if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
-      new_line(RUBBER);
-    }
+
     if(xctx->ui_state & STARTMOVE) {
       if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
       if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
@@ -245,12 +256,8 @@ int callback(int event, int mx, int my, KeySym key,
       if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
       copy_objects(RUBBER);
     }
-    if(xctx->ui_state & STARTRECT) new_rect(RUBBER);
-    if(xctx->ui_state & STARTPOLYGON) {
-      if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-      if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
-      new_polygon(RUBBER);
-    }
+
+    redraw_w_a_l_r_p_rubbers();
     /* start of a mouse area select */
     if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
        !(xctx->ui_state & STARTPAN2) && !(state & Mod1Mask) &&
@@ -615,6 +622,7 @@ int callback(int event, int mx, int my, KeySym key,
     xctx->xorigin=-xctx->mousex_snap+xctx->areaw*xctx->zoom/2.0;
     xctx->yorigin=-xctx->mousey_snap+xctx->areah*xctx->zoom/2.0;
     draw();
+    redraw_w_a_l_r_p_rubbers();
     break;
    }
    if(key=='5' && state == 0) { /* 20110112 display only probes */
@@ -639,24 +647,28 @@ int callback(int event, int mx, int my, KeySym key,
    {
     xctx->xorigin+=-CADMOVESTEP*xctx->zoom;
     draw();
+    redraw_w_a_l_r_p_rubbers();
     break;
    }
    if(key==XK_Left)                     /* right */
    {
     xctx->xorigin-=-CADMOVESTEP*xctx->zoom;
     draw();
+    redraw_w_a_l_r_p_rubbers();
     break;
    }
    if(key==XK_Down)                     /* down */
    {
     xctx->yorigin+=-CADMOVESTEP*xctx->zoom;
     draw();
+    redraw_w_a_l_r_p_rubbers();
     break;
    }
    if(key==XK_Up)                       /* up */
    {
     xctx->yorigin-=-CADMOVESTEP*xctx->zoom;
     draw();
+    redraw_w_a_l_r_p_rubbers();
     break;
    }
    if(key=='q' && state == ControlMask) /* exit */
@@ -1402,14 +1414,17 @@ int callback(int event, int mx, int my, KeySym key,
    else if(button==Button4 && (state & ShiftMask) && !(state & Button2Mask)) {
     xctx->xorigin+=-CADMOVESTEP*xctx->zoom/2.;
     draw();
+    redraw_w_a_l_r_p_rubbers();
    }
    else if(button==Button5 && (state & ShiftMask) && !(state & Button2Mask)) {
     xctx->xorigin-=-CADMOVESTEP*xctx->zoom/2.;
     draw();
+    redraw_w_a_l_r_p_rubbers();
    }
    else if(button==Button4 && (state & ControlMask) && !(state & Button2Mask)) {
     xctx->yorigin+=-CADMOVESTEP*xctx->zoom/2.;
     draw();
+    redraw_w_a_l_r_p_rubbers();
    }
    else if(button==Button5 && (state & ControlMask) && !(state & Button2Mask)) {
     xctx->yorigin-=-CADMOVESTEP*xctx->zoom/2.;
@@ -1654,7 +1669,7 @@ int callback(int event, int mx, int my, KeySym key,
      xctx->mx_save = mx; xctx->my_save = my;
      xctx->mx_double_save=xctx->mousex_snap;
      xctx->my_double_save=xctx->mousey_snap;
-
+     redraw_w_a_l_r_p_rubbers();
      break;
    }
    dbg(1, "callback(): ButtonRelease  ui_state=%ld state=%d\n",xctx->ui_state,state);

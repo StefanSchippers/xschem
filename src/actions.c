@@ -1371,21 +1371,25 @@ void zoom_full(int dr, int sel, int flags, double shrink)
   }
   dbg(1, "zoom_full(): dr=%d sel=%d flags=%d areaw=%d, areah=%d\n", sel, dr, flags, xctx->areaw, xctx->areah);
   if(flags & 1) change_linewidth(-1.);
-  if(dr && has_x) draw();
+  if(dr && has_x) {
+    draw();
+    redraw_w_a_l_r_p_rubbers();
+  }
 }
 
 void view_zoom(double z)
 {
-    double factor;
-    /*  int i; */
-    factor = z!=0.0 ? z : CADZOOMSTEP;
-    if(xctx->zoom<CADMINZOOM) return;
-    xctx->zoom/= factor;
-    xctx->mooz=1/xctx->zoom;
-    xctx->xorigin=-xctx->mousex_snap+(xctx->mousex_snap+xctx->xorigin)/factor;
-    xctx->yorigin=-xctx->mousey_snap+(xctx->mousey_snap+xctx->yorigin)/factor;
-    change_linewidth(-1.);
-    draw();
+  double factor;
+  /*  int i; */
+  factor = z!=0.0 ? z : CADZOOMSTEP;
+  if(xctx->zoom<CADMINZOOM) return;
+  xctx->zoom/= factor;
+  xctx->mooz=1/xctx->zoom;
+  xctx->xorigin=-xctx->mousex_snap+(xctx->mousex_snap+xctx->xorigin)/factor;
+  xctx->yorigin=-xctx->mousey_snap+(xctx->mousey_snap+xctx->yorigin)/factor;
+  change_linewidth(-1.);
+  draw();
+  redraw_w_a_l_r_p_rubbers();
 }
 
 void view_unzoom(double z)
@@ -1407,6 +1411,7 @@ void view_unzoom(double z)
   }
   change_linewidth(-1.);
   draw();
+  redraw_w_a_l_r_p_rubbers();
 }
 
 void set_viewport_size(int w, int h, double lw)
@@ -1489,6 +1494,7 @@ void zoom_rectangle(int what)
     xctx->mooz=1/xctx->zoom;
     change_linewidth(-1.);
     draw();
+    redraw_w_a_l_r_p_rubbers();
     dbg(1, "zoom_rectangle(): coord: %.16g %.16g %.16g %.16g zoom=%.16g\n",
       xctx->nl_x1,xctx->nl_y1,xctx->mousex_snap, xctx->mousey_snap,xctx->zoom);
   }
