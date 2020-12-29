@@ -121,7 +121,7 @@ proc ngspice::get_current {n} {
     set n @$n
   }
   set n i($n)
-  puts "ngspice::get_current --> $n"
+  # puts "ngspice::get_current --> $n"
   set err [catch {set ::ngspice::ngspice_data($n)} res]
   if { $err } {
     set res {?}
