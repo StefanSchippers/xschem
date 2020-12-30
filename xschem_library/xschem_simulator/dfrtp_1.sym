@@ -19,10 +19,10 @@ L 4 -90 0 -70 0 {}
 L 4 -90 20 -70 20 {}
 L 4 70 -20 90 -20 {}
 B 5 -92.5 -22.5 -87.5 -17.5 {name=CLK dir=in 
-propagate_to=3 clock=1}
+goto=3 clock=1}
 B 5 -92.5 -2.5 -87.5 2.5 {name=D dir=in }
 B 5 -92.5 17.5 -87.5 22.5 {name=RESET_B dir=in 
-propagate_to=3
+goto=3
 clock=2}
 B 5 87.5 -22.5 92.5 -17.5 {name=Q dir=out }
 T {@symname} 0 -6 0 0 0.3 0.3 {hcenter=true}

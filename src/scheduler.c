@@ -2009,7 +2009,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if( !strcmp(argv[2],"regex") )  r = search(argv[4],argv[5],0,select);
         else  r = search(argv[4],argv[5],1,select);
         if(r == 0) {
-          if(has_x && !strcmp(argv[1],"searchmenu")) tcleval("tk_messageBox -type ok -message {Not found.}");
+          if(has_x && !strcmp(argv[1],"searchmenu")) 
+            tcleval("tk_messageBox -type ok -message {Not found.}");
           Tcl_SetResult(interp,"0", TCL_STATIC);
         } else {
           Tcl_SetResult(interp,"1", TCL_STATIC);

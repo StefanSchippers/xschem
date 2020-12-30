@@ -299,15 +299,14 @@ struct hilight_hashentry *bus_hilight_lookup(const char *token, int value, int w
 void clear_all_hilights(void)
 {
   int i;
+  xctx->hilight_color=0;
   if(!xctx->hilight_nets) return;
   free_hilight_hash();
- 
   xctx->hilight_nets=0;
   for(i=0;i<xctx->instances;i++) {
     xctx->inst[i].color = -10000 ;
   }
   dbg(1, "clear_all_hilights(): clearing\n");
-  xctx->hilight_color=0;
 }
 
 void hilight_net_pin_mismatches(void)
@@ -501,6 +500,8 @@ int search(const char *tok, const char *val, int sub, int sel)
    if(!strcmp(tok,"cell::name")) {
      has_token = (xctx->inst[i].name != NULL) && xctx->inst[i].name[0];
      str = xctx->inst[i].name;
+   } else if(!strcmp(tok,"cell::propstring")) {
+     has_token = (str = (xctx->inst[i].ptr+ xctx->sym)->prop_ptr) ? 1 : 0;
    } else if(!strncmp(tok,"cell::", 6)) { /* cell::xxx looks for xxx in global symbol attributes */
      my_strdup(142, &tmpname,get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr,tok+6,0));
      has_token = xctx->get_tok_size;
@@ -658,7 +659,7 @@ int search(const char *tok, const char *val, int sub, int sel)
 }
 
 /* "drill" option (pass through resistors or pass gates or whatever elements with  */
-/* 'propagate_to' properties set on pins) */
+/* 'goto' properties set on pins) */
 void drill_hilight(int mode)
 {
   char *netname=NULL, *propagated_net=NULL;
@@ -684,7 +685,7 @@ void drill_hilight(int mode)
         if(entry && (en_hilight_conn_inst || (symbol->type && IS_LABEL_SH_OR_PIN(symbol->type))) ) {
           xctx->inst[i].color = entry->value;
         }
-        my_strdup(1225, &propagate_str, get_tok_value(rct[j].prop_ptr, "propagate_to", 0));
+        my_strdup(1225, &propagate_str, get_tok_value(rct[j].prop_ptr, "goto", 0));
         if(propagate_str) {
           int n = 1;
           const char *propag;
@@ -696,7 +697,7 @@ void drill_hilight(int mode)
             if(entry) {
               propagate = atoi(propag);
               if(propagate < 0 || propagate >= npin) {
-                 dbg(0, "Error: inst: %s, pin %d, propagate_to set to %s <<%d>>\n",
+                 dbg(0, "Error: inst: %s, pin %d, goto set to %s <<%d>>\n",
                    xctx->inst[i].instname, j, propagate_str, propagate);
                    continue;
               }
@@ -966,6 +967,14 @@ int eval_logic_expr(int inst, int output)
         stack[sp - 2] = res;
         sp--;
       }
+    } else if(arg[0] == 'L') { /* logic low (0) */
+      if(sp < STACKMAX) {
+        stack[sp++] = 0;
+      }
+    } else if(arg[0] == 'H') { /* logic high (1) */
+      if(sp < STACKMAX) {
+        stack[sp++] = 1;
+      }
     } else if(isdigit(arg[0])) {
       if(sp < STACKMAX) {
         stack[sp++] = get_logic_value(inst, atoi(arg));
@@ -1000,7 +1009,7 @@ void propagate_logic()
       npin = symbol->rects[PINLAYER];
       rct=symbol->rect[PINLAYER];
       for(j=0; j<npin;j++) {
-        my_strdup(1223, &propagate_str, get_tok_value(rct[j].prop_ptr, "propagate_to", 0));
+        my_strdup(1223, &propagate_str, get_tok_value(rct[j].prop_ptr, "goto", 0));
         if(propagate_str) {
           int n = 1;
           const char *propag;
@@ -1034,7 +1043,7 @@ void propagate_logic()
             if(!propag[0]) break;
             propagate = atoi(propag);
             if(propagate < 0 || propagate >= npin) {
-               dbg(0, "Error: inst: %s, pin %d, propagate_to set to %s <<%d>>\n",
+               dbg(0, "Error: inst: %s, pin %d, goto set to %s <<%d>>\n",
                  xctx->inst[i].instname, j, propagate_str, propagate);
                  continue;
             }

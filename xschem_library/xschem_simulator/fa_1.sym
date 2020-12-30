@@ -24,11 +24,11 @@ L 4 -60 40 -40 40 {}
 L 4 40 -40 60 -40 {}
 L 4 40 40 60 40 {}
 B 5 -62.5 -42.5 -57.5 -37.5 {name=A dir=in 
-propagate_to=3,4}
+goto=3,4}
 B 5 -62.5 -2.5 -57.5 2.5 {name=B dir=in
-propagate_to=3,4}
+goto=3,4}
 B 5 -62.5 37.5 -57.5 42.5 {name=CIN dir=in
-propagate_to=3,4}
+goto=3,4}
 B 5 57.5 -42.5 62.5 -37.5 {name=COUT dir=out }
 B 5 57.5 37.5 62.5 42.5 {name=SUM dir=out }
 T {@symname} -10 -76 0 0 0.3 0.3 {hcenter=true}

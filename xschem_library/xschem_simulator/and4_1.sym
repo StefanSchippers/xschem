@@ -27,10 +27,10 @@ L 4 -45 10 -45 20 {}
 L 4 -45 10 -30 10 {}
 L 4 -45 -20 -45 -10 {}
 L 4 -45 -10 -30 -10 {}
-B 5 -62.5 -62.5 -57.5 -57.5 {name=A dir=in propagate_to=4 }
-B 5 -62.5 -22.5 -57.5 -17.5 {name=B dir=in propagate_to=4 }
-B 5 -62.5 17.5 -57.5 22.5 {name=C dir=in propagate_to=4 }
-B 5 -62.5 57.5 -57.5 62.5 {name=D dir=in propagate_to=4 }
+B 5 -62.5 -62.5 -57.5 -57.5 {name=A dir=in goto=4 }
+B 5 -62.5 -22.5 -57.5 -17.5 {name=B dir=in goto=4 }
+B 5 -62.5 17.5 -57.5 22.5 {name=C dir=in goto=4 }
+B 5 -62.5 57.5 -57.5 62.5 {name=D dir=in goto=4 }
 B 5 57.5 -2.5 62.5 2.5 {name=X dir=out }
 A 4 5 0 30 270 180 {}
 T {D} -55 46 0 0 0.2 0.2 {}

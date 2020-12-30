@@ -168,8 +168,8 @@ L 4 -7.5 -17.5 0 -20 {}
 L 4 0 -30 0 -20 {}
 L 4 2.5 -22.5 7.5 -22.5 {}
 L 4 5 -25 5 -20 {}
-B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout propagate_to=1 pinnumber=1}
-B 5 -2.5 27.5 2.5 32.5 {name=m dir=inout propagate_to=0 pinnumber=2}
+B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout goto=1 pinnumber=1}
+B 5 -2.5 27.5 2.5 32.5 {name=m dir=inout goto=0 pinnumber=2}
 T {@name} 15 -18.75 0 0 0.2 0.2 {}
 T {@value} 15 -3.75 0 0 0.2 0.2 {}
 T {m=@m} 15 11.25 0 0 0.2 0.2 {}
