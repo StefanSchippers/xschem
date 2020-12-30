@@ -1054,8 +1054,10 @@ void propagate_logic()
             entry = bus_hilight_lookup(propagated_net, 0, XLOOKUP); /* destination pin */
             oldval = (!entry) ? LOGIC_X : entry->value;
             val =  map[eval_logic_expr(i, propagate)];
-            bus_hilight_lookup(propagated_net, val, XINSERT);
-            if(oldval != val) found=1; /* keep looping until no more nets are found. */
+            if(oldval != val) {
+               bus_hilight_lookup(propagated_net, val, XINSERT);
+               found=1; /* keep looping until no more nets are found. */
+            }
           }
         }
       } /* for(j...) */
