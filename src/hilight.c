@@ -24,9 +24,9 @@
 
 static unsigned int hi_hash(const char *tok)
 {
-  unsigned int hash = 0;
-  char *str;
-  int c;
+  register int hash = 0;
+  register char *str;
+  register int c;
 
   str=xctx->sch_path[xctx->currsch];
   while ( (c = *tok++) )
@@ -868,13 +868,12 @@ int get_logic_value(int inst, int n)
 {
   int /* mult, */ val;
   struct hilight_hashentry *entry;
-  char *netname = NULL;
+  /* char *netname = NULL; */
 
   /* fast option: dont use net_name() (no expandlabel though) */
   /* THIS MUST BE DONE TO HANDLE VECTOR INSTANCES/BUSES */
   /* my_strdup(xxxx, &netname, net_name(inst, n, &mult, 1, 0)); */
-  my_strdup(1219, &netname, xctx->inst[inst].node[n]);
-  entry=bus_hilight_lookup(netname, 0, XLOOKUP);
+  entry=hilight_lookup(xctx->inst[inst].node[n], 0, XLOOKUP);
   if(!entry) {
     val = 2; /* LOGIC_X */
   } else {
@@ -882,9 +881,10 @@ int get_logic_value(int inst, int n)
     val = (val == LOGIC_0) ? 0 : (val == LOGIC_1) ? 1 : 2;
     /* dbg(1, "get_logic_value(): inst=%d pin=%d net=%s val=%d\n", inst, n, netname, val); */
   }
-  my_free(1221, &netname);
+  /* my_free(xxxx, &netname); */
   return val;
 }
+
 void print_stack(int  *stack, int sp)
 {
   int i;
@@ -904,11 +904,9 @@ int eval_logic_expr(int inst, int output)
   char *ptr2;
   char *arg;
   int res = 0;
-  char function[20];
 
-  my_snprintf(function, S(function), "function%d", output);
-  my_strdup(1218, &saveptr, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, function, 0));
-  dbg(1, "eval_logic_expr(): function=%s, saveptr=%s\n", function, saveptr ? saveptr : "NULL");
+  my_strdup(827, &saveptr, xctx->simdata.inst[inst].pin[output].function);
+  dbg(1, "eval_logic_expr(): inst=%d pin=%d function=%s\n", inst, output, saveptr ? saveptr : "NULL");
   if(!saveptr) return 2; /* no logic function defined, return LOGIC_X */
   ptr2 = saveptr;
   while( (arg = my_strtok_r(ptr2, " ", &ptr1)) ) {
@@ -918,13 +916,13 @@ int eval_logic_expr(int inst, int output)
         stack[sp] = stack[sp - 1];
         sp++;
       }
-    } else if(arg[0] == '~') {
+    } else if(arg[0] == '~') { /* negation operator */
       if(sp > 0) {
         sp--;
         if(stack[sp] != 2) stack[sp] = !stack[sp];
         ++sp;
       }
-    } else if(arg[0] == '|') {
+    } else if(arg[0] == '|') { /* or operator */
       if(sp > 1) {
         res = 0;
         for(i = sp - 2; i < sp; i++) {
@@ -938,7 +936,7 @@ int eval_logic_expr(int inst, int output)
         stack[sp - 2] = res;
         sp--;
       }
-    } else if(arg[0] == '&') {
+    } else if(arg[0] == '&') { /* and operator */
       if(sp > 1) {
         res = 1;
         for(i = sp - 2; i < sp; i++) {
@@ -952,7 +950,7 @@ int eval_logic_expr(int inst, int output)
         stack[sp - 2] = res;
         sp--;
       }
-    } else if(arg[0] == '^') {
+    } else if(arg[0] == '^') { /* xor operator */
       if(sp > 1) {
         res = 0;
         for(i = sp - 2; i < sp; i++) {
@@ -982,19 +980,63 @@ int eval_logic_expr(int inst, int output)
       else dbg(0, "eval_logic_expr(): stack overflow!\n");
     }
   }
-  my_free(827, &saveptr);
+  my_free(1218, &saveptr);
   dbg(1, "eval_logic_expr(): inst %d output %d, returning %d\n", inst, output, stack[0]);
   return stack[0];
 }
 
+void create_simdata(void)
+{
+  int i, j;
+  const char *str;
+  free_simdata();
+  xctx->simdata.inst = NULL;
+  my_realloc(60, &xctx->simdata.inst, xctx->instances * sizeof(struct simdata_inst));
+  xctx->simdata.ninst = xctx->instances;
+  for(i = 0; i < xctx->instances; i++) {
+    xSymbol *symbol = xctx->inst[i].ptr + xctx->sym;
+    int npin = symbol->rects[PINLAYER];
+    xctx->simdata.inst[i].pin = NULL;
+    my_realloc(61, &xctx->simdata.inst[i].pin, npin * sizeof(struct simdata_pin));
+    xctx->simdata.inst[i].npin = npin;
+    for(j = 0; j < npin; j++) {
+      char function[20];
+      xctx->simdata.inst[i].pin[j].function=NULL;
+      xctx->simdata.inst[i].pin[j].go_to=NULL;
+      xctx->simdata.inst[i].pin[j].value=2;
+      my_snprintf(function, S(function), "function%d", j);
+      my_strdup(717, &xctx->simdata.inst[i].pin[j].function, get_tok_value(symbol->prop_ptr, function, 0));
+      my_strdup(963, &xctx->simdata.inst[i].pin[j].go_to, get_tok_value(symbol->rect[PINLAYER][j].prop_ptr, "goto", 0));
+      str = get_tok_value(symbol->rect[PINLAYER][j].prop_ptr, "clock", 0);
+      xctx->simdata.inst[i].pin[j].clock = str[0] ? str[0] - '0' : -1;
+    }
+  }
+  xctx->simdata.valid = 1;
+}
+
+void free_simdata(void)
+{
+  int i, j;
+
+  if(xctx->simdata.inst) {
+    for(i = 0; i < xctx->simdata.ninst; i++) {
+      int npin = xctx->simdata.inst[i].npin;
+      for(j = 0; j < npin; j++) {
+        my_free(1219, &xctx->simdata.inst[i].pin[j].function);
+        my_free(1220, &xctx->simdata.inst[i].pin[j].go_to);
+      }
+      my_free(1221, &xctx->simdata.inst[i].pin);
+    }
+    my_free(1222, &xctx->simdata.inst);
+  }
+  xctx->simdata.valid = 0;
+}
+
 void propagate_logic()
 {
-  char *propagated_net=NULL;
+  /* char *propagated_net=NULL; */
   int found /* , mult */;
-  xSymbol *symbol;
-  xRect *rct;
   int i, j, npin;
-  char *propagate_str = NULL;
   int propagate;
   struct hilight_hashentry  *entry;
   int val, oldval;
@@ -1004,20 +1046,18 @@ void propagate_logic()
   prepare_netlist_structs(0);
   while(1) {
     found=0;
-    for(i=0; i<xctx->instances;i++) {
-      symbol = xctx->inst[i].ptr+xctx->sym;
-      npin = symbol->rects[PINLAYER];
-      rct=symbol->rect[PINLAYER];
+    for(i=0; i<xctx->simdata.ninst; i++) {
+      npin = xctx->simdata.inst[i].npin;
       for(j=0; j<npin;j++) {
-        my_strdup(1223, &propagate_str, get_tok_value(rct[j].prop_ptr, "goto", 0));
-        if(propagate_str) {
+        if(xctx->simdata.inst && xctx->simdata.inst[i].pin && xctx->simdata.inst[i].pin[j].go_to) {
+        /* if(xctx->simdata.inst[i].pin[j].go_to) { */
           int n = 1;
           const char *propag;
           int clock_pin, clock_val, clock_oldval;
-          const char *clock = get_tok_value(rct[j].prop_ptr, "clock", 0);
-          clock_pin = clock[0] ? clock[0] - '0' : -1;
+          clock_pin = xctx->simdata.inst[i].pin[j].clock;
           if(clock_pin != -1) {
-            entry = bus_hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP); /* clock pin */
+            /* no bus_hilight_lookup --> no bus expansion */
+            entry = hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP); /* clock pin */
             clock_val =  (!entry) ? LOGIC_X : entry->value;
             clock_oldval =  (!entry) ? LOGIC_X : entry->oldvalue;
             if(entry) {
@@ -1036,35 +1076,35 @@ void propagate_logic()
                 }
             }
           }
-          dbg(1, "propagate_logic(): inst=%d propagate_str=%s\n", i, propagate_str);
+          dbg(1, "propagate_logic(): inst=%d pin %d, goto=%s\n", i,j, xctx->simdata.inst[i].pin[j].go_to);
           while(1) {
-            propag = find_nth(propagate_str, ',', n);
+            propag = find_nth(xctx->simdata.inst[i].pin[j].go_to, ',', n);
             n++;
             if(!propag[0]) break;
             propagate = atoi(propag);
             if(propagate < 0 || propagate >= npin) {
                dbg(0, "Error: inst: %s, pin %d, goto set to %s <<%d>>\n",
-                 xctx->inst[i].instname, j, propagate_str, propagate);
+                 xctx->inst[i].instname, j, xctx->simdata.inst[i].pin[j].go_to, propagate);
                  continue;
             }
             if(!xctx->inst[i].node[propagate]) {
-              dbg(0, "Error: inst %s, output in %d unconnected\n", xctx->inst[i].instname, propagate);
+              dbg(1, "Error: inst %s, output in %d unconnected\n", xctx->inst[i].instname, propagate);
               break;
             }
             /* get net to propagate hilight to...*/
             /* fast option: dont use net_name() (no expandlabel though) */
             /* THIS MUST BE DONE TO HANDLE VECTOR INSTANCES/BUSES */
             /* my_strdup(xxx, &propagated_net, net_name(i, propagate, &mult, 1, 0)); */
-            my_strdup(1220, &propagated_net, xctx->inst[i].node[propagate]);
             /* dbg(1, "propagate_logic(): inst %d pin %d propag=%s n=%d\n", i, j, propag, n);
              * dbg(1, "propagate_logic(): inst %d pin %d propagate=%d\n", i, j, propagate);
              * dbg(1, "propagate_logic(): propagated_net=%s\n", propagated_net); */
             /* add net to highlight list */
-            entry = bus_hilight_lookup(propagated_net, 0, XLOOKUP); /* destination pin */
+            /* no bus_hilight_lookup --> no bus expansion */
+            entry = hilight_lookup(xctx->inst[i].node[propagate], 0, XLOOKUP); /* destination pin */
             oldval = (!entry) ? LOGIC_X : entry->value;
             val =  map[eval_logic_expr(i, propagate)];
             if(oldval != val) {
-               bus_hilight_lookup(propagated_net, val, XINSERT);
+               hilight_lookup(xctx->inst[i].node[propagate], val, XINSERT);
                found=1; /* keep looping until no more nets are found. */
             }
           }
@@ -1077,8 +1117,7 @@ void propagate_logic()
     Tcl_VarEval(interp, "update; if {$::tclstop == 1} {return 1} else {return 0}", NULL);
     if( tclresult()[0] == '1') break;
   } /* while(1) */
-  my_free(1224, &propagate_str);
-  my_free(1222, &propagated_net);
+  /* my_free(1222, &propagated_net); */
 }
 
 void logic_set(int value, int num)
@@ -1091,6 +1130,7 @@ void logic_set(int value, int num)
   struct hilight_hashentry  *entry;
  
   prepare_netlist_structs(0);
+  if(!xctx->simdata.valid) create_simdata();
   rebuild_selected_array();
   newval = value;
   if(!no_draw && !big) {

@@ -1470,8 +1470,8 @@ void draw(void)
  struct instentry *instanceptr;
  struct wireentry *wireptr;
  int use_hash;
- register int c,i;
- register xSymbol *symptr;
+ int c, i = 0;
+ xSymbol *symptr;
  int textlayer;
 
  #if HAS_CAIRO==1

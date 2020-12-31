@@ -327,6 +327,7 @@ void free_xschem_data()
 {
   int i;
   delete_undo();
+  free_simdata();
   my_free(1098, &xctx->wire);
   my_free(1100, &xctx->text);
   my_free(1107, &xctx->inst);
@@ -405,6 +406,9 @@ void alloc_xschem_data()
   xctx->maxsel = 0;
   xctx->prep_net_structs = 0;
   xctx->prep_hi_structs = 0;
+  xctx->simdata.inst = NULL;
+  xctx->simdata.ninst = 0;
+  xctx->simdata.valid = 0;
   xctx->prep_hash_inst = 0;
   xctx->prep_hash_wires = 0;
   xctx->modified = 0;

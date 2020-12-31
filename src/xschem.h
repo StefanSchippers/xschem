@@ -476,6 +476,24 @@ typedef struct
   double zoom;
 } Zoom;
 
+struct simdata_pin {
+                  char *function;
+                  char *go_to;
+                  short clock;
+                  int value;
+                 };
+ 
+struct simdata_inst {
+                  struct simdata_pin *pin;
+                  int npin;
+                 };
+
+struct simdata {
+                 struct simdata_inst *inst;
+                 int ninst;
+                 int valid;
+               };
+
 typedef struct {
   xWire *wire;
   xText *text;
@@ -534,6 +552,7 @@ typedef struct {
   int prep_hi_structs;
   int prep_hash_inst;
   int prep_hash_wires;
+  struct simdata simdata;
   int modified;
   int semaphore;
   int get_tok_size;
@@ -822,6 +841,7 @@ extern void saveas(const char *f, int type);
 extern const char *get_file_path(char *f);
 extern int save(int confirm);
 extern struct hilight_hashentry *bus_hilight_lookup(const char *token, int value, int what) ;
+extern struct hilight_hashentry *hilight_lookup(const char *token, int value, int what);
 extern int  name_strcmp(char *s, char *d) ;
 extern int search(const char *tok, const char *val, int sub, int sel);
 extern int process_options(int argc, char **argv);
@@ -1121,6 +1141,8 @@ extern void display_hilights(char **str);
 extern void redraw_hilights(void);
 extern void override_netlist_type(int type);
 extern void prepare_netlist_structs(int for_netlist);
+extern void create_simdata(void);
+extern void free_simdata(void);
 extern void delete_netlist_structs(void);
 extern void delete_inst_node(int i);
 extern void clear_all_hilights(void);
