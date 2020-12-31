@@ -172,8 +172,8 @@ void update_symbol_bboxes(short rot, short flip)
   {
     n = xctx->sel_array[i].n;
     dbg(1, "update_symbol_bboxes(): i=%d, movelastsel=%d, n=%d\n", i, xctx->movelastsel, n);
-    dbg(1, "update_symbol_bboxes(): symbol flip=%d, rot=%d\n",  xctx->inst[n].flip, xctx->inst[n].rot);
     if(xctx->sel_array[i].type == ELEMENT) {
+      dbg(1, "update_symbol_bboxes(): symbol flip=%d, rot=%d\n",  xctx->inst[n].flip, xctx->inst[n].rot);
       save_flip = xctx->inst[n].flip;
       save_rot = xctx->inst[n].rot;
       xctx->inst[n].flip = flip ^ xctx->inst[n].flip;
