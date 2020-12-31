@@ -17,7 +17,7 @@ and base-10 counter} 1540 -3130 0 0 2.5 2.5 {}
 T {This example shows Xschem (very simple) simulation abilities
 Ctrl-Click to start simulation.
 Xschem will be only partially responsive during simulation.
-Will run for 40 iterations.
+Will run for 100 iterations.
 If you need to stop:
 Simulation -> Forced stop tcl scripts} 1730 -750 0 0 1.5 1.5 {}
 T {Cyan: Uninitialized or unknown (X)} 3210 -1190 0 0 1.5 1.5 {layer=1}

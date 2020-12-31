@@ -1087,7 +1087,7 @@ void propagate_logic()
                  continue;
             }
             if(!xctx->inst[i].node[propagate]) {
-              dbg(1, "Error: inst %s, output in %d unconnected\n", xctx->inst[i].instname, propagate);
+              dbg(0, "Error: inst %s, output in %d unconnected\n", xctx->inst[i].instname, propagate);
               break;
             }
             /* get net to propagate hilight to...*/
