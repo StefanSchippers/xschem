@@ -1003,7 +1003,6 @@ void create_simdata(void)
       char function[20];
       xctx->simdata.inst[i].pin[j].function=NULL;
       xctx->simdata.inst[i].pin[j].go_to=NULL;
-      xctx->simdata.inst[i].pin[j].value=2;
       my_snprintf(function, S(function), "function%d", j);
       my_strdup(717, &xctx->simdata.inst[i].pin[j].function, get_tok_value(symbol->prop_ptr, function, 0));
       my_strdup(963, &xctx->simdata.inst[i].pin[j].go_to, get_tok_value(symbol->rect[PINLAYER][j].prop_ptr, "goto", 0));

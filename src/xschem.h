@@ -480,7 +480,6 @@ struct simdata_pin {
                   char *function;
                   char *go_to;
                   short clock;
-                  int value;
                  };
  
 struct simdata_inst {
