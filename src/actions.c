@@ -877,8 +877,6 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->instances++; /* must be updated before calling symbol_bbox() */
 
 
-  if(xctx->prep_hash_inst) hash_inst(XINSERT, n); /* no need to rehash, add item */
-  /* xctx->prep_hash_inst=0; */
 
 
   /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
@@ -887,6 +885,8 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->prep_hi_structs=0;
   symbol_bbox(n, &xctx->inst[n].x1, &xctx->inst[n].y1,
                     &xctx->inst[n].x2, &xctx->inst[n].y2);
+  if(xctx->prep_hash_inst) hash_inst(XINSERT, n); /* no need to rehash, add item */
+  /* xctx->prep_hash_inst=0; */
   if(draw_sym & 3) bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2);
   set_modify(1);
   if(draw_sym&1) {

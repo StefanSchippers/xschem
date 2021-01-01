@@ -898,31 +898,32 @@ void print_stack(int  *stack, int sp)
 int eval_logic_expr(int inst, int output)
 {
   int stack[STACKMAX];
-  int i, sp = 0;
-  char *saveptr = NULL;
-  char *ptr1;
-  char *ptr2;
-  char *arg;
+  int pos = 0, i, sp = 0;
+  char *str;
   int res = 0;
 
-  my_strdup(827, &saveptr, xctx->simdata.inst[inst].pin[output].function);
-  dbg(1, "eval_logic_expr(): inst=%d pin=%d function=%s\n", inst, output, saveptr ? saveptr : "NULL");
-  if(!saveptr) return 2; /* no logic function defined, return LOGIC_X */
-  ptr2 = saveptr;
-  while( (arg = my_strtok_r(ptr2, " ", &ptr1)) ) {
-    ptr2 = NULL;
-    if(arg[0] == 'd') { /* duplicate top element*/
+  str = xctx->simdata.inst[inst].pin[output].function;
+  dbg(1, "eval_logic_expr(): inst=%d pin=%d function=%s\n", inst, output, str ? str : "NULL");
+  if(!str) return 2; /* no logic function defined, return LOGIC_X */
+  while(str[pos]) {
+    if(str[pos] == 'd') { /* duplicate top element*/
       if(sp > 0 && sp < STACKMAX) {
         stack[sp] = stack[sp - 1];
         sp++;
       }
-    } else if(arg[0] == '~') { /* negation operator */
+    } else if(str[pos] == 'x') { /* exchange top 2 operands */
+      if(sp > 1) {
+         int tmp = stack[sp - 2];
+         stack[sp - 2] =  stack[sp - 1];
+         stack[sp - 1] = tmp;
+      }
+    } else if(str[pos] == '~') { /* negation operator */
       if(sp > 0) {
         sp--;
         if(stack[sp] != 2) stack[sp] = !stack[sp];
         ++sp;
       }
-    } else if(arg[0] == '|') { /* or operator */
+    } else if(str[pos] == '|') { /* or operator */
       if(sp > 1) {
         res = 0;
         for(i = sp - 2; i < sp; i++) {
@@ -936,7 +937,7 @@ int eval_logic_expr(int inst, int output)
         stack[sp - 2] = res;
         sp--;
       }
-    } else if(arg[0] == '&') { /* and operator */
+    } else if(str[pos] == '&') { /* and operator */
       if(sp > 1) {
         res = 1;
         for(i = sp - 2; i < sp; i++) {
@@ -950,7 +951,7 @@ int eval_logic_expr(int inst, int output)
         stack[sp - 2] = res;
         sp--;
       }
-    } else if(arg[0] == '^') { /* xor operator */
+    } else if(str[pos] == '^') { /* xor operator */
       if(sp > 1) {
         res = 0;
         for(i = sp - 2; i < sp; i++) {
@@ -965,22 +966,25 @@ int eval_logic_expr(int inst, int output)
         stack[sp - 2] = res;
         sp--;
       }
-    } else if(arg[0] == 'L') { /* logic low (0) */
+    } else if(str[pos] == 'L') { /* logic low (0) */
       if(sp < STACKMAX) {
         stack[sp++] = 0;
       }
-    } else if(arg[0] == 'H') { /* logic high (1) */
+    } else if(str[pos] == 'H') { /* logic high (1) */
       if(sp < STACKMAX) {
         stack[sp++] = 1;
       }
-    } else if(isdigit(arg[0])) {
+    } else if(isdigit(str[pos])) {
       if(sp < STACKMAX) {
-        stack[sp++] = get_logic_value(inst, atoi(arg));
+        char *num = str + pos;
+        while(isdigit(str[++pos])) ;
+        pos--; /* push back last non digit character */
+        stack[sp++] = get_logic_value(inst, atoi(num));
       }
       else dbg(0, "eval_logic_expr(): stack overflow!\n");
     }
+    pos++;
   }
-  my_free(1218, &saveptr);
   dbg(1, "eval_logic_expr(): inst %d output %d, returning %d\n", inst, output, stack[0]);
   return stack[0];
 }
