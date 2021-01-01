@@ -1447,12 +1447,8 @@ void print_hilight_net(int show)
  char *filetmp2 = NULL;
  char *filename_ptr;
 
-
- /* 20111116 20111201 */
  prepare_netlist_structs(1); /* use full prepare_netlist_structs(1)  to recognize pin direction */
                              /* when creating pins from hilight nets 20171221 */
-
-
  if(!(fd = open_tmpfile("hilight2_", &filename_ptr)) ) {
    fprintf(errfp, "print_hilight_net(): can not create tmpfile %s\n", filename_ptr);
    return;
@@ -1465,25 +1461,6 @@ void print_hilight_net(int show)
    return;
  }
  my_strdup(148, &filetmp1, filename_ptr);
-
- if(show == 3) {
-   tclsetvar("filetmp",filetmp1);
- } else {
-   tclsetvar("filetmp",filetmp2);
- }
-
- if(  filetmp1[0] == 0 || filetmp2[0] == 0 ) {
-   dbg(1, "print_hilight_net(): problems creating tmpfiles\n");
-   my_free(777, &filetmp1);
-   my_free(778, &filetmp2);
-   return;
- }
- if(fd==NULL){
-   dbg(1, "print_hilight_net(): problems opening netlist file\n");
-   my_free(779, &filetmp1);
-   my_free(780, &filetmp2);
-   return;
- }
  my_snprintf(cmd, S(cmd), "awk -f \"%s/order_labels.awk\"", tclgetvar("XSCHEM_SHAREDIR"));
  my_snprintf(cmd2, S(cmd2), "%s %s > %s", cmd, filetmp1, filetmp2);
  my_snprintf(cmd3, S(cmd3), "awk -f \"%s/sort_labels.awk\" %s", tclgetvar("XSCHEM_SHAREDIR"), filetmp1);
@@ -1518,31 +1495,33 @@ void print_hilight_net(int show)
    }
  }
  fclose(fd);
- if(system(cmd2)==-1) {
-   fprintf(errfp, "print_hilight_net(): error executing cmd2\n");
- }
- if(show==2) {
-   tcleval(b); /* add_lab_prefix */
- }
- if(show==4) { /* create labels from hilight pins without 'i' prefix */
-   tcleval(b1); /* add_lab_no_prefix */
- }
- if(show==1) {
-   my_snprintf(cmd, S(cmd), "set ::retval [ read_data_nonewline %s ]", filetmp2);
-   tcleval(cmd);
-   tcleval("viewdata $::retval");
- }
- if(show==3) {
-   if(system(cmd3)==-1) {
+ if(show != 3) {
+   tclsetvar("filetmp",filetmp2);
+   if(system(cmd2)==-1) { /* order_labels.awk filetmp1 > filetmp2 */
+     fprintf(errfp, "print_hilight_net(): error executing cmd2\n");
+   }
+   if(show==2) {
+     tcleval(b); /* add_lab_prefix */
+   }
+   if(show==4) { /* create labels from hilight pins without 'i' prefix */
+     tcleval(b1); /* add_lab_no_prefix */
+   }
+   if(show==1) {
+     my_snprintf(cmd, S(cmd), "set ::retval [ read_data_nonewline %s ]", filetmp2);
+     tcleval(cmd);
+     tcleval("viewdata $::retval");
+   }
+ } else { /* show == 3 */
+   tclsetvar("filetmp",filetmp1);
+   if(system(cmd3)==-1) {  /* sort_labels.awk filetmp1 (writes changes into filetmp1) */
      fprintf(errfp, "print_hilight_net(): error executing cmd3\n");
    }
-
    my_snprintf(cmd, S(cmd), "set ::retval [ read_data_nonewline %s ]", filetmp1);
    tcleval(cmd);
    tcleval("viewdata $::retval");
  }
  if(show==0)  {
-   tcleval(a);
+   tcleval(a); /* create_pins */
  }
  if(debug_var == 0 ) {
    xunlink(filetmp2);
