@@ -264,12 +264,11 @@ struct hilight_hashentry *bus_hilight_lookup(const char *token, int value, int w
   int mult;
  
   if(token==NULL) return NULL;
-  if( token[0] == '#') {
-    my_strdup(140, &string, token);
+  if( token[0] == '#' || !strpbrk(token, "*[],.:")) {
+    ptr1=hilight_lookup(token, value, what);
+    return ptr1;
   }
-  else {
-    my_strdup(141, &string, expandlabel(token,&mult));
-  }
+  my_strdup(141, &string, expandlabel(token,&mult));
   if(string==NULL) {
     return NULL;
   }
