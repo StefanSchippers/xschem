@@ -1453,13 +1453,13 @@ void print_hilight_net(int show)
                              /* when creating pins from hilight nets 20171221 */
 
 
- if(!(fd = open_tmpfile("hilight_", &filename_ptr)) ) {
+ if(!(fd = open_tmpfile("hilight2_", &filename_ptr)) ) {
    fprintf(errfp, "print_hilight_net(): can not create tmpfile %s\n", filename_ptr);
    return;
  }
  my_strdup(147, &filetmp2, filename_ptr);
  fclose(fd);
- if(!(fd = open_tmpfile("hilight_", &filename_ptr))) {
+ if(!(fd = open_tmpfile("hilight1_", &filename_ptr))) {
    fprintf(errfp, "print_hilight_net(): can not create tmpfile %s\n", filename_ptr);
    my_free(776, &filetmp2);
    return;
@@ -1467,11 +1467,10 @@ void print_hilight_net(int show)
  my_strdup(148, &filetmp1, filename_ptr);
 
  if(show == 3) {
-   tclsetvar("filetmp2",filetmp1);
+   tclsetvar("filetmp",filetmp1);
  } else {
-   tclsetvar("filetmp2",filetmp2);
+   tclsetvar("filetmp",filetmp2);
  }
- tclsetvar("filetmp1",filetmp1);
 
  if(  filetmp1[0] == 0 || filetmp2[0] == 0 ) {
    dbg(1, "print_hilight_net(): problems creating tmpfiles\n");
@@ -1491,9 +1490,7 @@ void print_hilight_net(int show)
  for(i=0;i<HASHSIZE;i++) {
    entry=xctx->hilight_table[i];
    while(entry) {
-
      node_entry = bus_hash_lookup(entry->token, "", XLOOKUP, 0, "", "", "", "");
-
      /* 20170926 test for not null node_entry, this may happen if a hilighted net name has been changed */
      /* before invoking this function, in this case --> skip */
      if(node_entry && !strcmp(xctx->sch_path[xctx->currsch], entry->path)) {
@@ -1506,8 +1503,6 @@ void print_hilight_net(int show)
            fprintf(fd, "%s%s\n", 
               entry->path + 1, 
               entry->token[0] == '#' ? entry->token + 1 : entry->token  );
-
-
        } else if(show==1) {
          fprintf(fd, "%s\n",  entry->token);
        } else {
@@ -1527,10 +1522,10 @@ void print_hilight_net(int show)
    fprintf(errfp, "print_hilight_net(): error executing cmd2\n");
  }
  if(show==2) {
-   tcleval(b);
+   tcleval(b); /* add_lab_prefix */
  }
- if(show==4) { /* 20120913 create labels from hilight pins without 'i' prefix */
-   tcleval(b1);
+ if(show==4) { /* create labels from hilight pins without 'i' prefix */
+   tcleval(b1); /* add_lab_no_prefix */
  }
  if(show==1) {
    my_snprintf(cmd, S(cmd), "set ::retval [ read_data_nonewline %s ]", filetmp2);
@@ -1549,9 +1544,10 @@ void print_hilight_net(int show)
  if(show==0)  {
    tcleval(a);
  }
- xunlink(filetmp2);
- xunlink(filetmp1);
-
+ if(debug_var == 0 ) {
+   xunlink(filetmp2);
+   xunlink(filetmp1);
+ }
  /* 20170323 this delete_netlist_structs is necessary, without it segfaults when going back (ctrl-e)  */
  /* from a schematic after placing pins (ctrl-j) and changing some pin direction (ipin -->iopin) */
  xctx->prep_hi_structs=0;

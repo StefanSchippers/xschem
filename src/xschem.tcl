@@ -1510,9 +1510,9 @@ proc delete_files { dir } {
 
 proc create_pins {} {
   global env retval USER_CONF_DIR
-  global filetmp1 filetmp2
+  global filetmp
 
-  set retval [ read_data_nonewline $filetmp2 ]
+  set retval [ read_data_nonewline $filetmp ]
   regsub -all {<} $retval {[} retval 
   regsub -all {>} $retval {]} retval 
   set lines [split $retval \n]
@@ -1625,14 +1625,14 @@ proc schpins_to_sympins {} {
 
 proc add_lab_no_prefix {} { 
   global env retval USER_CONF_DIR
-  global filetmp1 filetmp2
+  global filetmp
 
   if { [file exists [abs_sym_path devices/ipin.sym]] } {
     set indirect 1
   } else {
     set indirect 0
   }
-  set retval [ read_data_nonewline $filetmp2 ]
+  set retval [ read_data_nonewline $filetmp ]
   regsub -all {<} $retval {[} retval
   regsub -all {>} $retval {]} retval
   set lines [split $retval \n]
@@ -1655,14 +1655,14 @@ proc add_lab_no_prefix {} {
 
 proc add_lab_prefix {} {
   global env retval USER_CONF_DIR
-  global filetmp1 filetmp2
+  global filetmp
 
   if { [file exists [abs_sym_path devices/ipin.sym]] } {
     set indirect 1
   } else {
     set indirect 0
   }
-  set retval [ read_data_nonewline $filetmp2 ]
+  set retval [ read_data_nonewline $filetmp ]
   regsub -all {<} $retval {[} retval
   regsub -all {>} $retval {]} retval
   set lines [split $retval \n]
@@ -3595,11 +3595,9 @@ set search_select 0
 
 # 20111106 these vars are overwritten by caller with mktemp file names
 if {$::OS == "Windows"} {
-  set filetmp1 $env(windir)/.tmp1
-  set filetmp2 $env(windir)/.tmp2
+  set filetmp $env(windir)/.tmp2
 } else {
-  set filetmp1 [pwd]/.tmp1
-  set filetmp2 [pwd]/.tmp2
+  set filetmp [pwd]/.tmp2
 }
 # /20111106
 
