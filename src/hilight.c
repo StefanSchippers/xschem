@@ -1467,6 +1467,7 @@ void print_hilight_net(int show)
  for(i=0;i<HASHSIZE;i++) {
    entry=xctx->hilight_table[i];
    while(entry) {
+     dbg(1, "print_hilight_net(): (hilight_hashentry *)entry->token=%s\n", entry->token);
      node_entry = bus_hash_lookup(entry->token, "", XLOOKUP, 0, "", "", "", "");
      /* 20170926 test for not null node_entry, this may happen if a hilighted net name has been changed */
      /* before invoking this function, in this case --> skip */
@@ -1500,7 +1501,7 @@ void print_hilight_net(int show)
    if(system(cmd2)==-1) { /* order_labels.awk filetmp1 > filetmp2 */
      fprintf(errfp, "print_hilight_net(): error executing cmd2\n");
    }
-   if(show==2) {
+   if(show==2) { /* create labels from hilight pins with 'i' prefix */
      tcleval(b); /* add_lab_prefix */
    }
    if(show==4) { /* create labels from hilight pins without 'i' prefix */
