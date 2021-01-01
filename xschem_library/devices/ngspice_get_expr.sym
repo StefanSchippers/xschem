@@ -1,11 +1,12 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {type=raw_data_show
 vhdl_ignore=true
 spice_ignore=false
 verilog_ignore=true
 tedax_ignore=true
-template="name=r1 node=xxx"}
+template="name=r1 node=xxx
+descr=\\"I=\\""}
 V {}
 S {}
 E {}

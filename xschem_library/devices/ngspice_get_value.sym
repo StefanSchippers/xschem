@@ -5,7 +5,8 @@ vhdl_ignore=true
 spice_ignore=false
 verilog_ignore=true
 tedax_ignore=true
-template="name=r1 node=xxx"}
+template="name=r1 node=xxx
+descr=\\"I=\\""}
 V {}
 S {}
 E {}
