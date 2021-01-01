@@ -1144,31 +1144,29 @@ void logic_set(int value, int num)
   for(j = 0; j < num; j++) {
     for(i=0;i<xctx->lastsel;i++)
     {
+      char *node = NULL;
       n = xctx->sel_array[i].n;
       switch(xctx->sel_array[i].type) {
         case WIRE:
-          if(value == -1) {
-            entry = bus_hilight_lookup(xctx->wire[n].node, 0, XLOOKUP);
-            if(entry)
-              newval = (entry->value == LOGIC_1) ? 0 : (entry->value == LOGIC_0) ? 1 : 2;
-            else newval = 2;
-          }
-          bus_hilight_lookup(xctx->wire[n].node, map[newval], XINSERT);
+          node = xctx->wire[n].node;
           break;
         case ELEMENT:
           type = (xctx->inst[n].ptr+ xctx->sym)->type;
           if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
-            if(value == -1) {
-              entry = bus_hilight_lookup(xctx->inst[n].node[0], 0, XLOOKUP);
-              if(entry)
-                newval = (entry->value == LOGIC_1) ? 0 : (entry->value == LOGIC_0) ? 1 : 2;
-              else newval = 2;
-            }
-            bus_hilight_lookup(xctx->inst[n].node[0], map[newval], XINSERT);
+            node = xctx->inst[n].node[0];
           }
           break;
         default:
           break;
+      }
+      if(node) {
+        if(value == -1) {
+          entry = bus_hilight_lookup(node, 0, XLOOKUP);
+          if(entry)
+            newval = (entry->value == LOGIC_1) ? 0 : (entry->value == LOGIC_0) ? 1 : 2;
+          else newval = 2;
+        }
+        bus_hilight_lookup(node, map[newval], XINSERT);
       }
     }
     propagate_logic();
