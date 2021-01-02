@@ -584,6 +584,7 @@ void copy_objects(int what)
   bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   newpropcnt=0;
   set_modify(1); push_undo(); /* 20150327 push_undo */
+  
   firstw = firsti = 1;
   for(i=0;i<xctx->lastsel;i++)
   {
@@ -984,6 +985,7 @@ void copy_objects(int what)
    drawline(k, END, 0.0, 0.0, 0.0, 0.0, 0);
   } /* end for(k=0;k<cadlayers;k++) */
   check_collapsing_objects();
+  if(autotrim_wires) trim_wires();
   update_conn_cues(1, 1);
   xctx->ui_state &= ~STARTCOPY;
   xctx->x1=xctx->y_1=xctx->x2=xctx->y_2=xctx->move_rot=xctx->move_flip=xctx->deltax=xctx->deltay=0;
@@ -1506,6 +1508,7 @@ void move_objects(int what, int merge, double dx, double dy)
    drawline(k, END, 0.0, 0.0, 0.0, 0.0, 0);
   } /*end for(k=0;k<cadlayers;k++) */
   check_collapsing_objects();
+  if(autotrim_wires) trim_wires();
   update_conn_cues(1, 1);
   xctx->ui_state &= ~STARTMOVE;
   if(xctx->ui_state & STARTMERGE) xctx->ui_state |= SELECTION; /* leave selection state so objects can be deleted */

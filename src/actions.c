@@ -888,6 +888,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
                     &xctx->inst[n].x2, &xctx->inst[n].y2);
   if(xctx->prep_hash_inst) hash_inst(XINSERT, n); /* no need to rehash, add item */
   /* xctx->prep_hash_inst=0; */
+
   if(draw_sym & 3) bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2);
   set_modify(1);
   if(draw_sym&1) {
@@ -1655,9 +1656,8 @@ void new_wire(int what, double mx_snap, double my_snap)
         hash_wire(XINSERT, xctx->wires-1, 1);
         drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0);
       }
-      /* xctx->prep_hash_wires = 0; */
       xctx->prep_hi_structs = 0;
-
+      if(autotrim_wires) trim_wires();
       update_conn_cues(1,1);
       if(show_pin_net_names) {
         prepare_netlist_structs(0);

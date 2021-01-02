@@ -712,6 +712,7 @@ extern char *tcl_command;
 extern char tcl_script[PATH_MAX];
 extern char plotfile[PATH_MAX];
 extern int persistent_command;
+extern int autotrim_wires;
 extern int dis_uniq_names;
 
 extern int tcp_port;

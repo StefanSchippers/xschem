@@ -1055,6 +1055,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       tcleval( "wm iconname . \"xschem - [file tail [xschem get schname]]\"");
     }
   }
+  if(autotrim_wires) trim_wires();
   update_conn_cues(0, 0);
 }
 

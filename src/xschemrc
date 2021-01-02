@@ -129,6 +129,8 @@ set disable_unique_names 0
 ## if set to 1 continue drawing lines / wires after click
 # set persistent_command 1
 
+## if set to 1 automatically join/trim wires while editing
+# set autotrim_wires 0
 
 ## set widget scaling (mainly for font display) 
 # set tk_scaling 1.7

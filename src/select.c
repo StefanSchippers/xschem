@@ -355,7 +355,7 @@ void delete(void)
     xctx->prep_net_structs=0;
     xctx->prep_hi_structs=0;
   }
-
+  if(autotrim_wires) trim_wires();
   del_rect_line_arc_poly();
   update_conn_cues(0, 0);
   xctx->lastsel = 0;

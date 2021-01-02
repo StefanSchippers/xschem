@@ -110,6 +110,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        cmd_found = 1;
        push_undo();
        round_schematic_to_grid(cadsnap);
+       if(autotrim_wires) trim_wires();
        set_modify(1);
        xctx->prep_hash_inst=0;
        xctx->prep_hash_wires=0;
@@ -2195,6 +2196,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           persistent_command=0;
         }
       }
+      else if(!strcmp(argv[2],"autotrim_wires")) {
+        if(!strcmp(argv[3],"1")) {
+          autotrim_wires=1;
+        } else {
+          autotrim_wires=0;
+        }
+      }
       else if(!strcmp(argv[2],"disable_unique_names")) {
         if(!strcmp(argv[3],"1")) {
           dis_uniq_names=1;
@@ -2558,6 +2566,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         save = draw_window; draw_window = 1;
         drawline(WIRELAYER,NOW, x1,y1,x2,y2, 0);
         draw_window = save;
+        if(autotrim_wires) trim_wires();
       }
       else xctx->ui_state |= MENUSTARTWIRE;
     }

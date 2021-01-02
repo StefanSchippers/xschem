@@ -1028,6 +1028,7 @@ int callback(int event, int mx, int my, KeySym key,
     push_undo();
     round_schematic_to_grid(cadsnap);
     set_modify(1);
+    if(autotrim_wires) trim_wires();
     xctx->prep_hash_inst=0;
     xctx->prep_hash_wires=0;
     xctx->prep_net_structs=0;

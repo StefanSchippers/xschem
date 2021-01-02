@@ -3476,6 +3476,7 @@ set_ne big_grid_points 0
 set_ne snap 10
 set_ne grid 20
 set_ne persistent_command 0
+set_ne autotrim_wires 0
 set_ne disable_unique_names 1
 set_ne sym_txt 1
 set_ne show_infowindow 0 
@@ -3639,6 +3640,7 @@ xschem set cairo_font_line_spacing $cairo_font_line_spacing
 xschem set cairo_vert_correct $cairo_vert_correct
 xschem set nocairo_vert_correct $nocairo_vert_correct
 xschem set persistent_command $persistent_command
+xschem set autotrim_wires $autotrim_wires
 xschem set disable_unique_names $disable_unique_names
 # font name can not be set here as we need to wait for X-initialization 
 # to complete. Done in xinit.c
@@ -4009,10 +4011,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
          xschem set disable_unique_names $disable_unique_names
       }
   .menubar.tools.menu add checkbutton -label "Remember last command" -variable persistent_command \
-     -accelerator {} \
-     -command {
-       if { $persistent_command == 1} { xschem set persistent_command 1} else { xschem set persistent_command 0}
-     }
+     -command {xschem set persistent_command $persistent_command}
   .menubar.tools.menu add command -label "Insert symbol" -command "xschem place_symbol" -accelerator {Ins, Shift-I}
   toolbar_create ToolInsertSymbol "xschem place_symbol" "Insert Symbol"
   .menubar.tools.menu add command -label "Insert wire label" -command "xschem net_label 1" -accelerator {Alt-L}
@@ -4040,9 +4039,11 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   .menubar.tools.menu add command -label "Join/Trim wires" \
      -command "xschem trim_wires" -accelerator {&}
    toolbar_create ToolJoinTrim "xschem trim_wires" "Join/Trim Wires"
-  .menubar.tools.menu add command -label "Break wires" \
+  .menubar.tools.menu add command -label "Break wires at selected instance pins" \
      -command "xschem break_wires" -accelerator {!}
    toolbar_create ToolBreak "xschem break_wires" "Break Wires"
+  .menubar.tools.menu add checkbutton -label "Auto Join/Trim Wires" -variable autotrim_wires \
+     -command { xschem set autotrim_wires $autotrim_wires}
 
   .menubar.hilight.menu add command -label {Highlight net-pin name mismatches on selected instancs} \
    -command "xschem net_pin_mismatch" \

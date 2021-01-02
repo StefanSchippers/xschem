@@ -1,4 +1,4 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -85,10 +85,11 @@ N 345 -360 345 -310 {lab=0}
 N 1140 -480 1180 -480 {lab=LED}
 N 1140 -480 1140 -350 {lab=LED}
 N 230 -450 250 -450 {lab=#net2}
-N 310 -450 400 -450 {lab=PANEL}
+N 345 -450 400 -450 {lab=PANEL}
 N 860 -370 860 -250 {lab=0}
 N 860 -470 860 -430 { lab=#net3}
 N 960 -650 980 -650 { lab=#net4}
+N 310 -450 345 -450 {lab=PANEL}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
 C {code_shown.sym} 245 -245 0 0 {name=CONTROL value="* .control
 * save all
