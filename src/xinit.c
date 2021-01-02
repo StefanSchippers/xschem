@@ -466,7 +466,10 @@ void alloc_xschem_data()
   xctx->hilight_nets = 0;
   xctx->hilight_color = 0;
   xctx->rectcolor = 0;
-  for(i=0;i<CADMAXHIER;i++) xctx->sch_path[i]=NULL;
+  for(i=0;i<CADMAXHIER;i++) {
+    xctx->sch_path[i]=NULL;
+    xctx->sch_path_hash[i]=0;
+  }
   my_strdup(1187, &xctx->sch_path[0],".");
   xctx->sch_inst_number[0] = 1;
   xctx->maxt=CADMAXTEXT;

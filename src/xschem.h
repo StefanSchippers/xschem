@@ -324,7 +324,7 @@ do { \
     *size = __str_alloc_tmp__ + CADCHUNKALLOC; \
     my_realloc(1212, dest_string, *size); \
   } \
-} while(0) \
+} while(0)
 
 #define INT_WIDTH(x) ( (int)(x) == 0 ? 1 : (int)(x) ) 
 #define INT_BUS_WIDTH(x) ( (int)( (BUS_WIDTH) * (x) ) == 0 ? 1 : (int)( (BUS_WIDTH) * (x) ) ) 
@@ -529,6 +529,7 @@ typedef struct {
   char current_name[PATH_MAX];
   char file_version[100];
   char *sch_path[CADMAXHIER];
+  int sch_path_hash[CADMAXHIER];
   int sch_inst_number[CADMAXHIER];
   int previous_instance[CADMAXHIER]; /* to remember the instance we came from when going up the hier. */
   Zoom zoom_array[CADMAXHIER];

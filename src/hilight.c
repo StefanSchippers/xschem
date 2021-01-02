@@ -24,15 +24,20 @@
 
 static unsigned int hi_hash(const char *tok)
 {
-  register int hash = 0;
+  register unsigned int hash = 0;
   register char *str;
   register int c;
 
-  str=xctx->sch_path[xctx->currsch];
+  if(xctx->sch_path_hash[xctx->currsch] == 0) {
+    str=xctx->sch_path[xctx->currsch];
+    while ( (c = *str++) ) 
+      hash = c + hash * 65599;
+    xctx->sch_path_hash[xctx->currsch] = hash;
+  } else { 
+    hash = xctx->sch_path_hash[xctx->currsch];
+  }
   while ( (c = *tok++) )
-      hash = c + (hash << 6) + (hash << 16) - hash;
-  while ( (c = *str++) )
-      hash = c + (hash << 6) + (hash << 16) - hash;
+    hash = c + hash * 65599;
   return hash;
 }
 
@@ -41,8 +46,6 @@ static struct hilight_hashentry *free_hilight_entry(struct hilight_hashentry *en
   struct hilight_hashentry *tmp;
   while(entry) {
     tmp = entry->next;
-    my_free(755, &entry->token);
-    my_free(756, &entry->path);
     my_free(757, &entry);
     entry = tmp;
   }
@@ -216,15 +219,17 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
   depth=0;
   while(1) {
     if( !entry ) { /* empty slot */
+      int lent = (strlen(token) + 8) & ~(size_t) 0x7; /* align to 8 byte boundaries */
+      int lenp = strlen(xctx->sch_path[xctx->currsch]) + 1;
       if( what==XINSERT || what == XINSERT_NOREPLACE) { /* insert data */
-        s=sizeof( struct hilight_hashentry );
+        s=sizeof( struct hilight_hashentry ) + lent + lenp;
         ptr= my_malloc(137, s );
         entry=(struct hilight_hashentry *)ptr;
         entry->next = NULL;
-        entry->token = NULL;
-        my_strdup(138, &(entry->token),token);
-        entry->path = NULL;
-        my_strdup(139, &(entry->path),xctx->sch_path[xctx->currsch]);
+        entry->token = ptr + sizeof( struct hilight_hashentry );
+        memcpy(entry->token, token, lent);
+        entry->path = entry->token + lent;
+        memcpy(entry->path, xctx->sch_path[xctx->currsch], lenp);
         entry->oldvalue = value-1000; /* no old value, set different value anyway*/
         entry->value = value;
         entry->time = xctx->hilight_time;
@@ -238,8 +243,6 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
          !strcmp(xctx->sch_path[xctx->currsch], entry->path)  ) { /* found matching tok */
       if(what==XDELETE) {              /* remove token from the hash table ... */
         saveptr=entry->next;
-        my_free(762, &entry->token);
-        my_free(763, &entry->path);
         my_free(764, &entry);
         *preventry=saveptr;
       } else if(what == XINSERT ) {

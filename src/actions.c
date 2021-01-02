@@ -413,6 +413,7 @@ void ask_new_file(void)
      load_schematic(1, fullname,1); /* 20180925.1 */
      Tcl_VarEval(interp, "update_recent_file {", fullname, "}", NULL);
      my_strdup(1, &xctx->sch_path[xctx->currsch],".");
+     xctx->sch_path_hash[xctx->currsch] = 0;
      xctx->sch_inst_number[xctx->currsch] = 1;
      zoom_full(1, 0, 1, 0.97);
     }
@@ -1050,6 +1051,7 @@ void descend_schematic(int instnumber)
     inst_mult = 1;
   }
   my_strdup(14, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
+  xctx->sch_path_hash[xctx->currsch+1] =0;
 
   inst_number = 1;
   if(inst_mult > 1) { /* on multiple instances ask where to descend, to correctly evaluate
@@ -1064,6 +1066,7 @@ void descend_schematic(int instnumber)
       dbg(1, "descend_schematic(): inum=%s\n", inum);
       if(!inum[0]) {
         my_free(710, &xctx->sch_path[xctx->currsch+1]);
+        xctx->sch_path_hash[xctx->currsch+1] =0;
         return;
       }
       inst_number=atoi(inum);

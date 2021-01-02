@@ -1383,6 +1383,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           load_schematic(1, abs_sym_path(argv[2], ""), 1);
           Tcl_VarEval(interp, "update_recent_file {", abs_sym_path(argv[2], ""), "}", NULL);
           my_strdup(375, &xctx->sch_path[xctx->currsch],".");
+          xctx->sch_path_hash[xctx->currsch] = 0;
           xctx->sch_inst_number[xctx->currsch] = 1;
           zoom_full(1, 0, 1, 0.97);
         }
@@ -1419,6 +1420,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         /* load_symbol(argv[2]); */
         load_schematic(0, abs_sym_path(argv[2], ""), 1);
         my_strdup(374, &xctx->sch_path[xctx->currsch],".");
+        xctx->sch_path_hash[xctx->currsch] = 0;
         xctx->sch_inst_number[xctx->currsch] = 1;
         zoom_full(1, 0, 1, 0.97);
       }

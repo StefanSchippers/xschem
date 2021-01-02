@@ -167,6 +167,7 @@ void global_spice_netlist(int global)  /* netlister driver */
 
    my_strdup(469, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(481, &xctx->sch_path[xctx->currsch+1], "->netlisting");
+   xctx->sch_path_hash[xctx->currsch+1] = 0;
    xctx->currsch++;
    
     dbg(1, "global_spice_netlist(): last defined symbol=%d\n",xctx->symbols);

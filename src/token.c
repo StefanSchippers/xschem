@@ -39,11 +39,11 @@ enum status {TOK_BEGIN, TOK_TOKEN, TOK_SEP, TOK_VALUE, TOK_END, TOK_ENDTOK};
 /* calculate the hash function relative to string s */
 static unsigned int hash(char *tok)
 {
-  unsigned int hash = 0;
-  int c;
+  register unsigned int hash = 0;
+  register int c;
 
   while ( (c = *tok++) )
-      hash = c + (hash << 6) + (hash << 16) - hash;
+      hash = c + hash * 65599;
   return hash;
 }
 
@@ -68,7 +68,7 @@ int name_strcmp(char *s, char *d) /* compare strings up to '\0' or'[' */
 }
 
 /* 20180926 added token_size */
-/* remove:
+/* what:
  * 0,XINSERT : lookup and insert in hash table (return NULL if token was not found)
  *    if token was found update value
    3,XINSERT_NOREPLACE : same as XINSERT but do not replace existing value if token found.
@@ -76,7 +76,7 @@ int name_strcmp(char *s, char *d) /* compare strings up to '\0' or'[' */
  * 2,XLOOKUP : lookup only
  */
 static struct inst_hashentry *inst_hash_lookup(struct inst_hashentry **table, char *token,
-                                               int value, int remove, size_t token_size)
+                                               int value, int what, size_t token_size)
 {
   unsigned int hashcode;
   unsigned int idx;
@@ -90,7 +90,7 @@ static struct inst_hashentry *inst_hash_lookup(struct inst_hashentry **table, ch
   preventry=&table[idx];
   while(1) {
     if( !entry ) {                         /* empty slot */
-      if(remove == XINSERT || remove == XINSERT_NOREPLACE) {            /* insert data */
+      if(what == XINSERT || what == XINSERT_NOREPLACE) {            /* insert data */
         s=sizeof( struct inst_hashentry );
         entry=(struct inst_hashentry *) my_malloc(425, s);
         *preventry=entry;
@@ -104,13 +104,13 @@ static struct inst_hashentry *inst_hash_lookup(struct inst_hashentry **table, ch
       return NULL; /* token was not in hash */
     }
     if( entry->hash==hashcode && !strcmp(token,entry->token) ) { /* found a matching token */
-      if(remove == XDELETE) {              /* remove token from the hash table ... */
+      if(what == XDELETE) {              /* remove token from the hash table ... */
         saveptr=entry->next;
         my_free(968, &entry->token);
         my_free(969, &entry);
         *preventry=saveptr;
         return NULL;
-      } else if(remove == XINSERT) {
+      } else if(what == XINSERT) {
         entry->value = value;
       }
       /* dbg(1, "inst_hash_lookup(): returning: %s , %d\n", entry->token, entry->value); */
@@ -2696,17 +2696,23 @@ int isonlydigit(const char *s)
 const char *find_nth(const char *str, char sep, int n)
 {
   static char *result=NULL;
+  static int result_size = 0;
   static char empty[]="";
-  int i;
+  int i, len;
   char *ptr;
   int count;
 
   if(!str) {
     my_free(1062, &result);
+    result_size = 0;
     return empty;
   }
-  my_strdup(525, &result, str);
-  if(!result) return empty;
+  len = strlen(str) + 1;
+  if(len > result_size) {
+    result_size = len + CADCHUNKALLOC;
+    my_realloc(138, &result, result_size);
+  }
+  memcpy(result, str, len);
   for(i=0, count=1, ptr=result; result[i] != 0; i++) {
     if(result[i]==sep) {
       result[i]=0;

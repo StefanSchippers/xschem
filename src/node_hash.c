@@ -24,11 +24,11 @@
 
 static unsigned int nh_hash(const char *tok)
 {
-  unsigned int hash = 0;
-  int c;
+  register unsigned int hash = 0;
+  register int c;
 
   while ( (c = *tok++) )
-      hash = c + (hash << 6) + (hash << 16) - hash;
+      hash = c + hash * 65599;
   return hash;
 }
 
