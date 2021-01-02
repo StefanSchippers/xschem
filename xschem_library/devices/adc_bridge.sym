@@ -11,7 +11,7 @@ E {}
 L 4 -30 0 30 0 {}
 L 4 -10 -5 10 0 {}
 L 4 -10 5 10 0 {}
-B 5 27.5 -2.5 32.5 2.5 {name=d dir=out verilog_type=wire goto=1}
-B 5 -32.5 -2.5 -27.5 2.5 {name=s dir=in verilog_type=wire goto=0}
+B 5 27.5 -2.5 32.5 2.5 {name=d dir=out verilog_type=wire propag=1}
+B 5 -32.5 -2.5 -27.5 2.5 {name=s dir=in verilog_type=wire propag=0}
 T {@name} -25 -10 0 0 0.12 0.12 {}
 T {@adc_bridge_model} 0 -10 0 0 0.12 0.12 {}

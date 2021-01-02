@@ -13,5 +13,5 @@ L 4 -30 0 30 0 {}
 L 4 -10 -5 10 0 {}
 L 4 -10 5 10 0 {}
 B 5 27.5 -2.5 32.5 2.5 {name=d dir=out verilog_type=wire }
-B 5 -32.5 -2.5 -27.5 2.5 {name=s dir=in verilog_type=wire goto=0}
+B 5 -32.5 -2.5 -27.5 2.5 {name=s dir=in verilog_type=wire goto=0 propag=0}
 T {@name @delay} -25 -10 0 0 0.1 0.1 {}

@@ -21,5 +21,5 @@ L 4 -5 5 5 -5 {}
 L 4 -5 10 5 0 {}
 L 4 -5 15 5 5 {}
 L 4 0 15 5 10 {}
-B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=out goto=1}
-B 5 -2.5 27.5 2.5 32.5 {name=m dir=in goto=0}
+B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=out propag=1}
+B 5 -2.5 27.5 2.5 32.5 {name=m dir=in propag=0}

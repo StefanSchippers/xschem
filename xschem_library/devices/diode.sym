@@ -1,4 +1,4 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {type=diode
 format="@name @pinlist @model area=@area"
@@ -17,7 +17,7 @@ E {}
 L 4 0 5 0 30 {}
 L 4 0 -30 0 -5 {}
 L 4 -10 5 10 5 {}
-B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout pinnumber=1}
+B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout pinnumber=1 propag=1}
 B 5 -2.5 27.5 2.5 32.5 {name=m dir=inout pinnumber=2}
 P 4 4 -0 5 -10 -5 10 -5 0 5 {fill=true}
 T {@#0:pinnumber} -5 -26.25 0 1 0.2 0.2 {layer=13}

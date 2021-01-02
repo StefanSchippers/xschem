@@ -63,8 +63,8 @@ L 4 6.25 12.5 7.5 10.9375 {}
 L 4 0 13.75 6.25 12.5 {}
 L 4 7.5 -26.25 7.5 -21.25 {}
 L 4 5 -23.75 10 -23.75 {}
-B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout goto=1 pinnumber=1}
-B 5 -2.5 27.5 2.5 32.5 {name=m dir=inout goto=0 pinnumber=2}
+B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout propag=1 pinnumber=1}
+B 5 -2.5 27.5 2.5 32.5 {name=m dir=inout propag=0 pinnumber=2}
 T {@#0:pinnumber} -10 -27.5 0 1 0.2 0.2 {layer=13}
 T {@#1:pinnumber} -10 17.5 0 1 0.2 0.2 {layer=13}
 T {@#0:net_name} 5 -42.5 0 0 0.15 0.15 {layer=15}

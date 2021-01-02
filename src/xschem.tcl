@@ -4054,6 +4054,8 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
      -command "xschem check_unique_names 0"  -accelerator {#} 
   .menubar.hilight.menu add command -label {Rename duplicate instance names} \
      -command "xschem check_unique_names 1" -accelerator {Ctrl+#}
+  .menubar.hilight.menu add command -label {Propagate Highlight selected net/pins} \
+     -command "xschem hilight drill" -accelerator {Ctrl+Shift+K}
   .menubar.hilight.menu add command -label {Highlight selected net/pins} \
      -command "xschem hilight" -accelerator K
   .menubar.hilight.menu add command -label {Send selected net/pins to GAW} \

@@ -687,7 +687,7 @@ void drill_hilight(int mode)
         if(entry && (en_hilight_conn_inst || (symbol->type && IS_LABEL_SH_OR_PIN(symbol->type))) ) {
           xctx->inst[i].color = entry->value;
         }
-        my_strdup(1225, &propagate_str, get_tok_value(rct[j].prop_ptr, "goto", 0));
+        my_strdup(1225, &propagate_str, get_tok_value(rct[j].prop_ptr, "propag", 0));
         if(propagate_str) {
           int n = 1;
           const char *propag;

@@ -949,7 +949,7 @@ int callback(int event, int mx, int my, KeySym key,
     break;
    }
    if(key=='K' && state==(ControlMask|ShiftMask))       /* hilight net drilling thru elements  */
-                                                        /* with 'goto=' prop set on pins */
+                                                        /* with 'propag=' prop set on pins */
    {
     if(xctx->semaphore >= 2) break;
     enable_drill=1;
