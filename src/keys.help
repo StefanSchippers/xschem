@@ -103,7 +103,7 @@ shift       'J'         create xplot plot file for ngspice in simulation directo
                         (just type xplot in ngspice)
 -           'j'         Print list of highlighted nets/pins
 -           'k'         Hilight selected nets
-ctrl+shift  'K'         highlight net passing through elements with 'propagate_to' property set on pins
+ctrl+shift  'K'         highlight net passing through elements with 'propag' property set on pins
 shift       'K'         Unhilight all nets
 ctrl        'k'         Unhilight selected nets
 alt         'k'         Select all nets attached to selected wire / label / pin.

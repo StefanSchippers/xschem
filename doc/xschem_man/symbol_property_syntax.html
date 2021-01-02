@@ -46,6 +46,13 @@ p{padding: 15px  30px 10px;}
     <li><kbd>label</kbd>: the symbol is used to label a net. These type of symbols must have
      one and only one pin, and the template string must define a <kbd>lab</kbd> attribute
      that is passed at component instantiationi to name the net it is attached to. </li>
+    <li><kbd>probe</kbd>: this denotes a probe symbol that may be backannotated with a
+     backannotation script (example: ngspice_backannotate.tcl).</li>
+    <li><kbd>ngprobe</kbd>: This is a probe element that uses a 'pull' method to fetch simulation 
+     data and display it in current schematic. The data displayed is thus dynamic, multiple
+     instancs of the same symbol with annotators will display operating point data for that particular
+     instance without the need to update the backannotation as is required for annotators 
+     using the 'push' annotation methid.</li>
     <li><kbd>netlist_commands</kbd>: the symbol is used to place SPICE commands into a spice netlist.
      It should also have a <kbd>value</kbd> attribute that may contain arbitrary text that is 
      copied verbatim into the netlist. More on this in the <a href="...">netlist</a> slide.</li>
@@ -286,6 +293,40 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
    Defines the direction of a symbol pin. Allowed values are <kbd>in</kbd>, <kbd>out</kbd>, <kbd>inout</kbd>.
   </p>
    <img src="symbol_property_syntax2.png">
+  <li><kbd>propag=n</kbd></li>
+  <p>
+  This attribute instructs xschem to do a 'propagate highlight' from the pin with this attribute to the
+  pin <kbd>n</kbd>. The number 'n' refers to the pin sequence number (do a <kbd>shift-S</kbd> after
+  selecting destination pin to know this information).
+  </p>
+  <li><kbd>goto=n[,m,...]</kbd></li>
+  <p>
+  This attribute is used in the xschem embedded digital simulation engine: propagate logic simulation
+  to the output pins <kbd>n,[m,...]</kbd>. The logic function is defined via the 'function<kbd>n</kbd>'
+  global attribute. There is one 'funtion<kbd>n</kbd>' for each <kbd>n</kbd> output pin.
+  see 'function<kbd>n</kbd>' attribute for more info.
+  </p>
+   <img src="symbol_property_syntax4.png">
+
+  <li><kbd>clock=n</kbd></li>
+  <p>
+   A <kbd>clock</kbd> attribute defined on input pins add some information on the pin function as follows:
+   <ul>
+     <li> <kbd>clock=0</kbd> This indicates an 'active low' clock signal for flip-flops </li>
+     <li> <kbd>clock=1</kbd> This indicates an 'active high' clock signal for flip-flops </li>
+     <li> <kbd>clock=2</kbd> This indicates an 'active low' reset signal for flip-flops </li>
+     <li> <kbd>clock=3</kbd> This indicates an 'active high' reset signal for flip-flops </li>
+   </ul>
+  </p>
+  <li><kbd>function</kbd></li>
+  <p>
+  This attribute is set in the symbol global attributes and specifies the logic function to be applied 
+  to the associated output pin. The format is: <kbd>function&lt;n&gt;="...logic function..."</kbd>
+  where the number <kbd>&lt;n&gt;</kbd> refers to the sequence number of the output pin (do a 'Shift-S'
+  after selecting the pin to know its sequence number). Multiple functions (function3="...", function4="...")
+  can be defined in case of elements with multiple outputs.
+  </p>
+   <img src="symbol_property_syntax5.png">
   <li><kbd>global</kbd></li>
   <p>
   a <kbd>global=true</kbd> property in a <kbd>label</kbd> type symbol will declare the corresponding net as 'global'.
