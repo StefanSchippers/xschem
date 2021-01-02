@@ -644,7 +644,7 @@ int callback(int event, int mx, int my, KeySym key,
      if(xctx->semaphore >= 2) break;
      select_connected_wires();break;
    }
-   if(key==XK_Delete && (xctx->ui_state & SELECTION) )        /* delete objects */
+   if(key==XK_Delete && (xctx->ui_state & SELECTION)  && state == 0)        /* delete objects */
    {
      if(xctx->semaphore >= 2) break;
      delete();break;
