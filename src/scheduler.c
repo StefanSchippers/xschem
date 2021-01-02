@@ -270,8 +270,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"connected_nets")) /* selected nets connected to currently selected ones */
     {
+      int stop_at_junction = 0;
       cmd_found = 1;
-      select_connected_wires();
+      if(argc>=3 && argv[2][0] == '1') stop_at_junction = 1;
+      select_connected_wires(stop_at_junction);
       Tcl_ResetResult(interp);
     }
 

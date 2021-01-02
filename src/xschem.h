@@ -1149,7 +1149,7 @@ extern void logic_set(int v, int num);
 extern int hilight_netname(const char *name);
 extern void unhilight_net();
 extern void propagate_hilights(int set, int clear, int mode);
-extern void  select_connected_wires(void);
+extern void  select_connected_wires(int stop_at_junction);
 extern void draw_hilight_net(int on_window);
 extern void display_hilights(char **str);
 extern void redraw_hilights(void);

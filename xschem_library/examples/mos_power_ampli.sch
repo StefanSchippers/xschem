@@ -92,6 +92,12 @@ N 340 -1180 560 -1180 {lab=VPP}
 N 1110 -1180 1110 -790 { lab=VPP}
 N 560 -1180 1110 -1180 {lab=VPP}
 N 230 -950 800 -950 { lab=#net2}
+N 1290 -370 1450 -370 { lab=#net8}
+N 1450 -370 1570 -370 { lab=#net8}
+N 1450 -490 1450 -370 { lab=#net8}
+N 1300 -300 1450 -300 { lab=#net9}
+N 1450 -300 1570 -240 { lab=#net9}
+N 1450 -340 1450 -300 { lab=#net9}
 C {ipin.sym} 530 -160 0 0 {name=p0 lab=PLUS}
 C {ipin.sym} 530 -120 0 0 {name=p2 lab=VPP}
 C {ipin.sym} 530 -100 0 0 {name=p3 lab=VNN}
