@@ -347,7 +347,6 @@ void hash_wires(void)
 {
  int n;
  if(xctx->prep_hash_wires) return;
- here(1234);
  del_wire_table();
 
  for(n=0; n<xctx->wires; n++) hash_wire(XINSERT, n, 0);
