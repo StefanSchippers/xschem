@@ -309,7 +309,7 @@ void trim_wires(void)
               if(k == 1) xctx->wire[i].end1 += 1;
               else       xctx->wire[i].end2 += 1;
             }
-          }
+          } 
         }
       }
     }
@@ -346,6 +346,7 @@ void trim_wires(void)
     j = 0;
     for(i=0;i<xctx->wires;i++)
     {
+      xctx->wire[i].end1 = xctx->wire[i].end2 = -1; /* reset all endpoints we recalculate all at end */
       if(wireflag[i]) {
         j++;
         /* hash_wire(XDELETE, i, 0);*/ /* can not be done since wire deletions change wire idexes in array */
@@ -373,7 +374,7 @@ void trim_wires(void)
   } while(changed);
   dbg(1, "trim_wires(): doloops=%d changed=%d\n", doloops, changed);
   my_free(115, &wireflag);
-
+  update_conn_cues(0, 0);
 }
 
 void break_wires_at_pins(void)
