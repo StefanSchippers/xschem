@@ -26,6 +26,116 @@ static short select_rot = 0;
 static short  select_flip = 0;
 static double xx1,yy1,xx2,yy2;
 
+/* select all nets and pins/labels that are *physically* connected to current selected wire segments */
+/* Recursive routine */
+static void check_connected_wire(int n)
+{ 
+  int k, touches;
+  xWire * const wire = xctx->wire;
+  struct wireentry *wireptr;
+  struct instentry *instptr;
+  char *type;
+  double x1, y1, x2, y2;
+  struct iterator_ctx ctx;
+  
+  x1 = wire[n].x1;
+  y1 = wire[n].y1;
+  x2 = wire[n].x2;
+  y2 = wire[n].y2;
+  RECTORDER(x1, y1, x2, y2);
+  dbg(1, "check_connected_wire(): n=%d, %g %g %g %g\n", n, x1, y1, x2, y2);
+  for(init_inst_iterator(&ctx, x1, y1, x2, y2); (instptr = inst_iterator_next(&ctx)) ;) {
+    k = instptr->n;
+    type = (xctx->inst[k].ptr+ xctx->sym)->type;
+    if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe"))) {
+      double rx1, ry1, x0, y0;
+      int rot, flip;
+      xRect *rct;
+      rct=(xctx->inst[k].ptr+ xctx->sym)->rect[PINLAYER];
+      if(rct) {
+        x0=(rct[0].x1+rct[0].x2)/2;
+        y0=(rct[0].y1+rct[0].y2)/2;
+        rot=xctx->inst[k].rot;
+        flip=xctx->inst[k].flip;
+        ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
+        x0=xctx->inst[k].x0+rx1;
+        y0=xctx->inst[k].y0+ry1;
+        touches = touch(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, x0, y0);
+        if(touches) {
+          xctx->need_reb_sel_arr=1;
+          xctx->inst[k].sel = SELECTED;
+        }
+      }
+    }
+  }
+  for(init_wire_iterator(&ctx, x1, y1, x2, y2); (wireptr = wire_iterator_next(&ctx)) ;) {
+    k = wireptr->n;
+    if(n == k || xctx->wire[k].sel == SELECTED) continue;
+    touches = touch(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, wire[k].x1, wire[k].y1) ||
+              touch(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, wire[k].x2, wire[k].y2) ||
+              touch(wire[k].x1, wire[k].y1, wire[k].x2, wire[k].y2, wire[n].x1, wire[n].y1) ||
+              touch(wire[k].x1, wire[k].y1, wire[k].x2, wire[k].y2, wire[n].x2, wire[n].y2);
+    if(touches) {
+      xctx->need_reb_sel_arr=1;
+      xctx->wire[k].sel = SELECTED;
+      check_connected_wire(k); /* recursive check */
+    }
+  }
+}
+
+void select_connected_wires(void)
+{
+  int i, n;
+  hash_wires();
+  hash_instances();
+
+  rebuild_selected_array(); /* does nothing as already done in most of use cases */
+  for(n=0; n<xctx->lastsel; n++) {
+    i = xctx->sel_array[n].n;
+    switch(xctx->sel_array[n].type) {
+      char *type;
+      case WIRE:
+        if(xctx->wire[i].sel == SELECTED) check_connected_wire(i);
+        break;
+      case ELEMENT:
+        type = (xctx->inst[i].ptr+ xctx->sym)->type;
+        if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe"))) {
+          double rx1, ry1, x0, y0;
+          int rot, flip, sqx, sqy;
+          xRect *rct;
+          struct wireentry *wptr;
+          rct = (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER];
+          if(rct) {
+            x0 = (rct[0].x1 + rct[0].x2) / 2;
+            y0 = (rct[0].y1 + rct[0].y2) / 2;
+            rot = xctx->inst[i].rot;
+            flip = xctx->inst[i].flip;
+            ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
+            x0 = xctx->inst[i].x0+rx1;
+            y0 = xctx->inst[i].y0+ry1;
+            get_square(x0, y0, &sqx, &sqy);
+            wptr = xctx->wiretable[sqx][sqy];
+            while (wptr) {
+               dbg(1, "select_connected_wires(): x0=%g y0=%g wire[%d]=%g %g %g %g\n",
+                   x0, y0, wptr->n, xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
+                                    xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2);
+               if (touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
+                   xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0)) {
+                 xctx->wire[wptr->n].sel = SELECTED;
+                 check_connected_wire(wptr->n);
+               }
+               wptr=wptr->next;
+            }
+          } /* if(rct) */
+        } /* if(type & ...) */
+        break;
+      default:
+        break;
+    } /* switch(...) */
+  } /* for(... lastsel ...) */
+  rebuild_selected_array();
+  draw_selection(gc[SELLAYER], 0);
+}
 
 
 void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
