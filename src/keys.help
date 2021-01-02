@@ -44,6 +44,7 @@ LeftButton Double click Terminate Polygon placement
 ----------------------------------------------------------------------
 -          BackSpace    Back to parent schematic
 -          Delete       Delete selected objects
+shift      Delete       select all connected wires/labels/probes 
 -          Insert       Insert element from library
 -          Down         Move down
 ctrl       Enter        Confirm closing dialog boxes
@@ -60,6 +61,10 @@ ctrl       Enter        Confirm closing dialog boxes
 ctrl        '#'         Rename components with duplicated name (refdes)
 -           '5'         View only probes
 ctrl        '0-9'       set current layer (4 -13)
+            '0'         set selected net or label to logic value '0'
+            '1'         set selected net or label to logic value '1'
+            '2'         set selected net or label to logic value 'X'
+            '3'         toggle selected net or label: 1->0, 0->1, X->X
 -           'a'         Make symbol from pin list of current schematic
 ctrl        'a'         Select all
 shift       'A'         Toggle show netlist
@@ -106,6 +111,7 @@ alt         'k'         Select all nets attached to selected wire / label / pin.
 ctrl        'l'         Make schematic view from selected symbol
 alt+shift   'l'         add lab_wire.sym to schematic
 alt         'l'         add lab_pin.sym to schematic
+ctrl+shift  'o'         Load most recent schematic
 ctrl        'o'         Load schematic
 -           'm'         Move selected obj.
 shift       'N'         Hierarchical netlist

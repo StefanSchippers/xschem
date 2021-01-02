@@ -51,6 +51,7 @@ void update_conn_cues(int draw_cues, int dr_win)
   double x1, y1, x2, y2;
   struct wireentry *wireptr;
   xWire * const wire = xctx->wire;
+  struct iterator_ctx ctx;
 
   hash_wires(); /* must be done also if wires==0 to clear wiretable */
   if(!xctx->wires) return;
@@ -60,7 +61,7 @@ void update_conn_cues(int draw_cues, int dr_win)
   y1 = Y_TO_XSCHEM(xctx->areay1);
   x2 = X_TO_XSCHEM(xctx->areax2);
   y2 = Y_TO_XSCHEM(xctx->areay2);
-  for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
+  for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
     k=wireptr->n;
     /* optimization when editing small areas (detailed zoom)  of a huge schematic */
     if(LINE_OUTSIDE(wire[k].x1, wire[k].y1, wire[k].x2, wire[k].y2, x1, y1, x2, y2)) continue;
@@ -98,7 +99,7 @@ void update_conn_cues(int draw_cues, int dr_win)
   dbg(3, "update_conn_cues(): check3\n");
   if(draw_cues) {
     save_draw = draw_window; draw_window = dr_win;
-    for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
+    for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
       i = wireptr->n;
       /* optimization when editing small areas (detailed zoom)  of a huge schematic */
       if(LINE_OUTSIDE(wire[i].x1, wire[i].y1,

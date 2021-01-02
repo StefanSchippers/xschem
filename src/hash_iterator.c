@@ -22,123 +22,107 @@
 
 #include "xschem.h"
 
-static int x1a, x2a;
-static int y1a, y2a;
-static int i, j, counti, countj;
-static int tmpi, tmpj;
-static struct instentry *instanceptr;
-static struct wireentry *wireptr;
-static unsigned short *instflag=NULL;
-static unsigned short *wireflag=NULL;
-
-void init_inst_iterator(double x1, double y1, double x2, double y2)
+void init_inst_iterator(struct iterator_ctx *ctx, double x1, double y1, double x2, double y2)
 {
+      ctx->instflag = NULL;
       dbg(3, "init_inst_iterator(): instances=%d\n", xctx->instances);
-      my_realloc(135, &instflag, xctx->instances*sizeof(unsigned short));
-      memset(instflag, 0, xctx->instances*sizeof(unsigned short));
+      my_realloc(135, &ctx->instflag, xctx->instances*sizeof(unsigned short));
+      memset(ctx->instflag, 0, xctx->instances*sizeof(unsigned short));
       /* calculate square 4 1st corner of drawing area */
-      x1a=floor(x1/BOXSIZE) ;
-      y1a=floor(y1/BOXSIZE) ;
+      ctx->x1a = floor(x1/BOXSIZE) ;
+      ctx->y1a = floor(y1/BOXSIZE) ;
       /* calculate square 4 2nd corner of drawing area */
-      x2a=floor(x2/BOXSIZE);
-      y2a=floor(y2/BOXSIZE);
-      /* printf("init_inst_iterator(): x1a=%d, y1a=%d\n", x1a, y1a); */
-      /* printf("init_inst_iterator(): x2a=%d, y2a=%d\n", x2a, y2a); */
-      i = x1a;
-      j = y1a;
-      tmpi=i%NBOXES; if(tmpi<0) tmpi+=NBOXES;
-      tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
-      counti=0;
-      /* printf("init_inst_iterator(): tmpi=%d, tmpj=%d\n", tmpi, tmpj); */
-      instanceptr=xctx->insttable[tmpi][tmpj];
-      countj=0;
+      ctx->x2a = floor(x2/BOXSIZE);
+      ctx->y2a = floor(y2/BOXSIZE);
+      ctx->i = ctx->x1a;
+      ctx->j = ctx->y1a;
+      ctx->tmpi = ctx->i % NBOXES; if(ctx->tmpi<0) ctx->tmpi+=NBOXES;
+      ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj<0) ctx->tmpj+=NBOXES;
+      ctx->counti=0;
+      ctx->instanceptr=xctx->insttable[ctx->tmpi][ctx->tmpj];
+      ctx->countj=0;
 }
 
 
-struct instentry *inst_iterator_next()
+struct instentry *inst_iterator_next(struct iterator_ctx *ctx)
 {
   struct instentry *ptr;
   dbg(3, "inst_iterator_next(): instances=%d\n", xctx->instances);
   while(1) {
-    while(instanceptr) {
-      ptr = instanceptr;
-      instanceptr = instanceptr -> next;
-      if(!instflag[ptr->n]) {
-        instflag[ptr->n]=1;
+    while(ctx->instanceptr) {
+      ptr = ctx->instanceptr;
+      ctx->instanceptr = ctx->instanceptr->next;
+      if(!ctx->instflag[ptr->n]) {
+        ctx->instflag[ptr->n]=1;
         return ptr;
       }
     }
-    if(j<y2a && countj++<NBOXES) {
-      j++;
-      /* printf("inst_iterator_next(): j=%d\n", j); */
-      tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
-      /* printf("j inst_iterator_next(): tmpi=%d tmpj=%d\n", tmpi, tmpj); */
-      instanceptr=xctx->insttable[tmpi][tmpj];
-    } else if(i<x2a && counti++<NBOXES) {
-      i++;
-      j=y1a;
-      countj=0;
-      tmpi=i%NBOXES; if(tmpi<0) tmpi+=NBOXES;
-      tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
-      /* printf("i inst_iterator_next(): tmpi=%d tmpj=%d\n", tmpi, tmpj); */
-      instanceptr=xctx->insttable[tmpi][tmpj];
+    if(ctx->j < ctx->y2a && ctx->countj++ < NBOXES) {
+      ctx->j++;
+      ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj+=NBOXES;
+      ctx->instanceptr = xctx->insttable[ctx->tmpi][ctx->tmpj];
+    } else if(ctx->i < ctx->x2a && ctx->counti++ < NBOXES) {
+      ctx->i++;
+      ctx->j = ctx->y1a;
+      ctx->countj = 0;
+      ctx->tmpi = ctx->i % NBOXES; if(ctx->tmpi < 0) ctx->tmpi += NBOXES;
+      ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
+      ctx->instanceptr = xctx->insttable[ctx->tmpi][ctx->tmpj];
     } else {
-      my_free(753, &instflag);
+      my_free(753, &ctx->instflag);
       return NULL;
     }
   }
 }
 
-void init_wire_iterator(double x1, double y1, double x2, double y2)
+void init_wire_iterator(struct iterator_ctx *ctx, double x1, double y1, double x2, double y2)
 {
+      ctx->wireflag = NULL;
       dbg(3, "init_wire_iterator(): wires=%d\n", xctx->wires);
-      my_realloc(136, &wireflag, xctx->wires*sizeof(unsigned short));
-      memset(wireflag, 0, xctx->wires*sizeof(unsigned short));
+      my_realloc(136, &ctx->wireflag, xctx->wires*sizeof(unsigned short));
+      memset(ctx->wireflag, 0, xctx->wires*sizeof(unsigned short));
       /* calculate square 4 1st corner of drawing area */
-      x1a=floor(x1/BOXSIZE) ;
-      y1a=floor(y1/BOXSIZE) ;
+      ctx->x1a = floor(x1 / BOXSIZE) ;
+      ctx->y1a = floor(y1 / BOXSIZE) ;
       /* calculate square 4 2nd corner of drawing area */
-      x2a=floor(x2/BOXSIZE);
-      y2a=floor(y2/BOXSIZE);
-      /* printf("init_wire_iterator(): x1a=%d, y1a=%d\n", x1a, y1a); */
-      /* printf("init_wire_iterator(): x2a=%d, y2a=%d\n", x2a, y2a); */
-      i = x1a;
-      j = y1a;
-      tmpi=i%NBOXES; if(tmpi<0) tmpi+=NBOXES;
-      tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
-      counti=0;
-      /* printf("init_inst_iterator(): tmpi=%d, tmpj=%d\n", tmpi, tmpj); */
-      wireptr=xctx->wiretable[tmpi][tmpj];
-      countj=0;
+      ctx->x2a = floor(x2 / BOXSIZE);
+      ctx->y2a = floor(y2 / BOXSIZE);
+      ctx->i = ctx->x1a;
+      ctx->j = ctx->y1a;
+      ctx->tmpi=ctx->i % NBOXES; if(ctx->tmpi < 0) ctx->tmpi += NBOXES;
+      ctx->tmpj=ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
+      ctx->counti=0;
+      ctx->wireptr = xctx->wiretable[ctx->tmpi][ctx->tmpj];
+      ctx->countj = 0;
 }
 
 
-struct wireentry *wire_iterator_next()
+struct wireentry *wire_iterator_next(struct iterator_ctx *ctx)
 {
   struct wireentry *ptr;
   dbg(3, "wire_iterator_next(): wires=%d\n", xctx->wires);
   while(1) {
-    while(wireptr) {
-      ptr = wireptr;
-      wireptr = wireptr -> next;
-      if(!wireflag[ptr->n]) {
-        wireflag[ptr->n]=1;
+    while(ctx->wireptr) {
+      ptr = ctx->wireptr;
+      ctx->wireptr = ctx->wireptr -> next;
+      if(!ctx->wireflag[ptr->n]) {
+        ctx->wireflag[ptr->n]=1;
         return ptr;
       }
     }
-    if(j<y2a && countj++<NBOXES) {
-      j++;
-      tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
-      wireptr=xctx->wiretable[tmpi][tmpj];
-    } else if(i<x2a && counti++<NBOXES) {
-      i++;
-      j=y1a;
-      countj=0;
-      tmpi=i%NBOXES; if(tmpi<0) tmpi+=NBOXES;
-      tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
-      wireptr=xctx->wiretable[tmpi][tmpj];
+    if(ctx->j < ctx->y2a && ctx->countj++ < NBOXES) {
+      ctx->j++;
+      ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
+      ctx->wireptr = xctx->wiretable[ctx->tmpi][ctx->tmpj];
+    } else if(ctx->i < ctx->x2a && ctx->counti++ < NBOXES) {
+      ctx->i++;
+      ctx->j = ctx->y1a;
+      ctx->countj = 0;
+      ctx->tmpi = ctx->i % NBOXES; if(ctx->tmpi < 0) ctx->tmpi += NBOXES;
+      ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
+      ctx->wireptr = xctx->wiretable[ctx->tmpi][ctx->tmpj];
     } else {
-      my_free(754, &wireflag);
+      my_free(754, &ctx->wireflag);
       return NULL;
     }
   }

@@ -742,13 +742,14 @@ void svg_draw(void)
       double x1, y1, x2, y2;
       struct wireentry *wireptr;
       int i;
+      struct iterator_ctx ctx;
       update_conn_cues(0, 0);
       /* draw connecting dots */
       x1 = X_TO_XSCHEM(xctx->areax1);
       y1 = Y_TO_XSCHEM(xctx->areay1);
       x2 = X_TO_XSCHEM(xctx->areax2);
       y2 = Y_TO_XSCHEM(xctx->areay2);
-      for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
+      for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
         i = wireptr->n;
         color = WIRELAYER;
         if(xctx->hilight_nets && (entry=bus_hilight_lookup( xctx->wire[i].node, 0, XLOOKUP))) {

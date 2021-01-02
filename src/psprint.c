@@ -747,13 +747,14 @@ void ps_draw(void)
    double x1, y1, x2, y2;
    struct wireentry *wireptr;
    int i;
+   struct iterator_ctx ctx;
    update_conn_cues(0, 0);
    /* draw connecting dots */
    x1 = X_TO_XSCHEM(xctx->areax1);
    y1 = Y_TO_XSCHEM(xctx->areay1);
    x2 = X_TO_XSCHEM(xctx->areax2);
    y2 = Y_TO_XSCHEM(xctx->areay2);
-   for(init_wire_iterator(x1, y1, x2, y2); ( wireptr = wire_iterator_next() ) ;) {
+   for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
      i = wireptr->n;
      if( xctx->wire[i].end1 >1 ) { /* 20150331 draw_dots */
        ps_drawarc(WIRELAYER, 1, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360, 0);

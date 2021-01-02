@@ -4044,6 +4044,8 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
    toolbar_create ToolBreak "xschem break_wires" "Break Wires"
   .menubar.tools.menu add checkbutton -label "Auto Join/Trim Wires" -variable autotrim_wires \
      -command { xschem set autotrim_wires $autotrim_wires}
+  .menubar.tools.menu add command -label "Select all connected wires/labels/pins" -accelerator {Shift-Delete} \
+     -command { xschem connected_nets}
 
   .menubar.hilight.menu add command -label {Highlight net-pin name mismatches on selected instancs} \
    -command "xschem net_pin_mismatch" \

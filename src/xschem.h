@@ -476,6 +476,18 @@ typedef struct
   double zoom;
 } Zoom;
 
+
+struct iterator_ctx {
+                  int x1a, x2a;
+                  int y1a, y2a;
+                  int i, j, counti, countj;
+                  int tmpi, tmpj;
+                  struct instentry *instanceptr;
+                  struct wireentry *wireptr;
+                  unsigned short *instflag;
+                  unsigned short *wireflag;
+                 };
+
 struct simdata_pin {
                   char *function;
                   char *go_to;
@@ -1042,10 +1054,10 @@ extern void tclsetvar(const char *s, const char *value);
 extern void tcl_hook(char **res);
 extern void statusmsg(char str[],int n);
 extern void place_text(int draw_text, double mx, double my);
-extern void init_inst_iterator(double x1, double y1, double x2, double y2);
-extern struct instentry *inst_iterator_next();
-extern void init_wire_iterator(double x1, double y1, double x2, double y2);
-extern struct wireentry *wire_iterator_next();
+extern void init_inst_iterator(struct iterator_ctx *ctx, double x1, double y1, double x2, double y2);
+extern struct instentry *inst_iterator_next(struct iterator_ctx *ctx);
+extern void init_wire_iterator(struct iterator_ctx *ctx, double x1, double y1, double x2, double y2);
+extern struct wireentry *wire_iterator_next(struct iterator_ctx *ctx);
 extern void check_unique_names(int rename);
 
 extern void clear_instance_hash();
@@ -1137,6 +1149,7 @@ extern void logic_set(int v, int num);
 extern int hilight_netname(const char *name);
 extern void unhilight_net();
 extern void propagate_hilights(int set, int clear, int mode);
+extern void  select_connected_wires(void);
 extern void draw_hilight_net(int on_window);
 extern void display_hilights(char **str);
 extern void redraw_hilights(void);

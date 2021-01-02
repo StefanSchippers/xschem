@@ -1498,6 +1498,7 @@ void draw(void)
       hash_wires();
     }
     if(!only_probes) {
+        struct iterator_ctx ctx;
         dbg(3, "draw(): check4\n");
         for(c=0;c<cadlayers;c++) {
           if(draw_single_layer!=-1 && c != draw_single_layer) continue;
@@ -1520,11 +1521,11 @@ void draw(void)
             xPoly *p = &xctx->poly[c][i];
             drawpolygon(c, NOW, p->x, p->y, p->points, p->fill, p->dash);
           }
-          if(use_hash) init_inst_iterator(x1, y1, x2, y2);
+          if(use_hash) init_inst_iterator(&ctx, x1, y1, x2, y2);
           else i = -1;
           while(1) {
             if(use_hash) {
-              if( !(instanceptr = inst_iterator_next())) break;
+              if( !(instanceptr = inst_iterator_next(&ctx))) break;
               i = instanceptr->n;
             }
             else {
@@ -1551,11 +1552,11 @@ void draw(void)
           drawline(c, END, 0.0, 0.0, 0.0, 0.0, 0);
         }
         if(draw_single_layer==-1 || draw_single_layer==WIRELAYER) {
-          if(use_hash) init_wire_iterator(x1, y1, x2, y2);
+          if(use_hash) init_wire_iterator(&ctx, x1, y1, x2, y2);
           else i = -1;
           while(1) {
             if(use_hash) {
-              if( !(wireptr = wire_iterator_next())) break;
+              if( !(wireptr = wire_iterator_next(&ctx))) break;
               i = wireptr->n;
             }
             else {

@@ -268,6 +268,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
    
+    else if(!strcmp(argv[1],"connected_nets")) /* selected nets connected to currently selected ones */
+    {
+      cmd_found = 1;
+      select_connected_wires();
+      Tcl_ResetResult(interp);
+    }
+
     else if(!strcmp(argv[1],"copy"))
     {
       cmd_found = 1;
