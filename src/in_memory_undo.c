@@ -390,7 +390,7 @@ void pop_undo(int redo)
 
   /* instances */
   xctx->maxi = xctx->instances = uslot[slot].instances;
-  inst_ptr = my_calloc(213, xctx->instances, sizeof(xInstance));
+  xctx->inst = my_calloc(213, xctx->instances, sizeof(xInstance));
   for(i=0;i<xctx->instances;i++) {
     xctx->inst[i] = uslot[slot].iptr[i];
     xctx->inst[i].prop_ptr=NULL;
@@ -405,7 +405,7 @@ void pop_undo(int redo)
 
   /* texts */
   xctx->maxt = xctx->texts = uslot[slot].texts;
-  textelement = my_calloc(217, xctx->texts, sizeof(xText));
+  xctx->text = my_calloc(217, xctx->texts, sizeof(xText));
   for(i=0;i<xctx->texts;i++) {
     xctx->text[i] = uslot[slot].tptr[i];
     xctx->text[i].txt_ptr=NULL;
@@ -418,7 +418,7 @@ void pop_undo(int redo)
 
   /* wires */
   xctx->maxw = xctx->wires = uslot[slot].wires;
-  wire = my_calloc(221, xctx->wires, sizeof(xWire));
+  xctx->wire = my_calloc(221, xctx->wires, sizeof(xWire));
   for(i=0;i<xctx->wires;i++) {
     xctx->wire[i] = uslot[slot].wptr[i];
     xctx->wire[i].prop_ptr=NULL;
