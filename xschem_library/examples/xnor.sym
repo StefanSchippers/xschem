@@ -1,13 +1,13 @@
 v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {type=subcircuit
+function0="1 2 ^ ~"
 verilog_format="xnor #(@risedel , @falldel ) @name ( @#0 , @#1 , @#2 );"
 vhdl_format = "@@Z <= @@A xnor @@B after 0.1 ns;"
 format="@name @pinlist @symname"
 template="name=x1 risedel=400 falldel=300"
 verilog_primitive=true
 vhdl_primitive=true
-function0="1 2 ^ ~"
 }
 V {}
 S {}

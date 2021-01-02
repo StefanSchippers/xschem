@@ -47,7 +47,7 @@ static void check_connected_wire(int n)
   for(init_inst_iterator(&ctx, x1, y1, x2, y2); (instptr = inst_iterator_next(&ctx)) ;) {
     k = instptr->n;
     type = (xctx->inst[k].ptr+ xctx->sym)->type;
-    if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe"))) {
+    if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe") || !strcmp(type, "ngprobe"))) {
       double rx1, ry1, x0, y0;
       int rot, flip;
       xRect *rct;
@@ -99,7 +99,7 @@ void select_connected_wires(void)
         break;
       case ELEMENT:
         type = (xctx->inst[i].ptr+ xctx->sym)->type;
-        if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe"))) {
+        if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe") || !strcmp(type, "ngprobe"))) {
           double rx1, ry1, x0, y0;
           int rot, flip, sqx, sqy;
           xRect *rct;

@@ -106,18 +106,18 @@ proc annotate {} {
   for { set i 0 } { $i < $lastinst } {incr i } {
     set name [xschem getprop instance $i name]
     set type [xschem getprop instance $i cell::type]
-    if { $type == "probe"  || $type == "devices/probe"} { 
+    if { $type == "probe"} { 
       set net [xschem instance_net $i p]
       if {[catch {xschem setprop $i voltage [get_voltage $net] fast} err]} {
         puts "1 error : $err net: $net"
       }
     }
-    if { $type == "current_probe"  || $type == "devices/current_probe"} { 
+    if { $type == "current_probe"} { 
       if {[catch {xschem setprop $i current [get_current $name] fast} err]} {
         puts "2 error : $err"
       }
     }
-    if { $type == "differential_probe"  || $type == "devices/differential_probe"} { 
+    if { $type == "differential_probe"} { 
       set netp [xschem instance_net $i p]
       set netm [xschem instance_net $i m]
       if {[catch {xschem setprop $i voltage [get_diff_voltage $netp $netm] fast} err]} {

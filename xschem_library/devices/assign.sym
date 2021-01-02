@@ -1,11 +1,11 @@
 v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {type=delay
+function0="1"
 verilog_format="assign #@delay @@d =  @@s ;"
 vhdl_format=" @@d <=  @@s after @delay ns;"
 format="@name @pinlist 0"
-template="name=V1 delay=1"
-function0="1"}
+template="name=V1 delay=1"}
 V {}
 S {}
 E {}
