@@ -108,38 +108,36 @@ void select_connected_wires(int stop_at_junction)
         if(xctx->wire[i].sel == SELECTED) check_connected_wire(stop_at_junction, i);
         break;
       case ELEMENT:
-        if(!stop_at_junction) {
-          type = (xctx->inst[i].ptr+ xctx->sym)->type;
-          if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe") || !strcmp(type, "ngprobe"))) {
-            double rx1, ry1, x0, y0;
-            int rot, flip, sqx, sqy;
-            xRect *rct;
-            struct wireentry *wptr;
-            rct = (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER];
-            if(rct) {
-              x0 = (rct[0].x1 + rct[0].x2) / 2;
-              y0 = (rct[0].y1 + rct[0].y2) / 2;
-              rot = xctx->inst[i].rot;
-              flip = xctx->inst[i].flip;
-              ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
-              x0 = xctx->inst[i].x0+rx1;
-              y0 = xctx->inst[i].y0+ry1;
-              get_square(x0, y0, &sqx, &sqy);
-              wptr = xctx->wiretable[sqx][sqy];
-              while (wptr) {
-                 dbg(1, "select_connected_wires(): x0=%g y0=%g wire[%d]=%g %g %g %g\n",
-                     x0, y0, wptr->n, xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
-                                      xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2);
-                 if (touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
-                     xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0)) {
-                   xctx->wire[wptr->n].sel = SELECTED;
-                   check_connected_wire(stop_at_junction, wptr->n);
-                 }
-                 wptr=wptr->next;
-              }
-            } /* if(rct) */
-          } /* if(type & ...) */
-        } /* if(!stop_at_junction) */
+        type = (xctx->inst[i].ptr+ xctx->sym)->type;
+        if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe") || !strcmp(type, "ngprobe"))) {
+          double rx1, ry1, x0, y0;
+          int rot, flip, sqx, sqy;
+          xRect *rct;
+          struct wireentry *wptr;
+          rct = (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER];
+          if(rct) {
+            x0 = (rct[0].x1 + rct[0].x2) / 2;
+            y0 = (rct[0].y1 + rct[0].y2) / 2;
+            rot = xctx->inst[i].rot;
+            flip = xctx->inst[i].flip;
+            ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
+            x0 = xctx->inst[i].x0+rx1;
+            y0 = xctx->inst[i].y0+ry1;
+            get_square(x0, y0, &sqx, &sqy);
+            wptr = xctx->wiretable[sqx][sqy];
+            while (wptr) {
+               dbg(1, "select_connected_wires(): x0=%g y0=%g wire[%d]=%g %g %g %g\n",
+                   x0, y0, wptr->n, xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
+                                    xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2);
+               if (touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
+                   xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0)) {
+                 xctx->wire[wptr->n].sel = SELECTED;
+                 check_connected_wire(stop_at_junction, wptr->n);
+               }
+               wptr=wptr->next;
+            }
+          } /* if(rct) */
+        } /* if(type & ...) */
         break;
       default:
         break;

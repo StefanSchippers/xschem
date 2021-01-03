@@ -792,7 +792,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
     }
     else my_strdup(1212, &new_val_copy, new_val);
   } else new_val_copy = NULL;
-  dbg(1, "subst_token(): %s, %s, %s\n", s, tok, new_val);
+  dbg(1, "subst_token(): %s, %s, %s\n", s ? s : "<NULL>", tok ? tok : "<NULL>", new_val ? new_val : "<NULL>");
   sizetok = size = CADCHUNKALLOC;
   my_realloc(1152, &result, size);
   my_realloc(1153, &token, sizetok);
