@@ -1408,7 +1408,21 @@ int callback(int event, int mx, int my, KeySym key,
      break;
    }
    if(button==Button5 && state == 0 ) view_unzoom(CADZOOMSTEP);
-   else if(button == Button3 && xctx->semaphore <2) {
+   else if(button == Button3 &&  state == ControlMask && xctx->semaphore <2)
+   {
+     if(xctx->semaphore >= 2) break;
+     sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
+     if(sel) select_connected_wires(1);
+     break;
+   }
+   else if(button == Button3 &&  state == ShiftMask && xctx->semaphore <2)
+   {
+     if(xctx->semaphore >= 2) break;
+     sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
+     if(sel) select_connected_wires(0);
+     break;
+   }
+   else if(button == Button3 &&  state == 0 && xctx->semaphore <2) {
      if(!(xctx->ui_state & STARTPOLYGON) && !(state & Mod1Mask) ) {
        xctx->last_command = 0;
        unselect_all();
