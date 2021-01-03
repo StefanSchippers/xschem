@@ -661,7 +661,7 @@ int search(const char *tok, const char *val, int sub, int sel)
 }
 
 /* "drill" option (pass through resistors or pass gates or whatever elements with  */
-/* 'goto' properties set on pins) */
+/* 'propag' properties set on pins) */
 void drill_hilight(int mode)
 {
   char *netname=NULL, *propagated_net=NULL;
@@ -671,7 +671,7 @@ void drill_hilight(int mode)
   xRect *rct;
   int i, j, npin;
   char *propagate_str = NULL;
-  int propagate;
+  int propagate, hilight_connected_inst;
   struct hilight_hashentry *entry, *propag_entry;
 
   prepare_netlist_structs(0);
@@ -681,10 +681,12 @@ void drill_hilight(int mode)
       symbol = xctx->inst[i].ptr+xctx->sym;
       npin = symbol->rects[PINLAYER];
       rct=symbol->rect[PINLAYER];
+      hilight_connected_inst = en_hilight_conn_inst &&
+           ( (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4) );
       for(j=0; j<npin;j++) {
         my_strdup(143, &netname, net_name(i, j, &mult, 1, 0));
         entry=bus_hilight_lookup(netname, 0, XLOOKUP);
-        if(entry && (en_hilight_conn_inst || (symbol->type && IS_LABEL_SH_OR_PIN(symbol->type))) ) {
+        if(entry && (hilight_connected_inst || (symbol->type && IS_LABEL_SH_OR_PIN(symbol->type))) ) {
           xctx->inst[i].color = entry->value;
         }
         my_strdup(1225, &propagate_str, get_tok_value(rct[j].prop_ptr, "propag", 0));
@@ -813,7 +815,7 @@ static void send_current_to_gaw(int simtype, const char *node)
   my_free(1182, &t);
 }
 
-/* hilight_instances: if set to 1 hilight non pin/label symbols with "highlight=true" attribute set */
+/* hilight_instances: if set == 1 hilight non pin/label symbols with "highlight=true" attribute set */
 void propagate_hilights(int set, int clear, int mode)
 {
   int i, hilight_connected_inst;

@@ -106,5 +106,5 @@ C {ngspice_probe.sym} 500 -390 0 0 {name=r1}
 C {ngspice_probe.sym} 420 -160 0 0 {name=r2}
 C {ngspice_probe.sym} 600 -260 0 0 {name=r3}
 C {ngspice_probe.sym} 770 -420 0 0 {name=r4}
-C {ngspice_get_value.sym} 620 -160 0 0 {name=r5 node=i(@m1[id])
+C {ngspice_get_value.sym} 620 -160 0 0 {name=r5 node=i(@$\{path\}m1[id])
 descr="I="}

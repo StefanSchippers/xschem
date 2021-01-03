@@ -35,12 +35,16 @@ p{padding: 15px  30px 10px;}
  Tck/Tk versions may vary on different systems, 8.4, 8.5, 8.6 versions are all good.
  </p>
  <pre class="code">
-  tcl8.6                libx11-dev
-  tk8.6                 libxpm-dev
-  tcl8.6-dev            bison
-  tk8.6-dev             flex
-  gawk or mawk          libcairo2-dev
- </pre>
+  libX11-6              libx11-dev
+  libxrender1           libxrender-dev
+  libxcb1               libx11-xcb-dev        
+  libcairo2             libcairo2-dev
+  tcl8.6                tcl8.6-dev
+  tk8.6                 tk8.6-dev
+  flex                  bison
+  libxpm4               libxpm-dev
+            gawk or mawk
+</pre>
 
  <p>If configure ends with no errors we are ready to compile:
  </p>

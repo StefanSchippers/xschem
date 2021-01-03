@@ -327,6 +327,24 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
   can be defined in case of elements with multiple outputs.
   </p>
    <img src="symbol_property_syntax5.png">
+  <p>
+  Commands that can appear in functions are:
+  </p>
+   <ul>
+     <li> <kbd>n</kbd>: A digit indicates to put on the stack the logic value (0, 1, X) of pin with sequence number <kbd>n</kbd>
+       The sequence number of a pin my be obtained by clicking the red square of the pin and pressing <kbd>Shift-S</kbd>.</li>
+     <li> <kbd>&amp;</kbd>: Does a logical AND operation of the last 2 elements on top of the stack, the result is left on the stack</li>
+     <li> <kbd>|</kbd>: Does a logical OR operation of the last 2 elements on top of the stack, the result is left on the stack</li>
+     <li> <kbd>^</kbd>: Does a logical XOR operation of the last 2 elements on top of the stack, the result is left on the stack</li>
+     <li> <kbd>~</kbd>: Does a logical Negation operation of the last element on top of the stack, the result is left on the stack</li>
+     <li> <kbd>d</kbd>: Duplicates top element on the stack</li>
+     <li> <kbd>x</kbd>: Exhanges the 2 top elements on the stack</li>
+     <li> <kbd>H</kbd>: Puts a Logic '1' on the stack</li>
+     <li> <kbd>L</kbd>: Puts a Logic '0' on the stack</li>
+   </ul>
+  <p>
+   The remaining value on the stack is the value that is returned and assigned to the output pin.
+  </p>
   <li><kbd>global</kbd></li>
   <p>
   a <kbd>global=true</kbd> property in a <kbd>label</kbd> type symbol will declare the corresponding net as 'global'.
