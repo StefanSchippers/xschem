@@ -1098,7 +1098,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
  Tcl_CreateExitHandler(tclexit, 0);
 #ifdef __unix__
- my_snprintf(tmp, S(tmp),"regsub -all {~/} {.:%s} {%s/}", XSCHEM_LIBRARY_PATH, home_dir);
+ my_snprintf(tmp, S(tmp),"regsub -all {~/} {%s} {%s/}", XSCHEM_LIBRARY_PATH, home_dir);
  tcleval(tmp);
  tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
 
@@ -1107,12 +1107,12 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if( !stat("./xschem.tcl", &buf) && !stat("./systemlib", &buf) && !stat("./xschem", &buf)) {
    running_in_src_dir = 1;
    tclsetvar("XSCHEM_SHAREDIR",pwd_dir); /* for testing xschem builds in src dir*/
-/*
+   /*
    my_snprintf(tmp, S(tmp), "subst .:[file normalize \"%s/../xschem_library/devices\"]", pwd_dir);
    tcleval(tmp);
    tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
-*/
-   my_snprintf(tmp, S(tmp), "subst .:[file dirname \"%s\"]/xschem_library/devices", pwd_dir);
+   */
+   my_snprintf(tmp, S(tmp), "subst [file dirname \"%s\"]/xschem_library/devices", pwd_dir);
    tcleval(tmp);
    tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
  } else if( !stat(XSCHEM_SHAREDIR, &buf) ) {

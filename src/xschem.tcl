@@ -183,10 +183,11 @@ proc netlist {source_file show netlist_file} {
 
 # 20161121
 proc convert_to_pdf {filename dest} {
+  global to_pdf
   # puts "convert_to_pdf: $filename --> $dest"
   if { [regexp -nocase {\.pdf$} $dest] } {
     set pdffile [file rootname $filename].pdf]
-    if { ![catch "exec ps2pdf $filename $pdffile" msg] } {
+    if { ![catch "exec $to_pdf $filename $pdffile" msg] } {
       file rename -force $pdffile $dest
       # ps2pdf succeeded, so remove original .ps file
       if { ![xschem get debug_var] } {
@@ -3451,19 +3452,19 @@ set_ne globfilter {*}
 set_ne tcl_files {}
 set_ne netlist_dir "$USER_CONF_DIR/simulations"
 set_ne bus_replacement_char {} ;# use {<>} to replace [] with <> in bussed signals
-set_ne hspice_netlist 0
+set_ne hspice_netlist 1
 set_ne top_subckt 0
 set_ne spiceprefix 1
 set_ne verilog_2001 1
 set_ne split_files 0
 set_ne flat_netlist 0
-set_ne netlist_type vhdl
+set_ne netlist_type spice
 set_ne netlist_show 0
-set_ne color_ps 0
+set_ne color_ps 1
 set_ne transparent_svg 0
 set_ne only_probes 0  ; # 20110112
 set_ne fullscreen 0
-set_ne unzoom_nodrift 1
+set_ne unzoom_nodrift 0
 set_ne change_lw 1
 set_ne line_width 0
 set_ne draw_window 0
@@ -3477,13 +3478,13 @@ set_ne snap 10
 set_ne grid 20
 set_ne persistent_command 0
 set_ne autotrim_wires 0
-set_ne disable_unique_names 1
+set_ne disable_unique_names 0
 set_ne sym_txt 1
 set_ne show_infowindow 0 
 set_ne symbol_width 150
 set_ne editor {gvim -f}
 set_ne rainbow_colors 0
-set_ne initial_geometry {700x448+10+10}
+set_ne initial_geometry {900x600}
 set_ne edit_symbol_prop_new_sel {}
 #20161102
 set_ne launcher_var {}
@@ -3492,8 +3493,10 @@ set_ne launcher_program {}
 #20160413
 set_ne auto_hilight 0
 set_ne en_hilight_conn_inst 0
-## 20161121 xpm to png conversion
+## xpm to png conversion
 set_ne to_png {gm convert} 
+## ps to pdf conversion
+set_ne to_pdf {ps2pdf}
 
 ## 20160325 remember edit_prop widget size
 set_ne edit_prop_size 80x12
