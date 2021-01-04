@@ -1,7 +1,7 @@
 v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {type=primitive
-function3="0 1 ^ 2 & 0 1 & |"
+function3="0 d 1 d r & r r ^ 2 & |"
 function4="0 1 2 ^ ^"
 format="@name @@A @@B @@CIN @VGND @VNB @VPB @VPWR @@COUT @@SUM @prefix\\\\fa_1"
 template="name=x1 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ "

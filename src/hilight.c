@@ -915,6 +915,13 @@ int eval_logic_expr(int inst, int output)
         stack[sp] = stack[sp - 1];
         sp++;
       }
+    /* rotate down: bottom element goes to top */
+    } else if(str[pos] == 'r') {
+      if(sp > 1) {
+        int tmp = stack[0];
+        for(i = 0 ; i < sp - 1; i++) stack[i] = stack[i + 1];
+        stack[sp - 1] = tmp;
+      }
     } else if(str[pos] == 'x') { /* exchange top 2 operands */
       if(sp > 1) {
          int tmp = stack[sp - 2];

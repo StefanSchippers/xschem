@@ -11,15 +11,21 @@ L 4 100 -1470 100 -1390 {}
 L 4 200 -1470 200 -1390 {}
 L 4 100 -1570 100 -1490 {}
 L 4 200 -1570 200 -1490 {}
+L 4 1710 -1640 1710 -1360 {}
+L 4 1710 -1360 1750 -1360 {}
+L 4 1750 -1370 1750 -1360 {}
+L 4 1750 -1370 1770 -1360 {}
+L 4 1750 -1350 1770 -1360 {}
+L 4 1750 -1360 1750 -1350 {}
+L 4 1710 -1600 1750 -1600 {}
+L 4 1750 -1610 1750 -1600 {}
+L 4 1750 -1610 1770 -1600 {}
+L 4 1750 -1590 1770 -1600 {}
+L 4 1750 -1600 1750 -1590 {}
 B 12 3920 -2840 4640 -1540 {}
+P 5 9 1800 -300 1800 -220 1790 -230 1810 -180 1830 -230 1820 -220 1820 -300 1810 -290 1800 -300 {fill=true}
 T {7 Segment Display driver
 and base-10 counter} 1540 -3130 0 0 2.5 2.5 {}
-T {This example shows Xschem (very simple) simulation abilities
-Ctrl-Click to start simulation.
-Xschem will be only partially responsive during simulation.
-Will run for 100 iterations.
-If you need to stop:
-Simulation -> Forced stop tcl scripts} 1730 -750 0 0 1.5 1.5 {}
 T {Cyan: Uninitialized or unknown (X)} 3210 -1190 0 0 1.5 1.5 {layer=1}
 T {Signal colors:} 3130 -1290 0 0 1.5 1.5 {}
 T {Blue: Logic level low (0)} 3210 -1090 0 0 1.5 1.5 {layer=12}
@@ -60,6 +66,17 @@ T {Segment 4} 1190 -960 0 0 1 1 { layer=4}
 T {Segment 5} 1190 -560 0 0 1 1 { layer=4}
 T {Segment 6} 1190 -240 0 0 1 1 { layer=4}
 T {Truth Table} 10 -1730 0 0 1.5 1.5 {layer=4}
+T {This example shows Xschem (very simple) logic simulation abilities
+Ctrl-Click to start simulation.
+Xschem will be only partially responsive during simulation.
+Will run for 100 iterations.
+If you need to stop:
+Simulation -> Forced stop tcl scripts} 1720 -810 0 0 1.3 1.3 {}
+T {select this net and:
+- press '0' to set to logic '0' value
+- press '1' to set to logic '1' value
+- press '2' to set to logic 'X' value
+- press '3' to set to toggle 1->0, 0->1, X->X} 1680 -1880 0 0 0.7 0.7 {}
 N 2340 -2250 2340 -2170 { lab=#net1}
 N 2220 -2250 2340 -2250 { lab=#net1}
 N 2220 -2270 2220 -2250 { lab=#net1}
