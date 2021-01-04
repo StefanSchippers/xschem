@@ -638,18 +638,6 @@ int callback(int event, int mx, int my, KeySym key,
     dbg(1, "callback(): new color: %d\n",color_index[xctx->rectcolor]);
     break;
    }
-   /* select connected nets/pins/labels up to T junctions */
-   if(key==XK_Delete && (xctx->ui_state & SELECTION) && state == ControlMask )
-   {
-     if(xctx->semaphore >= 2) break;
-     select_connected_wires(1);break;
-   }
-   /* select connected nets/pins/labels */
-   if(key==XK_Delete && (xctx->ui_state & SELECTION) && state == ShiftMask )
-   {
-     if(xctx->semaphore >= 2) break;
-     select_connected_wires(0);break;
-   }
    if(key==XK_Delete && (xctx->ui_state & SELECTION)  && state == 0)        /* delete objects */
    {
      if(xctx->semaphore >= 2) break;
