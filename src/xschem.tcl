@@ -3470,8 +3470,7 @@ set_ne line_width 0
 set_ne draw_window 0
 set_ne incr_hilight 1
 set_ne enable_stretch 0
-set_ne horizontal_move 0 ; # 20171023
-set_ne vertical_move 0 ; # 20171023
+set_ne constrained_move 0
 set_ne draw_grid 1
 set_ne big_grid_points 0
 set_ne snap 10
@@ -3864,10 +3863,12 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   toolbar_create EditMove "xschem move_objects" "Move objects"
   .menubar.edit.menu add command -label "Flip selected objects" -command "xschem flip" -accelerator {Alt-F}
   .menubar.edit.menu add command -label "Rotate selected objects" -command "xschem rotate" -accelerator {Alt-R}
-  .menubar.edit.menu add checkbutton -label "Constrained Horizontal move" -variable horizontal_move \
-     -command "xschem set horizontal_move" -accelerator H
-  .menubar.edit.menu add checkbutton -label "Constrained Vertical move" -variable vertical_move \
-     -command "xschem set vertical_move" -accelerator V
+  .menubar.edit.menu add radiobutton -label "Unconstrained move" -variable constrained_move \
+     -value 0 -command {xschem set constrained_move 0} 
+  .menubar.edit.menu add radiobutton -label "Constrained Horizontal move" -variable constrained_move \
+     -value 1 -accelerator H -command {xschem set constrained_move 1} 
+  .menubar.edit.menu add radiobutton -label "Constrained Vertical move" -variable constrained_move \
+     -value 2 -accelerator V -command {xschem set constrained_move 2} 
   .menubar.edit.menu add command -label "Push schematic" -command "xschem descend" -accelerator E
   toolbar_create EditPushSch "xschem move_objects" "Push schematic"
   .menubar.edit.menu add command -label "Push symbol" -command "xschem descend_symbol" -accelerator I

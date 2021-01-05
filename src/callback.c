@@ -25,24 +25,24 @@
 void redraw_w_a_l_r_p_rubbers(void)
 {
   if(xctx->ui_state & STARTWIRE) {
-    if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-    if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+    if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+    if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
     new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
   }
   if(xctx->ui_state & STARTARC) {
-    if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-    if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+    if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+    if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
     new_arc(RUBBER, 0);
   }
   if(xctx->ui_state & STARTLINE) {
-    if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-    if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+    if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+    if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
     new_line(RUBBER);
   }
   if(xctx->ui_state & STARTRECT) new_rect(RUBBER);
   if(xctx->ui_state & STARTPOLYGON) {
-    if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-    if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+    if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+    if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
     new_polygon(RUBBER);
   }
 }
@@ -51,16 +51,16 @@ void start_line(double mx, double my)
 {
     xctx->last_command = STARTLINE;
     if(xctx->ui_state & STARTLINE) {
-      if(!vertical_move) {
+      if(constrained_move != 2) {
         xctx->mx_save = mx;
         xctx->mx_double_save=xctx->mousex_snap;
       }
-      if(!horizontal_move) {
+      if(constrained_move != 1) {
         xctx->my_save = my;
         xctx->my_double_save=xctx->mousey_snap;
       }
-      if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-      if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+      if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+      if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
     } else {
       xctx->mx_save = mx; xctx->my_save = my;
       xctx->mx_double_save=xctx->mousex_snap;
@@ -73,16 +73,16 @@ void start_wire(double mx, double my)
 {
      xctx->last_command = STARTWIRE;
      if(xctx->ui_state & STARTWIRE) {
-       if(!vertical_move) {
+       if(constrained_move != 2) {
          xctx->mx_save = mx;
          xctx->mx_double_save=xctx->mousex_snap;
        }
-       if(!horizontal_move) {
+       if(constrained_move != 1) {
          xctx->my_save = my;
          xctx->my_double_save=xctx->mousey_snap;
        }
-       if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-       if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+       if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+       if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
      } else {
        xctx->mx_save = mx; xctx->my_save = my;
        xctx->mx_double_save=xctx->mousex_snap;
@@ -247,13 +247,13 @@ int callback(int event, int mx, int my, KeySym key,
     }
 
     if(xctx->ui_state & STARTMOVE) {
-      if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-      if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+      if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+      if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
       move_objects(RUBBER,0,0,0);
     }
     if(xctx->ui_state & STARTCOPY) {
-      if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-      if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+      if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+      if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
       copy_objects(RUBBER);
     }
 
@@ -400,44 +400,46 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key == 'h' && state == 0) {
      /* horizontally constrained drag 20171023 */
-     if ( horizontal_move ) {
-       tcleval("set horizontal_move 0" );
+     if ( constrained_move == 1 ) {
+       tcleval("set constrained_move 0" );
+       constrained_move = 0;
      } else {
-       tcleval("set horizontal_move 1" );
-       tcleval("xschem set horizontal_move");
+       tcleval("set constrained_move 1" );
+       constrained_move = 1;
      }
      if(xctx->ui_state & STARTWIRE) {
-       if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-       if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+       if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+       if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
        new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
      }
      if(xctx->ui_state & STARTLINE) {
-       if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-       if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+       if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+       if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
        new_line(RUBBER);
      }
      break;
    }
    if(key=='H' && state==ShiftMask) {           /* attach labels to selected instances */
-    attach_labels_to_inst();
-    break;
+     attach_labels_to_inst();
+     break;
    }
    if(key == 'v' && state==0) {
      /* vertically constrained drag 20171023 */
-     if ( vertical_move ) {
-       tcleval("set vertical_move 0" );
+     if ( constrained_move == 2 ) {
+       tcleval("set constrained_move 0" );
+       constrained_move = 0;
      } else {
-       tcleval("set vertical_move 1" );
-       tcleval("xschem set vertical_move");
+       tcleval("set constrained_move 2" );
+       constrained_move = 2;
      }
      if(xctx->ui_state & STARTWIRE) {
-       if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-       if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+       if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+       if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
        new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
      }
      if(xctx->ui_state & STARTLINE) {
-       if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-       if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+       if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+       if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
        new_line(RUBBER);
      }
      break;
@@ -534,15 +536,20 @@ int callback(int event, int mx, int my, KeySym key,
        find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
        new_wire(RUBBER, x, y);
        new_wire(PLACE|END, x, y);
-       horizontal_move = vertical_move=0;
-       tcleval("set vertical_move 0; set horizontal_move 0" );
+       constrained_move=0;
+       tcleval("set constrained_move 0" );
      }
      break;
    }
-   if(key == 'w'&& state==0)    /* place wire. */
+   if(key == 'w' && state==0)    /* place wire. */
    {
+     int prev_state = xctx->ui_state;
      if(xctx->semaphore >= 2) break;
      start_wire(mx, my);
+     if(prev_state == STARTWIRE) {
+       tcleval("set constrained_move 0" );
+       constrained_move=0;
+     }
      break;
    }
    if(key == XK_Return && (state == 0 ) && xctx->ui_state & STARTPOLYGON) { /* close polygon */
@@ -553,10 +560,10 @@ int callback(int event, int mx, int my, KeySym key,
    {
     no_draw = 0;
     if(xctx->semaphore >= 2) break;
-    tcleval("set vertical_move 0; set horizontal_move 0" );
+    tcleval("set constrained_move 0" );
+    constrained_move=0;
     xctx->last_command=0;
     manhattan_lines = 0;
-    horizontal_move = vertical_move = 0;
     dbg(1, "callback(): Escape: ui_state=%ld\n", xctx->ui_state);
     if(xctx->ui_state & STARTMOVE)
     {
@@ -1076,25 +1083,29 @@ int callback(int event, int mx, int my, KeySym key,
     break;
    }
    if(key=='l' && state == ControlMask) { /* create schematic from selected symbol 20171004 */
-
      if(xctx->semaphore >= 2) break;
      create_sch_from_sym();
      break;
    }
    if(key=='l' && state == 0) /* start line */
    {
-    start_line(mx, my);
-    break;
+     int prev_state = xctx->ui_state;
+     start_line(mx, my);
+     if(prev_state == STARTLINE) {
+       tcleval("set constrained_move 0" );
+       constrained_move=0;
+     }
+     break;
    }
    if(key=='l' && state == Mod1Mask) {                         /* add pin label*/
-    place_net_label(1);
-    break;
+     place_net_label(1);
+     break;
    }
    if(key >= '0' && key <= '3' && state == 0) {  /* Toggle pin logic level */
-    if(xctx->semaphore >= 2) break;
-    if(key == '3') logic_set(-1, 1);
-    else logic_set(key - '0', 1);
-    break;
+     if(xctx->semaphore >= 2) break;
+     if(key == '3') logic_set(-1, 1);
+     else logic_set(key - '0', 1);
+     break;
    }
    if(key=='L' && state == (Mod1Mask | ShiftMask)) {                         /* add pin label*/
     place_net_label(0);
@@ -1480,10 +1491,6 @@ int callback(int event, int mx, int my, KeySym key,
        if(xctx->last_command == STARTWIRE)  start_wire(mx, my);
        break;
      }
-     if(!(xctx->ui_state & STARTPOLYGON) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE) ) {
-       horizontal_move = vertical_move=0;
-       tcleval("set vertical_move 0; set horizontal_move 0" );
-     }
      if(xctx->ui_state & MENUSTARTTEXT) {
        place_text(1, xctx->mousex_snap, xctx->mousey_snap);
        xctx->ui_state &=~MENUSTARTTEXT;
@@ -1567,21 +1574,23 @@ int callback(int event, int mx, int my, KeySym key,
      }
      if(xctx->ui_state & STARTWIRE) {
        if(persistent_command) {
-         if(!vertical_move) {
+         if(constrained_move != 2) {
            xctx->mx_save = mx;
            xctx->mx_double_save=xctx->mousex_snap;
          }
-         if(!horizontal_move) {
+         if(constrained_move != 1) {
            xctx->my_save = my;
            xctx->my_double_save=xctx->mousey_snap;
          }
-         if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-         if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+         if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+         if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
          new_wire(PLACE, xctx->mousex_snap, xctx->mousey_snap);
 
        } else {
          new_wire(PLACE|END, xctx->mousex_snap, xctx->mousey_snap);
        }
+       constrained_move=0;
+       tcleval("set constrained_move 0" );
        break;
      }
      if(xctx->ui_state & STARTARC) {
@@ -1590,20 +1599,22 @@ int callback(int event, int mx, int my, KeySym key,
      }
      if(xctx->ui_state & STARTLINE) {
        if(persistent_command) {
-         if(!vertical_move) {
+         if(constrained_move != 2) {
            xctx->mx_save = mx;
            xctx->mx_double_save=xctx->mousex_snap;
          }
-         if(!horizontal_move) {
+         if(constrained_move == 1) {
            xctx->my_save = my;
            xctx->my_double_save=xctx->mousey_snap;
          }
-         if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-         if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+         if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+         if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
          new_line(PLACE);
        } else {
          new_line(PLACE|END);
        }
+       constrained_move=0;
+       tcleval("set constrained_move 0" );
        break;
      }
      if(xctx->ui_state & STARTRECT) {
@@ -1611,22 +1622,26 @@ int callback(int event, int mx, int my, KeySym key,
        break;
      }
      if(xctx->ui_state & STARTPOLYGON) {
-       if(horizontal_move) xctx->mousey_snap = xctx->my_double_save;
-       if(vertical_move) xctx->mousex_snap = xctx->mx_double_save;
+       if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
+       if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
        new_polygon(ADD);
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
-       horizontal_move = vertical_move=0;
-       tcleval("set vertical_move 0; set horizontal_move 0" );
+       constrained_move=0;
+       tcleval("set constrained_move 0" );
        break;
      }
      if(xctx->ui_state & STARTMOVE) {
        move_objects(END,0,0,0);
        xctx->ui_state &=~START_SYMPIN;
+       constrained_move=0;
+       tcleval("set constrained_move 0" );
        break;
      }
      if(xctx->ui_state & STARTCOPY) {
        copy_objects(END);
+       constrained_move=0;
+       tcleval("set constrained_move 0" );
        break;
      }
      if( !(xctx->ui_state & STARTSELECT) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE)  ) {

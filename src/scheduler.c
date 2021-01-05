@@ -2277,6 +2277,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
            change_layer();
          }
       }
+      else if(!strcmp(argv[2],"constrained_move")) {
+        constrained_move = atoi(argv[3]);
+      }
       else if(!strcmp(argv[2],"change_lw")) {
          change_lw=atoi(argv[3]);
       }
@@ -2289,28 +2292,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else {
         Tcl_AppendResult(interp, "xschem set ", argv[1], argv[3], ": invalid command.", NULL);
         return TCL_ERROR;
-      }
-    }
-   
-    else if(!strcmp(argv[1],"set") && argc==3)
-    {
-      cmd_found = 1;
-      if(!strcmp(argv[2],"horizontal_move")) {
-        horizontal_move = atoi(tclgetvar("horizontal_move"));
-        if(horizontal_move) {
-          vertical_move=0;
-          tcleval("set vertical_move 0" );
-        }
-      }
-      else if(!strcmp(argv[2],"vertical_move")) {
-        vertical_move = atoi(tclgetvar("vertical_move"));
-        if(vertical_move) {
-          horizontal_move=0;
-          tcleval("set horizontal_move 0" );
-        }
-      }
-      else {
-        fprintf(errfp, "xschem set %s : invalid command.\n", argv[2]);
       }
     }
    

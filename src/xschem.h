@@ -763,9 +763,8 @@ extern int depth;
 extern int *fill_type; /* 20171117 for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
 extern Tcl_Interp *interp;
 extern double cadsnap;
-extern int horizontal_move;
-extern int vertical_move;
 extern double *character[256];
+extern int constrained_move;
 extern int netlist_show;
 extern int flat_netlist;
 extern int netlist_type;

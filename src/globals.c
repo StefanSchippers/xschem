@@ -211,9 +211,8 @@ int do_waves=0;
 int netlist_count=0; /* netlist counter incremented at any cell being netlisted */
 char hiersep[20]=".";
 char bus_char[3] = {0, 0, 0};
-int horizontal_move=0;
-int vertical_move=0;
 int pending_fullzoom=0;
+int constrained_move = 0;
 double color_dim=0.0;
 int no_undo=0;
 int enable_drill=0; /* pass net hilights through components with 'propag=' property set on pins */
