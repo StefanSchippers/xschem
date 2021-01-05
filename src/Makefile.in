@@ -12,7 +12,7 @@ put /local/src {
 put /local/install_shares {
  keys.help xschem.help xschem.tcl break.awk convert_to_verilog2001.awk
  flatten.awk flatten_tedax.awk flatten_savenodes.awk make_sym.awk symgen.awk order_labels.awk 
- sort_labels.awk spice.awk tedax.awk verilog.awk vhdl.awk hspice_backannotate.tcl
+ sort_labels.awk spice.awk tedax.awk verilog.awk vhdl.awk hspice_backannotate.tcl add_custom_menu.tcl
  change_index.tcl resources.tcl xschemrc ngspice_backannotate.tcl rawtovcd gschemtoxschem.awk
 }
 
