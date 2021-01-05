@@ -1064,7 +1064,6 @@ void propagate_logic()
       npin = xctx->simdata.inst[i].npin;
       for(j=0; j<npin;j++) {
         if(xctx->simdata.inst && xctx->simdata.inst[i].pin && xctx->simdata.inst[i].pin[j].go_to) {
-        /* if(xctx->simdata.inst[i].pin[j].go_to) { */
           int n = 1;
           const char *propag;
           int clock_pin, clock_val, clock_oldval;

@@ -577,7 +577,7 @@ void ps_draw(void)
 {
  double dx, dy, scale, scaley;
  int landscape=1;
- double margin=0; /* in postscript points, (1/72)". No need to add margin as xschem zoom full already has margins.*/
+ double margin=10; /* in postscript points, (1/72)". No need to add margin as xschem zoom full already has margins.*/
 
  /* Legal: 612 792 */
  double pagex=842;/* a4, in postscript points, (1/72)" */

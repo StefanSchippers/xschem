@@ -221,11 +221,16 @@ int hook_detect_target()
 			if (require("cc/argstd/pg",  0, 0) == 0) {
 				append("cc/cflags", " ");
 				append("cc/cflags", get("cc/argstd/pg"));
+				append("cc/ldflags", " ");
+				append("cc/ldflags", get("cc/argstd/pg"));
 			}
+                        /* no-pie no more needed it seems */
+                        /* 
 			if (require("cc/argstd/no-pie",  0, 0) == 0) {
 				append("cc/cflags", " ");
 				append("cc/cflags", get("cc/argstd/no-pie"));
 			}
+                        */
 		}
 	}
 

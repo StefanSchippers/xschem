@@ -1,5 +1,6 @@
-v {xschem version=2.9.5 file_version=1.1}
+v {xschem version=2.9.9 file_version=1.2 }
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -10,7 +11,7 @@ Distributed under the terms of the GNU General Public License,
 either verion 2 or (at your choice) any later version.} 40 -150 0 0 0.4 0.4 {}
 T {INPUTS} 50 -520 0 0 0.4 0.4 {}
 T {OUTPUTS} 280 -460 0 0 0.4 0.4 {}
-T {Binary to 7-segment chip} 660 -450 0 0 0.7 0.7 {}
+T {Binary to 7-segment chip} 660 -460 0 0 0.7 0.7 {}
 N 500 -610 590 -610 {lab=bcd2[1:0]}
 N 590 -630 590 -610 {lab=bcd2[1:0]}
 N 590 -630 650 -630 {lab=bcd2[1:0]}
@@ -109,7 +110,7 @@ C {ipin.sym} 110 -480 0 0 {name=p15 lab=ibin[7:0]}
 C {opin.sym} 280 -420 0 0 {name=p6 lab=oseg2[6:0] verilog_type=reg}
 C {opin.sym} 280 -400 0 0 {name=p7 lab=oseg1[6:0] verilog_type=reg}
 C {opin.sym} 280 -380 0 0 {name=p8 lab=oseg0[6:0] verilog_type=reg}
-C {code.sym} 700 -170 0 0 {name=TESTBENCH only_toplevel=false value="
+C {code.sym} 790 -160 0 0 {name=TESTBENCH only_toplevel=false value="
 reg [7:0] iibin;
 reg ien;
 reg inen;
@@ -119,7 +120,7 @@ reg ipolarity;
 
 initial begin
   $dumpfile(\\"dumpfile.vcd\\");
-  $dumpvars;
+  $dumpvars(0, top);
 end
 
 task binpattern;
