@@ -75,7 +75,7 @@
 #### Start without a design if no filename given on command line:
 #### To avoid absolute paths, use a path that is relative to one of the
 #### XSCHEM_LIBRARY_PATH directories. Default: empty
-set XSCHEM_START_WINDOW {0_examples_top.sch}
+# set XSCHEM_START_WINDOW {0_examples_top.sch}
 
 ###########################################################################
 #### DIRECTORY WHERE SIMULATIONS, NETLIST AND SIMULATOR OUTPUTS ARE PLACED
