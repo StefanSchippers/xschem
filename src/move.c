@@ -990,6 +990,7 @@ void copy_objects(int what)
   xctx->ui_state &= ~STARTCOPY;
   xctx->x1=xctx->y_1=xctx->x2=xctx->y_2=xctx->move_rot=xctx->move_flip=xctx->deltax=xctx->deltay=0;
   bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+  draw();
   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   xctx->rotatelocal=0;
   draw_window = save_draw;
