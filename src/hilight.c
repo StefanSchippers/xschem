@@ -535,7 +535,7 @@ int search(const char *tok, const char *val, int sub, int sel)
      {
        if(!sel) {
          type = (xctx->inst[i].ptr+ xctx->sym)->type;
-         if( type && IS_LABEL_SH_OR_PIN(type) ) {
+         if( type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type) ) {
            bus_hilight_lookup(xctx->inst[i].node[0], col, XINSERT_NOREPLACE); /* sets xctx->hilight_nets=1; */
          } else {
            dbg(1, "search(): setting hilight flag on inst %d\n",i);
@@ -852,8 +852,8 @@ void propagate_hilights(int set, int clear, int mode)
           xctx->inst[i].color=-10000;
         }
       }
-    } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
-      entry=bus_hilight_lookup( xctx->inst[i].lab, 0, XLOOKUP);
+    } else if(type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type) ) {
+      entry=bus_hilight_lookup( xctx->inst[i].node[0], 0, XLOOKUP);
       if(entry && set)        xctx->inst[i].color = entry->value;
       else if(!entry && clear) xctx->inst[i].color = -10000;
     }
@@ -1334,8 +1334,8 @@ void select_hilight_net(void)
         }
       }
     }
-  } else if( type && IS_LABEL_SH_OR_PIN(type) ) {
-    entry=bus_hilight_lookup(xctx->inst[i].lab , 0, XLOOKUP);
+  } else if( type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type) ) {
+    entry=bus_hilight_lookup(xctx->inst[i].node[0], 0, XLOOKUP);
     if(entry) xctx->inst[i].sel = SELECTED;
   }
  }

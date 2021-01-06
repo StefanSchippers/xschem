@@ -2156,8 +2156,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         hide_symbols=s;
       }
       else if(!strcmp(argv[2],"show_pin_net_names")) {
-        int s = atoi(argv[3]);
+        int i, s = atoi(argv[3]);
         show_pin_net_names=s;
+         for(i = 0; i < xctx->instances; i++) {
+           symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
+         }
       }
       else if(!strcmp(argv[2],"netlist_name")) {
         my_strncpy(xctx->netlist_name, argv[3], S(xctx->netlist_name));
