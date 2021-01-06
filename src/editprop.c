@@ -1068,7 +1068,7 @@ void update_symbol(const char *result, int x)
         prepare_netlist_structs(0);
         for(j = 0;  j < (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER]; j++) {
           if( xctx->inst[i].node && xctx->inst[i].node[j]) {
-             ind_inst_to_be_redrawn(xctx->inst[i].node[j]);
+             find_inst_to_be_redrawn(xctx->inst[i].node[j]);
           }
         }
       }
