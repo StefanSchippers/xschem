@@ -461,7 +461,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     return "";
   }
   xctx->get_tok_value_size = xctx->get_tok_size = 0;
-  dbg(2, "get_tok_value(): looking for <%s> in <%s>\n",tok,s);
+  /* dbg(2, "get_tok_value(): looking for <%s> in <%s>\n",tok,s); */
   if( size == 0 ) {
     sizetok = size = CADCHUNKALLOC;
     my_realloc(454, &result, size);
@@ -503,7 +503,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
             /* report back also token size, useful to check if requested token exists */
             xctx->get_tok_size = token_pos;
           }
-          dbg(2, "get_tok_value(): token=%s\n", token);
+          /* dbg(2, "get_tok_value(): token=%s\n", token);*/
           token_pos=0;
         }
     } else if(state==TOK_END) {
@@ -2784,7 +2784,7 @@ const char *translate(int inst, const char* s)
   else if(state==TOK_SEP)
   {
    token[token_pos]='\0';
-   dbg(2, "translate(): token=%s\n", token);
+   /* dbg(2, "translate(): token=%s\n", token);*/
 
    /* if spiceprefix==0 and token == @spiceprefix then set empty value */
    if(!spiceprefix && !strcmp(token, "@spiceprefix")) {
@@ -2804,7 +2804,7 @@ const char *translate(int inst, const char* s)
     } else { /* no definition found -> subst with token without leading $ */
       tmp=token_pos -1 ; /* we need token_pos -1 chars, ( strlen(token+1) ) , excluding leading '$' */
       STR_ALLOC(&result, tmp + result_pos, &size);
-      dbg(2, "translate(): token=%s, token_pos = %d\n", token, token_pos);
+      /* dbg(2, "translate(): token=%s, token_pos = %d\n", token, token_pos); */
       memcpy(result+result_pos, token + 1, tmp+1);
     }
     result_pos+=tmp;

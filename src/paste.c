@@ -199,13 +199,21 @@ void merge_inst(int k,FILE *fd)
 {
     int i;
     char *prop_ptr=NULL;
-
+    char *tmp = NULL;
     xInstance *ptr;
     i=xctx->instances;
     check_inst_storage();
     ptr=xctx->inst;
     ptr[i].name=NULL;
-    load_ascii_string(&ptr[i].name,fd);
+    load_ascii_string(&tmp, fd);
+    /* avoid as much as possible calls to rel_sym_path (slow) */
+    #ifdef __unix__
+    if(tmp[0] == '/') my_strdup(755, &ptr[i].name, rel_sym_path(tmp));
+    else my_strdup(755, &ptr[i].name,tmp);
+    #else
+    my_strdup(755, &ptr[i].name, rel_sym_path(tmp));
+    #endif
+    my_free(756, &tmp);
     if(fscanf(fd, "%lf %lf %hd %hd",&ptr[i].x0, &ptr[i].y0,&ptr[i].rot, &ptr[i].flip) < 4) {
       fprintf(errfp,"WARNING: missing fields for INSTANCE object, ignoring.\n");
       read_line(fd, 0);

@@ -175,17 +175,36 @@ void updatebbox(int count, xRect *boundbox, xRect *tmp)
  }
 }
 
-void save_ascii_string(const char *ptr, FILE *fd)
+void save_ascii_string(const char *ptr, FILE *fd, int newline)
 {
- int i=0;
- int c;
- fputc('{',fd);
- while( ptr && (c=ptr[i++]) )
- {
-  if( c=='\\' || c=='{' || c=='}') fputc('\\',fd);
-  fputc(c,fd);
- }
- fputc('}',fd);
+  int c, len, strbuf_pos = 0;
+  static char *strbuf = NULL;
+  static int strbuf_size=0;
+
+
+  if(ptr == NULL) {
+    if( fd == NULL) { /* used to clear static data */
+       my_free(139, &strbuf);
+       strbuf_size = 0;
+       return;
+    }
+    if(newline) fputs("{}\n", fd);
+    else fputs("{}", fd);
+    return;
+  }
+  len = strlen(ptr) + CADCHUNKALLOC;
+  if(strbuf_size < len ) my_realloc(140, &strbuf, (strbuf_size = len));
+
+  strbuf[strbuf_pos++] = '{';
+  while( (c = *ptr++) ) {
+    if(strbuf_pos > strbuf_size - 6) my_realloc(525, &strbuf, (strbuf_size += CADCHUNKALLOC));
+    if( c=='\\' || c=='{' || c=='}') strbuf[strbuf_pos++] = '\\';
+    strbuf[strbuf_pos++] = c;
+  }
+  strbuf[strbuf_pos++] = '}';
+  if(newline) strbuf[strbuf_pos++] = '\n';
+  strbuf[strbuf_pos] = '\0';
+  fwrite(strbuf, 1, strbuf_pos, fd);
 }
 
 void save_embedded_symbol(xSymbol *s, FILE *fd)
@@ -194,8 +213,7 @@ void save_embedded_symbol(xSymbol *s, FILE *fd)
 
   fprintf(fd, "v {xschem version=%s file_version=%s}\n", XSCHEM_VERSION, XSCHEM_FILE_VERSION);
   fprintf(fd, "G ");
-  save_ascii_string(s->prop_ptr,fd);
-  fputc('\n' ,fd);
+  save_ascii_string(s->prop_ptr,fd, 1);
   fprintf(fd, "V {}\n");
   fprintf(fd, "S {}\n");
   fprintf(fd, "E {}\n");
@@ -207,8 +225,7 @@ void save_embedded_symbol(xSymbol *s, FILE *fd)
    {
     fprintf(fd, "L %d %.16g %.16g %.16g %.16g ", c,ptr[i].x1, ptr[i].y1,ptr[i].x2,
      ptr[i].y2 );
-    save_ascii_string(ptr[i].prop_ptr,fd);
-    fputc('\n' ,fd);
+    save_ascii_string(ptr[i].prop_ptr,fd, 1);
    }
   }
   for(c=0;c<cadlayers;c++)
@@ -219,8 +236,7 @@ void save_embedded_symbol(xSymbol *s, FILE *fd)
    {
     fprintf(fd, "B %d %.16g %.16g %.16g %.16g ", c,ptr[i].x1, ptr[i].y1,ptr[i].x2,
      ptr[i].y2);
-    save_ascii_string(ptr[i].prop_ptr,fd);
-    fputc('\n' ,fd);
+    save_ascii_string(ptr[i].prop_ptr,fd, 1);
    }
   }
   for(c=0;c<cadlayers;c++)
@@ -231,8 +247,7 @@ void save_embedded_symbol(xSymbol *s, FILE *fd)
    {
     fprintf(fd, "A %d %.16g %.16g %.16g %.16g %.16g ", c,ptr[i].x, ptr[i].y,ptr[i].r,
      ptr[i].a, ptr[i].b);
-    save_ascii_string(ptr[i].prop_ptr,fd);
-    fputc('\n' ,fd);
+    save_ascii_string(ptr[i].prop_ptr,fd, 1);
    }
   }
   for(i=0;i<s->texts;i++)
@@ -240,12 +255,11 @@ void save_embedded_symbol(xSymbol *s, FILE *fd)
    xText *ptr;
    ptr = s->text;
    fprintf(fd, "T ");
-   save_ascii_string(ptr[i].txt_ptr,fd);
+   save_ascii_string(ptr[i].txt_ptr,fd, 0);
    fprintf(fd, " %.16g %.16g %hd %hd %.16g %.16g ",
     ptr[i].x0, ptr[i].y0, ptr[i].rot, ptr[i].flip, ptr[i].xscale,
      ptr[i].yscale);
-   save_ascii_string(ptr[i].prop_ptr,fd);
-   fputc('\n' ,fd);
+   save_ascii_string(ptr[i].prop_ptr,fd, 1);
   }
   for(c=0;c<cadlayers;c++)
   {
@@ -257,34 +271,32 @@ void save_embedded_symbol(xSymbol *s, FILE *fd)
     for(j=0;j<ptr[i].points;j++) {
       fprintf(fd, "%.16g %.16g ", ptr[i].x[j], ptr[i].y[j]);
     }
-    save_ascii_string(ptr[i].prop_ptr,fd);
-    fputc('\n' ,fd);
+    save_ascii_string(ptr[i].prop_ptr,fd, 1);
    }
   }
 }
 
 void save_inst(FILE *fd)
 {
- int i;
+ int i, oldversion;
  xInstance *ptr;
  char *tmp = NULL;
 
  ptr=xctx->inst;
+ oldversion = !strcmp(xctx->file_version, "1.0");
  for(i=0;i<xctx->symbols;i++) xctx->sym[i].flags &=~EMBEDDED;
  for(i=0;i<xctx->instances;i++)
  {
-  fprintf(fd, "C ");
-
-  if(!strcmp(xctx->file_version, "1.0")) {
+  fputs("C ", fd);
+  if(oldversion) {
     my_strdup(57, &tmp, add_ext(ptr[i].name, ".sym"));
-    save_ascii_string(rel_sym_path(tmp), fd);
+    save_ascii_string(tmp, fd, 0);
+    my_free(882, &tmp);
   } else {
-    save_ascii_string(rel_sym_path(ptr[i].name), fd);
+    save_ascii_string(ptr[i].name, fd, 0);
   }
-  my_free(882, &tmp);
   fprintf(fd, " %.16g %.16g %hd %hd ",ptr[i].x0, ptr[i].y0, ptr[i].rot, ptr[i].flip );
-  save_ascii_string(ptr[i].prop_ptr,fd);
-  fputc('\n' ,fd);
+  save_ascii_string(ptr[i].prop_ptr,fd, 1);
   if( !strcmp(get_tok_value(ptr[i].prop_ptr, "embed", 0), "true") ) {
       /* && !(xctx->sym[ptr[i].ptr].flags & EMBEDDED)) {  */
     fprintf(fd, "[\n");
@@ -305,8 +317,7 @@ void save_wire(FILE *fd)
  {
   fprintf(fd, "N %.16g %.16g %.16g %.16g ",ptr[i].x1, ptr[i].y1, ptr[i].x2,
      ptr[i].y2);
-  save_ascii_string(ptr[i].prop_ptr,fd);
-  fputc('\n' ,fd);
+  save_ascii_string(ptr[i].prop_ptr,fd, 1);
  }
 }
 
@@ -318,12 +329,11 @@ void save_text(FILE *fd)
  for(i=0;i<xctx->texts;i++)
  {
   fprintf(fd, "T ");
-  save_ascii_string(ptr[i].txt_ptr,fd);
+  save_ascii_string(ptr[i].txt_ptr,fd, 0);
   fprintf(fd, " %.16g %.16g %hd %hd %.16g %.16g ",
    ptr[i].x0, ptr[i].y0, ptr[i].rot, ptr[i].flip, ptr[i].xscale,
     ptr[i].yscale);
-  save_ascii_string(ptr[i].prop_ptr,fd);
-  fputc('\n' ,fd);
+  save_ascii_string(ptr[i].prop_ptr,fd, 1);
  }
 }
 
@@ -340,8 +350,7 @@ void save_polygon(FILE *fd)
       for(j=0;j<ptr[i].points;j++) {
         fprintf(fd, "%.16g %.16g ", ptr[i].x[j], ptr[i].y[j]);
       }
-      save_ascii_string(ptr[i].prop_ptr,fd);
-      fputc('\n' ,fd);
+      save_ascii_string(ptr[i].prop_ptr,fd, 1);
      }
     }
 }
@@ -357,8 +366,7 @@ void save_arc(FILE *fd)
      {
       fprintf(fd, "A %d %.16g %.16g %.16g %.16g %.16g ", c,ptr[i].x, ptr[i].y,ptr[i].r,
        ptr[i].a, ptr[i].b);
-      save_ascii_string(ptr[i].prop_ptr,fd);
-      fputc('\n' ,fd);
+      save_ascii_string(ptr[i].prop_ptr,fd, 1);
      }
     }
 }
@@ -374,8 +382,7 @@ void save_box(FILE *fd)
      {
       fprintf(fd, "B %d %.16g %.16g %.16g %.16g ", c,ptr[i].x1, ptr[i].y1,ptr[i].x2,
        ptr[i].y2);
-      save_ascii_string(ptr[i].prop_ptr,fd);
-      fputc('\n' ,fd);
+      save_ascii_string(ptr[i].prop_ptr,fd, 1);
      }
     }
 }
@@ -391,8 +398,7 @@ void save_line(FILE *fd)
      {
       fprintf(fd, "L %d %.16g %.16g %.16g %.16g ", c,ptr[i].x1, ptr[i].y1,ptr[i].x2,
        ptr[i].y2 );
-      save_ascii_string(ptr[i].prop_ptr,fd);
-      fputc('\n' ,fd);
+      save_ascii_string(ptr[i].prop_ptr,fd, 1);
      }
     }
 }
@@ -418,36 +424,28 @@ void write_xschem_file(FILE *fd)
     ty = xctx->get_tok_size;
     if(ty && !strcmp(xctx->sch[xctx->currsch] + strlen(xctx->sch[xctx->currsch]) - 4,".sym") ) {
       fprintf(fd, "G {}\nK ");
-      save_ascii_string(xctx->schvhdlprop,fd);
-      fputc('\n', fd);
+      save_ascii_string(xctx->schvhdlprop,fd, 1);
     } else {
       fprintf(fd, "G ");
-      save_ascii_string(xctx->schvhdlprop,fd);
-      fputc('\n', fd);
+      save_ascii_string(xctx->schvhdlprop,fd, 1);
       fprintf(fd, "K ");
-      save_ascii_string(xctx->schsymbolprop,fd);
-      fputc('\n', fd);
+      save_ascii_string(xctx->schsymbolprop,fd, 1);
     }
   } else {
     fprintf(fd, "G ");
-    save_ascii_string(xctx->schvhdlprop,fd);
-    fputc('\n', fd);
+    save_ascii_string(xctx->schvhdlprop,fd, 1);
     fprintf(fd, "K ");
-    save_ascii_string(xctx->schsymbolprop,fd);
-    fputc('\n', fd);
+    save_ascii_string(xctx->schsymbolprop,fd, 1);
   }
 
   fprintf(fd, "V ");
-  save_ascii_string(xctx->schverilogprop,fd);
-  fputc('\n', fd);
+  save_ascii_string(xctx->schverilogprop,fd, 1);
 
   fprintf(fd, "S ");
-  save_ascii_string(xctx->schprop,fd);
-  fputc('\n', fd);
+  save_ascii_string(xctx->schprop,fd, 1);
 
   fprintf(fd, "E ");
-  save_ascii_string(xctx->schtedaxprop,fd);
-  fputc('\n', fd);
+  save_ascii_string(xctx->schtedaxprop,fd, 1);
 
   save_line(fd);
   save_box(fd);
@@ -530,22 +528,23 @@ static void load_inst(int k, FILE *fd)
     char name[PATH_MAX];
     char *tmp = NULL;
 
-    dbg(3, "load_inst(): start\n");
     i=xctx->instances;
     check_inst_storage();
     load_ascii_string(&tmp, fd);
     if(!tmp) return;
-    dbg(1, "load_inst(): tmp=%s\n", tmp);
     my_strncpy(name, tmp, S(name));
     dbg(1, "load_inst(): 1: name=%s\n", name);
     if(!strcmp(xctx->file_version,"1.0") ) {
-      dbg(1, "load_inst(): add_ext(name,\".sym\") = %s\n", add_ext(name, ".sym") );
       my_strncpy(name, add_ext(name, ".sym"), S(name));
     }
     xctx->inst[i].name=NULL;
-    my_strdup2(56, &xctx->inst[i].name, name);
-    dbg(1, "load_inst(): 2: name=%s\n", name);
-
+    /* avoid as much as possible calls to rel_sym_path (slow) */
+    #ifdef __unix__
+    if(name[0] == '/') my_strdup2(56, &xctx->inst[i].name, rel_sym_path(name));
+    else my_strdup2(762, &xctx->inst[i].name, name);
+    #else 
+    my_strdup2(56, &xctx->inst[i].name, rel_sym_path(name));
+    #endif
     if(fscanf(fd, "%lf %lf %hd %hd", &xctx->inst[i].x0, &xctx->inst[i].y0,
        &xctx->inst[i].rot, &xctx->inst[i].flip) < 4) {
       fprintf(errfp,"WARNING: missing fields for INSTANCE object, ignoring.\n");
@@ -2164,8 +2163,7 @@ void create_sch_from_sym(void)
         fprintf(fd, "C {%s} %.16g %.16g %.16g %.16g ", generic_pin, x, 20.0*(ypos++), 0.0, 0.0 );
       else
         fprintf(fd, "C {%s} %.16g %.16g %.16g %.16g ", generic_pin2, x, 20.0*(ypos++), 0.0, 0.0 );
-      save_ascii_string(str, fd);
-      fputc('\n' ,fd);
+      save_ascii_string(str, fd, 1);
     } /* for(i) */
     npin = ptr->rects[PINLAYER];
     rct = ptr->rect[PINLAYER];
@@ -2191,8 +2189,7 @@ void create_sch_from_sym(void)
             fprintf(fd, "C {%s} %.16g %.16g %.16g %.16g ", pinname[j], x, 20.0*(ypos++), 0.0, 0.0);
           else
             fprintf(fd, "C {%s} %.16g %.16g %.16g %.16g ", pinname2[j], x, 20.0*(ypos++), 0.0, 0.0);
-          save_ascii_string(str, fd);
-          fputc('\n' ,fd);
+          save_ascii_string(str, fd, 1);
         } /* if() */
       } /* for(i) */
     }  /* for(j) */
@@ -2367,27 +2364,24 @@ void save_selection(int what)
    {
      case xTEXT:
       fprintf(fd, "T ");
-      save_ascii_string(xctx->text[n].txt_ptr,fd);
+      save_ascii_string(xctx->text[n].txt_ptr,fd, 0);
       fprintf(fd, " %.16g %.16g %hd %hd %.16g %.16g ",
        xctx->text[n].x0, xctx->text[n].y0, xctx->text[n].rot, xctx->text[n].flip,
        xctx->text[n].xscale, xctx->text[n].yscale);
-      save_ascii_string(xctx->text[n].prop_ptr,fd);
-      fputc('\n' ,fd);
+      save_ascii_string(xctx->text[n].prop_ptr,fd, 1);
      break;
 
      case ARC:
       fprintf(fd, "A %d %.16g %.16g %.16g %.16g %.16g ",
         c, xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->arc[c][n].r,
        xctx->arc[c][n].a, xctx->arc[c][n].b);
-      save_ascii_string(xctx->arc[c][n].prop_ptr,fd);
-      fputc('\n' ,fd);
+      save_ascii_string(xctx->arc[c][n].prop_ptr,fd, 1);
      break;
 
      case xRECT:
       fprintf(fd, "B %d %.16g %.16g %.16g %.16g ", c,xctx->rect[c][n].x1, xctx->rect[c][n].y1,xctx->rect[c][n].x2,
        xctx->rect[c][n].y2);
-      save_ascii_string(xctx->rect[c][n].prop_ptr,fd);
-      fputc('\n' ,fd);
+      save_ascii_string(xctx->rect[c][n].prop_ptr,fd, 1);
      break;
 
      case POLYGON:
@@ -2395,31 +2389,27 @@ void save_selection(int what)
       for(k=0; k<xctx->poly[c][n].points; k++) {
         fprintf(fd, "%.16g %.16g ", xctx->poly[c][n].x[k], xctx->poly[c][n].y[k]);
       }
-      save_ascii_string(xctx->poly[c][n].prop_ptr,fd);
-      fputc('\n' ,fd);
+      save_ascii_string(xctx->poly[c][n].prop_ptr,fd, 1);
      break;
 
      case WIRE:
       fprintf(fd, "N %.16g %.16g %.16g %.16g ",xctx->wire[n].x1, xctx->wire[n].y1,
         xctx->wire[n].x2, xctx->wire[n].y2);
-      save_ascii_string(xctx->wire[n].prop_ptr,fd);
-      fputc('\n' ,fd);
+      save_ascii_string(xctx->wire[n].prop_ptr,fd, 1);
      break;
 
      case LINE:
       fprintf(fd, "L %d %.16g %.16g %.16g %.16g ", c,xctx->line[c][n].x1, xctx->line[c][n].y1,
        xctx->line[c][n].x2, xctx->line[c][n].y2 );
-      save_ascii_string(xctx->line[c][n].prop_ptr,fd);
-      fputc('\n' ,fd);
+      save_ascii_string(xctx->line[c][n].prop_ptr,fd, 1);
      break;
 
      case ELEMENT:
       fprintf(fd, "C ");
-      save_ascii_string(xctx->inst[n].name,fd);
+      save_ascii_string(xctx->inst[n].name,fd, 0);
       fprintf(fd, " %.16g %.16g %hd %hd ",xctx->inst[n].x0, xctx->inst[n].y0,
         xctx->inst[n].rot, xctx->inst[n].flip );
-      save_ascii_string(xctx->inst[n].prop_ptr,fd);
-      fputc('\n' ,fd);
+      save_ascii_string(xctx->inst[n].prop_ptr,fd, 1);
      break;
 
      default:

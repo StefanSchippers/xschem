@@ -1916,7 +1916,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         delete_inst_node(inst); /* 20180208 fix crashing bug: delete node info if changing symbol */
                              /* if number of pins is different we must delete these data *before* */
                              /* changing ysmbol, otherwise i might end up deleting non allocated data. */
-        my_strdup(369, &xctx->inst[inst].name,symbol);
+        my_strdup(369, &xctx->inst[inst].name, rel_sym_path(symbol));
         xctx->inst[inst].ptr=sym_number;
         bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
    

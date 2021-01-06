@@ -852,6 +852,7 @@ extern int samefile(const char *fa, const char *fb);
 extern void saveas(const char *f, int type);
 extern const char *get_file_path(char *f);
 extern int save(int confirm);
+extern void save_ascii_string(const char *ptr, FILE *fd, int newline);
 extern struct hilight_hashentry *bus_hilight_lookup(const char *token, int value, int what) ;
 extern struct hilight_hashentry *hilight_lookup(const char *token, int value, int what);
 extern int  name_strcmp(char *s, char *d) ;

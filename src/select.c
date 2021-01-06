@@ -184,9 +184,9 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      sym_flip = flip;
      sym_rot = rot;
      text = (xctx->inst[i].ptr+ xctx->sym)->text[j];
-     dbg(2, "symbol_bbox(): instance %d text n: %d text str=%s\n", i,j, text.txt_ptr? text.txt_ptr:"NULL");
+     /* dbg(2, "symbol_bbox(): instance %d text n: %d text str=%s\n", i,j, text.txt_ptr? text.txt_ptr:"NULL"); */
      tmp_txt = translate(i, text.txt_ptr);
-     dbg(2, "symbol_bbox(): translated text: %s\n", tmp_txt);
+     /* dbg(2, "symbol_bbox(): translated text: %s\n", tmp_txt); */
      ROTATION(rot, flip, 0.0,0.0,text.x0, text.y0,text_x0,text_y0);
      #if HAS_CAIRO==1
      customfont=set_text_custom_font(&text);
@@ -202,7 +202,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      if(yy1<*y1) *y1=yy1;
      if(xx2>*x2) *x2=xx2;
      if(yy2>*y2) *y2=yy2;
-      dbg(2, "symbol_bbox(): instance=%d text=%d %.16g %.16g %.16g %.16g\n",i,j, *x1, *y1, *x2, *y2);
+     /* dbg(2, "symbol_bbox(): instance=%d text=%d %.16g %.16g %.16g %.16g\n",i,j, *x1, *y1, *x2, *y2); */
    }
 }
 
