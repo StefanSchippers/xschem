@@ -922,7 +922,6 @@ void update_symbol(const char *result, int x)
   int cond;
   int pushed=0;
 
-  int big =  xctx->wires> 400 || xctx->instances > 400 ;
   dbg(1, "update_symbol(): entering\n");
   i=xctx->sel_array[0].n;
   if(!result) {
@@ -946,7 +945,7 @@ void update_symbol(const char *result, int x)
   no_change_props=atoi(tclgetvar("no_change_attrs") );
   only_different=atoi(tclgetvar("preserve_unchanged_attrs") );
   copy_cell=atoi(tclgetvar("user_wants_copy_cell") );
-  if(!big) bbox(START,0.0,0.0,0.0,0.0);
+  bbox(START,0.0,0.0,0.0,0.0);
   if(show_pin_net_names) {
     prepare_netlist_structs(0);
     for(k = 0;  k < (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER]; k++) {
@@ -982,7 +981,7 @@ void update_symbol(const char *result, int x)
 
     /* 20171220 calculate bbox before changes to correctly redraw areas */
     /* must be recalculated as cairo text extents vary with zoom factor. */
-    if(!big) symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
+    symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
     if(sym_number>=0) /* changing symbol ! */
     {
       if(!pushed) { push_undo(); pushed=1;}
@@ -992,7 +991,7 @@ void update_symbol(const char *result, int x)
       my_strdup(82, &xctx->inst[i].name, rel_sym_path(symbol));
       xctx->inst[i].ptr=sym_number; /* update instance to point to new symbol */
     }
-    if(!big) bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
+    bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
 
     /* update property string from tcl dialog */
     if(!no_change_props)
@@ -1059,7 +1058,7 @@ void update_symbol(const char *result, int x)
       if(xctx->sel_array[k].type!=ELEMENT) continue;
       i=xctx->sel_array[k].n;
       symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
-      if(!big) bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
+      bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
       /* in case of net hilights, when changing 'lab' of net labels/pins we must re-run
          prepare_netlist_structs() so the .node field of that instance will be reset
          and drawn back unhilighted .
@@ -1069,11 +1068,11 @@ void update_symbol(const char *result, int x)
         prepare_netlist_structs(0);
         for(j = 0;  j < (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER]; j++) {
           if( xctx->inst[i].node && xctx->inst[i].node[j]) {
-             if(!big) find_inst_to_be_redrawn(xctx->inst[i].node[j]);
+             ind_inst_to_be_redrawn(xctx->inst[i].node[j]);
           }
         }
       }
-      if(!big) find_inst_hash_clear();
+      find_inst_hash_clear();
     }
     if(xctx->hilight_nets) for(i=0; i < xctx->instances; i++) {
       char *type = (xctx->inst[i].ptr+ xctx->sym)->type;
@@ -1085,10 +1084,10 @@ void update_symbol(const char *result, int x)
     }
   }
   /* redraw symbol with new props */
-  if(!big) bbox(SET,0.0,0.0,0.0,0.0);
+  bbox(SET,0.0,0.0,0.0,0.0);
   dbg(1, "update_symbol(): redrawing inst_ptr.txtprop string\n");
   draw();
-  if(!big) bbox(END,0.0,0.0,0.0,0.0);
+  bbox(END,0.0,0.0,0.0,0.0);
   my_free(731, &name);
   my_free(732, &ptr);
   my_free(733, &new_prop);
