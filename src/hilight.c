@@ -462,6 +462,10 @@ int bus_search(const char*s)
  return bus;
 }
 
+/* sel: -1 --> unselect
+ *       1 --> select
+ *       0 --> highlight
+ */
 int search(const char *tok, const char *val, int sub, int sel)
 {
  int save_draw;
@@ -478,6 +482,7 @@ int search(const char *tok, const char *val, int sub, int sel)
  regex_t re;
 #endif
 
+ /* when unselecting selected area should be redrawn */
  if(sel == -1 && !big) {
    calc_drawing_bbox(&boundbox, 1);
  }
