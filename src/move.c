@@ -468,46 +468,52 @@ void draw_selection(GC g, int interruptable)
   xctx->movelastsel = i;
 }
 
-void find_inst_hash_clear(void)
+/* A list of electrical nodes that could potentially have been changed is previously hashed
+ * into xctx->node_redraw_table, find all connected instances/wires and set bbox of areas
+ * that potentially need to be redraw (show net names on symbol pins)
+ */
+void find_inst_to_be_redrawn()
 {
-  free_int_hash(xctx->node_redraw_table);
-}
-
-void find_inst_to_be_redrawn(const char *node)
-{
+  struct int_hashentry *ientry;
   int i, p, rects;
   xSymbol * sym;
 
-
-  if(int_hash_lookup(xctx->node_redraw_table, node, 0, XINSERT_NOREPLACE)) return;
-  dbg(1, "find_inst_to_be_redrawn(): node=%s\n", node);
   for(i=0; i < xctx->instances; i++) {
     sym = xctx->inst[i].ptr + xctx->sym;
     rects = sym->rects[PINLAYER];
     for(p = 0; p < rects; p++) {
-      if(node && xctx->inst[i].node[p] && !strcmp(xctx->inst[i].node[p], node )) {
-        symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2 );
-        bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2 );
+      if(xctx->inst[i].node && xctx->inst[i].node[p]) {
+        ientry = int_hash_lookup(xctx->node_redraw_table, xctx->inst[i].node[p], 0, XLOOKUP);
+        if(ientry) {
+          /* dbg(0, "find_inst_to_be_redrawn(): inst to be redrawn: %d\n", i); */
+          symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2 );
+          bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2 );
+          break;
+        }
       }
     }
   }
   for(i=0;i < xctx->wires; i++) {
-    if(node && xctx->wire[i].node && !strcmp(xctx->wire[i].node, node )) {
-      if(xctx->wire[i].bus){
-        int ov, y1, y2;
-        ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
-        if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
-        else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
-        bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
-      } else {
-        int ov, y1, y2;
-        ov = cadhalfdotsize;
-        if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
-        else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
-        bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
+    if(xctx->wire[i].node) {
+      ientry = int_hash_lookup(xctx->node_redraw_table, xctx->wire[i].node, 0, XLOOKUP);
+      if(ientry) {
+        if(xctx->wire[i].bus){
+          int ov, y1, y2;
+          ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
+          if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
+          else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
+          bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
+        } else {
+          int ov, y1, y2;
+          ov = cadhalfdotsize;
+          if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
+          else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
+          bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
+        }
       }
     }
   }
+  free_int_hash(xctx->node_redraw_table);
 }
 
 void copy_objects(int what)
@@ -922,18 +928,18 @@ void copy_objects(int what)
          bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2 );
          if(show_pin_net_names) for(p = 0;  p < (xctx->inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
            if( xctx->inst[n].node && xctx->inst[n].node[p]) {
-              find_inst_to_be_redrawn(xctx->inst[n].node[p]);
+              int_hash_lookup(xctx->node_redraw_table,  xctx->inst[n].node[p], 0, XINSERT_NOREPLACE);
            }
          }
        }
        if(show_pin_net_names && xctx->sel_array[i].type == WIRE) {
-         find_inst_to_be_redrawn(xctx->wire[n].node);
+         int_hash_lookup(xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
        }
      }
    }
-   if(show_pin_net_names) find_inst_hash_clear();
 
   } /* end for(k=0;k<cadlayers;k++) */
+  find_inst_to_be_redrawn();
   check_collapsing_objects();
   if(autotrim_wires) trim_wires();
   update_conn_cues(1, 1);
@@ -1034,15 +1040,15 @@ void move_objects(int what, int merge, double dx, double dy)
        bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
        if(show_pin_net_names) for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
          if( inst[n].node && inst[n].node[p]) {
-            find_inst_to_be_redrawn(inst[n].node[p]);
+            int_hash_lookup(xctx->node_redraw_table,  xctx->inst[n].node[p], 0, XINSERT_NOREPLACE);
          }
        }
     }
     if(show_pin_net_names && xctx->sel_array[i].type == WIRE) {
-      find_inst_to_be_redrawn(wire[n].node);
+      int_hash_lookup(xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
     }
   }
-  if(show_pin_net_names) find_inst_hash_clear();
+  find_inst_to_be_redrawn();
   for(k=0;k<cadlayers;k++)
   {
    for(i=0;i<xctx->lastsel;i++)
@@ -1467,18 +1473,18 @@ void move_objects(int what, int merge, double dx, double dy)
          bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
          if(show_pin_net_names) for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
            if( inst[n].node && inst[n].node[p]) {
-              find_inst_to_be_redrawn(inst[n].node[p]);
+              int_hash_lookup(xctx->node_redraw_table,  xctx->inst[n].node[p], 0, XINSERT_NOREPLACE);
            }
          }
        }
        if(show_pin_net_names && xctx->sel_array[i].type == WIRE) {
-         find_inst_to_be_redrawn(wire[n].node);
+         int_hash_lookup(xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
        }
      }
    }
-   if(show_pin_net_names) find_inst_hash_clear();
 
   } /*end for(k=0;k<cadlayers;k++) */
+  find_inst_to_be_redrawn();
   check_collapsing_objects();
   if(autotrim_wires) trim_wires();
   update_conn_cues(1, 1);

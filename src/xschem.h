@@ -1031,8 +1031,7 @@ extern void arc_3_points(double x1, double y1, double x2, double y2, double x3, 
 extern void move_objects(int what,int merge, double dx, double dy);
 extern void redraw_w_a_l_r_p_rubbers(void); /* redraw wire, arcs, line, polygon rubbers */
 extern void copy_objects(int what);
-extern void find_inst_to_be_redrawn(const char *node);
-extern void find_inst_hash_clear(void);
+extern void find_inst_to_be_redrawn();
 extern void pan(int what);
 extern void pan2(int what, int mx, int my);
 extern void zoom_rectangle(int what);

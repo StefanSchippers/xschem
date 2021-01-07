@@ -476,12 +476,12 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
       textlayer = c;
       /* do not allow custom text color on PINLAYER hilighted instances */
-      if( !(xctx->inst[n].color == PINLAYER)) {
+      if( !(xctx->inst[n].color == -PINLAYER)) {
         textlayer = symptr->text[j].layer;
         if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
       }
       /* display PINLAYER colored instance texts even if PINLAYER disabled */
-      if(xctx->inst[n].color == PINLAYER || enable_layer[textlayer]) {
+      if(xctx->inst[n].color == -PINLAYER || enable_layer[textlayer]) {
         #if HAS_CAIRO==1
         textfont = symptr->text[j].font;
         if((textfont && textfont[0]) || symptr->text[j].flags) {

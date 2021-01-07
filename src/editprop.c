@@ -934,15 +934,6 @@ void update_symbol(const char *result, int x)
   only_different=atoi(tclgetvar("preserve_unchanged_attrs") );
   copy_cell=atoi(tclgetvar("user_wants_copy_cell") );
   bbox(START,0.0,0.0,0.0,0.0);
-  if(show_pin_net_names) {
-    prepare_netlist_structs(0);
-    for(k = 0;  k < (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER]; k++) {
-      if( xctx->inst[i].node && xctx->inst[i].node[k]) {
-         find_inst_to_be_redrawn(xctx->inst[i].node[k]);
-      }
-    }
-    find_inst_hash_clear();
-  }
   /* 20191227 necessary? --> Yes since a symbol copy has already been done
      in edit_symbol_property() -> tcl edit_prop, this ensures new symbol is loaded from disk.
      if for some reason a symbol with matching name is loaded in xschem this
@@ -966,6 +957,16 @@ void update_symbol(const char *result, int x)
     dbg(1, "update_symbol(): for k loop: k=%d\n", k);
     if(xctx->sel_array[k].type!=ELEMENT) continue;
     i=xctx->sel_array[k].n;
+
+    if(show_pin_net_names) {
+      int j;
+      prepare_netlist_structs(0);
+      for(j = 0;  j < (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER]; j++) {
+        if( xctx->inst[i].node && xctx->inst[i].node[j]) {
+           int_hash_lookup(xctx->node_redraw_table,  xctx->inst[i].node[j], 0, XINSERT_NOREPLACE);
+        }
+      }
+    }
 
     /* 20171220 calculate bbox before changes to correctly redraw areas */
     /* must be recalculated as cairo text extents vary with zoom factor. */
@@ -1056,11 +1057,10 @@ void update_symbol(const char *result, int x)
         prepare_netlist_structs(0);
         for(j = 0;  j < (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER]; j++) {
           if( xctx->inst[i].node && xctx->inst[i].node[j]) {
-             find_inst_to_be_redrawn(xctx->inst[i].node[j]);
+             int_hash_lookup(xctx->node_redraw_table,  xctx->inst[i].node[j], 0, XINSERT_NOREPLACE);
           }
         }
       }
-      find_inst_hash_clear();
     }
     if(xctx->hilight_nets) for(i=0; i < xctx->instances; i++) {
       char *type = (xctx->inst[i].ptr+ xctx->sym)->type;
@@ -1071,6 +1071,7 @@ void update_symbol(const char *result, int x)
       }
     }
   }
+  find_inst_to_be_redrawn();
   /* redraw symbol with new props */
   bbox(SET,0.0,0.0,0.0,0.0);
   dbg(1, "update_symbol(): redrawing inst_ptr.txtprop string\n");

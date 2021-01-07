@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.9.1" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.9.2" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
     <WixVariable Id="WixUILicenseRtf" 
                  Value="License.rtf" />
@@ -10,9 +10,31 @@
     <Icon Id="xschem_icon.ico" SourceFile="xschem_icon.ico"/>
     <Property Id="ARPPRODUCTICON" Value="xschem_icon.ico" />
     <UIRef Id="WixUI_InstallDir" />
-		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		
     <Media Id="1" Cabinet="xschemMedia1.cab" EmbedCab="yes" />
-
+    
+    <Condition Message="A newer version of [ProductName] is 
+       already installed.  Exiting installation.">
+       <![CDATA[Installed OR NOT NEWER_VERSION_FOUND]]>
+    </Condition>
+    
+    <Upgrade Id="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+      <UpgradeVersion
+         Property="OLD_VERSION_FOUND"
+         Minimum="2.9.9.0"
+         Maximum="2.9.9.2"
+         IncludeMinimum="yes"
+         IncludeMaximum="no"
+         OnlyDetect="no"
+         IgnoreRemoveFailure="yes"
+         MigrateFeatures="yes"  />
+      <UpgradeVersion
+        Property="NEWER_VERSION_FOUND"
+        Minimum="2.9.9.2"
+        IncludeMinimum="no"
+        OnlyDetect="yes" />
+    </Upgrade>
+    
 		<Feature Id="MainProduct" Title="Xschem" Level="1">
 			<ComponentGroupRef Id="ProductComponents" />
       <ComponentGroupRef Id="src" />
@@ -81,6 +103,10 @@
     <Condition Message='ActiveTcl v8.6 must be installed'>
       <![CDATA[Installed or ACTIVE_TCL_VERSION >= "8.6"]]>
     </Condition>
+    
+  <InstallExecuteSequence>
+      <RemoveExistingProducts After="InstallFinalize" />
+    </InstallExecuteSequence>
 	</Product>
 
   <Fragment>
@@ -105,6 +131,9 @@
       </Component>
       <Component Id="CMPHSPICEBACKANNOTATE">
         <File Id="HSPICEBACKANNOTATE" KeyPath="yes" Source="../../src/hspice_backannotate.tcl" />
+      </Component>
+      <Component Id="CMPADDCUSTOMMENU">
+        <File Id="ADDCUSTOMMENU" KeyPath="yes" Source="../../src/add_custom_menu.tcl" />
       </Component>
       <Component Id="CMPKEYSHELP">
         <File Id="KEYSHELP" KeyPath="yes" Source="../../src/keys.help" />
@@ -283,6 +312,7 @@
       <ComponentRef Id="CMPFLATTENSAVENODEASAWK" />
       <ComponentRef Id="CMPGSCHEMTOXSCHEMAWK" />
       <ComponentRef Id="CMPHSPICEBACKANNOTATE" />
+      <ComponentRef Id="CMPADDCUSTOMMENU" />
       <ComponentRef Id="CMPHERCULESTOSPICEAWK" />
       <ComponentRef Id="CMPIMPORTOPUSSYMBOLSAWK" />
       <ComponentRef Id="CMPLABELCOMPACTORAWK" />

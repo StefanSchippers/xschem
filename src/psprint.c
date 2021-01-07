@@ -589,12 +589,12 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
      ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
      textlayer = layer;
      /* do not allow custom text color on PINLAYER hilighted instances */
-     if( !(xctx->inst[n].color == PINLAYER)) {
+     if( !(xctx->inst[n].color == -PINLAYER)) {
        textlayer = (xctx->inst[n].ptr+ xctx->sym)->text[j].layer;
        if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
      }
       /* display PINLAYER colored instance texts even if PINLAYER disabled */
-     if(xctx->inst[n].color == PINLAYER || enable_layer[textlayer]) {
+     if(xctx->inst[n].color == -PINLAYER || enable_layer[textlayer]) {
        my_snprintf(ps_font_family, S(ps_font_name), "Helvetica");
        my_snprintf(ps_font_name, S(ps_font_name), "Helvetica");
        textfont = symptr->text[j].font;

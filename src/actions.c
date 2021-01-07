@@ -1662,8 +1662,8 @@ void new_wire(int what, double mx_snap, double my_snap)
       if(show_pin_net_names) {
         prepare_netlist_structs(0);
         bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
-        find_inst_to_be_redrawn(xctx->wire[xctx->wires-1].node);
-        find_inst_hash_clear();
+        int_hash_lookup(xctx->node_redraw_table,  xctx->wire[xctx->wires-1].node, 0, XINSERT_NOREPLACE);
+        find_inst_to_be_redrawn();
         bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
         draw();
         bbox(END , 0.0 , 0.0 , 0.0 , 0.0);

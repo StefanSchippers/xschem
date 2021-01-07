@@ -453,6 +453,12 @@
           <Component Id="cmp9F6E802F56EEA72A1473FA788F20FBE5" Guid="{9A7C8827-3AAF-4BCE-B504-0DF2C5F78782}">
             <File Id="filF1ED18E7F4F67D529E56D9B00B050CAC" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_property_syntax3.png" />
           </Component>
+          <Component Id="cmp531EA85E335C3D3E948CB16A872837A6" Guid="{7AD55AF2-1748-484B-A9AC-BAB0919721B9}">
+            <File Id="filF046A5CD15470FBE36F3CD60AF03B9F4" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_property_syntax4.png" />
+          </Component>
+          <Component Id="cmpE918044EAD1A5F238F1B2A2DCEAE702C" Guid="{08956EF5-7149-45CA-A434-FA0A1D108167}">
+            <File Id="fil7B22FD4ED48963FA2B408FBB7C90D8D1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_property_syntax5.png" />
+          </Component>
           <Component Id="cmp30FF303E2BEC5A123613729EAFAF6576" Guid="{BBA07B51-21AE-4DA0-8D15-7092A9F04799}">
             <File Id="filCCAC9D72DA84033404DE8E2EC5F8900A" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symgen_vs_djboxsym.png" />
           </Component>
@@ -944,6 +950,8 @@
       <ComponentRef Id="cmp6D2ED59DF2340D1122FD7F1D589EF887" />
       <ComponentRef Id="cmp5C29C1D986EFE74BCDC1524B14AA8C8D" />
       <ComponentRef Id="cmp9F6E802F56EEA72A1473FA788F20FBE5" />
+      <ComponentRef Id="cmp531EA85E335C3D3E948CB16A872837A6" />
+      <ComponentRef Id="cmpE918044EAD1A5F238F1B2A2DCEAE702C" />
       <ComponentRef Id="cmp30FF303E2BEC5A123613729EAFAF6576" />
       <ComponentRef Id="cmp160D310A1499755F8452C664AB1882FF" />
       <ComponentRef Id="cmp94BBC0CDFCEEBAF38436152C69968121" />
