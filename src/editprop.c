@@ -719,7 +719,6 @@ void edit_text_property(int x)
       tclsetvar("props",xctx->text[sel].prop_ptr);
    else
       tclsetvar("props","");
-
    tclsetvar("retval",xctx->text[sel].txt_ptr);
    my_snprintf(property, S(property), "%.16g",xctx->text[sel].yscale);
    tclsetvar("vsize",property);
@@ -732,7 +731,6 @@ void edit_text_property(int x)
      fprintf(errfp, "edit_text_property() : unknown parameter x=%d\n",x); exit(EXIT_FAILURE);
    }
    preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
-
    text_changed=0;
    if(x == 0 || x == 1) {
      if( strcmp(xctx->text[sel].txt_ptr, tclgetvar("retval") ) ) {
@@ -752,8 +750,7 @@ void edit_text_property(int x)
      {
        if(xctx->sel_array[k].type!=xTEXT) continue;
        sel=xctx->sel_array[k].n;
-
-       rot = xctx->text[sel].rot;      /* calculate bbox, some cleanup needed here */
+       rot = xctx->text[sel].rot; /* calculate bbox, some cleanup needed here */
        flip = xctx->text[sel].flip;
        #if HAS_CAIRO==1
        customfont = set_text_custom_font(&xctx->text[sel]);
@@ -765,9 +762,7 @@ void edit_text_property(int x)
        #if HAS_CAIRO==1
        if(customfont) cairo_restore(xctx->cairo_ctx);
        #endif
-
        bbox(ADD, xx1, yy1, xx2, yy2 );
-
        dbg(1, "edit_property(): text props: props=%s  text=%s\n",
          tclgetvar("props"),
          tclgetvar("retval") );
@@ -786,10 +781,8 @@ void edit_text_property(int x)
              #if HAS_CAIRO==1
              if(customfont) cairo_restore(xctx->cairo_ctx);
              #endif
-
              pcx = (xctx->rect[PINLAYER][l].x1+xctx->rect[PINLAYER][l].x2)/2.0;
              pcy = (xctx->rect[PINLAYER][l].y1+xctx->rect[PINLAYER][l].y2)/2.0;
-
              if(
                  /* 20171206 20171221 */
                  (fabs( (yy1+yy2)/2 - pcy) < cadgrid/2 &&
@@ -817,29 +810,25 @@ void edit_text_property(int x)
          else
            my_strdup(75, &xctx->text[sel].prop_ptr,(char *) tclgetvar("props"));
          my_strdup(76, &xctx->text[sel].font, get_tok_value(xctx->text[sel].prop_ptr, "font", 0));
-
          str = get_tok_value(xctx->text[sel].prop_ptr, "hcenter", 0);
          xctx->text[sel].hcenter = strcmp(str, "true")  ? 0 : 1;
          str = get_tok_value(xctx->text[sel].prop_ptr, "vcenter", 0);
          xctx->text[sel].vcenter = strcmp(str, "true")  ? 0 : 1;
-
          str = get_tok_value(xctx->text[sel].prop_ptr, "layer", 0);
          if(str[0]) xctx->text[sel].layer = atoi(str);
          else xctx->text[sel].layer=-1;
-
-
          xctx->text[sel].flags = 0;
          str = get_tok_value(xctx->text[sel].prop_ptr, "slant", 0);
          xctx->text[sel].flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
          xctx->text[sel].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
          str = get_tok_value(xctx->text[sel].prop_ptr, "weight", 0);
          xctx->text[sel].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
-
-         xctx->text[sel].xscale=atof(tclgetvar("hsize"));
-         xctx->text[sel].yscale=atof(tclgetvar("vsize"));
+         if(xctx->lastsel == 1 || !preserve) {
+           xctx->text[sel].xscale=atof(tclgetvar("hsize"));
+           xctx->text[sel].yscale=atof(tclgetvar("vsize"));
+         }
        }
-
-                                /* calculate bbox, some cleanup needed here */
+       /* calculate bbox, some cleanup needed here */
        #if HAS_CAIRO==1
        customfont = set_text_custom_font(&xctx->text[sel]);
        #endif
@@ -852,7 +841,6 @@ void edit_text_property(int x)
        #endif
 
        bbox(ADD, xx1, yy1, xx2, yy2 );
-
      }
      bbox(SET,0.0,0.0,0.0,0.0);
      draw();

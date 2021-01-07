@@ -66,7 +66,7 @@ void clear_expandlabel_data(void)
   my_free(868, &dest_string.str);
 }
 
-void strreplace(char s[], char chr, char repl_chr)
+void str_char_replace(char s[], char chr, char repl_chr)
 {
      int i=0;
      while(s[i]!='\0')
@@ -119,8 +119,8 @@ const char *expandlabel(const char *s, int *m)
     *m=-1;
  if(dest_string.str) {
    if(netlist_type == CAD_SPICE_NETLIST && bus_char[0] && bus_char[1]) {
-     strreplace(dest_string.str, '[', bus_char[0]);
-     strreplace(dest_string.str, ']', bus_char[1]);
+     str_char_replace(dest_string.str, '[', bus_char[0]);
+     str_char_replace(dest_string.str, ']', bus_char[1]);
    }
    return dest_string.str;
  } else {

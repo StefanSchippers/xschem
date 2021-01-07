@@ -2172,11 +2172,11 @@ int text_bbox(const char *str, double xscale, double yscale,
   RECTORDER((*rx1),(*ry1),(*rx2),(*ry2));
   return 1;
 }
-int text_bbox_nocairo(const char * str,double xscale, double yscale,
+int text_bbox_nocairo(const char *str,double xscale, double yscale,
     short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2, int *cairo_lines, int *cairo_longest_line)
 #else
-int text_bbox(const char * str,double xscale, double yscale,
+int text_bbox(const char *str,double xscale, double yscale,
     short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2, int *cairo_lines, int *cairo_longest_line)
 #endif

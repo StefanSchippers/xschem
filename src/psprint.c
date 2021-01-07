@@ -24,6 +24,68 @@
 #define X_TO_PS(x) ( (x+xctx->xorigin)* xctx->mooz )
 #define Y_TO_PS(y) ( (y+xctx->yorigin)* xctx->mooz )
 
+#if 0
+/* FIXME: overflow check. Not used, BTW */
+static char *strreplace(char s[], char token[], char replace[])
+{
+  static char res[200];
+  char *p1, *p2;
+  int l;
+
+  res[0] = '\0';
+  l = strlen(token);
+  p1 = p2 = s;
+  while( (p2 = strstr(p1, token)) ) {
+     strncat(res, p1, p2 - p1);
+     strcat(res, replace);
+     p1 = p2 = p2 + l;
+  }
+  strcat(res, p1);
+  return res;
+}
+#endif
+
+char *utf8_enc[]={
+  "/recodedict 24 dict def\n",
+  "/recode {recodedict begin /nco&na exch def\n",
+  "/nfnam exch def /basefontname exch def /basefontdict basefontname findfont def\n",
+  "/newfont basefontdict maxlength dict def basefontdict {exch dup /FID ne\n",
+  "{dup /Encoding eq {exch dup length array copy newfont 3 1 roll put} {exch\n",
+  "newfont 3 1 roll put} ifelse} {pop pop} ifelse } forall newfont\n",
+  "/FontName nfnam put nco&na aload pop nco&na length 2 idiv {newfont\n",
+  "/Encoding get 3 1 roll put} repeat nfnam newfont definefont pop end } def\n",
+};
+
+char *utf8[]={
+"/chararr [\n",
+/* 0xC2 2-byte characters */
+" 161 /exclamdown\n", " 162 /cent\n", " 163 /sterling\n", " 164 /currency\n",
+" 165 /yen\n", " 166 /bar\n", " 167 /section\n", " 168 /dieresis\n",
+" 169 /copyright\n", " 170 /ordfeminine\n", " 171 /guillemotleft\n", " 172 /logicalnot\n",
+" 173 /emdash\n", " 174 /registered\n", " 175 /macron\n", " 176 /degree\n",
+" 177 /plusminus\n", " 178 /twosuperior\n", " 179 /threesuperior\n", " 180 /acute\n",
+" 181 /mu\n", " 182 /paragraph\n", " 183 /periodcentered\n", " 184 /cedilla\n",
+" 185 /onesuperior\n", " 186 /ordmasculine\n", " 187 /guillemotright\n", " 188 /onequarter\n",
+" 189 /onehalf\n", " 190 /threequarters\n", " 191 /questiondown\n",
+/* 0xC3 2-byte characters */
+" 192 /Agrave\n", " 193 /Aacute\n", " 194 /Acircumflex\n", " 195 /Atilde\n",
+" 196 /Adieresis\n", " 197 /Aring\n", " 198 /AE\n", " 199 /Ccedilla\n",
+" 200 /Egrave\n", " 201 /Eacute\n", " 202 /Ecircumflex\n", " 203 /Edieresis\n",
+" 204 /Igrave\n", " 205 /Iacute\n", " 206 /Icircumflex\n", " 207 /Idieresis\n",
+" 208 /Eth\n", " 209 /Ntilde\n", " 210 /Ograve\n", " 211 /Oacute\n",
+" 212 /Ocircumflex\n", " 213 /Otilde\n", " 214 /Odieresis\n", " 215 /multiply\n",
+" 216 /Oslash\n", " 217 /Ugrave\n", " 218 /Uacute\n", " 219 /Ucircumflex\n",
+" 220 /Udieresis\n", " 221 /Yacute\n", " 222 /Thorn\n", " 223 /germandbls\n",
+" 224 /agrave\n", " 225 /aacute\n", " 226 /acircumflex\n", " 227 /atilde\n",
+" 228 /adieresis\n", " 229 /aring\n", " 230 /ae\n", " 231 /ccedilla\n",
+" 232 /egrave\n", " 233 /eacute\n", " 234 /ecircumflex\n", " 235 /edieresis\n",
+" 236 /igrave\n", " 237 /iacute\n", " 238 /icircumflex\n", " 239 /idieresis\n",
+" 240 /eth\n", " 241 /ntilde\n", " 242 /ograve\n", " 243 /oacute\n",
+" 244 /ocircumflex\n", " 245 /otilde\n", " 246 /odieresis\n", " 247 /divide\n",
+" 248 /oslash\n", " 249 /ugrave\n", " 250 /uacute\n", " 251 /ucircumflex\n",
+" 252 /udieresis\n", " 253 /yacute\n", " 254 /thorn\n", " 255 /ydieresis\n",
+" ] def\n"};
+
 static FILE *fd;
 
 typedef struct {
@@ -33,8 +95,8 @@ typedef struct {
 } Ps_color;
 
 static Ps_color *ps_colors;
-static char ps_font_name[80] = "Helvetica"; /* Courier Times Helvetica */
-static char ps_font_family[80] = "Helvetica"; /* Courier Times Helvetica */
+static char ps_font_name[80] = "Helvetica"; /* Courier Times Helvetica Symbol */
+static char ps_font_family[80] = "Helvetica"; /* Courier Times Helvetica Symbol */
 
 
 static void set_lw(void)
@@ -206,7 +268,8 @@ static void ps_draw_string_line(int layer, char *s, double x, double y, double s
 {
   double ix, iy;
   short rot1;
-  int line_delta;
+  unsigned char c;
+  int line_delta, offset;
   double lines;
   set_ps_colors(layer);
   if(s==NULL) return;
@@ -231,7 +294,8 @@ static void ps_draw_string_line(int layer, char *s, double x, double y, double s
   else if(rot==3 && flip==1) {ix+=line_delta+fontascent;}
 
   fprintf(fd, "GS\n");
-  fprintf(fd, "/%s FF\n", ps_font_family);
+  fprintf(fd, "/%s", ps_font_family);
+  fprintf(fd, " FF\n");
   fprintf(fd, "%g SCF\n", size * xctx->mooz);
   fprintf(fd, "SF\n");
   fprintf(fd, "NP\n");
@@ -239,8 +303,15 @@ static void ps_draw_string_line(int layer, char *s, double x, double y, double s
   if(rot1) fprintf(fd, "%d rotate\n", rot1*90);
   fprintf(fd, "1 -1 scale\n");
   fprintf(fd, "(");
-  while(*s) {
-    switch(*s) {
+  offset = 0;
+  while( (c = (unsigned char) *s) ) {
+    if(c > 127) {
+      if(c == 195) {offset = 64;s++; continue;}
+      if(c == 194) {s++; continue;}
+      fprintf(fd, "\\%03o", c + offset);
+      offset = 0;
+    } else
+    switch(c) {
       case '(':
         fputs("\\(", fd);
         break;
@@ -248,7 +319,7 @@ static void ps_draw_string_line(int layer, char *s, double x, double y, double s
         fputs("\\)", fd);
         break;
       default:
-       fputc(*s, fd);
+       fputc(c, fd);
     }
     s++;
   }
@@ -531,11 +602,16 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
          my_snprintf(ps_font_family, S(ps_font_family), textfont);
          my_snprintf(ps_font_name, S(ps_font_name), textfont);
        }
-       if( symptr->text[j].flags & TEXT_BOLD)
-         my_snprintf(ps_font_family, S(ps_font_family), "%s-Bold", ps_font_name);
-       if( symptr->text[j].flags & TEXT_ITALIC)
+       if( symptr->text[j].flags & TEXT_BOLD) { 
+         if( (symptr->text[j].flags & TEXT_ITALIC) || (symptr->text[j].flags & TEXT_OBLIQUE) ) {
+           my_snprintf(ps_font_family, S(ps_font_family), "%s-BoldOblique", ps_font_name);
+         } else {
+           my_snprintf(ps_font_family, S(ps_font_family), "%s-Bold", ps_font_name);
+         }
+       }
+       else if( symptr->text[j].flags & TEXT_ITALIC)
          my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
-       if( symptr->text[j].flags & TEXT_OBLIQUE)
+       else if( symptr->text[j].flags & TEXT_OBLIQUE)
          my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
        if(text_ps) {
          ps_draw_string(textlayer, txtptr,
@@ -644,6 +720,27 @@ void ps_draw(void)
  fprintf(fd, "%%%%Pages: 1\n");
  fprintf(fd, "%%%%EndComments\n");
  fprintf(fd, "%%%%BeginProlog\n\n");
+
+ for(i = 0; i < sizeof(utf8_enc)/sizeof(char *); i++) {
+    fprintf(fd, utf8_enc[i]);
+ }
+ for(i = 0; i < sizeof(utf8)/sizeof(char *); i++) {
+    fprintf(fd, utf8[i]);
+ }
+
+ fprintf(fd, "/Times /Times chararr recode\n");
+ fprintf(fd, "/Times-Bold /Times-Bold chararr recode\n");
+ fprintf(fd, "/Times-Oblique /Times-Oblique chararr recode\n");
+ fprintf(fd, "/Times-BoldOblique /Times-BoldOblique chararr recode\n");
+ fprintf(fd, "/Helvetica /Helvetica chararr recode\n");
+ fprintf(fd, "/Helvetica-Bold /Helvetica-Bold chararr recode\n");
+ fprintf(fd, "/Helvetica-Oblique /Helvetica-Oblique chararr recode\n");
+ fprintf(fd, "/Helvetica-BoldOblique /Helvetica-BoldOblique chararr recode\n");
+ fprintf(fd, "/Courier /Courier chararr recode\n");
+ fprintf(fd, "/Courier-Bold /Courier-Bold chararr recode\n");
+ fprintf(fd, "/Courier-Oblique /Courier-Oblique chararr recode\n");
+ fprintf(fd, "/Courier-BoldOblique /Courier-BoldOblique chararr recode\n");
+
  fprintf(fd,"/cm {28.346457 mul} bind def\n");
  fprintf(fd,"/LT {lineto} bind def\n");
  fprintf(fd,"/MT {moveto} bind def\n");
@@ -695,11 +792,16 @@ void ps_draw(void)
      my_snprintf(ps_font_family, S(ps_font_family), textfont);
      my_snprintf(ps_font_name, S(ps_font_name), textfont);
    }
-   if( xctx->text[i].flags & TEXT_BOLD)
-     my_snprintf(ps_font_family, S(ps_font_family), "%s-Bold", ps_font_name);
-   if( xctx->text[i].flags & TEXT_ITALIC)
+   if( xctx->text[i].flags & TEXT_BOLD) { 
+     if( (xctx->text[i].flags & TEXT_ITALIC) || (xctx->text[i].flags & TEXT_OBLIQUE) ) {
+       my_snprintf(ps_font_family, S(ps_font_family), "%s-BoldOblique", ps_font_name);
+     } else {
+       my_snprintf(ps_font_family, S(ps_font_family), "%s-Bold", ps_font_name);
+     }
+   }
+   else if( xctx->text[i].flags & TEXT_ITALIC)
      my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
-   if( xctx->text[i].flags & TEXT_OBLIQUE)
+   else if( xctx->text[i].flags & TEXT_OBLIQUE)
      my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
 
    if(text_ps) {
