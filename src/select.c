@@ -475,12 +475,14 @@ void delete(void)
   if(autotrim_wires) trim_wires();
   del_rect_line_arc_poly();
   update_conn_cues(0, 0);
-  if(xctx->hilight_nets) for(i=0; i < xctx->instances; i++) {
-    char *type = (xctx->inst[i].ptr+ xctx->sym)->type;
+  if(xctx->hilight_nets) {
     prepare_netlist_structs(0);
-    if(type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type)) {
-      if(!bus_hilight_lookup( xctx->inst[i].node[0], 0, XLOOKUP)) {
-        xctx->inst[i].color = -10000;
+    for(i=0; i < xctx->instances; i++) {
+      char *type = (xctx->inst[i].ptr+ xctx->sym)->type;
+      if(type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type)) {
+        if(!bus_hilight_lookup( xctx->inst[i].node[0], 0, XLOOKUP)) {
+          xctx->inst[i].color = -10000;
+        }
       }
     }
   }

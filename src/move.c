@@ -1483,6 +1483,22 @@ void move_objects(int what, int merge, double dx, double dy)
   check_collapsing_objects();
   if(autotrim_wires) trim_wires();
   update_conn_cues(1, 1);
+
+
+  if(xctx->hilight_nets) {
+    prepare_netlist_structs(0);
+    for(i=0; i < xctx->instances; i++) {
+      char *type = (xctx->inst[i].ptr+ xctx->sym)->type;
+      if(type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type)) {
+        if(!bus_hilight_lookup( xctx->inst[i].node[0], 0, XLOOKUP)) {
+          xctx->inst[i].color = -10000;
+        }
+      }
+    }
+  }
+
+
+
   xctx->ui_state &= ~STARTMOVE;
   if(xctx->ui_state & STARTMERGE) xctx->ui_state |= SELECTION; /* leave selection state so objects can be deleted */
   xctx->ui_state &= ~STARTMERGE;
