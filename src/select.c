@@ -349,19 +349,19 @@ void delete(void)
        char *type = (xctx->inst[n].ptr + xctx->sym)->type;
        symbol_bbox(n, &xctx->inst[n].x1, &xctx->inst[n].y1, &xctx->inst[n].x2, &xctx->inst[n].y2 );
        bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2 );
-       if(show_pin_net_names && type && IS_LABEL_OR_PIN(type) ) {
-         for(p = 0;  p < (xctx->inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
+       if((xctx->hilight_nets || show_pin_net_names) && type && IS_LABEL_OR_PIN(type) ) {
+         for(p = 0;  p < (xctx->inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) { /* only .node[0] ? */
            if( xctx->inst[n].node && xctx->inst[n].node[p]) {
               int_hash_lookup(xctx->node_redraw_table,  xctx->inst[n].node[p], 0, XINSERT_NOREPLACE);
            }
          }
        }
      }
-     if(show_pin_net_names && xctx->sel_array[i].type == WIRE && xctx->wire[n].node) {
+     if((xctx->hilight_nets || show_pin_net_names) && xctx->sel_array[i].type == WIRE && xctx->wire[n].node) {
        int_hash_lookup(xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
      }
    }
-   find_inst_to_be_redrawn();
+   if((xctx->hilight_nets || show_pin_net_names)) find_inst_to_be_redrawn();
 
 
   /* already done above

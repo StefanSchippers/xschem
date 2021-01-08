@@ -1046,6 +1046,7 @@ void update_symbol(const char *result, int x)
     for(k=0;k<xctx->lastsel;k++) {
       if(xctx->sel_array[k].type!=ELEMENT) continue;
       i=xctx->sel_array[k].n;
+      type=xctx->sym[xctx->inst[i].ptr].type;
       symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
       bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
       /* in case of net hilights, when changing 'lab' of net labels/pins we must re-run
@@ -1053,9 +1054,9 @@ void update_symbol(const char *result, int x)
          and drawn back unhilighted .
                                     |
                                    \|/  */
-      if(show_pin_net_names || xctx->hilight_nets) {
+      if((show_pin_net_names || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type)) {
         prepare_netlist_structs(0);
-        for(j = 0;  j < (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER]; j++) {
+        for(j = 0;  j < (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER]; j++) { /* <<< only .node[0] ? */
           if( xctx->inst[i].node && xctx->inst[i].node[j]) {
              int_hash_lookup(xctx->node_redraw_table,  xctx->inst[i].node[j], 0, XINSERT_NOREPLACE);
           }
@@ -1071,7 +1072,7 @@ void update_symbol(const char *result, int x)
       }
     }
   }
-  find_inst_to_be_redrawn();
+  if(show_pin_net_names || xctx->hilight_nets) find_inst_to_be_redrawn();
   /* redraw symbol with new props */
   bbox(SET,0.0,0.0,0.0,0.0);
   dbg(1, "update_symbol(): redrawing inst_ptr.txtprop string\n");

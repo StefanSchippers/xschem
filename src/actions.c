@@ -1665,9 +1665,9 @@ void new_wire(int what, double mx_snap, double my_snap)
         xRect boundbox;
         bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
         if( xctx->hilight_nets ) calc_drawing_bbox(&boundbox, 2);
-        bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+        bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2); /* <<< remove ? */
       }
-      if(show_pin_net_names) {
+      if(show_pin_net_names ||  xctx->hilight_nets) {
         int_hash_lookup(xctx->node_redraw_table,  xctx->wire[xctx->wires-1].node, 0, XINSERT_NOREPLACE);
         find_inst_to_be_redrawn();
       }

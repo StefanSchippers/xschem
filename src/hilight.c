@@ -1422,10 +1422,7 @@ void draw_hilight_net(int on_window)
       int col = get_color(xctx->inst[i].color);
       symptr = (xctx->inst[i].ptr+ xctx->sym);
       if( c==0 || /*draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
-          symptr->lines[c] ||
-          symptr->rects[c] ||
-          symptr->arcs[c] ||
-          symptr->polygons[c] ||
+          symptr->lines[c] || symptr->rects[c] || symptr->arcs[c] || symptr->polygons[c] ||
           ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts)) {
         draw_symbol(ADD, col, i,c,0,0,0.0,0.0);
       }

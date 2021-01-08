@@ -457,7 +457,7 @@ void wirecheck(int k)    /* recursive routine */
  int x1a, x2a, y1a, y2a;
  struct wireentry *ptr2;
  xWire * const wire = xctx->wire;
-
+ 
   x1=wire[k].x1;
   x2=wire[k].x2;
   y1=wire[k].y1;
