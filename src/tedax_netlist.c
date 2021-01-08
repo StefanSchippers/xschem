@@ -240,7 +240,7 @@ void tedax_netlist(FILE *fd, int tedax_stop )
     }
     my_free(967, &type);
   }
-  if(!tedax_stop && !netlist_count) redraw_hilights(); /* draw_hilight_net(1); */
+  if(!tedax_stop && !netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
 }
 
 

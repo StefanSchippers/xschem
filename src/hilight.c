@@ -102,19 +102,26 @@ void free_hilight_hash(void) /* remove the whole hash table  */
  * active_layer[2] = 10  if 9 is disabled it is skipped
  * ...
  * if a layer is disabled (not viewable) it is skipped
- * active layers is the total number of layers for hilights.
+ * n_active_layers is the total number of layers for hilights.
+ * standard xschem conf: cadlayers=22, n_active_layers=15 if no disabled layers.
  */
 int get_color(int value)
 {
   int x;
 
-  if(value < 0) return -value;
+  if(value < 0) return (-value) % cadlayers ;
   if(n_active_layers) {
     x = value%(n_active_layers);
     return active_layer[x];
   } else {
     return cadlayers > 5 ? 5 : cadlayers -1; /* desperate attempt to return a decent color */
   }
+}
+
+
+void incr_hilight_color(void)
+{
+  xctx->hilight_color = (xctx->hilight_color + 1) % (n_active_layers * cadlayers);
 }
 
 /* print all highlight signals which are not ports (in/out/inout). */
@@ -342,7 +349,7 @@ void hilight_net_pin_mismatches(void)
       if(netname && strcmp(lab, netname)) {
         dbg(1, "hilight_net_pin_mismatches(): hilight: %s\n", netname);
         bus_hilight_lookup(netname, xctx->hilight_color, XINSERT_NOREPLACE);
-        if(incr_hilight) xctx->hilight_color++;
+        if(incr_hilight) incr_hilight_color();
       }
     }
 
@@ -352,7 +359,7 @@ void hilight_net_pin_mismatches(void)
   my_free(715, &lab);
   my_free(716, &netname);
   propagate_hilights(1, 0, XINSERT_NOREPLACE);
-  redraw_hilights();
+  redraw_hilights(0);
 }
 
 void hilight_parent_pins(void)
@@ -498,7 +505,7 @@ int search(const char *tok, const char *val, int sub, int sel)
  dbg(1, "search():val=%s\n", val);
  if(!sel) {
    col=xctx->hilight_color;
-   if(incr_hilight) xctx->hilight_color++;
+   if(incr_hilight) incr_hilight_color();
  }
  has_token = 0;
  prepare_netlist_structs(0);
@@ -655,7 +662,7 @@ int search(const char *tok, const char *val, int sub, int sel)
      rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
      draw_selection(gc[SELLAYER], 0);
    }
-   else redraw_hilights();
+   else redraw_hilights(0);
  }
  #ifdef __unix__
  regfree(&re);
@@ -736,9 +743,9 @@ int hilight_netname(const char *name)
   node_entry = bus_hash_lookup(name, "", XLOOKUP, 0, "", "", "", "");
                     /* sets xctx->hilight_nets=1 */
   if(node_entry && !bus_hilight_lookup(name, xctx->hilight_color, XINSERT_NOREPLACE)) {
-    if(incr_hilight) xctx->hilight_color++;
+    if(incr_hilight) incr_hilight_color();
     propagate_hilights(1, 0, XINSERT_NOREPLACE);
-    redraw_hilights();
+    redraw_hilights(0);
   }
   return node_entry ? 1 : 0;
 }
@@ -1216,7 +1223,7 @@ void hilight_net(int to_waveform)
          /* sets xctx->hilight_nets=1 */
      if(!bus_hilight_lookup(xctx->wire[n].node, xctx->hilight_color, XINSERT_NOREPLACE)) {
        if(to_waveform == GAW) send_net_to_gaw(sim_is_xyce, xctx->wire[n].node);
-       if(incr_hilight) xctx->hilight_color++;
+       if(incr_hilight) incr_hilight_color();
      }
      break;
     case ELEMENT:
@@ -1225,13 +1232,13 @@ void hilight_net(int to_waveform)
            /* sets xctx->hilight_nets=1 */
        if(!bus_hilight_lookup(xctx->inst[n].node[0], xctx->hilight_color, XINSERT_NOREPLACE)) {
          if(to_waveform == GAW) send_net_to_gaw(sim_is_xyce, xctx->inst[n].node[0]);
-         if(incr_hilight) xctx->hilight_color++;
+         if(incr_hilight) incr_hilight_color();
        }
      } else {
        dbg(1, "hilight_net(): setting hilight flag on inst %d\n",n);
        xctx->hilight_nets=1;
        xctx->inst[n].color = xctx->hilight_color;
-       if(incr_hilight) xctx->hilight_color++;
+       if(incr_hilight) incr_hilight_color();
      }
      if(type &&  (!strcmp(type, "current_probe") || !strcmp(type, "vsource")) ) {
        if(to_waveform == GAW) send_current_to_gaw(sim_is_xyce, xctx->inst[n].instname);
@@ -1241,7 +1248,7 @@ void hilight_net(int to_waveform)
      break;
    }
   }
-  if(!incr_hilight) xctx->hilight_color++;
+  if(!incr_hilight) incr_hilight_color();
   propagate_hilights(1, 0, XINSERT_NOREPLACE);
   tcleval("if { [info exists gaw_fd] } {close $gaw_fd; unset gaw_fd}\n");
 }
@@ -1287,13 +1294,14 @@ void unhilight_net(void)
 }
 
 /* redraws the whole affected rectangle, this avoids artifacts due to antialiased text */
-void redraw_hilights(void)
+void redraw_hilights(int clear)
 {
   xRect boundbox;
   int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
   if(!has_x) return;
+  if(!big) calc_drawing_bbox(&boundbox, 2);
+  if(clear) clear_all_hilights();
   if(!big) {
-    calc_drawing_bbox(&boundbox, 2);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
@@ -1346,7 +1354,7 @@ void select_hilight_net(void)
  }
  xctx->need_reb_sel_arr = 1;
  rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
- redraw_hilights();
+ redraw_hilights(0);
  
 }
 

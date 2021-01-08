@@ -1066,7 +1066,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc >=3 && !strcmp(argv[2], "drill")) enable_drill = 1;
       hilight_net(0);
       /* draw_hilight_net(1); */
-      redraw_hilights();
+      redraw_hilights(0);
       Tcl_ResetResult(interp);
     }
    
@@ -2121,7 +2121,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       enable_drill = 0;
       hilight_net(GAW);
       /* draw_hilight_net(1); */
-      redraw_hilights();
+      redraw_hilights(0);
       Tcl_ResetResult(interp);
     }
    

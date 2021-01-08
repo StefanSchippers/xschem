@@ -247,7 +247,7 @@ void check_unique_names(int rename)
     bbox(END,0.0,0.0,0.0,0.0);
   }
   /* draw_hilight_net(1); */
-  redraw_hilights();
+  redraw_hilights(0);
   /* draw_window = save_draw; */
 }
 
@@ -2878,7 +2878,7 @@ const char *translate(int inst, const char* s)
        if(  !pin_attr_value && !strcmp(pin_attr, "net_name")) {
          char *instprop = xctx->inst[inst].prop_ptr;
          char *symprop = (xctx->inst[inst].ptr + xctx->sym)->prop_ptr;
-         if( show_pin_net_names && (!strcmp(get_tok_value(instprop, "net_name", 0), "true") ||
+         if(show_pin_net_names && (!strcmp(get_tok_value(instprop, "net_name", 0), "true") ||
             !strcmp(get_tok_value(symprop, "net_name", 0), "true"))) {
             prepare_netlist_structs(0);
             my_strdup2(1175, &pin_attr_value,

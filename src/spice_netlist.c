@@ -428,7 +428,7 @@ void spice_netlist(FILE *fd, int spice_stop )
     }
     my_free(952, &type);
   }
-  if(!spice_stop && !netlist_count) redraw_hilights(); /* draw_hilight_net(1); */
+  if(!spice_stop && !netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
 }
 
 /* calculate the hash function relative to string s */

@@ -690,13 +690,10 @@ void ps_draw(void)
  old_grid=draw_grid;
  draw_grid=0;
 
- /* calc_drawing_bbox(&boundbox, 0);   ---.
-  *                                       |
-  *                                      \|/          */
- boundbox.x1 = xctx->areax1; /* X_TO_PS(boundbox.x1); */
- boundbox.x2 = xctx->areax2; /* X_TO_PS(boundbox.x2); */
- boundbox.y1 = xctx->areay1; /* Y_TO_PS(boundbox.y1); */
- boundbox.y2 = xctx->areay2; /* Y_TO_PS(boundbox.y2); */
+ boundbox.x1 = xctx->areax1;
+ boundbox.x2 = xctx->areax2;
+ boundbox.y1 = xctx->areay1;
+ boundbox.y2 = xctx->areay2;
  dx=boundbox.x2-boundbox.x1;
  dy=boundbox.y2-boundbox.y1;
 

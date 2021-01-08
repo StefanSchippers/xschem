@@ -931,7 +931,7 @@ void copy_objects(int what)
         char *type=xctx->sym[xctx->inst[n].ptr].type;
         symbol_bbox(n, &xctx->inst[n].x1, &xctx->inst[n].y1, &xctx->inst[n].x2, &xctx->inst[n].y2 );
         bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2 );
-        if((xctx->hilight_nets || show_pin_net_names) && type && IS_LABEL_OR_PIN(type)) {
+        if((show_pin_net_names || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type)) {
           for(p = 0;  p < (xctx->inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
             if( xctx->inst[n].node && xctx->inst[n].node[p]) {
                int_hash_lookup(xctx->node_redraw_table,  xctx->inst[n].node[p], 0, XINSERT_NOREPLACE);
@@ -939,11 +939,11 @@ void copy_objects(int what)
           }
         }
       }
-      if( (xctx->hilight_nets || show_pin_net_names) && xctx->sel_array[i].type == WIRE) {
+      if((show_pin_net_names || xctx->hilight_nets) && xctx->sel_array[i].type == WIRE) {
         int_hash_lookup(xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
       }
     } /* for(i = 0; i < xctx->lastsel; i++) */
-    if( xctx->hilight_nets || show_pin_net_names) find_inst_to_be_redrawn();
+    if(show_pin_net_names || xctx->hilight_nets) find_inst_to_be_redrawn();
     check_collapsing_objects();
     if(autotrim_wires) trim_wires();
     update_conn_cues(1, 1);
@@ -1043,7 +1043,7 @@ void move_objects(int what, int merge, double dx, double dy)
       char *type=xctx->sym[xctx->inst[n].ptr].type;
       symbol_bbox(n, &inst[n].x1, &inst[n].y1, &inst[n].x2, &inst[n].y2 );
       bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
-      if((xctx->hilight_nets || show_pin_net_names) && type && IS_LABEL_OR_PIN(type)) {
+      if((show_pin_net_names || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type)) {
         for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
           if( inst[n].node && inst[n].node[p]) {
              int_hash_lookup(xctx->node_redraw_table,  xctx->inst[n].node[p], 0, XINSERT_NOREPLACE);
@@ -1051,11 +1051,11 @@ void move_objects(int what, int merge, double dx, double dy)
         }
       }
     }
-    if((xctx->hilight_nets || show_pin_net_names) && xctx->sel_array[i].type == WIRE) {
+    if((show_pin_net_names || xctx->hilight_nets) && xctx->sel_array[i].type == WIRE) {
       int_hash_lookup(xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
     }
   }
-  if( xctx->hilight_nets || show_pin_net_names) find_inst_to_be_redrawn();
+  if(show_pin_net_names || xctx->hilight_nets) find_inst_to_be_redrawn();
   for(k=0;k<cadlayers;k++)
   {
    for(i=0;i<xctx->lastsel;i++)
@@ -1467,7 +1467,7 @@ void move_objects(int what, int merge, double dx, double dy)
       char *type=xctx->sym[xctx->inst[n].ptr].type;
       symbol_bbox(n, &inst[n].x1, &inst[n].y1, &inst[n].x2, &inst[n].y2 );
       bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
-      if((xctx->hilight_nets || show_pin_net_names)  && type && IS_LABEL_OR_PIN(type)) {
+      if((show_pin_net_names || xctx->hilight_nets)  && type && IS_LABEL_OR_PIN(type)) {
         for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
           if( inst[n].node && inst[n].node[p]) {
              int_hash_lookup(xctx->node_redraw_table,  xctx->inst[n].node[p], 0, XINSERT_NOREPLACE);
@@ -1475,29 +1475,18 @@ void move_objects(int what, int merge, double dx, double dy)
         }
       }
     }
-    if((xctx->hilight_nets || show_pin_net_names) && xctx->sel_array[i].type == WIRE) {
+    if((show_pin_net_names || xctx->hilight_nets) && xctx->sel_array[i].type == WIRE) {
       int_hash_lookup(xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
     }
   }
-  if(xctx->hilight_nets || show_pin_net_names) find_inst_to_be_redrawn();
+  if(show_pin_net_names || xctx->hilight_nets) find_inst_to_be_redrawn();
   check_collapsing_objects();
   if(autotrim_wires) trim_wires();
   update_conn_cues(1, 1);
 
-
   if(xctx->hilight_nets) {
-    prepare_netlist_structs(0);
-    for(i=0; i < xctx->instances; i++) {
-      char *type = (xctx->inst[i].ptr+ xctx->sym)->type;
-      if(type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type)) {
-        if(!bus_hilight_lookup( xctx->inst[i].node[0], 0, XLOOKUP)) {
-          xctx->inst[i].color = -10000;
-        }
-      }
-    }
+    propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
-
-
 
   xctx->ui_state &= ~STARTMOVE;
   if(xctx->ui_state & STARTMERGE) xctx->ui_state |= SELECTION; /* leave selection state so objects can be deleted */

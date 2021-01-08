@@ -442,9 +442,9 @@ static void signal_short( char *n1, char *n2)
    statusmsg(str,2);
    if(!netlist_count) {
       bus_hilight_lookup(n1, xctx->hilight_color, XINSERT);
-      if(incr_hilight) xctx->hilight_color++;
+      if(incr_hilight) incr_hilight_color();
       bus_hilight_lookup(n2, xctx->hilight_color, XINSERT);
-      if(incr_hilight) xctx->hilight_color++;
+      if(incr_hilight) incr_hilight_color();
    }
  }
 }

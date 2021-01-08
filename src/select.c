@@ -339,9 +339,7 @@ void delete(void)
     * xctx->prep_net_structs=0;
     * xctx->prep_hi_structs=0;
     */
-   if(show_pin_net_names) {
-     prepare_netlist_structs(0);
-   }
+   if((show_pin_net_names || xctx->hilight_nets)) prepare_netlist_structs(0);
    for(i = 0; i < xctx->lastsel; i++) {
      n = xctx->sel_array[i].n;
      if(xctx->sel_array[i].type == ELEMENT) {
@@ -349,7 +347,7 @@ void delete(void)
        char *type = (xctx->inst[n].ptr + xctx->sym)->type;
        symbol_bbox(n, &xctx->inst[n].x1, &xctx->inst[n].y1, &xctx->inst[n].x2, &xctx->inst[n].y2 );
        bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2 );
-       if((xctx->hilight_nets || show_pin_net_names) && type && IS_LABEL_OR_PIN(type) ) {
+       if((show_pin_net_names || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type) ) {
          for(p = 0;  p < (xctx->inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) { /* only .node[0] ? */
            if( xctx->inst[n].node && xctx->inst[n].node[p]) {
               int_hash_lookup(xctx->node_redraw_table,  xctx->inst[n].node[p], 0, XINSERT_NOREPLACE);
@@ -357,11 +355,11 @@ void delete(void)
          }
        }
      }
-     if((xctx->hilight_nets || show_pin_net_names) && xctx->sel_array[i].type == WIRE && xctx->wire[n].node) {
+     if((show_pin_net_names || xctx->hilight_nets) && xctx->sel_array[i].type == WIRE && xctx->wire[n].node) {
        int_hash_lookup(xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
      }
    }
-   if((xctx->hilight_nets || show_pin_net_names)) find_inst_to_be_redrawn();
+   if(show_pin_net_names || xctx->hilight_nets) find_inst_to_be_redrawn();
 
 
   /* already done above
@@ -476,15 +474,7 @@ void delete(void)
   del_rect_line_arc_poly();
   update_conn_cues(0, 0);
   if(xctx->hilight_nets) {
-    prepare_netlist_structs(0);
-    for(i=0; i < xctx->instances; i++) {
-      char *type = (xctx->inst[i].ptr+ xctx->sym)->type;
-      if(type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type)) {
-        if(!bus_hilight_lookup( xctx->inst[i].node[0], 0, XLOOKUP)) {
-          xctx->inst[i].color = -10000;
-        }
-      }
-    }
+    propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
 
   xctx->lastsel = 0;
@@ -636,9 +626,11 @@ void unselect_all(void)
        xctx->wire[i].sel = 0;
        {
          if(xctx->wire[i].bus)
-           drawtempline(xctx->gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
+           drawtempline(xctx->gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1,
+                                              xctx->wire[i].x2, xctx->wire[i].y2);
          else
-           drawtempline(xctx->gctiled, ADD, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
+           drawtempline(xctx->gctiled, ADD, xctx->wire[i].x1, xctx->wire[i].y1,
+                                            xctx->wire[i].x2, xctx->wire[i].y2);
        }
       }
      }

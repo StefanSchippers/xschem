@@ -1204,12 +1204,11 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  boundbox->x2=100;
  boundbox->y1=-100;
  boundbox->y2=100;
- for(c=0;c<cadlayers;c++)
+ if(selected != 2) for(c=0;c<cadlayers;c++)
  {
   for(i=0;i<xctx->lines[c];i++)
   {
    if(selected == 1 && !xctx->line[c][i].sel) continue;
-   if(selected == 2) continue;
    tmp.x1=xctx->line[c][i].x1;
    tmp.x2=xctx->line[c][i].x2;
    tmp.y1=xctx->line[c][i].y1;
@@ -1223,7 +1222,6 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
     double x1=0., y1=0., x2=0., y2=0.;
     int k;
     if(selected == 1 && !xctx->poly[c][i].sel) continue;
-    if(selected == 2) continue;
     count++;
     for(k=0; k<xctx->poly[c][i].points; k++) {
       /* fprintf(errfp, "  poly: point %d: %.16g %.16g\n", k, pp[c][i].x[k], pp[c][i].y[k]); */
@@ -1239,7 +1237,6 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
   for(i=0;i<xctx->arcs[c];i++)
   {
     if(selected == 1 && !xctx->arc[c][i].sel) continue;
-    if(selected == 2) continue;
     arc_bbox(xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b,
              &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
     count++;
@@ -1249,7 +1246,6 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
   for(i=0;i<xctx->rects[c];i++)
   {
    if(selected == 1 && !xctx->rect[c][i].sel) continue;
-   if(selected == 2) continue;
    tmp.x1=xctx->rect[c][i].x1;
    tmp.x2=xctx->rect[c][i].x2;
    tmp.y1=xctx->rect[c][i].y1;
@@ -1283,11 +1279,10 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
    count++;
    updatebbox(count,boundbox,&tmp);
  }
- if(has_x) for(i=0;i<xctx->texts;i++)
+ if(has_x && selected != 2) for(i=0;i<xctx->texts;i++)
  { 
    int no_of_lines, longest_line;
    if(selected == 1 && !xctx->text[i].sel) continue;
-   if(selected == 2) continue;
    #if HAS_CAIRO==1
    customfont = set_text_custom_font(&xctx->text[i]);
    #endif
@@ -1660,15 +1655,10 @@ void new_wire(int what, double mx_snap, double my_snap)
       xctx->prep_hi_structs = 0;
       if(autotrim_wires) trim_wires();
       update_conn_cues(1,1);
-      if( xctx->hilight_nets || show_pin_net_names) prepare_netlist_structs(0);
+      if(show_pin_net_names || xctx->hilight_nets) prepare_netlist_structs(0);
       if(!big) {
-        /* xRect boundbox; */
         bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
-        #if 0
-        if( xctx->hilight_nets ) calc_drawing_bbox(&boundbox, 2);
-        bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-        #endif
-        if(show_pin_net_names ||  xctx->hilight_nets) {
+        if(show_pin_net_names || xctx->hilight_nets) {
           int_hash_lookup(xctx->node_redraw_table,  xctx->wire[xctx->wires-1].node, 0, XINSERT_NOREPLACE);
           find_inst_to_be_redrawn();
         }

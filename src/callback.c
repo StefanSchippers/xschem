@@ -165,6 +165,7 @@ int callback(int event, int mx, int my, KeySym key,
  my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
    xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
  statusmsg(str,1);
+
  switch(event)
  {
   case EnterNotify:
@@ -955,7 +956,7 @@ int callback(int event, int mx, int my, KeySym key,
     if(xctx->semaphore >= 2) break;
     enable_drill=1;
     hilight_net(0);
-    redraw_hilights();
+    redraw_hilights(0);
     /* draw_hilight_net(1); */
     break;
    }
@@ -964,7 +965,7 @@ int callback(int event, int mx, int my, KeySym key,
     if(xctx->semaphore >= 2) break;
     enable_drill=0;
     hilight_net(0);
-    redraw_hilights();
+    redraw_hilights(0);
     /* draw_hilight_net(1); */
     break;
    }
@@ -990,7 +991,7 @@ int callback(int event, int mx, int my, KeySym key,
      if(xctx->semaphore >= 2) break;
      enable_drill=0;
      hilight_net(GAW);
-     redraw_hilights();
+     redraw_hilights(0);
      break;
    }
    if(key=='g' && state==0)                         /* half snap factor */
@@ -1665,27 +1666,16 @@ int callback(int event, int mx, int my, KeySym key,
          launcher();
        }
        if( !(state & ShiftMask) )  {
-         xRect boundbox;
          if(auto_hilight && xctx->hilight_nets && sel == 0 ) { /* 20160413 20160503 */
            if(!prev_last_sel) {
-             int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
-             if(!big) calc_drawing_bbox(&boundbox, 2);
-             clear_all_hilights();
-             /* undraw_hilight_net(1); */
-             if(!big) {
-               bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-               bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-               bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-             }
-             draw();
-             if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+             redraw_hilights(1); /* 1: clear all hilights, then draw */
            }
          }
        }
        if(auto_hilight) {
          hilight_net(0);
          if(xctx->lastsel) {
-           redraw_hilights();
+           redraw_hilights(0);
            /* draw_hilight_net(1); */
          }
        }

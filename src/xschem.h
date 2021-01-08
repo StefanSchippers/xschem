@@ -333,7 +333,7 @@ typedef struct
 {
    unsigned short type;
    int n;
-   unsigned short col;
+   unsigned int col;
 } Selected;
 
 typedef struct
@@ -410,10 +410,10 @@ typedef struct
   double xscale;
   double yscale;
   char *prop_ptr;
-  short layer; /*  20171201 for cairo  */
+  int layer; /*  20171201 for cairo  */
   short hcenter, vcenter;
   char *font; /*  20171201 for cairo */
-  short flags;
+  int flags;
 } xText;
 
 typedef struct
@@ -436,7 +436,7 @@ typedef struct
    char *prop_ptr;
    char *type;
    char *templ;
-   short flags; /* bit 0: embedded flag 
+   int flags; /* bit 0: embedded flag 
                  * bit 1: **free**
                  * bit 2: highight if connected wire highlighted */
 } xSymbol;
@@ -458,7 +458,7 @@ typedef struct
    short rot;
    short flip;
    short sel;
-   short color; /* hilight color */
+   int color; /* hilight color */
    short flags; /* bit 0: skip field, 
                  * bit 1: flag for different textlayer for pin/labels , 1: ordinary symbol, 0: label/pin/show 
                  * bit 2: highlight if connected net/label is highlighted */
@@ -887,8 +887,8 @@ extern int text_bbox(const char * str,double xscale, double yscale,
             double x1,double y1, double *rx1, double *ry1,
             double *rx2, double *ry2, int *cairo_lines, int *longest_line);
 
-
 extern int get_color(int value);
+extern void incr_hilight_color(void);
 extern void hash_inst(int what, int n);
 extern void hash_inst_pin(int what, int i, int j);
 extern void del_inst_table(void);
@@ -1151,7 +1151,7 @@ extern void propagate_hilights(int set, int clear, int mode);
 extern void  select_connected_wires(int stop_at_junction);
 extern void draw_hilight_net(int on_window);
 extern void display_hilights(char **str);
-extern void redraw_hilights(void);
+extern void redraw_hilights(int clear);
 extern void override_netlist_type(int type);
 extern void prepare_netlist_structs(int for_netlist);
 extern void create_simdata(void);
