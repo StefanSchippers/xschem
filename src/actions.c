@@ -1662,16 +1662,18 @@ void new_wire(int what, double mx_snap, double my_snap)
       update_conn_cues(1,1);
       if( xctx->hilight_nets || show_pin_net_names) prepare_netlist_structs(0);
       if(!big) {
-        xRect boundbox;
+        /* xRect boundbox; */
         bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
+        #if 0
         if( xctx->hilight_nets ) calc_drawing_bbox(&boundbox, 2);
-        bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2); /* <<< remove ? */
+        bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+        #endif
+        if(show_pin_net_names ||  xctx->hilight_nets) {
+          int_hash_lookup(xctx->node_redraw_table,  xctx->wire[xctx->wires-1].node, 0, XINSERT_NOREPLACE);
+          find_inst_to_be_redrawn();
+        }
+        bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
       }
-      if(show_pin_net_names ||  xctx->hilight_nets) {
-        int_hash_lookup(xctx->node_redraw_table,  xctx->wire[xctx->wires-1].node, 0, XINSERT_NOREPLACE);
-        find_inst_to_be_redrawn();
-      }
-      if(!big) bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
       draw();
       if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
       /* draw_hilight_net(1);*/  /* for updating connection bubbles on hilight nets */
