@@ -875,9 +875,10 @@ void propagate_hilights(int set, int clear, int mode)
 }
 
 /* use negative values to bypass the normal hilight color enumeration */
-#define LOGIC_X -1
-#define LOGIC_0 -12
-#define LOGIC_1 -5
+#define LOGIC_0 -12  /* 0 */
+#define LOGIC_1 -5   /* 1 */
+#define LOGIC_X -1   /* 2 */
+#define LOGIC_Z -13  /* 3 */
 #define STACKMAX 200
 
 int get_logic_value(int inst, int n)
@@ -914,7 +915,7 @@ void print_stack(int  *stack, int sp)
 int eval_logic_expr(int inst, int output)
 {
   int stack[STACKMAX];
-  int pos = 0, i, sp = 0;
+  int pos = 0, i, s, sp = 0;
   char *str;
   int res = 0;
 
@@ -922,82 +923,113 @@ int eval_logic_expr(int inst, int output)
   dbg(1, "eval_logic_expr(): inst=%d pin=%d function=%s\n", inst, output, str ? str : "NULL");
   if(!str) return 2; /* no logic function defined, return LOGIC_X */
   while(str[pos]) {
-    if(str[pos] == 'd') { /* duplicate top element*/
-      if(sp > 0 && sp < STACKMAX) {
-        stack[sp] = stack[sp - 1];
-        sp++;
-      }
-    /* rotate down: bottom element goes to top */
-    } else if(str[pos] == 'r') {
-      if(sp > 1) {
-        int tmp = stack[0];
-        for(i = 0 ; i < sp - 1; i++) stack[i] = stack[i + 1];
-        stack[sp - 1] = tmp;
-      }
-    } else if(str[pos] == 'x') { /* exchange top 2 operands */
-      if(sp > 1) {
-         int tmp = stack[sp - 2];
-         stack[sp - 2] =  stack[sp - 1];
-         stack[sp - 1] = tmp;
-      }
-    } else if(str[pos] == '~') { /* negation operator */
-      if(sp > 0) {
-        sp--;
-        if(stack[sp] != 2) stack[sp] = !stack[sp];
-        ++sp;
-      }
-    } else if(str[pos] == '|') { /* or operator */
-      if(sp > 1) {
-        res = 0;
-        for(i = sp - 2; i < sp; i++) {
-          if(stack[i] == 1) {
-            res = 1;
-            break;
-          } else if(stack[i] == 2) {
-            res = 2;
-          }
+    switch(str[pos]) {
+      case 'd': /* duplicate top element*/
+        if(sp > 0 && sp < STACKMAX) {
+          stack[sp] = stack[sp - 1];
+          sp++;
         }
-        stack[sp - 2] = res;
-        sp--;
-      }
-    } else if(str[pos] == '&') { /* and operator */
-      if(sp > 1) {
-        res = 1;
-        for(i = sp - 2; i < sp; i++) {
-          if(stack[i] == 0) {
-            res = 0;
-            break;
-          } else if(stack[i] == 2) {
-            res = 2;
-          }
+        break;
+      case 'r': /* rotate down: bottom element goes to top */
+        if(sp > 1) {
+          s = stack[0];
+          for(i = 0 ; i < sp - 1; i++) stack[i] = stack[i + 1];
+          stack[sp - 1] = s;
         }
-        stack[sp - 2] = res;
-        sp--;
-      }
-    } else if(str[pos] == '^') { /* xor operator */
-      if(sp > 1) {
-        res = 0;
-        for(i = sp - 2; i < sp; i++) {
-          if(stack[i] != 2) {
-            res = res ^ stack[i];
-          }
-          else {
-            res = 2;
-            break;
-          }
+        break;
+      case 'x': /* exchange top 2 operands */
+        if(sp > 1) {
+           s = stack[sp - 2];
+           stack[sp - 2] =  stack[sp - 1];
+           stack[sp - 1] = s;
         }
-        stack[sp - 2] = res;
-        sp--;
-      }
-    } else if(str[pos] == 'L') { /* logic low (0) */
-      if(sp < STACKMAX) {
-        stack[sp++] = 0;
-      }
-    } else if(str[pos] == 'H') { /* logic high (1) */
-      if(sp < STACKMAX) {
-        stack[sp++] = 1;
-      }
-    } else if(isdigit(str[pos])) {
+        break;
+      case '~': /* negation operator */
+        if(sp > 0) {
+          sp--;
+          if(!(stack[sp] & 2)) stack[sp] = !stack[sp];
+          ++sp;
+        }
+        break;
+      case  'z': /* Tristate driver [signal,enable,'z']-> signal if z==1, Z (3) otherwise */
+        if(sp > 1) {
+          s = stack[sp - 1];
+          stack[sp - 2] = (s & 2) ? 2 : (s == 1 ) ? stack[sp - 2] : 3;
+          sp--;
+        }
+        break;
+      case 'm': /* mux operator */
+        s = stack[sp - 1];
+        if(sp > 2) {
+          stack[sp - 3] = (s & 2) ? 2 : (s == 0) ? stack[sp - 3]  : stack[sp - 2];
+          sp -=2;
+        }
+        break;
+      case '|': /* or operator */
+        if(sp > 1) {
+          res = 0;
+          for(i = sp - 2; i < sp; i++) {
+            if(stack[i] == 1) {
+              res = 1;
+              break;
+            } else if(stack[i] & 2) {
+              res = 2;
+            }
+          }
+          stack[sp - 2] = res;
+          sp--;
+        }
+        break;
+      case '&': /* and operator */
+        if(sp > 1) {
+          res = 1;
+          for(i = sp - 2; i < sp; i++) {
+            if(stack[i] == 0) {
+              res = 0;
+              break;
+            } else if(stack[i] & 2) {
+              res = 2;
+            }
+          }
+          stack[sp - 2] = res;
+          sp--;
+        }
+        break;
+      case '^': /* xor operator */
+        if(sp > 1) {
+          res = 0;
+          for(i = sp - 2; i < sp; i++) {
+            if(!(stack[i] & 2)) {
+              res = res ^ stack[i];
+            }
+            else {
+              res = 2;
+              break;
+            }
+          }
+          stack[sp - 2] = res;
+          sp--;
+        }
+        break;
+      case 'L': /* logic low (0) */
+        if(sp < STACKMAX) {
+          stack[sp++] = 0;
+        }
+        break;
+      case 'H': /* logic high (1) */
+        if(sp < STACKMAX) {
+          stack[sp++] = 1;
+        }
+        break;
+      case 'Z': /* logic Z (3) */
+        if(sp < STACKMAX) {
+          stack[sp++] = 3;
+        }
+        break;
+      default:
+        break;
+    } /* switch */
+    if(isdigit(str[pos])) {
       if(sp < STACKMAX) {
         char *num = str + pos;
         while(isdigit(str[++pos])) ;
@@ -1007,7 +1039,7 @@ int eval_logic_expr(int inst, int output)
       else dbg(0, "eval_logic_expr(): stack overflow!\n");
     }
     pos++;
-  }
+  } /* while */
   dbg(1, "eval_logic_expr(): inst %d output %d, returning %d\n", inst, output, stack[0]);
   return stack[0];
 }
@@ -1032,7 +1064,8 @@ void create_simdata(void)
       xctx->simdata.inst[i].pin[j].go_to=NULL;
       my_snprintf(function, S(function), "function%d", j);
       my_strdup(717, &xctx->simdata.inst[i].pin[j].function, get_tok_value(symbol->prop_ptr, function, 0));
-      my_strdup(963, &xctx->simdata.inst[i].pin[j].go_to, get_tok_value(symbol->rect[PINLAYER][j].prop_ptr, "goto", 0));
+      my_strdup(963, &xctx->simdata.inst[i].pin[j].go_to, 
+                get_tok_value(symbol->rect[PINLAYER][j].prop_ptr, "goto", 0));
       str = get_tok_value(symbol->rect[PINLAYER][j].prop_ptr, "clock", 0);
       xctx->simdata.inst[i].pin[j].clock = str[0] ? str[0] - '0' : -1;
     }
@@ -1065,8 +1098,8 @@ void propagate_logic()
   int i, j, npin;
   int propagate;
   struct hilight_hashentry  *entry;
-  int val, oldval;
-  static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X};
+  int val, oldval, newval;
+  static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z};
 
   tclsetvar("tclstop", "0");
   prepare_netlist_structs(0);
@@ -1127,10 +1160,11 @@ void propagate_logic()
             /* no bus_hilight_lookup --> no bus expansion */
             entry = hilight_lookup(xctx->inst[i].node[propagate], 0, XLOOKUP); /* destination pin */
             oldval = (!entry) ? LOGIC_X : entry->value;
-            val =  map[eval_logic_expr(i, propagate)];
-            if(oldval != val) {
+            newval = eval_logic_expr(i, propagate);
+            val =  map[newval];
+            if(newval != 3 && oldval != val) {
                hilight_lookup(xctx->inst[i].node[propagate], val, XINSERT);
-               found=1; /* keep looping until no more nets are found. */
+               if(newval!=3) found=1; /* keep looping until no more nets are found. */
             }
           }
         }
@@ -1151,7 +1185,7 @@ void logic_set(int value, int num)
   char *type;
   xRect boundbox;
   int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
-  static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X};
+  static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z};
   struct hilight_hashentry  *entry;
  
   prepare_netlist_structs(0);

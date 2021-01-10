@@ -3218,9 +3218,11 @@ global env has_x
   ###
   ### Tk event handling
   ###
-  bind . <Expose> [list raise_dialog $window_path]
-  bind . <Visibility> [list raise_dialog $window_path]
-  bind . <FocusIn> [list raise_dialog $window_path]
+  if { $window_path eq {.drw} } {
+    bind . <Expose> [list raise_dialog $window_path]
+    bind . <Visibility> [list raise_dialog $window_path]
+    bind . <FocusIn> [list raise_dialog $window_path]
+  }
   bind $window_path <Double-Button-1> {xschem callback -3 %x %y 0 %b 0 %s}
   bind $window_path <Double-Button-2> {xschem callback -3 %x %y 0 %b 0 %s}
   bind $window_path <Double-Button-3> {xschem callback -3 %x %y 0 %b 0 %s}

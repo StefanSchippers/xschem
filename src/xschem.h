@@ -299,7 +299,7 @@ extern char win_temp_dir[PATH_MAX];
 #define LINE_OUTSIDE(xa,ya,xb,yb,x1,y1,x2,y2) \
  (xa>=x2 || xb<=x1 ||  ( (ya<yb)? (ya>=y2 || yb<=y1) : (yb>=y2 || ya<=y1) ) )
 
-#define CLIP(x,a,b) (x<a?a:x>b?b:x)
+#define CLIP(x,a,b) ((x) < a ? (a) : (x) > b ? (b) : (x))
 
 #define MINOR(a,b) ( (a) <= (b) ? (a) : (b) )
 #define ROUND(a) ((a) > 0.0 ? ceil((a) - 0.5) : floor((a) + 0.5))

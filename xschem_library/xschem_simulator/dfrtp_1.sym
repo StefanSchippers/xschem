@@ -1,7 +1,8 @@
 v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {type=stdcell
-function3="0 d ~ 3 & x 1 & | 2 &"
+xfunction3="0 d ~ 3 & x 1 & | 2 &"
+function3="3 1 0 m L 2 ~ m"
 format="@name @@CLK @@D @@RESET_B @VGND @VNB @VPB @VPWR @@Q @prefix\\\\dfrtp_1"
 template="name=x1 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ "
 extra="VGND VNB VPB VPWR prefix"
@@ -23,7 +24,7 @@ goto=3 clock=1}
 B 5 -92.5 -2.5 -87.5 2.5 {name=D dir=in }
 B 5 -92.5 17.5 -87.5 22.5 {name=RESET_B dir=in 
 goto=3
-clock=2}
+clock=0}
 B 5 87.5 -22.5 92.5 -17.5 {name=Q dir=out }
 T {@symname} 0 -6 0 0 0.3 0.3 {hcenter=true}
 T {@name} 75 -42 0 0 0.2 0.2 {}
