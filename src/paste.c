@@ -34,10 +34,14 @@ void merge_text(FILE *fd)
     i=xctx->texts;
      xctx->text[i].txt_ptr=NULL;
      load_ascii_string(&xctx->text[i].txt_ptr,fd);
-     fscanf(fd, "%lf %lf %hd %hd %lf %lf ",
-      &xctx->text[i].x0, &xctx->text[i].y0, &xctx->text[i].rot,
-      &xctx->text[i].flip, &xctx->text[i].xscale,
-      &xctx->text[i].yscale);
+     if(fscanf(fd, "%lf %lf %hd %hd %lf %lf ",
+       &xctx->text[i].x0, &xctx->text[i].y0, &xctx->text[i].rot,
+       &xctx->text[i].flip, &xctx->text[i].xscale,
+       &xctx->text[i].yscale) <6) {
+         fprintf(errfp,"merge_text(): WARNING:  missing fields for TEXT object, ignoring\n");
+         read_line(fd, 0);
+         return;
+     }
      xctx->text[i].prop_ptr=NULL;
      xctx->text[i].font=NULL;
      xctx->text[i].sel=0;
@@ -72,7 +76,11 @@ void merge_wire(FILE *fd)
     double x1,y1,x2,y2;
     char *ptr=NULL;
     i=xctx->wires;
-    fscanf(fd, "%lf %lf %lf %lf",&x1, &y1, &x2, &y2 );
+    if(fscanf(fd, "%lf %lf %lf %lf",&x1, &y1, &x2, &y2 ) < 4) {
+      fprintf(errfp,"merge_wire(): WARNING:  missing fields for WIRE object, ignoring\n");
+      read_line(fd, 0);
+      return;
+    }
     load_ascii_string( &ptr, fd);
     storeobject(-1, x1,y1,x2,y2,WIRE,0,SELECTED,ptr);
     my_free(870, &ptr);
@@ -81,19 +89,24 @@ void merge_wire(FILE *fd)
 
 void merge_box(FILE *fd)
 {
-    int i,c;
+    int i,c,n;
     xRect *ptr;
 
-    fscanf(fd, "%d",&c);
-    if(c>=cadlayers) {
-      fprintf(errfp,"Rectangle layer > defined cadlayers, increase cadlayers\n");
-      c=cadlayers-1;
+    n = fscanf(fd, "%d",&c);
+    if(n != 1 || c < 0 || c >= cadlayers) {
+      fprintf(errfp,"merge_arc(): WARNING: wrong or missing layer number for xRECT object, ignoring.\n");
+      read_line(fd, 0);
+      return;
     }
     check_box_storage(c);
     i=xctx->rects[c];
     ptr=xctx->rect[c];
-    fscanf(fd, "%lf %lf %lf %lf ",&ptr[i].x1, &ptr[i].y1,
-       &ptr[i].x2, &ptr[i].y2);
+    if(fscanf(fd, "%lf %lf %lf %lf ",&ptr[i].x1, &ptr[i].y1,
+       &ptr[i].x2, &ptr[i].y2) < 4) {
+      fprintf(errfp,"merge_arc(): WARNING:  missing fields for xRECT object, ignoring\n");
+      read_line(fd, 0);
+      return;
+    }
     ptr[i].prop_ptr=NULL;
     RECTORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
     ptr[i].sel=0;
@@ -105,19 +118,25 @@ void merge_box(FILE *fd)
 
 void merge_arc(FILE *fd)
 {
-    int i,c;
+    int i,c,n;
     xArc *ptr;
 
-    fscanf(fd, "%d",&c);
-    if(c>=cadlayers) {
-      fprintf(errfp,"arc layer > defined cadlayers, increase cadlayers\n");
-      c=cadlayers-1;
+    n = fscanf(fd, "%d",&c);
+    if(n != 1 || c < 0 || c >= cadlayers) {
+      fprintf(errfp,"merge_arc(): WARNING: wrong or missing layer number for ARC object, ignoring.\n");
+      read_line(fd, 0);
+      return;
     }
     check_arc_storage(c);
     i=xctx->arcs[c];
     ptr=xctx->arc[c];
-    fscanf(fd, "%lf %lf %lf %lf %lf ",&ptr[i].x, &ptr[i].y,
-           &ptr[i].r, &ptr[i].a, &ptr[i].b);
+    if(fscanf(fd, "%lf %lf %lf %lf %lf ",&ptr[i].x, &ptr[i].y,
+           &ptr[i].r, &ptr[i].a, &ptr[i].b) < 5) {
+      fprintf(errfp,"merge_arc(): WARNING:  missing fields for ARC object, ignoring\n");
+      read_line(fd, 0);
+      return;
+    }
+
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string(&ptr[i].prop_ptr, fd);
@@ -137,9 +156,16 @@ void merge_polygon(FILE *fd)
     xPoly *ptr;
 
     fscanf(fd, "%d %d",&c, &points);
-    if(c>=cadlayers) {
-      fprintf(errfp,"Rectangle layer > defined cadlayers, increase cadlayers\n");
-      c=cadlayers-1;
+
+    if(fscanf(fd, "%d %d",&c, &points)<2) {
+      fprintf(errfp,"merge_polygon(): WARNING: missing fields for POLYGON object, ignoring.\n");
+      read_line(fd, 0);
+      return;
+    }
+    if(c < 0 || c>=cadlayers) {
+      fprintf(errfp,"merge_polygon(): Rectangle layer > defined cadlayers, increase cadlayers\n");
+      read_line(fd, 0);
+      return;
     }
     check_polygon_storage(c);
     i=xctx->polygons[c];
@@ -154,7 +180,14 @@ void merge_polygon(FILE *fd)
     ptr[i].points=points;
     ptr[i].sel=0;
     for(j=0;j<points;j++) {
-      fscanf(fd, "%lf %lf ",&(ptr[i].x[j]), &(ptr[i].y[j]));
+      if(fscanf(fd, "%lf %lf ",&(ptr[i].x[j]), &(ptr[i].y[j]))<2) {
+        fprintf(errfp,"merge_polygon(): WARNING: missing fields for POLYGON points, ignoring.\n");
+        my_free(886, &ptr[i].x);
+        my_free(887, &ptr[i].y);
+        my_free(888, &ptr[i].selected_point);
+        read_line(fd, 0);
+        return;
+      }
     }
     load_ascii_string( &ptr[i].prop_ptr, fd);
     if( !strcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
@@ -168,21 +201,24 @@ void merge_polygon(FILE *fd)
 
 void merge_line(FILE *fd)
 {
-    int i,c;
+    int i,c,n;
     xLine *ptr;
 
-    fscanf(fd, "%d",&c);
-    if(c>=cadlayers) {
-      fprintf(errfp,"Rectangle layer > defined cadlayers, increase cadlayers\n");
-      c=cadlayers-1;
+    n = fscanf(fd, "%d",&c);
+    if(n != 1 || c < 0 || c >= cadlayers) {
+      fprintf(errfp,"merge_line(): WARNING: Wrong or missing layer number for LINE object, ignoring\n");
+      read_line(fd, 0);
+      return;
     }
     check_line_storage(c);
     i=xctx->lines[c];
     ptr=xctx->line[c];
-    fscanf(fd, "%lf %lf %lf %lf ",&ptr[i].x1, &ptr[i].y1,
-       &ptr[i].x2, &ptr[i].y2);
+    if(fscanf(fd, "%lf %lf %lf %lf ",&ptr[i].x1, &ptr[i].y1, &ptr[i].x2, &ptr[i].y2) < 4) {
+      fprintf(errfp,"merge_line(): WARNING:  missing fields for LINE object, ignoring\n");
+      read_line(fd, 0);
+      return;
+    }
     ORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
-
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);

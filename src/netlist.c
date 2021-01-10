@@ -1091,10 +1091,14 @@ int sym_vs_sch_pins()
               break;
             case 'L':
             case 'B':
-              fscanf(fd, "%d",&tmpi);
+              if(fscanf(fd, "%d",&tmpi)< 1) {
+                 fprintf(errfp,"sym_vs_sch_pins(): WARNING:  missing fields for LINE/BOX object, ignoring\n");
+                 read_line(fd, 0);
+                 break;
+              }
             case 'N':
               if(fscanf(fd, "%lf %lf %lf %lf ",&tmpd, &tmpd, &tmpd, &tmpd) < 4) {
-                 fprintf(errfp,"WARNING:  missing fields for LINE/BOX object, ignoring\n");
+                 fprintf(errfp,"sym_vs_sch_pins(): WARNING:  missing fields for LINE/BOX object, ignoring\n");
                  read_line(fd, 0);
                  break;
                }
@@ -1102,13 +1106,13 @@ int sym_vs_sch_pins()
               break;
             case 'P':
               if(fscanf(fd, "%d %d",&tmpi, &tmpi)<2) {
-                fprintf(errfp,"WARNING: missing fields for POLYGON object, ignoring.\n");
+                fprintf(errfp,"sym_vs_sch_pins(): WARNING: missing fields for POLYGON object, ignoring.\n");
                 read_line(fd, 0);
                 break;
               }
               for(j=0;j<tmpi;j++) {
                 if(fscanf(fd, "%lf %lf ",&tmpd, &tmpd)<2) {
-                  fprintf(errfp,"WARNING: missing fields for POLYGON points, ignoring.\n");
+                  fprintf(errfp,"sym_vs_sch_pins(): WARNING: missing fields for POLYGON points, ignoring.\n");
                   read_line(fd, 0);
                 }
               }
@@ -1117,7 +1121,7 @@ int sym_vs_sch_pins()
             case 'A':
               fscanf(fd, "%d",&tmpi);
               if(fscanf(fd, "%lf %lf %lf %lf %lf ",&tmpd, &tmpd, &tmpd, &tmpd, &tmpd) < 5) {
-                fprintf(errfp,"WARNING:  missing fields for ARC object, ignoring\n");
+                fprintf(errfp,"sym_vs_sch_pins(): WARNING:  missing fields for ARC object, ignoring\n");
                 read_line(fd, 0);
                 break;
               }
@@ -1126,7 +1130,7 @@ int sym_vs_sch_pins()
             case 'T':
               load_ascii_string(&tmp,fd);
               if(fscanf(fd, "%lf %lf %hd %hd %lf %lf ", &tmpd, &tmpd, &tmps, &tmps, &tmpd, &tmpd) < 6 ) {
-                fprintf(errfp,"WARNING:  missing fields for TEXT object, ignoring\n");
+                fprintf(errfp,"sym_vs_sch_pins(): WARNING:  missing fields for TEXT object, ignoring\n");
                 read_line(fd, 0);
                 break;
               }
@@ -1266,12 +1270,7 @@ int sym_vs_sch_pins()
         lab_array_size = 0;
         pin_cnt=0;
       }
-
-
-
     } /* if( ... "subcircuit"... ) */
-
-
     my_free(844, &type);
     my_free(845, &tmp);
     my_free(846, &lab);
