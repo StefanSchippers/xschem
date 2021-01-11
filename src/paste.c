@@ -182,9 +182,9 @@ void merge_polygon(FILE *fd)
     for(j=0;j<points;j++) {
       if(fscanf(fd, "%lf %lf ",&(ptr[i].x[j]), &(ptr[i].y[j]))<2) {
         fprintf(errfp,"merge_polygon(): WARNING: missing fields for POLYGON points, ignoring.\n");
-        my_free(886, &ptr[i].x);
-        my_free(887, &ptr[i].y);
-        my_free(888, &ptr[i].selected_point);
+        my_free(827, &ptr[i].x);
+        my_free(1218, &ptr[i].y);
+        my_free(1223, &ptr[i].selected_point);
         read_line(fd, 0);
         return;
       }
@@ -244,10 +244,10 @@ void merge_inst(int k,FILE *fd)
     load_ascii_string(&tmp, fd);
     /* avoid as much as possible calls to rel_sym_path (slow) */
     #ifdef __unix__
-    if(tmp[0] == '/') my_strdup(755, &ptr[i].name, rel_sym_path(tmp));
+    if(tmp[0] == '/') my_strdup(763, &ptr[i].name, rel_sym_path(tmp));
     else my_strdup(755, &ptr[i].name,tmp);
     #else
-    my_strdup(755, &ptr[i].name, rel_sym_path(tmp));
+    my_strdup(780, &ptr[i].name, rel_sym_path(tmp));
     #endif
     my_free(756, &tmp);
     if(fscanf(fd, "%lf %lf %hd %hd",&ptr[i].x0, &ptr[i].y0,&ptr[i].rot, &ptr[i].flip) < 4) {

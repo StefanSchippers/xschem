@@ -895,7 +895,7 @@ int get_logic_value(int inst, int n)
     val = 2; /* LOGIC_X */
   } else {
     val = entry->value;
-    val = (val == LOGIC_0) ? 0 : (val == LOGIC_1) ? 1 : 2;
+    val = (val == LOGIC_0) ? 0 : (val == LOGIC_1) ? 1 : (val == LOGIC_Z) ? 3 : 2;
     /* dbg(1, "get_logic_value(): inst=%d pin=%d net=%s val=%d\n", inst, n, netname, val); */
   }
   /* my_free(xxxx, &netname); */
@@ -948,6 +948,7 @@ int eval_logic_expr(int inst, int output)
         if(sp > 0) {
           sp--;
           if(!(stack[sp] & 2)) stack[sp] = !stack[sp];
+          else stack[sp] = 2;
           ++sp;
         }
         break;
@@ -961,7 +962,10 @@ int eval_logic_expr(int inst, int output)
       case 'm': /* mux operator */
         s = stack[sp - 1];
         if(sp > 2) {
-          stack[sp - 3] = (s & 2) ? 2 : (s == 0) ? stack[sp - 3]  : stack[sp - 2];
+          if(!(s & 2) ) { /* reduce pessimism, avoid infinite loops */
+            stack[sp - 3] = (s == 0) ? stack[sp - 3]  : stack[sp - 2];
+          }
+          else stack[sp - 3] = 3;
           sp -=2;
         }
         break;
@@ -1091,15 +1095,20 @@ void free_simdata(void)
   xctx->simdata.valid = 0;
 }
 
+#undef DELAYED_ASSIGN
 void propagate_logic()
 {
   /* char *propagated_net=NULL; */
-  int found /* , mult */;
+  int found, iter = 0 /* , mult */;
   int i, j, npin;
   int propagate;
+  int min_iter = 0; /* set to 3 to simulate up to 3 series bidirectional pass-devices */
   struct hilight_hashentry  *entry;
   int val, oldval, newval;
   static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z};
+  #ifdef DELAYED_ASSIGN
+  int *newval_arr = NULL;
+  #endif
 
   tclsetvar("tclstop", "0");
   prepare_netlist_structs(0);
@@ -1107,6 +1116,10 @@ void propagate_logic()
     found=0;
     for(i=0; i<xctx->simdata.ninst; i++) {
       npin = xctx->simdata.inst[i].npin;
+      #ifdef DELAYED_ASSIGN
+      my_realloc(778, &newval_arr, npin * sizeof(int));
+      for(j=0; j<npin;j++) newval_arr[j] = -10000;
+      #endif
       for(j=0; j<npin;j++) {
         if(xctx->simdata.inst && xctx->simdata.inst[i].pin && xctx->simdata.inst[i].pin[j].go_to) {
           int n = 1;
@@ -1162,20 +1175,36 @@ void propagate_logic()
             oldval = (!entry) ? LOGIC_X : entry->value;
             newval = eval_logic_expr(i, propagate);
             val =  map[newval];
-            if(newval != 3 && oldval != val) {
-               hilight_lookup(xctx->inst[i].node[propagate], val, XINSERT);
-               if(newval!=3) found=1; /* keep looping until no more nets are found. */
+            if(iter < min_iter || (newval != 3 && oldval != val) ) {
+              dbg(1, "propagate_logic(): inst %d pin %d oldval %d newval %d to pin %s\n",
+                   i, j, oldval, val, xctx->inst[i].node[propagate]);
+
+              #ifdef DELAYED_ASSIGN
+              newval_arr[propagate] = val;
+              #else 
+              hilight_lookup(xctx->inst[i].node[propagate], val, XINSERT);
+              #endif
+              found=1; /* keep looping until no more nets are found. */
             }
           }
         }
       } /* for(j...) */
+      #ifdef DELAYED_ASSIGN
+      for(j=0;j<npin;j++) {
+        if(newval_arr[j] != -10000) hilight_lookup(xctx->inst[i].node[j], newval_arr[j], XINSERT);
+      }
+      #endif
     } /* for(i...) */
     xctx->hilight_time++;
     if(!found) break;
     /* get out from infinite loops (circuit is oscillating) */
     Tcl_VarEval(interp, "update; if {$::tclstop == 1} {return 1} else {return 0}", NULL);
     if( tclresult()[0] == '1') break;
+    iter++;
   } /* while(1) */
+  #ifdef DELAYED_ASSIGN
+  my_free(779, &newval_arr);
+  #endif
   /* my_free(1222, &propagated_net); */
 }
 

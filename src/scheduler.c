@@ -1451,7 +1451,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 3 ) num = atoi(argv[3]);
       if(argc > 2) {
         int n = atoi(argv[2]);
-        if(n == 3) n = -1;
+        if(n == 4) n = -1;
         logic_set(n, num);
       }
       Tcl_ResetResult(interp);
