@@ -946,7 +946,7 @@ void copy_objects(int what)
     if(show_pin_net_names || xctx->hilight_nets) find_inst_to_be_redrawn();
     check_collapsing_objects();
     if(autotrim_wires) trim_wires();
-    update_conn_cues(1, 1);
+    /* update_conn_cues(1, 1); */
     xctx->ui_state &= ~STARTCOPY;
     xctx->x1=xctx->y_1=xctx->x2=xctx->y_2=xctx->move_rot=xctx->move_flip=xctx->deltax=xctx->deltay=0;
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
@@ -1482,7 +1482,7 @@ void move_objects(int what, int merge, double dx, double dy)
   if(show_pin_net_names || xctx->hilight_nets) find_inst_to_be_redrawn();
   check_collapsing_objects();
   if(autotrim_wires) trim_wires();
-  update_conn_cues(1, 1);
+  /* update_conn_cues(1, 1); */
 
   if(xctx->hilight_nets) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);

@@ -959,13 +959,23 @@ int eval_logic_expr(int inst, int output)
           sp--;
         }
         break;
-      case 'm': /* mux operator */
+      case 'M': /* mux operator */
+        s = stack[sp - 1];
+        if(sp > 2) {
+          if(!(s & 2) ) {
+            stack[sp - 3] = (s == 0) ? stack[sp - 3]  : stack[sp - 2];
+          }
+          else stack[sp - 3] = 3;
+          sp -=2;
+        }
+        break;
+      case 'm': /* mux operator , lower priority*/
         s = stack[sp - 1];
         if(sp > 2) {
           if(!(s & 2) ) { /* reduce pessimism, avoid infinite loops */
             stack[sp - 3] = (s == 0) ? stack[sp - 3]  : stack[sp - 2];
           }
-          else stack[sp - 3] = 3;
+          else stack[sp - 3] = 4;
           sp -=2;
         }
         break;
@@ -1028,6 +1038,11 @@ int eval_logic_expr(int inst, int output)
       case 'Z': /* logic Z (3) */
         if(sp < STACKMAX) {
           stack[sp++] = 3;
+        }
+        break;
+      case 'U': /* Do not assign to node */
+        if(sp < STACKMAX) {
+          stack[sp++] = 4;
         }
         break;
       default:
@@ -1095,14 +1110,14 @@ void free_simdata(void)
   xctx->simdata.valid = 0;
 }
 
-#undef DELAYED_ASSIGN
+#define DELAYED_ASSIGN
 void propagate_logic()
 {
   /* char *propagated_net=NULL; */
   int found, iter = 0 /* , mult */;
   int i, j, npin;
   int propagate;
-  int min_iter = 0; /* set to 3 to simulate up to 3 series bidirectional pass-devices */
+  int min_iter = 3; /* set to 3 to simulate up to 3 series bidirectional pass-devices */
   struct hilight_hashentry  *entry;
   int val, oldval, newval;
   static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z};
@@ -1175,7 +1190,7 @@ void propagate_logic()
             oldval = (!entry) ? LOGIC_X : entry->value;
             newval = eval_logic_expr(i, propagate);
             val =  map[newval];
-            if(iter < min_iter || (newval != 3 && oldval != val) ) {
+            if( newval !=4 && (iter < min_iter || (newval !=3 && oldval != val) )) {
               dbg(1, "propagate_logic(): inst %d pin %d oldval %d newval %d to pin %s\n",
                    i, j, oldval, val, xctx->inst[i].node[propagate]);
 

@@ -11,7 +11,7 @@ L 4 100 -1470 100 -1390 {}
 L 4 200 -1470 200 -1390 {}
 L 4 100 -1570 100 -1490 {}
 L 4 200 -1570 200 -1490 {}
-L 4 1710 -1640 1710 -1360 {}
+L 4 1710 -1620 1710 -1360 {}
 L 4 1710 -1360 1750 -1360 {}
 L 4 1750 -1370 1750 -1360 {}
 L 4 1750 -1370 1770 -1360 {}
@@ -76,7 +76,8 @@ T {select this net and:
 - press '0' to set to logic '0' value
 - press '1' to set to logic '1' value
 - press '2' to set to logic 'X' value
-- press '3' to set to toggle 1->0, 0->1, X->X} 1680 -1880 0 0 0.7 0.7 {}
+- press '3' to set to logic 'Z' value
+- press '4' to set to toggle 1->0, 0->1, X->X} 1600 -1900 0 0 0.7 0.7 {}
 N 2340 -2250 2340 -2170 { lab=#net1}
 N 2220 -2250 2340 -2250 { lab=#net1}
 N 2220 -2270 2220 -2250 { lab=#net1}

@@ -1,0 +1,20 @@
+v {xschem version=2.9.9 file_version=1.2 }
+G {}
+K {type=switch
+function0="Z 1 2 M"
+function1="Z 0 2 M"
+template="name=s1"
+}
+V {}
+S {}
+E {}
+L 4 10 0 30 0 {}
+L 4 -30 0 -10 0 {}
+L 4 -10 0 10 -10 {}
+L 4 0 -40 0 -5 {}
+B 5 -32.5 -2.5 -27.5 2.5 {name=t0 dir=inout}
+B 5 27.5 -2.5 32.5 2.5 {name=t1 dir=inout  }
+B 5 -7.5 -47.5 7.5 -32.5 {name=g dir=inout goto=0,1}
+A 4 10 0 1.25 0 360 {fill=true}
+A 4 -10 0 1.25 0 360 {fill=true}
+T {1} 20 -7.5 0 0 0.1 0.1 {}

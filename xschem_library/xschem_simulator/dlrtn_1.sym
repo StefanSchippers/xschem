@@ -5,7 +5,7 @@ format="@name @@D @@GATE_N @@RESET_B @VGND @VNB @VPB @VPWR @@Q @prefix\\\\dlrtn_
 template="name=x1 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ "
 extra="VGND VNB VPB VPWR prefix"
 highlight=true
-function3="0 3 1 m L 2 ~ m"}
+function3="0 3 1 M L 2 ~ M"}
 V {}
 S {}
 E {}

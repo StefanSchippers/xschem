@@ -1,0 +1,18 @@
+v {xschem version=2.9.9 file_version=1.2 }
+G {}
+K {type=diode
+function1="Z 0 d M"
+template="name=x1"
+}
+V {}
+S {}
+E {}
+L 4 0 5 0 30 {}
+L 4 0 -30 0 -5 {}
+L 4 -10 5 10 5 {}
+L 4 0 5 10 -5 {}
+L 4 -10 -5 10 -5 {}
+L 4 -10 -5 0 5 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout goto=1}
+B 5 -2.5 27.5 2.5 32.5 {name=m dir=inout}
+T {@name} 5 -22 0 0 0.2 0.2 {}
