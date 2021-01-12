@@ -28,7 +28,7 @@ N 720 -400 720 -270 { lab=#net2}
 N 700 -150 700 -90 { lab=#net3}
 N 680 -320 680 -270 { lab=B}
 N 610 -320 680 -320 { lab=B}
-N 810 -300 810 -210 { lab=GND}
+N 810 -300 810 -210 { lab=DN}
 N 690 -400 720 -400 { lab=#net2}
 N 1470 -400 1490 -400 { lab=#net2}
 N 780 -340 810 -340 { lab=CK3}
@@ -243,8 +243,10 @@ N 370 -440 390 -440 { lab=E}
 N 260 -400 390 -400 { lab=B}
 N 280 -360 390 -360 { lab=D}
 N 550 -400 590 -400 { lab=G}
-C {ipin.sym} 50 -190 0 0 { name=p20 lab=A }
-C {ipin.sym} 50 -150 0 0 { name=p5 lab=C }
+N 340 -320 390 -320 { lab=D}
+N 340 -360 340 -320 { lab=D}
+C {ipin.sym} 70 -190 0 0 { name=p20 lab=A }
+C {ipin.sym} 70 -150 0 0 { name=p5 lab=C }
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
 C {lab_pin.sym} 50 -540 0 0 {name=p10 lab=A}
 C {nand2_1.sym} 110 -520 0 0 {name=x4 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
@@ -309,13 +311,13 @@ C {lab_pin.sym} 110 -1160 0 0 {name=p39 lab=E}
 C {switch-1.sym} 1370 -1260 0 0 {name=s4}
 C {inv_2.sym} 1370 -1190 0 0 {name=x20 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {diode_3.sym} 1270 -1280 0 0 {name=x12 VTH=0.6 RON=10 ROFF=1G}
-C {ipin.sym} 50 -170 0 0 { name=p19 lab=B }
+C {ipin.sym} 70 -170 0 0 { name=p19 lab=B }
 C {invert-1.sym} 1370 -620 0 0 {name=s1}
 C {dev-1.sym} 1210 -620 0 0 {name=s2}
 C {dev-1.sym} 1530 -620 0 1 {name=s3}
 C {vdd.sym} 1080 -620 0 0 {name=l9 lab=VCC}
 C {lab_pin.sym} 850 -1160 0 1 {name=p40 lab=E}
-C {ipin.sym} 50 -130 0 0 { name=p69 lab=D }
+C {ipin.sym} 70 -130 0 0 { name=p69 lab=D }
 C {nand2_1.sym} 2180 -1340 0 0 {name=x45 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {nand2_1.sym} 2410 -1140 0 0 {name=x49 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {nand3_1.sym} 2180 -1190 0 0 {name=x51 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
@@ -332,7 +334,7 @@ C {lab_pin.sym} 370 -500 0 1 {name=p1 lab=E}
 C {lab_pin.sym} 50 -500 0 0 {name=p2 lab=B}
 C {lab_pin.sym} 590 -400 0 1 {name=p11 lab=G}
 C {lab_pin.sym} 70 -680 0 0 {name=p4 lab=A}
-C {launcher.sym} 170 -290 0 0 {name=h3
+C {launcher.sym} 100 -270 0 0 {name=h3
 descr="START SIMULATION" 
 comment="
   This launcher Starts a simple interactive simulation
@@ -393,7 +395,7 @@ C {lab_pin.sym} 610 -320 0 0 {name=p16 lab=B}
 C {lab_pin.sym} 1580 -320 0 1 {name=p17 lab=A}
 C {lab_pin.sym} 1390 -210 0 1 {name=p70 lab=D}
 C {lab_pin.sym} 1410 -340 0 1 {name=p71 lab=CK2}
-C {ipin.sym} 50 -110 0 0 { name=p72 lab=RSTB }
+C {ipin.sym} 70 -110 0 0 { name=p72 lab=RSTB }
 C {lab_pin.sym} 50 -610 0 0 {name=p73 lab=RSTB}
 C {lab_pin.sym} 1870 -650 0 0 {name=p3 lab=RSTB}
 C {lab_pin.sym} 1880 -770 0 0 {name=p8 lab=C}
@@ -403,4 +405,6 @@ C {lab_pin.sym} 1210 -760 0 0 {name=p41 lab=A}
 C {lab_pin.sym} 1370 -760 0 0 {name=p42 lab=C}
 C {lab_pin.sym} 1530 -760 0 0 {name=p43 lab=D}
 C {lab_pin.sym} 780 -340 0 0 {name=p44 lab=CK3}
-C {gnd.sym} 810 -210 0 1 {name=l2 lab=GND}
+C {inv_2.sym} 430 -320 0 0 {name=x2 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
+C {lab_pin.sym} 470 -320 0 1 {name=p45 lab=DN}
+C {lab_pin.sym} 810 -210 0 1 {name=p46 lab=DN}
