@@ -339,7 +339,9 @@ descr="START SIMULATION"
 comment="
   This launcher Starts a simple interactive simulation
 "
-tclcommand="  set count 0
+tclcommand="
+  set tclstop 0 ;# clear stop flag
+  set count 0
   set duration 400
   xschem select instance p20  ;# A
   xschem select instance p19  ;# B
@@ -363,30 +365,25 @@ tclcommand="  set count 0
     xschem select instance p20 clear
     after $duration
 
-    if \{$count>100 || $tclstop == 1\} break
     xschem select instance p19 
     xschem logic_set [expr int(rand()*2.)]
     xschem select instance p19 clear
     after $duration
 
-    if \{$count>100 || $tclstop == 1\} break
     xschem select instance p5 
     xschem logic_set [expr int(rand()*2.)]
     xschem select instance p5 clear
     after $duration
 
-    if \{$count>100 || $tclstop == 1\} break
     xschem select instance p69 
     xschem logic_set [expr int(rand()*2.)]
     xschem select instance p69 clear
     after $duration
 
-    if \{$count>100 || $tclstop == 1\} break
     xschem select instance p72 
     xschem logic_set [expr int(0.8 + rand()*1.2)]
     xschem select instance p72 clear
     after $duration
-
   \}
 
 "

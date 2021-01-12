@@ -334,7 +334,8 @@ descr="START SIMULATION"
 comment="
   This launcher Starts a simple interactive simulation of the LFSR
 "
-tclcommand="  set count 0
+tclcommand="  set tclstop 0  ;# clear stop flag
+  set count 0
   set duration 1000
   xschem select instance p8  ;# CLEAR_
   xschem select instance p9  ;# CLK

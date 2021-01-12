@@ -1231,7 +1231,6 @@ void logic_set(int value, int num)
   static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z};
   struct hilight_hashentry  *entry;
  
-  tclsetvar("tclstop", "0");
   prepare_netlist_structs(0);
   if(!xctx->simdata.valid) create_simdata();
   rebuild_selected_array();
