@@ -155,8 +155,6 @@ void merge_polygon(FILE *fd)
     int i,c, j, points;
     xPoly *ptr;
 
-    fscanf(fd, "%d %d",&c, &points);
-
     if(fscanf(fd, "%d %d",&c, &points)<2) {
       fprintf(errfp,"merge_polygon(): WARNING: missing fields for POLYGON object, ignoring.\n");
       read_line(fd, 0);
