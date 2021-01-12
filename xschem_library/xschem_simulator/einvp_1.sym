@@ -1,7 +1,8 @@
 v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {type=primitive
-function2="0 ~ 1 z"
+function2="0 ~ 1 z"   ; set to z on disable
+xfunction2="U 0 ~ 1 m" ; keep last value on disable
 
 format="@name @@A @@TE @VGND @VNB @VPB @VPWR @@Z @prefix\\\\einvp_1"
 template="name=x1 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ "

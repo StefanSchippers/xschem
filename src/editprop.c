@@ -705,7 +705,7 @@ void edit_text_property(int x)
    int customfont;
    #endif
    int sel, k, text_changed, tmp;
-   int c,l, preserve;
+   int c,l, preserve, hsize, vsize, changesize=0;
    double xx1,yy1,xx2,yy2;
    double pcx,pcy;      /* pin center 20070317 */
    char property[1024];/* used for float 2 string conv (xscale  and yscale) overflow safe */
@@ -823,7 +823,14 @@ void edit_text_property(int x)
          xctx->text[sel].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
          str = get_tok_value(xctx->text[sel].prop_ptr, "weight", 0);
          xctx->text[sel].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
-         if(xctx->lastsel == 1 || !preserve) {
+         if(k == 0 ) {
+           hsize =atof(tclgetvar("hsize"));
+           vsize =atof(tclgetvar("vsize"));
+           if(xctx->text[sel].xscale != hsize || xctx->text[sel].yscale != vsize) {
+             changesize = 1;
+           }
+         }
+         if(changesize) {
            xctx->text[sel].xscale=atof(tclgetvar("hsize"));
            xctx->text[sel].yscale=atof(tclgetvar("vsize"));
          }

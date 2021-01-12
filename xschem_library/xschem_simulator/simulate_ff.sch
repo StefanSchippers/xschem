@@ -26,10 +26,10 @@ B 12 3920 -2840 4640 -1540 {}
 P 5 9 1800 -300 1800 -220 1790 -230 1810 -180 1830 -230 1820 -220 1820 -300 1810 -290 1800 -300 {fill=true}
 T {7 Segment Display driver
 and base-10 counter} 1540 -3130 0 0 2.5 2.5 {}
-T {Cyan: Uninitialized or unknown (X)} 3210 -1190 0 0 1.5 1.5 {layer=1}
-T {Signal colors:} 3130 -1290 0 0 1.5 1.5 {}
-T {Blue: Logic level low (0)} 3210 -1090 0 0 1.5 1.5 {layer=12}
-T {Red: Logic level high (1)} 3210 -990 0 0 1.5 1.5 {layer=5}
+T {Cyan: Uninitialized or unknown (X)} 3240 -1200 0 0 1.5 1.5 {layer=1}
+T {Signal colors:} 3160 -1300 0 0 1.5 1.5 {}
+T {Blue: Logic level low (0)} 3240 -1100 0 0 1.5 1.5 {layer=12}
+T {Red: Logic level high (1)} 3240 -1000 0 0 1.5 1.5 {layer=5}
 T {
       0 1 2 3 4 5 6 
 ======================
@@ -66,18 +66,21 @@ T {Segment 4} 1190 -960 0 0 1 1 { layer=4}
 T {Segment 5} 1190 -560 0 0 1 1 { layer=4}
 T {Segment 6} 1190 -240 0 0 1 1 { layer=4}
 T {Truth Table} 10 -1730 0 0 1.5 1.5 {layer=4}
-T {This example shows Xschem (very simple) logic simulation abilities
+T {This example shows Xschem (very simple)
+logic simulation abilities
 Ctrl-Click to start simulation.
-Xschem will be only partially responsive during simulation.
+Xschem will be only partially 
+responsive during simulation.
 Will run for 100 iterations.
 If you need to stop:
-Simulation -> Forced stop tcl scripts} 1720 -810 0 0 1.3 1.3 {}
+Simulation -> Forced stop tcl scripts} 1620 -960 0 0 1.3 1.3 {}
 T {select this net and:
 - press '0' to set to logic '0' value
 - press '1' to set to logic '1' value
 - press '2' to set to logic 'X' value
 - press '3' to set to logic 'Z' value
 - press '4' to set to toggle 1->0, 0->1, X->X} 1600 -1900 0 0 0.7 0.7 {}
+T {Brown: High Impedance (Z)} 3240 -900 0 0 1.5 1.5 {layer=13}
 N 2340 -2250 2340 -2170 { lab=#net1}
 N 2220 -2250 2340 -2250 { lab=#net1}
 N 2220 -2270 2220 -2250 { lab=#net1}
