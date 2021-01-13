@@ -4056,9 +4056,9 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
            xschem redraw
          }
      }
-  .menubar.tools.menu add command -label "Select all connected wires/labels/pins" -accelerator {Shift-Delete} \
+  .menubar.tools.menu add command -label "Select all connected wires/labels/pins" -accelerator {Shift-Right Butt.} \
      -command { xschem connected_nets}
-  .menubar.tools.menu add command -label "Select conn. wires, stop at junctions" -accelerator {Ctrl-Delete} \
+  .menubar.tools.menu add command -label "Select conn. wires, stop at junctions" -accelerator {Ctrl-Righ Butt.} \
      -command { xschem connected_nets 1 }
 
   .menubar.hilight.menu add command -label {Highlight net-pin name mismatches on selected instancs} \
