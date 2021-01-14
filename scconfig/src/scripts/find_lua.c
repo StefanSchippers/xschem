@@ -54,6 +54,7 @@ int find_script_lua(const char *name, int logdepth, int fatal)
 
 	/* OS specific include dir */
 	if (try_icl(logdepth, "libs/script/lua", test_c, NULL, "-I/usr/include", "-llua -llualib -lm")) return 0;
+	if (try_icl(logdepth, "libs/script/lua", test_c, NULL, "-I/usr/include/lua5.3", "-llua5.3 -lm")) return 0;
 	if (try_icl(logdepth, "libs/script/lua", test_c, NULL, "-I/usr/include/lua5.2", "-llua5.2 -lm")) return 0;
 	if (try_icl(logdepth, "libs/script/lua", test_c, NULL, "-I/usr/local/include", "-llua -llualib -lm")) return 0;
 	if (try_icl(logdepth, "libs/script/lua", test_c, NULL, "-I/usr/include", "-llua -lm")) return 0;

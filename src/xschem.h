@@ -571,6 +571,7 @@ typedef struct {
   int get_tok_value_size;
   char netlist_name[PATH_MAX];
   char current_dirname[PATH_MAX];
+  int netlist_unconn_cnt; /* unique count of unconnected pins while netlisting */
   struct instpinentry *instpintable[NBOXES][NBOXES];
   struct wireentry *wiretable[NBOXES][NBOXES];
   struct instentry *insttable[NBOXES][NBOXES];

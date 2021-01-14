@@ -245,6 +245,10 @@ N 280 -360 390 -360 { lab=D}
 N 550 -400 590 -400 { lab=G}
 N 340 -320 390 -320 { lab=D}
 N 340 -360 340 -320 { lab=D}
+N 1035 -1870 1200 -1870 { lab=#net29}
+N 1280 -1870 1360 -1870 { lab=#net30}
+N 850 -1890 910 -1890 {}
+N 850 -1850 910 -1850 {}
 C {ipin.sym} 70 -190 0 0 { name=p20 lab=A }
 C {ipin.sym} 70 -150 0 0 { name=p5 lab=C }
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
@@ -405,3 +409,5 @@ C {lab_pin.sym} 780 -340 0 0 {name=p44 lab=CK3}
 C {inv_2.sym} 430 -320 0 0 {name=x2 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {lab_pin.sym} 470 -320 0 1 {name=p45 lab=DN}
 C {lab_pin.sym} 810 -210 0 1 {name=p46 lab=DN}
+C {inv_2.sym} 1240 -1870 0 0 {name=x7 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
+C {nand2_1.sym} 970 -1870 0 0 {name=x6 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }

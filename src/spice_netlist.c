@@ -41,13 +41,14 @@ void global_spice_netlist(int global)  /* netlister driver */
  char cellname[PATH_MAX]; /* 20081211 overflow safe 20161122 */
  char *subckt_name;
 
+ xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
+ statusmsg("",2);  /* clear infowindow */
  if(xctx->modified) {
    save_ok = save_schematic(xctx->sch[xctx->currsch]);
    if(save_ok == -1) return;
  }
  free_hash(subckt_table);
  free_hash(model_table);
- statusmsg("",2);  /* clear infowindow */
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
  top_subckt = 0;
  spiceprefix=1;

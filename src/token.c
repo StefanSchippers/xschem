@@ -2285,7 +2285,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
 {
  int tmp;
  char errstr[2048];
- static const char unconn[]="__UNCONNECTED_PIN__";
+ static char unconn[50];
  char str_node[40]; /* 20161122 overflow safe */
  if(xctx->inst[i].node && xctx->inst[i].node[j]!=NULL)
  {
@@ -2330,6 +2330,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
        xctx->hilight_nets=1;
      }
    }
+   my_snprintf(unconn, S(unconn), "__UNCONNECTED_PIN__%d", xctx->netlist_unconn_cnt++);
    return unconn;
  }
 }
