@@ -259,8 +259,10 @@ proc key_binding {  s  d } {
     bind .drw "<${s}>" "xschem callback %T %x %y 0 $key 0 $state"
   } else {
     if {![string compare $d {} ] } {
+      puts  "bind .drw  <${s}> {}"
       bind .drw "<${s}>" {}
     } else {
+      puts  "bind .drw  <${s}> xschem callback %T %x %y $keysym 0 0 $state"
       bind .drw  "<${s}>" "xschem callback %T %x %y $keysym 0 0 $state"
     }
   }
@@ -3393,6 +3395,7 @@ proc create_layers_menu {} {
 }   
 
 proc set_replace_key_binding {} {
+  global replace_key
   if {[array exists replace_key]} {
     foreach i [array names replace_key] {
       key_binding "$i" "$replace_key($i)"

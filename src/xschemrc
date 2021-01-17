@@ -210,12 +210,12 @@
 #### KEYBINDINGS
 ###########################################################################
 #### General format for specifying a replacement for a keybind
-#### Replace Ctrl-d with Escape (so you wont kill the program)
-# set replace_key(Control-d) Escape
+#### Replace Ctrl-q with Escape (so you wont kill the program)
+# set replace_key(Control-q) Escape
 
 #### swap w and W keybinds; Always specify Shift for capital letters
-# set replace_key(Shift-W) w
-# set replace_key(w) Shift-W
+# set replace_key(Shift-W) Key-w
+# set replace_key(Key-w) Shift-W
 
 ###########################################################################
 #### TERMINAL
