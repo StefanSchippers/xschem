@@ -259,10 +259,10 @@ proc key_binding {  s  d } {
     bind .drw "<${s}>" "xschem callback %T %x %y 0 $key 0 $state"
   } else {
     if {![string compare $d {} ] } {
-      puts  "bind .drw  <${s}> {}"
+      # puts  "bind .drw  <${s}> {}"
       bind .drw "<${s}>" {}
     } else {
-      puts  "bind .drw  <${s}> xschem callback %T %x %y $keysym 0 0 $state"
+      # puts  "bind .drw  <${s}> xschem callback %T %x %y $keysym 0 0 $state"
       bind .drw  "<${s}>" "xschem callback %T %x %y $keysym 0 0 $state"
     }
   }
