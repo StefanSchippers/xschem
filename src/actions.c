@@ -1654,18 +1654,19 @@ void new_wire(int what, double mx_snap, double my_snap)
       }
       xctx->prep_hi_structs = 0;
       if(autotrim_wires) trim_wires();
-      /* update_conn_cues(1,0); */
-      if(show_pin_net_names || xctx->hilight_nets) prepare_netlist_structs(0);
-      if(!big) {
-        bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
-        if(show_pin_net_names || xctx->hilight_nets) {
-          int_hash_lookup(xctx->node_redraw_table,  xctx->wire[xctx->wires-1].node, 0, XINSERT_NOREPLACE);
-          find_inst_to_be_redrawn();
+      if(show_pin_net_names || xctx->hilight_nets) {
+        prepare_netlist_structs(0);
+        if(!big) {
+          bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
+          if(show_pin_net_names || xctx->hilight_nets) {
+            int_hash_lookup(xctx->node_redraw_table,  xctx->wire[xctx->wires-1].node, 0, XINSERT_NOREPLACE);
+            find_inst_to_be_redrawn();
+          }
+          bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
         }
-        bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-      }
-      draw();
-      if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+        draw();
+        if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+      } else update_conn_cues(1,1);
       /* draw_hilight_net(1);*/  /* for updating connection bubbles on hilight nets */
     }
     if(! (what &END)) {
