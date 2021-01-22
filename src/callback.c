@@ -1049,7 +1049,7 @@ int callback(int event, int mx, int my, KeySym key,
    {
     int mult;
     remove_symbol(2);
-    link_symbols_to_instances(0);
+    link_symbols_to_instances(-1);
     expandlabel("/RST", &mult);
     expandlabel("/CCC[3:0]", &mult);
     expandlabel("CCC[AA:BB:DD]", &mult);

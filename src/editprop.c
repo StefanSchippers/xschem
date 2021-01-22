@@ -947,7 +947,7 @@ void update_symbol(const char *result, int x)
      may be out of sync wrt disk version */
   if(copy_cell) {
    remove_symbols();
-   link_symbols_to_instances(0);
+   link_symbols_to_instances(-1);
   }
   /* symbol reference changed? --> sym_number >=0, set prefix to 1st char
      to use for inst name (from symbol template) */

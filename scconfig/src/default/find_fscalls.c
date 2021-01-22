@@ -576,6 +576,83 @@ int find_fs__mkdir(const char *name, int logdepth, int fatal)
 	return try_fail(logdepth, "libs/fs/_mkdir");
 }
 
+static int find_utime_impl(const char *name, int logdepth, int fatal,
+	const char* key, const char* funcname, const char* typename)
+{
+	char test_c[1024+4096];
+	const char *test_c_templ =
+		NL "void puts_OK();"
+		NL "int main(int argc, char* argv[])"
+		NL "{"
+		NL "	struct %s buf;"
+		NL "	buf.actime = buf.modtime = 1610958044;"
+		NL "	if (%s(\"%s\", &buf) == 0)"
+		NL "		puts_OK();"
+		NL "	return 0;"
+		NL "}"
+		NL "#include <stdio.h>"
+		NL "void puts_OK()"
+		NL "{"
+		NL "	puts(\"OK\");"
+		NL "}"
+		NL;
+
+	const char* includes[] =
+	{
+		/* *NIX */
+		"#include <sys/types.h>\n#include <utime.h>",
+
+		/* windoz */
+		"#include <sys/utime.h>",
+
+		NULL
+	};
+	const char** inc;
+	char* tmpf;
+
+	tmpf = tempfile_new(".txt");
+	sprintf(test_c, test_c_templ, typename, funcname, tmpf);
+
+	require("cc/cc", logdepth, fatal);
+
+	report("Checking for %s... ", funcname);
+	logprintf(logdepth, "find_fs_%s: trying to find %s()...\n", funcname, funcname);
+	logdepth++;
+
+	for (inc=includes; *inc; ++inc)
+	{
+		if (try_icl(logdepth, key, test_c, *inc, NULL, NULL))
+		{
+			unlink(tmpf);
+			free(tmpf);
+			return 0;
+		}
+	}
+
+	unlink(tmpf);
+	free(tmpf);
+
+	return try_fail(logdepth, key);
+}
+
+int find_fs_utime(const char *name, int logdepth, int fatal)
+{
+	return find_utime_impl(name, logdepth, fatal,
+		"libs/fs/utime", "utime", "utimbuf");
+}
+
+int find_fs__utime(const char *name, int logdepth, int fatal)
+{
+	return find_utime_impl(name, logdepth, fatal,
+		"libs/fs/_utime", "_utime", "_utimbuf");
+}
+
+int find_fs__utime64(const char *name, int logdepth, int fatal)
+{
+	return find_utime_impl(name, logdepth, fatal,
+		"libs/fs/_utime64", "_utime64", "__utimbuf64");
+}
+
 int find_fs_mkdtemp(const char *name, int logdepth, int fatal)
 {
 	char *test_c =

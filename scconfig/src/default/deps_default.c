@@ -96,6 +96,9 @@ void deps_default_init(void)
 	dep_add("libs/fs/getwd/*",          find_fs_getwd);
 	dep_add("libs/fs/mkdir/*",          find_fs_mkdir);
 	dep_add("libs/fs/_mkdir/*",         find_fs__mkdir);
+	dep_add("libs/fs/utime/*",          find_fs_utime);
+	dep_add("libs/fs/_utime/*",         find_fs__utime);
+	dep_add("libs/fs/_utime64/*",       find_fs__utime64);
 	dep_add("libs/fs/mkdtemp/*",        find_fs_mkdtemp);
 	dep_add("libs/fs/mmap/*",           find_fs_mmap);
 	dep_add("libs/fsmount/next_dev/*",  find_fsmount_next_dev);

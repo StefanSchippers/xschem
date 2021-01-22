@@ -954,12 +954,16 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   return 0;
 }
 
-void link_symbols_to_instances(int from) /* from > 0 : linking symbols from pasted schematic / clipboard */
+/* from == -1 --> link symbols to all instances, from 0 to instances-1 */
+void link_symbols_to_instances(int from) /* from >= 0 : linking symbols from pasted schematic / clipboard */
 {
-  int i;
+  int cond, i, merge = 1;
   char *type=NULL;
-  int cond;
 
+  if(from < 0 ) {
+    from = 0;
+    merge = 0;
+  }
   for(i = from; i < xctx->instances; i++) {
     dbg(2, "link_symbols_to_instances(): inst=%d\n", i);
     dbg(2, "link_symbols_to_instances(): matching inst %d name=%s \n",i, xctx->inst[i].name);
@@ -967,7 +971,7 @@ void link_symbols_to_instances(int from) /* from > 0 : linking symbols from past
     xctx->inst[i].ptr = match_symbol(xctx->inst[i].name);
   }
   for(i = from; i < xctx->instances; i++) {
-    if(from) select_element(i,SELECTED,1, 0); /* leave elements selected if a paste/copy from windows is done */
+    if(merge) select_element(i,SELECTED,1, 0); /* leave elements selected if a paste/copy from windows is done */
     type=xctx->sym[xctx->inst[i].ptr].type;
     cond= !type || !IS_LABEL_SH_OR_PIN(type);
     if(cond) xctx->inst[i].flags|=2; /* ordinary symbol */
@@ -1022,7 +1026,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       fclose(fd); /* 20150326 moved before load symbols */
       set_modify(0);
       dbg(2, "load_schematic(): loaded file:wire=%d inst=%d\n",xctx->wires , xctx->instances);
-      if(load_symbols) link_symbols_to_instances(0);
+      if(load_symbols) link_symbols_to_instances(-1);
       if(reset_undo) {
         Tcl_VarEval(interp, "is_xschem_file ", xctx->sch[xctx->currsch], NULL);
         if(!strcmp(tclresult(), "SYMBOL")) {
@@ -1238,7 +1242,7 @@ void pop_undo(int redo)
   fclose(fd);
   #endif
   dbg(2, "pop_undo(): loaded file:wire=%d inst=%d\n",xctx->wires , xctx->instances);
-  link_symbols_to_instances(0);
+  link_symbols_to_instances(-1);
   set_modify(1);
   xctx->prep_hash_inst=0;
   xctx->prep_hash_wires=0;
