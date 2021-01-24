@@ -31,7 +31,7 @@ BEGIN{ quote=0 }
  first = substr($0,1,1)
 
  # dont break .include lines as ngspice chokes on these.
- if(tolower($1) ~ /\.include|\.lib|\.title|\.save/) nobreak = 1
+ if(tolower($1) ~ /\.inc(lude)?|\.lib|\.title|\.save/) nobreak = 1
  else nobreak = 0
  # 20151203 faster executionif no {}' present
  if($0 ~/[{}']/ || quote) {
