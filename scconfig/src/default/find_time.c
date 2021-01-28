@@ -32,6 +32,7 @@ int find_time_usleep(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
 		NL "#include <unistd.h>"
+		NL "#include <stdio.h>"
 		NL "int main() {"
 		NL "	if (usleep(1) == 0)"
 		NL "		puts(\"OK\");"
@@ -53,6 +54,7 @@ int find_time_usleep(const char *name, int logdepth, int fatal)
 int find_time_Sleep(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
+		NL "#include <stdio.h>"
 		NL "int main() {"
 		NL "	Sleep(1);"
 		NL "	puts(\"OK\");"
@@ -75,6 +77,7 @@ int find_time_gettimeofday(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
 		NL "#include <stdlib.h>"
+		NL "#include <stdio.h>"
 		NL "int main() {"
 		NL "	struct timeval tv;"
 		NL "	if (gettimeofday(&tv, NULL) == 0)"
@@ -98,6 +101,7 @@ int find_time_gettimeofday(const char *name, int logdepth, int fatal)
 int find_time_ftime(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
+		NL "#include <stdio.h>"
 		NL "int main() {"
 		NL "	struct timeb tb;"
 		NL "	if (ftime(&tb) == 0)"

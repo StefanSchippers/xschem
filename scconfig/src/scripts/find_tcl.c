@@ -42,6 +42,7 @@ int find_script_tcl_(const char *name, int logdepth, int fatal, int *vers, int f
 	};
 
 	char *test_c =
+		NL "#include <stdio.h>"
 		NL "#include <tcl.h>"
 		NL "int main() {"
 		NL "	Tcl_Obj *res;"

@@ -37,6 +37,7 @@ int find_lib_lpthread(const char *name, int logdepth, int fatal)
 	char *test_c_recursive =
 		NL "#define _GNU_SOURCE 1 /* Needed for recursive thread-locking */"
 		NL "#include <pthread.h>"
+		NL "#include <stdio.h>"
 		NL "pthread_mutex_t mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;"
 		NL "int main() {"
 		NL "	pthread_attr_t a;"
@@ -48,6 +49,7 @@ int find_lib_lpthread(const char *name, int logdepth, int fatal)
 
 	char *test_c_simple =
 		NL "#include <pthread.h>"
+		NL "#include <stdio.h>"
 		NL "int main() {"
 		NL "	pthread_attr_t a;"
 		NL "	if (pthread_attr_init(&a) == 0)"

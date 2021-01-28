@@ -26,6 +26,7 @@
 int find_script_fungw(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
+		NL "#include <stdio.h>"
 		NL "#include <libfungw/fungw.h>"
 		NL "int main() {"
 		NL "	fgw_ctx_t ctx;"

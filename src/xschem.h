@@ -860,6 +860,7 @@ extern int  name_strcmp(char *s, char *d) ;
 extern int search(const char *tok, const char *val, int sub, int sel);
 extern int process_options(int argc, char **argv);
 extern void calc_drawing_bbox(xRect *boundbox, int selected);
+extern void create_ps(char **psfile);
 extern void ps_draw(void);
 extern void svg_draw(void);
 extern void set_viewport_size(int w, int h, double lw);

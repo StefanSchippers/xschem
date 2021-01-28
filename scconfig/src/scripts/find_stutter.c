@@ -27,6 +27,7 @@
 int find_script_stutter(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
+		NL "#include <stdio.h>"
 		NL "#include <stutter.h>"
 		NL "int main() {"
 		NL "	varctx *global;"
@@ -57,6 +58,7 @@ int find_script_stutter(const char *name, int logdepth, int fatal)
 int find_script_estutter(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
+		NL "#include <stdio.h>"
 		NL "#include <estutter/stutter.h>"
 		NL "int main() {"
 		NL "	stt_ctx_t stt;"

@@ -34,6 +34,7 @@ int find_io_pipe(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
 		NL "#include <unistd.h>"
+		NL "#include <stdio.h>"
 		NL "int main() {"
 		NL "	int fd[2];"
 		NL "	if (pipe(fd) == 0)"
@@ -56,6 +57,7 @@ int find_io_pipe2(const char *name, int logdepth, int fatal)
 {
 	const char *test_c =
 		NL "#include <unistd.h>"
+		NL "#include <stdio.h>"
 		NL "int main() {"
 		NL "	int fd[2];"
 		NL "	if (pipe2(fd, 0) == 0)"
@@ -77,6 +79,7 @@ int find_io_pipe2(const char *name, int logdepth, int fatal)
 int find_io__pipe(const char *name, int logdepth, int fatal)
 {
 	const char *test_c =
+		NL "#include <stdio.h>"
 		NL "int main() {"
 		NL "	int fd[2];"
 		NL "	if (_pipe(fd, 1024, _O_BINARY) == 0)"

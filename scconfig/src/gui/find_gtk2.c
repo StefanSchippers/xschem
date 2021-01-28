@@ -122,6 +122,7 @@ int find_gtk2_key_prefix(const char *name, int logdepth, int fatal)
 	const char *test_c_ =
 		NL "#include <gdk/gdkkeysyms.h>"
 		NL "#include <stdlib.h>"
+		NL "#include <stdio.h>"
 		NL
 		NL "int main(int argc, char *argv[])"
 		NL "{"

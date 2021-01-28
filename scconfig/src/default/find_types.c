@@ -93,6 +93,7 @@ int find_types_stdint(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
 		NL "#include <stdint.h>"
+		NL "#include <stdio.h>"
 		NL "int main() {"
 		NL "	if (sizeof(uint8_t) == 1)"
 		NL "		puts(\"OK\");"

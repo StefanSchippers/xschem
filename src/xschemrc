@@ -149,11 +149,15 @@
 #### command to translate xpm to png; (assumes command takes source 
 #### and dest file as arguments, example: gm convert plot.xpm plot.png)
 #### default: {gm convert}
+#### Windows ghostscript uses gswin64c
+# set to_png {gswin64c -sDEVICE=png16m -o}
 # set to_png {gm convert}
 
 #### command to translate ps to pdf; (assumes command takes source
 #### and dest file as arguments, example: ps2pdf plot.ps plot.pdf)
 #### default: ps2pdf
+#### Windows ghostscript uses gswin64c
+# set to_pdf {gswin64c -sDEVICE=pdfwrite -o}
 # set to_pdf ps2pdf
 
 ###########################################################################

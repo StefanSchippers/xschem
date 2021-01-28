@@ -45,7 +45,7 @@ int find_gl(const char *name, int logdepth, int fatal, const char *call, const c
 	const char *node = "libs/gui/gl";
 	char **id, *incdirs[] = {"GL", "OpenGL", NULL};
 	char **cf, *cflgs[] = {"", "-I/usr/include/libdrm", NULL};
-	const char **lf, *ldflgs[] = {"-lGL", "-lopengl32", NULL};
+	const char **lf, *ldflgs[] = {"-lGL", "-lopengl32", "-framework OpenGL", NULL};
 	char *cflags = NULL;
 	char *ldflags = NULL;
 	(void) call;  /* not used */

@@ -63,6 +63,7 @@ int find_script_ruby(const char *name, int logdepth, int fatal)
 	const char *require18s;
 
 	char *test_c =
+		NL "#include <stdio.h>"
 		NL "#include <ruby.h>"
 		NL "int main() {"
 		NL "	ruby_init();"
@@ -73,6 +74,7 @@ int find_script_ruby(const char *name, int logdepth, int fatal)
 		NL;
 
 	char *test_c18 =
+		NL "#include <stdio.h>"
 		NL "#include <ruby.h>"
 		NL "#include <env.h>"
 		NL "int main() {"

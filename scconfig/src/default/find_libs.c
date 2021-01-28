@@ -188,6 +188,7 @@ int find_lib_errno(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
 		NL "#include <errno.h>"
+		NL "#include <stdio.h>"
 		NL "int main() {"
 		NL "	errno = 0;"
 		NL "	puts(\"OK\");"

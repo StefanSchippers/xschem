@@ -30,6 +30,7 @@
 int find_gd(const char *name, int logdepth, int fatal, const char *call, const char *arg)
 {
 	const char *test_c =
+		NL "#include <stdio.h>"
 		NL "#include \"gd.h\""
 		NL "int main() {"
 		NL "	gdImagePtr imtype;"

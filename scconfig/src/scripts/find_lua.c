@@ -26,6 +26,7 @@
 int find_script_lua(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
+		NL "#include <stdio.h>"
 		NL "#include <lua.h>"
 		NL "#include <lauxlib.h>"
 		NL "int main() {"

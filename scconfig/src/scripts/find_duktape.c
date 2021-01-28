@@ -26,6 +26,7 @@
 int find_script_duktape(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
+		NL "#include <stdio.h>"
 		NL "#include <duktape.h>"
 		NL "int main() {"
 		NL "	duk_context *ctx = duk_create_heap_default();"

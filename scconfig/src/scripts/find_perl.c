@@ -27,6 +27,7 @@ int find_script_perl(const char *name, int logdepth, int fatal)
 	char *cflags, *ldflags, *s;
 	int res;
 	char *test_c =
+		NL "#include <stdio.h>"
 		NL "#include <EXTERN.h>"
 		NL "#include <perl.h>"
 		NL "int main() {"

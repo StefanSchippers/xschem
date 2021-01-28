@@ -30,6 +30,7 @@ int find_script_guile(const char *name, int logdepth, int fatal)
 
 /* temp hack: guile/gh makes sure we have the old, 1.8 version */
 	char *test_c =
+		NL "#include <stdio.h>"
 		NL "#include <libguile.h>"
 		NL "#include <guile/gh.h>"
 		NL "int main(int argc, char *argv[]) {"

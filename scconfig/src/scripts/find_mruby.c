@@ -25,6 +25,7 @@
 int find_script_mruby(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
+		NL "#include <stdio.h>"
 		NL "#include <mruby.h>"
 		NL "int main() {"
 		NL "	mrb_state *ctx = mrb_open();"

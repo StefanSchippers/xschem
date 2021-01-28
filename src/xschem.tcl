@@ -186,8 +186,12 @@ proc convert_to_pdf {filename dest} {
   global to_pdf
   # puts "convert_to_pdf: $filename --> $dest"
   if { [regexp -nocase {\.pdf$} $dest] } {
-    set pdffile [file rootname $filename].pdf]
-    if { ![catch "exec $to_pdf $filename $pdffile" msg] } {
+    set pdffile [file rootname $filename].pdf
+    set cmd "exec $to_pdf $filename $pdffile"
+    if {$::OS == "Windows"} {
+      set cmd "exec $to_pdf $pdffile $filename"
+    } 
+    if { ![catch $cmd msg] } {
       file rename -force $pdffile $dest
       # ps2pdf succeeded, so remove original .ps file
       if { ![xschem get debug_var] } {
@@ -205,7 +209,11 @@ proc convert_to_pdf {filename dest} {
 proc convert_to_png {filename dest} {
   global to_png tcl_debug
   # puts "---> $to_png $filename $destfile"
-  if { ![catch "exec $to_png $filename png:$dest" msg] } {
+  set cmd "exec $to_png $filename png:$dest"
+    if {$::OS == "Windows"} {
+      set cmd "exec $to_png $dest $filename"
+    } 
+  if { ![catch $cmd msg] } {
     # conversion succeeded, so remove original .xpm file
     if { ![xschem get debug_var] } {
       file delete $filename

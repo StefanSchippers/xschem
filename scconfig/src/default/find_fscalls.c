@@ -92,6 +92,7 @@ int find_fs_readdir(const char *name, int logdepth, int fatal)
 	char *test_c =
 		NL "#include <stdlib.h>"
 		NL "#include <stdio.h>"
+		NL "#include <string.h>"
 		NL "int main() {"
 		NL "	DIR *dirp;"
 		NL "	struct dirent *dp;"
@@ -397,6 +398,7 @@ int find_fs_getcwd(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
 		NL "#include <unistd.h>"
+		NL "#include <stdio.h>"
 		NL "int main() {"
 		NL "	char b[1024];"
 		NL "	if (getcwd(b, sizeof(b)) != NULL)"
@@ -419,6 +421,7 @@ int find_fs__getcwd(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
 		NL "#include <stdlib.h>"
+		NL "#include <stdio.h>"
 		NL "int main() {"
 		NL "	char b[1024];"
 		NL "	if (_getcwd(b, sizeof(b)) != NULL)"
@@ -442,6 +445,7 @@ int find_fs_getwd(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
 		NL "#include <unistd.h>"
+		NL "#include <stdio.h>"
 		NL "int main() {"
 		NL "	char b[8192];"
 		NL "	if (getwd(b) != NULL)"

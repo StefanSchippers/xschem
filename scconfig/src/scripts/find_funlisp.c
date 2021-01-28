@@ -26,6 +26,7 @@
 int find_script_funlisp(const char *name, int logdepth, int fatal)
 {
 	char *test_c =
+		NL "#include <stdio.h>"
 		NL "#include <funlisp.h>"
 		NL "int main() {"
 		NL "	lisp_runtime *rt = lisp_runtime_new();"
