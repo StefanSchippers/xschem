@@ -2071,6 +2071,9 @@ proc tclpropeval2 {s} {
   global tcl_debug env
   if {$tcl_debug <=-1} {puts "tclpropeval2: $s"}
   set path [string range [xschem get sch_path] 1 end]
+  regsub {^([^xX])} $path {x\1} path
+  while { [regsub {\.([^xX])} $path {.x\1} path] } {}
+  # puts "---> path=$path"
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s
   if { [catch {subst $s} res] } {
