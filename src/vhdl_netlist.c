@@ -56,7 +56,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
 
 
  if(xctx->netlist_name[0]) {
-   my_snprintf(cellname, S(cellname), "%s", get_cell(xctx->netlist_name, 0));
+   my_snprintf(cellname, S(cellname), "%s", get_cell_w_ext(xctx->netlist_name, 0));
  } else {
    my_snprintf(cellname, S(cellname), "%s.vhdl", skip_dir(xctx->sch[xctx->currsch]));
  }

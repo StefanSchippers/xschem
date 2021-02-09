@@ -66,7 +66,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  fd=fopen(netl_filename, "w");
 
  if(xctx->netlist_name[0]) {
-   my_snprintf(cellname, S(cellname), "%s", get_cell(xctx->netlist_name, 0));
+   my_snprintf(cellname, S(cellname), "%s", get_cell_w_ext(xctx->netlist_name, 0));
  } else {
    my_snprintf(cellname, S(cellname), "%s.spice", skip_dir(xctx->sch[xctx->currsch]));
  }

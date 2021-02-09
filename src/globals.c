@@ -116,6 +116,7 @@ xcb_visualtype_t *visual_xcb;
 /* these variables are mirrored in tcl code */
 int fullscreen=0;
 char *netlist_dir=NULL; /* user set netlist directory via cmd-option or menu or xschemrc */
+char initial_netlist_name[PATH_MAX]={0};
 int top_subckt = 0;
 int spiceprefix = 1;
 int unzoom_nodrift=1;

@@ -1567,6 +1567,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(!set_netlist_dir(0, NULL)) {
    fprintf(errfp, "problems creating netlist directory %s\n", netlist_dir ? netlist_dir : "<NULL>");
  }
+ if(initial_netlist_name[0]) my_strncpy(xctx->netlist_name, initial_netlist_name, S(initial_netlist_name));
 
  enable_layers();
 

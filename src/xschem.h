@@ -754,6 +754,7 @@ extern int currentsch;
 extern char *xschem_version_string;
 extern int split_files;
 extern char *netlist_dir;
+extern char initial_netlist_name[PATH_MAX];
 extern char bus_char[];
 extern int max_undo;
 extern int draw_dots;
