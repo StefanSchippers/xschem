@@ -155,8 +155,15 @@ void tedax_block_netlist(FILE *fd, int i)
      tedax_stop=1;
   else
      tedax_stop=0;
-  fprintf(fd, "\n# expanding   symbol:  %s # of pins=%d\n\n",
+  if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
+    my_strncpy(filename, abs_sym_path(str_tmp, ""), S(filename));
+  } else {
+    my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
+  }
+  fprintf(fd, "\n# expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
+  fprintf(fd, "# sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  fprintf(fd, "# sch_path: %s\n", filename);
 
   fprintf(fd, "begin netlist v1 %s\n",skip_dir(xctx->sym[i].name));
   print_tedax_subckt(fd, i);
@@ -171,16 +178,7 @@ void tedax_block_netlist(FILE *fd, int i)
   fprintf(fd, "%s", get_sym_template(xctx->sym[i].templ, extra));
   my_free(966, &extra);
   fprintf(fd, "\n");
-
-  if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
-    my_strncpy(filename, abs_sym_path(str_tmp, ""), S(filename));
-    load_schematic(1,filename, 0);
-  } else {
-    dbg(1, "tedax_block_netlist(): loading: %s -> %s\n",
-      xctx->sym[i].name, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"));
-    dbg(1, "tedax_block_netlist(): current_dirname=%s\n", xctx->current_dirname);
-    load_schematic(1, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), 0);
-  }
+  load_schematic(1,filename, 0);
   tedax_netlist(fd, tedax_stop);
   netlist_count++;
 

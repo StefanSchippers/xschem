@@ -367,8 +367,11 @@ void verilog_block_netlist(FILE *fd, int i)
      verilog_stop=1;
   else
      verilog_stop=0;
-
-
+  if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
+    my_strncpy(filename, abs_sym_path(str_tmp, ""), S(filename));
+  } else {
+    my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
+  }
   if(split_files) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
        netlist_dir,  skip_dir(xctx->sym[i].name), getpid());
@@ -379,37 +382,30 @@ void verilog_block_netlist(FILE *fd, int i)
   }
 
   dbg(1, "verilog_block_netlist(): expanding %s\n",  xctx->sym[i].name);
-  fprintf(fd, "\n// expanding   symbol:  %s # of pins=%d\n\n",
+  fprintf(fd, "\n// expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
+  fprintf(fd, "// sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  fprintf(fd, "// sch_path: %s\n", filename);
 
 
-  if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
-    my_strncpy(filename, abs_sym_path(str_tmp, ""), S(filename));
-    verilog_stop? load_schematic(0,filename, 0) :
-                  load_schematic(1,filename, 0);
-  } else {
-    verilog_stop? load_schematic(0, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), 0) :
-                  load_schematic(1, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), 0);
-  }
 
-
+  verilog_stop? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
   /* print verilog timescale  and preprocessor directives 10102004 */
-
-   for(j=0;j<xctx->instances;j++)
-   {
-    if( strcmp(get_tok_value(xctx->inst[j].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
-    if(xctx->inst[j].ptr<0) continue;
-    if(!strcmp(get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr, "verilog_ignore",0 ), "true") ) {
-      continue;
-    }
-    my_strdup(544, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
-    if( type && ( strcmp(type,"timescale")==0  || strcmp(type,"verilog_preprocessor")==0) )
-    {
-     str_tmp = get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr ,"verilog_format",0);
-     my_strdup(545, &tmp_string, str_tmp);
-     fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string) : "(NULL)");
-    }
+  for(j=0;j<xctx->instances;j++)
+  {
+   if( strcmp(get_tok_value(xctx->inst[j].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
+   if(xctx->inst[j].ptr<0) continue;
+   if(!strcmp(get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr, "verilog_ignore",0 ), "true") ) {
+     continue;
    }
+   my_strdup(544, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
+   if( type && ( strcmp(type,"timescale")==0  || strcmp(type,"verilog_preprocessor")==0) )
+   {
+    str_tmp = get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr ,"verilog_format",0);
+    my_strdup(545, &tmp_string, str_tmp);
+    fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string) : "(NULL)");
+   }
+  }
 
   fprintf(fd, "module %s (\n", skip_dir(xctx->sym[i].name));
   /*print_generic(fd, "entity", i); */

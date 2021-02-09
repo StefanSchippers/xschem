@@ -321,17 +321,21 @@ void spice_block_netlist(FILE *fd, int i)
      spice_stop=1;
   else
      spice_stop=0;
-
+  if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
+    my_strncpy(filename, abs_sym_path(str_tmp, ""), S(filename));
+  } else {
+    my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
+  }
   if(split_files) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", netlist_dir, skip_dir(xctx->sym[i].name), getpid());
     dbg(1, "spice_block_netlist(): split_files: netl_filename=%s\n", netl_filename);
     fd=fopen(netl_filename, "w");
     my_snprintf(cellname, S(cellname), "%s.spice", skip_dir(xctx->sym[i].name));
   }
-
-  fprintf(fd, "\n* expanding   symbol:  %s # of pins=%d\n\n",
+  fprintf(fd, "\n* expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
-
+  fprintf(fd, "* sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  fprintf(fd, "* sch_path: %s\n", filename);
   fprintf(fd, ".subckt %s ",skip_dir(xctx->sym[i].name));
   print_spice_subckt(fd, i);
 
@@ -346,14 +350,7 @@ void spice_block_netlist(FILE *fd, int i)
   my_free(950, &extra);
   fprintf(fd, "\n");
 
-  if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
-    my_strncpy(filename, abs_sym_path(str_tmp, ""), S(filename));
-    spice_stop? load_schematic(0,filename, 0) : 
-                load_schematic(1,filename, 0);
-  } else {
-    spice_stop? load_schematic(0, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch") ,0) : 
-                load_schematic(1, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch") ,0);
-  }
+  spice_stop ? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
   spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
   netlist_count++;
 
