@@ -1,5 +1,20 @@
 
 2.9.9:
+- add (as comments in netlist) absolute paths for .sch and .sym of all expanded subcircuits
+- ngspice_annotator: implicitly add "x" to subcircuit instance names that do not begin with "x" or "X"
+- Postscript print: addition of ISO 8859-1 characters 
+- When editing multiple text objects with "preserve unchanged attrs" set do not change individual text dimensions.
+- saving to file made 4x faster, this implies less latency due to undo buffer savings on freaking big schematics.
+- add sample file for custom menu additions
+- bind select "connected wires" to alt/ctrl-right button click
+- Add Shift-Delete command that selects all nets/labels/probes physically attached to current selected wire segment/label/pin/probe
+- added "auto join/trim wires" menu option since now the trim operation is doing fast even on big designs
+- option for transparent background in svg export
+- added ngspice backannotation tutorial
+- add xschem commands for specifying image size for png and pdf:
+   xschem print svg file.svg 800 600; 
+  svg background color taken from svg_colors variable so it can be changed like any other color
+- xschem page aspect ratio decides if postscript or landscape for ps/pdf
 - ps/pdf export uses true postscript fonts
 - spice_probe symbols generate .save instructions and these are flattened by xschem
   to enable ngspice save hierarchic nodes
