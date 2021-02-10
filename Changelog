@@ -2,7 +2,7 @@
 2.9.9:
 - add (as comments in netlist) absolute paths for .sch and .sym of all expanded subcircuits
 - ngspice_annotator: implicitly add "x" to subcircuit instance names that do not begin with "x" or "X"
-- Postscript print: addition of ISO 8859-1 characters 
+- Postscript/svg  print: addition of ISO 8859-1 characters 
 - When editing multiple text objects with "preserve unchanged attrs" set do not change individual text dimensions.
 - saving to file made 4x faster, this implies less latency due to undo buffer savings on freaking big schematics.
 - add sample file for custom menu additions
