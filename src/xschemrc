@@ -27,7 +27,7 @@
 
 #### For testing in build src directory
 #### if unset following paths are set:
-# .
+#
 # ../xschem_library/devices
 
 #### For testing after installation: uncomment following lines

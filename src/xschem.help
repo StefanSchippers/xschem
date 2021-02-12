@@ -14,10 +14,10 @@ Options:
   --script <file>      Execute specified tcl file as a command script (perhaps with xschem  commands).
   --tcp_port <number>  Listen to specified tcp port for client connections. (number >=1024).
   -i  --no_rcload      Do not load any xschemrc file.
-  -o <file>            Set output path for netlist.
-  --netlist_path <file>
-  -N <file>            Set name (only name, not path) of top level netlist file.
+  --netlist_path <path>
+  -o <path>            Set output path for netlist.
   --netlist_filename <file>    
+  -N <file>            Set name (only name, not path) of top level netlist file.
   -t  --tedax          Set netlist type to tEDAx.
   -s  --spice          Set netlist type to SPICE.
   -x  --no_x           Don't use X (only command mode).
