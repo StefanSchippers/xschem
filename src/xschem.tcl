@@ -44,39 +44,40 @@ proc execute_fileevent {id} {
   append execute_data($id) [read $execute_pipe($id) 1024]
   if {[eof $execute_pipe($id)]} {
       fileevent $execute_pipe($id) readable ""
-      if { $execute_status($id) } {
-        # setting pipe to blocking before closing allows to see if pipeline failed
-        # do not ask status for processes that close stdout/stderr, as eof might
-        # occur before process ends and following close blocks until process terminates.
-        fconfigure $execute_pipe($id) -blocking 1
-        set status 0
+      # setting pipe to blocking before closing allows to see if pipeline failed
+      # do not ask status for processes that close stdout/stderr, as eof might
+      # occur before process ends and following close blocks until process terminates.
+      fconfigure $execute_pipe($id) -blocking 1
+      set status 0
 
-        if  { [ info tclversion]  > 8.4} {
-           set catch_return [eval catch [ list {close $execute_pipe($id)} err options] ]
-        } else {
-           set catch_return [eval catch [ list {close $execute_pipe($id)} err] ]
-        }
-        if {$catch_return} {
-          if  { [ info tclversion] > 8.4} {
-            set details [dict get $options -errorcode]
-            if {[lindex $details 0] eq "CHILDSTATUS"} {
-                set status [lindex $details 2]
-                viewdata "Failed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
-            } else {
-              set status 1
+      if  { [ info tclversion]  > 8.4} {
+         set catch_return [eval catch [ list {close $execute_pipe($id)} err options] ]
+      } else {
+         set catch_return [eval catch [ list {close $execute_pipe($id)} err] ]
+      }
+      if {$catch_return} {
+        if  { [ info tclversion] > 8.4} {
+          set details [dict get $options -errorcode]
+          if {[lindex $details 0] eq "CHILDSTATUS"} {
+              set status [lindex $details 2]
+              viewdata "Failed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
+          } else {
+            set status 1
+            if {$execute_status($id) } {
               viewdata "Completed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
             }
-          } else {
-              set status 1
-              viewdata "Completed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
           }
+        } else {
+            set status 1
+            if {$execute_status($id) } {
+              viewdata "Completed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
+            }
         }
-        if { $status == 0 } {
+      }
+      if { $status == 0 } {
+        if {$execute_status($id) } {
           viewdata "Completed: $execute_cmd($id)\ndata:\n$execute_data($id)" ro
         }
-      } else {
-        # nonblocking close always succeed 
-        close $execute_pipe($id)
       }
       if { [info exists execute_callback($id)] } { eval $execute_callback($id); unset execute_callback($id) } 
       unset execute_pipe($id)
@@ -110,7 +111,11 @@ proc execute {status args} {
       incr execute_id
   }
   set id $execute_id
-  set pipe [open "|$args" r]
+  if { [catch {open "|$args" r} err] } {
+    puts "Proc execute error: $err"
+  } else {
+    set pipe $err
+  }
   set execute_status($id) $status
   set execute_pipe($id) $pipe
   set execute_cmd($id) $args
@@ -280,7 +285,7 @@ proc key_binding {  s  d } {
 proc edit_file {filename} {
  
  global editor
- eval execute 0  $editor  $filename
+ execute 0  $editor  $filename
  return {}
 }
 
@@ -984,8 +989,8 @@ proc utile_edit {schname} {
   global netlist_dir netlist_type tcl_debug editor XSCHEM_SHAREDIR
   global utile_gui_path utile_cmd_path 
   set tmpname [file rootname "$schname"]
-  eval exec {sh -c "cd \"$netlist_dir\"; $editor stimuli.$tmpname ; \
-      XSCHEM_SHAREDIR=\"$XSCHEM_SHAREDIR\" \"$utile_cmd_path\" stimuli.$tmpname"} &
+  execute 0 sh -c "cd \"$netlist_dir\" && $editor stimuli.$tmpname && \
+      XSCHEM_SHAREDIR=\"$XSCHEM_SHAREDIR\" \"$utile_cmd_path\" stimuli.$tmpname"
 }
 
 proc get_shell { curpath } {
@@ -1004,27 +1009,27 @@ proc edit_netlist {schname } {
  if { [select_netlist_dir 0] ne "" } {
    # puts "edit_netlist: \"$editor $ftype  ${schname}.v\" \"$netlist_dir\" bg"
    if { $netlist_type=="verilog" } {
-     execute 0  sh -c "cd $netlist_dir; $editor $ftype  \"${tmpname}.v\""
+     execute 0  sh -c "cd $netlist_dir && $editor $ftype  \"${tmpname}.v\""
    } elseif { $netlist_type=="spice" } {
      if {$::OS == "Windows"} {
        set cmd "$editor \"$netlist_dir/${tmpname}.spice\""
        eval exec $cmd
      } else {
-       execute 0  sh -c "cd $netlist_dir; $editor $ftype \"${tmpname}.spice\""
+       execute 0  sh -c "cd $netlist_dir && $editor $ftype \"${tmpname}.spice\""
      }
    } elseif { $netlist_type=="tedax" } {
      if {$::OS == "Windows"} {
        set cmd "$editor \"$netlist_dir/${tmpname}.tdx\""
        eval exec $cmd
      } else {
-       execute 0 sh -c "cd $netlist_dir; $editor $ftype \"${tmpname}.tdx\""
+       execute 0 sh -c "cd $netlist_dir && $editor $ftype \"${tmpname}.tdx\""
      }
    } elseif { $netlist_type=="vhdl" } { 
      if {$::OS == "Windows"} {
        set cmd "$editor \"$netlist_dir/${tmpname}.vhdl\""
        eval exec $cmd
      } else {
-       execute 0 sh -c "cd $netlist_dir; $editor $ftype \"${tmpname}.vhdl\""
+       execute 0 sh -c "cd $netlist_dir && $editor $ftype \"${tmpname}.vhdl\""
      }
    }
  }
