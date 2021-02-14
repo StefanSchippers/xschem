@@ -90,8 +90,11 @@ proc execute_fileevent {id} {
 
 proc execute_wait {status args} {
   global execute_pipe 
-  xschem set semaphore [expr {[xschem get semaphore] +1}]
   set id [eval execute $status $args]
+  if {$id == -1} {
+    return -1
+  }
+  xschem set semaphore [expr {[xschem get semaphore] +1}]
   vwait execute_pipe($id)
   xschem set semaphore [expr {[xschem get semaphore] -1}]
   return $id
@@ -112,7 +115,8 @@ proc execute {status args} {
   }
   set id $execute_id
   if { [catch {open "|$args" r} err] } {
-    puts "Proc execute error: $err"
+    puts stderr "Proc execute error: $err"
+    return -1
   } else {
     set pipe $err
   }
@@ -285,7 +289,8 @@ proc key_binding {  s  d } {
 proc edit_file {filename} {
  
  global editor
- execute 0  $editor  $filename
+ # since $editor can be an executable with options (gvim -f) I *need* to use eval
+ eval execute 0  $editor  $filename
  return {}
 }
 
@@ -997,7 +1002,7 @@ proc get_shell { curpath } {
  global netlist_dir netlist_type tcl_debug
  global  terminal
 
- execute 0 sh -c "cd $curpath; $terminal"
+ execute 0 sh -c "cd $curpath && $terminal"
 }
 
 proc edit_netlist {schname } {
@@ -2194,6 +2199,7 @@ proc edit_vi_prop {txtlabel} {
   if ![string compare $netlist_type "vhdl"] { set suffix vhd } else { set suffix v }
   set filename $filename.$suffix
   write_data $retval $XSCHEM_TMP_DIR/$filename
+  # since $editor can be an executable with options (gvim -f) I *need* to use eval
   eval execute_wait 0 $editor $XSCHEM_TMP_DIR/$filename ;# 20161119
   if {$tcl_debug<=-1} {puts "edit_vi_prop{}:\n--------\nretval=$retval\n---------\n"}
   if {$tcl_debug<=-1} {puts "edit_vi_prop{}:\n--------\nsymbol=$symbol\n---------\n"}
@@ -2223,6 +2229,7 @@ proc edit_vi_netlist_prop {txtlabel} {
   regsub -all {\\?\\} $retval {\\} retval
   write_data $retval $XSCHEM_TMP_DIR/$filename
   if { [regexp vim $editor] } { set ftype "\{-c :set filetype=$netlist_type\}" } else { set ftype {} }
+  # since $editor can be an executable with options (gvim -f) I *need* to use eval
   eval execute_wait 0 $editor  $ftype $XSCHEM_TMP_DIR/$filename
   if {$tcl_debug <= -1}  {puts "edit_vi_prop{}:\n--------\n$retval\n---------\n"}
   set tmp [read_data $XSCHEM_TMP_DIR/$filename]
@@ -3737,7 +3744,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   .menubar.file.menu add cascade -label "Open Recent" -menu .menubar.file.menu.recent
 
   .menubar.file.menu add command -label "Open Most Recent" \
-    -command "eval {xschem load [lindex "$recentfile" 0]}" -accelerator {Ctrl+Shift+O}
+    -command {xschem load [lindex "$recentfile" 0]} -accelerator {Ctrl+Shift+O}
   .menubar.file.menu add command -label "Save" -command "xschem save" -accelerator {Ctrl+S}
   toolbar_create FileSave "xschem save" "Save File"
   .menubar.file.menu add command -label "Merge" -command "xschem merge" -accelerator {Shift+B}
