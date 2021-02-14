@@ -132,7 +132,8 @@ proc execute {status args} {
 proc netlist {source_file show netlist_file} {
  global XSCHEM_SHAREDIR flat_netlist hspice_netlist netlist_dir
  global verilog_2001 netlist_type tcl_debug
-
+ 
+ simuldir
  if {$tcl_debug <= -1} { puts "netlist: source_file=$source_file, netlist_type=$netlist_type" }
  if {$netlist_type eq {spice}} {
    if { $hspice_netlist == 1 } {
@@ -823,8 +824,9 @@ proc simulate {{callback {}}} {
 
   global netlist_dir netlist_type computerfarm terminal sim
   global execute_callback XSCHEM_SHAREDIR has_x
+
+  simuldir 
   set_sim_defaults
-  
   if { [select_netlist_dir 0] ne {}} {
     set d ${netlist_dir}
     set tool $netlist_type
@@ -879,6 +881,8 @@ proc gaw_echoline {} {
 
 proc gaw_setup_tcp {} {
   global gaw_fd gaw_tcp_address netlist_dir has_x
+ 
+  simuldir
   set s [file tail [file rootname [xschem get schname 0]]]
 
   if { ![info exists gaw_fd] && [catch {eval socket $gaw_tcp_address} gaw_fd] } {
@@ -900,6 +904,8 @@ proc gaw_setup_tcp {} {
 
 proc gaw_cmd {cmd} {
   global gaw_fd gaw_tcp_address netlist_dir has_x
+
+  simuldir
   if { ![info exists gaw_fd] && [catch {eval socket $gaw_tcp_address} gaw_fd] } {
     puts "Problems opening socket to gaw on address $gaw_tcp_address"
     unset gaw_fd
@@ -941,8 +947,9 @@ proc waves {} {
   ## $d : netlist directory
 
   global netlist_dir netlist_type computerfarm terminal sim XSCHEM_SHAREDIR has_x
+
+  simuldir
   set_sim_defaults
-  
   if { [select_netlist_dir 0] ne {}} {
     set d ${netlist_dir}
     set tool ${netlist_type}
@@ -977,6 +984,8 @@ proc waves {} {
 proc utile_translate {schname} { 
   global netlist_dir netlist_type tcl_debug XSCHEM_SHAREDIR
   global utile_gui_path utile_cmd_path
+
+  simuldir 
   set tmpname [file rootname "$schname"]
   eval exec {sh -c "cd \"$netlist_dir\"; \
       XSCHEM_SHAREDIR=\"$XSCHEM_SHAREDIR\" \"$utile_cmd_path\" stimuli.$tmpname"}
@@ -985,6 +994,8 @@ proc utile_translate {schname} {
 proc utile_gui {schname} { 
   global netlist_dir netlist_type tcl_debug XSCHEM_SHAREDIR
   global utile_gui_path utile_cmd_path
+
+  simuldir 
   set tmpname [file rootname "$schname"]
   eval exec {sh -c "cd \"$netlist_dir\"; \
       XSCHEM_SHAREDIR=\"$XSCHEM_SHAREDIR\" \"$utile_gui_path\" stimuli.$tmpname"} &
@@ -992,7 +1003,9 @@ proc utile_gui {schname} {
 
 proc utile_edit {schname} { 
   global netlist_dir netlist_type tcl_debug editor XSCHEM_SHAREDIR
-  global utile_gui_path utile_cmd_path 
+  global utile_gui_path utile_cmd_path
+
+  simuldir
   set tmpname [file rootname "$schname"]
   execute 0 sh -c "cd \"$netlist_dir\" && $editor stimuli.$tmpname && \
       XSCHEM_SHAREDIR=\"$XSCHEM_SHAREDIR\" \"$utile_cmd_path\" stimuli.$tmpname"
@@ -1002,12 +1015,15 @@ proc get_shell { curpath } {
  global netlist_dir netlist_type tcl_debug
  global  terminal
 
+ simuldir
  execute 0 sh -c "cd $curpath && $terminal"
 }
 
 proc edit_netlist {schname } {
  global netlist_dir netlist_type tcl_debug
  global editor terminal
+
+ simuldir
  set tmpname [file rootname "$schname"]
 
  if { [regexp vim $editor] } { set ftype "-c \":set filetype=$netlist_type\"" } else { set ftype {} }
@@ -1709,6 +1725,19 @@ proc make_symbol {name} {
   set name [abs_sym_path $name ]
   # puts "make_symbol{}, executing: ${XSCHEM_SHAREDIR}/make_sym.awk $symbol_width ${name}"
   eval exec {awk -f ${XSCHEM_SHAREDIR}/make_sym.awk $symbol_width $name}
+  return {}
+}
+
+# create simulation dir 'simulation/' under current schematic directory
+proc simuldir {} {
+  global netlist_dir local_netlist_dir
+  if { $local_netlist_dir == 1 } {
+    set simdir [xschem get current_dirname]/simulation
+    file mkdir $simdir
+    set netlist_dir $simdir
+    xschem set_netlist_dir $netlist_dir
+    return $netlist_dir
+  }
   return {}
 }
 
@@ -3481,6 +3510,7 @@ set_ne globfilter {*}
 ## list of tcl procedures to load at end of xschem.tcl
 set_ne tcl_files {}
 set_ne netlist_dir "$USER_CONF_DIR/simulations"
+set_ne local_netlist_dir 0 ;# if set use <sch_dir>/simulation for netlist and sims
 set_ne bus_replacement_char {} ;# use {<>} to replace [] with <> in bussed signals
 set_ne hspice_netlist 1
 set_ne top_subckt 0
@@ -4128,6 +4158,9 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
     -command {
           input_line {Set netlist file name} {xschem set netlist_name} [xschem get netlist_name] 40
     }
+  .menubar.simulation.menu add checkbutton -label "Use 'simulation' dir under current schematic dir" \
+    -variable local_netlist_dir \
+    -command { if {$local_netlist_dir == 0 } { select_netlist_dir 1 } else { simuldir} }
   .menubar.simulation.menu add command -label {Configure simulators and tools} -command {simconf}
   .menubar.simulation.menu add command -label {Utile Stimuli Editor (GUI)} \
    -command {utile_gui [file tail [xschem get schname]]}
@@ -4146,11 +4179,11 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   .menubar.simulation.menu add command -label {Send highlighted nets to GAW} -command {xschem create_plot_cmd gaw}
   .menubar.simulation.menu add command -label {Create Ngspice 'xplot' file} \
   -command {xschem create_plot_cmd ngspice} -accelerator Shift+J
+  .menubar.simulation.menu add checkbutton -label "Forced stop tcl scripts" -variable tclstop
   .menubar.simulation.menu add separator
   .menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" -variable top_subckt 
   .menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
          -command {xschem set spiceprefix $spiceprefix; xschem save; xschem reload}
-  .menubar.simulation.menu add checkbutton -label "Forced stop tcl scripts" -variable tclstop
 
   pack .menubar.file -side left
   pack .menubar.edit -side left

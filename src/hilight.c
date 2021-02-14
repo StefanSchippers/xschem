@@ -193,7 +193,7 @@ void create_plot_cmd(int viewer)
   }
   if(viewer == NGSPICE) {
     fprintf(fd, str);
-    fprintf(fd, "\n.endc\n");
+    fprintf(fd, "\nremcirc\n.endc\n");
     my_free(761, &str);
     fclose(fd);
   }
