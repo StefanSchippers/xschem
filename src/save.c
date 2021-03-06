@@ -1262,7 +1262,7 @@ void pop_undo(int redo)
  * return symbol type in type pointer or "" if no type or no symbol found
  * if pintable given (!=NULL) hash all symbol pins
  * if embed_fd is not NULL read symbol from embedded '[...]' tags using embed_fd file pointer */
-void get_sym_type(const char *symname, char **type, struct int_hashentry **pintable, FILE *embed_fd)
+void get_sym_type(const char *symname, char **type, struct int_hashentry **pintable, FILE *embed_fd, int *sym_num_pins)
 {
   int i, c, n = 0;
   char name[PATH_MAX];
@@ -1284,8 +1284,11 @@ void get_sym_type(const char *symname, char **type, struct int_hashentry **pinta
     }
   }
   /* hash pins to get LCC schematic have same order as corresponding symbol */
-  if(found && pintable) for(c = 0; c < xctx->sym[i].rects[PINLAYER]; c++) {
-    int_hash_lookup(pintable, get_tok_value(xctx->sym[i].rect[PINLAYER][c].prop_ptr, "name", 0), c, XINSERT);
+  if(found && pintable) {
+    *sym_num_pins = xctx->sym[i].rects[PINLAYER];
+    for (c = 0; c < xctx->sym[i].rects[PINLAYER]; c++) {
+      int_hash_lookup(pintable, get_tok_value(xctx->sym[i].rect[PINLAYER][c].prop_ptr, "name", 0), c, XINSERT);
+    }
   }
   if( !found ) {
     dbg(1, "get_sym_type(): open file %s, pintable %s\n",name, pintable ? "set" : "null");
@@ -1332,6 +1335,7 @@ void get_sym_type(const char *symname, char **type, struct int_hashentry **pinta
              /* hash pins to get LCC schematic have same order as corresponding symbol */
              int_hash_lookup(pintable, get_tok_value(box.prop_ptr, "name", 0), n++, XINSERT);
              dbg(1, "get_sym_type() : hashing %s\n", get_tok_value(box.prop_ptr, "name", 0));
+             ++(*sym_num_pins);
            }
            break;
           default:
@@ -1358,17 +1362,22 @@ void align_sch_pins_with_sym(const char *name, int pos)
   char symname[PATH_MAX];
   char *symtype = NULL;
   const char *pinname;
-  int i, fail = 0;
+  int i, fail = 0, sym_num_pins=0;
   struct int_hashentry *pintable[HASHSIZE];
 
   if ((ptr = strrchr(name, '.')) && !strcmp(ptr, ".sch")) {
     my_strncpy(symname, add_ext(name, ".sym"), S(symname));
     for(i = 0; i < HASHSIZE; i++) pintable[i] = NULL;
     /* hash all symbol pins with their position into pintable hash*/
-    get_sym_type(symname, &symtype, pintable, NULL);
+    get_sym_type(symname, &symtype, pintable, NULL, &sym_num_pins);
     if(symtype[0]) { /* found a .sym for current .sch LCC instance */
       xRect *box = NULL;
-      box = (xRect *) my_malloc(1168, sizeof(xRect) * xctx->sym[pos].rects[PINLAYER]);
+      if (sym_num_pins!=xctx->sym[pos].rects[PINLAYER]) {
+        dbg(0, " align_sch_pins_with_sym(): warning: number of pins mismatch between %s and %s\n",
+          name, symname);
+        fail = 1;
+      }
+      box = (xRect *) my_malloc(1168, sizeof(xRect) * sym_num_pins);
       dbg(1, "align_sch_pins_with_sym(): symbol: %s\n", symname);
       for(i=0; i < xctx->sym[pos].rects[PINLAYER]; i++) {
         struct int_hashentry *entry;
@@ -1564,7 +1573,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   char *skip_line;
   const char *dash;
   xSymbol * symbol;
-  int symbols;
+  int symbols, sym_num_pins=0;
 
   check_symbol_storage();
   symbol = xctx->sym;
@@ -1942,7 +1951,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         /* get symbol type by looking into list of loaded symbols or (if not found) by
          * opening/closing the symbol file and getting the 'type' attribute from global symbol attributes
          * if fd_tmp set read symbol from embedded tags '[...]' */
-        get_sym_type(symname, &symtype, NULL, fd_tmp);
+        get_sym_type(symname, &symtype, NULL, fd_tmp, &sym_num_pins);
         xfseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
       }
 

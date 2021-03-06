@@ -1128,7 +1128,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 #else
    char install_dir[MAX_PATH]="";
    char *up_hier=NULL, *win_xschem_library_path=NULL;
-   #define WIN_XSCHEM_LIBRARY_PATH_NUM 8
+   #define WIN_XSCHEM_LIBRARY_PATH_NUM 9
    const char *WIN_XSCHEM_LIBRARY_PATH[WIN_XSCHEM_LIBRARY_PATH_NUM] = {
      /*1*/ "xschem_library",
      /*2*/ "xschem_library/devices", 
@@ -1137,7 +1137,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
      /*5*/ "xschem_library/logic", 
      /*6*/ "xschem_library/binto7seg", 
      /*7*/ "xschem_library/pcb", 
-     /*8*/ "xschem_library/rom8k"};
+     /*8*/ "xschem_library/rom8k",
+     /*9*/ "xschem_library/xschem_simulator"};
    GetModuleFileNameA(NULL, install_dir, MAX_PATH);
    change_to_unix_fn(install_dir);
    int dir_len=strlen(install_dir);

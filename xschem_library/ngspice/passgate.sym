@@ -1,12 +1,12 @@
-v {xschem version=2.9.5 file_version=1.1}
-G {type=passgate
+v {xschem version=2.9.9 file_version=1.2 }
+G {}
+K {type=passgate
 vhdl_stop=true
-format="#@spiceprefix\\\\MA#@name @#0 @#2 @#1 @VCCBPIN @modelp w=@wp l=@lp delvto=@delvto m=@m
-#@spiceprefix\\\\MB#@name @#0 @#3 @#1 @VSSBPIN @modeln w=@wn l=@ln delvto=@delvto m=@m"
+format="#@spiceprefix\\\\MA#@name @#0 @#2 @#1 @VCCBPIN @modelp w=@wp l=@lp @extra m=@m
+#@spiceprefix\\\\MB#@name @#0 @#3 @#1 @VSSBPIN @modeln w=@wn l=@ln m=@m"
 template="name=x1 m=1
 + wn=1 ln=0.2 modeln=nmos
 + wp=1 lp=0.2 modelp=pmos
-+ delvto=0
 + VCCBPIN=VCC VSSBPIN=VSS nf=1"
 extra="VCCBPIN VSSBPIN"
 generic_type="m=integer 

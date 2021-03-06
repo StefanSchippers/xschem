@@ -1,4 +1,4 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=2.9.9 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -241,7 +241,7 @@ C {parax_cap.sym} 160 -1120 0 0 {name=c38  value=2p}
 C {passgate.sym} 860 -1260 0 1 {name=x1 m=1 
 + wn=0.4u ln=0.13u
 + wp=0.4u lp=0.13u
-+ VCCBPIN=VCC VSSBPIN=VSS delvto="'agauss(0,ABSVAR,3)'"}
++ VCCBPIN=VCC VSSBPIN=VSS extra="delvto='agauss(0,ABSVAR,3)'"}
 C {lab_pin.sym} 860 -1290 0 1 {name=l19 sig_type=std_logic lab=CALB}
 C {lab_pin.sym} 860 -1230 0 1 {name=l44 sig_type=std_logic lab=CALBB}
 C {nmos4-v.sym} 1100 -1100 0 0 {name=M3 verilog_gate=nmos del=50,50,50 model=nmos w=1.0u l=1.0u extra="delvto='agauss(0,ABSVAR,3)'"}
@@ -253,7 +253,7 @@ C {lab_pin.sym} 1090 -970 0 0 {name=p182 lab=VSSI}
 C {passgate.sym} 1350 -1260 0 1 {name=x2 m=1 
 + wn=0.4u ln=0.13u
 + wp=0.4u lp=0.13u
-+ VCCBPIN=VCC VSSBPIN=VSS delvto="'agauss(0,ABSVAR,3)'"}
++ VCCBPIN=VCC VSSBPIN=VSS  extra="delvto='agauss(0,ABSVAR,3)'"}
 C {lab_pin.sym} 1350 -1290 0 1 {name=l45 sig_type=std_logic lab=CALB}
 C {lab_pin.sym} 1350 -1230 0 1 {name=l46 sig_type=std_logic lab=CALBB}
 C {nmos4-v.sym} 1590 -1100 0 0 {name=M7 verilog_gate=nmos del=50,50,50 model=nmos w=1.3u l=1.0u extra="delvto='agauss(0,ABSVAR,3)'"}
@@ -309,7 +309,7 @@ C {lab_pin.sym} 2290 -710 0 1 {name=l3 lab=SAOUT}
 C {passgate.sym} 1840 -1260 0 1 {name=x3 m=1 
 + wn=0.4u ln=0.13u
 + wp=0.4u lp=0.13u
-+ VCCBPIN=VCC VSSBPIN=VSS delvto="'agauss(0,ABSVAR,3)'"}
++ VCCBPIN=VCC VSSBPIN=VSS  extra="delvto='agauss(0,ABSVAR,3)'"}
 C {lab_pin.sym} 1840 -1290 0 1 {name=l5 sig_type=std_logic lab=CALB}
 C {lab_pin.sym} 1840 -1230 0 1 {name=l6 sig_type=std_logic lab=CALBB}
 C {nmos4-v.sym} 2080 -1100 0 0 {name=M23 verilog_gate=nmos del=50,50,50 model=nmos w=1.5u l=1.0u extra="delvto='agauss(0,ABSVAR,3)'"}
