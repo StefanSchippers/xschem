@@ -4041,7 +4041,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
      }
   .menubar.prop.menu add command -label "Edit" -command "xschem edit_prop" -accelerator Q
   .menubar.prop.menu add command -label "Edit with editor" -command "xschem edit_vi_prop" -accelerator Shift+Q
-  .menubar.prop.menu add command -label "View" -command "xschem view_prop" -accelerator Ctrl+Q
+  .menubar.prop.menu add command -label "View" -command "xschem view_prop" -accelerator Ctrl+Shift+Q
   .menubar.prop.menu add command -background red -label "Edit file (danger!)" \
      -command "xschem edit_file" -accelerator Alt+Q
   .menubar.sym.menu add radiobutton -label "Show Symbols" -variable hide_symbols -value 0 \
