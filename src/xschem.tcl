@@ -1234,6 +1234,15 @@ proc setglob {dir} {
       }
 }
 
+proc load_file_dialog_mkdir {dir} {
+  global myload_dir1
+  if { $dir ne {} } {
+    file mkdir "${myload_dir1}/$dir"
+    setglob ${myload_dir1}
+    myload_set_colors2
+  }
+}
+
 proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {initialfile {}} 
      {loadfile {1}} {confirm_overwrt {1}}} {
   global myload_index1 myload_files2 myload_files1 myload_retval myload_dir1 pathlist
@@ -1256,7 +1265,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
 
   frame .dialog.l.paneleft
   if {$tcl_version > 8.5} { set just {-justify right}} else {set just {}}
-  eval [subst {listbox .dialog.l.paneleft.list -listvariable myload_files1 -width 20 -height 18 $just \
+  eval [subst {listbox .dialog.l.paneleft.list -listvariable myload_files1 -width 20 -height 12 $just \
     -yscrollcommand ".dialog.l.paneleft.yscroll set" -selectmode browse \
     -xscrollcommand ".dialog.l.paneleft.xscroll set" -exportselection 0}]
   myload_set_colors1
@@ -1279,7 +1288,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
 
   frame .dialog.l.paneright
   frame .dialog.l.paneright.pre -background white -width 200 -height 200
-  listbox .dialog.l.paneright.list  -listvariable myload_files2 -width 20 -height 18\
+  listbox .dialog.l.paneright.list  -listvariable myload_files2 -width 20 -height 12\
     -yscrollcommand ".dialog.l.paneright.yscroll set" -selectmode browswe \
     -xscrollcommand ".dialog.l.paneright.xscroll set" -exportselection 0
   scrollbar .dialog.l.paneright.yscroll -command ".dialog.l.paneright.list yview"
@@ -1294,9 +1303,11 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
   # .dialog.l paneconfigure .dialog.l.paneleft -stretch always
   # .dialog.l paneconfigure .dialog.l.paneright -stretch always
   frame .dialog.buttons 
-  button .dialog.buttons.ok -text OK -command { set myload_retval [.dialog.buttons.entry get]; destroy .dialog} 
-  button .dialog.buttons.cancel -text Cancel -command {set myload_retval {}; destroy .dialog}
-  button .dialog.buttons.home -text {Libs} -command {
+  frame .dialog.buttons_bot
+  button .dialog.buttons_bot.ok -width 5 -text OK \
+     -command { set myload_retval [.dialog.buttons_bot.entry get]; destroy .dialog} 
+  button .dialog.buttons_bot.cancel -width 5 -text Cancel -command {set myload_retval {}; destroy .dialog}
+  button .dialog.buttons.home -width 5 -text {Home} -command {
     bind .dialog.l.paneright.pre <Expose> {}
     .dialog.l.paneright.pre configure -background white
     set myload_files1 $pathlist
@@ -1307,20 +1318,22 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
     set myload_dir1 [abs_sym_path [.dialog.l.paneleft.list get $myload_index1]]
     setglob $myload_dir1
     myload_set_colors2
-    # .dialog.buttons.entry delete 0 end
     .dialog.l.paneleft.list selection clear 0 end
     .dialog.l.paneright.list selection clear 0 end
     .dialog.l.paneleft.list selection set $myload_index1
   }
-  label .dialog.buttons.label  -text {File:}
-  entry .dialog.buttons.entry
+  label .dialog.buttons_bot.label  -text {File:}
+  entry .dialog.buttons_bot.entry
   if { $initialfile ne {} } { 
-    .dialog.buttons.entry insert 0 $initialfile
+    .dialog.buttons_bot.entry insert 0 $initialfile
   }
-  radiobutton .dialog.buttons.all -text All -variable globfilter -value {*} -command { setglob $myload_dir1 }
-  radiobutton .dialog.buttons.sym -text .sym -variable globfilter -value {*.sym} -command { setglob $myload_dir1 }
-  radiobutton .dialog.buttons.sch -text .sch -variable globfilter -value {*.sch} -command { setglob $myload_dir1 }
-  button .dialog.buttons.up -text UP -command {
+  radiobutton .dialog.buttons_bot.all -text All -variable globfilter -value {*} \
+     -command { setglob $myload_dir1 }
+  radiobutton .dialog.buttons_bot.sym -text .sym -variable globfilter -value {*.sym} \
+     -command { setglob $myload_dir1 }
+  radiobutton .dialog.buttons_bot.sch -text .sch -variable globfilter -value {*.sch} \
+     -command { setglob $myload_dir1 }
+  button .dialog.buttons.up -width 5 -text Up -command {
     bind .dialog.l.paneright.pre <Expose> {}
     .dialog.l.paneright.pre configure -background white
     set d [file dirname $myload_dir1]
@@ -1329,10 +1342,14 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
       setglob $d
       myload_set_colors2
       set myload_dir1 $d
-      #.dialog.buttons.entry delete 0 end
     }
   }
-  button .dialog.buttons.pwd -text PWD -command {
+  label .dialog.buttons.mkdirlab -text { Mkdir: }
+  entry .dialog.buttons.newdir -width 16
+  button .dialog.buttons.mkdir -width 5 -text Create -command { 
+    load_file_dialog_mkdir [.dialog.buttons.newdir get]
+  }
+  button .dialog.buttons.pwd -width 5 -text PWD -command {
     bind .dialog.l.paneright.pre <Expose> {}
     .dialog.l.paneright.pre configure -background white
     set d [xschem get current_dirname]
@@ -1341,27 +1358,30 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
       setglob $d
       myload_set_colors2
       set myload_dir1 $d
-      #.dialog.buttons.entry delete 0 end
     }
   }
-  pack .dialog.buttons.ok .dialog.buttons.cancel .dialog.buttons.pwd .dialog.buttons.up \
-       .dialog.buttons.home .dialog.buttons.label -side left
-  pack .dialog.buttons.entry -side left -fill x -expand true
-  pack .dialog.buttons.all .dialog.buttons.sym .dialog.buttons.sch -side left
+  pack .dialog.buttons.home .dialog.buttons.up .dialog.buttons.pwd -side left
+  pack .dialog.buttons.mkdirlab -side left
+  pack .dialog.buttons.newdir -expand true -fill x -side left
+  pack .dialog.buttons.mkdir -side right
+  pack .dialog.buttons_bot.ok .dialog.buttons_bot.cancel .dialog.buttons_bot.label -side left
+  pack .dialog.buttons_bot.entry -side left -fill x -expand true
+  pack .dialog.buttons_bot.all .dialog.buttons_bot.sym .dialog.buttons_bot.sch -side left
   pack .dialog.l -expand true -fill both
   pack .dialog.buttons -side top -fill x
+  pack .dialog.buttons_bot -side top -fill x
   if { [info exists myload_default_geometry]} {
      wm geometry .dialog "${myload_default_geometry}"
   }
   myload_set_home $initdir
   bind .dialog <Return> { 
-    set myload_retval [.dialog.buttons.entry get]
+    set myload_retval [.dialog.buttons_bot.entry get]
     if {$myload_retval ne {} } {
       destroy .dialog
     }
   }
   bind .dialog.l.paneright.list <Double-Button-1> {
-    set myload_retval [.dialog.buttons.entry get]
+    set myload_retval [.dialog.buttons_bot.entry get]
     if {$myload_retval ne {}  && ![file isdirectory "$myload_dir1/[.dialog.l.paneright.list get $myload_sel]"]} {
       bind .dialog.l.paneright.pre <Expose> {}
       destroy .dialog
@@ -1427,10 +1447,10 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
         setglob $myload_d
         myload_set_colors2
         set myload_dir1 $myload_d
-        # .dialog.buttons.entry delete 0 end
+        # .dialog.buttons_bot.entry delete 0 end
       } else {
-        .dialog.buttons.entry delete 0 end
-        .dialog.buttons.entry insert 0 $myload_dir2
+        .dialog.buttons_bot.entry delete 0 end
+        .dialog.buttons_bot.entry insert 0 $myload_dir2
          set t [is_xschem_file $myload_dir1/$myload_dir2]
          if { $t ne {0}  } {
 	   ### update
@@ -1787,6 +1807,7 @@ proc select_netlist_dir { force {dir {} }} {
   return $netlist_dir
 }
 
+
 proc enter_text {textlabel {preserve_disabled disabled}} {
   global retval rcode has_cairo preserve_unchanged_attrs
   set rcode {}
@@ -2018,68 +2039,73 @@ proc about {} {
 }
 
 proc property_search {} {
-  global search_value
+  global search_value search_found
   global search_exact
   global search_select
   global custom_token
 
-  if { [winfo exists .dialog] } return
-  toplevel .dialog -class Dialog
-  wm title .dialog {Search}
-  set X [expr {[winfo pointerx .dialog] - 60}]
-  set Y [expr {[winfo pointery .dialog] - 35}]
-  wm geometry .dialog "+$X+$Y"
-  frame .dialog.custom 
-  label .dialog.custom.l -text "Token"
-  entry .dialog.custom.e -width 32
-  .dialog.custom.e insert 0 $custom_token
-  pack .dialog.custom.e .dialog.custom.l -side right
-  frame .dialog.val 
-  label .dialog.val.l -text "Value"
-  entry .dialog.val.e -width 32
-  .dialog.val.e insert 0 $search_value
-  pack .dialog.val.e .dialog.val.l -side right
-  frame .dialog.but
-  button .dialog.but.ok -text OK -command {
-        set search_value [.dialog.val.e get]
-        set custom_token [.dialog.custom.e get]
-        if {$tcl_debug<=-1} { puts stderr "|$custom_token|" }
-        set token $custom_token
-        if { $search_exact==1 } {
-          xschem searchmenu exact $search_select $token $search_value
-        } else {
-          xschem searchmenu regex $search_select $token $search_value
-        }
-        destroy .dialog 
-  }
-  button .dialog.but.cancel -text Cancel -command { destroy .dialog }
-  
-  # Window doesn't support regular expression, has to be exact match for now
-  if {$::OS == "Windows"} {
-    set search_exact 1 
-    checkbutton .dialog.but.sub -text Exact_search -variable search_exact -state disable
-  } else {
-    checkbutton .dialog.but.sub -text Exact_search -variable search_exact 
-  }
-  radiobutton .dialog.but.nosel -text {Highlight} -variable search_select -value 0
-  radiobutton .dialog.but.sel -text {Select} -variable search_select -value 1
-  # 20171211 added unselect
-  radiobutton .dialog.but.unsel -text {Unselect} -variable search_select -value -1
-  pack .dialog.but.ok  -anchor w -side left
-  pack .dialog.but.sub  -side left
-  pack .dialog.but.nosel  -side left
-  pack .dialog.but.sel  -side left
-  pack .dialog.but.unsel  -side left
-  pack .dialog.but.cancel -anchor e
-  pack .dialog.custom  -anchor e
-  pack .dialog.val  -anchor e
-  pack .dialog.but -expand yes -fill x
-  focus  .dialog
-  bind .dialog <Escape> {.dialog.but.cancel invoke}
-  bind .dialog <Return> {.dialog.but.ok invoke}
-  bind .dialog <Control-Return> {.dialog.but.ok invoke}
-  grab set .dialog
-  tkwait window .dialog
+  set search_found 0
+  while { !$search_found} {
+    if { [winfo exists .dialog] } return
+    toplevel .dialog -class Dialog
+    wm title .dialog {Search}
+    if { ![info exists X] } {
+      set X [expr {[winfo pointerx .dialog] - 60}]
+      set Y [expr {[winfo pointery .dialog] - 35}]
+    }
+    wm geometry .dialog "+$X+$Y"
+    frame .dialog.custom 
+    label .dialog.custom.l -text "Token"
+    entry .dialog.custom.e -width 32
+    .dialog.custom.e insert 0 $custom_token
+    pack .dialog.custom.e .dialog.custom.l -side right
+    frame .dialog.val 
+    label .dialog.val.l -text "Value"
+    entry .dialog.val.e -width 32
+    .dialog.val.e insert 0 $search_value
+    pack .dialog.val.e .dialog.val.l -side right
+    frame .dialog.but
+    button .dialog.but.ok -text OK -command {
+          set search_value [.dialog.val.e get]
+          set custom_token [.dialog.custom.e get]
+          if {$tcl_debug<=-1} { puts stderr "|$custom_token|" }
+          set token $custom_token
+          if { $search_exact==1 } {
+            set search_found [xschem searchmenu exact $search_select $token $search_value]
+          } else {
+            set search_found [xschem searchmenu regex $search_select $token $search_value]
+          }
+          destroy .dialog 
+    }
+    button .dialog.but.cancel -text Cancel -command { set search_found 1; destroy .dialog }
+    
+    # Window doesn't support regular expression, has to be exact match for now
+    if {$::OS == "Windows"} {
+      set search_exact 1 
+      checkbutton .dialog.but.sub -text Exact_search -variable search_exact -state disable
+    } else {
+      checkbutton .dialog.but.sub -text Exact_search -variable search_exact 
+    }
+    radiobutton .dialog.but.nosel -text {Highlight} -variable search_select -value 0
+    radiobutton .dialog.but.sel -text {Select} -variable search_select -value 1
+    # 20171211 added unselect
+    radiobutton .dialog.but.unsel -text {Unselect} -variable search_select -value -1
+    pack .dialog.but.ok  -anchor w -side left
+    pack .dialog.but.sub  -side left
+    pack .dialog.but.nosel  -side left
+    pack .dialog.but.sel  -side left
+    pack .dialog.but.unsel  -side left
+    pack .dialog.but.cancel -anchor e
+    pack .dialog.custom  -anchor e
+    pack .dialog.val  -anchor e
+    pack .dialog.but -expand yes -fill x
+    focus  .dialog
+    bind .dialog <Escape> {.dialog.but.cancel invoke}
+    bind .dialog <Return> {.dialog.but.ok invoke}
+    bind .dialog <Control-Return> {.dialog.but.ok invoke}
+    grab set .dialog
+    tkwait window .dialog
+  } 
   return {}
 }
 
