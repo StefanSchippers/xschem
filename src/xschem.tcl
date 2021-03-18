@@ -1350,10 +1350,11 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
     load_file_dialog_mkdir [.dialog.buttons.newdir get]
   }
   button .dialog.buttons.rmdir -width 5 -text Delete -command { 
-    load_file_dialog_mkdir [.dialog.buttons.newdir get]
-    file delete "${myload_dir1}/[.dialog.buttons.newdir get]"
-    setglob ${myload_dir1}
-    myload_set_colors2
+    if { [.dialog.buttons.newdir get] ne {} } {
+      file delete "${myload_dir1}/[.dialog.buttons.newdir get]"
+      setglob ${myload_dir1}
+      myload_set_colors2
+    }
   }
   button .dialog.buttons.pwd -text {Current file dir} -command {
     bind .dialog.l.paneright.pre <Expose> {}
