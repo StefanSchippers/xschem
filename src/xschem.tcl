@@ -1344,12 +1344,18 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
       set myload_dir1 $d
     }
   }
-  label .dialog.buttons.mkdirlab -text { Mkdir: }
+  label .dialog.buttons.mkdirlab -text { New dir: }
   entry .dialog.buttons.newdir -width 16
   button .dialog.buttons.mkdir -width 5 -text Create -command { 
     load_file_dialog_mkdir [.dialog.buttons.newdir get]
   }
-  button .dialog.buttons.pwd -width 5 -text PWD -command {
+  button .dialog.buttons.rmdir -width 5 -text Delete -command { 
+    load_file_dialog_mkdir [.dialog.buttons.newdir get]
+    file delete "${myload_dir1}/[.dialog.buttons.newdir get]"
+    setglob ${myload_dir1}
+    myload_set_colors2
+  }
+  button .dialog.buttons.pwd -text {Current file dir} -command {
     bind .dialog.l.paneright.pre <Expose> {}
     .dialog.l.paneright.pre configure -background white
     set d [xschem get current_dirname]
@@ -1363,7 +1369,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
   pack .dialog.buttons.home .dialog.buttons.up .dialog.buttons.pwd -side left
   pack .dialog.buttons.mkdirlab -side left
   pack .dialog.buttons.newdir -expand true -fill x -side left
-  pack .dialog.buttons.mkdir -side right
+  pack .dialog.buttons.rmdir .dialog.buttons.mkdir -side right
   pack .dialog.buttons_bot.ok .dialog.buttons_bot.cancel .dialog.buttons_bot.label -side left
   pack .dialog.buttons_bot.entry -side left -fill x -expand true
   pack .dialog.buttons_bot.all .dialog.buttons_bot.sym .dialog.buttons_bot.sch -side left
