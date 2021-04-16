@@ -14,7 +14,8 @@ SCRIPT_OBJS = \
   $(BIN)/scripts/find_funlisp.o \
   $(BIN)/scripts/find_duktape.o \
   $(BIN)/scripts/find_fungw.o \
-  $(BIN)/scripts/find_m4.o
+  $(BIN)/scripts/find_m4.o \
+  $(BIN)/scripts/find_welltype.o
 
 $(BIN)/scripts/scripts.o: $(SRC)/scripts/scripts.c
 	$(CC) $(CFLAGS) -c $(SRC)/scripts/scripts.c -o $(BIN)/scripts/scripts.o
@@ -51,6 +52,9 @@ $(BIN)/scripts/find_stutter.o: $(SRC)/scripts/find_stutter.c $(SRC)/scripts/scri
 
 $(BIN)/scripts/find_m4.o: $(SRC)/scripts/find_m4.c $(SRC)/scripts/scripts.h
 	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_m4.c -o $(BIN)/scripts/find_m4.o
+
+$(BIN)/scripts/find_welltype.o: $(SRC)/scripts/find_welltype.c $(SRC)/scripts/scripts.h
+	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_welltype.c -o $(BIN)/scripts/find_welltype.o
 
 $(BIN)/scripts/find_duktape.o: $(SRC)/scripts/find_duktape.c $(SRC)/scripts/scripts.h
 	$(CC) $(CFLAGS) -c $(SRC)/scripts/find_duktape.c -o $(BIN)/scripts/find_duktape.o

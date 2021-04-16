@@ -880,9 +880,9 @@ void ps_draw(void)
  }
  create_ps(&psfile);
  if(plotfile[0]) {
-   my_snprintf(tmp, S(tmp), "convert_to_pdf %s %s", psfile, plotfile);
+   my_snprintf(tmp, S(tmp), "convert_to_pdf {%s} {%s}", psfile, plotfile);
  } else {
-   my_snprintf(tmp, S(tmp), "convert_to_pdf %s plot.pdf", psfile);
+   my_snprintf(tmp, S(tmp), "convert_to_pdf {%s} plot.pdf", psfile);
  }
  my_strncpy(plotfile,"", S(plotfile));
  tcleval( tmp);

@@ -30,3 +30,5 @@ int find_script_fungw_user_call_ctx(const char *name, int logdepth, int fatal);
 int find_script_fungw_cfg_pupdir(const char *name, int logdepth, int fatal);
 int find_script_fungw_all(const char *name, int logdepth, int fatal);
 int find_script_m4(const char *name, int logdepth, int fatal);
+int find_script_welltype(const char *name, int logdepth, int fatal);
+int find_script_wtc(const char *name, int logdepth, int fatal);

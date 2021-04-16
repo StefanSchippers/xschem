@@ -1700,7 +1700,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         return TCL_ERROR;
       }
       if(argc >= 4) {
-        Tcl_VarEval(interp, "file normalize ", argv[3], NULL);
+        Tcl_VarEval(interp, "file normalize \"", argv[3], "\"", NULL);
         my_strncpy(plotfile, Tcl_GetStringResult(interp), S(plotfile));
       }
 

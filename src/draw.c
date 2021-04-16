@@ -82,16 +82,16 @@ void print_image()
   XpmWriteFileFromPixmap(display, "plot.xpm", xctx->save_pixmap,0, NULL ); /* .gz ???? */
   dbg(1, "print_image(): Window image saved\n");
   if(plotfile[0]) {
-    my_snprintf(cmd, S(cmd), "convert_to_png plot.xpm %s", plotfile);
+    my_snprintf(cmd, S(cmd), "convert_to_png plot.xpm {%s}", plotfile);
     tcleval(cmd);
   } else tcleval( "convert_to_png plot.xpm plot.png");
   #else
   char *psfile=NULL;
   create_ps(&psfile);
   if(plotfile[0]) {
-    my_snprintf(cmd, S(cmd), "convert_to_png %s %s", psfile, plotfile);
+    my_snprintf(cmd, S(cmd), "convert_to_png {%s} {%s}", psfile, plotfile);
     tcleval(cmd);
-  } else tcleval( "convert_to_png %s plot.png", psfile);
+  } else tcleval( "convert_to_png {%s} plot.png", psfile);
   #endif
   my_strncpy(plotfile,"", S(plotfile));
   draw_grid=save_draw_grid;

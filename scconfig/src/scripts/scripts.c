@@ -42,6 +42,8 @@ void deps_scripts_init()
 	dep_add("libs/script/funlisp/*",        find_script_funlisp);
 	dep_add("libs/script/duktape/*",        find_script_duktape);
 	dep_add("libs/script/m4/bin/*",         find_script_m4);
+	dep_add("libs/script/welltype/*",       find_script_welltype);
+	dep_add("libs/script/welltype/wtc/*",   find_script_wtc);
 
 	dep_add("libs/script/fungw/presents",         find_script_fungw);
 	dep_add("libs/script/fungw/user_call_ctx/*",  find_script_fungw_user_call_ctx);
