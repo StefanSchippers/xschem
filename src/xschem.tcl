@@ -3078,11 +3078,11 @@ proc get_file_path {ff} {
   #        Linux                Windows
   if { [regexp {^/} $ff] || [regexp {^[a-zA-Z]:} $ff] } { return $ff }
   if {$::OS == "Windows"} {
-    set pathlist [split $env(PATH) \;]
+    set mylist [split $env(PATH) \;]
   } else {
-    set pathlist [split $env(PATH) :]
+    set mylist [split $env(PATH) :]
   }
-  foreach i $pathlist {
+  foreach i $mylist {
     set ii $i/$ff
     if { [file exists $ii]} {return $ii}
   }
@@ -3389,8 +3389,10 @@ proc set_paths {} {
       regsub {^~} $i $env(HOME) i
       if { ![string compare $i .] } {
         lappend pathlist $i
+      } elseif { [ regexp {\.\.\/} $i] } {
+        lappend pathlist [file normalize $i]
       } elseif { [ file exists $i] } {
-        lappend pathlist ${i}
+        lappend pathlist $i
       }
     }
   }
