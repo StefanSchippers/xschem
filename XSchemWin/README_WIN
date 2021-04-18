@@ -28,12 +28,19 @@ INSTRUCTIONS TO ADD XSCHEM TO VISUAL STUDIO 2019
     - Microsoft Visual Studio 2019
     - Wix Toolset Visual Studio 2019 Extension (Download through Microsoft Extensions on VS 2019)
     - Wix Toolset Build Tools v3.11 (Download online from wixtoolset)
+      (WiX Toolset requires the .NET Framework 3.5.1 Windows feature to be enabled.)
+        Turn Windows features on or off
+        Select .NET framework 3.5 (include .NET 2.0 and 3.0)
     - ActiveState tcl/tk 8.6 (Remember install directory where includes files are, see step h)
       32-bit, 64-bit ActiveState need to match XSchem x86, x64, respectively.
     - bison (Remember executabled directory for step h, preferably don't have spaces in the directory path (ie., don't use Program Files)) 
       (http://gnuwin32.sourceforge.net/packages/bison.htm, Complete package, except sources (bison-2.4.1-setup.exe))
     - flex (Remember executabled directory for step h, see bison note)
       (http://gnuwin32.sourceforge.net/packages/flex.htm, Complete package, except sources (flex-2.5.4a-1.exe))
+   
+   Optional:
+    - Windows Ghostscript (to print)
+      Update xschemrc to set variable to_pdf and to_png
 
 2. Create new XSchemWin project on Visual Studio 2019 
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.9.4" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.9.5" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
     <WixVariable Id="WixUILicenseRtf" 
                  Value="License.rtf" />
@@ -22,7 +22,7 @@
       <UpgradeVersion
          Property="OLD_VERSION_FOUND"
          Minimum="2.9.8.0"
-         Maximum="2.9.9.3"
+         Maximum="2.9.9.4"
          IncludeMinimum="yes"
          IncludeMaximum="no"
          OnlyDetect="no"
@@ -30,7 +30,7 @@
          MigrateFeatures="yes"  />
       <UpgradeVersion
         Property="NEWER_VERSION_FOUND"
-        Minimum="2.9.9.3"
+        Minimum="2.9.9.4"
         IncludeMinimum="no"
         OnlyDetect="yes" />
     </Upgrade>
@@ -146,9 +146,6 @@
       </Component>
       <Component Id="CMPORDERLABELSAWK">
         <File Id="ORDERLABELSAWK" KeyPath="yes" Source="../../src/order_labels.awk" />
-      </Component>
-      <Component Id="CMPRAWTOVCD">
-        <File Id="RAWTOVCD" KeyPath="yes" Source="../../src/rawtovcd" />
       </Component>
       <Component Id="CMPSRCRESOURCESTCL">
         <File Id="RESOURCESTCL" KeyPath="yes" Source="../../src/resources.tcl" />
@@ -325,7 +322,6 @@
       <ComponentRef Id="CMPMAKEVHDLFROMSPICEAWK" />
       <ComponentRef Id="CMPNETLISTCOMPACTORAWK" />
       <ComponentRef Id="CMPORDERLABELSAWK" />
-      <ComponentRef Id="CMPRAWTOVCD" />
       <ComponentRef Id="CMPPARSESYNOPSYSVHDLAWK" />
       <ComponentRef Id="CMPREDUCEEVENODDARRAYLABELSAWK" />
       <ComponentRef Id="CMPRESCALEAWK" />
