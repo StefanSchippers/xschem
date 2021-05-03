@@ -1,4 +1,4 @@
-# Installation instructions for MacOS 'Catalina'
+# Build instructions for MacOS 'Catalina'
 Install the latest XQuartz from XQuartz.org.
 Install the latest tcl, tk and cairo from MacPorts. 
 
@@ -23,7 +23,9 @@ make install
 The application will be placed in `/Users/$(whoami)/xschem-macos/bin` and can be started with
 `./xschem` in that folder.
 
-# Compilation Instructions for xschem on MacOS 'Big Sur'
+---
+
+# Build Instructions for MacOS 'Big Sur'
 In order to compile xschem properly on MacOS, we always need to reference the X libraries from XQuartz
 and change some compilation variables. The following dependencies are required:
 - XQuartz: https://www.xquartz.org/releases/XQuartz-2.7.11.html
