@@ -1,4 +1,29 @@
-# Compilation Instructions for xschem on MacOS
+# Installation instructions for MacOS 'Catalina'
+Install the latest XQuartz from XQuartz.org.
+Install the latest tcl, tk and cairo from MacPorts. 
+
+## xschem compilation
+Let's use a recent xschem repository and install it on ~/xschem-macos  
+
+```
+git clone https://github.com/StefanSchippers/xschem.git  
+cd xschem  
+## set prefix to the base directory where xschem and his support files will be installed
+## default if unspecified is /usr/local
+./configure --prefix=/Users/$(whoami)/xschem-macos
+```
+
+Finally, we compile and install the application.  
+
+```
+make
+make install
+```
+
+The application will be placed in `/Users/$(whoami)/xschem-macos/bin` and can be started with
+`./xschem` in that folder.
+
+# Compilation Instructions for xschem on MacOS 'Big Sur'
 In order to compile xschem properly on MacOS, we always need to reference the X libraries from XQuartz
 and change some compilation variables. The following dependencies are required:
 - XQuartz: https://www.xquartz.org/releases/XQuartz-2.7.11.html
@@ -38,6 +63,8 @@ xschem repository and install it on ~/xschem-macos (adapt this to your username)
 ```
 git clone https://github.com/StefanSchippers/xschem.git  
 cd xschem  
+## set prefix to the base directory where xschem and his support files will be installed
+## default if unspecified is /usr/local
 ./configure --prefix=/Users/$(whoami)/xschem-macos
 ```
 
