@@ -2319,7 +2319,8 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
  }
  else
  {
-   *multip=1;
+   expandlabel(get_tok_value(                             /* remove quotes --. */
+           (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), multip);
 
    if(erc) {
      my_snprintf(errstr, S(errstr), "Warning: unconnected pin,  Inst idx: %d, Pin idx: %d  Inst:%s\n",
@@ -2330,8 +2331,11 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
        xctx->hilight_nets=1;
      }
    }
-   my_snprintf(unconn, S(unconn), "__UNCONNECTED_PIN__%d", xctx->netlist_unconn_cnt++);
-   return unconn;
+   if(*multip <= 1) 
+     my_snprintf(unconn, S(unconn), "__UNCONNECTED_PIN__%d", xctx->netlist_unconn_cnt++);
+   else
+     my_snprintf(unconn, S(unconn), "__UNCONNECTED_PIN__%d[%d:0]", xctx->netlist_unconn_cnt++, *multip - 1);
+   return expandlabel(unconn, &tmp);
  }
 }
 
