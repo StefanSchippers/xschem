@@ -146,16 +146,18 @@ int try_icl_(int logdepth, const char *prefix, const char *test_c_in, const char
 	}
 
 	/* load uincludes, uclfags, uldflags and uprefix - LOAD() inserts the u */
-	l = sprintf(apath, "/arg/icl/%s/", prefix); apath_end = apath+l;
-	LOAD(includes);
-	LOAD(cflags);
-	LOAD(ldflags);
-	LOAD(prefix);
-	l = sprintf(apath, "/arg/icl/%s/%s/", db_cwd, prefix); apath_end = apath+l;
-	LOAD(includes);
-	LOAD(cflags);
-	LOAD(ldflags);
-	LOAD(prefix);
+	if (prefix != NULL) { /* prefix == NULL means non-standard icl; caller sets non-standard nodes, the user can't affect that */
+		l = sprintf(apath, "/arg/icl/%s/", prefix); apath_end = apath+l;
+		LOAD(includes);
+		LOAD(cflags);
+		LOAD(ldflags);
+		LOAD(prefix);
+		l = sprintf(apath, "/arg/icl/%s/%s/", db_cwd, prefix); apath_end = apath+l;
+		LOAD(includes);
+		LOAD(cflags);
+		LOAD(ldflags);
+		LOAD(prefix);
+	}
 
 	/* special case: all three specified by the user - ignore what the detector wanted, but run only once per node prefix */
 	if ((uincludes != NULL) && (ucflags != NULL) && (uldflags != NULL)) {

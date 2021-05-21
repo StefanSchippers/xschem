@@ -272,21 +272,16 @@ void new_window(const char *cell, int symbol)
       exit(0); /* --> child of child will be reparented to init */
     } else if (!pid2) {
       /* child of child */
-      if(!(freopen("/dev/null","w",stdout) && freopen("/dev/null","r",stdin) &&
-        freopen("/dev/null","w",stderr))){
-        fprintf(errfp, "new_window(): freopen error\n");
-        tcleval("exit");
-      }
       if(!cell || !cell[0]) {
-        execl(xschem_executable,xschem_executable,"-r", NULL);
+        execl(xschem_executable,xschem_executable,"-b", NULL);
       }
       else if(!symbol) {
         my_strncpy(f, cell, S(f));
-        execl(xschem_executable,xschem_executable,"-r",f, NULL);
+        execl(xschem_executable,xschem_executable,"-b",f, NULL);
       }
       else {
         my_strncpy(f, cell, S(f));
-        execl(xschem_executable,xschem_executable,"-r",f, NULL);
+        execl(xschem_executable,xschem_executable,"-b",f, NULL);
       }
     } else {
       /* error */
