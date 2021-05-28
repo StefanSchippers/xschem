@@ -497,6 +497,7 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
  xPoly polygon;
  xSymbol *symptr;
  char *textfont;
+ int dashprop=0, dash = 0;
 
   if(xctx->inst[n].ptr == -1) return;
   if( (layer != PINLAYER && !enable_layer[layer]) ) return;
@@ -521,7 +522,7 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
    dbg(1, "draw_symbol(): skippinginst %d\n", n);
    return;
   }
-
+  dashprop = atoi(get_tok_value(xctx->inst[n].prop_ptr, "dash", 0));
   flip = xctx->inst[n].flip;
   if(tmp_flip) flip = !flip;
   rot = (xctx->inst[n].rot + rot ) & 0x3;
@@ -532,10 +533,13 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
    for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->lines[layer];j++)
    {
     line = ((xctx->inst[n].ptr+ xctx->sym)->line[layer])[j];
+    dash = line.dash;
+    if (line.dash == 0 && dashprop > 0 && layer==4)
+      dash = dashprop;
     ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
     ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
     ORDER(x1,y1,x2,y2);
-    ps_drawline(layer, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
+    ps_drawline(layer, x0+x1, y0+y1, x0+x2, y0+y2, dash);
    }
    for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->polygons[layer];j++)
    {

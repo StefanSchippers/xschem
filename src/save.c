@@ -276,7 +276,7 @@ void save_embedded_symbol(xSymbol *s, FILE *fd)
   }
 }
 
-void save_inst(FILE *fd)
+void save_inst(FILE *fd, int select_only)
 {
  int i, oldversion;
  xInstance *ptr;
@@ -287,6 +287,7 @@ void save_inst(FILE *fd)
  for(i=0;i<xctx->symbols;i++) xctx->sym[i].flags &=~EMBEDDED;
  for(i=0;i<xctx->instances;i++)
  {
+   if (select_only && ptr[i].sel != SELECTED) continue;
   fputs("C ", fd);
   if(oldversion) {
     my_strdup(57, &tmp, add_ext(ptr[i].name, ".sym"));
@@ -307,7 +308,7 @@ void save_inst(FILE *fd)
  }
 }
 
-void save_wire(FILE *fd)
+void save_wire(FILE *fd, int select_only)
 {
  int i;
  xWire *ptr;
@@ -315,19 +316,21 @@ void save_wire(FILE *fd)
  ptr=xctx->wire;
  for(i=0;i<xctx->wires;i++)
  {
+   if (select_only && ptr[i].sel != SELECTED) continue;
   fprintf(fd, "N %.16g %.16g %.16g %.16g ",ptr[i].x1, ptr[i].y1, ptr[i].x2,
      ptr[i].y2);
   save_ascii_string(ptr[i].prop_ptr,fd, 1);
  }
 }
 
-void save_text(FILE *fd)
+void save_text(FILE *fd, int select_only)
 {
  int i;
  xText *ptr;
  ptr=xctx->text;
  for(i=0;i<xctx->texts;i++)
  {
+   if (select_only && ptr[i].sel != SELECTED) continue;
   fprintf(fd, "T ");
   save_ascii_string(ptr[i].txt_ptr,fd, 0);
   fprintf(fd, " %.16g %.16g %hd %hd %.16g %.16g ",
@@ -337,7 +340,7 @@ void save_text(FILE *fd)
  }
 }
 
-void save_polygon(FILE *fd)
+void save_polygon(FILE *fd, int select_only)
 {
     int c, i, j;
     xPoly *ptr;
@@ -346,6 +349,7 @@ void save_polygon(FILE *fd)
      ptr=xctx->poly[c];
      for(i=0;i<xctx->polygons[c];i++)
      {
+       if (select_only && ptr[i].sel != SELECTED) continue;
       fprintf(fd, "P %d %d ", c,ptr[i].points);
       for(j=0;j<ptr[i].points;j++) {
         fprintf(fd, "%.16g %.16g ", ptr[i].x[j], ptr[i].y[j]);
@@ -355,7 +359,7 @@ void save_polygon(FILE *fd)
     }
 }
 
-void save_arc(FILE *fd)
+void save_arc(FILE *fd, int select_only)
 {
     int c, i;
     xArc *ptr;
@@ -364,6 +368,7 @@ void save_arc(FILE *fd)
      ptr=xctx->arc[c];
      for(i=0;i<xctx->arcs[c];i++)
      {
+       if (select_only && ptr[i].sel != SELECTED) continue;
       fprintf(fd, "A %d %.16g %.16g %.16g %.16g %.16g ", c,ptr[i].x, ptr[i].y,ptr[i].r,
        ptr[i].a, ptr[i].b);
       save_ascii_string(ptr[i].prop_ptr,fd, 1);
@@ -371,7 +376,7 @@ void save_arc(FILE *fd)
     }
 }
 
-void save_box(FILE *fd)
+void save_box(FILE *fd, int select_only)
 {
     int c, i;
     xRect *ptr;
@@ -380,6 +385,7 @@ void save_box(FILE *fd)
      ptr=xctx->rect[c];
      for(i=0;i<xctx->rects[c];i++)
      {
+       if (select_only && ptr[i].sel != SELECTED) continue;
       fprintf(fd, "B %d %.16g %.16g %.16g %.16g ", c,ptr[i].x1, ptr[i].y1,ptr[i].x2,
        ptr[i].y2);
       save_ascii_string(ptr[i].prop_ptr,fd, 1);
@@ -387,7 +393,7 @@ void save_box(FILE *fd)
     }
 }
 
-void save_line(FILE *fd)
+void save_line(FILE *fd, int select_only)
 {
     int c, i;
     xLine *ptr;
@@ -396,6 +402,7 @@ void save_line(FILE *fd)
      ptr=xctx->line[c];
      for(i=0;i<xctx->lines[c];i++)
      {
+       if (select_only && ptr[i].sel != SELECTED) continue;
       fprintf(fd, "L %d %.16g %.16g %.16g %.16g ", c,ptr[i].x1, ptr[i].y1,ptr[i].x2,
        ptr[i].y2 );
       save_ascii_string(ptr[i].prop_ptr,fd, 1);
@@ -447,13 +454,13 @@ void write_xschem_file(FILE *fd)
   fprintf(fd, "E ");
   save_ascii_string(xctx->schtedaxprop,fd, 1);
 
-  save_line(fd);
-  save_box(fd);
-  save_arc(fd);
-  save_polygon(fd);
-  save_text(fd);
-  save_wire(fd);
-  save_inst(fd);
+  save_line(fd, 0);
+  save_box(fd, 0);
+  save_arc(fd, 0);
+  save_polygon(fd, 0);
+  save_text(fd, 0);
+  save_wire(fd, 0);
+  save_inst(fd, 0);
 }
 
 static void load_text(FILE *fd)
@@ -915,6 +922,40 @@ void make_symbol(void)
   tcleval(name);
  }
 
+}
+
+void make_schematic(const char *schname)
+{
+  FILE *fd=NULL;
+  rebuild_selected_array();
+  if (!xctx->lastsel)  return;
+  if (!(fd = fopen(schname, "w")))
+  {
+    fprintf(errfp, "make_schematic(): problems opening file %s \n", schname);
+    tcleval("alert_ {file opening for write failed!} {}");
+    return;
+  }
+  fprintf(fd, "v {xschem version=%s file_version=%s}\n", XSCHEM_VERSION, XSCHEM_FILE_VERSION);
+  fprintf(fd, "G {}");
+  fputc('\n', fd);
+  fprintf(fd, "V {}");
+  fputc('\n', fd);
+  fprintf(fd, "E {}");
+  fputc('\n', fd);
+  fprintf(fd, "S {}");
+  fputc('\n', fd);
+  fprintf(fd, "K {type=subcircuit\nformat=\"@name @pinlist @symname\"\n");
+  fprintf(fd, "%s\n", "template=\"name=x1\"");
+  fprintf(fd, "%s", "}\n");
+  fputc('\n', fd);
+  save_line(fd, 1);
+  save_box(fd, 1);
+  save_arc(fd, 1);
+  save_polygon(fd, 1);
+  save_text(fd, 1);
+  save_wire(fd, 1);
+  save_inst(fd, 1);
+  fclose(fd);
 }
 
 /* ALWAYS call with absolute path in schname!!! */

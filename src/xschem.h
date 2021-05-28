@@ -873,6 +873,7 @@ extern const char *rel_sym_path(const char *s);
 extern const char *abs_sym_path(const char *s, const char *ext);
 extern const char *add_ext(const char *f, const char *ext);
 extern void make_symbol(void);
+extern void make_schematic(const char *schname);
 extern const char *get_sym_template(char *s, char *extra);
 /* bit0: invoke change_linewidth(), bit1: centered zoom */
 extern void zoom_full(int draw, int sel, int flags, double shrink);

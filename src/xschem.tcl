@@ -1755,6 +1755,14 @@ proc make_symbol {name} {
   return {}
 }
 
+proc make_symbol_lcc {name} {
+  global XSCHEM_SHAREDIR
+  set name [abs_sym_path $name]
+  # puts "make_symbol{}, executing: ${XSCHEM_SHAREDIR}/make_sym_lcc.awk ${name}"
+  eval exec {awk -f ${XSCHEM_SHAREDIR}/make_sym_lcc.awk $name}
+  return {}
+}
+
 # create simulation dir 'simulation/' under current schematic directory
 proc simuldir {} {
   global netlist_dir local_netlist_dir
@@ -4089,6 +4097,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
   .menubar.sym.menu add command -label "Make symbol from schematic" -command "xschem make_symbol" -accelerator A
   .menubar.sym.menu add command -label "Make schematic from symbol" -command "xschem make_sch" -accelerator Ctrl+L
+  .menubar.sym.menu add command -label "Make schematic and symbol from selected components" -command "xschem make_sch_from_sel"
   .menubar.sym.menu add command -label "Attach pins to component instance" \
      -command "xschem attach_pins" -accelerator Shift+H
   .menubar.sym.menu add command -label "Create symbol pins from selected schematic pins" \

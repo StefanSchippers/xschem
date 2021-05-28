@@ -1048,6 +1048,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      printf("                   place new symbol, asking filename\n");
      printf("      xschem make_symbol\n");
      printf("                   make symbol view from current schematic\n");
+     printf("      xschem make_sch_from_sel\n");
+     printf("                   make schematic view from selected components\n");
      printf("      xschem place_text\n");
      printf("                   place new text\n");
      printf("      xschem debug  n\n");
@@ -1476,7 +1478,36 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-   
+
+    else if (!strcmp(argv[1], "make_sch_from_sel"))
+    {
+      char filename[PATH_MAX]="";
+      cmd_found = 1;
+      my_snprintf(name, S(name), "save_file_dialog {Save file} .sch.sym INITIALLOADDIR");
+      tcleval(name);
+      my_strncpy(filename, tclresult(), S(filename));
+      if (!strcmp(filename, xctx->sch[xctx->currsch])) {
+        if (has_x)
+          tcleval("tk_messageBox -type ok -message {Cannot overwrite current schematic}");
+      }
+      else if (strlen(filename)) {
+        make_schematic(filename);
+        delete();
+        place_symbol(-1, filename, 0, 0, 0, 0, NULL, 4, 1);
+        if (has_x)
+        {
+          my_snprintf(name, S(name), "tk_messageBox -type okcancel -message {do you want to make symbol view for %s ?}", filename);
+          tcleval(name);
+        }
+        if (!has_x || !strcmp(tclresult(), "ok")) {
+          my_snprintf(name, S(name), "make_symbol_lcc {%s}", filename);
+          dbg(1, "make_symbol_lcc(): making symbol: name=%s\n", filename);
+          tcleval(name);
+        }
+      }
+      Tcl_ResetResult(interp);
+    }
+
     else if(!strcmp(argv[1],"merge"))
     {
       cmd_found = 1;
