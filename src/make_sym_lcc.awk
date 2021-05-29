@@ -245,7 +245,7 @@ function get_end_line()
   }
 }
 
-function endfile(f) {
+function endfile(f,     a) {
 
  n=ip;if(op>n) n=op
  if(n==0) n=1
