@@ -1972,7 +1972,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
       }
       load_ascii_string(&prop_ptr, lcc[level].fd);
       if(level + 1 >=CADMAXHIER) {
-        fprintf(errfp, "l_s_d(): xSymbol recursively instantiating symbol: max depth reached, skipping\n");
+        fprintf(errfp, "l_s_d(): Symbol recursively instantiating symbol: max depth reached, skipping\n");
         if(has_x) tcleval("alert_ {xSymbol recursively instantiating symbol: max depth reached, skipping} {} 1");
         endfile = 1;
         continue;
