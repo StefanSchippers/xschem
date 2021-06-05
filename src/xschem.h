@@ -874,12 +874,13 @@ extern const char *abs_sym_path(const char *s, const char *ext);
 extern const char *add_ext(const char *f, const char *ext);
 extern void make_symbol(void);
 extern void make_schematic(const char *schname);
+extern void make_schematic_symbol_from_sel(void);
 extern const char *get_sym_template(char *s, char *extra);
 /* bit0: invoke change_linewidth(), bit1: centered zoom */
 extern void zoom_full(int draw, int sel, int flags, double shrink);
 extern void updatebbox(int count,xRect *boundbox,xRect *tmp);
 extern void draw_selection(GC g, int interruptable);
-extern void delete(void);
+extern void delete(int to_push_undo);
 extern void delete_only_rect_line_arc_poly(void);
 extern void polygon_bbox(double *x, double *y, int points, double *bx1, double *by1, double *bx2, double *by2);
 extern void arc_bbox(double x, double y, double r, double a, double b,
@@ -1004,7 +1005,7 @@ extern void clear_drawing(void);
 extern int load_sym_def(const char name[], FILE *embed_fd);
 extern void descend_symbol(void);
 extern int place_symbol(int pos, const char *symbol_name, double x, double y, short rot, short flip,
-                         const char *inst_props, int draw_sym, int first_call);
+                         const char *inst_props, int draw_sym, int first_call, int to_push_undo);
 extern void place_net_label(int type);
 extern void attach_labels_to_inst(void);
 extern void delete_files(void);

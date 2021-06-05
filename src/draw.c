@@ -359,7 +359,6 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   #if HAS_CAIRO==1
   char *textfont;
   #endif
-  int dashprop=0, dash=0;
 
   if(xctx->inst[n].ptr == -1) return;
   if( (layer != PINLAYER && !enable_layer[layer]) ) return;
@@ -370,7 +369,6 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   } else {
     hide = 0;
   }
-  dashprop = atoi(get_tok_value(xctx->inst[n].prop_ptr, "dash", 0));
   type = (xctx->inst[n].ptr+ xctx->sym)->type;
   if(layer==0) {
     x1=X_TO_SCREEN(xctx->inst[n].x1+xoffset);  /* 20150729 added xoffset, yoffset */
@@ -421,16 +419,13 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     for(j=0;j< symptr->lines[layer];j++)
     {
       line = (symptr->line[layer])[j];
-      dash = line.dash;
-      if (line.dash == 0 && dashprop > 0 && layer==4)
-        dash = dashprop;
       ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
       ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
       ORDER(x1,y1,x2,y2);
       if(line.bus)
-        drawline(c,THICK, x0+x1, y0+y1, x0+x2, y0+y2, dash);
+        drawline(c,THICK, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
       else
-        drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, dash);
+        drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
     }
     for(j=0;j< symptr->polygons[layer];j++)
     {

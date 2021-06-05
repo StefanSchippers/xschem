@@ -6,7 +6,7 @@
     <ProductVersion>3.10</ProductVersion>
     <ProjectGuid>91fbaa21-56d3-42e7-a3e8-df92c89cd027</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>XSchemInstaller</OutputName>
+    <OutputName>XSchem</OutputName>
     <OutputType>Package</OutputType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">

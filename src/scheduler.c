@@ -311,7 +311,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       rebuild_selected_array();
       save_selection(2);
-      delete();
+      delete(1/*to_push_undo*/);
       Tcl_ResetResult(interp);
     }
   }
@@ -330,7 +330,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"delete"))
     {
       cmd_found = 1;
-      if(argc==2) delete();
+      if(argc==2) delete(1/*to_push_undo*/);
       Tcl_ResetResult(interp);
     }
    
@@ -1089,12 +1089,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       if(argc==7)
        /*           pos sym_name      x                y             rot          flip      prop draw first */
-        place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), atoi(argv[5]), atoi(argv[6]),NULL, 3, 1);
+        place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), atoi(argv[5]), atoi(argv[6]),NULL, 3, 1, 1/*to_push_undo*/);
       else if(argc==8)
-        place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), atoi(argv[5]), atoi(argv[6]), argv[7], 3, 1);
+        place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), atoi(argv[5]), atoi(argv[6]), argv[7], 3, 1, 1/*to_push_undo*/);
       else if(argc==9) {
         int x = !(atoi(argv[8]));
-        place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), atoi(argv[5]), atoi(argv[6]), argv[7], 0, x);
+        place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), atoi(argv[5]), atoi(argv[6]), argv[7], 0, x, 1/*to_push_undo*/);
       }
     }
    
@@ -1481,30 +1481,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     else if (!strcmp(argv[1], "make_sch_from_sel"))
     {
-      char filename[PATH_MAX]="";
       cmd_found = 1;
-      my_snprintf(name, S(name), "save_file_dialog {Save file} .sch.sym INITIALLOADDIR");
-      tcleval(name);
-      my_strncpy(filename, tclresult(), S(filename));
-      if (!strcmp(filename, xctx->sch[xctx->currsch])) {
-        if (has_x)
-          tcleval("tk_messageBox -type ok -message {Cannot overwrite current schematic}");
-      }
-      else if (strlen(filename)) {
-        make_schematic(filename);
-        delete();
-        place_symbol(-1, filename, 0, 0, 0, 0, NULL, 4, 1);
-        if (has_x)
-        {
-          my_snprintf(name, S(name), "tk_messageBox -type okcancel -message {do you want to make symbol view for %s ?}", filename);
-          tcleval(name);
-        }
-        if (!has_x || !strcmp(tclresult(), "ok")) {
-          my_snprintf(name, S(name), "make_symbol_lcc {%s}", filename);
-          dbg(1, "make_symbol_lcc(): making symbol: name=%s\n", filename);
-          tcleval(name);
-        }
-      }
+      make_schematic_symbol_from_sel();
       Tcl_ResetResult(interp);
     }
 
@@ -1669,9 +1647,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->mx_double_save = xctx->mousex_snap;
       xctx->my_double_save = xctx->mousey_snap;
       if(argc == 4) {
-        ret = place_symbol(-1,argv[2],xctx->mousex_snap, xctx->mousey_snap, 0, 0, argv[3], 4, 1);
+        ret = place_symbol(-1,argv[2],xctx->mousex_snap, xctx->mousey_snap, 0, 0, argv[3], 4, 1, 1/*to_push_undo*/);
       } else if(argc == 3) {
-        ret = place_symbol(-1,argv[2],xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1);
+        ret = place_symbol(-1,argv[2],xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
       } else {
         #if 1  /* enable on request also in callback.c */
         rebuild_selected_array();
@@ -1680,7 +1658,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
              abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
         } 
         #endif
-        ret = place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1);
+        ret = place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
       }
    
       if(ret) {

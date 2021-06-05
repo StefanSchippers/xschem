@@ -97,6 +97,7 @@ alt         'g'         Hilight selected nets and send to gaw waveform viewer
 alt         'h'         create symbol pins from schematic pins
 ctrl        'h'         Follow http link or execute command (url, tclcommand properties)
 shift       'H'         Attach net labels to selected instance
+ctrl+shift  'H'         Make schematic and symbol from selected components
 -           'i'         Descend to  symbol
 alt         'i'         Edit selected symbol in a new window
 alt+shift   'J'         Create labels with 'i' prefix from highlighted nets/pins

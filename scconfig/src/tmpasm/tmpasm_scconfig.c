@@ -474,7 +474,10 @@ static void instr_include(tmpasm_t *ctx, char *iname, int argc, tmpasm_arg_t *ar
 		tmpasm_t *child;
 
 		fn = tmpasm_arg2str(ctx, argv[n], 0);
-		path = scc_path(ud, fn);
+		if (*fn != '/')
+			path = scc_path(ud, fn);
+		else
+			path = strclone(fn);
 		fin = fopen(path, "r");
 		if (fin == NULL) {
 			tmpasm_runtime_error(ctx, -8, path);

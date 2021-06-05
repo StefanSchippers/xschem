@@ -317,7 +317,7 @@ static void del_rect_line_arc_poly(void)
 }
 
 
-void delete(void)
+void delete(int to_push_undo)
 {
   int i, j, n, tmp;
   #if HAS_CAIRO==1
@@ -328,7 +328,7 @@ void delete(void)
   j = 0;
   bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   rebuild_selected_array();
-  if(xctx->lastsel) push_undo();
+  if(to_push_undo && xctx->lastsel) push_undo();
 
 
 

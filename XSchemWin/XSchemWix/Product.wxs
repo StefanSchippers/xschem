@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.9.5" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.9.6" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
     <WixVariable Id="WixUILicenseRtf" 
                  Value="License.rtf" />
@@ -140,6 +140,9 @@
       </Component>
       <Component Id="CMPMAKESYMAWK">
         <File Id="MAKESYMAWK" KeyPath="yes" Source="../../src/make_sym.awk" />
+      </Component>
+      <Component Id="CMPMAKESYMLCCAWK">
+        <File Id="MAKESYMLCCAWK" KeyPath="yes" Source="../../src/make_sym_lcc.awk" />
       </Component>
       <Component Id="CMPNGSPICEBACKANNOTATE">
         <File Id="NGSPICEBACKANNOTATE" KeyPath="yes" Source="../../src/ngspice_backannotate.tcl" />
@@ -318,6 +321,7 @@
       <ComponentRef Id="CMPMAKESCHFROMSPICEAWK" />
       <ComponentRef Id="CMPMAKESCHFROMVHDLAWK" />
       <ComponentRef Id="CMPMAKESYMAWK" />
+      <ComponentRef Id="CMPMAKESYMLCCAWK" />
       <ComponentRef Id="CMPNGSPICEBACKANNOTATE" />
       <ComponentRef Id="CMPMAKEVHDLFROMSPICEAWK" />
       <ComponentRef Id="CMPNETLISTCOMPACTORAWK" />

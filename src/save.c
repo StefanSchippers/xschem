@@ -2146,6 +2146,36 @@ int load_sym_def(const char *name, FILE *embed_fd)
   return 1;
 }
 
+void make_schematic_symbol_from_sel(void)
+{
+  char filename[PATH_MAX] = "";
+  char name[1024]; 
+
+  my_snprintf(name, S(name), "save_file_dialog {Save file} .sch.sym INITIALLOADDIR");
+  tcleval(name);
+  my_strncpy(filename, tclresult(), S(filename));
+  if (!strcmp(filename, xctx->sch[xctx->currsch])) {
+    if (has_x)
+      tcleval("tk_messageBox -type ok -message {Cannot overwrite current schematic}");
+  }
+  else if (strlen(filename)) {
+    if (xctx->lastsel) push_undo();
+    make_schematic(filename);
+    delete(0/*to_push_undo*/);
+    place_symbol(-1, filename, 0, 0, 0, 0, NULL, 4, 1, 0/*to_push_undo*/);
+    if (has_x)
+    {
+      my_snprintf(name, S(name), "tk_messageBox -type okcancel -message {do you want to make symbol view for %s ?}", filename);
+      tcleval(name);
+    }
+    if (!has_x || !strcmp(tclresult(), "ok")) {
+      my_snprintf(name, S(name), "make_symbol_lcc {%s}", filename);
+      dbg(1, "make_symbol_lcc(): making symbol: name=%s\n", filename);
+      tcleval(name);
+    }
+  }
+}
+
 void create_sch_from_sym(void)
 {
   xSymbol *ptr;

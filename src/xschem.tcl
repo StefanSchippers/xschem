@@ -4097,7 +4097,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
   .menubar.sym.menu add command -label "Make symbol from schematic" -command "xschem make_symbol" -accelerator A
   .menubar.sym.menu add command -label "Make schematic from symbol" -command "xschem make_sch" -accelerator Ctrl+L
-  .menubar.sym.menu add command -label "Make schematic and symbol from selected components" -command "xschem make_sch_from_sel"
+  .menubar.sym.menu add command -label "Make schematic and symbol from selected components" -command "xschem make_sch_from_sel" -accelerator Ctrl+Shift+H
   .menubar.sym.menu add command -label "Attach pins to component instance" \
      -command "xschem attach_pins" -accelerator Shift+H
   .menubar.sym.menu add command -label "Create symbol pins from selected schematic pins" \

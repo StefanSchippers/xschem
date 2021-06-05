@@ -424,6 +424,10 @@ int callback(int event, int mx, int my, KeySym key,
      attach_labels_to_inst();
      break;
    }
+   if (key == 'H' && state == (ControlMask | ShiftMask)) { /* create schematic and symbol from selected components */
+     make_schematic_symbol_from_sel();
+     break;
+   }
    if(key == 'v' && state==0) {
      /* vertically constrained drag 20171023 */
      if ( constrained_move == 2 ) {
@@ -570,7 +574,7 @@ int callback(int event, int mx, int my, KeySym key,
     {
      move_objects(ABORT,0,0,0);
      if(xctx->ui_state & START_SYMPIN) {
-       delete();
+       delete(1/*to_push_undo*/);
        xctx->ui_state &= ~START_SYMPIN;
      }
      break;
@@ -581,7 +585,7 @@ int callback(int event, int mx, int my, KeySym key,
      break;
     }
     if(xctx->ui_state & STARTMERGE) {
-      delete();
+      delete(1/*to_push_undo*/);
       set_modify(0); /* aborted merge: no change, so reset modify flag set by delete() */
     }
 
@@ -649,7 +653,7 @@ int callback(int event, int mx, int my, KeySym key,
    if(key==XK_Delete && (xctx->ui_state & SELECTION) )        /* delete objects */
    {
      if(xctx->semaphore >= 2) break;
-     delete();break;
+     delete(1/*to_push_undo*/);break;
    }
    if(key==XK_Right)                    /* left */
    {
@@ -797,7 +801,7 @@ int callback(int event, int mx, int my, KeySym key,
     rebuild_selected_array();
     if(xctx->lastsel) {  /* 20071203 check if something selected */
       save_selection(2);
-      delete();
+      delete(1/*to_push_undo*/);
     }
     break;
    }
@@ -903,7 +907,7 @@ int callback(int event, int mx, int my, KeySym key,
     xctx->mx_save = mx; xctx->my_save = my;
     xctx->mx_double_save = xctx->mousex_snap;
     xctx->my_double_save = xctx->mousey_snap;
-    if(place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1) ) {
+    if(place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/) ) {
       xctx->mousey_snap = xctx->my_double_save;
       xctx->mousex_snap = xctx->mx_double_save;
       move_objects(START,0,0,0);
