@@ -2173,6 +2173,7 @@ void make_schematic_symbol_from_sel(void)
       dbg(1, "make_symbol_lcc(): making symbol: name=%s\n", filename);
       tcleval(name);
     }
+    draw();
   }
 }
 
