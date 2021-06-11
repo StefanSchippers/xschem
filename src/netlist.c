@@ -354,7 +354,7 @@ void hash_wires(void)
 }
 
 /* return 0 if library path of s matches any lib name in tcl variable $xschem_libs */
-int check_lib(char *s)
+int check_lib(const char *s)
 {
  int range,i, found;
  char str[200]; /* overflow safe 20161122 */

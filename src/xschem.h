@@ -843,7 +843,7 @@ extern void here(int i);
 extern void print_version(void);
 extern int set_netlist_dir(int force, char *dir);
 extern void netlist_options(int i);
-extern int  check_lib(char * s);
+extern int  check_lib(const char * s);
 extern void select_all(void);
 extern void change_linewidth(double w);
 extern void schematic_in_new_window(void);
