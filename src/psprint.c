@@ -648,10 +648,11 @@ static void fill_ps_colors()
 
 }
 
-void create_ps(char **psfile)
+void create_ps(char **psfile, int what)
 {
   double dx, dy, scale, scaley;
   int landscape=1;
+  static int numpages = 0;
   double margin=10; /* in postscript points, (1/72)". No need to add margin as xschem zoom full already has margins.*/
 
   /* Legal: 612 792 */
@@ -662,9 +663,12 @@ void create_ps(char **psfile)
   int old_grid;
   const char *textfont;
   
-  if(!(fd = open_tmpfile("psplot_", psfile)) ) {
-    fprintf(errfp, "ps_draw(): can not create tmpfile %s\n", *psfile);
-    return;
+  if(what & 1) { /* prolog */
+    numpages = 0;
+    if(!(fd = open_tmpfile("psplot_", psfile)) ) {
+      fprintf(errfp, "ps_draw(): can not create tmpfile %s\n", *psfile);
+      return;
+    }
   }
   ps_colors=my_calloc(311, cadlayers, sizeof(Ps_color));
   if(ps_colors==NULL){
@@ -692,199 +696,216 @@ void create_ps(char **psfile)
     pagey = tmp;
   }
 
-  dbg(1, "ps_draw(): bbox: x1=%g y1=%g x2=%g y2=%g\n", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-  fprintf(fd, "%%!PS-Adobe-3.0\n");
-  /* fprintf(fd, "%%%%DocumentMedia: %s %g %g 80 () ()\n", landscape ? "a4land" : "a4", pagex, pagey); */
-  fprintf(fd, "%%%%DocumentMedia: %s %g %g 80 () ()\n", "a4", pagex, pagey);
-  fprintf(fd, "%%%%PageOrientation: %s\n", landscape ? "Landscape" : "Portrait");
-  fprintf(fd, "%%%%Title: xschem plot\n");
-  fprintf(fd, "%%%%Creator: xschem\n");
-  fprintf(fd, "%%%%Pages: 1\n");
-  fprintf(fd, "%%%%EndComments\n");
-  fprintf(fd, "%%%%BeginProlog\n\n");
-
-  for(i = 0; i < sizeof(utf8_enc)/sizeof(char *); i++) {
-    fprintf(fd, utf8_enc[i]);
-  }
-  for(i = 0; i < sizeof(utf8)/sizeof(char *); i++) {
-    fprintf(fd, utf8[i]);
-  }
-
-  fprintf(fd, "/Times /Times chararr recode\n");
-  fprintf(fd, "/Times-Bold /Times-Bold chararr recode\n");
-  fprintf(fd, "/Times-Oblique /Times-Oblique chararr recode\n");
-  fprintf(fd, "/Times-BoldOblique /Times-BoldOblique chararr recode\n");
-  fprintf(fd, "/Helvetica /Helvetica chararr recode\n");
-  fprintf(fd, "/Helvetica-Bold /Helvetica-Bold chararr recode\n");
-  fprintf(fd, "/Helvetica-Oblique /Helvetica-Oblique chararr recode\n");
-  fprintf(fd, "/Helvetica-BoldOblique /Helvetica-BoldOblique chararr recode\n");
-  fprintf(fd, "/Courier /Courier chararr recode\n");
-  fprintf(fd, "/Courier-Bold /Courier-Bold chararr recode\n");
-  fprintf(fd, "/Courier-Oblique /Courier-Oblique chararr recode\n");
-  fprintf(fd, "/Courier-BoldOblique /Courier-BoldOblique chararr recode\n");
-
-  fprintf(fd,"/cm {28.346457 mul} bind def\n");
-  fprintf(fd,"/LT {lineto} bind def\n");
-  fprintf(fd,"/MT {moveto} bind def\n");
-  fprintf(fd,"/RMT {rmoveto} bind def\n");
-  fprintf(fd,"/L {moveto lineto stroke} bind def\n");
-  fprintf(fd,"/RGB {setrgbcolor} bind def\n");
-  fprintf(fd,"/FF {findfont} bind def\n");
-  fprintf(fd,"/SF {setfont} bind def\n");
-  fprintf(fd,"/SCF {scalefont} bind def\n");
-  fprintf(fd,"/SW {stringwidth} bind def\n");
-  fprintf(fd,"/GS {gsave} bind def\n");
-  fprintf(fd,"/GR {grestore} bind def\n");
-  fprintf(fd,"/NP {newpath} bind def\n");
-  fprintf(fd,"/A {arcn} bind def\n");
-  fprintf(fd,"/R {rectstroke} bind def\n");
-  fprintf(fd,"/S {stroke} bind def\n");
-  fprintf(fd,"/C {closepath} bind def\n");
-  fprintf(fd,"/F {fill} bind def\n");
-  fprintf(fd,"/RF {rectfill} bind def\n");
-  fprintf(fd, "%%%%EndProlog\n");
-  fprintf(fd, "%%%%BeginSetup\n");
-  fprintf(fd, "<< /PageSize [%g %g] /Orientation 0 >> setpagedevice\n", pagex, pagey);
-  fprintf(fd, "%%%%Page: 1 1\n\n");
-  fprintf(fd, "%%%%BeginPageSetup\n");
-  fprintf(fd, "%%%%EndPageSetup\n");
-
-  scaley = scale = (pagey-2 * margin) / dy;
-  dbg(1, "scale=%g pagex=%g pagey=%g dx=%g dy=%g\n", scale, pagex, pagey, dx, dy);
-  if(dx * scale > (pagex - 2 * margin)) {
-    scale = (pagex - 2 * margin) / dx;
-    dbg(1, "scale=%g\n", scale);
-  }
-  fprintf(fd, "%g %g translate\n", 
-    -scale * boundbox.x1 + margin, pagey - (scaley - scale) * dy - margin + scale * boundbox.y1);
-  fprintf(fd, "%g %g scale\n", scale, -scale);
-  fprintf(fd, "1 setlinejoin 1 setlinecap\n");
-  set_lw();
-  ps_drawgrid();
-
-  for(i=0;i<xctx->texts;i++)
-  {
-    textlayer = xctx->text[i].layer;
-    if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-
-    my_snprintf(ps_font_family, S(ps_font_name), "Helvetica");
-    my_snprintf(ps_font_name, S(ps_font_name), "Helvetica");
-    textfont = xctx->text[i].font;
-    if( (textfont && textfont[0])) {
-      my_snprintf(ps_font_family, S(ps_font_family), textfont);
-      my_snprintf(ps_font_name, S(ps_font_name), textfont);
+  if(what & 1) {/* prolog */
+    dbg(1, "ps_draw(): bbox: x1=%g y1=%g x2=%g y2=%g\n", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+    fprintf(fd, "%%!PS-Adobe-3.0\n");
+    /* fprintf(fd, "%%%%DocumentMedia: %s %g %g 80 () ()\n", landscape ? "a4land" : "a4", pagex, pagey); */
+    fprintf(fd, "%%%%DocumentMedia: %s %g %g 80 () ()\n", "a4", pagex, pagey);
+    fprintf(fd, "%%%%PageOrientation: %s\n", landscape ? "Landscape" : "Portrait");
+    fprintf(fd, "%%%%Title: xschem plot\n");
+    fprintf(fd, "%%%%Creator: xschem\n");
+    fprintf(fd, "%%%%Pages: (atend)\n");
+    fprintf(fd, "%%%%EndComments\n");
+    fprintf(fd, "%%%%BeginProlog\n\n");
+  
+    for(i = 0; i < sizeof(utf8_enc)/sizeof(char *); i++) {
+      fprintf(fd, utf8_enc[i]);
     }
-    if( xctx->text[i].flags & TEXT_BOLD) { 
-      if( (xctx->text[i].flags & TEXT_ITALIC) || (xctx->text[i].flags & TEXT_OBLIQUE) ) {
-        my_snprintf(ps_font_family, S(ps_font_family), "%s-BoldOblique", ps_font_name);
+    for(i = 0; i < sizeof(utf8)/sizeof(char *); i++) {
+      fprintf(fd, utf8[i]);
+    }
+  
+    fprintf(fd, "/Times /Times chararr recode\n");
+    fprintf(fd, "/Times-Bold /Times-Bold chararr recode\n");
+    fprintf(fd, "/Times-Oblique /Times-Oblique chararr recode\n");
+    fprintf(fd, "/Times-BoldOblique /Times-BoldOblique chararr recode\n");
+    fprintf(fd, "/Helvetica /Helvetica chararr recode\n");
+    fprintf(fd, "/Helvetica-Bold /Helvetica-Bold chararr recode\n");
+    fprintf(fd, "/Helvetica-Oblique /Helvetica-Oblique chararr recode\n");
+    fprintf(fd, "/Helvetica-BoldOblique /Helvetica-BoldOblique chararr recode\n");
+    fprintf(fd, "/Courier /Courier chararr recode\n");
+    fprintf(fd, "/Courier-Bold /Courier-Bold chararr recode\n");
+    fprintf(fd, "/Courier-Oblique /Courier-Oblique chararr recode\n");
+    fprintf(fd, "/Courier-BoldOblique /Courier-BoldOblique chararr recode\n");
+  
+    fprintf(fd,"/cm {28.346457 mul} bind def\n");
+    fprintf(fd,"/LT {lineto} bind def\n");
+    fprintf(fd,"/MT {moveto} bind def\n");
+    fprintf(fd,"/RMT {rmoveto} bind def\n");
+    fprintf(fd,"/L {moveto lineto stroke} bind def\n");
+    fprintf(fd,"/RGB {setrgbcolor} bind def\n");
+    fprintf(fd,"/FF {findfont} bind def\n");
+    fprintf(fd,"/SF {setfont} bind def\n");
+    fprintf(fd,"/SCF {scalefont} bind def\n");
+    fprintf(fd,"/SW {stringwidth} bind def\n");
+    fprintf(fd,"/GS {gsave} bind def\n");
+    fprintf(fd,"/GR {grestore} bind def\n");
+    fprintf(fd,"/NP {newpath} bind def\n");
+    fprintf(fd,"/A {arcn} bind def\n");
+    fprintf(fd,"/R {rectstroke} bind def\n");
+    fprintf(fd,"/S {stroke} bind def\n");
+    fprintf(fd,"/C {closepath} bind def\n");
+    fprintf(fd,"/F {fill} bind def\n");
+    fprintf(fd,"/RF {rectfill} bind def\n");
+    fprintf(fd, "%%%%EndProlog\n");
+  }
+
+
+  if(what & 2) { /* page */
+    numpages++;
+    fprintf(fd, "%%%%BeginSetup\n");
+    fprintf(fd, "<< /PageSize [%g %g] /Orientation 0 >> setpagedevice\n", pagex, pagey);
+    fprintf(fd, "%%%%Page: %d %d\n\n", numpages, numpages);
+    fprintf(fd, "%%%%BeginPageSetup\n");
+    fprintf(fd, "%%%%EndPageSetup\n");
+  
+    scaley = scale = (pagey-2 * margin) / dy;
+    dbg(1, "scale=%g pagex=%g pagey=%g dx=%g dy=%g\n", scale, pagex, pagey, dx, dy);
+    if(dx * scale > (pagex - 2 * margin)) {
+      scale = (pagex - 2 * margin) / dx;
+      dbg(1, "scale=%g\n", scale);
+    }
+    fprintf(fd, "%g %g translate\n", 
+      -scale * boundbox.x1 + margin, pagey - (scaley - scale) * dy - margin + scale * boundbox.y1);
+    fprintf(fd, "%g %g scale\n", scale, -scale);
+    fprintf(fd, "1 setlinejoin 1 setlinecap\n");
+  
+  
+    set_lw();
+    ps_drawgrid();
+  
+    for(i=0;i<xctx->texts;i++)
+    {
+      textlayer = xctx->text[i].layer;
+      if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
+  
+      my_snprintf(ps_font_family, S(ps_font_name), "Helvetica");
+      my_snprintf(ps_font_name, S(ps_font_name), "Helvetica");
+      textfont = xctx->text[i].font;
+      if( (textfont && textfont[0])) {
+        my_snprintf(ps_font_family, S(ps_font_family), textfont);
+        my_snprintf(ps_font_name, S(ps_font_name), textfont);
+      }
+      if( xctx->text[i].flags & TEXT_BOLD) { 
+        if( (xctx->text[i].flags & TEXT_ITALIC) || (xctx->text[i].flags & TEXT_OBLIQUE) ) {
+          my_snprintf(ps_font_family, S(ps_font_family), "%s-BoldOblique", ps_font_name);
+        } else {
+          my_snprintf(ps_font_family, S(ps_font_family), "%s-Bold", ps_font_name);
+        }
+      }
+      else if( xctx->text[i].flags & TEXT_ITALIC)
+        my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
+      else if( xctx->text[i].flags & TEXT_OBLIQUE)
+        my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
+  
+      if(text_ps) {
+        ps_draw_string(textlayer, xctx->text[i].txt_ptr,
+          xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+          xctx->text[i].x0,xctx->text[i].y0,
+          xctx->text[i].xscale, xctx->text[i].yscale);
       } else {
-        my_snprintf(ps_font_family, S(ps_font_family), "%s-Bold", ps_font_name);
+        old_ps_draw_string(textlayer, xctx->text[i].txt_ptr,
+          xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+          xctx->text[i].x0,xctx->text[i].y0,
+          xctx->text[i].xscale, xctx->text[i].yscale);
       }
     }
-    else if( xctx->text[i].flags & TEXT_ITALIC)
-      my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
-    else if( xctx->text[i].flags & TEXT_OBLIQUE)
-      my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
-
-    if(text_ps) {
-      ps_draw_string(textlayer, xctx->text[i].txt_ptr,
-        xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-        xctx->text[i].x0,xctx->text[i].y0,
-        xctx->text[i].xscale, xctx->text[i].yscale);
-    } else {
-      old_ps_draw_string(textlayer, xctx->text[i].txt_ptr,
-        xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-        xctx->text[i].x0,xctx->text[i].y0,
-        xctx->text[i].xscale, xctx->text[i].yscale);
-    }
-  }
-  for(c=0;c<cadlayers;c++)
-  {
-    set_ps_colors(c);
-    for(i=0;i<xctx->lines[c];i++)
-      ps_drawline(c, xctx->line[c][i].x1, xctx->line[c][i].y1,
-        xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
-    for(i=0;i<xctx->rects[c];i++)
+    for(c=0;c<cadlayers;c++)
     {
-      ps_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
-        xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash);
+      set_ps_colors(c);
+      for(i=0;i<xctx->lines[c];i++)
+        ps_drawline(c, xctx->line[c][i].x1, xctx->line[c][i].y1,
+          xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
+      for(i=0;i<xctx->rects[c];i++)
+      {
+        ps_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
+          xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash);
+      }
+      for(i=0;i<xctx->arcs[c];i++)
+      {
+        ps_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y, 
+          xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].dash);
+      }
+      for(i=0;i<xctx->polygons[c];i++) {
+        ps_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
+          xctx->poly[c][i].fill, xctx->poly[c][i].dash);
+      }
+      for(i=0;i<xctx->instances;i++)
+        ps_draw_symbol(i,c,0,0,0.0,0.0);
     }
-    for(i=0;i<xctx->arcs[c];i++)
+    set_ps_colors(WIRELAYER);
+    for(i=0;i<xctx->wires;i++)
     {
-      ps_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y, 
-        xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].dash);
+      ps_drawline(WIRELAYER, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
     }
-    for(i=0;i<xctx->polygons[c];i++) {
-      ps_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
-        xctx->poly[c][i].fill, xctx->poly[c][i].dash);
-    }
-    for(i=0;i<xctx->instances;i++)
-      ps_draw_symbol(i,c,0,0,0.0,0.0);
-  }
-  set_ps_colors(WIRELAYER);
-  for(i=0;i<xctx->wires;i++)
-  {
-    ps_drawline(WIRELAYER, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
-  }
-
-  {
-    double x1, y1, x2, y2;
-    struct wireentry *wireptr;
-    int i;
-    struct iterator_ctx ctx;
-    update_conn_cues(0, 0);
-    /* draw connecting dots */
-    x1 = X_TO_XSCHEM(xctx->areax1);
-    y1 = Y_TO_XSCHEM(xctx->areay1);
-    x2 = X_TO_XSCHEM(xctx->areax2);
-    y2 = Y_TO_XSCHEM(xctx->areay2);
-    for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
-      i = wireptr->n;
-      if( xctx->wire[i].end1 >1 ) { /* 20150331 draw_dots */
-        ps_drawarc(WIRELAYER, 1, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360, 0);
-      }
-      if( xctx->wire[i].end2 >1 ) { /* 20150331 draw_dots */
-        ps_drawarc(WIRELAYER, 1, xctx->wire[i].x2, xctx->wire[i].y2, cadhalfdotsize, 0, 360, 0);
+  
+    {
+      double x1, y1, x2, y2;
+      struct wireentry *wireptr;
+      int i;
+      struct iterator_ctx ctx;
+      update_conn_cues(0, 0);
+      /* draw connecting dots */
+      x1 = X_TO_XSCHEM(xctx->areax1);
+      y1 = Y_TO_XSCHEM(xctx->areay1);
+      x2 = X_TO_XSCHEM(xctx->areax2);
+      y2 = Y_TO_XSCHEM(xctx->areay2);
+      for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
+        i = wireptr->n;
+        if( xctx->wire[i].end1 >1 ) { /* 20150331 draw_dots */
+          ps_drawarc(WIRELAYER, 1, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360, 0);
+        }
+        if( xctx->wire[i].end2 >1 ) { /* 20150331 draw_dots */
+          ps_drawarc(WIRELAYER, 1, xctx->wire[i].x2, xctx->wire[i].y2, cadhalfdotsize, 0, 360, 0);
+        }
       }
     }
+  
+    dbg(1, "ps_draw(): INT_WIDTH(lw)=%d plotfile=%s\n",INT_WIDTH(xctx->lw), plotfile);
+    fprintf(fd, "showpage\n\n");
   }
-
-  dbg(1, "ps_draw(): INT_WIDTH(lw)=%d plotfile=%s\n",INT_WIDTH(xctx->lw), plotfile);
-  fprintf(fd, "showpage\n\n");
-  fprintf(fd, "%%%%trailer\n");
-  fprintf(fd, "%%%%EOF\n");
-  fclose(fd);
+  if(what & 4) { /* trailer */
+    fprintf(fd, "%%%%trailer\n");
+    fprintf(fd, "%%%%Pages: %d\n", numpages);
+    fprintf(fd, "%%%%EOF\n");
+    fclose(fd);
+  }
   draw_grid=old_grid;
   my_free(879, &ps_colors);
 }
 
-void ps_draw(void)
+int ps_draw(int what)
 {
  char tmp[2*PATH_MAX+40];
  static char lastdir[PATH_MAX] = "";
  const char *r;
- char *psfile;
+ static char *psfile;
 
- if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
- if(!plotfile[0]) {
-   Tcl_VarEval(interp, "tk_getSaveFile -title {Select destination file} -initialfile ",
-     get_cell(xctx->sch[xctx->currsch], 0) , ".pdf -initialdir ", lastdir, NULL);
-   r = tclresult();
-   if(r[0]) {
-     my_strncpy(plotfile, r, S(plotfile));
-     Tcl_VarEval(interp, "file dirname ", plotfile, NULL);
-     my_strncpy(lastdir, tclresult(), S(lastdir));
+ if(what & 1) { /* prolog */
+   if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
+   if(!plotfile[0]) {
+     Tcl_VarEval(interp, "tk_getSaveFile -title {Select destination file} -initialfile ",
+       get_cell(xctx->sch[xctx->currsch], 0) , ".pdf -initialdir ", lastdir, NULL);
+     r = tclresult();
+     if(r[0]) {
+       my_strncpy(plotfile, r, S(plotfile));
+       Tcl_VarEval(interp, "file dirname ", plotfile, NULL);
+       my_strncpy(lastdir, tclresult(), S(lastdir));
+     }
+     else return 0;
    }
-   else return;
  }
- create_ps(&psfile);
- if(plotfile[0]) {
-   my_snprintf(tmp, S(tmp), "convert_to_pdf {%s} {%s}", psfile, plotfile);
- } else {
-   my_snprintf(tmp, S(tmp), "convert_to_pdf {%s} plot.pdf", psfile);
+ create_ps(&psfile, what);
+ if(what & 4) { /* trailer */
+   if(plotfile[0]) {
+     my_snprintf(tmp, S(tmp), "convert_to_pdf {%s} {%s}", psfile, plotfile);
+   } else {
+     my_snprintf(tmp, S(tmp), "convert_to_pdf {%s} plot.pdf", psfile);
+   }
+   my_strncpy(plotfile,"", S(plotfile));
+   tcleval( tmp);
+   Tcl_SetResult(interp,"",TCL_STATIC);
  }
- my_strncpy(plotfile,"", S(plotfile));
- tcleval( tmp);
- Tcl_SetResult(interp,"",TCL_STATIC);
+ return 1;
 }
 

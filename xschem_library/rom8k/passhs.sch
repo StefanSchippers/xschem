@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC6 file_version=1.1}
+v {xschem version=2.9.9 file_version=1.2 }
 G {}
+K {}
 V {// these are the stimulus parameters
 // and are *NOT* the spec minimum/maximum values
 // spec minimum/maximum values for timing checks are
@@ -1502,22 +1503,23 @@ end
 }
 S {}
 E {}
-N 900 -540 900 -360 {lab=Z}
-N 840 -540 840 -360 {lab=A}
-N 870 -320 870 -300 {lab=E}
-N 810 -300 870 -300 {lab=E}
-N 810 -480 840 -480 {lab=A}
-N 870 -600 870 -580 {lab=EN}
-N 810 -600 870 -600 {lab=EN}
-N 900 -480 930 -480 {lab=Z}
-N 870 -540 870 -530 {lab=VDDPIN}
-N 870 -370 870 -360 {lab=GNDPIN}
-C {p.sym} 870 -560 3 1 {name=m60 model=cmosp w=WP l=2.4u m=1
+N 510 -350 510 -170 {lab=Z}
+N 450 -350 450 -170 {lab=A}
+N 480 -130 480 -110 {lab=E}
+N 420 -110 480 -110 {lab=E}
+N 420 -290 450 -290 {lab=A}
+N 480 -410 480 -390 {lab=EN}
+N 420 -410 480 -410 {lab=EN}
+N 510 -290 540 -290 {lab=Z}
+N 480 -350 480 -340 {lab=VDDPIN}
+N 480 -180 480 -170 {lab=GNDPIN}
+C {p.sym} 480 -370 3 1 {name=m60 model=cmosp w=WP l=2.4u m=1
 }
-C {n.sym} 870 -340 3 0 {name=m1 model=cmosn w=WN l=2.4u m=1}
-C {iopin.sym} 930 -480 0 0 {name=p1 lab=Z}
-C {iopin.sym} 810 -480 0 1 {name=p2 lab=A}
-C {ipin.sym} 810 -600 0 0 {name=p3 lab=EN}
-C {ipin.sym} 810 -300 0 0 {name=p4 lab=E}
-C {lab_pin.sym} 870 -530 3 0 {name=l1 sig_type=std_logic lab=VCCPIN}
-C {lab_pin.sym} 870 -370 3 1 {name=l2 sig_type=std_logic lab=VSSPIN}
+C {n.sym} 480 -150 3 0 {name=m1 model=cmosn w=WN l=2.4u m=1}
+C {iopin.sym} 540 -290 0 0 {name=p1 lab=Z}
+C {iopin.sym} 420 -290 0 1 {name=p2 lab=A}
+C {ipin.sym} 420 -410 0 0 {name=p3 lab=EN}
+C {ipin.sym} 420 -110 0 0 {name=p4 lab=E}
+C {lab_pin.sym} 480 -340 3 0 {name=l1 sig_type=std_logic lab=VCCPIN}
+C {lab_pin.sym} 480 -180 3 1 {name=l2 sig_type=std_logic lab=VSSPIN}
+C {title.sym} 160 0 0 0 {name=l3 author="Stefan Schippers"}

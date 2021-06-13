@@ -1656,7 +1656,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      xctx->areaw = xctx->areax2-xctx->areax1;
      xctx->areah = xctx->areay2-xctx->areay1;
      zoom_full(0, 0, 2, 0.97);
-     ps_draw();
+     ps_draw(7);
    } else if(do_print == 2) {
      if(!has_x) {
        dbg(0, "xschem: can not do a png export if no X11 present / Xserver running (check if DISPLAY set).\n");

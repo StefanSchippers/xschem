@@ -3838,6 +3838,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
      -command "xschem saveas {} SYMBOL" -accelerator {Ctrl+Alt+S}
   # added svg, png 20171022
   .menubar.file.menu add command -label "PDF/PS Export" -command "xschem print pdf" -accelerator {*}
+  .menubar.file.menu add command -label "Hierarchical PDF/PS Export" -command "xschem hier_psprint"
   .menubar.file.menu add command -label "PNG Export" -command "xschem print png" -accelerator {Ctrl+*}
   .menubar.file.menu add command -label "SVG Export" -command "xschem print svg" -accelerator {Alt+*}
   .menubar.file.menu add separator

@@ -861,8 +861,8 @@ extern int  name_strcmp(char *s, char *d) ;
 extern int search(const char *tok, const char *val, int sub, int sel);
 extern int process_options(int argc, char **argv);
 extern void calc_drawing_bbox(xRect *boundbox, int selected);
-extern void create_ps(char **psfile);
-extern void ps_draw(void);
+extern void create_ps(char **psfile, int what);
+extern int ps_draw(int what);
 extern void svg_draw(void);
 extern void set_viewport_size(int w, int h, double lw);
 extern void print_image();
@@ -986,6 +986,7 @@ extern void store_poly(int pos, double *x, double *y, int points,
 extern void store_arc(int pos, double x, double y, double r, double a, double b,
                unsigned int rectcolor, unsigned short sel, char *prop_ptr);
 
+extern void hier_psprint(void);
 extern void freenet_nocheck(int i);
 extern void spice_netlist(FILE *fd, int spice_stop);
 extern void tedax_netlist(FILE *fd, int spice_stop);

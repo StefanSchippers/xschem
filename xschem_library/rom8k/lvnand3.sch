@@ -1,78 +1,80 @@
-v {xschem version=2.9.5_RC6 file_version=1.1}
+v {xschem version=2.9.9 file_version=1.2 }
 G {}
+K {}
 V {}
 S {}
 E {}
-N 60 80 270 80 {lab=y}
-N -70 -200 -10 -200 {lab=VCCPIN}
-N -70 -170 -10 -170 {lab=VCCPIN}
-N -70 -140 -70 80 {lab=y}
-N 120 300 140 300 {lab=VSSBPIN}
-N -130 -170 -110 -170 {lab=a}
-N -20 -110 0 -110 {lab=b}
-N -10 -200 -10 -170 {lab=VCCPIN}
-N 120 170 120 190 {lab=#net1}
-N 120 140 140 140 {lab=VSSBPIN}
-N 120 80 120 110 {lab=y}
-N 40 -140 100 -140 {lab=VCCPIN}
-N 40 -110 100 -110 {lab=VCCPIN}
-N 100 -140 100 -110 {lab=VCCPIN}
-N 40 -80 40 80 {lab=y}
-N -70 80 40 80 {lab=y}
-N 40 80 60 80 {lab=y}
-N -310 -170 -130 -170 {lab=a}
-N -310 -110 -20 -110 {lab=b}
-N 150 -80 210 -80 {lab=VCCPIN}
-N 150 -50 210 -50 {lab=VCCPIN}
-N 210 -80 210 -50 {lab=VCCPIN}
-N -310 -50 110 -50 {lab=c}
-N 150 -20 150 80 {lab=y}
-N 120 220 140 220 {lab=VSSBPIN}
-N 120 250 120 270 {lab=#net2}
-N -180 300 80 300 {lab=a}
-N -180 -170 -180 300 {lab=a}
-N -160 -110 -160 220 {lab=b}
-N -160 220 80 220 {lab=b}
-N -140 140 80 140 {lab=c}
-N -140 -50 -140 140 {lab=c}
-C {lab_pin.sym} 120 330 0 0 {name=lg1 lab=VSSPIN}
-C {lab_pin.sym} -70 -200 0 0 {name=lg2 lab=VCCPIN}
-C {opin.sym} 270 80 0 0 {name=p1 lab=y verilog_type=wire}
-C {ipin.sym} -310 -170 0 0 {name=p2 lab=a}
-C {nlv4t.sym} 100 300 0 0 {name=m1 model=cmosn w=wn l=lln  m=1
+N 560 -350 770 -350 {lab=y}
+N 430 -630 490 -630 {lab=VCCPIN}
+N 430 -600 490 -600 {lab=VCCPIN}
+N 430 -570 430 -350 {lab=y}
+N 620 -130 640 -130 {lab=VSSBPIN}
+N 370 -600 390 -600 {lab=a}
+N 480 -540 500 -540 {lab=b}
+N 490 -630 490 -600 {lab=VCCPIN}
+N 620 -260 620 -240 {lab=#net1}
+N 620 -290 640 -290 {lab=VSSBPIN}
+N 620 -350 620 -320 {lab=y}
+N 540 -570 600 -570 {lab=VCCPIN}
+N 540 -540 600 -540 {lab=VCCPIN}
+N 600 -570 600 -540 {lab=VCCPIN}
+N 540 -510 540 -350 {lab=y}
+N 430 -350 540 -350 {lab=y}
+N 540 -350 560 -350 {lab=y}
+N 190 -600 370 -600 {lab=a}
+N 190 -540 480 -540 {lab=b}
+N 650 -510 710 -510 {lab=VCCPIN}
+N 650 -480 710 -480 {lab=VCCPIN}
+N 710 -510 710 -480 {lab=VCCPIN}
+N 190 -480 610 -480 {lab=c}
+N 650 -450 650 -350 {lab=y}
+N 620 -210 640 -210 {lab=VSSBPIN}
+N 620 -180 620 -160 {lab=#net2}
+N 320 -130 580 -130 {lab=a}
+N 320 -600 320 -130 {lab=a}
+N 340 -540 340 -210 {lab=b}
+N 340 -210 580 -210 {lab=b}
+N 360 -290 580 -290 {lab=c}
+N 360 -480 360 -290 {lab=c}
+C {lab_pin.sym} 620 -100 0 0 {name=lg1 lab=VSSPIN}
+C {lab_pin.sym} 430 -630 0 0 {name=lg2 lab=VCCPIN}
+C {opin.sym} 770 -350 0 0 {name=p1 lab=y verilog_type=wire}
+C {ipin.sym} 190 -600 0 0 {name=p2 lab=a}
+C {nlv4t.sym} 600 -130 0 0 {name=m1 model=cmosn w=wn l=lln  m=1
 as="'0.270u*(wn)'"
 ad="'0.270u*(wn)'"
 ps="'2*0.270u+wn'"
 pd="'2*0.270u+wn'"}
-C {plv4t.sym} -90 -170 0 0 {name=m2 model=cmosp w=wp l=lp  m=1 
+C {plv4t.sym} 410 -600 0 0 {name=m2 model=cmosp w=wp l=lp  m=1 
 as="'0.270u*(wp)'"
 ad="'0.270u*(wp)'"
 ps="'2*0.270u+wp'"
 pd="'2*0.270u+wp'"}
-C {plv4t.sym} 20 -110 0 0 {name=m3 model=cmosp w=wp l=lp  m=1 
+C {plv4t.sym} 520 -540 0 0 {name=m3 model=cmosp w=wp l=lp  m=1 
 as="'0.270u*(wp)'"
 ad="'0.270u*(wp)'"
 ps="'2*0.270u+wp'"
 pd="'2*0.270u+wp'"}
-C {nlv4t.sym} 100 140 0 0 {name=m5 model=cmosn w=wn l=lln  m=1
+C {nlv4t.sym} 600 -290 0 0 {name=m5 model=cmosn w=wn l=lln  m=1
 as="'0.270u*(wn)'"
 ad="'0.270u*(wn)'"
 ps="'2*0.270u+wn'"
 pd="'2*0.270u+wn'"}
-C {ipin.sym} -310 -110 0 0 {name=p3 lab=b}
-C {lab_pin.sym} 40 -140 0 0 {name=l1 lab=VCCPIN}
-C {ipin.sym} -310 -50 0 0 {name=p4 lab=c}
-C {plv4t.sym} 130 -50 0 0 {name=m4 model=cmosp w=wp l=lp  m=1 
+C {ipin.sym} 190 -540 0 0 {name=p3 lab=b}
+C {lab_pin.sym} 540 -570 0 0 {name=l1 lab=VCCPIN}
+C {ipin.sym} 190 -480 0 0 {name=p4 lab=c}
+C {plv4t.sym} 630 -480 0 0 {name=m4 model=cmosp w=wp l=lp  m=1 
 as="'0.270u*(wp)'"
 ad="'0.270u*(wp)'"
 ps="'2*0.270u+wp'"
 pd="'2*0.270u+wp'"}
-C {lab_pin.sym} 150 -80 0 0 {name=l0 lab=VCCPIN}
-C {nlv4t.sym} 100 220 0 0 {name=m6 model=cmosn w=wn l=lln  m=1
+C {lab_pin.sym} 650 -510 0 0 {name=l0 lab=VCCPIN}
+C {nlv4t.sym} 600 -210 0 0 {name=m6 model=cmosn w=wn l=lln  m=1
 as="'0.270u*(wn)'"
 ad="'0.270u*(wn)'"
 ps="'2*0.270u+wn'"
 pd="'2*0.270u+wn'"}
-C {lab_pin.sym} 140 300 0 1 {name=l2 lab=VSSPIN}
-C {lab_pin.sym} 140 220 0 1 {name=l3 lab=VSSPIN}
-C {lab_pin.sym} 140 140 0 1 {name=l4 lab=VSSPIN}
+C {lab_pin.sym} 640 -130 0 1 {name=l2 lab=VSSPIN}
+C {lab_pin.sym} 640 -210 0 1 {name=l3 lab=VSSPIN}
+C {lab_pin.sym} 640 -290 0 1 {name=l4 lab=VSSPIN}
+C {title.sym} 160 0 0 0 {name=l5 author="Stefan Schippers"}

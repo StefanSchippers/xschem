@@ -1025,7 +1025,7 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='*' && state==ShiftMask )                    /* postscript print */
    {
     if(xctx->semaphore >= 2) break;
-    ps_draw();
+    ps_draw(7);
     break;
    }
    if(key=='*' && state==(ControlMask|ShiftMask) )      /* xpm print */

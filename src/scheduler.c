@@ -1061,6 +1061,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      #endif
     }
    
+    else if(!strcmp(argv[1],"hier_psprint"))
+    {
+      cmd_found = 1;
+      hier_psprint();
+      Tcl_ResetResult(interp);
+    }
     else if(!strcmp(argv[1],"hilight"))
     {
       cmd_found = 1;
@@ -1714,7 +1720,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
 
       if(!strcmp(argv[2],"pdf") || !strcmp(argv[2],"ps")) {
-        ps_draw();
+        ps_draw(7);
       }
       else if(!strcmp(argv[2],"png")) {
         int w = 0, h = 0;
