@@ -367,7 +367,7 @@ int check_lib(const char *s)
  for(i=0;i<range;i++){
   my_snprintf(str, S(str), "lindex $xschem_libs %d",i);
   tcleval(str);
-  dbg(1, "check_lib(): xschem_libs=%s\n", tclresult());
+  dbg(1, "check_lib(): s=%s, xschem_libs=%s\n", s, tclresult());
   if( strstr(s,tclresult())) found=1;
  }
  if(found) return 0;

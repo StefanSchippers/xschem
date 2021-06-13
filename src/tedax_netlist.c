@@ -31,6 +31,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
  char netl_filename[PATH_MAX]; /* overflow safe 20161122 */
  char tcl_cmd_netlist[PATH_MAX + 100]; /* 20081211 overflow safe 20161122 */
  char cellname[PATH_MAX]; /* 20081211 overflow safe 20161122 */
+ char *abs_path = NULL;
 
  if(xctx->modified) {
    save_ok = save_schematic(xctx->sch[xctx->currsch]);
@@ -102,10 +103,12 @@ void global_tedax_netlist(int global)  /* netlister driver */
    {
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
-    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(abs_sym_path(xctx->sym[i].name, "")))
+    my_strdup(1236, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
+    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(abs_path))
     {
       tedax_block_netlist(fd, i);
     }
+    my_free(1237, &abs_path);
    }
    /*clear_drawing(); */
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));

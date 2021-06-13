@@ -38,6 +38,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  char *type=NULL;
  struct stat buf;
  char *subckt_name;
+ char *abs_path = NULL;
 
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
@@ -249,10 +250,11 @@ void global_vhdl_netlist(int global)  /* netlister driver */
   if( strcmp(get_tok_value(xctx->sym[j].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
   if(!xctx->sym[j].type || (strcmp(xctx->sym[j].type,"primitive")!=0 &&
      strcmp(xctx->sym[j].type,"subcircuit")!=0)) continue;
+  my_strdup(1240, &abs_path, abs_sym_path(xctx->sym[j].name, ""));
   if((
       strcmp(xctx->sym[j].type,"subcircuit")==0 ||
       strcmp(xctx->sym[j].type,"primitive")==0
-     ) && check_lib(abs_sym_path(xctx->sym[j].name, ""))
+     ) && check_lib(abs_path)
     )
   {
    /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
@@ -288,6 +290,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
      fprintf(fd, "end component ;\n\n");
    }
   }
+  my_free(1241, &abs_path);
  }
  free_hash(subckt_table);
  my_free(1086, &subckt_name);
@@ -345,7 +348,8 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    {
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
-    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(abs_sym_path(xctx->sym[i].name, "")))
+    my_strdup(1242, &abs_path, abs_sym_path(xctx->sym[j].name, ""));
+    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(abs_path))
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(327, &subckt_name, get_cell(xctx->sym[i].name, 0));
@@ -361,6 +365,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
             vhdl_block_netlist(fd, i);
       }
     }
+    my_free(1243, &abs_path);
    }
    free_hash(subckt_table);
    my_free(1087, &subckt_name);
@@ -413,6 +418,7 @@ void  vhdl_block_netlist(FILE *fd, int i)
   char tcl_cmd_netlist[PATH_MAX + 100];
   char cellname[PATH_MAX];
   const char *str_tmp;
+  char *abs_path = NULL;
 
   if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"vhdl_stop",0),"true") )
     vhdl_stop=1;
@@ -525,8 +531,9 @@ void  vhdl_block_netlist(FILE *fd, int i)
       if(!xctx->sym[j].type || (strcmp(xctx->sym[j].type,"primitive")!=0 && 
          strcmp(xctx->sym[j].type,"subcircuit")!=0))
            continue;
+      my_strdup(1238, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
       if(( strcmp(xctx->sym[j].type,"subcircuit")==0 || strcmp(xctx->sym[j].type,"primitive")==0) && 
-          check_lib(abs_sym_path(xctx->sym[j].name, ""))
+          check_lib(abs_path)
         ) {
  
         /* only print component declaration if used in current subcircuit */
@@ -573,6 +580,7 @@ void  vhdl_block_netlist(FILE *fd, int i)
         if(tmp) fprintf(fd, "\n);\n");
         fprintf(fd, "end component ;\n\n");
       }
+      my_free(1239, &abs_path);
     }
   dbg(1, "vhdl_block_netlist():  netlisting %s\n", skip_dir( xctx->sch[xctx->currsch]));
   vhdl_netlist(fd, vhdl_stop);

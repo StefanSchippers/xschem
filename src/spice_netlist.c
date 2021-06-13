@@ -35,6 +35,7 @@ void hier_psprint(void)  /* netlister driver */
  char *subckt_name;
  int spice_stop;
  char filename[PATH_MAX];
+ char *abs_path = NULL;
  const char *str_tmp;
 
  if(!ps_draw(1)) return; /* prolog */
@@ -47,7 +48,7 @@ void hier_psprint(void)  /* netlister driver */
  free_hash(subckt_table);
  zoom_full(0, 0, 1, 0.97);
  ps_draw(2); /* page */
- dbg(0,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
+ dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
  unselect_all();
  remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
  load_schematic(1, xctx->sch[xctx->currsch], 0);
@@ -61,7 +62,8 @@ void hier_psprint(void)  /* netlister driver */
  {
   if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
   if(!xctx->sym[i].type) continue;
-  if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(abs_sym_path(xctx->sym[i].name, "")))
+  my_strdup(1230, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
+  if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(abs_path))
   {
     /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
     my_strdup(1228, &subckt_name, get_cell(xctx->sym[i].name, 0));
@@ -82,9 +84,10 @@ void hier_psprint(void)  /* netlister driver */
 
       zoom_full(0, 0, 1, 0.97);
       ps_draw(2); /* page */
-      dbg(0,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
+      dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
     }
   }
+  my_free(1231, &abs_path);
  }
  free_hash(subckt_table);
  my_free(1229, &subckt_name);
@@ -112,6 +115,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  char tcl_cmd_netlist[PATH_MAX + 100]; /* 20081211 overflow safe 20161122 */
  char cellname[PATH_MAX]; /* 20081211 overflow safe 20161122 */
  char *subckt_name;
+ char *abs_path = NULL;
 
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
@@ -249,7 +253,8 @@ void global_spice_netlist(int global)  /* netlister driver */
    {
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
-    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(abs_sym_path(xctx->sym[i].name, "")))
+    my_strdup(1232, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
+    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(abs_path))
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(391, &subckt_name, get_cell(xctx->sym[i].name, 0));
@@ -265,6 +270,7 @@ void global_spice_netlist(int global)  /* netlister driver */
             spice_block_netlist(fd, i);
       }
     }
+    my_free(1233, &abs_path);
    }
    free_hash(subckt_table);
    my_free(944, &subckt_name);
