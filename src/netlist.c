@@ -372,7 +372,7 @@ int check_lib(int what, const char *s)
   tcleval(str);
   dbg(1, "check_lib(): %s -> %s\n", str, tclresult());
   my_snprintf(str, S(str), "regexp {%s} %s", tclresult(), s);
-  dbg(0, "check_lib(): str=%s\n", str);
+  dbg(1, "check_lib(): str=%s\n", str);
   tcleval(str);
   if( tclresult()[0] == '1') found=1;
  }
