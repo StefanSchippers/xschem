@@ -362,13 +362,16 @@ int check_lib(const char *s)
  found=0;
  tcleval("llength $xschem_libs");
  range = atoi(tclresult());
- dbg(1, "check_lib(): %s, range=%d\n", s, range);
+ dbg(1, "check_lib(): s=%s, range=%d\n", s, range);
 
  for(i=0;i<range;i++){
   my_snprintf(str, S(str), "lindex $xschem_libs %d",i);
   tcleval(str);
-  dbg(1, "check_lib(): s=%s, xschem_libs=%s\n", s, tclresult());
-  if( strstr(s,tclresult())) found=1;
+  dbg(1, "check_lib(): xschem_libs=%s\n", tclresult());
+  my_snprintf(str, S(str), "regexp {%s} %s", tclresult(), s);
+  dbg(0, "check_lib(): str=%s\n", str);
+  tcleval(str);
+  if( tclresult()[0] == '1') found=1;
  }
  if(found) return 0;
  else return 1;
