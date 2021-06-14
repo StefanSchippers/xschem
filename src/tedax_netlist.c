@@ -104,7 +104,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
     my_strdup(1236, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
-    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(abs_path))
+    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
       tedax_block_netlist(fd, i);
     }

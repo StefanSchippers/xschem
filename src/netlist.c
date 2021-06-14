@@ -354,20 +354,23 @@ void hash_wires(void)
 }
 
 /* return 0 if library path of s matches any lib name in tcl variable $xschem_libs */
-int check_lib(const char *s)
+/* what: 1: netlist exclude lib, 2: hierarchical print exclude lib */
+int check_lib(int what, const char *s)
 {
  int range,i, found;
- char str[200]; /* overflow safe 20161122 */
+ char str[PATH_MAX + 512]; /* overflow safe 20161122 */
 
  found=0;
- tcleval("llength $xschem_libs");
+ if(what & 1) tcleval("llength $xschem_libs");
+ if(what & 2) tcleval("llength $noprint_libs");
  range = atoi(tclresult());
  dbg(1, "check_lib(): s=%s, range=%d\n", s, range);
 
  for(i=0;i<range;i++){
-  my_snprintf(str, S(str), "lindex $xschem_libs %d",i);
+  if(what & 1 ) my_snprintf(str, S(str), "lindex $xschem_libs %d",i);
+  if(what & 2 ) my_snprintf(str, S(str), "lindex $noprint_libs %d",i);
   tcleval(str);
-  dbg(1, "check_lib(): xschem_libs=%s\n", tclresult());
+  dbg(1, "check_lib(): %s -> %s\n", str, tclresult());
   my_snprintf(str, S(str), "regexp {%s} %s", tclresult(), s);
   dbg(0, "check_lib(): str=%s\n", str);
   tcleval(str);

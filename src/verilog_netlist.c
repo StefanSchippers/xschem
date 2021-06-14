@@ -295,7 +295,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
     my_strdup(1234, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
-    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(abs_path)) {
+    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path)) {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(328, &subckt_name, get_cell(xctx->sym[i].name, 0));
       if (str_hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)

@@ -3525,6 +3525,7 @@ if {$::OS == "Windows"} {
 
 # used in C code
 set_ne xschem_libs {}
+set_ne noprint_libs {}
 set_ne tcl_debug 0
 # used to activate debug from menu
 set_ne menu_tcl_debug 0
