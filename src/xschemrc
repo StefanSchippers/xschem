@@ -84,6 +84,19 @@
 # set netlist_dir $env(HOME)/.xschem/simulations
 
 ###########################################################################
+#### NETLIST AND HIERARCHICAL PRINT EXCLUDE PATTERNS
+###########################################################################
+#### xschem_libs is a list of patterns of cells to exclude from netlisting.
+#### Matching is done as regular expression on full cell path
+#### Example:
+#### set xschem_libs { {/cmoslib/} {/analoglib/.*pass} buffer }
+#### in this case all schematic cells of directory cmoslib and cells containing
+#### /analoglib/...pass and buffer will be excluded from netlisting
+set xschem_libs {}
+#### noprint_libs is a list with same rules as for xschem_libs. This
+#### variable controls hierarchical print
+set noprint_libs {}
+###########################################################################
 #### CHANGE DEFAULT [] WITH SOME OTHER CHARACTERS FOR BUSSED SIGNALS 
 #### IN SPICE NETLISTS (EXAMPLE: DATA[7] --> DATA<7>) 
 ###########################################################################
