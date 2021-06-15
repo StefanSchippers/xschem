@@ -172,6 +172,8 @@ set noprint_libs {}
 #### Windows ghostscript uses gswin64c
 # set to_pdf {gswin64c -sDEVICE=pdfwrite -o}
 # set to_pdf ps2pdf
+# set to_pdf {ps2pdf -dAutoRotatePages=/None}
+
 
 ###########################################################################
 #### CUSTOM GRID / SNAP VALUE SETTINGS
