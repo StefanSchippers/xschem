@@ -923,6 +923,7 @@ void symbol_in_new_window(void)
 
 void schematic_in_new_window(void)
 {
+ char *sch = NULL;
  char filename[PATH_MAX];
  rebuild_selected_array();
  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT)
@@ -945,9 +946,11 @@ void schematic_in_new_window(void)
      )
   ) return;
 
-  my_strncpy(filename, abs_sym_path(get_tok_value(
-    (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ), "")
-    , S(filename));
+  my_strdup2(1246, &sch, get_tok_value(
+    (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ));
+  tcl_hook(&sch);
+  my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
+  my_free(1247, &sch);
   if(!filename[0]) {
     my_strncpy(filename, add_ext(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), ".sch"), S(filename));
   }
@@ -992,6 +995,7 @@ void launcher(void)
 void descend_schematic(int instnumber)
 {
  const char *str;
+ char *sch = NULL;
  char filename[PATH_MAX];
  int inst_mult, inst_number;
  int save_ok = 0;
@@ -1088,10 +1092,11 @@ void descend_schematic(int instnumber)
   xctx->currsch++;
   hilight_child_pins();
 
-  my_strncpy(filename, abs_sym_path(get_tok_value(
-     (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ), "")
-     , S(filename));
-
+  my_strdup2(1244, &sch, 
+    get_tok_value((xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ));
+  tcl_hook(&sch);
+  my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
+  my_free(1245, &sch);
   unselect_all();
   remove_symbols();
   if(filename[0]) {

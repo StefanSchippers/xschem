@@ -37,6 +37,7 @@ void hier_psprint(void)  /* netlister driver */
   char filename[PATH_MAX];
   char *abs_path = NULL;
   const char *str_tmp;
+  char *sch = NULL;
  
   if(!ps_draw(1)) return; /* prolog */
   if(xctx->modified) {
@@ -72,7 +73,10 @@ void hier_psprint(void)  /* netlister driver */
        else
           spice_stop=0;
        if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
-         my_strncpy(filename, abs_sym_path(str_tmp, ""), S(filename));
+         my_strdup2(1252, &sch, str_tmp);
+         tcl_hook(&sch);
+         my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
+         my_free(1253, &sch);
        } else {
          my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
        }
@@ -389,13 +393,17 @@ void spice_block_netlist(FILE *fd, int i)
   /* int j; */
   /* int multip; */
   char *extra=NULL;
+  char *sch = NULL;
 
   if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"spice_stop",0),"true") )
      spice_stop=1;
   else
      spice_stop=0;
   if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
-    my_strncpy(filename, abs_sym_path(str_tmp, ""), S(filename));
+    my_strdup2(1254, &sch, str_tmp);
+    tcl_hook(&sch);
+    my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
+    my_free(1255, &sch);
   } else {
     my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
   }

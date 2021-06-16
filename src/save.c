@@ -2200,6 +2200,7 @@ void create_sch_from_sym(void)
   char *sub2_prop=NULL;
   char *str=NULL;
   struct stat buf;
+  char *sch = NULL;
   int ln;
 
   if(!stat(abs_sym_path(pinname[0], ""), &buf)) {
@@ -2213,9 +2214,11 @@ void create_sch_from_sym(void)
   if(xctx->lastsel > 1)  return;
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT)
   {
-    my_strncpy(schname, abs_sym_path(get_tok_value(
-      (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ), "")
-      , S(schname));
+    my_strdup2(1250, &sch,
+      get_tok_value((xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ));
+    tcl_hook(&sch);
+    my_strncpy(schname, abs_sym_path(sch, ""), S(schname));
+    my_free(1251, &sch);
     if(!schname[0]) {
       my_strncpy(schname, add_ext(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), ".sch"), S(schname));
     }

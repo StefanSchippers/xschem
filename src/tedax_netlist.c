@@ -154,12 +154,17 @@ void tedax_block_netlist(FILE *fd, int i)
   char filename[PATH_MAX];
   const char *str_tmp;
   char *extra=NULL;
+  char *sch = NULL;
+
   if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"tedax_stop",0),"true") )
      tedax_stop=1;
   else
      tedax_stop=0;
   if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
-    my_strncpy(filename, abs_sym_path(str_tmp, ""), S(filename));
+    my_strdup2(1256, &sch, str_tmp);
+    tcl_hook(&sch);
+    my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
+    my_free(1257, &sch);
   } else {
     my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
   }

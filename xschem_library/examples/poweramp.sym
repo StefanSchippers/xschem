@@ -1,10 +1,9 @@
-v {xschem version=2.9.7 file_version=1.2}
-G {type=subcircuit
+v {xschem version=2.9.9 file_version=1.2 }
+G {}
+K {type=subcircuit
 format="@name @pinlist @symname"
 verilog_stop=true
-template="name=x1"
-
-}
+template="name=x1"}
 V {}
 S {}
 E {}
