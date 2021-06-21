@@ -95,6 +95,8 @@ void hier_psprint(void)  /* netlister driver */
   unselect_all();
   load_schematic(1, xctx->sch[xctx->currsch], 0);
   ps_draw(4); /* trailer */
+  zoom_full(0, 0, 1, 0.97);
+  draw();
 }
 
 
