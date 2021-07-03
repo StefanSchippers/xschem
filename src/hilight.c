@@ -183,7 +183,7 @@ void create_plot_cmd(int viewer)
           my_strdup(241, &t, tok);
           my_strdup2(245, &p, (entry->path)+1);
           Tcl_VarEval(interp, "puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t),
-                      ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+                      ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
           my_free(759, &p);
           my_free(760, &t);
         }
@@ -774,7 +774,7 @@ static void send_net_to_gaw(int simtype, const char *node)
       my_strdup2(254, &p, xctx->sch_path[xctx->currsch]+1);
       if(simtype == 0 ) { /* spice */
         Tcl_VarEval(interp, "puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t),
-                    ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+                    ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
       } else { /* Xyce */
         char *c=p;
         while(*c){
@@ -782,7 +782,7 @@ static void send_net_to_gaw(int simtype, const char *node)
           c++;
         }
         Tcl_VarEval(interp, "puts $gaw_fd {copyvar ", strtoupper(p), strtoupper(t),
-                    " p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+                    " sel #", color_str, "}\nvwait gaw_fd\n", NULL);
       }
     }
     my_free(774, &p);
@@ -811,7 +811,7 @@ static void send_current_to_gaw(int simtype, const char *node)
     if(!simtype) { /* spice */
       Tcl_VarEval(interp, "puts $gaw_fd {copyvar i(", xctx->currsch>0 ? "v." : "",
                   strtolower(p), strtolower(t),
-                  ") p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+                  ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
     } else {       /* Xyce */
       char *c=p;
       while(*c){
@@ -820,7 +820,7 @@ static void send_current_to_gaw(int simtype, const char *node)
       }
       Tcl_VarEval(interp, "puts $gaw_fd {copyvar ", xctx->currsch>0 ? "V:" : "",
                   strtoupper(p), strtoupper( xctx->currsch>0 ? t+1 : t ), "#branch",
-                  " p0 #", color_str, "}\nvwait gaw_fd\n", NULL);
+                  " sel #", color_str, "}\nvwait gaw_fd\n", NULL);
     }
   }
   my_free(1181, &p);
