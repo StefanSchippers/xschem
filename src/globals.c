@@ -177,7 +177,6 @@ const char fopen_read_mode[] = "rb";
 const char fopen_read_mode[] = "r";
 #endif
 int load_initfile=1;
-char plotfile[PATH_MAX] = {'\0'};
 char rcfile[PATH_MAX] = {'\0'};
 char *tcl_command = NULL;
 char tcl_script[PATH_MAX] = {'\0'};

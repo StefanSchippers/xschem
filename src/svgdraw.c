@@ -562,13 +562,13 @@ void svg_draw(void)
   struct hilight_hashentry *entry;
   
   if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
-  if(!plotfile[0]) {
+  if(!xctx->plotfile[0]) {
     Tcl_VarEval(interp, "tk_getSaveFile -title {Select destination file} -initialfile ",
       get_cell(xctx->sch[xctx->currsch], 0) , ".svg -initialdir ", lastdir, NULL);
     r = tclresult();
     if(r[0]) {
-      my_strncpy(plotfile, r, S(plotfile));
-      Tcl_VarEval(interp, "file dirname ", plotfile, NULL);
+      my_strncpy(xctx->plotfile, r, S(xctx->plotfile));
+      Tcl_VarEval(interp, "file dirname ", xctx->plotfile, NULL);
       my_strncpy(lastdir, tclresult(), S(lastdir));
     }
     else return;
@@ -585,10 +585,10 @@ void svg_draw(void)
   dy=xctx->xschem_h;
   dbg(1, "svg_draw(): dx=%g  dy=%g\n", dx, dy);
  
-  if(plotfile[0]) {
-    fd=fopen(plotfile, "w");
+  if(xctx->plotfile[0]) {
+    fd=fopen(xctx->plotfile, "w");
     if(!fd) { 
-      dbg(0, "can not open file: %s\n", plotfile);
+      dbg(0, "can not open file: %s\n", xctx->plotfile);
       return;
     }
   } else {
@@ -598,7 +598,7 @@ void svg_draw(void)
       return;
     }
   }
-  my_strncpy(plotfile,"", S(plotfile));
+  my_strncpy(xctx->plotfile,"", S(xctx->plotfile));
 
   unused_layer = my_calloc(873, cadlayers, sizeof(int));
   #if 0

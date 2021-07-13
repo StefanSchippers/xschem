@@ -56,13 +56,13 @@ void print_image()
 
   if(!has_x) return ;
   if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
-  if(!plotfile[0]) {
+  if(!xctx->plotfile[0]) {
     Tcl_VarEval(interp, "tk_getSaveFile -title {Select destination file} -initialfile ",
       get_cell(xctx->sch[xctx->currsch], 0) , ".png -initialdir ", lastdir, NULL);
     r = tclresult();
     if(r[0]) {
-      my_strncpy(plotfile, r, S(plotfile));
-      Tcl_VarEval(interp, "file dirname ", plotfile, NULL);
+      my_strncpy(xctx->plotfile, r, S(xctx->plotfile));
+      Tcl_VarEval(interp, "file dirname ", xctx->plotfile, NULL);
       my_strncpy(lastdir, tclresult(), S(lastdir));
     }
     else return;
@@ -81,19 +81,19 @@ void print_image()
   #ifdef __unix__
   XpmWriteFileFromPixmap(display, "plot.xpm", xctx->save_pixmap,0, NULL ); /* .gz ???? */
   dbg(1, "print_image(): Window image saved\n");
-  if(plotfile[0]) {
-    my_snprintf(cmd, S(cmd), "convert_to_png plot.xpm {%s}", plotfile);
+  if(xctx->plotfile[0]) {
+    my_snprintf(cmd, S(cmd), "convert_to_png plot.xpm {%s}", xctx->plotfile);
     tcleval(cmd);
   } else tcleval( "convert_to_png plot.xpm plot.png");
   #else
   char *psfile=NULL;
   create_ps(&psfile, 7);
-  if(plotfile[0]) {
-    my_snprintf(cmd, S(cmd), "convert_to_png {%s} {%s}", psfile, plotfile);
+  if(xctx->plotfile[0]) {
+    my_snprintf(cmd, S(cmd), "convert_to_png {%s} {%s}", psfile, xctx->plotfile);
     tcleval(cmd);
   } else tcleval( "convert_to_png {%s} plot.png", psfile);
   #endif
-  my_strncpy(plotfile,"", S(plotfile));
+  my_strncpy(xctx->plotfile,"", S(xctx->plotfile));
   draw_grid=save_draw_grid;
   draw_pixmap=1;
 }

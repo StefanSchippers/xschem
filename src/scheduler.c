@@ -1716,7 +1716,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       if(argc >= 4) {
         Tcl_VarEval(interp, "file normalize \"", argv[3], "\"", NULL);
-        my_strncpy(plotfile, Tcl_GetStringResult(interp), S(plotfile));
+        my_strncpy(xctx->plotfile, Tcl_GetStringResult(interp), S(xctx->plotfile));
       }
 
       if(!strcmp(argv[2],"pdf") || !strcmp(argv[2],"ps")) {

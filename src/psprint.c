@@ -861,7 +861,7 @@ void create_ps(char **psfile, int what)
       }
     }
   
-    dbg(1, "ps_draw(): INT_WIDTH(lw)=%d plotfile=%s\n",INT_WIDTH(xctx->lw), plotfile);
+    dbg(1, "ps_draw(): INT_WIDTH(lw)=%d plotfile=%s\n",INT_WIDTH(xctx->lw), xctx->plotfile);
     fprintf(fd, "showpage\n\n");
   }
   if(what & 4) { /* trailer */
@@ -883,13 +883,13 @@ int ps_draw(int what)
 
  if(what & 1) { /* prolog */
    if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
-   if(!plotfile[0]) {
+   if(!xctx->plotfile[0]) {
      Tcl_VarEval(interp, "tk_getSaveFile -title {Select destination file} -initialfile ",
        get_cell(xctx->sch[xctx->currsch], 0) , ".pdf -initialdir ", lastdir, NULL);
      r = tclresult();
      if(r[0]) {
-       my_strncpy(plotfile, r, S(plotfile));
-       Tcl_VarEval(interp, "file dirname ", plotfile, NULL);
+       my_strncpy(xctx->plotfile, r, S(xctx->plotfile));
+       Tcl_VarEval(interp, "file dirname ", xctx->plotfile, NULL);
        my_strncpy(lastdir, tclresult(), S(lastdir));
      }
      else return 0;
@@ -897,12 +897,12 @@ int ps_draw(int what)
  }
  create_ps(&psfile, what);
  if(what & 4) { /* trailer */
-   if(plotfile[0]) {
-     my_snprintf(tmp, S(tmp), "convert_to_pdf {%s} {%s}", psfile, plotfile);
+   if(xctx->plotfile[0]) {
+     my_snprintf(tmp, S(tmp), "convert_to_pdf {%s} {%s}", psfile, xctx->plotfile);
    } else {
      my_snprintf(tmp, S(tmp), "convert_to_pdf {%s} plot.pdf", psfile);
    }
-   my_strncpy(plotfile,"", S(plotfile));
+   my_strncpy(xctx->plotfile,"", S(xctx->plotfile));
    tcleval( tmp);
    Tcl_SetResult(interp,"",TCL_STATIC);
  }

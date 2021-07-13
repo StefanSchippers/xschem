@@ -416,6 +416,7 @@ void alloc_xschem_data()
   xctx->get_tok_size = 0;
   xctx->get_tok_value_size = 0;
   xctx->netlist_name[0] = '\0';
+  xctx->plotfile[0] = '\0';
   xctx->netlist_unconn_cnt = 0; /* unique count of unconnected pins while netlisting */
   xctx->current_dirname[0] = '\0';
   for(i = 0; i < NBOXES; i++) {

@@ -59,7 +59,7 @@ void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == LONG && !strcmp("plotfile", opt)) ) {
         dbg(1, "process_options(): user plotfile specified: %s\n", optval ? optval : "NULL");
-        if(optval) my_strncpy(plotfile, optval, S(plotfile));
+        if(optval) my_strncpy(xctx->plotfile, optval, S(xctx->plotfile));
 
     } else if( (type == LONG && !strcmp("rcfile", opt)) ) {
         dbg(1, "process_options(): user rcfile specified: %s\n", optval ? optval : "NULL");
