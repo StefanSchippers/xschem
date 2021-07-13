@@ -129,15 +129,14 @@ vvss vss 0 dc 0
 ** referenced file in simulation directory.
 .include \\"models_poweramp.txt\\"
 .control
-save all
-op
-write poweramp.raw
-tran  6e-7 0.06 uic
+* op
+tran  6e-7 0.03 uic
 * .FOUR 20k v(outm,outp)
 * .probe i(*) 
 plot outp outm
 save all
 save p(r*) p(v*)
+write poweramp.raw
 .endc
 "}
 C {vsource.sym} 150 -1170 0 0 {name=V1 value="dc 50 pwl 0 0 1m 50"}

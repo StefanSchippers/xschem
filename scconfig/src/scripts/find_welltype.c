@@ -35,7 +35,7 @@ static int accept_wt_res(char *ver)
 {
 	char *next;
 
-	if (!strncmp(ver, "OK ", 3) == 0)
+	if (strncmp(ver, "OK ", 3) == 0)
 		return 0;
 
 	ver += 3;
