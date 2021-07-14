@@ -324,6 +324,7 @@ void traverse_node_hash()
        if(!netlist_count) bus_hilight_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
        if(incr_hilight) incr_hilight_color();
        statusmsg(str,2);
+       tcleval("wm deiconify .infotext"); /* critical error: force ERC window showing */
      }
      else if(entry->d.out >=2 && entry->d.port>=0)  /*  era d.port>=2   03102001 */
      {
