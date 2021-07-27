@@ -17,6 +17,10 @@ BUILDING & INSTALLING
 
 Please read the instructions in file INSTALL.
 
+LICENSING
+
+See file LICENSE and license header in each source file.
+
 SUBDIRECTORIES
 
 doc:             xschem homepage, reference manual and man pages
