@@ -41,6 +41,7 @@ INSTRUCTIONS TO ADD XSCHEM TO VISUAL STUDIO 2019
    Optional:
     - Windows Ghostscript (to print)
       Update xschemrc to set variable to_pdf and to_png
+      Add directory of gswin64.exe to PATH if installer didn't do it
 
 2. Create new XSchemWin project on Visual Studio 2019 
 

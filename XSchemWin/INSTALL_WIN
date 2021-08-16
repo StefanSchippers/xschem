@@ -3,7 +3,7 @@
     - Windows 10
     - ActiveState TCL/TK 8.69 x64 (https://www.activestate.com/products/tcl/)
     - Gawk for Windows (Add directory of awk.exe to PATH)
-    - NGSpice for Windows
+    - NGSpice for Windows (Add directory of NGSpice to PATH, if it's not already done so)
 
 2. Install Tree
 C:/Program Files/XSchem/bin                          - Binaries (executable file).
