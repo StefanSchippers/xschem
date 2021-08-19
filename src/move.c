@@ -709,7 +709,7 @@ void copy_objects(int what)
         if(c!=k) break;
         {
           xPoly *p = &xctx->poly[c][n];
-          double bx1, by1, bx2, by2;
+          double bx1 = 0.0, by1 = 0.0, bx2 = 0.0, by2 = 0.0;
           double *x = my_malloc(227, sizeof(double) *p->points);
           double *y = my_malloc(228, sizeof(double) *p->points);
           int j;

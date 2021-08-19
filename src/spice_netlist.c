@@ -476,7 +476,7 @@ void spice_netlist(FILE *fd, int spice_stop )
          flag = 1;
        }
        if(top_subckt) {
-         int d;
+         int d = 'X';
          if(!strcmp(type, "ipin")) d = 'I';
          if(!strcmp(type, "opin")) d = 'O';
          if(!strcmp(type, "iopin")) d = 'B';
