@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.9.7" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.9.8" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
     <WixVariable Id="WixUILicenseRtf" 
                  Value="License.rtf" />

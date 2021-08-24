@@ -34,9 +34,6 @@
           <File Id="filB5BAB18CD952C15145D612E191ECB3D5" KeyPath="yes" Source="$(var.docSrcDir)\xschem2.png" />
         </Component>
         <Directory Id="dir56824767C511B5A8BDE9AD99F23EBEB0" Name="manpages">
-          <Component Id="cmpC01C1013B4DCC58753621154A92EE8E4" Guid="{9BEE1C61-CEAE-498C-8C95-997A704499AA}">
-            <File Id="fil3F838419C8823B97975918DE6BFB300F" KeyPath="yes" Source="$(var.docSrcDir)\manpages\xschem.1" />
-          </Component>
           <Component Id="cmp9825A377AC374CFEE6EB63CFA6BE0BF6" Guid="{42DA6192-9D46-446A-89F9-27F3CAEF631B}">
             <File Id="filBD354E9C342F6AB2EBF466996BFA6597" KeyPath="yes" Source="$(var.docSrcDir)\manpages\xschem.1.in" />
           </Component>
@@ -811,7 +808,6 @@
       <ComponentRef Id="cmp25A043AB41EF230E1E934445514477D5" />
       <ComponentRef Id="cmp3EE12729C368AAE386D9F87D123AF8B1" />
       <ComponentRef Id="cmpDB2679E4A9AD23987A0D7CA88533A656" />
-      <ComponentRef Id="cmpC01C1013B4DCC58753621154A92EE8E4" />
       <ComponentRef Id="cmp9825A377AC374CFEE6EB63CFA6BE0BF6" />
       <ComponentRef Id="cmpC4B67FB1F80BFA9664189B56CE8DAEC6" />
       <ComponentRef Id="cmp9DD9B6DEAB0CD49429098E1026944E4F" />
