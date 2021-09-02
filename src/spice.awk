@@ -141,6 +141,10 @@ function process(        i, iprefix)
     spiceprefix=$3
     return
   }
+  if($0 ~/\*\*\*\* begin user header code/){ #20180129
+    user_code=1
+    return
+  }
   if($0 ~/\*\*\*\* begin user architecture code/){ #20180129
     user_code=1
     print
@@ -149,6 +153,10 @@ function process(        i, iprefix)
   if($0 ~/\*\*\*\* end user architecture code/){ #20180129
     user_code=0
     print
+    return
+  }
+  if($0 ~/\*\*\*\* end user header code/){ #20180129
+    user_code=0
     return
   }
   if(user_code) { #20180129

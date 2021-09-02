@@ -152,6 +152,32 @@ void global_spice_netlist(int global)  /* netlister driver */
    dbg(0, "global_spice_netlist(): problems opening netlist file\n");
    return;
  }
+
+
+
+ first = 0;
+ for(i=0;i<xctx->instances;i++) /* print netlist_commands of top level cell with 'place=header' property */
+ {
+  if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
+  if(xctx->inst[i].ptr<0) continue;
+  if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "spice_ignore",0 ), "true") ) {
+    continue;
+  }
+  my_strdup(1264, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+  my_strdup(1265, &place,get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr,"place",0));
+  if( type && !strcmp(type,"netlist_commands") ) {
+   if(!place) {
+     my_strdup(1266, &place,get_tok_value(xctx->inst[i].prop_ptr,"place",0));
+   }
+   if(place && !strcmp(place, "header" )) {
+     if(first == 0) fprintf(fd,"**** begin user header code\n");
+     first++;
+     print_spice_element(fd, i) ;  /* this is the element line  */
+   }
+  }
+ }
+ if(first) fprintf(fd,"**** end user header code\n");
+
  /* netlist_options */
  for(i=0;i<xctx->instances;i++) {
    if(!(xctx->inst[i].ptr+ xctx->sym)->type) continue;
@@ -188,7 +214,8 @@ void global_spice_netlist(int global)  /* netlister driver */
  spice_netlist(fd, 0);
 
  first = 0;
- for(i=0;i<xctx->instances;i++) /* print netlist_commands of top level cell with no 'place=end' property */
+ for(i=0;i<xctx->instances;i++) /* print netlist_commands of top level cell with no 'place=end' property
+                                   and no place=header */
  {
   if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
   if(xctx->inst[i].ptr<0) continue;
@@ -198,13 +225,13 @@ void global_spice_netlist(int global)  /* netlister driver */
   my_strdup(381, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   my_strdup(382, &place,get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr,"place",0));
   if( type && !strcmp(type,"netlist_commands") ) {
-   if(!place || strcmp(place, "end" )) {
+   if(!place) {
      my_strdup(383, &place,get_tok_value(xctx->inst[i].prop_ptr,"place",0));
-     if(!place || strcmp(place, "end" )) {
-       if(first == 0) fprintf(fd,"**** begin user architecture code\n");
-       first++;
-       print_spice_element(fd, i) ;  /* this is the element line  */
-     }
+   }
+   if(!place || (strcmp(place, "end") && strcmp(place, "header")) ) {
+     if(first == 0) fprintf(fd,"**** begin user architecture code\n");
+     first++;
+     print_spice_element(fd, i) ;  /* this is the element line  */
    }
   }
  }
