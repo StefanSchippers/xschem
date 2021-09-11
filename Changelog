@@ -1,3 +1,21 @@
+3.0.0;
+- binary windows release
+- added "place=header" (in addition to "place=end" attribuite value)
+  to print code block as a header in spice netlists
+- force ERC info window showing in case of critical errors during netlist:
+  unconnected nodes, shorted nodes, pin mismatch between sch and sym and similar
+- do a tcl evaluation of the "schematic" attribute of a symbol if the attribute is within a
+  tcleval(...) expression. This way tcl variables/expressions can be used to determine 
+  the schematic to descend into when traversing/netlisting. example: 
+  schematic=tcleval(poweramp_${::mode}.sch) 
+- new list variable "noprint_libs" to specify patterns of cells NOT to print in hierarchical export. 
+ "xschem_libs" does the same thing for netlisting.
+- added hierarchical ps/pdf export (File menu)
+- LCC creation: Added new feature "Make schematic and symbol from selected components" 
+  with command "xschem make_sch_from_sel" and function make_schematic(..)
+- if bussed symbol ports are unconnected generate array of unconnected nets to match port multiplicity
+- add simulation menu option to create simulation/ dir under current schematic dir (local_netlist_dir)
+- report error if editor not found while opening/editing with editor (netlist, stimuli file attributes)
 
 2.9.9:
 - add (as comments in netlist) absolute paths for .sch and .sym of all expanded subcircuits
