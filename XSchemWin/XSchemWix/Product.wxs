@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="Xschem" Language="1033" Version="2.9.9.9" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+	<Product Id="*" Name="Xschem" Language="1033" Version="3.0.0" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
     <WixVariable Id="WixUILicenseRtf" 
                  Value="License.rtf" />
@@ -21,8 +21,8 @@
     <Upgrade Id="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
       <UpgradeVersion
          Property="OLD_VERSION_FOUND"
-         Minimum="2.9.8.0"
-         Maximum="2.9.9.8"
+         Minimum="2.9.0"
+         Maximum="2.9.9"
          IncludeMinimum="yes"
          IncludeMaximum="no"
          OnlyDetect="no"
@@ -30,7 +30,7 @@
          MigrateFeatures="yes"  />
       <UpgradeVersion
         Property="NEWER_VERSION_FOUND"
-        Minimum="2.9.9.8"
+        Minimum="2.9.9"
         IncludeMinimum="no"
         OnlyDetect="yes" />
     </Upgrade>
