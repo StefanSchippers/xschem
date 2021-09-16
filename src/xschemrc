@@ -287,6 +287,12 @@
 # set xschem_listen_port 2021
 
 ###########################################################################
+#### BESPICE WAVE SOCKET CONNECTION
+###########################################################################
+#### set bespice wave listening port; default: not enabled
+set bespice_listen_port 2022
+
+###########################################################################
 #### UTILE SPICE STIMULI DESCRIPTION LANGUAGE AND TRANSLATOR
 ###########################################################################
 #### default paths are set as shown here: 

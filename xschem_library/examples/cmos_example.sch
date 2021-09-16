@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -94,11 +94,14 @@ value=".temp 30
 .option savecurrents
 .save all @m4[gm] @m5[gm] @m1[gm]
 .control
+save all
 op
+* tran 1n 300n
+* dc vvcc 0 5 0.01
 write cmos_example.raw
 .endc
 
-"  net_name=true}
+"}
 C {lab_pin.sym} 500 -430 0 0 {name=p12 lab=G  net_name=true}
 C {launcher.sym} 700 -60 0 0 {name=h1
 descr=Backannotate

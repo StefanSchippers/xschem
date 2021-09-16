@@ -406,7 +406,7 @@ proc sim_is_xyce {} {
 
 proc set_sim_defaults {} {
   ### spice 
-  global sim terminal USER_CONF_DIR has_x
+  global sim terminal USER_CONF_DIR has_x bespice_listen_port env
 
   set failure 0
   if { [info exists has_x] && [winfo exists .sim] } {
@@ -472,8 +472,13 @@ proc set_sim_defaults {} {
     set_ne sim(spicewave,2,name) {Rawtovcd}
     set_ne sim(spicewave,2,fg) 0
     set_ne sim(spicewave,2,st) 0
+
+    set_ne sim(spicewave,3,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port "$n.raw" } 
+    set_ne sim(spicewave,3,name) {bespice wave viewer}
+    set_ne sim(spicewave,3,fg) 0
+    set_ne sim(spicewave,3,st) 0
     # number of configured spice wave viewers, and default one
-    set_ne sim(spicewave,n) 3
+    set_ne sim(spicewave,n) 4
     set_ne sim(spicewave,default) 0
     
     ### verilog
@@ -946,7 +951,8 @@ proc waves {} {
   ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
   ## $d : netlist directory
 
-  global netlist_dir netlist_type computerfarm terminal sim XSCHEM_SHAREDIR has_x
+  global netlist_dir netlist_type computerfarm terminal sim XSCHEM_SHAREDIR has_x 
+  global bespice_listen_port env
 
   simuldir
   set_sim_defaults
@@ -3612,6 +3618,10 @@ set_ne computerfarm {} ;# 20151007
 # xschem tcp port number (listen to port and execute commands from there if set) 
 # set a port number in xschemrc if you want accept remote connections.
 set_ne xschem_listen_port {}
+
+# server for bespice waveform connection (listen to port and send commands to bespice if set)
+# set a port number in xschemrc if you want xschem to be able to cross-probe to bespice
+set_ne bespice_listen_port {}
 
 # hide instance details (show only bbox) 
 set_ne hide_symbols 0
