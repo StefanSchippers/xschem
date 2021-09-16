@@ -474,7 +474,7 @@ proc set_sim_defaults {} {
     set_ne sim(spicewave,2,st) 0
 
     set_ne sim(spicewave,3,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port "$n.raw" } 
-    set_ne sim(spicewave,3,name) {bespice wave viewer}
+    set_ne sim(spicewave,3,name) {bespice wave}
     set_ne sim(spicewave,3,fg) 0
     set_ne sim(spicewave,3,st) 0
     # number of configured spice wave viewers, and default one
