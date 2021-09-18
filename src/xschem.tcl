@@ -461,9 +461,7 @@ proc set_sim_defaults {} {
     set_ne sim(spicewave,0,fg) 0
     set_ne sim(spicewave,0,st) 0
    
-    set_ne sim(spicewave,1,cmd) {echo load "$n.raw" > .spiceinit
-    $terminal -e ngspice
-    rm .spiceinit} 
+    set_ne sim(spicewave,1,cmd) {$terminal -e ngspice}
     set_ne sim(spicewave,1,name) {Ngpice Viewer}
     set_ne sim(spicewave,1,fg) 0
     set_ne sim(spicewave,1,st) 0
@@ -474,7 +472,7 @@ proc set_sim_defaults {} {
     set_ne sim(spicewave,2,st) 0
 
     set_ne sim(spicewave,3,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port "$n.raw" } 
-    set_ne sim(spicewave,3,name) {bespice wave}
+    set_ne sim(spicewave,3,name) {Bespice wave}
     set_ne sim(spicewave,3,fg) 0
     set_ne sim(spicewave,3,st) 0
     # number of configured spice wave viewers, and default one
@@ -676,6 +674,19 @@ proc simconf_add {tool} {
   incr sim($tool,n)
 }
 
+proc bespice_getdata {sock} {
+  global bespice_server_getdata
+  if {[eof $sock] || [catch {gets $sock bespice_server_getdata(line,$sock)}]} {
+    close $sock
+    puts "Close $bespice_server_getdata(addr,$sock)"
+    unset bespice_server_getdata(addr,$sock)
+    unset bespice_server_getdata(line,$sock)
+    unset bespice_server_getdata(sock)
+  } else {
+    puts "bespice --> $bespice_server_getdata(line,$sock)"
+  }
+}
+
 proc xschem_getdata {sock} {
   global xschem_server_getdata
   if {[eof $sock] || [catch {gets $sock xschem_server_getdata(line,$sock)}]} {
@@ -691,6 +702,18 @@ proc xschem_getdata {sock} {
     puts $sock "$xschem_server_getdata(res,$sock)"
   }
 } 
+
+proc bespice_server {sock addr port} {
+  global bespice_server_getdata
+  if { ![info exists bespice_server_getdata(sock)] } {
+    puts "Accept $sock from $addr port $port"
+    fconfigure $sock -buffering line
+    set bespice_server_getdata(addr,$sock) [list $addr $port]
+    set bespice_server_getdata(sock) [list $sock]
+    fileevent $sock readable [list bespice_getdata $sock]
+  }
+}
+
 
 proc xschem_server {sock addr port} {
   global xschem_server_getdata
@@ -4186,8 +4209,8 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
      -command "xschem hilight drill" -accelerator {Ctrl+Shift+K}
   .menubar.hilight.menu add command -label {Highlight selected net/pins} \
      -command "xschem hilight" -accelerator K
-  .menubar.hilight.menu add command -label {Send selected net/pins to GAW} \
-     -command "xschem send_to_gaw" -accelerator Alt+G
+  .menubar.hilight.menu add command -label {Send selected net/pins to Viewer} \
+     -command "xschem send_to_viewer" -accelerator Alt+G
   .menubar.hilight.menu add command -label {Select hilight nets / pins} -command "xschem select_hilight_net" \
      -accelerator Alt+K
   .menubar.hilight.menu add command -label {Un-highlight all net/pins} \
@@ -4232,9 +4255,8 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
       }
   .menubar.simulation.menu add command -label {Edit Netlist} \
      -command {edit_netlist [file tail [xschem get schname]]}
-  .menubar.simulation.menu add command -label {Send highlighted nets to GAW} -command {xschem create_plot_cmd gaw}
-  .menubar.simulation.menu add command -label {Create Ngspice 'xplot' file} \
-  -command {xschem create_plot_cmd ngspice} -accelerator Shift+J
+  .menubar.simulation.menu add command -label {Send highlighted nets to viewer} \
+    -command {xschem create_plot_cmd} -accelerator Shift+J
   .menubar.simulation.menu add checkbutton -label "Forced stop tcl scripts" -variable tclstop
   .menubar.simulation.menu add separator
   .menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" -variable top_subckt 
@@ -4316,6 +4338,13 @@ source_user_tcl_files
 if { [info exists xschem_listen_port] && ($xschem_listen_port ne {}) } { 
   if {[catch {socket -server xschem_server $xschem_listen_port} err]} {
     puts "problems listening to TCP port: $xschem_listen_port"
+    puts $err
+  }
+}
+
+if { [info exists bespice_listen_port] && ($bespice_listen_port ne {}) } { 
+  if {[catch {socket -server bespice_server $bespice_listen_port} err]} {
+    puts "problems listening to TCP port: $bespice_listen_port"
     puts $err
   }
 }

@@ -125,17 +125,41 @@ void incr_hilight_color(void)
 }
 
 /* print all highlight signals which are not ports (in/out/inout). */
-void create_plot_cmd(int viewer)
+void create_plot_cmd(void)
 {
   int i, c, idx, first;
   struct hilight_hashentry *entry;
   struct node_hashentry *node_entry;
   char *tok;
   char plotfile[PATH_MAX];
-  char color_str[18];
+  char color_str[30];
   FILE *fd = NULL;
   char *str = NULL;
+  int viewer = 0;
+  int exists = 0;
+  char *viewer_name = NULL;
+  char tcl_str[200];
+  char rawfile[PATH_MAX];
+  int simtype;
 
+  tcleval("sim_is_xyce");
+  simtype = atoi( tclresult() );
+  tcleval("file tail [file rootname [xschem get schname 0]].raw");
+  my_strncpy(rawfile, tclresult(), S(rawfile));
+  tcleval("info exists sim");
+  if(tclresult()[0] == '1') exists = 1;
+  enable_drill = 0;
+  if(exists) {
+    viewer = atol(tclgetvar("sim(spicewave,default)"));
+    my_snprintf(tcl_str, S(tcl_str), "sim(spicewave,%d,name)", viewer);
+    my_strdup(1269, &viewer_name, tclgetvar(tcl_str));
+    dbg(1,"create_plot_cmd(): viewer_name=%s\n", viewer_name);
+    if(strstr(viewer_name, "Gaw")) viewer=GAW;
+    else if(strstr(viewer_name, "Bespice")) viewer=BESPICE;
+    else if(strstr(viewer_name, "Ngspice")) viewer=NGSPICE;
+    my_free(1270, &viewer_name);
+  }
+  if(!exists || !viewer) return;
   my_snprintf(plotfile, S(plotfile), "%s/xplot", netlist_dir);
   if(viewer == NGSPICE) {
     if(!(fd = fopen(plotfile, "w"))) {
@@ -157,10 +181,10 @@ void create_plot_cmd(int viewer)
       if(node_entry && !strcmp(xctx->sch_path[xctx->currsch], entry->path) &&
          (node_entry->d.port == 0 || !strcmp(entry->path, ".") )) {
         c = get_color(entry->value);
-        sprintf(color_str, "%02x/%02x/%02x", 
-          xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
         idx++;
         if(viewer == NGSPICE) {
+          sprintf(color_str, "%02x/%02x/%02x", 
+            xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
           if(idx > 9) {
             idx = 2;
             fprintf(fd, str);
@@ -180,10 +204,66 @@ void create_plot_cmd(int viewer)
         }
         if(viewer == GAW) {
           char *t=NULL, *p=NULL;
+          sprintf(color_str, "%02x%02x%02x", 
+            xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
+          my_strdup(1273, &t, tok);
+          my_strdup2(1274, &p, (entry->path)+1);
+          if(simtype == 0 ) { /* spice */
+            Tcl_VarEval(interp, "puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t),
+                        ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
+          } else { /* Xyce */
+            char *c=p;
+            while(*c){
+              if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
+              c++;
+            }
+            Tcl_VarEval(interp, "puts $gaw_fd {copyvar ", strtoupper(p), strtoupper(t),
+                        " sel #", color_str, "}\nvwait gaw_fd\n", NULL);
+          }
+          my_free(1275, &p);
+          my_free(1276, &t);
+        }
+        if(viewer == BESPICE) {
+          char *t=NULL, *p=NULL;
+          sprintf(color_str, "%d %d %d", 
+            xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
           my_strdup(241, &t, tok);
           my_strdup2(245, &p, (entry->path)+1);
-          Tcl_VarEval(interp, "puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t),
-                      ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
+
+          if(simtype == 0 ) { /* spice */
+            Tcl_VarEval(interp,
+              "puts $bespice_server_getdata(sock) ",
+              "{set_curve_style \"",
+              rawfile,
+              "\" \"v(", strtolower(p), strtolower(t),
+              ")\" \"solid_line\" \"no symbol\" 1 ",
+              color_str, "}",
+              NULL);
+            Tcl_VarEval(interp,
+              "puts $bespice_server_getdata(sock) ",
+              "{add_curve_to_plot \"", rawfile, "\" \"v(", strtolower(p), strtolower(t),
+              ")\" \"\"}",
+              NULL);
+          } else { /* Xyce */
+            char *c=p;
+            while(*c){
+              if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
+              c++;
+            }
+            Tcl_VarEval(interp,
+              "puts $bespice_server_getdata(sock) ",
+              "{set_curve_style \"",
+              rawfile,
+              "\" \"", strtoupper(p), strtoupper(t),
+              "\" \"solid_line\" \"no symbol\" 1 ",
+              color_str, "}",
+              NULL);
+            Tcl_VarEval(interp,
+              "puts $bespice_server_getdata(sock) ",
+              "{add_curve_to_plot \"", rawfile, "\" \"", strtoupper(p), strtoupper(t),
+              "\" \"\"}",
+              NULL);
+          }
           my_free(759, &p);
           my_free(760, &t);
         }
@@ -750,6 +830,70 @@ int hilight_netname(const char *name)
   return node_entry ? 1 : 0;
 }
 
+static void send_net_to_bespice(int simtype, const char *node)
+{
+  int c, k, tok_mult;
+  struct node_hashentry *node_entry;
+  const char *expanded_tok;
+  const char *tok;
+  char color_str[30];
+  char rawfile[PATH_MAX];
+
+  tcleval("file tail [file rootname [xschem get schname 0]].raw");
+  my_strncpy(rawfile, tclresult(), S(rawfile));
+  if(!node || !node[0]) return;
+  tok = node;
+  node_entry = bus_hash_lookup(tok, "", XLOOKUP, 0, "", "", "", "");
+  if(tok[0] == '#') tok++;
+  if(node_entry  && (node_entry->d.port == 0 || !strcmp(xctx->sch_path[xctx->currsch], ".") )) {
+    char *t=NULL, *p=NULL;
+    c = get_color(xctx->hilight_color);
+    sprintf(color_str, "%d %d %d", xcolor_array[c].red>>8, xcolor_array[c].green>>8,
+                                       xcolor_array[c].blue>>8);
+    expanded_tok = expandlabel(tok, &tok_mult);
+    for(k=1; k<=tok_mult; k++) {
+      my_strdup(1277, &t, find_nth(expanded_tok, ',', k));
+      my_strdup2(1278, &p, xctx->sch_path[xctx->currsch]+1);
+      if(simtype == 0 ) { /* spice */
+        Tcl_VarEval(interp, 
+          "puts $bespice_server_getdata(sock) ",
+          "{set_curve_style \"",
+          rawfile,
+          "\" \"v(", strtolower(p), strtolower(t),
+          ")\" \"solid_line\" \"no symbol\" 1 ", 
+          color_str, "}",
+          NULL);
+        Tcl_VarEval(interp, 
+          "puts $bespice_server_getdata(sock) ",
+          "{add_curve_to_plot \"", rawfile, "\" \"v(", strtolower(p), strtolower(t),
+          ")\" \"\"}", 
+          NULL);
+      } else { /* Xyce */
+        char *c=p;
+        while(*c){
+          if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
+          c++;
+        }
+        Tcl_VarEval(interp, 
+          "puts $bespice_server_getdata(sock) ",
+          "{set_curve_style \"",
+          rawfile,
+          "\" \"", strtoupper(p), strtoupper(t),
+          "\" \"solid_line\" \"no symbol\" 1 ",
+          color_str, "}",
+          NULL);
+        Tcl_VarEval(interp, 
+          "puts $bespice_server_getdata(sock) ",
+          "{add_curve_to_plot \"", rawfile, "\" \"", strtoupper(p), strtoupper(t),
+          "\" \"\"}", 
+          NULL);
+      }
+    }
+    my_free(1279, &p);
+    my_free(1280, &t);
+  }
+}
+
 static void send_net_to_gaw(int simtype, const char *node)
 {
   int c, k, tok_mult;
@@ -790,6 +934,72 @@ static void send_net_to_gaw(int simtype, const char *node)
   }
 }
 
+static void send_current_to_bespice(int simtype, const char *node)
+{
+  int c, k, tok_mult;
+  const char *expanded_tok;
+  const char *tok;
+  char color_str[30];
+  char *t=NULL, *p=NULL;
+  char rawfile[PATH_MAX];
+  
+  tcleval("file tail [file rootname [xschem get schname 0]].raw");
+  my_strncpy(rawfile, tclresult(), S(rawfile));
+
+  if(!node || !node[0]) return;
+  tok = node;
+  /* c = PINLAYER; */
+  c = get_color(xctx->hilight_color);
+  sprintf(color_str, "%d %d %d", xcolor_array[c].red>>8, xcolor_array[c].green>>8,
+                                     xcolor_array[c].blue>>8);
+  expanded_tok = expandlabel(tok, &tok_mult);
+  for(k=1; k<=tok_mult; k++) {
+    my_strdup(1281, &t, find_nth(expanded_tok, ',', k));
+    my_strdup2(1282, &p, xctx->sch_path[xctx->currsch]+1);
+    if(!simtype) { /* spice */
+      Tcl_VarEval(interp,
+        "puts $bespice_server_getdata(sock) ",
+        "{set_curve_style \"",
+        rawfile,
+        "\" \"i(", xctx->currsch>0 ? "v." : "",
+        strtolower(p), strtolower(t),
+        ")\" \"solid_line\" \"no symbol\" 1 ",
+        color_str, "}",
+        NULL);
+      Tcl_VarEval(interp,
+        "puts $bespice_server_getdata(sock) ",
+        "{add_curve_to_plot \"", rawfile, "\" \"i(",  xctx->currsch>0 ? "v." : "",
+        strtolower(p), strtolower(t),
+        ")\" \"\"}",
+        NULL);
+    } else {       /* Xyce */
+      char *c=p;
+      while(*c){
+        if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
+        c++;
+      }
+
+      Tcl_VarEval(interp,
+        "puts $bespice_server_getdata(sock) ",
+        "{set_curve_style \"",
+        rawfile,
+        "\" \"", xctx->currsch>0 ? "V:" : "",
+        strtoupper(p), strtoupper( xctx->currsch>0 ? t+1 : t), "#branch",
+        "\" \"solid_line\" \"no symbol\" 1 ",
+        color_str, "}",
+        NULL);
+      Tcl_VarEval(interp,
+        "puts $bespice_server_getdata(sock) ",
+        "{add_curve_to_plot \"", rawfile, "\" \"",  xctx->currsch>0 ? "V:" : "",
+        strtoupper(p), strtoupper( xctx->currsch>0 ? t+1 : t), "#branch",
+        "\" \"\"}",
+        NULL);
+    }
+  }
+  my_free(1283, &p);
+  my_free(1284, &t);
+}
+
 static void send_current_to_gaw(int simtype, const char *node)
 {
   int c, k, tok_mult;
@@ -800,7 +1010,8 @@ static void send_current_to_gaw(int simtype, const char *node)
 
   if(!node || !node[0]) return;
   tok = node;
-  c = PINLAYER;
+  /* c = PINLAYER; */
+  c = get_color(xctx->hilight_color);
   sprintf(color_str, "%02x%02x%02x", xcolor_array[c].red>>8, xcolor_array[c].green>>8,
                                      xcolor_array[c].blue>>8);
   expanded_tok = expandlabel(tok, &tok_mult);
@@ -1282,7 +1493,7 @@ void logic_set(int value, int num)
 }
 
 
-void hilight_net(int to_waveform)
+void hilight_net(int viewer)
 {
   int i, n;
   char *type;
@@ -1299,7 +1510,8 @@ void hilight_net(int to_waveform)
     case WIRE:
          /* sets xctx->hilight_nets=1 */
      if(!bus_hilight_lookup(xctx->wire[n].node, xctx->hilight_color, XINSERT_NOREPLACE)) {
-       if(to_waveform == GAW) send_net_to_gaw(sim_is_xyce, xctx->wire[n].node);
+       if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->wire[n].node);
+       if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->wire[n].node);
        if(incr_hilight) incr_hilight_color();
      }
      break;
@@ -1308,17 +1520,19 @@ void hilight_net(int to_waveform)
      if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
            /* sets xctx->hilight_nets=1 */
        if(!bus_hilight_lookup(xctx->inst[n].node[0], xctx->hilight_color, XINSERT_NOREPLACE)) {
-         if(to_waveform == GAW) send_net_to_gaw(sim_is_xyce, xctx->inst[n].node[0]);
+         if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->inst[n].node[0]);
+         if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->inst[n].node[0]);
          if(incr_hilight) incr_hilight_color();
        }
      } else {
        dbg(1, "hilight_net(): setting hilight flag on inst %d\n",n);
        xctx->hilight_nets=1;
        xctx->inst[n].color = xctx->hilight_color;
+       if(type &&  (!strcmp(type, "current_probe") || !strcmp(type, "vsource")) ) {
+         if(viewer == GAW) send_current_to_gaw(sim_is_xyce, xctx->inst[n].instname);
+         if(viewer == BESPICE) send_current_to_bespice(sim_is_xyce, xctx->inst[n].instname);
+       }
        if(incr_hilight) incr_hilight_color();
-     }
-     if(type &&  (!strcmp(type, "current_probe") || !strcmp(type, "vsource")) ) {
-       if(to_waveform == GAW) send_current_to_gaw(sim_is_xyce, xctx->inst[n].instname);
      }
      break;
     default:

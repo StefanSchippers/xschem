@@ -455,7 +455,7 @@ int callback(int event, int mx, int my, KeySym key,
      break;
    }
    if(key == 'J' && state==ShiftMask) {
-    create_plot_cmd(NGSPICE);
+    create_plot_cmd();
     break;
    }
    if(key == '$'  && ( state == ShiftMask) )            /* toggle pixmap  saving */
@@ -991,11 +991,30 @@ int callback(int event, int mx, int my, KeySym key,
     if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     break;
    }
-   if(key=='g' && state==Mod1Mask) { /* highlight net and send to gaw viewer */
+   if(key=='g' && state==Mod1Mask) { /* highlight net and send to viewer */
+     int tool = 0;
+     int exists = 0;
+     char *tool_name = NULL;
+     char str[200];
+
      if(xctx->semaphore >= 2) break;
-     enable_drill=0;
-     hilight_net(GAW);
-     redraw_hilights(0);
+     tcleval("info exists sim");
+     if(tclresult()[0] == '1') exists = 1;
+     enable_drill = 0;
+     if(exists) {
+       tool = atol(tclgetvar("sim(spicewave,default)"));
+       my_snprintf(str, S(str), "sim(spicewave,%d,name)", tool);
+       my_strdup(1271, &tool_name, tclgetvar(str));
+       dbg(1,"callback(): tool_name=%s\n", tool_name);
+       if(strstr(tool_name, "Gaw")) tool=GAW;
+       else if(strstr(tool_name, "Bespice")) tool=BESPICE;
+       if(tool) {
+         hilight_net(tool);
+         redraw_hilights(0);
+       }
+       my_free(1272, &tool_name);
+     }
+     Tcl_ResetResult(interp);
      break;
    }
    if(key=='g' && state==0)                         /* half snap factor */

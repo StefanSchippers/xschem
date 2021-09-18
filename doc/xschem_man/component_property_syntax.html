@@ -129,10 +129,13 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
   <p>If set to <kbd>true</kbd> the <kbd>#n:net_name</kbd> symbol attributes will display the net names attached to pin terminals.
      the <kbd>n</kbd> is a pin number or name.</p>
   <li><kbd>place</kbd></li>
-  <p> This 
-    <kbd>place=end</kbd> attribute is only valid only for <kbd>netlist_commands</kbd> type symbols, and tells
+  <p>The <kbd>place=end</kbd> attribute is only valid only for <kbd>netlist_commands</kbd> type symbols, and tells
     XSCHEM that this component must be netlisted last. This is necessary for some spice commands 
     that need to be placed <b>after</b> the rest of the netlist.</p>
+  <p>The <kbd>place=header</kbd> attribute is only valid only for <kbd>netlist_commands</kbd> type symbols 
+     and spice netlisting mode, it tells XSCHEM that this component must be netlisted in the very first
+     part of a spice netlist. This is necessary for some spice commands 
+     that need to be placed <b>before</b> the rest of the netlist.</p>
   <li><kbd>spice_ignore</kbd></li>
   <p> This tells XSCHEM that for SPICE netlist this component will be <b>completely</b> ignored.</p>
   <li><kbd>verilog_ignore</kbd></li>

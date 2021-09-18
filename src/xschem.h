@@ -223,6 +223,7 @@ extern char win_temp_dir[PATH_MAX];
 /* viewers xschem can generate plot commands for */
 #define NGSPICE 1
 #define GAW 2
+#define BESPICE 3
 
 /*    some useful primes */
 /*    109, 163, 251, 367, 557, 823, 1237, 1861, 2777, 4177, 6247, 9371, 14057 */
@@ -836,7 +837,7 @@ extern double timer(int start);
 extern void enable_layers(void);
 extern void set_snap(double);
 extern void set_grid(double);
-extern void create_plot_cmd(int viewer);
+extern void create_plot_cmd(void);
 extern void set_modify(int mod);
 extern void dbg(int level, char *fmt, ...);
 extern void here(int i);

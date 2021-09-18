@@ -295,15 +295,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"create_plot_cmd") )
     {
       cmd_found = 1;
-      if(argc>2) {
-        if(!strcmp(argv[2], "gaw")) {
-          create_plot_cmd(GAW);
-        } else {
-          create_plot_cmd(NGSPICE);
-        }
-      } else {
-        create_plot_cmd(NGSPICE);
-      }
+      create_plot_cmd();
+      Tcl_ResetResult(interp);
     }
    
     else if(!strcmp(argv[1],"cut"))
@@ -2130,13 +2123,30 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_free(453, &res);
     }
    
-    else if(!strcmp(argv[1],"send_to_gaw"))
+    else if(!strcmp(argv[1],"send_to_viewer"))
     {
+      int viewer = 0;
+      int exists = 0;
+      char *viewer_name = NULL;
+      char tcl_str[200];
+      
       cmd_found = 1;
+      tcleval("info exists sim");
+      if(tclresult()[0] == '1') exists = 1;
       enable_drill = 0;
-      hilight_net(GAW);
-      /* draw_hilight_net(1); */
-      redraw_hilights(0);
+      if(exists) {
+        viewer = atol(tclgetvar("sim(spicewave,default)"));
+        my_snprintf(tcl_str, S(tcl_str), "sim(spicewave,%d,name)", viewer);
+        my_strdup(1267, &viewer_name, tclgetvar(tcl_str));
+        dbg(1,"send_to_viewer: viewer_name=%s\n", viewer_name);
+        if(strstr(viewer_name, "Gaw")) viewer=GAW;
+        else if(strstr(viewer_name, "Bespice")) viewer=BESPICE;
+        if(viewer) {
+          hilight_net(viewer);
+          redraw_hilights(0);
+        }
+        my_free(1268, &viewer_name);
+      }
       Tcl_ResetResult(interp);
     }
    

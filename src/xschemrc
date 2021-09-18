@@ -290,7 +290,7 @@
 #### BESPICE WAVE SOCKET CONNECTION
 ###########################################################################
 #### set bespice wave listening port; default: not enabled
-set bespice_listen_port 2022
+# set bespice_listen_port 2022
 
 ###########################################################################
 #### UTILE SPICE STIMULI DESCRIPTION LANGUAGE AND TRANSLATOR
