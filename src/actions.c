@@ -948,7 +948,6 @@ void schematic_in_new_window(void)
 
   my_strdup2(1246, &sch, get_tok_value(
     (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ));
-  tcl_hook(&sch);
   my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
   my_free(1247, &sch);
   if(!filename[0]) {
@@ -1094,7 +1093,6 @@ void descend_schematic(int instnumber)
 
   my_strdup2(1244, &sch, 
     get_tok_value((xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ));
-  tcl_hook(&sch);
   my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
   my_free(1245, &sch);
   unselect_all();

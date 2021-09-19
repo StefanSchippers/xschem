@@ -569,7 +569,6 @@ typedef struct {
   int modified;
   int semaphore;
   int get_tok_size;
-  int get_tok_value_size;
   char netlist_name[PATH_MAX];
   char current_dirname[PATH_MAX];
   int netlist_unconn_cnt; /* unique count of unconnected pins while netlisting */
@@ -790,7 +789,6 @@ extern int dark_colorscheme;
 extern double color_dim;
 extern int no_undo;
 extern int enable_drill;
-extern size_t get_tok_value_size;
 extern size_t get_tok_size;
 extern int batch_mode; /* no TCL console */
 extern int hide_symbols; /* draw only a bounding box for component instances and @symname, @name texts */
@@ -1057,7 +1055,7 @@ extern const char *tcleval(const char str[]);
 extern const char *tclresult(void);
 extern const char *tclgetvar(const char *s);
 extern void tclsetvar(const char *s, const char *value);
-extern void tcl_hook(char **res);
+extern const char *tcl_hook2(char **res);
 extern void statusmsg(char str[],int n);
 extern void place_text(int draw_text, double mx, double my);
 extern void init_inst_iterator(struct iterator_ctx *ctx, double x1, double y1, double x2, double y2);

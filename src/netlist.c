@@ -1075,7 +1075,6 @@ int sym_vs_sch_pins()
       rects = xctx->sym[i].rects[PINLAYER];
 
       my_strdup2(1248, &sch, get_tok_value(xctx->sym[i].prop_ptr, "schematic", 0));
-      tcl_hook(&sch);
       my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
       my_free(1249, &sch);
       if(!filename[0]) {

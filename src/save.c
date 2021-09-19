@@ -2216,7 +2216,6 @@ void create_sch_from_sym(void)
   {
     my_strdup2(1250, &sch,
       get_tok_value((xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ));
-    tcl_hook(&sch);
     my_strncpy(schname, abs_sym_path(sch, ""), S(schname));
     my_free(1251, &sch);
     if(!schname[0]) {

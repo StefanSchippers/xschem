@@ -80,7 +80,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
   my_strdup(105, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"timescale")==0 || strcmp(type,"verilog_preprocessor")==0) )
   {
-   str_tmp = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr ,"verilog_format",0);
+   str_tmp = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr ,"verilog_format",2);
    my_strdup(106, &tmp_string, str_tmp);
    fprintf(fd, "%s\n", str_tmp ? translate(i, tmp_string) : "(NULL)");
   }
@@ -373,7 +373,6 @@ void verilog_block_netlist(FILE *fd, int i)
      verilog_stop=0;
   if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
     my_strdup2(1260, &sch, str_tmp);
-    tcl_hook(&sch);
     my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
     my_free(1261, &sch);
   } else {
@@ -408,7 +407,7 @@ void verilog_block_netlist(FILE *fd, int i)
    my_strdup(544, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
    if( type && ( strcmp(type,"timescale")==0  || strcmp(type,"verilog_preprocessor")==0) )
    {
-    str_tmp = get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr ,"verilog_format",0);
+    str_tmp = get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr ,"verilog_format",2);
     my_strdup(545, &tmp_string, str_tmp);
     fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string) : "(NULL)");
    }

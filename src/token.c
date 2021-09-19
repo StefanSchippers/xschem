@@ -155,13 +155,21 @@ void hash_all_names(int n)
   }
 }
 
-
-void tcl_hook(char **res)
+const char *tcl_hook2(char **res)
 {
-  char * result = *res;
-  if(result && strstr(result, "tcleval(")== result) {
-    Tcl_VarEval(interp, "tclpropeval2 {", result, "}" , NULL);
-    my_strdup2(1198, res, tclresult());
+  static char *result = NULL;
+  static char empty[]="";
+
+  if(res == NULL || *res == NULL) {
+    my_free(1285, &result);
+    return empty;
+  }
+  if(strstr(*res, "tcleval(") == *res) {
+    Tcl_VarEval(interp, "tclpropeval2 {", *res, "}" , NULL);
+    my_strdup2(1286, &result, tclresult());
+    return result;
+  } else {
+    return *res;
   }
 }
 
@@ -439,8 +447,12 @@ const char *list_tokens(const char *s, int with_quotes)
 /* NULL tok NOT ALLOWED !!!!!!!! */
 /* never returns NULL... */
 /* with_quotes: */
+/* bit 0: */
 /* 0: eat unescaped backslashes and unescaped double quotes (") */
 /* 1: return backslashes and quotes as part of the token value if they are present */
+/* bit 1: */
+/* 1: do not perform tck_hook2 substitution */
+
 const char *get_tok_value(const char *s,const char *tok, int with_quotes)
 {
   static char *result=NULL;
@@ -457,10 +469,8 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     my_free(976, &result);
     my_free(977, &token);
     size = sizetok = 0;
-    xctx->get_tok_value_size = xctx->get_tok_size = 0;
     return "";
   }
-  xctx->get_tok_value_size = xctx->get_tok_size = 0;
   /* dbg(2, "get_tok_value(): looking for <%s> in <%s>\n",tok,s); */
   if( size == 0 ) {
     sizetok = size = CADCHUNKALLOC;
@@ -488,14 +498,13 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
       if(!escape) quote=!quote;
     }
     if(state==TOK_TOKEN) {
-      if(!cmp) { /* previous token matched search and was without value, return xctx->get_tok_size */
+      if(!cmp) { /* previous token matched search and was without value, return get_tok_size */
         result[0] = '\0';
-        xctx->get_tok_value_size = 0;
         return result;
       }
-      if(with_quotes || escape || (c != '\\' && c != '"')) token[token_pos++]=c;
+      if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) token[token_pos++]=c;
     } else if(state == TOK_VALUE) {
-      if(with_quotes || escape || (c != '\\' && c != '"')) result[value_pos++]=c;
+      if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) result[value_pos++]=c;
     } else if(state == TOK_ENDTOK || state == TOK_SEP) {
         if(token_pos) {
           token[token_pos] = '\0';
@@ -509,8 +518,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     } else if(state==TOK_END) {
       result[value_pos]='\0';
       if( !cmp ) {
-        xctx->get_tok_value_size = value_pos; /* return also size so to avoid using strlen */
-        return result;
+        return with_quotes & 2 ? result : tcl_hook2(&result);
       }
       value_pos=0;
       state=TOK_BEGIN;
@@ -519,8 +527,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     if(c=='\0') {
       result[0]='\0';
       xctx->get_tok_size = 0;
-      xctx->get_tok_value_size = 0; /* return also size so to avoid using strlen  */
-      return result;
+      return with_quotes & 2 ? result : tcl_hook2(&result);
     }
   }
 }
@@ -628,10 +635,12 @@ char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
    pin_attr_value = NULL;
    str = get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][pin].prop_ptr,"name",0);
    if(str[0]) {
+     int tok_val_len;
+     tok_val_len = strlen(str);
      attr_size = strlen(attr);
      my_strdup(498, &pinname, str);
-     pname =my_malloc(49, xctx->get_tok_value_size + attr_size + 30);
-     my_snprintf(pname, xctx->get_tok_value_size + attr_size + 30, "%s(%s)", attr, pinname);
+     pname =my_malloc(49, tok_val_len + attr_size + 30);
+     my_snprintf(pname, tok_val_len + attr_size + 30, "%s(%s)", attr, pinname);
      my_free(981, &pinname);
      str = get_tok_value(xctx->inst[inst].prop_ptr, pname, 0);
      my_free(982, &pname);
@@ -990,7 +999,7 @@ void print_vhdl_element(FILE *fd, int inst)
   int escape=0;
   xRect *pinptr;
 
-  if(get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"vhdl_format", 0)[0] != '\0') {
+  if(get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"vhdl_format", 2)[0] != '\0') {
    print_vhdl_primitive(fd, inst);
    return;
   }
@@ -1344,7 +1353,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
  int token_pos=0, escape=0;
  int no_of_pins=0;
 
- my_strdup(460, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",0));
+ my_strdup(460, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
  if( (format==NULL) ) {
    my_free(473, &format);
    return; /* no format */
@@ -1452,7 +1461,7 @@ void print_spice_subckt(FILE *fd, int symbol)
  int token_pos=0, escape=0;
  int no_of_pins=0;
 
- my_strdup(103, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",0));
+ my_strdup(103, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
  if( (format==NULL) ) {
    my_free(1012, &format);
    return; /* no format */
@@ -1574,9 +1583,9 @@ void print_spice_element(FILE *fd, int inst)
   if (!name) my_strdup(43, &name, get_tok_value(template, "name", 0));
 
   /* allow format string override in instance */
-  my_strdup(470, &format, get_tok_value(xctx->inst[inst].prop_ptr,"format",0));
+  my_strdup(470, &format, get_tok_value(xctx->inst[inst].prop_ptr,"format",2));
   if(!format || !format[0])
-     my_strdup(486, &format, get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"format",0));
+     my_strdup(486, &format, get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"format",2));
 
   if ((name==NULL) || (format==NULL)) {
     my_free(1015, &template);
@@ -1626,15 +1635,22 @@ void print_spice_element(FILE *fd, int inst)
       if (!spiceprefix && !strcmp(token, "@spiceprefix")) {
         value=NULL;
       } else {
+        int tok_val_len;
+        
         dbg(1, "print_spice_element(): token: |%s|\n", token);
-        value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
+        /* no tcl_hook2() call inside get_tok_val()               . */
+        value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 2);
+        tok_val_len = strlen(value);
+        
         if(!strcmp(token, "@spiceprefix")) {
-          spiceprefixtag = my_malloc(301, xctx->get_tok_value_size+22);
-          my_snprintf(spiceprefixtag, xctx->get_tok_value_size+22, "**** spice_prefix %s\n", value);
+          spiceprefixtag = my_malloc(301, tok_val_len+22);
+          my_snprintf(spiceprefixtag, tok_val_len+22, "**** spice_prefix %s\n", value);
           value = spiceprefixtag;
         }
         /* xctx->get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
-        if (!xctx->get_tok_size) value=get_tok_value(template, token+1, 0);
+
+        /* no tcl_hook2() call inside get_tok_val()                     . */
+        if (!xctx->get_tok_size) value=get_tok_value(template, token+1, 2);
         token_exists = xctx->get_tok_size;
          if (!strncmp(value,"tcleval(", 8)) {
            dbg(1, "print_spice_element(): value=%s\n", value);
@@ -1869,9 +1885,9 @@ void print_tedax_element(FILE *fd, int inst)
  if(!name) my_strdup(2, &name, get_tok_value(template, "name", 0));
 
  /* allow format string override in instance */
- my_strdup(1185, &format, get_tok_value(xctx->inst[inst].prop_ptr,"tedax_format",0));
+ my_strdup(1185, &format, get_tok_value(xctx->inst[inst].prop_ptr,"tedax_format",2));
  if(!format || !format[0])
-   my_strdup(497, &format, get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"tedax_format",0));
+   my_strdup(497, &format, get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"tedax_format",2));
 
  no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
  if( !format && !strcmp((xctx->inst[inst].ptr+ xctx->sym)->type, "subcircuit") ) {
@@ -2161,7 +2177,7 @@ void print_verilog_element(FILE *fd, int inst)
  int token_pos=0, value_pos=0;
  int quote=0;
 
- if(get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"verilog_format",0)[0] != '\0') {
+ if(get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"verilog_format",2)[0] != '\0') {
   print_verilog_primitive(fd, inst);
   return;
  }
@@ -2360,9 +2376,9 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
  if(!name) my_strdup(50, &name, get_tok_value(template, "name", 0));
 
  /* allow format string override in instance */
- my_strdup(1000, &format, get_tok_value(xctx->inst[inst].prop_ptr,"vhdl_format",0));
+ my_strdup(1000, &format, get_tok_value(xctx->inst[inst].prop_ptr,"vhdl_format",2));
  if(!format || !format[0])
-   my_strdup(516, &format, get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"vhdl_format",0));
+   my_strdup(516, &format, get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"vhdl_format",2));
  if((name==NULL) || (format==NULL) ) {
    my_free(1047, &template);
    my_free(1048, &name);
@@ -2534,9 +2550,9 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
   if(!name) my_strdup(4, &name, get_tok_value(template, "name", 0));
 
   /* allow format string override in instance */
-  my_strdup(1186, &format, get_tok_value(xctx->inst[inst].prop_ptr,"verilog_format",0));
+  my_strdup(1186, &format, get_tok_value(xctx->inst[inst].prop_ptr,"verilog_format",2));
   if(!format || !format[0])
-    my_strdup(522, &format, get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"verilog_format",0));
+    my_strdup(522, &format, get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"verilog_format",2));
   if((name==NULL) || (format==NULL) ) {
     my_free(1054, &template);
     my_free(1055, &name);
@@ -2818,7 +2834,7 @@ const char *translate(int inst, const char* s)
    }
    token_pos = 0;
    if(xctx->get_tok_size) {
-    tmp=xctx->get_tok_value_size;  /* strlen(value); */
+    tmp=strlen(value);
     STR_ALLOC(&result, tmp + result_pos, &size);
     memcpy(result+result_pos, value, tmp+1);
     result_pos+=tmp;
@@ -2923,7 +2939,6 @@ const char *translate(int inst, const char* s)
    } else if(strcmp(token,"@sch_last_modified")==0) {
 
     my_strdup2(1258, &sch, get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr, "schematic",0 ));
-    tcl_hook(&sch);
     my_strncpy(file_name, abs_sym_path(sch, ""), S(file_name));
     my_free(1259, &sch);
     if(!file_name[0]) {
@@ -3024,15 +3039,14 @@ const char *translate(int inst, const char* s)
 
  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
   * can be calculated */
- tcl_hook(&result);
- return result;
+ return tcl_hook2(&result);
 }
 
 const char *translate2(struct Lcc *lcc, int level, char* s)
 {
   static char empty[]="";
   static char *result = NULL;
-  int i, size = 0, tmp, save_tok_size, save_value_size;
+  int i, size = 0, tmp, save_tok_size;
   register int c, state = TOK_BEGIN, space;
   char *token = NULL;
   const char *tmp_sym_name;
@@ -3085,19 +3099,17 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
         /* recursive substitution of value using parent level prop_str attributes */
         while(i > 1) {
           save_tok_size = xctx->get_tok_size;
-          save_value_size = xctx->get_tok_value_size;
           my_strdup2(440, &value2, get_tok_value(lcc[i-1].prop_ptr, value, 0));
           if(xctx->get_tok_size && value2[0]) {
             value = value2;
           } else {
             /* restore last successful get_tok_value() size parameters */
             xctx->get_tok_size = save_tok_size;
-            xctx->get_tok_value_size = save_value_size;
             break;
           }
           i--;
         }
-        tmp = xctx->get_tok_value_size;  /* strlen(value); */
+        tmp = strlen(value);
         STR_ALLOC(&result, tmp + 1 + result_pos, &size); /* +1 to add leading '$' */
         /* prefix substituted token with a '$' so it will be recognized by translate()
          * for last level translation with instance placement prop_ptr attributes at
@@ -3131,11 +3143,8 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
       break;
     }
   }
-  if(result && strstr(result, "tcleval(")== result) {
-    tcl_hook(&result);
-  }
   my_free(1070, &token);
   my_free(1071, &value1);
   my_free(1072, &value2);
-  return result;
+  return tcl_hook2(&result);
 }
