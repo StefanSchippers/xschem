@@ -458,6 +458,16 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
    this expandes to the <b>Verilog</b> global property string of the schematic containing the symbol
   </p>
  </ul><br>
+ <h3>TCL ATTRIBUTE SUBSTITUTION</h3>
+
+  <p>
+   Any attribute and symbol text can be embedded in a <kbd>tcleval(....)</kbd> construct, the string inside the 
+   parentheses will be passed to the tcl interpreter for evaluation. This allows to use any tcl 
+   variable/command/expression. Example: <br>
+   <kbd>spice_ignore="tcleval($::ignore_symbol)"</kbd> <br>
+   will cause the symbol to be ignored by the spice netlister if the <kbd>ignore_symbol</kbd> tcl variable is 
+   existing and set to <kbd>true</kbd>
+  </p>
 
  <!-- end of slide -->
  <div class="filler"></div>

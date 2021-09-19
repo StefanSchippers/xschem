@@ -184,6 +184,19 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
       This is mainly used for tedax, where by back annotation a connection to a symbol must be changed.
       This notation is faster since xschem does not have to find a pin by string matching.</p>
  </ul><br>
+
+ <h3>TCL ATTRIBUTE SUBSTITUTION</h3>
+
+  <p>
+   Any attribute and symbol text can be embedded in a <kbd>tcleval(....)</kbd> construct, the string inside the
+   parentheses will be passed to the tcl interpreter for evaluation. This allows to use any tcl 
+   variable/command/expression. Example: <br>
+  <kbd>value="tcleval([expr {[info exists ::resval] ? $::resval : {100k}}])"</kbd><br>
+  this attribute will set <kbd>value</kbd> (example: value of a resistor) to 100k if global tcl variable
+  <kbd>resval</kbd> is not set or to the value of <kbd>resval</kbd> if set.
+  </p>
+
+
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
