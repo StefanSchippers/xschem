@@ -2177,7 +2177,7 @@ proc tclpropeval {s instname symname} {
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s} {
-  global tcl_debug env netlist_type
+  global tcl_debug env netlist_type path
   # puts "tclpropeval2: s=|$s|"
   if {$tcl_debug <=-1} {puts "tclpropeval2: $s"}
   set path [string range [xschem get sch_path] 1 end]
@@ -2185,7 +2185,7 @@ proc tclpropeval2 {s} {
     regsub {^([^xX])} $path {x\1} path
     while { [regsub {\.([^xX])} $path {.x\1} path] } {}
   }
-  # puts "---> path=$path"
+  if { $tcl_debug<=-1 } { puts "---> path=$path" }
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s
   # puts "tclpropeval2: s=|$s|"
@@ -2539,7 +2539,7 @@ proc edit_prop {txtlabel} {
       if {$selected_tok eq {<ALL>} } { 
         set retval $retval_orig
       } else {
-        set retval [xschem get_tok $retval_orig $selected_tok 0]
+        set retval [xschem get_tok $retval_orig $selected_tok 2]
         # regsub -all {\\?"} $retval {"} retval
       }
       .dialog.e1 delete 1.0 end
@@ -2562,7 +2562,7 @@ proc edit_prop {txtlabel} {
       if {$selected_tok eq {<ALL>} } {
         set retval $retval_orig
       } else {
-        set retval [xschem get_tok $retval_orig $selected_tok 0]
+        set retval [xschem get_tok $retval_orig $selected_tok 2]
         # regsub -all {\\?"} $retval {"} retval
       }
       .dialog.e1 delete 1.0 end
@@ -2719,7 +2719,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
       if {$selected_tok eq {<ALL>} } {
         set retval $retval_orig
       } else {
-        set retval [xschem get_tok $retval_orig $selected_tok 0]
+        set retval [xschem get_tok $retval_orig $selected_tok 2]
         # regsub -all {\\?"} $retval {"} retval
       }
       .dialog.e1 delete 1.0 end
@@ -2742,7 +2742,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
       if {$selected_tok eq {<ALL>} } {
         set retval $retval_orig
       } else {
-        set retval [xschem get_tok $retval_orig $selected_tok 0]
+        set retval [xschem get_tok $retval_orig $selected_tok 2]
         # regsub -all {\\?"} $retval {"} retval
       }
       .dialog.e1 delete 1.0 end
