@@ -2178,6 +2178,7 @@ proc tclpropeval {s instname symname} {
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s} {
   global tcl_debug env netlist_type
+  # puts "tclpropeval2: s=|$s|"
   if {$tcl_debug <=-1} {puts "tclpropeval2: $s"}
   set path [string range [xschem get sch_path] 1 end]
   if { $netlist_type eq {spice} } {
@@ -2187,10 +2188,13 @@ proc tclpropeval2 {s} {
   # puts "---> path=$path"
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s
-  if { [catch {subst $s} res] } {
+  # puts "tclpropeval2: s=|$s|"
+  # puts "tclpropeval2: subst $s=|[subst $s]|"
+  if { [catch {uplevel #0 "subst \{$s\}"} res] } {
     if { $tcl_debug<=-1 } { puts "tclpropeval2 warning: $res"}
     set res ?\n
   }
+  # puts "tclpropeval2: res=|$res|"
   return $res
 }
 
