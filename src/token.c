@@ -1638,8 +1638,7 @@ void print_spice_element(FILE *fd, int inst)
         int tok_val_len;
         
         dbg(1, "print_spice_element(): token: |%s|\n", token);
-        /* no tcl_hook2() call inside get_tok_val()               . */
-        value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 2);
+        value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
         tok_val_len = strlen(value);
         
         if(!strcmp(token, "@spiceprefix")) {
@@ -1649,8 +1648,7 @@ void print_spice_element(FILE *fd, int inst)
         }
         /* xctx->get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
 
-        /* no tcl_hook2() call inside get_tok_val()                     . */
-        if (!xctx->get_tok_size) value=get_tok_value(template, token+1, 2);
+        if (!xctx->get_tok_size) value=get_tok_value(template, token+1, 0);
         token_exists = xctx->get_tok_size;
          if (!strncmp(value,"tcleval(", 8)) {
            dbg(1, "print_spice_element(): value=%s\n", value);
