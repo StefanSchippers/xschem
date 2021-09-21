@@ -266,12 +266,12 @@ proc key_binding {  s  d } {
   }
   set state 0
   # not found any portable way to get modifier constants ...
-  if { [regexp {(Mod1|Alt)-} $d] } { set state [expr $state +8] }
-  if { [regexp Control- $d] } { set state [expr $state +4] }
-  if { [regexp Shift- $d] } { set state [expr $state +1] }
-  if { [regexp ButtonPress-1 $d] } { set state [expr $state +0x100] }
-  if { [regexp ButtonPress-2 $d] } { set state [expr $state +0x200] }
-  if { [regexp ButtonPress-3 $d] } { set state [expr $state +0x400] }
+  if { [regexp {(Mod1|Alt)-} $d] } { set state [expr {$state +8}] }
+  if { [regexp Control- $d] } { set state [expr {$state +4}] }
+  if { [regexp Shift- $d] } { set state [expr {$state +1}] }
+  if { [regexp ButtonPress-1 $d] } { set state [expr {$state +0x100}] }
+  if { [regexp ButtonPress-2 $d] } { set state [expr {$state +0x200}] }
+  if { [regexp ButtonPress-3 $d] } { set state [expr {$state +0x400}] }
   # puts "$state $key <${s}>"
   if {[regexp ButtonPress- $d]} {
     bind .drw "<${s}>" "xschem callback %T %x %y 0 $key 0 $state"
@@ -530,14 +530,14 @@ proc simconf_yview { args } {
   # puts "ht=$ht hs=$hs"
   set frac [expr {double($ht)/$hs}]
   if { [lindex $args 0] eq {scroll}} {
-    set simconf_vpos [expr $simconf_vpos + [lindex $args 1] *(1.0/$frac)/5]
+    set simconf_vpos [expr {$simconf_vpos + [lindex $args 1] *(1.0/$frac)/5}]
   } elseif { [lindex $args 0] eq {moveto}} {
     set simconf_vpos [lindex $args 1]
   }
   if { $simconf_vpos < 0.0 } { set simconf_vpos 0.0}
-  if { $simconf_vpos > 1.0-$frac } { set simconf_vpos [expr 1.0 - $frac]}
-  .sim.topf.vs set $simconf_vpos [expr $simconf_vpos + $frac]
-  place .sim.topf.f.scrl -in .sim.topf.f -x 0 -y [expr -$hs * $simconf_vpos] -relwidth 1
+  if { $simconf_vpos > 1.0-$frac } { set simconf_vpos [expr {1.0 - $frac}]}
+  .sim.topf.vs set $simconf_vpos [expr {$simconf_vpos + $frac}]
+  place .sim.topf.f.scrl -in .sim.topf.f -x 0 -y [expr {-$hs * $simconf_vpos}] -relwidth 1
 }
 
 proc simconf {} {
@@ -659,7 +659,7 @@ To reset to default just delete the ~/.xschem/simrc file manually.
   bind .sim <ButtonPress-4> { simconf_yview scroll -0.2}
   bind .sim <ButtonPress-5> { simconf_yview scroll 0.2}
   simconf_yview place
-  set maxsize [expr [winfo height .sim.topf.f.scrl] + [winfo height .sim.bottom]]
+  set maxsize [expr {[winfo height .sim.topf.f.scrl] + [winfo height .sim.bottom]}]
   wm maxsize .sim 9999 $maxsize
   # tkwait window .sim
 }
@@ -738,7 +738,7 @@ proc descend_hierarchy {path {redraw 1}} {
     # handle vector instances: xlev1[3:0] -> xlev1[3],xlev1[2],xlev1[1],xlev1[0]
     # descend into the right one
     set inst_list [split [lindex [xschem expandlabel [lindex [xschem selected_set] 0 ] ] 0] {,}]
-    set instnum [expr [lsearch -exact  $inst_list $inst] + 1]
+    set instnum [expr {[lsearch -exact  $inst_list $inst] + 1}]
     xschem descend $instnum
   }
   xschem set no_draw 0
@@ -801,8 +801,8 @@ proc reroute_inst {fullinst pinattr pinval newnet} {
       return 0
     }
     set pinname [lindex $coord 0]
-    set x [expr [lindex $coord 1] - 10 ]
-    set y [expr [lindex $coord 2] - 10 ]
+    set x [expr {[lindex $coord 1] - 10} ]
+    set y [expr {[lindex $coord 2] - 10} ]
     set oldnet [xschem instance_net $res $pinname]
 
     regsub {.*\.} $newnet {} newnet
@@ -834,8 +834,8 @@ proc reroute_net {old new} {
   set devlist [xschem instances_to_net $old_nopath]
   foreach i $devlist {
     set instname [lindex $i 0]
-    set x  [expr [lindex $i 2] - 10]
-    set y  [expr [lindex $i 3] - 10]
+    set x  [expr {[lindex $i 2] - 10}]
+    set y  [expr {[lindex $i 3] - 10}]
     xschem instance [pin_label] $x $y 0 0 [list name=l1 lab=$new_nopath]
     xschem select instance $instname
   }
@@ -1620,10 +1620,10 @@ proc create_pins {} {
   set fd [open $USER_CONF_DIR/.clipboard.sch "w"]
   foreach i $lines { 
     if {$indirect} {
-      puts $fd "C \{[rel_sym_path devices/[lindex $i 1].sym]\} 0 [set y [expr $y-20]] \
+      puts $fd "C \{[rel_sym_path devices/[lindex $i 1].sym]\} 0 [set y [expr {$y-20}]] \
                 0 0 \{ name=p[incr pcnt] lab=[lindex $i 0] \}"
     } else {
-      puts $fd "C \{[rel_sym_path [lindex $i 1].sym]\} 0 [set y [expr $y-20]] \
+      puts $fd "C \{[rel_sym_path [lindex $i 1].sym]\} 0 [set y [expr {$y-20}]] \
                 0 0 \{ name=p[incr pcnt] lab=[lindex $i 0] \}"
     }
   }
@@ -3467,7 +3467,7 @@ proc set_missing_colors_to_black {} {
   }
   foreach i {svg_colors ps_colors light_colors dark_colors} {
     if { [llength [set $i]] > $cadlayers} {
-       set $i [lrange [set $i] 0 [expr $cadlayers -1]]
+       set $i [lrange [set $i] 0 [expr {$cadlayers -1}]]
     }
   }
 }
