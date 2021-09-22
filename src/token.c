@@ -1638,7 +1638,7 @@ void print_spice_element(FILE *fd, int inst)
         int tok_val_len;
         
         dbg(1, "print_spice_element(): token: |%s|\n", token);
-        value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 2);
+        value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
         tok_val_len = strlen(value);
         
         if(!strcmp(token, "@spiceprefix")) {
