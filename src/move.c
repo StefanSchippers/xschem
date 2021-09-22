@@ -529,6 +529,8 @@ void copy_objects(int what)
   int customfont;
   #endif
  
+  xInstance * const inst = xctx->inst;
+
   if(what & START)
   {
    xctx->rotatelocal=0;
@@ -586,6 +588,32 @@ void copy_objects(int what)
     set_modify(1); push_undo(); /* 20150327 push_undo */
     
     firstw = firsti = 1;
+
+    /* calculate moving symbols bboxes before actually doing the copy */
+    /* this is necessary for some objects that change their dimension when copied */
+    /* (example: annotator ngspice_probe components) */
+    for(i=0;i<xctx->lastsel;i++)
+    {
+      n = xctx->sel_array[i].n;
+      if( xctx->sel_array[i].type == ELEMENT) {
+        int p;
+        char *type=xctx->sym[xctx->inst[n].ptr].type;
+        symbol_bbox(n, &inst[n].x1, &inst[n].y1, &inst[n].x2, &inst[n].y2 );
+        bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
+        if((show_pin_net_names || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type)) {
+          for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
+            if( inst[n].node && inst[n].node[p]) {
+               int_hash_lookup(xctx->node_redraw_table,  xctx->inst[n].node[p], 0, XINSERT_NOREPLACE);
+            }
+          }
+        }
+      }
+      if((show_pin_net_names || xctx->hilight_nets) && xctx->sel_array[i].type == WIRE) {
+        int_hash_lookup(xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
+      }
+    }
+    if(show_pin_net_names || xctx->hilight_nets) find_inst_to_be_redrawn();
+
     for(i=0;i<xctx->lastsel;i++)
     {
       n = xctx->sel_array[i].n;
