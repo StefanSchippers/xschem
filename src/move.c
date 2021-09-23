@@ -582,7 +582,6 @@ void copy_objects(int what)
     /* if the copy operation involved xctx->move_flip or rotations the original element bboxes were changed. 
        restore them now */
     update_symbol_bboxes(0, 0);
-    /* draw_selection(xctx->gctiled,0); */
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     newpropcnt=0;
     set_modify(1); push_undo(); /* 20150327 push_undo */
@@ -622,6 +621,7 @@ void copy_objects(int what)
       }
       */
     }
+    draw_selection(xctx->gctiled,0);
     if(show_pin_net_names || xctx->hilight_nets) find_inst_to_be_redrawn();
 
     for(i=0;i<xctx->lastsel;i++)
@@ -1058,7 +1058,6 @@ void move_objects(int what, int merge, double dx, double dy)
  {
   int firsti, firstw;
 
-  /* draw_selection(xctx->gctiled,0); */
   bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   set_modify(1);
   if( !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL)) ) { /* no undo push for MERGE ad PLACE, already done before */
@@ -1101,6 +1100,7 @@ void move_objects(int what, int merge, double dx, double dy)
     }
     */
   }
+  draw_selection(xctx->gctiled,0);
   if(show_pin_net_names || xctx->hilight_nets) find_inst_to_be_redrawn();
   for(k=0;k<cadlayers;k++)
   {
