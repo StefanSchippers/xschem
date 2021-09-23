@@ -442,7 +442,7 @@ void draw_selection(GC g, int interruptable)
        xctx->rx1-xctx->inst[n].x0+xctx->deltax,xctx->ry1-xctx->inst[n].y0+xctx->deltay);
      break;
    }
-#ifdef __xunix__
+#ifdef __unix__
    if(XPending(display) && interruptable)
    {
     drawtemparc(g, END, 0.0, 0.0, 0.0, 0.0, 0.0);
