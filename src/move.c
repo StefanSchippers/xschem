@@ -461,7 +461,7 @@ void draw_selection(GC g, int interruptable)
      return;
    }
 #endif
-  }
+  } /* for(i=0;i<xctx->movelastsel;i++) */
   drawtemparc(g, END, 0.0, 0.0, 0.0, 0.0, 0.0);
   drawtemprect(g, END, 0.0, 0.0, 0.0, 0.0);
   drawtempline(g, END, 0.0, 0.0, 0.0, 0.0);
@@ -596,10 +596,16 @@ void copy_objects(int what)
     {
       n = xctx->sel_array[i].n;
       if( xctx->sel_array[i].type == ELEMENT) {
-        int p;
-        char *type=xctx->sym[xctx->inst[n].ptr].type;
-        symbol_bbox(n, &inst[n].x1, &inst[n].y1, &inst[n].x2, &inst[n].y2 );
+        /* int p;
+           char *type=xctx->sym[xctx->inst[n].ptr].type; */
+
+        /* already done in update_symbol_bboxes() */
+        /* symbol_bbox(n, &inst[n].x1, &inst[n].y1, &inst[n].x2, &inst[n].y2 ); */
+
         bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
+
+        /* needed?, original objects the copy took place from are unchanged at all */
+        /* 
         if((show_pin_net_names || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type)) {
           for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
             if( inst[n].node && inst[n].node[p]) {
@@ -607,10 +613,14 @@ void copy_objects(int what)
             }
           }
         }
+        */
       }
+      /* needed?, original objects the copy took place from are unchanged at all */
+      /* 
       if((show_pin_net_names || xctx->hilight_nets) && xctx->sel_array[i].type == WIRE) {
         int_hash_lookup(xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
       }
+      */
     }
     if(show_pin_net_names || xctx->hilight_nets) find_inst_to_be_redrawn();
 
@@ -1067,10 +1077,13 @@ void move_objects(int what, int merge, double dx, double dy)
   {
     n = xctx->sel_array[i].n;
     if( xctx->sel_array[i].type == ELEMENT) {
-      int p;
-      char *type=xctx->sym[xctx->inst[n].ptr].type;
+      /* int p;
+         char *type=xctx->sym[xctx->inst[n].ptr].type; */
       symbol_bbox(n, &inst[n].x1, &inst[n].y1, &inst[n].x2, &inst[n].y2 );
       bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
+
+      /* needed? */
+      /* 
       if((show_pin_net_names || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type)) {
         for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
           if( inst[n].node && inst[n].node[p]) {
@@ -1078,10 +1091,15 @@ void move_objects(int what, int merge, double dx, double dy)
           }
         }
       }
+      */
     }
+    
+    /* needed? */
+    /* 
     if((show_pin_net_names || xctx->hilight_nets) && xctx->sel_array[i].type == WIRE) {
       int_hash_lookup(xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
     }
+    */
   }
   if(show_pin_net_names || xctx->hilight_nets) find_inst_to_be_redrawn();
   for(k=0;k<cadlayers;k++)
