@@ -579,9 +579,6 @@ void copy_objects(int what)
   if(what & END)                                 /* copy selected objects */
   {
     int l, firstw, firsti;
-    /* if the copy operation involved xctx->move_flip or rotations the original element bboxes were changed. 
-       restore them now */
-    update_symbol_bboxes(0, 0);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     newpropcnt=0;
     set_modify(1); push_undo(); /* 20150327 push_undo */
@@ -597,12 +594,8 @@ void copy_objects(int what)
       if( xctx->sel_array[i].type == ELEMENT) {
         int p;
         char *type=xctx->sym[xctx->inst[n].ptr].type;
-
-        /* already done in update_symbol_bboxes() */
-        /* symbol_bbox(n, &inst[n].x1, &inst[n].y1, &inst[n].x2, &inst[n].y2 ); */
-
+        symbol_bbox(n, &inst[n].x1, &inst[n].y1, &inst[n].x2, &inst[n].y2 );
         bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
-
         /* hash all nodes of copied objects before the copy, they might need update if net_name=true */
         if((show_pin_net_names || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type)) {
           for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
