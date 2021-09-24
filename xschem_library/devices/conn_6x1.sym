@@ -1,0 +1,38 @@
+v {xschem version=3.0.0 file_version=1.2 }
+G {}
+K {type=connector
+verilog_ignore=true
+format="*connector(6,1) @pinlist"
+
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=c1 footprint=connector(6,1)"
+}
+V {}
+S {}
+E {}
+B 5 18.75 -21.25 21.25 -18.75 {name=conn_1 dir=inout pinnumber=1}
+B 5 18.75 -1.25 21.25 1.25 {name=conn_2 dir=inout pinnumber=2}
+B 5 18.75 18.75 21.25 21.25 {name=conn_3 dir=inout pinnumber=3}
+B 5 18.75 38.75 21.25 41.25 {name=conn_4 dir=inout pinnumber=4}
+B 5 18.75 58.75 21.25 61.25 {name=conn_5 dir=inout pinnumber=5}
+B 5 18.75 78.75 21.25 81.25 {name=conn_6 dir=inout pinnumber=6}
+A 4 15 -20 5 270 360 {}
+A 4 15 0 5 270 360 {}
+A 4 15 20 5 270 360 {}
+A 4 15 40 5 270 360 {}
+A 4 15 60 5 270 360 {}
+A 4 15 80 5 270 360 {}
+P 4 5 10 90 -10 90 -10 -30 10 -30 10 90 {}
+T {@#0:pinnumber} 6.25 -26.25 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} 6.25 -6.25 0 1 0.2 0.2 {layer=13}
+T {@#2:pinnumber} 6.25 13.75 0 1 0.2 0.2 {layer=13}
+T {@name} -18.75 -43.75 0 0 0.2 0.2 {}
+T {@#3:pinnumber} 6.25 33.75 0 1 0.2 0.2 {layer=13}
+T {@#4:pinnumber} 6.25 53.75 0 1 0.2 0.2 {layer=13}
+T {@#5:pinnumber} 6.25 73.75 0 1 0.2 0.2 {layer=13}
