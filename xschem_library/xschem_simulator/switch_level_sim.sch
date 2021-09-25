@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -312,9 +312,9 @@ C {switch-1.sym} 1370 -1260 0 0 {name=s4}
 C {inv_2.sym} 1370 -1190 0 0 {name=x20 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {diode_3.sym} 1270 -1280 0 0 {name=x12 VTH=0.6 RON=10 ROFF=1G}
 C {ipin.sym} 70 -170 0 0 { name=p19 lab=B }
+C {dev-1.sym} 1530 -620 0 1 {name=s3}
 C {invert-1.sym} 1370 -620 0 0 {name=s1}
 C {dev-1.sym} 1210 -620 0 0 {name=s2}
-C {dev-1.sym} 1530 -620 0 1 {name=s3}
 C {vdd.sym} 1080 -620 0 0 {name=l9 lab=VCC}
 C {lab_pin.sym} 850 -1160 0 1 {name=p40 lab=E}
 C {ipin.sym} 70 -130 0 0 { name=p69 lab=D }
