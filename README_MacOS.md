@@ -38,6 +38,8 @@ we need to specify the X libraries from XQuartz when compiling Tk. Let's use the
 ## Tcl compilation
 Extract the Tcl sources and then go to the unix folder:
 
+NOTE: ensure the install directory (/usr/local/opt/tcl-tk) is not already used by official MacOS libraries, if this is the case use another location. This applies for Tk build as well.
+
 ```
 cd <extracted-folder>/unix
 ./configure --prefix=/usr/local/opt/tcl-tk  
@@ -48,6 +50,11 @@ make install
 ## Tk compilation
 Same procedure as Tcl, but we need to specificy the Tcl and X libraries paths. XQuartz is installed on
 /opt/X11 , so we do:  
+
+NOTE: before running 'make' inspect the Makefile and ensure the LIB_RUNTIME_DIR is set as follows. Make the correction if not:
+```
+LIB_RUNTIME_DIR         = $(libdir)
+```
 
 ```
 cd <extracted-folder>/unix
