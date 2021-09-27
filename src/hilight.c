@@ -1158,7 +1158,7 @@ int eval_logic_expr(int inst, int output)
       case '~': /* negation operator */
         if(sp > 0) {
           sp--;
-          if(!(stack[sp] & 2)) stack[sp] = !stack[sp];
+          if(stack[sp] < 2) stack[sp] = !stack[sp];
           else stack[sp] = 2;
           ++sp;
         }
@@ -1166,24 +1166,24 @@ int eval_logic_expr(int inst, int output)
       case  'z': /* Tristate driver [signal,enable,'z']-> signal if z==1, Z (3) otherwise */
         if(sp > 1) {
           s = stack[sp - 1];
-          stack[sp - 2] = (s & 2) ? 2 : (s == 1 ) ? stack[sp - 2] : 3;
+          stack[sp - 2] = (s > 1) ? 2 : (s == 1 ) ? stack[sp - 2] : 3;
           sp--;
         }
         break;
       case 'M': /* mux operator */
-        s = stack[sp - 1];
         if(sp > 2) {
-          if(!(s & 2) ) {
+          s = stack[sp - 1];
+          if(s < 2) {
             stack[sp - 3] = (s == 0) ? stack[sp - 3]  : stack[sp - 2];
           }
-          else stack[sp - 3] = 3;
+          else stack[sp - 3] = 2;
           sp -=2;
         }
         break;
       case 'm': /* mux operator , lower priority*/
-        s = stack[sp - 1];
         if(sp > 2) {
-          if(!(s & 2) ) { /* reduce pessimism, avoid infinite loops */
+          s = stack[sp - 1];
+          if(s < 2) { /* reduce pessimism, avoid infinite loops */
             stack[sp - 3] = (s == 0) ? stack[sp - 3]  : stack[sp - 2];
           }
           else stack[sp - 3] = 4;
@@ -1197,7 +1197,7 @@ int eval_logic_expr(int inst, int output)
             if(stack[i] == 1) {
               res = 1;
               break;
-            } else if(stack[i] & 2) {
+            } else if(stack[i] > 1) {
               res = 2;
             }
           }
@@ -1212,7 +1212,7 @@ int eval_logic_expr(int inst, int output)
             if(stack[i] == 0) {
               res = 0;
               break;
-            } else if(stack[i] & 2) {
+            } else if(stack[i] > 1) {
               res = 2;
             }
           }
@@ -1224,7 +1224,7 @@ int eval_logic_expr(int inst, int output)
         if(sp > 1) {
           res = 0;
           for(i = sp - 2; i < sp; i++) {
-            if(!(stack[i] & 2)) {
+            if(stack[i] < 2) {
               res = res ^ stack[i];
             }
             else {
