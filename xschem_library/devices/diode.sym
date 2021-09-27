@@ -2,8 +2,8 @@ v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {type=diode
 format="@name @pinlist @model area=@area"
-function1="U H 0 M"
-function0="L U 1 M"
+function1="U H 0 m"
+function0="L U 1 m"
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
