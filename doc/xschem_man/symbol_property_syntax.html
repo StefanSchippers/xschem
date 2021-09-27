@@ -337,10 +337,16 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
      <li> <kbd>|</kbd>: Does a logical OR operation of the last 2 elements on top of the stack, the result is left on the stack</li>
      <li> <kbd>^</kbd>: Does a logical XOR operation of the last 2 elements on top of the stack, the result is left on the stack</li>
      <li> <kbd>~</kbd>: Does a logical Negation operation of the last element on top of the stack, the result is left on the stack</li>
+     <li> <kbd>M</kbd>: preceeded by 3 element 'a', 'b', 'm', return 'a' if 'm' == 0, 'b' if 'm'==1, else 'X' </li>
+     <li> <kbd>m</kbd>: same as above, but don't update if 'm' not 1 or 0. Used to avoid deadlocks.</li>
+     <li> <kbd>z</kbd>: preceeded by 2 elements, 'a', 'e', return 'a' if 'e' == 1 else Z (hi-Z)</li>
      <li> <kbd>d</kbd>: Duplicates top element on the stack</li>
      <li> <kbd>x</kbd>: Exhanges the 2 top elements on the stack</li>
+     <li> <kbd>r</kbd>: Rotate down: bottom element of stack goes to top</li>
      <li> <kbd>H</kbd>: Puts a Logic '1' on the stack</li>
      <li> <kbd>L</kbd>: Puts a Logic '0' on the stack</li>
+     <li> <kbd>Z</kbd>: Puts a Logic 'Z' on the stack</li>
+     <li> <kbd>U</kbd>: Puts a Logic 'U' on the stack (do not assign to node)</li>
    </ul>
   <p>
    The remaining value on the stack is the value that is returned and assigned to the output pin.
