@@ -785,7 +785,7 @@ void drill_hilight(int mode)
         if(propagate_str) {
           int n = 1;
           const char *propag;
-          dbg(1, "propagate_logic(): inst=%d propagate_str=%s\n", i, propagate_str);
+          dbg(1, "drill_hilight(): inst=%d propagate_str=%s\n", i, propagate_str);
           while(1) {
             propag = find_nth(propagate_str, ',', n);
             n++;
@@ -1471,7 +1471,7 @@ void logic_set(int value, int num)
           break;
       }
       if(node) {
-        if(value == -1) {
+        if(value == -1) { /* toggle */
           entry = bus_hilight_lookup(node, 0, XLOOKUP);
           if(entry)
             newval = (entry->value == LOGIC_1) ? 0 : (entry->value == LOGIC_0) ? 1 : 2;
