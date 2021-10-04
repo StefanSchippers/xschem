@@ -50,6 +50,11 @@ void deps_default_init(void)
 	dep_add("cc/ldflags_dll",           find_ldflags_dll);
 	dep_add("cc/ldflags_so",            find_ldflags_so);
 	dep_add("cc/func_attr/unused/*",    find_fattr_unused);
+	dep_add("cc/func_attr/noreturn/*",  find_fattr_noreturn);
+	dep_add("cc/func_attr/deprecated/*", find_fattr_deprecated);
+	dep_add("cc/func_attr/weak/*",      find_fattr_weak);
+	dep_add("cc/func_attr/visibility_hidden/*", find_fattr_visibility_hidden);
+	dep_add("cc/func_attr/visibility_default/*", find_fattr_visibility_default);
 	dep_add("cc/declspec/dllimport/*",  find_declspec_dllimport);
 	dep_add("cc/declspec/dllexport/*",  find_declspec_dllexport);
 	dep_add("cc/argmachine/*",          find_cc_argmachine);

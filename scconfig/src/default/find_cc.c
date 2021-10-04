@@ -399,27 +399,29 @@ int find_destructor(const char *name, int logdepth, int fatal)
 	return 1;
 }
 
-static int test_fattr(const char *name, int logdepth, int fatal, const char *fattr)
+static int test_fattr(const char *name, int logdepth, int fatal,
+	const char *key, const char *fattr, const char *f_spec, int call_testfunc)
 {
 	char path[64];
-	char test_c[256];
+	char test_c[512];
 	const char *test_c_tmp =
 		NL "#include <stdio.h>"
-		NL "static void test1() __attribute__ ((%s));"
-		NL "static void test1()"
+		NL "%s void test1() __attribute__ ((%s));"
+		NL "%s void test1()"
 		NL "{"
 		NL "	puts(\"OK\");"
 		NL "}"
 		NL "int main() {"
-		NL "	puts(\"OK\");"
+		NL "	%s;"
 		NL "	return 0;"
 		NL "}"
 		NL ;
 
 	require("cc/cc", logdepth, fatal);
 
-	sprintf(test_c, test_c_tmp, fattr);
-	sprintf(path, "cc/func_attr/%s/presents", fattr);
+	sprintf(test_c, test_c_tmp, f_spec, fattr, f_spec,
+		(call_testfunc ? "test1()" : "puts(\"OK\")"));
+	sprintf(path, "cc/func_attr/%s/presents", key);
 
 	report("Checking for function attribute %s... ", fattr);
 	logprintf(logdepth, "test_fattr: trying to find %s...\n", fattr);
@@ -436,7 +438,34 @@ static int test_fattr(const char *name, int logdepth, int fatal, const char *fat
 
 int find_fattr_unused(const char *name, int logdepth, int fatal)
 {
-	return test_fattr(name, logdepth, fatal, "unused");
+	return test_fattr(name, logdepth, fatal, "unused", "unused", "static", 0);
+}
+
+int find_fattr_noreturn(const char *name, int logdepth, int fatal)
+{
+	return test_fattr(name, logdepth, fatal, "noreturn", "noreturn", "", 1);
+}
+
+int find_fattr_deprecated(const char *name, int logdepth, int fatal)
+{
+	return test_fattr(name, logdepth, fatal, "deprecated", "depreated", "", 1);
+}
+
+int find_fattr_weak(const char *name, int logdepth, int fatal)
+{
+	return test_fattr(name, logdepth, fatal, "weak", "weak", "", 1);
+}
+
+int find_fattr_visibility_hidden(const char *name, int logdepth, int fatal)
+{
+	return test_fattr(name, logdepth, fatal, "visibility_hidden",
+		"visibility(\"hidden\")", "", 0);
+}
+
+int find_fattr_visibility_default(const char *name, int logdepth, int fatal)
+{
+	return test_fattr(name, logdepth, fatal, "visibility_default",
+		"visibility(\"default\")", "", 1);
 }
 
 static int test_declspec(const char *name, int logdepth, int fatal, const char *dspec)
