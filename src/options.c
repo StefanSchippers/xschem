@@ -120,7 +120,7 @@ void check_opt(char *opt, char *optval, int type)
         dbg(1, "process_options(): set netlist type to verilog\n");
         netlist_type=CAD_VERILOG_NETLIST;
 
-    } else if( (type == SHORT && *opt == 'b') || (type == LONG && !strcmp("batch", opt)) ) {
+    } else if( (type == SHORT && *opt == 'b') || (type == LONG && !strcmp("detach", opt)) ) {
         batch_mode = 1;
 
     } else if( (type == SHORT && *opt == 'v') || (type == LONG && !strcmp("version", opt)) ) {
