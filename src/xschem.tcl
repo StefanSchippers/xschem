@@ -3846,6 +3846,14 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
       xschem clear SYMBOL
     }
   toolbar_create FileNewSym {xschem clear SYMBOL} "New Symbol"
+  .menubar.file.menu add command -label "New empty Schematic window" -accelerator {Alt+N} \
+    -command {
+      xschem new_window
+    }
+  .menubar.file.menu add command -label "New empty Symbol window" -accelerator {Alt+Shift+N} \
+    -command {
+      xschem new_symbol_window
+    }
   .menubar.file.menu add command -label "Open" -command "xschem load" -accelerator {Ctrl+O}
   toolbar_create FileOpen "xschem load" "Open File"
   .menubar.file.menu add command -label "Delete files" -command "xschem delete_files" -accelerator {Shift-D}

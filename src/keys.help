@@ -123,6 +123,8 @@ shift       'N'         Hierarchical netlist
 -           'n'         Netlist
 ctrl        'n'         New schematic
 ctrl+shift  'N'         New symbol
+alt         'n'         Empty schematic in new window
+alt+shift   'N'         Empty symbol in new window
 shift       'O'         Toggle Light / Dark colorscheme
 ctrl        'o'         Load schematic
 alt         'p'         Add symbol pin

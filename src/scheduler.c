@@ -1570,6 +1570,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
+    else if(!strcmp(argv[1],"new_symbol_window"))
+    {
+      cmd_found = 1;
+      if(argc==2) new_window("",1);
+      else new_window(argv[2],1);
+      Tcl_ResetResult(interp);
+    }
+
     else if(!strcmp(argv[1],"new_window"))
     {
       cmd_found = 1;

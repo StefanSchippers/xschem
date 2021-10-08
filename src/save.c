@@ -1089,8 +1089,13 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     set_modify(0);
     clear_drawing();
     for(i=0;;i++) {
-      if(i == 0) my_snprintf(name, S(name), "%s.sch", "untitled");
-      else my_snprintf(name, S(name), "%s-%d.sch", "untitled", i);
+      if(netlist_type == CAD_SYMBOL_ATTRS) {
+        if(i == 0) my_snprintf(name, S(name), "%s.sym", "untitled");
+        else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
+      } else {
+        if(i == 0) my_snprintf(name, S(name), "%s.sch", "untitled");
+        else my_snprintf(name, S(name), "%s-%d.sch", "untitled", i);
+      }
       if(stat(name, &buf)) break;
     }
     my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", pwd_dir, name);

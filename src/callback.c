@@ -1223,6 +1223,16 @@ int callback(int event, int mx, int my, KeySym key,
     copy_objects(START);
     break;
    }
+   if(key=='n' && state==Mod1Mask)              /* Empty schematic in new window */
+   {
+     if(xctx->semaphore >= 2) break;
+     tcleval("xschem new_window");
+   }
+   if(key=='N' && state==(ShiftMask|Mod1Mask) )    /* Empty symbol in new window */
+   {
+     if(xctx->semaphore >= 2) break;
+     tcleval("xschem new_symbol_window");
+   }
    if(key=='n' && state==ControlMask)              /* New schematic */
    {
      if(xctx->semaphore >= 2) break;

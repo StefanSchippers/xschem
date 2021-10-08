@@ -273,15 +273,20 @@ void new_window(const char *cell, int symbol)
     } else if (!pid2) {
       /* child of child */
       if(!cell || !cell[0]) {
-        execl(xschem_executable,xschem_executable,"-b", NULL);
+        if(!symbol)
+          execl(xschem_executable,xschem_executable,"-b", "--tcl",
+                "set netlist_type spice; set XSCHEM_START_WINDOW {}", NULL);
+        else
+          execl(xschem_executable,xschem_executable,"-b", "--tcl",
+                "set netlist_type symbol; set XSCHEM_START_WINDOW {}", NULL);
       }
       else if(!symbol) {
         my_strncpy(f, cell, S(f));
-        execl(xschem_executable,xschem_executable,"-b",f, NULL);
+        execl(xschem_executable,xschem_executable,"-b", "--tcl", "set netlist_type spice", f, NULL);
       }
       else {
         my_strncpy(f, cell, S(f));
-        execl(xschem_executable,xschem_executable,"-b",f, NULL);
+        execl(xschem_executable,xschem_executable,"-b", "--tcl", "set netlist_type symbol", f, NULL);
       }
     } else {
       /* error */
