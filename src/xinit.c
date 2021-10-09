@@ -1549,7 +1549,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* Completing tk windows creation (see xschem.tcl, build_windows) and event binding */
  /* *AFTER* X initialization done                                                    */
  /*                                                                                  */
- if(has_x) tcleval("build_windows; update");
+ if(has_x) tcleval("build_windows");
 
  fullscreen=atoi(tclgetvar("fullscreen"));
  if(fullscreen) {
@@ -1597,6 +1597,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
     remove_symbols();
     /* if do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
        to tcl is_xschem_file that could change netlist_type to symbol */
+    tcleval("update");
     load_schematic(1, f, !do_netlist);
     Tcl_VarEval(interp, "update_recent_file {", f, "}", NULL);
  } else if(!tcl_script[0]) {
