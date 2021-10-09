@@ -1227,21 +1227,25 @@ int callback(int event, int mx, int my, KeySym key,
    {
      if(xctx->semaphore >= 2) break;
      tcleval("xschem new_window");
+     break;
    }
    if(key=='N' && state==(ShiftMask|Mod1Mask) )    /* Empty symbol in new window */
    {
      if(xctx->semaphore >= 2) break;
      tcleval("xschem new_symbol_window");
+     break;
    }
    if(key=='n' && state==ControlMask)              /* New schematic */
    {
      if(xctx->semaphore >= 2) break;
      tcleval("xschem clear SCHEMATIC");
+     break;
    }
    if(key=='N' && state==(ShiftMask|ControlMask) )    /* New symbol */
    {
      if(xctx->semaphore >= 2) break;
      tcleval("xschem clear SYMBOL");
+     break;
    }
    if(key=='n' && state==0)              /* hierarchical netlist */
    {

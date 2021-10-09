@@ -1549,7 +1549,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* Completing tk windows creation (see xschem.tcl, build_windows) and event binding */
  /* *AFTER* X initialization done                                                    */
  /*                                                                                  */
- if(has_x) tcleval("build_windows");
+ if(has_x) tcleval("build_windows; update");
 
  fullscreen=atoi(tclgetvar("fullscreen"));
  if(fullscreen) {
