@@ -1581,25 +1581,24 @@ int Tcl_AppInit(Tcl_Interp *inter)
     char f[PATH_MAX];
 
 #ifdef __unix__
-    if(filename[0] == '~' && filename[1] == '/') {
-      my_snprintf(f, S(f), "%s%s", home_dir, filename + 1);
-    } else if(filename[0] == '.' && filename[1] == '/') {
-      my_snprintf(f, S(f), "%s%s", pwd_dir, filename + 1);
-    } else if(filename[0] !='/') {
-      my_snprintf(f, S(f), "%s/%s", pwd_dir, filename);
-    } else {
-      my_snprintf(f, S(f), "%s", filename);
-    }
+   if(filename[0] == '~' && filename[1] == '/') {
+     my_snprintf(f, S(f), "%s%s", home_dir, filename + 1);
+   } else if(filename[0] == '.' && filename[1] == '/') {
+     my_snprintf(f, S(f), "%s%s", pwd_dir, filename + 1);
+   } else if(filename[0] !='/') {
+     my_snprintf(f, S(f), "%s/%s", pwd_dir, filename);
+   } else {
+     my_snprintf(f, S(f), "%s", filename);
+   }
 #else
-    my_strncpy(f, abs_sym_path(filename, ""), S(f));
+   my_strncpy(f, abs_sym_path(filename, ""), S(f));
 #endif
-    dbg(1, "Tcl_AppInit(): filename %s given, removing symbols\n", filename);
-    remove_symbols();
-    /* if do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
-       to tcl is_xschem_file that could change netlist_type to symbol */
-    tcleval("update");
-    load_schematic(1, f, !do_netlist);
-    Tcl_VarEval(interp, "update_recent_file {", f, "}", NULL);
+   dbg(1, "Tcl_AppInit(): filename %s given, removing symbols\n", filename);
+   remove_symbols();
+   /* if do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
+      to tcl is_xschem_file that could change netlist_type to symbol */
+   load_schematic(1, f, !do_netlist);
+   Tcl_VarEval(interp, "update_recent_file {", f, "}", NULL);
  } else if(!tcl_script[0]) {
    char * tmp;
    char filename[PATH_MAX];

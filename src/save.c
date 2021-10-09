@@ -1057,7 +1057,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     if( (fd=fopen(name,fopen_read_mode))== NULL) {
       fprintf(errfp, "load_schematic(): unable to open file: %s, filename=%s\n",
           name, filename ? filename : "<NULL>");
-      my_snprintf(msg, S(msg), "alert_ {Unable to open file: %s}", filename ? filename: "(null)");
+      my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", filename ? filename: "(null)");
       tcleval(msg);
       clear_drawing();
     } else {
