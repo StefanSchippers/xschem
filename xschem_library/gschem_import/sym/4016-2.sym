@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4016
-template="device=4016
-name=U?
-footprint=DIP14
-description=\\"4 bilateral switches\\"
-numslots=4
-slot=1
-symversion=0.1
-VDD=VDD
+template="device=4016 name=U? footprint=DIP14 description=\\"4 bilateral switches\\" slot=1 symversion=0.1 VDD=VDD
 VSS=VSS
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS"
 
-extra="VDD VSS"
+extra="device footprint description VDD VSS"
 extra_pinnumber="14 7"
 }
 G {}

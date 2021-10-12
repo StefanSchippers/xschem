@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=AT90S8535J
-template="device=AT90S8535J
-name=U?
-footprint=PLCC44
-description=\\"8-bit RISC micro controller (Atmel)\\"
-numslots=0
-GND=GND
+template="device=AT90S8535J name=U? footprint=PLCC44 description=\\"8-bit RISC micro controller (Atmel)\\" GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -14,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="GND Vcc"
+extra="device footprint description GND Vcc"
 extra_pinnumber="1,12,24 44,11,23"
 }
 G {}

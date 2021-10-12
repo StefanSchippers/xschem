@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=PIC16C74A
-template="device=PIC16C74A
-name=U?
-documentation=http://www.microchip.com/download/lit/pline/picmicro/families/16c7x/30390e.pdf
-footprint=DIP40
-description=\\"8-bit CMOS microcontroller with A/D converter\\"
-numslots=0
-Vcc=Vcc
+template="device=PIC16C74A name=U? documentation=http://www.microchip.com/download/lit/pline/picmicro/families/16c7x/30390e.pdf footprint=DIP40 description=\\"8-bit CMOS microcontroller with A/D converter\\" Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="11,32 12,31"
 }
 G {}

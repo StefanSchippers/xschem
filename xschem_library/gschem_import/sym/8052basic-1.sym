@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=80(C)52-BASIC
-template="footprint=DIP40
-name=U?
-device=80(C)52-BASIC
-description=\\"8-bit micro controller\\"
-numslots=0
-VSS=VSS
+template="footprint=DIP40 name=U? device=80(C)52-BASIC description=\\"8-bit micro controller\\" VSS=VSS
 VCC=VCC
 "
 tedax_format="footprint @name @footprint
@@ -14,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VSS @VCC"
 
-extra="VSS VCC"
+extra="footprint device description VSS VCC"
 extra_pinnumber="20 40"
 }
 G {}

@@ -1,15 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=T2-1T-KK81
-template="name=T?
-device=T2-1T-KK81
-footprint=MINICIRCUITS_KK81
-value=T2-1T-KK81
-"
+template="name=T? device=T2-1T-KK81 footprint=MINICIRCUITS_KK81 value=T2-1T-KK81 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

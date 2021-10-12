@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=TINIm390-RevD
-template="device=TINIm390-RevD
-name=U?
-footprint=SIMM72
-description=\\"Tini Verification Module m390 RevD\\"
-numslots=0
-GND=GND
+template="device=TINIm390-RevD name=U? footprint=SIMM72 description=\\"Tini Verification Module m390 RevD\\" GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -14,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="GND Vcc"
+extra="device footprint description GND Vcc"
 extra_pinnumber="3,4,5,6,7 67,68,69,70"
 }
 G {}

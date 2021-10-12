@@ -1,13 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=IF_TRANSFORMER
-template="device=IF_TRANSFORMER
-name=U?
-"
+template="device=IF_TRANSFORMER name=U? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

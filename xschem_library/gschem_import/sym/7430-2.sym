@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=7430
-template="device=7430
-name=U?
-footprint=DIP14
-description=\\"NAND gate with 8 inputs\\"
-numslots=0
-documentation=http://www.semiconductors.philips.com/acrobat/datasheets/74HC_HCT30_CNV_2.pdf
-GND=GND
+template="device=7430 name=U? footprint=DIP14 description=\\"NAND gate with 8 inputs\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/74HC_HCT30_CNV_2.pdf GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="GND Vcc"
+extra="device footprint description GND Vcc"
 extra_pinnumber="7 14"
 }
 G {}

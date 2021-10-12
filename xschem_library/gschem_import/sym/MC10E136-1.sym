@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MC10E136
-template="name=U?
-footprint=\\"PLCC 28\\"
-pins=28
-device=MC10E136
-documentation=http://www.onsemi.com/pub/Collateral/MC10E136-D.PDF
-VEE=VEE
+template="name=U? footprint=\\"PLCC 28\\" pins=28 device=MC10E136 documentation=http://www.onsemi.com/pub/Collateral/MC10E136-D.PDF VEE=VEE
 VCCO=VCCO
 "
 tedax_format="footprint @name @footprint
@@ -14,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VEE @VCCO"
 
-extra="VEE VCCO"
+extra="footprint device VEE VCCO"
 extra_pinnumber="1 8,11,19,22"
 }
 G {}

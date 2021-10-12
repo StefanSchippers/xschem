@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX1208
-template="device=MAX1208
-name=U?
-footprint=TQFN40_6_EP
-numslots=0
-documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1208.pdf
-"
+template="device=MAX1208 name=U? footprint=TQFN40_6_EP documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1208.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

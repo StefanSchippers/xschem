@@ -1,13 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=RESISTORPACK_11
-template="device=RESISTORPACK_11
-name=R?
-"
+template="device=RESISTORPACK_11 name=R? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

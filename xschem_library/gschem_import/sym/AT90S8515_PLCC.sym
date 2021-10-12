@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=AT90S8515_PLCC
-template="name=U?
-device=AT90S8515_PLCC
-footprint=PLCC44
-description=\\"8-bit RISC micro controller (Atmel)\\"
-numslots=0
-author=\\"Werner Hoch <werner.hoATgmx.de>\\"
-GND=GND
+template="name=U? device=AT90S8515_PLCC footprint=PLCC44 description=\\"8-bit RISC micro controller (Atmel)\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="GND Vcc"
+extra="device footprint description GND Vcc"
 extra_pinnumber="22 44"
 }
 G {}

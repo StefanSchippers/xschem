@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74121
-template="device=74121
-footprint=DIP14
-name=U?
-description=\\"monoflop with schmitt-trigger input\\"
-numslots=0
-Vcc=Vcc
+template="device=74121 footprint=DIP14 name=U? description=\\"monoflop with schmitt-trigger input\\" Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -14,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="14 7"
 }
 G {}

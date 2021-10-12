@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=HCPL-2630
-template="name=U?
-device=HCPL-2630
-footprint=DIP8
-description=\\"dual channel 10 MBd optocoupler\\"
-numslots=2
-slot=1
-documentation=http://cp.literature.agilent.com/litweb/pdf/5989-0302EN.pdf
-Vcc=Vcc
+template="name=U? device=HCPL-2630 footprint=DIP8 description=\\"dual channel 10 MBd optocoupler\\" slot=1 documentation=http://cp.literature.agilent.com/litweb/pdf/5989-0302EN.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="8 5"
 }
 G {}

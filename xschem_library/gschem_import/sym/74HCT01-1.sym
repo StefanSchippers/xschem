@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74HCT01
-template="name=U?
-device=74HCT01
-footprint=DIP14
-slot=1
-numslots=4
-description=\\"4 NAND gates with 2 inputs and open collector output\\"
-GND=GND
+template="name=U? device=74HCT01 footprint=DIP14 slot=1 description=\\"4 NAND gates with 2 inputs and open collector output\\" GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="GND Vcc"
+extra="device footprint description GND Vcc"
 extra_pinnumber="7 14"
 }
 G {}

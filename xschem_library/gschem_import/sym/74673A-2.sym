@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74673A
-template="device=74673A
-name=U?
-footprint=DIP24
-description=\\"16-bit serial-in/parallel-out shift register\\"
-numslots=0
-Vcc=Vcc
+template="device=74673A name=U? footprint=DIP24 description=\\"16-bit serial-in/parallel-out shift register\\" Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -14,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="24 12"
 }
 G {}

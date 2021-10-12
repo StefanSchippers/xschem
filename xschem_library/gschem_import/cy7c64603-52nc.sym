@@ -1,14 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=cy7c64603-52nc
-template="device=cy7c64603-52nc
-name=U?
-footprint=cy7c64603_qfp
-"
+template="device=cy7c64603-52nc name=U? footprint=cy7c64603_qfp "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

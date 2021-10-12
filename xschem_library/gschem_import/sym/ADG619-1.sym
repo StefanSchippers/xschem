@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=ADG619
-template="device=ADG619
-numslots=0
-name=U?
-footprint=MSOP8
-description=\\"ADG619 CMOS 5 V/+5 V   Single SPDT Switches \\"
-documentation=http://www.analog.com/UploadedFiles/Data_Sheets/36565145644741ADG619_20_a.pdf
-symversion=0.1
-Vcc=Vcc
+template="device=ADG619 name=U? footprint=MSOP8 description=\\"ADG619 CMOS 5 V/+5 V   Single SPDT Switches \\" documentation=http://www.analog.com/UploadedFiles/Data_Sheets/36565145644741ADG619_20_a.pdf symversion=0.1 Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="4 7"
 }
 G {}

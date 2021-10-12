@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX4662
-template="device=MAX4662
-name=S?
-slot=1
-numslots=4
-footprint=DIP16
-description=\\"quad SPST CMOS analog switch\\"
-documentation=http://pdfserv.maxim-ic.com/en/ds/MAX4661-MAX4663.pdf
-Vcc=Vcc
+template="device=MAX4662 name=S? slot=1 footprint=DIP16 description=\\"quad SPST CMOS analog switch\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX4661-MAX4663.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="12 5"
 }
 G {}

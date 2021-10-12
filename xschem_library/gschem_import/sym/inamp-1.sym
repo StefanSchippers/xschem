@@ -1,18 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=OPAMP
-template="device=OPAMP
-name=U?
-footprint=DIP8
-description=\\"single opamp with trimmable offset\\"
-numslots=0
-symversion=1.0
-comment=NC-PINS:8
-"
+template="device=OPAMP name=U? footprint=DIP8 description=\\"single opamp with trimmable offset\\" symversion=1.0 comment=NC-PINS:8 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

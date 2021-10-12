@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=DS2890
-template="device=DS2890
-description=\\"1-wire digital potentiometer\\"
-name=U?
-footprint=TO-92
-numslots=0
-"
+template="device=DS2890 description=\\"1-wire digital potentiometer\\" name=U? footprint=TO-92 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description footprint
 
 }
 G {}

@@ -1,14 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=24Cxx
-template="device=24Cxx
-name=U?
-footprint=DIP8
-description=\\"2-wire serial cmos eeprom\\"
-numslots=0
-author=\\"Werner Hoch <werner.hoATgmx.de>\\"
-documentation=http://www.asec.com.tw/product/data/992/24C01_2.PDF
-comment=\\"Pin7 can be WP (write protect) too\\"
-Vcc=Vcc
+template="device=24Cxx name=U? footprint=DIP8 description=\\"2-wire serial cmos eeprom\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" documentation=http://www.asec.com.tw/product/data/992/24C01_2.PDF comment=\\"Pin7 can be WP (write protect) too\\" Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -17,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="8 4"
 }
 G {}

@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=7432
-template="device=7432
-slot=1
-numslots=4
-name=U?
-footprint=DIP14
-description=\\"4 OR gates with 2 inputs\\"
-documentation=http://www-s.ti.com/sc/ds/sn74hc32.pdf
-Vcc=Vcc
+template="device=7432 slot=1 name=U? footprint=DIP14 description=\\"4 OR gates with 2 inputs\\" documentation=http://www-s.ti.com/sc/ds/sn74hc32.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="14 7"
 }
 G {}

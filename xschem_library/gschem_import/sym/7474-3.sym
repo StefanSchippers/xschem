@@ -1,18 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=7474
-template="footprint=DIP14
-numslots=2
-name=U?
-description=\\"2 D-flip-flops with preset and clear\\"
-slot=1
-documentation=http://www-s.ti.com/sc/ds/sn74hc74.pdf
-device=7474
-"
+template="footprint=DIP14 name=U? description=\\"2 D-flip-flops with preset and clear\\" slot=1 documentation=http://www-s.ti.com/sc/ds/sn74hc74.pdf device=7474 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+footprint description device
 
 }
 G {}

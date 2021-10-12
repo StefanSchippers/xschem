@@ -1,8 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=symbol
-template="version=0.1
-graphical=1
-"
+template="version=0.1 graphical=1 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device

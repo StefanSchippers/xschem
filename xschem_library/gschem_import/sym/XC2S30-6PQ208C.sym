@@ -1,15 +1,14 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=XC2S30-5PQ208C
 type=XC2S30-6PQ208C
-template="device=XC2S30-6PQ208C
-device=XC2S30-5PQ208C
-name=U?
-"
+template="device=XC2S30-6PQ208C device=XC2S30-5PQ208C name=U? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device device
 
 }
 G {}

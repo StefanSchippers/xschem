@@ -1,9 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=an82527
-template="name=U?
-device=an82527
-footprint=PLCC44
-+5V=+5V
+template="name=U? device=an82527 footprint=PLCC44 +5V=+5V
 GND=GND
 GND=GND
 "
@@ -13,7 +10,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @+5V @GND @GND"
 
-extra="+5V GND GND"
+extra="device footprint +5V GND GND"
 extra_pinnumber="1 20 23"
 }
 G {}

@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=7403
-template="device=7403
-slot=1
-numslots=4
-name=U?
-footprint=DIP14
-description=\\"4 NOR gates with 2 inputs and open collector outputs\\"
-documentation=http://www-s.ti.com/sc/ds/sn74hc03.pdf
-GND=GND
+template="device=7403 slot=1 name=U? footprint=DIP14 description=\\"4 NOR gates with 2 inputs and open collector outputs\\" documentation=http://www-s.ti.com/sc/ds/sn74hc03.pdf GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="GND Vcc"
+extra="device footprint description GND Vcc"
 extra_pinnumber="7 14"
 }
 G {}

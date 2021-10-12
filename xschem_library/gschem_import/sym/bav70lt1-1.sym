@@ -1,14 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=BAV70LT1
-template="device=BAV70LT1
-name=D?
-footprint=SOT23
-"
+template="device=BAV70LT1 name=D? footprint=SOT23 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

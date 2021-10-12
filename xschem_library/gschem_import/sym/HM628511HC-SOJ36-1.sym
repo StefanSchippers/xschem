@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=HM628511HC
-template="name=U?
-device=HM628511HC
-numslots=0
-footprint=SOJ36
-symversion=1.0
-"
+template="name=U? device=HM628511HC footprint=SOJ36 symversion=1.0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

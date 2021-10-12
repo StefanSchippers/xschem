@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4352
-template="name=U?
-device=4352
-footprint=DIP18
-numslots=0
-description=\\"dual 4-channel analog multiplexer/demultiplexer with address latch\\"
-VDD=VDD
+template="name=U? device=4352 footprint=DIP18 description=\\"dual 4-channel analog multiplexer/demultiplexer with address latch\\" VDD=VDD
 VSS=VSS
 VEE=VEE
 "
@@ -15,7 +10,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS @VEE"
 
-extra="VDD VSS VEE"
+extra="device footprint description VDD VSS VEE"
 extra_pinnumber="20 10 9"
 }
 G {}

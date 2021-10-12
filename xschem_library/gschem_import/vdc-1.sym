@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=VOLTAGE_SOURCE
-template="name=V?
-device=VOLTAGE_SOURCE
-footprint=none
-numslots=0
-description=\\"dc power source\\"
-value=\\"DC 1V\\"
-"
+template="name=V? device=VOLTAGE_SOURCE footprint=none description=\\"dc power source\\" value=\\"DC 1V\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

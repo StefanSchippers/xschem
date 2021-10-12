@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=8255A
-template="name=U?
-device=8255A
-footprint=DIP40
-description=\\"CHMOS programmable peripheral interface\\"
-numslots=0
-"
+template="name=U? device=8255A footprint=DIP40 description=\\"CHMOS programmable peripheral interface\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

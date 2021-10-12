@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=PC16550D
-template="device=PC16550D
-description=\\"UART w/ FIFOs\\"
-numslots=0
-footprint=\\"DIL 40 600\\"
-name=U?
-"
+template="device=PC16550D description=\\"UART w/ FIFOs\\" footprint=\\"DIL 40 600\\" name=U? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description footprint
 
 }
 G {}

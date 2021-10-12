@@ -1,18 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=cascade-transformer
-template="name=T?
-device=cascade-transformer
-footprint=none
-G=0
-NF=0
-RIN=50
-ROUT=50
-"
+template="name=T? device=cascade-transformer footprint=none G=0 NF=0 RIN=50 ROUT=50 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

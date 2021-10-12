@@ -1,13 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=DUAL_GATE_NMOS_TRANSISTOR
-template="device=DUAL_GATE_NMOS_TRANSISTOR
-name=Q?
-"
+template="device=DUAL_GATE_NMOS_TRANSISTOR name=Q? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

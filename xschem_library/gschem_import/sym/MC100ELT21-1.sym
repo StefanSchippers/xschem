@@ -1,10 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MC100ELT21
-template="device=MC100ELT21
-name=U?
-pins=8
-documentation=http://www.onsemi.com/pub/Collateral/MC10ELT21-D.PDF
-GND=GND
+template="device=MC100ELT21 name=U? pins=8 documentation=http://www.onsemi.com/pub/Collateral/MC10ELT21-D.PDF GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -13,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="GND Vcc"
+extra="device GND Vcc"
 extra_pinnumber="5 8"
 }
 G {}

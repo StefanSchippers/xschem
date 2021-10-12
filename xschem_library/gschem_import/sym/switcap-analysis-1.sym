@@ -1,9 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=SWITCAP-analysis
-template="device=SWITCAP-analysis
-name=ANA?
-file=none
-GND=GND
+template="device=SWITCAP-analysis name=ANA? file=none GND=GND
 "
 tedax_format="footprint @name @footprint
 value @name @value
@@ -11,7 +8,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND"
 
-extra="GND"
+extra="device GND"
 extra_pinnumber="1"
 }
 G {}

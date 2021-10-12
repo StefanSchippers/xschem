@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=TOKO4DFA
-template="device=TOKO4DFA
-class=IC
-pins=5
-name=FIL?
-footprint=TOKO_4DFA_12
-"
+template="device=TOKO4DFA class=IC pins=5 name=FIL? footprint=TOKO_4DFA_12 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

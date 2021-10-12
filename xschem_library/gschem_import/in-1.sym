@@ -1,9 +1,8 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=ipin
-template="device=INPUT
-lab=xxx
-name=pinlabel
-"
+template="device=INPUT lab=xxx name=pinlabel "
+
+device
 
 }
 G {}

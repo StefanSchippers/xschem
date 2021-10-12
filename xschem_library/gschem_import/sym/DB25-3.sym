@@ -1,15 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=DB25
-template="device=DB25
-name=CONN?
-description=\\"25-pin male or female DB-25 connector\\"
-numslots=0
-"
+template="device=DB25 name=CONN? description=\\"25-pin male or female DB-25 connector\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description
 
 }
 G {}

@@ -1,13 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=3TRI
-template="device=3TRI
-name=U?
-"
+template="device=3TRI name=U? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=cascade-mixer
-template="footprint=none
-device=cascade-mixer
-name=MX?
-G=0
-NF=0
-IIP3=0
-"
+template="footprint=none device=cascade-mixer name=MX? G=0 NF=0 IIP3=0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+footprint device
 
 }
 G {}

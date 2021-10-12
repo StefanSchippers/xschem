@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=62256
-template="device=62256
-name=U?
-footprint=DIP28
-description=\\"32K-word x 8-bit high speed cmos static ram\\"
-numslots=0
-author=\\"Werner Hoch <werner.hoATgmx.de>\\"
-Vcc=Vcc
+template="device=62256 name=U? footprint=DIP28 description=\\"32K-word x 8-bit high speed cmos static ram\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="28 14"
 }
 G {}

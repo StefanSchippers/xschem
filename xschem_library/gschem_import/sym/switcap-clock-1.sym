@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=SWITCAP-clock
-template="PERIOD=1
-device=SWITCAP-clock
-PSTART=0
-PSTOP=3/8
-name=CLK?
-GND=GND
+template="PERIOD=1 device=SWITCAP-clock PSTART=0 PSTOP=3/8 name=CLK? GND=GND
 "
 tedax_format="footprint @name @footprint
 value @name @value
@@ -13,7 +8,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND"
 
-extra="GND"
+extra="device GND"
 extra_pinnumber="1"
 }
 G {}

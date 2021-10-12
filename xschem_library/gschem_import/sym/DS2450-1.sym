@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=DS2450
-template="device=DS2450
-name=U?
-footprint=SMD8
-numslots=0
-description=\\"Dallas Semiconductor 1-Wire A/D Converter (Travis Sawyer)\\"
-documentation=http://pdfserv.maxim-ic.com/en/ds/DS2450.pdf
-GND=GND
+template="device=DS2450 name=U? footprint=SMD8 description=\\"Dallas Semiconductor 1-Wire A/D Converter (Travis Sawyer)\\" documentation=http://pdfserv.maxim-ic.com/en/ds/DS2450.pdf GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="GND Vcc"
+extra="device footprint description GND Vcc"
 extra_pinnumber="4 1"
 }
 G {}

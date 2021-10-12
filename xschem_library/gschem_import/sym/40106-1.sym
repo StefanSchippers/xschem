@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=40106
-template="device=40106
-footprint=none
-numslots=6
-name=U?
-slot=1
-description=\\"6 inverting Schmitt triggers\\"
-documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF40106B_CNV_3.pdf
-VDD=VDD
+template="device=40106 footprint=none name=U? slot=1 description=\\"6 inverting Schmitt triggers\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF40106B_CNV_3.pdf VDD=VDD
 VSS=VSS
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS"
 
-extra="VDD VSS"
+extra="device footprint description VDD VSS"
 extra_pinnumber="14 7"
 }
 G {}

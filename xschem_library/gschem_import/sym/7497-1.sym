@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=7497
-template="symversion=1.0
-footprint=DIP16
-name=U?
-description=\\"programmable frequency divider\\"
-numslots=0
-device=7497
-Vcc=Vcc
+template="symversion=1.0 footprint=DIP16 name=U? description=\\"programmable frequency divider\\" device=7497 Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="footprint description device Vcc GND"
 extra_pinnumber="16 8"
 }
 G {}

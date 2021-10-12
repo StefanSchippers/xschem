@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=7451
-template="device=7451
-footprint=DIP14
-name=U?
-description=\\"combined AND/NOR gates\\"
-comment=\\"Attention: on some devices the pins 12 and 11 are not connected\\"
-numslots=0
-Vcc=Vcc
+template="device=7451 footprint=DIP14 name=U? description=\\"combined AND/NOR gates\\" comment=\\"Attention: on some devices the pins 12 and 11 are not connected\\" Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="14 7"
 }
 G {}

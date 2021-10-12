@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=ST7538
-template="device=ST7538
-name=U?
-footprint=TQFP44_10
-description=\\"Power Line FSK Transceiver\\"
-documentation=http://www.st.com/stonline/books/pdf/docs/9324.pdf
-numslots=0
-"
+template="device=ST7538 name=U? footprint=TQFP44_10 description=\\"Power Line FSK Transceiver\\" documentation=http://www.st.com/stonline/books/pdf/docs/9324.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

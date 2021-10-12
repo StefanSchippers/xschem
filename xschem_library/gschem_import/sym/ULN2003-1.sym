@@ -1,14 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=ULN2003
-template="device=ULN2003
-footprint=DIP16
-name=U?
-"
+template="device=ULN2003 footprint=DIP16 name=U? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

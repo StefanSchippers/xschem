@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=7478
-template="device=7478
-footprint=DIP14
-name=U?
-description=\\"2 JK-flip-flops with preset, common clock and clear\\"
-numslots=0
-Vcc=Vcc
+template="device=7478 footprint=DIP14 name=U? description=\\"2 JK-flip-flops with preset, common clock and clear\\" Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -14,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="4 11"
 }
 G {}

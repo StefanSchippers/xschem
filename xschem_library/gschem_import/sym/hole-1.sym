@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=HOLE
-template="class=IO
-pins=1
-device=HOLE
-nobom=1
-name=H?
-"
+template="class=IO pins=1 device=HOLE nobom=1 name=H? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

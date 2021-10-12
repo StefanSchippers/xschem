@@ -1,22 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=VIPEC-GRID
-template="title=\\"Graph Title\\"
-Ymin=-80
-Ymax=20
-Divisions=5
-scale=dB
-S11=on
-S22=off
-S12=off
-S21=on
-device=VIPEC-GRID
-name=GRID1
-"
+template="title=\\"Graph Title\\" Ymin=-80 Ymax=20 Divisions=5 scale=dB S11=on S22=off S12=off S21=on device=VIPEC-GRID name=GRID1 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4054
-template="name=U?
-device=4054
-footprint=DIP16
-description=\\"liquid-crystal display drivers\\"
-numslots=0
-VEE=VEE
+template="name=U? device=4054 footprint=DIP16 description=\\"liquid-crystal display drivers\\" VEE=VEE
 VSS=VSS
 VDD=VDD
 "
@@ -15,7 +10,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VEE @VSS @VDD"
 
-extra="VEE VSS VDD"
+extra="device footprint description VEE VSS VDD"
 extra_pinnumber="7 8 16"
 }
 G {}

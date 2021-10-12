@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=XINGER11305-3
-template="device=XINGER11305-3
-pins=4
-class=IC
-footprint=xinger11305
-name=U?
-"
+template="device=XINGER11305-3 pins=4 class=IC footprint=xinger11305 name=U? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

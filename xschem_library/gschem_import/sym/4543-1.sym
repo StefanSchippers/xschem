@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4543
-template="name=U?
-device=4543
-footprint=DIP16
-description=\\"BCD to 7-segment latch/decoder/driver\\"
-numslots=0
-documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4543B_CNV_3.pdf
-VSS=VSS
+template="name=U? device=4543 footprint=DIP16 description=\\"BCD to 7-segment latch/decoder/driver\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4543B_CNV_3.pdf VSS=VSS
 VDD=VDD
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VSS @VDD"
 
-extra="VSS VDD"
+extra="device footprint description VSS VDD"
 extra_pinnumber="8 16"
 }
 G {}

@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=cascade-filter
-template="footprint=none
-device=cascade-filter
-name=FL?
-G=0
-NF=0
-"
+template="footprint=none device=cascade-filter name=FL? G=0 NF=0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+footprint device
 
 }
 G {}

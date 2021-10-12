@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=PMOS_TRANSISTOR
-template="device=PMOS_TRANSISTOR
-name=M?
-model-name=pmmv
-w=10u
-l=3u
-description=\\"medium voltage PMOS\\"
-"
+template="device=PMOS_TRANSISTOR name=M? model-name=pmmv w=10u l=3u description=\\"medium voltage PMOS\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description
 
 }
 G {}

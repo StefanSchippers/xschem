@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MC68HC908GP32CP
-template="documentation=http://e-www.motorola.com/brdata/PDFDB/docs/MC68HC908GP32.pdf
-description=\\"Motorola MC68HC908GP32CP microcontroller\\"
-footprint=DIP40
-device=MC68HC908GP32CP
-name=U?
-numslots=0
-"
+template="documentation=http://e-www.motorola.com/brdata/PDFDB/docs/MC68HC908GP32.pdf description=\\"Motorola MC68HC908GP32CP microcontroller\\" footprint=DIP40 device=MC68HC908GP32CP name=U? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+description footprint device
 
 }
 G {}

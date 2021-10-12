@@ -1,14 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=BC547
-template="device=BC547
-name=Q?
-footprint=TO92
-"
+template="device=BC547 name=Q? footprint=TO92 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

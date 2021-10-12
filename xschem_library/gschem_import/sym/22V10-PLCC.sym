@@ -1,18 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=22V10-PLCC
-template="footprint=PLCC28
-pins=28
-device=22V10-PLCC
-class=IC
-name=U?
-NB=\\"Pins 1,8,15,22 For ISP only\\"
-NB=\\"Ground Pin 22 on PALCE\\"
-"
+template="footprint=PLCC28 pins=28 device=22V10-PLCC class=IC name=U? NB=\\"Pins 1,8,15,22 For ISP only\\" NB=\\"Ground Pin 22 on PALCE\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+footprint device
 
 }
 G {}

@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=LT1160
-template="device=LT1160
-description=\\"Half-bridge N-channel Power MOSFET Driver\\"
-documentation=http://www.linear.com/pdf/11602fa.pdf
-numslots=0
-name=U?
-footprint=DIP14
-"
+template="device=LT1160 description=\\"Half-bridge N-channel Power MOSFET Driver\\" documentation=http://www.linear.com/pdf/11602fa.pdf name=U? footprint=DIP14 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description footprint
 
 }
 G {}

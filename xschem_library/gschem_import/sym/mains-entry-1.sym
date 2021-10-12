@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAINS_ENTRY
-template="name=CONN?
-device=MAINS_ENTRY
-description=\\"equipment mains entry socket, IEC, female\\"
-numslots=0
-footprint=none
-symversion=1.0
-"
+template="name=CONN? device=MAINS_ENTRY description=\\"equipment mains entry socket, IEC, female\\" footprint=none symversion=1.0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description footprint
 
 }
 G {}

@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=HIP4080A
-template="device=HIP4080A
-description=\\"High Frequency Full Bridge FET Driver\\"
-footprint=DIP20
-numslots=0
-name=U?
-AGND=AGND
+template="device=HIP4080A description=\\"High Frequency Full Bridge FET Driver\\" footprint=DIP20 name=U? AGND=AGND
 VCCA=VCCA
 VDDA=VDDA
 "
@@ -15,7 +10,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @AGND @VCCA @VDDA"
 
-extra="AGND VCCA VDDA"
+extra="device description footprint AGND VCCA VDDA"
 extra_pinnumber="4 15 16"
 }
 G {}

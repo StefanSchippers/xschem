@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=Si9986
-template="footprint=SOIC8
-pins=8
-device=Si9986
-class=IC
-name=U?
-numslots=0
-"
+template="footprint=SOIC8 pins=8 device=Si9986 class=IC name=U? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+footprint device
 
 }
 G {}

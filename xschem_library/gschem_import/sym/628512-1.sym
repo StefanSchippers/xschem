@@ -1,10 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=628512
-template="device=628512
-name=U?
-numslots=0
-footprint=none
-Vcc=Vcc
+template="device=628512 name=U? footprint=none Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -13,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint Vcc GND"
 extra_pinnumber="32 16"
 }
 G {}

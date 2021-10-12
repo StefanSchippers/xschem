@@ -1,15 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=BNC
-template="device=BNC
-name=CONN?
-class=IO
-pins=2
-"
+template="device=BNC name=CONN? class=IO pins=2 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

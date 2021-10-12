@@ -1,14 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=7805
-template="device=7805
-name=U?
-pins=3
-"
+template="device=7805 name=U? pins=3 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

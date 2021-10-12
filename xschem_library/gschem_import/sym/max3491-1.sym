@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX3491
-template="device=MAX3491
-name=U?
-footprint=DIP14
-description=\\"3.3V-powered, 10Mbps and slew-rate-limited true RS-485/RS-422 transceiver\\"
-numslots=0
-documentation=http://pdfserv.maxim-ic.com/en/ds/MAX3483-MAX3491.pdf
-GND=GND
+template="device=MAX3491 name=U? footprint=DIP14 description=\\"3.3V-powered, 10Mbps and slew-rate-limited true RS-485/RS-422 transceiver\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX3483-MAX3491.pdf GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="GND Vcc"
+extra="device footprint description GND Vcc"
 extra_pinnumber="6,7 13,14"
 }
 G {}

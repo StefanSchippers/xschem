@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=SX28AC
-template="device=SX28AC
-name=U?
-footprint=DIP28
-description=\\"8-bit configurable communication controller\\"
-numslots=0
-documentation=http://www.scenix.com/pdfs/products/sx/processor/SX-DDS-SX2028AC-16.pdf
-Vcc=Vcc
+template="device=SX28AC name=U? footprint=DIP28 description=\\"8-bit configurable communication controller\\" documentation=http://www.scenix.com/pdfs/products/sx/processor/SX-DDS-SX2028AC-16.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="2 4"
 }
 G {}

@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4050
-template="slot=1
-device=4050
-footprint=DIP16
-numslots=6
-name=U?
-description=\\"6 buffers\\"
-documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4050B_CNV_3.pdf
-VDD=VDD
+template="slot=1 device=4050 footprint=DIP16 name=U? description=\\"6 buffers\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4050B_CNV_3.pdf VDD=VDD
 VSS=VSS
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS"
 
-extra="VDD VSS"
+extra="device footprint description VDD VSS"
 extra_pinnumber="1 8"
 }
 G {}

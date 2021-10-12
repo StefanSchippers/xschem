@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX6314
-template="device=MAX6314
-footprint=SOT143
-name=U?
-description=\\"68HC11/bidirectional-compatible uP reset circuit\\"
-numslots=0
-documentation=http://pdfserv.maxim-ic.com/en/ds/MAX6314.pdf
-"
+template="device=MAX6314 footprint=SOT143 name=U? description=\\"68HC11/bidirectional-compatible uP reset circuit\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX6314.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

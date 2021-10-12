@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=8254
-template="device=8254
-name=U?
-footprint=DIP24
-description=\\"programmable interval timer\\"
-numslots=0
-"
+template="device=8254 name=U? footprint=DIP24 description=\\"programmable interval timer\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

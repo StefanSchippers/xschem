@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74109
-template="device=74109
-slot=1
-numslots=2
-name=U?
-footprint=DIP16
-description=\\"2 JK-flip-flops with preset and clear\\"
-documentation=http://www-s.ti.com/sc/ds/sn74hc109.pdf
-Vcc=Vcc
+template="device=74109 slot=1 name=U? footprint=DIP16 description=\\"2 JK-flip-flops with preset and clear\\" documentation=http://www-s.ti.com/sc/ds/sn74hc109.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="16 8"
 }
 G {}

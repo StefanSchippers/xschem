@@ -1,18 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MC34063
-template="name=U?
-description=\\"Step-Up/-Down/Inverting Switching Regulator\\"
-footprint=DIP8
-device=MC34063
-numslots=0
-documentation=http://www.onsemi.com/pub/Collateral/MC34063A-D.PDF
-symversion=1.0
-"
+template="name=U? description=\\"Step-Up/-Down/Inverting Switching Regulator\\" footprint=DIP8 device=MC34063 documentation=http://www.onsemi.com/pub/Collateral/MC34063A-D.PDF symversion=1.0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+description footprint device
 
 }
 G {}

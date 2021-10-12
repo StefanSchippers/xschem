@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=NMOS_TRANSISTOR
-template="device=NMOS_TRANSISTOR
-name=M?
-model-name=nmv
-w=10u
-l=3u
-description=\\"medium voltage NMOS\\"
-"
+template="device=NMOS_TRANSISTOR name=M? model-name=nmv w=10u l=3u description=\\"medium voltage NMOS\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description
 
 }
 G {}

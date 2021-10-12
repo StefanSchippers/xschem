@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=ST39SF020A
-template="device=ST39SF020A
-name=U?
-footprint=DIP32
-description=\\"2Mbit (256K x 8) multi-purpose flash memory\\"
-numslots=0
-author=\\"Werner Hoch <werner.hoATgmx.de>\\"
-documentation=http://www.sst.com/downloads/datasheet/S71147.pdf
-GND=GND
+template="device=ST39SF020A name=U? footprint=DIP32 description=\\"2Mbit (256K x 8) multi-purpose flash memory\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" documentation=http://www.sst.com/downloads/datasheet/S71147.pdf GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="GND Vcc"
+extra="device footprint description GND Vcc"
 extra_pinnumber="16 32"
 }
 G {}

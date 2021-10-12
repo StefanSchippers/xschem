@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=8259A
-template="device=8259A
-name=U?
-footprint=DIP28
-description=\\"programmable interrupt controller\\"
-numslots=0
-"
+template="device=8259A name=U? footprint=DIP28 description=\\"programmable interrupt controller\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

@@ -1,14 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=SN75240PW
-template="name=U?
-device=SN75240PW
-footprint=SO8
-"
+template="name=U? device=SN75240PW footprint=SO8 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

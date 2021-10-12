@@ -1,14 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4075
-template="numslots=3
-slot=1
-device=4075
-footprint=DIP14
-description=\\"3 OR gates with 3 inputs\\"
-documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4075B_CNV_3.pdf
-symversion=1.0
-name=U?
-VDD=VDD
+template="slot=1 device=4075 footprint=DIP14 description=\\"3 OR gates with 3 inputs\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4075B_CNV_3.pdf symversion=1.0 name=U? VDD=VDD
 VSS=VSS
 "
 tedax_format="footprint @name @footprint
@@ -17,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS"
 
-extra="VDD VSS"
+extra="device footprint description VDD VSS"
 extra_pinnumber="14 7"
 }
 G {}

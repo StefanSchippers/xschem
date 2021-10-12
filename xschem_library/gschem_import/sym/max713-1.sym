@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX713
-template="name=U?
-device=MAX713
-footprint=DIP16
-numslots=0
-description=\\"NiCd/NiMH Battery Fast-Charge Controllers\\"
-documentation=http://pdfserv.maxim-ic.com/arpdf/MAX712-MAX713.pdf
-"
+template="name=U? device=MAX713 footprint=DIP16 description=\\"NiCd/NiMH Battery Fast-Charge Controllers\\" documentation=http://pdfserv.maxim-ic.com/arpdf/MAX712-MAX713.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

@@ -1,20 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=7404
-template="device=7404
-slot=1
-numslots=6
-name=U?
-pins=14
-class=IC
-footprint=DIP14
-description=\\"6 NOT gates\\"
-documentation=http://www-s.ti.com/sc/ds/sn74hc04.pdf
-"
+template="device=7404 slot=1 name=U? pins=14 class=IC footprint=DIP14 description=\\"6 NOT gates\\" documentation=http://www-s.ti.com/sc/ds/sn74hc04.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

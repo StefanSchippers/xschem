@@ -1,15 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=RPAK_CTS
-template="device=RPAK_CTS
-name=R?
-class=IC
-pins=16
-"
+template="device=RPAK_CTS name=R? class=IC pins=16 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

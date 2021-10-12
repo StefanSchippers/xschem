@@ -1,8 +1,9 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=label
-template="device=PORT1
-lab=PORT1
+template="device=PORT1 lab=PORT1
 "
+
+device
 
 }
 G {}

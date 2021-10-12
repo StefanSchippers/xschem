@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74265
-template="device=74265
-name=U?
-footprint=DIP16
-description=\\"2 inverter and 2 NAND with complementary outputs\\"
-slot=1
-numslots=2
-Vcc=Vcc
+template="device=74265 name=U? footprint=DIP16 description=\\"2 inverter and 2 NAND with complementary outputs\\" slot=1 Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="16 8"
 }
 G {}

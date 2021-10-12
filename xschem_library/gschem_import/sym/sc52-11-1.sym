@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=sc52-11
-template="name=D?
-device=sc52-11
-footprint=none
-numslots=0
-description=\\"7-segment-display with common cathode\\"
-documentation=http://www.kingbright-led.com/data/spec/SC52-11EWA.pdf
-"
+template="name=D? device=sc52-11 footprint=none description=\\"7-segment-display with common cathode\\" documentation=http://www.kingbright-led.com/data/spec/SC52-11EWA.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

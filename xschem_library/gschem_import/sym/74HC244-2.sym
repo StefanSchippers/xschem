@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74HC244
-template="device=74HC244
-slot=1
-numslots=2
-name=U?
-footprint=DIP20
-description=\\"octal buffer/line driver (tristate)\\"
-Vcc=Vcc
+template="device=74HC244 slot=1 name=U? footprint=DIP20 description=\\"octal buffer/line driver (tristate)\\" Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="20 10"
 }
 G {}

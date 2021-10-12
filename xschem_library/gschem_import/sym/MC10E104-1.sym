@@ -1,15 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MC10E104
-template="name=U?
-footprint=\\"PLCC 28\\"
-device=MC10E104
-documentation=http://www.onsemi.com/pub/Collateral/MC10E104-D.PDF
-"
+template="name=U? footprint=\\"PLCC 28\\" device=MC10E104 documentation=http://www.onsemi.com/pub/Collateral/MC10E104-D.PDF "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+footprint device
 
 }
 G {}

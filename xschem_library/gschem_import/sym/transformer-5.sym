@@ -1,15 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=TRANSFORMER 
-template="name=T?
-device=\\"TRANSFORMER \\"
-numslots=0
-comment=\\"The footprint is omitted intentionally because depends on the PCB designer's taste heavily.\\"
-"
+template="name=T? device=\\"TRANSFORMER \\" comment=\\"The footprint is omitted intentionally because depends on the PCB designer's taste heavily.\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

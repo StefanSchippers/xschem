@@ -1,15 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=CONNECTOR_20
-template="name=J?
-device=CONNECTOR_20
-pins=20
-class=IO
-"
+template="name=J? device=CONNECTOR_20 pins=20 class=IO "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

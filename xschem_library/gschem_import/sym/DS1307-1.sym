@@ -1,18 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=ds1307
-template="name=U?
-device=ds1307
-footprint=DIP8
-author=\\"m. dickens <marvindickens@bellsouth.net>\\"
-documentation=http://www.maxim.com
-description=\\"real time clock, 64x8, serial, i2c\\"
-numslots=0
-"
+template="name=U? device=ds1307 footprint=DIP8 author=\\"m. dickens <marvindickens@bellsouth.net>\\" documentation=http://www.maxim.com description=\\"real time clock, 64x8, serial, i2c\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

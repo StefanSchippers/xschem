@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4008
-template="name=U?
-device=4008
-footprint=DIP16
-description=\\"4 bit binary full adder\\"
-numslots=0
-VSS=VSS
+template="name=U? device=4008 footprint=DIP16 description=\\"4 bit binary full adder\\" VSS=VSS
 VDD=VDD
 "
 tedax_format="footprint @name @footprint
@@ -14,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VSS @VDD"
 
-extra="VSS VDD"
+extra="device footprint description VSS VDD"
 extra_pinnumber="8 16"
 }
 G {}

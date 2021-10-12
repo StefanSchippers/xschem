@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX218
-template="device=MAX218
-name=U?
-footprint=DIP20
-description=\\"1.8V to 4.25V-powered true RS-232 dual transceiver\\"
-numslots=0
-documentation=http://pdfserv.maxim-ic.com/en/ds/MAX218.pdf
-symversion=1.0
-GND=GND
+template="device=MAX218 name=U? footprint=DIP20 description=\\"1.8V to 4.25V-powered true RS-232 dual transceiver\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX218.pdf symversion=1.0 GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="GND Vcc"
+extra="device footprint description GND Vcc"
 extra_pinnumber="5,17,20 6"
 }
 G {}

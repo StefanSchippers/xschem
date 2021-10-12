@@ -1,10 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=LM339
-template="device=LM339
-numslots=4
-slot=1
-name=U?
-GND=GND
+template="device=LM339 slot=1 name=U? GND=GND
 V+=V+
 "
 tedax_format="footprint @name @footprint
@@ -13,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @V+"
 
-extra="GND V+"
+extra="device GND V+"
 extra_pinnumber="12 3"
 }
 G {}

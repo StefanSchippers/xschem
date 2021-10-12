@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=Atmega128
-template="name=U?
-device=Atmega128
-footprint=TQFP64
-description=\\"8-bit RISC micro controller (Atmel)\\"
-numslots=0
-author=\\"Werner Hoch <werner.hoATgmx.de>\\"
-symversion=1.0
-Vcc=Vcc
+template="name=U? device=Atmega128 footprint=TQFP64 description=\\"8-bit RISC micro controller (Atmel)\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" symversion=1.0 Vcc=Vcc
 GND=GND
 AGND=AGND
 AVcc=AVcc
@@ -18,7 +11,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND @AGND @AVcc"
 
-extra="Vcc GND AGND AVcc"
+extra="device footprint description Vcc GND AGND AVcc"
 extra_pinnumber="21,52 22,53 63 64"
 }
 G {}

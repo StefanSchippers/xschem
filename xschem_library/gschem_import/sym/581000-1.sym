@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=581000
-template="device=581000
-name=U?
-footprint=none
-description=\\"1Mx8 dram simm memory module\\"
-numslots=0
-author=\\"Werner Hoch <werner.hoATgmx.de>\\"
-Vcc=Vcc
+template="device=581000 name=U? footprint=none description=\\"1Mx8 dram simm memory module\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="1,30 9,22"
 }
 G {}

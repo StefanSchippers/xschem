@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=JOSEPHSON_JUNCTION
-template="device=JOSEPHSON_JUNCTION
-name=B?
-pins=2
-class=DISCRETE
-model-name=unknown
-area=unknown
-"
+template="device=JOSEPHSON_JUNCTION name=B? pins=2 class=DISCRETE model-name=unknown area=unknown "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

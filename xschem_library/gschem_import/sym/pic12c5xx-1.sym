@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=PIC12C5xx
-template="name=U?
-device=PIC12C5xx
-footprint=DIP8
-numslots=0
-description=\\"8-bit CMOS microcontroller\\"
-documentation=http://www.microchip.com/download/lit/pline/picmicro/families/12c5xx/40139e.pdf
-symversion=0.1
-Vdd=Vdd
+template="name=U? device=PIC12C5xx footprint=DIP8 description=\\"8-bit CMOS microcontroller\\" documentation=http://www.microchip.com/download/lit/pline/picmicro/families/12c5xx/40139e.pdf symversion=0.1 Vdd=Vdd
 Vss=Vss
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vdd @Vss"
 
-extra="Vdd Vss"
+extra="device footprint description Vdd Vss"
 extra_pinnumber="1 8"
 }
 G {}

@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=AT89C5132_TQFP
-template="author=\\"Jim Duchek <jrduchek@blueridge.net>\\"
-description=\\"8-bit 8051 compatible microcontroller w/USB (Atmel)\\"
-footprint=TQFP80
-device=AT89C5132_TQFP
-numslots=0
-name=U?
-Vdd=Vdd
+template="author=\\"Jim Duchek <jrduchek@blueridge.net>\\" description=\\"8-bit 8051 compatible microcontroller w/USB (Atmel)\\" footprint=TQFP80 device=AT89C5132_TQFP name=U? Vdd=Vdd
 Vss=Vss
 PVss=PVss
 PVdd=PVdd
@@ -21,7 +15,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vdd @Vss @PVss @PVdd @AVss @AVdd @UVss @UVdd"
 
-extra="Vdd Vss PVss PVdd AVss AVdd UVss UVdd"
+extra="description footprint device Vdd Vss PVss PVdd AVss AVdd UVss UVdd"
 extra_pinnumber="11,23,41,51,71 15,24,42,52,72 14 12 34 33 20 19"
 }
 G {}

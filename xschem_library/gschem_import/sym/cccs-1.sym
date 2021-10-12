@@ -1,19 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=SPICE-cccs
-template="device=SPICE-cccs
-name=F?
-description=\\"current controlled current source\\"
-numslots=0
-symversion=0.1
-documentation=http://newton.ex.ac.uk/teaching/CDHW/Electronics2/userguide/sec3.html#3.2.2
-comment=\\"the sensing voltage source will be added by the netlist backends\\"
-value=1
-"
+template="device=SPICE-cccs name=F? description=\\"current controlled current source\\" symversion=0.1 documentation=http://newton.ex.ac.uk/teaching/CDHW/Electronics2/userguide/sec3.html#3.2.2 comment=\\"the sensing voltage source will be added by the netlist backends\\" value=1 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description
 
 }
 G {}

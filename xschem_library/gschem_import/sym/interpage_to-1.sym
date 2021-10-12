@@ -1,14 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=interpage_to
-template="device=interpage_to
-graphical=1
-pages=unknown
-"
+template="device=interpage_to graphical=1 pages=unknown "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

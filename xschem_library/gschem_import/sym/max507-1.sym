@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX507
-template="device=MAX507
-footprint=DIP24
-description=\\"12-bit voltage output, parallel input DAC\\"
-numslots=0
-name=U?
-VDD=VDD
+template="device=MAX507 footprint=DIP24 description=\\"12-bit voltage output, parallel input DAC\\" name=U? VDD=VDD
 VSS=VSS
 AGND=AGND
 DGND=DGND
@@ -16,7 +11,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS @AGND @DGND"
 
-extra="VDD VSS AGND DGND"
+extra="device footprint description VDD VSS AGND DGND"
 extra_pinnumber="22 1 4 12"
 }
 G {}

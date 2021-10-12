@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74238
-template="device=74238
-footprint=DIP16
-name=U?
-description=\\"3 to 8 decoder/demultiplexer; noninverting\\"
-numslots=0
-documentation=http://www.semiconductors.philips.com/acrobat/datasheets/74HC_HCT238_CNV_2.pdf
-Vcc=Vcc
+template="device=74238 footprint=DIP16 name=U? description=\\"3 to 8 decoder/demultiplexer; noninverting\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/74HC_HCT238_CNV_2.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="16 8"
 }
 G {}

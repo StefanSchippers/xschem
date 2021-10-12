@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=CONNECTOR_2
-template="name=CONN?
-device=CONNECTOR_2
-footprint=SIP2N
-author=\\"Leon Kos\\"
-description=\\"generic connector\\"
-numslots=0
-"
+template="name=CONN? device=CONNECTOR_2 footprint=SIP2N author=\\"Leon Kos\\" description=\\"generic connector\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

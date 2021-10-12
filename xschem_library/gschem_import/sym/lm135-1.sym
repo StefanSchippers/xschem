@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=LM135
-template="device=LM135
-name=U?
-footprint=TO92
-description=\\"precision temperature sensor\\"
-numslots=0
-documentation=http://www.national.com/ds.cgi/LM/LM135.pdf
-"
+template="device=LM135 name=U? footprint=TO92 description=\\"precision temperature sensor\\" documentation=http://www.national.com/ds.cgi/LM/LM135.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

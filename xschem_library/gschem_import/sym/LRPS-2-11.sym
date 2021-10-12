@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=LRPS-2-11
-template="device=LRPS-2-11
-name=U?
-pins=6
-class=IC
-footprint=QQQ
-"
+template="device=LRPS-2-11 name=U? pins=6 class=IC footprint=QQQ "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

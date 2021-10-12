@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=N82S100N
-template="device=N82S100N
-numslots=0
-footprint=DIP28
-name=U?
-symversion=1.0
-"
+template="device=N82S100N footprint=DIP28 name=U? symversion=1.0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

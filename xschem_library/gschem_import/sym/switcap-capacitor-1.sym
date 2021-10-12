@@ -1,15 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=SWITCAP-capacitor
-template="device=SWITCAP-capacitor
-name=C?
-pins=2
-value=1.0
-"
+template="device=SWITCAP-capacitor name=C? pins=2 value=1.0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

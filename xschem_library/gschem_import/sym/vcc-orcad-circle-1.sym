@@ -1,14 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=GND
-template="device=GND
-orcad_xsize=2
-orcad_ysize=1
-"
+template="device=GND orcad_xsize=2 orcad_ysize=1 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

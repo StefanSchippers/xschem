@@ -45,6 +45,7 @@ FNR==1{
   pinseq=0
   max_pinseq = 0
   template_attrs=""
+  extra = extra_format = extra_pinnumber = ""
   delete slotdef
   numslots=""
 }
@@ -102,7 +103,6 @@ FNR==1{
           if($0 ~/numslots=/) {
             numslots = $0
             sub(/numslots=/,"", numslots)
-            template_attrs = template_attrs $0 "\n"
             continue
           }
           if($0 ~/net=/) {
@@ -111,16 +111,27 @@ FNR==1{
             net[++net_assign] = tmp
             continue
           }
-          template_attrs = template_attrs escape_chars($0) "\n"
+          template_attrs = template_attrs escape_chars($0) " "
           save = $0
+
+
+          #### put into "extra" all  attributes that are meaningless for spice netlisting
+          #### if you need other attributes to filter out , add them below.
+          if($0 ~ /^(device|description|footprint|source|numslots)=/) {
+            attributes = $0
+            sub(/=.*/, "", attributes)
+            if(extra !="") extra = extra " " 
+            extra = extra attributes
+          }
+
           sub(/^device=/, "type=") 
           if ($0 ~/^value=IO/) { # inconsistency in io-1.sym
             $0 = "type=IO"
           }
           if ($0 ~/^type=/) {
-            if($0 ~/=INPUT/) {pin = 1; sub(/=.*/, "=ipin"); template_attrs = template_attrs "lab=xxx\n"}
-            if($0 ~/=OUTPUT/) {pin = 1; sub(/=.*/, "=opin"); template_attrs = template_attrs "lab=xxx\n"}
-            if($0 ~/=IO/) {pin = 1; sub(/=.*/, "=iopin"); template_attrs = template_attrs "lab=xxx\n"}
+            if($0 ~/=INPUT/) {pin = 1; sub(/=.*/, "=ipin"); template_attrs = template_attrs "lab=xxx "}
+            if($0 ~/=OUTPUT/) {pin = 1; sub(/=.*/, "=opin"); template_attrs = template_attrs "lab=xxx "}
+            if($0 ~/=IO/) {pin = 1; sub(/=.*/, "=iopin"); template_attrs = template_attrs "lab=xxx "}
             if(is_symbol && has_schematic) global_attrs = "type=subcircuit\n" global_attrs
             else global_attrs = $0 "\n" global_attrs 
           }

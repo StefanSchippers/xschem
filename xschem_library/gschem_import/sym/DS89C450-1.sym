@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=DS89C450
-template="name=U?
-footprint=PLCC44
-numslots=0
-description=\\"Ultra-High-Speed Flash Microcontroller\\"
-device=DS89C450
-GND=GND
+template="name=U? footprint=PLCC44 description=\\"Ultra-High-Speed Flash Microcontroller\\" device=DS89C450 GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -14,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="GND Vcc"
+extra="footprint description device GND Vcc"
 extra_pinnumber="1,22,23,34 12,44"
 }
 G {}

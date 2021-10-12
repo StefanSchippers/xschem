@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=AT43USB320A
-template="name=U?
-device=AT43USB320A
-footprint=LQFP100
-description=\\"AVR 8-bit RISC uC and USB-Hub\\"
-numslots=0
-author=\\"Werner Hoch <werner.hoATgmx.de>\\"
-GND=GND
+template="name=U? device=AT43USB320A footprint=LQFP100 description=\\"AVR 8-bit RISC uC and USB-Hub\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="GND Vcc"
+extra="device footprint description GND Vcc"
 extra_pinnumber="11,21,33,44,55,62,75,84,99 32,61"
 }
 G {}

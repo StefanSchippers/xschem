@@ -1,15 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=TESTPOINT
-template="name=TP?
-device=TESTPOINT
-footprint=none
-numslots=0
-"
+template="name=TP? device=TESTPOINT footprint=none "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

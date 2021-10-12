@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX232
-template="device=MAX232
-name=U?
-footprint=DIP16
-description=\\"5V-powered dual RS-232 driver/receiver\\"
-numslots=0
-documentation=http://pdfserv.maxim-ic.com/en/ds/MAX220-MAX249.pdf
-Vcc=Vcc
+template="device=MAX232 name=U? footprint=DIP16 description=\\"5V-powered dual RS-232 driver/receiver\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX220-MAX249.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="16 15"
 }
 G {}

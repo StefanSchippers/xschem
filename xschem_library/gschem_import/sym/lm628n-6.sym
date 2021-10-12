@@ -1,9 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=lm628n-6
-template="device=lm628n-6
-footprint=DIP28
-name=U?
-+5V=+5V
+template="device=lm628n-6 footprint=DIP28 name=U? +5V=+5V
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -12,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @+5V @GND"
 
-extra="+5V GND"
+extra="device footprint +5V GND"
 extra_pinnumber="28 14"
 }
 G {}

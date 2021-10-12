@@ -1,17 +1,14 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=OMRON G5V-1
 type=OMRON_G2R-24-DC5
-template="device=OMRON_G2R-24-DC5
-class=IC
-pins=8
-device=\\"OMRON G5V-1\\"
-name=K?
-"
+template="device=OMRON_G2R-24-DC5 class=IC pins=8 device=\\"OMRON G5V-1\\" name=K? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device device
 
 }
 G {}

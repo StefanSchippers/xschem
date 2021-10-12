@@ -1,19 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=ATmega16L_DIP
-template="name=U?
-device=ATmega16L_DIP
-footprint=DIP40
-description=\\"8-bit RISC micro controller (Atmel)\\"
-numslots=0
-author=\\"Werner Hoch <werner.hoATgmx.de>\\"
-symversion=2.1
-documentation=http://www.atmel.com/dyn/resources/prod_documents/doc2466.pdf
-"
+template="name=U? device=ATmega16L_DIP footprint=DIP40 description=\\"8-bit RISC micro controller (Atmel)\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" symversion=2.1 documentation=http://www.atmel.com/dyn/resources/prod_documents/doc2466.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

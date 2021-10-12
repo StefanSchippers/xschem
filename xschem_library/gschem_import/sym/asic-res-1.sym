@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=RESISTOR
-template="device=RESISTOR
-name=R?
-l=10u
-w=3u
-model-name=rpolyh
-description=\\"high resistive poly0 resistor\\"
-"
+template="device=RESISTOR name=R? l=10u w=3u model-name=rpolyh description=\\"high resistive poly0 resistor\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description
 
 }
 G {}

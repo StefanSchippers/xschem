@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=BNC
-template="device=BNC
-name=J?
-class=IO
-pins=2
-value=ARFX1229
-footprint=AMPHENOL_ARFX1229
-"
+template="device=BNC name=J? class=IO pins=2 value=ARFX1229 footprint=AMPHENOL_ARFX1229 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

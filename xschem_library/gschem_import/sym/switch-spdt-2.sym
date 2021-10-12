@@ -1,15 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=Dual_Two_Way_Switch
-template="device=Dual_Two_Way_Switch
-name=S?
-footprint=\\"CONNECTOR 2 3\\"
-symversion=1.0
-"
+template="device=Dual_Two_Way_Switch name=S? footprint=\\"CONNECTOR 2 3\\" symversion=1.0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

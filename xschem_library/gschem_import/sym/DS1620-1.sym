@@ -1,18 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=DS1602
-template="name=U?
-description=\\"elapsed time counter\\"
-footprint=DIP8
-device=DS1602
-numslots=0
-documentation=http://pdfserv.maxim-ic.com/en/ds/DS1602.pdf
-symversion=1.0
-"
+template="name=U? description=\\"elapsed time counter\\" footprint=DIP8 device=DS1602 documentation=http://pdfserv.maxim-ic.com/en/ds/DS1602.pdf symversion=1.0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+description footprint device
 
 }
 G {}

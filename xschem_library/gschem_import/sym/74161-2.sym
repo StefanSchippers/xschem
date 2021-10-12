@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74161
-template="device=74161
-footprint=DIP16
-name=U?
-description=\\"synchronous 4-bit programmable binary counter with clear\\"
-numslots=0
-symversion=1.0
-documentation=http://www-s.ti.com/sc/ds/sn74hc161.pdf
-Vcc=Vcc
+template="device=74161 footprint=DIP16 name=U? description=\\"synchronous 4-bit programmable binary counter with clear\\" symversion=1.0 documentation=http://www-s.ti.com/sc/ds/sn74hc161.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="16 8"
 }
 G {}

@@ -1,14 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAC160
-template="footprint=\\"8 pins in a circle\\"
-name=U?
-device=MAC160
-"
+template="footprint=\\"8 pins in a circle\\" name=U? device=MAC160 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+footprint device
 
 }
 G {}

@@ -1,20 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX489
-template="device=MAX489
-comment=\\"E suffix is Electrostatic protected to 15 kV\\"
-comment=\\"MAX491 is high speed version\\"
-name=U?
-footprint=SO14
-footprint2=DIP14
-description=\\"low-power, slew-rate-limited RS-485/RS-422 transceiver\\"
-numslots=0
-documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1487-MAX491.pdf
-"
+template="device=MAX489 comment=\\"E suffix is Electrostatic protected to 15 kV\\" comment=\\"MAX491 is high speed version\\" name=U? footprint=SO14 footprint2=DIP14 description=\\"low-power, slew-rate-limited RS-485/RS-422 transceiver\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1487-MAX491.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

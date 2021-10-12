@@ -1,20 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=7414
-template="slot=1
-numslots=6
-device=7414
-name=U?
-pins=14
-footprint=DIP14
-description=\\"6 inverting Schmitt-triggers\\"
-documentation=http://www-s.ti.com/sc/ds/sn74hc14.pdf
-symversion=1.0
-"
+template="slot=1 device=7414 name=U? pins=14 footprint=DIP14 description=\\"6 inverting Schmitt-triggers\\" documentation=http://www-s.ti.com/sc/ds/sn74hc14.pdf symversion=1.0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

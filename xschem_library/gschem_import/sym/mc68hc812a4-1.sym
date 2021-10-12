@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MC68HC812A4
-template="device=MC68HC812A4
-footprint=TQFP112
-name=U?
-description=\\"16-bit microcontroller (motorola)\\"
-numslots=0
-"
+template="device=MC68HC812A4 footprint=TQFP112 name=U? description=\\"16-bit microcontroller (motorola)\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

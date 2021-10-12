@@ -1,10 +1,9 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=label
-template="device=none
-description=\\"Input module port\\"
-value=INPUT
-lab=INPUT
+template="device=none description=\\"Input module port\\" value=INPUT lab=INPUT
 "
+
+device description
 
 }
 G {}

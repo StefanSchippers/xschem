@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=ADC0820
-template="device=ADC0820
-name=U?
-footprint=DIP20
-description=\\"8-bit A/D-converter with track/hold function\\"
-numslots=0
-documentation=http://www.national.com/ds.cgi/AD/ADC0820.pdf
-Vcc=Vcc
+template="device=ADC0820 name=U? footprint=DIP20 description=\\"8-bit A/D-converter with track/hold function\\" documentation=http://www.national.com/ds.cgi/AD/ADC0820.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="20 10"
 }
 G {}

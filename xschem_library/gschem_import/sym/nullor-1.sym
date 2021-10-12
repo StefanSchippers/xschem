@@ -1,15 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=SPICE-nullor
-template="device=SPICE-nullor
-name=N?
-value=1000Meg
-symversion=0.1
-"
+template="device=SPICE-nullor name=N? value=1000Meg symversion=0.1 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

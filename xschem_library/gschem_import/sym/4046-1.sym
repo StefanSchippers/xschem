@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4046
-template="device=4046
-name=U?
-footprint=DIP16
-description=\\"phase-locked loop\\"
-numslots=0
-documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4046B_CNV_3.pdf
-VDD=VDD
+template="device=4046 name=U? footprint=DIP16 description=\\"phase-locked loop\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4046B_CNV_3.pdf VDD=VDD
 VSS=VSS
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS"
 
-extra="VDD VSS"
+extra="device footprint description VDD VSS"
 extra_pinnumber="16 8"
 }
 G {}

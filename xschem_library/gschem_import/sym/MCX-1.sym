@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MCX
-template="device=MCX
-name=J?
-class=IO
-pins=2
-alt_foot=SMB_JACK
-"
+template="device=MCX name=J? class=IO pins=2 alt_foot=SMB_JACK "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX038
-template="device=MAX038
-name=U?
-footprint=DIP20
-description=\\"high frequency waveform generator\\"
-numslots=0
-documentation=http://pdfserv.maxim-ic.com/en/ds/MAX038.pdf
-V+=V+
+template="device=MAX038 name=U? footprint=DIP20 description=\\"high frequency waveform generator\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX038.pdf V+=V+
 V-=V-
 DV+=DV+
 DGND=DGND
@@ -18,7 +12,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @V+ @V- @DV+ @DGND @GND"
 
-extra="V+ V- DV+ DGND GND"
+extra="device footprint description V+ V- DV+ DGND GND"
 extra_pinnumber="17 20 16 15 2,6,9,11,18"
 }
 G {}

@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=IPS521
-template="device=IPS521
-numslots=0
-description=\\"Protected HEXFET Power MOSFET\\"
-footprint=TO-220AB5
-name=Q?
-symversion=1.0
-"
+template="device=IPS521 description=\\"Protected HEXFET Power MOSFET\\" footprint=TO-220AB5 name=Q? symversion=1.0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description footprint
 
 }
 G {}

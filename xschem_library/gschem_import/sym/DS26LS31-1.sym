@@ -1,15 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=DS26LS31
-template="device=DS26LS31
-name=U?
-numslots=0
-footprint=\\"DIL 16 300\\"
-"
+template="device=DS26LS31 name=U? footprint=\\"DIL 16 300\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

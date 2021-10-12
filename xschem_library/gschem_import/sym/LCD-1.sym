@@ -1,12 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=LCD
-template="device=LCD
-"
+template="device=LCD "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

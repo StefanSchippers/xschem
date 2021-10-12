@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=DS26C32
-template="device=DS26C32
-name=U?
-footprint=DIP16
-description=\\"Quad Differential Line Receiver\\"
-documentation=TBD
-numslots=0
-Vcc=Vcc
+template="device=DS26C32 name=U? footprint=DIP16 description=\\"Quad Differential Line Receiver\\" documentation=TBD Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="16 8"
 }
 G {}

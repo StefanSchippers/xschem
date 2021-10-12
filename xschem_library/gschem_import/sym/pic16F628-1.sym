@@ -1,18 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=PIC16F628
-template="name=U?
-footprint=DIP18
-device=PIC16F628
-numslots=0
-symversion=0.1
-description=\\"FLASH-Based 8-Bit CMOS Microcontroller\\"
-documentation=http://ww1.microchip.com/downloads/en/DeviceDoc/40300C.pdf
-"
+template="name=U? footprint=DIP18 device=PIC16F628 symversion=0.1 description=\\"FLASH-Based 8-Bit CMOS Microcontroller\\" documentation=http://ww1.microchip.com/downloads/en/DeviceDoc/40300C.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+footprint device description
 
 }
 G {}

@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=6821
-template="name=U?
-device=6821
-author=\\"Terry J Porter <techmanATd2.net.au>\\"
-footprint=DIP40
-description=\\"PIA peripheral interface line\\"
-numslots=0
-"
+template="name=U? device=6821 author=\\"Terry J Porter <techmanATd2.net.au>\\" footprint=DIP40 description=\\"PIA peripheral interface line\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

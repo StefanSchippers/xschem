@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=8086
-template="device=8086
-name=U?
-footprint=DIP40
-description=\\"16-bit HMOS microprocessor\\"
-numslots=0
-author=\\"Werner Hoch <werner.hoATgmx.de>\\"
-"
+template="device=8086 name=U? footprint=DIP40 description=\\"16-bit HMOS microprocessor\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

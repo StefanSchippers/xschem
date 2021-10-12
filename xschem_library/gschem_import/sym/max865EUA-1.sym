@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=max865eua
-template="name=U?
-device=max865eua
-footprint=uMAX8
-description=\\"compact dual-output charge pump\\"
-numslots=0
-documentation=http://pdfserv.maxim-ic.com/en/ds/MAX865.pdf
-+5V=+5V
+template="name=U? device=max865eua footprint=uMAX8 description=\\"compact dual-output charge pump\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX865.pdf +5V=+5V
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @+5V @GND"
 
-extra="+5V GND"
+extra="device footprint description +5V GND"
 extra_pinnumber="6 5"
 }
 G {}

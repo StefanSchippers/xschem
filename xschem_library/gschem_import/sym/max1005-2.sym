@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX1005
-template="device=MAX1005
-name=U?
-footprint=QSOP16
-description=\\"IF undersampler\\"
-numslots=0
-documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1005.pdf
-VCCD=VCCD
+template="device=MAX1005 name=U? footprint=QSOP16 description=\\"IF undersampler\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1005.pdf VCCD=VCCD
 DGND=DGND
 AGND=AGND
 VCCA=VCCA
@@ -17,7 +11,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VCCD @DGND @AGND @VCCA"
 
-extra="VCCD DGND AGND VCCA"
+extra="device footprint description VCCD DGND AGND VCCA"
 extra_pinnumber="1 2 7 8"
 }
 G {}

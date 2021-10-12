@@ -1,12 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=TLIN
-template="device=TLIN
-"
+template="device=TLIN "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device
 
 }
 G {}

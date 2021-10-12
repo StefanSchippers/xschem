@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74153
-template="device=74153
-footprint=DIP16
-name=U?
-description=\\"2 4-to-1 multiplexer \\"
-numslots=0
-documentation=http://www-s.ti.com/sc/ds/sn74hc153.pdf
-Vcc=Vcc
+template="device=74153 footprint=DIP16 name=U? description=\\"2 4-to-1 multiplexer \\" documentation=http://www-s.ti.com/sc/ds/sn74hc153.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="16 8"
 }
 G {}

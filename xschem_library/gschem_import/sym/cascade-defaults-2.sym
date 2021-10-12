@@ -1,11 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=cascade-defaults-top
-template="device=cascade-defaults-top
-name=DEFAULTS
-RIN=50
-ROUT=50
-RHO=0
-GND=GND
+template="device=cascade-defaults-top name=DEFAULTS RIN=50 ROUT=50 RHO=0 GND=GND
 "
 tedax_format="footprint @name @footprint
 value @name @value
@@ -13,7 +8,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND"
 
-extra="GND"
+extra="device GND"
 extra_pinnumber="1"
 }
 G {}

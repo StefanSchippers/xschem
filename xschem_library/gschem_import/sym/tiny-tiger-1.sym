@@ -1,22 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=TINY-TIGER
-template="device=TINY-TIGER
-description=\\"TINY-Tiger multi-tasking MPU by Wilke Technology\\"
-documentation=http://www.wilke.de/multi.htm#tinytiger
-author=\\"Jan Stap stapATdse.nl\\"
-date=$Date$
-rev=$Revision$
-auth=$Author$
-fname=$Source$
-footprint=\\"DIL 44 900\\"
-numslots=0
-name=U?
-"
+template="device=TINY-TIGER description=\\"TINY-Tiger multi-tasking MPU by Wilke Technology\\" documentation=http://www.wilke.de/multi.htm#tinytiger author=\\"Jan Stap stapATdse.nl\\" date=$Date$ rev=$Revision$ auth=$Author$ fname=$Source$ footprint=\\"DIL 44 900\\" name=U? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description footprint
 
 }
 G {}

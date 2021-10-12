@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4514
-template="name=U?
-device=4514
-footprint=DIP24
-description=\\"4-bit demultiplexer\\"
-numslots=0
-documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4514B_CNV_3.pdf
-VSS=VSS
+template="name=U? device=4514 footprint=DIP24 description=\\"4-bit demultiplexer\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4514B_CNV_3.pdf VSS=VSS
 VDD=VDD
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VSS @VDD"
 
-extra="VSS VDD"
+extra="device footprint description VSS VDD"
 extra_pinnumber="12 24"
 }
 G {}

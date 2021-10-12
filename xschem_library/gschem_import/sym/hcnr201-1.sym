@@ -1,15 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=HCNR201
-template="device=HCNR201
-footprint=DIP8H
-name=U?
-numslots=0
-"
+template="device=HCNR201 footprint=DIP8H name=U? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

@@ -1,18 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=BC182
-template="device=BC182
-name=Q?
-value=BC182
-footprint=TO92
-numslots=0
-description=\\"Small Signal NPN Bipolar\\"
-documentation=http://www.onsemi.com/pub/Collateral/BC182-D.PDF
-"
+template="device=BC182 name=Q? value=BC182 footprint=TO92 description=\\"Small Signal NPN Bipolar\\" documentation=http://www.onsemi.com/pub/Collateral/BC182-D.PDF "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

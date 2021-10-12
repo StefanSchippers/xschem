@@ -1,13 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX202
-template="device=MAX202
-name=U?
-footprint=DIP16
-description=\\"RS-232 transceivers with 0.1uF external capacitors\\"
-numslots=0
-documentation=http://pdfserv.maxim-ic.com/en/ds/MAX200-MAX213.pdf
-symversion=1.0
-Vcc=Vcc
+template="device=MAX202 name=U? footprint=DIP16 description=\\"RS-232 transceivers with 0.1uF external capacitors\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX200-MAX213.pdf symversion=1.0 Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -16,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="16 15"
 }
 G {}

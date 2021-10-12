@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX4106
-template="device=MAX4106
-name=U?
-footprint=SO8
-description=\\"350MHz, ultra-low-noise opamp\\"
-numslots=0
-documentation=http://pdfserv.maxim-ic.com/en/ds/MAX4106-MAX4107.pdf
-"
+template="device=MAX4106 name=U? footprint=SO8 description=\\"350MHz, ultra-low-noise opamp\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX4106-MAX4107.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

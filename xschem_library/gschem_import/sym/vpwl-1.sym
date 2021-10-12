@@ -1,18 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=vpwl
-template="name=V?
-device=vpwl
-footprint=none
-numslots=0
-description=\\"piece-wise linear signal source\\"
-value=\\"pwl 100n 0 200n 1\\"
-comment=\\"syntax: pwl t1 v1 t2 v2 ...\\"
-"
+template="name=V? device=vpwl footprint=none description=\\"piece-wise linear signal source\\" value=\\"pwl 100n 0 200n 1\\" comment=\\"syntax: pwl t1 v1 t2 v2 ...\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

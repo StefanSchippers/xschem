@@ -1,18 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=sn75176a
-template="name=U?
-device=sn75176a
-footprint=dip8
-author=\\"m. dickens <marvindickens@bellsouth.net>\\"
-documentation=http://www.ti.com
-description=\\"differential bus transciever rs422/485\\"
-numslots=0
-"
+template="name=U? device=sn75176a footprint=dip8 author=\\"m. dickens <marvindickens@bellsouth.net>\\" documentation=http://www.ti.com description=\\"differential bus transciever rs422/485\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

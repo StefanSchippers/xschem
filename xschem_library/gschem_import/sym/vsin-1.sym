@@ -1,18 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=vsin
-template="name=V?
-device=vsin
-footprint=none
-numslots=0
-description=\\"sinusoidal signal source\\"
-value=\\"sin 0 1 1meg\\"
-comment=\\"syntax: sin vo va freq td theta\\"
-"
+template="name=V? device=vsin footprint=none description=\\"sinusoidal signal source\\" value=\\"sin 0 1 1meg\\" comment=\\"syntax: sin vo va freq td theta\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

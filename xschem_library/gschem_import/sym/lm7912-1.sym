@@ -1,18 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=7912
-template="device=7912
-name=U?
-footprint=TO220
-description=\\"negative voltage regulator\\"
-numslots=0
-symversion=1.0
-documentation=http://www.onsemi.com/pub/Collateral/MC7900-D.PDF
-"
+template="device=7912 name=U? footprint=TO220 description=\\"negative voltage regulator\\" symversion=1.0 documentation=http://www.onsemi.com/pub/Collateral/MC7900-D.PDF "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

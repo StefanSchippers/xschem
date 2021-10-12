@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=COMPACT_FLASH
-template="device=COMPACT_FLASH
-name=J?
-pins=50
-class=IO
-footprint=CFLASH
-"
+template="device=COMPACT_FLASH name=J? pins=50 class=IO footprint=CFLASH "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint
 
 }
 G {}

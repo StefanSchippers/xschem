@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=LM2941T
-template="footprint=TO220_5PIN
-pins=6
-device=LM2941T
-class=IC
-name=U?
-"
+template="footprint=TO220_5PIN pins=6 device=LM2941T class=IC name=U? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+footprint device
 
 }
 G {}

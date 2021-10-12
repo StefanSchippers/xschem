@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74126
-template="device=74126
-footprint=DIP14
-numslots=4
-name=U?
-description=\\"4 busline drivers\\"
-documentation=http://www-s.ti.com/sc/ds/sn74hc126.pdf
-Vcc=Vcc
+template="device=74126 footprint=DIP14 name=U? description=\\"4 busline drivers\\" documentation=http://www-s.ti.com/sc/ds/sn74hc126.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="Vcc GND"
+extra="device footprint description Vcc GND"
 extra_pinnumber="14 7"
 }
 G {}

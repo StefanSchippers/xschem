@@ -1,19 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=LM319
-template="name=U?
-device=LM319
-documentation=http://www.national.com/pf/LM/LM319.html
-description=comparator
-numslots=2
-slot=1
-footprint=DIP14
-symversion=1.0
-"
+template="name=U? device=LM319 documentation=http://www.national.com/pf/LM/LM319.html description=comparator slot=1 footprint=DIP14 symversion=1.0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description footprint
 
 }
 G {}

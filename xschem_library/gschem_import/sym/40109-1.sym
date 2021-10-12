@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=40109
-template="name=U?
-device=40109
-slot=1
-numslots=4
-footprint=DIP16
-description=\\"4 LOW-to-HIGH voltage level shifter\\"
-VSS=VSS
+template="name=U? device=40109 slot=1 footprint=DIP16 description=\\"4 LOW-to-HIGH voltage level shifter\\" VSS=VSS
 VDD=VDD
 VCC=VCC
 "
@@ -16,7 +10,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VSS @VDD @VCC"
 
-extra="VSS VDD VCC"
+extra="device footprint description VSS VDD VCC"
 extra_pinnumber="8 16 1"
 }
 G {}

@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=PCF8563
-template="name=U?
-footprint=DIP8
-description=\\"Real-time clock/calendar\\"
-numslots=0
-device=PCF8563
-"
+template="name=U? footprint=DIP8 description=\\"Real-time clock/calendar\\" device=PCF8563 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+footprint description device
 
 }
 G {}

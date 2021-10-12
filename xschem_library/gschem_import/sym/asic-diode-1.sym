@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=DIODE
-template="device=DIODE
-name=D?
-model-name=dnw
-area=1e-12
-description=\\"diode NWELL / PSUB\\"
-"
+template="device=DIODE name=D? model-name=dnw area=1e-12 description=\\"diode NWELL / PSUB\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description
 
 }
 G {}

@@ -1,17 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=FT245BM
-template="name=U?
-device=FT245BM
-footprint=TQFP32
-description=\\"USB FIFO (USB - Parallel)\\"
-numslots=0
-documentation=http://www.ftdichip.com/Documents/ds245b11.pdf
-"
+template="name=U? device=FT245BM footprint=TQFP32 description=\\"USB FIFO (USB - Parallel)\\" documentation=http://www.ftdichip.com/Documents/ds245b11.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device footprint description
 
 }
 G {}

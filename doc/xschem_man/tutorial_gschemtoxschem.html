@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM TUTORIAL: Translate GEDA gschem/lepton-schematic schematics and symbols to xschem</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="xschem_man.html" class="home">UP</a>
+
+ <!-- slide title -->
+ <h1>TUTORIAL: Translate GEDA gschem/lepton-schematic schematics and symbols to xschem</h1>
+ <p>
+  The <kbd>gschemtoxschem.awk</kbd> utility (installed in <kbd>(install_root)/share/xschem</kbd>) generates xschem 
+  schematic and symbol files from their GEDA equivalents.
+ </p>
+ <p>
+  First of all, note that xschem comes with all geda symbols already translated to xschem.
+ </p>
+ <p>
+  Create an empty directory where you want your xschem schematics/symbols, inside this directory create an <kbd>xschemrc</kbd> file
+  with the following path added, if not already done in your <span style="white-space: nowrap;"><kbd>~/.xschem/xschemrc</kbd></span> file:
+ </p>
+ <pre class="code">
+append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/../doc/xschem/gschem_import/sym
+ </pre>
+ <p>
+  Next, in this directory create a <kbd>convert.sh</kbd> script and make it executable:
+ </p>
+ <pre class="code">
+#!/bin/bash
+
+# remove empty glob specifications *.sym or *.sch
+shopt -s nullglob
+
+for file in directory_with_geda_files/*.{sym,sch}
+do
+  /path_to_xschem_install_root/share/xschem/gschemtoxschem.awk $file &gt;  $(basename -- $file)
+done
+ </pre>
+ <p>
+  Note that you have to set the correct path for <kbd>gschemtoxschem.awk</kbd> depending on your xschem installation
+  and set the correct path for the directory (<kbd>directory_with_geda_files</kbd> in above example) containing the geda files.
+  <br>
+  The current directory will be populated with xschem schematics/symbols with the same name as their GEDA equivalents.
+  Incidentally xschem and gschem use the same file extensions (.sym, .sch), so be careful not to mix xschem and gschem files.
+ </p>
+
+ <p>
+  Below an example of a schematic and a symbol shown both in xschem and lepton-schematic (gschem fork)
+ </p>
+ <img src = "tutorial_gschemtoxschem_01.png">
+ <br>
+ <img src = "tutorial_gschemtoxschem_02.png">
+
+ <h3> Notes for schematics targeted for spice simulations </h3>
+ <p>
+  Most of geda schematics do not define precise rules for spice netlisting. 
+  primitive symbols are symbols that do not have a schematic representation, examples are the nmos and pmos transistors in first schematic.
+  they should have a <kbd>format</kbd> property
+  that defines how the symbol should be translated to spice netlist. See the relevant <a href="symbol_property_syntax.html">schem manual page</a>.
+  <br>
+  Subcircuit symbols are symbols that translate to spice as a .subckt calls.
+  An example is the LATESN symbol in above picture.
+  Xschem convention is that subcircuit symbol instances have a name
+  attribute that begins with 'X' or 'x'. As with primitive symbols they also have a <kbd>format</kbd> global attribute, but the
+  <kbd>type=subcircuit</kbd> attribute states it is a subcircuit instance. After producing the instance call
+  (for example <kbd>X1 net1 net2 net3 ... subcircuit_name)</kbd>) for all instances of this symbol a .subckt expansion is also produced:
+ </p>
+ <pre class="code">
+.subckt subcircuit_name pin1 pin2 pin3 ... 
+...
+...
+.ends
+ </pre>
+ <p>
+ After doing the conversion with <kbd>gschemtoxschem.awk</kbd> you should check your schematics and symbols and make the necessary corrections.<br>
+ In particular you should check that schematic pins match symbol pins, regarding pin name and direction. Xschem standard way is to use
+ <kbd>ipin.sym, opin.sym, iopin.sch</kbd> for input, output, inout pins, respectively.
+ Following image shows the original converted schematic and the hand-modified schematic with the proper pins. Note that VDD/GND pins have been removed
+ since the LATESN symbol does not have such supply pins. In spice netlist VDD/GND to the subcircuit is in this particular case passed via net-assign.
+ </p>
+ <img src = "tutorial_gschemtoxschem_03.png">
+ <br>
+
+ 
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

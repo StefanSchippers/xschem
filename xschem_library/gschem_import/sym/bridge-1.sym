@@ -1,16 +1,13 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=bridge
-template="name=U?
-device=bridge
-description=\\"bridge rectifier\\"
-numslots=0
-symversion=0.1
-"
+template="name=U? device=bridge description=\\"bridge rectifier\\" symversion=0.1 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
+
+device description
 
 }
 G {}

@@ -1,12 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4015
-template="device=4015
-footprint=DIP16
-slot=1
-numslots=2
-name=U?
-description=\\"2 4-bit static shift register\\"
-VDD=VDD
+template="device=4015 footprint=DIP16 slot=1 name=U? description=\\"2 4-bit static shift register\\" VDD=VDD
 VSS=VSS
 "
 tedax_format="footprint @name @footprint
@@ -15,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS"
 
-extra="VDD VSS"
+extra="device footprint description VDD VSS"
 extra_pinnumber="16 8"
 }
 G {}
