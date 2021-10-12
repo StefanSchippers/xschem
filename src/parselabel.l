@@ -154,9 +154,9 @@ IDX_ID (("("|{LAB})+{IDX_LAB_NUM_SP}*)
   /* includes numbers and space and +().  and :*/
 LAB_NUM_SP [-a-zA-Z_%$~"#!:/\\<> \t\n0-9+().]
   /* identifier, may start with a number */
-ID_NUM ({LAB_NUM}+({LAB_NUM_SP}*{LAB_NUM})*)
+ID_NUM ({LAB_NUM}+({LAB_NUM_SP}*{LAB_NUM})*\??)
   /* identifier, not starting with a number */
-ID (("("|{LAB})+{LAB_NUM_SP}*)
+ID (("("|{LAB})+{LAB_NUM_SP}*\??)
   /* ~#diUV=9_(\#-hgvUY=) */
 ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-zA-Z0-9]*\))
 

@@ -1,10 +1,38 @@
 #!/usr/bin/awk -f
+#
+#  File: gschemtoxschem.awk
+#  
+#  This file is part of XSCHEM,
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  simulation.
+#  Copyright (C) 1998-2021 Stefan Frederik Schippers
+# 
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+# 
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+#### Translates a geda-gschem symbol or schematic into xschem equivalent.
+#### Usage:
+####    gschemtoxschem.awk geda_file.sch > xschem_file.sch
+####    gschemtoxschem.awk geda_file.sym > xschem_file.sym
+
+#### before processing file
 BEGIN{
   halfpinsize=2.5
   ret = 1
 }
 
+#### on first line 
 FNR==1{
   if(FILENAME ~/\.sym$/) is_symbol = 1
   sch = FILENAME
@@ -19,9 +47,12 @@ FNR==1{
   numslots=""
 }
 
+
+#### for every line in geda sch/sym file
 {
   while(ret > 0 ) {
 
+    #### line objects
     if($0 ~ /^L/){
       x1 = $2 / 10
       y1 = $3 / 10
@@ -30,6 +61,7 @@ FNR==1{
       lines = lines  "L 4 " order(x1, y1, x2, y2) " {}\n"
     }
     
+    #### Text objects
     # T x y color size visibility show angle alignment num_lines
     # 1 2 3  4     5       6        7    8      9        10
     # show 0:show both, 1:value only 2:name only
@@ -112,6 +144,7 @@ FNR==1{
       }
     } 
        
+    #### box objects
     else if($0 ~ /^B/){
       x1 = $2 / 10
       y1 = $3 / 10
@@ -123,15 +156,18 @@ FNR==1{
       boxes = boxes "L 4 " x1 " " (-y2) " " x1 " " (-y1) " {}\n"
     }
     
+    #### circle objects
     else if($0 ~ /^V/){ #circle
       circles = circles "A 4 " ($2/10) " " (-$3/10) " " ($4/10) " " 0 " " 360 " {}\n"
     }
     
+    #### arc objects
     # A 1000 1000 100 90 180 3 0 0 0 -1 -1
     else if($0 ~ /^A/){ #arc
       arcs = arcs "A 4 " ($2/10) " " (-$3/10) " " ($4/10) " " ($5) " " ($6) " {}\n"
     }
     
+    #### path objects: use xschem polygon
     # H 3 0 0 0 -1 -1 1 -1 -1 -1 -1 -1 5 <--n_lines
     #path object --> simulate with polygon
     else if($0 ~ /^H/){
@@ -152,6 +188,7 @@ FNR==1{
       polys = polys "{fill=true}\n"
     }
     
+    #### net (wire) objects
     # N 39000 50400 39000 51000 4
     else if($0 ~/^N/) {
       nx1 = $2/10
@@ -181,6 +218,7 @@ FNR==1{
       }
     }
     
+    #### component instance object
     #               selectable angle flip 
     #C 36700 54700    1         90     0   resistor-1.sym
     #component
@@ -245,6 +283,7 @@ FNR==1{
       components = components  "C {" symbol "} " cx " " cy " " crot " " cflip " {" propstring "}\n"
     }
       
+    #### pin object
     # P 900 100 750 100 1 0 0
     else if($0 ~ /^P/){
       $2/=10; $3/=10; $4/=10; $5/=10
@@ -295,6 +334,7 @@ FNR==1{
               if(attr == "pintype") { 
                 found_pintype=1
                 attr = "dir"
+                if(value=="clk") value = "in"
                 if(value!="in" && value !="out") value = "inout"
               }
       
@@ -505,6 +545,8 @@ function correct_align(          hcorrect, vcorrect)
   else if(angle == 270 && align == 5 ) { angle =  90; flip = 0; yt+=size*hcorrect*len}
 }
 
+
+#### end processing geda file: print translated xschem file to stdout
 END{
   print_header()
   print texts
@@ -515,8 +557,10 @@ END{
   print polys
   print components
   print wires
-  # i is the pinseq
+
+  #### print pins
   npin = 0 # order of pins in xschem
+  # i is the pinseq
   for(i = 1; i <= max_pinseq; i++) {
 
     if( i in pin_index) idx = pin_index[i]
@@ -546,10 +590,6 @@ END{
       # print "slotted_pinnumber=" slotted_pinnumber > "/dev/stderr"
       attr_string = attr_string "pinnumber=" slotted_pinnumber "\n"
     }
-   
-
-
-
 
     print pin_box[idx] " {" attr_string "}"
     for(j = 1; j <= nattr; j++) {
@@ -570,6 +610,6 @@ END{
       }
     }
     npin++
-  }
+  } # end print pins
 }
  
