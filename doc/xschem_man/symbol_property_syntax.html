@@ -28,9 +28,9 @@ p{padding: 15px  30px 10px;}
  </p>
  <ul>
  <li><kbd>type</kbd> defines the the type of symbol. Normally the type attribute describes the symbol 
-   and ignored by XSCHEM, but there are some special types:</li>
+   and is ignored by XSCHEM, but there are some special types:</li>
    <ul>
-    <li><kbd>subcircuit</kbd>: the symbol has an underlining schematic representation,
+    <li><kbd>subcircuit</kbd>: the symbol has an underlying schematic representation,
      when producing the netlist XSCHEM has to descend into the corresponding schematic.
      This will be covered in the subcircuits chapter. </li>
     <li><kbd>primitive</kbd>: the symbol has a schematic representation, you can descend into it  but the netlister 
@@ -168,11 +168,17 @@ type=nmos
   <p>If set to <kbd>true</kbd> the <kbd>#n:net_name</kbd> symbol attributes will display the net names attached to pin terminals.
      the <kbd>n</kbd> is a pin number or name.</p>
   <li><kbd>place</kbd></li>
-  <p> this attribute is only useable in <kbd>netlist_commands</kbd> type symbols (<kbd>netlist.sym, code.sym,...</kbd>) 
+  <p> This attribute is only useable in <kbd>netlist_commands</kbd> type symbols (<kbd>netlist.sym, code.sym,...</kbd>) 
     if set to <kbd>end</kbd> it tells XSCHEM that 
     the component instance of that symbol must be netlisted at the end, after all the other elements.
     This is sometimes needed for SPICE commands that must ge given at the end of the netlist.
-    This will be explained more in detail in the <a href="...">netlisting</a> slide.</p>
+    This will be explained more in detail in the <a href="...">netlisting</a> slide.
+    <br>
+    The <kbd>place=header</kbd> attribute is only valid only for netlist_commands
+    type symbols and spice netlisting mode, it tells XSCHEM that this component must be
+    netlisted in the very first part of a spice netlist.
+    This is necessary for some spice commands that need to be placed before the rest of the netlist.
+  </p>
   <li><kbd>generic_type</kbd></li>
   <p><kbd>generic_type</kbd> defines the type of parameters passed to VHDL components. Consider the following
     MOS symbol definition; the <kbd>model</kbd> attribute is declared as <kbd>string</kbd> and it will be

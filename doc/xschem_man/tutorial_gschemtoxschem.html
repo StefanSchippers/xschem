@@ -64,16 +64,20 @@ done
  <h3> Notes for schematics targeted for spice simulations </h3>
  <p>
   Most of geda schematics do not define precise rules for spice netlisting. 
-  primitive symbols are symbols that do not have a schematic representation, examples are the nmos and pmos transistors in first schematic.
-  they should have a <kbd>format</kbd> property
-  that defines how the symbol should be translated to spice netlist. See the relevant <a href="symbol_property_syntax.html">schem manual page</a>.
+  primitive symbols are symbols that do not have a schematic representation, 
+  examples are the nmos and pmos transistors in first schematic.
+  They should have a <kbd>format</kbd> property
+  that defines how the symbol should be translated to spice netlist.
+  See the relevant <a href="symbol_property_syntax.html">schem manual page</a>.
   <br>
   Subcircuit symbols are symbols that translate to spice as a .subckt calls.
   An example is the LATESN symbol in above picture.
   Xschem convention is that subcircuit symbol instances have a name
-  attribute that begins with 'X' or 'x'. As with primitive symbols they also have a <kbd>format</kbd> global attribute, but the
-  <kbd>type=subcircuit</kbd> attribute states it is a subcircuit instance. After producing the instance call
-  (for example <kbd>X1 net1 net2 net3 ... subcircuit_name)</kbd>) for all instances of this symbol a .subckt expansion is also produced:
+  attribute that begins with 'X' or 'x'. As with primitive symbols they also have a
+  <kbd>format</kbd> global attribute, but the <kbd>type=subcircuit</kbd> attribute 
+  states it is a subcircuit instance. After producing the instance call
+  (for example <kbd>X1 net1 net2 net3 ... subcircuit_name)</kbd>) for all instances
+  of this symbol a .subckt expansion is also produced:
  </p>
  <pre class="code">
 .subckt subcircuit_name pin1 pin2 pin3 ... 
@@ -82,11 +86,15 @@ done
 .ends
  </pre>
  <p>
- After doing the conversion with <kbd>gschemtoxschem.awk</kbd> you should check your schematics and symbols and make the necessary corrections.<br>
- In particular you should check that schematic pins match symbol pins, regarding pin name and direction. Xschem standard way is to use
+ After doing the conversion with <kbd>gschemtoxschem.awk</kbd> you should check your
+ schematics and symbols and make the necessary corrections.<br>
+ In particular you should check that schematic pins match symbol pins, regarding pin name and direction.
+ Xschem standard way is to use
  <kbd>ipin.sym, opin.sym, iopin.sch</kbd> for input, output, inout pins, respectively.
- Following image shows the original converted schematic and the hand-modified schematic with the proper pins. Note that VDD/GND pins have been removed
- since the LATESN symbol does not have such supply pins. In spice netlist VDD/GND to the subcircuit is in this particular case passed via net-assign.
+ Following image shows the original converted schematic and the hand-modified schematic with the
+ proper pins. Note that VDD/GND pins have been removed
+ since the LATESN symbol does not have such supply pins.<br>
+ In spice netlist VDD/GND to the subcircuit is in this particular case passed via net-assign.
  </p>
  <img src = "tutorial_gschemtoxschem_03.png">
  <br>
