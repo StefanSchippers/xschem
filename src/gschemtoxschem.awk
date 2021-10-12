@@ -266,8 +266,9 @@ FNR==1{
               }
               
             }
-            gsub(/ /, "\\\\ ", $0)
+            gsub(/ /, "\\\\\\\\ ", $0) # prefix spaces with double backslash
             propstring = propstring $0 "\n"
+            print propstring > "/dev/stderr"
           }
           getline
         }
@@ -343,8 +344,8 @@ FNR==1{
                 pinseq++
                 if(value > max_pinseq) max_pinseq = value
               }
-              gsub(/\\/, "\\\\\\\\", value)
-              gsub(/ /, "\\\\ ", value)
+              gsub(/\\/, "\\\\\\\\", value) # replace single slash with double backslash. 
+              gsub(/ /, "\\\\\\\\ ", value) # prefix spaces with double backslash
               gsub(/\\_/, "_", value)
               pin_attr[pin_idx, nattr] = attr
               pin_value[pin_idx, nattr] = value
@@ -375,9 +376,9 @@ function escape_chars(s,     a, b)
   sub(/.*=/,"",b)
   if(s!~/=/) b = ""
 
-  sub(/"/, "\\\\", b)
+  sub(/"/, "\\\\\\\\", b) # prefix " with 2 backslashes
   if(b ~ / /) {
-    b = "\\\\\"" b "\\\\\""
+    b = "\\\\\"" b "\\\\\"" # escape " inside string with 2 backslashes
   }
   s = a "=" b
   return s
