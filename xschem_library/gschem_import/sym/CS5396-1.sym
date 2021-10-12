@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=CS5396-KS
+v {xschem version=3.0.0 file_version=1.2}
+K {type=CS5396-KS
 template="device=CS5396-KS
 name=U?
 footprint=SO28
@@ -15,6 +15,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -59,7 +60,7 @@ name=AGND0
 dir=inout
 }
 T {@#2:pinnumber} 65 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#2:name} 37.3333 -35 2 1 0.266667 0.266667 {}
+T {@#2:name} 60 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -540 30 -540 {}
 B 5 -2.5 -542.5 2.5 -537.5 {pinnumber=4
 pinseq=4
@@ -123,7 +124,7 @@ name=VD
 dir=inout
 }
 T {@#10:pinnumber} 305 -580 2 1 0.266667 0.266667 {layer=13}
-T {@#10:name} 290.933 -565 0 0 0.266667 0.266667 {}
+T {@#10:name} 300 -565 0 0 0.266667 0.266667 { hcenter=true}
 L 3 300 -30 300 0 {}
 B 5 297.5 -2.5 302.5 2.5 {pinnumber=12
 pinseq=12
@@ -131,7 +132,7 @@ name=DGND
 dir=inout
 }
 T {@#11:pinnumber} 305 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#11:name} 281.867 -35 2 1 0.266667 0.266667 {}
+T {@#11:name} 300 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 330 -300 360 -300 {}
 B 5 357.5 -302.5 362.5 -297.5 {pinnumber=13
 pinseq=13
@@ -192,7 +193,7 @@ L 3 330 -180 360 -180 {}
 B 5 357.5 -182.5 362.5 -177.5 {pinnumber=20
 pinseq=20
 name=MCLKD
-dir=inout
+dir=in
 }
 T {@#19:pinnumber} 340 -185 2 1 0.266667 0.266667 {layer=13}
 T {@#19:name} 325 -180 2 0 0.266667 0.266667 {}
@@ -211,7 +212,7 @@ name=LGND
 dir=inout
 }
 T {@#21:pinnumber} 245 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#21:name} 221.867 -35 2 1 0.266667 0.266667 {}
+T {@#21:name} 240 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 240 -600 240 -570 {}
 B 5 237.5 -602.5 242.5 -597.5 {pinnumber=23
 pinseq=23
@@ -219,7 +220,7 @@ name=VL
 dir=inout
 }
 T {@#22:pinnumber} 245 -580 2 1 0.266667 0.266667 {layer=13}
-T {@#22:name} 230.933 -565 0 0 0.266667 0.266667 {}
+T {@#22:name} 240 -565 0 0 0.266667 0.266667 { hcenter=true}
 L 3 180 -600 180 -570 {}
 B 5 177.5 -602.5 182.5 -597.5 {pinnumber=24
 pinseq=24
@@ -227,7 +228,7 @@ name=VA
 dir=inout
 }
 T {@#23:pinnumber} 185 -580 2 1 0.266667 0.266667 {layer=13}
-T {@#23:name} 170.933 -565 0 0 0.266667 0.266667 {}
+T {@#23:name} 180 -565 0 0 0.266667 0.266667 { hcenter=true}
 L 3 180 -30 180 0 {}
 B 5 177.5 -2.5 182.5 2.5 {pinnumber=25
 pinseq=25
@@ -235,7 +236,7 @@ name=AGND2
 dir=inout
 }
 T {@#24:pinnumber} 185 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#24:name} 157.333 -35 2 1 0.266667 0.266667 {}
+T {@#24:name} 180 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -150 30 -150 {}
 B 5 -2.5 -152.5 2.5 -147.5 {pinnumber=26
 pinseq=26
@@ -259,4 +260,4 @@ name=AGND1
 dir=inout
 }
 T {@#27:pinnumber} 125 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#27:name} 97.3333 -35 2 1 0.266667 0.266667 {}
+T {@#27:name} 120 -35 2 1 0.266667 0.266667 { hcenter=true}

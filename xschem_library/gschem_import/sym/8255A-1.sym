@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=8255A
+v {xschem version=3.0.0 file_version=1.2}
+K {type=8255A
 template="name=U?
 device=8255A
 footprint=DIP40
@@ -13,6 +13,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

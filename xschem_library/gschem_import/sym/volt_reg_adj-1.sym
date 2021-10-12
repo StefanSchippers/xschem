@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=7805
+v {xschem version=3.0.0 file_version=1.2}
+K {type=7805
 template="device=7805
 name=U?
 pins=3
@@ -11,6 +11,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

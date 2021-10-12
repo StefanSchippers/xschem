@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=4534
+v {xschem version=3.0.0 file_version=1.2}
+K {type=4534
 template="name=U?
 device=4534
 footprint=DIP24
@@ -19,6 +19,7 @@ format="@name @pinlist @value @VSS @VDD"
 extra="VSS VDD"
 extra_pinnumber="12 24"
 }
+G {}
 V {}
 S {}
 E {}
@@ -49,7 +50,7 @@ L 3 0 -60 20 -60 {}
 B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=23
 pinseq=1
 name=\_CPE\_
-dir=inout
+dir=in
 }
 T {@#0:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
 T {@#0:name} 40 -60 2 1 0.266667 0.266667 {}
@@ -89,7 +90,7 @@ L 3 0 -260 30 -260 {}
 B 5 -2.5 -262.5 2.5 -257.5 {pinnumber=10
 pinseq=6
 name=CPS
-dir=inout
+dir=in
 }
 T {@#5:pinnumber} 20 -265 2 0 0.266667 0.266667 {layer=13}
 T {@#5:name} 40 -260 2 1 0.266667 0.266667 {}
@@ -97,7 +98,7 @@ L 3 0 -460 30 -460 {}
 B 5 -2.5 -462.5 2.5 -457.5 {pinnumber=4
 pinseq=7
 name=CPA
-dir=inout
+dir=in
 }
 T {@#6:pinnumber} 20 -465 2 0 0.266667 0.266667 {layer=13}
 T {@#6:name} 40 -460 2 1 0.266667 0.266667 {}
@@ -212,7 +213,7 @@ name=Cext1
 dir=inout
 }
 T {@#20:pinnumber} 75 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#20:name} 47.3333 -35 2 1 0.266667 0.266667 {}
+T {@#20:name} 70 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 130 -30 130 0 {}
 B 5 127.5 -2.5 132.5 2.5 {pinnumber=22
 pinseq=22
@@ -220,4 +221,4 @@ name=Cext2
 dir=inout
 }
 T {@#21:pinnumber} 135 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#21:name} 107.333 -35 2 1 0.266667 0.266667 {}
+T {@#21:name} 130 -35 2 1 0.266667 0.266667 { hcenter=true}

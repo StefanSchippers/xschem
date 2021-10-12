@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=MAX135
+v {xschem version=3.0.0 file_version=1.2}
+K {type=MAX135
 template="device=MAX135
 name=U?
 footprint=DIP28
@@ -20,6 +20,7 @@ format="@name @pinlist @value @DGND @AGND @V+ @V-"
 extra="DGND AGND V+ V-"
 extra_pinnumber="14 18,20 28 16"
 }
+G {}
 V {}
 S {}
 E {}
@@ -71,7 +72,7 @@ name=OSC2
 dir=out
 }
 T {@#3:pinnumber} 95 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#3:name} 71.8667 -35 2 1 0.266667 0.266667 {}
+T {@#3:name} 90 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 170 -30 170 0 {}
 B 5 167.5 -2.5 172.5 2.5 {pinnumber=5
 pinseq=5
@@ -79,7 +80,7 @@ name=OSC1
 dir=in
 }
 T {@#4:pinnumber} 175 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#4:name} 151.867 -35 2 1 0.266667 0.266667 {}
+T {@#4:name} 170 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 230 -500 260 -500 {}
 B 5 257.5 -502.5 262.5 -497.5 {pinnumber=6
 pinseq=6

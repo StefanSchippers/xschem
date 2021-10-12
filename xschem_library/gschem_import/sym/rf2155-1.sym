@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=RF2155
+v {xschem version=3.0.0 file_version=1.2}
+K {type=RF2155
 template="name=U?
 device=RF2155
 pins=16
@@ -13,11 +13,12 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
 T {@name} 30 -320 2 1 0.333333 0.333333 {}
-T {RF2155} 221 -202.5 0 1 0.5 0.5 {}
+T {RF2155} 170 -190 0 1 0.5 0.5 { hcenter=true vcenter=true}
 
 L 4 30 -20 300 -20 {}
 L 4 300 -280 300 -20 {}
@@ -37,7 +38,7 @@ name=VCC1
 dir=inout
 }
 T {@#0:pinnumber} 137.5 -285 2 1 0.333333 0.333333 {layer=13}
-T {@#0:name} 107.333 -270 0 0 0.333333 0.333333 {}
+T {@#0:name} 130 -270 0 0 0.333333 0.333333 { hcenter=true}
 L 3 200 -300 200 -280 {}
 B 5 197.5 -302.5 202.5 -297.5 {pinnumber=3
 pinseq=3
@@ -45,7 +46,7 @@ name=VCC2
 dir=inout
 }
 T {@#1:pinnumber} 207.5 -285 2 1 0.333333 0.333333 {layer=13}
-T {@#1:name} 177.333 -270 0 0 0.333333 0.333333 {}
+T {@#1:name} 200 -270 0 0 0.333333 0.333333 { hcenter=true}
 L 3 110 -20 110 0 {}
 B 5 107.5 -2.5 112.5 2.5 {pinnumber=4
 pinseq=4
@@ -67,7 +68,7 @@ name=GND
 dir=inout
 }
 T {@#4:pinnumber} 157.5 -5 2 1 0.333333 0.333333 {layer=13}
-T {@#4:name} 143 -30 2 1 0.333333 0.333333 {}
+T {@#4:name} 160 -30 2 1 0.333333 0.333333 { hcenter=true}
 L 3 10 -130 30 -130 {}
 B 5 7.5 -132.5 12.5 -127.5 {pinnumber=7
 pinseq=7
@@ -75,7 +76,7 @@ name=RFIN
 dir=inout
 }
 T {@#5:pinnumber} 25 -135 2 0 0.333333 0.333333 {layer=13}
-T {@#5:name} 40 -138.333 0 0 0.333333 0.333333 {}
+T {@#5:name} 40 -130 0 0 0.333333 0.333333 { vcenter=true}
 L 3 10 -250 30 -250 {}
 B 5 7.5 -252.5 12.5 -247.5 {pinnumber=8
 pinseq=8
@@ -83,4 +84,4 @@ name=PD
 dir=inout
 }
 T {@#6:pinnumber} 25 -255 2 0 0.333333 0.333333 {layer=13}
-T {@#6:name} 40 -258.333 0 0 0.333333 0.333333 {}
+T {@#6:name} 40 -250 0 0 0.333333 0.333333 { vcenter=true}

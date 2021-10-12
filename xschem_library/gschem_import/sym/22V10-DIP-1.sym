@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=22V10
+v {xschem version=3.0.0 file_version=1.2}
+K {type=22V10
 template="device=22V10
 name=U?
 footprint=DIP24
@@ -17,6 +17,7 @@ format="@name @pinlist @value @Vcc @GND"
 extra="Vcc GND"
 extra_pinnumber="24 12"
 }
+G {}
 V {}
 S {}
 E {}

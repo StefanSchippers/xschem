@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=DS2450
+v {xschem version=3.0.0 file_version=1.2}
+K {type=DS2450
 template="device=DS2450
 name=U?
 footprint=SMD8
@@ -18,6 +18,7 @@ format="@name @pinlist @value @GND @Vcc"
 extra="GND Vcc"
 extra_pinnumber="4 1"
 }
+G {}
 V {}
 S {}
 E {}

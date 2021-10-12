@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=HA5221
+v {xschem version=3.0.0 file_version=1.2}
+K {type=HA5221
 template="device=HA5221
 name=U?
 footprint=DIP8
@@ -15,6 +15,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -62,7 +63,7 @@ name=V+
 dir=inout
 }
 T {@#3:pinnumber} 55 -60 2 1 0.266667 0.266667 {layer=13}
-T {@#3:name} 40.9333 -60 0 0 0.266667 0.266667 {}
+T {@#3:name} 50 -60 0 0 0.266667 0.266667 { hcenter=true}
 L 3 50 -20 50 0 {}
 B 5 47.5 -2.5 52.5 2.5 {pinnumber=5
 pinseq=5
@@ -70,4 +71,4 @@ name=V-
 dir=inout
 }
 T {@#4:pinnumber} 55 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#4:name} 40.9333 -20 2 1 0.266667 0.266667 {}
+T {@#4:name} 50 -20 2 1 0.266667 0.266667 { hcenter=true}

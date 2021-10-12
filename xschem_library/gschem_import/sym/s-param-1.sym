@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=SPARAMBLOCK
+v {xschem version=3.0.0 file_version=1.2}
+K {type=SPARAMBLOCK
 template="Z=50
 device=SPARAMBLOCK
 name=BLOCK?
@@ -12,13 +12,14 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
-T {Z=50} 112.667 -48.3333 0 1 0.333333 0.333333 {}
-T {S} 118.333 -151.667 0 1 1.66667 1.66667 {}
-T {In} 30 -168.333 0 0 0.333333 0.333333 {}
-T {Out} 150 -168.333 0 1 0.333333 0.333333 {}
+T {Z=50} 90 -40 0 1 0.333333 0.333333 { hcenter=true vcenter=true}
+T {S} 90 -110 0 1 1.66667 1.66667 { hcenter=true vcenter=true}
+T {In} 30 -160 0 0 0.333333 0.333333 { vcenter=true}
+T {Out} 150 -160 0 1 0.333333 0.333333 { vcenter=true}
 T {@name} 20 0 2 1 0.333333 0.333333 {}
 T {model=model.sp} 20 -210 2 1 0.333333 0.333333 {}
 

@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=22V10-PLCC
+v {xschem version=3.0.0 file_version=1.2}
+K {type=22V10-PLCC
 template="footprint=PLCC28
 pins=28
 device=22V10-PLCC
@@ -15,6 +15,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -41,7 +42,7 @@ name=Vcc
 dir=inout
 }
 T {@#0:pinnumber} 187.5 -577.5 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 167.2 -560 0 0 0.266667 0.266667 {}
+T {@#0:name} 180.8 -560 0 0 0.266667 0.266667 { hcenter=true}
 L 3 180 -30 180 0 {}
 B 5 177.5 -2.5 182.5 2.5 {pinnumber=14
 pinseq=2
@@ -49,7 +50,7 @@ name=GND
 dir=inout
 }
 T {@#1:pinnumber} 187.5 -15 2 1 0.266667 0.266667 {layer=13}
-T {@#1:name} 164.6 -35 2 1 0.266667 0.266667 {}
+T {@#1:name} 178.2 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -540 30 -540 {}
 B 5 -2.5 -542.5 2.5 -537.5 {pinnumber=2
 pinseq=3

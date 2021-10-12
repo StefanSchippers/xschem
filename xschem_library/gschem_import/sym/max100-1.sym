@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=MAX100
+v {xschem version=3.0.0 file_version=1.2}
+K {type=MAX100
 template="device=MAX100
 name=U?
 footprint=CFP84
@@ -20,6 +20,7 @@ format="@name @pinlist @value @GND @VCC @DGND @VEE"
 extra="GND VCC DGND VEE"
 extra_pinnumber="4,7,15,49,57,60,64,67,70,71,74,77,78,79,82,84 8,21,43,56 18,24,27,30,34,37,40,46 32,69,80"
 }
+G {}
 V {}
 S {}
 E {}

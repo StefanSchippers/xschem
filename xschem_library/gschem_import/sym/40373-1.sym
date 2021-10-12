@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=40373
+v {xschem version=3.0.0 file_version=1.2}
+K {type=40373
 template="name=U?
 device=40373
 footprint=DIP20
@@ -18,6 +18,7 @@ format="@name @pinlist @value @VSS @VDD"
 extra="VSS VDD"
 extra_pinnumber="20 10"
 }
+G {}
 V {}
 S {}
 E {}
@@ -43,7 +44,7 @@ name=\_OE\_
 dir=in
 }
 T {@#0:pinnumber} 115 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 82.8 -35 2 1 0.266667 0.266667 {}
+T {@#0:name} 110 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 70 -30 70 0 {}
 B 5 67.5 -2.5 72.5 2.5 {pinnumber=11
 pinseq=2
@@ -51,7 +52,7 @@ name=E
 dir=in
 }
 T {@#1:pinnumber} 75 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#1:name} 65.4667 -35 2 1 0.266667 0.266667 {}
+T {@#1:name} 70 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 10 -70 40 -70 {}
 B 5 7.5 -72.5 12.5 -67.5 {pinnumber=18
 pinseq=3

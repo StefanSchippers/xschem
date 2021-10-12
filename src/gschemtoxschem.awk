@@ -30,6 +30,7 @@
 BEGIN{
   halfpinsize=2.5
   ret = 1
+  debug=0 # set to 1 to print debug info to stderr
 }
 
 #### on first line 
@@ -38,6 +39,7 @@ FNR==1{
   sch = FILENAME
   sub(/\.[^.]+$/, ".sch", sch)
   if(file_exists(sch)) has_schematic = 1
+  dbg("has sch")
   pin = 0
   net_assign = 0
   pinseq=0
@@ -109,11 +111,7 @@ FNR==1{
             net[++net_assign] = tmp
             continue
           }
-          if(is_symbol && has_schematic) {
-            if($0 ~/name=/ && template_attrs == "") template_attrs = template_attrs escape_chars($0) "\n"
-          } else {
-            template_attrs = template_attrs escape_chars($0) "\n"
-          }
+          template_attrs = template_attrs escape_chars($0) "\n"
           save = $0
           sub(/^device=/, "type=") 
           if ($0 ~/^value=IO/) { # inconsistency in io-1.sym
@@ -140,7 +138,7 @@ FNR==1{
       }
       correct_align()
       if(visibility) {
-        texts = texts  "T {" text "} " xt " " (-yt) " " int(angle/90) " " flip " " size " " size " {}\n"
+        texts = texts  "T {" text "} " xt " " (-yt) " " int(angle/90) " " flip " " size " " size " {" text_align "}\n"
       }
     } 
        
@@ -268,7 +266,7 @@ FNR==1{
             }
             gsub(/ /, "\\\\\\\\ ", $0) # prefix spaces with double backslash
             propstring = propstring $0 "\n"
-            print propstring > "/dev/stderr"
+            # print propstring > "/dev/stderr"
           }
           getline
         }
@@ -494,21 +492,23 @@ function alert(s)
 # |                            |
 # 0-------------3--------------6
 #
-# assumes xt, yt, angle, align, len are set globally
+# assumes xt, yt, angle, size, align, len are set globally
 # corrects angle, xt, yt, sets flip
+# sets also text_align
 function correct_align(          hcorrect, vcorrect)
 {
   hcorrect = 17
   vcorrect = 25
+  text_align=""
   if     (angle ==   0 && align == 0 ) { angle = 180; flip = 1}
   else if(angle ==  90 && align == 0 ) { angle =  90; flip = 1}
   else if(angle == 180 && align == 0 ) { angle =   0; flip = 1}
   else if(angle == 270 && align == 0 ) { angle = 270; flip = 1}
 
-  if     (angle ==   0 && align == 3 ) { angle = 180; flip = 1; xt-=size*hcorrect*len}
-  else if(angle ==  90 && align == 3 ) { angle =  90; flip = 1; yt-=size*hcorrect*len}
-  else if(angle == 180 && align == 3 ) { angle =   0; flip = 1; xt+=size*hcorrect*len}
-  else if(angle == 270 && align == 3 ) { angle = 270; flip = 1; yt+=size*hcorrect*len}
+  if     (angle ==   0 && align == 3 ) { angle = 180; flip = 1; text_align = " hcenter=true"}
+  else if(angle ==  90 && align == 3 ) { angle =  90; flip = 1; text_align = " hcenter=true"}
+  else if(angle == 180 && align == 3 ) { angle =   0; flip = 1; text_align = " hcenter=true"}
+  else if(angle == 270 && align == 3 ) { angle = 270; flip = 1; text_align = " hcenter=true"}
 
   else if(angle ==   0 && align == 6 ) { angle = 180; flip = 0}
   else if(angle ==  90 && align == 6 ) { angle =  90; flip = 0}
@@ -520,32 +520,36 @@ function correct_align(          hcorrect, vcorrect)
   else if(angle == 180 && align == 8 ) { angle = 180; flip = 1}
   else if(angle == 270 && align == 8 ) { angle =  90; flip = 1}
 
-  else if(angle ==   0 && align == 7 ) { angle =   0; flip = 1; yt+=size*vcorrect}
-  else if(angle ==  90 && align == 7 ) { angle = 270; flip = 1; xt-=size*vcorrect}
-  else if(angle == 180 && align == 7 ) { angle = 180; flip = 1; yt-=size*vcorrect}
-  else if(angle == 270 && align == 7 ) { angle =  90; flip = 1; xt+=size*vcorrect}
+  else if(angle ==   0 && align == 7 ) { angle =   0; flip = 1; text_align = " vcenter=true"}
+  else if(angle ==  90 && align == 7 ) { angle = 270; flip = 1; text_align = " vcenter=true"}
+  else if(angle == 180 && align == 7 ) { angle = 180; flip = 1; text_align = " vcenter=true"}
+  else if(angle == 270 && align == 7 ) { angle =  90; flip = 1; text_align = " vcenter=true"}
 
-  else if(angle ==   0 && align == 4 ) { angle =   0; flip = 1; yt+=size*vcorrect; xt+=size*hcorrect*len}
-  else if(angle ==  90 && align == 4 ) { angle = 270; flip = 1; xt-=size*vcorrect; yt+=size*hcorrect*len}
-  else if(angle == 180 && align == 4 ) { angle = 180; flip = 1; yt-=size*vcorrect; xt-=size*hcorrect*len}
-  else if(angle == 270 && align == 4 ) { angle =  90; flip = 1; xt+=size*vcorrect; yt-=size*hcorrect*len}
+  else if(angle ==   0 && align == 4 ) { angle =   0; flip = 1; text_align=" hcenter=true vcenter=true"}
+  else if(angle ==  90 && align == 4 ) { angle = 270; flip = 1; text_align=" hcenter=true vcenter=true"}
+  else if(angle == 180 && align == 4 ) { angle = 180; flip = 1; text_align=" hcenter=true vcenter=true"}
+  else if(angle == 270 && align == 4 ) { angle =  90; flip = 1; text_align=" hcenter=true vcenter=true"}
 
   else if(angle ==   0 && align == 2 ) { angle =   0; flip = 0}
   else if(angle ==  90 && align == 2 ) { angle = 270; flip = 0}
   else if(angle == 180 && align == 2 ) { angle = 180; flip = 0}
   else if(angle == 270 && align == 2 ) { angle =  90; flip = 0}
 
-  else if(angle ==   0 && align == 1 ) { angle =   0; flip = 0; yt+=size*vcorrect}
-  else if(angle ==  90 && align == 1 ) { angle = 270; flip = 0; xt-=size*vcorrect}
-  else if(angle == 180 && align == 1 ) { angle = 180; flip = 0; yt-=size*vcorrect}
-  else if(angle == 270 && align == 1 ) { angle =  90; flip = 0; xt+=size*vcorrect}
+  else if(angle ==   0 && align == 1 ) { angle =   0; flip = 0; text_align = " vcenter=true"}
+  else if(angle ==  90 && align == 1 ) { angle = 270; flip = 0; text_align = " vcenter=true"}
+  else if(angle == 180 && align == 1 ) { angle = 180; flip = 0; text_align = " vcenter=true"}
+  else if(angle == 270 && align == 1 ) { angle =  90; flip = 0; text_align = " vcenter=true"}
 
-  else if(angle ==   0 && align == 5 ) { angle =   0; flip = 0; xt-=size*hcorrect*len}
-  else if(angle ==  90 && align == 5 ) { angle = 270; flip = 0; yt-=size*hcorrect*len}
-  else if(angle == 180 && align == 5 ) { angle = 180; flip = 0; xt+=size*hcorrect*len}
-  else if(angle == 270 && align == 5 ) { angle =  90; flip = 0; yt+=size*hcorrect*len}
+  else if(angle ==   0 && align == 5 ) { angle =   0; flip = 0; text_align = " hcenter=true"}
+  else if(angle ==  90 && align == 5 ) { angle = 270; flip = 0; text_align = " hcenter=true"}
+  else if(angle == 180 && align == 5 ) { angle = 180; flip = 0; text_align = " hcenter=true"}
+  else if(angle == 270 && align == 5 ) { angle =  90; flip = 0; text_align = " hcenter=true"}
 }
 
+function dbg(s)
+{
+  if(debug) print s > "/dev/stderr"
+}
 
 #### end processing geda file: print translated xschem file to stdout
 END{
@@ -607,7 +611,7 @@ END{
       if( visible ) {
         if(pin_attr[idx, j] ~/^pinnumber$/) text_attr="layer=13" 
         else text_attr=""
-        print "T {" attr "} " xt " " (-yt) " " int(angle/90) " " flip " " size " " size " {" text_attr "}"
+        print "T {" attr "} " xt " " (-yt) " " int(angle/90) " " flip " " size " " size " {" text_attr text_align "}"
       }
     }
     npin++

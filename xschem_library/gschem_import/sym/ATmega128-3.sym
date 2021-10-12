@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=Atmega128
+v {xschem version=3.0.0 file_version=1.2}
+K {type=Atmega128
 template="name=U?
 device=Atmega128
 footprint=TQFP64
@@ -21,6 +21,7 @@ format="@name @pinlist @value @Vcc @GND @AGND @AVcc"
 extra="Vcc GND AGND AVcc"
 extra_pinnumber="21,52 22,53 63 64"
 }
+G {}
 V {}
 S {}
 E {}
@@ -47,7 +48,7 @@ name=XTAL2
 dir=out
 }
 T {@#0:pinnumber} 335 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 307.333 -45 2 1 0.266667 0.266667 {}
+T {@#0:name} 330 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 270 -40 270 -10 {}
 B 5 267.5 -12.5 272.5 -7.5 {pinnumber=24
 pinseq=2
@@ -55,7 +56,7 @@ name=XTAL1
 dir=in
 }
 T {@#1:pinnumber} 275 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#1:name} 247.333 -45 2 1 0.266667 0.266667 {}
+T {@#1:name} 270 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 190 -40 190 -10 {}
 B 5 187.5 -12.5 192.5 -7.5 {pinnumber=18
 pinseq=3
@@ -63,7 +64,7 @@ name=TOSC2/PG3
 dir=out
 }
 T {@#2:pinnumber} 195 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#2:name} 149.2 -45 2 1 0.266667 0.266667 {}
+T {@#2:name} 190 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 90 -40 90 -10 {}
 B 5 87.5 -12.5 92.5 -7.5 {pinnumber=19
 pinseq=4
@@ -71,7 +72,7 @@ name=TOSC1/PG4
 dir=in
 }
 T {@#3:pinnumber} 95 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#3:name} 49.2 -45 2 1 0.266667 0.266667 {}
+T {@#3:name} 90 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 10 -80 30 -80 {}
 B 5 7.5 -82.5 12.5 -77.5 {pinnumber=20
 pinseq=5

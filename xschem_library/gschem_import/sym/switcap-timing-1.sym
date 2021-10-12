@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=SWITCAP-timing
+v {xschem version=3.0.0 file_version=1.2}
+K {type=SWITCAP-timing
 template="PERIOD=1e-6
 device=SWITCAP-timing
 name=TIMING
@@ -14,6 +14,7 @@ format="@name @pinlist @value @GND"
 extra="GND"
 extra_pinnumber="1"
 }
+G {}
 V {}
 S {}
 E {}

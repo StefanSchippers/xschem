@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=MAX1674
+v {xschem version=3.0.0 file_version=1.2}
+K {type=MAX1674
 template="name=U?
 device=MAX1674
 footprint=uMAX8
@@ -14,6 +14,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -80,7 +81,7 @@ name=GND
 dir=inout
 }
 T {@#5:pinnumber} 155 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#5:name} 136.4 -35 2 1 0.266667 0.266667 {}
+T {@#5:name} 150 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 220 -210 250 -210 {}
 B 5 247.5 -212.5 252.5 -207.5 {pinnumber=7
 pinseq=7

@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=COMPACT_FLASH
+v {xschem version=3.0.0 file_version=1.2}
+K {type=COMPACT_FLASH
 template="device=COMPACT_FLASH
 name=J?
 pins=50
@@ -13,6 +13,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

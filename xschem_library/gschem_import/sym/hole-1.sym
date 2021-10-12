@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=HOLE
+v {xschem version=3.0.0 file_version=1.2}
+K {type=HOLE
 template="class=IO
 pins=1
 device=HOLE
@@ -13,10 +13,11 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
-T {@name} 48.3333 -68.3333 0 1 0.333333 0.333333 {}
+T {@name} 20 -60 0 1 0.333333 0.333333 { hcenter=true vcenter=true}
 
 
 

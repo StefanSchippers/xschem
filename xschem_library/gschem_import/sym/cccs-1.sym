@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=SPICE-cccs
+v {xschem version=3.0.0 file_version=1.2}
+K {type=SPICE-cccs
 template="device=SPICE-cccs
 name=F?
 description=\\"current controlled current source\\"
@@ -16,11 +16,12 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
 T {@name} 60 -85 2 1 0.333333 0.333333 {}
-T {value=1} 30.3333 5 0 0 0.333333 0.333333 {}
+T {value=1} 70 5 0 0 0.333333 0.333333 { hcenter=true}
 
 
 L 4 80 -40 100 -60 {}

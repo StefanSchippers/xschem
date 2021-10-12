@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=40100
+v {xschem version=3.0.0 file_version=1.2}
+K {type=40100
 template="name=U?
 device=40100
 footprint=DIP16
@@ -17,6 +17,7 @@ format="@name @pinlist @value @VSS @VDD"
 extra="VSS VDD"
 extra_pinnumber="8 16"
 }
+G {}
 V {}
 S {}
 E {}
@@ -44,7 +45,7 @@ name=\_R\_
 dir=in
 }
 T {@#0:pinnumber} 105 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 77.3333 -35 2 1 0.266667 0.266667 {}
+T {@#0:name} 100 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -70 30 -70 {}
 B 5 -2.5 -72.5 2.5 -67.5 {pinnumber=11
 pinseq=2
@@ -73,7 +74,7 @@ L 3 0 -190 30 -190 {}
 B 5 -2.5 -192.5 2.5 -187.5 {pinnumber=3
 pinseq=5
 name=CLK
-dir=inout
+dir=in
 }
 T {@#4:pinnumber} 20 -195 2 0 0.266667 0.266667 {layer=13}
 T {@#4:name} 40 -190 2 1 0.266667 0.266667 {}
@@ -100,4 +101,4 @@ name=L/\_R\_
 dir=in
 }
 T {@#7:pinnumber} 105 -240 2 1 0.266667 0.266667 {layer=13}
-T {@#7:name} 68.2667 -225 0 0 0.266667 0.266667 {}
+T {@#7:name} 100 -225 0 0 0.266667 0.266667 { hcenter=true}

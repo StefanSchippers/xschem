@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=MAX807
+v {xschem version=3.0.0 file_version=1.2}
+K {type=MAX807
 template="device=MAX807
 name=U?
 footprint=DIP16
@@ -14,6 +14,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -54,7 +55,7 @@ name=Vcc
 dir=inout
 }
 T {@#2:pinnumber} 125 -340 2 1 0.266667 0.266667 {layer=13}
-T {@#2:name} 106.4 -325 0 0 0.266667 0.266667 {}
+T {@#2:name} 120 -325 0 0 0.266667 0.266667 { hcenter=true}
 L 3 0 -120 30 -120 {}
 B 5 -2.5 -122.5 2.5 -117.5 {pinnumber=4
 pinseq=4
@@ -70,7 +71,7 @@ name=GND
 dir=inout
 }
 T {@#4:pinnumber} 125 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#4:name} 106.4 -35 2 1 0.266667 0.266667 {}
+T {@#4:name} 120 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -180 30 -180 {}
 B 5 -2.5 -182.5 2.5 -177.5 {pinnumber=6
 pinseq=6

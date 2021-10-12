@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=MAX1407
+v {xschem version=3.0.0 file_version=1.2}
+K {type=MAX1407
 template="name=U?
 footprint=SSOP28
 device=MAX1407
@@ -14,10 +14,11 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
-T {MAX1407} 130.667 -230 2 1 0.666667 0.666667 {}
+T {MAX1407} 210 -230 2 1 0.666667 0.666667 { hcenter=true}
 T {@name} 350 -450 2 1 0.333333 0.333333 {}
 
 
@@ -78,7 +79,7 @@ name=AIN0
 dir=in
 }
 T {@#4:pinnumber} 20 -193 2 0 0.266667 0.266667 {layer=13}
-T {@#4:name} 41.5 -194.167 0 0 0.166667 0.166667 {}
+T {@#4:name} 41.5 -190 0 0 0.166667 0.166667 { vcenter=true}
 L 3 80 -190 80 -160 {}
 B 5 77.5 -162.5 82.5 -157.5 {pinseq=6
 pinnumber=6
@@ -142,7 +143,7 @@ name=AIN1
 dir=in
 }
 T {@#12:pinnumber} 20 -223 2 0 0.266667 0.266667 {layer=13}
-T {@#12:name} 41.5 -224.167 0 0 0.166667 0.166667 {}
+T {@#12:name} 41.5 -220 0 0 0.166667 0.166667 { vcenter=true}
 L 3 0 -250 30 -250 {}
 B 5 -2.5 -252.5 2.5 -247.5 {pinseq=14
 pinnumber=14
@@ -150,7 +151,7 @@ name=AIN2
 dir=in
 }
 T {@#13:pinnumber} 20 -253 2 0 0.266667 0.266667 {layer=13}
-T {@#13:name} 41.5 -254.167 0 0 0.166667 0.166667 {}
+T {@#13:name} 41.5 -250 0 0 0.166667 0.166667 { vcenter=true}
 L 3 370 -170 390 -170 {}
 B 5 387.5 -172.5 392.5 -167.5 {pinseq=15
 pinnumber=15
@@ -254,7 +255,7 @@ name=AIN3
 dir=in
 }
 T {@#26:pinnumber} 20 -283 2 0 0.266667 0.266667 {layer=13}
-T {@#26:name} 41.5 -284.167 0 0 0.166667 0.166667 {}
+T {@#26:name} 41.5 -280 0 0 0.166667 0.166667 { vcenter=true}
 L 3 360 -30 390 -30 {}
 B 5 387.5 -32.5 392.5 -27.5 {pinseq=28
 pinnumber=28

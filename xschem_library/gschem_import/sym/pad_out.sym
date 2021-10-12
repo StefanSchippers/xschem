@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=pad
+v {xschem version=3.0.0 file_version=1.2}
+K {type=pad
 template="name=P?
 device=pad
 "
@@ -10,11 +10,12 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
 T {@name} 50 -83.1 2 1 0.333333 0.333333 {}
-T {Output} 67.2 -21.6667 0 1 0.266667 0.266667 {}
+T {Output} 40 -15 0 1 0.266667 0.266667 { hcenter=true vcenter=true}
 
 L 4 0 0 80 0 {}
 L 4 80 -80 80 0 {}

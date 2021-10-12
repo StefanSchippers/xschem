@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=MAX232
+v {xschem version=3.0.0 file_version=1.2}
+K {type=MAX232
 template="device=MAX232
 name=U?
 comment=\\"SO package only: Pins 8,10-14 different on DIP\\"
@@ -16,6 +16,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -104,14 +105,14 @@ name=GND
 dir=inout
 }
 T {@#5:pinnumber} 125 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#5:name} 106.4 -35 2 1 0.266667 0.266667 {}
+T {@#5:name} 120 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 140 -510 140 -480 {}
 B 5 137.5 -512.5 142.5 -507.5 {name=Vcc
 pinnumber=7
 pinseq=7
 dir=inout
 }
-T {@#6:name} 126.4 -475 0 0 0.266667 0.266667 {}
+T {@#6:name} 140 -475 0 0 0.266667 0.266667 { hcenter=true}
 T {@#6:pinnumber} 145 -490 2 1 0.266667 0.266667 {layer=13}
 L 3 0 -220 30 -220 {}
 B 5 -2.5 -222.5 2.5 -217.5 {pinnumber=8
@@ -128,7 +129,7 @@ name=GND
 dir=inout
 }
 T {@#8:pinnumber} 175 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#8:name} 156.4 -35 2 1 0.266667 0.266667 {}
+T {@#8:name} 170 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -190 30 -190 {}
 B 5 -2.5 -192.5 2.5 -187.5 {pinnumber=10
 pinseq=10

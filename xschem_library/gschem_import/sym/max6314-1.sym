@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=MAX6314
+v {xschem version=3.0.0 file_version=1.2}
+K {type=MAX6314
 template="device=MAX6314
 footprint=SOT143
 name=U?
@@ -14,6 +14,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -40,7 +41,7 @@ dir=inout
 name=GND
 }
 T {@#0:pinnumber} 115 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 96.4 -35 2 1 0.266667 0.266667 {}
+T {@#0:name} 110 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 210 -100 230 -100 {}
 B 5 227.5 -102.5 232.5 -97.5 {pinnumber=2
 pinseq=2
@@ -64,4 +65,4 @@ dir=in
 name=Vcc
 }
 T {@#3:pinnumber} 115 -170 2 1 0.266667 0.266667 {layer=13}
-T {@#3:name} 96.4 -155 0 0 0.266667 0.266667 {}
+T {@#3:name} 110 -155 0 0 0.266667 0.266667 { hcenter=true}

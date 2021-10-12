@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=AT90S8535J
+v {xschem version=3.0.0 file_version=1.2}
+K {type=AT90S8535J
 template="device=AT90S8535J
 name=U?
 footprint=PLCC44
@@ -17,6 +17,7 @@ format="@name @pinlist @value @GND @Vcc"
 extra="GND Vcc"
 extra_pinnumber="1,12,24 44,11,23"
 }
+G {}
 V {}
 S {}
 E {}

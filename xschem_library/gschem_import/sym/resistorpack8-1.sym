@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=RESISTORPACK_8
+v {xschem version=3.0.0 file_version=1.2}
+K {type=RESISTORPACK_8
 template="name=R?
 device=RESISTORPACK_8
 "
@@ -10,6 +10,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

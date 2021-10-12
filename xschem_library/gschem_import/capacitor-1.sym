@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=CAPACITOR
+v {xschem version=3.0.0 file_version=1.2}
+K {type=CAPACITOR
 template="device=CAPACITOR
 name=C?
 description=capacitor
@@ -13,24 +13,32 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
-L 3 0 -20 20 -20 {}
-L 3 70 -20 90 -20 {}
+T {@name} 20 -50 2 1 0.333333 0.333333 {}
+
+
 L 4 40 -40 40 0 {}
 L 4 50 -40 50 0 {}
 L 4 50 -20 70 -20 {}
 L 4 20 -20 40 -20 {}
+
+
+
+
+
+
+L 3 0 -20 20 -20 {}
 B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=1
 pinseq=1
 name=1
 dir=inout
 }
+L 3 70 -20 90 -20 {}
 B 5 87.5 -22.5 92.5 -17.5 {pinnumber=2
 pinseq=2
 name=2
 dir=inout
 }
-T {@name} 20 -40 2 1 0.333333 0.333333 {}
-T {@value} 20 22.5 2 1 0.333333 0.333333 {}

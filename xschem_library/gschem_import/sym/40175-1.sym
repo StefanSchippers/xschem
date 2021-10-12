@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=40175
+v {xschem version=3.0.0 file_version=1.2}
+K {type=40175
 template="name=U?
 device=40175
 footprint=DIP16
@@ -18,6 +18,7 @@ format="@name @pinlist @value @VSS @VDD"
 extra="VSS VDD"
 extra_pinnumber="8 16"
 }
+G {}
 V {}
 S {}
 E {}
@@ -48,7 +49,7 @@ name=CLR
 dir=in
 }
 T {@#0:pinnumber} 85 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 66.4 -35 2 1 0.266667 0.266667 {}
+T {@#0:name} 80 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -90 30 -90 {}
 B 5 -2.5 -92.5 2.5 -87.5 {pinnumber=13
 pinseq=2
@@ -149,7 +150,7 @@ L 3 80 -420 80 -390 {}
 B 5 77.5 -422.5 82.5 -417.5 {pinnumber=9
 pinseq=14
 name=CLK
-dir=inout
+dir=in
 }
 T {@#13:pinnumber} 85 -400 2 1 0.266667 0.266667 {layer=13}
-T {@#13:name} 66.4 -377.5 0 0 0.266667 0.266667 {}
+T {@#13:name} 80 -377.5 0 0 0.266667 0.266667 { hcenter=true}

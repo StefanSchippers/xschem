@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=AT89C5131_PLCC
+v {xschem version=3.0.0 file_version=1.2}
+K {type=AT89C5131_PLCC
 template="name=U?
 device=AT89C5131_PLCC
 footprint=PLCC52
@@ -22,6 +22,7 @@ format="@name @pinlist @value @GND @Vcc @AVcc @AGND @VREF"
 extra="GND Vcc AVcc AGND VREF"
 extra_pinnumber="41 16 17 19 24"
 }
+G {}
 V {}
 S {}
 E {}
@@ -361,7 +362,7 @@ name=\_RST\_
 dir=in
 }
 T {@#39:pinnumber} 105 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#39:name} 68.2667 -45 2 1 0.266667 0.266667 {}
+T {@#39:name} 100 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 180 -40 180 -10 {}
 B 5 177.5 -12.5 182.5 -7.5 {pinnumber=13
 pinseq=41
@@ -369,7 +370,7 @@ name=XTAL1
 dir=in
 }
 T {@#40:pinnumber} 185 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#40:name} 157.333 -45 2 1 0.266667 0.266667 {}
+T {@#40:name} 180 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 240 -40 240 -10 {}
 B 5 237.5 -12.5 242.5 -7.5 {pinnumber=12
 pinseq=42
@@ -377,7 +378,7 @@ name=XTAL2
 dir=out
 }
 T {@#41:pinnumber} 245 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#41:name} 217.333 -45 2 1 0.266667 0.266667 {}
+T {@#41:name} 240 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 300 -260 330 -260 {}
 B 5 327.5 -262.5 332.5 -257.5 {pinnumber=7
 pinseq=43

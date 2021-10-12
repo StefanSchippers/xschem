@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=DS89C450
+v {xschem version=3.0.0 file_version=1.2}
+K {type=DS89C450
 template="name=U?
 footprint=PLCC44
 numslots=0
@@ -17,6 +17,7 @@ format="@name @pinlist @value @GND @Vcc"
 extra="GND Vcc"
 extra_pinnumber="1,22,23,34 12,44"
 }
+G {}
 V {}
 S {}
 E {}
@@ -195,7 +196,7 @@ name=XTAL2
 dir=out
 }
 T {@#19:pinnumber} 255 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#19:name} 227.333 -45 2 1 0.266667 0.266667 {}
+T {@#19:name} 250 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 160 -40 160 -10 {}
 B 5 157.5 -12.5 162.5 -7.5 {pinnumber=21
 pinseq=21
@@ -203,7 +204,7 @@ name=XTAL1
 dir=in
 }
 T {@#20:pinnumber} 165 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#20:name} 137.333 -45 2 1 0.266667 0.266667 {}
+T {@#20:name} 160 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 90 -40 90 -10 {}
 B 5 87.5 -12.5 92.5 -7.5 {pinnumber=10
 pinseq=22
@@ -211,7 +212,7 @@ name=RST
 dir=in
 }
 T {@#21:pinnumber} 95 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#21:name} 76.4 -45 2 1 0.266667 0.266667 {}
+T {@#21:name} 90 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 10 -220 40 -220 {}
 B 5 7.5 -222.5 12.5 -217.5 {pinnumber=19
 pinseq=23

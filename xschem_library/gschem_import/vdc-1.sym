@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=VOLTAGE_SOURCE
+v {xschem version=3.0.0 file_version=1.2}
+K {type=VOLTAGE_SOURCE
 template="name=V?
 device=VOLTAGE_SOURCE
 footprint=none
@@ -14,6 +14,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -37,7 +38,7 @@ name=+
 dir=inout
 }
 T {@#0:pinnumber} 35 -100 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 25.4667 -85 0 0 0.266667 0.266667 {}
+T {@#0:name} 30 -85 0 0 0.266667 0.266667 { hcenter=true}
 L 3 30 -30 30 0 {}
 B 5 27.5 -2.5 32.5 2.5 {pinnumber=2
 pinseq=2
@@ -45,4 +46,4 @@ name=-
 dir=inout
 }
 T {@#1:pinnumber} 35 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#1:name} 25.4667 -35 2 1 0.266667 0.266667 {}
+T {@#1:name} 30 -35 2 1 0.266667 0.266667 { hcenter=true}

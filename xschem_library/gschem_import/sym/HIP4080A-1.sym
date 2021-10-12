@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=HIP4080A
+v {xschem version=3.0.0 file_version=1.2}
+K {type=HIP4080A
 template="device=HIP4080A
 description=\\"High Frequency Full Bridge FET Driver\\"
 footprint=DIP20
@@ -18,6 +18,7 @@ format="@name @pinlist @value @AGND @VCCA @VDDA"
 extra="AGND VCCA VDDA"
 extra_pinnumber="4 15 16"
 }
+G {}
 V {}
 S {}
 E {}

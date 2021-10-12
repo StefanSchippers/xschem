@@ -1,13 +1,14 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=label
+v {xschem version=3.0.0 file_version=1.2}
+K {type=label
 template="lab=Vcc
 "
 
 }
+G {}
 V {}
 S {}
 E {}
-T {} 20 -25 2 1 0.333333 0.333333 {}
+T {} 20 -25 2 1 0.333333 0.333333 { hcenter=true}
 
 
 L 4 5 -20 35 -20 {}

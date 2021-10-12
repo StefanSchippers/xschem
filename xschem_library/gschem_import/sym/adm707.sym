@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=ADM707
+v {xschem version=3.0.0 file_version=1.2}
+K {type=ADM707
 template="comment=\\"pin numbers for SOIC/DIP only, microSOIC different\\"
 name=U?
 device=ADM707
@@ -14,6 +14,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

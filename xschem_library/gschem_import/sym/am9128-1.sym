@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=AM9128
+v {xschem version=3.0.0 file_version=1.2}
+K {type=AM9128
 template="device=AM9128
 name=U?
 footprint=DIP24
@@ -18,6 +18,7 @@ format="@name @pinlist @value @Vcc @GND"
 extra="Vcc GND"
 extra_pinnumber="24 12"
 }
+G {}
 V {}
 S {}
 E {}
@@ -109,7 +110,7 @@ name=D0
 dir=inout
 }
 T {@#8:pinnumber} 275 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#8:name} 260.933 -35 2 1 0.266667 0.266667 {}
+T {@#8:name} 270 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 240 -30 240 0 {}
 B 5 237.5 -2.5 242.5 2.5 {pinnumber=10
 pinseq=10
@@ -117,7 +118,7 @@ name=D1
 dir=inout
 }
 T {@#9:pinnumber} 245 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#9:name} 230.933 -35 2 1 0.266667 0.266667 {}
+T {@#9:name} 240 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 210 -30 210 0 {}
 B 5 207.5 -2.5 212.5 2.5 {pinnumber=11
 pinseq=11
@@ -125,7 +126,7 @@ name=D2
 dir=inout
 }
 T {@#10:pinnumber} 215 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#10:name} 200.933 -35 2 1 0.266667 0.266667 {}
+T {@#10:name} 210 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 180 -30 180 0 {}
 B 5 177.5 -2.5 182.5 2.5 {pinnumber=13
 pinseq=13
@@ -133,7 +134,7 @@ name=D3
 dir=inout
 }
 T {@#11:pinnumber} 185 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#11:name} 170.933 -35 2 1 0.266667 0.266667 {}
+T {@#11:name} 180 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 150 -30 150 0 {}
 B 5 147.5 -2.5 152.5 2.5 {pinnumber=14
 pinseq=14
@@ -141,7 +142,7 @@ name=D4
 dir=inout
 }
 T {@#12:pinnumber} 155 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#12:name} 140.933 -35 2 1 0.266667 0.266667 {}
+T {@#12:name} 150 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 120 -30 120 0 {}
 B 5 117.5 -2.5 122.5 2.5 {pinnumber=15
 pinseq=15
@@ -149,7 +150,7 @@ name=D5
 dir=inout
 }
 T {@#13:pinnumber} 125 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#13:name} 110.933 -35 2 1 0.266667 0.266667 {}
+T {@#13:name} 120 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 90 -30 90 0 {}
 B 5 87.5 -2.5 92.5 2.5 {pinnumber=16
 pinseq=16
@@ -157,7 +158,7 @@ name=D6
 dir=inout
 }
 T {@#14:pinnumber} 95 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#14:name} 80.9333 -35 2 1 0.266667 0.266667 {}
+T {@#14:name} 90 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 60 -30 60 0 {}
 B 5 57.5 -2.5 62.5 2.5 {pinnumber=17
 pinseq=17
@@ -165,7 +166,7 @@ name=D7
 dir=inout
 }
 T {@#15:pinnumber} 65 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#15:name} 50.9333 -35 2 1 0.266667 0.266667 {}
+T {@#15:name} 60 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -60 20 -60 {}
 B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=18
 pinseq=18

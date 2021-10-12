@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=AROMAT-TQ4
+v {xschem version=3.0.0 file_version=1.2}
+K {type=AROMAT-TQ4
 template="device=AROMAT-TQ4
 name=K?
 class=IC
@@ -12,6 +12,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

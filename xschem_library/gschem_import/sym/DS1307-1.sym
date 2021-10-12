@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=ds1307
+v {xschem version=3.0.0 file_version=1.2}
+K {type=ds1307
 template="name=U?
 device=ds1307
 footprint=DIP8
@@ -15,6 +15,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -76,7 +77,7 @@ L 3 170 -80 200 -80 {}
 B 5 197.5 -82.5 202.5 -77.5 {pinnumber=6
 pinseq=6
 name=SCL
-dir=inout
+dir=in
 }
 T {@#5:pinnumber} 180 -85 2 1 0.266667 0.266667 {layer=13}
 T {@#5:name} 165 -80 2 0 0.266667 0.266667 {}

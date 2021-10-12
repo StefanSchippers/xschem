@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=none
+v {xschem version=3.0.0 file_version=1.2}
+K {type=none
 template="name=S?
 device=none
 "
@@ -10,10 +10,11 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
-T {gTAG-ucont} 206.667 -108.333 0 1 0.333333 0.333333 {}
+T {gTAG-ucont} 150 -100 0 1 0.333333 0.333333 { hcenter=true vcenter=true}
 T {@name} 30 -210 2 1 0.333333 0.333333 {}
 
 L 4 30 0 290 0 {}

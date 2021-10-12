@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=OMRON G5V-1
+v {xschem version=3.0.0 file_version=1.2}
+K {type=OMRON G5V-1
 type=OMRON_G2R-24-DC5
 template="device=OMRON_G2R-24-DC5
 class=IC
@@ -14,10 +14,11 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
-T {@device} 30 -76.6667 0 0 0.266667 0.266667 {}
+T {@device} 30 -70 0 0 0.266667 0.266667 { vcenter=true}
 T {@name} 30 -80 2 1 0.333333 0.333333 {}
 
 L 4 30 0 70 0 {}

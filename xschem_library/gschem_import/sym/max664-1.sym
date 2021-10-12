@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=MAX664
+v {xschem version=3.0.0 file_version=1.2}
+K {type=MAX664
 template="device=MAX664
 name=U?
 footprint=DIP8
@@ -14,6 +14,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -54,7 +55,7 @@ name=SHDN
 dir=in
 }
 T {@#2:pinnumber} 95 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#2:name} 83.3333 -35 3 0 0.266667 0.266667 {}
+T {@#2:name} 90 -35 3 0 0.266667 0.266667 { vcenter=true}
 L 3 0 -180 30 -180 {}
 B 5 -2.5 -182.5 2.5 -177.5 {pinnumber=4
 pinseq=4
@@ -70,7 +71,7 @@ name=SHDN
 dir=in
 }
 T {@#4:pinnumber} 65 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#4:name} 53.3333 -35 3 0 0.266667 0.266667 {}
+T {@#4:name} 60 -35 3 0 0.266667 0.266667 { vcenter=true}
 L 3 150 -30 150 0 {}
 B 5 147.5 -2.5 152.5 2.5 {pinnumber=6
 pinseq=6
@@ -78,7 +79,7 @@ name=VSET
 dir=in
 }
 T {@#5:pinnumber} 155 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#5:name} 143.333 -35 3 0 0.266667 0.266667 {}
+T {@#5:name} 150 -35 3 0 0.266667 0.266667 { vcenter=true}
 L 3 240 -60 270 -60 {}
 B 5 267.5 -62.5 272.5 -57.5 {pinnumber=7
 pinseq=7
@@ -94,4 +95,4 @@ name=GND
 dir=inout
 }
 T {@#7:pinnumber} 125 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#7:name} 113.333 -35 3 0 0.266667 0.266667 {}
+T {@#7:name} 120 -35 3 0 0.266667 0.266667 { vcenter=true}

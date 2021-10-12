@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=sa52-11
+v {xschem version=3.0.0 file_version=1.2}
+K {type=sa52-11
 template="name=D?
 device=sa52-11
 footprint=none
@@ -14,6 +14,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -88,7 +89,7 @@ name=CA
 dir=inout
 }
 T {@#0:pinnumber} 95 -330 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 80.9333 -315 0 0 0.266667 0.266667 {}
+T {@#0:name} 90 -315 0 0 0.266667 0.266667 { hcenter=true}
 L 3 130 -350 130 -320 {}
 B 5 127.5 -352.5 132.5 -347.5 {pinnumber=8
 pinseq=2
@@ -96,7 +97,7 @@ name=CA
 dir=inout
 }
 T {@#1:pinnumber} 135 -330 2 1 0.266667 0.266667 {layer=13}
-T {@#1:name} 120.933 -315 0 0 0.266667 0.266667 {}
+T {@#1:name} 130 -315 0 0 0.266667 0.266667 { hcenter=true}
 L 3 0 -300 30 -300 {}
 B 5 -2.5 -302.5 2.5 -297.5 {pinnumber=7
 pinseq=3

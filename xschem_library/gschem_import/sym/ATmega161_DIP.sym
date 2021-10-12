@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=ATmega161_DIP
+v {xschem version=3.0.0 file_version=1.2}
+K {type=ATmega161_DIP
 template="name=U?
 device=ATmega161_DIP
 footprint=DIP40
@@ -18,6 +18,7 @@ format="@name @pinlist @value @GND @Vcc"
 extra="GND Vcc"
 extra_pinnumber="20 40"
 }
+G {}
 V {}
 S {}
 E {}
@@ -43,7 +44,7 @@ name=\_Reset\_
 dir=in
 }
 T {@#0:pinnumber} 235 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 189.2 -45 2 1 0.266667 0.266667 {}
+T {@#0:name} 230 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 170 -40 170 -10 {}
 B 5 167.5 -12.5 172.5 -7.5 {pinnumber=18
 pinseq=2
@@ -51,7 +52,7 @@ name=XTAL2
 dir=out
 }
 T {@#1:pinnumber} 175 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#1:name} 147.333 -45 2 1 0.266667 0.266667 {}
+T {@#1:name} 170 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 110 -40 110 -10 {}
 B 5 107.5 -12.5 112.5 -7.5 {pinnumber=19
 pinseq=3
@@ -59,7 +60,7 @@ name=XTAL1
 dir=in
 }
 T {@#2:pinnumber} 115 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#2:name} 87.3333 -45 2 1 0.266667 0.266667 {}
+T {@#2:name} 110 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 10 -220 40 -220 {}
 B 5 7.5 -222.5 12.5 -217.5 {pinnumber=17
 pinseq=4

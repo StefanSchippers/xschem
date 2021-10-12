@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=cy7c64603-52nc
+v {xschem version=3.0.0 file_version=1.2}
+K {type=cy7c64603-52nc
 template="device=cy7c64603-52nc
 name=U?
 footprint=cy7c64603_qfp
@@ -11,6 +11,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -46,7 +47,7 @@ T {PA4/RDY4} 740 -1020 2 0 0.333333 0.333333 {}
 T {PA5/RDY5} 740 -980 2 0 0.333333 0.333333 {}
 T {CTL0} 740 -130 2 0 0.333333 0.333333 {}
 T {CTL2} 740 -90 2 0 0.333333 0.333333 {}
-T {CY7C64603-52NC} 618 -615 0 1 1 1 {}
+T {CY7C64603-52NC} 380 -590 0 1 1 1 { hcenter=true vcenter=true}
 T {@name} 40 -1150 2 1 0.333333 0.333333 {}
 T {RESERVED1} 450 40 1 1 0.333333 0.333333 {}
 T {RESERVED2} 490 40 1 1 0.333333 0.333333 {}

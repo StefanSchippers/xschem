@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=PMOS_TRANSISTOR
+v {xschem version=3.0.0 file_version=1.2}
+K {type=PMOS_TRANSISTOR
 template="device=PMOS_TRANSISTOR
 name=M?
 model-name=phv
@@ -14,6 +14,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

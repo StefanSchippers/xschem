@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=photo-transistor
+v {xschem version=3.0.0 file_version=1.2}
+K {type=photo-transistor
 type=PS2501-1
 template="device=PS2501-1
 name=Q?
@@ -12,6 +12,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

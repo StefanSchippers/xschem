@@ -1,9 +1,10 @@
-v {xschem version=2.9.7 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
+K {}
 G {}
 V {}
 S {}
 E {}
-T {Lightning detector} 5910 -5943.33 0 0 0.533333 0.533333 {}
+T {Lightning detector} 5910 -5930 0 0 0.533333 0.533333 { vcenter=true}
 T {techman@dingoblue.net.au} 6100 -5830 2 1 0.266667 0.266667 {}
 T {1.00} 6100 -5860 2 1 0.266667 0.266667 {}
 T {lightning.sch} 5710 -5860 2 1 0.266667 0.266667 {}

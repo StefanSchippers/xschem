@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=74520
+v {xschem version=3.0.0 file_version=1.2}
+K {type=74520
 template="footprint=SO20
 pins=20
 device=74520
@@ -15,6 +15,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -177,7 +178,7 @@ name=Vcc
 dir=inout
 }
 T {@#17:pinnumber} 125 -370 2 1 0.266667 0.266667 {layer=13}
-T {@#17:name} 106.4 -355 0 0 0.266667 0.266667 {}
+T {@#17:name} 120 -355 0 0 0.266667 0.266667 { hcenter=true}
 L 3 120 -30 120 0 {}
 B 5 117.5 -2.5 122.5 2.5 {pinnumber=10
 pinseq=19
@@ -185,7 +186,7 @@ name=GND
 dir=inout
 }
 T {@#18:pinnumber} 125 -7.5 2 1 0.266667 0.266667 {layer=13}
-T {@#18:name} 106.4 -35 2 1 0.266667 0.266667 {}
+T {@#18:name} 120 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 220 -330 240 -330 {}
 B 5 237.5 -332.5 242.5 -327.5 {pinnumber=19
 pinseq=20

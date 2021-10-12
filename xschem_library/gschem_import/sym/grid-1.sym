@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=VIPEC-GRID
+v {xschem version=3.0.0 file_version=1.2}
+K {type=VIPEC-GRID
 template="title=\\"Graph Title\\"
 Ymin=-80
 Ymax=20
@@ -19,10 +19,11 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
-T {ViPEC Grid Display} 424 -306.667 0 1 0.666667 0.666667 {}
+T {ViPEC Grid Display} 220 -290 0 1 0.666667 0.666667 { hcenter=true vcenter=true}
 T {title=Graph Title} 60 -220 2 1 0.333333 0.333333 {}
 T {Ymin=-80} 60 -180 2 1 0.333333 0.333333 {}
 T {Ymax=20} 260 -180 2 1 0.333333 0.333333 {}

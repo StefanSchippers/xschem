@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=SPICE-VC-switch
+v {xschem version=3.0.0 file_version=1.2}
+K {type=SPICE-VC-switch
 template="device=SPICE-VC-switch
 name=S?
 model-name=swmod
@@ -11,6 +11,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

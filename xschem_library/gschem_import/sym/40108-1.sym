@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=40108
+v {xschem version=3.0.0 file_version=1.2}
+K {type=40108
 template="name=U?
 device=40108
 footprint=DIP24
@@ -17,6 +17,7 @@ format="@name @pinlist @value @VSS @VDD"
 extra="VSS VDD"
 extra_pinnumber="12 24"
 }
+G {}
 V {}
 S {}
 E {}
@@ -43,7 +44,7 @@ name=CLK
 dir=in
 }
 T {@#0:pinnumber} 95 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 76.4 -42.5 2 1 0.266667 0.266667 {}
+T {@#0:name} 90 -42.5 2 1 0.266667 0.266667 { hcenter=true}
 L 3 160 -30 160 0 {}
 B 5 157.5 -2.5 162.5 2.5 {pinnumber=21
 pinseq=2
@@ -51,7 +52,7 @@ name=3-State\\ B
 dir=in
 }
 T {@#1:pinnumber} 165 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#1:name} 110.133 -35 2 1 0.266667 0.266667 {}
+T {@#1:name} 160 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -300 30 -300 {}
 B 5 -2.5 -302.5 2.5 -297.5 {pinnumber=9
 pinseq=3
@@ -203,7 +204,7 @@ name=WE
 dir=in
 }
 T {@#20:pinnumber} 95 -590 2 1 0.266667 0.266667 {layer=13}
-T {@#20:name} 80.9333 -575 0 0 0.266667 0.266667 {}
+T {@#20:name} 90 -575 0 0 0.266667 0.266667 { hcenter=true}
 L 3 160 -610 160 -580 {}
 B 5 157.5 -612.5 162.5 -607.5 {pinnumber=3
 pinseq=22
@@ -211,4 +212,4 @@ name=3-State\\ A
 dir=in
 }
 T {@#21:pinnumber} 165 -590 2 1 0.266667 0.266667 {layer=13}
-T {@#21:name} 110.133 -575 0 0 0.266667 0.266667 {}
+T {@#21:name} 160 -575 0 0 0.266667 0.266667 { hcenter=true}

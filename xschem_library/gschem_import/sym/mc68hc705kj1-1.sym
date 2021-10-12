@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=MC68HC705KJ1
+v {xschem version=3.0.0 file_version=1.2}
+K {type=MC68HC705KJ1
 template="name=U?
 device=MC68HC705KJ1
 footprint=DIP16
@@ -14,11 +14,12 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
 T {@name} 230 -390 2 0 0.333333 0.333333 {}
-T {MC68HC705KJ1} 198 -298.333 0 1 0.333333 0.333333 {}
+T {MC68HC705KJ1} 130 -290 0 1 0.333333 0.333333 { hcenter=true vcenter=true}
 
 L 4 30 -30 230 -30 {}
 L 4 230 -380 230 -30 {}
@@ -80,7 +81,7 @@ name=VDD
 dir=inout
 }
 T {@#5:pinnumber} 135 -390 2 1 0.266667 0.266667 {layer=13}
-T {@#5:name} 116.4 -375 0 0 0.266667 0.266667 {}
+T {@#5:name} 130 -375 0 0 0.266667 0.266667 { hcenter=true}
 L 3 130 -30 130 0 {}
 B 5 127.5 -2.5 132.5 2.5 {pinnumber=7
 pinseq=7
@@ -88,7 +89,7 @@ name=VSS
 dir=inout
 }
 T {@#6:pinnumber} 135 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#6:name} 116.4 -35 2 1 0.266667 0.266667 {}
+T {@#6:name} 130 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 230 -50 260 -50 {}
 B 5 257.5 -52.5 262.5 -47.5 {pinnumber=8
 pinseq=8

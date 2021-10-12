@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=74175
+v {xschem version=3.0.0 file_version=1.2}
+K {type=74175
 template="device=74175
 footprint=DIP16
 name=U?
@@ -18,6 +18,7 @@ format="@name @pinlist @value @Vcc @GND"
 extra="Vcc GND"
 extra_pinnumber="16 8"
 }
+G {}
 V {}
 S {}
 E {}
@@ -142,7 +143,7 @@ L 3 0 -20 30 -20 {}
 B 5 -2.5 -22.5 2.5 -17.5 {pinnumber=9
 pinseq=13
 name=CLK
-dir=inout
+dir=in
 }
 T {@#12:pinnumber} 20 -25 2 0 0.266667 0.266667 {layer=13}
 T {@#12:name} 37.5 -20 2 1 0.266667 0.266667 {}

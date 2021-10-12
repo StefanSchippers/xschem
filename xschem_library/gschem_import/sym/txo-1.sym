@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=VTXO
+v {xschem version=3.0.0 file_version=1.2}
+K {type=VTXO
 template="name=U?
 class=IC
 device=VTXO
@@ -12,6 +12,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -35,7 +36,7 @@ name=Tune
 dir=in
 }
 T {@#0:pinnumber} 5 -75 2 1 0.333333 0.333333 {layer=13}
-T {@#0:name} 25 -78.3333 0 0 0.333333 0.333333 {}
+T {@#0:name} 25 -70 0 0 0.333333 0.333333 { vcenter=true}
 L 3 80 -20 80 0 {}
 B 5 77.5 -2.5 82.5 2.5 {pinnumber=2
 pinseq=2
@@ -43,7 +44,7 @@ name=GND
 dir=inout
 }
 T {@#1:pinnumber} 75 -15 0 1 0.333333 0.333333 {layer=13}
-T {@#1:name} 63 -25 2 1 0.333333 0.333333 {}
+T {@#1:name} 80 -25 2 1 0.333333 0.333333 { hcenter=true}
 L 3 140 -70 160 -70 {}
 B 5 157.5 -72.5 162.5 -67.5 {pinnumber=3
 pinseq=3
@@ -51,7 +52,7 @@ name=Out
 dir=out
 }
 T {@#2:pinnumber} 145 -75 2 1 0.333333 0.333333 {layer=13}
-T {@#2:name} 130 -78.3333 0 1 0.333333 0.333333 {}
+T {@#2:name} 130 -70 0 1 0.333333 0.333333 { vcenter=true}
 L 3 80 -150 80 -130 {}
 B 5 77.5 -152.5 82.5 -147.5 {pinnumber=4
 pinseq=4
@@ -59,4 +60,4 @@ name=Vcc
 dir=inout
 }
 T {@#3:pinnumber} 75 -145 0 1 0.333333 0.333333 {layer=13}
-T {@#3:name} 63 -125 0 0 0.333333 0.333333 {}
+T {@#3:name} 80 -125 0 0 0.333333 0.333333 { hcenter=true}

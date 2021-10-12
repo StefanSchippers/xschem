@@ -1,11 +1,12 @@
-v {xschem version=2.9.7 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
+K {}
 G {}
 V {}
 S {}
 E {}
 T {Components inside this box are inside the device package} 3020 -5690 2 1 0.333333 0.333333 {}
-T {SPICE model of Agilent MSA-2643} 3670 -4936.67 0 0 0.666667 0.666667 {}
-T {SDB -- 3.31.2003} 4060 -4848.33 0 0 0.333333 0.333333 {}
+T {SPICE model of Agilent MSA-2643} 3670 -4920 0 0 0.666667 0.666667 { vcenter=true}
+T {SDB -- 3.31.2003} 4060 -4840 0 0 0.333333 0.333333 { vcenter=true}
 
 L 4 3000 -5010 3950 -5010 {}
 L 4 3950 -5720 3950 -5010 {}

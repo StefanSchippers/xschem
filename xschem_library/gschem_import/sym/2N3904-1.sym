@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=2N3904
+v {xschem version=3.0.0 file_version=1.2}
+K {type=2N3904
 template="device=2N3904
 name=Q?
 footprint=TO92
@@ -11,6 +11,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

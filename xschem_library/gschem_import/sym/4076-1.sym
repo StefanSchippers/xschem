@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=4076
+v {xschem version=3.0.0 file_version=1.2}
+K {type=4076
 template="name=U?
 device=4076
 footprint=DIP16
@@ -18,6 +18,7 @@ format="@name @pinlist @value @VSS @VDD"
 extra="VSS VDD"
 extra_pinnumber="8 16"
 }
+G {}
 V {}
 S {}
 E {}
@@ -44,15 +45,15 @@ name=R
 dir=in
 }
 T {@#0:pinnumber} 145 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 135.467 -35 2 1 0.266667 0.266667 {}
+T {@#0:name} 140 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 100 -30 100 0 {}
 B 5 97.5 -2.5 102.5 2.5 {pinnumber=7
 pinseq=2
 name=CLK
-dir=inout
+dir=in
 }
 T {@#1:pinnumber} 105 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#1:name} 86.4 -42.5 2 1 0.266667 0.266667 {}
+T {@#1:name} 100 -42.5 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -70 30 -70 {}
 B 5 -2.5 -72.5 2.5 -67.5 {pinnumber=11
 pinseq=3
@@ -124,7 +125,7 @@ name=N
 dir=in
 }
 T {@#10:pinnumber} 185 -240 2 1 0.266667 0.266667 {layer=13}
-T {@#10:name} 175.467 -225 0 0 0.266667 0.266667 {}
+T {@#10:name} 180 -225 0 0 0.266667 0.266667 { hcenter=true}
 L 3 140 -260 140 -230 {}
 B 5 137.5 -262.5 142.5 -257.5 {pinnumber=1
 pinseq=12
@@ -132,7 +133,7 @@ name=M
 dir=in
 }
 T {@#11:pinnumber} 145 -240 2 1 0.266667 0.266667 {layer=13}
-T {@#11:name} 135.467 -225 0 0 0.266667 0.266667 {}
+T {@#11:name} 140 -225 0 0 0.266667 0.266667 { hcenter=true}
 L 3 100 -260 100 -230 {}
 B 5 97.5 -262.5 102.5 -257.5 {pinnumber=10
 pinseq=13
@@ -140,7 +141,7 @@ name=G2
 dir=in
 }
 T {@#12:pinnumber} 105 -240 2 1 0.266667 0.266667 {layer=13}
-T {@#12:name} 90.9333 -225 0 0 0.266667 0.266667 {}
+T {@#12:name} 100 -225 0 0 0.266667 0.266667 { hcenter=true}
 L 3 60 -260 60 -230 {}
 B 5 57.5 -262.5 62.5 -257.5 {pinnumber=9
 pinseq=14
@@ -148,4 +149,4 @@ name=G1
 dir=in
 }
 T {@#13:pinnumber} 65 -240 2 1 0.266667 0.266667 {layer=13}
-T {@#13:name} 50.9333 -225 0 0 0.266667 0.266667 {}
+T {@#13:name} 60 -225 0 0 0.266667 0.266667 { hcenter=true}

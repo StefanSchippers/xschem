@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=TINY-TIGER
+v {xschem version=3.0.0 file_version=1.2}
+K {type=TINY-TIGER
 template="device=TINY-TIGER
 description=\\"TINY-Tiger multi-tasking MPU by Wilke Technology\\"
 documentation=http://www.wilke.de/multi.htm#tinytiger
@@ -19,6 +19,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

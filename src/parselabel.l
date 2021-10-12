@@ -142,9 +142,9 @@ NOTSP [^ \t\n]
 INT [0-9]+
 DDOT {SP}".."{SP}
 CLN {SP}":"{SP}
-LAB [-a-zA-Z_%$~"#!/\\<>]
+LAB [-a-zA-Z_%$~"+#!/\\<>]
   /* includes numbers */
-LAB_NUM [-a-zA-Z_%$~"#!/\\<>0-9]
+LAB_NUM [-a-zA-Z_%$~"+#!/\\<>0-9]
   /* includes numbers and space and *+(). */
 IDX_LAB_NUM_SP [-a-zA-Z_%$~"#!/\\<> \t\n0-9*+().]
   /* identifier, may start with a number */

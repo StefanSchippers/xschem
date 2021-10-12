@@ -1,9 +1,10 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=label
+v {xschem version=3.0.0 file_version=1.2}
+K {type=label
 template="lab=+12V
 "
 
 }
+G {}
 V {}
 S {}
 E {}

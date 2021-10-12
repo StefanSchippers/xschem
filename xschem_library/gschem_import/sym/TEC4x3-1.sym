@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=TEC4x3
+v {xschem version=3.0.0 file_version=1.2}
+K {type=TEC4x3
 template="device=TEC4x3
 "
 tedax_format="footprint @name @footprint
@@ -9,6 +9,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

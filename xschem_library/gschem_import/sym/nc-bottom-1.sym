@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=DRC_Directive
+v {xschem version=3.0.0 file_version=1.2}
+K {type=DRC_Directive
 template="value=NoConnection
 documentation=nc.pdf
 device=DRC_Directive
@@ -14,10 +14,11 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
-T {NC} 31.3333 -15 0 1 0.333333 0.333333 {}
+T {NC} 20 -15 0 1 0.333333 0.333333 { hcenter=true}
 
 
 L 4 5 -20 35 -20 {}

@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=4027
+v {xschem version=3.0.0 file_version=1.2}
+K {type=4027
 template="name=U?
 device=4027
 footprint=DIP16
@@ -18,6 +18,7 @@ format="@name @pinlist @value @VSS @VDD"
 extra="VSS VDD"
 extra_pinnumber="8 16"
 }
+G {}
 V {}
 S {}
 E {}
@@ -46,7 +47,7 @@ dir=in
 pinnumber=12:4
 }
 T {@#0:pinnumber} 85 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 75.4667 -35 2 1 0.266667 0.266667 {}
+T {@#0:name} 80 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -70 30 -70 {}
 B 5 -2.5 -72.5 2.5 -67.5 {
 pinseq=2
@@ -100,4 +101,4 @@ dir=in
 pinnumber=9:7
 }
 T {@#6:pinnumber} 85 -200 2 1 0.266667 0.266667 {layer=13}
-T {@#6:name} 75.4667 -185 0 0 0.266667 0.266667 {}
+T {@#6:name} 80 -185 0 0 0.266667 0.266667 { hcenter=true}

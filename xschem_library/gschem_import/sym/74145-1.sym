@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=74145
+v {xschem version=3.0.0 file_version=1.2}
+K {type=74145
 template="device=74145
 footprint=DIP16
 name=U?
@@ -17,6 +17,7 @@ format="@name @pinlist @value @Vcc @GND"
 extra="Vcc GND"
 extra_pinnumber="16 8"
 }
+G {}
 V {}
 S {}
 E {}

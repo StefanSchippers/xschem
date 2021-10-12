@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=MAX1480A
+v {xschem version=3.0.0 file_version=1.2}
+K {type=MAX1480A
 template="name=U?
 device=MAX1480A
 footprint=DIP28
@@ -28,6 +28,7 @@ format="@name @pinlist @value @VCC1 @VCC2 @VCC3 @VCC4 @VCC5 @GND1 @GND2 @ISOVCC1
 extra="VCC1 VCC2 VCC3 VCC4 VCC5 GND1 GND2 ISOVCC1 ISOVCC2 ISOCOM1 ISOCOM2"
 extra_pinnumber="1 2 8 10 14 5 12 26 18 20 16"
 }
+G {}
 V {}
 S {}
 E {}

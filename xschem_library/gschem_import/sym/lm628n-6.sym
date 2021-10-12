@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=lm628n-6
+v {xschem version=3.0.0 file_version=1.2}
+K {type=lm628n-6
 template="device=lm628n-6
 footprint=DIP28
 name=U?
@@ -15,6 +15,7 @@ format="@name @pinlist @value @+5V @GND"
 extra="+5V GND"
 extra_pinnumber="28 14"
 }
+G {}
 V {}
 S {}
 E {}
@@ -44,7 +45,7 @@ L 3 0 -510 30 -510 {}
 B 5 -2.5 -512.5 2.5 -507.5 {pinnumber=26
 pinseq=1
 name=CLK
-dir=inout
+dir=in
 }
 T {@#0:pinnumber} 10 -515 2 1 0.266667 0.266667 {layer=13}
 T {@#0:name} 50.9 -503.9 2 1 0.266667 0.266667 {}

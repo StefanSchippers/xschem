@@ -1,3 +1,7 @@
+#!/bin/bash
+
+
+
 ../../src/gschemtoxschem.awk /usr/share/doc/lepton-eda/examples/TwoStageAmp/TwoStageAmp.sch > TwoStageAmp.sch
 ../../src/gschemtoxschem.awk /usr/share/doc/lepton-eda/examples/TwoStageAmp/sym/vcc-1.sym > vcc-1.sym
 ../../src/gschemtoxschem.awk /usr/share/doc/lepton-eda/examples/TwoStageAmp/sym/vsin-1.sym > vsin-1.sym
@@ -12,7 +16,6 @@
 ../../src/gschemtoxschem.awk /usr/share/doc/lepton-eda/examples/TwoStageAmp/sym/vdc-1.sym > vdc-1.sym
 ../../src/gschemtoxschem.awk /usr/share/doc/lepton-eda/examples/gTAG/gTAG-ucont.sch > gTAG-ucont.sch
 ../../src/gschemtoxschem.awk /usr/share/doc/lepton-eda/examples/gTAG/gTAG.sch > gTAG.sch
-../../src/gschemtoxschem.awk /usr/share/doc/lepton-eda/examples/gTAG/xxx.sym > xxx.sym
 ../../src/gschemtoxschem.awk /usr/share/doc/lepton-eda/examples/gTAG/gTAG-consio.sch > gTAG-consio.sch
 ../../src/gschemtoxschem.awk /usr/share/doc/lepton-eda/examples/gTAG/gTAG-jtagio.sch > gTAG-jtagio.sch
 ../../src/gschemtoxschem.awk /usr/share/doc/lepton-eda/examples/gTAG/sym/7414-1.sym > 7414-1.sym

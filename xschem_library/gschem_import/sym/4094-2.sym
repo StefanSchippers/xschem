@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=4094
+v {xschem version=3.0.0 file_version=1.2}
+K {type=4094
 template="name=U?
 device=4094
 class=IC
@@ -19,6 +19,7 @@ format="@name @pinlist @value @GND @VCC"
 extra="GND VCC"
 extra_pinnumber="8 16"
 }
+G {}
 V {}
 S {}
 E {}
@@ -58,7 +59,7 @@ L 3 0 -270 30 -270 {}
 B 5 -2.5 -272.5 2.5 -267.5 {pinnumber=3
 pinseq=3
 name=CLK
-dir=inout
+dir=in
 }
 T {@#2:pinnumber} 20 -275 2 0 0.266667 0.266667 {layer=13}
 T {@#2:name} 40 -270 2 1 0.266667 0.266667 {}

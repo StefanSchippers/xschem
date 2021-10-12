@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=62256
+v {xschem version=3.0.0 file_version=1.2}
+K {type=62256
 template="device=62256
 name=U?
 footprint=DIP28
@@ -14,6 +14,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -145,7 +146,7 @@ name=GND
 dir=inout
 }
 T {@#13:pinnumber} 135 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#13:name} 116.4 -45 2 1 0.266667 0.266667 {}
+T {@#13:name} 130 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 230 -460 260 -460 {}
 B 5 257.5 -462.5 262.5 -457.5 {pinnumber=15
 pinseq=15
@@ -193,7 +194,7 @@ name=\_CS\_
 dir=in
 }
 T {@#19:pinnumber} 185 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#19:name} 152.8 -45 2 1 0.266667 0.266667 {}
+T {@#19:name} 180 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -250 30 -250 {}
 B 5 -2.5 -252.5 2.5 -247.5 {pinnumber=21
 pinseq=21
@@ -209,7 +210,7 @@ name=\_OE\_
 dir=in
 }
 T {@#21:pinnumber} 85 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#21:name} 52.8 -45 2 1 0.266667 0.266667 {}
+T {@#21:name} 80 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -220 30 -220 {}
 B 5 -2.5 -222.5 2.5 -217.5 {pinnumber=23
 pinseq=23
@@ -257,4 +258,4 @@ name=Vcc
 dir=inout
 }
 T {@#27:pinnumber} 135 -590 2 1 0.266667 0.266667 {layer=13}
-T {@#27:name} 116.4 -575 0 0 0.266667 0.266667 {}
+T {@#27:name} 130 -575 0 0 0.266667 0.266667 { hcenter=true}

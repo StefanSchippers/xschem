@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=Atmega103
+v {xschem version=3.0.0 file_version=1.2}
+K {type=Atmega103
 template="name=U?
 device=Atmega103
 footprint=TQFP64
@@ -20,6 +20,7 @@ format="@name @pinlist @value @Vcc @GND @AGND @AVcc"
 extra="Vcc GND AGND AVcc"
 extra_pinnumber="21,52 22,53 63 64"
 }
+G {}
 V {}
 S {}
 E {}
@@ -48,7 +49,7 @@ name=XTAL2
 dir=out
 }
 T {@#0:pinnumber} 295 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 267.333 -45 2 1 0.266667 0.266667 {}
+T {@#0:name} 290 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 230 -40 230 -10 {}
 B 5 227.5 -12.5 232.5 -7.5 {pinnumber=24
 pinseq=2
@@ -56,7 +57,7 @@ name=XTAL1
 dir=in
 }
 T {@#1:pinnumber} 235 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#1:name} 207.333 -45 2 1 0.266667 0.266667 {}
+T {@#1:name} 230 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 170 -40 170 -10 {}
 B 5 167.5 -12.5 172.5 -7.5 {pinnumber=18
 pinseq=3
@@ -64,7 +65,7 @@ name=TOSC2
 dir=out
 }
 T {@#2:pinnumber} 175 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#2:name} 147.333 -45 2 1 0.266667 0.266667 {}
+T {@#2:name} 170 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 110 -40 110 -10 {}
 B 5 107.5 -12.5 112.5 -7.5 {pinnumber=19
 pinseq=4
@@ -72,7 +73,7 @@ name=TOSC1
 dir=in
 }
 T {@#3:pinnumber} 115 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#3:name} 87.3333 -45 2 1 0.266667 0.266667 {}
+T {@#3:name} 110 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 10 -80 30 -80 {}
 B 5 7.5 -82.5 12.5 -77.5 {pinnumber=20
 pinseq=5

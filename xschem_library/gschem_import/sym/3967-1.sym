@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=a3967lsb
+v {xschem version=3.0.0 file_version=1.2}
+K {type=a3967lsb
 template="name=U?
 device=a3967lsb
 footprint=\\"SO24 .050\\"
@@ -15,6 +15,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

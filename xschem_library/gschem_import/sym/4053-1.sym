@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=4053
+v {xschem version=3.0.0 file_version=1.2}
+K {type=4053
 template="numslots=3
 slot=1
 device=4053
@@ -21,6 +21,7 @@ format="@name @pinlist @value @VDD @VSS @VEE"
 extra="VDD VSS VEE"
 extra_pinnumber="16 8,6 7"
 }
+G {}
 V {}
 S {}
 E {}
@@ -55,7 +56,7 @@ name=S
 pinnumber=10:9:11
 }
 T {@#1:pinnumber} 65 -120 2 1 0.266667 0.266667 {layer=13}
-T {@#1:name} 55.4667 -105 0 0 0.266667 0.266667 {}
+T {@#1:name} 60 -105 0 0 0.266667 0.266667 { hcenter=true}
 L 3 90 -80 120 -80 {}
 B 5 117.5 -82.5 122.5 -77.5 {
 pinseq=3

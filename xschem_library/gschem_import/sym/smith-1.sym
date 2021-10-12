@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=SMITH
+v {xschem version=3.0.0 file_version=1.2}
+K {type=SMITH
 template="device=SMITH
 Title=\\"Graph Title\\"
 S11=on
@@ -15,11 +15,12 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
-T {Smith Chart} 304.667 -256.667 0 1 0.666667 0.666667 {}
-T {Title=Graph Title} 276.333 -188.333 0 1 0.333333 0.333333 {}
+T {Smith Chart} 180 -240 0 1 0.666667 0.666667 { hcenter=true vcenter=true}
+T {Title=Graph Title} 180 -180 0 1 0.333333 0.333333 { hcenter=true vcenter=true}
 T {S11=on} 60 -110 2 1 0.333333 0.333333 {}
 T {S12=off} 60 -50 2 1 0.333333 0.333333 {}
 T {S22=off} 230 -50 2 1 0.333333 0.333333 {}

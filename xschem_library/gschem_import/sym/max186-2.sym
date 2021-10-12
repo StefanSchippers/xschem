@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=MAX189
+v {xschem version=3.0.0 file_version=1.2}
+K {type=MAX189
 template="device=MAX189
 name=U?
 footprint=DIP20
@@ -14,6 +14,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -106,7 +107,7 @@ name=Vss
 dir=inout
 }
 T {@#8:pinnumber} 125 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#8:name} 106.4 -35 2 1 0.266667 0.266667 {}
+T {@#8:name} 120 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 220 -300 240 -300 {}
 B 5 237.5 -302.5 242.5 -297.5 {pinnumber=10
 pinseq=10
@@ -138,7 +139,7 @@ name=AGND
 dir=inout
 }
 T {@#12:pinnumber} 65 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#12:name} 41.8667 -35 2 1 0.266667 0.266667 {}
+T {@#12:name} 60 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 180 -30 180 0 {}
 B 5 177.5 -2.5 182.5 2.5 {pinnumber=14
 pinseq=14
@@ -146,7 +147,7 @@ name=DGND
 dir=inout
 }
 T {@#13:pinnumber} 185 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#13:name} 161.867 -35 2 1 0.266667 0.266667 {}
+T {@#13:name} 180 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 210 -180 240 -180 {}
 B 5 237.5 -182.5 242.5 -177.5 {pinnumber=15
 pinseq=15
@@ -183,7 +184,7 @@ L 3 210 -120 240 -120 {}
 B 5 237.5 -122.5 242.5 -117.5 {pinnumber=19
 pinseq=19
 name=SCLK
-dir=inout
+dir=in
 }
 T {@#18:pinnumber} 220 -125 2 1 0.266667 0.266667 {layer=13}
 T {@#18:name} 202.5 -120 2 0 0.266667 0.266667 {}
@@ -194,4 +195,4 @@ name=Vcc
 dir=inout
 }
 T {@#19:pinnumber} 125 -340 2 1 0.266667 0.266667 {layer=13}
-T {@#19:name} 106.4 -325 0 0 0.266667 0.266667 {}
+T {@#19:name} 120 -325 0 0 0.266667 0.266667 { hcenter=true}

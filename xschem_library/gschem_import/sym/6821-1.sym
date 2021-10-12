@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=6821
+v {xschem version=3.0.0 file_version=1.2}
+K {type=6821
 template="device=6821
 name=U?
 comment=\\"dont_use this symbol: nonstandard symwidth, bad graphic\\"
@@ -19,6 +19,7 @@ format="@name @pinlist @value @GND @Vcc"
 extra="GND Vcc"
 extra_pinnumber="1 20"
 }
+G {}
 V {}
 S {}
 E {}

@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=4009
+v {xschem version=3.0.0 file_version=1.2}
+K {type=4009
 template="device=4009
 slot=1
 numslots=6
@@ -21,6 +21,7 @@ format="@name @pinlist @value @GND @Vcc @VDD"
 extra="GND Vcc VDD"
 extra_pinnumber="8 1 16"
 }
+G {}
 V {}
 S {}
 E {}

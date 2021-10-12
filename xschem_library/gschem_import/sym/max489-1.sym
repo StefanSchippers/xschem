@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=MAX489
+v {xschem version=3.0.0 file_version=1.2}
+K {type=MAX489
 template="device=MAX489
 comment=\\"E suffix is Electrostatic protected to 15 kV\\"
 comment=\\"MAX491 is high speed version\\"
@@ -17,6 +17,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -104,14 +105,14 @@ name=GND
 pinseq=5
 }
 T {@#4:pinnumber} 95 -50 2 1 0.266667 0.266667 {layer=13}
-T {@#4:name} 66.4 -75 2 1 0.266667 0.266667 {}
+T {@#4:name} 80 -75 2 1 0.266667 0.266667 { hcenter=true}
 L 3 70 -70 70 -50 {}
 B 5 67.5 -52.5 72.5 -47.5 {name=GND
 pinnumber=7
 dir=inout
 pinseq=6
 }
-T {@#5:name} 66.4 -75 2 1 0.266667 0.266667 {}
+T {@#5:name} 80 -75 2 1 0.266667 0.266667 { hcenter=true}
 T {@#5:pinnumber} 75 -50 2 1 0.266667 0.266667 {layer=13}
 L 3 120 -200 150 -200 {}
 B 5 147.5 -202.5 152.5 -197.5 {pinnumber=9
@@ -151,5 +152,5 @@ pinnumber=14
 dir=inout
 pinseq=11
 }
-T {@#10:name} 66.4 -215 0 0 0.266667 0.266667 {}
+T {@#10:name} 80 -215 0 0 0.266667 0.266667 { hcenter=true}
 T {@#10:pinnumber} 85 -230 2 1 0.266667 0.266667 {layer=13}

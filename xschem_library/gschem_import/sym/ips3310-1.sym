@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=IPS3310
+v {xschem version=3.0.0 file_version=1.2}
+K {type=IPS3310
 template="device=IPS3310
 documentation=http://www.irf.com/product-info/datasheets/data/ips3310.pdf
 description=\\"Protected HEXFET Power MOSFET\\"
@@ -15,6 +15,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

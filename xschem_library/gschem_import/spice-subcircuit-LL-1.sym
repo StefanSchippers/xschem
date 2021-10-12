@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=spice-subcircuit-LL
+v {xschem version=3.0.0 file_version=1.2}
+K {type=spice-subcircuit-LL
 template="device=spice-subcircuit-LL
 name=A?
 model-name=unknown
@@ -11,11 +11,12 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
-T {@name} 10 -58.3333 0 0 0.333333 0.333333 {}
-T {SPICE .SUBCKT} 60 -58.3333 0 0 0.333333 0.333333 {}
+T {@name} 10 -50 0 0 0.333333 0.333333 { vcenter=true}
+T {SPICE .SUBCKT} 60 -50 0 0 0.333333 0.333333 { vcenter=true}
 T {@model-name} 10 -20 0 0 0.333333 0.333333 {}
 
 L 4 0 -30 220 -30 {}

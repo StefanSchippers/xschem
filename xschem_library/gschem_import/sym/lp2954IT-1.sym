@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=LP2954IT
+v {xschem version=3.0.0 file_version=1.2}
+K {type=LP2954IT
 template="device=LP2954IT
 name=U?
 pins=3
@@ -18,6 +18,7 @@ format="@name @pinlist @value @GND"
 extra="GND"
 extra_pinnumber="2"
 }
+G {}
 V {}
 S {}
 E {}
@@ -50,7 +51,7 @@ name=GND
 dir=inout
 }
 T {@#1:pinnumber} 70 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#1:name} 66.4 -35 2 1 0.266667 0.266667 {}
+T {@#1:name} 80 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 130 -60 160 -60 {}
 B 5 157.5 -62.5 162.5 -57.5 {pinnumber=3
 pinseq=3

@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=ATmega16L_DIP
+v {xschem version=3.0.0 file_version=1.2}
+K {type=ATmega16L_DIP
 template="name=U?
 device=ATmega16L_DIP
 footprint=DIP40
@@ -16,6 +16,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=VOLTAGE_SOURCE
+v {xschem version=3.0.0 file_version=1.2}
+K {type=VOLTAGE_SOURCE
 template="device=VOLTAGE_SOURCE
 name=V?
 description=\\"A voltage measurement device\\"
@@ -11,6 +11,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

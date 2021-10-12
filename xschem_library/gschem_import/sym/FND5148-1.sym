@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=FND5148
+v {xschem version=3.0.0 file_version=1.2}
+K {type=FND5148
 template="device=FND5148
 description=\\"Dual 7-segment + dot red led display\\"
 documentation=Unknown
@@ -20,6 +20,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

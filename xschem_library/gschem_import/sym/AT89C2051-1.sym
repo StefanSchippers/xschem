@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=AT89C2051
+v {xschem version=3.0.0 file_version=1.2}
+K {type=AT89C2051
 template="name=U?
 device=AT89C2051
 footprint=DIP20
@@ -17,6 +17,7 @@ format="@name @pinlist @value @GND @Vcc"
 extra="GND Vcc"
 extra_pinnumber="10 20"
 }
+G {}
 V {}
 S {}
 E {}
@@ -41,7 +42,7 @@ name=RST/VPP
 dir=in
 }
 T {@#0:pinnumber} 75 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 38.2667 -35 2 1 0.266667 0.266667 {}
+T {@#0:name} 70 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 130 -30 130 0 {}
 B 5 127.5 -2.5 132.5 2.5 {pinnumber=5
 pinseq=2
@@ -49,7 +50,7 @@ name=XTAL1
 dir=in
 }
 T {@#1:pinnumber} 135 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#1:name} 107.333 -35 2 1 0.266667 0.266667 {}
+T {@#1:name} 130 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 210 -30 210 0 {}
 B 5 207.5 -2.5 212.5 2.5 {pinnumber=4
 pinseq=3
@@ -57,7 +58,7 @@ name=XTAL2
 dir=out
 }
 T {@#2:pinnumber} 215 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#2:name} 187.333 -35 2 1 0.266667 0.266667 {}
+T {@#2:name} 210 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 250 -350 280 -350 {}
 B 5 277.5 -352.5 282.5 -347.5 {pinnumber=12
 pinseq=4

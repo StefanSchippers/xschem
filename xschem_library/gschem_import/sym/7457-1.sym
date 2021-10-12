@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=7457
+v {xschem version=3.0.0 file_version=1.2}
+K {type=7457
 template="device=7457
 footprint=DIP8
 name=U?
@@ -17,6 +17,7 @@ format="@name @pinlist @value @Vcc @GND"
 extra="Vcc GND"
 extra_pinnumber="2 4"
 }
+G {}
 V {}
 S {}
 E {}
@@ -44,7 +45,7 @@ L 3 0 -100 20 -100 {}
 B 5 -2.5 -102.5 2.5 -97.5 {pinnumber=5
 pinseq=1
 name=CLKA
-dir=inout
+dir=in
 }
 T {@#0:pinnumber} 20 -105 2 0 0.266667 0.266667 {layer=13}
 T {@#0:name} 37.5 -100 2 1 0.266667 0.266667 {}
@@ -60,7 +61,7 @@ L 3 0 -60 20 -60 {}
 B 5 -2.5 -62.5 2.5 -57.5 {pinnumber=1
 pinseq=3
 name=CLKB
-dir=inout
+dir=in
 }
 T {@#2:pinnumber} 20 -65 2 0 0.266667 0.266667 {layer=13}
 T {@#2:name} 37.5 -60 2 1 0.266667 0.266667 {}

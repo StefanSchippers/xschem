@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=model
+v {xschem version=3.0.0 file_version=1.2}
+K {type=model
 template="device=model
 name=A?
 model-name=unknown
@@ -9,19 +9,28 @@ tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
-format=".include @file"
+format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
-L 4 0 -60 180 -60 {}
-L 4 180 -100 180 -60 {}
-L 4 0 -100 180 -100 {}
-L 4 0 -100 0 -60 {}
-T {@name} 10 -88.33329999999999 0 0 0.333333 0.333333 {}
-T {SPICE model} 50 -88.33329999999999 0 0 0.333333 0.333333 {}
+T {@name} 10 -80 0 0 0.333333 0.333333 { vcenter=true}
+T {SPICE model} 50 -80 0 0 0.333333 0.333333 { vcenter=true}
 T {Model name:} 10 -50 0 0 0.333333 0.333333 {}
 T {File:} 10 -20 0 0 0.333333 0.333333 {}
 T {@model-name} 130 -50 0 0 0.333333 0.333333 {}
 T {@file} 50 -20 0 0 0.333333 0.333333 {}
+
+L 4 0 -60 180 -60 {}
+L 4 180 -100 180 -60 {}
+L 4 0 -100 180 -100 {}
+L 4 0 -100 0 -60 {}
+
+
+
+
+
+
+

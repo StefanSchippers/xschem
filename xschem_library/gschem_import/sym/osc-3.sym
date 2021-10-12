@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=OSC
+v {xschem version=3.0.0 file_version=1.2}
+K {type=OSC
 template="device=OSC
 name=U?
 footprint=OSC14
@@ -16,6 +16,7 @@ format="@name @pinlist @value @GND"
 extra="GND"
 extra_pinnumber="2"
 }
+G {}
 V {}
 S {}
 E {}

@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=SPICE-vcvs
+v {xschem version=3.0.0 file_version=1.2}
+K {type=SPICE-vcvs
 template="device=SPICE-vcvs
 name=E?
 description=\\"voltage controlled voltage source\\"
@@ -15,6 +15,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -23,7 +24,7 @@ T {+} 90 -60 2 1 0.333333 0.333333 {}
 T {-} 90 -10 2 1 0.333333 0.333333 {}
 T {+} 50 -60 2 1 0.333333 0.333333 {}
 T {-} 50 -10 2 1 0.333333 0.333333 {}
-T {value=1} 30.3333 5 0 0 0.333333 0.333333 {}
+T {value=1} 70 5 0 0 0.333333 0.333333 { hcenter=true}
 
 
 L 4 80 -40 100 -60 {}

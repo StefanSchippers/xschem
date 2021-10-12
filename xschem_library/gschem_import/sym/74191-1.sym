@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=74191
+v {xschem version=3.0.0 file_version=1.2}
+K {type=74191
 template="device=74191
 name=U?
 footprint=DIP16
@@ -18,6 +18,7 @@ format="@name @pinlist @value @Vcc @GND"
 extra="Vcc GND"
 extra_pinnumber="16 8"
 }
+G {}
 V {}
 S {}
 E {}
@@ -71,7 +72,7 @@ name=\_CTEN\_
 dir=in
 }
 T {@#3:pinnumber} 105 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#3:name} 63.7333 -35 2 1 0.266667 0.266667 {}
+T {@#3:name} 100 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 50 -30 50 0 {}
 B 5 47.5 -2.5 52.5 2.5 {pinnumber=5
 pinseq=5
@@ -79,7 +80,7 @@ name=D/\_U\_
 dir=in
 }
 T {@#4:pinnumber} 55 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#4:name} 18.2667 -35 2 1 0.266667 0.266667 {}
+T {@#4:name} 50 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 170 -150 200 -150 {}
 B 5 197.5 -152.5 202.5 -147.5 {pinnumber=6
 pinseq=6
@@ -140,10 +141,10 @@ L 3 150 -30 150 0 {}
 B 5 147.5 -2.5 152.5 2.5 {pinnumber=14
 pinseq=14
 name=CLK
-dir=inout
+dir=in
 }
 T {@#12:pinnumber} 155 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#12:name} 136.4 -37.5 2 1 0.266667 0.266667 {}
+T {@#12:name} 150 -37.5 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -210 30 -210 {}
 B 5 -2.5 -212.5 2.5 -207.5 {pinnumber=15
 pinseq=15

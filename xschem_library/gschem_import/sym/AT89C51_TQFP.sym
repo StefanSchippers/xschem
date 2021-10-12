@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=AT89C51_TQFT
+v {xschem version=3.0.0 file_version=1.2}
+K {type=AT89C51_TQFT
 template="name=U?
 device=AT89C51_TQFT
 footprint=TQFP44
@@ -18,6 +18,7 @@ format="@name @pinlist @value @GND @Vcc"
 extra="GND Vcc"
 extra_pinnumber="16,17 38"
 }
+G {}
 V {}
 S {}
 E {}
@@ -348,7 +349,7 @@ name=RST
 dir=in
 }
 T {@#38:pinnumber} 105 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#38:name} 86.4 -45 2 1 0.266667 0.266667 {}
+T {@#38:name} 100 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 180 -40 180 -10 {}
 B 5 177.5 -12.5 182.5 -7.5 {pinnumber=15
 pinseq=40
@@ -356,7 +357,7 @@ name=XTAL1
 dir=in
 }
 T {@#39:pinnumber} 185 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#39:name} 157.333 -45 2 1 0.266667 0.266667 {}
+T {@#39:name} 180 -45 2 1 0.266667 0.266667 { hcenter=true}
 L 3 240 -40 240 -10 {}
 B 5 237.5 -12.5 242.5 -7.5 {pinnumber=14
 pinseq=41
@@ -364,4 +365,4 @@ name=XTAL2
 dir=out
 }
 T {@#40:pinnumber} 245 -20 2 1 0.266667 0.266667 {layer=13}
-T {@#40:name} 217.333 -45 2 1 0.266667 0.266667 {}
+T {@#40:name} 240 -45 2 1 0.266667 0.266667 { hcenter=true}

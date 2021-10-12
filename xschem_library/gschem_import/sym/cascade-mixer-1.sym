@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=cascade-mixer
+v {xschem version=3.0.0 file_version=1.2}
+K {type=cascade-mixer
 template="footprint=none
 device=cascade-mixer
 name=MX?
@@ -14,11 +14,12 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
 T {@name} 30 -180 2 1 0.333333 0.333333 {}
-T {LO} 58.6667 -90 2 1 0.333333 0.333333 {}
+T {LO} 70 -90 2 1 0.333333 0.333333 { hcenter=true}
 T {G=0} 50 -40 2 1 0.333333 0.333333 {}
 T {NF=0} 50 -20 2 1 0.333333 0.333333 {}
 T {IIP3=0} 50 0 2 1 0.333333 0.333333 {}

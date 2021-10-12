@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=ISA-98W-SOCKET
+v {xschem version=3.0.0 file_version=1.2}
+K {type=ISA-98W-SOCKET
 template="device=ISA-98W-SOCKET
 name=CONN?
 numslots=0
@@ -11,6 +11,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}

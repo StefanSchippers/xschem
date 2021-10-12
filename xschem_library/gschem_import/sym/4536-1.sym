@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=4536
+v {xschem version=3.0.0 file_version=1.2}
+K {type=4536
 template="name=U?
 device=4536
 footprint=DIP16
@@ -17,6 +17,7 @@ format="@name @pinlist @value @VSS @VDD"
 extra="VSS VDD"
 extra_pinnumber="8 16"
 }
+G {}
 V {}
 S {}
 E {}
@@ -43,7 +44,7 @@ name=\_OSCEN\_
 dir=in
 }
 T {@#0:pinnumber} 105 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#0:name} 59.2 -35 2 1 0.266667 0.266667 {}
+T {@#0:name} 100 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 0 -70 30 -70 {}
 B 5 -2.5 -72.5 2.5 -67.5 {pinnumber=1
 pinseq=2
@@ -139,7 +140,7 @@ name=\_CLKEN\_
 dir=in
 }
 T {@#12:pinnumber} 65 -400 2 1 0.266667 0.266667 {layer=13}
-T {@#12:name} 19.2 -385 0 0 0.266667 0.266667 {}
+T {@#12:name} 60 -385 0 0 0.266667 0.266667 { hcenter=true}
 L 3 140 -420 140 -390 {}
 B 5 137.5 -422.5 142.5 -417.5 {pinnumber=3
 pinseq=14
@@ -147,4 +148,4 @@ name=IN1
 dir=in
 }
 T {@#13:pinnumber} 145 -400 2 1 0.266667 0.266667 {layer=13}
-T {@#13:name} 126.4 -385 0 0 0.266667 0.266667 {}
+T {@#13:name} 140 -385 0 0 0.266667 0.266667 { hcenter=true}

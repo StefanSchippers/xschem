@@ -1,5 +1,5 @@
-v {xschem version=2.9.7 file_version=1.1}
-G {type=MAX237
+v {xschem version=3.0.0 file_version=1.2}
+K {type=MAX237
 template="device=MAX237
 name=U?
 footprint=DIP24
@@ -14,6 +14,7 @@ device @name @device
 format="@name @pinlist @value "
 
 }
+G {}
 V {}
 S {}
 E {}
@@ -118,7 +119,7 @@ name=V+
 dir=inout
 }
 T {@#10:pinnumber} 125 -490 2 1 0.266667 0.266667 {layer=13}
-T {@#10:name} 110.933 -475 0 0 0.266667 0.266667 {}
+T {@#10:name} 120 -475 0 0 0.266667 0.266667 { hcenter=true}
 L 3 0 -390 30 -390 {}
 B 5 -2.5 -392.5 2.5 -387.5 {pinnumber=12
 pinseq=12
@@ -150,7 +151,7 @@ name=V-
 dir=inout
 }
 T {@#14:pinnumber} 125 -10 2 1 0.266667 0.266667 {layer=13}
-T {@#14:name} 110.933 -35 2 1 0.266667 0.266667 {}
+T {@#14:name} 120 -35 2 1 0.266667 0.266667 { hcenter=true}
 L 3 180 -150 210 -150 {}
 B 5 207.5 -152.5 212.5 -147.5 {pinnumber=16
 pinseq=16

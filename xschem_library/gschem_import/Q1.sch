@@ -1,10 +1,11 @@
-v {xschem version=2.9.7 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
+K {}
 G {}
 V {}
 S {}
 E {}
-T {Spice .SUBCKT for Q1_MSA26F} 6870 -4896.67 0 0 0.666667 0.666667 {}
-T {SDB -- 3.31.2003} 7250 -4808.33 0 0 0.333333 0.333333 {}
+T {Spice .SUBCKT for Q1_MSA26F} 6870 -4880 0 0 0.666667 0.666667 { vcenter=true}
+T {SDB -- 3.31.2003} 7250 -4800 0 0 0.333333 0.333333 { vcenter=true}
 T {This is part of the model for the MSA-2643} 6790 -5080 2 1 0.333333 0.333333 {}
 T {-- a silicon bipolar amp from Agilent.} 6790 -5050 2 1 0.333333 0.333333 {}
 T {The model is detailed in Agilent's app note 5980-2396E} 6790 -5020 2 1 0.333333 0.333333 {}
