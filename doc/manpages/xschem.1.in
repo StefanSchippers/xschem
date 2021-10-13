@@ -38,7 +38,7 @@ hierarchical representation of circuits with a top down approach.
 Print help and exit.
 .TP
 
-.B -n, --batch
+.B -b, --detach
 Detach xschem from console.
 .TP
 
@@ -62,12 +62,28 @@ Run a simulation of the current schematc file (spice/Verilog/VHDL, depending on 
 Set netlist type to Verilog.
 .TP
 
+.B --tcl <tcl_script>
+Execute specified tcl instructions before any other action, this can be used to change xschemrc variables.
+.TP
+
+.B --script <file>
+Execute specified tcl file as a command script (perhaps with xschem  commands).
+.TP
+
+.B --tcp-port <number>
+Listen to specified tcp port for client connections. (number >=1024).
+.TP
+
 .B -i, --no_rcload
 Do not load any xschemrc file.
 .TP
 
 .B -o, --netlist_path
 Set output for netlist.
+.TP
+
+.B -N, --netlist_filename
+Set name (only name, not path) of top level netlist file.
 .TP
 
 .B -t, --tedax
@@ -78,16 +94,8 @@ Set netlist type to tEDAx.
 Set netlist type to SPICE.
 .TP
 
-.B -3, --a3page
-Set page size for pdf export to A3.
-.TP
-
 .B -x, --no_x
 Dont use X (only command mode).
-.TP
-
-.B --events
-Do not use tclreadline, empty tcl shell prompt, dump activity on stdout for remote controlling other software.
 .TP
 
 .B -z, --rainbow
@@ -116,14 +124,6 @@ Use <file> as output for plot export (png, svg, postscript/pdf)
 
 .B --rcfile <file>
 Use <file> as a rc file for startup instead of the default xschemrc.
-.TP
-
-.B --tcl <tcl command>
-Execute specified tcl instructions before any other action, this can be used to change xschemrc variables.
-.TP
-
-.B --script <tcl file>
-Execute specified tcl file as a command script, perhaps with xschem commands. 
 .TP
 
 .B -p, --postscript, --pdf
