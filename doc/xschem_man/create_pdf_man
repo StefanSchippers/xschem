@@ -1,7 +1,8 @@
 
 
 #### before creating set width of images in html:
-sed  -i '/<img/s/>/ width="700">/' *.html
+sed -i '/<img/s/ width="[0-9]+"//' *.html
+sed  -i '/<img/s/>/ width="640">/' *.html
 
 cat \
 /home/schippes/xschem-repo/trunk/doc/xschem_man/xschem_man.html \
@@ -35,4 +36,4 @@ tutorial_gschemtoxschem.html \
 | htmldoc --no-toc --left 10mm --webpage -t pdf -f xschem_man.pdf -
 
 #### restore after doing pdf:
-sed -i '/<img/s/ width="700"//' *.html
+sed -i '/<img/s/ width="[0-9]+"//' *.html

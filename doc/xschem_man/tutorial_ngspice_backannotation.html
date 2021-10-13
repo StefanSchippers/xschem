@@ -25,7 +25,7 @@ p{padding: 15px  30px 10px;}
   This tutorial is based on the <kbd>cmos_example.sch</kbd> example schematic located in the <kbd>examples/</kbd>
   directory. Start Xschem from a terminal since we need to give some commands in this tutorial.
  </p>
- <img style="box-shadow:none;" src="backannotation1.png">
+ <img style="box-shadow:none;" src="backannotation1.png" width="640">
 
  <h3> CONFIGURATION </H3>
  <p>
@@ -60,14 +60,14 @@ lappend tcl_files ${XSCHEM_SHAREDIR}/ngspice_backannotate.tcl
   <kbd>Ngspice</kbd> simulator is selected (not Ngspice batch). Also ensure the spice netlist mode is
   selected (<kbd>Options -&gt; Spice netlist</kbd>).
  </p>
- <img src="backannotation2.png">
+ <img src="backannotation2.png" width="640">
 
  <h3> SIMULATION </H3>
  <p>
   If you now press the <kbd>Netlist</kbd> followed by the <kbd>Simulate</kbd> button simulation should complete
   with no errors.
  </p>
- <img src="backannotation3.png">
+ <img src="backannotation3.png" width="640">
  <p>
   You can close the simulator since we need only the <kbd>cmos_example.raw</kbd> file that is now saved
   in the simulation directory (usually <kbd>~/.xschem/simulations/cmos_example.raw</kbd>).<br>
@@ -89,17 +89,17 @@ xschem [~]
   The first element is the <kbd>devices/spice_probe.sym</kbd> component. This must be attached to
   some schematic wires to show the voltage value.
  </p>
- <img style="box-shadow:none;" src="backannotation4.png">
+ <img style="box-shadow:none;" src="backannotation4.png" width="640">
  <p>
   Place some of these elements on various nets, issue the above mentioned <kbd>ngspice::annotate</kbd>
   command and see the voltage values in the schematic.
  </p>
- <img style="box-shadow:none;" src="backannotation5.png">
+ <img style="box-shadow:none;" src="backannotation5.png" width="640">
  <p>
   Another useful component is the <kbd>devices/ammeter.sym</kbd> one which allow to monitor branch currents. 
   Break some wires  and insert this component as shown here:
  </p>
- <img style="box-shadow:none;" src="backannotation6.png">
+ <img style="box-shadow:none;" src="backannotation6.png" width="640">
  <p class="important">
   IMPORTANT: When inserting current probes the circuit topology changes (new nodes are created) so you need to 
   re-create the netlist and re-run the simulation
@@ -108,7 +108,7 @@ xschem [~]
   Doing again the <kbd>ngspice::annotate</kbd> command after simulation will update the ammeters showing
   the branch currents.
  </p>
- <img style="box-shadow:none;" src="backannotation7.png">
+ <img style="box-shadow:none;" src="backannotation7.png" width="640">
  <p>
   These voltage and current values are inserted in the probe components as <b>attributes</b> and thus can be saved 
   to file. Remember that if you change the circuit the values shown in the probe elements are no longer valid,
@@ -119,7 +119,7 @@ xschem [~]
   annotate script. The advantage of this method is that values pushed into probes can be saved to file and are
   thus persistent. 
  </p>
- <img src="backannotation8.png">
+ <img src="backannotation8.png" width="640">
 
  <h3> PULL ANNOTATION METHOD </H3>
  <p>
@@ -151,16 +151,16 @@ write cmos_example.raw
   component, but does not need to be attached to any specific point or wire.
   Edit its attributes and set its <kbd>node</kbd> attribute to an existing saved variable in the raw file.
  </p>
- <img src="backannotation9.png">
+ <img src="backannotation9.png" width="640">
  <p>
   Run again the simulation and the <kbd>ngspice::annotate</kbd> command and values will be updated.
  </p>
- <img  style="box-shadow:none;" src="backannotation10.png">
+ <img  style="box-shadow:none;" src="backannotation10.png" width="640">
  <p>
   You can add additional variables in the raw file , for example modifying the .save instruction:<br>
   <kbd>.save all @m4[gm] @m5[gm] @m1[gm]</kbd>
  </p>
- <img src="backannotation11.png">
+ <img src="backannotation11.png" width="640">
  <p>
   Data annotated into the schematic using these components allows more simulation parameters to be viewed into 
   the schematic, not being restricted to currents and voltages. Since these components get data using a pull method
@@ -174,11 +174,11 @@ write cmos_example.raw
   more complex data. In the example below this component is used to display the electrical power of transistor m3,
   calculated as <kbd>V(GN) * Id(m3)</kbd>.
  </p>
- <img src="backannotation12.png">
+ <img src="backannotation12.png" width="640">
  <p> 
   The example shown uses this component to display a (meaningless, but shows the usage) gm ratio of 2 transistors:
  </p>
- <img src="backannotation13.png">
+ <img src="backannotation13.png" width="640">
  <p> 
   The syntax is a bit complex, considering the verbosity of TCL and the strange ngspice naming syntax, however
   once a working one is created changing the expression is easy.
@@ -189,7 +189,7 @@ write cmos_example.raw
   can be placed with the tcl command for doing the annotation. Just do a <kbd>Ctrl-Click</kbd> on it to trigger
   the annotation.
  </p>
- <img src="backannotation14.png">
+ <img src="backannotation14.png" width="640">
  <br>
  <br>
  <br>

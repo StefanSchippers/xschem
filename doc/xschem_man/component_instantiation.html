@@ -26,18 +26,18 @@ p{padding: 15px  30px 10px;}
   component properties. Start by opening a test schematic window (you may delete any existing 
   stuff in it if any).
  </p>
- <img src="load_schematic.png">
+ <img src="load_schematic.png" width="640">
  <p>
   Now start by inserting a component, consider for example <kbd>devices/nmos4.sym</kbd>; press the
   <kbd>Insert</kbd> key, navigate to the <kbd>devices</kbd> design library and open the <kbd>nmos4.sym</kbd>
   symbol.
  </p>
- <img src="nmos4_symbol.png">
+ <img src="nmos4_symbol.png" width="640">
  <p>
   Now draw some wires on each pin of the nmos; place the mouse pointer on the component pins and
   use the <kbd>'w'</kbd> bindkey.
  </p>
- <img src="nmos4_wires.png">
+ <img src="nmos4_wires.png" width="640">
  <p> 
   we need now to put labels on wire ends: use the <kbd>Insert</kbd> key and locate the 
   <kbd>devices/lab_pin.sym</kbd> symbol. After the <kbd>lab_pin</kbd> symbol is placed you can move it
@@ -46,13 +46,13 @@ p{padding: 15px  30px 10px;}
   placing the first one you may copy the others from it (<kbd>'c'</kbd> bindkey). The end result 
   should look  like this:
  </p>
- <img src="nmos4_labels.png">
+ <img src="nmos4_labels.png" width="640">
  <p> 
   This is what an electrical circuit is all about: a network of wires and components. In this 
   schematic we have 5 components (4 labels and one mos) and 4 nets. It is not mandatory to put a 
   wire segment between component pins; we could equally well do this: 
  </p>
- <img src="nmos4_labels2.png">
+ <img src="nmos4_labels2.png" width="640">
  <p> 
   This circuit is absolutely equivalent to the previous one: it will produce the same 
   device connectivity netlist.<br>
@@ -60,22 +60,22 @@ p{padding: 15px  30px 10px;}
   component properties. Select the wire label on the nmos source pin and press the <kbd>'q'</kbd>
   bindkey: 
  </p>
- <img src="nmos4_editprop.png">
+ <img src="nmos4_editprop.png" width="640">
  <p>
   Now, replace the 'xxx' default string in the dialog with a different name (example: SOURCE)
   After clicking <kbd>OK</kbd> the source terminal will have the right label.
  </p>
- <img src="nmos4_editprop2.png">
+ <img src="nmos4_editprop2.png" width="640">
  <p>
   repeat the process for the remaining GATE, DRAIN, BODY terminals; 
  </p>
- <img src="nmos4_editprop3.png">
+ <img src="nmos4_editprop3.png" width="640">
  <p>
   The following picture shows the <kbd>lab_pin</kbd> component with its properties and
   the corresponding symbol definition with its global properties (remember global properties in 
   the <a href="xschem_properties.html">xschem_properties</a> slide)
  </p>
- <img src="properties.png" style="height:70%;">
+ <img src="properties.png" style="height:70%;" width="640">
  <p>
   when building the netlist XSCHEM will look for wires that touch the red square of the lab_pin
   component and name that wires with the component 'lab' property.
@@ -85,7 +85,7 @@ p{padding: 15px  30px 10px;}
  <p>
   We need now to edit the nmos properties. Select it and press the <kbd>'q'</kbd> bindkey
  </p>
- <img src="nmos_properties.png">
+ <img src="nmos_properties.png" width="640">
  <p>
   from the edit properties dialog you see there are 5 attributes with values defined:
  </p>
@@ -100,7 +100,7 @@ p{padding: 15px  30px 10px;}
   We have never defined a value for these properties. These are the default values defined in the
   <kbd>template</kbd> attribute in the global <kbd>nmos4.sym</kbd> property string.
  </p>
- <img src="nmos_properties2.png">
+ <img src="nmos_properties2.png" width="640">
  <p>
   We may want to change the dimensions of the transistor; simply change the <kbd>w</kbd> and
   <kbd>l</kbd> attribute values.<br>
@@ -108,7 +108,7 @@ p{padding: 15px  30px 10px;}
   All simulators require that components are unique, it is not permitted to have 2 components
   with identical name, so XSCHEM enforces this. 
   </p>
- <img src="nmos_properties3.png">
+ <img src="nmos_properties3.png" width="640">
 
   <p>
   If a name is set that matches an existing component
@@ -130,7 +130,7 @@ p{padding: 15px  30px 10px;}
    These components are used to name a net or a pin of another component. They do not have any other function
    other than giving an explicit name to a net.
   </p>
-  <img src="special1.png">
+  <img src="special1.png" width="640">
   <li><kbd>devices/lab_pin.sym</kbd></li>
   <li><kbd>devices/lab_wire.sym</kbd></li>
   <li><kbd>devices/launcher.sym</kbd></li>

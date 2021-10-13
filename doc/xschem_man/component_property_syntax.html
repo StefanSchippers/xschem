@@ -24,7 +24,7 @@ p{padding: 15px  30px 10px;}
   Component property strings can be set in the usual way with the <kbd>'q'</kbd> on a selected
   component instance or by menu <kbd>Properties&nbsp;--&gt;&nbsp;Edit</kbd>
  </p> 
- <img src="component_properties.png">
+ <img src="component_properties.png" width="640">
  <p>
   The dialog box allows to change the property string as well as the symbol reference. The property string
   is essentially a list of <kbd>attribute=value</kbd> items. As with symbol properties if a <kbd>value</kbd>
@@ -110,7 +110,7 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
       commands, the statement will be executed when pressing the <kbd>&lt;shift&gt;H</kbd> key 
       (or <kbd>&lt;Alt&gt; left mouse button</kbd>) on the selected instance.
       <br>The <kbd>tclcommand</kbd> and <kbd>url</kbd> properties are mutually exclusive.</p>
-  <img src="component_properties3.png">
+  <img src="component_properties3.png" width="640">
   <li><kbd>only_toplevel</kbd></li>
   <p>this attribute is valid only on <kbd>netlist_commands</kbd> type symbols and specifies that the 
     symbol should be netlisted only if it is instantiated in the top-most hierarchy. This is very usefull
@@ -118,7 +118,7 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
     and are meaningfull only when simulating the block, but should be skipped if the component
     is simulated as part of a bigger system which has its own (at higher hierarchy level)
     <kbd>netlist</kbd>component for Spice commands.</p>
-  <img src="component_properties0.png">
+  <img src="component_properties0.png" width="640">
   <li><kbd>lock</kbd></li>
   <p> A <kbd>lock=true</kbd> attribute will make the symbol not editable. the only way to make it editable again is 
       to right click on it to bring up the edit attributes dialog box and set to false. This is useful for title
@@ -150,7 +150,7 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
     This property is applicable only to <kbd>label</kbd> type components: <kbd>ipin.sym</kbd>, 
     <kbd>iopin.sym</kbd>, <kbd>opin.sym</kbd>, <kbd>lab_pin.sym</kbd>, <kbd>lab_wire.sym</kbd>.
   </p>
-  <img src="component_properties1.png">
+  <img src="component_properties1.png" width="640">
   <li><kbd>verilog_type</kbd></li>
   <p>This is the same as sig_type but for verilog netlisting: can be used to declare a <kbd>wire</kbd>
      or a <kbd>reg</kbd> or any other datatype supported by the verilog language.
@@ -160,7 +160,7 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
     Consider the following examples of placement of <kbd>generic_pin</kbd> components in a 
     VHDL design: 
   </p>
-  <img src="component_properties2.png">
+  <img src="component_properties2.png" width="640">
   <p> As you will see in the <a href="parameters.html">parameters</a> slide, generics (they are just
     parameters passed to components) can be passed also via property strings in addition to using 
     <kbd>generic_pin</kbd> components.</p>
