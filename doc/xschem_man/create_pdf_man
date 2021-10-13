@@ -1,0 +1,38 @@
+
+
+#### before creating set width of images in html:
+sed  -i '/<img/s/>/ width="700">/' *.html
+
+cat \
+/home/schippes/xschem-repo/trunk/doc/xschem_man/xschem_man.html \
+what_is_xschem.html \
+compiling_xschem.html \
+install_xschem.html \
+run_xschem.html \
+xschem_elements.html \
+building_xschem_symbol.html \
+xschem_properties.html \
+component_instantiation.html \
+symbol_property_syntax.html \
+component_property_syntax.html \
+creating_schematic.html \
+creating_symbols.html \
+parameters.html \
+commands.html \
+netlisting.html \
+net_probes.html \
+simulation.html \
+developer_info.html \
+xschem_remote.html \
+tutorial_install_xschem.html \
+tutorial_run_simulation.html \
+tutorial_create_symbol.html \
+tutorial_xschem_libraries.html \
+tutorial_busses.html \
+tutorial_ngspice_backannotation.html \
+tutorial_symgen.html \
+tutorial_gschemtoxschem.html \
+| htmldoc --no-toc --left 10mm --webpage -t pdf -f xschem_man.pdf -
+
+#### restore after doing pdf:
+sed -i '/<img/s/ width="700"//' *.html
