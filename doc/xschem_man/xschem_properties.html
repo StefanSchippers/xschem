@@ -41,7 +41,7 @@ p{padding: 15px  30px 10px;}
   bindkey <kbd>'q'</kbd> a dialog box
   shows the property string associated with the selected pin:
  </p>
- <img src="edit_property.png" width="640">
+ <img src="edit_property.png">
  <p> 
   The <kbd>name=p&nbsp;dir=inout&nbsp;propag=1&nbsp;pinnumber=1</kbd> property string tells that the
   selected pin name is <kbd>'p'</kbd>,
@@ -54,7 +54,7 @@ p{padding: 15px  30px 10px;}
   To view the xschem index of a pin click and hold the mouse on it, the index will be shown as 
   <kbd>n= &lt;number&gt; </kbd> in the bottom status line:
  </p>
- <img src="edit_property2.png" width="640">
+ <img src="edit_property2.png">
  <p>
   The <kbd> pinnumber=1</kbd> attribute is used when exporting to pcb software (via the tEDAx netlist) 
   and tells to which pin number on the resistor footprint this positive pin is bound.
@@ -63,7 +63,7 @@ p{padding: 15px  30px 10px;}
   The text primitives also have properties. For texts the property string may be used 
   to specify font and the layer to use for displaying text.
  </p>
- <img src="text_property.png" width="640">
+ <img src="text_property.png">
  <h3>GLOBAL PROPERTIES</h3>
  <p>
   If you click outside of any displayed graphics in XSCHEM
@@ -80,7 +80,7 @@ p{padding: 15px  30px 10px;}
   So, in addition to properties associated to graphical objects and
   symbols, we also have properties associated to schematic (.sch) and symbol files (.sym)
  </p>
- <img src="global_property.png" width="640">
+ <img src="global_property.png">
  <p>
   In the above 'Symbol' global property string, the <kbd>format</kbd> attribute defines the format of the SPICE netlist. 
   The SPICE netlist element line starts with the 
@@ -92,7 +92,7 @@ p{padding: 15px  30px 10px;}
   We will return on component instantiation later, but for now,
   considering the following picture:
   </p>
-  <img src="nets_pins.png" width="640"> 
+  <img src="nets_pins.png"> 
   <p>
   The <kbd>@name</kbd> will expand to R0, <kbd>@pinlist</kbd> for the <kbd>R0</kbd> 
   component will expand to <kbd>POS&nbsp;NEG</kbd>.<br>
@@ -103,7 +103,7 @@ p{padding: 15px  30px 10px;}
   of these. Select a pin, press the copy <kbd>'c'</kbd>
   bindkey and place a new copy of it somewhere.
  </p>
- <img src="place_pin.png" style="width: 90%;" width="640">
+ <img src="place_pin.png" style="width: 90%;">
  <p>
   After copying the pin you may change its properties, for example you
   will change its property string to 
@@ -133,7 +133,7 @@ p{padding: 15px  30px 10px;}
   set its number to 1 and so on.
   By doing so you have defined a specific pin ordering of the symbol.
  </p>
- <img src="pin_order.png" width="640">
+ <img src="pin_order.png">
 
  <h3> PRIMITIVE OBJECT PROPERTIES</h3>
  <p>
@@ -154,7 +154,7 @@ p{padding: 15px  30px 10px;}
   <li> <kbd>bus=true</kbd>. This specifies to draw a wider line. Mostly used to display wire buses.</li>
   </ul>
  </p>
- <img src="dashes.png" width="640">
+ <img src="dashes.png">
 
 
 

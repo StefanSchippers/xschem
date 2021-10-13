@@ -56,7 +56,7 @@ p{padding: 15px  30px 10px;}
     <li><kbd>netlist_commands</kbd>: the symbol is used to place SPICE commands into a spice netlist.
      It should also have a <kbd>value</kbd> attribute that may contain arbitrary text that is 
      copied verbatim into the netlist. More on this in the <a href="...">netlist</a> slide.</li>
-     <img src="netlist_commands.png" width="640">
+     <img src="netlist_commands.png">
    </ul><br>
    <p class="important"> 
     Only symbols of type <kbd>subcircuit</kbd> or <kbd>primitive</kbd> may be descended into
@@ -87,10 +87,10 @@ p{padding: 15px  30px 10px;}
      This allows to create different netlists for simulation (example: all MOS are defined as subcircuits)
      or LVS (no device subcircuits).
      </li>
-     <img src="spiceprefix.png" width="640">
+     <img src="spiceprefix.png">
  <li><kbd>template</kbd>: Specifies default values for symbol parameters</li>
  </ul>
-<img src="general_rules.png" width="640">
+<img src="general_rules.png">
  <p>
   The order these attributes appear in the property string is not important, 
   they can be on the same line or on different lines:
@@ -135,7 +135,7 @@ type=nmos
   instead of a <lbd>@</kbd> prefix. The only difference is that if no matching attribute is defined
   in instance the <kbd>$var</kbd> resolves to <kbd>var</kbd> instead of an empty string.
  </p>
- <img src="attribute_substitution.png" width="640">
+ <img src="attribute_substitution.png">
  <p>
   If no matching attribute is defined in instance (for example we have <kbd>@W</kbd> in symbol and no <kbd>W=...</kbd> in instance) 
   the <kbd>@W</kbd> string is substituted with an empty string.
@@ -184,7 +184,7 @@ type=nmos
     MOS symbol definition; the <kbd>model</kbd> attribute is declared as <kbd>string</kbd> and it will be
     quoted in VHDL netlists.
   </p>
-  <img src="symbol_properties1.png" width="640">
+  <img src="symbol_properties1.png">
   <p>the resulting netlist is shown here, note that without the <kbd>generic_type</kbd>
      attribute the <kbd>irf5305</kbd> string would not be quoted.</p>
   <pre class="code">
@@ -215,7 +215,7 @@ end arch_test2 ;
    pins. This allows to realize inherited connections, a kind of hidden pins with connections passed as parameters.
    Example of a symbol definition for the following cmos gate: 
   </p>
-  <img src="symbol_property_syntax1.png" width="640">
+  <img src="symbol_property_syntax1.png">
   <p> 
    the symbol property list defines 2 extra pins , VCCPIN and VSSPIN that can be assigned to at 
    component instantiation. The <kbd>extra</kbd> property tells XSCHEM that these 2 parameters are connection pins and not parameters
@@ -298,7 +298,7 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
   <p> 
    Defines the direction of a symbol pin. Allowed values are <kbd>in</kbd>, <kbd>out</kbd>, <kbd>inout</kbd>.
   </p>
-   <img src="symbol_property_syntax2.png" width="640">
+   <img src="symbol_property_syntax2.png">
   <li><kbd>propag=n</kbd></li>
   <p>
   This attribute instructs xschem to do a 'propagate highlight' from the pin with this attribute to the
@@ -312,7 +312,7 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
   global attribute. There is one 'funtion<kbd>n</kbd>' for each <kbd>n</kbd> output pin.
   see 'function<kbd>n</kbd>' attribute for more info.
   </p>
-   <img src="symbol_property_syntax4.png" width="640">
+   <img src="symbol_property_syntax4.png">
 
   <li><kbd>clock=n</kbd></li>
   <p>
@@ -332,7 +332,7 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
   after selecting the pin to know its sequence number). Multiple functions (function3="...", function4="...")
   can be defined in case of elements with multiple outputs.
   </p>
-   <img src="symbol_property_syntax5.png" width="640">
+   <img src="symbol_property_syntax5.png">
   <p>
   Commands that can appear in functions are:
   </p>
@@ -363,7 +363,7 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
   Global nets in spice netlists are like global variables in a C program, these nets are accessible at any
   hierarchical level without the need of passing them through pin connections.
   </p>
-   <img src="symbol_property_syntax3.png" width="640">
+   <img src="symbol_property_syntax3.png">
   <li><kbd>spice_netlist</kbd></li>
   <li><kbd>verilog_netlist</kbd></li>
   <li><kbd>vhdl_netlist</kbd></li>

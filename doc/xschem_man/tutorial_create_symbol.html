@@ -22,14 +22,14 @@ p{padding: 15px  30px 10px;}
   In this tutorial we will build a 4011 CMOS quad 2-input NAND symbol.
   This IC has 4 nand gates (3 pins each, total 4*3=12 pins + VDD,VSS power pins)
   This device comes in a dual in line 14 pin package.<br>
-  <img src="tutorial_create_symbol_000.png" width="640"> 
-  <img src="tutorial_create_symbol_001.png" width="640"> 
+  <img src="tutorial_create_symbol_000.png"> 
+  <img src="tutorial_create_symbol_001.png"> 
  </p>
  <ol>
 
  <li>
   Start xschem giving <kbd> 4011-1.sym</kbd> as filename:<br>
-  <img src="tutorial_create_symbol_00.png" width="640"> 
+  <img src="tutorial_create_symbol_00.png"> 
  </li>
 
  <li> 
@@ -42,7 +42,7 @@ p{padding: 15px  30px 10px;}
   are on grid with the default '10' snap setting.
   Use the <kbd>m</kbd> key after selecting objects to move them around.
   <br>
-  <img src="tutorial_create_symbol_01.png" width="640"> 
+  <img src="tutorial_create_symbol_01.png"> 
   <p class="important"> Do <b>NOT</b> forget to reset the grid setting to the default (10) value
      as soon as you finished drawing small objects, otherwise the rest of the objects will be all
      off grid making the symbol unusable</p><br>
@@ -59,7 +59,7 @@ p{padding: 15px  30px 10px;}
   They should be equal to 5. remember to reset the grid to default 10 when done. <br><br>
   <p class="important">Update: a more advanced command is now available to place a symbol pin: <kbd>Alt-p</kbd></p>
  </li>
-  <img src="tutorial_create_symbol_02.png" width="640"> 
+  <img src="tutorial_create_symbol_02.png"> 
  
  <li>
   Now when <b>no object is selected</b> press <kbd>q</kbd> to edit the symbol global attributes. Type the following
@@ -82,14 +82,14 @@ extra_pinnumber="14 7"
   The <kbd>extra</kbd>  and <kbd>extra_pinnumber</kbd> attributes specify extra pin connections that are
   implicit, not drawn on the symbol. This is one of the possible styles to handle power connections on 
   slotted devices.<br>
-  <img src="tutorial_create_symbol_03.png" width="640"> 
+  <img src="tutorial_create_symbol_03.png"> 
  </li>
 
  <li>
   Press the <kbd>t</kbd> to place some text; set text v and h size to 0.2 and write <kbd>@name</kbd>; 
   this will be replaced with the instance name (aka refdes) when using the symbol in a schematic.
   Place a similar string with text <kbd>@symname</kbd> and place it under the @name string.<br>
-  <img src="tutorial_create_symbol_04.png" width="640"> 
+  <img src="tutorial_create_symbol_04.png"> 
  </li>
 
  <li>
@@ -107,7 +107,7 @@ extra_pinnumber="14 7"
   The <kbd>dir</kbd> attribute specifies the direction of the pin; XSCHEM supports 
   <kbd>in</kbd>, <kbd>out</kbd> and <kbd>inout</kbd> types. These attributes are used mainly for
   digital simulators (Verilog and VHDL), but specifying pin direction is good practice anyway.<br>
-  <img src="tutorial_create_symbol_05.png" width="640"> 
+  <img src="tutorial_create_symbol_05.png"> 
   <p class="important">Instead of the <kbd>q</kbd> key the attribute dialog box can also be displayed
   by placing the mouse pointer over the pin object and pressing the <kbd>right</kbd> mouse button</p><br>
  </li>
@@ -115,7 +115,7 @@ extra_pinnumber="14 7"
  <li>
   We want now to place some text near the gate pins to display the pin number: again, use the <kbd>t</kbd> key
   and place the following text, with hsize and vsize set to 0.2:<br>
-  <img src="tutorial_create_symbol_06.png" width="640"> <br>
+  <img src="tutorial_create_symbol_06.png"> <br>
   The complicated syntax of these text labels has the following meaning:<br>
   <ul>
    <li> The <kbd>@</kbd> is the variable expansion (macro) identifier, as usual.</li>
@@ -133,22 +133,22 @@ extra_pinnumber="14 7"
   in XSCHEM list (that reflects the creation order) you can reference pins by their name;
   The only reason to use the previous syntax with pin index numbers is efficiency when dealing with
   extremely big symbols (SoC or similar high pin count chips).<br>
-  <img src="tutorial_create_symbol_07.png" width="640"> 
+  <img src="tutorial_create_symbol_07.png"> 
   
  <li>
   The symbol is now complete; save it and close XSCHEM. Now open again xschem with an empty schematic,
   for example <kbd>xschem test.sch</kbd>. Press the <kbd>Insert</kbd> key and place the 4011-1 symbol:<br>
-  <img src="tutorial_create_symbol_08.png" width="640"> <br>
+  <img src="tutorial_create_symbol_08.png"> <br>
   We see that all pin numbers are shown for each pin; this reminds us that this is a slotted device!
   slotted devices should specify the slot number in the instance <kbd>name</kbd> so, select the component, press
   <kbd>q</kbd> and change the <kbd>U1</kbd> name attribute to <kbd>U1:1</kbd>.
   You can also remove the <kbd>.sym</kbd> extension in the 'Symbol' entry of the dialog box, 
   for more compactness:<br>
-  <img src="tutorial_create_symbol_09.png" width="640"> <br>
+  <img src="tutorial_create_symbol_09.png"> <br>
   As you can see now the slot is resolved and the right pin numbers are displayed.
   Now select and copy the component (use the <kbd>c</kbd> key), and change the <kbd>name</kbd>
   attribute of the new copy to <kbd>U1:3</kbd>:<br>
-  <img src="tutorial_create_symbol_10.png" width="640"> <br>
+  <img src="tutorial_create_symbol_10.png"> <br>
  </li>
 
  <li>
@@ -156,11 +156,11 @@ extra_pinnumber="14 7"
   to draw wires; when done with the wiring insert a net label by pressing the <kbd>Insert</kbd>
   key and navigating to <kbd>.../share/xschem/xschem_library/devices</kbd> (the XSCHEM system 
   symbol library) and selecting <kbd>lab_pin</kbd>:<br>
-  <img src="tutorial_create_symbol_11.png" width="640"> <br>
+  <img src="tutorial_create_symbol_11.png"> <br>
   Place 4 of these <kbd>lab_pin</kbd> symbols and set their <kbd>lab</kbd> attribute 
   to <kbd>S_, R_, Q, Q_</kbd> respectively; 
   place the 4 labels as shown (use the <kbd>Shift-f</kbd> key to flip the <kbd>Q, Q_</kbd> labels):<br>
-  <img src="tutorial_create_symbol_12.png" width="640"> <br>
+  <img src="tutorial_create_symbol_12.png"> <br>
  </li>
  
  <li> 
@@ -169,7 +169,7 @@ extra_pinnumber="14 7"
   <kbd>Shift-v</kbd> multiple times to set the netlisting mode as shown in the bottom status bar
   to <kbd>tedax</kbd>, and finally press the <kbd>Netlist</kbd> button located in the top-right
   region of the window: <br>
-  <img src="tutorial_create_symbol_13.png" width="640"> <br>
+  <img src="tutorial_create_symbol_13.png"> <br>
   This is the resulting netlist you should get:<br><br>
   <pre class="code">
 tEDAx v1

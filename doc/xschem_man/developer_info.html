@@ -67,7 +67,7 @@ p{padding: 15px  30px 10px;}
   (lines, polygons, rectangles, text) that can be shown as a single atomic entity.
   Once created a symbol can be placed in a schematic. The instantiation of a symbol is called 'component'.
  </p>
- <img src="building_symbol_03.png" width="640">
+ <img src="building_symbol_03.png">
  <p>
   The above picture shows a resistor symbol, built drawing some lines on layer 4 (green),
   some pins on layer 5 (red) and some text.
@@ -75,7 +75,7 @@ p{padding: 15px  30px 10px;}
   and can be placed like just any other primitive object multiple times in a schematic window
   with different orientations.
  </p>
- <img src="developer_info_01.png" width="640">
+ <img src="developer_info_01.png">
  <h3>WIRES</h3>
  <p>
   Another special primitive object in XSCHEM is 'Wire', Graphically it is drawn as a line on layer 1 (wires).
@@ -101,7 +101,7 @@ p{padding: 15px  30px 10px;}
   XSCHEM coordinates are stored as double precision floating point numbers, axis orientation is the same as Xorg
   default coordinate orientation: 
  </p>
- <img src="developer_info_02.png" width="640">
+ <img src="developer_info_02.png">
  <p>
   When drawing objecs in XSCHEM coordinates are snapped to a multiple of 10.0 coordinate units,
   so all drawn objects are easily aligned.
@@ -242,7 +242,7 @@ in this case only the verilog-related global property has some definition. This 
    of text objects. Using rotation and mirror text can be aligned to any corner of its bounding box, so there are 4 different 
    alignments for vertical text and 4 different alignments for horizontal text. Below picture shows how text is displayed
    with respect to its anchor point.
-   <img src="developer_info_03.png" width="640"></li>
+   <img src="developer_info_03.png"></li>
    <li> text X and Y sizes are stored as floating point numbers.</li>
    <li> Finally a property string is stored with the same syntax as the displayed text field.
         Currently the following attributes are predefined for text objects:<br><br>
@@ -293,7 +293,7 @@ in this case only the verilog-related global property has some definition. This 
   the arc radius, the start angle (measured counterclockwise from the three o'clock direction), the arc sweep angle
   (measured counterclockwise from the start angle) and the property string (empty in this example).
   Angles are measured in degrees.<br>
-  <img src="developer_info_07.png" width="640">
+  <img src="developer_info_07.png">
  </p>
  <h3>COMPONENT INSTANCE</h3>
  <p>
@@ -306,7 +306,7 @@ in this case only the verilog-related global property has some definition. This 
   mirror (integer range [0:1]), and a property string defining various attributes
   including the mandatory <kbd>name=...</kbd> attribute.<br>
   Orientation and mirror meanings are as follows:<br>
-  <img src="developer_info_04.png" width="640">
+  <img src="developer_info_04.png">
  </p>
  <h3>EXAMPLE OF A COMPLETE SYMBOL FILE (7805.sym)</h3><br>
  <pre class="code">
@@ -335,7 +335,7 @@ T {@#0:pinnumber} -47.5 -2.5 0 0 0.12 0.12 {}
 T {@#1:pinnumber} -2.5 12.5 0 0 0.12 0.12 {}
 T {@#2:pinnumber} 47.5 -2.5 0 1 0.12 0.12 {}
  </pre>
- <img src="developer_info_05.png" width="640"><br>
+ <img src="developer_info_05.png"><br>
  <br>
  <h3>EXAMPLE OF A COMPLETE SCHEMATIC FILE (pcb_test1.sch)</h3><br>
  <pre class="code">
@@ -420,7 +420,7 @@ assign VCC12=1;
 "}
 C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" }
  </pre>
- <img src="developer_info_06.png" width="640"><br>
+ <img src="developer_info_06.png"><br>
  <br>
  <!-- end of slide -->
  <div class="filler"></div>

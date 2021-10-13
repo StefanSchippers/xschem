@@ -28,7 +28,7 @@ p{padding: 15px  30px 10px;}
   can be placed in a schematic acting as a container of text files for all the needed SPICE models and any
   additional information to make the schematic ready for simulation.
  </p>
- <img src="simulation10.png" width="640">
+ <img src="simulation10.png">
  <p>
   The <kbd>devices/netlist_not_shown</kbd> symbol shown in the picture (with name MODELS) for example contains
   all the spice models of the components used in the schematic, this makes
@@ -48,7 +48,7 @@ p{padding: 15px  30px 10px;}
   that is able to show simulator results. Install these two valuable tools and setup
   simulator invocation by using the Simulator configurator (<kbd>Simulation-&gt;Configure Simulators and tools</kbd>).
  </p>
- <img src="simulation11.png" width="640">
+ <img src="simulation11.png">
  <p>
   The text entry on the verilog line is the command to invoke icarus verilog simulation. <kbd>$N</kbd>
   will be expanded to the netlist file (<kbd>$netlist_dir/greycnt.v</kbd>), while <kbd>$n</kbd>
@@ -64,7 +64,7 @@ p{padding: 15px  30px 10px;}
  <pre class="code">
 user:~$ xschem examples/greycnt
  </pre>
- <img src="simulation1.png" width="640">
+ <img src="simulation1.png">
  <p>
   This testbench has a 8 bit input vector A[7:0] and two output vectors, B[7:0] and C[7:0].
   B[7:0] is a grey coded vector, this mean that if A[7:0] is incremented as a binary number
@@ -81,19 +81,19 @@ user:~$ xschem examples/greycnt
   An Ex-Nor gate can be represented as a verilog primitive, so for the xnor gate we just need to setup 
   a <kbd>verilog_format</kbd> attribute in the global property string of the <kbd>xnor.sym</kbd> gate: 
  </p>
- <img src="simulation2.png" width="640">
+ <img src="simulation2.png">
  <p>
   the 'assign' symbol is much simpler, in this property string you see the definition for SPICE
   (<kbd>format</kbd> attribute), Verilog (<kbd>verilog_format</kbd>) and VHDL (<kbd>vhdl_format</kbd>).
    This shows how a single symbol can be used for different netlist formats.
  </p>
- <img src="simulation3.png" width="640">
+ <img src="simulation3.png">
  <p>
   While showing the top-level testbench <kbd>greycnt</kbd> set XSCHEM in Verilog mode
   (menu <kbd>Options-&gt;Verilog</kbd> radio button, or <kbd>&lt;Shift&gt;V</kbd> key) and press
   the edit property <kbd>'q'</kbd> key, you will see some verilog code:
  </p>
- <img src="simulation4.png" width="640">
+ <img src="simulation4.png">
  <p> 
   This is the testbench behavioral code that generates stimuli for the simulation and gives
   instructions on where to save simulation results. If you generate the verilog netlist with 
@@ -149,28 +149,28 @@ endmodule
   in this case the input vector A[7:0] and the grey coded B[7:0] vectors are shown. You can quit the
   simulator log window by pressing <kbd>'q'</kbd>.
  </p>
- <img src="simulation5.png" width="640">
+ <img src="simulation5.png">
  <p>
   If simulation completes with no errors waveforms can be viewed. Press the <kbd>Waves</kbd> button
   in the top-right of the menu bar, you may add waveforms in the gtkwave window:
  </p>
- <img src="simulation6.png" width="640">
+ <img src="simulation6.png">
  <p>
   If the schematic contains errors that the simulator can not handle instead of the simulation
   log a window showing the error messages from the simulator is shown: 
  </p>
- <img src="simulation7.png" width="640">
+ <img src="simulation7.png">
  <p>
   To facilitate the debug you may wish to edit the netlist (<kbd>Simulation-&gt;Edit Netlist</kbd>)
   to locate the error, in the picture below i inserted deliberately a random string to
   trigger the failure:
  </p>
- <img src="simulation8.png" width="640">
+ <img src="simulation8.png">
  <p>
   As you can see the error is in the behavioral code of the top level greycnt schematic, so edit the 
   global property (<kbd>'q'</kbd> key with no component selected) and fix the error.
  </p>
- <img src="simulation9.png" width="640">
+ <img src="simulation9.png">
 
  <!-- end of slide -->
  <div class="filler"></div>

@@ -42,7 +42,7 @@ p{padding: 15px  30px 10px;}
   In a very similar way multiple instances can be placed in a schematic setting the 'name' attribute to a vector notation.<br>
   For example in picture below <kbd>x22[15:0]</kbd> represents 16 inverters with names <kbd>x22[15],x22[14],...,x22[0]</kbd>.
  </p>
- <img src="busses0.png" width="640">
+ <img src="busses0.png">
  <br>
 
  <p>
@@ -65,11 +65,11 @@ p{padding: 15px  30px 10px;}
   (<kbd>devices/bus_connect_nolab.sym</kbd>) are used to take slices of bits from the main bus. Wire labels are used to define bus slices.
   To display thick wires for busses, select all wire segments, then press 'q' and add attribute <kbd>bus=true</kbd>.
  </p>
- <img src="busses1.png" width="640">
+ <img src="busses1.png">
  <p>
   following picture shows an istantiation of 6 inverters:
  </p>
- <img src="busses2.png" width="640">
+ <img src="busses2.png">
  <p>
   The generated spice netlist is the following:
  </p>
@@ -86,7 +86,7 @@ xinv0 BB5 AA0 bf
  <p>
   Example of a more complex bus routing. main bus is a bundle of 2 buses: DATA_A[0..15] and DATA_B[0..15]
  </p>
- <img src="busses3.png" width="640">
+ <img src="busses3.png">
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
