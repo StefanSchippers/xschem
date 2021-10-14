@@ -1,36 +1,46 @@
 #!/bin/sh
 
-root_file=/home/schippes/xschem-repo/trunk/doc/xschem_man/xschem_man.html
+#### Automatic pdf doc generation from xschem html docs
+#### Stefan Schippers, 20211014
+
 tmpdir=__tmp__
 
-mkdir -p $tmpdir
-cp $root_file \
-   $(grep  '<li>.*href' $root_file \
-     | grep -v '/video_tutorials/' \
-     | sed 's/^.*href *= *"//' \
-     | sed 's/" *>.*//') \
-   $tmpdir
-cp *.png $tmpdir
-cd $tmpdir
-sed -i '/<img/s/>/ width="640">/' *.html
-
-htmldoc --top 10mm --bottom 10mm --right 10mm --left 10mm \
-  --webpage --linkcolor blue  --footer ..1 --header ..h -t pdf -f ../xschem_man.pdf \
-   $root_file \
-   $(grep  '<li>.*href' $root_file \
+#### get list of html files from top level file, preserve order.
+get_html_list () {
+  echo -n $(grep  '<li>.*href' $root_file \
      | grep -v '/video_tutorials/' \
      | sed 's/^.*href *= *"//' \
      | sed 's/" *>.*//')
+}
+
+#### from top index page create pdf doc with internal links
+#### 1st parameter is the top page, 2nd parameter is output pdf file.
+#### This works specifically for xschem documentation!
+#### will not work on generic html docs.
+generate_pdf () {
+  local root_file output_file
+  root_file=$1
+  output_file=$2
+
+  #### transform local urls to video tutorial videos to sourceforge hosted videos.
+  sed -i '/href *= *"video_tutorials\//s/="/="https:\/\/xschem.sourceforge.io\/stefan\/xschem_man\//' $root_file
+  #### copy all docs in temporary directory since we must resize images.
+  mkdir -p $tmpdir
+  cp $(dirname $root_file)/*.html $(dirname $root_file)/*.png $tmpdir
+  cd $tmpdir
   
+  #### resize images since htmldoc does not fit images in pdf pages at all.
+  sed -i '/<img/s/>/ width="640">/' *.html
+  
+  #### generate pdf from list of html files.
+  htmldoc --top 10mm --bottom 10mm --right 10mm --left 10mm --webpage --linkcolor blue \
+    --footer ..1 --header ..h -t pdf -f ../$output_file $root_file $(get_html_list) 
+  cd ..
+  #### cleanup
+  rm -rf $tmpdir
+}
 
-echo "----"
-echo $root_file
-echo $(grep  '<li>.*href' $root_file \
-     | grep -v '/video_tutorials/' \
-     | sed 's/^.*href *= *"//' \
-     | sed 's/" *>.*//')
-
-cd ..
-
-rm -rf $tmpdir
-
+#### generate pdf doc for github/repo.hi xschem version, with autoconfiguration (./configure && make)
+generate_pdf /home/schippes/xschem-repo/trunk/doc/xschem_man/xschem_man.html xschem_man.pdf
+#### generate pdf doc for sourceforge xschem version, with NO autoconfiguration (edit Makefile and make)
+generate_pdf xschem_man.html xschem_man_sourceforge.pdf
