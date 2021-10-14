@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4316
-template="name=U? device=4316 footprint=DIP16 description=\\"quadruple bilateral switches\\" VSS=VSS
+template="name=U? device=4316 footprint=DIP16 description=\\"quadruple bilateral switches\\" numslots=0 VSS=VSS
 VEE=VEE
 VDD=VDD
 "
@@ -10,7 +10,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VSS @VEE @VDD"
 
-extra="device footprint description VSS VEE VDD"
+extra="VSS VEE VDD"
 extra_pinnumber="8 9 16"
 }
 G {}

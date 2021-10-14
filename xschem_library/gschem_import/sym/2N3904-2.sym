@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=2N3904
-template="device=2N3904 name=Q? footprint=TO92 "
+template="device=2N3904 name=Q? footprint=TO92 numslots=0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint
 
 }
 G {}

@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=PIC12F675
-template="name=U? device=PIC12F675 footprint=DIP8 description=\\"8-bit FLASH microcontroller\\" documentation=http://ww1.microchip.com/downloads/en/DeviceDoc/41190E.pdf symversion=1.0 GND=GND
+template="name=U? device=PIC12F675 footprint=DIP8 numslots=0 description=\\"8-bit FLASH microcontroller\\" documentation=http://ww1.microchip.com/downloads/en/DeviceDoc/41190E.pdf symversion=1.0 GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="device footprint description GND Vcc"
+extra="GND Vcc"
 extra_pinnumber="8 1"
 }
 G {}

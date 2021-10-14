@@ -8,7 +8,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND"
 
-extra="device GND"
+extra="GND"
 extra_pinnumber="1"
 }
 G {}

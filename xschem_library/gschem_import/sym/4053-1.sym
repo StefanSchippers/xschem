@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4053
-template="slot=1 device=4053 name=U? footprint=DIP16 description=\\"3 2-1 analogue multiplexer/demultiplexer\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4053B_CNV_3.pdf comment=\\"dont_use this symbol: pin 6 (EN) ist missing; for safety I've enabled the device\\" VDD=VDD
+template="numslots=3 slot=1 device=4053 name=U? footprint=DIP16 description=\\"3 2-1 analogue multiplexer/demultiplexer\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4053B_CNV_3.pdf comment=\\"dont_use this symbol: pin 6 (EN) ist missing; for safety I've enabled the device\\" VDD=VDD
 VSS=VSS
 VEE=VEE
 "
@@ -10,7 +10,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS @VEE"
 
-extra="device footprint description VDD VSS VEE"
+extra="VDD VSS VEE"
 extra_pinnumber="16 8,6 7"
 }
 G {}

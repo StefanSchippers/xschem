@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX6674
-template="name=U? device=MAX6674 description=\\"Cold-Junction-Compensated K-Thermocuple-to-Digital Converter (0'C to +128'C)\\" footprint=SO8 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX667.pdf GND=GND
+template="name=U? device=MAX6674 description=\\"Cold-Junction-Compensated K-Thermocuple-to-Digital Converter (0'C to +128'C)\\" footprint=SO8 numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX667.pdf GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="device description footprint GND Vcc"
+extra="GND Vcc"
 extra_pinnumber="1 4"
 }
 G {}

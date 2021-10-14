@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX1011
-template="device=MAX1011 name=U? footprint=QSOP24 description=\\"low power, 90Msps, 6-bit ADC\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1011.pdf VCC=VCC
+template="device=MAX1011 name=U? footprint=QSOP24 description=\\"low power, 90Msps, 6-bit ADC\\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1011.pdf VCC=VCC
 GND=GND
 OGND=OGND
 VCCO=VCCO
@@ -11,7 +11,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VCC @GND @OGND @VCCO"
 
-extra="device footprint description VCC GND OGND VCCO"
+extra="VCC GND OGND VCCO"
 extra_pinnumber="6,11,14 9,10,12,13 16 17"
 }
 G {}

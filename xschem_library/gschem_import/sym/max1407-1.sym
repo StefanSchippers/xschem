@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX1407
-template="name=U? footprint=SSOP28 device=MAX1407 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1407-MAX1414.pdf description=\\"16-bit multichannel data acquisition system\\" "
+template="name=U? footprint=SSOP28 device=MAX1407 numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1407-MAX1414.pdf description=\\"16-bit multichannel data acquisition system\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-footprint device description
 
 }
 G {}

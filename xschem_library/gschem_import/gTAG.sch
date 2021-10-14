@@ -40,27 +40,27 @@ device=none
 }
 
 N 5280 -5980 5410 -5980 {lab=tdi_ttl }
-C {lab_wire.sym} 5345 -5980 0 0 {lab=tdi_ttl }
+C {lab_wire.sym} 5330 -5980 0 1 {lab=tdi_ttl }
 N 5280 -5940 5410 -5940 {lab=tdo_ttl }
-C {lab_wire.sym} 5345 -5940 0 0 {lab=tdo_ttl }
+C {lab_wire.sym} 5330 -5940 0 1 {lab=tdo_ttl }
 N 5280 -5900 5410 -5900 {lab=tms_ttl }
-C {lab_wire.sym} 5345 -5900 0 0 {lab=tms_ttl }
+C {lab_wire.sym} 5330 -5900 0 1 {lab=tms_ttl }
 N 5280 -5860 5410 -5860 {lab=tck_ttl }
-C {lab_wire.sym} 5345 -5860 0 0 {lab=tck_ttl }
+C {lab_wire.sym} 5330 -5860 0 1 {lab=tck_ttl }
 N 5280 -5820 5410 -5820 {lab=trst_ttl }
-C {lab_wire.sym} 5345 -5820 0 0 {lab=trst_ttl }
-N 5390 -6230 5120 -6230 {}
+C {lab_wire.sym} 5330 -5820 0 1 {lab=trst_ttl }
+N 5120 -6230 5390 -6230 {}
 N 5120 -6230 5120 -6030 {lab=jtag_power }
-C {lab_wire.sym} 5120 -6130 0 0 {lab=jtag_power }
+C {lab_wire.sym} 5120 -6120 0 1 {lab=jtag_power }
 N 5710 -6230 6010 -6230 {}
 N 6010 -6230 6010 -6030 {lab=usb_power }
-C {lab_wire.sym} 6010 -6130 0 0 {lab=usb_power }
+C {lab_wire.sym} 6010 -6120 0 1 {lab=usb_power }
 N 5730 -5910 5860 -5910 {lab=usb_io+ }
-C {lab_wire.sym} 5795 -5910 0 0 {lab=usb_io+ }
+C {lab_wire.sym} 5750 -5910 0 1 {lab=usb_io+ }
 N 5730 -5880 5860 -5880 {lab=usb_io- }
-C {lab_wire.sym} 5795 -5880 0 0 {lab=usb_io- }
+C {lab_wire.sym} 5750 -5880 0 1 {lab=usb_io- }
 N 5730 -5980 5740 -5980 {}
-N 5740 -5980 5740 -6190 {lab=pon_reset# }
-C {lab_wire.sym} 5740 -6085 0 0 {lab=pon_reset# }
-N 5740 -6190 5710 -6190 {}
+N 5740 -6190 5740 -5980 {lab=pon_reset# }
+C {lab_wire.sym} 5740 -6090 0 1 {lab=pon_reset# }
+N 5710 -6190 5740 -6190 {}
 

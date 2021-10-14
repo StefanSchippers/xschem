@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4097
-template="name=U? device=4097 footprint=DIP24 description=\\"dual 1-8 analog multiplexer/demultiplexer\\" VSS=VSS
+template="name=U? device=4097 footprint=DIP24 description=\\"dual 1-8 analog multiplexer/demultiplexer\\" numslots=0 VSS=VSS
 VDD=VDD
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VSS @VDD"
 
-extra="device footprint description VSS VDD"
+extra="VSS VDD"
 extra_pinnumber="12 24"
 }
 G {}

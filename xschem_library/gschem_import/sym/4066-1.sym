@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4066
-template="device=4066 name=U? footprint=DIP14 description=\\"4 bilateral switches\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4066B_CNV_3.pdf VDD=VDD
+template="device=4066 name=U? footprint=DIP14 description=\\"4 bilateral switches\\" numslots=0 documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4066B_CNV_3.pdf VDD=VDD
 VSS=VSS
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS"
 
-extra="device footprint description VDD VSS"
+extra="VDD VSS"
 extra_pinnumber="14 7"
 }
 G {}

@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=62256
-template="device=62256 name=U? footprint=DIP28 description=\\"32K-word x 8-bit high speed cmos static ram\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" "
+template="device=62256 name=U? footprint=DIP28 description=\\"32K-word x 8-bit high speed cmos static ram\\" numslots=0 author=\\"Werner Hoch <werner.hoATgmx.de>\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

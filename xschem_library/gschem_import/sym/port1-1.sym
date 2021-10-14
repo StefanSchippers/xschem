@@ -3,8 +3,6 @@ K {type=label
 template="device=PORT1 lab=PORT1
 "
 
-device
-
 }
 G {}
 V {}

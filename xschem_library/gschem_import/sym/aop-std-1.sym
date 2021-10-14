@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=AOP-Standard
-template="device=AOP-Standard name=U? footprint=DIP8 description=\\"single opamp\\" symversion=0.1 comment=NC-PINS:1,5,8 "
+template="device=AOP-Standard name=U? footprint=DIP8 description=\\"single opamp\\" numslots=0 symversion=0.1 comment=NC-PINS:1,5,8 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

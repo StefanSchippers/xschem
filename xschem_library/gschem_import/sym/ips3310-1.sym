@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=IPS3310
-template="device=IPS3310 documentation=http://www.irf.com/product-info/datasheets/data/ips3310.pdf description=\\"Protected HEXFET Power MOSFET\\" footprint=TO-220AB5 name=Q? symversion=1.0 "
+template="device=IPS3310 documentation=http://www.irf.com/product-info/datasheets/data/ips3310.pdf description=\\"Protected HEXFET Power MOSFET\\" numslots=0 footprint=TO-220AB5 name=Q? symversion=1.0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device description footprint
 
 }
 G {}

@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="6 7"
 }
 G {}

@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=NMOS_TRANSISTOR
-template="device=NMOS_TRANSISTOR name=Q? description=\\"NMOS transistor\\" symversion=0.1 "
+template="device=NMOS_TRANSISTOR name=Q? description=\\"NMOS transistor\\" numslots=0 symversion=0.1 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device description
 
 }
 G {}

@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=8088
-template="device=8088 name=U? footprint=DIP40 description=\\"8-bit HMOS micro processor\\" "
+template="device=8088 name=U? footprint=DIP40 description=\\"8-bit HMOS micro processor\\" numslots=0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

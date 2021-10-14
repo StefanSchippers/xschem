@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX1081
-template="footprint=TSSOP20 device=MAX1081 name=U? description=\\"8-channel, serial 10-bit ADC with internal reference\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1080-MAX1081.pdf "
+template="footprint=TSSOP20 device=MAX1081 name=U? numslots=0 description=\\"8-channel, serial 10-bit ADC with internal reference\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1080-MAX1081.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-footprint device description
 
 }
 G {}

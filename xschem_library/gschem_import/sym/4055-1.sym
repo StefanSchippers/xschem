@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4055
-template="name=U? device=4055 footprint=DIP16 description=\\"BCD to 7 segment decoder, LCD\\" VEE=VEE
+template="name=U? device=4055 footprint=DIP16 description=\\"BCD to 7 segment decoder, LCD\\" numslots=0 VEE=VEE
 VSS=VSS
 VDD=VDD
 "
@@ -10,7 +10,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VEE @VSS @VDD"
 
-extra="device footprint description VEE VSS VDD"
+extra="VEE VSS VDD"
 extra_pinnumber="7 8 16"
 }
 G {}

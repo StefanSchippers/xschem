@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=HA5221
-template="device=HA5221 name=U? footprint=DIP8 description=\\"100MHz, low noise, precision opamp\\" symversion=1.0 documentation=http://www.intersil.com/data/fn/fn2915.pdf "
+template="device=HA5221 name=U? footprint=DIP8 description=\\"100MHz, low noise, precision opamp\\" numslots=0 symversion=1.0 documentation=http://www.intersil.com/data/fn/fn2915.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

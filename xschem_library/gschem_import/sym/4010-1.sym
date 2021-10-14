@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4010
-template="device=4010 slot=1 name=U? pins=16 class=IC footprint=DIP16 description=\\"6 CMOS to TTL converter\\" GND=GND
+template="device=4010 slot=1 numslots=6 name=U? pins=16 class=IC footprint=DIP16 description=\\"6 CMOS to TTL converter\\" GND=GND
 VDD=VDD
 Vcc=Vcc
 "
@@ -10,7 +10,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @VDD @Vcc"
 
-extra="device footprint description GND VDD Vcc"
+extra="GND VDD Vcc"
 extra_pinnumber="8 16 1"
 }
 G {}

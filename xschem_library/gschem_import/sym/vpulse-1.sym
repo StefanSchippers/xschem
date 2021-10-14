@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=vpulse
-template="name=V? device=vpulse footprint=none description=\\"pulse power source, generator\\" value=\\"pulse 0 1 10n 10n 100n 1u 2u\\" comment=\\"syntax: pulse v1 v2 td tr tf pw per\\" "
+template="name=V? device=vpulse footprint=none numslots=0 description=\\"pulse power source, generator\\" value=\\"pulse 0 1 10n 10n 100n 1u 2u\\" comment=\\"syntax: pulse v1 v2 td tr tf pw per\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

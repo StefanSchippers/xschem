@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX807
-template="device=MAX807 name=U? footprint=DIP16 description=\\"uP supervisory circuit with 1.5% reset accuracy\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX807L-MAX807N.pdf "
+template="device=MAX807 name=U? footprint=DIP16 description=\\"uP supervisory circuit with 1.5% reset accuracy\\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX807L-MAX807N.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

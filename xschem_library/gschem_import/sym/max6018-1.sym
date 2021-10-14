@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX6018
-template="device=MAX6018 footprint=SOT23 name=U? description=\\"precision, micropower, low-dropout, 1.8V voltage reference\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX6018.pdf "
+template="device=MAX6018 footprint=SOT23 name=U? description=\\"precision, micropower, low-dropout, 1.8V voltage reference\\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX6018.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

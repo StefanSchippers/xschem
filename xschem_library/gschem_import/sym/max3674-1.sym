@@ -1,14 +1,12 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX3674ECM
 type=MAX3674
-template="name=U? device=MAX3674 footprint=LQFP48_7 symversion=1.0 description=\\"High-Performance, Dual-Output, Network Clock Synthesizer\\" documentation=http://datasheets.maxim-ic.com/en/ds/MAX3674.pdf device=MAX3674ECM "
+template="name=U? device=MAX3674 footprint=LQFP48_7 numslots=0 symversion=1.0 description=\\"High-Performance, Dual-Output, Network Clock Synthesizer\\" documentation=http://datasheets.maxim-ic.com/en/ds/MAX3674.pdf device=MAX3674ECM "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description device
 
 }
 G {}

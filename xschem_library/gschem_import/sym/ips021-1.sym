@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=IPS021
-template="name=U? device=IPS021 footprint=TO220 description=\\"Fully Protected Power MOSFET Switch\\" documentation=http://www.irf.com/product-info/datasheets/data/ips021.pdf "
+template="name=U? device=IPS021 numslots=0 footprint=TO220 description=\\"Fully Protected Power MOSFET Switch\\" documentation=http://www.irf.com/product-info/datasheets/data/ips021.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

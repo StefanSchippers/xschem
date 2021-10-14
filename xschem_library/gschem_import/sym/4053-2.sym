@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4053
-template="name=U? device=4053 footprint=DIP16 description=\\"3 2-1 analogue multiplexer/demultiplexer\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4053B_CNV_3.pdf VDD=VDD
+template="name=U? device=4053 footprint=DIP16 numslots=0 description=\\"3 2-1 analogue multiplexer/demultiplexer\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4053B_CNV_3.pdf VDD=VDD
 VSS=VSS
 VEE=VEE
 "
@@ -10,7 +10,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS @VEE"
 
-extra="device footprint description VDD VSS VEE"
+extra="VDD VSS VEE"
 extra_pinnumber="16 8 7"
 }
 G {}

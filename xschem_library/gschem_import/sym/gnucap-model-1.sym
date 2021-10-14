@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=model
-template="device=model name=A? model-name=unknown file=unknown "
+template="device=model name=A? model-name=unknown file=unknown numslots=0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device
 
 }
 G {}

@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX982
-template="name=U? device=MAX982 footprint=DIP8 description=\\"ultra-low-power, open-drain, single/dual-supply comparator\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX971-MAX984.pdf "
+template="name=U? device=MAX982 footprint=DIP8 description=\\"ultra-low-power, open-drain, single/dual-supply comparator\\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX971-MAX984.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

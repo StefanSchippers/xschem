@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=darlington, NPN
-template="device=\\"darlington, NPN\\" description=\\"darlington, NPN\\" footprint=TO92 name=T? "
+template="device=\\"darlington, NPN\\" description=\\"darlington, NPN\\" footprint=TO92 name=T? numslots=0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device description footprint
 
 }
 G {}

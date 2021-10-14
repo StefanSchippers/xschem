@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4538
-template="device=4538 slot=1 name=U? footprint=DIP16 description=\\"2 precision monostable multivibrators\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4538B_CNV_3.pdf symversion=0.1 VDD=VDD
+template="device=4538 slot=1 numslots=2 name=U? footprint=DIP16 description=\\"2 precision monostable multivibrators\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4538B_CNV_3.pdf symversion=0.1 VDD=VDD
 VSS=VSS
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS"
 
-extra="device footprint description VDD VSS"
+extra="VDD VSS"
 extra_pinnumber="16 8"
 }
 G {}

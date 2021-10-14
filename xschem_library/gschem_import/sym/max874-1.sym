@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX874
-template="device=MAX874 name=U? footprint=DIP8 description=\\"10uA, low-dropout, precision voltage reference\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX872-MAX874.pdf GND=GND
+template="device=MAX874 name=U? footprint=DIP8 description=\\"10uA, low-dropout, precision voltage reference\\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX872-MAX874.pdf GND=GND
 "
 tedax_format="footprint @name @footprint
 value @name @value
@@ -8,7 +8,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND"
 
-extra="device footprint description GND"
+extra="GND"
 extra_pinnumber="4"
 }
 G {}

@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=6A259DIP
-template="name=U? device=6A259DIP footprint=DIP20 description=\\"Peripheral / Power Logic 8-Bit Addressable Latch\\" documentation=http://focus.ti.com/docs/prod/folders/print/tpic6a259.html Vcc=Vcc
+template="name=U? device=6A259DIP footprint=DIP20 description=\\"Peripheral / Power Logic 8-Bit Addressable Latch\\" numslots=0 documentation=http://focus.ti.com/docs/prod/folders/print/tpic6a259.html Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint description Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="17 4"
 }
 G {}

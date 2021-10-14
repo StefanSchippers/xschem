@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MC10E104
-template="device=MC10E104 slot=1 name=U? symversion=0.1 documentation=http://www.onsemi.com/pub/Collateral/MC10E104-D.PDF "
+template="device=MC10E104 slot=1 numslots=4 name=U? symversion=0.1 documentation=http://www.onsemi.com/pub/Collateral/MC10E104-D.PDF "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device
 
 }
 G {}

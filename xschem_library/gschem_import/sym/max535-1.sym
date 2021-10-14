@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX535
-template="device=MAX535 name=U? footprint=uMAX8 description=\\"low-power, serial 13-bit voltage-output DAC \\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX535-MAX5351.pdf "
+template="device=MAX535 name=U? footprint=uMAX8 description=\\"low-power, serial 13-bit voltage-output DAC \\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX535-MAX5351.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

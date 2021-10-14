@@ -3,8 +3,6 @@ K {type=label
 template="device=none description=\\"Passive module port\\" value=PASSIVE lab=PASSIVE
 "
 
-device description
-
 }
 G {}
 V {}

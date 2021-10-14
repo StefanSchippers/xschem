@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4069UB
-template="device=4069UB name=U? footprint=DIP14 description=\\"6 inverters\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4069UB_CNV_3.pdf "
+template="device=4069UB name=U? footprint=DIP14 description=\\"6 inverters\\" numslots=0 documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4069UB_CNV_3.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

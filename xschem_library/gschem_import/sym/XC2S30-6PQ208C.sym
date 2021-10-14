@@ -8,8 +8,6 @@ device @name @device
 @comptag"
 format="@name @pinlist @value "
 
-device device
-
 }
 G {}
 V {}

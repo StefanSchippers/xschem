@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=LCC110
-template="device=LCC110 symversion=0.1 name=U? footprint=DIP8 documentation=http://www.clare.com/home/PDFs.nsf/www/Lcc110.pdf/$File/Lcc110.pdf description=\\"common input optomos relay\\" "
+template="numslots=0 device=LCC110 symversion=0.1 name=U? footprint=DIP8 documentation=http://www.clare.com/home/PDFs.nsf/www/Lcc110.pdf/$File/Lcc110.pdf description=\\"common input optomos relay\\" "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

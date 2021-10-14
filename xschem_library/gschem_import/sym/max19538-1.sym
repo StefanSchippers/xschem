@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX19538
-template="device=MAX19538 name=U? footprint=TQFN40_6_EP documentation=http://pdfserv.maxim-ic.com/en/ds/MAX19538.pdf description=\\"12-Bit, 95Msps, 3.3V ADC\\" symversion=1.0 "
+template="device=MAX19538 name=U? footprint=TQFN40_6_EP numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX19538.pdf description=\\"12-Bit, 95Msps, 3.3V ADC\\" symversion=1.0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

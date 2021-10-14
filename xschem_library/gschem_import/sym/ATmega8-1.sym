@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=ATmega8
-template="description=\\"Low-power AVR 8-bit Microcontroller\\" documentation=\\"http://rocky.digikey.com/WebLib/Atmel/Web Data/ATmeg8(L) Preliminary Complete.pdf\\" footprint=DIP28N name=U? device=ATmega8 Vcc=Vcc
+template="description=\\"Low-power AVR 8-bit Microcontroller\\" documentation=\\"http://rocky.digikey.com/WebLib/Atmel/Web Data/ATmeg8(L) Preliminary Complete.pdf\\" footprint=DIP28N name=U? numslots=0 device=ATmega8 Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="description footprint device Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="7 8,22"
 }
 G {}

@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=7492
-template="device=7492 footprint=DIP14 name=U? description=\\"divide-by-twelfe counter, div2 and div6\\" Vcc=Vcc
+template="device=7492 footprint=DIP14 name=U? description=\\"divide-by-twelfe counter, div2 and div6\\" numslots=0 Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint description Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="5 10"
 }
 G {}

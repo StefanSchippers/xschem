@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX436
-template="device=MAX436 name=U? footprint=DIP14 description=\\"wideband transconductance amplifier\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX435-MAX436.pdf V-=V-
+template="device=MAX436 name=U? footprint=DIP14 description=\\"wideband transconductance amplifier\\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX435-MAX436.pdf V-=V-
 V+=V+
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @V- @V+"
 
-extra="device footprint description V- V+"
+extra="V- V+"
 extra_pinnumber="7,8,10 1,12,14"
 }
 G {}

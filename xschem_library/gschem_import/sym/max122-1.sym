@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX122
-template="device=MAX122 footprint=DIP24 description=\\"12-bit parallel output ADC\\" name=U? VDD=VDD
+template="device=MAX122 footprint=DIP24 description=\\"12-bit parallel output ADC\\" numslots=0 name=U? VDD=VDD
 VSS=VSS
 AGND=AGND
 DGND=DGND
@@ -11,7 +11,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS @AGND @DGND"
 
-extra="device footprint description VDD VSS AGND DGND"
+extra="VDD VSS AGND DGND"
 extra_pinnumber="3 2 6 12"
 }
 G {}

@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX1620
-template="device=MAX1620 name=U? footprint=QSOP16 description=\\"digitally adjustable LCD bias supplies\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1620-MAX1621.pdf "
+template="device=MAX1620 name=U? footprint=QSOP16 description=\\"digitally adjustable LCD bias supplies\\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1620-MAX1621.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=31-71043
-template="name=J? footprint=AMPHENOL_31_71043 description=\\"75 Ohm BNC connector, 90 Degree Angle, PC Mount, Female\\" device=31-71043 documentation=31-71043 "
+template="name=J? footprint=AMPHENOL_31_71043 description=\\"75 Ohm BNC connector, 90 Degree Angle, PC Mount, Female\\" device=31-71043 numslots=0 documentation=31-71043 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-footprint description device
 
 }
 G {}

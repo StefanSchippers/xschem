@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74145
-template="device=74145 footprint=DIP16 name=U? description=\\"BCD to decimaldecoder with open collector outputs\\" Vcc=Vcc
+template="device=74145 footprint=DIP16 name=U? description=\\"BCD to decimaldecoder with open collector outputs\\" numslots=0 Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint description Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="16 8"
 }
 G {}

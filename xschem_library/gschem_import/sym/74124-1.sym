@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74124
-template="device=74124 footprint=DIP16 name=U? description=\\"2 VCOs (voltage controlled oscillators)\\" slot=1 symversion=1.1 Vcc=Vcc
+template="device=74124 footprint=DIP16 name=U? description=\\"2 VCOs (voltage controlled oscillators)\\" slot=1 numslots=2 symversion=1.1 Vcc=Vcc
 GND=GND
 OSCGND=OSCGND
 OSCVCC=OSCVCC
@@ -11,7 +11,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND @OSCGND @OSCVCC"
 
-extra="device footprint description Vcc GND OSCGND OSCVCC"
+extra="Vcc GND OSCGND OSCVCC"
 extra_pinnumber="16 9 8 15"
 }
 G {}

@@ -103,6 +103,7 @@ FNR==1{
           if($0 ~/numslots=/) {
             numslots = $0
             sub(/numslots=/,"", numslots)
+            template_attrs = template_attrs escape_chars($0) " "
             continue
           }
           if($0 ~/net=/) {
@@ -112,18 +113,22 @@ FNR==1{
             continue
           }
           template_attrs = template_attrs escape_chars($0) " "
-          save = $0
 
 
-          #### put into "extra" all  attributes that are meaningless for spice netlisting
+          #### put into "extra" all attributes that are meaningless for spice netlisting
           #### if you need other attributes to filter out , add them below.
-          if($0 ~ /^(device|description|footprint|source|numslots)=/) {
-            attributes = $0
-            sub(/=.*/, "", attributes)
-            if(extra !="") extra = extra " " 
-            extra = extra attributes
-          }
+          #### however this will break slotted devices
+          ####
+          # if($0 ~ /^(device|description|footprint|source|numslots)=/) {
+          #   attributes = $0
+          #   sub(/=.*/, "", attributes)
+          #   if(extra !="") extra = extra " " 
+          #   if(extra_pinnumber !="") extra_pinnumber = extra_pinnumber " " 
+          #   extra = extra attributes
+          #   extra_pinnumber = extra_pinnumber "-"
+          # }
 
+          save = $0
           sub(/^device=/, "type=") 
           if ($0 ~/^value=IO/) { # inconsistency in io-1.sym
             $0 = "type=IO"
@@ -204,13 +209,17 @@ FNR==1{
       ny1 = -$3/10
       nx2 = $4/10
       ny2 = -$5/10
+      if(nx2 < nx1) {xxtmp=nx1;nx1=nx2;nx2=xxtmp;xxtmp=ny1;ny1=ny2;ny2=xxtmp}
+      else if(nx2 == nx1 && ny2 < ny1) {xxtmp=ny1;ny1=ny2;ny2=xxtmp}
+
       propstring = ""
       ret = getline
       if($0 == "{") {
         getline
         while($0 !="}") {
           if($0 ~/^T/) {
-            # do nothing for now
+            tx = $2/10
+            ty = -$3/10
           } else {
             if($0 ~/netname=/) sub(/netname=/, "lab=")
             propstring = propstring $0 " "
@@ -223,7 +232,20 @@ FNR==1{
       }
       wires = wires "N " nx1 " " ny1 " " nx2 " " ny2 " {" propstring  "}\n"
       if(propstring!="") {
-        wires = wires "C {lab_wire.sym} " (nx1+nx2)/2 " " (ny1+ny2)/2 " 0 0 {" propstring "}\n"
+
+        if(ny1 == ny2) { # horizontal wire
+          ty = ny1
+          if(tx < nx1) tx = nx1
+          if(tx > nx2) tx = nx2
+        } else if(nx1 == nx2) { # vertical line
+          tx = nx1
+          if(ty < ny1) ty = ny1
+          if(ty > ny2) ty = ny2
+        } else { # oblique line
+          tx =  (nx1+nx2)/2
+          ty = (ny1+ny2)/2
+        }
+        wires = wires "C {lab_wire.sym} " tx " " ty " 0 1 {" propstring "}\n"
       }
     }
     
@@ -415,11 +437,13 @@ function print_header()
       extra_pinnumber = extra_pinnumber pinnumber 
       extra_format = extra_format "@" netname
     }
-    if(extra) {
-      extra = "extra=\"" extra "\""
-      extra_pinnumber = "extra_pinnumber=\"" extra_pinnumber "\""
-    }
  
+  }
+  if(extra) {
+    extra = "extra=\"" extra "\""
+  }
+  if(extra_pinnumber) {
+    extra_pinnumber = "extra_pinnumber=\"" extra_pinnumber "\""
   }
 
   if(pin == 1) spice_attrs = tedax_attrs="" 
@@ -450,8 +474,11 @@ function print_header()
     print "K {" global_attrs template_attrs tedax_attrs spice_attrs 
     if(extra) {
       print extra
+    }
+    if(extra_pinnumber) {
       print extra_pinnumber
     }
+    dbg("extra=" extra)
     print "}"
   } else {
     print "K {}"

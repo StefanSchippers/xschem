@@ -3,8 +3,6 @@ K {type=label
 template="device=none description=\\"Output module port\\" value=OUTPUT lab=OUTPUT
 "
 
-device description
-
 }
 G {}
 V {}

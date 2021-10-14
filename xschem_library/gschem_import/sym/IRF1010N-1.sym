@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=IRF1010N
-template="device=IRF1010N description=\\"HEXFET Power MOSFET\\" footprint=TO-220AB name=Q? "
+template="device=IRF1010N numslots=0 description=\\"HEXFET Power MOSFET\\" footprint=TO-220AB name=Q? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device description footprint
 
 }
 G {}

@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74393
-template="device=74393 footprint=DIP14 name=U? description=\\"2 4-bit binary counter with clear\\" documentation=http://www-s.ti.com/sc/ds/sn74hc393.pdf Vcc=Vcc
+template="device=74393 footprint=DIP14 name=U? description=\\"2 4-bit binary counter with clear\\" numslots=0 documentation=http://www-s.ti.com/sc/ds/sn74hc393.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint description Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="14 7"
 }
 G {}

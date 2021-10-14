@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=StAVeR24M32
-template="name=U? device=StAVeR24M32 footprint=DIP24 author=\\"m. dickens <marvindickens@bellsouth.net>\\" documentation=http://www.lawicel.com/ description=\\"microcontroller module based on Atmel ATMega32\\" "
+template="name=U? device=StAVeR24M32 footprint=DIP24 author=\\"m. dickens <marvindickens@bellsouth.net>\\" documentation=http://www.lawicel.com/ description=\\"microcontroller module based on Atmel ATMega32\\" numslots=0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

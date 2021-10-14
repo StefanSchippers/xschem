@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74374
-template="device=74374 name=U? footprint=DIP20 description=\\"8-bit D-type register with tristate outputs\\" documentation=http://www-s.ti.com/sc/ds/sn74hc374.pdf Vcc=Vcc
+template="device=74374 name=U? footprint=DIP20 description=\\"8-bit D-type register with tristate outputs\\" numslots=0 documentation=http://www-s.ti.com/sc/ds/sn74hc374.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint description Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="20 10"
 }
 G {}

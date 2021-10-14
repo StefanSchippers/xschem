@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=terminal
-template="device=terminal footprint=\\"CONNECTOR 1 1\\" author=\\"Karel 'Clock' Kulhavy <clock@twibright.com>\\" name=T? "
+template="device=terminal footprint=\\"CONNECTOR 1 1\\" author=\\"Karel 'Clock' Kulhavy <clock@twibright.com>\\" numslots=0 name=T? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint
 
 }
 G {}

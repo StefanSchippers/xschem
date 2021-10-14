@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=HEADER50
-template="device=HEADER50 description=\\"Header 50 pins\\" name=J? "
+template="device=HEADER50 numslots=0 description=\\"Header 50 pins\\" name=J? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device description
 
 }
 G {}

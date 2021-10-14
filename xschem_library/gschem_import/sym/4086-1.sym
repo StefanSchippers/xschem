@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4086
-template="name=U? device=4086 footprint=DIP14 description=\\"4-wide 2-input AND/OR invert gate\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4086B_CNV_3.pdf VDD=VDD
+template="name=U? device=4086 footprint=DIP14 description=\\"4-wide 2-input AND/OR invert gate\\" numslots=0 documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF4086B_CNV_3.pdf VDD=VDD
 VSS=VSS
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS"
 
-extra="device footprint description VDD VSS"
+extra="VDD VSS"
 extra_pinnumber="14 7"
 }
 G {}

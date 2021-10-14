@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=ADG601
-template="device=ADG601 name=U? footprint=MSOP8 description=\\" 2.2  CMOS ± 5 V/5V, SPST Switch\\" symversion=0.1 documentation=http://www.analog.com/UploadedFiles/Data_Sheets/3597365479993ADG601_2_a.pdf Vcc=Vcc
+template="device=ADG601 numslots=0 name=U? footprint=MSOP8 description=\\" 2.2  CMOS ± 5 V/5V, SPST Switch\\" symversion=0.1 documentation=http://www.analog.com/UploadedFiles/Data_Sheets/3597365479993ADG601_2_a.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint description Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="4 7"
 }
 G {}

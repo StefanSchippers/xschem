@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=27C2001
-template="footprint=DIP32 pins=32 description=\\"2Mbit (256Kb*8) EPROM\\" author=\\"Geert Stappers <stappersATstappers.nl>\\" documentation=http://www.st.com/stonline/books/pdf/docs/2383.pdf device=27C2001 class=IC name=U? symversion=1.0 GND=GND
+template="footprint=DIP32 numslots=0 pins=32 description=\\"2Mbit (256Kb*8) EPROM\\" author=\\"Geert Stappers <stappersATstappers.nl>\\" documentation=http://www.st.com/stonline/books/pdf/docs/2383.pdf device=27C2001 class=IC name=U? symversion=1.0 GND=GND
 "
 tedax_format="footprint @name @footprint
 value @name @value
@@ -8,7 +8,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND"
 
-extra="footprint description device GND"
+extra="GND"
 extra_pinnumber="16"
 }
 G {}

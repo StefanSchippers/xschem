@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX135
-template="device=MAX135 name=U? footprint=DIP28 description=\\"15-bit ADC with parallel interface\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX135.pdf DGND=DGND
+template="device=MAX135 name=U? footprint=DIP28 description=\\"15-bit ADC with parallel interface\\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX135.pdf DGND=DGND
 AGND=AGND
 V+=V+
 V-=V-
@@ -11,7 +11,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @DGND @AGND @V+ @V-"
 
-extra="device footprint description DGND AGND V+ V-"
+extra="DGND AGND V+ V-"
 extra_pinnumber="14 18,20 28 16"
 }
 G {}

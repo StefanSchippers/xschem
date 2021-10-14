@@ -1,14 +1,12 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX12527
 type=MAX12527
-template="name=U? device=MAX12527 footprint=TQFN68_10_EP symversion=1.0 description=\\"Dual, 65Msps, 12-Bit, IF/Baseband ADC \\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX12527.pdf device=MAX12527 "
+template="name=U? device=MAX12527 footprint=TQFN68_10_EP numslots=0 symversion=1.0 description=\\"Dual, 65Msps, 12-Bit, IF/Baseband ADC \\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX12527.pdf device=MAX12527 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description device
 
 }
 G {}

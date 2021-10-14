@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4164
-template="device=4164 name=U? footprint=DIP16 description=\\"NMOS, 64k dynamic ram (dram), 150ns\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" documentation=http://www.alldatasheet.com/datasheet-pdf/pdf/167176/PANASONIC/MN4164-15.html symversion=0.1 Vcc=Vcc
+template="device=4164 name=U? footprint=DIP16 description=\\"NMOS, 64k dynamic ram (dram), 150ns\\" numslots=0 author=\\"Werner Hoch <werner.hoATgmx.de>\\" documentation=http://www.alldatasheet.com/datasheet-pdf/pdf/167176/PANASONIC/MN4164-15.html symversion=0.1 Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint description Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="8 16"
 }
 G {}

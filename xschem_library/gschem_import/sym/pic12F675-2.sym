@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=PIC12F675
-template="name=U? device=PIC12F675 footprint=DIP8 description=\\"8-bit FLASH microcontroller\\" documentation=http://ww1.microchip.com/downloads/en/DeviceDoc/41190E.pdf symversion=1.0 "
+template="name=U? device=PIC12F675 footprint=DIP8 numslots=0 description=\\"8-bit FLASH microcontroller\\" documentation=http://ww1.microchip.com/downloads/en/DeviceDoc/41190E.pdf symversion=1.0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

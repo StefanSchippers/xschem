@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX147
-template="device=MAX147 name=U? footprint=DIP20 description=\\"8-channel, serial 12-bit ADC\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX146-MAX147.pdf AGND=AGND
+template="device=MAX147 name=U? footprint=DIP20 description=\\"8-channel, serial 12-bit ADC\\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX146-MAX147.pdf AGND=AGND
 GND=GND
 Vcc=Vcc
 "
@@ -10,7 +10,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @AGND @GND @Vcc"
 
-extra="device footprint description AGND GND Vcc"
+extra="AGND GND Vcc"
 extra_pinnumber="13 14 20"
 }
 G {}

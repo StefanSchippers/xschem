@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MC3479
-template="device=MC3479 name=U? description=\\"Stepper motor controler\\" author=\\"Take Vos Take.Vos@vosgames.nl\\" footprint=DIP16 documentation=http://www.leang.com/pat/umouse/datasheets/mc3479.pdf "
+template="device=MC3479 name=U? description=\\"Stepper motor controler\\" author=\\"Take Vos Take.Vos@vosgames.nl\\" numslots=0 footprint=DIP16 documentation=http://www.leang.com/pat/umouse/datasheets/mc3479.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device description footprint
 
 }
 G {}

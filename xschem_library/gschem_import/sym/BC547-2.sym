@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=BC547
-template="device=BC547 name=Q? value=BC547 footprint=TO92 description=\\"Small Signal Bipolar\\" documentation=http://www.onsemi.com/pub/Collateral/BC546-D.PDF "
+template="device=BC547 name=Q? value=BC547 footprint=TO92 numslots=0 description=\\"Small Signal Bipolar\\" documentation=http://www.onsemi.com/pub/Collateral/BC546-D.PDF "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

@@ -1,14 +1,12 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=VARISTOR
 type=MOV
-template="device=MOV description=\\"Metal Oxide Varistor\\" footprint=MOV device=VARISTOR name=V? "
+template="device=MOV description=\\"Metal Oxide Varistor\\" numslots=0 footprint=MOV device=VARISTOR name=V? "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device description footprint device
 
 }
 G {}

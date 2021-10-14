@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=40244
-template="name=U? device=40244 footprint=DIP20 slot=1 description=\\"2 quad bus driver\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF40244B_CNV_3.pdf VSS=VSS
+template="name=U? device=40244 footprint=DIP20 slot=1 numslots=2 description=\\"2 quad bus driver\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/HEF40244B_CNV_3.pdf VSS=VSS
 VDD=VDD
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VSS @VDD"
 
-extra="device footprint description VSS VDD"
+extra="VSS VDD"
 extra_pinnumber="10 20"
 }
 G {}

@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VEE @VCCO"
 
-extra="footprint device VEE VCCO"
+extra="VEE VCCO"
 extra_pinnumber="1 8,11,19,22"
 }
 G {}

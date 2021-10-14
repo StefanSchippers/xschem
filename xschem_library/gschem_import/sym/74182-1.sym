@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=74182
-template="device=74182 footprint=DIP16 name=U? description=\\"carry look-ahead generator\\" documentation=http://www.semiconductors.philips.com/acrobat/datasheets/74HC_HCT182_CNV_2.pdf Vcc=Vcc
+template="device=74182 footprint=DIP16 name=U? description=\\"carry look-ahead generator\\" numslots=0 documentation=http://www.semiconductors.philips.com/acrobat/datasheets/74HC_HCT182_CNV_2.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint description Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="16 8"
 }
 G {}

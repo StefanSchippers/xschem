@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX1480A
-template="name=U? device=MAX1480A footprint=DIP28 description=\\"complete, isolated RS-485/RS-422 data interface\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1480A-MAX1490B.pdf symversion=1.0 VCC1=VCC1
+template="name=U? device=MAX1480A footprint=DIP28 numslots=0 description=\\"complete, isolated RS-485/RS-422 data interface\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1480A-MAX1490B.pdf symversion=1.0 VCC1=VCC1
 VCC2=VCC2
 VCC3=VCC3
 VCC4=VCC4
@@ -18,7 +18,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VCC1 @VCC2 @VCC3 @VCC4 @VCC5 @GND1 @GND2 @ISOVCC1 @ISOVCC2 @ISOCOM1 @ISOCOM2"
 
-extra="device footprint description VCC1 VCC2 VCC3 VCC4 VCC5 GND1 GND2 ISOVCC1 ISOVCC2 ISOCOM1 ISOCOM2"
+extra="VCC1 VCC2 VCC3 VCC4 VCC5 GND1 GND2 ISOVCC1 ISOVCC2 ISOCOM1 ISOCOM2"
 extra_pinnumber="1 2 8 10 14 5 12 26 18 20 16"
 }
 G {}

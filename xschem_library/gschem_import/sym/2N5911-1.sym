@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=2N5911
-template="device=2N5911 name=Q? footprint=TO78 description=\\"matched n-channel jfet pairs\\" documentation=http://wwww.ges.cz/sheet/2/2n5911.pdf slot=1 "
+template="device=2N5911 name=Q? footprint=TO78 description=\\"matched n-channel jfet pairs\\" numslots=2 documentation=http://wwww.ges.cz/sheet/2/2n5911.pdf slot=1 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

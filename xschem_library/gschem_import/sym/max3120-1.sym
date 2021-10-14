@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX3120
-template="device=MAX3120 name=U? footprint=uMAX8 description=\\"IrDA infrared transceiver\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX3120.pdf symversion=1.0 GND=GND
+template="device=MAX3120 name=U? footprint=uMAX8 description=\\"IrDA infrared transceiver\\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX3120.pdf symversion=1.0 GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="device footprint description GND Vcc"
+extra="GND Vcc"
 extra_pinnumber="3,6 2"
 }
 G {}

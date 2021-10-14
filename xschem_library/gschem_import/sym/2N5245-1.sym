@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=2N5245
-template="device=2N5245 name=Q? footprint=TO92 description=\\"n-channel rf amplifier\\" documentation=http://www.fairchildsemi.com/ds/2N/2N5245.pdf "
+template="device=2N5245 name=Q? footprint=TO92 description=\\"n-channel rf amplifier\\" numslots=0 documentation=http://www.fairchildsemi.com/ds/2N/2N5245.pdf "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

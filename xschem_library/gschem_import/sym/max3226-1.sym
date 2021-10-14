@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=max3226
-template="name=U? device=max3226 footprint=DIP16 description=\\"1uA supply current, 1Mbps, 3V to 5.5V, RS-232 transceiver with autoshutdown\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX3224-MAX3245.pdf +5V=+5V
+template="name=U? device=max3226 footprint=DIP16 description=\\"1uA supply current, 1Mbps, 3V to 5.5V, RS-232 transceiver with autoshutdown\\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX3224-MAX3245.pdf +5V=+5V
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @+5V @GND"
 
-extra="device footprint description +5V GND"
+extra="+5V GND"
 extra_pinnumber="15 14"
 }
 G {}

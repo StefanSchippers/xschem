@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=QUAD_OPAMP
-template="device=QUAD_OPAMP name=U? slot=1 footprint=SO14 footprint2=DIP14 symversion=1.0 documentation=http://www.onsemi.com/pub/Collateral/LM324-D.PDF "
+template="device=QUAD_OPAMP name=U? slot=1 numslots=4 footprint=SO14 footprint2=DIP14 symversion=1.0 documentation=http://www.onsemi.com/pub/Collateral/LM324-D.PDF "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint
 
 }
 G {}

@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=Z80PIO
-template="device=Z80PIO name=U? footprint=DIP40 description=\\"Z80 parallel I/O circuit\\" Vcc=Vcc
+template="device=Z80PIO name=U? footprint=DIP40 description=\\"Z80 parallel I/O circuit\\" numslots=0 Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint description Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="26 11"
 }
 G {}

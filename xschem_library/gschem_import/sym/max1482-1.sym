@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX1482
-template="device=MAX1482 name=U? footprint=DIP14 description=\\"1/8-unit-load, slew-rate-limited RS-485 transceiver\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1482-MAX1483.pdf GND=GND
+template="device=MAX1482 name=U? footprint=DIP14 description=\\"1/8-unit-load, slew-rate-limited RS-485 transceiver\\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX1482-MAX1483.pdf GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="device footprint description GND Vcc"
+extra="GND Vcc"
 extra_pinnumber="6,7 14"
 }
 G {}

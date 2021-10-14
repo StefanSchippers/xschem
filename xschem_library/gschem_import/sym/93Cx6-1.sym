@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=93Cx6
-template="device=93Cx6 name=U? footprint=DIP8 description=\\"256 Bit/1k 5V cmos serial eeprom\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" VCC=VCC
+template="device=93Cx6 name=U? footprint=DIP8 description=\\"256 Bit/1k 5V cmos serial eeprom\\" numslots=0 author=\\"Werner Hoch <werner.hoATgmx.de>\\" VCC=VCC
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VCC @GND"
 
-extra="device footprint description VCC GND"
+extra="VCC GND"
 extra_pinnumber="8 5"
 }
 G {}

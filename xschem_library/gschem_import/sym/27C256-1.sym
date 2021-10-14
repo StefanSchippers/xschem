@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=27256
-template="device=27256 name=U? footprint=DIP28 description=\\"256K (32K*8) cmos eprom\\" documentation=http://www.microchip.com/download/lit/pline/memory/arc/11001m.pdf author=\\"Werner Hoch <werner.hoATgmx.de>\\" symversion=0.1 "
+template="device=27256 name=U? footprint=DIP28 description=\\"256K (32K*8) cmos eprom\\" numslots=0 documentation=http://www.microchip.com/download/lit/pline/memory/arc/11001m.pdf author=\\"Werner Hoch <werner.hoATgmx.de>\\" symversion=0.1 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

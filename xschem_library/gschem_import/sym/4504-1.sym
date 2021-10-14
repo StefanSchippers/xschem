@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4504
-template="name=U? device=4504 footprint=DIP16 description=\\"Hex TTL or CMOS to CMOS level converter\\" VCC=VCC
+template="name=U? device=4504 footprint=DIP16 description=\\"Hex TTL or CMOS to CMOS level converter\\" numslots=0 VCC=VCC
 VSS=VSS
 VDD=VDD
 "
@@ -10,7 +10,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VCC @VSS @VDD"
 
-extra="device footprint description VCC VSS VDD"
+extra="VCC VSS VDD"
 extra_pinnumber="1 8 16"
 }
 G {}

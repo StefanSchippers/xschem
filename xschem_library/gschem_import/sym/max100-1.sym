@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX100
-template="device=MAX100 name=U? footprint=CFP84 description=\\"250Msps, 8-bit ADC with track/hold\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX100.pdf GND=GND
+template="device=MAX100 name=U? footprint=CFP84 description=\\"250Msps, 8-bit ADC with track/hold\\" numslots=0 documentation=http://pdfserv.maxim-ic.com/en/ds/MAX100.pdf GND=GND
 VCC=VCC
 DGND=DGND
 VEE=VEE
@@ -11,7 +11,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @VCC @DGND @VEE"
 
-extra="device footprint description GND VCC DGND VEE"
+extra="GND VCC DGND VEE"
 extra_pinnumber="4,7,15,49,57,60,64,67,70,71,74,77,78,79,82,84 8,21,43,56 18,24,27,30,34,37,40,46 32,69,80"
 }
 G {}

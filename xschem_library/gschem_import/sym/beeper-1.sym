@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=BEEPER
-template="device=BEEPER name=U? description=\\"pieco beeper\\" symversion=0.1 "
+template="device=BEEPER name=U? description=\\"pieco beeper\\" numslots=0 symversion=0.1 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device description
 
 }
 G {}

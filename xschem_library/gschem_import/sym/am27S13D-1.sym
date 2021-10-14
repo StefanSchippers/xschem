@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=AM27S13D
-template="device=AM27S13D name=U? footprint=DIP16 description=\\"2048-Bit (512x4) bipolar prom\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" symversion=1.0 Vcc=Vcc
+template="device=AM27S13D name=U? footprint=DIP16 description=\\"2048-Bit (512x4) bipolar prom\\" numslots=0 author=\\"Werner Hoch <werner.hoATgmx.de>\\" symversion=1.0 Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint description Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="16 8"
 }
 G {}

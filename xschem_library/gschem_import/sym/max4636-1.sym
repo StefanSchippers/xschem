@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=MAX4636
-template="name=U? slot=1 device=MAX4636 footprint=uMAX10 description=\\"dual SPDT CMOS analog switch\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX4635-MAX4636.pdf symversion=1.0 Vcc=Vcc
+template="name=U? slot=1 numslots=2 device=MAX4636 footprint=uMAX10 description=\\"dual SPDT CMOS analog switch\\" documentation=http://pdfserv.maxim-ic.com/en/ds/MAX4635-MAX4636.pdf symversion=1.0 Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint description Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="8 3"
 }
 G {}

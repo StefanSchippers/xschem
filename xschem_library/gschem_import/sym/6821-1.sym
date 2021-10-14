@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=6821
-template="device=6821 name=U? comment=\\"dont_use this symbol: nonstandard symwidth, bad graphic\\" footprint=DIP40 description=\\"PIA peripheral interface line\\" author=\\"Werner Hoch <werner.hoATgmx.de>\\" GND=GND
+template="device=6821 name=U? comment=\\"dont_use this symbol: nonstandard symwidth, bad graphic\\" footprint=DIP40 description=\\"PIA peripheral interface line\\" numslots=0 author=\\"Werner Hoch <werner.hoATgmx.de>\\" GND=GND
 Vcc=Vcc
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @GND @Vcc"
 
-extra="device footprint description GND Vcc"
+extra="GND Vcc"
 extra_pinnumber="1 20"
 }
 G {}

@@ -1,13 +1,11 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=LM723
-template="device=LM723 class=IC name=U? footprint=DIP14 description=\\"Voltage regulator\\" author=\\"Radoslaw Korzeniewski <radoslaw@korzeniewski.net>\\" "
+template="device=LM723 class=IC name=U? footprint=DIP14 description=\\"Voltage regulator\\" author=\\"Radoslaw Korzeniewski <radoslaw@korzeniewski.net>\\" numslots=0 "
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
 @comptag"
 format="@name @pinlist @value "
-
-device footprint description
 
 }
 G {}

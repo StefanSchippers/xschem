@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=PIC16C505
-template="device=PIC16C505 name=U? footprint=DIP14 description=\\"8-bit CMOS microcontroller\\" documentation=http://www.microchip.com/download/lit/pline/picmicro/families/16c5x/40192c.pdf Vcc=Vcc
+template="device=PIC16C505 name=U? footprint=DIP14 description=\\"8-bit CMOS microcontroller\\" numslots=0 documentation=http://www.microchip.com/download/lit/pline/picmicro/families/16c5x/40192c.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint description Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="1 14"
 }
 G {}

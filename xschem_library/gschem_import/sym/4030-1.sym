@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=4030
-template="device=4030 footprint=DIP14 slot=1 description=\\"4 XOR gates with 2 inputs\\" name=U? symversion=1.0 VDD=VDD
+template="device=4030 footprint=DIP14 numslots=4 slot=1 description=\\"4 XOR gates with 2 inputs\\" name=U? symversion=1.0 VDD=VDD
 VSS=VSS
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @VDD @VSS"
 
-extra="device footprint description VDD VSS"
+extra="VDD VSS"
 extra_pinnumber="14 7"
 }
 G {}

@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2}
 K {type=ADM202
-template="device=ADM202 name=U? footprint=DIP16 description=\\"5V-powered dual RS-232 driver/receiver\\" documentation=http://www.analog.com/UploadedFiles/Data_Sheets/440303855ADM202_3_a.pdf Vcc=Vcc
+template="device=ADM202 name=U? footprint=DIP16 description=\\"5V-powered dual RS-232 driver/receiver\\" numslots=0 documentation=http://www.analog.com/UploadedFiles/Data_Sheets/440303855ADM202_3_a.pdf Vcc=Vcc
 GND=GND
 "
 tedax_format="footprint @name @footprint
@@ -9,7 +9,7 @@ device @name @device
 @comptag"
 format="@name @pinlist @value @Vcc @GND"
 
-extra="device footprint description Vcc GND"
+extra="Vcc GND"
 extra_pinnumber="16 15"
 }
 G {}
