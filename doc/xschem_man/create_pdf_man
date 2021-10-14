@@ -1,36 +1,36 @@
+#!/bin/sh
 
+root_file=/home/schippes/xschem-repo/trunk/doc/xschem_man/xschem_man.html
+tmpdir=__tmp__
 
+mkdir -p $tmpdir
+cp $root_file \
+   $(grep  '<li>.*href' $root_file \
+     | grep -v '/video_tutorials/' \
+     | sed 's/^.*href *= *"//' \
+     | sed 's/" *>.*//') \
+   $tmpdir
+cp *.png $tmpdir
+cd $tmpdir
+sed -i '/<img/s/>/ width="640">/' *.html
 
-cat \
-/home/schippes/xschem-repo/trunk/doc/xschem_man/xschem_man.html \
-what_is_xschem.html \
-compiling_xschem.html \
-install_xschem.html \
-run_xschem.html \
-xschem_elements.html \
-building_xschem_symbol.html \
-xschem_properties.html \
-component_instantiation.html \
-symbol_property_syntax.html \
-component_property_syntax.html \
-creating_schematic.html \
-creating_symbols.html \
-parameters.html \
-commands.html \
-netlisting.html \
-net_probes.html \
-simulation.html \
-developer_info.html \
-xschem_remote.html \
-tutorial_install_xschem.html \
-tutorial_run_simulation.html \
-tutorial_create_symbol.html \
-tutorial_xschem_libraries.html \
-tutorial_busses.html \
-tutorial_ngspice_backannotation.html \
-tutorial_symgen.html \
-tutorial_gschemtoxschem.html \
-| sed '/<img/s/>/ width="640">/' \
-| htmldoc --no-toc --top 10mm --bottom 10mm --right 10mm --left 10mm \
-  --webpage --linkcolor blue  --footer ..1 --header ..h -t pdf -f xschem_man.pdf -
+htmldoc --top 10mm --bottom 10mm --right 10mm --left 10mm \
+  --webpage --linkcolor blue  --footer ..1 --header ..h -t pdf -f ../xschem_man.pdf \
+   $root_file \
+   $(grep  '<li>.*href' $root_file \
+     | grep -v '/video_tutorials/' \
+     | sed 's/^.*href *= *"//' \
+     | sed 's/" *>.*//')
+  
+
+echo "----"
+echo $root_file
+echo $(grep  '<li>.*href' $root_file \
+     | grep -v '/video_tutorials/' \
+     | sed 's/^.*href *= *"//' \
+     | sed 's/" *>.*//')
+
+cd ..
+
+rm -rf $tmpdir
 
