@@ -22,12 +22,12 @@ generate_pdf () {
   root_file=$1
   output_file=$2
 
-  #### transform local urls to video tutorial videos to sourceforge hosted videos.
-  sed -i '/href *= *"video_tutorials\//s/="/="https:\/\/xschem.sourceforge.io\/stefan\/xschem_man\//' $root_file
   #### copy all docs in temporary directory since we must resize images.
   mkdir -p $tmpdir
   cp $(dirname $root_file)/*.html $(dirname $root_file)/*.png $tmpdir
   cd $tmpdir
+  #### transform local urls to video tutorial videos to sourceforge hosted videos.
+  sed -i '/href *= *"video_tutorials\//s/="/="https:\/\/xschem.sourceforge.io\/stefan\/xschem_man\//' $(basename $root_file)
   
   #### resize images since htmldoc does not fit images in pdf pages at all.
   sed -i '/<img/s/>/ width="640">/' *.html
