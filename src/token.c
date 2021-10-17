@@ -1374,11 +1374,11 @@ void print_tedax_subckt(FILE *fd, int symbol)
   else escape=0;
   if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
   space=SPACE(c);
-  if( state==TOK_BEGIN && (c=='@' || c=='$')  && !escape) state=TOK_TOKEN;
+  if( state==TOK_BEGIN && (c=='@' || c=='%')  && !escape) state=TOK_TOKEN;
   else if(state==TOK_TOKEN && token_pos > 1 &&
      (
-       ( (space  || c == '$' || c == '@') && !escape ) ||
-       ( (!space && c != '$' && c != '@') && escape  )
+       ( (space  || c == '%' || c == '@') && !escape ) ||
+       ( (!space && c != '%' && c != '@') && escape  )
      )
     ) {
     state = TOK_SEP;
@@ -1434,8 +1434,8 @@ void print_tedax_subckt(FILE *fd, int symbol)
    else if(token[0] == '@') { /* given previous if() conditions not followed by @ or # */
      fprintf(fd, "%s ",  token + 1);
    }
-   if(c!='$' && c!='@' && c!='\0' ) fputc(c,fd);
-   if(c == '@' || c =='$') s--;
+   if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd);
+   if(c == '@' || c =='%') s--;
    state=TOK_BEGIN;
   }
                  /* 20151028 dont print escaping backslashes */
@@ -1482,11 +1482,11 @@ void print_spice_subckt(FILE *fd, int symbol)
   else escape=0;
   if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
   space=SPACE(c);
-  if( state==TOK_BEGIN && (c=='@' || c=='$')  && !escape) state=TOK_TOKEN;
+  if( state==TOK_BEGIN && (c=='@' || c=='%')  && !escape) state=TOK_TOKEN;
   else if(state==TOK_TOKEN && token_pos > 1 &&
      (
-       ( (space  || c == '$' || c == '@') && !escape ) ||
-       ( (!space && c != '$' && c != '@') && escape  )
+       ( (space  || c == '%' || c == '@') && !escape ) ||
+       ( (!space && c != '%' && c != '@') && escape  )
      )
     ) {
     state = TOK_SEP;
@@ -1542,8 +1542,8 @@ void print_spice_subckt(FILE *fd, int symbol)
    else if(token[0] == '@') { /* given previous if() conditions not followed by @ or # */
      fprintf(fd, "%s ",  token + 1);
    }
-   if(c!='$' && c!='@' && c!='\0' ) fputc(c,fd);
-   if(c == '@' || c =='$') s--;
+   if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd);
+   if(c == '@' || c =='%') s--;
    state=TOK_BEGIN;
   }
                  /* 20151028 dont print escaping backslashes */
@@ -1613,11 +1613,11 @@ void print_spice_element(FILE *fd, int inst)
 
     if (c=='\n' && escape) c=*s++; /* 20171030 eat escaped newlines */
     space=SPACE(c);
-    if ( state==TOK_BEGIN && (c=='@'|| c=='$')  && !escape ) state=TOK_TOKEN;
+    if ( state==TOK_BEGIN && (c=='@'|| c=='%')  && !escape ) state=TOK_TOKEN;
     else if(state==TOK_TOKEN && token_pos > 1 &&
        (
-         ( (space  || c == '$' || c == '@') && !escape ) ||
-         ( (!space && c != '$' && c != '@') && escape  )
+         ( (space  || c == '%' || c == '@') && !escape ) ||
+         ( (!space && c != '%' && c != '@') && escape  )
        )
       ) {
       dbg(1, "print_spice_element(): c=%c, space=%d, escape=%d token_pos=%d\n", c, space, escape, token_pos);
@@ -1661,7 +1661,7 @@ void print_spice_element(FILE *fd, int inst)
         }
         */
       }
-      if(!token_exists && token[0] =='$') {
+      if(!token_exists && token[0] =='%') {
 
 
         tmp = strlen(token + 1) +100 ; /* always make room for some extra chars 
@@ -1791,11 +1791,11 @@ void print_spice_element(FILE *fd, int inst)
       } /* /20171029 */
 
 
-      if(c != '$' && c != '@' && c!='\0' ) {
+      if(c != '%' && c != '@' && c!='\0' ) {
         result_pos += my_snprintf(result + result_pos, 2, "%c", c); /* no realloc needed */
         /* fputc(c,fd); */
       }
-      if(c == '@' || c == '$' ) s--;
+      if(c == '@' || c == '%' ) s--;
       state=TOK_BEGIN;
     }
     else if(state==TOK_BEGIN && c!='\0') {
@@ -2000,11 +2000,11 @@ void print_tedax_element(FILE *fd, int inst)
    if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
    space=SPACE(c);
 
-   if( state==TOK_BEGIN && (c=='$' || c=='@') && !escape) state=TOK_TOKEN;
+   if( state==TOK_BEGIN && (c=='%' || c=='@') && !escape) state=TOK_TOKEN;
    else if(state==TOK_TOKEN && token_pos > 1 &&
       (
-        ( (space  || c == '$' || c == '@') && !escape ) ||
-        ( (!space && c != '$' && c != '@') && escape  )
+        ( (space  || c == '%' || c == '@') && !escape ) ||
+        ( (!space && c != '%' && c != '@') && escape  )
       )
      ) {
      state=TOK_SEP;
@@ -2022,7 +2022,7 @@ void print_tedax_element(FILE *fd, int inst)
     value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
      /* xctx->get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
     if(!xctx->get_tok_size) value=get_tok_value(template, token+1, 0);
-    if(!xctx->get_tok_size && token[0] =='$') {
+    if(!xctx->get_tok_size && token[0] =='%') {
       fputs(token + 1, fd);
     } else if(value[0]!='\0')
     {
@@ -2128,8 +2128,8 @@ void print_tedax_element(FILE *fd, int inst)
     } /* /20171029 */
 
 
-    if(c!='$' && c!='@' && c!='\0') fputc(c,fd);
-    if(c == '@' || c == '$' ) s--;
+    if(c!='%' && c!='@' && c!='\0') fputc(c,fd);
+    if(c == '@' || c == '%' ) s--;
     state=TOK_BEGIN;
    }
    else if(state==TOK_BEGIN && c!='\0')  fputc(c,fd);
@@ -2406,11 +2406,11 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
   if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
   space=SPACE(c);
 
-  if( state==TOK_BEGIN && (c=='@' || c=='$') && !escape ) state=TOK_TOKEN;
+  if( state==TOK_BEGIN && (c=='@' || c=='%') && !escape ) state=TOK_TOKEN;
   else if(state==TOK_TOKEN && token_pos > 1 &&
      (
-       ( (space  || c == '$' || c == '@') && !escape ) ||
-       ( (!space && c != '$' && c != '@') && escape  )
+       ( (space  || c == '%' || c == '@') && !escape ) ||
+       ( (!space && c != '%' && c != '@') && escape  )
      )
     ) {
     state=TOK_SEP;
@@ -2429,7 +2429,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
    /* xctx->get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
    if(!xctx->get_tok_size)
    value=get_tok_value(template, token+1, 0);
-   if(!xctx->get_tok_size && token[0] =='$') {
+   if(!xctx->get_tok_size && token[0] =='%') {
      fputs(token + 1, fd);
    } else if(value && value[0]!='\0')
    {  /* instance names (name) and node labels (lab) go thru the expandlabel function. */
@@ -2512,8 +2512,8 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
      my_free(1049, &tclcmd);
    }
 
-   if(c!='$' && c!='@' && c!='\0' ) fputc(c,fd);
-   if(c == '@' || c == '$') s--;
+   if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd);
+   if(c == '@' || c == '%') s--;
    state=TOK_BEGIN;
   }
   else if(state==TOK_BEGIN && c!='\0')  fputc(c,fd);
@@ -2579,11 +2579,11 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
    else escape=0;
    if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
    space=SPACE(c);
-   if( state==TOK_BEGIN && (c=='@' || c=='$') && !escape ) state=TOK_TOKEN;
+   if( state==TOK_BEGIN && (c=='@' || c=='%') && !escape ) state=TOK_TOKEN;
    else if(state==TOK_TOKEN && token_pos > 1 &&
       (
-        ( (space  || c == '$' || c == '@') && !escape ) || 
-        ( (!space && c != '$' && c != '@') && escape  )
+        ( (space  || c == '%' || c == '@') && !escape ) || 
+        ( (!space && c != '%' && c != '@') && escape  )
       )
      
      ) { 
@@ -2603,7 +2603,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
     /* xctx->get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
     if(!xctx->get_tok_size)
     value=get_tok_value(template, token+1, 0);
-    if(!xctx->get_tok_size && token[0] =='$') {
+    if(!xctx->get_tok_size && token[0] =='%') {
       fputs(token + 1, fd);
     } else if(value && value[0]!='\0') {
        /* instance names (name) and node labels (lab) go thru the expandlabel function. */
@@ -2687,8 +2687,8 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
       fprintf(fd, "%s", tclresult());
       my_free(1057, &tclcmd);
     }
-    if(c!='$' && c!='@' && c!='\0') fputc(c,fd);
-    if(c == '@' || c == '$') s--;
+    if(c!='%' && c!='@' && c!='\0') fputc(c,fd);
+    if(c == '@' || c == '%') s--;
     state=TOK_BEGIN;
    }
    else if(state==TOK_BEGIN && c!='\0')  fputc(c,fd);
@@ -2790,14 +2790,14 @@ const char *translate(int inst, const char* s)
   c=*s++;
   if(c=='\\') {
     escape=1;
-    c=*s++; /* do not remove: breaks translation of format strings in netlists (escaping $) */
+    c=*s++; /* do not remove: breaks translation of format strings in netlists (escaping %) */
   }
   else escape=0;
   space=SPACE(c);
-  if( state==TOK_BEGIN && (c=='@' || c=='$' ) && !escape  ) state=TOK_TOKEN; /* 20161210 escape */
+  if( state==TOK_BEGIN && (c=='@' || c=='%' ) && !escape  ) state=TOK_TOKEN; /* 20161210 escape */
   else if( state==TOK_TOKEN && (
                               (space && !escape)  ||
-                               (c =='@' || c == '$') ||
+                               (c =='@' || c == '%') ||
                               (!space && escape)
                             )
                          && token_pos > 1 ) state=TOK_SEP;
@@ -2819,20 +2819,15 @@ const char *translate(int inst, const char* s)
      value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
      if(!xctx->get_tok_size) value=get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->templ, token+1, 0);
    }
-
-   if(!xctx->get_tok_size && token[0] =='$') {
-    char *env = getenv(token + 1);
-    if(env) { /* do environment var substitution if no xschem definition for $token */
-      tmp = strlen(env);
-      STR_ALLOC(&result, tmp + result_pos, &size);
-      memcpy(result+result_pos, env, tmp+1);
-    } else { /* no definition found -> subst with token without leading $ */
-      tmp=token_pos -1 ; /* we need token_pos -1 chars, ( strlen(token+1) ) , excluding leading '$' */
-      STR_ALLOC(&result, tmp + result_pos, &size);
-      /* dbg(2, "translate(): token=%s, token_pos = %d\n", token, token_pos); */
-      memcpy(result+result_pos, token + 1, tmp+1);
-    }
-    result_pos+=tmp;
+   if(!xctx->get_tok_size) { /* above lines did not find a value for token */
+     if(token[0] =='%') {
+       /* no definition found -> subst with token without leading $ */
+       tmp=token_pos -1 ; /* we need token_pos -1 chars, ( strlen(token+1) ) , excluding leading '%' */
+       STR_ALLOC(&result, tmp + result_pos, &size);
+       /* dbg(2, "translate(): token=%s, token_pos = %d\n", token, token_pos); */
+       memcpy(result+result_pos, token + 1, tmp+1);
+       result_pos+=tmp;
+     }
    }
    token_pos = 0;
    if(xctx->get_tok_size) {
@@ -3025,7 +3020,7 @@ const char *translate(int inst, const char* s)
      result_pos+=tmp;
    }
 
-   if(c == '@' || c == '$') s--;
+   if(c == '@' || c == '%') s--;
    else result[result_pos++]=c;
    state=TOK_BEGIN;
   }
@@ -3112,11 +3107,11 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
           i--;
         }
         tmp = strlen(value);
-        STR_ALLOC(&result, tmp + 1 + result_pos, &size); /* +1 to add leading '$' */
-        /* prefix substituted token with a '$' so it will be recognized by translate()
+        STR_ALLOC(&result, tmp + 1 + result_pos, &size); /* +1 to add leading '%' */
+        /* prefix substituted token with a '%' so it will be recognized by translate()
          * for last level translation with instance placement prop_ptr attributes at
          * drawing/netlisting time. */
-        memcpy(result + result_pos , "$", 1);
+        memcpy(result + result_pos , "%", 1);
         memcpy(result + result_pos + 1 , value, tmp + 1);
         result_pos += tmp + 1;
       }
