@@ -1103,7 +1103,7 @@ extern void new_prop_string(int i, const char *old_prop,int fast, int dis_uniq_n
 extern void hash_name(char *token, int remove);
 extern void hash_all_names(int n);
 extern void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2);
-extern char *escape_chars(char *dest, const char *source, int size);
+/* extern char *escape_chars(char *dest, const char *source, int size); */
 
 extern void set_inst_prop(int i);
 extern void unselect_wire(int i);

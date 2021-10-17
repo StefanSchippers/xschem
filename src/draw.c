@@ -68,11 +68,11 @@ void print_image()
     else return;
   }
   #if 0
-  for(tmp=0;tmp<cadlayers;tmp++) {
-    XSetClipRectangles(display, gc[tmp], 0,0, xctx->xrect, 1, Unsorted);
-    XSetClipRectangles(display, gcstipple[tmp], 0,0, xctx->xrect, 1, Unsorted);
-  }
-  XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
+  *  for(tmp=0;tmp<cadlayers;tmp++) {
+  *    XSetClipRectangles(display, gc[tmp], 0,0, xctx->xrect, 1, Unsorted);
+  *    XSetClipRectangles(display, gcstipple[tmp], 0,0, xctx->xrect, 1, Unsorted);
+  *  }
+  *  XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
   #endif
   save_draw_grid = draw_grid;
   draw_grid=0;

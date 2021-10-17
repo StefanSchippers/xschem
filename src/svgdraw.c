@@ -602,46 +602,46 @@ void svg_draw(void)
 
   unused_layer = my_calloc(873, cadlayers, sizeof(int));
   #if 0
-  /* Determine used layers. Disabled since we want hilight colors */
-  for(c=0;c<cadlayers;c++) unused_layer[c] = 1;
-  unused_layer[0] = 0; /* background */
-  for(i=0;i<xctx->texts;i++)
-  {
-    textlayer = xctx->text[i].layer;
-    if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-    unused_layer[textlayer] = 0;
-  }
-  for(c=0;c<cadlayers;c++)
-  {
-    xSymbol symptr = (xctx->inst[i].ptr + xctx->sym);
-    if(xctx->lines[c] || xctx->rects[c] || xctx->arcs[c] || xctx->polygons[c]) unused_layer[c] = 0;
-    if(xctx->wires) unused_layer[WIRELAYER] = 0;
-    for(i=0;i<xctx->instances;i++) {
-      if( (c == PINLAYER || enable_layer[c]) && symptr->lines[c] ) unused_layer[c] = 0;
-      if( (c == PINLAYER || enable_layer[c]) && symptr->polygons[c] ) unused_layer[c] = 0;
-      if( (c == PINLAYER || enable_layer[c]) && symptr->arcs[c] ) unused_layer[c] = 0;
-      if( (c != PINLAYER || enable_layer[c]) && symptr->rects[c] ) unused_layer[c] = 0;
-      if( (c==TEXTWIRELAYER  && !(xctx->inst[i].flags&2) ) ||
-          (sym_txt && (c==TEXTLAYER)   && (xctx->inst[i].flags&2) ) )
-      {
-        int j;
-        for(j=0;j< symptr->texts;j++)
-        {
-          textlayer = c;
-          if( !(xctx->inst[i].color == PINLAYER)) {
-            textlayer = symptr->text[j].layer;
-            if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
-          }
-          /* display PINLAYER colored instance texts even if PINLAYER disabled */
-          if(xctx->inst[i].color == PINLAYER ||  enable_layer[textlayer]) {
-            used_layer[textlayer] = 0;
-          }
-        }
-      }
-    }
-    dbg(1, "used_layer[%d] = %d\n", c, used_layer[c]);
-  }
-  /* End determine used layer */
+  *     /* Determine used layers. Disabled since we want hilight colors */
+  *     for(c=0;c<cadlayers;c++) unused_layer[c] = 1;
+  *     unused_layer[0] = 0; /* background */
+  *     for(i=0;i<xctx->texts;i++)
+  *     {
+  *       textlayer = xctx->text[i].layer;
+  *       if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
+  *       unused_layer[textlayer] = 0;
+  *     }
+  *     for(c=0;c<cadlayers;c++)
+  *     {
+  *       xSymbol symptr = (xctx->inst[i].ptr + xctx->sym);
+  *       if(xctx->lines[c] || xctx->rects[c] || xctx->arcs[c] || xctx->polygons[c]) unused_layer[c] = 0;
+  *       if(xctx->wires) unused_layer[WIRELAYER] = 0;
+  *       for(i=0;i<xctx->instances;i++) {
+  *         if( (c == PINLAYER || enable_layer[c]) && symptr->lines[c] ) unused_layer[c] = 0;
+  *         if( (c == PINLAYER || enable_layer[c]) && symptr->polygons[c] ) unused_layer[c] = 0;
+  *         if( (c == PINLAYER || enable_layer[c]) && symptr->arcs[c] ) unused_layer[c] = 0;
+  *         if( (c != PINLAYER || enable_layer[c]) && symptr->rects[c] ) unused_layer[c] = 0;
+  *         if( (c==TEXTWIRELAYER  && !(xctx->inst[i].flags&2) ) ||
+  *             (sym_txt && (c==TEXTLAYER)   && (xctx->inst[i].flags&2) ) )
+  *         {
+  *           int j;
+  *           for(j=0;j< symptr->texts;j++)
+  *           {
+  *             textlayer = c;
+  *             if( !(xctx->inst[i].color == PINLAYER)) {
+  *               textlayer = symptr->text[j].layer;
+  *               if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
+  *             }
+  *             /* display PINLAYER colored instance texts even if PINLAYER disabled */
+  *             if(xctx->inst[i].color == PINLAYER ||  enable_layer[textlayer]) {
+  *               used_layer[textlayer] = 0;
+  *             }
+  *           }
+  *         }
+  *       }
+  *       dbg(1, "used_layer[%d] = %d\n", c, used_layer[c]);
+  *     }
+  *     /* End determine used layer */
   #endif
 
   fprintf(fd, "<svg xmlns=\"http://www.w3.org/2000/svg\""

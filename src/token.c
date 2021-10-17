@@ -1822,22 +1822,22 @@ void print_spice_element(FILE *fd, int inst)
   }
 
 
-/* can't remember what the f**k this is supposed to do. 
-   why eval( and not tcleval( ? 
-   disable until some regression pops out
-*/
-#if 0
-  /* do a second round of substitutions, but without calling tcl */
-  if(result && strstr(result, "eval(") == result) {
-    char *c = strrchr(result, ')');
-    if(c) while(1) { /* shift following characters back 1 char */
-      *c = c[1];
-      c++;
-      if(!*c) break;
-    }
-    my_strdup2(88, &result, translate(inst, result+5));
-  }
-#endif
+  /* can't remember what the f**k this is supposed to do. 
+     why eval( and not tcleval( ? 
+     disable until some regression pops out
+  */
+  #if 0
+  *  /* do a second round of substitutions, but without calling tcl */
+  *  if(result && strstr(result, "eval(") == result) {
+  *    char *c = strrchr(result, ')');
+  *    if(c) while(1) { /* shift following characters back 1 char */
+  *      *c = c[1];
+  *      c++;
+  *      if(!*c) break;
+  *    }
+  *    my_strdup2(88, &result, translate(inst, result+5));
+  *  }
+  #endif
 
 
   fprintf(fd, "%s", result);

@@ -59,50 +59,52 @@ void print_version()
   exit(EXIT_SUCCESS);
 }
 
-char *escape_chars(char *dest, const char *source, int size)
-{
-  int s=0;
-  int d=0;
-  size--; /* reserve space for \0 */
-  while(source && source[s]) {
-    switch(source[s]) {
-      case '\n':
-        if(d < size-1) {
-          dest[d++] = '\\';
-          dest[d++] = 'n';
-        }
-        break;
-      case '\t':
-        if(d < size-1) {
-          dest[d++] = '\\';
-          dest[d++] = 't';
-        }
-        break;
-      case '\\':
-      case '\'':
-      case ' ':
-      case ';':
-      case '$':
-      case '!':
-      case '#':
-      case '{':
-      case '}':
-      case '[':
-      case ']':
-      case '"':
-        if(d < size-1) {
-           dest[d++] = '\\';
-           dest[d++] = source[s];
-        }
-        break;
-      default:
-        if(d < size) dest[d++] = source[s];
-    }
-    s++;
-  }
-  dest[d] = '\0';
-  return dest;
-}
+#if 0
+*   char *escape_chars(char *dest, const char *source, int size)
+*   {
+*     int s=0;
+*     int d=0;
+*     size--; /* reserve space for \0 */
+*     while(source && source[s]) {
+*       switch(source[s]) {
+*         case '\n':
+*           if(d < size-1) {
+*             dest[d++] = '\\';
+*             dest[d++] = 'n';
+*           }
+*           break;
+*         case '\t':
+*           if(d < size-1) {
+*             dest[d++] = '\\';
+*             dest[d++] = 't';
+*           }
+*           break;
+*         case '\\':
+*         case '\'':
+*         case ' ':
+*         case ';':
+*         case '$':
+*         case '!':
+*         case '#':
+*         case '{':
+*         case '}':
+*         case '[':
+*         case ']':
+*         case '"':
+*           if(d < size-1) {
+*              dest[d++] = '\\';
+*              dest[d++] = source[s];
+*           }
+*           break;
+*         default:
+*           if(d < size) dest[d++] = source[s];
+*       }
+*       s++;
+*     }
+*     dest[d] = '\0';
+*     return dest;
+*   }
+#endif
 
 void set_snap(double newsnap) /*  20161212 set new snap factor and just notify new value */
 {

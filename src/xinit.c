@@ -964,11 +964,11 @@ void resetcairo(int create, int clear, int force_or_resize)
     cairo_set_line_join(xctx->cairo_ctx, CAIRO_LINE_JOIN_ROUND);
     cairo_set_line_cap(xctx->cairo_ctx, CAIRO_LINE_CAP_ROUND);
     #if 0
-    #if HAS_XCB==1 && HAS_XRENDER==1
-    cairo_xcb_surface_set_size(xctx->cairo_sfc, xctx->xschem_w, xctx->xschem_h);
-    #else
-    cairo_xlib_surface_set_size(xctx->cairo_sfc, xctx->xschem_w, xctx->xschem_h);
-    #endif /* HAS_XCB  && HAS_XRENDER */
+    *  #if HAS_XCB==1 && HAS_XRENDER==1
+    *  cairo_xcb_surface_set_size(xctx->cairo_sfc, xctx->xschem_w, xctx->xschem_h);
+    *  #else
+    *  cairo_xlib_surface_set_size(xctx->cairo_sfc, xctx->xschem_w, xctx->xschem_h);
+    *  #endif /* HAS_XCB  && HAS_XRENDER */
     #endif
   }
   #endif /* HAS_CAIRO */
