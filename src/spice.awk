@@ -240,7 +240,7 @@ function process(        i, iprefix)
 
    num = num1>num2? num1: num2
    for(i=1;i<=num;i++) {
-     print $1 " " $2 " " $3 " " name[(i-1)%num1+1]  " , " name2[(i-1)%num2+1] " " $9 
+     print $1 " " $2 " " $3 name[(i-1)%num1+1]  "," name2[(i-1)%num2+1] $9 
    }
 
  # Ngspice
@@ -252,7 +252,7 @@ function process(        i, iprefix)
 
    num = num1>num2? num1: num2
    for(i=1;i<=num;i++) {
-     print $1 " " $2 " " name[(i-1)%num1+1]  " , " name2[(i-1)%num2+1] " " $8
+     print $1 " " $2 name[(i-1)%num1+1]  "," name2[(i-1)%num2+1] $8
    }
 
  # Xyce
@@ -261,7 +261,7 @@ function process(        i, iprefix)
  } else if(tolower($1) ==".print" && $4 ~/^\?-?[0-9]+$/ && NF==6) {
    num=split($5,name,",")
    for(i=1;i<=num;i++) {
-     print $1 " " $2 " " $3 " " name[i] " " $6
+     print $1 " " $2 " " $3 name[i] $6
    }
 
  # Ngspice
@@ -270,7 +270,7 @@ function process(        i, iprefix)
  } else if(tolower($1) ==".save" && $3 ~/^\?-?[0-9]+$/ && NF==5) {
    num=split($4,name,",")
    for(i=1;i<=num;i++) { 
-     print $1 " " $2 " " name[i] " " $5
+     print $1 " " $2 name[i] $5
    }
 
  # .save i( v1[15],v1[14],v1[13],v1[12],v1[11],v1[10],v1[9],v1[8],v1[7],v1[6],v1[5],v1[4],v1[3],v1[2],v1[1],v1[0] )
@@ -279,6 +279,7 @@ function process(        i, iprefix)
    sub(/.*\( */,"",num)
    sub(/ *\).*/,"",num)
    sub(/^\?[0-9]+/,"", num)  # .print tran file=test1.raw format=raw v(?1 C2)   <-- remove ?1
+   gsub(/ */, "", num)
    num=split(num,name,",")
    num1 = $0
    sub(/^.*save */,"",num1)
