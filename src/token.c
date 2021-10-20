@@ -1559,7 +1559,7 @@ void print_spice_subckt(FILE *fd, int symbol)
  my_free(1014, &token);
 }
 
-void print_spice_element(FILE *fd, int inst)
+int print_spice_element(FILE *fd, int inst)
 {
   int i=0, multip, tmp;
   const char *str_ptr=NULL;
@@ -1594,7 +1594,7 @@ void print_spice_element(FILE *fd, int inst)
     my_free(1016, &format);
     my_free(1017, &name);
     my_free(1193, &result);
-    return; /* do no netlist unwanted insts(no format) */
+    return 0; /* do no netlist unwanted insts(no format) */
   }
   no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
   s=format;
@@ -1848,6 +1848,7 @@ void print_spice_element(FILE *fd, int inst)
   my_free(1194, &result);
   my_free(298, &spiceprefixtag);
   my_free(455, &translatedvalue);
+  return 1;
 }
 
 void print_tedax_element(FILE *fd, int inst)

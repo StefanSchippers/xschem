@@ -532,8 +532,7 @@ void spice_netlist(FILE *fd, int spice_stop )
          fprintf(fd,"**** end user architecture code\n");
        } else {
          const char *m;
-         print_spice_element(fd, i) ;  /* this is the element line  */
-         fprintf(fd, "**** end_element\n");
+         if(print_spice_element(fd, i)) fprintf(fd, "**** end_element\n");
          /* hash device_model attribute if any */
          m = get_tok_value(xctx->inst[i].prop_ptr, "device_model", 0);
          if(m[0]) str_hash_lookup(model_table, model_name(m), m, XINSERT);

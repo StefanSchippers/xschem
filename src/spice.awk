@@ -130,7 +130,7 @@ function sign(x)
   return x<0 ? -1 : x>0 ? 1 : 0
 }
 
-function process(        i, iprefix)
+function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
 {
 
   if($0 ~/\*\*\*\* end_element/){
@@ -231,63 +231,29 @@ function process(        i, iprefix)
    if($0 ~ /^D/ ) sub(/PERI[ \t]*=/,"PJ=")
  }
 
- # Xyce
- # .print tran v( ?1 DL[3],DL[2],DL[1],DL[0] , ?1 WL[3],WL{2],WL[1],WL[0] )
- #                        ............          .......... --> matches ?n and ?-n
- if(tolower($1) ==".print" && $4 ~/^\?-?[0-9]+$/ && $7 ~/^\?-?[0-9]+$/ && NF==9) {
-   num1=split($5,name,",")
-   num2=split($8,name2,",")
+ ## .save tran v(?1 GB ) v(?1 SB )
+ if(tolower($1) ~ /^\.(save|print)$/) {
+   $0 = tolower($0)
+   saveinstr = $1
+   if($2 ~/^(dc|ac|tran|op)$/) saveanalysis=$2
+   else saveanalysis=""
+   $1=""
+   if(saveanalysis !="") $2=""
+   $0 = $0 # reparse line for field splitting
 
-   num = num1>num2? num1: num2
-   for(i=1;i<=num;i++) {
-     print $1 " " $2 " " $3 name[(i-1)%num1+1]  "," name2[(i-1)%num2+1] $9 
+   gsub(/ *\?-?[0-9]+ */, "")
+   gsub(/\( */, "(")
+   gsub(/ *\)/, ")")
+   for(i=1; i<=NF; i++) {
+     savetype=$i; sub(/\(.*/,"", savetype)  # v(...)  --> v
+     sub(/^.*\(/,"", $i)
+     sub(/\).*/,"", $i)
+     num = split($i, name, ",")
+     for(j=1; j<= num; j++) {
+       print saveinstr " " saveanalysis " " savetype "(" name[j] ")"
+     }
    }
-
- # Ngspice
- # .save v( ?1 DL[3],DL[2],DL[1],DL[0] , ?1 WL[3],WL{2],WL[1],WL[0] )
- #                              ............          .......... --> matches ?n and ?-n
- } else if(tolower($1) ==".save" && $3 ~/^\?-?[0-9]+$/ && $6 ~/^\?-?[0-9]+$/ && NF==8) {
-   num1=split($4,name,",")
-   num2=split($7,name2,",")
-
-   num = num1>num2? num1: num2
-   for(i=1;i<=num;i++) {
-     print $1 " " $2 name[(i-1)%num1+1]  "," name2[(i-1)%num2+1] $8
-   }
-
- # Xyce
- # .print tran v( ?1 LDY1_B[1],LDY1_B[0] )
- #                               ............ --> matches ?n and ?-n
- } else if(tolower($1) ==".print" && $4 ~/^\?-?[0-9]+$/ && NF==6) {
-   num=split($5,name,",")
-   for(i=1;i<=num;i++) {
-     print $1 " " $2 " " $3 name[i] $6
-   }
-
- # Ngspice
- # .save v( ?1 LDY1_B[1],LDY1_B[0] )
- #                              ............ --> matches ?n and ?-n
- } else if(tolower($1) ==".save" && $3 ~/^\?-?[0-9]+$/ && NF==5) {
-   num=split($4,name,",")
-   for(i=1;i<=num;i++) { 
-     print $1 " " $2 name[i] $5
-   }
-
- # .save i( v1[15],v1[14],v1[13],v1[12],v1[11],v1[10],v1[9],v1[8],v1[7],v1[6],v1[5],v1[4],v1[3],v1[2],v1[1],v1[0] )
- } else if(tolower($0) ~ /^[ \t]*\.(print|save) +.* +[ivx] *\(.*\)/) {
-   num=$0
-   sub(/.*\( */,"",num)
-   sub(/ *\).*/,"",num)
-   sub(/^\?[0-9]+/,"", num)  # .print tran file=test1.raw format=raw v(?1 C2)   <-- remove ?1
-   gsub(/ */, "", num)
-   num=split(num,name,",")
-   num1 = $0
-   sub(/^.*save */,"",num1)
-   sub(/^.*print */,"",num1)
-   sub(/\(.*/,"(",num1)
-   for(i=1;i<=num;i++) {
-     print $1 " "  num1 name[i] ")"
-   }
+   
  } else if( $1 ~ /^\*\.(ipin|opin|iopin)/ ) {
    num=split($2,name,",")
    for(i=1;i<=num;i++) print $1 " " name[i]
