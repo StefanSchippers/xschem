@@ -2717,7 +2717,9 @@ int isonlydigit(const char *s)
     return 1;
 }
 
-
+/* find nth occurrence of substring in str separated by sep. 1st substring is position 1
+ * find_nth("aaa,bbb,ccc,ddd", ',', 2)  --> "bbb"
+ */
 const char *find_nth(const char *str, char sep, int n)
 {
   static char *result=NULL;
