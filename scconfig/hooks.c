@@ -239,6 +239,7 @@ int hook_detect_target()
 			require("libs/io/pipe/*",  0, 0);
 	}
 
+	require("libs/io/dup2/*",  0, 0); /* Stefan: query dup2() availability */
 	require("parsgen/flex/presents",  0, 1);
 	require("parsgen/bison/presents",  0, 1);
 	require("libs/script/tk/*",  0, 1); /* this will also bring libs/script/tcl/* */

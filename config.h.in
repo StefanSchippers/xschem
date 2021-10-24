@@ -29,6 +29,9 @@ print_ternary ?libs/gui/xcb/presents {#define HAS_XCB 1} {/*#undef HAS_XCB */}
 print {\n\n/* Define this var if Xlib's xrender is available */\n}
 print_ternary ?libs/gui/xrender/presents {#define HAS_XRENDER 1} {/*#undef HAS_RENDER */}
 
+print {\n\n/* Define this var if dup2(2) is available */\n}
+print_ternary ?libs/io/dup2/presents {#define HAS_DUP2 1} {/*#undef HAS_DUP2 */}
+
 print {\n\n/* Define this var if popen(3) is available */\n}
 print_ternary ?libs/io/popen/presents {#define HAS_POPEN 1} {/*#undef HAS_POPEN */}
 

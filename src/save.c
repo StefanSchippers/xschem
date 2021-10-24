@@ -1171,12 +1171,16 @@ void push_undo(void)
       /* the following 2 statements are a replacement for dup2() which is not c89
        * however these are not atomic, if another thread takes stdin
        * in between we are in trouble */
+      #if(HAS_DUP2) 
+      dup2(pd[0], 0);
+      #else
       close(0); /* close stdin */
       dup(pd[0]); /* duplicate read side of pipe to stdin */
-      if(!f[0]) my_strncpy(f, get_file_path("gzip"), S(f));
-      execl(f, f, "-c", NULL);       /* replace current process with comand */
+      #endif
+      if(!f[0]) my_strncpy(f, "gzip", S(f));
+      execlp(f, f, "--fast", "-c", NULL);       /* replace current process with comand */
       /* never gets here */
-      fprintf(errfp, "push_undo(): problems with execl\n");
+      fprintf(errfp, "push_undo(): problems with execlp\n");
       Tcl_Eval(interp, "exit");
     }
     close(pd[0]);                                       /* close read side of pipe */
@@ -1239,7 +1243,7 @@ void pop_undo(int redo)
   unselect_all();
 
   #if HAS_POPEN==1
-  my_snprintf(diff_name, S(diff_name), "gunzip -c %s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
+  my_snprintf(diff_name, S(diff_name), "gzip -d -c %s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
   fd=popen(diff_name, "r");
   if(!fd) {
     fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);
@@ -1258,12 +1262,16 @@ void pop_undo(int redo)
       Tcl_Eval(interp, "exit");
     }
     /* connect write side of pipe to stdout */
+    #if HAS_DUP2
+    dup2(pd[1], 1);
+    #else
     close(1);    /* close stdout */
     dup(pd[1]);  /* write side of pipe --> stdout */
-    if(!f[0]) my_strncpy(f, get_file_path("gunzip"), S(f));
-    execl(f, f, "-c", NULL);       /* replace current process with command */
+    #endif
+    if(!f[0]) my_strncpy(f, "gzip", S(f));
+    execlp(f, f, "-d", "-c", NULL);       /* replace current process with command */
     /* never gets here */
-    dbg(1, "pop_undo(): problems with execl\n");
+    dbg(1, "pop_undo(): problems with execlp\n");
     Tcl_Eval(interp, "exit");
   }
   close(pd[1]);                                       /* close write side of pipe */
