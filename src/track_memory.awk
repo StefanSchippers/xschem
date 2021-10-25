@@ -1,6 +1,10 @@
 #!/usr/bin/awk -f
-
-
+# memory leak analyzer. Run xschem with options "-d 3 -l log", do some operations you want to check
+# then *from this directory* launch: 
+# ./track_memory.awk /path/to/log
+# it will print the amount of leaked memory (total, leak) 
+# and the allocation that was not freed, with the source code line.
+# total and leak should indicate same amount of bytes, it is a cross check for the script.
 BEGIN{
   total = 0 
   malloc = 0
@@ -19,15 +23,19 @@ BEGIN{
   malloc++
 }
 
-# my_free():  freeing 198efc0
+# my_free(977,):  freeing 198efc0
 /^my_free\(/{ 
-  total -= address[$3]
-  delete address[$3]
-  delete idx[$3]
-  free++
+  if(!($3 in address)) {
+    print "Double free: " $0
+  } else {
+    total -= address[$3]
+    delete address[$3]
+    delete idx[$3]
+    free++
+  }
 }
 
-# my_realloc(235,): reallocating 0 --> 198efa0 to 24 bytes
+# my_realloc(235,): reallocating (nil) --> 198efa0 to 24 bytes
 # my_realloc(237,): reallocating 198efc0 --> 1cfc090 to 28 bytes
 /^my_realloc\(/{
   id = $1
@@ -49,7 +57,6 @@ BEGIN{
   realloc++
 }
 
-
 END{
   print "total = " total
   print "malloc = " malloc
@@ -57,19 +64,14 @@ END{
   print "free = " free
   stale = 0
   leak = 0
-
   for(i in address) {
-
-
-
- 
     stale++
     leak+= address[i]
     print "  address[ " i ", " idx[i] " ]= " address[i]
-    pipe = "grep -n ' \([^/][^*]\) *my_.*(" idx[i] ",' *.c xschem.h"
+    pipe = "grep -n ' \\([^/][^*]\\) *my_.*(" idx[i] ",' *.c xschem.h"
     while( pipe | getline a) print "    " a
     close(pipe)
   }
-  print "stale= " stale
-  print "leak= " leak
+  print "stale = " stale
+  print "leak = " leak
 }

@@ -614,6 +614,7 @@ void xwin_exit(void)
  translate2(NULL, 0, NULL); /* clear static data in function */
  subst_token(NULL, NULL, NULL); /* clear static data in function */
  find_nth(NULL, '\0', 0); /* clear static data in function */
+ tcl_hook2(NULL); /* clear static data in function */
  save_ascii_string(NULL, NULL, 0); /* clear static data in function */
  dbg(1, "xwin_exit(): removing font\n");
  for(i=0;i<127;i++) my_free(1140, &character[i]);
@@ -1473,7 +1474,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
                 formats[i].direct.alpha_shift == 24)
                     format_rgba = formats[i];
     }
-    my_free(1145, &formats_reply);
+    free(formats_reply); /* can not use my_free() since not allocated by my_* allocator wrappers */
+    formats_reply = NULL;
     #endif /* HAS_XRENDER */
     /*/---------------------------------------------------- */
     /* /20171125 */
