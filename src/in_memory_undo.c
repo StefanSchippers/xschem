@@ -203,7 +203,7 @@ void push_undo(void)
     initialized=1;
     init_undo();
   }
-  slot = xctx->cur_undo_ptr%max_undo;
+  slot = xctx->cur_undo_ptr%MAX_UNDO;
 
   my_strdup(173, &uslot[slot].gptr, xctx->schvhdlprop);
   my_strdup(174, &uslot[slot].vptr, xctx->schverilogprop);
@@ -308,7 +308,7 @@ void push_undo(void)
 
   xctx->cur_undo_ptr++;
   xctx->head_undo_ptr = xctx->cur_undo_ptr;
-  xctx->tail_undo_ptr = xctx->head_undo_ptr <= max_undo? 0: xctx->head_undo_ptr-max_undo;
+  xctx->tail_undo_ptr = xctx->head_undo_ptr <= MAX_UNDO? 0: xctx->head_undo_ptr-MAX_UNDO;
 }
 
 
@@ -333,7 +333,7 @@ void pop_undo(int redo)
     if(xctx->cur_undo_ptr<=0) return; /* check undo tail */
     xctx->cur_undo_ptr--;
   }
-  slot = xctx->cur_undo_ptr%max_undo;
+  slot = xctx->cur_undo_ptr%MAX_UNDO;
   clear_drawing();
   unselect_all();
   my_strdup(198, &xctx->schvhdlprop, uslot[slot].gptr);

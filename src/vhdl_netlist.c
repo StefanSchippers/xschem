@@ -49,7 +49,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    save_ok = save_schematic(xctx->sch[xctx->currsch]);
    if(save_ok == -1) return;
  }
- netlist_count=0;
+ xctx->netlist_count=0;
  free_hash(subckt_table);
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
    netlist_dir, skip_dir(xctx->sch[xctx->currsch]), getpid());
@@ -324,7 +324,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    override_netlist_type(-1); /* restore to netlist_dir default */
    if(debug_var==0) xunlink(netl_filename);
  }
- netlist_count++;
+ xctx->netlist_count++;
 
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(151, xctx->instances, sizeof(unsigned int));
@@ -401,7 +401,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  my_free(1089, &sig_type);
  my_free(1090, &type);
  my_free(1091, &port_value);
- netlist_count = 0;
+ xctx->netlist_count = 0;
 }
 
 
@@ -595,7 +595,7 @@ void  vhdl_block_netlist(FILE *fd, int i)
     if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
       continue;
     }
-    if(netlist_count &&
+    if(xctx->netlist_count &&
       !strcmp(get_tok_value(xctx->inst[l].prop_ptr, "only_toplevel", 0), "true")) continue;
 
     my_strdup(601, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
@@ -614,7 +614,7 @@ void  vhdl_block_netlist(FILE *fd, int i)
     override_netlist_type(-1); /* restore to netlist_dir default */
     if(debug_var==0) xunlink(netl_filename);
   }
-  netlist_count++;
+  xctx->netlist_count++;
   my_free(1094, &sig_type);
   my_free(1095, &port_value);
   my_free(1096, &type);
@@ -705,5 +705,5 @@ void vhdl_netlist(FILE *fd , int vhdl_stop)
    my_free(1097, &type);
  }
  dbg(1, "vhdl_netlist():       end\n");
- if(!vhdl_stop && !netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
+ if(!vhdl_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
 }

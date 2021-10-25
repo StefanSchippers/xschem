@@ -135,7 +135,7 @@ void global_spice_netlist(int global)  /* netlister driver */
    bus_char[0] = str_tmp[0];
    bus_char[1] = str_tmp[1];
  }
- netlist_count=0;
+ xctx->netlist_count=0;
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
    netlist_dir, skip_dir(xctx->sch[xctx->currsch]), getpid());
  dbg(1, "global_spice_netlist(): opening %s for writing\n",netl_filename);
@@ -235,7 +235,7 @@ void global_spice_netlist(int global)  /* netlister driver */
   }
  }
 
- netlist_count++;
+ xctx->netlist_count++;
 
  if(xctx->schprop && xctx->schprop[0]) {
    if(first == 0) fprintf(fd,"**** begin user architecture code\n");
@@ -384,7 +384,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  }
  my_free(946, &type);
  my_free(947, &place);
- netlist_count = 0;
+ xctx->netlist_count = 0;
 }
 
 static char *model_name_result = NULL;
@@ -460,7 +460,7 @@ void spice_block_netlist(FILE *fd, int i)
 
   spice_stop ? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
   spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
-  netlist_count++;
+  xctx->netlist_count++;
 
   if(xctx->schprop && xctx->schprop[0]) {
     fprintf(fd,"**** begin user architecture code\n");
@@ -523,8 +523,8 @@ void spice_netlist(FILE *fd, int spice_stop )
  
      if( type && !IS_LABEL_OR_PIN(type) ) {
        /* already done in global_spice_netlist */
-       if(!strcmp(type,"netlist_commands") && netlist_count==0) continue;
-       if(netlist_count &&
+       if(!strcmp(type,"netlist_commands") && xctx->netlist_count==0) continue;
+       if(xctx->netlist_count &&
           !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "only_toplevel", 0), "true")) continue;
        if(!strcmp(type,"netlist_commands")) {
          fprintf(fd,"**** begin user architecture code\n");
@@ -546,7 +546,7 @@ void spice_netlist(FILE *fd, int spice_stop )
     }
     my_free(952, &type);
   }
-  if(!spice_stop && !netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
+  if(!spice_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
 }
 
 /* calculate the hash function relative to string s */

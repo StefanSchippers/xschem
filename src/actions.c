@@ -578,15 +578,15 @@ void enable_layers(void)
 {
   int i;
   char tmp[50];
-  xctx->n_active_layers = 0;
+  n_active_layers = 0;
   for(i = 0; i< cadlayers; i++) {
     my_snprintf(tmp, S(tmp), "enable_layer(%d)",i);
     if(tclgetvar(tmp)[0] == '0') enable_layer[i] = 0;
     else {
       enable_layer[i] = 1;
       if(i>=7) {
-        xctx->active_layer[xctx->n_active_layers] = i;
-        xctx->n_active_layers++;
+        active_layer[n_active_layers] = i;
+        n_active_layers++;
       }
     }
   }

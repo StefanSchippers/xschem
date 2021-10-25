@@ -118,7 +118,7 @@ static void set_ps_colors(unsigned int pixel)
 
 static void ps_xdrawarc(int layer, int fillarc, double x, double y, double r, double a, double b)
 {
- if(xctx->fill_pattern && fillarc)
+ if(fill_pattern && fillarc)
    fprintf(fd, "%g %g %g %g %g A %g %g LT C F S\n", x, y, r, -a, -a-b, x, y);
  else
    fprintf(fd, "%g %g %g %g %g A S\n", x, y, r, -a, -a-b);
@@ -140,7 +140,7 @@ static void ps_xfillrectange(int layer, double x1, double y1, double x2,
                   double y2)
 {
  fprintf(fd, "%g %g %g %g R\n", x1,y1,x2-x1,y2-y1);
- if( (fill_type[layer] == 1) && xctx->fill_pattern) {
+ if( (fill_type[layer] == 1) && fill_pattern) {
    fprintf(fd, "%g %g %g %g RF\n", x1,y1,x2-x1,y2-y1);
    /* fprintf(fd,"fill\n"); */
  }
@@ -174,7 +174,7 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points, in
     if(i==0) fprintf(fd, "NP\n%g %g MT\n", xx, yy);
     else fprintf(fd, "%g %g LT\n", xx, yy);
   }
-  if(xctx->fill_pattern && fill_type[c] && poly_fill) {
+  if(fill_pattern && fill_type[c] && poly_fill) {
     fprintf(fd, "C F S\n");
   } else {
     fprintf(fd, "S\n");
@@ -852,10 +852,10 @@ void create_ps(char **psfile, int what)
       y2 = Y_TO_XSCHEM(xctx->areay2);
       for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
         i = wireptr->n;
-        if( xctx->wire[i].end1 >1 ) { /* 20150331 draw_dots */
+        if( xctx->wire[i].end1 >1 ) {
           ps_drawarc(WIRELAYER, 1, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360, 0);
         }
-        if( xctx->wire[i].end2 >1 ) { /* 20150331 draw_dots */
+        if( xctx->wire[i].end2 >1 ) {
           ps_drawarc(WIRELAYER, 1, xctx->wire[i].x2, xctx->wire[i].y2, cadhalfdotsize, 0, 360, 0);
         }
       }

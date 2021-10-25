@@ -460,8 +460,8 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key == '$'  && ( state == ShiftMask) )            /* toggle pixmap  saving */
    {
-    draw_pixmap =!draw_pixmap;
-    if(draw_pixmap) tcleval("alert_ { enabling draw pixmap} {}");
+    xctx->draw_pixmap =!xctx->draw_pixmap;
+    if(xctx->draw_pixmap) tcleval("alert_ { enabling draw pixmap} {}");
     else tcleval("alert_ { disabling draw pixmap} {}");
     break;
    }
@@ -480,17 +480,17 @@ int callback(int event, int mx, int my, KeySym key,
    if(key == '='  && (state &ControlMask))              /* toggle fill rectangles */
    {
     int x;
-    xctx->fill_pattern++;
-    if(xctx->fill_pattern==3) xctx->fill_pattern=0;
+    fill_pattern++;
+    if(fill_pattern==3) fill_pattern=0;
 
-    if(xctx->fill_pattern==1) {
+    if(fill_pattern==1) {
      tcleval("alert_ { Stippled pattern fill} {}");
      for(x=0;x<cadlayers;x++) {
        if(fill_type[x]==1) XSetFillStyle(display,gcstipple[x],FillSolid);
        else XSetFillStyle(display,gcstipple[x],FillStippled);
      }
     }
-    else if(xctx->fill_pattern==2) {
+    else if(fill_pattern==2) {
      tcleval("alert_ { solid pattern fill} {}");
      for(x=0;x<cadlayers;x++)
       XSetFillStyle(display,gcstipple[x],FillSolid);
@@ -563,7 +563,7 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key == XK_Escape )                        /* abort & redraw */
    {
-    no_draw = 0;
+    xctx->no_draw = 0;
     if(xctx->semaphore >= 2) break;
     tcleval("set constrained_move 0" );
     constrained_move=0;
@@ -1305,13 +1305,13 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key=='>') {
      if(xctx->semaphore >= 2) break;
-     if(draw_single_layer< cadlayers-1) draw_single_layer++;
+     if(xctx->draw_single_layer< cadlayers-1) xctx->draw_single_layer++;
      draw();
      break;
    }
    if(key=='<') {
      if(xctx->semaphore >= 2) break;
-     if(draw_single_layer>=0 ) draw_single_layer--;
+     if(xctx->draw_single_layer>=0 ) xctx->draw_single_layer--;
      draw();
      break;
    }

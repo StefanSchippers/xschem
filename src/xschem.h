@@ -626,13 +626,15 @@ typedef struct {
   XSegment *biggridpoint;
   XPoint *gridpoint;
   char plotfile[PATH_MAX];
-  int *active_layer;
-  int n_active_layers;
   int enable_drill;
   int pending_fullzoom;
   char hiersep[20];
   int no_undo;
-  int fill_pattern; /*  fill rectangles */
+  int draw_single_layer;
+  int draw_dots;
+  int no_draw;
+  int draw_pixmap; /* pixmap used as 2nd buffer */
+  int netlist_count; /* netlist counter incremented at any cell being netlisted */
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
@@ -758,7 +760,6 @@ extern int debug_var;
 extern int help;
 extern char *cad_icon[];
 extern int do_print;
-extern int no_draw;
 extern FILE *errfp;
 extern int no_readline;
 extern char *filename;
@@ -771,11 +772,16 @@ extern char *tcl_command;
 extern char tcl_script[PATH_MAX];
 extern int tcp_port;
 extern char **color_array;
+extern double color_dim; /* can not be put in Xctx unless all X11 colors are reset on window change */
 extern unsigned int color_index[];
+extern int n_active_layers; /* can not be put in Xctx, since it is bound to enable_layer[] */
+extern int *active_layer; /* can not be put in Xctx, since it is bound to enable_layer[] */
+extern int *fill_type; /* for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
+                       /* can not be put in Xctx, since it sets XSetFillStyle */
+extern int fill_pattern; /*  fill rectangles, can not be put in Xctx, since it sets XSetFillStyle */
 extern int text_svg;
 extern int text_ps;
 extern double cadhalfdotsize;
-extern int draw_pixmap; /* pixmap used as 2nd buffer */
 extern XEvent xev;
 extern KeySym key;
 extern unsigned int button;
@@ -783,22 +789,14 @@ extern unsigned int state; /*  status of shift,ctrl etc.. */
 extern char *xschem_version_string;
 extern char initial_netlist_name[PATH_MAX];
 extern char bus_char[];
-extern int max_undo;
-extern int draw_dots;
-extern int draw_single_layer;
 extern int yyparse_error;
 extern char *xschem_executable;
-extern int screendepth;
-extern int *fill_type; /* 20171117 for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
 extern Tcl_Interp *interp;
 extern double *character[256];
 extern int do_netlist;
 extern int do_simulation;
 extern int do_waves;
-extern int netlist_count;
 extern int quit;
-extern int show_erc;
-extern double color_dim;
 extern int batch_mode; /* no TCL console */
 extern const char fopen_read_mode[]; /* "r" on unix, "rb" on windows */
 
@@ -811,6 +809,7 @@ extern unsigned char pixdata_init[22][32];
 extern GC *gc, *gcstipple, gctiled;
 extern Display *display;
 extern int screen_number;
+extern int screendepth;
 extern XRectangle *rectangle;
 extern Pixmap cad_icon_pixmap, cad_icon_mask, *pixmap;
 extern XColor xcolor_array[];

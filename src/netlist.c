@@ -276,7 +276,7 @@ void hash_inst_pin(int what, int i, int j)
         xctx->inst[i].name, j, prop_ptr);
     statusmsg(str,2);
     tcleval("wm deiconify .infotext"); /* critical error: force ERC window showing */
-    if(!netlist_count) {
+    if(!xctx->netlist_count) {
       xctx->inst[i].color = -PINLAYER;
       xctx->hilight_nets=1;
     }
@@ -448,7 +448,7 @@ static void signal_short( char *n1, char *n2)
    dbg(1, "signal_short(): signal_short: shorted: %s - %s", n1, n2);
    statusmsg(str,2);
    tcleval("wm deiconify .infotext"); /* critical error: force ERC window showing */
-   if(!netlist_count) {
+   if(!xctx->netlist_count) {
       bus_hilight_lookup(n1, xctx->hilight_color, XINSERT);
       if(incr_hilight) incr_hilight_color();
       bus_hilight_lookup(n2, xctx->hilight_color, XINSERT);
@@ -655,8 +655,8 @@ void prepare_netlist_structs(int for_netlist)
   else delete_netlist_structs();
   xctx->simdata.valid = 0;
   dbg(1, "prepare_netlist_structs(): extraction\n");
-  if(netlist_count == 0 ) startlevel = xctx->currsch;
-  print_erc =  netlist_count == 0 || startlevel < xctx->currsch;
+  if(xctx->netlist_count == 0 ) startlevel = xctx->currsch;
+  print_erc =  xctx->netlist_count == 0 || startlevel < xctx->currsch;
 
   if (for_netlist>0) {
     my_snprintf(nn, S(nn), "-----------%s", xctx->sch[xctx->currsch]);

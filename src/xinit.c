@@ -364,7 +364,6 @@ void free_xschem_data()
   for(i=0;i<CADMAXHIER;i++) my_free(1139, &xctx->sch_path[i]);
   my_free(1099, &xctx->gridpoint);
   my_free(1214, &xctx->biggridpoint);
-  my_free(1121, &xctx->active_layer);
   my_free(269, &xctx);
 }
 
@@ -523,13 +522,14 @@ void alloc_xschem_data()
   xctx->sel_array=my_calloc(619, xctx->maxsel, sizeof(Selected));
   xctx->biggridpoint=(XSegment*)my_calloc(1213, CADMAXGRIDPOINTS,sizeof(XSegment));
   xctx->gridpoint=(XPoint*)my_calloc(608, CADMAXGRIDPOINTS,sizeof(XPoint));
-  xctx->n_active_layers = 0;
-  xctx->active_layer=my_calloc(563, cadlayers, sizeof(int));
   xctx->enable_drill = 0;
   xctx->pending_fullzoom = 0;
   my_strncpy(xctx->hiersep, ".", S(xctx->hiersep));
   xctx->no_undo = 0;
-  xctx->fill_pattern = 1;
+  xctx->draw_single_layer = -1;
+  xctx->draw_dots = 1;
+  xctx->no_draw = 0;
+  xctx->draw_pixmap = 1;
 }
 
 void alloc_data()
@@ -538,10 +538,11 @@ void alloc_data()
 
  alloc_xschem_data();
  /* global context / graphic preferences/settings */
+ fill_type=my_calloc(640, cadlayers, sizeof(int));
+ active_layer=my_calloc(563, cadlayers, sizeof(int));
  color_array=my_calloc(637, cadlayers, sizeof(char*));
  gc=my_calloc(638, cadlayers, sizeof(GC));
  gcstipple=my_calloc(639, cadlayers, sizeof(GC));
- fill_type=my_calloc(640, cadlayers, sizeof(int));
  pixdata=my_calloc(641, cadlayers, sizeof(char*));
  for(i=0;i<cadlayers;i++)
  {
@@ -598,13 +599,14 @@ void xwin_exit(void)
    my_free(1101, &color_array[i]);
    my_free(1102, &pixdata[i]);
  }
- my_free(1120, &fill_type);
  my_free(1122, &pixdata);
  my_free(1123, &enable_layer);
  my_free(1135, &gc);
  my_free(1136, &gcstipple);
  my_free(1137, &color_array);
  my_free(1138, &tcl_command);
+ my_free(1121, &active_layer);
+ my_free(1120, &fill_type);
  clear_expandlabel_data();
  get_sym_template(NULL, NULL); /* clear static data in function */
  list_tokens(NULL, 0); /* clear static data in function */

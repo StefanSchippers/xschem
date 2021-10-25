@@ -756,10 +756,10 @@ void svg_draw(void)
         if(xctx->hilight_nets && (entry=bus_hilight_lookup( xctx->wire[i].node, 0, XLOOKUP))) {
           color = get_color(entry->value);
         }
-        if( xctx->wire[i].end1 >1 ) { /* 20150331 draw_dots */
+        if( xctx->wire[i].end1 >1 ) {
           svg_drawcircle(color, 1, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360);
         }
-        if( xctx->wire[i].end2 >1 ) { /* 20150331 draw_dots */
+        if( xctx->wire[i].end2 >1 ) {
           svg_drawcircle(color, 1, xctx->wire[i].x2, xctx->wire[i].y2, cadhalfdotsize, 0, 360);
         }
       }

@@ -629,7 +629,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"no_draw")) {
-       if( no_draw != 0 )
+       if( xctx->no_draw != 0 )
          Tcl_SetResult(interp, "1",TCL_STATIC);
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
@@ -2183,7 +2183,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else if(!strcmp(argv[2],"no_draw")) {
         int s = atoi(argv[3]);
-        no_draw=s;
+        xctx->no_draw=s;
       }
       else if(!strcmp(argv[2],"hide_symbols")) {
         int s = atoi(argv[3]);

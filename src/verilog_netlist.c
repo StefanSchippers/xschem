@@ -47,7 +47,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
    if(save_ok == -1) return;
  }
  free_hash(subckt_table);
- netlist_count=0;
+ xctx->netlist_count=0;
  /* top sch properties used for library use declarations and type definitions */
  /* to be printed before any entity declarations */
 
@@ -240,7 +240,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
 
  dbg(1, "global_verilog_netlist(): netlisting  top level\n");
  verilog_netlist(fd, 0);
- netlist_count++;
+ xctx->netlist_count++;
  fprintf(fd,"---- begin user architecture code\n");
 
  for(i=0;i<xctx->instances;i++) {
@@ -347,7 +347,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  my_free(1076, &port_value);
  my_free(1077, &tmp_string);
  my_free(1078, &type);
- netlist_count = 0;
+ xctx->netlist_count = 0;
 }
 
 
@@ -469,7 +469,7 @@ void verilog_block_netlist(FILE *fd, int i)
 
   dbg(1, "verilog_block_netlist():       netlisting %s\n", skip_dir( xctx->sch[xctx->currsch]));
   verilog_netlist(fd, verilog_stop);
-  netlist_count++;
+  xctx->netlist_count++;
   fprintf(fd,"---- begin user architecture code\n");
   for(l=0;l<xctx->instances;l++) {
     if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
@@ -477,7 +477,7 @@ void verilog_block_netlist(FILE *fd, int i)
     if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "verilog_ignore",0 ), "true") ) {
       continue;
     }
-    if(netlist_count &&
+    if(xctx->netlist_count &&
       !strcmp(get_tok_value(xctx->inst[l].prop_ptr, "only_toplevel", 0), "true")) continue;
 
     my_strdup(569, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
@@ -553,5 +553,5 @@ void verilog_netlist(FILE *fd , int verilog_stop)
    my_free(1084, &type);
  }
  dbg(1, "verilog_netlist():       end\n");
- if(!verilog_stop && !netlist_count) redraw_hilights(0); /*draw_hilight_net(1); */
+ if(!verilog_stop && !xctx->netlist_count) redraw_hilights(0); /*draw_hilight_net(1); */
 }

@@ -97,22 +97,22 @@ void free_hilight_hash(void) /* remove the whole hash table  */
 }
 
 /* by default: 
- * xctx->active_layer[0] = 7
- * xctx->active_layer[1] = 8
- * xctx->active_layer[2] = 10  if 9 is disabled it is skipped
+ * active_layer[0] = 7
+ * active_layer[1] = 8
+ * active_layer[2] = 10  if 9 is disabled it is skipped
  * ...
  * if a layer is disabled (not viewable) it is skipped
- * xctx->n_active_layers is the total number of layers for hilights.
- * standard xschem conf: cadlayers=22, xctx->n_active_layers=15 if no disabled layers.
+ * n_active_layers is the total number of layers for hilights.
+ * standard xschem conf: cadlayers=22, n_active_layers=15 if no disabled layers.
  */
 int get_color(int value)
 {
   int x;
 
   if(value < 0) return (-value) % cadlayers ;
-  if(xctx->n_active_layers) {
-    x = value%(xctx->n_active_layers);
-    return xctx->active_layer[x];
+  if(n_active_layers) {
+    x = value%(n_active_layers);
+    return active_layer[x];
   } else {
     return cadlayers > 5 ? 5 : cadlayers -1; /* desperate attempt to return a decent color */
   }
@@ -121,7 +121,7 @@ int get_color(int value)
 
 void incr_hilight_color(void)
 {
-  xctx->hilight_color = (xctx->hilight_color + 1) % (xctx->n_active_layers * cadlayers);
+  xctx->hilight_color = (xctx->hilight_color + 1) % (n_active_layers * cadlayers);
 }
 
 /* print all highlight signals which are not ports (in/out/inout). */
@@ -1444,7 +1444,7 @@ void logic_set(int value, int num)
   if(!xctx->simdata.valid) create_simdata();
   rebuild_selected_array();
   newval = value;
-  if(!no_draw && !big) {
+  if(!xctx->no_draw && !big) {
     calc_drawing_bbox(&boundbox, 2);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
@@ -1480,13 +1480,13 @@ void logic_set(int value, int num)
     propagate_logic();
     propagate_hilights(1, 0, XINSERT);
   }
-  if(!no_draw && !big) {
+  if(!xctx->no_draw && !big) {
     calc_drawing_bbox(&boundbox, 2);
     bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
   }
   draw();
-  if(!no_draw && !big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+  if(!xctx->no_draw && !big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   tcleval("if { [info exists gaw_fd] } {close $gaw_fd; unset gaw_fd}\n");
 }
 
@@ -1692,17 +1692,17 @@ void draw_hilight_net(int on_window)
        drawline(get_color(entry->value), NOW,
           xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, 0);
      if(cadhalfdotsize*xctx->mooz>=0.7) {
-       if( xctx->wire[i].end1 >1 ) { /* 20150331 draw_dots */
+       if( xctx->wire[i].end1 >1 ) {
          filledarc(get_color(entry->value), NOW, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360);
        }
-       if( xctx->wire[i].end2 >1 ) { /* 20150331 draw_dots */
+       if( xctx->wire[i].end2 >1 ) {
          filledarc(get_color(entry->value), NOW, xctx->wire[i].x2, xctx->wire[i].y2, cadhalfdotsize, 0, 360);
        }
      }
    }
  }
  for(c=0;c<cadlayers;c++) {
-   if(draw_single_layer!=-1 && c != draw_single_layer) continue;
+   if(xctx->draw_single_layer!=-1 && c != xctx->draw_single_layer) continue;
    if(use_hash) init_inst_iterator(&ctx, x1, y1, x2, y2);
    else i = -1;
    while(1) {

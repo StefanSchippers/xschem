@@ -55,7 +55,7 @@ void update_conn_cues(int draw_cues, int dr_win)
 
   hash_wires(); /* must be done also if wires==0 to clear wiretable */
   if(!xctx->wires) return;
-  if(!draw_dots) return;
+  if(!xctx->draw_dots) return;
   if(cadhalfdotsize*xctx->mooz<0.7) return;
   x1 = X_TO_XSCHEM(xctx->areax1);
   y1 = Y_TO_XSCHEM(xctx->areay1);
@@ -104,10 +104,10 @@ void update_conn_cues(int draw_cues, int dr_win)
       /* optimization when editing small areas (detailed zoom)  of a huge schematic */
       if(LINE_OUTSIDE(wire[i].x1, wire[i].y1,
                       wire[i].x2, wire[i].y2, x1, y1, x2, y2)) continue;
-      if( wire[i].end1 >1 ) { /* 20150331 draw_dots */
+      if( wire[i].end1 >1 ) {
         filledarc(WIRELAYER, ADD, wire[i].x1, wire[i].y1, cadhalfdotsize, 0, 360);
       }
-      if( wire[i].end2 >1 ) { /* 20150331 draw_dots */
+      if( wire[i].end2 >1 ) {
         filledarc(WIRELAYER, ADD, wire[i].x2, wire[i].y2, cadhalfdotsize, 0, 360);
       }
     }

@@ -1118,7 +1118,7 @@ void delete_undo(void)
   int i;
   char diff_name[PATH_MAX]; /* overflow safe 20161122 */
 
-  for(i=0; i<max_undo; i++) {
+  for(i=0; i<MAX_UNDO; i++) {
     my_snprintf(diff_name, S(diff_name), "%s/undo%d",xctx->undo_dirname, i);
     xunlink(diff_name);
   }
@@ -1149,7 +1149,7 @@ void push_undo(void)
 
 
     #if HAS_POPEN==1
-    my_snprintf(diff_name, S(diff_name), "gzip --fast -c > %s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
+    my_snprintf(diff_name, S(diff_name), "gzip --fast -c > %s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
     fd = popen(diff_name,"w");
     if(!fd) {
       fprintf(errfp, "push_undo(): failed to open write pipe %s\n", diff_name);
@@ -1157,7 +1157,7 @@ void push_undo(void)
       return;
     }
     #elif HAS_PIPE==1
-    my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
+    my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
     pipe(pd);
     if((pid = fork()) ==0) {                                    /* child process */
       static char f[PATH_MAX] = "";
@@ -1186,7 +1186,7 @@ void push_undo(void)
     close(pd[0]);                                       /* close read side of pipe */
     fd=fdopen(pd[1],"w");
     #else /* uncompressed undo */
-    my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
+    my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
     fd = fopen(diff_name,"w");
     if(!fd) {
       fprintf(errfp, "push_undo(): failed to open undo file %s\n", diff_name);
@@ -1197,7 +1197,7 @@ void push_undo(void)
     write_xschem_file(fd);
     xctx->cur_undo_ptr++;
     xctx->head_undo_ptr = xctx->cur_undo_ptr;
-    xctx->tail_undo_ptr = xctx->head_undo_ptr <= max_undo? 0: xctx->head_undo_ptr-max_undo;
+    xctx->tail_undo_ptr = xctx->head_undo_ptr <= MAX_UNDO? 0: xctx->head_undo_ptr-MAX_UNDO;
     #if HAS_POPEN==1
     pclose(fd);
     #elif HAS_PIPE==1
@@ -1243,7 +1243,7 @@ void pop_undo(int redo)
   unselect_all();
 
   #if HAS_POPEN==1
-  my_snprintf(diff_name, S(diff_name), "gzip -d -c %s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
+  my_snprintf(diff_name, S(diff_name), "gzip -d -c %s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
   fd=popen(diff_name, "r");
   if(!fd) {
     fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);
@@ -1251,7 +1251,7 @@ void pop_undo(int redo)
     return;
   }
   #elif HAS_PIPE==1
-  my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
+  my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
   pipe(pd);
   if((pid = fork())==0) {                                     /* child process */
     static char f[PATH_MAX] = "";
@@ -1277,7 +1277,7 @@ void pop_undo(int redo)
   close(pd[1]);                                       /* close write side of pipe */
   fd=fdopen(pd[0],"r");
   #else /* uncompressed undo */
-  my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%max_undo);
+  my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
   fd=fopen(diff_name, "r");
   if(!fd) {
     fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);

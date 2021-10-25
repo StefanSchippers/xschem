@@ -1598,7 +1598,7 @@ int print_spice_element(FILE *fd, int inst)
   }
   no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
   s=format;
-  dbg(1, "print_spice_element(): name=%s, format=%s netlist_count=%d\n",name,format, netlist_count);
+  dbg(1, "print_spice_element(): name=%s, format=%s xctx->netlist_count=%d\n",name,format, xctx->netlist_count);
   /* begin parsing format string */
   while(1)
   {
@@ -1988,7 +1988,7 @@ void print_tedax_element(FILE *fd, int inst)
  }
  if(format) {
   s=format;
-  dbg(1, "print_tedax_element(): name=%s, tedax_format=%s netlist_count=%d\n",name,format, netlist_count);
+  dbg(1, "print_tedax_element(): name=%s, tedax_format=%s xctx->netlist_count=%d\n",name,format, xctx->netlist_count);
   /* begin parsing format string */
   while(1)
   {
@@ -2346,7 +2346,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
                  i, j, xctx->inst[i].instname ) ;
      statusmsg(errstr,2);
      tcleval("wm deiconify .infotext"); /* critical error: force ERC window showing */
-     if(!netlist_count) {
+     if(!xctx->netlist_count) {
        xctx->inst[i].color = -PINLAYER;
        xctx->hilight_nets=1;
      }
@@ -2390,7 +2390,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
  }
  no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
  s=format;
- dbg(1, "print_vhdl_primitive(): name=%s, format=%s netlist_count=%d\n",name,format, netlist_count);
+ dbg(1, "print_vhdl_primitive(): name=%s, format=%s xctx->netlist_count=%d\n",name,format, xctx->netlist_count);
 
  fprintf(fd, "---- start primitive ");
  lab=expandlabel(name, &tmp);
@@ -2564,7 +2564,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
   }
   no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
   s=format;
-  dbg(1, "print_verilog_primitive(): name=%s, format=%s netlist_count=%d\n",name,format, netlist_count);
+  dbg(1, "print_verilog_primitive(): name=%s, format=%s xctx->netlist_count=%d\n",name,format, xctx->netlist_count);
 
   fprintf(fd, "---- start primitive ");
   lab=expandlabel(name, &tmp);
