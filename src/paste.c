@@ -263,7 +263,7 @@ void merge_inst(int k,FILE *fd)
     ptr[i].node=NULL;
     load_ascii_string(&prop_ptr,fd);
     if(!k) hash_all_names(i);
-    new_prop_string(i, prop_ptr, k, dis_uniq_names);
+    new_prop_string(i, prop_ptr, k, disable_unique_names);
     /* the final tmp argument is zero for the 1st call and used in */
     /* new_prop_string() for cleaning some internal caches. */
     my_strdup2(306, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
@@ -313,7 +313,7 @@ void merge_file(int selection_load, const char ext[])
     {
       my_snprintf(name, S(name), "%s/.clipboard.sch", user_conf_dir);
     }
-    if( (fd=fopen(name,"r"))!= NULL) {
+    if( (fd=fopen(name, fopen_read_mode))!= NULL) {
      xctx->prep_hi_structs=0;
      xctx->prep_net_structs=0;
      xctx->prep_hash_inst=0;

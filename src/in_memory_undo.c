@@ -198,7 +198,7 @@ void push_undo(void)
 {
   int slot, i, c;
 
-  if(no_undo)return;
+  if(xctx->no_undo)return;
   if(!initialized) {
     initialized=1;
     init_undo();
@@ -316,7 +316,7 @@ void pop_undo(int redo)
 {
   int slot, i, c;
 
-  if(no_undo)return;
+  if(xctx->no_undo)return;
   if(redo) {
     if(xctx->cur_undo_ptr < xctx->head_undo_ptr) {
       xctx->cur_undo_ptr++;

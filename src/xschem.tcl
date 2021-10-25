@@ -131,10 +131,10 @@ proc execute {status args} {
 
 proc netlist {source_file show netlist_file} {
  global XSCHEM_SHAREDIR flat_netlist hspice_netlist netlist_dir
- global verilog_2001 netlist_type tcl_debug
+ global verilog_2001 netlist_type debug_var
  
  simuldir
- if {$tcl_debug <= -1} { puts "netlist: source_file=$source_file, netlist_type=$netlist_type" }
+ if {$debug_var <= -1} { puts "netlist: source_file=$source_file, netlist_type=$netlist_type" }
  if {$netlist_type eq {spice}} {
    if { $hspice_netlist == 1 } {
      set simulator {-hspice}
@@ -216,7 +216,7 @@ proc convert_to_pdf {filename dest} {
 
 # 20161121
 proc convert_to_png {filename dest} {
-  global to_png tcl_debug
+  global to_png debug_var
   # puts "---> $to_png $filename $dest"
   set cmd "exec $to_png \$filename png:\$dest"
     if {$::OS == "Windows"} {
@@ -1010,7 +1010,7 @@ proc waves {} {
 # ============================================================
 
 proc utile_translate {schname} { 
-  global netlist_dir netlist_type tcl_debug XSCHEM_SHAREDIR
+  global netlist_dir netlist_type debug_var XSCHEM_SHAREDIR
   global utile_gui_path utile_cmd_path
 
   simuldir 
@@ -1020,7 +1020,7 @@ proc utile_translate {schname} {
 }
 
 proc utile_gui {schname} { 
-  global netlist_dir netlist_type tcl_debug XSCHEM_SHAREDIR
+  global netlist_dir netlist_type debug_var XSCHEM_SHAREDIR
   global utile_gui_path utile_cmd_path
 
   simuldir 
@@ -1030,7 +1030,7 @@ proc utile_gui {schname} {
 }
 
 proc utile_edit {schname} { 
-  global netlist_dir netlist_type tcl_debug editor XSCHEM_SHAREDIR
+  global netlist_dir netlist_type debug_var editor XSCHEM_SHAREDIR
   global utile_gui_path utile_cmd_path
 
   simuldir
@@ -1040,7 +1040,7 @@ proc utile_edit {schname} {
 }
 
 proc get_shell { curpath } {
- global netlist_dir netlist_type tcl_debug
+ global netlist_dir netlist_type debug_var
  global  terminal
 
  simuldir
@@ -1048,7 +1048,7 @@ proc get_shell { curpath } {
 }
 
 proc edit_netlist {schname } {
- global netlist_dir netlist_type tcl_debug
+ global netlist_dir netlist_type debug_var
  global editor terminal
 
  simuldir
@@ -2111,7 +2111,7 @@ proc property_search {} {
     button .dialog.but.ok -text OK -command {
           set search_value [.dialog.val.e get]
           set custom_token [.dialog.custom.e get]
-          if {$tcl_debug<=-1} { puts stderr "|$custom_token|" }
+          if {$debug_var<=-1} { puts stderr "|$custom_token|" }
           set token $custom_token
           if { $search_exact==1 } {
             set search_found [xschem searchmenu exact $search_select $token $search_value]
@@ -2163,12 +2163,12 @@ proc property_search {} {
 #
 proc tclpropeval {s instname symname} {
   # puts "tclpropeval: $s $instname $symname"
-  global env tcl_debug
-  if {$tcl_debug <=-1} {puts "tclpropeval: $s"}
+  global env debug_var
+  if {$debug_var <=-1} {puts "tclpropeval: $s"}
   regsub {^@tcleval\(} $s {} s
   regsub {\)([ \t\n]*)$} $s {\1} s
   if { [catch {eval $s} res] } {
-    if { $tcl_debug<=-1 } { puts "tclpropeval warning: $res"}
+    if { $debug_var<=-1 } { puts "tclpropeval warning: $res"}
     set res ?\n
   }
   return $res
@@ -2176,21 +2176,21 @@ proc tclpropeval {s instname symname} {
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s} {
-  global tcl_debug env netlist_type path
+  global debug_var env netlist_type path
   # puts "tclpropeval2: s=|$s|"
-  if {$tcl_debug <=-1} {puts "tclpropeval2: $s"}
+  if {$debug_var <=-1} {puts "tclpropeval2: $s"}
   set path [string range [xschem get sch_path] 1 end]
   if { $netlist_type eq {spice} } {
     regsub {^([^xX])} $path {x\1} path
     while { [regsub {\.([^xX])} $path {.x\1} path] } {}
   }
-  if { $tcl_debug<=-1 } { puts "---> path=$path" }
+  if { $debug_var<=-1 } { puts "---> path=$path" }
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s
   # puts "tclpropeval2: s=|$s|"
   # puts "tclpropeval2: subst $s=|[subst $s]|"
   if { [catch {uplevel #0 "subst \{$s\}"} res] } {
-    if { $tcl_debug<=-1 } { puts "tclpropeval2 warning: $res"}
+    if { $debug_var<=-1 } { puts "tclpropeval2 warning: $res"}
     set res ?\n
   }
   # puts "tclpropeval2: res=|$res|"
@@ -2292,7 +2292,7 @@ proc ask_save { {ask {save file?}} } {
 
 
 proc edit_vi_prop {txtlabel} {
-  global XSCHEM_TMP_DIR retval symbol prev_symbol rcode tcl_debug netlist_type editor
+  global XSCHEM_TMP_DIR retval symbol prev_symbol rcode debug_var netlist_type editor
   global user_wants_copy_cell
  
   set user_wants_copy_cell 0
@@ -2303,14 +2303,14 @@ proc edit_vi_prop {txtlabel} {
   write_data $retval $XSCHEM_TMP_DIR/$filename
   # since $editor can be an executable with options (gvim -f) I *need* to use eval
   eval execute_wait 0 $editor $XSCHEM_TMP_DIR/$filename ;# 20161119
-  if {$tcl_debug<=-1} {puts "edit_vi_prop{}:\n--------\nretval=$retval\n---------\n"}
-  if {$tcl_debug<=-1} {puts "edit_vi_prop{}:\n--------\nsymbol=$symbol\n---------\n"}
+  if {$debug_var<=-1} {puts "edit_vi_prop{}:\n--------\nretval=$retval\n---------\n"}
+  if {$debug_var<=-1} {puts "edit_vi_prop{}:\n--------\nsymbol=$symbol\n---------\n"}
   set tmp [read_data $XSCHEM_TMP_DIR/$filename]
   file delete $XSCHEM_TMP_DIR/$filename
-  if {$tcl_debug<=-1} {puts "edit_vi_prop{}:\n--------\n$tmp\n---------\n"}
+  if {$debug_var<=-1} {puts "edit_vi_prop{}:\n--------\n$tmp\n---------\n"}
   if [string compare $tmp $retval] {
          set retval $tmp
-         if {$tcl_debug<=-1} {puts "modified"}
+         if {$debug_var<=-1} {puts "modified"}
          set rcode ok
          return  $rcode
   } else {
@@ -2320,7 +2320,7 @@ proc edit_vi_prop {txtlabel} {
 }
 
 proc edit_vi_netlist_prop {txtlabel} {
-  global XSCHEM_TMP_DIR retval rcode tcl_debug netlist_type editor
+  global XSCHEM_TMP_DIR retval rcode debug_var netlist_type editor
   global user_wants_copy_cell
  
   set user_wants_copy_cell 0
@@ -2333,15 +2333,15 @@ proc edit_vi_netlist_prop {txtlabel} {
   if { [regexp vim $editor] } { set ftype "\{-c :set filetype=$netlist_type\}" } else { set ftype {} }
   # since $editor can be an executable with options (gvim -f) I *need* to use eval
   eval execute_wait 0 $editor  $ftype $XSCHEM_TMP_DIR/$filename
-  if {$tcl_debug <= -1}  {puts "edit_vi_prop{}:\n--------\n$retval\n---------\n"}
+  if {$debug_var <= -1}  {puts "edit_vi_prop{}:\n--------\n$retval\n---------\n"}
   set tmp [read_data $XSCHEM_TMP_DIR/$filename]
   file delete $XSCHEM_TMP_DIR/$filename
-  if {$tcl_debug <= -1}  {puts "edit_vi_prop{}:\n--------\n$tmp\n---------\n"}
+  if {$debug_var <= -1}  {puts "edit_vi_prop{}:\n--------\n$tmp\n---------\n"}
   if [string compare $tmp $retval] {
          set retval $tmp
          regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
          set retval \"${retval}\" 
-         if {$tcl_debug <= -1}  {puts "modified"}
+         if {$debug_var <= -1}  {puts "modified"}
          set rcode ok
          return  $rcode
   } else {
@@ -2386,12 +2386,12 @@ proc change_color {} {
 
 proc edit_prop {txtlabel} {
   global edit_prop_size infowindow_text selected_tok edit_symbol_prop_new_sel edit_prop_pos
-  global prev_symbol retval symbol rcode no_change_attrs preserve_unchanged_attrs copy_cell tcl_debug
+  global prev_symbol retval symbol rcode no_change_attrs preserve_unchanged_attrs copy_cell debug_var
   global user_wants_copy_cell editprop_sympath retval_orig old_selected_tok
   set user_wants_copy_cell 0
   set rcode {}
   set retval_orig $retval
-  if {$tcl_debug <= -1}  {puts " edit_prop{}: retval=$retval"}
+  if {$debug_var <= -1}  {puts " edit_prop{}: retval=$retval"}
   if { [winfo exists .dialog] } return
   toplevel .dialog  -class Dialog 
   wm title .dialog {Edit Properties}
@@ -2609,11 +2609,11 @@ proc write_data {data f} {
 
 proc text_line {txtlabel clear {preserve_disabled disabled} } {
   global text_line_default_geometry preserve_unchanged_attrs
-  global retval rcode tcl_debug selected_tok retval_orig old_selected_tok
+  global retval rcode debug_var selected_tok retval_orig old_selected_tok
   set retval_orig $retval
   if $clear==1 then {set retval ""}
-  if {$tcl_debug <= -1}  {puts " text_line{}: clear=$clear"}
-  if {$tcl_debug <= -1}  {puts " text_line{}: retval=$retval"}
+  if {$debug_var <= -1}  {puts " text_line{}: clear=$clear"}
+  if {$debug_var <= -1}  {puts " text_line{}: retval=$retval"}
   set rcode {}
   if { [winfo exists .dialog] } return
   toplevel .dialog  -class Dialog
@@ -3410,8 +3410,8 @@ proc build_windows {} {
     pack .menubar -anchor n -side top -fill x  -before .drw
     toolbar_show
     pack .statusbar -after .drw -anchor sw  -fill x 
-    bind .statusbar.5 <Leave> { xschem set cadgrid $grid; focus .drw}
-    bind .statusbar.3 <Leave> { xschem set cadsnap $snap; focus .drw}
+    bind .statusbar.5 <Leave> { xschem set cadgrid $cadgrid; focus .drw}
+    bind .statusbar.3 <Leave> { xschem set cadsnap $cadsnap; focus .drw}
     set_bindings {.drw}
   }
 }
@@ -3558,9 +3558,9 @@ if {$::OS == "Windows"} {
 # used in C code
 set_ne xschem_libs {}
 set_ne noprint_libs {}
-set_ne tcl_debug 0
+set_ne debug_var 0
 # used to activate debug from menu
-set_ne menu_tcl_debug 0
+set_ne menu_debug_var 0
 set textwindow_wcounter 1
 set viewdata_wcounter 1
 set retval ""
@@ -3609,8 +3609,8 @@ set_ne enable_stretch 0
 set_ne constrained_move 0
 set_ne draw_grid 1
 set_ne big_grid_points 0
-set_ne snap 10
-set_ne grid 20
+set_ne cadsnap 10
+set_ne cadgrid 20
 set_ne persistent_command 0
 set_ne autotrim_wires 0
 set_ne disable_unique_names 0
@@ -3897,9 +3897,9 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
      -command {
         if { $transparent_svg==1 } {xschem set transparent_svg 1} else { xschem set transparent_svg 0}
      }
-  .menubar.option.menu add checkbutton -label "Debug mode" -variable menu_tcl_debug \
+  .menubar.option.menu add checkbutton -label "Debug mode" -variable menu_debug_var \
      -command {
-        if { $menu_tcl_debug==1 } {xschem debug 1} else { xschem debug 0}
+        if { $menu_debug_var==1 } {xschem debug 1} else { xschem debug 0}
      }
   .menubar.option.menu add checkbutton -label "Enable stretch" -variable enable_stretch \
      -accelerator Y \
@@ -4083,7 +4083,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
        }
   .menubar.zoom.menu add command -label "Set grid spacing" \
        -command {
-         input_line "Enter grid spacing (float):" "xschem set cadgrid" $grid
+         input_line "Enter grid spacing (float):" "xschem set cadgrid" $cadgrid
        }
   .menubar.zoom.menu add checkbutton -label "View only Probes" -variable only_probes \
          -accelerator {5} \
@@ -4302,10 +4302,10 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   frame .statusbar  
   label .statusbar.1   -text "STATUS BAR 1"  
   label .statusbar.2   -text "SNAP:"
-  entry .statusbar.3 -textvariable snap -relief sunken -bg white \
+  entry .statusbar.3 -textvariable cadsnap -relief sunken -bg white \
          -width 10 -foreground black -takefocus 0
   label .statusbar.4   -text "GRID:"
-  entry .statusbar.5 -textvariable grid -relief sunken -bg white \
+  entry .statusbar.5 -textvariable cadgrid -relief sunken -bg white \
          -width 10 -foreground black -takefocus 0
   label .statusbar.6   -text "NETLIST MODE:"
   entry .statusbar.7 -textvariable netlist_type -relief sunken -bg white \

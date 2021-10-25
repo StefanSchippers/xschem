@@ -194,7 +194,7 @@ void check_unique_names(int rename)
   if(xctx->hilight_nets) {
     xRect boundbox;
     if(!big) calc_drawing_bbox(&boundbox, 2);
-    enable_drill=0;
+    xctx->enable_drill=0;
     clear_all_hilights();
     /* undraw_hilight_net(1); */
     if(!big) {
@@ -500,7 +500,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
       if(!escape) quote=!quote;
     }
     if(state==TOK_TOKEN) {
-      if(!cmp) { /* previous token matched search and was without value, return get_tok_size */
+      if(!cmp) { /* previous token matched search and was without value, return xctx->get_tok_size */
         result[0] = '\0';
         return result;
       }
@@ -659,7 +659,7 @@ char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
    return pin_attr_value; /* caller is responsible for freeing up storage for pin_attr_value */
 }
 
-void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
+void new_prop_string(int i, const char *old_prop, int fast, int disable_unique_names)
 {
 /* given a old_prop property string, return a new */
 /* property string in xctx->inst[i].prop_ptr such that the element name is */
@@ -697,7 +697,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  }
  prefix=old_name[0];
  /* don't change old_prop if name does not conflict. */
- if(dis_uniq_names || (entry = inst_hash_lookup(table, old_name, i, XLOOKUP, old_name_len))==NULL ||
+ if(disable_unique_names || (entry = inst_hash_lookup(table, old_name, i, XLOOKUP, old_name_len))==NULL ||
      entry->value == i)
  {
   inst_hash_lookup(table, old_name, i, XINSERT, old_name_len);
@@ -2786,7 +2786,7 @@ const char *translate(int inst, const char* s)
  result[0]='\0';
 
  dbg(1, "translate(): substituting props in <%s>, instance <%s>\n",
-        s?s:"NULL",xctx->inst[inst].instname?xctx->inst[inst].instname:"NULL");
+        s ? s : "NULL" , xctx->inst[inst].instname ? xctx->inst[inst].instname : "NULL");
 
  while(1)
  {

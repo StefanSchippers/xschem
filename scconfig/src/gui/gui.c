@@ -26,6 +26,7 @@ void deps_gui_init()
 	dep_add("libs/gui/gtk2/key_prefix",     find_gtk2_key_prefix);
 	dep_add("libs/gui/gtk2/modversion",     find_gtk2_modversion);
 	dep_add("libs/gui/gtk3/*",              find_gtk3);
+	dep_add("libs/gui/lesstif2/exthi/*",    find_lesstif2_exthi);
 	dep_add("libs/gui/lesstif2/*",          find_lesstif2);
 	dep_add("libs/gui/libstroke/*",         find_libstroke);
 	dep_add("libs/gui/gd/gdImagePng/*",     find_gdimagepng);

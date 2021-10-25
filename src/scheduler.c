@@ -316,7 +316,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       if(argc==3) {
          debug_var=atoi(argv[2]);
-         tclsetvar("tcl_debug",argv[2]);
+         tclsetvar("debug_var",argv[2]);
       }
       Tcl_ResetResult(interp);
     }
@@ -702,7 +702,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
              change_to_unix_fn(s);
              int slen = strlen(s);
              if(s[slen - 1] == '/') s[slen - 1] = '\0';
-             strcpy(win_temp_dir, s);
+             my_strncpy(win_temp_dir, s, S(win_temp_dir));
              dbg(2, "scheduler(): win_temp_dir is %s\n", win_temp_dir);
              Tcl_SetResult(interp, s, TCL_VOLATILE);
            }
@@ -1064,8 +1064,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"hilight"))
     {
       cmd_found = 1;
-      enable_drill = 0;
-      if(argc >=3 && !strcmp(argv[2], "drill")) enable_drill = 1;
+      xctx->enable_drill = 0;
+      if(argc >=3 && !strcmp(argv[2], "drill")) xctx->enable_drill = 1;
       hilight_net(0);
       /* draw_hilight_net(1); */
       redraw_hilights(0);
@@ -1946,7 +1946,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
           my_strdup(371, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
           hash_all_names(inst);
-          new_prop_string(inst, ptr,0, dis_uniq_names); /* set new prop_ptr */
+          new_prop_string(inst, ptr,0, disable_unique_names); /* set new prop_ptr */
           my_strdup2(517, &newname, get_tok_value(xctx->inst[inst].prop_ptr, "name",0));
           my_strdup2(372, &xctx->inst[inst].instname, newname);
    
@@ -2142,7 +2142,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       tcleval("info exists sim");
       if(tclresult()[0] == '1') exists = 1;
-      enable_drill = 0;
+      xctx->enable_drill = 0;
       if(exists) {
         viewer = atol(tclgetvar("sim(spicewave,default)"));
         my_snprintf(tcl_str, S(tcl_str), "sim(spicewave,%d,name)", viewer);
@@ -2179,7 +2179,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       #endif
       if(!strcmp(argv[2],"no_undo")) {
         int s = atoi(argv[3]);
-        no_undo=s;
+        xctx->no_undo=s;
       }
       else if(!strcmp(argv[2],"no_draw")) {
         int s = atoi(argv[3]);
@@ -2252,9 +2252,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else if(!strcmp(argv[2],"disable_unique_names")) {
         if(!strcmp(argv[3],"1")) {
-          dis_uniq_names=1;
+          disable_unique_names=1;
         } else {
-          dis_uniq_names=0;
+          disable_unique_names=0;
         }
       }
       else if(!strcmp(argv[2],"incr_hilight")) {
@@ -2399,9 +2399,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xctx->prep_hi_structs=0;
         if(!strcmp(argv[3], "name")) hash_all_names(inst);
         if(argc >= 5) {
-          new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], argv[4]),fast, dis_uniq_names);
+          new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], argv[4]),fast, disable_unique_names);
         } else {/* assume argc == 4 , delete attribute */
-          new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], NULL),fast, dis_uniq_names);
+          new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], NULL),fast, disable_unique_names);
         }
         my_strdup2(367, &xctx->inst[inst].instname, get_tok_value(xctx->inst[inst].prop_ptr, "name",0));
 
@@ -2520,7 +2520,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xRect boundbox;
       int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
       cmd_found = 1;
-      enable_drill=0;
+      xctx->enable_drill=0;
       if(!big) calc_drawing_bbox(&boundbox, 2);
       clear_all_hilights();
       /* undraw_hilight_net(1); */

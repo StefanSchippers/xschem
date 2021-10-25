@@ -304,14 +304,14 @@ int callback(int event, int mx, int my, KeySym key,
    if(key==' ') {
      if(xctx->ui_state & STARTWIRE) { /*  & instead of == 20190409 */
        new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
-       manhattan_lines++;
-       manhattan_lines %=3;
+       xctx->manhattan_lines++;
+       xctx->manhattan_lines %=3;
        new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
 
      } else if(xctx->ui_state==STARTLINE) {
        new_line(RUBBER|CLEAR);
-       manhattan_lines++;
-       manhattan_lines %=3;
+       xctx->manhattan_lines++;
+       xctx->manhattan_lines %=3;
        new_line(RUBBER);
      } else {
        if(xctx->semaphore<2) {
@@ -480,17 +480,17 @@ int callback(int event, int mx, int my, KeySym key,
    if(key == '='  && (state &ControlMask))              /* toggle fill rectangles */
    {
     int x;
-    fill++;
-    if(fill==3) fill=0;
+    xctx->fill_pattern++;
+    if(xctx->fill_pattern==3) xctx->fill_pattern=0;
 
-    if(fill==1) {
+    if(xctx->fill_pattern==1) {
      tcleval("alert_ { Stippled pattern fill} {}");
      for(x=0;x<cadlayers;x++) {
        if(fill_type[x]==1) XSetFillStyle(display,gcstipple[x],FillSolid);
        else XSetFillStyle(display,gcstipple[x],FillStippled);
      }
     }
-    else if(fill==2) {
+    else if(xctx->fill_pattern==2) {
      tcleval("alert_ { solid pattern fill} {}");
      for(x=0;x<cadlayers;x++)
       XSetFillStyle(display,gcstipple[x],FillSolid);
@@ -568,7 +568,7 @@ int callback(int event, int mx, int my, KeySym key,
     tcleval("set constrained_move 0" );
     constrained_move=0;
     xctx->last_command=0;
-    manhattan_lines = 0;
+    xctx->manhattan_lines = 0;
     dbg(1, "callback(): Escape: ui_state=%ld\n", xctx->ui_state);
     if(xctx->ui_state & STARTMOVE)
     {
@@ -646,7 +646,7 @@ int callback(int event, int mx, int my, KeySym key,
     char n[30];
     xctx->rectcolor = key - '0'+4;
     my_snprintf(n, S(n), "%d", xctx->rectcolor);
-    Tcl_VarEval(interp, "xschem set xctx->rectcolor ", n, "; reconfigure_layers_button", NULL);
+    Tcl_VarEval(interp, "xschem set rectcolor ", n, NULL);
     dbg(1, "callback(): new color: %d\n",color_index[xctx->rectcolor]);
     break;
    }
@@ -958,7 +958,7 @@ int callback(int event, int mx, int my, KeySym key,
                                                         /* with 'propag=' prop set on pins */
    {
     if(xctx->semaphore >= 2) break;
-    enable_drill=1;
+    xctx->enable_drill=1;
     hilight_net(0);
     redraw_hilights(0);
     /* draw_hilight_net(1); */
@@ -967,7 +967,7 @@ int callback(int event, int mx, int my, KeySym key,
    if(key=='k' && state==0)                             /* hilight net */
    {
     if(xctx->semaphore >= 2) break;
-    enable_drill=0;
+    xctx->enable_drill=0;
     hilight_net(0);
     redraw_hilights(0);
     /* draw_hilight_net(1); */
@@ -978,7 +978,7 @@ int callback(int event, int mx, int my, KeySym key,
     xRect boundbox;
     int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
     if(xctx->semaphore >= 2) break;
-    enable_drill=0;
+    xctx->enable_drill=0;
     if(!big) calc_drawing_bbox(&boundbox, 2);
     clear_all_hilights();
     /* undraw_hilight_net(1); */
@@ -1000,7 +1000,7 @@ int callback(int event, int mx, int my, KeySym key,
      if(xctx->semaphore >= 2) break;
      tcleval("info exists sim");
      if(tclresult()[0] == '1') exists = 1;
-     enable_drill = 0;
+     xctx->enable_drill = 0;
      if(exists) {
        tool = atol(tclgetvar("sim(spicewave,default)"));
        my_snprintf(str, S(str), "sim(spicewave,%d,name)", tool);

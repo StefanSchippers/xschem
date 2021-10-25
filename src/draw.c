@@ -1130,7 +1130,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
      XDrawArc(display, xctx->save_pixmap, gc[c], xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
    }
 
-   if(fill && fill_type[c]){
+   if(xctx->fill_pattern && fill_type[c]){
      if(arc_fill) {
        if(draw_window)
          XFillArc(display, xctx->window, gcstipple[c], xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
@@ -1160,7 +1160,7 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
  double x1,y1,x2,y2;
 
  if(!has_x) return;
- if(!fill || !fill_type[c]) return;
+ if(!xctx->fill_pattern || !fill_type[c]) return;
  if(what & NOW)
  {
   x1=X_TO_SCREEN(rectx1);
@@ -1314,7 +1314,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   if(draw_window) XDrawLines(display, xctx->window, gc[c], p, points, CoordModeOrigin);
   if(draw_pixmap)
     XDrawLines(display, xctx->save_pixmap, gc[c], p, points, CoordModeOrigin);
-  if(fill && fill_type[c]){
+  if(xctx->fill_pattern && fill_type[c]){
     if(poly_fill && (x[0] == x[points-1]) && (y[0] == y[points-1])) {
       if(draw_window) XFillPolygon(display, xctx->window, gcstipple[c], p, points, Polygontype, CoordModeOrigin);
       if(draw_pixmap)

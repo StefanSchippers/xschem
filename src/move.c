@@ -932,7 +932,7 @@ void copy_objects(int what)
         /* the newpropcnt argument is zero for the 1st call and used in  */
         /* new_prop_string() for cleaning some internal caches. */
         if(!newpropcnt) hash_all_names(xctx->instances);
-        new_prop_string(xctx->instances, xctx->inst[n].prop_ptr,newpropcnt++, dis_uniq_names);
+        new_prop_string(xctx->instances, xctx->inst[n].prop_ptr,newpropcnt++, disable_unique_names);
         my_strdup2(235, &xctx->inst[xctx->instances].instname,
                     get_tok_value(xctx->inst[xctx->instances].prop_ptr, "name", 0));
         xctx->instances++;

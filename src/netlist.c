@@ -407,7 +407,7 @@ void netlist_options(int i)
 
   str = get_tok_value(xctx->inst[i].prop_ptr, "hiersep", 0);
   if(str[0]) {
-    my_snprintf(hiersep, S(hiersep), "%s", str);
+    my_snprintf(xctx->hiersep, S(xctx->hiersep), "%s", str);
   }
 }
 

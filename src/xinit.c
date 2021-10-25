@@ -364,6 +364,7 @@ void free_xschem_data()
   for(i=0;i<CADMAXHIER;i++) my_free(1139, &xctx->sch_path[i]);
   my_free(1099, &xctx->gridpoint);
   my_free(1214, &xctx->biggridpoint);
+  my_free(1121, &xctx->active_layer);
   my_free(269, &xctx);
 }
 
@@ -446,6 +447,7 @@ void alloc_xschem_data()
   xctx->rx1 = xctx->rx2 = xctx->ry1 = xctx->ry2 = 0.0;
   xctx->move_rot = 0;
   xctx->move_flip = 0;
+  xctx->manhattan_lines = 0;
   xctx->x1 = xctx->y_1 = xctx->x2 = xctx->y_2 = xctx->deltax = xctx->deltay = 0.0;
   xctx->movelastsel = 0;
   xctx->rotatelocal=0;
@@ -521,6 +523,13 @@ void alloc_xschem_data()
   xctx->sel_array=my_calloc(619, xctx->maxsel, sizeof(Selected));
   xctx->biggridpoint=(XSegment*)my_calloc(1213, CADMAXGRIDPOINTS,sizeof(XSegment));
   xctx->gridpoint=(XPoint*)my_calloc(608, CADMAXGRIDPOINTS,sizeof(XPoint));
+  xctx->n_active_layers = 0;
+  xctx->active_layer=my_calloc(563, cadlayers, sizeof(int));
+  xctx->enable_drill = 0;
+  xctx->pending_fullzoom = 0;
+  my_strncpy(xctx->hiersep, ".", S(xctx->hiersep));
+  xctx->no_undo = 0;
+  xctx->fill_pattern = 1;
 }
 
 void alloc_data()
@@ -533,7 +542,6 @@ void alloc_data()
  gc=my_calloc(638, cadlayers, sizeof(GC));
  gcstipple=my_calloc(639, cadlayers, sizeof(GC));
  fill_type=my_calloc(640, cadlayers, sizeof(int));
- active_layer=my_calloc(563, cadlayers, sizeof(int));
  pixdata=my_calloc(641, cadlayers, sizeof(char*));
  for(i=0;i<cadlayers;i++)
  {
@@ -591,7 +599,6 @@ void xwin_exit(void)
    my_free(1102, &pixdata[i]);
  }
  my_free(1120, &fill_type);
- my_free(1121, &active_layer);
  my_free(1122, &pixdata);
  my_free(1123, &enable_layer);
  my_free(1135, &gc);
@@ -1035,9 +1042,9 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
         }
         if(create_pixmap) {
           #ifdef __unix__
-          xctx->save_pixmap = XCreatePixmap(display, xctx->window, xctx->xschem_w, xctx->xschem_h, depth);
+          xctx->save_pixmap = XCreatePixmap(display, xctx->window, xctx->xschem_w, xctx->xschem_h, screendepth);
           #else
-          xctx->save_pixmap = Tk_GetPixmap(display, xctx->window, xctx->xschem_w, xctx->xschem_h, depth);
+          xctx->save_pixmap = Tk_GetPixmap(display, xctx->window, xctx->xschem_w, xctx->xschem_h, screendepth);
           #endif
           xctx->gctiled = XCreateGC(display,xctx->window,0L, NULL);
           XSetTile(display,xctx->gctiled, xctx->save_pixmap);
@@ -1048,9 +1055,9 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
         }
       }
     }
-    if(pending_fullzoom) {
+    if(xctx->pending_fullzoom) {
       zoom_full(0, 0, 1, 0.97);
-      pending_fullzoom=0;
+      xctx->pending_fullzoom=0;
     }
     dbg(1, "resetwin(): Window reset\n");
   } /* end if(has_x) */
@@ -1380,8 +1387,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
  init_pixdata();
  init_color_array(0.0);
  my_snprintf(tmp, S(tmp), "%d",debug_var);
- tclsetvar("tcl_debug",tmp );
- tclsetvar("menu_tcl_debug",debug_var ? "1" : "0" );
+ tclsetvar("debug_var",tmp );
+ tclsetvar("menu_debug_var",debug_var ? "1" : "0" );
  if(flat_netlist) tclsetvar("flat_netlist","1");
 
  xctx->xschem_w = CADWIDTH;
@@ -1472,8 +1479,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
     screen_number = Tk_ScreenNumber(mainwindow);
     colormap = Tk_Colormap(mainwindow);
-    depth = Tk_Depth(mainwindow);
-    dbg(1, "Tcl_AppInit(): screen depth: %d\n",depth);
+    screendepth = Tk_Depth(mainwindow);
+    dbg(1, "Tcl_AppInit(): screen depth: %d\n",screendepth);
     visual = Tk_Visual(mainwindow);
 
     /*
@@ -1615,7 +1622,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  zoom_full(0, 0, 1, 0.97);   /* Necessary to tell xschem the
                   * initial area to display
                   */
- pending_fullzoom=1;
+ xctx->pending_fullzoom=1;
  if(do_netlist) {
    if(debug_var>=1) {
      if(flat_netlist)

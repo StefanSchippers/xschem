@@ -1,6 +1,6 @@
 /*
     scconfig - gui lib detection - lesstif
-    Copyright (C) 2015  Tibor Palinkas
+    Copyright (C) 2015,2021  Tibor Palinkas
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -66,4 +66,37 @@ int find_lesstif2(const char *name, int logdepth, int fatal, const char *call, c
 	}
 	return try_fail(logdepth, node);
 
+}
+
+int find_lesstif2_exthi(const char *name, int logdepth, int fatal, const char *call, const char *arg)
+{
+	const char *test_c =
+		NL "#include <Xm/MainW.h>"
+		NL "int main(int argc, char *argv[])"
+		NL "{"
+		NL "	return XmEXTERNAL_HIGHLIGHT;"
+		NL "}"
+		NL;
+
+	const char *node = "libs/gui/lesstif2/exthi";
+//	char **cflags,  *cflags_arr[]  = {"", "-I/opt/X11/include", NULL};
+//	char **ldflags, *ldflags_arr[] = {"-lXm -lX11", "-lXm -lXt", "-L/opt/X11/lib -lXm -lXt  -lX11", NULL}; /* note: -lXt must be after -lXm else lesstif fails to init with runtime error */
+	const char *cflags, *ldflags;
+	(void) call;  /* not used */
+	(void) arg;  /* not used */
+
+	if (require("cc/cc", logdepth, fatal) || require("libs/gui/lesstif2", logdepth, fatal))
+		return 1;
+
+	report("Checking for lesstif2 XmEXTERNAL_HIGHLIGHT... ");
+	logprintf(logdepth, "find_lesstif_exthi:\n");
+	logdepth++;
+
+	cflags = get("libs/gui/lesstif2/cflags");
+	ldflags = get("libs/gui/lesstif2/ldflags");
+
+	if (try_icl_norun(logdepth, node, test_c, NULL, cflags, ldflags) != 0)
+		return 0;
+
+	return try_fail(logdepth, node);
 }

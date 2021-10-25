@@ -388,7 +388,7 @@ void set_inst_prop(int i)
   my_strdup2(70, &xctx->inst[i].instname, get_tok_value(ptr, "name",0));
   if(xctx->inst[i].instname[0]) {
     my_strdup(101, &tmp, xctx->inst[i].prop_ptr);
-    new_prop_string(i, tmp, 0, dis_uniq_names);
+    new_prop_string(i, tmp, 0, disable_unique_names);
     my_free(724, &tmp);
   }
 }
@@ -1031,7 +1031,7 @@ void update_symbol(const char *result, int x)
                      /* set name of current inst */
       if(!pushed) { push_undo(); pushed=1;}
       if(!k) hash_all_names(i);
-      new_prop_string(i, ptr, k, dis_uniq_names); /* set new prop_ptr */
+      new_prop_string(i, ptr, k, disable_unique_names); /* set new prop_ptr */
     }
     my_strdup2(90, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name",0));
 

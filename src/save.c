@@ -1143,7 +1143,7 @@ void push_undo(void)
     FILE *fd;
     char diff_name[PATH_MAX+100]; /* overflow safe 20161122 */
 
-    if(no_undo)return;
+    if(xctx->no_undo)return;
     dbg(1, "push_undo(): cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
        xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
 
@@ -1153,7 +1153,7 @@ void push_undo(void)
     fd = popen(diff_name,"w");
     if(!fd) {
       fprintf(errfp, "push_undo(): failed to open write pipe %s\n", diff_name);
-      no_undo=1;
+      xctx->no_undo=1;
       return;
     }
     #elif HAS_PIPE==1
@@ -1190,7 +1190,7 @@ void push_undo(void)
     fd = fopen(diff_name,"w");
     if(!fd) {
       fprintf(errfp, "push_undo(): failed to open undo file %s\n", diff_name);
-      no_undo=1;
+      xctx->no_undo=1;
       return;
     }
     #endif
@@ -1218,7 +1218,7 @@ void pop_undo(int redo)
   FILE *diff_fd;
   #endif
 
-  if(no_undo)return;
+  if(xctx->no_undo)return;
   if(redo) {
     if(xctx->cur_undo_ptr < xctx->head_undo_ptr) {
       dbg(1, "pop_undo(): redo; cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
@@ -1247,7 +1247,7 @@ void pop_undo(int redo)
   fd=popen(diff_name, "r");
   if(!fd) {
     fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);
-    no_undo=1;
+    xctx->no_undo=1;
     return;
   }
   #elif HAS_PIPE==1
@@ -1281,7 +1281,7 @@ void pop_undo(int redo)
   fd=fopen(diff_name, "r");
   if(!fd) {
     fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);
-    no_undo=1;
+    xctx->no_undo=1;
     return;
   }
   #endif

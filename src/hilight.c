@@ -97,22 +97,22 @@ void free_hilight_hash(void) /* remove the whole hash table  */
 }
 
 /* by default: 
- * active_layer[0] = 7
- * active_layer[1] = 8
- * active_layer[2] = 10  if 9 is disabled it is skipped
+ * xctx->active_layer[0] = 7
+ * xctx->active_layer[1] = 8
+ * xctx->active_layer[2] = 10  if 9 is disabled it is skipped
  * ...
  * if a layer is disabled (not viewable) it is skipped
- * n_active_layers is the total number of layers for hilights.
- * standard xschem conf: cadlayers=22, n_active_layers=15 if no disabled layers.
+ * xctx->n_active_layers is the total number of layers for hilights.
+ * standard xschem conf: cadlayers=22, xctx->n_active_layers=15 if no disabled layers.
  */
 int get_color(int value)
 {
   int x;
 
   if(value < 0) return (-value) % cadlayers ;
-  if(n_active_layers) {
-    x = value%(n_active_layers);
-    return active_layer[x];
+  if(xctx->n_active_layers) {
+    x = value%(xctx->n_active_layers);
+    return xctx->active_layer[x];
   } else {
     return cadlayers > 5 ? 5 : cadlayers -1; /* desperate attempt to return a decent color */
   }
@@ -121,7 +121,7 @@ int get_color(int value)
 
 void incr_hilight_color(void)
 {
-  xctx->hilight_color = (xctx->hilight_color + 1) % (n_active_layers * cadlayers);
+  xctx->hilight_color = (xctx->hilight_color + 1) % (xctx->n_active_layers * cadlayers);
 }
 
 /* print all highlight signals which are not ports (in/out/inout). */
@@ -148,7 +148,7 @@ void create_plot_cmd(void)
   my_strncpy(rawfile, tclresult(), S(rawfile));
   tcleval("info exists sim");
   if(tclresult()[0] == '1') exists = 1;
-  enable_drill = 0;
+  xctx->enable_drill = 0;
   if(exists) {
     viewer = atol(tclgetvar("sim(spicewave,default)"));
     my_snprintf(tcl_str, S(tcl_str), "sim(spicewave,%d,name)", viewer);
@@ -296,14 +296,12 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
   struct hilight_hashentry *entry, *saveptr, **preventry;
   char *ptr;
   int s ;
-  int depth=0;
  
   if(token==NULL) return NULL;
   hashcode=hi_hash(token);
   index=hashcode % HASHSIZE;
   entry=xctx->hilight_table[index];
   preventry=&xctx->hilight_table[index];
-  depth=0;
   while(1) {
     if( !entry ) { /* empty slot */
       int lent = (strlen(token) + 8) & ~(size_t) 0x7; /* align to 8 byte boundaries */
@@ -341,7 +339,6 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
     }
     preventry=&entry->next; /* descend into the list. */
     entry = entry->next;
-    depth++;
   }
 }
 
@@ -1082,7 +1079,7 @@ void propagate_hilights(int set, int clear, int mode)
     }
   }
   xctx->hilight_nets = there_are_hilights();
-  if(xctx->hilight_nets && enable_drill && set) drill_hilight(mode);
+  if(xctx->hilight_nets && xctx->enable_drill && set) drill_hilight(mode);
 }
 
 /* use negative values to bypass the normal hilight color enumeration */

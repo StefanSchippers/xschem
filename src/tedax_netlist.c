@@ -40,7 +40,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
  statusmsg("",2);  /* clear infowindow */
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
  bus_char[0] = bus_char[1] = '\0';
- hiersep[0]='.'; hiersep[1]='\0';
+ xctx->hiersep[0]='.'; xctx->hiersep[1]='\0';
  str_tmp = tclgetvar("bus_replacement_char");
  if(str_tmp && str_tmp[0] && str_tmp[1]) {
    bus_char[0] = str_tmp[0];
@@ -130,7 +130,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
 
  /* print globals nodes found in netlist 28032003 */
  record_global_node(0,fd,NULL);
- fprintf(fd, "__HIERSEP__ %s\n", hiersep);
+ fprintf(fd, "__HIERSEP__ %s\n", xctx->hiersep);
 
  dbg(1, "global_tedax_netlist(): starting awk on netlist!\n");
 

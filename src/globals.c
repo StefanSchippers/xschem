@@ -131,9 +131,9 @@ double cadsnap = CADSNAP;
 int draw_grid=1;
 int big_grid_points=0;
 int rainbow_colors=0;
-int dis_uniq_names=0; /* if set allow instances with duplicate names */
+int disable_unique_names=0; /* if set allow instances with duplicate names */
 int persistent_command=0; /* remember last command 20181022 */
-int autotrim_wires=0;
+int autotrim_wires = 0;
 int color_ps=-1;
 int transparent_svg=-1;
 int only_probes=0;
@@ -164,7 +164,6 @@ int en_hilight_conn_inst = 0;
 int help=0; /* help option set to global scope, printing help is deferred */
             /* when configuration ~/.schem has been read 20140406 */
 int no_draw=0;
-int manhattan_lines=0;
 FILE *errfp;
 char *filename=NULL; /* filename given on cmdline */
 char user_conf_dir[PATH_MAX];
@@ -185,7 +184,6 @@ int debug_var=-10;  /* will be set to 0 in xinit.c */
 int tcp_port = 0;
 int do_print=0;
 int no_readline=0;
-int fill=1; /* filled rectangles */
 int draw_pixmap=1; /* use pixmap for double buffer */
 int draw_window=0;
 int text_svg=1; /* use <text> svg element for text instead of xschem's internal vector font */
@@ -197,9 +195,7 @@ int draw_dots=1;
 int draw_single_layer=-1;
 int yyparse_error = 0;
 int *enable_layer;
-int n_active_layers=0;
-int *active_layer;
-int depth;
+int screendepth;
 int *fill_type; /* for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
 char **color_array;
 char *xschem_executable=NULL;
@@ -209,13 +205,9 @@ int do_netlist=0;  /* set by process_options if user wants netllist from cmdline
 int do_simulation=0;
 int do_waves=0;
 int netlist_count=0; /* netlist counter incremented at any cell being netlisted */
-char hiersep[20]=".";
 char bus_char[3] = {0, 0, 0};
-int pending_fullzoom=0;
 int constrained_move = 0;
 double color_dim=0.0;
-int no_undo=0;
-int enable_drill=0; /* pass net hilights through components with 'propag=' property set on pins */
 int batch_mode = 0; /* no tcl console if set; batch mode */
 int show_erc=1;
 

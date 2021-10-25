@@ -245,7 +245,7 @@ extern char win_temp_dir[PATH_MAX];
 #define ABORT  512 /*  used in move/copy_objects for aborting without unselecting */
 #define THICK 1024 /*  used to draw thick lines (buses) */
 #define ROTATELOCAL 2048 /*  rotate each selected object around its own anchor point 20171208 */
-#define CLEAR 4096 /* used in new_wire to clear previous rubber when switching manhattan_lines */
+#define CLEAR 4096 /* used in new_wire to clear previous rubber when switching xctx->manhattan_lines */
 /* #define DRAW 8192 */  /* was used in bbox() to draw things by using XCopyArea after setting clip rectangle */
 #define HILIGHT 8192  /* used when calling draw_*symbol_outline() for hilighting instead of normal draw */
 #define FONTWIDTH 20
@@ -605,6 +605,7 @@ typedef struct {
   double rx1, rx2, ry1, ry2;
   short move_rot;
   short move_flip;
+  int manhattan_lines;
   double x1, y_1, x2, y_2, deltax, deltay;
   int movelastsel;
   short rotatelocal;
@@ -625,6 +626,13 @@ typedef struct {
   XSegment *biggridpoint;
   XPoint *gridpoint;
   char plotfile[PATH_MAX];
+  int *active_layer;
+  int n_active_layers;
+  int enable_drill;
+  int pending_fullzoom;
+  char hiersep[20];
+  int no_undo;
+  int fill_pattern; /*  fill rectangles */
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
@@ -702,18 +710,55 @@ struct instentry {
 
 /* GLOBAL VARIABLES */
 extern Xschem_ctx *xctx;
+/*********** Variables backed in xschem.tcl ***********/
+extern int cadlayers; 
+extern int has_x; 
+extern int rainbow_colors; 
+extern int persistent_command; 
+extern int autotrim_wires; 
+extern int disable_unique_names; 
+extern int change_lw; /* allow change line width*/
+extern int incr_hilight; 
+extern int auto_hilight; 
+extern int big_grid_points; 
+extern int draw_grid; 
+extern double cadgrid; 
+extern double cadsnap; 
+extern int draw_window; 
+extern unsigned short enable_stretch; 
+extern int split_files; 
+extern char *netlist_dir; 
+extern int sym_txt; 
+extern int fullscreen; 
+extern int en_hilight_conn_inst; 
+extern int transparent_svg; 
+extern int color_ps; 
+extern int only_probes; 
+extern int unzoom_nodrift; 
+extern int spiceprefix; 
+extern int netlist_show; 
+extern double nocairo_vert_correct;
+extern double nocairo_font_xscale;
+extern double nocairo_font_yscale;
+extern char svg_font_name[80];
+extern int top_subckt;
+extern int constrained_move;
+extern int netlist_type;
+extern int dark_colorscheme;
+extern int flat_netlist;
+extern int hide_symbols; /* draw only a bounding box for component instances and @symname, @name texts */
+extern int show_pin_net_names;
+extern int *enable_layer;
+extern double cairo_font_scale; /*  default: 1.0, allows to adjust font size */
+extern char cairo_font_name[80];
+extern double cairo_font_line_spacing; /*  allows to change line spacing: default: 1.0 */
+extern double cairo_vert_correct;
+extern int debug_var;
+/*********** End of variables backed in xschem.tcl ***********/
 extern int help;
 extern char *cad_icon[];
-extern int manhattan_lines;
-extern int cadlayers;
-extern int *active_layer;
-extern int *enable_layer;
-extern int n_active_layers;
 extern int do_print;
-extern int has_x;
 extern int no_draw;
-extern int sym_txt;
-extern int rainbow_colors;
 extern FILE *errfp;
 extern int no_readline;
 extern char *filename;
@@ -724,36 +769,18 @@ extern int load_initfile;
 extern char rcfile[PATH_MAX];
 extern char *tcl_command;
 extern char tcl_script[PATH_MAX];
-extern int persistent_command;
-extern int autotrim_wires;
-extern int dis_uniq_names;
-
 extern int tcp_port;
-extern int debug_var;
 extern char **color_array;
 extern unsigned int color_index[];
-extern int change_lw; /*  allow change line width */
-extern int thin_text;
-extern int incr_hilight;
-extern int auto_hilight;
-extern int fill; /*  fill rectangles */
-extern int draw_grid;
-extern int big_grid_points;
 extern int text_svg;
 extern int text_ps;
-extern double cadgrid;
 extern double cadhalfdotsize;
-extern int draw_pixmap; /*  pixmap used as 2nd buffer */
-extern int draw_window;
+extern int draw_pixmap; /* pixmap used as 2nd buffer */
 extern XEvent xev;
 extern KeySym key;
-extern unsigned short enable_stretch;
 extern unsigned int button;
 extern unsigned int state; /*  status of shift,ctrl etc.. */
-extern int currentsch;
 extern char *xschem_version_string;
-extern int split_files;
-extern char *netlist_dir;
 extern char initial_netlist_name[PATH_MAX];
 extern char bus_char[];
 extern int max_undo;
@@ -761,49 +788,19 @@ extern int draw_dots;
 extern int draw_single_layer;
 extern int yyparse_error;
 extern char *xschem_executable;
-extern int depth;
+extern int screendepth;
 extern int *fill_type; /* 20171117 for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
 extern Tcl_Interp *interp;
-extern double cadsnap;
 extern double *character[256];
-extern int constrained_move;
-extern int netlist_show;
-extern int flat_netlist;
-extern int netlist_type;
 extern int do_netlist;
 extern int do_simulation;
 extern int do_waves;
 extern int netlist_count;
-extern int top_subckt;
-extern int spiceprefix;
-extern char hiersep[20];
 extern int quit;
 extern int show_erc;
-extern int color_ps;
-extern int transparent_svg;
-extern int only_probes;
-extern int pending_fullzoom;
-extern int fullscreen;
-extern int unzoom_nodrift;
-extern int dark_colorscheme;
 extern double color_dim;
-extern int no_undo;
-extern int enable_drill;
-extern size_t get_tok_size;
 extern int batch_mode; /* no TCL console */
-extern int hide_symbols; /* draw only a bounding box for component instances and @symname, @name texts */
-extern int show_pin_net_names;
-extern int en_hilight_conn_inst;
-extern char svg_font_name[80];
-/* CAIRO specific global variables */
-extern char cairo_font_name[80];
-extern double cairo_font_scale; /*  default: 1.0, allows to adjust font size */
-extern double nocairo_font_xscale;
-extern double nocairo_font_yscale;
-extern double cairo_font_line_spacing; /*  allows to change line spacing: default: 1.0 */
-extern double cairo_vert_correct;
-extern double nocairo_vert_correct;
-extern const char fopen_read_mode[];
+extern const char fopen_read_mode[]; /* "r" on unix, "rb" on windows */
 
 /* X11 specific globals */
 extern Colormap colormap;
@@ -1099,7 +1096,7 @@ extern void *my_calloc(int id, size_t nmemb, size_t size);
 extern void my_free(int id, void *ptr);
 extern size_t my_strcat(int id, char **, const char *);
 extern const char *subst_token(const char *s, const char *tok, const char *new_val);
-extern void new_prop_string(int i, const char *old_prop,int fast, int dis_uniq_names);
+extern void new_prop_string(int i, const char *old_prop,int fast, int disable_unique_names);
 extern void hash_name(char *token, int remove);
 extern void hash_all_names(int n);
 extern void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2);
