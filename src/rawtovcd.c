@@ -83,7 +83,9 @@ void read_binary_block()
   }
   /* read binary block */
   for(p = 0; p < npoints; p++) {
-    fread(values[p], sizeof(double), nvars, fd);
+    if(fread(values[p], sizeof(double), nvars, fd) != nvars) {
+       fprintf(stderr, "Warning: binary block is not of correct size\n");
+    }
   }
   if(debug) fprintf(stderr, "done reading binary block\n");
 }

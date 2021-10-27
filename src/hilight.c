@@ -187,7 +187,7 @@ void create_plot_cmd(void)
             xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
           if(idx > 9) {
             idx = 2;
-            fprintf(fd, str);
+            fprintf(fd, "%s", str);
             fprintf(fd, "\n");
             first = 1;
             my_free(758, &str);
@@ -272,7 +272,7 @@ void create_plot_cmd(void)
     }
   }
   if(viewer == NGSPICE) {
-    fprintf(fd, str);
+    fprintf(fd, "%s", str);
     fprintf(fd, "\nremcirc\n.endc\n");
     my_free(761, &str);
     fclose(fd);

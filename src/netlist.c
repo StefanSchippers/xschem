@@ -1131,7 +1131,11 @@ int sym_vs_sch_pins()
               load_ascii_string( &tmp, fd);
               break;
             case 'A':
-              fscanf(fd, "%d",&tmpi);
+              if(fscanf(fd, "%d",&tmpi)< 1) {
+                 fprintf(errfp,"sym_vs_sch_pins(): WARNING:  missing fields for ARC object, ignoring\n");
+                 read_line(fd, 0);
+                 break;
+              }
               if(fscanf(fd, "%lf %lf %lf %lf %lf ",&tmpd, &tmpd, &tmpd, &tmpd, &tmpd) < 5) {
                 fprintf(errfp,"sym_vs_sch_pins(): WARNING:  missing fields for ARC object, ignoring\n");
                 read_line(fd, 0);

@@ -709,10 +709,10 @@ void create_ps(char **psfile, int what)
     fprintf(fd, "%%%%BeginProlog\n\n");
   
     for(i = 0; i < sizeof(utf8_enc)/sizeof(char *); i++) {
-      fprintf(fd, utf8_enc[i]);
+      fprintf(fd, "%s", utf8_enc[i]);
     }
     for(i = 0; i < sizeof(utf8)/sizeof(char *); i++) {
-      fprintf(fd, utf8[i]);
+      fprintf(fd, "%s", utf8[i]);
     }
   
     fprintf(fd, "/Times /Times chararr recode\n");
