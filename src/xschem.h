@@ -503,7 +503,6 @@ struct simdata_inst {
 struct simdata {
                  struct simdata_inst *inst;
                  int ninst;
-                 int valid;
                };
 
 typedef struct {

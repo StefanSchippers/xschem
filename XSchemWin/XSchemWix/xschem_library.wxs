@@ -5153,8 +5153,17 @@
           <Component Id="cmp426A74C263890863DC8540F7058A2731" Guid="{8E849159-C50A-4076-A6AB-F84DE1BB6FC4}">
             <File Id="fil50053FEAED0B5C43DD23198A35739240" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\xschem_simulator\switch_level_sim.sch" />
           </Component>
+          <Component Id="cmp794D5EC7A9EFE69C6AEF7C7DB271BEE4" Guid="{79BED4F4-8261-48AC-856B-A65B4C7C276A}">
+            <File Id="fil8DB79A4B1B0073CAEE02D9D39E24F5E2" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\xschem_simulator\xnor2_1.sym" />
+          </Component>
           <Component Id="cmp01FA016C7A06153D92A48F784F4E97D3" Guid="{72DEDB2F-FB91-40BF-9942-317015139E25}">
             <File Id="filBB6C0129C2118D89AF549CC912F5CE03" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\xschem_simulator\xor2_1.sym" />
+          </Component>
+          <Component Id="cmp38F2C36AC06CCC68013550D6F8718674" Guid="{C81F20FD-E456-4E15-B9EE-2856BD87C58F}">
+            <File Id="fil9BF8BC1E26CFF2D7A35D9DBF79C2FA83" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\xschem_simulator\xor3_1.sym" />
+          </Component>
+          <Component Id="cmp9F74642CB225B7B69D7A25EE0F414638" Guid="{F2DA11C4-3A5D-4938-BA73-EB65F33AA6DA}">
+            <File Id="filEAC02C8EDF64658D26DCCD11E2D1FD7C" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\xschem_simulator\xor4_1.sym" />
           </Component>
         </Directory>
         <Directory Id="dirA7AD036E3AB3964E59E93B21605B84C2" Name="xTAG">
@@ -6921,7 +6930,10 @@
       <ComponentRef Id="cmp50F9C8C97A18DCAC9366F1710001D03B" />
       <ComponentRef Id="cmp3F34431DD86B1F87D6BC74ED0CAA9EA7" />
       <ComponentRef Id="cmp426A74C263890863DC8540F7058A2731" />
+      <ComponentRef Id="cmp794D5EC7A9EFE69C6AEF7C7DB271BEE4" />
       <ComponentRef Id="cmp01FA016C7A06153D92A48F784F4E97D3" />
+      <ComponentRef Id="cmp38F2C36AC06CCC68013550D6F8718674" />
+      <ComponentRef Id="cmp9F74642CB225B7B69D7A25EE0F414638" />
       <ComponentRef Id="cmp86C7FEAC33E42F537A218CAB30888F71" />
       <ComponentRef Id="cmp6BE2319A78975693F24ED898D6D51AB0" />
       <ComponentRef Id="cmp9A4A4B44E465C09D9F0ADB4C270F04BE" />

@@ -1271,12 +1271,15 @@ int eval_logic_expr(int inst, int output)
   return stack[0];
 }
 
+
+/* fast access to symbol "function#" and symbol pin "clock" and "goto" attributes
+ * to minimize get_token_value() lookups in simulation loops
+ */
 void create_simdata(void)
 {
   int i, j;
   const char *str;
   free_simdata();
-  xctx->simdata.inst = NULL;
   my_realloc(60, &xctx->simdata.inst, xctx->instances * sizeof(struct simdata_inst));
   xctx->simdata.ninst = xctx->instances;
   for(i = 0; i < xctx->instances; i++) {
@@ -1297,7 +1300,6 @@ void create_simdata(void)
       xctx->simdata.inst[i].pin[j].clock = str[0] ? str[0] - '0' : -1;
     }
   }
-  xctx->simdata.valid = 1;
 }
 
 void free_simdata(void)
@@ -1315,7 +1317,6 @@ void free_simdata(void)
     }
     my_free(1222, &xctx->simdata.inst);
   }
-  xctx->simdata.valid = 0;
 }
 
 #define DELAYED_ASSIGN
@@ -1441,7 +1442,7 @@ void logic_set(int value, int num)
  
   tclsetvar("tclstop", "0");
   prepare_netlist_structs(0);
-  if(!xctx->simdata.valid) create_simdata();
+  if(!xctx->simdata.inst) create_simdata();
   rebuild_selected_array();
   newval = value;
   if(!xctx->no_draw && !big) {
