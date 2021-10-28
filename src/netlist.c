@@ -652,7 +652,7 @@ void prepare_netlist_structs(int for_netlist)
   if (for_netlist>0 && xctx->prep_net_structs) return;
   else if (!for_netlist && xctx->prep_hi_structs) return;
   /* delete instance pins spatial hash, wires spatial hash, node_hash, wires and inst nodes.*/
-  else delete_netlist_structs();
+  delete_netlist_structs();
   free_simdata(); /* invalidate simulation cache */
   dbg(1, "prepare_netlist_structs(): extraction\n");
   if(xctx->netlist_count == 0 ) startlevel = xctx->currsch;

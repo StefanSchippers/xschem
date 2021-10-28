@@ -1127,7 +1127,7 @@ int eval_logic_expr(int inst, int output)
   char *str;
   int res = 0;
 
-  str = xctx->simdata.inst[inst].pin[output].function;
+  str = xctx->simdata[inst].pin[output].function;
   dbg(1, "eval_logic_expr(): inst=%d pin=%d function=%s\n", inst, output, str ? str : "NULL");
   if(!str) return 2; /* no logic function defined, return LOGIC_X */
   while(str[pos]) {
@@ -1275,29 +1275,30 @@ int eval_logic_expr(int inst, int output)
 /* fast access to symbol "function#" and symbol pin "clock" and "goto" attributes
  * to minimize get_token_value() lookups in simulation loops
  */
+
 void create_simdata(void)
 {
   int i, j;
   const char *str;
   free_simdata();
-  my_realloc(60, &xctx->simdata.inst, xctx->instances * sizeof(struct simdata_inst));
-  xctx->simdata.ninst = xctx->instances;
+  my_realloc(60, &xctx->simdata, xctx->instances * sizeof(struct simdata));
+  xctx->simdata_ninst =  xctx->instances;
   for(i = 0; i < xctx->instances; i++) {
     xSymbol *symbol = xctx->inst[i].ptr + xctx->sym;
     int npin = symbol->rects[PINLAYER];
-    xctx->simdata.inst[i].pin = NULL;
-    my_realloc(61, &xctx->simdata.inst[i].pin, npin * sizeof(struct simdata_pin));
-    xctx->simdata.inst[i].npin = npin;
+    xctx->simdata[i].pin = NULL;
+    my_realloc(61, &xctx->simdata[i].pin, npin * sizeof(struct simdata_pin));
+    xctx->simdata[i].npin = npin;
     for(j = 0; j < npin; j++) {
       char function[20];
-      xctx->simdata.inst[i].pin[j].function=NULL;
-      xctx->simdata.inst[i].pin[j].go_to=NULL;
+      xctx->simdata[i].pin[j].function=NULL;
+      xctx->simdata[i].pin[j].go_to=NULL;
       my_snprintf(function, S(function), "function%d", j);
-      my_strdup(717, &xctx->simdata.inst[i].pin[j].function, get_tok_value(symbol->prop_ptr, function, 0));
-      my_strdup(963, &xctx->simdata.inst[i].pin[j].go_to, 
+      my_strdup(717, &xctx->simdata[i].pin[j].function, get_tok_value(symbol->prop_ptr, function, 0));
+      my_strdup(963, &xctx->simdata[i].pin[j].go_to, 
                 get_tok_value(symbol->rect[PINLAYER][j].prop_ptr, "goto", 0));
       str = get_tok_value(symbol->rect[PINLAYER][j].prop_ptr, "clock", 0);
-      xctx->simdata.inst[i].pin[j].clock = str[0] ? str[0] - '0' : -1;
+      xctx->simdata[i].pin[j].clock = str[0] ? str[0] - '0' : -1;
     }
   }
 }
@@ -1306,20 +1307,21 @@ void free_simdata(void)
 {
   int i, j;
 
-  if(xctx->simdata.inst) {
-    for(i = 0; i < xctx->simdata.ninst; i++) {
-      int npin = xctx->simdata.inst[i].npin;
+  if(xctx->simdata) {
+    for(i = 0; i < xctx->simdata_ninst; i++) { /* can not use xctx->instances if a new sch is loaded */
+      int npin = xctx->simdata[i].npin;
       for(j = 0; j < npin; j++) {
-        my_free(1219, &xctx->simdata.inst[i].pin[j].function);
-        my_free(1220, &xctx->simdata.inst[i].pin[j].go_to);
+        my_free(1219, &xctx->simdata[i].pin[j].function);
+        my_free(1220, &xctx->simdata[i].pin[j].go_to);
       }
-      my_free(1221, &xctx->simdata.inst[i].pin);
+      my_free(1221, &xctx->simdata[i].pin);
     }
-    my_free(1222, &xctx->simdata.inst);
+    my_free(1222, &xctx->simdata);
   }
+  xctx->simdata_ninst = 0;
 }
 
-#define DELAYED_ASSIGN
+#define DELAYED_ASSIGN /* fixes bidirectional devices (avoid infinite loops) */
 void propagate_logic()
 {
   /* char *propagated_net=NULL; */
@@ -1335,20 +1337,21 @@ void propagate_logic()
   #endif
 
   prepare_netlist_structs(0);
+  if(!xctx->simdata) create_simdata();
   while(1) {
     found=0;
-    for(i=0; i<xctx->simdata.ninst; i++) {
-      npin = xctx->simdata.inst[i].npin;
+    for(i=0; i<xctx->instances; i++) {
+      npin = xctx->simdata[i].npin;
       #ifdef DELAYED_ASSIGN
       my_realloc(778, &newval_arr, npin * sizeof(int));
       for(j=0; j<npin;j++) newval_arr[j] = -10000;
       #endif
       for(j=0; j<npin;j++) {
-        if(xctx->simdata.inst && xctx->simdata.inst[i].pin && xctx->simdata.inst[i].pin[j].go_to) {
+        if(xctx->simdata && xctx->simdata[i].pin && xctx->simdata[i].pin[j].go_to) {
           int n = 1;
           const char *propag;
           int clock_pin, clock_val, clock_oldval;
-          clock_pin = xctx->simdata.inst[i].pin[j].clock;
+          clock_pin = xctx->simdata[i].pin[j].clock;
           if(clock_pin != -1) {
             /* no bus_hilight_lookup --> no bus expansion */
             entry = hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP); /* clock pin */
@@ -1370,15 +1373,15 @@ void propagate_logic()
                 }
             }
           }
-          dbg(1, "propagate_logic(): inst=%d pin %d, goto=%s\n", i,j, xctx->simdata.inst[i].pin[j].go_to);
+          dbg(1, "propagate_logic(): inst=%d pin %d, goto=%s\n", i,j, xctx->simdata[i].pin[j].go_to);
           while(1) {
-            propag = find_nth(xctx->simdata.inst[i].pin[j].go_to, ',', n);
+            propag = find_nth(xctx->simdata[i].pin[j].go_to, ',', n);
             n++;
             if(!propag[0]) break;
             propagate = atoi(propag);
             if(propagate < 0 || propagate >= npin) {
                dbg(0, "Error: inst: %s, pin %d, goto set to %s <<%d>>\n",
-                 xctx->inst[i].instname, j, xctx->simdata.inst[i].pin[j].go_to, propagate);
+                 xctx->inst[i].instname, j, xctx->simdata[i].pin[j].go_to, propagate);
                  continue;
             }
             if(!xctx->inst[i].node[propagate]) {
@@ -1442,7 +1445,7 @@ void logic_set(int value, int num)
  
   tclsetvar("tclstop", "0");
   prepare_netlist_structs(0);
-  if(!xctx->simdata.inst) create_simdata();
+  if(!xctx->simdata) create_simdata();
   rebuild_selected_array();
   newval = value;
   if(!xctx->no_draw && !big) {

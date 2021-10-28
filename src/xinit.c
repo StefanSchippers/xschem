@@ -406,8 +406,8 @@ void alloc_xschem_data()
   xctx->maxsel = 0;
   xctx->prep_net_structs = 0;
   xctx->prep_hi_structs = 0;
-  xctx->simdata.inst = NULL;
-  xctx->simdata.ninst = 0;
+  xctx->simdata = NULL;
+  xctx->simdata_ninst = 0;
   xctx->prep_hash_inst = 0;
   xctx->prep_hash_wires = 0;
   xctx->modified = 0;

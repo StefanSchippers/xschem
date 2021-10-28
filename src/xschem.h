@@ -495,15 +495,10 @@ struct simdata_pin {
                   short clock;
                  };
  
-struct simdata_inst {
+struct simdata {
                   struct simdata_pin *pin;
                   int npin;
                  };
-
-struct simdata {
-                 struct simdata_inst *inst;
-                 int ninst;
-               };
 
 typedef struct {
   xWire *wire;
@@ -564,7 +559,8 @@ typedef struct {
   int prep_hi_structs;
   int prep_hash_inst;
   int prep_hash_wires;
-  struct simdata simdata;
+  struct simdata *simdata;
+  int simdata_ninst;
   int modified;
   int semaphore;
   int get_tok_size;
