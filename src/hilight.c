@@ -1357,7 +1357,7 @@ void propagate_logic()
       xctx->simdata[i].pin[j].value=-10000;
   
   while(1) {
-    dbg(0, "propagate_logic(): main loop iteration\n");
+    dbg(1, "propagate_logic(): main loop iteration\n");
     found=0;
     for(i=0; i<xctx->instances; i++) {
       npin = xctx->simdata[i].npin;
@@ -1395,12 +1395,12 @@ void propagate_logic()
             if(!propag[0]) break;
             propagate = atoi(propag);
             if(propagate < 0 || propagate >= npin) {
-               dbg(0, "Error: inst: %s, pin %d, goto set to %s <<%d>>\n",
+               dbg(1, "Error: inst: %s, pin %d, goto set to %s <<%d>>\n",
                  xctx->inst[i].instname, j, xctx->simdata[i].pin[j].go_to, propagate);
                  continue;
             }
             if(!xctx->inst[i].node[propagate]) {
-              dbg(0, "Error: inst %s, output in %d unconnected\n", xctx->inst[i].instname, propagate);
+              dbg(1, "Error: inst %s, output in %d unconnected\n", xctx->inst[i].instname, propagate);
               break;
             }
             /* get net to propagate hilight to...*/
@@ -1418,7 +1418,7 @@ void propagate_logic()
             if(newval != 4 && xctx->simdata[i].pin[propagate].value != val ) {
               found=1; /* keep looping until no more nets are found. */
               xctx->simdata[i].pin[propagate].value = val;
-              dbg(0, "propagate_logic(): DRIVERS inst %s pin %d, net %s --> value %d\n", 
+              dbg(1, "propagate_logic(): DRIVERS inst %s pin %d, net %s --> value %d\n", 
                   xctx->inst[i].instname, j, xctx->inst[i].node[propagate], val);
             } 
           } /* while( ith-goto )  */
@@ -1435,15 +1435,15 @@ void propagate_logic()
           entry = hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP); 
           if(!entry || xctx->hilight_time != entry->time) {
             hilight_lookup(xctx->inst[i].node[j], xctx->simdata[i].pin[j].value, XINSERT);
-            dbg(0, "propagate_logic(): UPDATE1 inst %s pin %d, net %s --> value %d\n",
+            dbg(1, "propagate_logic(): UPDATE1 inst %s pin %d, net %s --> value %d\n",
                 xctx->inst[i].instname, j, xctx->inst[i].node[j], xctx->simdata[i].pin[j].value);
           } else if(entry->value != xctx->simdata[i].pin[j].value &&
                      xctx->simdata[i].pin[j].value != LOGIC_Z) {
             hilight_lookup(xctx->inst[i].node[j], xctx->simdata[i].pin[j].value, XINSERT);
-            dbg(0, "propagate_logic(): UPDATE2 inst %s pin %d, net %s --> value %d\n",
+            dbg(1, "propagate_logic(): UPDATE2 inst %s pin %d, net %s --> value %d\n",
                 xctx->inst[i].instname, j, xctx->inst[i].node[j], xctx->simdata[i].pin[j].value);
           } else {
-            dbg(0, "propagate_logic(): UPDATE3 inst %s pin %d, net %s --> value %d NOT assigned\n",
+            dbg(1, "propagate_logic(): UPDATE3 inst %s pin %d, net %s --> value %d NOT assigned\n",
                 xctx->inst[i].instname, j, xctx->inst[i].node[j], xctx->simdata[i].pin[j].value);
           }
         }

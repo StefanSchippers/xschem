@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -11,25 +11,21 @@ L 4 100 -1470 100 -1390 {}
 L 4 200 -1470 200 -1390 {}
 L 4 100 -1570 100 -1490 {}
 L 4 200 -1570 200 -1490 {}
-L 4 1710 -1620 1710 -1360 {}
-L 4 1710 -1360 1750 -1360 {}
-L 4 1750 -1370 1750 -1360 {}
-L 4 1750 -1370 1770 -1360 {}
-L 4 1750 -1350 1770 -1360 {}
-L 4 1750 -1360 1750 -1350 {}
-L 4 1710 -1600 1750 -1600 {}
-L 4 1750 -1610 1750 -1600 {}
-L 4 1750 -1610 1770 -1600 {}
-L 4 1750 -1590 1770 -1600 {}
-L 4 1750 -1600 1750 -1590 {}
+L 4 1710 -1540 1710 -1280 {}
+L 4 1710 -1280 1750 -1280 {}
+L 4 1750 -1290 1750 -1280 {}
+L 4 1750 -1290 1770 -1280 {}
+L 4 1750 -1270 1770 -1280 {}
+L 4 1750 -1280 1750 -1270 {}
+L 4 1710 -1520 1750 -1520 {}
+L 4 1750 -1530 1750 -1520 {}
+L 4 1750 -1530 1770 -1520 {}
+L 4 1750 -1510 1770 -1520 {}
+L 4 1750 -1520 1750 -1510 {}
 B 12 3920 -2840 4640 -1540 {}
 P 5 9 1800 -300 1800 -220 1790 -230 1810 -180 1830 -230 1820 -220 1820 -300 1810 -290 1800 -300 {fill=true}
 T {7 Segment Display driver
 and base-10 counter} 1540 -3130 0 0 2.5 2.5 {}
-T {Cyan: Uninitialized or unknown (X)} 3240 -1200 0 0 1.5 1.5 {layer=1}
-T {Signal colors:} 3160 -1300 0 0 1.5 1.5 {}
-T {Blue: Logic level low (0)} 3240 -1100 0 0 1.5 1.5 {layer=12}
-T {Red: Logic level high (1)} 3240 -1000 0 0 1.5 1.5 {layer=5}
 T {
       0 1 2 3 4 5 6 
 ======================
@@ -79,8 +75,12 @@ T {select this net and:
 - press '1' to set to logic '1' value
 - press '2' to set to logic 'X' value
 - press '3' to set to logic 'Z' value
-- press '4' to set to toggle 1->0, 0->1, X->X} 1600 -1900 0 0 0.7 0.7 {}
-T {Brown: High Impedance (Z)} 3240 -900 0 0 1.5 1.5 {layer=13}
+- press '4' to set to toggle 1->0, 0->1, X->X, Z->Z} 1650 -1860 0 0 0.7 0.7 {}
+T {Cyan: Uninitialized or unknown (X)} 3260 -1070 0 0 1.5 1.5 {layer=1}
+T {Signal colors:} 3180 -1170 0 0 1.5 1.5 {}
+T {Blue: Logic level low (0)} 3260 -970 0 0 1.5 1.5 {layer=12}
+T {Red: Logic level high (1)} 3260 -870 0 0 1.5 1.5 {layer=5}
+T {Brown: High Impedance (Z)} 3260 -770 0 0 1.5 1.5 {layer=13}
 N 2340 -2250 2340 -2170 { lab=#net1}
 N 2220 -2250 2340 -2250 { lab=#net1}
 N 2220 -2270 2220 -2250 { lab=#net1}
@@ -146,12 +146,12 @@ N 2580 -2610 2640 -2610 { lab=#net10}
 N 2580 -2430 2640 -2430 { lab=#net10}
 N 2580 -2250 2640 -2250 { lab=#net10}
 N 2580 -2070 2640 -2070 { lab=#net10}
-N 1910 -1600 3260 -1600 { lab=CLK}
+N 1910 -1520 3260 -1520 { lab=CLK}
 N 2290 -1920 2320 -1920 { lab=BNEXT[3]}
 N 2290 -1960 2320 -1960 { lab=BNEXT[1]}
 N 2290 -2000 2320 -2000 { lab=BNEXT[2]}
 N 3260 -2650 3430 -2650 { lab=CLK}
-N 3260 -2650 3260 -1600 { lab=CLK}
+N 3260 -2650 3260 -1520 { lab=CLK}
 N 2580 -2610 2580 -2430 { lab=#net10}
 N 2580 -2430 2580 -2250 { lab=#net10}
 N 2580 -2250 2580 -2070 { lab=#net10}
@@ -299,9 +299,9 @@ N 1170 -260 1230 -260 { lab=S[6]}
 N 3260 -2470 3430 -2470 { lab=CLK}
 N 3260 -2290 3430 -2290 { lab=CLK}
 N 3260 -2110 3430 -2110 { lab=CLK}
-N 1900 -1360 3320 -1360 { lab=CLEAR_}
+N 1900 -1280 3320 -1280 { lab=CLEAR_}
 N 3320 -2610 3430 -2610 { lab=CLEAR_}
-N 3320 -2610 3320 -1360 { lab=CLEAR_}
+N 3320 -2610 3320 -1280 { lab=CLEAR_}
 N 3320 -2430 3430 -2430 { lab=CLEAR_}
 N 3320 -2250 3430 -2250 { lab=CLEAR_}
 N 3320 -2070 3430 -2070 { lab=CLEAR_}
@@ -361,10 +361,10 @@ tclcommand="  set tclstop 0  ;# clear stop flag
 "
 }
 C {inv_2.sym} 2620 -1960 0 0 {name=x1 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {giant_label.sym} 1910 -1600 0 1 {name=l1 sig_type=std_logic lab=CLK text=CLK}
+C {giant_label.sym} 1910 -1520 0 1 {name=l1 sig_type=std_logic lab=CLK text=CLK}
 C {giant_label.sym} 2660 -1960 0 1 {name=l3 sig_type=std_logic lab=R text="RESET
 COUNTER"}
-C {giant_label.sym} 1900 -1360 0 1 {name=l4 sig_type=std_logic lab=CLEAR_ text="CLEAR (active low)"}
+C {giant_label.sym} 1900 -1280 0 1 {name=l4 sig_type=std_logic lab=CLEAR_ text="CLEAR (active low)"}
 C {segment.sym} 4560 -2230 0 0 {name=l6 sig_type=std_logic lab=S[3]}
 C {segment.sym} 4030 -2200 1 0 {name=l2 sig_type=std_logic lab=S[1]}
 C {segment.sym} 4530 -2200 3 1 {name=l5 sig_type=std_logic lab=S[2]}
@@ -372,8 +372,8 @@ C {segment.sym} 4560 -2810 0 0 {name=l7 sig_type=std_logic lab=S[0]}
 C {segment.sym} 4530 -2180 3 0 {name=l8 sig_type=std_logic lab=S[5]}
 C {segment.sym} 4030 -2180 1 1 {name=l9 sig_type=std_logic lab=S[4]}
 C {segment.sym} 4000 -1570 2 0 {name=l10 sig_type=std_logic lab=S[6]}
-C {ipin.sym} 1900 -1360 0 0 {name=p8 sig_type=std_logic lab=CLEAR_}
-C {ipin.sym} 1910 -1600 0 0 {name=p9 sig_type=std_logic lab=CLK}
+C {ipin.sym} 1900 -1280 0 0 {name=p8 sig_type=std_logic lab=CLEAR_}
+C {ipin.sym} 1910 -1520 0 0 {name=p9 sig_type=std_logic lab=CLK}
 C {o21ai_1.sym} 2400 -1960 0 0 {name=x2 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {lab_pin.sym} 2290 -1920 0 0 {name=l11 sig_type=std_logic lab=BNEXT[3]}
 C {lab_pin.sym} 2290 -2000 0 0 {name=l12 sig_type=std_logic lab=BNEXT[2]}
