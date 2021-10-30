@@ -1083,10 +1083,12 @@ void propagate_hilights(int set, int clear, int mode)
 }
 
 /* use negative values to bypass the normal hilight color enumeration */
-#define LOGIC_0 -12  /* 0 */
-#define LOGIC_1 -5   /* 1 */
-#define LOGIC_X -1   /* 2 */
-#define LOGIC_Z -13  /* 3 */
+#define LOGIC_0      -12  /* 0 */
+#define LOGIC_1      -5   /* 1 */
+#define LOGIC_X      -1   /* 2 */
+#define LOGIC_Z      -13  /* 3 */
+#define LOGIC_NOUP    0   /* 4 don't update */
+
 #define STACKMAX 200
 
 int get_logic_value(int inst, int n)
@@ -1127,6 +1129,7 @@ int eval_logic_expr(int inst, int output)
   char *str;
   int res = 0;
 
+  stack[0] = 2; /* default if nothing is calculated: LOGIC_X */
   str = xctx->simdata[inst].pin[output].function;
   dbg(1, "eval_logic_expr(): inst=%d pin=%d function=%s\n", inst, output, str ? str : "NULL");
   if(!str) return 2; /* no logic function defined, return LOGIC_X */
@@ -1167,6 +1170,19 @@ int eval_logic_expr(int inst, int output)
           sp--;
         }
         break;
+      case 'R': /* resolution operator, resolve output based on 2 inputs */
+        if(sp > 1) {
+          s = stack[sp - 1];
+          i = stack[sp - 2];
+          if(s == 2 || i == 2) res = 2;  /*    s 0 1 X Z   */
+          else if(s == 3)      res = i;  /*  i   -------   */
+          else if(i == 3)      res = s;  /*  0 | 0 X X 0   */
+          else if(i == s)      res = i;  /*  1 | X 1 X 1   */
+          else                 res = 2;  /*  X | X X X X   */
+          stack[sp - 2] = res;           /*  Z | 0 1 X Z   */
+          sp--;
+        }
+        break;
       case 'M': /* mux operator */
         if(sp > 2) {
           s = stack[sp - 1];
@@ -1180,6 +1196,8 @@ int eval_logic_expr(int inst, int output)
       case 'm': /* mux operator , lower priority*/
         if(sp > 2) {
           s = stack[sp - 1];
+          stack[sp - 3] = (stack[sp - 3] == 2) ? 4 : stack[sp - 3]; /* if LOGIC_X set to don't update */
+          stack[sp - 2] = (stack[sp - 2] == 2) ? 4 : stack[sp - 2]; /* if LOGIC_X set to don't update */
           if(s < 2) {
             stack[sp - 3] = (s == 0) ? stack[sp - 3]  : stack[sp - 2];
           }
@@ -1321,31 +1339,28 @@ void free_simdata(void)
   xctx->simdata_ninst = 0;
 }
 
-#define DELAYED_ASSIGN /* fixes bidirectional devices (avoid infinite loops) */
 void propagate_logic()
 {
   /* char *propagated_net=NULL; */
   int found, iter = 0 /* , mult */;
   int i, j, npin;
   int propagate;
-  int min_iter = 3; /* set to 3 to simulate up to 3 series bidirectional pass-devices */
   struct hilight_hashentry  *entry;
-  int val, oldval, newval;
-  static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z};
-  #ifdef DELAYED_ASSIGN
-  int *newval_arr = NULL;
-  #endif
+  int val, newval;
+  static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z, LOGIC_NOUP};
 
   prepare_netlist_structs(0);
   if(!xctx->simdata) create_simdata();
+
+  for(i=0; i<xctx->instances; i++)
+    for(j=0;j < xctx->simdata[i].npin; j++)
+      xctx->simdata[i].pin[j].value=-10000;
+  
   while(1) {
+    dbg(0, "propagate_logic(): main loop iteration\n");
     found=0;
     for(i=0; i<xctx->instances; i++) {
       npin = xctx->simdata[i].npin;
-      #ifdef DELAYED_ASSIGN
-      my_realloc(778, &newval_arr, npin * sizeof(int));
-      for(j=0; j<npin;j++) newval_arr[j] = -10000;
-      #endif
       for(j=0; j<npin;j++) {
         if(xctx->simdata && xctx->simdata[i].pin && xctx->simdata[i].pin[j].go_to) {
           int n = 1;
@@ -1361,11 +1376,11 @@ void propagate_logic()
                 if(clock_pin == 0) { /* clock falling edge */
                   if( clock_val == clock_oldval) continue;
                   if( clock_val != LOGIC_0) continue;
-                  if(entry && entry->time != xctx->hilight_time) continue;
+                  if(entry && (entry->time < xctx->hilight_time)) continue;
                 } else if(clock_pin == 1) { /* clock rising edge */
                   if( clock_val == clock_oldval) continue;
                   if( clock_val != LOGIC_1) continue;
-                  if(entry && entry->time != xctx->hilight_time) continue;
+                  if(entry && (entry->time < xctx->hilight_time)) continue;
                 } else if(clock_pin == 2) { /* set/clear active low */
                   if( clock_val != LOGIC_0) continue;
                 } else if(clock_pin == 3) { /* set/clear active high */
@@ -1397,40 +1412,49 @@ void propagate_logic()
              * dbg(1, "propagate_logic(): propagated_net=%s\n", propagated_net); */
             /* add net to highlight list */
             /* no bus_hilight_lookup --> no bus expansion */
-            entry = hilight_lookup(xctx->inst[i].node[propagate], 0, XLOOKUP); /* destination pin */
-            oldval = (!entry) ? LOGIC_X : entry->value;
             newval = eval_logic_expr(i, propagate);
             val =  map[newval];
-            if( newval !=4 && (iter < min_iter || (newval !=3 && oldval != val) )) {
-              dbg(1, "propagate_logic(): inst %d pin %d oldval %d newval %d to pin %s\n",
-                   i, j, oldval, val, xctx->inst[i].node[propagate]);
 
-              #ifdef DELAYED_ASSIGN
-              newval_arr[propagate] = val;
-              #else 
-              hilight_lookup(xctx->inst[i].node[propagate], val, XINSERT);
-              #endif
+            if(newval != 4 && xctx->simdata[i].pin[propagate].value != val ) {
               found=1; /* keep looping until no more nets are found. */
-            }
+              xctx->simdata[i].pin[propagate].value = val;
+              dbg(0, "propagate_logic(): DRIVERS inst %s pin %d, net %s --> value %d\n", 
+                  xctx->inst[i].instname, j, xctx->inst[i].node[propagate], val);
+            } 
+          } /* while( ith-goto )  */
+        } /* if((xctx->simdata && xctx->simdata[i].pin && xctx->simdata[i].pin[j].go_to) */
+      } /* for(j...) */
+    } /* for(i...) */
+
+    xctx->hilight_time++;
+
+    /* update all values */
+    for(i=0; i<xctx->instances; i++) {
+      for(j=0;j < xctx->simdata[i].npin; j++) {
+        if(xctx->simdata[i].pin[j].value != -10000) {
+          entry = hilight_lookup(xctx->inst[i].node[j], 0, XLOOKUP); 
+          if(!entry || xctx->hilight_time != entry->time) {
+            hilight_lookup(xctx->inst[i].node[j], xctx->simdata[i].pin[j].value, XINSERT);
+            dbg(0, "propagate_logic(): UPDATE1 inst %s pin %d, net %s --> value %d\n",
+                xctx->inst[i].instname, j, xctx->inst[i].node[j], xctx->simdata[i].pin[j].value);
+          } else if(entry->value != xctx->simdata[i].pin[j].value &&
+                     xctx->simdata[i].pin[j].value != LOGIC_Z) {
+            hilight_lookup(xctx->inst[i].node[j], xctx->simdata[i].pin[j].value, XINSERT);
+            dbg(0, "propagate_logic(): UPDATE2 inst %s pin %d, net %s --> value %d\n",
+                xctx->inst[i].instname, j, xctx->inst[i].node[j], xctx->simdata[i].pin[j].value);
+          } else {
+            dbg(0, "propagate_logic(): UPDATE3 inst %s pin %d, net %s --> value %d NOT assigned\n",
+                xctx->inst[i].instname, j, xctx->inst[i].node[j], xctx->simdata[i].pin[j].value);
           }
         }
-      } /* for(j...) */
-      #ifdef DELAYED_ASSIGN
-      for(j=0;j<npin;j++) {
-        if(newval_arr[j] != -10000) hilight_lookup(xctx->inst[i].node[j], newval_arr[j], XINSERT);
       }
-      #endif
-    } /* for(i...) */
-    xctx->hilight_time++;
+    }
     if(!found) break;
     /* get out from infinite loops (circuit is oscillating) */
     Tcl_VarEval(interp, "update; if {$::tclstop == 1} {return 1} else {return 0}", NULL);
     if( tclresult()[0] == '1') break;
     iter++;
   } /* while(1) */
-  #ifdef DELAYED_ASSIGN
-  my_free(779, &newval_arr);
-  #endif
   /* my_free(1222, &propagated_net); */
 }
 
@@ -1440,7 +1464,7 @@ void logic_set(int value, int num)
   char *type;
   xRect boundbox;
   int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
-  static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z};
+  static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z, LOGIC_NOUP};
   struct hilight_hashentry  *entry;
  
   tclsetvar("tclstop", "0");

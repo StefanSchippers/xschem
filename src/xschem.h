@@ -492,6 +492,7 @@ struct iterator_ctx {
 struct simdata_pin {
                   char *function;
                   char *go_to;
+                  int value;
                   short clock;
                  };
  

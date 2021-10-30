@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {type=primitive
 format="@name @@D @@GATE @@RESET_B @VGND @VNB @VPB @VPWR @@Q @prefix\\\\dlrtp_1"
@@ -21,7 +21,7 @@ B 5 -92.5 -22.5 -87.5 -17.5 {name=D dir=in
 goto=3}
 B 5 -92.5 -2.5 -87.5 2.5 {name=GATE dir=in 
 goto=3}
-B 5 -92.5 17.5 -87.5 22.5 {name=RESET_B dir=in }
+B 5 -92.5 17.5 -87.5 22.5 {name=RESET_B dir=in goto=3}
 B 5 87.5 -22.5 92.5 -17.5 {name=Q dir=out }
 T {@symname} 0 -6 0 0 0.3 0.3 {hcenter=true}
 T {@name} 75 -42 0 0 0.2 0.2 {}

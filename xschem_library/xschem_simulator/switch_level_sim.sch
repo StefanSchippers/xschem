@@ -296,14 +296,14 @@ C {p.sym} 300 -1210 3 0 {name=m12 model=cmosp w=wp l=lp  m=1 }
 C {lab_pin.sym} 300 -1230 3 1 {name=p34 lab=VCC}
 C {vdd.sym} 100 -1290 0 0 {name=l5 lab=VCC}
 C {gnd.sym} 100 -1030 0 0 {name=l6 lab=GND}
-C {n.sym} 650 -1110 1 0 {name=m13 model=cmosn w=wn l=lln m=1}
+C {n.sym} 650 -1110 3 1 {name=m13 model=cmosn w=wn l=lln m=1}
 C {lab_pin.sym} 650 -1090 1 1 {name=p35 lab=GND}
-C {p.sym} 650 -950 3 0 {name=m14 model=cmosp w=wp l=lp  m=1 }
+C {p.sym} 650 -950 1 1 {name=m14 model=cmosp w=wp l=lp  m=1 }
 C {lab_pin.sym} 650 -970 3 1 {name=p36 lab=VCC}
 C {inv_2.sym} 740 -1160 0 1 {name=x19 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {n.sym} 650 -1370 1 0 {name=m15 model=cmosn w=wn l=lln m=1}
+C {n.sym} 650 -1370 3 1 {name=m15 model=cmosn w=wn l=lln m=1}
 C {lab_pin.sym} 650 -1350 1 1 {name=p37 lab=GND}
-C {p.sym} 650 -1210 3 0 {name=m16 model=cmosp w=wp l=lp  m=1 }
+C {p.sym} 650 -1210 1 1 {name=m16 model=cmosp w=wp l=lp  m=1 }
 C {lab_pin.sym} 650 -1230 3 1 {name=p38 lab=VCC}
 C {vdd.sym} 850 -1290 0 1 {name=l7 lab=VCC}
 C {gnd.sym} 850 -1030 0 1 {name=l8 lab=GND}
@@ -312,7 +312,7 @@ C {switch-1.sym} 1370 -1260 0 0 {name=s4}
 C {inv_2.sym} 1370 -1190 0 0 {name=x20 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {diode_3.sym} 1270 -1280 0 0 {name=x12 VTH=0.6 RON=10 ROFF=1G}
 C {ipin.sym} 70 -170 0 0 { name=p19 lab=B }
-C {dev-1.sym} 1530 -620 0 1 {name=s3}
+C {dev-2.sym} 1530 -620 0 1 {name=s3}
 C {invert-1.sym} 1370 -620 0 0 {name=s1}
 C {dev-1.sym} 1210 -620 0 0 {name=s2}
 C {vdd.sym} 1080 -620 0 0 {name=l9 lab=VCC}
