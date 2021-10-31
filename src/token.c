@@ -38,11 +38,11 @@ enum status {TOK_BEGIN, TOK_TOKEN, TOK_SEP, TOK_VALUE, TOK_END, TOK_ENDTOK};
 
 unsigned int str_hash(const char *tok)
 {
-  register unsigned int hash = 14057;
-  register int c;
+  register unsigned int hash = 5381;
+  register unsigned int c;
 
   while ( (c = *tok++) )
-      hash = c + hash * 65599;
+      hash = hash * 33 + c;
   return hash;
 }
 
