@@ -24,20 +24,20 @@
 
 static unsigned int hi_hash(const char *tok)
 {
-  register unsigned int hash = 14057;
+  register unsigned int hash = 5381;
   register char *str;
   register int c;
 
   if(xctx->sch_path_hash[xctx->currsch] == 0) {
     str=xctx->sch_path[xctx->currsch];
     while ( (c = *str++) ) 
-      hash = c + hash * 65599;
+      hash += (hash << 5) + c;
     xctx->sch_path_hash[xctx->currsch] = hash;
   } else { 
     hash = xctx->sch_path_hash[xctx->currsch];
   }
   while ( (c = *tok++) )
-    hash = c + hash * 65599;
+    hash += (hash << 5) + c;
   return hash;
 }
 
@@ -46,6 +46,8 @@ static struct hilight_hashentry *free_hilight_entry(struct hilight_hashentry *en
   struct hilight_hashentry *tmp;
   while(entry) {
     tmp = entry->next;
+    my_free(1287, &entry->token); 
+    my_free(1288, &entry->path); 
     my_free(757, &entry);
     entry = tmp;
   }
@@ -304,16 +306,16 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
   preventry=&xctx->hilight_table[index];
   while(1) {
     if( !entry ) { /* empty slot */
-      int lent = (strlen(token) + 8) & ~(size_t) 0x7; /* align to 8 byte boundaries */
+      int lent = strlen(token) + 1;
       int lenp = strlen(xctx->sch_path[xctx->currsch]) + 1;
       if( what==XINSERT || what == XINSERT_NOREPLACE) { /* insert data */
-        s=sizeof( struct hilight_hashentry ) + lent + lenp;
+        s=sizeof( struct hilight_hashentry );
         ptr= my_malloc(137, s );
         entry=(struct hilight_hashentry *)ptr;
         entry->next = NULL;
-        entry->token = ptr + sizeof( struct hilight_hashentry );
+        entry->token = my_malloc(778, lent);
         memcpy(entry->token, token, lent);
-        entry->path = entry->token + lent;
+        entry->path = my_malloc(779, lenp);
         memcpy(entry->path, xctx->sch_path[xctx->currsch], lenp);
         entry->oldvalue = value-1000; /* no old value, set different value anyway*/
         entry->value = value;
@@ -328,6 +330,8 @@ struct hilight_hashentry *hilight_lookup(const char *token, int value, int what)
          !strcmp(xctx->sch_path[xctx->currsch], entry->path)  ) { /* found matching tok */
       if(what==XDELETE) {              /* remove token from the hash table ... */
         saveptr=entry->next;
+        my_free(1145, &entry->token);
+        my_free(1198, &entry->path);
         my_free(764, &entry);
         *preventry=saveptr;
       } else if(what == XINSERT ) {

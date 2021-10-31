@@ -42,7 +42,7 @@ unsigned int str_hash(const char *tok)
   register unsigned int c;
 
   while ( (c = *tok++) )
-      hash = hash * 33 + c;
+      hash += (hash << 5) + c;
   return hash;
 }
 
