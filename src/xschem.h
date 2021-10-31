@@ -1058,6 +1058,7 @@ extern void check_unique_names(int rename);
 
 extern void clear_instance_hash();
 
+extern unsigned int str_hash(const char *tok);
 extern void free_hash(struct hashentry **table);
 extern struct hashentry *str_hash_lookup(struct hashentry **table, const char *token, const char *value, int what);
 extern void free_int_hash(struct int_hashentry **table);

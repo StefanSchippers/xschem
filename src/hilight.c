@@ -24,7 +24,7 @@
 
 static unsigned int hi_hash(const char *tok)
 {
-  register unsigned int hash = 0;
+  register unsigned int hash = 14057;
   register char *str;
   register int c;
 

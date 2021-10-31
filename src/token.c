@@ -36,10 +36,9 @@ static struct inst_hashentry *table[HASHSIZE];
 
 enum status {TOK_BEGIN, TOK_TOKEN, TOK_SEP, TOK_VALUE, TOK_END, TOK_ENDTOK};
 
-/* calculate the hash function relative to string s */
-static unsigned int hash(char *tok)
+unsigned int str_hash(const char *tok)
 {
-  register unsigned int hash = 0;
+  register unsigned int hash = 14057;
   register int c;
 
   while ( (c = *tok++) )
@@ -84,7 +83,7 @@ static struct inst_hashentry *inst_hash_lookup(struct inst_hashentry **table, ch
   int s;
 
   if(token==NULL) return NULL;
-  hashcode=hash(token);
+  hashcode=str_hash(token);
   idx=hashcode % HASHSIZE;
   entry=table[idx];
   preventry=&table[idx];

@@ -549,18 +549,6 @@ void spice_netlist(FILE *fd, int spice_stop )
   if(!spice_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
 }
 
-/* calculate the hash function relative to string s */
-static unsigned int str_hash(const char *tok)
-{
-  unsigned int hash = 0;
-  int c;
-
-  while ( (c = *tok++) )
-      hash = c + (hash << 6) + (hash << 16) - hash;
-  return hash;
-}
-
-
 /* GENERIC PURPOSE HASH TABLE */
 
 

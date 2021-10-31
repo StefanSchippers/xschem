@@ -22,17 +22,6 @@
 
 #include "xschem.h"
 
-static unsigned int nh_hash(const char *tok)
-{
-  register unsigned int hash = 0;
-  register int c;
-
-  while ( (c = *tok++) )
-      hash = c + hash * 65599;
-  return hash;
-}
-
-
 struct node_hashentry **get_node_table_ptr(void)
 {
  return xctx->node_table;
@@ -226,7 +215,7 @@ struct node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
  else if(!strcmp(dir,"out") ) d.out=1;
  else if(!strcmp(dir,"inout") ) d.inout=1;
  d.port=port;
- hashcode=nh_hash(token);
+ hashcode=str_hash(token);
  index=hashcode % HASHSIZE;
  entry=xctx->node_table[index];
  preventry=&xctx->node_table[index];
