@@ -3315,6 +3315,11 @@ proc new_window {what {path {}} {filename {}}} {
     update
     xschem new_schematic create $path $filename
     set_bindings $path
+    bind $path <Expose> "new_window redraw $path" 
+    wm protocol $path WM_DELETE_WINDOW "new_window destroy $path"
+    bind $path <Enter> "new_window switch $path"
+  } elseif { $what eq {destroy_all}} {
+    xschem new_schematic destroy_all {} {}
   } elseif { $what eq {destroy}} {
     xschem new_schematic destroy $path {}
   } elseif { $what eq {switch}} {
@@ -3329,17 +3334,12 @@ proc test1 {} {
   xschem load [abs_sym_path rom8k.sch]
   new_window create .xx [abs_sym_path mos_power_ampli.sch]
   new_window create .yy [abs_sym_path solar_panel.sch]
-  bind .xx <Expose> { new_window redraw 1 } 
-  bind .yy <Expose> { new_window redraw 2 } 
-  bind .xx <Enter> { new_window switch 1 } 
-  bind .yy <Enter> { new_window switch 2 } 
-  bind .drw <Enter>  {+ new_window switch 0}
 }
 
 #### TEST MODE #####
 proc test1_end {} {
-  new_window destroy
-  new_window destroy
+  new_window destroy .xx
+  new_window destroy .yy
 }
 
 proc set_bindings {window_path} {

@@ -820,62 +820,125 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
   }
 }
 
+#define MAX_NEW_WINDOWS 20
 void new_schematic(const char *what, const char *tk_win_path, const char *filename)
 {
-  static int n = 0, cnt = 0;
-  static Xschem_ctx *save_xctx[20]; /* save pointer to current schematic context structure */
-  static Window new_window;
-  static Tk_Window tknew_window[20];
+  static int initialized = 0;
+  static int cnt = 0;
+  static Xschem_ctx *save_xctx[MAX_NEW_WINDOWS]; /* save pointer to current schematic context structure */
+  static Tk_Window tknew_window[MAX_NEW_WINDOWS];
+  int i, n;
+  Window new_window;
+  Tk_Window tkwin;
 
-  dbg(1, "------\n");
   if(!strcmp(what, "create")) {
     dbg(1, "new_schematic() create, save ctx\n");
-    if(cnt == 0) save_xctx[0] = xctx; /* save current schematic */
+    if(cnt == 0) {
+      for(i = 0; i < MAX_NEW_WINDOWS; i++) {
+        save_xctx[i] = NULL;
+        tknew_window[i] = NULL;
+      }
+      save_xctx[0] = xctx; /* save current schematic */
+      tknew_window[0] = Tk_NameToWindow(interp, ".drw", mainwindow);
+      if(!initialized) {
+        tcleval("bind .drw <Enter>  {+ new_window switch .drw}");
+        initialized = 1;
+      }
+    }
+    if(cnt + 1 >= MAX_NEW_WINDOWS) return; /* no more free slots */
     cnt++;
-    n = cnt;
-    tknew_window[cnt] = Tk_NameToWindow(interp, tk_win_path, mainwindow);
-    Tk_MakeWindowExist(tknew_window[cnt]);
-    new_window = Tk_WindowId(tknew_window[cnt]);
+    for(i = 1; i < MAX_NEW_WINDOWS; i++) { /* search 1st free slot */
+      if(save_xctx[i] == NULL) {
+        n = i;
+        break;
+      }
+    }
+ 
+    tknew_window[n] = Tk_NameToWindow(interp, tk_win_path, mainwindow);
+    Tk_MakeWindowExist(tknew_window[n]);
+    new_window = Tk_WindowId(tknew_window[n]);
     dbg(1, "new_schematic() draw\n");
     xctx = NULL;      /* reset for preview */
     alloc_xschem_data(); /* alloc data into xctx */
-    save_xctx[cnt] = xctx;
+    save_xctx[n] = xctx;
     dbg(1, "new_schematic() draw, load schematic\n");
     xctx->window = new_window;
-    resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
+    resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
     load_schematic(1,filename, 0);
     zoom_full(1, 0, 1, 0.97); /* draw */
   } else if(!strcmp(what, "redraw")) {
     Xschem_ctx *save;
-    save = xctx;
-    n = atoi(tk_win_path);
-    if(n <0) n = 0;
-    if(n > cnt) n = cnt;
-    xctx = save_xctx[n];
-    draw();
-    xctx = save;
-    set_modify(xctx->modified);
+    if(cnt) {
+      save = xctx;
+      tkwin =  Tk_NameToWindow(interp, tk_win_path, mainwindow);
+      for(i = 0; i < MAX_NEW_WINDOWS; i++) {
+        if(tkwin == tknew_window[i]) {
+          n = i;
+          break;
+        }
+      }
+      if(n >= 0 && n < MAX_NEW_WINDOWS) {
+        xctx = save_xctx[n];
+        draw();
+        xctx = save;
+        set_modify(xctx->modified); /* restore modified status */
+      }
+    }
   } else if(!strcmp(what, "destroy")) {
-    if(cnt > 0) {
+    if(cnt) {
       dbg(1, "new_schematic() destroy\n");
-      xctx = save_xctx[cnt];
-      delete_schematic_data();
-      save_xctx[cnt] = NULL;
-      Tk_DestroyWindow(tknew_window[cnt]);
-      cnt--;
-      n = 0;
+      tkwin =  Tk_NameToWindow(interp, tk_win_path, mainwindow);
+      for(i = 1; i < MAX_NEW_WINDOWS; i++) {
+        if(tkwin == tknew_window[i]) {
+          n = i;
+          break;
+        }
+      }
+      if(n >= 1 && n < MAX_NEW_WINDOWS) {
+        xctx = save_xctx[n];
+        delete_schematic_data();
+        save_xctx[n] = NULL;
+        Tk_DestroyWindow(tknew_window[n]);
+        tknew_window[n] = NULL;
+        xctx = save_xctx[0]; /* restore schematic */
+        set_modify(xctx->modified);
+        cnt--;
+      }
+    }
+  } else if(!strcmp(what, "destroy_all")) {
+    if(cnt) {
+      dbg(1, "new_schematic() destroy_all\n");
+      for(i = 1; i < MAX_NEW_WINDOWS; i++) {
+        if(tknew_window[i]) {
+          xctx = save_xctx[i];
+          delete_schematic_data();
+          save_xctx[i] = NULL;
+          Tk_DestroyWindow(tknew_window[i]);
+          tknew_window[i] = NULL;
+          cnt--;
+        }
+      }
       xctx = save_xctx[0]; /* restore schematic */
       set_modify(xctx->modified);
     }
   } else if(!strcmp(what, "switch")) {
-    n = atoi(tk_win_path);
-    if(n <0) n = 0;
-    if(n > cnt) n = cnt;
-    xctx = save_xctx[n];
-    change_linewidth(xctx->lw); /* restore correct linewidth since it was changed in preview
-                                 * need to do the XSetLineAttributes */
-    set_modify(xctx->modified);
-    /* draw();*/
+    if(cnt) {
+      dbg(1, "new_schematic() switch\n");
+      tkwin =  Tk_NameToWindow(interp, tk_win_path, mainwindow);
+      for(i = 0; i < MAX_NEW_WINDOWS; i++) {
+        if(tkwin == tknew_window[i]) {
+          n = i;
+          break;
+        }
+      }
+      if(n >= 0 && n < MAX_NEW_WINDOWS) {
+        xctx = save_xctx[n];
+        change_linewidth(xctx->lw);  /* restore correct linewidth since it was changed in preview
+                                      * need to do the XSetLineAttributes */
+        set_modify(xctx->modified);
+        /* draw();*/
+      }
+    }
   }
 }
 
