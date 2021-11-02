@@ -921,6 +921,7 @@ void update_symbol(const char *result, int x)
   i=xctx->sel_array[0].n;
   if(!result) {
    dbg(1, "update_symbol(): edit symbol prop aborted\n");
+   my_free(1289, &old_prop);
    return;
   }
   /* create new_prop updated attribute string */
@@ -1235,9 +1236,9 @@ void edit_property(int x)
       symbol_bbox(j, &xctx->inst[j].x1, &xctx->inst[j].y1,
                         &xctx->inst[j].x2, &xctx->inst[j].y2);
     }
-   } /* end for(j */
+   } /* end for(j...) */
    return;
- }
+ } /* if((xctx->lastsel==0 ) */
 
  switch(xctx->sel_array[0].type)
  {

@@ -823,7 +823,6 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
 #define MAX_NEW_WINDOWS 20
 void new_schematic(const char *what, const char *tk_win_path, const char *filename)
 {
-  static int initialized = 0;
   static int cnt = 0;
   static Xschem_ctx *save_xctx[MAX_NEW_WINDOWS]; /* save pointer to current schematic context structure */
   static Tk_Window tknew_window[MAX_NEW_WINDOWS];
@@ -840,10 +839,6 @@ void new_schematic(const char *what, const char *tk_win_path, const char *filena
       }
       save_xctx[0] = xctx; /* save current schematic */
       tknew_window[0] = Tk_NameToWindow(interp, ".drw", mainwindow);
-      if(!initialized) {
-        tcleval("bind .drw <Enter>  {+ new_window switch .drw}");
-        initialized = 1;
-      }
     }
     if(cnt + 1 >= MAX_NEW_WINDOWS) return; /* no more free slots */
     cnt++;
@@ -853,7 +848,6 @@ void new_schematic(const char *what, const char *tk_win_path, const char *filena
         break;
       }
     }
- 
     tknew_window[n] = Tk_NameToWindow(interp, tk_win_path, mainwindow);
     Tk_MakeWindowExist(tknew_window[n]);
     new_window = Tk_WindowId(tknew_window[n]);
@@ -866,24 +860,6 @@ void new_schematic(const char *what, const char *tk_win_path, const char *filena
     resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
     load_schematic(1,filename, 0);
     zoom_full(1, 0, 1, 0.97); /* draw */
-  } else if(!strcmp(what, "redraw")) {
-    Xschem_ctx *save;
-    if(cnt) {
-      save = xctx;
-      tkwin =  Tk_NameToWindow(interp, tk_win_path, mainwindow);
-      for(i = 0; i < MAX_NEW_WINDOWS; i++) {
-        if(tkwin == tknew_window[i]) {
-          n = i;
-          break;
-        }
-      }
-      if(n >= 0 && n < MAX_NEW_WINDOWS) {
-        xctx = save_xctx[n];
-        draw();
-        xctx = save;
-        set_modify(xctx->modified); /* restore modified status */
-      }
-    }
   } else if(!strcmp(what, "destroy")) {
     if(cnt) {
       dbg(1, "new_schematic() destroy\n");

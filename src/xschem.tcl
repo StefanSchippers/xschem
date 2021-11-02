@@ -3315,17 +3315,11 @@ proc new_window {what {path {}} {filename {}}} {
     update
     xschem new_schematic create $path $filename
     set_bindings $path
-    bind $path <Expose> "new_window redraw $path" 
-    wm protocol $path WM_DELETE_WINDOW "new_window destroy $path"
-    bind $path <Enter> "new_window switch $path"
+    wm protocol $path WM_DELETE_WINDOW "xschem new_schematic destroy $path {}"
   } elseif { $what eq {destroy_all}} {
     xschem new_schematic destroy_all {} {}
   } elseif { $what eq {destroy}} {
     xschem new_schematic destroy $path {}
-  } elseif { $what eq {switch}} {
-    xschem new_schematic switch $path {}
-  } elseif { $what eq {redraw}} {
-    xschem new_schematic redraw $path {}
   }
 }
 
@@ -3355,7 +3349,8 @@ global env has_x
   bind $window_path <Double-Button-1> {xschem callback -3 %x %y 0 %b 0 %s}
   bind $window_path <Double-Button-2> {xschem callback -3 %x %y 0 %b 0 %s}
   bind $window_path <Double-Button-3> {xschem callback -3 %x %y 0 %b 0 %s}
-  bind $window_path <Expose> {xschem callback %T %x %y 0 %w %h %s}
+  bind $window_path <Expose> "xschem new_schematic switch $window_path {} 
+                              xschem callback %T %x %y 0 %w %h %s"
   bind $window_path <Configure> {xschem windowid; xschem callback %T %x %y 0 %w %h 0}
   bind $window_path <ButtonPress> {
     xschem callback %T %x %y 0 %b 0 %s
@@ -3381,7 +3376,8 @@ global env has_x
   }
   bind $window_path <KeyRelease> {xschem callback %T %x %y %N 0 0 %s} ;# 20161118
   bind $window_path <Motion> {xschem callback %T %x %y 0 0 0 %s}
-  bind $window_path  <Enter> {xschem callback %T %x %y 0 0 0 0 }
+  bind $window_path  <Enter> "xschem new_schematic switch $window_path {}
+                              xschem callback %T %x %y 0 0 0 0"
   bind $window_path <Leave> {}
   bind $window_path <Unmap> {
    wm withdraw .infotext
