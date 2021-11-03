@@ -4191,7 +4191,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
    toolbar_create ToolJoinTrim "xschem trim_wires" "Join/Trim Wires"
   .menubar.tools.menu add command -label "Break wires at selected instance pins" \
      -command "xschem break_wires" -accelerator {!}
-   toolbar_create ToolBreak "xschem break_wires" "Break Wires"
+   toolbar_create ToolBreak "xschem break_wires" "Break wires at selected\ninstance pin intersections"
   .menubar.tools.menu add checkbutton -label "Auto Join/Trim Wires" -variable autotrim_wires \
      -command {
          xschem set autotrim_wires $autotrim_wires
