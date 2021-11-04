@@ -46,6 +46,36 @@ void redraw_w_a_l_r_p_rubbers(void)
     new_polygon(RUBBER);
   }
 }
+void abort_operation(void)
+{
+  xctx->no_draw = 0;
+  tcleval("set constrained_move 0" );
+  constrained_move=0;
+  xctx->last_command=0;
+  xctx->manhattan_lines = 0;
+  dbg(1, "abort_operation(): Escape: ui_state=%ld\n", xctx->ui_state);
+  if(xctx->ui_state & STARTMOVE)
+  {
+   move_objects(ABORT,0,0,0);
+   if(xctx->ui_state & START_SYMPIN) {
+     delete(1/* to_push_undo */);
+     xctx->ui_state &= ~START_SYMPIN;
+   }
+   return;
+  }
+  if(xctx->ui_state & STARTCOPY)
+  {
+   copy_objects(ABORT);
+   return;
+  }
+  if(xctx->ui_state & STARTMERGE) {
+    delete(1/* to_push_undo */);
+    set_modify(0); /* aborted merge: no change, so reset modify flag set by delete() */
+  }
+  xctx->ui_state = 0;
+  unselect_all();
+  draw();
+}
 
 void start_place_symbol(double mx, double my)
 {
@@ -581,37 +611,9 @@ int callback(int event, int mx, int my, KeySym key,
     new_polygon(ADD|END);
     break;
    }
-   if(key == XK_Escape )                        /* abort & redraw */
+   if(key == XK_Escape && xctx->semaphore < 2) /* abort & redraw */
    {
-    xctx->no_draw = 0;
-    if(xctx->semaphore >= 2) break;
-    tcleval("set constrained_move 0" );
-    constrained_move=0;
-    xctx->last_command=0;
-    xctx->manhattan_lines = 0;
-    dbg(1, "callback(): Escape: ui_state=%ld\n", xctx->ui_state);
-    if(xctx->ui_state & STARTMOVE)
-    {
-     move_objects(ABORT,0,0,0);
-     if(xctx->ui_state & START_SYMPIN) {
-       delete(1/* to_push_undo */);
-       xctx->ui_state &= ~START_SYMPIN;
-     }
-     break;
-    }
-    if(xctx->ui_state & STARTCOPY)
-    {
-     copy_objects(ABORT);
-     break;
-    }
-    if(xctx->ui_state & STARTMERGE) {
-      delete(1/* to_push_undo */);
-      set_modify(0); /* aborted merge: no change, so reset modify flag set by delete() */
-    }
-
-    xctx->ui_state = 0;
-    unselect_all();
-    draw();
+    abort_operation();
     break;
    }
    if(key=='z' && state == 0)                   /* zoom box */
@@ -1564,6 +1566,9 @@ int callback(int event, int mx, int my, KeySym key,
          xctx->my_double_save=xctx->mousey_snap;
          xctx->last_command = 0;
          new_arc(PLACE, 360.);
+         break;
+       case 21: /* abort & redraw */
+         abort_operation();
          break;
        default:
          break;

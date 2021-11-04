@@ -3211,6 +3211,10 @@ proc context_menu { } {
     button .ctxmenu.b8 -text {Paste} -padx 1 -pady 0 -anchor w -activebackground red \
       -font [subst $font] -command {set retval 8; destroy .ctxmenu}
   }
+  button .ctxmenu.b21 -text {Abort command} -padx 1 -pady 0 -anchor w -activebackground red \
+    -font [subst $font] -command {set retval 21; destroy .ctxmenu}
+
+  pack .ctxmenu.b21 -fill x -expand true
   if {!$selection} {
     pack .ctxmenu.b9  -fill x -expand true
   }
@@ -3260,7 +3264,7 @@ proc setup_toolbar {} {
 #    FileNewSym
     FileOpen
     FileSave
-    FileMerge
+#    FileMerge
     FileReload
     "---"
     EditUndo
@@ -3954,7 +3958,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   .menubar.file.menu add command -label "Save" -command "xschem save" -accelerator {Ctrl+S}
   toolbar_create FileSave "xschem save" "Save File"
   .menubar.file.menu add command -label "Merge" -command "xschem merge" -accelerator {Shift+B}
-  toolbar_create FileMerge "xschem merge" "Merge File"
+  # toolbar_create FileMerge "xschem merge" "Merge File"
   .menubar.file.menu add command -label "Reload" -accelerator {Alt+S} \
     -command {
      if { [string compare [tk_messageBox -type okcancel -message {Are you sure you want to reload?}] ok]==0 } {
