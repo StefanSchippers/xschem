@@ -27,6 +27,7 @@ BEGIN{ quote=0 }
 
 {
  pos=0
+ sub(/[ \t]*$/, "") # chop trailing white space
  if(NF==0) { print ""; next }
  first = substr($0,1,1)
 
