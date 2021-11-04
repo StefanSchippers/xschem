@@ -199,7 +199,8 @@ int callback(int event, int mx, int my, KeySym key,
  {
    if(debug_var>=2)
      if(event != MotionNotify) 
-       fprintf(errfp, "callback(): reentrant call of callback(), semaphore=%d\n", xctx->semaphore);
+       fprintf(errfp, "callback(): reentrant call of callback(), semaphore=%d, ev=%d, ui_state=%ld\n",
+               xctx->semaphore, event, xctx->ui_state);
    /* if(event==Expose) {
     *   XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, mx,my,button,aux,mx,my);
     *
@@ -219,6 +220,7 @@ int callback(int event, int mx, int my, KeySym key,
  switch(event)
  {
   case EnterNotify:
+    tcleval("catch {destroy .ctxmenu}");
     if(!xctx->sel_or_clip[0]) my_snprintf(xctx->sel_or_clip, S(xctx->sel_or_clip), "%s/%s", user_conf_dir, ".selection.sch");
 
     /* xschem window *sending* selected objects
