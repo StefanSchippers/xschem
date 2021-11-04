@@ -3192,21 +3192,21 @@ proc context_menu { } {
   if {!$selection} {
     button .ctxmenu.b14 -text {Go to upper level} -padx 1 -pady 0 -anchor w -activebackground red \
       -font [subst $font] -command {set retval 14; destroy .ctxmenu}
-    button .ctxmenu.b1 -text {Place symbol} -padx 1 -pady 0 -anchor w -activebackground red \
+    button .ctxmenu.b1 -text {Insert symbol} -padx 1 -pady 0 -anchor w -activebackground red \
       -font [subst $font] -command {set retval 1; destroy .ctxmenu}
-    button .ctxmenu.b2 -text {Place wire} -padx 1 -pady 0 -anchor w -activebackground red \
+    button .ctxmenu.b2 -text {Insert wire} -padx 1 -pady 0 -anchor w -activebackground red \
       -font [subst $font] -command {set retval 2; destroy .ctxmenu}
-    button .ctxmenu.b3 -text {Place line} -padx 1 -pady 0 -anchor w -activebackground red \
+    button .ctxmenu.b3 -text {Insert line} -padx 1 -pady 0 -anchor w -activebackground red \
       -font [subst $font] -command {set retval 3; destroy .ctxmenu}
-    button .ctxmenu.b4 -text {Place box} -padx 1 -pady 0 -anchor w -activebackground red \
+    button .ctxmenu.b4 -text {Insert box} -padx 1 -pady 0 -anchor w -activebackground red \
       -font [subst $font] -command {set retval 4; destroy .ctxmenu}
-    button .ctxmenu.b5 -text {Place polygon} -padx 1 -pady 0 -anchor w -activebackground red \
+    button .ctxmenu.b5 -text {Insert polygon} -padx 1 -pady 0 -anchor w -activebackground red \
       -font [subst $font] -command {set retval 5; destroy .ctxmenu}
-    button .ctxmenu.b19 -text {Place arc} -padx 1 -pady 0 -anchor w -activebackground red \
+    button .ctxmenu.b19 -text {Insert arc} -padx 1 -pady 0 -anchor w -activebackground red \
       -font [subst $font] -command {set retval 19; destroy .ctxmenu}
-    button .ctxmenu.b20 -text {Place circle} -padx 1 -pady 0 -anchor w -activebackground red \
+    button .ctxmenu.b20 -text {Insert circle} -padx 1 -pady 0 -anchor w -activebackground red \
       -font [subst $font] -command {set retval 20; destroy .ctxmenu}
-    button .ctxmenu.b6 -text {Place text} -padx 1 -pady 0 -anchor w -activebackground red \
+    button .ctxmenu.b6 -text {Insert text} -padx 1 -pady 0 -anchor w -activebackground red \
       -font [subst $font] -command {set retval 6; destroy .ctxmenu}
     button .ctxmenu.b8 -text {Paste} -padx 1 -pady 0 -anchor w -activebackground red \
       -font [subst $font] -command {set retval 8; destroy .ctxmenu}
