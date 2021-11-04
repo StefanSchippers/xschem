@@ -4378,7 +4378,6 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
      -command {edit_netlist [file tail [xschem get schname]]}
   .menubar.simulation.menu add command -label {Send highlighted nets to viewer} \
     -command {xschem create_plot_cmd} -accelerator Shift+J
-  .menubar.simulation.menu add checkbutton -label "Forced stop tcl scripts" -variable tclstop
   .menubar.simulation.menu add separator
   .menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" -variable top_subckt 
   .menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \

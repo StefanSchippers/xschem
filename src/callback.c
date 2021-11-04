@@ -615,9 +615,13 @@ int callback(int event, int mx, int my, KeySym key,
     new_polygon(ADD|END);
     break;
    }
-   if(key == XK_Escape && xctx->semaphore < 2) /* abort & redraw */
+   if(key == XK_Escape) /* abort & redraw */
    {
-    abort_operation();
+    if(xctx->semaphore < 2) {
+      abort_operation();
+    }
+    /* stuff that can be done reentrantly ... */
+    tclsetvar("tclstop", "1"); /* stop simulation if any running */
     break;
    }
    if(key=='z' && state == 0)                   /* zoom box */

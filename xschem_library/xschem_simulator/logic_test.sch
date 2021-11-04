@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -11,7 +11,7 @@ T {This example shows Xschem (very simple) simulation abilities
 Ctrl-Click here to start a simulation.
 Xschem will be only partially responsive during simulation.
 Simulation will terminate automatically after 30 iterations
-Otherwise go to Simulation ->Forced stop tcl scripts} 1340 -740 0 0 2 2 {}
+Otherwise press Escape key.} 1340 -740 0 0 2 2 {}
 T {Clicking an input net and pressing '0', '1', '2' or '3' will set the net to logic state 0,1,X,Z respectively} 960 -1030 0 0 2 2 {}
 T {9 Flip Flop Linear Feedback Shift Register} 1980 -3440 0 0 3 3 {}
 T {Cyan: Uninitialized or unknown (X)} 4930 -540 0 0 1.5 1.5 {layer=1}
@@ -525,7 +525,7 @@ descr="START SIMULATION"
 comment="
   This launcher Starts a simple interactive simulation of the LFSR
 "
-tclcommand="  set tclstop 0  ;# clear stop flag
+tclcommand="
   set count 0
   xschem select instance l23 ;# VSS
   xschem select instance p11 ;# CLEAR
