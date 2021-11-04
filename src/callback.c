@@ -1,4 +1,4 @@
-/* File: callback.c
+/* file: callback.c
  *
  * This file is part of XSCHEM,
  * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -45,6 +45,26 @@ void redraw_w_a_l_r_p_rubbers(void)
     if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
     new_polygon(RUBBER);
   }
+}
+
+void start_place_symbol(double mx, double my)
+{
+    xctx->last_command = 0;
+    rebuild_selected_array();
+    if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
+      Tcl_VarEval(interp, "set INITIALINSTDIR [file dirname {",
+           abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
+    } 
+    unselect_all();
+    xctx->mx_save = mx; xctx->my_save = my;
+    xctx->mx_double_save = xctx->mousex_snap;
+    xctx->my_double_save = xctx->mousey_snap;
+    if(place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/* to_push_undo */) ) {
+      xctx->mousey_snap = xctx->my_double_save;
+      xctx->mousex_snap = xctx->mx_double_save;
+      move_objects(START,0,0,0);
+      xctx->ui_state |= PLACE_SYMBOL;
+    }
 }
 
 void start_line(double mx, double my)
@@ -574,7 +594,7 @@ int callback(int event, int mx, int my, KeySym key,
     {
      move_objects(ABORT,0,0,0);
      if(xctx->ui_state & START_SYMPIN) {
-       delete(1/*to_push_undo*/);
+       delete(1/* to_push_undo */);
        xctx->ui_state &= ~START_SYMPIN;
      }
      break;
@@ -585,7 +605,7 @@ int callback(int event, int mx, int my, KeySym key,
      break;
     }
     if(xctx->ui_state & STARTMERGE) {
-      delete(1/*to_push_undo*/);
+      delete(1/* to_push_undo */);
       set_modify(0); /* aborted merge: no change, so reset modify flag set by delete() */
     }
 
@@ -650,10 +670,10 @@ int callback(int event, int mx, int my, KeySym key,
     dbg(1, "callback(): new color: %d\n",color_index[xctx->rectcolor]);
     break;
    }
-   if(key==XK_Delete && (xctx->ui_state & SELECTION) )        /* delete objects */
+   if(key==XK_Delete && (xctx->ui_state & SELECTION) ) /* delete selection */
    {
      if(xctx->semaphore >= 2) break;
-     delete(1/*to_push_undo*/);break;
+     delete(1/* to_push_undo */);break;
    }
    if(key==XK_Right)                    /* left */
    {
@@ -795,17 +815,17 @@ int callback(int event, int mx, int my, KeySym key,
     }
     break;
    }
-   if(key=='x' && state == ControlMask) /* cut into clipboard */
+   if(key=='x' && state == ControlMask) /* cut selection into clipboard */
    {
     if(xctx->semaphore >= 2) break;
     rebuild_selected_array();
     if(xctx->lastsel) {  /* 20071203 check if something selected */
       save_selection(2);
-      delete(1/*to_push_undo*/);
+      delete(1/* to_push_undo */);
     }
     break;
    }
-   if(key=='c' && state == ControlMask)   /* save clipboard */
+   if(key=='c' && state == ControlMask) /* copy selection into clipboard */
    {
      if(xctx->semaphore >= 2) break;
      rebuild_selected_array();
@@ -814,7 +834,7 @@ int callback(int event, int mx, int my, KeySym key,
      }
     break;
    }
-   if(key=='C' && state == ShiftMask)   /* place arc */
+   if(key=='C' && state == ShiftMask) /* place arc */
    {
      if(xctx->semaphore >= 2) break;
      xctx->mx_save = mx; xctx->my_save = my;
@@ -824,7 +844,7 @@ int callback(int event, int mx, int my, KeySym key,
      new_arc(PLACE, 180.);
      break;
    }
-   if(key=='C' && state == (ControlMask|ShiftMask))   /* place circle */
+   if(key=='C' && state == (ControlMask|ShiftMask)) /* place circle */
    {
      if(xctx->semaphore >= 2) break;
      xctx->mx_save = mx; xctx->my_save = my;
@@ -839,7 +859,7 @@ int callback(int event, int mx, int my, KeySym key,
      Tcl_VarEval(interp, "xschem load [lindex $recentfile 0]", NULL);
      break;
    }
-   if(key=='O' && state == ShiftMask)   /* Toggle light/dark colorscheme 20171113 */
+   if(key=='O' && state == ShiftMask)   /* toggle light/dark colorscheme 20171113 */
    {
      dark_colorscheme=!dark_colorscheme;
      tclsetvar("dark_colorscheme", dark_colorscheme ? "1" : "0");
@@ -848,17 +868,17 @@ int callback(int event, int mx, int my, KeySym key,
      draw();
      break;
    }
-   if(key=='v' && state == ControlMask)   /* load clipboard */
+   if(key=='v' && state == ControlMask)   /* paste from clipboard */
    {
     if(xctx->semaphore >= 2) break;
     merge_file(2,".sch");
     break;
    }
-   if(key=='Q' && state == (ControlMask | ShiftMask) ) /* view prop */
+   if(key=='Q' && state == (ControlMask | ShiftMask) ) /* view attributes */
    {
     edit_property(2);break;
    }
-   if(key=='q' && state==0)                     /* edit prop */
+   if(key=='q' && state==0) /* edit attributes */
    {
     if(xctx->semaphore >= 2) break;
     edit_property(0);
@@ -880,7 +900,7 @@ int callback(int event, int mx, int my, KeySym key,
     }
     break;
    }
-   if(key=='Q' && state == ShiftMask)                           /* edit prop with vim */
+   if(key=='Q' && state == ShiftMask) /* edit attributes in editor */
    {
     if(xctx->semaphore >= 2) break;
     edit_property(1);break;
@@ -893,26 +913,8 @@ int callback(int event, int mx, int my, KeySym key,
    if(key==XK_Insert || (key == 'I' && state == ShiftMask) ) /* insert sym */
    {
     if(xctx->semaphore >= 2) break;
-    xctx->last_command = 0;
-    #if 1 /* enable on request also in scheduler.c */
-    rebuild_selected_array();
-    if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
-      Tcl_VarEval(interp, "set INITIALINSTDIR [file dirname {",
-           abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
-    } 
-    #endif
-    unselect_all();
+    start_place_symbol(mx, my);
 
-    /* place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL,3, 1);*/
-    xctx->mx_save = mx; xctx->my_save = my;
-    xctx->mx_double_save = xctx->mousex_snap;
-    xctx->my_double_save = xctx->mousey_snap;
-    if(place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/) ) {
-      xctx->mousey_snap = xctx->my_double_save;
-      xctx->mousex_snap = xctx->mx_double_save;
-      move_objects(START,0,0,0);
-      xctx->ui_state |= PLACE_SYMBOL;
-    }
     break;
    }
    if(key=='s' && state & Mod1Mask)                     /* reload */
@@ -1125,7 +1127,7 @@ int callback(int event, int mx, int my, KeySym key,
      place_net_label(1);
      break;
    }
-   if(key >= '0' && key <= '4' && state == 0) {  /* Toggle pin logic level */
+   if(key >= '0' && key <= '4' && state == 0) {  /* toggle pin logic level */
      if(xctx->semaphore >= 2) break;
      if(key == '4') logic_set(-1, 1);
      else logic_set(key - '0', 1);
@@ -1135,7 +1137,7 @@ int callback(int event, int mx, int my, KeySym key,
     place_net_label(0);
     break;
    }
-   if(key=='F' && state==ShiftMask)                     /* Flip */
+   if(key=='F' && state==ShiftMask)                     /* flip */
    {
     if(xctx->ui_state & STARTMOVE) move_objects(FLIP,0,0,0);
     else if(xctx->ui_state & STARTCOPY) copy_objects(FLIP);
@@ -1151,7 +1153,7 @@ int callback(int event, int mx, int my, KeySym key,
     }
     break;
    }
-   if(key=='\\' && state==0)          /* Fullscreen */
+   if(key=='\\' && state==0)          /* fullscreen */
    {
     dbg(1, "callback(): toggle fullscreen\n");
     toggle_fullscreen();
@@ -1172,7 +1174,7 @@ int callback(int event, int mx, int my, KeySym key,
     }
     break;
    }
-   if(key=='R' && state==ShiftMask)             /* Rotate */
+   if(key=='R' && state==ShiftMask)             /* rotate */
    {
     if(xctx->ui_state & STARTMOVE) move_objects(ROTATE,0,0,0);
     else if(xctx->ui_state & STARTCOPY) copy_objects(ROTATE);
@@ -1189,7 +1191,7 @@ int callback(int event, int mx, int my, KeySym key,
 
     break;
    }
-   if(key=='r' && state==Mod1Mask)              /* Rotate objects around their anchor points 20171208 */
+   if(key=='r' && state==Mod1Mask)              /* rotate objects around their anchor points 20171208 */
    {
     if(xctx->ui_state & STARTMOVE) move_objects(ROTATE|ROTATELOCAL,0,0,0);
     else if(xctx->ui_state & STARTCOPY) copy_objects(ROTATE|ROTATELOCAL);
@@ -1204,7 +1206,7 @@ int callback(int event, int mx, int my, KeySym key,
     }
     break;
    }
-   if(key=='m' && state==0 && !(xctx->ui_state & (STARTMOVE | STARTCOPY)))/* move selected obj. */
+   if(key=='m' && state==0 && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
    {
     xctx->mx_save = mx; xctx->my_save = my;
     xctx->mx_double_save=xctx->mousex_snap;
@@ -1213,7 +1215,7 @@ int callback(int event, int mx, int my, KeySym key,
     break;
    }
 
-   if(key=='c' && state==0 &&           /* copy selected obj.  */
+   if(key=='c' && state==0 &&           /* duplicate selection */
      !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {
     if(xctx->semaphore >= 2) break;
@@ -1223,25 +1225,25 @@ int callback(int event, int mx, int my, KeySym key,
     copy_objects(START);
     break;
    }
-   if(key=='n' && state==Mod1Mask)              /* Empty schematic in new window */
+   if(key=='n' && state==Mod1Mask)              /* empty schematic in new window */
    {
      if(xctx->semaphore >= 2) break;
      tcleval("xschem new_window");
      break;
    }
-   if(key=='N' && state==(ShiftMask|Mod1Mask) )    /* Empty symbol in new window */
+   if(key=='N' && state==(ShiftMask|Mod1Mask) )    /* empty symbol in new window */
    {
      if(xctx->semaphore >= 2) break;
      tcleval("xschem new_symbol_window");
      break;
    }
-   if(key=='n' && state==ControlMask)              /* New schematic */
+   if(key=='n' && state==ControlMask)              /* new schematic */
    {
      if(xctx->semaphore >= 2) break;
      tcleval("xschem clear SCHEMATIC");
      break;
    }
-   if(key=='N' && state==(ShiftMask|ControlMask) )    /* New symbol */
+   if(key=='N' && state==(ShiftMask|ControlMask) )    /* new symbol */
    {
      if(xctx->semaphore >= 2) break;
      tcleval("xschem clear SYMBOL");
@@ -1433,7 +1435,6 @@ int callback(int event, int mx, int my, KeySym key,
      break;
    }
    break;
-
   case ButtonPress:                     /* end operation */
    dbg(1, "callback(): ButtonPress  ui_state=%ld state=%d\n",xctx->ui_state,state);
    if(xctx->ui_state & STARTPAN2) {
@@ -1441,40 +1442,134 @@ int callback(int event, int mx, int my, KeySym key,
      xctx->mx_save = mx; xctx->my_save = my;
      xctx->mx_double_save=xctx->mousex_snap;
      xctx->my_double_save=xctx->mousey_snap;
-
      break;
    }
    if(button==Button5 && state == 0 ) view_unzoom(CADZOOMSTEP);
    else if(button == Button3 &&  state == ControlMask && xctx->semaphore <2)
    {
-     if(xctx->semaphore >= 2) break;
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
      if(sel) select_connected_wires(1);
-     break;
    }
    else if(button == Button3 &&  state == ShiftMask && xctx->semaphore <2)
    {
-     if(xctx->semaphore >= 2) break;
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
      if(sel) select_connected_wires(0);
-     break;
    }
    else if(button == Button3 &&  state == 0 && xctx->semaphore <2) {
-     if(!(xctx->ui_state & STARTPOLYGON) && !(state & Mod1Mask) ) {
-       xctx->last_command = 0;
-       unselect_all();
-       select_object(xctx->mousex,xctx->mousey,SELECTED, 1);
-       rebuild_selected_array();
-       if(state & ShiftMask) {
-         edit_property(1);
-       } else {
+     int ret;
+     int prev_state;
+     tcleval("context_menu");
+     ret = atoi(tclresult());
+     switch(ret) {
+       case 1:
+         start_place_symbol(mx, my);
+         break;
+       case 2:
+         prev_state = xctx->ui_state;
+         start_wire(mx, my);
+         if(prev_state == STARTWIRE) {
+           tcleval("set constrained_move 0" );
+           constrained_move=0;
+         }
+         break;
+       case 3:
+         prev_state = xctx->ui_state;
+         start_line(mx, my);
+         if(prev_state == STARTLINE) {
+           tcleval("set constrained_move 0" );
+           constrained_move=0;
+         }
+         break;
+       case 4:
+         xctx->mx_save = mx; xctx->my_save = my;
+         xctx->mx_double_save=xctx->mousex_snap;
+         xctx->my_double_save=xctx->mousey_snap;
+         xctx->last_command = 0;
+         new_rect(PLACE);
+         break;
+       case 5:
+         xctx->mx_save = mx; xctx->my_save = my;
+         xctx->mx_double_save=xctx->mousex_snap;
+         xctx->my_double_save=xctx->mousey_snap;
+         xctx->last_command = 0;
+         new_polygon(PLACE);
+         break;
+       case 6:
+         xctx->last_command = 0;
+         place_text(1, xctx->mousex_snap, xctx->mousey_snap); /* 1 = draw text */
+         break;
+       case 7: /* cut selection into clipboard */
+         rebuild_selected_array();
+         if(xctx->lastsel) {  /* 20071203 check if something selected */
+           save_selection(2);
+           delete(1/* to_push_undo */);
+         }
+         break;
+       case 8: /* paste from clipboard */
+         merge_file(2,".sch");
+         break;
+       case 9: /* load most recent file */
+         Tcl_VarEval(interp, "xschem load [lindex $recentfile 0]", NULL);
+         break;
+       case 10: /* edit attributes */
          edit_property(0);
-       }
+         break;
+       case 11: /* edit attributes in editor */
+         edit_property(1);
+         break;
+       case 12:
+         descend_schematic(0);
+         break;
+       case 13:
+         descend_symbol();
+         break;
+       case 14:
+         go_back(1);
+         break;
+       case 15: /* copy selection into clipboard */
+         rebuild_selected_array();
+         if(xctx->lastsel) {
+           save_selection(2);
+         }
+         break;
+       case 16: /* move selection */
+         if(!(xctx->ui_state & (STARTMOVE | STARTCOPY))) {
+           xctx->mx_save = mx; xctx->my_save = my;
+           xctx->mx_double_save=xctx->mousex_snap;
+           xctx->my_double_save=xctx->mousey_snap;
+           move_objects(START,0,0,0);
+         }
+         break;
+       case 17: /* duplicate selection */
+         if(!(xctx->ui_state & (STARTMOVE | STARTCOPY))) {
+           xctx->mx_save = mx; xctx->my_save = my;
+           xctx->mx_double_save=xctx->mousex_snap;
+           xctx->my_double_save=xctx->mousey_snap;
+           copy_objects(START);
+         }
+         break;
+       case 18: /* delete selection */
+         if(xctx->ui_state & SELECTION) delete(1/* to_push_undo */);
+         break;
+       case 19: /* place arc */
+         xctx->mx_save = mx; xctx->my_save = my;
+         xctx->mx_double_save=xctx->mousex_snap;
+         xctx->my_double_save=xctx->mousey_snap;
+         xctx->last_command = 0;
+         new_arc(PLACE, 180.);
+         break;
+       case 20: /* place circle */
+         xctx->mx_save = mx; xctx->my_save = my;
+         xctx->mx_double_save=xctx->mousex_snap;
+         xctx->my_double_save=xctx->mousey_snap;
+         xctx->last_command = 0;
+         new_arc(PLACE, 360.);
+         break;
+       default:
+         break;
      }
-
    }
    else if(button==Button4 && state == 0 ) view_zoom(CADZOOMSTEP);
-
    else if(button==Button4 && (state & ShiftMask) && !(state & Button2Mask)) {
     xctx->xorigin+=-CADMOVESTEP*xctx->zoom/2.;
     draw();
@@ -1511,7 +1606,6 @@ int callback(int event, int mx, int my, KeySym key,
    else if(button==Button2 && (state == 0)) {
      pan2(START, mx, my);
      xctx->ui_state |= STARTPAN2;
-     break;
    }
    else if(xctx->semaphore >= 2) { /* button1 click to select another instance while edit prop dialog open */
      if(button==Button1 && state==0 && tclgetvar("edit_symbol_prop_new_sel")[0]) {
@@ -1520,7 +1614,6 @@ int callback(int event, int mx, int my, KeySym key,
        select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
        rebuild_selected_array();
      }
-     break;
    }
    else if(button==Button1)
    {

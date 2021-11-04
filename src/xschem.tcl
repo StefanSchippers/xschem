@@ -3151,9 +3151,101 @@ proc balloon_show {w arg} {
         -font fixed -text $arg]
     set wmx [winfo rootx $w]
     set wmy [expr {[winfo rooty $w]+[winfo height $w]}]
-    wm geometry $top [winfo reqwidth $top.txt]x[
-        winfo reqheight $top.txt]+$wmx+$wmy
+    wm geometry $top [winfo reqwidth $top.txt]x[winfo reqheight $top.txt]+$wmx+$wmy
     raise $top
+}
+
+proc context_menu { } {
+  global retval
+  set retval 0
+
+  set font {Sans 8 bold}
+  set selection  [expr {[xschem get lastsel] eq {1}}]
+  toplevel .ctxmenu
+  wm overrideredirect .ctxmenu 1
+  set x [expr {[winfo pointerx .ctxmenu] - 10}]
+  set y [expr {[winfo pointery .ctxmenu] - 10}]
+  if { !$selection} {
+    button .ctxmenu.b9 -text {Open most recent} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 9; destroy .ctxmenu} 
+  }
+  button .ctxmenu.b10 -text {Edit attributes} -padx 1 -pady 0 -anchor w -activebackground red \
+    -font [subst $font] -command {set retval 10; destroy .ctxmenu}
+  button .ctxmenu.b11 -text {Edit attr in editor} -padx 1 -pady 0 -anchor w -activebackground red \
+    -font [subst $font] -command {set retval 11; destroy .ctxmenu}
+  if {$selection} {
+    button .ctxmenu.b12 -text {Descend schematic} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 12; destroy .ctxmenu}
+    button .ctxmenu.b13 -text {Descend symbol} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 13; destroy .ctxmenu}
+    button .ctxmenu.b18 -text {Delete selection} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 18; destroy .ctxmenu}
+    button .ctxmenu.b7 -text {Cut selection} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 7; destroy .ctxmenu}
+    button .ctxmenu.b15 -text {Copy selection} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 15; destroy .ctxmenu}
+    button .ctxmenu.b16 -text {Move Selection} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 16; destroy .ctxmenu}
+    button .ctxmenu.b17 -text {Duplicate Selection} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 17; destroy .ctxmenu}
+  }
+  if {!$selection} {
+    button .ctxmenu.b14 -text {Go to upper level} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 14; destroy .ctxmenu}
+    button .ctxmenu.b1 -text {Place symbol} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 1; destroy .ctxmenu}
+    button .ctxmenu.b2 -text {Place wire} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 2; destroy .ctxmenu}
+    button .ctxmenu.b3 -text {Place line} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 3; destroy .ctxmenu}
+    button .ctxmenu.b4 -text {Place box} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 4; destroy .ctxmenu}
+    button .ctxmenu.b5 -text {Place polygon} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 5; destroy .ctxmenu}
+    button .ctxmenu.b19 -text {Place arc} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 19; destroy .ctxmenu}
+    button .ctxmenu.b20 -text {Place circle} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 20; destroy .ctxmenu}
+    button .ctxmenu.b6 -text {Place text} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 6; destroy .ctxmenu}
+    button .ctxmenu.b8 -text {Paste} -padx 1 -pady 0 -anchor w -activebackground red \
+      -font [subst $font] -command {set retval 8; destroy .ctxmenu}
+  }
+  if {!$selection} {
+    pack .ctxmenu.b9  -fill x -expand true
+  }
+  pack .ctxmenu.b10 .ctxmenu.b11 -fill x -expand true
+  if {$selection} {
+    pack .ctxmenu.b12 .ctxmenu.b13 .ctxmenu.b18 -fill x -expand true
+  }
+  if {!$selection} {
+    pack .ctxmenu.b14 -fill x -expand true
+    pack .ctxmenu.b1 .ctxmenu.b2 .ctxmenu.b3 .ctxmenu.b4 .ctxmenu.b5 -fill x -expand true
+    pack .ctxmenu.b19 .ctxmenu.b20 .ctxmenu.b6  -fill x -expand true
+  }
+  if {$selection} {
+    pack .ctxmenu.b7 -fill x -expand true
+    pack .ctxmenu.b15 .ctxmenu.b16 .ctxmenu.b17 -fill x -expand true
+  }
+  if {!$selection} {
+    pack .ctxmenu.b8 -fill x -expand true
+  }
+  wm geometry .ctxmenu "+$x+$y"
+  update
+  set wx [winfo width .ctxmenu]
+  set wy [winfo height .ctxmenu]
+  set sx [winfo screenwidth .]
+  set sy [winfo screenheight .]
+  if { $y + $wy > $sy } {
+    set y [expr {$y - ( $y + $wy - $sy )} ]
+  }
+  if { $x + $wx > $sx } {
+    set x [expr {$x - ( $x + $wx - $sx )} ]
+  }
+  wm geometry .ctxmenu "+$x+$y";# move away from screen edges
+  bind .ctxmenu <Leave> {if { {%W} eq {.ctxmenu} } {destroy .ctxmenu} }
+  tkwait window .ctxmenu
+  return $retval
 }
 
 #

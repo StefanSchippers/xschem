@@ -611,6 +611,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        my_snprintf(s, S(s), "%d",xctx->instances);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
+     else if(!strcmp(argv[2],"lastsel")) {
+       rebuild_selected_array();
+       if( xctx->lastsel != 0 )
+         Tcl_SetResult(interp, "1",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, "0",TCL_STATIC);
+     }
      else if(!strcmp(argv[2],"line_width")) {
        char s[40];
        my_snprintf(s, S(s), "%g", xctx->lw);

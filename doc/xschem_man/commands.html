@@ -76,12 +76,13 @@ Alt + LeftButton        Unselect selected object
 Alt + LeftButton drag  
                         Unselect objects by area
 
-RightButton             Edit property of object under the mouse
-                        else edit global schematic / symbol property string
+RightButton             Context menu
 
-Shift + RightButton     Edit property of object under the mouse 
-                        else edit global schematic / symbol property string
-                        using the specified (or default) text editor.
+Shift + RightButton     Select object under the mouse and if label/pin
+                        select attached nets
+
+Ctrl + RightButton      Select object under the mouse and if label/pin
+                        select attached nets up to net junctions
 
 LeftButton Double click Terminate Polygon placement
 
@@ -109,7 +110,7 @@ ctrl        '0-9'       set current layer (4 -13)
             '0'         set selected net or label to logic value '0'
             '1'         set selected net or label to logic value '1'
             '2'         set selected net or label to logic value 'X'
-            '3'         toggle selected net or label: 1->0, 0->1, X->X
+            '3'         toggle selected net or label: 1-&gt;0, 0-&gt;1, X-&gt;X
 -           'a'         Make symbol from pin list of current schematic
 ctrl        'a'         Select all
 shift       'A'         Toggle show netlist

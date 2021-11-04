@@ -35,13 +35,14 @@ Alt + LeftButton        Unselect selected object
 Alt + LeftButton drag  
                         Unselect objects by area
 
-RightButton             Edit property of object under the mouse
-                        else edit global schematic / symbol property string
+RightButton             Context menu
 
-Shift + RightButton     Edit property of object under the mouse 
-                        else edit global schematic / symbol property string
-                        using the specified (or default) text editor.
-
+Shift + RightButton     Select object under the mouse and if label/pin
+                        select attached nets
+                        
+Ctrl + RightButton      Select object under the mouse and if label/pin
+                        select attached nets up to net junctions
+                        
 LeftButton Double click Terminate Polygon placement
 
 
