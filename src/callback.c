@@ -57,9 +57,11 @@ void abort_operation(void)
   if(xctx->ui_state & STARTMOVE)
   {
    move_objects(ABORT,0,0,0);
-   if(xctx->ui_state & START_SYMPIN) {
+   if(xctx->ui_state & (START_SYMPIN | PLACE_SYMBOL | PLACE_TEXT)) {
      delete(1/* to_push_undo */);
      xctx->ui_state &= ~START_SYMPIN;
+     xctx->ui_state &= ~PLACE_SYMBOL;
+     xctx->ui_state &= ~PLACE_TEXT;
    }
    return;
   }
@@ -291,7 +293,7 @@ int callback(int event, int mx, int my, KeySym key,
     }
     if(xctx->ui_state & STARTPAN)    pan(RUBBER);
     if(xctx->ui_state & STARTZOOM)   zoom_rectangle(RUBBER);
-    if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & PLACE_SYMBOL) && !(xctx->ui_state & STARTPAN2)) {
+    if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & (PLACE_SYMBOL | STARTPAN2 | PLACE_TEXT)) ) {
       if( (state & Button1Mask)  && (state & Mod1Mask)) { /* 20171026 added unselect by area  */
           select_rect(RUBBER,0);
       } else if(state & Button1Mask) {
@@ -314,7 +316,7 @@ int callback(int event, int mx, int my, KeySym key,
     /* start of a mouse area select */
     if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
        !(xctx->ui_state & STARTPAN2) && !(state & Mod1Mask) &&
-       !(state & ShiftMask) && !(xctx->ui_state & PLACE_SYMBOL))
+       !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
     {
       static int onetime=0;
       if(mx != xctx->mx_save || my != xctx->my_save) {
@@ -332,12 +334,12 @@ int callback(int event, int mx, int my, KeySym key,
       }
     }
     if((state & Button1Mask)  && (state & Mod1Mask) && !(state & ShiftMask) &&
-       !(xctx->ui_state & STARTPAN2) && !(xctx->ui_state & PLACE_SYMBOL)) { /* 20150927 unselect area */
+       !(xctx->ui_state & STARTPAN2) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT))) { /* 20150927 unselect area */
       if( !(xctx->ui_state & STARTSELECT)) {
         select_rect(START,0);
       }
     }
-    else if((state&Button1Mask) && (state & ShiftMask) && !(xctx->ui_state & PLACE_SYMBOL) &&
+    else if((state&Button1Mask) && (state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) &&
              !(xctx->ui_state & STARTPAN2) ) {
       if(mx != xctx->mx_save || my != xctx->my_save) {
         if( !(xctx->ui_state & STARTSELECT)) {
@@ -725,6 +727,7 @@ int callback(int event, int mx, int my, KeySym key,
    {
      if(xctx->semaphore >= 2) break;
      xctx->last_command = 0;
+     xctx->ui_state |= PLACE_TEXT;
      place_text(0, xctx->mousex_snap, xctx->mousey_snap); /* 1 = draw text 24122002 */
      xctx->mx_save = mx; xctx->my_save = my;
      xctx->mx_double_save=xctx->mousex_snap;
