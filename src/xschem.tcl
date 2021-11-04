@@ -3256,8 +3256,8 @@ proc setup_toolbar {} {
   set_ne toolbar_visible 0
   set_ne toolbar_horiz   1
   set_ne toolbar_list { 
-    FileNew
-    FileNewSym
+#    FileNew
+#    FileNewSym
     FileOpen
     FileSave
     FileMerge
@@ -3927,12 +3927,12 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
     -command {
       xschem clear SCHEMATIC
     }
-  toolbar_create FileNew {xschem clear SCHEMATIC} "New Schematic"
+  # toolbar_create FileNew {xschem clear SCHEMATIC} "New Schematic"
   .menubar.file.menu add command -label "New Symbol" -accelerator Ctrl+Shift+N \
     -command {
       xschem clear SYMBOL
     }
-  toolbar_create FileNewSym {xschem clear SYMBOL} "New Symbol"
+  # toolbar_create FileNewSym {xschem clear SYMBOL} "New Symbol"
   .menubar.file.menu add command -label "New empty Schematic window" -accelerator {Alt+N} \
     -command {
       xschem new_window
