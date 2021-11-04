@@ -3260,11 +3260,8 @@ proc setup_toolbar {} {
   set_ne toolbar_visible 0
   set_ne toolbar_horiz   1
   set_ne toolbar_list { 
-#    FileNew
-#    FileNewSym
     FileOpen
     FileSave
-#    FileMerge
     FileReload
     "---"
     EditUndo
