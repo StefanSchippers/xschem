@@ -1,4 +1,4 @@
-/* file: callback.c
+/* File: callback.c
  *
  * This file is part of XSCHEM,
  * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
