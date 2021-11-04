@@ -725,7 +725,11 @@ int callback(int event, int mx, int my, KeySym key,
    {
      if(xctx->semaphore >= 2) break;
      xctx->last_command = 0;
-     place_text(1, xctx->mousex_snap, xctx->mousey_snap); /* 1 = draw text 24122002 */
+     place_text(0, xctx->mousex_snap, xctx->mousey_snap); /* 1 = draw text 24122002 */
+     xctx->mx_save = mx; xctx->my_save = my;
+     xctx->mx_double_save=xctx->mousex_snap;
+     xctx->my_double_save=xctx->mousey_snap;
+     move_objects(START,0,0,0);
      break;
    }
    if(key=='r' && !xctx->ui_state && state==0)              /* start rect */
@@ -1500,7 +1504,11 @@ int callback(int event, int mx, int my, KeySym key,
          break;
        case 6:
          xctx->last_command = 0;
-         place_text(1, xctx->mousex_snap, xctx->mousey_snap); /* 1 = draw text */
+         place_text(0, xctx->mousex_snap, xctx->mousey_snap); /* 1 = draw text */
+         xctx->mx_save = mx; xctx->my_save = my;
+         xctx->mx_double_save=xctx->mousex_snap;
+         xctx->my_double_save=xctx->mousey_snap;
+         move_objects(START,0,0,0);
          break;
        case 7: /* cut selection into clipboard */
          rebuild_selected_array();

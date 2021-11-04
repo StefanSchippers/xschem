@@ -2323,10 +2323,11 @@ void place_text(int draw_text, double mx, double my)
     cairo_restore(xctx->cairo_save_ctx);
   }
   #endif
-  select_text(xctx->texts, SELECTED, 0);
+  xctx->texts++;
+  select_text(xctx->texts - 1, SELECTED, 0);
+  rebuild_selected_array(); /* sets xctx->ui_state |= SELECTION */
   drawtemprect(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
   drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
-  xctx->texts++;
   set_modify(1);
 }
 
