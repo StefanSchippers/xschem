@@ -2234,7 +2234,7 @@ int text_bbox(const char *str,double xscale, double yscale,
   return 1;
 }
 
-void place_text(int draw_text, double mx, double my)
+int place_text(int draw_text, double mx, double my)
 {
   char *txt;
   int textlayer;
@@ -2257,7 +2257,7 @@ void place_text(int draw_text, double mx, double my)
   dbg(1, "place_text(): hsize=%s vsize=%s\n",tclgetvar("hsize"), tclgetvar("vsize") );
 
   txt =  (char *)tclgetvar("retval");
-  if(!strcmp(txt,"")) return;   /*  dont allocate text object if empty string given */
+  if(!strcmp(txt,"")) return 0;   /*  dont allocate text object if empty string given */
   push_undo();
   check_text_storage();
   t->txt_ptr=NULL;
@@ -2329,6 +2329,7 @@ void place_text(int draw_text, double mx, double my)
   drawtemprect(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
   drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
   set_modify(1);
+  return 1;
 }
 
 void pan2(int what, int mx, int my)

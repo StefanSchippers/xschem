@@ -191,7 +191,7 @@ extern char win_temp_dir[PATH_MAX];
 #define MENUSTARTRECT 4096  /*  start rect invoked from menu */
 #define MENUSTARTZOOM 8192  /*  start zoom box invoked from menu */
 #define STARTPAN2     16384 /*  new pan method with mouse button3 */
-#define MENUSTARTTEXT 32768 /*  20161201 click to place text if action starts from menu */
+#define PLACE_TEXT 32768
 #define MENUSTARTSNAPWIRE 65536   /*  start wire invoked from menu, snap to pin variant 20171022 */
 #define STARTPOLYGON 131072
 #define MENUSTARTPOLYGON 262144
@@ -200,7 +200,6 @@ extern char win_temp_dir[PATH_MAX];
 #define MENUSTARTCIRCLE 2097152
 #define PLACE_SYMBOL 4194304 /* used in move_objects after place_symbol to avoid storing intermediate undo state */
 #define START_SYMPIN 8388608
-#define PLACE_TEXT 16777216
 #define SELECTED 1          /*  used in the .sel field for selected objs. */
 #define SELECTED1 2         /*  first point selected... */
 #define SELECTED2 4         /*  second point selected... */
@@ -1050,7 +1049,7 @@ extern const char *tclgetvar(const char *s);
 extern void tclsetvar(const char *s, const char *value);
 extern const char *tcl_hook2(char **res);
 extern void statusmsg(char str[],int n);
-extern void place_text(int draw_text, double mx, double my);
+extern int place_text(int draw_text, double mx, double my);
 extern void init_inst_iterator(struct iterator_ctx *ctx, double x1, double y1, double x2, double y2);
 extern struct instentry *inst_iterator_next(struct iterator_ctx *ctx);
 extern void init_wire_iterator(struct iterator_ctx *ctx, double x1, double y1, double x2, double y2);

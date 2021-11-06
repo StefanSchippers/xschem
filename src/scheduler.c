@@ -1666,13 +1666,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       } else if(argc == 3) {
         ret = place_symbol(-1,argv[2],xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
       } else {
-        #if 1  /* enable on request also in callback.c */
+        xctx->last_command = 0;
         rebuild_selected_array();
         if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
           Tcl_VarEval(interp, "set INITIALINSTDIR [file dirname {",
              abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
         } 
-        #endif
         ret = place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
       }
    
@@ -1689,9 +1688,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"place_text"))
     {
       cmd_found = 1;
-      xctx->ui_state |= MENUSTARTTEXT;
-      /* place_text(0,xctx->mousex_snap, xctx->mousey_snap); */
-      /* move_objects(START,0,0,0); */
+
+      xctx->semaphore++;
+      xctx->last_command = 0;
+      xctx->mx_double_save = xctx->mousex_snap;
+      xctx->my_double_save = xctx->mousey_snap;
+      if(place_text(0, xctx->mousex_snap, xctx->mousey_snap)) { /* 1 = draw text 24122002 */
+        xctx->mousey_snap = xctx->my_double_save;
+        xctx->mousex_snap = xctx->mx_double_save;
+        move_objects(START,0,0,0);
+        xctx->ui_state |= PLACE_TEXT;
+      }
+      xctx->semaphore--;
       Tcl_ResetResult(interp);
     }
    

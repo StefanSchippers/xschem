@@ -324,29 +324,34 @@ int callback(int event, int mx, int my, KeySym key,
           select_rect(START,1);
           onetime=1;
         }
-        if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) { /* set some reasonable threshold before unselecting */
+        if(abs(mx-xctx->mx_save) > 8 ||
+           abs(my-xctx->my_save) > 8 ) { /* set reasonable threshold before unsel */
           if(onetime) {
             unselect_all(); /* 20171026 avoid multiple calls of unselect_all() */
             onetime=0;
           }
-          xctx->ui_state|=STARTSELECT; /* set it again cause unselect_all() clears it... 20121123 */
+          xctx->ui_state|=STARTSELECT; /* set it again cause unselect_all() clears it... */
         }
       }
     }
     if((state & Button1Mask)  && (state & Mod1Mask) && !(state & ShiftMask) &&
-       !(xctx->ui_state & STARTPAN2) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT))) { /* 20150927 unselect area */
+       !(xctx->ui_state & STARTPAN2) && 
+       !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT))) { /* unselect area */
       if( !(xctx->ui_state & STARTSELECT)) {
         select_rect(START,0);
       }
     }
-    else if((state&Button1Mask) && (state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) &&
+    else if((state&Button1Mask) && (state & ShiftMask) &&
+             !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) &&
              !(xctx->ui_state & STARTPAN2) ) {
       if(mx != xctx->mx_save || my != xctx->my_save) {
         if( !(xctx->ui_state & STARTSELECT)) {
           select_rect(START,1);
         }
-        if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {  /* set some reasonable threshold before unselecting */
-          select_object(X_TO_XSCHEM(xctx->mx_save), Y_TO_XSCHEM(xctx->my_save), 0, 0); /* remove near object if dragging */
+        if(abs(mx-xctx->mx_save) > 8 || 
+           abs(my-xctx->my_save) > 8 ) {  /* set reasonable threshold before unsel */
+          select_object(X_TO_XSCHEM(xctx->mx_save),
+                        Y_TO_XSCHEM(xctx->my_save), 0, 0); /* remove near obj if dragging */
           rebuild_selected_array();
         }
       }
@@ -731,12 +736,14 @@ int callback(int event, int mx, int my, KeySym key,
    {
      if(xctx->semaphore >= 2) break;
      xctx->last_command = 0;
-     xctx->ui_state |= PLACE_TEXT;
-     place_text(0, xctx->mousex_snap, xctx->mousey_snap); /* 1 = draw text 24122002 */
-     xctx->mx_save = mx; xctx->my_save = my;
-     xctx->mx_double_save=xctx->mousex_snap;
-     xctx->my_double_save=xctx->mousey_snap;
-     move_objects(START,0,0,0);
+     xctx->mx_double_save = xctx->mousex_snap;
+     xctx->my_double_save = xctx->mousey_snap;
+     if(place_text(0, xctx->mousex_snap, xctx->mousey_snap)) { /* 1 = draw text 24122002 */
+       xctx->mousey_snap = xctx->my_double_save;
+       xctx->mousex_snap = xctx->mx_double_save;
+       move_objects(START,0,0,0);
+       xctx->ui_state |= PLACE_TEXT;
+     }
      break;
    }
    if(key=='r' && !xctx->ui_state && state==0)              /* start rect */
@@ -1509,13 +1516,16 @@ int callback(int event, int mx, int my, KeySym key,
          xctx->last_command = 0;
          new_polygon(PLACE);
          break;
-       case 6:
+       case 6: /* place text */
          xctx->last_command = 0;
-         place_text(0, xctx->mousex_snap, xctx->mousey_snap); /* 1 = draw text */
-         xctx->mx_save = mx; xctx->my_save = my;
          xctx->mx_double_save=xctx->mousex_snap;
          xctx->my_double_save=xctx->mousey_snap;
-         move_objects(START,0,0,0);
+         if(place_text(0, xctx->mousex_snap, xctx->mousey_snap)) { /* 1 = draw text */
+           xctx->mousey_snap = xctx->my_double_save;
+           xctx->mousex_snap = xctx->mx_double_save;
+           move_objects(START,0,0,0);
+           xctx->ui_state |= PLACE_TEXT;
+         }
          break;
        case 7: /* cut selection into clipboard */
          rebuild_selected_array();
@@ -1642,11 +1652,6 @@ int callback(int event, int mx, int my, KeySym key,
      if(persistent_command && xctx->last_command) {
        if(xctx->last_command == STARTLINE)  start_line(mx, my);
        if(xctx->last_command == STARTWIRE)  start_wire(mx, my);
-       break;
-     }
-     if(xctx->ui_state & MENUSTARTTEXT) {
-       place_text(1, xctx->mousex_snap, xctx->mousey_snap);
-       xctx->ui_state &=~MENUSTARTTEXT;
        break;
      }
      if(xctx->ui_state & MENUSTARTWIRE) {
