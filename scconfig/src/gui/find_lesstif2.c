@@ -68,7 +68,7 @@ int find_lesstif2(const char *name, int logdepth, int fatal, const char *call, c
 
 }
 
-int find_lesstif2_exthi(const char *name, int logdepth, int fatal, const char *call, const char *arg)
+int find_lesstif2_exthi(const char *name, int logdepth, int fatal) /* , const char *call, const char *arg) */
 {
 	const char *test_c =
 		NL "#include <Xm/MainW.h>"
@@ -82,8 +82,8 @@ int find_lesstif2_exthi(const char *name, int logdepth, int fatal, const char *c
 //	char **cflags,  *cflags_arr[]  = {"", "-I/opt/X11/include", NULL};
 //	char **ldflags, *ldflags_arr[] = {"-lXm -lX11", "-lXm -lXt", "-L/opt/X11/lib -lXm -lXt  -lX11", NULL}; /* note: -lXt must be after -lXm else lesstif fails to init with runtime error */
 	const char *cflags, *ldflags;
-	(void) call;  /* not used */
-	(void) arg;  /* not used */
+/* 	(void) call; */  /* not used */
+/* 	(void) arg;  */ /* not used */
 
 	if (require("cc/cc", logdepth, fatal) || require("libs/gui/lesstif2", logdepth, fatal))
 		return 1;
