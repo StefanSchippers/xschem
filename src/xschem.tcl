@@ -4129,7 +4129,7 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   .menubar.edit.menu add radiobutton -label "Constrained Vertical move" -variable constrained_move \
      -value 2 -accelerator V -command {xschem set constrained_move 2} 
   .menubar.edit.menu add command -label "Push schematic" -command "xschem descend" -accelerator E
-  toolbar_create EditPushSch "xschem move_objects" "Push schematic"
+  toolbar_create EditPushSch "xschem descend" "Push schematic"
   .menubar.edit.menu add command -label "Push symbol" -command "xschem descend_symbol" -accelerator I
   toolbar_create EditPushSym "xschem descend_symbol" "Push symbol"
   .menubar.edit.menu add command -label "Pop" -command "xschem go_back" -accelerator Ctrl+E

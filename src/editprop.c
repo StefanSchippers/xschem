@@ -308,9 +308,8 @@ void *my_malloc(int id, size_t size)
  void *ptr;
  if(size>0) {
    ptr=malloc(size);
-  if(ptr == NULL) fprintf(errfp,"my_malloc(%d,): allocation failure\n", id);
-   dbg(3, "my_malloc(%d,): allocating %p , %lu bytes\n",
-     id, ptr, (unsigned long) size);
+   if(ptr == NULL) fprintf(errfp,"my_malloc(%d,): allocation failure\n", id);
+   dbg(3, "my_malloc(%d,): allocating %p , %lu bytes\n", id, ptr, (unsigned long) size);
  }
  else ptr=NULL;
  return ptr;
