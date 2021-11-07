@@ -57,6 +57,7 @@ ctrl       Enter        Confirm closing dialog boxes
 -          Left         Move right
 -          Right        Move left
 -          Up           Move up
+-           '\'         Toggle fullscreen
 -           '!'         Break selected wires at any wire or component pin
                         connection
 -           ' '         Pan schematic
@@ -69,7 +70,8 @@ ctrl        '0-9'       set current layer (4 -13)
             '0'         set selected net or label to logic value '0'
             '1'         set selected net or label to logic value '1'
             '2'         set selected net or label to logic value 'X'
-            '3'         toggle selected net or label: 1->0, 0->1, X->X
+            '3'         set selected net or label to logic value 'Z'
+            '4'         toggle selected net or label: 1->0, 0->1, X->X
 -           'a'         Make symbol from pin list of current schematic
 ctrl        'a'         Select all
 shift       'A'         Toggle show netlist
