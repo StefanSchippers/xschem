@@ -1,6 +1,45 @@
+#
+#  File: resources.tcl
+#  
+#  This file is part of XSCHEM,
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  simulation.
+#  Copyright (C) 1998-2021 Stefan Frederik Schippers
+# 
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+# 
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
+
+
+
 ##
-## Tcl Resources for XSchem
+## Tcl Resources for XSchem toolbars
 ##
+
+
+## Toolbar images are 24x24,
+## Context menu images are 16x16
+##
+## NOTE: if a svg image is created (with transparent white) it needs to be converted to gif,
+## however inkscape does not convert from svg to gif, so the steps are:
+##
+## # this creates paste.png
+## inkscape --export-type="png" -w 24 -h 24 paste.svg
+## # generate gif and base64 encode.
+## # we need to lose transparency in gif otherwise all antialiasing in png image is lost
+## # so we set white background and eliminate alpha channel (unsupported in gif).
+## convert -background white -alpha remove -alpha off paste.png gif:- |base64
 
 ##
 ## Toolbar buttons
