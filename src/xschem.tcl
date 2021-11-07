@@ -3159,7 +3159,11 @@ proc context_menu { } {
   global retval
 
   set retval 0
-  set font {Sans 8 bold}
+  if {[info tclversion] >= 8.5} {
+    set font {Sans 8 bold}
+  } else {
+    set font fixed
+  }
   set selection  [expr {[xschem get lastsel] eq {1}}]
   toplevel .ctxmenu
   wm overrideredirect .ctxmenu 1
