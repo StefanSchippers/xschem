@@ -40,6 +40,21 @@
 ## # we need to lose transparency in gif otherwise all antialiasing in png image is lost
 ## # so we set white background and eliminate alpha channel (unsupported in gif).
 ## convert -background white -alpha remove -alpha off paste.png gif:- |base64
+##
+## Following shell function (and call) converts a png base64 encoded to proper 
+## gif89a base64 encoded format:
+##   to_gif () {
+##     echo "image create photo $1 -data \""
+##     echo -n "$2" | base64 -d |convert -background white -alpha remove -alpha off  - gif:- |base64
+##     echo '"'
+##   }
+## 
+##   to_gif CtxmenuBlank "
+##   iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAACkAAAAsAGMLevkAAAA
+##   GXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAABJJREFUOI1jYBgFo2AUjAIIAAAE
+##   EAABf014jgAAAABJRU5ErkJggg==
+##   "
+
 
 ##
 ## Toolbar buttons
