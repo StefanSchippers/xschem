@@ -3196,10 +3196,10 @@ proc context_menu { } {
     button .ctxmenu.b15 -text {Copy selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
       -image CtxmenuCopy -compound left \
       -font [subst $font] -command {set retval 15; destroy .ctxmenu}
-    button .ctxmenu.b16 -text {Move Selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+    button .ctxmenu.b16 -text {Move selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
       -image CtxmenuMove -compound left \
       -font [subst $font] -command {set retval 16; destroy .ctxmenu}
-    button .ctxmenu.b17 -text {Duplicate Selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+    button .ctxmenu.b17 -text {Duplicate selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
       -image CtxmenuDuplicate -compound left \
       -font [subst $font] -command {set retval 17; destroy .ctxmenu}
   }
