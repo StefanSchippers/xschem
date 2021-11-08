@@ -144,49 +144,27 @@ int callback(int event, int mx, int my, KeySym key,
  char str[PATH_MAX + 100]; /* overflow safe 20161122 */
  struct stat buf;
  unsigned short sel;
- static int capslock = 0;
- static int numlock = 0;
 #ifndef __unix__
   short cstate = GetKeyState(VK_CAPITAL);
   short nstate = GetKeyState(VK_NUMLOCK);
-  if (capslock==0 && (cstate&0x0001)) {
+
+  if(cstate & 0x0001) { /* caps lock */
     tcleval(".statusbar.8 configure -state active -text {CAPS LOCK SET! }");
-    capslock = 1;
+  } else if (nstate & 0x0001) { /* num lock */
+    tcleval(".statusbar.8 configure -state active -text {NUM LOCK SET! }");
+  } else { /* normal state */
+    tcleval(".statusbar.8 configure -state  normal -text {}");
   }
-  if (capslock==1 && !(cstate&0x0001)) {
-    if (numlock) tcleval(".statusbar.8 configure -state active -text {NUM LOCK SET! }");
-    else tcleval(".statusbar.8 configure -state  normal -text {}");
-    capslock = 0;
-  }
- if(numlock==0 && (nstate&0x0001)) {
-   tcleval(".statusbar.8 configure -state active -text {NUM LOCK SET! }");
-   numlock = 1;
- }
- if (numlock==1 && !(nstate&0x0001)) {
-   if(capslock) tcleval(".statusbar.8 configure -state active -text {CAPS LOCK SET! }");
-   else tcleval(".statusbar.8 configure -state  normal -text {}");
-   numlock = 0;
- }
 #else
  XKeyboardState kbdstate;
  XGetKeyboardControl(display, &kbdstate);
- if(capslock == 0 && (kbdstate.led_mask & 1)) {
-     tcleval(".statusbar.8 configure -state active -text {CAPS LOCK SET! }");
-     capslock = 1;
- }
- if(capslock == 1 && !(kbdstate.led_mask & 1)) {
-     if(numlock) tcleval(".statusbar.8 configure -state active -text {NUM LOCK SET! }");
-     else tcleval(".statusbar.8 configure -state  normal -text {}");
-     capslock = 0;
- }
- if(numlock == 0 && (kbdstate.led_mask & 2)) {
-     tcleval(".statusbar.8 configure -state active -text {NUM LOCK SET! }");
-     numlock = 1;
- }
- if(numlock == 1 && !(kbdstate.led_mask & 2)) {
-     if(capslock) tcleval(".statusbar.8 configure -state active -text {CAPS LOCK SET! }");
-     else tcleval(".statusbar.8 configure -state  normal -text {}");
-     numlock = 0;
+
+ if(kbdstate.led_mask & 1) { /* caps lock */
+   tcleval(".statusbar.8 configure -state active -text {CAPS LOCK SET! }");
+ } else if(kbdstate.led_mask & 2) { /* num lock */
+   tcleval(".statusbar.8 configure -state active -text {NUM LOCK SET! }");
+ } else { /* normal state */
+   tcleval(".statusbar.8 configure -state  normal -text {}");
  }
 #endif
  state &=~Mod2Mask; /* 20170511 filter out NumLock status */

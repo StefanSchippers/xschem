@@ -3288,27 +3288,27 @@ proc setup_toolbar {} {
     FileOpen
     FileSave
     FileReload
-    "---"
+    ---
     EditUndo
     EditRedo
     EditCut
     EditCopy
     EditPaste
     EditDelete
-    "---"
+    ---
     EditDuplicate
     EditMove
-    "---"
+    ---
     EditPushSch
     EditPushSym
     EditPop
-    "---"
+    ---
     ViewRedraw
     ViewZoomIn
     ViewZoomOut
     ViewZoomBox
     ViewToggleColors
-    "---"
+    ---
     ToolInsertSymbol
     ToolInsertText
     ToolInsertWire
@@ -3317,9 +3317,9 @@ proc setup_toolbar {} {
     ToolInsertPolygon
     ToolInsertArc
     ToolInsertCircle
-    "---"
+    ---
     ToolSearch
-    "---"
+    ---
     ToolJoinTrim
     ToolBreak
   }
@@ -3493,8 +3493,9 @@ global env has_x
     xschem callback %T %x %y %N 0 0 %s
   }
   bind $window_path <KeyRelease> {xschem callback %T %x %y %N 0 0 %s} ;# 20161118
-  bind $window_path <Motion> {xschem callback %T %x %y 0 0 0 %s}
-  bind $window_path  <Enter> "xschem new_schematic switch $window_path {}
+  bind $window_path <Motion> "focus $window_path; xschem callback %T %x %y 0 0 0 %s"
+  bind $window_path  <Enter> "focus $window_path
+                              xschem new_schematic switch $window_path {}
                               xschem callback %T %x %y 0 0 0 0"
   bind $window_path <Leave> {}
   bind $window_path <Unmap> {
@@ -4107,10 +4108,10 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   toolbar_create EditUndo "xschem undo; xschem redraw" "Undo"
   .menubar.edit.menu add command -label "Redo" -command "xschem redo; xschem redraw" -accelerator {Shift+U}
   toolbar_create EditRedo "xschem redo; xschem redraw" "Redo"
+  toolbar_create EditCut "xschem cut" "Cut"
   .menubar.edit.menu add command -label "Copy" -command "xschem copy" -accelerator Ctrl+C
   toolbar_create EditCopy "xschem copy" "Copy"
   .menubar.edit.menu add command -label "Cut" -command "xschem cut"   -accelerator Ctrl+X
-  toolbar_create EditCut "xschem cut" "Cut"
   .menubar.edit.menu add command -label "Paste" -command "xschem paste" -accelerator Ctrl+V
   toolbar_create EditPaste "xschem paste" "Paste"
   .menubar.edit.menu add command -label "Delete" -command "xschem delete" -accelerator Del
@@ -4154,16 +4155,6 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
     -command {
       xschem netlist
      }
-  toolbar_create Waves { waves } "View results"
-  toolbar_create Simulate {
-     if { ![info exists simulate_oldbg] } {
-        set simulate_oldbg [.menubar.simulate cget -bg]
-        .menubar.simulate configure -bg red
-        simulate {.menubar.simulate configure -bg $::simulate_oldbg; unset ::simulate_oldbg}
-     }
-  } "Run simulation"
-  toolbar_create Netlist { xschem netlist } "Create netlist"
-
   # create  .menubar.layers.menu
   create_layers_menu
   .menubar.zoom.menu add checkbutton -label "Show ERC Info window" -variable show_infowindow \
@@ -4386,6 +4377,16 @@ if { ( $::OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] 
   .menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" -variable top_subckt 
   .menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
          -command {xschem set spiceprefix $spiceprefix; xschem save; xschem reload}
+
+  toolbar_create Netlist { xschem netlist } "Create netlist"
+  toolbar_create Simulate {
+     if { ![info exists simulate_oldbg] } {
+        set simulate_oldbg [.menubar.simulate cget -bg]
+        .menubar.simulate configure -bg red
+        simulate {.menubar.simulate configure -bg $::simulate_oldbg; unset ::simulate_oldbg}
+     }
+  } "Run simulation"
+  toolbar_create Waves { waves } "View results"
 
   pack .menubar.file -side left
   pack .menubar.edit -side left
