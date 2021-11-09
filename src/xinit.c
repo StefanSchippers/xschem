@@ -267,7 +267,7 @@ void init_color_array(double dim)
  double rr, gg, bb;
  static int done=0;
 
- dim_bg = tclgetvar("dim_background")[0] == '1' ? 1: 0;
+ dim_bg = tclgetvar("color_dim")[0] == '1' ? 1: 0;
  for(i=0;i<cadlayers;i++) {
    my_snprintf(s, S(s), "lindex $colors %d",i);
    tcleval(s);
@@ -399,6 +399,7 @@ void alloc_xschem_data()
   xctx->schsymbolprop=NULL; /* symbol property string */
   xctx->schverilogprop=NULL;/* verilog */
   xctx->version_string = NULL;
+  xctx->rectcolor= 4;  /* this is the current layer when xschem started. */
   xctx->currsch = 0;
   xctx->ui_state = 0;
   xctx->need_reb_sel_arr = 1;
@@ -466,7 +467,6 @@ void alloc_xschem_data()
   xctx->hilight_time = 0; /* timestamp for sims */
   xctx->hilight_nets = 0;
   xctx->hilight_color = 0;
-  xctx->rectcolor = 0;
   for(i=0;i<CADMAXHIER;i++) {
     xctx->sch_path[i]=NULL;
     xctx->sch_path_hash[i]=0;
@@ -862,40 +862,35 @@ void new_schematic(const char *what, const char *tk_win_path, const char *filena
     zoom_full(1, 0, 1, 0.97); /* draw */
   } else if(!strcmp(what, "destroy")) {
     if(cnt) {
+      int close = 0;
       dbg(1, "new_schematic() destroy\n");
-      tkwin =  Tk_NameToWindow(interp, tk_win_path, mainwindow);
-      for(i = 1; i < MAX_NEW_WINDOWS; i++) {
-        if(tkwin == tknew_window[i]) {
-          n = i;
-          break;
+      if(xctx->modified && has_x) {
+        tcleval("tk_messageBox -type okcancel -message {UNSAVED data: want to exit?}");
+        if(strcmp(tclresult(),"ok")==0) close = 1;
+      }
+      else close = 1;
+      Tcl_ResetResult(interp);
+      if(close) {
+        tkwin =  Tk_NameToWindow(interp, tk_win_path, mainwindow);
+        for(i = 1; i < MAX_NEW_WINDOWS; i++) {
+          if(tkwin == tknew_window[i]) {
+            n = i;
+            break;
+          }
         }
-      }
-      if(n >= 1 && n < MAX_NEW_WINDOWS) {
-        xctx = save_xctx[n];
-        delete_schematic_data();
-        save_xctx[n] = NULL;
-        Tk_DestroyWindow(tknew_window[n]);
-        tknew_window[n] = NULL;
-        xctx = save_xctx[0]; /* restore schematic */
-        set_modify(xctx->modified);
-        cnt--;
-      }
-    }
-  } else if(!strcmp(what, "destroy_all")) {
-    if(cnt) {
-      dbg(1, "new_schematic() destroy_all\n");
-      for(i = 1; i < MAX_NEW_WINDOWS; i++) {
-        if(tknew_window[i]) {
-          xctx = save_xctx[i];
+        if(n >= 1 && n < MAX_NEW_WINDOWS) {
+          xctx = save_xctx[n];
           delete_schematic_data();
-          save_xctx[i] = NULL;
-          Tk_DestroyWindow(tknew_window[i]);
-          tknew_window[i] = NULL;
+          save_xctx[n] = NULL;
+          Tcl_VarEval(interp, "winfo parent ", tk_win_path, NULL);
+          Tk_DestroyWindow(tknew_window[n]);
+          Tcl_VarEval(interp, "destroy ", tclresult(), NULL);
+          tknew_window[n] = NULL;
+          xctx = save_xctx[0]; /* restore schematic */
+          set_modify(xctx->modified);
           cnt--;
         }
       }
-      xctx = save_xctx[0]; /* restore schematic */
-      set_modify(xctx->modified);
     }
   } else if(!strcmp(what, "switch")) {
     if(cnt) {
@@ -1152,6 +1147,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
  tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
 
  running_in_src_dir = 0;
+ /* create user conf dir , remove ~ if present */
+ my_snprintf(tmp, S(tmp),"regsub {^~/} {%s} {%s/}", USER_CONF_DIR, home_dir);
+ tcleval(tmp);
+ my_snprintf(user_conf_dir, S(user_conf_dir), "%s", tclresult());
+ tclsetvar("USER_CONF_DIR", user_conf_dir);
  /* test if running xschem in src/ dir (usually for testing) */
  if( !stat("./xschem.tcl", &buf) && !stat("./systemlib", &buf) && !stat("./xschem", &buf)) {
    running_in_src_dir = 1;
@@ -1161,18 +1161,37 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tcleval(tmp);
    tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
    */
-   my_snprintf(tmp, S(tmp), "subst [file dirname \"%s\"]/xschem_library/devices", pwd_dir);
+   my_snprintf(tmp, S(tmp), 
+      "set XSCHEM_LIBRARY_PATH %s/xschem_library", user_conf_dir);
    tcleval(tmp);
-   tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
+   my_snprintf(tmp, S(tmp), 
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/devices", pwd_dir);
+   tcleval(tmp);
+   my_snprintf(tmp, S(tmp), 
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/examples", pwd_dir);
+   tcleval(tmp);
+   my_snprintf(tmp, S(tmp), 
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/ngspice", pwd_dir);
+   tcleval(tmp);
+   my_snprintf(tmp, S(tmp), 
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/logic", pwd_dir);
+   tcleval(tmp);
+   my_snprintf(tmp, S(tmp), 
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/xschem_simulator", pwd_dir);
+   tcleval(tmp);
+   my_snprintf(tmp, S(tmp), 
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/binto7seg", pwd_dir);
+   tcleval(tmp);
+   my_snprintf(tmp, S(tmp), 
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/pcb", pwd_dir);
+   tcleval(tmp);
+   my_snprintf(tmp, S(tmp), 
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/rom8k", pwd_dir);
+   tcleval(tmp);
  } else if( !stat(XSCHEM_SHAREDIR, &buf) ) {
    tclsetvar("XSCHEM_SHAREDIR",XSCHEM_SHAREDIR);
    /* ... else give up searching, may set later after loading xschemrc */
  }
- /* create user conf dir , remove ~ if present */
- my_snprintf(tmp, S(tmp),"regsub {^~/} {%s} {%s/}", USER_CONF_DIR, home_dir);
- tcleval(tmp);
- my_snprintf(user_conf_dir, S(user_conf_dir), "%s", tclresult());
- tclsetvar("USER_CONF_DIR", user_conf_dir);
 #else
    char install_dir[MAX_PATH]="";
    char *up_hier=NULL, *win_xschem_library_path=NULL;
@@ -1183,10 +1202,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
      /*3*/ "xschem_library/examples", 
      /*4*/ "xschem_library/ngspice", 
      /*5*/ "xschem_library/logic", 
-     /*6*/ "xschem_library/binto7seg", 
-     /*7*/ "xschem_library/pcb", 
-     /*8*/ "xschem_library/rom8k",
-     /*9*/ "xschem_library/xschem_simulator"};
+     /*6*/ "xschem_library/xschem_simulator"};
+     /*7*/ "xschem_library/binto7seg", 
+     /*8*/ "xschem_library/pcb", 
+     /*9*/ "xschem_library/rom8k",
    GetModuleFileNameA(NULL, install_dir, MAX_PATH);
    change_to_unix_fn(install_dir);
    int dir_len=strlen(install_dir);
@@ -1215,7 +1234,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tclsetvar("XSCHEM_LIBRARY_PATH", win_xschem_library_path_clean);
    my_free(432, &win_xschem_library_path);
    my_free(441, &up_hier);
- char* gxschem_library=NULL, *xschem_sharedir=NULL;
+ char *xschem_sharedir=NULL;
  if ((xschem_sharedir=getenv("XSCHEM_SHAREDIR")) != NULL) {
    if (!stat(xschem_sharedir, &buf)) {
      tclsetvar("XSCHEM_SHAREDIR", xschem_sharedir);
@@ -1532,7 +1551,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
     visual = vinfo.visual;
     */
     dbg(1, "Tcl_AppInit(): done step b of xinit()\n");
-    xctx->rectcolor= 4;  /* this is the current layer when xschem started. */
     for(i=0;i<cadlayers;i++)
     {
      pixmap[i] = XCreateBitmapFromData(display, xctx->window, (char*)(pixdata[i]),16,16);
@@ -1595,16 +1613,16 @@ int Tcl_AppInit(Tcl_Interp *inter)
                /* leaving undo buffer and other garbage around. */
 
  /*                                                                                  */
- /* Completing tk windows creation (see xschem.tcl, build_windows) and event binding */
+ /* Completing tk windows creation (see xschem.tcl, pack_widgets) and event binding */
  /* *AFTER* X initialization done                                                    */
  /*                                                                                  */
- if(has_x) tcleval("build_windows");
+ if(has_x) tcleval("pack_widgets");
 
  fullscreen=atoi(tclgetvar("fullscreen"));
  if(fullscreen) {
    fullscreen = 0;
    tcleval("update");
-   toggle_fullscreen();
+   toggle_fullscreen(".");
  }
 
  /*                                */

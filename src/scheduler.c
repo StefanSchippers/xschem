@@ -161,9 +161,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1],"callback") )
     {
       cmd_found = 1;
-      callback( atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), (KeySym)atol(argv[5]),
-               atoi(argv[6]), atoi(argv[7]), atoi(argv[8]) );
-      dbg(2, "callback %s %s %s %s %s %s %s\n", argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8]);
+      callback( argv[2], atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), (KeySym)atol(argv[6]),
+               atoi(argv[7]), atoi(argv[8]), atoi(argv[9]) );
+      dbg(2, "callback %s %s %s %s %s %s %s %s\n", argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9]);
       Tcl_ResetResult(interp);
     }
    
@@ -458,7 +458,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       cmd_found = 1;
       dbg(1, "scheduler(): xschem fullscreen, fullscreen=%d\n", fullscreen);
-      toggle_fullscreen();
+      toggle_fullscreen(argv[2]);
       Tcl_ResetResult(interp);
     }
   }
@@ -2323,7 +2323,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else if(!strcmp(argv[2],"rectcolor")) {
          xctx->rectcolor=atoi(argv[3]);
-         tcleval("reconfigure_layers_button");
          rebuild_selected_array();
          if(xctx->lastsel) {
            change_layer();

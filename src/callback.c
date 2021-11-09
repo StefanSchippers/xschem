@@ -138,7 +138,7 @@ void start_wire(double mx, double my)
 }
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
-int callback(int event, int mx, int my, KeySym key,
+int callback(const char *winpath, int event, int mx, int my, KeySym key,
                  int button, int aux, int state)
 {
  char str[PATH_MAX + 100]; /* overflow safe 20161122 */
@@ -648,6 +648,12 @@ int callback(int event, int mx, int my, KeySym key,
     xctx->rectcolor = key - '0'+4;
     my_snprintf(n, S(n), "%d", xctx->rectcolor);
     Tcl_VarEval(interp, "xschem set rectcolor ", n, NULL);
+
+    if(!strcmp(winpath, ".drw")) {
+      Tcl_VarEval(interp, "reconfigure_layers_button {}", NULL);
+    } else {
+      Tcl_VarEval(interp, "reconfigure_layers_button [winfo parent ", winpath, "]", NULL);
+    }
     dbg(1, "callback(): new color: %d\n",color_index[xctx->rectcolor]);
     break;
    }
@@ -1139,8 +1145,9 @@ int callback(int event, int mx, int my, KeySym key,
    }
    if(key=='\\' && state==0)          /* fullscreen */
    {
-    dbg(1, "callback(): toggle fullscreen\n");
-    toggle_fullscreen();
+    
+    dbg(1, "callback(): toggle fullscreen, winpath=%s\n", winpath);
+    toggle_fullscreen(winpath);
     break;
    }
    if(key=='f' && state==Mod1Mask)              /* flip objects around their anchor points 20171208 */

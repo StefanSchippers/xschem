@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC8 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -104,16 +105,16 @@ value=".option SCALE=1e-6 PARHIER=LOCAL RUNLVL=6 post MODMONTE=1
 vvss vss 0 dc 0
 
 .save all
-
+.save tran @q5[p]
 ** models are generally not free: you must download
 ** SPICE models for active devices and put them  into the below 
 ** referenced file in simulation directory.
 .include models_tesla.txt
 .temp 30
 .tran 1n 1m  uic
-.meas tran iavg AVG i(vc) from=950u to=990u
-.probe tran p(q1) i(d2) i(d1) i(d3) i(l1) i(l2) i(L3)
-.meas tran pavg AVG p(q1) from=950u to=990u
+.meas tran iavg AVG i(vvcc) from=950u to=990u
+.probe tran p(q5) i(l1) i(l2)
+.meas tran pavg AVG @q5[p] from=950u to=990u
 "}
 C {lab_pin.sym} 140 -640 0 0 {name=p1 lab=VCC}
 C {res.sym} 140 -580 0 1 {name=Rs m=1 value=1}

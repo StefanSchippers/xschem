@@ -216,11 +216,34 @@ void toggle_only_probes()
   draw();
 }
 
-void toggle_fullscreen()
+void toggle_fullscreen(const char *topwin)
 {
+  char *mytopwin = NULL;
   char fullscr[]="add,fullscreen";
   char normal[]="remove,fullscreen";
   static int menu_removed = 0;
+  unsigned int topwin_id;
+  Window rootwindow, parent_id;
+  Window *framewin_child_ptr;
+  unsigned int framewindow_nchildren;
+
+
+
+  if(!strcmp(topwin, ".drw")) {
+    my_strdup2(1290, &mytopwin, "");
+    tcleval( "winfo id .");
+    sscanf(tclresult(), "0x%x", (unsigned int *) &topwin_id);
+  } else {
+    Tcl_VarEval(interp, "winfo toplevel ", topwin, NULL);
+    my_strdup2(1291, &mytopwin, tclresult());
+    Tcl_VarEval(interp, "winfo id ", mytopwin, NULL);
+    sscanf(tclresult(), "0x%x", (unsigned int *) &topwin_id);
+  }
+
+  XQueryTree(display, topwin_id, &rootwindow, &parent_id, &framewin_child_ptr, &framewindow_nchildren);
+
+
+
   fullscreen = (fullscreen+1)%2;
   if(fullscreen==1) tclsetvar("fullscreen","1");
   else if(fullscreen==2) tclsetvar("fullscreen","2");
@@ -228,25 +251,26 @@ void toggle_fullscreen()
 
   dbg(1, "toggle_fullscreen(): fullscreen=%d\n", fullscreen);
   if(fullscreen==2) {
-    tcleval("pack forget .menubar .statusbar; update");
+    Tcl_VarEval(interp, "pack forget ", mytopwin, ".menubar ", mytopwin, ".statusbar; update", NULL);
     menu_removed = 1;
   }
   if(fullscreen !=2 && menu_removed) {
-    tcleval("pack .menubar -anchor n -side top -fill x  -before .drw\n\
-             pack .statusbar -after .drw -anchor sw  -fill x; update");
+    Tcl_VarEval(interp, "pack ", mytopwin, ".menubar -anchor n -side top -fill x  -before ", mytopwin, ".drw\n\
+             pack ", mytopwin, ".statusbar -after ", mytopwin, ".drw -anchor sw  -fill x; update", NULL);
     menu_removed=0;
   }
 
 
   if(fullscreen == 1) {
-    window_state(display , parent_of_topwindow,fullscr);
+    window_state(display , parent_id,fullscr);
   } else if(fullscreen == 2) {
-    window_state(display , parent_of_topwindow,normal);
-    window_state(display , parent_of_topwindow,fullscr);
+    window_state(display , parent_id,normal);
+    window_state(display , parent_id,fullscr);
   } else {
-    window_state(display , parent_of_topwindow,normal);
+    window_state(display , parent_id,normal);
   }
   xctx->pending_fullzoom=1;
+  my_free(1291, &mytopwin);
 }
 
 #ifdef __unix__
@@ -967,7 +991,7 @@ void schematic_in_new_window(void)
 
 void launcher(void)
 {
-  const char *str;
+  const char *url;
   char program[PATH_MAX];
   int n;
   rebuild_selected_array();
@@ -979,19 +1003,13 @@ void launcher(void)
     select_object(mx,my,0, 0);
     n=xctx->sel_array[0].n;
     my_strncpy(program, get_tok_value(xctx->inst[n].prop_ptr,"program",0), S(program)); /* handle backslashes */
-    str = get_tok_value(xctx->inst[n].prop_ptr,"url",0); /* handle backslashes */
-    dbg(1, "launcher(): str=%s\n", str);
-    if(str[0] || (program[0])) {
-      tclsetvar("launcher_var",str);
-      if(program[0]) { /*  20170413 leave launcher_program empty if unspecified */
-        tclsetvar("launcher_program",program);
-      } else {
-        tclsetvar("launcher_program","");
-      }
-      tcleval( "launcher");
+    url = get_tok_value(xctx->inst[n].prop_ptr,"url",0); /* handle backslashes */
+    dbg(1, "launcher(): url=%s\n", url);
+    if(url[0] || (program[0])) { /* open url with appropriate program */
+      Tcl_VarEval(interp, "launcher {", url, "} {", program, "}", NULL);
     } else {
       my_strncpy(program, get_tok_value(xctx->inst[n].prop_ptr,"tclcommand",0), S(program));
-      if(program[0]) { /*  20170415 execute tcl command */
+      if(program[0]) { /* execute tcl command */
         tcleval(program);
       }
     }

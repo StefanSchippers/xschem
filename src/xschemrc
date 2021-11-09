@@ -26,9 +26,17 @@
 # /home/schippes/share/doc/xschem/rom8k
 
 #### For testing in build src directory
-#### if unset following paths are set:
+#### if unset following paths are set and maintained if existing:
 #
+# ~/.xschem/xschem_library
 # ../xschem_library/devices
+# ../xschem_library/examples
+# ../xschem_library/ngspice
+# ../xschem_library/logic
+# ../xschem_library/xschem_simulator
+# ../xschem_library/binto7seg
+# ../xschem_library/pcb
+# ../xschem_library/rom8k
 
 #### For testing after installation: uncomment following lines
 # set xschem_doc_dir [file dirname ${XSCHEM_SHAREDIR}]/doc/xschem

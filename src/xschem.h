@@ -752,6 +752,7 @@ extern char cairo_font_name[80];
 extern double cairo_font_line_spacing; /*  allows to change line spacing: default: 1.0 */
 extern double cairo_vert_correct;
 extern int debug_var;
+extern double color_dim; /* can not be put in Xctx unless all X11 colors are reset on window change */
 /*********** End of variables backed in xschem.tcl ***********/
 extern int help;
 extern char *cad_icon[];
@@ -768,7 +769,6 @@ extern char *tcl_command;
 extern char tcl_script[PATH_MAX];
 extern int tcp_port;
 extern char **color_array;
-extern double color_dim; /* can not be put in Xctx unless all X11 colors are reset on window change */
 extern unsigned int color_index[];
 extern int n_active_layers; /* can not be put in Xctx, since it is bound to enable_layer[] */
 extern int *active_layer; /* can not be put in Xctx, since it is bound to enable_layer[] */
@@ -908,7 +908,7 @@ extern void xwin_exit(void);
 extern void resetcairo(int create, int clear, int force_or_resize);
 extern int Tcl_AppInit(Tcl_Interp *interp);
 extern int source_tcl_file(char *s);
-extern int callback(int event, int mx, int my, KeySym key,
+extern int callback(const char *winpath, int event, int mx, int my, KeySym key,
                         int button, int aux, int state);
 extern void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h);
 extern void find_closest_net(double mx,double my);
@@ -1170,7 +1170,7 @@ extern void windowid();
 extern void preview_window(const char *what, const char *tk_win_path, const char *filename);
 extern void new_schematic(const char *what, const char *tk_win_path, const char *filename);
 extern int window_state (Display *disp, Window win, char *arg);
-extern void toggle_fullscreen();
+extern void toggle_fullscreen(const char *topwin);
 extern void toggle_only_probes();
 extern void update_symbol(const char *result, int x);
 extern void tclexit(ClientData s);
