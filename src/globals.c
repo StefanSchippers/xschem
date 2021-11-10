@@ -114,52 +114,22 @@ xcb_visualtype_t *visual_xcb;
 #endif /*HAS_XCB */
 
 /* these variables are mirrored in tcl code */
-int fullscreen=0;
 char *netlist_dir=NULL; /* user set netlist directory via cmd-option or menu or xschemrc */
 char initial_netlist_name[PATH_MAX]={0};
-int top_subckt = 0;
-int spiceprefix = 1;
-int unzoom_nodrift=1;
-int change_lw=0; /* allow change lw */
-int incr_hilight=1;
-unsigned short enable_stretch=0;
-int auto_hilight=0;
 int has_x=1;
-int split_files=0; /* split netlist files 20081202 */
-double cadgrid = CADGRID;
-double cadsnap = CADSNAP;
-int draw_grid=1;
-int big_grid_points=0;
-int rainbow_colors=0;
-int disable_unique_names=0; /* if set allow instances with duplicate names */
-int persistent_command=0; /* remember last command 20181022 */
-int autotrim_wires = 0;
 int color_ps=-1;
-int transparent_svg=-1;
-int only_probes=0;
-int netlist_show=0;
-int flat_netlist=0;
+int flat_netlist = 0;
 int cadlayers=0;
-int hide_symbols = 0; /* draw only a bounding box for component instances and @symname, @name texts */
-int dark_colorscheme=1;
-char cairo_font_name[80]="Sans-Serif";
-char svg_font_name[80]="Sans-Serif";
+int rainbow_colors = 0;
 double cairo_font_scale=1.0; /* default: 1.0, allows to adjust font size */
-double nocairo_font_xscale=0.85; /* match with cairo sizing */
-double nocairo_font_yscale=0.88; /* match with cairo sizing */
-double cairo_font_line_spacing=1.0; /* allows to change line spacing: default: 1.0 */
 /* lift up the text by 'n' pixels (zoom corrected) within the bbox.  */
 /* This correction is used to better align existing schematics */
 /* compared to the nocairo xschem version. */
 /* allowed values should be in the range [-4, 4] */
 double cairo_vert_correct=0.0;
 double nocairo_vert_correct=0.0;
-int sym_txt=1;
+double cairo_font_line_spacing = 1.0; /* value taken from xschemrc / xschem.tcl */
 int netlist_type=-1;
-int show_pin_net_names = 0;
-/* enable hilight instances attached to hilighted nets if they have the "highlight=true attr set */
-int en_hilight_conn_inst = 0; 
-
 
 int help=0; /* help option set to global scope, printing help is deferred */
             /* when configuration ~/.schem has been read 20140406 */
@@ -184,6 +154,9 @@ int tcp_port = 0;
 int do_print=0;
 int no_readline=0;
 int draw_window=0;
+int only_probes = 0;
+int hide_symbols = 0;
+int sym_txt = 1;
 int text_svg=1; /* use <text> svg element for text instead of xschem's internal vector font */
 int text_ps=1;  /* use ps font for text instead of xschem's internal vector font */
 double cadhalfdotsize = CADHALFDOTSIZE;
@@ -196,7 +169,6 @@ int screendepth;
 char **color_array;
 int *fill_type;
 int fill_pattern = 1;
-double color_dim = 0.0;
 char *xschem_executable=NULL;
 double *character[256]; /* array or per-char coordinates of xschem internal vector font */
 Tcl_Interp *interp;

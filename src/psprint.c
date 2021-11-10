@@ -417,8 +417,8 @@ static void old_ps_draw_string(int gctext,  const char *str,
  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter,
            x1,y1, &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
  #endif
- xscale*=nocairo_font_xscale;
- yscale*=nocairo_font_yscale;
+ xscale*=tclgetdoublevar("nocairo_font_xscale");
+ yscale*=tclgetdoublevar("nocairo_font_yscale");
 
  if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,rx1,ry1,rx2,ry2)) return;
  set_ps_colors(gctext);
@@ -457,8 +457,8 @@ static void ps_drawgrid()
 {
  double x,y;
  double delta,tmp;
- if(!draw_grid) return;
- delta=cadgrid* xctx->mooz;
+ if( !tclgetboolvar("draw_grid")) return;
+ delta=tclgetdoublevar("cadgrid")* xctx->mooz;
  while(delta<CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
  x = xctx->xorigin* xctx->mooz;y = xctx->yorigin* xctx->mooz;
  set_ps_colors(GRIDLAYER);
@@ -676,8 +676,9 @@ void create_ps(char **psfile, int what)
   }
 
   fill_ps_colors();
-  old_grid=draw_grid;
-  draw_grid=0;
+  old_grid=tclgetboolvar("draw_grid");
+  tclsetvar("draw_grid", "0");
+
 
   boundbox.x1 = xctx->areax1;
   boundbox.x2 = xctx->areax2;
@@ -870,7 +871,7 @@ void create_ps(char **psfile, int what)
     fprintf(fd, "%%%%EOF\n");
     fclose(fd);
   }
-  draw_grid=old_grid;
+  tclsetboolvar("draw_grid", old_grid);
   my_free(879, &ps_colors);
 }
 

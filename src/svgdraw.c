@@ -197,7 +197,7 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   if(color_ps) 
     my_snprintf(col, S(col), "#%02x%02x%02x",
       svg_colors[layer].red, svg_colors[layer].green, svg_colors[layer].blue);
-  else if(dark_colorscheme)
+  else if(tclgetboolvar("dark_colorscheme"))
     my_snprintf(col, S(col), "#%02x%02x%02x", 255, 255, 255);
   else
     my_snprintf(col, S(col), "#%02x%02x%02x", 0, 0, 0);
@@ -225,7 +225,7 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   fprintf(fd,"<text fill=\"%s\"  xml:space=\"preserve\" font-size=\"%g\" ", col, size*xctx->mooz);
   if(strcmp(svg_font_weight, "normal")) fprintf(fd, "font-weight=\"%s\" ", svg_font_weight);
   if(strcmp(svg_font_style, "normal")) fprintf(fd, "font-style=\"%s\" ", svg_font_style);
-  if(strcmp(svg_font_family, svg_font_name)) fprintf(fd, "style=\"font-family:%s;\" ", svg_font_family);
+  if(strcmp(svg_font_family, tclgetvar("svg_font_name"))) fprintf(fd, "style=\"font-family:%s;\" ", svg_font_family);
   if(rot1) fprintf(fd, "transform=\"translate(%g, %g) rotate(%d)\" ", ix, iy, rot1*90);
   else fprintf(fd, "transform=\"translate(%g, %g)\" ", ix, iy);
   fprintf(fd, ">");
@@ -329,8 +329,8 @@ static void old_svg_draw_string(int layer, const char *str,
  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y,
            &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
  #endif
- xscale*=nocairo_font_xscale;
- yscale*=nocairo_font_yscale;
+ xscale*=tclgetdoublevar("nocairo_font_xscale");
+ yscale*=tclgetdoublevar("nocairo_font_yscale");
  if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,rx1,ry1,rx2,ry2)) return;
  x=rx1;y=ry1;
  if(rot&1) {y=ry2;rot=3;}
@@ -367,8 +367,8 @@ static void svg_drawgrid()
 {
  double x,y;
  double delta,tmp;
- if(!draw_grid) return;
- delta=cadgrid* xctx->mooz;
+ if(!tclgetboolvar("draw_grid")) return;
+ delta=tclgetdoublevar("cadgrid")* xctx->mooz;
  while(delta<CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
  x = xctx->xorigin* xctx->mooz;y = xctx->yorigin* xctx->mooz;
  if(y>xctx->areay1 && y<xctx->areay2)
@@ -490,7 +490,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
       }
       /* display PINLAYER colored instance texts even if PINLAYER disabled */
       if(xctx->inst[n].color == PINLAYER ||  enable_layer[textlayer]) {
-        my_snprintf(svg_font_family, S(svg_font_family), svg_font_name);
+        my_snprintf(svg_font_family, S(svg_font_family), tclgetvar("svg_font_name"));
         my_snprintf(svg_font_style, S(svg_font_style), "normal");
         my_snprintf(svg_font_weight, S(svg_font_weight), "normal");
         textfont = symptr->text[j].font;
@@ -534,7 +534,7 @@ static void fill_svg_colors()
      svg_colors[i].red   = (c & 0xff0000) >> 16;
      svg_colors[i].green = (c & 0x00ff00) >> 8;
      svg_colors[i].blue  = (c & 0x0000ff);
-   } else if(dark_colorscheme) {
+   } else if(tclgetboolvar("dark_colorscheme")) {
      svg_colors[i].red   = 255;
      svg_colors[i].green = 255;
      svg_colors[i].blue  = 255;
@@ -579,8 +579,8 @@ void svg_draw(void)
     fprintf(errfp, "svg_draw(): calloc error\n");tcleval( "exit");
   }
   fill_svg_colors();
-  old_grid=draw_grid;
-  draw_grid=0;
+  old_grid=tclgetboolvar("draw_grid");
+  tclsetvar("draw_grid", "0");
   dx=xctx->xschem_w;
   dy=xctx->xschem_h;
   dbg(1, "svg_draw(): dx=%g  dy=%g\n", dx, dy);
@@ -662,14 +662,14 @@ void svg_draw(void)
     fprintf(fd, "  stroke-linecap:round;\n");
     fprintf(fd, "  stroke-linejoin:round;\n");
     fprintf(fd, "  stroke-width: %g;\n", svg_linew);
-    if(i == 0 && transparent_svg) {
+    if(i == 0 && tclgetboolvar("transparent_svg")) {
       fprintf(fd, "  fill-opacity: 0;\n");
       fprintf(fd, "  stroke-opacity: 0;\n");
     }
     fprintf(fd, "}\n");
   }
  
-  fprintf(fd, "text {font-family: %s;}\n", svg_font_name);
+  fprintf(fd, "text {font-family: %s;}\n", tclgetvar("svg_font_name"));
   fprintf(fd, "</style>\n");
  
     /* background */
@@ -679,7 +679,7 @@ void svg_draw(void)
     {
       textlayer = xctx->text[i].layer;
       if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-      my_snprintf(svg_font_family, S(svg_font_family), svg_font_name);
+      my_snprintf(svg_font_family, S(svg_font_family), tclgetvar("svg_font_name"));
       my_snprintf(svg_font_style, S(svg_font_style), "normal");
       my_snprintf(svg_font_weight, S(svg_font_weight), "normal");
       textfont = xctx->text[i].font;
@@ -767,8 +767,7 @@ void svg_draw(void)
   dbg(1, "svg_draw(): INT_WIDTH(lw)=%d\n",INT_WIDTH(xctx->lw));
   fprintf(fd, "</svg>\n");
   fclose(fd);
-
-  draw_grid=old_grid;
+  tclsetboolvar("draw_grid", old_grid);
   my_free(964, &svg_colors);
   my_free(1217, &unused_layer);
   Tcl_SetResult(interp,"",TCL_STATIC);

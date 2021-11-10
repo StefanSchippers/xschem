@@ -2011,6 +2011,7 @@ proc select_layers {} {
 }
 
 proc color_dim {} {
+  global color_dim
   toplevel .dim -class dialog
   wm title .dim {Dim colors}
   checkbutton .dim.bg -text {Dim background} -variable color_dim
@@ -2018,7 +2019,7 @@ proc color_dim {} {
      -showvalue 1 -command {xschem color_dim} -orient horizontal \
      -from -5 -to 5 -resolution 0.1
   button .dim.ok -text OK -command {destroy .dim}
-  .dim.scale set [xschem get dim]
+  .dim.scale set $color_dim
   pack .dim.scale
   pack .dim.bg -side left
   pack .dim.ok -side right -anchor e
@@ -3603,34 +3604,22 @@ proc build_widgets { {topwin {} } } {
      -command {
         if { $color_ps==1 } {xschem set color_ps 1} else { xschem set color_ps 0}
      }
-  $topwin.menubar.option.menu add checkbutton -label "Transparent SVG background" -variable transparent_svg \
-     -command {
-        if { $transparent_svg==1 } {xschem set transparent_svg 1} else { xschem set transparent_svg 0}
-     }
+  $topwin.menubar.option.menu add checkbutton -label "Transparent SVG background" -variable transparent_svg
   $topwin.menubar.option.menu add checkbutton -label "Debug mode" -variable menu_debug_var \
      -command {
         if { $menu_debug_var==1 } {xschem debug 1} else { xschem debug 0}
      }
   $topwin.menubar.option.menu add checkbutton -label "Enable stretch" -variable enable_stretch \
-     -accelerator Y \
-     -command {
-        if { $enable_stretch==1 } {xschem set enable_stretch 1} else { xschem set enable_stretch 0} 
-     }
+     -accelerator Y 
   $topwin.menubar.option.menu add checkbutton -label "Show netlist win" -variable netlist_show \
-     -accelerator {Shift+A} \
-     -command {
-        if { $netlist_show==1 } {xschem set netlist_show 1} else { xschem set netlist_show 0} 
-     }
+     -accelerator {Shift+A} 
   $topwin.menubar.option.menu add checkbutton -label "Flat netlist" -variable flat_netlist \
      -accelerator : \
      -command {
         if { $flat_netlist==1 } {xschem set flat_netlist 1} else { xschem set flat_netlist 0} 
      }
   $topwin.menubar.option.menu add checkbutton -label "Split netlist" -variable split_files \
-     -accelerator {} \
-     -command {
-        if { $split_files==1 } {xschem set split_files 1} else { xschem set split_files 0} 
-     }
+     -accelerator {} 
   $topwin.menubar.option.menu add checkbutton -label "hspice / ngspice netlist" -variable hspice_netlist \
      -accelerator {} \
      -command {
@@ -3647,32 +3636,15 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.option.menu add checkbutton -label "Draw grid" -variable draw_grid \
      -accelerator {%} \
      -command {
-       if { $draw_grid == 1} { xschem set draw_grid 1; xschem redraw} else { xschem set draw_grid 0; xschem redraw}
+       xschem redraw
      }
   $topwin.menubar.option.menu add checkbutton -label "Variable grid point size" -variable big_grid_points \
-     -command {
-       if { $big_grid_points == 1} {
-         xschem set big_grid_points 1
-         xschem redraw
-       } else {
-         xschem set big_grid_points 0
-         xschem redraw
-       }
-     }
+     -command { xschem redraw }
   $topwin.menubar.option.menu add checkbutton -label "Symbol text" -variable sym_txt \
-     -accelerator {Ctrl+B} \
-     -command {
-       if { $sym_txt == 1} { xschem set sym_txt 1; xschem redraw} else { xschem set sym_txt 0; xschem redraw}
-     }
+     -accelerator {Ctrl+B} -command { xschem set sym_txt $sym_txt; xschem redraw }
   $topwin.menubar.option.menu add checkbutton -label "Toggle variable line width" -variable change_lw \
-     -accelerator {_} \
-     -command {
-       if { $change_lw == 1} { xschem set change_lw 1} else { xschem set change_lw 0}
-     }
-  $topwin.menubar.option.menu add checkbutton -label "Increment Hilight Color" -variable incr_hilight \
-     -command {
-       if { $incr_hilight == 1} { xschem set incr_hilight 1} else { xschem set incr_hilight 0}
-     }
+     -accelerator {_}
+  $topwin.menubar.option.menu add checkbutton -label "Increment Hilight Color" -variable incr_hilight
   
   $topwin.menubar.option.menu add command -label "Set line width" \
        -command {
@@ -3814,7 +3786,7 @@ proc build_widgets { {topwin {} } } {
        }
   $topwin.menubar.view.menu add checkbutton -label "Show net names on symbol pins" -variable show_pin_net_names \
      -command {
-        xschem set show_pin_net_names $show_pin_net_names
+        xschem show_pin_net_names
         xschem redraw
      }
   $topwin.menubar.view.menu add checkbutton -label "Show Toolbar" -variable toolbar_visible \
@@ -3830,7 +3802,8 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.prop.menu add command -label "View" -command "xschem view_prop" -accelerator Ctrl+Shift+Q
   $topwin.menubar.prop.menu add command -background red -label "Edit file (danger!)" \
      -command "xschem edit_file" -accelerator Alt+Q
-  $topwin.menubar.sym.menu add radiobutton -label "Show Symbols" -variable hide_symbols -value 0 \
+  $topwin.menubar.sym.menu add radiobutton -label "Show Symbols" \
+     -variable hide_symbols -value 0 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
   $topwin.menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for subcircuit symbols" \
      -variable hide_symbols -value 1 \
@@ -3859,11 +3832,8 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.sym.menu add command -label "Create pins from highlight nets" \
           -command "xschem print_hilight_net 0" -accelerator Ctrl-J
   $topwin.menubar.sym.menu add checkbutton -label "Allow duplicated instance names (refdes)" \
-      -variable disable_unique_names -command {
-         xschem set disable_unique_names $disable_unique_names
-      }
-  $topwin.menubar.tools.menu add checkbutton -label "Remember last command" -variable persistent_command \
-     -command {xschem set persistent_command $persistent_command}
+      -variable disable_unique_names
+  $topwin.menubar.tools.menu add checkbutton -label "Remember last command" -variable persistent_command
   $topwin.menubar.tools.menu add command -label "Insert symbol" -command "xschem place_symbol" -accelerator {Ins, Shift-I}
   toolbar_create ToolInsertSymbol "xschem place_symbol" "Insert Symbol" $topwin
   $topwin.menubar.tools.menu add command -label "Insert wire label" -command "xschem net_label 1" -accelerator {Alt-L}
@@ -3896,7 +3866,6 @@ proc build_widgets { {topwin {} } } {
    toolbar_create ToolBreak "xschem break_wires" "Break wires at selected\ninstance pin intersections" $topwin
   $topwin.menubar.tools.menu add checkbutton -label "Auto Join/Trim Wires" -variable autotrim_wires \
      -command {
-         xschem set autotrim_wires $autotrim_wires
          if {$autotrim_wires == 1} {
            xschem trim_wires
            xschem redraw
@@ -3927,16 +3896,9 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.hilight.menu add command -label {Un-highlight selected net/pins} \
      -command "xschem unhilight" -accelerator Ctrl+K
   # 20160413
-  $topwin.menubar.hilight.menu add checkbutton -label {Auto-highlight net/pins} -variable auto_hilight \
-     -command {
-       if { $auto_hilight == 1} {
-         xschem set auto_hilight 1
-       } else {
-         xschem set auto_hilight 0
-       }
-     }
+  $topwin.menubar.hilight.menu add checkbutton -label {Auto-highlight net/pins} -variable auto_hilight
   $topwin.menubar.hilight.menu add checkbutton -label {Enable highlight connected instances} \
-    -variable en_hilight_conn_inst  -command {xschem set en_hilight_conn_inst $en_hilight_conn_inst}
+    -variable en_hilight_conn_inst
 
   $topwin.menubar.simulation.menu add command -label "Set netlist Dir" \
     -command {
@@ -3969,7 +3931,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.simulation.menu add separator
   $topwin.menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" -variable top_subckt 
   $topwin.menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
-         -command {xschem set spiceprefix $spiceprefix; xschem save; xschem reload}
+         -command {xschem save; xschem reload}
 
   toolbar_create Netlist { xschem netlist } "Create netlist" $topwin
   toolbar_create Simulate "
@@ -4235,8 +4197,6 @@ set_ne enable_stretch 0
 set_ne constrained_move 0
 set_ne draw_grid 1
 set_ne big_grid_points 0
-set_ne cadsnap 10
-set_ne cadgrid 20
 set_ne persistent_command 0
 set_ne autotrim_wires 0
 set_ne disable_unique_names 0
@@ -4301,7 +4261,7 @@ set_ne svg_font_name {Sans-Serif}
 set has_cairo 0 
 set rotated_text {} ;#20171208
 set_ne dark_colorscheme 1
-set_ne color_dim 1
+set_ne color_dim 0.0
 ##### set colors
 if {!$rainbow_colors} {
   set_ne cadlayers 22
@@ -4382,22 +4342,10 @@ set_initial_dirs
 set custom_token {lab}
 set search_value {}
 set search_exact 0
-xschem set persistent_command $persistent_command
-xschem set autotrim_wires $autotrim_wires
-xschem set disable_unique_names $disable_unique_names
 
 
 # 20171005
 set custom_label_prefix {}
-# 20171112 cairo stuff
-xschem set cairo_font_scale $cairo_font_scale
-xschem set nocairo_font_xscale $nocairo_font_xscale
-xschem set nocairo_font_yscale $nocairo_font_yscale
-xschem set cairo_font_line_spacing $cairo_font_line_spacing
-xschem set cairo_vert_correct $cairo_vert_correct
-xschem set nocairo_vert_correct $nocairo_vert_correct
-# font name can not be set here as we need to wait for X-initialization 
-# to complete. Done in xinit.c
 
 ###
 ### build Tk widgets

@@ -410,7 +410,9 @@ void hilight_net_pin_mismatches(void)
   char *netname=NULL;
   int mult;
   xRect *rct;
-
+  int incr_hi;
+  
+  incr_hi = tclgetboolvar("incr_hilight");
   rebuild_selected_array();
   prepare_netlist_structs(0);
   for(k=0; k<xctx->lastsel; k++) {
@@ -430,7 +432,7 @@ void hilight_net_pin_mismatches(void)
       if(netname && strcmp(lab, netname)) {
         dbg(1, "hilight_net_pin_mismatches(): hilight: %s\n", netname);
         bus_hilight_lookup(netname, xctx->hilight_color, XINSERT_NOREPLACE);
-        if(incr_hilight) incr_hilight_color();
+        if(incr_hi) incr_hilight_color();
       }
     }
 
@@ -586,7 +588,7 @@ int search(const char *tok, const char *val, int sub, int sel)
  dbg(1, "search():val=%s\n", val);
  if(!sel) {
    col=xctx->hilight_color;
-   if(incr_hilight) incr_hilight_color();
+   if(tclgetboolvar("incr_hilight")) incr_hilight_color();
  }
  has_token = 0;
  prepare_netlist_structs(0);
@@ -766,7 +768,9 @@ void drill_hilight(int mode)
   char *propagate_str = NULL;
   int propagate, hilight_connected_inst;
   struct hilight_hashentry *entry, *propag_entry;
+  int en_hi;
 
+  en_hi = tclgetboolvar("en_hilight_conn_inst");
   prepare_netlist_structs(0);
   while(1) {
     found=0;
@@ -774,7 +778,7 @@ void drill_hilight(int mode)
       symbol = xctx->inst[i].ptr+xctx->sym;
       npin = symbol->rects[PINLAYER];
       rct=symbol->rect[PINLAYER];
-      hilight_connected_inst = en_hilight_conn_inst &&
+      hilight_connected_inst = en_hi &&
            ( (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4) );
       for(j=0; j<npin;j++) {
         my_strdup(143, &netname, net_name(i, j, &mult, 1, 0));
@@ -824,7 +828,7 @@ int hilight_netname(const char *name)
   node_entry = bus_hash_lookup(name, "", XLOOKUP, 0, "", "", "", "");
                     /* sets xctx->hilight_nets=1 */
   if(node_entry && !bus_hilight_lookup(name, xctx->hilight_color, XINSERT_NOREPLACE)) {
-    if(incr_hilight) incr_hilight_color();
+    if(tclgetboolvar("incr_hilight")) incr_hilight_color();
     propagate_hilights(1, 0, XINSERT_NOREPLACE);
     redraw_hilights(0);
   }
@@ -1045,7 +1049,9 @@ void propagate_hilights(int set, int clear, int mode)
   int i, hilight_connected_inst;
   struct hilight_hashentry *entry;
   char *type;
+  int en_hi;
 
+  en_hi = tclgetboolvar("en_hilight_conn_inst");
   prepare_netlist_structs(0);
   for(i = 0; i < xctx->instances; i++) {
     if(xctx->inst[i].ptr < 0 ) {
@@ -1053,7 +1059,7 @@ void propagate_hilights(int set, int clear, int mode)
       continue;
     }
     type = (xctx->inst[i].ptr+ xctx->sym)->type;
-    hilight_connected_inst = en_hilight_conn_inst && 
+    hilight_connected_inst = en_hi && 
            ( (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4) );
     if(hilight_connected_inst && type && !IS_LABEL_SH_OR_PIN(type)) {
       int rects, j, nohilight_pins;
@@ -1528,7 +1534,9 @@ void hilight_net(int viewer)
   int i, n;
   char *type;
   int sim_is_xyce;
+  int incr_hi;
 
+  incr_hi = tclgetboolvar("incr_hilight");
   prepare_netlist_structs(0);
   dbg(1, "hilight_net(): entering\n");
   rebuild_selected_array();
@@ -1542,7 +1550,7 @@ void hilight_net(int viewer)
      if(!bus_hilight_lookup(xctx->wire[n].node, xctx->hilight_color, XINSERT_NOREPLACE)) {
        if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->wire[n].node);
        if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->wire[n].node);
-       if(incr_hilight) incr_hilight_color();
+       if(incr_hi) incr_hilight_color();
      }
      break;
     case ELEMENT:
@@ -1552,7 +1560,7 @@ void hilight_net(int viewer)
        if(!bus_hilight_lookup(xctx->inst[n].node[0], xctx->hilight_color, XINSERT_NOREPLACE)) {
          if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->inst[n].node[0]);
          if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->inst[n].node[0]);
-         if(incr_hilight) incr_hilight_color();
+         if(incr_hi) incr_hilight_color();
        }
      } else {
        dbg(1, "hilight_net(): setting hilight flag on inst %d\n",n);
@@ -1562,14 +1570,14 @@ void hilight_net(int viewer)
          if(viewer == GAW) send_current_to_gaw(sim_is_xyce, xctx->inst[n].instname);
          if(viewer == BESPICE) send_current_to_bespice(sim_is_xyce, xctx->inst[n].instname);
        }
-       if(incr_hilight) incr_hilight_color();
+       if(incr_hi) incr_hilight_color();
      }
      break;
     default:
      break;
    }
   }
-  if(!incr_hilight) incr_hilight_color();
+  if(!incr_hi) incr_hilight_color();
   propagate_hilights(1, 0, XINSERT_NOREPLACE);
   tcleval("if { [info exists gaw_fd] } {close $gaw_fd; unset gaw_fd}\n");
 }
@@ -1638,8 +1646,10 @@ void select_hilight_net(void)
  int i;
  struct hilight_hashentry *entry;
  int hilight_connected_inst;
+ int en_hi;
 
  if(!xctx->hilight_nets) return;
+ en_hi = tclgetboolvar("en_hilight_conn_inst");
  prepare_netlist_structs(0);
  for(i=0;i<xctx->wires;i++) {
    if( (entry = bus_hilight_lookup(xctx->wire[i].node, 0, XLOOKUP)) ) {
@@ -1649,7 +1659,7 @@ void select_hilight_net(void)
  for(i=0;i<xctx->instances;i++) {
 
   type = (xctx->inst[i].ptr+ xctx->sym)->type;
-  hilight_connected_inst = en_hilight_conn_inst && 
+  hilight_connected_inst = en_hi && 
       ( (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4) );
   if( xctx->inst[i].color != -10000) {
     dbg(1, "select_hilight_net(): instance %d flags &4 true\n", i);

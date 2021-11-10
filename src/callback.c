@@ -144,17 +144,18 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  char str[PATH_MAX + 100]; /* overflow safe 20161122 */
  struct stat buf;
  unsigned short sel;
+ int c_snap;
 #ifndef __unix__
-  short cstate = GetKeyState(VK_CAPITAL);
-  short nstate = GetKeyState(VK_NUMLOCK);
+ short cstate = GetKeyState(VK_CAPITAL);
+ short nstate = GetKeyState(VK_NUMLOCK);
 
-  if(cstate & 0x0001) { /* caps lock */
-    tcleval(".statusbar.8 configure -state active -text {CAPS LOCK SET! }");
-  } else if (nstate & 0x0001) { /* num lock */
-    tcleval(".statusbar.8 configure -state active -text {NUM LOCK SET! }");
-  } else { /* normal state */
-    tcleval(".statusbar.8 configure -state  normal -text {}");
-  }
+ if(cstate & 0x0001) { /* caps lock */
+   tcleval(".statusbar.8 configure -state active -text {CAPS LOCK SET! }");
+ } else if (nstate & 0x0001) { /* num lock */
+   tcleval(".statusbar.8 configure -state active -text {NUM LOCK SET! }");
+ } else { /* normal state */
+   tcleval(".statusbar.8 configure -state  normal -text {}");
+ }
 #else
  XKeyboardState kbdstate;
  XGetKeyboardControl(display, &kbdstate);
@@ -167,6 +168,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    tcleval(".statusbar.8 configure -state  normal -text {}");
  }
 #endif
+ c_snap = tclgetdoublevar("cadsnap");
  state &=~Mod2Mask; /* 20170511 filter out NumLock status */
  if(xctx->semaphore)
  {
@@ -184,8 +186,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  xctx->semaphore++;           /* used to debug Tcl-Tk frontend */
  xctx->mousex=X_TO_XSCHEM(mx);
  xctx->mousey=Y_TO_XSCHEM(my);
- xctx->mousex_snap=ROUND(xctx->mousex / cadsnap) * cadsnap;
- xctx->mousey_snap=ROUND(xctx->mousey / cadsnap) * cadsnap;
+ xctx->mousex_snap=ROUND(xctx->mousex / c_snap) * c_snap;
+ xctx->mousey_snap=ROUND(xctx->mousey / c_snap) * c_snap;
  my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
    xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
  statusmsg(str,1);
@@ -354,8 +356,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key == '_' )              /* toggle change line width */
    {
-    change_lw =!change_lw;
-    if(change_lw) {
+    if(!tclgetboolvar("change_lw")) {
         tcleval("alert_ { enabling change line width} {}");
         tclsetvar("change_lw","1");
     }
@@ -382,8 +383,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key == '%' )              /* toggle draw grid */
    {
-    draw_grid =!draw_grid;
-    if(draw_grid) {
+    int dr_gr;
+    dr_gr = tclgetboolvar("draw_grid");
+    dr_gr =!dr_gr;
+    if(dr_gr) {
         /* tcleval("alert_ { enabling draw grid} {}"); */
         tclsetvar("draw_grid","1");
         draw();
@@ -559,8 +562,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      if(xctx->semaphore >= 2) break;
      if(!(xctx->ui_state & STARTWIRE)){
        find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
-       xctx->mx_double_save = ROUND(x / cadsnap) * cadsnap;
-       xctx->my_double_save = ROUND(y / cadsnap) * cadsnap;
+       xctx->mx_double_save = ROUND(x / c_snap) * c_snap;
+       xctx->my_double_save = ROUND(y / c_snap) * c_snap;
        new_wire(PLACE, x, y);
      }
      else {
@@ -639,6 +642,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     break;
    }
    if(key=='5' && state == 0) { /* 20110112 display only probes */
+    only_probes = !only_probes;
+    tclsetboolvar("only_probes", only_probes);
     toggle_only_probes();
     break;
    }  /* /20110112 */
@@ -796,9 +801,11 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='y' && state == 0)                           /* toggle stretching */
    {
-    enable_stretch=!enable_stretch;
+    int en_s;
+    en_s = tclgetboolvar("enable_stretch");
+    en_s = !en_s;
 
-    if(enable_stretch) {
+    if(en_s) {
         tcleval("alert_ { enabling stretch mode } {}");
         tclsetvar("enable_stretch","1");
     }
@@ -852,10 +859,12 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='O' && state == ShiftMask)   /* toggle light/dark colorscheme 20171113 */
    {
-     dark_colorscheme=!dark_colorscheme;
-     tclsetvar("dark_colorscheme", dark_colorscheme ? "1" : "0");
-     color_dim=0.0;
-     build_colors(color_dim);
+     int d_c;
+     d_c = tclgetboolvar("dark_colorscheme");
+     d_c = !d_c;
+     tclsetboolvar("dark_colorscheme", d_c);
+     tclsetdoublevar("color_dim", 0.0);
+     build_colors(0.0);
      draw();
      break;
    }
@@ -1012,20 +1021,20 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='g' && state==0)                         /* half snap factor */
    {
-    set_snap(cadsnap / 2.0);
+    set_snap(c_snap / 2.0);
     break;
    }
    if(key=='g' && state==ControlMask)              /* set snap factor 20161212 */
    {
     my_snprintf(str, S(str),
      "input_line {Enter snap value (default: %.16g current: %.16g)}  {xschem set cadsnap} {%g} 10",
-     CADSNAP, cadsnap, cadsnap);
+     CADSNAP, c_snap, c_snap);
     tcleval(str);
     break;
    }
    if(key=='G' && state==ShiftMask)                                    /* double snap factor */
    {
-    set_snap(cadsnap * 2.0);
+    set_snap(c_snap * 2.0);
     break;
    }
    if(key=='*' && state==(Mod1Mask|ShiftMask) )         /* svg print , 20121108 */
@@ -1050,9 +1059,9 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    {
     if(xctx->semaphore >= 2) break;
     push_undo();
-    round_schematic_to_grid(cadsnap);
+    round_schematic_to_grid(c_snap);
     set_modify(1);
-    if(autotrim_wires) trim_wires();
+    if(tclgetboolvar("autotrim_wires")) trim_wires();
     xctx->prep_hash_inst=0;
     xctx->prep_hash_wires=0;
     xctx->prep_net_structs=0;
@@ -1280,8 +1289,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='A' && state==ShiftMask)                             /* toggle show netlist */
    {
-    netlist_show = !netlist_show;
-    if(netlist_show) {
+    int net_s;
+    net_s = tclgetboolvar("netlist_show");
+    net_s = !net_s;
+    if(net_s) {
         tcleval("alert_ { enabling show netlist window} {}");
         tclsetvar("netlist_show","1");
     }
@@ -1327,7 +1338,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     if(xctx->semaphore >= 2) break;
     hide_symbols++;
     if(hide_symbols >= 3) hide_symbols = 0;
-    tclsetvar("hide_symbols", hide_symbols == 2 ? "2" : hide_symbols == 1 ? "1" : "0");
+    tclsetintvar("hide_symbols", hide_symbols);
     draw();
     break;
    }
@@ -1607,7 +1618,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    else if(button==Button1)
    {
-     if(persistent_command && xctx->last_command) {
+     if(tclgetboolvar("persistent_command") && xctx->last_command) {
        if(xctx->last_command == STARTLINE)  start_line(mx, my);
        if(xctx->last_command == STARTWIRE)  start_wire(mx, my);
        break;
@@ -1623,8 +1634,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        double x, y;
 
        find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
-       xctx->mx_double_save = ROUND(x / cadsnap) * cadsnap;
-       xctx->my_double_save = ROUND(y / cadsnap) * cadsnap;
+       xctx->mx_double_save = ROUND(x / c_snap) * c_snap;
+       xctx->my_double_save = ROUND(y / c_snap) * c_snap;
        new_wire(PLACE, x, y);
        xctx->ui_state &=~MENUSTARTSNAPWIRE;
        break;
@@ -1678,7 +1689,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        break;
      }
      if(xctx->ui_state & STARTWIRE) {
-       if(persistent_command) {
+       if(tclgetboolvar("persistent_command")) {
          if(constrained_move != 2) {
            xctx->mx_double_save=xctx->mousex_snap;
          }
@@ -1701,7 +1712,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        break;
      }
      if(xctx->ui_state & STARTLINE) {
-       if(persistent_command) {
+       if(tclgetboolvar("persistent_command")) {
          if(constrained_move != 2) {
            xctx->mx_double_save=xctx->mousex_snap;
          }
@@ -1766,13 +1777,13 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
          launcher();
        }
        if( !(state & ShiftMask) )  {
-         if(auto_hilight && xctx->hilight_nets && sel == 0 ) { /* 20160413 20160503 */
+         if(tclgetboolvar("auto_hilight") && xctx->hilight_nets && sel == 0 ) { /* 20160413 20160503 */
            if(!prev_last_sel) {
              redraw_hilights(1); /* 1: clear all hilights, then draw */
            }
          }
        }
-       if(auto_hilight) {
+       if(tclgetboolvar("auto_hilight")) {
          hilight_net(0);
          if(xctx->lastsel) {
            redraw_hilights(0);
@@ -1796,9 +1807,9 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(xctx->semaphore >= 2) break;
    if(xctx->ui_state & STARTSELECT) {
      if(state & ControlMask) {
-       enable_stretch=1;
+       tclsetvar("enable_stretch", "1");
        select_rect(END,-1);
-       enable_stretch=0;
+       tclsetvar("enable_stretch", "0");
        break;
      } else {
        /* 20150927 filter out button4 and button5 events */

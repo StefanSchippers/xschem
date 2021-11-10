@@ -39,7 +39,9 @@ void global_verilog_netlist(int global)  /* netlister driver */
  struct stat buf;
  char *subckt_name;
  char *abs_path = NULL;
+ int split_f;
 
+ split_f = tclgetboolvar("split_files");
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
  if(xctx->modified) {
@@ -262,7 +264,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  fprintf(fd,"---- end user architecture code\n");
  fprintf(fd, "endmodule\n");
 
- if(split_files) {
+ if(split_f) {
    fclose(fd);
    my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} noshow {%s}", netl_filename, cellname);
    override_netlist_type(CAD_VERILOG_NETLIST);
@@ -301,9 +303,9 @@ void global_verilog_netlist(int global)  /* netlister driver */
       if (str_hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
         str_hash_lookup(subckt_table, subckt_name, "", XINSERT);
-        if( split_files && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
+        if( split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
           vhdl_block_netlist(fd, i);
-        else if(split_files && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_netlist",0),"true")==0 )
+        else if(split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_netlist",0),"true")==0 )
           spice_block_netlist(fd, i);
         else
           if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_primitive",0), "true"))
@@ -331,9 +333,9 @@ void global_verilog_netlist(int global)  /* netlister driver */
  my_free(1074, &stored_flags);
 
  dbg(1, "global_verilog_netlist(): starting awk on netlist!\n");
- if(!split_files) {
+ if(!split_f) {
    fclose(fd);
-   if(netlist_show) {
+   if(tclgetboolvar("netlist_show")) {
     my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} show {%s}", netl_filename, cellname);
     tcleval(tcl_cmd_netlist);
    }
@@ -366,7 +368,9 @@ void verilog_block_netlist(FILE *fd, int i)
   char cellname[PATH_MAX];
   const char *str_tmp;
   char *sch = NULL;
+  int split_f;
 
+  split_f = tclgetboolvar("split_files");
   if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"verilog_stop",0),"true") )
      verilog_stop=1;
   else
@@ -378,7 +382,7 @@ void verilog_block_netlist(FILE *fd, int i)
   } else {
     my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
   }
-  if(split_files) {
+  if(split_f) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
        netlist_dir,  skip_dir(xctx->sym[i].name), getpid());
     dbg(1, "global_vhdl_netlist(): split_files: netl_filename=%s\n", netl_filename);
@@ -491,7 +495,7 @@ void verilog_block_netlist(FILE *fd, int i)
   }
   fprintf(fd,"---- end user architecture code\n");
   fprintf(fd, "endmodule\n");
-  if(split_files) {
+  if(split_f) {
     fclose(fd);
     my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} noshow {%s}", netl_filename, cellname);
     override_netlist_type(CAD_VERILOG_NETLIST);

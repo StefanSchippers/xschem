@@ -31,7 +31,10 @@ void find_closest_net(double mx,double my)
 {
  double tmp;
  int i,w=-1;
- double threshold = CADWIREMINDIST * CADWIREMINDIST * cadgrid * cadgrid / 400;
+ double threshold;
+ double cg;
+ cg = tclgetdoublevar("cadgrid");
+ threshold = CADWIREMINDIST * CADWIREMINDIST * cg * cg / 400;
 
  for(i=0;i<xctx->wires;i++)
  {
@@ -53,7 +56,10 @@ void find_closest_polygon(double mx,double my)
  double tmp;
  int i, c, j, l=-1, col = 0;
  double x1, y1, x2, y2;
- double threshold = CADWIREMINDIST * CADWIREMINDIST * cadgrid * cadgrid / 400;
+ double threshold;
+ double cg;
+ cg = tclgetdoublevar("cadgrid");
+ threshold = CADWIREMINDIST * CADWIREMINDIST * cg * cg / 400;
  for(c=0;c<cadlayers;c++)
  {
   if(!enable_layer[c]) continue;
@@ -87,7 +93,10 @@ void find_closest_line(double mx,double my)
 {
  double tmp;
  int i,c,l=-1, col = 0;
- double threshold = CADWIREMINDIST * CADWIREMINDIST * cadgrid * cadgrid / 400;
+ double threshold;
+ double cg;
+ cg = tclgetdoublevar("cadgrid");
+ threshold = CADWIREMINDIST * CADWIREMINDIST * cg * cg / 400;
  for(c=0;c<cadlayers;c++)
  {
   if(!enable_layer[c]) continue;
@@ -170,10 +179,13 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
 
 void find_closest_arc(double mx,double my)
 {
- double thres = CADWIREMINDIST * CADWIREMINDIST * cadgrid*cadgrid/400;
  double dist, angle, angle1, angle2;
  int i,c,r=-1, col;
  int match;
+ double threshold;
+ double cg;
+ cg = tclgetdoublevar("cadgrid");
+ threshold = CADWIREMINDIST * CADWIREMINDIST * cg * cg / 400;
 
  for(c=0;c<cadlayers;c++)
  {
@@ -211,7 +223,7 @@ void find_closest_arc(double mx,double my)
     }
   } /* end for i */
  } /* end for c */
- if( r!=-1 && distance <= thres ) /*  * pow(xctx->arc[col][r].r,2)) */
+ if( r!=-1 && distance <= threshold ) /*  * pow(xctx->arc[col][r].r,2)) */
  {
   sel.n = r; sel.type = ARC; sel.col = col;
  }
@@ -274,10 +286,13 @@ void find_closest_text(double mx,double my)
  short rot,flip;
  double xx1,xx2,yy1,yy2;
  int i,r=-1, tmp;
- double threshold = CADWIREMINDIST * CADWIREMINDIST * cadgrid * cadgrid / 400;
+ double threshold;
+ double cg;
  #if HAS_CAIRO==1
  int customfont;
  #endif
+ cg = tclgetdoublevar("cadgrid");
+ threshold = CADWIREMINDIST * CADWIREMINDIST * cg * cg / 400;
   for(i=0;i<xctx->texts;i++)
   {
    rot = xctx->text[i].rot;

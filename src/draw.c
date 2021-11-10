@@ -74,8 +74,8 @@ void print_image()
   *  }
   *  XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
   #endif
-  save_draw_grid = draw_grid;
-  draw_grid=0;
+  save_draw_grid = tclgetboolvar("draw_grid");
+  tclsetvar("draw_grid", "0");
   xctx->draw_pixmap=1;
   draw();
   #ifdef __unix__
@@ -94,7 +94,7 @@ void print_image()
   } else tcleval( "convert_to_png {%s} plot.png", psfile);
   #endif
   my_strncpy(xctx->plotfile,"", S(xctx->plotfile));
-  draw_grid=save_draw_grid;
+  tclsetboolvar("draw_grid", save_draw_grid);
   xctx->draw_pixmap=1;
 }
 
@@ -114,13 +114,13 @@ void set_cairo_color(int layer)
 /* remember to call cairo_restore(xctx->cairo_ctx) when done !! */
 int set_text_custom_font(xText *txt) /* 20171122 for correct text_bbox calculation */
 {
-  char *textfont;
+  const char *textfont;
 
   textfont = txt->font;
   if((textfont && textfont[0]) || txt->flags) {
     cairo_font_slant_t slant;
     cairo_font_weight_t weight;
-    textfont = (txt->font && txt->font[0]) ? txt->font : cairo_font_name;
+    textfont = (txt->font && txt->font[0]) ? txt->font : tclgetvar("cairo_font_name");
     weight = ( txt->flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
     slant = CAIRO_FONT_SLANT_NORMAL;
     if(txt->flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
@@ -150,6 +150,7 @@ static void cairo_draw_string_line(cairo_t *c_ctx, char *s,
   int line_delta;
   double lines;
   double vc; /* 20171121 vert correct */
+  
   if(s==NULL) return;
   if(llength==0) return;
 
@@ -283,8 +284,8 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
  else {
   text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
             &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
-  xscale*=nocairo_font_xscale;
-  yscale*=nocairo_font_yscale;
+  xscale*=tclgetdoublevar("nocairo_font_xscale");
+  yscale*=tclgetdoublevar("nocairo_font_yscale");
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,
                textx1,texty1,textx2,texty2)) return;
   x1=textx1;y1=texty1;
@@ -357,7 +358,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   double angle;
   char *type;
   #if HAS_CAIRO==1
-  char *textfont;
+  const char *textfont;
   #endif
 
   if(xctx->inst[n].ptr == -1) return;
@@ -495,7 +496,8 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         if((textfont && textfont[0]) || symptr->text[j].flags) {
           cairo_font_slant_t slant;
           cairo_font_weight_t weight;
-          textfont = (symptr->text[j].font && symptr->text[j].font[0]) ? symptr->text[j].font : cairo_font_name;
+          textfont = (symptr->text[j].font && symptr->text[j].font[0]) ?
+            symptr->text[j].font : tclgetvar("cairo_font_name");
           weight = ( symptr->text[j].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
           slant = CAIRO_FONT_SLANT_NORMAL;
           if(symptr->text[j].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
@@ -658,8 +660,11 @@ void drawgrid()
   double x,y;
   double delta,tmp;
   int i=0;
-  if( !draw_grid || !has_x) return;
-  delta=cadgrid*xctx->mooz;
+  int big_gr;
+  
+  big_gr = tclgetboolvar("big_grid_points");
+  if( !tclgetboolvar("draw_grid") || !has_x) return;
+  delta=tclgetdoublevar("cadgrid")*xctx->mooz;
   while(delta < CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
   x = xctx->xorigin*xctx->mooz; y = xctx->yorigin*xctx->mooz;
   if(y>xctx->areay1 && y < xctx->areay2) {
@@ -677,14 +682,14 @@ void drawgrid()
     for(y=tmp; y < xctx->areay2; y += delta) {
       if(i>=CADMAXGRIDPOINTS) {
         if(draw_window) {
-          if(big_grid_points) {
+          if(big_gr) {
             XDrawSegments(display,xctx->window,gc[GRIDLAYER],xctx->biggridpoint,i);
           } else {
             XDrawPoints(display,xctx->window,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
           }
         }
         if(xctx->draw_pixmap) {
-          if(big_grid_points) {
+          if(big_gr) {
             XDrawSegments(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->biggridpoint,i);
           } else {
             XDrawPoints(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
@@ -692,7 +697,7 @@ void drawgrid()
         }
         i=0;
       }
-      if(big_grid_points) {
+      if(big_gr) {
         xctx->biggridpoint[i].x1 = xctx->biggridpoint[i].x2 = (short)(x);
         xctx->biggridpoint[i].y1 =  xctx->biggridpoint[i].y2 = (short)(y);
         i++;
@@ -704,14 +709,14 @@ void drawgrid()
     }
   }
   if(draw_window) {
-    if(big_grid_points) {
+    if(big_gr) {
       XDrawSegments(display,xctx->window,gc[GRIDLAYER],xctx->biggridpoint,i);
     } else {
       XDrawPoints(display,xctx->window,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
     }
   }
   if(xctx->draw_pixmap) {
-    if(big_grid_points) {
+    if(big_gr) {
       XDrawSegments(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->biggridpoint,i);
     } else {
       XDrawPoints(display,xctx->save_pixmap,gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
@@ -1483,7 +1488,7 @@ void draw(void)
  int textlayer;
 
  #if HAS_CAIRO==1
- char *textfont;
+ const char *textfont;
  #endif
  if(xctx->no_draw) return;
  rebuild_selected_array();
@@ -1595,7 +1600,8 @@ void draw(void)
             if( (textfont && textfont[0]) || xctx->text[i].flags) {
               cairo_font_slant_t slant;
               cairo_font_weight_t weight;
-              textfont = (xctx->text[i].font && xctx->text[i].font[0]) ? xctx->text[i].font : cairo_font_name;
+              textfont = (xctx->text[i].font && xctx->text[i].font[0]) ? 
+                xctx->text[i].font : tclgetvar("cairo_font_name");
               weight = ( xctx->text[i].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
               slant = CAIRO_FONT_SLANT_NORMAL;
               if(xctx->text[i].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;

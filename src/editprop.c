@@ -387,7 +387,7 @@ void set_inst_prop(int i)
   my_strdup2(70, &xctx->inst[i].instname, get_tok_value(ptr, "name",0));
   if(xctx->inst[i].instname[0]) {
     my_strdup(101, &tmp, xctx->inst[i].prop_ptr);
-    new_prop_string(i, tmp, 0, disable_unique_names);
+    new_prop_string(i, tmp, 0, tclgetboolvar("disable_unique_names"));
     my_free(724, &tmp);
   }
 }
@@ -766,6 +766,8 @@ void edit_text_property(int x)
          tclgetvar("props"),
          tclgetvar("retval") );
        if(text_changed) {
+         double cg;
+         cg = tclgetdoublevar("cadgrid");
          c = xctx->rects[PINLAYER];
          for(l=0;l<c;l++) {
            if(!strcmp( (get_tok_value(xctx->rect[PINLAYER][l].prop_ptr, "name",0)),
@@ -784,11 +786,11 @@ void edit_text_property(int x)
              pcy = (xctx->rect[PINLAYER][l].y1+xctx->rect[PINLAYER][l].y2)/2.0;
              if(
                  /* 20171206 20171221 */
-                 (fabs( (yy1+yy2)/2 - pcy) < cadgrid/2 &&
-                 (fabs(xx1 - pcx) < cadgrid*3 || fabs(xx2 - pcx) < cadgrid*3) )
+                 (fabs( (yy1+yy2)/2 - pcy) < cg/2 &&
+                 (fabs(xx1 - pcx) < cg*3 || fabs(xx2 - pcx) < cg*3) )
                  ||
-                 (fabs( (xx1+xx2)/2 - pcx) < cadgrid/2 &&
-                 (fabs(yy1 - pcy) < cadgrid*3 || fabs(yy2 - pcy) < cadgrid*3) )
+                 (fabs( (xx1+xx2)/2 - pcx) < cg/2 &&
+                 (fabs(yy1 - pcy) < cg*3 || fabs(yy2 - pcy) < cg*3) )
              ) {
                if(x==0)
                  my_strdup(71, &xctx->rect[PINLAYER][l].prop_ptr,
@@ -915,7 +917,9 @@ void update_symbol(const char *result, int x)
   char *type;
   int cond;
   int pushed=0;
+  int s_pnetname;
 
+  s_pnetname = tclgetboolvar("show_pin_net_names");
   dbg(1, "update_symbol(): entering\n");
   i=xctx->sel_array[0].n;
   if(!result) {
@@ -965,7 +969,7 @@ void update_symbol(const char *result, int x)
     if(xctx->sel_array[k].type!=ELEMENT) continue;
     i=xctx->sel_array[k].n;
 
-    if(show_pin_net_names || xctx->hilight_nets) {
+    if(s_pnetname || xctx->hilight_nets) {
       int j;
       prepare_netlist_structs(0);
       for(j = 0;  j < (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER]; j++) {
@@ -1031,7 +1035,7 @@ void update_symbol(const char *result, int x)
                      /* set name of current inst */
       if(!pushed) { push_undo(); pushed=1;}
       if(!k) hash_all_names(i);
-      new_prop_string(i, ptr, k, disable_unique_names); /* set new prop_ptr */
+      new_prop_string(i, ptr, k, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
     }
     my_strdup2(90, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name",0));
 
@@ -1051,14 +1055,14 @@ void update_symbol(const char *result, int x)
     xctx->prep_hash_inst=0;
     xctx->prep_net_structs=0;
     xctx->prep_hi_structs=0;
-    if(show_pin_net_names || xctx->hilight_nets) prepare_netlist_structs(0);
+    if(s_pnetname || xctx->hilight_nets) prepare_netlist_structs(0);
     for(k=0;k<xctx->lastsel;k++) {
       if(xctx->sel_array[k].type!=ELEMENT) continue;
       i=xctx->sel_array[k].n;
       type=xctx->sym[xctx->inst[i].ptr].type;
       symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
       bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
-      if((show_pin_net_names || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type)) {
+      if((s_pnetname || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type)) {
         for(j = 0;  j < (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER]; j++) { /* <<< only .node[0] ? */
           if( xctx->inst[i].node && xctx->inst[i].node[j]) {
              int_hash_lookup(xctx->node_redraw_table,  xctx->inst[i].node[j], 0, XINSERT_NOREPLACE);
@@ -1069,7 +1073,7 @@ void update_symbol(const char *result, int x)
     if(xctx->hilight_nets) {
       propagate_hilights(1, 1, XINSERT_NOREPLACE);
     }
-    if(show_pin_net_names || xctx->hilight_nets) find_inst_to_be_redrawn();
+    if(s_pnetname || xctx->hilight_nets) find_inst_to_be_redrawn();
   }
   /* redraw symbol with new props */
   bbox(SET,0.0,0.0,0.0,0.0);

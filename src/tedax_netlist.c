@@ -135,7 +135,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
  dbg(1, "global_tedax_netlist(): starting awk on netlist!\n");
 
  fclose(fd);
- if(netlist_show) {
+ if(tclgetboolvar("netlist_show")) {
   my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} show {%s}", netl_filename, cellname);
   tcleval(tcl_cmd_netlist);
  }

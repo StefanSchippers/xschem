@@ -1107,7 +1107,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       tcleval( "wm iconname . \"xschem - [file tail [xschem get schname]]\"");
     }
   }
-  if(autotrim_wires) trim_wires();
+  if(tclgetboolvar("autotrim_wires")) trim_wires();
   update_conn_cues(0, 0);
 }
 
@@ -2372,8 +2372,8 @@ void descend_symbol(void)
 }
 
 /* 20111023 align selected object to current grid setting */
-#define SNAP_TO_GRID(a)  (a=ROUND(( a)/cadsnap)*cadsnap )
-void round_schematic_to_grid(double cadsnap)
+#define SNAP_TO_GRID(a)  (a=ROUND(( a)/c_snap)*c_snap )
+void round_schematic_to_grid(double c_snap)
 {
  int i, c, n, p;
  rebuild_selected_array();

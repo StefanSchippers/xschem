@@ -394,15 +394,15 @@ void netlist_options(int i)
 
   str = get_tok_value(xctx->inst[i].prop_ptr, "top_subckt", 0);
   if(str[0]) {
-    top_subckt = 0;
     /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
-    if(!strcmp(str, "true")) top_subckt = 1;
+    if(!strcmp(str, "true")) tclsetintvar("top_subckt", 1);
+    else tclsetintvar("top_subckt", 0);
   }
   str = get_tok_value(xctx->inst[i].prop_ptr, "spiceprefix", 0);
   if(str[0]) {
-    spiceprefix = 1;
     /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
-    if(!strcmp(str, "false")) spiceprefix = 0;
+    if(!strcmp(str, "false")) tclsetvar("spiceprefix", "0");
+    else tclsetvar("spiceprefix", "1");
   }
 
   str = get_tok_value(xctx->inst[i].prop_ptr, "hiersep", 0);
@@ -450,9 +450,9 @@ static void signal_short( char *n1, char *n2)
    tcleval("wm deiconify .infotext"); /* critical error: force ERC window showing */
    if(!xctx->netlist_count) {
       bus_hilight_lookup(n1, xctx->hilight_color, XINSERT);
-      if(incr_hilight) incr_hilight_color();
+      if(tclgetboolvar("incr_hilight")) incr_hilight_color();
       bus_hilight_lookup(n2, xctx->hilight_color, XINSERT);
-      if(incr_hilight) incr_hilight_color();
+      if(tclgetboolvar("incr_hilight")) incr_hilight_color();
    }
  }
 }

@@ -658,7 +658,7 @@ char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
    return pin_attr_value; /* caller is responsible for freeing up storage for pin_attr_value */
 }
 
-void new_prop_string(int i, const char *old_prop, int fast, int disable_unique_names)
+void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
 {
 /* given a old_prop property string, return a new */
 /* property string in xctx->inst[i].prop_ptr such that the element name is */
@@ -696,7 +696,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int disable_unique_n
  }
  prefix=old_name[0];
  /* don't change old_prop if name does not conflict. */
- if(disable_unique_names || (entry = inst_hash_lookup(table, old_name, i, XLOOKUP, old_name_len))==NULL ||
+ if(dis_uniq_names || (entry = inst_hash_lookup(table, old_name, i, XLOOKUP, old_name_len))==NULL ||
      entry->value == i)
  {
   inst_hash_lookup(table, old_name, i, XINSERT, old_name_len);
@@ -1633,7 +1633,7 @@ int print_spice_element(FILE *fd, int inst)
       token_pos=0;
 
       /* if spiceprefix==0 and token == @spiceprefix then set empty value */
-      if (!spiceprefix && !strcmp(token, "@spiceprefix")) {
+      if (!tclgetboolvar("spiceprefix") && !strcmp(token, "@spiceprefix")) {
         value=NULL;
       } else {
         int tok_val_len;
@@ -2774,7 +2774,11 @@ const char *translate(int inst, const char* s)
  int escape=0;
  char date[200];
  char *sch = NULL;
+ int sp_prefix;
+ int s_pnetname;
 
+ s_pnetname = tclgetboolvar("show_pin_net_names");
+ sp_prefix = tclgetboolvar("spiceprefix");
  if(!s) {
    my_free(1063, &result);
    return empty;
@@ -2814,7 +2818,7 @@ const char *translate(int inst, const char* s)
    /* dbg(2, "translate(): token=%s\n", token);*/
 
    /* if spiceprefix==0 and token == @spiceprefix then set empty value */
-   if(!spiceprefix && !strcmp(token, "@spiceprefix")) {
+   if(!sp_prefix && !strcmp(token, "@spiceprefix")) {
      value = NULL;
      xctx->get_tok_size = 0;
    } else {
@@ -2900,7 +2904,7 @@ const char *translate(int inst, const char* s)
        if(  !pin_attr_value && !strcmp(pin_attr, "net_name")) {
          char *instprop = xctx->inst[inst].prop_ptr;
          char *symprop = (xctx->inst[inst].ptr + xctx->sym)->prop_ptr;
-         if(show_pin_net_names && (!strcmp(get_tok_value(instprop, "net_name", 0), "true") ||
+         if(s_pnetname && (!strcmp(get_tok_value(instprop, "net_name", 0), "true") ||
             !strcmp(get_tok_value(symprop, "net_name", 0), "true"))) {
             prepare_netlist_structs(0);
             my_strdup2(1175, &pin_attr_value,
@@ -3085,7 +3089,7 @@ const char *translate2(struct Lcc *lcc, int level, char* s)
       token_pos = 0;
 
       /* if spiceprefix==0 and token == @spiceprefix then set empty value */
-      if(!spiceprefix && !strcmp(token, "@spiceprefix")) {
+      if(!tclgetboolvar("spiceprefix") && !strcmp(token, "@spiceprefix")) {
         my_free(1069, &value1);
         xctx->get_tok_size = 0;
       } else {

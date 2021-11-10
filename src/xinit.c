@@ -267,7 +267,7 @@ void init_color_array(double dim)
  double rr, gg, bb;
  static int done=0;
 
- dim_bg = tclgetvar("color_dim")[0] == '1' ? 1: 0;
+ dim_bg = tclgetboolvar("color_dim");
  for(i=0;i<cadlayers;i++) {
    my_snprintf(s, S(s), "lindex $colors %d",i);
    tcleval(s);
@@ -667,7 +667,7 @@ void xwin_exit(void)
 int build_colors(double dim)
 {
     int i;
-    if(dark_colorscheme) {
+    if(tclgetboolvar("dark_colorscheme")) {
       tcleval("llength $dark_colors");
       if(atoi(tclresult())>=cadlayers){
         tcleval("set colors $dark_colors");
@@ -920,9 +920,11 @@ void change_linewidth(double w)
   changed=0;
   /* choose line width automatically based on zoom */
   if(w<0.) {
-    if(change_lw)  {
-      xctx->lw=xctx->mooz * 0.09 * cadsnap;
-      cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (cadsnap-10);
+    int cs;
+    cs = tclgetdoublevar("cadsnap");
+    if(tclgetboolvar("change_lw"))  {
+      xctx->lw=xctx->mooz * 0.09 * cs;
+      cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (cs-10);
       changed=1;
     }
   /* explicitly set line width */
@@ -979,7 +981,8 @@ void resetcairo(int create, int clear, int force_or_resize)
       fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
     }
     xctx->cairo_save_ctx = cairo_create(xctx->cairo_save_sfc);
-    cairo_select_font_face(xctx->cairo_save_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face(xctx->cairo_save_ctx, tclgetvar("cairo_font_name"), 
+      CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(xctx->cairo_save_ctx, 20);
     cairo_set_line_width(xctx->cairo_save_ctx, 1);
     cairo_set_line_join(xctx->cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
@@ -1001,7 +1004,8 @@ void resetcairo(int create, int clear, int force_or_resize)
       fprintf(errfp, "ERROR: invalid cairo surface\n");
     }
     xctx->cairo_ctx = cairo_create(xctx->cairo_sfc);
-    cairo_select_font_face(xctx->cairo_ctx, cairo_font_name, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face(xctx->cairo_ctx, tclgetvar("cairo_font_name"),
+      CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(xctx->cairo_ctx, 20);
     cairo_set_line_width(xctx->cairo_ctx, 1);
     cairo_set_line_join(xctx->cairo_ctx, CAIRO_LINE_JOIN_ROUND);
@@ -1108,6 +1112,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  struct stat buf;
  const char *home_buff;
  int running_in_src_dir;
+ int fs;
  /* XVisualInfo vinfo; */
 
  #if HAS_XCB==1
@@ -1399,8 +1404,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  dbg(1, "Tcl_AppInit(): resolved xschem_executable=%s\n", xschem_executable);
 
  /* set global variables fetching data from tcl code 25122002 */
- if(tclgetvar("dark_colorscheme")[0] == '1') dark_colorscheme = 1;
- else dark_colorscheme = 0;
  if(netlist_type==-1) {
   if(!strcmp(tclgetvar("netlist_type"),"vhdl") ) netlist_type=CAD_VHDL_NETLIST;
   else if(!strcmp(tclgetvar("netlist_type"),"verilog") ) netlist_type=CAD_VERILOG_NETLIST;
@@ -1411,33 +1414,26 @@ int Tcl_AppInit(Tcl_Interp *inter)
    override_netlist_type(-1); /* set tcl netlist_type */
  }
 
- split_files=atoi(tclgetvar("split_files"));
- netlist_show=atoi(tclgetvar("netlist_show"));
- unzoom_nodrift=atoi(tclgetvar("unzoom_nodrift"));
- show_pin_net_names = atoi(tclgetvar("show_pin_net_names"));
-
+ cairo_font_line_spacing = tclgetdoublevar("cairo_font_line_spacing");
  if(color_ps==-1)
    color_ps=atoi(tclgetvar("color_ps"));
  else  {
    my_snprintf(tmp, S(tmp), "%d",color_ps);
    tclsetvar("color_ps",tmp);
  }
- if(transparent_svg==-1)
-   transparent_svg=atoi(tclgetvar("transparent_svg"));
- else  {
-   my_snprintf(tmp, S(tmp), "%d",transparent_svg);
-   tclsetvar("transparent_svg",tmp);
- }
- change_lw=atoi(tclgetvar("change_lw"));
  l_width=atoi(tclgetvar("line_width"));
- if(change_lw == 1) l_width = 0.0;
+ if(tclgetboolvar("change_lw")) l_width = 0.0;
  draw_window=atoi(tclgetvar("draw_window"));
- incr_hilight=atoi(tclgetvar("incr_hilight"));
- enable_stretch=atoi(tclgetvar("enable_stretch"));
- big_grid_points=atoi(tclgetvar("big_grid_points"));
- draw_grid=atoi(tclgetvar("draw_grid"));
  cadlayers=atoi(tclgetvar("cadlayers"));
  if(debug_var==-10) debug_var=0;
+ my_snprintf(tmp, S(tmp), "%.16g",CADGRID);
+ Tcl_VarEval(interp, "set_ne cadgrid ", tmp, NULL);
+ my_snprintf(tmp, S(tmp), "%.16g",CADSNAP);
+ Tcl_VarEval(interp, "set_ne cadsnap ", tmp, NULL);
+ cairo_vert_correct = tclgetdoublevar("cairo_vert_correct");
+ nocairo_vert_correct = tclgetdoublevar("nocairo_vert_correct");
+ cairo_font_scale = tclgetdoublevar("cairo_font_scale");
+ only_probes = tclgetdoublevar("only_probes");
 
  /*                             */
  /*  [m]allocate dynamic memory */
@@ -1571,8 +1567,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
     resetwin(1, 0, 1, 0, 0);
     #if HAS_CAIRO==1
     /* load font from tcl 20171112 */
-    tcleval("xschem set svg_font_name $svg_font_name");
-    tcleval("xschem set cairo_font_name $cairo_font_name");
     tclsetvar("has_cairo","1");
     #endif
 
@@ -1618,9 +1612,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*                                                                                  */
  if(has_x) tcleval("pack_widgets");
 
- fullscreen=atoi(tclgetvar("fullscreen"));
- if(fullscreen) {
-   fullscreen = 0;
+ fs=tclgetintvar("fullscreen");
+ if(fs) {
+   tclsetvar("fullscreen", "0");
    tcleval("update");
    toggle_fullscreen(".");
  }
