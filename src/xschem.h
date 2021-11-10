@@ -767,8 +767,6 @@ extern const char fopen_read_mode[]; /* "r" on unix, "rb" on windows */
 
 /* X11 specific globals */
 extern Colormap colormap;
-extern Window pre_window;
-extern Window parent_of_topwindow;
 extern unsigned char **pixdata;
 extern unsigned char pixdata_init[22][32];
 extern GC *gc, *gcstipple;

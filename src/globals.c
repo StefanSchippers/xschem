@@ -25,8 +25,6 @@
 
 /* X11 specific globals */
 Colormap colormap;
-Window pre_window; /* preview when opening files */
-Window parent_of_topwindow;
 unsigned char **pixdata;
 unsigned char pixdata_init[22][32]={    /* fill patterns... indexed by laynumb. */
 {0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff, 0xff,/*0 */

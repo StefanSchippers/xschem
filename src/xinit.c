@@ -156,7 +156,7 @@ void windowid()
   Tk_Window mainwindow;
 
   unsigned int ww;
-  Window framewin, rootwindow;
+  Window framewin, rootwindow, parent_of_topwindow;
   Window *framewin_child_ptr;
   unsigned int framewindow_nchildren;
 
