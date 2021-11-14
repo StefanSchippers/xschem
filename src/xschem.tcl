@@ -3712,7 +3712,7 @@ proc build_widgets { {topwin {} } } {
      }
   button $topwin.menubar.simulate -text "Simulate"  -activebackground red  -takefocus 0 -padx 2 -pady 0 \
     -command "
-      if { ![info exists simulate_oldbg] } {
+      if { !\[info exists simulate_oldbg\] } {
         set simulate_oldbg \[$topwin.menubar.simulate cget -bg\]
         $topwin.menubar.simulate configure -bg red
         simulate \"$topwin.menubar.simulate configure -bg \$simulate_oldbg; unset simulate_oldbg\"
