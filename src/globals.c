@@ -23,7 +23,10 @@
 #include "xschem.h"
 
 
-/* X11 specific globals */
+/* ------------------------------------------------ */
+/* X11 specific globals                             */
+/* ------------------------------------------------ */
+Display *display;
 Colormap colormap;
 unsigned char **pixdata;
 unsigned char pixdata_init[22][32]={    /* fill patterns... indexed by laynumb. */
@@ -93,12 +96,12 @@ unsigned char pixdata_init[22][32]={    /* fill patterns... indexed by laynumb. 
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},/*20 */
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}/*21 */
 };
-GC *gcstipple,*gc;
-Pixmap *pixmap = NULL;
-Display *display;
 int screen_number;
+int screendepth;
 Pixmap cad_icon_pixmap=0, cad_icon_mask=0;
-XColor xcolor_array[256];
+/* following global is declared in icon.c */
+/* char *cad_icon[] */
+Pixmap *pixmap = NULL;
 Visual *visual;
 #if HAS_XRENDER==1
 XRenderPictFormat *render_format;
@@ -111,71 +114,75 @@ xcb_screen_t *screen_xcb;
 xcb_visualtype_t *visual_xcb;
 #endif /*HAS_XCB */
 
-/* these variables are mirrored in tcl code */
-char *netlist_dir=NULL; /* user set netlist directory via cmd-option or menu or xschemrc */
-char initial_netlist_name[PATH_MAX]={0};
-int has_x=1;
-int color_ps=-1;
-int flat_netlist = 0;
+/* ---------------------------------------------- */
+/* These variables are mirrored in tcl code       */
+/* ---------------------------------------------- */
 int cadlayers=0;
+int has_x=1;
 int rainbow_colors = 0;
-double cairo_font_scale=1.0; /* default: 1.0, allows to adjust font size */
+int flat_netlist = 0;
+char *netlist_dir = NULL;
+int color_ps=-1;
+int only_probes = 0;
+double nocairo_vert_correct=0.0;
 /* lift up the text by 'n' pixels (zoom corrected) within the bbox.  */
 /* This correction is used to better align existing schematics */
 /* compared to the nocairo xschem version. */
 /* allowed values should be in the range [-4, 4] */
 double cairo_vert_correct=0.0;
-double nocairo_vert_correct=0.0;
+int constrained_move = 0;
+double cairo_font_scale=1.0; /* default: 1.0, allows to adjust font size */
 double cairo_font_line_spacing = 1.0; /* value taken from xschemrc / xschem.tcl */
-int netlist_type=-1;
+int debug_var=-10;  /* will be set to 0 in xinit.c */
 
+/* -------------------------------------------- */
+/* These variables are NOT mirrored in tcl code */
+/* -------------------------------------------- */
 int help=0; /* help option set to global scope, printing help is deferred */
             /* when configuration ~/.schem has been read 20140406 */
 FILE *errfp;
+int no_readline=0;
 char *filename=NULL; /* filename given on cmdline */
-char user_conf_dir[PATH_MAX];
 char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
+char user_conf_dir[PATH_MAX];
 char pwd_dir[PATH_MAX];  /* obtained via getcwd() */
+int load_initfile=1;
+char rcfile[PATH_MAX] = {'\0'};
+char *tcl_command = NULL; /* tcl command given on command line with --tcl <script> */
+char tcl_script[PATH_MAX] = {'\0'};
+int tcp_port = 0;
+int text_svg=1; /* use <text> svg element for text instead of xschem's internal vector font */
+int text_ps=1;  /* use ps font for text instead of xschem's internal vector font */
+double cadhalfdotsize = CADHALFDOTSIZE;
+char initial_netlist_name[PATH_MAX]={0};
+char bus_char[3] = {0, 0, 0};
+int yyparse_error = 0;
+char *xschem_executable=NULL;
+Tcl_Interp *interp;
+double *character[256]; /* array or per-char coordinates of xschem internal vector font */
+int do_netlist=0;  /* set by process_options if user wants netllist from cmdline */
+int do_simulation=0;
+int do_waves=0;
+int do_print=0;
+int quit=0;  /* set from process_options (ex netlist from cmdline and quit) */
+int batch_mode = 0; /* no tcl console if set; batch mode */
 #ifndef __unix__
 char win_temp_dir[PATH_MAX]="";
 const char fopen_read_mode[] = "rb";
 #else
 const char fopen_read_mode[] = "r";
 #endif
-int load_initfile=1;
-char rcfile[PATH_MAX] = {'\0'};
-char *tcl_command = NULL;
-char tcl_script[PATH_MAX] = {'\0'};
-int quit=0;  /* set from process_options (ex netlist from cmdline and quit) */
-int debug_var=-10;  /* will be set to 0 in xinit.c */
-int tcp_port = 0;
-int do_print=0;
-int no_readline=0;
-int draw_window=0;
-int only_probes = 0;
-int hide_symbols = 0;
-int sym_txt = 1;
-int text_svg=1; /* use <text> svg element for text instead of xschem's internal vector font */
-int text_ps=1;  /* use ps font for text instead of xschem's internal vector font */
-double cadhalfdotsize = CADHALFDOTSIZE;
-unsigned int color_index[256]; /* layer color lookup table */
-int yyparse_error = 0;
-int *enable_layer;
-int n_active_layers = 0;
-int *active_layer;
-int screendepth;
-char **color_array;
-int *fill_type;
-int fill_pattern = 1;
-char *xschem_executable=NULL;
-double *character[256]; /* array or per-char coordinates of xschem internal vector font */
-Tcl_Interp *interp;
-int do_netlist=0;  /* set by process_options if user wants netllist from cmdline */
-int do_simulation=0;
-int do_waves=0;
-char bus_char[3] = {0, 0, 0};
-int constrained_move = 0;
-int batch_mode = 0; /* no tcl console if set; batch mode */
+/* previous focused schematic window (used to switch context in callback()) */
+char old_winpath[PATH_MAX] = ".drw";
 
-/* following data is relative to the current schematic */
+/* ---------------------------------------------------------- */
+/* Cmdline options (used at xinit, and then not used anymore) */
+/* ---------------------------------------------------------- */
+int cli_opt_netlist_type = -1;
+char cli_opt_plotfile[PATH_MAX] = "";
+
+
+/* --------------------------------------------------- */
+/* Following data is relative to the current schematic */
+/* --------------------------------------------------- */
 Xschem_ctx *xctx;

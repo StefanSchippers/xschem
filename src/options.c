@@ -59,7 +59,7 @@ void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == LONG && !strcmp("plotfile", opt)) ) {
         dbg(1, "process_options(): user plotfile specified: %s\n", optval ? optval : "NULL");
-        if(optval) my_strncpy(xctx->plotfile, optval, S(xctx->plotfile));
+        if(optval) my_strncpy(cli_opt_plotfile, optval, S(cli_opt_plotfile));
 
     } else if( (type == LONG && !strcmp("rcfile", opt)) ) {
         dbg(1, "process_options(): user rcfile specified: %s\n", optval ? optval : "NULL");
@@ -110,15 +110,15 @@ void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == SHORT && *opt == 's') || (type == LONG && !strcmp("spice", opt)) ) {
         dbg(1, "process_options(): set netlist type to spice\n");
-        netlist_type=CAD_SPICE_NETLIST;
+        cli_opt_netlist_type=CAD_SPICE_NETLIST;
 
     } else if( (type == SHORT && *opt == 'V') || (type == LONG && !strcmp("vhdl", opt)) ) {
         dbg(1, "process_options(): set netlist type to vhdl\n");
-        netlist_type=CAD_VHDL_NETLIST;
+        cli_opt_netlist_type=CAD_VHDL_NETLIST;
 
     } else if( (type == SHORT && *opt == 'w') || (type == LONG && !strcmp("verilog", opt)) ) {
         dbg(1, "process_options(): set netlist type to verilog\n");
-        netlist_type=CAD_VERILOG_NETLIST;
+        cli_opt_netlist_type=CAD_VERILOG_NETLIST;
 
     } else if( (type == SHORT && *opt == 'b') || (type == LONG && !strcmp("detach", opt)) ) {
         batch_mode = 1;
@@ -128,7 +128,7 @@ void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == SHORT && *opt == 't') || (type == LONG && !strcmp("tedax", opt)) ) {
         dbg(1, "process_options(): set netlist type to tEDAx\n");
-        netlist_type=CAD_TEDAX_NETLIST;
+        cli_opt_netlist_type=CAD_TEDAX_NETLIST;
 
     } else if( (type == SHORT && *opt == 'q') || (type == LONG && !strcmp("quit", opt)) ) {
         quit=1;

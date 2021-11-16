@@ -593,8 +593,8 @@ int record_global_node(int what, FILE *fp, char *node)
     max_globals++;
  } else if(what == 0 || what == 2) {
     for(i=0;i<max_globals;i++) {
-       if(what == 0 && netlist_type == CAD_SPICE_NETLIST) fprintf(fp, ".GLOBAL %s\n", globals[i]);
-       if(what == 0 && netlist_type == CAD_TEDAX_NETLIST) fprintf(fp, "__GLOBAL__ %s\n", globals[i]);
+       if(what == 0 && xctx->netlist_type == CAD_SPICE_NETLIST) fprintf(fp, ".GLOBAL %s\n", globals[i]);
+       if(what == 0 && xctx->netlist_type == CAD_TEDAX_NETLIST) fprintf(fp, "__GLOBAL__ %s\n", globals[i]);
        my_free(829, &globals[i]);
     }
     my_free(830, &globals);
@@ -603,7 +603,7 @@ int record_global_node(int what, FILE *fp, char *node)
  return 0;
 }
 
-/* set netlist_type tcl var to specified format, if -1 is given restore to default */
+/* set xctx->netlist_type tcl var to specified format, if -1 is given restore to default */
 void override_netlist_type(int type)
 {
   if     (type == CAD_VHDL_NETLIST)    tclsetvar("netlist_type","vhdl");
@@ -612,11 +612,11 @@ void override_netlist_type(int type)
   else if(type == CAD_SYMBOL_ATTRS)    tclsetvar("netlist_type","symbol");
   else if(type == CAD_SPICE_NETLIST)   tclsetvar("netlist_type","spice");
   else {
-    if     (netlist_type == CAD_VHDL_NETLIST)    tclsetvar("netlist_type","vhdl");
-    else if(netlist_type == CAD_VERILOG_NETLIST) tclsetvar("netlist_type","verilog");
-    else if(netlist_type == CAD_TEDAX_NETLIST)   tclsetvar("netlist_type","tedax");
-    else if(netlist_type == CAD_SYMBOL_ATTRS)    tclsetvar("netlist_type","symbol");
-    else if(netlist_type == CAD_SPICE_NETLIST)   tclsetvar("netlist_type","spice");
+    if     (xctx->netlist_type == CAD_VHDL_NETLIST)    tclsetvar("netlist_type","vhdl");
+    else if(xctx->netlist_type == CAD_VERILOG_NETLIST) tclsetvar("netlist_type","verilog");
+    else if(xctx->netlist_type == CAD_TEDAX_NETLIST)   tclsetvar("netlist_type","tedax");
+    else if(xctx->netlist_type == CAD_SYMBOL_ATTRS)    tclsetvar("netlist_type","symbol");
+    else if(xctx->netlist_type == CAD_SPICE_NETLIST)   tclsetvar("netlist_type","spice");
   }
 }
 
@@ -717,13 +717,13 @@ void prepare_netlist_structs(int for_netlist)
     if(type && inst[i].node && IS_LABEL_OR_PIN(type) ) { /* instance must have a pin! */
       if (for_netlist>0) {
         /* 20150918 skip labels / pins if ignore property specified on instance */
-        if( netlist_type == CAD_VERILOG_NETLIST &&
+        if( xctx->netlist_type == CAD_VERILOG_NETLIST &&
           strcmp(get_tok_value(inst[i].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
-        if( netlist_type == CAD_SPICE_NETLIST &&
+        if( xctx->netlist_type == CAD_SPICE_NETLIST &&
           strcmp(get_tok_value(inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
-        if( netlist_type == CAD_VHDL_NETLIST &&
+        if( xctx->netlist_type == CAD_VHDL_NETLIST &&
           strcmp(get_tok_value(inst[i].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
-        if( netlist_type == CAD_TEDAX_NETLIST &&
+        if( xctx->netlist_type == CAD_TEDAX_NETLIST &&
           strcmp(get_tok_value(inst[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
       }
       port=0;

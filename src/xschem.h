@@ -510,6 +510,7 @@ typedef struct {
   xArc **arc;
   xInstance *inst;
   xSymbol *sym;
+  int sym_txt;
   int wires;
   int instances;
   int symbols;
@@ -579,6 +580,14 @@ typedef struct {
   cairo_t *cairo_ctx, *cairo_save_ctx;
   #endif
   GC gctiled;
+  GC *gc;
+  GC *gcstipple;
+  char **color_array;
+  unsigned int color_index[256];
+  XColor xcolor_array[256];
+  int *enable_layer;
+  int n_active_layers;
+  int *active_layer;
   char *undo_dirname;
   int cur_undo_ptr;
   int tail_undo_ptr;
@@ -631,6 +640,19 @@ typedef struct {
   int no_draw;
   int draw_pixmap; /* pixmap used as 2nd buffer */
   int netlist_count; /* netlist counter incremented at any cell being netlisted */
+  int hide_symbols;
+  int netlist_type;
+  char * top_path;
+  /* top_path is the path prefix of drawing canvas:
+   *
+   *    canvas    top_path
+   *  ----------------------
+   *    ".drw"       ""
+   *    ".xx.drw"    ".xx"
+   */
+  int *fill_type; /* for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
+  int fill_pattern;
+  int draw_window; 
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
@@ -707,27 +729,44 @@ struct instentry {
 };
 
 /* GLOBAL VARIABLES */
-extern Xschem_ctx *xctx;
-/*********** Variables backed in xschem.tcl ***********/
+
+/*********** X11 specific globals ***********/
+extern Colormap colormap;
+extern unsigned char **pixdata;
+extern unsigned char pixdata_init[22][32];
+extern Display *display;
+extern int screen_number;
+extern int screendepth;
+extern Pixmap cad_icon_pixmap, cad_icon_mask, *pixmap;
+extern Visual *visual;
+#if HAS_XRENDER==1
+extern XRenderPictFormat *render_format;
+#endif
+#if HAS_XCB==1
+extern xcb_connection_t *xcbconn;
+extern xcb_screen_t *screen_xcb;
+#if HAS_XRENDER==1
+extern xcb_render_pictforminfo_t format_rgb, format_rgba;
+#endif
+extern xcb_visualtype_t *visual_xcb;
+#endif  /*  HAS_XCB */
+
+/*********** These variables are mirrored in tcl code ***********/
 extern int cadlayers; 
 extern int has_x; 
 extern int rainbow_colors; 
-extern int draw_window; 
-extern int only_probes; 
-extern char *netlist_dir; 
-extern int color_ps; 
-extern int constrained_move;
-extern int netlist_type;
 extern int flat_netlist;
-extern int *enable_layer;
-extern int hide_symbols;
-extern int sym_txt;
-extern double cairo_font_scale; /*  default: 1.0, allows to adjust font size */
-extern double cairo_vert_correct;
+extern char *netlist_dir;
+extern int color_ps; 
+extern int only_probes; 
 extern double nocairo_vert_correct;
+extern double cairo_vert_correct;
+extern int constrained_move;
+extern double cairo_font_scale; /*  default: 1.0, allows to adjust font size */
 extern double cairo_font_line_spacing;
 extern int debug_var;
-/*********** End of variables backed in xschem.tcl ***********/
+
+/*********** These variables are NOT mirrored in tcl code ***********/
 extern int help;
 extern char *cad_icon[];
 extern int do_print;
@@ -742,13 +781,6 @@ extern char rcfile[PATH_MAX];
 extern char *tcl_command;
 extern char tcl_script[PATH_MAX];
 extern int tcp_port;
-extern char **color_array;
-extern unsigned int color_index[];
-extern int n_active_layers; /* can not be put in Xctx, since it is bound to enable_layer[] */
-extern int *active_layer; /* can not be put in Xctx, since it is bound to enable_layer[] */
-extern int *fill_type; /* for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
-                       /* can not be put in Xctx, since it sets XSetFillStyle */
-extern int fill_pattern; /*  fill rectangles, can not be put in Xctx, since it sets XSetFillStyle */
 extern int text_svg;
 extern int text_ps;
 extern double cadhalfdotsize;
@@ -764,29 +796,14 @@ extern int do_waves;
 extern int quit;
 extern int batch_mode; /* no TCL console */
 extern const char fopen_read_mode[]; /* "r" on unix, "rb" on windows */
+extern char old_winpath[PATH_MAX]; /* previous focused schematic window (used to switch context) */
 
-/* X11 specific globals */
-extern Colormap colormap;
-extern unsigned char **pixdata;
-extern unsigned char pixdata_init[22][32];
-extern GC *gc, *gcstipple;
-extern Display *display;
-extern int screen_number;
-extern int screendepth;
-extern Pixmap cad_icon_pixmap, cad_icon_mask, *pixmap;
-extern XColor xcolor_array[];
-extern Visual *visual;
-#if HAS_XRENDER==1
-extern XRenderPictFormat *render_format;
-#endif
-#if HAS_XCB==1
-extern xcb_connection_t *xcbconn;
-extern xcb_screen_t *screen_xcb;
-#if HAS_XRENDER==1
-extern xcb_render_pictforminfo_t format_rgb, format_rgba;
-#endif
-extern xcb_visualtype_t *visual_xcb;
-#endif  /*  HAS_XCB */
+/*********** Cmdline options  (used at xinit, and then not used anymore) ***********/
+extern int cli_opt_netlist_type;
+extern char cli_opt_plotfile[PATH_MAX];
+
+/*********** Following data is relative to the current schematic ***********/
+extern Xschem_ctx *xctx;
 
 /*  FUNCTIONS */
 extern double timer(int start);
@@ -1140,13 +1157,13 @@ extern void change_layer();
 extern void launcher();
 extern void windowid();
 extern void preview_window(const char *what, const char *tk_win_path, const char *filename);
-extern void new_schematic(const char *what, const char *tk_win_path, const char *filename);
+extern void new_schematic(const char *what, const char *top_path, const char *tk_win_path, const char *filename);
 extern int window_state (Display *disp, Window win, char *arg);
 extern void toggle_fullscreen(const char *topwin);
 extern void toggle_only_probes();
 extern void update_symbol(const char *result, int x);
 extern void tclexit(ClientData s);
-extern int build_colors(double dim); /*  reparse the TCL 'colors' list and reassign colors 20171113 */
+extern int build_colors(double dim, double dim_bg); /*  reparse the TCL 'colors' list and reassign colors 20171113 */
 extern void drill_hilight(int mode);
 extern void get_square(double x, double y, int *xx, int *yy);
 extern void del_wire_table(void);

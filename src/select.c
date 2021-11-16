@@ -144,7 +144,7 @@ void select_connected_wires(int stop_at_junction)
     } /* switch(...) */
   } /* for(... lastsel ...) */
   rebuild_selected_array();
-  draw_selection(gc[SELLAYER], 0);
+  draw_selection(xctx->gc[SELLAYER], 0);
 }
 
 
@@ -559,8 +559,8 @@ void bbox(int what,double x1,double y1, double x2, double y2)
      XSetClipMask(display, xctx->gctiled, None); /* clipping already done in software */
      for(i=0;i<cadlayers;i++)
      {
-      XSetClipMask(display, gc[i], None); /* clipping already done in software */
-      XSetClipMask(display, gcstipple[i], None); /* optimization, clipping already done in software */
+      XSetClipMask(display, xctx->gc[i], None); /* clipping already done in software */
+      XSetClipMask(display, xctx->gcstipple[i], None); /* optimization, clipping already done in software */
      }
      #if HAS_CAIRO==1
      cairo_reset_clip(xctx->cairo_ctx);
@@ -588,8 +588,8 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    if(has_x) {
      for(i=0;i<cadlayers;i++)
      {
-       XSetClipRectangles(display, gc[i], 0,0, xctx->xrect, 1, Unsorted);
-       XSetClipRectangles(display, gcstipple[i], 0,0, xctx->xrect, 1, Unsorted);
+       XSetClipRectangles(display, xctx->gc[i], 0,0, xctx->xrect, 1, Unsorted);
+       XSetClipRectangles(display, xctx->gcstipple[i], 0,0, xctx->xrect, 1, Unsorted);
      }
      XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
      dbg(1, "bbox(): bbox= %d %d %d %d\n",xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2);
@@ -738,9 +738,9 @@ void select_wire(int i,unsigned short select_mode, int fast)
   if(select_mode) {
    dbg(1, "select(): wire[%d].end1=%d, ,end2=%d\n", i, xctx->wire[i].end1, xctx->wire[i].end2);
    if(xctx->wire[i].bus)
-     drawtempline(gc[SELLAYER], THICK, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
+     drawtempline(xctx->gc[SELLAYER], THICK, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
    else
-     drawtempline(gc[SELLAYER], ADD, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
+     drawtempline(xctx->gc[SELLAYER], ADD, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
   }
   else {
    if(xctx->wire[i].bus)
@@ -790,7 +790,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
   xctx->inst[i].sel = select_mode;
   if(select_mode) {
     for(c=0;c<cadlayers;c++) {
-      draw_temp_symbol(ADD, gc[SELLAYER], i,c,0,0,0.0,0.0);
+      draw_temp_symbol(ADD, xctx->gc[SELLAYER], i,c,0,0,0.0,0.0);
     }
   } else {
     for(c=0;c<cadlayers;c++) {
@@ -821,7 +821,7 @@ void select_text(int i,unsigned short select_mode, int fast)
   customfont = set_text_custom_font(&xctx->text[i]);
   #endif
   if(select_mode)
-    draw_temp_string(gc[SELLAYER],ADD, xctx->text[i].txt_ptr,
+    draw_temp_string(xctx->gc[SELLAYER],ADD, xctx->text[i].txt_ptr,
      xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
      xctx->text[i].x0, xctx->text[i].y0,
      xctx->text[i].xscale, xctx->text[i].yscale);
@@ -858,7 +858,7 @@ void select_box(int c, int i, unsigned short select_mode, int fast)
     } else {
       xctx->rect[c][i].sel |= select_mode;
     }
-    drawtemprect(gc[SELLAYER], ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
+    drawtemprect(xctx->gc[SELLAYER], ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                                     xctx->rect[c][i].x2, xctx->rect[c][i].y2);
   } else {
     xctx->rect[c][i].sel = 0;
@@ -889,7 +889,7 @@ void select_arc(int c, int i, unsigned short select_mode, int fast)
   }
   if(select_mode) {
     xctx->arc[c][i].sel = select_mode;
-    drawtemparc(gc[SELLAYER], ADD, xctx->arc[c][i].x, xctx->arc[c][i].y,
+    drawtemparc(xctx->gc[SELLAYER], ADD, xctx->arc[c][i].x, xctx->arc[c][i].y,
                                    xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b);
   } else {
     xctx->arc[c][i].sel = 0;
@@ -917,7 +917,7 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast )
   }
   xctx->poly[c][i].sel = select_mode;
   if(select_mode) {
-   drawtemppolygon(gc[SELLAYER], NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
+   drawtemppolygon(xctx->gc[SELLAYER], NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
   }
   else
    drawtemppolygon(xctx->gctiled, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
@@ -947,10 +947,10 @@ void select_line(int c, int i, unsigned short select_mode, int fast )
    xctx->line[c][i].sel = select_mode;
   if(select_mode) {
    if(xctx->line[c][i].bus)
-     drawtempline(gc[SELLAYER], THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
+     drawtempline(xctx->gc[SELLAYER], THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                        xctx->line[c][i].x2, xctx->line[c][i].y2);
    else
-     drawtempline(gc[SELLAYER], ADD, xctx->line[c][i].x1, xctx->line[c][i].y1,
+     drawtempline(xctx->gc[SELLAYER], ADD, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                      xctx->line[c][i].x2, xctx->line[c][i].y2);
   }
   else
@@ -998,9 +998,9 @@ unsigned short select_object(double mx,double my, unsigned short select_mode, in
      break;
    } /*end switch */
 
-   drawtemparc(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
-   drawtemprect(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
-   drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+   drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
+   drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+   drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
 
    if(sel.type)  xctx->ui_state |= SELECTION;
    return sel.type;
@@ -1066,7 +1066,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
  }
  for(c=0;c<cadlayers;c++)
  {
-  if(!enable_layer[c]) continue;
+  if(!xctx->enable_layer[c]) continue;
   for(i=0;i<xctx->polygons[c]; i++) {
     int k, selected_points, flag;
 
@@ -1177,9 +1177,9 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
 
   } /* end for i */
  } /* end for c */
- drawtemparc(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
- drawtemprect(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
- drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+ drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
+ drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+ drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
 }
 
 void select_all(void)
@@ -1217,9 +1217,9 @@ void select_all(void)
     select_box(c,i, SELECTED, 1);
   }
  } /* end for c */
- drawtemparc(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
- drawtemprect(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
- drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+ drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
+ drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+ drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
  rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
 }
 

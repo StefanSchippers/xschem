@@ -44,7 +44,6 @@ void sig_handler(int s){
            skip_dir(xctx->sch[xctx->currsch]));
   if( !(emergency_dir = create_tmpdir(emergency_prefix)) ) {
     fprintf(errfp, "xinit(): problems creating emergency save dir\n");
-    /* tcleval( "exit"); */
     tcleval("exit");
   }
 

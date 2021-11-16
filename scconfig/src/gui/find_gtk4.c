@@ -94,3 +94,33 @@ int find_gtk4_modversion(const char *name, int logdepth, int fatal)
 }
 
 
+int find_epoxy(const char *name, int logdepth, int fatal)
+{
+	static const char *node = "libs/gui/epoxy";
+	static const char *pkgname = "epoxy";
+	const char *test_c =
+		NL "#include <stdio.h>"
+		NL "#include <epoxy/gl.h>"
+		NL "int main() {"
+		NL "	const char *list = \"foo bar baz\";"
+		NL "	if (epoxy_extension_in_string(list, \"bar\") && !epoxy_extension_in_string(list, \"foobar\"))"
+		NL "		printf(\"OK\\n\");"
+		NL "	return 0;"
+		NL "}"
+		NL;
+
+	if (require("cc/cc", logdepth, fatal))
+		return try_fail(logdepth, node);
+
+	report("Checking for epoxy... ");
+	logprintf(logdepth, "find_epoxy: running pkg-config...\n");
+	logdepth++;
+
+	if (try_icl_pkg_config(logdepth, node, test_c, NULL, "epoxy", NULL))
+		return 0;
+
+	if (try_icl(logdepth, node, test_c, NULL, "", "-lepoxy"))
+		return 0;
+
+	return try_fail(logdepth, node);
+}

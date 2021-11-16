@@ -255,7 +255,7 @@ void check_unique_names(int rename)
   }
   /* draw_hilight_net(1); */
   redraw_hilights(0);
-  /* draw_window = save_draw; */
+  /* xctx->draw_window = save_draw; */
 }
 
 

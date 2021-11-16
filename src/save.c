@@ -37,7 +37,9 @@ void read_record(int firstchar, FILE *fp, int dbg_level)
   int c;
   char *str = NULL;
   dbg(dbg_level, "SKIP RECORD\n");
-  if(firstchar != '{') dbg(dbg_level, "%c", firstchar);
+  if(firstchar != '{') {
+    dbg(dbg_level, "%c", firstchar);
+  }
   while((c = fgetc(fp)) != EOF) {
     if (c=='\r') continue;
     if(c == '\n') {
@@ -963,6 +965,9 @@ int save_schematic(const char *schname) /* 20171020 added return value */
 {
   FILE *fd;
   char name[PATH_MAX]; /* overflow safe 20161122 */
+  char *top_path;
+
+  top_path =  xctx->top_path[0] ? xctx->top_path : ".";
 
   if( strcmp(schname,"") ) my_strncpy(xctx->sch[xctx->currsch], schname, S(xctx->sch[xctx->currsch]));
   else return -1;
@@ -971,8 +976,8 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   dbg(1, "save_schematic(): abs_sym_path=%s\n", abs_sym_path(xctx->sch[xctx->currsch], ""));
   my_strncpy(name, xctx->sch[xctx->currsch], S(name));
   if(has_x) {
-    tcleval( "wm title . \"xschem - [file tail [xschem get schname]]\"");
-    tcleval( "wm iconname . \"xschem - [file tail [xschem get schname]]\"");
+    Tcl_VarEval(interp, "wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
+    Tcl_VarEval(interp, "wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
   }
   if(!(fd=fopen(name,"w")))
   {
@@ -1038,7 +1043,9 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   int i;
   static int save_netlist_type = 0;
   static int loaded_symbol = 0;
+  char *top_path;
 
+  top_path =  xctx->top_path[0] ? xctx->top_path : ".";
   xctx->prep_hi_structs=0;
   xctx->prep_net_structs=0;
   xctx->prep_hash_inst=0;
@@ -1071,13 +1078,13 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       if(reset_undo) {
         Tcl_VarEval(interp, "is_xschem_file ", xctx->sch[xctx->currsch], NULL);
         if(!strcmp(tclresult(), "SYMBOL")) {
-          save_netlist_type = netlist_type;
-          netlist_type = CAD_SYMBOL_ATTRS;
+          save_netlist_type = xctx->netlist_type;
+          xctx->netlist_type = CAD_SYMBOL_ATTRS;
           loaded_symbol = 1;
           tclsetvar("netlist_type","symbol");
         } else {
           if(loaded_symbol) {
-            netlist_type = save_netlist_type;
+            xctx->netlist_type = save_netlist_type;
             override_netlist_type(-1);
           }
           loaded_symbol = 0;
@@ -1089,7 +1096,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     set_modify(0);
     clear_drawing();
     for(i=0;;i++) {
-      if(netlist_type == CAD_SYMBOL_ATTRS) {
+      if(xctx->netlist_type == CAD_SYMBOL_ATTRS) {
         if(i == 0) my_snprintf(name, S(name), "%s.sym", "untitled");
         else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
       } else {
@@ -1103,8 +1110,8 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   }
   if(has_x) { /* 20161207 moved after if( (fd=..))  */
     if(reset_undo) {
-      tcleval( "wm title . \"xschem - [file tail [xschem get schname]]\""); /* set window and icon title */
-      tcleval( "wm iconname . \"xschem - [file tail [xschem get schname]]\"");
+      Tcl_VarEval(interp, "wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
+      Tcl_VarEval(interp, "wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
     }
   }
   if(tclgetboolvar("autotrim_wires")) trim_wires();

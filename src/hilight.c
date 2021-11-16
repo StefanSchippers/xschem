@@ -99,22 +99,22 @@ void free_hilight_hash(void) /* remove the whole hash table  */
 }
 
 /* by default: 
- * active_layer[0] = 7
- * active_layer[1] = 8
- * active_layer[2] = 10  if 9 is disabled it is skipped
+ * xctx->active_layer[0] = 7
+ * xctx->active_layer[1] = 8
+ * xctx->active_layer[2] = 10  if 9 is disabled it is skipped
  * ...
  * if a layer is disabled (not viewable) it is skipped
- * n_active_layers is the total number of layers for hilights.
- * standard xschem conf: cadlayers=22, n_active_layers=15 if no disabled layers.
+ * xctx->n_active_layers is the total number of layers for hilights.
+ * standard xschem conf: cadlayers=22, xctx->n_active_layers=15 if no disabled layers.
  */
 int get_color(int value)
 {
   int x;
 
   if(value < 0) return (-value) % cadlayers ;
-  if(n_active_layers) {
-    x = value%(n_active_layers);
-    return active_layer[x];
+  if(xctx->n_active_layers) {
+    x = value%(xctx->n_active_layers);
+    return xctx->active_layer[x];
   } else {
     return cadlayers > 5 ? 5 : cadlayers -1; /* desperate attempt to return a decent color */
   }
@@ -123,7 +123,7 @@ int get_color(int value)
 
 void incr_hilight_color(void)
 {
-  xctx->hilight_color = (xctx->hilight_color + 1) % (n_active_layers * cadlayers);
+  xctx->hilight_color = (xctx->hilight_color + 1) % (xctx->n_active_layers * cadlayers);
 }
 
 /* print all highlight signals which are not ports (in/out/inout). */
@@ -186,7 +186,7 @@ void create_plot_cmd(void)
         idx++;
         if(viewer == NGSPICE) {
           sprintf(color_str, "%02x/%02x/%02x", 
-            xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
+            xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8, xctx->xcolor_array[c].blue>>8);
           if(idx > 9) {
             idx = 2;
             fprintf(fd, "%s", str);
@@ -207,7 +207,7 @@ void create_plot_cmd(void)
         if(viewer == GAW) {
           char *t=NULL, *p=NULL;
           sprintf(color_str, "%02x%02x%02x", 
-            xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
+            xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8, xctx->xcolor_array[c].blue>>8);
           my_strdup(1273, &t, tok);
           my_strdup2(1274, &p, (entry->path)+1);
           if(simtype == 0 ) { /* spice */
@@ -228,7 +228,7 @@ void create_plot_cmd(void)
         if(viewer == BESPICE) {
           char *t=NULL, *p=NULL;
           sprintf(color_str, "%d %d %d", 
-            xcolor_array[c].red>>8, xcolor_array[c].green>>8, xcolor_array[c].blue>>8);
+            xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8, xctx->xcolor_array[c].blue>>8);
           my_strdup(241, &t, tok);
           my_strdup2(245, &p, (entry->path)+1);
 
@@ -580,8 +580,8 @@ int search(const char *tok, const char *val, int sub, int sel)
    fprintf(errfp, "search(): warning: null val key\n");
    return TCL_ERROR;
  }
- save_draw = draw_window;
- draw_window=1;
+ save_draw = xctx->draw_window;
+ xctx->draw_window=1;
 #ifdef __unix__
  if(regcomp(&re, val , REG_EXTENDED)) return TCL_ERROR;
 #endif
@@ -743,14 +743,14 @@ int search(const char *tok, const char *val, int sub, int sel)
    }
    if(sel) {
      rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
-     draw_selection(gc[SELLAYER], 0);
+     draw_selection(xctx->gc[SELLAYER], 0);
    }
    else redraw_hilights(0);
  }
  #ifdef __unix__
  regfree(&re);
  #endif
- draw_window = save_draw;
+ xctx->draw_window = save_draw;
  my_free(771, &tmpname);
  return found;
 }
@@ -853,8 +853,8 @@ static void send_net_to_bespice(int simtype, const char *node)
   if(node_entry  && (node_entry->d.port == 0 || !strcmp(xctx->sch_path[xctx->currsch], ".") )) {
     char *t=NULL, *p=NULL;
     c = get_color(xctx->hilight_color);
-    sprintf(color_str, "%d %d %d", xcolor_array[c].red>>8, xcolor_array[c].green>>8,
-                                       xcolor_array[c].blue>>8);
+    sprintf(color_str, "%d %d %d", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
+                                       xctx->xcolor_array[c].blue>>8);
     expanded_tok = expandlabel(tok, &tok_mult);
     for(k=1; k<=tok_mult; k++) {
       my_strdup(1277, &t, find_nth(expanded_tok, ',', k));
@@ -914,8 +914,8 @@ static void send_net_to_gaw(int simtype, const char *node)
   if(node_entry  && (node_entry->d.port == 0 || !strcmp(xctx->sch_path[xctx->currsch], ".") )) {
     char *t=NULL, *p=NULL;
     c = get_color(xctx->hilight_color);
-    sprintf(color_str, "%02x%02x%02x", xcolor_array[c].red>>8, xcolor_array[c].green>>8,
-                                       xcolor_array[c].blue>>8);
+    sprintf(color_str, "%02x%02x%02x", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
+                                       xctx->xcolor_array[c].blue>>8);
     expanded_tok = expandlabel(tok, &tok_mult);
     tcleval("if { ![info exists gaw_fd] } { gaw_setup_tcp }\n");
     for(k=1; k<=tok_mult; k++) {
@@ -955,8 +955,8 @@ static void send_current_to_bespice(int simtype, const char *node)
   tok = node;
   /* c = PINLAYER; */
   c = get_color(xctx->hilight_color);
-  sprintf(color_str, "%d %d %d", xcolor_array[c].red>>8, xcolor_array[c].green>>8,
-                                     xcolor_array[c].blue>>8);
+  sprintf(color_str, "%d %d %d", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
+                                     xctx->xcolor_array[c].blue>>8);
   expanded_tok = expandlabel(tok, &tok_mult);
   for(k=1; k<=tok_mult; k++) {
     my_strdup(1281, &t, find_nth(expanded_tok, ',', k));
@@ -1017,8 +1017,8 @@ static void send_current_to_gaw(int simtype, const char *node)
   tok = node;
   /* c = PINLAYER; */
   c = get_color(xctx->hilight_color);
-  sprintf(color_str, "%02x%02x%02x", xcolor_array[c].red>>8, xcolor_array[c].green>>8,
-                                     xcolor_array[c].blue>>8);
+  sprintf(color_str, "%02x%02x%02x", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
+                                     xctx->xcolor_array[c].blue>>8);
   expanded_tok = expandlabel(tok, &tok_mult);
   tcleval("if { ![info exists gaw_fd] } { gaw_setup_tcp }\n");
   for(k=1; k<=tok_mult; k++) {
@@ -1704,8 +1704,8 @@ void draw_hilight_net(int on_window)
  if(!xctx->hilight_nets) return;
  dbg(3, "draw_hilight_net(): xctx->prep_hi_structs=%d\n", xctx->prep_hi_structs);
  prepare_netlist_structs(0);
- save_draw = draw_window;
- draw_window = on_window;
+ save_draw = xctx->draw_window;
+ xctx->draw_window = on_window;
  x1 = X_TO_XSCHEM(xctx->areax1);
  y1 = Y_TO_XSCHEM(xctx->areay1);
  x2 = X_TO_XSCHEM(xctx->areax2);
@@ -1772,7 +1772,7 @@ void draw_hilight_net(int on_window)
      }
    }
  }
- draw_window = save_draw;
+ xctx->draw_window = save_draw;
 }
 
 /* show == 0   ==> create pins from highlight nets */
@@ -1822,7 +1822,7 @@ void print_hilight_net(int show)
      /* before invoking this function, in this case --> skip */
      if(node_entry && !strcmp(xctx->sch_path[xctx->currsch], entry->path)) {
        if(show==3) {
-         if(netlist_type == CAD_SPICE_NETLIST) 
+         if(xctx->netlist_type == CAD_SPICE_NETLIST) 
            fprintf(fd, ".save v(%s%s)\n", 
               entry->path + 1, 
               entry->token[0] == '#' ? entry->token + 1 : entry->token  );

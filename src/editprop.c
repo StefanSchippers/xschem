@@ -296,7 +296,7 @@ void *my_calloc(int id, size_t nmemb, size_t size)
    if(size*nmemb > 0) {
      ptr=calloc(nmemb, size);
      if(ptr == NULL) fprintf(errfp,"my_calloc(%d,): allocation failure\n", id);
-     dbg(3, "my_calloc(%d,): allocating %p , %lu bytes\n",
+     dbg(3, "\nmy_calloc(%d,): allocating %p , %lu bytes\n",
                id, ptr, (unsigned long) (size*nmemb));
    }
    else ptr = NULL;
@@ -309,7 +309,7 @@ void *my_malloc(int id, size_t size)
  if(size>0) {
    ptr=malloc(size);
    if(ptr == NULL) fprintf(errfp,"my_malloc(%d,): allocation failure\n", id);
-   dbg(3, "my_malloc(%d,): allocating %p , %lu bytes\n", id, ptr, (unsigned long) size);
+   dbg(3, "\nmy_malloc(%d,): allocating %p , %lu bytes\n", id, ptr, (unsigned long) size);
  }
  else ptr=NULL;
  return ptr;
@@ -321,12 +321,12 @@ void my_realloc(int id, void *ptr,size_t size)
  a = *(void **)ptr;
  if(size == 0) {
    free(*(void **)ptr);
-   dbg(3, "my_free(%d,):  my_realloc_freeing %p\n",id, *(void **)ptr);
+   dbg(3, "\nmy_free(%d,):  my_realloc_freeing %p\n",id, *(void **)ptr);
    *(void **)ptr=NULL;
  } else {
    *(void **)ptr=realloc(*(void **)ptr,size);
     if(*(void **)ptr == NULL) fprintf(errfp,"my_realloc(%d,): allocation failure\n", id);
-   dbg(3, "my_realloc(%d,): reallocating %p --> %p to %lu bytes\n",
+   dbg(3, "\nmy_realloc(%d,): reallocating %p --> %p to %lu bytes\n",
            id, a, *(void **)ptr,(unsigned long) size);
  }
 
@@ -336,10 +336,10 @@ void my_free(int id, void *ptr)
 {
  if(*(void **)ptr) {
    free(*(void **)ptr);
-   dbg(3, "my_free(%d,):  freeing %p\n", id, *(void **)ptr);
+   dbg(3, "\nmy_free(%d,):  freeing %p\n", id, *(void **)ptr);
    *(void **)ptr=NULL;
  } else {
-   dbg(3, "--> my_free(%d,): trying to free NULL pointer\n", id);
+   dbg(3, "\n--> my_free(%d,): trying to free NULL pointer\n", id);
  }
 }
 
@@ -1151,31 +1151,31 @@ void edit_property(int x)
    char *old_prop = NULL;
    char *new_prop = NULL;
 
-   if(netlist_type==CAD_SYMBOL_ATTRS) {
+   if(xctx->netlist_type==CAD_SYMBOL_ATTRS) {
     if(xctx->schsymbolprop!=NULL)
       tclsetvar("retval",xctx->schsymbolprop);
     else
       tclsetvar("retval","");
    }
-   else if(netlist_type==CAD_VHDL_NETLIST) {
+   else if(xctx->netlist_type==CAD_VHDL_NETLIST) {
     if(xctx->schvhdlprop!=NULL)
       tclsetvar("retval",xctx->schvhdlprop);
     else
       tclsetvar("retval","");
    }
-   else if(netlist_type==CAD_VERILOG_NETLIST) {
+   else if(xctx->netlist_type==CAD_VERILOG_NETLIST) {
     if(xctx->schverilogprop!=NULL)
       tclsetvar("retval",xctx->schverilogprop);
     else
       tclsetvar("retval","");
    }
-   else if(netlist_type==CAD_SPICE_NETLIST) {
+   else if(xctx->netlist_type==CAD_SPICE_NETLIST) {
     if(xctx->schprop!=NULL)
       tclsetvar("retval",xctx->schprop);
     else
       tclsetvar("retval","");
    }
-   else if(netlist_type==CAD_TEDAX_NETLIST) {
+   else if(xctx->netlist_type==CAD_TEDAX_NETLIST) {
     if(xctx->schtedaxprop!=NULL)
       tclsetvar("retval",xctx->schtedaxprop);
     else
@@ -1200,27 +1200,27 @@ void edit_property(int x)
 
    if(strcmp(tclgetvar("rcode"),"") )
    {
-     if(netlist_type==CAD_SYMBOL_ATTRS && 
+     if(xctx->netlist_type==CAD_SYMBOL_ATTRS && 
         (!xctx->schsymbolprop || strcmp(xctx->schsymbolprop, tclgetvar("retval") ) ) ) {
         set_modify(1); push_undo();
         my_strdup(422, &xctx->schsymbolprop, (char *) tclgetvar("retval"));
 
-     } else if(netlist_type==CAD_VERILOG_NETLIST &&
+     } else if(xctx->netlist_type==CAD_VERILOG_NETLIST &&
         (!xctx->schverilogprop || strcmp(xctx->schverilogprop, tclgetvar("retval") ) ) ) {
         set_modify(1); push_undo();
         my_strdup(94, &xctx->schverilogprop, (char *) tclgetvar("retval"));
 
-     } else if(netlist_type==CAD_SPICE_NETLIST && 
+     } else if(xctx->netlist_type==CAD_SPICE_NETLIST && 
         (!xctx->schprop || strcmp(xctx->schprop, tclgetvar("retval") ) ) ) {
         set_modify(1); push_undo();
         my_strdup(95, &xctx->schprop, (char *) tclgetvar("retval"));
 
-     } else if(netlist_type==CAD_TEDAX_NETLIST &&
+     } else if(xctx->netlist_type==CAD_TEDAX_NETLIST &&
         (!xctx->schtedaxprop || strcmp(xctx->schtedaxprop, tclgetvar("retval") ) ) ) {
         set_modify(1); push_undo();
         my_strdup(96, &xctx->schtedaxprop, (char *) tclgetvar("retval"));
 
-     } else if(netlist_type==CAD_VHDL_NETLIST &&
+     } else if(xctx->netlist_type==CAD_VHDL_NETLIST &&
         (!xctx->schvhdlprop || strcmp(xctx->schvhdlprop, tclgetvar("retval") ) ) ) {
         set_modify(1); push_undo();
         my_strdup(97, &xctx->schvhdlprop, (char *) tclgetvar("retval"));

@@ -408,7 +408,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   char *textfont;
 
   if(xctx->inst[n].ptr == -1) return;
-  if( (layer != PINLAYER && !enable_layer[layer]) ) return;
+  if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
   if(layer==0) {
     x1=X_TO_SVG(xctx->inst[n].x1);
     x2=X_TO_SVG(xctx->inst[n].x2);
@@ -467,7 +467,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     svg_drawarc(c, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
   }
 
-  if( enable_layer[layer] ) for(j=0;j< symptr->rects[layer];j++) {
+  if( xctx->enable_layer[layer] ) for(j=0;j< symptr->rects[layer];j++) {
     box = (symptr->rect[layer])[j];
     ROTATION(rot, flip, 0.0,0.0,box.x1,box.y1,x1,y1);
     ROTATION(rot, flip, 0.0,0.0,box.x2,box.y2,x2,y2);
@@ -475,7 +475,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     svg_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
   }
   if( (layer==TEXTWIRELAYER  && !(xctx->inst[n].flags&2) ) ||
-      (sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) ) {
+      (xctx->sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) ) {
     const char *txtptr;
     for(j=0;j< symptr->texts;j++) {
       text = symptr->text[j];
@@ -489,7 +489,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
         if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
       }
       /* display PINLAYER colored instance texts even if PINLAYER disabled */
-      if(xctx->inst[n].color == PINLAYER ||  enable_layer[textlayer]) {
+      if(xctx->inst[n].color == PINLAYER ||  xctx->enable_layer[textlayer]) {
         my_snprintf(svg_font_family, S(svg_font_family), tclgetvar("svg_font_name"));
         my_snprintf(svg_font_style, S(svg_font_style), "normal");
         my_snprintf(svg_font_weight, S(svg_font_weight), "normal");
@@ -617,12 +617,12 @@ void svg_draw(void)
   *       if(xctx->lines[c] || xctx->rects[c] || xctx->arcs[c] || xctx->polygons[c]) unused_layer[c] = 0;
   *       if(xctx->wires) unused_layer[WIRELAYER] = 0;
   *       for(i=0;i<xctx->instances;i++) {
-  *         if( (c == PINLAYER || enable_layer[c]) && symptr->lines[c] ) unused_layer[c] = 0;
-  *         if( (c == PINLAYER || enable_layer[c]) && symptr->polygons[c] ) unused_layer[c] = 0;
-  *         if( (c == PINLAYER || enable_layer[c]) && symptr->arcs[c] ) unused_layer[c] = 0;
-  *         if( (c != PINLAYER || enable_layer[c]) && symptr->rects[c] ) unused_layer[c] = 0;
+  *         if( (c == PINLAYER || xctx->enable_layer[c]) && symptr->lines[c] ) unused_layer[c] = 0;
+  *         if( (c == PINLAYER || xctx->enable_layer[c]) && symptr->polygons[c] ) unused_layer[c] = 0;
+  *         if( (c == PINLAYER || xctx->enable_layer[c]) && symptr->arcs[c] ) unused_layer[c] = 0;
+  *         if( (c != PINLAYER || xctx->enable_layer[c]) && symptr->rects[c] ) unused_layer[c] = 0;
   *         if( (c==TEXTWIRELAYER  && !(xctx->inst[i].flags&2) ) ||
-  *             (sym_txt && (c==TEXTLAYER)   && (xctx->inst[i].flags&2) ) )
+  *             (xctx->sym_txt && (c==TEXTLAYER)   && (xctx->inst[i].flags&2) ) )
   *         {
   *           int j;
   *           for(j=0;j< symptr->texts;j++)
@@ -633,7 +633,7 @@ void svg_draw(void)
   *               if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
   *             }
   *             /* display PINLAYER colored instance texts even if PINLAYER disabled */
-  *             if(xctx->inst[i].color == PINLAYER ||  enable_layer[textlayer]) {
+  *             if(xctx->inst[i].color == PINLAYER ||  xctx->enable_layer[textlayer]) {
   *               used_layer[textlayer] = 0;
   *             }
   *           }
@@ -651,9 +651,9 @@ void svg_draw(void)
   for(i=0;i<cadlayers;i++){
     if(unused_layer[i]) continue;
     fprintf(fd, ".l%d{\n", i);
-    if(fill_type[i] == 1) 
+    if(xctx->fill_type[i] == 1) 
       fprintf(fd, " fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
-    else if(fill_type[i] == 2) 
+    else if(xctx->fill_type[i] == 2) 
       fprintf(fd, " fill: #%02x%02x%02x; fill-opacity: 0.5;\n", 
          svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     else

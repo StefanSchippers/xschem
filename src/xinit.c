@@ -209,6 +209,8 @@ unsigned int  find_best_color(char colorname[])
  double distance=10000000000.0, dist, r, g, b, red, green, blue;
  double deltar,deltag,deltab;
  unsigned int idx;
+
+ dbg(1, "find_best_color() start: %g\n", timer(1));
 #ifdef __unix__
  if( XAllocNamedColor(display, colormap, colorname, &xcolor_exact, &xcolor) ==0 )
 #else
@@ -218,23 +220,22 @@ unsigned int  find_best_color(char colorname[])
 #endif
  {
   for(i=0;i<=255;i++) {
-    xcolor_array[i].pixel=i;
+    xctx->xcolor_array[i].pixel=i;
 #ifdef __unix__
-    XQueryColor(display, colormap, xcolor_array+i);
+    XQueryColor(display, colormap, xctx->xcolor_array+i);
 #else
     xcolor = *xc;
     XQueryColors(display, colormap, xc, i);
 #endif
   }
   /* debug ... */
-  dbg(2,
-        "find_best_color(): Server failed to allocate requested color, finding substitute\n");
+  dbg(2, "find_best_color(): Server failed to allocate requested color, finding substitute\n");
   XLookupColor(display, colormap, colorname, &xcolor_exact, &xcolor);
   red = xcolor.red; green = xcolor.green; blue = xcolor.blue;
   idx=0;
   for(i = 0;i<=255; i++)
   {
-   r = xcolor_array[i].red ; g = xcolor_array[i].green ; b = xcolor_array[i].blue;
+   r = xctx->xcolor_array[i].red ; g = xctx->xcolor_array[i].green ; b = xctx->xcolor_array[i].blue;
    deltar = (r - red);deltag = (g - green);deltab = (b - blue);
    dist = deltar*deltar + deltag*deltag + deltab*deltab;
    if( dist <= distance )
@@ -253,55 +254,45 @@ unsigned int  find_best_color(char colorname[])
   idx = xc->pixel;
 #endif
  }
-
+ dbg(1, "find_best_color() return: %g\n", timer(1));
  return idx;
 }
 
 
-void init_color_array(double dim)
+static void init_color_array(double dim, double dim_bg)
 {
  char s[256]; /* overflow safe 20161122 */
  int i;
- int dim_bg;
  unsigned int r, g, b;
- double rr, gg, bb;
- static int done=0;
+ double tmp_dim;
 
- dim_bg = tclgetboolvar("color_dim");
  for(i=0;i<cadlayers;i++) {
    my_snprintf(s, S(s), "lindex $colors %d",i);
    tcleval(s);
    dbg(2, "init_color_array(): color:%s\n",tclresult());
 
    sscanf(tclresult(), "#%02x%02x%02x", &r, &g, &b);
-   rr=r; gg=g; bb=b;
-   if(dim_bg || i!=BACKLAYER ) {
-     if(dim>=0.) {
-       rr +=(51.-rr/5.)*dim;
-       gg +=(51.-gg/5.)*dim;
-       bb +=(51.-bb/5.)*dim;
-     } else {
-       rr +=(rr/5.)*dim;
-       gg +=(gg/5.)*dim;
-       bb +=(bb/5.)*dim;
-     }
-     /* fprintf(errfp, "init_color_array: colors: %.16g %.16g %.16g dim=%.16g c=%d\n", rr, gg, bb, dim, i); */
-     r=rr;g=gg;b=bb;
-     if(r>0xff) r=0xff;
-     if(g>0xff) g=0xff;
-     if(b>0xff) b=0xff;
+   if(i == BACKLAYER) tmp_dim = dim_bg;
+   else tmp_dim = dim;
+   if(tmp_dim>=0.) {
+     r +=(51.-r/5.)*tmp_dim;
+     g +=(51.-g/5.)*tmp_dim;
+     b +=(51.-b/5.)*tmp_dim;
+   } else {
+     r +=(r/5.)*tmp_dim;
+     g +=(g/5.)*tmp_dim;
+     b +=(b/5.)*tmp_dim;
    }
+   /* fprintf(errfp, "init_color_array: colors: %.16g %.16g %.16g dim=%.16g c=%d\n", r, g, b, dim, i); */
+   if(r>0xff) r=0xff;
+   if(g>0xff) g=0xff;
+   if(b>0xff) b=0xff;
    my_snprintf(s, S(s), "#%02x%02x%02x", r, g, b);
-   if(!done) {
-     my_strdup(643, &color_array[i], s);
-     done = 1;
-   } else if(dim_bg || i!=BACKLAYER ) {
-     my_strdup(605, &color_array[i], s);
-   }
+   my_strdup(643, &xctx->color_array[i], s);
  }
 }
 
-void init_pixdata()
+void init_pixdata()/* populate xctx->fill_type array that is used in create_gc() to set fill styles */
 {
  int i,j, full, empty;
  for(i=0;i<cadlayers;i++) {
@@ -315,11 +306,11 @@ void init_pixdata()
      if(pixdata[i][j]!=0xff) full=0;
      if(pixdata[i][j]!=0x00) empty=0;
    }
-   if(full) fill_type[i] = 1;
-   else if(empty) fill_type[i] = 0;
-   else fill_type[i]=2;
-   if(rainbow_colors && i>5) fill_type[i]=1; /* 20171212 solid fill style */
-   /*fprintf(errfp, "fill_type[%d]= %d\n", i, fill_type[i]); */
+   if(full) xctx->fill_type[i] = 1;
+   else if(empty) xctx->fill_type[i] = 0;
+   else xctx->fill_type[i]=2;
+   if(rainbow_colors && i>5) xctx->fill_type[i]=1; /* 20171212 solid fill style */
+   /*fprintf(errfp, "fill_type[%d]= %d\n", i, xctx->fill_type[i]); */
  }
 }
 
@@ -364,10 +355,54 @@ void free_xschem_data()
   for(i=0;i<CADMAXHIER;i++) my_free(1139, &xctx->sch_path[i]);
   my_free(1099, &xctx->gridpoint);
   my_free(1214, &xctx->biggridpoint);
+  my_free(1135, &xctx->gc);
+  my_free(1136, &xctx->gcstipple);
+  for(i=0;i<cadlayers;i++) my_free(1101, &xctx->color_array[i]);
+  my_free(605, &xctx->color_array);
+  my_free(1123, &xctx->enable_layer);
+  my_free(1121, &xctx->active_layer);
+  my_free(1295, &xctx->top_path);
+  my_free(1120, &xctx->fill_type);
   my_free(269, &xctx);
 }
 
-void alloc_xschem_data()
+void create_gc(void)
+{
+  int i;
+  for(i=0;i<cadlayers;i++)
+  {
+    pixmap[i] = XCreateBitmapFromData(display, xctx->window, (char*)(pixdata[i]),16,16);
+    xctx->gc[i] = XCreateGC(display,xctx->window,0L,NULL);
+    xctx->gcstipple[i] = XCreateGC(display,xctx->window,0L,NULL);
+    XSetStipple(display,xctx->gcstipple[i],pixmap[i]);
+    if(xctx->fill_type[i]==1)  XSetFillStyle(display,xctx->gcstipple[i],FillSolid);
+    else XSetFillStyle(display,xctx->gcstipple[i],FillStippled);
+  }
+}
+
+void free_gc()
+{
+  int i;
+  for(i=0;i<cadlayers;i++) {
+    XFreeGC(display,xctx->gc[i]);
+    XFreeGC(display,xctx->gcstipple[i]);
+  }
+}
+
+void get_netlist_type_from_tcl(void)
+{
+  if(xctx->netlist_type==-1) {
+   if(!strcmp(tclgetvar("netlist_type"),"vhdl") ) xctx->netlist_type=CAD_VHDL_NETLIST;
+   else if(!strcmp(tclgetvar("netlist_type"),"verilog") ) xctx->netlist_type=CAD_VERILOG_NETLIST;
+   else if(!strcmp(tclgetvar("netlist_type"),"tedax") ) xctx->netlist_type=CAD_TEDAX_NETLIST;
+   else if(!strcmp(tclgetvar("netlist_type"),"symbol") ) xctx->netlist_type=CAD_SYMBOL_ATTRS;
+   else xctx->netlist_type=CAD_SPICE_NETLIST;
+  } else {
+    override_netlist_type(-1); /* set tcl netlist_type */
+  }
+}
+
+void alloc_xschem_data(const char *top_path)
 {
   int i, j;
 
@@ -381,7 +416,7 @@ void alloc_xschem_data()
   /* 20180923 no more mkdtemp (portability issues) */
   if( !my_strdup(644, &xctx->undo_dirname, create_tmpdir("xschem_undo_") )) {
     fprintf(errfp, "xinit(): problems creating tmp undo dir\n");
-    tcleval( "exit");
+    tcleval("exit");
   }
   dbg(1, "undo_dirname=%s\n", xctx->undo_dirname);
   #endif
@@ -392,6 +427,7 @@ void alloc_xschem_data()
   xctx->wires = 0;
   xctx->instances = 0;
   xctx->symbols = 0;
+  xctx->sym_txt = 1;
   xctx->texts = 0;
   xctx->schprop = NULL;     /* SPICE */
   xctx->schtedaxprop=NULL;  /* tEDAx */
@@ -529,26 +565,35 @@ void alloc_xschem_data()
   xctx->draw_dots = 1;
   xctx->no_draw = 0;
   xctx->draw_pixmap = 1;
+  xctx->gc=my_calloc(638, cadlayers, sizeof(GC));
+  xctx->gcstipple=my_calloc(639, cadlayers, sizeof(GC));
+  xctx->color_array=my_calloc(637, cadlayers, sizeof(char*));
+  xctx->enable_layer=my_calloc(87, cadlayers, sizeof(int));
+  xctx->n_active_layers = 0;
+  xctx->active_layer=my_calloc(563, cadlayers, sizeof(int));
+  xctx->hide_symbols = 0;
+  xctx->netlist_type = -1;
+  xctx->top_path = NULL;
+  my_strdup2(1296, &xctx->top_path, top_path);
+  xctx->fill_type=my_calloc(640, cadlayers, sizeof(int));
+  xctx->fill_pattern = 1;
+  xctx->draw_window = 0;
 }
 
-void alloc_data()
+void delete_schematic_data(void)
 {
- int i;
-
- alloc_xschem_data();
- /* global context / graphic preferences/settings */
- fill_type=my_calloc(640, cadlayers, sizeof(int));
- active_layer=my_calloc(563, cadlayers, sizeof(int));
- color_array=my_calloc(637, cadlayers, sizeof(char*));
- gc=my_calloc(638, cadlayers, sizeof(GC));
- gcstipple=my_calloc(639, cadlayers, sizeof(GC));
- pixdata=my_calloc(641, cadlayers, sizeof(char*));
- for(i=0;i<cadlayers;i++)
- {
-   pixdata[i]=my_calloc(642, 32, sizeof(char));
- }
- enable_layer=my_calloc(87, cadlayers, sizeof(int));
- pixmap=my_calloc(636, cadlayers, sizeof(Pixmap));
+  dbg(1, "delete_schematic_data()\n");
+  unselect_all();
+  delete_netlist_structs();  /* netlist - specific data and hash tables */
+  clear_all_hilights();      /* data structs for hilighting nets/instances */
+  get_unnamed_node(0, 0, 0); /* net### enumerator used for netlisting */
+  if(has_x) {
+    resetwin(0, 1, 1, 0, 0);  /* delete preview pixmap, delete cairo surfaces */
+    free_gc();
+  }
+  clear_drawing();    /* delete instances, wires, lines, rects, ... */
+  remove_symbols();
+  free_xschem_data(); /* delete the xctx struct */
 }
 
 void xwin_exit(void)
@@ -559,53 +604,33 @@ void xwin_exit(void)
    dbg(0, "xwin_exit() double call, doing nothing...\n");
    return;
  }
- delete_netlist_structs();
- clear_all_hilights();
- get_unnamed_node(0, 0, 0);
- if(has_x) {
-    resetwin(0, 1, 1, 0, 0); /* create_pixmap, clear_pixmap, force */
-    dbg(1, "xwin_exit(): Releasing pixmaps and cairo data structures\n");
-    for(i=0;i<cadlayers;i++)
-    {
-     XFreeGC(display,gc[i]);
-     XFreeGC(display,gcstipple[i]);
-    }
-    Tk_DestroyWindow(mainwindow);
-    dbg(1, "xwin_exit(): destroying tk windows and releasing X11 stuff\n");
-#ifdef __unix__
-    if(cad_icon_pixmap) {
-      XFreePixmap(display, cad_icon_pixmap);
-      XFreePixmap(display, cad_icon_mask);
-    }
-#else
-    if (cad_icon_pixmap) Tk_FreePixmap(display, cad_icon_pixmap);
-#endif
-  #ifdef __unix__
-    for(i = 0; i < cadlayers; i++) XFreePixmap(display,pixmap[i]);
-  #else
-    for(i = 0; i < cadlayers; i++) Tk_FreePixmap(display, pixmap[i]);
-  #endif
- }
- my_free(1134, &pixmap);
- dbg(1, "xwin_exit(): clearing drawing data structures\n");
- clear_drawing();
- remove_symbols();
  get_tok_value(NULL, NULL, 0); /* clear static data in function */
- free_xschem_data();
+ delete_schematic_data();
+ if(has_x) {
+   Tk_DestroyWindow(mainwindow);
+   #ifdef __unix__
+   if(cad_icon_pixmap) {
+     XFreePixmap(display, cad_icon_pixmap);
+     XFreePixmap(display, cad_icon_mask);
+   }
+   #else
+   if (cad_icon_pixmap) Tk_FreePixmap(display, cad_icon_pixmap);
+   #endif
+   #ifdef __unix__
+   for(i = 0; i < cadlayers; i++) XFreePixmap(display,pixmap[i]);
+   #else
+   for(i = 0; i < cadlayers; i++) Tk_FreePixmap(display, pixmap[i]);
+   #endif
+   my_free(1134, &pixmap);
+ }
+ dbg(1, "xwin_exit(): clearing drawing data structures\n");
 
  /* global context - graphic preferences/settings */
  for(i=0;i<cadlayers;i++) {
-   my_free(1101, &color_array[i]);
    my_free(1102, &pixdata[i]);
  }
  my_free(1122, &pixdata);
- my_free(1123, &enable_layer);
- my_free(1135, &gc);
- my_free(1136, &gcstipple);
- my_free(1137, &color_array);
  my_free(1138, &tcl_command);
- my_free(1121, &active_layer);
- my_free(1120, &fill_type);
  clear_expandlabel_data();
  get_sym_template(NULL, NULL); /* clear static data in function */
  list_tokens(NULL, 0); /* clear static data in function */
@@ -617,10 +642,8 @@ void xwin_exit(void)
  save_ascii_string(NULL, NULL, 0); /* clear static data in function */
  dbg(1, "xwin_exit(): removing font\n");
  for(i=0;i<127;i++) my_free(1140, &character[i]);
-
  dbg(1, "xwin_exit(): closed display\n");
  my_free(1141, &filename);
-
  my_free(1142, &netlist_dir);
  my_free(1143, &xschem_executable);
  record_global_node(2, NULL, NULL); /* delete global node array */
@@ -634,16 +657,16 @@ void xwin_exit(void)
 
 /* 
  *  color structures in xschem:
- *  - color_array[]: 
+ *  - char *xctx->color_array[]: 
  *      array of color character  names ("#xxxxxx" hex) indexed by xschem layer number.
  *      these are set from tcl 'color' list variable in init_color_array()
- *  - color_index[]: 
+ *  - unsigned int xctx->color_index[]: 
  *      array of integers, pixel values, color lookup table, indexed by xschem layer num.
  *      this array is initialized in build_colors() by calling find_best_color()
  *      indexes are returned from XAllocNamedColor()
  *      these are used in XSetForeground and XSetBackground calls:
- *        XSetForeground(display, gc, color_index[i]) 
- *  - xcolor_array[]: 
+ *        XSetForeground(display, gc, xctx->color_index[i]) 
+ *  - XColor xctx->xcolor_array[]: 
  *      array of 256 XColor structures:
  *      typedef struct {
  *        unsigned long pixel; //  pixel value 
@@ -654,19 +677,20 @@ void xwin_exit(void)
  *      This array is used temporarily in find_best_color() to store all
  *      allocated colors in case of pseudocolor visuals to find best substitute when
  *      XAllocNamedColor fails to find the requested "color_array[i]".
- *      When all color_index[] are populated with pixel values xcolor_array[]
+ *      When all xctx->color_index[] are populated with pixel values xctx->xcolor_array[]
  *      is reset with the xschem layer colors in build_colors() using XLookupColor():
  *        for(i=0;i<cadlayers;i++) {
- *          XLookupColor(display, colormap, color_array[i], &xcolor_exact, &xcolor);
- *          xcolor_array[i] = xcolor;
+ *          XLookupColor(display, colormap, xctx->color_array[i], &xcolor_exact, &xcolor);
+ *          xctx->xcolor_array[i] = xcolor;
  *        }
  *
  *
  *
  */
-int build_colors(double dim)
+int build_colors(double dim, double dim_bg)
 {
     int i;
+    dbg(1, "build_colors(): dim=%g, dim_bg=%g\n", dim, dim_bg);
     if(tclgetboolvar("dark_colorscheme")) {
       tcleval("llength $dark_colors");
       if(atoi(tclresult())>=cadlayers){
@@ -686,20 +710,20 @@ int build_colors(double dim)
       tcleval("regsub -all {\"} $colors {} svg_colors");
       tcleval("regsub -all {#} $svg_colors {0x} svg_colors");
     }
-    init_color_array(dim);
+    init_color_array(dim, dim_bg);
     for(i=0;i<cadlayers;i++)
     {
-     color_index[i] = find_best_color(color_array[i]);
+     xctx->color_index[i] = find_best_color(xctx->color_array[i]);
     }
     for(i=0;i<cadlayers;i++)
     {
-      XSetBackground(display, gc[i], color_index[0]); /* for dashed lines 'off' color */
-      XSetForeground(display, gc[i], color_index[i]);
-      XSetForeground(display, gcstipple[i], color_index[i]);
+      XSetBackground(display, xctx->gc[i], xctx->color_index[0]); /* for dashed lines 'off' color */
+      XSetForeground(display, xctx->gc[i], xctx->color_index[i]);
+      XSetForeground(display, xctx->gcstipple[i], xctx->color_index[i]);
     }
     for(i=0;i<cadlayers;i++) {
-      XLookupColor(display, colormap, color_array[i], &xcolor_exact, &xcolor);
-      xcolor_array[i] = xcolor;
+      XLookupColor(display, colormap, xctx->color_array[i], &xcolor_exact, &xcolor);
+      xctx->xcolor_array[i] = xcolor;
     }
     tcleval("reconfigure_layers_menu");
     return 0; /* success */
@@ -754,19 +778,6 @@ int source_tcl_file(char *s)
   return TCL_OK;
 }
 
-void delete_schematic_data(void)
-{
-  dbg(1, "delete_schematic_data()\n");
-  unselect_all();
-  delete_netlist_structs();  /* netlist - specific data and hash tables */
-  clear_all_hilights();      /* data structs for hilighting nets/instances */
-  get_unnamed_node(0, 0, 0); /* net### enumerator used for netlisting */
-  remove_symbols();
-  clear_drawing();    /* delete instances, wires, lines, rects, ... */
-  resetwin(0, 1, 1, 0, 0);  /* delete preview pixmap, delete cairo surfaces */
-  free_xschem_data(); /* delete the xctx struct */
-}
-
 void preview_window(const char *what, const char *tk_win_path, const char *filename)
 {
   static char *current_file = NULL;
@@ -792,9 +803,14 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
       }
       my_strdup(117, &current_file, filename);
       xctx = NULL;      /* reset for preview */
-      alloc_xschem_data(); /* alloc data into xctx */
+      alloc_xschem_data(""); /* alloc data into xctx */
+      get_netlist_type_from_tcl();
+      init_pixdata(); /* populate xctx->fill_type array that is used in create_gc() to set fill styles */
       preview_xctx = xctx;
       preview_xctx->window = pre_window;
+      create_gc();
+      enable_layers();
+      build_colors(0.0, 0.0);
       resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
       dbg(1, "preview_window() draw, load schematic\n");
       load_schematic(1,filename, 0);
@@ -814,14 +830,19 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
     my_free(1144, &current_file);
     xctx = save_xctx; /* restore schematic */
     save_xctx = NULL;
-    change_linewidth(xctx->lw); /* restore correct linewidth since it was changed in preview
-                                 * need to do the XSetLineAttributes */
     set_modify(xctx->modified);
   }
 }
 
 #define MAX_NEW_WINDOWS 20
-void new_schematic(const char *what, const char *tk_win_path, const char *filename)
+
+/* top_path is the path prefix of tk_win_path:
+ *
+ *  tk_win_path    top_path
+ *    ".drw"       ""
+ *    ".xx.drw"    ".xx"
+ */
+void new_schematic(const char *what, const char *top_path, const char *tk_win_path, const char *filename)
 {
   static int cnt = 0;
   static Xschem_ctx *save_xctx[MAX_NEW_WINDOWS]; /* save pointer to current schematic context structure */
@@ -851,63 +872,79 @@ void new_schematic(const char *what, const char *tk_win_path, const char *filena
     tknew_window[n] = Tk_NameToWindow(interp, tk_win_path, mainwindow);
     Tk_MakeWindowExist(tknew_window[n]);
     new_window = Tk_WindowId(tknew_window[n]);
+    Tk_ChangeWindowAttributes(tknew_window[n], CWBackingStore, &winattr);
     dbg(1, "new_schematic() draw\n");
     xctx = NULL;      /* reset for preview */
-    alloc_xschem_data(); /* alloc data into xctx */
+    alloc_xschem_data(top_path); /* alloc data into xctx */
+    xctx->netlist_type = CAD_SPICE_NETLIST; /* for new windows start with spice netlist mode */
+    tclsetvar("netlist_type","spice");
+    init_pixdata();/* populate xctx->fill_type array that is used in create_gc() to set fill styles */
     save_xctx[n] = xctx;
     dbg(1, "new_schematic() draw, load schematic\n");
     xctx->window = new_window;
+    set_snap(0); /* set default value specified in xschemrc as 'snap' else CADSNAP */
+    set_grid(0); /* set default value specified in xschemrc as 'grid' else CADGRID */
+    create_gc();
+    enable_layers();
+    build_colors(0.0, 0.0);
     resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
-    load_schematic(1,filename, 0);
+    load_schematic(1,filename, 1);
     zoom_full(1, 0, 1, 0.97); /* draw */
   } else if(!strcmp(what, "destroy")) {
     if(cnt) {
       int close = 0;
       dbg(1, "new_schematic() destroy\n");
+      /* reset old focused window so callback() will force repaint on expose events */
+      my_strncpy(old_winpath, "", S(old_winpath));
       if(xctx->modified && has_x) {
-        tcleval("tk_messageBox -type okcancel -message {UNSAVED data: want to exit?}");
+        tcleval("tk_messageBox -type okcancel -message \""
+                "[get_cell [xschem get schname] 0]"
+                ": UNSAVED data: want to exit?\"");
         if(strcmp(tclresult(),"ok")==0) close = 1;
       }
       else close = 1;
       Tcl_ResetResult(interp);
       if(close) {
-        tkwin =  Tk_NameToWindow(interp, tk_win_path, mainwindow);
-        for(i = 1; i < MAX_NEW_WINDOWS; i++) {
+        tkwin =  Tk_NameToWindow(interp, tk_win_path, mainwindow); /* NULL if tk_win_path not existing */
+        if(!tkwin) dbg(0, "new_schematic(destroy, ...): Warning: %s has been destroyed\n", tk_win_path);
+        if(tkwin) for(i = 1; i < MAX_NEW_WINDOWS; i++) {
           if(tkwin == tknew_window[i]) {
             n = i;
             break;
           }
         }
-        if(n >= 1 && n < MAX_NEW_WINDOWS) {
+        if(tkwin && n >= 1 && n < MAX_NEW_WINDOWS) {
           xctx = save_xctx[n];
           delete_schematic_data();
           save_xctx[n] = NULL;
-          Tcl_VarEval(interp, "winfo parent ", tk_win_path, NULL);
+          Tcl_VarEval(interp, "winfo toplevel ", tk_win_path, NULL);
           Tk_DestroyWindow(tknew_window[n]);
           Tcl_VarEval(interp, "destroy ", tclresult(), NULL);
           tknew_window[n] = NULL;
-          xctx = save_xctx[0]; /* restore schematic */
-          set_modify(xctx->modified);
+          /* delete Tcl context of deleted schematic window */
+          Tcl_VarEval(interp, "delete_ctx ", tk_win_path, "; incr tctx::cnt -1", NULL);
           cnt--;
         }
       }
+      xctx = save_xctx[0]; /* restore main (.drw) schematic */
+      tcleval("restore_ctx .drw; housekeeping_ctx");
+      set_modify(xctx->modified); /* sets window title */
     }
   } else if(!strcmp(what, "switch")) {
     if(cnt) {
-      dbg(1, "new_schematic() switch\n");
-      tkwin =  Tk_NameToWindow(interp, tk_win_path, mainwindow);
-      for(i = 0; i < MAX_NEW_WINDOWS; i++) {
+      dbg(1, "new_schematic() switch: %s\n", tk_win_path);
+      tkwin =  Tk_NameToWindow(interp, tk_win_path, mainwindow); /* NULL if tk_win_path not existing */
+      if(!tkwin) dbg(0, "new_schematic(switch,...): Warning: %s has been destroyed\n", tk_win_path);
+      if(tkwin) for(i = 0; i < MAX_NEW_WINDOWS; i++) {
         if(tkwin == tknew_window[i]) {
           n = i;
           break;
         }
       }
-      if(n >= 0 && n < MAX_NEW_WINDOWS) {
+      /* if window was closed then tkwin == 0 --> do nothing */
+      if(tkwin && n >= 0 && n < MAX_NEW_WINDOWS) {
         xctx = save_xctx[n];
-        change_linewidth(xctx->lw);  /* restore correct linewidth since it was changed in preview
-                                      * need to do the XSetLineAttributes */
-        set_modify(xctx->modified);
-        /* draw();*/
+        set_modify(xctx->modified); /* sets window title */
       }
     }
   }
@@ -935,7 +972,7 @@ void change_linewidth(double w)
   if(!changed) return;
   if(has_x) {
     for(i=0;i<cadlayers;i++) {
-        XSetLineAttributes (display, gc[i], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
+        XSetLineAttributes (display, xctx->gc[i], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
     }
     XSetLineAttributes (display, xctx->gctiled, INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
   }
@@ -946,7 +983,6 @@ void change_linewidth(double w)
   xctx->areaw = xctx->areax2-xctx->areax1;
   xctx->areah = xctx->areay2 - xctx->areay1;
 }
-
 
 /* clears and creates cairo_sfc, cairo_ctx, cairo_save_sfc, cairo_save_ctx
  * and sets some graphical attributes */
@@ -1113,8 +1149,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
  const char *home_buff;
  int running_in_src_dir;
  int fs;
- /* XVisualInfo vinfo; */
 
+ /* XVisualInfo vinfo; */
  #if HAS_XCB==1
  #if HAS_XRENDER==1
  xcb_render_query_pict_formats_reply_t *formats_reply;
@@ -1122,6 +1158,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  xcb_render_query_pict_formats_cookie_t formats_cookie;
  #endif
  #endif
+
  /* get PWD and HOME */
  if(!getcwd(pwd_dir, PATH_MAX)) {
    fprintf(errfp, "Tcl_AppInit(): getcwd() failed\n");
@@ -1137,8 +1174,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
 #endif
  my_strncpy(home_dir, home_buff, S(home_dir));
 
+ /* set error and exit handlers */
  XSetErrorHandler(err);
-
  interp=inter;
  Tcl_Init(interp);
  if(has_x) {
@@ -1151,21 +1188,20 @@ int Tcl_AppInit(Tcl_Interp *inter)
  tcleval(tmp);
  tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
 
- running_in_src_dir = 0;
+
  /* create user conf dir , remove ~ if present */
  my_snprintf(tmp, S(tmp),"regsub {^~/} {%s} {%s/}", USER_CONF_DIR, home_dir);
  tcleval(tmp);
  my_snprintf(user_conf_dir, S(user_conf_dir), "%s", tclresult());
  tclsetvar("USER_CONF_DIR", user_conf_dir);
+
  /* test if running xschem in src/ dir (usually for testing) */
+ running_in_src_dir = 0;
  if( !stat("./xschem.tcl", &buf) && !stat("./systemlib", &buf) && !stat("./xschem", &buf)) {
    running_in_src_dir = 1;
    tclsetvar("XSCHEM_SHAREDIR",pwd_dir); /* for testing xschem builds in src dir*/
-   /*
-   my_snprintf(tmp, S(tmp), "subst .:[file normalize \"%s/../xschem_library/devices\"]", pwd_dir);
-   tcleval(tmp);
-   tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
-   */
+
+   /* set builtin library path if running in src/ */
    my_snprintf(tmp, S(tmp), 
       "set XSCHEM_LIBRARY_PATH %s/xschem_library", user_conf_dir);
    tcleval(tmp);
@@ -1198,47 +1234,47 @@ int Tcl_AppInit(Tcl_Interp *inter)
    /* ... else give up searching, may set later after loading xschemrc */
  }
 #else
-   char install_dir[MAX_PATH]="";
-   char *up_hier=NULL, *win_xschem_library_path=NULL;
-   #define WIN_XSCHEM_LIBRARY_PATH_NUM 9
-   const char *WIN_XSCHEM_LIBRARY_PATH[WIN_XSCHEM_LIBRARY_PATH_NUM] = {
-     /*1*/ "xschem_library",
-     /*2*/ "xschem_library/devices", 
-     /*3*/ "xschem_library/examples", 
-     /*4*/ "xschem_library/ngspice", 
-     /*5*/ "xschem_library/logic", 
-     /*6*/ "xschem_library/xschem_simulator"};
-     /*7*/ "xschem_library/binto7seg", 
-     /*8*/ "xschem_library/pcb", 
-     /*9*/ "xschem_library/rom8k",
-   GetModuleFileNameA(NULL, install_dir, MAX_PATH);
-   change_to_unix_fn(install_dir);
-   int dir_len=strlen(install_dir);
-   if (dir_len>11)
-     install_dir[dir_len-11] = '\0'; /* 11 = remove /xschem.exe */
-   /* debugging in Visual Studio will not have bin */
-   my_snprintf(tmp, S(tmp), "regexp {bin$} \"%s\"", install_dir);
-   tcleval(tmp);
-   running_in_src_dir = 0;
-   if (atoi(tclresult()) == 0)
-   {
-     running_in_src_dir = 1; /* no bin, so it's running in Visual studio source directory*/
-     my_strdup(62, &up_hier, "../../..");
-   }
-   else my_strdup(63, &up_hier, "..");
-   my_strcat(415, &win_xschem_library_path, ".");
-   for (i = 0; i < WIN_XSCHEM_LIBRARY_PATH_NUM; ++i) {
-     my_snprintf(tmp, S(tmp),"%s/%s/%s", install_dir, up_hier, WIN_XSCHEM_LIBRARY_PATH[i]);
-     my_strcat(416, &win_xschem_library_path, "\;"); 
-     my_strcat(431, &win_xschem_library_path, tmp);
-   }
-   my_snprintf(tmp, S(tmp), "set tmp2 \"%s\"; "
-     "while {[regsub {([^/]*\\.*[^./]+[^/]*)/\\.\\./?} $tmp2 {} tmp2]} {}; ", win_xschem_library_path); 
-   const char *result2 = tcleval(tmp);
-   const char *win_xschem_library_path_clean = tclgetvar("tmp2");
-   tclsetvar("XSCHEM_LIBRARY_PATH", win_xschem_library_path_clean);
-   my_free(432, &win_xschem_library_path);
-   my_free(441, &up_hier);
+ char install_dir[MAX_PATH]="";
+ char *up_hier=NULL, *win_xschem_library_path=NULL;
+ #define WIN_XSCHEM_LIBRARY_PATH_NUM 9
+ const char *WIN_XSCHEM_LIBRARY_PATH[WIN_XSCHEM_LIBRARY_PATH_NUM] = {
+   /*1*/ "xschem_library",
+   /*2*/ "xschem_library/devices", 
+   /*3*/ "xschem_library/examples", 
+   /*4*/ "xschem_library/ngspice", 
+   /*5*/ "xschem_library/logic", 
+   /*6*/ "xschem_library/xschem_simulator",
+   /*7*/ "xschem_library/binto7seg", 
+   /*8*/ "xschem_library/pcb", 
+   /*9*/ "xschem_library/rom8k" };
+ GetModuleFileNameA(NULL, install_dir, MAX_PATH);
+ change_to_unix_fn(install_dir);
+ int dir_len=strlen(install_dir);
+ if (dir_len>11)
+   install_dir[dir_len-11] = '\0'; /* 11 = remove /xschem.exe */
+ /* debugging in Visual Studio will not have bin */
+ my_snprintf(tmp, S(tmp), "regexp {bin$} \"%s\"", install_dir);
+ tcleval(tmp);
+ running_in_src_dir = 0;
+ if (atoi(tclresult()) == 0)
+ {
+   running_in_src_dir = 1; /* no bin, so it's running in Visual studio source directory*/
+   my_strdup(62, &up_hier, "../../..");
+ }
+ else my_strdup(63, &up_hier, "..");
+ my_strcat(415, &win_xschem_library_path, ".");
+ for (i = 0; i < WIN_XSCHEM_LIBRARY_PATH_NUM; ++i) {
+   my_snprintf(tmp, S(tmp),"%s/%s/%s", install_dir, up_hier, WIN_XSCHEM_LIBRARY_PATH[i]);
+   my_strcat(416, &win_xschem_library_path, "\;"); 
+   my_strcat(431, &win_xschem_library_path, tmp);
+ }
+ my_snprintf(tmp, S(tmp), "set tmp2 \"%s\"; "
+   "while {[regsub {([^/]*\\.*[^./]+[^/]*)/\\.\\./?} $tmp2 {} tmp2]} {}; ", win_xschem_library_path); 
+ const char *result2 = tcleval(tmp);
+ const char *win_xschem_library_path_clean = tclgetvar("tmp2");
+ tclsetvar("XSCHEM_LIBRARY_PATH", win_xschem_library_path_clean);
+ my_free(432, &win_xschem_library_path);
+ my_free(441, &up_hier);
  char *xschem_sharedir=NULL;
  if ((xschem_sharedir=getenv("XSCHEM_SHAREDIR")) != NULL) {
    if (!stat(xschem_sharedir, &buf)) {
@@ -1269,8 +1305,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  my_snprintf(user_conf_dir, S(user_conf_dir), "%s/xschem/%s", home_dir, USER_CONF_DIR);
  tclsetvar("USER_CONF_DIR", user_conf_dir);
 #endif
-
-
 
  /* create USER_CONF_DIR if it was not installed */
  if(stat(user_conf_dir, &buf)) {
@@ -1327,7 +1361,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      }
    }
  }
- /* END LOOKING FOR xschemrc */
+ /* END SOURCING xschemrc */
 
  if(rainbow_colors) tclsetvar("rainbow_colors","1");
 
@@ -1363,6 +1397,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  dbg(1, "Tcl_AppInit(): done step a1 of xinit()\n");
 
+
+ /* Execute tcl script given on command line with --tcl */
  if(tcl_command) {
    tcleval(tcl_command);
  }
@@ -1397,23 +1433,16 @@ int Tcl_AppInit(Tcl_Interp *inter)
  dbg(1, "Tcl_AppInit(): sourcing %s\n", name);
  source_tcl_file(name);
  dbg(1, "Tcl_AppInit(): done executing xschem.tcl\n");
- /*  END EXECUTE xschem.tcl */
+ /*                                */
+ /*  END EXECUTE xschem.tcl        */
+ /*                                */
 
  /* resolve absolute pathname of xschem (argv[0]) for future usage */
  my_strdup(44, &xschem_executable, get_file_path(xschem_executable));
  dbg(1, "Tcl_AppInit(): resolved xschem_executable=%s\n", xschem_executable);
 
- /* set global variables fetching data from tcl code 25122002 */
- if(netlist_type==-1) {
-  if(!strcmp(tclgetvar("netlist_type"),"vhdl") ) netlist_type=CAD_VHDL_NETLIST;
-  else if(!strcmp(tclgetvar("netlist_type"),"verilog") ) netlist_type=CAD_VERILOG_NETLIST;
-  else if(!strcmp(tclgetvar("netlist_type"),"tedax") ) netlist_type=CAD_TEDAX_NETLIST;
-  else if(!strcmp(tclgetvar("netlist_type"),"symbol") ) netlist_type=CAD_SYMBOL_ATTRS;
-  else netlist_type=CAD_SPICE_NETLIST;
- } else {
-   override_netlist_type(-1); /* set tcl netlist_type */
- }
 
+ /* get xschem globals from tcl variables set in xschemrc/xschem.tcl */
  cairo_font_line_spacing = tclgetdoublevar("cairo_font_line_spacing");
  if(color_ps==-1)
    color_ps=atoi(tclgetvar("color_ps"));
@@ -1423,7 +1452,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
  l_width=atoi(tclgetvar("line_width"));
  if(tclgetboolvar("change_lw")) l_width = 0.0;
- draw_window=atoi(tclgetvar("draw_window"));
  cadlayers=atoi(tclgetvar("cadlayers"));
  if(debug_var==-10) debug_var=0;
  my_snprintf(tmp, S(tmp), "%.16g",CADGRID);
@@ -1438,10 +1466,25 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*                             */
  /*  [m]allocate dynamic memory */
  /*                             */
- alloc_data();
+ alloc_xschem_data("");
+ /* global context / graphic preferences/settings */
+ pixdata=my_calloc(641, cadlayers, sizeof(char*));
+ for(i=0;i<cadlayers;i++)
+ {
+   pixdata[i]=my_calloc(642, 32, sizeof(char));
+ }
+ pixmap=my_calloc(636, cadlayers, sizeof(Pixmap));
 
- init_pixdata();
- init_color_array(0.0);
+ my_strncpy(xctx->plotfile, cli_opt_plotfile, S(xctx->plotfile));
+ xctx->draw_window=atoi(tclgetvar("draw_window"));
+
+ /* set global variables fetching data from tcl code */
+ xctx->netlist_type = cli_opt_netlist_type;
+
+ get_netlist_type_from_tcl();
+
+ init_pixdata();/* populate xctx->fill_type array that is used in create_gc() to set fill styles */
+ init_color_array(0.0, 0.0);
  my_snprintf(tmp, S(tmp), "%d",debug_var);
  tclsetvar("debug_var",tmp );
  tclsetvar("menu_debug_var",debug_var ? "1" : "0" );
@@ -1464,7 +1507,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  my_strncpy(xctx->file_version, XSCHEM_FILE_VERSION, S(xctx->file_version));
  /* compile_font() needs enabled layers, these are set after xschem.tcl loading completed
   * so we temporarily enable all them here */
- for(i = 0; i < cadlayers; i++) enable_layer[i] = 1;
+ for(i = 0; i < cadlayers; i++) xctx->enable_layer[i] = 1;
  compile_font();
  /* restore current dir after loading font */
  if(getenv("PWD")) {
@@ -1547,17 +1590,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
     visual = vinfo.visual;
     */
     dbg(1, "Tcl_AppInit(): done step b of xinit()\n");
-    for(i=0;i<cadlayers;i++)
-    {
-     pixmap[i] = XCreateBitmapFromData(display, xctx->window, (char*)(pixdata[i]),16,16);
-     gc[i] = XCreateGC(display,xctx->window,0L,NULL);
-     gcstipple[i] = XCreateGC(display,xctx->window,0L,NULL);
-     XSetStipple(display,gcstipple[i],pixmap[i]);
-     if(fill_type[i]==1)  XSetFillStyle(display,gcstipple[i],FillSolid);
-     else XSetFillStyle(display,gcstipple[i],FillStippled);
-    }
+
+    create_gc();
+
     dbg(1, "Tcl_AppInit(): done step c of xinit()\n");
-    if(build_colors(0.0)) exit(-1);
+    if(build_colors(0.0, 0.0)) exit(-1);
     dbg(1, "Tcl_AppInit(): done step e of xinit()\n");
     /* xctx->save_pixmap must be created as resetwin() frees it before recreating with new size. */
 
@@ -1572,6 +1609,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
     change_linewidth(l_width);
     dbg(1, "Tcl_AppInit(): done xinit()\n");
+    /* Set backing store window attribute */
     winattr.backing_store = WhenMapped;
     /* winattr.backing_store = NotUseful;*/
     Tk_ChangeWindowAttributes(tkwindow, CWBackingStore, &winattr);
@@ -1657,7 +1695,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    dbg(1, "Tcl_AppInit(): filename %s given, removing symbols\n", filename);
    remove_symbols();
    /* if do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
-      to tcl is_xschem_file that could change netlist_type to symbol */
+      to tcl is_xschem_file that could change xctx->netlist_type to symbol */
    load_schematic(1, f, !do_netlist);
    Tcl_VarEval(interp, "update_recent_file {", f, "}", NULL);
  } else if(!tcl_script[0]) {
@@ -1667,15 +1705,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
    dbg(1, "Tcl_AppInit(): tmp=%s\n", tmp? tmp: "NULL");
    my_strncpy(filename, abs_sym_path(tmp, ""), S(filename));
     /* if do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
-       to tcl is_xschem_file that could change netlist_type to symbol */
+       to tcl is_xschem_file that could change xctx->netlist_type to symbol */
    load_schematic(1, filename, !do_netlist);
  }
 
 
 
- zoom_full(0, 0, 1, 0.97);   /* Necessary to tell xschem the
-                  * initial area to display
-                  */
+ zoom_full(0, 0, 1, 0.97);   /* Necessary to tell xschem the initial area to display */
  xctx->pending_fullzoom=1;
  if(do_netlist) {
    if(debug_var>=1) {
@@ -1684,16 +1720,16 @@ int Tcl_AppInit(Tcl_Interp *inter)
    }
    if(!filename) {
      fprintf(errfp, "xschem: cant do a netlist without a filename\n");
-     tcleval( "exit");
+     tcleval("exit");
    }
    if(netlist_dir && netlist_dir[0]) {
-     if(netlist_type == CAD_SPICE_NETLIST)
+     if(xctx->netlist_type == CAD_SPICE_NETLIST)
        global_spice_netlist(1);                  /* 1 means global netlist */
-     else if(netlist_type == CAD_VHDL_NETLIST)
+     else if(xctx->netlist_type == CAD_VHDL_NETLIST)
        global_vhdl_netlist(1);                   /* 1 means global netlist */
-     else if(netlist_type == CAD_VERILOG_NETLIST)
+     else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
        global_verilog_netlist(1);                /* 1 means global netlist */
-     else if(netlist_type == CAD_TEDAX_NETLIST)
+     else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
        global_tedax_netlist(1);                  /* 1 means global netlist */
    } else {
     fprintf(errfp, "xschem: please set netlist_dir in xschemrc\n");
@@ -1702,7 +1738,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(do_print) {
    if(!filename) {
      dbg(0, "xschem: can't do a print without a filename\n");
-     tcleval( "exit");
+     tcleval("exit");
    }
    if(do_print==1) {
 
@@ -1732,7 +1768,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(do_simulation) {
    if(!filename) {
      fprintf(errfp, "xschem: can't do a simulation without a filename\n");
-     tcleval( "exit");
+     tcleval("exit");
    }
    tcleval( "simulate");
  }
@@ -1740,18 +1776,18 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(do_waves) {
    if(!filename) {
      fprintf(errfp, "xschem: can't show simulation waves without a filename\n");
-     tcleval( "exit");
+     tcleval("exit");
    }
    tcleval( "waves [file tail \"[xschem get schname]\"]");
  }
 
+ /* source tcl file given on command line with --script */
  if(tcl_script[0]) {
-   
    Tcl_VarEval(interp, "update; source ", tcl_script, NULL);
  }
 
  if(quit) {
-   tcleval( "exit");
+   tcleval("exit");
  }
 
  /* */
@@ -1765,7 +1801,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
 #endif
     !no_readline) {
    tcleval( "if {![catch {package require tclreadline}]} "
-      "{::tclreadline::readline customcompleter  completer; ::tclreadline::Loop }" ) ;
+     "{::tclreadline::readline builtincompleter 0;"
+     /*  "::tclreadline::readline customcompleter completer;" */
+      "::tclreadline::Loop }" 
+   );
  }
 
  dbg(1, "Tcl_AppInit(): returning TCL_OK\n");

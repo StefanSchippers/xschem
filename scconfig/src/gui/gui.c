@@ -29,6 +29,7 @@ void deps_gui_init()
 	dep_add("libs/gui/gtk3/*",              find_gtk3);
 	dep_add("libs/gui/gtk4/*",              find_gtk4);
 	dep_add("libs/gui/gtk4/modversion",     find_gtk4_modversion);
+	dep_add("libs/gui/epoxy/*",             find_epoxy);
 	dep_add("libs/gui/lesstif2/exthi/*",    find_lesstif2_exthi);
 	dep_add("libs/gui/lesstif2/*",          find_lesstif2);
 	dep_add("libs/gui/libstroke/*",         find_libstroke);

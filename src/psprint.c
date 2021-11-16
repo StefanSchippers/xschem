@@ -118,7 +118,7 @@ static void set_ps_colors(unsigned int pixel)
 
 static void ps_xdrawarc(int layer, int fillarc, double x, double y, double r, double a, double b)
 {
- if(fill_pattern && fillarc)
+ if(xctx->fill_pattern && fillarc)
    fprintf(fd, "%g %g %g %g %g A %g %g LT C F S\n", x, y, r, -a, -a-b, x, y);
  else
    fprintf(fd, "%g %g %g %g %g A S\n", x, y, r, -a, -a-b);
@@ -140,7 +140,7 @@ static void ps_xfillrectange(int layer, double x1, double y1, double x2,
                   double y2)
 {
  fprintf(fd, "%g %g %g %g R\n", x1,y1,x2-x1,y2-y1);
- if( (fill_type[layer] == 1) && fill_pattern) {
+ if( (xctx->fill_type[layer] == 1) && xctx->fill_pattern) {
    fprintf(fd, "%g %g %g %g RF\n", x1,y1,x2-x1,y2-y1);
    /* fprintf(fd,"fill\n"); */
  }
@@ -174,7 +174,7 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points, in
     if(i==0) fprintf(fd, "NP\n%g %g MT\n", xx, yy);
     else fprintf(fd, "%g %g LT\n", xx, yy);
   }
-  if(fill_pattern && fill_type[c] && poly_fill) {
+  if(xctx->fill_pattern && xctx->fill_type[c] && poly_fill) {
     fprintf(fd, "C F S\n");
   } else {
     fprintf(fd, "S\n");
@@ -499,7 +499,7 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
  char *textfont;
 
   if(xctx->inst[n].ptr == -1) return;
-  if( (layer != PINLAYER && !enable_layer[layer]) ) return;
+  if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
   if(layer==0)
   {
    x1=X_TO_PS(xctx->inst[n].x1);
@@ -568,7 +568,7 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
      ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
      ps_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
    }
-   if( enable_layer[layer] ) for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer];j++)
+   if( xctx->enable_layer[layer] ) for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer];j++)
    {
     box = ((xctx->inst[n].ptr+ xctx->sym)->rect[layer])[j];
     ROTATION(rot, flip, 0.0,0.0,box.x1,box.y1,x1,y1);
@@ -577,7 +577,7 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
     ps_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
    }
    if(  (layer==TEXTWIRELAYER  && !(xctx->inst[n].flags&2) ) ||
-        (sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) )
+        (xctx->sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) )
    {
     const char *txtptr;
     for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->texts;j++)
@@ -593,7 +593,7 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
        if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
      }
       /* display PINLAYER colored instance texts even if PINLAYER disabled */
-     if(xctx->inst[n].color == -PINLAYER || enable_layer[textlayer]) {
+     if(xctx->inst[n].color == -PINLAYER || xctx->enable_layer[textlayer]) {
        my_snprintf(ps_font_family, S(ps_font_name), "Helvetica");
        my_snprintf(ps_font_name, S(ps_font_name), "Helvetica");
        textfont = symptr->text[j].font;

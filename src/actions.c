@@ -33,17 +33,20 @@ void here(int i)
 void set_modify(int mod)
 {
   static int prev = -1;
+  char *top_path;
+
+  top_path =  xctx->top_path[0] ? xctx->top_path : ".";
   xctx->modified = mod;
   dbg(1, "set_modify(): %d\n", mod);
   if(mod != prev) {
     prev = mod;
     if(has_x && strcmp(get_cell(xctx->sch[xctx->currsch],1), "systemlib/font")) {
       if(mod == 1) {
-        tcleval( "wm title . \"xschem - [file tail [xschem get schname]]*\"");
-        tcleval( "wm iconname . \"xschem - [file tail [xschem get schname]]*\"");
+        Tcl_VarEval(interp, "wm title ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
+        Tcl_VarEval(interp, "wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
       } else {
-        tcleval( "wm title . \"xschem - [file tail [xschem get schname]]\"");
-        tcleval( "wm iconname . \"xschem - [file tail [xschem get schname]]\"");
+        Tcl_VarEval(interp, "wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
+        Tcl_VarEval(interp, "wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
       }
     }
   }
@@ -118,9 +121,9 @@ void set_snap(double newsnap) /*  20161212 set new snap factor and just notify n
     }
     cs = newsnap ? newsnap : default_snap;
     if(cs == default_snap) {
-      tcleval(".statusbar.3 configure -background PaleGreen");
+      Tcl_VarEval(interp, xctx->top_path, ".statusbar.3 configure -background PaleGreen", NULL);
     } else {
-      tcleval(".statusbar.3 configure -background OrangeRed");
+      Tcl_VarEval(interp, xctx->top_path, ".statusbar.3 configure -background OrangeRed", NULL);
     }
     tclsetdoublevar("cadsnap", cs);
 }
@@ -138,9 +141,9 @@ void set_grid(double newgrid)
     cg = newgrid ? newgrid : default_grid;
     dbg(1, "set_grid(): default_grid = %.16g, cadgrid=%.16g\n", default_grid, cg);
     if(cg == default_grid) {
-      tcleval(".statusbar.5 configure -background PaleGreen");
+      Tcl_VarEval(interp, xctx->top_path, ".statusbar.5 configure -background PaleGreen", NULL);
     } else {
-      tcleval(".statusbar.5 configure -background OrangeRed");
+      Tcl_VarEval(interp, xctx->top_path, ".statusbar.5 configure -background OrangeRed", NULL);
     }
     tclsetdoublevar("cadgrid", cg);
 }
@@ -213,7 +216,6 @@ void toggle_only_probes()
 
 void toggle_fullscreen(const char *topwin)
 {
-  char *mytopwin = NULL;
   char fullscr[]="add,fullscreen";
   char normal[]="remove,fullscreen";
   static int menu_removed = 0;
@@ -225,13 +227,10 @@ void toggle_fullscreen(const char *topwin)
 
 
   if(!strcmp(topwin, ".drw")) {
-    my_strdup2(1290, &mytopwin, "");
     tcleval( "winfo id .");
     sscanf(tclresult(), "0x%x", (unsigned int *) &topwin_id);
   } else {
-    Tcl_VarEval(interp, "winfo toplevel ", topwin, NULL);
-    my_strdup2(1291, &mytopwin, tclresult());
-    Tcl_VarEval(interp, "winfo id ", mytopwin, NULL);
+    Tcl_VarEval(interp, "winfo id ", xctx->top_path, NULL);
     sscanf(tclresult(), "0x%x", (unsigned int *) &topwin_id);
   }
 
@@ -246,12 +245,13 @@ void toggle_fullscreen(const char *topwin)
 
   dbg(1, "toggle_fullscreen(): fullscreen=%d\n", fs);
   if(fs==2) {
-    Tcl_VarEval(interp, "pack forget ", mytopwin, ".menubar ", mytopwin, ".statusbar; update", NULL);
+    Tcl_VarEval(interp, "pack forget ", xctx->top_path, ".menubar ", xctx->top_path, ".statusbar; update", NULL);
     menu_removed = 1;
   }
   if(fs !=2 && menu_removed) {
-    Tcl_VarEval(interp, "pack ", mytopwin, ".menubar -anchor n -side top -fill x  -before ", mytopwin, ".drw\n\
-             pack ", mytopwin, ".statusbar -after ", mytopwin, ".drw -anchor sw  -fill x; update", NULL);
+    Tcl_VarEval(interp, "pack ", xctx->top_path, 
+       ".menubar -anchor n -side top -fill x  -before ", xctx->top_path, ".drw; pack ",
+       xctx->top_path, ".statusbar -after ", xctx->top_path, ".drw -anchor sw  -fill x; update", NULL);
     menu_removed=0;
   }
 
@@ -265,7 +265,6 @@ void toggle_fullscreen(const char *topwin)
     window_state(display , parent_id,normal);
   }
   xctx->pending_fullzoom=1;
-  my_free(1291, &mytopwin);
 }
 
 #ifdef __unix__
@@ -312,12 +311,12 @@ void new_window(const char *cell, int symbol)
     } else {
       /* error */
       fprintf(errfp, "new_window(): fork error 1\n");
-      tcleval( "exit");
+      tcleval("exit");
     }
   } else {
     /* error */
     fprintf(errfp, "new_window(): fork error 2\n");
-    tcleval( "exit");
+    tcleval("exit");
   }
 }
 #else
@@ -597,15 +596,15 @@ void enable_layers(void)
 {
   int i;
   char tmp[50];
-  n_active_layers = 0;
+  xctx->n_active_layers = 0;
   for(i = 0; i< cadlayers; i++) {
     my_snprintf(tmp, S(tmp), "enable_layer(%d)",i);
-    if(tclgetvar(tmp)[0] == '0') enable_layer[i] = 0;
+    if(tclgetvar(tmp)[0] == '0') xctx->enable_layer[i] = 0;
     else {
-      enable_layer[i] = 1;
+      xctx->enable_layer[i] = 1;
       if(i>=7) {
-        active_layer[n_active_layers] = i;
-        n_active_layers++;
+        xctx->active_layer[xctx->n_active_layers] = i;
+        xctx->n_active_layers++;
       }
     }
   }
@@ -921,9 +920,9 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
 
   if(draw_sym & 4 ) {
     select_element(n, SELECTED,0, 0);
-    drawtemparc(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
-    drawtemprect(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
-    drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+    drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
+    drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+    drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
     xctx->need_reb_sel_arr = 1;
     rebuild_selected_array(); /* sets  xctx->ui_state |= SELECTION; */
   }
@@ -1142,7 +1141,7 @@ void go_back(int confirm) /*  20171006 add confirm */
  int prev_sch_type;
 
  save_ok=0;
- prev_sch_type = netlist_type; /* if CAD_SYMBOL_ATTRS do not hilight_parent_pins */
+ prev_sch_type = xctx->netlist_type; /* if CAD_SYMBOL_ATTRS do not hilight_parent_pins */
  if(xctx->currsch>0)
  {
   /* if current sym/schematic is changed ask save before going up */
@@ -1528,12 +1527,12 @@ void zoom_rectangle(int what)
     bbox(START,0.0, 0.0, 0.0, 0.0);
     bbox(ADD, xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
     bbox(SET,0.0, 0.0, 0.0, 0.0);
-    draw_selection(gc[SELLAYER], 0);
+    draw_selection(xctx->gc[SELLAYER], 0);
     bbox(END,0.0, 0.0, 0.0, 0.0);
 
     xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
     RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-    drawtemprect(gc[SELLAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    drawtemprect(xctx->gc[SELLAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
   }
 }
 
@@ -1563,7 +1562,7 @@ void draw_stuff(void)
        xctx->rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
        storeobject(-1, x1, y1, x2, y2, xRECT,xctx->rectcolor, 0, NULL);
        #else 
-       drawtemprect(gc[xctx->rectcolor], ADD, x1, y1, x2, y2);
+       drawtemprect(xctx->gc[xctx->rectcolor], ADD, x1, y1, x2, y2);
        #endif
      }
   
@@ -1580,7 +1579,7 @@ void draw_stuff(void)
        xctx->rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
        storeobject(-1, x1, y1, x2, y2,xRECT,xctx->rectcolor, 0, NULL);
        #else 
-       drawtemprect(gc[xctx->rectcolor], ADD, x1, y1, x2, y2);
+       drawtemprect(xctx->gc[xctx->rectcolor], ADD, x1, y1, x2, y2);
        #endif
      }
   
@@ -1597,11 +1596,11 @@ void draw_stuff(void)
        xctx->rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
        storeobject(-1, x1, y1, x2, y2,xRECT,xctx->rectcolor, 0, NULL);
        #else 
-       drawtemprect(gc[xctx->rectcolor], ADD, x1, y1, x2, y2);
+       drawtemprect(xctx->gc[xctx->rectcolor], ADD, x1, y1, x2, y2);
        #endif
      }
    #ifndef STORE
-     drawtemprect(gc[xctx->rectcolor], END, 0.0, 0.0, 0.0, 0.0);
+     drawtemprect(xctx->gc[xctx->rectcolor], END, 0.0, 0.0, 0.0, 0.0);
    }
    #else
    draw();
@@ -1618,7 +1617,7 @@ void restore_selection(double x1, double y1, double x2, double y2)
   bbox(START,0.0, 0.0, 0.0, 0.0);
   bbox(ADD, xx1, yy1, xx2, yy2);
   bbox(SET,0.0, 0.0, 0.0, 0.0);
-  draw_selection(gc[SELLAYER], 0);
+  draw_selection(xctx->gc[SELLAYER], 0);
   bbox(END,0.0, 0.0, 0.0, 0.0);
 }
 
@@ -1703,27 +1702,27 @@ void new_wire(int what, double mx_snap, double my_snap)
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
-        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       } else if(xctx->manhattan_lines==2) {
         xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
-        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
       } else {
         xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       }
     }
     xctx->ui_state |= STARTWIRE;
@@ -1747,11 +1746,11 @@ void new_wire(int what, double mx_snap, double my_snap)
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
-        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
          xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       }
     } else if(xctx->manhattan_lines==2) {
       xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
@@ -1768,11 +1767,11 @@ void new_wire(int what, double mx_snap, double my_snap)
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
-        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
       }
     } else {
       xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
@@ -1785,7 +1784,7 @@ void new_wire(int what, double mx_snap, double my_snap)
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       }
     }
   }
@@ -1872,7 +1871,7 @@ void new_arc(int what, double sweep)
       xctx->nl_yy2 = xctx->mousey_snap;
       xctx->nl_xx1 = xctx->nl_x1;xctx->nl_yy1 = xctx->nl_y1;
       ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-      drawtempline(gc[SELLAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      drawtempline(xctx->gc[SELLAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
     }
     else if(xctx->nl_state==1) {
       xctx->nl_x3 = xctx->mousex_snap;
@@ -1881,7 +1880,7 @@ void new_arc(int what, double sweep)
       arc_3_points(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2,
           xctx->nl_x3, xctx->nl_y3, &xctx->nl_x, &xctx->nl_y, &xctx->nl_r, &xctx->nl_a, &xctx->nl_b);
       if(xctx->nl_sweep_angle==360.) xctx->nl_b=360.;
-      if(xctx->nl_r>0.) drawtemparc(gc[xctx->rectcolor], NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b);
+      if(xctx->nl_r>0.) drawtemparc(xctx->gc[xctx->rectcolor], NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b);
     }
   }
 }
@@ -1956,11 +1955,11 @@ void new_line(int what)
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
-        drawtempline(gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+        drawtempline(xctx->gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(gc[xctx->rectcolor], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(xctx->gc[xctx->rectcolor], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       }
     } else if(xctx->manhattan_lines==2) {
       xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
@@ -1977,11 +1976,11 @@ void new_line(int what)
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
-        drawtempline(gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+        drawtempline(xctx->gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(xctx->gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
       }
     } else {
       xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
@@ -1994,7 +1993,7 @@ void new_line(int what)
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+        drawtempline(xctx->gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       }
     }
   }
@@ -2010,11 +2009,11 @@ void new_rect(int what)
     RECTORDER(xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
     push_undo();
     drawrect(xctx->rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2, 0);
-    save_draw = draw_window;
-    draw_window = 1;
+    save_draw = xctx->draw_window;
+    xctx->draw_window = 1;
     /* draw fill pattern even in XCopyArea mode */
     filledrect(xctx->rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
-    draw_window = save_draw;
+    xctx->draw_window = save_draw;
     storeobject(-1, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2,xRECT,xctx->rectcolor, 0, NULL);
    }
    xctx->nl_x1=xctx->nl_x2=xctx->mousex_snap;xctx->nl_y1=xctx->nl_y2=xctx->mousey_snap;
@@ -2032,7 +2031,7 @@ void new_rect(int what)
    xctx->nl_x2=xctx->mousex_snap;xctx->nl_y2=xctx->mousey_snap;
    xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
    RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-   drawtemprect(gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+   drawtemprect(xctx->gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
   }
 }
 
@@ -2088,7 +2087,7 @@ void new_polygon(int what)
      drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
      store_poly(-1, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, xctx->rectcolor, 0, NULL);
      /* fprintf(errfp, "new_poly: finish: nl_points=%d\n", xctx->nl_points); */
-     drawtemppolygon(gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points);
+     drawtemppolygon(xctx->gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points);
      xctx->ui_state &= ~STARTPOLYGON;
      drawpolygon(xctx->rectcolor, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0, 0);
      my_free(711, &xctx->nl_polyx);
@@ -2101,7 +2100,7 @@ void new_polygon(int what)
      drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
      xctx->nl_polyy[xctx->nl_points] = xctx->mousey_snap;
      xctx->nl_polyx[xctx->nl_points] = xctx->mousex_snap;
-     drawtemppolygon(gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
+     drawtemppolygon(xctx->gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
    }
 }
 
@@ -2326,12 +2325,12 @@ int place_text(int draw_text, double mx, double my)
     cairo_select_font_face (xctx->cairo_save_ctx, textfont, slant, weight);
   }
   #endif
-  save_draw=draw_window;
-  draw_window=1;
+  save_draw=xctx->draw_window;
+  xctx->draw_window=1;
   if(draw_text) {
     draw_string(textlayer, NOW, t->txt_ptr, 0, 0, t->hcenter, t->vcenter, t->x0,t->y0, t->xscale, t->yscale);
   }
-  draw_window = save_draw;
+  xctx->draw_window = save_draw;
   #if HAS_CAIRO==1
   if((textfont && textfont[0]) || t->flags) {
     cairo_restore(xctx->cairo_ctx);
@@ -2341,8 +2340,8 @@ int place_text(int draw_text, double mx, double my)
   xctx->texts++;
   select_text(xctx->texts - 1, SELECTED, 0);
   rebuild_selected_array(); /* sets xctx->ui_state |= SELECTION */
-  drawtemprect(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
-  drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+  drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+  drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
   set_modify(1);
   return 1;
 }
@@ -2386,7 +2385,7 @@ void pan(int what)
     xpan2=xctx->mousex_snap;ypan2=xctx->mousey_snap;
     xx1=xpan;yy1=ypan;xx2=xpan2;yy2=ypan2;
     ORDER(xx1,yy1,xx2,yy2);
-    drawtempline(gc[SELLAYER], NOW, xx1,yy1,xx2,yy2);
+    drawtempline(xctx->gc[SELLAYER], NOW, xx1,yy1,xx2,yy2);
  }
  if(what & START)
  {
@@ -2420,12 +2419,12 @@ void select_rect(int what, int select)
     bbox(START,0.0, 0.0, 0.0, 0.0);
     bbox(ADD, xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
     bbox(SET,0.0, 0.0, 0.0, 0.0);
-    draw_selection(gc[SELLAYER], 0);
+    draw_selection(xctx->gc[SELLAYER], 0);
     if(!xctx->nl_sel) select_inside(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
     bbox(END,0.0, 0.0, 0.0, 0.0);
     xctx->nl_xx1=xctx->nl_xr;xctx->nl_xx2=xctx->nl_xr2;xctx->nl_yy1=xctx->nl_yr;xctx->nl_yy2=xctx->nl_yr2;
     RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-    drawtemprect(gc[SELLAYER],NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    drawtemprect(xctx->gc[SELLAYER],NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
  }
  else if(what & START)
  {
@@ -2452,14 +2451,14 @@ void select_rect(int what, int select)
  {
     RECTORDER(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
     drawtemprect(xctx->gctiled, NOW, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
-    /*  draw_selection(gc[SELLAYER], 0); */
+    /*  draw_selection(xctx->gc[SELLAYER], 0); */
     select_inside(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
 
 
     bbox(START,0.0, 0.0, 0.0, 0.0);
     bbox(ADD, xctx->nl_xr, xctx->nl_yr, xctx->nl_xr2, xctx->nl_yr2);
     bbox(SET,0.0, 0.0, 0.0, 0.0);
-    draw_selection(gc[SELLAYER], 0);
+    draw_selection(xctx->gc[SELLAYER], 0);
     bbox(END,0.0, 0.0, 0.0, 0.0);
     /*  /20171219 */
 

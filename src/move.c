@@ -192,7 +192,7 @@ void draw_selection(GC g, int interruptable)
   int customfont;
   #endif
 
-  if(g == gc[SELLAYER]) xctx->movelastsel = xctx->lastsel;
+  if(g == xctx->gc[SELLAYER]) xctx->movelastsel = xctx->lastsel;
   for(i=0;i<xctx->movelastsel;i++)
   {
    c = xctx->sel_array[i].col;n = xctx->sel_array[i].n;
@@ -561,7 +561,7 @@ void copy_objects(int what)
    xctx->x2=xctx->mousex_snap;xctx->y_2=xctx->mousey_snap;
    draw_selection(xctx->gctiled,0);
    xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y_2 - xctx->y_1;
-   draw_selection(gc[SELLAYER],1);
+   draw_selection(xctx->gc[SELLAYER],1);
   }
   if(what & ROTATELOCAL ) {
    xctx->rotatelocal=1;
@@ -982,7 +982,7 @@ void copy_objects(int what)
     bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     xctx->rotatelocal=0;
   } /* if(what & END) */
-  draw_selection(gc[SELLAYER], 0);
+  draw_selection(xctx->gc[SELLAYER], 0);
 }
 
 
@@ -1029,7 +1029,7 @@ void move_objects(int what, int merge, double dx, double dy)
   xctx->x2=xctx->mousex_snap;xctx->y_2=xctx->mousey_snap;
   draw_selection(xctx->gctiled,0);
   xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y_2 - xctx->y_1;
-  draw_selection(gc[SELLAYER],1);
+  draw_selection(xctx->gc[SELLAYER],1);
  }
  if(what & ROTATELOCAL) {
   xctx->rotatelocal=1;
@@ -1529,5 +1529,5 @@ void move_objects(int what, int merge, double dx, double dy)
   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   xctx->rotatelocal=0;
  }
- draw_selection(gc[SELLAYER], 0);
+ draw_selection(xctx->gc[SELLAYER], 0);
 }

@@ -257,7 +257,7 @@ void global_spice_netlist(int global)  /* netlister driver */
    my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} noshow {%s}", netl_filename, cellname);
    override_netlist_type(CAD_SPICE_NETLIST);
    tcleval(tcl_cmd_netlist);
-   override_netlist_type(-1); /* restore to netlist_type default */
+   override_netlist_type(-1); /* restore to xctx->netlist_type default */
    if(debug_var==0) xunlink(netl_filename);
  }
 
@@ -479,7 +479,7 @@ void spice_block_netlist(FILE *fd, int i)
     my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} noshow {%s}", netl_filename, cellname);
     override_netlist_type(CAD_SPICE_NETLIST);
     tcleval(tcl_cmd_netlist);
-    override_netlist_type(-1); /* restore to netlist_type default */
+    override_netlist_type(-1); /* restore to xctx->netlist_type default */
     if(debug_var==0) xunlink(netl_filename);
   }
 }

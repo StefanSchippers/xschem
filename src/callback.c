@@ -141,49 +141,74 @@ void start_wire(double mx, double my)
 int callback(const char *winpath, int event, int mx, int my, KeySym key,
                  int button, int aux, int state)
 {
- char str[PATH_MAX + 100]; /* overflow safe 20161122 */
+ char str[PATH_MAX + 100];
  struct stat buf;
+ int redraw_only;
  unsigned short sel;
  int c_snap;
 #ifndef __unix__
  short cstate = GetKeyState(VK_CAPITAL);
  short nstate = GetKeyState(VK_NUMLOCK);
-
- if(cstate & 0x0001) { /* caps lock */
-   tcleval(".statusbar.8 configure -state active -text {CAPS LOCK SET! }");
- } else if (nstate & 0x0001) { /* num lock */
-   tcleval(".statusbar.8 configure -state active -text {NUM LOCK SET! }");
- } else { /* normal state */
-   tcleval(".statusbar.8 configure -state  normal -text {}");
- }
 #else
  XKeyboardState kbdstate;
- XGetKeyboardControl(display, &kbdstate);
+#endif
 
- if(kbdstate.led_mask & 1) { /* caps lock */
-   tcleval(".statusbar.8 configure -state active -text {CAPS LOCK SET! }");
- } else if(kbdstate.led_mask & 2) { /* num lock */
-   tcleval(".statusbar.8 configure -state active -text {NUM LOCK SET! }");
+
+#ifndef __unix__
+ if(cstate & 0x0001) { /* caps lock */
+   Tcl_VarEval(interp, xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
+ } else if (nstate & 0x0001) { /* num lock */
+   Tcl_VarEval(interp, xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
  } else { /* normal state */
-   tcleval(".statusbar.8 configure -state  normal -text {}");
+   Tcl_VarEval(interp, xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
+ }
+#else
+ XGetKeyboardControl(display, &kbdstate);
+ if(kbdstate.led_mask & 1) { /* caps lock */
+   Tcl_VarEval(interp, xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
+ } else if(kbdstate.led_mask & 2) { /* num lock */
+   Tcl_VarEval(interp, xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
+ } else { /* normal state */
+   Tcl_VarEval(interp, xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
  }
 #endif
+
+ #if 0
+ /* exclude Motion and Expose events */
+ if(event!=6 /* && event!=12 */) dbg(0, "callback(): event=%d, winpath=%s, old_winpath=%s, semaphore=%d\n",
+                                      event, winpath, old_winpath, xctx->semaphore+1);
+ #endif
+ 
+ /* Schematic window context switch */
+ redraw_only =0;
+ if(strcmp(old_winpath, winpath) ) {
+   if( xctx->semaphore >= 1  || event == Expose) {
+     dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n", old_winpath, winpath);
+     redraw_only = 1;
+   } else {
+     dbg(1, "callback(): switching window context: %s --> %s\n", old_winpath, winpath);
+     if(old_winpath[0]) Tcl_VarEval(interp, "save_ctx ", old_winpath, NULL);
+     Tcl_VarEval(interp, "restore_ctx ", winpath, NULL);
+     Tcl_VarEval(interp, "housekeeping_ctx", NULL);
+   }
+   new_schematic("switch", xctx->top_path, winpath, "");
+ }
+ /* artificially set semaphore to allow only redraw operations in switched schematic,
+  * so we don't need  to switch tcl context which is costly performance-wise
+  */
+ if(redraw_only) xctx->semaphore++;
+
+ xctx->semaphore++; /* to recognize recursive callback() calls */
+
  c_snap = tclgetdoublevar("cadsnap");
  state &=~Mod2Mask; /* 20170511 filter out NumLock status */
- if(xctx->semaphore)
+ if(xctx->semaphore >= 2)
  {
    if(debug_var>=2)
      if(event != MotionNotify) 
        fprintf(errfp, "callback(): reentrant call of callback(), semaphore=%d, ev=%d, ui_state=%ld\n",
                xctx->semaphore, event, xctx->ui_state);
-   /* if(event==Expose) {
-    *   XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, mx,my,button,aux,mx,my);
-    *
-    * }
-    */
-   /* return 0; */
  }
- xctx->semaphore++;           /* used to debug Tcl-Tk frontend */
  xctx->mousex=X_TO_XSCHEM(mx);
  xctx->mousey=Y_TO_XSCHEM(my);
  xctx->mousex_snap=ROUND(xctx->mousex / c_snap) * c_snap;
@@ -196,7 +221,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  {
   case EnterNotify:
     tcleval("catch {destroy .ctxmenu}");
-    if(!xctx->sel_or_clip[0]) my_snprintf(xctx->sel_or_clip, S(xctx->sel_or_clip), "%s/%s", user_conf_dir, ".selection.sch");
+    if(!xctx->sel_or_clip[0]) my_snprintf(xctx->sel_or_clip, S(xctx->sel_or_clip), "%s/%s",
+        user_conf_dir, ".selection.sch");
 
     /* xschem window *sending* selected objects
        when the pointer comes back in abort copy operation since it has been done
@@ -218,6 +244,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     break;
 
   case Expose:
+    dbg(1, "callback: Expose, winpath=%s, %dx%d+%d+%d\n", winpath, button, aux, mx, my);
     XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, mx,my,button,aux,mx,my);
     {
       XRectangle xr[1];
@@ -226,10 +253,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       xr[0].width=button;
       xr[0].height=aux;
       /* redraw selection on expose, needed if no backing store available on the server 20171112 */
-      XSetClipRectangles(display, gc[SELLAYER], 0,0, xr, 1, Unsorted);
+      XSetClipRectangles(display, xctx->gc[SELLAYER], 0,0, xr, 1, Unsorted);
       rebuild_selected_array();
-      draw_selection(gc[SELLAYER],0);
-      XSetClipMask(display, gc[SELLAYER], None);
+      draw_selection(xctx->gc[SELLAYER],0);
+      XSetClipMask(display, xctx->gc[SELLAYER], None);
     }
     dbg(1, "callback(): Expose\n");
     break;
@@ -368,8 +395,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key == 'b' && state==ControlMask)         /* toggle show text in symbol */
    {
-    sym_txt =!sym_txt;
-    if(sym_txt) {
+    xctx->sym_txt =!xctx->sym_txt;
+    if(xctx->sym_txt) {
         /* tcleval("alert_ { enabling text in symbol} {}"); */
         tclsetvar("sym_txt","1");
         draw();
@@ -500,8 +527,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key == '$' && (state &ControlMask) )              /* toggle window  drawing */
    {
-    draw_window =!draw_window;
-    if(draw_window) {
+    xctx->draw_window =!xctx->draw_window;
+    if(xctx->draw_window) {
       tcleval("alert_ { enabling draw window} {}");
       tclsetvar("draw_window","1");
     } else {
@@ -513,25 +540,25 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key == '='  && (state &ControlMask))              /* toggle fill rectangles */
    {
     int x;
-    fill_pattern++;
-    if(fill_pattern==3) fill_pattern=0;
+    xctx->fill_pattern++;
+    if(xctx->fill_pattern==3) xctx->fill_pattern=0;
 
-    if(fill_pattern==1) {
+    if(xctx->fill_pattern==1) {
      tcleval("alert_ { Stippled pattern fill} {}");
      for(x=0;x<cadlayers;x++) {
-       if(fill_type[x]==1) XSetFillStyle(display,gcstipple[x],FillSolid);
-       else XSetFillStyle(display,gcstipple[x],FillStippled);
+       if(xctx->fill_type[x]==1) XSetFillStyle(display,xctx->gcstipple[x],FillSolid);
+       else XSetFillStyle(display,xctx->gcstipple[x],FillStippled);
      }
     }
-    else if(fill_pattern==2) {
+    else if(xctx->fill_pattern==2) {
      tcleval("alert_ { solid pattern fill} {}");
      for(x=0;x<cadlayers;x++)
-      XSetFillStyle(display,gcstipple[x],FillSolid);
+      XSetFillStyle(display,xctx->gcstipple[x],FillSolid);
     }
     else  {
      tcleval("alert_ { No pattern fill} {}");
      for(x=0;x<cadlayers;x++)
-      XSetFillStyle(display,gcstipple[x],FillStippled);
+      XSetFillStyle(display,xctx->gcstipple[x],FillStippled);
     }
 
     draw();
@@ -659,7 +686,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     } else {
       Tcl_VarEval(interp, "reconfigure_layers_button [winfo parent ", winpath, "]", NULL);
     }
-    dbg(1, "callback(): new color: %d\n",color_index[xctx->rectcolor]);
+    dbg(1, "callback(): new color: %d\n",xctx->color_index[xctx->rectcolor]);
     break;
    }
    if(key==XK_Delete && (xctx->ui_state & SELECTION) ) /* delete selection */
@@ -697,15 +724,26 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='q' && state == ControlMask) /* exit */
    {
+     char * top_path;
+     top_path =  xctx->top_path[0] ? xctx->top_path : ".";
      if(xctx->semaphore >= 2) break;
-     if(xctx->modified) {
-       tcleval("tk_messageBox -type okcancel -message {UNSAVED data: want to exit?}");
-       if(strcmp(tclresult(),"ok")==0) {
-         tcleval( "exit");
+     if(!strcmp(winpath, ".drw")) {
+       tcleval("new_window destroy_all"); /* close child schematics */
+       if(tclresult()[0] == '1') {
+         if(xctx->modified) {
+           tcleval("tk_messageBox -type okcancel -message \"" 
+                   "[get_cell [xschem get schname] 0]"
+                   ": UNSAVED data: want to exit?\"");
+         }
+         if(!xctx->modified || !strcmp(tclresult(),"ok")) tcleval( "exit");
        }
-     }
-     else {
-       tcleval( "exit");
+     } else {
+       /* xschem new_schematic destroy asks user confirmation if schematic changed */
+       Tcl_VarEval(interp, "xschem new_schematic destroy ", top_path, " ", winpath," {}" , NULL);
+       /* ================================================================ */
+       /* We must return here, since current schematic is no more existing */
+       /* ================================================================ */
+       return 0;
      }
      break;
    }
@@ -734,7 +772,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='V' && state == ShiftMask)                           /* toggle spice/vhdl netlist  */
    {
-    netlist_type++; if(netlist_type==6) netlist_type=1;
+    xctx->netlist_type++; if(xctx->netlist_type==6) xctx->netlist_type=1;
     override_netlist_type(-1);
     break;
    }
@@ -863,8 +901,9 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      d_c = tclgetboolvar("dark_colorscheme");
      d_c = !d_c;
      tclsetboolvar("dark_colorscheme", d_c);
-     tclsetdoublevar("color_dim", 0.0);
-     build_colors(0.0);
+     tclsetdoublevar("dim_value", 0.0);
+     tclsetdoublevar("dim_bg", 0.0);
+     build_colors(0.0, 0.0);
      draw();
      break;
    }
@@ -1251,13 +1290,13 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     unselect_all();
     if(set_netlist_dir(0, NULL)) {
       dbg(1, "callback(): -------------\n");
-      if(netlist_type == CAD_SPICE_NETLIST)
+      if(xctx->netlist_type == CAD_SPICE_NETLIST)
         global_spice_netlist(1);
-      else if(netlist_type == CAD_VHDL_NETLIST)
+      else if(xctx->netlist_type == CAD_VHDL_NETLIST)
         global_vhdl_netlist(1);
-      else if(netlist_type == CAD_VERILOG_NETLIST)
+      else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
         global_verilog_netlist(1);
-      else if(netlist_type == CAD_TEDAX_NETLIST)
+      else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
         global_tedax_netlist(1);
       else
         if(has_x) tcleval("tk_messageBox -type ok -message {Please Set netlisting mode (Options menu)}");
@@ -1273,13 +1312,13 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     unselect_all();
     if( set_netlist_dir(0, NULL) ) {
       dbg(1, "callback(): -------------\n");
-      if(netlist_type == CAD_SPICE_NETLIST)
+      if(xctx->netlist_type == CAD_SPICE_NETLIST)
         global_spice_netlist(0);
-      else if(netlist_type == CAD_VHDL_NETLIST)
+      else if(xctx->netlist_type == CAD_VHDL_NETLIST)
         global_vhdl_netlist(0);
-      else if(netlist_type == CAD_VERILOG_NETLIST)
+      else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
         global_verilog_netlist(0);
-      else if(netlist_type == CAD_TEDAX_NETLIST)
+      else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
         global_tedax_netlist(0);
       else
         if(has_x) tcleval("tk_messageBox -type ok -message {Please Set netlisting mode (Options menu)}");
@@ -1336,9 +1375,9 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='b' && state==Mod1Mask)                     /* hide/show instance details */
    {
     if(xctx->semaphore >= 2) break;
-    hide_symbols++;
-    if(hide_symbols >= 3) hide_symbols = 0;
-    tclsetintvar("hide_symbols", hide_symbols);
+    xctx->hide_symbols++;
+    if(xctx->hide_symbols >= 3) xctx->hide_symbols = 0;
+    tclsetintvar("hide_symbols", xctx->hide_symbols);
     draw();
     break;
    }
@@ -1771,7 +1810,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
        rebuild_selected_array();
 #ifndef __unix__
-       draw_selection(gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
+       draw_selection(xctx->gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
 #endif
        if(sel && state == ControlMask) {
          launcher();
@@ -1848,9 +1887,19 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
   default:
    dbg(1, "callback(): Event:%d\n",event);
    break;
- }
+ } /* switch(event) */
 
  xctx->semaphore--;
+ if(redraw_only) {
+   xctx->semaphore--; /* decrement articially incremented semaphore (see above) */
+   dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_winpath, winpath);
+   if(old_winpath[0]) new_schematic("switch", xctx->top_path, old_winpath, "");
+ }
+ else
+ if(strcmp(old_winpath, winpath)) {
+   if(old_winpath[0]) dbg(1, "callback(): reset old_winpath: %s <- %s\n", old_winpath, winpath);
+   my_strncpy(old_winpath, winpath, S(old_winpath));
+ }
  return 0;
 }
 

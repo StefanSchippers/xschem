@@ -18,6 +18,9 @@ $(BIN)/gui/find_gtk2.o: $(SRC)/gui/find_gtk2.c
 $(BIN)/gui/find_gtk3.o: $(SRC)/gui/find_gtk3.c
 	$(CC) $(CFLAGS) -c $(SRC)/gui/find_gtk3.c -o $(BIN)/gui/find_gtk3.o
 
+$(BIN)/gui/find_gtk4.o: $(SRC)/gui/find_gtk4.c
+	$(CC) $(CFLAGS) -c $(SRC)/gui/find_gtk4.c -o $(BIN)/gui/find_gtk4.o
+
 $(BIN)/gui/find_lesstif2.o: $(SRC)/gui/find_lesstif2.c
 	$(CC) $(CFLAGS) -c $(SRC)/gui/find_lesstif2.c -o $(BIN)/gui/find_lesstif2.o
 

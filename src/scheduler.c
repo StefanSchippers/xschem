@@ -29,19 +29,15 @@ YY_BUFFER_STATE yy_scan_string ( const char *yy_str  );
 
 void statusmsg(char str[],int n)
 {
-  static char s[2048];
-
   if(!has_x) return;
   tclsetvar("infowindow_text", str);
   if(n==2) {
-    dbg(3, "statusmsg(): n = 2, s = %s\n", s);
+    dbg(3, "statusmsg(): n = 2, str = %s\n", str);
     tcleval("infowindow");
   }
   else {
-    my_snprintf(s, S(s), ".statusbar.1 configure -text $infowindow_text", str);
-    dbg(3, "statusmsg(): n = %d, %s\n", n, s);
-    dbg(3, "statusmsg(): -> $infowindow_text = %s\n", tclgetvar("infowindow_text"));
-    tcleval(s);
+    Tcl_VarEval(interp, xctx->top_path, ".statusbar.1 configure -text $infowindow_text", NULL);
+    dbg(3, "statusmsg(str, %d): -> $infowindow_text = %s\n", n, tclgetvar("infowindow_text"));
   }
 }
 
@@ -170,8 +166,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"change_colors"))
     {
       cmd_found = 1;
-      build_colors(tclgetdoublevar("color_dim"));
-      draw();
+      build_colors(tclgetdoublevar("dim_value"), tclgetdoublevar("dim_bg"));
       Tcl_ResetResult(interp);
     }
    
@@ -208,7 +203,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         remove_symbols();
         clear_drawing();
         if(argc>=3 && !strcmp(argv[2],"SYMBOL")) {
-          netlist_type = CAD_SYMBOL_ATTRS;
+          xctx->netlist_type = CAD_SYMBOL_ATTRS;
           tclsetvar("netlist_type","symbol");
           for(i=0;;i++) {
             if(i == 0) my_snprintf(name, S(name), "%s.sym", "untitled");
@@ -218,7 +213,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", pwd_dir, name);
           my_strncpy(xctx->current_name, name, S(xctx->current_name));
         } else {
-          netlist_type = CAD_SPICE_NETLIST;
+          xctx->netlist_type = CAD_SPICE_NETLIST;
           tclsetvar("netlist_type","spice");
           for(i=0;;i++) {
             if(i == 0) my_snprintf(name, S(name), "%s.sch", "untitled");
@@ -235,8 +230,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xctx->prep_net_structs=0;
         xctx->prep_hi_structs=0;
         if(has_x) {
-          tcleval( "wm title . \"xschem - [file tail [xschem get schname]]\""); /* set window and icon title */
-          tcleval( "wm iconname . \"xschem - [file tail [xschem get schname]]\"");
+          char *top_path;
+          top_path =  xctx->top_path[0] ? xctx->top_path : ".";
+          Tcl_VarEval(interp, "wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
+          Tcl_VarEval(interp, "wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
         }
       }
       Tcl_ResetResult(interp);
@@ -255,19 +252,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_strdup(373, &netlist_dir, "");
     }
    
-    else if(!strcmp(argv[1],"color_dim"))
+    else if(!strcmp(argv[1], "color_dim"))
     {
-      double d;
-   
       cmd_found = 1;
-      if(argc==3) {
-        d = atof(argv[2]);
-        build_colors(d);
-        draw();
-        Tcl_ResetResult(interp);
+      if(argc > 2) {
+        tclsetvar("dim_value", argv[2]);
+        if(tclgetboolvar("enable_dim_bg") ) {
+          tclsetvar("dim_bg", argv[2]);
+        }
       }
+      build_colors(tclgetdoublevar("dim_value"), tclgetdoublevar("dim_bg"));
+      draw();
+      Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1],"connected_nets")) /* selected nets connected to currently selected ones */
     {
       int stop_at_junction = 0;
@@ -404,12 +402,25 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"exit"))
     {
+      char * top_path;
       cmd_found = 1;
-      if(xctx->modified && has_x) {
-        tcleval("tk_messageBox -type okcancel -message {UNSAVED data: want to exit?}");
-        if(strcmp(tclresult(),"ok")==0) tcleval( "exit");
+      top_path =  xctx->top_path[0] ? xctx->top_path : ".";
+      if(!strcmp(top_path, ".")) {
+        if(has_x) {
+          tcleval("new_window destroy_all"); /* close child schematics */
+          if(tclresult()[0] == '1') {
+            if(xctx->modified) {
+              tcleval("tk_messageBox -type okcancel -message \""
+                      "[get_cell [xschem get schname] 0]"
+                      ": UNSAVED data: want to exit?\"");
+            }
+            if(!xctx->modified || !strcmp(tclresult(),"ok")) tcleval("exit");
+          }
+        }
+        else tcleval("exit"); /* if has_x == 0 there are no additional windows to close */
+      } else {
+        Tcl_VarEval(interp, "xschem new_schematic destroy ", top_path, " ", xctx->top_path, ".drw {}" , NULL);
       }
-      else tcleval( "exit");
       Tcl_ResetResult(interp);
     }
    
@@ -539,7 +550,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      }
      else if(!strcmp(argv[2],"draw_window")) {
        char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",draw_window);
+       my_snprintf(s, S(s), "%d",xctx->draw_window);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"flat_netlist")) {
@@ -1278,9 +1289,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         pos=-1;
         if(argc==7) pos=atol(argv[6]);
         storeobject(pos, x1,y1,x2,y2,LINE,xctx->rectcolor,0,NULL);
-        save = draw_window; draw_window = 1;
+        save = xctx->draw_window; xctx->draw_window = 1;
         drawline(xctx->rectcolor,NOW, x1,y1,x2,y2, 0);
-        draw_window = save;
+        xctx->draw_window = save;
       }
       else xctx->ui_state |= MENUSTARTLINE;
     }
@@ -1445,13 +1456,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       yyparse_error = 0;
       if( set_netlist_dir(0, NULL) ) {
-        if(netlist_type == CAD_SPICE_NETLIST)
+        if(xctx->netlist_type == CAD_SPICE_NETLIST)
           global_spice_netlist(1);                  /* 1 means global netlist */
-        else if(netlist_type == CAD_VHDL_NETLIST)
+        else if(xctx->netlist_type == CAD_VHDL_NETLIST)
           global_vhdl_netlist(1);
-        else if(netlist_type == CAD_VERILOG_NETLIST)
+        else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
           global_verilog_netlist(1);
-        else if(netlist_type == CAD_TEDAX_NETLIST)
+        else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
           global_tedax_netlist(1);
         else
           if(has_x) tcleval("tk_messageBox -type ok -message {Please Set netlisting mode (Options menu)}");
@@ -1461,30 +1472,32 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"netlist_type"))
     {
       cmd_found = 1;
-      if(!strcmp(argv[2],"vhdl")) {
-        netlist_type=CAD_VHDL_NETLIST;
+      if(argc > 2) {
+        if(!strcmp(argv[2],"vhdl")) {
+          xctx->netlist_type=CAD_VHDL_NETLIST;
+        }
+        else if(!strcmp(argv[2],"verilog")) {
+          xctx->netlist_type=CAD_VERILOG_NETLIST;
+        }
+        else if(!strcmp(argv[2],"tedax")) {
+          xctx->netlist_type=CAD_TEDAX_NETLIST;
+        }
+        else if(!strcmp(argv[2],"symbol")) {
+          xctx->netlist_type=CAD_SYMBOL_ATTRS;
+        }
+        else if(!strcmp(argv[2],"spice")){
+         xctx->netlist_type=CAD_SPICE_NETLIST;
+        }
+        override_netlist_type(-1); /* set tcl netlist_type variable */
       }
-      else if(!strcmp(argv[2],"verilog")) {
-        netlist_type=CAD_VERILOG_NETLIST;
-      }
-      else if(!strcmp(argv[2],"tedax")) {
-        netlist_type=CAD_TEDAX_NETLIST;
-      }
-      else if(!strcmp(argv[2],"symbol")) {
-        netlist_type=CAD_SYMBOL_ATTRS;
-      }
-      else if(!strcmp(argv[2],"spice")){
-       netlist_type=CAD_SPICE_NETLIST;
-      }
-      override_netlist_type(-1); /* set tcl netlist_type */
     }
    
     else if(!strcmp(argv[1],"new_schematic"))
     {
       cmd_found = 1;
-      if(argc == 3) new_schematic(argv[2], "{}","{}");
-      else if(argc == 4) new_schematic(argv[2], argv[3], "{}");
-      else if(argc == 5) new_schematic(argv[2], argv[3], argv[4]);
+      if(argc == 4) new_schematic(argv[2], argv[3], "{}","{}");
+      else if(argc == 5) new_schematic(argv[2], argv[3], argv[4], "{}");
+      else if(argc == 6) new_schematic(argv[2], argv[3], argv[4], argv[5]);
       Tcl_ResetResult(interp);
     }
    
@@ -1772,9 +1785,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         pos=-1;
         if(argc==7) pos=atol(argv[6]);
         storeobject(pos, x1,y1,x2,y2,xRECT,xctx->rectcolor,0,NULL);
-        save = draw_window; draw_window = 1;
+        save = xctx->draw_window; xctx->draw_window = 1;
         drawrect(xctx->rectcolor,NOW, x1,y1,x2,y2, 0);
-        draw_window = save;
+        xctx->draw_window = save;
       }
       else xctx->ui_state |= MENUSTARTRECT;
     }
@@ -2002,9 +2015,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int n=atol(argv[3]);
         if(n<xctx->texts && n >= 0) select_text(atol(argv[3]), SELECTED, 0);
       }
-      drawtemparc(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
-      drawtemprect(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
-      drawtempline(gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+      drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
+      drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+      drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
     }
    
     else if(!strcmp(argv[1],"select_all"))
@@ -2102,20 +2115,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(!strcmp(argv[2],"constrained_move")) {
         constrained_move = atoi(argv[3]);
       }
-      else if(!strcmp(argv[2],"dim")) {
-        double s = atof(argv[3]);
-        build_colors(s);
-        draw();
-        Tcl_ResetResult(interp);
-      }
       else if(!strcmp(argv[2],"draw_window")) {
-         draw_window=atoi(argv[3]);
+         xctx->draw_window=atoi(argv[3]);
       }
       else if(!strcmp(argv[2],"flat_netlist")) {
             flat_netlist=atoi(argv[3]);
       }
       else if(!strcmp(argv[2],"hide_symbols")) {
-            hide_symbols=atoi(argv[3]);
+            xctx->hide_symbols=atoi(argv[3]);
       }
       else if(!strcmp(argv[2],"netlist_name")) {
         my_strncpy(xctx->netlist_name, argv[3], S(xctx->netlist_name));
@@ -2142,7 +2149,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             xctx->semaphore=atoi(argv[3]);
       }
       else if(!strcmp(argv[2],"sym_txt")) {
-            sym_txt=atoi(argv[3]);
+            xctx->sym_txt=atoi(argv[3]);
       }
       else {
         Tcl_AppendResult(interp, "xschem set ", argv[1], argv[3], ": invalid command.", NULL);
@@ -2310,8 +2317,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       d_c = tclgetboolvar("dark_colorscheme");
       d_c = !d_c;
       tclsetboolvar("dark_colorscheme", d_c);
-      tclsetdoublevar("color_dim", 0.0);
-      build_colors(0.0);
+      tclsetdoublevar("dim_value", 0.0);
+      tclsetdoublevar("dim_bg", 0.0);
+      build_colors(0.0, 0.0);
       draw();
       Tcl_ResetResult(interp);
     }
@@ -2419,9 +2427,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xctx->prep_hi_structs=0;
         xctx->prep_net_structs=0;
         xctx->prep_hash_wires=0;
-        save = draw_window; draw_window = 1;
+        save = xctx->draw_window; xctx->draw_window = 1;
         drawline(WIRELAYER,NOW, x1,y1,x2,y2, 0);
-        draw_window = save;
+        xctx->draw_window = save;
         if(tclgetvar("autotrim_wires")) trim_wires();
       }
       else xctx->ui_state |= MENUSTARTWIRE;
@@ -2512,31 +2520,26 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
 double tclgetdoublevar(const char *s)
 {
-  dbg(2, "tclgetdoublevar(): %s\n", s);
   return atof(Tcl_GetVar(interp,s, TCL_GLOBAL_ONLY));
 }
 
 int tclgetintvar(const char *s)
 {
-  dbg(2, "tclgetintvar(): %s\n", s);
   return atoi(Tcl_GetVar(interp,s, TCL_GLOBAL_ONLY));
 }
 
 int tclgetboolvar(const char *s)
 {
-  dbg(2, "tclgetboolvar(): %s\n", s);
   return Tcl_GetVar(interp,s, TCL_GLOBAL_ONLY)[0] == '1' ? 1 : 0;
 }
 
 const char *tclgetvar(const char *s)
 {
-  dbg(2, "tclgetvar(): %s\n", s);
   return Tcl_GetVar(interp,s, TCL_GLOBAL_ONLY);
 }
 
 const char *tcleval(const char str[])
 {
-  dbg(2, "tcleval(): %s\n", str);
   if( Tcl_GlobalEval(interp, str) != TCL_OK) {
     fprintf(errfp, "tcleval(): evaluation of script: %s failed\n", str);
   }
@@ -2549,7 +2552,6 @@ const char *tclresult(void)
 
 void tclsetvar(const char *s, const char *value)
 {
-  dbg(2, "tclsetvar(): %s to %s\n", s, value);
   if(!Tcl_SetVar(interp, s, value, TCL_GLOBAL_ONLY)) {
     fprintf(errfp, "tclsetvar(): error setting variable %s to %s\n", s, value);
   }
@@ -2558,7 +2560,6 @@ void tclsetvar(const char *s, const char *value)
 void tclsetdoublevar(const char *s, const double value)
 {
   char str[80];
-  dbg(2, "tclsetdoublevar(): %s to %g\n", s, value);
   sprintf(str, "%.16g", value);
   if(!Tcl_SetVar(interp, s, str, TCL_GLOBAL_ONLY)) {
     fprintf(errfp, "tclsetdoublevar(): error setting variable %s to %g\n", s, value);
@@ -2568,7 +2569,6 @@ void tclsetdoublevar(const char *s, const double value)
 void tclsetintvar(const char *s, const int value)
 {
   char str[80];
-  dbg(2, "tclsetintvar(): %s to %d\n", s, value);
   sprintf(str, "%d", value);
   if(!Tcl_SetVar(interp, s, str, TCL_GLOBAL_ONLY)) {
     fprintf(errfp, "tclsetintvar(): error setting variable %s to %d\n", s, value);
@@ -2577,7 +2577,6 @@ void tclsetintvar(const char *s, const int value)
 
 void tclsetboolvar(const char *s, const int value)
 {
-  dbg(2, "tclsetboolvar(): %s to %d\n", s, value);
   if(!Tcl_SetVar(interp, s, (value ? "1" : "0"), TCL_GLOBAL_ONLY)) {
     fprintf(errfp, "tclsetboolvar(): error setting variable %s to %d\n", s, value);
   }
