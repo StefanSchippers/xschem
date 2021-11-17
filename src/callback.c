@@ -145,7 +145,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  struct stat buf;
  int redraw_only;
  unsigned short sel;
- int c_snap;
+ double c_snap;
 #ifndef __unix__
  short cstate = GetKeyState(VK_CAPITAL);
  short nstate = GetKeyState(VK_NUMLOCK);

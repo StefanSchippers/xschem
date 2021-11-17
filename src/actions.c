@@ -112,7 +112,7 @@ void print_version()
 void set_snap(double newsnap) /*  20161212 set new snap factor and just notify new value */
 {
     static double default_snap = -1.0;
-    int cs;
+    double cs;
 
     cs = tclgetdoublevar("cadsnap");
     if(default_snap == -1.0) {

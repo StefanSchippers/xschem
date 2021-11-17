@@ -3710,8 +3710,8 @@ proc pack_widgets { { topwin {} } } {
     pack $topwin.menubar -anchor n -side top -fill x  -before $topwin.drw
     toolbar_show $topwin
     pack $topwin.statusbar -after $topwin.drw -anchor sw  -fill x 
-    bind $topwin.statusbar.5 <Leave> {xschem set cadgrid $cadgrid}
-    bind $topwin.statusbar.3 <Leave> {xschem set cadsnap $cadsnap}
+    bind $topwin.statusbar.5 <Leave> "set cadgrid \[$topwin.statusbar.5 get\]; xschem set cadgrid \$cadgrid"
+    bind $topwin.statusbar.3 <Leave> "set cadsnap \[$topwin.statusbar.3 get\]; xschem set cadsnap \$cadsnap"
     set_bindings $topwin.drw
   }
 }
