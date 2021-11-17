@@ -838,7 +838,7 @@ void new_schematic(const char *what, const char *top_path, const char *tk_win_pa
   Tk_Window tkwin;
 
   if(!strcmp(what, "create")) {
-    dbg(1, "new_schematic() create, save ctx\n");
+    dbg(0, "new_schematic() create, save ctx tk_win_path=%s\n", tk_win_path);
     if(cnt == 0) {
       for(i = 0; i < MAX_NEW_WINDOWS; i++) {
         save_xctx[i] = NULL;
@@ -849,11 +849,16 @@ void new_schematic(const char *what, const char *top_path, const char *tk_win_pa
     }
     if(cnt + 1 >= MAX_NEW_WINDOWS) return; /* no more free slots */
     cnt++;
+    n = -1;
     for(i = 1; i < MAX_NEW_WINDOWS; i++) { /* search 1st free slot */
       if(save_xctx[i] == NULL) {
         n = i;
         break;
       }
+    }
+    if(n == -1) {
+      dbg(0, "new_schematic(\"create\"...): no more free slots\n");
+      return;
     }
     tknew_window[n] = Tk_NameToWindow(interp, tk_win_path, mainwindow);
     Tk_MakeWindowExist(tknew_window[n]);
@@ -894,12 +899,17 @@ void new_schematic(const char *what, const char *top_path, const char *tk_win_pa
       Tcl_ResetResult(interp);
       if(close) {
         tkwin =  Tk_NameToWindow(interp, tk_win_path, mainwindow); /* NULL if tk_win_path not existing */
-        if(!tkwin) dbg(0, "new_schematic(destroy, ...): Warning: %s has been destroyed\n", tk_win_path);
+        if(!tkwin) dbg(0, "new_schematic(\"destroy\", ...): Warning: %s has been destroyed\n", tk_win_path);
+        n = -1;
         if(tkwin) for(i = 1; i < MAX_NEW_WINDOWS; i++) {
           if(tkwin == tknew_window[i]) {
             n = i;
             break;
           }
+        }
+        if(n == -1) {
+          dbg(0, "new_schematic(\"destroy\"...): no window to destroy found: %s\n", tk_win_path);
+          return;
         }
         if(tkwin && n >= 1 && n < MAX_NEW_WINDOWS) {
           xctx = save_xctx[n];
@@ -922,12 +932,17 @@ void new_schematic(const char *what, const char *top_path, const char *tk_win_pa
     if(cnt) {
       dbg(1, "new_schematic() switch: %s\n", tk_win_path);
       tkwin =  Tk_NameToWindow(interp, tk_win_path, mainwindow); /* NULL if tk_win_path not existing */
-      if(!tkwin) dbg(0, "new_schematic(switch,...): Warning: %s has been destroyed\n", tk_win_path);
+      if(!tkwin) dbg(0, "new_schematic(\"switch\",...): Warning: %s has been destroyed\n", tk_win_path);
+      n = -1;
       if(tkwin) for(i = 0; i < MAX_NEW_WINDOWS; i++) {
         if(tkwin == tknew_window[i]) {
           n = i;
           break;
         }
+      }
+      if(n == -1) {
+        dbg(0, "new_schematic(\"switch\"...): no window to switch to found: %s\n", tk_win_path);
+        return;
       }
       /* if window was closed then tkwin == 0 --> do nothing */
       if(tkwin && n >= 0 && n < MAX_NEW_WINDOWS) {

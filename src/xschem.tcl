@@ -3478,9 +3478,11 @@ proc new_window {what {filename {}} {path {-}}} {
     toplevel $path -bg {} -width 400 -height 400
     build_widgets $path
     pack_widgets $path ;# also does set_bindings $path.drw
-    set_bindings $path.drw
     update
     xschem new_schematic create $path $path.drw [abs_sym_path $filename]
+    # set bindings after creating new schematic otherwise 
+    # a Configure or Expose event is sent before window setup completed.
+    set_bindings $path.drw
     save_ctx $path.drw
     return $path
   } elseif { $what eq {destroy}} {
@@ -3742,7 +3744,6 @@ proc pack_widgets { { topwin {} } } {
     pack $topwin.statusbar -after $topwin.drw -anchor sw  -fill x 
     bind $topwin.statusbar.5 <Leave> "set cadgrid \[$topwin.statusbar.5 get\]; xschem set cadgrid \$cadgrid"
     bind $topwin.statusbar.3 <Leave> "set cadsnap \[$topwin.statusbar.3 get\]; xschem set cadsnap \$cadsnap"
-    set_bindings $topwin.drw
   }
 }
 
