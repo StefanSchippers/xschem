@@ -319,11 +319,15 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  fprintf(fd, "end arch_%s ;\n\n", skip_dir( xctx->sch[xctx->currsch]) );
 
  if(split_f) {
+   int save;
    fclose(fd);
    my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} noshow {%s}", netl_filename, cellname);
-   override_netlist_type(CAD_VHDL_NETLIST);
+   save = xctx->netlist_type;
+   xctx->netlist_type = CAD_VHDL_NETLIST;
+   set_tcl_netlist_type();
    tcleval(tcl_cmd_netlist);
-   override_netlist_type(-1); /* restore to netlist_dir default */
+   xctx->netlist_type = save;
+   set_tcl_netlist_type();
    if(debug_var==0) xunlink(netl_filename);
  }
  xctx->netlist_count++;
@@ -611,11 +615,15 @@ void  vhdl_block_netlist(FILE *fd, int i)
   if(xctx->schvhdlprop && xctx->schvhdlprop[0]) fprintf(fd, "%s\n", xctx->schvhdlprop);
   fprintf(fd, "end arch_%s ;\n\n", skip_dir(xctx->sym[i].name) ); /* skip_dir( xctx->sch[xctx->currsch]) ); */
   if(split_f) {
+    int save;
     fclose(fd);
     my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} noshow {%s}", netl_filename, cellname);
-    override_netlist_type(CAD_VHDL_NETLIST);
+    save = xctx->netlist_type;
+    xctx->netlist_type = CAD_VHDL_NETLIST;
+    set_tcl_netlist_type();
     tcleval(tcl_cmd_netlist);
-    override_netlist_type(-1); /* restore to netlist_dir default */
+    xctx->netlist_type = save;
+    set_tcl_netlist_type();
     if(debug_var==0) xunlink(netl_filename);
   }
   xctx->netlist_count++;

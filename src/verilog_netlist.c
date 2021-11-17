@@ -265,11 +265,15 @@ void global_verilog_netlist(int global)  /* netlister driver */
  fprintf(fd, "endmodule\n");
 
  if(split_f) {
+   int save;
    fclose(fd);
    my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} noshow {%s}", netl_filename, cellname);
-   override_netlist_type(CAD_VERILOG_NETLIST);
+   save = xctx->netlist_type;
+   xctx->netlist_type = CAD_VERILOG_NETLIST;
+   set_tcl_netlist_type();
    tcleval(tcl_cmd_netlist);
-   override_netlist_type(-1); /* restore to xctx->netlist_type default */
+   xctx->netlist_type = save;
+   set_tcl_netlist_type();
    if(debug_var==0) xunlink(netl_filename);
  }
 
@@ -496,11 +500,15 @@ void verilog_block_netlist(FILE *fd, int i)
   fprintf(fd,"---- end user architecture code\n");
   fprintf(fd, "endmodule\n");
   if(split_f) {
+    int save;
     fclose(fd);
     my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} noshow {%s}", netl_filename, cellname);
-    override_netlist_type(CAD_VERILOG_NETLIST);
+    save = xctx->netlist_type;
+    xctx->netlist_type = CAD_VERILOG_NETLIST;
+    set_tcl_netlist_type();
     tcleval(tcl_cmd_netlist);
-    override_netlist_type(-1); /* restore to xctx->netlist_type default */
+    xctx->netlist_type = save;
+    set_tcl_netlist_type();
     if(debug_var==0) xunlink(netl_filename);
   }
   my_free(1079, &dir_tmp);

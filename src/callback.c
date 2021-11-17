@@ -173,6 +173,14 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  }
 #endif
 
+ Tcl_VarEval(interp, xctx->top_path, ".statusbar.7 configure -text $netlist_type", NULL);
+ Tcl_VarEval(interp, xctx->top_path, ".statusbar.3 delete 0 end;",
+                     xctx->top_path, ".statusbar.3 insert 0 $cadsnap",
+                     NULL);
+ Tcl_VarEval(interp, xctx->top_path, ".statusbar.5 delete 0 end;",
+                     xctx->top_path, ".statusbar.5 insert 0 $cadgrid",
+                     NULL);
+
  #if 0
  /* exclude Motion and Expose events */
  if(event!=6 /* && event!=12 */) dbg(0, "callback(): event=%d, winpath=%s, old_winpath=%s, semaphore=%d\n",
@@ -773,7 +781,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='V' && state == ShiftMask)                           /* toggle spice/vhdl netlist  */
    {
     xctx->netlist_type++; if(xctx->netlist_type==6) xctx->netlist_type=1;
-    override_netlist_type(-1);
+    set_tcl_netlist_type();
     break;
    }
 

@@ -522,6 +522,16 @@ void wirecheck(int k)    /* recursive routine */
   }
 }
 
+void set_tcl_netlist_type(void)
+{
+    if(xctx->netlist_type == CAD_SPICE_NETLIST) tclsetvar("netlist_type", "spice");
+    else if(xctx->netlist_type == CAD_VERILOG_NETLIST) tclsetvar("netlist_type", "verilog");
+    else if(xctx->netlist_type == CAD_VHDL_NETLIST) tclsetvar("netlist_type", "vhdl");
+    else if(xctx->netlist_type == CAD_TEDAX_NETLIST) tclsetvar("netlist_type", "tedax");
+    else if(xctx->netlist_type == CAD_SYMBOL_ATTRS) tclsetvar("netlist_type", "symbol");
+    else tclsetvar("netlist_type", "unknown");
+}
+
 /* what==0 -> initialize  */
 /* what==1 -> get new node name, net##   */
 /* what==2 -> update multiplicity   */
@@ -601,23 +611,6 @@ int record_global_node(int what, FILE *fp, char *node)
     size_globals=max_globals=0;
  }
  return 0;
-}
-
-/* set xctx->netlist_type tcl var to specified format, if -1 is given restore to default */
-void override_netlist_type(int type)
-{
-  if     (type == CAD_VHDL_NETLIST)    tclsetvar("netlist_type","vhdl");
-  else if(type == CAD_VERILOG_NETLIST) tclsetvar("netlist_type","verilog");
-  else if(type == CAD_TEDAX_NETLIST)   tclsetvar("netlist_type","tedax");
-  else if(type == CAD_SYMBOL_ATTRS)    tclsetvar("netlist_type","symbol");
-  else if(type == CAD_SPICE_NETLIST)   tclsetvar("netlist_type","spice");
-  else {
-    if     (xctx->netlist_type == CAD_VHDL_NETLIST)    tclsetvar("netlist_type","vhdl");
-    else if(xctx->netlist_type == CAD_VERILOG_NETLIST) tclsetvar("netlist_type","verilog");
-    else if(xctx->netlist_type == CAD_TEDAX_NETLIST)   tclsetvar("netlist_type","tedax");
-    else if(xctx->netlist_type == CAD_SYMBOL_ATTRS)    tclsetvar("netlist_type","symbol");
-    else if(xctx->netlist_type == CAD_SPICE_NETLIST)   tclsetvar("netlist_type","spice");
-  }
 }
 
 void prepare_netlist_structs(int for_netlist)

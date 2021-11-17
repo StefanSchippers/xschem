@@ -204,7 +204,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         clear_drawing();
         if(argc>=3 && !strcmp(argv[2],"SYMBOL")) {
           xctx->netlist_type = CAD_SYMBOL_ATTRS;
-          tclsetvar("netlist_type","symbol");
+          set_tcl_netlist_type();
           for(i=0;;i++) {
             if(i == 0) my_snprintf(name, S(name), "%s.sym", "untitled");
             else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
@@ -214,7 +214,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_strncpy(xctx->current_name, name, S(xctx->current_name));
         } else {
           xctx->netlist_type = CAD_SPICE_NETLIST;
-          tclsetvar("netlist_type","spice");
+          set_tcl_netlist_type();
           for(i=0;;i++) {
             if(i == 0) my_snprintf(name, S(name), "%s.sch", "untitled");
             else my_snprintf(name, S(name), "%s-%d.sch", "untitled", i);
@@ -477,12 +477,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      * ********** xschem get subcommands
      */
    
-    if(!strcmp(argv[1],"get") && !strcmp(argv[2],"schname")  && argc >= 3)
+    if(argc >= 3 && !strcmp(argv[1],"get") && !strcmp(argv[2],"schname"))
     {
     /* allows to retrieve name of n-th parent schematic */
       int x;
       cmd_found = 1;
-      if(argc == 4) x = atoi(argv[3]);
+      if(argc >= 4) x = atoi(argv[3]);
       else x = xctx->currsch;
       if(x<0 && xctx->currsch+x>=0) {
         Tcl_SetResult(interp, xctx->sch[xctx->currsch+x], TCL_VOLATILE);
@@ -490,7 +490,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, xctx->sch[x], TCL_VOLATILE);
       }
     }
-    else if(!strcmp(argv[1],"get") && !strcmp(argv[2],"sch_path") && argc >= 3) 
+    else if( argc >= 3 && !strcmp(argv[1],"get") && !strcmp(argv[2],"sch_path")) 
     {
       int x;
       cmd_found = 1;
@@ -592,6 +592,27 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      }
      else if(!strcmp(argv[2],"netlist_name")) {
        Tcl_SetResult(interp, xctx->netlist_name, TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"netlist_type"))
+     {
+       if(xctx->netlist_type == CAD_SPICE_NETLIST) {
+         Tcl_SetResult(interp, "spice", TCL_STATIC);
+       }
+       else if(xctx->netlist_type == CAD_VHDL_NETLIST) {
+         Tcl_SetResult(interp, "vhdl", TCL_STATIC);
+       }
+       else if(xctx->netlist_type == CAD_VERILOG_NETLIST) {
+         Tcl_SetResult(interp, "verilog", TCL_STATIC);
+       }
+       else if(xctx->netlist_type == CAD_TEDAX_NETLIST) {
+         Tcl_SetResult(interp, "tedax", TCL_STATIC);
+       }
+       else if(xctx->netlist_type == CAD_SYMBOL_ATTRS) {
+         Tcl_SetResult(interp, "symbol", TCL_STATIC);
+       }
+       else {
+         Tcl_SetResult(interp, "unknown", TCL_STATIC);
+       }
      }
      else if(!strcmp(argv[2],"no_draw")) {
        if( xctx->no_draw != 0 )
@@ -1469,29 +1490,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
    
-    else if(!strcmp(argv[1],"netlist_type"))
-    {
-      cmd_found = 1;
-      if(argc > 2) {
-        if(!strcmp(argv[2],"vhdl")) {
-          xctx->netlist_type=CAD_VHDL_NETLIST;
-        }
-        else if(!strcmp(argv[2],"verilog")) {
-          xctx->netlist_type=CAD_VERILOG_NETLIST;
-        }
-        else if(!strcmp(argv[2],"tedax")) {
-          xctx->netlist_type=CAD_TEDAX_NETLIST;
-        }
-        else if(!strcmp(argv[2],"symbol")) {
-          xctx->netlist_type=CAD_SYMBOL_ATTRS;
-        }
-        else if(!strcmp(argv[2],"spice")){
-         xctx->netlist_type=CAD_SPICE_NETLIST;
-        }
-        override_netlist_type(-1); /* set tcl netlist_type variable */
-      }
-    }
-   
     else if(!strcmp(argv[1],"new_schematic"))
     {
       cmd_found = 1;
@@ -2126,6 +2124,34 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else if(!strcmp(argv[2],"netlist_name")) {
         my_strncpy(xctx->netlist_name, argv[3], S(xctx->netlist_name));
+      }
+      else if(!strcmp(argv[2],"netlist_type"))
+      {
+        if(argc > 3) {
+          if(!strcmp(argv[3],"spice")){
+            xctx->netlist_type=CAD_SPICE_NETLIST;
+            tclsetvar("netlist_type", "spice");
+          }
+          else if(!strcmp(argv[3],"vhdl")) {
+            xctx->netlist_type=CAD_VHDL_NETLIST;
+            tclsetvar("netlist_type", "vhdl");
+          }
+          else if(!strcmp(argv[3],"verilog")) {
+            xctx->netlist_type=CAD_VERILOG_NETLIST;
+            tclsetvar("netlist_type", "verilog");
+          }
+          else if(!strcmp(argv[3],"tedax")) {
+            xctx->netlist_type=CAD_TEDAX_NETLIST;
+            tclsetvar("netlist_type", "tedax");
+          }
+          else if(!strcmp(argv[3],"symbol")) {
+            xctx->netlist_type=CAD_SYMBOL_ATTRS;
+            tclsetvar("netlist_type", "symbol");
+          }
+          else {
+            tclsetvar("netlist_type", "unknown");
+          }
+        }
       }
       else if(!strcmp(argv[2],"no_draw")) {
         int s = atoi(argv[3]);

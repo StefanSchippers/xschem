@@ -1139,7 +1139,7 @@ extern void  select_connected_wires(int stop_at_junction);
 extern void draw_hilight_net(int on_window);
 extern void display_hilights(char **str);
 extern void redraw_hilights(int clear);
-extern void override_netlist_type(int type);
+extern void set_tcl_netlist_type(void);
 extern void prepare_netlist_structs(int for_netlist);
 extern void create_simdata(void);
 extern void free_simdata(void);

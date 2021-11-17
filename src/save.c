@@ -1080,12 +1080,12 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
         if(!strcmp(tclresult(), "SYMBOL")) {
           save_netlist_type = xctx->netlist_type;
           xctx->netlist_type = CAD_SYMBOL_ATTRS;
+          set_tcl_netlist_type();
           loaded_symbol = 1;
-          tclsetvar("netlist_type","symbol");
         } else {
           if(loaded_symbol) {
             xctx->netlist_type = save_netlist_type;
-            override_netlist_type(-1);
+            set_tcl_netlist_type();
           }
           loaded_symbol = 0;
         }

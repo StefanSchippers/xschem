@@ -131,9 +131,10 @@ proc execute {status args} {
 
 proc netlist {source_file show netlist_file} {
  global XSCHEM_SHAREDIR flat_netlist hspice_netlist netlist_dir
- global verilog_2001 netlist_type debug_var
+ global verilog_2001 debug_var
  
  simuldir
+ set netlist_type [xschem get netlist_type]
  if {$debug_var <= -1} { puts "netlist: source_file=$source_file, netlist_type=$netlist_type" }
  if {$netlist_type eq {spice}} {
    if { $hspice_netlist == 1 } {
@@ -309,11 +310,11 @@ proc edit_file {filename} {
 ##
 ## Other global vars:
 ## netlist_dir
-## netlist_type
 ## computerfarm
 ## terminal
+## netlist_type can be obtained with [xschem get netlist_type]
 proc save_sim_defaults {f} {
-  global sim netlist_dir netlist_type computerfarm terminal
+  global sim netlist_dir computerfarm terminal
   
   set a [catch {open $f w} fd]
   if { $a } {
@@ -877,11 +878,12 @@ proc simulate {{callback {}}} {
   ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
   ## $d : netlist directory
 
-  global netlist_dir netlist_type computerfarm terminal sim
+  global netlist_dir computerfarm terminal sim
   global execute_callback XSCHEM_SHAREDIR has_x OS
 
   simuldir 
   set_sim_defaults
+  set netlist_type [xschem get netlist_type]
   if { [select_netlist_dir 0] ne {}} {
     set d ${netlist_dir}
     set tool $netlist_type
@@ -1001,10 +1003,11 @@ proc waves {} {
   ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
   ## $d : netlist directory
 
-  global netlist_dir netlist_type computerfarm terminal sim XSCHEM_SHAREDIR has_x 
+  global netlist_dir computerfarm terminal sim XSCHEM_SHAREDIR has_x 
   global bespice_listen_port env
 
   simuldir
+  set netlist_type [xschem get netlist_type]
   set_sim_defaults
   if { [select_netlist_dir 0] ne {}} {
     set d ${netlist_dir}
@@ -1038,7 +1041,7 @@ proc waves {} {
 # ============================================================
 
 proc utile_translate {schname} { 
-  global netlist_dir netlist_type debug_var XSCHEM_SHAREDIR
+  global netlist_dir debug_var XSCHEM_SHAREDIR
   global utile_gui_path utile_cmd_path
 
   simuldir 
@@ -1048,7 +1051,7 @@ proc utile_translate {schname} {
 }
 
 proc utile_gui {schname} { 
-  global netlist_dir netlist_type debug_var XSCHEM_SHAREDIR
+  global netlist_dir debug_var XSCHEM_SHAREDIR
   global utile_gui_path utile_cmd_path
 
   simuldir 
@@ -1058,7 +1061,7 @@ proc utile_gui {schname} {
 }
 
 proc utile_edit {schname} { 
-  global netlist_dir netlist_type debug_var editor XSCHEM_SHAREDIR
+  global netlist_dir debug_var editor XSCHEM_SHAREDIR
   global utile_gui_path utile_cmd_path
 
   simuldir
@@ -1068,7 +1071,7 @@ proc utile_edit {schname} {
 }
 
 proc get_shell { curpath } {
- global netlist_dir netlist_type debug_var
+ global netlist_dir debug_var
  global  terminal
 
  simuldir
@@ -1076,10 +1079,11 @@ proc get_shell { curpath } {
 }
 
 proc edit_netlist {schname } {
- global netlist_dir netlist_type debug_var
+ global netlist_dir debug_var
  global editor terminal OS
 
  simuldir
+ set netlist_type [xschem get netlist_type]
  set tmpname [file rootname "$schname"]
 
  if { [regexp vim $editor] } { set ftype "-c \":set filetype=$netlist_type\"" } else { set ftype {} }
@@ -2176,7 +2180,9 @@ proc tclpropeval {s instname symname} {
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s} {
-  global debug_var env netlist_type path
+  global debug_var env path
+
+  set netlist_type [xschem get netlist_type]
   # puts "tclpropeval2: s=|$s|"
   if {$debug_var <=-1} {puts "tclpropeval2: $s"}
   set path [string range [xschem get sch_path] 1 end]
@@ -2296,9 +2302,10 @@ proc ask_save { {ask {save file?}} } {
 
 
 proc edit_vi_prop {txtlabel} {
-  global XSCHEM_TMP_DIR retval symbol prev_symbol rcode debug_var netlist_type editor
+  global XSCHEM_TMP_DIR retval symbol prev_symbol rcode debug_var editor
   global user_wants_copy_cell
  
+  set netlist_dir [xschem get netlist_type]
   set user_wants_copy_cell 0
   set rcode {}
   set filename .xschem_edit_file.[pid]
@@ -2324,9 +2331,10 @@ proc edit_vi_prop {txtlabel} {
 }
 
 proc edit_vi_netlist_prop {txtlabel} {
-  global XSCHEM_TMP_DIR retval rcode debug_var netlist_type editor
+  global XSCHEM_TMP_DIR retval rcode debug_var editor
   global user_wants_copy_cell
  
+  set netlist_type [xschem get netlist_type]
   set user_wants_copy_cell 0
   set filename .xschem_edit_file.[pid]
   if ![string compare $netlist_type "vhdl"] { set suffix vhd } else { set suffix v }
@@ -3543,8 +3551,8 @@ set tctx::global_list {
   incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
   input_line_cmd input_line_data launcher_default_program light_colors line_width local_netlist_dir
   myload_d myload_default_geometry myload_dir1 myload_dir2 myload_dirs2 myload_files1 myload_files2 myload_index1
-  myload_retval myload_sash_pos myload_sel myload_type myload_yview netlist_dir netlist_show netlist_type 
-  no_change_attrs noprint_libs old_selected_tok
+  myload_retval myload_sash_pos myload_sel myload_type myload_yview netlist_dir netlist_show
+  netlist_type no_change_attrs noprint_libs old_selected_tok
   only_probes path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
   rcode recentfile replace_key retval retval_orig rotated_text search_exact search_found search_select 
   search_value selected_tok show_infowindow show_pin_net_names simconf_default_geometry simconf_vpos 
@@ -3715,7 +3723,7 @@ proc build_widgets { {topwin {} } } {
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
   global cadgrid draw_window show_pin_net_names toolbar_visible hide_symbols
   global disable_unique_names persistent_command autotrim_wires en_hilight_conn_inst
-  global local_netlist_dir editor netlist_dir spiceprefix initial_geometry simulate_bg
+  global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry simulate_bg
   frame $topwin.menubar -relief raised -bd 2 
   toolbar_toolbar $topwin
   menubutton $topwin.menubar.file -text "File" -menu $topwin.menubar.file.menu -padx 3 -pady 0
@@ -3859,19 +3867,19 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.option.menu add separator
   $topwin.menubar.option.menu add radiobutton -label "Spice netlist" -variable netlist_type -value spice \
        -accelerator {Shift+V} \
-       -command "xschem netlist_type spice"
+       -command "xschem set netlist_type spice"
   $topwin.menubar.option.menu add radiobutton -label "VHDL netlist" -variable netlist_type -value vhdl \
        -accelerator {Shift+V} \
-       -command "xschem netlist_type vhdl"
+       -command "xschem set netlist_type vhdl"
   $topwin.menubar.option.menu add radiobutton -label "Verilog netlist" -variable netlist_type -value verilog \
        -accelerator {Shift+V} \
-       -command "xschem netlist_type verilog"
+       -command "xschem set netlist_type verilog"
   $topwin.menubar.option.menu add radiobutton -label "tEDAx netlist" -variable netlist_type -value tedax \
        -accelerator {Shift+V} \
-       -command "xschem netlist_type tedax"
+       -command "xschem set netlist_type tedax"
   $topwin.menubar.option.menu add radiobutton -label "Symbol global attrs" -variable netlist_type -value symbol \
        -accelerator {Shift+V} \
-       -command "xschem netlist_type symbol"
+       -command "xschem set netlist_type symbol"
   $topwin.menubar.edit.menu add command -label "Undo" -command "xschem undo; xschem redraw" -accelerator U
   toolbar_create EditUndo "xschem undo; xschem redraw" "Undo" $topwin
   $topwin.menubar.edit.menu add command -label "Redo" -command "xschem redo; xschem redraw" -accelerator {Shift+U}
@@ -4166,14 +4174,14 @@ proc build_widgets { {topwin {} } } {
   frame $topwin.statusbar  
   label $topwin.statusbar.1   -text "STATUS BAR 1"  
   label $topwin.statusbar.2   -text "SNAP:"
-  entry $topwin.statusbar.3 -textvariable cadsnap -relief sunken -bg white \
+  entry $topwin.statusbar.3 -relief sunken -bg white \
          -width 10 -foreground black -takefocus 0
   label $topwin.statusbar.4   -text "GRID:"
-  entry $topwin.statusbar.5 -textvariable cadgrid -relief sunken -bg white \
+  entry $topwin.statusbar.5 -relief sunken -bg white \
          -width 10 -foreground black -takefocus 0
   label $topwin.statusbar.6   -text "NETLIST MODE:"
-  entry $topwin.statusbar.7 -textvariable netlist_type -relief sunken -bg white \
-         -width 8 -state disabled -disabledforeground black 
+  label $topwin.statusbar.7 -relief sunken -bg white \
+         -width 8 
   label $topwin.statusbar.8 -activebackground red -text {} 
 }
 
@@ -4364,6 +4372,9 @@ set_ne globfilter {*}
 ## list of tcl procedures to load at end of xschem.tcl
 set_ne tcl_files {}
 set_ne netlist_dir "$USER_CONF_DIR/simulations"
+# this global exists only for netlist_type radiobuttons, don't use, use [xschem] subcommand to get/set values
+# it is also used in xschemrc to set initial netlist type.
+set_ne netlist_type spice
 set_ne local_netlist_dir 0 ;# if set use <sch_dir>/simulation for netlist and sims
 set_ne bus_replacement_char {} ;# use {<>} to replace [] with <> in bussed signals
 set_ne hspice_netlist 1
@@ -4372,7 +4383,6 @@ set_ne spiceprefix 1
 set_ne verilog_2001 1
 set_ne split_files 0
 set_ne flat_netlist 0
-set_ne netlist_type spice
 set_ne netlist_show 0
 set_ne color_ps 1
 set_ne transparent_svg 0

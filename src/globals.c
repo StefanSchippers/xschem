@@ -178,7 +178,7 @@ char old_winpath[PATH_MAX] = ".drw";
 /* ---------------------------------------------------------- */
 /* Cmdline options (used at xinit, and then not used anymore) */
 /* ---------------------------------------------------------- */
-int cli_opt_netlist_type = -1;
+int cli_opt_netlist_type = 0;
 char cli_opt_plotfile[PATH_MAX] = "";
 
 

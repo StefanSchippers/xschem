@@ -112,6 +112,10 @@ void check_opt(char *opt, char *optval, int type)
         dbg(1, "process_options(): set netlist type to spice\n");
         cli_opt_netlist_type=CAD_SPICE_NETLIST;
 
+    } else if( (type == SHORT && *opt == 'y') || (type == LONG && !strcmp("symbol", opt)) ) {
+        dbg(1, "process_options(): set netlist type to symbol\n");
+        cli_opt_netlist_type=CAD_SYMBOL_ATTRS;
+
     } else if( (type == SHORT && *opt == 'V') || (type == LONG && !strcmp("vhdl", opt)) ) {
         dbg(1, "process_options(): set netlist type to vhdl\n");
         cli_opt_netlist_type=CAD_VHDL_NETLIST;

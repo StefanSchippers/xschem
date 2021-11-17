@@ -389,19 +389,6 @@ void free_gc()
   }
 }
 
-void get_netlist_type_from_tcl(void)
-{
-  if(xctx->netlist_type==-1) {
-   if(!strcmp(tclgetvar("netlist_type"),"vhdl") ) xctx->netlist_type=CAD_VHDL_NETLIST;
-   else if(!strcmp(tclgetvar("netlist_type"),"verilog") ) xctx->netlist_type=CAD_VERILOG_NETLIST;
-   else if(!strcmp(tclgetvar("netlist_type"),"tedax") ) xctx->netlist_type=CAD_TEDAX_NETLIST;
-   else if(!strcmp(tclgetvar("netlist_type"),"symbol") ) xctx->netlist_type=CAD_SYMBOL_ATTRS;
-   else xctx->netlist_type=CAD_SPICE_NETLIST;
-  } else {
-    override_netlist_type(-1); /* set tcl netlist_type */
-  }
-}
-
 void alloc_xschem_data(const char *top_path)
 {
   int i, j;
@@ -572,7 +559,7 @@ void alloc_xschem_data(const char *top_path)
   xctx->n_active_layers = 0;
   xctx->active_layer=my_calloc(563, cadlayers, sizeof(int));
   xctx->hide_symbols = 0;
-  xctx->netlist_type = -1;
+  xctx->netlist_type = CAD_SPICE_NETLIST;
   xctx->top_path = NULL;
   my_strdup2(1296, &xctx->top_path, top_path);
   xctx->fill_type=my_calloc(640, cadlayers, sizeof(int));
@@ -804,7 +791,6 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
       my_strdup(117, &current_file, filename);
       xctx = NULL;      /* reset for preview */
       alloc_xschem_data(""); /* alloc data into xctx */
-      get_netlist_type_from_tcl();
       init_pixdata(); /* populate xctx->fill_type array that is used in create_gc() to set fill styles */
       preview_xctx = xctx;
       preview_xctx->window = pre_window;
@@ -1479,10 +1465,18 @@ int Tcl_AppInit(Tcl_Interp *inter)
  xctx->draw_window=atoi(tclgetvar("draw_window"));
 
  /* set global variables fetching data from tcl code */
- xctx->netlist_type = cli_opt_netlist_type;
-
- get_netlist_type_from_tcl();
-
+ if(cli_opt_netlist_type) {
+   xctx->netlist_type = cli_opt_netlist_type;
+   set_tcl_netlist_type();
+ } else {
+   const char *n;
+   n = tclgetvar("netlist_type");
+   if(!strcmp(n, "spice")) xctx->netlist_type = CAD_SPICE_NETLIST;
+   else if(!strcmp(n, "vhdl")) xctx->netlist_type = CAD_VHDL_NETLIST;
+   else if(!strcmp(n, "verilog")) xctx->netlist_type = CAD_VERILOG_NETLIST;
+   else if(!strcmp(n, "tedax")) xctx->netlist_type = CAD_TEDAX_NETLIST;
+   else if(!strcmp(n, "symbol")) xctx->netlist_type = CAD_SYMBOL_ATTRS;
+ }
  init_pixdata();/* populate xctx->fill_type array that is used in create_gc() to set fill styles */
  init_color_array(0.0, 0.0);
  my_snprintf(tmp, S(tmp), "%d",debug_var);
