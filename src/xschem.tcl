@@ -2305,7 +2305,7 @@ proc edit_vi_prop {txtlabel} {
   global XSCHEM_TMP_DIR retval symbol prev_symbol rcode debug_var editor
   global user_wants_copy_cell
  
-  set netlist_dir [xschem get netlist_type]
+  set netlist_type [xschem get netlist_type]
   set user_wants_copy_cell 0
   set rcode {}
   set filename .xschem_edit_file.[pid]
