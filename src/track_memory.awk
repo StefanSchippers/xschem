@@ -6,6 +6,7 @@
 # and the allocation that was not freed, with the source code line.
 # total and leak should indicate same amount of bytes, it is a cross check for the script.
 BEGIN{
+  show_source = 1
   max = 0
   total = 0 
   malloc = 0
@@ -73,9 +74,11 @@ END{
     stale++
     leak+= address[i]
     print "  address[ " i ", " idx[i] " ]= " address[i]
-    pipe = "egrep -n 'my_(malloc|calloc|realloc|free)\(" idx[i] ",' *.c xschem.h"
-    while( pipe | getline a) print "    " a
-    close(pipe)
+    if(show_source) {
+      pipe = "egrep -n 'my_(malloc|calloc|realloc|free)\(" idx[i] ",' *.c xschem.h"
+      while( pipe | getline a) print "    " a
+      close(pipe)
+    }
   }
   print "Number of unfreed pointers = " stale
   # as a crosscheck 'leak' should be equal to 'total'.
