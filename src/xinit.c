@@ -838,7 +838,7 @@ void new_schematic(const char *what, const char *top_path, const char *tk_win_pa
   Tk_Window tkwin;
 
   if(!strcmp(what, "create")) {
-    dbg(0, "new_schematic() create, save ctx tk_win_path=%s\n", tk_win_path);
+    dbg(1, "new_schematic() create, save ctx tk_win_path=%s\n", tk_win_path);
     if(cnt == 0) {
       for(i = 0; i < MAX_NEW_WINDOWS; i++) {
         save_xctx[i] = NULL;
