@@ -1155,7 +1155,7 @@ extern int set_different_token(char **s,const char *new, const char *old, int ob
 extern void print_hilight_net(int show);
 extern void change_layer();
 extern void launcher();
-extern void windowid();
+extern void windowid(const char *winpath);
 extern void preview_window(const char *what, const char *tk_win_path, const char *filename);
 extern void new_schematic(const char *what, const char *top_path, const char *tk_win_path, const char *filename);
 extern int window_state (Display *disp, Window win, char *arg);

@@ -2440,7 +2440,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1],"windowid")) /* used by xschem.tcl for configure events */
     {
       cmd_found = 1;
-      windowid();
+      if(argc >= 3) {
+        windowid(argv[2]);
+      }
     }
    
     else if(!strcmp(argv[1],"windows"))

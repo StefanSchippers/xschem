@@ -149,7 +149,8 @@ int window_state (Display *disp, Window win, char *arg) {/*{{{*/
 
 /* ----------------------------------------------------------------------- */
 
-void windowid()
+/* used to set icon */
+void windowid(const char *winpath)
 {
   int i;
   Display *display;
@@ -160,10 +161,11 @@ void windowid()
   Window *framewin_child_ptr;
   unsigned int framewindow_nchildren;
 
+  dbg(0, "windowid(): winpath=%s\n", winpath);
   framewindow_nchildren =0;
   mainwindow=Tk_MainWindow(interp);
   display = Tk_Display(mainwindow);
-  tcleval( "winfo id .");
+  Tcl_VarEval(interp, "winfo id ", winpath, NULL);
   sscanf(tclresult(), "0x%x", (unsigned int *) &ww);
   framewin = ww;
   XQueryTree(display, framewin, &rootwindow, &parent_of_topwindow, &framewin_child_ptr, &framewindow_nchildren);
@@ -180,13 +182,13 @@ void windowid()
   if(!cad_icon_pixmap) {
     i=XpmCreatePixmapFromData(display,framewin, cad_icon,&cad_icon_pixmap, &cad_icon_mask, NULL);
     dbg(1, "windowid(): creating icon pixmap returned: %d\n",i);
-    hints_ptr = XAllocWMHints();
-    hints_ptr->icon_pixmap = cad_icon_pixmap ;
-    hints_ptr->icon_mask = cad_icon_mask ;
-    hints_ptr->flags = IconPixmapHint | IconMaskHint;
-    XSetWMHints(display, parent_of_topwindow, hints_ptr);
-    XFree(hints_ptr);
   }
+  hints_ptr = XAllocWMHints();
+  hints_ptr->icon_pixmap = cad_icon_pixmap ;
+  hints_ptr->icon_mask = cad_icon_mask ;
+  hints_ptr->flags = IconPixmapHint | IconMaskHint;
+  XSetWMHints(display, parent_of_topwindow, hints_ptr);
+  XFree(hints_ptr);
 #endif
   Tcl_SetResult(interp,"",TCL_STATIC);
 }

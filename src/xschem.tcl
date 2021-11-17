@@ -3478,11 +3478,11 @@ proc new_window {what {filename {}} {path {-}}} {
     toplevel $path -bg {} -width 400 -height 400
     build_widgets $path
     pack_widgets $path ;# also does set_bindings $path.drw
+    set_bindings $path.drw
     update
     xschem new_schematic create $path $path.drw [abs_sym_path $filename]
     # set bindings after creating new schematic otherwise 
     # a Configure or Expose event is sent before window setup completed.
-    set_bindings $path.drw
     save_ctx $path.drw
     return $path
   } elseif { $what eq {destroy}} {
@@ -3668,6 +3668,8 @@ global env has_x OS
   ###
   ### Tk event handling
   ###
+
+  # puts "set_binding: topwin=$topwin"
   if {($OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] > 0 ) && [info exists has_x]} {
     set parent [winfo toplevel $topwin]
   
@@ -3692,11 +3694,7 @@ global env has_x OS
     bind $topwin <Double-Button-1> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-2> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-3> "xschem callback %W -3 %x %y 0 %b 0 %s"
-    if { $topwin eq {.drw} } {
-      bind $topwin <Configure> "xschem windowid; xschem callback %W %T %x %y 0 %w %h 0"
-    } else {
-      bind $topwin <Configure> "xschem callback %W %T %x %y 0 %w %h 0"
-    }
+    bind $topwin <Configure> "xschem windowid $parent; xschem callback %W %T %x %y 0 %w %h 0"
     bind $topwin <ButtonPress> "xschem callback %W %T %x %y 0 %b 0 %s"
     bind $topwin <ButtonRelease> "xschem callback %W %T %x %y 0 %b 0 %s"
     bind $topwin <KeyPress> "xschem callback %W %T %x %y %N 0 0 %s"
