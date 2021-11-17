@@ -1361,9 +1361,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       tcleval("catch { ngspice::resetdata }");
       tcleval("load_file_dialog {Load Schematic} .sch.sym INITIALLOADDIR");
-      my_snprintf(fullname, S(fullname),"%s", abs_sym_path(tclresult(), ""));
+      my_snprintf(fullname, S(fullname),"%s", abs_sym_path(rel_sym_path(tclresult()), ""));
       if( fullname[0] ) {
        Tcl_VarEval(interp, "new_window create ", fullname, NULL);
+       Tcl_VarEval(interp, "update_recent_file {", fullname, "}", NULL);
       }
     }
    
