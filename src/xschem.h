@@ -567,6 +567,7 @@ typedef struct {
   int semaphore;
   int get_tok_size;
   char netlist_name[PATH_MAX];
+  int flat_netlist;
   char current_dirname[PATH_MAX];
   int netlist_unconn_cnt; /* unique count of unconnected pins while netlisting */
   struct instpinentry *instpintable[NBOXES][NBOXES];
@@ -637,6 +638,7 @@ typedef struct {
   int no_undo;
   int draw_single_layer;
   int draw_dots;
+  int only_probes;
   int no_draw;
   int draw_pixmap; /* pixmap used as 2nd buffer */
   int netlist_count; /* netlist counter incremented at any cell being netlisted */
@@ -755,10 +757,8 @@ extern xcb_visualtype_t *visual_xcb;
 extern int cadlayers; 
 extern int has_x; 
 extern int rainbow_colors; 
-extern int flat_netlist;
 extern char *netlist_dir;
 extern int color_ps; 
-extern int only_probes; 
 extern double nocairo_vert_correct;
 extern double cairo_vert_correct;
 extern int constrained_move;
@@ -800,6 +800,7 @@ extern char old_winpath[PATH_MAX]; /* previous focused schematic window (used to
 
 /*********** Cmdline options  (used at xinit, and then not used anymore) ***********/
 extern int cli_opt_netlist_type;
+extern int cli_opt_flat_netlist;
 extern char cli_opt_plotfile[PATH_MAX];
 
 /*********** Following data is relative to the current schematic ***********/

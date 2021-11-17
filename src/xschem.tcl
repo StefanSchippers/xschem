@@ -3650,8 +3650,7 @@ proc save_ctx {context} {
 
 proc housekeeping_ctx {} {
   uplevel #0 {
-      # puts housekeeping_ctx
-      xschem set flat_netlist $flat_netlist
+    # puts housekeeping_ctx
   }
 }
 

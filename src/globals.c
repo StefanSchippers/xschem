@@ -120,10 +120,8 @@ xcb_visualtype_t *visual_xcb;
 int cadlayers=0;
 int has_x=1;
 int rainbow_colors = 0;
-int flat_netlist = 0;
 char *netlist_dir = NULL;
 int color_ps=-1;
-int only_probes = 0;
 double nocairo_vert_correct=0.0;
 /* lift up the text by 'n' pixels (zoom corrected) within the bbox.  */
 /* This correction is used to better align existing schematics */
@@ -179,6 +177,7 @@ char old_winpath[PATH_MAX] = ".drw";
 /* Cmdline options (used at xinit, and then not used anymore) */
 /* ---------------------------------------------------------- */
 int cli_opt_netlist_type = 0;
+int cli_opt_flat_netlist = 0;
 char cli_opt_plotfile[PATH_MAX] = "";
 
 

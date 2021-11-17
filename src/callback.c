@@ -677,8 +677,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     break;
    }
    if(key=='5' && state == 0) { /* 20110112 display only probes */
-    only_probes = !only_probes;
-    tclsetboolvar("only_probes", only_probes);
+    xctx->only_probes = !xctx->only_probes;
+    tclsetboolvar("only_probes", xctx->only_probes);
     toggle_only_probes();
     break;
    }  /* /20110112 */
@@ -1363,8 +1363,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==':')                         /* toggle flat netlist (only spice)  */
    {
-    flat_netlist = !flat_netlist;
-    if(flat_netlist) {
+    xctx->flat_netlist = !xctx->flat_netlist;
+    if(xctx->flat_netlist) {
         tcleval("alert_ { enabling flat netlist} {}");
         tclsetvar("flat_netlist","1");
     }

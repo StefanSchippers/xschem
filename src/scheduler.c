@@ -554,7 +554,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"flat_netlist")) {
-       if( flat_netlist != 0 )
+       if( xctx->flat_netlist != 0 )
          Tcl_SetResult(interp, "1",TCL_STATIC);
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
@@ -2134,7 +2134,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          xctx->draw_window=atoi(argv[3]);
       }
       else if(!strcmp(argv[2],"flat_netlist")) {
-            flat_netlist=atoi(argv[3]);
+            xctx->flat_netlist=atoi(argv[3]);
       }
       else if(!strcmp(argv[2],"hide_symbols")) {
             xctx->hide_symbols=atoi(argv[3]);

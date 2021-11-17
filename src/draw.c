@@ -394,7 +394,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       xctx->inst[n].flags|=1;                    /* ... then SKIP instance now and for following layers */
       return;
     }
-    else if(!only_probes && (xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
+    else if(!xctx->only_probes && (xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
                        (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
       drawrect(4, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0);
       xctx->inst[n].flags|=1;
@@ -564,7 +564,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
     xctx->inst[n].flags|=1;
     return;
    }
-   else if(!only_probes && (xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
+   else if(!xctx->only_probes && (xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
                       (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
      drawtemprect(gc, what, xctx->inst[n].xx1 + xoffset, xctx->inst[n].yy1 + yoffset, 
                             xctx->inst[n].xx2 + xoffset, xctx->inst[n].yy2 + yoffset);
@@ -763,7 +763,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
   y1=Y_TO_SCREEN(liney1);
   x2=X_TO_SCREEN(linex2);
   y2=Y_TO_SCREEN(liney2);
-  /* if(!only_probes && (x2-x1)< 3.0 && fabs(y2-y1) < 3.0) return; */
+  /* if(!xctx->only_probes && (x2-x1)< 3.0 && fabs(y2-y1) < 3.0) return; */
   if( clip(&x1,&y1,&x2,&y2) )
   {
    rr[i].x1=(short)x1;
@@ -779,7 +779,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
   y1=Y_TO_SCREEN(liney1);
   x2=X_TO_SCREEN(linex2);
   y2=Y_TO_SCREEN(liney2);
-  /* if(!only_probes && (x2-x1)< 3.0 && fabs(y2-y1)< 3.0) return; */
+  /* if(!xctx->only_probes && (x2-x1)< 3.0 && fabs(y2-y1)< 3.0) return; */
   if( clip(&x1,&y1,&x2,&y2) )
   {
    if(dash) {
@@ -802,7 +802,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
   y1=Y_TO_SCREEN(liney1);
   x2=X_TO_SCREEN(linex2);
   y2=Y_TO_SCREEN(liney2);
-  /* if(!only_probes && (x2-x1)< 3.0 && fabs(y2-y1)< 3.0) return; */
+  /* if(!xctx->only_probes && (x2-x1)< 3.0 && fabs(y2-y1)< 3.0) return; */
   if( clip(&x1,&y1,&x2,&y2) )
   {
    if(dash) {
@@ -1173,7 +1173,7 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
   y1=Y_TO_SCREEN(recty1);
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
-  if(!only_probes && (x2-x1)< 3.0 && (y2-y1)< 3.0) return;
+  if(!xctx->only_probes && (x2-x1)< 3.0 && (y2-y1)< 3.0) return;
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    if(xctx->draw_window) XFillRectangle(display, xctx->window, xctx->gcstipple[c], (int)x1, (int)y1,
@@ -1199,7 +1199,7 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
   y1=Y_TO_SCREEN(recty1);
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
-  if(!only_probes && (x2-x1)< 3.0 && (y2-y1)< 3.0) return;
+  if(!xctx->only_probes && (x2-x1)< 3.0 && (y2-y1)< 3.0) return;
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    r[i].x=(short)x1;
@@ -1303,7 +1303,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   if( !rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
     return;
   }
-  if( !only_probes && (x2-x1)<3.0 && (y2-y1)<3.0) return;
+  if( !xctx->only_probes && (x2-x1)<3.0 && (y2-y1)<3.0) return;
 
   p = my_malloc(38, sizeof(XPoint) * points);
   for(i=0;i<points; i++) {
@@ -1373,7 +1373,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
   y1=Y_TO_SCREEN(recty1);
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
-  /* if(!only_probes && (x2-x1)< 3.0 && (y2-y1)< 3.0) return; */
+  /* if(!xctx->only_probes && (x2-x1)< 3.0 && (y2-y1)< 3.0) return; */
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    if(dash) {
@@ -1409,7 +1409,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
   y1=Y_TO_SCREEN(recty1);
   x2=X_TO_SCREEN(rectx2);
   y2=Y_TO_SCREEN(recty2);
-  /* if(!only_probes && (x2-x1)< 3.0 && (y2-y1)< 3.0) return; */
+  /* if(!xctx->only_probes && (x2-x1)< 3.0 && (y2-y1)< 3.0) return; */
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    r[i].x=(short)x1;
@@ -1511,7 +1511,7 @@ void draw(void)
       hash_instances();
       hash_wires();
     }
-    if(!only_probes) {
+    if(!xctx->only_probes) {
         struct iterator_ctx ctx;
         dbg(3, "draw(): check4\n");
         for(c=0;c<cadlayers;c++) {
@@ -1630,7 +1630,7 @@ void draw(void)
             #endif
           }
         }
-    } /* !only_probes, 20110112 */
+    } /* !xctx->only_probes, 20110112 */
     draw_hilight_net(xctx->draw_window);
     if(!xctx->draw_window) {
       XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,

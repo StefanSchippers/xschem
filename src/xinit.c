@@ -440,6 +440,7 @@ void alloc_xschem_data(const char *top_path)
   xctx->semaphore = 0;
   xctx->get_tok_size = 0;
   xctx->netlist_name[0] = '\0';
+  xctx->flat_netlist = 0;
   xctx->plotfile[0] = '\0';
   xctx->netlist_unconn_cnt = 0; /* unique count of unconnected pins while netlisting */
   xctx->current_dirname[0] = '\0';
@@ -552,6 +553,7 @@ void alloc_xschem_data(const char *top_path)
   xctx->no_undo = 0;
   xctx->draw_single_layer = -1;
   xctx->draw_dots = 1;
+  xctx->only_probes = 0;
   xctx->no_draw = 0;
   xctx->draw_pixmap = 1;
   xctx->gc=my_calloc(638, cadlayers, sizeof(GC));
@@ -1466,7 +1468,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  cairo_vert_correct = tclgetdoublevar("cairo_vert_correct");
  nocairo_vert_correct = tclgetdoublevar("nocairo_vert_correct");
  cairo_font_scale = tclgetdoublevar("cairo_font_scale");
- only_probes = tclgetdoublevar("only_probes");
 
  /*                             */
  /*  [m]allocate dynamic memory */
@@ -1481,7 +1482,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
  pixmap=my_calloc(636, cadlayers, sizeof(Pixmap));
 
  my_strncpy(xctx->plotfile, cli_opt_plotfile, S(xctx->plotfile));
- xctx->draw_window=atoi(tclgetvar("draw_window"));
+ xctx->draw_window = tclgetintvar("draw_window");
+ xctx->only_probes = tclgetintvar("only_probes");
 
  /* set global variables fetching data from tcl code */
  if(cli_opt_netlist_type) {
@@ -1501,8 +1503,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
  my_snprintf(tmp, S(tmp), "%d",debug_var);
  tclsetvar("debug_var",tmp );
  tclsetvar("menu_debug_var",debug_var ? "1" : "0" );
- if(flat_netlist) tclsetvar("flat_netlist","1");
-
+ if(cli_opt_flat_netlist) {
+   tclsetvar("flat_netlist","1");
+   xctx->flat_netlist = 1;
+ }
  xctx->xschem_w = CADWIDTH;
  xctx->xschem_h = CADHEIGHT;
  xctx->areaw = CADWIDTH+4*INT_WIDTH(xctx->lw);  /* clip area extends 1 pixel beyond physical xctx->window area */
@@ -1728,7 +1732,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  xctx->pending_fullzoom=1;
  if(do_netlist) {
    if(debug_var>=1) {
-     if(flat_netlist)
+     if(xctx->flat_netlist)
        fprintf(errfp, "xschem: flat netlist requested\n");
    }
    if(!filename) {

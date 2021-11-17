@@ -203,8 +203,8 @@ void toggle_only_probes()
 {
   static double save_lw;
 
-  only_probes =  tclgetboolvar("only_probes");
-  if(only_probes) {
+  xctx->only_probes =  tclgetboolvar("only_probes");
+  if(xctx->only_probes) {
     save_lw = xctx->lw;
     xctx->lw=3.0;
   } else {

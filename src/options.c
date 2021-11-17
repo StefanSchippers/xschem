@@ -44,7 +44,7 @@ void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == SHORT && *opt == 'f') || (type == LONG && !strcmp("flat_netlist", opt)) ) {
         dbg(1, "process_options(): set flat netlist\n");
-        flat_netlist=1;
+        cli_opt_flat_netlist=1;
 
     } else if( (type == SHORT && *opt == 'r') || (type == LONG && !strcmp("no_readline", opt)) ) {
         no_readline=1;
