@@ -3451,10 +3451,19 @@ proc every {interval script} {
 }
 
 #### TEST MODE #####
-proc new_window {what {path {}} {filename {}}} {
+proc new_window {what {filename {}} {path {-}}} {
   if { $what eq {create}} {
     if {$tctx::cnt == 0} {
       save_ctx .drw
+    }
+    incr tctx::cnt
+    if {$path eq {-}} {
+      for {set i 1} {$i <= $tctx::cnt} {incr i} {
+        if {![winfo exists .x$i]} {
+          set path .x$i
+          break
+        }
+      }
     }
     toplevel $path -bg {} -width 400 -height 400
     update
@@ -3463,18 +3472,21 @@ proc new_window {what {path {}} {filename {}}} {
     update
     xschem new_schematic create $path $path.drw [file normalize $filename]
     save_ctx $path.drw
-    incr tctx::cnt
+    return $path
   } elseif { $what eq {destroy}} {
-    # xschem new_schematic destroy also decrements tctx::cnt
+    set path $filename
     xschem new_schematic switch $path $path.drw {}
     #### no need to switch tcl context to something that is about to be deleted
     # restore_ctx $path.drw
     # housekeeping_ctx
+    ####
+    # xschem new_schematic destroy also decrements tctx::cnt
     xschem new_schematic destroy $path $path.drw {}
     #### following 3 lines already done in new_schematic("destroy",...)
     # restore_ctx .drw
     # housekeeping_ctx
     # xschem new_schematic switch . .drw {}
+    ####
   } elseif { $what eq {destroy_all}} {
     set all_closed 1
     foreach i [info globals .*.drw] {
@@ -3483,11 +3495,13 @@ proc new_window {what {path {}} {filename {}}} {
       #### no need to switch tcl context to something that is about to be deleted
       # restore_ctx $i
       # housekeeping_ctx
+      ####
       xschem new_schematic destroy $j $i {}
       #### following 3 lines already done in new_schematic("destroy",...)
       # restore_ctx .drw
       # housekeeping_ctx
       # xschem new_schematic switch . .drw {}
+      ####
       if { [winfo exists $i] } { set all_closed 0} 
     }
     return $all_closed
@@ -3498,8 +3512,8 @@ proc new_window {what {path {}} {filename {}}} {
 #### TEST MODE #####
 proc test1 {} {
   xschem load [abs_sym_path rom8k.sch]
-  new_window create .xx [abs_sym_path mos_power_ampli.sch]
-  new_window create .yy [abs_sym_path solar_panel.sch]
+  new_window create [abs_sym_path mos_power_ampli.sch] .xx
+  new_window create [abs_sym_path solar_panel.sch] .yy
 }
 
 #### TEST MODE #####
@@ -3724,30 +3738,46 @@ proc build_widgets { {topwin {} } } {
   global cadgrid draw_window show_pin_net_names toolbar_visible hide_symbols
   global disable_unique_names persistent_command autotrim_wires en_hilight_conn_inst
   global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry simulate_bg
-  frame $topwin.menubar -relief raised -bd 2 
+  set mbg {}
+  set bbg {-highlightthickness 0}
+  if { $topwin ne {}} {
+    set mbg {-bg gray50}
+    set bbg {-bg gray50 -highlightthickness 0}
+  }
+  eval frame $topwin.menubar -relief raised -bd 2 $mbg
   toolbar_toolbar $topwin
-  menubutton $topwin.menubar.file -text "File" -menu $topwin.menubar.file.menu -padx 3 -pady 0
+  eval menubutton $topwin.menubar.file -text "File" -menu $topwin.menubar.file.menu \
+   -padx 3 -pady 0 $mbg
   menu $topwin.menubar.file.menu -tearoff 0
-  menubutton $topwin.menubar.edit -text "Edit" -menu $topwin.menubar.edit.menu -padx 3 -pady 0
+  eval menubutton $topwin.menubar.edit -text "Edit" -menu $topwin.menubar.edit.menu \
+   -padx 3 -pady 0 $mbg
   menu $topwin.menubar.edit.menu -tearoff 0
-  menubutton $topwin.menubar.option -text "Options" -menu $topwin.menubar.option.menu -padx 3 -pady 0
+  eval menubutton $topwin.menubar.option -text "Options" -menu $topwin.menubar.option.menu \
+   -padx 3 -pady 0 $mbg
   menu $topwin.menubar.option.menu -tearoff 0
-  menubutton $topwin.menubar.view -text "View" -menu $topwin.menubar.view.menu -padx 3 -pady 0
+  eval menubutton $topwin.menubar.view -text "View" -menu $topwin.menubar.view.menu \
+   -padx 3 -pady 0 $mbg
   menu $topwin.menubar.view.menu -tearoff 0
-  menubutton $topwin.menubar.prop -text "Properties" -menu $topwin.menubar.prop.menu -padx 3 -pady 0
+  eval menubutton $topwin.menubar.prop -text "Properties" -menu $topwin.menubar.prop.menu \
+   -padx 3 -pady 0 $mbg
   menu $topwin.menubar.prop.menu -tearoff 0
-  menubutton $topwin.menubar.layers -text "Layers" -menu $topwin.menubar.layers.menu -padx 3 -pady 0 \
-   -background [lindex $colors 4]
+  eval menubutton $topwin.menubar.layers -text "Layers" -menu $topwin.menubar.layers.menu \
+   -padx 3 -pady 0 -background [lindex $colors 4]
   menu $topwin.menubar.layers.menu -tearoff 0
-  menubutton $topwin.menubar.tools -text "Tools" -menu $topwin.menubar.tools.menu -padx 3 -pady 0
+  eval menubutton $topwin.menubar.tools -text "Tools" -menu $topwin.menubar.tools.menu \
+   -padx 3 -pady 0 $mbg
   menu $topwin.menubar.tools.menu -tearoff 0
-  menubutton $topwin.menubar.sym -text "Symbol" -menu $topwin.menubar.sym.menu -padx 3 -pady 0
+  eval menubutton $topwin.menubar.sym -text "Symbol" -menu $topwin.menubar.sym.menu \
+   -padx 3 -pady 0 $mbg
   menu $topwin.menubar.sym.menu -tearoff 0
-  menubutton $topwin.menubar.hilight -text "Highlight" -menu $topwin.menubar.hilight.menu -padx 3 -pady 0
+  eval menubutton $topwin.menubar.hilight -text "Highlight" -menu $topwin.menubar.hilight.menu \
+   -padx 3 -pady 0 $mbg
   menu $topwin.menubar.hilight.menu -tearoff 0
-  menubutton $topwin.menubar.simulation -text "Simulation" -menu $topwin.menubar.simulation.menu -padx 3 -pady 0
+  eval menubutton $topwin.menubar.simulation -text "Simulation" -menu $topwin.menubar.simulation.menu \
+   -padx 3 -pady 0 $mbg
   menu $topwin.menubar.simulation.menu -tearoff 0
-  menubutton $topwin.menubar.help -text "Help" -menu $topwin.menubar.help.menu -padx 3 -pady 0
+  eval menubutton $topwin.menubar.help -text "Help" -menu $topwin.menubar.help.menu \
+  -padx 3 -pady 0 $mbg
   menu $topwin.menubar.help.menu -tearoff 0
   $topwin.menubar.help.menu add command -label "Help" -command "textwindow \"${XSCHEM_SHAREDIR}/xschem.help\" ro" \
        -accelerator {?}
@@ -3773,6 +3803,7 @@ proc build_widgets { {topwin {} } } {
       xschem new_symbol_window
     }
   $topwin.menubar.file.menu add command -label "Open" -command "xschem load" -accelerator {Ctrl+O}
+  $topwin.menubar.file.menu add command -label {Open new window [experimental]} -command "xschem load_new_window"
   toolbar_create FileOpen "xschem load" "Open File" $topwin
   $topwin.menubar.file.menu add command -label "Delete files" -command "xschem delete_files" -accelerator {Shift-D}
 
@@ -3915,16 +3946,12 @@ proc build_widgets { {topwin {} } } {
   toolbar_create EditPushSym "xschem descend_symbol" "Push symbol" $topwin
   $topwin.menubar.edit.menu add command -label "Pop" -command "xschem go_back" -accelerator Ctrl+E
   toolbar_create EditPop "xschem go_back" "Pop" $topwin
-  button $topwin.menubar.waves -text "Waves"  -activebackground red  -takefocus 0 -padx 2 -pady 0 \
-    -command {
-      waves
-     }
-  button $topwin.menubar.simulate -text "Simulate"  -activebackground red  -takefocus 0 -padx 2 -pady 0 \
-    -command "simulate_button $topwin.menubar.simulate"
-  button $topwin.menubar.netlist -text "Netlist"  -activebackground red  -takefocus 0 -padx 2 -pady 0 \
-    -command {
-      xschem netlist
-     }
+  eval button $topwin.menubar.waves -text "Waves"  -activebackground red  -takefocus 0 \
+   -padx 2 -pady 0 -command waves $bbg
+  eval button $topwin.menubar.simulate -text "Simulate"  -activebackground red  -takefocus 0 \
+   -padx 2 -pady 0 -command \{simulate_button $topwin.menubar.simulate\} $bbg
+  eval button $topwin.menubar.netlist -text "Netlist"  -activebackground red  -takefocus 0 \
+   -padx 2 -pady 0 -command \{xschem netlist\} $bbg
   # create  $topwin.menubar.layers.menu
   create_layers_menu $topwin
   $topwin.menubar.view.menu add checkbutton -label "Show ERC Info window" -variable show_infowindow \

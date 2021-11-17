@@ -1354,6 +1354,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         ask_new_file();
       }
     }
+    else if(!strcmp(argv[1],"load_new_window") )
+    {
+      char fullname[PATH_MAX];
+
+      cmd_found = 1;
+      tcleval("catch { ngspice::resetdata }");
+      tcleval("load_file_dialog {Load Schematic} .sch.sym INITIALLOADDIR");
+      my_snprintf(fullname, S(fullname),"%s", tclresult());
+      if( fullname[0] ) {
+       Tcl_VarEval(interp, "new_window create ", fullname, NULL);
+      }
+    }
    
     else if(!strcmp(argv[1], "load_symbol")) 
     { 
