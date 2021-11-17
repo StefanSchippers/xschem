@@ -3450,7 +3450,6 @@ proc every {interval script} {
     after $interval [list every $interval $script]
 }
 
-#### TEST MODE #####
 proc new_window {what {filename {}} {path {-}}} {
   if { $what eq {create}} {
     if {$tctx::cnt == 0} {
@@ -3466,9 +3465,9 @@ proc new_window {what {filename {}} {path {-}}} {
       }
     }
     toplevel $path -bg {} -width 400 -height 400
-    update
     build_widgets $path
     pack_widgets $path ;# also does set_bindings $path.drw
+    set_bindings $path.drw
     update
     xschem new_schematic create $path $path.drw [abs_sym_path $filename]
     save_ctx $path.drw
@@ -3656,49 +3655,55 @@ global env has_x OS
   ###
   ### Tk event handling
   ###
-  set parent [winfo toplevel $topwin]
-
-  bind $parent <Expose> [list raise_dialog $parent $topwin]
-  bind $parent <Visibility> [list raise_dialog $parent $topwin]
-  bind $parent <FocusIn> [list raise_dialog $parent $topwin]
-  # send non-existent event just to force change schematic window context.
-  bind $parent <Enter> "
-     if { {$parent} eq {.}} {
-       if { {%W} eq {$parent}} {
-         # send a fake event just to force context switching in callback()
-         xschem callback .drw -55 0 0 0 0 0 0
+  if {($OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] > 0 ) && [info exists has_x]} {
+    set parent [winfo toplevel $topwin]
+  
+    bind $parent <Expose> [list raise_dialog $parent $topwin]
+    bind $parent <Visibility> [list raise_dialog $parent $topwin]
+    bind $parent <FocusIn> [list raise_dialog $parent $topwin]
+    # send non-existent event just to force change schematic window context.
+    bind $parent <Enter> "
+       if { {$parent} eq {.}} {
+         if { {%W} eq {$parent}} {
+           # send a fake event just to force context switching in callback()
+           xschem callback .drw -55 0 0 0 0 0 0
+         }
+       } else {
+         if { {%W} eq {$parent}} {
+           # send a fake event just to force context switching in callback()
+           xschem callback $parent.drw -55 0 0 0 0 0 0
+         }
        }
-     } else {
-       if { {%W} eq {$parent}} {
-         # send a fake event just to force context switching in callback()
-         xschem callback $parent.drw -55 0 0 0 0 0 0
-       }
-     }
-  "
-  bind $topwin <Expose> "xschem callback %W %T %x %y 0 %w %h %s"
-  bind $topwin <Double-Button-1> "xschem callback %W -3 %x %y 0 %b 0 %s"
-  bind $topwin <Double-Button-2> "xschem callback %W -3 %x %y 0 %b 0 %s"
-  bind $topwin <Double-Button-3> "xschem callback %W -3 %x %y 0 %b 0 %s"
-  bind $topwin <Configure> "xschem windowid; xschem callback %W %T %x %y 0 %w %h 0"
-  bind $topwin <ButtonPress> "xschem callback %W %T %x %y 0 %b 0 %s"
-  bind $topwin <ButtonRelease> "xschem callback %W %T %x %y 0 %b 0 %s"
-  bind $topwin <KeyPress> "xschem callback %W %T %x %y %N 0 0 %s"
-  bind $topwin <KeyRelease> "xschem callback %W %T %x %y %N 0 0 %s"
-  bind $topwin <Motion> "focus $topwin; xschem callback %W %T %x %y 0 0 0 %s"
-  bind $topwin <Enter> "focus $topwin; xschem callback %W %T %x %y 0 0 0 0"
-  bind $topwin <Unmap> " wm withdraw .infotext; set show_infowindow 0 "
-  bind $topwin  "?" {textwindow "${XSCHEM_SHAREDIR}/xschem.help"}
-
-  # on Windows Alt key mask is reported as 131072 (1<<17) so build masks manually with values passed from C code 
-  if {$OS == "Windows" } {
-    bind $topwin <Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$Mod1Mask}]}
-    bind $topwin <Control-Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$ControlMask + $Mod1Mask}]}
-    bind $topwin <Shift-Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$ShiftMask + $Mod1Mask}]}
-    bind $topwin <MouseWheel> {
-      if {%D<0} {
-        xschem callback %W 4 %x %y 0 5 0 %s
-      } else {
-        xschem callback %W 4 %x %y 0 4 0 %s
+    "
+    bind $topwin <Expose> "xschem callback %W %T %x %y 0 %w %h %s"
+    bind $topwin <Double-Button-1> "xschem callback %W -3 %x %y 0 %b 0 %s"
+    bind $topwin <Double-Button-2> "xschem callback %W -3 %x %y 0 %b 0 %s"
+    bind $topwin <Double-Button-3> "xschem callback %W -3 %x %y 0 %b 0 %s"
+    if { $topwin eq {.drw} } {
+      bind $topwin <Configure> "xschem windowid; xschem callback %W %T %x %y 0 %w %h 0"
+    } else {
+      bind $topwin <Configure> "xschem callback %W %T %x %y 0 %w %h 0"
+    }
+    bind $topwin <ButtonPress> "xschem callback %W %T %x %y 0 %b 0 %s"
+    bind $topwin <ButtonRelease> "xschem callback %W %T %x %y 0 %b 0 %s"
+    bind $topwin <KeyPress> "xschem callback %W %T %x %y %N 0 0 %s"
+    bind $topwin <KeyRelease> "xschem callback %W %T %x %y %N 0 0 %s"
+    bind $topwin <Motion> "focus $topwin; xschem callback %W %T %x %y 0 0 0 %s"
+    bind $topwin <Enter> "focus $topwin; xschem callback %W %T %x %y 0 0 0 0"
+    bind $topwin <Unmap> " wm withdraw .infotext; set show_infowindow 0 "
+    bind $topwin  "?" {textwindow "${XSCHEM_SHAREDIR}/xschem.help"}
+  
+    # on Windows Alt key mask is reported as 131072 (1<<17) so build masks manually with values passed from C code 
+    if {$OS == "Windows" } {
+      bind $topwin <Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$Mod1Mask}]}
+      bind $topwin <Control-Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$ControlMask + $Mod1Mask}]}
+      bind $topwin <Shift-Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$ShiftMask + $Mod1Mask}]}
+      bind $topwin <MouseWheel> {
+        if {%D<0} {
+          xschem callback %W 4 %x %y 0 5 0 %s
+        } else {
+          xschem callback %W 4 %x %y 0 4 0 %s
+        }
       }
     }
   }

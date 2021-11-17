@@ -874,6 +874,8 @@ void new_schematic(const char *what, const char *top_path, const char *tk_win_pa
     enable_layers();
     build_colors(0.0, 0.0);
     resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
+    /* draw empty window so if following load fails due to missing file window appears correctly drawn */
+    zoom_full(1, 0, 1, 0.97);
     load_schematic(1,filename, 1);
     zoom_full(1, 0, 1, 0.97); /* draw */
   } else if(!strcmp(what, "destroy")) {
@@ -1605,7 +1607,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
     dbg(1, "Tcl_AppInit(): done xinit()\n");
     /* Set backing store window attribute */
     winattr.backing_store = WhenMapped;
-    /* winattr.backing_store = NotUseful;*/
+    /* winattr.backing_store = NotUseful; */
     Tk_ChangeWindowAttributes(tkwindow, CWBackingStore, &winattr);
 
     dbg(1, "Tcl_AppInit(): sizeof xInstance=%lu , sizeof xSymbol=%lu\n",
@@ -1642,7 +1644,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* Completing tk windows creation (see xschem.tcl, pack_widgets) and event binding */
  /* *AFTER* X initialization done                                                    */
  /*                                                                                  */
- if(has_x) tcleval("pack_widgets");
+ if(has_x) tcleval("pack_widgets; set_bindings .drw");
 
  fs=tclgetintvar("fullscreen");
  if(fs) {

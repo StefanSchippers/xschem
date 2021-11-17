@@ -662,6 +662,7 @@ void drawgrid()
   int i=0;
   int big_gr;
   
+  dbg(1, "drawgrid(): draw grid\n");
   big_gr = tclgetboolvar("big_grid_points");
   if( !tclgetboolvar("draw_grid") || !has_x) return;
   delta=tclgetdoublevar("cadgrid")*xctx->mooz;
@@ -1499,7 +1500,7 @@ void draw(void)
     if(xctx->draw_window) 
       XFillRectangle(display, xctx->window, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
                      xctx->areaw, xctx->areah);
-    dbg(2, "draw(): window: %d %d %d %d\n",xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
+    dbg(1, "draw(): window: %d %d %d %d\n",xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
     drawgrid();
     x1 = X_TO_XSCHEM(xctx->areax1);
     y1 = Y_TO_XSCHEM(xctx->areay1);
