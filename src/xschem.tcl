@@ -374,7 +374,8 @@ proc update_recent_file {f {topwin {} } } {
     set recentfile [lreplace $recentfile 10 end]
   }
   write_recent_file
-  if { [info exists has_x] } setup_recent_menu $topwin
+  if { [info exists has_x] } setup_recent_menu 0 $topwin
+  if { [info exists has_x] } setup_recent_menu 1 $topwin
 }
 
 proc write_recent_file {} {
@@ -389,15 +390,25 @@ proc write_recent_file {} {
   close $fd
 }
 
-proc setup_recent_menu { { topwin {} } } {
+proc setup_recent_menu { {in_new_window 0} { topwin {} } } {
   global recentfile
-  $topwin.menubar.file.menu.recent delete 0 9
+  if {$in_new_window} {
+    $topwin.menubar.file.menu.recent_new_window delete 0 9
+  } else {
+    $topwin.menubar.file.menu.recent delete 0 9
+  }
   set i 0
   if { [info exists recentfile] } {
     foreach i $recentfile {
-      $topwin.menubar.file.menu.recent add command \
-        -command "xschem load {$i}" \
-        -label [file tail $i]
+      if {$in_new_window} {
+        $topwin.menubar.file.menu.recent_new_window add command \
+          -command "xschem load_new_window {$i}" \
+          -label [file tail $i]
+      } else {
+        $topwin.menubar.file.menu.recent add command \
+          -command "xschem load {$i}" \
+          -label [file tail $i]
+      }
     }
   }
 }
@@ -3808,14 +3819,17 @@ proc build_widgets { {topwin {} } } {
       xschem new_symbol_window
     }
   $topwin.menubar.file.menu add command -label "Open" -command "xschem load" -accelerator {Ctrl+O}
-  $topwin.menubar.file.menu add command -label {Open new window [experimental]} -command "xschem load_new_window"
+  $topwin.menubar.file.menu add command -label {Open new window [exp]} -command "xschem load_new_window"
   toolbar_create FileOpen "xschem load" "Open File" $topwin
   $topwin.menubar.file.menu add command -label "Delete files" -command "xschem delete_files" -accelerator {Shift-D}
 
+  menu $topwin.menubar.file.menu.recent_new_window -tearoff 0
   menu $topwin.menubar.file.menu.recent -tearoff 0
-  setup_recent_menu $topwin
+  setup_recent_menu 0 $topwin
+  setup_recent_menu 1 $topwin
   $topwin.menubar.file.menu add cascade -label "Open Recent" -menu $topwin.menubar.file.menu.recent
-
+  $topwin.menubar.file.menu add cascade -label {Open Recent in new window [exp]} \
+    -menu $topwin.menubar.file.menu.recent_new_window
   $topwin.menubar.file.menu add command -label "Open Most Recent" \
     -command {xschem load [lindex "$recentfile" 0]} -accelerator {Ctrl+Shift+O}
   $topwin.menubar.file.menu add command -label "Save" -command "xschem save" -accelerator {Ctrl+S}
