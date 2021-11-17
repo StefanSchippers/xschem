@@ -3470,7 +3470,7 @@ proc new_window {what {filename {}} {path {-}}} {
     build_widgets $path
     pack_widgets $path ;# also does set_bindings $path.drw
     update
-    xschem new_schematic create $path $path.drw $filename
+    xschem new_schematic create $path $path.drw [abs_sym_path $filename]
     save_ctx $path.drw
     return $path
   } elseif { $what eq {destroy}} {
