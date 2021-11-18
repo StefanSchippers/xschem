@@ -326,17 +326,16 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        !(xctx->ui_state & STARTPAN2) && !(state & Mod1Mask) &&
        !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
     {
-      static int onetime=0;
       if(mx != xctx->mx_save || my != xctx->my_save) {
         if( !(xctx->ui_state & STARTSELECT)) {
           select_rect(START,1);
-          onetime=1;
+          xctx->onetime=1;
         }
         if(abs(mx-xctx->mx_save) > 8 ||
            abs(my-xctx->my_save) > 8 ) { /* set reasonable threshold before unsel */
-          if(onetime) {
+          if(xctx->onetime) {
             unselect_all(); /* 20171026 avoid multiple calls of unselect_all() */
-            onetime=0;
+            xctx->onetime=0;
           }
           xctx->ui_state|=STARTSELECT; /* set it again cause unselect_all() clears it... */
         }

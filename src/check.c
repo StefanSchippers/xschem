@@ -121,6 +121,7 @@ void update_conn_cues(int draw_cues, int dr_win)
  * start = 2: return total time from initialize */
 double timer(int start)
 {
+  /* used only for test mode. No problem with switching schematic context */
   static double st, cur, lap;
   if(start == 0) return lap = st = (double) clock() / CLOCKS_PER_SEC;
   else if(start == 1) {
@@ -140,7 +141,7 @@ void trim_wires(void)
   int j, i, changed;
   int includes, breaks;
   struct wireentry *wptr;
-  static unsigned short *wireflag=NULL;
+  unsigned short *wireflag=NULL;
 
   doloops = 0;
   xctx->prep_hash_wires = 0;

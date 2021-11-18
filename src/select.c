@@ -22,10 +22,6 @@
 
 #include "xschem.h"
 
-static short select_rot = 0;
-static short  select_flip = 0;
-static double xx1,yy1,xx2,yy2;
-
 /* select all nets and pins/labels that are *physically* connected to current selected wire segments */
 /* stop_at_junction==1 --> stop selecting wires at 'T' junctions */
 /* Recursive routine */
@@ -320,10 +316,12 @@ static void del_rect_line_arc_poly(void)
 void delete(int to_push_undo)
 {
   int i, j, n, tmp;
+  int select_rot = 0, select_flip = 0;
   #if HAS_CAIRO==1
   int customfont;
   #endif
   int s_pnetname;
+  double xx1,yy1,xx2,yy2;
 
   s_pnetname = tclgetboolvar("show_pin_net_names");
   dbg(3, "delete(): start\n");
@@ -499,32 +497,29 @@ void delete_only_rect_line_arc_poly(void)
 void bbox(int what,double x1,double y1, double x2, double y2)
 {
  int i;
- static int bbx1, bbx2, bby1, bby2;
- static int savew, saveh, savex1, savex2, savey1, savey2;
- static int sem=0;
 
  /* fprintf(errfp, "bbox: what=%d\n", what); */
  switch(what)
  {
   case START:
-   if(sem==1) {
+   if(xctx->sem==1) {
      fprintf(errfp, "ERROR: rentrant bbox() call\n");
      tcleval("alert_ {ERROR: reentrant bbox() call} {}");
    }
-   bbx1 = 300000000; /* screen coordinates */
-   bbx2 = 0;
-   bby1 = 300000000;
-   bby2 = 0;
-   savex1 = xctx->areax1;
-   savex2 = xctx->areax2;
-   savey1 = xctx->areay1;
-   savey2 = xctx->areay2;
-   savew = xctx->areaw;
-   saveh = xctx->areah;
-   sem=1;
+   xctx->bbx1 = 300000000; /* screen coordinates */
+   xctx->bbx2 = 0;
+   xctx->bby1 = 300000000;
+   xctx->bby2 = 0;
+   xctx->savex1 = xctx->areax1;
+   xctx->savex2 = xctx->areax2;
+   xctx->savey1 = xctx->areay1;
+   xctx->savey2 = xctx->areay2;
+   xctx->savew = xctx->areaw;
+   xctx->saveh = xctx->areah;
+   xctx->sem=1;
    break;
   case ADD:
-   if(sem==0) {
+   if(xctx->sem==0) {
      fprintf(errfp, "ERROR: bbox(ADD) call before bbox(START)\n");
      tcleval("alert_ {ERROR: bbox(ADD) call before bbox(START)} {}");
    }
@@ -532,24 +527,24 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    y1=Y_TO_SCREEN(y1);
    x2=X_TO_SCREEN(x2);
    y2=Y_TO_SCREEN(y2);
-   x1=CLIP(x1,savex1,savex2);
-   x2=CLIP(x2,savex1,savex2);
-   y1=CLIP(y1,savey1,savey2);
-   y2=CLIP(y2,savey1,savey2);
-   if(x1 < bbx1) bbx1 = (int) x1;
-   if(x2 > bbx2) bbx2 = (int) x2;
-   if(y1 < bby1) bby1 = (int) y1;
-   if(y2 > bby2) bby2 = (int) y2;
-   if(y2 < bby1) bby1 = (int) y2;
-   if(y1 > bby2) bby2 = (int) y1;
+   x1=CLIP(x1,xctx->savex1,xctx->savex2);
+   x2=CLIP(x2,xctx->savex1,xctx->savex2);
+   y1=CLIP(y1,xctx->savey1,xctx->savey2);
+   y2=CLIP(y2,xctx->savey1,xctx->savey2);
+   if(x1 < xctx->bbx1) xctx->bbx1 = (int) x1;
+   if(x2 > xctx->bbx2) xctx->bbx2 = (int) x2;
+   if(y1 < xctx->bby1) xctx->bby1 = (int) y1;
+   if(y2 > xctx->bby2) xctx->bby2 = (int) y2;
+   if(y2 < xctx->bby1) xctx->bby1 = (int) y2;
+   if(y1 > xctx->bby2) xctx->bby2 = (int) y1;
    break;
   case END:
-   xctx->areax1 = savex1;
-   xctx->areax2 = savex2;
-   xctx->areay1 = savey1;
-   xctx->areay2 = savey2;
-   xctx->areaw =  savew;
-   xctx->areah =  saveh;
+   xctx->areax1 = xctx->savex1;
+   xctx->areax2 = xctx->savex2;
+   xctx->areay1 = xctx->savey1;
+   xctx->areay2 = xctx->savey2;
+   xctx->areaw =  xctx->savew;
+   xctx->areah =  xctx->saveh;
    xctx->xrect[0].x = 0;
    xctx->xrect[0].y = 0;
    xctx->xrect[0].width = xctx->areaw-4*INT_WIDTH(xctx->lw);
@@ -567,24 +562,24 @@ void bbox(int what,double x1,double y1, double x2, double y2)
      cairo_reset_clip(xctx->cairo_save_ctx);
      #endif
    }
-   sem=0;
+   xctx->sem=0;
    break;
   case SET:
-   if(sem==0) {
+   if(xctx->sem==0) {
      fprintf(errfp, "ERROR: bbox(SET) call before bbox(START)\n");
      tcleval("alert_ {ERROR: bbox(SET) call before bbox(START)} {}");
    }
-   xctx->areax1 = bbx1-2*INT_WIDTH(xctx->lw);
-   xctx->areax2 = bbx2+2*INT_WIDTH(xctx->lw);
-   xctx->areay1 = bby1-2*INT_WIDTH(xctx->lw);
-   xctx->areay2 = bby2+2*INT_WIDTH(xctx->lw);
+   xctx->areax1 = xctx->bbx1-2*INT_WIDTH(xctx->lw);
+   xctx->areax2 = xctx->bbx2+2*INT_WIDTH(xctx->lw);
+   xctx->areay1 = xctx->bby1-2*INT_WIDTH(xctx->lw);
+   xctx->areay2 = xctx->bby2+2*INT_WIDTH(xctx->lw);
    xctx->areaw = (xctx->areax2-xctx->areax1);
    xctx->areah = (xctx->areay2-xctx->areay1);
 
-   xctx->xrect[0].x = bbx1-INT_WIDTH(xctx->lw);
-   xctx->xrect[0].y = bby1-INT_WIDTH(xctx->lw);
-   xctx->xrect[0].width = bbx2-bbx1+2*INT_WIDTH(xctx->lw);
-   xctx->xrect[0].height = bby2-bby1+2*INT_WIDTH(xctx->lw);
+   xctx->xrect[0].x = xctx->bbx1-INT_WIDTH(xctx->lw);
+   xctx->xrect[0].y = xctx->bby1-INT_WIDTH(xctx->lw);
+   xctx->xrect[0].width = xctx->bbx2-xctx->bbx1+2*INT_WIDTH(xctx->lw);
+   xctx->xrect[0].height = xctx->bby2-xctx->bby1+2*INT_WIDTH(xctx->lw);
    if(has_x) {
      for(i=0;i<cadlayers;i++)
      {
@@ -1010,8 +1005,10 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
 {
  int c,i, tmpint;
  double x, y, r, a, b, xa, ya, xb, yb; /* arc */
+ double xx1,yy1,xx2,yy2;
  xRect tmp;
  int en_s;
+ int select_rot = 0, select_flip = 0;
  #if HAS_CAIRO==1
  int customfont;
  #endif

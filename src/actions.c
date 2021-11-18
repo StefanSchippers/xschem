@@ -32,14 +32,13 @@ void here(int i)
 
 void set_modify(int mod)
 {
-  static int prev = -1;
   char *top_path;
 
   top_path =  xctx->top_path[0] ? xctx->top_path : ".";
   xctx->modified = mod;
   dbg(1, "set_modify(): %d\n", mod);
-  if(mod != prev) {
-    prev = mod;
+  if(mod != xctx->prev_set_modify) {
+    xctx->prev_set_modify = mod;
     if(has_x && strcmp(get_cell(xctx->sch[xctx->currsch],1), "systemlib/font")) {
       if(mod == 1) {
         Tcl_VarEval(interp, "wm title ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
@@ -201,14 +200,12 @@ const char *add_ext(const char *f, const char *ext)
 
 void toggle_only_probes()
 {
-  static double save_lw;
-
   xctx->only_probes =  tclgetboolvar("only_probes");
   if(xctx->only_probes) {
-    save_lw = xctx->lw;
+    xctx->save_lw = xctx->lw;
     xctx->lw=3.0;
   } else {
-    xctx->lw= save_lw;
+    xctx->lw= xctx->save_lw;
   }
   change_linewidth(xctx->lw);
   draw();
@@ -218,7 +215,6 @@ void toggle_fullscreen(const char *topwin)
 {
   char fullscr[]="add,fullscreen";
   char normal[]="remove,fullscreen";
-  static int menu_removed = 0;
   unsigned int topwin_id;
   Window rootwindow, parent_id;
   Window *framewin_child_ptr;
@@ -246,13 +242,13 @@ void toggle_fullscreen(const char *topwin)
   dbg(1, "toggle_fullscreen(): fullscreen=%d\n", fs);
   if(fs==2) {
     Tcl_VarEval(interp, "pack forget ", xctx->top_path, ".menubar ", xctx->top_path, ".statusbar; update", NULL);
-    menu_removed = 1;
+    xctx->menu_removed = 1;
   }
-  if(fs !=2 && menu_removed) {
+  if(fs !=2 && xctx->menu_removed) {
     Tcl_VarEval(interp, "pack ", xctx->top_path, 
        ".menubar -anchor n -side top -fill x  -before ", xctx->top_path, ".drw; pack ",
        xctx->top_path, ".statusbar -after ", xctx->top_path, ".drw -anchor sw  -fill x; update", NULL);
-    menu_removed=0;
+    xctx->menu_removed=0;
   }
 
 
@@ -1447,8 +1443,8 @@ void set_viewport_size(int w, int h, double lw)
 
 void save_restore_zoom(int save)
 {
-  static int savew, saveh;
-  static double savexor, saveyor, savezoom, savelw;
+  static int savew, saveh; /* safe to keep even with multiple schematics */
+  static double savexor, saveyor, savezoom, savelw; /* safe to keep even with multiple schematics */
 
   if(save) {
     savew = xctx->xschem_w;
@@ -2349,53 +2345,48 @@ int place_text(int draw_text, double mx, double my)
 void pan2(int what, int mx, int my)
 {
   int dx, dy, ddx, ddy;
-  static int mx_s, my_s;
-  static int mmx_s, mmy_s;
-  static double xorig_save, yorig_save;
   if(what & START) {
-    mmx_s = mx_s = mx;
-    mmy_s = my_s = my;
-    xorig_save = xctx->xorigin;
-    yorig_save = xctx->yorigin;
+    xctx->mmx_s = xctx->mx_s = mx;
+    xctx->mmy_s = xctx->my_s = my;
+    xctx->xorig_save = xctx->xorigin;
+    xctx->yorig_save = xctx->yorigin;
   }
   else if(what == RUBBER) {
-    dx = mx - mx_s;
-    dy = my - my_s;
-    ddx = abs(mx -mmx_s);
-    ddy = abs(my -mmy_s);
+    dx = mx - xctx->mx_s;
+    dy = my - xctx->my_s;
+    ddx = abs(mx -xctx->mmx_s);
+    ddy = abs(my -xctx->mmy_s);
     if(ddx>5 || ddy>5) {
-      xctx->xorigin = xorig_save + dx*xctx->zoom;
-      xctx->yorigin = yorig_save + dy*xctx->zoom;
+      xctx->xorigin = xctx->xorig_save + dx*xctx->zoom;
+      xctx->yorigin = xctx->yorig_save + dy*xctx->zoom;
       draw();
-      mmx_s = mx;
-      mmy_s = my;
+      xctx->mmx_s = mx;
+      xctx->mmy_s = my;
     }
   }
 }
 
 void pan(int what)
 {
- static double xpan,ypan,xpan2,ypan2;
- static double xx1,xx2,yy1,yy2;
  if(what & RUBBER)
  {
-    xx1=xpan;yy1=ypan;xx2=xpan2;yy2=ypan2;
-    ORDER(xx1,yy1,xx2,yy2);
-    drawtempline(xctx->gctiled, NOW, xx1,yy1,xx2,yy2);
-    xpan2=xctx->mousex_snap;ypan2=xctx->mousey_snap;
-    xx1=xpan;yy1=ypan;xx2=xpan2;yy2=ypan2;
-    ORDER(xx1,yy1,xx2,yy2);
-    drawtempline(xctx->gc[SELLAYER], NOW, xx1,yy1,xx2,yy2);
+    xctx->p_xx1 = xctx->xpan; xctx->p_yy1 = xctx->ypan; xctx->p_xx2 = xctx->xpan2; xctx->p_yy2 = xctx->ypan2;
+    ORDER(xctx->p_xx1, xctx->p_yy1, xctx->p_xx2, xctx->p_yy2);
+    drawtempline(xctx->gctiled, NOW, xctx->p_xx1, xctx->p_yy1, xctx->p_xx2, xctx->p_yy2);
+    xctx->xpan2 = xctx->mousex_snap; xctx->ypan2 = xctx->mousey_snap;
+    xctx->p_xx1 = xctx->xpan; xctx->p_yy1 = xctx->ypan; xctx->p_xx2 = xctx->xpan2; xctx->p_yy2 = xctx->ypan2;
+    ORDER(xctx->p_xx1, xctx->p_yy1, xctx->p_xx2, xctx->p_yy2);
+    drawtempline(xctx->gc[SELLAYER], NOW, xctx->p_xx1, xctx->p_yy1, xctx->p_xx2, xctx->p_yy2);
  }
  if(what & START)
  {
     xctx->ui_state |= STARTPAN;
-    xpan=xctx->mousex_snap;ypan=xctx->mousey_snap;xpan2=xpan;ypan2=ypan;
+    xctx->xpan=xctx->mousex_snap;xctx->ypan=xctx->mousey_snap;xctx->xpan2=xctx->xpan;xctx->ypan2=xctx->ypan;
  }
  if(what & END)
  {
     xctx->ui_state &= ~STARTPAN;
-    xctx->xorigin+=-xpan+xctx->mousex_snap;xctx->yorigin+=-ypan+xctx->mousey_snap;
+    xctx->xorigin+=-xctx->xpan+xctx->mousex_snap;xctx->yorigin+=-xctx->ypan+xctx->mousey_snap;
     draw();
  }
 }

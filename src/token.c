@@ -666,7 +666,6 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
 /* if necessary) */
 /* if old_prop=NULL return NULL */
 /* if old_prop does not contain a valid "name" or empty return old_prop */
- static char prefix;
  char *old_name=NULL, *new_name=NULL;
  const char *tmp;
  const char *tmp2;
@@ -694,7 +693,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
   my_strdup(446, &xctx->inst[i].prop_ptr, old_prop);  /* changed to copy old props if no name */
   return;
  }
- prefix=old_name[0];
+ xctx->prefix=old_name[0];
  /* don't change old_prop if name does not conflict. */
  if(dis_uniq_names || (entry = inst_hash_lookup(table, old_name, i, XLOOKUP, old_name_len))==NULL ||
      entry->value == i)
@@ -708,17 +707,17 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  n = sscanf(old_name, "%[^[0-9]",old_name_base);
  tmp=find_bracket(old_name);
  my_realloc(448, &new_name, old_name_len + 40); /* strlen(old_name)+40); */
- qq=fast ?  last[(int)prefix] : 1;
+ qq=fast ?  last[(int)xctx->prefix] : 1;
  for(q=qq;;q++)
  {
    if(n >= 1 ) {
      new_name_len = my_snprintf(new_name, old_name_len + 40, "%s%d%s", old_name_base, q, tmp);
    } else {
-     new_name_len = my_snprintf(new_name, old_name_len + 40, "%c%d%s", prefix,q, tmp); /* added new_name_len */
+     new_name_len = my_snprintf(new_name, old_name_len + 40, "%c%d%s", xctx->prefix,q, tmp); /* added new_name_len */
    }
    if((entry = inst_hash_lookup(table, new_name, i, XLOOKUP, new_name_len)) == NULL || entry->value == i)
    {
-    last[(int)prefix]=q+1;
+    last[(int)xctx->prefix]=q+1;
     break;
    }
  }

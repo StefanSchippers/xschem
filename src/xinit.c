@@ -548,13 +548,23 @@ void alloc_xschem_data(const char *top_path)
   xctx->biggridpoint=(XSegment*)my_calloc(1213, CADMAXGRIDPOINTS,sizeof(XSegment));
   xctx->gridpoint=(XPoint*)my_calloc(608, CADMAXGRIDPOINTS,sizeof(XPoint));
   xctx->enable_drill = 0;
+  xctx->prev_set_modify = -1;
   xctx->pending_fullzoom = 0;
   my_strncpy(xctx->hiersep, ".", S(xctx->hiersep));
   xctx->no_undo = 0;
   xctx->draw_single_layer = -1;
   xctx->draw_dots = 1;
   xctx->only_probes = 0;
+  xctx->menu_removed = 0; /* fullscreen pervious setting */
+  xctx->save_lw = 0.0;  /* used to save linewidth when selecting 'only_probes' view */
+  xctx->onetime = 0; /* callback() static var */
+  xctx->save_netlist_type = 0;
+  xctx->loaded_symbol = 0;
   xctx->no_draw = 0;
+  xctx->sem = 0; /* bbox */
+  xctx->old_prop = NULL;
+  xctx->edit_sym_i = -1;
+  xctx->netlist_commands = 0;
   xctx->draw_pixmap = 1;
   xctx->gc=my_calloc(638, cadlayers, sizeof(GC));
   xctx->gcstipple=my_calloc(639, cadlayers, sizeof(GC));

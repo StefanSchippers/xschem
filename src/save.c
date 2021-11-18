@@ -1041,8 +1041,6 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   static char msg[PATH_MAX+100];
   struct stat buf;
   int i;
-  static int save_netlist_type = 0;
-  static int loaded_symbol = 0;
   char *top_path;
 
   top_path =  xctx->top_path[0] ? xctx->top_path : ".";
@@ -1078,16 +1076,16 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       if(reset_undo) {
         Tcl_VarEval(interp, "is_xschem_file ", xctx->sch[xctx->currsch], NULL);
         if(!strcmp(tclresult(), "SYMBOL")) {
-          save_netlist_type = xctx->netlist_type;
+          xctx->save_netlist_type = xctx->netlist_type;
           xctx->netlist_type = CAD_SYMBOL_ATTRS;
           set_tcl_netlist_type();
-          loaded_symbol = 1;
+          xctx->loaded_symbol = 1;
         } else {
-          if(loaded_symbol) {
-            xctx->netlist_type = save_netlist_type;
+          if(xctx->loaded_symbol) {
+            xctx->netlist_type = xctx->save_netlist_type;
             set_tcl_netlist_type();
           }
-          loaded_symbol = 0;
+          xctx->loaded_symbol = 0;
         }
       }
     }

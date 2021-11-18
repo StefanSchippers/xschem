@@ -138,7 +138,7 @@ int debug_var=-10;  /* will be set to 0 in xinit.c */
 /* -------------------------------------------- */
 int help=0; /* help option set to global scope, printing help is deferred */
             /* when configuration ~/.schem has been read 20140406 */
-FILE *errfp;
+FILE *errfp = NULL;
 int no_readline=0;
 char *filename=NULL; /* filename given on cmdline */
 char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */

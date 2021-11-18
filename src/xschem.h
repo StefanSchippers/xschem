@@ -606,6 +606,7 @@ typedef struct {
   /* callback.c */
   int mx_save, my_save, last_command;
   char sel_or_clip[PATH_MAX];
+  int onetime;
   /* move.c */
   struct int_hashentry *node_redraw_table[HASHSIZE];
   double rx1, rx2, ry1, ry2;
@@ -628,6 +629,29 @@ typedef struct {
   int nl_points, nl_maxpoints;
   /* select_rect */
   double nl_xr, nl_yr, nl_xr2, nl_yr2;
+  /* pan */
+  double xpan,ypan,xpan2,ypan2;
+  double p_xx1,p_xx2,p_yy1,p_yy2;
+  /* set_modify */
+  int prev_set_modify;
+  /* pan2 */
+  int mx_s, my_s;
+  int mmx_s, mmy_s;
+  double xorig_save, yorig_save;
+  /* load_schematic */
+  int save_netlist_type;
+  int loaded_symbol;
+  /* bbox */
+  int bbx1, bbx2, bby1, bby2;
+  int savew, saveh, savex1, savex2, savey1, savey2;
+  int sem;
+  /* new_prop_string */
+  char prefix;
+  /* edit_symbol_property, update_symbol */
+  char *old_prop;
+  int edit_sym_i;
+  int netlist_commands;
+  /*     */
   int nl_sel, nl_sem;
   XSegment *biggridpoint;
   XPoint *gridpoint;
@@ -639,6 +663,8 @@ typedef struct {
   int draw_single_layer;
   int draw_dots;
   int only_probes;
+  int menu_removed; /* fullscreen pervious setting */
+  double save_lw; /* used to save linewidth when selecting 'only_probes' view */
   int no_draw;
   int draw_pixmap; /* pixmap used as 2nd buffer */
   int netlist_count; /* netlist counter incremented at any cell being netlisted */

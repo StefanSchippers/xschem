@@ -1407,10 +1407,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"log"))
     {
-      static int opened=0;
       cmd_found = 1;
-      if(argc==3 && opened==0  ) { errfp = fopen(argv[2], "w");opened=1; } /* added check to avoid multiple open */
-      else if(argc==2 && opened==1) { fclose(errfp); errfp=stderr;opened=0; }
+      if(argc==3 && errfp == stderr ) { errfp = fopen(argv[2], "w"); } /* added check to avoid multiple open */
+      else if(argc==2 && errfp != stderr) { fclose(errfp); errfp=stderr; }
     }
     else if(!strcmp(argv[1],"logic_set"))
     {

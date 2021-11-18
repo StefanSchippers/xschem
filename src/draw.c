@@ -30,8 +30,6 @@
 #define xDashType LineOnOffDash
 #endif
 
-static double textx1,textx2,texty1,texty2;
-
 int textclip(int x1,int y1,int x2,int y2,
           double xa,double ya,double xb,double yb)
 /* check if some of (xa,ya-xb,yb) is inside (x1,y1-x2,y2) */
@@ -187,6 +185,7 @@ static void cairo_draw_string_line(cairo_t *c_ctx, char *s,
 void draw_string(int layer, int what, const char *str, short rot, short flip, int hcenter, int vcenter,
                  double x, double y, double xscale, double yscale)
 {
+  double textx1,textx2,texty1,texty2;
   char *tt, *ss, *sss=NULL;
   char c;
   int lineno=0;
@@ -266,6 +265,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
 void draw_string(int layer, int what, const char *str, short rot, short flip, int hcenter, int vcenter,
                  double x1,double y1, double xscale, double yscale)
 {
+ double textx1,textx2,texty1,texty2;
  double a=0.0,yy;
  register double rx1=0,rx2=0,ry1=0,ry2=0;
  double curr_x1,curr_y1,curr_x2,curr_y2;
@@ -329,6 +329,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
 void draw_temp_string(GC gctext, int what, const char *str, short rot, short flip, int hcenter, int vcenter,
                  double x1,double y1, double xscale, double yscale)
 {
+ double textx1,textx2,texty1,texty2;
  int tmp;
  if(!has_x) return;
  dbg(2, "draw_string(): string=%s\n",str);
