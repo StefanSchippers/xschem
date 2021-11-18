@@ -3462,11 +3462,17 @@ proc every {interval script} {
 }
 
 proc new_window {what {filename {}} {path {-}}} {
+  global max_new_windows
   if { $what eq {create}} {
     if {$tctx::cnt == 0} {
       save_ctx .drw
     }
+    if {$tctx::cnt + 1 >= $max_new_windows} {
+      puts "proc new_window: no more free slots"
+      return
+    }
     incr tctx::cnt
+    
     if {$path eq {-}} {
       for {set i 1} {$i <= $tctx::cnt} {incr i} {
         if {![winfo exists .x$i]} {
@@ -3484,6 +3490,7 @@ proc new_window {what {filename {}} {path {-}}} {
     # set bindings after creating new schematic otherwise 
     # a Configure or Expose event is sent before window setup completed.
     save_ctx $path.drw
+    xschem windowid $path ;# set icon for window
     return $path
   } elseif { $what eq {destroy}} {
     set path $filename
@@ -3693,7 +3700,7 @@ global env has_x OS
     bind $topwin <Double-Button-1> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-2> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-3> "xschem callback %W -3 %x %y 0 %b 0 %s"
-    bind $topwin <Configure> "xschem windowid $parent; xschem callback %W %T %x %y 0 %w %h 0"
+    bind $topwin <Configure> "xschem callback %W %T %x %y 0 %w %h 0"
     bind $topwin <ButtonPress> "xschem callback %W %T %x %y 0 %b 0 %s"
     bind $topwin <ButtonRelease> "xschem callback %W %T %x %y 0 %b 0 %s"
     bind $topwin <KeyPress> "xschem callback %W %T %x %y %N 0 0 %s"
@@ -4459,6 +4466,8 @@ set_ne to_png {gm convert}
 ## ps to pdf conversion
 set_ne to_pdf {ps2pdf}
 
+## max number of windows (including main) a single xschem process can handle
+set_ne max_new_windows -1 ;# this is set by xinit.c
 ## remember edit_prop widget size
 set_ne edit_prop_size 80x12
 set_ne text_line_default_geometry 80x12
@@ -4614,6 +4623,9 @@ if { ( $OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] > 
 
   # allow user to modify key bindings
   set_replace_key_binding
+
+  update
+  xschem windowid . ;# set icon for window
 } ;# end if {[exists has_x]}
 
 # read custom colors

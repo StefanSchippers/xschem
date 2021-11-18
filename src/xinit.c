@@ -24,6 +24,8 @@
 #ifdef __unix__
 #include <pwd.h> /* getpwuid */
 #endif
+/* max number of windows (including main) a single xschem process can handle */
+#define MAX_NEW_WINDOWS 20
 
 static int init_done=0; /* 20150409 to avoid double call by Xwindows close and TclExitHandler */
 static XSetWindowAttributes winattr;
@@ -161,7 +163,7 @@ void windowid(const char *winpath)
   Window *framewin_child_ptr;
   unsigned int framewindow_nchildren;
 
-  dbg(0, "windowid(): winpath=%s\n", winpath);
+  dbg(1, "windowid(): winpath=%s\n", winpath);
   framewindow_nchildren =0;
   mainwindow=Tk_MainWindow(interp);
   display = Tk_Display(mainwindow);
@@ -834,7 +836,6 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
   }
 }
 
-#define MAX_NEW_WINDOWS 20
 
 /* top_path is the path prefix of tk_win_path:
  *
@@ -861,7 +862,10 @@ void new_schematic(const char *what, const char *top_path, const char *tk_win_pa
       save_xctx[0] = xctx; /* save current schematic */
       tknew_window[0] = Tk_NameToWindow(interp, ".drw", mainwindow);
     }
-    if(cnt + 1 >= MAX_NEW_WINDOWS) return; /* no more free slots */
+    if(cnt + 1 >= MAX_NEW_WINDOWS) {
+      dbg(0, "new_schematic(\"create\"...): no more free slots\n");
+      return; /* no more free slots */
+    }
     cnt++;
     n = -1;
     for(i = 1; i < MAX_NEW_WINDOWS; i++) { /* search 1st free slot */
@@ -1665,6 +1669,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
  my_snprintf(tmp, S(tmp), "%d", ControlMask);
  tclsetvar("ControlMask", tmp);
 #endif
+
+
  /*  END X INITIALIZATION */
 
 
@@ -1675,7 +1681,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* Completing tk windows creation (see xschem.tcl, pack_widgets) and event binding */
  /* *AFTER* X initialization done                                                    */
  /*                                                                                  */
- if(has_x) tcleval("pack_widgets; set_bindings .drw");
+ if(has_x) {
+   tcleval("pack_widgets; set_bindings .drw");
+ }
 
  fs=tclgetintvar("fullscreen");
  if(fs) {
@@ -1736,7 +1744,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    load_schematic(1, filename, !do_netlist);
  }
 
-
+ tclsetintvar("max_new_windows", MAX_NEW_WINDOWS);
 
  zoom_full(0, 0, 1, 0.97);   /* Necessary to tell xschem the initial area to display */
  xctx->pending_fullzoom=1;
