@@ -3483,10 +3483,10 @@ proc new_window {what {filename {}} {path {-}}} {
     }
     toplevel $path -bg {} -width 400 -height 400
     build_widgets $path
-    pack_widgets $path ;# also does set_bindings $path.drw
-    set_bindings $path.drw
+    pack_widgets $path
     update
     xschem new_schematic create $path $path.drw [abs_sym_path $filename]
+    set_bindings $path.drw
     # set bindings after creating new schematic otherwise 
     # a Configure or Expose event is sent before window setup completed.
     save_ctx $path.drw
