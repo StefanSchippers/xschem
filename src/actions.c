@@ -822,7 +822,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
 /*  use the given params, otherwise query user */
 {
  int i,j,n;
- static char name[PATH_MAX];
+ char name[PATH_MAX];
  char *type;
  int cond;
  if(symbol_name==NULL) {

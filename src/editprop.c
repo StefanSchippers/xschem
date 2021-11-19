@@ -23,8 +23,6 @@
 #include <stdarg.h>
 #include "xschem.h"
 
-static short rot = 0, flip = 0;
-
 char *my_strtok_r(char *str, const char *delim, char **saveptr)
 {
   char *tok;
@@ -700,6 +698,7 @@ void edit_polygon_property(void)
 /* x=0 use text widget   x=1 use vim editor */
 void edit_text_property(int x)
 {
+   int rot, flip;
    #if HAS_CAIRO==1
    int customfont;
    #endif
@@ -861,24 +860,26 @@ void edit_text_property(int x)
 void edit_symbol_property(int x)
 {
    char *result=NULL;
+   int *ii = &xctx->edit_sym_i; /* static var */
+   int *netl_com = &xctx->netlist_commands; /* static var */
 
-   xctx->edit_sym_i=xctx->sel_array[0].n;
-   xctx->netlist_commands = 0;
-   if ((xctx->inst[xctx->edit_sym_i].ptr + xctx->sym)->type!=NULL)
-     xctx->netlist_commands = 
-       !strcmp( (xctx->inst[xctx->edit_sym_i].ptr+ xctx->sym)->type, "xctx->netlist_commands");
-   if(xctx->inst[xctx->edit_sym_i].prop_ptr!=NULL) {
-     if(xctx->netlist_commands && x==1) {
-       tclsetvar("retval",get_tok_value( xctx->inst[xctx->edit_sym_i].prop_ptr,"value",0));
+   *ii=xctx->sel_array[0].n;
+   *netl_com = 0;
+   if ((xctx->inst[*ii].ptr + xctx->sym)->type!=NULL)
+     *netl_com = 
+       !strcmp( (xctx->inst[*ii].ptr+ xctx->sym)->type, "netlist_commands");
+   if(xctx->inst[*ii].prop_ptr!=NULL) {
+     if(*netl_com && x==1) {
+       tclsetvar("retval",get_tok_value( xctx->inst[*ii].prop_ptr,"value",0));
      } else {
-       tclsetvar("retval",xctx->inst[xctx->edit_sym_i].prop_ptr);
+       tclsetvar("retval",xctx->inst[*ii].prop_ptr);
      }
    }
    else {
      tclsetvar("retval","");
    }
-   my_strdup(91, &xctx->old_prop, xctx->inst[xctx->edit_sym_i].prop_ptr);
-   tclsetvar("symbol",xctx->inst[xctx->edit_sym_i].name);
+   my_strdup(91, &xctx->old_prop, xctx->inst[*ii].prop_ptr);
+   tclsetvar("symbol",xctx->inst[*ii].name);
 
    if(x==0) {
      tcleval("edit_prop {Input property:}");
@@ -888,7 +889,7 @@ void edit_symbol_property(int x)
      /* edit_vi_netlist_prop will replace \" with " before editing,
         replace back " with \" when done and wrap the resulting text with quotes
         ("text") when done */
-     if(xctx->netlist_commands && x==1)    tcleval("edit_vi_netlist_prop {Input property:}");
+     if(*netl_com && x==1)    tcleval("edit_vi_netlist_prop {Input property:}");
      else if(x==1)    tcleval("edit_vi_prop {Input property:}");
      else if(x==2)    tcleval("viewdata $::retval");
      my_strdup(78, &result, tclresult());
@@ -897,7 +898,7 @@ void edit_symbol_property(int x)
    update_symbol(result, x);
    my_free(728, &result);
    dbg(1, "edit_symbol_property(): done update_symbol, modified=%d\n", xctx->modified);
-   xctx->edit_sym_i=-1;
+   *ii=-1;
 }
 
 /* x=0 use text widget   x=1 use vim editor */
@@ -914,17 +915,19 @@ void update_symbol(const char *result, int x)
   int cond;
   int pushed=0;
   int s_pnetname;
+  int *ii = &xctx->edit_sym_i; /* static var */
+  int *netl_com = &xctx->netlist_commands; /* static var */
 
   s_pnetname = tclgetboolvar("show_pin_net_names");
   dbg(1, "update_symbol(): entering\n");
-  xctx->edit_sym_i=xctx->sel_array[0].n;
+  *ii=xctx->sel_array[0].n;
   if(!result) {
    dbg(1, "update_symbol(): edit symbol prop aborted\n");
    my_free(1289, &xctx->old_prop);
    return;
   }
   /* create new_prop updated attribute string */
-  if(xctx->netlist_commands && x==1) {
+  if(*netl_com && x==1) {
     my_strdup(79,  &new_prop,
       subst_token(xctx->old_prop, "value", (char *) tclgetvar("retval") )
     );
@@ -953,7 +956,7 @@ void update_symbol(const char *result, int x)
      to use for inst name (from symbol template) */
   prefix=0;
   sym_number = -1;
-  if(strcmp(symbol, xctx->inst[xctx->edit_sym_i].name)) {
+  if(strcmp(symbol, xctx->inst[*ii].name)) {
     set_modify(1);
     sym_number=match_symbol(symbol); /* check if exist */
     if(sym_number>=0) {
@@ -963,14 +966,14 @@ void update_symbol(const char *result, int x)
   for(k=0;k<xctx->lastsel;k++) {
     dbg(1, "update_symbol(): for k loop: k=%d\n", k);
     if(xctx->sel_array[k].type!=ELEMENT) continue;
-    xctx->edit_sym_i=xctx->sel_array[k].n;
+    *ii=xctx->sel_array[k].n;
 
     if(s_pnetname || xctx->hilight_nets) {
       int j;
       prepare_netlist_structs(0);
-      for(j = 0;  j < (xctx->inst[xctx->edit_sym_i].ptr + xctx->sym)->rects[PINLAYER]; j++) {
-        if( xctx->inst[xctx->edit_sym_i].node && xctx->inst[xctx->edit_sym_i].node[j]) {
-           int_hash_lookup(xctx->node_redraw_table,  xctx->inst[xctx->edit_sym_i].node[j], 0, XINSERT_NOREPLACE);
+      for(j = 0;  j < (xctx->inst[*ii].ptr + xctx->sym)->rects[PINLAYER]; j++) {
+        if( xctx->inst[*ii].node && xctx->inst[*ii].node[j]) {
+           int_hash_lookup(xctx->node_redraw_table,  xctx->inst[*ii].node[j], 0, XINSERT_NOREPLACE);
         }
       }
       find_inst_to_be_redrawn();
@@ -978,19 +981,19 @@ void update_symbol(const char *result, int x)
 
     /* 20171220 calculate bbox before changes to correctly redraw areas */
     /* must be recalculated as cairo text extents vary with zoom factor. */
-    symbol_bbox(xctx->edit_sym_i, &xctx->inst[xctx->edit_sym_i].x1, &xctx->inst[xctx->edit_sym_i].y1,
-                            &xctx->inst[xctx->edit_sym_i].x2, &xctx->inst[xctx->edit_sym_i].y2);
+    symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1,
+                            &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
     if(sym_number>=0) /* changing symbol ! */
     {
       if(!pushed) { push_undo(); pushed=1;}
-      delete_inst_node(xctx->edit_sym_i); /* 20180208 fix crashing bug: delete node info if changing symbol */
+      delete_inst_node(*ii); /* 20180208 fix crashing bug: delete node info if changing symbol */
                         /* if number of pins is different we must delete these data *before* */
-                        /* changing ysmbol, otherwise xctx->edit_sym_i might end up deleting non allocated data. */
-      my_strdup(82, &xctx->inst[xctx->edit_sym_i].name, rel_sym_path(symbol));
-      xctx->inst[xctx->edit_sym_i].ptr=sym_number; /* update instance to point to new symbol */
+                        /* changing ysmbol, otherwise *ii might end up deleting non allocated data. */
+      my_strdup(82, &xctx->inst[*ii].name, rel_sym_path(symbol));
+      xctx->inst[*ii].ptr=sym_number; /* update instance to point to new symbol */
     }
-    bbox(ADD, xctx->inst[xctx->edit_sym_i].x1, xctx->inst[xctx->edit_sym_i].y1,
-              xctx->inst[xctx->edit_sym_i].x2, xctx->inst[xctx->edit_sym_i].y2);
+    bbox(ADD, xctx->inst[*ii].x1, xctx->inst[*ii].y1,
+              xctx->inst[*ii].x2, xctx->inst[*ii].y2);
 
     /* update property string from tcl dialog */
     if(!no_change_props)
@@ -998,59 +1001,59 @@ void update_symbol(const char *result, int x)
       dbg(1, "update_symbol(): no_change_props=%d\n", no_change_props);
       if(only_different) {
         char * ss=NULL;
-        my_strdup(119, &ss, xctx->inst[xctx->edit_sym_i].prop_ptr);
+        my_strdup(119, &ss, xctx->inst[*ii].prop_ptr);
         if( set_different_token(&ss, new_prop, xctx->old_prop, 0, 0) ) {
           if(!pushed) { push_undo(); pushed=1;}
-          my_strdup(111, &xctx->inst[xctx->edit_sym_i].prop_ptr, ss);
+          my_strdup(111, &xctx->inst[*ii].prop_ptr, ss);
           set_modify(1);
         }
         my_free(729, &ss);
       }
       else {
         if(new_prop) {
-          if(!xctx->inst[xctx->edit_sym_i].prop_ptr || strcmp(xctx->inst[xctx->edit_sym_i].prop_ptr, new_prop)) {
+          if(!xctx->inst[*ii].prop_ptr || strcmp(xctx->inst[*ii].prop_ptr, new_prop)) {
             dbg(1, "update_symbol(): changing prop: |%s| -> |%s|\n",
-                xctx->inst[xctx->edit_sym_i].prop_ptr, new_prop);
+                xctx->inst[*ii].prop_ptr, new_prop);
             if(!pushed) { push_undo(); pushed=1;}
-            my_strdup(84, &xctx->inst[xctx->edit_sym_i].prop_ptr, new_prop);
+            my_strdup(84, &xctx->inst[*ii].prop_ptr, new_prop);
             set_modify(1);
           }
         }  else {
           if(!pushed) { push_undo(); pushed=1;}
-          my_strdup(86, &xctx->inst[xctx->edit_sym_i].prop_ptr, "");
+          my_strdup(86, &xctx->inst[*ii].prop_ptr, "");
           set_modify(1);
         }
       }
     }
     /* if symbol changed ensure instance name (with new prefix char) is unique */
     /* preserve backslashes in name ----------------------------------->. */
-    my_strdup(152, &name, get_tok_value(xctx->inst[xctx->edit_sym_i].prop_ptr, "name", 1));
+    my_strdup(152, &name, get_tok_value(xctx->inst[*ii].prop_ptr, "name", 1));
     if(name && name[0] ) {
       dbg(1, "update_symbol(): prefix!='\\0', name=%s\n", name);
       /* 20110325 only modify prefix if prefix not NUL */
       if(prefix) name[0]=prefix; /* change prefix if changing symbol type; */
-      dbg(1, "update_symbol(): name=%s, inst[xctx->edit_sym_i].prop_ptr=%s\n",
-          name, xctx->inst[xctx->edit_sym_i].prop_ptr);
-      my_strdup(89, &ptr,subst_token(xctx->inst[xctx->edit_sym_i].prop_ptr, "name", name) );
+      dbg(1, "update_symbol(): name=%s, inst[*ii].prop_ptr=%s\n",
+          name, xctx->inst[*ii].prop_ptr);
+      my_strdup(89, &ptr,subst_token(xctx->inst[*ii].prop_ptr, "name", name) );
                      /* set name of current inst */
       if(!pushed) { push_undo(); pushed=1;}
-      if(!k) hash_all_names(xctx->edit_sym_i);
-      new_prop_string(xctx->edit_sym_i, ptr, k, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
+      if(!k) hash_all_names(*ii);
+      new_prop_string(*ii, ptr, k, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
     }
-    my_strdup2(90, &xctx->inst[xctx->edit_sym_i].instname, 
-               get_tok_value(xctx->inst[xctx->edit_sym_i].prop_ptr, "name",0));
+    my_strdup2(90, &xctx->inst[*ii].instname, 
+               get_tok_value(xctx->inst[*ii].prop_ptr, "name",0));
 
-    type=xctx->sym[xctx->inst[xctx->edit_sym_i].ptr].type;
+    type=xctx->sym[xctx->inst[*ii].ptr].type;
     cond= !type || !IS_LABEL_SH_OR_PIN(type);
-    if(cond) xctx->inst[xctx->edit_sym_i].flags |= 2; /* bit 1: flag for different textlayer for pin/labels */
+    if(cond) xctx->inst[*ii].flags |= 2; /* bit 1: flag for different textlayer for pin/labels */
     else {
-      xctx->inst[xctx->edit_sym_i].flags &= ~2;
-      my_strdup(880, &xctx->inst[xctx->edit_sym_i].lab,
-                get_tok_value(xctx->inst[xctx->edit_sym_i].prop_ptr, "lab",0));
+      xctx->inst[*ii].flags &= ~2;
+      my_strdup(880, &xctx->inst[*ii].lab,
+                get_tok_value(xctx->inst[*ii].prop_ptr, "lab",0));
     }
-    if(!strcmp(get_tok_value(xctx->inst[xctx->edit_sym_i].prop_ptr,"highlight",0), "true"))
-          xctx->inst[xctx->edit_sym_i].flags |= 4;
-    else  xctx->inst[xctx->edit_sym_i].flags &= ~4;
+    if(!strcmp(get_tok_value(xctx->inst[*ii].prop_ptr,"highlight",0), "true"))
+          xctx->inst[*ii].flags |= 4;
+    else  xctx->inst[*ii].flags &= ~4;
   }  /* end for(k=0;k<xctx->lastsel;k++) */
   /* new symbol bbox after prop changes (may change due to text length) */
   if(xctx->modified) {
@@ -1061,17 +1064,17 @@ void update_symbol(const char *result, int x)
     if(s_pnetname || xctx->hilight_nets) prepare_netlist_structs(0);
     for(k=0;k<xctx->lastsel;k++) {
       if(xctx->sel_array[k].type!=ELEMENT) continue;
-      xctx->edit_sym_i=xctx->sel_array[k].n;
-      type=xctx->sym[xctx->inst[xctx->edit_sym_i].ptr].type;
-      symbol_bbox(xctx->edit_sym_i, &xctx->inst[xctx->edit_sym_i].x1, &xctx->inst[xctx->edit_sym_i].y1,
-                              &xctx->inst[xctx->edit_sym_i].x2, &xctx->inst[xctx->edit_sym_i].y2);
-      bbox(ADD, xctx->inst[xctx->edit_sym_i].x1, xctx->inst[xctx->edit_sym_i].y1,
-                xctx->inst[xctx->edit_sym_i].x2, xctx->inst[xctx->edit_sym_i].y2);
+      *ii=xctx->sel_array[k].n;
+      type=xctx->sym[xctx->inst[*ii].ptr].type;
+      symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1,
+                              &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
+      bbox(ADD, xctx->inst[*ii].x1, xctx->inst[*ii].y1,
+                xctx->inst[*ii].x2, xctx->inst[*ii].y2);
       if((s_pnetname || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type)) {
         /* <<< do only .node[0] ? */
-        for(j = 0;  j < (xctx->inst[xctx->edit_sym_i].ptr + xctx->sym)->rects[PINLAYER]; j++) {
-          if( xctx->inst[xctx->edit_sym_i].node && xctx->inst[xctx->edit_sym_i].node[j]) {
-             int_hash_lookup(xctx->node_redraw_table,  xctx->inst[xctx->edit_sym_i].node[j], 0, XINSERT_NOREPLACE);
+        for(j = 0;  j < (xctx->inst[*ii].ptr + xctx->sym)->rects[PINLAYER]; j++) {
+          if( xctx->inst[*ii].node && xctx->inst[*ii].node[j]) {
+             int_hash_lookup(xctx->node_redraw_table,  xctx->inst[*ii].node[j], 0, XINSERT_NOREPLACE);
           }
         }
       }

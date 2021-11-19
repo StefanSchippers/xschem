@@ -82,14 +82,14 @@ char *read_line(FILE *fp, int dbg_level)
 
 /* */
 
-/* return "/<prefix><random string of random_size characters>" */
-/* example: "/xschem_undo_dj5hcG38T2" */
-/* */
+/* return "/<prefix><random string of random_size characters>"
+ * example: "/xschem_undo_dj5hcG38T2"
+ */
 const char *random_string(const char *prefix)
 {
   static const char charset[]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  static int random_size=10;
-  static char str[PATH_MAX];
+  static const int random_size=10;
+  static char str[PATH_MAX]; /* safe even with multiple schematics, if immediately copied */
   int prefix_size;
   static unsigned short once=1;
   int i;
@@ -112,14 +112,14 @@ const char *random_string(const char *prefix)
 
 /* */
 
-/* try to create a tmp directory in $HOME */
-/* ${HOME}/<prefix><trailing random chars> */
+/* try to create a tmp directory in XSCHEM_TMP_DIR */
+/* XSCHEM_TMP_DIR/<prefix><trailing random chars> */
 /* after 5 unsuccessfull attemps give up */
 /* and return NULL */
 /* */
 const char *create_tmpdir(char *prefix)
 {
-  static char str[PATH_MAX];
+  static char str[PATH_MAX]; /* safe even with multiple schematics if immediately copied */
   int i;
   struct stat buf;
   for(i=0; i<5;i++) {
@@ -144,7 +144,7 @@ const char *create_tmpdir(char *prefix)
 /* */
 FILE *open_tmpfile(char *prefix, char **filename)
 {
-  static char str[PATH_MAX];
+  static char str[PATH_MAX]; /* safe even with multiple schematics, if immediately copied */
   int i;
   FILE *fd;
   struct stat buf;

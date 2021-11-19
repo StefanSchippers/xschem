@@ -501,6 +501,29 @@ struct simdata {
                   int npin;
                  };
 
+typedef struct
+{
+  char     *gptr;
+  char     *vptr;
+  char     *sptr;
+  char     *kptr;
+  char     *eptr;
+  int *lines;
+  int *rects;
+  int *polygons;
+  int *arcs;
+  int wires;
+  int texts;
+  int instances;
+  xLine     **lptr;
+  xRect      **bptr;
+  xPoly  **pptr;
+  xArc      **aptr;
+  xWire     *wptr;
+  xText     *tptr;
+  xInstance *iptr;
+} Undo_slot;
+
 typedef struct {
   xWire *wire;
   xText *text;
@@ -651,6 +674,11 @@ typedef struct {
   char *old_prop;
   int edit_sym_i;
   int netlist_commands;
+  #ifdef IN_MEMORY_UNDO
+  /* in_memory_undo */
+  Undo_slot uslot[MAX_UNDO];
+  int initialized;
+  #endif
   /*     */
   int nl_sel, nl_sem;
   XSegment *biggridpoint;

@@ -581,6 +581,9 @@ void alloc_xschem_data(const char *top_path)
   xctx->fill_type=my_calloc(640, cadlayers, sizeof(int));
   xctx->fill_pattern = 1;
   xctx->draw_window = 0;
+  #ifdef IN_MEMORY_UNDO
+  xctx->initialized = 0; /* in_memory_undo */
+  #endif
 }
 
 void delete_schematic_data(void)
