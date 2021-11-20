@@ -984,7 +984,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   if(!stat(name, &buf)) {
     if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
       Tcl_VarEval(interp, "ask_save \"Schematic file: ", name,
-          " has been changed since opening.\nSave anyway?\" 0", NULL);
+          "\nHas been changed since opening.\nSave anyway?\" 0", NULL);
       if(strcmp(tclresult(), "yes") ) {
         return -1;
       }
@@ -1001,7 +1001,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   write_xschem_file(fd);
   fclose(fd);
   /* update time stamp */
-  if(!stat(name)) {
+  if(!stat(name, &buf)) {
     xctx->time_last_modify =  buf.st_mtime;
   }
   my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
