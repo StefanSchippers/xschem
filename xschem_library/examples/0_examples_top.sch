@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -51,16 +51,16 @@ N 930 -310 960 -300 {lab=#net1}
 N 380 -530 700 -530 {lab=BUS[4:0]}
 N 510 -640 510 -540 {lab=BUS[1]}
 N 410 -600 410 -540 {lab=BUS[2]}
-C {poweramp.sym} 160 -460 0 0 {name=x1
+C {poweramp.sym} 160 -530 0 0 {name=x1
 tclcommand="xschem descend"}
-C {tesla.sym} 160 -380 0 0 {name=x2}
-C {test_ne555.sym} 160 -340 0 0 {name=x3}
-C {test_lm324.sym} 160 -300 0 0 {name=x4}
-C {osc.sym} 160 -420 0 0 {name=x5}
+C {tesla.sym} 160 -450 0 0 {name=x2}
+C {test_ne555.sym} 160 -410 0 0 {name=x3}
+C {test_lm324.sym} 160 -370 0 0 {name=x4}
+C {osc.sym} 160 -490 0 0 {name=x5}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
-C {cmos_example.sym} 160 -500 0 0 {name=x6}
-C {greycnt.sym} 160 -540 0 0 {name=x8}
-C {loading.sym} 160 -580 0 0 {name=x9}
+C {cmos_example.sym} 160 -570 0 0 {name=x6}
+C {greycnt.sym} 160 -610 0 0 {name=x8}
+C {loading.sym} 160 -650 0 0 {name=x9}
 C {inv_bsource.sym} 930 -200 0 0 {name=B1 TABLE="1.4 3.0 1.6 0.0"}
 C {launcher.sym} 460 -210 0 0 {name=h1 
 descr="XSCHEM ON REPO.HU" 
@@ -77,13 +77,14 @@ url="$\{XSCHEM_SHAREDIR\}/../doc/xschem/index.html"
 program=x-www-browser
 
 }
-C {rlc.sym} 160 -620 0 0 {name=x0}
+C {rlc.sym} 160 -690 0 0 {name=x0}
 C {lab_pin.sym} 700 -530 0 1 {name=l2 sig_type=std_logic lab=BUS[4:0]}
 C {bus_connect.sym} 500 -530 0 0 {name=l3 lab=BUS[1]}
 C {bus_connect_nolab.sym} 400 -530 0 0 {name=r1}
 C {lab_pin.sym} 410 -600 3 1 {name=l4 sig_type=std_logic lab=BUS[2]}
-C {LCC_instances.sym} 160 -260 0 0 {name=x7}
-C {test_backannotated_subckt.sym} 160 -220 0 0 {name=x10}
-C {plot_manipulation.sym} 160 -180 0 0 {name=x11}
-C {logic_test.sym} 160 -140 0 0 {name=x12}
-C {simulate_ff.sym} 160 -100 0 0 {name=x13}
+C {LCC_instances.sym} 160 -330 0 0 {name=x7}
+C {test_backannotated_subckt.sym} 160 -290 0 0 {name=x10}
+C {plot_manipulation.sym} 160 -250 0 0 {name=x11}
+C {logic_test.sym} 160 -210 0 0 {name=x12}
+C {simulate_ff.sym} 160 -170 0 0 {name=x13}
+C {test_mos_verilog.sym} 160 -130 0 0 {name=x14}
