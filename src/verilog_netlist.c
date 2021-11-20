@@ -21,7 +21,7 @@
  */
 
 #include "xschem.h"
-static struct hashentry *subckt_table[HASHSIZE];
+static struct hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
 
 void global_verilog_netlist(int global)  /* netlister driver */
 {

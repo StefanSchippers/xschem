@@ -582,9 +582,9 @@ int get_unnamed_node(int what, int mult,int node)
 /*      3: look if node is a global */
 int record_global_node(int what, FILE *fp, char *node)
 {
- static int max_globals=0;
- static int size_globals=0;
- static char **globals=NULL;
+ static int max_globals=0; /* safe to keep even with multiple schematics, netlist code always resets data */
+ static int size_globals=0; /* safe to keep even with multiple schematics, netlist code always resets data */
+ static char **globals=NULL; /* safe to keep even with multiple schematics, netlist code always resets data */
  int i;
 
  if( what==1 || what==3) {
@@ -638,7 +638,7 @@ void prepare_netlist_structs(int for_netlist)
   char *global_node=NULL;
   int inst_mult, pin_mult;
   int print_erc;
-  static int startlevel = 0;
+  static int startlevel = 0; /* safe to keep even with multiple schematic windows, netlist is not interruptable */
   xInstance * const inst = xctx->inst;
   int const instances = xctx->instances;
 
@@ -649,8 +649,12 @@ void prepare_netlist_structs(int for_netlist)
   free_simdata(); /* invalidate simulation cache */
   dbg(1, "prepare_netlist_structs(): extraction\n");
   if(xctx->netlist_count == 0 ) startlevel = xctx->currsch;
+  /* print_erc is 1 the first time prepare_netlist_structs() is called on top level while
+   * doing the netlist, when netlist of sub blocks is completed and toplevel is reloaded
+   * a second prepare_netlist_structs() is called to name unnamed nets, in this second call
+   * print_erc must be set to 0 to avoid double erc printing
+   */
   print_erc =  xctx->netlist_count == 0 || startlevel < xctx->currsch;
-
   if (for_netlist>0) {
     my_snprintf(nn, S(nn), "-----------%s", xctx->sch[xctx->currsch]);
     statusmsg(nn,2);

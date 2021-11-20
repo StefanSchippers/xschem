@@ -22,8 +22,8 @@
 
 #include "xschem.h"
 #include <float.h>
-static double distance;
-static Selected sel;
+static double distance; /* safe to keep even with multiple schematics */
+static Selected sel; /* safe to keep even with multiple schematics */
 
 void find_closest_net(double mx,double my)
 /* returns the net that is closest to the mouse pointer */
@@ -124,8 +124,9 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
   xRect box;
   short rot, flip;
   char *type=NULL;
+  double curr_dist;
 
-  distance = DBL_MAX;
+  curr_dist = DBL_MAX;
   for(i=0;i<xctx->instances;i++) {
     x0=xctx->inst[i].x0;
     y0=xctx->inst[i].y0;
@@ -147,8 +148,8 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
       xx = (x1+x2)/2;
       yy = (y1+y2)/2;
       dist = (mx - xx) * (mx - xx) + (my - yy) * (my - yy);
-      if(dist < distance) {
-        distance = dist;
+      if(dist < curr_dist) {
+        curr_dist = dist;
         min_dist_x = xx;
         min_dist_y = yy;
       }
@@ -158,16 +159,16 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
     xx=xctx->wire[i].x1;
     yy = xctx->wire[i].y1;
     dist = (mx - xx) * (mx - xx) + (my - yy) * (my - yy);
-    if(dist < distance) {
-      distance = dist;
+    if(dist < curr_dist) {
+      curr_dist = dist;
       min_dist_x = xx;
       min_dist_y = yy;
     }
     xx=xctx->wire[i].x2;
     yy = xctx->wire[i].y2;
     dist = (mx - xx) * (mx - xx) + (my - yy) * (my - yy);
-    if(dist < distance) {
-      distance = dist;
+    if(dist < curr_dist) {
+      curr_dist = dist;
       min_dist_x = xx;
       min_dist_y = yy;
     }

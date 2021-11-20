@@ -64,7 +64,7 @@ void read_record(int firstchar, FILE *fp, int dbg_level)
 char *read_line(FILE *fp, int dbg_level)
 {
   char s[300];
-  static char ret[300];
+  static char ret[300]; /* safe to keep even with multiple schematics */
   int first = 0, items;
 
   ret[0] = '\0';
@@ -91,7 +91,7 @@ const char *random_string(const char *prefix)
   static const int random_size=10;
   static char str[PATH_MAX]; /* safe even with multiple schematics, if immediately copied */
   int prefix_size;
-  static unsigned short once=1;
+  static unsigned short once=1; /* safe even with multiple schematics, set once and never changed */
   int i;
   int idx;
   if(once) {
@@ -180,9 +180,8 @@ void updatebbox(int count, xRect *boundbox, xRect *tmp)
 void save_ascii_string(const char *ptr, FILE *fd, int newline)
 {
   int c, len, strbuf_pos = 0;
-  static char *strbuf = NULL;
-  static int strbuf_size=0;
-
+  static char *strbuf = NULL; /* safe even with multiple schematics */
+  static int strbuf_size=0; /* safe even with multiple schematics */
 
   if(ptr == NULL) {
     if( fd == NULL) { /* used to clear static data */
@@ -1038,7 +1037,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
 {
   FILE *fd;
   char name[PATH_MAX];
-  static char msg[PATH_MAX+100];
+  char msg[PATH_MAX+100];
   struct stat buf;
   int i;
   char *top_path;
@@ -1165,7 +1164,6 @@ void push_undo(void)
     my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
     pipe(pd);
     if((pid = fork()) ==0) {                                    /* child process */
-      static char f[PATH_MAX] = "";
       close(pd[1]);                                     /* close write side of pipe */
       if(!(diff_fd=freopen(diff_name,"w", stdout)))     /* redirect stdout to file diff_name */
       {
@@ -1182,8 +1180,7 @@ void push_undo(void)
       close(0); /* close stdin */
       dup(pd[0]); /* duplicate read side of pipe to stdin */
       #endif
-      if(!f[0]) my_strncpy(f, "gzip", S(f));
-      execlp(f, f, "--fast", "-c", NULL);       /* replace current process with comand */
+      execlp("gzip", "gzip", "--fast", "-c", NULL);       /* replace current process with comand */
       /* never gets here */
       fprintf(errfp, "push_undo(): problems with execlp\n");
       Tcl_Eval(interp, "exit");
@@ -1259,7 +1256,6 @@ void pop_undo(int redo)
   my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
   pipe(pd);
   if((pid = fork())==0) {                                     /* child process */
-    static char f[PATH_MAX] = "";
     close(pd[0]);                                    /* close read side of pipe */
     if(!(diff_fd=freopen(diff_name,"r", stdin)))     /* redirect stdin from file name */
     {
@@ -1273,8 +1269,7 @@ void pop_undo(int redo)
     close(1);    /* close stdout */
     dup(pd[1]);  /* write side of pipe --> stdout */
     #endif
-    if(!f[0]) my_strncpy(f, "gzip", S(f));
-    execlp(f, f, "-d", "-c", NULL);       /* replace current process with command */
+    execlp("gzip", "gzip", "-d", "-c", NULL);       /* replace current process with command */
     /* never gets here */
     dbg(1, "pop_undo(): problems with execlp\n");
     Tcl_Eval(interp, "exit");
@@ -1599,7 +1594,7 @@ void calc_symbol_bbox(int pos)
  */
 int load_sym_def(const char *name, FILE *embed_fd)
 {
-  static int recursion_counter=0;
+  static int recursion_counter=0; /* safe to keep even with multiple schematics, operation not interruptable */
   struct Lcc *lcc; /* size = level */
   FILE *fd_tmp;
   short rot,flip;
@@ -2074,7 +2069,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         /* calculate LCC sub-schematic x0, y0, rotation and flip */
         if (level > 1) {
           short rot, flip;
-          static int map[4]={0,3,2,1};
+          static const int map[4]={0,3,2,1};
 
           flip = lcc[level-1].flip;
           rot = lcc[level-1].rot;

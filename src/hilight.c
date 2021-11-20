@@ -1357,7 +1357,7 @@ void propagate_logic()
   int propagate;
   struct hilight_hashentry  *entry;
   int val, newval;
-  static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z, LOGIC_NOUP};
+  static const int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z, LOGIC_NOUP};
 
   prepare_netlist_structs(0);
   if(!xctx->simdata) create_simdata();
@@ -1474,7 +1474,7 @@ void logic_set(int value, int num)
   char *type;
   xRect boundbox;
   int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
-  static int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z, LOGIC_NOUP};
+  static const int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z, LOGIC_NOUP};
   struct hilight_hashentry  *entry;
  
   tclsetvar("tclstop", "0");

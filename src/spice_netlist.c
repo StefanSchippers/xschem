@@ -22,12 +22,9 @@
 
 #include "xschem.h"
 
-static struct hashentry *model_table[HASHSIZE];
-static struct hashentry *model_entry;
-static struct hashentry *subckt_table[HASHSIZE];
-
-
-
+static struct hashentry *model_table[HASHSIZE]; /* safe even with multiple schematics */
+static struct hashentry *model_entry; /* safe even with multiple schematics */
+static struct hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
 
 void hier_psprint(void)  /* netlister driver */
 {
@@ -395,7 +392,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  xctx->netlist_count = 0;
 }
 
-static char *model_name_result = NULL;
+static char *model_name_result = NULL; /* safe even with multiple schematics */
 
 static char *model_name(const char *m)
 {

@@ -157,7 +157,7 @@ void hash_all_names(int n)
 const char *tcl_hook2(char **res)
 {
   static char *result = NULL;
-  static char empty[]="";
+  static const char empty[]="";
 
   if(res == NULL || *res == NULL) {
     my_free(1285, &result);
@@ -931,7 +931,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
 
 const char *get_trailing_path(const char *str, int no_of_dir, int skip_ext)
 {
-  static char s[PATH_MAX];
+  static char s[PATH_MAX]; /* safe to keep even with multiple schematic windows */
   size_t len;
   int ext_pos, dir_pos, n_ext, n_dir, c, i;
 
@@ -2302,7 +2302,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
 {
  int tmp;
  char errstr[2048];
- static char unconn[50];
+ char unconn[50];
  char str_node[40]; /* 20161122 overflow safe */
  if(xctx->inst[i].node && xctx->inst[i].node[j]!=NULL)
  {
@@ -2720,9 +2720,9 @@ int isonlydigit(const char *s)
  */
 const char *find_nth(const char *str, char sep, int n)
 {
-  static char *result=NULL;
-  static int result_size = 0;
-  static char empty[]="";
+  static char *result=NULL; /* safe to keep even with multiple schematic windows */
+  static int result_size = 0; /* safe to keep even with multiple schematic windows */
+  static const char empty[]="";
   int i, len;
   char *ptr;
   int count;
@@ -2757,7 +2757,7 @@ const char *find_nth(const char *str, char sep, int n)
 /* if s==NULL return emty string */
 const char *translate(int inst, const char* s)
 {
- static char empty[]="";
+ static const char empty[]="";
  static char *result=NULL;
  int size=0, tmp;
  register int c, state=TOK_BEGIN, space;
@@ -3046,7 +3046,7 @@ const char *translate(int inst, const char* s)
 
 const char *translate2(struct Lcc *lcc, int level, char* s)
 {
-  static char empty[]="";
+  static const char empty[]="";
   static char *result = NULL;
   int i, size = 0, tmp, save_tok_size;
   register int c, state = TOK_BEGIN, space;

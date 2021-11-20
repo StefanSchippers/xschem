@@ -122,7 +122,7 @@ void update_conn_cues(int draw_cues, int dr_win)
 double timer(int start)
 {
   /* used only for test mode. No problem with switching schematic context */
-  static double st, cur, lap;
+  static double st, cur, lap; /* safe to keep even with multiple schematics */
   if(start == 0) return lap = st = (double) clock() / CLOCKS_PER_SEC;
   else if(start == 1) {
     double prevlap = lap;

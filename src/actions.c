@@ -110,7 +110,7 @@ void print_version()
 
 void set_snap(double newsnap) /*  20161212 set new snap factor and just notify new value */
 {
-    static double default_snap = -1.0;
+    static double default_snap = -1.0; /* safe to keep even with multiple schematics, set at program start */
     double cs;
 
     cs = tclgetdoublevar("cadsnap");
@@ -129,7 +129,7 @@ void set_snap(double newsnap) /*  20161212 set new snap factor and just notify n
 
 void set_grid(double newgrid)
 {
-    static double default_grid = -1.0;
+    static double default_grid = -1.0; /* safe to keep even with multiple schematics, set at program start */
     double cg;
 
     cg = tclgetdoublevar("cadgrid");
@@ -179,7 +179,7 @@ const char *rel_sym_path(const char *s)
 
 const char *add_ext(const char *f, const char *ext)
 {
-  static char ff[PATH_MAX];
+  static char ff[PATH_MAX]; /* safe to keep even with multiple schematics */
   char *p;
   int i;
 
