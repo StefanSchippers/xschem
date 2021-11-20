@@ -928,8 +928,9 @@ void make_symbol(void)
 void make_schematic(const char *schname)
 {
   FILE *fd=NULL;
+
   rebuild_selected_array();
-  if (!xctx->lastsel)  return;
+  if(!xctx->lastsel)  return;
   if (!(fd = fopen(schname, "w")))
   {
     fprintf(errfp, "make_schematic(): problems opening file %s \n", schname);
@@ -965,6 +966,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   FILE *fd;
   char name[PATH_MAX]; /* overflow safe 20161122 */
   char *top_path;
+  struct stat buf;
 
   top_path =  xctx->top_path[0] ? xctx->top_path : ".";
 
@@ -978,6 +980,17 @@ int save_schematic(const char *schname) /* 20171020 added return value */
     Tcl_VarEval(interp, "wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
     Tcl_VarEval(interp, "wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
   }
+
+  if(!stat(name, &buf)) {
+    if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
+      Tcl_VarEval(interp, "ask_save \"Schematic file: ", name,
+          " has been changed since opening.\nSave anyway?\" 0", NULL);
+      if(strcmp(tclresult(), "yes") ) {
+        return -1;
+      }
+    }
+  }
+
   if(!(fd=fopen(name,"w")))
   {
     fprintf(errfp, "save_schematic(): problems opening file %s \n",name);
@@ -987,6 +1000,10 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   unselect_all();
   write_xschem_file(fd);
   fclose(fd);
+  /* update time stamp */
+  if(!stat(name)) {
+    xctx->time_last_modify =  buf.st_mtime;
+  }
   my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
   /* <<<<< >>>> why clear all these? */
   xctx->prep_hi_structs=0;
@@ -1058,6 +1075,12 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     dbg(1, "load_schematic(): opening file for loading:%s, filename=%s\n", name, filename);
     dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
     if(!name[0]) return;
+
+    if(!stat(name, &buf)) { /* file exists */
+      xctx->time_last_modify =  buf.st_mtime;
+    } else {
+      xctx->time_last_modify = 0;
+    }
     if( (fd=fopen(name,fopen_read_mode))== NULL) {
       fprintf(errfp, "load_schematic(): unable to open file: %s, filename=%s\n",
           name, filename ? filename : "<NULL>");
@@ -2208,7 +2231,6 @@ void create_sch_from_sym(void)
   char *dir = NULL;
   char *prop = NULL;
   char schname[PATH_MAX];
-  char *savecmd=NULL;
   char *sub_prop;
   char *sub2_prop=NULL;
   char *str=NULL;
@@ -2235,12 +2257,9 @@ void create_sch_from_sym(void)
       my_strncpy(schname, add_ext(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), ".sch"), S(schname));
     }
     if( !stat(schname, &buf) ) {
-      my_strdup(353, &savecmd, "ask_save \" create schematic file: ");
-      my_strcat(354, &savecmd, schname);
-      my_strcat(355, &savecmd, " ?\nWARNING: This schematic file already exists, it will be overwritten\"");
-      tcleval(savecmd);
+      Tcl_VarEval(interp, "ask_save \"Create schematic file: ", schname,
+          "?\nWARNING: This schematic file already exists, it will be overwritten\"", NULL);
       if(strcmp(tclresult(), "yes") ) {
-        my_free(914, &savecmd);
         return;
       }
     }
@@ -2248,7 +2267,6 @@ void create_sch_from_sym(void)
     {
       fprintf(errfp, "create_sch_from_sym(): problems opening file %s \n",schname);
       tcleval("alert_ {file opening for write failed!} {}");
-      my_free(915, &savecmd);
       return;
     }
     fprintf(fd, "v {xschem version=%s file_version=%s}\n", XSCHEM_VERSION, XSCHEM_FILE_VERSION);
@@ -2311,7 +2329,6 @@ void create_sch_from_sym(void)
   } /* if(xctx->lastsel...) */
   my_free(916, &dir);
   my_free(917, &prop);
-  my_free(918, &savecmd);
   my_free(919, &sub2_prop);
   my_free(920, &str);
 }

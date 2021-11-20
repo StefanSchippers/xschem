@@ -373,6 +373,7 @@ char *strtoupper(char* s) {
   return s;
 }
 
+/* call hash_all_names() (once) before (repeatedly) using this function */
 void set_inst_prop(int i)
 {
   char *ptr;

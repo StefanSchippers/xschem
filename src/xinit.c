@@ -584,6 +584,7 @@ void alloc_xschem_data(const char *top_path)
   #ifdef IN_MEMORY_UNDO
   xctx->initialized = 0; /* in_memory_undo */
   #endif
+  xctx->time_last_modify = 0;
 }
 
 void delete_schematic_data(void)

@@ -32,7 +32,7 @@ struct inst_hashentry {
                  };
 
 
-static struct inst_hashentry *table[HASHSIZE];
+static struct inst_hashentry *table[HASHSIZE]; /* safe with multiple schematics, hash rebuilt before usage */
 
 enum status {TOK_BEGIN, TOK_TOKEN, TOK_SEP, TOK_VALUE, TOK_END, TOK_ENDTOK};
 
@@ -670,7 +670,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  const char *tmp;
  const char *tmp2;
  int q,qq;
- static int last[256];
+ static int last[256]; /* safe to keep with multiple schematics, reset on 1st invocation */
  int old_name_len;
  int new_name_len;
  int n;
@@ -1690,8 +1690,7 @@ int print_spice_element(FILE *fd, int inst)
           /* fputs(value,fd); */
         }
       }
-      else if (strcmp(token,"@symname")==0) /* of course symname must not be present  */
-                                            /* in hash table */
+      else if (strcmp(token,"@symname")==0) /* of course symname must not be present in attributes */
       {
         const char *s = skip_dir(xctx->inst[inst].name);
         tmp = strlen(s) +100 ; /* always make room for some extra chars 
@@ -1700,8 +1699,7 @@ int print_spice_element(FILE *fd, int inst)
         result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
         /* fputs(s,fd); */
       }
-      else if (strcmp(token,"@symname_ext")==0) /* of course symname must not be present  */
-                                            /* in hash table */
+      else if (strcmp(token,"@symname_ext")==0) /* of course symname must not be present in attributes */
       {
         const char *s = get_cell_w_ext(xctx->inst[inst].name, 0);
         tmp = strlen(s) +100 ; /* always make room for some extra chars 
@@ -1710,8 +1708,7 @@ int print_spice_element(FILE *fd, int inst)
         result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
         /* fputs(s,fd); */
       }
-      else if(strcmp(token,"@schname")==0) /* of course schname must not be present  */
-                                           /* in hash table */
+      else if(strcmp(token,"@schname")==0) /* of course schname must not be present in attributes */
       {
         tmp = strlen(xctx->current_name) +100 ; /* always make room for some extra chars 
                                                 * so 1-char writes to result do not need reallocs */
@@ -1720,8 +1717,8 @@ int print_spice_element(FILE *fd, int inst)
         /* fputs(xctx->current_name, fd); */
 
       }
-      else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present  */
-                                           /* in hash table. print multiplicity */
+      else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present in attributes */
+                                           /* print multiplicity */
       {                                    /* and node number: m1 n1 m2 n2 .... */
         for(i=0;i<no_of_pins;i++)
         {
@@ -2758,7 +2755,7 @@ const char *find_nth(const char *str, char sep, int n)
 const char *translate(int inst, const char* s)
 {
  static const char empty[]="";
- static char *result=NULL;
+ static char *result=NULL; /* safe to keep even with multiple schematics */
  int size=0, tmp;
  register int c, state=TOK_BEGIN, space;
  char *token=NULL;

@@ -2270,7 +2270,7 @@ proc attach_labels_to_inst {} {
   return {}
 }
 
-proc ask_save { {ask {save file?}} } {
+proc ask_save { {ask {save file?}} {cancel 1}} {
   global rcode wm_fix
   set rcode {}
   if { [winfo exists .dialog] } return
@@ -2290,10 +2290,12 @@ proc ask_save { {ask {save file?}} } {
    set rcode {yes}
    destroy .dialog
   }
-  button .dialog.f1.b2 -text {Cancel} -command\
-  {
-   set rcode {}
-   destroy .dialog
+  if {$cancel} {
+    button .dialog.f1.b2 -text {Cancel} -command\
+    {
+     set rcode {}
+     destroy .dialog
+    }
   }
   button .dialog.f1.b3 -text {No} -command\
   {
@@ -2301,8 +2303,14 @@ proc ask_save { {ask {save file?}} } {
    destroy .dialog
   }
   pack .dialog.l1 .dialog.f1 -side top -fill x
-  pack .dialog.f1.b1 .dialog.f1.b2 .dialog.f1.b3 -side left -fill x -expand yes
-  bind .dialog <Escape> {.dialog.f1.b2 invoke}
+  pack .dialog.f1.b1 -side left -fill x -expand yes
+  if { $cancel} {
+    pack .dialog.f1.b2 -side left -fill x -expand yes
+  }
+  pack .dialog.f1.b3 -side left -fill x -expand yes
+  if {$cancel} {
+    bind .dialog <Escape> {.dialog.f1.b2 invoke}
+  }
   # needed, otherwise problems when descending with double clixk 23012004
   tkwait visibility .dialog
   grab set .dialog
