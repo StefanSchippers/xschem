@@ -30,7 +30,7 @@ N 490 -190 490 -150 { lab=GND}
 N 390 -220 450 -220 { lab=IN}
 N 490 -300 610 -300 { lab=OUT}
 C {nmos4.sym} 470 -220 0 0 {name=M1 model=nmos w=5u l=0.18u m=1}
-C {nmos4_depl.sym} 470 -380 2 1 {name=M3 model=nmos w=5u l=0.18u m=1}
+C {nmos4_depl.sym} 470 -380 0 0 {name=M3 model=nmos w=5u l=0.18u m=1}
 C {gnd.sym} 550 -380 0 0 {name=l1 lab=GND}
 C {gnd.sym} 550 -220 0 0 {name=l2 lab=GND}
 C {gnd.sym} 490 -150 0 0 {name=l3 lab=GND value=0}
