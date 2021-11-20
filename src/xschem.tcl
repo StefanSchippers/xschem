@@ -361,6 +361,7 @@ proc load_recent_file {} {
 
 proc update_recent_file {f {topwin {} } } {
   global recentfile  has_x
+  # puts "update recent file, f=$f, topwin=$topwin"
   set old $recentfile
   set recentfile {}
   lappend recentfile $f
@@ -374,13 +375,14 @@ proc update_recent_file {f {topwin {} } } {
     set recentfile [lreplace $recentfile 10 end]
   }
   write_recent_file
-  if { [info exists has_x] } setup_recent_menu 0 $topwin
-  if { [info exists has_x] } setup_recent_menu 1 $topwin
+  if { [info exists has_x] } {setup_recent_menu 0 $topwin}
+  if { [info exists has_x] } {setup_recent_menu 1 $topwin}
 }
 
 proc write_recent_file {} {
   global recentfile USER_CONF_DIR
- 
+
+  # puts "write recent file recentfile=$recentfile"
   set a [catch {open $USER_CONF_DIR/recent_files w} fd]
   if { $a } {
     puts "write_recent_file: error opening file $f: $fd"
@@ -392,6 +394,7 @@ proc write_recent_file {} {
 
 proc setup_recent_menu { {in_new_window 0} { topwin {} } } {
   global recentfile
+  # puts "setup recent menu in_new_window=$in_new_window"
   if {$in_new_window} {
     $topwin.menubar.file.menu.recent_new_window delete 0 9
   } else {

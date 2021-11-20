@@ -795,7 +795,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
 
   dbg(1, "------\n");
   if(!strcmp(what, "create")) {
-    dbg(1, "preview_window() create, save ctx\n");
+    dbg(1, "preview_window() create, save ctx, tk_win_path=%s\n", tk_win_path);
     tkpre_window = Tk_NameToWindow(interp, tk_win_path, mainwindow);
     Tk_MakeWindowExist(tkpre_window);
     pre_window = Tk_WindowId(tkpre_window);
@@ -810,7 +810,7 @@ void preview_window(const char *what, const char *tk_win_path, const char *filen
       }
       my_strdup(117, &current_file, filename);
       xctx = NULL;      /* reset for preview */
-      alloc_xschem_data(""); /* alloc data into xctx */
+      alloc_xschem_data(".dialog"); /* alloc data into xctx */
       init_pixdata(); /* populate xctx->fill_type array that is used in create_gc() to set fill styles */
       preview_xctx = xctx;
       preview_xctx->window = pre_window;

@@ -1057,9 +1057,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   char msg[PATH_MAX+100];
   struct stat buf;
   int i;
-  char *top_path;
 
-  top_path =  xctx->top_path[0] ? xctx->top_path : ".";
   xctx->prep_hi_structs=0;
   xctx->prep_net_structs=0;
   xctx->prep_hash_inst=0;
@@ -1081,6 +1079,8 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     } else {
       xctx->time_last_modify = 0;
     }
+    if(reset_undo) xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
+    else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
     if( (fd=fopen(name,fopen_read_mode))== NULL) {
       fprintf(errfp, "load_schematic(): unable to open file: %s, filename=%s\n",
           name, filename ? filename : "<NULL>");
@@ -1127,12 +1127,6 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     }
     my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", pwd_dir, name);
     my_strncpy(xctx->current_name, name, S(xctx->current_name));
-  }
-  if(has_x) { /* 20161207 moved after if( (fd=..))  */
-    if(reset_undo) {
-      Tcl_VarEval(interp, "wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
-      Tcl_VarEval(interp, "wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
-    }
   }
   if(tclgetboolvar("autotrim_wires")) trim_wires();
   update_conn_cues(0, 0);

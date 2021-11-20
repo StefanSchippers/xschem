@@ -3,28 +3,29 @@ G {}
 K {type=nmos
 format="@spiceprefix@name @pinlist @model w=@w l=@l @extra m=@m"
 template="name=M1 model=nmos w=5u l=0.18u del=0 m=1"
-verilog_format="nmos #@del @name ( @@d , @@s , @@g );"}
+verilog_format="rnmos #@del @name ( @@d , @@s , @@g );"}
 V {}
 S {}
 E {}
 L 4 5 -30 5 30 {}
-L 4 5 -20 20 -20 {}
+L 4 10 -20 20 -20 {}
 L 4 20 -30 20 -20 {}
-L 4 5 20 20 20 {}
+L 4 10 20 20 20 {}
 L 4 20 20 20 30 {}
 L 4 -5 -15 -5 15 {}
 L 4 -5 0 -5 5 {}
 L 4 -20 0 -12.5 0 {}
 L 4 -20 0 -5 0 {}
-L 4 10 0 20 0 {}
-L 4 5 -5 10 0 {}
-L 4 5 5 10 -0 {}
+L 4 15 0 20 0 {}
+L 4 10 -5 15 0 {}
+L 4 10 5 15 0 {}
+B 4 5 -20 10 20 {}
 B 5 17.5 -32.5 22.5 -27.5 {name=d dir=inout}
 B 5 -22.5 -2.5 -17.5 2.5 {name=g dir=in}
 B 5 17.5 27.5 22.5 32.5 {name=s dir=inout}
 B 5 17.5 -2.5 22.5 2.5 {name=b dir=in}
-T {@w\\/@l\\/@m} 7.5 -18.75 0 0 0.2 0.2 {}
-T {@spiceprefix@name} 7.5 7.5 0 0 0.2 0.2 {}
+T {@w\\/@l\\/@m} 12.5 -18.75 0 0 0.2 0.2 {}
+T {@spiceprefix@name} 12.5 7.5 0 0 0.2 0.2 {}
 T {D} 25 -27.5 0 0 0.15 0.15 {}
 T {@#0:net_name} 25 -42.5 0 0 0.15 0.15 {layer=15}
 T {@#2:net_name} 25 32.5 0 0 0.15 0.15 {layer=15}
