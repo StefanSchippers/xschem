@@ -1063,6 +1063,8 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   xctx->prep_hash_inst=0;
   xctx->prep_hash_wires=0;
   if(reset_undo) clear_undo();
+  if(reset_undo) xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
+  else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
   if(filename && filename[0]) {
     my_strncpy(name, filename, S(name));
     my_strncpy(xctx->sch[xctx->currsch], name, S(xctx->sch[xctx->currsch]));
@@ -1079,8 +1081,6 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     } else {
       xctx->time_last_modify = 0;
     }
-    if(reset_undo) xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
-    else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
     if( (fd=fopen(name,fopen_read_mode))== NULL) {
       fprintf(errfp, "load_schematic(): unable to open file: %s, filename=%s\n",
           name, filename ? filename : "<NULL>");
@@ -1113,7 +1113,6 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     }
     dbg(1, "load_schematic(): %s, returning\n", xctx->sch[xctx->currsch]);
   } else {
-    set_modify(0);
     clear_drawing();
     for(i=0;;i++) {
       if(xctx->netlist_type == CAD_SYMBOL_ATTRS) {
@@ -1127,6 +1126,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     }
     my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", pwd_dir, name);
     my_strncpy(xctx->current_name, name, S(xctx->current_name));
+    set_modify(0);
   }
   if(tclgetboolvar("autotrim_wires")) trim_wires();
   update_conn_cues(0, 0);
