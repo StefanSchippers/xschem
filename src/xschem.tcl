@@ -1329,7 +1329,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
   frame .dialog.l.paneright
   frame .dialog.l.paneright.pre -background white -width 200 -height 200
   listbox .dialog.l.paneright.list  -listvariable myload_files2 -width 20 -height 12\
-    -yscrollcommand ".dialog.l.paneright.yscroll set" -selectmode browswe \
+    -yscrollcommand ".dialog.l.paneright.yscroll set" -selectmode browse \
     -xscrollcommand ".dialog.l.paneright.xscroll set" -exportselection 0
   scrollbar .dialog.l.paneright.yscroll -command ".dialog.l.paneright.list yview"
   scrollbar .dialog.l.paneright.xscroll -command ".dialog.l.paneright.list xview" -orient horiz
