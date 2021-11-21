@@ -285,7 +285,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
 
 /* update **s modifying only the token values that are */
 /* different between *new and *old */
-/* return 1 if s xctx->modified 20081221 */
+/* return 1 if s modified 20081221 */
 int set_different_token(char **s,const char *new, const char *old, int object, int n)
 {
  register int c, state=TOK_BEGIN, space;

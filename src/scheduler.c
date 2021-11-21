@@ -170,6 +170,31 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
+    else if(!strcmp(argv[1],"check_symbols"))
+    {
+      char sympath[PATH_MAX];
+      const char *name;
+      struct stat buf;
+      cmd_found = 1;
+      for(i=0;i<xctx->symbols;i++) {
+        name = xctx->sym[i].name;
+        if(!strcmp(xctx->file_version,"1.0")) {
+          my_strncpy(sympath, abs_sym_path(name, ".sym"), S(sympath));
+        } else {
+          my_strncpy(sympath, abs_sym_path(name, ""), S(sympath));
+        }
+        if(!stat(sympath, &buf)) { /* file exists */
+          if(xctx->time_last_modify < buf.st_mtime) {
+            dbg(0, "Warning: symbol %s is newer than schematic\n", sympath);
+          }
+        } else { /* not found */
+            dbg(0, "Warning: symbol %s not found\n", sympath);
+        }
+        dbg(0, "symbol %d: %s\n", i, sympath);
+      }
+      Tcl_ResetResult(interp);
+    }
+
     else if(!strcmp(argv[1],"check_unique_names"))
     {
       cmd_found = 1;
@@ -1834,10 +1859,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
+    else if(!strcmp(argv[1],"reload_symbols"))
+    {
+      cmd_found = 1;
+      remove_symbols();
+      link_symbols_to_instances(-1);
+      draw();
+      Tcl_ResetResult(interp);
+    }
+   
     else if(!strcmp(argv[1],"remove_symbols"))
     {
       cmd_found = 1;
-      if(argc==2) remove_symbols();
+      remove_symbols();
       Tcl_ResetResult(interp);
     }
    

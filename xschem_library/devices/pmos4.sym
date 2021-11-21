@@ -1,8 +1,9 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {type=pmos
 format="@spiceprefix@name @pinlist @model w=@w l=@l @extra m=@m"
-template="name=M1 model=pmos w=5u l=0.18u m=1"}
+template="name=M1 model=pmos w=5u l=0.18u del=0 m=1"
+verilog_format="pmos #@del @name ( @@d , @@s , @@g );"}
 V {}
 S {}
 E {}

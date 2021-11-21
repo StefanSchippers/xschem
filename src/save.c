@@ -1079,7 +1079,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     if(!stat(name, &buf)) { /* file exists */
       xctx->time_last_modify =  buf.st_mtime;
     } else {
-      xctx->time_last_modify = 0;
+      xctx->time_last_modify = time(NULL); /* file does not exist, set mtime to current time */
     }
     if( (fd=fopen(name,fopen_read_mode))== NULL) {
       fprintf(errfp, "load_schematic(): unable to open file: %s, filename=%s\n",
@@ -1113,6 +1113,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     }
     dbg(1, "load_schematic(): %s, returning\n", xctx->sch[xctx->currsch]);
   } else {
+    xctx->time_last_modify = time(NULL); /* no file given, set mtime to current time */
     clear_drawing();
     for(i=0;;i++) {
       if(xctx->netlist_type == CAD_SYMBOL_ATTRS) {
