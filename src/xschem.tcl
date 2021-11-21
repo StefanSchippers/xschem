@@ -4142,7 +4142,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.tools.menu add command -label "Select conn. wires, stop at junctions" -accelerator {Ctrl-Righ Butt.} \
      -command { xschem connected_nets 1 }
 
-  $topwin.menubar.hilight.menu add command -label {Highlight net-pin name mismatches on selected instancs} \
+  $topwin.menubar.hilight.menu add command -label {Highlight net-pin name mismatches on selected instances} \
    -command "xschem net_pin_mismatch" \
    -accelerator {Shift-X} 
   $topwin.menubar.hilight.menu add command -label {Highlight duplicate instance names} \

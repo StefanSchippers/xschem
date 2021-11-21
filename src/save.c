@@ -961,6 +961,10 @@ void make_schematic(const char *schname)
 }
 
 /* ALWAYS call with absolute path in schname!!! */
+/* return value:
+ *   0 : did not save
+ *   1 : schematic saved
+ */
 int save_schematic(const char *schname) /* 20171020 added return value */
 {
   FILE *fd;
@@ -971,7 +975,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   top_path =  xctx->top_path[0] ? xctx->top_path : ".";
 
   if( strcmp(schname,"") ) my_strncpy(xctx->sch[xctx->currsch], schname, S(xctx->sch[xctx->currsch]));
-  else return -1;
+  else return 0;
   dbg(1, "save_schematic(): currsch=%d name=%s\n",xctx->currsch, schname);
   dbg(1, "save_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
   dbg(1, "save_schematic(): abs_sym_path=%s\n", abs_sym_path(xctx->sch[xctx->currsch], ""));
@@ -985,9 +989,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
     if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
       Tcl_VarEval(interp, "ask_save \"Schematic file: ", name,
           "\nHas been changed since opening.\nSave anyway?\" 0", NULL);
-      if(strcmp(tclresult(), "yes") ) {
-        return -1;
-      }
+      if(strcmp(tclresult(), "yes") ) return 0;
     }
   }
 
@@ -995,7 +997,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   {
     fprintf(errfp, "save_schematic(): problems opening file %s \n",name);
     tcleval("alert_ {file opening for write failed!} {}");
-    return -1;
+    return 0;
   }
   unselect_all();
   write_xschem_file(fd);
@@ -1013,7 +1015,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   if(!strstr(xctx->sch[xctx->currsch], ".xschem_embedded_")) {
      set_modify(0);
   }
-  return 0;
+  return 1;
 }
 
 /* from == -1 --> link symbols to all instances, from 0 to instances-1 */

@@ -352,25 +352,26 @@ int samefile(const char *fa, const char *fb)
    return 0; /* not same of one of the two not existing */
 }
 
-int save(int confirm) /* 20171006 add confirm */
-{
-     int cancel;
-     int save_ok;
 
-     save_ok=0;
-     cancel=0;
+/* return value:
+ *  1 : file saved or not needed to save since no change
+ * -1 : user cancel
+ *  0 : file not saved due to errors or per user request
+ */
+int save(int confirm)
+{
      if(xctx->modified)
      {
        if(confirm) {
          tcleval("ask_save");
-         if(!strcmp(tclresult(), "") ) cancel=1;
-         if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch]);
+         if(!strcmp(tclresult(), "") ) return -1; /* user clicks "Cancel" */
+         else if(!strcmp(tclresult(), "yes") ) return save_schematic(xctx->sch[xctx->currsch]);
+         else return 0; /* user clicks "no" */
        } else {
-         save_ok = save_schematic(xctx->sch[xctx->currsch]);
+         return save_schematic(xctx->sch[xctx->currsch]);
        }
      }
-     if(save_ok==-1) return 1;
-     return cancel;
+     return 1; /* circuit not changed: always succeeed */
 }
 
 void saveas(const char *f, int type) /*  changed name from ask_save_file to saveas 20121201 */
@@ -1038,7 +1039,7 @@ void descend_schematic(int instnumber)
     if(!res[0]) return;
     dbg(1, "descend_schematic(): saving: %s\n",res);
     save_ok = save_schematic(res);
-    if(save_ok==-1) return;
+    if(save_ok==0) return;
   }
 
   dbg(1, "descend_schematic(): inst type: %s\n", (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type);
@@ -1051,7 +1052,18 @@ void descend_schematic(int instnumber)
 
   if(xctx->modified)
   {
-    if(save(1)) return;
+    int ret;
+
+    ret = save(1);
+    /* if circuit is changed but not saved before descending
+     * state will be inconsistent when returning, can not propagare hilights
+     * save() return value:
+     *  1 : file saved 
+     * -1 : user cancel
+     *  0 : file not saved due to errors or per user request
+     */
+    if(ret == 0) clear_all_hilights();
+    if(ret == -1) return; /* user cancel */
   }
 
   /*  build up current hierarchy path */
@@ -1136,7 +1148,7 @@ void go_back(int confirm) /*  20171006 add confirm */
  char filename[PATH_MAX];
  int prev_sch_type;
 
- save_ok=0;
+ save_ok=1;
  prev_sch_type = xctx->netlist_type; /* if CAD_SYMBOL_ATTRS do not hilight_parent_pins */
  if(xctx->currsch>0)
  {
@@ -1151,7 +1163,7 @@ void go_back(int confirm) /*  20171006 add confirm */
       save_ok = save_schematic(xctx->sch[xctx->currsch]);
     }
   }
-  if(save_ok==-1) return;
+  if(save_ok==0) return;
   unselect_all();
   remove_symbols();
   from_embedded_sym=0;
