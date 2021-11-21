@@ -1135,14 +1135,14 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='u' && state==0)                             /* undo */
    {
     if(xctx->semaphore >= 2) break;
-    pop_undo(0);
+    pop_undo(0, 1);  /* 2nd parameter: set_modify_status */
     draw();
     break;
    }
    if(key=='U' && state==ShiftMask)                     /* redo */
    {
     if(xctx->semaphore >= 2) break;
-    pop_undo(1);
+    pop_undo(1, 1); /* 2nd parameter: set_modify_status */
     draw();
     break;
    }

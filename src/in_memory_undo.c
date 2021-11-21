@@ -287,7 +287,7 @@ void push_undo(void)
 }
 
 
-void pop_undo(int redo)
+void pop_undo(int redo, int set_modify_status)
 {
   int slot, i, c;
 
@@ -402,7 +402,7 @@ void pop_undo(int redo)
   }
 
   link_symbols_to_instances(-1);
-  set_modify(1);
+  if(set_modify_status) set_modify(1);
   xctx->prep_hash_inst=0;
   xctx->prep_hash_wires=0;
   xctx->prep_net_structs=0;

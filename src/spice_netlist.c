@@ -28,26 +28,23 @@ static struct hashentry *subckt_table[HASHSIZE]; /* safe even with multiple sche
 
 void hier_psprint(void)  /* netlister driver */
 {
-  int i, save_ok;
+  int i;
   char *subckt_name;
-  int spice_stop;
   char filename[PATH_MAX];
   char *abs_path = NULL;
   const char *str_tmp;
   char *sch = NULL;
  
   if(!ps_draw(1)) return; /* prolog */
-  if(xctx->modified) {
-    save_ok = save_schematic(xctx->sch[xctx->currsch]);
-    if(save_ok == -1) return;
-  }
+  push_undo();
   free_hash(subckt_table);
   zoom_full(0, 0, 1, 0.97);
   ps_draw(2); /* page */
   dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
   unselect_all();
   remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
-  load_schematic(1, xctx->sch[xctx->currsch], 0);
+  link_symbols_to_instances(-1);
+  /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
   my_strdup(1224, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
   my_strcat(1227, &xctx->sch_path[xctx->currsch+1], "->netlisting");
   xctx->sch_path_hash[xctx->currsch+1] = 0;
@@ -55,41 +52,39 @@ void hier_psprint(void)  /* netlister driver */
   subckt_name=NULL;
   for(i=0;i<xctx->symbols;i++)
   {
-   if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
-   if(!xctx->sym[i].type) continue;
-   my_strdup(1230, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
-   if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(2, abs_path))
-   {
-     /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
-     my_strdup(1228, &subckt_name, get_cell(xctx->sym[i].name, 0));
-     if (str_hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)
-     {
-       str_hash_lookup(subckt_table, subckt_name, "", XINSERT);
-       if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"spice_stop",0),"true") )
-          spice_stop=1;
-       else
-          spice_stop=0;
-       if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
-         my_strdup2(1252, &sch, str_tmp);
-         my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
-         my_free(1253, &sch);
-       } else {
-         my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
-       }
-       spice_stop ? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
-       zoom_full(0, 0, 1, 0.97);
-       ps_draw(2); /* page */
-       dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
-     }
-   }
-   my_free(1231, &abs_path);
+    if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
+    if(!xctx->sym[i].type) continue;
+    my_strdup(1230, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
+    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(2, abs_path))
+    {
+      /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
+      my_strdup(1228, &subckt_name, get_cell(xctx->sym[i].name, 0));
+      if (str_hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)
+      {
+        str_hash_lookup(subckt_table, subckt_name, "", XINSERT);
+        if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
+          my_strdup2(1252, &sch, str_tmp);
+          my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
+          my_free(1253, &sch);
+        } else {
+          my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
+        }
+        /* for printing we go down to bottom regardless of spice_stop attribute */
+        load_schematic(1,filename, 0);
+        zoom_full(0, 0, 1, 0.97);
+        ps_draw(2); /* page */
+        dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
+      }
+    }
+    my_free(1231, &abs_path);
   }
   free_hash(subckt_table);
   my_free(1229, &subckt_name);
   my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
   xctx->currsch--;
   unselect_all();
-  load_schematic(1, xctx->sch[xctx->currsch], 0);
+  /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
+  pop_undo(0, 0);
   ps_draw(4); /* trailer */
   zoom_full(0, 0, 1, 0.97);
   draw();
@@ -105,7 +100,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  const char *str_tmp;
  int multip;
  unsigned int *stored_flags;
- int i, save_ok;
+ int i;
  char *type=NULL;
  char *place=NULL;
  char netl_filename[PATH_MAX]; /* overflow safe 20161122 */
@@ -118,12 +113,9 @@ void global_spice_netlist(int global)  /* netlister driver */
 
  split_f = tclgetboolvar("split_files");
  top_sub = tclgetboolvar("top_subckt");
+ push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
- if(xctx->modified) {
-   save_ok = save_schematic(xctx->sch[xctx->currsch]);
-   if(save_ok == -1) return;
- }
  free_hash(subckt_table);
  free_hash(model_table);
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
@@ -272,7 +264,8 @@ void global_spice_netlist(int global)  /* netlister driver */
    int saved_hilight_nets = xctx->hilight_nets;
    unselect_all();
    remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
-   load_schematic(1, xctx->sch[xctx->currsch], 0);
+   link_symbols_to_instances(-1);
+   /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
 
    my_strdup(469, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(481, &xctx->sch_path[xctx->currsch+1], "->netlisting");
@@ -311,7 +304,8 @@ void global_spice_netlist(int global)  /* netlister driver */
    xctx->currsch--;
    unselect_all();
    /* remove_symbols(); */
-   load_schematic(1, xctx->sch[xctx->currsch], 0);
+   /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
+   pop_undo(0, 0);
    prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    sym_vs_sch_pins();

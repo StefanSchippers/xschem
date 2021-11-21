@@ -1834,7 +1834,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"redo"))
     {
       cmd_found = 1;
-      pop_undo(1);
+      pop_undo(1, 1); /* 2nd param: set_modify_status */
       Tcl_ResetResult(interp);
     }
    
@@ -2423,7 +2423,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1],"undo"))
     {
       cmd_found = 1;
-      pop_undo(0);
+      pop_undo(0, 1); /* 2nd param: set_modify_status */
       Tcl_ResetResult(interp);
     }
    

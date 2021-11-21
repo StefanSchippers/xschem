@@ -26,17 +26,14 @@ void global_tedax_netlist(int global)  /* netlister driver */
 {
  FILE *fd;
  const char *str_tmp;
- int i, save_ok;
+ int i;
  unsigned int *stored_flags;
  char netl_filename[PATH_MAX]; /* overflow safe 20161122 */
  char tcl_cmd_netlist[PATH_MAX + 100]; /* 20081211 overflow safe 20161122 */
  char cellname[PATH_MAX]; /* 20081211 overflow safe 20161122 */
  char *abs_path = NULL;
 
- if(xctx->modified) {
-   save_ok = save_schematic(xctx->sch[xctx->currsch]);
-   if(save_ok == -1) return;
- }
+ push_undo();
  statusmsg("",2);  /* clear infowindow */
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
  bus_char[0] = bus_char[1] = '\0';
@@ -115,7 +112,8 @@ void global_tedax_netlist(int global)  /* netlister driver */
    xctx->currsch--;
    unselect_all();
    /* remove_symbols(); */
-   load_schematic(1, xctx->sch[xctx->currsch], 0);
+   /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
+   pop_undo(0, 0);
    prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
 
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */

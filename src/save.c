@@ -1076,10 +1076,12 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
     if(!name[0]) return;
 
-    if(!stat(name, &buf)) { /* file exists */
-      xctx->time_last_modify =  buf.st_mtime;
-    } else {
-      xctx->time_last_modify = time(NULL); /* file does not exist, set mtime to current time */
+    if(reset_undo) {
+      if(!stat(name, &buf)) { /* file exists */
+        xctx->time_last_modify =  buf.st_mtime;
+      } else {
+        xctx->time_last_modify = time(NULL); /* file does not exist, set mtime to current time */
+      }
     }
     if( (fd=fopen(name,fopen_read_mode))== NULL) {
       fprintf(errfp, "load_schematic(): unable to open file: %s, filename=%s\n",
@@ -1092,7 +1094,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       dbg(1, "load_schematic(): reading file: %s\n", name);
       read_xschem_file(fd);
       fclose(fd); /* 20150326 moved before load symbols */
-      set_modify(0);
+      if(reset_undo) set_modify(0);
       dbg(2, "load_schematic(): loaded file:wire=%d inst=%d\n",xctx->wires , xctx->instances);
       if(load_symbols) link_symbols_to_instances(-1);
       if(reset_undo) {
@@ -1113,7 +1115,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     }
     dbg(1, "load_schematic(): %s, returning\n", xctx->sch[xctx->currsch]);
   } else {
-    xctx->time_last_modify = time(NULL); /* no file given, set mtime to current time */
+    if(reset_undo) xctx->time_last_modify = time(NULL); /* no file given, set mtime to current time */
     clear_drawing();
     for(i=0;;i++) {
       if(xctx->netlist_type == CAD_SYMBOL_ATTRS) {
@@ -1127,7 +1129,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     }
     my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", pwd_dir, name);
     my_strncpy(xctx->current_name, name, S(xctx->current_name));
-    set_modify(0);
+    if(reset_undo) set_modify(0);
   }
   if(tclgetboolvar("autotrim_wires")) trim_wires();
   update_conn_cues(0, 0);
@@ -1228,7 +1230,7 @@ void push_undo(void)
     #endif
 }
 
-void pop_undo(int redo)
+void pop_undo(int redo, int set_modify_status)
 {
   FILE *fd;
   char diff_name[PATH_MAX+12];
@@ -1315,7 +1317,7 @@ void pop_undo(int redo)
   #endif
   dbg(2, "pop_undo(): loaded file:wire=%d inst=%d\n",xctx->wires , xctx->instances);
   link_symbols_to_instances(-1);
-  set_modify(1);
+  if(set_modify_status) set_modify(1);
   xctx->prep_hash_inst=0;
   xctx->prep_hash_wires=0;
   xctx->prep_net_structs=0;

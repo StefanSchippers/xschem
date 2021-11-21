@@ -31,7 +31,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  char *dir_tmp = NULL;
  char *sig_type = NULL;
  char *port_value = NULL;
- int i,j, tmp, save_ok;
+ int i,j, tmp;
  unsigned int *stored_flags;
  char netl_filename[PATH_MAX];   /* overflow safe 20161122 */
  char tcl_cmd_netlist[PATH_MAX + 100];  /* 20081202 overflow safe 20161122 */
@@ -43,15 +43,12 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  int split_f;
 
  split_f = tclgetboolvar("split_files");
+ push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
  /* top sch properties used for library use declarations and type definitions */
  /* to be printed before any entity declarations */
 
- if(xctx->modified) {
-   save_ok = save_schematic(xctx->sch[xctx->currsch]);
-   if(save_ok == -1) return;
- }
  xctx->netlist_count=0;
  free_hash(subckt_table);
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
@@ -116,7 +113,8 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  /* flush data structures (remove unused symbols) */
  unselect_all();
  remove_symbols();  /* removed 25122002, readded 04112003.. this removes unused symbols */
- load_schematic(1, xctx->sch[xctx->currsch], 0);
+ link_symbols_to_instances(-1);
+ /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
 
 
  /* 20071009 print top level generics if defined in symbol */
@@ -342,7 +340,8 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    int saved_hilight_nets = xctx->hilight_nets;
    unselect_all();
    remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
-   load_schematic(1, xctx->sch[xctx->currsch], 0);
+   link_symbols_to_instances(-1);
+   /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
 
    my_strdup(502, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(509, &xctx->sch_path[xctx->currsch+1], "->netlisting");
@@ -380,11 +379,11 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    xctx->currsch--;
    unselect_all();
    /* remove_symbols(); */
-   load_schematic(1, xctx->sch[xctx->currsch], 0);
+   /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
+   pop_undo(0, 0);
    prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    sym_vs_sch_pins();
-
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
