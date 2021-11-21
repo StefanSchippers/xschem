@@ -4,14 +4,6 @@ K {}
 V {}
 S {}
 E {}
-L 4 530 -350 920 -350 {}
-L 4 530 -360 530 -350 {}
-L 4 510 -350 530 -360 {}
-L 4 510 -350 530 -340 {}
-L 4 530 -350 530 -340 {}
-T {Drain terminal of depletion
-load must be on the output
-signal and NOT on supply net.} 610 -430 0 0 0.4 0.4 {}
 T {Set netlist mode to 'verilog netlist'
 (Options menu), then press 'Netlist'
 and 'Simulate' button.
@@ -20,8 +12,6 @@ Configure the verilog simulator in
 Simulation-> Configure simulators and tools'
 menu.} 700 -240 0 0 0.4 0.4 {}
 T {Trivial Depletion NMOS inverter simulation in verilog} 140 -670 0 0 0.7 0.7 {}
-N 450 -430 450 -380 { lab=VDD}
-N 450 -430 490 -430 { lab=VDD}
 N 490 -470 490 -410 { lab=VDD}
 N 490 -380 550 -380 { lab=GND}
 N 490 -220 550 -220 { lab=GND}
@@ -29,6 +19,8 @@ N 490 -350 490 -250 { lab=OUT}
 N 490 -190 490 -150 { lab=GND}
 N 390 -220 450 -220 { lab=IN}
 N 490 -300 610 -300 { lab=OUT}
+N 450 -380 450 -340 { lab=OUT}
+N 450 -340 490 -340 { lab=OUT}
 C {nmos4.sym} 470 -220 0 0 {name=M1 model=nmos w=5u l=0.18u m=1}
 C {nmos4_depl.sym} 470 -380 0 0 {name=M3 model=nmos w=5u l=0.18u m=1}
 C {gnd.sym} 550 -380 0 0 {name=l1 lab=GND}
