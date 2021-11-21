@@ -1062,6 +1062,7 @@ void descend_schematic(int instnumber)
      * -1 : user cancel
      *  0 : file not saved due to errors or per user request
      */
+    dbg(0, "ret=%d\n", ret);
     if(ret == 0) clear_all_hilights();
     if(ret == -1) return; /* user cancel */
   }

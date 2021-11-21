@@ -2341,8 +2341,21 @@ void descend_symbol(void)
   rebuild_selected_array();
   if(xctx->lastsel > 1)  return;
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
-    if(xctx->modified) {
-      if(save(1)) return;
+    if(xctx->modified)
+    {
+      int ret;
+  
+      ret = save(1);
+      /* if circuit is changed but not saved before descending
+       * state will be inconsistent when returning, can not propagare hilights
+       * save() return value:
+       *  1 : file saved 
+       * -1 : user cancel
+       *  0 : file not saved due to errors or per user request
+       */
+      dbg(0, "ret=%d\n", ret);
+      if(ret == 0) clear_all_hilights();
+      if(ret == -1) return; /* user cancel */
     }
     my_snprintf(name, S(name), "%s", xctx->inst[xctx->sel_array[0].n].name);
     /* dont allow descend in the default missing symbol */

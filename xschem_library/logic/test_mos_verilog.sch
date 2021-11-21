@@ -66,3 +66,4 @@ C {lab_pin.sym} 550 -230 0 0 {name=l11 sig_type=std_logic lab=IN verilog_type=re
 C {lab_pin.sym} 720 -310 0 1 {name=l12 sig_type=std_logic lab=OUT2}
 C {pmos4.sym} 630 -390 0 0 {name=M4 model=pmos w=5u l=0.18u m=1}
 C {vdd.sym} 710 -390 0 0 {name=l13 lab=VDD value=1}
+C {noconn.sym} 300 -230 1 0 {name=l14}
