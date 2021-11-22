@@ -990,7 +990,7 @@ void update_symbol(const char *result, int x)
       delete_inst_node(*ii); /* 20180208 fix crashing bug: delete node info if changing symbol */
                         /* if number of pins is different we must delete these data *before* */
                         /* changing ysmbol, otherwise *ii might end up deleting non allocated data. */
-      my_strdup(82, &xctx->inst[*ii].name, rel_sym_path(symbol));
+      my_strdup2(82, &xctx->inst[*ii].name, rel_sym_path(symbol));
       xctx->inst[*ii].ptr=sym_number; /* update instance to point to new symbol */
     }
     bbox(ADD, xctx->inst[*ii].x1, xctx->inst[*ii].y1,

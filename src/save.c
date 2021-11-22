@@ -291,7 +291,7 @@ void save_inst(FILE *fd, int select_only)
    if (select_only && ptr[i].sel != SELECTED) continue;
   fputs("C ", fd);
   if(oldversion) {
-    my_strdup(57, &tmp, add_ext(ptr[i].name, ".sym"));
+    my_strdup2(57, &tmp, add_ext(ptr[i].name, ".sym"));
     save_ascii_string(tmp, fd, 0);
     my_free(882, &tmp);
   } else {
@@ -829,7 +829,7 @@ void read_xschem_file(FILE *fd)
          }
          /* if loading file coming back from embedded symbol delete temporary file */
          if(!strcmp(name_embedded, xctx->sym[i].name)) {
-           my_strdup(325, &xctx->sym[i].name, xctx->inst[xctx->instances-1].name);
+           my_strdup2(325, &xctx->sym[i].name, xctx->inst[xctx->instances-1].name);
            xunlink(name_embedded);
            found=1;break;
          }
@@ -1693,7 +1693,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   symbol[symbols].type = NULL;
   symbol[symbols].templ = NULL;
   symbol[symbols].name=NULL;
-  my_strdup(352, &symbol[symbols].name,name);
+  my_strdup2(352, &symbol[symbols].name,name);
   while(1)
   {
    if(endfile && embed_fd && level == 0) break; /* ']' line encountered --> exit */

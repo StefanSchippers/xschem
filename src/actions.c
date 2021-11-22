@@ -463,6 +463,7 @@ void remove_symbol(int j)
      my_free(672, &xctx->sym[j].poly[c][i].selected_point);
    }
    my_free(673, &xctx->sym[j].poly[c]);
+   xctx->sym[j].polygons[c] = 0;
 
    for(i=0;i<xctx->sym[j].lines[c];i++)
    {
@@ -472,6 +473,7 @@ void remove_symbol(int j)
     }
    }
    my_free(675, &xctx->sym[j].line[c]);
+   xctx->sym[j].lines[c] = 0;
 
    for(i=0;i<xctx->sym[j].arcs[c];i++)
    {
@@ -481,6 +483,7 @@ void remove_symbol(int j)
     }
    }
    my_free(677, &xctx->sym[j].arc[c]);
+   xctx->sym[j].arcs[c] = 0;
 
    for(i=0;i<xctx->sym[j].rects[c];i++)
    {
@@ -490,6 +493,7 @@ void remove_symbol(int j)
     }
    }
    my_free(679, &xctx->sym[j].rect[c]);
+   xctx->sym[j].rects[c] = 0;
   }
   for(i=0;i<xctx->sym[j].texts;i++)
   {
@@ -507,6 +511,7 @@ void remove_symbol(int j)
    }
   }
   my_free(683, &xctx->sym[j].text);
+  xctx->sym[j].texts = 0;
 
   save = xctx->sym[j];
   for(i = j + 1; i < xctx->symbols; i++) {
@@ -518,12 +523,15 @@ void remove_symbol(int j)
 
 void remove_symbols(void)
 {
- int j;
+  int j;
 
- for(j=xctx->symbols-1;j>=0;j--) {
-   dbg(2, "remove_symbols(): removing symbol %d\n",j);
-   remove_symbol(j);
- }
+  for(j=xctx->symbols-1;j>=0;j--) {
+    dbg(2, "remove_symbols(): removing symbol %d\n",j);
+    remove_symbol(j);
+  }
+  for(j = 0; j < xctx->instances; j++) {
+    xctx->inst[j].ptr = -1; /* clear symbol reference on instanecs */
+  }
   dbg(1, "remove_symbols(): done\n");
 }
 
@@ -859,7 +867,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->inst[n].instname=NULL;
   xctx->inst[n].lab=NULL;
   dbg(1, "place_symbol(): entering my_strdup: name=%s\n",name);  /*  03-02-2000 */
-  my_strdup(12, &xctx->inst[n].name ,name);
+  my_strdup2(12, &xctx->inst[n].name ,name);
   dbg(1, "place_symbol(): done my_strdup: name=%s\n",name);  /*  03-02-2000 */
   /*  xctx->inst[n].x0=symbol_name ? x : xctx->mousex_snap; */
   /*  xctx->inst[n].y0=symbol_name ? y : xctx->mousey_snap; */

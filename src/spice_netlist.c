@@ -42,7 +42,7 @@ void hier_psprint(void)  /* netlister driver */
   ps_draw(2); /* page */
   dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
   unselect_all();
-  remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
+  remove_symbols(); /* ensure all unused symbols purged before descending hierarchy */
   link_symbols_to_instances(-1);
   /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
   my_strdup(1224, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
@@ -52,9 +52,9 @@ void hier_psprint(void)  /* netlister driver */
   subckt_name=NULL;
   for(i=0;i<xctx->symbols;i++)
   {
-    if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
-    if(!xctx->sym[i].type) continue;
-    my_strdup(1230, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
+    /* for printing we process also symbols that have *_ignore attribute */
+    if(!xctx->sym[i].type || !xctx->sym[i].name || !xctx->sym[i].name[0]) continue; /* can not descend into */
+    my_strdup2(1230, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(2, abs_path))
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
@@ -89,9 +89,6 @@ void hier_psprint(void)  /* netlister driver */
   zoom_full(0, 0, 1, 0.97);
   draw();
 }
-
-
-
 
 void global_spice_netlist(int global)  /* netlister driver */
 {

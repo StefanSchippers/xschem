@@ -259,7 +259,7 @@ void push_undo(void)
     my_strdup(330, &xctx->uslot[slot].iptr[i].lab, xctx->inst[i].lab);
     my_strdup2(191, &xctx->uslot[slot].iptr[i].instname, xctx->inst[i].instname);
     my_strdup(192, &xctx->uslot[slot].iptr[i].prop_ptr, xctx->inst[i].prop_ptr);
-    my_strdup(193, &xctx->uslot[slot].iptr[i].name, xctx->inst[i].name);
+    my_strdup2(193, &xctx->uslot[slot].iptr[i].name, xctx->inst[i].name);
   }
   /* texts */
   for(i=0;i<xctx->texts;i++) {
@@ -373,7 +373,7 @@ void pop_undo(int redo, int set_modify_status)
     xctx->inst[i].instname=NULL;
     xctx->inst[i].lab=NULL;
     my_strdup(214, &xctx->inst[i].prop_ptr, xctx->uslot[slot].iptr[i].prop_ptr);
-    my_strdup(215, &xctx->inst[i].name, xctx->uslot[slot].iptr[i].name);
+    my_strdup2(215, &xctx->inst[i].name, xctx->uslot[slot].iptr[i].name);
     my_strdup2(216, &xctx->inst[i].instname, xctx->uslot[slot].iptr[i].instname);
     my_strdup(766, &xctx->inst[i].lab, xctx->uslot[slot].iptr[i].lab);
   }

@@ -634,9 +634,10 @@ static void fill_ps_colors()
 {
  char s[200]; /* overflow safe 20161122 */
  unsigned int i,c;
- if(debug_var>=1) {
-   tcleval( "puts $ps_colors");
- }
+ /* if(debug_var>=1) {
+  *   tcleval( "puts $ps_colors");
+  * }
+  */
  for(i=0;i<cadlayers;i++) {
    my_snprintf(s, S(s), "lindex $ps_colors %d", i);
    tcleval( s);

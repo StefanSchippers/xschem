@@ -917,7 +917,7 @@ void copy_objects(int what)
         xctx->inst[xctx->instances].lab=NULL;
         xctx->inst[xctx->instances].node=NULL;
         xctx->inst[xctx->instances].name=NULL;
-        my_strdup(232, &xctx->inst[xctx->instances].name, xctx->inst[n].name);
+        my_strdup2(232, &xctx->inst[xctx->instances].name, xctx->inst[n].name);
         my_strdup(233, &xctx->inst[xctx->instances].prop_ptr, xctx->inst[n].prop_ptr);
         my_strdup2(234, &xctx->inst[xctx->instances].instname, get_tok_value(xctx->inst[n].prop_ptr, "name",0));
         my_strdup(312, &xctx->inst[xctx->instances].lab, xctx->inst[n].lab);

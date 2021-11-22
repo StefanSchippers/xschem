@@ -523,9 +523,10 @@ static void fill_svg_colors()
 {
  char s[200]; /* overflow safe 20161122 */
  unsigned int i,c;
- if(debug_var>=1) {
-   tcleval( "puts $svg_colors");
- }
+ /* if(debug_var>=1) {
+  *   tcleval( "puts $svg_colors");
+  * }
+  */
  for(i=0;i<cadlayers;i++) {
    if(color_ps) {
      my_snprintf(s, S(s), "lindex $svg_colors %d", i);
