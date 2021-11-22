@@ -525,12 +525,13 @@ void remove_symbols(void)
 {
   int j;
 
+  for(j = 0; j < xctx->instances; j++) { /* must be deleted before symbols are deleted */
+    delete_inst_node(j);
+    xctx->inst[j].ptr = -1; /* clear symbol reference on instanecs */
+  }
   for(j=xctx->symbols-1;j>=0;j--) {
     dbg(2, "remove_symbols(): removing symbol %d\n",j);
     remove_symbol(j);
-  }
-  for(j = 0; j < xctx->instances; j++) {
-    xctx->inst[j].ptr = -1; /* clear symbol reference on instanecs */
   }
   dbg(1, "remove_symbols(): done\n");
 }
