@@ -1302,7 +1302,7 @@ int sym_vs_sch_pins()
 void delete_inst_node(int i)
 {
    int j, rects;
-   if(!xctx->inst[i].node) return;
+   if( xctx->inst[i].ptr == -1 || !xctx->inst[i].node) return;
    rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER] +
            (xctx->inst[i].ptr+ xctx->sym)->rects[GENERICLAYER];
    if( rects > 0 )

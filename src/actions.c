@@ -451,73 +451,61 @@ void remove_symbol(int j)
   my_free(668, &xctx->sym[j].type);
   my_free(684, &xctx->sym[j].name);
   /*  /20150409 */
-  for(c=0;c<cadlayers;c++)
-  {
-   for(i=0;i<xctx->sym[j].polygons[c];i++)
-   {
-     if(xctx->sym[j].poly[c][i].prop_ptr != NULL) {
-       my_free(669, &xctx->sym[j].poly[c][i].prop_ptr);
-     }
-     my_free(670, &xctx->sym[j].poly[c][i].x);
-     my_free(671, &xctx->sym[j].poly[c][i].y);
-     my_free(672, &xctx->sym[j].poly[c][i].selected_point);
-   }
-   my_free(673, &xctx->sym[j].poly[c]);
-   xctx->sym[j].polygons[c] = 0;
-
-   for(i=0;i<xctx->sym[j].lines[c];i++)
-   {
-    if(xctx->sym[j].line[c][i].prop_ptr != NULL)
-    {
-     my_free(674, &xctx->sym[j].line[c][i].prop_ptr);
+  for(c=0;c<cadlayers;c++) {
+    for(i=0;i<xctx->sym[j].polygons[c];i++) {
+      if(xctx->sym[j].poly[c][i].prop_ptr != NULL) {
+        my_free(669, &xctx->sym[j].poly[c][i].prop_ptr);
+      }
+      my_free(670, &xctx->sym[j].poly[c][i].x);
+      my_free(671, &xctx->sym[j].poly[c][i].y);
+      my_free(672, &xctx->sym[j].poly[c][i].selected_point);
     }
-   }
-   my_free(675, &xctx->sym[j].line[c]);
-   xctx->sym[j].lines[c] = 0;
-
-   for(i=0;i<xctx->sym[j].arcs[c];i++)
-   {
-    if(xctx->sym[j].arc[c][i].prop_ptr != NULL)
-    {
-     my_free(676, &xctx->sym[j].arc[c][i].prop_ptr);
+    my_free(673, &xctx->sym[j].poly[c]);
+    xctx->sym[j].polygons[c] = 0;
+ 
+    for(i=0;i<xctx->sym[j].lines[c];i++) {
+      if(xctx->sym[j].line[c][i].prop_ptr != NULL) {
+        my_free(674, &xctx->sym[j].line[c][i].prop_ptr);
+      }
     }
-   }
-   my_free(677, &xctx->sym[j].arc[c]);
-   xctx->sym[j].arcs[c] = 0;
-
-   for(i=0;i<xctx->sym[j].rects[c];i++)
-   {
-    if(xctx->sym[j].rect[c][i].prop_ptr != NULL)
-    {
-     my_free(678, &xctx->sym[j].rect[c][i].prop_ptr);
+    my_free(675, &xctx->sym[j].line[c]);
+    xctx->sym[j].lines[c] = 0;
+ 
+    for(i=0;i<xctx->sym[j].arcs[c];i++) {
+      if(xctx->sym[j].arc[c][i].prop_ptr != NULL) {
+        my_free(676, &xctx->sym[j].arc[c][i].prop_ptr);
+      }
     }
-   }
-   my_free(679, &xctx->sym[j].rect[c]);
-   xctx->sym[j].rects[c] = 0;
+    my_free(677, &xctx->sym[j].arc[c]);
+    xctx->sym[j].arcs[c] = 0;
+ 
+    for(i=0;i<xctx->sym[j].rects[c];i++) {
+      if(xctx->sym[j].rect[c][i].prop_ptr != NULL) {
+        my_free(678, &xctx->sym[j].rect[c][i].prop_ptr);
+      }
+    }
+    my_free(679, &xctx->sym[j].rect[c]);
+    xctx->sym[j].rects[c] = 0;
   }
-  for(i=0;i<xctx->sym[j].texts;i++)
-  {
-   if(xctx->sym[j].text[i].prop_ptr != NULL)
-   {
-    my_free(680, &xctx->sym[j].text[i].prop_ptr);
-   }
-   if(xctx->sym[j].text[i].txt_ptr != NULL)
-   {
-    my_free(681, &xctx->sym[j].text[i].txt_ptr);
-   }
-   if(xctx->sym[j].text[i].font != NULL)
-   {
-    my_free(682, &xctx->sym[j].text[i].font);
-   }
+  for(i=0;i<xctx->sym[j].texts;i++) {
+    if(xctx->sym[j].text[i].prop_ptr != NULL) {
+      my_free(680, &xctx->sym[j].text[i].prop_ptr);
+    }
+    if(xctx->sym[j].text[i].txt_ptr != NULL) {
+      my_free(681, &xctx->sym[j].text[i].txt_ptr);
+    }
+    if(xctx->sym[j].text[i].font != NULL) {
+      my_free(682, &xctx->sym[j].text[i].font);
+    }
   }
   my_free(683, &xctx->sym[j].text);
   xctx->sym[j].texts = 0;
 
-  save = xctx->sym[j];
+  save = xctx->sym[j]; /* save cleared symbol slot */
   for(i = j + 1; i < xctx->symbols; i++) {
     xctx->sym[i-1] = xctx->sym[i];
   }
-  xctx->sym[xctx->symbols-1] = save;
+  xctx->sym[xctx->symbols-1] = save; /* fill end with cleared symbol slot */
   xctx->symbols--;
 }
 
@@ -525,8 +513,8 @@ void remove_symbols(void)
 {
   int j;
 
-  for(j = 0; j < xctx->instances; j++) { /* must be deleted before symbols are deleted */
-    delete_inst_node(j);
+  for(j = 0; j < xctx->instances; j++) {
+    delete_inst_node(j); /* must be deleted before symbols are deleted */
     xctx->inst[j].ptr = -1; /* clear symbol reference on instanecs */
   }
   for(j=xctx->symbols-1;j>=0;j--) {
@@ -1692,7 +1680,8 @@ void new_wire(int what, double mx_snap, double my_snap)
       xctx->prep_hi_structs = 0;
       if(tclgetboolvar("autotrim_wires")) trim_wires();
       if(s_pnetname || xctx->hilight_nets) {
-        prepare_netlist_structs(0);
+        prepare_netlist_structs(0); /* since xctx->prep_hi_structs==0, do a delete_netlist_structs() first,
+                                     * this clears both xctx->prep_hi_structs and xctx->prep_net_structs. */
         if(!big) {
           bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
           if(s_pnetname || xctx->hilight_nets) {

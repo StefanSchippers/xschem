@@ -76,8 +76,8 @@ void hier_psprint(void)  /* netlister driver */
         dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
       }
     }
-    my_free(1231, &abs_path);
   }
+  my_free(1231, &abs_path);
   free_hash(subckt_table);
   my_free(1229, &subckt_name);
   my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));

@@ -1315,7 +1315,7 @@ void create_simdata(void)
     xSymbol *symbol = xctx->inst[i].ptr + xctx->sym;
     int npin = symbol->rects[PINLAYER];
     xctx->simdata[i].pin = NULL;
-    my_realloc(61, &xctx->simdata[i].pin, npin * sizeof(struct simdata_pin));
+    if(npin) my_realloc(61, &xctx->simdata[i].pin, npin * sizeof(struct simdata_pin));
     xctx->simdata[i].npin = npin;
     for(j = 0; j < npin; j++) {
       char function[20];
@@ -1342,7 +1342,7 @@ void free_simdata(void)
         my_free(1219, &xctx->simdata[i].pin[j].function);
         my_free(1220, &xctx->simdata[i].pin[j].go_to);
       }
-      my_free(1221, &xctx->simdata[i].pin);
+      if(npin) my_free(1221, &xctx->simdata[i].pin);
     }
     my_free(1222, &xctx->simdata);
   }

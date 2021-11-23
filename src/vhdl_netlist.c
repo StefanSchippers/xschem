@@ -535,14 +535,14 @@ void  vhdl_block_netlist(FILE *fd, int i)
 
   dbg(1, "vhdl_block_netlist():       used components\n");
   /* print all components */
-  if(!vhdl_stop)
+  if(!vhdl_stop) {
     for(j=0;j<xctx->symbols;j++)
     {
       if( strcmp(get_tok_value(xctx->sym[j].prop_ptr,"vhdl_primitive",0),"true")==0 ) continue;
       if(!xctx->sym[j].type || (strcmp(xctx->sym[j].type,"primitive")!=0 && 
          strcmp(xctx->sym[j].type,"subcircuit")!=0))
            continue;
-      my_strdup(1238, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
+      my_strdup2(1238, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
       if(( strcmp(xctx->sym[j].type,"subcircuit")==0 || strcmp(xctx->sym[j].type,"primitive")==0) && 
           check_lib(1, abs_path)
         ) {
@@ -591,8 +591,9 @@ void  vhdl_block_netlist(FILE *fd, int i)
         if(tmp) fprintf(fd, "\n);\n");
         fprintf(fd, "end component ;\n\n");
       }
-      my_free(1239, &abs_path);
-    }
+    } /* for(j...) */
+  } /* if(!vhdl_stop) */
+  my_free(1239, &abs_path);
   dbg(1, "vhdl_block_netlist():  netlisting %s\n", skip_dir( xctx->sch[xctx->currsch]));
   vhdl_netlist(fd, vhdl_stop);
   fprintf(fd,"//// begin user architecture code\n");
