@@ -448,12 +448,13 @@ void alloc_xschem_data(const char *top_path)
   xctx->current_dirname[0] = '\0';
   for(i = 0; i < NBOXES; i++) {
     for(j = 0; j < NBOXES; j++) {
-      xctx->instpintable[i][j] = NULL;
-      xctx->wiretable[i][j] = NULL;
-      xctx->insttable[i][j] = NULL;
+      xctx->instpin_spatial_table[i][j] = NULL;
+      xctx->wire_spatial_table[i][j] = NULL;
+      xctx->inst_spatial_table[i][j] = NULL;
     }
   }
   for(i = 0 ; i < HASHSIZE; i++) {
+    xctx->inst_table[i] = NULL;
     xctx->node_table[i] = NULL;
     xctx->hilight_table[i] = NULL;
     xctx->node_redraw_table[i] = NULL; /* move.c */

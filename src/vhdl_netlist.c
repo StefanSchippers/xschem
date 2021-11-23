@@ -22,7 +22,7 @@
 
 #include "xschem.h"
 
-static struct hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
+static struct str_hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
 
 void global_vhdl_netlist(int global)  /* netlister driver */
 {
@@ -50,7 +50,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  /* to be printed before any entity declarations */
 
  xctx->netlist_count=0;
- free_hash(subckt_table);
+ str_hash_free(subckt_table);
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
    netlist_dir, skip_dir(xctx->sch[xctx->currsch]), getpid());
  fd=fopen(netl_filename, "w");
@@ -293,7 +293,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
   }
   my_free(1241, &abs_path);
  }
- free_hash(subckt_table);
+ str_hash_free(subckt_table);
  my_free(1086, &subckt_name);
 
  dbg(1, "global_vhdl_netlist(): netlisting  top level\n");
@@ -373,7 +373,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
     }
     my_free(1243, &abs_path);
    }
-   free_hash(subckt_table);
+   str_hash_free(subckt_table);
    my_free(1087, &subckt_name);
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
    xctx->currsch--;

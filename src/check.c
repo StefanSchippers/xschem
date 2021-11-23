@@ -53,7 +53,7 @@ void update_conn_cues(int draw_cues, int dr_win)
   xWire * const wire = xctx->wire;
   struct iterator_ctx ctx;
 
-  hash_wires(); /* must be done also if wires==0 to clear wiretable */
+  hash_wires(); /* must be done also if wires==0 to clear wire_spatial_table */
   if(!xctx->wires) return;
   if(!xctx->draw_dots) return;
   if(cadhalfdotsize*xctx->mooz<0.7) return;
@@ -78,7 +78,7 @@ void update_conn_cues(int draw_cues, int dr_win)
         y0 = wire[k].y2;
       }
       get_square(x0, y0, &sqx, &sqy);
-      for(wptr = xctx->wiretable[sqx][sqy] ; wptr ; wptr = wptr->next) {
+      for(wptr = xctx->wire_spatial_table[sqx][sqy] ; wptr ; wptr = wptr->next) {
         i = wptr->n;
         if(i == k) {
           continue; /* no check wire against itself */
@@ -160,13 +160,13 @@ void trim_wires(void)
       y0 = xctx->wire[i].y1;
       get_square(x0, y0, &sqx, &sqy);
       k=1;
-      for(wptr = xctx->wiretable[sqx][sqy] ; ; wptr = wptr->next) {
+      for(wptr = xctx->wire_spatial_table[sqx][sqy] ; ; wptr = wptr->next) {
         if(!wptr) {
           if(k == 1) {
             x0 = xctx->wire[i].x2;
             y0 = xctx->wire[i].y2;
             get_square(x0, y0, &sqx, &sqy);
-            wptr = xctx->wiretable[sqx][sqy];
+            wptr = xctx->wire_spatial_table[sqx][sqy];
             k = 2;
             if(!wptr) break;
           } else break;
@@ -220,13 +220,13 @@ void trim_wires(void)
       y0 = xctx->wire[i].y1;
       get_square(x0, y0, &sqx, &sqy);
       k=1;
-      for(wptr = xctx->wiretable[sqx][sqy] ; ; wptr = wptr->next) {
+      for(wptr = xctx->wire_spatial_table[sqx][sqy] ; ; wptr = wptr->next) {
         if(!wptr) {
           if(k == 1) {
             x0 = xctx->wire[i].x2;
             y0 = xctx->wire[i].y2;
             get_square(x0, y0, &sqx, &sqy);
-            wptr = xctx->wiretable[sqx][sqy];
+            wptr = xctx->wire_spatial_table[sqx][sqy];
             k = 2;
             if(!wptr) break;
           } else break;
@@ -284,13 +284,13 @@ void trim_wires(void)
       xctx->wire[i].end1 = xctx->wire[i].end2 = 0;
       get_square(x0, y0, &sqx, &sqy);
       k=1;
-      for(wptr = xctx->wiretable[sqx][sqy] ; ; wptr = wptr->next) {
+      for(wptr = xctx->wire_spatial_table[sqx][sqy] ; ; wptr = wptr->next) {
         if(!wptr) {
           if(k == 1) {
             x0 = xctx->wire[i].x2;
             y0 = xctx->wire[i].y2;
             get_square(x0, y0, &sqx, &sqy);
-            wptr = xctx->wiretable[sqx][sqy];
+            wptr = xctx->wire_spatial_table[sqx][sqy];
             k = 2;
             if(!wptr) break;
           } else break;
@@ -322,7 +322,7 @@ void trim_wires(void)
       x0 = xctx->wire[i].x2;
       y0 = xctx->wire[i].y2;
       get_square(x0, y0, &sqx, &sqy);
-      for(wptr = xctx->wiretable[sqx][sqy] ; wptr ; wptr = wptr->next) {
+      for(wptr = xctx->wire_spatial_table[sqx][sqy] ; wptr ; wptr = wptr->next) {
         j = wptr->n;
         if(i == j || wireflag[j]) continue;
         if( touch(xctx->wire[j].x1, xctx->wire[j].y1, xctx->wire[j].x2, xctx->wire[j].y2, x0,y0) &&
@@ -407,7 +407,7 @@ void break_wires_at_pins(void)
         x0=xctx->inst[k].x0+rx1;
         y0=xctx->inst[k].y0+ry1;
         get_square(x0, y0, &sqx, &sqy);
-        for(wptr=xctx->wiretable[sqx][sqy]; wptr; wptr=wptr->next) {
+        for(wptr=xctx->wire_spatial_table[sqx][sqy]; wptr; wptr=wptr->next) {
           i = wptr->n;
           if( touch(xctx->wire[i].x1, xctx->wire[i].y1,
                     xctx->wire[i].x2, xctx->wire[i].y2, x0,y0) )
@@ -458,7 +458,7 @@ void break_wires_at_pins(void)
       }
       get_square(x0, y0, &sqx, &sqy);
       /* printf("  k=%d, x0=%g, y0=%g\n", k, x0, y0); */
-      for(wptr=xctx->wiretable[sqx][sqy] ; wptr ; wptr = wptr->next) {
+      for(wptr=xctx->wire_spatial_table[sqx][sqy] ; wptr ; wptr = wptr->next) {
         i = wptr->n;
         /* printf("check wire %d to wire %d\n", k, i); */
         if(i==k) {

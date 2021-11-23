@@ -705,8 +705,8 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
        piny0 += y0;
 
        get_square(pinx0, piny0, &sqx, &sqy);
-       iptr=xctx->instpintable[sqx][sqy];
-       wptr=xctx->wiretable[sqx][sqy];
+       iptr=xctx->instpin_spatial_table[sqx][sqy];
+       wptr=xctx->wire_spatial_table[sqx][sqy];
 
        skip=0;
        while(iptr) {
@@ -1284,7 +1284,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
    if(selected == 2) {
      const char *str;
      str = get_tok_value(xctx->wire[i].prop_ptr, "lab",0);
-     if(!str[0] || !bus_hilight_lookup(str, 0,XLOOKUP)) continue;
+     if(!str[0] || !bus_hilight_hash_lookup(str, 0,XLOOKUP)) continue;
    }
    if(xctx->wire[i].bus){
      ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
@@ -1333,7 +1333,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
     type = (xctx->inst[i].ptr+ xctx->sym)->type;
     found = 0;
     if( type && IS_LABEL_OR_PIN(type)) {
-      entry=bus_hilight_lookup(xctx->inst[i].lab, 0, XLOOKUP );
+      entry=bus_hilight_hash_lookup(xctx->inst[i].lab, 0, XLOOKUP );
       if(entry) found = 1;
     }
     else if( xctx->inst[i].color != -10000 ) {

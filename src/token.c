@@ -23,17 +23,6 @@
 #include "xschem.h"
 #define SPACE(c)  ( c=='\n' || c==' ' || c=='\t' || c=='\0' || c==';' )
 
-/* instance name (refdes) hash table, for unique name checking */
-struct inst_hashentry {
-                  struct inst_hashentry *next;
-                  unsigned int hash;
-                  char *token;
-                  int value;
-                 };
-
-
-static struct inst_hashentry *table[HASHSIZE]; /* safe with multiple schematics, hash rebuilt before usage */
-
 enum status {TOK_BEGIN, TOK_TOKEN, TOK_SEP, TOK_VALUE, TOK_END, TOK_ENDTOK};
 
 unsigned int str_hash(const char *tok)
@@ -74,8 +63,7 @@ int name_strcmp(char *s, char *d) /* compare strings up to '\0' or'[' */
  * 1,XDELETE : delete token entry, return NULL
  * 2,XLOOKUP : lookup only
  */
-static struct inst_hashentry *inst_hash_lookup(struct inst_hashentry **table, char *token,
-                                               int value, int what, size_t token_size)
+static struct inst_hashentry *inst_hash_lookup(char *token, int value, int what, size_t token_size)
 {
   unsigned int hashcode;
   unsigned int idx;
@@ -85,8 +73,8 @@ static struct inst_hashentry *inst_hash_lookup(struct inst_hashentry **table, ch
   if(token==NULL) return NULL;
   hashcode=str_hash(token);
   idx=hashcode % HASHSIZE;
-  entry=table[idx];
-  preventry=&table[idx];
+  entry=xctx->inst_table[idx];
+  preventry=&xctx->inst_table[idx];
   while(1) {
     if( !entry ) {                         /* empty slot */
       if(what == XINSERT || what == XINSERT_NOREPLACE) {            /* insert data */
@@ -133,24 +121,24 @@ static struct inst_hashentry *inst_free_hash_entry(struct inst_hashentry *entry)
   return NULL;
 }
 
-static void inst_free_hash(struct inst_hashentry **table) /* remove the whole hash table  */
+static void inst_hash_free(void) /* remove the whole hash table  */
 {
  int i;
 
- dbg(1, "inst_free_hash(): removing hash table\n");
+ dbg(1, "inst_hash_free(): removing hash table\n");
  for(i=0;i<HASHSIZE;i++)
  {
-   table[i] = inst_free_hash_entry( table[i] );
+   xctx->inst_table[i] = inst_free_hash_entry( xctx->inst_table[i] );
  }
 }
 
 void hash_all_names(int n)
 {
   int i;
-  inst_free_hash(table);
+  inst_hash_free();
   for(i=0; i<xctx->instances; i++) {
     /* if(i == n) continue; */
-    inst_hash_lookup(table, xctx->inst[i].instname, i, XINSERT, strlen(xctx->inst[i].instname));
+    inst_hash_lookup(xctx->inst[i].instname, i, XINSERT, strlen(xctx->inst[i].instname));
   }
 }
 
@@ -174,7 +162,7 @@ const char *tcl_hook2(char **res)
 
 void clear_instance_hash()
 {
-  inst_free_hash(table);
+  inst_hash_free();
 }
 
 void check_unique_names(int rename)
@@ -204,7 +192,7 @@ void check_unique_names(int rename)
     draw();
     if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   }
-  inst_free_hash(table);
+  inst_hash_free();
   first = 1;
   for(i=0;i<xctx->instances;i++) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
@@ -216,7 +204,7 @@ void check_unique_names(int rename)
         comma_pos = strchr(start, ',');
         if(comma_pos) *comma_pos = '\0';
         dbg(1, "check_unique_names(): checking %s\n", start);
-        if( (entry = inst_hash_lookup(table, start, i, XINSERT_NOREPLACE, strlen(start)) ) && entry->value != i) {
+        if( (entry = inst_hash_lookup(start, i, XINSERT_NOREPLACE, strlen(start)) ) && entry->value != i) {
           xctx->inst[i].color = -PINLAYER;
           xctx->hilight_nets=1;
           if(rename == 1) {
@@ -240,7 +228,7 @@ void check_unique_names(int rename)
         my_strdup(511, &tmp, xctx->inst[i].prop_ptr);
         new_prop_string(i, tmp, newpropcnt++, !rename);
         my_strdup2(512, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
-        inst_hash_lookup(table, xctx->inst[i].instname, i, XINSERT, strlen(xctx->inst[i].instname));
+        inst_hash_lookup(xctx->inst[i].instname, i, XINSERT, strlen(xctx->inst[i].instname));
         symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
         bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
         my_free(972, &tmp);
@@ -695,10 +683,10 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  }
  xctx->prefix=old_name[0];
  /* don't change old_prop if name does not conflict. */
- if(dis_uniq_names || (entry = inst_hash_lookup(table, old_name, i, XLOOKUP, old_name_len))==NULL ||
+ if(dis_uniq_names || (entry = inst_hash_lookup(old_name, i, XLOOKUP, old_name_len))==NULL ||
      entry->value == i)
  {
-  inst_hash_lookup(table, old_name, i, XINSERT, old_name_len);
+  inst_hash_lookup(old_name, i, XINSERT, old_name_len);
   my_strdup(447, &xctx->inst[i].prop_ptr, old_prop);
   my_free(985, &old_name);
   return;
@@ -715,7 +703,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
    } else {
      new_name_len = my_snprintf(new_name, old_name_len + 40, "%c%d%s", xctx->prefix,q, tmp); /* added new_name_len */
    }
-   if((entry = inst_hash_lookup(table, new_name, i, XLOOKUP, new_name_len)) == NULL || entry->value == i)
+   if((entry = inst_hash_lookup(new_name, i, XLOOKUP, new_name_len)) == NULL || entry->value == i)
    {
     last[(int)xctx->prefix]=q+1;
     break;
@@ -726,7 +714,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  if(strcmp(tmp2, old_prop) ) {
    my_strdup(449, &xctx->inst[i].prop_ptr, tmp2);
  }
- inst_hash_lookup(table, new_name, i, XINSERT, new_name_len); /* reinsert in hash */
+ inst_hash_lookup(new_name, i, XINSERT, new_name_len); /* reinsert in hash */
  my_free(987, &old_name);
  my_free(988, &new_name);
 }

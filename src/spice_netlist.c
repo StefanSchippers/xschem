@@ -22,9 +22,9 @@
 
 #include "xschem.h"
 
-static struct hashentry *model_table[HASHSIZE]; /* safe even with multiple schematics */
-static struct hashentry *model_entry; /* safe even with multiple schematics */
-static struct hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
+static struct str_hashentry *model_table[HASHSIZE]; /* safe even with multiple schematics */
+static struct str_hashentry *model_entry; /* safe even with multiple schematics */
+static struct str_hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
 
 void hier_psprint(void)  /* netlister driver */
 {
@@ -37,7 +37,7 @@ void hier_psprint(void)  /* netlister driver */
  
   if(!ps_draw(1)) return; /* prolog */
   push_undo();
-  free_hash(subckt_table);
+  str_hash_free(subckt_table);
   zoom_full(0, 0, 1, 0.97);
   ps_draw(2); /* page */
   dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
@@ -78,7 +78,7 @@ void hier_psprint(void)  /* netlister driver */
     }
   }
   my_free(1231, &abs_path);
-  free_hash(subckt_table);
+  str_hash_free(subckt_table);
   my_free(1229, &subckt_name);
   my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
   xctx->currsch--;
@@ -113,8 +113,8 @@ void global_spice_netlist(int global)  /* netlister driver */
  push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
- free_hash(subckt_table);
- free_hash(model_table);
+ str_hash_free(subckt_table);
+ str_hash_free(model_table);
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
  top_sub = 0;
  tclsetvar("spiceprefix", "1");
@@ -136,14 +136,10 @@ void global_spice_netlist(int global)  /* netlister driver */
  } else {
    my_snprintf(cellname, S(cellname), "%s.spice", skip_dir(xctx->sch[xctx->currsch]));
  }
-
  if(fd==NULL) {
    dbg(0, "global_spice_netlist(): problems opening netlist file\n");
    return;
  }
-
-
-
  first = 0;
  for(i=0;i<xctx->instances;i++) /* print netlist_commands of top level cell with 'place=header' property */
  {
@@ -294,7 +290,7 @@ void global_spice_netlist(int global)  /* netlister driver */
     }
     my_free(1233, &abs_path);
    }
-   free_hash(subckt_table);
+   str_hash_free(subckt_table);
    my_free(944, &subckt_name);
    /*clear_drawing(); */
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
@@ -356,7 +352,7 @@ void global_spice_netlist(int global)  /* netlister driver */
      model_entry = model_entry->next;
    }
  }
- free_hash(model_table);
+ str_hash_free(model_table);
  if(first) fprintf(fd,"**** end user architecture code\n");
 
 
@@ -568,10 +564,10 @@ void spice_netlist(FILE *fd, int spice_stop )
  *                                      return NULL if not found
  * "whatever"    "whatever"  XDELETE     delete entry if found,return NULL
  */
-struct hashentry *str_hash_lookup(struct hashentry **table, const char *token, const char *value, int what)
+struct str_hashentry *str_hash_lookup(struct str_hashentry **table, const char *token, const char *value, int what)
 {
   unsigned int hashcode, idx;
-  struct hashentry *entry, *saveptr, **preventry;
+  struct str_hashentry *entry, *saveptr, **preventry;
   int s ;
 
   if(token==NULL) return NULL;
@@ -585,8 +581,8 @@ struct hashentry *str_hash_lookup(struct hashentry **table, const char *token, c
     {
       if(what==XINSERT || what == XINSERT_NOREPLACE)            /* insert data */
       {
-        s=sizeof( struct hashentry );
-        entry=(struct hashentry *)my_malloc(313, s);
+        s=sizeof( struct str_hashentry );
+        entry=(struct str_hashentry *)my_malloc(313, s);
         entry->next=NULL;
         entry->token=NULL;
         entry->value=NULL;
@@ -617,9 +613,9 @@ struct hashentry *str_hash_lookup(struct hashentry **table, const char *token, c
   }
 }
 
-static struct hashentry *str_free_hash_entry(struct hashentry *entry)
+static struct str_hashentry *str_hash_free_entry(struct str_hashentry *entry)
 {
-  struct hashentry *tmp;
+  struct str_hashentry *tmp;
   while( entry ) {
     tmp = entry -> next;
     my_free(956, &(entry->token));
@@ -631,13 +627,13 @@ static struct hashentry *str_free_hash_entry(struct hashentry *entry)
 }
 
 
-void free_hash(struct hashentry **table)
+void str_hash_free(struct str_hashentry **table)
 {
   int i;
 
   for(i=0;i<HASHSIZE;i++)
   {
-    table[i] = str_free_hash_entry( table[i] );
+    table[i] = str_hash_free_entry( table[i] );
   }
 }
 
@@ -702,7 +698,7 @@ struct int_hashentry *int_hash_lookup(struct int_hashentry **table, const char *
   }
 }
 
-static struct int_hashentry *free_int_hash_entry(struct int_hashentry *entry)
+static struct int_hashentry *int_hash_free_entry(struct int_hashentry *entry)
 {
   struct int_hashentry *tmp;
   while( entry ) {
@@ -715,13 +711,13 @@ static struct int_hashentry *free_int_hash_entry(struct int_hashentry *entry)
 }
 
 
-void free_int_hash(struct int_hashentry **table)
+void int_hash_free(struct int_hashentry **table)
 {
   int i;
 
   for(i=0;i<HASHSIZE;i++)
   {
-    table[i] = free_int_hash_entry( table[i] );
+    table[i] = int_hash_free_entry( table[i] );
   }
 }
 

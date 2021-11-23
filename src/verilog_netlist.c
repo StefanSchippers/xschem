@@ -21,7 +21,7 @@
  */
 
 #include "xschem.h"
-static struct hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
+static struct str_hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
 
 void global_verilog_netlist(int global)  /* netlister driver */
 {
@@ -45,7 +45,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
- free_hash(subckt_table);
+ str_hash_free(subckt_table);
  xctx->netlist_count=0;
  /* top sch properties used for library use declarations and type definitions */
  /* to be printed before any entity declarations */
@@ -314,7 +314,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
     }
    }
    my_free(1235, &abs_path);
-   free_hash(subckt_table);
+   str_hash_free(subckt_table);
    my_free(1073, &subckt_name);
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
    xctx->currsch--;

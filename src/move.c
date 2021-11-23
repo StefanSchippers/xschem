@@ -513,7 +513,7 @@ void find_inst_to_be_redrawn()
       }
     }
   }
-  free_int_hash(xctx->node_redraw_table);
+  int_hash_free(xctx->node_redraw_table);
 }
 
 void copy_objects(int what)

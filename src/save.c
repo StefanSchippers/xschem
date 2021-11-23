@@ -1474,7 +1474,7 @@ void align_sch_pins_with_sym(const char *name, int pos)
           xctx->sym[pos].rect[PINLAYER][i] = box[i];
         }
       }
-      free_int_hash(pintable);
+      int_hash_free(pintable);
       my_free(1169, &box);
     }
     my_free(1170, &symtype);

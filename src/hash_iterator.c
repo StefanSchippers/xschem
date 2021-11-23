@@ -39,7 +39,7 @@ void init_inst_iterator(struct iterator_ctx *ctx, double x1, double y1, double x
       ctx->tmpi = ctx->i % NBOXES; if(ctx->tmpi<0) ctx->tmpi+=NBOXES;
       ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj<0) ctx->tmpj+=NBOXES;
       ctx->counti=0;
-      ctx->instanceptr=xctx->insttable[ctx->tmpi][ctx->tmpj];
+      ctx->instanceptr=xctx->inst_spatial_table[ctx->tmpi][ctx->tmpj];
       ctx->countj=0;
 }
 
@@ -60,14 +60,14 @@ struct instentry *inst_iterator_next(struct iterator_ctx *ctx)
     if(ctx->j < ctx->y2a && ctx->countj++ < NBOXES) {
       ctx->j++;
       ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj+=NBOXES;
-      ctx->instanceptr = xctx->insttable[ctx->tmpi][ctx->tmpj];
+      ctx->instanceptr = xctx->inst_spatial_table[ctx->tmpi][ctx->tmpj];
     } else if(ctx->i < ctx->x2a && ctx->counti++ < NBOXES) {
       ctx->i++;
       ctx->j = ctx->y1a;
       ctx->countj = 0;
       ctx->tmpi = ctx->i % NBOXES; if(ctx->tmpi < 0) ctx->tmpi += NBOXES;
       ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
-      ctx->instanceptr = xctx->insttable[ctx->tmpi][ctx->tmpj];
+      ctx->instanceptr = xctx->inst_spatial_table[ctx->tmpi][ctx->tmpj];
     } else {
       my_free(753, &ctx->instflag);
       return NULL;
@@ -92,7 +92,7 @@ void init_wire_iterator(struct iterator_ctx *ctx, double x1, double y1, double x
       ctx->tmpi=ctx->i % NBOXES; if(ctx->tmpi < 0) ctx->tmpi += NBOXES;
       ctx->tmpj=ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
       ctx->counti=0;
-      ctx->wireptr = xctx->wiretable[ctx->tmpi][ctx->tmpj];
+      ctx->wireptr = xctx->wire_spatial_table[ctx->tmpi][ctx->tmpj];
       ctx->countj = 0;
 }
 
@@ -113,14 +113,14 @@ struct wireentry *wire_iterator_next(struct iterator_ctx *ctx)
     if(ctx->j < ctx->y2a && ctx->countj++ < NBOXES) {
       ctx->j++;
       ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
-      ctx->wireptr = xctx->wiretable[ctx->tmpi][ctx->tmpj];
+      ctx->wireptr = xctx->wire_spatial_table[ctx->tmpi][ctx->tmpj];
     } else if(ctx->i < ctx->x2a && ctx->counti++ < NBOXES) {
       ctx->i++;
       ctx->j = ctx->y1a;
       ctx->countj = 0;
       ctx->tmpi = ctx->i % NBOXES; if(ctx->tmpi < 0) ctx->tmpi += NBOXES;
       ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
-      ctx->wireptr = xctx->wiretable[ctx->tmpi][ctx->tmpj];
+      ctx->wireptr = xctx->wire_spatial_table[ctx->tmpi][ctx->tmpj];
     } else {
       my_free(754, &ctx->wireflag);
       return NULL;

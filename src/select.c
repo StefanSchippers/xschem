@@ -120,7 +120,7 @@ void select_connected_wires(int stop_at_junction)
             x0 = xctx->inst[i].x0+rx1;
             y0 = xctx->inst[i].y0+ry1;
             get_square(x0, y0, &sqx, &sqy);
-            wptr = xctx->wiretable[sqx][sqy];
+            wptr = xctx->wire_spatial_table[sqx][sqy];
             while (wptr) {
                dbg(1, "select_connected_wires(): x0=%g y0=%g wire[%d]=%g %g %g %g\n",
                    x0, y0, wptr->n, xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,

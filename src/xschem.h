@@ -593,9 +593,9 @@ typedef struct {
   int flat_netlist;
   char current_dirname[PATH_MAX];
   int netlist_unconn_cnt; /* unique count of unconnected pins while netlisting */
-  struct instpinentry *instpintable[NBOXES][NBOXES];
-  struct wireentry *wiretable[NBOXES][NBOXES];
-  struct instentry *insttable[NBOXES][NBOXES];
+  struct instpinentry *instpin_spatial_table[NBOXES][NBOXES];
+  struct wireentry *wire_spatial_table[NBOXES][NBOXES];
+  struct instentry *inst_spatial_table[NBOXES][NBOXES];
   Window window;
   Pixmap save_pixmap;
   XRectangle xrect[1];
@@ -616,6 +616,7 @@ typedef struct {
   int cur_undo_ptr;
   int tail_undo_ptr;
   int head_undo_ptr;
+  struct inst_hashentry *inst_table[HASHSIZE];
   struct node_hashentry *node_table[HASHSIZE];
   struct hilight_hashentry *hilight_table[HASHSIZE];
   int hilight_nets;
@@ -730,13 +731,22 @@ struct drivers {
                };
 
 /* instance name (refdes) hash table, for unique name checking */
-struct hashentry {
-                  struct hashentry *next;
+struct inst_hashentry {
+                  struct inst_hashentry *next;
+                  unsigned int hash;
+                  char *token;
+                  int value;
+                 };
+
+/* generic string hash table */
+struct str_hashentry {
+                  struct str_hashentry *next;
                   unsigned int hash;
                   char *token;
                   char *value;
                  };
 
+/* generic int hash table */
 struct int_hashentry {
                   struct int_hashentry *next;
                   unsigned int hash;
@@ -885,7 +895,7 @@ extern void saveas(const char *f, int type);
 extern const char *get_file_path(char *f);
 extern int save(int confirm);
 extern void save_ascii_string(const char *ptr, FILE *fd, int newline);
-extern struct hilight_hashentry *bus_hilight_lookup(const char *token, int value, int what) ;
+extern struct hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int what) ;
 extern struct hilight_hashentry *hilight_lookup(const char *token, int value, int what);
 extern int  name_strcmp(char *s, char *d) ;
 extern int search(const char *tok, const char *val, int sub, int sel);
@@ -925,7 +935,6 @@ extern int text_bbox(const char * str,double xscale, double yscale,
 extern int get_color(int value);
 extern void incr_hilight_color(void);
 extern void hash_inst(int what, int n);
-extern void hash_inst_pin(int what, int i, int j);
 extern void del_inst_table(void);
 extern void hash_wires(void);
 extern void hash_wire(int what, int n, int incremental);
@@ -1104,10 +1113,12 @@ extern void check_unique_names(int rename);
 extern void clear_instance_hash();
 
 extern unsigned int str_hash(const char *tok);
-extern void free_hash(struct hashentry **table);
-extern struct hashentry *str_hash_lookup(struct hashentry **table, const char *token, const char *value, int what);
-extern void free_int_hash(struct int_hashentry **table);
-extern struct int_hashentry *int_hash_lookup(struct int_hashentry **table, const char *token, const int value, int what);
+extern void str_hash_free(struct str_hashentry **table);
+extern struct str_hashentry *str_hash_lookup(struct str_hashentry **table,
+       const char *token, const char *value, int what);
+extern void int_hash_free(struct int_hashentry **table);
+extern struct int_hashentry *int_hash_lookup(struct int_hashentry **table,
+       const char *token, const int value, int what);
 
 extern const char *find_nth(const char *str, char sep, int n);
 extern int isonlydigit(const char *s);
@@ -1171,13 +1182,10 @@ extern const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net
 extern int record_global_node(int what, FILE *fp, char *node);
 extern int count_labels(char *s);
 extern int get_unnamed_node(int what, int mult, int node);
-extern void free_node_hash(void);
-extern struct node_hashentry
-                *node_hash_lookup(const char *token, const char *dir,int what, int port, char *sig_type,
-                char *verilog_type, char *value, char *class, const char *orig_tok);
+extern void node_hash_free(void);
 extern void traverse_node_hash();
 extern struct node_hashentry
-                *bus_hash_lookup(const char *token, const char *dir,int what, int port, char *sig_type,
+                *bus_node_hash_lookup(const char *token, const char *dir,int what, int port, char *sig_type,
                 char *verilog_type, char *value, char *class);
 /* extern void insert_missing_pin(); */
 extern void round_schematic_to_grid(double cadsnap);

@@ -734,7 +734,7 @@ void svg_draw(void)
     for(i=0;i<xctx->wires;i++)
     {
       color = WIRELAYER;
-      if(xctx->hilight_nets && (entry=bus_hilight_lookup( xctx->wire[i].node, 0, XLOOKUP))) {
+      if(xctx->hilight_nets && (entry=bus_hilight_hash_lookup( xctx->wire[i].node, 0, XLOOKUP))) {
         color = get_color(entry->value);
       }
       svg_drawline(color, xctx->wire[i].bus, xctx->wire[i].x1, 
@@ -754,7 +754,7 @@ void svg_draw(void)
       for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
         i = wireptr->n;
         color = WIRELAYER;
-        if(xctx->hilight_nets && (entry=bus_hilight_lookup( xctx->wire[i].node, 0, XLOOKUP))) {
+        if(xctx->hilight_nets && (entry=bus_hilight_hash_lookup( xctx->wire[i].node, 0, XLOOKUP))) {
           color = get_color(entry->value);
         }
         if( xctx->wire[i].end1 >1 ) {
