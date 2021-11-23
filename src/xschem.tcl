@@ -3582,7 +3582,6 @@ proc no_open_dialogs {} {
 ## "textwindow_wcounter" should be kept global as it is the number of open textwindows
 ## "viewdata_wcounter" should be kept global as it is the number of open viewdatas
 ## "execute_id", global is incremented on spawned subprocesses.
-## "simulate_bg": read only variable, no need to switch.
 
 set tctx::global_list {
   auto_hilight autotrim_wires bespice_listen_port big_grid_points bus_replacement_char
@@ -3673,7 +3672,6 @@ proc housekeeping_ctx {} {
 }
 
 proc simulate_button {button_path} {
-  global simulate_bg
   if { [set simulate_bg [$button_path cget -bg]] ne {red} } {
     $button_path configure -bg red
     simulate "$button_path configure -bg $simulate_bg"
@@ -3769,7 +3767,7 @@ proc build_widgets { {topwin {} } } {
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
   global cadgrid draw_window show_pin_net_names toolbar_visible hide_symbols
   global disable_unique_names persistent_command autotrim_wires en_hilight_conn_inst
-  global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry simulate_bg
+  global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry
   set mbg {}
   set bbg {-highlightthickness 0}
   if { $topwin ne {}} {
