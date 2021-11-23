@@ -910,7 +910,6 @@ void new_schematic(const char *what, const char *top_path, const char *tk_win_pa
       int close = 0;
       dbg(1, "new_schematic() destroy\n");
       /* reset old focused window so callback() will force repaint on expose events */
-      my_strncpy(old_winpath, "", S(old_winpath));
       if(xctx->modified && has_x) {
         tcleval("tk_messageBox -type okcancel -message \""
                 "[get_cell [xschem get schname] 0]"
@@ -1838,7 +1837,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  if(
 #ifdef __unix__
-    !batch_mode &&
+    !detach &&
 #endif
     !no_readline) {
    tcleval( "if {![catch {package require tclreadline}]} "

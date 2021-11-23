@@ -858,9 +858,8 @@ extern int do_netlist;
 extern int do_simulation;
 extern int do_waves;
 extern int quit;
-extern int batch_mode; /* no TCL console */
+extern int detach; /* no TCL console */
 extern const char fopen_read_mode[]; /* "r" on unix, "rb" on windows */
-extern char old_winpath[PATH_MAX]; /* previous focused schematic window (used to switch context) */
 
 /*********** Cmdline options  (used at xinit, and then not used anymore) ***********/
 extern int cli_opt_netlist_type;

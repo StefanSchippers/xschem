@@ -125,7 +125,7 @@ void check_opt(char *opt, char *optval, int type)
         cli_opt_netlist_type=CAD_VERILOG_NETLIST;
 
     } else if( (type == SHORT && *opt == 'b') || (type == LONG && !strcmp("detach", opt)) ) {
-        batch_mode = 1;
+        detach = 1;
 
     } else if( (type == SHORT && *opt == 'v') || (type == LONG && !strcmp("version", opt)) ) {
         print_version();

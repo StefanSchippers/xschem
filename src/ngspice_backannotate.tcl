@@ -165,7 +165,7 @@ proc ngspice::resetdata {} {
 
 proc ngspice::annotate {} {
   upvar ::ngspice::ngspice_data arr
-  set rawfile "[xschem get netlist_dir]/[file rootname [file tail [xschem get schname 0]]].raw"
+  set rawfile "$::netlist_dir/[file rootname [file tail [xschem get schname 0]]].raw"
   if { ![file exists $rawfile] } {
     puts "no raw file found: $rawfile"
     return

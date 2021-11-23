@@ -141,6 +141,7 @@ void start_wire(double mx, double my)
 int callback(const char *winpath, int event, int mx, int my, KeySym key,
                  int button, int aux, int state)
 {
+ static char old_winpath[PATH_MAX] = ""; /* previous focused window, used to do context switch */
  char str[PATH_MAX + 100];
  struct stat buf;
  int redraw_only;

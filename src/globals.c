@@ -136,7 +136,7 @@ int debug_var=-10;  /* will be set to 0 in xinit.c */
 /* These variables are NOT mirrored in tcl code */
 /* -------------------------------------------- */
 int help=0; /* help option set to global scope, printing help is deferred */
-            /* when configuration ~/.schem has been read 20140406 */
+            /* when configuration xschemrc has been read 20140406 */
 FILE *errfp = NULL;
 int no_readline=0;
 char *filename=NULL; /* filename given on cmdline */
@@ -162,15 +162,13 @@ int do_simulation=0;
 int do_waves=0;
 int do_print=0;
 int quit=0;  /* set from process_options (ex netlist from cmdline and quit) */
-int batch_mode = 0; /* no tcl console if set; batch mode */
+int detach = 0; /* no tcl console if set; batch mode */
 #ifndef __unix__
 char win_temp_dir[PATH_MAX]="";
 const char fopen_read_mode[] = "rb";
 #else
 const char fopen_read_mode[] = "r";
 #endif
-/* previous focused schematic window (used to switch context in callback()) */
-char old_winpath[PATH_MAX] = ".drw";
 
 /* ---------------------------------------------------------- */
 /* Cmdline options (used at xinit, and then not used anymore) */

@@ -1,6 +1,6 @@
 int find_gtk4(const char *name, int logdepth, int fatal);
 int find_gtk4_modversion(const char *name, int logdepth, int fatal);
-int find_epoxy(const char *name, int logdepth, int fatal, const char *call, const char *arg);
+int find_epoxy(const char *name, int logdepth, int fatal);
 
 
 

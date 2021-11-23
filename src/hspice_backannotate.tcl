@@ -101,7 +101,7 @@ proc annotate {} {
   xschem set no_undo 1
   xschem set no_draw 1
   
-  read_hspice_log [xschem get netlist_dir]/hspice.out
+  read_hspice_log $::netlist_dir/hspice.out
   set lastinst [xschem get instances]
   for { set i 0 } { $i < $lastinst } {incr i } {
     set name [xschem getprop instance $i name]

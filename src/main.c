@@ -86,7 +86,7 @@ int main(int argc, char **argv)
 
 /* detach from console (fork a child and close std file descriptors) */
 #ifdef __unix__
-  if(batch_mode) {
+  if(detach) {
     pid_t pid = fork();
     if(pid < 0) {
       fprintf(errfp, "main(): fork() failed\n");
