@@ -263,7 +263,7 @@ void create_plot_cmd(void)
     my_free(1270, &viewer_name);
   }
   if(!exists || !viewer) return;
-  my_snprintf(plotfile, S(plotfile), "%s/xplot", netlist_dir);
+  my_snprintf(plotfile, S(plotfile), "%s/xplot", tclgetvar("netlist_dir"));
   if(viewer == NGSPICE) {
     if(!(fd = fopen(plotfile, "w"))) {
       fprintf(errfp, "create_plot_cmd(): error opening xplot file for writing\n");

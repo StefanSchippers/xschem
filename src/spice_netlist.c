@@ -127,7 +127,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  }
  xctx->netlist_count=0;
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
-   netlist_dir, skip_dir(xctx->sch[xctx->currsch]), getpid());
+   tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]), getpid());
  dbg(1, "global_spice_netlist(): opening %s for writing\n",netl_filename);
  fd=fopen(netl_filename, "w");
 
@@ -430,7 +430,8 @@ void spice_block_netlist(FILE *fd, int i)
     my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
   }
   if(split_f) {
-    my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", netlist_dir, skip_dir(xctx->sym[i].name), getpid());
+    my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
+         tclgetvar("netlist_dir"), skip_dir(xctx->sym[i].name), getpid());
     dbg(1, "spice_block_netlist(): split_files: netl_filename=%s\n", netl_filename);
     fd=fopen(netl_filename, "w");
     my_snprintf(cellname, S(cellname), "%s.spice", skip_dir(xctx->sym[i].name));

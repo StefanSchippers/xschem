@@ -45,7 +45,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
  }
  xctx->netlist_count=0;
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
-   netlist_dir, skip_dir(xctx->sch[xctx->currsch]), getpid());
+   tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]), getpid());
  fd=fopen(netl_filename, "w");
 
  if(xctx->netlist_name[0]) {

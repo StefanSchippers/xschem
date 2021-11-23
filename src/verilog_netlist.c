@@ -51,7 +51,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  /* to be printed before any entity declarations */
 
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
-   netlist_dir, skip_dir(xctx->sch[xctx->currsch]),getpid());
+   tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]),getpid());
  fd=fopen(netl_filename, "w");
 
  if(xctx->netlist_name[0]) {
@@ -385,7 +385,7 @@ void verilog_block_netlist(FILE *fd, int i)
   }
   if(split_f) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
-       netlist_dir,  skip_dir(xctx->sym[i].name), getpid());
+       tclgetvar("netlist_dir"),  skip_dir(xctx->sym[i].name), getpid());
     dbg(1, "global_vhdl_netlist(): split_files: netl_filename=%s\n", netl_filename);
     fd=fopen(netl_filename, "w");
     my_snprintf(cellname, S(cellname), "%s.v", skip_dir(xctx->sym[i].name) );

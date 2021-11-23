@@ -51,6 +51,8 @@ function replace_pattern(old, new)
   replace_pattern("zoom_full[:(:][:):]:.*$", "zoom_full(): ***Removed***")
   replace_pattern("bbox[:(:][:):]: bbox=.*$", "bbox(): bbox=***Removed***")
   replace_pattern("draw_string()[:(:][:):]:.*$", "draw_string(): ***Removed***")
+  replace_pattern("find_best_color.*$", "find_best_color ***Removed***")
+  replace_pattern("trim_wires.*$", "trim_wires ***Removed***")
   __a[__lines++] = $0
 }
 

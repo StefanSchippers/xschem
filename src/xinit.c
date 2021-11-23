@@ -652,7 +652,6 @@ void xwin_exit(void)
  for(i=0;i<127;i++) my_free(1140, &character[i]);
  dbg(1, "xwin_exit(): closed display\n");
  my_free(1141, &filename);
- my_free(1142, &netlist_dir);
  my_free(1143, &xschem_executable);
  record_global_node(2, NULL, NULL); /* delete global node array */
  dbg(1, "xwin_exit(): deleted undo buffer\n");
@@ -1702,10 +1701,12 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*                                */
 
  /* set tcl netlist_dir if netlist_dir given on cmdline */
- if(netlist_dir && netlist_dir[0]) tclsetvar("netlist_dir", netlist_dir);
+ if(cli_opt_netlist_dir[0]) tclsetvar("netlist_dir", cli_opt_netlist_dir);
 
  if(!set_netlist_dir(0, NULL)) {
-   fprintf(errfp, "problems creating netlist directory %s\n", netlist_dir ? netlist_dir : "<NULL>");
+   const char *n;
+   n = tclgetvar("netlist_dir");
+   fprintf(errfp, "problems creating netlist directory %s\n", n ? n : "<NULL>");
  }
  if(initial_netlist_name[0]) my_strncpy(xctx->netlist_name, initial_netlist_name, S(initial_netlist_name));
 
@@ -1762,7 +1763,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      fprintf(errfp, "xschem: cant do a netlist without a filename\n");
      tcleval("exit");
    }
-   if(netlist_dir && netlist_dir[0]) {
+   if(tclgetvar("netlist_dir")[0]) {
      if(xctx->netlist_type == CAD_SPICE_NETLIST)
        global_spice_netlist(1);                  /* 1 means global netlist */
      else if(xctx->netlist_type == CAD_VHDL_NETLIST)

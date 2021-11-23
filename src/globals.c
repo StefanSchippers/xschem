@@ -120,7 +120,6 @@ xcb_visualtype_t *visual_xcb;
 int cadlayers=0;
 int has_x=1;
 int rainbow_colors = 0;
-char *netlist_dir = NULL;
 int color_ps=-1;
 double nocairo_vert_correct=0.0;
 /* lift up the text by 'n' pixels (zoom corrected) within the bbox.  */
@@ -179,6 +178,7 @@ char old_winpath[PATH_MAX] = ".drw";
 int cli_opt_netlist_type = 0;
 int cli_opt_flat_netlist = 0;
 char cli_opt_plotfile[PATH_MAX] = "";
+char cli_opt_netlist_dir[PATH_MAX] = "";
 
 
 /* --------------------------------------------------- */

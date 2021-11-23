@@ -271,12 +271,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
-    else if(!strcmp(argv[1],"clear_netlist_dir") )
-    {
-      cmd_found = 1;
-      my_strdup(373, &netlist_dir, "");
-    }
-   
     else if(!strcmp(argv[1], "color_dim"))
     {
       cmd_found = 1;
@@ -612,9 +606,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        my_snprintf(s, S(s), "%g", xctx->lw);
        Tcl_SetResult(interp, s, TCL_VOLATILE);
      }
-     else if(!strcmp(argv[2],"netlist_dir")) {
-       Tcl_SetResult(interp, netlist_dir,TCL_VOLATILE);
-     }
      else if(!strcmp(argv[2],"netlist_name")) {
        Tcl_SetResult(interp, xctx->netlist_name, TCL_VOLATILE);
      }
@@ -707,6 +698,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        char s[30]; /* overflow safe 20161122 */
        my_snprintf(s, S(s), "%d",TEXTLAYER);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"topwindow")) {
+       char *top_path;
+       top_path =  xctx->top_path[0] ? xctx->top_path : ".";
+       Tcl_SetResult(interp, top_path,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"version")) {
        char s[30]; /* overflow safe 20161122 */
@@ -850,7 +846,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
      cmd_found = 1;
      printf("*******global variables:*******\n");
-     printf("netlist_dir=%s\n", netlist_dir? netlist_dir: "<NULL>");
      printf("INT_WIDTH(lw)=%d\n", INT_WIDTH(xctx->lw));
      printf("wires=%d\n", xctx->wires);
      printf("instances=%d\n", xctx->instances);
@@ -2250,13 +2245,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc == 3 && argv[2][0] == '0') set_modify(0);
       set_modify(1);
       Tcl_ResetResult(interp);
-    }
-   
-    else if(!strcmp(argv[1],"set_netlist_dir") && argc==3)
-    {
-      cmd_found = 1;
-      dbg(1, "scheduler(): xschem set_netlist_dir: argv[2] = %s\n", argv[2]);
-      my_strdup(0, &netlist_dir, argv[2]);
     }
    
     else if(!strcmp(argv[1], "setprop"))

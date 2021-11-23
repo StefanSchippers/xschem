@@ -102,7 +102,7 @@ void check_opt(char *opt, char *optval, int type)
           }
         }
     } else if( (type == SHORT && *opt == 'o') || (type == LONG && !strcmp("netlist_path", opt)) ) {
-        if(optval) my_strdup(48, &netlist_dir, optval);
+        if(optval) my_strncpy(cli_opt_netlist_dir, optval, S(cli_opt_netlist_dir));
 
     } else if( (type == SHORT && *opt == 'N') || (type == LONG && !strcmp("netlist_filename", opt)) ) {
         dbg(1, "process_options(): set netlist name to %s\n", optval);

@@ -353,7 +353,8 @@ proc load_recent_file {} {
     if {[catch { source $USER_CONF_DIR/recent_files } err] } {
       puts "Problems opening recent_files: $err"
       if {[info exists has_x]} {
-        tk_messageBox -message  "Problems opening recent_files: $err" -icon warning -parent . -type ok
+        tk_messageBox -message  "Problems opening recent_files: $err" \
+            -icon warning -parent [xschem get topwindow] -type ok
       }
     }
   }
@@ -449,7 +450,8 @@ proc set_sim_defaults {} {
       if { [catch {source ${USER_CONF_DIR}/simrc} err]} {
         puts "Problems opening simrc file: $err"
         if {[info exists has_x]} {
-          tk_messageBox -message  "Problems opening simrc file: $err" -icon warning -parent . -type ok
+          tk_messageBox -message  "Problems opening simrc file: $err" -icon warning \
+             -parent [xschem get topwindow] -type ok
         }
         set failure 1
       }
@@ -1519,7 +1521,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
       if {[file exists "$myload_dir1/$myload_retval"]} {
         if {$confirm_overwrt == 1 } {
           set answer [tk_messageBox -message  "Overwrite $myload_dir1/${myload_retval}?" \
-               -icon warning -parent . -type okcancel]
+               -icon warning -parent [xschem get topwindow] -type okcancel]
         } else {
           set answer ok
         }
@@ -1534,7 +1536,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
     if { $myload_type eq {0}  } {
       set answer [
         tk_messageBox -message "$myload_dir1/$myload_retval does not seem to be an xschem file...\nContinue?" \
-         -icon warning -parent . -type yesno]
+         -icon warning -parent [xschem get topwindow] -type yesno]
       if { $answer eq "no"} {
         set myload_retval {}
         return {}
@@ -1544,7 +1546,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
     } elseif { $myload_type ne {SYMBOL} && ($ext eq {.sym}) } {
       set answer [
         tk_messageBox -message "$myload_dir1/$myload_retval does not seem to be a SYMBOL file...\nContinue?" \
-           -icon warning -parent . -type yesno]
+           -icon warning -parent [xschem get topwindow] -type yesno]
       if { $answer eq "no"} {
         set myload_retval {}
         return {}
@@ -1799,7 +1801,6 @@ proc simuldir {} {
     set simdir [xschem get current_dirname]/simulation
     file mkdir $simdir
     set netlist_dir $simdir
-    xschem set_netlist_dir $netlist_dir
     return $netlist_dir
   }
   return {}
@@ -1821,7 +1822,6 @@ proc select_netlist_dir { force {dir {} }} {
       file mkdir $netlist_dir
     }
     regsub {^~/} $netlist_dir ${env(HOME)}/ netlist_dir
-    xschem set_netlist_dir $netlist_dir
     return $netlist_dir
   } 
   if { $dir eq {} } {
@@ -1835,7 +1835,8 @@ proc select_netlist_dir { force {dir {} }} {
       }
     }
     # 20140409 do not change netlist_dir if user Cancels action
-    set new_dir [tk_chooseDirectory -initialdir $initdir -parent . -title {Select netlist DIR} -mustexist false]
+    set new_dir [tk_chooseDirectory -initialdir $initdir \
+       -parent [xschem get topwindow] -title {Select netlist DIR} -mustexist false]
   } else {
     set new_dir $dir
   }
@@ -1847,7 +1848,6 @@ proc select_netlist_dir { force {dir {} }} {
     set netlist_dir $new_dir  
   }
   regsub {^~/} $netlist_dir ${env(HOME)}/ netlist_dir
-  xschem set_netlist_dir $netlist_dir
   return $netlist_dir
 }
 

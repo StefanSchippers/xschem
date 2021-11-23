@@ -122,8 +122,8 @@ alt         'l'         add lab_pin.sym to schematic
 ctrl+shift  'o'         Load most recent schematic
 ctrl        'o'         Load schematic
 -           'm'         Move selected obj.
-shift       'N'         Hierarchical netlist
--           'n'         Netlist
+shift       'N'         Top level only netlist
+-           'n'         Hierarchical Netlist
 ctrl        'n'         New schematic
 ctrl+shift  'N'         New symbol
 alt         'n'         Empty schematic in new window

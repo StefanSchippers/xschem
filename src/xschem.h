@@ -822,7 +822,6 @@ extern xcb_visualtype_t *visual_xcb;
 extern int cadlayers; 
 extern int has_x; 
 extern int rainbow_colors; 
-extern char *netlist_dir;
 extern int color_ps; 
 extern double nocairo_vert_correct;
 extern double cairo_vert_correct;
@@ -867,6 +866,7 @@ extern char old_winpath[PATH_MAX]; /* previous focused schematic window (used to
 extern int cli_opt_netlist_type;
 extern int cli_opt_flat_netlist;
 extern char cli_opt_plotfile[PATH_MAX];
+extern char cli_opt_netlist_dir[PATH_MAX];
 
 /*********** Following data is relative to the current schematic ***********/
 extern Xschem_ctx *xctx;
