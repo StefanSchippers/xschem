@@ -139,7 +139,7 @@ void clear_undo(void)
   xctx->cur_undo_ptr = 0;
   xctx->tail_undo_ptr = 0;
   xctx->head_undo_ptr = 0;
-  if(!xctx->initialized) return;
+  if(!xctx->undo_initialized) return;
   for(slot=0; slot<MAX_UNDO; slot++) {
     free_lines(slot);
     free_rects(slot);
@@ -174,8 +174,8 @@ void push_undo(void)
   int slot, i, c;
 
   if(xctx->no_undo)return;
-  if(!xctx->initialized) {
-    xctx->initialized=1;
+  if(!xctx->undo_initialized) {
+    xctx->undo_initialized=1;
     init_undo();
   }
   slot = xctx->cur_undo_ptr%MAX_UNDO;
@@ -288,7 +288,9 @@ void push_undo(void)
 
 /* BUG: in_memory_undo does not save/restore embedded symbols, it just saves references to symbols
  * if symbols are not found in library you get a schematic with missing symbols if you remove 
- * symbols and do an undo (this is done in netlist operations to purge unused syms */
+ * symbols and do an undo (this is done in netlist operations to purge unused syms
+ * if symbols are found in library your schematic will be linked with library symbols and this
+ * is not the intended behavior */
 
 /* redo:
  * 0: undo (with push current state for allowing following redo) 

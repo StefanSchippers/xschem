@@ -437,7 +437,7 @@ typedef struct
    char *prop_ptr;
    char *type;
    char *templ;
-   int flags; /* bit 0: embedded flag 
+   int flags;   /* bit 0: embedded flag 
                  * bit 1: **free**
                  * bit 2: highight if connected wire highlighted */
 } xSymbol;
@@ -445,7 +445,7 @@ typedef struct
 typedef struct
 {
    char *name;/*  symbol name (ex: devices/lab_pin)  */
-   int ptr;  /*  was a pointer formerly... */
+   int ptr;   /*  was a pointer formerly... */
    double x0;  /* symbol origin / anchor point */
    double y0;
    double x1;  /* symbol bounding box */
@@ -678,7 +678,7 @@ typedef struct {
   #ifdef IN_MEMORY_UNDO
   /* in_memory_undo */
   Undo_slot uslot[MAX_UNDO];
-  int initialized;
+  int undo_initialized;
   #endif
   /*     */
   int nl_sel, nl_sem;

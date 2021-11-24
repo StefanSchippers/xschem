@@ -1007,11 +1007,13 @@ int save_schematic(const char *schname) /* 20171020 added return value */
     xctx->time_last_modify =  buf.st_mtime;
   }
   my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
-  /* <<<<< >>>> why clear all these? */
-  xctx->prep_hi_structs=0;
-  xctx->prep_net_structs=0;
-  xctx->prep_hash_inst=0;
-  xctx->prep_hash_wires=0;
+  /* why clear all these? */
+  /* 
+   * xctx->prep_hi_structs=0;
+   * xctx->prep_net_structs=0;
+   * xctx->prep_hash_inst=0;
+   * xctx->prep_hash_wires=0;
+   */
   if(!strstr(xctx->sch[xctx->currsch], ".xschem_embedded_")) {
      set_modify(0);
   }
@@ -2208,7 +2210,8 @@ void make_schematic_symbol_from_sel(void)
     place_symbol(-1, filename, 0, 0, 0, 0, NULL, 4, 1, 0/*to_push_undo*/);
     if (has_x)
     {
-      my_snprintf(name, S(name), "tk_messageBox -type okcancel -message {do you want to make symbol view for %s ?}", filename);
+      my_snprintf(name, S(name), 
+        "tk_messageBox -type okcancel -message {do you want to make symbol view for %s ?}", filename);
       tcleval(name);
     }
     if (!has_x || !strcmp(tclresult(), "ok")) {

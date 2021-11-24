@@ -583,7 +583,7 @@ void alloc_xschem_data(const char *top_path)
   xctx->fill_pattern = 1;
   xctx->draw_window = 0;
   #ifdef IN_MEMORY_UNDO
-  xctx->initialized = 0; /* in_memory_undo */
+  xctx->undo_initialized = 0; /* in_memory_undo */
   #endif
   xctx->time_last_modify = 0;
 }

@@ -1072,7 +1072,6 @@ void update_symbol(const char *result, int x)
       bbox(ADD, xctx->inst[*ii].x1, xctx->inst[*ii].y1,
                 xctx->inst[*ii].x2, xctx->inst[*ii].y2);
       if((s_pnetname || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type)) {
-        /* <<< do only .node[0] ? */
         for(j = 0;  j < (xctx->inst[*ii].ptr + xctx->sym)->rects[PINLAYER]; j++) {
           if( xctx->inst[*ii].node && xctx->inst[*ii].node[j]) {
              int_hash_lookup(xctx->node_redraw_table,  xctx->inst[*ii].node[j], 0, XINSERT_NOREPLACE);
