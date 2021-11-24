@@ -211,58 +211,6 @@ void toggle_only_probes()
   draw();
 }
 
-void toggle_fullscreen(const char *topwin)
-{
-  char fullscr[]="add,fullscreen";
-  char normal[]="remove,fullscreen";
-  unsigned int topwin_id;
-  Window rootwindow, parent_id;
-  Window *framewin_child_ptr;
-  unsigned int framewindow_nchildren;
-  int fs;
-
-
-  if(!strcmp(topwin, ".drw")) {
-    tcleval( "winfo id .");
-    sscanf(tclresult(), "0x%x", (unsigned int *) &topwin_id);
-  } else {
-    Tcl_VarEval(interp, "winfo id ", xctx->top_path, NULL);
-    sscanf(tclresult(), "0x%x", (unsigned int *) &topwin_id);
-  }
-
-  XQueryTree(display, topwin_id, &rootwindow, &parent_id, &framewin_child_ptr, &framewindow_nchildren);
-
-
-  fs = tclgetintvar("fullscreen");
-  fs = (fs+1)%2;
-  if(fs==1) tclsetvar("fullscreen","1");
-  else if(fs==2) tclsetvar("fullscreen","2");
-  else tclsetvar("fullscreen","0");
-
-  dbg(1, "toggle_fullscreen(): fullscreen=%d\n", fs);
-  if(fs==2) {
-    Tcl_VarEval(interp, "pack forget ", xctx->top_path, ".menubar ", xctx->top_path, ".statusbar; update", NULL);
-    xctx->menu_removed = 1;
-  }
-  if(fs !=2 && xctx->menu_removed) {
-    Tcl_VarEval(interp, "pack ", xctx->top_path, 
-       ".menubar -anchor n -side top -fill x  -before ", xctx->top_path, ".drw; pack ",
-       xctx->top_path, ".statusbar -after ", xctx->top_path, ".drw -anchor sw  -fill x; update", NULL);
-    xctx->menu_removed=0;
-  }
-
-
-  if(fs == 1) {
-    window_state(display , parent_id,fullscr);
-  } else if(fs == 2) {
-    window_state(display , parent_id,normal);
-    window_state(display , parent_id,fullscr);
-  } else {
-    window_state(display , parent_id,normal);
-  }
-  xctx->pending_fullzoom=1;
-}
-
 #ifdef __unix__
 void new_window(const char *cell, int symbol)
 {
@@ -1353,7 +1301,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  }
 }
 
-/* flags: bit0: invoke change_linewidth()/XSetLineAttributes, bit1: centered zoom */
+/* flags: bit0: invoke change_linewidth()/xsetLineattributes, bit1: centered zoom */
 void zoom_full(int dr, int sel, int flags, double shrink)
 {
   xRect boundbox;
@@ -2018,7 +1966,7 @@ void new_rect(int what)
     drawrect(xctx->rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2, 0);
     save_draw = xctx->draw_window;
     xctx->draw_window = 1;
-    /* draw fill pattern even in XCopyArea mode */
+    /* draw fill pattern even in xcopyarea mode */
     filledrect(xctx->rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
     xctx->draw_window = save_draw;
     storeobject(-1, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2,xRECT,xctx->rectcolor, 0, NULL);

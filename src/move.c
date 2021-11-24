@@ -443,7 +443,7 @@ void draw_selection(GC g, int interruptable)
      break;
    }
 #ifdef __unix__
-   if(XPending(display) && interruptable)
+   if(pending_events() && interruptable)
    {
     drawtemparc(g, END, 0.0, 0.0, 0.0, 0.0, 0.0);
     drawtemprect(g, END, 0.0, 0.0, 0.0, 0.0);

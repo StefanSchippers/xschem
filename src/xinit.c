@@ -736,6 +736,90 @@ int build_colors(double dim, double dim_bg)
     return 0; /* success */
 }
 
+void set_clip_mask(int what)
+{
+  int i;
+  if(what == SET) {
+    for(i=0;i<cadlayers;i++)
+    {
+      XSetClipRectangles(display, xctx->gc[i], 0,0, xctx->xrect, 1, Unsorted);
+      XSetClipRectangles(display, xctx->gcstipple[i], 0,0, xctx->xrect, 1, Unsorted);
+    }
+    XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
+    #if HAS_CAIRO==1
+    cairo_rectangle(xctx->cairo_ctx, xctx->xrect[0].x, xctx->xrect[0].y,
+                    xctx->xrect[0].width, xctx->xrect[0].height);
+    cairo_clip(xctx->cairo_ctx);
+    cairo_rectangle(xctx->cairo_save_ctx, xctx->xrect[0].x, xctx->xrect[0].y,
+                    xctx->xrect[0].width, xctx->xrect[0].height);
+    cairo_clip(xctx->cairo_save_ctx);
+    #endif
+  } else if(what == END) {
+    for(i=0;i<cadlayers;i++)
+    {
+     XSetClipMask(display, xctx->gc[i], None);
+     XSetClipMask(display, xctx->gcstipple[i], None);
+    }
+    XSetClipMask(display, xctx->gctiled, None);
+    #if HAS_CAIRO==1
+    cairo_reset_clip(xctx->cairo_ctx);
+    cairo_reset_clip(xctx->cairo_save_ctx);
+    #endif
+  }
+}
+
+/* moved here to avoid Xorg-specific calls in move.c */
+int pending_events(void)
+{
+  return XPending(display);
+}
+
+void toggle_fullscreen(const char *topwin)
+{
+  char fullscr[]="add,fullscreen";
+  char normal[]="remove,fullscreen";
+  unsigned int topwin_id;
+  Window rootwindow, parent_id;
+  Window *framewin_child_ptr;
+  unsigned int framewindow_nchildren;
+  int fs;
+
+  if(!strcmp(topwin, ".drw")) {
+    tcleval( "winfo id .");
+    sscanf(tclresult(), "0x%x", (unsigned int *) &topwin_id);
+  } else {
+    Tcl_VarEval(interp, "winfo id ", xctx->top_path, NULL);
+    sscanf(tclresult(), "0x%x", (unsigned int *) &topwin_id);
+  }
+  XQueryTree(display, topwin_id, &rootwindow, &parent_id, &framewin_child_ptr, &framewindow_nchildren);
+  fs = tclgetintvar("fullscreen");
+  fs = (fs+1)%2;
+  if(fs==1) tclsetvar("fullscreen","1");
+  else if(fs==2) tclsetvar("fullscreen","2");
+  else tclsetvar("fullscreen","0");
+
+  dbg(1, "toggle_fullscreen(): fullscreen=%d\n", fs);
+  if(fs==2) {
+    Tcl_VarEval(interp, "pack forget ", xctx->top_path, ".menubar ", xctx->top_path, ".statusbar; update", NULL);
+    xctx->menu_removed = 1;
+  }
+  if(fs !=2 && xctx->menu_removed) {
+    Tcl_VarEval(interp, "pack ", xctx->top_path,
+       ".menubar -anchor n -side top -fill x  -before ", xctx->top_path, ".drw; pack ",
+       xctx->top_path, ".statusbar -after ", xctx->top_path, ".drw -anchor sw  -fill x; update", NULL);
+    xctx->menu_removed=0;
+  }
+  if(fs == 1) {
+    window_state(display , parent_id,fullscr);
+  } else if(fs == 2) {
+    window_state(display , parent_id,normal);
+    window_state(display , parent_id,fullscr);
+  } else {
+    window_state(display , parent_id,normal);
+  }
+  xctx->pending_fullzoom=1;
+}
+
 
 void tclexit(ClientData s)
 {

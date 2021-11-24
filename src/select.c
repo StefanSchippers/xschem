@@ -496,8 +496,6 @@ void delete_only_rect_line_arc_poly(void)
 
 void bbox(int what,double x1,double y1, double x2, double y2)
 {
- int i;
-
  /* fprintf(errfp, "bbox: what=%d\n", what); */
  switch(what)
  {
@@ -551,16 +549,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->xrect[0].height = xctx->areah-4*INT_WIDTH(xctx->lw);
 
    if(has_x) {
-     XSetClipMask(display, xctx->gctiled, None); /* clipping already done in software */
-     for(i=0;i<cadlayers;i++)
-     {
-      XSetClipMask(display, xctx->gc[i], None); /* clipping already done in software */
-      XSetClipMask(display, xctx->gcstipple[i], None); /* optimization, clipping already done in software */
-     }
-     #if HAS_CAIRO==1
-     cairo_reset_clip(xctx->cairo_ctx);
-     cairo_reset_clip(xctx->cairo_save_ctx);
-     #endif
+     set_clip_mask(END);
    }
    xctx->sem=0;
    break;
@@ -581,21 +570,8 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->xrect[0].width = xctx->bbx2-xctx->bbx1+2*INT_WIDTH(xctx->lw);
    xctx->xrect[0].height = xctx->bby2-xctx->bby1+2*INT_WIDTH(xctx->lw);
    if(has_x) {
-     for(i=0;i<cadlayers;i++)
-     {
-       XSetClipRectangles(display, xctx->gc[i], 0,0, xctx->xrect, 1, Unsorted);
-       XSetClipRectangles(display, xctx->gcstipple[i], 0,0, xctx->xrect, 1, Unsorted);
-     }
-     XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
+     set_clip_mask(SET);
      dbg(1, "bbox(): bbox= %d %d %d %d\n",xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2);
-     #if HAS_CAIRO==1
-     cairo_rectangle(xctx->cairo_ctx, xctx->xrect[0].x, xctx->xrect[0].y, 
-                     xctx->xrect[0].width, xctx->xrect[0].height);
-     cairo_clip(xctx->cairo_ctx);
-     cairo_rectangle(xctx->cairo_save_ctx, xctx->xrect[0].x, xctx->xrect[0].y,
-                     xctx->xrect[0].width, xctx->xrect[0].height);
-     cairo_clip(xctx->cairo_save_ctx);
-     #endif
    }
    break;
   default:
