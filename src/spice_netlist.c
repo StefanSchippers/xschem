@@ -43,8 +43,8 @@ void hier_psprint(void)  /* netlister driver */
   dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
   unselect_all();
   remove_symbols(); /* ensure all unused symbols purged before descending hierarchy */
-  link_symbols_to_instances(-1);
-  /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
+  pop_undo(2, 0); /* reload data without popping undo stack, this populates embedded symbols if any */
+  /* link_symbols_to_instances(-1); */ /* done in pop_undo() */
   my_strdup(1224, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
   my_strcat(1227, &xctx->sch_path[xctx->currsch+1], "->netlisting");
   xctx->sch_path_hash[xctx->currsch+1] = 0;
@@ -257,9 +257,8 @@ void global_spice_netlist(int global)  /* netlister driver */
    int saved_hilight_nets = xctx->hilight_nets;
    unselect_all();
    remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
-   link_symbols_to_instances(-1);
-   /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
-
+   pop_undo(2, 0); /* reload data without popping undo stack, this populates embedded symbols if any */
+   /* link_symbols_to_instances(-1); */ /* done in pop_undo() */
    my_strdup(469, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(481, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;

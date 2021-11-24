@@ -286,19 +286,27 @@ void push_undo(void)
   xctx->tail_undo_ptr = xctx->head_undo_ptr <= MAX_UNDO? 0: xctx->head_undo_ptr-MAX_UNDO;
 }
 
+/* BUG: in_memory_undo does not save/restore embedded symbols, it just saves references to symbols
+ * if symbols are not found in library you get a schematic with missing symbols if you remove 
+ * symbols and do an undo (this is done in netlist operations to purge unused syms */
 
+/* redo:
+ * 0: undo (with push current state for allowing following redo) 
+ * 1: redo
+ * 2: read top data from undo stack without changing undo stack
+ */
 void pop_undo(int redo, int set_modify_status)
 {
   int slot, i, c;
 
   if(xctx->no_undo)return;
-  if(redo) {
+  if(redo == 1) {
     if(xctx->cur_undo_ptr < xctx->head_undo_ptr) {
       xctx->cur_undo_ptr++;
     } else {
       return;
     }
-  } else {  /*redo=0 (undo) */
+  } else if(redo == 0) {  /* undo */
     if(xctx->cur_undo_ptr == xctx->tail_undo_ptr) return;
     if(xctx->head_undo_ptr == xctx->cur_undo_ptr) {
       push_undo();
@@ -307,6 +315,9 @@ void pop_undo(int redo, int set_modify_status)
     }
     if(xctx->cur_undo_ptr<=0) return; /* check undo tail */
     xctx->cur_undo_ptr--;
+  } else { /* redo == 2, get data without changing undo stack */
+    if(xctx->cur_undo_ptr<=0) return; /* check undo tail */
+    xctx->cur_undo_ptr--; /* will be restored after building file name */
   }
   slot = xctx->cur_undo_ptr%MAX_UNDO;
   clear_drawing();
@@ -400,8 +411,8 @@ void pop_undo(int redo, int set_modify_status)
     xctx->wire[i].node=NULL;
     my_strdup(222, &xctx->wire[i].prop_ptr, xctx->uslot[slot].wptr[i].prop_ptr);
   }
-
   link_symbols_to_instances(-1);
+  if(redo == 2) xctx->cur_undo_ptr++; /* restore undo stack pointer */
   if(set_modify_status) set_modify(1);
   xctx->prep_hash_inst=0;
   xctx->prep_hash_wires=0;

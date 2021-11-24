@@ -92,8 +92,8 @@ void global_verilog_netlist(int global)  /* netlister driver */
  /* flush data structures (remove unused symbols) */
  unselect_all();
  remove_symbols();  /* removed 25122002, readded 04112003 */
- link_symbols_to_instances(-1);
- /* load_schematic(1,xctx->sch[xctx->currsch] ,0); */
+ pop_undo(2, 0); /* reload data without popping undo stack, this populates embedded symbols if any */
+ /* link_symbols_to_instances(-1); */ /* done in pop_undo() */
  dbg(1, "global_verilog_netlist(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
 
  /* print top subckt port directions */
@@ -281,10 +281,8 @@ void global_verilog_netlist(int global)  /* netlister driver */
    int saved_hilight_nets = xctx->hilight_nets;
    unselect_all();
    remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
-   link_symbols_to_instances(-1);
-   /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
-  
-
+   pop_undo(2, 0); /* reload data without popping undo stack, this populates embedded symbols if any */
+   /* link_symbols_to_instances(-1); */ /* done in pop_undo() */
    my_strdup(487, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(496, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;

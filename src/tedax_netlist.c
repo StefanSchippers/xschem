@@ -88,8 +88,8 @@ void global_tedax_netlist(int global)  /* netlister driver */
    int saved_hilight_nets = xctx->hilight_nets;
    unselect_all();
    remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
-   load_schematic(1, xctx->sch[xctx->currsch], 0);
-
+   pop_undo(2, 0); /* reload data without popping undo stack, this populates embedded symbols if any */
+   /* link_symbols_to_instances(-1); */ /* done in pop_undo() */
    my_strdup(482, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(485, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;

@@ -1232,6 +1232,11 @@ void push_undo(void)
     #endif
 }
 
+/* redo:
+ * 0: undo (with push current state for allowing following redo) 
+ * 1: redo
+ * 2: read top data from undo stack without changing undo stack
+ */
 void pop_undo(int redo, int set_modify_status)
 {
   FILE *fd;
@@ -1242,8 +1247,8 @@ void pop_undo(int redo, int set_modify_status)
   FILE *diff_fd;
   #endif
 
-  if(xctx->no_undo)return;
-  if(redo) {
+  if(xctx->no_undo) return;
+  if(redo == 1) {
     if(xctx->cur_undo_ptr < xctx->head_undo_ptr) {
       dbg(1, "pop_undo(): redo; cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
          xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
@@ -1251,7 +1256,7 @@ void pop_undo(int redo, int set_modify_status)
     } else {
       return;
     }
-  } else {  /*redo=0 (undo) */
+  } else if(redo == 0) {  /* undo */
     if(xctx->cur_undo_ptr == xctx->tail_undo_ptr) return;
     dbg(1, "pop_undo(): undo; cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
        xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
@@ -1262,6 +1267,9 @@ void pop_undo(int redo, int set_modify_status)
     }
     if(xctx->cur_undo_ptr<=0) return; /* check undo tail */
     xctx->cur_undo_ptr--;
+  } else { /* redo == 2, get data without changing undo stack */
+    if(xctx->cur_undo_ptr<=0) return; /* check undo tail */
+    xctx->cur_undo_ptr--; /* will be restored after building file name */
   }
   clear_drawing();
   unselect_all();
@@ -1308,6 +1316,7 @@ void pop_undo(int redo, int set_modify_status)
   }
   #endif
   read_xschem_file(fd);
+  if(redo == 2) xctx->cur_undo_ptr++; /* restore undo stack pointer */
 
   #if HAS_POPEN==1
   pclose(fd); /* 20150326 moved before load symbols */
@@ -1325,7 +1334,6 @@ void pop_undo(int redo, int set_modify_status)
   xctx->prep_net_structs=0;
   xctx->prep_hi_structs=0;
   update_conn_cues(0, 0);
-
   dbg(2, "pop_undo(): returning\n");
 }
 

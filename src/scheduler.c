@@ -2410,8 +2410,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   else if(argv[1][0] == 'u') {   
     if(!strcmp(argv[1],"undo"))
     {
+      int redo = 0, set_modify = 1;
       cmd_found = 1;
-      pop_undo(0, 1); /* 2nd param: set_modify_status */
+      if(argc > 2) {
+        redo = atoi(argv[2]);
+      }
+      if(argc > 3) {
+        set_modify = atoi(argv[3]);
+      }
+      pop_undo(redo, set_modify); /* 2nd param: set_modify_status */
       Tcl_ResetResult(interp);
     }
    
