@@ -706,7 +706,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      }
      else if(!strcmp(argv[2],"version")) {
        char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "XSCHEM V%s",XSCHEM_VERSION);
+       my_snprintf(s, S(s), "%s",XSCHEM_VERSION);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"wirelayer")) {

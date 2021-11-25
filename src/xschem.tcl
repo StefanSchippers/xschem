@@ -2076,7 +2076,7 @@ proc about {} {
   }
   toplevel .about -class dialog
   wm title .about {About XSCHEM}
-  label .about.xschem -text "[xschem get version]" -font {Sans 24 bold}
+  label .about.xschem -text "XSCHEM V[xschem get version]" -font {Sans 24 bold}
   label .about.descr -text "Schematic editor / netlister for VHDL, Verilog, SPICE, tEDAx"
   button .about.link -text {http://repo.hu/projects/xschem} -font Underline-Font -fg blue -relief flat
   button .about.link2 -text {https://github.com/StefanSchippers/xschem} -font Underline-Font -fg blue -relief flat
