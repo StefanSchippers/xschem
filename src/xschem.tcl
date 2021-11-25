@@ -1278,8 +1278,8 @@ proc load_file_dialog_mkdir {dir} {
 }
 proc load_file_dialog_up {dir} {
   global myload_dir1
-  bind .dialog.l.paneright.pre <Expose> {}
-  .dialog.l.paneright.pre configure -background white
+  bind .dialog.l.paneright.drw <Expose> {}
+  .dialog.l.paneright.drw configure -background white
   set d [file dirname $dir]
   if { [file isdirectory $d]} {
     myload_set_home $d
@@ -1318,8 +1318,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
   pack  .dialog.l.paneleft.xscroll -side bottom -fill x
   pack  .dialog.l.paneleft.list -fill both -expand true
   bind .dialog.l.paneleft.list <<ListboxSelect>> { 
-    # bind .dialog.l.paneright.pre <Expose> {}
-    # .dialog.l.paneright.pre configure -background white
+    # bind .dialog.l.paneright.drw <Expose> {}
+    # .dialog.l.paneright.drw configure -background white
     set myload_sel [.dialog.l.paneleft.list curselection]
     if { $myload_sel ne {} } {
       set myload_dir1 [abs_sym_path [.dialog.l.paneleft.list get $myload_sel]]
@@ -1329,13 +1329,13 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
     }
   }
   frame .dialog.l.paneright
-  frame .dialog.l.paneright.pre -background white -width 200 -height 200
+  frame .dialog.l.paneright.drw -background white -width 200 -height 200
   listbox .dialog.l.paneright.list  -listvariable myload_files2 -width 20 -height 12\
     -yscrollcommand ".dialog.l.paneright.yscroll set" -selectmode browse \
     -xscrollcommand ".dialog.l.paneright.xscroll set" -exportselection 0
   scrollbar .dialog.l.paneright.yscroll -command ".dialog.l.paneright.list yview"
   scrollbar .dialog.l.paneright.xscroll -command ".dialog.l.paneright.list xview" -orient horiz
-  pack .dialog.l.paneright.pre -side bottom -anchor s -fill x 
+  pack .dialog.l.paneright.drw -side bottom -anchor s -fill x 
   pack  .dialog.l.paneright.yscroll -side right -fill y
   pack  .dialog.l.paneright.xscroll -side bottom -fill x
   pack  .dialog.l.paneright.list -side bottom  -fill both -expand true
@@ -1355,8 +1355,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
     destroy .dialog
   }
   button .dialog.buttons.home -width 5 -text {Home} -command {
-    bind .dialog.l.paneright.pre <Expose> {}
-    .dialog.l.paneright.pre configure -background white
+    bind .dialog.l.paneright.drw <Expose> {}
+    .dialog.l.paneright.drw configure -background white
     set myload_files1 $pathlist
     update
     myload_set_colors1
@@ -1417,7 +1417,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
   bind .dialog.l.paneright.list <Double-Button-1> {
     set myload_retval [.dialog.buttons_bot.entry get]
     if {$myload_retval ne {}  && ![file isdirectory "$myload_dir1/[.dialog.l.paneright.list get $myload_sel]"]} {
-      bind .dialog.l.paneright.pre <Expose> {}
+      bind .dialog.l.paneright.drw <Expose> {}
       destroy .dialog
     }
   }
@@ -1444,7 +1444,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
     set myload_yview [.dialog.l.paneright.list yview]
   }
 
-  xschem preview_window create .dialog.l.paneright.pre {}
+  xschem preview_window create .dialog.l.paneright.drw {}
   set myload_dir1 [abs_sym_path [.dialog.l.paneleft.list get $myload_index1]]
   setglob $myload_dir1
   myload_set_colors2
@@ -1478,8 +1478,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
         }
       }
       if { [file isdirectory $myload_d]} {
-        bind .dialog.l.paneright.pre <Expose> {}
-        .dialog.l.paneright.pre configure -background white
+        bind .dialog.l.paneright.drw <Expose> {}
+        .dialog.l.paneright.drw configure -background white
         myload_set_home $myload_d
         setglob $myload_d
         myload_set_colors2
@@ -1492,17 +1492,17 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
          if { $myload_type ne {0}  } {
 	   ### update
            if { [winfo exists .dialog] } {
-             .dialog.l.paneright.pre configure -background {}
-             xschem preview_window draw .dialog.l.paneright.pre "$myload_dir1/$myload_dir2"
-             bind .dialog.l.paneright.pre <Expose> {
-               xschem preview_window draw .dialog.l.paneright.pre "$myload_dir1/$myload_dir2"
+             .dialog.l.paneright.drw configure -background {}
+             xschem preview_window draw .dialog.l.paneright.drw "$myload_dir1/$myload_dir2"
+             bind .dialog.l.paneright.drw <Expose> {
+               xschem preview_window draw .dialog.l.paneright.drw "$myload_dir1/$myload_dir2"
              }
            }
          } else {
-           bind .dialog.l.paneright.pre <Expose> {}
-           .dialog.l.paneright.pre configure -background white
+           bind .dialog.l.paneright.drw <Expose> {}
+           .dialog.l.paneright.drw configure -background white
          }
-         # puts "xschem preview_window draw .dialog.l.paneright.pre \"$myload_dir1/$myload_dir2\""
+         # puts "xschem preview_window draw .dialog.l.paneright.drw \"$myload_dir1/$myload_dir2\""
       }
     }
   }

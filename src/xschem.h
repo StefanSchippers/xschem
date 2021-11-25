@@ -515,6 +515,7 @@ typedef struct
   int wires;
   int texts;
   int instances;
+  int symbols;
   xLine     **lptr;
   xRect      **bptr;
   xPoly  **pptr;
@@ -522,6 +523,7 @@ typedef struct
   xWire     *wptr;
   xText     *tptr;
   xInstance *iptr;
+  xSymbol *symptr;
 } Undo_slot;
 
 typedef struct {

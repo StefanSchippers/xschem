@@ -1,4 +1,4 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {type=pmos
 format="@spiceprefix@name @pinlist @model @extra m=@m"
@@ -26,9 +26,9 @@ L 4 5 -20 20 -20 {}
 L 4 20 -30 20 -20 {}
 L 4 -5 -15 -5 15 {}
 L 4 -20 0 -12.5 0 {}
-B 5 17.5 27.5 22.5 32.5 {name=D dir=inout pinnumber=3}
-B 5 -22.5 -2.5 -17.5 2.5 {name=G dir=in pinnumber=1}
-B 5 17.5 -32.5 22.5 -27.5 {name=S dir=inout pinnumber=2}
+B 5 17.5 27.5 22.5 32.5 {name=d dir=inout pinnumber=3}
+B 5 -22.5 -2.5 -17.5 2.5 {name=g dir=in pinnumber=1}
+B 5 17.5 -32.5 22.5 -27.5 {name=s dir=inout pinnumber=2}
 A 4 -8.75 0 3.75 270 360 {}
 T {@device} 18.75 -13.75 0 0 0.2 0.2 {}
 T {@name} 18.75 0 0 0 0.2 0.2 {}

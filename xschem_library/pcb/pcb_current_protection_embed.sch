@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -24,11 +25,18 @@ N 550 -320 650 -320 {lab=G}
 N 550 -260 650 -260 {lab=#net1}
 C {conn_3x1.sym} 150 -360 0 0 {name=C1 embed=true}
 [
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
 G {type=connector
 format="*connector(3,1) @pinlist"
-tedax_format="footprint @name @footprint"
-template="name=C1 footprint=connector(3,1)"
+
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=c1 footprint=connector(3,1)"
 }
 V {}
 S {}
@@ -39,17 +47,18 @@ B 5 18.75 18.75 21.25 21.25 {name=conn_3 dir=inout pinnumber=3}
 A 4 15 -20 5 270 360 {}
 A 4 15 0 5 270 360 {}
 A 4 15 20 5 270 360 {}
-T {@#0:pinnumber} 6.25 -21.25 0 1 0.1 0.1 {}
-T {@#1:pinnumber} 6.25 -1.25 0 1 0.1 0.1 {}
-T {@#2:pinnumber} 6.25 18.75 0 1 0.1 0.1 {}
+T {@#0:pinnumber} 7.5 -23.75 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} 7.5 -3.75 0 1 0.2 0.2 {layer=13}
+T {@#2:pinnumber} 7.5 16.25 0 1 0.2 0.2 {layer=13}
 T {@name} -18.75 -43.75 0 0 0.2 0.2 {}
 P 4 5 10 30 -10 30 -10 -30 10 -30 10 30 {}
 ]
 C {vdd.sym} 770 -490 0 0 {name=l6 lab=VCC embed=true}
 [
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
 G {type=label
-global=1
+function0="H"
+global=true
 format="*.alias @lab"
 template="name=l1 lab=VDD"}
 V {}
@@ -57,12 +66,12 @@ S {}
 E {}
 L 4 0 -20 0 0 {}
 L 4 -10 -20 10 -20 {}
-B 5 -2.5 -2.5 2.5 2.5 {name=p dir=inout verilog_type=wire}
+B 5 -2.5 -2.5 2.5 2.5 {name=p dir=inout verilog_type=wire goto=0}
 T {@lab} -12.5 -35 0 0 0.2 0.2 {}
 ]
 C {lab_pin.sym} 860 -300 0 1 {name=p0 lab=VOUT embed=true}
 [
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
 G {type=label
 format="*.alias @lab"
 template="name=l1 sig_type=std_logic lab=xxx"}
@@ -70,11 +79,11 @@ V {}
 S {}
 E {}
 B 5 -1.25 -1.25 1.25 1.25 {name=p dir=in}
-T {@lab} -7.5 -7.5 0 1 0.36 0.33 {}
+T {@lab} -7.5 -8.125 0 1 0.33 0.33 {}
 ]
 C {lab_wire.sym} 660 -360 0 0 {name=l9 lab=G embed=true}
 [
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
 G {type=label
 format="*.alias @lab"
 template="name=l1 sig_type=std_logic lab=xxx"}
@@ -82,19 +91,34 @@ V {}
 S {}
 E {}
 B 5 -1.25 -1.25 1.25 1.25 {name=p dir=in}
-T {@lab} -3.75 -18.75 0 1 0.33 0.27 {}
+T {@lab} -2.5 -1.25 2 0 0.27 0.27 {}
 ]
 C {res.sym} 770 -190 0 0 {name=Rload m=1 value=100 footprint=1206 device=resistor
 tedax_ignore=true embed=true}
 [
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
 G {type=resistor
+
+function0="1"
+function1="0"
+
 format="@name @pinlist @value m=@m"
-verilog_format="tran @name ( @#0 , @#1 ) ;"
+
+verilog_format="tran @name (@@P\\\\, @@M\\\\);"
+
 tedax_format="footprint @name @footprint
 value @name @value
-device @name @device"
-template="name=R0 m=1 value=1k footprint=1206 device=resistor"}
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=R1
+value=1k
+footprint=1206
+device=resistor
+m=1"
+}
 V {}
 S {}
 E {}
@@ -111,19 +135,22 @@ L 4 -7.5 -17.5 0 -20 {}
 L 4 0 -30 0 -20 {}
 L 4 2.5 -22.5 7.5 -22.5 {}
 L 4 5 -25 5 -20 {}
-B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout goto=1 pinnumber=1}
-B 5 -2.5 27.5 2.5 32.5 {name=m dir=inout goto=0 pinnumber=2}
-T {@name} 15 -18.75 0 0 0.2 0.2 {}
-T {@value} 15 -3.75 0 0 0.2 0.2 {}
-T {m=@m} 15 11.25 0 0 0.2 0.2 {}
-T {@#0:pinnumber} -5 -25 0 1 0.12 0.12 {}
-T {@#1:pinnumber} -5 20 0 1 0.12 0.12 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=P dir=inout propag=1 pinnumber=1 goto=1}
+B 5 -2.5 27.5 2.5 32.5 {name=M dir=inout propag=0 pinnumber=2 goto=0}
+T {@name} -15 -13.75 0 1 0.2 0.2 {}
+T {@value} 15 -6.25 0 0 0.2 0.2 {}
+T {@#0:pinnumber} -10 -26.25 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -10 16.25 0 1 0.2 0.2 {layer=13}
+T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15}
+T {m=@m} -15 1.25 0 1 0.2 0.2 {}
 ]
 C {gnd.sym} 770 -130 0 0 {name=l10 lab=VSS embed=true}
 [
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
 G {type=label
-global=1
+function0="L"
+global=true
 format="*.alias @lab"
 template="name=l1 lab=GND"}
 V {}
@@ -133,7 +160,7 @@ L 4 0 0 0 12.5 {}
 L 4 -5 12.5 5 12.5 {}
 L 4 0 17.5 5 12.5 {}
 L 4 -5 12.5 0 17.5 {}
-B 5 -2.5 -2.5 2.5 2.5 {name=p dir=inout}
+B 5 -2.5 -2.5 2.5 2.5 {name=p dir=inout goto=0}
 T {@lab} 7.5 5 0 0 0.2 0.2 {}
 ]
 C {code.sym} 950 -430 0 0 {name=STIMULI
@@ -151,44 +178,54 @@ vvss vss 0 dc 0
 .save all
 " embed=true}
 [
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
 G {type=netlist_commands
 template="name=s1 only_toplevel=false value=blabla"
-tedax_ignore=true
 format="
 @value
 "}
 V {}
 S {}
 E {}
-L 3 20 30 60 30 {}
-L 3 20 40 40 40 {}
-L 3 20 50 60 50 {}
-L 3 20 60 50 60 {}
-L 3 20 70 50 70 {}
-L 3 20 80 90 80 {}
-L 3 20 90 40 90 {}
-L 3 20 20 70 20 {}
-L 3 20 10 40 10 {}
-L 5 100 10 110 10 {}
-L 5 110 10 110 110 {}
-L 5 20 110 110 110 {}
-L 5 20 100 20 110 {}
-L 5 100 0 100 100 {}
-L 5 10 100 100 100 {}
-L 5 10 0 10 100 {}
-L 5 10 0 100 0 {}
+L 4 20 30 60 30 {}
+L 4 20 40 40 40 {}
+L 4 20 50 60 50 {}
+L 4 20 60 50 60 {}
+L 4 20 70 50 70 {}
+L 4 20 80 90 80 {}
+L 4 20 90 40 90 {}
+L 4 20 20 70 20 {}
+L 4 20 10 40 10 {}
+L 4 100 10 110 10 {}
+L 4 110 10 110 110 {}
+L 4 20 110 110 110 {}
+L 4 20 100 20 110 {}
+L 4 100 0 100 100 {}
+L 4 10 100 100 100 {}
+L 4 10 0 10 100 {}
+L 4 10 0 100 0 {}
 T {@name} 15 -25 0 0 0.3 0.3 {}
 ]
 C {pnp.sym} 580 -390 0 0 {name=Q6 model=BC857 device=BC857 area=1 footprint=SOT23
 url="https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=2ahUKEwijlfagu4zfAhUN0xoKHTPBAb0QFjAAegQIAhAC&url=http%3A%2F%2Fwww.onsemi.com%2Fpub%2FCollateral%2FPN2907-D.PDF&usg=AOvVaw2wgr87fGZgGfBRhXzHGwZM" embed=true}
 [
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
 G {type=pnp
-format="@name @pinlist @model area=@area"
+format="@spiceprefix@name @pinlist @model area=@area m=@m"
+
 tedax_format="footprint @name @footprint
-device @name @device"
-template="name=Q1 model=Q2N2907 device=2N2907 area=1"}
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=Q1
+model=Q2N2907
+device=2N2907
+footprint=TO92
+area=1
+m=1"}
 V {}
 S {}
 E {}
@@ -199,21 +236,30 @@ L 4 0 10 20 30 {}
 B 5 17.5 27.5 22.5 32.5 {name=C dir=inout pinnumber=3}
 B 5 -22.5 -2.5 -17.5 2.5 {name=B dir=in pinnumber=1}
 B 5 17.5 -32.5 22.5 -27.5 {name=E dir=inout pinnumber=2}
-T {@device} 20 -12.5 0 0 0.2 0.2 {}
-T {@name} 20 2.5 0 0 0.2 0.2 {}
-T {@#2:pinnumber} 25 -28.75 0 0 0.12 0.12 {}
-T {@#0:pinnumber} 25 23.75 0 0 0.12 0.12 {}
-T {@#1:pinnumber} -20 6.25 0 1 0.12 0.12 {}
+T {@model} 20 -12.5 0 0 0.2 0.2 {}
+T {@name} 20 0 0 0 0.2 0.2 {}
+T {@#2:pinnumber} 25 -25 0 0 0.2 0.2 {layer=13}
+T {@#0:pinnumber} 25 12.5 0 0 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -5 6.25 0 1 0.2 0.2 {layer=13}
+T {@#2:net_name} 25 -33.75 0 0 0.15 0.15 {layer=15}
+T {@#0:net_name} 25 23.75 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} -6.25 -12.5 0 1 0.15 0.15 {layer=15}
 P 4 4 0 -10 15 -15 5 -25 0 -10 {fill=true}
 ]
 C {zener.sym} 330 -190 2 0 {name=x3 model=BZX5V1 device=BZX5V1 area=1 footprint=acy(300) embed=true}
 [
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
 G {type=diode
-format="@name @pinlist @model"
+format="@spiceprefix@name @pinlist @model"
+
 tedax_format="footprint @name @footprint
-device @name @device"
-template="name=x1 model=XXX device=XXX"}
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=X1 model=XXX device=XXX"}
 V {}
 S {}
 E {}
@@ -224,30 +270,268 @@ L 4 20 -5 20 5 {}
 L 4 -20 5 -20 15 {}
 B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout pinnumber=1}
 B 5 -2.5 27.5 2.5 32.5 {name=m dir=inout pinnumber=2}
-T {@name} 2.5 -20 0 0 0.2 0.2 {}
-T {@device} 2.5 12.5 0 0 0.2 0.2 {}
-T {@#0:pinnumber} -5 -25 0 1 0.12 0.12 {}
-T {@#1:pinnumber} -5 20 0 1 0.12 0.12 {}
+T {@#0:pinnumber} -5 -26.25 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -5 17.5 0 1 0.2 0.2 {layer=13}
+T {@name} 15 -18.75 0 0 0.2 0.2 {}
+T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15}
+T {@model} 15 6.25 0 0 0.2 0.2 {}
 P 4 4 -0 5 -10 -5 10 -5 -0 5 {fill=true}
 ]
 C {gnd.sym} 330 -130 0 0 {name=l13 lab=VSS embed=true}
-C {res.sym} 330 -460 0 0 {name=R4 m=1 value=4.7K footprint=1206 device=resistor embed=true}
-C {vdd.sym} 330 -490 0 0 {name=l14 lab=VCC embed=true}
-C {vdd.sym} 600 -490 0 0 {name=l15 lab=VCC embed=true}
-C {res.sym} 600 -190 0 0 {name=R5 m=1 value=470 footprint=1206 device=resistor embed=true}
-C {gnd.sym} 600 -130 0 0 {name=l16 lab=VSS embed=true}
-C {lab_wire.sym} 360 -390 0 0 {name=l0 lab=B embed=true}
-C {res.sym} 330 -340 0 0 {name=R2 m=1 value=510 footprint=1206 device=resistor embed=true}
-C {pmos.sym} 750 -360 0 0 {name=M2 m=1 model=IRLML6402 device=IRLML6402 footprint=SOT23
-url="https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=2ahUKEwjs8pzxuozfAhWpz4UKHR4CDnMQFjAAegQIAhAC&url=https%3A%2F%2Fwww.infineon.com%2Fdgdl%2Firlml6402.pdf%3FfileId%3D5546d462533600a401535668c9822638&usg=AOvVaw21fCRax-ssVpLqDeGK8KiC" embed=true}
 [
-v {xschem version=2.9.5_RC5 file_version=1.1}
-G {type=pmos
-format="x@name @pinlist @model m=@m"
+v {xschem version=3.0.0 file_version=1.2}
+G {type=label
+function0="L"
+global=true
+format="*.alias @lab"
+template="name=l1 lab=GND"}
+V {}
+S {}
+E {}
+L 4 0 0 0 12.5 {}
+L 4 -5 12.5 5 12.5 {}
+L 4 0 17.5 5 12.5 {}
+L 4 -5 12.5 0 17.5 {}
+B 5 -2.5 -2.5 2.5 2.5 {name=p dir=inout goto=0}
+T {@lab} 7.5 5 0 0 0.2 0.2 {}
+]
+C {res.sym} 330 -460 0 0 {name=R4 m=1 value=4.7K footprint=1206 device=resistor embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=resistor
+
+function0="1"
+function1="0"
+
+format="@name @pinlist @value m=@m"
+
+verilog_format="tran @name (@@P\\\\, @@M\\\\);"
+
 tedax_format="footprint @name @footprint
-device @name @device"
-template="name=M1 model=DMP2035U device=DMP2035U m=1"
-verilog_format="@symname #@del @name ( @@d , @@s , @@g );"}
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=R1
+value=1k
+footprint=1206
+device=resistor
+m=1"
+}
+V {}
+S {}
+E {}
+L 4 0 20 0 30 {}
+L 4 0 20 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 0 -20 {}
+L 4 0 -30 0 -20 {}
+L 4 2.5 -22.5 7.5 -22.5 {}
+L 4 5 -25 5 -20 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=P dir=inout propag=1 pinnumber=1 goto=1}
+B 5 -2.5 27.5 2.5 32.5 {name=M dir=inout propag=0 pinnumber=2 goto=0}
+T {@name} -15 -13.75 0 1 0.2 0.2 {}
+T {@value} 15 -6.25 0 0 0.2 0.2 {}
+T {@#0:pinnumber} -10 -26.25 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -10 16.25 0 1 0.2 0.2 {layer=13}
+T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15}
+T {m=@m} -15 1.25 0 1 0.2 0.2 {}
+]
+C {vdd.sym} 330 -490 0 0 {name=l14 lab=VCC embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=label
+function0="H"
+global=true
+format="*.alias @lab"
+template="name=l1 lab=VDD"}
+V {}
+S {}
+E {}
+L 4 0 -20 0 0 {}
+L 4 -10 -20 10 -20 {}
+B 5 -2.5 -2.5 2.5 2.5 {name=p dir=inout verilog_type=wire goto=0}
+T {@lab} -12.5 -35 0 0 0.2 0.2 {}
+]
+C {vdd.sym} 600 -490 0 0 {name=l15 lab=VCC embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=label
+function0="H"
+global=true
+format="*.alias @lab"
+template="name=l1 lab=VDD"}
+V {}
+S {}
+E {}
+L 4 0 -20 0 0 {}
+L 4 -10 -20 10 -20 {}
+B 5 -2.5 -2.5 2.5 2.5 {name=p dir=inout verilog_type=wire goto=0}
+T {@lab} -12.5 -35 0 0 0.2 0.2 {}
+]
+C {res.sym} 600 -190 0 0 {name=R5 m=1 value=470 footprint=1206 device=resistor embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=resistor
+
+function0="1"
+function1="0"
+
+format="@name @pinlist @value m=@m"
+
+verilog_format="tran @name (@@P\\\\, @@M\\\\);"
+
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=R1
+value=1k
+footprint=1206
+device=resistor
+m=1"
+}
+V {}
+S {}
+E {}
+L 4 0 20 0 30 {}
+L 4 0 20 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 0 -20 {}
+L 4 0 -30 0 -20 {}
+L 4 2.5 -22.5 7.5 -22.5 {}
+L 4 5 -25 5 -20 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=P dir=inout propag=1 pinnumber=1 goto=1}
+B 5 -2.5 27.5 2.5 32.5 {name=M dir=inout propag=0 pinnumber=2 goto=0}
+T {@name} -15 -13.75 0 1 0.2 0.2 {}
+T {@value} 15 -6.25 0 0 0.2 0.2 {}
+T {@#0:pinnumber} -10 -26.25 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -10 16.25 0 1 0.2 0.2 {layer=13}
+T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15}
+T {m=@m} -15 1.25 0 1 0.2 0.2 {}
+]
+C {gnd.sym} 600 -130 0 0 {name=l16 lab=VSS embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=label
+function0="L"
+global=true
+format="*.alias @lab"
+template="name=l1 lab=GND"}
+V {}
+S {}
+E {}
+L 4 0 0 0 12.5 {}
+L 4 -5 12.5 5 12.5 {}
+L 4 0 17.5 5 12.5 {}
+L 4 -5 12.5 0 17.5 {}
+B 5 -2.5 -2.5 2.5 2.5 {name=p dir=inout goto=0}
+T {@lab} 7.5 5 0 0 0.2 0.2 {}
+]
+C {lab_wire.sym} 360 -390 0 0 {name=l0 lab=B embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=label
+format="*.alias @lab"
+template="name=l1 sig_type=std_logic lab=xxx"}
+V {}
+S {}
+E {}
+B 5 -1.25 -1.25 1.25 1.25 {name=p dir=in}
+T {@lab} -2.5 -1.25 2 0 0.27 0.27 {}
+]
+C {res.sym} 330 -340 0 0 {name=R2 m=1 value=510 footprint=1206 device=resistor embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=resistor
+
+function0="1"
+function1="0"
+
+format="@name @pinlist @value m=@m"
+
+verilog_format="tran @name (@@P\\\\, @@M\\\\);"
+
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=R1
+value=1k
+footprint=1206
+device=resistor
+m=1"
+}
+V {}
+S {}
+E {}
+L 4 0 20 0 30 {}
+L 4 0 20 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 0 -20 {}
+L 4 0 -30 0 -20 {}
+L 4 2.5 -22.5 7.5 -22.5 {}
+L 4 5 -25 5 -20 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=P dir=inout propag=1 pinnumber=1 goto=1}
+B 5 -2.5 27.5 2.5 32.5 {name=M dir=inout propag=0 pinnumber=2 goto=0}
+T {@name} -15 -13.75 0 1 0.2 0.2 {}
+T {@value} 15 -6.25 0 0 0.2 0.2 {}
+T {@#0:pinnumber} -10 -26.25 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -10 16.25 0 1 0.2 0.2 {layer=13}
+T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15}
+T {m=@m} -15 1.25 0 1 0.2 0.2 {}
+]
+C {pmos.sym} 750 -360 0 0 {name=M2 m=1 model=IRLML6402 device=IRLML6402 footprint=SOT23
+url="https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=2ahUKEwjs8pzxuozfAhWpz4UKHR4CDnMQFjAAegQIAhAC&url=https%3A%2F%2Fwww.infineon.com%2Fdgdl%2Firlml6402.pdf%3FfileId%3D5546d462533600a401535668c9822638&usg=AOvVaw21fCRax-ssVpLqDeGK8KiC"
+embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=pmos
+format="@spiceprefix@name @pinlist @model @extra m=@m"
+verilog_format="@symname #@del @name ( @@d , @@s , @@g );"
+
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=M1 
+model=DMP2035U 
+device=DMP2035U 
+m=1"
+}
 V {}
 S {}
 E {}
@@ -262,44 +546,52 @@ B 5 17.5 27.5 22.5 32.5 {name=d dir=inout pinnumber=3}
 B 5 -22.5 -2.5 -17.5 2.5 {name=g dir=in pinnumber=1}
 B 5 17.5 -32.5 22.5 -27.5 {name=s dir=inout pinnumber=2}
 A 4 -8.75 0 3.75 270 360 {}
-T {@device} 10 -17.5 0 0 0.2 0.2 {}
-T {@name} 10 0 0 0 0.2 0.2 {}
-T {D} 22.5 12.5 0 0 0.2 0.2 {}
-T {@#2:pinnumber} 25 -28.75 0 0 0.12 0.12 {}
-T {@#0:pinnumber} 25 23.75 0 0 0.12 0.12 {}
-T {@#1:pinnumber} -20 6.25 0 1 0.12 0.12 {}
+T {@device} 18.75 -13.75 0 0 0.2 0.2 {}
+T {@name} 18.75 0 0 0 0.2 0.2 {}
+T {D} 7.5 8.75 0 0 0.2 0.2 {}
+T {@#2:pinnumber} 25 -28.75 0 0 0.2 0.2 {layer=13}
+T {@#0:pinnumber} 25 18.75 0 0 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -13.75 6.25 0 1 0.2 0.2 {layer=13}
 ]
 C {led.sym} 650 -290 0 0 {name=x1 model=D1N5765 device=D1N5765 area=1 footprint=acy(300) embed=true}
 [
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
 G {type=diode
-format="@name @pinlist @model"
+format="@spiceprefix@name @pinlist @model"
+
 tedax_format="footprint @name @footprint
-device @name @device"
-template="name=x1 model=XXX device=XXX"}
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=X1 model=XXX device=XXX"}
 V {}
 S {}
 E {}
 L 4 0 5 0 30 {}
 L 4 0 -30 0 -5 {}
 L 4 -20 5 20 5 {}
-L 4 -30 0 -20 -10 {}
-L 4 -30 -10 -30 0 {}
-L 4 -45 5 -30 -10 {}
-L 4 -35 12.5 -25 2.5 {}
-L 4 -35 2.5 -35 12.5 {}
-L 4 -50 17.5 -35 2.5 {}
+L 4 -30 -2.5 -20 -12.5 {}
+L 4 -30 -12.5 -30 -2.5 {}
+L 4 -45 2.5 -30 -12.5 {}
+L 4 -35 10 -25 0 {}
+L 4 -35 0 -35 10 {}
+L 4 -50 15 -35 0 {}
 B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout pinnumber=1}
 B 5 -2.5 27.5 2.5 32.5 {name=m dir=inout pinnumber=2}
 T {@name} 7.5 -20 0 0 0.2 0.2 {}
-T {@model} 7.5 12.5 0 0 0.25 0.2 {}
-T {@#0:pinnumber} -5 -25 0 1 0.12 0.12 {}
-T {@#1:pinnumber} -5 20 0 1 0.12 0.12 {}
+T {@value} 7.5 12.5 0 0 0.2 0.2 {}
+T {@#0:pinnumber} -5 -26.25 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -5 16.25 0 1 0.2 0.2 {layer=13}
+T {@#0:net_name} 5 -42.5 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} 5 32.5 0 0 0.15 0.15 {layer=15}
 P 4 4 -0 5 -10 -5 10 -5 -0 5 {fill=true}
 ]
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan" embed=true}
 [
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2}
 G {type=logo
 template="name=l1 author=\\"Stefan Schippers\\""
 verilog_ignore=true
@@ -313,17 +605,159 @@ L 6 225 0 1020 0 {}
 L 6 -160 0 -95 0 {}
 T {@schname} 235 5 0 0 0.4 0.4 {}
 T {@author} 235 -25 0 0 0.4 0.4 {}
-T {@time_last_modified} 1020 -20 0 1 0.4 0.3 {}
+T {@time_last_modified} 1020 -25 0 1 0.4 0.3 {}
 T {SCHEM} 5 -25 0 0 1 1 {}
 P 5 13 5 -30 -25 0 5 30 -15 30 -35 10 -55 30 -75 30 -45 0 -75 -30 -55 -30 -35 -10 -15 -30 5 -30 {fill=true}
 ]
 C {lab_pin.sym} 170 -340 0 1 {name=p6 lab=VOUT embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=label
+format="*.alias @lab"
+template="name=l1 sig_type=std_logic lab=xxx"}
+V {}
+S {}
+E {}
+B 5 -1.25 -1.25 1.25 1.25 {name=p dir=in}
+T {@lab} -7.5 -8.125 0 1 0.33 0.33 {}
+]
 C {lab_pin.sym} 170 -360 0 1 {name=p7 lab=VSS embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=label
+format="*.alias @lab"
+template="name=l1 sig_type=std_logic lab=xxx"}
+V {}
+S {}
+E {}
+B 5 -1.25 -1.25 1.25 1.25 {name=p dir=in}
+T {@lab} -7.5 -8.125 0 1 0.33 0.33 {}
+]
 C {lab_pin.sym} 170 -380 0 1 {name=p8 lab=VCC embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=label
+format="*.alias @lab"
+template="name=l1 sig_type=std_logic lab=xxx"}
+V {}
+S {}
+E {}
+B 5 -1.25 -1.25 1.25 1.25 {name=p dir=in}
+T {@lab} -7.5 -8.125 0 1 0.33 0.33 {}
+]
 C {zener.sym} 250 -190 2 0 {name=x4 model=BZX5V1 device=BZX5V1 area=1 footprint=minimelf spice_ignore=true embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=diode
+format="@spiceprefix@name @pinlist @model"
+
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=X1 model=XXX device=XXX"}
+V {}
+S {}
+E {}
+L 4 0 5 0 30 {}
+L 4 0 -30 0 -5 {}
+L 4 -20 5 20 5 {}
+L 4 20 -5 20 5 {}
+L 4 -20 5 -20 15 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=inout pinnumber=1}
+B 5 -2.5 27.5 2.5 32.5 {name=m dir=inout pinnumber=2}
+T {@#0:pinnumber} -5 -26.25 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -5 17.5 0 1 0.2 0.2 {layer=13}
+T {@name} 15 -18.75 0 0 0.2 0.2 {}
+T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15}
+T {@model} 15 6.25 0 0 0.2 0.2 {}
+P 4 4 -0 5 -10 -5 10 -5 -0 5 {fill=true}
+]
 C {gnd.sym} 250 -130 0 0 {name=l1 lab=VSS embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=label
+function0="L"
+global=true
+format="*.alias @lab"
+template="name=l1 lab=GND"}
+V {}
+S {}
+E {}
+L 4 0 0 0 12.5 {}
+L 4 -5 12.5 5 12.5 {}
+L 4 0 17.5 5 12.5 {}
+L 4 -5 12.5 0 17.5 {}
+B 5 -2.5 -2.5 2.5 2.5 {name=p dir=inout goto=0}
+T {@lab} 7.5 5 0 0 0.2 0.2 {}
+]
 C {res.sym} 550 -290 0 0 {name=R1 m=1 value=47K footprint=1206 device=resistor embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=resistor
+
+function0="1"
+function1="0"
+
+format="@name @pinlist @value m=@m"
+
+verilog_format="tran @name (@@P\\\\, @@M\\\\);"
+
+tedax_format="footprint @name @footprint
+value @name @value
+device @name @device
+spicedev @name @spicedev
+spiceval @name @spiceval
+comptag @name @comptag"
+
+template="name=R1
+value=1k
+footprint=1206
+device=resistor
+m=1"
+}
+V {}
+S {}
+E {}
+L 4 0 20 0 30 {}
+L 4 0 20 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 0 -20 {}
+L 4 0 -30 0 -20 {}
+L 4 2.5 -22.5 7.5 -22.5 {}
+L 4 5 -25 5 -20 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=P dir=inout propag=1 pinnumber=1 goto=1}
+B 5 -2.5 27.5 2.5 32.5 {name=M dir=inout propag=0 pinnumber=2 goto=0}
+T {@name} -15 -13.75 0 1 0.2 0.2 {}
+T {@value} 15 -6.25 0 0 0.2 0.2 {}
+T {@#0:pinnumber} -10 -26.25 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -10 16.25 0 1 0.2 0.2 {layer=13}
+T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15}
+T {m=@m} -15 1.25 0 1 0.2 0.2 {}
+]
 C {lab_wire.sym} 330 -260 0 0 {name=l3 lab=Z embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=label
+format="*.alias @lab"
+template="name=l1 sig_type=std_logic lab=xxx"}
+V {}
+S {}
+E {}
+B 5 -1.25 -1.25 1.25 1.25 {name=p dir=in}
+T {@lab} -2.5 -1.25 2 0 0.27 0.27 {}
+]
 C {code.sym} 950 -260 0 0 {name=MODELS 
 tedax_ignore=true
 only_toplevel=true
@@ -1504,3 +1938,32 @@ D2 8 6 DN
 V1 18 19 1.25
 .ENDS
 " tclcommand="xschem edit_vi_prop" embed=true}
+[
+v {xschem version=3.0.0 file_version=1.2}
+G {type=netlist_commands
+template="name=s1 only_toplevel=false value=blabla"
+format="
+@value
+"}
+V {}
+S {}
+E {}
+L 4 20 30 60 30 {}
+L 4 20 40 40 40 {}
+L 4 20 50 60 50 {}
+L 4 20 60 50 60 {}
+L 4 20 70 50 70 {}
+L 4 20 80 90 80 {}
+L 4 20 90 40 90 {}
+L 4 20 20 70 20 {}
+L 4 20 10 40 10 {}
+L 4 100 10 110 10 {}
+L 4 110 10 110 110 {}
+L 4 20 110 110 110 {}
+L 4 20 100 20 110 {}
+L 4 100 0 100 100 {}
+L 4 10 100 100 100 {}
+L 4 10 0 10 100 {}
+L 4 10 0 100 0 {}
+T {@name} 15 -25 0 0 0.3 0.3 {}
+]
