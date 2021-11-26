@@ -767,12 +767,13 @@ void set_clip_mask(int what)
     #endif
   }
 }
-
+#ifdef __unix__
 /* moved here to avoid Xorg-specific calls in move.c */
 int pending_events(void)
 {
   return XPending(display);
 }
+#endif
 
 void toggle_fullscreen(const char *topwin)
 {

@@ -1230,7 +1230,9 @@ extern void update_symbol(const char *result, int x);
 extern void tclexit(ClientData s);
 extern int build_colors(double dim, double dim_bg); /*  reparse the TCL 'colors' list and reassign colors 20171113 */
 extern void set_clip_mask(int what);
+#ifdef __unix__
 extern int pending_events(void);
+#endif
 extern void drill_hilight(int mode);
 extern void get_square(double x, double y, int *xx, int *yy);
 extern void del_wire_table(void);

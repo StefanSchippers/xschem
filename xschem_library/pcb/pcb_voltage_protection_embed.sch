@@ -517,7 +517,7 @@ url="https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=2ahUKEw
 v {xschem version=3.0.0 file_version=1.2}
 G {type=pmos
 format="@spiceprefix@name @pinlist @model @extra m=@m"
-verilog_format="@symname #@del @name ( @@d , @@s , @@f );"
+verilog_format="@symname #@del @name ( @@d , @@s , @@g );"
 
 tedax_format="footprint @name @footprint
 value @name @value
