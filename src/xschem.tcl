@@ -645,7 +645,11 @@ proc simconf {} {
     xschem set semaphore [expr {[xschem get semaphore] -1}]
   }
   button .sim.bottom.help  -text Help -command {
-    viewdata {The following variables are defined and will get substituted by
+    viewdata {In this dialog box you set the commands xschem uses to launch the 
+various external tools.
+Xschem has 3 main netlisting modes (spice, verilog, vhdl) and for each
+netlisting mode some simulators and some viewers can be defined.
+The following variables are defined and will get substituted by
 XSCHEM before sending commands to the shell:
 
  - N: complete filename of netlist for current netlisting mode
@@ -666,11 +670,12 @@ Foreground (Fg) checkbutton tells xschem to wait for child process to finish.
 Status checkbutton tells xschem to report a status dialog (stdout, stderr,
 exit status) when process finishes.
 Any changes made in the command or tool name entries will be saved in 
-~/.xschem/simrc when 'Accept and Save Configuration' button is pressed.
-If 'Accept and Close' is pressed then the changes are kept in memory
-without writing to a file, if xschem is restarted changes will be lost.
+~/.xschem/simrc when 'Save Configuration to file' button is pressed.
+If 'Accept and Close' is pressed then the changes are kept in memory and dialog
+is closed without writing to a file, if xschem is restarted changes will be lost.
 If no ~/.xschem/simrc is present then a minimal default setup is presented.
-To reset to default just delete the ~/.xschem/simrc file manually.
+To reset to default use the corresponding button or just delete the ~/.xschem/simrc
+file manually.
     } ro
   }
   button .sim.bottom.ok  -text {Save Configuration to file} -command {
