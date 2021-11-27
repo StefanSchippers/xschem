@@ -432,32 +432,33 @@ proc sim_is_xyce {} {
 }
 
 
-proc set_sim_defaults {} {
-  ### spice 
+proc set_sim_defaults {{reset {}}} {
   global sim terminal USER_CONF_DIR has_x bespice_listen_port env OS
-
-  set failure 0
-  if { [info exists has_x] && [winfo exists .sim] } {
-    foreach tool $sim(tool_list) {
-      for {set i 0} {$i < $sim($tool,n)} { incr i} {
-        set sim($tool,$i,cmd) [.sim.topf.f.scrl.center.$tool.r.$i.cmd get 1.0 {end - 1 chars}]
-      }
-    }
-  } 
-  if { ![info exists sim] } {
-    if { [file exists ${USER_CONF_DIR}/simrc] } {
-      # get conf from simrc
-      if { [catch {source ${USER_CONF_DIR}/simrc} err]} {
-        puts "Problems opening simrc file: $err"
-        if {[info exists has_x]} {
-          tk_messageBox -message  "Problems opening simrc file: $err" -icon warning \
-             -parent [xschem get topwindow] -type ok
+  if {$reset eq {reset} } { file delete ${USER_CONF_DIR}/simrc }
+  if { $reset eq {} } {
+    set failure 0
+    if { [info exists has_x] && [winfo exists .sim] } {
+      foreach tool $sim(tool_list) {
+        for {set i 0} {$i < $sim($tool,n)} { incr i} {
+          set sim($tool,$i,cmd) [.sim.topf.f.scrl.center.$tool.r.$i.cmd get 1.0 {end - 1 chars}]
         }
-        set failure 1
       }
-    }
-  } 
-  if {![info exists sim] || $failure} {
+    } 
+    if { ![info exists sim] } {
+      if { [file exists ${USER_CONF_DIR}/simrc] } {
+        # get conf from simrc
+        if { [catch {source ${USER_CONF_DIR}/simrc} err]} {
+          puts "Problems opening simrc file: $err"
+          if {[info exists has_x]} {
+            tk_messageBox -message  "Problems opening simrc file: $err" -icon warning \
+               -parent [xschem get topwindow] -type ok
+          }
+          set failure 1
+        }
+      }
+    } 
+  }
+  if {( $reset eq {reset} ) || ![info exists sim] || $failure} {
     if {[info exists sim]} {unset sim}
     # no simrc, set a reasonable default
     set sim(tool_list) {spice spicewave verilog verilogwave vhdl vhdlwave}
@@ -466,17 +467,18 @@ proc set_sim_defaults {} {
     } else {
       set_ne sim(spice,0,cmd) {$terminal -e 'ngspice -i "$N" -a || sh'}
     }
-    set_ne sim(spice,0,name) {Ngspice}
+    # can not use set_ne as variables bound to entry widgets always exist if widget exists
+    set sim(spice,0,name) {Ngspice}
     set_ne sim(spice,0,fg) 0
     set_ne sim(spice,0,st) 0
     
     set_ne sim(spice,1,cmd) {ngspice -b -r "$n.raw" -o "$n.out" "$N"}
-    set_ne sim(spice,1,name) {Ngspice batch}
+    set sim(spice,1,name) {Ngspice batch}
     set_ne sim(spice,1,fg) 0
     set_ne sim(spice,1,st) 1
     
     set_ne sim(spice,2,cmd) {Xyce "$N" -r "$n.raw"}
-    set_ne sim(spice,2,name) {Xyce batch}
+    set sim(spice,2,name) {Xyce batch}
     set_ne sim(spice,2,fg) 0
     set_ne sim(spice,2,st) 1
     
@@ -486,22 +488,22 @@ proc set_sim_defaults {} {
     
     ### spice wave view
     set_ne sim(spicewave,0,cmd) {gaw "$n.raw" } 
-    set_ne sim(spicewave,0,name) {Gaw viewer}
+    set sim(spicewave,0,name) {Gaw viewer}
     set_ne sim(spicewave,0,fg) 0
     set_ne sim(spicewave,0,st) 0
    
     set_ne sim(spicewave,1,cmd) {$terminal -e ngspice}
-    set_ne sim(spicewave,1,name) {Ngpice Viewer}
+    set sim(spicewave,1,name) {Ngpice Viewer}
     set_ne sim(spicewave,1,fg) 0
     set_ne sim(spicewave,1,st) 0
 
     set_ne sim(spicewave,2,cmd) {rawtovcd -v 1.5 "$n.raw" > "$n.vcd" && gtkwave "$n.vcd" "$n.sav" 2>/dev/null} 
-    set_ne sim(spicewave,2,name) {Rawtovcd}
+    set sim(spicewave,2,name) {Rawtovcd}
     set_ne sim(spicewave,2,fg) 0
     set_ne sim(spicewave,2,st) 0
 
     set_ne sim(spicewave,3,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port "$n.raw" } 
-    set_ne sim(spicewave,3,name) {Bespice wave}
+    set sim(spicewave,3,name) {Bespice wave}
     set_ne sim(spicewave,3,fg) 0
     set_ne sim(spicewave,3,st) 0
     # number of configured spice wave viewers, and default one
@@ -510,7 +512,7 @@ proc set_sim_defaults {} {
     
     ### verilog
     set_ne sim(verilog,0,cmd) {iverilog -o .verilog_object -g2012 "$N" && vvp .verilog_object}
-    set_ne sim(verilog,0,name) {Icarus verilog}
+    set sim(verilog,0,name) {Icarus verilog}
     set_ne sim(verilog,0,fg) 0
     set_ne sim(verilog,0,st) 1
     # number of configured verilog simulators, and default one
@@ -519,7 +521,7 @@ proc set_sim_defaults {} {
     
     ### verilog wave view
     set_ne sim(verilogwave,0,cmd) {gtkwave dumpfile.vcd "$N.sav" 2>/dev/null}
-    set_ne sim(verilogwave,0,name) {Gtkwave}
+    set sim(verilogwave,0,name) {Gtkwave}
     set_ne sim(verilogwave,0,fg) 0
     set_ne sim(verilogwave,0,st) 0
     # number of configured verilog wave viewers, and default one
@@ -528,7 +530,7 @@ proc set_sim_defaults {} {
     
     ### vhdl
     set_ne sim(vhdl,0,cmd) {ghdl -c --ieee=synopsys -fexplicit "$N" -r "$s" --wave="$n.ghw"}
-    set_ne sim(vhdl,0,name) {Ghdl}
+    set sim(vhdl,0,name) {Ghdl}
     set_ne sim(vhdl,0,fg) 0
     set_ne sim(vhdl,0,st) 1
     # number of configured vhdl simulators, and default one
@@ -537,7 +539,7 @@ proc set_sim_defaults {} {
     
     ### vhdl wave view
     set_ne sim(vhdlwave,0,cmd) {gtkwave "$n.ghw" "$N.sav" 2>/dev/null}
-    set_ne sim(vhdlwave,0,name) {Gtkwave}
+    set sim(vhdlwave,0,name) {Gtkwave}
     set_ne sim(vhdlwave,0,fg) 0
     set_ne sim(vhdlwave,0,st) 0
     # number of configured vhdl wave viewers, and default one
@@ -545,6 +547,22 @@ proc set_sim_defaults {} {
     set_ne sim(vhdlwave,default) 0
   }
 } 
+
+proc simconf_reset {} {
+  global sim
+
+  set answer [tk_messageBox -message  "Warning: delete simulation configuration file and reset to default?" \
+            -icon warning -parent .sim  -type okcancel]
+  if { $answer eq {ok}} {
+    set_sim_defaults reset
+    foreach tool $sim(tool_list) {
+      for {set i 0} { $i < $sim($tool,n)} {incr i} {
+        .sim.topf.f.scrl.center.$tool.r.$i.cmd delete 1.0 end
+        .sim.topf.f.scrl.center.$tool.r.$i.cmd insert 1.0 $sim($tool,$i,cmd)
+      }
+    }
+  }
+}
 
 proc simconf_yview { args } {
   global simconf_vpos
@@ -644,18 +662,18 @@ XSCHEM before sending commands to the shell:
 If for a given tool there are multiple rows then the radiobutton
 tells which one will be called by xschem.
 Variables should be used with the usual substitution character $: $n, $N, etc.
-Foreground checkbutton tells xschem to wait for child process to finish.
+Foreground (Fg) checkbutton tells xschem to wait for child process to finish.
 Status checkbutton tells xschem to report a status dialog (stdout, stderr,
 exit status) when process finishes.
 Any changes made in the command or tool name entries will be saved in 
 ~/.xschem/simrc when 'Accept and Save Configuration' button is pressed.
 If 'Accept and Close' is pressed then the changes are kept in memory
-without writing to a file. If xschem is restarted changes will be lost.
-If no ~/.xschem/simrc is present then a bare minumum skeleton setup is presented.
+without writing to a file, if xschem is restarted changes will be lost.
+If no ~/.xschem/simrc is present then a minimal default setup is presented.
 To reset to default just delete the ~/.xschem/simrc file manually.
     } ro
   }
-  button .sim.bottom.ok  -text {Accept and Save Configuration} -command {
+  button .sim.bottom.ok  -text {Save Configuration to file} -command {
     foreach tool $sim(tool_list) {
       for {set i 0} { $i < $sim($tool,n)} {incr i} {
         set sim($tool,$i,cmd) [.sim.topf.f.scrl.center.$tool.r.$i.cmd get 1.0 {end - 1 chars}]
@@ -665,6 +683,10 @@ To reset to default just delete the ~/.xschem/simrc file manually.
     # xschem set semaphore [expr {[xschem get semaphore] -1}]
     save_sim_defaults ${USER_CONF_DIR}/simrc
     # puts "saving simrc"
+  }
+
+  button .sim.bottom.reset -text {Reset to default} -command {
+    simconf_reset
   }
   button .sim.bottom.close -text {Accept and Close} -command {
     set_sim_defaults
@@ -690,6 +712,7 @@ To reset to default just delete the ~/.xschem/simrc file manually.
   #}
   pack .sim.bottom.ok -side right -anchor e
   pack .sim.bottom.close -side right
+  pack .sim.bottom.reset -side right
   pack .sim.topf -fill both -expand yes
   pack .sim.bottom -fill x
   if { [info exists simconf_default_geometry]} {
