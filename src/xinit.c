@@ -586,6 +586,11 @@ void alloc_xschem_data(const char *top_path)
   xctx->undo_initialized = 0; /* in_memory_undo */
   #endif
   xctx->time_last_modify = 0;
+  xctx->push_undo_ptr = &push_undo;
+  xctx->pop_undo_ptr = &pop_undo;
+  xctx->delete_undo_ptr = &delete_undo;
+  xctx->clear_undo_ptr = &clear_undo;
+
 }
 
 void delete_schematic_data(void)
