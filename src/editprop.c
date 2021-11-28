@@ -409,7 +409,7 @@ void edit_rect_property(void)
   preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
   if(strcmp(tclgetvar("rcode"),"") )
   {
-    push_undo();
+    (*xctx->push_undo_ptr)();
     set_modify(1);
     for(i=0; i<xctx->lastsel; i++) {
       if(xctx->sel_array[i].type != xRECT) continue;
@@ -464,7 +464,7 @@ void edit_line_property(void)
   if(strcmp(tclgetvar("rcode"),"") )
   {
     int y1, y2;
-    push_undo();
+    (*xctx->push_undo_ptr)();
     set_modify(1);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     for(i=0; i<xctx->lastsel; i++) {
@@ -517,7 +517,7 @@ void edit_wire_property(void)
   preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
   if(strcmp(tclgetvar("rcode"),"") )
   {
-    push_undo();
+    (*xctx->push_undo_ptr)();
     set_modify(1);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     for(i=0; i<xctx->lastsel; i++) {
@@ -581,7 +581,7 @@ void edit_arc_property(void)
   if(strcmp(tclgetvar("rcode"),"") )
   {
 
-   set_modify(1); push_undo();
+   set_modify(1); (*xctx->push_undo_ptr)();
    for(ii=0; ii<xctx->lastsel; ii++) {
      if(xctx->sel_array[ii].type != ARC) continue;
 
@@ -648,7 +648,7 @@ void edit_polygon_property(void)
   if(strcmp(tclgetvar("rcode"),"") )
   {
 
-   set_modify(1); push_undo();
+   set_modify(1); (*xctx->push_undo_ptr)();
    for(ii=0; ii<xctx->lastsel; ii++) {
      if(xctx->sel_array[ii].type != POLYGON) continue;
 
@@ -743,7 +743,7 @@ void edit_text_property(int x)
    if(strcmp(tclgetvar("rcode"),"") )
    {
      dbg(1, "edit_text_property(): rcode !=\"\"\n");
-     set_modify(1); push_undo();
+     set_modify(1); (*xctx->push_undo_ptr)();
      bbox(START,0.0,0.0,0.0,0.0);
      for(k=0;k<xctx->lastsel;k++)
      {
@@ -986,7 +986,7 @@ void update_symbol(const char *result, int x)
                             &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
     if(sym_number>=0) /* changing symbol ! */
     {
-      if(!pushed) { push_undo(); pushed=1;}
+      if(!pushed) { (*xctx->push_undo_ptr)(); pushed=1;}
       delete_inst_node(*ii); /* 20180208 fix crashing bug: delete node info if changing symbol */
                         /* if number of pins is different we must delete these data *before* */
                         /* changing ysmbol, otherwise *ii might end up deleting non allocated data. */
@@ -1004,7 +1004,7 @@ void update_symbol(const char *result, int x)
         char * ss=NULL;
         my_strdup(119, &ss, xctx->inst[*ii].prop_ptr);
         if( set_different_token(&ss, new_prop, xctx->old_prop, 0, 0) ) {
-          if(!pushed) { push_undo(); pushed=1;}
+          if(!pushed) { (*xctx->push_undo_ptr)(); pushed=1;}
           my_strdup(111, &xctx->inst[*ii].prop_ptr, ss);
           set_modify(1);
         }
@@ -1015,12 +1015,12 @@ void update_symbol(const char *result, int x)
           if(!xctx->inst[*ii].prop_ptr || strcmp(xctx->inst[*ii].prop_ptr, new_prop)) {
             dbg(1, "update_symbol(): changing prop: |%s| -> |%s|\n",
                 xctx->inst[*ii].prop_ptr, new_prop);
-            if(!pushed) { push_undo(); pushed=1;}
+            if(!pushed) { (*xctx->push_undo_ptr)(); pushed=1;}
             my_strdup(84, &xctx->inst[*ii].prop_ptr, new_prop);
             set_modify(1);
           }
         }  else {
-          if(!pushed) { push_undo(); pushed=1;}
+          if(!pushed) { (*xctx->push_undo_ptr)(); pushed=1;}
           my_strdup(86, &xctx->inst[*ii].prop_ptr, "");
           set_modify(1);
         }
@@ -1037,7 +1037,7 @@ void update_symbol(const char *result, int x)
           name, xctx->inst[*ii].prop_ptr);
       my_strdup(89, &ptr,subst_token(xctx->inst[*ii].prop_ptr, "name", name) );
                      /* set name of current inst */
-      if(!pushed) { push_undo(); pushed=1;}
+      if(!pushed) { (*xctx->push_undo_ptr)(); pushed=1;}
       if(!k) hash_all_names(*ii);
       new_prop_string(*ii, ptr, k, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
     }
@@ -1111,7 +1111,7 @@ void change_elem_order(void)
      tcleval("text_line {Object Sequence number} 0");
      if(strcmp(tclgetvar("rcode"),"") )
      {
-      push_undo();
+      (*xctx->push_undo_ptr)();
       set_modify(1);
       xctx->prep_hash_inst=0;
       xctx->prep_net_structs=0;
@@ -1208,27 +1208,27 @@ void edit_property(int x)
    {
      if(xctx->netlist_type==CAD_SYMBOL_ATTRS && 
         (!xctx->schsymbolprop || strcmp(xctx->schsymbolprop, tclgetvar("retval") ) ) ) {
-        set_modify(1); push_undo();
+        set_modify(1); (*xctx->push_undo_ptr)();
         my_strdup(422, &xctx->schsymbolprop, (char *) tclgetvar("retval"));
 
      } else if(xctx->netlist_type==CAD_VERILOG_NETLIST &&
         (!xctx->schverilogprop || strcmp(xctx->schverilogprop, tclgetvar("retval") ) ) ) {
-        set_modify(1); push_undo();
+        set_modify(1); (*xctx->push_undo_ptr)();
         my_strdup(94, &xctx->schverilogprop, (char *) tclgetvar("retval"));
 
      } else if(xctx->netlist_type==CAD_SPICE_NETLIST && 
         (!xctx->schprop || strcmp(xctx->schprop, tclgetvar("retval") ) ) ) {
-        set_modify(1); push_undo();
+        set_modify(1); (*xctx->push_undo_ptr)();
         my_strdup(95, &xctx->schprop, (char *) tclgetvar("retval"));
 
      } else if(xctx->netlist_type==CAD_TEDAX_NETLIST &&
         (!xctx->schtedaxprop || strcmp(xctx->schtedaxprop, tclgetvar("retval") ) ) ) {
-        set_modify(1); push_undo();
+        set_modify(1); (*xctx->push_undo_ptr)();
         my_strdup(96, &xctx->schtedaxprop, (char *) tclgetvar("retval"));
 
      } else if(xctx->netlist_type==CAD_VHDL_NETLIST &&
         (!xctx->schvhdlprop || strcmp(xctx->schvhdlprop, tclgetvar("retval") ) ) ) {
-        set_modify(1); push_undo();
+        set_modify(1); (*xctx->push_undo_ptr)();
         my_strdup(97, &xctx->schvhdlprop, (char *) tclgetvar("retval"));
      }
    }

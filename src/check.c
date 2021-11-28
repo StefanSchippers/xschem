@@ -414,7 +414,7 @@ void break_wires_at_pins(void)
           {
             if( (x0!=xctx->wire[i].x1 && x0!=xctx->wire[i].x2) ||
                 (y0!=xctx->wire[i].y1 && y0!=xctx->wire[i].y2) ) {
-              if(!changed) { push_undo(); changed=1;}
+              if(!changed) { (*xctx->push_undo_ptr)(); changed=1;}
               check_wire_storage();
               xctx->wire[xctx->wires].x1=xctx->wire[i].x1;
               xctx->wire[xctx->wires].y1=xctx->wire[i].y1;
@@ -470,7 +470,7 @@ void break_wires_at_pins(void)
           if( (x0!=xctx->wire[i].x1 && x0!=xctx->wire[i].x2) ||
               (y0!=xctx->wire[i].y1 && y0!=xctx->wire[i].y2) ) {
             /* printf("touch in mid point: %d\n", l+1); */
-            if(!changed) { push_undo(); changed=1;}
+            if(!changed) { (*xctx->push_undo_ptr)(); changed=1;}
             check_wire_storage();
             xctx->wire[xctx->wires].x1=xctx->wire[i].x1;
             xctx->wire[xctx->wires].y1=xctx->wire[i].y1;

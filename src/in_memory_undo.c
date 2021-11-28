@@ -22,8 +22,6 @@
 
 #include "xschem.h"
 
-#ifdef IN_MEMORY_UNDO
-
 static void free_undo_lines(int slot)
 {
   int i, c;
@@ -213,10 +211,10 @@ static void init_undo()
 }
 
 /* called when program resets undo stack (for example when loading a new file */
-void clear_undo(void)
+void mem_clear_undo(void)
 {
   int slot;
-  dbg(1, "clear_undo(): undo_initialized = %d\n", xctx->undo_initialized);
+  dbg(1, "mem_clear_undo(): undo_initialized = %d\n", xctx->undo_initialized);
   xctx->cur_undo_ptr = 0;
   xctx->tail_undo_ptr = 0;
   xctx->head_undo_ptr = 0;
@@ -234,12 +232,12 @@ void clear_undo(void)
 }
 
 /* used to delete everything when program exits */
-void delete_undo(void)
+void mem_delete_undo(void)
 {
   int slot;
-  dbg(1, "delete_undo(): undo_initialized = %d\n", xctx->undo_initialized);
+  dbg(1, "mem_delete_undo(): undo_initialized = %d\n", xctx->undo_initialized);
   if(!xctx->undo_initialized) return;
-  clear_undo();
+  (*xctx->clear_undo_ptr)();
   for(slot = 0;slot<MAX_UNDO; slot++) {
     my_free(804, &xctx->uslot[slot].lines);
     my_free(805, &xctx->uslot[slot].rects);
@@ -253,7 +251,7 @@ void delete_undo(void)
   xctx->undo_initialized = 0;
 }
 
-void push_undo(void)
+void mem_push_undo(void)
 {
   int slot, i, c;
   xSymbol *sym;
@@ -457,7 +455,7 @@ void push_undo(void)
  * 1: redo
  * 2: read top data from undo stack without changing undo stack
  */
-void pop_undo(int redo, int set_modify_status)
+void mem_pop_undo(int redo, int set_modify_status)
 {
   int slot, i, c;
   xSymbol *sym;
@@ -473,7 +471,7 @@ void pop_undo(int redo, int set_modify_status)
   } else if(redo == 0) {  /* undo */
     if(xctx->cur_undo_ptr == xctx->tail_undo_ptr) return;
     if(xctx->head_undo_ptr == xctx->cur_undo_ptr) {
-      push_undo();
+      (*xctx->push_undo_ptr)();
       xctx->head_undo_ptr--;
       xctx->cur_undo_ptr--;
     }
@@ -692,5 +690,3 @@ void pop_undo(int redo, int set_modify_status)
   xctx->prep_hi_structs = 0;
   update_conn_cues(0, 0);
 }
-
-#endif

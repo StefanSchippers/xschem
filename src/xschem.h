@@ -677,11 +677,9 @@ typedef struct {
   char *old_prop;
   int edit_sym_i;
   int netlist_commands;
-  #ifdef IN_MEMORY_UNDO
   /* in_memory_undo */
   Undo_slot uslot[MAX_UNDO];
   int undo_initialized;
-  #endif
   /*     */
   int nl_sel, nl_sem;
   XSegment *biggridpoint;
@@ -713,6 +711,7 @@ typedef struct {
   int fill_pattern;
   int draw_window; 
   time_t time_last_modify;
+  int undo_type; /* 0: on disk, 1: in memory */
   void (*push_undo_ptr)(void);
   void (*pop_undo_ptr)(int, int);
   void (*delete_undo_ptr)(void);
@@ -1061,6 +1060,10 @@ extern void push_undo(void);
 extern void pop_undo(int redo, int set_modify_status);
 extern void delete_undo(void);
 extern void clear_undo(void);
+extern void mem_push_undo(void);
+extern void mem_pop_undo(int redo, int set_modify_status);
+extern void mem_delete_undo(void);
+extern void mem_clear_undo(void);
 extern void load_schematic(int load_symbol, const char *abs_name, int reset_undo);
 extern void link_symbols_to_instances(int from);
 extern void load_ascii_string(char **ptr, FILE *fd);

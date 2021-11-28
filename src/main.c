@@ -27,10 +27,8 @@
 #include <locale.h>
 
 void sig_handler(int s){
-#ifndef IN_MEMORY_UNDO
   char emergency_prefix[PATH_MAX];
   const char *emergency_dir;
-#endif
 
 
   if(s==SIGINT) {
@@ -38,20 +36,23 @@ void sig_handler(int s){
     return;
   }
 
-#ifndef IN_MEMORY_UNDO
-  /* 20180923 no more mkdtemp */
-  my_snprintf(emergency_prefix, S(emergency_prefix), "xschem_emergencysave_%s_",
-           skip_dir(xctx->sch[xctx->currsch]));
-  if( !(emergency_dir = create_tmpdir(emergency_prefix)) ) {
-    fprintf(errfp, "xinit(): problems creating emergency save dir\n");
-    tcleval("exit");
+  if(xctx->undo_type == 0 ) { /* on disk undo */
+    my_snprintf(emergency_prefix, S(emergency_prefix), "xschem_emergencysave_%s_",
+             skip_dir(xctx->sch[xctx->currsch]));
+    if( !(emergency_dir = create_tmpdir(emergency_prefix)) ) {
+      fprintf(errfp, "xinit(): problems creating emergency save dir\n");
+      tcleval("exit");
+    }
+  
+    if(rename(xctx->undo_dirname, emergency_dir)) {
+      fprintf(errfp, "rename dir %s to %s failed\n", xctx->undo_dirname, emergency_dir);
+    }
+    fprintf(errfp, "EMERGENCY SAVE DIR: %s\n", emergency_dir);
   }
 
-  if(rename(xctx->undo_dirname, emergency_dir)) {
-    fprintf(errfp, "rename dir %s to %s failed\n", xctx->undo_dirname, emergency_dir);
-  }
-  fprintf(errfp, "EMERGENCY SAVE DIR: %s\n", emergency_dir);
-#endif
+
+
+
   fprintf(errfp, "\nFATAL: signal %d\n", s);
   fprintf(errfp, "while editing: %s\n", skip_dir(xctx->sch[xctx->currsch]));
   exit(EXIT_FAILURE);

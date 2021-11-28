@@ -43,7 +43,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  int split_f;
 
  split_f = tclgetboolvar("split_files");
- push_undo();
+ (*xctx->push_undo_ptr)();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
  /* top sch properties used for library use declarations and type definitions */
@@ -113,8 +113,9 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  /* flush data structures (remove unused symbols) */
  unselect_all();
  remove_symbols();  /* removed 25122002, readded 04112003.. this removes unused symbols */
- pop_undo(2, 0); /* reload data without popping undo stack, this populates embedded symbols if any */
- /* link_symbols_to_instances(-1); */ /* done in pop_undo() */
+ /* reload data without popping undo stack, this populates embedded symbols if any */
+ (*xctx->pop_undo_ptr)(2, 0);
+ /* link_symbols_to_instances(-1); */ /* done in (*xctx->pop_undo_ptr)() */
 
  /* 20071009 print top level generics if defined in symbol */
  str_tmp = add_ext(xctx->sch[xctx->currsch], ".sym");
@@ -338,8 +339,9 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    int saved_hilight_nets = xctx->hilight_nets;
    unselect_all();
    remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
-   pop_undo(2, 0); /* reload data without popping undo stack, this populates embedded symbols if any */
-   /* link_symbols_to_instances(-1); */ /* done in pop_undo() */
+   /* reload data without popping undo stack, this populates embedded symbols if any */
+   (*xctx->pop_undo_ptr)(2, 0);
+   /* link_symbols_to_instances(-1); */ /* done in (*xctx->pop_undo_ptr)() */
    my_strdup(502, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(509, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;
@@ -377,7 +379,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    unselect_all();
    /* remove_symbols(); */
    /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
-   pop_undo(0, 0);
+   (*xctx->pop_undo_ptr)(0, 0);
    prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    sym_vs_sch_pins();

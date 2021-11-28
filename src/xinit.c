@@ -321,7 +321,7 @@ void init_pixdata()/* populate xctx->fill_type array that is used in create_gc()
 void free_xschem_data()
 {
   int i;
-  delete_undo();
+  (*xctx->delete_undo_ptr)();
   free_simdata();
   my_free(1098, &xctx->wire);
   my_free(1100, &xctx->text);
@@ -402,15 +402,21 @@ void alloc_xschem_data(const char *top_path)
   xctx->head_undo_ptr = 0;
   xctx->tail_undo_ptr = 0;
   xctx->undo_dirname = NULL;
-  #ifndef IN_MEMORY_UNDO
-  /* 20150327 create undo directory */
-  /* 20180923 no more mkdtemp (portability issues) */
-  if( !my_strdup(644, &xctx->undo_dirname, create_tmpdir("xschem_undo_") )) {
-    fprintf(errfp, "xinit(): problems creating tmp undo dir\n");
-    tcleval("exit");
+
+  xctx->undo_type = 0; /* 0: on disk, 1: in memory */
+  xctx->push_undo_ptr = &push_undo;
+  xctx->pop_undo_ptr = &pop_undo;
+  xctx->delete_undo_ptr = &delete_undo;
+  xctx->clear_undo_ptr = &clear_undo;
+  xctx->undo_initialized = 0; /* in_memory_undo */
+  if(xctx->undo_type == 0) {
+    /* create undo directory */
+    if( !my_strdup(644, &xctx->undo_dirname, create_tmpdir("xschem_undo_") )) {
+      fprintf(errfp, "xinit(): problems creating tmp undo dir\n");
+      tcleval("exit");
+    }
+    dbg(1, "undo_dirname=%s\n", xctx->undo_dirname);
   }
-  dbg(1, "undo_dirname=%s\n", xctx->undo_dirname);
-  #endif
   xctx->zoom=CADINITIALZOOM;
   xctx->mooz=1/CADINITIALZOOM;
   xctx->xorigin=CADINITIALX;
@@ -582,15 +588,7 @@ void alloc_xschem_data(const char *top_path)
   xctx->fill_type=my_calloc(640, cadlayers, sizeof(int));
   xctx->fill_pattern = 1;
   xctx->draw_window = 0;
-  #ifdef IN_MEMORY_UNDO
-  xctx->undo_initialized = 0; /* in_memory_undo */
-  #endif
   xctx->time_last_modify = 0;
-  xctx->push_undo_ptr = &push_undo;
-  xctx->pop_undo_ptr = &pop_undo;
-  xctx->delete_undo_ptr = &delete_undo;
-  xctx->clear_undo_ptr = &clear_undo;
-
 }
 
 void delete_schematic_data(void)

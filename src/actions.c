@@ -780,7 +780,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  dbg(1, "place_symbol(): load_file_dialog returns:  name=%s\n",name);
  my_strncpy(name, rel_sym_path(name), S(name));
  if(name[0]) {
-   if(first_call && to_push_undo) push_undo();
+   if(first_call && to_push_undo) (*xctx->push_undo_ptr)();
  } else  return 0;
  i=match_symbol(name);
 
@@ -1581,7 +1581,7 @@ void new_wire(int what, double mx_snap, double my_snap)
   s_pnetname = tclgetboolvar("show_pin_net_names");
   if( (what & PLACE) ) {
     if( (xctx->ui_state & STARTWIRE) && (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) ) {
-      push_undo();
+      (*xctx->push_undo_ptr)();
       if(xctx->manhattan_lines==1) {
         if(xctx->nl_xx2!=xctx->nl_xx1) {
           xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
@@ -1750,7 +1750,7 @@ void change_layer()
   double x1,y1,x2,y2, a, b, r;
 
 
-   if(xctx->lastsel) push_undo();
+   if(xctx->lastsel) (*xctx->push_undo_ptr)();
    for(k=0;k<xctx->lastsel;k++)
    {
      n=xctx->sel_array[k].n;
@@ -1810,7 +1810,7 @@ void new_arc(int what, double sweep)
           xctx->nl_x3, xctx->nl_y3, &xctx->nl_x, &xctx->nl_y, &xctx->nl_r, &xctx->nl_a, &xctx->nl_b);
       if(xctx->nl_sweep_angle==360.) xctx->nl_b=360.;
       if(xctx->nl_r>0.) {
-        push_undo();
+        (*xctx->push_undo_ptr)();
         drawarc(xctx->rectcolor, NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, 0, 0);
         store_arc(-1, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, xctx->rectcolor, 0, NULL);
       }
@@ -1845,7 +1845,7 @@ void new_line(int what)
   {
     if( (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) && (xctx->ui_state & STARTLINE) )
     {
-      push_undo();
+      (*xctx->push_undo_ptr)();
       if(xctx->manhattan_lines==1) {
         if(xctx->nl_xx2!=xctx->nl_xx1) {
           xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
@@ -1961,7 +1961,7 @@ void new_rect(int what)
    {
     int save_draw;
     RECTORDER(xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
-    push_undo();
+    (*xctx->push_undo_ptr)();
     drawrect(xctx->rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2, 0);
     save_draw = xctx->draw_window;
     xctx->draw_window = 1;
@@ -2037,7 +2037,7 @@ void new_polygon(int what)
         /* closed poly end by clicking on first point */
         ((what & ADD) && xctx->nl_polyx[xctx->nl_points-1] == xctx->nl_polyx[0] &&
          xctx->nl_polyy[xctx->nl_points-1] == xctx->nl_polyy[0]) ) {
-     push_undo();
+     (*xctx->push_undo_ptr)();
      drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
      store_poly(-1, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, xctx->rectcolor, 0, NULL);
      /* fprintf(errfp, "new_poly: finish: nl_points=%d\n", xctx->nl_points); */
@@ -2226,7 +2226,7 @@ int place_text(int draw_text, double mx, double my)
 
   txt =  (char *)tclgetvar("retval");
   if(!strcmp(txt,"")) return 0;   /*  dont allocate text object if empty string given */
-  push_undo();
+  (*xctx->push_undo_ptr)();
   check_text_storage();
   t->txt_ptr=NULL;
   t->prop_ptr=NULL;  /*  20111006 added missing initialization of pointer */

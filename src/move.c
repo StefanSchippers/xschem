@@ -582,7 +582,7 @@ void copy_objects(int what)
     int l, firstw, firsti;
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     newpropcnt=0;
-    set_modify(1); push_undo(); /* 20150327 push_undo */
+    set_modify(1); (*xctx->push_undo_ptr)(); /* 20150327 push_undo */
     
     firstw = firsti = 1;
 
@@ -1053,7 +1053,7 @@ void move_objects(int what, int merge, double dx, double dy)
   set_modify(1);
   if( !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) { /* no undo push for MERGE ad PLACE, already done before */
     dbg(1, "move_objects(): push undo state\n");
-    push_undo();
+    (*xctx->push_undo_ptr)();
   }
   xctx->ui_state &= ~PLACE_SYMBOL;
   xctx->ui_state &= ~PLACE_TEXT;

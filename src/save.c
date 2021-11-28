@@ -1066,7 +1066,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   xctx->prep_net_structs=0;
   xctx->prep_hash_inst=0;
   xctx->prep_hash_wires=0;
-  if(reset_undo) clear_undo();
+  if(reset_undo) (*xctx->clear_undo_ptr)();
   if(reset_undo) xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
   else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
   if(filename && filename[0]) {
@@ -1139,8 +1139,6 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   update_conn_cues(0, 0);
 }
 
-#ifndef IN_MEMORY_UNDO
-
 void delete_undo(void)
 {
   int i;
@@ -1177,10 +1175,11 @@ void push_undo(void)
 
 
     #if HAS_POPEN==1
-    my_snprintf(diff_name, S(diff_name), "gzip --fast -c > %s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
+    my_snprintf(diff_name, S(diff_name), "gzip --fast -c > %s/undo%d",
+         xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
     fd = popen(diff_name,"w");
     if(!fd) {
-      fprintf(errfp, "push_undo(): failed to open write pipe %s\n", diff_name);
+      fprintf(errfp, "(*xctx->push_undo_ptr)(): failed to open write pipe %s\n", diff_name);
       xctx->no_undo=1;
       return;
     }
@@ -1206,7 +1205,7 @@ void push_undo(void)
       #endif
       execlp("gzip", "gzip", "--fast", "-c", NULL);       /* replace current process with comand */
       /* never gets here */
-      fprintf(errfp, "push_undo(): problems with execlp\n");
+      fprintf(errfp, "(*xctx->push_undo_ptr)(): problems with execlp\n");
       Tcl_Eval(interp, "exit");
     }
     close(pd[0]);                                       /* close read side of pipe */
@@ -1215,7 +1214,7 @@ void push_undo(void)
     my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
     fd = fopen(diff_name,"w");
     if(!fd) {
-      fprintf(errfp, "push_undo(): failed to open undo file %s\n", diff_name);
+      fprintf(errfp, "(*xctx->push_undo_ptr)(): failed to open undo file %s\n", diff_name);
       xctx->no_undo=1;
       return;
     }
@@ -1263,7 +1262,7 @@ void pop_undo(int redo, int set_modify_status)
     dbg(1, "pop_undo(): undo; cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
        xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
     if(xctx->head_undo_ptr == xctx->cur_undo_ptr) {
-      push_undo();
+      (*xctx->push_undo_ptr)();
       xctx->head_undo_ptr--;
       xctx->cur_undo_ptr--;
     }
@@ -1280,7 +1279,7 @@ void pop_undo(int redo, int set_modify_status)
   my_snprintf(diff_name, S(diff_name), "gzip -d -c %s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
   fd=popen(diff_name, "r");
   if(!fd) {
-    fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);
+    fprintf(errfp, "(*xctx->pop_undo_ptr)(): failed to open read pipe %s\n", diff_name);
     xctx->no_undo=1;
     return;
   }
@@ -1312,7 +1311,7 @@ void pop_undo(int redo, int set_modify_status)
   my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
   fd=fopen(diff_name, "r");
   if(!fd) {
-    fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);
+    fprintf(errfp, "(*xctx->pop_undo_ptr)(): failed to open read pipe %s\n", diff_name);
     xctx->no_undo=1;
     return;
   }
@@ -1339,8 +1338,6 @@ void pop_undo(int redo, int set_modify_status)
   dbg(2, "pop_undo(): returning\n");
 }
 
-#endif /* ifndef IN_MEMORY_UNDO */
-
 /* given a 'symname' component instantiation in a LCC schematic instance
  * get the type attribute from symbol global properties.
  * first look in already loaded symbols else inspect symbol file
@@ -1348,7 +1345,8 @@ void pop_undo(int redo, int set_modify_status)
  * return symbol type in type pointer or "" if no type or no symbol found
  * if pintable given (!=NULL) hash all symbol pins
  * if embed_fd is not NULL read symbol from embedded '[...]' tags using embed_fd file pointer */
-void get_sym_type(const char *symname, char **type, struct int_hashentry **pintable, FILE *embed_fd, int *sym_num_pins)
+static void get_sym_type(const char *symname, char **type, 
+                         struct int_hashentry **pintable, FILE *embed_fd, int *sym_n_pins)
 {
   int i, c, n = 0;
   char name[PATH_MAX];
@@ -1371,7 +1369,7 @@ void get_sym_type(const char *symname, char **type, struct int_hashentry **pinta
   }
   /* hash pins to get LCC schematic have same order as corresponding symbol */
   if(found && pintable) {
-    *sym_num_pins = xctx->sym[i].rects[PINLAYER];
+    *sym_n_pins = xctx->sym[i].rects[PINLAYER];
     for (c = 0; c < xctx->sym[i].rects[PINLAYER]; c++) {
       int_hash_lookup(pintable, get_tok_value(xctx->sym[i].rect[PINLAYER][c].prop_ptr, "name", 0), c, XINSERT);
     }
@@ -1421,7 +1419,7 @@ void get_sym_type(const char *symname, char **type, struct int_hashentry **pinta
              /* hash pins to get LCC schematic have same order as corresponding symbol */
              int_hash_lookup(pintable, get_tok_value(box.prop_ptr, "name", 0), n++, XINSERT);
              dbg(1, "get_sym_type() : hashing %s\n", get_tok_value(box.prop_ptr, "name", 0));
-             ++(*sym_num_pins);
+             ++(*sym_n_pins);
            }
            break;
           default:
@@ -1442,28 +1440,28 @@ void get_sym_type(const char *symname, char **type, struct int_hashentry **pinta
 
 /* given a .sch file used as instance in LCC schematics, order its pin
  * as in corresponding .sym file if it exists */
-void align_sch_pins_with_sym(const char *name, int pos)
+static void align_sch_pins_with_sym(const char *name, int pos)
 {
   char *ptr;
   char symname[PATH_MAX];
   char *symtype = NULL;
   const char *pinname;
-  int i, fail = 0, sym_num_pins=0;
+  int i, fail = 0, sym_n_pins=0;
   struct int_hashentry *pintable[HASHSIZE];
 
   if ((ptr = strrchr(name, '.')) && !strcmp(ptr, ".sch")) {
     my_strncpy(symname, add_ext(name, ".sym"), S(symname));
     for(i = 0; i < HASHSIZE; i++) pintable[i] = NULL;
     /* hash all symbol pins with their position into pintable hash*/
-    get_sym_type(symname, &symtype, pintable, NULL, &sym_num_pins);
+    get_sym_type(symname, &symtype, pintable, NULL, &sym_n_pins);
     if(symtype[0]) { /* found a .sym for current .sch LCC instance */
       xRect *box = NULL;
-      if (sym_num_pins!=xctx->sym[pos].rects[PINLAYER]) {
+      if (sym_n_pins!=xctx->sym[pos].rects[PINLAYER]) {
         dbg(0, " align_sch_pins_with_sym(): warning: number of pins mismatch between %s and %s\n",
           name, symname);
         fail = 1;
       }
-      box = (xRect *) my_malloc(1168, sizeof(xRect) * sym_num_pins);
+      box = (xRect *) my_malloc(1168, sizeof(xRect) * sym_n_pins);
       dbg(1, "align_sch_pins_with_sym(): symbol: %s\n", symname);
       for(i=0; i < xctx->sym[pos].rects[PINLAYER]; i++) {
         struct int_hashentry *entry;
@@ -1492,7 +1490,8 @@ void align_sch_pins_with_sym(const char *name, int pos)
 }
 
 /* replace i/o/iopin instances of LCC schematics with symbol pins (boxes on PINLAYER layer) */
-void add_pinlayer_boxes(int *lastr, xRect **bb, const char *symtype, char *prop_ptr, double i_x0, double i_y0)
+static void add_pinlayer_boxes(int *lastr, xRect **bb,
+                 const char *symtype, char *prop_ptr, double i_x0, double i_y0)
 {
   int i, save;
   const char *label;
@@ -1525,7 +1524,7 @@ void add_pinlayer_boxes(int *lastr, xRect **bb, const char *symtype, char *prop_
   lastr[PINLAYER]++;
 }
 
-void use_lcc_pins(int level, char *symtype, char (*filename)[PATH_MAX])
+static void use_lcc_pins(int level, char *symtype, char (*filename)[PATH_MAX])
 {
   if(level == 0) {
     if (!strcmp(symtype, "ipin")) {
@@ -1659,7 +1658,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   char *skip_line;
   const char *dash;
   xSymbol * symbol;
-  int symbols, sym_num_pins=0;
+  int symbols, sym_n_pins=0;
 
   check_symbol_storage();
   symbol = xctx->sym;
@@ -2037,7 +2036,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         /* get symbol type by looking into list of loaded symbols or (if not found) by
          * opening/closing the symbol file and getting the 'type' attribute from global symbol attributes
          * if fd_tmp set read symbol from embedded tags '[...]' */
-        get_sym_type(symname, &symtype, NULL, fd_tmp, &sym_num_pins);
+        get_sym_type(symname, &symtype, NULL, fd_tmp, &sym_n_pins);
         xfseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
       }
 
@@ -2204,7 +2203,7 @@ void make_schematic_symbol_from_sel(void)
       tcleval("tk_messageBox -type ok -message {Cannot overwrite current schematic}");
   }
   else if (strlen(filename)) {
-    if (xctx->lastsel) push_undo();
+    if (xctx->lastsel) (*xctx->push_undo_ptr)();
     make_schematic(filename);
     delete(0/*to_push_undo*/);
     place_symbol(-1, filename, 0, 0, 0, 0, NULL, 4, 1, 0/*to_push_undo*/);
