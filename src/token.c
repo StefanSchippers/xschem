@@ -452,14 +452,16 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
   int escape=0;
   int cmp = 1;
 
+  xctx->get_tok_size = 0;
   if(s==NULL) {
-    my_free(976, &result);
-    my_free(977, &token);
-    size = sizetok = 0;
-    xctx->get_tok_size = 0;
+    if(tok == NULL) {
+      my_free(976, &result);
+      my_free(977, &token);
+      size = sizetok = 0;
+      dbg(2, "get_tok_value(): clear static data\n");
+    }
     return "";
   }
-  xctx->get_tok_size = 0;
   /* dbg(2, "get_tok_value(): looking for <%s> in <%s>\n",tok,s); */
   if( size == 0 ) {
     sizetok = size = CADCHUNKALLOC;

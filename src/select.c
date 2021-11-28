@@ -586,6 +586,7 @@ void unselect_all(void)
  #if HAS_CAIRO==1
  int customfont;
  #endif
+    dbg(1, "unselect_all(): start\n");
     xctx->ui_state = 0;
     xctx->lastsel = 0;
 
@@ -681,7 +682,7 @@ void unselect_all(void)
     /*\statusmsg("",2); */
     my_snprintf(str, S(str), "%s/%s", user_conf_dir, ".selection.sch"); /* 20161115  PWD->HOME */
     xunlink(str);
-
+    dbg(1, "unselect_all(): done\n");
 }
 
 void select_wire(int i,unsigned short select_mode, int fast)

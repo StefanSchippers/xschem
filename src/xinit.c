@@ -592,6 +592,9 @@ void delete_schematic_data(void)
 {
   dbg(1, "delete_schematic_data()\n");
   unselect_all();
+  /* clear static data in get_tok_value() must be done after unselect_all() 
+   * as this functions re-uses get_tok_value() */
+  get_tok_value(NULL, NULL, 0); /* clear static data in function */
   delete_netlist_structs();  /* netlist - specific data and hash tables */
   clear_all_hilights();      /* data structs for hilighting nets/instances */
   get_unnamed_node(0, 0, 0); /* net### enumerator used for netlisting */
@@ -612,7 +615,6 @@ void xwin_exit(void)
    dbg(0, "xwin_exit() double call, doing nothing...\n");
    return;
  }
- get_tok_value(NULL, NULL, 0); /* clear static data in function */
  delete_schematic_data();
  if(has_x) {
    Tk_DestroyWindow(mainwindow);
