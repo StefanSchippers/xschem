@@ -328,7 +328,7 @@ void delete(int to_push_undo)
   j = 0;
   bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   rebuild_selected_array();
-  if(to_push_undo && xctx->lastsel) (*xctx->push_undo_ptr)();
+  if(to_push_undo && xctx->lastsel) xctx->push_undo();
   /* first calculate bbox, because symbol_bbox() needs translate (@#0:net_name) which
    *  needs prepare_netlist_structs which needs a consistent xctx->inst[] data structure */
 

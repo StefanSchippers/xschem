@@ -1105,7 +1105,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='u' && state==Mod1Mask)                      /* align to grid */
    {
     if(xctx->semaphore >= 2) break;
-    (*xctx->push_undo_ptr)();
+    xctx->push_undo();
     round_schematic_to_grid(c_snap);
     set_modify(1);
     if(tclgetboolvar("autotrim_wires")) trim_wires();
@@ -1136,21 +1136,21 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='u' && state==0)                             /* undo */
    {
     if(xctx->semaphore >= 2) break;
-    (*xctx->pop_undo_ptr)(0, 1);  /* 2nd parameter: set_modify_status */
+    xctx->pop_undo(0, 1);  /* 2nd parameter: set_modify_status */
     draw();
     break;
    }
    if(key=='U' && state==ShiftMask)                     /* redo */
    {
     if(xctx->semaphore >= 2) break;
-    (*xctx->pop_undo_ptr)(1, 1); /* 2nd parameter: set_modify_status */
+    xctx->pop_undo(1, 1); /* 2nd parameter: set_modify_status */
     draw();
     break;
    }
    if(key=='&')                         /* check wire connectivity */
    {
     if(xctx->semaphore >= 2) break;
-    (*xctx->push_undo_ptr)();
+    xctx->push_undo();
     trim_wires();
     draw();
     break;

@@ -104,7 +104,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"align"))
     {
        cmd_found = 1;
-       (*xctx->push_undo_ptr)();
+       xctx->push_undo();
        round_schematic_to_grid(tclgetdoublevar("cadsnap"));
        if(tclgetvar("autotrim_wires")) trim_wires();
        set_modify(1);
@@ -1789,7 +1789,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"push_undo"))
     {
       cmd_found = 1;
-      (*xctx->push_undo_ptr)();
+      xctx->push_undo();
       Tcl_ResetResult(interp);
     }
   }
@@ -1830,7 +1830,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"redo"))
     {
       cmd_found = 1;
-      (*xctx->pop_undo_ptr)(1, 1); /* 2nd param: set_modify_status */
+      xctx->pop_undo(1, 1); /* 2nd param: set_modify_status */
       Tcl_ResetResult(interp);
     }
    
@@ -1899,7 +1899,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
         bbox(START,0.0,0.0,0.0,0.0);
         my_strncpy(symbol, argv[3], S(symbol));
-        (*xctx->push_undo_ptr)();
+        xctx->push_undo();
         set_modify(1);
         if(!fast) {
           xctx->prep_hash_inst=0;
@@ -2281,7 +2281,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           bbox(START,0.0,0.0,0.0,0.0);
           symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
           bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
-          (*xctx->push_undo_ptr)();
+          xctx->push_undo();
         }
         set_modify(1);
         xctx->prep_hash_inst=0;
@@ -2401,7 +2401,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"trim_wires"))
     {
       cmd_found = 1;
-      (*xctx->push_undo_ptr)();
+      xctx->push_undo();
       trim_wires();
       draw();
       Tcl_ResetResult(interp);
@@ -2419,7 +2419,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 3) {
         set_modify = atoi(argv[3]);
       }
-      (*xctx->pop_undo_ptr)(redo, set_modify); /* 2nd param: set_modify_status */
+      xctx->pop_undo(redo, set_modify); /* 2nd param: set_modify_status */
       Tcl_ResetResult(interp);
     }
 
@@ -2432,20 +2432,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             mem_delete_undo(); /*reset memory undo */
           }
           /* redefine undo function pointers */
-          xctx->push_undo_ptr = push_undo;
-          xctx->pop_undo_ptr = pop_undo;
-          xctx->delete_undo_ptr = delete_undo;
-          xctx->clear_undo_ptr = clear_undo;
+          xctx->push_undo = push_undo;
+          xctx->pop_undo = pop_undo;
+          xctx->delete_undo = delete_undo;
+          xctx->clear_undo = clear_undo;
           xctx->undo_type = 0; /* disk */
         } else { /* "memory" */
           if(xctx->undo_type == 0) {
             delete_undo(); /*reset disk undo */
           }
           /* redefine undo function pointers */
-          xctx->push_undo_ptr = mem_push_undo;
-          xctx->pop_undo_ptr = mem_pop_undo;
-          xctx->delete_undo_ptr = mem_delete_undo;
-          xctx->clear_undo_ptr = mem_clear_undo;
+          xctx->push_undo = mem_push_undo;
+          xctx->pop_undo = mem_pop_undo;
+          xctx->delete_undo = mem_delete_undo;
+          xctx->clear_undo = mem_clear_undo;
           xctx->undo_type = 1; /* memory */
         }
       }
@@ -2524,7 +2524,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc >= 7) pos=atol(argv[6]);
         if(argc == 8) prop = argv[7];
         else prop = NULL;
-        (*xctx->push_undo_ptr)();
+        xctx->push_undo();
         storeobject(pos, x1,y1,x2,y2,WIRE,0,0,prop);
         xctx->prep_hi_structs=0;
         xctx->prep_net_structs=0;

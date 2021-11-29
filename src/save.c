@@ -1066,7 +1066,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   xctx->prep_net_structs=0;
   xctx->prep_hash_inst=0;
   xctx->prep_hash_wires=0;
-  if(reset_undo) (*xctx->clear_undo_ptr)();
+  if(reset_undo) xctx->clear_undo();
   if(reset_undo) xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
   else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
   if(filename && filename[0]) {
@@ -1195,7 +1195,7 @@ void push_undo(void)
          xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
     fd = popen(diff_name,"w");
     if(!fd) {
-      fprintf(errfp, "(*xctx->push_undo_ptr)(): failed to open write pipe %s\n", diff_name);
+      fprintf(errfp, "push_undo(): failed to open write pipe %s\n", diff_name);
       xctx->no_undo=1;
       return;
     }
@@ -1221,7 +1221,7 @@ void push_undo(void)
       #endif
       execlp("gzip", "gzip", "--fast", "-c", NULL);       /* replace current process with comand */
       /* never gets here */
-      fprintf(errfp, "(*xctx->push_undo_ptr)(): problems with execlp\n");
+      fprintf(errfp, "push_undo(): problems with execlp\n");
       Tcl_Eval(interp, "exit");
     }
     close(pd[0]);                                       /* close read side of pipe */
@@ -1230,7 +1230,7 @@ void push_undo(void)
     my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
     fd = fopen(diff_name,"w");
     if(!fd) {
-      fprintf(errfp, "(*xctx->push_undo_ptr)(): failed to open undo file %s\n", diff_name);
+      fprintf(errfp, "push_undo(): failed to open undo file %s\n", diff_name);
       xctx->no_undo=1;
       return;
     }
@@ -1278,7 +1278,7 @@ void pop_undo(int redo, int set_modify_status)
     dbg(1, "pop_undo(): undo; cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
        xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
     if(xctx->head_undo_ptr == xctx->cur_undo_ptr) {
-      (*xctx->push_undo_ptr)();
+      xctx->push_undo();
       xctx->head_undo_ptr--;
       xctx->cur_undo_ptr--;
     }
@@ -1295,7 +1295,7 @@ void pop_undo(int redo, int set_modify_status)
   my_snprintf(diff_name, S(diff_name), "gzip -d -c %s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
   fd=popen(diff_name, "r");
   if(!fd) {
-    fprintf(errfp, "(*xctx->pop_undo_ptr)(): failed to open read pipe %s\n", diff_name);
+    fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);
     xctx->no_undo=1;
     return;
   }
@@ -1327,7 +1327,7 @@ void pop_undo(int redo, int set_modify_status)
   my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
   fd=fopen(diff_name, "r");
   if(!fd) {
-    fprintf(errfp, "(*xctx->pop_undo_ptr)(): failed to open read pipe %s\n", diff_name);
+    fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);
     xctx->no_undo=1;
     return;
   }
@@ -2219,7 +2219,7 @@ void make_schematic_symbol_from_sel(void)
       tcleval("tk_messageBox -type ok -message {Cannot overwrite current schematic}");
   }
   else if (strlen(filename)) {
-    if (xctx->lastsel) (*xctx->push_undo_ptr)();
+    if (xctx->lastsel) xctx->push_undo();
     make_schematic(filename);
     delete(0/*to_push_undo*/);
     place_symbol(-1, filename, 0, 0, 0, 0, NULL, 4, 1, 0/*to_push_undo*/);

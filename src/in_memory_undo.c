@@ -465,7 +465,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   } else if(redo == 0) {  /* undo */
     if(xctx->cur_undo_ptr == xctx->tail_undo_ptr) return;
     if(xctx->head_undo_ptr == xctx->cur_undo_ptr) {
-      (*xctx->push_undo_ptr)();
+      xctx->push_undo();
       xctx->head_undo_ptr--;
       xctx->cur_undo_ptr--;
     }

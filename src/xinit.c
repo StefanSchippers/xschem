@@ -321,7 +321,7 @@ void init_pixdata()/* populate xctx->fill_type array that is used in create_gc()
 void free_xschem_data()
 {
   int i;
-  (*xctx->delete_undo_ptr)();
+  xctx->delete_undo();
   free_simdata();
   my_free(1098, &xctx->wire);
   my_free(1100, &xctx->text);
@@ -405,10 +405,10 @@ void alloc_xschem_data(const char *top_path)
 
   if(!strcmp(tclgetvar("undo_type"), "disk")) xctx->undo_type = 0;
   else xctx->undo_type = 1; /* "memory" */
-  xctx->push_undo_ptr = &push_undo;
-  xctx->pop_undo_ptr = &pop_undo;
-  xctx->delete_undo_ptr = &delete_undo;
-  xctx->clear_undo_ptr = &clear_undo;
+  xctx->push_undo = &push_undo;
+  xctx->pop_undo = &pop_undo;
+  xctx->delete_undo = &delete_undo;
+  xctx->clear_undo = &clear_undo;
   xctx->undo_initialized = 0;
   xctx->zoom=CADINITIALZOOM;
   xctx->mooz=1/CADINITIALZOOM;

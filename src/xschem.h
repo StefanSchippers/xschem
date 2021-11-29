@@ -712,10 +712,10 @@ typedef struct {
   int draw_window; 
   time_t time_last_modify;
   int undo_type; /* 0: on disk, 1: in memory */
-  void (*push_undo_ptr)(void);
-  void (*pop_undo_ptr)(int, int);
-  void (*delete_undo_ptr)(void);
-  void (*clear_undo_ptr)(void);
+  void (*push_undo)(void);
+  void (*pop_undo)(int, int);
+  void (*delete_undo)(void);
+  void (*clear_undo)(void);
 } Xschem_ctx;
 
 struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */

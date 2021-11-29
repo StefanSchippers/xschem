@@ -36,7 +36,7 @@ void hier_psprint(void)  /* netlister driver */
   char *sch = NULL;
  
   if(!ps_draw(1)) return; /* prolog */
-  (*xctx->push_undo_ptr)();
+  xctx->push_undo();
   str_hash_free(subckt_table);
   zoom_full(0, 0, 1, 0.97);
   ps_draw(2); /* page */
@@ -44,8 +44,8 @@ void hier_psprint(void)  /* netlister driver */
   unselect_all();
   remove_symbols(); /* ensure all unused symbols purged before descending hierarchy */
   /* reload data without popping undo stack, this populates embedded symbols if any */
-  (*xctx->pop_undo_ptr)(2, 0);
-  /* link_symbols_to_instances(-1); */ /* done in (*xctx->pop_undo_ptr)() */
+  xctx->pop_undo(2, 0);
+  /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
   my_strdup(1224, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
   my_strcat(1227, &xctx->sch_path[xctx->currsch+1], "->netlisting");
   xctx->sch_path_hash[xctx->currsch+1] = 0;
@@ -85,7 +85,7 @@ void hier_psprint(void)  /* netlister driver */
   xctx->currsch--;
   unselect_all();
   /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
-  (*xctx->pop_undo_ptr)(0, 0);
+  xctx->pop_undo(0, 0);
   ps_draw(4); /* trailer */
   zoom_full(0, 0, 1, 0.97);
   draw();
@@ -111,7 +111,7 @@ void global_spice_netlist(int global)  /* netlister driver */
 
  split_f = tclgetboolvar("split_files");
  top_sub = tclgetboolvar("top_subckt");
- (*xctx->push_undo_ptr)();
+ xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
  str_hash_free(subckt_table);
@@ -259,8 +259,8 @@ void global_spice_netlist(int global)  /* netlister driver */
    unselect_all();
    remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
    /* reload data without popping undo stack, this populates embedded symbols if any */
-   (*xctx->pop_undo_ptr)(2, 0);
-   /* link_symbols_to_instances(-1); */ /* done in (*xctx->pop_undo_ptr)() */
+   xctx->pop_undo(2, 0);
+   /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
    my_strdup(469, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(481, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;
@@ -299,7 +299,7 @@ void global_spice_netlist(int global)  /* netlister driver */
    unselect_all();
    /* remove_symbols(); */
    /* load_schematic(1, xctx->sch[xctx->currsch], 0); */
-   (*xctx->pop_undo_ptr)(0, 0);
+   xctx->pop_undo(0, 0);
    prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    sym_vs_sch_pins();
