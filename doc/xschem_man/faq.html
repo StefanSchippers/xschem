@@ -49,6 +49,14 @@ p{padding: 15px  30px 10px;}
  </p>
   
 
+ <h3> I start xschem in the background and it freezes. Why?</h3>
+ <p class="faq">
+ XSCHEM is usually launched from a terminal, the terminal becomes a TCL shell where commands can be sent to xschem.
+ For this reason XSCHEM should not be launched in background, as any I/O operation to/from the terminal will block
+ the program. If you don't plan to use the terminal just start XSCHEM with the -b option: <kbd>xschem -b</kbd>. 
+ XSCHEM will fork itself in the background detaching from the terminal.
+ </p>
+
  <h3> </h3>
  <p class="faq">
 

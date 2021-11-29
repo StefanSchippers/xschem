@@ -1169,8 +1169,9 @@ static void init_undo(void)
   if(!xctx->undo_initialized) {
     /* create undo directory */
     if( !my_strdup(644, &xctx->undo_dirname, create_tmpdir("xschem_undo_") )) {
-      fprintf(errfp, "xinit(): problems creating tmp undo dir\n");
-      tcleval("exit");
+      dbg(0, "xinit(): problems creating tmp undo dir, Undo will be disabled\n");
+      dbg(0, "xinit(): Check permissions in %s\n", XSCHEM_TMP_DIR);
+      xctx->no_undo = 1; /* disable undo */
     }
     xctx->undo_initialized = 1;
   }
@@ -1424,8 +1425,9 @@ static void get_sym_type(const char *symname, char **type,
           case 'B':
            fscan_ret = fscanf(fd, "%d",&c);
            if(fscan_ret != 1 || c <0 || c>=cadlayers) {
-             fprintf(errfp,"FATAL: box layer wrong or missing or > defined cadlayers, increase cadlayers\n");
-             tcleval( "exit");
+             fprintf(errfp,"get_sym_type(): box layer wrong or missing or > defined cadlayers, ignoring, increase cadlayers\n");
+             ungetc(tag[0], fd);
+             read_record(tag[0], fd, 1);
            }
            fscan_ret = fscanf(fd, "%lf %lf %lf %lf ",&box.x1, &box.y1, &box.x2, &box.y2);
            if(fscan_ret < 4) dbg(0, "Warning: missing fields in 'B' line\n");
@@ -1698,7 +1700,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
       if((lcc[level].fd=fopen(sympath, fopen_read_mode))==NULL)
       {
        fprintf(errfp, "l_s_d(): systemlib/missing.sym missing, I give up\n");
-       tcleval( "exit");
+       tcleval("exit");
       }
     }
     dbg(1, "l_s_d(): fopen1(%s), level=%d, fd=%p\n",sympath, level, lcc[level].fd);

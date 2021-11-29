@@ -673,7 +673,8 @@ void create_ps(char **psfile, int what)
   }
   ps_colors=my_calloc(311, cadlayers, sizeof(Ps_color));
   if(ps_colors==NULL){
-    fprintf(errfp, "create_ps(): calloc error\n");tcleval( "exit");
+    fprintf(errfp, "create_ps(): calloc error\n");
+    return;
   }
 
   fill_ps_colors();

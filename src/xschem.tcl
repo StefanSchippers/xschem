@@ -105,7 +105,7 @@ proc execute_wait {status args} {
 # while waiting for process to end.
 proc execute {status args} {
   global execute_id execute_status
-  global execute_data
+  global execute_data has_x
   global execute_cmd
   global execute_pipe
   if {![info exists execute_id]} {
@@ -116,6 +116,10 @@ proc execute {status args} {
   set id $execute_id
   if { [catch {open "|$args" r} err] } {
     puts stderr "Proc execute error: $err"
+    if { [info exists has_x]} {
+        tk_messageBox -message  "Can not execute '$args': ensure it is available on the system. Error: $err" \
+            -icon error -parent [xschem get topwindow] -type ok
+    }
     return -1
   } else {
     set pipe $err

@@ -743,7 +743,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
                    "[get_cell [xschem get schname] 0]"
                    ": UNSAVED data: want to exit?\"");
          }
-         if(!xctx->modified || !strcmp(tclresult(),"ok")) tcleval( "exit");
+         if(!xctx->modified || !strcmp(tclresult(),"ok")) tcleval("exit");
        }
      } else {
        /* xschem new_schematic destroy asks user confirmation if schematic changed */

@@ -577,7 +577,8 @@ void svg_draw(void)
   svg_restore_lw();
   svg_colors=my_calloc(419, cadlayers, sizeof(Svg_color));
   if(svg_colors==NULL){
-    fprintf(errfp, "svg_draw(): calloc error\n");tcleval( "exit");
+    fprintf(errfp, "svg_draw(): calloc error\n");
+    return;
   }
   fill_svg_colors();
   old_grid=tclgetboolvar("draw_grid");
