@@ -444,12 +444,6 @@ void mem_push_undo(void)
   xctx->tail_undo_ptr = xctx->head_undo_ptr <= MAX_UNDO? 0: xctx->head_undo_ptr-MAX_UNDO;
 }
 
-/* BUG: in_memory_undo does not save/restore embedded symbols, it just saves references to symbols
- * if symbols are not found in library you get a schematic with missing symbols if you remove 
- * symbols and do an undo (this is done in netlist operations to purge unused syms
- * if symbols are found in library your schematic will be linked with library symbols and this
- * is not the intended behavior */
-
 /* redo:
  * 0: undo (with push current state for allowing following redo) 
  * 1: redo

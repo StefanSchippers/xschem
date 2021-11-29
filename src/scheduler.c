@@ -163,7 +163,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
-    else if(!strcmp(argv[1],"change_colors"))
+    else if(!strcmp(argv[1],"build_colors"))
     {
       cmd_found = 1;
       build_colors(tclgetdoublevar("dim_value"), tclgetdoublevar("dim_bg"));
