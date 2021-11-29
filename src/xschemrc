@@ -186,6 +186,18 @@
 
 
 ###########################################################################
+#### UNDO: SAVE ON DISK OR KEEP IN MEMORY
+###########################################################################
+#### Alloved: 'disk'or 'memory'. 
+#### Saving undo on disk is safer but slower on extremely big schematics.
+#### In most cases you won't notice any delay. Undo on disk allows previous
+#### state recovery in case of crashes. In-memory undo is extremely fast
+#### but should a crash occur everything is lost.
+#### It is highly recommended to keep undo on disk.
+#### Default: disk
+# set undo_type disk
+
+###########################################################################
 #### CUSTOM GRID / SNAP VALUE SETTINGS
 ###########################################################################
 #### Warning: changing these values will likely break compatibility
