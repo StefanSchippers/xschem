@@ -2887,22 +2887,25 @@ proc infowindow {} {
     wm  geometry $z 90x24+0+400
     wm iconname $z {Info window}
     wm withdraw $z
-    wm protocol .infotext WM_DELETE_WINDOW {wm withdraw .infotext; set show_infowindow 0}
+    wm protocol .infotext WM_DELETE_WINDOW "wm withdraw $z; set show_infowindow 0"
     #  button $z.dismiss -text Dismiss -command  "destroy $z"
-    text $z.text -relief sunken -bd 2 -yscrollcommand "$z.yscroll set" -setgrid 1 \
-         -height 6 -width 50  -xscrollcommand "$z.xscroll set" -wrap none
-    scrollbar $z.yscroll -command "$z.text yview" -orient v 
-    scrollbar $z.xscroll -command "$z.text xview" -orient h 
-    grid $z.text - $z.yscroll -sticky nsew
-    grid $z.xscroll - -sticky ew
+    frame $z.f1
+    frame $z.f2
+    text $z.f1.text -relief sunken -bd 2 -yscrollcommand "$z.f1.yscroll set" -setgrid 1 \
+         -height 6 -width 50  -xscrollcommand "$z.f1.xscroll set" -wrap none
+    scrollbar $z.yscroll -command "$z.f1.text yview" -orient v 
+    scrollbar $z.xscroll -command "$z.f1.text xview" -orient h 
+    grid $z.f1.text - $z.f1.yscroll -sticky nsew
+    grid $z.f1.xscroll - -sticky ew
     # grid $z.dismiss - -
-    grid rowconfig $z 0 -weight 1
-    grid columnconfig $z 0 -weight 1
+    grid rowconfig $z.f1 0 -weight 1
+    grid columnconfig $z.f1 0 -weight 1
   }
   #  $z.text delete 1.0 end 
   #  $z.text insert 1.0 $infotxt
-  $z.text insert end $infotxt
-  $z.text see end
+  pack $z.f1
+  $z.f1.text insert end $infotxt
+  $z.f1.text see end
   bind $z <Escape> {wm withdraw .infotext; set show_infowindow 0}
   return {}
 }
