@@ -739,7 +739,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        tcleval("new_window destroy_all"); /* close child schematics */
        if(tclresult()[0] == '1') {
          if(xctx->modified) {
-           tcleval("tk_messageBox -type okcancel -message \"" 
+           tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \"" 
                    "[get_cell [xschem get schname] 0]"
                    ": UNSAVED data: want to exit?\"");
          }

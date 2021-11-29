@@ -3629,7 +3629,7 @@ set tctx::global_list {
   search_value selected_tok show_infowindow show_pin_net_names simconf_default_geometry simconf_vpos 
   spiceprefix split_files svg_colors svg_font_name symbol symbol_width sym_txt tclcmd_txt
   text_line_default_geometry textwindow_fileid textwindow_filename textwindow_w tmp_bus_char 
-  toolbar_horiz toolbar_visible top_subckt transparent_svg
+  toolbar_horiz toolbar_visible top_subckt transparent_svg undo_type
   use_label_prefix use_lab_wire user_wants_copy_cell verilog_2001
   viewdata_fileid viewdata_filename viewdata_w xschem_libs xschem_listen_port
 }
@@ -3788,12 +3788,39 @@ proc pack_widgets { { topwin {} } } {
   }
 }
 
+# if undo_type == disk save undo to disk
+# if undo_type == memory keep undo in memory
+# In memory undo is faster but in case of crashes nothing can be recovered
+# On disk undo is slower but can be used to recover state just before a crash
+proc switch_undo {} {
+  global undo_type
+  if { $undo_type eq {memory} } {
+    set res [tk_messageBox -type yesno -parent [xschem get topwindow] \
+            -message {Ok to keep undo in memory? Undo will be reset.\
+            Memory undo is faster but in case of crashes nothing can be recovered.}]
+    if {$res eq {yes} } {
+      xschem undo_type $undo_type
+    } else {
+      set undo_type disk
+    }
+  } else { ;# disk
+    set res [tk_messageBox -type yesno -parent [xschem get topwindow] \
+            -message {Ok to save undo on disk? Undo will be reset.\
+            Disk undo is slower but in case of crashes previous state can be recovered.}]
+    if {$res eq {yes} } {
+      xschem undo_type $undo_type
+    } else {
+      set undo_type memory
+    }
+  }
+}
+
 proc build_widgets { {topwin {} } } {
   global XSCHEM_SHAREDIR
   global colors recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files hspice_netlist tmp_bus_char 
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
-  global cadgrid draw_window show_pin_net_names toolbar_visible hide_symbols
+  global cadgrid draw_window show_pin_net_names toolbar_visible hide_symbols undo_type
   global disable_unique_names persistent_command autotrim_wires en_hilight_conn_inst
   global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry
   set mbg {}
@@ -3880,12 +3907,14 @@ proc build_widgets { {topwin {} } } {
   # toolbar_create FileMerge "xschem merge" "Merge File" $topwin
   $topwin.menubar.file.menu add command -label "Reload" -accelerator {Alt+S} \
     -command {
-     if { [string compare [tk_messageBox -type okcancel -message {Are you sure you want to reload?}] ok]==0 } {
+     if { [string compare [tk_messageBox -type okcancel -parent [xschem get topwindow] \
+             -message {Are you sure you want to reload?}] ok]==0 } {
              xschem reload
         }
     }
   toolbar_create FileReload {
-     if { [string compare [tk_messageBox -type okcancel -message {Are you sure you want to reload?}] ok]==0 } {
+     if { [string compare [tk_messageBox -type okcancel -parent [xschem get topwindow] \
+             -message {Are you sure you want to reload?}] ok]==0 } {
              xschem reload
         }
     } "Reload File" $topwin
@@ -3913,6 +3942,8 @@ proc build_widgets { {topwin {} } } {
      -command {
         if { $menu_debug_var==1 } {xschem debug 1} else { xschem debug 0}
      }
+  $topwin.menubar.option.menu add checkbutton -label "Undo buffer on Disk" -variable undo_type \
+     -onvalue disk -offvalue memory -command {switch_undo}
   $topwin.menubar.option.menu add checkbutton -label "Enable stretch" -variable enable_stretch \
      -accelerator Y 
   $topwin.menubar.option.menu add checkbutton -label "Show netlist win" -variable netlist_show \
@@ -3939,23 +3970,23 @@ proc build_widgets { {topwin {} } } {
      -command {
        xschem redraw
      }
+  $topwin.menubar.option.menu add command -label "Half Snap Threshold" -accelerator G -command {
+         xschem set cadsnap [expr {[xschem get cadsnap] / 2.0} ]
+       }
+  $topwin.menubar.option.menu add command -label "Double Snap Threshold" -accelerator Shift-G -command {
+         xschem set cadsnap [expr {[xschem get cadsnap] * 2.0} ]
+       }
   $topwin.menubar.option.menu add checkbutton -label "Variable grid point size" -variable big_grid_points \
      -command { xschem redraw }
-  $topwin.menubar.option.menu add checkbutton -label "Symbol text" -variable sym_txt \
-     -accelerator {Ctrl+B} -command { xschem set sym_txt $sym_txt; xschem redraw }
-  $topwin.menubar.option.menu add checkbutton -label "Toggle variable line width" -variable change_lw \
-     -accelerator {_}
-  $topwin.menubar.option.menu add checkbutton -label "Increment Hilight Color" -variable incr_hilight
-  
-  $topwin.menubar.option.menu add command -label "Set line width" \
-       -command {
-         input_line "Enter linewidth (float):" "xschem line_width"
-       }
   $topwin.menubar.option.menu add command -label "Set symbol width" \
        -command {
          input_line "Enter Symbol width ($symbol_width)" "set symbol_width" $symbol_width 
        }
-
+  $topwin.menubar.option.menu add checkbutton -label "Show net names on symbol pins" -variable show_pin_net_names \
+     -command {
+        xschem show_pin_net_names
+        xschem redraw
+     }
   $topwin.menubar.option.menu add separator
   $topwin.menubar.option.menu add radiobutton -label "Spice netlist" -variable netlist_type -value spice \
        -accelerator {Shift+V} \
@@ -4033,12 +4064,6 @@ proc build_widgets { {topwin {} } } {
   # toolbar_create ViewZoomOut "xschem zoom_out" "Zoom Out" $topwin
   $topwin.menubar.view.menu add command -label "Zoom box" -command "xschem zoom_box" -accelerator Z
   # toolbar_create ViewZoomBox "xschem zoom_box" "Zoom Box" $topwin
-  $topwin.menubar.view.menu add command -label "Half Snap Threshold" -accelerator G -command {
-         xschem set cadsnap [expr {[xschem get cadsnap] / 2.0} ]
-       }
-  $topwin.menubar.view.menu add command -label "Double Snap Threshold" -accelerator Shift-G -command {
-         xschem set cadsnap [expr {[xschem get cadsnap] * 2.0} ]
-       }
   $topwin.menubar.view.menu add command -label "Set snap value" \
          -command {
          input_line "Enter snap value ( default: [xschem get cadsnap_default] current: [xschem get cadsnap])" \
@@ -4051,6 +4076,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.view.menu add checkbutton -label "View only Probes" -variable only_probes \
          -accelerator {5} \
          -command { xschem only_probes }
+  $topwin.menubar.view.menu add checkbutton -label "Increment Hilight Color" -variable incr_hilight
   $topwin.menubar.view.menu add command -label "Toggle colorscheme"  -accelerator {Shift+O} -command {
           xschem toggle_colorscheme
           xschem change_colors 1
@@ -4076,11 +4102,14 @@ proc build_widgets { {topwin {} } } {
          -command {
           if { $draw_window == 1} { xschem set draw_window 1} else { xschem set draw_window 0}
        }
-  $topwin.menubar.view.menu add checkbutton -label "Show net names on symbol pins" -variable show_pin_net_names \
-     -command {
-        xschem show_pin_net_names
-        xschem redraw
-     }
+  $topwin.menubar.view.menu add checkbutton -label "Symbol text" -variable sym_txt \
+     -accelerator {Ctrl+B} -command { xschem set sym_txt $sym_txt; xschem redraw }
+  $topwin.menubar.view.menu add checkbutton -label "Toggle variable line width" -variable change_lw \
+     -accelerator {_}
+  $topwin.menubar.view.menu add command -label "Set line width" \
+       -command {
+         input_line "Enter linewidth (float):" "xschem line_width"
+       }
   $topwin.menubar.view.menu add checkbutton -label "Show Toolbar" -variable toolbar_visible \
      -command "
         if { \$toolbar_visible } \" toolbar_show $topwin\" else \"toolbar_hide $topwin\"
@@ -4502,6 +4531,9 @@ set_ne en_hilight_conn_inst 0
 set_ne to_png {gm convert} 
 ## ps to pdf conversion
 set_ne to_pdf {ps2pdf}
+
+## undo_type: disk or memory
+set_ne undo_type disk
 
 ## max number of windows (including main) a single xschem process can handle
 set_ne max_new_windows -1 ;# this is set by xinit.c

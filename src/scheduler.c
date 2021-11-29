@@ -429,7 +429,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           tcleval("new_window destroy_all"); /* close child schematics */
           if(tclresult()[0] == '1') {
             if(xctx->modified) {
-              tcleval("tk_messageBox -type okcancel -message \""
+              tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                       "[get_cell [xschem get schname] 0]"
                       ": UNSAVED data: want to exit?\"");
             }
@@ -885,6 +885,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      printf("prep_hash_inst=%d\n", xctx->prep_hash_inst);
      printf("prep_hash_wires=%d\n", xctx->prep_hash_wires);
      printf("need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr);
+     printf("undo_type=%d\n", xctx->undo_type);
      printf("******* end global variables:*******\n");
     }
    
@@ -2421,7 +2422,35 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       (*xctx->pop_undo_ptr)(redo, set_modify); /* 2nd param: set_modify_status */
       Tcl_ResetResult(interp);
     }
-   
+
+    else if(!strcmp(argv[1],"undo_type")) {
+      cmd_found = 1;
+      if(argc > 2) {
+        dbg(1, "xschem undo_type %s\n", argv[2]);
+        if(!strcmp(argv[2], "disk")) {
+          if(xctx->undo_type == 1) {
+            mem_delete_undo(); /*reset memory undo */
+          }
+          /* redefine undo function pointers */
+          xctx->push_undo_ptr = push_undo;
+          xctx->pop_undo_ptr = pop_undo;
+          xctx->delete_undo_ptr = delete_undo;
+          xctx->clear_undo_ptr = clear_undo;
+          xctx->undo_type = 0; /* disk */
+        } else { /* "memory" */
+          if(xctx->undo_type == 0) {
+            delete_undo(); /*reset disk undo */
+          }
+          /* redefine undo function pointers */
+          xctx->push_undo_ptr = mem_push_undo;
+          xctx->pop_undo_ptr = mem_pop_undo;
+          xctx->delete_undo_ptr = mem_delete_undo;
+          xctx->clear_undo_ptr = mem_clear_undo;
+          xctx->undo_type = 1; /* memory */
+        }
+      }
+    }
+
     else if(!strcmp(argv[1],"unhilight_all"))
     {
       xRect boundbox;

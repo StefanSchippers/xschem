@@ -1139,24 +1139,41 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   update_conn_cues(0, 0);
 }
 
+void clear_undo(void)
+{
+  xctx->cur_undo_ptr = 0;
+  xctx->tail_undo_ptr = 0;
+  xctx->head_undo_ptr = 0;
+}
+
 void delete_undo(void)
 {
   int i;
   char diff_name[PATH_MAX]; /* overflow safe 20161122 */
 
+  dbg(1, "delete_undo(): undo_initialized = %d\n", xctx->undo_initialized);
+  if(!xctx->undo_initialized) return;
+  clear_undo();
   for(i=0; i<MAX_UNDO; i++) {
     my_snprintf(diff_name, S(diff_name), "%s/undo%d",xctx->undo_dirname, i);
     xunlink(diff_name);
   }
   rmdir(xctx->undo_dirname);
   my_free(895, &xctx->undo_dirname);
+  xctx->undo_initialized = 0;
 }
 
-void clear_undo(void)
+/* create undo directory in XSCHEM_TEMP_DIR */
+static void init_undo(void)
 {
-  xctx->cur_undo_ptr = 0;
-  xctx->tail_undo_ptr = 0;
-  xctx->head_undo_ptr = 0;
+  if(!xctx->undo_initialized) {
+    /* create undo directory */
+    if( !my_strdup(644, &xctx->undo_dirname, create_tmpdir("xschem_undo_") )) {
+      fprintf(errfp, "xinit(): problems creating tmp undo dir\n");
+      tcleval("exit");
+    }
+    xctx->undo_initialized = 1;
+  }
 }
 
 void push_undo(void)
@@ -1172,8 +1189,7 @@ void push_undo(void)
     if(xctx->no_undo)return;
     dbg(1, "push_undo(): cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
        xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
-
-
+    init_undo();
     #if HAS_POPEN==1
     my_snprintf(diff_name, S(diff_name), "gzip --fast -c > %s/undo%d",
          xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);

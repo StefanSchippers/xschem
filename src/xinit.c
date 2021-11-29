@@ -403,20 +403,13 @@ void alloc_xschem_data(const char *top_path)
   xctx->tail_undo_ptr = 0;
   xctx->undo_dirname = NULL;
 
-  xctx->undo_type = 0; /* 0: on disk, 1: in memory */
+  if(!strcmp(tclgetvar("undo_type"), "disk")) xctx->undo_type = 0;
+  else xctx->undo_type = 1; /* "memory" */
   xctx->push_undo_ptr = &push_undo;
   xctx->pop_undo_ptr = &pop_undo;
   xctx->delete_undo_ptr = &delete_undo;
   xctx->clear_undo_ptr = &clear_undo;
-  xctx->undo_initialized = 0; /* in_memory_undo */
-  if(xctx->undo_type == 0) {
-    /* create undo directory */
-    if( !my_strdup(644, &xctx->undo_dirname, create_tmpdir("xschem_undo_") )) {
-      fprintf(errfp, "xinit(): problems creating tmp undo dir\n");
-      tcleval("exit");
-    }
-    dbg(1, "undo_dirname=%s\n", xctx->undo_dirname);
-  }
+  xctx->undo_initialized = 0;
   xctx->zoom=CADINITIALZOOM;
   xctx->mooz=1/CADINITIALZOOM;
   xctx->xorigin=CADINITIALX;
@@ -1001,7 +994,7 @@ void new_schematic(const char *what, const char *top_path, const char *tk_win_pa
       dbg(1, "new_schematic() destroy\n");
       /* reset old focused window so callback() will force repaint on expose events */
       if(xctx->modified && has_x) {
-        tcleval("tk_messageBox -type okcancel -message \""
+        tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                 "[get_cell [xschem get schname] 0]"
                 ": UNSAVED data: want to exit?\"");
         if(strcmp(tclresult(),"ok")==0) close = 1;
@@ -1580,6 +1573,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*  [m]allocate dynamic memory */
  /*                             */
  alloc_xschem_data("");
+
  /* global context / graphic preferences/settings */
  pixdata=my_calloc(641, cadlayers, sizeof(char*));
  for(i=0;i<cadlayers;i++)
