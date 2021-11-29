@@ -22,14 +22,19 @@ p{padding: 15px  30px 10px;}
  <h1>XSCHEM REMOTE INTERFACE SPECIFICATION</h1><br>
  <h3>GENERAL INFORMATIONS</h3>
  <p>
- XSCHEM embeds a tcl shell, when running xschem the terminal will present a tcl prompt allowing to send / get commands through it.
+ XSCHEM embeds a tcl shell, when running xschem the terminal will present a tcl prompt allowing to 
+ send / get commands through it.
  Most user actions done in the drawing window can be done by sending tcl commands through the tcl shell.
- Since I/O is simply done through stdin/stdout this allows XSCHEM to be controlled by another application, by piping XSCHEM
- commands to XSCHEM stdin and getting XSCHEM answers piped from XSCHEM stdout.
+ A tcp socket can be activated to allow sending remote commands to xschem, for this to work you
+ must the <kbd>xschem_listen_port</kbd> tcl variable in xschemrc, specifying an unused port number.
+ Xschem will listen to this port number for commands and send back results, as if commands were given 
+ directly from the tcl console.
  </p>
  <p>
- XSCHEM implements a TCL <kbd>xschem</kbd> command that accepts additional arguments. This command implements all the XSCHEM remote interface.
- Of course all Tck-Tk commands are available, for example, if this command is sent to XSCHEM: '<kbd>wm withdraw .</kbd>' the xschem main window 
+ XSCHEM implements a TCL <kbd>xschem</kbd> command that accepts additional arguments.
+ This command implements all the XSCHEM remote interface.
+ Of course all Tck-Tk commands are available, for example, if this command is sent to XSCHEM: '<kbd>wm withdraw .</kbd>'
+ the xschem main window 
  will be withdrawn by the window manager, while '<kbd>wm state . normal</kbd>' will show again the window.<br>
  This command: '<kbd>puts $XSCHEM_LIBRARY_PATH</kbd>' will print the content of the <kbd>XSCHEM_LIBRARY_PATH</kbd> tcl variable 
  containing the search path.

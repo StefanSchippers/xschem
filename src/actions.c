@@ -552,7 +552,7 @@ void enable_layers(void)
   }
 }
 
-void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
+void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 20171005 */
 {
   xSymbol *symbol;
   int npin, i, j;
@@ -593,13 +593,12 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
   first_call=1; /*  20171214 for place_symbol--> new_prop_string */
   prepare_netlist_structs(0);
   for(j=0;j<k;j++) if(xctx->sel_array[j].type==ELEMENT) {
-
     found=1;
     my_strdup(5, &prop, xctx->inst[xctx->sel_array[j].n].instname);
     my_strcat(6, &prop, "_");
     tclsetvar("custom_label_prefix",prop);
 
-    if(!do_all_inst) {
+    if(interactive && !do_all_inst) {
       dbg(1,"attach_labels_to_inst(): invoking tcl attach_labels_to_inst\n");
       tcleval("attach_labels_to_inst");
       if(!strcmp(tclgetvar("rcode"),"") ) {
@@ -608,18 +607,21 @@ void attach_labels_to_inst() /*  offloaded from callback.c 20171005 */
         return;
       }
     }
+    if(interactive == 0 ) {
+      tclsetvar("rcode", "yes");
+      tclsetvar("use_lab_wire", "0");
+      tclsetvar("use_label_prefix", "0");
+      tclsetvar("do_all_inst", "1");
+      tclsetvar("rotated_text", "0");
+    }
     use_label_prefix = atoi(tclgetvar("use_label_prefix"));
-
     rot_txt = tclgetvar("rotated_text");
     if(strcmp(rot_txt,"")) rotated_text=atoi(rot_txt);
-
     my_strdup(7, &type,(xctx->inst[xctx->sel_array[j].n].ptr+ xctx->sym)->type);
     if( type && IS_LABEL_OR_PIN(type) ) {
       continue;
     }
-
     if(!do_all_inst && !strcmp(tclgetvar("do_all_inst"),"1")) do_all_inst=1;
-
     dbg(1, "attach_labels_to_inst(): 1--> %s %.16g %.16g   %s\n",
         xctx->inst[xctx->sel_array[j].n].name,
         xctx->inst[xctx->sel_array[j].n].x0,

@@ -489,7 +489,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      break;
    }
    if(key=='H' && state==ShiftMask) {           /* attach labels to selected instances */
-     attach_labels_to_inst();
+     attach_labels_to_inst(1);
      break;
    }
    if (key == 'H' && state == (ControlMask | ShiftMask)) { /* create schematic and symbol from selected components */

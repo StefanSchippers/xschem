@@ -980,7 +980,7 @@ proc gaw_echoline {} {
   puts "gaw -> $line"
 }
 
-proc gaw_setup_tcp {} {
+proc setup_tcp_gaw {} {
   global gaw_fd gaw_tcp_address netlist_dir has_x
  
   simuldir
@@ -4425,15 +4425,18 @@ proc source_user_tcl_files {} {
   }
 }
 
-proc setup_tcp_ports {} {
-  global xschem_listen_port bespice_listen_port
+proc setup_tcp_xschem {} {
+  global xschem_listen_port
   if { [info exists xschem_listen_port] && ($xschem_listen_port ne {}) } { 
     if {[catch {socket -server xschem_server $xschem_listen_port} err]} {
       puts "problems listening to TCP port: $xschem_listen_port"
       puts $err
     }
   }
+}
 
+proc setup_tcp_bespice {} {
+  global bespice_listen_port
   if { [info exists bespice_listen_port] && ($bespice_listen_port ne {}) } { 
     if {[catch {socket -server bespice_server $bespice_listen_port} err]} {
       puts "problems listening to TCP port: $bespice_listen_port"
@@ -4721,5 +4724,6 @@ if { $show_infowindow } { wm deiconify .infotext }
 source_user_tcl_files
 
 # xschem listen and bespice listen
-setup_tcp_ports
+setup_tcp_xschem
+setup_tcp_bespice
 

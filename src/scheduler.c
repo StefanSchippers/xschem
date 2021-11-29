@@ -61,6 +61,202 @@ int get_instance(const char *s)
   return i;
 }
 
+void xschem_cmd_help(int argc, const char **argv)
+{
+  Tcl_ResetResult(interp);
+  Tcl_AppendResult(interp, 
+    "Xschem command language:\n", 
+    "  xschem subcommand [args]\n",
+    "\"xschem\" subcommands available:\n",
+    /* "add_symbol_pin\n", */
+    "align\n",
+    "  Align selected part of schematic to current gid snap setting\n",
+    /* "arc\n", */
+    "attach_pins\n",
+    "  Attach labels to selected instance pins\n",
+    "bbox [begin | end]\n",
+    "  bbox begin: start a bounding box drawing area setting\n",
+    "  bbox end: end a bounding box drawing area setting, draw stuff and reset bbox\n",
+    "break_wires\n",
+    "build_colors\n",
+    "callback\n",
+    "check_symbols\n",
+    "check_unique_names\n",
+    "circle\n",
+    "clear\n",
+    "clear_drawing\n",
+    "color_dim\n",
+    "connected_nets\n",
+    "copy\n",
+    "copy_objects\n",
+    "create_plot_cmd\n",
+    "cut\n",
+    "debug\n",
+    "delete\n",
+    "delete_files\n",
+    "descend\n",
+    "descend_symbol\n",
+    "display_hilights\n",
+    "edit_file\n",
+    "edit_prop\n",
+    "edit_vi_prop\n",
+    "enable_layers\n",
+    "exit\n",
+    "expandlabel\n",
+    "find_nth\n",
+    "flip\n",
+    "fullscreen\n",
+    "get var\n",
+    "  where \"var\" is one of:\n",
+    "  schname [n]\n",
+    "    get name of schematic, optionally of upper levels if (negative) n is provided\n",
+    "  sch_path [n]\n",
+    "    get pathname of schematic, optionally of upper levels if (negative) n is provided\n",
+    "  backlayer\n",
+    "  bbox_hilighted\n",
+    "  bbox_selected\n",
+    "  cadlayers\n",
+    "  color_ps\n",
+    "  current_dirname\n",
+    "  currsch\n",
+    "  debug_var\n",
+    "  draw_window\n",
+    "  flat_netlist\n",
+    "  gridlayer\n",
+    "  help\n",
+    "  instances\n",
+    "  lastsel\n",
+    "  line_width\n",
+    "  netlist_name\n",
+    "  netlist_type\n",
+    "  no_draw\n",
+    "  pinlayer\n",
+    "  rectcolor\n",
+    "  sellayer\n",
+    "  semaphore\n",
+    "  temp_dir\n",
+    "  text_svg\n",
+    "  textlayer\n",
+    "  topwindow\n",
+    "  version\n",
+    "  wirelayer\n",
+    "get_tok\n",
+    "get_tok_size\n",
+    "getprop\n",
+    "globals\n",
+    "go_back\n",
+    "help\n",
+    "hier_psprint\n",
+    "hilight\n",
+    "hilight_netname\n",
+    "instance\n",
+    "instance_bbox\n",
+    "instance_net\n",
+    "instance_nodemap\n",
+    "instance_pin_coord\n",
+    "instance_pins\n",
+    "instance_pos\n",
+    "instances_to_net\n",
+    "line\n",
+    "line_width\n",
+    "list_tokens\n",
+    "load\n",
+    "load_new_window\n",
+    "load_symbol\n",
+    "load_symbol\n",
+    "log\n",
+    "logic_set\n",
+    "make_sch\n",
+    "make_symbol\n",
+    "merge\n",
+    "move_objects\n",
+    "net_label\n",
+    "net_pin_mismatch\n",
+    "netlist\n",
+    "new_schematic\n",
+    "new_symbol_window\n",
+    "new_window\n",
+    "only_probes\n",
+    "origin\n",
+    "parselabel\n",
+    "paste\n",
+    "pinlist\n",
+    "place_symbol\n",
+    "place_text\n",
+    "polygon\n",
+    "preview_window\n",
+    "print\n",
+    "print_hilight_net\n",
+    "print_spice_element\n",
+    "propagate_hilights\n",
+    "push_undo\n",
+    "rebuild_connectivity\n",
+    "rect\n",
+    "redo\n",
+    "redraw\n",
+    "reload\n",
+    "reload_symbols\n",
+    "remove_symbols\n",
+    "replace_symbol\n",
+    "rotate\n",
+    "save\n",
+    "saveas\n",
+    "schematic_in_new_window\n",
+    "search\n",
+    "searchmenu\n",
+    "select\n",
+    "select_all\n",
+    "select_hilight_net\n",
+    "selected_set\n",
+    "selected_wire\n",
+    "send_to_viewer\n",
+    "set var value\n",
+    "  where \"var\" is one of:\n",
+    "  cadgrid\n",
+    "  cadsnap\n",
+    "  color_ps\n",
+    "  constrained_move\n",
+    "  draw_window\n",
+    "  flat_netlist\n",
+    "  hide_symbols\n",
+    "  netlist_name\n",
+    "  netlist_type\n",
+    "  no_draw\n",
+    "  no_undo\n",
+    "  rectcolor\n",
+    "  text_svg\n",
+    "  semaphore\n",
+    "  sym_txt\n",
+    "set_different_tok\n",
+    "set_modify\n",
+    "setprop\n",
+    "show_pin_net_names\n",
+    "simulate\n",
+    "snap_wire\n",
+    "subst_tok\n",
+    "symbol_in_new_window\n",
+    "symbols\n",
+    "test\n",
+    "toggle_colorscheme\n",
+    "translate\n",
+    "trim_wires\n",
+    "undo\n",
+    "undo_type\n",
+    "unhilight_all\n",
+    "unhilight\n",
+    "unselect_all\n",
+    "view_prop\n",
+    /* "windowid\n", */
+    "windows\n",
+    "wire\n",
+    "zoom_box\n",
+    "zoom_full\n",
+    "zoom_hilighted\n",
+    "zoom_in\n",
+    "zoom_out\n",
+    "zoom_selected\n",
+    NULL);
+}
 
 /* can be used to reach C functions from the Tk shell. */
 int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * argv[])
@@ -124,7 +320,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"attach_pins")) /* attach pins to selected component 20171005 */
     {
       cmd_found = 1;
-      attach_labels_to_inst();
+      attach_labels_to_inst(0);
       Tcl_ResetResult(interp);
     }
   }
@@ -151,6 +347,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       break_wires_at_pins();
       Tcl_ResetResult(interp);
     }
+
+    else if(!strcmp(argv[1],"build_colors"))
+    {
+      cmd_found = 1;
+      build_colors(tclgetdoublevar("dim_value"), tclgetdoublevar("dim_bg"));
+      Tcl_ResetResult(interp);
+    }
   }
 
   else if(argv[1][0] == 'c') {
@@ -160,13 +363,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       callback( argv[2], atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), (KeySym)atol(argv[6]),
                atoi(argv[7]), atoi(argv[8]), atoi(argv[9]) );
       dbg(2, "callback %s %s %s %s %s %s %s %s\n", argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9]);
-      Tcl_ResetResult(interp);
-    }
-   
-    else if(!strcmp(argv[1],"build_colors"))
-    {
-      cmd_found = 1;
-      build_colors(tclgetdoublevar("dim_value"), tclgetdoublevar("dim_bg"));
       Tcl_ResetResult(interp);
     }
    
@@ -460,18 +656,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   }
 
   else if(argv[1][0] == 'f') {   
-    if(!strcmp(argv[1],"find_nth") )
-    {
-      cmd_found = 1;
-      if(argc>4) {
-        char *r = NULL;
-        my_strdup(1202, &r, find_nth(argv[2], argv[3][0], atoi(argv[4])));
-        Tcl_SetResult(interp, r ? r : "<NULL>", TCL_VOLATILE);
-        my_free(1203, &r);
-      }
-    }
-   
-    else if(!strcmp(argv[1],"flip"))
+    if(!strcmp(argv[1],"flip"))
     {
       cmd_found = 1;
       if(! (xctx->ui_state & (STARTMOVE | STARTCOPY) ) ) { 
@@ -509,6 +694,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, xctx->sch[x], TCL_VOLATILE);
       }
     }
+
     else if( argc >= 3 && !strcmp(argv[1],"get") && !strcmp(argv[2],"sch_path")) 
     {
       int x;
@@ -521,6 +707,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, xctx->sch_path[x], TCL_VOLATILE);
       }
     }
+
     else if(!strcmp(argv[1],"get") && argc==3)
     {
      cmd_found = 1;
@@ -717,29 +904,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      else {
        fprintf(errfp, "xschem get %s: invalid command.\n", argv[2]);
      }
-    }
+    } /*  else if(!strcmp(argv[1],"get") && argc==3) */
 
-    else if(!strcmp(argv[1],"get_tok") )
-    {
-      char *s=NULL;
-      int t;
-      cmd_found = 1;
-      if(argc < 4) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
-      if(argc == 5) t = atoi(argv[4]);
-      else t = 0;
-      my_strdup(648, &s, get_tok_value(argv[2], argv[3], t));
-      Tcl_SetResult(interp, s, TCL_VOLATILE);
-      my_free(649, &s);
-    }
-   
-    else if(!strcmp(argv[1],"get_tok_size") )
-    {
-      char s[30];
-      cmd_found = 1;
-      my_snprintf(s, S(s), "%d", (int)xctx->get_tok_size);
-      Tcl_SetResult(interp, s, TCL_VOLATILE);
-    }
-   
     else if(!strcmp(argv[1],"getprop"))
     {
       cmd_found = 1;
@@ -842,51 +1008,75 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
    
+    else if(!strcmp(argv[1],"get_tok") )
+    {
+      char *s=NULL;
+      int t;
+      cmd_found = 1;
+      if(argc < 4) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
+      if(argc == 5) t = atoi(argv[4]);
+      else t = 0;
+      my_strdup(648, &s, get_tok_value(argv[2], argv[3], t));
+      Tcl_SetResult(interp, s, TCL_VOLATILE);
+      my_free(649, &s);
+    }
+   
+    else if(!strcmp(argv[1],"get_tok_size") )
+    {
+      char s[30];
+      cmd_found = 1;
+      my_snprintf(s, S(s), "%d", (int)xctx->get_tok_size);
+      Tcl_SetResult(interp, s, TCL_VOLATILE);
+    }
+   
     else if(!strcmp(argv[1],"globals"))
     {
+     static char res[8192];
      cmd_found = 1;
-     printf("*******global variables:*******\n");
-     printf("INT_WIDTH(lw)=%d\n", INT_WIDTH(xctx->lw));
-     printf("wires=%d\n", xctx->wires);
-     printf("instances=%d\n", xctx->instances);
-     printf("symbols=%d\n", xctx->symbols);
-     printf("lastsel=%d\n", xctx->lastsel);
-     printf("texts=%d\n", xctx->texts);
-     printf("maxt=%d\n", xctx->maxt);
-     printf("maxw=%d\n", xctx->maxw);
-     printf("maxi=%d\n", xctx->maxi);
-     printf("maxsel=%d\n", xctx->maxsel);
-     printf("zoom=%.16g\n", xctx->zoom);
-     printf("xorigin=%.16g\n", xctx->xorigin);
-     printf("yorigin=%.16g\n", xctx->yorigin);
+
+     Tcl_ResetResult(interp);
+     my_snprintf(res, S(res), "*******global variables:*******\n"); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "INT_WIDTH(lw)=%d\n", INT_WIDTH(xctx->lw)); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "wires=%d\n", xctx->wires); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "instances=%d\n", xctx->instances); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "symbols=%d\n", xctx->symbols); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "lastsel=%d\n", xctx->lastsel); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "texts=%d\n", xctx->texts); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "maxt=%d\n", xctx->maxt); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "maxw=%d\n", xctx->maxw); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "maxi=%d\n", xctx->maxi); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "maxsel=%d\n", xctx->maxsel); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "zoom=%.16g\n", xctx->zoom); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "xorigin=%.16g\n", xctx->xorigin); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "yorigin=%.16g\n", xctx->yorigin); Tcl_AppendResult(interp, res, NULL);
      for(i=0;i<8;i++)
      {
-       printf("rects[%d]=%d\n", i, xctx->rects[i]);
-       printf("lines[%d]=%d\n", i, xctx->lines[i]);
-       printf("maxr[%d]=%d\n", i, xctx->maxr[i]);
-       printf("maxl[%d]=%d\n", i, xctx->maxl[i]);
+       my_snprintf(res, S(res), "rects[%d]=%d\n", i, xctx->rects[i]); Tcl_AppendResult(interp, res, NULL);
+       my_snprintf(res, S(res), "lines[%d]=%d\n", i, xctx->lines[i]); Tcl_AppendResult(interp, res, NULL);
+       my_snprintf(res, S(res), "maxr[%d]=%d\n", i, xctx->maxr[i]); Tcl_AppendResult(interp, res, NULL);
+       my_snprintf(res, S(res), "maxl[%d]=%d\n", i, xctx->maxl[i]); Tcl_AppendResult(interp, res, NULL);
      }
-     printf("current_name=%s\n", xctx->current_name);
-     printf("currsch=%d\n", xctx->currsch);
+     my_snprintf(res, S(res), "current_name=%s\n", xctx->current_name); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "currsch=%d\n", xctx->currsch); Tcl_AppendResult(interp, res, NULL);
      for(i=0;i<=xctx->currsch;i++)
      {
-       printf("previous_instance[%d]=%d\n",i,xctx->previous_instance[i]);
-       printf("sch_path[%d]=%s\n",i,xctx->sch_path[i]? xctx->sch_path[i]:"<NULL>");
-       printf("sch[%d]=%s\n",i,xctx->sch[i]);
+       my_snprintf(res, S(res), "previous_instance[%d]=%d\n",i,xctx->previous_instance[i]); Tcl_AppendResult(interp, res, NULL);
+       my_snprintf(res, S(res), "sch_path[%d]=%s\n",i,xctx->sch_path[i]? xctx->sch_path[i]:"<NULL>"); Tcl_AppendResult(interp, res, NULL);
+       my_snprintf(res, S(res), "sch[%d]=%s\n",i,xctx->sch[i]); Tcl_AppendResult(interp, res, NULL);
      }
-     printf("modified=%d\n", xctx->modified);
-     printf("areaw=%d\n", xctx->areaw);
-     printf("areah=%d\n", xctx->areah);
-     printf("color_ps=%d\n", color_ps);
-     printf("hilight_nets=%d\n", xctx->hilight_nets);
-     printf("semaphore=%d\n", xctx->semaphore);
-     printf("prep_net_structs=%d\n", xctx->prep_net_structs);
-     printf("prep_hi_structs=%d\n", xctx->prep_hi_structs);
-     printf("prep_hash_inst=%d\n", xctx->prep_hash_inst);
-     printf("prep_hash_wires=%d\n", xctx->prep_hash_wires);
-     printf("need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr);
-     printf("undo_type=%d\n", xctx->undo_type);
-     printf("******* end global variables:*******\n");
+     my_snprintf(res, S(res), "modified=%d\n", xctx->modified); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "areaw=%d\n", xctx->areaw); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "areah=%d\n", xctx->areah); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "color_ps=%d\n", color_ps); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "hilight_nets=%d\n", xctx->hilight_nets); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "semaphore=%d\n", xctx->semaphore); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "prep_net_structs=%d\n", xctx->prep_net_structs); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "prep_hi_structs=%d\n", xctx->prep_hi_structs); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "prep_hash_inst=%d\n", xctx->prep_hash_inst); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "prep_hash_wires=%d\n", xctx->prep_hash_wires); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "undo_type=%d\n", xctx->undo_type); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "******* end global variables:*******\n"); Tcl_AppendResult(interp, res, NULL);
     }
    
     else if(!strcmp(argv[1],"go_back"))
@@ -901,128 +1091,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1],"help"))
     {
      cmd_found = 1;
-     printf("xschem : function used to communicate with the C program\n");
-     printf("Usage:\n");
-     printf("      xschem callback X-event_type mousex mousey Xkeysym mouse_button Xstate\n");
-     printf("                   can be used to send any event to the application\n");
-     printf("      xschem netlist\n");
-     printf("                   generates a netlist in the selected format for the current schematic\n");
-     printf("      xschem simulate\n");
-     printf("                   launches the currently set simulator on the generated netlist\n");
-     printf("      xschem redraw\n");
-     printf("                   Redraw the window\n");
-     printf("      xschem new_window library/cell\n");
-     printf("                   start a new window optionally with specified cell\n");
-     printf("      xschem schematic_in_new_window \n");
-     printf("                   start a new window with selected element schematic\n");
-     printf("      xschem symbol_in_new_window \n");
-     printf("                   start a new window with selected element schematic\n");
-     printf("      xschem globals\n");
-     printf("                   print information about global variables\n");
-     printf("      xschem inst_ptr n\n");
-     printf("                   return inst_ptr of inst[n]\n");
-     printf("      xschem netlist\n");
-     printf("                   perform a global netlist on current schematic\n");
-     printf("      xschem netlist_type type\n");
-     printf("                   set netlist type to <type>, currently spice, vhdl, verilog or tedax\n");
-     printf("      xschem save [library/name]\n");
-     printf("                   save current schematic, optionally a lib/name can be given\n");
-     printf("      xschem saveas\n");
-     printf("                   save current schematic, asking for a filename\n");
-     printf("      xschem load library/cell\n");
-     printf("                   load specified cell from library\n");
-     printf("      xschem load_symbol library/cell\n");
-     printf("                   load specified cell symbol view  from library\n");
-     printf("      xschem reload\n");
-     printf("                   reload current cell from library\n");
-     printf("      xschem instance library/cell x y rot flip [property string]\n");
-     printf("                   place instance cell of the given library at x,y, rot, flip\n");
-     printf("                   can also be given a property string\n");
-     printf("      xschem rect x1 y1 x2 y2 [pos]\n");
-     printf("                   place rectangle, optionally at pos (position in database)\n");
-     printf("      xschem line x1 y1 x2 y2 [pos]\n");
-     printf("                   place line, optionally at pos (position in database)\n");
-     printf("      xschem wire x1 y1 x2 y2 [pos]\n");
-     printf("                   place wire, optionally at pos (position in database)\n");
-     printf("      xschem select instance|wire|text n\n");
-     printf("                   select instance or text or wire number n\n");
-     printf("      xschem select_all\n");
-     printf("                   select all objects\n");
-     printf("      xschem descend\n");
-     printf("                   descend into schematic of selected element\n");
-     printf("      xschem descend_symbol\n");
-     printf("                   descend into symbol of selected element\n");
-     printf("      xschem go_back\n");
-     printf("                   back from selected element\n");
-     printf("      xschem unselect\n");
-     printf("                   unselect selected objects\n");
-     printf("      xschem zoom_out\n");
-     printf("                   zoom out\n");
-     printf("      xschem zoom_in\n");
-     printf("                   zoom in\n");
-     printf("      xschem zoom_full\n");
-     printf("                   zoom full\n");
-     printf("      xschem zoom_box\n");
-     printf("                   zoom box\n");
-     printf("      xschem paste\n");
-     printf("                   paste selection from clipboard\n");
-     printf("      xschem merge\n");
-     printf("                   merge external file into current schematic\n");
-     printf("      xschem cut\n");
-     printf("                   cut selection to clipboard\n");
-     printf("      xschem copy\n");
-     printf("                   copy selection to clipboard\n");
-     printf("      xschem copy_objects\n");
-     printf("                   duplicate selected objects\n");
-     printf("      xschem move_objects [deltax deltay]\n");
-     printf("                   move selected objects\n");
-     printf("      xschem line_width n\n");
-     printf("                   set line width to (float) n\n");
-     printf("      xschem delete\n");
-     printf("                   delete selected objects\n");
-     printf("      xschem unhilight\n");
-     printf("                   unlight selected nets/pins\n");
-     printf("      xschem hilight\n");
-     printf("                   hilight selected nets/pins\n");
-     printf("      xschem clear_hilights\n");
-     printf("                   unhilight  all nets/pins\n");
-     printf("      xschem print [color]\n");
-     printf("                   print schematic (optionally in color)\n");
-     printf("      xschem search regex|exact <select> token value\n");
-     printf("                   hilight instances which match tok=val property,\n");
-     printf("                   exact search or regex\n");
-     printf("                   select: 0-> highlight, 1-> select, -1-> unselect\n");
-     printf("      xschem log file\n");
-     printf("                   open a log file to write messages to\n");
-     printf("      xschem get variable\n");
-     printf("                   return  global variable\n");
-     printf("      xschem set variable value\n");
-     printf("                   set global variable\n");
-     printf("      xschem clear\n");
-     printf("                   clear current schematic\n");
-     printf("      xschem exit\n");
-     printf("                   exit program gracefully\n");
-     printf("      xschem view_prop\n");
-     printf("                   view properties of currently selected element\n");
-     printf("      xschem edit_prop\n");
-     printf("                   edit properties of currently selected element\n");
-     printf("      xschem edit_vi_prop\n");
-     printf("                   edit properties of currently selected element in a vim window\n");
-     printf("      xschem place_symbol\n");
-     printf("                   place new symbol, asking filename\n");
-     printf("      xschem make_symbol\n");
-     printf("                   make symbol view from current schematic\n");
-     printf("      xschem make_sch_from_sel\n");
-     printf("                   make schematic view from selected components\n");
-     printf("      xschem place_text\n");
-     printf("                   place new text\n");
-     printf("      xschem debug  n\n");
-     printf("                   set debug level to n: 1, 2, 3 for C Program \n");
-     printf("                                        -1,-2,-3 for Tcl frontend\n");
-     #ifndef __unix__
-     printf("      xschem temp_dir\n");
-     printf("                   get a valid temp folder path\n");
-     #endif
+     xschem_cmd_help(argc, argv);
     }
    
     else if(!strcmp(argv[1],"hier_psprint"))
@@ -1037,7 +1106,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->enable_drill = 0;
       if(argc >=3 && !strcmp(argv[2], "drill")) xctx->enable_drill = 1;
       hilight_net(0);
-      /* draw_hilight_net(1); */
       redraw_hilights(0);
       Tcl_ResetResult(interp);
     }
