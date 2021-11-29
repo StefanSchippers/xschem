@@ -2415,6 +2415,32 @@ proc edit_vi_netlist_prop {txtlabel} {
          return $rcode
   }
 }
+proc reset_colors {ask} {
+  global colors dark_colors light_colors dark_colorscheme USER_CONF_DIR svg_colors ps_colors
+  global light_colors_save dark_colors_save
+
+  if {$ask} {
+    set answer [tk_messageBox -message  "Warning: delete 'colors' configuration file?" \
+        -icon warning -parent [xschem get topwindow] -type okcancel]
+    if {$answer ne {ok}} { return }
+  }
+  xschem set semaphore [expr {[xschem get semaphore] +1}]
+  set light_colors $light_colors_save
+  set dark_colors $dark_colors_save
+  if { $dark_colorscheme == 1 } {
+    set colors $dark_colors
+  } else {
+    set colors $light_colors
+  }
+  regsub -all {"} $light_colors  {} ps_colors
+  regsub -all {#} $ps_colors  {0x} ps_colors
+  regsub -all {"} $colors {} svg_colors
+  regsub -all {#} $svg_colors {0x} svg_colors
+  file delete ${USER_CONF_DIR}/colors
+  xschem build_colors
+  xschem redraw
+  xschem set semaphore [expr {[xschem get semaphore] -1}]
+}
 
 proc change_color {} {
   global colors dark_colors light_colors dark_colorscheme cadlayers USER_CONF_DIR svg_colors ps_colors
@@ -4105,11 +4131,15 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.view.menu add command -label "Change current layer color"  -accelerator {} -command {
           change_color
        }
+  $topwin.menubar.view.menu add command -label "Reset all colors to default" \
+         -accelerator {} -command {
+          reset_colors 1
+         }
   $topwin.menubar.view.menu add checkbutton -label "No XCopyArea drawing model" -variable draw_window \
          -accelerator {Ctrl+$} \
          -command {
-          if { $draw_window == 1} { xschem set draw_window 1} else { xschem set draw_window 0}
-       }
+           if { $draw_window == 1} { xschem set draw_window 1} else { xschem set draw_window 0}
+         }
   $topwin.menubar.view.menu add checkbutton -label "Symbol text" -variable sym_txt \
      -accelerator {Ctrl+B} -command { xschem set sym_txt $sym_txt; xschem redraw }
   $topwin.menubar.view.menu add checkbutton -label "Toggle variable line width" -variable change_lw \
@@ -4200,12 +4230,13 @@ proc build_widgets { {topwin {} } } {
            xschem redraw
          }
      }
-  $topwin.menubar.tools.menu add command -label "Select all connected wires/labels/pins" -accelerator {Shift-Right Butt.} \
+  $topwin.menubar.tools.menu add command -label "Select all connected wires/labels/pins" \
+     -accelerator {Shift-Right Butt.} \
      -command { xschem connected_nets}
-  $topwin.menubar.tools.menu add command -label "Select conn. wires, stop at junctions" -accelerator {Ctrl-Righ Butt.} \
-     -command { xschem connected_nets 1 }
-
-  $topwin.menubar.hilight.menu add command -label {Highlight net-pin name mismatches on selected instances} \
+  $topwin.menubar.tools.menu add command -label "Select conn. wires, stop at junctions" \
+     -accelerator {Ctrl-Righ Butt.} -command { xschem connected_nets 1 }
+  $topwin.menubar.hilight.menu add command \
+   -label {Highlight net-pin name mismatches on selected instances} \
    -command "xschem net_pin_mismatch" \
    -accelerator {Shift-X} 
   $topwin.menubar.hilight.menu add command -label {Highlight duplicate instance names} \
@@ -4218,7 +4249,8 @@ proc build_widgets { {topwin {} } } {
      -command "xschem hilight" -accelerator K
   $topwin.menubar.hilight.menu add command -label {Send selected net/pins to Viewer} \
      -command "xschem send_to_viewer" -accelerator Alt+G
-  $topwin.menubar.hilight.menu add command -label {Select hilight nets / pins} -command "xschem select_hilight_net" \
+  $topwin.menubar.hilight.menu add command -label {Select hilight nets / pins} \
+     -command "xschem select_hilight_net" \
      -accelerator Alt+K
   $topwin.menubar.hilight.menu add command -label {Un-highlight all net/pins} \
      -command "xschem unhilight_all" -accelerator Shift+K
@@ -4649,8 +4681,12 @@ regsub -all {"} $dark_colors  {} svg_colors
 regsub -all {#} $svg_colors  {0x} svg_colors
 regsub -all {"} $light_colors  {} ps_colors
 regsub -all {#} $ps_colors  {0x} ps_colors
-
 set_missing_colors_to_black
+# read-only vars to store defaults (so we can switch to default colors) 
+set dark_colors_save $dark_colors
+set light_colors_save $light_colors
+set ps_colors_save $ps_colors
+set svg_colors_save $svg_colors
 
 set_ne colors $dark_colors
 ##### end set colors
