@@ -141,7 +141,7 @@ N 1960 -1330 2060 -1330 {lab=ZERO2}
 N 1850 -800 1920 -800 {lab=SAOUTF}
 N 1850 -510 1920 -510 {lab=SAOUTF}
 N 1470 -710 1710 -710 {lab=SAOUTF}
-N 1960 -710 2290 -710 {lab=SAOUT}
+N 2180 -710 2290 -710 {lab=SAOUT}
 N 1850 -800 1850 -710 {lab=SAOUTF}
 N 1960 -770 1960 -710 {lab=SAOUT}
 N 1470 -770 1470 -710 {lab=SAOUTF}
@@ -151,9 +151,9 @@ N 2180 -880 2180 -840 {lab=VCC}
 N 2180 -780 2180 -710 {lab=SAOUT}
 N 590 -770 620 -770 {lab=VCC}
 N 420 -830 420 -800 {lab=SP}
-N 520 -830 620 -830 {lab=SP}
+N 530 -830 620 -830 {lab=SP}
 N 620 -830 620 -800 {lab=SP}
-N 420 -830 520 -830 {lab=SP}
+N 420 -830 530 -830 {lab=SP}
 N 420 -770 450 -770 {lab=VCC}
 N 390 -640 420 -640 {lab=VSS}
 N 620 -640 650 -640 {lab=VSS}
@@ -161,9 +161,9 @@ N 460 -640 580 -640 {lab=GP}
 N 460 -670 460 -640 {lab=GP}
 N 420 -670 460 -670 {lab=GP}
 N 420 -740 420 -670 {lab=GP}
-N 620 -740 620 -670 {lab=OUTDIFF}
+N 620 -700 620 -670 {lab=OUTDIFF}
 N 620 -610 620 -590 {lab=VSSI}
-N 420 -590 620 -590 {lab=VSSI}
+N 520 -590 620 -590 {lab=VSSI}
 N 420 -610 420 -590 {lab=VSSI}
 N 490 -550 520 -550 {lab=VSSI}
 N 520 -590 520 -550 {lab=VSSI}
@@ -171,6 +171,9 @@ N 530 -900 560 -900 {lab=VCC}
 N 530 -870 530 -830 {lab=SP}
 N 530 -950 530 -930 {lab=VCC}
 N 620 -700 680 -700 {lab=OUTDIFF}
+N 1960 -710 2180 -710 {lab=SAOUT}
+N 420 -590 520 -590 {lab=VSSI}
+N 620 -740 620 -700 {lab=OUTDIFF}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
 C {ipin.sym} 110 -850 0 0 { name=p92 lab=CAL }
 C {ipin.sym} 110 -910 0 0 { name=p93 lab=PLUS }
@@ -188,10 +191,10 @@ C {code.sym} 840 -190 0 0 {name=STIMULI
 only_toplevel=true
 place=end
 value="* .option SCALE=1e-6 
-.option method=gear seed=12
+.option method=gear
 .param VCC=0.9
 .param VDL='VCC/2+0.2'
-.param ABSVAR=0.05
+.param delvto_var='agauss(0,0.05,3)'
 .temp 25
 
 ** to generate following file: 
@@ -208,6 +211,7 @@ value="* .option SCALE=1e-6
 * .tran 0.1n 900n uic
 
 .control
+  option seed=12
   let run=1
   
   dowhile run <= 10
@@ -236,49 +240,49 @@ C {lab_pin.sym} 190 -1180 0 1 {name=p283 lab=VSS}
 C {lab_pin.sym} 120 -1180 0 0 {name=l56 lab=EN}
 C {lab_pin.sym} 160 -1130 0 0 {name=p284 lab=VSS}
 C {lab_pin.sym} 160 -1230 0 0 {name=p199 lab=VSSI}
-C {nmos4-v.sym} 140 -1180 0 0 {name=M67 verilog_gate=nmos del=50,50,50 model=nmos w=5u l=0.13u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {nmos4-v.sym} 140 -1180 0 0 {name=M67 verilog_gate=nmos del=50,50,50 model=nmos w=5u l=0.13u extra="delvto='delvto_var'"}
 C {parax_cap.sym} 160 -1120 0 0 {name=c38  value=2p}
 C {passgate.sym} 860 -1260 0 1 {name=x1 m=1 
 + wn=0.4u ln=0.13u
 + wp=0.4u lp=0.13u
-+ VCCBPIN=VCC VSSBPIN=VSS extra="delvto='agauss(0,ABSVAR,3)'"}
++ VCCBPIN=VCC VSSBPIN=VSS extra="delvto='delvto_var'"}
 C {lab_pin.sym} 860 -1290 0 1 {name=l19 sig_type=std_logic lab=CALB}
 C {lab_pin.sym} 860 -1230 0 1 {name=l44 sig_type=std_logic lab=CALBB}
-C {nmos4-v.sym} 1100 -1100 0 0 {name=M3 verilog_gate=nmos del=50,50,50 model=nmos w=1.0u l=1.0u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {nmos4-v.sym} 1100 -1100 0 0 {name=M3 verilog_gate=nmos del=50,50,50 model=nmos w=1.0u l=1.0u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 1150 -1100 0 1 {name=p179 lab=VSS}
-C {pmos4-v.sym} 1100 -1330 0 0 {name=M4 verilog_gate=pmos del=50,50,50 model=pmos w=2.0u l=1.0u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {pmos4-v.sym} 1100 -1330 0 0 {name=M4 verilog_gate=pmos del=50,50,50 model=pmos w=2.0u l=1.0u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 1150 -1330 0 1 {name=p180 lab=VCC}
 C {lab_pin.sym} 1090 -1400 0 0 {name=p181 lab=VCC}
 C {lab_pin.sym} 1090 -970 0 0 {name=p182 lab=VSSI}
 C {passgate.sym} 1350 -1260 0 1 {name=x2 m=1 
 + wn=0.4u ln=0.13u
 + wp=0.4u lp=0.13u
-+ VCCBPIN=VCC VSSBPIN=VSS  extra="delvto='agauss(0,ABSVAR,3)'"}
++ VCCBPIN=VCC VSSBPIN=VSS  extra="delvto='delvto_var'"}
 C {lab_pin.sym} 1350 -1290 0 1 {name=l45 sig_type=std_logic lab=CALB}
 C {lab_pin.sym} 1350 -1230 0 1 {name=l46 sig_type=std_logic lab=CALBB}
-C {nmos4-v.sym} 1590 -1100 0 0 {name=M7 verilog_gate=nmos del=50,50,50 model=nmos w=1.3u l=1.0u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {nmos4-v.sym} 1590 -1100 0 0 {name=M7 verilog_gate=nmos del=50,50,50 model=nmos w=1.3u l=1.0u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 1640 -1100 0 1 {name=p183 lab=VSS}
-C {pmos4-v.sym} 1590 -1330 0 0 {name=M9 verilog_gate=pmos del=50,50,50 model=pmos w=2.6u l=1.0u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {pmos4-v.sym} 1590 -1330 0 0 {name=M9 verilog_gate=pmos del=50,50,50 model=pmos w=2.6u l=1.0u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 1640 -1330 0 1 {name=p184 lab=VCC}
 C {lab_pin.sym} 1580 -1400 0 0 {name=p185 lab=VCC}
 C {lab_pin.sym} 1580 -970 0 0 {name=p186 lab=VSSI}
 C {lab_pin.sym} 1470 -1320 0 0 {name=l47 lab=ZERO1}
 C {lab_pin.sym} 980 -1320 0 0 {name=l48 lab=ZERO0}
-C {nmos4-v.sym} 870 -640 0 0 {name=M20 verilog_gate=nmos del=50,50,50 model=nmos w=2u l=0.4u extra="delvto='agauss(0,ABSVAR,3)'"}
-C {nmos4-v.sym} 1110 -640 0 1 {name=M8 verilog_gate=nmos del=50,50,50 model=nmos w=2u l=0.4u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {nmos4-v.sym} 870 -640 0 0 {name=M20 verilog_gate=nmos del=50,50,50 model=nmos w=2u l=0.4u extra="delvto='delvto_var'"}
+C {nmos4-v.sym} 1110 -640 0 1 {name=M8 verilog_gate=nmos del=50,50,50 model=nmos w=2u l=0.4u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 920 -640 0 1 {name=p187 lab=VSS}
 C {lab_pin.sym} 1060 -640 0 0 {name=p188 lab=VSS}
-C {pmos4-v.sym} 1070 -800 0 0 {name=M30 verilog_gate=pmos del=50,50,50 model=pmos w=2u l=0.5u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {pmos4-v.sym} 1070 -800 0 0 {name=M30 verilog_gate=pmos del=50,50,50 model=pmos w=2u l=0.5u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 1120 -800 0 1 {name=p189 lab=VCC}
-C {pmos4-v.sym} 910 -800 0 1 {name=M12 verilog_gate=pmos del=50,50,50 model=pmos w=2u l=0.5u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {pmos4-v.sym} 910 -800 0 1 {name=M12 verilog_gate=pmos del=50,50,50 model=pmos w=2u l=0.5u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 860 -800 0 0 {name=p190 lab=VCC}
-C {nmos4-v.sym} 970 -510 0 0 {name=M32 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u  extra="delvto='agauss(0,ABSVAR,3)'"}
+C {nmos4-v.sym} 970 -510 0 0 {name=M32 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u  extra="delvto='delvto_var'"}
 C {lab_pin.sym} 1020 -510 0 1 {name=p191 lab=VSS}
 C {lab_pin.sym} 990 -880 0 0 {name=p192 lab=VCC}
 C {lab_pin.sym} 960 -380 0 0 {name=p193 lab=VSSI}
-C {nmos4-v.sym} 1450 -510 0 0 {name=M17 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {nmos4-v.sym} 1450 -510 0 0 {name=M17 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 1500 -510 0 1 {name=p194 lab=VSS}
-C {pmos4-v.sym} 1450 -800 0 0 {name=M13 verilog_gate=pmos del=50,50,50 model=pmos w=2u l=0.5u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {pmos4-v.sym} 1450 -800 0 0 {name=M13 verilog_gate=pmos del=50,50,50 model=pmos w=2u l=0.5u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 1500 -800 0 1 {name=p195 lab=VCC}
 C {lab_pin.sym} 1440 -870 0 0 {name=p196 lab=VCC}
 C {lab_pin.sym} 1440 -380 0 0 {name=p197 lab=VSSI}
@@ -297,9 +301,9 @@ C {ammeter.sym} 990 -450 0 0 {name=v2}
 C {ammeter.sym} 1470 -450 0 0 {name=v3}
 C {ammeter.sym} 1610 -1040 0 0 {name=v4}
 C {ammeter.sym} 1120 -1040 0 0 {name=v6}
-C {nmos4-v.sym} 1940 -510 0 0 {name=M19 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {nmos4-v.sym} 1940 -510 0 0 {name=M19 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 1990 -510 0 1 {name=p9 lab=VSS}
-C {pmos4-v.sym} 1940 -800 0 0 {name=M21 verilog_gate=pmos del=50,50,50 model=pmos w=2u l=0.5u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {pmos4-v.sym} 1940 -800 0 0 {name=M21 verilog_gate=pmos del=50,50,50 model=pmos w=2u l=0.5u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 1990 -800 0 1 {name=p10 lab=VCC}
 C {lab_pin.sym} 1930 -870 0 0 {name=p11 lab=VCC}
 C {lab_pin.sym} 1930 -380 0 0 {name=p12 lab=VSSI}
@@ -309,29 +313,29 @@ C {lab_pin.sym} 2290 -710 0 1 {name=l3 lab=SAOUT}
 C {passgate.sym} 1840 -1260 0 1 {name=x3 m=1 
 + wn=0.4u ln=0.13u
 + wp=0.4u lp=0.13u
-+ VCCBPIN=VCC VSSBPIN=VSS  extra="delvto='agauss(0,ABSVAR,3)'"}
++ VCCBPIN=VCC VSSBPIN=VSS  extra="delvto='delvto_var'"}
 C {lab_pin.sym} 1840 -1290 0 1 {name=l5 sig_type=std_logic lab=CALB}
 C {lab_pin.sym} 1840 -1230 0 1 {name=l6 sig_type=std_logic lab=CALBB}
-C {nmos4-v.sym} 2080 -1100 0 0 {name=M23 verilog_gate=nmos del=50,50,50 model=nmos w=1.5u l=1.0u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {nmos4-v.sym} 2080 -1100 0 0 {name=M23 verilog_gate=nmos del=50,50,50 model=nmos w=1.5u l=1.0u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 2130 -1100 0 1 {name=p13 lab=VSS}
-C {pmos4-v.sym} 2080 -1330 0 0 {name=M24 verilog_gate=pmos del=50,50,50 model=pmos w=3u l=1.0u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {pmos4-v.sym} 2080 -1330 0 0 {name=M24 verilog_gate=pmos del=50,50,50 model=pmos w=3u l=1.0u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 2130 -1330 0 1 {name=p14 lab=VCC}
 C {lab_pin.sym} 2070 -1400 0 0 {name=p16 lab=VCC}
 C {lab_pin.sym} 2070 -970 0 0 {name=p17 lab=VSSI}
 C {lab_pin.sym} 1960 -1320 0 0 {name=l8 lab=ZERO2}
 C {ammeter.sym} 2100 -1040 0 0 {name=v5}
-C {pmos4-v.sym} 2160 -810 0 0 {name=M6 verilog_gate=pmos del=50,50,50 model=pmos w=0.6u l=0.2u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {pmos4-v.sym} 2160 -810 0 0 {name=M6 verilog_gate=pmos del=50,50,50 model=pmos w=0.6u l=0.2u extra="delvto='delvto_var'"}
 C {lab_pin.sym} 2210 -810 0 1 {name=p18 lab=VCC}
 C {lab_pin.sym} 2150 -880 0 0 {name=p19 lab=VCC}
 C {lab_pin.sym} 2140 -810 0 0 {name=l2 lab=EN}
-C {pmos4-v.sym} 640 -770 0 1 {name=M18 verilog_gate=pmos del=50,50,50 model=pmos w=4u l=0.4u  extra="delvto='agauss(0,ABSVAR,3)'"}
+C {pmos4-v.sym} 640 -770 0 1 {name=M18 verilog_gate=pmos del=50,50,50 model=pmos w=4u l=0.4u  extra="delvto='delvto_var'"}
 C {lab_pin.sym} 590 -770 0 0 {name=p20 lab=VCC}
-C {pmos4-v.sym} 400 -770 0 0 {name=M25 verilog_gate=pmos del=50,50,50 model=pmos w=4u l=0.4u  extra="delvto='agauss(0,ABSVAR,3)'"}
+C {pmos4-v.sym} 400 -770 0 0 {name=M25 verilog_gate=pmos del=50,50,50 model=pmos w=4u l=0.4u  extra="delvto='delvto_var'"}
 C {lab_pin.sym} 450 -770 0 1 {name=p21 lab=VCC}
 C {lab_pin.sym} 390 -640 0 0 {name=p22 lab=VSS}
 C {lab_pin.sym} 650 -640 0 1 {name=p23 lab=VSS}
 C {lab_pin.sym} 490 -550 0 0 {name=p24 lab=VSSI}
-C {pmos4-v.sym} 510 -900 0 0 {name=M28 verilog_gate=pmos del=50,50,50 model=pmos w=2u l=0.5u  extra="delvto='agauss(0,ABSVAR,3)'"}
+C {pmos4-v.sym} 510 -900 0 0 {name=M28 verilog_gate=pmos del=50,50,50 model=pmos w=2u l=0.5u  extra="delvto='delvto_var'"}
 C {lab_pin.sym} 560 -900 0 1 {name=p25 lab=VCC}
 C {lab_pin.sym} 530 -950 0 0 {name=p26 lab=VCC}
 C {lab_pin.sym} 490 -900 0 0 {name=l7 lab=GP}
@@ -339,8 +343,8 @@ C {lab_pin.sym} 460 -670 0 1 {name=l9 lab=GP}
 C {lab_pin.sym} 380 -770 0 0 {name=l10 lab=MINUS}
 C {lab_pin.sym} 660 -770 0 1 {name=l11 lab=PLUS}
 C {lab_pin.sym} 680 -700 0 1 {name=l12 lab=OUTDIFF}
-C {nmos4-v.sym} 600 -640 0 0 {name=M26 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u extra="delvto='agauss(0,ABSVAR,3)'"}
-C {nmos4-v.sym} 440 -640 0 1 {name=M1 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {nmos4-v.sym} 600 -640 0 0 {name=M26 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u extra="delvto='delvto_var'"}
+C {nmos4-v.sym} 440 -640 0 1 {name=M1 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u extra="delvto='delvto_var'"}
 C {parax_cap.sym} 500 -630 0 0 {name=c2  value=4f}
 C {lab_pin.sym} 530 -850 0 0 {name=l13 lab=SP}
 C {launcher.sym} 930 -260 0 0 {name=h2 
