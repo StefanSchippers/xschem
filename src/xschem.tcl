@@ -2893,20 +2893,21 @@ proc infowindow {} {
     frame $z.f2
     text $z.f1.text -relief sunken -bd 2 -yscrollcommand "$z.f1.yscroll set" -setgrid 1 \
          -height 6 -width 50  -xscrollcommand "$z.f1.xscroll set" -wrap none
-    scrollbar $z.yscroll -command "$z.f1.text yview" -orient v 
-    scrollbar $z.xscroll -command "$z.f1.text xview" -orient h 
+    scrollbar $z.f1.yscroll -command "$z.f1.text yview" -orient v 
+    scrollbar $z.f1.xscroll -command "$z.f1.text xview" -orient h 
     grid $z.f1.text - $z.f1.yscroll -sticky nsew
     grid $z.f1.xscroll - -sticky ew
     # grid $z.dismiss - -
     grid rowconfig $z.f1 0 -weight 1
     grid columnconfig $z.f1 0 -weight 1
+    pack $z.f1 -fill both -expand yes
+    button $z.f2.dismiss -text Dismiss -command "wm withdraw $z; set show_infowindow 0"
+    pack $z.f2.dismiss
+    pack $z.f2 -fill x
+    bind $z <Escape> "wm withdraw $z; set show_infowindow 0"
   }
-  #  $z.text delete 1.0 end 
-  #  $z.text insert 1.0 $infotxt
-  pack $z.f1
   $z.f1.text insert end $infotxt
   $z.f1.text see end
-  bind $z <Escape> {wm withdraw .infotext; set show_infowindow 0}
   return {}
 }
 
