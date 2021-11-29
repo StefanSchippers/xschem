@@ -2878,7 +2878,7 @@ proc infowindow {} {
   set z {.infotext}
   if ![string compare $infotxt ""] { 
     if [winfo exists $z] {
-      $z.text delete 1.0 end
+      $z.f1.text delete 1.0 end
     }
   }
   if ![winfo exists $z] {
