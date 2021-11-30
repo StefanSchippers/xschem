@@ -3922,17 +3922,17 @@ proc build_widgets { {topwin {} } } {
       xschem new_symbol_window
     }
   $topwin.menubar.file.menu add command -label "Open" -command "xschem load" -accelerator {Ctrl+O}
-  $topwin.menubar.file.menu add command -label {Open new window [exp]} -command "xschem load_new_window"
-  toolbar_create FileOpen "xschem load" "Open File" $topwin
-  $topwin.menubar.file.menu add command -label "Delete files" -command "xschem delete_files" -accelerator {Shift-D}
-
+  $topwin.menubar.file.menu add cascade -label "Open Recent" -menu $topwin.menubar.file.menu.recent
+  $topwin.menubar.file.menu add cascade -label {Open Recent in new window [exp]} \
+    -menu $topwin.menubar.file.menu.recent_new_window
   menu $topwin.menubar.file.menu.recent_new_window -tearoff 0
   menu $topwin.menubar.file.menu.recent -tearoff 0
   setup_recent_menu 0 $topwin
   setup_recent_menu 1 $topwin
-  $topwin.menubar.file.menu add cascade -label "Open Recent" -menu $topwin.menubar.file.menu.recent
-  $topwin.menubar.file.menu add cascade -label {Open Recent in new window [exp]} \
-    -menu $topwin.menubar.file.menu.recent_new_window
+  $topwin.menubar.file.menu add command -label {Open new window [exp]} -command "xschem load_new_window"
+  toolbar_create FileOpen "xschem load" "Open File" $topwin
+  $topwin.menubar.file.menu add command -label "Delete files" -command "xschem delete_files" -accelerator {Shift-D}
+
   $topwin.menubar.file.menu add command -label "Open Most Recent" \
     -command {xschem load [lindex "$recentfile" 0]} -accelerator {Ctrl+Shift+O}
   $topwin.menubar.file.menu add command -label "Save" -command "xschem save" -accelerator {Ctrl+S}

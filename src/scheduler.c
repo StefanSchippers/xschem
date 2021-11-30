@@ -1423,7 +1423,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"load") )
     {
       cmd_found = 1;
-      tcleval("catch { ngspice::resetdata }");
       if(argc==3) {
         if(!has_x || !xctx->modified  || !save(1) ) { /* save(1)==1 --> user cancel */
           dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
@@ -1448,7 +1447,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char fullname[PATH_MAX];
 
       cmd_found = 1;
-      tcleval("catch { ngspice::resetdata }");
       if(argc>=3) {
         my_snprintf(fullname, S(fullname),"%s", argv[2]);
       } else {

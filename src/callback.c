@@ -982,7 +982,6 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    {
 
     if(xctx->semaphore >= 2) break;
-    tcleval("catch { ngspice::resetdata }");
     ask_new_file();
     break;
    }

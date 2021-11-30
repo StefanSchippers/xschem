@@ -28,8 +28,8 @@ namespace eval ngspice {
 
 proc ngspice::read_ngspice_raw {arr fp} {
   upvar $arr var
-  unset -nocomplain var
 
+  unset -nocomplain var
   set variables 0
   while {[gets $fp line] >= 0} {
     if {$line eq "Binary:"} break
@@ -173,6 +173,8 @@ proc ngspice::annotate {} {
   set fp [open $rawfile r]
   fconfigure $fp -translation binary
   set op_point_read 0 
+  ## not needed: done in ngspice::read_ngspice_raw
+  # array unset ::ngspice::ngspice_data
   while 1 {
     ngspice::read_ngspice_raw arr $fp
     if { [info exists arr(n\ points)] } {

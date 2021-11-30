@@ -273,14 +273,13 @@ void new_window(const char* cell, int symbol)
     fprintf(errfp, "new_window(): executable not found\n");
     return;
   }
-  fprintf(errfp, "new_window(): fork error 1\n");
-  tcleval("exit");
+  fprintf(errfp, "new_window(): feature doesn't exist\n");
 }
 #endif
 const char *get_file_path(char *f)
 {
   char tmp[2*PATH_MAX+100];
-  my_snprintf(tmp, S(tmp),"get_file_path \"%s\"", f);
+  my_snprintf(tmp, S(tmp),"get_file_path {%s}", f);
   tcleval(tmp);
   return tclresult();
 }

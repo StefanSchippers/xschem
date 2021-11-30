@@ -591,14 +591,17 @@ void delete_schematic_data(void)
   /* clear static data in get_tok_value() must be done after unselect_all() 
    * as this functions re-uses get_tok_value() */
   get_tok_value(NULL, NULL, 0); /* clear static data in function */
-  delete_netlist_structs();  /* netlist - specific data and hash tables */
+  /* delete inst and wire node fields, delete inst_pin spatial hash, and node hash table */
+  delete_netlist_structs();
   clear_all_hilights();      /* data structs for hilighting nets/instances */
   get_unnamed_node(0, 0, 0); /* net### enumerator used for netlisting */
   if(has_x) {
     resetwin(0, 1, 1, 0, 0);  /* delete preview pixmap, delete cairo surfaces */
     free_gc();
   }
-  clear_drawing();    /* delete instances, wires, lines, rects, ... */
+  /* delete instances, wires, lines, rects, arcs, polys, texts, hash_inst, hash_wire, 
+   * inst & wire .node fields, instance name hash */
+  clear_drawing();
   remove_symbols();
   free_xschem_data(); /* delete the xctx struct */
 }
@@ -611,6 +614,7 @@ void xwin_exit(void)
    dbg(0, "xwin_exit() double call, doing nothing...\n");
    return;
  }
+ tcleval("catch { ngspice::resetdata }"); /* remove ngspice annotation data if any */
  delete_schematic_data();
  if(has_x) {
    Tk_DestroyWindow(mainwindow);
