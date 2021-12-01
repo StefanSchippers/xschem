@@ -414,7 +414,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
       cmd_found = 1;
       cancel=save(1);
-      if(!cancel){
+      if(cancel != -1){ /* -1 means user cancel save request */
         char name[PATH_MAX];
         struct stat buf;
         int i;
@@ -426,7 +426,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc>=3 && !strcmp(argv[2],"SYMBOL")) {
           xctx->netlist_type = CAD_SYMBOL_ATTRS;
           set_tcl_netlist_type();
-          for(i=0;;i++) {
+          for(i=0;;i++) { /* find a non-existent untitled[-n].sym */
             if(i == 0) my_snprintf(name, S(name), "%s.sym", "untitled");
             else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
             if(stat(name, &buf)) break;
@@ -1424,7 +1424,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       cmd_found = 1;
       if(argc==3) {
-        if(!has_x || !xctx->modified  || !save(1) ) { /* save(1)==1 --> user cancel */
+        if(!has_x || !xctx->modified  || save(1) != -1 ) { /* save(1)==-1 --> user cancel */
           dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
           clear_all_hilights();
           xctx->currsch = 0;

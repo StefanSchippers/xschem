@@ -362,7 +362,7 @@ void ask_new_file(void)
     if(!has_x) return;
 
     if(xctx->modified) {
-      if(save(1)) return; /*  user cancels save, so do nothing. */
+      if(save(1) == -1 ) return; /*  user cancels save, so do nothing. */
     }
     tcleval("load_file_dialog {Load Schematic} .sch.sym INITIALLOADDIR");
     my_snprintf(fullname, S(fullname),"%s", tclresult());
