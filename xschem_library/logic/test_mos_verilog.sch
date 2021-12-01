@@ -4,7 +4,6 @@ K {}
 V {}
 S {}
 E {}
-P 4 6 1040 -360 950 -360 950 -370 930 -360 950 -350 950 -360 {}
 T {Set netlist mode to 'verilog netlist'
 (Options menu), then press 'Netlist'
 and 'Simulate' button.
@@ -20,9 +19,6 @@ T {CMOS} 710 -520 0 0 0.4 0.4 {}
 T {NMOS
 Enhancement
 load } 980 -520 0 0 0.4 0.4 {}
-T {For Verilog simulations put nmos
-upside-down, drain is the output node.
-} 1050 -390 0 0 0.4 0.4 {}
 N 380 -480 380 -420 { lab=VDD}
 N 380 -390 440 -390 { lab=GND}
 N 380 -230 440 -230 { lab=GND}
