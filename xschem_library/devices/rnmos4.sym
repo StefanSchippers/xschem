@@ -3,7 +3,7 @@ G {}
 K {type=nmos
 format="@spiceprefix@name @pinlist @model w=@w l=@l @extra m=@m"
 template="name=M1 model=nmos w=5u l=0.18u del=0 m=1"
-verilog_format="rnmos #@del @name ( @@d , @@s , @@g );"}
+verilog_format="rnmos #@del @name ( @@s , @@d , @@g );"}
 V {}
 S {}
 E {}

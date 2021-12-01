@@ -90,4 +90,4 @@ C {vdd.sym} 920 -480 0 0 {name=l17 lab=VDD }
 C {lab_pin.sym} 820 -230 0 0 {name=l18 sig_type=std_logic lab=IN verilog_type=reg}
 C {lab_pin.sym} 990 -310 0 1 {name=l19 sig_type=std_logic lab=OUT3}
 C {gnd.sym} 980 -390 0 0 {name=l20 lab=GND}
-C {rnmos4.sym} 900 -390 2 1 {name=M6 model=nmos w=5u l=0.18u m=1 del=10}
+C {rnmos4.sym} 900 -390 0 0 {name=M6 model=nmos w=5u l=0.18u m=1 del=10}
