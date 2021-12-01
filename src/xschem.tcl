@@ -4174,8 +4174,8 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.sym.menu add command -label "Make schematic from symbol" -command "xschem make_sch" -accelerator Ctrl+L
   $topwin.menubar.sym.menu add command -label "Make schematic and symbol from selected components" \
      -command "xschem make_sch_from_sel" -accelerator Ctrl+Shift+H
-  $topwin.menubar.sym.menu add command -label "Attach pins to component instance" \
-     -command "xschem attach_pins" -accelerator Shift+H
+  $topwin.menubar.sym.menu add command -label "Attach net labels to component instance" \
+     -command "xschem attach_labels" -accelerator Shift+H
   $topwin.menubar.sym.menu add command -label "Create symbol pins from selected schematic pins" \
           -command "schpins_to_sympins" -accelerator Alt+H
   $topwin.menubar.sym.menu add command -label "Place symbol pin" \

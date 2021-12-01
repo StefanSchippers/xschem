@@ -72,7 +72,7 @@ void xschem_cmd_help(int argc, const char **argv)
     "align\n",
     "  Align selected part of schematic to current gid snap setting\n",
     /* "arc\n", */
-    "attach_pins\n",
+    "attach_labels\n",
     "  Attach labels to selected instance pins\n",
     "bbox [begin | end]\n",
     "  bbox begin: start a bounding box drawing area setting\n",
@@ -317,7 +317,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->ui_state |= MENUSTARTARC;
     }
    
-    else if(!strcmp(argv[1],"attach_pins")) /* attach pins to selected component 20171005 */
+    else if(!strcmp(argv[1],"attach_labels")) /* attach pins to selected component 20171005 */
     {
       cmd_found = 1;
       attach_labels_to_inst(0);
