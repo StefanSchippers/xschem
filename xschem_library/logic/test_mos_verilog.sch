@@ -4,18 +4,25 @@ K {}
 V {}
 S {}
 E {}
+P 4 6 1040 -360 950 -360 950 -370 930 -360 950 -350 950 -360 {}
 T {Set netlist mode to 'verilog netlist'
 (Options menu), then press 'Netlist'
 and 'Simulate' button.
 You need to have Icarus verilog installed
 Configure the verilog simulator in 
 Simulation-> Configure simulators and tools'
-menu.} 800 -240 0 0 0.4 0.4 {}
+menu.} 1050 -240 0 0 0.4 0.4 {}
 T {Trivial Depletion NMOS inverter simulation in verilog} 140 -670 0 0 0.7 0.7 {}
 T {NMOS
 depletion
 load} 420 -520 0 0 0.4 0.4 {}
 T {CMOS} 710 -520 0 0 0.4 0.4 {}
+T {NMOS
+Enhancement
+load } 980 -520 0 0 0.4 0.4 {}
+T {For Verilog simulations put nmos
+upside-down, drain is the output node.
+} 1050 -390 0 0 0.4 0.4 {}
 N 380 -480 380 -420 { lab=VDD}
 N 380 -390 440 -390 { lab=GND}
 N 380 -230 440 -230 { lab=GND}
@@ -33,6 +40,15 @@ N 550 -230 610 -230 { lab=IN}
 N 650 -310 720 -310 { lab=OUT2}
 N 650 -390 710 -390 { lab=VDD}
 N 610 -390 610 -230 { lab=IN}
+N 920 -480 920 -420 { lab=VDD}
+N 920 -230 980 -230 { lab=GND}
+N 920 -360 920 -260 { lab=OUT3}
+N 920 -200 920 -160 { lab=GND}
+N 820 -230 880 -230 { lab=IN}
+N 920 -310 990 -310 { lab=OUT3}
+N 920 -390 980 -390 { lab=GND}
+N 880 -440 880 -390 { lab=VDD}
+N 880 -440 920 -440 { lab=VDD}
 C {nmos4.sym} 360 -230 0 0 {name=M1 model=nmos w=5u l=0.18u m=1 del=10}
 C {nmos4_depl.sym} 360 -390 0 0 {name=M3 model=nmos w=5u l=0.18u m=1 del=10}
 C {gnd.sym} 440 -390 0 0 {name=l1 lab=GND}
@@ -67,3 +83,11 @@ C {lab_pin.sym} 720 -310 0 1 {name=l12 sig_type=std_logic lab=OUT2}
 C {pmos4.sym} 630 -390 0 0 {name=M4 model=pmos w=5u l=0.18u m=1}
 C {vdd.sym} 710 -390 0 0 {name=l13 lab=VDD value=1}
 C {noconn.sym} 300 -230 1 0 {name=l14}
+C {nmos4.sym} 900 -230 0 0 {name=M5 model=nmos w=5u l=0.18u m=1 del=10}
+C {gnd.sym} 980 -230 0 0 {name=l15 lab=GND}
+C {gnd.sym} 920 -160 0 0 {name=l16 lab=GND }
+C {vdd.sym} 920 -480 0 0 {name=l17 lab=VDD }
+C {lab_pin.sym} 820 -230 0 0 {name=l18 sig_type=std_logic lab=IN verilog_type=reg}
+C {lab_pin.sym} 990 -310 0 1 {name=l19 sig_type=std_logic lab=OUT3}
+C {gnd.sym} 980 -390 0 0 {name=l20 lab=GND}
+C {rnmos4.sym} 900 -390 2 1 {name=M6 model=nmos w=5u l=0.18u m=1 del=10}
