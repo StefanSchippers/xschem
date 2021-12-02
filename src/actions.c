@@ -1130,7 +1130,7 @@ void go_back(int confirm) /*  20171006 add confirm */
   if(from_embedded_sym) xctx->modified=save_modified; /* to force ask save embedded sym in parent schematic */
 
   if(xctx->hilight_nets) {
-    if(prev_sch_type != CAD_SYMBOL_ATTRS) hilight_parent_pins();
+    if(prev_sch_type != CAD_SYMBOL_ATTRS) hilight_parent_pins(); 
     propagate_hilights(1, 0, XINSERT_NOREPLACE);
   }
   xctx->xorigin=xctx->zoom_array[xctx->currsch].x;
@@ -1632,10 +1632,8 @@ void new_wire(int what, double mx_snap, double my_snap)
                                      * this clears both xctx->prep_hi_structs and xctx->prep_net_structs. */
         if(!big) {
           bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
-          if(s_pnetname || xctx->hilight_nets) {
-            int_hash_lookup(xctx->node_redraw_table,  xctx->wire[xctx->wires-1].node, 0, XINSERT_NOREPLACE);
-            find_inst_to_be_redrawn();
-          }
+          int_hash_lookup(xctx->node_redraw_table,  xctx->wire[xctx->wires-1].node, 0, XINSERT_NOREPLACE);
+          find_inst_to_be_redrawn(1);
           bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
         }
         draw();

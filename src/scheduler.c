@@ -140,6 +140,8 @@ void xschem_cmd_help(int argc, const char **argv)
     "  topwindow\n",
     "  version\n",
     "  wirelayer\n",
+    "  xorigin\n",
+    "  yorigin\n",
     "get_tok\n",
     "get_tok_size\n",
     "getprop\n",
@@ -899,6 +901,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      else if(!strcmp(argv[2],"wirelayer")) {
        char s[30]; /* overflow safe 20161122 */
        my_snprintf(s, S(s), "%d",WIRELAYER);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"xorigin")) {
+       char s[128];
+       my_snprintf(s, S(s), "%.16g", xctx->xorigin);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"yorigin")) {
+       char s[128];
+       my_snprintf(s, S(s), "%.16g", xctx->yorigin);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else {

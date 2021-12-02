@@ -76,7 +76,7 @@ static int client_msg(Display *disp, Window win, char *msg, /* {{{ */
 
 
 int window_state (Display *disp, Window win, char *arg) {/*{{{*/
-    static char *arg_copy=NULL;
+    char arg_copy[256]; /* overflow safe */
     unsigned long action;
     int i;
     Atom prop1 = 0;
@@ -85,18 +85,17 @@ int window_state (Display *disp, Window win, char *arg) {/*{{{*/
     const char *argerr = "expects a list of comma separated parameters: "
                          "\"(remove|add|toggle),<PROP1>[,<PROP2>]\"\n";
 
+    char tmp_prop1[256], tmp1[256]; /* overflow safe */
+    char tmp_prop2[256], tmp2[256]; /* overflow safe */
 
-    my_strdup(604, &arg_copy, arg);
 
-    dbg(1,"window_state() , win=0x%x arg_copy=%s\n",
-          (int)win,arg_copy);
-    if (!arg_copy || strlen(arg_copy) == 0) {
+    if (!arg || strlen(arg) == 0) {
         fputs(argerr, errfp);
         return EXIT_FAILURE;
     }
-
+    dbg(1,"window_state() , win=0x%x arg=%s\n", (int)win, arg);
+    my_strncpy(arg_copy, arg, S(arg_copy));
     if ((p1 = strchr(arg_copy, ','))) {
-        static char tmp_prop1[1024], tmp1[1024]; /* overflow safe 20161122 */
 
         *p1 = '\0';
 
@@ -118,7 +117,6 @@ int window_state (Display *disp, Window win, char *arg) {/*{{{*/
 
         /* the second property */
         if ((p2 = strchr(p1, ','))) {
-            static char tmp_prop2[1024], tmp2[1024]; /* overflow safe */
             *p2 = '\0';
             p2++;
             if (strlen(p2) == 0) {
@@ -126,6 +124,7 @@ int window_state (Display *disp, Window win, char *arg) {/*{{{*/
                 return EXIT_FAILURE;
             }
             for( i = 0; p2[i]; i++) tmp2[i] = toupper( p2[i] );
+            tmp2[i] = '\0';
             my_snprintf(tmp_prop2, S(tmp_prop2), "_NET_WM_STATE_%s", tmp2);
             prop2 = XInternAtom(disp, tmp_prop2, False);
         }
@@ -136,6 +135,7 @@ int window_state (Display *disp, Window win, char *arg) {/*{{{*/
             return EXIT_FAILURE;
         }
         for( i = 0; p1[i]; i++) tmp1[i] = toupper( p1[i] );
+        tmp1[i] = '\0';
         my_snprintf(tmp_prop1, S(tmp_prop1), "_NET_WM_STATE_%s", tmp1);
         prop1 = XInternAtom(disp, tmp_prop1, False);
 

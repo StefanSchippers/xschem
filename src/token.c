@@ -2875,19 +2875,20 @@ const char *translate(int inst, const char* s)
      }
      if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER]) {
        char *pin_attr_value = NULL;
-
+       int is_net_name = !strcmp(pin_attr, "net_name");
        /* get pin_attr value from instance: "pinnumber(ENABLE)=5" --> return 5, attr "pinnumber" of pin "ENABLE"
         *                                   "pinnumber(3)=6       --> return 6, attr "pinnumber" of 4th pin */
-       if(!pin_attr_value) pin_attr_value = get_pin_attr_from_inst(inst, n, pin_attr);
-       /* get pin_attr from instance pin attribute string */
-       if(!pin_attr_value) {
-        my_strdup(499, &pin_attr_value,
-           get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][n].prop_ptr, pin_attr, 0));
+       if(!is_net_name) {
+         pin_attr_value = get_pin_attr_from_inst(inst, n, pin_attr);
+         /* get pin_attr from instance pin attribute string */
+         if(!pin_attr_value) {
+          my_strdup(499, &pin_attr_value,
+             get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][n].prop_ptr, pin_attr, 0));
+         }
        }
-
        /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin
         * if 'net_name=true' attribute is set in instance or symbol */
-       if(  !pin_attr_value && !strcmp(pin_attr, "net_name")) {
+       if(!pin_attr_value && is_net_name) {
          char *instprop = xctx->inst[inst].prop_ptr;
          char *symprop = (xctx->inst[inst].ptr + xctx->sym)->prop_ptr;
          if(s_pnetname && (!strcmp(get_tok_value(instprop, "net_name", 0), "true") ||

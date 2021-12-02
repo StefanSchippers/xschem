@@ -1469,7 +1469,7 @@ static void align_sch_pins_with_sym(const char *name, int pos)
 
   if ((ptr = strrchr(name, '.')) && !strcmp(ptr, ".sch")) {
     my_strncpy(symname, add_ext(name, ".sym"), S(symname));
-    for(i = 0; i < HASHSIZE; i++) pintable[i] = NULL;
+    memset(pintable, 0, HASHSIZE * sizeof(struct int_hashentry *));
     /* hash all symbol pins with their position into pintable hash*/
     get_sym_type(symname, &symtype, pintable, NULL, &sym_n_pins);
     if(symtype[0]) { /* found a .sym for current .sch LCC instance */

@@ -654,8 +654,8 @@ void prepare_netlist_structs(int for_netlist)
    * a second prepare_netlist_structs() is called to name unnamed nets, in this second call
    * print_erc must be set to 0 to avoid double erc printing
    */
-  print_erc =  xctx->netlist_count == 0 || startlevel < xctx->currsch;
-  if (for_netlist>0) {
+  print_erc =  (xctx->netlist_count == 0 || startlevel < xctx->currsch) && for_netlist;
+  if (for_netlist) {
     my_snprintf(nn, S(nn), "-----------%s", xctx->sch[xctx->currsch]);
     statusmsg(nn,2);
   }
