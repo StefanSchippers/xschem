@@ -1102,7 +1102,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       dbg(2, "load_schematic(): loaded file:wire=%d inst=%d\n",xctx->wires , xctx->instances);
       if(load_symbols) link_symbols_to_instances(-1);
       if(reset_undo) {
-        Tcl_VarEval(interp, "is_xschem_file ", xctx->sch[xctx->currsch], NULL);
+        Tcl_VarEval(interp, "is_xschem_file {", xctx->sch[xctx->currsch], "}", NULL);
         if(!strcmp(tclresult(), "SYMBOL")) {
           xctx->save_netlist_type = xctx->netlist_type;
           xctx->netlist_type = CAD_SYMBOL_ATTRS;

@@ -1910,7 +1910,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  /* source tcl file given on command line with --script */
  if(tcl_script[0]) {
-   Tcl_VarEval(interp, "update; source ", tcl_script, NULL);
+   Tcl_VarEval(interp, "update; source {", tcl_script, "}", NULL);
  }
 
  if(quit) {
