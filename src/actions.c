@@ -150,7 +150,7 @@ void set_grid(double newgrid)
 int set_netlist_dir(int force, char *dir)
 {
   char cmd[PATH_MAX+200];
-  if(dir) my_snprintf(cmd, S(cmd), "select_netlist_dir %d %s", force, dir);
+  if(dir) my_snprintf(cmd, S(cmd), "select_netlist_dir %d {%s}", force, dir);
   else    my_snprintf(cmd, S(cmd), "select_netlist_dir %d", force);
   tcleval(cmd);
   if(!strcmp("", tclresult()) ) {

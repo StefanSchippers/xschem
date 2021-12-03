@@ -1378,7 +1378,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_strcat(416, &win_xschem_library_path, "\;"); 
    my_strcat(431, &win_xschem_library_path, tmp);
  }
- my_snprintf(tmp, S(tmp), "set tmp2 \"%s\"; "
+ my_snprintf(tmp, S(tmp), "set tmp2 {%s}; "
    "while {[regsub {([^/]*\\.*[^./]+[^/]*)/\\.\\./?} $tmp2 {} tmp2]} {}; ", win_xschem_library_path); 
  const char *result2 = tcleval(tmp);
  const char *win_xschem_library_path_clean = tclgetvar("tmp2");
