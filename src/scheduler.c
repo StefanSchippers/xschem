@@ -1466,7 +1466,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_snprintf(fullname, S(fullname),"%s", tclresult());
       }
       if( fullname[0] ) {
-       Tcl_VarEval(interp, "new_window create ", fullname, NULL);
+       Tcl_VarEval(interp, "new_window create {", fullname, "}", NULL);
        Tcl_VarEval(interp, "update_recent_file {", fullname, "}", NULL);
       }
     }

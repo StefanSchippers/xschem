@@ -173,7 +173,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
    xctx->inst[i].yy1 = *y1;               /* for easier select */
    xctx->inst[i].xx2 = *x2;
    xctx->inst[i].yy2 = *y2;
-   dbg(2, "symbol_bbox(): instance=%d %.16g %.16g %.16g %.16g\n",i,*x1, *y1, *x2, *y2);
+   dbg(2, "symbol_bbox(): instance=%s %.16g %.16g %.16g %.16g\n",xctx->inst[i].instname,*x1, *y1, *x2, *y2);
    /* strings bbox */
    for(j=0;j< (xctx->inst[i].ptr+ xctx->sym)->texts;j++)
    {
@@ -198,8 +198,8 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      if(yy1<*y1) *y1=yy1;
      if(xx2>*x2) *x2=xx2;
      if(yy2>*y2) *y2=yy2;
-     /* dbg(2, "symbol_bbox(): instance=%d text=%d %.16g %.16g %.16g %.16g\n",i,j, *x1, *y1, *x2, *y2); */
    }
+   dbg(1, "symbol_bbox(): instance=%s %.16g %.16g %.16g %.16g\n", xctx->inst[i].instname, *x1, *y1, *x2, *y2);
 }
 
 
@@ -315,15 +315,13 @@ static void del_rect_line_arc_poly(void)
 
 void delete(int to_push_undo)
 {
-  int i, j, n, tmp;
+  int i, j, tmp;
   int select_rot = 0, select_flip = 0;
   #if HAS_CAIRO==1
   int customfont;
   #endif
-  int s_pnetname;
   double xx1,yy1,xx2,yy2;
 
-  s_pnetname = tclgetboolvar("show_pin_net_names");
   dbg(3, "delete(): start\n");
   j = 0;
   bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
@@ -331,45 +329,7 @@ void delete(int to_push_undo)
   if(to_push_undo && xctx->lastsel) xctx->push_undo();
   /* first calculate bbox, because symbol_bbox() needs translate (@#0:net_name) which
    *  needs prepare_netlist_structs which needs a consistent xctx->inst[] data structure */
-
-   /* does not seem to be needed
-    * xctx->prep_net_structs=0;
-    * xctx->prep_hi_structs=0;
-    */
-   if((s_pnetname || xctx->hilight_nets)) prepare_netlist_structs(0);
-   for(i = 0; i < xctx->lastsel; i++) {
-     n = xctx->sel_array[i].n;
-     if(xctx->sel_array[i].type == ELEMENT) {
-       int p;
-       char *type = (xctx->inst[n].ptr + xctx->sym)->type;
-       symbol_bbox(n, &xctx->inst[n].x1, &xctx->inst[n].y1, &xctx->inst[n].x2, &xctx->inst[n].y2 );
-       bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2 );
-       if((s_pnetname || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type) ) {
-         for(p = 0;  p < (xctx->inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) { /* only .node[0] ? */
-           if( xctx->inst[n].node && xctx->inst[n].node[p]) {
-              int_hash_lookup(xctx->node_redraw_table,  xctx->inst[n].node[p], 0, XINSERT_NOREPLACE);
-           }
-         }
-       }
-     }
-     if((s_pnetname || xctx->hilight_nets) && xctx->sel_array[i].type == WIRE && xctx->wire[n].node) {
-       int_hash_lookup(xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
-     }
-   }
-   if(s_pnetname || xctx->hilight_nets) find_inst_to_be_redrawn();
-
-
-  /* already done above
-  for(i=0;i<xctx->instances;i++)
-  {
-    if(xctx->inst[i].sel == SELECTED)
-    {
-      symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
-      bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
-    }
-  }
-  */
-
+  find_inst_to_be_redrawn(1 + 32); /* 32: call prepare_netlist_structs(0) */
   for(i=0;i<xctx->texts;i++)
   {
     if(xctx->text[i].sel == SELECTED)
@@ -474,6 +434,9 @@ void delete(int to_push_undo)
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
 
+  prepare_netlist_structs(0);
+  find_inst_to_be_redrawn(2 + 4 + 8);
+  find_inst_to_be_redrawn(16); /* clear data */
   xctx->lastsel = 0;
   bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
   draw();
@@ -521,6 +484,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
      fprintf(errfp, "ERROR: bbox(ADD) call before bbox(START)\n");
      tcleval("alert_ {ERROR: bbox(ADD) call before bbox(START)} {}");
    }
+   dbg(1, "   bbox(ADD,...): %.16g %.16g %.16g %.16g\n", x1, y1, x2, y2);
    x1=X_TO_SCREEN(x1);
    y1=Y_TO_SCREEN(y1);
    x2=X_TO_SCREEN(x2);

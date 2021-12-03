@@ -270,6 +270,9 @@
           <Component Id="cmpE33D206A79E72DCC203BF9219CECA21A" Guid="{A6E45888-2F91-47BF-B5E7-08769D0CB10C}">
             <File Id="filE312160BD0F93495CC1CA4BF0D72A38E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\rgb_led.sym" />
           </Component>
+          <Component Id="cmpD97AE943007C3AC19332BBE4DD1231CC" Guid="{9E87B48E-7BAC-4BA7-ADB9-AF663E891C8F}">
+              <File Id="fil15C79DAD681B86515BAC306AF0B7612A" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\rnmos4.sym" />
+          </Component>
           <Component Id="cmpC0CDD9987356F9D8308F1F96CAA35403" Guid="{1AE154F8-0F7C-4E22-86F5-93F626D48901}">
             <File Id="filEFB8AA2EEFBD6AE16A045E4F3A3EFD2B" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\spice_probe.sym" />
           </Component>
@@ -5321,6 +5324,7 @@
       <ComponentRef Id="cmpD523FFEB5C4A5B2C9B32756959301696" />
       <ComponentRef Id="cmpA6D9B275607613A4C61E8980D499B751" />
       <ComponentRef Id="cmpE33D206A79E72DCC203BF9219CECA21A" />
+      <ComponentRef Id="cmpD97AE943007C3AC19332BBE4DD1231CC" />
       <ComponentRef Id="cmpC0CDD9987356F9D8308F1F96CAA35403" />
       <ComponentRef Id="cmp530072B273A8627AFC7F2E628B5116CE" />
       <ComponentRef Id="cmpC76DA8327344C4B4AB04EF665B72B736" />

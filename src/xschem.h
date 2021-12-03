@@ -634,7 +634,10 @@ typedef struct {
   char sel_or_clip[PATH_MAX];
   int onetime;
   /* move.c */
+  /* list of nodes, instances attached to these need redraw */
   struct int_hashentry *node_redraw_table[HASHSIZE];
+  /* list of instances, collected using previous table, that need redraw */
+  unsigned char inst_redraw_table[HASHSIZE];
   double rx1, rx2, ry1, ry2;
   short move_rot;
   short move_flip;
@@ -1084,7 +1087,7 @@ extern void arc_3_points(double x1, double y1, double x2, double y2, double x3, 
 extern void move_objects(int what,int merge, double dx, double dy);
 extern void redraw_w_a_l_r_p_rubbers(void); /* redraw wire, arcs, line, polygon rubbers */
 extern void copy_objects(int what);
-extern void find_inst_to_be_redrawn();
+extern void find_inst_to_be_redrawn(int what);
 extern void pan(int what);
 extern void pan2(int what, int mx, int my);
 extern void zoom_rectangle(int what);

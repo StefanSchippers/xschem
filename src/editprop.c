@@ -915,11 +915,9 @@ void update_symbol(const char *result, int x)
   char *type;
   int cond;
   int pushed=0;
-  int s_pnetname;
   int *ii = &xctx->edit_sym_i; /* static var */
   int *netl_com = &xctx->netlist_commands; /* static var */
 
-  s_pnetname = tclgetboolvar("show_pin_net_names");
   dbg(1, "update_symbol(): entering\n");
   *ii=xctx->sel_array[0].n;
   if(!result) {
@@ -968,22 +966,9 @@ void update_symbol(const char *result, int x)
     dbg(1, "update_symbol(): for k loop: k=%d\n", k);
     if(xctx->sel_array[k].type!=ELEMENT) continue;
     *ii=xctx->sel_array[k].n;
-
-    if(s_pnetname || xctx->hilight_nets) {
-      int j;
-      prepare_netlist_structs(0);
-      for(j = 0;  j < (xctx->inst[*ii].ptr + xctx->sym)->rects[PINLAYER]; j++) {
-        if( xctx->inst[*ii].node && xctx->inst[*ii].node[j]) {
-           int_hash_lookup(xctx->node_redraw_table,  xctx->inst[*ii].node[j], 0, XINSERT_NOREPLACE);
-        }
-      }
-      find_inst_to_be_redrawn();
-    }
-
     /* 20171220 calculate bbox before changes to correctly redraw areas */
     /* must be recalculated as cairo text extents vary with zoom factor. */
-    symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1,
-                            &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
+    symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1, &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
     if(sym_number>=0) /* changing symbol ! */
     {
       if(!pushed) { xctx->push_undo(); pushed=1;}
@@ -1058,31 +1043,14 @@ void update_symbol(const char *result, int x)
   }  /* end for(k=0;k<xctx->lastsel;k++) */
   /* new symbol bbox after prop changes (may change due to text length) */
   if(xctx->modified) {
-    int j;
     xctx->prep_hash_inst=0;
     xctx->prep_net_structs=0;
     xctx->prep_hi_structs=0;
-    if(s_pnetname || xctx->hilight_nets) prepare_netlist_structs(0);
-    for(k=0;k<xctx->lastsel;k++) {
-      if(xctx->sel_array[k].type!=ELEMENT) continue;
-      *ii=xctx->sel_array[k].n;
-      type=xctx->sym[xctx->inst[*ii].ptr].type;
-      symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1,
-                              &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
-      bbox(ADD, xctx->inst[*ii].x1, xctx->inst[*ii].y1,
-                xctx->inst[*ii].x2, xctx->inst[*ii].y2);
-      if((s_pnetname || xctx->hilight_nets) && type && IS_LABEL_OR_PIN(type)) {
-        for(j = 0;  j < (xctx->inst[*ii].ptr + xctx->sym)->rects[PINLAYER]; j++) {
-          if( xctx->inst[*ii].node && xctx->inst[*ii].node[j]) {
-             int_hash_lookup(xctx->node_redraw_table,  xctx->inst[*ii].node[j], 0, XINSERT_NOREPLACE);
-          }
-        }
-      }
-    }
+    find_inst_to_be_redrawn(1 + 4 + 32);  /* 32: call prepare_netlist_structs(0) */
+    find_inst_to_be_redrawn(16); /* clear data */
     if(xctx->hilight_nets) {
       propagate_hilights(1, 1, XINSERT_NOREPLACE);
     }
-    if(s_pnetname || xctx->hilight_nets) find_inst_to_be_redrawn();
   }
   /* redraw symbol with new props */
   bbox(SET,0.0,0.0,0.0,0.0);

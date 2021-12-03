@@ -388,7 +388,7 @@ void break_wires_at_pins(void)
   int changed=0;
 
   hash_wires();
-  xctx->need_reb_sel_arr=1;
+  xctx->need_reb_sel_arr=1; /* <<<< needed ? */
   rebuild_selected_array();
 
   /* for(k=0;k<xctx->instances;k++) */

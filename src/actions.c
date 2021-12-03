@@ -267,13 +267,49 @@ void new_window(const char *cell, int symbol)
 
 void new_window(const char* cell, int symbol)
 {
+  char cmd_line[2 * PATH_MAX + 100];
   struct stat buf;
   dbg(1, "new_window(): executable: %s, cell=%s, symbol=%d\n", xschem_executable, cell, symbol);
   if (stat(xschem_executable, &buf)) {
     fprintf(errfp, "new_window(): executable not found\n");
     return;
   }
-  fprintf(errfp, "new_window(): feature doesn't exist\n");
+  /* According to Stackoverflow, system should be avoided because it's resource heavy
+  *  and not secure.
+  *  Furthermore, system doesn't spawn a TCL shell with XSchem
+  */
+  /* int result = system(xschem_executable); */
+  STARTUPINFOA si;
+  PROCESS_INFORMATION pi;
+  ZeroMemory(&si, sizeof(si));
+  si.cb = sizeof(si);
+  ZeroMemory(&pi, sizeof(pi));
+  if (!cell || !cell[0]) {
+    if (!symbol)
+      my_snprintf(cmd_line, S(cmd_line), "%s -b -s", xschem_executable);
+    else
+      my_snprintf(cmd_line, S(cmd_line), "%s -b -y", xschem_executable);
+  }
+  else if (!symbol) {
+    my_snprintf(cmd_line, S(cmd_line), "%s -b -s \"%s\"", xschem_executable, cell);
+  }
+  else {
+    my_snprintf(cmd_line, S(cmd_line), "%s -b -y \"%s\"", xschem_executable, cell);
+  }
+
+  CreateProcessA
+  (
+    NULL,               /* the path */
+    cmd_line,           /* Command line */
+    NULL,               /* Process handle not inheritable */
+    NULL,               /* Thread handle not inheritable */
+    FALSE,              /* Set handle inheritance to FALSE */
+    CREATE_NEW_CONSOLE, /* Opens file in a separate console */
+    NULL,               /* Use parent's environment block */
+    NULL,               /* Use parent's starting directory */
+    &si,                /* Pointer to STARTUPINFO structure */
+    &pi                 /* Pointer to PROCESS_INFORMATION structure */
+  );
 }
 #endif
 const char *get_file_path(char *f)
@@ -1579,8 +1615,8 @@ void new_wire(int what, double mx_snap, double my_snap)
 {
   int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
   int s_pnetname;
-  s_pnetname = tclgetboolvar("show_pin_net_names");
   if( (what & PLACE) ) {
+    s_pnetname = tclgetboolvar("show_pin_net_names");
     if( (xctx->ui_state & STARTWIRE) && (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) ) {
       xctx->push_undo();
       if(xctx->manhattan_lines==1) {
@@ -1633,7 +1669,10 @@ void new_wire(int what, double mx_snap, double my_snap)
         if(!big) {
           bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
           int_hash_lookup(xctx->node_redraw_table,  xctx->wire[xctx->wires-1].node, 0, XINSERT_NOREPLACE);
-          find_inst_to_be_redrawn(1);
+        } 
+        if(!big) {
+          find_inst_to_be_redrawn(1 + 4 + 8); /* add bboxes before and after symbol_bbox, don't use selection */
+          find_inst_to_be_redrawn(16); /* delete hash and arrays */
           bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
         }
         draw();

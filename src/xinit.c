@@ -452,12 +452,11 @@ void alloc_xschem_data(const char *top_path)
       xctx->inst_spatial_table[i][j] = NULL;
     }
   }
-  for(i = 0 ; i < HASHSIZE; i++) {
-    xctx->inst_table[i] = NULL;
-    xctx->node_table[i] = NULL;
-    xctx->hilight_table[i] = NULL;
-    xctx->node_redraw_table[i] = NULL; /* move.c */
-  }
+  memset(xctx->inst_table, 0, HASHSIZE * sizeof(struct inst_hashentry *));
+  memset(xctx->node_table, 0, HASHSIZE * sizeof(struct node_hashentry *));
+  memset(xctx->hilight_table, 0, HASHSIZE *sizeof(struct hilight_hashentry *));
+  memset(xctx->node_redraw_table, 0, HASHSIZE * sizeof(struct int_hashentry *));
+  memset(xctx->inst_redraw_table, 0, HASHSIZE * sizeof(unsigned char));
   xctx->window = xctx->save_pixmap = 0;
   xctx->xrect[0].width = xctx->xrect[0].height = xctx->xrect[0].x = xctx->xrect[0].y = 0;
   xctx->xschem_w = xctx->xschem_h = 0;

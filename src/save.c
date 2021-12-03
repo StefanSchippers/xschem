@@ -1345,12 +1345,12 @@ void pop_undo(int redo, int set_modify_status)
   fclose(fd);
   #endif
   dbg(2, "pop_undo(): loaded file:wire=%d inst=%d\n",xctx->wires , xctx->instances);
-  link_symbols_to_instances(-1);
   if(set_modify_status) set_modify(1);
   xctx->prep_hash_inst=0;
   xctx->prep_hash_wires=0;
   xctx->prep_net_structs=0;
   xctx->prep_hi_structs=0;
+  link_symbols_to_instances(-1);
   update_conn_cues(0, 0);
   dbg(2, "pop_undo(): returning\n");
 }

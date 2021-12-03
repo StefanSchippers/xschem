@@ -1396,10 +1396,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='x' && state == 0 )                  /* new cad session */
    {
-    char * tmp;
-    tmp = (char *) tclgetvar("XSCHEM_START_WINDOW");
-    if(tmp && tmp[0]) new_window(abs_sym_path(tmp, "") ,0);
-    else new_window(NULL, 0);
+    new_window(NULL ,0);
     break;
    }
    if((key=='#') && !(state & ControlMask) )

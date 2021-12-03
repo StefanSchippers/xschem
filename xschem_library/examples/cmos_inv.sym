@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {type=subcircuit
 function0="1 ~"
@@ -6,7 +6,7 @@ format="@name @pinlist @symname WN=@WN WP=@WP LLN=@LLN LLP=@LLP m=@m"
 verilog_primitive=true
 verilog_format="assign #80 @@Z = ~ @@A ;"
 template="name=X1 WN=15u WP=45u LLN=3u LLP=3u m=1"
-}
+net_name=true}
 V {}
 S {}
 E {}
@@ -22,3 +22,5 @@ T {@name} -26.25 -5 0 0 0.2 0.2 {}
 T {@symname} -26.25 35 0 0 0.2 0.2 {}
 T {@WP\\/@LLP\\/@m} -16.25 -25 0 0 0.2 0.2 {}
 T {@WN\\/@LLN\\/@m} -16.25 15 0 0 0.2 0.2 {}
+T {@#Z:net_name} 25 7.5 0 0 0.15 0.15 {layer=15}
+T {@#A:net_name} -35 7.5 0 1 0.15 0.15 {layer=15}
