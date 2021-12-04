@@ -284,11 +284,15 @@ void new_window(const char* cell, int symbol)
   ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
   ZeroMemory(&pi, sizeof(pi));
-  if (!cell || !cell[0]) {
-    if (!symbol)
-      my_snprintf(cmd_line, S(cmd_line), "%s -b -s", xschem_executable);
+  /* "detach" (-b) is not processed for Windows, so 
+     use DETACHED_PROCESS in CreateProcessA to not create
+     a TCL shell
+  */
+  if (!cell || !cell[0]) { 
+    if (!symbol) 
+      my_snprintf(cmd_line, S(cmd_line), "%s -b -s --tcl \"set XSCHEM_START_WINDOW {}\"", xschem_executable);
     else
-      my_snprintf(cmd_line, S(cmd_line), "%s -b -y", xschem_executable);
+      my_snprintf(cmd_line, S(cmd_line), "%s -b -y --tcl \"set XSCHEM_START_WINDOW {}\"", xschem_executable);
   }
   else if (!symbol) {
     my_snprintf(cmd_line, S(cmd_line), "%s -b -s \"%s\"", xschem_executable, cell);
@@ -304,7 +308,7 @@ void new_window(const char* cell, int symbol)
     NULL,               /* Process handle not inheritable */
     NULL,               /* Thread handle not inheritable */
     FALSE,              /* Set handle inheritance to FALSE */
-    CREATE_NEW_CONSOLE, /* Opens file in a separate console */
+    DETACHED_PROCESS,   /* Opens file in a separate console */
     NULL,               /* Use parent's environment block */
     NULL,               /* Use parent's starting directory */
     &si,                /* Pointer to STARTUPINFO structure */

@@ -86,8 +86,9 @@ int main(int argc, char **argv)
     fprintf(errfp, "main(): no DISPLAY set, assuming no X available\n");
 
 /* detach from console (fork a child and close std file descriptors) */
-#ifdef __unix__
+
   if(detach) {
+#ifdef __unix__
     pid_t pid = fork();
     if(pid < 0) {
       fprintf(errfp, "main(): fork() failed\n");
@@ -106,8 +107,8 @@ int main(int argc, char **argv)
       /* terminate parent */
       exit(0);
     }
-  }
 #endif
+  }
 
   if(has_x) Tk_Main(1, argv, Tcl_AppInit);
   else     Tcl_Main(1, argv, Tcl_AppInit);

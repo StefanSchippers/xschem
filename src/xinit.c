@@ -1831,6 +1831,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
    char * tmp;
    char filename[PATH_MAX];
    tmp = (char *) tclgetvar("XSCHEM_START_WINDOW");
+#ifndef __unix__
+   change_to_unix_fn(tmp);
+#endif
    dbg(1, "Tcl_AppInit(): tmp=%s\n", tmp? tmp: "NULL");
    my_strncpy(filename, abs_sym_path(tmp, ""), S(filename));
     /* if do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
@@ -1924,11 +1927,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* */
 
 
- if(
-#ifdef __unix__
-    !detach &&
-#endif
-    !no_readline) {
+ if(!detach && !no_readline) {
    tcleval( "if {![catch {package require tclreadline}]} "
      "{::tclreadline::readline builtincompleter 0;"
      /*  "::tclreadline::readline customcompleter completer;" */
