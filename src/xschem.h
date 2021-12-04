@@ -637,7 +637,8 @@ typedef struct {
   /* list of nodes, instances attached to these need redraw */
   struct int_hashentry *node_redraw_table[HASHSIZE];
   /* list of instances, collected using previous table, that need redraw */
-  unsigned char inst_redraw_table[HASHSIZE];
+  unsigned char *inst_redraw_table;
+  int inst_redraw_table_size;
   double rx1, rx2, ry1, ry2;
   short move_rot;
   short move_flip;

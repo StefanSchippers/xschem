@@ -367,6 +367,7 @@ void free_xschem_data()
   my_free(1121, &xctx->active_layer);
   my_free(1295, &xctx->top_path);
   my_free(1120, &xctx->fill_type);
+  if(xctx->inst_redraw_table) my_free(604, &xctx->inst_redraw_table);
   my_free(269, &xctx);
 }
 
@@ -456,7 +457,8 @@ void alloc_xschem_data(const char *top_path)
   memset(xctx->node_table, 0, HASHSIZE * sizeof(struct node_hashentry *));
   memset(xctx->hilight_table, 0, HASHSIZE *sizeof(struct hilight_hashentry *));
   memset(xctx->node_redraw_table, 0, HASHSIZE * sizeof(struct int_hashentry *));
-  memset(xctx->inst_redraw_table, 0, HASHSIZE * sizeof(unsigned char));
+  xctx->inst_redraw_table = NULL;
+  xctx->inst_redraw_table_size = 0;
   xctx->window = xctx->save_pixmap = 0;
   xctx->xrect[0].width = xctx->xrect[0].height = xctx->xrect[0].x = xctx->xrect[0].y = 0;
   xctx->xschem_w = xctx->xschem_h = 0;

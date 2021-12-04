@@ -487,11 +487,13 @@ void find_inst_to_be_redrawn(int what)
   int i, n, p, rects;
   xSymbol * sym;
   xInstance * const inst = xctx->inst;
+
   int s_pnetname = tclgetboolvar("show_pin_net_names");
 
   dbg(1,"find_inst_to_be_redrawn(): what=%d\n", what);
   if(what & 16) {
-    memset(xctx->inst_redraw_table, 0, HASHSIZE * sizeof(unsigned char));
+    my_free(1202, &xctx->inst_redraw_table);
+    xctx->inst_redraw_table_size = 0;
     int_hash_free(xctx->node_redraw_table);
     return;
   }
@@ -521,6 +523,10 @@ void find_inst_to_be_redrawn(int what)
       }
     } /* if(!(what & 8)) */
   
+    if(!xctx->inst_redraw_table || xctx->instances > xctx->inst_redraw_table_size) {
+      my_realloc(1203, &xctx->inst_redraw_table, xctx->instances * sizeof(unsigned char));
+      xctx->inst_redraw_table_size = xctx->instances;
+    }
     for(i=0; i < xctx->instances; i++) {
       sym = xctx->inst[i].ptr + xctx->sym;
       rects = sym->rects[PINLAYER];
