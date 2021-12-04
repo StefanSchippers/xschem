@@ -1089,6 +1089,37 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      my_snprintf(res, S(res), "need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr); Tcl_AppendResult(interp, res, NULL);
      my_snprintf(res, S(res), "undo_type=%d\n", xctx->undo_type); Tcl_AppendResult(interp, res, NULL);
      my_snprintf(res, S(res), "******* end global variables:*******\n"); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "******* Compile options:*******\n"); Tcl_AppendResult(interp, res, NULL);
+     #ifdef HAS_DUP2
+     my_snprintf(res, S(res), "HAS_DUP2=%d\n", HAS_DUP2); Tcl_AppendResult(interp, res, NULL); 
+     #endif
+     #ifdef HAS_PIPE
+     my_snprintf(res, S(res), "HAS_PIPE=%d\n", HAS_PIPE); Tcl_AppendResult(interp, res, NULL); 
+     #endif
+     #ifdef HAS_POPEN
+     my_snprintf(res, S(res), "HAS_POPEN=%d\n", HAS_POPEN); Tcl_AppendResult(interp, res, NULL); 
+     #endif
+     #ifdef HAS_XRENDER
+     my_snprintf(res, S(res), "HAS_XRENDER=%d\n", HAS_XRENDER); Tcl_AppendResult(interp, res, NULL); 
+     #endif
+     #ifdef HAS_CAIRO
+     my_snprintf(res, S(res), "HAS_CAIRO=%d\n", HAS_CAIRO); Tcl_AppendResult(interp, res, NULL); 
+     #endif
+     #ifdef HAS_XCB
+     my_snprintf(res, S(res), "HAS_XCB=%d\n", HAS_XCB); Tcl_AppendResult(interp, res, NULL); 
+     #endif
+     #ifdef XSCHEM_SHAREDIR
+     my_snprintf(res, S(res), "XSCHEM_SHAREDIR=%s\n", XSCHEM_SHAREDIR); Tcl_AppendResult(interp, res, NULL); 
+     #endif
+     #ifdef PREFIX
+     my_snprintf(res, S(res), "PREFIX=%s\n", PREFIX); Tcl_AppendResult(interp, res, NULL); 
+     #endif
+     #ifdef USER_CONF_DIR
+     my_snprintf(res, S(res), "USER_CONF_DIR=%s\n", USER_CONF_DIR); Tcl_AppendResult(interp, res, NULL); 
+     #endif
+     #ifdef XSCHEM_LIBRARY_PATH
+     my_snprintf(res, S(res), "XSCHEM_LIBRARY_PATH=%s\n", XSCHEM_LIBRARY_PATH); Tcl_AppendResult(interp, res, NULL); 
+     #endif
     }
    
     else if(!strcmp(argv[1],"go_back"))

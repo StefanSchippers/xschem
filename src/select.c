@@ -329,7 +329,9 @@ void delete(int to_push_undo)
   if(to_push_undo && xctx->lastsel) xctx->push_undo();
   /* first calculate bbox, because symbol_bbox() needs translate (@#0:net_name) which
    *  needs prepare_netlist_structs which needs a consistent xctx->inst[] data structure */
-  find_inst_to_be_redrawn(1 + 32); /* 32: call prepare_netlist_structs(0) */
+  find_inst_to_be_redrawn(1 + 4 + 32); /* 32: call prepare_netlist_structs(0) if show net names enabled
+                                        *  4: call symbol_bbox() to precisely update bbox to current zoom level
+                                        */
   for(i=0;i<xctx->texts;i++)
   {
     if(xctx->text[i].sel == SELECTED)
@@ -434,8 +436,11 @@ void delete(int to_push_undo)
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
 
-  prepare_netlist_structs(0);
-  find_inst_to_be_redrawn(2 + 4 + 8);
+  find_inst_to_be_redrawn(2 + 8 + 32); /* 32: call prepare_netlist_structs(0)
+                                        *  2: add previously built list
+                                        *  4: call symbol_bbox to precisely update bboxes <<< needed?
+                                        *  8: do not iterate over selection (there is no more selection, deleted)
+                                        */
   find_inst_to_be_redrawn(16); /* clear data */
   xctx->lastsel = 0;
   bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
