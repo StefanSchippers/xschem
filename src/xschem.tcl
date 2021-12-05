@@ -39,63 +39,62 @@ proc set_ne { var val } {
 ###
 # execute service function
 proc execute_fileevent {id} {
-  global execute_pipe execute_data execute_cmd
-  global execute_status execute_callback
-  append execute_data($id) [read $execute_pipe($id) 1024]
-  if {[eof $execute_pipe($id)]} {
-      fileevent $execute_pipe($id) readable ""
+  global execute
+  append execute(data,$id) [read $execute(pipe,$id) 1024]
+  if {[eof $execute(pipe,$id)]} {
+      fileevent $execute(pipe,$id) readable ""
       # setting pipe to blocking before closing allows to see if pipeline failed
       # do not ask status for processes that close stdout/stderr, as eof might
       # occur before process ends and following close blocks until process terminates.
-      fconfigure $execute_pipe($id) -blocking 1
+      fconfigure $execute(pipe,$id) -blocking 1
       set status 0
 
       if  { [ info tclversion]  > 8.4} {
-         set catch_return [eval catch [ list {close $execute_pipe($id)} err options] ]
+         set catch_return [eval catch [ list {close $execute(pipe,$id)} err options] ]
       } else {
-         set catch_return [eval catch [ list {close $execute_pipe($id)} err] ]
+         set catch_return [eval catch [ list {close $execute(pipe,$id)} err] ]
       }
       if {$catch_return} {
         if  { [ info tclversion] > 8.4} {
           set details [dict get $options -errorcode]
           if {[lindex $details 0] eq "CHILDSTATUS"} {
               set status [lindex $details 2]
-              viewdata "Failed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
+              viewdata "Failed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)" ro
           } else {
             set status 1
-            if {$execute_status($id) } {
-              viewdata "Completed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
+            if {$execute(status,$id) } {
+              viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)" ro
             }
           }
         } else {
             set status 1
-            if {$execute_status($id) } {
-              viewdata "Completed: $execute_cmd($id)\nstderr:\n$err\ndata:\n$execute_data($id)" ro
+            if {$execute(status,$id) } {
+              viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)" ro
             }
         }
       }
       if { $status == 0 } {
-        if {$execute_status($id) } {
-          viewdata "Completed: $execute_cmd($id)\ndata:\n$execute_data($id)" ro
+        if {$execute(status,$id) } {
+          viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)" ro
         }
       }
-      if { [info exists execute_callback($id)] } { eval $execute_callback($id); unset execute_callback($id) } 
-      unset execute_pipe($id)
-      unset execute_data($id)
-      unset execute_status($id)
-      unset execute_cmd($id)
+      if { [info exists execute(callback,$id)] } { eval $execute(callback,$id); unset execute(callback,$id) } 
+      unset execute(pipe,$id)
+      unset execute(data,$id)
+      unset execute(status,$id)
+      unset execute(cmd,$id)
   }
 }
 
 
 proc execute_wait {status args} {
-  global execute_pipe 
+  global execute 
   set id [eval execute $status $args]
   if {$id == -1} {
     return -1
   }
   xschem set semaphore [expr {[xschem get semaphore] +1}]
-  vwait execute_pipe($id)
+  vwait execute(pipe,$id)
   xschem set semaphore [expr {[xschem get semaphore] -1}]
   return $id
 }
@@ -104,16 +103,17 @@ proc execute_wait {status args} {
 # responding, so widgets get updated properly
 # while waiting for process to end.
 proc execute {status args} {
-  global execute_id execute_status
-  global execute_data has_x
-  global execute_cmd
-  global execute_pipe
-  if {![info exists execute_id]} {
-      set execute_id 0
+  global execute has_x
+  if {![info exists execute(id)]} {
+      set execute(id) 0
   } else {
-      incr execute_id
+      incr execute(id)
   }
-  set id $execute_id
+  set id $execute(id)
+  if { [info exists execute(callback)] } {
+    set execute(callback,$id) $execute(callback)
+    unset execute(callback)
+  }
   if { [catch {open "|$args" r} err] } {
     puts stderr "Proc execute error: $err"
     if { [info exists has_x]} {
@@ -124,10 +124,10 @@ proc execute {status args} {
   } else {
     set pipe $err
   }
-  set execute_status($id) $status
-  set execute_pipe($id) $pipe
-  set execute_cmd($id) $args
-  set execute_data($id) ""
+  set execute(status,$id) $status
+  set execute(pipe,$id) $pipe
+  set execute(cmd,$id) $args
+  set execute(data,$id) ""
   fconfigure $pipe -blocking 0
   fileevent $pipe readable "execute_fileevent $id"
   return $id
@@ -927,7 +927,7 @@ proc simulate {{callback {}}} {
   ## $d : netlist directory
 
   global netlist_dir computerfarm terminal sim
-  global execute_callback XSCHEM_SHAREDIR has_x OS
+  global execute XSCHEM_SHAREDIR has_x OS
 
   simuldir 
   set_sim_defaults
@@ -961,11 +961,8 @@ proc simulate {{callback {}}} {
       # $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
       eval exec $cmd
     } else {
-      set id [$fg $st sh -c "cd $netlist_dir; $cmd"]
-      set execute_callback($id) $callback
-      if {$fg eq {execute_wait}} { 
-        eval $execute_callback($id); unset execute_callback($id) 
-      }
+      set execute(callback) $callback
+      $fg $st sh -c "cd $netlist_dir; $cmd"
     }
   }
 }
@@ -3645,7 +3642,6 @@ proc no_open_dialogs {} {
 ## EXCEPTIONS, not to be saved/restored:
 ## "textwindow_wcounter" should be kept global as it is the number of open textwindows
 ## "viewdata_wcounter" should be kept global as it is the number of open viewdatas
-## "execute_id", global is incremented on spawned subprocesses.
 
 set tctx::global_list {
   auto_hilight autotrim_wires bespice_listen_port big_grid_points bus_replacement_char
@@ -3672,7 +3668,7 @@ set tctx::global_list {
 
 ## list of global arrays to save/restore on context switching
 ## EXCEPTIONS, not to be saved/restored:
-## execute_pipe execute_data execute_status execute_cmd
+## execute
 set tctx::global_array_list {
   dircolor sim enable_layer
 }
