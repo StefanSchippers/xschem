@@ -36,7 +36,7 @@ void statusmsg(char str[],int n)
     tcleval("infowindow");
   }
   else {
-    Tcl_VarEval(interp, xctx->top_path, ".statusbar.1 configure -text $infowindow_text", NULL);
+    tclvareval(xctx->top_path, ".statusbar.1 configure -text $infowindow_text", NULL);
     dbg(3, "statusmsg(str, %d): -> $infowindow_text = %s\n", n, tclgetvar("infowindow_text"));
   }
 }
@@ -455,8 +455,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(has_x) {
           char *top_path;
           top_path =  xctx->top_path[0] ? xctx->top_path : ".";
-          Tcl_VarEval(interp, "wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
-          Tcl_VarEval(interp, "wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
+          tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
+          tclvareval("wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
         }
       }
       Tcl_ResetResult(interp);
@@ -636,7 +636,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         else tcleval("exit"); /* if has_x == 0 there are no additional windows to close */
       } else {
-        Tcl_VarEval(interp, "xschem new_schematic destroy ", top_path, " ", xctx->top_path, ".drw {}" , NULL);
+        tclvareval("xschem new_schematic destroy ", top_path, " ", xctx->top_path, ".drw {}" , NULL);
       }
       Tcl_ResetResult(interp);
     }
@@ -1120,6 +1120,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      #ifdef XSCHEM_LIBRARY_PATH
      my_snprintf(res, S(res), "XSCHEM_LIBRARY_PATH=%s\n", XSCHEM_LIBRARY_PATH); Tcl_AppendResult(interp, res, NULL); 
      #endif
+     #ifdef HAS_SNPRINTF
+     my_snprintf(res, S(res), "HAS_SNPRINTF=%s\n", HAS_SNPRINTF); Tcl_AppendResult(interp, res, NULL); 
+     #endif
     }
    
     else if(!strcmp(argv[1],"go_back"))
@@ -1474,7 +1477,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           unselect_all();
           remove_symbols();
           load_schematic(1, abs_sym_path(argv[2], ""), 1);
-          Tcl_VarEval(interp, "update_recent_file {", abs_sym_path(argv[2], ""), "}", NULL);
+          tclvareval("update_recent_file {", abs_sym_path(argv[2], ""), "}", NULL);
           my_strdup(375, &xctx->sch_path[xctx->currsch],".");
           xctx->sch_path_hash[xctx->currsch] = 0;
           xctx->sch_inst_number[xctx->currsch] = 1;
@@ -1497,8 +1500,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_snprintf(fullname, S(fullname),"%s", tclresult());
       }
       if( fullname[0] ) {
-       Tcl_VarEval(interp, "new_window create {", fullname, "}", NULL);
-       Tcl_VarEval(interp, "update_recent_file {", fullname, "}", NULL);
+       tclvareval("new_window create {", fullname, "}", NULL);
+       tclvareval("update_recent_file {", fullname, "}", NULL);
       }
     }
    
@@ -1736,7 +1739,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xctx->last_command = 0;
         rebuild_selected_array();
         if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
-          Tcl_VarEval(interp, "set INITIALINSTDIR [file dirname {",
+          tclvareval("set INITIALINSTDIR [file dirname {",
              abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
         } 
         ret = place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
@@ -1799,7 +1802,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         return TCL_ERROR;
       }
       if(argc >= 4) {
-        Tcl_VarEval(interp, "file normalize {", argv[3], "}", NULL);
+        tclvareval("file normalize {", argv[3], "}", NULL);
         my_strncpy(xctx->plotfile, Tcl_GetStringResult(interp), S(xctx->plotfile));
       }
 
@@ -2793,4 +2796,22 @@ void tclsetboolvar(const char *s, const int value)
   }
 }
 
+/* Replacement for Tcl_VarEval, which despite being very useful is deprecated */
+int tclvareval(const char *script, ...)
+{
+  char *str = NULL;
+  int return_code;
+  size_t size;
+  const char *p;
+  va_list args;
 
+  va_start(args, script);
+  size = my_strcat(1379, &str, script);
+  while( (p = va_arg(args, const char *)) ) {
+    size = my_strcat(1380, &str, p);
+  }
+  return_code = Tcl_EvalEx(interp, str, size, TCL_EVAL_GLOBAL);
+  va_end(args);
+  my_free(1381, &p);
+  return return_code;
+}

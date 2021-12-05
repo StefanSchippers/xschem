@@ -981,13 +981,13 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   dbg(1, "save_schematic(): abs_sym_path=%s\n", abs_sym_path(xctx->sch[xctx->currsch], ""));
   my_strncpy(name, xctx->sch[xctx->currsch], S(name));
   if(has_x) {
-    Tcl_VarEval(interp, "wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
-    Tcl_VarEval(interp, "wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
+    tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
+    tclvareval("wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
   }
 
   if(!stat(name, &buf)) {
     if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
-      Tcl_VarEval(interp, "ask_save \"Schematic file: ", name,
+      tclvareval("ask_save \"Schematic file: ", name,
           "\nHas been changed since opening.\nSave anyway?\" 0", NULL);
       if(strcmp(tclresult(), "yes") ) return 0;
     }
@@ -1102,7 +1102,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       dbg(2, "load_schematic(): loaded file:wire=%d inst=%d\n",xctx->wires , xctx->instances);
       if(load_symbols) link_symbols_to_instances(-1);
       if(reset_undo) {
-        Tcl_VarEval(interp, "is_xschem_file {", xctx->sch[xctx->currsch], "}", NULL);
+        tclvareval("is_xschem_file {", xctx->sch[xctx->currsch], "}", NULL);
         if(!strcmp(tclresult(), "SYMBOL")) {
           xctx->save_netlist_type = xctx->netlist_type;
           xctx->netlist_type = CAD_SYMBOL_ATTRS;
@@ -1211,7 +1211,7 @@ void push_undo(void)
       if(!(diff_fd=freopen(diff_name,"w", stdout)))     /* redirect stdout to file diff_name */
       {
         dbg(1, "push_undo(): problems opening file %s \n",diff_name);
-        Tcl_Eval(interp, "exit");
+        tcleval("exit");
       }
 
       /* the following 2 statements are a replacement for dup2() which is not c89
@@ -1226,7 +1226,7 @@ void push_undo(void)
       execlp("gzip", "gzip", "--fast", "-c", NULL);       /* replace current process with comand */
       /* never gets here */
       fprintf(errfp, "push_undo(): problems with execlp\n");
-      Tcl_Eval(interp, "exit");
+      tcleval("exit");
     }
     close(pd[0]);                                       /* close read side of pipe */
     fd=fdopen(pd[1],"w");
@@ -1311,7 +1311,7 @@ void pop_undo(int redo, int set_modify_status)
     if(!(diff_fd=freopen(diff_name,"r", stdin)))     /* redirect stdin from file name */
     {
       dbg(1, "pop_undo(): problems opening file %s \n",diff_name);
-      Tcl_Eval(interp, "exit");
+      tcleval("exit");
     }
     /* connect write side of pipe to stdout */
     #if HAS_DUP2
@@ -1323,7 +1323,7 @@ void pop_undo(int redo, int set_modify_status)
     execlp("gzip", "gzip", "-d", "-c", NULL);       /* replace current process with command */
     /* never gets here */
     dbg(1, "pop_undo(): problems with execlp\n");
-    Tcl_Eval(interp, "exit");
+    tcleval("exit");
   }
   close(pd[1]);                                       /* close write side of pipe */
   fd=fdopen(pd[0],"r");
@@ -2290,7 +2290,7 @@ void create_sch_from_sym(void)
       my_strncpy(schname, add_ext(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), ".sch"), S(schname));
     }
     if( !stat(schname, &buf) ) {
-      Tcl_VarEval(interp, "ask_save \"Create schematic file: ", schname,
+      tclvareval("ask_save \"Create schematic file: ", schname,
           "?\nWARNING: This schematic file already exists, it will be overwritten\"", NULL);
       if(strcmp(tclresult(), "yes") ) {
         return;

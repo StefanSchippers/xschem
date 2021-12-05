@@ -41,11 +41,11 @@ void set_modify(int mod)
     xctx->prev_set_modify = mod;
     if(has_x && strcmp(get_cell(xctx->sch[xctx->currsch],1), "systemlib/font")) {
       if(mod == 1) {
-        Tcl_VarEval(interp, "wm title ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
-        Tcl_VarEval(interp, "wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
+        tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
+        tclvareval("wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
       } else {
-        Tcl_VarEval(interp, "wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
-        Tcl_VarEval(interp, "wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
+        tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
+        tclvareval("wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
       }
     }
   }
@@ -120,9 +120,9 @@ void set_snap(double newsnap) /*  20161212 set new snap factor and just notify n
     }
     cs = newsnap ? newsnap : default_snap;
     if(cs == default_snap) {
-      Tcl_VarEval(interp, xctx->top_path, ".statusbar.3 configure -background PaleGreen", NULL);
+      tclvareval(xctx->top_path, ".statusbar.3 configure -background PaleGreen", NULL);
     } else {
-      Tcl_VarEval(interp, xctx->top_path, ".statusbar.3 configure -background OrangeRed", NULL);
+      tclvareval(xctx->top_path, ".statusbar.3 configure -background OrangeRed", NULL);
     }
     tclsetdoublevar("cadsnap", cs);
 }
@@ -140,9 +140,9 @@ void set_grid(double newgrid)
     cg = newgrid ? newgrid : default_grid;
     dbg(1, "set_grid(): default_grid = %.16g, cadgrid=%.16g\n", default_grid, cg);
     if(cg == default_grid) {
-      Tcl_VarEval(interp, xctx->top_path, ".statusbar.5 configure -background PaleGreen", NULL);
+      tclvareval(xctx->top_path, ".statusbar.5 configure -background PaleGreen", NULL);
     } else {
-      Tcl_VarEval(interp, xctx->top_path, ".statusbar.5 configure -background OrangeRed", NULL);
+      tclvareval(xctx->top_path, ".statusbar.5 configure -background OrangeRed", NULL);
     }
     tclsetdoublevar("cadgrid", cg);
 }
@@ -389,7 +389,7 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
     if(!res[0]) return;
     dbg(1, "saveas(): res = %s\n", res);
     save_schematic(res);
-    Tcl_VarEval(interp, "update_recent_file {", res,"}",  NULL);
+    tclvareval("update_recent_file {", res,"}",  NULL);
 
     my_strncpy(xctx->current_name, rel_sym_path(res), S(xctx->current_name));
     return;
@@ -415,7 +415,7 @@ void ask_new_file(void)
      unselect_all();
      remove_symbols();
      load_schematic(1, fullname,1); /* 20180925.1 */
-     Tcl_VarEval(interp, "update_recent_file {", fullname, "}", NULL);
+     tclvareval("update_recent_file {", fullname, "}", NULL);
      my_strdup(1, &xctx->sch_path[xctx->currsch],".");
      xctx->sch_path_hash[xctx->currsch] = 0;
      xctx->sch_inst_number[xctx->currsch] = 1;
@@ -983,7 +983,7 @@ void launcher(void)
     url = get_tok_value(xctx->inst[n].prop_ptr,"url",0); /* handle backslashes */
     dbg(1, "launcher(): url=%s\n", url);
     if(url[0] || (program[0])) { /* open url with appropriate program */
-      Tcl_VarEval(interp, "launcher {", url, "} {", program, "}", NULL);
+      tclvareval("launcher {", url, "} {", program, "}", NULL);
     } else {
       my_strncpy(program, get_tok_value(xctx->inst[n].prop_ptr,"tclcommand",0), S(program));
       if(program[0]) { /* execute tcl command */
@@ -1071,7 +1071,7 @@ void descend_schematic(int instnumber)
 
     if(instnumber <= 0 ) {
       const char *inum;
-      Tcl_VarEval(interp, "input_line ", "{input instance number (leftmost = 1) to descend into:\n"
+      tclvareval("input_line ", "{input instance number (leftmost = 1) to descend into:\n"
         "negative numbers select instance starting\nfrom the right (rightmost = -1)}"
         " {} 1 6", NULL);
       inum = tclresult();

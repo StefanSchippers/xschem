@@ -167,7 +167,7 @@ void windowid(const char *winpath)
   framewindow_nchildren =0;
   mainwindow=Tk_MainWindow(interp);
   display = Tk_Display(mainwindow);
-  Tcl_VarEval(interp, "winfo id ", winpath, NULL);
+  tclvareval("winfo id ", winpath, NULL);
   sscanf(tclresult(), "0x%x", (unsigned int *) &ww);
   framewin = ww;
   XQueryTree(display, framewin, &rootwindow, &parent_of_topwindow, &framewin_child_ptr, &framewindow_nchildren);
@@ -792,7 +792,7 @@ void toggle_fullscreen(const char *topwin)
     tcleval( "winfo id .");
     sscanf(tclresult(), "0x%x", (unsigned int *) &topwin_id);
   } else {
-    Tcl_VarEval(interp, "winfo id ", xctx->top_path, NULL);
+    tclvareval("winfo id ", xctx->top_path, NULL);
     sscanf(tclresult(), "0x%x", (unsigned int *) &topwin_id);
   }
   XQueryTree(display, topwin_id, &rootwindow, &parent_id, &framewin_child_ptr, &framewindow_nchildren);
@@ -804,11 +804,11 @@ void toggle_fullscreen(const char *topwin)
 
   dbg(1, "toggle_fullscreen(): fullscreen=%d\n", fs);
   if(fs==2) {
-    Tcl_VarEval(interp, "pack forget ", xctx->top_path, ".menubar ", xctx->top_path, ".statusbar; update", NULL);
+    tclvareval("pack forget ", xctx->top_path, ".menubar ", xctx->top_path, ".statusbar; update", NULL);
     xctx->menu_removed = 1;
   }
   if(fs !=2 && xctx->menu_removed) {
-    Tcl_VarEval(interp, "pack ", xctx->top_path,
+    tclvareval("pack ", xctx->top_path,
        ".menubar -anchor n -side top -fill x  -before ", xctx->top_path, ".drw; pack ",
        xctx->top_path, ".statusbar -after ", xctx->top_path, ".drw -anchor sw  -fill x; update", NULL);
     xctx->menu_removed=0;
@@ -1024,12 +1024,12 @@ void new_schematic(const char *what, const char *top_path, const char *tk_win_pa
           xctx = save_xctx[n];
           delete_schematic_data();
           save_xctx[n] = NULL;
-          Tcl_VarEval(interp, "winfo toplevel ", tk_win_path, NULL);
+          tclvareval("winfo toplevel ", tk_win_path, NULL);
           Tk_DestroyWindow(tknew_window[n]);
-          Tcl_VarEval(interp, "destroy ", tclresult(), NULL);
+          tclvareval("destroy ", tclresult(), NULL);
           tknew_window[n] = NULL;
           /* delete Tcl context of deleted schematic window */
-          Tcl_VarEval(interp, "delete_ctx ", tk_win_path, "; incr tctx::cnt -1", NULL);
+          tclvareval("delete_ctx ", tk_win_path, "; incr tctx::cnt -1", NULL);
           cnt--;
         }
       }
@@ -1567,9 +1567,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
  cadlayers=atoi(tclgetvar("cadlayers"));
  if(debug_var==-10) debug_var=0;
  my_snprintf(tmp, S(tmp), "%.16g",CADGRID);
- Tcl_VarEval(interp, "set_ne cadgrid ", tmp, NULL);
+ tclvareval("set_ne cadgrid ", tmp, NULL);
  my_snprintf(tmp, S(tmp), "%.16g",CADSNAP);
- Tcl_VarEval(interp, "set_ne cadsnap ", tmp, NULL);
+ tclvareval("set_ne cadsnap ", tmp, NULL);
  cairo_vert_correct = tclgetdoublevar("cairo_vert_correct");
  nocairo_vert_correct = tclgetdoublevar("nocairo_vert_correct");
  cairo_font_scale = tclgetdoublevar("cairo_font_scale");
@@ -1826,7 +1826,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    /* if do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
       to tcl is_xschem_file that could change xctx->netlist_type to symbol */
    load_schematic(1, f, !do_netlist);
-   Tcl_VarEval(interp, "update_recent_file {", f, "}", NULL);
+   tclvareval("update_recent_file {", f, "}", NULL);
  } else if(!tcl_script[0]) {
    char * tmp;
    char filename[PATH_MAX];
@@ -1915,7 +1915,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  /* source tcl file given on command line with --script */
  if(tcl_script[0]) {
-   Tcl_VarEval(interp, "update; source {", tcl_script, "}", NULL);
+   tclvareval("update; source {", tcl_script, "}", NULL);
  }
 
  if(quit) {

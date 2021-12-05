@@ -564,12 +564,12 @@ void svg_draw(void)
   
   if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
   if(!xctx->plotfile[0]) {
-    Tcl_VarEval(interp, "tk_getSaveFile -title {Select destination file} -initialfile {",
+    tclvareval("tk_getSaveFile -title {Select destination file} -initialfile {",
       get_cell(xctx->sch[xctx->currsch], 0) , ".svg} -initialdir {", lastdir, "}", NULL);
     r = tclresult();
     if(r[0]) {
       my_strncpy(xctx->plotfile, r, S(xctx->plotfile));
-      Tcl_VarEval(interp, "file dirname {", xctx->plotfile, "}", NULL);
+      tclvareval("file dirname {", xctx->plotfile, "}", NULL);
       my_strncpy(lastdir, tclresult(), S(lastdir));
     }
     else return;

@@ -1113,6 +1113,7 @@ extern void tclsetvar(const char *s, const char *value);
 extern void tclsetdoublevar(const char *s, const double value);
 extern void tclsetboolvar(const char *s, const int value);
 extern void tclsetintvar(const char *s, const int value);
+extern int tclvareval(const char *script, ...);
 extern const char *tcl_hook2(char **res);
 extern void statusmsg(char str[],int n);
 extern int place_text(int draw_text, double mx, double my);

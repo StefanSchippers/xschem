@@ -152,7 +152,7 @@ const char *tcl_hook2(char **res)
     return empty;
   }
   if(strstr(*res, "tcleval(") == *res) {
-    Tcl_VarEval(interp, "tclpropeval2 {", *res, "}" , NULL);
+    tclvareval("tclpropeval2 {", *res, "}" , NULL);
     my_strdup2(1286, &result, tclresult());
     return result;
   } else {

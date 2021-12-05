@@ -312,7 +312,7 @@ void create_plot_cmd(void)
           my_strdup(1273, &t, tok);
           my_strdup2(1274, &p, (entry->path)+1);
           if(simtype == 0 ) { /* spice */
-            Tcl_VarEval(interp, "puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t),
+            tclvareval("puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t),
                         ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
           } else { /* Xyce */
             char *c=p;
@@ -320,7 +320,7 @@ void create_plot_cmd(void)
               if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
               c++;
             }
-            Tcl_VarEval(interp, "puts $gaw_fd {copyvar ", strtoupper(p), strtoupper(t),
+            tclvareval("puts $gaw_fd {copyvar ", strtoupper(p), strtoupper(t),
                         " sel #", color_str, "}\nvwait gaw_fd\n", NULL);
           }
           my_free(1275, &p);
@@ -334,7 +334,7 @@ void create_plot_cmd(void)
           my_strdup2(245, &p, (entry->path)+1);
 
           if(simtype == 0 ) { /* spice */
-            Tcl_VarEval(interp,
+            tclvareval(
               "puts $bespice_server_getdata(sock) ",
               "{set_curve_style \"",
               rawfile,
@@ -342,7 +342,7 @@ void create_plot_cmd(void)
               ")\" \"solid_line\" \"no symbol\" 1 ",
               color_str, "}",
               NULL);
-            Tcl_VarEval(interp,
+            tclvareval(
               "puts $bespice_server_getdata(sock) ",
               "{add_curve_to_plot \"", rawfile, "\" \"v(", strtolower(p), strtolower(t),
               ")\" \"\"}",
@@ -353,7 +353,7 @@ void create_plot_cmd(void)
               if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
               c++;
             }
-            Tcl_VarEval(interp,
+            tclvareval(
               "puts $bespice_server_getdata(sock) ",
               "{set_curve_style \"",
               rawfile,
@@ -361,7 +361,7 @@ void create_plot_cmd(void)
               "\" \"solid_line\" \"no symbol\" 1 ",
               color_str, "}",
               NULL);
-            Tcl_VarEval(interp,
+            tclvareval(
               "puts $bespice_server_getdata(sock) ",
               "{add_curve_to_plot \"", rawfile, "\" \"", strtoupper(p), strtoupper(t),
               "\" \"\"}",
@@ -858,7 +858,7 @@ static void send_net_to_bespice(int simtype, const char *node)
       my_strdup(1277, &t, find_nth(expanded_tok, ',', k));
       my_strdup2(1278, &p, xctx->sch_path[xctx->currsch]+1);
       if(simtype == 0 ) { /* spice */
-        Tcl_VarEval(interp, 
+        tclvareval(
           "puts $bespice_server_getdata(sock) ",
           "{set_curve_style \"",
           rawfile,
@@ -866,7 +866,7 @@ static void send_net_to_bespice(int simtype, const char *node)
           ")\" \"solid_line\" \"no symbol\" 1 ", 
           color_str, "}",
           NULL);
-        Tcl_VarEval(interp, 
+        tclvareval(
           "puts $bespice_server_getdata(sock) ",
           "{add_curve_to_plot \"", rawfile, "\" \"v(", strtolower(p), strtolower(t),
           ")\" \"\"}", 
@@ -877,7 +877,7 @@ static void send_net_to_bespice(int simtype, const char *node)
           if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
           c++;
         }
-        Tcl_VarEval(interp, 
+        tclvareval(
           "puts $bespice_server_getdata(sock) ",
           "{set_curve_style \"",
           rawfile,
@@ -885,7 +885,7 @@ static void send_net_to_bespice(int simtype, const char *node)
           "\" \"solid_line\" \"no symbol\" 1 ",
           color_str, "}",
           NULL);
-        Tcl_VarEval(interp, 
+        tclvareval(
           "puts $bespice_server_getdata(sock) ",
           "{add_curve_to_plot \"", rawfile, "\" \"", strtoupper(p), strtoupper(t),
           "\" \"\"}", 
@@ -920,7 +920,7 @@ static void send_net_to_gaw(int simtype, const char *node)
       my_strdup(246, &t, find_nth(expanded_tok, ',', k));
       my_strdup2(254, &p, xctx->sch_path[xctx->currsch]+1);
       if(simtype == 0 ) { /* spice */
-        Tcl_VarEval(interp, "puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t),
+        tclvareval("puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t),
                     ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
       } else { /* Xyce */
         char *c=p;
@@ -928,7 +928,7 @@ static void send_net_to_gaw(int simtype, const char *node)
           if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
           c++;
         }
-        Tcl_VarEval(interp, "puts $gaw_fd {copyvar ", strtoupper(p), strtoupper(t),
+        tclvareval("puts $gaw_fd {copyvar ", strtoupper(p), strtoupper(t),
                     " sel #", color_str, "}\nvwait gaw_fd\n", NULL);
       }
     }
@@ -960,7 +960,7 @@ static void send_current_to_bespice(int simtype, const char *node)
     my_strdup(1281, &t, find_nth(expanded_tok, ',', k));
     my_strdup2(1282, &p, xctx->sch_path[xctx->currsch]+1);
     if(!simtype) { /* spice */
-      Tcl_VarEval(interp,
+      tclvareval(
         "puts $bespice_server_getdata(sock) ",
         "{set_curve_style \"",
         rawfile,
@@ -969,7 +969,7 @@ static void send_current_to_bespice(int simtype, const char *node)
         ")\" \"solid_line\" \"no symbol\" 1 ",
         color_str, "}",
         NULL);
-      Tcl_VarEval(interp,
+      tclvareval(
         "puts $bespice_server_getdata(sock) ",
         "{add_curve_to_plot \"", rawfile, "\" \"i(",  xctx->currsch>0 ? "v." : "",
         strtolower(p), strtolower(t),
@@ -982,7 +982,7 @@ static void send_current_to_bespice(int simtype, const char *node)
         c++;
       }
 
-      Tcl_VarEval(interp,
+      tclvareval(
         "puts $bespice_server_getdata(sock) ",
         "{set_curve_style \"",
         rawfile,
@@ -991,7 +991,7 @@ static void send_current_to_bespice(int simtype, const char *node)
         "\" \"solid_line\" \"no symbol\" 1 ",
         color_str, "}",
         NULL);
-      Tcl_VarEval(interp,
+      tclvareval(
         "puts $bespice_server_getdata(sock) ",
         "{add_curve_to_plot \"", rawfile, "\" \"",  xctx->currsch>0 ? "V:" : "",
         strtoupper(p), strtoupper( xctx->currsch>0 ? t+1 : t), "#branch",
@@ -1023,7 +1023,7 @@ static void send_current_to_gaw(int simtype, const char *node)
     my_strdup(1179, &t, find_nth(expanded_tok, ',', k));
     my_strdup2(1180, &p, xctx->sch_path[xctx->currsch]+1);
     if(!simtype) { /* spice */
-      Tcl_VarEval(interp, "puts $gaw_fd {copyvar i(", xctx->currsch>0 ? "v." : "",
+      tclvareval("puts $gaw_fd {copyvar i(", xctx->currsch>0 ? "v." : "",
                   strtolower(p), strtolower(t),
                   ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
     } else {       /* Xyce */
@@ -1032,7 +1032,7 @@ static void send_current_to_gaw(int simtype, const char *node)
         if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
         c++;
       }
-      Tcl_VarEval(interp, "puts $gaw_fd {copyvar ", xctx->currsch>0 ? "V:" : "",
+      tclvareval("puts $gaw_fd {copyvar ", xctx->currsch>0 ? "V:" : "",
                   strtoupper(p), strtoupper( xctx->currsch>0 ? t+1 : t ), "#branch",
                   " sel #", color_str, "}\nvwait gaw_fd\n", NULL);
     }
@@ -1460,7 +1460,7 @@ void propagate_logic()
     }
     if(!found) break;
     /* get out from infinite loops (circuit is oscillating) */
-    Tcl_VarEval(interp, "update; if {$::tclstop == 1} {return 1} else {return 0}", NULL);
+    tclvareval("update; if {$::tclstop == 1} {return 1} else {return 0}", NULL);
     if( tclresult()[0] == '1') break;
     iter++;
   } /* while(1) */

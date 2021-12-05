@@ -84,7 +84,7 @@ void start_place_symbol(double mx, double my)
     xctx->last_command = 0;
     rebuild_selected_array();
     if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
-      Tcl_VarEval(interp, "set INITIALINSTDIR [file dirname {",
+      tclvareval("set INITIALINSTDIR [file dirname {",
            abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
     } 
     unselect_all();
@@ -157,28 +157,28 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
 
 #ifndef __unix__
  if(cstate & 0x0001) { /* caps lock */
-   Tcl_VarEval(interp, xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
+   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
  } else if (nstate & 0x0001) { /* num lock */
-   Tcl_VarEval(interp, xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
+   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
  } else { /* normal state */
-   Tcl_VarEval(interp, xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
+   tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
  }
 #else
  XGetKeyboardControl(display, &kbdstate);
  if(kbdstate.led_mask & 1) { /* caps lock */
-   Tcl_VarEval(interp, xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
+   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
  } else if(kbdstate.led_mask & 2) { /* num lock */
-   Tcl_VarEval(interp, xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
+   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
  } else { /* normal state */
-   Tcl_VarEval(interp, xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
+   tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
  }
 #endif
 
- Tcl_VarEval(interp, xctx->top_path, ".statusbar.7 configure -text $netlist_type", NULL);
- Tcl_VarEval(interp, xctx->top_path, ".statusbar.3 delete 0 end;",
+ tclvareval(xctx->top_path, ".statusbar.7 configure -text $netlist_type", NULL);
+ tclvareval(xctx->top_path, ".statusbar.3 delete 0 end;",
                      xctx->top_path, ".statusbar.3 insert 0 $cadsnap",
                      NULL);
- Tcl_VarEval(interp, xctx->top_path, ".statusbar.5 delete 0 end;",
+ tclvareval(xctx->top_path, ".statusbar.5 delete 0 end;",
                      xctx->top_path, ".statusbar.5 insert 0 $cadgrid",
                      NULL);
 
@@ -196,9 +196,9 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      redraw_only = 1;
    } else {
      dbg(1, "callback(): switching window context: %s --> %s\n", old_winpath, winpath);
-     if(old_winpath[0]) Tcl_VarEval(interp, "save_ctx ", old_winpath, NULL);
-     Tcl_VarEval(interp, "restore_ctx ", winpath, NULL);
-     Tcl_VarEval(interp, "housekeeping_ctx", NULL);
+     if(old_winpath[0]) tclvareval("save_ctx ", old_winpath, NULL);
+     tclvareval("restore_ctx ", winpath, NULL);
+     tclvareval("housekeeping_ctx", NULL);
    }
    new_schematic("switch", xctx->top_path, winpath, "");
  }
@@ -687,12 +687,12 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     char n[30];
     xctx->rectcolor = key - '0'+4;
     my_snprintf(n, S(n), "%d", xctx->rectcolor);
-    Tcl_VarEval(interp, "xschem set rectcolor ", n, NULL);
+    tclvareval("xschem set rectcolor ", n, NULL);
 
     if(!strcmp(winpath, ".drw")) {
-      Tcl_VarEval(interp, "reconfigure_layers_button {}", NULL);
+      tclvareval("reconfigure_layers_button {}", NULL);
     } else {
-      Tcl_VarEval(interp, "reconfigure_layers_button [winfo parent ", winpath, "]", NULL);
+      tclvareval("reconfigure_layers_button [winfo parent ", winpath, "]", NULL);
     }
     dbg(1, "callback(): new color: %d\n",xctx->color_index[xctx->rectcolor]);
     break;
@@ -747,7 +747,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        }
      } else {
        /* xschem new_schematic destroy asks user confirmation if schematic changed */
-       Tcl_VarEval(interp, "xschem new_schematic destroy ", top_path, " ", winpath," {}" , NULL);
+       tclvareval("xschem new_schematic destroy ", top_path, " ", winpath," {}" , NULL);
        /* ================================================================ */
        /* We must return here, since current schematic is no more existing */
        /* ================================================================ */
@@ -900,7 +900,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='O' && (state == (ControlMask|ShiftMask)) )   /* load most recent tile */
    {
-     Tcl_VarEval(interp, "xschem load [lindex $recentfile 0]", NULL);
+     tclvareval("xschem load [lindex $recentfile 0]", NULL);
      break;
    }
    if(key=='O' && state == ShiftMask)   /* toggle light/dark colorscheme 20171113 */
@@ -1554,7 +1554,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
          merge_file(2,".sch");
          break;
        case 9: /* load most recent file */
-         Tcl_VarEval(interp, "xschem load [lindex $recentfile 0]", NULL);
+         tclvareval("xschem load [lindex $recentfile 0]", NULL);
          break;
        case 10: /* edit attributes */
          edit_property(0);

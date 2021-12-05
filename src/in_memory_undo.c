@@ -190,11 +190,11 @@ static void free_undo_symbols(int slot)
   xctx->uslot[slot].symbols = 0;
 }
 
-static void init_undo(void)
+static void mem_init_undo(void)
 {
   int slot;
 
-  dbg(1, "init_undo(): undo_initialized = %d\n", xctx->undo_initialized);
+  dbg(1, "mem_init_undo(): undo_initialized = %d\n", xctx->undo_initialized);
   if(!xctx->undo_initialized) {
     for(slot = 0;slot<MAX_UNDO; slot++) {
       xctx->uslot[slot].lines = my_calloc(165, cadlayers, sizeof(int));
@@ -258,7 +258,7 @@ void mem_push_undo(void)
   int j;
 
   if(xctx->no_undo)return;
-  init_undo();
+  mem_init_undo();
   slot = xctx->cur_undo_ptr%MAX_UNDO;
 
   my_strdup(173, &xctx->uslot[slot].gptr, xctx->schvhdlprop);
