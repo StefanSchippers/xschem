@@ -439,7 +439,7 @@ void hilight_net_pin_mismatches(void)
   my_free(714, &labname);
   my_free(715, &lab);
   my_free(716, &netname);
-  propagate_hilights(1, 0, XINSERT_NOREPLACE);
+  if(xctx->hilight_nets) propagate_hilights(1, 0, XINSERT_NOREPLACE);
   redraw_hilights(0);
 }
 
@@ -676,7 +676,7 @@ int search(const char *tok, const char *val, int sub, int sel)
      }
    }
  }
- if(!sel) propagate_hilights(1, 0, XINSERT_NOREPLACE);
+ if(!sel && xctx->hilight_nets) propagate_hilights(1, 0, XINSERT_NOREPLACE);
  if(sel) for(c = 0; c < cadlayers; c++) for(i=0;i<xctx->lines[c];i++) {
    str = get_tok_value(xctx->line[c][i].prop_ptr, tok,0);
    if(xctx->get_tok_size) {
@@ -1049,6 +1049,7 @@ void propagate_hilights(int set, int clear, int mode)
   char *type;
   int en_hi;
 
+  dbg(1, "propagate_hilights()\n");
   en_hi = tclgetboolvar("en_hilight_conn_inst");
   prepare_netlist_structs(0);
   for(i = 0; i < xctx->instances; i++) {
@@ -1576,7 +1577,7 @@ void hilight_net(int viewer)
    }
   }
   if(!incr_hi) incr_hilight_color();
-  propagate_hilights(1, 0, XINSERT_NOREPLACE);
+  if(xctx->hilight_nets) propagate_hilights(1, 0, XINSERT_NOREPLACE);
   tcleval("if { [info exists gaw_fd] } {close $gaw_fd; unset gaw_fd}\n");
 }
 
@@ -1613,7 +1614,7 @@ void unhilight_net(void)
     bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
   }
-  propagate_hilights(0, 1, XINSERT_NOREPLACE);
+  propagate_hilights(0, 1, XINSERT_NOREPLACE); /* will also clear xctx->hilight_nets if nothing left hilighted */
   draw();
   if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
 

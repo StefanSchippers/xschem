@@ -1137,6 +1137,9 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   }
   if(tclgetboolvar("autotrim_wires")) trim_wires();
   update_conn_cues(0, 0);
+  if(xctx->hilight_nets) {
+    propagate_hilights(1, 1, XINSERT_NOREPLACE);
+  }
 }
 
 void clear_undo(void)
@@ -1352,6 +1355,9 @@ void pop_undo(int redo, int set_modify_status)
   xctx->prep_hi_structs=0;
   link_symbols_to_instances(-1);
   update_conn_cues(0, 0);
+  if(xctx->hilight_nets) {
+    propagate_hilights(1, 1, XINSERT_NOREPLACE);
+  }
   dbg(2, "pop_undo(): returning\n");
 }
 

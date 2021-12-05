@@ -1171,7 +1171,7 @@ void go_back(int confirm) /*  20171006 add confirm */
 
   if(xctx->hilight_nets) {
     if(prev_sch_type != CAD_SYMBOL_ATTRS) hilight_parent_pins(); 
-    propagate_hilights(1, 0, XINSERT_NOREPLACE);
+    propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
   xctx->xorigin=xctx->zoom_array[xctx->currsch].x;
   xctx->yorigin=xctx->zoom_array[xctx->currsch].y;
@@ -1678,6 +1678,9 @@ void new_wire(int what, double mx_snap, double my_snap)
           find_inst_to_be_redrawn(1 + 4 + 8); /* add bboxes before and after symbol_bbox, don't use selection */
           find_inst_to_be_redrawn(16); /* delete hash and arrays */
           bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+        }
+        if(xctx->hilight_nets) {
+          propagate_hilights(1, 1, XINSERT_NOREPLACE);
         }
         draw();
         if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);

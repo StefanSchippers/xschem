@@ -1003,6 +1003,9 @@ void copy_objects(int what)
     check_collapsing_objects();
     if(tclgetboolvar("autotrim_wires")) trim_wires();
     /* update_conn_cues(1, 1); */
+    if(xctx->hilight_nets) {
+      propagate_hilights(1, 1, XINSERT_NOREPLACE);
+    }
     xctx->ui_state &= ~STARTCOPY;
     xctx->x1=xctx->y_1=xctx->x2=xctx->y_2=xctx->move_rot=xctx->move_flip=xctx->deltax=xctx->deltay=0;
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
