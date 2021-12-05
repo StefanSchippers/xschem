@@ -987,6 +987,7 @@ proc gaw_echoline {} {
 proc setup_tcp_gaw {} {
   global gaw_fd gaw_tcp_address netlist_dir has_x
  
+  if { [info exists gaw_fd] } { return 1; } 
   simuldir
   set s [file tail [file rootname [xschem get schname 0]]]
 
@@ -1000,11 +1001,12 @@ proc setup_tcp_gaw {} {
          "If you recently closed gaw the port may be in a TIME_WAIT state for a minute or so ." \
          "Close gaw, Wait a minute or two, then send waves to gaw again."]
     }
-    return
+    return 0
   }
   chan configure $gaw_fd -blocking 1 -buffering line -encoding binary -translation binary
   fileevent $gaw_fd readable gaw_echoline
   puts $gaw_fd "table_set $s.raw"
+  return 1
 }
 
 proc gaw_cmd {cmd} {

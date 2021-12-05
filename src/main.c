@@ -85,8 +85,9 @@ int main(int argc, char **argv)
   if(debug_var>=1 && !has_x)
     fprintf(errfp, "main(): no DISPLAY set, assuming no X available\n");
 
-/* detach from console (fork a child and close std file descriptors) */
 
+#if 0
+/* detach from console (fork a child and close std file descriptors) */
   if(detach) {
 #ifdef __unix__
     pid_t pid = fork();
@@ -109,9 +110,20 @@ int main(int argc, char **argv)
     }
 #endif
   }
+#endif
 
-  if(has_x) Tk_Main(1, argv, Tcl_AppInit);
-  else     Tcl_Main(1, argv, Tcl_AppInit);
+  /* if detach is 1 no interactive command shell is created ...
+   * using detach if no windowing exists (has_x == 0) is non sense so do nothing
+   */
+  if(detach && has_x) {
+    Tcl_FindExecutable(argv[0]); /* tcl stores executable name for its internal usage */
+    interp = Tcl_CreateInterp(); /* create the tcl interpreter */
+    Tcl_AppInit(interp); /* execute our init function */
+    Tk_MainLoop(); /* ok, now all done go into the event loop */
+  } else { /* ... else start tcl or tk main loop and enter interactive mode (tcl shell) */
+    if(has_x) Tk_Main(1, argv, Tcl_AppInit);
+    else     Tcl_Main(1, argv, Tcl_AppInit);
+  }
   return 0;
 }
 

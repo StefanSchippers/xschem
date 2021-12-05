@@ -1288,7 +1288,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  /* set error and exit handlers */
  XSetErrorHandler(err);
- interp=inter;
+ if(!interp) interp=inter;
  Tcl_Init(interp);
  if(has_x) {
    Tk_Init(interp);

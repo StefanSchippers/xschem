@@ -271,7 +271,8 @@ void create_plot_cmd(void)
     }
     fprintf(fd, "*ngspice plot file\n.control\n");
   }
-  if(viewer == GAW) tcleval("if { ![info exists gaw_fd] } { setup_tcp_gaw }\n");
+  if(viewer == GAW) tcleval("setup_tcp_gaw");
+  if(tclresult()[0] == '0')  return;
   idx = 1;
   first = 1;
   for(i=0;i<HASHSIZE;i++) /* set ngspice colors */
@@ -915,7 +916,8 @@ static void send_net_to_gaw(int simtype, const char *node)
     sprintf(color_str, "%02x%02x%02x", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
                                        xctx->xcolor_array[c].blue>>8);
     expanded_tok = expandlabel(tok, &tok_mult);
-    tcleval("if { ![info exists gaw_fd] } { setup_tcp_gaw }\n");
+    tcleval("setup_tcp_gaw");
+    if(tclresult()[0] == '0') return;
     for(k=1; k<=tok_mult; k++) {
       my_strdup(246, &t, find_nth(expanded_tok, ',', k));
       my_strdup2(254, &p, xctx->sch_path[xctx->currsch]+1);
@@ -1018,7 +1020,8 @@ static void send_current_to_gaw(int simtype, const char *node)
   sprintf(color_str, "%02x%02x%02x", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
                                      xctx->xcolor_array[c].blue>>8);
   expanded_tok = expandlabel(tok, &tok_mult);
-  tcleval("if { ![info exists gaw_fd] } { setup_tcp_gaw }\n");
+  tcleval("setup_tcp_gaw");
+  if(tclresult()[0] == '0') return;
   for(k=1; k<=tok_mult; k++) {
     my_strdup(1179, &t, find_nth(expanded_tok, ',', k));
     my_strdup2(1180, &p, xctx->sch_path[xctx->currsch]+1);

@@ -178,7 +178,7 @@ char initial_netlist_name[PATH_MAX]={0};
 char bus_char[3] = {0, 0, 0};
 int yyparse_error = 0;
 char *xschem_executable=NULL;
-Tcl_Interp *interp;
+Tcl_Interp *interp = NULL;
 double *character[256]; /* array or per-char coordinates of xschem internal vector font */
 int do_netlist=0;  /* set by process_options if user wants netllist from cmdline */
 int do_simulation=0;

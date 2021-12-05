@@ -563,7 +563,7 @@ void svg_draw(void)
   struct hilight_hashentry *entry;
   
   if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
-  if(!xctx->plotfile[0]) {
+  if(has_x && !xctx->plotfile[0]) {
     tclvareval("tk_getSaveFile -title {Select destination file} -initialfile {",
       get_cell(xctx->sch[xctx->currsch], 0) , ".svg} -initialdir {", lastdir, "}", NULL);
     r = tclresult();
