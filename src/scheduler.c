@@ -2734,22 +2734,46 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
 double tclgetdoublevar(const char *s)
 {
-  return atof(Tcl_GetVar(interp,s, TCL_GLOBAL_ONLY));
+  const char *p;
+  p = Tcl_GetVar(interp, s, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+  if(!p) {
+    dbg(0, "%s\n", tclresult());
+    return 0.0;
+  }
+  return atof(p);
 }
 
 int tclgetintvar(const char *s)
 {
-  return atoi(Tcl_GetVar(interp,s, TCL_GLOBAL_ONLY));
+  const char *p;
+  p = Tcl_GetVar(interp, s, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+  if(!p) {
+    dbg(0, "%s\n", tclresult());
+    return 0;
+  }
+  return atoi(p);
 }
 
 int tclgetboolvar(const char *s)
 {
-  return Tcl_GetVar(interp,s, TCL_GLOBAL_ONLY)[0] == '1' ? 1 : 0;
+  const char *p;
+  p = Tcl_GetVar(interp, s, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+  if(!p) {
+    dbg(0, "%s\n", tclresult());
+    return 0;
+  }
+  return p[0] == '1' ? 1 : 0;
 }
 
 const char *tclgetvar(const char *s)
 {
-  return Tcl_GetVar(interp,s, TCL_GLOBAL_ONLY);
+  const char *p;
+  p = Tcl_GetVar(interp, s, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+  if(!p) {
+    dbg(0, "%s\n", tclresult());
+    return "";
+  }
+  return p;
 }
 
 const char *tcleval(const char str[])
