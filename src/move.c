@@ -532,7 +532,7 @@ void find_inst_to_be_redrawn(int what)
       rects = sym->rects[PINLAYER];
       if(what & 2 && xctx->inst_redraw_table[i]) {
         dbg(1, "find_inst_to_be_redrawn(): 1 bboxing inst %s\n", xctx->inst[i].instname);
-        bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2 );
+        if(what & 1) bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2 );
         if(what & 4) {
           symbol_bbox(i, &inst[i].x1, &inst[i].y1, &inst[i].x2, &inst[i].y2 );
           bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2 );
@@ -544,7 +544,7 @@ void find_inst_to_be_redrawn(int what)
           nentry = int_hash_lookup(xctx->node_redraw_table, xctx->inst[i].node[p], 0, XLOOKUP);
           if(nentry) {
             dbg(1, "find_inst_to_be_redrawn(): 2 bboxing inst %s\n", xctx->inst[i].instname);
-            bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
+            if(what & 1) bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
             if(what & 4) {
               symbol_bbox(i, &inst[i].x1, &inst[i].y1, &inst[i].x2, &inst[i].y2);
               bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
@@ -556,7 +556,7 @@ void find_inst_to_be_redrawn(int what)
       }
     }
   
-    for(i=0;i < xctx->wires; i++) {
+    if(what & 5) for(i=0;i < xctx->wires; i++) {
       if(xctx->wire[i].node) {
         nentry = int_hash_lookup(xctx->node_redraw_table, xctx->wire[i].node, 0, XLOOKUP);
         if(nentry) {
@@ -580,11 +580,11 @@ void find_inst_to_be_redrawn(int what)
     }
   } /* if((s_pnetname || xctx->hilight_nets)) */
   if(!(what & 8) ) {
-    for(i=0;i<xctx->lastsel;i++) { /* add bboxes of selected objects */
+    if(what & 5) for(i=0;i<xctx->lastsel;i++) { /* add bboxes of selected objects */
       n = xctx->sel_array[i].n;
       if( xctx->sel_array[i].type == ELEMENT) {
         dbg(1, "find_inst_to_be_redrawn(): 5 bboxing inst %s\n", xctx->inst[n].instname);
-        bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
+        if(what & 1) bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
         if(what & 4) {
           symbol_bbox(n, &inst[n].x1, &inst[n].y1, &inst[n].x2, &inst[n].y2);
           bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2);
@@ -663,7 +663,7 @@ void copy_objects(int what)
 
     draw_selection(xctx->gctiled,0);
     update_symbol_bboxes(0, 0);
-    find_inst_to_be_redrawn(1); /* build list before copying and recalculating prepare_netlist_structs() */
+    find_inst_to_be_redrawn(0); /* build list before copying and recalculating prepare_netlist_structs() */
 
     for(i=0;i<xctx->lastsel;i++)
     {
@@ -999,7 +999,7 @@ void copy_objects(int what)
       xctx->prep_hi_structs=0;
     }
     /* build after copying and after recalculating prepare_netlist_structs() */
-    find_inst_to_be_redrawn(2 + 4 + 32); /* 32: call prepare_netlist_structs(0) */
+    find_inst_to_be_redrawn(1 + 2 + 4 + 32); /* 32: call prepare_netlist_structs(0) */
     find_inst_to_be_redrawn(16); /* clear data */
     check_collapsing_objects();
     if(tclgetboolvar("autotrim_wires")) trim_wires();
@@ -1096,7 +1096,7 @@ void move_objects(int what, int merge, double dx, double dy)
   firsti = firstw = 1;
   draw_selection(xctx->gctiled,0);
   update_symbol_bboxes(0, 0);
-  find_inst_to_be_redrawn(1); /* build list before moving and recalculating prepare_netlist_structs() */
+  find_inst_to_be_redrawn(0); /* build list before moving and recalculating prepare_netlist_structs() */
   for(k=0;k<cadlayers;k++)
   {
    for(i=0;i<xctx->lastsel;i++)
@@ -1499,7 +1499,7 @@ void move_objects(int what, int merge, double dx, double dy)
     xctx->prep_hi_structs=0;
   }
   /* build after copying and after recalculating prepare_netlist_structs() */
-  find_inst_to_be_redrawn(2 + 4 + 32); /* 32: call prepare_netlist_structs(0) */
+  find_inst_to_be_redrawn(1 + 2 + 4 + 32); /* 32: call prepare_netlist_structs(0) */
   find_inst_to_be_redrawn(16); /* clear data */
   check_collapsing_objects();
   if(tclgetboolvar("autotrim_wires")) trim_wires();
