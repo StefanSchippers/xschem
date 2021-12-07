@@ -1265,14 +1265,18 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
    updatebbox(count,boundbox,&tmp);
   }
  }
+ if(selected == 2 && xctx->hilight_nets) prepare_netlist_structs(0);
  for(i=0;i<xctx->wires;i++)
  {
    int ov, y1, y2;
    if(selected == 1 && !xctx->wire[i].sel) continue;
    if(selected == 2) {
-     const char *str;
-     str = get_tok_value(xctx->wire[i].prop_ptr, "lab",0);
-     if(!str[0] || !bus_hilight_hash_lookup(str, 0,XLOOKUP)) continue;
+   /* const char *str;
+    * str = get_tok_value(xctx->wire[i].prop_ptr, "lab",0);
+    * if(!str[0] || !bus_hilight_hash_lookup(str, 0,XLOOKUP)) continue;
+    */
+     if(!xctx->hilight_nets || !xctx->wire[i].node || 
+       !xctx->wire[i].node[0] || !bus_hilight_hash_lookup(xctx->wire[i].node, 0,XLOOKUP)) continue;
    }
    if(xctx->wire[i].bus){
      ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;

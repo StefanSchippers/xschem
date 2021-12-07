@@ -2813,7 +2813,7 @@ const char *translate(int inst, const char* s)
    }
    if(!xctx->get_tok_size) { /* above lines did not find a value for token */
      if(token[0] =='%') {
-       /* no definition found -> subst with token without leading $ */
+       /* no definition found -> subst with token without leading % */
        tmp=token_pos -1 ; /* we need token_pos -1 chars, ( strlen(token+1) ) , excluding leading '%' */
        STR_ALLOC(&result, tmp + result_pos, &size);
        /* dbg(2, "translate(): token=%s, token_pos = %d\n", token, token_pos); */

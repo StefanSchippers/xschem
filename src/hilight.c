@@ -136,7 +136,8 @@ struct hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, 
   int mult;
  
   if(token==NULL) return NULL;
-  if( token[0] == '#' || !strpbrk(token, "*[],.:")) {
+  /* if( token[0] == '#' || !strpbrk(token, "*[],.:")) { */
+  if( token[0] == '#' || !strpbrk(token, "*,.:")) {
     ptr1=hilight_hash_lookup(token, value, what);
     return ptr1;
   }

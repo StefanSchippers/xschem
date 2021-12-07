@@ -660,7 +660,7 @@ void xwin_exit(void)
  dbg(1, "xwin_exit(): deleted undo buffer\n");
  if(errfp!=stderr) fclose(errfp);
  errfp=stderr;
- /* printf("\n");*/
+ if(!detach) printf("\n");
  init_done=0; /* 20150409 to avoid multiple calls */
 }
 
