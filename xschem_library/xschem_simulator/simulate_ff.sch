@@ -147,9 +147,8 @@ N 2580 -2430 2640 -2430 { lab=#net10}
 N 2580 -2250 2640 -2250 { lab=#net10}
 N 2580 -2070 2640 -2070 { lab=#net10}
 N 1910 -1520 3260 -1520 { lab=CLK}
-N 2290 -1920 2320 -1920 { lab=BNEXT[3]}
-N 2290 -1960 2320 -1960 { lab=BNEXT[1]}
-N 2290 -2000 2320 -2000 { lab=BNEXT[2]}
+N 2330 -1940 2360 -1940 { lab=BNEXT[3]}
+N 2330 -1980 2360 -1980 { lab=BNEXT[1]}
 N 3260 -2650 3430 -2650 { lab=CLK}
 N 3260 -2650 3260 -1520 { lab=CLK}
 N 2580 -2610 2580 -2430 { lab=#net10}
@@ -374,10 +373,8 @@ C {segment.sym} 4030 -2180 1 1 {name=l9 sig_type=std_logic lab=S[4]}
 C {segment.sym} 4000 -1570 2 0 {name=l10 sig_type=std_logic lab=S[6]}
 C {ipin.sym} 1900 -1280 0 0 {name=p8 sig_type=std_logic lab=CLEAR_}
 C {ipin.sym} 1910 -1520 0 0 {name=p9 sig_type=std_logic lab=CLK}
-C {o21ai_1.sym} 2400 -1960 0 0 {name=x2 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {lab_pin.sym} 2290 -1920 0 0 {name=l11 sig_type=std_logic lab=BNEXT[3]}
-C {lab_pin.sym} 2290 -2000 0 0 {name=l12 sig_type=std_logic lab=BNEXT[2]}
-C {lab_pin.sym} 2290 -1960 0 0 {name=l13 sig_type=std_logic lab=BNEXT[1]}
+C {lab_pin.sym} 2330 -1940 0 0 {name=l11 sig_type=std_logic lab=BNEXT[3]}
+C {lab_pin.sym} 2330 -1980 0 0 {name=l13 sig_type=std_logic lab=BNEXT[1]}
 C {inv_2.sym} 550 -3100 3 1 {name=x22 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {lab_pin.sym} 520 -3160 0 0 {name=l19 sig_type=std_logic lab=B[3]}
 C {inv_2.sym} 630 -3100 3 1 {name=x23 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
@@ -418,3 +415,4 @@ C {nand4_1.sym} 940 -260 0 0 {name=x30 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefi
 C {nand4_1.sym} 940 -100 0 0 {name=x31 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {and3_1.sym} 1110 -260 0 0 {name=x32 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {lab_pin.sym} 1230 -260 0 1 {name=p7 lab=S[6]}
+C {nand2_1.sym} 2420 -1960 0 0 {name=x3 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }

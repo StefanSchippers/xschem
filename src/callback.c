@@ -275,7 +275,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     break;
 
   case MotionNotify:
-    if(xctx->semaphore >= 2) break;
+    if(xctx->ui_state & STARTPAN2)   pan2(RUBBER, mx, my);
 #ifndef __unix__
     if ((xctx->ui_state & STARTWIRE) || (xctx->ui_state & STARTARC) ||
         (xctx->ui_state & STARTLINE) || (xctx->ui_state & STARTMOVE) ||
@@ -286,7 +286,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
 #endif
-    if(xctx->ui_state & STARTPAN2)   pan2(RUBBER, mx, my); /* 20121123 -  20160425 moved up */
+    if(xctx->semaphore >= 2) break;
     if(xctx->ui_state) {
       #ifdef TURBOX_FIX
       /* fix Exceed TurboX bugs when drawing with pixmap tiled fill pattern */
