@@ -662,6 +662,7 @@ void copy_objects(int what)
     firstw = firsti = 1;
 
     draw_selection(xctx->gctiled,0);
+    update_symbol_bboxes(0, 0);
     find_inst_to_be_redrawn(1); /* build list before copying and recalculating prepare_netlist_structs() */
 
     for(i=0;i<xctx->lastsel;i++)
@@ -1094,6 +1095,7 @@ void move_objects(int what, int merge, double dx, double dy)
   /* calculate moving symbols bboxes before actually doing the move */
   firsti = firstw = 1;
   draw_selection(xctx->gctiled,0);
+  update_symbol_bboxes(0, 0);
   find_inst_to_be_redrawn(1); /* build list before moving and recalculating prepare_netlist_structs() */
   for(k=0;k<cadlayers;k++)
   {
