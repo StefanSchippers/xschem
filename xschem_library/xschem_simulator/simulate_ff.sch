@@ -335,7 +335,7 @@ comment="
 "
 tclcommand="
   set count 0
-  set duration 1000
+  set duration 300
   xschem select instance p8  ;# CLEAR_
   xschem select instance p9  ;# CLK
   xschem logic_set 0         ;# reset pulse (active low) 

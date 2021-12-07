@@ -2836,6 +2836,6 @@ int tclvareval(const char *script, ...)
   }
   return_code = Tcl_EvalEx(interp, str, size, TCL_EVAL_GLOBAL);
   va_end(args);
-  my_free(1381, &p);
+  my_free(1381, &str);
   return return_code;
 }

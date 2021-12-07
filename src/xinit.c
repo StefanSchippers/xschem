@@ -1915,7 +1915,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  /* source tcl file given on command line with --script */
  if(tcl_script[0]) {
-   tclvareval("update; source {", tcl_script, "}", NULL);
+   char str[PATH_MAX + 40];
+   /* can not use tclvareval() here because if script contains 'exit'
+    * program terminates before tclvareval() has a chance to cleanup
+    * its dynamically allocated string
+    */
+   my_snprintf(str, S(str), "update; source {%s}", tcl_script);
+   Tcl_EvalEx(interp, str, -1, TCL_EVAL_GLOBAL);
  }
 
  if(quit) {

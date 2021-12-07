@@ -1632,7 +1632,7 @@ int print_spice_element(FILE *fd, int inst)
         tok_val_len = strlen(value);
         
         if(!strcmp(token, "@spiceprefix")) {
-          spiceprefixtag = my_malloc(301, tok_val_len+22);
+          my_realloc(301, &spiceprefixtag, tok_val_len+22);
           my_snprintf(spiceprefixtag, tok_val_len+22, "**** spice_prefix %s\n", value);
           value = spiceprefixtag;
         }
