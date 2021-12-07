@@ -47,7 +47,7 @@ void init_inst_iterator(struct iterator_ctx *ctx, double x1, double y1, double x
 struct instentry *inst_iterator_next(struct iterator_ctx *ctx)
 {
   struct instentry *ptr;
-  dbg(3, "inst_iterator_next(): instances=%d\n", xctx->instances);
+  /* dbg(3, "inst_iterator_next(): instances=%d\n", xctx->instances); */
   while(1) {
     while(ctx->instanceptr) {
       ptr = ctx->instanceptr;
@@ -100,7 +100,7 @@ void init_wire_iterator(struct iterator_ctx *ctx, double x1, double y1, double x
 struct wireentry *wire_iterator_next(struct iterator_ctx *ctx)
 {
   struct wireentry *ptr;
-  dbg(3, "wire_iterator_next(): wires=%d\n", xctx->wires);
+  /* dbg(3, "wire_iterator_next(): wires=%d\n", xctx->wires); */
   while(1) {
     while(ctx->wireptr) {
       ptr = ctx->wireptr;

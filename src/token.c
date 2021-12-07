@@ -2807,6 +2807,12 @@ const char *translate(int inst, const char* s)
    if(!sp_prefix && !strcmp(token, "@spiceprefix")) {
      value = NULL;
      xctx->get_tok_size = 0;
+   /* not that worth doing this optimization */
+   /*
+   } else if(!strcmp(token, "@name")) {
+     value = xctx->inst[inst].instname;
+     xctx->get_tok_size=4;
+   */
    } else {
      value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
      if(!xctx->get_tok_size) value=get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->templ, token+1, 0);
