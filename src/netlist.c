@@ -241,8 +241,8 @@ void get_square(double x, double y, int *xx, int *yy)
  * 0, XINSERT : add to hash
  * 1, XDELETE : remove from hash
  */
-static void hash_inst_pin(int what, int i, int j)
-/*                           inst   pin */
+static void hash_inst_pin(int for_netlist, int what, int i, int j)
+/*                                                    inst   pin */
 
 {
   xRect *rct;
@@ -269,9 +269,9 @@ static void hash_inst_pin(int what, int i, int j)
   }
 
 
-  if(j<rects && (!prop_ptr || !get_tok_value(prop_ptr, "name",0)[0] || !get_tok_value(prop_ptr, "dir",0)[0]) ) {
+  if(for_netlist && j<rects &&
+     (!prop_ptr || !get_tok_value(prop_ptr, "name",0)[0] || !get_tok_value(prop_ptr, "dir",0)[0]) ) {
     char str[2048];
-
     my_snprintf(str, S(str), "symbol %s: missing all or name or dir attributes on pin %d\n  %s",
         xctx->inst[i].name, j, prop_ptr);
     statusmsg(str,2);
@@ -674,7 +674,7 @@ void prepare_netlist_structs(int for_netlist)
       for (j=0;j<rects;j++)
       {
         inst[i].node[j]=NULL;
-        hash_inst_pin(XINSERT, i, j);
+        hash_inst_pin(for_netlist, XINSERT, i, j);
       }
     }
   }
