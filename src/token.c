@@ -2801,41 +2801,11 @@ const char *translate(int inst, const char* s)
   else if(state==TOK_SEP)
   {
    token[token_pos]='\0';
-   /* dbg(2, "translate(): token=%s\n", token);*/
-   /* the @# and @@ patterns are processed later */
-   if(!strncmp(token, "@#",2) || !strncmp(token, "@@",2)) {
-     value = NULL;
-     xctx->get_tok_size = 0;
-   /* if spiceprefix==0 and token == @spiceprefix then set empty value */
-   } else if(!sp_prefix && !strcmp(token, "@spiceprefix")) {
-     value = NULL;
-     xctx->get_tok_size = 0;
-   /* not that worth doing this optimization */
-   /*
-   } else if(!strcmp(token, "@name")) {
-     value = xctx->inst[inst].instname;
-     xctx->get_tok_size=4;
-   */
-   } else {
-     value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
-     if(!xctx->get_tok_size) value=get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->templ, token+1, 0);
-   }
-   if(!xctx->get_tok_size) { /* above lines did not find a value for token */
-     if(token[0] =='%') {
-       /* no definition found -> subst with token without leading % */
-       tmp=token_pos -1 ; /* we need token_pos -1 chars, ( strlen(token+1) ) , excluding leading '%' */
-       STR_ALLOC(&result, tmp + result_pos, &size);
-       /* dbg(2, "translate(): token=%s, token_pos = %d\n", token, token_pos); */
-       memcpy(result+result_pos, token + 1, tmp+1);
-       result_pos+=tmp;
-     }
-   }
-   token_pos = 0;
-   if(xctx->get_tok_size) {
-    tmp=strlen(value);
-    STR_ALLOC(&result, tmp + result_pos, &size);
-    memcpy(result+result_pos, value, tmp+1);
-    result_pos+=tmp;
+   if(!strcmp(token, "@name")) {
+     tmp = strlen(xctx->inst[inst].instname);
+     STR_ALLOC(&result, tmp + result_pos, &size);
+     memcpy(result+result_pos,xctx->inst[inst].instname, tmp+1);
+     result_pos+=tmp;
    } else if(strcmp(token,"@symname")==0) {
     tmp_sym_name=xctx->inst[inst].name ? get_cell(xctx->inst[inst].name, 0) : "";
     tmp=strlen(tmp_sym_name);
@@ -2936,7 +2906,6 @@ const char *translate(int inst, const char* s)
      my_free(1065, &pin_attr);
      my_free(1066, &pin_num_or_name);
    } else if(strcmp(token,"@sch_last_modified")==0) {
-
     my_strdup2(1258, &sch, get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr, "schematic",0 ));
     my_strncpy(file_name, abs_sym_path(sch, ""), S(file_name));
     my_free(1259, &sch);
@@ -3020,8 +2989,29 @@ const char *translate(int inst, const char* s)
      STR_ALLOC(&result, tmp + result_pos, &size);
      memcpy(result+result_pos,xctx->schverilogprop, tmp+1);
      result_pos+=tmp;
+   /* if spiceprefix==0 and token == @spiceprefix then set empty value */
+   } else if(!sp_prefix && !strcmp(token, "@spiceprefix")) {
+     /* add nothing */
+   } else {
+     value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
+     if(!xctx->get_tok_size) value=get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->templ, token+1, 0);
+     if(!xctx->get_tok_size) { /* above lines did not find a value for token */
+       if(token[0] =='%') {
+         /* no definition found -> subst with token without leading % */
+         tmp=token_pos -1 ; /* we need token_pos -1 chars, ( strlen(token+1) ) , excluding leading '%' */
+         STR_ALLOC(&result, tmp + result_pos, &size);
+         /* dbg(2, "translate(): token=%s, token_pos = %d\n", token, token_pos); */
+         memcpy(result+result_pos, token + 1, tmp+1);
+         result_pos+=tmp;
+       }
+     } else {
+       tmp=strlen(value);
+       STR_ALLOC(&result, tmp + result_pos, &size);
+       memcpy(result+result_pos, value, tmp+1);
+       result_pos+=tmp;
+     }
    }
-
+   token_pos = 0;
    if(c == '@' || c == '%') s--;
    else result[result_pos++]=c;
    state=TOK_BEGIN;
