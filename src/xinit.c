@@ -214,7 +214,7 @@ unsigned int  find_best_color(char colorname[])
  double deltar,deltag,deltab;
  unsigned int idx;
 
- dbg(1, "find_best_color() start: %g\n", timer(1));
+/*  dbg(1, "find_best_color() start: %g\n", timer(1)); */
 #ifdef __unix__
  if( XAllocNamedColor(display, colormap, colorname, &xcolor_exact, &xcolor) ==0 )
 #else
@@ -258,7 +258,7 @@ unsigned int  find_best_color(char colorname[])
   idx = xc->pixel;
 #endif
  }
- dbg(1, "find_best_color() return: %g\n", timer(1));
+ /* dbg(1, "find_best_color() return: %g\n", timer(1)); */
  return idx;
 }
 

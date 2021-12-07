@@ -145,13 +145,13 @@ void trim_wires(void)
 
   doloops = 0;
   xctx->prep_hash_wires = 0;
-  timer(0);
+  /* timer(0); */
   do {
-    dbg(1, "trim_wires(): start: %g\n", timer(1));
+    /* dbg(1, "trim_wires(): start: %g\n", timer(1)); */
     changed = 0;
     doloops++;
     hash_wires(); /* end1 and end2 reset to -1 */
-    dbg(1, "trim_wires(): hash_wires_1: %g\n", timer(1));
+    /* dbg(1, "trim_wires(): hash_wires_1: %g\n", timer(1)); */
 
     /* break all wires */
     for(i=0;i<xctx->wires;i++) {
@@ -210,7 +210,7 @@ void trim_wires(void)
       }
       dbg(2, "trim_wires(): hashloopcnt = %d, wires = %d\n", hashloopcnt, xctx->wires);
     }
-    dbg(1, "trim_wires(): break: %g\n", timer(1));
+    /* dbg(1, "trim_wires(): break: %g\n", timer(1)); */
     /* reduce included wires */
     my_realloc(29, &wireflag, xctx->wires*sizeof(unsigned short));
     memset(wireflag, 0, xctx->wires*sizeof(unsigned short));
@@ -246,7 +246,7 @@ void trim_wires(void)
         }
       }
     }
-    dbg(1, "trim_wires(): included: %g\n", timer(1));
+    /* dbg(1, "trim_wires(): included: %g\n", timer(1)); */
   
     /* delete wires */
     j = 0;
@@ -268,14 +268,14 @@ void trim_wires(void)
       xctx->prep_hash_wires=0;
       changed = 1;
     }
-    dbg(1, "trim_wires(): delete_1: %g\n", timer(1));
+    /* dbg(1, "trim_wires(): delete_1: %g\n", timer(1)); */
   
     /* after wire deletions full rehash is needed */
     hash_wires();
 
     my_realloc(30, &wireflag, xctx->wires*sizeof(unsigned short));
     memset(wireflag, 0, xctx->wires*sizeof(unsigned short));
-    dbg(1, "trim_wires(): hash_wires_2: %g\n", timer(1));
+    /* dbg(1, "trim_wires(): hash_wires_2: %g\n", timer(1)); */
 
     /* update endpoint (end1, end2) connection counters */
     for(i=0;i<xctx->wires;i++) {
@@ -314,7 +314,7 @@ void trim_wires(void)
         }
       }
     }
-    dbg(1, "trim_wires(): endpoints: %g\n", timer(1));
+    /* dbg(1, "trim_wires(): endpoints: %g\n", timer(1)); */
   
     /* merge parallel touching (in wire[i].x2, wire[i].y2) wires */
     for(i=0;i<xctx->wires;i++) {
@@ -341,7 +341,7 @@ void trim_wires(void)
         }
       }
     }
-    dbg(1, "trim_wires(): merge: %g\n", timer(1));
+    /* dbg(1, "trim_wires(): merge: %g\n", timer(1)); */
   
     /* delete wires */
     j = 0;
@@ -364,7 +364,7 @@ void trim_wires(void)
       xctx->prep_hash_wires=0; /* after wire deletions full rehash is needed */
       changed = 1;
     }
-    dbg(1, "trim_wires(): delete_2: %g\n", timer(1));
+    /* dbg(1, "trim_wires(): delete_2: %g\n", timer(1)); */
 
     if(changed) {
       xctx->need_reb_sel_arr = 1;

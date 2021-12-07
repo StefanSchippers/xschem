@@ -2802,9 +2802,12 @@ const char *translate(int inst, const char* s)
   {
    token[token_pos]='\0';
    /* dbg(2, "translate(): token=%s\n", token);*/
-
+   /* the @# and @@ patterns are processed later */
+   if(!strncmp(token, "@#",2) || !strncmp(token, "@@",2)) {
+     value = NULL;
+     xctx->get_tok_size = 0;
    /* if spiceprefix==0 and token == @spiceprefix then set empty value */
-   if(!sp_prefix && !strcmp(token, "@spiceprefix")) {
+   } else if(!sp_prefix && !strcmp(token, "@spiceprefix")) {
      value = NULL;
      xctx->get_tok_size = 0;
    /* not that worth doing this optimization */
