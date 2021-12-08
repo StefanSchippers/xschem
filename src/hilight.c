@@ -30,13 +30,13 @@ static unsigned int hi_hash(const char *tok)
 
   if(xctx->sch_path_hash[xctx->currsch] == 0) {
     str=xctx->sch_path[xctx->currsch];
-    while ( (c = *str++) ) 
+    while ( (c = (unsigned char)*str++) ) 
       hash += (hash << 5) + c;
     xctx->sch_path_hash[xctx->currsch] = hash;
   } else { 
     hash = xctx->sch_path_hash[xctx->currsch];
   }
-  while ( (c = *tok++) )
+  while ( (c = (unsigned char)*tok++) )
     hash += (hash << 5) + c;
   return hash;
 }
