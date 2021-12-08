@@ -304,7 +304,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        cmd_found = 1;
        xctx->push_undo();
        round_schematic_to_grid(tclgetdoublevar("cadsnap"));
-       if(tclgetvar("autotrim_wires")) trim_wires();
+       if(tclgetboolvar("autotrim_wires")) trim_wires();
        set_modify(1);
        xctx->prep_hash_inst=0;
        xctx->prep_hash_wires=0;
@@ -412,11 +412,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"clear"))
     {
-      int cancel;
+      int cancel = 0;
    
       cmd_found = 1;
-      cancel=save(1);
-      if(cancel != -1){ /* -1 means user cancel save request */
+      if( argc < 3 || strcmp(argv[2], "force") ) cancel=save(1);
+      if(cancel != -1) { /* -1 means user cancel save request */
         char name[PATH_MAX];
         struct stat buf;
         int i;
@@ -784,11 +784,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"lastsel")) {
+       char s[30];
        rebuild_selected_array();
-       if( xctx->lastsel != 0 )
-         Tcl_SetResult(interp, "1",TCL_STATIC);
-       else
-         Tcl_SetResult(interp, "0",TCL_STATIC);
+       my_snprintf(s, S(s), "%d", xctx->lastsel);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"line_width")) {
        char s[40];
@@ -2644,7 +2643,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         save = xctx->draw_window; xctx->draw_window = 1;
         drawline(WIRELAYER,NOW, x1,y1,x2,y2, 0);
         xctx->draw_window = save;
-        if(tclgetvar("autotrim_wires")) trim_wires();
+        if(tclgetboolvar("autotrim_wires")) trim_wires();
       }
       else xctx->ui_state |= MENUSTARTWIRE;
     }
