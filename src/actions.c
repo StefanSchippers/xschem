@@ -869,7 +869,6 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   }
   dbg(1, "place_symbol(): done set_inst_prop()\n");  /*  03-02-2000 */
 
-  my_strdup2(13, &xctx->inst[n].instname, get_tok_value(xctx->inst[n].prop_ptr,"name",0) );
   if(!strcmp(get_tok_value(xctx->inst[n].prop_ptr,"highlight",0), "true")) xctx->inst[n].flags |= 4;
   type = xctx->sym[xctx->inst[n].ptr].type;
   cond= !type || !IS_LABEL_SH_OR_PIN(type);

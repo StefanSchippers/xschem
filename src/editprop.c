@@ -1025,10 +1025,9 @@ void update_symbol(const char *result, int x)
       if(!pushed) { xctx->push_undo(); pushed=1;}
       if(!k) hash_all_names(*ii);
       new_prop_string(*ii, ptr, k, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
+    } else {
+      my_strdup2(367, &xctx->inst[*ii].instname, "");
     }
-    my_strdup2(90, &xctx->inst[*ii].instname, 
-               get_tok_value(xctx->inst[*ii].prop_ptr, "name",0));
-
     type=xctx->sym[xctx->inst[*ii].ptr].type;
     cond= !type || !IS_LABEL_SH_OR_PIN(type);
     if(cond) xctx->inst[*ii].flags |= 2; /* bit 1: flag for different textlayer for pin/labels */

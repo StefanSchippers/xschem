@@ -164,15 +164,15 @@ void clear_instance_hash()
   inst_hash_free();
 }
 
+/* Missing: 
+ * if one instance is named R1[3:0] and another is named R1[2] 
+ * the name collision is not detected nor corrected
+ */
 void check_unique_names(int rename)
 {
-  int i, j, first = 1;
-  char *tmp = NULL;
+  int i, first = 1;
   int newpropcnt = 0;
-  int multip;
-  char *start;
-  char *comma_pos;
-  char *expanded_instname = NULL;
+  char *tmp = NULL;
   struct inst_hashentry *entry;
   int big =  xctx->wires> 2000 || xctx->instances > 2000;
   /* int save_draw; */
@@ -195,44 +195,30 @@ void check_unique_names(int rename)
   first = 1;
   for(i=0;i<xctx->instances;i++) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
-      my_strdup(118, &expanded_instname, expandlabel(xctx->inst[i].instname, &multip));
-      comma_pos = 0;
-      for(j =0; j< multip; j++) {
-        if(j == 0) start = expanded_instname;
-        else start = comma_pos;
-        comma_pos = strchr(start, ',');
-        if(comma_pos) *comma_pos = '\0';
-        dbg(1, "check_unique_names(): checking %s\n", start);
-        if( (entry = inst_hash_lookup(start, i, XINSERT_NOREPLACE, strlen(start)) ) && entry->value != i) {
-          xctx->inst[i].color = -PINLAYER;
-          xctx->hilight_nets=1;
-          if(rename == 1) {
-            if(first) {
-              bbox(START,0.0,0.0,0.0,0.0);
-              set_modify(1); xctx->push_undo();
-              xctx->prep_hash_inst=0;
-              xctx->prep_net_structs=0;
-              xctx->prep_hi_structs=0;
-              first = 0;
-            }
-            bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
+      if( (entry = inst_hash_lookup(xctx->inst[i].instname, i, XINSERT_NOREPLACE, 
+         strlen(xctx->inst[i].instname)) ) && entry->value != i) {
+        xctx->inst[i].color = -PINLAYER;
+        xctx->hilight_nets=1;
+        if(rename == 1) {
+          if(first) {
+            bbox(START,0.0,0.0,0.0,0.0);
+            set_modify(1); xctx->push_undo();
+            xctx->prep_hash_inst=0;
+            xctx->prep_net_structs=0;
+            xctx->prep_hi_structs=0;
+            first = 0;
           }
+          bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
         }
-        if(comma_pos) {
-          *comma_pos=',';
-          comma_pos++;
-        }
-      } /* for(j...) */
+      }
       if( (xctx->inst[i].color != -10000) && rename) {
         my_strdup(511, &tmp, xctx->inst[i].prop_ptr);
-        new_prop_string(i, tmp, newpropcnt++, !rename);
-        my_strdup2(512, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
+        new_prop_string(i, tmp, newpropcnt++, 0);
         inst_hash_lookup(xctx->inst[i].instname, i, XINSERT, strlen(xctx->inst[i].instname));
         symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
         bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
         my_free(972, &tmp);
       }
-      my_free(973, &expanded_instname);
     }
   } /* for(i...) */
   if(rename == 1 && xctx->hilight_nets) {
@@ -673,6 +659,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  if(old_prop==NULL)
  {
   my_free(984, &xctx->inst[i].prop_ptr);
+  my_strdup2(306, &xctx->inst[i].instname, "");
   return;
  }
  old_name_len = my_strdup(444, &old_name,get_tok_value(old_prop,"name",0) ); /* added old_name_len */
@@ -680,6 +667,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  if(old_name==NULL)
  {
   my_strdup(446, &xctx->inst[i].prop_ptr, old_prop);  /* changed to copy old props if no name */
+  my_strdup2(13, &xctx->inst[i].instname, "");
   return;
  }
  xctx->prefix=old_name[0];
@@ -687,8 +675,9 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  if(dis_uniq_names || (entry = inst_hash_lookup(old_name, i, XLOOKUP, old_name_len))==NULL ||
      entry->value == i)
  {
-  inst_hash_lookup(old_name, i, XINSERT, old_name_len);
   my_strdup(447, &xctx->inst[i].prop_ptr, old_prop);
+  my_strdup2(90, &xctx->inst[i].instname, old_name);
+  inst_hash_lookup(old_name, i, XINSERT, old_name_len);
   my_free(985, &old_name);
   return;
  }
@@ -701,8 +690,8 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  {
    if(n >= 1 ) {
      new_name_len = my_snprintf(new_name, old_name_len + 40, "%s%d%s", old_name_base, q, tmp);
-   } else {
-     new_name_len = my_snprintf(new_name, old_name_len + 40, "%c%d%s", xctx->prefix,q, tmp); /* added new_name_len */
+   } else { /* goes here if weird name set for example to name=[3:0] or name=12 */
+     new_name_len = my_snprintf(new_name, old_name_len + 40, "%c%d%s", xctx->prefix,q, tmp);
    }
    if((entry = inst_hash_lookup(new_name, i, XLOOKUP, new_name_len)) == NULL || entry->value == i)
    {
@@ -714,8 +703,9 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  tmp2 = subst_token(old_prop, "name", new_name);
  if(strcmp(tmp2, old_prop) ) {
    my_strdup(449, &xctx->inst[i].prop_ptr, tmp2);
+   my_strdup2(235, &xctx->inst[i].instname, new_name);
+   inst_hash_lookup(new_name, i, XINSERT, new_name_len); /* reinsert in hash */
  }
- inst_hash_lookup(new_name, i, XINSERT, new_name_len); /* reinsert in hash */
  my_free(987, &old_name);
  my_free(988, &new_name);
 }

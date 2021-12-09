@@ -266,7 +266,6 @@ void merge_inst(int k,FILE *fd)
     new_prop_string(i, prop_ptr, k, tclgetboolvar("disable_unique_names"));
     /* the final tmp argument is zero for the 1st call and used in */
     /* new_prop_string() for cleaning some internal caches. */
-    my_strdup2(306, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
     if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"highlight",0), "true")) xctx->inst[i].flags |= 4;
 
     my_free(871, &prop_ptr);

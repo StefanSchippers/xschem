@@ -971,7 +971,10 @@ void copy_objects(int what)
         xctx->inst[xctx->instances].name=NULL;
         my_strdup2(232, &xctx->inst[xctx->instances].name, xctx->inst[n].name);
         my_strdup(233, &xctx->inst[xctx->instances].prop_ptr, xctx->inst[n].prop_ptr);
-        my_strdup2(234, &xctx->inst[xctx->instances].instname, get_tok_value(xctx->inst[n].prop_ptr, "name",0));
+        /* 
+         * my_strdup2(234, &xctx->inst[xctx->instances].instname, get_tok_value(xctx->inst[n].prop_ptr, "name",0));
+         */
+        xctx->inst[xctx->instances].instname = NULL; /* will be set in new_prop_string() */
         my_strdup(312, &xctx->inst[xctx->instances].lab, xctx->inst[n].lab);
         xctx->inst[n].sel=0;
         xctx->inst[xctx->instances].flags = xctx->inst[n].flags;
@@ -987,8 +990,6 @@ void copy_objects(int what)
         if(!newpropcnt) hash_all_names(xctx->instances);
         new_prop_string(xctx->instances, xctx->inst[n].prop_ptr,newpropcnt++, 
           tclgetboolvar("disable_unique_names"));
-        my_strdup2(235, &xctx->inst[xctx->instances].instname,
-                    get_tok_value(xctx->inst[xctx->instances].prop_ptr, "name", 0));
         xctx->instances++;
       } /* if(xctx->sel_array[i].type == ELEMENT) */
     }  /* for(i = 0; i < xctx->lastsel; i++) */

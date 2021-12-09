@@ -1986,7 +1986,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
     /* xschem replace_symbol R3 capa.sym */
       int inst, fast = 0;
-      char *newname = NULL;
       cmd_found = 1;
       if(argc == 5) {
         if(!strcmp(argv[4], "fast")) {
@@ -2031,7 +2030,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
    
         my_strdup(370, &name, xctx->inst[inst].instname);
-        my_strdup2(510, &newname, name);
         if(name && name[0] )
         {
           /* 20110325 only modify prefix if prefix not NUL */
@@ -2040,9 +2038,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_strdup(371, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
           hash_all_names(inst);
           new_prop_string(inst, ptr,0, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
-          my_strdup2(517, &newname, get_tok_value(xctx->inst[inst].prop_ptr, "name",0));
-          my_strdup2(372, &xctx->inst[inst].instname, newname);
-   
           type=xctx->sym[xctx->inst[inst].ptr].type;
           cond= !type || !IS_LABEL_SH_OR_PIN(type);
           if(cond) xctx->inst[inst].flags|=2;
@@ -2060,8 +2055,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         bbox(SET,0.0,0.0,0.0,0.0);
         draw();
         bbox(END,0.0,0.0,0.0,0.0);
-        Tcl_SetResult(interp, newname , TCL_VOLATILE);
-        my_free(528, &newname);
+        Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
       }
     }
    
@@ -2406,8 +2400,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], NULL),fast, 
             tclgetboolvar("disable_unique_names"));
         }
-        my_strdup2(367, &xctx->inst[inst].instname, get_tok_value(xctx->inst[inst].prop_ptr, "name",0));
-
         type=xctx->sym[xctx->inst[inst].ptr].type;
         cond= !type || !IS_LABEL_SH_OR_PIN(type);
         if(cond) xctx->inst[inst].flags|=2;
