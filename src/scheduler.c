@@ -1694,8 +1694,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"paste"))
     {
+      xRect boundbox;
       cmd_found = 1;
       merge_file(2,".sch");
+      if(argc > 3) {
+        xctx->deltax = atof(argv[2]);
+        xctx->deltay = atof(argv[3]);
+        move_objects(END, 0, 0.0, 0.0);
+      }
       Tcl_ResetResult(interp);
     }
    
