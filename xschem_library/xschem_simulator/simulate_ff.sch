@@ -351,7 +351,7 @@ tclcommand="
     update ;# allow event loop to come in (update screen, user input etc) 
     incr count
     if \{$count>100 || $tclstop == 1\} break
-    puts \\"simulating: loop $count\\"
+    # puts \\"simulating: loop $count\\"
     xschem logic_set $logic_value
     after $duration
     set logic_value [expr !$logic_value]

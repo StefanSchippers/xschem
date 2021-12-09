@@ -108,13 +108,13 @@ static struct inst_hashentry *inst_hash_lookup(char *token, int value, int what,
   }
 }
 
-static struct inst_hashentry *inst_free_hash_entry(struct inst_hashentry *entry)
+static struct inst_hashentry *inst_hash_free_entry(struct inst_hashentry *entry)
 {
   struct inst_hashentry *tmp;
   while( entry ) {
     tmp = entry -> next;
     my_free(970, &(entry->token));
-    dbg(3, "inst_free_hash_entry(): removing entry %lu\n", (unsigned long)entry);
+    dbg(3, "inst_hash_free_entry(): removing entry %lu\n", (unsigned long)entry);
     my_free(971, &entry);
     entry = tmp;
   }
@@ -128,7 +128,7 @@ static void inst_hash_free(void) /* remove the whole hash table  */
  dbg(1, "inst_hash_free(): removing hash table\n");
  for(i=0;i<HASHSIZE;i++)
  {
-   xctx->inst_table[i] = inst_free_hash_entry( xctx->inst_table[i] );
+   xctx->inst_table[i] = inst_hash_free_entry( xctx->inst_table[i] );
  }
 }
 

@@ -2484,6 +2484,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1],"test"))
     {
       cmd_found = 1;
+      /* {
+        xRect boundbox;
+        rebuild_selected_array();
+        calc_drawing_bbox(&boundbox, 1);
+        xctx->movelastsel = xctx->lastsel;
+        xctx->x1=boundbox.x1;
+        xctx->y_1=boundbox.y1;
+        xctx->rotatelocal=0;
+        xctx->move_flip = 1;
+        xctx->move_rot = 0;
+        xctx->ui_state|=STARTCOPY;
+        xctx->deltax = 5000.0;
+        xctx->deltay = 5000.0;
+        copy_objects(END);
+      } */
     }
    
     else if(!strcmp(argv[1],"toggle_colorscheme"))
