@@ -83,7 +83,6 @@ static struct inst_hashentry *inst_hash_lookup(char *token, int value, int what,
         *preventry=entry;
         entry->next=NULL;
         entry->hash=hashcode;
-        entry->token=NULL;
         entry->token = my_malloc(426, token_size + 1);
         memcpy(entry->token,token, token_size + 1);
         entry->value = value;
