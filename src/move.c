@@ -494,7 +494,7 @@ void find_inst_to_be_redrawn(int what)
   if(what & 16) {
     my_free(1202, &xctx->inst_redraw_table);
     xctx->inst_redraw_table_size = 0;
-    int_hash_free(xctx->node_redraw_table);
+    if((s_pnetname || xctx->hilight_nets)) int_hash_free(xctx->node_redraw_table);
     return;
   }
   if((s_pnetname || xctx->hilight_nets)) {

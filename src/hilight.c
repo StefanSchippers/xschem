@@ -41,7 +41,7 @@ static unsigned int hi_hash(const char *tok)
   return hash;
 }
 
-static struct hilight_hashentry *hilight_hash_free_entry(struct hilight_hashentry *entry)
+static void hilight_hash_free_entry(struct hilight_hashentry *entry)
 {
   struct hilight_hashentry *tmp;
   while(entry) {
@@ -51,7 +51,6 @@ static struct hilight_hashentry *hilight_hash_free_entry(struct hilight_hashentr
     my_free(757, &entry);
     entry = tmp;
   }
-  return NULL;
 }
 
 static void hilight_hash_free(void) /* remove the whole hash table  */
@@ -61,7 +60,8 @@ static void hilight_hash_free(void) /* remove the whole hash table  */
  dbg(2, "hilight_hash_free(): removing hash table\n");
  for(i=0;i<HASHSIZE;i++)
  {
-  xctx->hilight_table[i] = hilight_hash_free_entry( xctx->hilight_table[i] );
+  hilight_hash_free_entry( xctx->hilight_table[i] );
+  xctx->hilight_table[i] = NULL;
  }
 }
 

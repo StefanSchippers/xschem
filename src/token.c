@@ -57,9 +57,11 @@ int name_strcmp(char *s, char *d) /* compare strings up to '\0' or'[' */
 
 /* 20180926 added token_size */
 /* what:
- * 0,XINSERT : lookup and insert in hash table (return NULL if token was not found)
- *    if token was found update value
-   3,XINSERT_NOREPLACE : same as XINSERT but do not replace existing value if token found.
+ * 0,XINSERT : lookup token and insert xctx->inst[value].instname in hash table
+ *   When inserting token must be set to xctx->inst[value].instname
+ *   (return NULL if token was not found). If token was found update value
+ *   as the table stores only the pointer to xctx->inst[value].instname
+ * 3,XINSERT_NOREPLACE : same as XINSERT but do not replace existing value if token found.
  * 1,XDELETE : delete token entry, return NULL
  * 2,XLOOKUP : lookup only
  */
@@ -83,8 +85,7 @@ static struct inst_hashentry *inst_hash_lookup(char *token, int value, int what,
         *preventry=entry;
         entry->next=NULL;
         entry->hash=hashcode;
-        entry->token = my_malloc(426, token_size + 1);
-        memcpy(entry->token,token, token_size + 1);
+        entry->token = xctx->inst[value].instname; /* do not strdup, store pointer */
         entry->value = value;
       }
       return NULL; /* token was not in hash */
@@ -92,7 +93,6 @@ static struct inst_hashentry *inst_hash_lookup(char *token, int value, int what,
     if( entry->hash==hashcode && !strcmp(token,entry->token) ) { /* found a matching token */
       if(what == XDELETE) {              /* remove token from the hash table ... */
         saveptr=entry->next;
-        my_free(968, &entry->token);
         my_free(969, &entry);
         *preventry=saveptr;
         return NULL;
@@ -107,28 +107,25 @@ static struct inst_hashentry *inst_hash_lookup(char *token, int value, int what,
   }
 }
 
-static struct inst_hashentry *inst_hash_free_entry(struct inst_hashentry *entry)
+static void inst_hash_free_entry(struct inst_hashentry *entry)
 {
   struct inst_hashentry *tmp;
   while( entry ) {
     tmp = entry -> next;
-    my_free(970, &(entry->token));
-    dbg(3, "inst_hash_free_entry(): removing entry %lu\n", (unsigned long)entry);
     my_free(971, &entry);
     entry = tmp;
   }
-  return NULL;
 }
 
 static void inst_hash_free(void) /* remove the whole hash table  */
 {
- int i;
+  int i;
 
- dbg(1, "inst_hash_free(): removing hash table\n");
- for(i=0;i<HASHSIZE;i++)
- {
-   xctx->inst_table[i] = inst_hash_free_entry( xctx->inst_table[i] );
- }
+  dbg(1, "inst_hash_free(): removing hash table\n");
+  for(i=0;i<HASHSIZE;i++) {
+    inst_hash_free_entry( xctx->inst_table[i] );
+    xctx->inst_table[i] = NULL;
+  }
 }
 
 void hash_all_names(int n)

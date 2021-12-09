@@ -615,7 +615,7 @@ struct str_hashentry *str_hash_lookup(struct str_hashentry **table, const char *
   }
 }
 
-static struct str_hashentry *str_hash_free_entry(struct str_hashentry *entry)
+static void str_hash_free_entry(struct str_hashentry *entry)
 {
   struct str_hashentry *tmp;
   while( entry ) {
@@ -625,7 +625,6 @@ static struct str_hashentry *str_hash_free_entry(struct str_hashentry *entry)
     my_free(958, &entry);
     entry = tmp;
   }
-  return NULL;
 }
 
 
@@ -635,7 +634,8 @@ void str_hash_free(struct str_hashentry **table)
 
   for(i=0;i<HASHSIZE;i++)
   {
-    table[i] = str_hash_free_entry( table[i] );
+    str_hash_free_entry( table[i] );
+    table[i] = NULL;
   }
 }
 
@@ -700,7 +700,7 @@ struct int_hashentry *int_hash_lookup(struct int_hashentry **table, const char *
   }
 }
 
-static struct int_hashentry *int_hash_free_entry(struct int_hashentry *entry)
+static void int_hash_free_entry(struct int_hashentry *entry)
 {
   struct int_hashentry *tmp;
   while( entry ) {
@@ -709,7 +709,6 @@ static struct int_hashentry *int_hash_free_entry(struct int_hashentry *entry)
     my_free(1172, &entry);
     entry = tmp;
   }
-  return NULL;
 }
 
 
@@ -719,7 +718,8 @@ void int_hash_free(struct int_hashentry **table)
 
   for(i=0;i<HASHSIZE;i++)
   {
-    table[i] = int_hash_free_entry( table[i] );
+    int_hash_free_entry( table[i] );
+    table[i] = NULL;
   }
 }
 

@@ -164,7 +164,7 @@ struct node_hashentry *bus_node_hash_lookup(const char *token, const char *dir, 
  return ptr2;
 }
 
-static struct node_hashentry *node_hash_free_entry(struct node_hashentry *entry)
+static void node_hash_free_entry(struct node_hashentry *entry)
 {
   struct node_hashentry *tmp;
 
@@ -179,7 +179,6 @@ static struct node_hashentry *node_hash_free_entry(struct node_hashentry *entry)
     my_free(867, &entry);
     entry = tmp;
   }
-  return NULL;
 }
 
 void node_hash_free(void) /* remove the whole hash table  */
@@ -189,7 +188,8 @@ void node_hash_free(void) /* remove the whole hash table  */
  dbg(2, "node_hash_free(): removing hash table\n");
  for(i=0;i<HASHSIZE;i++)
  {
-  xctx->node_table[i] = node_hash_free_entry( xctx->node_table[i] );
+  node_hash_free_entry( xctx->node_table[i] );
+  xctx->node_table[i] = NULL;
  }
 }
 
