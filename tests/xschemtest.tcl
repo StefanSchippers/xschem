@@ -16,10 +16,6 @@
 ## running this test with different xschem versions with profiling enabled (-pg) 
 ## allows to see differences in number of function calls / time spent.
 
-## calculate 32 bit hash of file, used to compare files.
-## This is NOT a crypto hash, and NOT even a strong collision resistant hash
-## but for our purposes this is enough
-
 ## move schematic and redraw in a loop.
 proc drawtest {} {
   set increment 5.0
