@@ -39,6 +39,7 @@ unsigned int hash_file(const char *f)
 {
   int fd;
   int n, i;
+  int cr = 0;
   unsigned int h=5381;
   unsigned char line[4096];
   fd = open(f, O_RDONLY);
@@ -46,10 +47,19 @@ unsigned int hash_file(const char *f)
     while( (n = read(fd, line, sizeof(line))) ) {
       for(i = 0; i < n; i++) {
         /* skip CRs so hashes will match on unix / windows */
-        if(i < n - 1 && line[i] == '\r' && line[i+1] == '\n') continue;
+        if(line[i] == '\r') {
+          cr = 1;
+          continue;
+        } else if(line[i] == '\n' && cr) {
+          cr = 0;
+        } else if(cr) { /* no skip \r if not followed by \n */
+          cr = 0;
+          h += (h << 5) + '\r';
+        }
         h += (h << 5) + line[i];
       }
     }
+    if(cr) h += (h << 5) + '\r'; /* file ends with \r not followed by \n: keep it */
     close(fd);
     return h;
   } else {
