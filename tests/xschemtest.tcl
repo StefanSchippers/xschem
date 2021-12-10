@@ -9,9 +9,9 @@
 ## - trim wires
 ## - copy/paste operations
 ## run:
-# xschem --script /path/to/drawtest.tcl
+# xschem --script /path/to/xschemtest.tcl
 ## optionally with logging to catch memory leaks:
-# xschem -d 3 -l log --script /path/to/drawtest.tcl
+# xschem -d 3 -l log --script /path/to/xschemtest.tcl
 ## and then running: xschemtest
 ## running this test with different xschem versions with profiling enabled (-pg) 
 ## allows to see differences in number of function calls / time spent.
