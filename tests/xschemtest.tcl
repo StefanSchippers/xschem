@@ -185,7 +185,6 @@ proc netlist_test {} {
 }
 
 proc xschemtest {{view 0}} {
-  global tclstop netlist_dir OS XSCHEM_SHAREDIR show_pin_net_names
   set t [time {
     ## make sure ERC window wil not pop up above schematic while doing tests
     wm deiconify .infotext
