@@ -44,7 +44,7 @@ unsigned int hash_file(const char *f)
   int cr = 0;
   unsigned int h=5381;
   char line[4096];
-  fd = fopen(f, fopen_read_mode); /* "r" on linux, "rb" on windows */
+  fd = fopen(f, "r"); /* windows won't return \r in the lines and we chop them out anyway in the code */
   if(fd) {
     while( fgets(line, sizeof(line), fd) ) {
       n = strlen(line);
