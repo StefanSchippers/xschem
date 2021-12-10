@@ -31,20 +31,23 @@ void here(int i)
 }
 
 /* super simple 32 bit hashing function for files
+ * It is suppoded to be used on text files.
+ * Calculates the same hash on windows (crlf) and unix (lf) text files.
  * If you want high collision resistance and 
  * avoid 'birthday problem' collisions use a better hash function, like md5sum
  * or sha256sum 
  */
 unsigned int hash_file(const char *f)
 {
-  int fd;
+  FILE *fd;
   int n, i;
   int cr = 0;
   unsigned int h=5381;
-  unsigned char line[4096];
-  fd = open(f, O_RDONLY);
-  if(fd >= 0) {
-    while( (n = read(fd, line, sizeof(line))) ) {
+  char line[4096];
+  fd = fopen(f, fopen_read_mode); /* "r" on linux, "rb" on windows */
+  if(fd) {
+    while( fgets(line, sizeof(line), fd) ) {
+      n = strlen(line);
       for(i = 0; i < n; i++) {
         /* skip CRs so hashes will match on unix / windows */
         if(line[i] == '\r') {
@@ -56,11 +59,11 @@ unsigned int hash_file(const char *f)
           cr = 0;
           h += (h << 5) + '\r';
         }
-        h += (h << 5) + line[i];
+        h += (h << 5) + (unsigned char)line[i];
       }
     }
     if(cr) h += (h << 5) + '\r'; /* file ends with \r not followed by \n: keep it */
-    close(fd);
+    fclose(fd);
     return h;
   } else {
     fprintf(stderr, "Can not open file %s\n", f);
