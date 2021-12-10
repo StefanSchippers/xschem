@@ -30,6 +30,35 @@ void here(int i)
   fprintf(stderr, "here %d\n", i);
 }
 
+/* super simple 32 bit hashing function for files
+ * If you want high collision resistance and 
+ * avoid 'birthday problem' collisions use a better hash function, like md5sum
+ * or sha256sum 
+ */
+unsigned int hash_file(const char *f)
+{
+  int fd;
+  int n, i;
+  unsigned int h=5381;
+  unsigned char line[4096];
+  fd = open(f, O_RDONLY);
+  if(fd >= 0) {
+    while( (n = read(fd, line, sizeof(line))) ) {
+      for(i = 0; i < n; i++) {
+        /* skip CRs so hashes will match on unix / windows */
+        if(i < n - 1 && line[i] == '\r' && line[i+1] == '\n') continue;
+        h += (h << 5) + line[i];
+      }
+    }
+    close(fd);
+    return h;
+  } else {
+    fprintf(stderr, "Can not open file %s\n", f);
+  }
+  return 0;
+}
+
+
 void set_modify(int mod)
 {
   char *top_path;

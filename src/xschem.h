@@ -887,6 +887,7 @@ extern void set_grid(double);
 extern void create_plot_cmd(void);
 extern void set_modify(int mod);
 extern void dbg(int level, char *fmt, ...);
+extern unsigned int hash_file(const char *f);
 extern void here(int i);
 extern void print_version(void);
 extern int set_netlist_dir(int force, char *dir);

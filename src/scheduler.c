@@ -1133,7 +1133,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   }
 
   else if(argv[1][0] == 'h') {   
-    if(!strcmp(argv[1],"help"))
+    if(!strcmp(argv[1],"hash_file"))
+    {
+     unsigned int h;
+     char s[40];
+     cmd_found = 1;
+     if(argc > 2) {
+       h = hash_file(argv[2]);
+       my_snprintf(s, S(s), "%u", h);
+       Tcl_SetResult(interp, s, TCL_VOLATILE);
+     }
+    }
+   
+    else if(!strcmp(argv[1],"help"))
     {
      cmd_found = 1;
      xschem_cmd_help(argc, argv);
@@ -1694,7 +1706,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"paste"))
     {
-      xRect boundbox;
       cmd_found = 1;
       merge_file(2,".sch");
       if(argc > 3) {

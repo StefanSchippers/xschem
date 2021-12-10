@@ -7,6 +7,7 @@
 ## - logic simulation engine
 ## - print png, svg, pdf
 ## - trim wires
+## - copy/paste operations
 ## run:
 # xschem --script /path/to/drawtest.tcl
 ## optionally with logging to catch memory leaks:
@@ -18,20 +19,6 @@
 ## calculate 32 bit hash of file, used to compare files.
 ## This is NOT a crypto hash, and NOT even a strong collision resistant hash
 ## but for our purposes this is enough
-proc hash_file {f} {
-  set hash 5381
-  set fd [open $f r]
-  fconfigure $fd -encoding binary -translation binary
-  set data [read $fd]
-  ## hash should be the same on windows: remove carriage returns
-  regsub -all {\r} $data {} data
-  close $fd
-  for {set i 0} {$i < [string length $data]} {incr i} {
-    set asciicode [scan [string index $data $i] %c]
-    set hash [expr {($hash * 33 + $asciicode) & 0xffffffff}]
-  }
-  return $hash
-}
 
 ## move schematic and redraw in a loop.
 proc drawtest {} {
@@ -160,13 +147,13 @@ proc xschemtest {{view 0}} {
     foreach {f h} {
         greycnt.v              389394682
         mos_power_ampli.spice  1186348644
-        autozero_comp.spice    1416313184
+        autozero_comp.spice    2011673313
         loading.vhdl           3834408538
         LCC_instances.spice    3918341865
         simulate_ff.spice      1321596936
         rom8k.spice            2198713988
     } {
-      if { [hash_file $netlist_dir/$f] == $h } {
+      if { [xschem hash_file $netlist_dir/$f] == $h } {
         puts "$f netlist check OK"
       } else {
         puts "$f netlist check FAIL"

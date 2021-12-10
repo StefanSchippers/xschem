@@ -158,7 +158,7 @@ int my_snprintf(char *string, int size, const char *format, ...)
       format_spec = 0;
       prev = f + 1;
     }
-    else if(format_spec && (*f == 'd' || *f == 'x' || *f == 'c') ) {
+    else if(format_spec && (*f == 'd' || *f == 'x' || *f == 'c' || *f == 'u') ) {
       char nfmt[50], nstr[50];
       int i, nlen;
       i = va_arg(args, int);
