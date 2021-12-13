@@ -43,42 +43,49 @@ proc execute_fileevent {id} {
   append execute(data,$id) [read $execute(pipe,$id) 1024]
   if {[eof $execute(pipe,$id)]} {
       fileevent $execute(pipe,$id) readable ""
-      # setting pipe to blocking before closing allows to see if pipeline failed
-      # do not ask status for processes that close stdout/stderr, as eof might
-      # occur before process ends and following close blocks until process terminates.
-      fconfigure $execute(pipe,$id) -blocking 1
-      set status 0
-
-      if  { [ info tclversion]  > 8.4} {
-         set catch_return [eval catch [ list {close $execute(pipe,$id)} err options] ]
-      } else {
-         set catch_return [eval catch [ list {close $execute(pipe,$id)} err] ]
-      }
-      if {$catch_return} {
-        if  { [ info tclversion] > 8.4} {
-          set details [dict get $options -errorcode]
-          if {[lindex $details 0] eq "CHILDSTATUS"} {
+      if { $execute(status,$id) } {
+        # setting pipe to blocking before closing allows to see if pipeline failed
+        # do not ask status for processes that close stdout/stderr, as eof might
+        # occur before process ends and following close blocks until process terminates.
+        fconfigure $execute(pipe,$id) -blocking 1
+        set status 0
+        if { [ info tclversion]  > 8.4} {
+          set catch_return [eval catch [list {close $execute(pipe,$id)} err options] ]
+        } else {
+          set catch_return [eval catch [list {close $execute(pipe,$id)} err] ]
+        }
+        if {$catch_return} {
+          if {[info tclversion] > 8.4} {
+            set details [dict get $options -errorcode]
+            if {[lindex $details 0] eq "CHILDSTATUS"} {
               set status [lindex $details 2]
               viewdata "Failed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)" ro
+            } else {
+              set status 1
+              if {$execute(status,$id) } {
+                viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)" ro
+              }
+            }
           } else {
             set status 1
             if {$execute(status,$id) } {
               viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)" ro
             }
           }
-        } else {
-            set status 1
-            if {$execute(status,$id) } {
-              viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)" ro
-            }
         }
-      }
-      if { $status == 0 } {
-        if {$execute(status,$id) } {
-          viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)" ro
+        if {$status == 0} {
+          if {$execute(status,$id) } {
+            viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)" ro
+          }
         }
+      } else {
+        # nonblocking close always succeed 
+        close $execute(pipe,$id)
       }
-      if { [info exists execute(callback,$id)] } { eval $execute(callback,$id); unset execute(callback,$id) } 
+      if {[info exists execute(callback,$id)]} {
+        eval $execute(callback,$id)
+        unset execute(callback,$id)
+      } 
       unset execute(pipe,$id)
       unset execute(data,$id)
       unset execute(status,$id)
@@ -117,8 +124,9 @@ proc execute {status args} {
   if { [catch {open "|$args" r} err] } {
     puts stderr "Proc execute error: $err"
     if { [info exists has_x]} {
-        tk_messageBox -message  "Can not execute '$args': ensure it is available on the system. Error: $err" \
-            -icon error -parent [xschem get topwindow] -type ok
+        tk_messageBox -message  \
+          "Can not execute '$args': ensure it is available on the system. Error: $err" \
+           -icon error -parent [xschem get topwindow] -type ok
     }
     return -1
   } else {
