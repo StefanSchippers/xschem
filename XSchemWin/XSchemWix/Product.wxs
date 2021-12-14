@@ -178,7 +178,7 @@
         <File Id="XSCHEMHELP" KeyPath="yes" Source="../../src/xschem.help" />
       </Component>
       <Component Id="CMPSRCXSCHEMRC">
-        <File Id="XSCHEMRC" KeyPath="yes" Source="../../src/xschemrc" />
+        <File Id="XSCHEMRC" KeyPath="yes" Source="xschemrc" />
       </Component>
       <Component Id="CMPSRCXSCHEMTCL">
         <File Id="XSCHEMTCL" KeyPath="yes" Source="../../src/xschem.tcl" />

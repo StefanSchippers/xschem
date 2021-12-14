@@ -55,6 +55,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]), getpid());
  fd=fopen(netl_filename, "w");
 
+ fprintf(fd, "-- sch_path: %s\n", xctx->sch[xctx->currsch]);
 
  if(xctx->netlist_name[0]) {
    my_snprintf(cellname, S(cellname), "%s", get_cell_w_ext(xctx->netlist_name, 0));

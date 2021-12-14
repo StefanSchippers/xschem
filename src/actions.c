@@ -37,7 +37,7 @@ void here(int i)
  * avoid 'birthday problem' collisions use a better hash function, like md5sum
  * or sha256sum 
  */
-unsigned int hash_file(const char *f)
+unsigned int hash_file(const char *f, int skip_path_lines)
 {
   FILE *fd;
   int n, i;
@@ -47,6 +47,10 @@ unsigned int hash_file(const char *f)
   fd = fopen(f, "r"); /* windows won't return \r in the lines and we chop them out anyway in the code */
   if(fd) {
     while( fgets(line, sizeof(line), fd) ) {
+      /* skip lines of type: '** sch_path: ...' or '-- sch_path: ...' or '// sym_path: ...' */
+      if(skip_path_lines) {
+        if(!strncmp(line+2, " sch_path: ", 11) || !strncmp(line+2, " sym_path: ", 11) ) continue;
+      }
       n = strlen(line);
       for(i = 0; i < n; i++) {
         /* skip CRs so hashes will match on unix / windows */

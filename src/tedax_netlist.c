@@ -47,6 +47,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
    tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]), getpid());
  fd=fopen(netl_filename, "w");
+ fprintf(fd, "## sch_path: %s\n", xctx->sch[xctx->currsch]);
 
  if(xctx->netlist_name[0]) {
    my_snprintf(cellname, S(cellname), "%s", get_cell_w_ext(xctx->netlist_name, 0));
@@ -168,8 +169,8 @@ void tedax_block_netlist(FILE *fd, int i)
   }
   fprintf(fd, "\n# expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
-  fprintf(fd, "# sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
-  fprintf(fd, "# sch_path: %s\n", filename);
+  fprintf(fd, "## sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  fprintf(fd, "## sch_path: %s\n", filename);
 
   fprintf(fd, "begin netlist v1 %s\n",skip_dir(xctx->sym[i].name));
   print_tedax_subckt(fd, i);

@@ -1139,7 +1139,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      char s[40];
      cmd_found = 1;
      if(argc > 2) {
-       h = hash_file(argv[2]);
+       if(argc > 3) {
+         h = hash_file(argv[2], atoi(argv[3]));
+       } else {
+         h = hash_file(argv[2], 0);
+       }
        my_snprintf(s, S(s), "%u", h);
        Tcl_SetResult(interp, s, TCL_VOLATILE);
      }

@@ -143,11 +143,12 @@ proc execute {status args} {
 
 proc netlist {source_file show netlist_file} {
  global XSCHEM_SHAREDIR flat_netlist hspice_netlist netlist_dir
- global verilog_2001 debug_var
+ global verilog_2001 debug_var OS
  
  simuldir
  set netlist_type [xschem get netlist_type]
  if {$debug_var <= -1} { puts "netlist: source_file=$source_file, netlist_type=$netlist_type" }
+ set dest $netlist_dir/$netlist_file
  if {$netlist_type eq {spice}} {
    if { $hspice_netlist == 1 } {
      set simulator {-hspice}
@@ -159,45 +160,46 @@ proc netlist {source_file show netlist_file} {
    } else {
      set xyce  {}
    }
+   set cmd  ${XSCHEM_SHAREDIR}/spice.awk
+   set brk ${XSCHEM_SHAREDIR}/break.awk
+   set flatten ${XSCHEM_SHAREDIR}/flatten.awk
    if {$flat_netlist==0} {
-     eval exec {awk -f ${XSCHEM_SHAREDIR}/spice.awk -- $simulator $xyce $source_file | \
-                awk -f ${XSCHEM_SHAREDIR}/break.awk \
-                > $netlist_dir/$netlist_file}
+     eval exec {awk -f $cmd -- $simulator $xyce $source_file | awk -f $brk > $dest}
    } else {
-     eval exec {awk -f ${XSCHEM_SHAREDIR}/spice.awk -- $simulator $xyce $source_file | \
-          awk -f ${XSCHEM_SHAREDIR}/flatten.awk | awk -f ${XSCHEM_SHAREDIR}/break.awk > $netlist_dir/$netlist_file}
+     eval exec {awk -f $cmd -- $simulator $xyce $source_file | awk -f $flatten | awk -f $brk > $dest}
    }
    if ![string compare $show "show"] {
-      textwindow $netlist_dir/$netlist_file
+      textwindow $dest
    }
  } 
  if {$netlist_type eq {vhdl}} {
-   eval exec {awk -f $XSCHEM_SHAREDIR/vhdl.awk $source_file > $netlist_dir/$netlist_file}
+   set cmd $XSCHEM_SHAREDIR/vhdl.awk
+   eval exec {awk -f $cmd $source_file > $dest}
    if ![string compare $show "show"] {
-     textwindow $netlist_dir/$netlist_file
+     textwindow $dest
    }
  }
  if {$netlist_type eq {tedax}} {
-    if {[catch {eval exec {awk -f $XSCHEM_SHAREDIR/tedax.awk $source_file | awk -f $XSCHEM_SHAREDIR/flatten_tedax.awk \
-              > $netlist_dir/$netlist_file} } err] } {
+    set cmd1  $XSCHEM_SHAREDIR/tedax.awk
+    set cmd2 $XSCHEM_SHAREDIR/flatten_tedax.awk
+    if {[catch {eval exec {awk -f $cmd1 $source_file | awk -f $cmd2 > $dest} } err] } {
      puts stderr "tEDAx errors: $err"
    }
    if ![string compare $show "show"] {
-     textwindow $netlist_dir/$netlist_file
+     textwindow $dest
    }
  }
  if {$netlist_type eq {verilog}} {
-   eval exec {awk -f ${XSCHEM_SHAREDIR}/verilog.awk $source_file \
-              > $netlist_dir/$netlist_file}
-
-   # 20140409
+   set cmd  ${XSCHEM_SHAREDIR}/verilog.awk
+   eval exec {awk -f $cmd $source_file > $dest}
    if { $verilog_2001==1 } { 
-     set vv [pid]
-     eval exec {awk -f ${XSCHEM_SHAREDIR}/convert_to_verilog2001.awk $netlist_dir/$netlist_file > $netlist_dir/${netlist_file}$vv}
-     eval exec {mv $netlist_dir/${netlist_file}$vv $netlist_dir/$netlist_file}
+     set cmd ${XSCHEM_SHAREDIR}/convert_to_verilog2001.awk
+     set interm ${dest}[pid]
+     eval exec {awk -f $cmd $dest > $interm}
+     file rename -force $interm $dest
    }
    if ![string compare $show "show"] {
-     textwindow "$netlist_dir/$netlist_file"
+     textwindow "$dest"
    }
  }
  return {}

@@ -55,3 +55,6 @@ foreach tc $tcases {
 } else {
   puts "Couldn't open $log_fn to write.  Investigate please."
 }
+
+source test_utility.tcl
+exec $xschem_cmd -q --script xschemtest.tcl > stefan_xschemtest.log 2>@1
