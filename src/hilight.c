@@ -1045,7 +1045,9 @@ static void send_current_to_gaw(int simtype, const char *node)
   my_free(1182, &t);
 }
 
-/* hilight_instances: if set == 1 hilight non pin/label symbols with "highlight=true" attribute set */
+/* hilight/clear pin/label instances attached to hilight nets, or instances with "hilight=true"
+ * attr if en_hilight_conn_inst option is set
+ */
 void propagate_hilights(int set, int clear, int mode)
 {
   int i, hilight_connected_inst;
@@ -1058,12 +1060,14 @@ void propagate_hilights(int set, int clear, int mode)
   prepare_netlist_structs(0);
   for(i = 0; i < xctx->instances; i++) {
     if(xctx->inst[i].ptr < 0 ) {
-      dbg(0, "propagate_hilights(): .ptr < 0, unbound symbol: inst %d, name=%s\n", i, xctx->inst[i].instname);
+      dbg(0, "propagate_hilights(): .ptr<0, unbound symbol: inst %d, name=%s sch=%s\n",
+          i, xctx->inst[i].instname, xctx->current_name);
       continue;
     }
     type = (xctx->inst[i].ptr+ xctx->sym)->type;
     hilight_connected_inst = en_hi && 
            ( (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4) );
+    /* hilight/clear instances with hilight=true attr set and en_hilight_conn_inst option is set ... */
     if(hilight_connected_inst && type && !IS_LABEL_SH_OR_PIN(type)) {
       int rects, j, nohilight_pins;
       if( (rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) {
@@ -1085,6 +1089,7 @@ void propagate_hilights(int set, int clear, int mode)
           xctx->inst[i].color=-10000;
         }
       }
+    /* ... else hilight/clear pin/label instances attached to hilight nets */
     } else if(type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type) ) {
       entry=bus_hilight_hash_lookup( xctx->inst[i].node[0], 0, XLOOKUP);
       if(entry && set)        xctx->inst[i].color = entry->value;

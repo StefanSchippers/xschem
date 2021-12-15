@@ -163,9 +163,9 @@ proc netlist_test {} {
   global netlist_dir
   foreach {f t h} {
     rom8k.sch            spice      1466291334
-    greycnt.sch          verilog     389394682
+    greycnt.sch          verilog    3391559642
     autozero_comp.sch    spice      2011673313
-    loading.sch          vhdl       3704887277
+    loading.sch          vhdl       2601437773
     mos_power_ampli.sch  spice      1186348644
     LCC_instances.sch    spice       824427889
     simulate_ff.sch      spice      1321596936
@@ -176,10 +176,11 @@ proc netlist_test {} {
     if {$t eq {verilog}} { set t v}
     set netlist_file $netlist_dir/[file rootname $f].$t
     ## check netlist hashes, compare with gold hashes
-    if { [xschem hash_file $netlist_file 1] == $h } {
+    set netlist_hash [xschem hash_file $netlist_file 1]
+    if { $netlist_hash == $h } {
       puts "$f netlist check OK"
     } else {
-      puts "$f netlist check FAIL"
+      puts "$f netlist check, expected hash: ${h}, calculated hash: ${netlist_hash}, FAIL"
     }
   }
 }

@@ -399,8 +399,6 @@ void verilog_block_netlist(FILE *fd, int i)
   fprintf(fd, "// sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
   fprintf(fd, "// sch_path: %s\n", filename);
 
-
-
   verilog_stop? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
   /* print verilog timescale  and preprocessor directives 10102004 */
   for(j=0;j<xctx->instances;j++)

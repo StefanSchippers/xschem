@@ -1,4 +1,4 @@
-v {xschem version=2.9.7 file_version=1.2}
+v {xschem version=3.0.0 file_version=1.2 }
 G {process
 begin
 A<='0';
@@ -76,11 +76,12 @@ wait for 10 ns;
 wait;
 end process;
 }
+K {}
 V {integer n = 0;
 
 initial begin
   $dumpfile("dumpfile.vcd");
-  $dumpvars;
+  $dumpvars(0, testbench);
   A=0;
   B=0;
   #1000;

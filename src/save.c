@@ -1137,7 +1137,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   }
   if(tclgetboolvar("autotrim_wires")) trim_wires();
   update_conn_cues(0, 0);
-  if(xctx->hilight_nets) {
+  if(xctx->hilight_nets && load_symbols) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
 }

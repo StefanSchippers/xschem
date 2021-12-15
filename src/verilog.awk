@@ -38,6 +38,7 @@ BEGIN{
  net_types["integer"]=1
  net_types["time"]=1
  net_types["real"]=1
+ net_types["signed"]=1
  net_types["logic"]=1
  net_types["bool"]=1
  direction["input"]=1
@@ -108,7 +109,8 @@ primitive==1{primitive_line=primitive_line " " $0; next  }
 
 # print signals/regs/variables
 /---- end signal list/{
- for(i in signal_basename) {
+ for(ii = 0 ; ii < signal_n; ii++) { # used to preserve order of signals
+  i = signal_num[ii] # used to preserve order of signals
   n=signal_basename[i]
   split(signal_index[i],tmp)
   hsort(tmp,n)
@@ -150,8 +152,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  }
 
 # store signals
 siglist==1 && ($1 in net_types) {
-
-# 20070525 recognize "reg real" types and similar 
+ # 20070525 recognize "reg real", "wire signed"  types and similar 
  if($2 in net_types) {
    if($3 ~ /^#/) basename=s_b($4)
    else basename=s_b($3)
@@ -166,20 +167,19 @@ siglist==1 && ($1 in net_types) {
     sub(/;.*/,"",val)
     signal_value[basename]=val
    }
+   if(!(basename in signal_basename)) signal_num[signal_n++] = basename # used to preserve order of signals
    signal_basename[basename]++
    if($3 ~ /\[.*\]/) {
     signal_index[basename]=signal_index[basename] " " s_i($3)
    }
    else signal_index[basename]="no_index"
-
  }
-# /20070525
-
+ # /20070525
  else {
    if($2 ~ /^#/) basename=s_b($3)
    else basename=s_b($2)
    signal_type[basename]=$1
-   if($2 ~ /^#/) {
+   if($2 ~ /^#/) {     # handle declarations like: wire #20 w_tmp;
     signal_delay[basename]=$2
     $2=""; $0=$0;
    }
@@ -189,6 +189,7 @@ siglist==1 && ($1 in net_types) {
     sub(/;.*/,"",val) 
     signal_value[basename]=val
    }
+   if(!(basename in signal_basename)) signal_num[signal_n++] = basename # used to preserve order of signals
    signal_basename[basename]++
    if($2 ~ /\[.*\]/) {
     signal_index[basename]=signal_index[basename] " " s_i($2)
@@ -216,6 +217,8 @@ NF==3 && $3=="(" && $1=="module" {
  delete signal_value
  delete signal_type
  delete signal_delay
+ delete signal_num # used to preserve order of signals
+ signal_n = 0 # used to preserve order of signals
 }
 
 begin_module && $1 ~/^\);$/ {

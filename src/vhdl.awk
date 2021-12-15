@@ -207,6 +207,8 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
 /^[ \t]*architecture[ \t]+.*[ \t]+is[ \t]*$/{
  arch_rep=$2
  arch=$4
+ arch_signal_n = 0 # used to preserve order of signals
+ delete arch_signal_num # used to preserve order of signals
  delete arch_signal_dir
  delete arch_index_array
  delete arch_sig_type_array
@@ -250,6 +252,9 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
   sig_dir=" downto "  # just to have a value
   sig_class=$1
  }
+ if(!(sig_basename in arch_signal_dir)) {
+   arch_signal_num[arch_signal_n++] = sig_basename # used to preserve order of signals
+ }
  arch_signal_dir[sig_basename]=sig_dir
  arch_signal_class[sig_basename]=sig_class
  arch_sig_type_array[sig_basename]=sig_type
@@ -276,75 +281,71 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
 
  if( user_declarations!="") print user_declarations
 
- ttt[1]="constant"
- ttt[2]="variable"
- ttt[3]="signal"
- for(tt=1;tt<=3;tt++)
-   for(i in arch_signal_dir)
-    if(arch_signal_class[i]==ttt[tt])
+ for(ii = 0; ii < arch_signal_n; ii++)
+ {
+  i = arch_signal_num[ii]
+  ## 04062002 don't add _vector if user defined type
+  if(arch_sig_type_array[i] ~ /^(boolean|bit|real|std_logic|integer)$/) 
+    vector_type=arch_sig_type_array[i] "_vector ("
+  else
+    vector_type=arch_sig_type_array[i] " ("
+
+  n=split(arch_index_array[i],tmp,",")
+  hsort(tmp, n)
+  if(n>1 || (arch_index_array[i] !~ /no_index/)  )  #11092003 if not no_index treat as a bus
+  {
+   if(check(tmp,n)) 
+   {
+    if(arch_signal_dir[i] == " downto ")
     {
-     ## 04062002 don't add _vector if user defined type
-     if(arch_sig_type_array[i] ~ /^(boolean|bit|real|std_logic|integer)$/) 
-       vector_type=arch_sig_type_array[i] "_vector ("
-     else
-       vector_type=arch_sig_type_array[i] " ("
-
-     n=split(arch_index_array[i],tmp,",")
-     hsort(tmp, n)
-     if(n>1 || (arch_index_array[i] !~ /no_index/)  )  #11092003 if not no_index treat as a bus
-     {
-      if(check(tmp,n)) 
-      {
-       if(arch_signal_dir[i] == " downto ")
-       {
-        arch_sig_name[entity_name, i "[" tmp[1] ":" tmp[n] "]"]=i 
-        printf "%s",arch_signal_class[i] " " i " : " vector_type tmp[1] " downto " tmp[n] ")"  #04062002
-       }
-       else
-       {
-        arch_sig_name[entity_name, i "[" tmp[n] ":" tmp[1] "]"]=i 
-        printf "%s",arch_signal_class[i] " " i " : " vector_type tmp[n] " to " tmp[1] ")" #04062002
-       }
-      }
-      else print "\n**** ERROR >>>> " i " non contigous bus ->" n, "|" arch_index_array[i] "|"
-     }
-     else 
-     {
-       # we do not declare parametrized subranges as normally will result in redeclaration
-       # of a port signal
-       if( i ~ /\[.*\]/)
-       {
-          range = s_i(i)
-          basename=s_b(i)				 # on exactly matching ranges
-          arch_sig_name[entity_name, basename "[" range "]"]=i  # used later in port maps to avoid specifying ranges
-          if( !(basename in entity_ports) )                     #09112003, eror corrected, basename instead of i in
-          {							#arch_sig_name[entity_name,...
-           if(range ~ /0:/)
-             sub(/:/, " to ", range)
-           else
-             sub(/:/, " downto ", range)
-           range= range ")"
-           printf "%s",arch_signal_class[i] " " basename " : " vector_type range #04062002
-          }
-          else continue
-       } 
-       else
-         printf "%s",arch_signal_class[i] " " i " : " arch_sig_type_array[i]
-     }
-     if(arch_value_array[i] != "") {				#08112004 add quotes on values
-       if(tolower( arch_sig_type_array[i]) ~ /std_logic/ ||	#         if not present
-          tolower(arch_sig_type_array[i]) ~ /bit/ ) {		# for verilog/VHDL compatiblity
-
-         # if(tolower(arch_sig_type_array[i]) ~ /vector/) sep="\""
-         if(n>1 || (arch_index_array[i] !~ /no_index/)  ) sep="\""
-         else sep = "'"
-         if( arch_value_array[i] !~ sep) 
-           arch_value_array[i] = sep arch_value_array[i] sep
-       }
-       printf "%s"," := " arch_value_array[i]
-     }
-     printf " ;\n"
+     arch_sig_name[entity_name, i "[" tmp[1] ":" tmp[n] "]"]=i 
+     printf "%s",arch_signal_class[i] " " i " : " vector_type tmp[1] " downto " tmp[n] ")"  #04062002
     }
+    else
+    {
+     arch_sig_name[entity_name, i "[" tmp[n] ":" tmp[1] "]"]=i 
+     printf "%s",arch_signal_class[i] " " i " : " vector_type tmp[n] " to " tmp[1] ")" #04062002
+    }
+   }
+   else print "\n**** ERROR >>>> " i " non contigous bus ->" n, "|" arch_index_array[i] "|"
+  }
+  else 
+  {
+    # we do not declare parametrized subranges as normally will result in redeclaration
+    # of a port signal
+    if( i ~ /\[.*\]/)
+    {
+       range = s_i(i)
+       basename=s_b(i)				 # on exactly matching ranges
+       arch_sig_name[entity_name, basename "[" range "]"]=i  # used later in port maps to avoid specifying ranges
+       if( !(basename in entity_ports) )                     #09112003, eror corrected, basename instead of i in
+       {							#arch_sig_name[entity_name,...
+        if(range ~ /0:/)
+          sub(/:/, " to ", range)
+        else
+          sub(/:/, " downto ", range)
+        range= range ")"
+        printf "%s",arch_signal_class[i] " " basename " : " vector_type range #04062002
+       }
+       else continue
+    } 
+    else
+      printf "%s",arch_signal_class[i] " " i " : " arch_sig_type_array[i]
+  }
+  if(arch_value_array[i] != "") {				#08112004 add quotes on values
+    if(tolower( arch_sig_type_array[i]) ~ /std_logic/ ||	#         if not present
+       tolower(arch_sig_type_array[i]) ~ /bit/ ) {		# for verilog/VHDL compatiblity
+
+      # if(tolower(arch_sig_type_array[i]) ~ /vector/) sep="\""
+      if(n>1 || (arch_index_array[i] !~ /no_index/)  ) sep="\""
+      else sep = "'"
+      if( arch_value_array[i] !~ sep) 
+        arch_value_array[i] = sep arch_value_array[i] sep
+    }
+    printf "%s"," := " arch_value_array[i]
+  }
+  printf " ;\n"
+ }
 
 
  if(user_attributes!="") print user_attributes
@@ -366,7 +367,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
 }
 
 ($1==");" && port_map==1){
- nii=split(instance,ii,",")
+ nii=split(instance,inst_arr,",")
  for(j=0;j<p;j++) {
    if(j>=g) {    # do not split generics 06042005
      actual_port_mult=split(inst_actual_port[j],actual_port_array,",")
@@ -378,7 +379,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
    ck2[j] = check2(actual_port_array,actual_port_mult)
  }
  for(i=1;i<=nii;i++) {
-   print ii[i] " : " cell
+   print inst_arr[i] " : " cell
    if(g>0)
      print "generic map ("
    else
@@ -400,7 +401,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
      if(inst_formal_port_mult[j]<0) {
        parametrized_formal_range=1     # 20100408 
        inst_formal_port_mult[j] = actual_port_mult
-       inst_formal_up[j] = actual_port_mult -1  # 20100419  assume inst_formal_low=0 in case of parametrized vector port...
+       inst_formal_up[j] = actual_port_mult -1  #assume inst_formal_low=0 in case of parametrized vector port...
      }
 
      a=((i-1)*inst_formal_port_mult[j]) % actual_port_mult+1
@@ -468,6 +469,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
    }
    printf "\n);\n"
  }
+ delete inst_arr
  port_map=0
  print_arch_definition=1
  no_print=1
