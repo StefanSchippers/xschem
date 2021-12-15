@@ -162,18 +162,21 @@ proc test_xschem_simulation {{f simulate_ff.sch}} {
 proc netlist_test {} {
   global netlist_dir
   foreach {f t h} {
-    rom8k.sch            spice      1466291334
-    greycnt.sch          verilog    3391559642
-    autozero_comp.sch    spice      2011673313
-    loading.sch          vhdl       2601437773
-    mos_power_ampli.sch  spice      1186348644
-    LCC_instances.sch    spice       824427889
-    simulate_ff.sch      spice      1321596936
+    rom8k.sch               spice      1466291334
+    greycnt.sch             verilog    3391559642
+    autozero_comp.sch       spice      2011673313
+    loading.sch             vhdl       2601437773
+    mos_power_ampli.sch     spice      1186348644
+    hierarchical_tedax.sch  tedax       998070173
+    LCC_instances.sch       spice       824427889
+    pcb_test1.sch           tedax      1295717013
+    simulate_ff.sch         spice      1321596936
   } {
     xschem set netlist_type $t
     xschem load [abs_sym_path $f]
     xschem netlist
     if {$t eq {verilog}} { set t v}
+    if {$t eq {tedax}} { set t tdx}
     set netlist_file $netlist_dir/[file rootname $f].$t
     ## check netlist hashes, compare with gold hashes
     set netlist_hash [xschem hash_file $netlist_file 1]

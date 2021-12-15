@@ -66,6 +66,7 @@ $1=="device"||$1=="footprint"{
     for(i=3; i<=NF;i++) {
       fp = ((i==3) ? $i : fp " " $i)
     }
+    if(!(inst_name in footprint)) footprint_num[footprint_n++] = inst_name
     footprint[inst_name] = fp
   }
   next
@@ -80,6 +81,7 @@ $1=="device"||$1=="footprint"{
     for(i=3; i<=NF;i++) {
       dev = ((i==3) ? $i : dev " " $i)
     }
+    if(!(inst_name in device)) device_num[device_n++] = inst_name
     device[inst_name] = dev
   }
   next
@@ -101,17 +103,18 @@ $1=="device"||$1=="footprint"{
   # conn lines need not to be printed but pinslot and pinidx lines do.
   for(i=1; i<=numslots;i++) {
     curr_pin = (nn>1) ? pinlist_arr[i]: pinlist_arr[1]
-    if(!((inst_name, curr_pin) in arr) || arr[inst_name, curr_pin]=="" || arr[inst_name, curr_pin] ~/^--UNCONN--/) {
+    if(!((inst_name,curr_pin) in arr)) arr_num[arr_n++] = (inst_name SUBSEP curr_pin)
+    if(!((inst_name,curr_pin) in arr) || arr[inst_name,curr_pin]=="" || arr[inst_name,curr_pin] ~/^--UNCONN--/) {
       if(curr_pin == pin_number) {
-        arr[inst_name, curr_pin]=net_name SUBSEP pin_index SUBSEP pin_name SUBSEP i SUBSEP slotted
+        arr[inst_name,curr_pin]=net_name SUBSEP pin_index SUBSEP pin_name SUBSEP i SUBSEP slotted
       } else {
-        arr[inst_name, curr_pin]="--UNCONN--" SUBSEP pin_index SUBSEP pin_name SUBSEP i SUBSEP slotted
+        arr[inst_name,curr_pin]="--UNCONN--" SUBSEP pin_index SUBSEP pin_name SUBSEP i SUBSEP slotted
       }
     # hidden connections (VCC, VSS on slotted devices, usually) specified on instance have higher
     # precedence w.r.t. default specified in symbol.
     } else if($0 ~ /# instance_based/ && curr_pin==pin_number) {
       # overwrite with instance specified net name.
-      arr[inst_name, curr_pin]=net_name SUBSEP pin_index SUBSEP pin_name SUBSEP i SUBSEP slotted
+      arr[inst_name,curr_pin]=net_name SUBSEP pin_index SUBSEP pin_name SUBSEP i SUBSEP slotted
     }
   }
   next
@@ -127,7 +130,8 @@ $1=="device"||$1=="footprint"{
 }
 
 /^end netlist/{
-  for(i in arr) { 
+  for(ii = 0; ii < arr_n; ii++) { # used to preserve ordering
+    i = arr_num[ii]
     if(arr[i]) {
       split(i, i_arr, SUBSEP)
       split(arr[i], n_arr, SUBSEP)
@@ -141,12 +145,27 @@ $1=="device"||$1=="footprint"{
       print "pinname", i_arr[1], i_arr[2], n_arr[3]
     }
   }
-  for(i in footprint) print "footprint", i, footprint[i]
-  for(i in device) print "device", i, device[i]
+ 
+  for(ii = 0; ii < footprint_n; ii++) { # used to preserve ordering
+    i = footprint_num[ii]
+    print "footprint", i, footprint[i]
+  }
+
+  for(ii = 0; ii < device_n; ii++) { # used to preserve ordering
+    i = device_num[ii]
+    print "device", i, device[i]
+  }
   print $0
   delete arr
+  delete arr_num # used to preserve ordering
+  arr_n = 0
   delete footprint
+  delete footprint_num # used to preserve ordering
+  footprint_n = 0
   delete device
+  delete device_num # used to preserve ordering
+  device_n = 0
+  
   next
 }
 
