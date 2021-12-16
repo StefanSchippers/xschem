@@ -2797,8 +2797,8 @@ const char *tclgetvar(const char *s)
   const char *p;
   p = Tcl_GetVar(interp, s, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
   if(!p) {
-    dbg(0, "%s\n", tclresult());
-    return "";
+    dbg(1, "%s\n", tclresult());
+    return NULL;
   }
   return p;
 }

@@ -3660,7 +3660,7 @@ set tctx::global_list {
   dark_colorscheme dim_bg dim_value disable_unique_names do_all_inst draw_grid draw_window
   edit_prop_pos edit_prop_size editprop_sympath edit_symbol_prop_new_sel enable_dim_bg enable_stretch 
   en_hilight_conn_inst filetmp
-  flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter hide_symbols hspice_netlist 
+  flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter hide_symbols hsize hspice_netlist 
   incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
   input_line_cmd input_line_data launcher_default_program light_colors line_width local_netlist_dir
   myload_d myload_default_geometry myload_dir1 myload_dir2 myload_dirs2 myload_files1 myload_files2 myload_index1
@@ -3673,7 +3673,7 @@ set tctx::global_list {
   text_line_default_geometry textwindow_fileid textwindow_filename textwindow_w tmp_bus_char 
   toolbar_horiz toolbar_visible top_subckt transparent_svg undo_type
   use_label_prefix use_lab_wire user_wants_copy_cell verilog_2001
-  viewdata_fileid viewdata_filename viewdata_w xschem_libs xschem_listen_port
+  viewdata_fileid viewdata_filename viewdata_w vsize xschem_libs xschem_listen_port
 }
 
 ## list of global arrays to save/restore on context switching

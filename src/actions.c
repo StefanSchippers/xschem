@@ -2310,9 +2310,9 @@ int place_text(int draw_text, double mx, double my)
   tclsetvar("props","");
   tclsetvar("retval","");
 
-  if(tclgetvar("hsize")==NULL)
+  if(!tclgetvar("hsize"))
    tclsetvar("hsize","0.4");
-  if(tclgetvar("vsize")==NULL)
+  if(!tclgetvar("vsize"))
    tclsetvar("vsize","0.4");
   tcleval("enter_text {text:} normal");
 
