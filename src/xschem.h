@@ -303,7 +303,6 @@ extern char win_temp_dir[PATH_MAX];
 #define CLIP(x,a,b) ((x) < a ? (a) : (x) > b ? (b) : (x))
 
 #define MINOR(a,b) ( (a) <= (b) ? (a) : (b) )
-#define ROUND(a) ((a) > 0.0 ? ceil((a) - 0.5) : floor((a) + 0.5))
 
 #define IS_LABEL_SH_OR_PIN(type) (!(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"opin") && \
                                  strcmp(type,"show_label") && strcmp(type,"iopin")))
@@ -1161,6 +1160,7 @@ extern void my_realloc(int id, void *ptr,size_t size);
 extern void *my_calloc(int id, size_t nmemb, size_t size);
 extern void my_free(int id, void *ptr);
 extern size_t my_strcat(int id, char **, const char *);
+extern double my_round(double a);
 extern const char *subst_token(const char *s, const char *tok, const char *new_val);
 extern void new_prop_string(int i, const char *old_prop,int fast, int dis_uniq_names);
 extern void hash_name(char *token, int remove);

@@ -2436,7 +2436,7 @@ void descend_symbol(void)
 }
 
 /* 20111023 align selected object to current grid setting */
-#define SNAP_TO_GRID(a)  (a=ROUND(( a)/c_snap)*c_snap )
+#define SNAP_TO_GRID(a)  (a=my_round(( a)/c_snap)*c_snap )
 void round_schematic_to_grid(double c_snap)
 {
  int i, c, n, p;

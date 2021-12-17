@@ -413,7 +413,7 @@ const char *list_tokens(const char *s, int with_quotes)
 /* state machine that parses a string made up of <token>=<value> ... */
 /* couples and returns the value of the given token  */
 /* if s==NULL or no match return empty string */
-/* NULL tok NOT ALLOWED !!!!!!!! */
+/* NULL tok is used  with NULL s to free internal storage (destructor) */
 /* never returns NULL... */
 /* with_quotes: */
 /* bit 0: */

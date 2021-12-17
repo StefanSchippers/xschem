@@ -623,10 +623,12 @@ void enable_layers(void)
 {
   int i;
   char tmp[50];
+  const char *en;
   xctx->n_active_layers = 0;
   for(i = 0; i< cadlayers; i++) {
     my_snprintf(tmp, S(tmp), "enable_layer(%d)",i);
-    if(tclgetvar(tmp)[0] == '0') xctx->enable_layer[i] = 0;
+    en = tclgetvar(tmp);
+    if(!en || en[0] == '0') xctx->enable_layer[i] = 0;
     else {
       xctx->enable_layer[i] = 1;
       if(i>=7) {
@@ -2296,6 +2298,13 @@ int text_bbox(const char *str,double xscale, double yscale,
   return 1;
 }
 
+/* does not exist in C89 */
+double my_round(double a)
+{
+  /* return 0.0 or -0.0 if a == 0.0 or -0.0 */
+  return (a == 0.0) ? a : (a > 0.0) ? floor(a + 0.5) : ceil(a - 0.5);
+}
+
 int place_text(int draw_text, double mx, double my)
 {
   char *txt;
@@ -2319,7 +2328,7 @@ int place_text(int draw_text, double mx, double my)
   dbg(1, "place_text(): hsize=%s vsize=%s\n",tclgetvar("hsize"), tclgetvar("vsize") );
 
   txt =  (char *)tclgetvar("retval");
-  if(!strcmp(txt,"")) return 0;   /*  dont allocate text object if empty string given */
+  if(!txt || !strcmp(txt,"")) return 0;   /*  dont allocate text object if empty string given */
   xctx->push_undo();
   check_text_storage();
   t->txt_ptr=NULL;

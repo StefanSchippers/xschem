@@ -220,8 +220,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  }
  xctx->mousex=X_TO_XSCHEM(mx);
  xctx->mousey=Y_TO_XSCHEM(my);
- xctx->mousex_snap=ROUND(xctx->mousex / c_snap) * c_snap;
- xctx->mousey_snap=ROUND(xctx->mousey / c_snap) * c_snap;
+ xctx->mousex_snap=my_round(xctx->mousex / c_snap) * c_snap;
+ xctx->mousey_snap=my_round(xctx->mousey / c_snap) * c_snap;
  my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
    xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
  statusmsg(str,1);
@@ -597,8 +597,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      if(xctx->semaphore >= 2) break;
      if(!(xctx->ui_state & STARTWIRE)){
        find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
-       xctx->mx_double_save = ROUND(x / c_snap) * c_snap;
-       xctx->my_double_save = ROUND(y / c_snap) * c_snap;
+       xctx->mx_double_save = my_round(x / c_snap) * c_snap;
+       xctx->my_double_save = my_round(y / c_snap) * c_snap;
        new_wire(PLACE, x, y);
      }
      else {
@@ -1432,18 +1432,18 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
 
     clear_drawing();
     for(i=0;i<5000; i++) {
-      w = (1+ROUND(rand()%1200/snap))*snap;
-      x1 = 40000+ROUND(rand()%30000/snap)*snap;
-      y1 = 40000+ROUND(rand()%30000/snap)*snap;
+      w = (1+my_round(rand()%1200/snap))*snap;
+      x1 = 40000+my_round(rand()%30000/snap)*snap;
+      y1 = 40000+my_round(rand()%30000/snap)*snap;
       x2=x1+w;
       y2=y1;
       ORDER(x1, y1, x2, y2);
       storeobject(-1, x1, y1, x2, y2 ,WIRE,0,0,NULL);
     }
     for(i=0;i<5000; i++) {
-      w = (1+ROUND(rand()%1200/snap))*snap;
-      x1 = 40000+ROUND(rand()%30000/snap)*snap;
-      y1 = 40000+ROUND(rand()%30000/snap)*snap;
+      w = (1+my_round(rand()%1200/snap))*snap;
+      x1 = 40000+my_round(rand()%30000/snap)*snap;
+      y1 = 40000+my_round(rand()%30000/snap)*snap;
       x2=x1;
       y2=y1+w;
       ORDER(x1, y1, x2, y2);
@@ -1681,8 +1681,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        double x, y;
 
        find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
-       xctx->mx_double_save = ROUND(x / c_snap) * c_snap;
-       xctx->my_double_save = ROUND(y / c_snap) * c_snap;
+       xctx->mx_double_save = my_round(x / c_snap) * c_snap;
+       xctx->my_double_save = my_round(y / c_snap) * c_snap;
        new_wire(PLACE, x, y);
        xctx->ui_state &=~MENUSTARTSNAPWIRE;
        break;
