@@ -1584,7 +1584,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"make_symbol"))
     {
       cmd_found = 1;
-      if(has_x) tcleval("tk_messageBox -type okcancel -message {do you want to make symbol view ?}");
+      if(has_x) tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
+                        "-message {do you want to make symbol view ?}");
       if(!has_x || strcmp(tclresult(),"ok")==0) {
         save_schematic(xctx->sch[xctx->currsch]);
         make_symbol();
@@ -1650,7 +1651,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
           global_tedax_netlist(1);
         else
-          if(has_x) tcleval("tk_messageBox -type ok -message {Please Set netlisting mode (Options menu)}");
+          if(has_x) tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
+                            "-message {Please Set netlisting mode (Options menu)}");
       }
     }
    
@@ -2148,7 +2150,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         else  r = search(argv[4],argv[5],1,select);
         if(r == 0) {
           if(has_x && !strcmp(argv[1],"searchmenu")) 
-            tcleval("tk_messageBox -type ok -message {Not found.}");
+            tcleval("tk_messageBox -type ok -parent [xschem get topwindow] -message {Not found.}");
           Tcl_SetResult(interp,"0", TCL_STATIC);
         } else {
           Tcl_SetResult(interp,"1", TCL_STATIC);

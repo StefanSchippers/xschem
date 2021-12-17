@@ -832,7 +832,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='a' && state == 0)   /* make symbol */
    {
     if(xctx->semaphore >= 2) break;
-    tcleval("tk_messageBox -type okcancel -message {do you want to make symbol view ?}");
+    tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
+            "-message {do you want to make symbol view ?}");
     if(strcmp(tclresult(),"ok")==0)
     {
      save_schematic(xctx->sch[xctx->currsch]);
@@ -967,7 +968,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='s' && state & Mod1Mask)                     /* reload */
    {
     if(xctx->semaphore >= 2) break;
-     tcleval("tk_messageBox -type okcancel -message {Are you sure you want to reload from disk?}");
+     tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
+             "-message {Are you sure you want to reload from disk?}");
      if(strcmp(tclresult(),"ok")==0) {
         char filename[PATH_MAX];
         unselect_all();
@@ -1306,7 +1308,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
         global_tedax_netlist(1);
       else
-        if(has_x) tcleval("tk_messageBox -type ok -message {Please Set netlisting mode (Options menu)}");
+        if(has_x) tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
+                          "-message {Please Set netlisting mode (Options menu)}");
 
       dbg(1, "callback(): -------------\n");
     }
@@ -1328,7 +1331,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
         global_tedax_netlist(0);
       else
-        if(has_x) tcleval("tk_messageBox -type ok -message {Please Set netlisting mode (Options menu)}");
+        if(has_x) tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
+                          "-message {Please Set netlisting mode (Options menu)}");
       dbg(1, "callback(): -------------\n");
     }
     break;

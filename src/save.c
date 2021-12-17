@@ -2224,7 +2224,8 @@ void make_schematic_symbol_from_sel(void)
   my_strncpy(filename, tclresult(), S(filename));
   if (!strcmp(filename, xctx->sch[xctx->currsch])) {
     if (has_x)
-      tcleval("tk_messageBox -type ok -message {Cannot overwrite current schematic}");
+      tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
+              "-message {Cannot overwrite current schematic}");
   }
   else if (strlen(filename)) {
     if (xctx->lastsel) xctx->push_undo();
@@ -2234,7 +2235,8 @@ void make_schematic_symbol_from_sel(void)
     if (has_x)
     {
       my_snprintf(name, S(name), 
-        "tk_messageBox -type okcancel -message {do you want to make symbol view for %s ?}", filename);
+        "tk_messageBox -type okcancel -parent [xschem get topwindow] "
+        "-message {do you want to make symbol view for %s ?}", filename);
       tcleval(name);
     }
     if (!has_x || !strcmp(tclresult(), "ok")) {

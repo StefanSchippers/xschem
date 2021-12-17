@@ -261,22 +261,22 @@ C {dlrtp_1.sym} 830 -690 0 0 {name=x15 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefi
 C {dlrtn_1.sym} 560 -690 0 0 {name=x16 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {dfrtp_1.sym} 180 -720 0 0 {name=x13 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
 C {inv_2.sym} 170 -820 0 1 {name=x14 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {n.sym} 1820 -240 0 0 {name=m7 model=cmosn w=wn l=lln m=1}
-C {n.sym} 1950 -190 0 0 {name=m8 model=cmosn w=wn l=lln m=1}
+C {ntrans.sym} 1820 -240 0 0 {name=m7 model=cmosn w=wn l=lln m=1}
+C {ntrans.sym} 1950 -190 0 0 {name=m8 model=cmosn w=wn l=lln m=1}
 C {lab_pin.sym} 1690 -280 0 0 {name=p24 lab=A}
 C {lab_pin.sym} 1690 -190 0 0 {name=p25 lab=B}
 C {lab_pin.sym} 2030 -190 0 1 {name=p27 lab=GND}
 C {lab_pin.sym} 1890 -240 0 1 {name=p30 lab=GND}
-C {p.sym} 1820 -340 0 0 {name=m4 model=cmosp w=wp l=lp  m=1 }
-C {p.sym} 1820 -440 0 0 {name=m9 model=cmosp w=wp l=lp  m=1 }
+C {ptrans.sym} 1820 -340 0 0 {name=m4 model=cmosp w=wp l=lp  m=1 }
+C {ptrans.sym} 1820 -440 0 0 {name=m9 model=cmosp w=wp l=lp  m=1 }
 C {lab_pin.sym} 2020 -300 0 1 {name=p26 lab=Z}
 C {lab_pin.sym} 1900 -440 0 1 {name=p31 lab=VCC}
 C {gnd.sym} 1840 -140 0 0 {name=l3 lab=GND}
 C {vdd.sym} 1840 -500 0 0 {name=l4 lab=VCC}
-C {p.sym} 2330 -440 0 0 {name=m2 model=cmosp w=wp l=lp  m=1 }
-C {p.sym} 2450 -380 0 0 {name=m3 model=cmosp w=wp l=lp  m=1 }
-C {n.sym} 2370 -260 0 0 {name=m5 model=cmosn w=wn l=lln m=1}
-C {n.sym} 2370 -170 0 0 {name=m6 model=cmosn w=wn l=lln m=1}
+C {ptrans.sym} 2330 -440 0 0 {name=m2 model=cmosp w=wp l=lp  m=1 }
+C {ptrans.sym} 2450 -380 0 0 {name=m3 model=cmosp w=wp l=lp  m=1 }
+C {ntrans.sym} 2370 -260 0 0 {name=m5 model=cmosn w=wn l=lln m=1}
+C {ntrans.sym} 2370 -170 0 0 {name=m6 model=cmosn w=wn l=lln m=1}
 C {lab_pin.sym} 2440 -260 0 1 {name=p22 lab=GND}
 C {lab_pin.sym} 2440 -170 0 1 {name=p28 lab=GND}
 C {lab_pin.sym} 2410 -440 0 1 {name=p29 lab=VCC}
@@ -286,25 +286,25 @@ C {gnd.sym} 2390 -120 0 0 {name=l12 lab=GND}
 C {lab_pin.sym} 2180 -310 0 0 {name=p21 lab=B}
 C {lab_pin.sym} 2180 -350 0 0 {name=p23 lab=A}
 C {inv_2.sym} 660 -820 0 1 {name=x17 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {n.sym} 300 -1170 1 0 {name=m1 model=cmosn w=wn l=lln m=1}
+C {ntrans.sym} 300 -1170 1 0 {name=m1 model=cmosn w=wn l=lln m=1}
 C {lab_pin.sym} 300 -1150 1 1 {name=p6 lab=GND}
-C {p.sym} 300 -1010 3 0 {name=m10 model=cmosp w=wp l=lp  m=1 }
+C {ptrans.sym} 300 -1010 3 0 {name=m10 model=cmosp w=wp l=lp  m=1 }
 C {lab_pin.sym} 300 -1030 3 1 {name=p18 lab=VCC}
 C {inv_2.sym} 210 -1220 0 0 {name=x18 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {n.sym} 300 -1430 1 0 {name=m11 model=cmosn w=wn l=lln m=1}
+C {ntrans.sym} 300 -1430 1 0 {name=m11 model=cmosn w=wn l=lln m=1}
 C {lab_pin.sym} 300 -1410 1 1 {name=p33 lab=GND}
-C {p.sym} 300 -1270 3 0 {name=m12 model=cmosp w=wp l=lp  m=1 }
+C {ptrans.sym} 300 -1270 3 0 {name=m12 model=cmosp w=wp l=lp  m=1 }
 C {lab_pin.sym} 300 -1290 3 1 {name=p34 lab=VCC}
 C {vdd.sym} 100 -1350 0 0 {name=l5 lab=VCC}
 C {gnd.sym} 100 -1090 0 0 {name=l6 lab=GND}
-C {n.sym} 650 -1170 3 1 {name=m13 model=cmosn w=wn l=lln m=1}
+C {ntrans.sym} 650 -1170 3 1 {name=m13 model=cmosn w=wn l=lln m=1}
 C {lab_pin.sym} 650 -1150 1 1 {name=p35 lab=GND}
-C {p.sym} 650 -1010 1 1 {name=m14 model=cmosp w=wp l=lp  m=1 }
+C {ptrans.sym} 650 -1010 1 1 {name=m14 model=cmosp w=wp l=lp  m=1 }
 C {lab_pin.sym} 650 -1030 3 1 {name=p36 lab=VCC}
 C {inv_2.sym} 740 -1220 0 1 {name=x19 VGND=VGND VNB=VNB VPB=VPB VPWR=VPWR prefix=sky130_fd_sc_hd__ }
-C {n.sym} 650 -1430 3 1 {name=m15 model=cmosn w=wn l=lln m=1}
+C {ntrans.sym} 650 -1430 3 1 {name=m15 model=cmosn w=wn l=lln m=1}
 C {lab_pin.sym} 650 -1410 1 1 {name=p37 lab=GND}
-C {p.sym} 650 -1270 1 1 {name=m16 model=cmosp w=wp l=lp  m=1 }
+C {ptrans.sym} 650 -1270 1 1 {name=m16 model=cmosp w=wp l=lp  m=1 }
 C {lab_pin.sym} 650 -1290 3 1 {name=p38 lab=VCC}
 C {vdd.sym} 850 -1350 0 1 {name=l7 lab=VCC}
 C {gnd.sym} 850 -1090 0 1 {name=l8 lab=GND}

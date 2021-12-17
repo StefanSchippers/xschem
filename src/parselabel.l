@@ -110,7 +110,8 @@ const char *expandlabel(const char *s, int *m)
    cmd = my_malloc(526, l);
    fprintf(errfp, "syntax error in %s\n", s);
    my_snprintf(cmd, l, 
-     "tk_messageBox -icon error -type ok -message {Syntax error in identifier expansion: %s}", s);
+     "tk_messageBox -icon error -type ok -parent [xschem get topwindow] "
+     "-message {Syntax error in identifier expansion: %s}", s);
    if(has_x) tcleval(cmd);
    my_free(543, &cmd);
 
