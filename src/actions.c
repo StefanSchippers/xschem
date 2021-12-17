@@ -2298,11 +2298,11 @@ int text_bbox(const char *str,double xscale, double yscale,
   return 1;
 }
 
-/* does not exist in C89 */
+/* round() does not exist in C89 */
 double my_round(double a)
 {
   /* return 0.0 or -0.0 if a == 0.0 or -0.0 */
-  return (a == 0.0) ? a : (a > 0.0) ? floor(a + 0.5) : ceil(a - 0.5);
+  return (a > 0.0) ? floor(a + 0.5) : (a < 0.0) ? ceil(a - 0.5) : a;
 }
 
 int place_text(int draw_text, double mx, double my)
