@@ -450,7 +450,7 @@ void ask_new_file(void)
     if(xctx->modified) {
       if(save(1) == -1 ) return; /*  user cancels save, so do nothing. */
     }
-    tcleval("load_file_dialog {Load Schematic} .sch.sym INITIALLOADDIR");
+    tcleval("load_file_dialog {Load file} .sch.sym INITIALLOADDIR");
     my_snprintf(fullname, S(fullname),"%s", tclresult());
 
 

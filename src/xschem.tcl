@@ -1192,10 +1192,7 @@ proc save_file_dialog { msg ext global_initdir {initialfile {}} {overwrt 1} } {
     set initialfile {}
   }
   set initdir $initialdir
-
   set r [load_file_dialog $msg $ext $global_initdir $initialfile 0 $overwrt]
-
-
   set initdir $temp
   return $r
 }
@@ -1410,7 +1407,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
     .dialog.l.paneright.list selection clear 0 end
     .dialog.l.paneleft.list selection set $myload_index1
   }
-  label .dialog.buttons_bot.label  -text {File:}
+  label .dialog.buttons_bot.label  -text {  File:}
   entry .dialog.buttons_bot.entry
   if { $initialfile ne {} } { 
     .dialog.buttons_bot.entry insert 0 $initialfile
@@ -1422,26 +1419,27 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
   radiobutton .dialog.buttons_bot.sch -text .sch -variable globfilter -value {*.sch} \
      -command { setglob $myload_dir1 }
   button .dialog.buttons.up -width 5 -text Up -command {load_file_dialog_up  $myload_dir1}
-  label .dialog.buttons.mkdirlab -text { New dir: }
+  label .dialog.buttons.mkdirlab -text { New dir: } -fg blue
   entry .dialog.buttons.newdir -width 16
-  button .dialog.buttons.mkdir -width 5 -text Create -command { 
+  button .dialog.buttons.mkdir -width 5 -text Create -fg blue -command { 
     load_file_dialog_mkdir [.dialog.buttons.newdir get]
   }
-  button .dialog.buttons.rmdir -width 5 -text Delete -command { 
+  button .dialog.buttons.rmdir -width 5 -text Delete -fg blue -command { 
     if { [.dialog.buttons.newdir get] ne {} } {
       file delete "${myload_dir1}/[.dialog.buttons.newdir get]"
       setglob ${myload_dir1}
       myload_set_colors2
     }
   }
-  button .dialog.buttons.pwd -text {Current file dir} -command {load_file_dialog_up  [xschem get schname]}
+  button .dialog.buttons.pwd -text {Current dir} -command {load_file_dialog_up  [xschem get schname]}
   pack .dialog.buttons.home .dialog.buttons.up .dialog.buttons.pwd -side left
   pack .dialog.buttons.mkdirlab -side left
   pack .dialog.buttons.newdir -expand true -fill x -side left
   pack .dialog.buttons.rmdir .dialog.buttons.mkdir -side right
-  pack .dialog.buttons_bot.ok .dialog.buttons_bot.cancel .dialog.buttons_bot.label -side left
-  pack .dialog.buttons_bot.entry -side left -fill x -expand true
   pack .dialog.buttons_bot.all .dialog.buttons_bot.sym .dialog.buttons_bot.sch -side left
+  pack .dialog.buttons_bot.label -side left
+  pack .dialog.buttons_bot.entry -side left -fill x -expand true
+  pack .dialog.buttons_bot.cancel .dialog.buttons_bot.ok -side left
   pack .dialog.l -expand true -fill both
   pack .dialog.buttons -side top -fill x
   pack .dialog.buttons_bot -side top -fill x
@@ -3065,15 +3063,12 @@ proc abs_sym_path {fname {ext {} } } {
   global pathlist OS
 
   set  curr_dirname [xschem get current_dirname]
-
   ## empty: do nothing
   if {$fname eq {} } return {}
-
   ## add extension for 1.0 file format compatibility
   if { $ext ne {} } { 
     set fname [file rootname $fname]$ext
   }
-
   if {$OS eq "Windows"} {
     ## absolute path: return as is
     if { [regexp {^[A-Za-z]\:/} $fname ] } {
@@ -3085,40 +3080,40 @@ proc abs_sym_path {fname {ext {} } } {
       return "$fname"
     }
   }
+  ## replace all runs of multiple / with single / in fname
+  regsub -all {/+} $fname {/} fname
+  ## replace all '/./' with '/'
+  while {[regsub {/\./} $fname {/} fname]} {}
   ## transform  a/b/../c to a/c or a/b/c/.. to a/b
   while {[regsub {([^/]*\.*[^./]+[^/]*)/\.\./?} $fname {} fname] } {}  
-  ## remove trailing '/'s to non empty path
-  regsub {([^/]+)/+$} $fname {\1} fname
-  ## if fname copy tmpfname is ../../e/f
-  ## and curr_dirname copy tmpdirname is /a/b/c
-  ## set tmpfname to /a/e/f
-  set tmpdirname $curr_dirname
-  set tmpfname $fname
+  ## remove trailing '/'  or '/.'
+  while {[regsub {/\.?$} $fname {} fname]} {}
+  ## 'found' set to 1 if fname begins with './' or  '../'
   set found 0 
-  ## if tmpfname begins with '../' remove this prefix and remove one path component from tmpdirname
-  while { [regexp {^\.\./} $tmpfname ] } {
-    set found 1
-    set tmpdirname [file dirname $tmpdirname]
-    regsub {^\.\./} $tmpfname {} tmpfname
-  }
   ## remove any leading './'
-  while { [regsub {^\./} $fname {} fname] } {set found 1}
+  while {[regsub {^\./} $fname {} fname]} {set found 1}
   ## if previous operation left fname empty set to '.'
   if { $fname eq {} } { set fname . }
   ## if fname is just "." return $curr_dirname
-  if {[regexp {^\.$} $fname] } {
-    return "$curr_dirname"
+  if {[regexp {^\.$} $fname] } { return "$curr_dirname" }
+  set tmpdirname $curr_dirname
+  set tmpfname $fname
+  ## if tmpfname begins with '../' remove this prefix and remove one path component from tmpdirname
+  while { [regsub {^\.\./} $tmpfname {} tmpfname] } {
+    set found 1
+    set tmpdirname [file dirname $tmpdirname]
   }
+  ## if tmpfname reducced to '..' return dirname of tmpdirname
+  if { $tmpfname eq {..}} { return "[file dirname $tmpdirname]" }
   ## if given file begins with './' or '../' and dir or file exists relative to curr_dirname 
   ## just return it.
   if {$found } {
-    if { [regexp {/$} $tmpdirname] } { set tmpfname "${tmpdirname}$tmpfname" 
-    } else { set tmpfname "${tmpdirname}/$tmpfname" }
+    set tmpfname "${tmpdirname}/$tmpfname"
     if { [file exists "$tmpfname"] } { return "$tmpfname" }
-    ## if file does not exists but directory does return anyway (needed when saving a new file).
+    ## if file does not exists but directory does return anyway
     if { [file exists [file dirname "$tmpfname"]] } { return "$tmpfname" }
   }
- # # if fname is present in one of the pathlist paths get the absolute path
+  ## if fname is present in one of the pathlist paths get the absolute path
   set name {}
   foreach path_elem $pathlist {
     ## in xschem a . in pathlist means the directory of currently loaded  schematic/symbol
@@ -3131,10 +3126,10 @@ proc abs_sym_path {fname {ext {} } } {
       break
     }
   }
+  ## nothing found -> use current schematic directory
   if {$name eq {} } {
     set name "$curr_dirname/$fname"
   }
-  regsub {/\.$} $name {} name
   return $name
 }
 

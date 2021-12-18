@@ -1511,7 +1511,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc>=3) {
         my_snprintf(fullname, S(fullname),"%s", argv[2]);
       } else {
-        tcleval("load_file_dialog {Load Schematic} .sch.sym INITIALLOADDIR");
+        tcleval("load_file_dialog {Load file} .sch.sym INITIALLOADDIR");
         my_snprintf(fullname, S(fullname),"%s", tclresult());
       }
       if( fullname[0] ) {
