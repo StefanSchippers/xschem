@@ -3060,65 +3060,68 @@ proc rel_sym_path {symbol} {
   return $name
 }
 
-# given a library/symbol return its absolute path
+## given a library/symbol return its absolute path
 proc abs_sym_path {fname {ext {} } } {
   global pathlist OS
 
   set  curr_dirname [xschem get current_dirname]
 
-  # empty: do nothing
+  ## empty: do nothing
   if {$fname eq {} } return {}
 
-  # add extension for 1.0 file format compatibility
+  ## add extension for 1.0 file format compatibility
   if { $ext ne {} } { 
     set fname [file rootname $fname]$ext
   }
 
   if {$OS eq "Windows"} {
-    # absolute path: return as is
+    ## absolute path: return as is
     if { [regexp {^[A-Za-z]\:/} $fname ] } {
       return "$fname"
     } 
   } else {
-    # absolute path: return as is
+    ## absolute path: return as is
     if { [regexp {^/} $fname] } {
       return "$fname"
     }
   }
-  # transform  a/b/../c to a/c or a/b/c/.. to a/b
+  ## transform  a/b/../c to a/c or a/b/c/.. to a/b
   while {[regsub {([^/]*\.*[^./]+[^/]*)/\.\./?} $fname {} fname] } {}  
-  # remove trailing '/'s to non empty path
+  ## remove trailing '/'s to non empty path
   regsub {([^/]+)/+$} $fname {\1} fname
-  # if fname copy tmpfname is ../../e/f
-  # and curr_dirname copy tmpdirname is /a/b/c
-  # set tmpfname to /a/e/f
+  ## if fname copy tmpfname is ../../e/f
+  ## and curr_dirname copy tmpdirname is /a/b/c
+  ## set tmpfname to /a/e/f
   set tmpdirname $curr_dirname
   set tmpfname $fname
   set found 0 
+  ## if tmpfname begins with '../' remove this prefix and remove one path component from tmpdirname
   while { [regexp {^\.\./} $tmpfname ] } {
     set found 1
     set tmpdirname [file dirname $tmpdirname]
     regsub {^\.\./} $tmpfname {} tmpfname
   }
+  ## remove any leading './'
+  while { [regsub {^\./} $fname {} fname] } {set found 1}
+  ## if previous operation left fname empty set to '.'
+  if { $fname eq {} } { set fname . }
+  ## if fname is just "." return $curr_dirname
+  if {[regexp {^\.$} $fname] } {
+    return "$curr_dirname"
+  }
+  ## if given file begins with './' or '../' and dir or file exists relative to curr_dirname 
+  ## just return it.
   if {$found } {
     if { [regexp {/$} $tmpdirname] } { set tmpfname "${tmpdirname}$tmpfname" 
     } else { set tmpfname "${tmpdirname}/$tmpfname" }
     if { [file exists "$tmpfname"] } { return "$tmpfname" }
-    ## should we return path if directory exists ? 
+    ## if file does not exists but directory does return anyway (needed when saving a new file).
     if { [file exists [file dirname "$tmpfname"]] } { return "$tmpfname" }
   }
-  # remove any leading './'
-  while { [regsub {^\./} $fname {} fname] } {}
-  # if previous operation left fname empty set to '.'
-  if { $fname eq {} } { set fname . }
-  # if fname is just "." return $curr_dirname
-  if {[regexp {^\.$} $fname] } {
-    return "$curr_dirname"
-  }
-  # if fname is present in one of the pathlist paths get the absolute path
+ # # if fname is present in one of the pathlist paths get the absolute path
   set name {}
   foreach path_elem $pathlist {
-    # in xschem a . in pathlist means the directory of currently loaded  schematic/symbol
+    ## in xschem a . in pathlist means the directory of currently loaded  schematic/symbol
     if { ![string compare $path_elem .]  && [info exist curr_dirname]} {
       set path_elem $curr_dirname
     }
