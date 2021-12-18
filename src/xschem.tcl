@@ -1434,7 +1434,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
       myload_set_colors2
     }
   }
-  button .dialog.buttons.pwd -text {Current file dir} -command {load_file_dialog_up  $myload_dir1}
+  button .dialog.buttons.pwd -text {Current file dir} -command {load_file_dialog_up  [xschem get schname]}
   pack .dialog.buttons.home .dialog.buttons.up .dialog.buttons.pwd -side left
   pack .dialog.buttons.mkdirlab -side left
   pack .dialog.buttons.newdir -expand true -fill x -side left

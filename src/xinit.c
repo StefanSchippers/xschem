@@ -1374,10 +1374,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_strdup(62, &up_hier, "../../..");
  }
  else my_strdup(63, &up_hier, "..");
- my_strcat(415, &win_xschem_library_path, ".");
+ /* my_strcat(415, &win_xschem_library_path, "."); */
  for (i = 0; i < WIN_XSCHEM_LIBRARY_PATH_NUM; ++i) {
    my_snprintf(tmp, S(tmp),"%s/%s/%s", install_dir, up_hier, WIN_XSCHEM_LIBRARY_PATH[i]);
-   my_strcat(416, &win_xschem_library_path, "\;"); 
+   if (i > 0) my_strcat(416, &win_xschem_library_path, "\;"); 
    my_strcat(431, &win_xschem_library_path, tmp);
  }
  my_snprintf(tmp, S(tmp), "set tmp2 {%s}; "
