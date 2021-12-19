@@ -818,7 +818,6 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
   }
  }
- else if(what & START) i=0;
  else if((what & END) && i)
  {
 #ifdef __unix__
@@ -898,7 +897,6 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
   }
  }
 
- else if(what & START) i=0;
  else if((what & END) && i)
  {
 #ifdef __unix__
@@ -963,7 +961,6 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
    XDrawArc(display, xctx->window, gc, xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
   }
  }
- else if(what & START) i=0;
  else if((what & END) && i)
  {
   XDrawArcs(display, xctx->window, gc, xarc,i);
@@ -1059,7 +1056,6 @@ void filledarc(int c, int what, double x, double y, double r, double a, double b
    if(xctx->draw_pixmap) XFillArc(display, xctx->save_pixmap, xctx->gc[c], xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
   }
  }
- else if(what & START) i=0;
  else if((what & END) && i)
  {
   if(xctx->draw_window) XFillArcs(display, xctx->window, xctx->gc[c], xarc,i);
@@ -1150,7 +1146,6 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
    }
   }
  }
- else if(what & START) i=0;
  else if((what & END) && i)
  {
   if(xctx->draw_window) XDrawArcs(display, xctx->window, xctx->gc[c], xarc,i);
@@ -1186,7 +1181,6 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
       (unsigned int)y2 - (unsigned int)y1);
   }
  }
- else if(what & START) i=0;
  else if(what & ADD)
  {
   if(i>=CADDRAWBUFFERSIZE)
@@ -1396,7 +1390,6 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
    }
   }
  }
- else if(what & START) i=0;
  else if(what & ADD)
  {
   if(i>=CADDRAWBUFFERSIZE)
@@ -1449,7 +1442,6 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
     (unsigned int)y2 - (unsigned int)y1);
   }
  }
- else if(what & START) i=0;
  else if(what & ADD)
  {
   if(i>=CADDRAWBUFFERSIZE)
@@ -1476,6 +1468,57 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
   XDrawRectangles(display, xctx->window, gc, r,i);
   i=0;
  }
+}
+
+/* boiler plate code for future draw waves in xschem */
+void draw_waves(int c, int i)
+{
+  double x1, y1, x2, y2, w, h;
+  double txtsize;
+  double txtx, txty;
+  char dash_arr[2] = {3, 3};
+  double dash_size;
+  const double margin = 0.05;
+
+  x1 = xctx->rect[c][i].x1;
+  y1 = xctx->rect[c][i].y1;
+  x2 = xctx->rect[c][i].x2;
+  y2 = xctx->rect[c][i].y2;
+  w = (x2 - x1);
+  h = (y2 - y1);
+  /* set a margin */
+  x1 += w * margin;
+  x2 -= w * margin;
+  y1 += h * margin;
+  y2 -= h * margin;
+  w = (x2 - x1);
+  h = (y2 - y1);
+  
+  dash_size = (x2 - x1) * xctx->mooz / 80.0;
+  dash_arr[0] = dash_arr[1] = dash_size > 127.0 ? 127 : dash_size;
+  txtx = (x2 + x1) / 2;
+  txty = (y2 + y1) / 2;
+  txtsize = (x2 - x1) / 400;
+  /* thin / dashed lines (axis etc) */
+  XSetDashes(display, xctx->gc[7], 0, dash_arr, 2);
+  XSetLineAttributes (display, xctx->gc[7], 0, xDashType, CapButt, JoinBevel);
+  XSetLineAttributes (display, xctx->gc[9], 0, LineSolid, CapRound , JoinRound);
+  drawline(7, NOW, x1, y1, x2, y2, 0);
+  drawline(9, NOW, x1, y2, x2, y1, 0);
+
+  #if HAS_CAIRO==1
+  cairo_save(xctx->cairo_ctx);
+  cairo_save(xctx->cairo_save_ctx);
+  cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  #endif
+  draw_string(10, NOW, "Hello World!", 0, 0, 1, 1, txtx, txty, txtsize, txtsize);
+  #if HAS_CAIRO==1
+  cairo_restore(xctx->cairo_ctx);
+  cairo_restore(xctx->cairo_save_ctx);
+  #endif
+  XSetLineAttributes (display, xctx->gc[7], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
+  XSetLineAttributes (display, xctx->gc[9], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
 }
 
 void draw(void)
@@ -1526,6 +1569,14 @@ void draw(void)
           if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c];i++) {
             xRect *r = &xctx->rect[c][i];
             drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
+            if(r->flags == 1) {
+              /* flush pending data... */
+              filledrect(c, END, 0.0, 0.0, 0.0, 0.0);
+              drawarc(c, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
+              drawrect(c, END, 0.0, 0.0, 0.0, 0.0, 0);
+              drawline(c, END, 0.0, 0.0, 0.0, 0.0, 0);
+              draw_waves(c, i); /* <<<< */
+            }
             filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
           }
           if(xctx->enable_layer[c]) for(i=0;i<xctx->arcs[c];i++) {
@@ -1557,7 +1608,6 @@ void draw(void)
                 symptr->polygons[c] ||
                 ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts) )
             {
-
                 draw_symbol(ADD, c, i,c,0,0,0.0,0.0);     /* ... then draw current layer      */
             }
           }
@@ -1638,8 +1688,6 @@ void draw(void)
          xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
     draw_selection(xctx->gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
-
-    dbg(1, "draw(): INT_WIDTH(lw)=%d\n",INT_WIDTH(xctx->lw));
  } /* if(has_x) */
 }
 

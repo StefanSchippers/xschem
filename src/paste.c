@@ -91,6 +91,7 @@ void merge_box(FILE *fd)
 {
     int i,c,n;
     xRect *ptr;
+    const char *dash, *flags;
 
     n = fscanf(fd, "%d",&c);
     if(n != 1 || c < 0 || c >= cadlayers) {
@@ -111,6 +112,21 @@ void merge_box(FILE *fd)
     RECTORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
+    dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
+    if(strcmp(dash, "")) {
+      int d = atoi(dash);
+      ptr[i].dash = d >= 0 ? d : 0;
+    } else {
+      ptr[i].dash = 0;
+    }
+    flags = get_tok_value(ptr[i].prop_ptr,"flags",0);
+    if(strcmp(flags, "")) {
+      int d = atoi(flags);
+      ptr[i].flags = d >= 0 ? d : 0;
+    } else {
+      ptr[i].flags = 0;
+    }
+
     select_box(c,i, SELECTED, 1);
     xctx->rects[c]++;
     set_modify(1);
@@ -120,6 +136,7 @@ void merge_arc(FILE *fd)
 {
     int i,c,n;
     xArc *ptr;
+    const char *dash;
 
     n = fscanf(fd, "%d",&c);
     if(n != 1 || c < 0 || c >= cadlayers) {
@@ -144,6 +161,14 @@ void merge_arc(FILE *fd)
       ptr[i].fill =1;
     else
       ptr[i].fill =0;
+    dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
+    if(strcmp(dash, "")) {
+      int d = atoi(dash);
+      ptr[i].dash = d >= 0 ? d : 0;
+    } else {
+      ptr[i].dash = 0;
+    }
+
     select_arc(c,i, SELECTED, 1);
     xctx->arcs[c]++;
     set_modify(1);
@@ -154,6 +179,7 @@ void merge_polygon(FILE *fd)
 {
     int i,c, j, points;
     xPoly *ptr;
+    const char *dash;
 
     if(fscanf(fd, "%d %d",&c, &points)<2) {
       fprintf(errfp,"merge_polygon(): WARNING: missing fields for POLYGON object, ignoring.\n");
@@ -192,6 +218,14 @@ void merge_polygon(FILE *fd)
       ptr[i].fill =1;
     else
       ptr[i].fill =0;
+    dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
+    if(strcmp(dash, "")) {
+      int d = atoi(dash);
+      ptr[i].dash = d >= 0 ? d : 0;
+    } else {
+      ptr[i].dash = 0;
+    }
+
     select_polygon(c,i, SELECTED, 1);
     xctx->polygons[c]++;
     set_modify(1);
@@ -201,6 +235,7 @@ void merge_line(FILE *fd)
 {
     int i,c,n;
     xLine *ptr;
+    const char *dash;
 
     n = fscanf(fd, "%d",&c);
     if(n != 1 || c < 0 || c >= cadlayers) {
@@ -220,6 +255,13 @@ void merge_line(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
+    dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
+    if(strcmp(dash, "")) {
+      int d = atoi(dash);
+      ptr[i].dash = d >= 0 ? d : 0;
+    } else {
+      ptr[i].dash = 0;
+    }
     select_line(c,i, SELECTED, 1);
     xctx->lines[c]++;
     set_modify(1);

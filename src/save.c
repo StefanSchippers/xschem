@@ -677,7 +677,7 @@ static void load_box(FILE *fd)
 {
     int i,n,c;
     xRect *ptr;
-    const char *dash;
+    const char *dash, *flags;
 
     dbg(3, "load_box(): start\n");
     n = fscanf(fd, "%d",&c);
@@ -705,6 +705,13 @@ static void load_box(FILE *fd)
       ptr[i].dash = d >= 0 ? d : 0;
     } else {
       ptr[i].dash = 0;
+    }
+    flags = get_tok_value(ptr[i].prop_ptr,"flags",0);
+    if(strcmp(flags, "")) {
+      int d = atoi(flags);
+      ptr[i].flags = d >= 0 ? d : 0;
+    } else {
+      ptr[i].flags = 0;
     }
     xctx->rects[c]++;
 }
@@ -1947,6 +1954,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      bb[c][i].prop_ptr=NULL;
      load_ascii_string( &bb[c][i].prop_ptr, lcc[level].fd);
      dbg(2, "l_s_d(): loaded rect: ptr=%lx\n", (unsigned long)bb[c]);
+
      dash = get_tok_value(bb[c][i].prop_ptr,"dash", 0);
      if( strcmp(dash, "") ) {
        int d = atoi(dash);
