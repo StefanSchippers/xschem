@@ -3130,7 +3130,7 @@ proc abs_sym_path {fname {ext {} } } {
   if {$name eq {} } {
     set name "$curr_dirname/$fname"
   }
-  return $name
+  return "$name"
 }
 
 proc add_ext {fname ext} {

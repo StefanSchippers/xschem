@@ -190,7 +190,7 @@ proc netlist_test {} {
 
 proc xschemtest {{view 0}} {
   set t [time {
-    ## make sure ERC window wil not pop up above schematic while doing tests
+    ## make sure ERC window will not pop up above schematic while doing tests
     wm deiconify .infotext
     lower .infotext
 
