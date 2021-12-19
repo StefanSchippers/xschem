@@ -397,14 +397,14 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     }
     else if(!xctx->only_probes && (xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
                        (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
-      drawrect(4, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0);
+      drawrect(SYMLAYER, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0);
       xctx->inst[n].flags|=1;
       return;
     }
     else {
       xctx->inst[n].flags&=~1;
     }
-    if(hide) drawrect(4, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2);
+    if(hide) drawrect(SYMLAYER, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2);
   } else if(xctx->inst[n].flags&1) {
     dbg(2, "draw_symbol(): skipping inst %d\n", n);
     return;
@@ -1323,7 +1323,8 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     XDrawLines(display, xctx->save_pixmap, xctx->gc[c], p, points, CoordModeOrigin);
   if(xctx->fill_pattern && xctx->fill_type[c]){
     if(poly_fill && (x[0] == x[points-1]) && (y[0] == y[points-1])) {
-      if(xctx->draw_window) XFillPolygon(display, xctx->window, xctx->gcstipple[c], p, points, Polygontype, CoordModeOrigin);
+      if(xctx->draw_window)
+         XFillPolygon(display, xctx->window, xctx->gcstipple[c], p, points, Polygontype, CoordModeOrigin);
       if(xctx->draw_pixmap)
          XFillPolygon(display, xctx->save_pixmap, xctx->gcstipple[c], p, points, Polygontype, CoordModeOrigin);
     }
@@ -1331,7 +1332,6 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   if(dash) {
     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
   }
-
   my_free(722, &p);
 }
 

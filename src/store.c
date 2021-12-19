@@ -239,7 +239,7 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
                  unsigned short sel, const char *prop_ptr)
 {
  int n, j;
- const char * dash;
+ const char *dash, *flags;
     if(type == LINE)
     {
      check_line_storage(rectc);
@@ -298,6 +298,13 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
        xctx->rect[rectc][n].dash = d >= 0 ? d : 0;
      } else
        xctx->rect[rectc][n].dash = 0;
+
+     if(prop_ptr && (flags = get_tok_value(prop_ptr,"flags",0))[0]) {
+       int d = atoi(flags);
+       xctx->rect[rectc][n].flags = d >= 0 ? d : 0;
+     } else
+       xctx->rect[rectc][n].flags = 0;
+
      xctx->rects[rectc]++;
      set_modify(1);
     }

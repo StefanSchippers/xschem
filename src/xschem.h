@@ -132,6 +132,7 @@ extern char win_temp_dir[PATH_MAX];
 #define PROPERTYLAYER 1
 #define TEXTLAYER 3
 #define TEXTWIRELAYER 1 /*  color for wire name labels / pins */
+#define SYMLAYER 4
 #define PINLAYER 5
 #define GENERICLAYER 3
 
@@ -371,6 +372,7 @@ typedef struct
    unsigned short sel;
    char *prop_ptr;
    short dash;
+   unsigned short flags;
 } xRect;
 
 typedef struct

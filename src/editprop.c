@@ -394,8 +394,9 @@ void set_inst_prop(int i)
 void edit_rect_property(void)
 {
   int i, c, n, old_dash;
+  unsigned short old_flags;
   int drw = 0;
-  const char *dash;
+  const char *dash, *flags;
   int preserve;
   char *oldprop=NULL;
   if(xctx->rect[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr!=NULL) {
@@ -422,6 +423,15 @@ void edit_rect_property(void)
         my_strdup(99, &xctx->rect[c][n].prop_ptr,
                (char *) tclgetvar("retval"));
       }
+
+      old_flags = xctx->rect[c][n].flags;
+      flags = get_tok_value(xctx->rect[c][n].prop_ptr,"flags",0);
+      if( strcmp(flags, "") ) {
+        int d = atoi(flags);
+        xctx->rect[c][n].flags = d >= 0? d : 0;
+      } else
+        xctx->rect[c][n].flags = 0;
+
       old_dash = xctx->rect[c][n].dash;
       dash = get_tok_value(xctx->rect[c][n].prop_ptr,"dash",0);
       if( strcmp(dash, "") ) {
@@ -429,7 +439,7 @@ void edit_rect_property(void)
         xctx->rect[c][n].dash = d >= 0? d : 0;
       } else
         xctx->rect[c][n].dash = 0;
-      if(old_dash != xctx->rect[c][n].dash) {
+      if(old_dash != xctx->rect[c][n].dash || old_flags != xctx->rect[c][n].flags) {
          if(!drw) {
            bbox(START,0.0,0.0,0.0,0.0);
            drw = 1;
