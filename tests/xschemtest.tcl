@@ -17,18 +17,10 @@
 ## allows to see differences in number of function calls / time spent.
 
 ## move schematic and redraw in a loop.
-proc draw_test {} {
+proc draw_test {filelist} {
   global show_pin_net_names
   set show_pin_net_names 1
-  foreach f {
-    rom8k.sch
-    greycnt.sch
-    autozero_comp.sch
-    loading.sch
-    mos_power_ampli.sch
-    LCC_instances.sch
-    simulate_ff.sch
-  } {
+  foreach f $filelist  {
     xschem load [abs_sym_path $f]
     xschem search regex 1 lab . ;# select all nets
     xschem hilight ;# hilight all selected nets and labels
@@ -196,7 +188,9 @@ proc xschemtest {{view 0}} {
 
     netlist_test
     print_test $view
-    draw_test
+    draw_test [list rom8k.sch greycnt.sch autozero_comp.sch \
+               loading.sch mos_power_ampli.sch LCC_instances.sch simulate_ff.sch]
+
     copy_paste_test mos_power_ampli.sch
     draw_trim_wiregrid
     test_xschem_simulation simulate_ff.sch
