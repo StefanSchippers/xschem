@@ -351,7 +351,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   double x0,y0,x1,y1,x2,y2;
   short flip;
   xLine line;
-  xRect box;
+  xRect rect;
   xArc arc;
   xPoly polygon;
   xText text;
@@ -466,11 +466,11 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       (hide && layer == PINLAYER && xctx->enable_layer[layer]) ) {
     for(j=0;j< symptr->rects[layer];j++)
     {
-      box = (symptr->rect[layer])[j];
-      ROTATION(rot, flip, 0.0,0.0,box.x1,box.y1,x1,y1);
-      ROTATION(rot, flip, 0.0,0.0,box.x2,box.y2,x2,y2);
+      rect = (symptr->rect[layer])[j];
+      ROTATION(rot, flip, 0.0,0.0,rect.x1,rect.y1,x1,y1);
+      ROTATION(rot, flip, 0.0,0.0,rect.x2,rect.y2,x2,y2);
       RECTORDER(x1,y1,x2,y2);
-      drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
+      drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, rect.dash);
       filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
     }
   }
@@ -538,7 +538,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  short flip;
  xLine line;
  xPoly polygon;
- xRect box;
+ xRect rect;
  xArc arc;
  xText text;
  register xSymbol *symptr;
@@ -613,9 +613,9 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
 
  for(j=0;j< symptr->rects[layer];j++)
  {
-  box = (symptr->rect[layer])[j];
-  ROTATION(rot, flip, 0.0,0.0,box.x1,box.y1,x1,y1);
-  ROTATION(rot, flip, 0.0,0.0,box.x2,box.y2,x2,y2);
+  rect = (symptr->rect[layer])[j];
+  ROTATION(rot, flip, 0.0,0.0,rect.x1,rect.y1,x1,y1);
+  ROTATION(rot, flip, 0.0,0.0,rect.x2,rect.y2,x2,y2);
   RECTORDER(x1,y1,x2,y2);
   drawtemprect(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
  }

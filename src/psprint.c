@@ -491,7 +491,7 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
  short flip; 
  int textlayer;
  xLine line;
- xRect box;
+ xRect rect;
  xText text;
  xArc arc;
  xPoly polygon;
@@ -570,11 +570,11 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
    }
    if( xctx->enable_layer[layer] ) for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer];j++)
    {
-    box = ((xctx->inst[n].ptr+ xctx->sym)->rect[layer])[j];
-    ROTATION(rot, flip, 0.0,0.0,box.x1,box.y1,x1,y1);
-    ROTATION(rot, flip, 0.0,0.0,box.x2,box.y2,x2,y2);
+    rect = ((xctx->inst[n].ptr+ xctx->sym)->rect[layer])[j];
+    ROTATION(rot, flip, 0.0,0.0,rect.x1,rect.y1,x1,y1);
+    ROTATION(rot, flip, 0.0,0.0,rect.x2,rect.y2,x2,y2);
     RECTORDER(x1,y1,x2,y2);
-    ps_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, box.dash);
+    ps_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, rect.dash);
    }
    if(  (layer==TEXTWIRELAYER  && !(xctx->inst[n].flags&2) ) ||
         (xctx->sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) )

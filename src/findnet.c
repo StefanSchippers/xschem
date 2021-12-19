@@ -121,7 +121,7 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
 {
   int i, j, no_of_pin_rects;
   double x0, x1, x2, y0, y1, y2, xx, yy, dist, min_dist_x=0, min_dist_y=0;
-  xRect box;
+  xRect rect;
   short rot, flip;
   char *type=NULL;
   double curr_dist;
@@ -138,9 +138,9 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
     no_of_pin_rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
     if(IS_LABEL_OR_PIN(type)) no_of_pin_rects=1;
     for(j=0; j<no_of_pin_rects; j++) {
-      box = ((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER])[j];
-      ROTATION(rot, flip, 0.0,0.0,box.x1,box.y1,x1,y1);
-      ROTATION(rot, flip, 0.0,0.0,box.x2,box.y2,x2,y2);
+      rect = ((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER])[j];
+      ROTATION(rot, flip, 0.0,0.0,rect.x1,rect.y1,x1,y1);
+      ROTATION(rot, flip, 0.0,0.0,rect.x2,rect.y2,x2,y2);
       x1 += x0;
       y1 += y0;
       x2 += x0;

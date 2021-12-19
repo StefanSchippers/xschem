@@ -1410,9 +1410,9 @@ static void get_sym_type(const char *symname, char **type,
     } else {
       char *globalprop=NULL;
       int fscan_ret;
-      xRect box;
+      xRect rect;
 
-      box.prop_ptr = NULL;
+      rect.prop_ptr = NULL;
       while(1) {
         if(fscanf(fd," %c",tag)==EOF) break;
         if(embed_fd && tag[0] == ']') break;
@@ -1435,14 +1435,14 @@ static void get_sym_type(const char *symname, char **type,
              ungetc(tag[0], fd);
              read_record(tag[0], fd, 1);
            }
-           fscan_ret = fscanf(fd, "%lf %lf %lf %lf ",&box.x1, &box.y1, &box.x2, &box.y2);
+           fscan_ret = fscanf(fd, "%lf %lf %lf %lf ",&rect.x1, &rect.y1, &rect.x2, &rect.y2);
            if(fscan_ret < 4) dbg(0, "Warning: missing fields in 'B' line\n");
-           load_ascii_string( &box.prop_ptr, fd);
-           dbg(1, "get_sym_type(): %s box.prop_ptr=%s\n", symname, box.prop_ptr);
+           load_ascii_string( &rect.prop_ptr, fd);
+           dbg(1, "get_sym_type(): %s rect.prop_ptr=%s\n", symname, rect.prop_ptr);
            if (pintable && c == PINLAYER) {
              /* hash pins to get LCC schematic have same order as corresponding symbol */
-             int_hash_lookup(pintable, get_tok_value(box.prop_ptr, "name", 0), n++, XINSERT);
-             dbg(1, "get_sym_type() : hashing %s\n", get_tok_value(box.prop_ptr, "name", 0));
+             int_hash_lookup(pintable, get_tok_value(rect.prop_ptr, "name", 0), n++, XINSERT);
+             dbg(1, "get_sym_type() : hashing %s\n", get_tok_value(rect.prop_ptr, "name", 0));
              ++(*sym_n_pins);
            }
            break;
@@ -1454,7 +1454,7 @@ static void get_sym_type(const char *symname, char **type,
         read_line(fd, 0); /* discard any remaining characters till (but not including) newline */
       }
       my_free(1166, &globalprop);
-      my_free(1167, &box.prop_ptr);
+      my_free(1167, &rect.prop_ptr);
       if(!embed_fd) fclose(fd);
     }
   }
@@ -1479,13 +1479,13 @@ static void align_sch_pins_with_sym(const char *name, int pos)
     /* hash all symbol pins with their position into pintable hash*/
     get_sym_type(symname, &symtype, pintable, NULL, &sym_n_pins);
     if(symtype[0]) { /* found a .sym for current .sch LCC instance */
-      xRect *box = NULL;
+      xRect *rect = NULL;
       if (sym_n_pins!=xctx->sym[pos].rects[PINLAYER]) {
         dbg(0, " align_sch_pins_with_sym(): warning: number of pins mismatch between %s and %s\n",
           name, symname);
         fail = 1;
       }
-      box = (xRect *) my_malloc(1168, sizeof(xRect) * sym_n_pins);
+      rect = (xRect *) my_malloc(1168, sizeof(xRect) * sym_n_pins);
       dbg(1, "align_sch_pins_with_sym(): symbol: %s\n", symname);
       for(i=0; i < xctx->sym[pos].rects[PINLAYER]; i++) {
         struct int_hashentry *entry;
@@ -1497,17 +1497,17 @@ static void align_sch_pins_with_sym(const char *name, int pos)
           fail = 1;
           break;
         }
-        box[entry->value] = xctx->sym[pos].rect[PINLAYER][i]; /* box[] is the pin array ordered as in symbol */
+        rect[entry->value] = xctx->sym[pos].rect[PINLAYER][i]; /* rect[] is the pin array ordered as in symbol */
         dbg(1, "align_sch_pins_with_sym(): i=%d, pin name=%s entry->value=%d\n", i, pinname, entry->value);
       }
       if(!fail) {
-        /* copy box[] ordererd array to LCC schematic instance */
+        /* copy rect[] ordererd array to LCC schematic instance */
         for(i=0; i < xctx->sym[pos].rects[PINLAYER]; i++) {
-          xctx->sym[pos].rect[PINLAYER][i] = box[i];
+          xctx->sym[pos].rect[PINLAYER][i] = rect[i];
         }
       }
       int_hash_free(pintable);
-      my_free(1169, &box);
+      my_free(1169, &rect);
     }
     my_free(1170, &symtype);
   }
