@@ -217,8 +217,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       if(key == XK_Up) {
         char s[30];
         double delta = (wx2 - wx1)/ 2.0;
-        double x2;
-        if(wx2 - delta != wx1) {
+        double x2, tmp;
+   
+        if(fabs(wx2) > fabs(wx1) ) tmp = fabs(wx2);
+        else tmp = fabs(wx1);
+        if( tmp / fabs(wx2 - wx1)  > 1e-5) {
           x2 = wx2 - delta;
           my_snprintf(s, S(s), "%g", x2);
           my_strdup(1400, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
