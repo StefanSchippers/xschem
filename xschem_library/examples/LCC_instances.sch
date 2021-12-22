@@ -163,6 +163,6 @@ descr="Select arrow and
 Ctrl-Right-Click to load waveforms" 
 tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}
 C {lab_pin.sym} 540 -760 0 0 {name=p14 lab=A}
-C {cmos_inv.sym} 580 -760 0 0 {name=Xinv1 WN=15u WP=45u LLN=3u LLP=3u}
 C {cmos_inv.sym} 580 -850 0 1 {name=Xinv3 WN=3u WP=5u LLN=3u LLP=3u}
 C {lab_pin.sym} 620 -760 0 1 {name=p2 lab=Z}
+C {cmos_inv.sym} 580 -760 0 0 {name=Xinv1 WN=3u WP=5u LLN=3u LLP=3u}
