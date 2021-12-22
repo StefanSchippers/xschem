@@ -93,6 +93,42 @@ int find_gl(const char *name, int logdepth, int fatal, const char *call, const c
 	return 0;
 }
 
+int find_gl_vao(const char *name, int logdepth, int fatal, const char *call, const char *arg)
+{
+	const char *test_c =
+		NL "#include <stdio.h>"
+		NL "int main()"
+		NL "{"
+		NL "	glBindVertexArray(0);"
+		NL "	return 0;"
+		NL "}"
+		NL;
+	const char *node = "libs/gui/gl/vao";
+	const char *cflags, *ldflags, *incs;
+	(void) call;  /* not used */
+	(void) arg;  /* not used */
+
+	if (require("cc/cc", logdepth, fatal))
+		return try_fail(logdepth, node);
+
+	if (require("libs/gui/gl/*", logdepth, fatal))
+		return try_fail(logdepth, node);
+
+	cflags = get("libs/gui/gl/cflags");
+	ldflags = get("libs/gui/gl/ldflags");
+	incs = get("libs/gui/gl/includes");
+
+	report("Checking for gl vao... ");
+	logprintf(logdepth, "find_gl_vao...\n");
+	logdepth++;
+
+	if (try_icl_norun(logdepth, node, test_c, incs, cflags, ldflags) != 0)
+		return 0;
+
+	return try_fail(logdepth, node);
+}
+
+
 int find_glu(const char *name, int logdepth, int fatal, const char *call, const char *arg)
 {
 	char test_c[256];

@@ -1219,8 +1219,8 @@ void polygon_bbox(double *x, double *y, int points, double *bx1, double *by1, do
   int j;
   for(j=0; j<points; j++) {
     if(j==0 || x[j] < *bx1) *bx1 = x[j];
-    if(j==0 || y[j] < *by1) *by1 = y[j];
     if(j==0 || x[j] > *bx2) *bx2 = x[j];
+    if(j==0 || y[j] < *by1) *by1 = y[j];
     if(j==0 || y[j] > *by2) *by2 = y[j];
   }
 }
@@ -1294,8 +1294,8 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
 
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
   x1=X_TO_SCREEN(x1);
-  y1=Y_TO_SCREEN(y1);
   x2=X_TO_SCREEN(x2);
+  y1=Y_TO_SCREEN(y1);
   y2=Y_TO_SCREEN(y2);
   if( !rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
     return;
@@ -1772,31 +1772,34 @@ void draw_graph(int c, int i)
         double start = (wx1 <= wx2) ? wx1 : wx2;
         double end = (wx1 <= wx2) ? wx2 : wx1;
 
-        /* Process "npoints" simulation items 
-         * p loop split repeated 2 timed (for xx and yy points) to preserve cache locality */
-        for(p = 0 ; p < xctx->npoints; p++) {
-          xx = xctx->values[0][p];
-          if(xx > end) {
-            break;
+        /* skip if nothing in viewport */
+        if(xctx->values[0][xctx->npoints -1] > start) {
+          /* Process "npoints" simulation items 
+           * p loop split repeated 2 timed (for xx and yy points) to preserve cache locality */
+          for(p = 0 ; p < xctx->npoints; p++) {
+            xx = xctx->values[0][p];
+            if(xx > end) {
+              break;
+            }
+            if(xx >= start) {
+              if(first == -1) first = p;
+              /* Build poly x array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
+              xarr[poly_npoints] = W_X(xx);
+              poly_npoints++;
+            }
           }
-          if(xx >= start) {
-            if(first == -1) first = p;
-            /* Build poly x array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
-            xarr[poly_npoints] = W_X(xx);
-            poly_npoints++;
+          last = p;
+          if(first != -1) {
+            poly_npoints = 0;
+            for(p = first ; p < last; p++) {
+              yy = xctx->values[v][p];
+              /* Build poly y array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
+              yarr[poly_npoints] = W_Y(yy);
+              poly_npoints++;
+            }
+            /* plot data */
+            drawpolygon(wave_color, NOW, xarr, yarr, poly_npoints, 0, 0);
           }
-        }
-        last = p;
-        if(first != -1) {
-          poly_npoints = 0;
-          for(p = first ; p < last; p++) {
-            yy = xctx->values[v][p];
-            /* Build poly y array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
-            yarr[poly_npoints] = W_Y(yy);
-            poly_npoints++;
-          }
-          /* plot data */
-          drawpolygon(wave_color, NOW, xarr, yarr, poly_npoints, 0, 0);
         }
       }
       bbox(END, 0.0, 0.0, 0.0, 0.0);

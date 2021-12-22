@@ -17,11 +17,13 @@
 ## allows to see differences in number of function calls / time spent.
 
 ## move schematic and redraw in a loop.
-proc draw_test {filelist} {
+proc draw_test {{filelist {-}}} {
   global show_pin_net_names
   set show_pin_net_names 1
   foreach f $filelist  {
-    xschem load [abs_sym_path $f]
+    if { $f ne {-}} {
+      xschem load [abs_sym_path $f]
+    }
     xschem search regex 1 lab . ;# select all nets
     xschem hilight ;# hilight all selected nets and labels
     xschem unselect_all
@@ -161,7 +163,7 @@ proc netlist_test {} {
     loading.sch             vhdl       2601437773
     mos_power_ampli.sch     spice      1186348644
     hierarchical_tedax.sch  tedax       998070173
-    LCC_instances.sch       spice       824427889
+    LCC_instances.sch       spice      3014344057
     pcb_test1.sch           tedax      1295717013
     simulate_ff.sch         spice      1321596936
   } {
