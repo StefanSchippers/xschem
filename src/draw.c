@@ -1655,7 +1655,7 @@ void draw_graph(int c, int i)
   int j, wave_color = 5;
   char lab[30];
   const char *val;
-  char *node = NULL, *color = NULL;
+  char *node = NULL, *color = NULL, *sweep = NULL;
   double txtsizelab, txtsizey, txtsizex, tmp;
   struct int_hashentry *entry;
   int sweep_idx = 0;
@@ -1697,12 +1697,6 @@ void draw_graph(int c, int i)
   if(val[0]) wx2 = atof(val);
   val = get_tok_value(xctx->rect[c][i].prop_ptr,"y2",0);
   if(val[0]) wy2 = atof(val);
-  val = get_tok_value(xctx->rect[c][i].prop_ptr,"sweep",0);
-  if(val[0]) {
-      entry = int_hash_lookup(xctx->raw_table, val, 0, XLOOKUP); 
-      if(entry && entry->value) sweep_idx = entry->value;
-  }
-
   /* cache coefficients for faster graph coord transformations */
   cx = (x2 - x1) / (wx2 - wx1);
   dx = x1 - wx1 * cx;
@@ -1754,23 +1748,31 @@ void draw_graph(int c, int i)
   if(wx1 <= 0 && wx2 >= 0) drawline(2, NOW, W_X(0),   W_Y(wy2), W_X(0),   W_Y(wy1), 0);
   /* if simulation data is loaded and matches schematic draw data */
   if(xctx->raw_schname && !strcmp(xctx->raw_schname, xctx->current_name) && xctx->values) {
-    char *saven, *savec, *nptr, *cptr, *ntok, *ctok;
+    char *saven, *savec, *saves, *nptr, *cptr, *sptr, *ntok, *ctok, *stok;
     int wcnt = 0;
     double *xarr = NULL, *yarr = NULL;
     xarr = my_malloc(1401, xctx->npoints * sizeof(double));
     yarr = my_malloc(1402, xctx->npoints * sizeof(double));
     my_strdup2(1389, &node, get_tok_value(xctx->rect[c][i].prop_ptr,"node",0));
     my_strdup2(1390, &color, get_tok_value(xctx->rect[c][i].prop_ptr,"color",0)); 
+    my_strdup2(1407, &sweep, get_tok_value(xctx->rect[c][i].prop_ptr,"sweep",0)); 
     nptr = node;
     cptr = color;
+    sptr = sweep;
     /* draw sweep variable on x-axis */
     draw_string(3, NOW, xctx->names[sweep_idx], 2, 1, 0, 0, rx1+2, ry2-1, txtsizelab, txtsizelab);
     /* process each node given in "node" attribute, get also associated color if any*/
     while( (ntok = my_strtok_r(nptr, " ", &saven)) ) {
       ctok = my_strtok_r(cptr, " ", &savec);
-      nptr = cptr = NULL;
+      stok = my_strtok_r(sptr, " ", &saves);
+      nptr = cptr = sptr = NULL;
       dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
       if(ctok && ctok[0]) wave_color = atoi(ctok);
+      if(stok && stok[0]) {
+        entry = int_hash_lookup(xctx->raw_table, stok, 0, XLOOKUP); 
+        if(entry && entry->value) sweep_idx = entry->value;
+        else sweep_idx = 0;
+      }
       /* draw node labels in graph */
       draw_string(wave_color, NOW, ntok, 0, 0, 0, 0, rx1 + rw/6 * wcnt, ry1, txtsizelab, txtsizelab);
       /* clipping everything outside graph area */
@@ -1826,6 +1828,7 @@ void draw_graph(int c, int i)
     my_free(1404, &yarr);
     my_free(1391, &node);
     my_free(1392, &color);
+    my_free(1408, &sweep);
   }
 }
 
