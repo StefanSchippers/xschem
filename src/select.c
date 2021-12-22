@@ -464,7 +464,7 @@ void delete_only_rect_line_arc_poly(void)
 
 void bbox(int what,double x1,double y1, double x2, double y2)
 {
- /* fprintf(errfp, "bbox: what=%d\n", what); */
+ dbg(1, "bbox: what=%d\n", what);
  switch(what)
  {
   case START:
@@ -482,6 +482,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->savey2 = xctx->areay2;
    xctx->savew = xctx->areaw;
    xctx->saveh = xctx->areah;
+   xctx->savexrect = xctx->xrect[0];
    xctx->sem=1;
    break;
   case ADD:
@@ -489,7 +490,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
      fprintf(errfp, "ERROR: bbox(ADD) call before bbox(START)\n");
      tcleval("alert_ {ERROR: bbox(ADD) call before bbox(START)} {}");
    }
-   dbg(1, "   bbox(ADD,...): %.16g %.16g %.16g %.16g\n", x1, y1, x2, y2);
+   dbg(2, "bbox(ADD): %.16g %.16g %.16g %.16g\n", x1, y1, x2, y2);
    x1=X_TO_SCREEN(x1);
    y1=Y_TO_SCREEN(y1);
    x2=X_TO_SCREEN(x2);
@@ -506,21 +507,21 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    if(y1 > xctx->bby2) xctx->bby2 = (int) y1;
    break;
   case END:
-   xctx->areax1 = xctx->savex1;
-   xctx->areax2 = xctx->savex2;
-   xctx->areay1 = xctx->savey1;
-   xctx->areay2 = xctx->savey2;
-   xctx->areaw =  xctx->savew;
-   xctx->areah =  xctx->saveh;
-   xctx->xrect[0].x = 0;
-   xctx->xrect[0].y = 0;
-   xctx->xrect[0].width = xctx->areaw-4*INT_WIDTH(xctx->lw);
-   xctx->xrect[0].height = xctx->areah-4*INT_WIDTH(xctx->lw);
-
-   if(has_x) {
-     set_clip_mask(END);
+   if(xctx->sem) {
+     xctx->areax1 = xctx->savex1;
+     xctx->areax2 = xctx->savex2;
+     xctx->areay1 = xctx->savey1;
+     xctx->areay2 = xctx->savey2;
+     xctx->areaw =  xctx->savew;
+     xctx->areah =  xctx->saveh;
+     xctx->xrect[0] = xctx->savexrect;
+     if(has_x) {
+       dbg(2, "bbox(END): resetting clip area: %d %d %d %d\n",
+          xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
+       set_clip_mask(END);
+     }
+     xctx->sem=0;
    }
-   xctx->sem=0;
    break;
   case SET:
    if(xctx->sem==0) {
@@ -540,7 +541,8 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->xrect[0].height = xctx->bby2-xctx->bby1+2*INT_WIDTH(xctx->lw);
    if(has_x) {
      set_clip_mask(SET);
-     dbg(1, "bbox(): bbox= %d %d %d %d\n",xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2);
+       dbg(2, "bbox(SET): setting clip area: %d %d %d %d\n",
+          xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
    }
    break;
   default:

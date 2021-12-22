@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -38,6 +38,31 @@ L 8 790 -530 790 -510 {}
 L 8 770 -610 790 -610 {}
 L 8 790 -610 807.5 -620 {}
 L 8 810 -610 830 -610 {}
+B 2 1110 -950 1530 -800 {flags=1 
+y1 = 0
+y2 = 20
+divy = 10
+x1=0
+x2=200e-6
+divx=8
+node="v(led) v(sw)"
+color="11 18"}
+B 2 1110 -790 1530 -660 {flags=1 
+y1 = 0
+y2 = 20
+divy = 10
+x1=0
+x2=200e-6
+divx=8
+node="v(panel)"}
+B 2 1110 -650 1530 -520 {flags=1 
+y1 = 0
+y2 = 4
+divy = 8
+x1=0
+x2=200e-6
+divx=8
+node="i(vsw)" color=12}
 B 18 45 -850 300 -665 {}
 A 5 300 -850 5.590169943749475 243.434948822922 360 {fill=true}
 P 7 6 375 -665 320 -821.25 315 -835 302.5 -850 290 -855 45 -865 {}
@@ -63,6 +88,8 @@ T {Maximum Power} 287.5 -870 0 0 0.2 0.2 {layer=8}
 T {2x10 1W white LED} 1230 -340 0 0 0.4 0.4 {layer=8}
 T {IDEAL Diode} 690 -470 0 0 0.4 0.4 {layer=8}
 T {2xseries 1W white LEDs} 1250 -230 0 0 0.4 0.4 {}
+T {Select one or more graphs (and no other objects)
+and use arrow keys to zoom / pan waveforms} 1120 -990 0 0 0.3 0.3 {}
 N 80 -450 80 -430 {lab=SRC}
 N 1050 -250 1140 -250 {lab=0}
 N 1140 -290 1140 -250 {lab=0}
@@ -98,7 +125,7 @@ C {code_shown.sym} 245 -245 0 0 {name=CONTROL value="* .control
 * .endc
 .option savecurrents
 *.save all
-.tran 5n 200u uic
+.tran 20n 200u uic
 * .dc VP 0 21 0.01
 " net_name=true}
 C {code.sym} 15 -225 0 0 {name=MODELS value=".MODEL DIODE D(IS=1.139e-08 RS=0.99 CJO=9.3e-12 VJ=1.6 M=0.411 BV=30 EG=0.7 ) 
@@ -190,3 +217,7 @@ C {spice_probe.sym} 1160 -480 0 0 {name=p1 analysis=tran}
 C {spice_probe.sym} 360 -450 0 0 {name=p2 analysis=tran}
 C {spice_probe.sym} 860 -550 0 1 {name=p3 analysis=tran}
 C {spice_probe.sym} 100 -450 0 1 {name=p4 analysis=tran}
+C {launcher.sym} 1165 -1025 0 0 {name=h3 
+descr="Select arrow and 
+Ctrl-Right-Click to load waveforms" 
+tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}

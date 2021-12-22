@@ -180,7 +180,7 @@ int my_snprintf(char *string, int size, const char *format, ...)
       format_spec = 0;
       prev = f + 1;
     }
-    else if(format_spec && *f == 'g') {
+    else if(format_spec && (*f == 'g' || *f == 'e' || *f == 'f')) {
       char nfmt[50], nstr[50];
       double i;
       int nlen;
@@ -393,14 +393,13 @@ void set_inst_prop(int i)
 
 void edit_rect_property(void)
 {
-  int i, c, n, old_dash;
-  unsigned short old_flags;
+  int i, c, n;
   int drw = 0;
   const char *dash, *flags;
   int preserve;
   char *oldprop=NULL;
-  if(xctx->rect[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr!=NULL) {
-    my_strdup(67, &oldprop, xctx->rect[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
+  my_strdup(67, &oldprop, xctx->rect[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
+  if(oldprop && oldprop[0]) {
     tclsetvar("retval",oldprop);
   } else {
     tclsetvar("retval","");
@@ -416,7 +415,7 @@ void edit_rect_property(void)
       if(xctx->sel_array[i].type != xRECT) continue;
       c = xctx->sel_array[i].col;
       n = xctx->sel_array[i].n;
-      if(preserve == 1) {
+      if(oldprop && preserve == 1) {
         set_different_token(&xctx->rect[c][n].prop_ptr,
                (char *) tclgetvar("retval"), oldprop, 0, 0);
       } else {
@@ -424,7 +423,6 @@ void edit_rect_property(void)
                (char *) tclgetvar("retval"));
       }
 
-      old_flags = xctx->rect[c][n].flags;
       flags = get_tok_value(xctx->rect[c][n].prop_ptr,"flags",0);
       if( strcmp(flags, "") ) {
         int d = atoi(flags);
@@ -432,14 +430,14 @@ void edit_rect_property(void)
       } else
         xctx->rect[c][n].flags = 0;
 
-      old_dash = xctx->rect[c][n].dash;
       dash = get_tok_value(xctx->rect[c][n].prop_ptr,"dash",0);
       if( strcmp(dash, "") ) {
         int d = atoi(dash);
         xctx->rect[c][n].dash = d >= 0? d : 0;
       } else
         xctx->rect[c][n].dash = 0;
-      if(old_dash != xctx->rect[c][n].dash || old_flags != xctx->rect[c][n].flags) {
+      if( (oldprop &&  xctx->rect[c][n].prop_ptr && strcmp(oldprop, xctx->rect[c][n].prop_ptr)) ||
+          (!oldprop && xctx->rect[c][n].prop_ptr) ) {
          if(!drw) {
            bbox(START,0.0,0.0,0.0,0.0);
            drw = 1;
@@ -463,8 +461,8 @@ void edit_line_property(void)
   const char *dash;
   int preserve;
   char *oldprop=NULL;
-  if(xctx->line[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr!=NULL) {
-    my_strdup(46, &oldprop, xctx->line[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
+  my_strdup(46, &oldprop, xctx->line[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
+  if(oldprop && oldprop[0]) {
     tclsetvar("retval", oldprop);
   } else {
     tclsetvar("retval","");
@@ -481,7 +479,7 @@ void edit_line_property(void)
       if(xctx->sel_array[i].type != LINE) continue;
       c = xctx->sel_array[i].col;
       n = xctx->sel_array[i].n;
-      if(preserve == 1) {
+      if(oldprop && preserve == 1) {
         set_different_token(&xctx->line[c][n].prop_ptr,
                (char *) tclgetvar("retval"), oldprop, 0, 0);
       } else {
@@ -517,8 +515,8 @@ void edit_wire_property(void)
   char *oldprop=NULL;
   const char *bus_ptr;
 
-  if(xctx->wire[xctx->sel_array[0].n].prop_ptr!=NULL) {
-    my_strdup(47, &oldprop, xctx->wire[xctx->sel_array[0].n].prop_ptr);
+  my_strdup(47, &oldprop, xctx->wire[xctx->sel_array[0].n].prop_ptr);
+  if(oldprop && oldprop[0]) {
     tclsetvar("retval", oldprop);
   } else {
     tclsetvar("retval","");
@@ -539,7 +537,7 @@ void edit_wire_property(void)
       *  xctx->prep_net_structs=0;
       *  xctx->prep_hi_structs=0; */
       oldbus = xctx->wire[k].bus;
-      if(preserve == 1) {
+      if(oldprop && preserve == 1) {
         set_different_token(&xctx->wire[k].prop_ptr,
                (char *) tclgetvar("retval"), oldprop, 0, 0);
       } else {
@@ -580,8 +578,8 @@ void edit_arc_property(void)
   const char *dash;
   int preserve;
 
-  if(xctx->arc[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr!=NULL) {
-    my_strdup(98, &oldprop, xctx->arc[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
+  my_strdup(98, &oldprop, xctx->arc[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
+  if(oldprop && oldprop[0]) {
     tclsetvar("retval", oldprop);
   } else {
     tclsetvar("retval","");
@@ -598,7 +596,7 @@ void edit_arc_property(void)
      i = xctx->sel_array[ii].n;
      c = xctx->sel_array[ii].col;
 
-     if(preserve == 1) {
+     if(oldprop && preserve == 1) {
         set_different_token(&xctx->arc[c][i].prop_ptr, (char *) tclgetvar("retval"), oldprop, 0, 0);
 
      } else {
@@ -647,8 +645,8 @@ void edit_polygon_property(void)
   int preserve;
 
   dbg(1, "edit_property(): input property:\n");
-  if(xctx->poly[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr!=NULL) {
-    my_strdup(112, &oldprop, xctx->poly[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
+  my_strdup(112, &oldprop, xctx->poly[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
+  if(oldprop && oldprop[0]) {
     tclsetvar("retval", oldprop);
   } else {
     tclsetvar("retval","");
@@ -665,9 +663,8 @@ void edit_polygon_property(void)
      i = xctx->sel_array[ii].n;
      c = xctx->sel_array[ii].col;
 
-     if(preserve == 1) {
+     if(oldprop && preserve == 1) {
         set_different_token(&xctx->poly[c][i].prop_ptr, (char *) tclgetvar("retval"), oldprop, 0, 0);
-
      } else {
         my_strdup(113, &xctx->poly[c][i].prop_ptr, (char *) tclgetvar("retval"));
      }
@@ -724,7 +721,7 @@ void edit_text_property(int x)
    dbg(1, "edit_text_property(): entering\n");
    sel = xctx->sel_array[0].n;
    my_strdup(656, &oldprop, xctx->text[sel].prop_ptr);
-   if(xctx->text[sel].prop_ptr !=NULL)
+   if(oldprop && oldprop[0])
       tclsetvar("props",xctx->text[sel].prop_ptr);
    else
       tclsetvar("props","");
@@ -816,8 +813,8 @@ void edit_text_property(int x)
          my_strdup(74, &xctx->text[sel].txt_ptr, (char *) tclgetvar("retval"));
        }
        if(x==0) {
-         if(preserve)
-          set_different_token(&xctx->text[sel].prop_ptr, (char *) tclgetvar("props"), oldprop, 0, 0);
+         if(oldprop && preserve)
+           set_different_token(&xctx->text[sel].prop_ptr, (char *) tclgetvar("props"), oldprop, 0, 0);
          else
            my_strdup(75, &xctx->text[sel].prop_ptr,(char *) tclgetvar("props"));
          my_strdup(76, &xctx->text[sel].font, get_tok_value(xctx->text[sel].prop_ptr, "font", 0));

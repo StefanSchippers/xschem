@@ -141,7 +141,7 @@ void hash_all_names(int n)
 const char *tcl_hook2(char **res)
 {
   static char *result = NULL;
-  static const char empty[]="";
+  static const char *empty="";
 
   if(res == NULL || *res == NULL) {
     my_free(1285, &result);
@@ -2695,7 +2695,7 @@ const char *find_nth(const char *str, char sep, int n)
 {
   static char *result=NULL; /* safe to keep even with multiple schematic windows */
   static int result_size = 0; /* safe to keep even with multiple schematic windows */
-  static const char empty[]="";
+  static const char *empty="";
   int i, len;
   char *ptr;
   int count;
@@ -2730,7 +2730,7 @@ const char *find_nth(const char *str, char sep, int n)
 /* if s==NULL return emty string */
 const char *translate(int inst, const char* s)
 {
- static const char empty[]="";
+ static const char *empty="";
  static char *result=NULL; /* safe to keep even with multiple schematics */
  int size=0, tmp;
  register int c, state=TOK_BEGIN, space;
@@ -3019,7 +3019,7 @@ const char *translate(int inst, const char* s)
 
 const char *translate2(struct Lcc *lcc, int level, char* s)
 {
-  static const char empty[]="";
+  static const char *empty="";
   static char *result = NULL;
   int i, size = 0, tmp, save_tok_size;
   register int c, state = TOK_BEGIN, space;

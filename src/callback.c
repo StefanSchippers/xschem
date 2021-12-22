@@ -21,6 +21,20 @@
  */
 
 #include "xschem.h"
+static int waves_selected()
+{
+  int n, c, i;
+  rebuild_selected_array();
+  if(xctx->ui_state != SELECTION || !xctx->lastsel) return 0;
+  for(i=0; i<xctx->lastsel; i++) {
+    c = xctx->sel_array[i].col;
+    if(xctx->sel_array[i].type == xRECT && c == 2) {
+      n = xctx->sel_array[i].n;
+      if(xctx->rect[c][n].flags != 1) return 0;
+    } else return 0;
+  }
+  return 1;
+}
 
 void redraw_w_a_l_r_p_rubbers(void)
 {
@@ -136,6 +150,115 @@ void start_wire(double mx, double my)
      new_wire(PLACE,xctx->mousex_snap, xctx->mousey_snap);
 
 }
+
+/* process user input (arrow keys for now) when only graphs are selected */
+static int waves_callback(int event, int mx, int my, KeySym key, int button, int aux, int state)
+{
+  double wx1 = -2e-6;
+  double wy1 = -1;
+  double wx2 = 8e-6;
+  double wy2 = 4;
+  int divisx = 10;
+  int divisy = 5;
+  const char *val;
+  xRect bb;
+  int n, c, i;
+  for(i=0; i<xctx->lastsel; i++) {
+    c = xctx->sel_array[i].col;
+    /* process only graph boxes */
+    if(xctx->sel_array[i].type == xRECT && c == 2) {
+      n = xctx->sel_array[i].n;
+      if(xctx->rect[c][n].flags != 1) continue;
+      if(i == 0) {
+        val = get_tok_value(xctx->rect[c][n].prop_ptr,"divx",0);
+        if(val[0]) divisx = atoi(val);
+        val = get_tok_value(xctx->rect[c][n].prop_ptr,"divy",0);
+        if(val[0]) divisy = atoi(val);
+        val = get_tok_value(xctx->rect[c][n].prop_ptr,"x1",0);
+        if(val[0]) wx1 = atof(val);
+        val = get_tok_value(xctx->rect[c][n].prop_ptr,"y1",0);
+        if(val[0]) wy1 = atof(val);
+        val = get_tok_value(xctx->rect[c][n].prop_ptr,"x2",0);
+        if(val[0]) wx2 = atof(val);
+        val = get_tok_value(xctx->rect[c][n].prop_ptr,"y2",0);
+        if(val[0]) wy2 = atof(val);
+        dbg(1, "%g %g %g %g - %d %d\n", wx1, wy1, wx2, wy2, divisx, divisy);
+      }
+      if(key == XK_Left) {
+        char s[30];
+        double delta = (wx2 - wx1) / divisx;
+        double x1, x2;
+        x1 = wx1 - delta;
+        x2 = wx2 - delta;
+        my_snprintf(s, S(s), "%g", x1);
+        my_strdup(1395, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x1", s));
+        my_snprintf(s, S(s), "%g", x2);
+        my_strdup(1396, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
+      }
+      if(key == XK_Right) {
+        char s[30];
+        double delta = (wx2 - wx1) / divisx;
+        double x1, x2;
+        x1 = wx1 + delta;
+        x2 = wx2 + delta;
+        my_snprintf(s, S(s), "%g", x1);
+        my_strdup(1397, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x1", s));
+        my_snprintf(s, S(s), "%g", x2);
+        my_strdup(1398, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
+      }
+      if(key == XK_Down) {
+        char s[30];
+        double delta = (wx2 - wx1);
+        double x2;
+        x2 = wx2 + delta;
+        my_snprintf(s, S(s), "%g", x2);
+        my_strdup(1399, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
+      }
+      if(key == XK_Up) {
+        char s[30];
+        double delta = (wx2 - wx1)/ 2.0;
+        double x2;
+        if(wx2 - delta != wx1) {
+          x2 = wx2 - delta;
+          my_snprintf(s, S(s), "%g", x2);
+          my_strdup(1400, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
+        }
+      }
+    }
+  }
+
+  calc_drawing_bbox(&bb, 1); /* selection bbox */
+  bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
+  bbox(ADD, bb.x1, bb.y1, bb.x2, bb.y2);
+  bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+  if(xctx->draw_pixmap)
+    XFillRectangle(display, xctx->save_pixmap, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
+                   xctx->areaw, xctx->areah);
+  if(xctx->draw_window)
+    XFillRectangle(display, xctx->window, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
+                   xctx->areaw, xctx->areah);
+  drawgrid();
+  draw_waves();
+  for(i=0; i<xctx->lastsel; i++) {
+    c = xctx->sel_array[i].col;
+    /* repaint graph borders */
+    if(xctx->sel_array[i].type == xRECT && c == 2) {
+      xRect *r;
+      n = xctx->sel_array[i].n;
+      r = &xctx->rect[c][n];
+      if(c == 2 && r->flags == 1)
+         drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, 1);
+    }
+  }
+  if(!xctx->draw_window) {
+    XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+       xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+  }
+  bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+  draw_selection(xctx->gc[SELLAYER], 0);
+  return 0;
+}
+
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
 int callback(const char *winpath, int event, int mx, int my, KeySym key,
@@ -704,6 +827,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Right)                    /* left */
    {
+    if(waves_selected()) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
     xctx->xorigin+=-CADMOVESTEP*xctx->zoom;
     draw();
     redraw_w_a_l_r_p_rubbers();
@@ -711,6 +838,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Left)                     /* right */
    {
+    if(waves_selected()) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
     xctx->xorigin-=-CADMOVESTEP*xctx->zoom;
     draw();
     redraw_w_a_l_r_p_rubbers();
@@ -718,6 +849,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Down)                     /* down */
    {
+    if(waves_selected()) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
     xctx->yorigin+=-CADMOVESTEP*xctx->zoom;
     draw();
     redraw_w_a_l_r_p_rubbers();
@@ -725,6 +860,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Up)                       /* up */
    {
+    if(waves_selected()) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
     xctx->yorigin-=-CADMOVESTEP*xctx->zoom;
     draw();
     redraw_w_a_l_r_p_rubbers();
@@ -1464,7 +1603,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='f' && state == 0 )                  /* full zoom */
    {
-    zoom_full(1, 0, 1, 0.97);
+    if(xctx->ui_state == SELECTION) 
+      zoom_full(1, 1, 3, 0.97);
+    else
+      zoom_full(1, 0, 1, 0.97);
     break;
    }
    if((key=='z' && state==ControlMask))                         /* zoom out */

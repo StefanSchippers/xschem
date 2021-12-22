@@ -26,8 +26,9 @@ proc draw_test {filelist} {
     xschem hilight ;# hilight all selected nets and labels
     xschem unselect_all
     set increment 5.0
+    set n 30.0
     set a [time {
-      for { set i 0 } { $i < 100 } { incr i} {
+      for { set i 0 } { $i < $n } { incr i} {
         set x [xschem get xorigin]
         set y [xschem get yorigin]
         set x [expr {$x +$increment}]
@@ -37,7 +38,7 @@ proc draw_test {filelist} {
       }
     }]
     set a [lindex $a 0]
-    set fps [expr {100.0 / $a * 1e6} ] ;# calculate drawing frames per second
+    set fps [expr {$n / $a * 1e6} ] ;# calculate drawing frames per second
     puts "$f: draw speed: $fps fps"
   }
   set show_pin_net_names 0

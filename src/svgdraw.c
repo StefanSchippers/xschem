@@ -583,8 +583,8 @@ void svg_draw(void)
   fill_svg_colors();
   old_grid=tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");
-  dx=xctx->xschem_w;
-  dy=xctx->xschem_h;
+  dx=xctx->xrect[0].width;
+  dy=xctx->xrect[0].height;
   dbg(1, "svg_draw(): dx=%g  dy=%g\n", dx, dy);
  
   if(xctx->plotfile[0]) {

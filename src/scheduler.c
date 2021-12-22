@@ -746,6 +746,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      else if(!strcmp(argv[2],"current_dirname")) {
        Tcl_SetResult(interp, xctx->current_dirname, TCL_VOLATILE);
      }
+     else if(!strcmp(argv[2],"current_name")) {
+       Tcl_SetResult(interp, xctx->current_name, TCL_VOLATILE);
+     }
      else if(!strcmp(argv[2],"currsch")) {
        char s[30]; /* overflow safe 20161122 */
        my_snprintf(s, S(s), "%d",xctx->currsch);
@@ -1081,6 +1084,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      my_snprintf(res, S(res), "color_ps=%d\n", color_ps); Tcl_AppendResult(interp, res, NULL);
      my_snprintf(res, S(res), "hilight_nets=%d\n", xctx->hilight_nets); Tcl_AppendResult(interp, res, NULL);
      my_snprintf(res, S(res), "semaphore=%d\n", xctx->semaphore); Tcl_AppendResult(interp, res, NULL);
+     my_snprintf(res, S(res), "ui_state=%d\n", xctx->ui_state); Tcl_AppendResult(interp, res, NULL);
      my_snprintf(res, S(res), "prep_net_structs=%d\n", xctx->prep_net_structs); Tcl_AppendResult(interp, res, NULL);
      my_snprintf(res, S(res), "prep_hi_structs=%d\n", xctx->prep_hi_structs); Tcl_AppendResult(interp, res, NULL);
      my_snprintf(res, S(res), "prep_hash_inst=%d\n", xctx->prep_hash_inst); Tcl_AppendResult(interp, res, NULL);
@@ -1929,6 +1933,82 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   }
 
   else if(argv[1][0] == 'r') {   
+    if(!strcmp(argv[1], "raw_clear"))
+    {
+      cmd_found = 1;
+      free_rawfile();
+      Tcl_ResetResult(interp);
+    }
+
+    if(!strcmp(argv[1], "raw_query"))
+    {
+      int i;
+      char s[30];
+      cmd_found = 1;
+      Tcl_ResetResult(interp);
+      if(xctx->values) {
+        if(argc > 4) {
+          /* xschem rawfile_query value v(ldcp) 123 */
+          if(!strcmp(argv[2], "value")) {
+            struct int_hashentry *entry;
+            int point = atoi(argv[4]);
+            const char *node = argv[3];
+            int idx = -1;
+            if(point >= 0 && point < xctx->npoints) {
+              if(isonlydigit(node)) {
+                int i = atoi(node);
+                if(i >= 0 && i < xctx->nvars) {
+                  idx = i;
+                }
+              } else {
+                entry = int_hash_lookup(xctx->raw_table, node, 0, XLOOKUP);
+                if(entry) {
+                  idx = entry->value;
+                }
+              }
+              if(idx >= 0) {
+                double val =   xctx->values[point][idx];
+                my_snprintf(s, S(s), "%g", val);
+                Tcl_AppendResult(interp, s, NULL);
+              }
+            }
+          }
+        } else if(argc > 3) {
+          /* xschem rawfile_query index v(ldxp) */
+          if(!strcmp(argv[2], "index")) {
+            struct int_hashentry *entry; 
+            int idx;
+            entry = int_hash_lookup(xctx->raw_table, argv[3], 0, XLOOKUP);
+            idx = entry ? entry->value : -1;
+            my_snprintf(s, S(s), "%d", idx);
+            Tcl_AppendResult(interp, s, NULL);
+          }
+        } else if(argc > 2) {
+          if(!strcmp(argv[2], "points")) {
+            my_snprintf(s, S(s), "%d", xctx->npoints);
+            Tcl_AppendResult(interp, s, NULL);
+          } else if(!strcmp(argv[2], "vars")) {
+            my_snprintf(s, S(s), "%d", xctx->nvars);
+            Tcl_AppendResult(interp, s, NULL);
+          } else if(!strcmp(argv[2], "list")) {
+            for(i = 0 ; i < xctx->nvars; i++) {
+              Tcl_AppendResult(interp, xctx->names[i], "\n", NULL);
+            }
+          } 
+        }
+      }
+    }
+
+    if(!strcmp(argv[1], "raw_read"))
+    {
+      cmd_found = 1;
+      if(argc > 2) {
+        free_rawfile();
+        read_rawfile(argv[2]);
+      }
+      Tcl_ResetResult(interp);
+    }
+
     if(!strcmp(argv[1], "rebuild_connectivity"))
     {
       cmd_found = 1;
@@ -2499,21 +2579,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1],"test"))
     {
       cmd_found = 1;
-      /* {
-        xRect boundbox;
-        rebuild_selected_array();
-        calc_drawing_bbox(&boundbox, 1);
-        xctx->movelastsel = xctx->lastsel;
-        xctx->x1=boundbox.x1;
-        xctx->y_1=boundbox.y1;
-        xctx->rotatelocal=0;
-        xctx->move_flip = 1;
-        xctx->move_rot = 0;
-        xctx->ui_state|=STARTCOPY;
-        xctx->deltax = 5000.0;
-        xctx->deltay = 5000.0;
-        copy_objects(END);
-      } */
+      Tcl_ResetResult(interp);
     }
    
     else if(!strcmp(argv[1],"toggle_colorscheme"))

@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -27,6 +27,57 @@ L 8 1150 -160 1180 -160 {}
 L 8 1180 -160 1180 -120 {}
 L 8 1180 -120 1300 -120 {}
 L 8 820 -120 950 -120 {}
+B 2 1870 -810 2380 -710 {flags=1
+y1 = 0
+y2 = 2
+divy = 4
+x1=0
+x2=480e-9
+divx=12
+node="v(ldcp) v(ldprech)"
+color="3 11"}
+B 2 1870 -700 2380 -600 {flags=1
+y1 = 0
+y2 = 2
+divy = 4
+x1=0
+x2=480e-9  divx=12
+node="v(lden)"
+color=12}
+B 2 1870 -370 2380 -270 {flags=1
+y1 = 0
+y2 = 2
+divy = 4
+x1=0
+x2=480e-9
+divx=12
+node="v(ldq[11])"}
+B 2 1870 -590 2380 -490 {flags=1
+y1 = 0
+y2 = 2
+divy = 4
+x1=0
+x2=480e-9
+divx=12
+node="v(ldsal)"
+color=8}
+B 2 1870 -480 2380 -380 {flags=1
+y1 = 0
+y2 = 2
+divy = 4
+x1=0
+x2=480e-9
+divx=12
+node="v(ldq[12])"}
+B 2 1870 -1010 2380 -820 {flags=1
+y1 = 0
+y2 = 2
+divy = 5
+x1=0 
+x2=480e-9 
+divx=12
+node="v(ldyms[6]) v(ldyms[9]) v(ldcp)"
+color="4 7 12"}
 B 7 950 -250 980 -80 {}
 B 7 1150 -250 1180 -80 {}
 B 21 10 -970 240 -750 {}
@@ -37,6 +88,8 @@ monitors} 30 -1030 0 0 0.4 0.4 {}
 T {was: vss} 880 -980 0 0 0.4 0.4 {}
 T {16KB ROM Macrocell
 16 bit Data I/O x 8KWords} 210 -1120 0 0 0.7 0.7 {}
+T {Select one or more graphs (and no other objects)
+and use arrow keys to zoom / pan waveforms} 1880 -1050 0 0 0.3 0.3 {}
 N 150 -580 150 -560 {lab=vss}
 N 150 -420 150 -400 {lab=vss}
 N 10 -270 10 -250 {lab=vss}
@@ -227,3 +280,7 @@ C {lab_pin.sym} 1670 -740 0 0 {name=l2 lab=LDWL[8:0]}
 C {spice_probe.sym} 1670 -740 0 0 {name=p46 analysis=tran}
 C {lab_pin.sym} 1670 -790 0 0 {name=l4 lab=LDBL[0,16,32,1,17,33,2,18,34]}
 C {spice_probe.sym} 1670 -790 0 0 {name=p91 analysis=tran}
+C {launcher.sym} 1935 -1085 0 0 {name=h2 
+descr="Select arrow and 
+Ctrl-Right-Click to load waveforms" 
+tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}

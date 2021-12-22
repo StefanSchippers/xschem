@@ -669,13 +669,15 @@ void drawgrid()
   delta=tclgetdoublevar("cadgrid")*xctx->mooz;
   while(delta < CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
   x = xctx->xorigin*xctx->mooz; y = xctx->yorigin*xctx->mooz;
-  if(y>xctx->areay1 && y < xctx->areay2) {
-    if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[GRIDLAYER],xctx->areax1+1,(int)y, xctx->areax2-1, (int)y);
+  if(y > xctx->areay1 && y < xctx->areay2) {
+    if(xctx->draw_window)
+      XDrawLine(display, xctx->window, xctx->gc[GRIDLAYER],xctx->areax1+1,(int)y, xctx->areax2-1, (int)y);
     if(xctx->draw_pixmap)
       XDrawLine(display, xctx->save_pixmap, xctx->gc[GRIDLAYER],xctx->areax1+1,(int)y, xctx->areax2-1, (int)y);
   }
-  if(x>xctx->areax1 && x < xctx->areax2) {
-    if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[GRIDLAYER],(int)x,xctx->areay1+1, (int)x, xctx->areay2-1);
+  if(x > xctx->areax1 && x < xctx->areax2) {
+    if(xctx->draw_window)
+      XDrawLine(display, xctx->window, xctx->gc[GRIDLAYER],(int)x,xctx->areay1+1, (int)x, xctx->areay2-1);
     if(xctx->draw_pixmap)
       XDrawLine(display, xctx->save_pixmap, xctx->gc[GRIDLAYER],(int)x,xctx->areay1+1, (int)x, xctx->areay2-1);
   }
@@ -1470,55 +1472,393 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
  }
 }
 
-/* boiler plate code for future draw waves in xschem */
-void draw_waves(int c, int i)
+/* read the binary portion of a ngspice raw simulation file
+ * data layout in memory arranged to maximize cache locality 
+ * when looking up data 
+ */
+void read_binary_block(FILE *fd)
 {
-  double x1, y1, x2, y2, w, h;
-  double txtsize;
-  double txtx, txty;
-  char dash_arr[2] = {3, 3};
-  double dash_size;
-  const double margin = 0.05;
+  int p, v;
+  double *tmp;
+  tmp = my_calloc(1405, xctx->nvars, sizeof(double *));
+  /* allocate storage for binary block */
+  xctx->values = my_calloc(118, xctx->nvars, sizeof(double *));
+  for(p = 0 ; p < xctx->nvars; p++) {
+    xctx->values[p] = my_calloc(372, xctx->npoints, sizeof(double));
+  }
+  /* read binary block */
+  for(p = 0; p < xctx->npoints; p++) {
+    if(fread(tmp,  sizeof(double), xctx->nvars, fd) != xctx->nvars) {
+       dbg(0, "Warning: binary block is not of correct size\n");
+    }
+    for(v = 0; v < xctx->nvars; v++) {
+      xctx->values[v][p] = tmp[v];
+    }
+  }
+  my_free(1406, &tmp);
+}
 
-  x1 = xctx->rect[c][i].x1;
-  y1 = xctx->rect[c][i].y1;
-  x2 = xctx->rect[c][i].x2;
-  y2 = xctx->rect[c][i].y2;
+/* parse ascii raw header section:
+ * returns: 1 if dataset and variables were read.
+ *          0 if transient sim dataset not found
+ *         -1 on EOF
+ * Typical ascii header of raw file looks like:
+ *
+ * Title: **.subckt poweramp
+ * Date: Thu Nov 21 18:36:25  2019
+ * Plotname: Transient Analysis
+ * Flags: real
+ * No. Variables: 158
+ * No. Points: 90267
+ * Variables:
+ *         0       time    time
+ *         1       v(net1) voltage
+ *         2       v(vss)  voltage
+ *         ...
+ *         ...
+ *         155     i(v.x1.vd)      current
+ *         156     i(v0)   current
+ *         157     i(v1)   current
+ * Binary:
+ */
+int read_dataset(FILE *fd)
+{ 
+  int variables = 0, i, done_points = 0;
+  char line[PATH_MAX], varname[PATH_MAX];
+  char *ptr;
+  int transient = 0;
+  int dc = 0;
+  xctx->npoints = 0;
+  xctx->nvars = 0; 
+  while((ptr = fgets(line, sizeof(line), fd)) ) {
+    if(!strncmp(line, "Binary:", 7)) break; /* start of binary block */
+    if(dc || transient) { 
+      if(variables) {
+        sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
+        xctx->names[i] = my_malloc(415, strlen(varname) + 1);
+        strcpy(xctx->names[i], varname);
+        /* use hash table to store index number of variables */
+        int_hash_lookup(xctx->raw_table, xctx->names[i], i, XINSERT_NOREPLACE);
+        dbg(1, "names[%d] = %s\n", i, xctx->names[i]);
+      }
+      if(!strncmp(line, "Variables:", 10)) {
+        variables = 1;
+        xctx->names = my_calloc(426, xctx->nvars, sizeof(char *));
+      }
+    }
+    if(!strncmp(line, "No. of Data Rows :", 18)) {
+      sscanf(line, "No. of Data Rows : %d", &xctx->npoints);
+      done_points = 1;
+    }
+    if(!strncmp(line, "No. Variables:", 14)) {
+      sscanf(line, "No. Variables: %d", &xctx->nvars);
+    }
+    if(!strncmp(line, "Plotname: Transient Analysis", 28)) {
+      transient = 1;
+    }
+    if(!strncmp(line, "Plotname: DC transfer characteristic", 36)) {
+      dc = 1;
+    }
+    if(!done_points && !strncmp(line, "No. Points:", 11)) {
+      sscanf(line, "No. Points: %d", &xctx->npoints);
+    }
+  }
+  if(!ptr) {
+    dbg(1, "EOF found\n");
+    variables = -1; /* EOF */
+  }
+  dbg(1, "npoints=%d, nvars=%d\n", xctx->npoints, xctx->nvars);
+  if(variables == 1) {
+    read_binary_block(fd); 
+  } else if(variables == 0) { 
+    dbg(1, "seeking past binary block\n");
+    fseek(fd, xctx->nvars * xctx->npoints * sizeof(double), SEEK_CUR); /* skip binary block */
+  }
+  return variables;
+}
+
+void free_rawfile(void)
+{
+  int i;
+
+  if(!xctx->values) return;
+  for(i = 0 ; i < xctx->nvars; i++) {
+    my_free(510, &xctx->names[i]);
+  }
+  for(i = 0 ; i < xctx->nvars; i++) {
+    my_free(512, &xctx->values[i]);
+  }
+  my_free(528, &xctx->values);
+  my_free(968, &xctx->names);
+  my_free(1393, &xctx->raw_schname);
+  xctx->npoints = 0;
+  xctx->nvars = 0;
+  int_hash_free(xctx->raw_table);
+  draw();
+}
+
+/* read a ngspice raw file (with data portion in binary format) */
+int read_rawfile(const char *f)
+{
+  int res;
+  FILE *fd;
+  fd = fopen(f, "r");
+  if(fd) for(;;) {
+    if((res = read_dataset(fd)) == 1) {
+      break;
+    } else if(res == -1) {  /* EOF */
+      dbg(0, "read_rawfile(): dataset not found in raw file\n");
+      return EXIT_FAILURE;
+    }
+  } else {
+    dbg(0, "read_rawfile(): failed to open file for reading\n");
+    return EXIT_FAILURE;
+  }
+  if(fd) fclose(fd);
+  dbg(0, "Raw file data read\n");
+  my_strdup2(1394, &xctx->raw_schname, xctx->current_name);
+  draw();
+  return EXIT_SUCCESS;
+}
+
+
+/* fill each graph box with simulation data */
+/* #define W_X(x) (x1 + (x2 - x1) / (wx2 - wx1) * ((x) - wx1)) */
+/* #define W_Y(y) (y2 - (y2 - y1) / (wy2 - wy1) * ((y) - wy1)) */
+#define W_X(x) (cx * (x) + dx)
+#define W_Y(y) (cy * (y) + dy)
+void draw_graph(int c, int i)
+{
+  /* container box */
+  double rx1, ry1, rx2, ry2, rw, rh; 
+  /* graph box (smaller due to margins) */
+  double x1, y1, x2, y2, w, h; 
+  /* graph coordinate, some defaults */
+  double wx1 = -2e-6;
+  double wy1 = -1;
+  double wx2 = 8e-6;
+  double wy2 = 4;
+  double marginx = 20; /* will be recalculated later */
+  double marginy = 20; /* will be recalculated later */
+  double wx, wy; /* point coordinates in graph */
+  double cx, dx, cy, dy;
+  double dash_sizex, dash_sizey;
+  int divisx = 10;
+  int divisy = 5;
+  int j, wave_color = 5;
+  char lab[30];
+  const char *val;
+  char *node = NULL, *color = NULL;
+  double txtsizelab, txtsizey, txtsizex, tmp;
+  struct int_hashentry *entry;
+
+  /* container ( ebnedding rectangle) coordinates */
+  rx1 = xctx->rect[c][i].x1;
+  ry1 = xctx->rect[c][i].y1;
+  rx2 = xctx->rect[c][i].x2;
+  ry2 = xctx->rect[c][i].y2;
+  rw = (rx2 - rx1);
+  rh = (ry2 - ry1);
+
+  /* set margins */
+  tmp = rw * 0.05;
+  marginx = tmp < 50 ? 50 : tmp;
+  tmp = rh * 0.1;
+  marginy = tmp < 20 ? 20 : tmp;
+
+  /* calculate graph bounding box (container - margin) 
+   * This is the box where plot is done */
+  x1 =  rx1 + marginx;
+  x2 =  rx2 - marginx/1.3;
+  y1 =  ry1 + marginy;
+  y2 =  ry2 - marginy;
   w = (x2 - x1);
   h = (y2 - y1);
-  /* set a margin */
-  x1 += w * margin;
-  x2 -= w * margin;
-  y1 += h * margin;
-  y2 -= h * margin;
-  w = (x2 - x1);
-  h = (y2 - y1);
-  
-  dash_size = (x2 - x1) * xctx->mooz / 80.0;
-  dash_arr[0] = dash_arr[1] = dash_size > 127.0 ? 127 : dash_size;
-  txtx = (x2 + x1) / 2;
-  txty = (y2 + y1) / 2;
-  txtsize = (x2 - x1) / 400;
+
+  /* get variables to plot, x/y range, grid info etc */
+  val = get_tok_value(xctx->rect[c][i].prop_ptr,"divx",0);
+  if(val[0]) divisx = atoi(val);
+  val = get_tok_value(xctx->rect[c][i].prop_ptr,"divy",0);
+  if(val[0]) divisy = atoi(val);
+  val = get_tok_value(xctx->rect[c][i].prop_ptr,"x1",0);
+  if(val[0]) wx1 = atof(val);
+  val = get_tok_value(xctx->rect[c][i].prop_ptr,"y1",0);
+  if(val[0]) wy1 = atof(val);
+  val = get_tok_value(xctx->rect[c][i].prop_ptr,"x2",0);
+  if(val[0]) wx2 = atof(val);
+  val = get_tok_value(xctx->rect[c][i].prop_ptr,"y2",0);
+  if(val[0]) wy2 = atof(val);
+
+  /* cache coefficients for faster graph coord transformations */
+  cx = (x2 - x1) / (wx2 - wx1);
+  dx = x1 - wx1 * cx;
+  cy = (y1 - y2) / (wy2 - wy1);
+  dy = y2 - wy1 * cy;
+
+  /* calculate dash length for grid lines */
+  dash_sizex = 800 * xctx->mooz / 300.0;
+  dash_sizex = dash_sizex > 127.0 ? 127 : dash_sizex;
+  if(dash_sizex <= 1) dash_sizex = 1;
+  dash_sizey = 800 * xctx->mooz / 300.0;
+  dash_sizey = dash_sizey > 127.0 ? 127 : dash_sizey;
+  if(dash_sizey <= 1) dash_sizey = 1;
+
+  /* x axis, y axis, label text sizes */
+  txtsizey = h / divisy / 90 ;
+  tmp = marginx / 200;
+  if(tmp < txtsizey) txtsizey = tmp;
+
+  txtsizex = w / divisx / 300;
+  tmp = marginy / 110;
+  if(tmp < txtsizex) txtsizex = tmp;
+
+  txtsizelab = marginy / 100;
+
+  /* background */
+  filledrect(0, NOW, x1, y1, x2, y2);
+  /* vertical grid lines */
+  for(j = 0; j <= divisx; j++) {
+    wx = wx1 + j * (wx2 -wx1) / divisx;
+    /* swap order of wy1 and wy2 since grap y orientation is opposite to xorg orientation */
+    drawline(2, NOW, W_X(wx),   W_Y(wy2), W_X(wx),   W_Y(wy1), dash_sizey);
+    /* X-axis labels */
+    my_snprintf(lab, S(lab), "%.4g", fabs(wx) < 1e-23 ? 0.0 : wx);
+    draw_string(3, NOW, lab, 0, 0, 1, 0, W_X(wx), y2 + 30 * txtsizex, txtsizex, txtsizex);
+  }
+  /* horizontal grid lines */
+  for(j = 0; j <= divisy; j++) {
+    wy = wy1 + j * (wy2 -wy1) / divisy;
+    drawline(2, NOW, W_X(wx1), W_Y(wy),   W_X(wx2), W_Y(wy), dash_sizex);
+    /* Y-axis labels */
+    my_snprintf(lab, S(lab), "%.4g", fabs(wy) < 1e-23 ? 0.0 : wy);
+    draw_string(3, NOW, lab, 0, 1, 0, 1, x1 - 30 * txtsizey, W_Y(wy), txtsizey, txtsizey);
+  }
+  /* Horizontal axis (if in viewport) */
+  if(wy1 <= 0 && wy2 >= 0) drawline(2, NOW, W_X(wx1), W_Y(0),   W_X(wx2), W_Y(0),   0);
+  /* Vertical axis (if in viewport) 
+   * swap order of wy1 and wy2 since grap y orientation is opposite to xorg orientation */
+  if(wx1 <= 0 && wx2 >= 0) drawline(2, NOW, W_X(0),   W_Y(wy2), W_X(0),   W_Y(wy1), 0);
+  /* if simulation data is loaded and matches schematic draw data */
+  if(xctx->raw_schname && !strcmp(xctx->raw_schname, xctx->current_name) && xctx->values) {
+    char *saven, *savec, *nptr, *cptr, *ntok, *ctok;
+    int wcnt = 0;
+    double *xarr = NULL, *yarr = NULL;
+    xarr = my_malloc(1401, xctx->npoints * sizeof(double));
+    yarr = my_malloc(1402, xctx->npoints * sizeof(double));
+    my_strdup2(1389, &node, get_tok_value(xctx->rect[c][i].prop_ptr,"node",0));
+    my_strdup2(1390, &color, get_tok_value(xctx->rect[c][i].prop_ptr,"color",0)); 
+    nptr = node;
+    cptr = color;
+    /* process each node given in "node" attribute, get also associated color if any*/
+    while( (ntok = my_strtok_r(nptr, " ", &saven)) ) {
+      ctok = my_strtok_r(cptr, " ", &savec);
+      nptr = cptr = NULL;
+      dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
+      if(ctok && ctok[0]) wave_color = atoi(ctok);
+      draw_string(wave_color, NOW, ntok, 0, 0, 0, 0, rx1 + rw/6 * wcnt, ry1, txtsizelab, txtsizex);
+      /* clipping everything outside graph area */
+      bbox(START, 0.0, 0.0, 0.0, 0.0);
+      bbox(ADD,x1, y1, x2, y2);
+      dbg(1, "draw_graph(ADD): %g %g %g %g\n", x1, y1, x2, y2);
+      bbox(SET, 0.0, 0.0, 0.0, 0.0);
+      /* quickly find index number of ntok variable to be plotted */
+      entry = int_hash_lookup(xctx->raw_table, ntok, 0, XLOOKUP);
+      if(entry) {
+        int p;
+        int poly_npoints = 0;
+        int v = entry->value;
+        int first = -1, last = 0;
+        double xx, yy;
+        double start = (wx1 <= wx2) ? wx1 : wx2;
+        double end = (wx1 <= wx2) ? wx2 : wx1;
+
+        /* Process "npoints" simulation items 
+         * p loop split repeated 2 timed (for xx and yy points) to preserve cache locality */
+        for(p = 0 ; p < xctx->npoints; p++) {
+          xx = xctx->values[0][p];
+          if(xx > end) {
+            break;
+          }
+          if(xx >= start) {
+            if(first == -1) first = p;
+            /* Build poly x array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
+            xarr[poly_npoints] = W_X(xx);
+            poly_npoints++;
+          }
+        }
+        last = p;
+        if(first != -1) {
+          poly_npoints = 0;
+          for(p = first ; p < last; p++) {
+            yy = xctx->values[v][p];
+            /* Build poly y array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
+            yarr[poly_npoints] = W_Y(yy);
+            poly_npoints++;
+          }
+          /* plot data */
+          drawpolygon(wave_color, NOW, xarr, yarr, poly_npoints, 0, 0);
+        }
+      }
+      bbox(END, 0.0, 0.0, 0.0, 0.0);
+      wcnt++;
+    }
+    my_free(1403, &xarr);
+    my_free(1404, &yarr);
+    my_free(1391, &node);
+    my_free(1392, &color);
+  }
+}
+
+/* fill graph boxes with data from ngspice simulations */
+void draw_waves(void)
+{
+  int c, i;
+  int bbox_set = 0;
+  double save_lw;
+  int save_bbx1, save_bby1, save_bbx2, save_bby2;
+  save_lw = xctx->lw;
+  xctx->lw = 0;
+  /* save bbox data, since draw_waves() is called from draw() which may be called after a bbox(SET) */
+  if(xctx->sem) {
+    bbox_set = 1;
+    save_bbx1 = xctx->bbx1;
+    save_bby1 = xctx->bby1;
+    save_bbx2 = xctx->bbx2;
+    save_bby2 = xctx->bby2;
+    bbox(END, 0.0, 0.0, 0.0, 0.0);
+  }
   /* thin / dashed lines (axis etc) */
-  XSetDashes(display, xctx->gc[7], 0, dash_arr, 2);
-  XSetLineAttributes (display, xctx->gc[7], 0, xDashType, CapButt, JoinBevel);
-  XSetLineAttributes (display, xctx->gc[9], 0, LineSolid, CapRound , JoinRound);
-  drawline(7, NOW, x1, y1, x2, y2, 0);
-  drawline(9, NOW, x1, y2, x2, y1, 0);
-
+  XSetLineAttributes(display, xctx->gc[2], 0, LineSolid, CapRound, JoinRound);
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
   cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   #endif
-  draw_string(10, NOW, "Hello World!", 0, 0, 1, 1, txtx, txty, txtsize, txtsize);
+  c = 2; /* only rectangles on layer 2 (GRID) can embed graphs */
+  if(xctx->draw_single_layer==-1 || c == xctx->draw_single_layer) {
+    if(xctx->enable_layer[c]) for(i = 0; i < xctx->rects[c]; i++) {
+      xRect *r = &xctx->rect[c][i];
+      if(r->flags == 1) {
+        draw_graph(c, i); /* draw data in each graph box */
+      }
+    }
+  }
   #if HAS_CAIRO==1
   cairo_restore(xctx->cairo_ctx);
   cairo_restore(xctx->cairo_save_ctx);
   #endif
-  XSetLineAttributes (display, xctx->gc[7], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
-  XSetLineAttributes (display, xctx->gc[9], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
+  xctx->lw = save_lw;
+  XSetLineAttributes(display, xctx->gc[2], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
+  /* restore previous bbox */
+  if(bbox_set) {
+    xctx->bbx1 = save_bbx1;
+    xctx->bby1 = save_bby1;
+    xctx->bbx2 = save_bbx2;
+    xctx->bby2 = save_bby2;
+    xctx->sem = 1;
+    bbox(SET, 0.0, 0.0, 0.0, 0.0);
+  }
 }
 
 void draw(void)
@@ -1546,6 +1886,7 @@ void draw(void)
                      xctx->areaw, xctx->areah);
     dbg(1, "draw(): window: %d %d %d %d\n",xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
     drawgrid();
+    draw_waves();
     x1 = X_TO_XSCHEM(xctx->areax1);
     y1 = Y_TO_XSCHEM(xctx->areay1);
     x2 = X_TO_XSCHEM(xctx->areax2);
@@ -1567,16 +1908,11 @@ void draw(void)
             else       drawline(c, ADD, l->x1, l->y1, l->x2, l->y2, l->dash);
           }
           if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c];i++) {
-            xRect *r = &xctx->rect[c][i];
-            drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
-            if(r->flags == 1) {
-              /* flush pending data... */
-              filledrect(c, END, 0.0, 0.0, 0.0, 0.0);
-              drawarc(c, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
-              drawrect(c, END, 0.0, 0.0, 0.0, 0.0, 0);
-              drawline(c, END, 0.0, 0.0, 0.0, 0.0, 0);
-              draw_waves(c, i); /* <<<< */
-            }
+            xRect *r = &xctx->rect[c][i]; 
+            if(c == 2 && r->flags == 1) 
+              drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, 1);
+            else
+              drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
             filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
           }
           if(xctx->enable_layer[c]) for(i=0;i<xctx->arcs[c];i++) {

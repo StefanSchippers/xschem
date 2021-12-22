@@ -160,7 +160,7 @@ extern char win_temp_dir[PATH_MAX];
 #define CADMAXGRIDPOINTS 512
 #define CADMAXHIER 80
 #define CADCHUNKALLOC 512 /*  was 256  20102004 */
-#define CADDRAWBUFFERSIZE 128
+#define CADDRAWBUFFERSIZE 512
 
 /*  when x-width of drawing area s below this threshold use spatial */
 /*  hash table for drawing wires and instances (for faster lookup) instead of */
@@ -301,7 +301,7 @@ extern char win_temp_dir[PATH_MAX];
 #define LINE_OUTSIDE(xa,ya,xb,yb,x1,y1,x2,y2) \
  (xa>=x2 || xb<=x1 ||  ( (ya<yb)? (ya>=y2 || yb<=y1) : (yb>=y2 || ya<=y1) ) )
 
-#define CLIP(x,a,b) ((x) < a ? (a) : (x) > b ? (b) : (x))
+#define CLIP(x,a,b) (((x) < (a)) ? (a) : ((x) > (b)) ? (b) : (x))
 
 #define MINOR(a,b) ( (a) <= (b) ? (a) : (b) )
 
@@ -578,7 +578,6 @@ typedef struct {
   double mousex_snap,mousey_snap; /* mouse coord. snapped to grid */
   double mx_double_save, my_double_save;
   int areax1,areay1,areax2,areay2,areaw,areah; /* window corners / size, line width beyond screen edges */
-  int xschem_h, xschem_w; /* true window size from XGetWindowAttributes */
   int need_reb_sel_arr;
   int lastsel;
   int maxsel;
@@ -619,9 +618,10 @@ typedef struct {
   int cur_undo_ptr;
   int tail_undo_ptr;
   int head_undo_ptr;
-  struct inst_hashentry *inst_table[HASHSIZE];
-  struct node_hashentry *node_table[HASHSIZE];
-  struct hilight_hashentry *hilight_table[HASHSIZE];
+  struct inst_hashentry **inst_table;
+  struct node_hashentry **node_table;
+  struct hilight_hashentry **hilight_table;
+
   int hilight_nets;
   int hilight_color;
   int hilight_time; /* timestamp for sims */
@@ -636,7 +636,7 @@ typedef struct {
   int onetime;
   /* move.c */
   /* list of nodes, instances attached to these need redraw */
-  struct int_hashentry *node_redraw_table[HASHSIZE];
+  struct int_hashentry **node_redraw_table;
   /* list of instances, collected using previous table, that need redraw */
   unsigned char *inst_redraw_table;
   int inst_redraw_table_size;
@@ -676,6 +676,7 @@ typedef struct {
   int bbx1, bbx2, bby1, bby2;
   int savew, saveh, savex1, savex2, savey1, savey2;
   int sem;
+  XRectangle savexrect;
   /* new_prop_string */
   char prefix;
   /* edit_symbol_property, update_symbol */
@@ -685,6 +686,13 @@ typedef struct {
   /* in_memory_undo */
   Undo_slot uslot[MAX_UNDO];
   int undo_initialized;
+  /* read raw files (draw.c) */
+  char **names;
+  double **values;
+  int nvars;
+  int npoints;
+  struct int_hashentry **raw_table;
+  char *raw_schname;
   /*     */
   int nl_sel, nl_sem;
   XSegment *biggridpoint;
@@ -881,6 +889,9 @@ extern char cli_opt_netlist_dir[PATH_MAX];
 extern Xschem_ctx *xctx;
 
 /*  FUNCTIONS */
+extern void draw_waves(void);
+extern void free_rawfile(void);
+extern int read_rawfile(const char *f);
 extern double timer(int start);
 extern void enable_layers(void);
 extern void set_snap(double);
@@ -1163,6 +1174,7 @@ extern void *my_calloc(int id, size_t nmemb, size_t size);
 extern void my_free(int id, void *ptr);
 extern size_t my_strcat(int id, char **, const char *);
 extern double my_round(double a);
+extern double round_to_n_digits(double x, int n);
 extern const char *subst_token(const char *s, const char *tok, const char *new_val);
 extern void new_prop_string(int i, const char *old_prop,int fast, int dis_uniq_names);
 extern void hash_name(char *token, int remove);

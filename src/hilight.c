@@ -563,7 +563,7 @@ int search(const char *tok, const char *val, int sub, int sel)
  const char *str;
  char *type;
  int has_token;
- const char empty_string[] = "";
+ const char *empty_string = "";
  char *tmpname=NULL;
  int found = 0;
  xRect boundbox;
@@ -1797,9 +1797,9 @@ void print_hilight_net(int show)
  char cmd[2*PATH_MAX];  /* 20161122 overflow safe */
  char cmd2[2*PATH_MAX];  /* 20161122 overflow safe */
  char cmd3[2*PATH_MAX];  /* 20161122 overflow safe */
- char a[] = "create_pins";
- char b[] = "add_lab_prefix";
- char b1[] = "add_lab_no_prefix";
+ char *a = "create_pins";
+ char *b = "add_lab_prefix";
+ char *b1 = "add_lab_no_prefix";
  char *filetmp1 = NULL;
  char *filetmp2 = NULL;
  char *filename_ptr;

@@ -20,6 +20,15 @@ L 4 1400 -290 1420 -310 {dash=3}
 L 4 1400 -330 1400 -290 {dash=3}
 L 4 1400 -330 1420 -310 {dash=3}
 L 4 1240 -310 1400 -310 {dash=3}
+B 2 30 -940 500 -730 {flags=1 
+y1 = 0
+y2 = 3
+divy = 6
+x1=0
+x2=3
+divx=6
+node="v(aa) v(z) v(zz)"
+color="11 7 13"}
 P 4 7 530 -860 1130 -860 1130 -690 1390 -690 1390 -580 530 -580 530 -860 {dash=3}
 T {These 2 instances are equivalent} 290 -320 0 0 0.4 0.4 {}
 T {Example of using a schematic as a
@@ -32,6 +41,8 @@ in the schematic instance.} 550 -840 0 0 0.6 0.6 {}
 T {LCC schematics can be nested
 If only .sch is used there is
 no need for a .sym file at all} 910 -430 0 0 0.6 0.6 {}
+T {Select one or more graphs (and no other objects)
+and use arrow keys to zoom / pan waveforms} 40 -990 0 0 0.3 0.3 {}
 N 410 -140 410 -120 {lab=HALF}
 N 410 -230 430 -230 {lab=ZZ}
 N 410 -230 410 -200 {lab=ZZ}
@@ -49,8 +60,8 @@ C {code_shown.sym} 580 -150 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
 value="
-
-.tran 10n 10u uic
+.dc v1 0 3 0.01
+* .tran 10n 10u uic
 .save all
 "}
 C {code.sym} 760 -170 0 0 {name=MODEL
@@ -133,3 +144,7 @@ C {cmos_inv.sch} 140 -300 0 0 {name=Xinv WN=15u WP=45u LLN=3u LLP=3u}
 C {cmos_inv.sym} 280 -230 0 0 {name=Xinv2 WN=15u WP=45u LLN=3u LLP=3u}
 C {bus_keeper.sch} 1200 60 0 0 {name=Xkeeper WN_FB=3u WP_FB=5u}
 C {lab_pin.sym} 700 -530 0 1 {name=p1 lab=Z}
+C {launcher.sym} 85 -1025 0 0 {name=h5 
+descr="Select arrow and 
+Ctrl-Right-Click to load waveforms" 
+tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}

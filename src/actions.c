@@ -648,10 +648,10 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
   xRect *rct;
   char *labname=NULL;
   char *prop=NULL; /*  20161122 overflow safe */
-  const char symname_pin[] = "devices/lab_pin.sym";
-  const char symname_wire[] = "devices/lab_wire.sym";
-  const char symname_pin2[] = "lab_pin.sym";
-  const char symname_wire2[] = "lab_wire.sym";
+  const char *symname_pin = "devices/lab_pin.sym";
+  const char *symname_wire = "devices/lab_wire.sym";
+  const char *symname_pin2 = "lab_pin.sym";
+  const char *symname_wire2 = "lab_wire.sym";
   char *type=NULL;
   int dir;
   int k,ii, skip;
@@ -1479,8 +1479,8 @@ void set_viewport_size(int w, int h, double lw)
 {
     xctx->xrect[0].x = 0;
     xctx->xrect[0].y = 0;
-    xctx->xschem_w = xctx->xrect[0].width = w;
-    xctx->xschem_h = xctx->xrect[0].height = h;
+    xctx->xrect[0].width = w;
+    xctx->xrect[0].height = h;
     xctx->areax2 = w+2*INT_WIDTH(lw);
     xctx->areay2 = h+2*INT_WIDTH(lw);
     xctx->areax1 = -2*INT_WIDTH(lw);
@@ -1496,8 +1496,8 @@ void save_restore_zoom(int save)
   static double savexor, saveyor, savezoom, savelw; /* safe to keep even with multiple schematics */
 
   if(save) {
-    savew = xctx->xschem_w;
-    saveh = xctx->xschem_h;
+    savew = xctx->xrect[0].width;
+    saveh = xctx->xrect[0].height;
     savelw = xctx->lw;
     savexor = xctx->xorigin;
     saveyor = xctx->yorigin;
@@ -1505,8 +1505,8 @@ void save_restore_zoom(int save)
   } else {
     xctx->xrect[0].x = 0;
     xctx->xrect[0].y = 0;
-    xctx->xschem_w = xctx->xrect[0].width = savew;
-    xctx->xschem_h = xctx->xrect[0].height = saveh;
+    xctx->xrect[0].width = savew;
+    xctx->xrect[0].height = saveh;
     xctx->areax2 = savew+2*INT_WIDTH(savelw);
     xctx->areay2 = saveh+2*INT_WIDTH(savelw);
     xctx->areax1 = -2*INT_WIDTH(savelw);
@@ -2303,6 +2303,14 @@ double my_round(double a)
 {
   /* return 0.0 or -0.0 if a == 0.0 or -0.0 */
   return (a > 0.0) ? floor(a + 0.5) : (a < 0.0) ? ceil(a - 0.5) : a;
+}
+
+double round_to_n_digits(double x, int n)
+{
+  double scale;
+  if(x == 0.0) return x;
+  scale = pow(10.0, ceil(log10(fabs(x))) - n);
+  return my_round(x / scale) * scale;
 }
 
 int place_text(int draw_text, double mx, double my)

@@ -323,6 +323,13 @@ void free_xschem_data()
   int i;
   xctx->delete_undo();
   free_simdata();
+
+  my_free(970, &xctx->node_table);
+  my_free(1385, &xctx->inst_table);
+  my_free(1386, &xctx->node_redraw_table);
+  my_free(1387, &xctx->hilight_table);
+  my_free(1388, &xctx->raw_table);
+
   my_free(1098, &xctx->wire);
   my_free(1100, &xctx->text);
   my_free(1107, &xctx->inst);
@@ -415,6 +422,11 @@ void alloc_xschem_data(const char *top_path)
   xctx->mooz=1/CADINITIALZOOM;
   xctx->xorigin=CADINITIALX;
   xctx->yorigin=CADINITIALY;
+  xctx->names = NULL;
+  xctx->values = NULL;
+  xctx->nvars = 0;
+  xctx->npoints = 0;
+  xctx->raw_schname = NULL;
   xctx->wires = 0;
   xctx->instances = 0;
   xctx->symbols = 0;
@@ -453,15 +465,16 @@ void alloc_xschem_data(const char *top_path)
       xctx->inst_spatial_table[i][j] = NULL;
     }
   }
-  memset(xctx->inst_table, 0, HASHSIZE * sizeof(struct inst_hashentry *));
-  memset(xctx->node_table, 0, HASHSIZE * sizeof(struct node_hashentry *));
-  memset(xctx->hilight_table, 0, HASHSIZE *sizeof(struct hilight_hashentry *));
-  memset(xctx->node_redraw_table, 0, HASHSIZE * sizeof(struct int_hashentry *));
+  xctx->node_table = my_calloc(517,  HASHSIZE, sizeof(struct node_hashentry *));
+  xctx->node_redraw_table = my_calloc(973,  HASHSIZE, sizeof(struct int_hashentry *));
+  xctx->inst_table = my_calloc(1382,  HASHSIZE, sizeof(struct inst_hashentry *));
+  xctx->hilight_table = my_calloc(1383,  HASHSIZE, sizeof(struct hilight_hashentry *));
+  xctx->raw_table = my_calloc(1384,  HASHSIZE, sizeof(struct int_hashentry *));
+
   xctx->inst_redraw_table = NULL;
   xctx->inst_redraw_table_size = 0;
   xctx->window = xctx->save_pixmap = 0;
   xctx->xrect[0].width = xctx->xrect[0].height = xctx->xrect[0].x = xctx->xrect[0].y = 0;
-  xctx->xschem_w = xctx->xschem_h = 0;
 #if HAS_CAIRO==1
   xctx->cairo_ctx = xctx->cairo_save_ctx = NULL;
   xctx->cairo_sfc = xctx->cairo_save_sfc = NULL;
@@ -604,6 +617,7 @@ void delete_schematic_data(void)
    * inst & wire .node fields, instance name hash */
   clear_drawing();
   remove_symbols();
+  free_rawfile();
   free_xschem_data(); /* delete the xctx struct */
 }
 
@@ -1116,14 +1130,14 @@ void resetcairo(int create, int clear, int force_or_resize)
     #if HAS_XRENDER==1
     #if HAS_XCB==1
     xctx->cairo_save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap,
-         &format_rgb, xctx->xschem_w, xctx->xschem_h);
+         &format_rgb, xctx->xrect[0].width, xctx->xrect[0].height);
     #else
     xctx->cairo_save_sfc = cairo_xlib_surface_create_with_xrender_format(display, xctx->save_pixmap,
-         DefaultScreenOfDisplay(display), render_format, xctx->xschem_w, xctx->xschem_h);
+         DefaultScreenOfDisplay(display), render_format, xctx->xrect[0].width, xctx->xrect[0].height);
     #endif /* HAS_XCB */
     #else
     xctx->cairo_save_sfc = 
-       cairo_xlib_surface_create(display, xctx->save_pixmap, visual, xctx->xschem_w, xctx->xschem_h);
+       cairo_xlib_surface_create(display, xctx->save_pixmap, visual, xctx->xrect[0].width, xctx->xrect[0].height);
     #endif /* HAS_XRENDER */
     if(cairo_surface_status(xctx->cairo_save_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
@@ -1138,15 +1152,17 @@ void resetcairo(int create, int clear, int force_or_resize)
     /***** Create Cairo main drawing window structures *****/
     #if HAS_XRENDER==1
     #if HAS_XCB==1
-    dbg(1, "create_cairo_surface: w=%d, h=%d\n", xctx->xschem_w, xctx->xschem_h);
+    dbg(1, "create_cairo_surface: w=%d, h=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
     xctx->cairo_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn,
-          screen_xcb, xctx->window, &format_rgb, xctx->xschem_w, xctx->xschem_h);
+          screen_xcb, xctx->window, &format_rgb, xctx->xrect[0].width, xctx->xrect[0].height);
     #else
     xctx->cairo_sfc = cairo_xlib_surface_create_with_xrender_format (display,
-          xctx->window, DefaultScreenOfDisplay(display), render_format, xctx->xschem_w, xctx->xschem_h);
+          xctx->window, DefaultScreenOfDisplay(display), render_format,
+          xctx->xrect[0].width, xctx->xrect[0].height);
     #endif /* HAS_XCB */
     #else
-    xctx->cairo_sfc = cairo_xlib_surface_create(display, xctx->window, visual, xctx->xschem_w, xctx->xschem_h);
+    xctx->cairo_sfc = cairo_xlib_surface_create(display, xctx->window, visual,
+        xctx->xrect[0].width, xctx->xrect[0].height);
     #endif /* HAS_XRENDER */
     if(cairo_surface_status(xctx->cairo_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo surface\n");
@@ -1160,9 +1176,9 @@ void resetcairo(int create, int clear, int force_or_resize)
     cairo_set_line_cap(xctx->cairo_ctx, CAIRO_LINE_CAP_ROUND);
     #if 0
     *  #if HAS_XCB==1 && HAS_XRENDER==1
-    *  cairo_xcb_surface_set_size(xctx->cairo_sfc, xctx->xschem_w, xctx->xschem_h);
+    *  cairo_xcb_surface_set_size(xctx->cairo_sfc, xctx->xrect[0].width, xctx->xrect[0].height);
     *  #else
-    *  cairo_xlib_surface_set_size(xctx->cairo_sfc, xctx->xschem_w, xctx->xschem_h);
+    *  cairo_xlib_surface_set_size(xctx->cairo_sfc, xctx->xrect[0].width, xctx->xrect[0].height);
     *  #endif /* HAS_XCB  && HAS_XRENDER */
     #endif
   }
@@ -1202,23 +1218,21 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
     }
     if(status) {
       /* if(wattr.map_state==IsUnmapped) return; */
-      xctx->xschem_w=width;
-      xctx->xschem_h=height;
-      xctx->areax2 = xctx->xschem_w+2*INT_WIDTH(xctx->lw);
-      xctx->areay2 = xctx->xschem_h+2*INT_WIDTH(xctx->lw);
-      xctx->areax1 = -2*INT_WIDTH(xctx->lw);
-      xctx->areay1 = -2*INT_WIDTH(xctx->lw);
-      xctx->areaw = xctx->areax2-xctx->areax1;
-      xctx->areah = xctx->areay2-xctx->areay1;
+      xctx->areax2 = width + 2 * INT_WIDTH(xctx->lw);
+      xctx->areay2 = height + 2 * INT_WIDTH(xctx->lw);
+      xctx->areax1 = -2 * INT_WIDTH(xctx->lw);
+      xctx->areay1 = -2 * INT_WIDTH(xctx->lw);
+      xctx->areaw = xctx->areax2 - xctx->areax1;
+      xctx->areah = xctx->areay2 - xctx->areay1;
       /* if no force avoid unnecessary work if no resize */
-      if( force || xctx->xschem_w !=xctx->xrect[0].width || xctx->xschem_h !=xctx->xrect[0].height) {
-        dbg(1, "resetwin(): create: %d, clear: %d, force: %d, xschem_w=%d xschem_h=%d\n",
-                create_pixmap, clear_pixmap, force, xctx->xschem_w,xctx->xschem_h);
+      if( force || width != xctx->xrect[0].width || height != xctx->xrect[0].height) {
+        dbg(1, "resetwin(): create: %d, clear: %d, force: %d, w=%d h=%d\n",
+                create_pixmap, clear_pixmap, force, width, height);
         dbg(1, "resetwin(): changing size\n\n");
         xctx->xrect[0].x = 0;
         xctx->xrect[0].y = 0;
-        xctx->xrect[0].width = xctx->xschem_w;
-        xctx->xrect[0].height = xctx->xschem_h;
+        xctx->xrect[0].width = width;
+        xctx->xrect[0].height = height;
         if(clear_pixmap) {
           resetcairo(0, 1, 1); /* create, clear, force */
           #ifdef __unix__
@@ -1230,9 +1244,11 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
         }
         if(create_pixmap) {
           #ifdef __unix__
-          xctx->save_pixmap = XCreatePixmap(display, xctx->window, xctx->xschem_w, xctx->xschem_h, screendepth);
+          xctx->save_pixmap = XCreatePixmap(display, xctx->window,
+             xctx->xrect[0].width, xctx->xrect[0].height, screendepth);
           #else
-          xctx->save_pixmap = Tk_GetPixmap(display, xctx->window, xctx->xschem_w, xctx->xschem_h, screendepth);
+          xctx->save_pixmap = Tk_GetPixmap(display, xctx->window,
+             xctx->xrect[0].width, xctx->xrect[0].height, screendepth);
           #endif
           xctx->gctiled = XCreateGC(display,xctx->window,0L, NULL);
           XSetTile(display,xctx->gctiled, xctx->save_pixmap);
@@ -1613,8 +1629,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tclsetvar("flat_netlist","1");
    xctx->flat_netlist = 1;
  }
- xctx->xschem_w = CADWIDTH;
- xctx->xschem_h = CADHEIGHT;
  xctx->areaw = CADWIDTH+4*INT_WIDTH(xctx->lw);  /* clip area extends 1 pixel beyond physical xctx->window area */
  xctx->areah = CADHEIGHT+4*INT_WIDTH(xctx->lw); /* to avoid drawing clipped rectangle borders at xctx->window edges */
  xctx->areax1 = -2*INT_WIDTH(xctx->lw);
@@ -1876,8 +1890,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
      xctx->xrect[0].x = 0;
      xctx->xrect[0].y = 0;
-     xctx->xschem_w = xctx->xrect[0].width = 842;
-     xctx->xschem_h = xctx->xrect[0].height = 595;
+     xctx->xrect[0].width = 842;
+     xctx->xrect[0].height = 595;
      xctx->areax2 = 842+2;
      xctx->areay2 = 595+2;
      xctx->areax1 = -2;

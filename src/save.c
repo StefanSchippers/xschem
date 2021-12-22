@@ -87,7 +87,7 @@ char *read_line(FILE *fp, int dbg_level)
  */
 const char *random_string(const char *prefix)
 {
-  static const char charset[]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  static const char *charset="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   static const int random_size=10;
   static char str[PATH_MAX]; /* safe even with multiple schematics, if immediately copied */
   int prefix_size;
