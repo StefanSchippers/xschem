@@ -18,23 +18,23 @@ L 4 410 -150 570 -150 {}
 L 4 570 -170 570 -150 {}
 L 4 570 -170 690 -170 {}
 L 7 1090 -260 2520 -260 {}
-B 2 260 -1080 720 -900 {flags=1
+B 2 260 -1080 720 -980 {flags=1
 y1 = 0
 y2 = 1
 divy = 5
-x1=1e-7
-x2=5e-7
-divx=8
+x1=1.25e-07
+x2=3.75e-07
+divx=10
 node="v(cal) v(saout)"
 color="4 5"}
-B 2 260 -1270 720 -1090 {flags=1
-y1 = 0.64
-y2 = 0.66
-divy = 5
-x1=1e-7
-x2=5e-7 
-divx=8
-node="v(minus) v(plus)"
+B 2 260 -1220 720 -1090 {flags=1
+y1 = 0.645
+y2 = 0.655
+divy = 10
+x1=1.25e-07
+x2=3.75e-07
+divx=5
+node="v(plus) v(minus)"
 color="4 5"}
 T {CAL} 140 -180 0 1 0.4 0.4 {}
 T {EN} 140 -130 0 1 0.4 0.4 {}
@@ -51,9 +51,9 @@ Gaussian Threshold variation (via delvto parameter) is added to all MOS transist
 T {.param ABSVAR=0.05
 delvto='agauss(0,ABSVAR,3)'} 1390 -120 0 0 0.6 0.6 {layer=8}
 T {Select one or more graphs (and no other objects)
-and use arrow keys to zoom / pan waveforms} 300 -1310 0 0 0.3 0.3 {}
+and use arrow keys to zoom / pan waveforms} 300 -1320 0 0 0.3 0.3 {}
 N 120 -470 120 -450 {lab=TEMPERAT}
-N 160 -1180 190 -1180 {lab=#net1}
+N 160 -1180 190 -1180 {lab=VSS}
 N 160 -1150 160 -1130 {lab=VSS}
 N 160 -1230 160 -1210 {lab=VSSI}
 N 1120 -1100 1150 -1100 {lab=VSS}

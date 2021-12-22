@@ -18,7 +18,7 @@ B 2 1040 -770 1510 -570 {flags=1
 y1 = -60
 y2 = 60
 divy = 12
-x1=0.00
+x1=0
 x2=0.03
 divx=10
 node="v(outp) v(outm) v(vpp) v(vnn) v(x1.vboost) v(x0.vboost)"
@@ -27,7 +27,7 @@ B 2 1040 -550 1510 -360 {flags=1
 y1 = 0
 y2 = 12
 divy = 6
-x1=0.00
+x1=0
 x2=0.03
 divx=10
 node="i(v.x1.vu) i(v.x0.vu) i(v.x1.vd) i(v.x0.vd)"
@@ -57,7 +57,7 @@ each with different bias points these
 annotator dinamically show the correct 
 data.} 780 -830 0 0 0.2 0.2 {layer=4}
 T {Select one or more graphs (and no other objects)
-and use arrow keys to zoom / pan waveforms} 1060 -820 0 0 0.3 0.3 {}
+and use arrow keys to zoom / pan waveforms} 1060 -830 0 0 0.3 0.3 {}
 N 150 -1220 150 -1200 {lab=#net1}
 N 150 -1080 150 -1060 {lab=#net2}
 N 360 -1140 370 -1140 {lab=VSS}

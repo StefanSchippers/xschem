@@ -889,6 +889,9 @@ extern char cli_opt_netlist_dir[PATH_MAX];
 extern Xschem_ctx *xctx;
 
 /*  FUNCTIONS */
+extern void calc_graph_area(int c, int i, double *x1, double *y1,double *x2, double *y2,
+             double *marginx,double *marginy);
+extern void draw_graph(int c, int i);
 extern void draw_waves(void);
 extern void free_rawfile(void);
 extern int read_rawfile(const char *f);

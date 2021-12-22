@@ -1627,7 +1627,30 @@ int read_rawfile(const char *f)
   draw();
   return EXIT_SUCCESS;
 }
+void calc_graph_area(int c, int i, double *x1, double *y1,double *x2,double *y2,
+     double *marginx, double *marginy)
+{
+  double rx1, rx2, ry1, ry2, rw, rh, tmp;
+  rx1 = xctx->rect[c][i].x1;
+  ry1 = xctx->rect[c][i].y1;
+  rx2 = xctx->rect[c][i].x2;
+  ry2 = xctx->rect[c][i].y2;
+  rw = (rx2 - rx1);
+  rh = (ry2 - ry1);
+  /* set margins */
+  tmp = rw * 0.05;
+  *marginx = tmp < 50 ? 50 : tmp;
+  tmp = rh * 0.1;
+  *marginy = tmp < 20 ? 20 : tmp;
 
+  /* calculate graph bounding box (container - margin) 
+   * This is the box where plot is done */
+  *x1 =  rx1 + *marginx;
+  *x2 =  rx2 - *marginx/1.3;
+  *y1 =  ry1 + *marginy;
+  tmp = *marginy < 30 ? 30 : *marginy;
+  *y2 =  ry2 - tmp; /* some more space to accomodate x-axis label */
+}
 
 /* fill each graph box with simulation data */
 /* #define W_X(x) (x1 + (x2 - x1) / (wx2 - wx1) * ((x) - wx1)) */
@@ -1637,7 +1660,7 @@ int read_rawfile(const char *f)
 void draw_graph(int c, int i)
 {
   /* container box */
-  double rx1, ry1, rx2, ry2, rw, rh; 
+  double rx1, ry1, rx2, ry2, rw; 
   /* graph box (smaller due to margins) */
   double x1, y1, x2, y2, w, h; 
   /* graph coordinate, some defaults */
@@ -1659,43 +1682,31 @@ void draw_graph(int c, int i)
   double txtsizelab, txtsizey, txtsizex, tmp;
   struct int_hashentry *entry;
   int sweep_idx = 0;
+  xRect *r = &xctx->rect[c][i];
 
-  /* container ( ebnedding rectangle) coordinates */
-  rx1 = xctx->rect[c][i].x1;
-  ry1 = xctx->rect[c][i].y1;
-  rx2 = xctx->rect[c][i].x2;
-  ry2 = xctx->rect[c][i].y2;
+  /* container (embedding rectangle) coordinates */
+  rx1 = r->x1;
+  ry1 = r->y1;
+  rx2 = r->x2;
+  ry2 = r->y2;
   rw = (rx2 - rx1);
-  rh = (ry2 - ry1);
 
   /* set margins */
-  tmp = rw * 0.05;
-  marginx = tmp < 50 ? 50 : tmp;
-  tmp = rh * 0.1;
-  marginy = tmp < 20 ? 20 : tmp;
-
-  /* calculate graph bounding box (container - margin) 
-   * This is the box where plot is done */
-  x1 =  rx1 + marginx;
-  x2 =  rx2 - marginx/1.3;
-  y1 =  ry1 + marginy;
-  tmp = marginy < 30 ? 30 : marginy;
-  y2 =  ry2 - tmp; /* some more space to accomodate x-axis label */
+  calc_graph_area(c, i, &x1, &y1, &x2, &y2, &marginx, &marginy);
   w = (x2 - x1);
   h = (y2 - y1);
-
   /* get variables to plot, x/y range, grid info etc */
-  val = get_tok_value(xctx->rect[c][i].prop_ptr,"divx",0);
+  val = get_tok_value(r->prop_ptr,"divx",0);
   if(val[0]) divisx = atoi(val);
-  val = get_tok_value(xctx->rect[c][i].prop_ptr,"divy",0);
+  val = get_tok_value(r->prop_ptr,"divy",0);
   if(val[0]) divisy = atoi(val);
-  val = get_tok_value(xctx->rect[c][i].prop_ptr,"x1",0);
+  val = get_tok_value(r->prop_ptr,"x1",0);
   if(val[0]) wx1 = atof(val);
-  val = get_tok_value(xctx->rect[c][i].prop_ptr,"y1",0);
+  val = get_tok_value(r->prop_ptr,"y1",0);
   if(val[0]) wy1 = atof(val);
-  val = get_tok_value(xctx->rect[c][i].prop_ptr,"x2",0);
+  val = get_tok_value(r->prop_ptr,"x2",0);
   if(val[0]) wx2 = atof(val);
-  val = get_tok_value(xctx->rect[c][i].prop_ptr,"y2",0);
+  val = get_tok_value(r->prop_ptr,"y2",0);
   if(val[0]) wy2 = atof(val);
   /* cache coefficients for faster graph coord transformations */
   cx = (x2 - x1) / (wx2 - wx1);
@@ -1723,7 +1734,9 @@ void draw_graph(int c, int i)
   txtsizelab = marginy / 100;
 
   /* background */
-  filledrect(0, NOW, x1, y1, x2, y2);
+  filledrect(0, NOW, rx1, ry1, rx2, ry2);
+  drawrect(c, NOW, rx1, ry1, rx2, ry2, 1);
+
   /* vertical grid lines */
   for(j = 0; j <= divisx; j++) {
     wx = wx1 + j * (wx2 -wx1) / divisx;
@@ -1753,9 +1766,9 @@ void draw_graph(int c, int i)
     double *xarr = NULL, *yarr = NULL;
     xarr = my_malloc(1401, xctx->npoints * sizeof(double));
     yarr = my_malloc(1402, xctx->npoints * sizeof(double));
-    my_strdup2(1389, &node, get_tok_value(xctx->rect[c][i].prop_ptr,"node",0));
-    my_strdup2(1390, &color, get_tok_value(xctx->rect[c][i].prop_ptr,"color",0)); 
-    my_strdup2(1407, &sweep, get_tok_value(xctx->rect[c][i].prop_ptr,"sweep",0)); 
+    my_strdup2(1389, &node, get_tok_value(r->prop_ptr,"node",0));
+    my_strdup2(1390, &color, get_tok_value(r->prop_ptr,"color",0)); 
+    my_strdup2(1407, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
     nptr = node;
     cptr = color;
     sptr = sweep;
@@ -1779,10 +1792,6 @@ void draw_graph(int c, int i)
       /* draw node labels in graph */
       draw_string(wave_color, NOW, ntok, 0, 0, 0, 0, rx1 + rw/6 * wcnt, ry1, txtsizelab, txtsizelab);
       /* clipping everything outside graph area */
-      bbox(START, 0.0, 0.0, 0.0, 0.0);
-      bbox(ADD,x1, y1, x2, y2);
-      dbg(1, "draw_graph(ADD): %g %g %g %g\n", x1, y1, x2, y2);
-      bbox(SET, 0.0, 0.0, 0.0, 0.0);
       /* quickly find index number of ntok variable to be plotted */
       entry = int_hash_lookup(xctx->raw_table, ntok, 0, XLOOKUP);
       if(entry) {
@@ -1794,6 +1803,9 @@ void draw_graph(int c, int i)
         double start = (wx1 <= wx2) ? wx1 : wx2;
         double end = (wx1 <= wx2) ? wx2 : wx1;
 
+        bbox(START, 0.0, 0.0, 0.0, 0.0);
+        bbox(ADD,x1, y1, x2, y2);
+        bbox(SET, 0.0, 0.0, 0.0, 0.0);
         /* skip if nothing in viewport */
         if(xctx->values[sweep_idx][xctx->npoints -1] > start) {
           /* Process "npoints" simulation items 
@@ -1823,10 +1835,20 @@ void draw_graph(int c, int i)
             drawpolygon(wave_color, 0, xarr, yarr, poly_npoints, 0, 0);
           }
         }
+        bbox(END, 0.0, 0.0, 0.0, 0.0);
       }
-      bbox(END, 0.0, 0.0, 0.0, 0.0);
       wcnt++;
     }
+
+    bbox(START, 0.0, 0.0, 0.0, 0.0);
+    bbox(ADD, rx1, ry1, rx2, ry2);
+    bbox(SET, 0.0, 0.0, 0.0, 0.0);
+    if(!xctx->draw_window) {
+      XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+    }
+    bbox(END, 0.0, 0.0, 0.0, 0.0);
+
     my_free(1403, &xarr);
     my_free(1404, &yarr);
     my_free(1391, &node);
@@ -1840,10 +1862,7 @@ void draw_waves(void)
 {
   int c, i;
   int bbox_set = 0;
-  double save_lw;
   int save_bbx1, save_bby1, save_bbx2, save_bby2;
-  save_lw = xctx->lw;
-  xctx->lw = 0;
   /* save bbox data, since draw_waves() is called from draw() which may be called after a bbox(SET) */
   if(xctx->sem) {
     bbox_set = 1;
@@ -1853,8 +1872,6 @@ void draw_waves(void)
     save_bby2 = xctx->bby2;
     bbox(END, 0.0, 0.0, 0.0, 0.0);
   }
-  /* thin / dashed lines (axis etc) */
-  XSetLineAttributes(display, xctx->gc[2], 0, LineSolid, CapRound, JoinRound);
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
@@ -1874,8 +1891,6 @@ void draw_waves(void)
   cairo_restore(xctx->cairo_ctx);
   cairo_restore(xctx->cairo_save_ctx);
   #endif
-  xctx->lw = save_lw;
-  XSetLineAttributes(display, xctx->gc[2], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
   /* restore previous bbox */
   if(bbox_set) {
     xctx->bbx1 = save_bbx1;

@@ -24,16 +24,22 @@
 static int waves_selected()
 {
   int n, c, i;
+  int is_inside = 0;
+  xRect *r;
   rebuild_selected_array();
   if(xctx->ui_state != SELECTION || !xctx->lastsel) return 0;
   for(i=0; i<xctx->lastsel; i++) {
     c = xctx->sel_array[i].col;
     if(xctx->sel_array[i].type == xRECT && c == 2) {
       n = xctx->sel_array[i].n;
-      if(xctx->rect[c][n].flags != 1) return 0;
+      r = &xctx->rect[c][n];
+      if( POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2,  r->y2) ) {
+        is_inside = 1;
+      }
+      if(r->flags != 1) return 0;
     } else return 0;
   }
-  return 1;
+  return is_inside;
 }
 
 void redraw_w_a_l_r_p_rubbers(void)
@@ -152,17 +158,31 @@ void start_wire(double mx, double my)
 }
 
 /* process user input (arrow keys for now) when only graphs are selected */
+#define W_X(x) (cx * (x) + dx)
+#define W_Y(y) (cy * (y) + dy)
 static int waves_callback(int event, int mx, int my, KeySym key, int button, int aux, int state)
 {
   double wx1 = -2e-6;
   double wy1 = -1;
   double wx2 = 8e-6;
   double wy2 = 4;
+  double x1, y1, x2, y2, marginx, marginy;
+  double cx;
   int divisx = 10;
   int divisy = 5;
   const char *val;
-  xRect bb;
+  char s[30];
   int n, c, i;
+  double xx1, xx2;
+  int need_redraw = 0;
+
+  #if HAS_CAIRO==1
+  cairo_save(xctx->cairo_ctx);
+  cairo_save(xctx->cairo_save_ctx);
+  cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  #endif
+
   for(i=0; i<xctx->lastsel; i++) {
     c = xctx->sel_array[i].col;
     /* process only graph boxes */
@@ -182,83 +202,86 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(val[0]) wx2 = atof(val);
         val = get_tok_value(xctx->rect[c][n].prop_ptr,"y2",0);
         if(val[0]) wy2 = atof(val);
+        calc_graph_area(c, n, &x1, &y1, &x2, &y2, &marginx, &marginy);
+        /* cache coefficients for faster graph coord transformations */
+        cx = (x2 - x1) / (wx2 - wx1);
         dbg(1, "%g %g %g %g - %d %d\n", wx1, wy1, wx2, wy2, divisx, divisy);
       }
-      if(key == XK_Left) {
-        char s[30];
+      if(event == MotionNotify && state && Button1Mask) {
         double delta = (wx2 - wx1) / divisx;
-        double x1, x2;
-        x1 = wx1 - delta;
-        x2 = wx2 - delta;
-        my_snprintf(s, S(s), "%g", x1);
+        dbg(1, "waves_callback: Motion: %g %g --> %g %g\n", 
+          xctx->mx_double_save, xctx->my_double_save, xctx->mousex_snap, xctx->mousey_snap);
+         if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(cx * delta)) {
+            if( xctx->mousex_snap > xctx->mx_double_save) key = XK_Left;
+            else key = XK_Right;
+            xctx->mx_double_save = xctx->mousex_snap;
+            xctx->my_double_save = xctx->mousey_snap;
+         }
+      }
+      if(key == XK_Left || (button == Button5 && state == 0)) {
+        double delta = (wx2 - wx1) / divisx;
+        xx1 = round_to_n_digits(wx1 - delta, 4);
+        xx2 = round_to_n_digits(wx2 - delta, 4);
+        my_snprintf(s, S(s), "%g", xx1);
         my_strdup(1395, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x1", s));
-        my_snprintf(s, S(s), "%g", x2);
+        my_snprintf(s, S(s), "%g", xx2);
         my_strdup(1396, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
+        need_redraw = 1;
       }
-      if(key == XK_Right) {
-        char s[30];
+      else if(key == XK_Right || (button == Button4 && state == 0)) {
         double delta = (wx2 - wx1) / divisx;
-        double x1, x2;
-        x1 = wx1 + delta;
-        x2 = wx2 + delta;
-        my_snprintf(s, S(s), "%g", x1);
+        xx1 = round_to_n_digits(wx1 + delta, 4);
+        xx2 = round_to_n_digits(wx2 + delta, 4);
+        my_snprintf(s, S(s), "%g", xx1);
         my_strdup(1397, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x1", s));
-        my_snprintf(s, S(s), "%g", x2);
+        my_snprintf(s, S(s), "%g", xx2);
         my_strdup(1398, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
+        need_redraw = 1;
       }
-      if(key == XK_Down) {
-        char s[30];
+      else if(key == XK_Down || (button == Button5 && state == ShiftMask)) {
         double delta = (wx2 - wx1);
-        double x2;
-        x2 = wx2 + delta;
-        my_snprintf(s, S(s), "%g", x2);
+        xx2 = round_to_n_digits(wx2 + delta, 2);
+        my_snprintf(s, S(s), "%g", xx2);
         my_strdup(1399, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
+        need_redraw = 1;
       }
-      if(key == XK_Up) {
-        char s[30];
+      else if(key == XK_Up || (button == Button4 && state == ShiftMask)) {
         double delta = (wx2 - wx1)/ 2.0;
-        double x2, tmp;
+        double tmp;
    
         if(fabs(wx2) > fabs(wx1) ) tmp = fabs(wx2);
         else tmp = fabs(wx1);
-        if( tmp / fabs(wx2 - wx1)  > 1e-5) {
-          x2 = wx2 - delta;
-          my_snprintf(s, S(s), "%g", x2);
+        if( tmp / fabs(wx2 - wx1)  < 1e2) {
+          xx2 = round_to_n_digits(wx2 - delta, 2);
+          my_snprintf(s, S(s), "%g", xx2);
           my_strdup(1400, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
         }
+        need_redraw = 1;
+      }
+      else if(key == 'f') {
+        xx1 = 0.0;
+        xx2 = xctx->values[0][xctx->npoints -1];
+        my_snprintf(s, S(s), "%g", xx1);
+        my_strdup(1409, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x1", s));
+        my_snprintf(s, S(s), "%g", xx2);
+        my_strdup(1409, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
+        need_redraw = 1;
+      }
+      else if(event == ButtonPress && button == Button1) {
+        xctx->mx_double_save = xctx->mousex_snap;
+        xctx->my_double_save = xctx->mousey_snap;
       }
     }
-  }
 
-  calc_drawing_bbox(&bb, 1); /* selection bbox */
-  bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-  bbox(ADD, bb.x1, bb.y1, bb.x2, bb.y2);
-  bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-  if(xctx->draw_pixmap)
-    XFillRectangle(display, xctx->save_pixmap, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
-                   xctx->areaw, xctx->areah);
-  if(xctx->draw_window)
-    XFillRectangle(display, xctx->window, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
-                   xctx->areaw, xctx->areah);
-  drawgrid();
-  draw_waves();
-  for(i=0; i<xctx->lastsel; i++) {
-    c = xctx->sel_array[i].col;
-    /* repaint graph borders */
-    if(xctx->sel_array[i].type == xRECT && c == 2) {
-      xRect *r;
-      n = xctx->sel_array[i].n;
-      r = &xctx->rect[c][n];
-      if(c == 2 && r->flags == 1)
-         drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, 1);
-    }
+    if(need_redraw) draw_graph(c, n); /* draw data in each graph box */
+
   }
-  if(!xctx->draw_window) {
-    XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
-       xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-  }
-  bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   draw_selection(xctx->gc[SELLAYER], 0);
+  #if HAS_CAIRO==1
+  cairo_restore(xctx->cairo_ctx);
+  cairo_restore(xctx->cairo_save_ctx);
+  #endif
+
   return 0;
 }
 
@@ -379,7 +402,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     break;
 
   case Expose:
-    dbg(1, "callback: Expose, winpath=%s, %dx%d+%d+%d\n", winpath, button, aux, mx, my);
+    dbg(0, "callback: Expose, winpath=%s, %dx%d+%d+%d\n", winpath, button, aux, mx, my);
     XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, mx,my,button,aux,mx,my);
     {
       XRectangle xr[1];
@@ -401,8 +424,12 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     break;
 
   case MotionNotify:
+    if( waves_selected()) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
     if(xctx->ui_state & STARTPAN2)   pan2(RUBBER, mx, my);
-#ifndef __unix__
+    #ifndef __unix__
     if ((xctx->ui_state & STARTWIRE) || (xctx->ui_state & STARTARC) ||
         (xctx->ui_state & STARTLINE) || (xctx->ui_state & STARTMOVE) ||
         (xctx->ui_state & STARTCOPY) || (xctx->ui_state & STARTRECT) ||
@@ -411,7 +438,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
-#endif
+    #endif
     if(xctx->semaphore >= 2) break;
     if(xctx->ui_state) {
       #ifdef TURBOX_FIX
@@ -432,10 +459,9 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       if( (state & Button1Mask)  && (state & Mod1Mask)) { /* 20171026 added unselect by area  */
           select_rect(RUBBER,0);
       } else if(state & Button1Mask) {
-          select_rect(RUBBER,1);
+        select_rect(RUBBER,1);
       }
     }
-
     if(xctx->ui_state & STARTMOVE) {
       if(constrained_move == 1) xctx->mousey_snap = xctx->my_double_save;
       if(constrained_move == 2) xctx->mousex_snap = xctx->mx_double_save;
@@ -1606,6 +1632,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='f' && state == 0 )                  /* full zoom */
    {
+    if(waves_selected()) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
     if(xctx->ui_state == SELECTION) 
       zoom_full(1, 1, 3, 0.97);
     else
@@ -1633,8 +1663,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      xctx->my_double_save=xctx->mousey_snap;
      break;
    }
-   if(button==Button5 && state == 0 ) view_unzoom(CADZOOMSTEP);
-   else if(button == Button3 &&  state == ControlMask && xctx->semaphore <2)
+   if(button == Button3 &&  state == ControlMask && xctx->semaphore <2)
    {
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
      if(sel) select_connected_wires(1);
@@ -1762,13 +1791,34 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
          break;
      }
    }
-   else if(button==Button4 && state == 0 ) view_zoom(CADZOOMSTEP);
+   else if(button==Button5 && state == 0 ) {
+    if(waves_selected()) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
+     view_unzoom(CADZOOMSTEP);
+   }
+   else if(button==Button4 && state == 0 ) {
+    if(waves_selected()) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
+     view_zoom(CADZOOMSTEP);
+   }
    else if(button==Button4 && (state & ShiftMask) && !(state & Button2Mask)) {
+    if(waves_selected()) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
     xctx->xorigin+=-CADMOVESTEP*xctx->zoom/2.;
     draw();
     redraw_w_a_l_r_p_rubbers();
    }
    else if(button==Button5 && (state & ShiftMask) && !(state & Button2Mask)) {
+    if(waves_selected()) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
     xctx->xorigin-=-CADMOVESTEP*xctx->zoom/2.;
     draw();
     redraw_w_a_l_r_p_rubbers();
@@ -1810,6 +1860,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    else if(button==Button1)
    {
+     if(waves_selected()) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
      if(tclgetboolvar("persistent_command") && xctx->last_command) {
        if(xctx->last_command == STARTLINE)  start_line(mx, my);
        if(xctx->last_command == STARTWIRE)  start_wire(mx, my);
