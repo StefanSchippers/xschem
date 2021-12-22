@@ -5,56 +5,70 @@ V {}
 S {
 }
 E {}
-L 4 250 -340 270 -360 {}
-L 4 250 -340 290 -340 {}
-L 4 270 -360 290 -340 {}
-L 4 270 -260 290 -280 {}
-L 4 250 -280 290 -280 {}
-L 4 250 -280 270 -260 {}
-L 4 270 -340 270 -280 {}
-L 4 350 -620 370 -600 {dash=3}
-L 4 370 -640 370 -600 {dash=3}
-L 4 350 -620 370 -640 {dash=3}
-L 4 370 -620 530 -620 {dash=3}
-L 4 1400 -290 1420 -310 {dash=3}
-L 4 1400 -330 1400 -290 {dash=3}
-L 4 1400 -330 1420 -310 {dash=3}
-L 4 1240 -310 1400 -310 {dash=3}
-B 2 30 -940 500 -730 {flags=1 
+L 4 250 -300 270 -320 {}
+L 4 250 -300 290 -300 {}
+L 4 270 -320 290 -300 {}
+L 4 270 -220 290 -240 {}
+L 4 250 -240 290 -240 {}
+L 4 250 -240 270 -220 {}
+L 4 270 -300 270 -240 {}
+L 4 350 -580 370 -560 {dash=3}
+L 4 370 -600 370 -560 {dash=3}
+L 4 350 -580 370 -600 {dash=3}
+L 4 370 -580 560 -580 {dash=3}
+L 4 1420 -730 1440 -750 {dash=3}
+L 4 1420 -770 1420 -730 {dash=3}
+L 4 1420 -770 1440 -750 {dash=3}
+L 4 1300 -750 1420 -750 {dash=3}
+B 2 10 -930 480 -680 {flags=1 
 y1 = 0
 y2 = 3
 divy = 6
 x1=0
 x2=3
 divx=6
-node="v(aa) v(z) v(zz)"
-color="11 7 13"}
-P 4 7 530 -860 1130 -860 1130 -690 1390 -690 1390 -580 530 -580 530 -860 {dash=3}
-T {These 2 instances are equivalent} 290 -320 0 0 0.4 0.4 {}
-T {Example of using a schematic as a
-component instance instead of the 
-usual symbol.
-LCC: Local Custom Cell.
+node="v(z) v(a)"
+color="6 8"
+sweep="v(a) v(z)"}
+B 2 860 -470 1330 -260 {flags=1 
+y1 = 0
+y2 = 3
+divy = 6
+x1=0
+x2=3
+divx=6
+node="v(a) v(zz) v(zzz)"
+color="4 6 8"
+sweep="v(a)"}
+P 4 5 560 -700 560 -510 1350 -510 1350 -700 560 -700 {dash=3}
+P 4 5 770 -920 770 -730 1300 -730 1300 -920 770 -920 {dash=3}
+T {These 2 instances are equivalent} 290 -280 0 0 0.4 0.4 {}
+T {Example of using a schematic as a component instance
+instead of the usual symbol. LCC: Local Custom Cell.
 
 LCC schematic instantiation show actual parameters
-in the schematic instance.} 550 -840 0 0 0.6 0.6 {}
+in the schematic instance.} 570 -680 0 0 0.5 0.5 {}
 T {LCC schematics can be nested
 If only .sch is used there is
-no need for a .sym file at all} 910 -430 0 0 0.6 0.6 {}
+no need for a .sym file at all} 790 -880 0 0 0.6 0.6 {}
 T {Select one or more graphs (and no other objects)
-and use arrow keys to zoom / pan waveforms} 40 -990 0 0 0.3 0.3 {}
-N 410 -140 410 -120 {lab=HALF}
-N 410 -230 430 -230 {lab=ZZ}
-N 410 -230 410 -200 {lab=ZZ}
-N 420 -440 420 -420 {lab=HALF}
-N 420 -530 700 -530 {lab=Z}
-N 420 -530 420 -500 {lab=Z}
-N 700 -530 700 -240 {lab=Z}
-N 700 -240 1450 -240 {lab=Z}
-N 320 -230 410 -230 {lab=ZZ}
-N 330 -530 420 -530 {lab=Z}
+and use arrow keys to zoom / pan waveforms} 20 -980 0 0 0.3 0.3 {}
+T {Butterfly diagram
+of a cmos latch} 510 -940 0 0 0.4 0.4 {layer=8}
+N 410 -100 410 -80 {lab=HALF}
+N 410 -190 430 -190 {lab=ZZZ}
+N 410 -190 410 -160 {lab=ZZZ}
+N 420 -400 420 -380 {lab=HALF}
+N 420 -490 700 -490 {lab=ZZ}
+N 420 -490 420 -460 {lab=ZZ}
+N 700 -490 700 -240 {lab=ZZ}
+N 700 -240 1450 -240 {lab=ZZ}
+N 320 -190 410 -190 {lab=ZZZ}
+N 330 -490 420 -490 {lab=ZZ}
+N 620 -850 620 -760 { lab=Z}
+N 540 -850 540 -760 { lab=A}
 C {vsource.sym} 50 -140 0 0 {name=V1 value="pwl 0 0 1u 0 5u 3"}
-C {lab_pin.sym} 50 -170 0 0 {name=p4 lab=AA}
+C {lab_pin.sym} 50 -170 0 0 {name=p4 lab=A}
 C {lab_pin.sym} 50 -110 0 0 {name=p5 lab=0}
 C {code_shown.sym} 580 -150 0 0 {name=STIMULI
 only_toplevel=true
@@ -118,33 +132,37 @@ value="************************************************
 +WD    = 0.0 )
 
 "}
-C {lab_pin.sym} 240 -230 0 0 {name=p6 lab=AA}
-C {lab_pin.sym} 430 -230 0 1 {name=p7 lab=ZZ}
+C {lab_pin.sym} 240 -190 0 0 {name=p6 lab=A}
+C {lab_pin.sym} 430 -190 0 1 {name=p7 lab=ZZZ}
 C {vsource.sym} 50 -240 0 0 {name=V2 value=3}
 C {lab_pin.sym} 50 -270 0 0 {name=p8 lab=VDD}
 C {lab_pin.sym} 50 -210 0 0 {name=p9 lab=0}
-C {res.sym} 410 -170 0 0 {name=R1
+C {res.sym} 410 -130 0 0 {name=R1
 value=20k
 footprint=1206
 device=resistor
 m=1}
-C {lab_pin.sym} 410 -120 0 0 {name=p10 lab=HALF}
+C {lab_pin.sym} 410 -80 0 0 {name=p10 lab=HALF}
 C {vsource.sym} 50 -340 0 0 {name=V3 value=1.5}
 C {lab_pin.sym} 50 -370 0 0 {name=p11 lab=HALF}
 C {lab_pin.sym} 50 -310 0 0 {name=p12 lab=0}
-C {lab_pin.sym} 200 -530 0 0 {name=p13 lab=AA}
-C {res.sym} 420 -470 0 0 {name=R2
+C {lab_pin.sym} 200 -490 0 0 {name=p13 lab=A}
+C {res.sym} 420 -430 0 0 {name=R2
 value=20k
 footprint=1206
 device=resistor
 m=1}
-C {lab_pin.sym} 420 -420 0 0 {name=p15 lab=HALF}
+C {lab_pin.sym} 420 -380 0 0 {name=p15 lab=HALF}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
-C {cmos_inv.sch} 140 -300 0 0 {name=Xinv WN=15u WP=45u LLN=3u LLP=3u}
-C {cmos_inv.sym} 280 -230 0 0 {name=Xinv2 WN=15u WP=45u LLN=3u LLP=3u}
+C {cmos_inv.sch} 140 -260 0 0 {name=Xinv WN=15u WP=45u LLN=3u LLP=3u}
+C {cmos_inv.sym} 280 -190 0 0 {name=Xinv2 WN=15u WP=45u LLN=3u LLP=3u}
 C {bus_keeper.sch} 1200 60 0 0 {name=Xkeeper WN_FB=3u WP_FB=5u}
-C {lab_pin.sym} 700 -530 0 1 {name=p1 lab=Z}
-C {launcher.sym} 85 -1025 0 0 {name=h5 
+C {lab_pin.sym} 700 -490 0 1 {name=p1 lab=ZZ}
+C {launcher.sym} 65 -1015 0 0 {name=h5 
 descr="Select arrow and 
 Ctrl-Right-Click to load waveforms" 
 tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}
+C {lab_pin.sym} 540 -760 0 0 {name=p14 lab=A}
+C {cmos_inv.sym} 580 -760 0 0 {name=Xinv1 WN=15u WP=45u LLN=3u LLP=3u}
+C {cmos_inv.sym} 580 -850 0 1 {name=Xinv3 WN=3u WP=5u LLN=3u LLP=3u}
+C {lab_pin.sym} 620 -760 0 1 {name=p2 lab=Z}

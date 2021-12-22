@@ -1679,7 +1679,7 @@ void draw_graph(int c, int i)
   x1 =  rx1 + marginx;
   x2 =  rx2 - marginx/1.3;
   y1 =  ry1 + marginy;
-  tmp = marginy < 28 ? 28 : marginy;
+  tmp = marginy < 30 ? 30 : marginy;
   y2 =  ry2 - tmp; /* some more space to accomodate x-axis label */
   w = (x2 - x1);
   h = (y2 - y1);
@@ -1759,8 +1759,6 @@ void draw_graph(int c, int i)
     nptr = node;
     cptr = color;
     sptr = sweep;
-    /* draw sweep variable on x-axis */
-    draw_string(3, NOW, xctx->names[sweep_idx], 2, 1, 0, 0, rx1+2, ry2-1, txtsizelab, txtsizelab);
     /* process each node given in "node" attribute, get also associated color if any*/
     while( (ntok = my_strtok_r(nptr, " ", &saven)) ) {
       ctok = my_strtok_r(cptr, " ", &savec);
@@ -1772,6 +1770,11 @@ void draw_graph(int c, int i)
         entry = int_hash_lookup(xctx->raw_table, stok, 0, XLOOKUP); 
         if(entry && entry->value) sweep_idx = entry->value;
         else sweep_idx = 0;
+      }
+      /* draw sweep variable(s) on x-axis */
+      if(wcnt == 0 || (stok && stok[0])) {
+        draw_string(wave_color, NOW, xctx->names[sweep_idx], 2, 1, 0, 0,
+           rx1 + 2 + rw/6 * wcnt, ry2-1, txtsizelab, txtsizelab);
       }
       /* draw node labels in graph */
       draw_string(wave_color, NOW, ntok, 0, 0, 0, 0, rx1 + rw/6 * wcnt, ry1, txtsizelab, txtsizelab);
