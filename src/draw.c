@@ -1283,7 +1283,8 @@ void arc_bbox(double x, double y, double r, double a, double b,
 
 /* Convex Nonconvex Complex */
 #define Polygontype Nonconvex
-/* 20180914 added fill param */
+/* Unused 'what' parameter used in spice data draw_graph() 
+ * to avoid unnecessary clipping (what = 0) */
 void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash)
 {
   double x1,y1,x2,y2;
@@ -1303,10 +1304,16 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   if( !xctx->only_probes && (x2-x1)<3.0 && (y2-y1)<3.0) return;
 
   p = my_malloc(38, sizeof(XPoint) * points);
-  for(i=0;i<points; i++) {
-    clip_xy_to_short(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), &sx, &sy);
-    p[i].x = sx;
-    p[i].y = sy;
+  if(what) {
+    for(i=0;i<points; i++) {
+      clip_xy_to_short(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), &sx, &sy);
+      p[i].x = sx;
+      p[i].y = sy;
+    }
+  } else {
+      /* preserve cache locality working on contiguous data */
+      for(i=0;i<points; i++) p[i].x = X_TO_SCREEN(x[i]);
+      for(i=0;i<points; i++) p[i].y = Y_TO_SCREEN(y[i]);
   }
   if(dash) {
     char dash_arr[2];
@@ -1651,6 +1658,7 @@ void draw_graph(int c, int i)
   char *node = NULL, *color = NULL;
   double txtsizelab, txtsizey, txtsizex, tmp;
   struct int_hashentry *entry;
+  int sweep_idx = 0;
 
   /* container ( ebnedding rectangle) coordinates */
   rx1 = xctx->rect[c][i].x1;
@@ -1671,7 +1679,8 @@ void draw_graph(int c, int i)
   x1 =  rx1 + marginx;
   x2 =  rx2 - marginx/1.3;
   y1 =  ry1 + marginy;
-  y2 =  ry2 - marginy;
+  tmp = marginy < 28 ? 28 : marginy;
+  y2 =  ry2 - tmp; /* some more space to accomodate x-axis label */
   w = (x2 - x1);
   h = (y2 - y1);
 
@@ -1688,6 +1697,11 @@ void draw_graph(int c, int i)
   if(val[0]) wx2 = atof(val);
   val = get_tok_value(xctx->rect[c][i].prop_ptr,"y2",0);
   if(val[0]) wy2 = atof(val);
+  val = get_tok_value(xctx->rect[c][i].prop_ptr,"sweep",0);
+  if(val[0]) {
+      entry = int_hash_lookup(xctx->raw_table, val, 0, XLOOKUP); 
+      if(entry && entry->value) sweep_idx = entry->value;
+  }
 
   /* cache coefficients for faster graph coord transformations */
   cx = (x2 - x1) / (wx2 - wx1);
@@ -1749,13 +1763,16 @@ void draw_graph(int c, int i)
     my_strdup2(1390, &color, get_tok_value(xctx->rect[c][i].prop_ptr,"color",0)); 
     nptr = node;
     cptr = color;
+    /* draw sweep variable on x-axis */
+    draw_string(3, NOW, xctx->names[sweep_idx], 2, 1, 0, 0, rx1+2, ry2-1, txtsizelab, txtsizelab);
     /* process each node given in "node" attribute, get also associated color if any*/
     while( (ntok = my_strtok_r(nptr, " ", &saven)) ) {
       ctok = my_strtok_r(cptr, " ", &savec);
       nptr = cptr = NULL;
       dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
       if(ctok && ctok[0]) wave_color = atoi(ctok);
-      draw_string(wave_color, NOW, ntok, 0, 0, 0, 0, rx1 + rw/6 * wcnt, ry1, txtsizelab, txtsizex);
+      /* draw node labels in graph */
+      draw_string(wave_color, NOW, ntok, 0, 0, 0, 0, rx1 + rw/6 * wcnt, ry1, txtsizelab, txtsizelab);
       /* clipping everything outside graph area */
       bbox(START, 0.0, 0.0, 0.0, 0.0);
       bbox(ADD,x1, y1, x2, y2);
@@ -1773,11 +1790,11 @@ void draw_graph(int c, int i)
         double end = (wx1 <= wx2) ? wx2 : wx1;
 
         /* skip if nothing in viewport */
-        if(xctx->values[0][xctx->npoints -1] > start) {
+        if(xctx->values[sweep_idx][xctx->npoints -1] > start) {
           /* Process "npoints" simulation items 
            * p loop split repeated 2 timed (for xx and yy points) to preserve cache locality */
           for(p = 0 ; p < xctx->npoints; p++) {
-            xx = xctx->values[0][p];
+            xx = xctx->values[sweep_idx][p];
             if(xx > end) {
               break;
             }
@@ -1798,7 +1815,7 @@ void draw_graph(int c, int i)
               poly_npoints++;
             }
             /* plot data */
-            drawpolygon(wave_color, NOW, xarr, yarr, poly_npoints, 0, 0);
+            drawpolygon(wave_color, 0, xarr, yarr, poly_npoints, 0, 0);
           }
         }
       }
