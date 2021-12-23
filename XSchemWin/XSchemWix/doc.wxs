@@ -771,6 +771,9 @@
           <Component Id="cmpD3405252BBE8BE0E89FF98C796E886D2" Guid="{AC48284C-51A8-4CDC-A919-AD6C8F17D00D}">
             <File Id="filB83C74655F954E6751386E9C458D6B50" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_man.html" />
           </Component>
+          <Component Id="cmp79D078894A1E9865B1FAA6D6E3A67E41" Guid="{DE08B6F2-D9E0-4DE6-A51F-962DCA8B73CB}">
+            <File Id="filDBD6D15AFF1AF414C301B4C8A208D722" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_manual.pdf" />
+          </Component>
           <Component Id="cmp32DBC6F4737AABC6CA5CDB21A1BFB39B" Guid="{C5B17A40-96AF-42AD-8C80-16B97C9D05D2}">
             <File Id="filFA6A6237EC8CF4CB0F26019613DAEC53" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_new_file.png" />
           </Component>
@@ -1065,6 +1068,7 @@
       <ComponentRef Id="cmpC47D2E68F93BDFE7A1A9A46EF787C84B" />
       <ComponentRef Id="cmp09A41567E4D242D52AA78A2EB221CC11" />
       <ComponentRef Id="cmpD3405252BBE8BE0E89FF98C796E886D2" />
+      <ComponentRef Id="cmp79D078894A1E9865B1FAA6D6E3A67E41" />
       <ComponentRef Id="cmp32DBC6F4737AABC6CA5CDB21A1BFB39B" />
       <ComponentRef Id="cmp364E784B2508A89E6EE1B209FDA34BE8" />
       <ComponentRef Id="cmp42E13A00B2A3155255BC2BBF3F4F3663" />

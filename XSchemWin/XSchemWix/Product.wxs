@@ -72,7 +72,7 @@
       <Shortcut Id="DocumentationStartMenuShortcut"
                 Name="Xschem Documentation"
                 Description="Helpful Xschem Documentation"
-                Target="[DOCFOLDER]/xschem_man/XSCHEM_2.9.2_Manual_Tutorials.pdf" />
+                Target="[DOCFOLDER]/xschem_man/xschem_manual.pdf" />
       <RegistryValue Root="HKCU" Key="Software\CoralEDA\Xschem" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
     </Component>
   </DirectoryRef>
