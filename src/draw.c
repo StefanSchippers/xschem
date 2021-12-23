@@ -1657,7 +1657,7 @@ void calc_graph_area(int c, int i, double *x1, double *y1,double *x2,double *y2,
 /* #define W_Y(y) (y2 - (y2 - y1) / (wy2 - wy1) * ((y) - wy1)) */
 #define W_X(x) (cx * (x) + dx)
 #define W_Y(y) (cy * (y) + dy)
-void draw_graph(int c, int i)
+void draw_graph(int c, int i, int flags)
 {
   /* container box */
   double rx1, ry1, rx2, ry2, rw; 
@@ -1847,7 +1847,7 @@ void draw_graph(int c, int i)
     bbox(START, 0.0, 0.0, 0.0, 0.0);
     bbox(ADD, rx1, ry1, rx2, ry2);
     bbox(SET, 0.0, 0.0, 0.0, 0.0);
-    if(!xctx->draw_window) {
+    if((flags & 1) && !xctx->draw_window) {
       XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
          xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
@@ -1862,7 +1862,12 @@ void draw_graph(int c, int i)
 }
 
 /* fill graph boxes with data from ngspice simulations */
-void draw_waves(void)
+/* flags:
+ * 1: do final XCopyArea (copy 2nd buffer areas to screen) 
+ *    If draw_waves() is called from draw() no need to do XCopyArea, as draw() does it already.
+ *    This makes drawing faster and removes a 'tearing' effect when moving around.
+ */
+void draw_waves(int flags)
 {
   int c, i;
   int bbox_set = 0;
@@ -1887,7 +1892,7 @@ void draw_waves(void)
     if(xctx->enable_layer[c]) for(i = 0; i < xctx->rects[c]; i++) {
       xRect *r = &xctx->rect[c][i];
       if(r->flags == 1) {
-        draw_graph(c, i); /* draw data in each graph box */
+        draw_graph(c, i, flags); /* draw data in each graph box */
       }
     }
   }
@@ -1931,7 +1936,7 @@ void draw(void)
                      xctx->areaw, xctx->areah);
     dbg(1, "draw(): window: %d %d %d %d\n",xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
     drawgrid();
-    draw_waves();
+    draw_waves(0);
     x1 = X_TO_XSCHEM(xctx->areax1);
     y1 = Y_TO_XSCHEM(xctx->areay1);
     x2 = X_TO_XSCHEM(xctx->areax2);

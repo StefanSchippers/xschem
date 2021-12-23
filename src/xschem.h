@@ -891,8 +891,8 @@ extern Xschem_ctx *xctx;
 /*  FUNCTIONS */
 extern void calc_graph_area(int c, int i, double *x1, double *y1,double *x2, double *y2,
              double *marginx,double *marginy);
-extern void draw_graph(int c, int i);
-extern void draw_waves(void);
+extern void draw_graph(int c, int i, int flags);
+extern void draw_waves(int flags);
 extern void free_rawfile(void);
 extern int read_rawfile(const char *f);
 extern double timer(int start);
