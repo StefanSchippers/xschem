@@ -42,8 +42,8 @@ B 2 1110 -950 1530 -800 {flags=1
 y1 = 0
 y2 = 20
 divy = 10
-x1=0
-x2=200e-6
+x1=3.388e-21
+x2=0.0002
 divx=8
 node="v(led) v(sw)"
 color="11 18"}
@@ -51,16 +51,16 @@ B 2 1110 -790 1530 -660 {flags=1
 y1 = 0
 y2 = 20
 divy = 10
-x1=0
-x2=200e-6
+x1=3.388e-21
+x2=0.0002
 divx=8
 node="v(panel)"}
 B 2 1110 -650 1530 -520 {flags=1 
 y1 = 0
 y2 = 4
 divy = 8
-x1=0
-x2=200e-6
+x1=3.388e-21
+x2=0.0002
 divx=8
 node="i(vsw)" color=12}
 B 18 45 -850 300 -665 {}
@@ -89,7 +89,7 @@ T {2x10 1W white LED} 1230 -340 0 0 0.4 0.4 {layer=8}
 T {IDEAL Diode} 690 -470 0 0 0.4 0.4 {layer=8}
 T {2xseries 1W white LEDs} 1250 -230 0 0 0.4 0.4 {}
 T {Select one or more graphs (and no other objects)
-and use arrow keys to zoom / pan waveforms} 1120 -990 0 0 0.3 0.3 {}
+and use arrow keys to zoom / pan waveforms} 1120 -1010 0 0 0.3 0.3 {}
 N 80 -450 80 -430 {lab=SRC}
 N 1050 -250 1140 -250 {lab=0}
 N 1140 -290 1140 -250 {lab=0}
@@ -217,7 +217,7 @@ C {spice_probe.sym} 1160 -480 0 0 {name=p1 analysis=tran}
 C {spice_probe.sym} 360 -450 0 0 {name=p2 analysis=tran}
 C {spice_probe.sym} 860 -550 0 1 {name=p3 analysis=tran}
 C {spice_probe.sym} 100 -450 0 1 {name=p4 analysis=tran}
-C {launcher.sym} 1165 -1025 0 0 {name=h3 
-descr="Select arrow and 
-Ctrl-Right-Click to load waveforms" 
+C {launcher.sym} 1185 -1055 0 0 {name=h5 
+descr="Ctrl-Left-Click on arrow
+to load waveforms" 
 tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}

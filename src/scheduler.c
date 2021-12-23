@@ -2579,6 +2579,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1],"test"))
     {
       cmd_found = 1;
+      if(argc > 2) {
+        dbg(0, "%s --> %d\n", argv[2], count_items(argv[2], " \t,;"));
+      }
       Tcl_ResetResult(interp);
     }
    

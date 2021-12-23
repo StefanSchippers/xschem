@@ -1682,7 +1682,9 @@ void draw_graph(int c, int i)
   double txtsizelab, txtsizey, txtsizex, tmp;
   struct int_hashentry *entry;
   int sweep_idx = 0;
+  int n_nodes; /* number of variables to display in a single graph */
   xRect *r = &xctx->rect[c][i];
+ 
 
   /* container (embedding rectangle) coordinates */
   rx1 = r->x1;
@@ -1760,7 +1762,8 @@ void draw_graph(int c, int i)
    * swap order of wy1 and wy2 since grap y orientation is opposite to xorg orientation */
   if(wx1 <= 0 && wx2 >= 0) drawline(2, NOW, W_X(0),   W_Y(wy2), W_X(0),   W_Y(wy1), 0);
   /* if simulation data is loaded and matches schematic draw data */
-  if(xctx->raw_schname && !strcmp(xctx->raw_schname, xctx->current_name) && xctx->values) {
+  if(xctx->raw_schname && (!strcmp(xctx->raw_schname, get_cell_w_ext(xctx->sch[0], 0)) ||
+                           !strcmp(xctx->raw_schname, xctx->current_name) ) && xctx->values) {
     char *saven, *savec, *saves, *nptr, *cptr, *sptr, *ntok, *ctok, *stok;
     int wcnt = 0;
     double *xarr = NULL, *yarr = NULL;
@@ -1772,6 +1775,7 @@ void draw_graph(int c, int i)
     nptr = node;
     cptr = color;
     sptr = sweep;
+    n_nodes = count_items(node, " \t");
     /* process each node given in "node" attribute, get also associated color if any*/
     while( (ntok = my_strtok_r(nptr, " ", &saven)) ) {
       ctok = my_strtok_r(cptr, " ", &savec);
@@ -1787,10 +1791,10 @@ void draw_graph(int c, int i)
       /* draw sweep variable(s) on x-axis */
       if(wcnt == 0 || (stok && stok[0])) {
         draw_string(wave_color, NOW, xctx->names[sweep_idx], 2, 1, 0, 0,
-           rx1 + 2 + rw/6 * wcnt, ry2-1, txtsizelab, txtsizelab);
+           rx1 + 2 + rw/n_nodes * wcnt, ry2-1, txtsizelab, txtsizelab);
       }
       /* draw node labels in graph */
-      draw_string(wave_color, NOW, ntok, 0, 0, 0, 0, rx1 + rw/6 * wcnt, ry1, txtsizelab, txtsizelab);
+      draw_string(wave_color, NOW, ntok, 0, 0, 0, 0, rx1 + rw/n_nodes * wcnt, ry1, txtsizelab, txtsizelab);
       /* clipping everything outside graph area */
       /* quickly find index number of ntok variable to be plotted */
       entry = int_hash_lookup(xctx->raw_table, ntok, 0, XLOOKUP);

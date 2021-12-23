@@ -264,26 +264,26 @@ size_t my_strncat(int id, char **str, size_t n, const char *append_str)
 {
  size_t s, a;
  dbg(3,"my_strncat(%d,): str=%s  append_str=%s\n", id, *str, append_str);
- a = strlen(append_str)+1;
- if(a>n+1) a=n+1;
+ a = strlen(append_str) + 1;
+ if(a > n + 1) a = n + 1;
  if( *str != NULL)
  {
   s = strlen(*str);
-  if(append_str == NULL || append_str[0]=='\0') return s;
+  if(append_str == NULL || append_str[0] == '\0') return s;
   my_realloc(id, str, s + a );
-  memcpy(*str+s, append_str, a);
-  *(*str+s+a) = '\0';
+  memcpy(*str + s, append_str, a);
+  *(*str + s + a - 1) = '\0';
   dbg(3,"my_strncat(%d,): reallocated string %s\n", id, *str);
-  return s + a -1;
+  return s + a - 1;
  }
  else
  {
-  if(append_str == NULL || append_str[0]=='\0') return 0;
+  if(append_str == NULL || append_str[0] == '\0') return 0;
   *str = my_malloc(id,  a );
   memcpy(*str, append_str, a);
-  *(*str+a) = '\0';
+  *(*str + a - 1) = '\0';
   dbg(3,"my_strncat(%d,): allocated string %s\n", id, *str);
-  return a -1;
+  return a - 1;
  }
 }
 

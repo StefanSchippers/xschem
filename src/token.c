@@ -642,7 +642,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  const char *tmp;
  const char *tmp2;
  int q,qq;
- static int last[256]; /* safe to keep with multiple schematics, reset on 1st invocation */
+ static int last[1 << 8 * sizeof(char) ]; /* safe to keep with multiple schematics, reset on 1st invocation */
  int old_name_len;
  int new_name_len;
  int n;
@@ -945,18 +945,30 @@ const char *get_cell_w_ext(const char *str, int no_of_dir)
   return get_trailing_path(str, no_of_dir, 0);
 }
 
-
-/* not used? */
-int count_labels(char *s)
+/* in a string with tokens separated by characters in 'sep'
+ * count number of tokens. Multiple separators and leading/trailing
+ * separators are allowed. */
+int count_items(const char *s, const char *sep)
 {
-  int i=1;
+  const char *ptr;
+  char table[1 << 8 * sizeof(unsigned char)];
+  int items = 0;
+  int state = 0; /* 1 if item is being processed */
   int c;
 
-  if(s==NULL) return 1;
-  while( (c=(*s++)) ) {
-    if(c==',') i++;
+  memset(table, 0, sizeof(table));
+  ptr = sep;
+  while( (c = *(unsigned char *)ptr++) ) table[c] = 1;
+  ptr = s;
+  while( (c = *(unsigned char *)ptr++) ) {
+    if(!table[c]) { /* not a separator */
+      if(!state) items++;
+      state = 1;
+    } else {
+      state = 0;
+    }
   }
-  return i;
+  return items;
 }
 
 void print_vhdl_element(FILE *fd, int inst)

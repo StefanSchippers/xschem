@@ -402,7 +402,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     break;
 
   case Expose:
-    dbg(0, "callback: Expose, winpath=%s, %dx%d+%d+%d\n", winpath, button, aux, mx, my);
+    dbg(1, "callback: Expose, winpath=%s, %dx%d+%d+%d\n", winpath, button, aux, mx, my);
     XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, mx,my,button,aux,mx,my);
     {
       XRectangle xr[1];

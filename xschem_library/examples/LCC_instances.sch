@@ -158,11 +158,11 @@ C {cmos_inv.sch} 140 -260 0 0 {name=Xinv WN=15u WP=45u LLN=3u LLP=3u}
 C {cmos_inv.sym} 280 -190 0 0 {name=Xinv2 WN=15u WP=45u LLN=3u LLP=3u}
 C {bus_keeper.sch} 1200 60 0 0 {name=Xkeeper WN_FB=3u WP_FB=5u}
 C {lab_pin.sym} 700 -490 0 1 {name=p1 lab=ZZ}
-C {launcher.sym} 65 -1015 0 0 {name=h5 
-descr="Select arrow and 
-Ctrl-Right-Click to load waveforms" 
-tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}
 C {lab_pin.sym} 540 -760 0 0 {name=p14 lab=A}
 C {cmos_inv.sym} 580 -850 0 1 {name=Xinv3 WN=3u WP=5u LLN=3u LLP=3u}
 C {lab_pin.sym} 620 -760 0 1 {name=p2 lab=Z}
 C {cmos_inv.sym} 580 -760 0 0 {name=Xinv1 WN=3u WP=5u LLN=3u LLP=3u}
+C {launcher.sym} 105 -1015 0 0 {name=h5 
+descr="Ctrl-Left-Click on arrow
+to load waveforms" 
+tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}
