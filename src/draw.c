@@ -1775,9 +1775,9 @@ void draw_graph(int c, int i, int flags)
     nptr = node;
     cptr = color;
     sptr = sweep;
-    n_nodes = count_items(node, " \t");
+    n_nodes = count_items(node, " \t\n");
     /* process each node given in "node" attribute, get also associated color if any*/
-    while( (ntok = my_strtok_r(nptr, " ", &saven)) ) {
+    while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) {
       ctok = my_strtok_r(cptr, " ", &savec);
       stok = my_strtok_r(sptr, " ", &saves);
       nptr = cptr = sptr = NULL;

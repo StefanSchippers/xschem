@@ -78,6 +78,135 @@ x2=2.55e-07
 divx=10
 node="v(ldyms[6]) v(ldyms[9]) v(ldcp)"
 color="4 7 12"}
+B 2 2490 -1240 3640 -1160 {flags=1
+y1 = 0
+y2 = 1
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="
+v(ldbl[0]) v(ldbl[16]) v(ldbl[32])
+v(ldbl[1]) v(ldbl[17]) v(ldbl[33])
+v(ldbl[2]) v(ldbl[18]) v(ldbl[34])
+"
+color="8 9 10 11 12 13 14 15 16 17 18"}
+B 2 2490 -1150 3640 -1070 {flags=1
+y1 = 0
+y2 = 2
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="
+v(ldl1x[0]) v(ldl1x[1]) v(ldl1x[2]) v(ldl1x[3])
+"
+color="6 7 8 9 10 11 12 13"}
+B 2 2490 -1060 3640 -980 {flags=1
+y1 = 0
+y2 = 2
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="v(lda[3])"
+color=12}
+B 2 2490 -1550 3640 -1340 {flags=1
+y1 = 0
+y2 = 2
+divy = 4
+x1=-6.617e-24
+x2=4.8e-07  divx=10
+node="v(ldcp) v(ldyms[4]) v(ldyms[5]) v(ldyms[6]) v(ldyms[7])"
+color=6\\ 12\\ 13\\ 14\\ 15}
+B 2 2490 -970 3640 -890 {flags=1
+y1 = 0
+y2 = 2
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="v(ldl1x[0])"
+color=4}
+B 2 2490 -790 3640 -710 {flags=1
+y1 = 0
+y2 = 2
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="v(ldprech)"
+color=4}
+B 2 2490 -700 3640 -620 {flags=1
+y1 = 0
+y2 = 2
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="v(lden) v(ldcp)"
+color=12\\ 18}
+B 2 2490 -610 3640 -530 {flags=1
+y1 = 0
+y2 = 2
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="
+v(ldwl[0]) v(ldwl[1]) v(ldwl[2]) v(ldwl[3]) 
+v(ldwl[4]) v(ldwl[5]) v(ldwl[6]) v(ldwl[8]) 
+v(ldwl[7])"
+color=12\\ 15\\ 16\\ 17\\ 18\\ 19\\ 11\\ 7\\ 4}
+B 2 2490 -520 3640 -440 {flags=1
+y1 = 0
+y2 = 2
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="v(ldymsref)"
+color=3}
+B 2 2490 -430 3640 -350 {flags=1
+y1 = 0
+y2 = 2
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="v(ldoe)"
+color=4}
+B 2 2490 -340 3640 -260 {flags=1
+y1 = 0
+y2 = 2
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="v(lden)"
+color=4}
+B 2 2490 -250 3640 -170 {flags=1
+y1 = 0
+y2 = 2
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="v(lden) v(ldprech)"
+color=12\\ 16}
+B 2 2490 -160 3640 -80 {flags=1
+y1 = 0
+y2 = 2
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="v(lden) v(ldcp)"
+color=12\\ 5}
+B 2 2490 -880 3640 -800 {flags=1
+y1 = 0
+y2 = 2
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="v(ldl1x[1])"
+color=4}
+B 2 2490 -1330 3640 -1250 {flags=1
+y1 = 0
+y2 = 2
+divy = 1
+x1=0
+x2=4.8e-07  divx=10
+node="v(lden) v(ldprech)"
+color=4\\ 6}
 B 7 950 -250 980 -80 {}
 B 7 1150 -250 1180 -80 {}
 B 21 10 -970 240 -750 {}
@@ -276,7 +405,7 @@ C {lab_pin.sym} 1040 -690 0 0 {name=l46 lab=vss}
 C {lab_pin.sym} 1340 -710 0 1 {name=l1 lab=LDBL[255:0]}
 C {spice_probe.sym} 1340 -830 0 0 {name=p3 analysis=tran}
 C {spice_probe.sym} 190 -850 0 0 {name=p13 analysis=tran}
-C {lab_pin.sym} 1670 -740 0 0 {name=l2 lab=LDWL[8:0]}
+C {lab_pin.sym} 1670 -740 0 0 {name=l2 lab=LDWL[16:0]}
 C {spice_probe.sym} 1670 -740 0 0 {name=p46 analysis=tran}
 C {lab_pin.sym} 1670 -790 0 0 {name=l4 lab=LDBL[0,16,32,1,17,33,2,18,34]}
 C {spice_probe.sym} 1670 -790 0 0 {name=p91 analysis=tran}
