@@ -426,6 +426,7 @@ void alloc_xschem_data(const char *top_path)
   xctx->values = NULL;
   xctx->nvars = 0;
   xctx->npoints = 0;
+  xctx->datasets = 0;
   xctx->raw_schname = NULL;
   xctx->wires = 0;
   xctx->instances = 0;

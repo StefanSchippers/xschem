@@ -14,7 +14,7 @@ L 18 900 -580 910 -580 {}
 L 18 880 -530 900 -580 {}
 L 18 880 -530 880 -450 {}
 L 18 900 -580 900 -400 {}
-B 2 1040 -770 1510 -570 {flags=1 
+B 2 1200 -860 1880 -550 {flags=1 
 y1 = -60
 y2 = 60
 divy = 12
@@ -22,8 +22,8 @@ x1=0
 x2=0.03
 divx=10
 node="v(outp) v(outm) v(vpp) v(vnn) v(x1.vboost) v(x0.vboost)"
-color="4 5 6 12 8 10"}
-B 2 1040 -550 1510 -360 {flags=1 
+color="4 5 6 12 8 10" unitx=m}
+B 2 1200 -530 1880 -340 {flags=1 
 y1 = 0
 y2 = 12
 divy = 6
@@ -31,7 +31,16 @@ x1=0
 x2=0.03
 divx=10
 node="i(v.x1.vu) i(v.x0.vu) i(v.x1.vd) i(v.x0.vd)"
-color="11 12 13 14"}
+color="11 12 13 14" unitx=m}
+B 2 1200 -330 1880 -140 {flags=1 
+y1 = 0
+y2 = .05
+divy = 5
+x1=0
+x2=0.03
+divx=10
+node="i(v.x1.v3)"
+color="11 12 13 14" unitx=m unity=m}
 T {actual value
 50u} 400 -820 0 0 0.4 0.4 {}
 T {actual value
@@ -57,7 +66,7 @@ each with different bias points these
 annotator dinamically show the correct 
 data.} 780 -830 0 0 0.2 0.2 {layer=4}
 T {Select one or more graphs (and no other objects)
-and use arrow keys to zoom / pan waveforms} 1060 -830 0 0 0.3 0.3 {}
+and use arrow keys to zoom / pan waveforms} 1060 -940 0 0 0.3 0.3 {}
 N 150 -1220 150 -1200 {lab=#net1}
 N 150 -1080 150 -1060 {lab=#net2}
 N 360 -1140 370 -1140 {lab=VSS}
@@ -309,7 +318,7 @@ tclcommand="textwindow $netlist_dir/[file tail [file rootname [ xschem get schna
 }
 C {spice_probe.sym} 360 -1220 0 0 {name=p45 analysis=tran voltage=0.0000e+00}
 C {spice_probe.sym} 360 -1060 0 0 {name=p46 analysis=tran voltage=0.0000e+00}
-C {launcher.sym} 1115 -875 0 0 {name=h5 
+C {launcher.sym} 1115 -985 0 0 {name=h5 
 descr="Ctrl-Left-Click on arrow
 to load waveforms" 
 tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}

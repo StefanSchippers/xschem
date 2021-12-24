@@ -25,9 +25,9 @@
 #include <sys/wait.h>  /* waitpid */
 #endif
 
-void here(int i)
+void here(double i)
 {
-  fprintf(stderr, "here %d\n", i);
+  fprintf(stderr, "here %g\n", i);
 }
 
 /* super simple 32 bit hashing function for files
@@ -1304,6 +1304,10 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
   for(i=0;i<xctx->rects[c];i++)
   {
    if(selected == 1 && !xctx->rect[c][i].sel) continue;
+   /* skip graph objects if no datafile loaded */
+   if(c == 2 && xctx->rect[c][i].flags == 1) {  
+     if(!schematic_waves_loaded()) continue;
+   }
    tmp.x1=xctx->rect[c][i].x1;
    tmp.x2=xctx->rect[c][i].x2;
    tmp.y1=xctx->rect[c][i].y1;
@@ -2312,6 +2316,24 @@ double round_to_n_digits(double x, int n)
   scale = pow(10.0, ceil(log10(fabs(x))) - n);
   return my_round(x / scale) * scale;
 }
+
+/* 
+double floor_to_n_digits(double x, int n)
+{
+  double scale;
+  if(x == 0.0) return x;
+  scale = pow(10.0, ceil(log10(fabs(x))) - n);
+  return floor(x / scale) * scale;
+}
+
+double ceil_to_n_digits(double x, int n)
+{
+  double scale;
+  if(x == 0.0) return x;
+  scale = pow(10.0, ceil(log10(fabs(x))) - n);
+  return ceil(x / scale) * scale;
+}
+*/
 
 int place_text(int draw_text, double mx, double my)
 {

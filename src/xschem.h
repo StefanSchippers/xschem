@@ -330,6 +330,10 @@ do { \
 #define INT_WIDTH(x) ( (int)(x) == 0 ? 1 : (int)(x) ) 
 #define INT_BUS_WIDTH(x) ( (int)( (BUS_WIDTH) * (x) ) == 0 ? 1 : (int)( (BUS_WIDTH) * (x) ) ) 
 
+/* set do double if you need more precision at the expense of memory */
+#define RAW_FLOAT float
+
+
 typedef struct
 {
    unsigned short type;
@@ -688,9 +692,10 @@ typedef struct {
   int undo_initialized;
   /* read raw files (draw.c) */
   char **names;
-  double **values;
+  RAW_FLOAT **values;
   int nvars;
   int npoints;
+  int datasets;
   struct int_hashentry **raw_table;
   char *raw_schname;
   /*     */
@@ -889,6 +894,7 @@ extern char cli_opt_netlist_dir[PATH_MAX];
 extern Xschem_ctx *xctx;
 
 /*  FUNCTIONS */
+extern int schematic_waves_loaded(void);
 extern void calc_graph_area(int c, int i, double *x1, double *y1,double *x2, double *y2,
              double *marginx,double *marginy);
 extern void draw_graph(int c, int i, int flags);
@@ -903,7 +909,7 @@ extern void create_plot_cmd(void);
 extern void set_modify(int mod);
 extern void dbg(int level, char *fmt, ...);
 extern unsigned int hash_file(const char *f, int skip_path_lines);
-extern void here(int i);
+extern void here(double i);
 extern void print_version(void);
 extern int set_netlist_dir(int force, char *dir);
 extern void netlist_options(int i);

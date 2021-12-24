@@ -168,13 +168,14 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   double wy2 = 4;
   double x1, y1, x2, y2, marginx, marginy;
   double cx;
-  int divisx = 10;
-  int divisy = 5;
+  int divx = 10;
+  int divy = 5;
   const char *val;
   char s[30];
   int n, c, i;
   double xx1, xx2;
   int need_redraw = 0;
+  double delta_threshold = 0.25;
 
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
@@ -191,9 +192,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       if(xctx->rect[c][n].flags != 1) continue;
       if(i == 0) {
         val = get_tok_value(xctx->rect[c][n].prop_ptr,"divx",0);
-        if(val[0]) divisx = atoi(val);
+        if(val[0]) divx = atoi(val);
         val = get_tok_value(xctx->rect[c][n].prop_ptr,"divy",0);
-        if(val[0]) divisy = atoi(val);
+        if(val[0]) divy = atoi(val);
         val = get_tok_value(xctx->rect[c][n].prop_ptr,"x1",0);
         if(val[0]) wx1 = atof(val);
         val = get_tok_value(xctx->rect[c][n].prop_ptr,"y1",0);
@@ -205,23 +206,32 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         calc_graph_area(c, n, &x1, &y1, &x2, &y2, &marginx, &marginy);
         /* cache coefficients for faster graph coord transformations */
         cx = (x2 - x1) / (wx2 - wx1);
-        dbg(1, "%g %g %g %g - %d %d\n", wx1, wy1, wx2, wy2, divisx, divisy);
+        dbg(1, "%g %g %g %g - %d %d\n", wx1, wy1, wx2, wy2, divx, divy);
       }
-      if(event == MotionNotify && state && Button1Mask) {
-        double delta = (wx2 - wx1) / divisx;
+      if(event == MotionNotify && (state & Button2Mask)) {
+        double delta = (wx2 - wx1) / divx;
         dbg(1, "waves_callback: Motion: %g %g --> %g %g\n", 
-          xctx->mx_double_save, xctx->my_double_save, xctx->mousex_snap, xctx->mousey_snap);
-         if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(cx * delta)) {
-            if( xctx->mousex_snap > xctx->mx_double_save) key = XK_Left;
-            else key = XK_Right;
+             xctx->mx_double_save, xctx->my_double_save, xctx->mousex_snap, xctx->mousey_snap);
+        delta_threshold = 0.10;
+        if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(cx * delta) * delta_threshold) {
+          xx1 = wx1 + (xctx->mx_double_save - xctx->mousex_snap) / cx;
+          xx2 = wx2 + (xctx->mx_double_save - xctx->mousex_snap) / cx;
+          if(i >= xctx->lastsel -1) { /* update saved mouse position after processing all graphs */
             xctx->mx_double_save = xctx->mousex_snap;
             xctx->my_double_save = xctx->mousey_snap;
-         }
+          }
+          my_snprintf(s, S(s), "%g", xx1);
+          my_strdup(1410, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x1", s));
+          my_snprintf(s, S(s), "%g", xx2);
+          my_strdup(1411, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
+          need_redraw = 1;
+        }
       }
-      if(key == XK_Left || (button == Button5 && state == 0)) {
-        double delta = (wx2 - wx1) / divisx;
-        xx1 = round_to_n_digits(wx1 - delta, 4);
-        xx2 = round_to_n_digits(wx2 - delta, 4);
+      else if(key == XK_Left || (button == Button5 && state == 0)) {
+        double delta = (wx2 - wx1) / divx;
+        delta_threshold = 2.0;
+        xx1 = wx1 - delta * delta_threshold;
+        xx2 = wx2 - delta * delta_threshold;
         my_snprintf(s, S(s), "%g", xx1);
         my_strdup(1395, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x1", s));
         my_snprintf(s, S(s), "%g", xx2);
@@ -229,9 +239,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         need_redraw = 1;
       }
       else if(key == XK_Right || (button == Button4 && state == 0)) {
-        double delta = (wx2 - wx1) / divisx;
-        xx1 = round_to_n_digits(wx1 + delta, 4);
-        xx2 = round_to_n_digits(wx2 + delta, 4);
+        double delta = (wx2 - wx1) / divx;
+        delta_threshold = 2.0;
+        xx1 = wx1 + delta * delta_threshold;
+        xx2 = wx2 + delta * delta_threshold;
         my_snprintf(s, S(s), "%g", xx1);
         my_strdup(1397, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x1", s));
         my_snprintf(s, S(s), "%g", xx2);
@@ -240,22 +251,16 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       else if(key == XK_Down || (button == Button5 && state == ShiftMask)) {
         double delta = (wx2 - wx1);
-        xx2 = round_to_n_digits(wx2 + delta, 2);
+        xx2 = wx2 + delta * 0.1;
         my_snprintf(s, S(s), "%g", xx2);
         my_strdup(1399, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
         need_redraw = 1;
       }
       else if(key == XK_Up || (button == Button4 && state == ShiftMask)) {
-        double delta = (wx2 - wx1)/ 2.0;
-        double tmp;
-   
-        if(fabs(wx2) > fabs(wx1) ) tmp = fabs(wx2);
-        else tmp = fabs(wx1);
-        if( tmp / fabs(wx2 - wx1)  < 1e2) {
-          xx2 = round_to_n_digits(wx2 - delta, 2);
-          my_snprintf(s, S(s), "%g", xx2);
-          my_strdup(1400, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
-        }
+        double delta = (wx2 - wx1);
+        xx2 = wx2 - delta * 0.1;
+        my_snprintf(s, S(s), "%g", xx2);
+        my_strdup(1400, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
         need_redraw = 1;
       }
       else if(key == 'f') {
@@ -265,11 +270,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           my_snprintf(s, S(s), "%g", xx1);
           my_strdup(1409, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x1", s));
           my_snprintf(s, S(s), "%g", xx2);
-          my_strdup(1409, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
+          my_strdup(1412, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
           need_redraw = 1;
         }
       }
-      else if(event == ButtonPress && button == Button1) {
+      else if(event == ButtonPress && button == Button2) {
         xctx->mx_double_save = xctx->mousex_snap;
         xctx->my_double_save = xctx->mousey_snap;
       }
@@ -1849,6 +1854,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
    }
    else if(button==Button2 && (state == 0)) {
+     if(waves_selected()) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
      pan2(START, mx, my);
      xctx->ui_state |= STARTPAN2;
    }

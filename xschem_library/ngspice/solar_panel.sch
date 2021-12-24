@@ -42,27 +42,27 @@ B 2 1110 -950 1530 -800 {flags=1
 y1 = 0
 y2 = 20
 divy = 10
-x1=3.388e-21
+x1=0
 x2=0.0002
-divx=8
+divx=9
 node="v(led) v(sw)"
-color="11 18"}
+color="11 18" unitx=m subdivx=4}
 B 2 1110 -790 1530 -660 {flags=1 
 y1 = 0
 y2 = 20
 divy = 10
-x1=3.388e-21
+x1=0
 x2=0.0002
 divx=8
-node="v(panel)"}
+node="v(panel)" unitx=m}
 B 2 1110 -650 1530 -520 {flags=1 
 y1 = 0
 y2 = 4
 divy = 8
-x1=3.388e-21
+x1=0
 x2=0.0002
 divx=8
-node="i(vsw)" color=12}
+node="i(vsw)" color=12 unitx=m}
 B 18 45 -850 300 -665 {}
 A 5 300 -850 5.590169943749475 243.434948822922 360 {fill=true}
 P 7 6 375 -665 320 -821.25 315 -835 302.5 -850 290 -855 45 -865 {}

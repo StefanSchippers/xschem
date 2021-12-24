@@ -27,186 +27,136 @@ L 8 1150 -160 1180 -160 {}
 L 8 1180 -160 1180 -120 {}
 L 8 1180 -120 1300 -120 {}
 L 8 820 -120 950 -120 {}
-B 2 1870 -810 2380 -710 {flags=1
-y1 = 0
-y2 = 2
-divy = 4
-x1=2.05e-07
-x2=2.55e-07
-divx=10
-node="v(ldcp) v(ldprech)"
-color="3 11"}
-B 2 1870 -700 2380 -600 {flags=1
-y1 = 0
-y2 = 2
-divy = 4
-x1=2.05e-07
-x2=2.55e-07  divx=10
-node="v(lden)"
-color=12}
-B 2 1870 -370 2380 -270 {flags=1
-y1 = 0
-y2 = 2
-divy = 4
-x1=2.05e-07
-x2=2.55e-07
-divx=10
-node="v(ldq[11])"}
-B 2 1870 -590 2380 -490 {flags=1
-y1 = 0
-y2 = 2
-divy = 4
-x1=2.05e-07
-x2=2.55e-07
-divx=10
-node="v(ldsal)"
-color=8}
-B 2 1870 -480 2380 -380 {flags=1
-y1 = 0
-y2 = 2
-divy = 4
-x1=2.05e-07
-x2=2.55e-07
-divx=10
-node="v(ldq[12])"}
-B 2 1870 -1010 2380 -820 {flags=1
-y1 = 0
-y2 = 2
-divy = 5
-x1=2.05e-07 
-x2=2.55e-07 
-divx=10
-node="v(ldyms[6]) v(ldyms[9]) v(ldcp)"
-color="4 7 12"}
-B 2 2490 -1240 3640 -1160 {flags=1
+B 2 1860 -1180 3010 -1100 {flags=1
 y1 = 0
 y2 = 1
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="
 v(ldbl[0]) v(ldbl[16]) v(ldbl[32])
 v(ldbl[1]) v(ldbl[17]) v(ldbl[33])
 v(ldbl[2]) v(ldbl[18]) v(ldbl[34])
 "
-color="8 9 10 11 12 13 14 15 16 17 18"}
-B 2 2490 -1150 3640 -1070 {flags=1
+color="8 9 10 11 12 13 14 15 16 17 18" unitx=n}
+B 2 1860 -1090 3010 -1010 {flags=1
 y1 = 0
-y2 = 2
+y2 = 1.5
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="
 v(ldl1x[0]) v(ldl1x[1]) v(ldl1x[2]) v(ldl1x[3])
 "
-color="6 7 8 9 10 11 12 13"}
-B 2 2490 -1060 3640 -980 {flags=1
+color="6 7 8 9 10 11 12 13" unitx=n}
+B 2 1860 -1000 3010 -920 {flags=1
 y1 = 0
-y2 = 2
+y2 = 1.5
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="v(lda[3])"
-color=12}
-B 2 2490 -1550 3640 -1340 {flags=1
+color=12 unitx=n subdivy=2}
+B 2 1860 -1490 3010 -1280 {flags=1
 y1 = 0
 y2 = 2
 divy = 4
-x1=-6.617e-24
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="v(ldcp) v(ldyms[4]) v(ldyms[5]) v(ldyms[6]) v(ldyms[7])"
-color=6\\ 12\\ 13\\ 14\\ 15}
-B 2 2490 -970 3640 -890 {flags=1
+color=6\\ 12\\ 13\\ 14\\ 15 unitx=n}
+B 2 1860 -910 3010 -830 {flags=1
 y1 = 0
-y2 = 2
+y2 = 1.5
+subdivy=2
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="v(ldl1x[0])"
-color=4}
-B 2 2490 -790 3640 -710 {flags=1
-y1 = 0
-y2 = 2
+color=4 unitx=n}
+B 2 1860 -730 3010 -650 {flags=1
+y1 = -0.4
+y2 = 1.5
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="v(ldprech)"
-color=4}
-B 2 2490 -700 3640 -620 {flags=1
+color=4 unitx=n subdivy=2}
+B 2 1860 -640 3010 -560 {flags=1
 y1 = 0
-y2 = 2
+y2 = 1.5
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="v(lden) v(ldcp)"
-color=12\\ 18}
-B 2 2490 -610 3640 -530 {flags=1
+color=12\\ 18 unitx=n subdivy=2}
+B 2 1860 -550 3010 -470 {flags=1
 y1 = 0
-y2 = 2
+y2 = 1.5
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="
 v(ldwl[0]) v(ldwl[1]) v(ldwl[2]) v(ldwl[3]) 
 v(ldwl[4]) v(ldwl[5]) v(ldwl[6]) v(ldwl[8]) 
 v(ldwl[7])"
-color=12\\ 15\\ 16\\ 17\\ 18\\ 19\\ 11\\ 7\\ 4}
-B 2 2490 -520 3640 -440 {flags=1
+color=12\\ 15\\ 16\\ 17\\ 18\\ 19\\ 11\\ 7\\ 4 unitx=n subdivy=2}
+B 2 1860 -460 3010 -380 {flags=1
 y1 = 0
-y2 = 2
+y2 = 1
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="v(ldymsref)"
-color=3}
-B 2 2490 -430 3640 -350 {flags=1
+color=3 unitx=n subdivy=4}
+B 2 1860 -370 3010 -290 {flags=1
 y1 = 0
-y2 = 2
+y2 = 1.5
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="v(ldoe)"
-color=4}
-B 2 2490 -340 3640 -260 {flags=1
+color=4 unitx=n subdivy=2}
+B 2 1860 -280 3010 -200 {flags=1
 y1 = 0
-y2 = 2
+y2 = 1.5
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="v(lden)"
-color=4}
-B 2 2490 -250 3640 -170 {flags=1
+color=4 unitx=n subdivy=2}
+B 2 1860 -190 3010 -110 {flags=1
 y1 = 0
-y2 = 2
+y2 = 1.5
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="v(lden) v(ldprech)"
-color=12\\ 16}
-B 2 2490 -160 3640 -80 {flags=1
+color=12\\ 16 unitx=n subdivy=2}
+B 2 1860 -100 3010 -20 {flags=1
 y1 = 0
-y2 = 2
+y2 = 1.5
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="v(lden) v(ldcp)"
-color=12\\ 5}
-B 2 2490 -880 3640 -800 {flags=1
+color=12\\ 5 unitx=n subdivy=2}
+B 2 1860 -820 3010 -740 {flags=1
 y1 = 0
-y2 = 2
+y2 = 1.5
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="v(ldl1x[1])"
-color=4}
-B 2 2490 -1330 3640 -1250 {flags=1
+color=4 unitx=n subdivy=2}
+B 2 1860 -1270 3010 -1190 {flags=1
 y1 = 0
-y2 = 2
+y2 = 1.5
 divy = 1
-x1=0
-x2=4.8e-07  divx=10
+x1=1.26503e-07
+x2=1.66157e-07  divx=10
 node="v(lden) v(ldprech)"
-color=4\\ 6}
+color=4\\ 6 unitx=n}
 B 7 950 -250 980 -80 {}
 B 7 1150 -250 1180 -80 {}
 B 21 10 -970 240 -750 {}
@@ -218,7 +168,7 @@ T {was: vss} 880 -980 0 0 0.4 0.4 {}
 T {16KB ROM Macrocell
 16 bit Data I/O x 8KWords} 210 -1120 0 0 0.7 0.7 {}
 T {Select one or more graphs (and no other objects)
-and use arrow keys to zoom / pan waveforms} 1880 -1080 0 0 0.3 0.3 {}
+and use arrow keys to zoom / pan waveforms} 1460 -1100 0 0 0.3 0.3 {}
 N 150 -580 150 -560 {lab=vss}
 N 150 -420 150 -400 {lab=vss}
 N 10 -270 10 -250 {lab=vss}
@@ -409,7 +359,7 @@ C {lab_pin.sym} 1670 -740 0 0 {name=l2 lab=LDWL[16:0]}
 C {spice_probe.sym} 1670 -740 0 0 {name=p46 analysis=tran}
 C {lab_pin.sym} 1670 -790 0 0 {name=l4 lab=LDBL[0,16,32,1,17,33,2,18,34]}
 C {spice_probe.sym} 1670 -790 0 0 {name=p91 analysis=tran}
-C {launcher.sym} 1925 -1115 0 0 {name=h5 
+C {launcher.sym} 1565 -1135 0 0 {name=h5 
 descr="Ctrl-Left-Click on arrow
 to load waveforms" 
 tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}
