@@ -1264,6 +1264,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  boundbox->y2=100;
  if(selected != 2) for(c=0;c<cadlayers;c++)
  {
+  int waves = schematic_waves_loaded();
   for(i=0;i<xctx->lines[c];i++)
   {
    if(selected == 1 && !xctx->line[c][i].sel) continue;
@@ -1306,7 +1307,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
    if(selected == 1 && !xctx->rect[c][i].sel) continue;
    /* skip graph objects if no datafile loaded */
    if(c == 2 && xctx->rect[c][i].flags == 1) {  
-     if(!schematic_waves_loaded()) continue;
+     if(!waves) continue;
    }
    tmp.x1=xctx->rect[c][i].x1;
    tmp.x2=xctx->rect[c][i].x2;

@@ -1669,13 +1669,18 @@ void calc_graph_area(int c, int i, double *x1, double *y1,double *x2,double *y2,
  *                  112   --> 100
  *                  6300  --> 10000
  */
-static double axis_increment(double delta, int div)
+static double axis_increment(double a, double b, int div)
 {
   double scale;
   double sign;
   double scaled_delta;
-  if(div == 1) return delta;
+  double delta = b - a;
+  if(div == 1) {
+    return delta;
+  }
   if(delta == 0.0) return delta;
+  /* if user wants only one division, just do what user asks */
+  if(div == 1) return delta;
   delta /= div;
   sign = (delta < 0.0) ? -1.0 : 1.0;
   delta = fabs(delta);
@@ -1688,9 +1693,11 @@ static double axis_increment(double delta, int div)
   return scaled_delta * scale * sign;
 }
 
-double axis_start(double n, double delta)
+double axis_start(double n, double delta, int div)
 {
   if(delta == 0.0) return n;
+  /* if user wants only one division, just do what user asks */
+  if(div == 1) return n;
   if(delta < 0.0) return floor(n / delta) * delta;
   return ceil(n / delta) * delta;
 }
@@ -1843,8 +1850,8 @@ void draw_graph(int c, int i, int flags)
   }
 
   /* vertical grid lines */
-  deltax = axis_increment((wx2 - wx1), divx);
-  startx = axis_start(wx1, deltax);
+  deltax = axis_increment(wx1, wx2, divx);
+  startx = axis_start(wx1, deltax, divx);
   for(j = -1;; j++) { /* start one interval before to allow sub grids at beginning */
     wx = startx + j * deltax;
     if(subdivx > 0) for(k = 1; k <=subdivx; k++) {
@@ -1866,8 +1873,8 @@ void draw_graph(int c, int i, int flags)
   drawline(2, ADD, W_X(wx1),   W_Y(wy2), W_X(wx1),   W_Y(wy1), 0);
   drawline(2, ADD, W_X(wx2),   W_Y(wy2), W_X(wx2),   W_Y(wy1), 0);
   /* horizontal grid lines */
-  deltay = axis_increment((wy2 - wy1), divy);
-  starty = axis_start(wy1, deltay);
+  deltay = axis_increment(wy1, wy2, divy);
+  starty = axis_start(wy1, deltay, divy);
   for(j = -1;; j++) { /* start one interval before to allow sub grids at beginning */
     wy = starty + j * deltay;
     if(subdivy > 0) for(k = 1; k <=subdivy; k++) {
@@ -2081,6 +2088,7 @@ void draw(void)
     }
     if(!xctx->only_probes) {
         struct iterator_ctx ctx;
+        int waves = schematic_waves_loaded();
         dbg(3, "draw(): check4\n");
         for(c=0;c<cadlayers;c++) {
           if(xctx->draw_single_layer!=-1 && c != xctx->draw_single_layer) continue;
@@ -2092,7 +2100,7 @@ void draw(void)
           }
           if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c];i++) {
             xRect *r = &xctx->rect[c][i]; 
-            if( (c != 2 || r->flags != 1) || schematic_waves_loaded() ) {
+            if( (c != 2 || r->flags != 1) || waves ) {
               drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
               filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
             }
