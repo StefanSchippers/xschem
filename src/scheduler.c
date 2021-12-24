@@ -2002,15 +2002,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1], "raw_read"))
     {
       cmd_found = 1;
-      if(argc > 2) {
-
-
-        if(schematic_waves_loaded()) {
-          free_rawfile();
-        } else {
-          free_rawfile();
-          read_rawfile(argv[2]);
-        }
+      if(schematic_waves_loaded()) {
+        free_rawfile();
+      } else if(argc > 2) {
+        free_rawfile();
+        read_rawfile(argv[2]);
       }
       Tcl_ResetResult(interp);
     }

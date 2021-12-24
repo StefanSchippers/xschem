@@ -1837,8 +1837,10 @@ void draw_graph(int c, int i, int flags)
   txtsizelab = marginy / 100;
 
   /* background */
-  filledrect(0, NOW, rx1, ry1, rx2, ry2);
-  drawrect(c, NOW, rx1, ry1, rx2, ry2, 1);
+  if((flags & 2)  ) {
+    filledrect(0, NOW, rx1, ry1, rx2, ry2);
+    drawrect(c, NOW, rx1, ry1, rx2, ry2, 1);
+  }
 
   /* vertical grid lines */
   deltax = axis_increment((wx2 - wx1), divx);
@@ -1860,7 +1862,7 @@ void draw_graph(int c, int i, int flags)
     my_snprintf(lab, S(lab), "%.4g", wx * unitx);
     draw_string(3, NOW, lab, 0, 0, 1, 0, W_X(wx), y2 + 30 * txtsizex, txtsizex, txtsizex);
   }
-  /* first and last box delimiters */
+  /* first and last vertical box delimiters */
   drawline(2, ADD, W_X(wx1),   W_Y(wy2), W_X(wx1),   W_Y(wy1), 0);
   drawline(2, ADD, W_X(wx2),   W_Y(wy2), W_X(wx2),   W_Y(wy1), 0);
   /* horizontal grid lines */
@@ -1882,7 +1884,7 @@ void draw_graph(int c, int i, int flags)
     my_snprintf(lab, S(lab), "%.4g",  wy * unity);
     draw_string(3, NOW, lab, 0, 1, 0, 1, x1 - 2 - 30 * txtsizey, W_Y(wy), txtsizey, txtsizey);
   }
-  /* first and last box delimiters */
+  /* first and last horizontal box delimiters */
   drawline(2, ADD, W_X(wx1),   W_Y(wy1), W_X(wx2),   W_Y(wy1), 0);
   drawline(2, ADD, W_X(wx1),   W_Y(wy2), W_X(wx2),   W_Y(wy2), 0);
   /* Horizontal axis (if in viewport) */
@@ -1994,6 +1996,7 @@ void draw_graph(int c, int i, int flags)
  * 1: do final XCopyArea (copy 2nd buffer areas to screen) 
  *    If draw_waves() is called from draw() no need to do XCopyArea, as draw() does it already.
  *    This makes drawing faster and removes a 'tearing' effect when moving around.
+ * 2: do not draw background (when called from draw() this is already done)
  */
 void draw_waves(int flags)
 {
@@ -2089,7 +2092,7 @@ void draw(void)
           }
           if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c];i++) {
             xRect *r = &xctx->rect[c][i]; 
-            if(c != 2 || r->flags != 1 /* || !schematic_waves_loaded() */) {
+            if( (c != 2 || r->flags != 1) || schematic_waves_loaded() ) {
               drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
               filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
             }

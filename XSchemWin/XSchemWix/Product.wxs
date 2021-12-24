@@ -286,6 +286,12 @@
         <Component Id="CMPUTILE3">
           <File Id="UTILE3" KeyPath="yes" Source="../../src/utile/utile3" />
         </Component>
+        <Component Id="CMPUTILEBAT">
+          <File Id="UTILEBAT" KeyPath="yes" Source="../../src/utile/utile.bat" />
+        </Component>
+        <Component Id="CMPUTILE3BAT">
+          <File Id="UTILE3BAT" KeyPath="yes" Source="../../src/utile/utile3.bat" />
+        </Component>
         <Component Id="CMPUTILETCL">
           <File Id="UTILETCL" KeyPath="yes" Source="../../src/utile/utile.tcl" />
         </Component>
@@ -356,6 +362,8 @@
       <ComponentRef Id="CMPTEMPLATESTIMULI" />
       <ComponentRef Id="CMPUTILE" />
       <ComponentRef Id="CMPUTILE3" />
+      <ComponentRef Id="CMPUTILEBAT" />
+      <ComponentRef Id="CMPUTILE3BAT" />
       <ComponentRef Id="CMPUTILETCL" />
       <ComponentRef Id="CMPUTILETXT" />
     </ComponentGroup>

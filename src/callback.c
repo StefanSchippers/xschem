@@ -280,7 +280,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
     }
 
-    if(need_redraw) draw_graph(c, n, 1); /* draw data in each graph box */
+    if(need_redraw) draw_graph(c, n, 3); /* draw data in each graph box */
 
   }
   draw_selection(xctx->gc[SELLAYER], 0);

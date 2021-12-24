@@ -181,7 +181,13 @@ proc help_window {w filename} {
 } 
 
 proc translate {f} {
- eval exec "utile $f"
+ global tcl_platform
+ set OS [lindex $tcl_platform(os) 0]
+ if {$OS == "Windows"} {
+    eval exec "utile.bat $f"
+  } else {
+    eval exec "utile $f"
+  }
 }
 
 

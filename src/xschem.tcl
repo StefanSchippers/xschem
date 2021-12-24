@@ -1109,12 +1109,18 @@ proc utile_translate {schname} {
 
 proc utile_gui {schname} { 
   global netlist_dir debug_var XSCHEM_SHAREDIR
-  global utile_gui_path utile_cmd_path
+  global utile_gui_path OS
 
   simuldir 
   set tmpname [file rootname "$schname"]
-  eval exec {sh -c "cd \"$netlist_dir\"; \
-      XSCHEM_SHAREDIR=\"$XSCHEM_SHAREDIR\" \"$utile_gui_path\" stimuli.$tmpname"} &
+  if {$OS == "Windows"} {
+    eval exec {cmd /V /C "cd $netlist_dir && \
+    set XSCHEM_SHAREDIR=$XSCHEM_SHAREDIR&&set GUI_PATH=$utile_gui_path.bat&& \
+    !GUI_PATH! stimuli.$tmpname"}
+  } else {
+    eval exec {sh -c "cd \"$netlist_dir\"; \
+        XSCHEM_SHAREDIR=\"$XSCHEM_SHAREDIR\" \"$utile_gui_path\" stimuli.$tmpname"} &
+  }
 }
 
 proc utile_edit {schname} { 
