@@ -4432,7 +4432,7 @@ proc build_widgets { {topwin {} } } {
   }
   $topwin.menubar.simulation.menu add command -label {Utile Stimuli Translate} -command {
      simuldir
-     utile_translate  stimuli.[file rootname [file tail [xschem get schname]]]
+     inutile_translate  stimuli.[file rootname [file tail [xschem get schname]]]
   }
   $topwin.menubar.simulation.menu add command -label {Shell [simulation path]} -command {
      if { [select_netlist_dir 0] ne "" } {
