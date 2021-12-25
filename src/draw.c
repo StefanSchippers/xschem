@@ -1763,9 +1763,12 @@ static double get_unit(const char *val)
 
 int schematic_waves_loaded(void)
 {
-  if(xctx->values && xctx->raw_schname) 
-    if( !strcmp(xctx->raw_schname, xctx->sch[0]) ||
-        !strcmp(xctx->raw_schname, xctx->sch[xctx->currsch]) ) return 1;
+  int i;
+  if(xctx->values && xctx->raw_schname) {
+    for(i = 0 ; i <= xctx->currsch; i++) {
+      if( !strcmp(xctx->raw_schname, xctx->sch[i]) ) return 1;
+    } 
+  }
   return 0;
 }
 
