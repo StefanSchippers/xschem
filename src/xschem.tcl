@@ -127,8 +127,8 @@ proc inutile_help_window {w filename} {
 } 
 
 proc inutile_translate {f} {
-  global UTILE_PATH netlist_dir
-  set p $UTILE_PATH
+  global XSCHEM_SHAREDIR netlist_dir
+  set p $XSCHEM_SHAREDIR/utile
   set savedir [pwd]
   cd $netlist_dir
   eval exec $p/preprocess.awk \"$f\" | $p/expand_alias.awk | $p/param.awk | $p/clock.awk | $p/stimuli.awk
@@ -136,12 +136,12 @@ proc inutile_translate {f} {
 }
 
 proc inutile { {filename {}}} {
-  global XSCHEM_SHAREDIR UTILE_PATH retval netlist_dir
+  global XSCHEM_SHAREDIR retval netlist_dir
 
   toplevel .inutile
   wm title .inutile "(IN)UTILE (Stefan Schippers, sschippe)"
   wm iconname .inutile "(IN)UTILE"
-  set UTILE_PATH $XSCHEM_SHAREDIR/utile
+  set utile_path $XSCHEM_SHAREDIR/utile
   set savedir [pwd]
   cd $netlist_dir
   set filename [file normalize $filename]
@@ -159,7 +159,7 @@ proc inutile { {filename {}}} {
     inutile_translate \"$filename\"
     inutile_get_time"
   button .inutile.buttons.dismiss -text Dismiss -command "destroy .inutile"
-  button .inutile.buttons.code -text "Help" -command "inutile_help_window .inutile.help $UTILE_PATH/utile.txt"
+  button .inutile.buttons.code -text "Help" -command "inutile_help_window .inutile.help $utile_path/utile.txt"
   text .inutile.text -relief sunken -bd 2 -yscrollcommand ".inutile.scroll set" -setgrid 1 -height 30
   scrollbar .inutile.scroll -command {.inutile.text yview}
   button .inutile.buttons.save -text Save -command "
@@ -172,7 +172,7 @@ proc inutile { {filename {}}} {
     inutile_read_data .inutile.text \"$filename\""
   button .inutile.buttons.send -text "Template" -command "
     if { !\[string compare \[.inutile.text get 0.0 {end - 1 chars}\]  {}\]} {
-      template  .inutile.text  $UTILE_PATH/template.stimuli}"
+      template  .inutile.text  $utile_path/template.stimuli}"
   label .inutile.buttons.timelab -text "time:"
   entry .inutile.buttons.time  -width  11
   pack .inutile.buttons.dismiss .inutile.buttons.code \
