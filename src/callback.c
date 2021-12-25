@@ -416,6 +416,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             int i, j;
             double v;
             double min, max;
+            int first = 1;
             char *saven, *nptr, *ntok, *node = NULL;;
             my_strdup2(1426, &node, get_tok_value(xctx->rect[c][n].prop_ptr,"node",0));
             nptr = node;
@@ -425,12 +426,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               if(j >= 0) {
                 for(i = 0; i < xctx->npoints[dataset]; i++) {
                   v = get_raw_value(dataset, j, i);
-                  if(i == 0 || v < min) min = v;
-                  if(i == 0 || v > max) max = v;
+                  if(first || v < min) {min = v; first = 0;}
+                  if(first || v > max) {max = v; first = 0;}
                 } 
-                if(max == min) max += 0.01;
               }
             }
+            if(max == min) max += 0.01;
             my_free(1427, &node);
             my_snprintf(s, S(s), "%g", min);
             my_strdup(1422, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "y1", s));
