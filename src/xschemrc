@@ -313,13 +313,6 @@
 # set bespice_listen_port 2022
 
 ###########################################################################
-#### UTILE SPICE STIMULI DESCRIPTION LANGUAGE AND TRANSLATOR
-###########################################################################
-#### default paths are set as shown here: 
-# set utile_gui_path ${XSCHEM_SHAREDIR}/utile/utile3
-# set utile_cmd_path ${XSCHEM_SHAREDIR}/utile/utile
-
-###########################################################################
 #### TCL FILES TO LOAD AT STARTUP
 ###########################################################################
 #### list of tcl files to preload.

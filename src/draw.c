@@ -1765,7 +1765,7 @@ int schematic_waves_loaded(void)
 {
   int i;
   if(xctx->values && xctx->raw_schname) {
-    for(i = 0 ; i <= xctx->currsch; i++) {
+    for(i = xctx->currsch; i >= 0; i--) {
       if( !strcmp(xctx->raw_schname, xctx->sch[i]) ) return 1;
     } 
   }

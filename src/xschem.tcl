@@ -20,6 +20,183 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+### INUTILE integration
+proc inutile_line {txtlabel} {
+   global retval
+   toplevel .inutile_line -class Dialog
+   set X [expr [winfo pointerx .inutile_line] - 60]
+   set Y [expr [winfo pointery .inutile_line] - 35]
+   wm geometry .inutile_line "+$X+$Y"
+   label .inutile_line.l1  -text $txtlabel
+   entry .inutile_line.e1   -width 60
+   .inutile_line.e1 delete 0 end
+   .inutile_line.e1 insert 0 $retval
+   button .inutile_line.b1 -text "OK" -command  \
+   {
+     set retval [.inutile_line.e1 get ]
+     destroy .inutile_line
+   }
+   bind .inutile_line <Return> {
+     set retval [.inutile_line.e1 get ]
+     destroy .inutile_line
+   }
+   pack .inutile_line.l1 -side top -fill x
+   pack .inutile_line.e1  -side top -fill both -expand yes
+   pack .inutile_line.b1 -side top -fill x
+   grab set .inutile_line
+   focus .inutile_line.e1
+   tkwait window .inutile_line
+   return $retval
+}
+
+proc inutile_write_data {w f} {
+ set fid [open $f "w"]
+ set t [$w get  0.0 {end - 1 chars}]
+ puts  -nonewline $fid $t 
+ close $fid
+}
+  
+proc inutile_read_data {w f} {
+ set fid [open $f "r"]
+ set t [read $fid]
+ $w delete 0.0 end
+ $w insert 0.0 $t
+ close $fid
+}
+
+proc inutile_template {w f} {
+ set fid [open $f "r"]
+ set t [read $fid]
+ $w insert 0.0 $t
+ close $fid
+}
+
+proc inutile_get_time {} {
+ global netlist_dir
+ set fileid [open "$netlist_dir/inutile.simulationtime"  "RDONLY"]
+ .inutile.buttons.time delete 0 end
+ .inutile.buttons.time insert 0 [read -nonewline $fileid]
+ close $fileid
+ file delete "$netlist_dir/inutile.simulationtime"
+}
+ 
+proc inutile_alias_window {w filename} {
+ catch {destroy $w}
+ toplevel $w
+ wm title $w "(IN)UTILE ALIAS FILE: $filename"
+ wm iconname $w "ALIAS"
+
+ set fileid [open $filename "RDONLY CREAT"]
+ set testo [read $fileid]
+ close $fileid
+ frame $w.buttons
+ pack $w.buttons -side bottom -fill x -pady 2m
+ text $w.text -relief sunken -bd 2 -yscrollcommand "$w.scroll set" -setgrid 1 \
+	 -height 30
+ scrollbar $w.scroll -command "$w.text yview"
+ button $w.buttons.dismiss -text Dismiss -command "destroy $w"
+ button $w.buttons.save -text Save -command "inutile_write_data $w.text \"$filename\""
+ button $w.buttons.load -text Reload -command "inutile_read_data $w.text \"$filename\""
+ pack $w.buttons.dismiss $w.buttons.save $w.buttons.load -side left -expand 1
+ 
+ pack $w.scroll -side right -fill y
+ pack $w.text -expand yes -fill both
+ $w.text insert 0.0 $testo
+} 
+
+proc inutile_help_window {w filename} {
+ catch {destroy $w}
+ toplevel $w
+ wm title $w "(IN)UTILE ALIAS FILE"
+ wm iconname $w "ALIAS"
+ 
+ frame $w.buttons
+ pack $w.buttons -side bottom -fill x -pady 2m
+ button $w.buttons.dismiss -text Dismiss -command "destroy $w"
+ button $w.buttons.save -text Save -command "inutile_write_data $w.text \"$filename\""
+ pack $w.buttons.dismiss  $w.buttons.save -side left -expand 1
+ 
+ text $w.text -relief sunken -bd 2 -yscrollcommand "$w.scroll set" -setgrid 1 \
+	 -height 30 -width 90
+ scrollbar $w.scroll -command "$w.text yview"
+ pack $w.scroll -side right -fill y
+ pack $w.text -expand yes -fill both
+ set fileid [open $filename "RDONLY CREAT"]
+ $w.text insert 0.0 [read $fileid]
+ close $fileid
+} 
+
+proc inutile_translate {f} {
+  global UTILE_PATH netlist_dir
+  set p $UTILE_PATH
+  set savedir [pwd]
+  cd $netlist_dir
+  eval exec $p/preprocess.awk \"$f\" | $p/expand_alias.awk | $p/param.awk | $p/clock.awk | $p/stimuli.awk
+  cd $savedir
+}
+
+proc inutile { {filename {}}} {
+  global XSCHEM_SHAREDIR UTILE_PATH retval netlist_dir
+
+  toplevel .inutile
+  wm title .inutile "(IN)UTILE (Stefan Schippers, sschippe)"
+  wm iconname .inutile "(IN)UTILE"
+  set UTILE_PATH $XSCHEM_SHAREDIR/utile
+  set savedir [pwd]
+  cd $netlist_dir
+  set filename [file normalize $filename]
+  cd $savedir
+  if { ![string compare $filename  ""]  } then {
+   wm withdraw .inutile
+   tk_messageBox -type ok -message "Please give a file name as argument"
+   exit
+  }
+  set retval {}
+  frame .inutile.buttons
+  pack .inutile.buttons -side bottom -fill x -pady 2m
+  button .inutile.buttons.translate -text Translate -command "
+    inutile_write_data .inutile.text \"$filename\"
+    inutile_translate \"$filename\"
+    inutile_get_time"
+  button .inutile.buttons.dismiss -text Dismiss -command "destroy .inutile"
+  button .inutile.buttons.code -text "Help" -command "inutile_help_window .inutile.help $UTILE_PATH/utile.txt"
+  text .inutile.text -relief sunken -bd 2 -yscrollcommand ".inutile.scroll set" -setgrid 1 -height 30
+  scrollbar .inutile.scroll -command {.inutile.text yview}
+  button .inutile.buttons.save -text Save -command "
+    set retval \"$filename\"
+    set filename \[inutile_line {Filename}\]
+    inutile_write_data .inutile.text \"$filename\""
+  button .inutile.buttons.load -text Reload -command "
+    set retval \"$filename\"
+    set filename \[inutile_line {Filename}\]
+    inutile_read_data .inutile.text \"$filename\""
+  button .inutile.buttons.send -text "Template" -command "
+    if { !\[string compare \[.inutile.text get 0.0 {end - 1 chars}\]  {}\]} {
+      template  .inutile.text  $UTILE_PATH/template.stimuli}"
+  label .inutile.buttons.timelab -text "time:"
+  entry .inutile.buttons.time  -width  11
+  pack .inutile.buttons.dismiss .inutile.buttons.code \
+       .inutile.buttons.load .inutile.buttons.save .inutile.buttons.translate \
+       .inutile.buttons.send .inutile.buttons.timelab \
+       .inutile.buttons.time  -side left -expand 1
+  pack .inutile.scroll -side right -fill y
+  pack .inutile.text -expand yes -fill both
+  if { [file exists $filename] }  {  
+    set fileid [open $filename "RDONLY"]
+    .inutile.text insert 0.0 [read $fileid]
+    close $fileid
+  }
+  set tmp [.inutile.text index end]
+  regsub {\..*$} $tmp {} lines
+  for {set i 1} {$i <= $lines} {incr i} {
+   set tmp [.inutile.text get $i.0 "$i.0 lineend"]
+   if [regexp {^(include)|(\.include)} $tmp  ] { 
+    inutile_alias_window .inutile.tw$i [lindex $tmp 1] 
+   }
+  } 
+}
+
+### End INUTILE integration
 
 ### for tclreadline: disable customcompleters
 proc completer { text start end line } { return {}}
@@ -1096,42 +1273,6 @@ proc waves {} {
   }
 }
 # ============================================================
-
-proc utile_translate {schname} { 
-  global netlist_dir debug_var XSCHEM_SHAREDIR
-  global utile_gui_path utile_cmd_path
-
-  simuldir 
-  set tmpname [file rootname "$schname"]
-  eval exec {sh -c "cd \"$netlist_dir\"; \
-      XSCHEM_SHAREDIR=\"$XSCHEM_SHAREDIR\" \"$utile_cmd_path\" stimuli.$tmpname"}
-}
-
-proc utile_gui {schname} { 
-  global netlist_dir debug_var XSCHEM_SHAREDIR
-  global utile_gui_path OS
-
-  simuldir 
-  set tmpname [file rootname "$schname"]
-  if {$OS == "Windows"} {
-    eval exec {cmd /V /C "cd $netlist_dir && \
-    set XSCHEM_SHAREDIR=$XSCHEM_SHAREDIR&&set GUI_PATH=$utile_gui_path.bat&& \
-    !GUI_PATH! stimuli.$tmpname"}
-  } else {
-    eval exec {sh -c "cd \"$netlist_dir\"; \
-        XSCHEM_SHAREDIR=\"$XSCHEM_SHAREDIR\" \"$utile_gui_path\" stimuli.$tmpname"} &
-  }
-}
-
-proc utile_edit {schname} { 
-  global netlist_dir debug_var editor XSCHEM_SHAREDIR
-  global utile_gui_path utile_cmd_path
-
-  simuldir
-  set tmpname [file rootname "$schname"]
-  execute 0 sh -c "cd \"$netlist_dir\" && $editor stimuli.$tmpname && \
-      XSCHEM_SHAREDIR=\"$XSCHEM_SHAREDIR\" \"$utile_cmd_path\" stimuli.$tmpname"
-}
 
 proc get_shell { curpath } {
  global netlist_dir debug_var
@@ -4285,18 +4426,19 @@ proc build_widgets { {topwin {} } } {
     -variable local_netlist_dir \
     -command { if {$local_netlist_dir == 0 } { select_netlist_dir 1 } else { simuldir} }
   $topwin.menubar.simulation.menu add command -label {Configure simulators and tools} -command {simconf}
-  $topwin.menubar.simulation.menu add command -label {Utile Stimuli Editor (GUI)} \
-   -command {utile_gui [file tail [xschem get schname]]}
-  $topwin.menubar.simulation.menu add command -label "Utile Stimuli Editor ([lindex $editor 0])" \
-   -command {utile_edit [file tail [xschem get schname]]}
-  $topwin.menubar.simulation.menu add command -label {Utile Stimuli Translate} \
-   -command {utile_translate [file tail [xschem get schname]]}
-  $topwin.menubar.simulation.menu add command -label {Shell [simulation path]} \
-     -command {
-        if { [select_netlist_dir 0] ne "" } {
-          get_shell $netlist_dir
-        }
-      }
+  $topwin.menubar.simulation.menu add command -label {Utile Stimuli Editor (GUI)} -command {
+     simuldir
+     inutile stimuli.[file rootname [file tail [xschem get schname]]]
+  }
+  $topwin.menubar.simulation.menu add command -label {Utile Stimuli Translate} -command {
+     simuldir
+     utile_translate  stimuli.[file rootname [file tail [xschem get schname]]]
+  }
+  $topwin.menubar.simulation.menu add command -label {Shell [simulation path]} -command {
+     if { [select_netlist_dir 0] ne "" } {
+        get_shell $netlist_dir
+     }
+   }
   $topwin.menubar.simulation.menu add command -label {Edit Netlist} \
      -command {edit_netlist [file tail [xschem get schname]]}
   $topwin.menubar.simulation.menu add command -label {Send highlighted nets to viewer} \
