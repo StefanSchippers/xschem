@@ -2318,7 +2318,6 @@ double round_to_n_digits(double x, int n)
   return my_round(x / scale) * scale;
 }
 
-/* 
 double floor_to_n_digits(double x, int n)
 {
   double scale;
@@ -2334,7 +2333,6 @@ double ceil_to_n_digits(double x, int n)
   scale = pow(10.0, ceil(log10(fabs(x))) - n);
   return ceil(x / scale) * scale;
 }
-*/
 
 int place_text(int draw_text, double mx, double my)
 {

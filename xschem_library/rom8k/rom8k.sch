@@ -31,8 +31,8 @@ B 2 1860 -1180 3010 -1100 {flags=1
 y1 = 0
 y2 = 1
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="
 v(ldbl[0]) v(ldbl[16]) v(ldbl[32])
 v(ldbl[1]) v(ldbl[17]) v(ldbl[33])
@@ -43,8 +43,8 @@ B 2 1860 -1090 3010 -1010 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="
 v(ldl1x[0]) v(ldl1x[1]) v(ldl1x[2]) v(ldl1x[3])
 "
@@ -53,16 +53,16 @@ B 2 1860 -1000 3010 -920 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="v(lda[3])"
 color=12 unitx=n subdivy=2}
 B 2 1860 -1490 3010 -1280 {flags=1
 y1 = 0
 y2 = 2
 divy = 4
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="v(ldcp) v(ldyms[4]) v(ldyms[5]) v(ldyms[6]) v(ldyms[7])"
 color=6\\ 12\\ 13\\ 14\\ 15 unitx=n}
 B 2 1860 -910 3010 -830 {flags=1
@@ -70,32 +70,32 @@ y1 = 0
 y2 = 1.5
 subdivy=2
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="v(ldl1x[0])"
 color=4 unitx=n}
 B 2 1860 -730 3010 -650 {flags=1
-y1 = -0.1
-y2 = 1.5
+y1 = 0
+y2 = 1.6
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="v(ldprech)"
 color=4 unitx=n subdivy=2}
 B 2 1860 -640 3010 -560 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="v(lden) v(ldcp)"
 color=12\\ 18 unitx=n subdivy=2}
 B 2 1860 -550 3010 -470 {flags=1
 y1 = 0
-y2 = 1.5
+y2 = 1.6
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="
 v(ldwl[0]) v(ldwl[1]) v(ldwl[2]) v(ldwl[3]) 
 v(ldwl[4]) v(ldwl[5]) v(ldwl[6]) v(ldwl[8]) 
@@ -105,56 +105,57 @@ B 2 1860 -460 3010 -380 {flags=1
 y1 = 0
 y2 = 1
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="v(ldymsref)"
 color=3 unitx=n subdivy=4}
 B 2 1860 -370 3010 -290 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="v(ldoe)"
 color=4 unitx=n subdivy=2}
 B 2 1860 -280 3010 -200 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="v(lden)"
 color=4 unitx=n subdivy=2}
 B 2 1860 -190 3010 -110 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="v(lden) v(ldprech)"
 color=12\\ 16 unitx=n subdivy=2}
 B 2 1860 -100 3010 -20 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="v(lden) v(ldcp)"
 color=12\\ 5 unitx=n subdivy=2}
 B 2 1860 -820 3010 -740 {flags=1
 y1 = 0
-y2 = 1.5
+y2 = 1.6
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+subdivy=2
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="v(ldl1x[1])"
-color=4 unitx=n subdivy=2}
+color=4 unitx=n}
 B 2 1860 -1270 3010 -1190 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.26503e-07
-x2=1.66157e-07  divx=10
+x1=1.18117e-07
+x2=2.27926e-07  divx=10
 node="v(lden) v(ldprech)"
 color=4\\ 6 unitx=n}
 B 7 950 -250 980 -80 {}
@@ -168,7 +169,7 @@ T {was: vss} 880 -980 0 0 0.4 0.4 {}
 T {16KB ROM Macrocell
 16 bit Data I/O x 8KWords} 210 -1120 0 0 0.7 0.7 {}
 T {Select one or more graphs (and no other objects)
-and use arrow keys to zoom / pan waveforms} 1460 -1100 0 0 0.3 0.3 {}
+and use arrow keys to zoom / pan waveforms} 1370 -1110 0 0 0.3 0.3 {}
 N 150 -580 150 -560 {lab=vss}
 N 150 -420 150 -400 {lab=vss}
 N 10 -270 10 -250 {lab=vss}
@@ -359,7 +360,7 @@ C {lab_pin.sym} 1670 -740 0 0 {name=l2 lab=LDWL[16:0]}
 C {spice_probe.sym} 1670 -740 0 0 {name=p46 analysis=tran}
 C {lab_pin.sym} 1670 -790 0 0 {name=l4 lab=LDBL[0,16,32,1,17,33,2,18,34]}
 C {spice_probe.sym} 1670 -790 0 0 {name=p91 analysis=tran}
-C {launcher.sym} 1475 -1135 0 0 {name=h1 
+C {launcher.sym} 1385 -1145 0 0 {name=h1 
 descr="Select arrow and 
 Ctrl-Left-Click to load/unload waveforms" 
 tclcommand="

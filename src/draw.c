@@ -1554,11 +1554,11 @@ int read_dataset(FILE *fd)
       if(sim_type) {
         done_header = 1;
         read_binary_block(fd); 
-        dbg(0, "read_dataset(): read binary block, nvars=%d npoints=%d\n", xctx->nvars, npoints);
+        dbg(1, "read_dataset(): read binary block, nvars=%d npoints=%d\n", xctx->nvars, npoints);
         xctx->datasets++;
         exit_status = 1;
       } else { 
-        dbg(0, "read_dataset(): skip binary block, nvars=%d npoints=%d\n", xctx->nvars, npoints);
+        dbg(1, "read_dataset(): skip binary block, nvars=%d npoints=%d\n", xctx->nvars, npoints);
         fseek(fd, xctx->nvars * npoints * sizeof(double), SEEK_CUR); /* skip binary block */
       }
       done_points = 0;
@@ -1601,7 +1601,7 @@ int read_dataset(FILE *fd)
       variables = 1 ;
     }
   }
-  dbg(0, "read_dataset(): datasets=%d, last npoints=%d, nvars=%d\n",
+  dbg(1, "read_dataset(): datasets=%d, last npoints=%d, nvars=%d\n",
     xctx->datasets,  xctx->npoints[xctx->datasets-1], xctx->nvars);
   return exit_status;
 }

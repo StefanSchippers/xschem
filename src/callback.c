@@ -415,7 +415,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           if(xctx->mousex_snap < W_X(wx1)) {
             int i, j;
             double v;
-            double min, max;
+            double min=0.0, max=0.0;
             int first = 1;
             char *saven, *nptr, *ntok, *node = NULL;;
             my_strdup2(1426, &node, get_tok_value(xctx->rect[c][n].prop_ptr,"node",0));
@@ -432,6 +432,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               }
             }
             if(max == min) max += 0.01;
+            min = floor_to_n_digits(min, 2);
+            max = ceil_to_n_digits(max, 2);
             my_free(1427, &node);
             my_snprintf(s, S(s), "%g", min);
             my_strdup(1422, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "y1", s));
