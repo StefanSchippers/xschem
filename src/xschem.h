@@ -894,6 +894,8 @@ extern char cli_opt_netlist_dir[PATH_MAX];
 extern Xschem_ctx *xctx;
 
 /*  FUNCTIONS */
+extern int get_raw_index(const char *node);
+extern double get_raw_value(int dataset, int idx, int point);
 extern int schematic_waves_loaded(void);
 extern void calc_graph_area(int c, int i, double *x1, double *y1,double *x2, double *y2,
              double *marginx,double *marginy);

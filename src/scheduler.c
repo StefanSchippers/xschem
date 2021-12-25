@@ -1944,30 +1944,28 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int i;
       char s[30];
+      int dataset = 0;
       cmd_found = 1;
       Tcl_ResetResult(interp);
       if(xctx->values) {
+        if(argc > 5) dataset = atoi(argv[5]);
         if(argc > 4) {
           /* xschem rawfile_query value v(ldcp) 123 */
           if(!strcmp(argv[2], "value")) {
-            struct int_hashentry *entry;
             int point = atoi(argv[4]);
             const char *node = argv[3];
             int idx = -1;
-            if(point >= 0 && point < xctx->npoints[0]) {
+            if(point >= 0 && point < xctx->npoints[dataset]) {
               if(isonlydigit(node)) {
                 int i = atoi(node);
                 if(i >= 0 && i < xctx->nvars) {
                   idx = i;
                 }
               } else {
-                entry = int_hash_lookup(xctx->raw_table, node, 0, XLOOKUP);
-                if(entry) {
-                  idx = entry->value;
-                }
+                idx = get_raw_index(node);
               }
               if(idx >= 0) {
-                double val =   xctx->values[idx][point];
+                double val =   get_raw_value(dataset, idx, point);
                 my_snprintf(s, S(s), "%g", val);
                 Tcl_AppendResult(interp, s, NULL);
               }

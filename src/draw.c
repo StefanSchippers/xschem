@@ -1651,7 +1651,23 @@ int read_rawfile(const char *f)
   dbg(0, "read_rawfile(): failed to open file %s for reading\n", f);
   return 0;
 }
+int get_raw_index(const char *node)
+{
+  struct int_hashentry *entry;
+  entry = int_hash_lookup(xctx->raw_table, node, 0, XLOOKUP);
+  if(entry) return entry->value;
+  return -1;
+}
 
+double get_raw_value(int dataset, int idx, int point)
+{
+  int i, ofs;
+  ofs = 0;
+  for(i = 0; i < dataset; i++) {
+    ofs += xctx->npoints[i];
+  }
+  return xctx->values[idx][ofs + point];
+}
 void calc_graph_area(int c, int i, double *x1, double *y1,double *x2,double *y2,
      double *marginx, double *marginy)
 {
@@ -1936,9 +1952,8 @@ void draw_graph(int c, int i, int flags)
     dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
     if(ctok && ctok[0]) wave_color = atoi(ctok);
     if(stok && stok[0]) {
-      entry = int_hash_lookup(xctx->raw_table, stok, 0, XLOOKUP); 
-      if(entry && entry->value) sweep_idx = entry->value;
-      else sweep_idx = 0;
+      sweep_idx = get_raw_index(stok);
+      if( sweep_idx == -1) sweep_idx = 0;
     }
     /* draw sweep variable(s) on x-axis */
     if(wcnt == 0 || (stok && stok[0])) {
