@@ -318,7 +318,10 @@ tclcommand="textwindow $netlist_dir/[file tail [file rootname [ xschem get schna
 }
 C {spice_probe.sym} 360 -1220 0 0 {name=p45 analysis=tran voltage=0.0000e+00}
 C {spice_probe.sym} 360 -1060 0 0 {name=p46 analysis=tran voltage=0.0000e+00}
-C {launcher.sym} 1115 -985 0 0 {name=h5 
-descr="Ctrl-Left-Click on arrow
-to load waveforms" 
-tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}
+C {launcher.sym} 1095 -985 0 0 {name=h5 
+descr="Select arrow and 
+Ctrl-Left-Click to load/unload waveforms" 
+tclcommand="
+xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+"
+}

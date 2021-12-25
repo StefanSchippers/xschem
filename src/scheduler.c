@@ -1954,7 +1954,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             int point = atoi(argv[4]);
             const char *node = argv[3];
             int idx = -1;
-            if(point >= 0 && point < xctx->npoints) {
+            if(point >= 0 && point < xctx->npoints[0]) {
               if(isonlydigit(node)) {
                 int i = atoi(node);
                 if(i >= 0 && i < xctx->nvars) {
@@ -1967,7 +1967,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                 }
               }
               if(idx >= 0) {
-                double val =   xctx->values[point][idx];
+                double val =   xctx->values[idx][point];
                 my_snprintf(s, S(s), "%g", val);
                 Tcl_AppendResult(interp, s, NULL);
               }
@@ -1985,7 +1985,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         } else if(argc > 2) {
           if(!strcmp(argv[2], "points")) {
-            my_snprintf(s, S(s), "%d", xctx->npoints);
+            my_snprintf(s, S(s), "%d", xctx->npoints[0]);
             Tcl_AppendResult(interp, s, NULL);
           } else if(!strcmp(argv[2], "vars")) {
             my_snprintf(s, S(s), "%d", xctx->nvars);

@@ -1487,19 +1487,30 @@ void read_binary_block(FILE *fd)
 {
   int p, v;
   double *tmp;
+  size_t size = 0;
+  int offset = 0;
+
+
+  for(p = 0 ; p < xctx->datasets; p++) {
+    size += xctx->nvars * xctx->npoints[p];
+    offset += xctx->npoints[p];
+  }
+
+  /* read buffer */
   tmp = my_calloc(1405, xctx->nvars, sizeof(double *));
   /* allocate storage for binary block */
-  xctx->values = my_calloc(118, xctx->nvars, sizeof(RAW_FLOAT *));
+  if(!xctx->values) xctx->values = my_calloc(118, xctx->nvars, sizeof(RAW_FLOAT *));
   for(p = 0 ; p < xctx->nvars; p++) {
-    xctx->values[p] = my_calloc(372, xctx->npoints, sizeof(RAW_FLOAT));
+    my_realloc(372, &xctx->values[p], (size + xctx->npoints[xctx->datasets]) * sizeof(double));
   }
   /* read binary block */
-  for(p = 0; p < xctx->npoints; p++) {
+  for(p = 0; p < xctx->npoints[xctx->datasets]; p++) {
     if(fread(tmp,  sizeof(double), xctx->nvars, fd) != xctx->nvars) {
        dbg(0, "Warning: binary block is not of correct size\n");
     }
+    /* assign to xschem struct, memory aligned per variable, for cache locality */
     for(v = 0; v < xctx->nvars; v++) {
-      xctx->values[v][p] = tmp[v];
+      xctx->values[v][offset + p] = tmp[v];
     }
   }
   my_free(1406, &tmp);
@@ -1533,62 +1544,66 @@ int read_dataset(FILE *fd)
   int variables = 0, i, done_points = 0;
   char line[PATH_MAX], varname[PATH_MAX];
   char *ptr;
-  int transient = 0;
-  int dc = 0;
+  int sim_type = 0; /* 1: transient, 2: dc, 4: ... */
   int done_header = 0;
-  xctx->datasets = 0;
-  xctx->npoints = 0;
-  xctx->nvars = 0; 
+  int exit_status = 0;
   while((ptr = fgets(line, sizeof(line), fd)) ) {
-    if(!strncmp(line, "Binary:", 7)) {
-      done_header = 1;
-      break; /* start of binary block */
-    }
-    if((dc || transient) && !done_header) { 
-      if(variables) {
-        sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
-        xctx->names[i] = my_malloc(415, strlen(varname) + 1);
-        strcpy(xctx->names[i], varname);
-        /* use hash table to store index number of variables */
-        int_hash_lookup(xctx->raw_table, xctx->names[i], i, XINSERT_NOREPLACE);
-        dbg(1, "names[%d] = %s\n", i, xctx->names[i]);
+    /* after this line comes the binary blob made of nvars * npoints * sizeof(double) bytes */
+    if(!strcmp(line, "Binary:\n")) {
+      int npoints = xctx->npoints[xctx->datasets];
+      if(sim_type) {
+        done_header = 1;
+        read_binary_block(fd); 
+        dbg(0, "read_dataset(): read binary block, nvars=%d npoints=%d\n", xctx->nvars, npoints);
+        xctx->datasets++;
+        exit_status = 1;
+      } else { 
+        dbg(0, "read_dataset(): skip binary block, nvars=%d npoints=%d\n", xctx->nvars, npoints);
+        fseek(fd, xctx->nvars * npoints * sizeof(double), SEEK_CUR); /* skip binary block */
       }
-      if(!strncmp(line, "Variables:", 10)) {
-        variables = 1;
-        xctx->names = my_calloc(426, xctx->nvars, sizeof(char *));
-      }
+      done_points = 0;
     }
-    if(!strncmp(line, "No. of Data Rows :", 18)) {
-      sscanf(line, "No. of Data Rows : %d", &xctx->npoints);
+    else if(!strncmp(line, "Plotname: Transient Analysis", 28)) {
+      if(sim_type && sim_type != 1) sim_type = 0;
+      else sim_type = 1;
+    }
+    else if(!strncmp(line, "Plotname: DC transfer characteristic", 36)) {
+      if(sim_type && sim_type != 2) sim_type = 0;
+      else sim_type = 2;
+    }
+    /* points and vars are needed for all sections (also ones we are not interested in)
+     * to skip binary blobs */
+    else if(!strncmp(line, "No. of Data Rows :", 18)) {
+      /* array of number of points of datasets (they are of varialbe length) */
+      my_realloc(1414, &xctx->npoints, (xctx->datasets+1) * sizeof(int));
+      sscanf(line, "No. of Data Rows : %d", &xctx->npoints[xctx->datasets]);
       done_points = 1;
     }
-    if(!strncmp(line, "No. Variables:", 14)) {
+    else if(!strncmp(line, "No. Variables:", 14)) {
       sscanf(line, "No. Variables: %d", &xctx->nvars);
     }
-    if(!strncmp(line, "Plotname: Transient Analysis", 28)) {
-      transient = 1;
-      xctx->datasets++;
+    else if(!done_points && !strncmp(line, "No. Points:", 11)) {
+      my_realloc(1415, &xctx->npoints, (xctx->datasets+1) * sizeof(int));
+      sscanf(line, "No. Points: %d", &xctx->npoints[xctx->datasets]);
     }
-    if(!strncmp(line, "Plotname: DC transfer characteristic", 36)) {
-      dc = 1;
-      xctx->datasets++;
+    if(!done_header && variables) {
+      /* get the list of lines with index and node name */
+      if(!xctx->names) xctx->names = my_calloc(426, xctx->nvars, sizeof(char *));
+      sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
+      xctx->names[i] = my_malloc(415, strlen(varname) + 1);
+      strcpy(xctx->names[i], varname);
+      /* use hash table to store index number of variables */
+      int_hash_lookup(xctx->raw_table, xctx->names[i], i, XINSERT_NOREPLACE);
+      dbg(1, "read_dataset(): get node list -> names[%d] = %s\n", i, xctx->names[i]);
     }
-    if(!done_points && !strncmp(line, "No. Points:", 11)) {
-      sscanf(line, "No. Points: %d", &xctx->npoints);
+    /* after this line comes the list of indexes and associated nodes */
+    if(sim_type && !strncmp(line, "Variables:", 10)) {
+      variables = 1 ;
     }
   }
-  if(!ptr) {
-    dbg(1, "EOF found\n");
-    variables = -1; /* EOF */
-  }
-  dbg(1, "npoints=%d, nvars=%d\n", xctx->npoints, xctx->nvars);
-  if(variables == 1) {
-    read_binary_block(fd); 
-  } else if(variables == 0) { 
-    dbg(1, "seeking past binary block\n");
-    fseek(fd, xctx->nvars * xctx->npoints * sizeof(double), SEEK_CUR); /* skip binary block */
-  }
-  return variables;
+  dbg(0, "read_dataset(): datasets=%d, last npoints=%d, nvars=%d\n",
+    xctx->datasets,  xctx->npoints[xctx->datasets-1], xctx->nvars);
+  return exit_status;
 }
 
 void free_rawfile(void)
@@ -1602,11 +1617,11 @@ void free_rawfile(void)
   for(i = 0 ; i < xctx->nvars; i++) {
     my_free(512, &xctx->values[i]);
   }
+  my_free(1413, &xctx->npoints);
   my_free(528, &xctx->values);
   my_free(968, &xctx->names);
   my_free(1393, &xctx->raw_schname);
   xctx->datasets = 0;
-  xctx->npoints = 0;
   xctx->nvars = 0;
   int_hash_free(xctx->raw_table);
   draw();
@@ -1615,26 +1630,28 @@ void free_rawfile(void)
 /* read a ngspice raw file (with data portion in binary format) */
 int read_rawfile(const char *f)
 {
-  int res;
+  int res = 0;
   FILE *fd;
-  fd = fopen(f, "r");
-  if(fd) for(;;) {
-    if((res = read_dataset(fd)) == 1) {
-      break;
-    } else if(res == -1) {  /* EOF */
-      dbg(0, "read_rawfile(): dataset not found in raw file\n");
-      return EXIT_FAILURE;
-    }
-  } else {
-    dbg(0, "read_rawfile(): failed to open file for reading\n");
-    return EXIT_FAILURE;
+  if(xctx->values || xctx->npoints || xctx->nvars || xctx->datasets) {
+    dbg(0, "read_rawfile(): must clear current raw file before loading new\n");
+    return 0;
   }
-  if(fd) fclose(fd);
-  dbg(0, "Raw file data read\n");
-  my_strdup2(1394, &xctx->raw_schname, xctx->current_name);
-  draw();
-  return EXIT_SUCCESS;
+  fd = fopen(f, "r");
+  if(fd) {
+    if((res = read_dataset(fd)) == 1) {
+      dbg(0, "Raw file data read\n");
+      my_strdup2(1394, &xctx->raw_schname, xctx->sch[xctx->currsch]);
+      draw();
+    } else {
+      dbg(0, "read_rawfile(): no useful data found\n");
+    }
+    fclose(fd);
+    return res;
+  }
+  dbg(0, "read_rawfile(): failed to open file %s for reading\n", f);
+  return 0;
 }
+
 void calc_graph_area(int c, int i, double *x1, double *y1,double *x2,double *y2,
      double *marginx, double *marginy)
 {
@@ -1731,8 +1748,8 @@ static double get_unit(const char *val)
 int schematic_waves_loaded(void)
 {
   if(xctx->values && xctx->raw_schname) 
-    if( !strcmp(xctx->raw_schname, get_cell_w_ext(xctx->sch[0], 0)) ||
-        !strcmp(xctx->raw_schname, xctx->current_name) ) return 1;
+    if( !strcmp(xctx->raw_schname, xctx->sch[0]) ||
+        !strcmp(xctx->raw_schname, xctx->sch[xctx->currsch]) ) return 1;
   return 0;
 }
 
@@ -1781,9 +1798,7 @@ void draw_graph(int c, int i, int flags)
   char tmpstr[200];
   char *saven, *savec, *saves, *nptr, *cptr, *sptr, *ntok, *ctok, *stok;
   int wcnt = 0;
-  double *xarr = NULL, *yarr = NULL;
- 
-
+  int dataset = -1;
   /* container (embedding rectangle) coordinates */
   rx1 = r->x1;
   ry1 = r->y1;
@@ -1818,6 +1833,10 @@ void draw_graph(int c, int i, int flags)
   if(val[0]) wx2 = atof(val);
   val = get_tok_value(r->prop_ptr,"y2",0);
   if(val[0]) wy2 = atof(val);
+  /* plot single dataset */
+  val = get_tok_value(r->prop_ptr,"dataset",0);
+  if(val[0]) dataset = atoi(val);
+  if(dataset >= xctx->datasets) dataset =  xctx->datasets - 1;
   /* cache coefficients for faster graph coord transformations */
   cx = (x2 - x1) / (wx2 - wx1);
   dx = x1 - wx1 * cx;
@@ -1826,11 +1845,11 @@ void draw_graph(int c, int i, int flags)
 
   /* calculate dash length for grid lines */
   dash_sizex = 1.5 * xctx->mooz;
-  dash_sizex = dash_sizex > 127.0 ? 127 : dash_sizex;
-  if(dash_sizex <= 1) dash_sizex = 1;
+  dash_sizex = dash_sizex > 2.0 ? 2.0 : dash_sizex;
+  if(dash_sizex <= 1.0) dash_sizex = 1.0;
   dash_sizey = 1.5 * xctx->mooz;
-  dash_sizey = dash_sizey > 127.0 ? 127 : dash_sizey;
-  if(dash_sizey <= 1) dash_sizey = 1;
+  dash_sizey = dash_sizey > 2.0 ? 2.0 : dash_sizey;
+  if(dash_sizey <= 1.0) dash_sizey = 1.0;
 
   /* x axis, y axis, label text sizes */
   txtsizey = h / divy / 90 ;
@@ -1846,8 +1865,9 @@ void draw_graph(int c, int i, int flags)
   /* background */
   if((flags & 2)  ) {
     filledrect(0, NOW, rx1, ry1, rx2, ry2);
-    drawrect(c, NOW, rx1, ry1, rx2, ry2, 1);
   }
+  /* graph bounding box */
+  drawrect(c, NOW, rx1, ry1, rx2, ry2, 2);
 
   /* vertical grid lines */
   deltax = axis_increment(wx1, wx2, divx);
@@ -1901,8 +1921,6 @@ void draw_graph(int c, int i, int flags)
   if(wx1 <= 0 && wx2 >= 0) drawline(2, ADD, W_X(0),   W_Y(wy2), W_X(0),   W_Y(wy1), 0);
   drawline(2, END, 0.0, 0.0, 0.0, 0.0, 0);
   /* if simulation data is loaded and matches schematic draw data */
-  xarr = my_malloc(1401, xctx->npoints * sizeof(double));
-  yarr = my_malloc(1402, xctx->npoints * sizeof(double));
   my_strdup2(1389, &node, get_tok_value(r->prop_ptr,"node",0));
   my_strdup2(1390, &color, get_tok_value(r->prop_ptr,"color",0)); 
   my_strdup2(1407, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
@@ -1937,50 +1955,72 @@ void draw_graph(int c, int i, int flags)
     /* quickly find index number of ntok variable to be plotted */
     entry = int_hash_lookup(xctx->raw_table, ntok, 0, XLOOKUP);
     if(entry) {
-      int p;
-      int poly_npoints = 0;
-      int v = entry->value;
-      int first = -1, last = 0;
+      int p, dset, ofs;
+      int poly_npoints;
+      int v;
+      int first, last;
       double xx, yy;
-      double start = (wx1 <= wx2) ? wx1 : wx2;
-      double end = (wx1 <= wx2) ? wx2 : wx1;
+      double start;
+      double end;
+      double *xarr = NULL, *yarr = NULL;
 
       bbox(START, 0.0, 0.0, 0.0, 0.0);
       bbox(ADD,x1, y1, x2, y2);
       bbox(SET, 0.0, 0.0, 0.0, 0.0);
-      /* skip if nothing in viewport */
-      if(xctx->values[sweep_idx][xctx->npoints -1] > start) {
-        /* Process "npoints" simulation items 
-         * p loop split repeated 2 timed (for xx and yy points) to preserve cache locality */
-        for(p = 0 ; p < xctx->npoints; p++) {
-          xx = xctx->values[sweep_idx][p];
-          if(xx > end) {
-            break;
-          }
-          if(xx >= start) {
-            if(first == -1) first = p;
-            /* Build poly x array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
-            xarr[poly_npoints] = W_X(xx);
-            poly_npoints++;
-          }
-        }
-        last = p;
-        if(first != -1) {
+
+
+      ofs = 0;
+      v = entry->value;
+      start = (wx1 <= wx2) ? wx1 : wx2;
+      end = (wx1 <= wx2) ? wx2 : wx1;
+      /* loop through all datasets found in raw file */
+      for(dset = 0 ; dset < xctx->datasets; dset++) {
+        if(dataset == -1 || dset == dataset) {
+          first = -1;
+          last = 0;
           poly_npoints = 0;
-          for(p = first ; p < last; p++) {
-            yy = xctx->values[v][p];
-            /* Build poly y array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
-            yarr[poly_npoints] = W_Y(yy);
-            poly_npoints++;
+          my_realloc(1401, &xarr, xctx->npoints[dset] * sizeof(double));
+          my_realloc(1402, &yarr, xctx->npoints[dset] * sizeof(double));
+          /* skip if nothing in viewport */
+          if(xctx->values[sweep_idx][ofs + xctx->npoints[dset] -1] > start) {
+            /* Process "npoints" simulation items 
+             * p loop split repeated 2 timed (for xx and yy points) to preserve cache locality */
+            for(p = ofs ; p < ofs + xctx->npoints[dset]; p++) {
+              xx = xctx->values[sweep_idx][p];
+              if(xx > end) {
+                break;
+              }
+              if(xx >= start) {
+                if(first == -1) first = p;
+                /* Build poly x array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
+                xarr[poly_npoints] = W_X(xx);
+                poly_npoints++;
+              }
+            }
+            last = p;
+            if(first != -1) {
+              poly_npoints = 0;
+              for(p = first ; p < last; p++) {
+                yy = xctx->values[v][p];
+                /* Build poly y array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
+                yarr[poly_npoints] = W_Y(yy);
+                poly_npoints++;
+              }
+              /* plot data */
+              drawpolygon(wave_color, 0, xarr, yarr, poly_npoints, 0, 0);
+            }
           }
-          /* plot data */
-          drawpolygon(wave_color, 0, xarr, yarr, poly_npoints, 0, 0);
-        }
-      }
+        } /* if(dataset == -1 || dset == dataset) */
+
+        /* offset pointing to next dataset */
+        ofs += xctx->npoints[dset];
+      } /* for(dset...) */
+      my_free(1403, &xarr);
+      my_free(1404, &yarr);
       bbox(END, 0.0, 0.0, 0.0, 0.0);
-    }
+    }/* if(entry) */
     wcnt++;
-  }
+  } /* while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) */
   if(flags & 1) {
     bbox(START, 0.0, 0.0, 0.0, 0.0);
     bbox(ADD, rx1, ry1, rx2, ry2);
@@ -1991,8 +2031,6 @@ void draw_graph(int c, int i, int flags)
     }
     bbox(END, 0.0, 0.0, 0.0, 0.0);
   }
-  my_free(1403, &xarr);
-  my_free(1404, &yarr);
   my_free(1391, &node);
   my_free(1392, &color);
   my_free(1408, &sweep);
@@ -2088,7 +2126,6 @@ void draw(void)
     }
     if(!xctx->only_probes) {
         struct iterator_ctx ctx;
-        int waves = schematic_waves_loaded();
         dbg(3, "draw(): check4\n");
         for(c=0;c<cadlayers;c++) {
           if(xctx->draw_single_layer!=-1 && c != xctx->draw_single_layer) continue;
@@ -2100,7 +2137,7 @@ void draw(void)
           }
           if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c];i++) {
             xRect *r = &xctx->rect[c][i]; 
-            if( (c != 2 || r->flags != 1) || waves ) {
+            if(c != 2 || r->flags != 1 )  {
               drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
               filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
             }

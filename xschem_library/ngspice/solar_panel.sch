@@ -217,7 +217,10 @@ C {spice_probe.sym} 1160 -480 0 0 {name=p1 analysis=tran}
 C {spice_probe.sym} 360 -450 0 0 {name=p2 analysis=tran}
 C {spice_probe.sym} 860 -550 0 1 {name=p3 analysis=tran}
 C {spice_probe.sym} 100 -450 0 1 {name=p4 analysis=tran}
-C {launcher.sym} 1185 -1055 0 0 {name=h5 
-descr="Ctrl-Left-Click on arrow
-to load waveforms" 
-tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}
+C {launcher.sym} 1125 -1045 0 0 {name=h3 
+descr="Select arrow and 
+Ctrl-Left-Click to load/unload waveforms" 
+tclcommand="
+xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+"
+}

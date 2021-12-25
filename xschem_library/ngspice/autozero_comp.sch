@@ -18,7 +18,7 @@ L 4 410 -150 570 -150 {}
 L 4 570 -170 570 -150 {}
 L 4 570 -170 690 -170 {}
 L 7 1090 -260 2520 -260 {}
-B 2 260 -1080 720 -980 {flags=1
+B 2 260 -1080 720 -920 {flags=1
 y1 = 0
 y2 = 1
 divy = 5
@@ -26,7 +26,8 @@ x1=1.25e-07
 x2=3.75e-07
 divx=10
 node="v(cal) v(saout)"
-color="4 5"}
+color="4 5"
+}
 B 2 260 -1220 720 -1090 {flags=1
 y1 = 0.645
 y2 = 0.655
@@ -369,7 +370,10 @@ tclcommand="xschem netlist; xschem simulate"}
 C {parax_cap.sym} 980 -1090 0 0 {name=c4  value=5f}
 C {parax_cap.sym} 1470 -1090 0 0 {name=c6  value=5f}
 C {parax_cap.sym} 1960 -1090 0 0 {name=c7  value=5f}
-C {launcher.sym} 325 -1355 0 0 {name=h1 
+C {launcher.sym} 315 -1365 0 0 {name=h1 
 descr="Select arrow and 
-Ctrl-Right-Click to load waveforms" 
-tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}
+Ctrl-Left-Click to load/unload waveforms" 
+tclcommand="
+xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+"
+}

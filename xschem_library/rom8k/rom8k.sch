@@ -359,7 +359,10 @@ C {lab_pin.sym} 1670 -740 0 0 {name=l2 lab=LDWL[16:0]}
 C {spice_probe.sym} 1670 -740 0 0 {name=p46 analysis=tran}
 C {lab_pin.sym} 1670 -790 0 0 {name=l4 lab=LDBL[0,16,32,1,17,33,2,18,34]}
 C {spice_probe.sym} 1670 -790 0 0 {name=p91 analysis=tran}
-C {launcher.sym} 1565 -1135 0 0 {name=h5 
-descr="Ctrl-Left-Click on arrow
-to load waveforms" 
-tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}
+C {launcher.sym} 1475 -1135 0 0 {name=h1 
+descr="Select arrow and 
+Ctrl-Left-Click to load/unload waveforms" 
+tclcommand="
+xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+"
+}

@@ -162,7 +162,10 @@ C {lab_pin.sym} 540 -760 0 0 {name=p14 lab=A}
 C {cmos_inv.sym} 580 -850 0 1 {name=Xinv3 WN=3u WP=5u LLN=3u LLP=3u}
 C {lab_pin.sym} 620 -760 0 1 {name=p2 lab=Z}
 C {cmos_inv.sym} 580 -760 0 0 {name=Xinv1 WN=3u WP=5u LLN=3u LLP=3u}
-C {launcher.sym} 105 -1015 0 0 {name=h5 
-descr="Ctrl-Left-Click on arrow
-to load waveforms" 
-tclcommand="xschem raw_read $netlist_dir/[file rootname [xschem get current_name]].raw"}
+C {launcher.sym} 85 -1015 0 0 {name=h1 
+descr="Select arrow and 
+Ctrl-Left-Click to load/unload waveforms" 
+tclcommand="
+xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+"
+}

@@ -266,7 +266,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if(key == 'f') {
         if(xctx->values) {
           xx1 = 0.0;
-          xx2 = xctx->values[0][xctx->npoints -1];
+          xx2 = xctx->values[0][xctx->npoints[0] -1];
           my_snprintf(s, S(s), "%g", xx1);
           my_strdup(1409, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x1", s));
           my_snprintf(s, S(s), "%g", xx2);

@@ -694,7 +694,7 @@ typedef struct {
   char **names;
   RAW_FLOAT **values;
   int nvars;
-  int npoints;
+  int *npoints;
   int datasets;
   struct int_hashentry **raw_table;
   char *raw_schname;
