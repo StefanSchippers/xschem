@@ -254,7 +254,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       cy = (y1 - y2) / (wy2 - wy1);
       dy = y2 - wy1 * cy;
       dbg(1, "%g %g %g %g - %d %d\n", wx1, wy1, wx2, wy2, divx, divy);
-      if(event == MotionNotify && (state & (Button2Mask | Button1Mask) && !(state & ShiftMask) )) {
+      if(event == MotionNotify && 
+            (state & (Button2Mask | Button1Mask) && !(state & ShiftMask) ) &&
+            !(bottom || (xctx->ui_state & GRAPHPAN))) {
         double delta;
         if(left) {
           delta = (wy2 - wy1) / divy;
@@ -489,26 +491,25 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
         need_redraw = 1;
       }
-      else if( ((state & ShiftMask) && event == ButtonPress && (button == Button1)) || 
-               ((state & ShiftMask) && event == MotionNotify && (state & Button1Mask)) ) {
-        if(bottom || (xctx->ui_state & GRAPHPAN)) {
-          double wwx1, wwx2, p, delta, ccx, ddx;
+      else if( ( ( event == ButtonPress && (button == Button1)) || 
+               ( event == MotionNotify && (state & Button1Mask)) ) &&
+                (bottom || (xctx->ui_state & GRAPHPAN)) ) {
+        double wwx1, wwx2, p, delta, ccx, ddx;
 
-          xctx->ui_state |= GRAPHPAN;
-          delta = wx2 - wx1;
-          wwx1 = 0; /* <<<< */
-          wwx2 = get_raw_value(dataset, 0, xctx->npoints[dataset] - 1);
-          ccx = (x2 - x1) / (wwx2 - wwx1);
-          ddx = x1 - wwx1 * cx;
-          p = (xctx->mousex_snap - ddx) / ccx;
-          xx1 = p - delta / 2.0;
-          xx2 = p + delta / 2.0;
-          my_snprintf(s, S(s), "%g", xx1);
-          my_strdup(1442, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x1", s));
-          my_snprintf(s, S(s), "%g", xx2);
-          my_strdup(1443, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
-          need_redraw = 1;
-        }
+        xctx->ui_state |= GRAPHPAN;
+        delta = wx2 - wx1;
+        wwx1 = 0; /* <<<< */
+        wwx2 = get_raw_value(dataset, 0, xctx->npoints[dataset] - 1);
+        ccx = (x2 - x1) / (wwx2 - wwx1);
+        ddx = x1 - wwx1 * cx;
+        p = (xctx->mousex_snap - ddx) / ccx;
+        xx1 = p - delta / 2.0;
+        xx2 = p + delta / 2.0;
+        my_snprintf(s, S(s), "%g", xx1);
+        my_strdup(1442, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x1", s));
+        my_snprintf(s, S(s), "%g", xx2);
+        my_strdup(1443, &xctx->rect[c][n].prop_ptr, subst_token(xctx->rect[c][n].prop_ptr, "x2", s));
+        need_redraw = 1;
       }
       else if(!(state & ShiftMask) && event == ButtonPress &&
              (button == Button2 || button == Button1 || button == Button3)) {
