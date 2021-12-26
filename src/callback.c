@@ -500,7 +500,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           ccx = (x2 - x1) / (wwx2 - wwx1);
           ddx = x1 - wwx1 * cx;
           p = (xctx->mousex_snap - ddx) / ccx;
-          dbg(0, "p=%g\n", p);
           xx1 = p - delta / 2.0;
           xx2 = p + delta / 2.0;
           my_snprintf(s, S(s), "%g", xx1);
