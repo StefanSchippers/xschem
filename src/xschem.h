@@ -679,7 +679,7 @@ typedef struct {
   /* bbox */
   int bbx1, bbx2, bby1, bby2;
   int savew, saveh, savex1, savex2, savey1, savey2;
-  int sem;
+  int sem; /* set to 1 if a clipping bbox is set (void bbox() ) */
   XRectangle savexrect;
   /* new_prop_string */
   char prefix;

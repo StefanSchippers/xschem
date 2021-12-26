@@ -298,7 +298,34 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        xctx->ui_state |= START_SYMPIN;
        Tcl_ResetResult(interp);
     }
-   
+
+    if(!strcmp(argv[1],"add_graph"))
+    {
+       cmd_found = 1;
+       unselect_all();
+       storeobject(-1, xctx->mousex_snap-400, xctx->mousey_snap-200, xctx->mousex_snap+400, xctx->mousey_snap+200,
+                   xRECT, GRIDLAYER, SELECTED,
+           "flags=1\n"
+           "y1=0\n"
+           "y2=5\n"
+           "divy=4\n"
+           "subdivy=1\n"
+           "x1=0\n"
+           "x2=10e-6\n"
+           "divx=8\n"
+           "subdivx=1\n"
+           "node=\"v(a) v(b) v(c)\"\n"
+           "color=\"7 8 10 11 12 13 14 15 16 17\"\n"
+           "dataset=0\n"
+           "unitx=u\n"
+         );
+       xctx->need_reb_sel_arr=1;
+       rebuild_selected_array();
+       move_objects(START,0,0,0);
+       xctx->ui_state |= START_SYMPIN;
+       Tcl_ResetResult(interp);
+    }
+
     else if(!strcmp(argv[1],"align"))
     {
        cmd_found = 1;
@@ -1936,6 +1963,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1], "raw_clear"))
     {
       cmd_found = 1;
+      tclsetvar("rawfile_loaded", "0");
       free_rawfile();
       Tcl_ResetResult(interp);
     }
@@ -1947,7 +1975,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int dataset = 0;
       cmd_found = 1;
       Tcl_ResetResult(interp);
-      if(xctx->values) {
+      if(argc > 2 && !strcmp(argv[2], "loaded")) {
+        Tcl_AppendResult(interp, schematic_waves_loaded() ? "1" : "0", NULL);
+      } else if(xctx->values) {
         if(argc > 5) dataset = atoi(argv[5]);
         if(argc > 4) {
           /* xschem rawfile_query value v(ldcp) 123 */
@@ -2005,6 +2035,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       } else if(argc > 2) {
         free_rawfile();
         read_rawfile(argv[2]);
+        if(schematic_waves_loaded()) tclsetvar("rawfile_loaded", "1");
+        else  tclsetvar("rawfile_loaded", "0");
       }
       Tcl_ResetResult(interp);
     }

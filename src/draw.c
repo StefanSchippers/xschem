@@ -1651,6 +1651,7 @@ int read_rawfile(const char *f)
   dbg(0, "read_rawfile(): failed to open file %s for reading\n", f);
   return 0;
 }
+
 int get_raw_index(const char *node)
 {
   struct int_hashentry *entry;
@@ -1817,7 +1818,7 @@ void draw_graph(int c, int i, int flags)
   char tmpstr[200];
   char *saven, *savec, *saves, *nptr, *cptr, *sptr, *ntok, *ctok, *stok;
   int wcnt = 0;
-  int dataset = -1;
+  int dataset = -1; 
   /* container (embedding rectangle) coordinates */
   rx1 = r->x1;
   ry1 = r->y1;
@@ -1882,9 +1883,7 @@ void draw_graph(int c, int i, int flags)
   txtsizelab = marginy / 100;
 
   /* background */
-  if((flags & 2)  ) {
-    filledrect(0, NOW, rx1, ry1, rx2, ry2);
-  }
+  filledrect(0, NOW, rx1, ry1, rx2, ry2);
   /* graph bounding box */
   drawrect(c, NOW, rx1, ry1, rx2, ry2, 2);
 
@@ -1939,7 +1938,7 @@ void draw_graph(int c, int i, int flags)
    * swap order of wy1 and wy2 since grap y orientation is opposite to xorg orientation */
   if(wx1 <= 0 && wx2 >= 0) drawline(2, ADD, W_X(0),   W_Y(wy2), W_X(0),   W_Y(wy1), 0);
   drawline(2, END, 0.0, 0.0, 0.0, 0.0, 0);
-  /* if simulation data is loaded and matches schematic draw data */
+  /* get data to plot */
   my_strdup2(1389, &node, get_tok_value(r->prop_ptr,"node",0));
   my_strdup2(1390, &color, get_tok_value(r->prop_ptr,"color",0)); 
   my_strdup2(1407, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
@@ -1960,8 +1959,8 @@ void draw_graph(int c, int i, int flags)
     }
     /* draw sweep variable(s) on x-axis */
     if(wcnt == 0 || (stok && stok[0])) {
-      if(unitx != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", xctx->names[sweep_idx], unitx_suffix);
-      else  my_snprintf(tmpstr, S(tmpstr), "%s", xctx->names[sweep_idx]);
+      if(unitx != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", stok ? stok : "" , unitx_suffix);
+      else  my_snprintf(tmpstr, S(tmpstr), "%s", stok ? stok : "");
       draw_string(wave_color, NOW, tmpstr, 2, 1, 0, 0,
          rx1 + 2 + rw/n_nodes * wcnt, ry2-1, txtsizelab, txtsizelab);
     }
@@ -1972,7 +1971,7 @@ void draw_graph(int c, int i, int flags)
     /* clipping everything outside graph area */
     /* quickly find index number of ntok variable to be plotted */
     entry = int_hash_lookup(xctx->raw_table, ntok, 0, XLOOKUP);
-    if(entry) {
+    if(xctx->values && entry) {
       int p, dset, ofs;
       int poly_npoints;
       int v;
@@ -2059,15 +2058,18 @@ void draw_graph(int c, int i, int flags)
  * 1: do final XCopyArea (copy 2nd buffer areas to screen) 
  *    If draw_waves() is called from draw() no need to do XCopyArea, as draw() does it already.
  *    This makes drawing faster and removes a 'tearing' effect when moving around.
- * 2: do not draw background (when called from draw() this is already done)
  */
 void draw_waves(int flags)
 {
-  int c, i;
+  int c, i, sch_loaded, hide_graphs;
   int bbox_set = 0;
+  const char *tmp;
   int save_bbx1, save_bby1, save_bbx2, save_bby2;
   /* save bbox data, since draw_waves() is called from draw() which may be called after a bbox(SET) */
-  if(schematic_waves_loaded()) {
+  sch_loaded = schematic_waves_loaded();
+  tmp =  tclgetvar("hide_empty_graphs");
+  hide_graphs = (tmp && tmp[0] == '1') ? 1 : 0;
+  if(sch_loaded || !hide_graphs) {
     if(xctx->sem) {
       bbox_set = 1;
       save_bbx1 = xctx->bbx1;
@@ -2082,7 +2084,7 @@ void draw_waves(int flags)
     cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     #endif
-    c = 2; /* only rectangles on layer 2 (GRID) can embed graphs */
+    c = GRIDLAYER; /* only rectangles on layer 2 (GRID) can embed graphs */
     if(xctx->draw_single_layer==-1 || c == xctx->draw_single_layer) {
       if(xctx->enable_layer[c]) for(i = 0; i < xctx->rects[c]; i++) {
         xRect *r = &xctx->rect[c][i];
@@ -2155,7 +2157,7 @@ void draw(void)
           }
           if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c];i++) {
             xRect *r = &xctx->rect[c][i]; 
-            if(c != 2 || r->flags != 1 )  {
+            if(c != GRIDLAYER || r->flags != 1 )  {
               drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
               filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
             }

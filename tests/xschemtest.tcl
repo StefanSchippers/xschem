@@ -18,7 +18,8 @@
 
 ## move schematic and redraw in a loop.
 proc draw_test {{filelist {-}}} {
-  global show_pin_net_names
+  global show_pin_net_names hide_empty_graphs
+  set hide_empty_graphs 1
   set show_pin_net_names 1
   foreach f $filelist  {
     if { $f ne {-}} {

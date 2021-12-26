@@ -1251,7 +1251,7 @@ void change_to_unix_fn(char* fn)
 /* selected: 0 -> all, 1 -> selected, 2 -> hilighted */
 void calc_drawing_bbox(xRect *boundbox, int selected)
 {
- xRect tmp;
+ xRect rect;
  int c, i;
  int count=0;
  #if HAS_CAIRO==1
@@ -1264,16 +1264,19 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  boundbox->y2=100;
  if(selected != 2) for(c=0;c<cadlayers;c++)
  {
+  const char *tmp = tclgetvar("hide_empty_graphs");
+  int hide_graphs =  (tmp && tmp[0] == '1') ? 1 : 0;
   int waves = schematic_waves_loaded();
+
   for(i=0;i<xctx->lines[c];i++)
   {
    if(selected == 1 && !xctx->line[c][i].sel) continue;
-   tmp.x1=xctx->line[c][i].x1;
-   tmp.x2=xctx->line[c][i].x2;
-   tmp.y1=xctx->line[c][i].y1;
-   tmp.y2=xctx->line[c][i].y2;
+   rect.x1=xctx->line[c][i].x1;
+   rect.x2=xctx->line[c][i].x2;
+   rect.y1=xctx->line[c][i].y1;
+   rect.y2=xctx->line[c][i].y2;
    count++;
-   updatebbox(count,boundbox,&tmp);
+   updatebbox(count,boundbox,&rect);
   }
 
   for(i=0;i<xctx->polygons[c];i++)
@@ -1289,32 +1292,32 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
       if(k==0 || xctx->poly[c][i].x[k] > x2) x2 = xctx->poly[c][i].x[k];
       if(k==0 || xctx->poly[c][i].y[k] > y2) y2 = xctx->poly[c][i].y[k];
     }
-    tmp.x1=x1;tmp.y1=y1;tmp.x2=x2;tmp.y2=y2;
-    updatebbox(count,boundbox,&tmp);
+    rect.x1=x1;rect.y1=y1;rect.x2=x2;rect.y2=y2;
+    updatebbox(count,boundbox,&rect);
   }
 
   for(i=0;i<xctx->arcs[c];i++)
   {
     if(selected == 1 && !xctx->arc[c][i].sel) continue;
     arc_bbox(xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b,
-             &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
+             &rect.x1, &rect.y1, &rect.x2, &rect.y2);
     count++;
-    updatebbox(count,boundbox,&tmp);
+    updatebbox(count,boundbox,&rect);
   }
 
   for(i=0;i<xctx->rects[c];i++)
   {
    if(selected == 1 && !xctx->rect[c][i].sel) continue;
    /* skip graph objects if no datafile loaded */
-   if(c == 2 && xctx->rect[c][i].flags == 1) {  
-     if(!waves) continue;
+   if(c == GRIDLAYER && xctx->rect[c][i].flags == 1) {  
+     if(hide_graphs && !waves) continue;
    }
-   tmp.x1=xctx->rect[c][i].x1;
-   tmp.x2=xctx->rect[c][i].x2;
-   tmp.y1=xctx->rect[c][i].y1;
-   tmp.y2=xctx->rect[c][i].y2;
+   rect.x1=xctx->rect[c][i].x1;
+   rect.x2=xctx->rect[c][i].x2;
+   rect.y1=xctx->rect[c][i].y1;
+   rect.y2=xctx->rect[c][i].y2;
    count++;
-   updatebbox(count,boundbox,&tmp);
+   updatebbox(count,boundbox,&rect);
   }
  }
  if(selected == 2 && xctx->hilight_nets) prepare_netlist_structs(0);
@@ -1339,12 +1342,12 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
      if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
      else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
    }
-   tmp.x1 = xctx->wire[i].x1-ov;
-   tmp.x2 = xctx->wire[i].x2+ov;
-   tmp.y1 = y1;
-   tmp.y2 = y2;
+   rect.x1 = xctx->wire[i].x1-ov;
+   rect.x2 = xctx->wire[i].x2+ov;
+   rect.y1 = y1;
+   rect.y2 = y2;
    count++;
-   updatebbox(count,boundbox,&tmp);
+   updatebbox(count,boundbox,&rect);
  }
  if(has_x && selected != 2) for(i=0;i<xctx->texts;i++)
  { 
@@ -1357,9 +1360,9 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
          xctx->text[i].yscale,xctx->text[i].rot, xctx->text[i].flip,
          xctx->text[i].hcenter, xctx->text[i].vcenter,
          xctx->text[i].x0, xctx->text[i].y0,
-         &tmp.x1,&tmp.y1, &tmp.x2,&tmp.y2, &no_of_lines, &longest_line) ) {
+         &rect.x1,&rect.y1, &rect.x2,&rect.y2, &no_of_lines, &longest_line) ) {
      count++;
-     updatebbox(count,boundbox,&tmp);
+     updatebbox(count,boundbox,&rect);
    }
    #if HAS_CAIRO==1
    if(customfont) cairo_restore(xctx->cairo_ctx);
@@ -1388,12 +1391,12 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
 
   /* cpu hog 20171206 */
   /*  symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2); */
-  tmp.x1=xctx->inst[i].x1;
-  tmp.y1=xctx->inst[i].y1;
-  tmp.x2=xctx->inst[i].x2;
-  tmp.y2=xctx->inst[i].y2;
+  rect.x1=xctx->inst[i].x1;
+  rect.y1=xctx->inst[i].y1;
+  rect.x2=xctx->inst[i].x2;
+  rect.y2=xctx->inst[i].y2;
   count++;
-  updatebbox(count,boundbox,&tmp);
+  updatebbox(count,boundbox,&rect);
  }
 }
 

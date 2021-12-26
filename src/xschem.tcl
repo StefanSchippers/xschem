@@ -20,7 +20,7 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-### INUTILE integration
+### INUTILE integration (spice stimuli generator from a higher level description language)
 proc inutile_line {txtlabel} {
    global retval
    toplevel .inutile_line -class Dialog
@@ -3805,15 +3805,16 @@ set tctx::global_list {
   dark_colorscheme dim_bg dim_value disable_unique_names do_all_inst draw_grid draw_window
   edit_prop_pos edit_prop_size editprop_sympath edit_symbol_prop_new_sel enable_dim_bg enable_stretch 
   en_hilight_conn_inst filetmp
-  flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter hide_symbols hsize hspice_netlist 
+  flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter hide_empty_graphs hide_symbols hsize hspice_netlist 
   incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
   input_line_cmd input_line_data launcher_default_program light_colors line_width local_netlist_dir
   myload_d myload_default_geometry myload_dir1 myload_dir2 myload_dirs2 myload_files1 myload_files2 myload_index1
   myload_retval myload_sash_pos myload_sel myload_type myload_yview netlist_dir netlist_show
   netlist_type no_change_attrs noprint_libs old_selected_tok
   only_probes path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
-  rcode recentfile replace_key retval retval_orig rotated_text search_exact search_found search_select 
-  search_value selected_tok show_infowindow show_pin_net_names simconf_default_geometry simconf_vpos 
+  rawfile_loaded rcode recentfile replace_key retval retval_orig rotated_text search_exact
+  search_found search_select search_value selected_tok show_infowindow show_pin_net_names 
+  simconf_default_geometry simconf_vpos 
   spiceprefix split_files svg_colors svg_font_name symbol symbol_width sym_txt tclcmd_txt
   text_line_default_geometry textwindow_fileid textwindow_filename textwindow_w tmp_bus_char 
   toolbar_horiz toolbar_visible top_subckt transparent_svg undo_type
@@ -4443,6 +4444,13 @@ proc build_widgets { {topwin {} } } {
      -command {edit_netlist [file tail [xschem get schname]]}
   $topwin.menubar.simulation.menu add command -label {Send highlighted nets to viewer} \
     -command {xschem create_plot_cmd} -accelerator Shift+J
+  $topwin.menubar.simulation.menu add checkbutton -label "Hide graphs if no spice data loaded" \
+     -variable hide_empty_graphs -command {xschem redraw}
+  $topwin.menubar.simulation.menu add checkbutton -variable rawfile_loaded \
+     -label {Load/Unload ngspice .raw file} -command {
+     xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+  }
+  $topwin.menubar.simulation.menu add command -label {Add waveform graph} -command {xschem add_graph}
   $topwin.menubar.simulation.menu add separator
   $topwin.menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" -variable top_subckt 
   $topwin.menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
@@ -4701,6 +4709,7 @@ set_ne local_netlist_dir 0 ;# if set use <sch_dir>/simulation for netlist and si
 set_ne bus_replacement_char {} ;# use {<>} to replace [] with <> in bussed signals
 set_ne hspice_netlist 1
 set_ne top_subckt 0
+set_ne hide_empty_graphs 0 ;# if set to 1 waveform boxes will be hidden if no raw file loaded
 set_ne spiceprefix 1
 set_ne verilog_2001 1
 set_ne split_files 0
@@ -4765,10 +4774,6 @@ set_ne hide_symbols 0
 set_ne show_pin_net_names 0
 # gaw tcp {host port} 
 set_ne gaw_tcp_address {localhost 2020}
-
-## utile
-set_ne utile_gui_path "${XSCHEM_SHAREDIR}/utile/utile3"
-set_ne utile_cmd_path "${XSCHEM_SHAREDIR}/utile/utile"
 
 ## cairo stuff 20171112
 set_ne cairo_font_scale 1.0
@@ -4857,7 +4862,8 @@ if {$OS == "Windows"} {
 } else {
   set filetmp [pwd]/.tmp2
 }
-# /20111106
+
+set rawfile_loaded 0
 
 # flag bound to a checkbutton in symbol editprop form
 # if set cell is copied when renaming it
