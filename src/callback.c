@@ -27,13 +27,13 @@ static int waves_selected()
   int is_inside = 0;
   xRect *r;
   rebuild_selected_array();
-  if(xctx->ui_state != SELECTION || !xctx->lastsel) return 0;
+  if(!(xctx->ui_state & SELECTION) || !xctx->lastsel) return 0;
   for(i=0; i<xctx->lastsel; i++) {
     c = xctx->sel_array[i].col;
     if(xctx->sel_array[i].type == xRECT && c == 2) {
       n = xctx->sel_array[i].n;
       r = &xctx->rect[c][n];
-      if( POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2,  r->y2) ) {
+      if( (xctx->ui_state & GRAPHPAN) || POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2,  r->y2) ) {
         is_inside = 1;
       }
       if(r->flags != 1) return 0;
@@ -491,9 +491,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       else if( ((state & ShiftMask) && event == ButtonPress && (button == Button1)) || 
                ((state & ShiftMask) && event == MotionNotify && (state & Button1Mask)) ) {
-        if(bottom) {
+        if(bottom || (xctx->ui_state & GRAPHPAN)) {
           double wwx1, wwx2, p, delta, ccx, ddx;
 
+          xctx->ui_state |= GRAPHPAN;
           delta = wx2 - wx1;
           wwx1 = 0; /* <<<< */
           wwx2 = get_raw_value(dataset, 0, xctx->npoints[dataset] - 1);
@@ -513,6 +514,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
              (button == Button2 || button == Button1 || button == Button3)) {
         xctx->mx_double_save = xctx->mousex_snap;
         xctx->my_double_save = xctx->mousey_snap;
+      }
+      else if(event == ButtonRelease && (xctx->ui_state & GRAPHPAN) ) {
+        xctx->ui_state &= ~GRAPHPAN;
       }
       else if(!(state & ShiftMask) && event == ButtonRelease && button == Button3) {
         double tmp;
