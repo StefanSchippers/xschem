@@ -31,8 +31,8 @@ B 2 1840 -360 2890 -280 {flags=1
 y1 = -0.0039
 y2 = 0.87
 divy = 1
-x1=1.28096e-07
-x2=1.98813e-07  divx=10
+x1=1.26223e-07
+x2=2.06222e-07  divx=10
 node="
 v(ldbl[0]) v(ldbl[16]) v(ldbl[32])
 v(ldbl[1]) v(ldbl[17]) v(ldbl[33])
@@ -43,9 +43,10 @@ B 2 1840 -920 2890 -710 {flags=1
 digital=0
 y1 = -0.00091
 y2 = 1.5
+subdivy=4
 divy = 4
-x1=1.28096e-07
-x2=1.98813e-07
+x1=1.26223e-07
+x2=2.06222e-07
 divx=10
 subdivx=4
 node="v(ldcp) v(ldyms[4]) v(ldyms[5]) v(ldyms[6]) v(ldyms[7])"
@@ -57,8 +58,8 @@ y2 = 1.6
 divy = 3
 subdivy=1
 subdivx = 4
-x1=1.28096e-07
-x2=1.98813e-07  divx=10
+x1=1.26223e-07
+x2=2.06222e-07  divx=10
 node="
 v(ldcp)
 v(ldwl[0]) v(ldwl[1]) v(ldwl[2]) v(ldwl[3]) 
@@ -72,8 +73,8 @@ B 2 1840 -120 2890 -40 {flags=1
 y1 = -0.021
 y2 = 0.9
 divy = 1
-x1=1.28096e-07
-x2=1.98813e-07  divx=10
+x1=1.26223e-07
+x2=2.06222e-07  divx=10
 node="v(ldymsref)"
 color=3 unitx=n subdivy=4}
 B 2 1840 -710 2890 -360 {flags=1
@@ -81,8 +82,8 @@ digital=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.28096e-07
-x2=1.98813e-07  divx=10
+x1=1.26223e-07
+x2=2.06222e-07  divx=10
 node="v(ldcp) v(lden) v(ldprech)
 ---
 v(ldl1x[0]) v(ldl1x[1]) v(ldl1x[2]) v(ldl1x[3])
@@ -94,6 +95,60 @@ color=4
 xcolor="5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 3 4 5 6"
  unitx=n
 }
+B 2 1840 -1030 2890 -920 {flags=1
+y1 = 0
+y2 = 2
+divy = 2
+x1=1.26223e-07
+x2=2.06222e-07
+divx=8
+comm="example of using tcl to replace the path 
+      with $path variable automatically"
+node="tcleval(v(xctrl.ldcp_ref) v(xctrl.ldprechref))"
+color="16 11 15"
+}
+B 2 1840 -1120 2890 -1030 {flags=1
+y1 = 0
+y2 = 2
+divy = 2
+x1=1.26223e-07
+x2=2.06222e-07
+divx=8
+comm="example of using tcl to replace the path 
+      with $path variable automatically"
+node="tcleval(v(xctrl.ldcp_ref) v(xctrl.ldcpb))"
+color="16 11 15"
+}
+B 2 1840 -1210 2890 -1120 {flags=1
+y1 = 0
+y2 = 2
+divy = 2
+x1=1.26223e-07
+x2=2.06222e-07
+divx=8
+comm="example of using tcl to replace the path 
+      with $path variable automatically"
+node="tcleval(v(xctrl.ldcp_ref) v(xctrl.ldouti) v(xctrl.ldoutib))"
+color="16 11 15"
+}
+B 2 1840 -1500 2890 -1320 {flags=1
+y1 = 0
+y2 = 2
+divy = 4
+x1=1.26223e-07
+x2=2.06222e-07
+divx=8
+node="v(xsa[0].ldqi) v(xsa[0].ldqib) v(xsa[0].ldsali)"
+color="16 11 15"}
+B 2 1840 -1320 2890 -1210 {flags=1
+y1 = 0
+y2 = 2
+divy = 2
+x1=1.26223e-07
+x2=2.06222e-07
+divx=8
+node="v(xsa[0].ldqiii) v(xsa[0].ldqii) v(xsa[0].ldsali)"
+color="16 11 15"}
 B 7 950 -250 980 -80 {}
 B 7 1150 -250 1180 -80 {}
 B 21 10 -970 240 -750 {}

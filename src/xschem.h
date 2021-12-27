@@ -332,7 +332,7 @@ do { \
 #define INT_BUS_WIDTH(x) ( (int)( (BUS_WIDTH) * (x) ) == 0 ? 1 : (int)( (BUS_WIDTH) * (x) ) ) 
 
 /* set do double if you need more precision at the expense of memory */
-#define RAW_FLOAT float
+#define SPICE_DATA float
 
 
 typedef struct
@@ -693,7 +693,7 @@ typedef struct {
   int undo_initialized;
   /* read raw files (draw.c) */
   char **names;
-  RAW_FLOAT **values;
+  SPICE_DATA **values;
   int nvars;
   int *npoints;
   int datasets;

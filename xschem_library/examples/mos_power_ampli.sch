@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -6,6 +6,20 @@ S {}
 E {}
 L 15 270 -460 340 -390 {}
 L 15 270 -330 340 -390 {}
+B 2 1520 -750 2440 -70 {flags=1
+y1=-51.8382
+y2=48.1618
+divy=4
+subdivy=4
+x1=0.0157884
+x2=0.0164453
+divx=8
+subdivx=1
+node="tcleval(v($\{path\}ga) v($\{path\}gb) v($\{path\}outi)) v(vnn))"
+color="7 8 10 11 12 13 14 15 16 17"
+dataset=0
+unitx=m
+}
 T {ANALOG AUDIO AMPLIFIER
 N-Channel only power stage} 430 -270 0 0 0.5 0.5 {layer=8}
 N 180 -500 180 -470 {lab=E9}
@@ -421,3 +435,4 @@ C {launcher.sym} 770 -150 0 0 {name=h4
 descr="View Raw file" 
 tclcommand="textwindow $netlist_dir/[file tail [file rootname [ xschem get schname 0 ] ] ].raw"
 }
+C {spice_probe.sym} 790 -600 0 0 {name=p60 analysis=tran voltage=-0.1364}

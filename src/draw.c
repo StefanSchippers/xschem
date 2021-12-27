@@ -1499,7 +1499,7 @@ void read_binary_block(FILE *fd)
   /* read buffer */
   tmp = my_calloc(1405, xctx->nvars, sizeof(double *));
   /* allocate storage for binary block */
-  if(!xctx->values) xctx->values = my_calloc(118, xctx->nvars, sizeof(RAW_FLOAT *));
+  if(!xctx->values) xctx->values = my_calloc(118, xctx->nvars, sizeof(SPICE_DATA *));
   for(p = 0 ; p < xctx->nvars; p++) {
     my_realloc(372, &xctx->values[p], (size + xctx->npoints[xctx->datasets]) * sizeof(double));
   }
@@ -1793,10 +1793,12 @@ static void get_y_points(int v, int first, int last, double cy, double dy, doubl
   int p;
   double yy;
   int poly_npoints = 0;
+  double s1 = 1.0 / n_nodes;
+  double s2 = s1 * .66;
   for(p = first ; p < last; p++) {
     yy = xctx->values[v][p];
     if(digital) {
-      yy = ydelta * wcnt / n_nodes + yy / n_nodes/1.5;
+      yy = ydelta * wcnt * s1 + yy *s2;
     }
     /* Build poly y array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
     yarr[poly_npoints] = W_Y(yy);
@@ -1997,7 +1999,7 @@ void draw_graph(int c, int i, int flags)
       if(unitx != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", stok ? stok : "" , unitx_suffix);
       else  my_snprintf(tmpstr, S(tmpstr), "%s", stok ? stok : "");
       draw_string(wave_color, NOW, tmpstr, 2, 1, 0, 0,
-         rx1 + 2 + rw/n_nodes * wcnt, ry2-1, txtsizelab, txtsizelab);
+         rx1 + 2 + rw / n_nodes * wcnt, ry2-1, txtsizelab, txtsizelab);
     }
     /* draw node labels in graph */
     if(unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", ntok, unity_suffix);

@@ -41,7 +41,8 @@ L 8 810 -610 830 -610 {}
 B 2 1110 -950 1530 -800 {flags=1 
 y1 = 0
 y2 = 20
-divy = 10
+divy = 5
+subdivy=1
 x1=0
 x2=0.0002
 divx=9
@@ -50,7 +51,8 @@ color="11 18" unitx=m subdivx=4}
 B 2 1110 -790 1530 -660 {flags=1 
 y1 = 0
 y2 = 20
-divy = 10
+divy = 6
+subdivy=1
 x1=0
 x2=0.0002
 divx=8
@@ -58,7 +60,8 @@ node="v(panel)" unitx=m}
 B 2 1110 -650 1530 -520 {flags=1 
 y1 = 0
 y2 = 4
-divy = 8
+divy = 4
+subdivy=1
 x1=0
 x2=0.0002
 divx=8
