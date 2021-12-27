@@ -407,7 +407,7 @@ static void edit_rect_property(int x)
 
 
 
-  if(x==0) tcleval("text_line {Input property:} normal");
+  if(x==0) tcleval("text_line {Input property:} 0 normal");
   else if(x==2) tcleval("viewdata $::retval");
   else if(x==1) tcleval("edit_vi_prop {Text:}");
   else {
