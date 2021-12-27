@@ -697,6 +697,9 @@ typedef struct {
   int nvars;
   int *npoints;
   int datasets;
+  int graph_master; /* graph where mouse operations are started, used to lock x-axis */
+  int graph_bottom; /* graph where mouse operations are started, used to lock x-axis */
+  int graph_left; /* graph where mouse operations are started, used to lock x-axis */
   struct int_hashentry **raw_table;
   char *raw_schname;
   /*     */

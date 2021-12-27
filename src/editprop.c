@@ -391,7 +391,7 @@ void set_inst_prop(int i)
   }
 }
 
-void edit_rect_property(void)
+static void edit_rect_property(int x)
 {
   int i, c, n;
   int drw = 0;
@@ -405,7 +405,14 @@ void edit_rect_property(void)
     tclsetvar("retval","");
   }
 
-  tcleval("text_line {Input property:} 0 normal");
+
+
+  if(x==0) tcleval("text_line {Input property:} normal");
+  else if(x==2) tcleval("viewdata $::retval");
+  else if(x==1) tcleval("edit_vi_prop {Text:}");
+  else {
+    fprintf(errfp, "edit_rect_property() : unknown parameter x=%d\n",x); exit(EXIT_FAILURE);
+  }
   preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
   if(strcmp(tclgetvar("rcode"),"") )
   {
@@ -455,7 +462,7 @@ void edit_rect_property(void)
 }
 
 
-void edit_line_property(void)
+static void edit_line_property(void)
 {
   int i, c, n;
   const char *dash;
@@ -508,7 +515,7 @@ void edit_line_property(void)
 }
 
 
-void edit_wire_property(void)
+static void edit_wire_property(void)
 {
   int i;
   int preserve;
@@ -569,7 +576,7 @@ void edit_wire_property(void)
   my_free(727, &oldprop);
 }
 
-void edit_arc_property(void)
+static void edit_arc_property(void)
 {
   int old_fill;
   double x1, y1, x2, y2;
@@ -633,7 +640,7 @@ void edit_arc_property(void)
   }
 }
 
-void edit_polygon_property(void)
+static void edit_polygon_property(void)
 {
   int old_fill;
   int k;
@@ -704,7 +711,7 @@ void edit_polygon_property(void)
 
 
 /* x=0 use text widget   x=1 use vim editor */
-void edit_text_property(int x)
+static void edit_text_property(int x)
 {
    int rot, flip;
    #if HAS_CAIRO==1
@@ -732,7 +739,7 @@ void edit_text_property(int x)
    tclsetvar("hsize",property);
    if(x==0) tcleval("enter_text {text:} normal");
    else if(x==2) tcleval("viewdata $::retval");
-   else if(x==1) tcleval("edit_vi_prop {xText:}");
+   else if(x==1) tcleval("edit_vi_prop {Text:}");
    else {
      fprintf(errfp, "edit_text_property() : unknown parameter x=%d\n",x); exit(EXIT_FAILURE);
    }
@@ -865,7 +872,7 @@ void edit_text_property(int x)
 }
 
 /* x=0 use text widget   x=1 use vim editor */
-void edit_symbol_property(int x)
+static void edit_symbol_property(int x)
 {
    char *result=NULL;
    int *ii = &xctx->edit_sym_i; /* static var */
@@ -1243,7 +1250,7 @@ void edit_property(int x)
    edit_arc_property();
    break;
   case xRECT:
-   edit_rect_property();
+   edit_rect_property(x);
    break;
   case WIRE:
    edit_wire_property();

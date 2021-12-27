@@ -4,12 +4,27 @@ K {}
 V {}
 S {}
 E {}
+B 2 1190 -650 1820 -170 {flags=1
+y1=1.16665
+y2=5.05705
+divy=4
+subdivy=1
+x1=2.28845
+x2=2.71533
+divx=6
+subdivx=1
+node="v(diffout) v(plus) v(minus)"
+color="7 8 10 11 12 13 14 15 16 17"
+dataset=0
+}
 T {CMOS DIFFERENTIAL AMPLIFIER
 EXAMPLE} 250 -650 0 0 0.4 0.4 {}
 T {This is an example of a code block that will
 be placed as a header in the netlist.
 use 'place=header' attribute and set the
 header text as a 'value' attribute} 720 -720 0 0 0.4 0.4 {}
+T {Select one or more graphs (and no other objects)
+and use arrow keys to zoom / pan waveforms} 740 -800 0 0 0.3 0.3 {}
 N 30 -310 30 -280 {lab=VCC}
 N 30 -310 60 -310 {lab=VCC}
 N 260 -240 260 -190 {lab=GN}
@@ -95,9 +110,11 @@ value=".temp 30
 .save all @m4[gm] @m5[gm] @m1[gm]
 .control
 save all
+set appendwrite
 op
+write cmos_example.raw
 * tran 1n 300n
-* dc vvcc 0 5 0.01
+dc vplus 2.3 2.7 0.001
 write cmos_example.raw
 .endc
 
@@ -121,3 +138,10 @@ only_toplevel=true
 value="** ======================== **
 ** This is a netlist header **
 ** ======================== **"}
+C {launcher.sym} 755 -835 0 0 {name=h3 
+descr="Select arrow and 
+Ctrl-Left-Click to load/unload waveforms" 
+tclcommand="
+xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+"
+}

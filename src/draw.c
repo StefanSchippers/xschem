@@ -1655,8 +1655,10 @@ int read_rawfile(const char *f)
 int get_raw_index(const char *node)
 {
   struct int_hashentry *entry;
-  entry = int_hash_lookup(xctx->raw_table, node, 0, XLOOKUP);
-  if(entry) return entry->value;
+  if(xctx->values) {
+    entry = int_hash_lookup(xctx->raw_table, node, 0, XLOOKUP);
+    if(entry) return entry->value;
+  }
   return -1;
 }
 
@@ -1664,10 +1666,13 @@ double get_raw_value(int dataset, int idx, int point)
 {
   int i, ofs;
   ofs = 0;
-  for(i = 0; i < dataset; i++) {
-    ofs += xctx->npoints[i];
+  if(xctx->values) {
+    for(i = 0; i < dataset; i++) {
+      ofs += xctx->npoints[i];
+    }
+    return xctx->values[idx][ofs + point];
   }
-  return xctx->values[idx][ofs + point];
+  return 0.0;
 }
 void calc_graph_area(int c, int i, double *x1, double *y1,double *x2,double *y2,
      double *marginx, double *marginy)
@@ -1681,14 +1686,14 @@ void calc_graph_area(int c, int i, double *x1, double *y1,double *x2,double *y2,
   rh = (ry2 - ry1);
   /* set margins */
   tmp = rw * 0.05;
-  *marginx = tmp < 50 ? 50 : tmp;
+  *marginx = tmp < 80 ? 80 : tmp;
   tmp = rh * 0.1;
   *marginy = tmp < 20 ? 20 : tmp;
 
   /* calculate graph bounding box (container - margin) 
    * This is the box where plot is done */
   *x1 =  rx1 + *marginx;
-  *x2 =  rx2 - *marginx/1.3;
+  *x2 =  rx2 - *marginx/1.8;
   *y1 =  ry1 + *marginy;
   tmp = *marginy < 30 ? 30 : *marginy;
   *y2 =  ry2 - tmp; /* some more space to accomodate x-axis label */
@@ -1880,7 +1885,7 @@ void draw_graph(int c, int i, int flags)
   tmp = marginy / 110;
   if(tmp < txtsizex) txtsizex = tmp;
 
-  txtsizelab = marginy / 100;
+  txtsizelab = marginy / 110;
 
   /* background */
   filledrect(0, NOW, rx1, ry1, rx2, ry2);
@@ -1904,7 +1909,7 @@ void draw_graph(int c, int i, int flags)
     drawline(2, ADD, W_X(wx),   W_Y(wy2), W_X(wx),   W_Y(wy1), dash_sizey);
     drawline(2, ADD, W_X(wx),   W_Y(wy1), W_X(wx),   W_Y(wy1) + 4, 0); /* axis marks */
     /* X-axis labels */
-    my_snprintf(lab, S(lab), "%.4g", wx * unitx);
+    my_snprintf(lab, S(lab), "%g", wx * unitx);
     draw_string(3, NOW, lab, 0, 0, 1, 0, W_X(wx), y2 + 30 * txtsizex, txtsizex, txtsizex);
   }
   /* first and last vertical box delimiters */
@@ -1926,7 +1931,7 @@ void draw_graph(int c, int i, int flags)
     drawline(2, ADD, W_X(wx1), W_Y(wy),   W_X(wx2), W_Y(wy), dash_sizex);
     drawline(2, ADD, W_X(wx1)-4, W_Y(wy),   W_X(wx1), W_Y(wy), 0); /* axis marks */
     /* Y-axis labels */
-    my_snprintf(lab, S(lab), "%.4g",  wy * unity);
+    my_snprintf(lab, S(lab), "%g",  wy * unity);
     draw_string(3, NOW, lab, 0, 1, 0, 1, x1 - 2 - 30 * txtsizey, W_Y(wy), txtsizey, txtsizey);
   }
   /* first and last horizontal box delimiters */
@@ -1955,10 +1960,13 @@ void draw_graph(int c, int i, int flags)
     if(ctok && ctok[0]) wave_color = atoi(ctok);
     if(stok && stok[0]) {
       sweep_idx = get_raw_index(stok);
-      if( sweep_idx == -1) sweep_idx = 0;
+      if( sweep_idx == -1) {
+        sweep_idx = 0;
+      }
     }
     /* draw sweep variable(s) on x-axis */
     if(wcnt == 0 || (stok && stok[0])) {
+      if(xctx->values) stok = xctx->names[sweep_idx];
       if(unitx != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", stok ? stok : "" , unitx_suffix);
       else  my_snprintf(tmpstr, S(tmpstr), "%s", stok ? stok : "");
       draw_string(wave_color, NOW, tmpstr, 2, 1, 0, 0,
