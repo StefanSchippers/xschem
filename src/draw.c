@@ -1695,7 +1695,7 @@ void calc_graph_area(int c, int i, double *x1, double *y1,double *x2,double *y2,
 
   /* calculate graph bounding box (container - margin) 
    * This is the box where plot is done */
-  *x1 =  rx1 + *marginx;
+  *x1 =  rx1 + *marginx + 40;
   *x2 =  rx2 - *marginx/1.8;
   *y1 =  ry1 + *marginy;
   tmp = *marginy < 30 ? 30 : *marginy;
@@ -1786,13 +1786,32 @@ int schematic_waves_loaded(void)
 /* #define W_Y(y) (y2 - (y2 - y1) / (wy2 - wy1) * ((y) - wy1)) */
 #define W_X(x) (cx * (x) + dx)
 #define W_Y(y) (cy * (y) + dy)
+
+static void get_y_points(int v, int first, int last, double cy, double dy, double *yarr,
+                         int digital, int wcnt, int n_nodes, double ydelta)
+{
+  int p;
+  double yy;
+  int poly_npoints = 0;
+  for(p = first ; p < last; p++) {
+    yy = xctx->values[v][p];
+    if(digital) {
+      yy = ydelta * wcnt / n_nodes + yy / n_nodes/1.5;
+    }
+    /* Build poly y array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
+    yarr[poly_npoints] = W_Y(yy);
+    poly_npoints++;
+  }
+}
+
 void draw_graph(int c, int i, int flags)
 {
   /* container box */
-  double rx1, ry1, rx2, ry2, rw; 
+  double rx1, ry1, rx2, ry2, rw/*, rh */; 
   /* graph box (smaller due to margins) */
   double x1, y1, x2, y2, w, h; 
   /* graph coordinate, some defaults */
+  double digital = 0;
   double wx1 = -2e-6;
   double wy1 = -1;
   double wx2 = 8e-6;
@@ -1833,11 +1852,7 @@ void draw_graph(int c, int i, int flags)
   rx2 = r->x2;
   ry2 = r->y2;
   rw = (rx2 - rx1);
-
-  /* set margins */
-  calc_graph_area(c, i, &x1, &y1, &x2, &y2, &marginx, &marginy);
-  w = (x2 - x1);
-  h = (y2 - y1);
+  /* rh = (ry2 -ry1); */
   /* get variables to plot, x/y range, grid info etc */
   val = get_tok_value(r->prop_ptr,"unitx",0);
   unitx_suffix = val[0];
@@ -1861,10 +1876,16 @@ void draw_graph(int c, int i, int flags)
   if(val[0]) wx2 = atof(val);
   val = get_tok_value(r->prop_ptr,"y2",0);
   if(val[0]) wy2 = atof(val);
+  val = get_tok_value(r->prop_ptr,"digital",0);
+  if(val[0]) digital = atoi(val);
   /* plot single dataset */
   val = get_tok_value(r->prop_ptr,"dataset",0);
   if(val[0]) dataset = atoi(val);
   if(dataset >= xctx->datasets) dataset =  xctx->datasets - 1;
+  /* set margins */
+  calc_graph_area(c, i, &x1, &y1, &x2, &y2, &marginx, &marginy);
+  w = (x2 - x1);
+  h = (y2 - y1);
   /* cache coefficients for faster graph coord transformations */
   cx = (x2 - x1) / (wx2 - wx1);
   dx = x1 - wx1 * cx;
@@ -1889,6 +1910,7 @@ void draw_graph(int c, int i, int flags)
   if(tmp < txtsizex) txtsizex = tmp;
 
   txtsizelab = marginy / 110;
+  if(digital) txtsizelab /= 1.3;
 
   /* background */
   filledrect(0, NOW, rx1, ry1, rx2, ry2);
@@ -1919,23 +1941,25 @@ void draw_graph(int c, int i, int flags)
   drawline(GRIDLAYER, ADD, W_X(wx1),   W_Y(wy2), W_X(wx1),   W_Y(wy1), 0);
   drawline(GRIDLAYER, ADD, W_X(wx2),   W_Y(wy2), W_X(wx2),   W_Y(wy1), 0);
   /* horizontal grid lines */
-  deltay = axis_increment(wy1, wy2, divy);
-  starty = axis_start(wy1, deltay, divy);
-  for(j = -1;; j++) { /* start one interval before to allow sub grids at beginning */
-    wy = starty + j * deltay;
-    if(subdivy > 0) for(k = 1; k <=subdivy; k++) {
-      double subwy = wy + k * deltay / (subdivy + 1);
-      if(!axis_within_range(subwy, wy1, wy2)) continue;
-      if(axis_end(subwy, deltay, wy2)) break;
-      drawline(GRIDLAYER, ADD, W_X(wx1), W_Y(subwy),   W_X(wx2), W_Y(subwy), dash_sizex);
+  if(!digital) {
+    deltay = axis_increment(wy1, wy2, divy);
+    starty = axis_start(wy1, deltay, divy);
+    for(j = -1;; j++) { /* start one interval before to allow sub grids at beginning */
+      wy = starty + j * deltay;
+      if(subdivy > 0) for(k = 1; k <=subdivy; k++) {
+        double subwy = wy + k * deltay / (subdivy + 1);
+        if(!axis_within_range(subwy, wy1, wy2)) continue;
+        if(axis_end(subwy, deltay, wy2)) break;
+        drawline(GRIDLAYER, ADD, W_X(wx1), W_Y(subwy),   W_X(wx2), W_Y(subwy), dash_sizex);
+      }
+      if(!axis_within_range(wy, wy1, wy2)) continue;
+      if(axis_end(wy, deltay, wy2)) break;
+      drawline(GRIDLAYER, ADD, W_X(wx1), W_Y(wy),   W_X(wx2), W_Y(wy), dash_sizex);
+      drawline(GRIDLAYER, ADD, W_X(wx1)-4, W_Y(wy),   W_X(wx1), W_Y(wy), 0); /* axis marks */
+      /* Y-axis labels */
+      my_snprintf(lab, S(lab), "%g",  wy * unity);
+      draw_string(3, NOW, lab, 0, 1, 0, 1, x1 - 2 - 30 * txtsizey, W_Y(wy), txtsizey, txtsizey);
     }
-    if(!axis_within_range(wy, wy1, wy2)) continue;
-    if(axis_end(wy, deltay, wy2)) break;
-    drawline(GRIDLAYER, ADD, W_X(wx1), W_Y(wy),   W_X(wx2), W_Y(wy), dash_sizex);
-    drawline(GRIDLAYER, ADD, W_X(wx1)-4, W_Y(wy),   W_X(wx1), W_Y(wy), 0); /* axis marks */
-    /* Y-axis labels */
-    my_snprintf(lab, S(lab), "%g",  wy * unity);
-    draw_string(3, NOW, lab, 0, 1, 0, 1, x1 - 2 - 30 * txtsizey, W_Y(wy), txtsizey, txtsizey);
   }
   /* first and last horizontal box delimiters */
   drawline(GRIDLAYER, ADD, W_X(wx1),   W_Y(wy1), W_X(wx2),   W_Y(wy1), 0);
@@ -1978,24 +2002,30 @@ void draw_graph(int c, int i, int flags)
     /* draw node labels in graph */
     if(unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", ntok, unity_suffix);
     else  my_snprintf(tmpstr, S(tmpstr), "%s", ntok);
-    draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0, rx1 + rw/n_nodes * wcnt, ry1, txtsizelab, txtsizelab);
-    /* clipping everything outside graph area */
+    if(digital) {
+      draw_string(wave_color, NOW, tmpstr, 0, 1, 0, 1, 
+        x1 - 2 - 30 * txtsizelab,
+        W_Y((wy2 - wy1) * ((double)wcnt + 0.5) / n_nodes ),
+        txtsizelab, txtsizelab);
+    } else {
+      draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0, rx1 + rw / n_nodes * wcnt, ry1, txtsizelab, txtsizelab);
+    }
     /* quickly find index number of ntok variable to be plotted */
     entry = int_hash_lookup(xctx->raw_table, ntok, 0, XLOOKUP);
     if(xctx->values && entry) {
       int p, dset, ofs;
       int poly_npoints;
       int v;
-      int first, last;
-      double xx, yy;
+      int first;
+      double xx;
       double start;
       double end;
       double *xarr = NULL, *yarr = NULL;
 
+      /* clipping everything outside graph area */
       bbox(START, 0.0, 0.0, 0.0, 0.0);
       bbox(ADD,x1, y1, x2, y2);
       bbox(SET, 0.0, 0.0, 0.0, 0.0);
-
 
       ofs = 0;
       v = entry->value;
@@ -2004,39 +2034,38 @@ void draw_graph(int c, int i, int flags)
       /* loop through all datasets found in raw file */
       for(dset = 0 ; dset < xctx->datasets; dset++) {
         if(dataset == -1 || dset == dataset) {
+          double prev_x;
           first = -1;
-          last = 0;
           poly_npoints = 0;
           my_realloc(1401, &xarr, xctx->npoints[dset] * sizeof(double));
           my_realloc(1402, &yarr, xctx->npoints[dset] * sizeof(double));
-          /* skip if nothing in viewport */
-          if(xctx->values[sweep_idx][ofs + xctx->npoints[dset] -1] > start) {
-            /* Process "npoints" simulation items 
-             * p loop split repeated 2 timed (for xx and yy points) to preserve cache locality */
-            for(p = ofs ; p < ofs + xctx->npoints[dset]; p++) {
-              xx = xctx->values[sweep_idx][p];
-              if(xx > end) {
-                break;
-              }
-              if(xx >= start) {
-                if(first == -1) first = p;
-                /* Build poly x array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
-                xarr[poly_npoints] = W_X(xx);
-                poly_npoints++;
+          /* Process "npoints" simulation items 
+           * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
+          for(p = ofs ; p < ofs + xctx->npoints[dset]; p++) {
+            xx = xctx->values[sweep_idx][p];
+            if(xx > end || (sweep_idx == 0 && (p > ofs && fabs(xx) < fabs(prev_x))) ) {
+              if(first != -1) {
+                /* get y-axis points */
+                get_y_points(v, first, p, cy, dy, yarr, digital, wcnt, n_nodes, wy2 - wy1);
+                /* plot data */
+                drawpolygon(wave_color, 0, xarr, yarr, poly_npoints, 0, 0);
+                poly_npoints = 0;
+                first = -1;
               }
             }
-            last = p;
-            if(first != -1) {
-              poly_npoints = 0;
-              for(p = first ; p < last; p++) {
-                yy = xctx->values[v][p];
-                /* Build poly y array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
-                yarr[poly_npoints] = W_Y(yy);
-                poly_npoints++;
-              }
-              /* plot data */
-              drawpolygon(wave_color, 0, xarr, yarr, poly_npoints, 0, 0);
+            if(xx >= start && xx <= end) {
+              if(first == -1) first = p;
+              /* Build poly x array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
+              xarr[poly_npoints] = W_X(xx);
+              poly_npoints++;
             }
+            prev_x = xx;
+          }
+          if(first != -1) {
+            /* get y-axis points */
+            get_y_points(v, first, p, cy, dy, yarr, digital, wcnt, n_nodes, wy2 - wy1);
+            /* plot data */
+            drawpolygon(wave_color, 0, xarr, yarr, poly_npoints, 0, 0);
           }
         } /* if(dataset == -1 || dset == dataset) */
 

@@ -27,120 +27,73 @@ L 8 1150 -160 1180 -160 {}
 L 8 1180 -160 1180 -120 {}
 L 8 1180 -120 1300 -120 {}
 L 8 820 -120 950 -120 {}
-B 2 1860 -890 3010 -810 {flags=1
-y1 = 0
-y2 = 1
+B 2 1840 -360 2890 -280 {flags=1
+y1 = -0.0039
+y2 = 0.87
 divy = 1
-x1=1.25059e-07
-x2=1.84194e-07  divx=10
+x1=1.28096e-07
+x2=1.98813e-07  divx=10
 node="
 v(ldbl[0]) v(ldbl[16]) v(ldbl[32])
 v(ldbl[1]) v(ldbl[17]) v(ldbl[33])
 v(ldbl[2]) v(ldbl[18]) v(ldbl[34])
 "
 color="8 9 10 11 12 13 14 15 16 17 18" unitx=n}
-B 2 1860 -810 3010 -730 {flags=1
-y1 = 0
+B 2 1840 -920 2890 -710 {flags=1
+digital=0
+y1 = -0.00091
 y2 = 1.5
-divy = 1
-x1=1.25059e-07
-x2=1.84194e-07  divx=10
-node="
-v(ldl1x[0]) v(ldl1x[1]) v(ldl1x[2]) v(ldl1x[3])
-"
-color="6 7 8 9 10 11 12 13" unitx=n}
-B 2 1860 -1180 3010 -970 {flags=1
-y1 = -0.251577
-y2 = 1.74839
 divy = 4
-x1=1.25059e-07
-x2=1.84194e-07
+x1=1.28096e-07
+x2=1.98813e-07
 divx=10
 subdivx=4
 node="v(ldcp) v(ldyms[4]) v(ldyms[5]) v(ldyms[6]) v(ldyms[7])"
 color="6 12 13 14 15"
 unitx=n}
-B 2 1860 -490 3010 -410 {flags=1
-y1 = -0.1
+B 2 1840 -280 2890 -120 {flags=1
+y1 = -0.0072
 y2 = 1.6
-divy = 1
-x1=1.25059e-07
-x2=1.84194e-07  divx=10
-node="v(ldprech)"
-color=4 unitx=n subdivy=2}
-B 2 1860 -410 3010 -330 {flags=1
-y1 = 0
-y2 = 1.5
-divy = 1
-x1=1.25059e-07
-x2=1.84194e-07  divx=10
-node="v(lden) v(ldcp)"
-color=12\\ 18 unitx=n subdivy=2}
-B 2 1860 -730 3010 -570 {flags=1
-y1 = -0.16335
-y2 = 1.6335
 divy = 3
 subdivy=1
 subdivx = 4
-x1=1.25059e-07
-x2=1.84194e-07  divx=10
+x1=1.28096e-07
+x2=1.98813e-07  divx=10
 node="
 v(ldcp)
 v(ldwl[0]) v(ldwl[1]) v(ldwl[2]) v(ldwl[3]) 
 v(ldwl[4]) v(ldwl[5]) v(ldwl[6]) v(ldwl[16]) 
 v(ldwl[7]) v(ldwl[8]) v(ldwl[9])"
-color="12 15 16 17 18 19 20 21 11 7 4 8 9"  
+xcolor="12 15 16 17 18 19 20 21 11 7 4 8 9"
+color="4 5"  
 unitx=n 
 }
-B 2 1860 -330 3010 -250 {flags=1
-y1 = 0
-y2 = 1
+B 2 1840 -120 2890 -40 {flags=1
+y1 = -0.021
+y2 = 0.9
 divy = 1
-x1=1.25059e-07
-x2=1.84194e-07  divx=10
+x1=1.28096e-07
+x2=1.98813e-07  divx=10
 node="v(ldymsref)"
 color=3 unitx=n subdivy=4}
-B 2 1860 -250 3010 -170 {flags=1
+B 2 1840 -710 2890 -360 {flags=1
+digital=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.25059e-07
-x2=1.84194e-07  divx=10
-node="v(lden)"
-color=4 unitx=n subdivy=2}
-B 2 1860 -170 3010 -90 {flags=1
-y1 = 0
-y2 = 1.5
-divy = 1
-x1=1.25059e-07
-x2=1.84194e-07  divx=10
-node="v(lden) v(ldprech)"
-color=12\\ 16 unitx=n subdivy=2}
-B 2 1860 -90 3010 -10 {flags=1
-y1 = 0
-y2 = 1.5
-divy = 1
-x1=1.25059e-07
-x2=1.84194e-07  divx=10
-node="v(lden) v(ldcp)"
-color=12\\ 5 unitx=n subdivy=2}
-B 2 1860 -570 3010 -490 {flags=1
-y1 = 0
-y2 = 1.5
-divy = 1
-subdivy=2
-x1=1.25059e-07
-x2=1.84194e-07  divx=10
-node="v(ldl1x[1])"
-color=4 unitx=n}
-B 2 1860 -970 3010 -890 {flags=1
-y1 = 0
-y2 = 1.5
-divy = 1
-x1=1.25059e-07
-x2=1.84194e-07  divx=10
-node="v(lden) v(ldprech)"
-color=4\\ 6 unitx=n}
+x1=1.28096e-07
+x2=1.98813e-07  divx=10
+node="v(ldcp) v(lden) v(ldprech)
+---
+v(ldl1x[0]) v(ldl1x[1]) v(ldl1x[2]) v(ldl1x[3])
+v(ldl1x[4]) v(ldl1x[5]) v(ldl1x[6]) v(ldl1x[7])
+---
+v(ldy1[0]) v(ldy1[1]) v(ldy1[2]) v(ldy1[3]) 
+"
+color=4
+xcolor="5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 3 4 5 6"
+ unitx=n
+}
 B 7 950 -250 980 -80 {}
 B 7 1150 -250 1180 -80 {}
 B 21 10 -970 240 -750 {}
@@ -158,12 +111,12 @@ N 150 -420 150 -400 {lab=vss}
 N 10 -270 10 -250 {lab=vss}
 N 10 -580 10 -560 {lab=vss}
 N 10 -420 10 -400 {lab=vss}
-N 1720 -350 1720 -330 {lab=vss}
-N 1720 -530 1720 -510 {lab=vss}
-N 1540 -350 1540 -330 {lab=vss}
-N 1540 -530 1540 -510 {lab=vss}
-N 1720 -180 1720 -160 {lab=vss}
-N 1540 -180 1540 -160 {lab=vss}
+N 1710 -350 1710 -330 {lab=vss}
+N 1710 -530 1710 -510 {lab=vss}
+N 1530 -350 1530 -330 {lab=vss}
+N 1530 -530 1530 -510 {lab=vss}
+N 1710 -180 1710 -160 {lab=vss}
+N 1530 -180 1530 -160 {lab=vss}
 C {title.sym} 170 0 0 0 {name=l3 author="Stefan Schippers"}
 C {code.sym} 590 -160 0 0 {name=STIMULI value="
 .options SCALE=0.10
@@ -284,36 +237,36 @@ C {rom2_col_prech.sym} 1190 -990 0 0 {name=xcpr[256:0]}
 C {lab_pin.sym} 1340 -1000 0 1 {name=p20 lab=LDBL[255:0],LDBLREF}
 C {lab_pin.sym} 1040 -1000 0 0 {name=p1 lab=LDCP_COL_B}
 C {lab_pin.sym} 1040 -980 0 0 {name=p38 lab=vss}
-C {lab_pin.sym} 1720 -410 0 1 {name=p47 lab=LDPRECH}
-C {lab_pin.sym} 1720 -330 0 1 {name=p52 lab=vss}
-C {capa.sym} 1720 -380 0 0 {name=c0 m=1 value=66f}
-C {lab_pin.sym} 1720 -590 0 1 {name=p55 lab=LDSAL}
-C {lab_pin.sym} 1720 -510 0 1 {name=p58 lab=vss}
-C {capa.sym} 1720 -560 0 0 {name=c6 m=1 value=34f}
-C {lab_pin.sym} 1540 -410 0 1 {name=p59 lab=LDCP_ROWDEC}
-C {lab_pin.sym} 1540 -330 0 1 {name=p60 lab=vss}
-C {capa.sym} 1540 -380 0 0 {name=c7 m=1 value=280f}
-C {lab_pin.sym} 1540 -590 0 1 {name=p64 lab=LDCP_SA}
-C {lab_pin.sym} 1540 -510 0 1 {name=p65 lab=vss}
-C {capa.sym} 1540 -560 0 0 {name=c8 m=1 value=44f}
-C {lab_pin.sym} 1720 -240 0 1 {name=p15 lab=LDCP_COL_B}
-C {lab_pin.sym} 1720 -160 0 1 {name=p24 lab=vss}
-C {capa.sym} 1720 -210 0 0 {name=c9 m=1 value=63f}
-C {lab_pin.sym} 1540 -240 0 1 {name=p43 lab=LDCP_ADDLAT_B}
-C {lab_pin.sym} 1540 -160 0 1 {name=p66 lab=vss}
-C {capa.sym} 1540 -210 0 0 {name=c10 m=1 value=12f}
+C {lab_pin.sym} 1710 -410 0 1 {name=p47 lab=LDPRECH}
+C {lab_pin.sym} 1710 -330 0 1 {name=p52 lab=vss}
+C {capa.sym} 1710 -380 0 0 {name=c0 m=1 value=66f}
+C {lab_pin.sym} 1710 -590 0 1 {name=p55 lab=LDSAL}
+C {lab_pin.sym} 1710 -510 0 1 {name=p58 lab=vss}
+C {capa.sym} 1710 -560 0 0 {name=c6 m=1 value=34f}
+C {lab_pin.sym} 1530 -410 0 1 {name=p59 lab=LDCP_ROWDEC}
+C {lab_pin.sym} 1530 -330 0 1 {name=p60 lab=vss}
+C {capa.sym} 1530 -380 0 0 {name=c7 m=1 value=280f}
+C {lab_pin.sym} 1530 -590 0 1 {name=p64 lab=LDCP_SA}
+C {lab_pin.sym} 1530 -510 0 1 {name=p65 lab=vss}
+C {capa.sym} 1530 -560 0 0 {name=c8 m=1 value=44f}
+C {lab_pin.sym} 1710 -240 0 1 {name=p15 lab=LDCP_COL_B}
+C {lab_pin.sym} 1710 -160 0 1 {name=p24 lab=vss}
+C {capa.sym} 1710 -210 0 0 {name=c9 m=1 value=63f}
+C {lab_pin.sym} 1530 -240 0 1 {name=p43 lab=LDCP_ADDLAT_B}
+C {lab_pin.sym} 1530 -160 0 1 {name=p66 lab=vss}
+C {capa.sym} 1530 -210 0 0 {name=c10 m=1 value=12f}
 C {spice_probe.sym} 710 -450 2 1 {name=p125 analysis=tran}
 C {spice_probe.sym} 150 -640 0 0 {name=p69 analysis=tran}
 C {spice_probe.sym} 10 -640 0 0 {name=p70 analysis=tran}
 C {spice_probe.sym} 10 -480 0 0 {name=p73 analysis=tran}
 C {spice_probe.sym} 150 -480 0 0 {name=p74 analysis=tran}
 C {spice_probe.sym} 10 -330 0 0 {name=p75 analysis=tran}
-C {spice_probe.sym} 1540 -590 0 0 {name=p76 analysis=tran}
-C {spice_probe.sym} 1540 -410 0 0 {name=p83 analysis=tran}
-C {spice_probe.sym} 1540 -240 0 0 {name=p84 analysis=tran}
-C {spice_probe.sym} 1720 -240 0 0 {name=p85 analysis=tran}
-C {spice_probe.sym} 1720 -410 0 0 {name=p86 analysis=tran}
-C {spice_probe.sym} 1720 -590 0 0 {name=p87 analysis=tran}
+C {spice_probe.sym} 1530 -590 0 0 {name=p76 analysis=tran}
+C {spice_probe.sym} 1530 -410 0 0 {name=p83 analysis=tran}
+C {spice_probe.sym} 1530 -240 0 0 {name=p84 analysis=tran}
+C {spice_probe.sym} 1710 -240 0 0 {name=p85 analysis=tran}
+C {spice_probe.sym} 1710 -410 0 0 {name=p86 analysis=tran}
+C {spice_probe.sym} 1710 -590 0 0 {name=p87 analysis=tran}
 C {spice_probe.sym} 1340 -300 2 1 {name=p88 analysis=tran}
 C {spice_probe.sym} 1340 -530 0 0 {name=p89 analysis=tran}
 C {spice_probe.sym} 1340 -620 0 0 {name=p90 analysis=tran}

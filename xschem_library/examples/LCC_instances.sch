@@ -20,26 +20,26 @@ L 4 1420 -730 1440 -750 {dash=3}
 L 4 1420 -770 1420 -730 {dash=3}
 L 4 1420 -770 1440 -750 {dash=3}
 L 4 1300 -750 1420 -750 {dash=3}
-B 2 10 -930 480 -680 {flags=1 
-y1 = 0
-y2 = 3
+B 2 830 -490 1300 -280 {flags=1 
+y1 = -0.0578106
+y2 = 3.04806
 divy = 6
-x1=0
-x2=3
-divx=6
-node="v(z) v(a)"
-color="6 8"
-sweep="v(a) v(z)"}
-B 2 860 -470 1330 -260 {flags=1 
-y1 = 0
-y2 = 3
-divy = 6
-x1=0
-x2=3
+x1=0.0194063
+x2=3.15766
 divx=6
 node="v(a) v(zz) v(zzz)"
 color="4 6 8"
 sweep="v(a)"}
+B 2 30 -930 500 -720 {flags=1 
+y1 = -0.0578106
+y2 = 3.04806
+divy = 6
+x1=-0.0714119
+x2=3.06686
+divx=6
+node="v(a) v(z)"
+color="4 6 8"
+sweep="v(z) v(a)"}
 P 4 5 560 -700 560 -510 1350 -510 1350 -700 560 -700 {dash=3}
 P 4 5 770 -920 770 -730 1300 -730 1300 -920 770 -920 {dash=3}
 T {These 2 instances are equivalent} 290 -280 0 0 0.4 0.4 {}
@@ -73,10 +73,12 @@ C {lab_pin.sym} 50 -110 0 0 {name=p5 lab=0}
 C {code_shown.sym} 580 -150 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
-value="
-.dc v1 0 3 0.01
+value=".control
+dc v1 0 3 0.001
 * .tran 10n 10u uic
-.save all
+save all
+write LCC_instances.raw
+.endc
 "}
 C {code.sym} 760 -170 0 0 {name=MODEL
 only_toplevel="true"
