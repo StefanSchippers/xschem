@@ -1610,17 +1610,20 @@ void free_rawfile(void)
 {
   int i;
 
-  if(!xctx->values) return;
-  for(i = 0 ; i < xctx->nvars; i++) {
-    my_free(510, &xctx->names[i]);
+  if(xctx->names) {
+    for(i = 0 ; i < xctx->nvars; i++) {
+      my_free(510, &xctx->names[i]);
+    }
+    my_free(968, &xctx->names);
   }
-  for(i = 0 ; i < xctx->nvars; i++) {
-    my_free(512, &xctx->values[i]);
+  if(xctx->values) {
+    for(i = 0 ; i < xctx->nvars; i++) {
+      my_free(512, &xctx->values[i]);
+    }
+    my_free(528, &xctx->values);
   }
-  my_free(1413, &xctx->npoints);
-  my_free(528, &xctx->values);
-  my_free(968, &xctx->names);
-  my_free(1393, &xctx->raw_schname);
+  if(xctx->npoints) my_free(1413, &xctx->npoints);
+  if(xctx->raw_schname) my_free(1393, &xctx->raw_schname);
   xctx->datasets = 0;
   xctx->nvars = 0;
   int_hash_free(xctx->raw_table);
@@ -1901,20 +1904,20 @@ void draw_graph(int c, int i, int flags)
       double subwx = wx + k * deltax / (subdivx + 1);
       if(!axis_within_range(subwx, wx1, wx2)) continue;
       if(axis_end(subwx, deltax, wx2)) break;
-      drawline(2, ADD, W_X(subwx),   W_Y(wy2), W_X(subwx),   W_Y(wy1), dash_sizey);
+      drawline(GRIDLAYER, ADD, W_X(subwx),   W_Y(wy2), W_X(subwx),   W_Y(wy1), dash_sizey);
     }
     if(!axis_within_range(wx, wx1, wx2)) continue;
     if(axis_end(wx, deltax, wx2)) break;
     /* swap order of wy1 and wy2 since grap y orientation is opposite to xorg orientation */
-    drawline(2, ADD, W_X(wx),   W_Y(wy2), W_X(wx),   W_Y(wy1), dash_sizey);
-    drawline(2, ADD, W_X(wx),   W_Y(wy1), W_X(wx),   W_Y(wy1) + 4, 0); /* axis marks */
+    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(wy2), W_X(wx),   W_Y(wy1), dash_sizey);
+    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(wy1), W_X(wx),   W_Y(wy1) + 4, 0); /* axis marks */
     /* X-axis labels */
     my_snprintf(lab, S(lab), "%g", wx * unitx);
     draw_string(3, NOW, lab, 0, 0, 1, 0, W_X(wx), y2 + 30 * txtsizex, txtsizex, txtsizex);
   }
   /* first and last vertical box delimiters */
-  drawline(2, ADD, W_X(wx1),   W_Y(wy2), W_X(wx1),   W_Y(wy1), 0);
-  drawline(2, ADD, W_X(wx2),   W_Y(wy2), W_X(wx2),   W_Y(wy1), 0);
+  drawline(GRIDLAYER, ADD, W_X(wx1),   W_Y(wy2), W_X(wx1),   W_Y(wy1), 0);
+  drawline(GRIDLAYER, ADD, W_X(wx2),   W_Y(wy2), W_X(wx2),   W_Y(wy1), 0);
   /* horizontal grid lines */
   deltay = axis_increment(wy1, wy2, divy);
   starty = axis_start(wy1, deltay, divy);
@@ -1924,25 +1927,25 @@ void draw_graph(int c, int i, int flags)
       double subwy = wy + k * deltay / (subdivy + 1);
       if(!axis_within_range(subwy, wy1, wy2)) continue;
       if(axis_end(subwy, deltay, wy2)) break;
-      drawline(2, ADD, W_X(wx1), W_Y(subwy),   W_X(wx2), W_Y(subwy), dash_sizex);
+      drawline(GRIDLAYER, ADD, W_X(wx1), W_Y(subwy),   W_X(wx2), W_Y(subwy), dash_sizex);
     }
     if(!axis_within_range(wy, wy1, wy2)) continue;
     if(axis_end(wy, deltay, wy2)) break;
-    drawline(2, ADD, W_X(wx1), W_Y(wy),   W_X(wx2), W_Y(wy), dash_sizex);
-    drawline(2, ADD, W_X(wx1)-4, W_Y(wy),   W_X(wx1), W_Y(wy), 0); /* axis marks */
+    drawline(GRIDLAYER, ADD, W_X(wx1), W_Y(wy),   W_X(wx2), W_Y(wy), dash_sizex);
+    drawline(GRIDLAYER, ADD, W_X(wx1)-4, W_Y(wy),   W_X(wx1), W_Y(wy), 0); /* axis marks */
     /* Y-axis labels */
     my_snprintf(lab, S(lab), "%g",  wy * unity);
     draw_string(3, NOW, lab, 0, 1, 0, 1, x1 - 2 - 30 * txtsizey, W_Y(wy), txtsizey, txtsizey);
   }
   /* first and last horizontal box delimiters */
-  drawline(2, ADD, W_X(wx1),   W_Y(wy1), W_X(wx2),   W_Y(wy1), 0);
-  drawline(2, ADD, W_X(wx1),   W_Y(wy2), W_X(wx2),   W_Y(wy2), 0);
+  drawline(GRIDLAYER, ADD, W_X(wx1),   W_Y(wy1), W_X(wx2),   W_Y(wy1), 0);
+  drawline(GRIDLAYER, ADD, W_X(wx1),   W_Y(wy2), W_X(wx2),   W_Y(wy2), 0);
   /* Horizontal axis (if in viewport) */
-  if(wy1 <= 0 && wy2 >= 0) drawline(2, ADD, W_X(wx1), W_Y(0),   W_X(wx2), W_Y(0),   0);
+  if(wy1 <= 0 && wy2 >= 0) drawline(GRIDLAYER, ADD, W_X(wx1), W_Y(0),   W_X(wx2), W_Y(0),   0);
   /* Vertical axis (if in viewport) 
    * swap order of wy1 and wy2 since grap y orientation is opposite to xorg orientation */
-  if(wx1 <= 0 && wx2 >= 0) drawline(2, ADD, W_X(0),   W_Y(wy2), W_X(0),   W_Y(wy1), 0);
-  drawline(2, END, 0.0, 0.0, 0.0, 0.0, 0);
+  if(wx1 <= 0 && wx2 >= 0) drawline(GRIDLAYER, ADD, W_X(0),   W_Y(wy2), W_X(0),   W_Y(wy1), 0);
+  drawline(GRIDLAYER, END, 0.0, 0.0, 0.0, 0.0, 0);
   /* get data to plot */
   my_strdup2(1389, &node, get_tok_value(r->prop_ptr,"node",0));
   my_strdup2(1390, &color, get_tok_value(r->prop_ptr,"color",0)); 

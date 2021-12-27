@@ -31,8 +31,8 @@ B 2 1860 -890 3010 -810 {flags=1
 y1 = 0
 y2 = 1
 divy = 1
-x1=1.5111e-07
-x2=3.58736e-07  divx=10
+x1=1.25059e-07
+x2=1.84194e-07  divx=10
 node="
 v(ldbl[0]) v(ldbl[16]) v(ldbl[32])
 v(ldbl[1]) v(ldbl[17]) v(ldbl[33])
@@ -43,8 +43,8 @@ B 2 1860 -810 3010 -730 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.5111e-07
-x2=3.58736e-07  divx=10
+x1=1.25059e-07
+x2=1.84194e-07  divx=10
 node="
 v(ldl1x[0]) v(ldl1x[1]) v(ldl1x[2]) v(ldl1x[3])
 "
@@ -53,24 +53,27 @@ B 2 1860 -1180 3010 -970 {flags=1
 y1 = -0.251577
 y2 = 1.74839
 divy = 4
-x1=1.5111e-07
-x2=3.58736e-07  divx=10
+x1=1.25059e-07
+x2=1.84194e-07
+divx=10
+subdivx=4
 node="v(ldcp) v(ldyms[4]) v(ldyms[5]) v(ldyms[6]) v(ldyms[7])"
-color=6\\ 12\\ 13\\ 14\\ 15 unitx=n}
+color="6 12 13 14 15"
+unitx=n}
 B 2 1860 -490 3010 -410 {flags=1
 y1 = -0.1
 y2 = 1.6
 divy = 1
-x1=1.5111e-07
-x2=3.58736e-07  divx=10
+x1=1.25059e-07
+x2=1.84194e-07  divx=10
 node="v(ldprech)"
 color=4 unitx=n subdivy=2}
 B 2 1860 -410 3010 -330 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.5111e-07
-x2=3.58736e-07  divx=10
+x1=1.25059e-07
+x2=1.84194e-07  divx=10
 node="v(lden) v(ldcp)"
 color=12\\ 18 unitx=n subdivy=2}
 B 2 1860 -730 3010 -570 {flags=1
@@ -78,9 +81,9 @@ y1 = -0.16335
 y2 = 1.6335
 divy = 3
 subdivy=1
-subdivx = 1
-x1=1.5111e-07
-x2=3.58736e-07  divx=10
+subdivx = 4
+x1=1.25059e-07
+x2=1.84194e-07  divx=10
 node="
 v(ldcp)
 v(ldwl[0]) v(ldwl[1]) v(ldwl[2]) v(ldwl[3]) 
@@ -93,49 +96,49 @@ B 2 1860 -330 3010 -250 {flags=1
 y1 = 0
 y2 = 1
 divy = 1
-x1=1.5111e-07
-x2=3.58736e-07  divx=10
+x1=1.25059e-07
+x2=1.84194e-07  divx=10
 node="v(ldymsref)"
 color=3 unitx=n subdivy=4}
 B 2 1860 -250 3010 -170 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.5111e-07
-x2=3.58736e-07  divx=10
+x1=1.25059e-07
+x2=1.84194e-07  divx=10
 node="v(lden)"
 color=4 unitx=n subdivy=2}
 B 2 1860 -170 3010 -90 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.5111e-07
-x2=3.58736e-07  divx=10
+x1=1.25059e-07
+x2=1.84194e-07  divx=10
 node="v(lden) v(ldprech)"
 color=12\\ 16 unitx=n subdivy=2}
 B 2 1860 -90 3010 -10 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.5111e-07
-x2=3.58736e-07  divx=10
+x1=1.25059e-07
+x2=1.84194e-07  divx=10
 node="v(lden) v(ldcp)"
 color=12\\ 5 unitx=n subdivy=2}
 B 2 1860 -570 3010 -490 {flags=1
 y1 = 0
-y2 = 1.6
+y2 = 1.5
 divy = 1
 subdivy=2
-x1=1.5111e-07
-x2=3.58736e-07  divx=10
+x1=1.25059e-07
+x2=1.84194e-07  divx=10
 node="v(ldl1x[1])"
 color=4 unitx=n}
 B 2 1860 -970 3010 -890 {flags=1
 y1 = 0
 y2 = 1.5
 divy = 1
-x1=1.5111e-07
-x2=3.58736e-07  divx=10
+x1=1.25059e-07
+x2=1.84194e-07  divx=10
 node="v(lden) v(ldprech)"
 color=4\\ 6 unitx=n}
 B 7 950 -250 980 -80 {}
