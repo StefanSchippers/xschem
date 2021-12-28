@@ -22,9 +22,9 @@
 
 #include "xschem.h"
 
-static struct str_hashentry *model_table[HASHSIZE]; /* safe even with multiple schematics */
-static struct str_hashentry *model_entry; /* safe even with multiple schematics */
-static struct str_hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
+static Str_hashentry *model_table[HASHSIZE]; /* safe even with multiple schematics */
+static Str_hashentry *model_entry; /* safe even with multiple schematics */
+static Str_hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
 
 void hier_psprint(void)  /* netlister driver */
 {
@@ -568,10 +568,10 @@ void spice_netlist(FILE *fd, int spice_stop )
  *                                      return NULL if not found
  * "whatever"    "whatever"  XDELETE     delete entry if found,return NULL
  */
-struct str_hashentry *str_hash_lookup(struct str_hashentry **table, const char *token, const char *value, int what)
+Str_hashentry *str_hash_lookup(Str_hashentry **table, const char *token, const char *value, int what)
 {
   unsigned int hashcode, idx;
-  struct str_hashentry *entry, *saveptr, **preventry;
+  Str_hashentry *entry, *saveptr, **preventry;
   int s ;
 
   if(token==NULL) return NULL;
@@ -585,8 +585,8 @@ struct str_hashentry *str_hash_lookup(struct str_hashentry **table, const char *
     {
       if(what==XINSERT || what == XINSERT_NOREPLACE)            /* insert data */
       {
-        s=sizeof( struct str_hashentry );
-        entry=(struct str_hashentry *)my_malloc(313, s);
+        s=sizeof( Str_hashentry );
+        entry=(Str_hashentry *)my_malloc(313, s);
         entry->next=NULL;
         entry->token=NULL;
         entry->value=NULL;
@@ -617,9 +617,9 @@ struct str_hashentry *str_hash_lookup(struct str_hashentry **table, const char *
   }
 }
 
-static void str_hash_free_entry(struct str_hashentry *entry)
+static void str_hash_free_entry(Str_hashentry *entry)
 {
-  struct str_hashentry *tmp;
+  Str_hashentry *tmp;
   while( entry ) {
     tmp = entry -> next;
     my_free(956, &(entry->token));
@@ -630,7 +630,7 @@ static void str_hash_free_entry(struct str_hashentry *entry)
 }
 
 
-void str_hash_free(struct str_hashentry **table)
+void str_hash_free(Str_hashentry **table)
 {
   int i;
 
@@ -655,10 +655,10 @@ void str_hash_free(struct str_hashentry **table)
  *                                       return NULL if not found
  * "whatever"    "whatever"  XDELETE     delete entry if found,return NULL
  */
-struct int_hashentry *int_hash_lookup(struct int_hashentry **table, const char *token, const int value, int what)
+Int_hashentry *int_hash_lookup(Int_hashentry **table, const char *token, const int value, int what)
 {
   unsigned int hashcode, idx;
-  struct int_hashentry *entry, *saveptr, **preventry;
+  Int_hashentry *entry, *saveptr, **preventry;
   int s ;
 
   if(token==NULL) return NULL;
@@ -672,8 +672,8 @@ struct int_hashentry *int_hash_lookup(struct int_hashentry **table, const char *
     {
       if(what==XINSERT || what == XINSERT_NOREPLACE)            /* insert data */
       {
-        s=sizeof( struct int_hashentry );
-        entry=(struct int_hashentry *)my_malloc(659, s);
+        s=sizeof( Int_hashentry );
+        entry=(Int_hashentry *)my_malloc(659, s);
         entry->next=NULL;
         entry->token=NULL;
         my_strdup(658, &entry->token, token);
@@ -702,9 +702,9 @@ struct int_hashentry *int_hash_lookup(struct int_hashentry **table, const char *
   }
 }
 
-static void int_hash_free_entry(struct int_hashentry *entry)
+static void int_hash_free_entry(Int_hashentry *entry)
 {
-  struct int_hashentry *tmp;
+  Int_hashentry *tmp;
   while( entry ) {
     tmp = entry -> next;
     my_free(1171, &(entry->token));
@@ -714,7 +714,7 @@ static void int_hash_free_entry(struct int_hashentry *entry)
 }
 
 
-void int_hash_free(struct int_hashentry **table)
+void int_hash_free(Int_hashentry **table)
 {
   int i;
 

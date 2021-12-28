@@ -337,47 +337,47 @@ do { \
 
 typedef struct
 {
-   unsigned short type;
-   int n;
-   unsigned int col;
+  unsigned short type;
+  int n;
+  unsigned int col;
 } Selected;
 
 typedef struct
 {
-   double x1;
-   double x2;
-   double y1;
-   double y2;
-   short  end1;
-   short  end2;
-   short sel;
-   char  *node;
-   char *prop_ptr;
-   short bus; /*  20171201 cache here wire "bus" property, to avoid too many get_tok_value() calls */
+  double x1;
+  double x2;
+  double y1;
+  double y2;
+  short  end1;
+  short  end2;
+  short sel;
+  char  *node;
+  char *prop_ptr;
+  short bus; /*  20171201 cache here wire "bus" property, to avoid too many get_tok_value() calls */
 } xWire;
 
 typedef struct
 {
-   double x1;
-   double x2;
-   double y1;
-   double y2;
-   unsigned short sel;
-   char *prop_ptr;
-   short dash;
-   short bus;
+  double x1;
+  double x2;
+  double y1;
+  double y2;
+  unsigned short sel;
+  char *prop_ptr;
+  short dash;
+  short bus;
 } xLine;
 
 typedef struct
 {
-   double x1;
-   double x2;
-   double y1;
-   double y2;
-   unsigned short sel;
-   char *prop_ptr;
-   short dash;
-   unsigned short flags;
+  double x1;
+  double x2;
+  double y1;
+  double y2;
+  unsigned short sel;
+  char *prop_ptr;
+  short dash;
+  unsigned short flags;
 } xRect;
 
 typedef struct
@@ -425,54 +425,55 @@ typedef struct
 
 typedef struct
 {
-   char *name;
-   double minx;
-   double maxx;
-   double miny;
-   double maxy;
-   xLine **line;  /*  array of [cadlayers] pointers to Line */
-   xRect  **rect;
-   xPoly **poly;
-   xArc **arc;
-   xText  *text;
-   int *lines;     /*  array of [cadlayers] integers */
-   int *rects;
-   int *polygons;
-   int *arcs;
-   int texts;
-   char *prop_ptr;
-   char *type;
-   char *templ;
-   int flags;   /* bit 0: embedded flag 
-                 * bit 1: **free**
-                 * bit 2: highight if connected wire highlighted */
+  char *name;
+  double minx;
+  double maxx;
+  double miny;
+  double maxy;
+  xLine **line;  /*  array of [cadlayers] pointers to Line */
+  xRect  **rect;
+  xPoly **poly;
+  xArc **arc;
+  xText  *text;
+  int *lines;     /*  array of [cadlayers] integers */
+  int *rects;
+  int *polygons;
+  int *arcs;
+  int texts;
+  char *prop_ptr;
+  char *type;
+  char *templ;
+  int flags;   /* bit 0: embedded flag 
+                * bit 1: **free**
+                * bit 2: highight if connected wire highlighted */
 } xSymbol;
 
 typedef struct
 {
-   char *name;/*  symbol name (ex: devices/lab_pin)  */
-   int ptr;   /*  was a pointer formerly... */
-   double x0;  /* symbol origin / anchor point */
-   double y0;
-   double x1;  /* symbol bounding box */
-   double y1;
-   double x2;
-   double y2;
-   double xx1; /* bounding box without texts */
-   double yy1;
-   double xx2;
-   double yy2;
-   short rot;
-   short flip;
-   short sel;
-   int color; /* hilight color */
-   short flags; /* bit 0: skip field, 
-                 * bit 1: flag for different textlayer for pin/labels , 1: ordinary symbol, 0: label/pin/show 
-                 * bit 2: highlight if connected net/label is highlighted */
-   char *prop_ptr;
-   char **node;
-   char *lab;      /*  lab attribute if any (pin/label) */
-   char *instname; /*  20150409 instance name (example: I23)  */
+  char *name;/*  symbol name (ex: devices/lab_pin)  */
+  int ptr;   /*  was a pointer formerly... */
+  double x0;  /* symbol origin / anchor point */
+  double y0;
+  double x1;  /* symbol bounding box */
+  double y1;
+  double x2;
+  double y2;
+  double xx1; /* bounding box without texts */
+  double yy1;
+  double xx2;
+  double yy2;
+  short rot;
+  short flip;
+  short sel;
+  int color; /* hilight color */
+  short flags; /* bit 0: skip field, 
+                * bit 1: flag for different textlayer for pin/labels,
+                * 1: ordinary symbol, 0: label/pin/show 
+                * bit 2: highlight if connected net/label is highlighted */
+  char *prop_ptr;
+  char **node;
+  char *lab;      /*  lab attribute if any (pin/label) */
+  char *instname; /*  20150409 instance name (example: I23)  */
 } xInstance;
 
 
@@ -484,28 +485,19 @@ typedef struct
 } Zoom;
 
 
-struct iterator_ctx {
-                  int x1a, x2a;
-                  int y1a, y2a;
-                  int i, j, counti, countj;
-                  int tmpi, tmpj;
-                  struct instentry *instanceptr;
-                  struct wireentry *wireptr;
-                  unsigned short *instflag;
-                  unsigned short *wireflag;
-                 };
-
-struct simdata_pin {
-                  char *function;
-                  char *go_to;
-                  int value;
-                  short clock;
-                 };
+typedef struct
+{
+  char *function;
+  char *go_to;
+  int value;
+  short clock;
+} Simdata_pin;
  
-struct simdata {
-                  struct simdata_pin *pin;
-                  int npin;
-                 };
+typedef struct
+{
+  Simdata_pin *pin;
+  int npin;
+} Simdata;
 
 typedef struct
 {
@@ -531,6 +523,117 @@ typedef struct
   xInstance *iptr;
   xSymbol *symptr;
 } Undo_slot;
+
+typedef struct
+{ /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
+  double x0;
+  double y0;
+  short rot;
+  short flip;
+  FILE *fd;
+  char *prop_ptr;
+  char *symname;
+} Lcc;
+
+typedef struct {
+  int in;
+  int out;
+  int inout;
+  int port;
+} Drivers;
+
+/* instance name (refdes) hash table, for unique name checking */
+typedef struct inst_hashentry Inst_hashentry;
+struct inst_hashentry 
+{
+  struct inst_hashentry *next;
+  unsigned int hash;
+  char *token;
+  int value;
+};
+
+/* generic string hash table */
+typedef struct str_hashentry Str_hashentry;
+struct str_hashentry
+{
+  struct str_hashentry *next;
+  unsigned int hash;
+  char *token;
+  char *value;
+};
+
+/* generic int hash table */
+typedef struct int_hashentry Int_hashentry;
+struct int_hashentry
+{
+  struct int_hashentry *next;
+  unsigned int hash;
+  char *token;
+  int value;
+};
+
+typedef struct node_hashentry Node_hashentry;
+struct node_hashentry
+{
+  struct node_hashentry *next;
+  unsigned int hash;
+  char *token;
+  char *sig_type;
+  char *verilog_type;
+  char *value;
+  char *class;
+  char *orig_tok;
+  Drivers d;
+};
+
+
+typedef struct hilight_hashentry Hilight_hashentry;
+struct hilight_hashentry
+{
+  struct hilight_hashentry *next;
+  unsigned int hash;
+  char *token;
+  char *path; /* hierarchy path */
+  int oldvalue;  /* used for FF simulation */
+  int value;  /* hilight color */
+  int time; /*delta-time for sims */
+};
+
+/*  for netlist.c */
+typedef struct instpinentry Instpinentry;
+struct instpinentry
+{
+  struct instpinentry *next;
+  double x0,y0;
+  int n;
+  int pin;
+};
+
+typedef struct wireentry Wireentry;
+struct wireentry
+{
+  struct wireentry *next;
+  int n;
+};
+
+typedef struct instentry Instentry;
+struct instentry
+{
+  struct instentry *next;
+  int n;
+};
+
+typedef struct 
+{
+  int x1a, x2a;
+  int y1a, y2a;
+  int i, j, counti, countj;
+  int tmpi, tmpj;
+  Instentry *instanceptr;
+  Wireentry *wireptr;
+  unsigned short *instflag;
+  unsigned short *wireflag;
+} Iterator_ctx;
 
 typedef struct {
   xWire *wire;
@@ -591,7 +694,7 @@ typedef struct {
   int prep_hi_structs;
   int prep_hash_inst;
   int prep_hash_wires;
-  struct simdata *simdata;
+  Simdata *simdata;
   int simdata_ninst;
   int modified;
   int semaphore;
@@ -600,9 +703,9 @@ typedef struct {
   int flat_netlist;
   char current_dirname[PATH_MAX];
   int netlist_unconn_cnt; /* unique count of unconnected pins while netlisting */
-  struct instpinentry *instpin_spatial_table[NBOXES][NBOXES];
-  struct wireentry *wire_spatial_table[NBOXES][NBOXES];
-  struct instentry *inst_spatial_table[NBOXES][NBOXES];
+  Instpinentry *instpin_spatial_table[NBOXES][NBOXES];
+  Wireentry *wire_spatial_table[NBOXES][NBOXES];
+  Instentry *inst_spatial_table[NBOXES][NBOXES];
   Window window;
   Pixmap save_pixmap;
   XRectangle xrect[1];
@@ -623,9 +726,9 @@ typedef struct {
   int cur_undo_ptr;
   int tail_undo_ptr;
   int head_undo_ptr;
-  struct inst_hashentry **inst_table;
-  struct node_hashentry **node_table;
-  struct hilight_hashentry **hilight_table;
+  Inst_hashentry **inst_table;
+  Node_hashentry **node_table;
+  Hilight_hashentry **hilight_table;
 
   int hilight_nets;
   int hilight_color;
@@ -641,7 +744,7 @@ typedef struct {
   int onetime;
   /* move.c */
   /* list of nodes, instances attached to these need redraw */
-  struct int_hashentry **node_redraw_table;
+  Int_hashentry **node_redraw_table;
   /* list of instances, collected using previous table, that need redraw */
   unsigned char *inst_redraw_table;
   int inst_redraw_table_size;
@@ -700,7 +803,7 @@ typedef struct {
   int graph_master; /* graph where mouse operations are started, used to lock x-axis */
   int graph_bottom; /* graph where mouse operations are started, used to lock x-axis */
   int graph_left; /* graph where mouse operations are started, used to lock x-axis */
-  struct int_hashentry **raw_table;
+  Int_hashentry **raw_table;
   char *raw_schname;
   /*     */
   int nl_sel, nl_sem;
@@ -739,88 +842,6 @@ typedef struct {
   void (*delete_undo)(void);
   void (*clear_undo)(void);
 } Xschem_ctx;
-
-struct Lcc { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
-  double x0;
-  double y0;
-  short rot;
-  short flip;
-  FILE *fd;
-  char *prop_ptr;
-  char *symname;
-};
-
-struct drivers {
-                int in;
-                int out;
-                int inout;
-                int port;
-               };
-
-/* instance name (refdes) hash table, for unique name checking */
-struct inst_hashentry {
-                  struct inst_hashentry *next;
-                  unsigned int hash;
-                  char *token;
-                  int value;
-                 };
-
-/* generic string hash table */
-struct str_hashentry {
-                  struct str_hashentry *next;
-                  unsigned int hash;
-                  char *token;
-                  char *value;
-                 };
-
-/* generic int hash table */
-struct int_hashentry {
-                  struct int_hashentry *next;
-                  unsigned int hash;
-                  char *token;
-                  int value;
-                 };
-
-struct node_hashentry {
-                  struct node_hashentry *next;
-                  unsigned int hash;
-                  char *token;
-                  char *sig_type;
-                  char *verilog_type;
-                  char *value;
-                  char *class;
-                  char *orig_tok;
-                  struct drivers d;
-                 };
-
-
-struct hilight_hashentry {
-                  struct hilight_hashentry *next;
-                  unsigned int hash;
-                  char *token;
-                  char *path; /* hierarchy path */
-                  int oldvalue;  /* used for FF simulation */
-                  int value;  /* hilight color */
-                  int time; /*delta-time for sims */
-                 };
-
-/*  for netlist.c */
-struct instpinentry {
- struct instpinentry *next;
- double x0,y0;
- int n;
- int pin;
-};
-
-struct wireentry {
-  struct wireentry *next;
-  int n;
-};
-
-struct instentry {
- struct instentry *next;
- int n;
-};
 
 /* GLOBAL VARIABLES */
 
@@ -931,8 +952,8 @@ extern void saveas(const char *f, int type);
 extern const char *get_file_path(char *f);
 extern int save(int confirm);
 extern void save_ascii_string(const char *ptr, FILE *fd, int newline);
-extern struct hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int what) ;
-extern struct hilight_hashentry *hilight_lookup(const char *token, int value, int what);
+extern Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int what) ;
+extern Hilight_hashentry *hilight_lookup(const char *token, int value, int what);
 extern int  name_strcmp(char *s, char *d) ;
 extern int search(const char *tok, const char *val, int sub, int sel);
 extern int process_options(int argc, char **argv);
@@ -1146,26 +1167,26 @@ extern int tclvareval(const char *script, ...);
 extern const char *tcl_hook2(char **res);
 extern void statusmsg(char str[],int n);
 extern int place_text(int draw_text, double mx, double my);
-extern void init_inst_iterator(struct iterator_ctx *ctx, double x1, double y1, double x2, double y2);
-extern struct instentry *inst_iterator_next(struct iterator_ctx *ctx);
-extern void init_wire_iterator(struct iterator_ctx *ctx, double x1, double y1, double x2, double y2);
-extern struct wireentry *wire_iterator_next(struct iterator_ctx *ctx);
+extern void init_inst_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, double y2);
+extern Instentry *inst_iterator_next(Iterator_ctx *ctx);
+extern void init_wire_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, double y2);
+extern Wireentry *wire_iterator_next(Iterator_ctx *ctx);
 extern void check_unique_names(int rename);
 
 extern void clear_instance_hash();
 
 extern unsigned int str_hash(const char *tok);
-extern void str_hash_free(struct str_hashentry **table);
-extern struct str_hashentry *str_hash_lookup(struct str_hashentry **table,
+extern void str_hash_free(Str_hashentry **table);
+extern Str_hashentry *str_hash_lookup(Str_hashentry **table,
        const char *token, const char *value, int what);
-extern void int_hash_free(struct int_hashentry **table);
-extern struct int_hashentry *int_hash_lookup(struct int_hashentry **table,
+extern void int_hash_free(Int_hashentry **table);
+extern Int_hashentry *int_hash_lookup(Int_hashentry **table,
        const char *token, const int value, int what);
 
 extern const char *find_nth(const char *str, char sep, int n);
 extern int isonlydigit(const char *s);
 extern const char *translate(int inst, const char* s);
-extern const char* translate2(struct Lcc *lcc, int level, char* s);
+extern const char* translate2(Lcc *lcc, int level, char* s);
 extern void print_tedax_element(FILE *fd, int inst);
 extern int print_spice_element(FILE *fd, int inst);
 extern void print_spice_subckt(FILE *fd, int symbol);
@@ -1230,7 +1251,7 @@ extern int count_items(const char *s, const char *sep);
 extern int get_unnamed_node(int what, int mult, int node);
 extern void node_hash_free(void);
 extern void traverse_node_hash();
-extern struct node_hashentry
+extern Node_hashentry
                 *bus_node_hash_lookup(const char *token, const char *dir,int what, int port, char *sig_type,
                 char *verilog_type, char *value, char *class);
 /* extern void insert_missing_pin(); */
@@ -1259,7 +1280,7 @@ extern void clear_all_hilights(void);
 extern void hilight_child_pins(void);
 extern void hilight_parent_pins(void);
 extern void hilight_net_pin_mismatches(void);
-extern struct node_hashentry **get_node_table_ptr(void);
+extern Node_hashentry **get_node_table_ptr(void);
 extern void change_elem_order(void);
 extern int set_different_token(char **s,const char *new, const char *old, int object, int n);
 extern void print_hilight_net(int show);

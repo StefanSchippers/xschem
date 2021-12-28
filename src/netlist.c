@@ -24,7 +24,7 @@
 
 static void instdelete(int n, int x, int y)
 {
-  struct instentry *saveptr, **prevptr;
+  Instentry *saveptr, **prevptr;
 
   prevptr = &xctx->inst_spatial_table[x][y];
   while( (*prevptr)->n != n) prevptr = &(*prevptr)->next;
@@ -35,18 +35,18 @@ static void instdelete(int n, int x, int y)
 
 static void instinsert(int n, int x, int y)
 {
-  struct instentry *ptr, *newptr;
+  Instentry *ptr, *newptr;
   ptr=xctx->inst_spatial_table[x][y];
-  newptr=my_malloc(236, sizeof(struct instentry));
+  newptr=my_malloc(236, sizeof(Instentry));
   newptr->next=ptr;
   newptr->n=n;
   xctx->inst_spatial_table[x][y]=newptr;
   dbg(2, "instinsert(): inserting object %d at %d,%d\n",n,x,y);
 }
 
-static struct instentry *delinstentry(struct instentry *t)
+static Instentry *delinstentry(Instentry *t)
 {
-  struct instentry *tmp;
+  Instentry *tmp;
   while( t ) {
     tmp = t->next;
     my_free(822, &t);
@@ -124,7 +124,7 @@ void hash_instances(void) /* 20171203 insert object bbox in spatial hash table *
 
 static void instpindelete(int n,int pin, int x, int y)
 {
-  struct instpinentry *saveptr, **prevptr, *ptr;
+  Instpinentry *saveptr, **prevptr, *ptr;
 
   prevptr = &xctx->instpin_spatial_table[x][y];
   ptr = *prevptr;
@@ -143,10 +143,10 @@ static void instpindelete(int n,int pin, int x, int y)
 /*                                      --pin coordinates--  -square coord- */
 static void instpininsert(int n,int pin, double x0, double y0, int x, int y)
 {
- struct instpinentry *ptr, *newptr;
+ Instpinentry *ptr, *newptr;
 
  ptr=xctx->instpin_spatial_table[x][y];
- newptr=my_malloc(237, sizeof(struct instpinentry));
+ newptr=my_malloc(237, sizeof(Instpinentry));
  newptr->next=ptr;
  newptr->n=n;
  newptr->x0=x0;
@@ -157,9 +157,9 @@ static void instpininsert(int n,int pin, double x0, double y0, int x, int y)
 }
 
 
-struct instpinentry *delinstpinentry(struct instpinentry *t)
+Instpinentry *delinstpinentry(Instpinentry *t)
 {
-  struct instpinentry *tmp;
+  Instpinentry *tmp;
 
   while(t) {
     tmp = t->next;
@@ -181,7 +181,7 @@ static void del_inst_pin_table(void)
 
 static void wiredelete(int n, int x, int y)
 {
-  struct wireentry *saveptr, **prevptr;
+  Wireentry *saveptr, **prevptr;
 
   prevptr = &xctx->wire_spatial_table[x][y];
   while( (*prevptr)->n != n) prevptr = &(*prevptr)->next;
@@ -192,19 +192,19 @@ static void wiredelete(int n, int x, int y)
 
 static void wireinsert(int n, int x, int y)
 {
-  struct wireentry *ptr, *newptr;
+  Wireentry *ptr, *newptr;
 
   ptr=xctx->wire_spatial_table[x][y];
-  newptr=my_malloc(238, sizeof(struct wireentry));
+  newptr=my_malloc(238, sizeof(Wireentry));
   newptr->next=ptr;
   newptr->n=n;
   xctx->wire_spatial_table[x][y]=newptr;
   dbg(2, "wireinsert(): inserting wire %d at %d,%d\n",n,x,y);
 }
 
-static struct wireentry *delwireentry(struct wireentry *t)
+static Wireentry *delwireentry(Wireentry *t)
 {
-  struct wireentry *tmp;
+  Wireentry *tmp;
 
   while( t ) {
     tmp = t->next;
@@ -301,7 +301,7 @@ void hash_wire(int what, int n, int incremental)
   double tmpd;
   double x1, y1, x2, y2;
   int x1a, x2a, y1a, y2a;
-  struct wireentry *wptr;
+  Wireentry *wptr;
   xWire * const wire = xctx->wire;
 
   wire[n].end1 = wire[n].end2=-1;
@@ -415,7 +415,7 @@ void netlist_options(int i)
 void print_wires(void)
 {
  int i,j;
- struct wireentry *ptr;
+ Wireentry *ptr;
  for(i=0;i<NBOXES;i++) {
    for(j=0;j<NBOXES;j++)
    {
@@ -463,7 +463,7 @@ void wirecheck(int k)    /* recursive routine */
  int touches;
  double x1, y1, x2, y2;
  int x1a, x2a, y1a, y2a;
- struct wireentry *ptr2;
+ Wireentry *ptr2;
  xWire * const wire = xctx->wire;
  
   x1=wire[k].x1;
@@ -626,8 +626,8 @@ void prepare_netlist_structs(int for_netlist)
   int touches=0;
   int touches_unnamed=0;
   double rx1,ry1;
-  struct wireentry *wptr;
-  struct instpinentry *iptr;
+  Wireentry *wptr;
+  Instpinentry *iptr;
   int i,j, rects, generic_rects;
   char *dir=NULL;
   char *type=NULL;

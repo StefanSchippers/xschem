@@ -659,8 +659,8 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
   const char *rot_txt;
   int rotated_text=-1;
 
-  struct wireentry *wptr;
-  struct instpinentry *iptr;
+  Wireentry *wptr;
+  Instpinentry *iptr;
   int sqx, sqy;
   int first_call;
   struct stat buf;
@@ -1371,7 +1371,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  for(i=0;i<xctx->instances;i++)
  {
   char *type;
-  struct hilight_hashentry *entry;
+  Hilight_hashentry *entry;
 
   if(selected == 1 && !xctx->inst[i].sel) continue;
 

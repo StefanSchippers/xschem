@@ -2004,7 +2004,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } else if(argc > 3) {
           /* xschem rawfile_query index v(ldxp) */
           if(!strcmp(argv[2], "index")) {
-            struct int_hashentry *entry; 
+            Int_hashentry *entry; 
             int idx;
             entry = int_hash_lookup(xctx->raw_table, argv[3], 0, XLOOKUP);
             idx = entry ? entry->value : -1;

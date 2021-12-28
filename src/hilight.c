@@ -41,9 +41,9 @@ static unsigned int hi_hash(const char *tok)
   return hash;
 }
 
-static void hilight_hash_free_entry(struct hilight_hashentry *entry)
+static void hilight_hash_free_entry(Hilight_hashentry *entry)
 {
-  struct hilight_hashentry *tmp;
+  Hilight_hashentry *tmp;
   while(entry) {
     tmp = entry->next;
     my_free(1287, &entry->token); 
@@ -65,7 +65,7 @@ static void hilight_hash_free(void) /* remove the whole hash table  */
  }
 }
 
-static struct hilight_hashentry *hilight_hash_lookup(const char *token, int value, int what)
+static Hilight_hashentry *hilight_hash_lookup(const char *token, int value, int what)
 /*    token           what       ... what ...
  * --------------------------------------------------------------------------
  * "whatever"         XINSERT    insert in hash table if not in and return NULL. If already present update
@@ -76,7 +76,7 @@ static struct hilight_hashentry *hilight_hash_lookup(const char *token, int valu
  */
 {
   unsigned int hashcode, index;
-  struct hilight_hashentry *entry, *saveptr, **preventry;
+  Hilight_hashentry *entry, *saveptr, **preventry;
   char *ptr;
   int s ;
  
@@ -90,9 +90,9 @@ static struct hilight_hashentry *hilight_hash_lookup(const char *token, int valu
       int lent = strlen(token) + 1;
       int lenp = strlen(xctx->sch_path[xctx->currsch]) + 1;
       if( what==XINSERT || what == XINSERT_NOREPLACE) { /* insert data */
-        s=sizeof( struct hilight_hashentry );
+        s=sizeof( Hilight_hashentry );
         ptr= my_malloc(137, s );
-        entry=(struct hilight_hashentry *)ptr;
+        entry=(Hilight_hashentry *)ptr;
         entry->next = NULL;
         entry->token = my_malloc(778, lent);
         memcpy(entry->token, token, lent);
@@ -128,11 +128,11 @@ static struct hilight_hashentry *hilight_hash_lookup(const char *token, int valu
 }
 
 /* warning, in case of buses return only pointer to first found bus element */
-struct hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int what)
+Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int what)
 {
   char *start, *string_ptr, c;
   char *string=NULL;
-  struct hilight_hashentry *ptr1=NULL, *ptr2=NULL;
+  Hilight_hashentry *ptr1=NULL, *ptr2=NULL;
   int mult;
  
   if(token==NULL) return NULL;
@@ -172,7 +172,7 @@ void display_hilights(char **str)
 {
   int i;
   int first = 1;
-  struct hilight_hashentry *entry;
+  Hilight_hashentry *entry;
   for(i=0;i<HASHSIZE;i++) {
     entry = xctx->hilight_table[i];
     while(entry) {
@@ -191,7 +191,7 @@ static int there_are_hilights()
 {
   register int i;
   register xInstance * inst =  xctx->inst;
-  register struct hilight_hashentry **hiptr = xctx->hilight_table;
+  register Hilight_hashentry **hiptr = xctx->hilight_table;
   for(i=0;i<HASHSIZE;i++) {
     if(hiptr[i]) return 1;
   }
@@ -232,8 +232,8 @@ void incr_hilight_color(void)
 void create_plot_cmd(void)
 {
   int i, c, idx, first;
-  struct hilight_hashentry *entry;
-  struct node_hashentry *node_entry;
+  Hilight_hashentry *entry;
+  Node_hashentry *node_entry;
   char *tok;
   char plotfile[PATH_MAX];
   char color_str[30];
@@ -448,7 +448,7 @@ void hilight_net_pin_mismatches(void)
 void hilight_parent_pins(void)
 {
  int rects, i, j, k;
- struct hilight_hashentry *entry;
+ Hilight_hashentry *entry;
  const char *pin_name;
  char *pin_node = NULL;
  char *net_node=NULL;
@@ -499,7 +499,7 @@ void hilight_child_pins(void)
  const char *pin_name;
  char *pin_node = NULL;
  char *net_node=NULL;
- struct hilight_hashentry *entry;
+ Hilight_hashentry *entry;
  int mult, net_mult, i, inst_number;
 
  i = xctx->previous_instance[xctx->currsch-1];
@@ -767,7 +767,7 @@ void drill_hilight(int mode)
   int i, j, npin;
   char *propagate_str = NULL;
   int propagate, hilight_connected_inst;
-  struct hilight_hashentry *entry, *propag_entry;
+  Hilight_hashentry *entry, *propag_entry;
   int en_hi;
 
   en_hi = tclgetboolvar("en_hilight_conn_inst");
@@ -821,7 +821,7 @@ void drill_hilight(int mode)
 
 int hilight_netname(const char *name)
 {
-  struct node_hashentry *node_entry;
+  Node_hashentry *node_entry;
   prepare_netlist_structs(0);
   dbg(1, "hilight_netname(): entering\n");
   rebuild_selected_array();
@@ -838,7 +838,7 @@ int hilight_netname(const char *name)
 static void send_net_to_bespice(int simtype, const char *node)
 {
   int c, k, tok_mult;
-  struct node_hashentry *node_entry;
+  Node_hashentry *node_entry;
   const char *expanded_tok;
   const char *tok;
   char color_str[30];
@@ -902,7 +902,7 @@ static void send_net_to_bespice(int simtype, const char *node)
 static void send_net_to_gaw(int simtype, const char *node)
 {
   int c, k, tok_mult;
-  struct node_hashentry *node_entry;
+  Node_hashentry *node_entry;
   const char *expanded_tok;
   const char *tok;
   char color_str[8];
@@ -1051,7 +1051,7 @@ static void send_current_to_gaw(int simtype, const char *node)
 void propagate_hilights(int set, int clear, int mode)
 {
   int i, hilight_connected_inst;
-  struct hilight_hashentry *entry;
+  Hilight_hashentry *entry;
   char *type;
   int en_hi;
 
@@ -1112,7 +1112,7 @@ void propagate_hilights(int set, int clear, int mode)
 int get_logic_value(int inst, int n)
 {
   int /* mult, */ val;
-  struct hilight_hashentry *entry;
+  Hilight_hashentry *entry;
   /* char *netname = NULL; */
 
   /* fast option: dont use net_name() (no expandlabel though) */
@@ -1317,13 +1317,13 @@ void create_simdata(void)
   int i, j;
   const char *str;
   free_simdata();
-  my_realloc(60, &xctx->simdata, xctx->instances * sizeof(struct simdata));
+  my_realloc(60, &xctx->simdata, xctx->instances * sizeof(Simdata));
   xctx->simdata_ninst =  xctx->instances;
   for(i = 0; i < xctx->instances; i++) {
     xSymbol *symbol = xctx->inst[i].ptr + xctx->sym;
     int npin = symbol->rects[PINLAYER];
     xctx->simdata[i].pin = NULL;
-    if(npin) my_realloc(61, &xctx->simdata[i].pin, npin * sizeof(struct simdata_pin));
+    if(npin) my_realloc(61, &xctx->simdata[i].pin, npin * sizeof(Simdata_pin));
     xctx->simdata[i].npin = npin;
     for(j = 0; j < npin; j++) {
       char function[20];
@@ -1363,7 +1363,7 @@ void propagate_logic()
   int found, iter = 0 /* , mult */;
   int i, j, npin;
   int propagate;
-  struct hilight_hashentry  *entry;
+  Hilight_hashentry  *entry;
   int val, newval;
   static const int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z, LOGIC_NOUP};
 
@@ -1483,7 +1483,7 @@ void logic_set(int value, int num)
   xRect boundbox;
   int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
   static const int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z, LOGIC_NOUP};
-  struct hilight_hashentry  *entry;
+  Hilight_hashentry  *entry;
  
   tclsetvar("tclstop", "0");
   prepare_netlist_structs(0);
@@ -1652,7 +1652,7 @@ void select_hilight_net(void)
 {
  char *type=NULL;
  int i;
- struct hilight_hashentry *entry;
+ Hilight_hashentry *entry;
  int hilight_connected_inst;
  int en_hi;
 
@@ -1704,10 +1704,10 @@ void draw_hilight_net(int on_window)
  double x1,y1,x2,y2;
  xSymbol *symptr;
  int use_hash;
- struct wireentry *wireptr;
- struct instentry *instanceptr;
- struct hilight_hashentry *entry;
- struct iterator_ctx ctx;
+ Wireentry *wireptr;
+ Instentry *instanceptr;
+ Hilight_hashentry *entry;
+ Iterator_ctx ctx;
 
  if(!xctx->hilight_nets) return;
  dbg(3, "draw_hilight_net(): xctx->prep_hi_structs=%d\n", xctx->prep_hi_structs);
@@ -1792,8 +1792,8 @@ void print_hilight_net(int show)
 {
  int i;
  FILE *fd;
- struct hilight_hashentry *entry;
- struct node_hashentry *node_entry;
+ Hilight_hashentry *entry;
+ Node_hashentry *node_entry;
  char cmd[2*PATH_MAX];  /* 20161122 overflow safe */
  char cmd2[2*PATH_MAX];  /* 20161122 overflow safe */
  char cmd3[2*PATH_MAX];  /* 20161122 overflow safe */

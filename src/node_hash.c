@@ -21,7 +21,7 @@
  */
 
 #include "xschem.h"
-static struct node_hashentry *node_hash_lookup(const char *token, const char *dir,int what,int port,
+static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int what,int port,
        char *sig_type, char *verilog_type, char *value, char *class, const char *orig_tok)
 /*    token        dir et all      what           ... action ...
  * --------------------------------------------------------------------------
@@ -35,10 +35,10 @@ static struct node_hashentry *node_hash_lookup(const char *token, const char *di
  * "whatever"     whatever      1,XLOOKUP  only look up element, dont insert */
 {
  unsigned int hashcode, index;
- struct node_hashentry *entry, *saveptr, **preventry;
+ Node_hashentry *entry, *saveptr, **preventry;
  char *ptr;
  int s ;
- struct drivers d;
+ Drivers d;
 
  if(token==NULL || token[0]==0 ) return NULL;
  dbg(3, "node_hash_lookup(): called with: %s dir=%s what=%d port=%d\n",
@@ -58,9 +58,9 @@ static struct node_hashentry *node_hash_lookup(const char *token, const char *di
   {
    if( what==XINSERT || what==XINSERT_NOREPLACE)          /* insert data */
    {
-    s=sizeof( struct node_hashentry );
+    s=sizeof( Node_hashentry );
     ptr= my_malloc(281, s );
-    entry=(struct node_hashentry *)ptr;
+    entry=(Node_hashentry *)ptr;
     entry->next = NULL;
     entry->token = entry->sig_type = entry->verilog_type =
                    entry->value = entry->class = entry->orig_tok = NULL;
@@ -122,13 +122,13 @@ static struct node_hashentry *node_hash_lookup(const char *token, const char *di
 
 /* wrapper to node_hash_lookup that handles buses */
 /* warning, in case of buses return only pointer to first bus element */
-struct node_hashentry *bus_node_hash_lookup(const char *token, const char *dir, int what, int port,
+Node_hashentry *bus_node_hash_lookup(const char *token, const char *dir, int what, int port,
        char *sig_type,char *verilog_type, char *value, char *class)
 {
  char *start, *string_ptr, c;
  int mult;
  char *string=NULL;
- struct node_hashentry *ptr1=NULL, *ptr2=NULL;
+ Node_hashentry *ptr1=NULL, *ptr2=NULL;
 
  if(token==NULL || token[0] == 0) return NULL;
  if( token[0] == '#')
@@ -164,9 +164,9 @@ struct node_hashentry *bus_node_hash_lookup(const char *token, const char *dir, 
  return ptr2;
 }
 
-static void node_hash_free_entry(struct node_hashentry *entry)
+static void node_hash_free_entry(Node_hashentry *entry)
 {
-  struct node_hashentry *tmp;
+  Node_hashentry *tmp;
 
   while(entry) {
     tmp = entry->next;
@@ -196,7 +196,7 @@ void node_hash_free(void) /* remove the whole hash table  */
 void traverse_node_hash()
 {
  int i;
- struct node_hashentry *entry;
+ Node_hashentry *entry;
  char str[2048]; /* 20161122 overflow safe */
  int incr_hi;
  
@@ -254,7 +254,7 @@ void traverse_node_hash()
 
 void print_vhdl_signals(FILE *fd)
 {
-  struct node_hashentry *ptr;
+  Node_hashentry *ptr;
   int i, found;
   int mult,j;
   char *class=NULL;
@@ -318,7 +318,7 @@ void print_vhdl_signals(FILE *fd)
 
 void print_verilog_signals(FILE *fd)
 {
-  struct node_hashentry *ptr;
+  Node_hashentry *ptr;
   int i, found;
   int mult,j;
  

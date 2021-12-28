@@ -1376,7 +1376,7 @@ void pop_undo(int redo, int set_modify_status)
  * if pintable given (!=NULL) hash all symbol pins
  * if embed_fd is not NULL read symbol from embedded '[...]' tags using embed_fd file pointer */
 static void get_sym_type(const char *symname, char **type, 
-                         struct int_hashentry **pintable, FILE *embed_fd, int *sym_n_pins)
+                         Int_hashentry **pintable, FILE *embed_fd, int *sym_n_pins)
 {
   int i, c, n = 0;
   char name[PATH_MAX];
@@ -1478,11 +1478,11 @@ static void align_sch_pins_with_sym(const char *name, int pos)
   char *symtype = NULL;
   const char *pinname;
   int i, fail = 0, sym_n_pins=0;
-  struct int_hashentry *pintable[HASHSIZE];
+  Int_hashentry *pintable[HASHSIZE];
 
   if ((ptr = strrchr(name, '.')) && !strcmp(ptr, ".sch")) {
     my_strncpy(symname, add_ext(name, ".sym"), S(symname));
-    memset(pintable, 0, HASHSIZE * sizeof(struct int_hashentry *));
+    memset(pintable, 0, HASHSIZE * sizeof(Int_hashentry *));
     /* hash all symbol pins with their position into pintable hash*/
     get_sym_type(symname, &symtype, pintable, NULL, &sym_n_pins);
     if(symtype[0]) { /* found a .sym for current .sch LCC instance */
@@ -1495,7 +1495,7 @@ static void align_sch_pins_with_sym(const char *name, int pos)
       rect = (xRect *) my_malloc(1168, sizeof(xRect) * sym_n_pins);
       dbg(1, "align_sch_pins_with_sym(): symbol: %s\n", symname);
       for(i=0; i < xctx->sym[pos].rects[PINLAYER]; i++) {
-        struct int_hashentry *entry;
+        Int_hashentry *entry;
         pinname = get_tok_value(xctx->sym[pos].rect[PINLAYER][i].prop_ptr, "name", 0);
         entry = int_hash_lookup(pintable, pinname, 0 , XLOOKUP);
         if(!entry) {
@@ -1657,7 +1657,7 @@ void calc_symbol_bbox(int pos)
 int load_sym_def(const char *name, FILE *embed_fd)
 {
   static int recursion_counter=0; /* safe to keep even with multiple schematics, operation not interruptable */
-  struct Lcc *lcc; /* size = level */
+  Lcc *lcc; /* size = level */
   FILE *fd_tmp;
   short rot,flip;
   double angle;
@@ -1698,7 +1698,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   recursion_counter++;
   dbg(1, "l_s_d(): name=%s\n", name);
   lcc=NULL;
-  my_realloc(647, &lcc, (level + 1) * sizeof(struct Lcc));
+  my_realloc(647, &lcc, (level + 1) * sizeof(Lcc));
   max_level = level + 1;
   if(!strcmp(xctx->file_version,"1.0")) {
     my_strncpy(sympath, abs_sym_path(name, ".sym"), S(sympath));
@@ -2117,7 +2117,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
       }
       if(fd_tmp) {
         if (level+1 >= max_level) {
-          my_realloc(653, &lcc, (max_level + 1) * sizeof(struct Lcc));
+          my_realloc(653, &lcc, (max_level + 1) * sizeof(Lcc));
           max_level++;
         }
         ++level;

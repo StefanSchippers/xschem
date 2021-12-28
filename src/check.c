@@ -46,12 +46,12 @@ static int check_breaks(double x1, double y1, double x2, double y2, double x, do
 void update_conn_cues(int draw_cues, int dr_win)
 {
   int k, i, l, sqx, sqy, save_draw;
-  struct wireentry *wptr;
+  Wireentry *wptr;
   double x0, y0;
   double x1, y1, x2, y2;
-  struct wireentry *wireptr;
+  Wireentry *wireptr;
   xWire * const wire = xctx->wire;
-  struct iterator_ctx ctx;
+  Iterator_ctx ctx;
 
   hash_wires(); /* must be done also if wires==0 to clear wire_spatial_table */
   if(!xctx->wires) return;
@@ -140,7 +140,7 @@ void trim_wires(void)
   double x0, y0;
   int j, i, changed;
   int includes, breaks;
-  struct wireentry *wptr;
+  Wireentry *wptr;
   unsigned short *wireflag=NULL;
 
   doloops = 0;
@@ -382,7 +382,7 @@ void break_wires_at_pins(void)
 {
   int k, i, j, r, rects, sqx, sqy;
   short rot, flip;
-  struct wireentry *wptr;
+  Wireentry *wptr;
   xRect *rct;
   double x0, y0, rx1, ry1;
   int changed=0;

@@ -483,7 +483,7 @@ void draw_selection(GC g, int interruptable)
  */
 void find_inst_to_be_redrawn(int what)
 {
-  struct int_hashentry *nentry;
+  Int_hashentry *nentry;
   int i, n, p, rects;
   xSymbol * sym;
   xInstance * const inst = xctx->inst;

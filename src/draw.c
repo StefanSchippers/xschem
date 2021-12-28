@@ -1657,7 +1657,7 @@ int read_rawfile(const char *f)
 
 int get_raw_index(const char *node)
 {
-  struct int_hashentry *entry;
+  Int_hashentry *entry;
   if(xctx->values) {
     entry = int_hash_lookup(xctx->raw_table, node, 0, XLOOKUP);
     if(entry) return entry->value;
@@ -1840,7 +1840,7 @@ void draw_graph(int c, int i, int flags)
   const char *val;
   char *node = NULL, *color = NULL, *sweep = NULL;
   double txtsizelab, txtsizey, txtsizex, tmp;
-  struct int_hashentry *entry;
+  Int_hashentry *entry;
   int sweep_idx = 0;
   int n_nodes; /* number of variables to display in a single graph */
   xRect *r = &xctx->rect[c][i];
@@ -2155,8 +2155,8 @@ void draw(void)
 {
  /* inst_ptr  and wire hash iterator 20171224 */
  double x1, y1, x2, y2;
- struct instentry *instanceptr;
- struct wireentry *wireptr;
+ Instentry *instanceptr;
+ Wireentry *wireptr;
  int use_hash;
  int c, i = 0;
  xSymbol *symptr;
@@ -2187,7 +2187,7 @@ void draw(void)
       hash_wires();
     }
     if(!xctx->only_probes) {
-        struct iterator_ctx ctx;
+        Iterator_ctx ctx;
         dbg(3, "draw(): check4\n");
         for(c=0;c<cadlayers;c++) {
           if(xctx->draw_single_layer!=-1 && c != xctx->draw_single_layer) continue;

@@ -560,7 +560,7 @@ void svg_draw(void)
   const char *r, *textfont;
   int *unused_layer;
   int color;
-  struct hilight_hashentry *entry;
+  Hilight_hashentry *entry;
   
   if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
   if(has_x && !xctx->plotfile[0]) {
@@ -743,9 +743,9 @@ void svg_draw(void)
     }
     {
       double x1, y1, x2, y2;
-      struct wireentry *wireptr;
+      Wireentry *wireptr;
       int i;
-      struct iterator_ctx ctx;
+      Iterator_ctx ctx;
       update_conn_cues(0, 0);
       /* draw connecting dots */
       x1 = X_TO_XSCHEM(xctx->areax1);

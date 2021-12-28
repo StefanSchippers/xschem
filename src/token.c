@@ -65,11 +65,11 @@ int name_strcmp(char *s, char *d) /* compare strings up to '\0' or'[' */
  * 1,XDELETE : delete token entry, return NULL
  * 2,XLOOKUP : lookup only
  */
-static struct inst_hashentry *inst_hash_lookup(char *token, int value, int what, size_t token_size)
+static Inst_hashentry *inst_hash_lookup(char *token, int value, int what, size_t token_size)
 {
   unsigned int hashcode;
   unsigned int idx;
-  struct inst_hashentry *entry, *saveptr, **preventry;
+  Inst_hashentry *entry, *saveptr, **preventry;
   int s;
 
   if(token==NULL) return NULL;
@@ -80,8 +80,8 @@ static struct inst_hashentry *inst_hash_lookup(char *token, int value, int what,
   while(1) {
     if( !entry ) {                         /* empty slot */
       if(what == XINSERT || what == XINSERT_NOREPLACE) {            /* insert data */
-        s=sizeof( struct inst_hashentry );
-        entry=(struct inst_hashentry *) my_malloc(425, s);
+        s=sizeof( Inst_hashentry );
+        entry=(Inst_hashentry *) my_malloc(425, s);
         *preventry=entry;
         entry->next=NULL;
         entry->hash=hashcode;
@@ -107,9 +107,9 @@ static struct inst_hashentry *inst_hash_lookup(char *token, int value, int what,
   }
 }
 
-static void inst_hash_free_entry(struct inst_hashentry *entry)
+static void inst_hash_free_entry(Inst_hashentry *entry)
 {
-  struct inst_hashentry *tmp;
+  Inst_hashentry *tmp;
   while( entry ) {
     tmp = entry -> next;
     my_free(971, &entry);
@@ -170,7 +170,7 @@ void check_unique_names(int rename)
   int i, first = 1;
   int newpropcnt = 0;
   char *tmp = NULL;
-  struct inst_hashentry *entry;
+  Inst_hashentry *entry;
   int big =  xctx->wires> 2000 || xctx->instances > 2000;
   /* int save_draw; */
 
@@ -647,7 +647,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  int new_name_len;
  int n;
  char *old_name_base = NULL;
- struct inst_hashentry *entry;
+ Inst_hashentry *entry;
 
  dbg(1, "new_prop_string(): i=%d, old_prop=%s, fast=%d\n", i, old_prop, fast);
  if(!fast) { /* on 1st invocation of new_prop_string */
@@ -1854,7 +1854,7 @@ void print_tedax_element(FILE *fd, int inst)
  int token_pos=0, escape=0;
  int no_of_pins=0;
  int subcircuit = 0;
- /* struct inst_hashentry *ptr; */
+ /* Inst_hashentry *ptr; */
 
  my_strdup(489, &extra, get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->prop_ptr,"extra",0));
  my_strdup(41, &extra_pinnumber, get_tok_value(xctx->inst[inst].prop_ptr,"extra_pinnumber",0));
@@ -2355,7 +2355,7 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
  int sizetok=0;
  int token_pos=0, escape=0;
  int no_of_pins=0;
- /* struct inst_hashentry *ptr; */
+ /* Inst_hashentry *ptr; */
 
  my_strdup(513, &template, (xctx->inst[inst].ptr+ xctx->sym)->templ);
  my_strdup(514, &name, xctx->inst[inst].instname);
@@ -2527,7 +2527,7 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
   int sizetok=0;
   int token_pos=0, escape=0;
   int no_of_pins=0;
-  /* struct inst_hashentry *ptr; */
+  /* Inst_hashentry *ptr; */
 
   my_strdup(519, &template,
       (xctx->inst[inst].ptr+ xctx->sym)->templ);
@@ -2750,7 +2750,7 @@ const char *translate(int inst, const char* s)
  const char *tmp_sym_name;
  int sizetok=0;
  int result_pos=0, token_pos=0;
- /* struct inst_hashentry *ptr; */
+ /* Inst_hashentry *ptr; */
  struct stat time_buf;
  struct tm *tm;
  char file_name[PATH_MAX];
@@ -3029,7 +3029,7 @@ const char *translate(int inst, const char* s)
  return tcl_hook2(&result);
 }
 
-const char *translate2(struct Lcc *lcc, int level, char* s)
+const char *translate2(Lcc *lcc, int level, char* s)
 {
   static const char *empty="";
   static char *result = NULL;

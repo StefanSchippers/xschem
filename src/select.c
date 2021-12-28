@@ -29,11 +29,11 @@ static void check_connected_wire(int stop_at_junction, int n)
 { 
   int k, touches;
   xWire * const wire = xctx->wire;
-  struct wireentry *wireptr;
-  struct instentry *instptr;
+  Wireentry *wireptr;
+  Instentry *instptr;
   char *type;
   double x1, y1, x2, y2;
-  struct iterator_ctx ctx;
+  Iterator_ctx ctx;
   
   x1 = wire[n].x1;
   y1 = wire[n].y1;
@@ -109,7 +109,7 @@ void select_connected_wires(int stop_at_junction)
           double rx1, ry1, x0, y0;
           int rot, flip, sqx, sqy;
           xRect *rct;
-          struct wireentry *wptr;
+          Wireentry *wptr;
           rct = (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER];
           if(rct) {
             x0 = (rct[0].x1 + rct[0].x2) / 2;

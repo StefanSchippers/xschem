@@ -22,7 +22,7 @@
 
 #include "xschem.h"
 
-static struct str_hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
+static Str_hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
 
 void global_vhdl_netlist(int global)  /* netlister driver */
 {

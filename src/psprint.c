@@ -844,9 +844,9 @@ void create_ps(char **psfile, int what)
   
     {
       double x1, y1, x2, y2;
-      struct wireentry *wireptr;
+      Wireentry *wireptr;
       int i;
-      struct iterator_ctx ctx;
+      Iterator_ctx ctx;
       update_conn_cues(0, 0);
       /* draw connecting dots */
       x1 = X_TO_XSCHEM(xctx->areax1);

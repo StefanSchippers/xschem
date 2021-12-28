@@ -469,11 +469,11 @@ void alloc_xschem_data(const char *top_path)
       xctx->inst_spatial_table[i][j] = NULL;
     }
   }
-  xctx->node_table = my_calloc(517,  HASHSIZE, sizeof(struct node_hashentry *));
-  xctx->node_redraw_table = my_calloc(973,  HASHSIZE, sizeof(struct int_hashentry *));
-  xctx->inst_table = my_calloc(1382,  HASHSIZE, sizeof(struct inst_hashentry *));
-  xctx->hilight_table = my_calloc(1383,  HASHSIZE, sizeof(struct hilight_hashentry *));
-  xctx->raw_table = my_calloc(1384,  HASHSIZE, sizeof(struct int_hashentry *));
+  xctx->node_table = my_calloc(517,  HASHSIZE, sizeof(Node_hashentry *));
+  xctx->node_redraw_table = my_calloc(973,  HASHSIZE, sizeof(Int_hashentry *));
+  xctx->inst_table = my_calloc(1382,  HASHSIZE, sizeof(Inst_hashentry *));
+  xctx->hilight_table = my_calloc(1383,  HASHSIZE, sizeof(Hilight_hashentry *));
+  xctx->raw_table = my_calloc(1384,  HASHSIZE, sizeof(Int_hashentry *));
 
   xctx->inst_redraw_table = NULL;
   xctx->inst_redraw_table_size = 0;
