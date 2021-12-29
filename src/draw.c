@@ -1820,7 +1820,8 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   double charwidth = labsize * 38.0;
   char str[100];
   int hex_digits = (n_bits - 1) / 4 + 1;
-  
+  double x_size = 1 * xctx->zoom;
+
   idx_arr = my_malloc(1454, (n_bits) * sizeof(int));
   p = 0;
   dbg(1, "n_bits = %d\n", n_bits);
@@ -1854,10 +1855,10 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
     }
     if(p > first &&  busval != old_busval) {
       /* draw transition ('X') */
-      drawline(BACKLAYER, NOW, xval-1, yhigh, xval+1, yhigh, 0);
-      drawline(BACKLAYER, NOW, xval-1, ylow,  xval+1, ylow, 0);
-      drawline(wave_col, NOW, xval-1, ylow,  xval+1, yhigh, 0);
-      drawline(wave_col, NOW, xval-1, yhigh, xval+1, ylow, 0);
+      drawline(BACKLAYER, NOW, xval-x_size, yhigh, xval+x_size, yhigh, 0);
+      drawline(BACKLAYER, NOW, xval-x_size, ylow,  xval+x_size, ylow, 0);
+      drawline(wave_col, NOW, xval-x_size, ylow,  xval+x_size, yhigh, 0);
+      drawline(wave_col, NOW, xval-x_size, yhigh, xval+x_size, ylow, 0);
       /* build hex string for bus value */
       sprintf(str, "%0*lX", hex_digits, old_busval);
       /* draw hex bus value if there is enough room */
@@ -1921,6 +1922,7 @@ static void draw_graph_grid(
   int j, k;
   char lab[30];
   double tmp, txtsizex, txtsizey;
+  double mark_size = marginx/20.0;
 
   w = (x2 - x1);
   h = (y2 - y1);
@@ -1963,10 +1965,10 @@ static void draw_graph_grid(
     if(axis_end(wx, deltax, wx2)) break;
     /* swap order of wy1 and wy2 since grap y orientation is opposite to xorg orientation */
     drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(wy2), W_X(wx),   W_Y(wy1), dash_sizey);
-    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(wy1), W_X(wx),   W_Y(wy1) + 4, 0); /* axis marks */
+    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(wy1), W_X(wx),   W_Y(wy1) + mark_size, 0); /* axis marks */
     /* X-axis labels */
     my_snprintf(lab, S(lab), "%g", wx * unitx);
-    draw_string(3, NOW, lab, 0, 0, 1, 0, W_X(wx), y2 + 30 * txtsizex, txtsizex, txtsizex);
+    draw_string(3, NOW, lab, 0, 0, 1, 0, W_X(wx), y2 + mark_size + 20 * txtsizex, txtsizex, txtsizex);
   }
   /* first and last vertical box delimiters */
   drawline(GRIDLAYER, ADD, W_X(wx1),   W_Y(wy2), W_X(wx1),   W_Y(wy1), 0);
@@ -1986,10 +1988,10 @@ static void draw_graph_grid(
       if(!axis_within_range(wy, wy1, wy2)) continue;
       if(axis_end(wy, deltay, wy2)) break;
       drawline(GRIDLAYER, ADD, W_X(wx1), W_Y(wy),   W_X(wx2), W_Y(wy), dash_sizex);
-      drawline(GRIDLAYER, ADD, W_X(wx1)-4, W_Y(wy),   W_X(wx1), W_Y(wy), 0); /* axis marks */
+      drawline(GRIDLAYER, ADD, W_X(wx1) - mark_size, W_Y(wy),   W_X(wx1), W_Y(wy), 0); /* axis marks */
       /* Y-axis labels */
       my_snprintf(lab, S(lab), "%g",  wy * unity);
-      draw_string(3, NOW, lab, 0, 1, 0, 1, x1 - 4 - 30 * txtsizey, W_Y(wy), txtsizey, txtsizey);
+      draw_string(3, NOW, lab, 0, 1, 0, 1, x1 - mark_size - 20 * txtsizey, W_Y(wy), txtsizey, txtsizey);
     }
   }
   /* first and last horizontal box delimiters */
@@ -2085,10 +2087,10 @@ void draw_graph(int c, int i, int flags)
   /* set margins */
   calc_graph_area(c, i, digital, &x1, &y1, &x2, &y2, &marginx, &marginy);
 
-  txtsizelab = marginy * 0.011;
-  tmp =  (x2 - x1) / divx * 0.0033;
+  txtsizelab = marginy * 0.014;
+  tmp =  (x2 - x1) * 0.00036;
   if(tmp < txtsizelab) txtsizelab = tmp;
-  digtxtsizelab = txtsizelab * 0.7;
+  digtxtsizelab = txtsizelab * 0.73;
   /* cache coefficients for faster graph coord transformations */
   cx = (x2 - x1) / (wx2 - wx1);
   dx = x1 - wx1 * cx;
@@ -2147,7 +2149,7 @@ void draw_graph(int c, int i, int flags)
     if(digital) {
       /* int n = n_nodes > dig_max_waves ? dig_max_waves : n_nodes; */
       int n = dig_max_waves;
-      double xt = x1 - 4 - 30 * txtsizelab;
+      double xt = x1 - 10 * txtsizelab;
       double delta_div_n = (wy2 - wy1) / n;
       double yt = delta_div_n * (double)wcnt;
 
