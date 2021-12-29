@@ -1820,7 +1820,7 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   double charwidth = labsize * 38.0;
   char str[100];
   int hex_digits = (n_bits - 1) / 4 + 1;
-  double x_size = 1 * xctx->zoom;
+  double x_size = 1.5 * xctx->zoom;
 
   idx_arr = my_malloc(1454, (n_bits) * sizeof(int));
   p = 0;
