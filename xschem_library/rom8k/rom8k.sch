@@ -27,26 +27,27 @@ L 8 1150 -160 1180 -160 {}
 L 8 1180 -160 1180 -120 {}
 L 8 1180 -120 1300 -120 {}
 L 8 820 -120 950 -120 {}
-B 2 1840 -360 2890 -280 {flags=1
-y1 = -0.0039
-y2 = 0.87
+B 2 1840 -400 2890 -280 {flags=1
+y1 = 0
+y2 = 0.9
 divy = 1
-x1=1.26223e-07
-x2=2.06222e-07  divx=10
+subdivy=2
+x1=1.30572e-07
+x2=1.82007e-07  divx=10
 node="
 v(ldbl[0]) v(ldbl[16]) v(ldbl[32])
 v(ldbl[1]) v(ldbl[17]) v(ldbl[33])
 v(ldbl[2]) v(ldbl[18]) v(ldbl[34])
 "
 color="8 9 10 11 12 13 14 15 16 17 18" unitx=n}
-B 2 1840 -920 2890 -710 {flags=1
+B 2 1840 -1090 2890 -880 {flags=1
 digital=0
-y1 = -0.00091
-y2 = 1.5
-subdivy=4
+y1 = -0.0120424
+y2 = 1.50796
+subdivy=1
 divy = 4
-x1=1.26223e-07
-x2=2.06222e-07
+x1=1.30572e-07
+x2=1.82007e-07
 divx=10
 subdivx=4
 node="v(ldcp) v(ldyms[4]) v(ldyms[5]) v(ldyms[6]) v(ldyms[7])"
@@ -56,10 +57,10 @@ B 2 1840 -280 2890 -120 {flags=1
 y1 = -0.0072
 y2 = 1.6
 divy = 3
-subdivy=1
-subdivx = 4
-x1=1.26223e-07
-x2=2.06222e-07  divx=10
+subdivy=0
+subdivx = 1
+x1=1.30572e-07
+x2=1.82007e-07  divx=10
 node="
 v(ldcp)
 v(ldwl[0]) v(ldwl[1]) v(ldwl[2]) v(ldwl[3]) 
@@ -70,85 +71,48 @@ color="4 5"
 unitx=n 
 }
 B 2 1840 -120 2890 -40 {flags=1
-y1 = -0.021
+y1 = 0
 y2 = 0.9
 divy = 1
-x1=1.26223e-07
-x2=2.06222e-07  divx=10
+x1=1.30572e-07
+x2=1.82007e-07  divx=10
 node="v(ldymsref)"
 color=3 unitx=n subdivy=4}
-B 2 1840 -710 2890 -360 {flags=1
+B 2 1840 -880 2890 -400 {flags=1
 digital=1
-y1 = 0
-y2 = 1.5
+dig_max_waves=12
+y1 = -0.0811982
+y2 = 1.4188
 divy = 1
-x1=1.26223e-07
-x2=2.06222e-07  divx=10
-node="v(ldcp) v(lden) v(ldprech)
----
-v(ldl1x[0]) v(ldl1x[1]) v(ldl1x[2]) v(ldl1x[3])
-v(ldl1x[4]) v(ldl1x[5]) v(ldl1x[6]) v(ldl1x[7])
----
-v(ldy1[0]) v(ldy1[1]) v(ldy1[2]) v(ldy1[3]) 
+x1=1.30572e-07
+x2=1.82007e-07
+divx=10
+subdivx=4
+node="
+v(lden) v(ldprech)
+---Timing---
+LDL3X,v(ldl3x[7]),v(ldl3x[6]),v(ldl3x[5]),v(ldl3x[4]),v(ldl3x[3]),v(ldl3x[2]),v(ldl3x[1]),v(ldl3x[0])
+LDL2X,v(ldl2x[3]),v(ldl2x[2]),v(ldl2x[1]),v(ldl2x[0])
+LDL1X,v(ldl1x[15]),v(ldl1x[14]),v(ldl1x[13]),v(ldl1x[12]),v(ldl1x[11]),v(ldl1x[10]),v(ldl1x[9]),v(ldl1x[8]),v(ldl1x[7]),v(ldl1x[6]),v(ldl1x[5]),v(ldl1x[4]),v(ldl1x[3]),v(ldl1x[2]),v(ldl1x[1]),v(ldl1x[0])
+LDY1,v(ldy1[3]),v(ldy1[2]),v(ldy1[1]),v(ldy1[0])
+---Decoders---
+LDQ,v(ldq[15]),v(ldq[14]),v(ldq[13]),v(ldq[12]),v(ldq[11]),v(ldq[10]),v(ldq[9]),v(ldq[8]),v(ldq[7]),v(ldq[6]),v(ldq[5]),v(ldq[4]),v(ldq[3]),v(ldq[2]),v(ldq[1]),v(ldq[0])
+LDA,v(lda[12]),v(lda[11]),v(lda[10]),v(lda[9]),v(lda[8]),v(lda[7]),v(lda[6]),v(lda[5]),v(lda[4]),v(lda[3]),v(lda[2]),v(lda[1]),v(lda[0])
+v(ldcp)
+---In/Out---
 "
-color=4
-xcolor="5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 3 4 5 6"
+color="4 15 4 15 4 15 4 15 4 15 4 15 4 15 4 15 4 15 4 15 4 15"
  unitx=n
 }
-B 2 1840 -1030 2890 -920 {flags=1
-y1 = 0
-y2 = 2
-divy = 2
-x1=1.26223e-07
-x2=2.06222e-07
-divx=8
-comm="example of using tcl to replace the path 
-      with $path variable automatically"
-node="tcleval(v(xctrl.ldcp_ref) v(xctrl.ldprechref))"
-color="16 11 15"
-}
-B 2 1840 -1120 2890 -1030 {flags=1
-y1 = 0
-y2 = 2
-divy = 2
-x1=1.26223e-07
-x2=2.06222e-07
-divx=8
-comm="example of using tcl to replace the path 
-      with $path variable automatically"
-node="tcleval(v(xctrl.ldcp_ref) v(xctrl.ldcpb))"
-color="16 11 15"
-}
-B 2 1840 -1210 2890 -1120 {flags=1
-y1 = 0
-y2 = 2
-divy = 2
-x1=1.26223e-07
-x2=2.06222e-07
-divx=8
-comm="example of using tcl to replace the path 
-      with $path variable automatically"
-node="tcleval(v(xctrl.ldcp_ref) v(xctrl.ldouti) v(xctrl.ldoutib))"
-color="16 11 15"
-}
-B 2 1840 -1500 2890 -1320 {flags=1
-y1 = 0
-y2 = 2
+B 2 1840 -1270 2890 -1090 {flags=1
+y1 = -0.0479717
+y2 = 1.55203
 divy = 4
-x1=1.26223e-07
-x2=2.06222e-07
+x1=1.30572e-07
+x2=1.82007e-07
 divx=8
 node="v(xsa[0].ldqi) v(xsa[0].ldqib) v(xsa[0].ldsali)"
-color="16 11 15"}
-B 2 1840 -1320 2890 -1210 {flags=1
-y1 = 0
-y2 = 2
-divy = 2
-x1=1.26223e-07
-x2=2.06222e-07
-divx=8
-node="v(xsa[0].ldqiii) v(xsa[0].ldqii) v(xsa[0].ldsali)"
-color="16 11 15"}
+color="16 8 15"}
 B 7 950 -250 980 -80 {}
 B 7 1150 -250 1180 -80 {}
 B 21 10 -970 240 -750 {}

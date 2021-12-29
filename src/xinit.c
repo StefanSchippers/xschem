@@ -422,12 +422,13 @@ void alloc_xschem_data(const char *top_path)
   xctx->mooz=1/CADINITIALZOOM;
   xctx->xorigin=CADINITIALX;
   xctx->yorigin=CADINITIALY;
-  xctx->names = NULL;
-  xctx->values = NULL;
-  xctx->nvars = 0;
-  xctx->npoints = NULL;
-  xctx->datasets = 0;
+  xctx->graph_names = NULL;
+  xctx->graph_values = NULL;
+  xctx->graph_nvars = 0;
+  xctx->graph_npoints = NULL;
+  xctx->graph_datasets = 0;
   xctx->graph_master = 0;
+  xctx->graph_flags = 0;
   xctx->graph_bottom = 0;
   xctx->graph_left = 0;
   xctx->raw_schname = NULL;
@@ -621,7 +622,7 @@ void delete_schematic_data(void)
    * inst & wire .node fields, instance name hash */
   clear_drawing();
   remove_symbols();
-  free_rawfile();
+  free_rawfile(0);
   free_xschem_data(); /* delete the xctx struct */
 }
 
@@ -1264,6 +1265,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
       }
     }
     if(xctx->pending_fullzoom) {
+      dbg(1, "resetwin(): pending_fulzoom: doing zoom_full()\n");
       zoom_full(0, 0, 1, 0.97);
       xctx->pending_fullzoom=0;
     }

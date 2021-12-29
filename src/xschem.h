@@ -248,6 +248,7 @@ extern char win_temp_dir[PATH_MAX];
 #define THICK 1024 /*  used to draw thick lines (buses) */
 #define ROTATELOCAL 2048 /*  rotate each selected object around its own anchor point 20171208 */
 #define CLEAR 4096 /* used in new_wire to clear previous rubber when switching xctx->manhattan_lines */
+#define SET_INSIDE 8192 /* used in bbox() to set clipping rectangle inside, not adding line width */
 /* #define DRAW 8192 */  /* was used in bbox() to draw things by using XCopyArea after setting clip rectangle */
 #define HILIGHT 8192  /* used when calling draw_*symbol_outline() for hilighting instead of normal draw */
 #define FONTWIDTH 20
@@ -635,6 +636,32 @@ typedef struct
   unsigned short *wireflag;
 } Iterator_ctx;
 
+
+/* will be used some day? <<<< */
+typedef struct {
+  /* container box */
+  /* graph box (smaller tha rect container due to margins) */
+  double x1, y1, x2, y2, w, h;
+  /* graph coordinate, some defaults */
+  double digital;
+  double wx1, wy1, wx2, wy2;
+  double marginx; /* will be recalculated later */
+  double marginy; /* will be recalculated later */
+  /* coefficients for graph to container coordinate transformations W_X() and W_Y()*/
+  double cx, dx, cy, dy;
+  double dash_sizex, dash_sizey;
+  int divx;
+  int divy;
+  int subdivx;
+  int subdivy;
+  double unitx;
+  double unity;
+  int unitx_suffix; /* 'n' or 'u' or 'M' or 'k' ... */
+  int unity_suffix;
+  double txtsizelab, txtsizey, txtsizex;
+  int dataset;
+} Graph_ctx;
+
 typedef struct {
   xWire *wire;
   xText *text;
@@ -795,11 +822,12 @@ typedef struct {
   Undo_slot uslot[MAX_UNDO];
   int undo_initialized;
   /* read raw files (draw.c) */
-  char **names;
-  SPICE_DATA **values;
-  int nvars;
-  int *npoints;
-  int datasets;
+  char **graph_names;
+  SPICE_DATA **graph_values;
+  int graph_nvars;
+  int *graph_npoints;
+  int graph_datasets;
+  int graph_flags; /* 1: zoom / pan all graphs even if only one selected */
   int graph_master; /* graph where mouse operations are started, used to lock x-axis */
   int graph_bottom; /* graph where mouse operations are started, used to lock x-axis */
   int graph_left; /* graph where mouse operations are started, used to lock x-axis */
@@ -922,11 +950,11 @@ extern Xschem_ctx *xctx;
 extern int get_raw_index(const char *node);
 extern double get_raw_value(int dataset, int idx, int point);
 extern int schematic_waves_loaded(void);
-extern void calc_graph_area(int c, int i, double *x1, double *y1,double *x2, double *y2,
+extern void calc_graph_area(int c, int i, int digital, double *x1, double *y1,double *x2, double *y2,
              double *marginx,double *marginy);
 extern void draw_graph(int c, int i, int flags);
-extern void draw_waves(int flags);
-extern void free_rawfile(void);
+extern void draw_graph_all(int flags);
+extern void free_rawfile(int dr);
 extern int read_rawfile(const char *f);
 extern double timer(int start);
 extern void enable_layers(void);

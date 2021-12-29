@@ -545,6 +545,33 @@ void bbox(int what,double x1,double y1, double x2, double y2)
           xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
    }
    break;
+
+
+
+  case SET_INSIDE: /* do not add line widths to clip rectangle so everything remains inside */
+   if(xctx->sem==0) {
+     fprintf(errfp, "ERROR: bbox(SET_INSIDE) call before bbox(START)\n");
+     tcleval("alert_ {ERROR: bbox(SET_INSIDE) call before bbox(START)} {}");
+   }
+   xctx->areax1 = xctx->bbx1-2*INT_WIDTH(xctx->lw);
+   xctx->areax2 = xctx->bbx2+2*INT_WIDTH(xctx->lw);
+   xctx->areay1 = xctx->bby1-2*INT_WIDTH(xctx->lw);
+   xctx->areay2 = xctx->bby2+2*INT_WIDTH(xctx->lw);
+   xctx->areaw = (xctx->areax2-xctx->areax1);
+   xctx->areah = (xctx->areay2-xctx->areay1);
+
+   xctx->xrect[0].x = xctx->bbx1+INT_WIDTH(xctx->lw);
+   xctx->xrect[0].y = xctx->bby1+INT_WIDTH(xctx->lw);
+   xctx->xrect[0].width = xctx->bbx2-xctx->bbx1-2*INT_WIDTH(xctx->lw);
+   xctx->xrect[0].height = xctx->bby2-xctx->bby1-2*INT_WIDTH(xctx->lw);
+   if(has_x) {
+     set_clip_mask(SET);
+       dbg(2, "bbox(SET): setting clip area: %d %d %d %d\n",
+          xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
+   }
+   break;
+
+
   default:
    break;
  }

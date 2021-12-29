@@ -277,7 +277,7 @@ set to_pdf {gswin64c -sDEVICE=pdfwrite -o}
 # set editor { xterm -geometry 100x40 -e pico }
 
 #### For Windows
-# set editor {notepad.exe}
+set editor {notepad.exe}
 
 ###########################################################################
 #### SHOW ERC INFO WINDOW (erc errors, warnings etc)

@@ -131,7 +131,7 @@ proc inutile_translate {f} {
   set p $XSCHEM_SHAREDIR/utile
   set savedir [pwd]
   cd $netlist_dir
-  eval exec $p/preprocess.awk \"$f\" | $p/expand_alias.awk | $p/param.awk | $p/clock.awk | $p/stimuli.awk
+  eval exec awk -f $p/preprocess.awk \"$f\" | awk -f $p/expand_alias.awk | awk -f $p/param.awk | awk -f $p/clock.awk | awk -f $p/stimuli.awk
   cd $savedir
 }
 
@@ -1146,7 +1146,11 @@ proc simulate {{callback {}}} {
     set cmd [subst $sim($tool,$def,cmd)]
     if {$OS == "Windows"} {
       # $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
-      eval exec $cmd
+      if { $callback ne {} } {
+        eval $callback
+      }
+      #eval exec {cmd /V /C "cd $netlist_dir&&$cmd}
+      eval exec $cmd &
     } else {
       set execute(callback) $callback
       $fg $st sh -c "cd $netlist_dir; $cmd"
@@ -1298,21 +1302,21 @@ proc edit_netlist {schname } {
    } elseif { $netlist_type=="spice" } {
      if {$OS == "Windows"} {
        set cmd "$editor \"$netlist_dir/${tmpname}.spice\""
-       eval exec $cmd
+       eval exec $cmd &
      } else {
        execute 0  sh -c "cd $netlist_dir && $editor $ftype \"${tmpname}.spice\""
      }
    } elseif { $netlist_type=="tedax" } {
      if {$OS == "Windows"} {
        set cmd "$editor \"$netlist_dir/${tmpname}.tdx\""
-       eval exec $cmd
+       eval exec $cmd &
      } else {
        execute 0 sh -c "cd $netlist_dir && $editor $ftype \"${tmpname}.tdx\""
      }
    } elseif { $netlist_type=="vhdl" } { 
      if {$OS == "Windows"} {
        set cmd "$editor \"$netlist_dir/${tmpname}.vhdl\""
-       eval exec $cmd
+       eval exec $cmd &
      } else {
        execute 0 sh -c "cd $netlist_dir && $editor $ftype \"${tmpname}.vhdl\""
      }

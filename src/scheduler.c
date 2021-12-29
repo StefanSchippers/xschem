@@ -1964,7 +1964,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       cmd_found = 1;
       tclsetvar("rawfile_loaded", "0");
-      free_rawfile();
+      free_rawfile(1);
       Tcl_ResetResult(interp);
     }
 
@@ -1977,7 +1977,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
       if(argc > 2 && !strcmp(argv[2], "loaded")) {
         Tcl_AppendResult(interp, schematic_waves_loaded() ? "1" : "0", NULL);
-      } else if(xctx->values) {
+      } else if(xctx->graph_values) {
         if(argc > 5) dataset = atoi(argv[5]);
         if(argc > 4) {
           /* xschem rawfile_query value v(ldcp) 123 */
@@ -1985,10 +1985,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             int point = atoi(argv[4]);
             const char *node = argv[3];
             int idx = -1;
-            if(point >= 0 && point < xctx->npoints[dataset]) {
+            if(point >= 0 && point < xctx->graph_npoints[dataset]) {
               if(isonlydigit(node)) {
                 int i = atoi(node);
-                if(i >= 0 && i < xctx->nvars) {
+                if(i >= 0 && i < xctx->graph_nvars) {
                   idx = i;
                 }
               } else {
@@ -2013,14 +2013,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         } else if(argc > 2) {
           if(!strcmp(argv[2], "points")) {
-            my_snprintf(s, S(s), "%d", xctx->npoints[0]);
+            my_snprintf(s, S(s), "%d", xctx->graph_npoints[0]);
             Tcl_AppendResult(interp, s, NULL);
           } else if(!strcmp(argv[2], "vars")) {
-            my_snprintf(s, S(s), "%d", xctx->nvars);
+            my_snprintf(s, S(s), "%d", xctx->graph_nvars);
             Tcl_AppendResult(interp, s, NULL);
           } else if(!strcmp(argv[2], "list")) {
-            for(i = 0 ; i < xctx->nvars; i++) {
-              Tcl_AppendResult(interp, xctx->names[i], "\n", NULL);
+            for(i = 0 ; i < xctx->graph_nvars; i++) {
+              Tcl_AppendResult(interp, xctx->graph_names[i], "\n", NULL);
             }
           } 
         }
@@ -2031,9 +2031,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       cmd_found = 1;
       if(schematic_waves_loaded()) {
-        free_rawfile();
+        free_rawfile(1);
       } else if(argc > 2) {
-        free_rawfile();
+        free_rawfile(0);
         read_rawfile(argv[2]);
         if(schematic_waves_loaded()) tclsetvar("rawfile_loaded", "1");
         else  tclsetvar("rawfile_loaded", "0");

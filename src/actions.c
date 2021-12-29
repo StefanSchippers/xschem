@@ -27,7 +27,7 @@
 
 void here(double i)
 {
-  fprintf(stderr, "here %g\n", i);
+  dbg(0, "here %g\n", i);
 }
 
 /* super simple 32 bit hashing function for files
@@ -70,7 +70,7 @@ unsigned int hash_file(const char *f, int skip_path_lines)
     fclose(fd);
     return h;
   } else {
-    fprintf(stderr, "Can not open file %s\n", f);
+    dbg(0, "Can not open file %s\n", f);
   }
   return 0;
 }
