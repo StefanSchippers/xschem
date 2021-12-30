@@ -428,6 +428,8 @@ void alloc_xschem_data(const char *top_path)
   xctx->graph_npoints = NULL;
   xctx->graph_datasets = 0;
   xctx->graph_master = 0;
+  xctx->graph_cursor1_x = 0;
+  xctx->graph_unlock_x = 0;
   xctx->graph_flags = 0;
   xctx->graph_bottom = 0;
   xctx->graph_left = 0;

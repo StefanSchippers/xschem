@@ -28,12 +28,12 @@ L 8 1180 -160 1180 -120 {}
 L 8 1180 -120 1300 -120 {}
 L 8 820 -120 950 -120 {}
 B 2 1840 -420 2890 -280 {flags=1
-y1 = 0
-y2 = 1
+y1 = -0.0039
+y2 = 0.87
 divy = 3
 subdivy=1
-x1=1.22237e-07
-x2=1.80069e-07  divx=10
+x1=2.44096e-07
+x2=3.3487e-07  divx=10
 node="
 v(ldbl[0]) v(ldbl[16]) v(ldbl[32])
 v(ldbl[1]) v(ldbl[17]) v(ldbl[33])
@@ -42,15 +42,15 @@ v(ldbl[2]) v(ldbl[18]) v(ldbl[34])
 color="8 9 10 11 12 13 14 15 16 17 18" unitx=n}
 B 2 1840 -1090 2890 -880 {flags=1
 digital=0
-y1 = -0.0120424
-y2 = 1.50796
+y1 = -0.021
+y2 = 1.5
 subdivy=1
 divy = 4
-x1=1.22237e-07
-x2=1.80069e-07
+x1=2.44096e-07
+x2=3.3487e-07
 divx=10
 subdivx=4
-node="v(ldcp) v(ldyms[4]) v(ldyms[5]) v(ldyms[6]) v(ldyms[7])"
+node="v(ldcp) v(ldyms[4]) v(ldyms[5]) v(ldyms[6]) v(ldymsref)"
 color="6 12 13 14 15"
 unitx=n}
 B 2 1840 -280 2890 -120 {flags=1
@@ -59,8 +59,8 @@ y2 = 1.6
 divy = 3
 subdivy=0
 subdivx = 1
-x1=1.22237e-07
-x2=1.80069e-07  divx=10
+x1=2.44096e-07
+x2=3.3487e-07  divx=10
 node="
 v(ldwl[0]) v(ldwl[1]) v(ldwl[2]) v(ldwl[3]) 
 v(ldwl[4]) v(ldwl[5]) v(ldwl[6]) v(ldwl[16]) 
@@ -69,22 +69,22 @@ color="4 5 4 5 4 5 4 5 4 5 4 5"
 unitx=n 
 }
 B 2 1840 -120 2890 -20 {flags=1
-y1 = 0
+y1 = -0.021
 y2 = 0.9
 divy = 1
-x1=1.22237e-07
-x2=1.80069e-07  divx=10
+x1=2.44096e-07
+x2=3.3487e-07  divx=10
 node="v(ldymsref)"
 color=3 unitx=n subdivy=4}
 B 2 1840 -880 2890 -420 {flags=1
 digital=1
 dig_max_waves=12
-y1 = -0.0811982
-y2 = 1.4188
+y1 = -0.024
+y2 = 1.6
 divy = 1
-x1=1.22237e-07
-x2=1.80069e-07
-divx=10
+x1=2.44096e-07
+x2=3.3487e-07
+divx=12
 subdivx=4
 node="
 v(lden) v(ldprech)
@@ -102,15 +102,16 @@ v(ldcp)
 color="4 15 4 15 4 15 4 15 4 15 4 15 4 15 4 15 4 15 4 15 4 15"
  unitx=n
 }
-B 2 1840 -1270 2890 -1090 {flags=1
-y1 = -0.0479717
-y2 = 1.55203
+B 2 1840 -1280 2890 -1090 {flags=1
+y1 = -0.022
+y2 = 1.6
 divy = 4
-x1=1.22237e-07
-x2=1.80069e-07
+x1=2.44096e-07
+x2=3.3487e-07
 divx=8
-node="v(xsa[0].ldqi) v(xsa[0].ldqib) v(xsa[0].ldsali)"
-color="16 8 15"}
+unitx=n
+node="v(xsa[0].ldqib) v(xsa[5].ldqib) v(xsa[0].ldsali) v(xctrl.ldq_b)"
+color="4 4 5 12 "}
 B 7 950 -250 980 -80 {}
 B 7 1150 -250 1180 -80 {}
 B 21 10 -970 240 -750 {}

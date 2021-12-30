@@ -313,10 +313,13 @@ extern char win_temp_dir[PATH_MAX];
 #define IS_PIN(type) (!(strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
 
 
-#define X_TO_SCREEN(x) ( floor(((x)+xctx->xorigin)* xctx->mooz) )
-#define Y_TO_SCREEN(y) ( floor(((y)+xctx->yorigin)* xctx->mooz) )
-#define X_TO_XSCHEM(x) ((x)*xctx->zoom -xctx->xorigin)
-#define Y_TO_XSCHEM(y) ((y)*xctx->zoom -xctx->yorigin)
+/* floor not needed? screen coordinates always positive <<<< */
+/* #define X_TO_SCREEN(x) ( floor(((x)+xctx->xorigin)* xctx->mooz) ) */
+/* #define Y_TO_SCREEN(y) ( floor(((y)+xctx->yorigin)* xctx->mooz) ) */
+#define X_TO_SCREEN(x) ( ((x) + xctx->xorigin) * xctx->mooz )
+#define Y_TO_SCREEN(y) ( ((y) + xctx->yorigin) * xctx->mooz )
+#define X_TO_XSCHEM(x) ( (x) * xctx->zoom - xctx->xorigin )
+#define Y_TO_XSCHEM(y) ( (y) * xctx->zoom - xctx->yorigin )
 
 /* given a dest_string of size 'size', allocate space to make sure it can
  * hold 'add' characters */
@@ -827,7 +830,12 @@ typedef struct {
   int graph_nvars;
   int *graph_npoints;
   int graph_datasets;
-  int graph_flags; /* 1: zoom / pan all graphs even if only one selected */
+  double graph_cursor1_x;
+  double graph_cursor2_x;
+  int graph_unlock_x; 
+  int graph_flags; /* 1: zoom / pan all graphs even if only one selected
+                    * 2: x-axis cursor1
+                    * 4: x-axis cursor2 */
   int graph_master; /* graph where mouse operations are started, used to lock x-axis */
   int graph_bottom; /* graph where mouse operations are started, used to lock x-axis */
   int graph_left; /* graph where mouse operations are started, used to lock x-axis */

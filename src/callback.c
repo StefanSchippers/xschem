@@ -21,26 +21,25 @@
  */
 
 #include "xschem.h"
-static int waves_selected(int state)
+
+static int waves_selected(int event, int key, int state, int button)
 {
-  int n, c, i;
+  int i;
   int is_inside = 0;
-  xRect *r;
-  rebuild_selected_array();
   if(state & Mod1Mask) return 0;
-  if(xctx->ui_state & (STARTMOVE | STARTCOPY) ) return 0;
-  if(!(xctx->ui_state & SELECTION) || !xctx->lastsel) return 0;
-  for(i=0; i<xctx->lastsel; i++) {
-    c = xctx->sel_array[i].col;
-    if(xctx->sel_array[i].type == xRECT && c == GRIDLAYER) {
-      n = xctx->sel_array[i].n;
-      r = &xctx->rect[c][n];
-      if(r->flags != 1) return 0;
-      if( (xctx->ui_state & GRAPHPAN) || 
-          POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2,  r->y2) ) {
-        is_inside = 1;
-      }
-    } else return 0;
+  if(event == MotionNotify && (state & Button2Mask)) return 0;
+  if(event == ButtonPress && button == Button2) return 0;
+  if(event == ButtonRelease && button == Button2) return 0;
+  if(xctx->ui_state  & STARTSELECT) return 0;
+
+  for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
+    xRect *r;
+    r = &xctx->rect[GRIDLAYER][i];
+    if(!(r->flags & 1) ) continue;
+    if( (xctx->ui_state & GRAPHPAN) ||
+       POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2,  r->y2) ) {
+       is_inside = 1;
+    }
   }
   return is_inside;
 }
@@ -183,6 +182,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   int need_redraw = 0;
   double delta_threshold = 0.25;
   int dataset = 0;
+  double zoom_m = 0.5;
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
@@ -190,60 +190,110 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   #endif
 
+      
   /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
-  if( (event == ButtonPress || event == MotionNotify)  && !(xctx->ui_state & GRAPHPAN) ) {
-    if(state & (Button1Mask | Button3Mask)) {
+  if( event == KeyPress || event == ButtonPress || event == MotionNotify ) {
+    if(
+        (
+          (event == ButtonPress && (button == Button1 || button == Button3)) ||
+          (event == MotionNotify && (state & (Button1Mask | Button3Mask))) 
+        ) &&
+        !(xctx->ui_state & GRAPHPAN)
+      ) {
       xctx->ui_state |= GRAPHPAN;
       xctx->mx_double_save = xctx->mousex_snap;
       xctx->my_double_save = xctx->mousey_snap;
     }
-    for(i=0; i<xctx->lastsel; i++) {
-
-      c = xctx->sel_array[i].col;
+    for(i=0; i <  xctx->rects[GRIDLAYER]; i++) {
       /* process only graph boxes */
-      if(xctx->sel_array[i].type == xRECT && c == GRIDLAYER) {
-        xRect *r;
-        n = xctx->sel_array[i].n;
-        r = &xctx->rect[GRIDLAYER][n];
-        if( POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, r->x1, r->y1, r->x2, r->y2)) {
-          val = get_tok_value(r->prop_ptr,"x1",0);
-          if(val[0]) wx1 = atof(val);
-          val = get_tok_value(r->prop_ptr,"y1",0);
-          if(val[0]) wy1 = atof(val);
-          val = get_tok_value(r->prop_ptr,"x2",0);
-          if(val[0]) wx2 = atof(val);
-          val = get_tok_value(r->prop_ptr,"y2",0);
-          if(val[0]) wy2 = atof(val);
-          val = get_tok_value(r->prop_ptr,"digital",0);
-          if(val[0]) digital = atof(val);
-          calc_graph_area(GRIDLAYER, n, digital, &x1, &y1, &x2, &y2, &marginx, &marginy);
-          cx = (x2 - x1) / (wx2 - wx1);
-          dx = x1 - wx1 * cx;
-          cy = (y1 - y2) / (wy2 - wy1);
-          dy = y2 - wy1 * cy;
-          if(xctx->mousex_snap < W_X(wx1)) {
-            xctx->graph_left = 1;
-          } else {
-            xctx->graph_left = 0;
-          }
-          if(xctx->mousey_snap > W_Y(wy1)) {
-            xctx->graph_bottom = 1;
-          } else {
-            xctx->graph_bottom = 0;
-          }
-          xctx->graph_master = n;
-          if(state & ControlMask) xctx->graph_flags |= 1;
-          else xctx->graph_flags &= ~1;
-          break;
+      xRect *r;
+      r = &xctx->rect[GRIDLAYER][i];
+      if(!(r->flags & 1) ) continue;
+      /* check if this is the master graph (the one containing the mouse pointer) */
+      if( POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, r->x1, r->y1, r->x2, r->y2)) {
+        val = get_tok_value(r->prop_ptr,"x1",0);
+        if(val[0]) wx1 = atof(val);
+        else wx1 = 0;
+        val = get_tok_value(r->prop_ptr,"y1",0);
+        if(val[0]) wy1 = atof(val);
+        else wy1 = 0;
+        val = get_tok_value(r->prop_ptr,"x2",0);
+        if(val[0]) wx2 = atof(val);
+        else wx2 = 1e-6;
+        val = get_tok_value(r->prop_ptr,"y2",0);
+        if(val[0]) wy2 = atof(val);
+        else wy2 = 5;
+        val = get_tok_value(r->prop_ptr,"digital",0);
+        if(val[0]) digital = atoi(val);
+        else digital = 0;
+        calc_graph_area(GRIDLAYER, i, digital, &x1, &y1, &x2, &y2, &marginx, &marginy);
+        cx = (x2 - x1) / (wx2 - wx1);
+        dx = x1 - wx1 * cx;
+        cy = (y1 - y2) / (wy2 - wy1);
+        dy = y2 - wy1 * cy;
+        if(xctx->mousex_snap < W_X(wx1)) {
+          xctx->graph_left = 1;
+        } else {
+          xctx->graph_left = 0;
         }
-      }
+        if(xctx->mousey_snap > W_Y(wy1)) {
+          xctx->graph_bottom = 1;
+        } else {
+          xctx->graph_bottom = 0;
+        }
+        xctx->graph_master = i;
+        if(xctx->lastsel == 1 &&
+           xctx->sel_array[0].type == xRECT &&
+           xctx->sel_array[0].col == GRIDLAYER &&
+           xctx->sel_array[0].n == i ) {
+          xctx->graph_unlock_x = 1;
+        } else {
+          xctx->graph_unlock_x = 0;
+        }
+        zoom_m = (xctx->mousex  - x1) / ( x2 - x1);
+
+
+        if(event == ButtonPress && button == Button1) {
+          if( (xctx->graph_flags & 2) && fabs(xctx->mousex - W_X(xctx->graph_cursor1_x)) < 10) {
+            xctx->graph_flags |= 16; /* move cursor1 */
+          }
+          if( (xctx->graph_flags & 4) && fabs(xctx->mousex - W_X(xctx->graph_cursor2_x)) < 10) {
+            xctx->graph_flags |= 32; /* move cursor2 */
+          }
+        }
+   
+
+
+        /* x-cursor set */
+        if((key == 'a') ) {
+          xctx->graph_flags ^= 2;
+          need_redraw = 1;
+          xctx->graph_flags |= 1; /* apply to all graphs */
+          if(xctx->graph_flags & 2) xctx->graph_cursor1_x = G_X(xctx->mousex);
+        }
+        else if((key == 'b') ) {
+          xctx->graph_flags ^= 4;
+          need_redraw = 1;
+          xctx->graph_flags |= 1; /* apply to all graphs */
+          if(xctx->graph_flags & 4) xctx->graph_cursor2_x = G_X(xctx->mousex);
+        }
+        else if(state & ControlMask) xctx->graph_flags |= 1;
+        else xctx->graph_flags &= ~1;
+
+        break;
+      } /* if( POINTINSIDE(...) */
     }
   }
+  if(!xctx->graph_unlock_x) xctx->graph_flags |= 1;
+
   /* lock x-axis to working graph when moving/zooming multiple graphs */
   val = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"x1",0);
   if(val[0]) wx1 = atof(val);
+  else wx1 = 0;
   val = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"x2",0);
   if(val[0]) wx2 = atof(val);
+  else wx2 = 1e-6;
+
   for(i=0; i< ((xctx->graph_flags & 1) ? xctx->rects[GRIDLAYER] : xctx->lastsel); i++) {
     c =  (xctx->graph_flags & 1) ? GRIDLAYER : xctx->sel_array[i].col;
     /* process only graph boxes */
@@ -254,17 +304,23 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       if(r->flags != 1) continue;
       val = get_tok_value(r->prop_ptr,"divx",0);
       if(val[0]) divx = atoi(val);
+      else divx = 4;
       val = get_tok_value(r->prop_ptr,"divy",0);
       if(val[0]) divy = atoi(val);
+      else divy = 4;
       val = get_tok_value(r->prop_ptr,"y1",0);
       if(val[0]) wy1 = atof(val);
+      else wy1 = 0;
       val = get_tok_value(r->prop_ptr,"y2",0);
       if(val[0]) wy2 = atof(val);
+      else wy2 = 5;
       val = get_tok_value(r->prop_ptr,"dataset",0);
       if(val[0]) dataset = atoi(val);
+      else dataset = 0;
       if(dataset >= xctx->graph_datasets) dataset =  xctx->graph_datasets - 1;
       val = get_tok_value(r->prop_ptr,"digital",0);
-      if(val[0]) digital = atof(val);
+      if(val[0]) digital = atoi(val);
+      else digital = 0;
       calc_graph_area(GRIDLAYER, n, digital, &x1, &y1, &x2, &y2, &marginx, &marginy);
       /* cache coefficients for faster graph coord transformations */
       cx = (x2 - x1) / (wx2 - wx1);
@@ -272,7 +328,18 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       cy = (y1 - y2) / (wy2 - wy1);
       dy = y2 - wy1 * cy;
       dbg(1, "%g %g %g %g - %d %d\n", wx1, wy1, wx2, wy2, divx, divy);
-      if(event == MotionNotify && (state & Button1Mask) && !xctx->graph_bottom) {
+
+      /* move cursor1 */
+      if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
+        xctx->graph_cursor1_x = G_X(xctx->mousex);
+        need_redraw = 1;
+      }
+      /* move cursor2 */
+      else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
+        xctx->graph_cursor2_x = G_X(xctx->mousex);
+        need_redraw = 1;
+      }
+      else if(event == MotionNotify && (state & Button1Mask) && !xctx->graph_bottom) {
         double delta;
         if(xctx->graph_left) {
           if(n == xctx->graph_master) {
@@ -290,8 +357,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           }
         } else {
-          delta = (wx2 - wx1) / divx;
-          delta_threshold = 0.05;
+          delta = (wx2 - wx1);
+          delta_threshold = 0.02;
           if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(cx * delta) * delta_threshold) {
             xx1 = wx1 + (xctx->mx_double_save - xctx->mousex_snap) / cx;
             xx2 = wx2 + (xctx->mx_double_save - xctx->mousex_snap) / cx;
@@ -323,8 +390,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_redraw = 1;
           }
         } else {
-          delta = (wx2 - wx1) / divx;
-          delta_threshold = 1.0;
+          delta = (wx2 - wx1);
+          delta_threshold = 0.02;
           xx1 = wx1 - delta * delta_threshold;
           xx2 = wx2 - delta * delta_threshold;
           my_snprintf(s, S(s), "%g", xx1);
@@ -352,8 +419,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_redraw = 1;
           }
         } else {
-          delta = (wx2 - wx1) / divx;
-          delta_threshold = 1.0;
+          delta = (wx2 - wx1);
+          delta_threshold = 0.02;
           xx1 = wx1 - delta * delta_threshold;
           xx2 = wx2 - delta * delta_threshold;
           my_snprintf(s, S(s), "%g", xx1);
@@ -378,8 +445,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_redraw = 1;
           }
         } else {
-          delta = (wx2 - wx1) / divx;
-          delta_threshold = 1.0;
+          delta = (wx2 - wx1);
+          delta_threshold = 0.02;
           xx1 = wx1 + delta * delta_threshold;
           xx2 = wx2 + delta * delta_threshold;
           my_snprintf(s, S(s), "%g", xx1);
@@ -407,8 +474,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_redraw = 1;
           }
         } else {
-          delta = (wx2 - wx1) / divx;
-          delta_threshold = 1.0;
+          delta = (wx2 - wx1);
+          delta_threshold = 0.02;
           xx1 = wx1 + delta * delta_threshold;
           xx2 = wx2 + delta * delta_threshold;
           my_snprintf(s, S(s), "%g", xx1);
@@ -435,13 +502,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_redraw = 1;
           }
         } else {
-          double m = G_X(xctx->mousex);
-          double a = m - wx1;
-          double b = wx2 -m; 
-          double delta = (wx2 - wx1);
-          double var = delta * 0.2;
-          xx2 = wx2 + var * b / delta;
-          xx1 = wx1 - var * a / delta;
+          double var = 0.2 * (wx2 -wx1);
+          xx2 = wx2 + var * zoom_m;
+          xx1 = wx1 - var * (1 - zoom_m);
           my_snprintf(s, S(s), "%g", xx1);
           my_strdup(1399, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
           my_snprintf(s, S(s), "%g", xx2);
@@ -464,13 +527,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_redraw = 1;
           }
         } else {
-          double m = G_X(xctx->mousex);
-          double a = m - wx1;
-          double b = wx2 -m;
-          double delta = (wx2 - wx1);
-          double var = delta * 0.2;
-          xx2 = wx2 + var * b / delta;
-          xx1 = wx1 - var * a / delta;
+          double var = 0.2 * (wx2 -wx1);
+          xx2 = wx2 + var * zoom_m;
+          xx1 = wx1 - var * (1 - zoom_m);
           my_snprintf(s, S(s), "%g", xx1);
           my_strdup(1418, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
           my_snprintf(s, S(s), "%g", xx2);
@@ -495,13 +554,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_redraw = 1;
           }
         } else {
-          double m = G_X(xctx->mousex);
-          double a = m - wx1;
-          double b = wx2 -m;
-          double delta = (wx2 - wx1);
-          double var = delta * 0.2;
-          xx2 = wx2 - var * b / delta;
-          xx1 = wx1 + var * a / delta;
+          double var = 0.2 * (wx2 - wx1);;
+          xx2 = wx2 - var * zoom_m;
+          xx1 = wx1 + var * (1 - zoom_m);
           my_snprintf(s, S(s), "%g", xx1);
           my_strdup(1449, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
           my_snprintf(s, S(s), "%g", xx2);
@@ -525,13 +580,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_redraw = 1;
           }
         } else {
-          double m = G_X(xctx->mousex);
-          double a = m - wx1;
-          double b = wx2 -m;
-          double delta = (wx2 - wx1);
-          double var = delta * 0.2;
-          xx2 = wx2 - var * b / delta;
-          xx1 = wx1 + var * a / delta;
+          double var = 0.2 * (wx2 -wx1);
+          xx2 = wx2 - var * zoom_m;
+          xx1 = wx1 + var * (1 - zoom_m);
           my_snprintf(s, S(s), "%g", xx1);
           my_strdup(1445, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
           my_snprintf(s, S(s), "%g", xx2);
@@ -601,6 +652,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       else if(event == ButtonRelease  && button != Button3) {
         xctx->ui_state &= ~GRAPHPAN;
+        xctx->graph_flags &= ~(16 | 32); /* clear move cursor flags */
       }
       else if(event == ButtonRelease && button == Button3) {
         double tmp;
@@ -616,7 +668,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         need_redraw = 1;
       }
     } /* if(xctx->sel_array[i].type == xRECT && c == 2) */
-    if(need_redraw) draw_graph(GRIDLAYER, n, 1); /* draw data in each graph box */
+    if(need_redraw) {
+      draw_graph(GRIDLAYER, n, 1 + 8 + (xctx->graph_flags & 6) ); /* draw data in each graph box */
+    }
   } /*  for(i=0; i<xctx->lastsel; i++) */
   draw_selection(xctx->gc[SELLAYER], 0);
   #if HAS_CAIRO==1
@@ -765,7 +819,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     break;
 
   case MotionNotify:
-    if( waves_selected(state)) {
+    if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1197,7 +1251,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Right)                    /* left */
    {
-    if(waves_selected(state)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1208,7 +1262,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Left)                     /* right */
    {
-    if(waves_selected(state)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1219,7 +1273,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Down)                     /* down */
    {
-    if(waves_selected(state)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1230,7 +1284,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Up)                       /* up */
    {
-    if(waves_selected(state)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1341,6 +1395,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='a' && state == 0)   /* make symbol */
    {
     if(xctx->semaphore >= 2) break;
+    if(waves_selected(event, key, state, button)) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
     tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
             "-message {do you want to make symbol view ?}");
     if(strcmp(tclresult(),"ok")==0)
@@ -1889,6 +1947,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='b' && state==0)                     /* merge schematic */
    {
     if(xctx->semaphore >= 2) break;
+    if(waves_selected(event, key, state, button)) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
     merge_file(0, ""); /* 2nd parameter not used any more for merge 25122002 */
     break;
    }
@@ -1973,7 +2035,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='f' && state == 0 )                  /* full zoom */
    {
-    if(waves_selected(state)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1997,7 +2059,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    break;
   case ButtonPress:                     /* end operation */
    dbg(1, "callback(): ButtonPress  ui_state=%ld state=%d\n",xctx->ui_state,state);
-   if(waves_selected(state)) {
+   if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
@@ -2137,21 +2199,21 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      }
    }
    else if(button==Button5 && state == 0 ) {
-    if(waves_selected(state)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
      view_unzoom(CADZOOMSTEP);
    }
    else if(button==Button4 && state == 0 ) {
-    if(waves_selected(state)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
      view_zoom(CADZOOMSTEP);
    }
    else if(button==Button4 && (state & ShiftMask) && !(state & Button2Mask)) {
-    if(waves_selected(state)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -2160,7 +2222,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     redraw_w_a_l_r_p_rubbers();
    }
    else if(button==Button5 && (state & ShiftMask) && !(state & Button2Mask)) {
-    if(waves_selected(state)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -2382,7 +2444,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    } /* button==Button1 */
    break;
   case ButtonRelease:
-   if(waves_selected(state)) {
+   if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
