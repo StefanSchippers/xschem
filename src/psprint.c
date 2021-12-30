@@ -483,7 +483,7 @@ static void ps_drawgrid()
 
 
 
-static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xoffset, double yoffset)
+static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot, double xoffset, double yoffset)
                             /* draws current layer only, should be called within  */
 {                           /* a "for(i=0;i<cadlayers;i++)" loop */
  int j;
@@ -513,8 +513,16 @@ static void ps_draw_symbol(int n,int layer, short tmp_flip, short rot, double xo
    }
    else xctx->inst[n].flags&=~1;
 
-   /* following code handles different text color for labels/pins 06112002 */
-
+   /* pdfmarks, only if doing hierarchy print */ 
+   if(what != 7) fprintf(fd, 
+     "[ "
+     "/Rect [ %g %g %g %g ] "
+     "/Border [0 0 0] "
+     "/Dest /%s "
+     "/Subtype /Link "
+     "/ANN pdfmark\n",
+     x1, y1, x2, y2,
+     add_ext(xctx->inst[n].name, ".sch"));
   }
   else if(xctx->inst[n].flags&1)
   {
@@ -763,7 +771,14 @@ void create_ps(char **psfile, int what)
     fprintf(fd, "%%%%EndPageSetup\n");
   
     /* add small page title */
-    fprintf(fd, "/Helvetica FF 10 SCF SF NP 25 %g MT (%s) show\n", pagey - 25, xctx->current_name);
+    fprintf(fd, "/Helvetica FF 10 SCF SF NP 20 %g MT (%s) show\n", pagey - 20, xctx->current_name);
+
+    /* Add anchor for pdfmarks */
+    fprintf(fd,
+      "[ "
+      "/Dest /%s "
+      "/DEST pdfmark\n", xctx->current_name);
+
     scaley = scale = (pagey-2 * margin) / dy;
     dbg(1, "scale=%g pagex=%g pagey=%g dx=%g dy=%g\n", scale, pagex, pagey, dx, dy);
     if(dx * scale > (pagex - 2 * margin)) {
@@ -837,7 +852,7 @@ void create_ps(char **psfile, int what)
           xctx->poly[c][i].fill, xctx->poly[c][i].dash);
       }
       for(i=0;i<xctx->instances;i++)
-        ps_draw_symbol(i,c,0,0,0.0,0.0);
+        ps_draw_symbol(i,c,what,0,0,0.0,0.0);
     }
     set_ps_colors(WIRELAYER);
     for(i=0;i<xctx->wires;i++)
