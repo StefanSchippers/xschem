@@ -2334,7 +2334,7 @@ void draw_graph(int c, int i, int flags)
       if( b - tx2 > 4.0) drawline(3, NOW, tx2 + 2, yline, b - 2, yline, 1);
     }
   }
-  if(flags & 1) {
+  if(flags & 1) { /* copy save buffer to screen */
     bbox(START, 0.0, 0.0, 0.0, 0.0);
     bbox(ADD, rx1, ry1, rx2, ry2);
     bbox(SET, 0.0, 0.0, 0.0, 0.0);

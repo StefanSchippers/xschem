@@ -201,6 +201,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     xctx->mx_double_save = xctx->mousex_snap;
     xctx->my_double_save = xctx->mousey_snap;
   }
+  here(1234);
   for(i=0; i <  xctx->rects[GRIDLAYER]; i++) {
     /* process only graph boxes */
     xRect *r;
