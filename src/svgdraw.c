@@ -713,8 +713,10 @@ void svg_draw(void)
                       xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
      for(i=0;i<xctx->rects[c];i++)
      {
-      svg_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
-                        xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash);
+       if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  {
+         svg_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
+                           xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash);
+       }
      }
      for(i=0;i<xctx->arcs[c];i++)
      {

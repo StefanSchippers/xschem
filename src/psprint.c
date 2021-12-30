@@ -762,6 +762,8 @@ void create_ps(char **psfile, int what)
     fprintf(fd, "%%%%BeginPageSetup\n");
     fprintf(fd, "%%%%EndPageSetup\n");
   
+    /* add small page title */
+    fprintf(fd, "/Helvetica FF 10 SCF SF NP 25 %g MT (%s) show", pagey - 25, xctx->current_name);
     scaley = scale = (pagey-2 * margin) / dy;
     dbg(1, "scale=%g pagex=%g pagey=%g dx=%g dy=%g\n", scale, pagex, pagey, dx, dy);
     if(dx * scale > (pagex - 2 * margin)) {
@@ -772,8 +774,7 @@ void create_ps(char **psfile, int what)
       -scale * boundbox.x1 + margin, pagey - (scaley - scale) * dy - margin + scale * boundbox.y1);
     fprintf(fd, "%g %g scale\n", scale, -scale);
     fprintf(fd, "1 setlinejoin 1 setlinecap\n");
-  
-  
+
     set_lw();
     ps_drawgrid();
   
@@ -821,8 +822,10 @@ void create_ps(char **psfile, int what)
           xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
       for(i=0;i<xctx->rects[c];i++)
       {
-        ps_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
-          xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash);
+        if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  {
+          ps_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
+            xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash);
+        }
       }
       for(i=0;i<xctx->arcs[c];i++)
       {
@@ -863,7 +866,6 @@ void create_ps(char **psfile, int what)
         }
       }
     }
-  
     dbg(1, "ps_draw(): INT_WIDTH(lw)=%d plotfile=%s\n",INT_WIDTH(xctx->lw), xctx->plotfile);
     fprintf(fd, "showpage\n\n");
   }

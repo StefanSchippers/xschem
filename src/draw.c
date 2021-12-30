@@ -2447,7 +2447,7 @@ void draw(void)
           }
           if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c];i++) {
             xRect *r = &xctx->rect[c][i]; 
-            if(c != GRIDLAYER || r->flags != 1 )  {
+            if(c != GRIDLAYER || !(r->flags & 1) )  {
               drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
               filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
             }
