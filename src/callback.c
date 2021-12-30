@@ -190,100 +190,93 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   #endif
 
-      
-  /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
-  if( event == KeyPress || event == ButtonPress || event == MotionNotify ) {
-    if(
-        (
-          (event == ButtonPress && (button == Button1 || button == Button3)) ||
-          (event == MotionNotify && (state & (Button1Mask | Button3Mask))) 
-        ) &&
-        !(xctx->ui_state & GRAPHPAN)
-      ) {
-      xctx->ui_state |= GRAPHPAN;
-      xctx->mx_double_save = xctx->mousex_snap;
-      xctx->my_double_save = xctx->mousey_snap;
-    }
-    for(i=0; i <  xctx->rects[GRIDLAYER]; i++) {
-      /* process only graph boxes */
-      xRect *r;
-      r = &xctx->rect[GRIDLAYER][i];
-      if(!(r->flags & 1) ) continue;
-      /* check if this is the master graph (the one containing the mouse pointer) */
-      if( POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, r->x1, r->y1, r->x2, r->y2)) {
-        val = get_tok_value(r->prop_ptr,"x1",0);
-        if(val[0]) wx1 = atof(val);
-        else wx1 = 0;
-        val = get_tok_value(r->prop_ptr,"y1",0);
-        if(val[0]) wy1 = atof(val);
-        else wy1 = 0;
-        val = get_tok_value(r->prop_ptr,"x2",0);
-        if(val[0]) wx2 = atof(val);
-        else wx2 = 1e-6;
-        val = get_tok_value(r->prop_ptr,"y2",0);
-        if(val[0]) wy2 = atof(val);
-        else wy2 = 5;
-        val = get_tok_value(r->prop_ptr,"digital",0);
-        if(val[0]) digital = atoi(val);
-        else digital = 0;
-        calc_graph_area(GRIDLAYER, i, digital, &x1, &y1, &x2, &y2, &marginx, &marginy);
-        cx = (x2 - x1) / (wx2 - wx1);
-        dx = x1 - wx1 * cx;
-        cy = (y1 - y2) / (wy2 - wy1);
-        dy = y2 - wy1 * cy;
-        if(xctx->mousex_snap < W_X(wx1)) {
-          xctx->graph_left = 1;
-        } else {
-          xctx->graph_left = 0;
-        }
-        if(xctx->mousey_snap > W_Y(wy1)) {
-          xctx->graph_bottom = 1;
-        } else {
-          xctx->graph_bottom = 0;
-        }
-        xctx->graph_master = i;
-        if(xctx->lastsel == 1 &&
-           xctx->sel_array[0].type == xRECT &&
-           xctx->sel_array[0].col == GRIDLAYER &&
-           xctx->sel_array[0].n == i ) {
-          xctx->graph_unlock_x = 1;
-        } else {
-          xctx->graph_unlock_x = 0;
-        }
-        zoom_m = (xctx->mousex  - x1) / ( x2 - x1);
-        here(zoom_m);
+  if(
+      (
+        (event == ButtonPress && (button == Button1 || button == Button3)) ||
+        (event == MotionNotify && (state & (Button1Mask | Button3Mask))) 
+      ) &&
+      !(xctx->ui_state & GRAPHPAN)
+    ) {
+    xctx->ui_state |= GRAPHPAN;
+    xctx->mx_double_save = xctx->mousex_snap;
+    xctx->my_double_save = xctx->mousey_snap;
+  }
+  for(i=0; i <  xctx->rects[GRIDLAYER]; i++) {
+    /* process only graph boxes */
+    xRect *r;
+    r = &xctx->rect[GRIDLAYER][i];
+    if(!(r->flags & 1) ) continue;
+    /* check if this is the master graph (the one containing the mouse pointer) */
+    /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
+    if( POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, r->x1, r->y1, r->x2, r->y2)) {
+      val = get_tok_value(r->prop_ptr,"x1",0);
+      if(val[0]) wx1 = atof(val);
+      else wx1 = 0;
+      val = get_tok_value(r->prop_ptr,"y1",0);
+      if(val[0]) wy1 = atof(val);
+      else wy1 = 0;
+      val = get_tok_value(r->prop_ptr,"x2",0);
+      if(val[0]) wx2 = atof(val);
+      else wx2 = 1e-6;
+      val = get_tok_value(r->prop_ptr,"y2",0);
+      if(val[0]) wy2 = atof(val);
+      else wy2 = 5;
+      val = get_tok_value(r->prop_ptr,"digital",0);
+      if(val[0]) digital = atoi(val);
+      else digital = 0;
+      calc_graph_area(GRIDLAYER, i, digital, &x1, &y1, &x2, &y2, &marginx, &marginy);
+      cx = (x2 - x1) / (wx2 - wx1);
+      dx = x1 - wx1 * cx;
+      cy = (y1 - y2) / (wy2 - wy1);
+      dy = y2 - wy1 * cy;
+      if(xctx->mousex_snap < W_X(wx1)) {
+        xctx->graph_left = 1;
+      } else {
+        xctx->graph_left = 0;
+      }
+      if(xctx->mousey_snap > W_Y(wy1)) {
+        xctx->graph_bottom = 1;
+      } else {
+        xctx->graph_bottom = 0;
+      }
+      xctx->graph_master = i;
+      if(xctx->lastsel == 1 &&
+         xctx->sel_array[0].type == xRECT &&
+         xctx->sel_array[0].col == GRIDLAYER &&
+         xctx->sel_array[0].n == i ) {
+        xctx->graph_unlock_x = 1;
+      } else {
+        xctx->graph_unlock_x = 0;
+      }
+      zoom_m = (xctx->mousex  - x1) / ( x2 - x1);
 
-
-        if(event == ButtonPress && button == Button1) {
-          if( (xctx->graph_flags & 2) && fabs(xctx->mousex - W_X(xctx->graph_cursor1_x)) < 10) {
-            xctx->graph_flags |= 16; /* move cursor1 */
-          }
-          if( (xctx->graph_flags & 4) && fabs(xctx->mousex - W_X(xctx->graph_cursor2_x)) < 10) {
-            xctx->graph_flags |= 32; /* move cursor2 */
-          }
+      if(event == ButtonPress && button == Button1) {
+        if( (xctx->graph_flags & 2) && fabs(xctx->mousex - W_X(xctx->graph_cursor1_x)) < 10) {
+          xctx->graph_flags |= 16; /* move cursor1 */
         }
-   
-
-
-        /* x-cursor set */
-        if((key == 'a') ) {
-          xctx->graph_flags ^= 2;
-          need_redraw = 1;
-          xctx->graph_flags |= 1; /* apply to all graphs */
-          if(xctx->graph_flags & 2) xctx->graph_cursor1_x = G_X(xctx->mousex);
+        if( (xctx->graph_flags & 4) && fabs(xctx->mousex - W_X(xctx->graph_cursor2_x)) < 10) {
+          xctx->graph_flags |= 32; /* move cursor2 */
         }
-        else if((key == 'b') ) {
-          xctx->graph_flags ^= 4;
-          need_redraw = 1;
-          xctx->graph_flags |= 1; /* apply to all graphs */
-          if(xctx->graph_flags & 4) xctx->graph_cursor2_x = G_X(xctx->mousex);
-        }
-        else if(state & ControlMask) xctx->graph_flags |= 1;
-        else xctx->graph_flags &= ~1;
+      }
 
-        break;
-      } /* if( POINTINSIDE(...) */
-    }
+      /* x-cursor set */
+      if((key == 'a') ) {
+        xctx->graph_flags ^= 2;
+        need_redraw = 1;
+        xctx->graph_flags |= 1; /* apply to all graphs */
+        if(xctx->graph_flags & 2) xctx->graph_cursor1_x = G_X(xctx->mousex);
+      }
+      else if((key == 'b') ) {
+        xctx->graph_flags ^= 4;
+        need_redraw = 1;
+        xctx->graph_flags |= 1; /* apply to all graphs */
+        if(xctx->graph_flags & 4) xctx->graph_cursor2_x = G_X(xctx->mousex);
+      }
+      else if(state & ControlMask) xctx->graph_flags |= 1;
+      else xctx->graph_flags &= ~1;
+
+      break;
+    } /* if( POINTINSIDE(...) */
   }
   if(!xctx->graph_unlock_x) xctx->graph_flags |= 1;
 
@@ -330,349 +323,365 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       dy = y2 - wy1 * cy;
       dbg(1, "%g %g %g %g - %d %d\n", wx1, wy1, wx2, wy2, divx, divy);
 
-      /* move cursor1 */
-      if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
-        xctx->graph_cursor1_x = G_X(xctx->mousex);
-        need_redraw = 1;
-      }
-      /* move cursor2 */
-      else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
-        xctx->graph_cursor2_x = G_X(xctx->mousex);
-        need_redraw = 1;
-      }
-      else if(event == MotionNotify && (state & Button1Mask) && !xctx->graph_bottom) {
-        double delta;
-        if(xctx->graph_left) {
-          if(n == xctx->graph_master) {
-            delta = (wy2 - wy1) / divy;
-            delta_threshold = 0.01;
-            if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(cy * delta) * delta_threshold) {
-              yy1 = wy1 + (xctx->my_double_save - xctx->mousey_snap) / cy;
-              yy2 = wy2 + (xctx->my_double_save - xctx->mousey_snap) / cy;
-              my_snprintf(s, S(s), "%g", yy1);
-              my_strdup(1424, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-              my_snprintf(s, S(s), "%g", yy2);
-              my_strdup(1425, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-              xctx->my_double_save = xctx->mousey_snap;
+
+
+      if( event == KeyPress || event == ButtonPress || event == MotionNotify ) {
+
+
+        /* move cursor1 */
+        if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
+          xctx->graph_cursor1_x = G_X(xctx->mousex);
+          need_redraw = 1;
+        }
+        /* move cursor2 */
+        else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
+          xctx->graph_cursor2_x = G_X(xctx->mousex);
+          need_redraw = 1;
+        }
+        else if(event == MotionNotify && (state & Button1Mask) && !xctx->graph_bottom) {
+          double delta;
+          if(xctx->graph_left) {
+            if(n == xctx->graph_master) {
+              delta = (wy2 - wy1) / divy;
+              delta_threshold = 0.01;
+              if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(cy * delta) * delta_threshold) {
+                yy1 = wy1 + (xctx->my_double_save - xctx->mousey_snap) / cy;
+                yy2 = wy2 + (xctx->my_double_save - xctx->mousey_snap) / cy;
+                my_snprintf(s, S(s), "%g", yy1);
+                my_strdup(1424, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+                my_snprintf(s, S(s), "%g", yy2);
+                my_strdup(1425, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+                xctx->my_double_save = xctx->mousey_snap;
+                need_redraw = 1;
+              }
+            }
+          } else {
+            delta = (wx2 - wx1);
+            delta_threshold = 0.02;
+            if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(cx * delta) * delta_threshold) {
+              xx1 = wx1 + (xctx->mx_double_save - xctx->mousex_snap) / cx;
+              xx2 = wx2 + (xctx->mx_double_save - xctx->mousex_snap) / cx;
+              my_snprintf(s, S(s), "%g", xx1);
+              my_strdup(1410, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
+              my_snprintf(s, S(s), "%g", xx2);
+              my_strdup(1411, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+              /* update saved mouse position after processing all graphs */
+              if(i >= ((xctx->graph_flags & 1) ? xctx->rects[GRIDLAYER] : xctx->lastsel) - 1) {
+                xctx->mx_double_save = xctx->mousex_snap;
+                xctx->my_double_save = xctx->mousey_snap;
+              }
               need_redraw = 1;
             }
           }
-        } else {
-          delta = (wx2 - wx1);
-          delta_threshold = 0.02;
-          if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(cx * delta) * delta_threshold) {
-            xx1 = wx1 + (xctx->mx_double_save - xctx->mousex_snap) / cx;
-            xx2 = wx2 + (xctx->mx_double_save - xctx->mousex_snap) / cx;
-            my_snprintf(s, S(s), "%g", xx1);
-            my_strdup(1410, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
-            my_snprintf(s, S(s), "%g", xx2);
-            my_strdup(1411, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
-            /* update saved mouse position after processing all graphs */
-            if(i >= ((xctx->graph_flags & 1) ? xctx->rects[GRIDLAYER] : xctx->lastsel) - 1) {
-              xctx->mx_double_save = xctx->mousex_snap;
-              xctx->my_double_save = xctx->mousey_snap;
-            }
-            need_redraw = 1;
-          }
         }
-      }
-      else if((button == Button5 && !(state & ShiftMask))) {
-        double delta;
-        if(xctx->graph_left) {
-          if(!digital && n == xctx->graph_master) {
-            delta = (wy2 - wy1) / divy;
-            delta_threshold = 1.0;
-            yy1 = wy1 + delta * delta_threshold;
-            yy2 = wy2 + delta * delta_threshold;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1420, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1421, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
-          }
-        } else {
-          delta = (wx2 - wx1);
-          delta_threshold = 0.02;
-          xx1 = wx1 - delta * delta_threshold;
-          xx2 = wx2 - delta * delta_threshold;
-          my_snprintf(s, S(s), "%g", xx1);
-          my_strdup(1428, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
-          my_snprintf(s, S(s), "%g", xx2);
-          my_strdup(1429, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
-          need_redraw = 1;
-        }
-      }
-      else if(key == XK_Left) {
-        double delta;
-        if(xctx->graph_left) {
-          if(!digital && n == xctx->graph_master) {
-            double m = G_Y(xctx->mousey);
-            double a = m - wy1;
-            double b = wy2 -m;
-            double delta = (wy2 - wy1);
-            double var = delta * 0.2;
-            yy2 = wy2 + var * b / delta;
-            yy1 = wy1 - var * a / delta;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1451, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1448, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
-          }
-        } else {
-          delta = (wx2 - wx1);
-          delta_threshold = 0.02;
-          xx1 = wx1 - delta * delta_threshold;
-          xx2 = wx2 - delta * delta_threshold;
-          my_snprintf(s, S(s), "%g", xx1);
-          my_strdup(1395, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
-          my_snprintf(s, S(s), "%g", xx2);
-          my_strdup(1396, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
-          need_redraw = 1;
-        }
-      }
-      else if(button == Button4 && !(state & ShiftMask))  {
-        double delta;
-        if(xctx->graph_left) {
-          if(!digital && n == xctx->graph_master) {
-            delta = (wy2 - wy1) / divy;
-            delta_threshold = 1.0;
-            yy1 = wy1 - delta * delta_threshold;
-            yy2 = wy2 - delta * delta_threshold;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1416, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1417, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
-          }
-        } else {
-          delta = (wx2 - wx1);
-          delta_threshold = 0.02;
-          xx1 = wx1 + delta * delta_threshold;
-          xx2 = wx2 + delta * delta_threshold;
-          my_snprintf(s, S(s), "%g", xx1);
-          my_strdup(1397, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
-          my_snprintf(s, S(s), "%g", xx2);
-          my_strdup(1398, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
-          need_redraw = 1;
-        }
-      }
-      else if(key == XK_Right) {
-        double delta;
-        if(xctx->graph_left) {
-          if(!digital && n == xctx->graph_master) {
-            double m = G_Y(xctx->mousey);
-            double a = m - wy1;
-            double b = wy2 -m;
-            double delta = (wy2 - wy1);
-            double var = delta * 0.2;
-            yy2 = wy2 - var * b / delta;
-            yy1 = wy1 + var * a / delta;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1433, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1439, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
-          }
-        } else {
-          delta = (wx2 - wx1);
-          delta_threshold = 0.02;
-          xx1 = wx1 + delta * delta_threshold;
-          xx2 = wx2 + delta * delta_threshold;
-          my_snprintf(s, S(s), "%g", xx1);
-          my_strdup(1430, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
-          my_snprintf(s, S(s), "%g", xx2);
-          my_strdup(1431, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
-          need_redraw = 1;
-        }
-      }
-      else if(button == Button5 && (state & ShiftMask)) {
-        if(xctx->graph_left) {
-          if(!digital && n == xctx->graph_master) {
-            double m = G_Y(xctx->mousey);
-            double a = m - wy1;
-            double b = wy2 -m;
-            double delta = (wy2 - wy1);
-            double var = delta * 0.2;
-            yy2 = wy2 + var * b / delta;
-            yy1 = wy1 - var * a / delta;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1447, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1436, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
-          }
-        } else {
-          double var = 0.2 * (wx2 -wx1);
-          xx2 = wx2 + var * zoom_m;
-          xx1 = wx1 - var * (1 - zoom_m);
-          my_snprintf(s, S(s), "%g", xx1);
-          my_strdup(1399, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
-          my_snprintf(s, S(s), "%g", xx2);
-          my_strdup(1400, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
-          need_redraw = 1;
-        }
-      }
-      else if(key == XK_Down) {
-        double delta;
-        if(xctx->graph_left) {
-          if(!digital && n == xctx->graph_master) {
-            delta = (wy2 - wy1) / divy;
-            delta_threshold = 1.0;
-            yy1 = wy1 - delta * delta_threshold;
-            yy2 = wy2 - delta * delta_threshold;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1434, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1435, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
-          }
-        } else {
-          double var = 0.2 * (wx2 -wx1);
-          xx2 = wx2 + var * zoom_m;
-          xx1 = wx1 - var * (1 - zoom_m);
-          my_snprintf(s, S(s), "%g", xx1);
-          my_strdup(1418, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
-          my_snprintf(s, S(s), "%g", xx2);
-          my_strdup(1432, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
-          need_redraw = 1;
-        }
-      }
-      else if(button == Button4 && (state & ShiftMask)) {
-        if(xctx->graph_left) {
-          if(!digital && n == xctx->graph_master) {
-            double m = G_Y(xctx->mousey);
-            double a = m - wy1;
-            double b = wy2 -m;
-            double delta = (wy2 - wy1);
-            double var = delta * 0.2;
-            yy2 = wy2 - var * b / delta;
-            yy1 = wy1 + var * a / delta;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1419, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1444, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
-          }
-        } else {
-          double var = 0.2 * (wx2 - wx1);;
-          xx2 = wx2 - var * zoom_m;
-          xx1 = wx1 + var * (1 - zoom_m);
-          my_snprintf(s, S(s), "%g", xx1);
-          my_strdup(1449, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
-          my_snprintf(s, S(s), "%g", xx2);
-          my_strdup(1450, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
-          need_redraw = 1;
-        }
-      }
-
-      else if(key == XK_Up) {
-        double delta;
-        if(xctx->graph_left) {
-            if(!digital && n == xctx->graph_master) {
-            delta = (wy2 - wy1) / divy;
-            delta_threshold = 1.0;
-            yy1 = wy1 + delta * delta_threshold;
-            yy2 = wy2 + delta * delta_threshold;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1437, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1438, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
-          }
-        } else {
-          double var = 0.2 * (wx2 -wx1);
-          xx2 = wx2 - var * zoom_m;
-          xx1 = wx1 + var * (1 - zoom_m);
-          my_snprintf(s, S(s), "%g", xx1);
-          my_strdup(1445, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
-          my_snprintf(s, S(s), "%g", xx2);
-          my_strdup(1446, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
-          need_redraw = 1;
-        }
-      }
-      else if(key == 'f') {
-        if(xctx->graph_values) {
+        else if((button == Button5 && !(state & ShiftMask))) {
+          double delta;
           if(xctx->graph_left) {
-            int i, j;
-            double v;
-            double min=0.0, max=0.0;
-            int first = 1;
-            char *saven, *nptr, *ntok, *node = NULL;;
-            my_strdup2(1426, &node, get_tok_value(r->prop_ptr,"node",0));
-            nptr = node;
-            while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) {
-              nptr = NULL;
-              j = get_raw_index(ntok);
-              if(j >= 0) {
-                for(i = 0; i < xctx->graph_npoints[dataset]; i++) {
-                  v = get_raw_value(dataset, j, i);
-                  if(first || v < min) {min = v; first = 0;}
-                  if(first || v > max) {max = v; first = 0;}
-                } 
-              }
+            if(!digital && n == xctx->graph_master) {
+              delta = (wy2 - wy1) / divy;
+              delta_threshold = 1.0;
+              yy1 = wy1 + delta * delta_threshold;
+              yy2 = wy2 + delta * delta_threshold;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1420, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1421, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
             }
-            if(max == min) max += 0.01;
-            min = floor_to_n_digits(min, 2);
-            max = ceil_to_n_digits(max, 2);
-            my_free(1427, &node);
-            my_snprintf(s, S(s), "%g", min);
-            my_strdup(1422, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", max);
-            my_strdup(1423, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
           } else {
-            xx1 = get_raw_value(dataset, 0, 0);
-            xx2 = get_raw_value(dataset, 0, xctx->graph_npoints[dataset] -1);
+            delta = (wx2 - wx1);
+            delta_threshold = 0.02;
+            xx1 = wx1 - delta * delta_threshold;
+            xx2 = wx2 - delta * delta_threshold;
             my_snprintf(s, S(s), "%g", xx1);
-            my_strdup(1409, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
+            my_strdup(1428, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
             my_snprintf(s, S(s), "%g", xx2);
-            my_strdup(1412, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+            my_strdup(1429, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
             need_redraw = 1;
           }
         }
-      }
-      else if( event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
-        double wwx1, wwx2, p, delta, ccx, ddx;
-
-        if(xctx->graph_values) {
-          delta = wx2 - wx1;
-          wwx1 =  get_raw_value(dataset, 0, 0);
-          wwx2 = get_raw_value(dataset, 0, xctx->graph_npoints[dataset] - 1);
-          ccx = (x2 - x1) / (wwx2 - wwx1);
-          ddx = x1 - wwx1 * ccx;
-          p = (xctx->mousex_snap - ddx) / ccx;
-          xx1 = p - delta / 2.0;
-          xx2 = p + delta / 2.0;
+        else if(key == XK_Left) {
+          double delta;
+          if(xctx->graph_left) {
+            if(!digital && n == xctx->graph_master) {
+              double m = G_Y(xctx->mousey);
+              double a = m - wy1;
+              double b = wy2 -m;
+              double delta = (wy2 - wy1);
+              double var = delta * 0.2;
+              yy2 = wy2 + var * b / delta;
+              yy1 = wy1 - var * a / delta;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1451, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1448, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
+            }
+          } else {
+            delta = (wx2 - wx1);
+            delta_threshold = 0.02;
+            xx1 = wx1 - delta * delta_threshold;
+            xx2 = wx2 - delta * delta_threshold;
+            my_snprintf(s, S(s), "%g", xx1);
+            my_strdup(1395, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
+            my_snprintf(s, S(s), "%g", xx2);
+            my_strdup(1396, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+            need_redraw = 1;
+          }
+        }
+        else if(button == Button4 && !(state & ShiftMask))  {
+          double delta;
+          if(xctx->graph_left) {
+            if(!digital && n == xctx->graph_master) {
+              delta = (wy2 - wy1) / divy;
+              delta_threshold = 1.0;
+              yy1 = wy1 - delta * delta_threshold;
+              yy2 = wy2 - delta * delta_threshold;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1416, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1417, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
+            }
+          } else {
+            delta = (wx2 - wx1);
+            delta_threshold = 0.02;
+            xx1 = wx1 + delta * delta_threshold;
+            xx2 = wx2 + delta * delta_threshold;
+            my_snprintf(s, S(s), "%g", xx1);
+            my_strdup(1397, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
+            my_snprintf(s, S(s), "%g", xx2);
+            my_strdup(1398, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+            need_redraw = 1;
+          }
+        }
+        else if(key == XK_Right) {
+          double delta;
+          if(xctx->graph_left) {
+            if(!digital && n == xctx->graph_master) {
+              double m = G_Y(xctx->mousey);
+              double a = m - wy1;
+              double b = wy2 -m;
+              double delta = (wy2 - wy1);
+              double var = delta * 0.2;
+              yy2 = wy2 - var * b / delta;
+              yy1 = wy1 + var * a / delta;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1433, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1439, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
+            }
+          } else {
+            delta = (wx2 - wx1);
+            delta_threshold = 0.02;
+            xx1 = wx1 + delta * delta_threshold;
+            xx2 = wx2 + delta * delta_threshold;
+            my_snprintf(s, S(s), "%g", xx1);
+            my_strdup(1430, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
+            my_snprintf(s, S(s), "%g", xx2);
+            my_strdup(1431, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+            need_redraw = 1;
+          }
+        }
+        else if(button == Button5 && (state & ShiftMask)) {
+          if(xctx->graph_left) {
+            if(!digital && n == xctx->graph_master) {
+              double m = G_Y(xctx->mousey);
+              double a = m - wy1;
+              double b = wy2 -m;
+              double delta = (wy2 - wy1);
+              double var = delta * 0.2;
+              yy2 = wy2 + var * b / delta;
+              yy1 = wy1 - var * a / delta;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1447, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1436, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
+            }
+          } else {
+            double var = 0.2 * (wx2 -wx1);
+            xx2 = wx2 + var * (1 - zoom_m);
+            xx1 = wx1 - var * zoom_m;
+            my_snprintf(s, S(s), "%g", xx1);
+            my_strdup(1399, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
+            my_snprintf(s, S(s), "%g", xx2);
+            my_strdup(1400, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+            need_redraw = 1;
+          }
+        }
+        else if(key == XK_Down) {
+          double delta;
+          if(xctx->graph_left) {
+            if(!digital && n == xctx->graph_master) {
+              delta = (wy2 - wy1) / divy;
+              delta_threshold = 1.0;
+              yy1 = wy1 - delta * delta_threshold;
+              yy2 = wy2 - delta * delta_threshold;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1434, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1435, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
+            }
+          } else {
+            double var = 0.2 * (wx2 -wx1);
+            xx2 = wx2 + var * (1 - zoom_m);
+            xx1 = wx1 - var * zoom_m;
+            my_snprintf(s, S(s), "%g", xx1);
+            my_strdup(1418, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
+            my_snprintf(s, S(s), "%g", xx2);
+            my_strdup(1432, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+            need_redraw = 1;
+          }
+        }
+        else if(button == Button4 && (state & ShiftMask)) {
+          if(xctx->graph_left) {
+            if(!digital && n == xctx->graph_master) {
+              double m = G_Y(xctx->mousey);
+              double a = m - wy1;
+              double b = wy2 -m;
+              double delta = (wy2 - wy1);
+              double var = delta * 0.2;
+              yy2 = wy2 - var * b / delta;
+              yy1 = wy1 + var * a / delta;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1419, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1444, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
+            }
+          } else {
+            double var = 0.2 * (wx2 - wx1);;
+            xx2 = wx2 - var * (1 - zoom_m);
+            xx1 = wx1 + var * zoom_m;
+            my_snprintf(s, S(s), "%g", xx1);
+            my_strdup(1449, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
+            my_snprintf(s, S(s), "%g", xx2);
+            my_strdup(1450, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+            need_redraw = 1;
+          }
+        }
+  
+        else if(key == XK_Up) {
+          double delta;
+          if(xctx->graph_left) {
+              if(!digital && n == xctx->graph_master) {
+              delta = (wy2 - wy1) / divy;
+              delta_threshold = 1.0;
+              yy1 = wy1 + delta * delta_threshold;
+              yy2 = wy2 + delta * delta_threshold;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1437, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1438, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
+            }
+          } else {
+            double var = 0.2 * (wx2 -wx1);
+            xx2 = wx2 - var * (1 - zoom_m);
+            xx1 = wx1 + var * zoom_m;
+            my_snprintf(s, S(s), "%g", xx1);
+            my_strdup(1445, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
+            my_snprintf(s, S(s), "%g", xx2);
+            my_strdup(1446, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+            need_redraw = 1;
+          }
+        }
+        else if(key == 'f') {
+          if(xctx->graph_values) {
+            if(xctx->graph_left) {
+              int i, j;
+              double v;
+              double min=0.0, max=0.0;
+              int first = 1;
+              char *saven, *nptr, *ntok, *node = NULL;;
+              my_strdup2(1426, &node, get_tok_value(r->prop_ptr,"node",0));
+              nptr = node;
+              while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) {
+                nptr = NULL;
+                j = get_raw_index(ntok);
+                if(j >= 0) {
+                  for(i = 0; i < xctx->graph_npoints[dataset]; i++) {
+                    v = get_raw_value(dataset, j, i);
+                    if(first || v < min) {min = v; first = 0;}
+                    if(first || v > max) {max = v; first = 0;}
+                  } 
+                }
+              }
+              if(max == min) max += 0.01;
+              min = floor_to_n_digits(min, 2);
+              max = ceil_to_n_digits(max, 2);
+              my_free(1427, &node);
+              my_snprintf(s, S(s), "%g", min);
+              my_strdup(1422, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", max);
+              my_strdup(1423, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
+            } else {
+              xx1 = get_raw_value(dataset, 0, 0);
+              xx2 = get_raw_value(dataset, 0, xctx->graph_npoints[dataset] -1);
+              my_snprintf(s, S(s), "%g", xx1);
+              my_strdup(1409, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
+              my_snprintf(s, S(s), "%g", xx2);
+              my_strdup(1412, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+              need_redraw = 1;
+            }
+          }
+        }
+        else if( event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
+          double wwx1, wwx2, p, delta, ccx, ddx;
+  
+          if(xctx->graph_values) {
+            delta = wx2 - wx1;
+            wwx1 =  get_raw_value(dataset, 0, 0);
+            wwx2 = get_raw_value(dataset, 0, xctx->graph_npoints[dataset] - 1);
+            ccx = (x2 - x1) / (wwx2 - wwx1);
+            ddx = x1 - wwx1 * ccx;
+            p = (xctx->mousex_snap - ddx) / ccx;
+            xx1 = p - delta / 2.0;
+            xx2 = p + delta / 2.0;
+            my_snprintf(s, S(s), "%g", xx1);
+            my_strdup(1442, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
+            my_snprintf(s, S(s), "%g", xx2);
+            my_strdup(1443, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+            need_redraw = 1;
+          }
+        }
+      } /* if( event == KeyPress || event == ButtonPress || event == MotionNotify ) */
+      else if( event == ButtonRelease) {
+        if(button != Button3) {
+          xctx->ui_state &= ~GRAPHPAN;
+          xctx->graph_flags &= ~(16 | 32); /* clear move cursor flags */
+        }
+        else if(button == Button3) {
+          double tmp;
+          xctx->ui_state &= ~GRAPHPAN;
+          xx1 = G_X(xctx->mx_double_save);
+          xx2 = G_X(xctx->mousex_snap);
+          if(xx2 < xx1) { tmp = xx1; xx1 = xx2; xx2 = tmp; }
+          if(xx1 == xx2) xx2 += 1e-6;
           my_snprintf(s, S(s), "%g", xx1);
-          my_strdup(1442, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
+          my_strdup(1440, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
           my_snprintf(s, S(s), "%g", xx2);
-          my_strdup(1443, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+          my_strdup(1441, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
           need_redraw = 1;
         }
-      }
-      else if(event == ButtonRelease  && button != Button3) {
-        xctx->ui_state &= ~GRAPHPAN;
-        xctx->graph_flags &= ~(16 | 32); /* clear move cursor flags */
-      }
-      else if(event == ButtonRelease && button == Button3) {
-        double tmp;
-        xctx->ui_state &= ~GRAPHPAN;
-        xx1 = G_X(xctx->mx_double_save);
-        xx2 = G_X(xctx->mousex_snap);
-        if(xx2 < xx1) { tmp = xx1; xx1 = xx2; xx2 = tmp; }
-        if(xx1 == xx2) xx2 += 1e-6;
-        my_snprintf(s, S(s), "%g", xx1);
-        my_strdup(1440, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
-        my_snprintf(s, S(s), "%g", xx2);
-        my_strdup(1441, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
-        need_redraw = 1;
-      }
+      } /* else if( event == ButtonRelease) */
     } /* if(xctx->sel_array[i].type == xRECT && c == 2) */
     if(need_redraw) {
       draw_graph(GRIDLAYER, n, 1 + 8 + (xctx->graph_flags & 6) ); /* draw data in each graph box */
     }
   } /*  for(i=0; i<xctx->lastsel; i++) */
+
+
+
+
+
+
+
+
   draw_selection(xctx->gc[SELLAYER], 0);
   #if HAS_CAIRO==1
   cairo_restore(xctx->cairo_ctx);
