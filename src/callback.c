@@ -251,6 +251,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           xctx->graph_unlock_x = 0;
         }
         zoom_m = (xctx->mousex  - x1) / ( x2 - x1);
+        here(zoom_m);
 
 
         if(event == ButtonPress && button == Button1) {
