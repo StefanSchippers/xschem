@@ -763,7 +763,7 @@ void create_ps(char **psfile, int what)
     fprintf(fd, "%%%%EndPageSetup\n");
   
     /* add small page title */
-    fprintf(fd, "/Helvetica FF 10 SCF SF NP 25 %g MT (%s) show", pagey - 25, xctx->current_name);
+    fprintf(fd, "/Helvetica FF 10 SCF SF NP 25 %g MT (%s) show\n", pagey - 25, xctx->current_name);
     scaley = scale = (pagey-2 * margin) / dy;
     dbg(1, "scale=%g pagex=%g pagey=%g dx=%g dy=%g\n", scale, pagex, pagey, dx, dy);
     if(dx * scale > (pagex - 2 * margin)) {
