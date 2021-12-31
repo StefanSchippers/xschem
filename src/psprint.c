@@ -522,7 +522,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
      "/Subtype /Link "
      "/ANN pdfmark\n",
      x1, y1, x2, y2,
-     add_ext(xctx->inst[n].name, ".sch"));
+     add_ext(skip_dir(xctx->inst[n].name), ".sch"));
   }
   else if(xctx->inst[n].flags&1)
   {
@@ -777,7 +777,7 @@ void create_ps(char **psfile, int what)
     fprintf(fd,
       "[ "
       "/Dest /%s "
-      "/DEST pdfmark\n", xctx->current_name);
+      "/DEST pdfmark\n", get_cell_w_ext(xctx->current_name, 0));
 
     scaley = scale = (pagey-2 * margin) / dy;
     dbg(1, "scale=%g pagex=%g pagey=%g dx=%g dy=%g\n", scale, pagex, pagey, dx, dy);

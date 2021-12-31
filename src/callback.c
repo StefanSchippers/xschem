@@ -190,6 +190,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   #endif
 
+
+  /* save mouse position when doing pan operations */
   if(
       (
         (event == ButtonPress && (button == Button1 || button == Button3)) ||
@@ -201,7 +203,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     xctx->mx_double_save = xctx->mousex_snap;
     xctx->my_double_save = xctx->mousey_snap;
   }
-  here(1234);
   for(i=0; i <  xctx->rects[GRIDLAYER]; i++) {
     /* process only graph boxes */
     xRect *r;
@@ -251,22 +252,34 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       zoom_m = (xctx->mousex  - x1) / ( x2 - x1);
 
+      /* dragging cursors when mouse is very close */
       if(event == ButtonPress && button == Button1) {
         if( (xctx->graph_flags & 2) && fabs(xctx->mousex - W_X(xctx->graph_cursor1_x)) < 10) {
-          xctx->graph_flags |= 16; /* move cursor1 */
+          xctx->graph_flags |= 16; /* Start move cursor1 */
         }
         if( (xctx->graph_flags & 4) && fabs(xctx->mousex - W_X(xctx->graph_cursor2_x)) < 10) {
-          xctx->graph_flags |= 32; /* move cursor2 */
+          xctx->graph_flags |= 32; /* Start move cursor2 */
         }
       }
+      /* move cursor1 */
+      /* set cursor position from master graph x-axis */
+      if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
+        xctx->graph_cursor1_x = G_X(xctx->mousex);
+      }
+      /* move cursor2 */
+      /* set cursor position from master graph x-axis */
+      else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
+        xctx->graph_cursor2_x = G_X(xctx->mousex);
+      }
 
-      /* x-cursor set */
+      /* x cursor1 toggle */
       if((key == 'a') ) {
         xctx->graph_flags ^= 2;
         need_redraw = 1;
         xctx->graph_flags |= 1; /* apply to all graphs */
         if(xctx->graph_flags & 2) xctx->graph_cursor1_x = G_X(xctx->mousex);
       }
+      /* x cursor2 toggle */
       else if((key == 'b') ) {
         xctx->graph_flags ^= 4;
         need_redraw = 1;
@@ -289,6 +302,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   if(val[0]) wx2 = atof(val);
   else wx2 = 1e-6;
 
+  /* second loop: after having determined the master graph do the others */
   for(i=0; i< ((xctx->graph_flags & 1) ? xctx->rects[GRIDLAYER] : xctx->lastsel); i++) {
     c =  (xctx->graph_flags & 1) ? GRIDLAYER : xctx->sel_array[i].col;
     /* process only graph boxes */
@@ -323,23 +337,17 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       cy = (y1 - y2) / (wy2 - wy1);
       dy = y2 - wy1 * cy;
       dbg(1, "%g %g %g %g - %d %d\n", wx1, wy1, wx2, wy2, divx, divy);
-
-
-
       if( event == KeyPress || event == ButtonPress || event == MotionNotify ) {
-
-
         /* move cursor1 */
         if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
-          xctx->graph_cursor1_x = G_X(xctx->mousex);
           need_redraw = 1;
         }
         /* move cursor2 */
         else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
-          xctx->graph_cursor2_x = G_X(xctx->mousex);
           need_redraw = 1;
         }
-        else if(event == MotionNotify && (state & Button1Mask) && !xctx->graph_bottom) {
+        else
+        if(event == MotionNotify && (state & Button1Mask) && !xctx->graph_bottom) {
           double delta;
           if(xctx->graph_left) {
             if(n == xctx->graph_master) {
@@ -358,7 +366,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           } else {
             delta = (wx2 - wx1);
-            delta_threshold = 0.02;
+            delta_threshold = 0.01;
             if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(cx * delta) * delta_threshold) {
               xx1 = wx1 + (xctx->mx_double_save - xctx->mousex_snap) / cx;
               xx2 = wx2 + (xctx->mx_double_save - xctx->mousex_snap) / cx;
@@ -391,7 +399,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           } else {
             delta = (wx2 - wx1);
-            delta_threshold = 0.02;
+            delta_threshold = 0.05;
             xx1 = wx1 - delta * delta_threshold;
             xx2 = wx2 - delta * delta_threshold;
             my_snprintf(s, S(s), "%g", xx1);
@@ -420,7 +428,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           } else {
             delta = (wx2 - wx1);
-            delta_threshold = 0.02;
+            delta_threshold = 0.05;
             xx1 = wx1 - delta * delta_threshold;
             xx2 = wx2 - delta * delta_threshold;
             my_snprintf(s, S(s), "%g", xx1);
@@ -446,7 +454,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           } else {
             delta = (wx2 - wx1);
-            delta_threshold = 0.02;
+            delta_threshold = 0.05;
             xx1 = wx1 + delta * delta_threshold;
             xx2 = wx2 + delta * delta_threshold;
             my_snprintf(s, S(s), "%g", xx1);
@@ -475,7 +483,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           } else {
             delta = (wx2 - wx1);
-            delta_threshold = 0.02;
+            delta_threshold = 0.05;
             xx1 = wx1 + delta * delta_threshold;
             xx2 = wx2 + delta * delta_threshold;
             my_snprintf(s, S(s), "%g", xx1);
@@ -675,14 +683,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       draw_graph(GRIDLAYER, n, 1 + 8 + (xctx->graph_flags & 6) ); /* draw data in each graph box */
     }
   } /*  for(i=0; i<xctx->lastsel; i++) */
-
-
-
-
-
-
-
-
   draw_selection(xctx->gc[SELLAYER], 0);
   #if HAS_CAIRO==1
   cairo_restore(xctx->cairo_ctx);
@@ -1742,6 +1742,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='l' && state == 0) /* start line */
    {
      int prev_state = xctx->ui_state;
+     if( waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
      start_line(mx, my);
      if(prev_state == STARTLINE) {
        tcleval("set constrained_move 0" );

@@ -2020,8 +2020,6 @@ static void draw_graph_grid(
  * 2: draw x-cursor1
  * 4: draw x-cursor2
  * 8: all drawing, if not set do only XCopyArea / x-cursor if specified
- * 16: move cursor1
- * 32: move cursor2
  */
 void draw_graph(int c, int i, int flags)
 {
@@ -2293,6 +2291,7 @@ void draw_graph(int c, int i, int flags)
     double txtsize = txtsizex;
     int flip = (xctx->graph_cursor2_x > xctx->graph_cursor1_x) ? 1 : 0;
     int xoffs = flip ? 2 : -2;
+
     if(xx >= x1 && xx <= x2) {
       drawline(3, NOW, xx, ry1, xx, ry2, 1);
       if(unitx != 1.0)
