@@ -502,27 +502,31 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
   if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
   if(layer==0)
   {
-   x1=X_TO_PS(xctx->inst[n].x1);
-   x2=X_TO_PS(xctx->inst[n].x2);
-   y1=Y_TO_PS(xctx->inst[n].y1);
-   y2=Y_TO_PS(xctx->inst[n].y2);
-   if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
-   {
-    xctx->inst[n].flags|=1;
-    return;
-   }
-   else xctx->inst[n].flags&=~1;
-
-   /* pdfmarks, only if doing hierarchy print */ 
-   if(what != 7) fprintf(fd, 
-     "[ "
-     "/Rect [ %g %g %g %g ] "
-     "/Border [0 0 0] "
-     "/Dest /%s "
-     "/Subtype /Link "
-     "/ANN pdfmark\n",
-     x1, y1, x2, y2,
-     add_ext(skip_dir(xctx->inst[n].name), ".sch"));
+    x1=X_TO_PS(xctx->inst[n].x1);
+    x2=X_TO_PS(xctx->inst[n].x2);
+    y1=Y_TO_PS(xctx->inst[n].y1);
+    y2=Y_TO_PS(xctx->inst[n].y2);
+    if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
+    {
+      xctx->inst[n].flags|=1;
+      return;
+    }
+    else xctx->inst[n].flags&=~1;
+ 
+    /* pdfmarks, only if doing hierarchy print and if symbol has a subcircuit */ 
+    if(what != 7) {
+      if(!strcmp(get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "type", 0), "subcircuit")) {
+        fprintf(fd, 
+          "[ "
+          "/Rect [ %g %g %g %g ] "
+          "/Border [0 0 0] "
+          "/Dest /%s "
+          "/Subtype /Link "
+          "/ANN pdfmark\n",
+          x1, y1, x2, y2,
+          add_ext(skip_dir(xctx->inst[n].name), ".sch"));
+      }
+    }
   }
   else if(xctx->inst[n].flags&1)
   {
