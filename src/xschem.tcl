@@ -1483,6 +1483,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
   global myload_index1 myload_files2 myload_files1 myload_retval myload_dir1 pathlist OS
   global myload_default_geometry myload_sash_pos myload_yview tcl_version globfilter myload_dirs2
 
+  set globfilter {*}
   set myload_retval {} 
   upvar #0 $global_initdir initdir
   if { [winfo exists .dialog] } return
