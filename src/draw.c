@@ -1571,6 +1571,9 @@ int read_dataset(FILE *fd)
       if(sim_type && sim_type != 2) sim_type = 0;
       else sim_type = 2;
     }
+    else if(!strncmp(line, "Plotname:", 9)) {
+      sim_type = 0;
+    }
     /* points and vars are needed for all sections (also ones we are not interested in)
      * to skip binary blobs */
     else if(!strncmp(line, "No. of Data Rows :", 18)) {
@@ -1838,7 +1841,7 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   }
   drawline(wave_col, NOW, x1, ylow, x2, ylow, 0);
   drawline(wave_col, NOW, x1, yhigh, x2, yhigh, 0);
-  for(p = first ; p < last; p++) {
+  for(p = first ; p <= last; p++) {
     /* calculate value of bus by adding all binary bits */
     busval = 0;
     for(i = 0; i < n_bits; i++) {
@@ -1894,7 +1897,7 @@ static void draw_graph_points(int v, int first, int last, double cy, double dy,
   double c = ydelta * wcnt * s1;
 
   if( !digital || (c >= wy1 && c <= wy2) ) {
-    for(p = first ; p < last; p++) {
+    for(p = first ; p <= last; p++) {
       yy = xctx->graph_values[v][p];
       if(digital) {
         yy = c + yy *s2;
@@ -2186,7 +2189,7 @@ void draw_graph(int c, int i, int flags)
         int p, dset, ofs;
         int poly_npoints;
         int v;
-        int first;
+        int first, last;
         double xx;
         double start;
         double end;
@@ -2204,48 +2207,57 @@ void draw_graph(int c, int i, int flags)
         /* loop through all datasets found in raw file */
         for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
           if(dataset == -1 || dset == dataset) {
-            double prev_x;
-            first = -1;
+            double prev_x, prev_prev_x;
+            int cnt=0;
+            first = last = -1;
             poly_npoints = 0;
             my_realloc(1401, &xarr, xctx->graph_npoints[dset] * sizeof(double));
             my_realloc(1402, &yarr, xctx->graph_npoints[dset] * sizeof(double));
             /* Process "npoints" simulation items 
              * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
+            prev_prev_x = prev_x = 0;
+            last = ofs; 
             for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
               xx = xctx->graph_values[sweep_idx][p];
-              if(xx > end || (sweep_idx == 0 && (p > ofs && fabs(xx) < fabs(prev_x))) ) {
+              if(xx > end || xx < start ||
+                  ((sweep_idx == 0 && cnt > 1) && 
+                  SIGN(xx - prev_x) != SIGN(prev_x - prev_prev_x) ) ) {
                 if(first != -1) {
                   /* get y-axis points */
                   if(bus_msb) {
                     if(digital) {
-                      draw_graph_bus_points(ntok, first, p, cx, dx, cy, dy, wave_color,
+                      draw_graph_bus_points(ntok, first, last, cx, dx, cy, dy, wave_color,
                                    sweep_idx, digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
                     }
                   } else {
-                    draw_graph_points(v, first, p, cy, dy, xarr, yarr, wave_color,
+                    draw_graph_points(v, first, last, cy, dy, xarr, yarr, wave_color,
                                  digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
                   }
                   poly_npoints = 0;
                   first = -1;
+                  cnt = 0;
                 }
               }
               if(xx >= start && xx <= end) {
                 if(first == -1) first = p;
                 /* Build poly x array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
                 xarr[poly_npoints] = W_X(xx);
+                last = p;
                 poly_npoints++;
               }
+              prev_prev_x = prev_x;
               prev_x = xx;
+              cnt++;
             }
             if(first != -1) {
               /* get y-axis points */
               if(bus_msb) {
                 if(digital) {
-                  draw_graph_bus_points(ntok, first, p, cx, dx, cy, dy, wave_color,
+                  draw_graph_bus_points(ntok, first, last, cx, dx, cy, dy, wave_color,
                                sweep_idx, digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
                 }
               } else {
-                draw_graph_points(v, first, p, cy, dy, xarr, yarr, wave_color,
+                draw_graph_points(v, first, last, cy, dy, xarr, yarr, wave_color,
                              digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
               }
             }

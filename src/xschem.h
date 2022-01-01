@@ -311,7 +311,7 @@ extern char win_temp_dir[PATH_MAX];
                                  strcmp(type,"show_label") && strcmp(type,"iopin")))
 #define IS_LABEL_OR_PIN(type) (!(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
 #define IS_PIN(type) (!(strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
-
+#define SIGN(x) ( (x) < 0 ? -1 : 1)
 
 /* floor not needed? screen coordinates always positive <<<< */
 /* #define X_TO_SCREEN(x) ( floor(((x)+xctx->xorigin)* xctx->mooz) ) */

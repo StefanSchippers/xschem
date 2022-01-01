@@ -24,8 +24,8 @@ B 2 830 -490 1300 -280 {flags=1
 y1 = -0.0578106
 y2 = 3.04806
 divy = 6
-x1=0.0194063
-x2=3.15766
+x1=-0.0713879
+x2=3.06704
 divx=6
 node="v(a) v(zz) v(zzz)"
 color="4 6 8"
@@ -34,8 +34,8 @@ B 2 30 -930 500 -720 {flags=1
 y1 = -0.0578106
 y2 = 3.04806
 divy = 6
-x1=-0.0714119
-x2=3.06686
+x1=-0.0713879
+x2=3.06704
 divx=6
 node="v(a) v(z)"
 color="4 6 8"
@@ -70,7 +70,7 @@ N 540 -850 540 -760 { lab=A}
 C {vsource.sym} 50 -140 0 0 {name=V1 value="pwl 0 0 1u 0 5u 3"}
 C {lab_pin.sym} 50 -170 0 0 {name=p4 lab=A}
 C {lab_pin.sym} 50 -110 0 0 {name=p5 lab=0}
-C {code_shown.sym} 580 -150 0 0 {name=STIMULI
+C {code_shown.sym} 520 -190 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
 value=".control
@@ -78,9 +78,13 @@ dc v1 0 3 0.001
 * .tran 10n 10u uic
 save all
 write LCC_instances.raw
+
+set appendwrite 
+dc v1 3 0 -0.001
+write LCC_instances.raw
 .endc
 "}
-C {code.sym} 760 -170 0 0 {name=MODEL
+C {code.sym} 840 -190 0 0 {name=MODEL
 only_toplevel="true"
 tclcommand="xschem edit_vi_prop"
 value="************************************************
