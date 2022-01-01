@@ -1482,6 +1482,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
      {loadfile {1}} {confirm_overwrt {1}}} {
   global myload_index1 myload_files2 myload_files1 myload_retval myload_dir1 pathlist OS
   global myload_default_geometry myload_sash_pos myload_yview tcl_version globfilter myload_dirs2
+
   set myload_retval {} 
   upvar #0 $global_initdir initdir
   if { [winfo exists .dialog] } return
@@ -1558,10 +1559,16 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
     .dialog.l.paneright.list selection clear 0 end
     .dialog.l.paneleft.list selection set $myload_index1
   }
-  label .dialog.buttons_bot.label  -text {  File:}
+  label .dialog.buttons_bot.label  -text {  File/Search:}
   entry .dialog.buttons_bot.entry
   if { $initialfile ne {} } { 
     .dialog.buttons_bot.entry insert 0 $initialfile
+  }
+  bind .dialog.buttons_bot.entry <KeyRelease> {
+    set globfilter  [.dialog.buttons_bot.entry get]
+    if { $globfilter eq {} } { set globfilter {*} }
+    puts $globfilter
+    setglob $myload_dir1
   }
   radiobutton .dialog.buttons_bot.all -text All -variable globfilter -value {*} \
      -command { setglob $myload_dir1 }

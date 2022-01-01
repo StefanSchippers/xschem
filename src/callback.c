@@ -190,22 +190,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   #endif
 
-
-  /* save mouse position when doing pan operations */
-  if(
-      (
-        (event == ButtonPress && (button == Button1 || button == Button3)) ||
-        (event == MotionNotify && (state & (Button1Mask | Button3Mask))) 
-      ) &&
-      !(xctx->ui_state & GRAPHPAN)
-    ) {
-    xctx->ui_state |= GRAPHPAN;
-    xctx->mx_double_save = xctx->mousex_snap;
-    xctx->my_double_save = xctx->mousey_snap;
-  }
-  for(i=0; i <  xctx->rects[GRIDLAYER]; i++) {
+  for(i=0; i < xctx->rects[GRIDLAYER]; i++) {
     /* process only graph boxes */
     xRect *r;
+    if( (xctx->ui_state & GRAPHPAN) && i != xctx->graph_master) continue;
     r = &xctx->rect[GRIDLAYER][i];
     if(!(r->flags & 1) ) continue;
     /* check if this is the master graph (the one containing the mouse pointer) */
@@ -231,6 +219,18 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       dx = x1 - wx1 * cx;
       cy = (y1 - y2) / (wy2 - wy1);
       dy = y2 - wy1 * cy;
+      /* move cursor1 */
+      /* set cursor position from master graph x-axis */
+      if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
+        xctx->graph_cursor1_x = G_X(xctx->mousex);
+      }
+      /* move cursor2 */
+      /* set cursor position from master graph x-axis */
+      else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
+        xctx->graph_cursor2_x = G_X(xctx->mousex);
+      }
+      if(xctx->ui_state & GRAPHPAN) break; /* After GRAPHPAN only need to check Motion events for cursors */
+
       if(xctx->mousex_snap < W_X(wx1)) {
         xctx->graph_left = 1;
       } else {
@@ -250,7 +250,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       } else {
         xctx->graph_unlock_x = 0;
       }
-      zoom_m = (xctx->mousex  - x1) / ( x2 - x1);
+      zoom_m = (xctx->mousex  - x1) / (x2 - x1);
 
       /* dragging cursors when mouse is very close */
       if(event == ButtonPress && button == Button1) {
@@ -261,17 +261,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           xctx->graph_flags |= 32; /* Start move cursor2 */
         }
       }
-      /* move cursor1 */
-      /* set cursor position from master graph x-axis */
-      if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
-        xctx->graph_cursor1_x = G_X(xctx->mousex);
-      }
-      /* move cursor2 */
-      /* set cursor position from master graph x-axis */
-      else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
-        xctx->graph_cursor2_x = G_X(xctx->mousex);
-      }
-
       /* x cursor1 toggle */
       if((key == 'a') ) {
         xctx->graph_flags ^= 2;
@@ -291,9 +280,22 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
       break;
     } /* if( POINTINSIDE(...) */
-  }
-  if(!xctx->graph_unlock_x) xctx->graph_flags |= 1;
+  } /* for(i=0; i <  xctx->rects[GRIDLAYER]; i++) */
 
+  /* save mouse position when doing pan operations */
+  if(
+      (
+        (event == ButtonPress && (button == Button1 || button == Button3)) ||
+        (event == MotionNotify && (state & (Button1Mask | Button3Mask)))
+      ) &&
+      !(xctx->ui_state & GRAPHPAN)
+    ) {
+    xctx->ui_state |= GRAPHPAN;
+    xctx->mx_double_save = xctx->mousex_snap;
+    xctx->my_double_save = xctx->mousey_snap;
+  }
+
+  if(!xctx->graph_unlock_x) xctx->graph_flags |= 1;
   /* lock x-axis to working graph when moving/zooming multiple graphs */
   val = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"x1",0);
   if(val[0]) wx1 = atof(val);

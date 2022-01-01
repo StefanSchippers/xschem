@@ -1787,11 +1787,13 @@ int schematic_waves_loaded(void)
   return 0;
 }
 
-/* fill each graph box with simulation data */
-/* #define W_X(x) (x1 + (x2 - x1) / (wx2 - wx1) * ((x) - wx1)) */
-/* #define W_Y(y) (y2 - (y2 - y1) / (wy2 - wy1) * ((y) - wy1)) */
+
+/* coordinate transformations graph to xschem */
 #define W_X(x) (cx * (x) + dx)
 #define W_Y(y) (cy * (y) + dy)
+/* coordinate transformations graph to screen */
+#define S_X(x) (scx * (x) + sdx)
+#define S_Y(y) (scy * (y) + sdy)
 
 /* draw bussed signals: ntok is a comma separated list of items, first item is bus name, 
  * following are bits that are bundled together:
@@ -1883,8 +1885,8 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   my_free(1455, &idx_arr);
 }
 
-static void draw_graph_points(int v, int first, int last, double cy, double dy,
-         double *xarr, double *yarr, int wave_col,
+static void draw_graph_points(int v, int first, int last, double scy, double sdy,
+         XPoint *point, int wave_col,
          int digital, int dig_max_waves, int wcnt, int n_nodes, double wy1, double wy2)
 {
   int p;
@@ -1903,11 +1905,14 @@ static void draw_graph_points(int v, int first, int last, double cy, double dy,
         yy = c + yy *s2;
       }
       /* Build poly y array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
-      yarr[poly_npoints] = W_Y(yy);
+      point[poly_npoints].y = CLIP(S_Y(yy), xctx->areay1, xctx->areay2);
       poly_npoints++;
     }
     /* plot data */
-    drawpolygon(wave_col, 0, xarr, yarr, poly_npoints, 0, 0);
+    if(xctx->draw_window)
+      XDrawLines(display, xctx->window, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
+    if(xctx->draw_pixmap)
+      XDrawLines(display, xctx->save_pixmap, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
   } else dbg(1, "skipping wave: %s\n", xctx->graph_names[v]);
 }
 
@@ -2040,7 +2045,7 @@ void draw_graph(int c, int i, int flags)
   double marginx = 20; /* will be recalculated later */
   double marginy = 20; /* will be recalculated later */
   /* coefficients for graph to container coordinate transformations W_X() and W_Y()*/
-  double cx, dx, cy, dy;
+  double cx, dx, cy, dy, scx, sdx, scy, sdy;
   int divx = 4;
   int divy = 4;
   int subdivx = 0;
@@ -2112,11 +2117,18 @@ void draw_graph(int c, int i, int flags)
   tmp =  (x2 - x1) * 0.00036;
   if(tmp < txtsizelab) txtsizelab = tmp;
   digtxtsizelab = txtsizelab * 0.73;
-  /* cache coefficients for faster graph coord transformations */
+  /* cache coefficients for faster graph --> xschem coord transformations */
   cx = (x2 - x1) / (wx2 - wx1);
   dx = x1 - wx1 * cx;
   cy = (y1 - y2) / (wy2 - wy1);
   dy = y2 - wy1 * cy;
+
+  /* direct graph --> screen transform */
+  scx = cx * xctx->mooz;
+  sdx = (dx + xctx->xorigin) * xctx->mooz;
+  scy = cy * xctx->mooz;
+  sdy = (dy + xctx->yorigin) * xctx->mooz;
+
 
   /* draw stuff */
   if(flags & 8) {
@@ -2183,6 +2195,7 @@ void draw_graph(int c, int i, int flags)
         draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0, rx1 + rw / n_nodes * wcnt, ry1, txtsizelab, txtsizelab);
       }
       bbox(END, 0.0, 0.0, 0.0, 0.0);
+
       /* quickly find index number of ntok variable to be plotted */
       entry = int_hash_lookup(xctx->raw_table, bus_msb ? bus_msb : ntok, 0, XLOOKUP);
       if(xctx->graph_values && entry) {
@@ -2193,7 +2206,7 @@ void draw_graph(int c, int i, int flags)
         double xx;
         double start;
         double end;
-        double *xarr = NULL, *yarr = NULL;
+        XPoint *point = NULL;
   
         /* clipping everything outside graph area */
         bbox(START, 0.0, 0.0, 0.0, 0.0);
@@ -2211,8 +2224,7 @@ void draw_graph(int c, int i, int flags)
             int cnt=0;
             first = last = -1;
             poly_npoints = 0;
-            my_realloc(1401, &xarr, xctx->graph_npoints[dset] * sizeof(double));
-            my_realloc(1402, &yarr, xctx->graph_npoints[dset] * sizeof(double));
+            my_realloc(1401, &point, xctx->graph_npoints[dset] * sizeof(XPoint));
             /* Process "npoints" simulation items 
              * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
             prev_prev_x = prev_x = 0;
@@ -2230,7 +2242,7 @@ void draw_graph(int c, int i, int flags)
                                    sweep_idx, digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
                     }
                   } else {
-                    draw_graph_points(v, first, last, cy, dy, xarr, yarr, wave_color,
+                    draw_graph_points(v, first, last, scy, sdy, point, wave_color,
                                  digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
                   }
                   poly_npoints = 0;
@@ -2241,7 +2253,7 @@ void draw_graph(int c, int i, int flags)
               if(xx >= start && xx <= end) {
                 if(first == -1) first = p;
                 /* Build poly x array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
-                xarr[poly_npoints] = W_X(xx);
+                point[poly_npoints].x = S_X(xx); /* CLIP(S_X(xx), xctx->areax1, xctx->areax2); */
                 last = p;
                 poly_npoints++;
               }
@@ -2257,7 +2269,7 @@ void draw_graph(int c, int i, int flags)
                                sweep_idx, digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
                 }
               } else {
-                draw_graph_points(v, first, last, cy, dy, xarr, yarr, wave_color,
+                draw_graph_points(v, first, last, scy, sdy, point, wave_color,
                              digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
               }
             }
@@ -2266,8 +2278,7 @@ void draw_graph(int c, int i, int flags)
           /* offset pointing to next dataset */
           ofs += xctx->graph_npoints[dset];
         } /* for(dset...) */
-        my_free(1403, &xarr);
-        my_free(1404, &yarr);
+        my_free(1403, &point);
         bbox(END, 0.0, 0.0, 0.0, 0.0);
       }/* if(entry) */
       wcnt++;
