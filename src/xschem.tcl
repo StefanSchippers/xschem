@@ -1568,7 +1568,6 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
   bind .dialog.buttons_bot.entry <KeyRelease> {
     set globfilter  [.dialog.buttons_bot.entry get]
     if { $globfilter eq {} } { set globfilter {*} }
-    puts $globfilter
     setglob $myload_dir1
   }
   radiobutton .dialog.buttons_bot.all -text All -variable globfilter -value {*} \
