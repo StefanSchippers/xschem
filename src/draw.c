@@ -2033,6 +2033,7 @@ void draw_graph(int c, int i, int flags)
 {
   /* container box */
   double rx1, ry1, rx2, ry2, rw/*, rh */; 
+  double sx1, sy1, sx2, sy2; /* screen coordinates of above for clipping */
   /* graph box (smaller due to margins) */
   double x1, y1, x2, y2; 
   /* graph coordinate, some defaults */
@@ -2074,6 +2075,11 @@ void draw_graph(int c, int i, int flags)
   ry1 = r->y1;
   rx2 = r->x2;
   ry2 = r->y2;
+  sx1=X_TO_SCREEN(rx1);
+  sy1=Y_TO_SCREEN(ry1);
+  sx2=X_TO_SCREEN(rx2);
+  sy2=Y_TO_SCREEN(ry2);
+  if(! rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&sx1,&sy1,&sx2,&sy2)) return;
   rw = (rx2 - rx1);
   /* rh = (ry2 -ry1); */
   /* get variables to plot, x/y range, grid info etc */
@@ -2231,35 +2237,35 @@ void draw_graph(int c, int i, int flags)
             last = ofs; 
             for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
               xx = xctx->graph_values[sweep_idx][p];
-              if(xx > end || xx < start ||
-                  ((sweep_idx == 0 && cnt > 1) && 
-                  SIGN(xx - prev_x) != SIGN(prev_x - prev_prev_x) ) ) {
-                if(first != -1) {
-                  /* get y-axis points */
-                  if(bus_msb) {
-                    if(digital) {
-                      draw_graph_bus_points(ntok, first, last, cx, dx, cy, dy, wave_color,
-                                   sweep_idx, digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
+              if(first != -1) {                      /* there is something to plot ... */
+                if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
+                    ((sweep_idx == 0 && cnt > 1) &&  /* ... or sweep variable changed direction */
+                    SIGN(xx - prev_x) != SIGN(prev_x - prev_prev_x) ) ) {
+                    /* get y-axis points */
+                    if(bus_msb) {
+                      if(digital) {
+                        draw_graph_bus_points(ntok, first, last, cx, dx, cy, dy, wave_color,
+                                     sweep_idx, digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
+                      }
+                    } else {
+                      draw_graph_points(v, first, last, scy, sdy, point, wave_color,
+                                   digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
                     }
-                  } else {
-                    draw_graph_points(v, first, last, scy, sdy, point, wave_color,
-                                 digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
-                  }
-                  poly_npoints = 0;
-                  first = -1;
-                  cnt = 0;
+                    poly_npoints = 0;
+                    first = -1;
+                    cnt = 0;
                 }
               }
               if(xx >= start && xx <= end) {
                 if(first == -1) first = p;
-                /* Build poly x array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
+                /* Build poly x array. Translate from graph coordinates to screen coords */
                 point[poly_npoints].x = S_X(xx); /* CLIP(S_X(xx), xctx->areax1, xctx->areax2); */
                 last = p;
                 poly_npoints++;
+                prev_prev_x = prev_x;
+                prev_x = xx;
+                cnt++;
               }
-              prev_prev_x = prev_x;
-              prev_x = xx;
-              cnt++;
             }
             if(first != -1) {
               /* get y-axis points */
