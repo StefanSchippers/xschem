@@ -1694,15 +1694,15 @@ void calc_graph_area(int c, int i, int digital, double *x1, double *y1,double *x
   rw = (rx2 - rx1);
   rh = (ry2 - ry1);
   /* set margins */
-  tmp = rw * 0.1;
+  tmp = rw * 0.14;
   *marginx = tmp < 30 ? 30 : tmp;
-  tmp = rh * 0.09;
+  tmp = rh * 0.13;
   *marginy = tmp < 30 ? 30 : tmp;
 
   /* calculate graph bounding box (container - margin) 
    * This is the box where plot is done */
   *x1 =  rx1 + *marginx;
-  *x2 =  rx2 - *marginx / 2.4; /* less space for right margin */
+  *x2 =  rx2 - *marginx / 2.8; /* less space for right margin */
   if(digital) *y1 =  ry1 + *marginy * 0.4;
   else *y1 =  ry1 + *marginy;
   *y2 =  ry2 - *marginy;
@@ -1808,7 +1808,7 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   int n = dig_max_waves;
   double s1 = 1.0 / n;
   double s2 = s1 * .66;
-  double c = (wy2 - wy1) * wcnt * s1;
+  double c = (wy2 - wy1) * (n_nodes - wcnt) * s1;
   double x1 = W_X(xctx->graph_values[sweep_idx][first]);
   double x2 = W_X(xctx->graph_values[sweep_idx][last-1]);
   double ylow  = W_Y(c + wy2 * s2); /* swapped as xschem Y coordinates are top-bottom */
@@ -1817,9 +1817,9 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   int n_bits = count_items(ntok, ",") - 1;
   int *idx_arr = NULL;
   Int_hashentry *entry;
-  unsigned long val, busval, old_busval;
+  unsigned long busval, old_busval;
   double vth = (wy1 + wy2) / 2.0; /* A to D threshold */
-  double xval, xval_old;
+  double val, xval, xval_old;
   double ydelta = fabs(yhigh - ylow);
   double labsize = 0.015 * ydelta;
   double charwidth = labsize * 38.0;
@@ -1896,7 +1896,7 @@ static void draw_graph_points(int v, int first, int last, double scy, double sdy
   int n = dig_max_waves;
   double s1 = 1.0 / n;
   double s2 = s1 * .66;
-  double c = ydelta * wcnt * s1;
+  double c = ydelta * (n_nodes - wcnt) * s1;
 
   if( !digital || (c >= wy1 && c <= wy2) ) {
     for(p = first ; p <= last; p++) {
@@ -2192,7 +2192,7 @@ void draw_graph(int c, int i, int flags)
         int n = dig_max_waves;
         double xt = x1 - 10 * txtsizelab;
         double delta_div_n = (wy2 - wy1) / n;
-        double yt = delta_div_n * (double)wcnt;
+        double yt = delta_div_n * (double)(n_nodes - wcnt);
   
         if(yt <= wy2 && yt >= wy1) {
           draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0, xt, W_Y(yt), digtxtsizelab, digtxtsizelab);
@@ -2406,7 +2406,7 @@ void draw_graph_all(int flags)
     if(xctx->draw_single_layer==-1 || c == xctx->draw_single_layer) {
       if(xctx->enable_layer[c]) for(i = 0; i < xctx->rects[c]; i++) {
         xRect *r = &xctx->rect[c][i];
-        if(r->flags == 1) {
+        if(r->flags & 1) {
           draw_graph(c, i, flags); /* draw data in each graph box */
         }
       }

@@ -381,7 +381,7 @@ typedef struct
   unsigned short sel;
   char *prop_ptr;
   short dash;
-  unsigned short flags;
+  unsigned short flags; /* bit0=1 for graph function, bit1=1 for unlocked x axis */
 } xRect;
 
 typedef struct
