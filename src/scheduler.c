@@ -2910,6 +2910,8 @@ const char *tcleval(const char str[])
 {
   if( Tcl_GlobalEval(interp, str) != TCL_OK) {
     fprintf(errfp, "tcleval(): evaluation of script: %s failed\n", str);
+    fprintf(errfp, "         : %s\n", Tcl_GetStringResult(interp));
+    Tcl_ResetResult(interp);
   }
   return Tcl_GetStringResult(interp);
 }

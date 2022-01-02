@@ -164,6 +164,8 @@ void start_wire(double mx, double my)
 #define W_Y(y) (cy * (y) + dy)
 #define G_X(x) (((x) - dx) / cx)
 #define G_Y(y) (((y) - dy) / cy)
+/* for digital graphs (ypos1, ypos2 instead of wy1, wy2) */
+#define DG_Y(y) (((y) - ddy) / dcy)
 
 /* xctx->graph_flags:
  *  1: 
@@ -181,7 +183,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   double wy1 = -1, wy2 = 4;
   double ypos1 = 0, ypos2 = 5;
   double x1, y1, x2, y2, marginx, marginy;
-  double cx, dx, cy, dy;
+  double cx, dx, cy, dy, dcy, ddy;
   int divx = 10, divy = 5;
   const char *val;
   char s[30];
@@ -339,6 +341,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     dx = x1 - wx1 * cx;
     cy = (y1 - y2) / (wy2 - wy1);
     dy = y2 - wy1 * cy;
+    /* graph --> xschem transform for digital waves y axis */
+    dcy = (y1 - y2) / (ypos2 - ypos1);
+    ddy = y2 - ypos1 * dcy;
+
     dbg(1, "%g %g %g %g - %d %d\n", wx1, wy1, wx2, wy2, divx, divy);
     if( event == KeyPress || event == ButtonPress || event == MotionNotify ) {
       /* move cursor1 */
@@ -374,9 +380,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                 yy1 = wy1 + (xctx->my_double_save - xctx->mousey_snap) / cy;
                 yy2 = wy2 + (xctx->my_double_save - xctx->mousey_snap) / cy;
                 my_snprintf(s, S(s), "%g", yy1);
-                my_strdup(1424, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+                my_strdup(1435, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
                 my_snprintf(s, S(s), "%g", yy2);
-                my_strdup(1425, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+                my_strdup(1437, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
                 xctx->my_double_save = xctx->mousey_snap;
                 need_redraw = 1;
               }
@@ -408,16 +414,27 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if((button == Button5 && !(state & ShiftMask))) {
         double delta;
         if(xctx->graph_left) {
-          if(!digital && i == xctx->graph_master) {
-            delta = (wy2 - wy1) / divy;
-            delta_threshold = 1.0;
-            yy1 = wy1 + delta * delta_threshold;
-            yy2 = wy2 + delta * delta_threshold;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1420, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1421, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
+          if(i == xctx->graph_master) {
+            if(digital) {
+              delta = (ypos2 - ypos1) * 0.05;
+              yy1 = ypos1 + delta;
+              yy2 = ypos2 + delta;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1456, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1457, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", s));
+              need_redraw = 1;
+            } else {
+              delta = (wy2 - wy1) / divy;
+              delta_threshold = 1.0;
+              yy1 = wy1 + delta * delta_threshold;
+              yy2 = wy2 + delta * delta_threshold;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1420, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1421, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
+            }
           }
         } else {
           if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
@@ -465,16 +482,27 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if(button == Button4 && !(state & ShiftMask))  {
         double delta;
         if(xctx->graph_left) {
-          if(!digital && i == xctx->graph_master) {
-            delta = (wy2 - wy1) / divy;
-            delta_threshold = 1.0;
-            yy1 = wy1 - delta * delta_threshold;
-            yy2 = wy2 - delta * delta_threshold;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1416, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1417, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
+          if(i == xctx->graph_master) {
+            if(digital) {
+              delta = (ypos2 - ypos1) * 0.05;
+              yy1 = ypos1 - delta;
+              yy2 = ypos2 - delta;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1416, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1417, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", s));
+              need_redraw = 1;
+            } else {
+              delta = (wy2 - wy1) / divy;
+              delta_threshold = 1.0;
+              yy1 = wy1 - delta * delta_threshold;
+              yy2 = wy2 - delta * delta_threshold;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1458, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1434, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
+            }
           }
         } else {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
@@ -521,19 +549,35 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       else if(button == Button5 && (state & ShiftMask)) {
         if(xctx->graph_left) {
-          if(!digital && i == xctx->graph_master) {
-            double m = G_Y(xctx->mousey);
-            double a = m - wy1;
-            double b = wy2 -m;
-            double delta = (wy2 - wy1);
-            double var = delta * 0.2;
-            yy2 = wy2 + var * b / delta;
-            yy1 = wy1 - var * a / delta;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1447, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1436, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
+          if(i == xctx->graph_master) {
+            if(digital) {
+              double m = DG_Y(xctx->mousey);
+              double a = m - ypos1;
+              double b = ypos2 -m;
+              double delta = (ypos2 - ypos1);
+              double var = delta * 0.05;
+              yy2 = ypos2 + var * b / delta;
+              yy1 = ypos1 - var * a / delta;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1461, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1459, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", s));
+              need_redraw = 1;
+
+            } else {
+              double m = G_Y(xctx->mousey);
+              double a = m - wy1;
+              double b = wy2 -m;
+              double delta = (wy2 - wy1);
+              double var = delta * 0.2;
+              yy2 = wy2 + var * b / delta;
+              yy1 = wy1 - var * a / delta;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1460, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1438, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
+            }
           }
         } else {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
@@ -549,20 +593,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
       else if(key == XK_Down) {
-        double delta;
-        if(xctx->graph_left) {
-          if(!digital && i == xctx->graph_master) {
-            delta = (wy2 - wy1) / divy;
-            delta_threshold = 1.0;
-            yy1 = wy1 - delta * delta_threshold;
-            yy2 = wy2 - delta * delta_threshold;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1434, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1435, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
-          }
-        } else {
+        if(!xctx->graph_left) {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
             double var = 0.2 * (wx2 -wx1);
             xx2 = wx2 + var * (1 - zoom_m);
@@ -577,19 +608,34 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       else if(button == Button4 && (state & ShiftMask)) {
         if(xctx->graph_left) {
-          if(!digital && i == xctx->graph_master) {
-            double m = G_Y(xctx->mousey);
-            double a = m - wy1;
-            double b = wy2 -m;
-            double delta = (wy2 - wy1);
-            double var = delta * 0.2;
-            yy2 = wy2 - var * b / delta;
-            yy1 = wy1 + var * a / delta;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1419, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1444, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
+          if(i == xctx->graph_master) {
+            if(digital) {
+              double m = DG_Y(xctx->mousey);
+              double a = m - ypos1;
+              double b = ypos2 -m;
+              double delta = (ypos2 - ypos1);
+              double var = delta * 0.05;
+              yy2 = ypos2 - var * b / delta;
+              yy1 = ypos1 + var * a / delta;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1447, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1436, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", s));
+              need_redraw = 1;
+            } else {
+              double m = G_Y(xctx->mousey);
+              double a = m - wy1;
+              double b = wy2 -m;
+              double delta = (wy2 - wy1);
+              double var = delta * 0.2;
+              yy2 = wy2 - var * b / delta;
+              yy1 = wy1 + var * a / delta;
+              my_snprintf(s, S(s), "%g", yy1);
+              my_strdup(1419, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", yy2);
+              my_strdup(1444, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
+            }
           }
         } else {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
@@ -604,22 +650,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         }
       }
-
       else if(key == XK_Up) {
-        double delta;
-        if(xctx->graph_left) {
-            if(!digital && i == xctx->graph_master) {
-            delta = (wy2 - wy1) / divy;
-            delta_threshold = 1.0;
-            yy1 = wy1 + delta * delta_threshold;
-            yy2 = wy2 + delta * delta_threshold;
-            my_snprintf(s, S(s), "%g", yy1);
-            my_strdup(1437, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", yy2);
-            my_strdup(1438, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
-          }
-        } else {
+        if(!xctx->graph_left) {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
             double var = 0.2 * (wx2 -wx1);
             xx2 = wx2 - var * (1 - zoom_m);
@@ -823,7 +855,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  switch(event)
  {
   case EnterNotify:
-    tcleval("catch {destroy .ctxmenu}");
+    /* tcleval("catch {destroy .ctxmenu}"); */
     if(!xctx->sel_or_clip[0]) my_snprintf(xctx->sel_or_clip, S(xctx->sel_or_clip), "%s/%s",
         user_conf_dir, ".selection.sch");
 
