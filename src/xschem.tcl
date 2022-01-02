@@ -3437,6 +3437,10 @@ proc context_menu { } {
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .ctxmenu
   wm overrideredirect .ctxmenu 1
+
+if { 0} {
+
+
   set x [expr {[winfo pointerx .ctxmenu] - 10}]
   set y [expr {[winfo pointery .ctxmenu] - 10}]
   if { !$selection} {
@@ -3529,6 +3533,9 @@ proc context_menu { } {
   if {!$selection} {
     pack .ctxmenu.b8 -fill x -expand true
   }
+
+}
+
   wm geometry .ctxmenu "+$x+$y"
   update
   set wx [winfo width .ctxmenu]
