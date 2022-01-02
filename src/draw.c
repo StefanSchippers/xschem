@@ -1791,29 +1791,36 @@ int schematic_waves_loaded(void)
 /* coordinate transformations graph to xschem */
 #define W_X(x) (cx * (x) + dx)
 #define W_Y(y) (cy * (y) + dy)
+/* for digital waves */
+#define DW_Y(y) (dcy * (y) + ddy)
+
 /* coordinate transformations graph to screen */
 #define S_X(x) (scx * (x) + sdx)
 #define S_Y(y) (scy * (y) + sdy)
+/* for digital waves */
+#define DS_Y(y) (dscy * (y) + dsdy)
 
 /* draw bussed signals: ntok is a comma separated list of items, first item is bus name, 
  * following are bits that are bundled together:
    LDA,LDA[3],LDA[2],LDA1],LDA[0]
  */
 static void draw_graph_bus_points(const char *ntok, int first, int last,
-         double cx, double dx, double cy, double dy,
+         double cx, double dx, double dcy, double ddy,
          int wave_col, int sweep_idx,
-         int digital, int dig_max_waves, int wcnt, int n_nodes, double wy1, double wy2)
+         int digital, int dig_max_waves, int wcnt, int n_nodes,
+         double wy1, double wy2, double ypos1, double ypos2)
 {
   int p, i;
   int n = dig_max_waves;
   double s1 = 1.0 / n;
   double s2 = s1 * .66;
-  double c = (wy2 - wy1) * (n_nodes - wcnt) * s1;
+  double c = (ypos2 - ypos1) * (n_nodes - wcnt) * s1;
   double x1 = W_X(xctx->graph_values[sweep_idx][first]);
   double x2 = W_X(xctx->graph_values[sweep_idx][last-1]);
-  double ylow  = W_Y(c + wy2 * s2); /* swapped as xschem Y coordinates are top-bottom */
-  double yhigh = W_Y(c + wy1 * s2);
+  double ylow  = DW_Y(c + wy2 * s2); /* swapped as xschem Y coordinates are top-bottom */
+  double yhigh = DW_Y(c + wy1 * s2);
   const char *bit_name;
+  char *ntok_savep, *ntok_ptr, *ntok_copy = NULL;
   int n_bits = count_items(ntok, ",") - 1;
   int *idx_arr = NULL;
   Int_hashentry *entry;
@@ -1826,11 +1833,13 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   char str[100];
   int hex_digits = (n_bits - 1) / 4 + 1;
   double x_size = 1.5 * xctx->zoom;
-
   idx_arr = my_malloc(1454, (n_bits) * sizeof(int));
   p = 0;
   dbg(1, "n_bits = %d\n", n_bits);
-  while( (bit_name = find_nth(ntok, ',', p + 2))[0] ) {
+  my_strdup2(1402, &ntok_copy, ntok);
+  ntok_ptr = ntok_copy;
+  my_strtok_r(ntok_ptr, ",", &ntok_savep); /*strip off bus name (1st field) */
+  while( (bit_name = my_strtok_r(NULL, ",", &ntok_savep)) ) {
     dbg(1, "draw_graph_bus_points(): bit %d : %s: ", p, bit_name);
     entry = int_hash_lookup(xctx->raw_table, bit_name, 0, XLOOKUP);
     if(entry) {
@@ -1841,6 +1850,7 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
     }
     p++;
   }
+  my_free(1404, &ntok_copy);
   drawline(wave_col, NOW, x1, ylow, x2, ylow, 0);
   drawline(wave_col, NOW, x1, yhigh, x2, yhigh, 0);
   for(p = first ; p <= last; p++) {
@@ -1850,9 +1860,7 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
       val = xctx->graph_values[idx_arr[i]][p];
       busval = (busval << 1) + (val > vth);
     }
-
     xval =  W_X(xctx->graph_values[sweep_idx][p]);
-
     /* used to draw bus value before 1st transition */
     if(p == first) {
       old_busval = busval;
@@ -1870,7 +1878,6 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
       if(  fabs(xval - xval_old) > strlen(str) * charwidth) {
         draw_string(wave_col, NOW, str, 2, 0, 1, 0, (xval + xval_old) / 2.0,
                     yhigh, labsize, labsize);
-
       }
       old_busval = busval;
       xval_old = xval;
@@ -1885,27 +1892,37 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   my_free(1455, &idx_arr);
 }
 
-static void draw_graph_points(int v, int first, int last, double scy, double sdy,
+static void draw_graph_points(int v, int first, int last,
+         double scy, double sdy, double dscy, double dsdy,
          XPoint *point, int wave_col,
-         int digital, int dig_max_waves, int wcnt, int n_nodes, double wy1, double wy2)
+         int digital, int dig_max_waves, int wcnt, int n_nodes, double wy1, double wy2,
+         double ypos1, double ypos2)
 {
   int p;
   double yy;
-  double ydelta = wy2 - wy1;
+  double ydelta;
   int poly_npoints = 0;
   int n = dig_max_waves;
   double s1 = 1.0 / n;
   double s2 = s1 * .66;
-  double c = ydelta * (n_nodes - wcnt) * s1;
+  double c;
+
+  if(digital) {
+    ydelta = ypos2 - ypos1;
+    c = ydelta * (n_nodes - wcnt) * s1;
+  }
 
   if( !digital || (c >= wy1 && c <= wy2) ) {
     for(p = first ; p <= last; p++) {
       yy = xctx->graph_values[v][p];
       if(digital) {
         yy = c + yy *s2;
+        /* Build poly y array. Translate from graph coordinates to screen coordinates  */
+        point[poly_npoints].y = CLIP(DS_Y(yy), xctx->areay1, xctx->areay2);
+      } else {
+        /* Build poly y array. Translate from graph coordinates to screen coordinates  */
+        point[poly_npoints].y = CLIP(S_Y(yy), xctx->areay1, xctx->areay2);
       }
-      /* Build poly y array. Translate from graph coordinates to {x1,y1} - {x2, y2} world. */
-      point[poly_npoints].y = CLIP(S_Y(yy), xctx->areay1, xctx->areay2);
       poly_npoints++;
     }
     /* plot data */
@@ -2039,14 +2056,11 @@ void draw_graph(int c, int i, int flags)
   /* graph coordinate, some defaults */
   int digital = 0;
   int dig_max_waves = 10; /* max waves that can be stacked, then vertical pan can be used to view more */
-  double wx1 = 0;
-  double wy1 = 0;
-  double wx2 = 1e-6;
-  double wy2 = 5;
+  double wx1 = 0, wy1 = 0, wx2 = 1e-6, wy2 = 5, ypos1 = 0, ypos2 = 5;
   double marginx = 20; /* will be recalculated later */
   double marginy = 20; /* will be recalculated later */
   /* coefficients for graph to container coordinate transformations W_X() and W_Y()*/
-  double cx, dx, cy, dy, scx, sdx, scy, sdy;
+  double cx, dx, cy, dy, scx, sdx, scy, sdy, dcy, ddy, dscy, dsdy;
   int divx = 4;
   int divy = 4;
   int subdivx = 0;
@@ -2101,10 +2115,16 @@ void draw_graph(int c, int i, int flags)
   if(val[0]) wx1 = atof(val);
   val = get_tok_value(r->prop_ptr,"y1",0);
   if(val[0]) wy1 = atof(val);
+  val = get_tok_value(r->prop_ptr,"ypos1",0);
+  if(val[0]) ypos1 = atof(val);
+  else ypos1 = 0;
   val = get_tok_value(r->prop_ptr,"x2",0);
   if(val[0]) wx2 = atof(val);
   val = get_tok_value(r->prop_ptr,"y2",0);
   if(val[0]) wy2 = atof(val);
+  val = get_tok_value(r->prop_ptr,"ypos2",0);
+  if(val[0]) ypos2 = atof(val);
+  else ypos2 = 5;
   val = get_tok_value(r->prop_ptr,"digital",0);
   if(val[0]) digital = atoi(val);
   if(digital) {
@@ -2128,12 +2148,18 @@ void draw_graph(int c, int i, int flags)
   dx = x1 - wx1 * cx;
   cy = (y1 - y2) / (wy2 - wy1);
   dy = y2 - wy1 * cy;
+  /* graph --> xschem transform for digital waves y axis */
+  dcy = (y1 - y2) / (ypos2 - ypos1);
+  ddy = y2 - ypos1 * dcy;
 
   /* direct graph --> screen transform */
   scx = cx * xctx->mooz;
   sdx = (dx + xctx->xorigin) * xctx->mooz;
   scy = cy * xctx->mooz;
   sdy = (dy + xctx->yorigin) * xctx->mooz;
+  /* direct graph --> screen for digital waves y axis */
+  dscy = dcy * xctx->mooz;
+  dsdy = (ddy + xctx->yorigin) * xctx->mooz;
 
 
   /* draw stuff */
@@ -2191,11 +2217,11 @@ void draw_graph(int c, int i, int flags)
         /* int n = n_nodes > dig_max_waves ? dig_max_waves : n_nodes; */
         int n = dig_max_waves;
         double xt = x1 - 10 * txtsizelab;
-        double delta_div_n = (wy2 - wy1) / n;
+        double delta_div_n = (ypos2 - ypos1) / n;
         double yt = delta_div_n * (double)(n_nodes - wcnt);
   
-        if(yt <= wy2 && yt >= wy1) {
-          draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0, xt, W_Y(yt), digtxtsizelab, digtxtsizelab);
+        if(yt <= ypos2 && yt >= ypos1) {
+          draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0, xt, DW_Y(yt), digtxtsizelab, digtxtsizelab);
         }
       } else {
         draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0, rx1 + rw / n_nodes * wcnt, ry1, txtsizelab, txtsizelab);
@@ -2244,12 +2270,13 @@ void draw_graph(int c, int i, int flags)
                     /* get y-axis points */
                     if(bus_msb) {
                       if(digital) {
-                        draw_graph_bus_points(ntok, first, last, cx, dx, cy, dy, wave_color,
-                                     sweep_idx, digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
+                        draw_graph_bus_points(ntok, first, last, cx, dx, dcy, ddy, wave_color,
+                                     sweep_idx, digital, dig_max_waves, wcnt, n_nodes, 
+                                     wy1, wy2, ypos1, ypos2);
                       }
                     } else {
-                      draw_graph_points(v, first, last, scy, sdy, point, wave_color,
-                                   digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
+                      draw_graph_points(v, first, last, scy, sdy, dscy, dsdy, point, wave_color,
+                                   digital, dig_max_waves, wcnt, n_nodes, wy1, wy2, ypos1, ypos2);
                     }
                     poly_npoints = 0;
                     first = -1;
@@ -2271,12 +2298,13 @@ void draw_graph(int c, int i, int flags)
               /* get y-axis points */
               if(bus_msb) {
                 if(digital) {
-                  draw_graph_bus_points(ntok, first, last, cx, dx, cy, dy, wave_color,
-                               sweep_idx, digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
+                  draw_graph_bus_points(ntok, first, last, cx, dx, dcy, ddy, wave_color,
+                               sweep_idx, digital, dig_max_waves, wcnt, n_nodes, 
+                               wy1, wy2, ypos1, ypos2);
                 }
               } else {
-                draw_graph_points(v, first, last, scy, sdy, point, wave_color,
-                             digital, dig_max_waves, wcnt, n_nodes, wy1, wy2);
+                draw_graph_points(v, first, last, scy, sdy, dscy, dsdy, point, wave_color,
+                             digital, dig_max_waves, wcnt, n_nodes, wy1, wy2, ypos1, ypos2);
               }
             }
           } /* if(dataset == -1 || dset == dataset) */

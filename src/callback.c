@@ -37,7 +37,7 @@ static int waves_selected(int event, int key, int state, int button)
     r = &xctx->rect[GRIDLAYER][i];
     if(!(r->flags & 1) ) continue;
     if( (xctx->ui_state & GRAPHPAN) ||
-       POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2,  r->y2) ) {
+       POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 40,  r->y1 + 20,  r->x2 - 30,  r->y2 - 10) ) {
        is_inside = 1;
     }
   }
@@ -177,19 +177,16 @@ void start_wire(double mx, double my)
 static int waves_callback(int event, int mx, int my, KeySym key, int button, int aux, int state)
 {
   int digital = 0;
-  double wx1 = -2e-6;
-  double wy1 = -1;
-  double wx2 = 8e-6;
-  double wy2 = 4;
+  double wx1 = -2e-6, wx2 = 8e-6;
+  double wy1 = -1, wy2 = 4;
+  double ypos1 = 0, ypos2 = 5;
   double x1, y1, x2, y2, marginx, marginy;
   double cx, dx, cy, dy;
-  int divx = 10;
-  int divy = 5;
+  int divx = 10, divy = 5;
   const char *val;
   char s[30];
-  int i;
+  int i, need_redraw = 0;
   double xx1, xx2, yy1, yy2;
-  int need_redraw = 0;
   double delta_threshold = 0.25;
   int dataset = 0;
   double zoom_m = 0.5;
@@ -323,6 +320,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     val = get_tok_value(r->prop_ptr,"y2",0);
     if(val[0]) wy2 = atof(val);
     else wy2 = 5;
+    val = get_tok_value(r->prop_ptr,"ypos1",0);
+    if(val[0]) ypos1 = atof(val);
+    else ypos1 = 0;
+    val = get_tok_value(r->prop_ptr,"ypos2",0);
+    if(val[0]) ypos2 = atof(val);
+    else ypos2 = 5;
     val = get_tok_value(r->prop_ptr,"dataset",0);
     if(val[0]) dataset = atoi(val);
     else dataset = 0;
@@ -351,17 +354,32 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         double delta;
         if(xctx->graph_left) {
           if(i == xctx->graph_master) {
-            delta = (wy2 - wy1) / divy;
-            delta_threshold = 0.01;
-            if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(cy * delta) * delta_threshold) {
-              yy1 = wy1 + (xctx->my_double_save - xctx->mousey_snap) / cy;
-              yy2 = wy2 + (xctx->my_double_save - xctx->mousey_snap) / cy;
-              my_snprintf(s, S(s), "%g", yy1);
-              my_strdup(1424, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-              my_snprintf(s, S(s), "%g", yy2);
-              my_strdup(1425, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-              xctx->my_double_save = xctx->mousey_snap;
-              need_redraw = 1;
+            if(digital) {
+              delta = (ypos2 - ypos1) / divy;
+              delta_threshold = 0.01;
+              if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(cy * delta) * delta_threshold) {
+                yy1 = ypos1 + (xctx->my_double_save - xctx->mousey_snap) / cy;
+                yy2 = ypos2 + (xctx->my_double_save - xctx->mousey_snap) / cy;
+                my_snprintf(s, S(s), "%g", yy1);
+                my_strdup(1424, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", s));
+                my_snprintf(s, S(s), "%g", yy2);
+                my_strdup(1425, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", s));
+                xctx->my_double_save = xctx->mousey_snap;
+                need_redraw = 1;
+              }
+            } else {
+              delta = (wy2 - wy1) / divy;
+              delta_threshold = 0.01;
+              if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(cy * delta) * delta_threshold) {
+                yy1 = wy1 + (xctx->my_double_save - xctx->mousey_snap) / cy;
+                yy2 = wy2 + (xctx->my_double_save - xctx->mousey_snap) / cy;
+                my_snprintf(s, S(s), "%g", yy1);
+                my_strdup(1424, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+                my_snprintf(s, S(s), "%g", yy2);
+                my_strdup(1425, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+                xctx->my_double_save = xctx->mousey_snap;
+                need_redraw = 1;
+              }
             }
           }
         } else {
