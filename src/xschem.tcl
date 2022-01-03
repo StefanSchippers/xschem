@@ -3434,13 +3434,8 @@ proc context_menu { } {
     set font fixed
   }
   set selection  [expr {[xschem get lastsel] eq {1}}]
-  xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .ctxmenu
   wm overrideredirect .ctxmenu 1
-
-if { 0} {
-
-
   set x [expr {[winfo pointerx .ctxmenu] - 10}]
   set y [expr {[winfo pointery .ctxmenu] - 10}]
   if { !$selection} {
@@ -3533,11 +3528,11 @@ if { 0} {
   if {!$selection} {
     pack .ctxmenu.b8 -fill x -expand true
   }
-
-}
-
   wm geometry .ctxmenu "+$x+$y"
   update
+  # if window has been destroyed (by mouse pointer exiting) do nothing
+  if { ![winfo exists .ctxmenu] } { return 0 }
+
   set wx [winfo width .ctxmenu]
   set wy [winfo height .ctxmenu]
   set sx [winfo screenwidth .]
@@ -3549,9 +3544,8 @@ if { 0} {
     set x [expr {$x - ( $x + $wx - $sx )} ]
   }
   wm geometry .ctxmenu "+$x+$y";# move away from screen edges
-  bind .ctxmenu <Leave> {if { {%W} eq {.ctxmenu} } {destroy .ctxmenu} }
+  bind .ctxmenu <Leave> {if { {%W} eq {.ctxmenu} } {destroy .ctxmenu}}
   tkwait window .ctxmenu
-  xschem set semaphore [expr {[xschem get semaphore] -1}]
   return $retval
 }
 
@@ -3949,7 +3943,7 @@ global env has_x OS
     bind $topwin <KeyPress> "xschem callback %W %T %x %y %N 0 0 %s"
     bind $topwin <KeyRelease> "xschem callback %W %T %x %y %N 0 0 %s"
     bind $topwin <Motion> "focus $topwin; xschem callback %W %T %x %y 0 0 0 %s"
-    bind $topwin <Enter> "focus $topwin; xschem callback %W %T %x %y 0 0 0 0"
+    bind $topwin <Enter> "destroy .ctxmenu; focus $topwin; xschem callback %W %T %x %y 0 0 0 0"
     bind $topwin <Unmap> " wm withdraw .infotext; set show_infowindow 0 "
     bind $topwin  "?" {textwindow "${XSCHEM_SHAREDIR}/xschem.help"}
   

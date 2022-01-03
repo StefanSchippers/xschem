@@ -855,7 +855,6 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  switch(event)
  {
   case EnterNotify:
-    /* tcleval("catch {destroy .ctxmenu}"); */
     if(!xctx->sel_or_clip[0]) my_snprintf(xctx->sel_or_clip, S(xctx->sel_or_clip), "%s/%s",
         user_conf_dir, ".selection.sch");
 
@@ -2168,9 +2167,13 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    else if(button == Button3 &&  state == 0 && xctx->semaphore <2) {
      int ret;
+     const char *status;
      int prev_state;
-     tcleval("context_menu");
-     ret = atoi(tclresult());
+     xctx->semaphore++;
+     status = tcleval("context_menu");
+     xctx->semaphore--;
+     if(!status) break;
+     ret = atoi(status);
      switch(ret) {
        case 1:
          start_place_symbol(mx, my);
