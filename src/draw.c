@@ -1663,9 +1663,14 @@ int read_rawfile(const char *f)
 
 int get_raw_index(const char *node)
 {
+  char vnode[300];
   Int_hashentry *entry;
   if(xctx->graph_values) {
     entry = int_hash_lookup(xctx->raw_table, node, 0, XLOOKUP);
+    if(!entry) {
+      my_snprintf(vnode, S(vnode), "v(%s)", node);
+      entry = int_hash_lookup(xctx->raw_table, vnode, 0, XLOOKUP);
+    }
     if(entry) return entry->value;
   }
   return -1;
@@ -1702,7 +1707,7 @@ void calc_graph_area(int c, int i, int digital, double *x1, double *y1,double *x
   /* calculate graph bounding box (container - margin) 
    * This is the box where plot is done */
   *x1 =  rx1 + *marginx;
-  *x2 =  rx2 - *marginx / 2.8; /* less space for right margin */
+  *x2 =  rx2 - *marginx * 0.35; /* less space for right margin */
   if(digital) *y1 =  ry1 + *marginy * 0.4;
   else *y1 =  ry1 + *marginy;
   *y2 =  ry2 - *marginy;
@@ -1812,7 +1817,6 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
 {
   int p, i;
   double deltag = wy2 - wy1;
-  double delta = ypos2 - ypos1;
   double s1 = 0.1 * deltag; /* 10 waveforms fit in graph if unscaled vertically */
   double s2 = .08; /* 20% spacing between traces */
   double c = (n_nodes - wcnt) * s1;
@@ -1825,13 +1829,13 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   int n_bits = count_items(ntok, ",") - 1;
   int *idx_arr = NULL;
   unsigned long busval, old_busval;
-  double vth = (wy1 + wy2) / 2.0; /* A to D threshold */
+  double vth = (wy1 + wy2) * 0.5; /* A to D threshold */
   double val, xval, xval_old;
   double ydelta = fabs(yhigh - ylow);
   double labsize = 0.015 * ydelta;
   double charwidth = labsize * 38.0;
   char str[100];
-  int hex_digits = (n_bits - 1) / 4 + 1;
+  int hex_digits = (n_bits - 1) * 0.25 + 1;
   double x_size = 1.5 * xctx->zoom;
   idx_arr = my_malloc(1454, (n_bits) * sizeof(int));
   p = 0;
@@ -1876,7 +1880,7 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
       sprintf(str, "%0*lX", hex_digits, old_busval);
       /* draw hex bus value if there is enough room */
       if(  fabs(xval - xval_old) > strlen(str) * charwidth) {
-        draw_string(wave_col, NOW, str, 2, 0, 1, 0, (xval + xval_old) / 2.0,
+        draw_string(wave_col, NOW, str, 2, 0, 1, 0, (xval + xval_old) * 0.5,
                     yhigh, labsize, labsize);
       }
       old_busval = busval;
@@ -1886,7 +1890,7 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   /* draw hex bus value after last transition */
   sprintf(str, "%0*lX", hex_digits, busval);
   if(  fabs(xval - xval_old) > strlen(str) * charwidth) {
-    draw_string(wave_col, NOW, str, 2, 0, 1, 0, (xval + xval_old) / 2.0,
+    draw_string(wave_col, NOW, str, 2, 0, 1, 0, (xval + xval_old) * 0.5,
                 yhigh, labsize, labsize);
   }
   my_free(1455, &idx_arr);
@@ -1902,13 +1906,11 @@ static void draw_graph_points(int v, int first, int last,
   double yy;
   int poly_npoints = 0;
   double deltag = wy2 - wy1;
-  double delta;
   double s1;
   double s2;
   double c;
 
   if(digital) {
-    delta = ypos2 - ypos1;
     s1 = 0.1 * deltag; /* 10 waveforms fit in graph if unscaled vertically */
     s2 = .08; /* 20% spacing between traces */
     c = (n_nodes - wcnt) * s1;
@@ -2080,7 +2082,7 @@ void draw_graph(int c, int i, int flags)
   char *saven, *savec, *saves, *nptr, *cptr, *sptr;
   const char *ntok, *ctok, *stok;
   char *bus_msb = NULL;
-  int wcnt = 0;
+  int wcnt = 0, idx;
   int dataset = -1; 
 
   /* container (embedding rectangle) coordinates */
@@ -2215,10 +2217,8 @@ void draw_graph(int c, int i, int flags)
       if(digital) {
         double xt = x1 - 10 * txtsizelab;
         double deltag = wy2 - wy1;
-        double delta = ypos2 - ypos1;
         double s1 = 0.1 * deltag; /* 10 waveforms fit in graph if unscaled vertically */
         double yt = s1 * (double)(n_nodes - wcnt);
-        int idx;
   
         if(yt <= ypos2 && yt >= ypos1) {
           draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0, xt, DW_Y(yt), digtxtsizelab, digtxtsizelab);
@@ -2368,7 +2368,7 @@ void draw_graph(int c, int i, int flags)
     double b = CLIP(bb, x1, x2);
     double diff = fabs(b - a);
     double diffw = fabs(xctx->graph_cursor2_x - xctx->graph_cursor1_x);
-    double xx = ( a + b ) / 2.0;
+    double xx = ( a + b ) * 0.5;
     double yy = ry2 - 1;
     double tmpd;
     double yline;
@@ -2382,7 +2382,7 @@ void draw_graph(int c, int i, int flags)
       if( a > b) {
         tmpd = a; a = b; b = tmpd;
       }
-      yline = (ty1 + ty2) / 2.0;
+      yline = (ty1 + ty2) * 0.5;
       if( tx1 - a > 4.0) drawline(3, NOW, a + 2, yline, tx1 - 2, yline, 1);
       if( b - tx2 > 4.0) drawline(3, NOW, tx2 + 2, yline, b - 2, yline, 1);
     }

@@ -32,39 +32,41 @@ y1 = -0.0039
 y2 = 0.87
 divy = 3
 subdivy=1
-x1=1.16495e-07
-x2=2.03183e-07  divx=10
+x1=1.26295e-07
+x2=2.03758e-07  divx=10
 node="
-v(ldbl[0]) v(ldbl[16]) v(ldbl[32])
-v(ldbl[1]) v(ldbl[17]) v(ldbl[33])
-v(ldbl[2]) v(ldbl[18]) v(ldbl[34])
+ldbl[0] ldbl[16] ldbl[32]
+ldbl[1] ldbl[17] ldbl[33]
+ldbl[2] ldbl[18] ldbl[34]
 "
-color="8 9 10 11 12 13 14 15 16 17 18" unitx=n}
+color="8 9 10 11 12 13 14 15 16 17 18" unitx=n
+}
 B 2 1840 -1090 2890 -880 {flags=3
 digital=0
 y1 = -0.021
 y2 = 1.5
 subdivy=1
 divy = 4
-x1=1.16495e-07
-x2=2.03183e-07
+x1=1.26295e-07
+x2=2.03758e-07
 divx=10
 subdivx=4
-node="v(ldcp) v(ldyms[4]) v(ldyms[5]) v(ldyms[6]) v(ldymsref)"
+node="ldcp ldyms[4] ldyms[5] ldyms[6] ldymsref"
 color="6 12 13 14 15"
-unitx=n}
+unitx=n
+}
 B 2 1840 -280 2890 -120 {flags=3
 y1 = -0.0072
 y2 = 1.6
 divy = 3
 subdivy=0
 subdivx = 1
-x1=1.16495e-07
-x2=2.03183e-07  divx=10
+x1=1.26295e-07
+x2=2.03758e-07  divx=10
 node="
-v(ldwl[0]) v(ldwl[1]) v(ldwl[2]) v(ldwl[3]) 
-v(ldwl[4]) v(ldwl[5]) v(ldwl[6]) v(ldwl[16]) 
-v(ldwl[7]) v(ldwl[8]) v(ldwl[9])"
+ldwl[0] ldwl[1] ldwl[2] ldwl[3] 
+ldwl[4] ldwl[5] ldwl[6] ldwl[16] 
+ldwl[7] ldwl[8] ldwl[9]"
 color="4 5 4 5 4 5 4 5 4 5 4 5"  
 unitx=n 
 }
@@ -72,47 +74,50 @@ B 2 1840 -120 2890 -20 {flags=3
 y1 = -0.021
 y2 = 0.9
 divy = 1
-x1=1.16495e-07
-x2=2.03183e-07  divx=10
-node="v(ldymsref)"
-color=3 unitx=n subdivy=4}
+x1=1.26295e-07
+x2=2.03758e-07  divx=10
+node="ldymsref"
+color=3 unitx=n subdivy=4
+}
 B 2 1840 -880 2890 -420 {flags=3
 digital=1
 y1 = 0
 y2 = 1.6
-ypos1=0.035378
-ypos2=2.02034
+ypos1=-0.233024
+ypos2=2.1797
 divy = 1
-x1=1.16495e-07
-x2=2.03183e-07
+x1=1.26295e-07
+x2=2.03758e-07
 divx=12
 subdivx=4
 node="
 ---In/Out---
-v(ldcp)
-LDA,v(lda[12]),v(lda[11]),v(lda[10]),v(lda[9]),v(lda[8]),v(lda[7]),v(lda[6]),v(lda[5]),v(lda[4]),v(lda[3]),v(lda[2]),v(lda[1]),v(lda[0])
-LDQ,v(ldq[15]),v(ldq[14]),v(ldq[13]),v(ldq[12]),v(ldq[11]),v(ldq[10]),v(ldq[9]),v(ldq[8]),v(ldq[7]),v(ldq[6]),v(ldq[5]),v(ldq[4]),v(ldq[3]),v(ldq[2]),v(ldq[1]),v(ldq[0])
+ldcp
+LDA,lda[12],lda[11],lda[10],lda[9],lda[8],lda[7],lda[6],lda[5],lda[4],lda[3],lda[2],lda[1],lda[0]
+LDQ,ldq[15],ldq[14],ldq[13],ldq[12],ldq[11],ldq[10],ldq[9],ldq[8],ldq[7],ldq[6],ldq[5],ldq[4],ldq[3],ldq[2],ldq[1],ldq[0]
 ---Timing---
-v(lden) v(ldprech)
+lden ldprech
 ---Decoders---
-LDL3X,v(ldl3x[7]),v(ldl3x[6]),v(ldl3x[5]),v(ldl3x[4]),v(ldl3x[3]),v(ldl3x[2]),v(ldl3x[1]),v(ldl3x[0])
-LDL2X,v(ldl2x[3]),v(ldl2x[2]),v(ldl2x[1]),v(ldl2x[0])
-LDL1X,v(ldl1x[15]),v(ldl1x[14]),v(ldl1x[13]),v(ldl1x[12]),v(ldl1x[11]),v(ldl1x[10]),v(ldl1x[9]),v(ldl1x[8]),v(ldl1x[7]),v(ldl1x[6]),v(ldl1x[5]),v(ldl1x[4]),v(ldl1x[3]),v(ldl1x[2]),v(ldl1x[1]),v(ldl1x[0])
-LDY1,v(ldy1[3]),v(ldy1[2]),v(ldy1[1]),v(ldy1[0])
+LDL3X,ldl3x[7],ldl3x[6],ldl3x[5],ldl3x[4],ldl3x[3],ldl3x[2],ldl3x[1],ldl3x[0]
+LDL2X,ldl2x[3],ldl2x[2],ldl2x[1],ldl2x[0]
+LDL1X,ldl1x[15],ldl1x[14],ldl1x[13],ldl1x[12],ldl1x[11],ldl1x[10],ldl1x[9],ldl1x[8],ldl1x[7],ldl1x[6],ldl1x[5],ldl1x[4],ldl1x[3],ldl1x[2],ldl1x[1],ldl1x[0]
+LDY1,ldy1[3],ldy1[2],ldy1[1],ldy1[0]
 "
 color="4 15 4 15 4 15 4 15 4 15 4 15 4 15 4 15 4 15 4 15 4 15"
  unitx=n
- ypos1=-2.20115 ypos2=2.79884}
+ ypos1=-2.20115 ypos2=2.79884
+}
 B 2 1840 -1280 2890 -1090 {flags=3
 y1 = -0.022
 y2 = 1.6
 divy = 4
-x1=1.16495e-07
-x2=2.03183e-07
+x1=1.26295e-07
+x2=2.03758e-07
 divx=8
 unitx=n
-node="v(xsa[0].ldqib) v(xsa[5].ldqib) v(xsa[0].ldsali) v(xctrl.ldq_b)"
-color="4 4 5 12 "}
+node="xsa[0].ldqib xsa[5].ldqib xsa[0].ldsali xctrl.ldq_b"
+color="4 4 5 12 "
+}
 B 7 950 -250 980 -80 {}
 B 7 1150 -250 1180 -80 {}
 B 21 10 -970 240 -750 {}
