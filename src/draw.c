@@ -1813,9 +1813,9 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   int p, i;
   double deltag = wy2 - wy1;
   double delta = ypos2 - ypos1;
-  double s1 = 0.1 * deltag / delta;
-  double s2 = .08;
-  double c = delta * (n_nodes - wcnt) * s1;
+  double s1 = 0.1 * deltag; /* 10 waveforms fit in graph if unscaled vertically */
+  double s2 = .08; /* 20% spacing between traces */
+  double c = (n_nodes - wcnt) * s1;
   double x1 = W_X(xctx->graph_values[sweep_idx][first]);
   double x2 = W_X(xctx->graph_values[sweep_idx][last-1]);
   double ylow  = DW_Y(c + wy2 * s2); /* swapped as xschem Y coordinates are top-bottom */
@@ -1824,7 +1824,6 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   char *ntok_savep, *ntok_ptr, *ntok_copy = NULL;
   int n_bits = count_items(ntok, ",") - 1;
   int *idx_arr = NULL;
-  Int_hashentry *entry;
   unsigned long busval, old_busval;
   double vth = (wy1 + wy2) / 2.0; /* A to D threshold */
   double val, xval, xval_old;
@@ -1841,11 +1840,11 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   ntok_ptr = ntok_copy;
   my_strtok_r(ntok_ptr, ",", &ntok_savep); /*strip off bus name (1st field) */
   while( (bit_name = my_strtok_r(NULL, ",", &ntok_savep)) ) {
+    int idx;
     dbg(1, "draw_graph_bus_points(): bit %d : %s: ", p, bit_name);
-    entry = int_hash_lookup(xctx->raw_table, bit_name, 0, XLOOKUP);
-    if(entry) {
-      dbg(1, "%d\n", entry->value);
-      idx_arr[p] = entry->value;
+    if( (idx = get_raw_index(bit_name)) != -1) {
+      dbg(1, "%d\n", idx);
+      idx_arr[p] = idx;
     } else {
       dbg(1, "\n");
     }
@@ -1910,9 +1909,9 @@ static void draw_graph_points(int v, int first, int last,
 
   if(digital) {
     delta = ypos2 - ypos1;
-    s1 = 0.1 * deltag / delta;
+    s1 = 0.1 * deltag; /* 10 waveforms fit in graph if unscaled vertically */
     s2 = .08; /* 20% spacing between traces */
-    c = delta * (n_nodes - wcnt) * s1;
+    c = (n_nodes - wcnt) * s1;
   }
   if( !digital || (c >= ypos1 && c <= ypos2) ) {
     for(p = first ; p <= last; p++) {
@@ -2074,7 +2073,6 @@ void draw_graph(int c, int i, int flags)
   const char *val;
   char *node = NULL, *color = NULL, *sweep = NULL;
   double txtsizelab, digtxtsizelab, txtsizex, tmp;
-  Int_hashentry *entry;
   int sweep_idx = 0;
   int n_nodes; /* number of variables to display in a single graph */
   xRect *r = &xctx->rect[c][i];
@@ -2218,9 +2216,9 @@ void draw_graph(int c, int i, int flags)
         double xt = x1 - 10 * txtsizelab;
         double deltag = wy2 - wy1;
         double delta = ypos2 - ypos1;
-        double s1 = 0.1 * deltag / delta;
-        double delta_div_n = delta * s1;
-        double yt = delta_div_n * (double)(n_nodes - wcnt);
+        double s1 = 0.1 * deltag; /* 10 waveforms fit in graph if unscaled vertically */
+        double yt = s1 * (double)(n_nodes - wcnt);
+        int idx;
   
         if(yt <= ypos2 && yt >= ypos1) {
           draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0, xt, DW_Y(yt), digtxtsizelab, digtxtsizelab);
@@ -2231,11 +2229,9 @@ void draw_graph(int c, int i, int flags)
       bbox(END, 0.0, 0.0, 0.0, 0.0);
 
       /* quickly find index number of ntok variable to be plotted */
-      entry = int_hash_lookup(xctx->raw_table, bus_msb ? bus_msb : ntok, 0, XLOOKUP);
-      if(xctx->graph_values && entry) {
+      if( (idx = get_raw_index(bus_msb ? bus_msb : ntok)) != -1 ) {
         int p, dset, ofs;
         int poly_npoints;
-        int v;
         int first, last;
         double xx;
         double start;
@@ -2248,7 +2244,6 @@ void draw_graph(int c, int i, int flags)
         bbox(SET, 0.0, 0.0, 0.0, 0.0);
   
         ofs = 0;
-        v = entry->value;
         start = (wx1 <= wx2) ? wx1 : wx2;
         end = (wx1 <= wx2) ? wx2 : wx1;
         /* loop through all datasets found in raw file */
@@ -2277,7 +2272,7 @@ void draw_graph(int c, int i, int flags)
                                      wy1, wy2, ypos1, ypos2);
                       }
                     } else {
-                      draw_graph_points(v, first, last, scy, sdy, dscy, dsdy, point, wave_color,
+                      draw_graph_points(idx, first, last, scy, sdy, dscy, dsdy, point, wave_color,
                                    digital, wcnt, n_nodes, wy1, wy2, ypos1, ypos2);
                     }
                     poly_npoints = 0;
@@ -2305,7 +2300,7 @@ void draw_graph(int c, int i, int flags)
                                wy1, wy2, ypos1, ypos2);
                 }
               } else {
-                draw_graph_points(v, first, last, scy, sdy, dscy, dsdy, point, wave_color,
+                draw_graph_points(idx, first, last, scy, sdy, dscy, dsdy, point, wave_color,
                              digital, wcnt, n_nodes, wy1, wy2, ypos1, ypos2);
               }
             }
@@ -2316,7 +2311,7 @@ void draw_graph(int c, int i, int flags)
         } /* for(dset...) */
         my_free(1403, &point);
         bbox(END, 0.0, 0.0, 0.0, 0.0);
-      }/* if(entry) */
+      } /*  if( (idx = get_raw_index(bus_msb ? bus_msb : ntok)) != -1 ) */
       wcnt++;
       if(bus_msb) my_free(1453, &bus_msb);
     } /* while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) */
