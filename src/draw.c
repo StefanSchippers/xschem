@@ -1813,7 +1813,7 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
   int p, i;
   double deltag = wy2 - wy1;
   double delta = ypos2 - ypos1;
-  double s1 = 0.1 * deltag / delta;
+  double s1 = 0.1;
   double s2 = s1 * .8;
   double c = delta * (n_nodes - wcnt) * s1;
   double x1 = W_X(xctx->graph_values[sweep_idx][first]);
@@ -1910,7 +1910,7 @@ static void draw_graph_points(int v, int first, int last,
 
   if(digital) {
     delta = ypos2 - ypos1;
-    s1 = 0.1 * deltag / delta;
+    s1 = 0.1;
     s2 = s1 * .8; /* 20% spacing between traces */
     c = delta * (n_nodes - wcnt) * s1;
   }
@@ -2218,7 +2218,7 @@ void draw_graph(int c, int i, int flags)
         double xt = x1 - 10 * txtsizelab;
         double deltag = wy2 - wy1;
         double delta = ypos2 - ypos1;
-        double s1 = 0.1 * deltag / delta;
+        double s1 = 0.1;
         double delta_div_n = delta * s1;
         double yt = delta_div_n * (double)(n_nodes - wcnt);
   
