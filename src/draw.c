@@ -1807,13 +1807,13 @@ int schematic_waves_loaded(void)
 static void draw_graph_bus_points(const char *ntok, int first, int last,
          double cx, double dx, double dcy, double ddy,
          int wave_col, int sweep_idx,
-         int digital, int wcnt, int n_nodes,
+         int wcnt, int n_nodes,
          double wy1, double wy2, double ypos1, double ypos2)
 {
   int p, i;
   double deltag = wy2 - wy1;
   double delta = ypos2 - ypos1;
-  double s1 = 0.1 * deltag / delta; /* dig_max_waves; */
+  double s1 = 0.1 * deltag / delta;
   double s2 = s1 * .8;
   double c = delta * (n_nodes - wcnt) * s1;
   double x1 = W_X(xctx->graph_values[sweep_idx][first]);
@@ -1903,12 +1903,15 @@ static void draw_graph_points(int v, int first, int last,
   double yy;
   int poly_npoints = 0;
   double deltag = wy2 - wy1;
-  double delta = ypos2 - ypos1;
-  double s1 = 0.1 * deltag / delta; /* dig_max_waves; */
-  double s2 = s1 * .8;
+  double delta;
+  double s1;
+  double s2;
   double c;
 
   if(digital) {
+    delta = ypos2 - ypos1;
+    s1 = 0.1 * deltag / delta;
+    s2 = s1 * .8; /* 20% spacing between traces */
     c = delta * (n_nodes - wcnt) * s1;
   }
   if( !digital || (c >= ypos1 && c <= ypos2) ) {
@@ -2097,34 +2100,39 @@ void draw_graph(int c, int i, int flags)
   /* get variables to plot, x/y range, grid info etc */
   val = get_tok_value(r->prop_ptr,"unitx",0);
   unitx_suffix = val[0];
-  unitx = get_unit(val);;
+  unitx = get_unit(val);
   val = get_tok_value(r->prop_ptr,"unity",0);
   unity_suffix = val[0];
-  unity = get_unit(val);;
+  unity = get_unit(val);
   val = get_tok_value(r->prop_ptr,"subdivx",0);
   if(val[0]) subdivx = atoi(val);
   val = get_tok_value(r->prop_ptr,"subdivy",0);
   if(val[0]) subdivy = atoi(val);
   val = get_tok_value(r->prop_ptr,"divx",0);
   if(val[0]) divx = atoi(val);
+  else divx = 1;
   val = get_tok_value(r->prop_ptr,"divy",0);
   if(val[0]) divy = atoi(val);
+  else divy = 1;
   val = get_tok_value(r->prop_ptr,"x1",0);
   if(val[0]) wx1 = atof(val);
   val = get_tok_value(r->prop_ptr,"y1",0);
   if(val[0]) wy1 = atof(val);
-  val = get_tok_value(r->prop_ptr,"ypos1",0);
-  if(val[0]) ypos1 = atof(val);
-  else ypos1 = 0;
   val = get_tok_value(r->prop_ptr,"x2",0);
   if(val[0]) wx2 = atof(val);
   val = get_tok_value(r->prop_ptr,"y2",0);
   if(val[0]) wy2 = atof(val);
-  val = get_tok_value(r->prop_ptr,"ypos2",0);
-  if(val[0]) ypos2 = atof(val);
-  else ypos2 = 5;
+  if(wx1 == wx2) wx2 += 1e-6;
+  if(wy1 == wy2) wy2 += 1.0;
   val = get_tok_value(r->prop_ptr,"digital",0);
   if(val[0]) digital = atoi(val);
+  if(digital) {
+    val = get_tok_value(r->prop_ptr,"ypos1",0);
+    if(val[0]) ypos1 = atof(val);
+    val = get_tok_value(r->prop_ptr,"ypos2",0);
+    if(val[0]) ypos2 = atof(val);
+    if(ypos2 == ypos1) ypos2 += 1.0;
+  }
   /* plot single dataset */
   val = get_tok_value(r->prop_ptr,"dataset",0);
   if(val[0]) dataset = atoi(val);
@@ -2211,7 +2219,7 @@ void draw_graph(int c, int i, int flags)
         double deltag = wy2 - wy1;
         double delta = ypos2 - ypos1;
         double s1 = 0.1 * deltag / delta;
-        double delta_div_n = delta * s1; /* dig_max_waves; */
+        double delta_div_n = delta * s1;
         double yt = delta_div_n * (double)(n_nodes - wcnt);
   
         if(yt <= ypos2 && yt >= ypos1) {
@@ -2265,7 +2273,7 @@ void draw_graph(int c, int i, int flags)
                     if(bus_msb) {
                       if(digital) {
                         draw_graph_bus_points(ntok, first, last, cx, dx, dcy, ddy, wave_color,
-                                     sweep_idx, digital, wcnt, n_nodes, 
+                                     sweep_idx, wcnt, n_nodes, 
                                      wy1, wy2, ypos1, ypos2);
                       }
                     } else {
@@ -2293,7 +2301,7 @@ void draw_graph(int c, int i, int flags)
               if(bus_msb) {
                 if(digital) {
                   draw_graph_bus_points(ntok, first, last, cx, dx, dcy, ddy, wave_color,
-                               sweep_idx, digital, wcnt, n_nodes, 
+                               sweep_idx, wcnt, n_nodes, 
                                wy1, wy2, ypos1, ypos2);
                 }
               } else {

@@ -32,8 +32,8 @@ y1 = -0.0039
 y2 = 0.87
 divy = 3
 subdivy=1
-x1=1.30576e-07
-x2=1.75688e-07  divx=10
+x1=1.16495e-07
+x2=2.03183e-07  divx=10
 node="
 v(ldbl[0]) v(ldbl[16]) v(ldbl[32])
 v(ldbl[1]) v(ldbl[17]) v(ldbl[33])
@@ -46,8 +46,8 @@ y1 = -0.021
 y2 = 1.5
 subdivy=1
 divy = 4
-x1=1.30576e-07
-x2=1.75688e-07
+x1=1.16495e-07
+x2=2.03183e-07
 divx=10
 subdivx=4
 node="v(ldcp) v(ldyms[4]) v(ldyms[5]) v(ldyms[6]) v(ldymsref)"
@@ -59,8 +59,8 @@ y2 = 1.6
 divy = 3
 subdivy=0
 subdivx = 1
-x1=1.30576e-07
-x2=1.75688e-07  divx=10
+x1=1.16495e-07
+x2=2.03183e-07  divx=10
 node="
 v(ldwl[0]) v(ldwl[1]) v(ldwl[2]) v(ldwl[3]) 
 v(ldwl[4]) v(ldwl[5]) v(ldwl[6]) v(ldwl[16]) 
@@ -72,19 +72,19 @@ B 2 1840 -120 2890 -20 {flags=3
 y1 = -0.021
 y2 = 0.9
 divy = 1
-x1=1.30576e-07
-x2=1.75688e-07  divx=10
+x1=1.16495e-07
+x2=2.03183e-07  divx=10
 node="v(ldymsref)"
 color=3 unitx=n subdivy=4}
 B 2 1840 -880 2890 -420 {flags=3
 digital=1
 y1 = 0
 y2 = 1.6
-ypos1=0.0211877
-ypos2=2.22059
+ypos1=0.035378
+ypos2=2.02034
 divy = 1
-x1=1.16679e-07
-x2=2.68175e-07
+x1=1.16495e-07
+x2=2.03183e-07
 divx=12
 subdivx=4
 node="
@@ -107,8 +107,8 @@ B 2 1840 -1280 2890 -1090 {flags=3
 y1 = -0.022
 y2 = 1.6
 divy = 4
-x1=1.30576e-07
-x2=1.75688e-07
+x1=1.16495e-07
+x2=2.03183e-07
 divx=8
 unitx=n
 node="v(xsa[0].ldqib) v(xsa[5].ldqib) v(xsa[0].ldsali) v(xctrl.ldq_b)"

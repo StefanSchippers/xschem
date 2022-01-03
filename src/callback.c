@@ -179,9 +179,7 @@ void start_wire(double mx, double my)
 static int waves_callback(int event, int mx, int my, KeySym key, int button, int aux, int state)
 {
   int digital = 0;
-  double wx1 = -2e-6, wx2 = 8e-6;
-  double wy1 = -1, wy2 = 4;
-  double ypos1 = 0, ypos2 = 5;
+  double wx1 = 0, wy1 = 0, wx2 = 1e-6, wy2 = 5, ypos1 = 0, ypos2 = 5;
   double x1, y1, x2, y2, marginx, marginy;
   double cx, dx, cy, dy, dcy, ddy;
   int divx = 10, divy = 5;
@@ -220,6 +218,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       val = get_tok_value(r->prop_ptr,"y2",0);
       if(val[0]) wy2 = atof(val);
       else wy2 = 5;
+      if(wx1 == wx2) wx2 += 1e-6; /* avoid division by 0 */
+      if(wy1 == wy2) wy2 += 1.0;  /* avoid division by 0 */
       val = get_tok_value(r->prop_ptr,"digital",0);
       if(val[0]) digital = atoi(val);
       else digital = 0;
@@ -303,6 +303,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   val = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"x2",0);
   if(val[0]) wx2 = atof(val);
   else wx2 = 1e-6;
+  if(wx1 == wx2) wx2 += 1e-6; /* avoid division by 0 */
 
   /* second loop: after having determined the master graph do the others */
   for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
@@ -322,12 +323,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     val = get_tok_value(r->prop_ptr,"y2",0);
     if(val[0]) wy2 = atof(val);
     else wy2 = 5;
-    val = get_tok_value(r->prop_ptr,"ypos1",0);
-    if(val[0]) ypos1 = atof(val);
-    else ypos1 = 0;
-    val = get_tok_value(r->prop_ptr,"ypos2",0);
-    if(val[0]) ypos2 = atof(val);
-    else ypos2 = 5;
+    if(wy1 == wy2) wy2 += 1.0;  /* avoid division by 0 */
     val = get_tok_value(r->prop_ptr,"dataset",0);
     if(val[0]) dataset = atoi(val);
     else dataset = 0;
@@ -335,6 +331,15 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     val = get_tok_value(r->prop_ptr,"digital",0);
     if(val[0]) digital = atoi(val);
     else digital = 0;
+    if(digital) {
+      val = get_tok_value(r->prop_ptr,"ypos1",0);
+      if(val[0]) ypos1 = atof(val);
+      else ypos1 = 0;
+      val = get_tok_value(r->prop_ptr,"ypos2",0);
+      if(val[0]) ypos2 = atof(val);
+      else ypos2 = 5;
+      if(ypos2 == ypos1) ypos2 += 1.0;
+    }
     calc_graph_area(GRIDLAYER, i, digital, &x1, &y1, &x2, &y2, &marginx, &marginy);
     /* cache coefficients for faster graph coord transformations */
     cx = (x2 - x1) / (wx2 - wx1);
