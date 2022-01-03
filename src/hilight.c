@@ -1894,3 +1894,26 @@ void print_hilight_net(int show)
  my_free(782, &filetmp2);
 }
 
+void list_hilights(void)
+{
+ int i, first = 1;
+ Hilight_hashentry *entry;
+ Node_hashentry *node_entry;
+
+ Tcl_ResetResult(interp);
+ prepare_netlist_structs(1); /* use full prepare_netlist_structs(1)  to recognize pin direction */
+                             /* when creating pins from hilight nets 20171221 */
+ for(i=0;i<HASHSIZE;i++) {
+   entry=xctx->hilight_table[i];
+   while(entry) {
+     node_entry = bus_node_hash_lookup(entry->token, "", XLOOKUP, 0, "", "", "", "");
+     if(node_entry  && (node_entry->d.port == 0 || !strcmp(xctx->sch_path[xctx->currsch], ".") )) {
+       if(!first) Tcl_AppendResult(interp, " ", NULL);
+       Tcl_AppendResult(interp,  entry->path + 1,
+          entry->token[0] == '#' ? entry->token + 1 : entry->token, NULL);
+       first = 0;
+     }
+     entry = entry ->next ;
+   }
+ }
+}

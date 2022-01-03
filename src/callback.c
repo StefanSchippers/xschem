@@ -25,14 +25,15 @@
 static int waves_selected(int event, int key, int state, int button)
 {
   int i;
-  int is_inside = 0;
-  if(state & Mod1Mask) return 0;
-  if(event == MotionNotify && (state & Button2Mask)) return 0;
-  if(event == ButtonPress && button == Button2) return 0;
-  if(event == ButtonRelease && button == Button2) return 0;
-  if(xctx->ui_state  & STARTSELECT) return 0;
+  int is_inside = 0, skip = 0;
+  if(xctx->ui_state & STARTPAN2) skip = 1;
+  if(state & Mod1Mask) skip = 1;
+  if(event == MotionNotify && (state & Button2Mask)) skip = 1;
+  if(event == ButtonPress && button == Button2) skip = 1;
+  if(event == ButtonRelease && button == Button2) skip = 1;
+  if(xctx->ui_state  & STARTSELECT) skip = 1;
 
-  for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
+  if(!skip) for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
     xRect *r;
     r = &xctx->rect[GRIDLAYER][i];
     if(!(r->flags & 1) ) continue;
@@ -40,6 +41,9 @@ static int waves_selected(int event, int key, int state, int button)
        POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 40,  r->y1 + 20,  r->x2 - 30,  r->y2 - 10) ) {
        is_inside = 1;
     }
+  }
+  if(!is_inside && (xctx->graph_flags & 64) ) {
+    tcleval("graph_stop_measure");
   }
   return is_inside;
 }
@@ -166,6 +170,7 @@ void start_wire(double mx, double my)
 #define G_Y(y) (((y) - dy) / cy)
 /* for digital graphs (ypos1, ypos2 instead of wy1, wy2) */
 #define DG_Y(y) (((y) - ddy) / dcy)
+#define DW_Y(y) (dcy * (y) + ddy)
 
 /* xctx->graph_flags:
  *  1: 
@@ -174,6 +179,7 @@ void start_wire(double mx, double my)
  *  8: dnu, reserved, used in draw_graphs()
  * 16: move cursor1
  * 32: move cursor2
+ * 64: show measurement tooltip
  */
 
 static int waves_callback(int event, int mx, int my, KeySym key, int button, int aux, int state)
@@ -228,6 +234,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       dx = x1 - wx1 * cx;
       cy = (y1 - y2) / (wy2 - wy1);
       dy = y2 - wy1 * cy;
+
       /* move cursor1 */
       /* set cursor position from master graph x-axis */
       if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
@@ -266,19 +273,21 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       if((key == 'a') ) {
         xctx->graph_flags ^= 2;
         need_redraw = 1;
-        xctx->graph_flags |= 1; /* apply to all graphs */
         if(xctx->graph_flags & 2) xctx->graph_cursor1_x = G_X(xctx->mousex);
       }
       /* x cursor2 toggle */
       else if((key == 'b') ) {
         xctx->graph_flags ^= 4;
         need_redraw = 1;
-        xctx->graph_flags |= 1; /* apply to all graphs */
         if(xctx->graph_flags & 4) xctx->graph_cursor2_x = G_X(xctx->mousex);
       }
-      else if(state & ControlMask) xctx->graph_flags |= 1;
-      else xctx->graph_flags &= ~1;
-
+      /* measurement tooltip */
+      else if((key == 'm') ) {
+        xctx->graph_flags ^= 64;
+        if(!(xctx->graph_flags & 64)) {
+          tcleval("graph_stop_measure");
+        }
+      }
       break;
     } /* if( POINTINSIDE(...) */
   } /* for(i=0; i <  xctx->rects[GRIDLAYER]; i++) */
@@ -349,6 +358,38 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     /* graph --> xschem transform for digital waves y axis */
     dcy = (y1 - y2) / (ypos2 - ypos1);
     ddy = y2 - ypos1 * dcy;
+
+
+    /* destroy / show measurement widget */
+    if(i == xctx->graph_master) {
+      if(xctx->graph_flags & 64) {
+        if( POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, x1, y1, x2, y2)) {
+          char sx[100], sy[100];
+          double yval;
+          if(digital) { 
+            double deltag = wy2 - wy1;
+            double s1 = 0.1; /* 10 waveforms fit in graph if unscaled vertically */
+            double s2 = .08; /* 20% spacing between traces */
+            double c = s1 * deltag;
+            deltag = deltag * s1 / s2;
+            yval=(DG_Y(xctx->mousey) - c) / s2;
+            yval=fmod(yval, deltag ) +  wy1;
+            if(yval > wy2 + deltag * (s1 + s2) * 0.5) yval -= deltag;
+          } else {
+            yval = G_Y(xctx->mousey);
+          }
+          my_snprintf(sx, S(sx), "%.4g", G_X(xctx->mousex));
+          my_snprintf(sy, S(sy), "%.4g", yval);
+  
+          tclvareval("set measure_text \"y=", sy, "\nx=", sx, "\"", NULL);
+          tcleval("graph_show_measure");
+        } else {
+          tcleval("graph_stop_measure");
+        }
+      }
+    }
+
+
 
     dbg(1, "%g %g %g %g - %d %d\n", wx1, wy1, wx2, wy2, divx, divy);
     if( event == KeyPress || event == ButtonPress || event == MotionNotify ) {
@@ -1819,10 +1860,6 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='l' && state == 0) /* start line */
    {
      int prev_state = xctx->ui_state;
-     if( waves_selected(event, key, state, button)) {
-       waves_callback(event, mx, my, key, button, aux, state);
-       break;
-     }
      start_line(mx, my);
      if(prev_state == STARTLINE) {
        tcleval("set constrained_move 0" );
@@ -1912,6 +1949,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='m' && state==0 && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
    {
+    if(waves_selected(event, key, state, button)) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
     move_objects(START,0,0,0);

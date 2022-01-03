@@ -81,10 +81,10 @@ color=3 unitx=n subdivy=4
 }
 B 2 1840 -880 2890 -420 {flags=3
 digital=1
-y1 = 0
-y2 = 1.6
-ypos1=-0.233024
-ypos2=2.1797
+y1 = -1
+y2 = 2
+ypos1=0.175559
+ypos2=3.6959
 divy = 1
 x1=1.26295e-07
 x2=2.03758e-07

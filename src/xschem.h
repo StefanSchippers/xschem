@@ -1320,6 +1320,7 @@ extern Node_hashentry **get_node_table_ptr(void);
 extern void change_elem_order(void);
 extern int set_different_token(char **s,const char *new, const char *old, int object, int n);
 extern void print_hilight_net(int show);
+extern void list_hilights(void);
 extern void change_layer();
 extern void launcher();
 extern void windowid(const char *winpath);

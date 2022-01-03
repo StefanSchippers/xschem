@@ -308,6 +308,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
            "flags=1\n"
            "y1=0\n"
            "y2=5\n"
+           "ypos1=0\n"
+           "ypos2=5\n"
            "divy=4\n"
            "subdivy=1\n"
            "x1=0\n"
@@ -1505,6 +1507,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
+    else if(!strcmp(argv[1], "list_hilights"))
+    {
+      const char *sep;
+      cmd_found = 1;
+      if(argc > 2) {
+        sep = argv[2];
+      } else {
+        sep = "{ }";
+      }
+      list_hilights();
+      tclvareval("join [lsort -decreasing -dictionary {", tclresult(), "}] ", sep, NULL);
+    }
+
     else if(!strcmp(argv[1], "list_tokens") && argc == 4)
     {
       cmd_found = 1;

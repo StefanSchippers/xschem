@@ -1817,9 +1817,9 @@ static void draw_graph_bus_points(const char *ntok, int first, int last,
 {
   int p, i;
   double deltag = wy2 - wy1;
-  double s1 = 0.1 * deltag; /* 10 waveforms fit in graph if unscaled vertically */
+  double s1 = 0.1; /* 10 waveforms fit in graph if unscaled vertically */
   double s2 = .08; /* 20% spacing between traces */
-  double c = (n_nodes - wcnt) * s1;
+  double c = (n_nodes - wcnt) * s1 * deltag - wy1 * s2;
   double x1 = W_X(xctx->graph_values[sweep_idx][first]);
   double x2 = W_X(xctx->graph_values[sweep_idx][last-1]);
   double ylow  = DW_Y(c + wy2 * s2); /* swapped as xschem Y coordinates are top-bottom */
@@ -1911,9 +1911,9 @@ static void draw_graph_points(int v, int first, int last,
   double c;
 
   if(digital) {
-    s1 = 0.1 * deltag; /* 10 waveforms fit in graph if unscaled vertically */
+    s1 = 0.1; /* 10 waveforms fit in graph if unscaled vertically */
     s2 = .08; /* 20% spacing between traces */
-    c = (n_nodes - wcnt) * s1;
+    c = (n_nodes - wcnt) * s1 * deltag - wy1 * s2;
   }
   if( !digital || (c >= ypos1 && c <= ypos2) ) {
     for(p = first ; p <= last; p++) {
@@ -2217,8 +2217,9 @@ void draw_graph(int c, int i, int flags)
       if(digital) {
         double xt = x1 - 10 * txtsizelab;
         double deltag = wy2 - wy1;
-        double s1 = 0.1 * deltag; /* 10 waveforms fit in graph if unscaled vertically */
-        double yt = s1 * (double)(n_nodes - wcnt);
+        double s1 = 0.1; /* 10 waveforms fit in graph if unscaled vertically */
+        double s2 = .08; /* 20% spacing between traces */
+        double yt = s1 * (double)(n_nodes - wcnt) * deltag - wy1 * s2;
   
         if(yt <= ypos2 && yt >= ypos1) {
           draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0, xt, DW_Y(yt), digtxtsizelab, digtxtsizelab);

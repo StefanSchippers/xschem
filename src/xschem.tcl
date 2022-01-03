@@ -1278,6 +1278,35 @@ proc waves {} {
 }
 # ============================================================
 
+
+proc graph_stop_measure {} {
+  global measure_id
+  if { [info exists measure_id] } {
+    after cancel $measure_id
+    unset measure_id
+  }
+  destroy .measure
+}
+
+proc graph_show_measure {} {
+  global measure_id measure_text
+ 
+  set_ne measure_text "y=\nx="
+  if { [info exists measure_id] } {
+    after cancel $measure_id
+    unset measure_id
+  }
+  destroy .measure
+
+  set measure_id [after 400 {
+    toplevel .measure -bg {}
+    label .measure.lab -text $measure_text -bg black -fg yellow -justify left
+    pack .measure.lab
+    wm overrideredirect .measure 1
+    wm geometry .measure +[expr {[winfo pointerx .measure] +10}]+[expr {[winfo pointery .measure] -8}]
+  }]
+}
+
 proc get_shell { curpath } {
  global netlist_dir debug_var
  global  terminal
@@ -3807,8 +3836,9 @@ proc no_open_dialogs {} {
 
 ## list of globals to save/restore on context switching
 ## EXCEPTIONS, not to be saved/restored:
-## "textwindow_wcounter" should be kept global as it is the number of open textwindows
-## "viewdata_wcounter" should be kept global as it is the number of open viewdatas
+## "textwindow_wcounter" should be kept unique as it is the number of open textwindows
+## "viewdata_wcounter" should be kept unique as it is the number of open viewdatas
+## "measure_id" should be kept unique since we allow only one measure tooltip in graphs
 
 set tctx::global_list {
   auto_hilight autotrim_wires bespice_listen_port big_grid_points bus_replacement_char
@@ -3820,6 +3850,7 @@ set tctx::global_list {
   flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter hide_empty_graphs hide_symbols hsize hspice_netlist 
   incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
   input_line_cmd input_line_data launcher_default_program light_colors line_width local_netlist_dir
+  measure_text
   myload_d myload_default_geometry myload_dir1 myload_dir2 myload_dirs2 myload_files1 myload_files2 myload_index1
   myload_retval myload_sash_pos myload_sel myload_type myload_yview netlist_dir netlist_show
   netlist_type no_change_attrs noprint_libs old_selected_tok
@@ -3933,6 +3964,7 @@ global env has_x OS
          }
        }
     "
+    bind $topwin <Leave> "graph_stop_measure"
     bind $topwin <Expose> "xschem callback %W %T %x %y 0 %w %h %s"
     bind $topwin <Double-Button-1> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-2> "xschem callback %W -3 %x %y 0 %b 0 %s"
