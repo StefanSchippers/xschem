@@ -672,33 +672,35 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if(key == 'f') {
         if(xctx->graph_values) {
           if(xctx->graph_left) {
-            int i, j;
-            double v;
-            double min=0.0, max=0.0;
-            int first = 1;
-            char *saven, *nptr, *ntok, *node = NULL;;
-            my_strdup2(1426, &node, get_tok_value(r->prop_ptr,"node",0));
-            nptr = node;
-            while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) {
-              nptr = NULL;
-              j = get_raw_index(ntok);
-              if(j >= 0) {
-                for(i = 0; i < xctx->graph_npoints[dataset]; i++) {
-                  v = get_raw_value(dataset, j, i);
-                  if(first || v < min) {min = v; first = 0;}
-                  if(first || v > max) {max = v; first = 0;}
-                } 
+            if(i == xctx->graph_master) {
+              int i, j;
+              double v;
+              double min=0.0, max=0.0;
+              int first = 1;
+              char *saven, *nptr, *ntok, *node = NULL;;
+              my_strdup2(1426, &node, get_tok_value(r->prop_ptr,"node",0));
+              nptr = node;
+              while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) {
+                nptr = NULL;
+                j = get_raw_index(ntok);
+                if(j >= 0) {
+                  for(i = 0; i < xctx->graph_npoints[dataset]; i++) {
+                    v = get_raw_value(dataset, j, i);
+                    if(first || v < min) {min = v; first = 0;}
+                    if(first || v > max) {max = v; first = 0;}
+                  } 
+                }
               }
+              if(max == min) max += 0.01;
+              min = floor_to_n_digits(min, 2);
+              max = ceil_to_n_digits(max, 2);
+              my_free(1427, &node);
+              my_snprintf(s, S(s), "%g", min);
+              my_strdup(1422, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+              my_snprintf(s, S(s), "%g", max);
+              my_strdup(1423, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+              need_redraw = 1;
             }
-            if(max == min) max += 0.01;
-            min = floor_to_n_digits(min, 2);
-            max = ceil_to_n_digits(max, 2);
-            my_free(1427, &node);
-            my_snprintf(s, S(s), "%g", min);
-            my_strdup(1422, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-            my_snprintf(s, S(s), "%g", max);
-            my_strdup(1423, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-            need_redraw = 1;
           } else {
             if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
               xx1 = get_raw_value(dataset, 0, 0);
