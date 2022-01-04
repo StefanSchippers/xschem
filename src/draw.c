@@ -1876,7 +1876,8 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, int *idx_arr,
   double deltag = wy2 - wy1;
   double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
   double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
-  double c = (n_nodes - wcnt) * s1 * deltag - wy1 * s2;
+  double c = (n_nodes - wcnt) * s1 * deltag - wy1 * s2; /* trace baseline */
+  double c1 = c + (wy2 - wy1) * 0.5 * s2; /* trace y-center, used for clipping */
   double x1 = W_X(xctx->graph_values[sweep_idx][first]);
   double x2 = W_X(xctx->graph_values[sweep_idx][last-1]);
   double ylow  = DW_Y(c + wy2 * s2); /* swapped as xschem Y coordinates are top-bottom */
@@ -1887,37 +1888,39 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, int *idx_arr,
   double labsize = 0.015 * ydelta;
   double charwidth = labsize * 38.0;
   double x_size = 1.5 * xctx->zoom;
-  drawline(wave_col, NOW, x1, ylow, x2, ylow, 0);
-  drawline(wave_col, NOW, x1, yhigh, x2, yhigh, 0);
-  for(p = first ; p <= last; p++) {
-    /* calculate value of bus by adding all binary bits */
-    /* hex_digits = */
-    get_bus_value(n_bits, idx_arr, p, busval, wy1, wy2);
-    xval =  W_X(xctx->graph_values[sweep_idx][p]);
-    /* used to draw bus value before 1st transition */
-    if(p == first) {
-      my_strncpy(old_busval, busval, strlen(busval)+1);
-      xval_old = xval;
-    }
-    if(p > first &&  strcmp(busval, old_busval)) {
-      /* draw transition ('X') */
-      drawline(BACKLAYER, NOW, xval-x_size, yhigh, xval+x_size, yhigh, 0);
-      drawline(BACKLAYER, NOW, xval-x_size, ylow,  xval+x_size, ylow, 0);
-      drawline(wave_col, NOW, xval-x_size, ylow,  xval+x_size, yhigh, 0);
-      drawline(wave_col, NOW, xval-x_size, yhigh, xval+x_size, ylow, 0);
-      /* draw hex bus value if there is enough room */
-      if(  fabs(xval - xval_old) > strlen(old_busval) * charwidth) {
-        draw_string(wave_col, NOW, old_busval, 2, 0, 1, 0, (xval + xval_old) * 0.5,
-                    yhigh, labsize, labsize);
+  if(c1 >= ypos1 && c1 <=ypos2) {
+    drawline(wave_col, NOW, x1, ylow, x2, ylow, 0);
+    drawline(wave_col, NOW, x1, yhigh, x2, yhigh, 0);
+    for(p = first ; p <= last; p++) {
+      /* calculate value of bus by adding all binary bits */
+      /* hex_digits = */
+      get_bus_value(n_bits, idx_arr, p, busval, wy1, wy2);
+      xval =  W_X(xctx->graph_values[sweep_idx][p]);
+      /* used to draw bus value before 1st transition */
+      if(p == first) {
+        my_strncpy(old_busval, busval, strlen(busval)+1);
+        xval_old = xval;
       }
-      my_strncpy(old_busval, busval, strlen(busval)+1);
-      xval_old = xval;
-    } /* if(p > first &&  busval != old_busval) */
-  } /* for(p = first ; p < last; p++) */
-  /* draw hex bus value after last transition */
-  if(  fabs(xval - xval_old) > strlen(old_busval) * charwidth) {
-    draw_string(wave_col, NOW, old_busval, 2, 0, 1, 0, (xval + xval_old) * 0.5,
-                yhigh, labsize, labsize);
+      if(p > first &&  strcmp(busval, old_busval)) {
+        /* draw transition ('X') */
+        drawline(BACKLAYER, NOW, xval-x_size, yhigh, xval+x_size, yhigh, 0);
+        drawline(BACKLAYER, NOW, xval-x_size, ylow,  xval+x_size, ylow, 0);
+        drawline(wave_col, NOW, xval-x_size, ylow,  xval+x_size, yhigh, 0);
+        drawline(wave_col, NOW, xval-x_size, yhigh, xval+x_size, ylow, 0);
+        /* draw hex bus value if there is enough room */
+        if(  fabs(xval - xval_old) > strlen(old_busval) * charwidth) {
+          draw_string(wave_col, NOW, old_busval, 2, 0, 1, 0, (xval + xval_old) * 0.5,
+                      yhigh, labsize, labsize);
+        }
+        my_strncpy(old_busval, busval, strlen(busval)+1);
+        xval_old = xval;
+      } /* if(p > first &&  busval != old_busval) */
+    } /* for(p = first ; p < last; p++) */
+    /* draw hex bus value after last transition */
+    if(  fabs(xval - xval_old) > strlen(old_busval) * charwidth) {
+      draw_string(wave_col, NOW, old_busval, 2, 0, 1, 0, (xval + xval_old) * 0.5,
+                  yhigh, labsize, labsize);
+    }
   }
 }
 
@@ -1933,14 +1936,15 @@ static void draw_graph_points(int v, int first, int last,
   double deltag = wy2 - wy1;
   double s1;
   double s2;
-  double c;
+  double c, c1;
 
   if(digital) {
     s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
     s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
-    c = (n_nodes - wcnt) * s1 * deltag - wy1 * s2;
+    c = (n_nodes - wcnt) * s1 * deltag - wy1 * s2; /* trace baseline */
+    c1 = c + (wy2 - wy1) * 0.5 * s2; /* trace y-center, used for clipping */
   }
-  if( !digital || (c >= ypos1 && c <= ypos2) ) {
+  if( !digital || (c1 >= ypos1 && c1 <= ypos2) ) {
     for(p = first ; p <= last; p++) {
       yy = xctx->graph_values[v][p];
       if(digital) {
