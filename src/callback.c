@@ -40,10 +40,14 @@ static int waves_selected(int event, int key, int state, int button)
     if( (xctx->ui_state & GRAPHPAN) ||
        POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 40,  r->y1 + 20,  r->x2 - 30,  r->y2 - 10) ) {
        is_inside = 1;
+       tclvareval(xctx->top_path, ".drw configure -cursor tcross" , NULL);
     }
   }
-  if(!is_inside && (xctx->graph_flags & 64) ) {
-    tcleval("graph_stop_measure");
+  if(!is_inside) {
+    tclvareval(xctx->top_path, ".drw configure -cursor arrow" , NULL);
+    if(xctx->graph_flags & 64) {
+      tcleval("graph_show_measure stop");
+    }
   }
   return is_inside;
 }
@@ -211,7 +215,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     if(!(r->flags & 1) ) continue;
     /* check if this is the master graph (the one containing the mouse pointer) */
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
-    if( POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, r->x1, r->y1, r->x2, r->y2)) {
+    if( POINTINSIDE(xctx->mousex, xctx->mousey, r->x1, r->y1, r->x2, r->y2)) {
       val = get_tok_value(r->prop_ptr,"x1",0);
       if(val[0]) wx1 = atof(val);
       else wx1 = 0;
@@ -285,7 +289,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if((key == 'm') ) {
         xctx->graph_flags ^= 64;
         if(!(xctx->graph_flags & 64)) {
-          tcleval("graph_stop_measure");
+          tcleval("graph_show_measure stop");
         }
       }
       break;
@@ -363,13 +367,13 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     /* destroy / show measurement widget */
     if(i == xctx->graph_master) {
       if(xctx->graph_flags & 64) {
-        if( POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, x1, y1, x2, y2)) {
+        if( POINTINSIDE(xctx->mousex, xctx->mousey, x1, y1, x2, y2)) {
           char sx[100], sy[100];
           double yval;
           if(digital) { 
             double deltag = wy2 - wy1;
-            double s1 = 0.1; /* 10 waveforms fit in graph if unscaled vertically */
-            double s2 = .08; /* 20% spacing between traces */
+            double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
+            double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
             double c = s1 * deltag;
             deltag = deltag * s1 / s2;
             yval=(DG_Y(xctx->mousey) - c) / s2;
@@ -384,7 +388,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           tclvareval("set measure_text \"y=", sy, "\nx=", sx, "\"", NULL);
           tcleval("graph_show_measure");
         } else {
-          tcleval("graph_stop_measure");
+          tcleval("graph_show_measure stop");
         }
       }
     }
@@ -407,11 +411,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(xctx->graph_left) {
           if(i == xctx->graph_master) {
             if(digital) {
-              delta = (ypos2 - ypos1) / divy;
+              delta = (ypos2 - ypos1);
               delta_threshold = 0.01;
-              if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(cy * delta) * delta_threshold) {
-                yy1 = ypos1 + (xctx->my_double_save - xctx->mousey_snap) / cy;
-                yy2 = ypos2 + (xctx->my_double_save - xctx->mousey_snap) / cy;
+              if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(dcy * delta) * delta_threshold) {
+                yy1 = ypos1 + (xctx->my_double_save - xctx->mousey_snap) / dcy;
+                yy2 = ypos2 + (xctx->my_double_save - xctx->mousey_snap) / dcy;
                 my_snprintf(s, S(s), "%g", yy1);
                 my_strdup(1424, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", s));
                 my_snprintf(s, S(s), "%g", yy2);

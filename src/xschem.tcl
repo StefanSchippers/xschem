@@ -1279,16 +1279,7 @@ proc waves {} {
 # ============================================================
 
 
-proc graph_stop_measure {} {
-  global measure_id
-  if { [info exists measure_id] } {
-    after cancel $measure_id
-    unset measure_id
-  }
-  destroy .measure
-}
-
-proc graph_show_measure {} {
+proc graph_show_measure {{action show}} {
   global measure_id measure_text
  
   set_ne measure_text "y=\nx="
@@ -1297,8 +1288,9 @@ proc graph_show_measure {} {
     unset measure_id
   }
   destroy .measure
-
+  if {$action eq {stop}} { return }
   set measure_id [after 400 {
+    unset measure_id
     toplevel .measure -bg {}
     label .measure.lab -text $measure_text -bg black -fg yellow -justify left
     pack .measure.lab
@@ -3964,7 +3956,7 @@ global env has_x OS
          }
        }
     "
-    bind $topwin <Leave> "graph_stop_measure"
+    bind $topwin <Leave> "graph_show_measure stop"
     bind $topwin <Expose> "xschem callback %W %T %x %y 0 %w %h %s"
     bind $topwin <Double-Button-1> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-2> "xschem callback %W -3 %x %y 0 %b 0 %s"

@@ -311,7 +311,7 @@ extern char win_temp_dir[PATH_MAX];
                                  strcmp(type,"show_label") && strcmp(type,"iopin")))
 #define IS_LABEL_OR_PIN(type) (!(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
 #define IS_PIN(type) (!(strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
-#define SIGN(x) ( (x) < 0 ? -1 : 1)
+#define SIGN(x) ( (x) < 0 ? -1 : (x) > 0 ? 1 : 0)
 
 /* floor not needed? screen coordinates always positive <<<< */
 /* #define X_TO_SCREEN(x) ( floor(((x)+xctx->xorigin)* xctx->mooz) ) */
@@ -337,7 +337,9 @@ do { \
 
 /* set do double if you need more precision at the expense of memory */
 #define SPICE_DATA float
-
+#define DIG_NWAVES 0.1  /* inverse number: by default 10 digital traces per graph */
+#define DIG_SPACE 0.08 /* trace extends from 0 to DIG_SPACE, so we have DIG_WAVES-DIG_SPACE
+                        * spacing between traces */
 
 typedef struct
 {
