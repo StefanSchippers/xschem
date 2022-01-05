@@ -311,7 +311,8 @@ extern char win_temp_dir[PATH_MAX];
                                  strcmp(type,"show_label") && strcmp(type,"iopin")))
 #define IS_LABEL_OR_PIN(type) (!(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
 #define IS_PIN(type) (!(strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
-#define SIGN(x) ( (x) < 0 ? -1 : (x) > 0 ? 1 : 0)
+#define SIGN(x) ( (x) < 0 ? -1 : 1)
+#define SIGN0(x) ( (x) < 0 ? -1 : (x) > 0 ? 1 : 0)
 
 /* floor not needed? screen coordinates always positive <<<< */
 /* #define X_TO_SCREEN(x) ( floor(((x)+xctx->xorigin)* xctx->mooz) ) */
@@ -983,7 +984,7 @@ extern void select_all(void);
 extern void change_linewidth(double w);
 extern void schematic_in_new_window(void);
 extern void symbol_in_new_window(void);
-extern void new_window(const char *cell, int symbol);
+extern void new_xschem_process(const char *cell, int symbol);
 extern void ask_new_file(void);
 extern int samefile(const char *fa, const char *fb);
 extern void saveas(const char *f, int type);

@@ -1714,16 +1714,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"new_symbol_window"))
     {
       cmd_found = 1;
-      if(argc==2) new_window("",1);
-      else new_window(argv[2],1);
+      if(argc==2) new_xschem_process("",1);
+      else new_xschem_process(argv[2],1);
       Tcl_ResetResult(interp);
     }
 
     else if(!strcmp(argv[1],"new_window"))
     {
       cmd_found = 1;
-      if(argc==2) new_window("",0);
-      else new_window(argv[2],0);
+      if(argc==2) new_xschem_process("",0);
+      else new_xschem_process(argv[2],0);
       Tcl_ResetResult(interp);
     }
   }

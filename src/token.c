@@ -1342,7 +1342,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
  int no_of_pins=0;
 
  my_strdup(460, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
- if( (format==NULL) ) {
+ if( format==NULL ) {
    my_free(473, &format);
    return; /* no format */
  }
@@ -1450,7 +1450,7 @@ void print_spice_subckt(FILE *fd, int symbol)
  int no_of_pins=0;
 
  my_strdup(103, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
- if( (format==NULL) ) {
+ if( format==NULL ) {
    my_free(1012, &format);
    return; /* no format */
  }

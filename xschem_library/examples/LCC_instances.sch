@@ -19,7 +19,7 @@ L 4 370 -580 560 -580 {dash=3}
 L 4 1420 -730 1440 -750 {dash=3}
 L 4 1420 -770 1420 -730 {dash=3}
 L 4 1420 -770 1440 -750 {dash=3}
-L 4 1300 -750 1420 -750 {dash=3}
+L 4 1350 -750 1420 -750 {dash=3}
 B 2 750 -490 1410 -260 {flags=3 
 y1 = -0.0578106
 y2 = 3.04806
@@ -30,18 +30,18 @@ divx=6
 node="v(a) v(zz) v(zzz)"
 color="4 6 8"
 sweep="v(a)"}
-B 2 30 -930 500 -720 {flags=3 
+B 2 10 -930 570 -700 {flags=3 
 y1 = -0.0578112
 y2 = 3.04806
 divy = 6
-x1=-0.0713896
-x2=3.06704
+x1=0.242453
+x2=3.38088
 divx=6
 node="v(a) v(z)"
 color="4 6 8"
 sweep="v(z) v(a)"}
 P 4 5 560 -700 560 -510 1350 -510 1350 -700 560 -700 {dash=3}
-P 4 5 770 -920 770 -730 1300 -730 1300 -920 770 -920 {dash=3}
+P 4 5 820 -920 820 -730 1350 -730 1350 -920 820 -920 {dash=3}
 T {These 2 instances are equivalent} 290 -280 0 0 0.4 0.4 {}
 T {Example of using a schematic as a component instance
 instead of the usual symbol. LCC: Local Custom Cell.
@@ -50,11 +50,11 @@ LCC schematic instantiation show actual parameters
 in the schematic instance.} 570 -680 0 0 0.5 0.5 {}
 T {LCC schematics can be nested
 If only .sch is used there is
-no need for a .sym file at all} 790 -880 0 0 0.6 0.6 {}
+no need for a .sym file at all} 840 -880 0 0 0.6 0.6 {}
 T {Select one or more graphs (and no other objects)
 and use arrow keys to zoom / pan waveforms} 20 -980 0 0 0.3 0.3 {}
 T {Butterfly diagram
-of a cmos latch} 510 -940 0 0 0.4 0.4 {layer=8}
+of a cmos latch} 620 -950 0 0 0.4 0.4 {layer=8}
 N 410 -100 410 -80 {lab=HALF}
 N 410 -190 430 -190 {lab=ZZZ}
 N 410 -190 410 -160 {lab=ZZZ}
@@ -65,8 +65,8 @@ N 700 -490 700 -240 {lab=ZZ}
 N 700 -240 1450 -240 {lab=ZZ}
 N 320 -190 410 -190 {lab=ZZZ}
 N 330 -490 420 -490 {lab=ZZ}
-N 620 -850 620 -760 { lab=Z}
-N 540 -850 540 -760 { lab=A}
+N 730 -860 730 -770 { lab=Z}
+N 650 -860 650 -770 { lab=A}
 C {vsource.sym} 50 -140 0 0 {name=V1 value="pwl 0 0 1u 0 5u 3"}
 C {lab_pin.sym} 50 -170 0 0 {name=p4 lab=A}
 C {lab_pin.sym} 50 -110 0 0 {name=p5 lab=0}
@@ -164,10 +164,10 @@ C {cmos_inv.sch} 140 -260 0 0 {name=Xinv WN=15u WP=45u LLN=3u LLP=3u}
 C {cmos_inv.sym} 280 -190 0 0 {name=Xinv2 WN=15u WP=45u LLN=3u LLP=3u}
 C {bus_keeper.sch} 1200 60 0 0 {name=Xkeeper WN_FB=3u WP_FB=5u}
 C {lab_pin.sym} 700 -490 0 1 {name=p1 lab=ZZ}
-C {lab_pin.sym} 540 -760 0 0 {name=p14 lab=A}
-C {cmos_inv.sym} 580 -850 0 1 {name=Xinv3 WN=3u WP=5u LLN=3u LLP=3u}
-C {lab_pin.sym} 620 -760 0 1 {name=p2 lab=Z}
-C {cmos_inv.sym} 580 -760 0 0 {name=Xinv1 WN=3u WP=5u LLN=3u LLP=3u}
+C {lab_pin.sym} 650 -770 0 0 {name=p14 lab=A}
+C {cmos_inv.sym} 690 -860 0 1 {name=Xinv3 WN=3u WP=5u LLN=3u LLP=3u}
+C {lab_pin.sym} 730 -770 0 1 {name=p2 lab=Z}
+C {cmos_inv.sym} 690 -770 0 0 {name=Xinv1 WN=3u WP=5u LLN=3u LLP=3u}
 C {launcher.sym} 85 -1015 0 0 {name=h1 
 descr="Select arrow and 
 Ctrl-Left-Click to load/unload waveforms" 

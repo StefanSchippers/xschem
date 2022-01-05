@@ -26,12 +26,11 @@ static int waves_selected(int event, int key, int state, int button)
 {
   int i;
   int is_inside = 0, skip = 0;
-  if(xctx->ui_state & STARTPAN2) skip = 1;
+  if(xctx->ui_state & (STARTPAN2 | STARTSELECT | STARTMOVE | STARTCOPY)) skip = 1;
   if(state & Mod1Mask) skip = 1;
   if(event == MotionNotify && (state & Button2Mask)) skip = 1;
   if(event == ButtonPress && button == Button2) skip = 1;
   if(event == ButtonRelease && button == Button2) skip = 1;
-  if(xctx->ui_state  & STARTSELECT) skip = 1;
 
   if(!skip) for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
     xRect *r;
@@ -2108,7 +2107,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='x' && state == 0 )                  /* new cad session */
    {
-    new_window(NULL ,0);
+    new_xschem_process(NULL ,0);
     break;
    }
    if((key=='#') && !(state & ControlMask) )

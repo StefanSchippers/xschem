@@ -258,7 +258,7 @@ void toggle_only_probes()
 }
 
 #ifdef __unix__
-void new_window(const char *cell, int symbol)
+void new_xschem_process(const char *cell, int symbol)
 {
   char f[PATH_MAX]; /*  overflow safe 20161122 */
   struct stat buf;
@@ -266,9 +266,9 @@ void new_window(const char *cell, int symbol)
   pid_t pid2;
   int status;
 
-  dbg(1, "new_window(): executable: %s, cell=%s, symbol=%d\n", xschem_executable, cell, symbol);
+  dbg(1, "new_xschem_process(): executable: %s, cell=%s, symbol=%d\n", xschem_executable, cell, symbol);
   if(stat(xschem_executable,&buf)) {
-    fprintf(errfp, "new_window(): executable not found\n");
+    fprintf(errfp, "new_xschem_process(): executable not found\n");
     return;
   }
 
@@ -300,24 +300,24 @@ void new_window(const char *cell, int symbol)
       }
     } else {
       /* error */
-      fprintf(errfp, "new_window(): fork error 1\n");
+      fprintf(errfp, "new_xschem_process(): fork error 1\n");
       tcleval("exit");
     }
   } else {
     /* error */
-    fprintf(errfp, "new_window(): fork error 2\n");
+    fprintf(errfp, "new_xschem_process(): fork error 2\n");
     tcleval("exit");
   }
 }
 #else
 
-void new_window(const char* cell, int symbol)
+void new_xschem_process(const char* cell, int symbol)
 {
   char cmd_line[2 * PATH_MAX + 100];
   struct stat buf;
-  dbg(1, "new_window(): executable: %s, cell=%s, symbol=%d\n", xschem_executable, cell, symbol);
+  dbg(1, "new_xschem_process(): executable: %s, cell=%s, symbol=%d\n", xschem_executable, cell, symbol);
   if (stat(xschem_executable, &buf)) {
-    fprintf(errfp, "new_window(): executable not found\n");
+    fprintf(errfp, "new_xschem_process(): executable not found\n");
     return;
   }
   /* According to Stackoverflow, system should be avoided because it's resource heavy
@@ -966,11 +966,11 @@ void symbol_in_new_window(void)
  rebuild_selected_array();
  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT)
  {
-  new_window(xctx->sch[xctx->currsch],1);
+  new_xschem_process(xctx->sch[xctx->currsch],1);
  }
  else
  {
-  new_window(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""),1);
+  new_xschem_process(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""),1);
  }
 
 }
@@ -983,8 +983,8 @@ void schematic_in_new_window(void)
  rebuild_selected_array();
  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT)
  {
-  /*  new_window("", 0); */
-  new_window(xctx->sch[xctx->currsch], 0); /*  20111007 duplicate current schematic if no inst selected */
+  /*  new_xschem_process("", 0); */
+  new_xschem_process(xctx->sch[xctx->currsch], 0); /*  20111007 duplicate current schematic if no inst selected */
   return;
  }
  else
@@ -1009,7 +1009,7 @@ void schematic_in_new_window(void)
     my_strncpy(filename, add_ext(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), ".sch"), S(filename));
   }
 
-  new_window(filename, 0);
+  new_xschem_process(filename, 0);
  }
 }
 
