@@ -1688,30 +1688,6 @@ double get_raw_value(int dataset, int idx, int point)
   }
   return 0.0;
 }
-void calc_graph_area(int c, int i, int digital, double *x1, double *y1,double *x2,double *y2,
-     double *marginx, double *marginy)
-{
-  double rx1, rx2, ry1, ry2, rw, rh, tmp;
-  rx1 = xctx->rect[c][i].x1;
-  ry1 = xctx->rect[c][i].y1;
-  rx2 = xctx->rect[c][i].x2;
-  ry2 = xctx->rect[c][i].y2;
-  rw = (rx2 - rx1);
-  rh = (ry2 - ry1);
-  /* set margins */
-  tmp = rw * 0.14;
-  *marginx = tmp < 30 ? 30 : tmp;
-  tmp = rh * 0.14;
-  *marginy = tmp < 35 ? 35 : tmp;
-
-  /* calculate graph bounding box (container - margin) 
-   * This is the box where plot is done */
-  *x1 =  rx1 + *marginx;
-  *x2 =  rx2 - *marginx * 0.35; /* less space for right margin */
-  if(digital) *y1 =  ry1 + *marginy * 0.4;
-  else *y1 =  ry1 + *marginy;
-  *y2 =  ry2 - *marginy;
-}
 
 /* round to closest 1e-ee. 2e-ee, 5e-ee
  * example: delta = 0.234 --> 0.2
@@ -1792,10 +1768,10 @@ int schematic_waves_loaded(void)
   return 0;
 }
 
-static int get_bus_value(int n_bits, int *idx_arr, int p, char *busval, double wy1, double wy2)
+static int get_bus_value(int n_bits, int *idx_arr, int p, char *busval, double yval1, double yval2)
 {
   int hex_digits = ((n_bits - 1) >> 2) + 1;
-  double vth = (wy1 + wy2) * 0.5;
+  double vth = (yval1 + yval2) * 0.5;
   double val;
   int i;
   int hexdigit = 0;
@@ -1849,52 +1825,35 @@ static int *get_bus_idx_array(const char *ntok, int *n_bits)
   return idx_arr;
 }
 
-/* coordinate transformations graph to xschem */
-#define W_X(x) (cx * (x) + dx)
-#define W_Y(y) (cy * (y) + dy)
-/* for digital waves */
-#define DW_Y(y) (dcy * (y) + ddy)
-
-/* coordinate transformations graph to screen */
-#define S_X(x) (scx * (x) + sdx)
-#define S_Y(y) (scy * (y) + sdy)
-/* for digital waves */
-#define DS_Y(y) (dscy * (y) + dsdy)
-
 /* draw bussed signals: ntok is a comma separated list of items, first item is bus name, 
  * following are bits that are bundled together:
    LDA,LDA[3],LDA[2],LDA1],LDA[0]
  */
 static void draw_graph_bus_points(const char *ntok, int n_bits, int *idx_arr, 
-         int first, int last,
-         double cx, double dx, double dcy, double ddy,
-         int wave_col, int sweep_idx,
-         int wcnt, int n_nodes,
-         double wy1, double wy2, double ypos1, double ypos2)
+         int first, int last, int wave_col, int sweep_idx, int wcnt, int n_nodes, Graph_ctx *gr)
 {
   int p;
-  double deltag = wy2 - wy1;
   double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
   double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
-  double c = (n_nodes - wcnt) * s1 * deltag - wy1 * s2; /* trace baseline */
-  double c1 = c + (wy2 - wy1) * 0.5 * s2; /* trace y-center, used for clipping */
-  double x1 = W_X(xctx->graph_values[sweep_idx][first]);
-  double x2 = W_X(xctx->graph_values[sweep_idx][last-1]);
-  double ylow  = DW_Y(c + wy2 * s2); /* swapped as xschem Y coordinates are top-bottom */
-  double yhigh = DW_Y(c + wy1 * s2);
+  double c = (n_nodes - wcnt) * s1 * gr->gh - gr->gy1 * s2; /* trace baseline */
+  double c1 = c + gr->gh * 0.5 * s2; /* trace y-center, used for clipping */
+  double lx1 = W_X(xctx->graph_values[sweep_idx][first]);
+  double lx2 = W_X(xctx->graph_values[sweep_idx][last-1]);
+  double ylow  = DW_Y(c + gr->gy2 * s2); /* swapped as xschem Y coordinates are top-bottom */
+  double yhigh = DW_Y(c + gr->gy1 * s2);
   char busval[1024], old_busval[1024];
   double xval=0.0, xval_old=0.0;
   double ydelta = fabs(yhigh - ylow);
   double labsize = 0.015 * ydelta;
   double charwidth = labsize * 38.0;
   double x_size = 1.5 * xctx->zoom;
-  if(c1 >= ypos1 && c1 <=ypos2) {
-    drawline(wave_col, NOW, x1, ylow, x2, ylow, 0);
-    drawline(wave_col, NOW, x1, yhigh, x2, yhigh, 0);
+  if(c1 >= gr->ypos1 && c1 <=gr->ypos2) {
+    drawline(wave_col, NOW, lx1, ylow, lx2, ylow, 0);
+    drawline(wave_col, NOW, lx1, yhigh, lx2, yhigh, 0);
     for(p = first ; p <= last; p++) {
       /* calculate value of bus by adding all binary bits */
       /* hex_digits = */
-      get_bus_value(n_bits, idx_arr, p, busval, wy1, wy2);
+      get_bus_value(n_bits, idx_arr, p, busval, gr->gy1, gr->gy2);
       xval =  W_X(xctx->graph_values[sweep_idx][p]);
       /* used to draw bus value before 1st transition */
       if(p == first) {
@@ -1925,29 +1884,25 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, int *idx_arr,
 }
 
 static void draw_graph_points(int v, int first, int last,
-         double scy, double sdy, double dscy, double dsdy,
-         XPoint *point, int wave_col,
-         int digital, int wcnt, int n_nodes, double wy1, double wy2,
-         double ypos1, double ypos2)
+         XPoint *point, int wave_col, int wcnt, int n_nodes, Graph_ctx *gr)
 {
   int p;
   double yy;
   int poly_npoints = 0;
-  double deltag = wy2 - wy1;
   double s1;
   double s2;
   double c, c1;
 
-  if(digital) {
+  if(gr->digital) {
     s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
     s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
-    c = (n_nodes - wcnt) * s1 * deltag - wy1 * s2; /* trace baseline */
-    c1 = c + (wy2 - wy1) * 0.5 * s2; /* trace y-center, used for clipping */
+    c = (n_nodes - wcnt) * s1 * gr->gh - gr->gy1 * s2; /* trace baseline */
+    c1 = c + gr->gh * 0.5 * s2; /* trace y-center, used for clipping */
   }
-  if( !digital || (c1 >= ypos1 && c1 <= ypos2) ) {
+  if( !gr->digital || (c1 >= gr->ypos1 && c1 <= gr->ypos2) ) {
     for(p = first ; p <= last; p++) {
       yy = xctx->graph_values[v][p];
-      if(digital) {
+      if(gr->digital) {
         yy = c + yy *s2;
         /* Build poly y array. Translate from graph coordinates to screen coordinates  */
         point[poly_npoints].y = CLIP(DS_Y(yy), xctx->areay1, xctx->areay2);
@@ -1965,35 +1920,12 @@ static void draw_graph_points(int v, int first, int last,
   } else dbg(1, "skipping wave: %s\n", xctx->graph_names[v]);
 }
 
-static void draw_graph_grid(
-                  double rx1, double ry1, double rx2, double ry2, /* container box */
-                  double x1, double y1, double x2, double y2,     /* graph area */
-                  double marginx, double marginy,                 
-                  double wx1, double wy1, double wx2, double wy2, /* graph coordinate system */
-                  double cx, double cy, double dx, double dy,     /* graph to xschem matrix transform */
-                  int divx, int divy, int subdivx, int subdivy,   /* axis major/minor grids */
-                  double unitx, double unity,                     /* unit conversion (p, u, m, k, M, G) */
-                  int digital,                                    /* set to 1 for digital plot */
-                  double *txtsizex)                               /* txtsizex needed in caller too */
+static void draw_graph_grid(Graph_ctx *gr)
 {
-  double deltax, startx, deltay, starty, wx,wy,  dash_sizex, dash_sizey, w, h;
+  double deltax, startx, deltay, starty, wx,wy,  dash_sizex, dash_sizey;
   int j, k;
   char lab[30];
-  double tmp, txtsizey;
-  double mark_size = marginy/10.0;
-
-  w = (x2 - x1);
-  h = (y2 - y1);
-  /* x axis, y axis label text sizes */
-  txtsizey = h / divy * 0.009;
-  tmp = marginx * 0.005;
-  if(tmp < txtsizey) txtsizey = tmp;
-  tmp = marginy * 0.02;
-  if(tmp < txtsizey) txtsizey = tmp;
-
-  *txtsizex = w / divx * 0.0033;
-  tmp = marginy * 0.0063;
-  if(tmp < *txtsizex) *txtsizex = tmp;
+  double mark_size = gr->marginy/10.0;
 
   /* calculate dash length for grid lines */
   dash_sizex = 1.5 * xctx->mooz;
@@ -2005,69 +1937,362 @@ static void draw_graph_grid(
 
   /* clipping everything outside container area */
   /* background */
-  filledrect(0, NOW, rx1, ry1, rx2, ry2);
+  filledrect(0, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
   /* graph bounding box */
-  drawrect(GRIDLAYER, NOW, rx1, ry1, rx2, ry2, 2);
+  drawrect(GRIDLAYER, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2);
 
   bbox(START, 0.0, 0.0, 0.0, 0.0);
-  bbox(ADD, rx1, ry1, rx2, ry2);
+  bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
   bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
   /* vertical grid lines */
-  deltax = axis_increment(wx1, wx2, divx);
-  startx = axis_start(wx1, deltax, divx);
+  deltax = axis_increment(gr->gx1, gr->gx2, gr->divx);
+  startx = axis_start(gr->gx1, deltax, gr->divx);
   for(j = -1;; j++) { /* start one interval before to allow sub grids at beginning */
     wx = startx + j * deltax;
-    if(subdivx > 0) for(k = 1; k <=subdivx; k++) {
-      double subwx = wx + k * deltax / (subdivx + 1);
-      if(!axis_within_range(subwx, wx1, wx2)) continue;
-      if(axis_end(subwx, deltax, wx2)) break;
-      drawline(GRIDLAYER, ADD, W_X(subwx),   W_Y(wy2), W_X(subwx),   W_Y(wy1), dash_sizey);
+    if(gr->subdivx > 0) for(k = 1; k <=gr->subdivx; k++) {
+      double subwx = wx + k * deltax / (gr->subdivx + 1);
+      if(!axis_within_range(subwx, gr->gx1, gr->gx2)) continue;
+      if(axis_end(subwx, deltax, gr->gx2)) break;
+      drawline(GRIDLAYER, ADD, W_X(subwx),   W_Y(gr->gy2), W_X(subwx),   W_Y(gr->gy1), dash_sizey);
     }
-    if(!axis_within_range(wx, wx1, wx2)) continue;
-    if(axis_end(wx, deltax, wx2)) break;
-    /* swap order of wy1 and wy2 since grap y orientation is opposite to xorg orientation */
-    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(wy2), W_X(wx),   W_Y(wy1), dash_sizey);
-    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(wy1), W_X(wx),   W_Y(wy1) + mark_size, 0); /* axis marks */
+    if(!axis_within_range(wx, gr->gx1, gr->gx2)) continue;
+    if(axis_end(wx, deltax, gr->gx2)) break;
+    /* swap order of gy1 and gy2 since grap y orientation is opposite to xorg orientation */
+    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy2), W_X(wx),   W_Y(gr->gy1), dash_sizey);
+    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy1), W_X(wx),   W_Y(gr->gy1) + mark_size, 0); /* axis marks */
     /* X-axis labels */
-    my_snprintf(lab, S(lab), "%g", wx * unitx);
-    draw_string(3, NOW, lab, 0, 0, 1, 0, W_X(wx), y2 + mark_size + 5 * *txtsizex, *txtsizex, *txtsizex);
+    my_snprintf(lab, S(lab), "%g", wx * gr->unitx);
+    draw_string(3, NOW, lab, 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
+                gr->txtsizex, gr->txtsizex);
   }
   /* first and last vertical box delimiters */
-  drawline(GRIDLAYER, ADD, W_X(wx1),   W_Y(wy2), W_X(wx1),   W_Y(wy1), 0);
-  drawline(GRIDLAYER, ADD, W_X(wx2),   W_Y(wy2), W_X(wx2),   W_Y(wy1), 0);
+  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy2), W_X(gr->gx1),   W_Y(gr->gy1), 0);
+  drawline(GRIDLAYER, ADD, W_X(gr->gx2),   W_Y(gr->gy2), W_X(gr->gx2),   W_Y(gr->gy1), 0);
   /* horizontal grid lines */
-  if(!digital) {
-    deltay = axis_increment(wy1, wy2, divy);
-    starty = axis_start(wy1, deltay, divy);
+  if(!gr->digital) {
+    deltay = axis_increment(gr->gy1, gr->gy2, gr->divy);
+    starty = axis_start(gr->gy1, deltay, gr->divy);
     for(j = -1;; j++) { /* start one interval before to allow sub grids at beginning */
       wy = starty + j * deltay;
-      if(subdivy > 0) for(k = 1; k <=subdivy; k++) {
-        double subwy = wy + k * deltay / (subdivy + 1);
-        if(!axis_within_range(subwy, wy1, wy2)) continue;
-        if(axis_end(subwy, deltay, wy2)) break;
-        drawline(GRIDLAYER, ADD, W_X(wx1), W_Y(subwy),   W_X(wx2), W_Y(subwy), dash_sizex);
+      if(gr->subdivy > 0) for(k = 1; k <=gr->subdivy; k++) {
+        double subwy = wy + k * deltay / (gr->subdivy + 1);
+        if(!axis_within_range(subwy, gr->gy1, gr->gy2)) continue;
+        if(axis_end(subwy, deltay, gr->gy2)) break;
+        drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(subwy),   W_X(gr->gx2), W_Y(subwy), dash_sizex);
       }
-      if(!axis_within_range(wy, wy1, wy2)) continue;
-      if(axis_end(wy, deltay, wy2)) break;
-      drawline(GRIDLAYER, ADD, W_X(wx1), W_Y(wy),   W_X(wx2), W_Y(wy), dash_sizex);
-      drawline(GRIDLAYER, ADD, W_X(wx1) - mark_size, W_Y(wy),   W_X(wx1), W_Y(wy), 0); /* axis marks */
+      if(!axis_within_range(wy, gr->gy1, gr->gy2)) continue;
+      if(axis_end(wy, deltay, gr->gy2)) break;
+      drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(wy),   W_X(gr->gx2), W_Y(wy), dash_sizex);
+      drawline(GRIDLAYER, ADD, W_X(gr->gx1) - mark_size, W_Y(wy),   W_X(gr->gx1), W_Y(wy), 0); /* axis marks */
       /* Y-axis labels */
-      my_snprintf(lab, S(lab), "%g",  wy * unity);
-      draw_string(3, NOW, lab, 0, 1, 0, 1, x1 - mark_size - 5 * txtsizey, W_Y(wy), txtsizey, txtsizey);
+      my_snprintf(lab, S(lab), "%g",  wy * gr->unity);
+      draw_string(3, NOW, lab, 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
+                  gr->txtsizey, gr->txtsizey);
     }
   }
   /* first and last horizontal box delimiters */
-  drawline(GRIDLAYER, ADD, W_X(wx1),   W_Y(wy1), W_X(wx2),   W_Y(wy1), 0);
-  drawline(GRIDLAYER, ADD, W_X(wx1),   W_Y(wy2), W_X(wx2),   W_Y(wy2), 0);
+  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy1), W_X(gr->gx2),   W_Y(gr->gy1), 0);
+  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy2), W_X(gr->gx2),   W_Y(gr->gy2), 0);
   /* Horizontal axis (if in viewport) */
-  if(!digital && wy1 <= 0 && wy2 >= 0) drawline(GRIDLAYER, ADD, W_X(wx1), W_Y(0), W_X(wx2), W_Y(0), 0);
+  if(!gr->digital && gr->gy1 <= 0 && gr->gy2 >= 0)
+    drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(0), W_X(gr->gx2), W_Y(0), 0);
   /* Vertical axis (if in viewport) 
-   * swap order of wy1 and wy2 since grap y orientation is opposite to xorg orientation */
-  if(wx1 <= 0 && wx2 >= 0) drawline(GRIDLAYER, ADD, W_X(0),   W_Y(wy2), W_X(0),   W_Y(wy1), 0);
+   * swap order of gy1 and gy2 since grap y orientation is opposite to xorg orientation */
+  if(gr->gx1 <= 0 && gr->gx2 >= 0)
+    drawline(GRIDLAYER, ADD, W_X(0),   W_Y(gr->gy2), W_X(0),   W_Y(gr->gy1), 0);
   drawline(GRIDLAYER, END, 0.0, 0.0, 0.0, 0.0, 0);
   bbox(END, 0.0, 0.0, 0.0, 0.0);
+}
 
+void setup_graph_data(int i, const int flags, Graph_ctx *gr)
+{
+  double tmp;
+  const char *val;
+  xRect *r = &xctx->rect[GRIDLAYER][i];
 
+  /* default values */
+  gr->divx = gr->divy = 5;
+  gr->subdivx = gr->subdivy = 0;
+  gr->digital = 0;
+  gr->gx1 = 0;
+  gr->gx2 = 1e-6;
+  gr->gy1 = 0;
+  gr->gy2 = 5;
+  gr->dataset = -1; /* -1 means 'plot all datasets' */
+  gr->ypos1 = 0;
+  gr->ypos2 = 2;
+  gr->digtxtsizelab = 0.3;
+  gr->txtsizelab = 0.3;
+  gr->txtsizex = 0.3;
+  gr->txtsizey = 0.3;
+
+  /* container (embedding rectangle) coordinates */
+  gr->rx1 = r->x1;
+  gr->ry1 = r->y1;
+  gr->rx2 = r->x2;
+  gr->ry2 = r->y2;
+
+  /* screen position */
+  gr->sx1=X_TO_SCREEN(gr->rx1);
+  gr->sy1=Y_TO_SCREEN(gr->ry1);
+  gr->sx2=X_TO_SCREEN(gr->rx2);
+  gr->sy2=Y_TO_SCREEN(gr->ry2);
+
+  if(RECT_OUTSIDE(gr->sx1, gr->sy1, gr->sx2, gr->sy2,
+                  xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) return;
+
+  gr->rw = gr->rx2 - gr->rx1;
+  gr->rh = gr->ry2 - gr->ry1;
+
+  /* get x/y range, grid info etc */
+  val = get_tok_value(r->prop_ptr,"unitx",0);
+  gr->unitx_suffix = val[0];
+  gr->unitx = get_unit(val);
+  val = get_tok_value(r->prop_ptr,"unity",0);
+  gr->unity_suffix = val[0];
+  gr->unity = get_unit(val);
+  val = get_tok_value(r->prop_ptr,"subdivx",0);
+  if(val[0]) gr->subdivx = atoi(val);
+  val = get_tok_value(r->prop_ptr,"subdivy",0);
+  if(val[0]) gr->subdivy = atoi(val);
+  val = get_tok_value(r->prop_ptr,"divx",0);
+  if(val[0]) gr->divx = atoi(val);
+  val = get_tok_value(r->prop_ptr,"divy",0);
+  if(val[0]) gr->divy = atoi(val);
+  val = get_tok_value(r->prop_ptr,"x1",0);
+  if(val[0]) gr->gx1 = atof(val);
+  val = get_tok_value(r->prop_ptr,"x2",0);
+  if(val[0]) gr->gx2 = atof(val);
+  val = get_tok_value(r->prop_ptr,"y1",0);
+  if(val[0]) gr->gy1 = atof(val);
+  val = get_tok_value(r->prop_ptr,"y2",0);
+  if(val[0]) gr->gy2 = atof(val);
+  if(gr->gx1 == gr->gx2) gr->gx2 += 1e-6;
+  if(gr->gy1 == gr->gy2) gr->gy2 += 1.0;
+  val = get_tok_value(r->prop_ptr,"digital",0);
+  if(val[0]) gr->digital = atoi(val);
+  if(gr->digital) {
+    val = get_tok_value(r->prop_ptr,"ypos1",0);
+    if(val[0]) gr->ypos1 = atof(val);
+    val = get_tok_value(r->prop_ptr,"ypos2",0);
+    if(val[0]) gr->ypos2 = atof(val);
+    if(gr->ypos2 == gr->ypos1) gr->ypos2 += 1.0;
+  }
+  gr->posh = gr->ypos2 - gr->ypos1;
+
+  /* plot single dataset */
+  val = get_tok_value(r->prop_ptr,"dataset",0);
+  if(val[0]) gr->dataset = atoi(val);
+
+  gr->gw = gr->gx2 - gr->gx1;
+  gr->gh = gr->gy2 - gr->gy1;
+
+  /* set margins */
+  tmp = gr->rw * 0.14;
+  gr->marginx = tmp < 30 ? 30 : tmp;
+  tmp = gr->rh * 0.14;
+  gr->marginy = tmp < 35 ? 35 : tmp;
+
+  /* calculate graph bounding box (container - margin) 
+   * This is the box where plot is done */
+  gr->x1 =  gr->rx1 + gr->marginx;
+  gr->x2 =  gr->rx2 - gr->marginx * 0.35; /* less space for right margin */
+  if(gr->digital) gr->y1 = gr->ry1 + gr->marginy * 0.4; /* less top space for digital graphs */
+  else gr->y1 =  gr->ry1 + gr->marginy;
+  gr->y2 =  gr->ry2 - gr->marginy;
+  gr->w = gr->x2 - gr->x1;
+  gr->h = gr->y2 - gr->y1;
+
+  /* label text size calculations */
+  gr->txtsizelab = gr->marginy * 0.009;
+  tmp =  gr->w * 0.00044;
+  if(tmp < gr->txtsizelab) gr->txtsizelab = tmp;
+  if(flags & 2)
+    gr->digtxtsizelab = 0.300 * fabs( gr->gh / gr->posh);
+  else
+    gr->digtxtsizelab = 0.400 * fabs( gr->gh / gr->posh);
+
+  /* x axis, y axis text sizes */
+  gr->txtsizey = gr->h / gr->divy * 0.009;
+  tmp = gr->marginx * 0.005;
+  if(tmp < gr->txtsizey) gr->txtsizey = tmp;
+  tmp = gr->marginy * 0.02;
+  if(tmp < gr->txtsizey) gr->txtsizey = tmp;
+
+  gr->txtsizex = gr->w / gr->divx * 0.0033;
+  tmp = gr->marginy * 0.0063;
+  if(tmp < gr->txtsizex) gr->txtsizex = tmp;
+
+  /* cache coefficients for faster graph --> xschem coord transformations */
+  gr->cx = gr->w / gr->gw;
+  gr->dx = gr->x1 - gr->gx1 * gr->cx;
+  gr->cy = -gr->h / gr->gh;
+  gr->dy = gr->y2 - gr->gy1 * gr->cy;
+  /* graph --> xschem transform for digital waves y axis */
+  gr->dcy = -gr->h / gr->posh;
+  gr->ddy = gr->y2 - gr->ypos1 * gr->dcy;
+
+  /* direct graph --> screen transform */
+  gr->scx = gr->cx * xctx->mooz;
+  gr->sdx = (gr->dx + xctx->xorigin) * xctx->mooz;
+  gr->scy = gr->cy * xctx->mooz;
+  gr->sdy = (gr->dy + xctx->yorigin) * xctx->mooz;
+  /* direct graph --> screen for digital waves y axis */
+  gr->dscy = gr->dcy * xctx->mooz;
+  gr->dsdy = (gr->ddy + xctx->yorigin) * xctx->mooz;
+}
+
+static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_color, Graph_ctx *gr)
+{
+
+  double xx = W_X(active_cursorx);
+  double tx1, ty1, tx2, ty2;
+  int tmp;
+  char tmpstr[1024];
+  double txtsize = gr->txtsizex;
+  int flip = (other_cursorx > active_cursorx) ? 0 : 1;
+  int xoffs = flip ? 2 : -2;
+
+  if(xx >= gr->x1 && xx <= gr->x2) {
+    drawline(cursor_color, NOW, xx, gr->ry1, xx, gr->ry2, 1);
+    if(gr->unitx != 1.0)
+       my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * xctx->graph_cursor2_x , gr->unitx_suffix);
+    else
+       my_snprintf(tmpstr, S(tmpstr), "%.4g",  xctx->graph_cursor2_x);
+    text_bbox(tmpstr, txtsize, txtsize, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, &tx1, &ty1, &tx2, &ty2, &tmp, &tmp);
+    filledrect(0, NOW,  tx1, ty1, tx2, ty2);
+    draw_string(cursor_color, NOW, tmpstr, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, txtsize, txtsize);
+  }
+}
+
+static void draw_cursor_difference(Graph_ctx *gr)
+{
+  int tmp; 
+  char tmpstr[1024];
+  double txtsize = gr->txtsizex;
+  double tx1, ty1, tx2, ty2;
+  double aa = W_X(xctx->graph_cursor1_x);
+  double a = CLIP(aa, gr->x1, gr->x2);
+  double bb = W_X(xctx->graph_cursor2_x);
+  double b = CLIP(bb, gr->x1, gr->x2);
+  double diff = fabs(b - a);
+  double diffw = fabs(xctx->graph_cursor2_x - xctx->graph_cursor1_x);
+  double xx = ( a + b ) * 0.5;
+  double yy = gr->ry2 - 1;
+  double tmpd;
+  double yline;
+  if(gr->unitx != 1.0)
+     my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * diffw , gr->unitx_suffix);
+  else
+     my_snprintf(tmpstr, S(tmpstr), "%.4g",  diffw);
+  text_bbox(tmpstr, txtsize, txtsize, 2, 0, 1, 0, xx, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &tmp);
+  if( tx2 - tx1 < diff ) {
+    draw_string(3, NOW, tmpstr, 2, 0, 1, 0, xx, yy, txtsize, txtsize);
+    if( a > b) {
+      tmpd = a; a = b; b = tmpd;
+    }
+    yline = (ty1 + ty2) * 0.5;
+    if( tx1 - a > 4.0) drawline(3, NOW, a + 2, yline, tx1 - 2, yline, 1);
+    if( b - tx2 > 4.0) drawline(3, NOW, tx2 + 2, yline, b - 2, yline, 1);
+  }
+}
+
+/* sweep variables on x-axis, node labels */
+static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int sweep_idx,
+        int flags, const char *ntok, const char *stok, const char *bus_msb, Graph_ctx *gr)
+{
+  char tmpstr[1024];
+
+  /* clipping everything outside container area */
+  bbox(START, 0.0, 0.0, 0.0, 0.0);
+  bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+  bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+  /* draw sweep variable(s) on x-axis */
+  if(wcnt == 0 || (stok && stok[0])) {
+    if(xctx->graph_values) stok = xctx->graph_names[sweep_idx];
+    if(gr->unitx != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", stok ? stok : "" , gr->unitx_suffix);
+    else  my_snprintf(tmpstr, S(tmpstr), "%s", stok ? stok : "");
+    draw_string(wave_color, NOW, tmpstr, 2, 1, 0, 0,
+       gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry2-1, gr->txtsizelab, gr->txtsizelab);
+  }
+  /* draw node labels in graph */
+  if(bus_msb) {
+    if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", find_nth(ntok, ',', 1), gr->unity_suffix);
+    else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ',', 1));
+  } else {
+    if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", ntok, gr->unity_suffix);
+    else  my_snprintf(tmpstr, S(tmpstr), "%s", ntok);
+  }
+  if(gr->digital) {
+    double xt = gr->x1 - 10 * gr->txtsizelab;
+    double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
+    double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
+    double yt;
+    if(flags &2) 
+      yt = s1 * (double)(n_nodes - wcnt) * gr->gh - (gr->gy1 - gr->gh * 0.4) * s2;
+    else
+      yt = s1 * (double)(n_nodes - wcnt) * gr->gh - (gr->gy1 - gr->gh * 0.1) * s2;
+
+    if(yt <= gr->ypos2 && yt >= gr->ypos1) {
+      draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
+        xt, DW_Y(yt), gr->digtxtsizelab, gr->digtxtsizelab);
+    }
+  } else {
+    draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
+        gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry1, gr->txtsizelab, gr->txtsizelab);
+  }
+  bbox(END, 0.0, 0.0, 0.0, 0.0);
+}
+
+static void show_node_measures(int measure_p, double measure_x, double measure_prev_x,
+       const char *bus_msb, int wave_color, int idx, int *idx_arr,
+       int n_bits, int n_nodes, const char *ntok, int wcnt, Graph_ctx *gr)
+{
+  char tmpstr[1024];
+  /* show values of signals if cursor1 active */
+  if(measure_p >= 0) {
+    double yy1 = xctx->graph_values[idx][measure_p-1];
+    double diffy = xctx->graph_values[idx][measure_p] - yy1;
+    double diffx = measure_x - measure_prev_x;
+    double yy = yy1 + diffy / diffx * (xctx->graph_cursor1_x - measure_prev_x);
+    char *fmt1, *fmt2;
+   
+    if(SIGN0(gr->gy1) != SIGN0(gr->gy2) && fabs(yy) < 1e-4 * fabs(gr->gh)) yy = 0.0;
+    if(yy != 0.0  && fabs(yy * gr->unity) < 1.0e-3) {
+      fmt1="%.2e";
+      fmt2="%.2e%c";
+    } else {
+      fmt1="%.4g";
+      fmt2="%.4g%c";
+    }
+    /* draw node values in graph */
+    bbox(START, 0.0, 0.0, 0.0, 0.0);
+    bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+    bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+    if(!bus_msb) {
+      if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), fmt2, yy * gr->unity, gr->unity_suffix);
+      else  my_snprintf(tmpstr, S(tmpstr), fmt1, yy);
+    } else {
+      get_bus_value(n_bits, idx_arr, measure_p, tmpstr, gr->gy1, gr->gy2);
+    }
+    if(!bus_msb && !gr->digital) {
+      draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0, 
+         gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry1 + gr->txtsizelab * 60,
+          gr->txtsizelab * 0.8, gr->txtsizelab * 0.8);
+      dbg(1, "node: %s, x=%g, value=%g\n", ntok, measure_x, yy);
+    }
+    else if(gr->digital) {
+      double xt = gr->x1 - 10 * gr->txtsizelab;
+      double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
+      double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
+      double yt = s1 * (double)(n_nodes - wcnt) * gr->gh - (gr->gy1 - gr->gh * 0.4) * s2;
+      if(yt <= gr->ypos2 && yt >= gr->ypos1) {
+        draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
+           xt, DW_Y(yt) + gr->digtxtsizelab * 50, gr->digtxtsizelab * 0.8, gr->digtxtsizelab * 0.8);
+      }
+    }
+    bbox(END, 0.0, 0.0, 0.0, 0.0);
+  } /* if(measure_p >= 0) */
 }
 
 /* flags:
@@ -2078,137 +2303,28 @@ static void draw_graph_grid(
  * 4: draw x-cursor2
  * 8: all drawing, if not set do only XCopyArea / x-cursor if specified
  */
-void draw_graph(int c, int i, const int flags)
+void draw_graph(int i, const int flags, Graph_ctx *gr)
 {
-  /* container box */
-  double rx1, ry1, rx2, ry2, rw/*, rh */; 
-  double sx1, sy1, sx2, sy2; /* screen coordinates of above for clipping */
-  /* graph box (smaller due to margins) */
-  double x1, y1, x2, y2; 
-  /* graph coordinate, some defaults */
-  int digital = 0;
-  double wx1 = 0, wy1 = 0, wx2 = 1e-6, wy2 = 5, ypos1 = 0, ypos2 = 5;
-  double marginx = 20; /* will be recalculated later */
-  double marginy = 20; /* will be recalculated later */
-  /* coefficients for graph to container coordinate transformations W_X() and W_Y()*/
-  double cx, dx, cy, dy, scx, sdx, scy, sdy, dcy, ddy, dscy, dsdy;
-  int divx = 4;
-  int divy = 4;
-  int subdivx = 0;
-  int subdivy = 0;
-  double unitx = 1.0;
-  double unity = 1.0;
-  int unitx_suffix = ' '; /* 'n' or 'u' or 'M' or 'k' ... */
-  int unity_suffix = ' ';
   int wave_color = 5;
-  const char *val;
   char *node = NULL, *color = NULL, *sweep = NULL;
-  double txtsizelab, digtxtsizelab, txtsizex, tmp;
   int sweep_idx = 0;
   int n_nodes; /* number of variables to display in a single graph */
-  xRect *r = &xctx->rect[c][i];
-  char tmpstr[1024];
   char *saven, *savec, *saves, *nptr, *cptr, *sptr;
   const char *ntok, *ctok, *stok;
   char *bus_msb = NULL;
   int wcnt = 0, idx;
-  int dataset = -1; 
   int measure_p = -1;
-  double measure_xx;
+  double measure_x;
   double measure_prev_x;
-  
+  xRect *r = &xctx->rect[GRIDLAYER][i];
 
-  /* container (embedding rectangle) coordinates */
-  rx1 = r->x1;
-  ry1 = r->y1;
-  rx2 = r->x2;
-  ry2 = r->y2;
-  sx1=X_TO_SCREEN(rx1);
-  sy1=Y_TO_SCREEN(ry1);
-  sx2=X_TO_SCREEN(rx2);
-  sy2=Y_TO_SCREEN(ry2);
-  if(! rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&sx1,&sy1,&sx2,&sy2)) return;
-  rw = (rx2 - rx1);
-  /* rh = (ry2 -ry1); */
-  /* get variables to plot, x/y range, grid info etc */
-  val = get_tok_value(r->prop_ptr,"unitx",0);
-  unitx_suffix = val[0];
-  unitx = get_unit(val);
-  val = get_tok_value(r->prop_ptr,"unity",0);
-  unity_suffix = val[0];
-  unity = get_unit(val);
-  val = get_tok_value(r->prop_ptr,"subdivx",0);
-  if(val[0]) subdivx = atoi(val);
-  val = get_tok_value(r->prop_ptr,"subdivy",0);
-  if(val[0]) subdivy = atoi(val);
-  val = get_tok_value(r->prop_ptr,"divx",0);
-  if(val[0]) divx = atoi(val);
-  else divx = 1;
-  val = get_tok_value(r->prop_ptr,"divy",0);
-  if(val[0]) divy = atoi(val);
-  else divy = 1;
-  val = get_tok_value(r->prop_ptr,"x1",0);
-  if(val[0]) wx1 = atof(val);
-  val = get_tok_value(r->prop_ptr,"y1",0);
-  if(val[0]) wy1 = atof(val);
-  val = get_tok_value(r->prop_ptr,"x2",0);
-  if(val[0]) wx2 = atof(val);
-  val = get_tok_value(r->prop_ptr,"y2",0);
-  if(val[0]) wy2 = atof(val);
-  if(wx1 == wx2) wx2 += 1e-6;
-  if(wy1 == wy2) wy2 += 1.0;
-  val = get_tok_value(r->prop_ptr,"digital",0);
-  if(val[0]) digital = atoi(val);
-  if(digital) {
-    val = get_tok_value(r->prop_ptr,"ypos1",0);
-    if(val[0]) ypos1 = atof(val);
-    val = get_tok_value(r->prop_ptr,"ypos2",0);
-    if(val[0]) ypos2 = atof(val);
-    if(ypos2 == ypos1) ypos2 += 1.0;
-  }
-  /* plot single dataset */
-  val = get_tok_value(r->prop_ptr,"dataset",0);
-  if(val[0]) dataset = atoi(val);
-  /* this can not be done as a single dataset may have multiple sweep variable
-   * wraps to beginning as in multiple dc sims
-   * if(dataset >= xctx->graph_datasets) dataset =  xctx->graph_datasets - 1;
-  */
-
-  /* set margins */
-  calc_graph_area(c, i, digital, &x1, &y1, &x2, &y2, &marginx, &marginy);
-
-  txtsizelab = marginy * 0.009;
-  tmp =  (x2 - x1) * 0.00044;
-  if(tmp < txtsizelab) txtsizelab = tmp;
-  if(flags & 2)
-    digtxtsizelab = 0.300 * fabs( (wy2 - wy1) / (ypos2 - ypos1));
-  else
-    digtxtsizelab = 0.400 * fabs( (wy2 - wy1) / (ypos2 - ypos1));
-  /* cache coefficients for faster graph --> xschem coord transformations */
-  cx = (x2 - x1) / (wx2 - wx1);
-  dx = x1 - wx1 * cx;
-  cy = (y1 - y2) / (wy2 - wy1);
-  dy = y2 - wy1 * cy;
-  /* graph --> xschem transform for digital waves y axis */
-  dcy = (y1 - y2) / (ypos2 - ypos1);
-  ddy = y2 - ypos1 * dcy;
-
-  /* direct graph --> screen transform */
-  scx = cx * xctx->mooz;
-  sdx = (dx + xctx->xorigin) * xctx->mooz;
-  scy = cy * xctx->mooz;
-  sdy = (dy + xctx->yorigin) * xctx->mooz;
-  /* direct graph --> screen for digital waves y axis */
-  dscy = dcy * xctx->mooz;
-  dsdy = (ddy + xctx->yorigin) * xctx->mooz;
-
+  if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
+      xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2)) return;
 
   /* draw stuff */
   if(flags & 8) {
     /* graph box, gridlines and axes */
-    draw_graph_grid(rx1, ry1, rx2, ry2, x1, y1, x2, y2, marginx, marginy,
-                    wx1, wy1, wx2, wy2, cx, cy, dx, dy,
-                    divx, divy, subdivx, subdivy, unitx, unity, digital, &txtsizex);
+    draw_graph_grid(gr);
                     
     /* get data to plot */
     my_strdup2(1389, &node, get_tok_value(r->prop_ptr,"node",0));
@@ -2234,45 +2350,7 @@ void draw_graph(int c, int i, const int flags)
           sweep_idx = 0;
         }
       }
-      /* clipping everything outside container area */
-      bbox(START, 0.0, 0.0, 0.0, 0.0);
-      bbox(ADD, rx1, ry1, rx2, ry2);
-      bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
-      /* draw sweep variable(s) on x-axis */
-      if(wcnt == 0 || (stok && stok[0])) {
-        if(xctx->graph_values) stok = xctx->graph_names[sweep_idx];
-        if(unitx != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", stok ? stok : "" , unitx_suffix);
-        else  my_snprintf(tmpstr, S(tmpstr), "%s", stok ? stok : "");
-        draw_string(wave_color, NOW, tmpstr, 2, 1, 0, 0,
-           rx1 + 2 + rw / n_nodes * wcnt, ry2-1, txtsizelab, txtsizelab);
-      }
-      /* draw node labels in graph */
-      if(bus_msb) {
-        if(unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", find_nth(ntok, ',', 1), unity_suffix);
-        else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ',', 1));
-      } else {
-        if(unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", ntok, unity_suffix);
-        else  my_snprintf(tmpstr, S(tmpstr), "%s", ntok);
-      }
-      if(digital) {
-        double xt = x1 - 10 * txtsizelab;
-        double deltag = wy2 - wy1;
-        double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
-        double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
-        double yt;
-        if(flags &2) 
-          yt = s1 * (double)(n_nodes - wcnt) * deltag - (wy1 - deltag * 0.4) * s2;
-        else
-          yt = s1 * (double)(n_nodes - wcnt) * deltag - (wy1 - deltag * 0.1) * s2;
-  
-        if(yt <= ypos2 && yt >= ypos1) {
-          draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0, xt, DW_Y(yt), digtxtsizelab, digtxtsizelab);
-        }
-      } else {
-        draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
-            rx1 + 2 + rw / n_nodes * wcnt, ry1, txtsizelab, txtsizelab);
-      }
-      bbox(END, 0.0, 0.0, 0.0, 0.0);
+      draw_graph_variables(wcnt, wave_color, n_nodes, sweep_idx, flags, ntok, stok, bus_msb, gr);
 
       /* quickly find index number of ntok variable to be plotted */
       if( (idx = get_raw_index(bus_msb ? bus_msb : ntok)) != -1 ) {
@@ -2285,19 +2363,18 @@ void draw_graph(int c, int i, const int flags)
         int n_bits = 1, wrap; 
         int *idx_arr = NULL;
         int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
-
         XPoint *point = NULL;
-        ofs = 0;
-        start = (wx1 <= wx2) ? wx1 : wx2;
-        end = (wx1 <= wx2) ? wx2 : wx1;
 
+        ofs = 0;
+        start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
+        end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
         if(bus_msb) {
           idx_arr = get_bus_idx_array(ntok, &n_bits); /* idx_arr allocated by function, must free! */
         }
-        /* loop through all datasets found in raw file */
         bbox(START, 0.0, 0.0, 0.0, 0.0);
-        bbox(ADD,x1, y1, x2, y2);
+        bbox(ADD,gr->x1, gr->y1, gr->x2, gr->y2);
         bbox(SET, 0.0, 0.0, 0.0, 0.0);
+        /* loop through all datasets found in raw file */
         for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
           double prev_x, prev_prev_x;
           int cnt=0;
@@ -2314,18 +2391,15 @@ void draw_graph(int c, int i, const int flags)
             if(first != -1) {                      /* there is something to plot ... */
               if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
                 wrap) {                          /* ... or sweep variable changed direction */
-                if(dataset == -1 || dataset == sweepvar_wrap) {
-                  /* clipping everything outside graph area */
-                  /* get y-axis points */
+                if(gr->dataset == -1 || gr->dataset == sweepvar_wrap) {
+                  /* plot graph */
                   if(bus_msb) {
-                    if(digital) {
-                      draw_graph_bus_points(ntok, n_bits, idx_arr, first, last, cx, dx, dcy, ddy, wave_color,
-                                   sweep_idx, wcnt, n_nodes, 
-                                   wy1, wy2, ypos1, ypos2);
+                    if(gr->digital) {
+                      draw_graph_bus_points(ntok, n_bits, idx_arr, first, last, wave_color,
+                                   sweep_idx, wcnt, n_nodes, gr);
                     }
                   } else {
-                    draw_graph_points(idx, first, last, scy, sdy, dscy, dsdy, point, wave_color,
-                                 digital, wcnt, n_nodes, wy1, wy2, ypos1, ypos2);
+                    draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr);
                   }
                 }
                 poly_npoints = 0;
@@ -2340,16 +2414,14 @@ void draw_graph(int c, int i, const int flags)
               if(first == -1) first = p;
               /* Build poly x array. Translate from graph coordinates to screen coords */
               point[poly_npoints].x = S_X(xx);
-              
-              if(dataset == -1 || dataset == sweepvar_wrap)
+              if(gr->dataset == -1 || gr->dataset == sweepvar_wrap)
               if(measure_p == -1 && flags & 2 && cnt) { /* cursor1: show measurements on nodes in graph */
                 if(SIGN(xx - xctx->graph_cursor1_x) != SIGN(prev_x - xctx->graph_cursor1_x)) {
                   measure_p = p;
-                  measure_xx = xx;
+                  measure_x = xx;
                   measure_prev_x = prev_x;
                 }
               } /* if(measure_p == -1 && flags & 2 && p > ofs) */
-
               last = p;
               poly_npoints++;
               cnt++;
@@ -2358,18 +2430,15 @@ void draw_graph(int c, int i, const int flags)
             prev_x = xx;
           } /* for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) */
           if(first != -1) {
-            /* clipping everything outside graph area */
-            if(dataset == -1 || dataset == sweepvar_wrap) {
-              /* get y-axis points */
+            if(gr->dataset == -1 || gr->dataset == sweepvar_wrap) {
+              /* plot graph */
               if(bus_msb) {
-                if(digital) {
-                  draw_graph_bus_points(ntok, n_bits, idx_arr, first, last, cx, dx, dcy, ddy, wave_color,
-                               sweep_idx, wcnt, n_nodes, 
-                               wy1, wy2, ypos1, ypos2);
+                if(gr->digital) {
+                  draw_graph_bus_points(ntok, n_bits, idx_arr, first, last, wave_color,
+                               sweep_idx, wcnt, n_nodes, gr);
                 }
               } else {
-                draw_graph_points(idx, first, last, scy, sdy, dscy, dsdy, point, wave_color,
-                             digital, wcnt, n_nodes, wy1, wy2, ypos1, ypos2);
+                draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr);
               }
             }
           }
@@ -2378,58 +2447,12 @@ void draw_graph(int c, int i, const int flags)
           sweepvar_wrap++;
         } /* for(dset...) */
         bbox(END, 0.0, 0.0, 0.0, 0.0);
-
-        /* show values of signals if cursor1 active */
-        if(measure_p >= 0) {
-          double yy1 = xctx->graph_values[idx][measure_p-1];
-          double dy = xctx->graph_values[idx][measure_p] - yy1;
-          double dx = measure_xx - measure_prev_x;
-          double yy = yy1 + dy / dx * (xctx->graph_cursor1_x - measure_prev_x);
-          char *fmt1, *fmt2;
-         
-          if(SIGN0(wy1) != SIGN0(wy2) && fabs(yy) < 1e-4 * fabs(wy2 - wy1)) yy = 0.0;
-          if(yy != 0.0  && fabs(yy * unity) < 1.0e-3) {
-            fmt1="%.2e";
-            fmt2="%.2e%c";
-          } else {
-            fmt1="%.4g";
-            fmt2="%.4g%c";
-          }
-          /* draw node values in graph */
-          bbox(START, 0.0, 0.0, 0.0, 0.0);
-          bbox(ADD, rx1, ry1, rx2, ry2);
-          bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
-          if(!bus_msb) {
-            if(unity != 1.0) my_snprintf(tmpstr, S(tmpstr), fmt2, yy * unity, unity_suffix);
-            else  my_snprintf(tmpstr, S(tmpstr), fmt1, yy);
-          } else {
-        
-            get_bus_value(n_bits, idx_arr, measure_p, tmpstr, wy1, wy2);
-          }
-          if(!bus_msb && !digital) {
-            draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0, 
-               rx1 + 2 + rw / n_nodes * wcnt, ry1 + txtsizelab * 60,
-                txtsizelab * 0.8, txtsizelab * 0.8);
-            dbg(1, "node: %s, x=%g, value=%g\n", ntok, measure_xx, yy);
-          }
-          else if(digital) {
-            double xt = x1 - 10 * txtsizelab;
-            double deltag = wy2 - wy1;
-            double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
-            double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
-            double yt = s1 * (double)(n_nodes - wcnt) * deltag - (wy1 - deltag * 0.4) * s2;
-            if(yt <= ypos2 && yt >= ypos1) {
-              draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
-                 xt, DW_Y(yt) + digtxtsizelab * 50, digtxtsizelab * 0.8, digtxtsizelab * 0.8);
-            }
-          }
-          bbox(END, 0.0, 0.0, 0.0, 0.0);
-        } /* if(measure_p >= 0) */
+        show_node_measures(measure_p, measure_x, measure_prev_x, bus_msb, wave_color, 
+            idx, idx_arr, n_bits, n_nodes, ntok, wcnt, gr);
 
         my_free(1403, &point);
         if(idx_arr) my_free(1455, &idx_arr);
       } /*  if( (idx = get_raw_index(bus_msb ? bus_msb : ntok)) != -1 ) */
-
       wcnt++;
       if(bus_msb) my_free(1453, &bus_msb);
     } /* while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) */
@@ -2437,77 +2460,17 @@ void draw_graph(int c, int i, const int flags)
     my_free(1392, &color);
     my_free(1408, &sweep);
   } /* if(flags & 8) */
-  if((flags & 2)  && (flags & 8)) { /* cursor1 */
-    double xx = W_X(xctx->graph_cursor1_x);
-    double tx1, ty1, tx2, ty2;
-    int tmp;
-    double txtsize = txtsizex;
 
-    int flip = (xctx->graph_cursor2_x > xctx->graph_cursor1_x) ? 0 : 1;
-    int xoffs = flip ? 2 : -2;
-    if(xx >= x1 && xx <= x2) {
-      drawline(1, NOW, xx, ry1, xx, ry2, 1);
-      if(unitx != 1.0)
-         my_snprintf(tmpstr, S(tmpstr), "%.4g%c", unitx * xctx->graph_cursor1_x , unitx_suffix);
-      else
-         my_snprintf(tmpstr, S(tmpstr), "%.4g",  xctx->graph_cursor1_x);
-      text_bbox(tmpstr, txtsize, txtsize, 2, flip, 0, 0, xx + xoffs, ry2-1, &tx1, &ty1, &tx2, &ty2, &tmp, &tmp);
-      filledrect(0, NOW,  tx1, ty1, tx2, ty2);
-      draw_string(1, NOW, tmpstr, 2, flip, 0, 0, xx + xoffs, ry2-1, txtsize, txtsize);
-    }
-  }
-  if((flags & 4)  && (flags & 8)) { /* cursor2 */
-    double xx = W_X(xctx->graph_cursor2_x);
-    double tx1, ty1, tx2, ty2;
-    int tmp;
-    double txtsize = txtsizex;
-    int flip = (xctx->graph_cursor2_x > xctx->graph_cursor1_x) ? 1 : 0;
-    int xoffs = flip ? 2 : -2;
+  /* cursor1 */
+  if((flags & 2)  && (flags & 8)) draw_cursor(xctx->graph_cursor1_x, xctx->graph_cursor2_x, 1, gr);
+  /* cursor2 */
+  if((flags & 4)  && (flags & 8)) draw_cursor(xctx->graph_cursor2_x, xctx->graph_cursor1_x, 3, gr);
+  /* difference between cursors */
+  if((flags & 2) && (flags & 4) && (flags & 8)) draw_cursor_difference(gr);
 
-    if(xx >= x1 && xx <= x2) {
-      drawline(3, NOW, xx, ry1, xx, ry2, 1);
-      if(unitx != 1.0)
-         my_snprintf(tmpstr, S(tmpstr), "%.4g%c", unitx * xctx->graph_cursor2_x , unitx_suffix);
-      else
-         my_snprintf(tmpstr, S(tmpstr), "%.4g",  xctx->graph_cursor2_x);
-      text_bbox(tmpstr, txtsize, txtsize, 2, flip, 0, 0, xx + xoffs, ry2-1, &tx1, &ty1, &tx2, &ty2, &tmp, &tmp);
-      filledrect(0, NOW,  tx1, ty1, tx2, ty2);
-      draw_string(3, NOW, tmpstr, 2, flip, 0, 0, xx + xoffs, ry2-1, txtsize, txtsize);
-
-    }
-  }
-  if((flags & 2) && (flags & 4) && (flags & 8)) { /* difference between cursors */
-    int tmp;
-    double txtsize = txtsizex;
-    double tx1, ty1, tx2, ty2;
-    double aa = W_X(xctx->graph_cursor1_x);
-    double a = CLIP(aa, x1, x2);
-    double bb = W_X(xctx->graph_cursor2_x);
-    double b = CLIP(bb, x1, x2);
-    double diff = fabs(b - a);
-    double diffw = fabs(xctx->graph_cursor2_x - xctx->graph_cursor1_x);
-    double xx = ( a + b ) * 0.5;
-    double yy = ry2 - 1;
-    double tmpd;
-    double yline;
-    if(unitx != 1.0)
-       my_snprintf(tmpstr, S(tmpstr), "%.4g%c", unitx * diffw , unitx_suffix);
-    else
-       my_snprintf(tmpstr, S(tmpstr), "%.4g",  diffw);
-    text_bbox(tmpstr, txtsize, txtsize, 2, 0, 1, 0, xx, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &tmp);
-    if( tx2 - tx1 < diff ) {
-      draw_string(3, NOW, tmpstr, 2, 0, 1, 0, xx, yy, txtsize, txtsize);
-      if( a > b) {
-        tmpd = a; a = b; b = tmpd;
-      }
-      yline = (ty1 + ty2) * 0.5;
-      if( tx1 - a > 4.0) drawline(3, NOW, a + 2, yline, tx1 - 2, yline, 1);
-      if( b - tx2 > 4.0) drawline(3, NOW, tx2 + 2, yline, b - 2, yline, 1);
-    }
-  }
   if(flags & 1) { /* copy save buffer to screen */
     bbox(START, 0.0, 0.0, 0.0, 0.0);
-    bbox(ADD, rx1, ry1, rx2, ry2);
+    bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
     bbox(SET, 0.0, 0.0, 0.0, 0.0);
     if(!xctx->draw_window) {
       XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
@@ -2522,7 +2485,7 @@ void draw_graph(int c, int i, const int flags)
  */
 void draw_graph_all(int flags)
 {
-  int c, i, sch_loaded, hide_graphs;
+  int  i, sch_loaded, hide_graphs;
   int bbox_set = 0;
   const char *tmp;
   int save_bbx1, save_bby1, save_bbx2, save_bby2;
@@ -2545,12 +2508,12 @@ void draw_graph_all(int flags)
     cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     #endif
-    c = GRIDLAYER; /* only rectangles on layer 2 (GRID) can embed graphs */
-    if(xctx->draw_single_layer==-1 || c == xctx->draw_single_layer) {
-      if(xctx->enable_layer[c]) for(i = 0; i < xctx->rects[c]; i++) {
-        xRect *r = &xctx->rect[c][i];
+    if(xctx->draw_single_layer==-1 || GRIDLAYER == xctx->draw_single_layer) {
+      if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; i++) {
+        xRect *r = &xctx->rect[GRIDLAYER][i];
         if(r->flags & 1) {
-          draw_graph(c, i, flags); /* draw data in each graph box */
+          setup_graph_data(i, flags, &xctx->graph_struct);
+          draw_graph(i, flags, &xctx->graph_struct); /* draw data in each graph box */
         }
       }
     }

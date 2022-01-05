@@ -991,7 +991,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
  en_s = tclgetboolvar("enable_stretch");
  for(i=0;i<xctx->wires;i++)
  {
-  if(RECTINSIDE(xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, x1,y1,x2,y2))
+  if(RECT_INSIDE(xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, x1,y1,x2,y2))
   {
    xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
    sel ? select_wire(i,SELECTED, 1): select_wire(i,0, 1);
@@ -1022,7 +1022,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
   #if HAS_CAIRO==1
   if(customfont) cairo_restore(xctx->cairo_ctx);
   #endif
-  if(RECTINSIDE(xx1,yy1, xx2, yy2,x1,y1,x2,y2))
+  if(RECT_INSIDE(xx1,yy1, xx2, yy2,x1,y1,x2,y2))
   {
    xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
    sel ? select_text(i, SELECTED, 1): select_text(i, 0, 1);
@@ -1030,7 +1030,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
  }
  for(i=0;i<xctx->instances;i++)
  {
-  if(RECTINSIDE(xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2, x1,y1,x2,y2))
+  if(RECT_INSIDE(xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2, x1,y1,x2,y2))
   {
    xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
    sel ? select_element(i,SELECTED,1, 0): select_element(i,0,1, 0);
@@ -1070,7 +1070,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
   }
   for(i=0;i<xctx->lines[c];i++)
   {
-   if(RECTINSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1,xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2))
+   if(RECT_INSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1,xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2))
    {
     xctx->ui_state |= SELECTION;
     sel? select_line(c,i,SELECTED,1): select_line(c,i,0,1);
@@ -1097,7 +1097,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
     xb = x + r * cos((a+b) * XSCH_PI/180.);
     yb = y - r * sin((a+b) * XSCH_PI/180.);
     arc_bbox(x, y, r, a, b, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-    if(RECTINSIDE(tmp.x1, tmp.y1, tmp.x2, tmp.y2, x1,y1,x2,y2)) {
+    if(RECT_INSIDE(tmp.x1, tmp.y1, tmp.x2, tmp.y2, x1,y1,x2,y2)) {
       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
       sel? select_arc(c, i, SELECTED,1): select_arc(c, i, 0,1);
     }
@@ -1119,7 +1119,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
   }
   for(i=0;i<xctx->rects[c];i++)
   {
-   if(RECTINSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y1,xctx->rect[c][i].x2,xctx->rect[c][i].y2, x1,y1,x2,y2))
+   if(RECT_INSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y1,xctx->rect[c][i].x2,xctx->rect[c][i].y2, x1,y1,x2,y2))
    {
     xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
     sel? select_box(c,i, SELECTED, 1): select_box(c,i, 0, 1);

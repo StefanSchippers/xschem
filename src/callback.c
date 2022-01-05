@@ -167,13 +167,6 @@ void start_wire(double mx, double my)
 }
 
 /* process user input (arrow keys for now) when only graphs are selected */
-#define W_X(x) (cx * (x) + dx)
-#define W_Y(y) (cy * (y) + dy)
-#define G_X(x) (((x) - dx) / cx)
-#define G_Y(y) (((y) - dy) / cy)
-/* for digital graphs (ypos1, ypos2 instead of wy1, wy2) */
-#define DG_Y(y) (((y) - ddy) / dcy)
-#define DW_Y(y) (dcy * (y) + ddy)
 
 /* xctx->graph_flags:
  *  1: 
@@ -187,18 +180,14 @@ void start_wire(double mx, double my)
 
 static int waves_callback(int event, int mx, int my, KeySym key, int button, int aux, int state)
 {
-  int digital = 0;
-  double wx1 = 0, wy1 = 0, wx2 = 1e-6, wy2 = 5, ypos1 = 0, ypos2 = 5;
-  double x1, y1, x2, y2, marginx, marginy;
-  double cx, dx, cy, dy, dcy, ddy;
-  int divx = 10, divy = 5;
-  const char *val;
+  Graph_ctx *gr;
   char s[30];
   int i, need_redraw = 0;
   double xx1, xx2, yy1, yy2;
+  double lock_gx1, lock_gx2;
   double delta_threshold = 0.25;
-  int dataset = 0;
   double zoom_m = 0.5;
+  xRect *r;
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
@@ -206,37 +195,16 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   #endif
 
+  gr = &xctx->graph_struct;
   for(i=0; i < xctx->rects[GRIDLAYER]; i++) {
     /* process only graph boxes */
-    xRect *r;
     if( (xctx->ui_state & GRAPHPAN) && i != xctx->graph_master) continue;
     r = &xctx->rect[GRIDLAYER][i];
     if(!(r->flags & 1) ) continue;
     /* check if this is the master graph (the one containing the mouse pointer) */
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
     if( POINTINSIDE(xctx->mousex, xctx->mousey, r->x1, r->y1, r->x2, r->y2)) {
-      val = get_tok_value(r->prop_ptr,"x1",0);
-      if(val[0]) wx1 = atof(val);
-      else wx1 = 0;
-      val = get_tok_value(r->prop_ptr,"y1",0);
-      if(val[0]) wy1 = atof(val);
-      else wy1 = 0;
-      val = get_tok_value(r->prop_ptr,"x2",0);
-      if(val[0]) wx2 = atof(val);
-      else wx2 = 1e-6;
-      val = get_tok_value(r->prop_ptr,"y2",0);
-      if(val[0]) wy2 = atof(val);
-      else wy2 = 5;
-      if(wx1 == wx2) wx2 += 1e-6; /* avoid division by 0 */
-      if(wy1 == wy2) wy2 += 1.0;  /* avoid division by 0 */
-      val = get_tok_value(r->prop_ptr,"digital",0);
-      if(val[0]) digital = atoi(val);
-      else digital = 0;
-      calc_graph_area(GRIDLAYER, i, digital, &x1, &y1, &x2, &y2, &marginx, &marginy);
-      cx = (x2 - x1) / (wx2 - wx1);
-      dx = x1 - wx1 * cx;
-      cy = (y1 - y2) / (wy2 - wy1);
-      dy = y2 - wy1 * cy;
+      setup_graph_data(i, xctx->graph_flags, gr);
 
       /* move cursor1 */
       /* set cursor position from master graph x-axis */
@@ -250,19 +218,20 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       if(xctx->ui_state & GRAPHPAN) break; /* After GRAPHPAN only need to check Motion events for cursors */
 
-      if(xctx->mousex_snap < W_X(wx1)) {
+      if(xctx->mousex_snap < W_X(gr->gx1)) {
         xctx->graph_left = 1;
       } else {
         xctx->graph_left = 0;
       }
-      if(xctx->mousey_snap > W_Y(wy1)) {
+      if(xctx->mousey_snap > W_Y(gr->gy1)) {
         xctx->graph_bottom = 1;
       } else {
         xctx->graph_bottom = 0;
       }
       xctx->graph_master = i;
-      zoom_m = (xctx->mousex  - x1) / (x2 - x1);
-
+      zoom_m = (xctx->mousex  - gr->x1) / gr->w;
+      lock_gx1 = gr->gx1;
+      lock_gx2 = gr->gx2;
       /* dragging cursors when mouse is very close */
       if(event == ButtonPress && button == Button1) {
         if( (xctx->graph_flags & 2) && fabs(xctx->mousex - W_X(xctx->graph_cursor1_x)) < 10) {
@@ -308,76 +277,24 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     xctx->my_double_save = xctx->mousey_snap;
   }
 
-  /* lock x-axis to working graph when moving/zooming multiple graphs */
-  val = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"x1",0);
-  if(val[0]) wx1 = atof(val);
-  else wx1 = 0;
-  val = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"x2",0);
-  if(val[0]) wx2 = atof(val);
-  else wx2 = 1e-6;
-  if(wx1 == wx2) wx2 += 1e-6; /* avoid division by 0 */
-
   /* second loop: after having determined the master graph do the others */
   for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
-    xRect *r;
-    /* process only graph boxes */
-    r = &xctx->rect[GRIDLAYER][i];
-    if( !(r->flags & 1) ) continue;
-    val = get_tok_value(r->prop_ptr,"divx",0);
-    if(val[0]) divx = atoi(val);
-    else divx = 4;
-    val = get_tok_value(r->prop_ptr,"divy",0);
-    if(val[0]) divy = atoi(val);
-    else divy = 4;
-    val = get_tok_value(r->prop_ptr,"y1",0);
-    if(val[0]) wy1 = atof(val);
-    else wy1 = 0;
-    val = get_tok_value(r->prop_ptr,"y2",0);
-    if(val[0]) wy2 = atof(val);
-    else wy2 = 5;
-    if(wy1 == wy2) wy2 += 1.0;  /* avoid division by 0 */
-    val = get_tok_value(r->prop_ptr,"dataset",0);
-    if(val[0]) dataset = atoi(val);
-    else dataset = 0;
-    if(dataset >= xctx->graph_datasets) dataset =  xctx->graph_datasets - 1;
-    val = get_tok_value(r->prop_ptr,"digital",0);
-    if(val[0]) digital = atoi(val);
-    else digital = 0;
-    if(digital) {
-      val = get_tok_value(r->prop_ptr,"ypos1",0);
-      if(val[0]) ypos1 = atof(val);
-      else ypos1 = 0;
-      val = get_tok_value(r->prop_ptr,"ypos2",0);
-      if(val[0]) ypos2 = atof(val);
-      else ypos2 = 5;
-      if(ypos2 == ypos1) ypos2 += 1.0;
-    }
-    calc_graph_area(GRIDLAYER, i, digital, &x1, &y1, &x2, &y2, &marginx, &marginy);
-    /* cache coefficients for faster graph coord transformations */
-    cx = (x2 - x1) / (wx2 - wx1);
-    dx = x1 - wx1 * cx;
-    cy = (y1 - y2) / (wy2 - wy1);
-    dy = y2 - wy1 * cy;
-    /* graph --> xschem transform for digital waves y axis */
-    dcy = (y1 - y2) / (ypos2 - ypos1);
-    ddy = y2 - ypos1 * dcy;
-
-
+    setup_graph_data(i, xctx->graph_flags, gr);
     /* destroy / show measurement widget */
     if(i == xctx->graph_master) {
       if(xctx->graph_flags & 64) {
-        if( POINTINSIDE(xctx->mousex, xctx->mousey, x1, y1, x2, y2)) {
+        if( POINTINSIDE(xctx->mousex, xctx->mousey, gr->x1, gr->y1, gr->x2, gr->y2)) {
           char sx[100], sy[100];
           double yval;
-          if(digital) { 
-            double deltag = wy2 - wy1;
+          if(gr->digital) { 
+            double deltag = gr->gy2 - gr->gy1;
             double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
             double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
             double c = s1 * deltag;
             deltag = deltag * s1 / s2;
             yval=(DG_Y(xctx->mousey) - c) / s2;
-            yval=fmod(yval, deltag ) +  wy1;
-            if(yval > wy2 + deltag * (s1 + s2) * 0.5) yval -= deltag;
+            yval=fmod(yval, deltag ) +  gr->gy1;
+            if(yval > gr->gy2 + deltag * (s1 + s2) * 0.5) yval -= deltag;
           } else {
             yval = G_Y(xctx->mousey);
           }
@@ -391,10 +308,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
     }
-
-
-
-    dbg(1, "%g %g %g %g - %d %d\n", wx1, wy1, wx2, wy2, divx, divy);
+    dbg(1, "%g %g %g %g - %d %d\n", lock_gx1, gr->gy1, lock_gx2, gr->gy2, gr->divx, gr->divy);
     if( event == KeyPress || event == ButtonPress || event == MotionNotify ) {
       /* move cursor1 */
       if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
@@ -409,12 +323,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         double delta;
         if(xctx->graph_left) {
           if(i == xctx->graph_master) {
-            if(digital) {
-              delta = (ypos2 - ypos1);
+            if(gr->digital) {
+              delta = gr->posh;
               delta_threshold = 0.01;
-              if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(dcy * delta) * delta_threshold) {
-                yy1 = ypos1 + (xctx->my_double_save - xctx->mousey_snap) / dcy;
-                yy2 = ypos2 + (xctx->my_double_save - xctx->mousey_snap) / dcy;
+              if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(gr->dcy * delta) * delta_threshold) {
+                yy1 = gr->ypos1 + (xctx->my_double_save - xctx->mousey_snap) / gr->dcy;
+                yy2 = gr->ypos2 + (xctx->my_double_save - xctx->mousey_snap) / gr->dcy;
                 my_snprintf(s, S(s), "%g", yy1);
                 my_strdup(1424, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", s));
                 my_snprintf(s, S(s), "%g", yy2);
@@ -423,11 +337,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                 need_redraw = 1;
               }
             } else {
-              delta = (wy2 - wy1) / divy;
+              delta = gr->gh / gr->divy;
               delta_threshold = 0.01;
-              if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(cy * delta) * delta_threshold) {
-                yy1 = wy1 + (xctx->my_double_save - xctx->mousey_snap) / cy;
-                yy2 = wy2 + (xctx->my_double_save - xctx->mousey_snap) / cy;
+              if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(gr->cy * delta) * delta_threshold) {
+                yy1 = gr->gy1 + (xctx->my_double_save - xctx->mousey_snap) / gr->cy;
+                yy2 = gr->gy2 + (xctx->my_double_save - xctx->mousey_snap) / gr->cy;
                 my_snprintf(s, S(s), "%g", yy1);
                 my_strdup(1435, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
                 my_snprintf(s, S(s), "%g", yy2);
@@ -438,12 +352,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           }
         } else {
-          delta = (wx2 - wx1);
+          delta = gr->gw;
           delta_threshold = 0.01;
           if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(cx * delta) * delta_threshold) {
-              xx1 = wx1 + (xctx->mx_double_save - xctx->mousex_snap) / cx;
-              xx2 = wx2 + (xctx->mx_double_save - xctx->mousex_snap) / cx;
+            if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->cx * delta) * delta_threshold) {
+              xx1 = lock_gx1 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
+              xx2 = lock_gx2 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
               my_snprintf(s, S(s), "%g", xx1);
               my_strdup(1410, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
               my_snprintf(s, S(s), "%g", xx2);
@@ -452,7 +366,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           }
           /* update saved mouse position after processing all graphs */
-          if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(cx * delta) * delta_threshold) {
+          if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->cx * delta) * delta_threshold) {
             if(i >= xctx->rects[GRIDLAYER] - 1) {
               xctx->mx_double_save = xctx->mousex_snap;
               xctx->my_double_save = xctx->mousey_snap;
@@ -464,20 +378,20 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         double delta;
         if(xctx->graph_left) {
           if(i == xctx->graph_master) {
-            if(digital) {
-              delta = (ypos2 - ypos1) * 0.05;
-              yy1 = ypos1 + delta;
-              yy2 = ypos2 + delta;
+            if(gr->digital) {
+              delta = gr->posh * 0.05;
+              yy1 = gr->ypos1 + delta;
+              yy2 = gr->ypos2 + delta;
               my_snprintf(s, S(s), "%g", yy1);
               my_strdup(1456, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", s));
               my_snprintf(s, S(s), "%g", yy2);
               my_strdup(1457, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", s));
               need_redraw = 1;
             } else {
-              delta = (wy2 - wy1) / divy;
+              delta = gr->gh/ gr->divy;
               delta_threshold = 1.0;
-              yy1 = wy1 + delta * delta_threshold;
-              yy2 = wy2 + delta * delta_threshold;
+              yy1 = gr->gy1 + delta * delta_threshold;
+              yy2 = gr->gy2 + delta * delta_threshold;
               my_snprintf(s, S(s), "%g", yy1);
               my_strdup(1420, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
               my_snprintf(s, S(s), "%g", yy2);
@@ -487,10 +401,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         } else {
           if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            delta = (wx2 - wx1);
+            delta = gr->gw;
             delta_threshold = 0.05;
-            xx1 = wx1 - delta * delta_threshold;
-            xx2 = wx2 - delta * delta_threshold;
+            xx1 = lock_gx1 - delta * delta_threshold;
+            xx2 =lock_gx2 - delta * delta_threshold;
             my_snprintf(s, S(s), "%g", xx1);
             my_strdup(1428, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
             my_snprintf(s, S(s), "%g", xx2);
@@ -502,14 +416,14 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if(key == XK_Left) {
         double delta;
         if(xctx->graph_left) {
-          if(!digital && i == xctx->graph_master) {
+          if(!gr->digital && i == xctx->graph_master) {
             double m = G_Y(xctx->mousey);
-            double a = m - wy1;
-            double b = wy2 -m;
-            double delta = (wy2 - wy1);
+            double a = m - gr->gy1;
+            double b = gr->gy2 -m;
+            double delta = gr->gh;
             double var = delta * 0.2;
-            yy2 = wy2 + var * b / delta;
-            yy1 = wy1 - var * a / delta;
+            yy2 = gr->gy2 + var * b / delta;
+            yy1 = gr->gy1 - var * a / delta;
             my_snprintf(s, S(s), "%g", yy1);
             my_strdup(1451, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
             my_snprintf(s, S(s), "%g", yy2);
@@ -517,10 +431,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_redraw = 1;
           }
         } else {
-          delta = (wx2 - wx1);
+          delta = gr->gw;
           delta_threshold = 0.05;
-          xx1 = wx1 - delta * delta_threshold;
-          xx2 = wx2 - delta * delta_threshold;
+          xx1 = lock_gx1 - delta * delta_threshold;
+          xx2 = lock_gx2 - delta * delta_threshold;
           my_snprintf(s, S(s), "%g", xx1);
           my_strdup(1395, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
           my_snprintf(s, S(s), "%g", xx2);
@@ -532,20 +446,20 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         double delta;
         if(xctx->graph_left) {
           if(i == xctx->graph_master) {
-            if(digital) {
-              delta = (ypos2 - ypos1) * 0.05;
-              yy1 = ypos1 - delta;
-              yy2 = ypos2 - delta;
+            if(gr->digital) {
+              delta = gr->posh * 0.05;
+              yy1 = gr->ypos1 - delta;
+              yy2 = gr->ypos2 - delta;
               my_snprintf(s, S(s), "%g", yy1);
               my_strdup(1416, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", s));
               my_snprintf(s, S(s), "%g", yy2);
               my_strdup(1417, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", s));
               need_redraw = 1;
             } else {
-              delta = (wy2 - wy1) / divy;
+              delta = gr->gh / gr->divy;
               delta_threshold = 1.0;
-              yy1 = wy1 - delta * delta_threshold;
-              yy2 = wy2 - delta * delta_threshold;
+              yy1 = gr->gy1 - delta * delta_threshold;
+              yy2 = gr->gy2 - delta * delta_threshold;
               my_snprintf(s, S(s), "%g", yy1);
               my_strdup(1458, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
               my_snprintf(s, S(s), "%g", yy2);
@@ -555,10 +469,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         } else {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            delta = (wx2 - wx1);
+            delta = gr->gw;
             delta_threshold = 0.05;
-            xx1 = wx1 + delta * delta_threshold;
-            xx2 = wx2 + delta * delta_threshold;
+            xx1 = lock_gx1 + delta * delta_threshold;
+            xx2 = lock_gx2 + delta * delta_threshold;
             my_snprintf(s, S(s), "%g", xx1);
             my_strdup(1397, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
             my_snprintf(s, S(s), "%g", xx2);
@@ -570,14 +484,14 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if(key == XK_Right) {
         double delta;
         if(xctx->graph_left) {
-          if(!digital && i == xctx->graph_master) {
+          if(!gr->digital && i == xctx->graph_master) {
             double m = G_Y(xctx->mousey);
-            double a = m - wy1;
-            double b = wy2 -m;
-            double delta = (wy2 - wy1);
+            double a = m - gr->gy1;
+            double b = gr->gy2 -m;
+            double delta = gr->gh;
             double var = delta * 0.2;
-            yy2 = wy2 - var * b / delta;
-            yy1 = wy1 + var * a / delta;
+            yy2 = gr->gy2 - var * b / delta;
+            yy1 = gr->gy1 + var * a / delta;
             my_snprintf(s, S(s), "%g", yy1);
             my_strdup(1433, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
             my_snprintf(s, S(s), "%g", yy2);
@@ -585,10 +499,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_redraw = 1;
           }
         } else {
-          delta = (wx2 - wx1);
+          delta = gr->gw;
           delta_threshold = 0.05;
-          xx1 = wx1 + delta * delta_threshold;
-          xx2 = wx2 + delta * delta_threshold;
+          xx1 = lock_gx1 + delta * delta_threshold;
+          xx2 = lock_gx2 + delta * delta_threshold;
           my_snprintf(s, S(s), "%g", xx1);
           my_strdup(1430, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
           my_snprintf(s, S(s), "%g", xx2);
@@ -599,14 +513,14 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if(button == Button5 && (state & ShiftMask)) {
         if(xctx->graph_left) {
           if(i == xctx->graph_master) {
-            if(digital) {
+            if(gr->digital) {
               double m = DG_Y(xctx->mousey);
-              double a = m - ypos1;
-              double b = ypos2 -m;
-              double delta = (ypos2 - ypos1);
+              double a = m - gr->ypos1;
+              double b = gr->ypos2 -m;
+              double delta = gr->posh;
               double var = delta * 0.05;
-              yy2 = ypos2 + var * b / delta;
-              yy1 = ypos1 - var * a / delta;
+              yy2 = gr->ypos2 + var * b / delta;
+              yy1 = gr->ypos1 - var * a / delta;
               my_snprintf(s, S(s), "%g", yy1);
               my_strdup(1461, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", s));
               my_snprintf(s, S(s), "%g", yy2);
@@ -615,12 +529,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
             } else {
               double m = G_Y(xctx->mousey);
-              double a = m - wy1;
-              double b = wy2 -m;
-              double delta = (wy2 - wy1);
+              double a = m - gr->gy1;
+              double b = gr->gy2 -m;
+              double delta = (gr->gy2 - gr->gy1);
               double var = delta * 0.2;
-              yy2 = wy2 + var * b / delta;
-              yy1 = wy1 - var * a / delta;
+              yy2 = gr->gy2 + var * b / delta;
+              yy1 = gr->gy1 - var * a / delta;
               my_snprintf(s, S(s), "%g", yy1);
               my_strdup(1460, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
               my_snprintf(s, S(s), "%g", yy2);
@@ -630,9 +544,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         } else {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            double var = 0.2 * (wx2 -wx1);
-            xx2 = wx2 + var * (1 - zoom_m);
-            xx1 = wx1 - var * zoom_m;
+            double var = 0.2 * (lock_gx2 -lock_gx1);
+            xx2 = lock_gx2 + var * (1 - zoom_m);
+            xx1 = lock_gx1 - var * zoom_m;
             my_snprintf(s, S(s), "%g", xx1);
             my_strdup(1399, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
             my_snprintf(s, S(s), "%g", xx2);
@@ -644,9 +558,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if(key == XK_Down) {
         if(!xctx->graph_left) {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            double var = 0.2 * (wx2 -wx1);
-            xx2 = wx2 + var * (1 - zoom_m);
-            xx1 = wx1 - var * zoom_m;
+            double var = 0.2 * (lock_gx2 -lock_gx1);
+            xx2 = lock_gx2 + var * (1 - zoom_m);
+            xx1 = lock_gx1 - var * zoom_m;
             my_snprintf(s, S(s), "%g", xx1);
             my_strdup(1418, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
             my_snprintf(s, S(s), "%g", xx2);
@@ -658,14 +572,14 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if(button == Button4 && (state & ShiftMask)) {
         if(xctx->graph_left) {
           if(i == xctx->graph_master) {
-            if(digital) {
+            if(gr->digital) {
               double m = DG_Y(xctx->mousey);
-              double a = m - ypos1;
-              double b = ypos2 -m;
-              double delta = (ypos2 - ypos1);
+              double a = m - gr->ypos1;
+              double b = gr->ypos2 -m;
+              double delta = (gr->ypos2 - gr->ypos1);
               double var = delta * 0.05;
-              yy2 = ypos2 - var * b / delta;
-              yy1 = ypos1 + var * a / delta;
+              yy2 = gr->ypos2 - var * b / delta;
+              yy1 = gr->ypos1 + var * a / delta;
               my_snprintf(s, S(s), "%g", yy1);
               my_strdup(1447, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", s));
               my_snprintf(s, S(s), "%g", yy2);
@@ -673,12 +587,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               need_redraw = 1;
             } else {
               double m = G_Y(xctx->mousey);
-              double a = m - wy1;
-              double b = wy2 -m;
-              double delta = (wy2 - wy1);
+              double a = m - gr->gy1;
+              double b = gr->gy2 -m;
+              double delta = (gr->gy2 - gr->gy1);
               double var = delta * 0.2;
-              yy2 = wy2 - var * b / delta;
-              yy1 = wy1 + var * a / delta;
+              yy2 = gr->gy2 - var * b / delta;
+              yy1 = gr->gy1 + var * a / delta;
               my_snprintf(s, S(s), "%g", yy1);
               my_strdup(1419, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
               my_snprintf(s, S(s), "%g", yy2);
@@ -688,9 +602,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         } else {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            double var = 0.2 * (wx2 - wx1);;
-            xx2 = wx2 - var * (1 - zoom_m);
-            xx1 = wx1 + var * zoom_m;
+            double var = 0.2 * (lock_gx2 - lock_gx1);;
+            xx2 = lock_gx2 - var * (1 - zoom_m);
+            xx1 = lock_gx1 + var * zoom_m;
             my_snprintf(s, S(s), "%g", xx1);
             my_strdup(1449, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
             my_snprintf(s, S(s), "%g", xx2);
@@ -702,9 +616,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if(key == XK_Up) {
         if(!xctx->graph_left) {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            double var = 0.2 * (wx2 -wx1);
-            xx2 = wx2 - var * (1 - zoom_m);
-            xx1 = wx1 + var * zoom_m;
+            double var = 0.2 * (lock_gx2 -lock_gx1);
+            xx2 = lock_gx2 - var * (1 - zoom_m);
+            xx1 = lock_gx1 + var * zoom_m;
             my_snprintf(s, S(s), "%g", xx1);
             my_strdup(1445, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
             my_snprintf(s, S(s), "%g", xx2);
@@ -728,8 +642,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                 nptr = NULL;
                 j = get_raw_index(ntok);
                 if(j >= 0) {
-                  for(i = 0; i < xctx->graph_npoints[dataset]; i++) {
-                    v = get_raw_value(dataset, j, i);
+                  for(i = 0; i < xctx->graph_npoints[gr->dataset]; i++) {
+                    v = get_raw_value(gr->dataset, j, i);
                     if(first || v < min) {min = v; first = 0;}
                     if(first || v > max) {max = v; first = 0;}
                   } 
@@ -747,8 +661,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           } else {
             if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-              xx1 = get_raw_value(dataset, 0, 0);
-              xx2 = get_raw_value(dataset, 0, xctx->graph_npoints[dataset] -1);
+              xx1 = get_raw_value(gr->dataset, 0, 0);
+              xx2 = get_raw_value(gr->dataset, 0, xctx->graph_npoints[gr->dataset] -1);
               my_snprintf(s, S(s), "%g", xx1);
               my_strdup(1409, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
               my_snprintf(s, S(s), "%g", xx2);
@@ -763,11 +677,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
         if(xctx->graph_values) {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            delta = wx2 - wx1;
-            wwx1 =  get_raw_value(dataset, 0, 0);
-            wwx2 = get_raw_value(dataset, 0, xctx->graph_npoints[dataset] - 1);
-            ccx = (x2 - x1) / (wwx2 - wwx1);
-            ddx = x1 - wwx1 * ccx;
+            delta = lock_gx2 - lock_gx1;
+            wwx1 =  get_raw_value(gr->dataset, 0, 0);
+            wwx2 = get_raw_value(gr->dataset, 0, xctx->graph_npoints[gr->dataset] - 1);
+            ccx = (gr->x2 - gr->x1) / (wwx2 - wwx1);
+            ddx = gr->x1 - wwx1 * ccx;
             p = (xctx->mousex_snap - ddx) / ccx;
             xx1 = p - delta / 2.0;
             xx2 = p + delta / 2.0;
@@ -802,7 +716,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
     } /* else if( event == ButtonRelease) */
     if(need_redraw) {
-      draw_graph(GRIDLAYER, i, 1 + 8 + (xctx->graph_flags & 6) ); /* draw data in each graph box */
+      draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr); /* draw data in each graph box */
     }
   } /* for(i=0; i< xctx->rects[GRIDLAYER]; i++ */
   draw_selection(xctx->gc[SELLAYER], 0);
@@ -2133,33 +2047,6 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(0 && key=='|' && (state & ControlMask))      /* testmode */
    {
-    double w, x1, y1, x2, y2;
-    int i;
-    int snap=100;
-
-    clear_drawing();
-    for(i=0;i<5000; i++) {
-      w = (1+my_round(rand()%1200/snap))*snap;
-      x1 = 40000+my_round(rand()%30000/snap)*snap;
-      y1 = 40000+my_round(rand()%30000/snap)*snap;
-      x2=x1+w;
-      y2=y1;
-      ORDER(x1, y1, x2, y2);
-      storeobject(-1, x1, y1, x2, y2 ,WIRE,0,0,NULL);
-    }
-    for(i=0;i<5000; i++) {
-      w = (1+my_round(rand()%1200/snap))*snap;
-      x1 = 40000+my_round(rand()%30000/snap)*snap;
-      y1 = 40000+my_round(rand()%30000/snap)*snap;
-      x2=x1;
-      y2=y1+w;
-      ORDER(x1, y1, x2, y2);
-      storeobject(-1, x1, y1, x2, y2, WIRE,0,0,NULL);
-    }
-    xctx->prep_net_structs = 0;
-    xctx->prep_hi_structs = 0;
-    xctx->prep_hash_wires = 0;
-    zoom_full(1, 0, 1, 0.97);
     break;
    }
 

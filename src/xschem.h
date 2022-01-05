@@ -273,8 +273,14 @@ extern char win_temp_dir[PATH_MAX];
 #define POINTINSIDE(xa,ya,x1,y1,x2,y2)  \
  (xa>=x1 && xa<=x2 && ya>=y1 && ya<=y2 )
 
-#define RECTINSIDE(xa,ya,xb,yb,x1,y1,x2,y2)  \
+#define RECT_INSIDE(xa,ya,xb,yb,x1,y1,x2,y2)  \
  (xa>=x1 && xa<=x2 && xb>=x1 && xb<=x2 && ya>=y1 && ya<=y2 && yb>=y1 && yb<=y2 )
+
+#define RECT_OUTSIDE(xa,ya,xb,yb,x1,y1,x2,y2)  \
+( (xa) > (x2) || (xb) < (x1) || (ya) > (y2) || (yb) < (y1) )
+
+
+
 
 #define ROTATION(rot, flip, x0, y0, x, y, rx, ry) \
 { \
@@ -321,6 +327,25 @@ extern char win_temp_dir[PATH_MAX];
 #define Y_TO_SCREEN(y) ( ((y) + xctx->yorigin) * xctx->mooz )
 #define X_TO_XSCHEM(x) ( (x) * xctx->zoom - xctx->xorigin )
 #define Y_TO_XSCHEM(y) ( (y) * xctx->zoom - xctx->yorigin )
+
+/* coordinate transformations graph to xschem */
+#define W_X(x) (gr->cx * (x) + gr->dx)
+#define W_Y(y) (gr->cy * (y) + gr->dy)
+/* for digital waves */
+#define DW_Y(y) (gr->dcy * (y) + gr->ddy)
+
+/* coordinate transformations graph to screen */
+#define S_X(x) (gr->scx * (x) + gr->sdx)
+#define S_Y(y) (gr->scy * (y) + gr->sdy)
+/* for digital waves */
+#define DS_Y(y) (gr->dscy * (y) + gr->dsdy)
+
+/* inverse graph transforms */
+#define G_X(x) (((x) - gr->dx) / gr->cx)
+#define G_Y(y) (((y) - gr->dy) / gr->cy)
+/* for digital graphs (gr->ypos1, gr->ypos2 instead of gr->gy1, gr->gy2) */
+#define DG_Y(y) (((y) - gr->ddy) / gr->dcy)
+
 
 /* given a dest_string of size 'size', allocate space to make sure it can
  * hold 'add' characters */
@@ -645,17 +670,23 @@ typedef struct
 
 /* will be used some day? <<<< */
 typedef struct {
-  /* container box */
-  /* graph box (smaller tha rect container due to margins) */
-  double x1, y1, x2, y2, w, h;
-  /* graph coordinate, some defaults */
   double digital;
-  double wx1, wy1, wx2, wy2;
+  double rx1, ry1, rx2, ry2, rw, rh; /* container rectangle */
+  double sx1, sy1, sx2, sy2; /* screen coordinates of above */
+  /* graph box (smaller than rect container due to margins) */
+  double x1, y1, x2, y2, w, h;
+  double gx1, gy1, gx2, gy2, gw, gh;
+  /* y area range for digital graphs */
+  double ypos1, ypos2, posh;
   double marginx; /* will be recalculated later */
   double marginy; /* will be recalculated later */
   /* coefficients for graph to container coordinate transformations W_X() and W_Y()*/
   double cx, dx, cy, dy;
-  double dash_sizex, dash_sizey;
+  /* y-axis transform for digital graphs */
+  double dcy, ddy;
+  /* direct graph->screen transform */
+  double scx, sdx, scy, sdy;
+  double dscy, dsdy;
   int divx;
   int divy;
   int subdivx;
@@ -664,7 +695,7 @@ typedef struct {
   double unity;
   int unitx_suffix; /* 'n' or 'u' or 'M' or 'k' ... */
   int unity_suffix;
-  double txtsizelab, txtsizey, txtsizex;
+  double txtsizelab, digtxtsizelab, txtsizey, txtsizex;
   int dataset;
 } Graph_ctx;
 
@@ -827,6 +858,8 @@ typedef struct {
   /* in_memory_undo */
   Undo_slot uslot[MAX_UNDO];
   int undo_initialized;
+  /* graph context struct */
+  Graph_ctx graph_struct;
   /* read raw files (draw.c) */
   char **graph_names;
   SPICE_DATA **graph_values;
@@ -961,10 +994,9 @@ extern Xschem_ctx *xctx;
 extern int get_raw_index(const char *node);
 extern double get_raw_value(int dataset, int idx, int point);
 extern int schematic_waves_loaded(void);
-extern void calc_graph_area(int c, int i, int digital, double *x1, double *y1,double *x2, double *y2,
-             double *marginx,double *marginy);
-extern void draw_graph(int c, int i, int flags);
+extern void draw_graph(int i, int flags, Graph_ctx *gr);
 extern void draw_graph_all(int flags);
+extern void setup_graph_data(int i, const int flags, Graph_ctx *gr);
 extern void free_rawfile(int dr);
 extern int read_rawfile(const char *f);
 extern double timer(int start);
