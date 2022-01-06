@@ -1776,7 +1776,6 @@ void get_bus_value(int n_bits, int hex_digits, SPICE_DATA **idx_arr, int p, char
   int bin = 0;
   int hex = 0;
   char hexstr[] = "084C2A6E195D37BF"; /* mirrored (Left/right) hex */
-  register SPICE_DATA ** gv = xctx->graph_values;
 
   for(i = n_bits - 1; i >= 0; i--) {
     val = idx_arr[i][p];
@@ -2371,6 +2370,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         SPICE_DATA **idx_arr = NULL;
         int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
         XPoint *point = NULL;
+        int dataset = gr->dataset;
+        int digital = gr->digital;
 
         ofs = 0;
         start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
@@ -2385,8 +2386,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
           double prev_x, prev_prev_x;
           int cnt=0;
-          int dataset = gr->dataset;
-          int digital = gr->digital;
           register SPICE_DATA *gv = xctx->graph_values[sweep_idx];
   
           first = last = -1;
@@ -2425,14 +2424,15 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
               if(first == -1) first = p;
               /* Build poly x array. Translate from graph coordinates to screen coords */
               point[poly_npoints].x = S_X(xx);
-              if(dataset == -1 || dataset == sweepvar_wrap)
-              if(measure_p == -1 && flags & 2 && cnt) { /* cursor1: show measurements on nodes in graph */
-                if(SIGN(xx - xctx->graph_cursor1_x) != SIGN(prev_x - xctx->graph_cursor1_x)) {
-                  measure_p = p;
-                  measure_x = xx;
-                  measure_prev_x = prev_x;
-                }
-              } /* if(measure_p == -1 && flags & 2 && p > ofs) */
+              if(dataset == -1 || dataset == sweepvar_wrap) {
+                if(measure_p == -1 && flags & 2 && cnt) { /* cursor1: show measurements on nodes in graph */
+                  if(SIGN(xx - xctx->graph_cursor1_x) != SIGN(prev_x - xctx->graph_cursor1_x)) {
+                    measure_p = p;
+                    measure_x = xx;
+                    measure_prev_x = prev_x;
+                  }
+                } /* if(measure_p == -1 && flags & 2 && p > ofs) */
+              } /* if(dataset == -1 || dataset == sweepvar_wrap) */
               last = p;
               poly_npoints++;
               cnt++;
