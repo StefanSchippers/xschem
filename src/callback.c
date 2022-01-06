@@ -26,7 +26,8 @@ static int waves_selected(int event, int key, int state, int button)
 {
   int i;
   int is_inside = 0, skip = 0;
-  if(xctx->ui_state & (STARTPAN2 | STARTSELECT | STARTMOVE | STARTCOPY)) skip = 1;
+  static int excl = STARTZOOM | STARTRECT | STARTLINE | STARTWIRE | STARTPAN2 | STARTSELECT | STARTMOVE | STARTCOPY;
+  if(xctx->ui_state & excl) skip = 1;
   if(state & Mod1Mask) skip = 1;
   if(event == MotionNotify && (state & Button2Mask)) skip = 1;
   if(event == ButtonPress && button == Button2) skip = 1;

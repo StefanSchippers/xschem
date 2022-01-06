@@ -2154,7 +2154,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
   char tmpstr[1024];
   double txtsize = gr->txtsizex;
   int flip = (other_cursorx > active_cursorx) ? 0 : 1;
-  int xoffs = flip ? 2 : -2;
+  int xoffs = flip ? 3 : -3;
 
   if(xx >= gr->x1 && xx <= gr->x2) {
     drawline(cursor_color, NOW, xx, gr->ry1, xx, gr->ry2, 1);
@@ -2466,24 +2466,24 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
     my_free(1392, &color);
     my_free(1408, &sweep);
   } /* if(flags & 8) */
-
-  /* cursor1 */
-  if((flags & 2)  && (flags & 8)) draw_cursor(xctx->graph_cursor1_x, xctx->graph_cursor2_x, 1, gr);
-  /* cursor2 */
-  if((flags & 4)  && (flags & 8)) draw_cursor(xctx->graph_cursor2_x, xctx->graph_cursor1_x, 3, gr);
-  /* difference between cursors */
-  if((flags & 2) && (flags & 4) && (flags & 8)) draw_cursor_difference(gr);
-
+  bbox(START, 0.0, 0.0, 0.0, 0.0);
+  bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+  bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+  if(flags & 8) {
+    /* cursor1 */
+    if((flags & 2)) draw_cursor(xctx->graph_cursor1_x, xctx->graph_cursor2_x, 1, gr);
+    /* cursor2 */
+    if((flags & 4)) draw_cursor(xctx->graph_cursor2_x, xctx->graph_cursor1_x, 3, gr);
+    /* difference between cursors */
+    if((flags & 2) && (flags & 4)) draw_cursor_difference(gr);
+  }
   if(flags & 1) { /* copy save buffer to screen */
-    bbox(START, 0.0, 0.0, 0.0, 0.0);
-    bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
-    bbox(SET, 0.0, 0.0, 0.0, 0.0);
     if(!xctx->draw_window) {
       XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
          xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
-    bbox(END, 0.0, 0.0, 0.0, 0.0);
   }
+  bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
 /* flags:
