@@ -1768,32 +1768,35 @@ int schematic_waves_loaded(void)
   return 0;
 }
 
-static int get_bus_value(int n_bits, int hex_digits, int *idx_arr, int p, char *busval, double vth)
+void get_bus_value(int n_bits, int hex_digits, int *idx_arr, int p, char *busval, double vth)
 {
   double val;
   int i;
   int hexdigit = 0;
   int bin = 0;
   int hex = 0;
+  char hexstr[] = "084C2A6E195D37BF"; /* mirrored (Left/right) hex */
+  register SPICE_DATA ** gv = xctx->graph_values;
 
   for(i = n_bits - 1; i >= 0; i--) {
-    val = xctx->graph_values[idx_arr[i]][p];
-    hexdigit = hexdigit + ((val > vth) << bin);
-    if( bin >= 3) {
+    val = gv[idx_arr[i]][p];
+    hexdigit |= (val > vth);
+    if(bin < 3) {
+      bin++;
+      hexdigit <<= 1;
+    } else {
       hex++;
-      busval[hex_digits - hex] = (hexdigit < 10) ? '0' + hexdigit : 'A' + hexdigit - 10;
+      busval[hex_digits - hex] = hexstr[hexdigit]; 
       hexdigit = 0;
       bin = 0;
-    } else bin++;
+    }
   }
   if(bin) {
     hex++;
-    busval[hex_digits - hex] = (hexdigit < 10) ? '0' + hexdigit : 'A' + hexdigit - 10;
+    busval[hex_digits - hex] = hexstr[hexdigit];
     hexdigit = 0;
   }
-  
   busval[hex_digits] = '\0';
-  return hex_digits;
 } 
 
 
@@ -1828,7 +1831,7 @@ static int *get_bus_idx_array(const char *ntok, int *n_bits)
 static void draw_graph_bus_points(const char *ntok, int n_bits, int *idx_arr, 
          int first, int last, int wave_col, int sweep_idx, int wcnt, int n_nodes, Graph_ctx *gr)
 {
-  int p, len;
+  int p;
   double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
   double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
   double c = (n_nodes - wcnt) * s1 * gr->gh - gr->gy1 * s2; /* trace baseline */
@@ -1851,11 +1854,11 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, int *idx_arr,
     for(p = first ; p <= last; p++) {
       /* calculate value of bus by adding all binary bits */
       /* hex_digits = */
-      len = get_bus_value(n_bits, hex_digits, idx_arr, p, busval, vth);
+      get_bus_value(n_bits, hex_digits, idx_arr, p, busval, vth);
       xval =  W_X(xctx->graph_values[sweep_idx][p]);
       /* used to draw bus value before 1st transition */
       if(p == first) {
-        my_strncpy(old_busval, busval, len+1);
+        my_strncpy(old_busval, busval, hex_digits+1);
         xval_old = xval;
       }
       if(p > first &&  strcmp(busval, old_busval)) {
@@ -1865,16 +1868,16 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, int *idx_arr,
         drawline(wave_col, NOW, xval-x_size, ylow,  xval+x_size, yhigh, 0);
         drawline(wave_col, NOW, xval-x_size, yhigh, xval+x_size, ylow, 0);
         /* draw hex bus value if there is enough room */
-        if(  fabs(xval - xval_old) > strlen(old_busval) * charwidth) {
+        if(  fabs(xval - xval_old) > hex_digits * charwidth) {
           draw_string(wave_col, NOW, old_busval, 2, 0, 1, 0, (xval + xval_old) * 0.5,
                       yhigh, labsize, labsize);
         }
-        my_strncpy(old_busval, busval, strlen(busval)+1);
+        my_strncpy(old_busval, busval, hex_digits + 1);
         xval_old = xval;
       } /* if(p > first &&  busval != old_busval) */
     } /* for(p = first ; p < last; p++) */
     /* draw hex bus value after last transition */
-    if(  fabs(xval - xval_old) > strlen(old_busval) * charwidth) {
+    if(  fabs(xval - xval_old) > hex_digits * charwidth) {
       draw_string(wave_col, NOW, old_busval, 2, 0, 1, 0, (xval + xval_old) * 0.5,
                   yhigh, labsize, labsize);
     }
@@ -1885,22 +1888,25 @@ static void draw_graph_points(int v, int first, int last,
          XPoint *point, int wave_col, int wcnt, int n_nodes, Graph_ctx *gr)
 {
   int p;
-  double yy;
+  register double yy;
+  register int digital;
   int poly_npoints = 0;
   double s1;
   double s2;
   double c, c1;
+  register SPICE_DATA *gv = xctx->graph_values[v];
 
-  if(gr->digital) {
+  digital = gr->digital;
+  if(digital) {
     s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
     s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
     c = (n_nodes - wcnt) * s1 * gr->gh - gr->gy1 * s2; /* trace baseline */
     c1 = c + gr->gh * 0.5 * s2; /* trace y-center, used for clipping */
   }
-  if( !gr->digital || (c1 >= gr->ypos1 && c1 <= gr->ypos2) ) {
+  if( !digital || (c1 >= gr->ypos1 && c1 <= gr->ypos2) ) {
     for(p = first ; p <= last; p++) {
-      yy = xctx->graph_values[v][p];
-      if(gr->digital) {
+      yy = gv[p];
+      if(digital) {
         yy = c + yy *s2;
         /* Build poly y array. Translate from graph coordinates to screen coordinates  */
         point[poly_npoints].y = CLIP(DS_Y(yy), xctx->areay1, xctx->areay2);
@@ -2379,6 +2385,10 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
           double prev_x, prev_prev_x;
           int cnt=0;
+          int dataset = gr->dataset;
+          int digital = gr->digital;
+          register SPICE_DATA *gv = xctx->graph_values[sweep_idx];
+  
           first = last = -1;
           poly_npoints = 0;
           my_realloc(1401, &point, xctx->graph_npoints[dset] * sizeof(XPoint));
@@ -2387,15 +2397,15 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
           prev_prev_x = prev_x = 0;
           last = ofs; 
           for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
-            xx = xctx->graph_values[sweep_idx][p];
+            xx = gv[p];
             wrap = (sweep_idx == 0 && cnt > 1 && SIGN(xx - prev_x) != SIGN(prev_x - prev_prev_x));
             if(first != -1) {                      /* there is something to plot ... */
               if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
                 wrap) {                          /* ... or sweep variable changed direction */
-                if(gr->dataset == -1 || gr->dataset == sweepvar_wrap) {
+                if(dataset == -1 || dataset == sweepvar_wrap) {
                   /* plot graph */
                   if(bus_msb) {
-                    if(gr->digital) {
+                    if(digital) {
                       draw_graph_bus_points(ntok, n_bits, idx_arr, first, last, wave_color,
                                    sweep_idx, wcnt, n_nodes, gr);
                     }
@@ -2415,7 +2425,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
               if(first == -1) first = p;
               /* Build poly x array. Translate from graph coordinates to screen coords */
               point[poly_npoints].x = S_X(xx);
-              if(gr->dataset == -1 || gr->dataset == sweepvar_wrap)
+              if(dataset == -1 || dataset == sweepvar_wrap)
               if(measure_p == -1 && flags & 2 && cnt) { /* cursor1: show measurements on nodes in graph */
                 if(SIGN(xx - xctx->graph_cursor1_x) != SIGN(prev_x - xctx->graph_cursor1_x)) {
                   measure_p = p;
@@ -2431,10 +2441,10 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
             prev_x = xx;
           } /* for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) */
           if(first != -1) {
-            if(gr->dataset == -1 || gr->dataset == sweepvar_wrap) {
+            if(dataset == -1 || dataset == sweepvar_wrap) {
               /* plot graph */
               if(bus_msb) {
-                if(gr->digital) {
+                if(digital) {
                   draw_graph_bus_points(ntok, n_bits, idx_arr, first, last, wave_color,
                                sweep_idx, wcnt, n_nodes, gr);
                 }
