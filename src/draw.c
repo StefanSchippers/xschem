@@ -2007,7 +2007,7 @@ static void draw_graph_grid(Graph_ctx *gr)
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
-void setup_graph_data(int i, const int flags, Graph_ctx *gr, int master)
+void setup_graph_data(int i, const int flags, Graph_ctx *gr)
 {
   double tmp;
   const char *val;
@@ -2025,11 +2025,6 @@ void setup_graph_data(int i, const int flags, Graph_ctx *gr, int master)
   if(val[0]) gr->gx2 = atof(val);
   if(gr->gx1 == gr->gx2) gr->gx2 += 1e-6;
   gr->gw = gr->gx2 - gr->gx1;
-  if(i == master) {
-    gr->master_gx1 = gr->gx1;
-    gr->master_gx2 = gr->gx2;
-    gr->master_gw = gr->gw;
-  }
   gr->gy1 = 0;
   gr->gy2 = 5;
   gr->dataset = -1; /* -1 means 'plot all datasets' */
@@ -2523,7 +2518,7 @@ void draw_graph_all(int flags)
       if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; i++) {
         xRect *r = &xctx->rect[GRIDLAYER][i];
         if(r->flags & 1) {
-          setup_graph_data(i, flags, &xctx->graph_struct, 0);
+          setup_graph_data(i, flags, &xctx->graph_struct);
           draw_graph(i, flags, &xctx->graph_struct); /* draw data in each graph box */
         }
       }

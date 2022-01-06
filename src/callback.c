@@ -182,6 +182,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 {
   Graph_ctx *gr;
   char s[30];
+  const char *val;
   int i, need_redraw = 0, dataset = 0;
   double xx1, xx2, yy1, yy2;
   double delta_threshold = 0.25;
@@ -203,7 +204,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     /* check if this is the master graph (the one containing the mouse pointer) */
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
     if( POINTINSIDE(xctx->mousex, xctx->mousey, r->x1, r->y1, r->x2, r->y2)) {
-      setup_graph_data(i, xctx->graph_flags, gr, 0);
+      setup_graph_data(i, xctx->graph_flags, gr);
 
       /* move cursor1 */
       /* set cursor position from master graph x-axis */
@@ -228,6 +229,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         xctx->graph_bottom = 0;
       }
       xctx->graph_master = i;
+
       zoom_m = (xctx->mousex  - gr->x1) / gr->w;
       /* dragging cursors when mouse is very close */
       if(event == ButtonPress && button == Button1) {
@@ -274,11 +276,21 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     xctx->my_double_save = xctx->mousey_snap;
   }
 
+  r = &xctx->rect[GRIDLAYER][xctx->graph_master];
+  gr->master_gx1 = 0;
+  gr->master_gx2 = 1e-6;
+  val = get_tok_value(r->prop_ptr,"x1",0);
+  if(val[0]) gr->master_gx1 = atof(val);
+  val = get_tok_value(r->prop_ptr,"x2",0);
+  if(val[0]) gr->master_gx2 = atof(val);
+  if(gr->master_gx1 == gr->master_gx2) gr->master_gx2 += 1e-6;
+  gr->master_gw = gr->master_gx2 - gr->master_gx1;
+
   /* second loop: after having determined the master graph do the others */
   for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
     r = &xctx->rect[GRIDLAYER][i];
     if( !(r->flags & 1) ) continue;
-    setup_graph_data(i, xctx->graph_flags, gr, xctx->graph_master);
+    setup_graph_data(i, xctx->graph_flags, gr);
     /* if no dataset given assume 0 for graph scaling calculations */
     if(gr->dataset == -1) dataset = 0;
     else dataset = gr->dataset;
@@ -718,7 +730,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
     } /* else if( event == ButtonRelease) */
     if(need_redraw) {
-      setup_graph_data(i, xctx->graph_flags, gr, xctx->graph_master);
+      setup_graph_data(i, xctx->graph_flags, gr);
       draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr); /* draw data in each graph box */
     }
   } /* for(i=0; i< xctx->rects[GRIDLAYER]; i++ */
