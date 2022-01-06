@@ -194,7 +194,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   #endif
-
   gr = &xctx->graph_struct;
   for(i=0; i < xctx->rects[GRIDLAYER]; i++) {
     xRect *r;
@@ -276,7 +275,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     xctx->mx_double_save = xctx->mousex_snap;
     xctx->my_double_save = xctx->mousey_snap;
   }
-
   gr->master_gx1 = 0;
   gr->master_gx2 = 1e-6;
   val = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"x1",0);
@@ -285,17 +283,14 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   if(val[0]) gr->master_gx2 = atof(val);
   if(gr->master_gx1 == gr->master_gx2) gr->master_gx2 += 1e-6;
   gr->master_gw = gr->master_gx2 - gr->master_gx1;
-
   /* second loop: after having determined the master graph do the others */
   for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
     xRect *r;
     r = &xctx->rect[GRIDLAYER][i];
     if( !(r->flags & 1) ) continue;
-
     gr->gx1 = gr->master_gx1;
     gr->gx2 = gr->master_gx2;
     gr->gw = gr->master_gw;
-
     setup_graph_data(i, xctx->graph_flags, 1, gr);
     /* if no dataset given assume 0 for graph scaling calculations */
     if(gr->dataset == -1) dataset = 0;
