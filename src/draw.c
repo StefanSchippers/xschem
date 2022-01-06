@@ -2007,7 +2007,7 @@ static void draw_graph_grid(Graph_ctx *gr)
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
-void setup_graph_data(int i, const int flags, Graph_ctx *gr)
+void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
 {
   double tmp;
   const char *val;
@@ -2017,14 +2017,17 @@ void setup_graph_data(int i, const int flags, Graph_ctx *gr)
   gr->divx = gr->divy = 5;
   gr->subdivx = gr->subdivy = 0;
   gr->digital = 0;
-  gr->gx1 = 0;
-  gr->gx2 = 1e-6;
-  val = get_tok_value(r->prop_ptr,"x1",0);
-  if(val[0]) gr->gx1 = atof(val);
-  val = get_tok_value(r->prop_ptr,"x2",0);
-  if(val[0]) gr->gx2 = atof(val);
-  if(gr->gx1 == gr->gx2) gr->gx2 += 1e-6;
-  gr->gw = gr->gx2 - gr->gx1;
+
+  if(!skip) {
+    gr->gx1 = 0;
+    gr->gx2 = 1e-6;
+    val = get_tok_value(r->prop_ptr,"x1",0);
+    if(val[0]) gr->gx1 = atof(val);
+    val = get_tok_value(r->prop_ptr,"x2",0);
+    if(val[0]) gr->gx2 = atof(val);
+    if(gr->gx1 == gr->gx2) gr->gx2 += 1e-6;
+    gr->gw = gr->gx2 - gr->gx1;
+  }
   gr->gy1 = 0;
   gr->gy2 = 5;
   gr->dataset = -1; /* -1 means 'plot all datasets' */
@@ -2518,7 +2521,7 @@ void draw_graph_all(int flags)
       if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; i++) {
         xRect *r = &xctx->rect[GRIDLAYER][i];
         if(r->flags & 1) {
-          setup_graph_data(i, flags, &xctx->graph_struct);
+          setup_graph_data(i, flags, 0, &xctx->graph_struct);
           draw_graph(i, flags, &xctx->graph_struct); /* draw data in each graph box */
         }
       }

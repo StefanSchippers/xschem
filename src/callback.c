@@ -188,7 +188,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   double xx1, xx2, yy1, yy2;
   double delta_threshold = 0.25;
   double zoom_m = 0.5;
-  xRect *r;
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
@@ -198,6 +197,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
   gr = &xctx->graph_struct;
   for(i=0; i < xctx->rects[GRIDLAYER]; i++) {
+    xRect *r;
     /* process only graph boxes */
     if( (xctx->ui_state & GRAPHPAN) && i != xctx->graph_master) continue;
     r = &xctx->rect[GRIDLAYER][i];
@@ -205,7 +205,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     /* check if this is the master graph (the one containing the mouse pointer) */
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
     if( POINTINSIDE(xctx->mousex, xctx->mousey, r->x1, r->y1, r->x2, r->y2)) {
-      setup_graph_data(i, xctx->graph_flags, gr);
+      setup_graph_data(i, xctx->graph_flags, 0, gr);
 
       /* move cursor1 */
       /* set cursor position from master graph x-axis */
@@ -277,21 +277,26 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     xctx->my_double_save = xctx->mousey_snap;
   }
 
-  r = &xctx->rect[GRIDLAYER][xctx->graph_master];
   gr->master_gx1 = 0;
   gr->master_gx2 = 1e-6;
-  val = get_tok_value(r->prop_ptr,"x1",0);
+  val = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"x1",0);
   if(val[0]) gr->master_gx1 = atof(val);
-  val = get_tok_value(r->prop_ptr,"x2",0);
+  val = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"x2",0);
   if(val[0]) gr->master_gx2 = atof(val);
   if(gr->master_gx1 == gr->master_gx2) gr->master_gx2 += 1e-6;
   gr->master_gw = gr->master_gx2 - gr->master_gx1;
 
   /* second loop: after having determined the master graph do the others */
   for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
+    xRect *r;
     r = &xctx->rect[GRIDLAYER][i];
     if( !(r->flags & 1) ) continue;
-    setup_graph_data(i, xctx->graph_flags, gr);
+
+    gr->gx1 = gr->master_gx1;
+    gr->gx2 = gr->master_gx2;
+    gr->gw = gr->master_gw;
+
+    setup_graph_data(i, xctx->graph_flags, 1, gr);
     /* if no dataset given assume 0 for graph scaling calculations */
     if(gr->dataset == -1) dataset = 0;
     else dataset = gr->dataset;
@@ -367,16 +372,17 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           }
         } else {
-          delta = gr->master_gw;
+          delta = gr->gw;
           delta_threshold = 0.01;
           if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
             if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->cx * delta) * delta_threshold) {
-              xx1 = gr->master_gx1 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
-              xx2 = gr->master_gx2 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
+              xx1 = gr->gx1 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
+              xx2 = gr->gx2 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
               my_snprintf(s, S(s), "%g", xx1);
               my_strdup(1410, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
               my_snprintf(s, S(s), "%g", xx2);
               my_strdup(1411, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+              dbg(0, "master=%d, x1=%g x2=%g\n", xctx->graph_master, xx1, xx2);
               need_redraw = 1;
             }
           }
@@ -416,10 +422,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         } else {
           if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            delta = gr->master_gw;
+            delta = gr->gw;
             delta_threshold = 0.05;
-            xx1 = gr->master_gx1 - delta * delta_threshold;
-            xx2 =gr->master_gx2 - delta * delta_threshold;
+            xx1 = gr->gx1 - delta * delta_threshold;
+            xx2 =gr->gx2 - delta * delta_threshold;
             my_snprintf(s, S(s), "%g", xx1);
             my_strdup(1428, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
             my_snprintf(s, S(s), "%g", xx2);
@@ -446,10 +452,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_redraw = 1;
           }
         } else {
-          delta = gr->master_gw;
+          delta = gr->gw;
           delta_threshold = 0.05;
-          xx1 = gr->master_gx1 - delta * delta_threshold;
-          xx2 = gr->master_gx2 - delta * delta_threshold;
+          xx1 = gr->gx1 - delta * delta_threshold;
+          xx2 = gr->gx2 - delta * delta_threshold;
           my_snprintf(s, S(s), "%g", xx1);
           my_strdup(1395, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
           my_snprintf(s, S(s), "%g", xx2);
@@ -484,10 +490,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         } else {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            delta = gr->master_gw;
+            delta = gr->gw;
             delta_threshold = 0.05;
-            xx1 = gr->master_gx1 + delta * delta_threshold;
-            xx2 = gr->master_gx2 + delta * delta_threshold;
+            xx1 = gr->gx1 + delta * delta_threshold;
+            xx2 = gr->gx2 + delta * delta_threshold;
             my_snprintf(s, S(s), "%g", xx1);
             my_strdup(1397, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
             my_snprintf(s, S(s), "%g", xx2);
@@ -514,10 +520,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_redraw = 1;
           }
         } else {
-          delta = gr->master_gw;
+          delta = gr->gw;
           delta_threshold = 0.05;
-          xx1 = gr->master_gx1 + delta * delta_threshold;
-          xx2 = gr->master_gx2 + delta * delta_threshold;
+          xx1 = gr->gx1 + delta * delta_threshold;
+          xx2 = gr->gx2 + delta * delta_threshold;
           my_snprintf(s, S(s), "%g", xx1);
           my_strdup(1430, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
           my_snprintf(s, S(s), "%g", xx2);
@@ -559,9 +565,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         } else {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            double var = 0.2 * gr->master_gw;
-            xx2 = gr->master_gx2 + var * (1 - zoom_m);
-            xx1 = gr->master_gx1 - var * zoom_m;
+            double var = 0.2 * gr->gw;
+            xx2 = gr->gx2 + var * (1 - zoom_m);
+            xx1 = gr->gx1 - var * zoom_m;
             my_snprintf(s, S(s), "%g", xx1);
             my_strdup(1399, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
             my_snprintf(s, S(s), "%g", xx2);
@@ -573,9 +579,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if(key == XK_Down) {
         if(!xctx->graph_left) {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            double var = 0.2 * gr->master_gw;
-            xx2 = gr->master_gx2 + var * (1 - zoom_m);
-            xx1 = gr->master_gx1 - var * zoom_m;
+            double var = 0.2 * gr->gw;
+            xx2 = gr->gx2 + var * (1 - zoom_m);
+            xx1 = gr->gx1 - var * zoom_m;
             my_snprintf(s, S(s), "%g", xx1);
             my_strdup(1418, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
             my_snprintf(s, S(s), "%g", xx2);
@@ -617,9 +623,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         } else {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            double var = 0.2 * gr->master_gw;
-            xx2 = gr->master_gx2 - var * (1 - zoom_m);
-            xx1 = gr->master_gx1 + var * zoom_m;
+            double var = 0.2 * gr->gw;
+            xx2 = gr->gx2 - var * (1 - zoom_m);
+            xx1 = gr->gx1 + var * zoom_m;
             my_snprintf(s, S(s), "%g", xx1);
             my_strdup(1449, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
             my_snprintf(s, S(s), "%g", xx2);
@@ -631,9 +637,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if(key == XK_Up) {
         if(!xctx->graph_left) {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            double var = 0.2 * gr->master_gw;
-            xx2 = gr->master_gx2 - var * (1 - zoom_m);
-            xx1 = gr->master_gx1 + var * zoom_m;
+            double var = 0.2 * gr->gw;
+            xx2 = gr->gx2 - var * (1 - zoom_m);
+            xx1 = gr->gx1 + var * zoom_m;
             my_snprintf(s, S(s), "%g", xx1);
             my_strdup(1445, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
             my_snprintf(s, S(s), "%g", xx2);
@@ -692,7 +698,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
         if(xctx->graph_values) {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            delta = gr->master_gw;
+            delta = gr->gw;
             wwx1 =  get_raw_value(dataset, 0, 0);
             wwx2 = get_raw_value(dataset, 0, xctx->graph_npoints[dataset] - 1);
             ccx = (gr->x2 - gr->x1) / (wwx2 - wwx1);
@@ -731,7 +737,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
     } /* else if( event == ButtonRelease) */
     if(need_redraw) {
-      setup_graph_data(i, xctx->graph_flags, gr);
+      setup_graph_data(i, xctx->graph_flags, 0, gr);
       draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr); /* draw data in each graph box */
     }
   } /* for(i=0; i< xctx->rects[GRIDLAYER]; i++ */
