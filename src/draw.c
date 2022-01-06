@@ -1768,7 +1768,7 @@ int schematic_waves_loaded(void)
   return 0;
 }
 
-void get_bus_value(int n_bits, int hex_digits, int *idx_arr, int p, char *busval, double vth)
+void get_bus_value(int n_bits, int hex_digits, SPICE_DATA **idx_arr, int p, char *busval, double vth)
 {
   double val;
   int i;
@@ -1779,7 +1779,7 @@ void get_bus_value(int n_bits, int hex_digits, int *idx_arr, int p, char *busval
   register SPICE_DATA ** gv = xctx->graph_values;
 
   for(i = n_bits - 1; i >= 0; i--) {
-    val = gv[idx_arr[i]][p];
+    val = idx_arr[i][p];
     hexdigit |= (val > vth);
     if(bin < 3) {
       bin++;
@@ -1801,14 +1801,14 @@ void get_bus_value(int n_bits, int hex_digits, int *idx_arr, int p, char *busval
 
 
 /* idx_arr malloc-ated and returned, caller must free! */
-static int *get_bus_idx_array(const char *ntok, int *n_bits)
+static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
 {
-  int *idx_arr =NULL;
+  SPICE_DATA **idx_arr =NULL;
   int p;
   char *ntok_savep, *ntok_ptr, *ntok_copy = NULL;
   const char *bit_name;
   *n_bits = count_items(ntok, ",") - 1;
-  idx_arr = my_malloc(1454, (*n_bits) * sizeof(int));
+  idx_arr = my_malloc(1454, (*n_bits) * sizeof(SPICE_DATA *));
   p = 0;
   my_strdup2(1402, &ntok_copy, ntok);
   ntok_ptr = ntok_copy;
@@ -1816,7 +1816,7 @@ static int *get_bus_idx_array(const char *ntok, int *n_bits)
   while( (bit_name = my_strtok_r(NULL, ",", &ntok_savep)) ) {
     int idx;
     if( (idx = get_raw_index(bit_name)) != -1) {
-      idx_arr[p] = idx;
+      idx_arr[p] = xctx->graph_values[idx];
     }
     p++;
   }
@@ -1828,7 +1828,7 @@ static int *get_bus_idx_array(const char *ntok, int *n_bits)
  * following are bits that are bundled together:
    LDA,LDA[3],LDA[2],LDA1],LDA[0]
  */
-static void draw_graph_bus_points(const char *ntok, int n_bits, int *idx_arr, 
+static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx_arr, 
          int first, int last, int wave_col, int sweep_idx, int wcnt, int n_nodes, Graph_ctx *gr)
 {
   int p;
@@ -2254,7 +2254,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
 }
 
 static void show_node_measures(int measure_p, double measure_x, double measure_prev_x,
-       const char *bus_msb, int wave_color, int idx, int *idx_arr,
+       const char *bus_msb, int wave_color, int idx, SPICE_DATA **idx_arr,
        int n_bits, int n_nodes, const char *ntok, int wcnt, Graph_ctx *gr)
 {
   char tmpstr[1024];
@@ -2368,7 +2368,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         double start;
         double end;
         int n_bits = 1, wrap; 
-        int *idx_arr = NULL;
+        SPICE_DATA **idx_arr = NULL;
         int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
         XPoint *point = NULL;
 
