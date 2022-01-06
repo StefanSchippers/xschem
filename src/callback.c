@@ -382,7 +382,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               my_strdup(1410, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
               my_snprintf(s, S(s), "%g", xx2);
               my_strdup(1411, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
-              dbg(0, "master=%d, x1=%g x2=%g\n", xctx->graph_master, xx1, xx2);
               need_redraw = 1;
             }
           }
