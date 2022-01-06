@@ -676,6 +676,7 @@ typedef struct {
   /* graph box (smaller than rect container due to margins) */
   double x1, y1, x2, y2, w, h;
   double gx1, gy1, gx2, gy2, gw, gh;
+  double master_gx1, master_gx2, master_gw;
   /* y area range for digital graphs */
   double ypos1, ypos2, posh;
   double marginx; /* will be recalculated later */
@@ -869,9 +870,16 @@ typedef struct {
   double graph_cursor1_x;
   double graph_cursor2_x;
   int graph_unlock_x; 
-  int graph_flags; /* 1: zoom / pan all graphs even if only one selected
-                    * 2: x-axis cursor1
-                    * 4: x-axis cursor2 */
+  /* graph_flags:
+   *  1: dnu, reserved, used in draw_graphs()
+   *  2: draw x-cursor1
+   *  4: draw x-cursor2
+   *  8: dnu, reserved, used in draw_graphs()
+   * 16: move cursor1
+   * 32: move cursor2
+   * 64: show measurement tooltip
+   */
+  int graph_flags;
   int graph_master; /* graph where mouse operations are started, used to lock x-axis */
   int graph_bottom; /* graph where mouse operations are started, used to lock x-axis */
   int graph_left; /* graph where mouse operations are started, used to lock x-axis */
@@ -996,7 +1004,7 @@ extern double get_raw_value(int dataset, int idx, int point);
 extern int schematic_waves_loaded(void);
 extern void draw_graph(int i, int flags, Graph_ctx *gr);
 extern void draw_graph_all(int flags);
-extern void setup_graph_data(int i, const int flags, Graph_ctx *gr);
+extern void setup_graph_data(int i, const int flags, Graph_ctx *gr, int skip_master_x);
 extern void free_rawfile(int dr);
 extern int read_rawfile(const char *f);
 extern double timer(int start);

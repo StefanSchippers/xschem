@@ -1768,10 +1768,8 @@ int schematic_waves_loaded(void)
   return 0;
 }
 
-static int get_bus_value(int n_bits, int *idx_arr, int p, char *busval, double yval1, double yval2)
+static int get_bus_value(int n_bits, int hex_digits, int *idx_arr, int p, char *busval, double vth)
 {
-  int hex_digits = ((n_bits - 1) >> 2) + 1;
-  double vth = (yval1 + yval2) * 0.5;
   double val;
   int i;
   int hexdigit = 0;
@@ -1795,8 +1793,6 @@ static int get_bus_value(int n_bits, int *idx_arr, int p, char *busval, double y
   }
   
   busval[hex_digits] = '\0';
-
-  /* my_strncpy(busval, "AA", 3); */
   return hex_digits;
 } 
 
@@ -1832,7 +1828,7 @@ static int *get_bus_idx_array(const char *ntok, int *n_bits)
 static void draw_graph_bus_points(const char *ntok, int n_bits, int *idx_arr, 
          int first, int last, int wave_col, int sweep_idx, int wcnt, int n_nodes, Graph_ctx *gr)
 {
-  int p;
+  int p, len;
   double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
   double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
   double c = (n_nodes - wcnt) * s1 * gr->gh - gr->gy1 * s2; /* trace baseline */
@@ -1847,17 +1843,19 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, int *idx_arr,
   double labsize = 0.015 * ydelta;
   double charwidth = labsize * 38.0;
   double x_size = 1.5 * xctx->zoom;
+  double vth = (gr->gy1 + gr->gy2) * 0.5;
+  int hex_digits = ((n_bits - 1) >> 2) + 1;
   if(c1 >= gr->ypos1 && c1 <=gr->ypos2) {
     drawline(wave_col, NOW, lx1, ylow, lx2, ylow, 0);
     drawline(wave_col, NOW, lx1, yhigh, lx2, yhigh, 0);
     for(p = first ; p <= last; p++) {
       /* calculate value of bus by adding all binary bits */
       /* hex_digits = */
-      get_bus_value(n_bits, idx_arr, p, busval, gr->gy1, gr->gy2);
+      len = get_bus_value(n_bits, hex_digits, idx_arr, p, busval, vth);
       xval =  W_X(xctx->graph_values[sweep_idx][p]);
       /* used to draw bus value before 1st transition */
       if(p == first) {
-        my_strncpy(old_busval, busval, strlen(busval)+1);
+        my_strncpy(old_busval, busval, len+1);
         xval_old = xval;
       }
       if(p > first &&  strcmp(busval, old_busval)) {
@@ -2004,7 +2002,7 @@ static void draw_graph_grid(Graph_ctx *gr)
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
-void setup_graph_data(int i, const int flags, Graph_ctx *gr)
+void setup_graph_data(int i, const int flags, Graph_ctx *gr, int master)
 {
   double tmp;
   const char *val;
@@ -2016,6 +2014,17 @@ void setup_graph_data(int i, const int flags, Graph_ctx *gr)
   gr->digital = 0;
   gr->gx1 = 0;
   gr->gx2 = 1e-6;
+  val = get_tok_value(r->prop_ptr,"x1",0);
+  if(val[0]) gr->gx1 = atof(val);
+  val = get_tok_value(r->prop_ptr,"x2",0);
+  if(val[0]) gr->gx2 = atof(val);
+  if(gr->gx1 == gr->gx2) gr->gx2 += 1e-6;
+  gr->gw = gr->gx2 - gr->gx1;
+  if(i == master) {
+    gr->master_gx1 = gr->gx1;
+    gr->master_gx2 = gr->gx2;
+    gr->master_gw = gr->gw;
+  }
   gr->gy1 = 0;
   gr->gy2 = 5;
   gr->dataset = -1; /* -1 means 'plot all datasets' */
@@ -2059,15 +2068,10 @@ void setup_graph_data(int i, const int flags, Graph_ctx *gr)
   if(val[0]) gr->divx = atoi(val);
   val = get_tok_value(r->prop_ptr,"divy",0);
   if(val[0]) gr->divy = atoi(val);
-  val = get_tok_value(r->prop_ptr,"x1",0);
-  if(val[0]) gr->gx1 = atof(val);
-  val = get_tok_value(r->prop_ptr,"x2",0);
-  if(val[0]) gr->gx2 = atof(val);
   val = get_tok_value(r->prop_ptr,"y1",0);
   if(val[0]) gr->gy1 = atof(val);
   val = get_tok_value(r->prop_ptr,"y2",0);
   if(val[0]) gr->gy2 = atof(val);
-  if(gr->gx1 == gr->gx2) gr->gx2 += 1e-6;
   if(gr->gy1 == gr->gy2) gr->gy2 += 1.0;
   val = get_tok_value(r->prop_ptr,"digital",0);
   if(val[0]) gr->digital = atoi(val);
@@ -2084,7 +2088,6 @@ void setup_graph_data(int i, const int flags, Graph_ctx *gr)
   val = get_tok_value(r->prop_ptr,"dataset",0);
   if(val[0]) gr->dataset = atoi(val);
 
-  gr->gw = gr->gx2 - gr->gx1;
   gr->gh = gr->gy2 - gr->gy1;
 
   /* set margins */
@@ -2156,9 +2159,9 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
   if(xx >= gr->x1 && xx <= gr->x2) {
     drawline(cursor_color, NOW, xx, gr->ry1, xx, gr->ry2, 1);
     if(gr->unitx != 1.0)
-       my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * xctx->graph_cursor2_x , gr->unitx_suffix);
+       my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * active_cursorx , gr->unitx_suffix);
     else
-       my_snprintf(tmpstr, S(tmpstr), "%.4g",  xctx->graph_cursor2_x);
+       my_snprintf(tmpstr, S(tmpstr), "%.4g",  active_cursorx);
     text_bbox(tmpstr, txtsize, txtsize, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, &tx1, &ty1, &tx2, &ty2, &tmp, &tmp);
     filledrect(0, NOW,  tx1, ty1, tx2, ty2);
     draw_string(cursor_color, NOW, tmpstr, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, txtsize, txtsize);
@@ -2256,6 +2259,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
     double diffx = measure_x - measure_prev_x;
     double yy = yy1 + diffy / diffx * (xctx->graph_cursor1_x - measure_prev_x);
     char *fmt1, *fmt2;
+    int hex_digits = ((n_bits - 1) >> 2) + 1;
    
     if(SIGN0(gr->gy1) != SIGN0(gr->gy2) && fabs(yy) < 1e-4 * fabs(gr->gh)) yy = 0.0;
     if(yy != 0.0  && fabs(yy * gr->unity) < 1.0e-3) {
@@ -2273,7 +2277,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), fmt2, yy * gr->unity, gr->unity_suffix);
       else  my_snprintf(tmpstr, S(tmpstr), fmt1, yy);
     } else {
-      get_bus_value(n_bits, idx_arr, measure_p, tmpstr, gr->gy1, gr->gy2);
+      get_bus_value(n_bits, hex_digits, idx_arr, measure_p, tmpstr, (gr->gy1 + gr->gy2) * 0.5);
     }
     if(!bus_msb && !gr->digital) {
       draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0, 
@@ -2320,12 +2324,10 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
 
   if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
       xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2)) return;
-
   /* draw stuff */
   if(flags & 8) {
     /* graph box, gridlines and axes */
     draw_graph_grid(gr);
-                    
     /* get data to plot */
     my_strdup2(1389, &node, get_tok_value(r->prop_ptr,"node",0));
     my_strdup2(1390, &color, get_tok_value(r->prop_ptr,"color",0)); 
@@ -2351,7 +2353,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         }
       }
       draw_graph_variables(wcnt, wave_color, n_nodes, sweep_idx, flags, ntok, stok, bus_msb, gr);
-
       /* quickly find index number of ntok variable to be plotted */
       if( (idx = get_raw_index(bus_msb ? bus_msb : ntok)) != -1 ) {
         int p, dset, ofs;
@@ -2512,7 +2513,7 @@ void draw_graph_all(int flags)
       if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; i++) {
         xRect *r = &xctx->rect[GRIDLAYER][i];
         if(r->flags & 1) {
-          setup_graph_data(i, flags, &xctx->graph_struct);
+          setup_graph_data(i, flags, &xctx->graph_struct, 0);
           draw_graph(i, flags, &xctx->graph_struct); /* draw data in each graph box */
         }
       }
