@@ -26,6 +26,7 @@ int find_script_estutter(const char *name, int logdepth, int fatal);
 int find_script_funlisp(const char *name, int logdepth, int fatal);
 int find_script_duktape(const char *name, int logdepth, int fatal);
 int find_script_mujs(const char *name, int logdepth, int fatal);
+int find_script_mujs_isboolean(const char *name, int logdepth, int fatal);
 int find_script_fungw(const char *name, int logdepth, int fatal);
 int find_script_fungw_user_call_ctx(const char *name, int logdepth, int fatal);
 int find_script_fungw_cfg_pupdir(const char *name, int logdepth, int fatal);

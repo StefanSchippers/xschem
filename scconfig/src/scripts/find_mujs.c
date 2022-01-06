@@ -48,3 +48,35 @@ int find_script_mujs(const char *name, int logdepth, int fatal)
 
 	return try_fail(logdepth, "libs/script/mujs");
 }
+
+int find_script_mujs_isboolean(const char *name, int logdepth, int fatal)
+{
+	const char *inc, *cflags, *ldflags;
+	char *test_c =
+		NL "#include <stdio.h>"
+		NL "#include <mujs.h>"
+		NL "int main() {"
+		NL "	if (JS_ISBOOLEAN != JS_ISSTRING)"
+		NL "		puts(\"OK\");"
+		NL "	return 0;"
+		NL "}"
+		NL;
+
+
+	require("cc/cc", logdepth, fatal);
+	require("libs/script/mujs", logdepth, fatal);
+
+	report("Checking for mujs JS_ISBOOLEAN... ");
+	logprintf(logdepth, "find_mujs: trying to find mujs JS_ISBOOLEAN...\n");
+	logdepth++;
+
+	inc = get("libs/script/mujs/includes");
+	cflags = get("libs/script/mujs/cflags");
+	ldflags = get("libs/script/mujs/ldflags");
+
+	/* Look at the standard place */
+	if (try_icl(logdepth, "libs/script/mujs_isboolean", test_c, inc, cflags, ldflags))
+		return 0;
+
+	return try_fail(logdepth, "libs/script/mujs_isboolean");
+}

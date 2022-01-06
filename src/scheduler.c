@@ -29,8 +29,8 @@ YY_BUFFER_STATE yy_scan_string ( const char *yy_str  );
 
 void statusmsg(char str[],int n)
 {
-  if(!has_x) return;
   tclsetvar("infowindow_text", str);
+  if(!has_x) return;
   if(n==2) {
     dbg(3, "statusmsg(): n = 2, str = %s\n", str);
     tcleval("infowindow");

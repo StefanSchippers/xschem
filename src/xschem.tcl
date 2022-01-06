@@ -3081,6 +3081,14 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}}} {
   return {}
 }
 
+proc show_infotext {} {
+  global has_x infowindow_text
+  if {[info exists has_x]} {
+     wm deiconify .infotext
+  } else {
+    puts stderr $infowindow_text
+  }
+}
 
 proc infowindow {} {
   global infowindow_text

@@ -275,7 +275,7 @@ static void hash_inst_pin(int for_netlist, int what, int i, int j)
     my_snprintf(str, S(str), "symbol %s: missing all or name or dir attributes on pin %d\n  %s",
         xctx->inst[i].name, j, prop_ptr);
     statusmsg(str,2);
-    tcleval("wm deiconify .infotext"); /* critical error: force ERC window showing */
+    tcleval("show_infotext"); /* critical error: force ERC window showing */
     if(!xctx->netlist_count) {
       xctx->inst[i].color = -PINLAYER;
       xctx->hilight_nets=1;
@@ -447,7 +447,7 @@ static void signal_short( char *n1, char *n2)
    my_snprintf(str, S(str), "shorted: %s - %s", n1, n2);
    dbg(1, "signal_short(): signal_short: shorted: %s - %s", n1, n2);
    statusmsg(str,2);
-   tcleval("wm deiconify .infotext"); /* critical error: force ERC window showing */
+   tcleval("show_infotext"); /* critical error: force ERC window showing */
    if(!xctx->netlist_count) {
       bus_hilight_hash_lookup(n1, xctx->hilight_color, XINSERT);
       if(tclgetboolvar("incr_hilight")) incr_hilight_color();
@@ -1194,7 +1194,7 @@ int sym_vs_sch_pins()
                       statusmsg(str,2);
                       my_snprintf(str, S(str), "    %s <--> %s", type, pin_dir);
                       statusmsg(str,2);
-                      tcleval("wm deiconify .infotext"); /* critical error: force ERC window showing */
+                      tcleval("show_infotext"); /* critical error: force ERC window showing */
                       for(j = 0; j < xctx->instances; j++) {
                         if(!strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
                           xctx->inst[i].color = -PINLAYER;
@@ -1211,7 +1211,7 @@ int sym_vs_sch_pins()
                   /* fprintf(errfp, "  unmatched sch / sym pin: %s\n", lab); */
                   my_snprintf(str, S(str), "Symbol %s: schematic pin: %s not in symbol", xctx->sym[i].name, lab);
                   statusmsg(str,2);
-                  tcleval("wm deiconify .infotext"); /* critical error: force ERC window showing */
+                  tcleval("show_infotext"); /* critical error: force ERC window showing */
                   for(j = 0; j < xctx->instances; j++) {
                     if(!strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
                       xctx->inst[i].color = -PINLAYER;
@@ -1245,7 +1245,7 @@ int sym_vs_sch_pins()
           my_snprintf(str, S(str), "Symbol %s has %d pins, its schematic has %d pins",
                       xctx->sym[i].name, rects, pin_cnt);
           statusmsg(str,2);
-          tcleval("wm deiconify .infotext"); /* critical error: force ERC window showing */
+          tcleval("show_infotext"); /* critical error: force ERC window showing */
           for(j = 0; j < xctx->instances; j++) {
             if(!strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
               xctx->inst[i].color = -PINLAYER;
@@ -1269,7 +1269,7 @@ int sym_vs_sch_pins()
             my_snprintf(str, S(str), "Symbol %s: symbol pin: %s not in schematic",
                         xctx->sym[i].name, pin_name ? pin_name : "<NULL>");
             statusmsg(str,2);
-            tcleval("wm deiconify .infotext"); /* critical error: force ERC window showing */
+            tcleval("show_infotext"); /* critical error: force ERC window showing */
             for(k = 0; k < xctx->instances; k++) {
               if(!strcmp(xctx->inst[k].name, xctx->sym[i].name)) {
                 xctx->inst[i].color = -PINLAYER;

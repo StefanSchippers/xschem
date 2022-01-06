@@ -28,12 +28,12 @@ static int waves_selected(int event, int key, int state, int button)
   int is_inside = 0, skip = 0;
   static int excl = STARTZOOM | STARTRECT | STARTLINE | STARTWIRE | STARTPAN2 | STARTSELECT | STARTMOVE | STARTCOPY;
   if(xctx->ui_state & excl) skip = 1;
-  if(state & Mod1Mask) skip = 1;
-  if(event == MotionNotify && (state & Button2Mask)) skip = 1;
-  if(event == ButtonPress && button == Button2) skip = 1;
-  if(event == ButtonRelease && button == Button2) skip = 1;
-
-  if(!skip) for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
+  else if(state & Mod1Mask) skip = 1;
+  else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
+  else if(event == ButtonPress && button == Button2) skip = 1;
+  else if(event == ButtonRelease && button == Button2) skip = 1;
+  else if(event == KeyPress && (state & ShiftMask)) skip = 1;
+  else if(!skip) for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
     xRect *r;
     r = &xctx->rect[GRIDLAYER][i];
     if(!(r->flags & 1) ) continue;

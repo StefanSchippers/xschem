@@ -213,7 +213,7 @@ void traverse_node_hash()
        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
        if(incr_hi) incr_hilight_color();
        statusmsg(str,2);
-       tcleval("wm deiconify .infotext"); /* critical error: force ERC window showing */
+       tcleval("show_infotext"); /* critical error: force ERC window showing */
      }
      else if(entry->d.out + entry->d.inout + entry->d.in == 1)
      {

@@ -2328,7 +2328,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
      my_snprintf(errstr, S(errstr), "Warning: unconnected pin,  Inst idx: %d, Pin idx: %d  Inst:%s\n",
                  i, j, xctx->inst[i].instname ) ;
      statusmsg(errstr,2);
-     tcleval("wm deiconify .infotext"); /* critical error: force ERC window showing */
+     tcleval("show_infotext"); /* critical error: force ERC window showing */
      if(!xctx->netlist_count) {
        xctx->inst[i].color = -PINLAYER;
        xctx->hilight_nets=1;
