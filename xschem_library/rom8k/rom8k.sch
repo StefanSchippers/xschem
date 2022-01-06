@@ -83,8 +83,8 @@ B 2 1840 -880 2890 -420 {flags=3
 digital=1
 y1 = 0
 y2 = 1.6
-ypos1=-0.0272427
-ypos2=2.11513
+ypos1=0.0886114
+ypos2=2.23099
 divy = 1
 x1=1.21536e-07
 x2=3.17599e-07
@@ -92,6 +92,7 @@ divx=12
 subdivx=4
 node="
 ---In/Out---
+ldq[15]
 ldcp
 LDA,lda[12],lda[11],lda[10],lda[9],lda[8],lda[7],lda[6],lda[5],lda[4],lda[3],lda[2],lda[1],lda[0]
 LDQ,ldq[15],ldq[14],ldq[13],ldq[12],ldq[11],ldq[10],ldq[9],ldq[8],ldq[7],ldq[6],ldq[5],ldq[4],ldq[3],ldq[2],ldq[1],ldq[0]
@@ -103,7 +104,7 @@ LDL2X,ldl2x[3],ldl2x[2],ldl2x[1],ldl2x[0]
 LDL1X,ldl1x[15],ldl1x[14],ldl1x[13],ldl1x[12],ldl1x[11],ldl1x[10],ldl1x[9],ldl1x[8],ldl1x[7],ldl1x[6],ldl1x[5],ldl1x[4],ldl1x[3],ldl1x[2],ldl1x[1],ldl1x[0]
 LDY1,ldy1[3],ldy1[2],ldy1[1],ldy1[0]
 "
-color="18 15 4 15 18 15 4 18 4 15 4 15 4 15 4 15 4 15 4 15 4 15"
+color="18 4 15 4 15 18 15 4 18 4 15 4 15 4 15 4 15 4 15 4 15 4 15"
  unitx=n
  ypos1=-2.20115 ypos2=2.79884
 }

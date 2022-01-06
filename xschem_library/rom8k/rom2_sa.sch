@@ -4,7 +4,7 @@ K {}
 V {}
 S {}
 E {}
-B 2 380 -840 1060 -660 {flags=1
+B 2 380 -820 1060 -660 {flags=1
 y1 = 0
 y2 = 2
 divy = 4
@@ -13,7 +13,7 @@ x2=3.4e-07
 divx=8
 node="v(xsa[0].ldqi) v(xsa[0].ldqib) v(xsa[0].ldsali)"
 color="12\\ 5\\ 8\\ 11"}
-B 2 380 -940 1060 -850 {flags=1
+B 2 380 -940 1060 -830 {flags=1
 y1 = 0
 y2 = 2
 divy = 2
@@ -22,7 +22,7 @@ x2=3.4e-07
 divx=8
 node="v(ldcp) v(ldprech)"
 color=12\\ 5\\ 8}
-B 2 380 -650 1060 -540 {flags=1
+B 2 380 -650 1060 -510 {flags=1
 y1 = 0
 y2 = 2
 divy = 2

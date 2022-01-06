@@ -1775,7 +1775,7 @@ void get_bus_value(int n_bits, int hex_digits, SPICE_DATA **idx_arr, int p, char
   int hexdigit = 0;
   int bin = 0;
   int hex = 0;
-  char hexstr[] = "084C2A6E195D37BF"; /* mirrored (Left/right) hex */
+  char hexstr[] = "084C2A6E195D3B7F"; /* mirrored (Left/right) hex */
 
   for(i = n_bits - 1; i >= 0; i--) {
     val = idx_arr[i][p];
