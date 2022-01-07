@@ -30,7 +30,9 @@ static int waves_selected(int event, int key, int state, int button)
   if(xctx->ui_state & excl) skip = 1;
   else if(state & Mod1Mask) skip = 1;
   else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
+  else if(event == MotionNotify && (state & Button1Mask) && (state & ShiftMask)) skip = 1;
   else if(event == ButtonPress && button == Button2) skip = 1;
+  else if(event == ButtonPress && button == Button1 && (state & ShiftMask) ) skip = 1;
   else if(event == ButtonRelease && button == Button2) skip = 1;
   else if(event == KeyPress && (state & ShiftMask)) skip = 1;
   else if(!skip) for(i=0; i< xctx->rects[GRIDLAYER]; i++) {

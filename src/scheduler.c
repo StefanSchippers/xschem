@@ -1048,6 +1048,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_SetResult(interp, xctx->sym[i].prop_ptr, TCL_VOLATILE);
         else
           Tcl_SetResult(interp, (char *)get_tok_value(xctx->sym[i].prop_ptr, argv[4], 0), TCL_VOLATILE);
+      } else if (!strcmp(argv[2],"rect")) {
+        if(argc <=5) {
+          Tcl_SetResult(interp, "xschem getprop rect needs <color> <n> <token>", TCL_STATIC);
+          return TCL_ERROR;
+        } else {
+          int c = atoi(argv[3]);
+          int n = atoi(argv[4]);
+          Tcl_SetResult(interp, (char *)get_tok_value(xctx->rect[c][n].prop_ptr, argv[5], 0), TCL_VOLATILE);
+        }
       }
     }
    

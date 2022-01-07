@@ -32,8 +32,8 @@ y1 = -0.0039
 y2 = 0.87
 divy = 3
 subdivy=1
-x1=1.21536e-07
-x2=3.17599e-07  divx=10
+x1=2e-12
+x2=4.8e-07  divx=10
 node="
 ldbl[0] ldbl[16] ldbl[32]
 ldbl[1] ldbl[17] ldbl[33]
@@ -47,8 +47,8 @@ y1 = -0.021
 y2 = 1.5
 subdivy=1
 divy = 4
-x1=1.21536e-07
-x2=3.17599e-07
+x1=2e-12
+x2=4.8e-07
 divx=10
 subdivx=4
 node="ldcp ldyms[4] ldyms[5] ldyms[6] ldymsref"
@@ -61,8 +61,8 @@ y2 = 1.6
 divy = 3
 subdivy=0
 subdivx = 1
-x1=1.21536e-07
-x2=3.17599e-07  divx=10
+x1=2e-12
+x2=4.8e-07  divx=10
 node="
 ldwl[0] ldwl[1] ldwl[2] ldwl[3] 
 ldwl[4] ldwl[5] ldwl[6] ldwl[16] 
@@ -74,8 +74,8 @@ B 2 1840 -120 2890 -20 {flags=3
 y1 = -0.021
 y2 = 0.9
 divy = 1
-x1=1.21536e-07
-x2=3.17599e-07  divx=10
+x1=2e-12
+x2=4.8e-07  divx=10
 node="ldymsref"
 color=3 unitx=n subdivy=4
 }
@@ -83,17 +83,17 @@ B 2 1840 -880 2890 -420 {flags=3
 digital=1
 y1 = 0
 y2 = 1.6
-ypos1=0.0886114
-ypos2=2.23099
+ypos1=0.0962921
+ypos2=2.80336
 divy = 1
-x1=1.21536e-07
-x2=3.17599e-07
+x1=1.9725e-07
+x2=2.85288e-07
 divx=12
 subdivx=4
 node="
 ---In/Out---
-ldq[15]
 ldcp
+ldq[15] ldq[14] ldq[13] ldq[12]
 LDA,lda[12],lda[11],lda[10],lda[9],lda[8],lda[7],lda[6],lda[5],lda[4],lda[3],lda[2],lda[1],lda[0]
 LDQ,ldq[15],ldq[14],ldq[13],ldq[12],ldq[11],ldq[10],ldq[9],ldq[8],ldq[7],ldq[6],ldq[5],ldq[4],ldq[3],ldq[2],ldq[1],ldq[0]
 ---Timing---
@@ -103,8 +103,9 @@ LDL3X,ldl3x[7],ldl3x[6],ldl3x[5],ldl3x[4],ldl3x[3],ldl3x[2],ldl3x[1],ldl3x[0]
 LDL2X,ldl2x[3],ldl2x[2],ldl2x[1],ldl2x[0]
 LDL1X,ldl1x[15],ldl1x[14],ldl1x[13],ldl1x[12],ldl1x[11],ldl1x[10],ldl1x[9],ldl1x[8],ldl1x[7],ldl1x[6],ldl1x[5],ldl1x[4],ldl1x[3],ldl1x[2],ldl1x[1],ldl1x[0]
 LDY1,ldy1[3],ldy1[2],ldy1[1],ldy1[0]
+WL[15:0],ldwl[15],ldwl[14],ldwl[13],ldwl[12],ldwl[11],ldwl[10],ldwl[9],ldwl[8],ldwl[7],ldwl[6],ldwl[5],ldwl[4],ldwl[3],ldwl[2],ldwl[1],ldwl[0]
 "
-color="18 4 15 4 15 18 15 4 18 4 15 4 15 4 15 4 15 4 15 4 15 4 15"
+color="18 4 15 4 15 4 15 4 18 15 4 18 4 15 4 15 4 15 4 15 4 15 4 15 4 15"
  unitx=n
  ypos1=-2.20115 ypos2=2.79884
 }
@@ -112,8 +113,8 @@ B 2 1840 -1280 2890 -1090 {flags=3
 y1 = -0.022
 y2 = 1.6
 divy = 4
-x1=1.19234e-07
-x2=3.15297e-07
+x1=2e-12
+x2=4.8e-07
 divx=8
 unitx=n
 node="xsa[0].ldqib xsa[5].ldqib xsa[0].ldsali xctrl.ldq_b"
