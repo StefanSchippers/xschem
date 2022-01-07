@@ -2355,7 +2355,9 @@ int place_text(int draw_text, double mx, double my)
    tclsetvar("hsize","0.4");
   if(!tclgetvar("vsize"))
    tclsetvar("vsize","0.4");
+  xctx->semaphore++;
   tcleval("enter_text {text:} normal");
+  xctx->semaphore--;
 
   dbg(1, "place_text(): hsize=%s vsize=%s\n",tclgetvar("hsize"), tclgetvar("vsize") );
 

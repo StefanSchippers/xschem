@@ -242,8 +242,13 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           xctx->graph_flags |= 32; /* Start move cursor2 */
         }
       }
+      if((key == 'q') ) {
+        char s[30];
+        my_snprintf(s, S(s), "%d", i);
+        tclvareval("graph_edit_properties ", s, NULL);
+      }
       /* x cursor1 toggle */
-      if((key == 'a') ) {
+      else if((key == 'a') ) {
         xctx->graph_flags ^= 2;
         need_redraw = 1;
         if(xctx->graph_flags & 2) xctx->graph_cursor1_x = G_X(xctx->mousex);
@@ -1560,6 +1565,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='q' && state==0) /* edit attributes */
    {
     if(xctx->semaphore >= 2) break;
+    if(waves_selected(event, key, state, button)) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
     edit_property(0);
     break;
    }

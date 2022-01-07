@@ -407,7 +407,11 @@ static void edit_rect_property(int x)
 
 
 
-  if(x==0) tcleval("text_line {Input property:} 0 normal");
+  if(x==0) {
+    xctx->semaphore++;
+    tcleval("text_line {Input property:} 0 normal");
+    xctx->semaphore--;
+  }
   else if(x==2) tcleval("viewdata $::retval");
   else if(x==1) tcleval("edit_vi_prop {Text:}");
   else {
@@ -474,7 +478,9 @@ static void edit_line_property(void)
   } else {
     tclsetvar("retval","");
   }
+  xctx->semaphore++;
   tcleval("text_line {Input property:} 0 normal");
+  xctx->semaphore--;
   preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
   if(strcmp(tclgetvar("rcode"),"") )
   {
@@ -528,7 +534,9 @@ static void edit_wire_property(void)
   } else {
     tclsetvar("retval","");
   }
+  xctx->semaphore++;
   tcleval("text_line {Input property:} 0 normal");
+  xctx->semaphore--;
   preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
   if(strcmp(tclgetvar("rcode"),"") )
   {
@@ -591,7 +599,9 @@ static void edit_arc_property(void)
   } else {
     tclsetvar("retval","");
   }
+  xctx->semaphore++;
   tcleval("text_line {Input property:} 0 normal");
+  xctx->semaphore--;
   preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
   if(strcmp(tclgetvar("rcode"),"") )
   {
@@ -658,7 +668,9 @@ static void edit_polygon_property(void)
   } else {
     tclsetvar("retval","");
   }
+  xctx->semaphore++;
   tcleval("text_line {Input property:} 0 normal");
+  xctx->semaphore--;
   preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
   if(strcmp(tclgetvar("rcode"),"") )
   {
@@ -737,7 +749,11 @@ static void edit_text_property(int x)
    tclsetvar("vsize",property);
    my_snprintf(property, S(property), "%.16g",xctx->text[sel].xscale);
    tclsetvar("hsize",property);
-   if(x==0) tcleval("enter_text {text:} normal");
+   if(x==0) {
+     xctx->semaphore++;
+     tcleval("enter_text {text:} normal");
+     xctx->semaphore--;
+   }
    else if(x==2) tcleval("viewdata $::retval");
    else if(x==1) tcleval("edit_vi_prop {Text:}");
    else {
@@ -1089,7 +1105,9 @@ void change_elem_order(void)
     {
      my_snprintf(tmp_txt, S(tmp_txt), "%d",xctx->sel_array[0].n);
      tclsetvar("retval",tmp_txt);
+     xctx->semaphore++;
      tcleval("text_line {Object Sequence number} 0");
+     xctx->semaphore--;
      if(strcmp(tclgetvar("rcode"),"") )
      {
       xctx->push_undo();
@@ -1171,7 +1189,11 @@ void edit_property(int x)
       tclsetvar("retval","");
    }
 
-   if(x==0)         tcleval("text_line {Global schematic property:} 0");
+   if(x==0) {
+     xctx->semaphore++;
+     tcleval("text_line {Global schematic property:} 0");
+     xctx->semaphore--;
+   }
    else if(x==1) {
       dbg(1, "edit_property(): executing edit_vi_prop\n");
       tcleval("edit_vi_prop {Global schematic property:}");

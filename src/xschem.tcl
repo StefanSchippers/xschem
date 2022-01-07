@@ -318,6 +318,39 @@ proc execute {status args} {
   return $id
 }
 
+#### Scrollable frame 
+proc scrollyview {container args} {
+  global ${container}_vpos ;# global to remember scrollbar position
+  set_ne ${container}_vpos 0
+  if {[lindex $args 0] eq {place}} {
+    place ${container}.f.scrl -in $container.f -x 0 -y 0 -relwidth 1
+    update ;# without this vpos of scrollbar will not be remembered when reopening toplevel
+  }
+  set ht [winfo height $container.f]
+  set hs [winfo height $container.f.scrl]
+  set frac [expr {double($ht)/$hs}]
+  if { [lindex $args 0] eq {scroll}} { ;# mouse wheel
+    set ${container}_vpos [expr {[set ${container}_vpos] + [lindex $args 1] *(1.0/$frac)/5}]
+  } elseif { [lindex $args 0] eq {moveto}} { ;# scrollbar slider
+    set ${container}_vpos [lindex $args 1]
+  }
+  if { [set ${container}_vpos] < 0.0 } {set ${container}_vpos 0.0}
+  if { [set ${container}_vpos] > 1.0 - $frac } {set ${container}_vpos [expr {1.0 - $frac}]}
+  $container.vs set [set ${container}_vpos] [expr {[set ${container}_vpos] + $frac}]
+  place $container.f.scrl -in $container.f -x 0 -y [expr {-$hs * [set ${container}_vpos]}] -relwidth 1.0
+}
+
+# scrollable frame constructor
+proc sframe {container} {
+  frame $container.f
+  scrollbar $container.vs -command "scrollyview $container" ;# scrollyview moveto commands
+  frame $container.f.scrl
+  pack $container.f -expand yes -fill both -side left
+  pack $container.vs -expand yes -fill y
+  return $container.f.scrl
+}
+#### /Scrollable frame
+
 proc netlist {source_file show netlist_file} {
  global XSCHEM_SHAREDIR flat_netlist hspice_netlist netlist_dir
  global verilog_2001 debug_var OS
@@ -755,29 +788,6 @@ proc simconf_reset {} {
   }
 }
 
-proc simconf_yview { args } {
-  global simconf_vpos
-  # puts "simconf_yview: $args"
-  set_ne simconf_vpos 0
-  if {[lindex $args 0] eq {place}} {
-    place .sim.topf.f.scrl -in .sim.topf.f -x 0 -y 0 -relwidth 1
-    update
-  } 
-  set ht [winfo height .sim.topf.f]
-  set hs [winfo height .sim.topf.f.scrl]
-  # puts "ht=$ht hs=$hs"
-  set frac [expr {double($ht)/$hs}]
-  if { [lindex $args 0] eq {scroll}} {
-    set simconf_vpos [expr {$simconf_vpos + [lindex $args 1] *(1.0/$frac)/5}]
-  } elseif { [lindex $args 0] eq {moveto}} {
-    set simconf_vpos [lindex $args 1]
-  }
-  if { $simconf_vpos < 0.0 } { set simconf_vpos 0.0}
-  if { $simconf_vpos > 1.0-$frac } { set simconf_vpos [expr {1.0 - $frac}]}
-  .sim.topf.vs set $simconf_vpos [expr {$simconf_vpos + $frac}]
-  place .sim.topf.f.scrl -in .sim.topf.f -x 0 -y [expr {-$hs * $simconf_vpos}] -relwidth 1
-}
-
 proc simconf {} {
   global sim USER_CONF_DIR simconf_default_geometry
 
@@ -791,42 +801,38 @@ proc simconf {} {
   wm title .sim {Simulation Configuration}
   wm geometry .sim 700x340
   frame .sim.topf
-  frame .sim.topf.f
-  frame .sim.topf.f.scrl 
-  scrollbar .sim.topf.vs -command {simconf_yview}
-  pack .sim.topf.f -fill both -expand yes -side left
-  pack .sim.topf.vs -fill y -expand yes
-  frame .sim.topf.f.scrl.top
-  frame .sim.topf.f.scrl.center
+  set scrollframe [sframe .sim.topf]
+  frame ${scrollframe}.top
+  frame ${scrollframe}.center
   frame .sim.bottom
-  pack .sim.topf.f.scrl.top -fill x 
-  pack .sim.topf.f.scrl.center -fill both -expand yes
+  pack ${scrollframe}.top -fill x 
+  pack ${scrollframe}.center -fill both -expand yes
   set bg(0) {#dddddd}
   set bg(1) {#aaaaaa}
   set toggle 0
   foreach tool $sim(tool_list) {
-    frame .sim.topf.f.scrl.center.$tool
-    label .sim.topf.f.scrl.center.$tool.l -width 12 -text $tool  -bg $bg($toggle)
-    frame .sim.topf.f.scrl.center.$tool.r
-    pack .sim.topf.f.scrl.center.$tool -fill both -expand yes
-    pack .sim.topf.f.scrl.center.$tool.l -fill y -side left
-    pack .sim.topf.f.scrl.center.$tool.r -fill both -expand yes
+    frame ${scrollframe}.center.$tool
+    label ${scrollframe}.center.$tool.l -width 12 -text $tool  -bg $bg($toggle)
+    frame ${scrollframe}.center.$tool.r
+    pack ${scrollframe}.center.$tool -fill both -expand yes
+    pack ${scrollframe}.center.$tool.l -fill y -side left
+    pack ${scrollframe}.center.$tool.r -fill both -expand yes
     for {set i 0} { $i < $sim($tool,n)} {incr i} {
-      frame .sim.topf.f.scrl.center.$tool.r.$i
-      pack .sim.topf.f.scrl.center.$tool.r.$i -fill x -expand yes
-      entry .sim.topf.f.scrl.center.$tool.r.$i.lab -textvariable sim($tool,$i,name) -width 15 -bg $bg($toggle)
-      radiobutton .sim.topf.f.scrl.center.$tool.r.$i.radio -bg $bg($toggle) \
+      frame ${scrollframe}.center.$tool.r.$i
+      pack ${scrollframe}.center.$tool.r.$i -fill x -expand yes
+      entry ${scrollframe}.center.$tool.r.$i.lab -textvariable sim($tool,$i,name) -width 15 -bg $bg($toggle)
+      radiobutton ${scrollframe}.center.$tool.r.$i.radio -bg $bg($toggle) \
          -variable sim($tool,default) -value $i
-      text .sim.topf.f.scrl.center.$tool.r.$i.cmd -width 20 -height 3 -wrap none -bg $bg($toggle)
-      .sim.topf.f.scrl.center.$tool.r.$i.cmd insert 1.0 $sim($tool,$i,cmd)
-      checkbutton .sim.topf.f.scrl.center.$tool.r.$i.fg -text Fg -variable sim($tool,$i,fg) -bg $bg($toggle)
-      checkbutton .sim.topf.f.scrl.center.$tool.r.$i.st -text Status -variable sim($tool,$i,st) -bg $bg($toggle)
+      text ${scrollframe}.center.$tool.r.$i.cmd -width 20 -height 3 -wrap none -bg $bg($toggle)
+      ${scrollframe}.center.$tool.r.$i.cmd insert 1.0 $sim($tool,$i,cmd)
+      checkbutton ${scrollframe}.center.$tool.r.$i.fg -text Fg -variable sim($tool,$i,fg) -bg $bg($toggle)
+      checkbutton ${scrollframe}.center.$tool.r.$i.st -text Status -variable sim($tool,$i,st) -bg $bg($toggle)
 
-      pack .sim.topf.f.scrl.center.$tool.r.$i.lab -side left -fill y 
-      pack .sim.topf.f.scrl.center.$tool.r.$i.radio -side left -fill y 
-      pack .sim.topf.f.scrl.center.$tool.r.$i.cmd -side left -fill x -expand yes
-      pack .sim.topf.f.scrl.center.$tool.r.$i.fg -side left -fill y 
-      pack .sim.topf.f.scrl.center.$tool.r.$i.st -side left -fill y 
+      pack ${scrollframe}.center.$tool.r.$i.lab -side left -fill y 
+      pack ${scrollframe}.center.$tool.r.$i.radio -side left -fill y 
+      pack ${scrollframe}.center.$tool.r.$i.cmd -side left -fill x -expand yes
+      pack ${scrollframe}.center.$tool.r.$i.fg -side left -fill y 
+      pack ${scrollframe}.center.$tool.r.$i.st -side left -fill y 
     }
     incr toggle
     set toggle [expr {$toggle %2}]
@@ -872,7 +878,7 @@ file manually.
   button .sim.bottom.ok  -text {Save Configuration to file} -command {
     foreach tool $sim(tool_list) {
       for {set i 0} { $i < $sim($tool,n)} {incr i} {
-        set sim($tool,$i,cmd) [.sim.topf.f.scrl.center.$tool.r.$i.cmd get 1.0 {end - 1 chars}]
+        set sim($tool,$i,cmd) [${scrollframe}.center.$tool.r.$i.cmd get 1.0 {end - 1 chars}]
       }
     }
     # destroy .sim
@@ -915,14 +921,14 @@ file manually.
      wm geometry .sim "${simconf_default_geometry}"
   }
  
-  bind .sim.topf.f <Configure> {simconf_yview}
+  bind .sim.topf.f <Configure> {scrollyview .sim.topf}
   bind .sim <Configure> {
     set simconf_default_geometry [wm geometry .sim]
   }
-  bind .sim <ButtonPress-4> { simconf_yview scroll -0.2}
-  bind .sim <ButtonPress-5> { simconf_yview scroll 0.2}
-  simconf_yview place
-  set maxsize [expr {[winfo height .sim.topf.f.scrl] + [winfo height .sim.bottom]}]
+  bind .sim <ButtonPress-4> { scrollyview .sim.topf scroll -0.2}
+  bind .sim <ButtonPress-5> { scrollyview .sim.topf scroll 0.2}
+  scrollyview .sim.topf place
+  set maxsize [expr {[winfo height ${scrollframe}] + [winfo height .sim.bottom]}]
   wm maxsize .sim 9999 $maxsize
   # tkwait window .sim
 }
@@ -1277,7 +1283,11 @@ proc waves {} {
   }
 }
 # ============================================================
+proc graph_edit_properties {n} {
 
+  set data [xschem getprop rect 2 $n node]
+  viewdata $data
+}
 
 proc graph_show_measure {{action show}} {
   global measure_id measure_text
@@ -2073,7 +2083,6 @@ proc select_netlist_dir { force {dir {} }} {
 proc enter_text {textlabel {preserve_disabled disabled}} {
   global retval rcode has_cairo preserve_unchanged_attrs wm_fix
   set rcode {}
-  xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog -class Dialog
   wm title .dialog {Enter text}
 
@@ -2158,7 +2167,6 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   bind .dialog <Control-Return> {.dialog.buttons.ok invoke}
   #grab set .dialog
   tkwait window .dialog
-  xschem set semaphore [expr {[xschem get semaphore] -1}]
   return $retval
 }
 
@@ -2900,7 +2908,6 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   if {$debug_var <= -1}  {puts " text_line{}: retval=$retval"}
   set rcode {}
   if { [winfo exists .dialog] } return
-  xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog  -class Dialog
   wm title .dialog {Text input}
   set X [expr {[winfo pointerx .dialog] - 60}]
@@ -3038,7 +3045,6 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   #focus .dialog.e1
   set rcode {}   
   tkwait window .dialog
-  xschem set semaphore [expr {[xschem get semaphore] -1}]
   return $rcode
 }
 
