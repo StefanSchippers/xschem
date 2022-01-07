@@ -2083,16 +2083,20 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     tcleval("property_search");
     break;
    }
+   if(key=='F' && state == (ShiftMask | ControlMask) )   /* full zoom selection */
+   {
+    if(xctx->ui_state == SELECTION) {
+      zoom_full(1, 1, 3, 0.97);
+    }
+    break;
+   }
    if(key=='f' && state == 0 )                  /* full zoom */
    {
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
-    if(xctx->ui_state == SELECTION) 
-      zoom_full(1, 1, 3, 0.97);
-    else
-      zoom_full(1, 0, 1, 0.97);
+    zoom_full(1, 0, 1, 0.97);
     break;
    }
    if((key=='z' && state==ControlMask))                         /* zoom out */

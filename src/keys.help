@@ -92,6 +92,7 @@ shift       'F'         Flip
 alt         'f'         Flip objects around their anchor points
 ctrl        'f'         Find/select by substring or regexp
 -           'f'         Full zoom
+shift+ctrl  'F'         Zoom full selected elements
 shift       'G'         Double snap factor
 -           'g'         Half snap factor
 ctrl        'g'         Set snap factor
