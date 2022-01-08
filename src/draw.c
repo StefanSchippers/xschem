@@ -2268,34 +2268,42 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
        int n_bits, int n_nodes, const char *ntok, int wcnt, Graph_ctx *gr)
 {
   char tmpstr[1024];
+  double yy1;
+  double diffy;
+  double diffx;
+  double yy;
+  char *fmt1, *fmt2;
+
+
+
   /* show values of signals if cursor1 active */
   if(measure_p >= 0) {
-    double yy1 = xctx->graph_values[idx][measure_p-1];
-    double diffy = xctx->graph_values[idx][measure_p] - yy1;
-    double diffx = measure_x - measure_prev_x;
-    double yy = yy1 + diffy / diffx * (xctx->graph_cursor1_x - measure_prev_x);
-    char *fmt1, *fmt2;
     int hex_digits = ((n_bits - 1) >> 2) + 1;
-    double vthh = gr->gy1 * 0.2 + gr->gy2 * 0.8;
-    double vthl = gr->gy1 * 0.8 + gr->gy2 * 0.2;
+    double vthl, vthh;
    
-    if(SIGN0(gr->gy1) != SIGN0(gr->gy2) && fabs(yy) < 1e-4 * fabs(gr->gh)) yy = 0.0;
-    if(yy != 0.0  && fabs(yy * gr->unity) < 1.0e-3) {
-      fmt1="%.2e";
-      fmt2="%.2e%c";
-    } else {
-      fmt1="%.4g";
-      fmt2="%.4g%c";
-    }
     /* draw node values in graph */
     bbox(START, 0.0, 0.0, 0.0, 0.0);
     bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
     bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
     if(!bus_msb) {
+      yy1 = xctx->graph_values[idx][measure_p-1];
+      diffy = xctx->graph_values[idx][measure_p] - yy1;
+      diffx = measure_x - measure_prev_x;
+      yy = yy1 + diffy / diffx * (xctx->graph_cursor1_x - measure_prev_x);
+      if(SIGN0(gr->gy1) != SIGN0(gr->gy2) && fabs(yy) < 1e-4 * fabs(gr->gh)) yy = 0.0;
+      if(yy != 0.0  && fabs(yy * gr->unity) < 1.0e-3) {
+        fmt1="%.2e";
+        fmt2="%.2e%c";
+      } else {
+        fmt1="%.4g";
+        fmt2="%.4g%c";
+      }
       if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), fmt2, yy * gr->unity, gr->unity_suffix);
       else  my_snprintf(tmpstr, S(tmpstr), fmt1, yy);
     } else {
-      get_bus_value(n_bits, hex_digits, idx_arr, measure_p, tmpstr, vthl, vthh);
+      vthh = gr->gy1 * 0.2 + gr->gy2 * 0.8;
+      vthl = gr->gy1 * 0.8 + gr->gy2 * 0.2;
+      get_bus_value(n_bits, hex_digits, idx_arr, measure_p - 1, tmpstr, vthl, vthh);
     }
     if(!bus_msb && !gr->digital) {
       draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0, 
