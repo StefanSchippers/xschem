@@ -482,10 +482,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xctx->prep_net_structs=0;
         xctx->prep_hi_structs=0;
         if(has_x) {
-          char *top_path;
-          top_path =  xctx->top_path[0] ? xctx->top_path : ".";
-          tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
-          tclvareval("wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
+          set_modify(-1);
         }
       }
       Tcl_ResetResult(interp);
@@ -648,13 +645,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"exit"))
     {
-      char * top_path;
       cmd_found = 1;
-      top_path =  xctx->top_path[0] ? xctx->top_path : ".";
-      if(!strcmp(top_path, ".")) {
+      if(!strcmp(xctx->top_path, "")) {
         if(has_x) {
-          tcleval("new_window destroy_all"); /* close child schematics */
-          if(tclresult()[0] == '1') {
+          int remaining;
+          remaining = new_schematic("destroy_all", NULL, NULL);
+          if(!remaining) {
             if(xctx->modified) {
               tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                       "[get_cell [xschem get schname] 0]"
@@ -665,7 +661,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         else tcleval("exit"); /* if has_x == 0 there are no additional windows to close */
       } else {
-        tclvareval("xschem new_schematic destroy ", top_path, " ", xctx->top_path, ".drw {}" , NULL);
+        new_schematic("destroy", xctx->current_win_path, NULL);
       }
       Tcl_ResetResult(interp);
     }
@@ -778,6 +774,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      else if(!strcmp(argv[2],"current_name")) {
        Tcl_SetResult(interp, xctx->current_name, TCL_VOLATILE);
      }
+     else if(!strcmp(argv[2],"current_win_path")) {
+       Tcl_SetResult(interp, xctx->current_win_path, TCL_VOLATILE);
+     }
      else if(!strcmp(argv[2],"currsch")) {
        char s[30]; /* overflow safe 20161122 */
        my_snprintf(s, S(s), "%d",xctx->currsch);
@@ -856,8 +855,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
+     else if(!strcmp(argv[2],"ntabs")) {
+       char s[30];
+       my_snprintf(s, S(s), "%d",new_schematic("ntabs", NULL, NULL));
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
      else if(!strcmp(argv[2],"pinlayer")) {
-       char s[30]; /* overflow safe 20161122 */
+       char s[30];
        my_snprintf(s, S(s), "%d",PINLAYER);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
@@ -918,6 +922,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        char s[30]; /* overflow safe 20161122 */
        my_snprintf(s, S(s), "%d",TEXTLAYER);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2],"top_path")) {
+       Tcl_SetResult(interp, xctx->top_path, TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"topwindow")) {
        char *top_path;
@@ -1570,7 +1577,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_snprintf(fullname, S(fullname),"%s", tclresult());
       }
       if( fullname[0] ) {
-       tclvareval("new_window create {", fullname, "}", NULL);
+       new_schematic("create", NULL, fullname);
        tclvareval("update_recent_file {", fullname, "}", NULL);
       }
     }
@@ -1714,9 +1721,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"new_schematic"))
     {
       cmd_found = 1;
-      if(argc == 4) new_schematic(argv[2], argv[3], "{}","{}");
-      else if(argc == 5) new_schematic(argv[2], argv[3], argv[4], "{}");
-      else if(argc == 6) new_schematic(argv[2], argv[3], argv[4], argv[5]);
+      if(argc == 3) new_schematic(argv[2], NULL, NULL);
+      else if(argc == 4) new_schematic(argv[2], argv[3], NULL);
+      else if(argc == 5) new_schematic(argv[2], argv[3], argv[4]);
       Tcl_ResetResult(interp);
     }
    
@@ -2482,6 +2489,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             text_svg=atoi(argv[3]);
       }
       else if(!strcmp(argv[2],"semaphore")) {
+            dbg(1, "scheduler(): set semaphore to %s\n", argv[3]);
             xctx->semaphore=atoi(argv[3]);
       }
       else if(!strcmp(argv[2],"sym_txt")) {

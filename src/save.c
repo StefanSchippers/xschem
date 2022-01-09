@@ -976,10 +976,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
 {
   FILE *fd;
   char name[PATH_MAX]; /* overflow safe 20161122 */
-  char *top_path;
   struct stat buf;
-
-  top_path =  xctx->top_path[0] ? xctx->top_path : ".";
 
   if( strcmp(schname,"") ) my_strncpy(xctx->sch[xctx->currsch], schname, S(xctx->sch[xctx->currsch]));
   else return 0;
@@ -987,11 +984,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   dbg(1, "save_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
   dbg(1, "save_schematic(): abs_sym_path=%s\n", abs_sym_path(xctx->sch[xctx->currsch], ""));
   my_strncpy(name, xctx->sch[xctx->currsch], S(name));
-  if(has_x) {
-    tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
-    tclvareval("wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
-  }
-
+  set_modify(-1);
   if(!stat(name, &buf)) {
     if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
       tclvareval("ask_save \"Schematic file: ", name,
@@ -999,7 +992,6 @@ int save_schematic(const char *schname) /* 20171020 added return value */
       if(strcmp(tclresult(), "yes") ) return 0;
     }
   }
-
   if(!(fd=fopen(name,"w")))
   {
     fprintf(errfp, "save_schematic(): problems opening file %s \n",name);

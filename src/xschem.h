@@ -668,7 +668,7 @@ typedef struct
 } Iterator_ctx;
 
 
-/* will be used some day? <<<< */
+/* context struct for waveform graphs */
 typedef struct {
   double digital;
   double rx1, ry1, rx2, ry2, rw, rh; /* container rectangle */
@@ -905,13 +905,15 @@ typedef struct {
   int hide_symbols;
   int netlist_type;
   char * top_path;
-  /* top_path is the path prefix of drawing canvas:
+  /* top_path is the path prefix of drawing canvas (current_win_path):
    *
-   *    canvas    top_path
-   *  ----------------------
-   *    ".drw"       ""
-   *    ".xx.drw"    ".xx"
+   * current_win_path
+   *    canvas           top_path
+   *  ----------------------------
+   *    ".drw"            ""
+   *    ".xx.drw"         ".xx"
    */
+  char *current_win_path;
   int *fill_type; /* for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
   int fill_pattern;
   int draw_window; 
@@ -1368,7 +1370,7 @@ extern void change_layer();
 extern void launcher();
 extern void windowid(const char *winpath);
 extern void preview_window(const char *what, const char *tk_win_path, const char *filename);
-extern void new_schematic(const char *what, const char *top_path, const char *tk_win_path, const char *filename);
+extern int new_schematic(const char *what, const char *win_path, const char *filename);
 extern int window_state (Display *disp, Window win, char *arg);
 extern void toggle_fullscreen(const char *topwin);
 extern void toggle_only_probes();

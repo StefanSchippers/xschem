@@ -3586,6 +3586,7 @@ proc context_menu { } {
 
 #
 # toolbar: Public variables that we allow to be overridden
+# Code contributed by Neil Johnson (github: nejohnson)
 #
 proc setup_toolbar {} {
   global toolbar_visible toolbar_horiz toolbar_list XSCHEM_SHAREDIR
@@ -3656,10 +3657,14 @@ proc toolbar_create {name cmd { help "" } {topwin {} } } {
 # adding any separators as needed.
 #
 proc toolbar_show { { topwin {} } } {
-    global toolbar_horiz toolbar_list toolbar_visible
+    global toolbar_horiz toolbar_list toolbar_visible tabbed_interface
     if { ! $toolbar_visible } { return }
     if { $toolbar_horiz } { 
-        pack $topwin.toolbar -fill x -before $topwin.drw
+        if {$tabbed_interface} {
+          pack $topwin.toolbar -fill x -before $topwin.tabs 
+        } else {
+          pack $topwin.toolbar -fill x -before $topwin.drw
+        }
     } else {
         pack $topwin.toolbar -side left -anchor w -fill y -before $topwin.drw
     }
@@ -3709,6 +3714,22 @@ proc toolbar_hide { { topwin {} } } {
     set $toolbar_visible 0
 }
 
+
+proc set_tab_names {} {
+  global tabbed_interface has_x
+
+  if {[info exists has_x] && $tabbed_interface } {
+    set currwin [xschem get current_win_path]
+    # puts "set_tab_names : currwin=$currwin"
+    if { $currwin eq {.drw}} {
+      .tabs.x0 configure -text [file rootname [file tail [xschem get schname]]]
+    } else {
+      regsub {\.drw} $currwin {} top_path
+      .tabs$top_path configure -text [file rootname [file tail [xschem get schname]]]
+    }
+  }
+}
+
 proc raise_dialog {parent window_path } {
   if {[winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped $parent] &&
       [wm stackorder .dialog isbelow $parent ]} {
@@ -3735,91 +3756,10 @@ proc every {interval script} {
     after $interval [list every $interval $script]
 }
 
-proc new_window {what {filename {}} {path {-}}} {
-  global max_new_windows
-  if { $what eq {create}} {
-    if {$tctx::cnt == 0} {
-      save_ctx .drw
-    }
-    if {$tctx::cnt + 1 >= $max_new_windows} {
-      puts "proc new_window: no more free slots"
-      return
-    }
-    incr tctx::cnt
-    
-    if {$path eq {-}} {
-      for {set i 1} {$i <= $tctx::cnt} {incr i} {
-        if {![winfo exists .x$i]} {
-          set path .x$i
-          break
-        }
-      }
-    }
-    toplevel $path -bg {} -width 400 -height 400
-    build_widgets $path
-    pack_widgets $path
-    update
-    xschem new_schematic create $path $path.drw [abs_sym_path $filename]
-    set_bindings $path.drw
-    # set bindings after creating new schematic otherwise 
-    # a Configure or Expose event is sent before window setup completed.
-    save_ctx $path.drw
-    xschem windowid $path ;# set icon for window
-    return $path
-  } elseif { $what eq {destroy}} {
-    set path $filename
-    xschem new_schematic switch $path $path.drw {}
-    #### no need to switch tcl context to something that is about to be deleted
-    # restore_ctx $path.drw
-    # housekeeping_ctx
-    ####
-    # xschem new_schematic destroy also decrements tctx::cnt
-    xschem new_schematic destroy $path $path.drw {}
-    #### following 3 lines already done in new_schematic("destroy",...)
-    # restore_ctx .drw
-    # housekeeping_ctx
-    # xschem new_schematic switch . .drw {}
-    ####
-  } elseif { $what eq {destroy_all}} {
-    set all_closed 1
-    foreach i [info globals .*.drw] {
-      regsub {\.drw$} $i {} j
-      xschem new_schematic switch $j $i {}
-      #### no need to switch tcl context to something that is about to be deleted
-      # restore_ctx $i
-      # housekeeping_ctx
-      ####
-      xschem new_schematic destroy $j $i {}
-      #### following 3 lines already done in new_schematic("destroy",...)
-      # restore_ctx .drw
-      # housekeeping_ctx
-      # xschem new_schematic switch . .drw {}
-      ####
-      if { [winfo exists $i] } { set all_closed 0} 
-    }
-    return $all_closed
-  }
-  return {}
-}
-
-#### TEST MODE #####
-proc test1 {} {
-  xschem load [abs_sym_path rom8k.sch]
-  new_window create [abs_sym_path mos_power_ampli.sch] .xx
-  new_window create [abs_sym_path solar_panel.sch] .yy
-}
-
-#### TEST MODE #####
-proc test1_end {} {
-  new_window destroy .xx
-  new_window destroy .yy
-}
-
 ## tcl context switching global namespace
 namespace eval tctx {
   variable tctx
   variable i
-  variable cnt 0
   variable global_list
   variable global_array_list
   variable dialog_list
@@ -3845,6 +3785,7 @@ proc no_open_dialogs {} {
 ## "textwindow_wcounter" should be kept unique as it is the number of open textwindows
 ## "viewdata_wcounter" should be kept unique as it is the number of open viewdatas
 ## "measure_id" should be kept unique since we allow only one measure tooltip in graphs
+## tabbed_interface is unique
 
 set tctx::global_list {
   auto_hilight autotrim_wires bespice_listen_port big_grid_points bus_replacement_char
@@ -3892,6 +3833,7 @@ proc delete_ctx {context} {
 }
 
 proc restore_ctx {context} {
+  # puts "restoring tcl context $context : semaphore=[xschem get semaphore]"
   set tctx::tctx $context
   array unset ::sim
   uplevel #0 {
@@ -3914,6 +3856,7 @@ proc restore_ctx {context} {
 }
 
 proc save_ctx {context} {
+  # puts "saving tcl context $context : semaphore=[xschem get semaphore]"
   set tctx::tctx $context
   uplevel #0 {
     # puts "save_ctx $tctx::tctx"
@@ -4007,7 +3950,7 @@ global env has_x OS
 ## this could lead to crashes on some (may be slow) systems due to Configure/Expose events being delivered
 ## before xschem being ready to handle them.
 proc pack_widgets { { topwin {} } } {
-  global env has_x OS
+  global env has_x OS tabbed_interface
   if {($OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] > 0 ) && [info exists has_x]} {
     pack $topwin.statusbar.2 -side left 
     pack $topwin.statusbar.3 -side left 
@@ -4017,8 +3960,11 @@ proc pack_widgets { { topwin {} } } {
     pack $topwin.statusbar.7 -side left 
     pack $topwin.statusbar.8 -side left 
     pack $topwin.statusbar.1 -side left -fill x
+    pack $topwin.menubar -anchor n -side top -fill x
+    if {$tabbed_interface} {
+       pack $topwin.tabs  -fill x -side top -expand false -side top
+    }
     pack $topwin.drw -anchor n -side top -fill both -expand true
-    pack $topwin.menubar -anchor n -side top -fill x  -before $topwin.drw
     toolbar_show $topwin
     pack $topwin.statusbar -after $topwin.drw -anchor sw  -fill x 
     bind $topwin.statusbar.5 <Leave> "set cadgrid \[$topwin.statusbar.5 get\]; xschem set cadgrid \$cadgrid"
@@ -4054,7 +4000,7 @@ proc switch_undo {} {
 }
 
 proc build_widgets { {topwin {} } } {
-  global XSCHEM_SHAREDIR
+  global XSCHEM_SHAREDIR tabbed_interface
   global colors recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files hspice_netlist tmp_bus_char 
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
@@ -4066,6 +4012,15 @@ proc build_widgets { {topwin {} } } {
   if { $topwin ne {}} {
     set mbg {-bg gray50}
     set bbg {-bg gray50 -highlightthickness 0}
+  }
+
+  if { $tabbed_interface } {
+    frame $topwin.tabs
+    button $topwin.tabs.x0 -padx 2 -pady 0  -text Main -command {xschem new_schematic switch .drw}
+    button $topwin.tabs.x1 -padx 2 -pady 0  -text Tab1 -command {xschem new_schematic switch .x1.drw}
+    button $topwin.tabs.x2 -padx 2 -pady 0  -text Tab2 -command {xschem new_schematic switch .x2.drw}
+    button $topwin.tabs.add -padx 0 -pady 0  -text { + }
+    pack $topwin.tabs.x0 $topwin.tabs.x1 $topwin.tabs.x2 $topwin.tabs.add -side left
   }
   eval frame $topwin.menubar -relief raised -bd 2 $mbg
   toolbar_toolbar $topwin
@@ -4134,6 +4089,10 @@ proc build_widgets { {topwin {} } } {
   setup_recent_menu 0 $topwin
   setup_recent_menu 1 $topwin
   $topwin.menubar.file.menu add command -label {Open new window [exp]} -command "xschem load_new_window"
+  if {$tabbed_interface} {
+    $topwin.menubar.file.menu entryconfigure 6 -state disabled
+    $topwin.menubar.file.menu entryconfigure 7 -state disabled
+  }
   toolbar_create FileOpen "xschem load" "Open File" $topwin
   $topwin.menubar.file.menu add command -label "Delete files" -command "xschem delete_files" -accelerator {Shift-D}
 
@@ -4166,10 +4125,10 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.file.menu add command -label "SVG Export" -command "xschem print svg" -accelerator {Alt+*}
   $topwin.menubar.file.menu add separator
   $topwin.menubar.file.menu add command -label "Exit" -accelerator {Ctrl+Q} -command "
-   if { {$topwin} eq {} } {
+   if { \[xschem get current_win_path\] eq {.drw} } {
      xschem exit
    } else {
-     xschem new_schematic destroy $topwin $topwin.drw {}
+     xschem new_schematic destroy \[xschem get current_win_path\] {}
    }"
   $topwin.menubar.option.menu add checkbutton -label "Color Postscript/SVG" -variable color_ps \
      -command {
@@ -4537,7 +4496,7 @@ proc build_widgets { {topwin {} } } {
   if { $rootwin == {.}} {
     wm protocol $rootwin WM_DELETE_WINDOW {xschem exit}
   } else {
-    wm protocol $topwin WM_DELETE_WINDOW "xschem new_schematic destroy $topwin $topwin.drw {}"
+    wm protocol $topwin WM_DELETE_WINDOW "xschem new_schematic destroy $topwin.drw {}"
   }
 
   frame $topwin.statusbar  
@@ -4798,6 +4757,9 @@ set_ne to_pdf {ps2pdf}
 
 ## undo_type: disk or memory
 set_ne undo_type disk
+
+## show tab bar (tabbed interface) 
+set_ne tabbed_interface 0
 
 ## max number of windows (including main) a single xschem process can handle
 set_ne max_new_windows -1 ;# this is set by xinit.c

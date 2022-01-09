@@ -809,17 +809,20 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n", old_winpath, winpath);
      redraw_only = 1;
    } else {
-     dbg(1, "callback(): switching window context: %s --> %s\n", old_winpath, winpath);
+     dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n", old_winpath, winpath, xctx->semaphore);
      if(old_winpath[0]) tclvareval("save_ctx ", old_winpath, NULL);
      tclvareval("restore_ctx ", winpath, NULL);
      tclvareval("housekeeping_ctx", NULL);
    }
-   new_schematic("switch", xctx->top_path, winpath, "");
+   new_schematic("switch", winpath, "");
  }
  /* artificially set semaphore to allow only redraw operations in switched schematic,
   * so we don't need  to switch tcl context which is costly performance-wise
   */
- if(redraw_only) xctx->semaphore++;
+ if(redraw_only) {
+   dbg(1, "callback(): incrementing semaphore for redraw_only\n");
+   xctx->semaphore++;
+ }
 
  xctx->semaphore++; /* to recognize recursive callback() calls */
 
@@ -1364,12 +1367,13 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='q' && state == ControlMask) /* exit */
    {
-     char * top_path;
-     top_path =  xctx->top_path[0] ? xctx->top_path : ".";
      if(xctx->semaphore >= 2) break;
      if(!strcmp(winpath, ".drw")) {
-       tcleval("new_window destroy_all"); /* close child schematics */
-       if(tclresult()[0] == '1') {
+       int remaining;
+       /* tcleval("new_window destroy_all"); */ /* close child schematics */
+       remaining = new_schematic("destroy_all", NULL, NULL);
+       /* if(tclresult()[0] == '1') { */
+       if(!remaining) {
          if(xctx->modified) {
            tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \"" 
                    "[get_cell [xschem get schname] 0]"
@@ -1379,11 +1383,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        }
      } else {
        /* xschem new_schematic destroy asks user confirmation if schematic changed */
-       tclvareval("xschem new_schematic destroy ", top_path, " ", winpath," {}" , NULL);
-       /* ================================================================ */
-       /* We must return here, since current schematic is no more existing */
-       /* ================================================================ */
-       return 0;
+       new_schematic("destroy", winpath, NULL);
      }
      break;
    }
@@ -2565,7 +2565,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  if(redraw_only) {
    xctx->semaphore--; /* decrement articially incremented semaphore (see above) */
    dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_winpath, winpath);
-   if(old_winpath[0]) new_schematic("switch", xctx->top_path, old_winpath, "");
+   if(old_winpath[0]) new_schematic("switch", old_winpath, "");
  }
  else
  if(strcmp(old_winpath, winpath)) {
