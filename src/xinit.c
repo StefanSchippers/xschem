@@ -964,10 +964,10 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
   static int cnt = 0;
   static Xschem_ctx *save_xctx[MAX_NEW_WINDOWS]; /* save pointer to current schematic context structure */
   /* static Tk_Window new_window[MAX_NEW_WINDOWS]; */
-  static char new_window[MAX_NEW_WINDOWS][80];
+  static char new_window[MAX_NEW_WINDOWS][30];
   int i, n;
   Tk_Window tkwin;
-  char toppath[80];
+  char toppath[30];
   int tabbed_interface;
   const char *tmp;
 
@@ -989,16 +989,17 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
           save_xctx[i] = NULL;
           my_strncpy(new_window[i], "", S(new_window[i]));
         }
-        tcleval("save_ctx .drw");
+        tclvareval("save_ctx ", xctx->current_win_path, NULL);
         save_xctx[0] = xctx; /* save current schematic */
         /* new_window[0] = Tk_NameToWindow(interp, ".drw", mainwindow); */
-        my_strncpy(new_window[0], ".drw", S(new_window[0]));
+        my_strncpy(new_window[0], xctx->current_win_path, S(new_window[0]));
       }
       if(cnt + 1 >= MAX_NEW_WINDOWS) {
         dbg(0, "new_schematic(\"create\"...): no more free slots\n");
         return cnt; /* no more free slots */
       }
       cnt++;
+      tcleval(".menubar.view.menu entryconfigure 21 -state disabled");
       n = -1;
       for(i = 1; i < MAX_NEW_WINDOWS; i++) { /* search 1st free slot */
         if(save_xctx[i] == NULL) {
@@ -1040,7 +1041,7 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
       tclvareval("set_bindings ", new_window[n], NULL);
       tclvareval("save_ctx ", new_window[n], NULL);
       windowid(toppath);
-    /**********************  NEW_TAB    **********************/
+    /********************** CREATE_TAB  **********************/
     } else {
       dbg(1, "new_schematic() new_tab, creating...\n");
       if(cnt == 0) {
@@ -1048,15 +1049,16 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
           save_xctx[i] = NULL;
           my_strncpy(new_window[i], "", S(new_window[i]));
         }
-        tcleval("save_ctx .drw");
+        tclvareval("save_ctx ", xctx->current_win_path, NULL);
         save_xctx[0] = xctx; /* save current schematic */
-        my_strncpy(new_window[0], ".drw", S(new_window[0]));
+        my_strncpy(new_window[0], xctx->current_win_path, S(new_window[0]));
       }
       if(cnt + 1 >= MAX_NEW_WINDOWS) {
         dbg(0, "new_schematic(\"new_tab\"...): no more free slots\n");
         return cnt; /* no more free slots */
       }
       cnt++;
+      tcleval(".menubar.view.menu entryconfigure 21 -state disabled");
       n = -1;
       for(i = 1; i < MAX_NEW_WINDOWS; i++) { /* search 1st free slot */
         if(save_xctx[i] == NULL) {
@@ -1119,6 +1121,8 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
             return cnt;
           }
           if(tkwin && n >= 1 && n < MAX_NEW_WINDOWS) {
+            /* delete Tcl context of deleted schematic window */
+            tclvareval("delete_ctx ", win_path, NULL);
             xctx = save_xctx[n];
             /* set saved ctx to main window if current is to be destroyed */
             if(savectx == xctx) savectx = save_xctx[0];
@@ -1128,14 +1132,13 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
             Tk_DestroyWindow(Tk_NameToWindow(interp, new_window[n], mainwindow));
             tclvareval("destroy ", tclresult(), NULL);
             my_strncpy(new_window[n], "", S(new_window[n]));
-            /* delete Tcl context of deleted schematic window */
-            tclvareval("delete_ctx ", win_path, NULL);
             cnt--;
+            if(cnt == 0) tcleval(".menubar.view.menu entryconfigure 21 -state normal");
           }
         }
         /* following 3 lines must be done also if window not closed */
         xctx = savectx; /* restore previous schematic or main window if previous destroyed */
-        tcleval("restore_ctx .drw; housekeeping_ctx");
+        tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
         set_modify(xctx->modified); /* sets window title */
       }
     /********************** DESTROY_TAB **********************/
@@ -1169,16 +1172,18 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
             return cnt;
           }
           if(n >= 1 && n < MAX_NEW_WINDOWS) {
+            tclvareval("delete_ctx ", win_path, NULL);
+            tclvareval("delete_tab ", win_path, NULL);
             xctx = save_xctx[n];
             delete_schematic_data();
             save_xctx[n] = NULL;
             my_strncpy(new_window[n], "", S(new_window[n]));
             /* delete Tcl context of deleted schematic window */
-            tclvareval("delete_ctx ", win_path, NULL);
             cnt--;
+            if(cnt == 0) tcleval(".menubar.view.menu entryconfigure 21 -state normal");
           }
           xctx = save_xctx[0]; /* restore main (.drw) schematic */
-          tcleval("restore_ctx .drw; housekeeping_ctx");
+          tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
           set_modify(xctx->modified); /* sets window title */
           draw();
         }
@@ -1186,18 +1191,61 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
         dbg(0, "new_schematic() destroy_tab: there are no additional tabs\n");
       }
     }
-  /********************** DESTROY_ALL **********************/
   } else if(!strcmp(what, "destroy_all")) {
-    Xschem_ctx *savectx;
-    savectx = xctx;
-    if(cnt) {
-      int close;
-      dbg(1, "new_schematic() destroy_all\n");
-      for(i = 1; i < MAX_NEW_WINDOWS; i++) {
-        if(new_window[i][0]) {
-          tkwin =  Tk_NameToWindow(interp, new_window[i], mainwindow); /* NULL if win_path not existing */
-          if(!tkwin) dbg(0, "new_schematic(\"switch\",...): Warning: %s has been destroyed\n", new_window[i]);
-          else { 
+    /********************** DESTROY_ALL **********************/
+    if(!tabbed_interface) {
+      Xschem_ctx *savectx;
+      savectx = xctx;
+      if(cnt) {
+        int close;
+        dbg(1, "new_schematic() destroy_all\n");
+        for(i = 1; i < MAX_NEW_WINDOWS; i++) {
+          if(new_window[i][0]) {
+            tkwin =  Tk_NameToWindow(interp, new_window[i], mainwindow); /* NULL if win_path not existing */
+            if(!tkwin) dbg(0, "new_schematic(\"switch\",...): Warning: %s has been destroyed\n", new_window[i]);
+            else { 
+              xctx = save_xctx[i];
+              close = 0;
+              /* reset old focused window so callback() will force repaint on expose events */
+              if(xctx->modified && has_x) {
+                tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
+                        "[get_cell [xschem get schname] 0]"
+                        ": UNSAVED data: want to exit?\"");
+                if(strcmp(tclresult(),"ok")==0) close = 1;
+              }
+              else close = 1;
+              Tcl_ResetResult(interp);
+              if(close) {
+                tclvareval("winfo toplevel ", new_window[i], NULL);
+                delete_schematic_data();
+                /* set saved ctx to main window if previous is about to be destroyed */
+                if(savectx == save_xctx[i]) savectx = save_xctx[0];
+                save_xctx[i] = NULL;
+                Tk_DestroyWindow(Tk_NameToWindow(interp, new_window[i], mainwindow));
+                tclvareval("destroy ", tclresult(), NULL);
+                /* delete Tcl context of deleted schematic window */
+                tclvareval("delete_ctx ", new_window[i], NULL);
+                my_strncpy(new_window[i], "", S(new_window[i]));
+                cnt--;
+                if(cnt == 0) tcleval(".menubar.view.menu entryconfigure 21 -state normal");
+              }
+            }
+          }
+        }
+      }
+      /* following 3 lines must be done also if windows not closed */
+      xctx = savectx; /* restore previous schematic or main if old is destroyed */
+      tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
+      set_modify(xctx->modified); /* sets window title */
+    /********************* DESTROY_ALL_TABS ******************/
+    } else {
+      Xschem_ctx *savectx;
+      savectx = xctx;
+      if(cnt) {
+        int close;
+        dbg(1, "new_schematic() destroy_all_tabs\n");
+        for(i = 1; i < MAX_NEW_WINDOWS; i++) {
+          if(new_window[i][0]) {
             xctx = save_xctx[i];
             close = 0;
             /* reset old focused window so callback() will force repaint on expose events */
@@ -1210,26 +1258,27 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
             else close = 1;
             Tcl_ResetResult(interp);
             if(close) {
-              tclvareval("winfo toplevel ", new_window[i], NULL);
+              /* delete Tcl context of deleted schematic window */
+              tclvareval("delete_ctx ", new_window[i], NULL);
+              tclvareval("delete_tab ", new_window[i], NULL);
               delete_schematic_data();
               /* set saved ctx to main window if previous is about to be destroyed */
               if(savectx == save_xctx[i]) savectx = save_xctx[0];
               save_xctx[i] = NULL;
-              Tk_DestroyWindow(Tk_NameToWindow(interp, new_window[i], mainwindow));
-              tclvareval("destroy ", tclresult(), NULL);
-              /* delete Tcl context of deleted schematic window */
-              tclvareval("delete_ctx ", new_window[i], NULL);
               my_strncpy(new_window[i], "", S(new_window[i]));
               cnt--;
+              if(cnt == 0) tcleval(".menubar.view.menu entryconfigure 21 -state normal");
             }
           }
         }
       }
+      /* following 3 lines must be done also if windows not closed */
+      xctx = savectx; /* restore previous schematic or main if old is destroyed */
+      tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
+      set_modify(xctx->modified); /* sets window title */
+ 
+
     }
-    /* following 3 lines must be done also if windows not closed */
-    xctx = savectx; /* restore previous schematic or main if old is destroyed */
-    tcleval("restore_ctx .drw; housekeeping_ctx");
-    set_modify(xctx->modified); /* sets window title */
   } else if(!strcmp(what, "switch")) {
     /**********************   SWITCH    **********************/
     if(!tabbed_interface) {

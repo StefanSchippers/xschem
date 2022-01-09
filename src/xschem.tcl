@@ -3714,18 +3714,66 @@ proc toolbar_hide { { topwin {} } } {
     set $toolbar_visible 0
 }
 
+proc setup_tabbed_interface {} {
+  global tabbed_interface
+
+  set top_path [xschem get top_path]
+  if { $tabbed_interface } {
+    frame $top_path.tabs
+    button $top_path.tabs.x0 -padx 2 -pady 0  -text Main -command {xschem new_schematic switch .drw}
+    # button $topwin.tabs.x1 -padx 2 -pady 0  -text Tab1 -command {xschem new_schematic switch .x1.drw}
+    # button $topwin.tabs.x2 -padx 2 -pady 0  -text Tab2 -command {xschem new_schematic switch .x2.drw}
+    button $top_path.tabs.add -padx 0 -pady 0  -text { + } -command create_new_tab
+    # pack $topwin.tabs.x0 $topwin.tabs.x1 $topwin.tabs.x2 $topwin.tabs.add -side left
+    pack $top_path.tabs.x0 $top_path.tabs.add -side left
+    pack $top_path.tabs  -fill x -side top -expand false -side top -before $top_path.drw
+  } else {
+    destroy $top_path.tabs
+  }
+  if {$tabbed_interface} {
+    $top_path.menubar.file.menu entryconfigure 6 -state disabled
+    $top_path.menubar.file.menu entryconfigure 7 -state disabled
+  } else {
+    $top_path.menubar.file.menu entryconfigure 6 -state normal
+    $top_path.menubar.file.menu entryconfigure 7 -state normal
+  } 
+  set_tab_names
+}
+
+proc delete_tab {path} {
+  # path --> .x2.drw
+  # tab button --> $top_path.tabs.x2
+  set top_path [xschem get top_path]
+  regsub {\.drw$} $path {} path
+  destroy $top_path.tabs$path
+}
+
+proc create_new_tab {} {
+  global max_new_windows
+
+  set top_path [xschem get top_path]
+  for { set i 1} { $i < $max_new_windows} { incr i} {
+    if { ![winfo exists ${top_path}.tabs.x$i] } {
+      button $top_path.tabs.x$i -padx 2 -pady 0  -text Tab2 -command "xschem new_schematic switch .x$i.drw"
+      pack $top_path.tabs.x$i -before .tabs.add -side left
+      xschem new_schematic create .x$i.drw
+      break
+    }
+  }
+}
 
 proc set_tab_names {} {
   global tabbed_interface has_x
 
   if {[info exists has_x] && $tabbed_interface } {
     set currwin [xschem get current_win_path]
+    set top_path [xschem get top_path]
     # puts "set_tab_names : currwin=$currwin"
     if { $currwin eq {.drw}} {
-      .tabs.x0 configure -text [file rootname [file tail [xschem get schname]]]
+      ${top_path}.tabs.x0 configure -text [file rootname [file tail [xschem get schname]]]
     } else {
-      regsub {\.drw} $currwin {} top_path
-      .tabs$top_path configure -text [file rootname [file tail [xschem get schname]]]
+      regsub {\.drw} $currwin {} tabname
+      ${top_path}.tabs$tabname configure -text [file rootname [file tail [xschem get schname]]]
     }
   }
 }
@@ -3785,7 +3833,9 @@ proc no_open_dialogs {} {
 ## "textwindow_wcounter" should be kept unique as it is the number of open textwindows
 ## "viewdata_wcounter" should be kept unique as it is the number of open viewdatas
 ## "measure_id" should be kept unique since we allow only one measure tooltip in graphs
-## tabbed_interface is unique
+## "tabbed_interface"
+## "max_new_windows"
+
 
 set tctx::global_list {
   auto_hilight autotrim_wires bespice_listen_port big_grid_points bus_replacement_char
@@ -4017,10 +4067,11 @@ proc build_widgets { {topwin {} } } {
   if { $tabbed_interface } {
     frame $topwin.tabs
     button $topwin.tabs.x0 -padx 2 -pady 0  -text Main -command {xschem new_schematic switch .drw}
-    button $topwin.tabs.x1 -padx 2 -pady 0  -text Tab1 -command {xschem new_schematic switch .x1.drw}
-    button $topwin.tabs.x2 -padx 2 -pady 0  -text Tab2 -command {xschem new_schematic switch .x2.drw}
-    button $topwin.tabs.add -padx 0 -pady 0  -text { + }
-    pack $topwin.tabs.x0 $topwin.tabs.x1 $topwin.tabs.x2 $topwin.tabs.add -side left
+    # button $topwin.tabs.x1 -padx 2 -pady 0  -text Tab1 -command {xschem new_schematic switch .x1.drw}
+    # button $topwin.tabs.x2 -padx 2 -pady 0  -text Tab2 -command {xschem new_schematic switch .x2.drw}
+    button $topwin.tabs.add -padx 0 -pady 0  -text { + } -command create_new_tab
+    # pack $topwin.tabs.x0 $topwin.tabs.x1 $topwin.tabs.x2 $topwin.tabs.add -side left
+    pack $topwin.tabs.x0 $topwin.tabs.add -side left
   }
   eval frame $topwin.menubar -relief raised -bd 2 $mbg
   toolbar_toolbar $topwin
@@ -4273,7 +4324,6 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.view.menu add checkbutton -label "View only Probes" -variable only_probes \
          -accelerator {5} \
          -command { xschem only_probes }
-  $topwin.menubar.view.menu add checkbutton -label "Increment Hilight Color" -variable incr_hilight
   $topwin.menubar.view.menu add command -label "Toggle colorscheme"  -accelerator {Shift+O} -command {
           xschem toggle_colorscheme
           xschem build_colors 1
@@ -4319,6 +4369,8 @@ proc build_widgets { {topwin {} } } {
      -command " 
         if { \$toolbar_visible } \" toolbar_hide $topwin; toolbar_show $topwin \"
      "
+  $topwin.menubar.view.menu add checkbutton -label "Tabbed_interface" -variable tabbed_interface \
+    -command setup_tabbed_interface
   $topwin.menubar.prop.menu add command -label "Edit" -command "xschem edit_prop" -accelerator Q
   $topwin.menubar.prop.menu add command -label "Edit with editor" -command "xschem edit_vi_prop" -accelerator Shift+Q
   $topwin.menubar.prop.menu add command -label "View" -command "xschem view_prop" -accelerator Ctrl+Shift+Q
@@ -4408,6 +4460,7 @@ proc build_widgets { {topwin {} } } {
      -command "xschem check_unique_names 1" -accelerator {Ctrl+#}
   $topwin.menubar.hilight.menu add command -label {Propagate Highlight selected net/pins} \
      -command "xschem hilight drill" -accelerator {Ctrl+Shift+K}
+  $topwin.menubar.hilight.menu add checkbutton -label "Increment Hilight Color" -variable incr_hilight
   $topwin.menubar.hilight.menu add command -label {Highlight selected net/pins} \
      -command "xschem hilight" -accelerator K
   $topwin.menubar.hilight.menu add command -label {Send selected net/pins to Viewer} \
@@ -4494,7 +4547,12 @@ proc build_widgets { {topwin {} } } {
   wm  geometry $rootwin $initial_geometry
   #wm maxsize . 1600 1200
   if { $rootwin == {.}} {
-    wm protocol $rootwin WM_DELETE_WINDOW {xschem exit}
+    wm protocol $rootwin WM_DELETE_WINDOW "
+      if { \[xschem get current_win_path\] eq {.drw} } {
+        xschem exit
+      } else {
+        xschem new_schematic destroy \[xschem get current_win_path\] {}
+      }"
   } else {
     wm protocol $topwin WM_DELETE_WINDOW "xschem new_schematic destroy $topwin.drw {}"
   }
