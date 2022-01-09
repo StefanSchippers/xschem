@@ -3751,17 +3751,18 @@ proc delete_tab {path} {
 
 proc create_new_tab {} {
   set top_path [xschem get top_path]
+  set found 0
   for { set i 1} { $i < $tctx::max_new_windows} { incr i} {
     if { ![winfo exists ${top_path}.tabs.x$i] } {
       button $top_path.tabs.x$i -padx 2 -pady 0  -text Tab2 -command "xschem new_schematic switch .x$i.drw"
       if {![info exists tctx::tab_bg] } {set tctx::tab_bg [$top_path.tabs.x$i cget -bg]}
       pack $top_path.tabs.x$i -before .tabs.add -side left
       xschem new_schematic create .x$i.drw
+      set found 1
       break
-    } else {
-
     }
   }
+  if {!$found} { puts "no more available tabs"}
 }
 
 proc set_tab_names {} {
@@ -4374,7 +4375,7 @@ proc build_widgets { {topwin {} } } {
      -command " 
         if { \$toolbar_visible } \" toolbar_hide $topwin; toolbar_show $topwin \"
      "
-  $topwin.menubar.view.menu add checkbutton -label "Tabbed_interface" -variable tabbed_interface \
+  $topwin.menubar.view.menu add checkbutton -label "Tabbed interface" -variable tabbed_interface \
     -command setup_tabbed_interface
   $topwin.menubar.prop.menu add command -label "Edit" -command "xschem edit_prop" -accelerator Q
   $topwin.menubar.prop.menu add command -label "Edit with editor" -command "xschem edit_vi_prop" -accelerator Shift+Q
