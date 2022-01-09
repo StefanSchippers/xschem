@@ -81,11 +81,11 @@ void set_modify(int mod)
   char *top_path;
 
   top_path =  xctx->top_path[0] ? xctx->top_path : ".";
-  xctx->modified = mod;
+  if(mod != -1) xctx->modified = mod;
   dbg(1, "set_modify(): %d\n", mod);
   if(mod == -1 || mod != xctx->prev_set_modify) { /* mod=-1 used to force set title */
-    mod = 0;
-    xctx->prev_set_modify = mod;
+    if(mod != -1) xctx->prev_set_modify = mod;
+    else mod = 0;
     if(has_x && strcmp(get_cell(xctx->sch[xctx->currsch],1), "systemlib/font")) {
       if(mod == 1) {
         tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
