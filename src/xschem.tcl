@@ -3641,14 +3641,15 @@ proc setup_toolbar {} {
 # Toolbar constructor
 #
 proc toolbar_toolbar { {topwin {} } } {
-    frame $topwin.toolbar -relief raised -bd 1 -bg white
+    frame $topwin.toolbar -relief raised -bd 0 -bg white
 }
 
 #
 # Create a tool button which may be displayed
 #
 proc toolbar_create {name cmd { help "" } {topwin {} } } {
-    button $topwin.toolbar.b$name -image img$name -relief flat -bd 3 -bg white -fg white -command $cmd
+    button $topwin.toolbar.b$name -image img$name -relief flat -bd 1 -bg white -fg white \
+    -padx 0 -pady 0 -command $cmd
     if { $help == "" } { balloon $topwin.toolbar.b$name $name } else { balloon $topwin.toolbar.b$name $help }
 }
 
@@ -3676,10 +3677,10 @@ proc toolbar_show { { topwin {} } } {
         if { $b == "---" } {
             if { $toolbar_horiz } {
                 frame $topwin.toolbar.sep$toolbar_sepn -bg lightgrey -width 2
-                pack $topwin.toolbar.sep$toolbar_sepn -side $pos -padx 1 -pady 1 -fill y
+                pack $topwin.toolbar.sep$toolbar_sepn -side $pos -padx 1 -pady 0 -fill y
             } else {
                 frame $topwin.toolbar.sep$toolbar_sepn -bg lightgrey -height 2
-                pack $topwin.toolbar.sep$toolbar_sepn -side $pos -padx 1 -pady 1 -fill x
+                pack $topwin.toolbar.sep$toolbar_sepn -side $pos -padx 0 -pady 1 -fill x
             }
             incr toolbar_sepn
         } else {
@@ -3749,15 +3750,16 @@ proc delete_tab {path} {
 }
 
 proc create_new_tab {} {
-  global max_new_windows
-
   set top_path [xschem get top_path]
-  for { set i 1} { $i < $max_new_windows} { incr i} {
+  for { set i 1} { $i < $tctx::max_new_windows} { incr i} {
     if { ![winfo exists ${top_path}.tabs.x$i] } {
       button $top_path.tabs.x$i -padx 2 -pady 0  -text Tab2 -command "xschem new_schematic switch .x$i.drw"
+      if {![info exists tctx::tab_bg] } {set tctx::tab_bg [$top_path.tabs.x$i cget -bg]}
       pack $top_path.tabs.x$i -before .tabs.add -side left
       xschem new_schematic create .x$i.drw
       break
+    } else {
+
     }
   }
 }
@@ -3767,13 +3769,15 @@ proc set_tab_names {} {
 
   if {[info exists has_x] && $tabbed_interface } {
     set currwin [xschem get current_win_path]
+    regsub {\.drw} $currwin {} tabname
     set top_path [xschem get top_path]
+    if {$tabname eq {}} { set tabname .x0}
     # puts "set_tab_names : currwin=$currwin"
-    if { $currwin eq {.drw}} {
-      ${top_path}.tabs.x0 configure -text [file rootname [file tail [xschem get schname]]]
-    } else {
-      regsub {\.drw} $currwin {} tabname
-      ${top_path}.tabs$tabname configure -text [file rootname [file tail [xschem get schname]]]
+    ${top_path}.tabs$tabname configure -text [file rootname [file tail [xschem get schname]]] -bg Palegreen
+    for { set i 0} { $i < $tctx::max_new_windows} { incr i} {
+      if { [winfo exists ${top_path}.tabs.x$i] && ($tabname ne ".x$i")} {
+         ${top_path}.tabs.x$i configure -bg $tctx::tab_bg
+      }
     }
   }
 }
@@ -3811,6 +3815,8 @@ namespace eval tctx {
   variable global_list
   variable global_array_list
   variable dialog_list
+  variable tab_bg
+  variable max_new_windows
 }
 
 ## list of dialogs: when open do not perform context switching
@@ -3834,7 +3840,6 @@ proc no_open_dialogs {} {
 ## "viewdata_wcounter" should be kept unique as it is the number of open viewdatas
 ## "measure_id" should be kept unique since we allow only one measure tooltip in graphs
 ## "tabbed_interface"
-## "max_new_windows"
 
 
 set tctx::global_list {
@@ -4133,13 +4138,13 @@ proc build_widgets { {topwin {} } } {
     }
   $topwin.menubar.file.menu add command -label "Open" -command "xschem load" -accelerator {Ctrl+O}
   $topwin.menubar.file.menu add cascade -label "Open Recent" -menu $topwin.menubar.file.menu.recent
-  $topwin.menubar.file.menu add cascade -label {Open Recent in new window [exp]} \
+  $topwin.menubar.file.menu add cascade -label {Open Recent in new window} \
     -menu $topwin.menubar.file.menu.recent_new_window
   menu $topwin.menubar.file.menu.recent_new_window -tearoff 0
   menu $topwin.menubar.file.menu.recent -tearoff 0
   setup_recent_menu 0 $topwin
   setup_recent_menu 1 $topwin
-  $topwin.menubar.file.menu add command -label {Open new window [exp]} -command "xschem load_new_window"
+  $topwin.menubar.file.menu add command -label {Open new window} -command "xschem load_new_window"
   if {$tabbed_interface} {
     $topwin.menubar.file.menu entryconfigure 6 -state disabled
     $topwin.menubar.file.menu entryconfigure 7 -state disabled
@@ -4819,8 +4824,6 @@ set_ne undo_type disk
 ## show tab bar (tabbed interface) 
 set_ne tabbed_interface 0
 
-## max number of windows (including main) a single xschem process can handle
-set_ne max_new_windows -1 ;# this is set by xinit.c
 ## remember edit_prop widget size
 set_ne edit_prop_size 80x12
 set_ne text_line_default_geometry 80x12

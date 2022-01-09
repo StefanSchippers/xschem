@@ -5,13 +5,13 @@ V {}
 S {
 }
 E {}
-L 4 250 -300 270 -320 {}
-L 4 250 -300 290 -300 {}
-L 4 270 -320 290 -300 {}
-L 4 270 -220 290 -240 {}
-L 4 250 -240 290 -240 {}
-L 4 250 -240 270 -220 {}
-L 4 270 -300 270 -240 {}
+L 4 210 -300 230 -320 {}
+L 4 210 -300 250 -300 {}
+L 4 230 -320 250 -300 {}
+L 4 230 -220 250 -240 {}
+L 4 210 -240 250 -240 {}
+L 4 210 -240 230 -220 {}
+L 4 230 -300 230 -240 {}
 L 4 350 -580 370 -560 {dash=3}
 L 4 370 -600 370 -560 {dash=3}
 L 4 350 -580 370 -600 {dash=3}
@@ -42,7 +42,7 @@ color="4 6 8"
 sweep="v(z) v(a)"}
 P 4 5 560 -700 560 -510 1350 -510 1350 -700 560 -700 {dash=3}
 P 4 5 820 -920 820 -730 1350 -730 1350 -920 820 -920 {dash=3}
-T {These 2 instances are equivalent} 290 -280 0 0 0.4 0.4 {}
+T {These 2 instances are equivalent} 260 -310 0 0 0.4 0.4 {}
 T {Example of using a schematic as a component instance
 instead of the usual symbol. LCC: Local Custom Cell.
 
@@ -70,7 +70,7 @@ N 650 -860 650 -770 { lab=A}
 C {vsource.sym} 50 -140 0 0 {name=V1 value="pwl 0 0 1u 0 5u 3"}
 C {lab_pin.sym} 50 -170 0 0 {name=p4 lab=A}
 C {lab_pin.sym} 50 -110 0 0 {name=p5 lab=0}
-C {code_shown.sym} 520 -190 0 0 {name=STIMULI
+C {code_shown.sym} 510 -250 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
 value=".control

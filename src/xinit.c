@@ -2116,7 +2116,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    load_schematic(1, filename, !do_netlist);
  }
 
- tclsetintvar("max_new_windows", MAX_NEW_WINDOWS);
+ tclsetintvar("tctx::max_new_windows", MAX_NEW_WINDOWS);
 
  zoom_full(0, 0, 1, 0.97);   /* Necessary to tell xschem the initial area to display */
  xctx->pending_fullzoom=1;

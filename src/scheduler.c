@@ -646,7 +646,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"exit"))
     {
       cmd_found = 1;
-      if(!strcmp(xctx->top_path, "")) {
+      if(!strcmp(xctx->current_win_path, ".drw")) {
         if(has_x) {
           int remaining;
           remaining = new_schematic("destroy_all", NULL, NULL);
