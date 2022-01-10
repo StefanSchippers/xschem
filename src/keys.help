@@ -51,12 +51,14 @@ LeftButton Double click Terminate Polygon placement
 -          BackSpace    Back to parent schematic
 -          Delete       Delete selected objects
 -          Insert       Insert element from library
--          Down         Move down
-ctrl       Enter        Confirm closing dialog boxes
 -          Escape       Abort, redraw, unselect
+ctrl       Enter        Confirm closing dialog boxes
+-          Down         Move down
 -          Left         Move right
 -          Right        Move left
 -          Up           Move up
+ctrl       Left         Previous tab (if tabbed interface enabled) 
+ctrl       Right        Next tab (if tabbed interface enabled)
 -           '\'         Toggle fullscreen
 -           '!'         Break selected wires at any wire or component pin
                         connection

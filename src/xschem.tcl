@@ -3749,7 +3749,57 @@ proc delete_tab {path} {
   destroy $top_path.tabs$path
 }
 
+proc prev_tab {} {
+  global tabbed_interface
+  if { !$tabbed_interface} { return}
+  set top_path [xschem get top_path]
+  set currwin [xschem get current_win_path]
+  regsub {\.drw} $currwin {} tabname
+  if {$tabname eq {}} { set tabname .x0}
+  regsub {\.x} $tabname {} number
+  set next_tab $number
+  set highest -10000000
+  set xcoord [winfo rootx  $top_path.tabs$tabname]
+  for {set i 0} {$i < $tctx::max_new_windows} { incr i} {
+    if { $i == $number} { continue}
+    if { [winfo exists ${top_path}.tabs.x$i] } {
+      set tab_coord  [winfo rootx $top_path.tabs.x$i]
+      if {$tab_coord < $xcoord && $tab_coord > $highest} {
+        set next_tab $i
+        set highest $tab_coord
+      }
+    }
+  }
+  $top_path.tabs.x$next_tab invoke
+}
+
+proc next_tab {} {
+  global tabbed_interface
+  if { !$tabbed_interface} {return}
+  set top_path [xschem get top_path]
+  set currwin [xschem get current_win_path]
+  regsub {\.drw} $currwin {} tabname
+  if {$tabname eq {}} { set tabname .x0}
+  regsub {\.x} $tabname {} number
+  set next_tab $number
+  set lowest 10000000
+  set xcoord [winfo rootx  $top_path.tabs$tabname]
+  for {set i 0} {$i < $tctx::max_new_windows} { incr i} {
+    if { $i == $number} { continue}
+    if { [winfo exists ${top_path}.tabs.x$i] } {
+      set tab_coord [winfo rootx $top_path.tabs.x$i]
+      if {$tab_coord > $xcoord && $tab_coord < $lowest} {
+        set next_tab $i
+        set lowest $tab_coord
+      }
+    }
+  }
+  $top_path.tabs.x$next_tab invoke
+}
+
 proc create_new_tab {} {
+  global tabbed_interface
+  if { !$tabbed_interface} {return}
   set top_path [xschem get top_path]
   set found 0
   for { set i 1} { $i < $tctx::max_new_windows} { incr i} {
@@ -3781,6 +3831,31 @@ proc set_tab_names {} {
       }
     }
   }
+}
+
+
+proc test1 {} {
+  global tabbed_interface
+
+  set tabbed_interface 1
+  setup_tabbed_interface
+  xschem load [abs_sym_path rom8k.sch]
+  create_new_tab
+  xschem load [abs_sym_path poweramp.sch]
+  create_new_tab
+  xschem load [abs_sym_path mos_power_ampli.sch]
+  create_new_tab
+  xschem load [abs_sym_path rom8k.sch]
+  create_new_tab
+  xschem load [abs_sym_path autozero_comp.sch]
+  create_new_tab
+  xschem load [abs_sym_path LCC_instances.sch]
+  create_new_tab
+  xschem load [abs_sym_path simulate_ff.sch]
+  create_new_tab
+  xschem load [abs_sym_path led_driver.sch]
+  create_new_tab
+  xschem load [abs_sym_path solar_panel.sch]
 }
 
 proc raise_dialog {parent window_path } {

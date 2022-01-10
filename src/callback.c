@@ -1321,7 +1321,15 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      if(xctx->semaphore >= 2) break;
      delete(1/* to_push_undo */);break;
    }
-   if(key==XK_Right)                    /* left */
+   if(key==XK_Left && state == ControlMask) /* previous tab */
+   {
+     tcleval("prev_tab");
+   }
+   if(key==XK_Right && state == ControlMask) /* next tab */
+   {
+     tcleval("next_tab");
+   }
+   if(key==XK_Right && state == 0)                    /* left */
    {
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
@@ -1332,7 +1340,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     redraw_w_a_l_r_p_rubbers();
     break;
    }
-   if(key==XK_Left)                     /* right */
+   if(key==XK_Left && state == 0)                     /* right */
    {
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
