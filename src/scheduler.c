@@ -2515,8 +2515,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"set_modify"))
     {
       cmd_found = 1;
-      if(argc == 3 && argv[2][0] == '0') set_modify(0);
-      set_modify(1);
+      if(argc > 2) {
+        set_modify(atoi(argv[2]));
+      }
       Tcl_ResetResult(interp);
     }
    

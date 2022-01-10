@@ -948,7 +948,7 @@ void preview_window(const char *what, const char *win_path, const char *filename
     my_free(1144, &current_file);
     xctx = save_xctx; /* restore schematic */
     save_xctx = NULL;
-    set_modify(xctx->modified);
+    set_modify(-1);
   }
 }
 
@@ -1139,7 +1139,7 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
         /* following 3 lines must be done also if window not closed */
         xctx = savectx; /* restore previous schematic or main window if previous destroyed */
         tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
-        set_modify(xctx->modified); /* sets window title */
+        set_modify(-1); /* sets window title */
       }
     /********************** DESTROY_TAB **********************/
     } else {
@@ -1184,7 +1184,7 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
           }
           xctx = save_xctx[0]; /* restore main (.drw) schematic */
           tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
-          set_modify(xctx->modified); /* sets window title */
+          set_modify(-1); /* sets window title */
           draw();
         }
       } else {
@@ -1236,7 +1236,7 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
       /* following 3 lines must be done also if windows not closed */
       xctx = savectx; /* restore previous schematic or main if old is destroyed */
       tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
-      set_modify(xctx->modified); /* sets window title */
+      set_modify(-1); /* sets window title */
     /********************* DESTROY_ALL_TABS ******************/
     } else {
       Xschem_ctx *savectx;
@@ -1275,7 +1275,7 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
       /* following 3 lines must be done also if windows not closed */
       xctx = savectx; /* restore previous schematic or main if old is destroyed */
       tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
-      set_modify(xctx->modified); /* sets window title */
+      set_modify(-1); /* sets window title */
  
 
     }
@@ -1300,7 +1300,7 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
         /* if window was closed then tkwin == 0 --> do nothing */
         if(tkwin && n >= 0 && n < MAX_NEW_WINDOWS) {
           xctx = save_xctx[n];
-          set_modify(xctx->modified); /* sets window title */
+          set_modify(-1); /* sets window title */
         }
       }
     /********************** SWITCH_TAB  **********************/
