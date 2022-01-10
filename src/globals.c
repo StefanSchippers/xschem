@@ -162,7 +162,6 @@ int help=0; /* help option set to global scope, printing help is deferred */
             /* when configuration xschemrc has been read 20140406 */
 FILE *errfp = NULL;
 int no_readline=0;
-char *filename=NULL; /* filename given on cmdline */
 char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
 char user_conf_dir[PATH_MAX];
 char pwd_dir[PATH_MAX];  /* obtained via getcwd() */
@@ -200,6 +199,7 @@ int cli_opt_netlist_type = 0;
 int cli_opt_flat_netlist = 0;
 char cli_opt_plotfile[PATH_MAX] = "";
 char cli_opt_netlist_dir[PATH_MAX] = "";
+char cli_opt_filename[PATH_MAX] = ""; /* filename given on cmdline */
 
 
 /* --------------------------------------------------- */

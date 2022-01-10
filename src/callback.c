@@ -1455,12 +1455,18 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='e' && state == Mod1Mask)            /* edit schematic in new window */
    {
+    int save = xctx->semaphore;
+    xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
     schematic_in_new_window();
+    xctx->semaphore = save;
     break;
    }
    if(key=='i' && state == Mod1Mask)            /* edit symbol in new window */
    {
+    int save =  xctx->semaphore;
+    xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
     symbol_in_new_window();
+    xctx->semaphore = save;
     break;
    }
    if( (key=='e' && state == ControlMask) || (key==XK_BackSpace))  /* back */

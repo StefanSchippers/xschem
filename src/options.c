@@ -230,9 +230,9 @@ int process_options(int argc, char *argv[])
   }
   if (arg_cnt>=2) {
     dbg(1, "process_option(): file name given: %s\n",argv[1]);
-    my_strdup(291, &filename, argv[1]);
+    my_strncpy(cli_opt_filename, argv[1], S(cli_opt_filename));
 #ifndef __unix__
-    change_to_unix_fn(filename);
+    change_to_unix_fn(cli_opt_filename);
 #endif
   }
   return arg_cnt;

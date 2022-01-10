@@ -165,7 +165,6 @@ void xschem_cmd_help(int argc, const char **argv)
     "load\n",
     "load_new_window\n",
     "load_symbol\n",
-    "load_symbol\n",
     "log\n",
     "logic_set\n",
     "make_sch\n",
@@ -1548,17 +1547,31 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       if(argc==3) {
         if(!has_x || !xctx->modified  || save(1) != -1 ) { /* save(1)==-1 --> user cancel */
+          char f[PATH_MAX];
+          char win_path[WINDOW_PATH_SIZE];
+          int skip = 0;
           dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
-          clear_all_hilights();
-          xctx->currsch = 0;
-          unselect_all();
-          remove_symbols();
-          load_schematic(1, abs_sym_path(argv[2], ""), 1);
-          tclvareval("update_recent_file {", abs_sym_path(argv[2], ""), "}", NULL);
-          my_strdup(375, &xctx->sch_path[xctx->currsch],".");
-          xctx->sch_path_hash[xctx->currsch] = 0;
-          xctx->sch_inst_number[xctx->currsch] = 1;
-          zoom_full(1, 0, 1, 0.97);
+          my_strncpy(f,  abs_sym_path(argv[2], ""), S(f));
+
+          if(f[0] && check_loaded(f, win_path)) {
+            char msg[PATH_MAX + 100];
+            my_snprintf(msg, S(msg), "alert_ {xschem load: %s already open: %s}", f, win_path);
+            if(has_x) tcleval(msg);
+            else dbg(0, "xschem load: %s already open: %s\n", f, win_path);
+            skip = 1;
+          }
+          if(!skip) {
+            clear_all_hilights();
+            xctx->currsch = 0;
+            unselect_all();
+            remove_symbols();
+            load_schematic(1, f, 1);
+            tclvareval("update_recent_file {", f, "}", NULL);
+            my_strdup(375, &xctx->sch_path[xctx->currsch],".");
+            xctx->sch_path_hash[xctx->currsch] = 0;
+            xctx->sch_inst_number[xctx->currsch] = 1;
+            zoom_full(1, 0, 1, 0.97);
+          }
         }
       }
       else if(argc==2) {
@@ -1582,32 +1595,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
    
-    else if(!strcmp(argv[1], "load_symbol")) 
-    { 
-      int save, missing = 0;
-      cmd_found = 1;
-      if(argc > 2) { 
-         save = xctx->symbols;
-         match_symbol(argv[2]);
-         if( xctx->symbols != save && !strcmp( xctx->sym[xctx->symbols - 1].type, "missing") ) {
-           missing = 1;
-           remove_symbol( xctx->symbols - 1);
-         }
-      }
-      Tcl_SetResult(interp, missing ? "0" : "1", TCL_STATIC);
-    }
-   
     else if(!strcmp(argv[1],"load_symbol") )
     {
       cmd_found = 1;
       if(argc==3) {
+        char f[PATH_MAX];
         dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
+        my_strncpy(f, abs_sym_path(argv[2], ""), S(f));
         clear_all_hilights();
         xctx->currsch = 0;
         unselect_all();
         remove_symbols();
-        /* load_symbol(argv[2]); */
-        load_schematic(0, abs_sym_path(argv[2], ""), 1);
+        load_schematic(0, f, 1);
         my_strdup(374, &xctx->sch_path[xctx->currsch],".");
         xctx->sch_path_hash[xctx->currsch] = 0;
         xctx->sch_inst_number[xctx->currsch] = 1;
@@ -1823,8 +1822,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xctx->last_command = 0;
         rebuild_selected_array();
         if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
-          tclvareval("set INITIALINSTDIR [file dirname {",
-             abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
+          char f[PATH_MAX];
+          my_strncpy(f, abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), S(f));
+          tclvareval("set INITIALINSTDIR [file dirname {", f, "}]", NULL);
         } 
         ret = place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
       }

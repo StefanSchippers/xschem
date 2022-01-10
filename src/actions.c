@@ -445,29 +445,39 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
 
 void ask_new_file(void)
 {
-    char fullname[PATH_MAX]; /*  overflow safe 20161125 */
+    char f[PATH_MAX]; /*  overflow safe 20161125 */
 
     if(!has_x) return;
-
     if(xctx->modified) {
       if(save(1) == -1 ) return; /*  user cancels save, so do nothing. */
     }
     tcleval("load_file_dialog {Load file} .sch.sym INITIALLOADDIR");
-    my_snprintf(fullname, S(fullname),"%s", tclresult());
-
-
-    if( fullname[0] ) {
-     dbg(1, "ask_new_file(): load file: %s\n", fullname);
-     clear_all_hilights();
-     xctx->currsch = 0;
-     unselect_all();
-     remove_symbols();
-     load_schematic(1, fullname,1); /* 20180925.1 */
-     tclvareval("update_recent_file {", fullname, "}", NULL);
-     my_strdup(1, &xctx->sch_path[xctx->currsch],".");
-     xctx->sch_path_hash[xctx->currsch] = 0;
-     xctx->sch_inst_number[xctx->currsch] = 1;
-     zoom_full(1, 0, 1, 0.97);
+    my_snprintf(f, S(f),"%s", tclresult());
+    if(f[0]) {
+      char win_path[WINDOW_PATH_SIZE];
+      int skip = 0;
+      dbg(1, "ask_new_file(): load: f=%s\n", f);
+ 
+      if(check_loaded(f, win_path)) {
+        char msg[PATH_MAX + 100];
+        my_snprintf(msg, S(msg), "alert_ {xschem load: %s already open: %s}", f, win_path);
+        if(has_x) tcleval(msg);
+        else dbg(0, "ask_new_file: %s already open: %s\n", f, win_path);
+        skip = 1;
+      }
+      if(!skip) {
+        dbg(1, "ask_new_file(): load file: %s\n", f);
+        clear_all_hilights();
+        xctx->currsch = 0;
+        unselect_all();
+        remove_symbols();
+        load_schematic(1, f,1); /* 20180925.1 */
+        tclvareval("update_recent_file {", f, "}", NULL);
+        my_strdup(1, &xctx->sch_path[xctx->currsch],".");
+        xctx->sch_path_hash[xctx->currsch] = 0;
+        xctx->sch_inst_number[xctx->currsch] = 1;
+        zoom_full(1, 0, 1, 0.97);
+      }
     }
 }
 
@@ -965,16 +975,32 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
 
 void symbol_in_new_window(void)
 {
+ char filename[PATH_MAX];
+ char win_path[WINDOW_PATH_SIZE];
  rebuild_selected_array();
+ 
  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT)
  {
-  new_xschem_process(xctx->sch[xctx->currsch],1);
+  my_strncpy(filename,  xctx->sch[xctx->currsch], S(filename));
+  if(tclgetvar("tabbed_interface")[0] == '1' && !check_loaded(filename, win_path)) {
+    tcleval("create_new_tab");
+    tclvareval("xschem load ", filename, NULL);
+  } else {
+    new_xschem_process(filename, 1);
+  }
  }
  else
  {
-  new_xschem_process(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""),1);
+  my_strncpy(filename, abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), S(filename));
+  if(tclgetvar("tabbed_interface")[0] == '1') {
+    if(!check_loaded(filename, win_path)) {
+      tcleval("create_new_tab");
+      tclvareval("xschem load ", filename, NULL);
+    }
+  } else {
+    new_xschem_process(filename, 1);
+  }
  }
-
 }
 
 
@@ -982,6 +1008,7 @@ void schematic_in_new_window(void)
 {
  char *sch = NULL;
  char filename[PATH_MAX];
+ char win_path[WINDOW_PATH_SIZE];
  rebuild_selected_array();
  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT)
  {
@@ -1011,7 +1038,14 @@ void schematic_in_new_window(void)
     my_strncpy(filename, add_ext(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), ".sch"), S(filename));
   }
 
-  new_xschem_process(filename, 0);
+  if(tclgetvar("tabbed_interface")[0] == '1') {
+    if(!check_loaded(filename, win_path)) {
+      tcleval("create_new_tab");
+      tclvareval("xschem load ", filename, NULL);
+    }
+  } else {
+    new_xschem_process(filename, 0);
+  }
  }
 }
 

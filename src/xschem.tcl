@@ -3718,7 +3718,7 @@ proc toolbar_hide { { topwin {} } } {
 proc setup_tabbed_interface {} {
   global tabbed_interface
 
-  set top_path [xschem get top_path]
+  set top_path {}
   if { $tabbed_interface } {
     frame $top_path.tabs
     button $top_path.tabs.x0 -padx 2 -pady 0  -text Main -command {xschem new_schematic switch .drw}
@@ -3734,11 +3734,11 @@ proc setup_tabbed_interface {} {
   if {$tabbed_interface} {
     $top_path.menubar.file.menu entryconfigure 6 -state disabled
     $top_path.menubar.file.menu entryconfigure 7 -state disabled
+    set_tab_names
   } else {
     $top_path.menubar.file.menu entryconfigure 6 -state normal
     $top_path.menubar.file.menu entryconfigure 7 -state normal
   } 
-  set_tab_names
 }
 
 proc delete_tab {path} {
@@ -3824,7 +3824,7 @@ proc set_tab_names {} {
     set top_path [xschem get top_path]
     if {$tabname eq {}} { set tabname .x0}
     # puts "set_tab_names : currwin=$currwin"
-    ${top_path}.tabs$tabname configure -text [file rootname [file tail [xschem get schname]]] -bg Palegreen
+    ${top_path}.tabs$tabname configure -text [file tail [xschem get schname]] -bg Palegreen
     for { set i 0} { $i < $tctx::max_new_windows} { incr i} {
       if { [winfo exists ${top_path}.tabs.x$i] && ($tabname ne ".x$i")} {
          ${top_path}.tabs.x$i configure -bg $tctx::tab_bg
@@ -3833,13 +3833,27 @@ proc set_tab_names {} {
   }
 }
 
+proc test2 {} {
+  global tabbed_interface
+
+  set tabbed_interface 0
+  xschem load [abs_sym_path testbench.sch]
+  xschem load_new_window [abs_sym_path poweramp.sch]
+  xschem load_new_window [abs_sym_path mos_power_ampli.sch]
+  xschem load_new_window [abs_sym_path rom8k.sch]
+  xschem load_new_window [abs_sym_path autozero_comp.sch]
+  xschem load_new_window [abs_sym_path LCC_instances.sch]
+  xschem load_new_window [abs_sym_path simulate_ff.sch]
+  xschem load_new_window [abs_sym_path led_driver.sch]
+  xschem load_new_window [abs_sym_path solar_panel.sch]
+}
 
 proc test1 {} {
   global tabbed_interface
 
   set tabbed_interface 1
   setup_tabbed_interface
-  xschem load [abs_sym_path rom8k.sch]
+  xschem load [abs_sym_path testbench.sch]
   create_new_tab
   xschem load [abs_sym_path poweramp.sch]
   create_new_tab
@@ -4143,16 +4157,6 @@ proc build_widgets { {topwin {} } } {
   if { $topwin ne {}} {
     set mbg {-bg gray50}
     set bbg {-bg gray50 -highlightthickness 0}
-  }
-
-  if { $tabbed_interface } {
-    frame $topwin.tabs
-    button $topwin.tabs.x0 -padx 2 -pady 0  -text Main -command {xschem new_schematic switch .drw}
-    # button $topwin.tabs.x1 -padx 2 -pady 0  -text Tab1 -command {xschem new_schematic switch .x1.drw}
-    # button $topwin.tabs.x2 -padx 2 -pady 0  -text Tab2 -command {xschem new_schematic switch .x2.drw}
-    button $topwin.tabs.add -padx 0 -pady 0  -text { + } -command create_new_tab
-    # pack $topwin.tabs.x0 $topwin.tabs.x1 $topwin.tabs.x2 $topwin.tabs.add -side left
-    pack $topwin.tabs.x0 $topwin.tabs.add -side left
   }
   eval frame $topwin.menubar -relief raised -bd 2 $mbg
   toolbar_toolbar $topwin
@@ -4622,6 +4626,7 @@ proc build_widgets { {topwin {} } } {
 
   focus $topwin.drw
   if { $topwin == {} } {set rootwin .} else { set rootwin $topwin} 
+  setup_tabbed_interface
   wm  title $rootwin "xschem - "
   wm iconname $rootwin "xschem - "
   $rootwin configure  -background {}

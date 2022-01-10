@@ -1060,7 +1060,6 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   char msg[PATH_MAX+100];
   struct stat buf;
   int i;
-
   xctx->prep_hi_structs=0;
   xctx->prep_net_structs=0;
   xctx->prep_hash_inst=0;

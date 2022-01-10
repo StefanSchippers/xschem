@@ -125,6 +125,10 @@ extern char win_temp_dir[PATH_MAX];
 #define CADHEIGHT 700                   /*  initial window size */
 #define CADWIDTH 1000
 
+/* max number of windows (including main) a single xschem process can handle */
+#define MAX_NEW_WINDOWS 20
+#define WINDOW_PATH_SIZE 30
+
 #define BACKLAYER 0
 #define WIRELAYER 1
 #define GRIDLAYER 2
@@ -904,7 +908,7 @@ typedef struct {
   int netlist_count; /* netlist counter incremented at any cell being netlisted */
   int hide_symbols;
   int netlist_type;
-  char * top_path;
+  char *top_path;
   /* top_path is the path prefix of drawing canvas (current_win_path):
    *
    * current_win_path
@@ -966,7 +970,6 @@ extern char *cad_icon[];
 extern int do_print;
 extern FILE *errfp;
 extern int no_readline;
-extern char *filename;
 extern char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
 extern char user_conf_dir[PATH_MAX]; /* usually ~/.xschem */
 extern char pwd_dir[PATH_MAX]; /* obtained via getcwd() */
@@ -996,6 +999,7 @@ extern int cli_opt_netlist_type;
 extern int cli_opt_flat_netlist;
 extern char cli_opt_plotfile[PATH_MAX];
 extern char cli_opt_netlist_dir[PATH_MAX];
+extern char cli_opt_filename[PATH_MAX];
 
 /*********** Following data is relative to the current schematic ***********/
 extern Xschem_ctx *xctx;
@@ -1021,7 +1025,7 @@ extern void here(double i);
 extern void print_version(void);
 extern int set_netlist_dir(int force, char *dir);
 extern void netlist_options(int i);
-extern int  check_lib(int what, const char * s);
+extern int  check_lib(int what, const char *s);
 extern void select_all(void);
 extern void change_linewidth(double w);
 extern void schematic_in_new_window(void);
@@ -1200,6 +1204,8 @@ extern void mem_pop_undo(int redo, int set_modify_status);
 extern void mem_delete_undo(void);
 extern void mem_clear_undo(void);
 extern void load_schematic(int load_symbol, const char *abs_name, int reset_undo);
+/* check if filename already in an open window/tab */
+extern int check_loaded(const char *f, char *win_path);
 extern void link_symbols_to_instances(int from);
 extern void load_ascii_string(char **ptr, FILE *fd);
 extern void read_xschem_file(FILE *fd);
@@ -1369,8 +1375,8 @@ extern void list_hilights(void);
 extern void change_layer();
 extern void launcher();
 extern void windowid(const char *winpath);
-extern void preview_window(const char *what, const char *tk_win_path, const char *filename);
-extern int new_schematic(const char *what, const char *win_path, const char *filename);
+extern void preview_window(const char *what, const char *tk_win_path, const char *fname);
+extern int new_schematic(const char *what, const char *win_path, const char *fname);
 extern int window_state (Display *disp, Window win, char *arg);
 extern void toggle_fullscreen(const char *topwin);
 extern void toggle_only_probes();
