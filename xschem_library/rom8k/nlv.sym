@@ -1,5 +1,6 @@
-v {xschem version=2.9.5 file_version=1.1}
-G {type=nmos
+v {xschem version=3.0.0 file_version=1.2 }
+G {}
+K {type=nmos
 format="@name @pinlist 0 @model w=@w l=@l 
 + ad=\{@w *4.4u\}
 + as=\{@w *4.4u\}

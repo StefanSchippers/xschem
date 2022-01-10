@@ -1327,7 +1327,7 @@ int new_schematic(const char *what, const char *win_path, const char *filename)
           tclvareval("reconfigure_layers_button {}", NULL);
           xctx->window = save_xctx[0]->window;
           resetwin(1, 1, 1, 0, 0);
-          set_modify(xctx->modified); /* sets window title */
+          set_modify(-1); /* sets window title */
           draw();
         }
       }

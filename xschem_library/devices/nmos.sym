@@ -1,4 +1,4 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {type=nmos
 format="@spiceprefix@name @pinlist @model @extra m=@m"
