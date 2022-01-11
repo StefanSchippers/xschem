@@ -29,6 +29,7 @@ N 520 -460 760 -460 {lab=A}
 N 580 -420 760 -420 {lab=B}
 N 580 -420 580 -350 {lab=B}
 N 520 -350 580 -350 {lab=B}
+N 480 -460 520 -460 {}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan"}
 C {74ls00.sym} 420 -350 0 0 {name=U1:2  risedel=100 falldel=200}
 C {74ls00.sym} 870 -440 0 0 {name=U1:1  risedel=100 falldel=200}
