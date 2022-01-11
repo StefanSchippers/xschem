@@ -420,7 +420,7 @@ const char *list_tokens(const char *s, int with_quotes)
 /* 0: eat unescaped backslashes and unescaped double quotes (") */
 /* 1: return backslashes and quotes as part of the token value if they are present */
 /* bit 1: */
-/* 1: do not perform tck_hook2 substitution */
+/* 1: do not perform tcl_hook2 substitution */
 
 const char *get_tok_value(const char *s,const char *tok, int with_quotes)
 {

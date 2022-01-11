@@ -131,9 +131,9 @@ type=nmos
  </p>
  <br>
  <p class="important">
-  In recent xschem versions a <kbd>$</kbd> prefixed attribute (example: <kbd>$var</kbd>) can be used
+  In recent xschem versions a <kbd>%</kbd> prefixed attribute (example: <kbd>%var</kbd>) can be used
   instead of a <lbd>@</kbd> prefix. The only difference is that if no matching attribute is defined
-  in instance the <kbd>$var</kbd> resolves to <kbd>var</kbd> instead of an empty string.
+  in instance the <kbd>%var</kbd> resolves to <kbd>var</kbd> instead of an empty string.
  </p>
  <img src="attribute_substitution.png">
  <p>
@@ -392,6 +392,11 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
   <p>
    This attribute contains a SPICE .model or .subckt specification (<kbd>device_model=".model D1N4148 D ...."</kbd>)
    that will be printed at end of netlist only once for the specified component (D1N4148 in the example).
+  </p>
+  <li><kbd>schematic</kbd></li>
+  <p>
+   This attribute specifies an alternate schematic file to open when descending into the subcircuit:
+   <pre class="code"> schematic=inv_2.sch</pre>
   </p>
  </ul>
  <h3>PREDEFINED SYMBOL VALUES</h3>
