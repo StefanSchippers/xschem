@@ -972,8 +972,11 @@ int check_loaded(const char *f, char *win_path)
   int found = 0;
   for(i = 0; i < MAX_NEW_WINDOWS; i++) {
     ctx = save_xctx[i];
+    /* if only one schematic it is not yet saved in save_xctx */
+    if(window_count == 0 && i == 0)  ctx = xctx;
     if(ctx) {
       if(!strcmp(ctx->sch[ctx->currsch], f)) {
+        dbg(1, "check_loaded(): f=%s, sch=%s\n", f, ctx->sch[ctx->currsch]);
         found = 1;
         my_strncpy(win_path, window_path[i], S(window_path[i]));
         break;
@@ -983,14 +986,21 @@ int check_loaded(const char *f, char *win_path)
   return found;
 }
 
+/* caller (via new_schematic() ) should take care of switching tcl context
+ * before calling this function,  see callback()
+ *
+ *   tclvareval("save_ctx ", old_winpath, NULL);
+ *   tclvareval("restore_ctx ", winpath, NULL);
+ *   tclvareval("housekeeping_ctx", NULL);
+ */
 static void switch_window(int *window_count, const char *win_path)
 {
   int i, n;
   Tk_Window tkwin;
   if(*window_count) {
-    dbg(1, "new_schematic() switch: %s\n", win_path);
+    dbg(1, "new_schematic(\"switch_win\"...): %s\n", win_path);
     tkwin =  Tk_NameToWindow(interp, win_path, mainwindow); /* NULL if win_path not existing */
-    if(!tkwin) dbg(0, "new_schematic(\"switch\",...): Warning: %s has been destroyed\n", win_path);
+    if(!tkwin) dbg(0, "new_schematic(\"switch_win\",...): Warning: %s has been destroyed\n", win_path);
     n = -1;
     if(tkwin) for(i = 0; i < MAX_NEW_WINDOWS; i++) {
       if(!strcmp(win_path, window_path[i])) {
@@ -999,7 +1009,7 @@ static void switch_window(int *window_count, const char *win_path)
       }
     }
     if(n == -1) {
-      dbg(0, "new_schematic(\"switch\"...): no window to switch to found: %s\n", win_path);
+      dbg(0, "new_schematic(\"switch_win\"...): no window to switch to found: %s\n", win_path);
       return;
     }
     /* if window was closed then tkwin == 0 --> do nothing */
@@ -1115,10 +1125,12 @@ static void create_new_window(int *window_count, const char *fname)
   windowid(toppath);
 }
 
-static void create_new_tab(int *window_count, const char *win_path, const char *fname)
+static void create_new_tab(int *window_count, const char *fname)
 {
   int i, n;
   char open_path[WINDOW_PATH_SIZE];
+  char nn[WINDOW_PATH_SIZE];
+  char win_path[WINDOW_PATH_SIZE];
 
   dbg(1, "new_schematic() new_tab, creating...\n");
   if(*window_count && fname && fname[0] && check_loaded(fname, open_path)) {
@@ -1157,6 +1169,19 @@ static void create_new_tab(int *window_count, const char *win_path, const char *
     dbg(0, "new_schematic(\"newtab\"...): no more free slots\n");
     return;
   }
+  /* tcl code to create the tab button */
+  my_snprintf(nn, S(nn), "%d", n);
+  tclvareval(
+    "button ", xctx->top_path, ".tabs.x", nn, " -padx 2 -pady 0 -text Tab2 "
+    "-command \"xschem new_schematic switch_tab .x", nn, ".drw\"", NULL);
+  tclvareval(
+    "if {![info exists tctx::tab_bg] } {set tctx::tab_bg [",
+    xctx->top_path, ".tabs.x", nn, " cget -bg]}", NULL);
+  tclvareval("pack ", xctx->top_path, ".tabs.x", nn, 
+    " -before ", xctx->top_path, ".tabs.add -side left", NULL);
+  /*                                   */
+
+  my_snprintf(win_path, S(win_path), "%s.x%d.drw", xctx->top_path, n);
   my_strncpy(window_path[n], win_path, S(window_path[n]));
   xctx = NULL;
   alloc_xschem_data("", win_path); /* alloc data into xctx */
@@ -1399,7 +1424,7 @@ int new_schematic(const char *what, const char *win_path, const char *fname)
     if(!tabbed_interface) {
       create_new_window(&window_count, fname);
     } else {
-      create_new_tab(&window_count, win_path, fname);
+      create_new_tab(&window_count, fname);
     }
   } else if(!strcmp(what, "destroy")) {
     if(!tabbed_interface) {
@@ -1413,12 +1438,10 @@ int new_schematic(const char *what, const char *win_path, const char *fname)
     } else {
       destroy_all_tabs(&window_count);
     }
-  } else if(!strcmp(what, "switch")) {
-    if(!tabbed_interface) {
-      switch_window(&window_count, win_path);
-    } else {
-      switch_tab(&window_count, win_path);
-    }
+  } else if(!strcmp(what, "switch_win")) {
+    switch_window(&window_count, win_path); /* see comments in switch_window() */
+  } else if(!strcmp(what, "switch_tab")) {
+    switch_tab(&window_count, win_path);
   }
   return window_count;
 }

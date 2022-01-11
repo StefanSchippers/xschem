@@ -1544,15 +1544,25 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"load") )
     {
+      int load_symbols = 1, force = 0, i;
       cmd_found = 1;
-      if(argc==3) {
-        if(!has_x || !xctx->modified  || save(1) != -1 ) { /* save(1)==-1 --> user cancel */
+      if(argc > 3) {
+        for(i = 3; i < argc; i++) {
+          if(!strcmp(argv[i], "symbol")) load_symbols = 0;
+          if(!strcmp(argv[i], "force")) force = 1;
+        }
+      }
+      if(argc>2) {
+        i = strlen(argv[2]);
+        if(i > 4 && !strcmp(argv[2] + i - 4, ".sym")) {
+          load_symbols = 0;
+        }
+        if(force || !has_x || !xctx->modified  || save(1) != -1 ) { /* save(1)==-1 --> user cancel */
           char f[PATH_MAX];
           char win_path[WINDOW_PATH_SIZE];
           int skip = 0;
           dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
           my_strncpy(f,  abs_sym_path(argv[2], ""), S(f));
-
           if(f[0] && check_loaded(f, win_path)) {
             char msg[PATH_MAX + 100];
             my_snprintf(msg, S(msg), "alert_ {xschem load: %s already open: %s}", f, win_path);
@@ -1565,7 +1575,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             xctx->currsch = 0;
             unselect_all();
             remove_symbols();
-            load_schematic(1, f, 1);
+            load_schematic(load_symbols, f, 1);
             tclvareval("update_recent_file {", f, "}", NULL);
             my_strdup(375, &xctx->sch_path[xctx->currsch],".");
             xctx->sch_path_hash[xctx->currsch] = 0;
@@ -1594,26 +1604,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        tclvareval("update_recent_file {", fullname, "}", NULL);
       }
     }
-   
-    else if(!strcmp(argv[1],"load_symbol") )
-    {
-      cmd_found = 1;
-      if(argc==3) {
-        char f[PATH_MAX];
-        dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
-        my_strncpy(f, abs_sym_path(argv[2], ""), S(f));
-        clear_all_hilights();
-        xctx->currsch = 0;
-        unselect_all();
-        remove_symbols();
-        load_schematic(0, f, 1);
-        my_strdup(374, &xctx->sch_path[xctx->currsch],".");
-        xctx->sch_path_hash[xctx->currsch] = 0;
-        xctx->sch_inst_number[xctx->currsch] = 1;
-        zoom_full(1, 0, 1, 0.97);
-      }
-    }
-   
     else if(!strcmp(argv[1],"log"))
     {
       cmd_found = 1;
@@ -1719,11 +1709,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"new_schematic"))
     {
+      int r;
+      char s[20];
       cmd_found = 1;
-      if(argc == 3) new_schematic(argv[2], NULL, NULL);
-      else if(argc == 4) new_schematic(argv[2], argv[3], NULL);
-      else if(argc == 5) new_schematic(argv[2], argv[3], argv[4]);
-      Tcl_ResetResult(interp);
+      if(argc == 3) r = new_schematic(argv[2], NULL, NULL);
+      else if(argc == 4) r = new_schematic(argv[2], argv[3], NULL);
+      else if(argc == 5) r = new_schematic(argv[2], argv[3], argv[4]);
+      my_snprintf(s, S(s), "%d", r);
+      Tcl_SetResult(interp, s, TCL_VOLATILE);
     }
    
     else if(!strcmp(argv[1],"new_symbol_window"))

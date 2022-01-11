@@ -46,6 +46,34 @@ proc draw_test {{filelist {-}} {hide_graphs 0}} {
   }
   set show_pin_net_names 0
 }
+proc test_windows { {tabs 0} {destroy 1} } {
+  global tabbed_interface
+
+  xschem clear force
+  set tabbed_interface $tabs
+  setup_tabbed_interface
+  xschem load [abs_sym_path testbench.sch]
+  xschem load_new_window [abs_sym_path poweramp.sch]
+  xschem load_new_window [abs_sym_path mos_power_ampli.sch]
+  xschem load_new_window [abs_sym_path rom8k.sch]
+  xschem load_new_window [abs_sym_path autozero_comp.sch]
+  xschem load_new_window [abs_sym_path LCC_instances.sch]
+  xschem load_new_window [abs_sym_path simulate_ff.sch]
+  xschem load_new_window [abs_sym_path led_driver.sch]
+  xschem load_new_window [abs_sym_path solar_panel.sch]
+  update
+  if {[xschem new_schematic ntabs] == 8} {set res OK} else {set res FAIL}
+  if {$tabs} {
+    puts "test tabbed windows: $res"
+  } else {
+    puts "test multiple windows: $res"
+  }
+  if {$destroy} {
+    after 2000
+    xschem new_schematic destroy_all
+    xschem clear force
+  }
+}
 
 ## select all loaded schematic and paste 32 times in different places,
 ## check if number of elements after paste matches.
@@ -198,6 +226,8 @@ proc xschemtest {{view 0}} {
     copy_paste_test mos_power_ampli.sch
     draw_trim_wiregrid
     test_xschem_simulation simulate_ff.sch
+    test_windows 0 ;# windows
+    test_windows 1 ;# tabs
   }]
   puts "Test time: [lindex $t 0] microseconds"
 }

@@ -320,8 +320,6 @@ void global_verilog_netlist(int global)  /* netlister driver */
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
    xctx->currsch--;
    unselect_all();
-   /* remove_symbols(); */
-   /* load_schematic(1,xctx->sch[xctx->currsch], 0); */
    xctx->pop_undo(0, 0);
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
    prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */

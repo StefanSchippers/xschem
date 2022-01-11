@@ -814,7 +814,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      tclvareval("restore_ctx ", winpath, NULL);
      tclvareval("housekeeping_ctx", NULL);
    }
-   new_schematic("switch", winpath, "");
+   new_schematic("switch_win", winpath, "");
  }
  /* artificially set semaphore to allow only redraw operations in switched schematic,
   * so we don't need  to switch tcl context which is costly performance-wise
@@ -1636,7 +1636,6 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='o' && state == ControlMask)   /* load */
    {
-
     if(xctx->semaphore >= 2) break;
     ask_new_file();
     break;
@@ -2579,7 +2578,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  if(redraw_only) {
    xctx->semaphore--; /* decrement articially incremented semaphore (see above) */
    dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_winpath, winpath);
-   if(old_winpath[0]) new_schematic("switch", old_winpath, "");
+   if(old_winpath[0]) new_schematic("switch_win", old_winpath, "");
  }
  else
  if(strcmp(old_winpath, winpath)) {

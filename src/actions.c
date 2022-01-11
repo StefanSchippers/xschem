@@ -982,9 +982,12 @@ void symbol_in_new_window(void)
  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT)
  {
   my_strncpy(filename,  xctx->sch[xctx->currsch], S(filename));
-  if(tclgetvar("tabbed_interface")[0] == '1' && !check_loaded(filename, win_path)) {
-    tcleval("create_new_tab");
-    tclvareval("xschem load ", filename, NULL);
+  if(tclgetvar("tabbed_interface")[0] == '1') {
+    dbg(1, "symbol_in_new_window(): filename=%s, current=%s\n", 
+       filename, xctx->sch[xctx->currsch]);
+    if(!check_loaded(filename, win_path)) {
+      new_schematic("create", NULL, filename);
+    }
   } else {
     new_xschem_process(filename, 1);
   }
@@ -994,8 +997,7 @@ void symbol_in_new_window(void)
   my_strncpy(filename, abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), S(filename));
   if(tclgetvar("tabbed_interface")[0] == '1') {
     if(!check_loaded(filename, win_path)) {
-      tcleval("create_new_tab");
-      tclvareval("xschem load ", filename, NULL);
+      new_schematic("create", NULL, filename);
     }
   } else {
     new_xschem_process(filename, 1);
@@ -1040,8 +1042,7 @@ void schematic_in_new_window(void)
 
   if(tclgetvar("tabbed_interface")[0] == '1') {
     if(!check_loaded(filename, win_path)) {
-      tcleval("create_new_tab");
-      tclvareval("xschem load ", filename, NULL);
+      new_schematic("create", NULL, filename);
     }
   } else {
     new_xschem_process(filename, 0);

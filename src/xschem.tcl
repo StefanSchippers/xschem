@@ -3720,14 +3720,13 @@ proc setup_tabbed_interface {} {
 
   set top_path {}
   if { $tabbed_interface } {
-    frame $top_path.tabs
-    button $top_path.tabs.x0 -padx 2 -pady 0  -text Main -command {xschem new_schematic switch .drw}
-    # button $topwin.tabs.x1 -padx 2 -pady 0  -text Tab1 -command {xschem new_schematic switch .x1.drw}
-    # button $topwin.tabs.x2 -padx 2 -pady 0  -text Tab2 -command {xschem new_schematic switch .x2.drw}
-    button $top_path.tabs.add -padx 0 -pady 0  -text { + } -command create_new_tab
-    # pack $topwin.tabs.x0 $topwin.tabs.x1 $topwin.tabs.x2 $topwin.tabs.add -side left
-    pack $top_path.tabs.x0 $top_path.tabs.add -side left
-    pack $top_path.tabs  -fill x -side top -expand false -side top -before $top_path.drw
+    if { ![winfo exists $top_path.tabs] } {
+      frame $top_path.tabs
+      button $top_path.tabs.x0 -padx 2 -pady 0  -text Main -command "xschem new_schematic switch_tab .drw"
+      button $top_path.tabs.add -padx 0 -pady 0  -text { + } -command "xschem new_schematic create"
+      pack $top_path.tabs.x0 $top_path.tabs.add -side left
+      pack $top_path.tabs  -fill x -side top -expand false -side top -before $top_path.drw
+    }
   } else {
     destroy $top_path.tabs
   }
@@ -3797,24 +3796,6 @@ proc next_tab {} {
   $top_path.tabs.x$next_tab invoke
 }
 
-proc create_new_tab {} {
-  global tabbed_interface
-  if { !$tabbed_interface} {return}
-  set top_path [xschem get top_path]
-  set found 0
-  for { set i 1} { $i < $tctx::max_new_windows} { incr i} {
-    if { ![winfo exists ${top_path}.tabs.x$i] } {
-      button $top_path.tabs.x$i -padx 2 -pady 0  -text Tab2 -command "xschem new_schematic switch .x$i.drw"
-      if {![info exists tctx::tab_bg] } {set tctx::tab_bg [$top_path.tabs.x$i cget -bg]}
-      pack $top_path.tabs.x$i -before .tabs.add -side left
-      xschem new_schematic create .x$i.drw
-      set found 1
-      break
-    }
-  }
-  if {!$found} { puts "no more available tabs"}
-}
-
 proc set_tab_names {} {
   global tabbed_interface has_x
 
@@ -3831,45 +3812,6 @@ proc set_tab_names {} {
       }
     }
   }
-}
-
-proc test2 {} {
-  global tabbed_interface
-
-  set tabbed_interface 0
-  xschem load [abs_sym_path testbench.sch]
-  xschem load_new_window [abs_sym_path poweramp.sch]
-  xschem load_new_window [abs_sym_path mos_power_ampli.sch]
-  xschem load_new_window [abs_sym_path rom8k.sch]
-  xschem load_new_window [abs_sym_path autozero_comp.sch]
-  xschem load_new_window [abs_sym_path LCC_instances.sch]
-  xschem load_new_window [abs_sym_path simulate_ff.sch]
-  xschem load_new_window [abs_sym_path led_driver.sch]
-  xschem load_new_window [abs_sym_path solar_panel.sch]
-}
-
-proc test1 {} {
-  global tabbed_interface
-
-  set tabbed_interface 1
-  setup_tabbed_interface
-  xschem load [abs_sym_path testbench.sch]
-  create_new_tab
-  xschem load [abs_sym_path poweramp.sch]
-  create_new_tab
-  xschem load [abs_sym_path mos_power_ampli.sch]
-  create_new_tab
-  xschem load [abs_sym_path rom8k.sch]
-  create_new_tab
-  xschem load [abs_sym_path autozero_comp.sch]
-  create_new_tab
-  xschem load [abs_sym_path LCC_instances.sch]
-  create_new_tab
-  xschem load [abs_sym_path simulate_ff.sch]
-  create_new_tab
-  xschem load [abs_sym_path led_driver.sch]
-  create_new_tab
-  xschem load [abs_sym_path solar_panel.sch]
 }
 
 proc raise_dialog {parent window_path } {
@@ -4260,12 +4202,13 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.file.menu add command -label "PNG Export" -command "xschem print png" -accelerator {Ctrl+*}
   $topwin.menubar.file.menu add command -label "SVG Export" -command "xschem print svg" -accelerator {Alt+*}
   $topwin.menubar.file.menu add separator
-  $topwin.menubar.file.menu add command -label "Exit" -accelerator {Ctrl+Q} -command "
-   if { \[xschem get current_win_path\] eq {.drw} } {
-     xschem exit
-   } else {
-     xschem new_schematic destroy \[xschem get current_win_path\] {}
-   }"
+  $topwin.menubar.file.menu add command -label "Exit" -accelerator {Ctrl+Q} -command {
+    if {[xschem get current_win_path] eq {.drw} } {
+      xschem exit
+    } else {
+      xschem new_schematic destroy [xschem get current_win_path] {}
+    }
+  }
   $topwin.menubar.option.menu add checkbutton -label "Color Postscript/SVG" -variable color_ps \
      -command {
         if { $color_ps==1 } {xschem set color_ps 1} else { xschem set color_ps 0}
@@ -4349,9 +4292,9 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.edit.menu add command -label "Delete" -command "xschem delete" -accelerator Del
   toolbar_create EditDelete "xschem delete" "Delete" $topwin
   $topwin.menubar.edit.menu add command -label "Select all" -command "xschem select_all" -accelerator Ctrl+A
-  $topwin.menubar.edit.menu add command -label "Edit selected schematic in new window" \
+  $topwin.menubar.edit.menu add command -label "Edit schematic in new window/tab" \
       -command "xschem schematic_in_new_window" -accelerator Alt+E
-  $topwin.menubar.edit.menu add command -label "Edit selected symbol in new window" \
+  $topwin.menubar.edit.menu add command -label "Edit symbol in new window/tab" \
       -command "xschem symbol_in_new_window" -accelerator Alt+I
   $topwin.menubar.edit.menu add command -label "Duplicate objects" -command "xschem copy_objects" -accelerator C
   toolbar_create EditDuplicate "xschem copy_objects" "Duplicate objects" $topwin
@@ -4633,12 +4576,13 @@ proc build_widgets { {topwin {} } } {
   wm  geometry $rootwin $initial_geometry
   #wm maxsize . 1600 1200
   if { $rootwin == {.}} {
-    wm protocol $rootwin WM_DELETE_WINDOW "
-      if { \[xschem get current_win_path\] eq {.drw} } {
+    wm protocol $rootwin WM_DELETE_WINDOW {
+      if { [xschem get current_win_path] eq {.drw} } {
         xschem exit
       } else {
-        xschem new_schematic destroy \[xschem get current_win_path\] {}
-      }"
+        xschem new_schematic destroy [xschem get current_win_path] {}
+      }
+    }
   } else {
     wm protocol $topwin WM_DELETE_WINDOW "xschem new_schematic destroy $topwin.drw {}"
   }
