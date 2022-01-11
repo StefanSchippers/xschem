@@ -4048,10 +4048,11 @@ proc pack_widgets { { topwin {} } } {
     pack $topwin.statusbar.8 -side left 
     pack $topwin.statusbar.1 -side left -fill x
     pack $topwin.menubar -anchor n -side top -fill x
+    pack $topwin.drw -anchor n -side top -fill both -expand true
+    setup_tabbed_interface
     if {$tabbed_interface} {
        pack $topwin.tabs  -fill x -side top -expand false -side top
     }
-    pack $topwin.drw -anchor n -side top -fill both -expand true
     toolbar_show $topwin
     pack $topwin.statusbar -after $topwin.drw -anchor sw  -fill x 
     bind $topwin.statusbar.5 <Leave> "set cadgrid \[$topwin.statusbar.5 get\]; xschem set cadgrid \$cadgrid"
@@ -4569,7 +4570,6 @@ proc build_widgets { {topwin {} } } {
 
   focus $topwin.drw
   if { $topwin == {} } {set rootwin .} else { set rootwin $topwin} 
-  setup_tabbed_interface
   wm  title $rootwin "xschem - "
   wm iconname $rootwin "xschem - "
   $rootwin configure  -background {}
