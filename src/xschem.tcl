@@ -1597,7 +1597,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
     .dialog.buttons_bot.entry insert 0 $initialfile
   }
   bind .dialog.buttons_bot.entry <KeyRelease> {
-    set globfilter  [.dialog.buttons_bot.entry get]
+    set globfilter  *[.dialog.buttons_bot.entry get]*
     if { $globfilter eq {} } { set globfilter {*} }
     setglob $myload_dir1
   }
