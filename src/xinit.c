@@ -2147,13 +2147,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
  tclsetvar("ControlMask", tmp);
 #endif
 
-
  /*  END X INITIALIZATION */
-
-
  init_done=1;  /* 20171008 moved before option processing, otherwise xwin_exit will not be invoked */
                /* leaving undo buffer and other garbage around. */
-
  /*                                                                                  */
  /* Completing tk windows creation (see xschem.tcl, pack_widgets) and event binding */
  /* *AFTER* X initialization done                                                    */
