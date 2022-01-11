@@ -1002,9 +1002,8 @@ void prepare_netlist_structs(int for_netlist)
 
           /*   pin did not touch named pins or nets so we name it now */
           dbg(2, "prepare_netlist_structs():           naming the other pins\n");
-          if (!touches)
-          {
-            if (!(CAD_VHDL_NETLIST && !touches_unnamed))
+          if (!touches) { /* pin does not touch any other instance pin with non NULL node[] field ...*/
+            if (touches_unnamed) /* ... but touches some other instance pin, so create unnamed net */
             {
               expandlabel(get_tok_value(
               (inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), &pin_mult);

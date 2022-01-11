@@ -1930,7 +1930,7 @@ void print_tedax_element(FILE *fd, int inst)
      }
      if(!xctx->get_tok_size) my_strdup(501, &pinnumber, "--UNDEF--");
      tmp = net_name(inst,i, &multip, 0, 1);
-     if(tmp && strcmp(tmp, "__UNCONNECTED_PIN__")) {
+     if(tmp && !strstr(tmp, "__UNCONNECTED_PIN__")) {
        fprintf(fd, "conn %s %s %s %s %d\n",
              name,
              tmp,
@@ -2329,7 +2329,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
                  i, j, xctx->inst[i].instname ) ;
      statusmsg(errstr,2);
      tcleval("show_infotext"); /* critical error: force ERC window showing */
-     if(!xctx->netlist_count) {
+     if(!xctx->netlist_count && xctx->netlist_type != CAD_TEDAX_NETLIST) {
        xctx->inst[i].color = -PINLAYER;
        xctx->hilight_nets=1;
      }
