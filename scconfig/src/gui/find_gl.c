@@ -128,6 +128,47 @@ int find_gl_vao(const char *name, int logdepth, int fatal, const char *call, con
 	return try_fail(logdepth, node);
 }
 
+int find_gl_fb_attachment(const char *name, int logdepth, int fatal, const char *call, const char *arg)
+{
+	const char *test_c_templ =
+		NL "#include <stdio.h>"
+		NL "#include <%s/gl.h>"
+		NL "int main()"
+		NL "{"
+		NL "	int stencil_bits;"
+		NL "	glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencil_bits);"
+		NL "	return 0;"
+		NL "}"
+		NL;
+	char test_c[512];
+	const char *node = "libs/gui/gl/fb_attachment";
+	const char *cflags, *ldflags, *incs, *ip;
+	(void) call;  /* not used */
+	(void) arg;  /* not used */
+
+	if (require("cc/cc", logdepth, fatal))
+		return try_fail(logdepth, node);
+
+	if (require("libs/gui/gl/*", logdepth, fatal))
+		return try_fail(logdepth, node);
+
+	cflags = get("libs/gui/gl/cflags");
+	ldflags = get("libs/gui/gl/ldflags");
+	incs = get("libs/gui/gl/includes");
+	ip = get("libs/gui/gl/include_prefix");
+
+	report("Checking for gl framebuffer attachment... ");
+	logprintf(logdepth, "find_gl_fb_attachment...\n");
+	logdepth++;
+
+	sprintf(test_c, test_c_templ, ip);
+
+	if (try_icl_norun(logdepth, node, test_c, incs, cflags, ldflags) != 0)
+		return 0;
+
+	return try_fail(logdepth, node);
+}
+
 
 int find_glu(const char *name, int logdepth, int fatal, const char *call, const char *arg)
 {

@@ -42,6 +42,7 @@ void deps_gui_init()
 	dep_add("libs/gui/cairo-xcb/*",         find_cairo_xcb);
 	dep_add("libs/gui/gl/*",                find_gl);
 	dep_add("libs/gui/gl/vao/*",            find_gl_vao);
+	dep_add("libs/gui/gl/fb_attachment/*",  find_gl_fb_attachment);
 	dep_add("libs/gui/glu/*",               find_glu);
 	dep_add("libs/gui/glut/*",              find_glut);
 	dep_add("libs/gui/wgl/*",               find_gui_wgl);

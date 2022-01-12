@@ -1644,6 +1644,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 {
  char name[PATH_MAX]; /* overflow safe 20161122 */
  char tmp[2*PATH_MAX+100]; /* 20161122 overflow safe */
+ char install_dir[PATH_MAX] = "";
  int i;
  double l_width;
  struct stat buf;
@@ -1735,7 +1736,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
    /* ... else give up searching, may set later after loading xschemrc */
  }
 #else
- char install_dir[MAX_PATH]="";
  char *up_hier=NULL, *win_xschem_library_path=NULL;
  #define WIN_XSCHEM_LIBRARY_PATH_NUM 9
  const char *WIN_XSCHEM_LIBRARY_PATH[WIN_XSCHEM_LIBRARY_PATH_NUM] = {
@@ -1783,7 +1783,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    }
  }
  else {
-   if (running_in_src_dir ==1) {
+   if (running_in_src_dir==1) {
      /* pwd_dir can be working directory specified as "Working Directory" in settings */
      my_snprintf(tmp, S(tmp), "%s/../../../src", install_dir);
    }
@@ -1839,11 +1839,28 @@ int Tcl_AppInit(Tcl_Interp *inter)
    else {
      /* get systemwide xschemrc ... */
      if(tclgetvar("XSCHEM_SHAREDIR")) {
+#ifndef __unix__
+       if (running_in_src_dir == 1) {
+         my_snprintf(name, S(name), "%s/../../XSchemWix/xschemrc", install_dir);
+         if (!stat(name, &buf)) {
+           dbg(1, "Tcl_AppInit(): sourcing %s\n", name);
+           source_tcl_file(name);
+         }
+       }
+       else {
+         my_snprintf(name, S(name), "%s/xschemrc", tclgetvar("XSCHEM_SHAREDIR"));
+         if (!stat(name, &buf)) {
+           dbg(1, "Tcl_AppInit(): sourcing %s\n", name);
+           source_tcl_file(name);
+         }
+       }
+#else
        my_snprintf(name, S(name), "%s/xschemrc",tclgetvar("XSCHEM_SHAREDIR"));
        if(!stat(name, &buf)) {
          dbg(1, "Tcl_AppInit(): sourcing %s\n", name);
          source_tcl_file(name);
        }
+#endif
      }
      /* ... then source xschemrc in present directory if existing ... */
      if(!running_in_src_dir) {
