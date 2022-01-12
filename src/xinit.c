@@ -1172,16 +1172,18 @@ static void create_new_tab(int *window_count, const char *fname)
   /* tcl code to create the tab button */
   my_snprintf(nn, S(nn), "%d", n);
   tclvareval(
-    "button ", xctx->top_path, ".tabs.x", nn, " -padx 2 -pady 0 -text Tab2 "
+    "button ", ".tabs.x", nn, " -padx 2 -pady 0 -text Tab2 "
     "-command \"xschem new_schematic switch_tab .x", nn, ".drw\"", NULL);
+  tclvareval("bind .tabs.x",nn," <ButtonPress> {swap_tabs %X %Y press}", NULL);
+  tclvareval("bind .tabs.x",nn," <ButtonRelease> {swap_tabs %X %Y release}", NULL);
   tclvareval(
     "if {![info exists tctx::tab_bg] } {set tctx::tab_bg [",
-    xctx->top_path, ".tabs.x", nn, " cget -bg]}", NULL);
-  tclvareval("pack ", xctx->top_path, ".tabs.x", nn, 
-    " -before ", xctx->top_path, ".tabs.add -side left", NULL);
+    ".tabs.x", nn, " cget -bg]}", NULL);
+  tclvareval("pack ", ".tabs.x", nn, 
+    " -before ", ".tabs.add -side left", NULL);
   /*                                   */
 
-  my_snprintf(win_path, S(win_path), "%s.x%d.drw", xctx->top_path, n);
+  my_snprintf(win_path, S(win_path), ".x%d.drw", n);
   my_strncpy(window_path[n], win_path, S(window_path[n]));
   xctx = NULL;
   alloc_xschem_data("", win_path); /* alloc data into xctx */

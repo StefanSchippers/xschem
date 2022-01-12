@@ -193,7 +193,7 @@ proc netlist_test {} {
     mos_power_ampli.sch     spice      2488555251
     hierarchical_tedax.sch  tedax       998070173
     LCC_instances.sch       spice      1145731069
-    pcb_test1.sch           tedax      1295717013
+    pcb_test1.sch           tedax      1925087189
     simulate_ff.sch         spice      1321596936
   } {
     xschem set netlist_type $t

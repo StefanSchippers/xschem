@@ -3718,82 +3718,109 @@ proc toolbar_hide { { topwin {} } } {
 proc setup_tabbed_interface {} {
   global tabbed_interface
 
-  set top_path {}
   if { $tabbed_interface } {
-    if { ![winfo exists $top_path.tabs] } {
-      frame $top_path.tabs
-      button $top_path.tabs.x0 -padx 2 -pady 0  -text Main -command "xschem new_schematic switch_tab .drw"
-      button $top_path.tabs.add -padx 0 -pady 0  -text { + } -command "xschem new_schematic create"
-      pack $top_path.tabs.x0 $top_path.tabs.add -side left
-      pack $top_path.tabs  -fill x -side top -expand false -side top -before $top_path.drw
+    if { ![winfo exists .tabs] } {
+      frame .tabs
+      button .tabs.x0 -padx 2 -pady 0  -text Main -command "xschem new_schematic switch_tab .drw"
+      bind .tabs.x0 <ButtonPress> {swap_tabs %X %Y press}
+      bind .tabs.x0 <ButtonRelease> {swap_tabs %X %Y release}
+      button .tabs.add -padx 0 -pady 0  -text { + } -command "xschem new_schematic create"
+      pack .tabs.x0 .tabs.add -side left
+      pack .tabs  -fill x -side top -expand false -side top -before .drw
     }
   } else {
-    destroy $top_path.tabs
+    destroy .tabs
   }
   if {$tabbed_interface} {
-    $top_path.menubar.file.menu entryconfigure 6 -state disabled
-    $top_path.menubar.file.menu entryconfigure 7 -state disabled
+    .menubar.file.menu entryconfigure 6 -state disabled
+    .menubar.file.menu entryconfigure 7 -state disabled
     set_tab_names
   } else {
-    $top_path.menubar.file.menu entryconfigure 6 -state normal
-    $top_path.menubar.file.menu entryconfigure 7 -state normal
+    .menubar.file.menu entryconfigure 6 -state normal
+    .menubar.file.menu entryconfigure 7 -state normal
   } 
 }
 
 proc delete_tab {path} {
-  # path --> .x2.drw
-  # tab button --> $top_path.tabs.x2
-  set top_path [xschem get top_path]
   regsub {\.drw$} $path {} path
-  destroy $top_path.tabs$path
+  destroy .tabs$path
+}
+
+# button press on a tab, drag onto another tab, release button --> swap
+proc swap_tabs {x y what} {
+  if {$what eq {press} } {
+    # puts "From: [winfo containing $x $y]"
+    set tctx::source_swap_tab [winfo containing $x $y]
+  } else {
+    # puts "To: [winfo containing $x $y]"
+    set tctx::dest_swap_tab [winfo containing $x $y]
+    if {[info exists tctx::source_swap_tab] && [info exists tctx::dest_swap_tab]} {
+      set cond1 [regexp {\.tabs\.x} $tctx::source_swap_tab]
+      set cond2 [regexp {\.tabs\.x} $tctx::dest_swap_tab]
+      set cond3 [expr { $tctx::source_swap_tab ne $tctx::dest_swap_tab }]
+      if { $cond1 && $cond2  && $cond3} {
+        # puts "ok for swapping ctx"
+        set tablist [pack slaves .tabs]
+        set sourceidx [lsearch -exact $tablist $tctx::source_swap_tab]
+        set destidx [lsearch -exact $tablist $tctx::dest_swap_tab]
+        incr sourceidx
+        incr destidx
+        set following_source_tab [lindex $tablist $sourceidx]
+        set following_dest_tab [lindex $tablist $destidx]
+        # puts " $tablist  --> $following_source_tab   $following_dest_tab"
+        pack $tctx::source_swap_tab -side left -before $following_dest_tab
+        pack $tctx::dest_swap_tab -side left -before  $following_source_tab
+      }
+      set tctx::source_swap_tab {}
+      set tctx::dest_swap_tab {}
+    }
+  }
 }
 
 proc prev_tab {} {
   global tabbed_interface
   if { !$tabbed_interface} { return}
-  set top_path [xschem get top_path]
   set currwin [xschem get current_win_path]
   regsub {\.drw} $currwin {} tabname
   if {$tabname eq {}} { set tabname .x0}
   regsub {\.x} $tabname {} number
   set next_tab $number
   set highest -10000000
-  set xcoord [winfo rootx  $top_path.tabs$tabname]
+  set xcoord [winfo rootx .tabs$tabname]
   for {set i 0} {$i < $tctx::max_new_windows} { incr i} {
     if { $i == $number} { continue}
-    if { [winfo exists ${top_path}.tabs.x$i] } {
-      set tab_coord  [winfo rootx $top_path.tabs.x$i]
+    if { [winfo exists .tabs.x$i] } {
+      set tab_coord  [winfo rootx .tabs.x$i]
       if {$tab_coord < $xcoord && $tab_coord > $highest} {
         set next_tab $i
         set highest $tab_coord
       }
     }
   }
-  $top_path.tabs.x$next_tab invoke
+  .tabs.x$next_tab invoke
 }
 
 proc next_tab {} {
   global tabbed_interface
   if { !$tabbed_interface} {return}
-  set top_path [xschem get top_path]
   set currwin [xschem get current_win_path]
   regsub {\.drw} $currwin {} tabname
   if {$tabname eq {}} { set tabname .x0}
   regsub {\.x} $tabname {} number
   set next_tab $number
   set lowest 10000000
-  set xcoord [winfo rootx  $top_path.tabs$tabname]
+  set xcoord [winfo rootx .tabs$tabname]
   for {set i 0} {$i < $tctx::max_new_windows} { incr i} {
     if { $i == $number} { continue}
-    if { [winfo exists ${top_path}.tabs.x$i] } {
-      set tab_coord [winfo rootx $top_path.tabs.x$i]
+    if { [winfo exists .tabs.x$i] } {
+      set tab_coord [winfo rootx .tabs.x$i]
       if {$tab_coord > $xcoord && $tab_coord < $lowest} {
         set next_tab $i
         set lowest $tab_coord
       }
     }
   }
-  $top_path.tabs.x$next_tab invoke
+  .tabs.x$next_tab invoke
 }
 
 proc set_tab_names {} {
@@ -3802,13 +3829,15 @@ proc set_tab_names {} {
   if {[info exists has_x] && $tabbed_interface } {
     set currwin [xschem get current_win_path]
     regsub {\.drw} $currwin {} tabname
-    set top_path [xschem get top_path]
     if {$tabname eq {}} { set tabname .x0}
     # puts "set_tab_names : currwin=$currwin"
-    ${top_path}.tabs$tabname configure -text [file tail [xschem get schname]] -bg Palegreen
+    .tabs$tabname configure -text [file tail [xschem get schname]] -bg Palegreen
+    if {$tabname eq {.x0}} {
+      .tabs$tabname configure -fg red
+    }
     for { set i 0} { $i < $tctx::max_new_windows} { incr i} {
-      if { [winfo exists ${top_path}.tabs.x$i] && ($tabname ne ".x$i")} {
-         ${top_path}.tabs.x$i configure -bg $tctx::tab_bg
+      if { [winfo exists .tabs.x$i] && ($tabname ne ".x$i")} {
+         .tabs.x$i configure -bg $tctx::tab_bg
       }
     }
   }
@@ -3849,6 +3878,8 @@ namespace eval tctx {
   variable dialog_list
   variable tab_bg
   variable max_new_windows
+  variable source_swap_tab
+  variable dest_swap_tab
 }
 
 ## list of dialogs: when open do not perform context switching
