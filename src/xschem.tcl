@@ -3734,7 +3734,7 @@ proc setup_tabbed_interface {} {
   if {$tabbed_interface} {
     .menubar.file.menu entryconfigure 6 -state disabled
     .menubar.file.menu entryconfigure 7 -state disabled
-    set_tab_names
+    set_tab_names 
   } else {
     .menubar.file.menu entryconfigure 6 -state normal
     .menubar.file.menu entryconfigure 7 -state normal
@@ -3823,15 +3823,14 @@ proc next_tab {} {
   .tabs.x$next_tab invoke
 }
 
-proc set_tab_names {} {
+proc set_tab_names {{mod {}}} {
   global tabbed_interface has_x
 
   if {[info exists has_x] && $tabbed_interface } {
     set currwin [xschem get current_win_path]
     regsub {\.drw} $currwin {} tabname
     if {$tabname eq {}} { set tabname .x0}
-    # puts "set_tab_names : currwin=$currwin"
-    .tabs$tabname configure -text [file tail [xschem get schname]] -bg Palegreen
+    .tabs$tabname configure -text [file tail [xschem get schname]]$mod -bg Palegreen
     if {$tabname eq {.x0}} {
       .tabs$tabname configure -fg red
     }

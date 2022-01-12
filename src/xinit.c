@@ -1036,7 +1036,7 @@ static void switch_tab(int *window_count, const char *win_path)
       dbg(0, "new_schematic(\"switch_tab\"...): no tab to switch to found: %s\n", win_path);
       return;
     }
-    /* if window was closed then tkwin == 0 --> do nothing */
+    /* if no matching tab found --> do nothing */
     if(n >= 0 && n < MAX_NEW_WINDOWS) {
       tclvareval("save_ctx ", xctx->current_win_path, NULL);
       xctx = save_xctx[n];
@@ -1304,6 +1304,7 @@ static void destroy_tab(int *window_count, const char *win_path)
         if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure 21 -state normal");
       }
       xctx = save_xctx[0]; /* restore main (.drw) schematic */
+      resetwin(1, 0, 0, 0, 0);  /* create pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
       tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
       set_modify(-1); /* sets window title */
       draw();
@@ -1644,7 +1645,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
 {
  char name[PATH_MAX]; /* overflow safe 20161122 */
  char tmp[2*PATH_MAX+100]; /* 20161122 overflow safe */
+#ifndef __unix__
  char install_dir[PATH_MAX] = "";
+#endif
  int i;
  double l_width;
  struct stat buf;

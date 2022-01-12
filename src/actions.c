@@ -85,7 +85,7 @@ void set_modify(int mod)
   dbg(1, "set_modify(): %d\n", mod);
   if(mod == -1 || mod != xctx->prev_set_modify) { /* mod=-1 used to force set title */
     if(mod != -1) xctx->prev_set_modify = mod;
-    else mod = 0;
+    else mod = xctx->modified;
     if(has_x && strcmp(get_cell(xctx->sch[xctx->currsch],1), "systemlib/font")) {
       if(mod == 1) {
         tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
@@ -96,7 +96,8 @@ void set_modify(int mod)
       }
     }
   }
-  tcleval("set_tab_names");
+  if(xctx->modified) tcleval("set_tab_names *");
+  else tcleval("set_tab_names");
 }
 
 void print_version()
