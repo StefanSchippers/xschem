@@ -2491,13 +2491,13 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
        rebuild_selected_array();
 #ifndef __unix__
-       draw_selection(xctx->gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
+       draw_selection(xctx->gc[SELLAYER], 0);
 #endif
        if(sel && state == ControlMask) {
          launcher();
        }
        if( !(state & ShiftMask) )  {
-         if(tclgetboolvar("auto_hilight") && xctx->hilight_nets && sel == 0 ) { /* 20160413 20160503 */
+         if(tclgetboolvar("auto_hilight") && xctx->hilight_nets && sel == 0 ) {
            if(!prev_last_sel) {
              redraw_hilights(1); /* 1: clear all hilights, then draw */
            }
