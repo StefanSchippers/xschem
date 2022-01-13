@@ -260,8 +260,15 @@ in this case only the verilog-related global property has some definition. This 
  <h3>WIRE OBJECT</h3>
  <p>
   Example: <kbd>N 890 -130 890 -110 {lab=ANALOG_GND}</kbd><br>
-  The net 'N' tag is followed by the end point coordinates x1,y1 - x2,y2 
+  The net 'N' tag is followed by the end point coordinates x1,y1 - x2,y2.
   (stored and read as double precision numbers) and a property string, used in this case to name the net.
+  In most cases you don't need to specify attributes for nets (one exception is the <kbd>bus</kbd> attribute)
+  as the <kbd>lab</kbd> attribute is set by xschem when creating a netlist or more generally when
+  building the connectivity.
+  This means that almost always nets in a xschem schematic are set as in following example:<br>
+   <kbd>N 890 -130 890 -110 {}</kbd><br>
+  Xschem schematic files store only geometrical data and attributes of the graphic primitives, 
+  the connectivity and the logical network is obtained by xschem. 
  </p>
  <h3>LINE OBJECT</h3>
  <p>
@@ -283,7 +290,7 @@ in this case only the verilog-related global property has some definition. This 
   followed by the number of points (integer), 
   the x,y coordinates of the polygon points and the property string (empty in this example).
   If the last point is coincident to the first point a closed polygon is drawn.
-  A 'fill=true' arribute may be given to fill a cloded polygon, in this case a polygon line looks like:<br>
+  A 'fill=true' arribute may be given to fill a closed polygon, in this case a polygon line looks like:<br>
   <kbd>P 3 5 2450 -210 2460 -170 2500 -170 2510 -210 2450 -210 {fill=true}</kbd><br>
  </p>
  <h3>ARC OBJECT</h3>

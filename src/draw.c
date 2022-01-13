@@ -2286,7 +2286,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       diffy = xctx->graph_values[idx][measure_p] - yy1;
       diffx = measure_x - measure_prev_x;
       yy = yy1 + diffy / diffx * (xctx->graph_cursor1_x - measure_prev_x);
-      if(SIGN0(gr->gy1) != SIGN0(gr->gy2) && fabs(yy) < 1e-4 * fabs(gr->gh)) yy = 0.0;
+      if(XSIGN0(gr->gy1) != XSIGN0(gr->gy2) && fabs(yy) < 1e-4 * fabs(gr->gh)) yy = 0.0;
       if(yy != 0.0  && fabs(yy * gr->unity) < 1.0e-3) {
         fmt1="%.2e";
         fmt2="%.2e%c";
@@ -2416,7 +2416,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
           last = ofs; 
           for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
             xx = gv[p];
-            wrap = (sweep_idx == 0 && cnt > 1 && SIGN(xx - prev_x) != SIGN(prev_x - prev_prev_x));
+            wrap = (sweep_idx == 0 && cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
             if(first != -1) {                      /* there is something to plot ... */
               if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
                 wrap) {                          /* ... or sweep variable changed direction */
@@ -2445,7 +2445,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
               point[poly_npoints].x = S_X(xx);
               if(dataset == -1 || dataset == sweepvar_wrap) {
                 if(measure_p == -1 && flags & 2 && cnt) { /* cursor1: show measurements on nodes in graph */
-                  if(SIGN(xx - xctx->graph_cursor1_x) != SIGN(prev_x - xctx->graph_cursor1_x)) {
+                  if(XSIGN(xx - xctx->graph_cursor1_x) != XSIGN(prev_x - xctx->graph_cursor1_x)) {
                     measure_p = p;
                     measure_x = xx;
                     measure_prev_x = prev_x;

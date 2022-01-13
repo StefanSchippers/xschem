@@ -3721,7 +3721,7 @@ proc setup_tabbed_interface {} {
   if { $tabbed_interface } {
     if { ![winfo exists .tabs] } {
       frame .tabs
-      button .tabs.x0 -padx 2 -pady 0  -text Main -command "xschem new_schematic switch_tab .drw"
+      button .tabs.x0 -padx 2 -pady 0 -anchor nw -text Main -command "xschem new_schematic switch_tab .drw"
       bind .tabs.x0 <ButtonPress> {swap_tabs %X %Y press}
       bind .tabs.x0 <ButtonRelease> {swap_tabs %X %Y release}
       button .tabs.add -padx 0 -pady 0  -text { + } -command "xschem new_schematic create"

@@ -1172,7 +1172,7 @@ static void create_new_tab(int *window_count, const char *fname)
   /* tcl code to create the tab button */
   my_snprintf(nn, S(nn), "%d", n);
   tclvareval(
-    "button ", ".tabs.x", nn, " -padx 2 -pady 0 -text Tab2 "
+    "button ", ".tabs.x", nn, " -padx 2 -pady 0 -anchor nw -text Tab2 "
     "-command \"xschem new_schematic switch_tab .x", nn, ".drw\"", NULL);
   tclvareval("bind .tabs.x",nn," <ButtonPress> {swap_tabs %X %Y press}", NULL);
   tclvareval("bind .tabs.x",nn," <ButtonRelease> {swap_tabs %X %Y release}", NULL);
