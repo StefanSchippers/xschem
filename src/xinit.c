@@ -2316,6 +2316,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tcleval( "waves [file tail \"[xschem get schname]\"]");
  }
 
+ /*                                    */
+ /* SOURCE XSCHEMRC SUPPLIED TCL FILES */
+ /*                                    */
+ tcleval("update; source_user_tcl_files");
+
  /* source tcl file given on command line with --script */
  if(tcl_script[0]) {
    char str[PATH_MAX + 40];
@@ -2324,7 +2329,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
     * its dynamically allocated string
     */
    my_snprintf(str, S(str), "update; source {%s}", tcl_script);
-   Tcl_EvalEx(interp, str, -1, TCL_EVAL_GLOBAL);
+   tcleval(str);
  }
 
  if(quit) {

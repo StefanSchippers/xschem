@@ -4750,7 +4750,7 @@ proc set_replace_key_binding {} {
 proc source_user_tcl_files {} {
   global tcl_files
   foreach i $tcl_files {
-    source $i
+    uplevel #0 "source $i"
   }
 }
 
@@ -5059,9 +5059,6 @@ regsub -all {"} $colors {} svg_colors
 regsub -all {#} $svg_colors {0x} svg_colors
 
 if { $show_infowindow } { wm deiconify .infotext } 
-
-# source all files listed in 'tcl_files' variable
-source_user_tcl_files
 
 # xschem listen and bespice listen
 setup_tcp_xschem

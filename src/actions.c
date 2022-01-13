@@ -1457,6 +1457,8 @@ void zoom_full(int dr, int sel, int flags, double shrink)
     xctx->areah = xctx->areay2 - xctx->areay1;
   }
   calc_drawing_bbox(&boundbox, sel);
+  dbg(1, "zoom_full: %s, %g %g  %g %g\n",
+      xctx->current_win_path, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
   schw = xctx->areaw-4*INT_WIDTH(xctx->lw);
   schh = xctx->areah-4*INT_WIDTH(xctx->lw);
   bboxw = boundbox.x2-boundbox.x1;

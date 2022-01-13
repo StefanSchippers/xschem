@@ -22,24 +22,24 @@ B 2 260 -1080 720 -920 {flags=1
 y1 = 0
 y2 = 0.93
 divy = 5
-x1=1.23616e-07
-x2=4.51672e-07
+x1=7.96491e-08
+x2=4.07704e-07
 divx=5
 subdivx=4
 unitx=n
-node="v(cal) v(saout)"
+node="cal saout"
 color="4 5"
 }
 B 2 260 -1220 720 -1090 {flags=1
 y1 = 0.647719
 y2 = 0.652802
 divy = 5
-x1=1.23616e-07
-x2=4.51672e-07
+x1=7.96491e-08
+x2=4.07704e-07
 unitx=n
 divx=5
 subdivx=4
-node="v(plus) v(minus)"
+node="plus minus"
 color="4 5"}
 T {CAL} 140 -180 0 1 0.4 0.4 {}
 T {EN} 140 -130 0 1 0.4 0.4 {}
