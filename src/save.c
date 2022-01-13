@@ -1133,6 +1133,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     my_strncpy(xctx->current_name, name, S(xctx->current_name));
     if(reset_undo) set_modify(0);
   }
+  check_collapsing_objects();
   if(tclgetboolvar("autotrim_wires")) trim_wires();
   update_conn_cues(0, 0);
   if(xctx->hilight_nets && load_symbols) {
