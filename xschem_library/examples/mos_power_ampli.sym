@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {type=subcircuit
 format="@name @pinlist @symname"
@@ -32,3 +32,4 @@ T {VSS} -125 -4 0 0 0.2 0.2 {}
 T {OUT} 125 -44 0 1 0.2 0.2 {}
 T {VPP} -125 16 0 0 0.2 0.2 {}
 T {VNN} -125 36 0 0 0.2 0.2 {}
+T {MOS Power amplifier} -110 -90 0 0 0.4 0.4 {hide=true}

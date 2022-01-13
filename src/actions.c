@@ -2436,13 +2436,15 @@ int place_text(int draw_text, double mx, double my)
   t->flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
   str = get_tok_value(t->prop_ptr, "weight", 0);
   t->flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
+  str = get_tok_value(t->prop_ptr, "hide", 0);
+  t->flags |= strcmp(str, "true")  ? 0 : SYM_HIDE_TEXT;
 
   my_strdup(21, &t->font, get_tok_value(t->prop_ptr, "font", 0));
   textlayer = t->layer;
   if(textlayer < 0 || textlayer >= cadlayers) textlayer = TEXTLAYER;
   #if HAS_CAIRO==1
   textfont = t->font;
-  if((textfont && textfont[0]) || t->flags) {
+  if((textfont && textfont[0]) || (t->flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
     cairo_font_slant_t slant;
     cairo_font_weight_t weight;
     textfont = (t->font && t->font[0]) ? t->font : tclgetvar("cairo_font_name");
@@ -2463,7 +2465,7 @@ int place_text(int draw_text, double mx, double my)
   }
   xctx->draw_window = save_draw;
   #if HAS_CAIRO==1
-  if((textfont && textfont[0]) || t->flags) {
+  if((textfont && textfont[0]) || (t->flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
     cairo_restore(xctx->cairo_ctx);
     cairo_restore(xctx->cairo_save_ctx);
   }

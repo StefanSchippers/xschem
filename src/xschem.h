@@ -267,10 +267,12 @@ extern char win_temp_dir[PATH_MAX];
 #define XDELETE 2
 #define XINSERT_NOREPLACE 3 /* do not replace token value in hash if already present */
 
-/* Cairo text flags */
+/* Cairo text flags (.flags field) */
 #define TEXT_BOLD 1
 #define TEXT_OBLIQUE 2
 #define TEXT_ITALIC 4
+/* flag (.flags field) to hide text in symbols when displaying instances */
+#define SYM_HIDE_TEXT 8
 
 #define S(a) (sizeof(a)/sizeof(char))
 #define BUS_WIDTH 4

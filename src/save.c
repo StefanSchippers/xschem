@@ -498,10 +498,12 @@ static void load_text(FILE *fd)
    else xctx->text[i].layer = -1;
    xctx->text[i].flags = 0;
    str = get_tok_value(xctx->text[i].prop_ptr, "slant", 0);
-   xctx->text[i].flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
-   xctx->text[i].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
+   xctx->text[i].flags |= strcmp(str, "oblique") ? 0 : TEXT_OBLIQUE;
+   xctx->text[i].flags |= strcmp(str, "italic") ? 0 : TEXT_ITALIC;
    str = get_tok_value(xctx->text[i].prop_ptr, "weight", 0);
-   xctx->text[i].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
+   xctx->text[i].flags |= strcmp(str, "bold") ? 0 : TEXT_BOLD;
+   str = get_tok_value(xctx->text[i].prop_ptr, "hide", 0);
+   xctx->text[i].flags |= strcmp(str, "true") ? 0 : SYM_HIDE_TEXT;
 
    xctx->texts++;
 }
@@ -2000,6 +2002,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
      tt[i].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
      str = get_tok_value(tt[i].prop_ptr, "weight", 0);
      tt[i].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
+     str = get_tok_value(tt[i].prop_ptr, "hide", 0);
+     tt[i].flags |= strcmp(str, "true")  ? 0 : SYM_HIDE_TEXT;
      lastt++;
      break;
     case 'N': /* store wires as lines on layer WIRELAYER. */

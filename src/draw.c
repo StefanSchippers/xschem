@@ -115,7 +115,7 @@ int set_text_custom_font(xText *txt) /* 20171122 for correct text_bbox calculati
   const char *textfont;
 
   textfont = txt->font;
-  if((textfont && textfont[0]) || txt->flags) {
+  if((textfont && textfont[0]) || (txt->flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
     cairo_font_slant_t slant;
     cairo_font_weight_t weight;
     textfont = (txt->font && txt->font[0]) ? txt->font : tclgetvar("cairo_font_name");
@@ -481,6 +481,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     {
       text = symptr->text[j];
       if(text.xscale*FONTWIDTH*xctx->mooz<1) continue;
+      if(symptr->text[j].flags & SYM_HIDE_TEXT) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
@@ -494,7 +495,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       if(xctx->inst[n].color == -PINLAYER || xctx->enable_layer[textlayer]) {
         #if HAS_CAIRO==1
         textfont = symptr->text[j].font;
-        if((textfont && textfont[0]) || symptr->text[j].flags) {
+        if((textfont && textfont[0]) || (symptr->text[j].flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
           cairo_font_slant_t slant;
           cairo_font_weight_t weight;
           textfont = (symptr->text[j].font && symptr->text[j].font[0]) ?
@@ -519,7 +520,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
         #endif
         #if HAS_CAIRO==1
-        if( (textfont && textfont[0]) || symptr->text[j].flags) {
+        if( (textfont && textfont[0]) || (symptr->text[j].flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
           cairo_restore(xctx->cairo_ctx);
           cairo_restore(xctx->cairo_save_ctx);
         }
@@ -2685,7 +2686,8 @@ void draw(void)
             #if HAS_CAIRO==1
             if(!xctx->enable_layer[textlayer]) continue;
             textfont = xctx->text[i].font;
-            if( (textfont && textfont[0]) || xctx->text[i].flags) {
+            if( (textfont && textfont[0]) || 
+                (xctx->text[i].flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
               cairo_font_slant_t slant;
               cairo_font_weight_t weight;
               textfont = (xctx->text[i].font && xctx->text[i].font[0]) ? 
@@ -2706,7 +2708,8 @@ void draw(void)
               xctx->text[i].x0,xctx->text[i].y0,
               xctx->text[i].xscale, xctx->text[i].yscale);
             #if HAS_CAIRO==1
-            if((textfont && textfont[0]) || xctx->text[i].flags ) {
+            if( (textfont && textfont[0]) || 
+                (xctx->text[i].flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
               cairo_restore(xctx->cairo_ctx);
               cairo_restore(xctx->cairo_save_ctx);
             }

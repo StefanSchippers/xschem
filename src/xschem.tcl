@@ -2094,7 +2094,7 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   wm geometry .dialog "+$X+$Y"
   frame .dialog.f1
   label .dialog.f1.txtlab -text $textlabel
-  text .dialog.txt -width 100 -height 12
+  text .dialog.txt -width 100 -height 4
   .dialog.txt delete 1.0 end
   .dialog.txt insert 1.0 $retval
   checkbutton .dialog.f1.l1 -text "preserve unchanged props" -variable preserve_unchanged_attrs \

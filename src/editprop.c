@@ -854,6 +854,8 @@ static void edit_text_property(int x)
          xctx->text[sel].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
          str = get_tok_value(xctx->text[sel].prop_ptr, "weight", 0);
          xctx->text[sel].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
+         str = get_tok_value(xctx->text[sel].prop_ptr, "hide", 0);
+         xctx->text[sel].flags |= strcmp(str, "true")  ? 0 : SYM_HIDE_TEXT;
          if(k == 0 ) {
            hsize =atof(tclgetvar("hsize"));
            vsize =atof(tclgetvar("vsize"));
