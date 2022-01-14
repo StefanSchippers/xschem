@@ -23,15 +23,9 @@ unitx=m
 T {ANALOG AUDIO AMPLIFIER
 N-Channel only power stage} 430 -270 0 0 0.5 0.5 {layer=8}
 N 180 -500 180 -470 {lab=E9}
-#
-# comment
-#
 N 260 -470 340 -470 {lab=E9}
 N 340 -500 340 -470 {lab=E9}
 N 1110 -700 1110 -670 {lab=SA}
-
-
-
 N 840 -1020 840 -980 {lab=E4}
 N 1110 -590 1110 -570 {lab=OUTI}
 N 1110 -510 1110 -470 {lab=#net1}
@@ -123,7 +117,7 @@ C {res.sym} 960 -410 0 1 {name=R7 m=1 value=190 net_name=true}
 C {nmos3.sym} 1090 -760 0 0 {name=xm1 model=irf540 m=1
 program=evince
 url="https://www.vishay.com/docs/91021/91021.pdf" net_name=true}
-C {res.sym} 960 -730 0 1 {name=R0 m=1 value=190 net_name=true} #comment
+C {res.sym} 960 -730 0 1 {name=R0 m=1 value=190 net_name=true}
 C {lab_pin.sym} 1390 -590 0 1 {name=p14 lab=OUT}
 C {lab_pin.sym} 1110 -280 0 0 {name=p18 lab=VNN}
 C {lab_wire.sym} 920 -440 0 0 {name=l8 lab=GB}

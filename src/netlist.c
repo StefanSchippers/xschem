@@ -1097,6 +1097,9 @@ int sym_vs_sch_pins()
             case 'G':
               load_ascii_string(&tmp, fd);
               break;
+            case '#':
+              read_line(fd, 1);
+              break;
             case 'L':
             case 'B':
               if(fscanf(fd, "%d",&tmpi)< 1) {

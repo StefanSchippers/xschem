@@ -772,7 +772,7 @@ void read_xschem_file(FILE *fd)
   xctx->file_version[0] = '\0';
   while(!endfile)
   {
-    if(fscanf(fd," %c",tag)==EOF) break;
+    if(fscanf(fd," %c",tag)==EOF) break; /* space before %c --> eat white space */
     switch(tag[0])
     {
      case 'v':
@@ -782,6 +782,9 @@ void read_xschem_file(FILE *fd)
                     get_tok_value(xctx->version_string, "file_version", 0));
       }
       dbg(1, "read_xschem_file(): file_version=%s\n", xctx->file_version);
+      break;
+     case '#':
+      read_line(fd, 1);
       break;
      case 'E':
       load_ascii_string(&xctx->schtedaxprop,fd);
@@ -1432,7 +1435,8 @@ static void get_sym_type(const char *symname, char **type,
           case 'B':
            fscan_ret = fscanf(fd, "%d",&c);
            if(fscan_ret != 1 || c <0 || c>=cadlayers) {
-             fprintf(errfp,"get_sym_type(): box layer wrong or missing or > defined cadlayers, ignoring, increase cadlayers\n");
+             fprintf(errfp,"get_sym_type(): box layer wrong or missing or > defined cadlayers, "
+                           "ignoring, increase cadlayers\n");
              ungetc(tag[0], fd);
              read_record(tag[0], fd, 1);
            }
@@ -1750,6 +1754,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
    {
     case 'v':
      load_ascii_string(&aux_ptr, lcc[level].fd);
+     break;
+    case '#':
+     read_line(lcc[level].fd, 1);
      break;
     case 'E':
      load_ascii_string(&aux_ptr, lcc[level].fd);

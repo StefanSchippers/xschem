@@ -373,6 +373,9 @@ void merge_file(int selection_load, const char ext[])
        case 'v':
         load_ascii_string(&aux_ptr, fd);
         break;
+       case '#':
+        read_line(fd, 1);
+        break;
        case 'V':
         load_ascii_string(&aux_ptr, fd);
         break;
