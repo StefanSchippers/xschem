@@ -1213,7 +1213,7 @@ static void destroy_window(int *window_count, const char *win_path)
   savectx = xctx;
   if(*window_count) {
     int close = 0;
-    dbg(1, "new_schematic() destroy {%s}\n", win_path);
+    dbg(0, "new_schematic() destroy {%s}\n", win_path);
     if(xctx->modified && has_x) {
       tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
               "[get_cell [xschem get schname] 0]"

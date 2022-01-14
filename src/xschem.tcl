@@ -4607,14 +4607,19 @@ proc build_widgets { {topwin {} } } {
   #wm maxsize . 1600 1200
   if { $rootwin == {.}} {
     wm protocol $rootwin WM_DELETE_WINDOW {
-      if { [xschem get current_win_path] eq {.drw} } {
-        xschem exit
-      } else {
-        xschem new_schematic destroy [xschem get current_win_path] {}
-      }
+       set old  [xschem get current_win_path]
+       save_ctx $old
+       restore_ctx .drw
+       housekeeping_ctx
+       xschem new_schematic switch_win .drw
+       xschem exit
+       # did not exit ... switch back 
+       restore_ctx $old
+       housekeeping_ctx
+       xschem new_schematic switch_win $old
     }
   } else {
-    wm protocol $topwin WM_DELETE_WINDOW "xschem new_schematic destroy $topwin.drw {}"
+    wm protocol $rootwin WM_DELETE_WINDOW "xschem new_schematic destroy $topwin.drw {}"
   }
 
   frame $topwin.statusbar  
