@@ -848,10 +848,10 @@ void read_xschem_file(FILE *fd)
         read_line(fd, 0); /* skip garbage after '[' */
         if(!found) {
           load_sym_def(xctx->inst[xctx->instances-1].name, fd);
-          found = 1;
+          found = 2;
         }
       }
-      if(!found) {
+      if(found != 2) {
         char *str;
         int n;
         while(1) { /* skip embedded [ ... ] */
