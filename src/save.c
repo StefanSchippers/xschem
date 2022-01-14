@@ -823,14 +823,12 @@ void read_xschem_file(FILE *fd)
       load_inst(inst_cnt++, fd);
       break;
      case '[':
+      found=0;
       my_strdup(324, &xctx->inst[xctx->instances-1].prop_ptr,
                 subst_token(xctx->inst[xctx->instances-1].prop_ptr, "embed", "true"));
-
       if(xctx->inst[xctx->instances-1].name) {
-        char *str;
         my_snprintf(name_embedded, S(name_embedded), "%s/.xschem_embedded_%d_%s",
                     tclgetvar("XSCHEM_TMP_DIR"), getpid(), get_cell_w_ext(xctx->inst[xctx->instances-1].name, 0));
-        found=0;
         for(i=0;i<xctx->symbols;i++)
         {
          dbg(1, "read_xschem_file(): sym[i].name=%s, name_embedded=%s\n", xctx->sym[i].name, name_embedded);
@@ -840,6 +838,7 @@ void read_xschem_file(FILE *fd)
            found=1; break;
          }
          /* if loading file coming back from embedded symbol delete temporary file */
+         /* symbol from this temp file has already been loaded in go_back() */
          if(!strcmp(name_embedded, xctx->sym[i].name)) {
            my_strdup2(325, &xctx->sym[i].name, xctx->inst[xctx->instances-1].name);
            xunlink(name_embedded);
@@ -847,16 +846,20 @@ void read_xschem_file(FILE *fd)
          }
         }
         read_line(fd, 0); /* skip garbage after '[' */
-        if(!found) load_sym_def(xctx->inst[xctx->instances-1].name, fd);
-        else {
-          while(1) { /* skip embedded [ ... ] */
-            int n;
-            str = read_line(fd, 1);
-            if(!str || !strncmp(str, "]", 1)) break;
-            n = fscanf(fd, " ");
-            (void)n; /* avoid compiler warnings if n unused. can not remove n since ignoring 
-                      * fscanf return value yields another warning */
-          }
+        if(!found) {
+          load_sym_def(xctx->inst[xctx->instances-1].name, fd);
+          found = 1;
+        }
+      }
+      if(!found) {
+        char *str;
+        int n;
+        while(1) { /* skip embedded [ ... ] */
+          str = read_line(fd, 1);
+          if(!str || !strncmp(str, "]", 1)) break;
+          n = fscanf(fd, " ");
+          (void)n; /* avoid compiler warnings if n unused. can not remove n since ignoring 
+                    * fscanf return value yields another warning */
         }
       }
       break;
