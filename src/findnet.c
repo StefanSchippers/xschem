@@ -32,9 +32,7 @@ void find_closest_net(double mx,double my)
  double tmp;
  int i,w=-1;
  double threshold;
- double cg;
- cg = tclgetdoublevar("cadgrid");
- threshold = CADWIREMINDIST * CADWIREMINDIST * cg * cg / 400;
+ threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom;
 
  for(i=0;i<xctx->wires;i++)
  {
@@ -57,9 +55,7 @@ void find_closest_polygon(double mx,double my)
  int i, c, j, l=-1, col = 0;
  double x1, y1, x2, y2;
  double threshold;
- double cg;
- cg = tclgetdoublevar("cadgrid");
- threshold = CADWIREMINDIST * CADWIREMINDIST * cg * cg / 400;
+ threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom;
  for(c=0;c<cadlayers;c++)
  {
   if(!xctx->enable_layer[c]) continue;
@@ -94,9 +90,7 @@ void find_closest_line(double mx,double my)
  double tmp;
  int i,c,l=-1, col = 0;
  double threshold;
- double cg;
- cg = tclgetdoublevar("cadgrid");
- threshold = CADWIREMINDIST * CADWIREMINDIST * cg * cg / 400;
+ threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom;
  for(c=0;c<cadlayers;c++)
  {
   if(!xctx->enable_layer[c]) continue;
@@ -184,9 +178,7 @@ void find_closest_arc(double mx,double my)
  int i,c,r=-1, col;
  int match;
  double threshold;
- double cg;
- cg = tclgetdoublevar("cadgrid");
- threshold = CADWIREMINDIST * CADWIREMINDIST * cg * cg / 400;
+ threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom;
 
  for(c=0;c<cadlayers;c++)
  {
@@ -288,12 +280,10 @@ void find_closest_text(double mx,double my)
  double xx1,xx2,yy1,yy2;
  int i,r=-1, tmp;
  double threshold;
- double cg;
  #if HAS_CAIRO==1
  int customfont;
  #endif
- cg = tclgetdoublevar("cadgrid");
- threshold = CADWIREMINDIST * CADWIREMINDIST * cg * cg / 400;
+ threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom;
   for(i=0;i<xctx->texts;i++)
   {
    rot = xctx->text[i].rot;
