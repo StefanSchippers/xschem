@@ -3739,6 +3739,30 @@ proc setup_tabbed_interface {} {
     .menubar.file.menu entryconfigure 6 -state normal
     .menubar.file.menu entryconfigure 7 -state normal
   } 
+  # update tabbed window close (X) function
+  if {$tabbed_interface} {
+    wm protocol . WM_DELETE_WINDOW { 
+      if { [xschem get current_win_path] eq {.drw} } {
+        xschem exit
+      } else { 
+        xschem new_schematic destroy [xschem get current_win_path] {}
+      }
+    }
+  # restore non tabbed window close function for main window
+  } else {
+    wm protocol . WM_DELETE_WINDOW {
+      set old  [xschem get current_win_path]
+      save_ctx $old
+      restore_ctx .drw
+      housekeeping_ctx
+      xschem new_schematic switch_win .drw
+      xschem exit
+      # did not exit (user cancel) ... switch back 
+      restore_ctx $old
+      housekeeping_ctx
+      xschem new_schematic switch_win $old
+    }
+  }
 }
 
 proc delete_tab {path} {
@@ -4605,7 +4629,15 @@ proc build_widgets { {topwin {} } } {
   $rootwin configure  -background {}
   wm  geometry $rootwin $initial_geometry
   #wm maxsize . 1600 1200
-  if { $rootwin == {.}} {
+  if {$tabbed_interface && $rootwin eq {.}} {
+    wm protocol $rootwin WM_DELETE_WINDOW {
+      if { [xschem get current_win_path] eq {.drw} } {
+        xschem exit
+      } else {
+        xschem new_schematic destroy [xschem get current_win_path] {}
+      }
+    }
+  } elseif { $rootwin == {.}} {
     wm protocol $rootwin WM_DELETE_WINDOW {
        set old  [xschem get current_win_path]
        save_ctx $old
