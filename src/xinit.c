@@ -1002,6 +1002,7 @@ static void switch_window(int *window_count, const char *win_path)
 {
   int i, n;
   Tk_Window tkwin;
+  if(!strcmp(win_path, xctx->current_win_path)) return; /* already there */
   if(*window_count) {
     dbg(1, "new_schematic(\"switch_win\"...): %s\n", win_path);
     tkwin =  Tk_NameToWindow(interp, win_path, mainwindow); /* NULL if win_path not existing */
@@ -1028,6 +1029,8 @@ static void switch_window(int *window_count, const char *win_path)
 static void switch_tab(int *window_count, const char *win_path)
 {        
   int i, n;
+
+  if(!strcmp(win_path, xctx->current_win_path)) return; /* already there */
   if(*window_count) {
     dbg(1, "new_schematic() switch_tab: %s\n", win_path);
     n = -1;
