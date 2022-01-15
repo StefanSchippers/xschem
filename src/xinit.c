@@ -695,6 +695,11 @@ void xwin_exit(void)
  dbg(1, "xwin_exit(): deleted undo buffer\n");
  if(errfp!=stderr) fclose(errfp);
  errfp=stderr;
+ /* delete cmdline stuff */
+ for(i = 0 ; i < cli_opt_argc; i++) {
+   my_free(1141, &cli_opt_argv[i]);
+ }
+ my_free(1464, &cli_opt_argv);
  if(!detach) printf("\n");
  init_done=0; /* 20150409 to avoid multiple calls */
 }
@@ -1213,7 +1218,7 @@ static void destroy_window(int *window_count, const char *win_path)
   savectx = xctx;
   if(*window_count) {
     int close = 0;
-    dbg(0, "new_schematic() destroy {%s}\n", win_path);
+    dbg(1, "new_schematic() destroy {%s}\n", win_path);
     if(xctx->modified && has_x) {
       tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
               "[get_cell [xschem get schname] 0]"
@@ -2335,6 +2340,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(quit) {
    tcleval("exit");
  }
+
+
+ /* load additional files */
+ for(i = 2; i < cli_opt_argc; i++) {
+   tclvareval("xschem load_new_window ",  cli_opt_argv[i], NULL);
+ }
+
 
  /* */
  /*  END PROCESSING USER OPTIONS */

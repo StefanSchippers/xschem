@@ -195,6 +195,8 @@ const char fopen_read_mode[] = "r";
 /* ---------------------------------------------------------- */
 /* Cmdline options (used at xinit, and then not used anymore) */
 /* ---------------------------------------------------------- */
+int cli_opt_argc;
+char **cli_opt_argv = NULL;
 int cli_opt_netlist_type = 0;
 int cli_opt_flat_netlist = 0;
 char cli_opt_plotfile[PATH_MAX] = "";

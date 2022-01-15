@@ -68,6 +68,7 @@ void child_handler(int signum)
 
 int main(int argc, char **argv)
 {
+  int i;
   my_strdup(45, &xschem_executable, argv[0]);
   signal(SIGINT, sig_handler);
   signal(SIGSEGV, sig_handler);
@@ -81,40 +82,24 @@ int main(int argc, char **argv)
 #ifdef __unix__
   if(!getenv("DISPLAY") || !getenv("DISPLAY")[0]) has_x=0;
 #endif
-  process_options(argc, argv);
+  argc = process_options(argc, argv);
   if(debug_var>=1 && !has_x)
     fprintf(errfp, "main(): no DISPLAY set, assuming no X available\n");
-
-
-#if 0
-/* detach from console (fork a child and close std file descriptors) */
-  if(detach) {
-#ifdef __unix__
-    pid_t pid = fork();
-    if(pid < 0) {
-      fprintf(errfp, "main(): fork() failed\n");
-      exit(EXIT_FAILURE);
-    }
-    if(pid == 0) {
-      /* The child becomes the daemon. */
-      /* Detach all standard I/O descriptors */
-      close(0); /* stdin */
-      close(1); /* stdout */
-      close(2); /* stderr */
-      setsid(); /* new session */
-      /* Ok, now detached */
-    }
-    else {
-      /* terminate parent */
-      exit(0);
-    }
-#endif
-  }
-#endif
-
   /* if detach is 1 no interactive command shell is created ...
    * using detach if no windowing exists (has_x == 0) is non sense so do nothing
    */
+
+
+
+  cli_opt_argc = argc;
+  cli_opt_argv = my_malloc(291, cli_opt_argc * sizeof(char *));
+  for(i = 0; i < cli_opt_argc; i++) {
+    cli_opt_argv[i] = NULL;
+    my_strdup(374, &cli_opt_argv[i], argv[i]);
+  }
+
+
+
   if(detach && has_x) {
     Tcl_FindExecutable(argv[0]); /* tcl stores executable name for its internal usage */
     interp = Tcl_CreateInterp(); /* create the tcl interpreter */

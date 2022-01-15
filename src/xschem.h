@@ -997,6 +997,8 @@ extern int detach; /* no TCL console */
 extern const char fopen_read_mode[]; /* "r" on unix, "rb" on windows */
 
 /*********** Cmdline options  (used at xinit, and then not used anymore) ***********/
+extern int cli_opt_argc;
+extern char **cli_opt_argv;
 extern int cli_opt_netlist_type;
 extern int cli_opt_flat_netlist;
 extern char cli_opt_plotfile[PATH_MAX];
