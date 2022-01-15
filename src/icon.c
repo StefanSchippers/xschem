@@ -1,3 +1,4 @@
+/* XPM */
 /* File: icon.c
  *
  * This file is part of XSCHEM,
@@ -20,7 +21,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-/* XPM */
 char *cad_icon[] = {
 /* columns rows colors chars-per-pixel */
 "56 42 6 1 ",

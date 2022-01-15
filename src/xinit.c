@@ -693,13 +693,13 @@ void xwin_exit(void)
  my_free(1143, &xschem_executable);
  record_global_node(2, NULL, NULL); /* delete global node array */
  dbg(1, "xwin_exit(): deleted undo buffer\n");
- if(errfp!=stderr) fclose(errfp);
- errfp=stderr;
  /* delete cmdline stuff */
  for(i = 0 ; i < cli_opt_argc; i++) {
    my_free(1141, &cli_opt_argv[i]);
  }
  my_free(1464, &cli_opt_argv);
+ if(errfp!=stderr) fclose(errfp);
+ errfp=stderr;
  if(!detach) printf("\n");
  init_done=0; /* 20150409 to avoid multiple calls */
 }
@@ -1421,6 +1421,7 @@ int new_schematic(const char *what, const char *win_path, const char *fname)
   int tabbed_interface;
   const char *tmp;
 
+  if(!has_x) return 0;
   tabbed_interface = 0;
   if((tmp = tclgetvar("tabbed_interface"))) {
     if(tmp[0] == '1') tabbed_interface = 1;
@@ -1999,7 +2000,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  {
    pixdata[i]=my_calloc(642, 32, sizeof(char));
  }
- pixmap=my_calloc(636, cadlayers, sizeof(Pixmap));
+ if(has_x) pixmap=my_calloc(636, cadlayers, sizeof(Pixmap));
 
  my_strncpy(xctx->plotfile, cli_opt_plotfile, S(xctx->plotfile));
  xctx->draw_window = tclgetintvar("draw_window");
@@ -2343,7 +2344,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
 
  /* load additional files */
- for(i = 2; i < cli_opt_argc; i++) {
+ if(has_x) for(i = 2; i < cli_opt_argc; i++) {
    tclvareval("xschem load_new_window ",  cli_opt_argv[i], NULL);
  }
 

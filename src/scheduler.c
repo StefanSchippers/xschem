@@ -1591,17 +1591,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"load_new_window") )
     {
       char fullname[PATH_MAX];
-
       cmd_found = 1;
-      if(argc>=3) {
-        my_snprintf(fullname, S(fullname),"%s", argv[2]);
+      if(has_x) {
+        if(argc>=3) {
+          my_snprintf(fullname, S(fullname),"%s", argv[2]);
+        } else {
+          tcleval("load_file_dialog {Load file} .sch.sym INITIALLOADDIR");
+          my_snprintf(fullname, S(fullname),"%s", tclresult());
+        }
+        if( fullname[0] ) {
+         new_schematic("create", NULL, fullname);
+         tclvareval("update_recent_file {", fullname, "}", NULL);
+        }
       } else {
-        tcleval("load_file_dialog {Load file} .sch.sym INITIALLOADDIR");
-        my_snprintf(fullname, S(fullname),"%s", tclresult());
-      }
-      if( fullname[0] ) {
-       new_schematic("create", NULL, fullname);
-       tclvareval("update_recent_file {", fullname, "}", NULL);
+        Tcl_ResetResult(interp);
       }
     }
     else if(!strcmp(argv[1],"log"))

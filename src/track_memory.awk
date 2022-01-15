@@ -75,7 +75,7 @@ END{
     leak+= address[i]
     print "  address[ " i ", " idx[i] " ]= " address[i]
     if(show_source) {
-      pipe = "egrep -n 'my_(malloc|calloc|realloc|free|strdup|strdup2)\(" idx[i] ",' *.c xschem.h"
+      pipe = "egrep -n 'my_(malloc|calloc|realloc|free|strdup|strdup2)\\(" idx[i] ",' *.c xschem.h"
       while( pipe | getline a) print "    " a
       close(pipe)
     }

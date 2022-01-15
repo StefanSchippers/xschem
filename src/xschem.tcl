@@ -3961,6 +3961,8 @@ set tctx::global_array_list {
 }
 
 proc delete_ctx {context} {
+  global has_x
+  if {![info exists $has_x]} {return}
   set tctx::tctx $context
   uplevel #0 {
     # puts "delete_ctx $tctx::tctx"
@@ -3975,6 +3977,8 @@ proc delete_ctx {context} {
 
 proc restore_ctx {context} {
   # puts "restoring tcl context $context : semaphore=[xschem get semaphore]"
+  global has_x
+  if {![info exists $has_x]} {return}
   set tctx::tctx $context
   array unset ::sim
   uplevel #0 {
@@ -3998,6 +4002,8 @@ proc restore_ctx {context} {
 
 proc save_ctx {context} {
   # puts "saving tcl context $context : semaphore=[xschem get semaphore]"
+  global has_x
+  if {![info exists $has_x]} {return}
   set tctx::tctx $context
   uplevel #0 {
     # puts "save_ctx $tctx::tctx"
@@ -4015,6 +4021,8 @@ proc save_ctx {context} {
 }
 
 proc housekeeping_ctx {} {
+  global has_x
+  if {![info exists $has_x]} {return}
   uplevel #0 {
     # puts housekeeping_ctx
   }
