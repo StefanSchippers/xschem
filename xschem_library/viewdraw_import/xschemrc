@@ -1,0 +1,19 @@
+# xschemrc system configuration file
+#
+# libptr:
+# set to noop    do nothing
+# set to empty   for empty XSCHEM_LIBRARY_PATH
+# set to sky130  for sky130 schematics
+# set to repo    to edit directly in xschem-repo workspace
+# set to share   for installed schematics (share/doc/xschem)
+
+
+set XSCHEM_LIBRARY_PATH {}
+append XSCHEM_LIBRARY_PATH :[pwd]
+append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/xschem_library/devices
+append XSCHEM_LIBRARY_PATH :~/.xschem/xschem_library
+
+set initial_geometry {1300x950}
+
+set tabbed_interface 1
+

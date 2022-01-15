@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<projectfile version="1.0" name="test">
+  <settings>
+    <tool name="Library Manager Central Library">
+      <section name="Properties">
+        <entry name="Path" value=""/>
+      </section>
+    </tool>
+    <tool name="Flow Manager">
+      <section name="Flows">
+        <entry name="{7F752E6D-B6AE-4dfd-9506-F74496DB70EE}" value=""/>
+        <entry name="{96B494EB-6952-480d-A817-AC4FA899FEEE}" value=""/>
+        <entry name="{ABF09658-79CB-4540-A0EE-DFBDD2259BB6}" value=""/>
+      </section>
+    </tool>
+    <tool name="Expedition PCB">
+      <section name="Properties">
+        <entry name="Enable/Disable Expedition Style Zoom" value="Disable"/>
+        <entry name="Enable/Disable Expedition Keybindings" value="Disable"/>
+      </section>
+    </tool>
+    <tool name="DxBoardLink">
+      <section name="Properties">
+        <entry name="Enable/Disable Unlimited Text Length" value="Enable"/>
+        <entry name="Enable/Disable Mixed Case For FPGA Attributes" value="Enable"/>
+      </section>
+    </tool>
+  </settings>
+</projectfile>
