@@ -27,13 +27,13 @@ L 8 1150 -160 1180 -160 {}
 L 8 1180 -160 1180 -120 {}
 L 8 1180 -120 1300 -120 {}
 L 8 820 -120 950 -120 {}
-B 2 1840 -420 2890 -280 {flags=3
-y1 = -0.0039
-y2 = 0.87
+B 2 1840 -540 2890 -400 {flags=3
+y1 = -0.048929
+y2 = 0.999755
 divy = 3
 subdivy=1
-x1=2e-12
-x2=4.8e-07  divx=10
+x1=1.41996e-07
+x2=2.02558e-07  divx=10
 node="
 ldbl[0] ldbl[16] ldbl[32]
 ldbl[1] ldbl[17] ldbl[33]
@@ -41,28 +41,28 @@ ldbl[2] ldbl[18] ldbl[34]
 "
 color="8 9 10 11 12 13 14 15 16 17 18" unitx=n
 }
-B 2 1840 -1090 2890 -880 {flags=3
+B 2 1840 -1160 2890 -1000 {flags=3
 digital=0
 y1 = -0.021
 y2 = 1.5
 subdivy=1
 divy = 4
-x1=2e-12
-x2=4.8e-07
+x1=1.41996e-07
+x2=2.02558e-07
 divx=10
 subdivx=4
 node="ldcp ldyms[4] ldyms[5] ldyms[6] ldymsref"
 color="6 12 13 14 15"
 unitx=n
 }
-B 2 1840 -280 2890 -120 {flags=3
+B 2 1840 -400 2890 -240 {flags=3
 y1 = -0.0072
 y2 = 1.6
 divy = 3
 subdivy=0
 subdivx = 1
-x1=2e-12
-x2=4.8e-07  divx=10
+x1=1.41996e-07
+x2=2.02558e-07  divx=10
 node="
 ldwl[0] ldwl[1] ldwl[2] ldwl[3] 
 ldwl[4] ldwl[5] ldwl[6] ldwl[16] 
@@ -70,24 +70,15 @@ ldwl[7] ldwl[8] ldwl[9]"
 color="4 5 4 5 4 5 4 5 4 5 4 5"  
 unitx=n 
 }
-B 2 1840 -120 2890 -20 {flags=3
-y1 = -0.021
-y2 = 0.9
-divy = 1
-x1=2e-12
-x2=4.8e-07  divx=10
-node="ldymsref"
-color=3 unitx=n subdivy=4
-}
-B 2 1840 -880 2890 -420 {flags=3
+B 2 1840 -1000 2890 -540 {flags=3
 digital=1
 y1 = 0
 y2 = 1.6
-ypos1=0.0962921
-ypos2=2.80336
+ypos1=0.0694741
+ypos2=2.61557
 divy = 1
-x1=1.9725e-07
-x2=2.85288e-07
+x1=1.41996e-07
+x2=2.02558e-07
 divx=12
 subdivx=4
 node="
@@ -109,16 +100,28 @@ color="18 4 15 4 15 4 15 4 18 15 4 18 4 15 4 15 4 15 4 15 4 15 4 15 4 15"
  unitx=n
  ypos1=-2.20115 ypos2=2.79884
 }
-B 2 1840 -1280 2890 -1090 {flags=3
+B 2 1840 -1300 2890 -1160 {flags=3
 y1 = -0.022
 y2 = 1.6
 divy = 4
-x1=2e-12
-x2=4.8e-07
+x1=1.41996e-07
+x2=2.02558e-07
 divx=8
 unitx=n
 node="xsa[0].ldqib xsa[5].ldqib xsa[0].ldsali xctrl.ldq_b"
 color="4 4 5 12 "
+}
+B 2 1840 -240 2890 0 {flags=3
+y1 = -0.0559946
+y2 = 0.0205097
+divy = 5
+x1=1.41996e-07
+x2=2.02558e-07  
+unity=m
+divx=10
+subdivx=1
+node="i(vvcc)"
+color=3 unitx=n subdivy=4
 }
 B 7 950 -250 980 -80 {}
 B 7 1150 -250 1180 -80 {}
@@ -159,6 +162,7 @@ vvss vss 0 0
 
 * .op ALL  4n
 *.dc vvcc 0 2 0.1
+.save tran i(vvcc) i(vsa) i(vl) i(vdec)
 .tran 0.2n 480n uic
 
 ** download models from here: 
