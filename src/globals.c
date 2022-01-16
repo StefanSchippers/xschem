@@ -161,28 +161,18 @@ int debug_var=-10;  /* will be set to 0 in xinit.c */
 int help=0; /* help option set to global scope, printing help is deferred */
             /* when configuration xschemrc has been read 20140406 */
 FILE *errfp = NULL;
-int no_readline=0;
 char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
 char user_conf_dir[PATH_MAX];
 char pwd_dir[PATH_MAX];  /* obtained via getcwd() */
-int load_initfile=1;
-char rcfile[PATH_MAX] = {'\0'};
-char *tcl_command = NULL; /* tcl command given on command line with --tcl <script> */
-char tcl_script[PATH_MAX] = {'\0'};
 int tcp_port = 0;
 int text_svg=1; /* use <text> svg element for text instead of xschem's internal vector font */
 int text_ps=1;  /* use ps font for text instead of xschem's internal vector font */
 double cadhalfdotsize = CADHALFDOTSIZE;
-char initial_netlist_name[PATH_MAX]={0};
 char bus_char[3] = {0, 0, 0};
 int yyparse_error = 0;
 char *xschem_executable=NULL;
 Tcl_Interp *interp = NULL;
 double *character[256]; /* array or per-char coordinates of xschem internal vector font */
-int do_netlist=0;  /* set by process_options if user wants netllist from cmdline */
-int do_simulation=0;
-int do_waves=0;
-int do_print=0;
 int quit=0;  /* set from process_options (ex netlist from cmdline and quit) */
 int detach = 0; /* no tcl console if set; batch mode */
 #ifndef __unix__
@@ -202,7 +192,16 @@ int cli_opt_flat_netlist = 0;
 char cli_opt_plotfile[PATH_MAX] = "";
 char cli_opt_netlist_dir[PATH_MAX] = "";
 char cli_opt_filename[PATH_MAX] = ""; /* filename given on cmdline */
-
+int cli_opt_no_readline=0;
+char *cli_opt_tcl_command = NULL; /* tcl command given on command line with --tcl <script> */
+int cli_opt_do_print=0;
+int cli_opt_do_netlist=0;  /* set by process_options if user wants netllist from cmdline */
+int cli_opt_do_simulation=0;
+int cli_opt_do_waves=0;
+char cli_opt_tcl_script[PATH_MAX] = {'\0'};
+char cli_opt_initial_netlist_name[PATH_MAX]={0};
+char cli_opt_rcfile[PATH_MAX] = {'\0'};
+int cli_opt_load_initfile=1;
 
 /* --------------------------------------------------- */
 /* Following data is relative to the current schematic */

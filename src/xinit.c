@@ -676,7 +676,7 @@ void xwin_exit(void)
    my_free(1102, &pixdata[i]);
  }
  my_free(1122, &pixdata);
- my_free(1138, &tcl_command);
+ my_free(1138, &cli_opt_tcl_command);
  clear_expandlabel_data();
  get_sym_template(NULL, NULL); /* clear static data in function */
  list_tokens(NULL, 0); /* clear static data in function */
@@ -1832,12 +1832,12 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*                         */
  /*    SOURCE xschemrc file */
  /*                         */
- if(load_initfile) {
+ if(cli_opt_load_initfile) {
    /* get xschemrc given om cmdline, in this case do *not* source any other xschemrc*/
-   if(rcfile[0]) {
-     my_snprintf(name, S(name), rcfile);
+   if(cli_opt_rcfile[0]) {
+     my_snprintf(name, S(name), cli_opt_rcfile);
      if(stat(name, &buf) ) {
-       /* rcfile given on cmdline is not existing */
+       /* cli_opt_rcfile given on cmdline is not existing */
        fprintf(errfp, "Tcl_AppInit() err 2: cannot find %s\n", name);
        Tcl_ResetResult(interp);
        Tcl_Exit(EXIT_FAILURE);
@@ -1929,8 +1929,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
 
  /* Execute tcl script given on command line with --tcl */
- if(tcl_command) {
-   tcleval(tcl_command);
+ if(cli_opt_tcl_command) {
+   tcleval(cli_opt_tcl_command);
  }
 
 
@@ -2209,7 +2209,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    n = tclgetvar("netlist_dir");
    fprintf(errfp, "problems creating netlist directory %s\n", n ? n : "<NULL>");
  }
- if(initial_netlist_name[0]) my_strncpy(xctx->netlist_name, initial_netlist_name, S(initial_netlist_name));
+ if(cli_opt_initial_netlist_name[0]) my_strncpy(xctx->netlist_name, cli_opt_initial_netlist_name, S(cli_opt_initial_netlist_name));
 
  enable_layers();
 
@@ -2236,11 +2236,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
 #endif
    dbg(1, "Tcl_AppInit(): cli_opt_filename %s given, removing symbols\n", cli_opt_filename);
    remove_symbols();
-   /* if do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
+   /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
       to tcl is_xschem_file that could change xctx->netlist_type to symbol */
-   load_schematic(1, f, !do_netlist);
+   load_schematic(1, f, !cli_opt_do_netlist);
    tclvareval("update_recent_file {", f, "}", NULL);
- } else if(!tcl_script[0]) {
+ } else if(!cli_opt_tcl_script[0]) {
    char * tmp;
    char fname[PATH_MAX];
    tmp = (char *) tclgetvar("XSCHEM_START_WINDOW");
@@ -2249,15 +2249,15 @@ int Tcl_AppInit(Tcl_Interp *inter)
 #endif
    dbg(1, "Tcl_AppInit(): tmp=%s\n", tmp? tmp: "NULL");
    my_strncpy(fname, abs_sym_path(tmp, ""), S(fname));
-    /* if do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
+    /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
        to tcl is_xschem_file that could change xctx->netlist_type to symbol */
-   load_schematic(1, fname, !do_netlist);
+   load_schematic(1, fname, !cli_opt_do_netlist);
  }
 
 
  zoom_full(0, 0, 1, 0.97);   /* Necessary to tell xschem the initial area to display */
  xctx->pending_fullzoom=1;
- if(do_netlist) {
+ if(cli_opt_do_netlist) {
    if(debug_var>=1) {
      if(xctx->flat_netlist)
        fprintf(errfp, "xschem: flat netlist requested\n");
@@ -2279,12 +2279,12 @@ int Tcl_AppInit(Tcl_Interp *inter)
     fprintf(errfp, "xschem: please set netlist_dir in xschemrc\n");
    }
  }
- if(do_print) {
+ if(cli_opt_do_print) {
    if(!cli_opt_filename[0]) {
      dbg(0, "xschem: can't do a print without a filename\n");
      tcleval("exit");
    }
-   if(do_print==1) {
+   if(cli_opt_do_print==1) {
 
      xctx->xrect[0].x = 0;
      xctx->xrect[0].y = 0;
@@ -2298,7 +2298,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      xctx->areah = xctx->areay2-xctx->areay1;
      zoom_full(0, 0, 2, 0.97);
      ps_draw(7);
-   } else if(do_print == 2) {
+   } else if(cli_opt_do_print == 2) {
      if(!has_x) {
        dbg(0, "xschem: can not do a png export if no X11 present / Xserver running (check if DISPLAY set).\n");
      } else {
@@ -2309,7 +2309,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    else svg_draw();
  }
 
- if(do_simulation) {
+ if(cli_opt_do_simulation) {
    if(!cli_opt_filename[0]) {
      fprintf(errfp, "xschem: can't do a simulation without a filename\n");
      tcleval("exit");
@@ -2317,7 +2317,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tcleval( "simulate");
  }
 
- if(do_waves) {
+ if(cli_opt_do_waves) {
    if(!cli_opt_filename[0]) {
      fprintf(errfp, "xschem: can't show simulation waves without a filename\n");
      tcleval("exit");
@@ -2331,13 +2331,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
  tcleval("update; source_user_tcl_files");
 
  /* source tcl file given on command line with --script */
- if(tcl_script[0]) {
+ if(cli_opt_tcl_script[0]) {
    char str[PATH_MAX + 40];
    /* can not use tclvareval() here because if script contains 'exit'
     * program terminates before tclvareval() has a chance to cleanup
     * its dynamically allocated string
     */
-   my_snprintf(str, S(str), "update; source {%s}", tcl_script);
+   my_snprintf(str, S(str), "update; source {%s}", cli_opt_tcl_script);
    tcleval(str);
  }
 
@@ -2357,7 +2357,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* */
 
 
- if(!detach && !no_readline) {
+ if(!detach && !cli_opt_no_readline) {
    tcleval( "if {![catch {package require tclreadline}]} "
      "{::tclreadline::readline builtincompleter 0;"
      /*  "::tclreadline::readline customcompleter completer;" */

@@ -969,29 +969,19 @@ extern int debug_var;
 /*********** These variables are NOT mirrored in tcl code ***********/
 extern int help;
 extern char *cad_icon[];
-extern int do_print;
 extern FILE *errfp;
-extern int no_readline;
 extern char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
 extern char user_conf_dir[PATH_MAX]; /* usually ~/.xschem */
 extern char pwd_dir[PATH_MAX]; /* obtained via getcwd() */
-extern int load_initfile;
-extern char rcfile[PATH_MAX];
-extern char *tcl_command;
-extern char tcl_script[PATH_MAX];
 extern int tcp_port;
 extern int text_svg;
 extern int text_ps;
 extern double cadhalfdotsize;
-extern char initial_netlist_name[PATH_MAX];
 extern char bus_char[];
 extern int yyparse_error;
 extern char *xschem_executable;
 extern Tcl_Interp *interp;
 extern double *character[256];
-extern int do_netlist;
-extern int do_simulation;
-extern int do_waves;
 extern int quit;
 extern int detach; /* no TCL console */
 extern const char fopen_read_mode[]; /* "r" on unix, "rb" on windows */
@@ -1004,6 +994,16 @@ extern int cli_opt_flat_netlist;
 extern char cli_opt_plotfile[PATH_MAX];
 extern char cli_opt_netlist_dir[PATH_MAX];
 extern char cli_opt_filename[PATH_MAX];
+extern int cli_opt_no_readline;
+extern char *cli_opt_tcl_command;
+extern int cli_opt_do_print;
+extern int cli_opt_do_netlist;
+extern int cli_opt_do_simulation;
+extern int cli_opt_do_waves;
+extern char cli_opt_tcl_script[PATH_MAX];
+extern char cli_opt_initial_netlist_name[PATH_MAX];
+extern char cli_opt_rcfile[PATH_MAX];
+extern int cli_opt_load_initfile;
 
 /*********** Following data is relative to the current schematic ***********/
 extern Xschem_ctx *xctx;

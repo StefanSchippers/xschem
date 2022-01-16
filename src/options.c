@@ -32,50 +32,50 @@ void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == SHORT && *opt == 'S') || (type == LONG && !strcmp("simulate", opt)) ) {
         dbg(1, "process_options(): will do simulation\n");
-        do_simulation=1;
+        cli_opt_do_simulation=1;
 
     } else if( (type == SHORT && *opt == 'W') || (type == LONG && !strcmp("waves", opt)) ) {
         dbg(1, "process_options(): will show waves\n");
-        do_waves=1;
+        cli_opt_do_waves=1;
 
     } else if( (type == SHORT && *opt == 'n') || (type == LONG && !strcmp("netlist", opt)) ) {
         dbg(1, "process_options(): will do netlist\n");
-        do_netlist=1;
+        cli_opt_do_netlist=1;
 
     } else if( (type == SHORT && *opt == 'f') || (type == LONG && !strcmp("flat_netlist", opt)) ) {
         dbg(1, "process_options(): set flat netlist\n");
         cli_opt_flat_netlist=1;
 
-    } else if( (type == SHORT && *opt == 'r') || (type == LONG && !strcmp("no_readline", opt)) ) {
-        no_readline=1;
+    } else if( (type == SHORT && *opt == 'r') || (type == LONG && !strcmp("cli_opt_no_readline", opt)) ) {
+        cli_opt_no_readline=1;
 
     } else if( (type == SHORT && *opt == 'p') || (type == LONG && !strcmp("postscript", opt)) ) {
         dbg(1, "process_options(): will print postscript/pdf\n");
-        do_print=1;
+        cli_opt_do_print=1;
 
     } else if( (type == LONG && !strcmp("pdf", opt)) ) {
         dbg(1, "process_options(): will print postscript/pdf\n");
-        do_print=1;
+        cli_opt_do_print=1;
 
     } else if( (type == LONG && !strcmp("plotfile", opt)) ) {
         dbg(1, "process_options(): user plotfile specified: %s\n", optval ? optval : "NULL");
         if(optval) my_strncpy(cli_opt_plotfile, optval, S(cli_opt_plotfile));
 
-    } else if( (type == LONG && !strcmp("rcfile", opt)) ) {
-        dbg(1, "process_options(): user rcfile specified: %s\n", optval ? optval : "NULL");
-        if(optval) my_strncpy(rcfile, optval, S(rcfile));
+    } else if( (type == LONG && !strcmp("cli_opt_rcfile", opt)) ) {
+        dbg(1, "process_options(): user cli_opt_rcfile specified: %s\n", optval ? optval : "NULL");
+        if(optval) my_strncpy(cli_opt_rcfile, optval, S(cli_opt_rcfile));
 
     } else if( (type == LONG && !strcmp("png", opt)) ) {
         dbg(1, "process_options(): will print png\n");
-        do_print=2;
+        cli_opt_do_print=2;
 
     } else if( (type == LONG && !strcmp("tcl", opt)) ) {
         dbg(1, "process_options(): passing tcl command to interpreter: %s\n", optval);
-        if(optval) my_strdup(110, &tcl_command, optval);
+        if(optval) my_strdup(110, &cli_opt_tcl_command, optval);
 
     } else if( (type == LONG && !strcmp("script", opt)) ) {
         dbg(1, "process_options(): passing tcl script file  to interpreter: %s\n", optval);
-        if(optval) my_strncpy(tcl_script, optval, S(tcl_script));
+        if(optval) my_strncpy(cli_opt_tcl_script, optval, S(cli_opt_tcl_script));
 
     } else if( (type == LONG && !strcmp("tcp_port", opt)) ) {
         dbg(1, "process_options(): setting tcp port: %s\n", optval);
@@ -84,14 +84,14 @@ void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == LONG && !strcmp("svg", opt)) ) {
         dbg(1, "process_options(): will print png\n");
-        do_print=3;
+        cli_opt_do_print=3;
 
     } else if( (type == SHORT && *opt == 'c') || (type == LONG && !strcmp("color_ps", opt)) ) {
         dbg(1, "process_options(): set color postscript\n");
         color_ps=1;
 
     } else if( (type == SHORT && *opt == 'i') || (type == LONG && !strcmp("no_rcload", opt)) ) {
-        load_initfile=0;
+        cli_opt_load_initfile=0;
 
     } else if( (type == SHORT && *opt == 'l') || (type == LONG && !strcmp("log", opt)) ) {
         if(optval) {
@@ -106,7 +106,7 @@ void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == SHORT && *opt == 'N') || (type == LONG && !strcmp("netlist_filename", opt)) ) {
         dbg(1, "process_options(): set netlist name to %s\n", optval);
-        if(optval) my_strncpy(initial_netlist_name, optval, S(initial_netlist_name));
+        if(optval) my_strncpy(cli_opt_initial_netlist_name, optval, S(cli_opt_initial_netlist_name));
 
     } else if( (type == SHORT && *opt == 's') || (type == LONG && !strcmp("spice", opt)) ) {
         dbg(1, "process_options(): set netlist type to spice\n");
@@ -191,7 +191,7 @@ int process_options(int argc, char *argv[])
             else if(!strcmp("netlist_path", opt)) {
               optval = argv[++i];
             }
-            else if(!strcmp("rcfile", opt)) {
+            else if(!strcmp("cli_opt_rcfile", opt)) {
               optval = argv[++i];
             }
             else if(!strcmp("plotfile", opt)) {
