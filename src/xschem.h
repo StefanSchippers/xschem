@@ -161,6 +161,7 @@ extern char win_temp_dir[PATH_MAX];
 #define ELEMINST 4096        /*  (initial) max # of placed elements,   was 600 20102004 */
 #define ELEMDEF 256         /*  (initial) max # of defined elements */
 #define EMBEDDED 1   /* used for embedded symbols marking in Symbol.flags */
+#define HILIGHT_CONN 4 /* used to hilight instances if connected wire is hilighted */
 #define CADMAXGRIDPOINTS 512
 #define CADMAXHIER 80
 #define CADCHUNKALLOC 512 /*  was 256  20102004 */

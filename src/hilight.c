@@ -779,7 +779,7 @@ void drill_hilight(int mode)
       npin = symbol->rects[PINLAYER];
       rct=symbol->rect[PINLAYER];
       hilight_connected_inst = en_hi &&
-           ( (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4) );
+       ((xctx->inst[i].flags & HILIGHT_CONN) || ((xctx->inst[i].ptr+ xctx->sym)->flags & HILIGHT_CONN));
       for(j=0; j<npin;j++) {
         my_strdup(143, &netname, net_name(i, j, &mult, 1, 0));
         entry=bus_hilight_hash_lookup(netname, 0, XLOOKUP);
@@ -1066,7 +1066,7 @@ void propagate_hilights(int set, int clear, int mode)
     }
     type = (xctx->inst[i].ptr+ xctx->sym)->type;
     hilight_connected_inst = en_hi && 
-           ( (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4) );
+      ((xctx->inst[i].flags & HILIGHT_CONN) || ((xctx->inst[i].ptr+ xctx->sym)->flags & HILIGHT_CONN));
     /* hilight/clear instances with hilight=true attr set and en_hilight_conn_inst option is set ... */
     if(hilight_connected_inst && type && !IS_LABEL_SH_OR_PIN(type)) {
       int rects, j, nohilight_pins;
@@ -1668,9 +1668,9 @@ void select_hilight_net(void)
 
   type = (xctx->inst[i].ptr+ xctx->sym)->type;
   hilight_connected_inst = en_hi && 
-      ( (xctx->inst[i].flags & 4) || ((xctx->inst[i].ptr+ xctx->sym)->flags & 4) );
+    ((xctx->inst[i].flags & HILIGHT_CONN) || ((xctx->inst[i].ptr+ xctx->sym)->flags & HILIGHT_CONN));
   if( xctx->inst[i].color != -10000) {
-    dbg(1, "select_hilight_net(): instance %d flags &4 true\n", i);
+    dbg(1, "select_hilight_net(): instance %d flags & HILIGHT_CONN true\n", i);
      xctx->inst[i].sel = SELECTED;
   }
   else if(hilight_connected_inst) {

@@ -1069,8 +1069,8 @@ void update_symbol(const char *result, int x)
                 get_tok_value(xctx->inst[*ii].prop_ptr, "lab",0));
     }
     if(!strcmp(get_tok_value(xctx->inst[*ii].prop_ptr,"highlight",0), "true"))
-          xctx->inst[*ii].flags |= 4;
-    else  xctx->inst[*ii].flags &= ~4;
+          xctx->inst[*ii].flags |= HILIGHT_CONN;
+    else  xctx->inst[*ii].flags &= ~HILIGHT_CONN;
   }  /* end for(k=0;k<xctx->lastsel;k++) */
   /* new symbol bbox after prop changes (may change due to text length) */
   if(xctx->modified) {

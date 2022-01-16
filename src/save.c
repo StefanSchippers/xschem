@@ -571,7 +571,8 @@ static void load_inst(int k, FILE *fd)
       load_ascii_string(&prop_ptr,fd);
       my_strdup(319, &xctx->inst[i].prop_ptr, prop_ptr);
       my_strdup2(320, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
-      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"highlight",0), "true")) xctx->inst[i].flags |= 4;
+      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"highlight",0), "true"))
+        xctx->inst[i].flags |= HILIGHT_CONN;
 
       dbg(2, "load_inst(): n=%d name=%s prop=%s\n", i, xctx->inst[i].name? xctx->inst[i].name:"<NULL>",
                xctx->inst[i].prop_ptr? xctx->inst[i].prop_ptr:"<NULL>");
@@ -1784,8 +1785,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
                   get_tok_value(symbol[symbols].prop_ptr, "template", 0));
        my_strdup2(515, &symbol[symbols].type,
                   get_tok_value(symbol[symbols].prop_ptr, "type",0));
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"highlight",0), "true")) symbol[symbols].flags |= 4;
-       else symbol[symbols].flags &= ~4;
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"highlight",0), "true"))
+         symbol[symbols].flags |= HILIGHT_CONN;
+       else symbol[symbols].flags &= ~HILIGHT_CONN;
 
      }
      else {
@@ -1800,8 +1802,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
                   get_tok_value(symbol[symbols].prop_ptr, "template", 0));
        my_strdup2(342, &symbol[symbols].type,
                   get_tok_value(symbol[symbols].prop_ptr, "type",0));
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"highlight",0), "true")) symbol[symbols].flags |= 4;
-       else symbol[symbols].flags &= ~4;
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"highlight",0), "true"))
+         symbol[symbols].flags |= HILIGHT_CONN;
+       else symbol[symbols].flags &= ~HILIGHT_CONN;
      }
      else {
        load_ascii_string(&aux_ptr, lcc[level].fd);
