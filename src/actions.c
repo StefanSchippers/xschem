@@ -1347,7 +1347,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
   {
    if(selected == 1 && !xctx->rect[c][i].sel) continue;
    /* skip graph objects if no datafile loaded */
-   if(c == GRIDLAYER && xctx->rect[c][i].flags == 1) {  
+   if(c == GRIDLAYER && xctx->rect[c][i].flags) {  
      if(hide_graphs && !waves) continue;
    }
    rect.x1=xctx->rect[c][i].x1;

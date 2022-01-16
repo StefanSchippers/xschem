@@ -1722,6 +1722,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
         set myload_dir1 $myload_d
         # .dialog.buttons_bot.entry delete 0 end
       } else {
+        set globfilter *
         .dialog.buttons_bot.entry delete 0 end
         .dialog.buttons_bot.entry insert 0 $myload_dir2
          set myload_type [is_xschem_file $myload_dir1/$myload_dir2]
