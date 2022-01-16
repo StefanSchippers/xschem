@@ -1100,6 +1100,9 @@ int sym_vs_sch_pins()
             case '#':
               read_line(fd, 1);
               break;
+            case 'F': /* extension for future symbol floater labels */
+              read_line(fd, 1);
+              break;
             case 'L':
             case 'B':
               if(fscanf(fd, "%d",&tmpi)< 1) {

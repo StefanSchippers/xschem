@@ -786,6 +786,9 @@ void read_xschem_file(FILE *fd)
      case '#':
       read_line(fd, 1);
       break;
+     case 'F': /* extension for future symbol floater labels */
+      read_line(fd, 1);
+      break;
      case 'E':
       load_ascii_string(&xctx->schtedaxprop,fd);
       break;
@@ -1759,6 +1762,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
      load_ascii_string(&aux_ptr, lcc[level].fd);
      break;
     case '#':
+     read_line(lcc[level].fd, 1);
+     break;
+    case 'F': /* extension for future symbol floater labels */
      read_line(lcc[level].fd, 1);
      break;
     case 'E':

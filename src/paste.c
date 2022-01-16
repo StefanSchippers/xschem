@@ -376,6 +376,9 @@ void merge_file(int selection_load, const char ext[])
        case '#':
         read_line(fd, 1);
         break;
+       case 'F': /* extension for future symbol floater labels */
+        read_line(fd, 1);
+        break;
        case 'V':
         load_ascii_string(&aux_ptr, fd);
         break;

@@ -1363,18 +1363,20 @@ proc edit_netlist {schname } {
 #   INITIALINSTDIR  for instance placement
 # ext:  .sch or .sym or .sch.sym or .sym.sch
 #
-proc save_file_dialog { msg ext global_initdir {initialfile {}} {overwrt 1} } {
+proc save_file_dialog { msg ext global_initdir {initialf {}} {overwrt 1} } {
+  global save_initialfile
+  set save_initialfile $initialf
   upvar #0 $global_initdir initdir
   set temp $initdir
-  if { $initialfile ne {}} {
-    set initialdir [file dirname $initialfile]
-    set initialfile [file tail $initialfile]
+  if { $save_initialfile ne {}} {
+    set initialdir [file dirname $save_initialfile]
+    set save_initialfile [file tail $save_initialfile]
   } else {
     set initialdir $initdir
-    set initialfile {}
+    set save_initialfile {}
   }
   set initdir $initialdir
-  set r [load_file_dialog $msg $ext $global_initdir $initialfile 0 $overwrt]
+  set r [load_file_dialog $msg $ext $global_initdir 0 $overwrt]
   set initdir $temp
   return $r
 }
@@ -1509,12 +1511,14 @@ proc load_file_dialog_up {dir} {
   }
 }
 
-proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {initialfile {}} 
+proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} 
      {loadfile {1}} {confirm_overwrt {1}}} {
   global myload_index1 myload_files2 myload_files1 myload_retval myload_dir1 pathlist OS
   global myload_default_geometry myload_sash_pos myload_yview tcl_version globfilter myload_dirs2
+  global save_initialfile
 
-  set globfilter {*}
+  set_ne save_initialfile {}
+  set globfilter *
   set myload_retval {} 
   upvar #0 $global_initdir initdir
   if { [winfo exists .dialog] } return
@@ -1546,6 +1550,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
     if { $myload_sel ne {} } {
       set myload_dir1 [abs_sym_path [.dialog.l.paneleft.list get $myload_sel]]
       set myload_index1 $myload_sel
+      set globfilter *
+      if {$save_initialfile eq {}} {.dialog.buttons_bot.entry delete 0 end}
       setglob $myload_dir1
       myload_set_colors2
     }
@@ -1593,13 +1599,15 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} {init
   }
   label .dialog.buttons_bot.label  -text {  File/Search:}
   entry .dialog.buttons_bot.entry
-  if { $initialfile ne {} } { 
-    .dialog.buttons_bot.entry insert 0 $initialfile
+  if { $save_initialfile ne {} } { 
+    .dialog.buttons_bot.entry insert 0 $save_initialfile
   }
   bind .dialog.buttons_bot.entry <KeyRelease> {
-    set globfilter  *[.dialog.buttons_bot.entry get]*
-    if { $globfilter eq {} } { set globfilter {*} }
-    setglob $myload_dir1
+    if {$save_initialfile eq {} } {
+      set globfilter  *[.dialog.buttons_bot.entry get]*
+      if { $globfilter eq {**} } { set globfilter * }
+      setglob $myload_dir1
+    }
   }
   radiobutton .dialog.buttons_bot.all -text All -variable globfilter -value {*} \
      -command { setglob $myload_dir1 }
@@ -3943,7 +3951,7 @@ set tctx::global_list {
   myload_retval myload_sash_pos myload_sel myload_type myload_yview netlist_dir netlist_show
   netlist_type no_change_attrs noprint_libs old_selected_tok
   only_probes path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
-  rawfile_loaded rcode recentfile replace_key retval retval_orig rotated_text search_exact
+  rawfile_loaded rcode recentfile replace_key retval retval_orig rotated_text save_initialfile search_exact
   search_found search_select search_value selected_tok show_infowindow show_pin_net_names 
   simconf_default_geometry simconf_vpos 
   spiceprefix split_files svg_colors svg_font_name symbol symbol_width sym_txt tclcmd_txt
