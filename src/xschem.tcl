@@ -1364,19 +1364,17 @@ proc edit_netlist {schname } {
 # ext:  .sch or .sym or .sch.sym or .sym.sch
 #
 proc save_file_dialog { msg ext global_initdir {initialf {}} {overwrt 1} } {
-  global save_initialfile
-  set save_initialfile $initialf
   upvar #0 $global_initdir initdir
   set temp $initdir
-  if { $save_initialfile ne {}} {
-    set initialdir [file dirname $save_initialfile]
-    set save_initialfile [file tail $save_initialfile]
+  if { $initialf ne {}} {
+    set initialdir [file dirname $initialf]
+    set initialf [file tail $initialf]
   } else {
     set initialdir $initdir
-    set save_initialfile {}
+    set initialf {}
   }
   set initdir $initialdir
-  set r [load_file_dialog $msg $ext $global_initdir 0 $overwrt]
+  set r [load_file_dialog $msg $ext $global_initdir 0 $overwrt $initialf] 
   set initdir $temp
   return $r
 }
@@ -1512,12 +1510,12 @@ proc load_file_dialog_up {dir} {
 }
 
 proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} 
-     {loadfile {1}} {confirm_overwrt {1}}} {
+     {loadfile {1}} {confirm_overwrt {1}} {initialf {}}} {
   global myload_index1 myload_files2 myload_files1 myload_retval myload_dir1 pathlist OS
   global myload_default_geometry myload_sash_pos myload_yview tcl_version globfilter myload_dirs2
   global save_initialfile
 
-  set_ne save_initialfile {}
+  set save_initialfile $initialf
   set globfilter *
   set myload_retval {} 
   upvar #0 $global_initdir initdir
@@ -1917,7 +1915,7 @@ proc schpins_to_sympins {} {
       set x0 [lindex $ii 2]
       set y0 [lindex $ii 3]
       if {$first} {
-        puts $fd "G { $x0 $y0 } "
+        puts $fd "G {$x0 $y0 }"
         set first 0
       }
       set pinx1 [expr {$x0-$pinhsize}]
