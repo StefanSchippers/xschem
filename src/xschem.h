@@ -105,18 +105,10 @@ extern char win_temp_dir[PATH_MAX];
 #endif
 
 
-#if HAS_XCB==1
-#include <xcb/render.h>
-#include <X11/Xlib-xcb.h>
-#endif
-
 #if HAS_CAIRO==1
 #include <cairo.h>
 #include <cairo-xlib.h>
 #include "cairo-xlib-xrender.h"
-#if HAS_XCB==1
-#include <cairo-xcb.h>
-#endif
 #endif
 
 #include <tcl.h>
@@ -946,15 +938,6 @@ extern Visual *visual;
 #if HAS_XRENDER==1
 extern XRenderPictFormat *render_format;
 #endif
-#if HAS_XCB==1
-extern xcb_connection_t *xcbconn;
-extern xcb_screen_t *screen_xcb;
-#if HAS_XRENDER==1
-extern xcb_render_pictforminfo_t format_rgb, format_rgba;
-#endif
-extern xcb_visualtype_t *visual_xcb;
-#endif  /*  HAS_XCB */
-
 /*********** These variables are mirrored in tcl code ***********/
 extern int cadlayers; 
 extern int has_x; 
