@@ -1039,6 +1039,7 @@ void move_objects(int what, int merge, double dx, double dy)
   xctx->rotatelocal=0;
   xctx->deltax = xctx->deltay = 0.0;
   rebuild_selected_array();
+  if(tclgetboolvar("connect_by_kissing")) connect_by_kissing();
   xctx->movelastsel = xctx->lastsel;
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ARC &&
           xctx->arc[c=xctx->sel_array[0].col][n=xctx->sel_array[0].n].sel!=SELECTED) {

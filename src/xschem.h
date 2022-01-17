@@ -1179,6 +1179,7 @@ extern int place_symbol(int pos, const char *symbol_name, double x, double y, sh
                          const char *inst_props, int draw_sym, int first_call, int to_push_undo);
 extern void place_net_label(int type);
 extern void attach_labels_to_inst(int interactive);
+extern void connect_by_kissing(void);
 extern void delete_files(void);
 extern int sym_vs_sch_pins(void);
 extern int match_symbol(const char name[]);

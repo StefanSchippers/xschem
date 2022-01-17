@@ -652,6 +652,71 @@ void enable_layers(void)
   }
 }
 
+void connect_by_kissing(void)
+{
+  xSymbol *symbol;
+  int npin, i, j;
+  double x0,y0, pinx0, piny0;
+  short flip, rot;
+  xRect *rct;
+  int k,ii, kissing;
+  Wireentry *wptr;
+  Instpinentry *iptr;
+  int sqx, sqy;
+
+  rebuild_selected_array();
+  k = xctx->lastsel;
+  prepare_netlist_structs(0);
+  for(j=0;j<k;j++) if(xctx->sel_array[j].type==ELEMENT) {
+    x0 = xctx->inst[xctx->sel_array[j].n].x0;
+    y0 = xctx->inst[xctx->sel_array[j].n].y0;
+    rot = xctx->inst[xctx->sel_array[j].n].rot;
+    flip = xctx->inst[xctx->sel_array[j].n].flip;
+    symbol = xctx->sym + xctx->inst[xctx->sel_array[j].n].ptr;
+    npin = symbol->rects[PINLAYER];
+    rct=symbol->rect[PINLAYER];
+    for(i=0;i<npin;i++) {
+      pinx0 = (rct[i].x1+rct[i].x2)/2;
+      piny0 = (rct[i].y1+rct[i].y2)/2;
+      ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, pinx0, piny0);
+      pinx0 += x0;
+      piny0 += y0;
+      get_square(pinx0, piny0, &sqx, &sqy);
+      iptr=xctx->instpin_spatial_table[sqx][sqy];
+      wptr=xctx->wire_spatial_table[sqx][sqy];
+      kissing=0;
+      while(iptr) {
+        ii = iptr->n;
+        if(ii == xctx->sel_array[j].n) {
+          iptr = iptr->next;
+          continue;
+        }
+        if( iptr->x0 == pinx0 && iptr->y0 == piny0  &&  xctx->inst[ii].sel == 0) {
+          kissing=1;
+          break;
+        }
+        iptr = iptr->next;
+      }
+      while(wptr) {
+        if( touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
+            xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, pinx0, piny0) &&
+            xctx->wire[wptr->n].sel) {
+          kissing=0;
+          break;
+        }
+        wptr = wptr->next;
+      }
+      if(kissing) {
+     
+        dbg(1, "connect_by_kissing(): adding wire in %g %g, wires before = %d\n", pinx0, piny0, xctx->wires);
+        storeobject(-1, pinx0, piny0,  pinx0, piny0, WIRE, 0, SELECTED1, NULL);
+        xctx->need_reb_sel_arr = 1;
+      }
+    }
+  }
+  rebuild_selected_array();
+}
+
 void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 20171005 */
 {
   xSymbol *symbol;
@@ -782,8 +847,6 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
        }
        if(!skip) {
          my_strdup(9, &prop, "name=p1 lab=");
-
-
          if(use_label_prefix) {
            my_strcat(10, &prop, (char *)tclgetvar("custom_label_prefix"));
          }
@@ -823,6 +886,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
   draw();
   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
 }
+
 void delete_files(void)
 {
   char str[PATH_MAX + 100];

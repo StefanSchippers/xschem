@@ -3936,7 +3936,7 @@ proc no_open_dialogs {} {
 set tctx::global_list {
   auto_hilight autotrim_wires bespice_listen_port big_grid_points bus_replacement_char
   cadgrid cadlayers cadsnap cairo_font_name
-  change_lw color_ps colors constrained_move copy_cell custom_label_prefix custom_token dark_colors
+  change_lw color_ps colors connect_by_kissing constrained_move copy_cell custom_label_prefix custom_token dark_colors
   dark_colorscheme dim_bg dim_value disable_unique_names do_all_inst draw_grid draw_window
   edit_prop_pos edit_prop_size editprop_sympath edit_symbol_prop_new_sel enable_dim_bg enable_stretch 
   en_hilight_conn_inst filetmp
@@ -4376,6 +4376,7 @@ proc build_widgets { {topwin {} } } {
      -value 1 -accelerator H -command {xschem set constrained_move 1} 
   $topwin.menubar.edit.menu add radiobutton -label "Constrained Vertical move" -variable constrained_move \
      -value 2 -accelerator V -command {xschem set constrained_move 2} 
+  $topwin.menubar.edit.menu add checkbutton -label "Add wire when separating pins" -variable connect_by_kissing 
   $topwin.menubar.edit.menu add command -label "Push schematic" -command "xschem descend" -accelerator E
   toolbar_create EditPushSch "xschem descend" "Push schematic" $topwin
   $topwin.menubar.edit.menu add command -label "Push symbol" -command "xschem descend_symbol" -accelerator I
@@ -4903,6 +4904,7 @@ set_ne draw_window 0
 set_ne incr_hilight 1
 set_ne enable_stretch 0
 set_ne constrained_move 0
+set_ne connect_by_kissing 0
 set_ne draw_grid 1
 set_ne big_grid_points 0
 set_ne persistent_command 0

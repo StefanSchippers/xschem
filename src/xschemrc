@@ -106,6 +106,7 @@
 #### variable controls hierarchical print
 #### default value: empty
 # set noprint_libs {}
+
 ###########################################################################
 #### CHANGE DEFAULT [] WITH SOME OTHER CHARACTERS FOR BUSSED SIGNALS 
 #### IN SPICE NETLISTS (EXAMPLE: DATA[7] --> DATA<7>) 
@@ -150,6 +151,10 @@
 #### if set to 1 continue drawing lines / wires after click
 #### default: 0
 # set persistent_command 1
+
+#### if set to 1 a wire is inserted when separating components that are
+#### connected by pins. Default: not enabled (0)
+# set connect_by_kissing 1
 
 #### if set to 1 automatically join/trim wires while editing
 #### this may slow down on rally big designs. Can be disabled via menu 
@@ -331,4 +336,4 @@ set toolbar_visible 1
 ###########################################################################
 # default: not enabled. Interface can be changed runtime if only one window 
 # or tab is open.
-# set tabbed_interface 1
+set tabbed_interface 1
