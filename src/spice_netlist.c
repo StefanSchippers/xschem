@@ -311,7 +311,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  my_free(945, &stored_flags);
 
  /* print globals nodes found in netlist 28032003 */
- record_global_node(0,fd,NULL);
+ if(!split_f) record_global_node(0,fd,NULL);
 
  /* =================================== 20121223 */
  first = 0;
