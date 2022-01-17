@@ -2362,11 +2362,10 @@ proc property_search {} {
           set search_value [.dialog.val.e get]
           set custom_token [.dialog.custom.e get]
           if {$debug_var<=-1} { puts stderr "|$custom_token|" }
-          set token $custom_token
           if { $search_exact==1 } {
-            set search_found [xschem searchmenu exact $search_select $token $search_value]
+            set search_found [xschem searchmenu exact $search_select $custom_token $search_value]
           } else {
-            set search_found [xschem searchmenu regex $search_select $token $search_value]
+            set search_found [xschem searchmenu regex $search_select $custom_token $search_value]
           }
           destroy .dialog 
     }
@@ -2474,7 +2473,6 @@ proc attach_labels_to_inst {} {
   frame .dialog.but
   button .dialog.but.ok -text OK -command {
         set custom_label_prefix [.dialog.custom.e get]
-        set token $custom_token
         #### put command here
         set rcode yes
         destroy .dialog 
