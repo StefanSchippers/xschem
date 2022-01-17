@@ -175,7 +175,7 @@ extern char win_temp_dir[PATH_MAX];
 #define CAD_SYMBOL_ATTRS 5
 
 #define STARTWIRE 1         /*  possible states, encoded in global 'rubber' */
-#define STARTPAN  2
+
 #define STARTRECT 4
 #define STARTLINE 8
 #define SELECTION  16       /*  signals that some objects are selected. */
@@ -188,7 +188,7 @@ extern char win_temp_dir[PATH_MAX];
 #define MENUSTARTLINE 2048  /*  start line invoked from menu */
 #define MENUSTARTRECT 4096  /*  start rect invoked from menu */
 #define MENUSTARTZOOM 8192  /*  start zoom box invoked from menu */
-#define STARTPAN2     16384 /*  new pan method with mouse button3 */
+#define STARTPAN     16384 /*  new pan method with mouse button3 */
 #define PLACE_TEXT 32768
 #define MENUSTARTSNAPWIRE 65536   /*  start wire invoked from menu, snap to pin variant 20171022 */
 #define STARTPOLYGON 131072
@@ -1215,8 +1215,7 @@ extern void check_collapsing_objects();
 extern void redraw_w_a_l_r_p_rubbers(void); /* redraw wire, arcs, line, polygon rubbers */
 extern void copy_objects(int what);
 extern void find_inst_to_be_redrawn(int what);
-extern void pan(int what);
-extern void pan2(int what, int mx, int my);
+extern void pan(int what, int mx, int my);
 extern void zoom_rectangle(int what);
 extern void zoom_box(double x1, double y1, double x2, double y2, double factor);
 extern void save_restore_zoom(int save);

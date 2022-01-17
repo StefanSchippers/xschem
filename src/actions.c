@@ -2480,7 +2480,7 @@ int place_text(int draw_text, double mx, double my)
   return 1;
 }
 
-void pan2(int what, int mx, int my)
+void pan(int what, int mx, int my)
 {
   int dx, dy, ddx, ddy;
   if(what & START) {
@@ -2502,31 +2502,6 @@ void pan2(int what, int mx, int my)
       xctx->mmy_s = my;
     }
   }
-}
-
-void pan(int what)
-{
- if(what & RUBBER)
- {
-    xctx->p_xx1 = xctx->xpan; xctx->p_yy1 = xctx->ypan; xctx->p_xx2 = xctx->xpan2; xctx->p_yy2 = xctx->ypan2;
-    ORDER(xctx->p_xx1, xctx->p_yy1, xctx->p_xx2, xctx->p_yy2);
-    drawtempline(xctx->gctiled, NOW, xctx->p_xx1, xctx->p_yy1, xctx->p_xx2, xctx->p_yy2);
-    xctx->xpan2 = xctx->mousex_snap; xctx->ypan2 = xctx->mousey_snap;
-    xctx->p_xx1 = xctx->xpan; xctx->p_yy1 = xctx->ypan; xctx->p_xx2 = xctx->xpan2; xctx->p_yy2 = xctx->ypan2;
-    ORDER(xctx->p_xx1, xctx->p_yy1, xctx->p_xx2, xctx->p_yy2);
-    drawtempline(xctx->gc[SELLAYER], NOW, xctx->p_xx1, xctx->p_yy1, xctx->p_xx2, xctx->p_yy2);
- }
- if(what & START)
- {
-    xctx->ui_state |= STARTPAN;
-    xctx->xpan=xctx->mousex_snap;xctx->ypan=xctx->mousey_snap;xctx->xpan2=xctx->xpan;xctx->ypan2=xctx->ypan;
- }
- if(what & END)
- {
-    xctx->ui_state &= ~STARTPAN;
-    xctx->xorigin+=-xctx->xpan+xctx->mousex_snap;xctx->yorigin+=-xctx->ypan+xctx->mousey_snap;
-    draw();
- }
 }
 
 /*  20150927 select=1: select objects, select=0: unselect objects */

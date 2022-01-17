@@ -26,7 +26,7 @@ static int waves_selected(int event, int key, int state, int button)
 {
   int i;
   int is_inside = 0, skip = 0;
-  static int excl = STARTZOOM | STARTRECT | STARTLINE | STARTWIRE | STARTPAN2 | STARTSELECT | STARTMOVE | STARTCOPY;
+  static int excl = STARTZOOM | STARTRECT | STARTLINE | STARTWIRE | STARTPAN | STARTSELECT | STARTMOVE | STARTCOPY;
   if(xctx->ui_state & excl) skip = 1;
   else if(state & Mod1Mask) skip = 1;
   else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
@@ -895,24 +895,19 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
-    if(xctx->ui_state & STARTPAN2)   pan2(RUBBER, mx, my);
+    if(xctx->ui_state & STARTPAN)   pan(RUBBER, mx, my);
     #ifndef __unix__
     if ((xctx->ui_state & STARTWIRE) || (xctx->ui_state & STARTARC) ||
         (xctx->ui_state & STARTLINE) || (xctx->ui_state & STARTMOVE) ||
         (xctx->ui_state & STARTCOPY) || (xctx->ui_state & STARTRECT) ||
-        (xctx->ui_state & STARTPOLYGON) || (xctx->ui_state & STARTPAN2) ||
-        (xctx->ui_state & STARTPAN) || (xctx->ui_state & STARTSELECT)) {
+        (xctx->ui_state & STARTPOLYGON) || (xctx->ui_state & STARTPAN) ||
+        (xctx->ui_state & STARTSELECT)) {
       XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
     #endif
     if(xctx->semaphore >= 2) break;
     if(xctx->ui_state) {
-      #ifdef TURBOX_FIX
-      /* fix Exceed TurboX bugs when drawing with pixmap tiled fill pattern */
-      /* *NOT* a solution but at least makes the program useable. 20171130 */
-      XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
-      #endif
       my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.16g h=%.16g",
         xctx->mousex_snap, xctx->mousey_snap,
         xctx->lastsel ,
@@ -920,9 +915,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       );
       statusmsg(str,1);
     }
-    if(xctx->ui_state & STARTPAN)    pan(RUBBER);
     if(xctx->ui_state & STARTZOOM)   zoom_rectangle(RUBBER);
-    if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & (PLACE_SYMBOL | STARTPAN2 | PLACE_TEXT)) ) {
+    if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & (PLACE_SYMBOL | STARTPAN | PLACE_TEXT)) ) {
       if( (state & Button1Mask)  && (state & Mod1Mask)) { /* 20171026 added unselect by area  */
           select_rect(RUBBER,0);
       } else if(state & Button1Mask) {
@@ -943,7 +937,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     redraw_w_a_l_r_p_rubbers();
     /* start of a mouse area select */
     if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
-       !(xctx->ui_state & STARTPAN2) && !(state & Mod1Mask) &&
+       !(xctx->ui_state & STARTPAN) && !(state & Mod1Mask) &&
        !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
     {
       if(mx != xctx->mx_save || my != xctx->my_save) {
@@ -962,7 +956,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       }
     }
     if((state & Button1Mask)  && (state & Mod1Mask) && !(state & ShiftMask) &&
-       !(xctx->ui_state & STARTPAN2) && 
+       !(xctx->ui_state & STARTPAN) && 
        !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT))) { /* unselect area */
       if( !(xctx->ui_state & STARTSELECT)) {
         select_rect(START,0);
@@ -970,7 +964,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     }
     else if((state&Button1Mask) && (state & ShiftMask) &&
              !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) &&
-             !(xctx->ui_state & STARTPAN2) ) {
+             !(xctx->ui_state & STARTPAN) ) {
       if(mx != xctx->mx_save || my != xctx->my_save) {
         if( !(xctx->ui_state & STARTSELECT)) {
           select_rect(START,1);
@@ -1003,8 +997,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        if(xctx->semaphore<2) {
          rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
        }
-       pan2(START, mx, my);
-       xctx->ui_state |= STARTPAN2;
+       pan(START, mx, my);
+       xctx->ui_state |= STARTPAN;
      }
      break;
    }
@@ -1282,10 +1276,6 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      xctx->last_command = 0;
      new_polygon(PLACE);
      break;
-   }
-   if(key=='p' && state == ControlMask)                         /* pan */
-   {
-    pan(START);break;
    }
    if(key=='P' && state == ShiftMask)                   /* pan, other way to. */
    {
@@ -2130,8 +2120,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
-   if(xctx->ui_state & STARTPAN2) {
-     xctx->ui_state &=~STARTPAN2;
+   if(xctx->ui_state & STARTPAN) {
+     xctx->ui_state &=~STARTPAN;
      xctx->mx_save = mx; xctx->my_save = my;
      xctx->mx_double_save=xctx->mousex_snap;
      xctx->my_double_save=xctx->mousey_snap;
@@ -2325,8 +2315,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
    }
    else if(button==Button2 && (state == 0)) {
-     pan2(START, mx, my);
-     xctx->ui_state |= STARTPAN2;
+     pan(START, mx, my);
+     xctx->ui_state |= STARTPAN;
    }
    else if(xctx->semaphore >= 2) { /* button1 click to select another instance while edit prop dialog open */
      if(button==Button1 && state==0 && tclgetvar("edit_symbol_prop_new_sel")[0]) {
@@ -2398,10 +2388,6 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      if(xctx->ui_state & MENUSTARTZOOM) {
        zoom_rectangle(START);
        xctx->ui_state &=~MENUSTARTZOOM;
-       break;
-     }
-     if(xctx->ui_state & STARTPAN) {
-       pan(END);
        break;
      }
      if(xctx->ui_state & STARTZOOM) {
@@ -2519,8 +2505,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
-   if(xctx->ui_state & STARTPAN2) {
-     xctx->ui_state &=~STARTPAN2;
+   if(xctx->ui_state & STARTPAN) {
+     xctx->ui_state &=~STARTPAN;
      xctx->mx_save = mx; xctx->my_save = my;
      xctx->mx_double_save=xctx->mousex_snap;
      xctx->my_double_save=xctx->mousey_snap;
