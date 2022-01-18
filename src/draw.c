@@ -347,8 +347,9 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         double xoffset, double yoffset)
                             /* draws current layer only, should be called within  */
 {                           /* a "for(i=0;i<cadlayers;i++)" loop */
-  int j, textlayer, hide = 0;
+  int k, j, textlayer, hide = 0;
   double x0,y0,x1,y1,x2,y2;
+  double *x, *y; /* polygon point arrays */
   short flip;
   xLine line;
   xRect rect;
@@ -432,19 +433,16 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     for(j=0;j< symptr->polygons[layer];j++)
     {
       polygon = (symptr->poly[layer])[j];
-      {   /* scope block so we declare some auxiliary arrays for coord transforms. */
-        int k;
-        double *x = my_malloc(34, sizeof(double) * polygon.points);
-        double *y = my_malloc(35, sizeof(double) * polygon.points);
-        for(k=0;k<polygon.points;k++) {
-          ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
-          x[k]+= x0;
-          y[k] += y0;
-        }
-        drawpolygon(c, NOW, x, y, polygon.points, polygon.fill, polygon.dash); /* added fill */
-        my_free(718, &x);
-        my_free(719, &y);
+      x = my_malloc(34, sizeof(double) * polygon.points);
+      y = my_malloc(35, sizeof(double) * polygon.points);
+      for(k=0;k<polygon.points;k++) {
+        ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
+        x[k]+= x0;
+        y[k] += y0;
       }
+      drawpolygon(c, NOW, x, y, polygon.points, polygon.fill, polygon.dash); /* added fill */
+      my_free(718, &x);
+      my_free(719, &y);
     }
     for(j=0;j< symptr->arcs[layer];j++)
     {
