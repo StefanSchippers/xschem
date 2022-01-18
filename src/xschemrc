@@ -328,7 +328,7 @@
 #### XSCHEM TOOLBAR
 ###########################################################################
 #### default: not enabled.
-set toolbar_visible 1
+# set toolbar_visible 1
 # set toolbar_horiz   1
 
 ###########################################################################
@@ -336,4 +336,4 @@ set toolbar_visible 1
 ###########################################################################
 # default: not enabled. Interface can be changed runtime if only one window 
 # or tab is open.
-set tabbed_interface 1
+# set tabbed_interface 1
