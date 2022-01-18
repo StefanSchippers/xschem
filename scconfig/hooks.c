@@ -164,6 +164,21 @@ int hook_detect_host()
 	return 0;
 }
 
+static void disable_xcb(void)
+{
+	put("libs/gui/xcb/presents", "");
+	put("libs/gui/xcb/includes", "");
+	put("libs/gui/xcb/cflags", "");
+	put("libs/gui/xcb/ldflags", "");
+	put("libs/gui/xcb_render/presents", "");
+	put("libs/gui/xcb_render/includes", "");
+	put("libs/gui/xcb_render/cflags", "");
+	put("libs/gui/xcb_render/ldflags", "");
+	put("libs/gui/xgetxcbconnection/presents", "");
+	put("libs/gui/xgetxcbconnection/includes", "");
+	put("libs/gui/xgetxcbconnection/cflags", "");
+	put("libs/gui/xgetxcbconnection/ldflags", "");
+}
 
 /* Runs when things should be detected for the host->target system (commands
    that will be executed on host but will produce files to be used on target) */
@@ -227,11 +242,31 @@ int hook_detect_target()
 	require("libs/io/dup2/*",  0, 0); /* Stefan: query dup2() availability */
 	require("parsgen/flex/presents",  0, 1);
 	require("parsgen/bison/presents",  0, 1);
-	require("libs/script/tk/*",  0, 1); /* this will also bring libs/script/tcl */
+	require("libs/script/tk/*",  0, 1); /* this will also bring libs/script/tcl/* */
 	require("fstools/awk",  0, 1);
 	require("libs/gui/xpm/*",  0, 1);
 	require("libs/gui/cairo/*",  0, 0);
 	require("libs/gui/xrender/*",  0, 0);
+
+	if (require("libs/gui/cairo-xcb/*",  0, 0) != 0) {
+		put("libs/gui/xcb/presents", sfalse);
+	}
+	else if (require("libs/gui/xcb/*",  0, 0) == 0) {
+		/* if xcb is used, the code requires these: */
+		require("libs/gui/xgetxcbconnection/*", 0, 0);
+		if (!istrue(get("libs/gui/xgetxcbconnection/presents"))) {
+			report("Disabling xcb because xgetxcbconnection is not found...\n");
+			disable_xcb();
+		}
+		else {
+			require("libs/gui/xcb_render/*", 0, 0);
+			if (!istrue(get("libs/gui/xcb_render/presents"))) {
+				report("Disabling xcb because xcb_render is not found...\n");
+				disable_xcb();
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -281,6 +316,7 @@ int hook_generate()
 		printf(" tk:        %s\n", get("/target/libs/script/tk/ldflags"));
 		printf(" cairo:     %s\n", istrue(get("/target/libs/gui/cairo/presents")) ? "yes" : "no");
 		printf(" xrender:   %s\n", istrue(get("/target/libs/gui/xrender/presents")) ? "yes" : "no");
+		printf(" xcb:       %s\n", istrue(get("/target/libs/gui/xcb/presents")) ? "yes" : "no");
 
 		printf("\nConfiguration complete, ready to compile.\n\n");
 	}
