@@ -698,11 +698,16 @@ void connect_by_kissing(void)
         iptr = iptr->next;
       }
       while(wptr) {
-        if( touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
-            xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, pinx0, piny0) &&
-            xctx->wire[wptr->n].sel) {
-          kissing=0;
-          break;
+        xWire *w = &xctx->wire[wptr->n];
+        if( touch(w->x1, w->y1, w->x2, w->y2, pinx0, piny0)) {
+          if( w->sel) {
+            kissing=0;
+            break;
+          }
+          else if( (pinx0 != w->x1 || piny0 != w->y1) && (pinx0 != w->x2 || piny0 != w->y2)) {
+            kissing = 1;
+            break;
+          }
         }
         wptr = wptr->next;
       }
