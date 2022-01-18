@@ -1146,14 +1146,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      #ifdef HAS_POPEN
      my_snprintf(res, S(res), "HAS_POPEN=%d\n", HAS_POPEN); Tcl_AppendResult(interp, res, NULL); 
      #endif
-     #ifdef HAS_XRENDER
-     my_snprintf(res, S(res), "HAS_XRENDER=%d\n", HAS_XRENDER); Tcl_AppendResult(interp, res, NULL); 
-     #endif
      #ifdef HAS_CAIRO
      my_snprintf(res, S(res), "HAS_CAIRO=%d\n", HAS_CAIRO); Tcl_AppendResult(interp, res, NULL); 
-     #endif
-     #ifdef HAS_XCB
-     my_snprintf(res, S(res), "HAS_XCB=%d\n", HAS_XCB); Tcl_AppendResult(interp, res, NULL); 
      #endif
      #ifdef XSCHEM_SHAREDIR
      my_snprintf(res, S(res), "XSCHEM_SHAREDIR=%s\n", XSCHEM_SHAREDIR); Tcl_AppendResult(interp, res, NULL); 
@@ -1712,7 +1706,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"new_schematic"))
     {
-      int r;
+      int r = -1;
       char s[20];
       cmd_found = 1;
       if(argc == 3) r = new_schematic(argv[2], NULL, NULL);

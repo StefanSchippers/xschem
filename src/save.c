@@ -555,6 +555,7 @@ static void load_inst(int k, FILE *fd)
     #else 
     my_strdup2(777, &xctx->inst[i].name, rel_sym_path(name));
     #endif
+    my_free(884, &tmp);
     if(fscanf(fd, "%lf %lf %hd %hd", &xctx->inst[i].x0, &xctx->inst[i].y0,
        &xctx->inst[i].rot, &xctx->inst[i].flip) < 4) {
       fprintf(errfp,"WARNING: missing fields for INSTANCE object, ignoring.\n");
@@ -578,7 +579,6 @@ static void load_inst(int k, FILE *fd)
                xctx->inst[i].prop_ptr? xctx->inst[i].prop_ptr:"<NULL>");
       xctx->instances++;
     }
-    my_free(884, &tmp);
     my_free(885, &prop_ptr);
 }
 

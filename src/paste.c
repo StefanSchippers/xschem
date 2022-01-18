@@ -278,36 +278,34 @@ void merge_inst(int k,FILE *fd)
     int i;
     char *prop_ptr=NULL;
     char *tmp = NULL;
-    xInstance *ptr;
     i=xctx->instances;
     check_inst_storage();
-    ptr=xctx->inst;
-    ptr[i].name=NULL;
+    xctx->inst[i].name=NULL;
     load_ascii_string(&tmp, fd);
     /* avoid as much as possible calls to rel_sym_path (slow) */
     #ifdef __unix__
-    if(tmp[0] == '/') my_strdup(763, &ptr[i].name, rel_sym_path(tmp));
-    else my_strdup(755, &ptr[i].name,tmp);
+    if(tmp[0] == '/') my_strdup(763, &xctx->inst[i].name, rel_sym_path(tmp));
+    else my_strdup(755, &xctx->inst[i].name,tmp);
     #else
-    my_strdup(780, &ptr[i].name, rel_sym_path(tmp));
+    my_strdup(780, &xctx->inst[i].name, rel_sym_path(tmp));
     #endif
     my_free(756, &tmp);
-    if(fscanf(fd, "%lf %lf %hd %hd",&ptr[i].x0, &ptr[i].y0,&ptr[i].rot, &ptr[i].flip) < 4) {
+    if(fscanf(fd, "%lf %lf %hd %hd",&xctx->inst[i].x0, &xctx->inst[i].y0,&xctx->inst[i].rot, &xctx->inst[i].flip) < 4) {
       fprintf(errfp,"WARNING: missing fields for INSTANCE object, ignoring.\n");
       read_line(fd, 0);
       return;
     }
-    ptr[i].sel=0;
-    ptr[i].flags=0;
-    ptr[i].color=-10000;
-    ptr[i].ptr=-1;
-    ptr[i].prop_ptr=NULL;
-    ptr[i].instname=NULL;
-    ptr[i].lab=NULL;  /* assigned in link_symbols_to_instances */
-    ptr[i].node=NULL;
+    xctx->inst[i].sel=0;
+    xctx->inst[i].flags=0;
+    xctx->inst[i].color=-10000;
+    xctx->inst[i].ptr=-1;
+    xctx->inst[i].prop_ptr=NULL;
+    xctx->inst[i].instname=NULL;
+    xctx->inst[i].lab=NULL;  /* assigned in link_symbols_to_instances */
+    xctx->inst[i].node=NULL;
     load_ascii_string(&prop_ptr,fd);
     if(!k) hash_all_names(i);
-    new_prop_string(i, prop_ptr, k, tclgetboolvar("disable_unique_names"));
+    new_prop_string(i, prop_ptr, k, tclgetboolvar("disable_unique_names")); /* will also assign .instname */
     /* the final tmp argument is zero for the 1st call and used in */
     /* new_prop_string() for cleaning some internal caches. */
     if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"highlight",0), "true"))
@@ -437,7 +435,7 @@ void merge_file(int selection_load, const char ext[])
        xctx->mousey_snap = 0.;
      }
      my_free(875, &aux_ptr);
-     link_symbols_to_instances(old);
+     link_symbols_to_instances(old); /* in case of paste/merge will set instances .sel to SELECTED */
      fclose(fd);
      xctx->ui_state |= STARTMERGE;
      dbg(1, "merge_file(): loaded file:wire=%d inst=%d ui_state=%ld\n",

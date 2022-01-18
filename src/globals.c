@@ -126,16 +126,6 @@ Pixmap cad_icon_pixmap=0, cad_icon_mask=0;
 /* char *cad_icon[] */
 Pixmap *pixmap = NULL;
 Visual *visual;
-#if HAS_XRENDER==1
-XRenderPictFormat *render_format;
-#endif
-
-#if HAS_XCB==1
-xcb_connection_t *xcbconn;
-xcb_render_pictforminfo_t format_rgb, format_rgba;
-xcb_screen_t *screen_xcb;
-xcb_visualtype_t *visual_xcb;
-#endif /*HAS_XCB */
 
 /* ---------------------------------------------- */
 /* These variables are mirrored in tcl code       */

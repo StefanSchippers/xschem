@@ -2380,7 +2380,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         int p, dset, ofs;
         int poly_npoints;
         int first, last;
-        double xx;
+        double xx; /* the p-th sweep variable value:  xctx->graph_values[sweep_idx][p] */
         double start;
         double end;
         int n_bits = 1, wrap; 
@@ -2475,7 +2475,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
           sweepvar_wrap++;
         } /* for(dset...) */
         bbox(END, 0.0, 0.0, 0.0, 0.0);
-        show_node_measures(measure_p, measure_x, measure_prev_x, bus_msb, wave_color, 
+        if(measure_p != -1) show_node_measures(measure_p, measure_x, measure_prev_x, bus_msb, wave_color, 
             idx, idx_arr, n_bits, n_nodes, ntok, wcnt, gr);
 
         my_free(1403, &point);

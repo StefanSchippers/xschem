@@ -871,28 +871,6 @@ void tclexit(ClientData s)
   if(init_done) xwin_exit();
 }
 
-#if HAS_XCB==1
-/* from xcb.freedesktop.org -- don't ask me what it does... 20171125 */
-static xcb_visualtype_t *find_visual(xcb_connection_t *xcbconn, xcb_visualid_t visual)
-{
-    xcb_screen_iterator_t screen_iter = xcb_setup_roots_iterator(xcb_get_setup(xcbconn));
-
-    for (; screen_iter.rem; xcb_screen_next(&screen_iter)) {
-        xcb_depth_iterator_t depth_iter = xcb_screen_allowed_depths_iterator(screen_iter.data);
-        for (; depth_iter.rem; xcb_depth_next(&depth_iter)) {
-            xcb_visualtype_iterator_t visual_iter = xcb_depth_visuals_iterator(depth_iter.data);
-            for (; visual_iter.rem; xcb_visualtype_next(&visual_iter)) {
-                if (visual == visual_iter.data->visual_id) {
-                    return visual_iter.data;
-                }
-            }
-        }
-    }
-
-    return NULL;
-}
-#endif /*HAS_XCB */
-
 int source_tcl_file(char *s)
 {
   char tmp[1024];
@@ -1497,6 +1475,10 @@ void change_linewidth(double w)
 void resetcairo(int create, int clear, int force_or_resize)
 { 
   #if HAS_CAIRO==1
+  cairo_font_options_t *options;
+  options = cairo_font_options_create();
+  cairo_font_options_set_antialias(options, CAIRO_ANTIALIAS_FAST);
+  cairo_font_options_set_hint_style(options, CAIRO_HINT_STYLE_SLIGHT);
   dbg(1, "resetcairo() %d, %d, %d\n", create, clear, force_or_resize);
   if(clear && force_or_resize) {
     /* xctx->cairo_save_sfc is based on pixmap and pixmaps are not resizeable, so on resize 
@@ -1509,43 +1491,25 @@ void resetcairo(int create, int clear, int force_or_resize)
   }
   if(create && force_or_resize) {
     /***** Create Cairo save buffer drawing area *****/
-    #if HAS_XRENDER==1
-    #if HAS_XCB==1
-    xctx->cairo_save_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn, screen_xcb, xctx->save_pixmap,
-         &format_rgb, xctx->xrect[0].width, xctx->xrect[0].height);
-    #else
-    xctx->cairo_save_sfc = cairo_xlib_surface_create_with_xrender_format(display, xctx->save_pixmap,
-         DefaultScreenOfDisplay(display), render_format, xctx->xrect[0].width, xctx->xrect[0].height);
-    #endif /* HAS_XCB */
-    #else
     xctx->cairo_save_sfc = 
        cairo_xlib_surface_create(display, xctx->save_pixmap, visual, xctx->xrect[0].width, xctx->xrect[0].height);
-    #endif /* HAS_XRENDER */
     if(cairo_surface_status(xctx->cairo_save_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
     }
+
     xctx->cairo_save_ctx = cairo_create(xctx->cairo_save_sfc);
     cairo_select_font_face(xctx->cairo_save_ctx, tclgetvar("cairo_font_name"), 
       CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(xctx->cairo_save_ctx, 20);
+
+    cairo_set_font_options(xctx->cairo_save_ctx, options);
+
     cairo_set_line_width(xctx->cairo_save_ctx, 1);
     cairo_set_line_join(xctx->cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
     cairo_set_line_cap(xctx->cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
     /***** Create Cairo main drawing window structures *****/
-    #if HAS_XRENDER==1
-    #if HAS_XCB==1
-    dbg(1, "create_cairo_surface: w=%d, h=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
-    xctx->cairo_sfc = cairo_xcb_surface_create_with_xrender_format(xcbconn,
-          screen_xcb, xctx->window, &format_rgb, xctx->xrect[0].width, xctx->xrect[0].height);
-    #else
-    xctx->cairo_sfc = cairo_xlib_surface_create_with_xrender_format (display,
-          xctx->window, DefaultScreenOfDisplay(display), render_format,
-          xctx->xrect[0].width, xctx->xrect[0].height);
-    #endif /* HAS_XCB */
-    #else
     xctx->cairo_sfc = cairo_xlib_surface_create(display, xctx->window, visual,
         xctx->xrect[0].width, xctx->xrect[0].height);
-    #endif /* HAS_XRENDER */
     if(cairo_surface_status(xctx->cairo_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo surface\n");
     }
@@ -1553,16 +1517,13 @@ void resetcairo(int create, int clear, int force_or_resize)
     cairo_select_font_face(xctx->cairo_ctx, tclgetvar("cairo_font_name"),
       CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(xctx->cairo_ctx, 20);
+
+    cairo_set_font_options(xctx->cairo_ctx, options);
+
     cairo_set_line_width(xctx->cairo_ctx, 1);
     cairo_set_line_join(xctx->cairo_ctx, CAIRO_LINE_JOIN_ROUND);
     cairo_set_line_cap(xctx->cairo_ctx, CAIRO_LINE_CAP_ROUND);
-    #if 0
-    *  #if HAS_XCB==1 && HAS_XRENDER==1
-    *  cairo_xcb_surface_set_size(xctx->cairo_sfc, xctx->xrect[0].width, xctx->xrect[0].height);
-    *  #else
-    *  cairo_xlib_surface_set_size(xctx->cairo_sfc, xctx->xrect[0].width, xctx->xrect[0].height);
-    *  #endif /* HAS_XCB  && HAS_XRENDER */
-    #endif
+    cairo_font_options_destroy(options);
   }
   #endif /* HAS_CAIRO */
 }
@@ -1663,15 +1624,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  const char *home_buff;
  int running_in_src_dir;
  int fs;
-
- /* XVisualInfo vinfo; */
- #if HAS_XCB==1
- #if HAS_XRENDER==1
- xcb_render_query_pict_formats_reply_t *formats_reply;
- xcb_render_pictforminfo_t *formats;
- xcb_render_query_pict_formats_cookie_t formats_cookie;
- #endif
- #endif
 
  /* get PWD and HOME */
  if(!getcwd(pwd_dir, PATH_MAX)) {
@@ -2075,47 +2027,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
     dbg(1, "Tcl_AppInit(): top window ID=0x%lx\n",topwindow);
     dbg(1, "Tcl_AppInit(): done tkinit()\n");
 
-    #if HAS_XCB==1
-    /* grab an existing xlib connection  20171125 */
-    xcbconn = XGetXCBConnection(display);
-    if(xcb_connection_has_error(xcbconn)) {
-      fprintf(errfp, "Could not connect to X11 server");
-      return 1;
-    }
-    screen_xcb = xcb_setup_roots_iterator(xcb_get_setup(xcbconn)).data;
-    visual_xcb = find_visual(xcbconn, screen_xcb->root_visual);
-    if(!visual_xcb) {
-      fprintf(errfp, "got NULL (xcb_visualtype_t)visual");
-      return 1;
-    }
-    #if HAS_XRENDER==1
-    /*/--------------------------Xrender xcb  stuff------- */
-    formats_cookie = xcb_render_query_pict_formats(xcbconn);
-    formats_reply = xcb_render_query_pict_formats_reply(xcbconn, formats_cookie, 0);
-
-    formats = xcb_render_query_pict_formats_formats(formats_reply);
-    for (i = 0; i < formats_reply->num_formats; i++) {
-             /* fprintf(errfp, "i=%d depth=%d  type=%d red_shift=%d\n", i,
-                  formats[i].depth, formats[i].type, formats[i].direct.red_shift); */
-            if (formats[i].direct.red_mask != 0xff &&
-                formats[i].direct.red_shift != 16)
-                    continue;
-            if (formats[i].type == XCB_RENDER_PICT_TYPE_DIRECT &&
-                formats[i].depth == 24 && formats[i].direct.red_shift == 16)
-                    format_rgb = formats[i];
-            if (formats[i].type == XCB_RENDER_PICT_TYPE_DIRECT &&
-                formats[i].depth == 32 &&
-                formats[i].direct.alpha_mask == 0xff &&
-                formats[i].direct.alpha_shift == 24)
-                    format_rgba = formats[i];
-    }
-    free(formats_reply); /* can not use my_free() since not allocated by my_* allocator wrappers */
-    formats_reply = NULL;
-    #endif /* HAS_XRENDER */
-    /*/---------------------------------------------------- */
-    /* /20171125 */
-    #endif /*HAS_XCB */
-
     screen_number = Tk_ScreenNumber(mainwindow);
     colormap = Tk_Colormap(mainwindow);
     screendepth = Tk_Depth(mainwindow);
@@ -2137,9 +2048,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
     dbg(1, "Tcl_AppInit(): done step e of xinit()\n");
     /* xctx->save_pixmap must be created as resetwin() frees it before recreating with new size. */
 
-    #if HAS_XRENDER==1
-    render_format = XRenderFindStandardFormat(display, PictStandardRGB24);
-    #endif
     resetwin(1, 0, 1, 0, 0);
     #if HAS_CAIRO==1
     /* load font from tcl 20171112 */
