@@ -301,7 +301,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     setup_graph_data(i, xctx->graph_flags, 1, gr);
     /* if no dataset given assume 0 for graph scaling calculations */
     if(gr->dataset == -1) dataset = 0;
-    else dataset = gr->dataset;
+    else if(gr->dataset <=  xctx->graph_datasets) dataset =gr->dataset;
+    else dataset = 0;
     /* destroy / show measurement widget */
     if(i == xctx->graph_master) {
       if(xctx->graph_flags & 64) {
