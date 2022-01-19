@@ -713,12 +713,14 @@ int connect_by_kissing(void)
       }
       if(kissing) {
      
-        dbg(0, "connect_by_kissing(): adding wire in %g %g, wires before = %d\n", pinx0, piny0, xctx->wires);
+        dbg(1, "connect_by_kissing(): adding wire in %g %g, wires before = %d\n", pinx0, piny0, xctx->wires);
         if(!done_undo) {
           xctx->push_undo();
           done_undo = 1;
         }
         storeobject(-1, pinx0, piny0,  pinx0, piny0, WIRE, 0, SELECTED1, NULL);
+        /* storeobject sets modify, but we clear it here, will be set if move operation completes */
+        set_modify(0);
         changed = 1;
         xctx->need_reb_sel_arr = 1;
       }

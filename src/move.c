@@ -1052,6 +1052,7 @@ void move_objects(int what, int merge, double dx, double dy)
  }
  if(what & ABORT)                               /* draw objects while moving */
  {
+  if(xctx->kissing) pop_undo(0, 0);
   draw_selection(xctx->gctiled,0);
   xctx->move_rot=xctx->move_flip=xctx->deltax=xctx->deltay=0;
   xctx->ui_state &= ~STARTMOVE;
