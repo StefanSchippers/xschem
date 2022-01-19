@@ -345,14 +345,24 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
   double size, height, ascent, descent;
   int llength=0, no_of_lines, longest_line;
 
-  if(str==NULL || !has_x ) return;
+  if(str==NULL) return;
   size = xscale*53.;
   height =  size*xctx->mooz * 1.147; /* was 1.147 */
   ascent =  size*xctx->mooz * 0.808; /* was 0.908 */
   descent = size*xctx->mooz * 0.219; /* was 0.219 */
 
-  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter,
+  #ifdef HAS_CAIRO==1
+  if(!has_x) 
+    text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter,
             x,y, &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
+  else
+    text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter,
+            x,y, &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
+  #else
+    text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter,
+            x,y, &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
+  #endif
+  
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,
                xctx->areay2,textx1,texty1,textx2,texty2)) {
     return;
