@@ -220,7 +220,7 @@ proc xschemtest {{view 0}} {
 
     netlist_test
     print_test $view
-    draw_test [list rom8k.sch greycnt.sch autozero_comp.sch \
+    draw_test [list 0_examples_top.sch rom8k.sch greycnt.sch autozero_comp.sch \
                loading.sch mos_power_ampli.sch LCC_instances.sch simulate_ff.sch]
 
     copy_paste_test mos_power_ampli.sch
