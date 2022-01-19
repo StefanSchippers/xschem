@@ -612,6 +612,10 @@ void clear_drawing(void)
   for(j=0;j<xctx->rects[i];j++)
   {
    my_free(700, &xctx->rect[i][j].prop_ptr);
+   if(xctx->rect[i][j].data) {
+     my_free(1467, &xctx->rect[i][j].data);
+     xctx->rect[i][j].data_size = 0;
+   }
   }
   for(j=0;j<xctx->arcs[i];j++)
   {

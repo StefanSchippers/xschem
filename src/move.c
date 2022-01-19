@@ -145,6 +145,10 @@ void check_collapsing_objects()
      if(xctx->rect[c][i].x1==xctx->rect[c][i].x2 || xctx->rect[c][i].y1 == xctx->rect[c][i].y2)
      {
       my_free(815, &xctx->rect[c][i].prop_ptr);
+      if(xctx->rect[c][i].data) {
+        my_free(1471, &xctx->rect[c][i].data);
+        xctx->rect[c][i].data_size = 0;
+      }
       found=1;
       j++;
       continue;
@@ -872,6 +876,11 @@ void copy_objects(int what)
         storeobject(-1, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
                    xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay,xRECT, c, SELECTED, xctx->rect[c][n].prop_ptr);
         l = xctx->rects[c] - 1;
+        if(xctx->rect[c][n].data && xctx->rect[c][n].data_size) {
+           xctx->rect[c][l].data_size =  xctx->rect[c][n].data_size;
+           xctx->rect[c][l].data = my_malloc(1470, xctx->rect[c][n].data_size);
+           memcpy(xctx->rect[c][l].data, xctx->rect[c][n].data,  xctx->rect[c][n].data_size);
+        }
         bbox(ADD, xctx->rect[c][l].x1, xctx->rect[c][l].y1, xctx->rect[c][l].x2, xctx->rect[c][l].y2);
         break;
   

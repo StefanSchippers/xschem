@@ -2561,11 +2561,42 @@ void draw_graph_all(int flags)
   }
 }
 
+typedef struct
+{
+  unsigned char *buffer;
+  size_t pos;
+  size_t size;
+} png_to_byte_closure_t;
+
+
+static cairo_status_t png_reader(void *in_closure, unsigned char *out_data, unsigned int length)
+{
+  png_to_byte_closure_t *closure = (png_to_byte_closure_t *) in_closure;
+  memcpy(out_data, closure->buffer + closure->pos, length);
+  closure->pos += length;
+  return CAIRO_STATUS_SUCCESS;
+}
+
+static cairo_status_t png_writer(void *in_closure, const unsigned char *in_data, unsigned int length)
+{
+  png_to_byte_closure_t *closure = (png_to_byte_closure_t *) in_closure;
+  if(closure->pos + length > closure->size) {
+    my_realloc(1472, &closure->buffer, closure->pos + length + 65536);
+    closure->size =  closure->pos + length + 65536;
+  }
+  memcpy(closure->buffer + closure->pos, in_data, length);
+  closure->pos += length;
+  return CAIRO_STATUS_SUCCESS;
+}
+
+
 int draw_images_all(void)
 {
   #if HAS_CAIRO==1
-  int  i, bbox_set = 0;
+  int  i, bbox_set = 0, w, h;
+  double x, y, rw, rh;
   int save_bbx1, save_bby1, save_bbx2, save_bby2;
+  cairo_surface_t *image;
 
   if(xctx->sem) {
     bbox_set = 1;
@@ -2576,21 +2607,76 @@ int draw_images_all(void)
     bbox(END, 0.0, 0.0, 0.0, 0.0);
   }
 
-  cairo_save(xctx->cairo_ctx);
-  cairo_save(xctx->cairo_save_ctx);
   if(xctx->draw_single_layer==-1 || GRIDLAYER == xctx->draw_single_layer) {
     if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; i++) {
       xRect *r = &xctx->rect[GRIDLAYER][i];
       if(r->flags & 1024) {
-        /* const char *filename = get_tok_value(r->prop_ptr, "image", 0); */
+        struct stat buf;
+        const char *attr;
+        const char *filename;
+        double scalex, scaley;
+        png_to_byte_closure_t closure;
 
+        cairo_save(xctx->cairo_ctx);
+        cairo_save(xctx->cairo_save_ctx);
 
+        if(r->data && r->data_size) {
+          /* read PNG from in-memory buffer */
+          closure.buffer = r->data;
+          closure.pos = 0;
+          closure.size = r->data_size; /* should not be necessary */
+          image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+          dbg(1, "draw_images_all(): length1 = %d\n", closure.pos);
+        } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] ) {
+          r->data = base64_decode(attr, strlen(attr), &r->data_size);
+          closure.buffer = r->data;
+          closure.pos = 0;
+          closure.size = r->data_size; /* should not be necessary */
+          image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+          dbg(1, "draw_images_all(): length2 = %d\n", closure.pos);
+        } else if( (filename = get_tok_value(r->prop_ptr, "image", 0))[0] && !stat(filename, &buf)) {
+          char *image_data = NULL;
+          size_t olength;
+          image = cairo_image_surface_create_from_png(filename);
+          if(cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) return 1;
+          /* write PNG to in-memory buffer */
+          closure.buffer = NULL;
+          closure.size = 0;
+          closure.pos = 0;
+          cairo_surface_write_to_png_stream(image, png_writer, &closure);
+          dbg(1, "draw_images_all(): length3 = %d\n", closure.pos);
+          r->data = closure.buffer;
+          r->data_size = closure.pos;
+          /* put base64 encoded data to rect image_data attrinute */
+          image_data = base64_encode(r->data, r->data_size, &olength);
+          my_realloc(1466, &image_data, olength + 1);
+          image_data[olength] = '\0';
+          my_strdup2(1473, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", image_data));
+          my_free(1474, &image_data);
+        } else {
+          return 1;
+        }
+        if(cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) return 1;
+        w = cairo_image_surface_get_width (image);
+        h = cairo_image_surface_get_height (image);
+        dbg(1, "draw_images_all() w=%d, h=%d\n", w, h);
+        x = X_TO_SCREEN(r->x1);
+        y = Y_TO_SCREEN(r->y1);
+        rw = abs(r->x2 - r->x1);
+        rh = abs(r->y2 - r->y1);
+        cairo_translate(xctx->cairo_save_ctx, x, y);
+        scalex = rw/w * xctx->mooz;
+        scaley = rh/h * xctx->mooz;
+        cairo_scale(xctx->cairo_save_ctx, scalex, scaley);
+        cairo_set_source_surface(xctx->cairo_save_ctx, image, 0. , 0.);
+        cairo_paint(xctx->cairo_save_ctx);
+      
+        cairo_surface_destroy(image);
+        cairo_restore(xctx->cairo_ctx);
+        cairo_restore(xctx->cairo_save_ctx);
       }
     }
   }
-  cairo_restore(xctx->cairo_ctx);
-  cairo_restore(xctx->cairo_save_ctx);
-
   if(bbox_set) {
     xctx->bbx1 = save_bbx1;
     xctx->bby1 = save_bby1;
@@ -2599,10 +2685,10 @@ int draw_images_all(void)
     xctx->sem = 1;
     bbox(SET, 0.0, 0.0, 0.0, 0.0);
   }
-
   #endif
   return 0;
 }
+
 void draw(void)
 {
  /* inst_ptr  and wire hash iterator 20171224 */
@@ -2629,6 +2715,7 @@ void draw(void)
     dbg(1, "draw(): window: %d %d %d %d\n",xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
     drawgrid();
     draw_graph_all((xctx->graph_flags & 6) + 8); /* xctx->graph_flags for cursors */
+    draw_images_all();
     x1 = X_TO_XSCHEM(xctx->areax1);
     y1 = Y_TO_XSCHEM(xctx->areay1);
     x2 = X_TO_XSCHEM(xctx->areax2);
@@ -2651,7 +2738,7 @@ void draw(void)
           }
           if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c];i++) {
             xRect *r = &xctx->rect[c][i]; 
-            if(c != GRIDLAYER || !(r->flags & 1) )  {
+            if(c != GRIDLAYER || !(r->flags & (1 + 1024)) )  {
               drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
               filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
             }

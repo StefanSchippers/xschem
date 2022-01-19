@@ -111,6 +111,8 @@ void merge_box(FILE *fd)
       return;
     }
     ptr[i].prop_ptr=NULL;
+    ptr[i].data=NULL;
+    ptr[i].data_size=0;
     RECTORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);

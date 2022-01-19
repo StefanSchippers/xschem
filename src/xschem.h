@@ -403,6 +403,8 @@ typedef struct
   double y2;
   unsigned short sel;
   char *prop_ptr;
+  void *data; /* generic data pointer (images) */
+  size_t data_size; /* generic data pointer (images) */
   short dash;
   /* bit0=1 for graph function, bit1=1 for unlocked x axis
    * bit10: image embedding (png)
@@ -992,6 +994,8 @@ extern int cli_opt_load_initfile;
 extern Xschem_ctx *xctx;
 
 /*  FUNCTIONS */
+extern unsigned char *base64_decode(const char *data, size_t input_length, size_t *output_length);
+extern char *base64_encode(const unsigned char *data, size_t input_length, size_t *output_length);
 extern int get_raw_index(const char *node);
 extern double get_raw_value(int dataset, int idx, int point);
 extern int schematic_waves_loaded(void);
