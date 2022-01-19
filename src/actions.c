@@ -652,17 +652,17 @@ void enable_layers(void)
   }
 }
 
-void connect_by_kissing(void)
+int connect_by_kissing(void)
 {
   xSymbol *symbol;
   int npin, i, j;
   double x0,y0, pinx0, piny0;
   short flip, rot;
   xRect *rct;
-  int k,ii, kissing;
+  int k,ii, kissing, done_undo = 0;
   Wireentry *wptr;
   Instpinentry *iptr;
-  int sqx, sqy;
+  int sqx, sqy, changed = 0;
 
   rebuild_selected_array();
   k = xctx->lastsel;
@@ -713,13 +713,19 @@ void connect_by_kissing(void)
       }
       if(kissing) {
      
-        dbg(1, "connect_by_kissing(): adding wire in %g %g, wires before = %d\n", pinx0, piny0, xctx->wires);
+        dbg(0, "connect_by_kissing(): adding wire in %g %g, wires before = %d\n", pinx0, piny0, xctx->wires);
+        if(!done_undo) {
+          xctx->push_undo();
+          done_undo = 1;
+        }
         storeobject(-1, pinx0, piny0,  pinx0, piny0, WIRE, 0, SELECTED1, NULL);
+        changed = 1;
         xctx->need_reb_sel_arr = 1;
       }
     }
   }
   rebuild_selected_array();
+  return changed;
 }
 
 void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 20171005 */

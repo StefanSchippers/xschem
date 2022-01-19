@@ -1039,7 +1039,8 @@ void move_objects(int what, int merge, double dx, double dy)
   xctx->rotatelocal=0;
   xctx->deltax = xctx->deltay = 0.0;
   rebuild_selected_array();
-  if(tclgetboolvar("connect_by_kissing")) connect_by_kissing();
+  if(tclgetboolvar("connect_by_kissing")) xctx->kissing = connect_by_kissing();
+  else xctx->kissing = 0;
   xctx->movelastsel = xctx->lastsel;
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ARC &&
           xctx->arc[c=xctx->sel_array[0].col][n=xctx->sel_array[0].n].sel!=SELECTED) {
@@ -1085,8 +1086,8 @@ void move_objects(int what, int merge, double dx, double dy)
   bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   set_modify(1);
   /* no undo push for MERGE ad PLACE, already done before */
-  if( !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
-    dbg(1, "move_objects(): push undo state\n");
+  if( !xctx->kissing && !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
+    dbg(0, "move_objects(): push undo state\n");
     xctx->push_undo();
   }
   xctx->ui_state &= ~PLACE_SYMBOL;

@@ -802,14 +802,16 @@ typedef struct {
   int mx_save, my_save, last_command;
   char sel_or_clip[PATH_MAX];
   int onetime;
-  /* move.c */
   /* list of nodes, instances attached to these need redraw */
   Int_hashentry **node_redraw_table;
   /* list of instances, collected using previous table, that need redraw */
   unsigned char *inst_redraw_table;
   int inst_redraw_table_size;
+  /* move.c */
   double rx1, rx2, ry1, ry2;
   short move_rot;
+  /* a wire was created while separating a component frm a net or another component */
+  short kissing;
   short move_flip;
   int manhattan_lines;
   double x1, y_1, x2, y_2, deltax, deltay;
@@ -833,7 +835,7 @@ typedef struct {
   double p_xx1,p_xx2,p_yy1,p_yy2;
   /* set_modify */
   int prev_set_modify;
-  /* pan2 */
+  /* pan */
   int mx_s, my_s;
   int mmx_s, mmy_s;
   double xorig_save, yorig_save;
@@ -1173,7 +1175,7 @@ extern int place_symbol(int pos, const char *symbol_name, double x, double y, sh
                          const char *inst_props, int draw_sym, int first_call, int to_push_undo);
 extern void place_net_label(int type);
 extern void attach_labels_to_inst(int interactive);
-extern void connect_by_kissing(void);
+extern int connect_by_kissing(void);
 extern void delete_files(void);
 extern int sym_vs_sch_pins(void);
 extern int match_symbol(const char name[]);
