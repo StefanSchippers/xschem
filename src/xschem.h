@@ -142,12 +142,12 @@ extern char win_temp_dir[PATH_MAX];
 #define CADHALFDOTSIZE 4
 #define CADNULLNODE -1      /*  no valid node number */
 #define CADWIREMINDIST 8.0
-#define CADMAXWIRES 4096
-#define CADMAXTEXT 2048
-#define CADMAXOBJECTS 512   /*  (initial) max # of lines, rects (for each layer!!) */
-#define MAXGROUP 300        /*  (initial) max # of objects that can be drawn while moving */
-#define ELEMINST 4096        /*  (initial) max # of placed elements,   was 600 20102004 */
-#define ELEMDEF 256         /*  (initial) max # of defined elements */
+#define CADMAXWIRES 200
+#define CADMAXTEXT 100
+#define CADMAXOBJECTS 100  /*  (initial) max # of lines, rects (for each layer!!) */
+#define MAXGROUP 100       /*  (initial) max # of objects that can be drawn while moving */
+#define ELEMINST 100       /*  (initial) max # of placed elements,   was 600 20102004 */
+#define ELEMDEF 50         /*  (initial) max # of defined elements */
 #define EMBEDDED 1   /* used for embedded symbols marking in Symbol.flags */
 #define HILIGHT_CONN 4 /* used to hilight instances if connected wire is hilighted */
 #define CADMAXGRIDPOINTS 512

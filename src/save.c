@@ -1048,7 +1048,6 @@ void link_symbols_to_instances(int from) /* from >= 0 : linking symbols from pas
     xctx->inst[i].ptr = match_symbol(xctx->inst[i].name);
   }
   for(i = from; i < xctx->instances; i++) {
-    if(merge) select_element(i,SELECTED,1, 0); /* leave elements selected if a paste/copy from windows is done */
     type=xctx->sym[xctx->inst[i].ptr].type;
     cond= !type || !IS_LABEL_SH_OR_PIN(type);
     if(cond) xctx->inst[i].flags|=2; /* ordinary symbol */
@@ -1061,6 +1060,7 @@ void link_symbols_to_instances(int from) /* from >= 0 : linking symbols from pas
    * needs .lab field set above, so this must be done last */
   for(i = from; i < xctx->instances; i++) {
     symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
+    if(merge) select_element(i,SELECTED,1, 0); /* leave elements selected if a paste/copy from windows is done */
   }
 }
 
