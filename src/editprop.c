@@ -434,9 +434,8 @@ static void edit_rect_property(int x)
                (char *) tclgetvar("retval"));
       }
 
-      if(xctx->rect[c][n].data) { /* used for images, clear so will be recreated from image attr */
-        my_free(1465, &xctx->rect[c][n].data);
-        xctx->rect[c][n].data_size = 0;
+      if(xctx->rect[c][n].extraptr) { /* used for images, clear so will be recreated from image attr */
+        setup_rect_extraptr(0, &xctx->rect[c][n], NULL);
       }
       flags = get_tok_value(xctx->rect[c][n].prop_ptr,"flags",0);
       if( strcmp(flags, "") ) {

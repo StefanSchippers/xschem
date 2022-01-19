@@ -570,6 +570,49 @@ void remove_symbols(void)
   dbg(1, "remove_symbols(): done\n");
 }
 
+/* what: 
+ * 2: copy: drptr->extraptr <- srptr->extraptr
+ * 1: create
+ * 0: clear
+ */
+int setup_rect_extraptr(int what, xRect *drptr, xRect *srptr)
+{
+  if(what==2) { /* copy */
+    if(drptr->flags & 1024) { /* embedded image */
+      xEmb_image *d, *s;
+      s = srptr->extraptr;
+      if(s) {
+        d = my_malloc(1478, sizeof(xEmb_image));
+        d->data = my_malloc(1479, s->data_size);
+        memcpy(d->data, s->data,  s->data_size);
+        d->data_size = s->data_size;
+        drptr->extraptr = d;
+      } else {
+        drptr->extraptr = NULL;
+      }
+    }
+  } else if(what==1) { /* create */
+    if(drptr->flags & 1024) { /* embedded image */
+      if(!drptr->extraptr) {
+        xEmb_image *d;
+        d = my_malloc(1465, sizeof(xEmb_image));
+        d->data = NULL;
+        d->data_size = 0;
+        drptr->extraptr = d;
+      }
+    }
+  } else {   /* clear */
+    if(drptr->flags & 1024) { /* embedded image */
+      if(drptr->extraptr) {
+        xEmb_image *d = drptr->extraptr;
+        if(d->data) my_free(1475, &d->data);
+        my_free(1476, &drptr->extraptr);
+      }
+    }
+  }
+  return 0;
+}
+
 void clear_drawing(void)
 {
  int i,j;
@@ -612,10 +655,7 @@ void clear_drawing(void)
   for(j=0;j<xctx->rects[i];j++)
   {
    my_free(700, &xctx->rect[i][j].prop_ptr);
-   if(xctx->rect[i][j].data) {
-     my_free(1467, &xctx->rect[i][j].data);
-     xctx->rect[i][j].data_size = 0;
-   }
+   setup_rect_extraptr(0, &xctx->rect[i][j], NULL);
   }
   for(j=0;j<xctx->arcs[i];j++)
   {

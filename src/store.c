@@ -308,8 +308,7 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->rect[rectc][n].y1=y1;
      xctx->rect[rectc][n].y2=y2;
      xctx->rect[rectc][n].prop_ptr=NULL;
-     xctx->rect[rectc][n].data=NULL;
-     xctx->rect[rectc][n].data_size=0;
+     xctx->rect[rectc][n].extraptr=NULL;
      my_strdup(413, &xctx->rect[rectc][n].prop_ptr, prop_ptr);
      xctx->rect[rectc][n].sel=sel;
      if(prop_ptr && (dash = get_tok_value(prop_ptr,"dash",0))[0]) {

@@ -779,8 +779,7 @@ static void load_box(FILE *fd)
       return;
     }
     RECTORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
-    ptr[i].data=NULL;
-    ptr[i].data_size=0;
+    ptr[i].extraptr=NULL;
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);

@@ -307,10 +307,8 @@ void mem_push_undo(void)
       xctx->uslot[slot].bptr[c][i] = xctx->rect[c][i];
       xctx->uslot[slot].bptr[c][i].prop_ptr = NULL;
       my_strdup(185, &xctx->uslot[slot].bptr[c][i].prop_ptr, xctx->rect[c][i].prop_ptr);
-      if(xctx->rect[c][i].data && xctx->rect[c][i].data_size) {
-        xctx->uslot[slot].bptr[c][i].data_size = xctx->rect[c][i].data_size;
-        xctx->uslot[slot].bptr[c][i].data = my_malloc(1469, xctx->rect[c][i].data_size);
-        memcpy(xctx->uslot[slot].bptr[c][i].data, xctx->rect[c][i].data, xctx->rect[c][i].data_size);
+      if(xctx->rect[c][i].extraptr) {
+        setup_rect_extraptr(2, &xctx->uslot[slot].bptr[c][i], &xctx->rect[c][i]);
       }
     }
     /* arcs */
@@ -534,10 +532,8 @@ void mem_pop_undo(int redo, int set_modify_status)
       xctx->rect[c][i] = xctx->uslot[slot].bptr[c][i];
       xctx->rect[c][i].prop_ptr = NULL;
       my_strdup(205, &xctx->rect[c][i].prop_ptr, xctx->uslot[slot].bptr[c][i].prop_ptr);
-      if(xctx->uslot[slot].bptr[c][i].data && xctx->uslot[slot].bptr[c][i].data_size) {
-        xctx->rect[c][i].data_size = xctx->uslot[slot].bptr[c][i].data_size;
-        xctx->rect[c][i].data = my_malloc(1468, xctx->uslot[slot].bptr[c][i].data_size);
-        memcpy(xctx->rect[c][i].data, xctx->uslot[slot].bptr[c][i].data, xctx->uslot[slot].bptr[c][i].data_size);
+      if(xctx->uslot[slot].bptr[c][i].extraptr) {
+        setup_rect_extraptr(2, &xctx->rect[c][i], &xctx->uslot[slot].bptr[c][i]);
       }
     }
     /* arcs */

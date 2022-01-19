@@ -2589,7 +2589,6 @@ static cairo_status_t png_writer(void *in_closure, const unsigned char *in_data,
   return CAIRO_STATUS_SUCCESS;
 }
 
-
 int draw_images_all(void)
 {
   #if HAS_CAIRO==1
@@ -2597,15 +2596,6 @@ int draw_images_all(void)
   double x, y, rw, rh;
   int save_bbx1, save_bby1, save_bbx2, save_bby2;
   cairo_surface_t *image;
-
-  if(xctx->sem) {
-    bbox_set = 1;
-    save_bbx1 = xctx->bbx1;
-    save_bby1 = xctx->bby1;
-    save_bbx2 = xctx->bbx2;
-    save_bby2 = xctx->bby2;
-    bbox(END, 0.0, 0.0, 0.0, 0.0);
-  }
 
   if(xctx->draw_single_layer==-1 || GRIDLAYER == xctx->draw_single_layer) {
     if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; i++) {
@@ -2616,23 +2606,37 @@ int draw_images_all(void)
         const char *filename;
         double scalex, scaley;
         png_to_byte_closure_t closure;
+        xEmb_image *emb_ptr;
 
+        if(xctx->sem) {
+          bbox_set = 1;
+          save_bbx1 = xctx->bbx1;
+          save_bby1 = xctx->bby1;
+          save_bbx2 = xctx->bbx2;
+          save_bby2 = xctx->bby2;
+          bbox(END, 0.0, 0.0, 0.0, 0.0);
+        }
+
+        if(!r->extraptr) {
+          setup_rect_extraptr(1, r, NULL);
+        }
+        emb_ptr = r->extraptr;
         cairo_save(xctx->cairo_ctx);
         cairo_save(xctx->cairo_save_ctx);
 
         /* read PNG from in-memory buffer ... */
-        if(r->data && r->data_size) {
-          closure.buffer = r->data;
+        if(emb_ptr && emb_ptr->data && emb_ptr->data_size) {
+          closure.buffer = emb_ptr->data;
           closure.pos = 0;
-          closure.size = r->data_size; /* should not be necessary */
+          closure.size = emb_ptr->data_size; /* should not be necessary */
           image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
           dbg(1, "draw_images_all(): length1 = %d\n", closure.pos);
         /* ... or read PNG from image_data attribute */
         } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] ) {
-          r->data = base64_decode(attr, strlen(attr), &r->data_size);
-          closure.buffer = r->data;
+          emb_ptr->data = base64_decode(attr, strlen(attr), &emb_ptr->data_size);
+          closure.buffer = emb_ptr->data;
           closure.pos = 0;
-          closure.size = r->data_size; /* should not be necessary */
+          closure.size = emb_ptr->data_size; /* should not be necessary */
           image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
           dbg(1, "draw_images_all(): length2 = %d\n", closure.pos);
         /* ... or read PNG from file (image attribute) */
@@ -2647,10 +2651,10 @@ int draw_images_all(void)
           closure.pos = 0;
           cairo_surface_write_to_png_stream(image, png_writer, &closure);
           dbg(1, "draw_images_all(): length3 = %d\n", closure.pos);
-          r->data = closure.buffer;
-          r->data_size = closure.pos;
+          emb_ptr->data = closure.buffer;
+          emb_ptr->data_size = closure.pos;
           /* put base64 encoded data to rect image_data attrinute */
-          image_data = base64_encode(r->data, r->data_size, &olength);
+          image_data = base64_encode(emb_ptr->data, emb_ptr->data_size, &olength);
           my_realloc(1466, &image_data, olength + 1);
           image_data[olength] = '\0';
           my_strdup2(1473, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", image_data));
@@ -2676,16 +2680,16 @@ int draw_images_all(void)
         cairo_surface_destroy(image);
         cairo_restore(xctx->cairo_ctx);
         cairo_restore(xctx->cairo_save_ctx);
+        if(bbox_set) {
+          xctx->bbx1 = save_bbx1;
+          xctx->bby1 = save_bby1;
+          xctx->bbx2 = save_bbx2;
+          xctx->bby2 = save_bby2;
+          xctx->sem = 1;
+          bbox(SET, 0.0, 0.0, 0.0, 0.0);
+        }
       }
     }
-  }
-  if(bbox_set) {
-    xctx->bbx1 = save_bbx1;
-    xctx->bby1 = save_bby1;
-    xctx->bbx2 = save_bbx2;
-    xctx->bby2 = save_bby2;
-    xctx->sem = 1;
-    bbox(SET, 0.0, 0.0, 0.0, 0.0);
   }
   #endif
   return 0;

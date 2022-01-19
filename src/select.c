@@ -218,6 +218,7 @@ static void del_rect_line_arc_poly(void)
     j++;
     bbox(ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1, xctx->rect[c][i].x2, xctx->rect[c][i].y2);
     my_free(928, &xctx->rect[c][i].prop_ptr);
+    setup_rect_extraptr(0, &xctx->rect[c][i], NULL);
     set_modify(1);
     continue;
    }
