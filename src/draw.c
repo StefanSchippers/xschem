@@ -2620,13 +2620,14 @@ int draw_images_all(void)
         cairo_save(xctx->cairo_ctx);
         cairo_save(xctx->cairo_save_ctx);
 
+        /* read PNG from in-memory buffer ... */
         if(r->data && r->data_size) {
-          /* read PNG from in-memory buffer */
           closure.buffer = r->data;
           closure.pos = 0;
           closure.size = r->data_size; /* should not be necessary */
           image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
           dbg(1, "draw_images_all(): length1 = %d\n", closure.pos);
+        /* ... or read PNG from image_data attribute */
         } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] ) {
           r->data = base64_decode(attr, strlen(attr), &r->data_size);
           closure.buffer = r->data;
@@ -2634,6 +2635,7 @@ int draw_images_all(void)
           closure.size = r->data_size; /* should not be necessary */
           image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
           dbg(1, "draw_images_all(): length2 = %d\n", closure.pos);
+        /* ... or read PNG from file (image attribute) */
         } else if( (filename = get_tok_value(r->prop_ptr, "image", 0))[0] && !stat(filename, &buf)) {
           char *image_data = NULL;
           size_t olength;
