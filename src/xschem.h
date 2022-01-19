@@ -397,8 +397,7 @@ typedef struct
 
 typedef struct
 {
-  unsigned char *data;
-  size_t data_size;
+  cairo_surface_t *image;
 } xEmb_image;
 
 typedef struct

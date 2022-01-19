@@ -42,7 +42,7 @@ char *base64_encode(const unsigned char *data, size_t input_length, size_t *outp
   char *encoded_data;
 
   *output_length = 4 * ((input_length + 2) / 3);
-  encoded_data = malloc(*output_length);
+  encoded_data = my_malloc(1469, *output_length);
   if (encoded_data == NULL) return NULL;
   for (i = 0, j = 0; i < input_length;) {
     int octet_a = i < input_length ? (unsigned char)data[i++] : 0;
@@ -86,7 +86,7 @@ unsigned char *base64_decode(const char *data, size_t input_length, size_t *outp
   *output_length = input_length / 4 * 3;
   if (data[input_length - 1] == '=') (*output_length)--;
   if (data[input_length - 2] == '=') (*output_length)--;
-  decoded_data = malloc(*output_length);
+  decoded_data = my_malloc(1470, *output_length);
   if (decoded_data == NULL) return NULL;
   for (i = 0, j = 0; i < input_length;) {
     int sextet_a = data[i] == '=' ? 0 & i++ : b64_dec[(int)data[i++]];

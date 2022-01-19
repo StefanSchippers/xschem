@@ -2594,8 +2594,9 @@ int draw_images_all(void)
   #if HAS_CAIRO==1
   int  i, bbox_set = 0, w, h;
   double x, y, rw, rh;
+  double sx1, sy1, sx2, sy2;
   int save_bbx1, save_bby1, save_bbx2, save_bby2;
-  cairo_surface_t *image;
+
 
   if(xctx->draw_single_layer==-1 || GRIDLAYER == xctx->draw_single_layer) {
     if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; i++) {
@@ -2616,7 +2617,13 @@ int draw_images_all(void)
           save_bby2 = xctx->bby2;
           bbox(END, 0.0, 0.0, 0.0, 0.0);
         }
-
+        /* screen position */
+        sx1=X_TO_SCREEN(r->x1);
+        sy1=Y_TO_SCREEN(r->y1);
+        sx2=X_TO_SCREEN(r->x2);
+        sy2=Y_TO_SCREEN(r->y2);
+        if(RECT_OUTSIDE(sx1, sy1, sx2, sy2,
+                        xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) continue;
         if(!r->extraptr) {
           setup_rect_extraptr(1, r, NULL);
         }
@@ -2625,36 +2632,33 @@ int draw_images_all(void)
         cairo_save(xctx->cairo_save_ctx);
 
         /* read PNG from in-memory buffer ... */
-        if(emb_ptr && emb_ptr->data && emb_ptr->data_size) {
-          closure.buffer = emb_ptr->data;
-          closure.pos = 0;
-          closure.size = emb_ptr->data_size; /* should not be necessary */
-          image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-          dbg(1, "draw_images_all(): length1 = %d\n", closure.pos);
+        if(emb_ptr && emb_ptr->image) {
+          ; /* nothing to do, image is already created */
         /* ... or read PNG from image_data attribute */
         } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] ) {
-          emb_ptr->data = base64_decode(attr, strlen(attr), &emb_ptr->data_size);
-          closure.buffer = emb_ptr->data;
+          size_t data_size;
+          closure.buffer = base64_decode(attr, strlen(attr), &data_size);
           closure.pos = 0;
-          closure.size = emb_ptr->data_size; /* should not be necessary */
-          image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+          closure.size = data_size; /* should not be necessary */
+          emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+          if(closure.buffer == NULL) dbg(0, "Error: null closure.buffer, i=%d\n", i);
+          my_free(1467, &closure.buffer);
           dbg(1, "draw_images_all(): length2 = %d\n", closure.pos);
         /* ... or read PNG from file (image attribute) */
         } else if( (filename = get_tok_value(r->prop_ptr, "image", 0))[0] && !stat(filename, &buf)) {
           char *image_data = NULL;
           size_t olength;
-          image = cairo_image_surface_create_from_png(filename);
-          if(cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) return 1;
+          emb_ptr->image = cairo_image_surface_create_from_png(filename);
+          if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) return 1;
           /* write PNG to in-memory buffer */
           closure.buffer = NULL;
           closure.size = 0;
           closure.pos = 0;
-          cairo_surface_write_to_png_stream(image, png_writer, &closure);
+          cairo_surface_write_to_png_stream(emb_ptr->image, png_writer, &closure);
           dbg(1, "draw_images_all(): length3 = %d\n", closure.pos);
-          emb_ptr->data = closure.buffer;
-          emb_ptr->data_size = closure.pos;
           /* put base64 encoded data to rect image_data attrinute */
-          image_data = base64_encode(emb_ptr->data, emb_ptr->data_size, &olength);
+          image_data = base64_encode(closure.buffer, closure.pos, &olength);
+          my_free(1468, &closure.buffer);
           my_realloc(1466, &image_data, olength + 1);
           image_data[olength] = '\0';
           my_strdup2(1473, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", image_data));
@@ -2662,9 +2666,9 @@ int draw_images_all(void)
         } else {
           return 1;
         }
-        if(cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) return 1;
-        w = cairo_image_surface_get_width (image);
-        h = cairo_image_surface_get_height (image);
+        if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) return 1;
+        w = cairo_image_surface_get_width (emb_ptr->image);
+        h = cairo_image_surface_get_height (emb_ptr->image);
         dbg(1, "draw_images_all() w=%d, h=%d\n", w, h);
         x = X_TO_SCREEN(r->x1);
         y = Y_TO_SCREEN(r->y1);
@@ -2674,10 +2678,8 @@ int draw_images_all(void)
         scalex = rw/w * xctx->mooz;
         scaley = rh/h * xctx->mooz;
         cairo_scale(xctx->cairo_save_ctx, scalex, scaley);
-        cairo_set_source_surface(xctx->cairo_save_ctx, image, 0. , 0.);
+        cairo_set_source_surface(xctx->cairo_save_ctx, emb_ptr->image, 0. , 0.);
         cairo_paint(xctx->cairo_save_ctx);
-      
-        cairo_surface_destroy(image);
         cairo_restore(xctx->cairo_ctx);
         cairo_restore(xctx->cairo_save_ctx);
         if(bbox_set) {

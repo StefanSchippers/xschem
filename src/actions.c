@@ -583,9 +583,7 @@ int setup_rect_extraptr(int what, xRect *drptr, xRect *srptr)
       s = srptr->extraptr;
       if(s) {
         d = my_malloc(1478, sizeof(xEmb_image));
-        d->data = my_malloc(1479, s->data_size);
-        memcpy(d->data, s->data,  s->data_size);
-        d->data_size = s->data_size;
+        d->image = NULL;
         drptr->extraptr = d;
       } else {
         drptr->extraptr = NULL;
@@ -596,8 +594,7 @@ int setup_rect_extraptr(int what, xRect *drptr, xRect *srptr)
       if(!drptr->extraptr) {
         xEmb_image *d;
         d = my_malloc(1465, sizeof(xEmb_image));
-        d->data = NULL;
-        d->data_size = 0;
+        d->image = NULL;
         drptr->extraptr = d;
       }
     }
@@ -605,7 +602,9 @@ int setup_rect_extraptr(int what, xRect *drptr, xRect *srptr)
     if(drptr->flags & 1024) { /* embedded image */
       if(drptr->extraptr) {
         xEmb_image *d = drptr->extraptr;
-        if(d->data) my_free(1475, &d->data);
+        #if HAS_CAIRO==1
+        if(d->image) cairo_surface_destroy(d->image);
+        #endif
         my_free(1476, &drptr->extraptr);
       }
     }
