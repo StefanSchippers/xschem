@@ -351,7 +351,7 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
   ascent =  size*xctx->mooz * 0.808; /* was 0.908 */
   descent = size*xctx->mooz * 0.219; /* was 0.219 */
 
-  #ifdef HAS_CAIRO==1
+  #if HAS_CAIRO==1
   if(!has_x) 
     text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter,
             x,y, &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);

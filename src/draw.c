@@ -2561,6 +2561,48 @@ void draw_graph_all(int flags)
   }
 }
 
+int draw_images_all(void)
+{
+  #if HAS_CAIRO==1
+  int  i, bbox_set = 0;
+  int save_bbx1, save_bby1, save_bbx2, save_bby2;
+
+  if(xctx->sem) {
+    bbox_set = 1;
+    save_bbx1 = xctx->bbx1;
+    save_bby1 = xctx->bby1;
+    save_bbx2 = xctx->bbx2;
+    save_bby2 = xctx->bby2;
+    bbox(END, 0.0, 0.0, 0.0, 0.0);
+  }
+
+  cairo_save(xctx->cairo_ctx);
+  cairo_save(xctx->cairo_save_ctx);
+  if(xctx->draw_single_layer==-1 || GRIDLAYER == xctx->draw_single_layer) {
+    if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; i++) {
+      xRect *r = &xctx->rect[GRIDLAYER][i];
+      if(r->flags & 1024) {
+        /* const char *filename = get_tok_value(r->prop_ptr, "image", 0); */
+
+
+      }
+    }
+  }
+  cairo_restore(xctx->cairo_ctx);
+  cairo_restore(xctx->cairo_save_ctx);
+
+  if(bbox_set) {
+    xctx->bbx1 = save_bbx1;
+    xctx->bby1 = save_bby1;
+    xctx->bbx2 = save_bbx2;
+    xctx->bby2 = save_bby2;
+    xctx->sem = 1;
+    bbox(SET, 0.0, 0.0, 0.0, 0.0);
+  }
+
+  #endif
+  return 0;
+}
 void draw(void)
 {
  /* inst_ptr  and wire hash iterator 20171224 */

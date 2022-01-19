@@ -404,7 +404,10 @@ typedef struct
   unsigned short sel;
   char *prop_ptr;
   short dash;
-  unsigned short flags; /* bit0=1 for graph function, bit1=1 for unlocked x axis */
+  /* bit0=1 for graph function, bit1=1 for unlocked x axis
+   * bit10: image embedding (png)
+   */
+  unsigned short flags;
 } xRect;
 
 typedef struct
@@ -994,6 +997,7 @@ extern double get_raw_value(int dataset, int idx, int point);
 extern int schematic_waves_loaded(void);
 extern void draw_graph(int i, int flags, Graph_ctx *gr);
 extern void draw_graph_all(int flags);
+extern int draw_images_all(void);
 extern void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr);
 extern void free_rawfile(int dr);
 extern int read_rawfile(const char *f);
