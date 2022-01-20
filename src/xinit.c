@@ -630,13 +630,13 @@ void delete_schematic_data(void)
   delete_netlist_structs();
   clear_all_hilights();      /* data structs for hilighting nets/instances */
   get_unnamed_node(0, 0, 0); /* net### enumerator used for netlisting */
+  clear_drawing();
   if(has_x) {
     resetwin(0, 1, 1, 0, 0);  /* delete preview pixmap, delete cairo surfaces */
     free_gc();
   }
   /* delete instances, wires, lines, rects, arcs, polys, texts, hash_inst, hash_wire, 
    * inst & wire .node fields, instance name hash */
-  clear_drawing();
   remove_symbols();
   free_rawfile(0);
   free_xschem_data(); /* delete the xctx struct */
@@ -1475,10 +1475,6 @@ void change_linewidth(double w)
 void resetcairo(int create, int clear, int force_or_resize)
 { 
   #if HAS_CAIRO==1
-  cairo_font_options_t *options;
-  options = cairo_font_options_create();
-  cairo_font_options_set_antialias(options, CAIRO_ANTIALIAS_FAST);
-  cairo_font_options_set_hint_style(options, CAIRO_HINT_STYLE_SLIGHT);
   dbg(1, "resetcairo() %d, %d, %d\n", create, clear, force_or_resize);
   if(clear && force_or_resize) {
     /* xctx->cairo_save_sfc is based on pixmap and pixmaps are not resizeable, so on resize 
@@ -1490,6 +1486,10 @@ void resetcairo(int create, int clear, int force_or_resize)
     cairo_surface_destroy(xctx->cairo_sfc);
   }
   if(create && force_or_resize) {
+    cairo_font_options_t *options;
+    options = cairo_font_options_create();
+    cairo_font_options_set_antialias(options, CAIRO_ANTIALIAS_FAST);
+    cairo_font_options_set_hint_style(options, CAIRO_HINT_STYLE_SLIGHT);
     /***** Create Cairo save buffer drawing area *****/
     xctx->cairo_save_sfc = 
        cairo_xlib_surface_create(display, xctx->save_pixmap, visual, xctx->xrect[0].width, xctx->xrect[0].height);

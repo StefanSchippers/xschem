@@ -27,7 +27,7 @@
 
 /* Caller should free returned buffer */
 char *base64_encode(const unsigned char *data, size_t input_length, size_t *output_length) {
-  static char b64_enc[] = {
+  static const char b64_enc[] = {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
     'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
     'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
@@ -61,7 +61,7 @@ char *base64_encode(const unsigned char *data, size_t input_length, size_t *outp
 
 /* Caller should free returned buffer */
 unsigned char *base64_decode(const char *data, size_t input_length, size_t *output_length) {
-  static unsigned char b64_dec[256] = {
+  static const unsigned char b64_dec[256] = {
     0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f,
     0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f,
     0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3e, 0x3f, 0x3f, 0x3f, 0x3f,
