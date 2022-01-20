@@ -93,7 +93,7 @@ void merge_box(FILE *fd)
 {
     int i,c,n;
     xRect *ptr;
-    const char *dash, *flags;
+    const char *dash;
 
     n = fscanf(fd, "%d",&c);
     if(n != 1 || c < 0 || c >= cadlayers) {
@@ -122,14 +122,7 @@ void merge_box(FILE *fd)
     } else {
       ptr[i].dash = 0;
     }
-    flags = get_tok_value(ptr[i].prop_ptr,"flags",0);
-    if(strcmp(flags, "")) {
-      int d = atoi(flags);
-      ptr[i].flags = d >= 0 ? d : 0;
-    } else {
-      ptr[i].flags = 0;
-    }
-
+    set_rect_flags(&xctx->rect[c][i]); /* set cached .flags bitmask from on attributes */
     select_box(c,i, SELECTED, 1);
     xctx->rects[c]++;
     set_modify(1);

@@ -4,7 +4,7 @@ K {}
 V {}
 S {}
 E {}
-B 2 580 -140 1200 -30 {flags=1
+B 2 580 -140 1200 -30 {flags=graph
 y1 = 0
 y2 = 2
 divy = 2
@@ -15,7 +15,7 @@ comm="example of using tcl to replace the path
       with $path variable automatically"
 node="tcleval(v($\{path\}ldcp_ref) v($\{path\}ldprechref))"
 color=12\\ 5\\ 13}
-B 2 580 -230 1200 -140 {flags=1
+B 2 580 -230 1200 -140 {flags=graph
 y1 = 0
 y2 = 2
 divy = 2
@@ -26,7 +26,7 @@ comm="example of using tcl to replace the path
       with $path variable automatically"
 node="tcleval(v($\{path\}ldcp_ref) v($\{path\}ldcpb))"
 color=12\\ 5\\ 8}
-B 2 580 -320 1200 -230 {flags=1
+B 2 580 -320 1200 -230 {flags=graph
 y1 = 0
 y2 = 2
 divy = 2

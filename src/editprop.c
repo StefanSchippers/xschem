@@ -395,7 +395,7 @@ static void edit_rect_property(int x)
 {
   int i, c, n;
   int drw = 0;
-  const char *dash, *flags;
+  const char *dash;
   int preserve;
   char *oldprop=NULL;
   my_strdup(67, &oldprop, xctx->rect[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
@@ -433,17 +433,11 @@ static void edit_rect_property(int x)
         my_strdup(99, &xctx->rect[c][n].prop_ptr,
                (char *) tclgetvar("retval"));
       }
+      set_rect_flags(&xctx->rect[c][n]); /* set cached .flags bitmask from on attributes */
 
       if(xctx->rect[c][n].extraptr) { /* used for images, clear so will be recreated from image attr */
         setup_rect_extraptr(0, &xctx->rect[c][n], NULL);
       }
-      flags = get_tok_value(xctx->rect[c][n].prop_ptr,"flags",0);
-      if( strcmp(flags, "") ) {
-        int d = atoi(flags);
-        xctx->rect[c][n].flags = d >= 0? d : 0;
-      } else
-        xctx->rect[c][n].flags = 0;
-
       dash = get_tok_value(xctx->rect[c][n].prop_ptr,"dash",0);
       if( strcmp(dash, "") ) {
         int d = atoi(dash);

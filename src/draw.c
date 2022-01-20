@@ -2572,6 +2572,7 @@ typedef struct
 static cairo_status_t png_reader(void *in_closure, unsigned char *out_data, unsigned int length)
 {
   png_to_byte_closure_t *closure = (png_to_byte_closure_t *) in_closure;
+  if(!closure->buffer) return CAIRO_STATUS_READ_ERROR;
   memcpy(out_data, closure->buffer + closure->pos, length);
   closure->pos += length;
   return CAIRO_STATUS_SUCCESS;
@@ -2580,6 +2581,7 @@ static cairo_status_t png_reader(void *in_closure, unsigned char *out_data, unsi
 static cairo_status_t png_writer(void *in_closure, const unsigned char *in_data, unsigned int length)
 {
   png_to_byte_closure_t *closure = (png_to_byte_closure_t *) in_closure;
+  if(!in_data) return CAIRO_STATUS_READ_ERROR;
   if(closure->pos + length > closure->size) {
     my_realloc(1472, &closure->buffer, closure->pos + length + 65536);
     closure->size =  closure->pos + length + 65536;
@@ -2672,14 +2674,29 @@ int draw_images_all(void)
         dbg(1, "draw_images_all() w=%d, h=%d\n", w, h);
         x = X_TO_SCREEN(r->x1);
         y = Y_TO_SCREEN(r->y1);
-        rw = abs(r->x2 - r->x1);
-        rh = abs(r->y2 - r->y1);
-        cairo_translate(xctx->cairo_save_ctx, x, y);
-        scalex = rw/w * xctx->mooz;
-        scaley = rh/h * xctx->mooz;
-        cairo_scale(xctx->cairo_save_ctx, scalex, scaley);
-        cairo_set_source_surface(xctx->cairo_save_ctx, emb_ptr->image, 0. , 0.);
-        cairo_paint(xctx->cairo_save_ctx);
+        if(r->flags & 2048) { /* resize container rectangle to fit image */
+          r->x2 = r->x1 + w;
+          r->y2 = r->y1 + h;
+          scalex = xctx->mooz;
+          scaley = xctx->mooz;
+        } else { /* resize image to fit in rectangle */
+          rw = abs(r->x2 - r->x1);
+          rh = abs(r->y2 - r->y1);
+          scalex = rw/w * xctx->mooz;
+          scaley = rh/h * xctx->mooz;
+        }
+        if(xctx->draw_pixmap) {
+          cairo_translate(xctx->cairo_save_ctx, x, y);
+          cairo_scale(xctx->cairo_save_ctx, scalex, scaley);
+          cairo_set_source_surface(xctx->cairo_save_ctx, emb_ptr->image, 0. , 0.);
+          cairo_paint(xctx->cairo_save_ctx);
+        }
+        if(xctx->draw_window) {
+          cairo_translate(xctx->cairo_ctx, x, y);
+          cairo_scale(xctx->cairo_ctx, scalex, scaley);
+          cairo_set_source_surface(xctx->cairo_ctx, emb_ptr->image, 0. , 0.);
+          cairo_paint(xctx->cairo_ctx);
+        }
         cairo_restore(xctx->cairo_ctx);
         cairo_restore(xctx->cairo_save_ctx);
         if(bbox_set) {

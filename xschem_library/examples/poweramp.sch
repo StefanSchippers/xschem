@@ -14,7 +14,7 @@ L 18 900 -580 910 -580 {}
 L 18 880 -530 900 -580 {}
 L 18 880 -530 880 -450 {}
 L 18 900 -580 900 -400 {}
-B 2 1200 -860 1880 -550 {flags=1 
+B 2 1200 -860 1880 -550 {flags=graph 
 y1 = -60
 y2 = 60
 divy = 12
@@ -24,7 +24,7 @@ divx=10
 node="outp outm vpp vnn x1.vboost x0.vboost"
 color="4 5 6 12 8 10" unitx=m
 }
-B 2 1200 -530 1880 -340 {flags=1 
+B 2 1200 -530 1880 -340 {flags=graph 
 y1 = 0
 y2 = 12
 divy = 6
@@ -33,7 +33,7 @@ x2=0.03
 divx=10
 node="i(v.x1.vu) i(v.x0.vu) i(v.x1.vd) i(v.x0.vd)"
 color="11 12 13 14" unitx=m}
-B 2 1200 -330 1880 -140 {flags=1 
+B 2 1200 -330 1880 -140 {flags=graph 
 y1 = 0
 y2 = .05
 divy = 5

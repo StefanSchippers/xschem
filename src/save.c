@@ -25,6 +25,9 @@
 #include <sys/wait.h>  /* waitpid */
 #endif
 
+/* define this if you want 128 char lenght line formatted base64 text */
+#undef BASE64_BREAK_LINES
+
 /* Caller should free returned buffer */
 char *base64_encode(const unsigned char *data, size_t input_length, size_t *output_length) {
   static const char b64_enc[] = {
@@ -38,21 +41,37 @@ char *base64_encode(const unsigned char *data, size_t input_length, size_t *outp
     '4', '5', '6', '7', '8', '9', '+', '/'
   };
   static int mod_table[] = {0, 2, 1};
-  int i, j;
+  int i, j, cnt;
+  size_t alloc_length;
   char *encoded_data;
-
-  *output_length = 4 * ((input_length + 2) / 3);
-  encoded_data = my_malloc(1469, *output_length);
+  int octet_a, octet_b, octet_c, triple;
+  *output_length = (1 + ((4 * ((input_length + 2) / 3)) / 4096)) * 4096;
+  alloc_length = *output_length;
+  encoded_data = my_malloc(1469, alloc_length);
   if (encoded_data == NULL) return NULL;
+  cnt = 0;
+  
   for (i = 0, j = 0; i < input_length;) {
-    int octet_a = i < input_length ? (unsigned char)data[i++] : 0;
-    int octet_b = i < input_length ? (unsigned char)data[i++] : 0;
-    int octet_c = i < input_length ? (unsigned char)data[i++] : 0;
-    int triple = (octet_a << 0x10) + (octet_b << 0x08) + octet_c;
-    encoded_data[j++] = b64_enc[(triple >> 3 * 6) & 0x3F];
-    encoded_data[j++] = b64_enc[(triple >> 2 * 6) & 0x3F];
-    encoded_data[j++] = b64_enc[(triple >> 1 * 6) & 0x3F];
-    encoded_data[j++] = b64_enc[(triple >> 0 * 6) & 0x3F];
+    octet_a = i < input_length ? (unsigned char)data[i++] : 0;
+    octet_b = i < input_length ? (unsigned char)data[i++] : 0;
+    octet_c = i < input_length ? (unsigned char)data[i++] : 0;
+    triple = (octet_a << 16) + (octet_b << 8) + octet_c;
+    if(j + 10  >= alloc_length) {
+       dbg(1, "alloc-length=%ld, j=%d, output_length=%ld\n", alloc_length, j, *output_length);
+       alloc_length += 4096;
+       my_realloc(1471, &encoded_data, alloc_length);
+    }
+    #ifdef BASE64_BREAK_LINES
+    if((cnt & 31) == 0) {
+      *output_length += 1;
+      encoded_data[j++] = '\n';
+    }
+    #endif
+    encoded_data[j++] = b64_enc[(triple >> 18) & 0x3F];
+    encoded_data[j++] = b64_enc[(triple >> 12) & 0x3F];
+    encoded_data[j++] = b64_enc[(triple >> 6) & 0x3F];
+    encoded_data[j++] = b64_enc[(triple) & 0x3F];
+    cnt++;
   }
   for (i = 0; i < mod_table[input_length % 3]; i++)
     encoded_data[*output_length - 1 - i] = '=';
@@ -80,28 +99,34 @@ unsigned char *base64_decode(const char *data, size_t input_length, size_t *outp
     0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f
   };
   unsigned char *decoded_data;
-  int i, j;
-
-  if (input_length % 4 != 0) return NULL;
-  *output_length = input_length / 4 * 3;
-  if (data[input_length - 1] == '=') (*output_length)--;
-  if (data[input_length - 2] == '=') (*output_length)--;
+  int i, j, sextet[4], triple, cnt, padding, actual_length;
+  
+  actual_length = input_length;
+  *output_length = input_length / 4 * 3 + 4; /* add 4 more just in case... */
+  padding = 0;
+  if (data[input_length - 1] == '=') padding++;
+  if (data[input_length - 2] == '=') padding++;
   decoded_data = my_malloc(1470, *output_length);
   if (decoded_data == NULL) return NULL;
+  cnt = 0;
   for (i = 0, j = 0; i < input_length;) {
-    int sextet_a = data[i] == '=' ? 0 & i++ : b64_dec[(int)data[i++]];
-    int sextet_b = data[i] == '=' ? 0 & i++ : b64_dec[(int)data[i++]];
-    int sextet_c = data[i] == '=' ? 0 & i++ : b64_dec[(int)data[i++]];
-    int sextet_d = data[i] == '=' ? 0 & i++ : b64_dec[(int)data[i++]];
-    int triple = (sextet_a << 3 * 6)
-               + (sextet_b << 2 * 6)
-               + (sextet_c << 1 * 6)
-               + (sextet_d << 0 * 6);
-    if (j < *output_length) decoded_data[j++] = (triple >> 2 * 8) & 0xFF;
-    if (j < *output_length) decoded_data[j++] = (triple >> 1 * 8) & 0xFF;
-    if (j < *output_length) decoded_data[j++] = (triple >> 0 * 8) & 0xFF;
+    if(data[i] == '\n' || data[i] == ' '  || data[i] == '\r' || data[i] == '\t') {
+      dbg(1, "base64_decode(): white space: i=%d, cnt=%d, j=%d\n", i, cnt, j);
+      actual_length--;
+      i++;
+      continue;
+    }
+    sextet[cnt & 3] = data[i] == '=' ? 0 : b64_dec[(int)data[i]];
+    if((cnt & 3) == 3) {
+      triple = (sextet[0] << 18) + (sextet[1] << 12) + (sextet[2] << 6) + (sextet[3]);
+      decoded_data[j++] = (triple >> 16) & 0xFF;
+      decoded_data[j++] = (triple >> 8) & 0xFF;
+      decoded_data[j++] = (triple) & 0xFF;
+    }
+    cnt++;
+    i++;
   }
-
+  *output_length = actual_length / 4 * 3 - padding;
   return decoded_data;
 }
 
@@ -756,11 +781,32 @@ static void load_arc(FILE *fd)
     xctx->arcs[c]++;
 }
 
+/* set cached rect .flags bitmask based on attributes, currently:
+ * graph              1
+ * graph_unlocked     1 + 2
+ * image           1024
+ * image_unscaled  1024 + 2048
+ */
+int set_rect_flags(xRect *r)
+{
+  const char *flags;
+  unsigned short f = 0;
+  if(r->prop_ptr && r->prop_ptr[0]) {
+    flags = get_tok_value(r->prop_ptr,"flags",0);
+    if(!strcmp(flags, "image")) f |= 1024;
+    else if(!strcmp(flags, "image_unscaled")) f |= 3072;
+    else if(!strcmp(flags, "graph")) f |= 1;
+    else if(!strcmp(flags, "graph_unlocked")) f |= 3;
+  }
+  r->flags = f;
+  return f;
+}
+
 static void load_box(FILE *fd)
 {
     int i,n,c;
     xRect *ptr;
-    const char *dash, *flags;
+    const char *dash;
 
     dbg(3, "load_box(): start\n");
     n = fscanf(fd, "%d",&c);
@@ -790,13 +836,7 @@ static void load_box(FILE *fd)
     } else {
       ptr[i].dash = 0;
     }
-    flags = get_tok_value(ptr[i].prop_ptr,"flags",0);
-    if(strcmp(flags, "")) {
-      int d = atoi(flags);
-      ptr[i].flags = d >= 0 ? d : 0;
-    } else {
-      ptr[i].flags = 0;
-    }
+    set_rect_flags(&xctx->rect[c][i]); /* set cached .flags bitmask from on attributes */
     xctx->rects[c]++;
 }
 
