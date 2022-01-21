@@ -1478,216 +1478,6 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
  }
 }
 
-/* read the binary portion of a ngspice raw simulation file
- * data layout in memory arranged to maximize cache locality 
- * when looking up data 
- */
-void read_binary_block(FILE *fd)
-{
-  int p, v;
-  double *tmp;
-  size_t size = 0;
-  int offset = 0;
-
-
-  for(p = 0 ; p < xctx->graph_datasets; p++) {
-    size += xctx->graph_nvars * xctx->graph_npoints[p];
-    offset += xctx->graph_npoints[p];
-  }
-
-  /* read buffer */
-  tmp = my_calloc(1405, xctx->graph_nvars, sizeof(double *));
-  /* allocate storage for binary block */
-  if(!xctx->graph_values) xctx->graph_values = my_calloc(118, xctx->graph_nvars, sizeof(SPICE_DATA *));
-  for(p = 0 ; p < xctx->graph_nvars; p++) {
-    my_realloc(372, &xctx->graph_values[p], (size + xctx->graph_npoints[xctx->graph_datasets]) * sizeof(double));
-  }
-  /* read binary block */
-  for(p = 0; p < xctx->graph_npoints[xctx->graph_datasets]; p++) {
-    if(fread(tmp,  sizeof(double), xctx->graph_nvars, fd) != xctx->graph_nvars) {
-       dbg(0, "Warning: binary block is not of correct size\n");
-    }
-    /* assign to xschem struct, memory aligned per variable, for cache locality */
-    for(v = 0; v < xctx->graph_nvars; v++) {
-      xctx->graph_values[v][offset + p] = tmp[v];
-    }
-  }
-  my_free(1406, &tmp);
-}
-
-/* parse ascii raw header section:
- * returns: 1 if dataset and variables were read.
- *          0 if transient sim dataset not found
- *         -1 on EOF
- * Typical ascii header of raw file looks like:
- *
- * Title: **.subckt poweramp
- * Date: Thu Nov 21 18:36:25  2019
- * Plotname: Transient Analysis
- * Flags: real
- * No. Variables: 158
- * No. Points: 90267
- * Variables:
- *         0       time    time
- *         1       v(net1) voltage
- *         2       v(vss)  voltage
- *         ...
- *         ...
- *         155     i(v.x1.vd)      current
- *         156     i(v0)   current
- *         157     i(v1)   current
- * Binary:
- */
-int read_dataset(FILE *fd)
-{ 
-  int variables = 0, i, done_points = 0;
-  char line[PATH_MAX], varname[PATH_MAX];
-  char *ptr;
-  int sim_type = 0; /* 1: transient, 2: dc, 4: ... */
-  int done_header = 0;
-  int exit_status = 0;
-  while((ptr = fgets(line, sizeof(line), fd)) ) {
-    /* after this line comes the binary blob made of nvars * npoints * sizeof(double) bytes */
-    if(!strcmp(line, "Binary:\n")) {
-      int npoints = xctx->graph_npoints[xctx->graph_datasets];
-      if(sim_type) {
-        done_header = 1;
-        read_binary_block(fd); 
-        dbg(1, "read_dataset(): read binary block, nvars=%d npoints=%d\n", xctx->graph_nvars, npoints);
-        xctx->graph_datasets++;
-        exit_status = 1;
-      } else { 
-        dbg(1, "read_dataset(): skip binary block, nvars=%d npoints=%d\n", xctx->graph_nvars, npoints);
-        fseek(fd, xctx->graph_nvars * npoints * sizeof(double), SEEK_CUR); /* skip binary block */
-      }
-      done_points = 0;
-    }
-    else if(!strncmp(line, "Plotname: Transient Analysis", 28)) {
-      if(sim_type && sim_type != 1) sim_type = 0;
-      else sim_type = 1;
-    }
-    else if(!strncmp(line, "Plotname: DC transfer characteristic", 36)) {
-      if(sim_type && sim_type != 2) sim_type = 0;
-      else sim_type = 2;
-    }
-    else if(!strncmp(line, "Plotname:", 9)) {
-      sim_type = 0;
-    }
-    /* points and vars are needed for all sections (also ones we are not interested in)
-     * to skip binary blobs */
-    else if(!strncmp(line, "No. of Data Rows :", 18)) {
-      /* array of number of points of datasets (they are of varialbe length) */
-      my_realloc(1414, &xctx->graph_npoints, (xctx->graph_datasets+1) * sizeof(int));
-      sscanf(line, "No. of Data Rows : %d", &xctx->graph_npoints[xctx->graph_datasets]);
-      done_points = 1;
-    }
-    else if(!strncmp(line, "No. Variables:", 14)) {
-      sscanf(line, "No. Variables: %d", &xctx->graph_nvars);
-    }
-    else if(!done_points && !strncmp(line, "No. Points:", 11)) {
-      my_realloc(1415, &xctx->graph_npoints, (xctx->graph_datasets+1) * sizeof(int));
-      sscanf(line, "No. Points: %d", &xctx->graph_npoints[xctx->graph_datasets]);
-    }
-    if(!done_header && variables) {
-      /* get the list of lines with index and node name */
-      if(!xctx->graph_names) xctx->graph_names = my_calloc(426, xctx->graph_nvars, sizeof(char *));
-      sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
-      xctx->graph_names[i] = my_malloc(415, strlen(varname) + 1);
-      strcpy(xctx->graph_names[i], varname);
-      /* use hash table to store index number of variables */
-      int_hash_lookup(xctx->raw_table, xctx->graph_names[i], i, XINSERT_NOREPLACE);
-      dbg(1, "read_dataset(): get node list -> names[%d] = %s\n", i, xctx->graph_names[i]);
-    }
-    /* after this line comes the list of indexes and associated nodes */
-    if(sim_type && !strncmp(line, "Variables:", 10)) {
-      variables = 1 ;
-    }
-  }
-  dbg(1, "read_dataset(): datasets=%d, last npoints=%d, nvars=%d\n",
-    xctx->graph_datasets,  xctx->graph_npoints[xctx->graph_datasets-1], xctx->graph_nvars);
-  return exit_status;
-}
-
-void free_rawfile(int dr)
-{
-  int i;
-
-  int deleted = 0;
-  if(xctx->graph_names) {
-    deleted = 1;
-    for(i = 0 ; i < xctx->graph_nvars; i++) {
-      my_free(510, &xctx->graph_names[i]);
-    }
-    my_free(968, &xctx->graph_names);
-  }
-  if(xctx->graph_values) {
-    deleted = 1;
-    for(i = 0 ; i < xctx->graph_nvars; i++) {
-      my_free(512, &xctx->graph_values[i]);
-    }
-    my_free(528, &xctx->graph_values);
-  }
-  if(xctx->graph_npoints) my_free(1413, &xctx->graph_npoints);
-  if(xctx->raw_schname) my_free(1393, &xctx->raw_schname);
-  xctx->graph_datasets = 0;
-  xctx->graph_nvars = 0;
-  int_hash_free(xctx->raw_table);
-  if(deleted && dr) draw();
-}
-
-/* read a ngspice raw file (with data portion in binary format) */
-int read_rawfile(const char *f)
-{
-  int res = 0;
-  FILE *fd;
-  if(xctx->graph_values || xctx->graph_npoints || xctx->graph_nvars || xctx->graph_datasets) {
-    dbg(0, "read_rawfile(): must clear current raw file before loading new\n");
-    return 0;
-  }
-  fd = fopen(f, fopen_read_mode);
-  if(fd) {
-    if((res = read_dataset(fd)) == 1) {
-      dbg(0, "Raw file data read\n");
-      my_strdup2(1394, &xctx->raw_schname, xctx->sch[xctx->currsch]);
-      draw();
-    } else {
-      dbg(0, "read_rawfile(): no useful data found\n");
-    }
-    fclose(fd);
-    return res;
-  }
-  dbg(0, "read_rawfile(): failed to open file %s for reading\n", f);
-  return 0;
-}
-
-int get_raw_index(const char *node)
-{
-  char vnode[300];
-  Int_hashentry *entry;
-  if(xctx->graph_values) {
-    entry = int_hash_lookup(xctx->raw_table, node, 0, XLOOKUP);
-    if(!entry) {
-      my_snprintf(vnode, S(vnode), "v(%s)", node);
-      entry = int_hash_lookup(xctx->raw_table, vnode, 0, XLOOKUP);
-    }
-    if(entry) return entry->value;
-  }
-  return -1;
-}
-
-double get_raw_value(int dataset, int idx, int point)
-{
-  int i, ofs;
-  ofs = 0;
-  if(xctx->graph_values) {
-    for(i = 0; i < dataset; i++) {
-      ofs += xctx->graph_npoints[i];
-    }
-    return xctx->graph_values[idx][ofs + point];
-  }
-  return 0.0;
-}
-
 /* round to closest 1e-ee. 2e-ee, 5e-ee
  * example: delta = 0.234 --> 0.2
  *                  3.23  --> 5
@@ -2321,6 +2111,37 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
   } /* if(measure_p >= 0) */
 }
 
+int embed_rawfile(const char *rawfile)
+{
+  int res = 0;
+  size_t len;
+  char *ptr;
+  
+  if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
+    xInstance *i = &xctx->inst[xctx->sel_array[0].n];
+    xctx->push_undo();
+    set_modify(1);
+    ptr = base64_from_file(rawfile, &len);
+    my_strdup2(1466, &i->prop_ptr, subst_token(i->prop_ptr, "spice_data", ptr));
+    my_free(1481, &ptr);
+  }
+  return res;
+}
+
+int read_embedded_rawfile(void)
+{
+  int res = 0;
+
+  if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
+    xInstance *i = &xctx->inst[xctx->sel_array[0].n];
+    const char *b64_spice_data;
+    if(i->prop_ptr && (b64_spice_data = get_tok_value(i->prop_ptr, "spice_data", 0))[0]) {
+      res = read_rawfile_from_attr(b64_spice_data, strlen(b64_spice_data));
+    }
+  }
+  return res;
+}
+
 /* flags:
  * 1: do final XCopyArea (copy 2nd buffer areas to screen) 
  *    If draw_graph_all() is called from draw() no need to do XCopyArea, as draw() does it already.
@@ -2660,10 +2481,8 @@ int draw_images_all(void)
           cairo_surface_write_to_png_stream(emb_ptr->image, png_writer, &closure);
           dbg(1, "draw_images_all(): length3 = %d\n", closure.pos);
           /* put base64 encoded data to rect image_data attrinute */
-          image_data = base64_encode(closure.buffer, closure.pos, &olength);
+          image_data = base64_encode(closure.buffer, closure.pos, &olength, 0);
           my_free(1468, &closure.buffer);
-          my_realloc(1466, &image_data, olength + 1);
-          image_data[olength] = '\0';
           my_strdup2(1473, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", image_data));
           my_free(1474, &image_data);
         } else {

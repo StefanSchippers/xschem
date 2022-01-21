@@ -121,14 +121,11 @@ N 860 -470 860 -430 { lab=#net3}
 N 960 -650 980 -650 { lab=#net4}
 N 310 -450 345 -450 {lab=PANEL}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
-C {code_shown.sym} 245 -245 0 0 {name=CONTROL value="* .control
-* save all
-* tran 5n 500u uic
-* write led_driver.raw
-* .endc
-.option savecurrents
-*.save all
-.tran 20n 200u uic
+C {code_shown.sym} 245 -245 0 0 {name=CONTROL value=".control
+save v(panel) v(sw) v(led) i(vpanel)
+tran 1u 200u uic
+write solar_panel.raw
+.endc
 * .dc VP 0 21 0.01
 " net_name=true}
 C {code.sym} 15 -225 0 0 {name=MODELS value=".MODEL DIODE D(IS=1.139e-08 RS=0.99 CJO=9.3e-12 VJ=1.6 M=0.411 BV=30 EG=0.7 ) 

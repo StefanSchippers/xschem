@@ -1000,19 +1000,23 @@ extern int cli_opt_load_initfile;
 extern Xschem_ctx *xctx;
 
 /*  FUNCTIONS */
+extern int embed_rawfile(const char *rawfile);
+extern int read_rawfile_from_attr(const char *b64s, size_t length);
+extern int read_embedded_rawfile(void);
+extern char *base64_from_file(const char *f, size_t *length);
 extern int set_rect_flags(xRect *r);
 extern int set_rect_extraptr(int what, xRect *drptr, xRect *srptr);
 extern unsigned char *base64_decode(const char *data, size_t input_length, size_t *output_length);
-extern char *base64_encode(const unsigned char *data, size_t input_length, size_t *output_length);
+extern char *base64_encode(const unsigned char *data, size_t input_length, size_t *output_length, int brk);
 extern int get_raw_index(const char *node);
+extern void free_rawfile(int dr);
+extern int read_rawfile(const char *f);
 extern double get_raw_value(int dataset, int idx, int point);
 extern int schematic_waves_loaded(void);
 extern void draw_graph(int i, int flags, Graph_ctx *gr);
 extern void draw_graph_all(int flags);
 extern int draw_images_all(void);
 extern void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr);
-extern void free_rawfile(int dr);
-extern int read_rawfile(const char *f);
 extern double timer(int start);
 extern void enable_layers(void);
 extern void set_snap(double);

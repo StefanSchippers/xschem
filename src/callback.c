@@ -40,7 +40,7 @@ static int waves_selected(int event, int key, int state, int button)
     r = &xctx->rect[GRIDLAYER][i];
     if(!(r->flags & 1) ) continue;
     if( (xctx->ui_state & GRAPHPAN) ||
-       POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 40,  r->y1 + 20,  r->x2 - 30,  r->y2 - 10) ) {
+       POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1 + 20,  r->x2 - 30,  r->y2 - 10) ) {
        is_inside = 1;
        tclvareval(xctx->top_path, ".drw configure -cursor tcross" , NULL);
     }

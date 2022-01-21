@@ -635,6 +635,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
+    else if(!strcmp(argv[1],"embed_rawfile"))
+    {
+      cmd_found = 1;
+      if(argc > 2) {
+        embed_rawfile(argv[2]);
+      }
+      Tcl_ResetResult(interp);
+    }
     else if(!strcmp(argv[1],"enable_layers"))
     {
       cmd_found = 1;
@@ -1778,7 +1786,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int i, p, no_of_pins;
       cmd_found = 1;
       if( (i = get_instance(argv[2])) < 0 ) {
-        Tcl_SetResult(interp, "xschem getprop: instance not found", TCL_STATIC);
+        Tcl_SetResult(interp, "xschem pinlist: instance not found", TCL_STATIC);
         return TCL_ERROR;
       }
       no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
@@ -2047,7 +2055,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
     }
-
     if(!strcmp(argv[1], "raw_read"))
     {
       cmd_found = 1;
@@ -2061,7 +2068,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-
+    if(!strcmp(argv[1], "raw_read_from_attr"))
+    {
+      cmd_found = 1;
+      if(schematic_waves_loaded()) {
+        free_rawfile(1);
+      } else {
+        free_rawfile(0);
+        read_embedded_rawfile();
+        if(schematic_waves_loaded()) tclsetvar("rawfile_loaded", "1");
+        else  tclsetvar("rawfile_loaded", "0");
+      }
+      Tcl_ResetResult(interp);
+    }
     if(!strcmp(argv[1], "rebuild_connectivity"))
     {
       cmd_found = 1;
@@ -2633,8 +2652,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   else if(argv[1][0] == 't') {   
     if(!strcmp(argv[1],"test"))
     {
+      size_t len;
+      char *s;
       cmd_found = 1;
-      Tcl_ResetResult(interp);
+      if(argc > 2) {
+        Tcl_AppendResult(interp, (s = base64_from_file(argv[2], &len)), NULL);
+        my_free(1480, &s);
+      }
+      /* Tcl_ResetResult(interp); */
     }
    
     else if(!strcmp(argv[1],"toggle_colorscheme"))
