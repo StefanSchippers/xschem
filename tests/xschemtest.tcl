@@ -170,10 +170,14 @@ proc print_test {{view 0}} {
 ## test xschem's own simulation engine
 ## there is no built in testing, just see if it works.
 proc test_xschem_simulation {{f simulate_ff.sch}} {
-  global tclstop
+  global tclstop OS
   xschem load [abs_sym_path $f]
   ## search element with tclcommand attribute 
-  xschem search regex  1 tclcommand {}
+  if {$OS ne {Windows}} {
+    xschem search regex  1 tclcommand {}
+  } else {
+    xschem search exact 1 name h3
+  }
   ## join transform a list element {foo} into a plain string foo
   set instname [join [xschem selected_set]]
   ## run tcl testbench

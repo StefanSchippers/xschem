@@ -2774,7 +2774,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       double x1,y1,x2,y2;
       int pos, save, sel = 0;
-      const char *prop;
+      const char *prop=NULL;
       cmd_found = 1;
       if(argc>=6) {
         x1=atof(argv[2]);

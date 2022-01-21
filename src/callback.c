@@ -180,7 +180,6 @@ void start_wire(double mx, double my)
  * 32: move cursor2
  * 64: show measurement tooltip
  */
-
 static int waves_callback(int event, int mx, int my, KeySym key, int button, int aux, int state)
 {
   Graph_ctx *gr;
