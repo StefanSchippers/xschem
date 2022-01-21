@@ -2773,7 +2773,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"wire"))
     {
       double x1,y1,x2,y2;
-      int pos, save, sel = 0;
+      int pos = -1, save, sel = 0;
       const char *prop=NULL;
       cmd_found = 1;
       if(argc>=6) {
@@ -2782,11 +2782,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         x2=atof(argv[4]);
         y2=atof(argv[5]);
         ORDER(x1,y1,x2,y2);
-        pos=-1;
         if(argc >= 7) pos=atoi(argv[6]);
         if(argc >= 8) prop = argv[7];
         if(argc >= 9) sel = atoi(argv[8]);
-        else prop = NULL;
         xctx->push_undo();
         storeobject(pos, x1,y1,x2,y2,WIRE,0,sel,prop);
         xctx->prep_hi_structs=0;

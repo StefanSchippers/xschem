@@ -625,7 +625,8 @@ int search(const char *tok, const char *val, int sub, int sel)
      if( (!regexec(&re, str,0 , NULL, 0) && !sub) ||           /* 20071120 regex instead of strcmp */
          (!strcmp(str, val) && sub && !bus) || (strstr(str,val) && sub && bus))
      #else
-     if ((!strcmp(str, val) && sub && !bus) || (strstr(str,val) && sub && bus))
+     if( (strstr(str,val) && !sub) ||
+         (!strcmp(str, val) && sub && !bus) || (strstr(str,val) && sub && bus))
      #endif
      {
        if(!sel) {
