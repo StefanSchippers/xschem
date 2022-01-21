@@ -2561,6 +2561,7 @@ void draw_graph_all(int flags)
   }
 }
 
+#if HAS_CAIRO==1
 typedef struct
 {
   unsigned char *buffer;
@@ -2568,8 +2569,6 @@ typedef struct
   size_t size;
 } png_to_byte_closure_t;
 
-
-#if HAS_CAIRO==1
 static cairo_status_t png_reader(void *in_closure, unsigned char *out_data, unsigned int length)
 {
   png_to_byte_closure_t *closure = (png_to_byte_closure_t *) in_closure;
