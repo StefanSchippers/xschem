@@ -190,6 +190,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   double xx1, xx2, yy1, yy2;
   double delta_threshold = 0.25;
   double zoom_m = 0.5;
+  int save_mouse_at_end = 0;
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
@@ -231,7 +232,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         xctx->graph_bottom = 0;
       }
       xctx->graph_master = i;
-
       zoom_m = (xctx->mousex  - gr->x1) / gr->w;
       /* dragging cursors when mouse is very close */
       if(event == ButtonPress && button == Button1) {
@@ -375,6 +375,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           }
         } else {
+          save_mouse_at_end = 1;
           delta = gr->gw;
           delta_threshold = 0.01;
           if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
@@ -386,13 +387,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               my_snprintf(s, S(s), "%g", xx2);
               my_strdup(1411, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
               need_redraw = 1;
-            }
-          }
-          /* update saved mouse position after processing all graphs */
-          if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->cx * delta) * delta_threshold) {
-            if(i >= xctx->rects[GRIDLAYER] - 1) {
-              xctx->mx_double_save = xctx->mousex_snap;
-              xctx->my_double_save = xctx->mousey_snap;
             }
           }
         }
@@ -743,6 +737,16 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr); /* draw data in each graph box */
     }
   } /* for(i=0; i< xctx->rects[GRIDLAYER]; i++ */
+
+
+  /* update saved mouse position after processing all graphs */
+  if(save_mouse_at_end && 
+    fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->cx * gr->gw) * delta_threshold) {
+    xctx->mx_double_save = xctx->mousex_snap;
+    xctx->my_double_save = xctx->mousey_snap;
+  }
+
+
   draw_selection(xctx->gc[SELLAYER], 0);
   #if HAS_CAIRO==1
   cairo_restore(xctx->cairo_ctx);

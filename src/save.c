@@ -793,10 +793,10 @@ int set_rect_flags(xRect *r)
   unsigned short f = 0;
   if(r->prop_ptr && r->prop_ptr[0]) {
     flags = get_tok_value(r->prop_ptr,"flags",0);
-    if(!strcmp(flags, "image")) f |= 1024;
-    else if(!strcmp(flags, "image_unscaled")) f |= 3072;
-    else if(!strcmp(flags, "graph")) f |= 1;
-    else if(!strcmp(flags, "graph_unlocked")) f |= 3;
+    if(strstr(flags, "unscaled")) f |= 3072;
+    else if(strstr(flags, "image")) f |= 1024;
+    else if(strstr(flags, "unlocked")) f |= 3;
+    else if(strstr(flags, "graph")) f |= 1;
   }
   r->flags = f;
   return f;

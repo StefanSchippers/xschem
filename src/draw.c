@@ -2581,7 +2581,7 @@ static cairo_status_t png_reader(void *in_closure, unsigned char *out_data, unsi
 static cairo_status_t png_writer(void *in_closure, const unsigned char *in_data, unsigned int length)
 {
   png_to_byte_closure_t *closure = (png_to_byte_closure_t *) in_closure;
-  if(!in_data) return CAIRO_STATUS_READ_ERROR;
+  if(!in_data) return CAIRO_STATUS_WRITE_ERROR;
   if(closure->pos + length > closure->size) {
     my_realloc(1472, &closure->buffer, closure->pos + length + 65536);
     closure->size =  closure->pos + length + 65536;
@@ -2643,7 +2643,7 @@ int draw_images_all(void)
           closure.pos = 0;
           closure.size = data_size; /* should not be necessary */
           emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-          if(closure.buffer == NULL) dbg(0, "Error: null closure.buffer, i=%d\n", i);
+          if(closure.buffer == NULL) dbg(0, "draw_images_all(): null closure.buffer, i=%d\n", i);
           my_free(1467, &closure.buffer);
           dbg(1, "draw_images_all(): length2 = %d\n", closure.pos);
         /* ... or read PNG from file (image attribute) */
