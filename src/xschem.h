@@ -395,10 +395,12 @@ typedef struct
   short bus;
 } xLine;
 
+#if HAS_CAIRO==1
 typedef struct
 {
   cairo_surface_t *image;
 } xEmb_image;
+#endif
 
 typedef struct
 {
@@ -999,7 +1001,7 @@ extern Xschem_ctx *xctx;
 
 /*  FUNCTIONS */
 extern int set_rect_flags(xRect *r);
-extern int setup_rect_extraptr(int what, xRect *drptr, xRect *srptr);
+extern int set_rect_extraptr(int what, xRect *drptr, xRect *srptr);
 extern unsigned char *base64_decode(const char *data, size_t input_length, size_t *output_length);
 extern char *base64_encode(const unsigned char *data, size_t input_length, size_t *output_length);
 extern int get_raw_index(const char *node);

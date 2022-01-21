@@ -2569,6 +2569,7 @@ typedef struct
 } png_to_byte_closure_t;
 
 
+#if HAS_CAIRO==1
 static cairo_status_t png_reader(void *in_closure, unsigned char *out_data, unsigned int length)
 {
   png_to_byte_closure_t *closure = (png_to_byte_closure_t *) in_closure;
@@ -2590,6 +2591,7 @@ static cairo_status_t png_writer(void *in_closure, const unsigned char *in_data,
   closure->pos += length;
   return CAIRO_STATUS_SUCCESS;
 }
+#endif
 
 int draw_images_all(void)
 {
@@ -2627,7 +2629,7 @@ int draw_images_all(void)
         if(RECT_OUTSIDE(sx1, sy1, sx2, sy2,
                         xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) continue;
         if(!r->extraptr) {
-          setup_rect_extraptr(1, r, NULL);
+          set_rect_extraptr(1, r, NULL);
         }
         emb_ptr = r->extraptr;
         cairo_save(xctx->cairo_ctx);
@@ -2763,7 +2765,11 @@ void draw(void)
           }
           if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c];i++) {
             xRect *r = &xctx->rect[c][i]; 
+            #if HAS_CAIRO==1
             if(c != GRIDLAYER || !(r->flags & (1 + 1024)) )  {
+            #else
+            if(c != GRIDLAYER || !(r->flags & 1) )  {
+            #endif
               drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
               filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
             }

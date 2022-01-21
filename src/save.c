@@ -781,27 +781,6 @@ static void load_arc(FILE *fd)
     xctx->arcs[c]++;
 }
 
-/* set cached rect .flags bitmask based on attributes, currently:
- * graph              1
- * graph_unlocked     1 + 2
- * image           1024
- * image_unscaled  1024 + 2048
- */
-int set_rect_flags(xRect *r)
-{
-  const char *flags;
-  unsigned short f = 0;
-  if(r->prop_ptr && r->prop_ptr[0]) {
-    flags = get_tok_value(r->prop_ptr,"flags",0);
-    if(strstr(flags, "unscaled")) f |= 3072;
-    else if(strstr(flags, "image")) f |= 1024;
-    else if(strstr(flags, "unlocked")) f |= 3;
-    else if(strstr(flags, "graph")) f |= 1;
-  }
-  r->flags = f;
-  return f;
-}
-
 static void load_box(FILE *fd)
 {
     int i,n,c;

@@ -436,7 +436,7 @@ static void edit_rect_property(int x)
       set_rect_flags(&xctx->rect[c][n]); /* set cached .flags bitmask from on attributes */
 
       if(xctx->rect[c][n].extraptr) { /* used for images, clear so will be recreated from image attr */
-        setup_rect_extraptr(0, &xctx->rect[c][n], NULL);
+        set_rect_extraptr(0, &xctx->rect[c][n], NULL);
       }
       dash = get_tok_value(xctx->rect[c][n].prop_ptr,"dash",0);
       if( strcmp(dash, "") ) {

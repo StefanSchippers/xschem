@@ -570,13 +570,36 @@ void remove_symbols(void)
   dbg(1, "remove_symbols(): done\n");
 }
 
+
+/* set cached rect .flags bitmask based on attributes, currently:
+ * graph              1
+ * graph_unlocked     1 + 2
+ * image           1024
+ * image_unscaled  1024 + 2048
+ */
+int set_rect_flags(xRect *r)
+{
+  const char *flags;
+  unsigned short f = 0;
+  if(r->prop_ptr && r->prop_ptr[0]) {
+    flags = get_tok_value(r->prop_ptr,"flags",0);
+    if(strstr(flags, "unscaled")) f |= 3072;
+    else if(strstr(flags, "image")) f |= 1024;
+    else if(strstr(flags, "unlocked")) f |= 3;
+    else if(strstr(flags, "graph")) f |= 1;
+  }
+  r->flags = f;
+  return f;
+}
+
 /* what: 
  * 2: copy: drptr->extraptr <- srptr->extraptr
  * 1: create
  * 0: clear
  */
-int setup_rect_extraptr(int what, xRect *drptr, xRect *srptr)
+int set_rect_extraptr(int what, xRect *drptr, xRect *srptr)
 {
+  #if HAS_CAIRO==1
   if(what==2) { /* copy */
     if(drptr->flags & 1024) { /* embedded image */
       xEmb_image *d, *s;
@@ -602,13 +625,12 @@ int setup_rect_extraptr(int what, xRect *drptr, xRect *srptr)
     if(drptr->flags & 1024) { /* embedded image */
       if(drptr->extraptr) {
         xEmb_image *d = drptr->extraptr;
-        #if HAS_CAIRO==1
         if(d->image) cairo_surface_destroy(d->image);
-        #endif
         my_free(1476, &drptr->extraptr);
       }
     }
   }
+  #endif
   return 0;
 }
 
@@ -654,7 +676,7 @@ void clear_drawing(void)
   for(j=0;j<xctx->rects[i];j++)
   {
    my_free(700, &xctx->rect[i][j].prop_ptr);
-   setup_rect_extraptr(0, &xctx->rect[i][j], NULL);
+   set_rect_extraptr(0, &xctx->rect[i][j], NULL);
   }
   for(j=0;j<xctx->arcs[i];j++)
   {
