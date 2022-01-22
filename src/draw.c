@@ -2417,10 +2417,10 @@ int draw_images_all(void)
 {
   #if HAS_CAIRO==1
   int  i, bbox_set = 0, w, h;
-  double x, y, rw, rh;
-  double sx1, sy1, sx2, sy2;
+  double x, y, rw, rh, rescaled = 0;
+  double sx1, sy1, sx2, sy2, alpha;
+  const char *ptr;
   int save_bbx1, save_bby1, save_bbx2, save_bby2;
-
 
   if(xctx->draw_single_layer==-1 || GRIDLAYER == xctx->draw_single_layer) {
     if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; i++) {
@@ -2489,6 +2489,9 @@ int draw_images_all(void)
           return 1;
         }
         if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) return 1;
+        ptr = get_tok_value(r->prop_ptr, "alpha", 0);
+        alpha = 1.0;
+        if(ptr[0]) alpha = atof(ptr);
         w = cairo_image_surface_get_width (emb_ptr->image);
         h = cairo_image_surface_get_height (emb_ptr->image);
         dbg(1, "draw_images_all() w=%d, h=%d\n", w, h);
@@ -2499,6 +2502,7 @@ int draw_images_all(void)
           r->y2 = r->y1 + h;
           scalex = xctx->mooz;
           scaley = xctx->mooz;
+          rescaled = 1;
         } else { /* resize image to fit in rectangle */
           rw = abs(r->x2 - r->x1);
           rh = abs(r->y2 - r->y1);
@@ -2509,13 +2513,13 @@ int draw_images_all(void)
           cairo_translate(xctx->cairo_save_ctx, x, y);
           cairo_scale(xctx->cairo_save_ctx, scalex, scaley);
           cairo_set_source_surface(xctx->cairo_save_ctx, emb_ptr->image, 0. , 0.);
-          cairo_paint(xctx->cairo_save_ctx);
+          cairo_paint_with_alpha(xctx->cairo_save_ctx, alpha);
         }
         if(xctx->draw_window) {
           cairo_translate(xctx->cairo_ctx, x, y);
           cairo_scale(xctx->cairo_ctx, scalex, scaley);
           cairo_set_source_surface(xctx->cairo_ctx, emb_ptr->image, 0. , 0.);
-          cairo_paint(xctx->cairo_ctx);
+          cairo_paint_with_alpha(xctx->cairo_ctx, alpha);
         }
         cairo_restore(xctx->cairo_ctx);
         cairo_restore(xctx->cairo_save_ctx);
@@ -2525,6 +2529,7 @@ int draw_images_all(void)
           xctx->bbx2 = save_bbx2;
           xctx->bby2 = save_bby2;
           xctx->sem = 1;
+          if(rescaled) bbox(ADD, r->x1, r->y1, r->x2, r->y2);
           bbox(SET, 0.0, 0.0, 0.0, 0.0);
         }
       }

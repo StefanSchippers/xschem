@@ -4525,6 +4525,7 @@ proc build_widgets { {topwin {} } } {
   toolbar_create ToolInsertArc "xschem arc" "Insert Arc" $topwin
   $topwin.menubar.tools.menu add command -label "Insert circle" -command "xschem circle" -accelerator Ctrl+Shift+C
   toolbar_create ToolInsertCircle "xschem circle" "Insert Circle" $topwin
+  $topwin.menubar.tools.menu add command -label "Insert PNG image" -command "xschem add_png"
   $topwin.menubar.tools.menu add command -label "Search" -accelerator Ctrl+F -command  property_search
   toolbar_create ToolSearch property_search "Search" $topwin
   $topwin.menubar.tools.menu add command -label "Align to Grid" -accelerator Alt+U -command  "xschem align"

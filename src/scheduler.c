@@ -304,7 +304,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        unselect_all();
        storeobject(-1, xctx->mousex_snap-400, xctx->mousey_snap-200, xctx->mousex_snap+400, xctx->mousey_snap+200,
                    xRECT, GRIDLAYER, SELECTED,
-           "flags=1\n"
+           "flags=graph\n"
            "y1=0\n"
            "y2=5\n"
            "ypos1=0\n"
@@ -324,6 +324,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        rebuild_selected_array();
        move_objects(START,0,0,0);
        xctx->ui_state |= START_SYMPIN;
+       Tcl_ResetResult(interp);
+    }
+
+    if(!strcmp(argv[1],"add_png"))
+    {
+       char str[PATH_MAX+100];
+       cmd_found = 1;
+       unselect_all();
+       tcleval("tk_getOpenFile -filetypes { {{Png} {.png}}   {{All files} *} }");
+       if(tclresult()[0]) {
+         my_snprintf(str, S(str), "flags=image,unscaled\nalpha=0.8\nimage=%s\n", tclresult());
+         storeobject(-1, xctx->mousex_snap-100, xctx->mousey_snap-100, xctx->mousex_snap+100, xctx->mousey_snap+100,
+                     xRECT, GRIDLAYER, SELECTED, str);
+         xctx->need_reb_sel_arr=1;
+         rebuild_selected_array();
+         move_objects(START,0,0,0);
+         xctx->ui_state |= START_SYMPIN;
+       }
        Tcl_ResetResult(interp);
     }
 
@@ -2652,14 +2670,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   else if(argv[1][0] == 't') {   
     if(!strcmp(argv[1],"test"))
     {
-      size_t len;
-      char *s;
       cmd_found = 1;
-      if(argc > 2) {
-        Tcl_AppendResult(interp, (s = base64_from_file(argv[2], &len)), NULL);
-        my_free(1480, &s);
-      }
-      /* Tcl_ResetResult(interp); */
+      Tcl_ResetResult(interp);
     }
    
     else if(!strcmp(argv[1],"toggle_colorscheme"))
