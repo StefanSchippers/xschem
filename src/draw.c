@@ -2421,6 +2421,7 @@ int draw_images_all(void)
   double sx1, sy1, sx2, sy2, alpha;
   const char *ptr;
   int save_bbx1, save_bby1, save_bbx2, save_bby2;
+  char filename[PATH_MAX];
 
   if(xctx->draw_single_layer==-1 || GRIDLAYER == xctx->draw_single_layer) {
     if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; i++) {
@@ -2428,11 +2429,13 @@ int draw_images_all(void)
       if(r->flags & 1024) {
         struct stat buf;
         const char *attr;
-        const char *filename;
         double scalex, scaley;
+        char *filter = NULL;
         png_to_byte_closure_t closure;
         xEmb_image *emb_ptr;
 
+        my_strncpy(filename, get_tok_value(r->prop_ptr, "image", 0), S(filename));
+        my_strdup(1484, &filter, get_tok_value(r->prop_ptr, "filter", 0));
         if(xctx->sem) {
           bbox_set = 1;
           save_bbx1 = xctx->bbx1;
@@ -2461,7 +2464,16 @@ int draw_images_all(void)
         /* ... or read PNG from image_data attribute */
         } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] ) {
           size_t data_size;
-          closure.buffer = base64_decode(attr, strlen(attr), &data_size);
+          if(filter) {
+            size_t filtersize = 0;
+            char *filterdata = NULL;
+            closure.buffer = NULL;
+            filterdata = (char *)base64_decode(attr, strlen(attr), &filtersize);
+            filter_data(filterdata, filtersize, (char **)&closure.buffer, &data_size, filter); 
+            my_free(1488, &filterdata);
+          } else {
+            closure.buffer = base64_decode(attr, strlen(attr), &data_size);
+          }
           closure.pos = 0;
           closure.size = data_size; /* should not be necessary */
           emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
@@ -2469,22 +2481,51 @@ int draw_images_all(void)
           my_free(1467, &closure.buffer);
           dbg(1, "draw_images_all(): length2 = %d\n", closure.pos);
         /* ... or read PNG from file (image attribute) */
-        } else if( (filename = get_tok_value(r->prop_ptr, "image", 0))[0] && !stat(filename, &buf)) {
+        } else if(filename[0] && !stat(filename, &buf)) {
           char *image_data = NULL;
           size_t olength;
-          emb_ptr->image = cairo_image_surface_create_from_png(filename);
-          if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) return 1;
-          /* write PNG to in-memory buffer */
-          closure.buffer = NULL;
-          closure.size = 0;
-          closure.pos = 0;
-          cairo_surface_write_to_png_stream(emb_ptr->image, png_writer, &closure);
-          dbg(1, "draw_images_all(): length3 = %d\n", closure.pos);
-          /* put base64 encoded data to rect image_data attrinute */
-          image_data = base64_encode(closure.buffer, closure.pos, &olength, 0);
+          if(filter) {
+            size_t filtersize = 0;
+            char *filterdata = NULL;
+            size_t pngsize = 0;
+            char *pngdata = NULL;
+            struct stat st;
+            if(stat(filename, &st) == 0 /* && ( (st.st_mode & S_IFMT) == S_IFREG)*/ ) {
+              FILE *fd;
+              filtersize = st.st_size;
+              if(filtersize) {
+                fd = fopen(filename, "r");
+                if(fd) {
+                  filterdata = my_malloc(1490, filtersize);
+                  fread(filterdata, filtersize, 1, fd);
+                  fclose(fd);
+                }
+              }
+            }
+            filter_data(filterdata, filtersize, &pngdata, &pngsize, filter);
+            closure.buffer = (unsigned char *)pngdata;
+            closure.size = pngsize;
+            closure.pos = 0;
+            emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+            image_data = base64_encode((unsigned char *)filterdata, filtersize, &olength, 0);
+            my_free(1489, &filterdata);
+          } else {
+            closure.buffer = NULL;
+            closure.size = 0;
+            closure.pos = 0;
+            emb_ptr->image = cairo_image_surface_create_from_png(filename);
+            /* write PNG to in-memory buffer */
+            cairo_surface_write_to_png_stream(emb_ptr->image, png_writer, &closure);
+            image_data = base64_encode(closure.buffer, closure.pos, &olength, 0);
+          }
           my_free(1468, &closure.buffer);
+          /* put base64 encoded data to rect image_data attrinute */
           my_strdup2(1473, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", image_data));
           my_free(1474, &image_data);
+ 
+
+          if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) return 1;
+          dbg(1, "draw_images_all(): length3 = %d\n", closure.pos);
         } else {
           return 1;
         }
@@ -2532,6 +2573,7 @@ int draw_images_all(void)
           if(rescaled) bbox(ADD, r->x1, r->y1, r->x2, r->y2);
           bbox(SET, 0.0, 0.0, 0.0, 0.0);
         }
+        my_free(1486, &filter);
       }
     }
   }

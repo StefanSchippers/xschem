@@ -2670,12 +2670,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   else if(argv[1][0] == 't') {   
     if(!strcmp(argv[1],"test"))
     {
-      char *odata = NULL;
-      size_t olen;
       cmd_found = 1;
-      if(!filter_data("stefan.", 7, &odata, &olen, "base64")) {
-        dbg(0, "odata=%s, olen=%d\n", odata, olen);
-      } 
       Tcl_ResetResult(interp);
     }
    

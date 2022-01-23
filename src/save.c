@@ -38,6 +38,12 @@ int filter_data(const char *din,  const size_t ilen,
   int ret = 0;
   pid_t pid;
   size_t bufsize = 1024, oalloc = 0, n = 0;
+
+  if(!din || !ilen || !cmd) { /* basic check */
+    *dout = NULL;
+    *olen = 0;
+    return 1;
+  }
   pipe(p1);
   pipe(p2);
   signal(SIGPIPE, SIG_IGN); /* so attempting write/read a broken pipe won't kill program */
@@ -87,7 +93,7 @@ int filter_data(const char *din,  const size_t ilen,
   close(p2[0]);
   if(n < 0 || !*olen) {
     if(oalloc) {
-      my_free(1483, *dout);
+      my_free(1483, dout);
       *olen = 0;
     }
     fprintf(stderr, "no data read\n");
@@ -99,7 +105,7 @@ int filter_data(const char *din,  const size_t ilen,
 }
 
 /* Caller should free returned buffer */
-char *base64_encode(const unsigned char *data, size_t input_length, size_t *output_length, int brk) {
+char *base64_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk) {
   static const char b64_enc[] = {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
     'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
@@ -150,7 +156,7 @@ char *base64_encode(const unsigned char *data, size_t input_length, size_t *outp
 }
 
 /* Caller should free returned buffer */
-unsigned char *base64_decode(const char *data, size_t input_length, size_t *output_length) {
+unsigned char *base64_decode(const char *data, const size_t input_length, size_t *output_length) {
   static const unsigned char b64_dec[256] = {
     0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f,
     0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f,
