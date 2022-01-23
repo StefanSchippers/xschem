@@ -53,12 +53,35 @@ p{padding: 15px  30px 10px;}
  <p class="faq">
  XSCHEM is usually launched from a terminal, the terminal becomes a TCL shell where commands can be sent to xschem.
  For this reason XSCHEM should not be launched in background, as any I/O operation to/from the terminal will block
- the program. If you don't plan to use the terminal just start XSCHEM with the -b option: <kbd>xschem -b</kbd>. 
+ the program. If you don't plan to use the terminal just start XSCHEM with the -b option: <kbd>xschem -b &amp;</kbd>. 
  XSCHEM will fork itself in the background detaching from the terminal.
  </p>
 
- <h3> </h3>
+ <h3>
+  Using Xschem (also for skywater-pdk users): a checklist in case of problems:
+ </h3>
  <p class="faq">
+
+<li>Xschem by itself (as well as ngspice and open_pdks) does not require a docker container if you build from sources.</li>
+
+<li>The whole skywater pdk is in rapid evolution, and so is xschem.
+Do not use packaged versions of xschem provided by linux distributions, the xschem version provided is far too old. Same consideration for ngspice. Please build xschem from sources by cloning from git: git clone git@github.com:StefanSchippers/xschem.git xschem-src, then running ./configure with optional --prefix parameter, see instructions here. In particular please verify you have all the required packages installed. refer to the install page in the xschem manual.</li>
+
+<li>To install xschem and ngspice follow this video, but DO NOT follow this video for skywater spice models installation, there is a second video for this, the default and highly recommended procedure is to install open_pdks.</li>
+
+<li>After installing open_pdks you can run simulations by including the top skywater model file: .lib /your/path/to/share/pdk/sky130A/libs.tech/ngspice/sky130.lib.spice tt.</li>
+
+<li>The recommended way to design and simulate a circuit is to create a new empty directory and copy the open_pdks provided xschemrc: mkdir my_example ; cp /your/path/to/share/pdk/sky130A/libs.tech/xschem/xschemrc my_example/, then cd into that directory and start xschem.</li>
+
+<li>Xschem writes netlists in a directory defined by the tcl 'netlist_dir' variable. You can change the location by editing the xschemrc file (locate the 'set netlist_dir' line and change according to your needs). By default the netlist directory is set to ~/.xschem/simulations. Always verify you have write permissions in the directory you are using for netlist generation. The spice simulator will be invoked by xschem and will also be running in this directory, so all spice generated files will also be in this directory.</li>
+
+<li>Xschem uses a terminal and an editor to allow editing some files or displaying some content. For this there are two variables defined in xschemrc: editor and terminal. By default editor is set to 'gvim -f' and terminal is set to 'xterm'. I suggest to install xterm on your system, it is a very small package and has much less problems than 'modern' terminal emulators,  and verify 'editor' is set to an existing editor installed on the system. Please note that for gvim a -f option is added to avoid gvim forking in the backgound. If your editor of choice forks itself in the background please provide an option do avoid doing so. Xschem needs for the editor sub-process to finish before going forward.</li>
+
+<li>Xschem is able to produce Spice, Verilog and VHDL netlists, the default open source tools for simulating these are by default ngspice, icarus verilog and ghdl respectively. If you plan to simulate verilog designs in addition to spice, please install icarus verilog (i recommend building from git, git clone git://github.com/steveicarus/iverilog.git verilog-src), for VHDL simulations install ghdl from git, git clone https://github.com/ghdl/ghdl.git ghdl-src. xschem can invoke these simulator by pressing the 'Simulate' button, this works if the paths for the simulators are correctly configured. To verify the configuration go to xschem Simulation menu and click 'Configure simulators and tools'. A dialog box appears with the various command lines xschem uses to invoke the simulator. There is a 'Help' button giving more information. The Configure simulators and tools dialog box can be used to  invoke different simulators, even commercial tools. Xschem has been used with HSPICE, cadence NCSIM digital simulator and Mentor Modelsim.</li>
+
+<li>For ngspice specific issues please read the manual! it has lot of very useful information.</li>
+
+<li>Please note that skywater-pdk has a .option scale=1.0u in the spice files, that means that all transistor dimensions you give (L=0.18, W=2) will be scaled down by 1e6. so a '1' means 1 micro-meter. DO not use l=0.18u, since that will reduce to 0.18 pico-meters!!</li>
 
  </p>
 
