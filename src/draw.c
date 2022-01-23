@@ -2416,11 +2416,10 @@ static cairo_status_t png_writer(void *in_closure, const unsigned char *in_data,
 int draw_images_all(void)
 {
   #if HAS_CAIRO==1
-  int  i, bbox_set = 0, w, h;
-  double x, y, rw, rh, rescaled = 0;
+  int  ret = 0, i, w, h;
+  double x, y, rw, rh;
   double sx1, sy1, sx2, sy2, alpha;
   const char *ptr;
-  int save_bbx1, save_bby1, save_bbx2, save_bby2;
   char filename[PATH_MAX];
 
   if(xctx->draw_single_layer==-1 || GRIDLAYER == xctx->draw_single_layer) {
@@ -2436,14 +2435,6 @@ int draw_images_all(void)
 
         my_strncpy(filename, get_tok_value(r->prop_ptr, "image", 0), S(filename));
         my_strdup(1484, &filter, get_tok_value(r->prop_ptr, "filter", 0));
-        if(xctx->sem) {
-          bbox_set = 1;
-          save_bbx1 = xctx->bbx1;
-          save_bby1 = xctx->bby1;
-          save_bbx2 = xctx->bbx2;
-          save_bby2 = xctx->bby2;
-          bbox(END, 0.0, 0.0, 0.0, 0.0);
-        }
         /* screen position */
         sx1=X_TO_SCREEN(r->x1);
         sy1=Y_TO_SCREEN(r->y1);
@@ -2477,7 +2468,7 @@ int draw_images_all(void)
           closure.pos = 0;
           closure.size = data_size; /* should not be necessary */
           emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-          if(closure.buffer == NULL) dbg(0, "draw_images_all(): null closure.buffer, i=%d\n", i);
+          if(closure.buffer == NULL) dbg(0, "draw_images_all(): image creation failed, n=%d\n", i);
           my_free(1467, &closure.buffer);
           dbg(1, "draw_images_all(): length2 = %d\n", closure.pos);
         /* ... or read PNG from file (image attribute) */
@@ -2524,12 +2515,12 @@ int draw_images_all(void)
           my_free(1474, &image_data);
  
 
-          if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) return 1;
+          if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {ret = 1; continue;}
           dbg(1, "draw_images_all(): length3 = %d\n", closure.pos);
         } else {
-          return 1;
+          {ret = 1; continue;}
         }
-        if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) return 1;
+        if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {ret = 1; continue;}
         ptr = get_tok_value(r->prop_ptr, "alpha", 0);
         alpha = 1.0;
         if(ptr[0]) alpha = atof(ptr);
@@ -2543,7 +2534,6 @@ int draw_images_all(void)
           r->y2 = r->y1 + h;
           scalex = xctx->mooz;
           scaley = xctx->mooz;
-          rescaled = 1;
         } else { /* resize image to fit in rectangle */
           rw = abs(r->x2 - r->x1);
           rh = abs(r->y2 - r->y1);
@@ -2554,31 +2544,30 @@ int draw_images_all(void)
           cairo_translate(xctx->cairo_save_ctx, x, y);
           cairo_scale(xctx->cairo_save_ctx, scalex, scaley);
           cairo_set_source_surface(xctx->cairo_save_ctx, emb_ptr->image, 0. , 0.);
+          cairo_rectangle(xctx->cairo_save_ctx, 0, 0, w , h );
+          /* cairo_fill(xctx->cairo_save_ctx);
+           * cairo_stroke(xctx->cairo_save_ctx); */
+          cairo_clip(xctx->cairo_save_ctx);
           cairo_paint_with_alpha(xctx->cairo_save_ctx, alpha);
         }
         if(xctx->draw_window) {
           cairo_translate(xctx->cairo_ctx, x, y);
           cairo_scale(xctx->cairo_ctx, scalex, scaley);
           cairo_set_source_surface(xctx->cairo_ctx, emb_ptr->image, 0. , 0.);
+          cairo_rectangle(xctx->cairo_ctx, 0, 0, w , h );
+          /* cairo_fill(xctx->cairo_ctx);
+           * cairo_stroke(xctx->cairo_ctx); */
+          cairo_clip(xctx->cairo_ctx);
           cairo_paint_with_alpha(xctx->cairo_ctx, alpha);
         }
         cairo_restore(xctx->cairo_ctx);
         cairo_restore(xctx->cairo_save_ctx);
-        if(bbox_set) {
-          xctx->bbx1 = save_bbx1;
-          xctx->bby1 = save_bby1;
-          xctx->bbx2 = save_bbx2;
-          xctx->bby2 = save_bby2;
-          xctx->sem = 1;
-          if(rescaled) bbox(ADD, r->x1, r->y1, r->x2, r->y2);
-          bbox(SET, 0.0, 0.0, 0.0, 0.0);
-        }
         my_free(1486, &filter);
       }
     }
   }
   #endif
-  return 0;
+  return ret;
 }
 
 void draw(void)

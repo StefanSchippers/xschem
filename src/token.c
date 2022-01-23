@@ -895,8 +895,13 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
       if(!new_val_copy[0]) new_val_copy = "\"\"";
       tmp = strlen(new_val_copy) + strlen(tok) + 2;
       STR_ALLOC(&result, tmp + result_pos, &size);
-      /* result_pos guaranteed to be > 0 */
-      my_snprintf(result + result_pos - 1, size, " %s=%s", tok, new_val_copy );
+      if(result_pos > 1 && (result[result_pos - 2] == ' ' || result[result_pos - 2] == '\n')) {
+        /* result_pos guaranteed to be > 0 */
+        my_snprintf(result + result_pos - 1, size, "%s=%s", tok, new_val_copy );
+      } else {
+        /* result_pos guaranteed to be > 0 */
+        my_snprintf(result + result_pos - 1, size, "\n%s=%s", tok, new_val_copy );
+      }
     }
   }
   dbg(2, "subst_token(): returning: %s\n",result);

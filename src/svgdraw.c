@@ -551,6 +551,28 @@ static void fill_svg_colors()
 
 }
 
+void svg_embedded_image(int i)
+{
+  xRect *r = &xctx->rect[GRIDLAYER][i];
+  const char *ptr;
+  double x1,y1,x2,y2;
+  int jpg = 0;
+
+  x1=X_TO_SVG(r->x1);
+  y1=Y_TO_SVG(r->y1);
+  x2=X_TO_SVG(r->x2);
+  y2=Y_TO_SVG(r->y2);
+  ptr =  get_tok_value(r->prop_ptr, "image_data", 0);
+  
+  if(ptr[0]) {
+    if(!strncmp(ptr, "/9j/4", 5)) jpg = 1; /* jpeg base64 header (30 bits checked) */
+    fprintf(fd, "<image x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" "
+                "xlink:href=\"data:image/%s;base64,%s\"/>\n",
+                x1, y1, x2 - x1, y2 - y1, jpg ? "jpg" : "png", ptr);
+  }
+ 
+}
+
 void svg_draw(void)
 {
   double dx, dy;
@@ -647,6 +669,7 @@ void svg_draw(void)
   #endif
 
   fprintf(fd, "<svg xmlns=\"http://www.w3.org/2000/svg\""
+              " xmlns:xlink=\"http://www.w3.org/1999/xlink\""
               " width=\"%g\" height=\"%g\" version=\"1.1\">\n", dx, dy);
  
   fprintf(fd, "<style type=\"text/css\">\n");  /* use css stylesheet 20121119 */
@@ -713,7 +736,9 @@ void svg_draw(void)
                       xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
      for(i=0;i<xctx->rects[c];i++)
      {
-       if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  {
+       if(c == GRIDLAYER && (xctx->rect[c][i].flags & 1024) ) {
+          svg_embedded_image(i);
+       } else if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  {
          svg_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                            xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash);
        }
