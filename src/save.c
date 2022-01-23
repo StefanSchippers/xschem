@@ -25,8 +25,78 @@
 #include <sys/wait.h>  /* waitpid */
 #endif
 
-/* define this if you want 128 char lenght line formatted base64 text */
-#undef BASE64_BREAK_LINES
+/* get an input databuffer (din[ilen]), and a shell command (cmd) that reads stdin
+ * and writes stdout, return the result in dout[olen].
+ * Caller must free the returned buffer.
+ */
+int filter_data(const char *din,  const size_t ilen,
+           char **dout, size_t *olen,
+           const char *cmd)
+{
+  int p1[2]; /* parent -> child, 0: read, 1: write */
+  int p2[2]; /* child -> parent, 0: read, 1: write */
+  int ret = 0;
+  pid_t pid;
+  size_t bufsize = 1024, oalloc = 0, n = 0;
+  pipe(p1);
+  pipe(p2);
+  signal(SIGPIPE, SIG_IGN); /* so attempting write/read a broken pipe won't kill program */
+  if( (pid = fork()) == 0) {
+    /* child */
+    close(p1[1]); /* only read from p1 */
+    close(p2[0]); /* only write to p2 */
+    close(0); /* dup2(p1[0],0); */  /* connect read side of read pipe to stdin */
+    dup(p1[0]);
+    close(1); /* dup2(p2[1],1); */ /* connect write side of write pipe to stdout */
+    dup(p2[1]);
+    /* execlp("gm", "gm", "convert", "-", "-quality", "50", "jpg:-", NULL); */
+    if(system(cmd)) {
+      fprintf(stderr, "error: conversion failed\n");
+      ret = 1;
+    }
+    close(p1[0]);
+    close(p2[1]);
+    exit(ret);
+  }
+  /* parent */
+  close(p1[0]); /*only write to p1 */
+  close(p2[1]); /* only read from p2 */
+  if(write(p1[1], din, ilen) != ilen) { /* write input data to pipe */
+    fprintf(stderr, "filter_data() write to pipe failed or not completed\n");
+    ret = 1;
+  }
+  close(p1[1]);
+  if(!ret) {
+    if((*dout = my_malloc(1480, bufsize))) {
+      oalloc = bufsize + 1; /* add extra space for final '\0' */
+      *olen = 0;
+      while( (n = read(p2[0], *dout + *olen, bufsize)) > 0) {
+        *olen += n;
+        if(*olen + bufsize + 1 >= oalloc) { /* allocate for next read */
+          bufsize = (((bufsize << 2) + bufsize) >> 2); /* bufsize *= 1.25 */
+          oalloc = *olen + bufsize + 1; /* add extra space for final '\0' */
+          my_realloc(1482, dout, oalloc);
+        }
+      }
+      if(*olen) (*dout)[*olen] = '\0'; /* so (if ascii) it can be used as a string */
+    } else {
+      fprintf(stderr, "filter_data(): malloc error for read buffer\n");
+      ret = 1;
+    }
+  }
+  close(p2[0]);
+  if(n < 0 || !*olen) {
+    if(oalloc) {
+      my_free(1483, *dout);
+      *olen = 0;
+    }
+    fprintf(stderr, "no data read\n");
+    ret = 1;
+  }
+  waitpid(pid, NULL, 0); /* write for child process to finish and unzombie it */
+  signal(SIGPIPE, SIG_DFL); /* restore default SIGPIPE signal action */
+  return ret;
+}
 
 /* Caller should free returned buffer */
 char *base64_encode(const unsigned char *data, size_t input_length, size_t *output_length, int brk) {

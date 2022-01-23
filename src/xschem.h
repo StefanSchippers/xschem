@@ -1000,6 +1000,8 @@ extern int cli_opt_load_initfile;
 extern Xschem_ctx *xctx;
 
 /*  FUNCTIONS */
+extern int filter_data(const char *din, const size_t ilen,
+           char **dout, size_t *olen, const char *cmd);
 extern int embed_rawfile(const char *rawfile);
 extern int read_rawfile_from_attr(const char *b64s, size_t length);
 extern int read_embedded_rawfile(void);
