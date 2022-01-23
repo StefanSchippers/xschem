@@ -557,18 +557,24 @@ void svg_embedded_image(int i)
   const char *ptr;
   double x1,y1,x2,y2;
   int jpg = 0;
+  char opacity[100];
+  double alpha = 1.0;
 
   x1=X_TO_SVG(r->x1);
   y1=Y_TO_SVG(r->y1);
   x2=X_TO_SVG(r->x2);
   y2=Y_TO_SVG(r->y2);
+  ptr =  get_tok_value(r->prop_ptr, "alpha", 0);
+  if(ptr[0]) alpha = atof(ptr);
   ptr =  get_tok_value(r->prop_ptr, "image_data", 0);
   
+  if(alpha == 1.0)  strcpy(opacity, "");
+  else my_snprintf(opacity, S(opacity), "style=\"opacity:%g;\"", alpha);
   if(ptr[0]) {
     if(!strncmp(ptr, "/9j/4", 5)) jpg = 1; /* jpeg base64 header (30 bits checked) */
-    fprintf(fd, "<image x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" "
+    fprintf(fd, "<image x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" %s "
                 "xlink:href=\"data:image/%s;base64,%s\"/>\n",
-                x1, y1, x2 - x1, y2 - y1, jpg ? "jpg" : "png", ptr);
+                x1, y1, x2 - x1, y2 - y1, opacity, jpg ? "jpg" : "png", ptr);
   }
  
 }
