@@ -293,7 +293,8 @@ void *my_calloc(int id, size_t nmemb, size_t size)
    void *ptr;
    if(size*nmemb > 0) {
      ptr=calloc(nmemb, size);
-     if(ptr == NULL) fprintf(errfp,"my_calloc(%d,): allocation failure\n", id);
+     if(ptr == NULL)
+        fprintf(errfp,"my_calloc(%d,): allocation failure %ld * %ld bytes\n", id, nmemb, size);
      dbg(3, "\nmy_calloc(%d,): allocating %p , %lu bytes\n",
                id, ptr, (unsigned long) (size*nmemb));
    }
@@ -306,7 +307,7 @@ void *my_malloc(int id, size_t size)
  void *ptr;
  if(size>0) {
    ptr=malloc(size);
-   if(ptr == NULL) fprintf(errfp,"my_malloc(%d,): allocation failure\n", id);
+   if(ptr == NULL) fprintf(errfp,"my_malloc(%d,): allocation failure for %ld bytes\n", id, size);
    dbg(3, "\nmy_malloc(%d,): allocating %p , %lu bytes\n", id, ptr, (unsigned long) size);
  }
  else ptr=NULL;
@@ -323,7 +324,7 @@ void my_realloc(int id, void *ptr,size_t size)
    *(void **)ptr=NULL;
  } else {
    *(void **)ptr=realloc(*(void **)ptr,size);
-    if(*(void **)ptr == NULL) fprintf(errfp,"my_realloc(%d,): allocation failure\n", id);
+    if(*(void **)ptr == NULL) fprintf(errfp,"my_realloc(%d,): allocation failure for %ld bytes\n", id, size);
    dbg(3, "\nmy_realloc(%d,): reallocating %p --> %p to %lu bytes\n",
            id, a, *(void **)ptr,(unsigned long) size);
  }
@@ -404,9 +405,6 @@ static void edit_rect_property(int x)
   } else {
     tclsetvar("retval","");
   }
-
-
-
   if(x==0) {
     xctx->semaphore++;
     tcleval("text_line {Input property:} 0 normal");
@@ -435,9 +433,7 @@ static void edit_rect_property(int x)
       }
       set_rect_flags(&xctx->rect[c][n]); /* set cached .flags bitmask from on attributes */
 
-      if(xctx->rect[c][n].extraptr) { /* used for images, clear so will be recreated from image attr */
-        set_rect_extraptr(0, &xctx->rect[c][n], NULL);
-      }
+      set_rect_extraptr(0, &xctx->rect[c][n]);
       dash = get_tok_value(xctx->rect[c][n].prop_ptr,"dash",0);
       if( strcmp(dash, "") ) {
         int d = atoi(dash);
@@ -450,6 +446,8 @@ static void edit_rect_property(int x)
            bbox(START,0.0,0.0,0.0,0.0);
            drw = 1;
          }
+         draw_image(0, &xctx->rect[c][n], 
+           &xctx->rect[c][n].x1, &xctx->rect[c][n].y1, &xctx->rect[c][n].x2, &xctx->rect[c][n].y2, 0, 0);
          bbox(ADD, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x2, xctx->rect[c][n].y2);
       }
     }

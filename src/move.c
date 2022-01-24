@@ -145,7 +145,7 @@ void check_collapsing_objects()
      if(xctx->rect[c][i].x1==xctx->rect[c][i].x2 || xctx->rect[c][i].y1 == xctx->rect[c][i].y2)
      {
       my_free(815, &xctx->rect[c][i].prop_ptr);
-      set_rect_extraptr(0, &xctx->rect[c][i], NULL);
+      set_rect_extraptr(0, &xctx->rect[c][i]);
       found=1;
       j++;
       continue;
@@ -870,12 +870,10 @@ void copy_objects(int what)
         RECTORDER(xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2);
         xctx->rect[c][n].sel=0;
         xctx->sel_array[i].n=xctx->rects[c];
+        /* following also clears extraptr */
         storeobject(-1, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
                    xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay,xRECT, c, SELECTED, xctx->rect[c][n].prop_ptr);
         l = xctx->rects[c] - 1;
-        if(xctx->rect[c][n].extraptr) {
-           set_rect_extraptr(2, &xctx->rect[c][l], &xctx->rect[c][n]);
-        }
         bbox(ADD, xctx->rect[c][l].x1, xctx->rect[c][l].y1, xctx->rect[c][l].x2, xctx->rect[c][l].y2);
         break;
   

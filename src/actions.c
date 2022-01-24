@@ -490,8 +490,8 @@ void remove_symbol(int j)
 {
   int i,c;
   xSymbol save;
-  dbg(1, "remove_symbol(): removing symbol %d\n", j);
 
+  dbg(1,"clearing symbol %s\n", xctx->sym[j].name);
   my_free(666, &xctx->sym[j].prop_ptr);
   my_free(667, &xctx->sym[j].templ);
   my_free(668, &xctx->sym[j].type);
@@ -529,6 +529,7 @@ void remove_symbol(int j)
       if(xctx->sym[j].rect[c][i].prop_ptr != NULL) {
         my_free(678, &xctx->sym[j].rect[c][i].prop_ptr);
       }
+      set_rect_extraptr(0, &xctx->sym[j].rect[c][i]);
     }
     my_free(679, &xctx->sym[j].rect[c]);
     xctx->sym[j].rects[c] = 0;
@@ -589,30 +590,18 @@ int set_rect_flags(xRect *r)
     else if(strstr(flags, "graph")) f |= 1;
   }
   r->flags = f;
+  dbg(1, "set_rect_flags(): flags=%d\n", f);
   return f;
 }
 
 /* what: 
- * 2: copy: drptr->extraptr <- srptr->extraptr
  * 1: create
  * 0: clear
  */
-int set_rect_extraptr(int what, xRect *drptr, xRect *srptr)
+int set_rect_extraptr(int what, xRect *drptr)
 {
   #if HAS_CAIRO==1
-  if(what==2) { /* copy */
-    if(drptr->flags & 1024) { /* embedded image */
-      xEmb_image *d, *s;
-      s = srptr->extraptr;
-      if(s) {
-        d = my_malloc(1478, sizeof(xEmb_image));
-        d->image = NULL;
-        drptr->extraptr = d;
-      } else {
-        drptr->extraptr = NULL;
-      }
-    }
-  } else if(what==1) { /* create */
+  if(what==1) { /* create */
     if(drptr->flags & 1024) { /* embedded image */
       if(!drptr->extraptr) {
         xEmb_image *d;
@@ -676,7 +665,7 @@ void clear_drawing(void)
   for(j=0;j<xctx->rects[i];j++)
   {
    my_free(700, &xctx->rect[i][j].prop_ptr);
-   set_rect_extraptr(0, &xctx->rect[i][j], NULL);
+   set_rect_extraptr(0, &xctx->rect[i][j]);
   }
   for(j=0;j<xctx->arcs[i];j++)
   {

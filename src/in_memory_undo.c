@@ -306,10 +306,8 @@ void mem_push_undo(void)
     for(i = 0;i<xctx->rects[c];i++) {
       xctx->uslot[slot].bptr[c][i] = xctx->rect[c][i];
       xctx->uslot[slot].bptr[c][i].prop_ptr = NULL;
+      xctx->uslot[slot].bptr[c][i].extraptr = NULL;
       my_strdup(185, &xctx->uslot[slot].bptr[c][i].prop_ptr, xctx->rect[c][i].prop_ptr);
-      if(xctx->rect[c][i].extraptr) {
-        set_rect_extraptr(2, &xctx->uslot[slot].bptr[c][i], &xctx->rect[c][i]);
-      }
     }
     /* arcs */
     for(i = 0;i<xctx->arcs[c];i++) {
@@ -385,6 +383,7 @@ void mem_push_undo(void)
       for(j = 0; j < xctx->sym[i].rects[c]; j++) { 
         sym->rect[c][j] = xctx->sym[i].rect[c][j];
         sym->rect[c][j].prop_ptr = NULL;
+        sym->rect[c][j].extraptr = NULL;
         my_strdup(1362, &sym->rect[c][j].prop_ptr, xctx->sym[i].rect[c][j].prop_ptr);
       }
       /* symbol arcs */
@@ -531,10 +530,8 @@ void mem_pop_undo(int redo, int set_modify_status)
     for(i = 0;i<xctx->rects[c];i++) {
       xctx->rect[c][i] = xctx->uslot[slot].bptr[c][i];
       xctx->rect[c][i].prop_ptr = NULL;
+      xctx->rect[c][i].extraptr = NULL;
       my_strdup(205, &xctx->rect[c][i].prop_ptr, xctx->uslot[slot].bptr[c][i].prop_ptr);
-      if(xctx->uslot[slot].bptr[c][i].extraptr) {
-        set_rect_extraptr(2, &xctx->rect[c][i], &xctx->uslot[slot].bptr[c][i]);
-      }
     }
     /* arcs */
     xctx->maxa[c] = xctx->arcs[c] = xctx->uslot[slot].arcs[c];
@@ -621,6 +618,7 @@ void mem_pop_undo(int redo, int set_modify_status)
       for(j = 0; j < xctx->sym[i].rects[c]; j++) {
         xctx->sym[i].rect[c][j] = sym->rect[c][j];
         xctx->sym[i].rect[c][j].prop_ptr = NULL;
+        xctx->sym[i].rect[c][j].extraptr = NULL;
         my_strdup(1369, & xctx->sym[i].rect[c][j].prop_ptr, sym->rect[c][j].prop_ptr);
       }
       /* symbol arcs */

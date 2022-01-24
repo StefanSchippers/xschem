@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
+K {}
 V {}
 S {}
 E {}

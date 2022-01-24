@@ -1,4 +1,4 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {type=subcircuit
 format="@name @pinlist @symname WN_FB=@WN_FB WP_FB=@WP_FB"

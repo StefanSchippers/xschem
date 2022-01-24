@@ -351,10 +351,10 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   double x0,y0,x1,y1,x2,y2;
   double *x, *y; /* polygon point arrays */
   short flip;
-  xLine line;
-  xRect rect;
-  xArc arc;
-  xPoly polygon;
+  xLine *line;
+  xRect *rect;
+  xArc *arc;
+  xPoly *polygon;
   xText text;
   register xSymbol *symptr;
   double angle;
@@ -421,42 +421,42 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   if(!hide) {
     for(j=0;j< symptr->lines[layer];j++)
     {
-      line = (symptr->line[layer])[j];
-      ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
-      ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
+      line = &(symptr->line[layer])[j];
+      ROTATION(rot, flip, 0.0,0.0,line->x1,line->y1,x1,y1);
+      ROTATION(rot, flip, 0.0,0.0,line->x2,line->y2,x2,y2);
       ORDER(x1,y1,x2,y2);
-      if(line.bus)
-        drawline(c,THICK, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
+      if(line->bus)
+        drawline(c,THICK, x0+x1, y0+y1, x0+x2, y0+y2, line->dash);
       else
-        drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
+        drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, line->dash);
     }
     for(j=0;j< symptr->polygons[layer];j++)
     {
-      polygon = (symptr->poly[layer])[j];
-      x = my_malloc(34, sizeof(double) * polygon.points);
-      y = my_malloc(35, sizeof(double) * polygon.points);
-      for(k=0;k<polygon.points;k++) {
-        ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
+      polygon = &(symptr->poly[layer])[j];
+      x = my_malloc(34, sizeof(double) * polygon->points);
+      y = my_malloc(35, sizeof(double) * polygon->points);
+      for(k=0;k<polygon->points;k++) {
+        ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
         x[k]+= x0;
         y[k] += y0;
       }
-      drawpolygon(c, NOW, x, y, polygon.points, polygon.fill, polygon.dash); /* added fill */
+      drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, polygon->dash); /* added fill */
       my_free(718, &x);
       my_free(719, &y);
     }
     for(j=0;j< symptr->arcs[layer];j++)
     {
   
-      arc = (symptr->arc[layer])[j];
+      arc = &(symptr->arc[layer])[j];
       if(flip) {
-        angle = 270.*rot+180.-arc.b-arc.a;
+        angle = 270.*rot+180.-arc->b-arc->a;
       } else {
-        angle = arc.a+rot*270.;
+        angle = arc->a+rot*270.;
       }
       angle = fmod(angle, 360.);
       if(angle<0.) angle+=360.;
-      ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
-      drawarc(c,what, x0+x1, y0+y1, arc.r, angle, arc.b, arc.fill, arc.dash);
+      ROTATION(rot, flip, 0.0,0.0,arc->x,arc->y,x1,y1);
+      drawarc(c,what, x0+x1, y0+y1, arc->r, angle, arc->b, arc->fill, arc->dash);
     }
   } /* if(!hide) */
 
@@ -464,12 +464,23 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       (hide && layer == PINLAYER && xctx->enable_layer[layer]) ) {
     for(j=0;j< symptr->rects[layer];j++)
     {
-      rect = (symptr->rect[layer])[j];
-      ROTATION(rot, flip, 0.0,0.0,rect.x1,rect.y1,x1,y1);
-      ROTATION(rot, flip, 0.0,0.0,rect.x2,rect.y2,x2,y2);
-      RECTORDER(x1,y1,x2,y2);
-      drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, rect.dash);
-      filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
+      rect = &(symptr->rect[layer])[j];
+      ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
+      ROTATION(rot, flip, 0.0,0.0,rect->x2,rect->y2,x2,y2);
+      #if HAS_CAIRO == 1
+      if(layer == GRIDLAYER && rect->flags & 1024) {
+        double xx1 = x0 + x1;
+        double yy1 = y0 + y1;
+        double xx2 = x0 + x2;
+        double yy2 = y0 + y2;
+        draw_image(1, rect, &xx1, &yy1, &xx2, &yy2, rot, flip);
+      } else 
+      #endif
+      {
+        RECTORDER(x1,y1,x2,y2);
+        drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, rect->dash);
+        filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
+      }
     }
   }
   if( (layer==TEXTWIRELAYER && !(xctx->inst[n].flags&2) ) ||
@@ -535,10 +546,10 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  int j;
  double x0,y0,x1,y1,x2,y2;
  short flip;
- xLine line;
- xPoly polygon;
- xRect rect;
- xArc arc;
+ xLine *line;
+ xPoly *polygon;
+ xRect *rect;
+ xArc *arc;
  xText text;
  register xSymbol *symptr;
  double angle;
@@ -582,29 +593,29 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  symptr = (xctx->inst[n].ptr+ xctx->sym);
  for(j=0;j< symptr->lines[layer];j++)
  {
-  line = (symptr->line[layer])[j];
-  ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
-  ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
+  line = &(symptr->line[layer])[j];
+  ROTATION(rot, flip, 0.0,0.0,line->x1,line->y1,x1,y1);
+  ROTATION(rot, flip, 0.0,0.0,line->x2,line->y2,x2,y2);
   ORDER(x1,y1,x2,y2);
-  if(line.bus)
+  if(line->bus)
     drawtempline(gc,THICK, x0+x1, y0+y1, x0+x2, y0+y2);
   else
     drawtempline(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
  }
  for(j=0;j< symptr->polygons[layer];j++)
  {
-   polygon = (symptr->poly[layer])[j];
+   polygon = &(symptr->poly[layer])[j];
 
    {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
      int k;
-     double *x = my_malloc(36, sizeof(double) * polygon.points);
-     double *y = my_malloc(37, sizeof(double) * polygon.points);
-     for(k=0;k<polygon.points;k++) {
-       ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
+     double *x = my_malloc(36, sizeof(double) * polygon->points);
+     double *y = my_malloc(37, sizeof(double) * polygon->points);
+     for(k=0;k<polygon->points;k++) {
+       ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
        x[k] += x0;
        y[k] += y0;
      }
-     drawtemppolygon(gc, NOW, x, y, polygon.points);
+     drawtemppolygon(gc, NOW, x, y, polygon->points);
      my_free(720, &x);
      my_free(721, &y);
    }
@@ -612,24 +623,24 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
 
  for(j=0;j< symptr->rects[layer];j++)
  {
-  rect = (symptr->rect[layer])[j];
-  ROTATION(rot, flip, 0.0,0.0,rect.x1,rect.y1,x1,y1);
-  ROTATION(rot, flip, 0.0,0.0,rect.x2,rect.y2,x2,y2);
+  rect = &(symptr->rect[layer])[j];
+  ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
+  ROTATION(rot, flip, 0.0,0.0,rect->x2,rect->y2,x2,y2);
   RECTORDER(x1,y1,x2,y2);
   drawtemprect(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
  }
  for(j=0;j< symptr->arcs[layer];j++)
  {
-   arc = (symptr->arc[layer])[j];
+   arc = &(symptr->arc[layer])[j];
    if(flip) {
-     angle = 270.*rot+180.-arc.b-arc.a;
+     angle = 270.*rot+180.-arc->b-arc->a;
    } else {
-     angle = arc.a+rot*270.;
+     angle = arc->a+rot*270.;
    }
    angle = fmod(angle, 360.);
    if(angle<0.) angle+=360.;
-   ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
-   drawtemparc(gc, what, x0+x1, y0+y1, arc.r, angle, arc.b);
+   ROTATION(rot, flip, 0.0,0.0,arc->x,arc->y,x1,y1);
+   drawtemparc(gc, what, x0+x1, y0+y1, arc->r, angle, arc->b);
  }
 
  if(layer==PROPERTYLAYER && xctx->sym_txt)
@@ -2413,161 +2424,177 @@ static cairo_status_t png_writer(void *in_closure, const unsigned char *in_data,
 }
 #endif
 
-int draw_images_all(void)
+
+/* rot and flip for rotated / flipped symbols
+ * draw: 1 draw image
+ *       0 only load image and build base64 
+ */
+void draw_image(int draw, xRect *r, double *x1, double *y1, double *x2, double *y2, int rot, int flip)
 {
-  #if HAS_CAIRO==1
-  int  ret = 0, i, w, h;
+  #if HAS_CAIRO == 1
+  const char *ptr;
+  int w,h;
   double x, y, rw, rh;
   double sx1, sy1, sx2, sy2, alpha;
-  const char *ptr;
   char filename[PATH_MAX];
+  struct stat buf;
+  const char *attr ;
+  char *filter = NULL;
+  double xx1, yy1, scalex, scaley;
+  png_to_byte_closure_t closure;
+  xEmb_image *emb_ptr;
 
+  xx1 = *x1; yy1 = *y1; /* image anchor point */
+  RECTORDER(*x1, *y1, *x2, *y2);
+
+  /* screen position */
+  sx1=X_TO_SCREEN(*x1);
+  sy1=Y_TO_SCREEN(*y1);
+  sx2=X_TO_SCREEN(*x2);
+  sy2=Y_TO_SCREEN(*y2);
+  if(RECT_OUTSIDE(sx1, sy1, sx2, sy2,
+                  xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) return;
+  set_rect_extraptr(1, r); /* create r->extraptr pointing to a xEmb_image struct */
+  emb_ptr = r->extraptr;
+  if(draw) {
+    cairo_save(xctx->cairo_ctx);
+    cairo_save(xctx->cairo_save_ctx);
+  }
+  my_strncpy(filename, get_tok_value(r->prop_ptr, "image", 0), S(filename));
+  my_strdup(1484, &filter, get_tok_value(r->prop_ptr, "filter", 0));
+
+  /* read PNG from in-memory buffer ... */
+  if(emb_ptr && emb_ptr->image) {
+    ; /* nothing to do, image is already created */
+  /* ... or read PNG from image_data attribute */
+  } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] ) {
+    size_t data_size;
+    if(filter) {
+      size_t filtersize = 0;
+      char *filterdata = NULL;
+      closure.buffer = NULL;
+      filterdata = (char *)base64_decode(attr, strlen(attr), &filtersize);
+      filter_data(filterdata, filtersize, (char **)&closure.buffer, &data_size, filter); 
+      my_free(1488, &filterdata);
+      my_free(1485, &filter);
+    } else {
+      closure.buffer = base64_decode(attr, strlen(attr), &data_size);
+    }
+    closure.pos = 0;
+    closure.size = data_size; /* should not be necessary */
+    emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+    if(closure.buffer == NULL) dbg(0, "draw_images_all(): image creation failed\n");
+    my_free(1467, &closure.buffer);
+    dbg(1, "draw_images_all(): length2 = %d\n", closure.pos);
+  /* ... or read PNG from file (image attribute) */
+  } else if(filename[0] && !stat(filename, &buf)) {
+    char *image_data = NULL;
+    size_t olength;
+    if(filter) {
+      size_t filtersize = 0;
+      char *filterdata = NULL;
+      size_t pngsize = 0;
+      char *pngdata = NULL;
+      FILE *fd;
+      filtersize = buf.st_size;
+      if(filtersize) {
+        fd = fopen(filename, "r");
+        if(fd) {
+          filterdata = my_malloc(1490, filtersize);
+          fread(filterdata, filtersize, 1, fd);
+          fclose(fd);
+        }
+      }
+      filter_data(filterdata, filtersize, &pngdata, &pngsize, filter);
+      closure.buffer = (unsigned char *)pngdata;
+      closure.size = pngsize;
+      closure.pos = 0;
+      emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+      image_data = base64_encode((unsigned char *)filterdata, filtersize, &olength, 0);
+      my_free(1489, &filterdata);
+      my_free(1487, &filter);
+    } else {
+      closure.buffer = NULL;
+      closure.size = 0;
+      closure.pos = 0;
+      emb_ptr->image = cairo_image_surface_create_from_png(filename);
+      /* write PNG to in-memory buffer */
+      cairo_surface_write_to_png_stream(emb_ptr->image, png_writer, &closure);
+      image_data = base64_encode(closure.buffer, closure.pos, &olength, 0);
+      my_free(1468, &closure.buffer);
+    }
+    /* put base64 encoded data to rect image_data attrinute */
+    my_strdup2(1473, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", image_data));
+    my_free(1474, &image_data);
+    if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) return;
+    dbg(1, "draw_image(): length3 = %d\n", closure.pos);
+  } else return;
+  if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) return;
+  ptr = get_tok_value(r->prop_ptr, "alpha", 0);
+  alpha = 1.0;
+  if(ptr[0]) alpha = atof(ptr);
+  w = cairo_image_surface_get_width (emb_ptr->image);
+  h = cairo_image_surface_get_height (emb_ptr->image);
+  dbg(1, "draw_image() w=%d, h=%d\n", w, h);
+  x = X_TO_SCREEN(xx1);
+  y = Y_TO_SCREEN(yy1);
+  if(r->flags & 2048) { /* resize container rectangle to fit image */
+    *x2 = *x1 + w;
+    *y2 = *y1 + h;
+    scalex = xctx->mooz;
+    scaley = xctx->mooz;
+  } else { /* resize image to fit in rectangle */
+    rw = abs(*x2 - *x1);
+    rh = abs(*y2 - *y1);
+    scalex = rw/w * xctx->mooz;
+    scaley = rh/h * xctx->mooz;
+  }
+  if(draw && xctx->draw_pixmap) {
+    cairo_translate(xctx->cairo_save_ctx, x, y);
+    if(flip && (rot == 0 || rot == 2)) cairo_scale(xctx->cairo_save_ctx, -scalex, scaley);
+    else if(flip && (rot == 1 || rot == 3)) cairo_scale(xctx->cairo_save_ctx, scalex, -scaley);
+    else cairo_scale(xctx->cairo_save_ctx, scalex, scaley);
+    cairo_rotate(xctx->cairo_save_ctx, rot * XSCH_PI * 0.5);
+    cairo_set_source_surface(xctx->cairo_save_ctx, emb_ptr->image, 0. , 0.);
+    cairo_rectangle(xctx->cairo_save_ctx, 0, 0, w , h );
+    /* cairo_fill(xctx->cairo_save_ctx);
+     * cairo_stroke(xctx->cairo_save_ctx); */
+    cairo_clip(xctx->cairo_save_ctx);
+    cairo_paint_with_alpha(xctx->cairo_save_ctx, alpha);
+  }
+  if(draw && xctx->draw_window) {
+    cairo_translate(xctx->cairo_ctx, x, y);
+    if(flip && (rot == 0 || rot == 2)) cairo_scale(xctx->cairo_ctx, -scalex, scaley);
+    else if(flip && (rot == 1 || rot == 3)) cairo_scale(xctx->cairo_ctx, scalex, -scaley);
+    else cairo_scale(xctx->cairo_ctx, scalex, scaley);
+    cairo_rotate(xctx->cairo_ctx, rot * XSCH_PI * 0.5);
+    cairo_set_source_surface(xctx->cairo_ctx, emb_ptr->image, 0. , 0.);
+    cairo_rectangle(xctx->cairo_ctx, 0, 0, w , h );
+    /* cairo_fill(xctx->cairo_ctx);
+     * cairo_stroke(xctx->cairo_ctx); */
+    cairo_clip(xctx->cairo_ctx);
+    cairo_paint_with_alpha(xctx->cairo_ctx, alpha);
+  }
+  if(draw) {
+    cairo_restore(xctx->cairo_ctx);
+    cairo_restore(xctx->cairo_save_ctx);
+  }
+  #endif
+}
+
+static void draw_images_all(void)
+{
+  #if HAS_CAIRO==1
+  int i;
   if(xctx->draw_single_layer==-1 || GRIDLAYER == xctx->draw_single_layer) {
     if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; i++) {
       xRect *r = &xctx->rect[GRIDLAYER][i];
       if(r->flags & 1024) {
-        struct stat buf;
-        const char *attr;
-        double scalex, scaley;
-        char *filter = NULL;
-        png_to_byte_closure_t closure;
-        xEmb_image *emb_ptr;
-
-        my_strncpy(filename, get_tok_value(r->prop_ptr, "image", 0), S(filename));
-        my_strdup(1484, &filter, get_tok_value(r->prop_ptr, "filter", 0));
-        /* screen position */
-        sx1=X_TO_SCREEN(r->x1);
-        sy1=Y_TO_SCREEN(r->y1);
-        sx2=X_TO_SCREEN(r->x2);
-        sy2=Y_TO_SCREEN(r->y2);
-        if(RECT_OUTSIDE(sx1, sy1, sx2, sy2,
-                        xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) continue;
-        if(!r->extraptr) {
-          set_rect_extraptr(1, r, NULL);
-        }
-        emb_ptr = r->extraptr;
-        cairo_save(xctx->cairo_ctx);
-        cairo_save(xctx->cairo_save_ctx);
-
-        /* read PNG from in-memory buffer ... */
-        if(emb_ptr && emb_ptr->image) {
-          ; /* nothing to do, image is already created */
-        /* ... or read PNG from image_data attribute */
-        } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] ) {
-          size_t data_size;
-          if(filter) {
-            size_t filtersize = 0;
-            char *filterdata = NULL;
-            closure.buffer = NULL;
-            filterdata = (char *)base64_decode(attr, strlen(attr), &filtersize);
-            filter_data(filterdata, filtersize, (char **)&closure.buffer, &data_size, filter); 
-            my_free(1488, &filterdata);
-          } else {
-            closure.buffer = base64_decode(attr, strlen(attr), &data_size);
-          }
-          closure.pos = 0;
-          closure.size = data_size; /* should not be necessary */
-          emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-          if(closure.buffer == NULL) dbg(0, "draw_images_all(): image creation failed, n=%d\n", i);
-          my_free(1467, &closure.buffer);
-          dbg(1, "draw_images_all(): length2 = %d\n", closure.pos);
-        /* ... or read PNG from file (image attribute) */
-        } else if(filename[0] && !stat(filename, &buf)) {
-          char *image_data = NULL;
-          size_t olength;
-          if(filter) {
-            size_t filtersize = 0;
-            char *filterdata = NULL;
-            size_t pngsize = 0;
-            char *pngdata = NULL;
-            struct stat st;
-            if(stat(filename, &st) == 0 /* && ( (st.st_mode & S_IFMT) == S_IFREG)*/ ) {
-              FILE *fd;
-              filtersize = st.st_size;
-              if(filtersize) {
-                fd = fopen(filename, "r");
-                if(fd) {
-                  filterdata = my_malloc(1490, filtersize);
-                  fread(filterdata, filtersize, 1, fd);
-                  fclose(fd);
-                }
-              }
-            }
-            filter_data(filterdata, filtersize, &pngdata, &pngsize, filter);
-            closure.buffer = (unsigned char *)pngdata;
-            closure.size = pngsize;
-            closure.pos = 0;
-            emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-            image_data = base64_encode((unsigned char *)filterdata, filtersize, &olength, 0);
-            my_free(1489, &filterdata);
-          } else {
-            closure.buffer = NULL;
-            closure.size = 0;
-            closure.pos = 0;
-            emb_ptr->image = cairo_image_surface_create_from_png(filename);
-            /* write PNG to in-memory buffer */
-            cairo_surface_write_to_png_stream(emb_ptr->image, png_writer, &closure);
-            image_data = base64_encode(closure.buffer, closure.pos, &olength, 0);
-          }
-          my_free(1468, &closure.buffer);
-          /* put base64 encoded data to rect image_data attrinute */
-          my_strdup2(1473, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", image_data));
-          my_free(1474, &image_data);
- 
-
-          if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {ret = 1; continue;}
-          dbg(1, "draw_images_all(): length3 = %d\n", closure.pos);
-        } else {
-          {ret = 1; continue;}
-        }
-        if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {ret = 1; continue;}
-        ptr = get_tok_value(r->prop_ptr, "alpha", 0);
-        alpha = 1.0;
-        if(ptr[0]) alpha = atof(ptr);
-        w = cairo_image_surface_get_width (emb_ptr->image);
-        h = cairo_image_surface_get_height (emb_ptr->image);
-        dbg(1, "draw_images_all() w=%d, h=%d\n", w, h);
-        x = X_TO_SCREEN(r->x1);
-        y = Y_TO_SCREEN(r->y1);
-        if(r->flags & 2048) { /* resize container rectangle to fit image */
-          r->x2 = r->x1 + w;
-          r->y2 = r->y1 + h;
-          scalex = xctx->mooz;
-          scaley = xctx->mooz;
-        } else { /* resize image to fit in rectangle */
-          rw = abs(r->x2 - r->x1);
-          rh = abs(r->y2 - r->y1);
-          scalex = rw/w * xctx->mooz;
-          scaley = rh/h * xctx->mooz;
-        }
-        if(xctx->draw_pixmap) {
-          cairo_translate(xctx->cairo_save_ctx, x, y);
-          cairo_scale(xctx->cairo_save_ctx, scalex, scaley);
-          cairo_set_source_surface(xctx->cairo_save_ctx, emb_ptr->image, 0. , 0.);
-          cairo_rectangle(xctx->cairo_save_ctx, 0, 0, w , h );
-          /* cairo_fill(xctx->cairo_save_ctx);
-           * cairo_stroke(xctx->cairo_save_ctx); */
-          cairo_clip(xctx->cairo_save_ctx);
-          cairo_paint_with_alpha(xctx->cairo_save_ctx, alpha);
-        }
-        if(xctx->draw_window) {
-          cairo_translate(xctx->cairo_ctx, x, y);
-          cairo_scale(xctx->cairo_ctx, scalex, scaley);
-          cairo_set_source_surface(xctx->cairo_ctx, emb_ptr->image, 0. , 0.);
-          cairo_rectangle(xctx->cairo_ctx, 0, 0, w , h );
-          /* cairo_fill(xctx->cairo_ctx);
-           * cairo_stroke(xctx->cairo_ctx); */
-          cairo_clip(xctx->cairo_ctx);
-          cairo_paint_with_alpha(xctx->cairo_ctx, alpha);
-        }
-        cairo_restore(xctx->cairo_ctx);
-        cairo_restore(xctx->cairo_save_ctx);
-        my_free(1486, &filter);
+        draw_image(1, r, &r->x1, &r->y1, &r->x2, &r->y2, 0, 0);
       }
     }
   }
   #endif
-  return ret;
 }
 
 void draw(void)

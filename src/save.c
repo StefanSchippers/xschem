@@ -37,13 +37,15 @@ int filter_data(const char *din,  const size_t ilen,
   int p2[2]; /* child -> parent, 0: read, 1: write */
   int ret = 0;
   pid_t pid;
-  size_t bufsize = 1024, oalloc = 0, n = 0;
+  size_t bufsize = 32768, oalloc = 0, n = 0;
 
   if(!din || !ilen || !cmd) { /* basic check */
     *dout = NULL;
     *olen = 0;
     return 1;
   }
+
+  dbg(1, "filter_data(): ilen=%ld, cmd=%s\n", ilen, cmd);
   pipe(p1);
   pipe(p2);
   signal(SIGPIPE, SIG_IGN); /* so attempting write/read a broken pipe won't kill program */
@@ -73,22 +75,19 @@ int filter_data(const char *din,  const size_t ilen,
   }
   close(p1[1]);
   if(!ret) {
-    if((*dout = my_malloc(1480, bufsize))) {
-      oalloc = bufsize + 1; /* add extra space for final '\0' */
-      *olen = 0;
-      while( (n = read(p2[0], *dout + *olen, bufsize)) > 0) {
-        *olen += n;
-        if(*olen + bufsize + 1 >= oalloc) { /* allocate for next read */
-          bufsize = (((bufsize << 2) + bufsize) >> 2); /* bufsize *= 1.25 */
-          oalloc = *olen + bufsize + 1; /* add extra space for final '\0' */
-          my_realloc(1482, dout, oalloc);
-        }
+    oalloc = bufsize + 1; /* add extra space for final '\0' */
+    *dout = my_malloc(1480, oalloc);
+    *olen = 0;
+    while( (n = read(p2[0], *dout + *olen, bufsize)) > 0) {
+      *olen += n;
+      if(*olen + bufsize + 1 >= oalloc) { /* allocate for next read */
+        oalloc = *olen + bufsize + 1; /* add extra space for final '\0' */
+        oalloc = ((oalloc << 2) + oalloc) >> 2; /* size up 1.25x */
+        dbg(1, "filter_data() read %ld bytes, reallocate dout to %ld bytes, bufsize=%ld\n", n, oalloc, bufsize);
+        my_realloc(1482, dout, oalloc);
       }
-      if(*olen) (*dout)[*olen] = '\0'; /* so (if ascii) it can be used as a string */
-    } else {
-      fprintf(stderr, "filter_data(): malloc error for read buffer\n");
-      ret = 1;
     }
+    if(*olen) (*dout)[*olen] = '\0'; /* so (if ascii) it can be used as a string */
   }
   close(p2[0]);
   if(n < 0 || !*olen) {
@@ -1992,6 +1991,8 @@ static void add_pinlayer_boxes(int *lastr, xRect **bb,
     my_snprintf(pin_label, save, "name=%s dir=inout ", label);
   }
   my_strdup(463, &bb[PINLAYER][i].prop_ptr, pin_label);
+  bb[PINLAYER][i].flags = 0;
+  bb[PINLAYER][i].extraptr = 0;
   bb[PINLAYER][i].dash = 0;
   bb[PINLAYER][i].sel = 0;
   /* add to symbol pins remaining attributes from schematic pins, except name= and lab= */
@@ -2416,6 +2417,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
      } else
        bb[c][i].dash = 0;
      bb[c][i].sel = 0;
+     bb[c][i].extraptr = NULL;
+     set_rect_flags(&bb[c][i]);
      lastr[c]++;
      break;
     case 'T':
