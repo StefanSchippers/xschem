@@ -317,6 +317,10 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      } else
        xctx->rect[rectc][n].dash = 0;
      set_rect_flags(&xctx->rect[rectc][n]); /* set cached .flags bitmask from on attributes */
+     if(rectc == GRIDLAYER && (xctx->rect[rectc][n].flags & 1024)) {
+        xRect *r = &xctx->rect[GRIDLAYER][n];
+        draw_image(0, r, &r->x1, &r->y1, &r->x2, &r->y2, 0, 0);
+     }
      xctx->rects[rectc]++;
      set_modify(1);
     }

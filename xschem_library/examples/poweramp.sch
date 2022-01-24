@@ -14,31 +14,31 @@ L 18 900 -580 910 -580 {}
 L 18 880 -530 900 -580 {}
 L 18 880 -530 880 -450 {}
 L 18 900 -580 900 -400 {}
-B 2 1200 -330 1880 -140 {flags=graph,locked 
+B 2 1200 -330 1880 -140 {flags=graph
 y1 = 0
 y2 = .05
 divy = 5
-x1=0.0145769
-x2=0.015228
+x1=0.0145887
+x2=0.0152398
 divx=10
 node="i(v.x1.v3)"
 color="11 12 13 14" unitx=m unity=m}
-B 2 1200 -530 1880 -340 {flags=graph,locked 
+B 2 1200 -530 1880 -340 {flags=graph
 y1 = 0
 y2 = 12
 divy = 6
-x1=0.0145769
-x2=0.015228
+x1=0.0145887
+x2=0.0152398
 divx=10
 node="i(v.x1.vu) i(v.x0.vu) i(v.x1.vd) i(v.x0.vd)"
 color="11 12 13 14" unitx=m}
-B 2 1200 -860 1880 -550 {flags=graph,locked
+B 2 1200 -860 1880 -550 {flags=graph
 
 y1 = -60
 y2 = 60
 divy = 12
-x1=0.0145769
-x2=0.015228
+x1=0.0145887
+x2=0.0152398
 divx=10
 node="outp outm vpp vnn x1.vboost x0.vboost"
 color="4 5 6 12 8 10" unitx=m}
@@ -159,7 +159,9 @@ vvss vss 0 dc 0
 ** referenced file in simulation directory.
 .include \\"models_poweramp.txt\\"
 .control
-* op
+op
+write poweramp.raw
+set appendwrite
 tran  6e-7 0.03 uic
 * .FOUR 20k v(outm,outp)
 * .probe i(*) 
@@ -275,7 +277,7 @@ C {ngspice_probe.sym} 810 -240 0 1 {name=p38}
 C {ngspice_probe.sym} 300 -680 0 1 {name=p33}
 C {ngspice_probe.sym} 300 -220 0 1 {name=p30}
 C {ngspice_probe.sym} 350 -320 0 1 {name=p39}
-C {ngspice_get_expr.sym} 565 -455 0 0 {name=r18 
+C {ngspice_get_expr.sym} 535 -475 0 1 {name=r18 
 node="[ngspice::get_current \{r2[i]\}]"
 descr = current
  }
@@ -317,8 +319,8 @@ C {launcher.sym} 1000 -310 0 0 {name=h4
 descr="View Raw file" 
 tclcommand="textwindow $netlist_dir/[file tail [file rootname [ xschem get schname 0 ] ] ].raw"
 }
-C {spice_probe.sym} 360 -1220 0 0 {name=p45 analysis=tran voltage=0.0000e+00}
-C {spice_probe.sym} 360 -1060 0 0 {name=p46 analysis=tran voltage=0.0000e+00}
+C {spice_probe.sym} 360 -1220 0 0 {name=p45 analysis=tran voltage=49.84}
+C {spice_probe.sym} 360 -1060 0 0 {name=p46 analysis=tran voltage=-49.86}
 C {launcher.sym} 1095 -985 0 0 {name=h5 
 descr="Select arrow and 
 Ctrl-Left-Click to load/unload waveforms" 

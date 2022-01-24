@@ -32,8 +32,8 @@ y1 = -0.048929
 y2 = 0.999755
 divy = 3
 subdivy=1
-x1=1.41996e-07
-x2=2.02558e-07  divx=10
+x1=1.48222e-07
+x2=1.94606e-07  divx=10
 node="
 ldbl[0] ldbl[16] ldbl[32]
 ldbl[1] ldbl[17] ldbl[33]
@@ -47,8 +47,8 @@ y1 = -0.021
 y2 = 1.5
 subdivy=1
 divy = 4
-x1=1.58347e-07
-x2=2.18909e-07
+x1=1.48222e-07
+x2=1.94606e-07
 divx=10
 subdivx=4
 node="ldcp ldyms[4] ldyms[5] ldyms[6] ldymsref"
@@ -61,8 +61,8 @@ y2 = 1.6
 divy = 3
 subdivy=0
 subdivx = 1
-x1=1.41996e-07
-x2=2.02558e-07  divx=10
+x1=1.48222e-07
+x2=1.94606e-07  divx=10
 node="
 ldwl[0] ldwl[1] ldwl[2] ldwl[3] 
 ldwl[4] ldwl[5] ldwl[6] ldwl[16] 
@@ -70,21 +70,24 @@ ldwl[7] ldwl[8] ldwl[9]"
 color="4 5 4 5 4 5 4 5 4 5 4 5"  
 unitx=n 
 }
-B 2 1840 -1000 2890 -540 {flags=graph_unlocked
+B 2 1840 -1000 2890 -540 {flags=graph,unlocked
 digital=1
 y1 = 0
 y2 = 1.6
 ypos1=0.0694741
 ypos2=2.61557
 divy = 1
-x1=2.07427e-07
-x2=2.67989e-07
+x1=1.48222e-07
+x2=1.94606e-07
 divx=12
 subdivx=4
 node="
 ---In/Out---
 ldcp
-ldq[15] ldq[14] ldq[13] ldq[12]
+ldq[15]
+ldq[14]
+ldq[13]
+ldq[12]
 LDA,lda[12],lda[11],lda[10],lda[9],lda[8],lda[7],lda[6],lda[5],lda[4],lda[3],lda[2],lda[1],lda[0]
 LDQ,ldq[15],ldq[14],ldq[13],ldq[12],ldq[11],ldq[10],ldq[9],ldq[8],ldq[7],ldq[6],ldq[5],ldq[4],ldq[3],ldq[2],ldq[1],ldq[0]
 ---Timing---
@@ -104,8 +107,8 @@ B 2 1840 -1300 2890 -1160 {flags=graph_unlocked
 y1 = -0.022
 y2 = 1.6
 divy = 4
-x1=1.84671e-07
-x2=2.45233e-07
+x1=1.48222e-07
+x2=1.94606e-07
 divx=8
 unitx=n
 node="xsa[0].ldqib xsa[5].ldqib xsa[0].ldsali xctrl.ldq_b"
@@ -115,8 +118,8 @@ B 2 1840 -240 2890 0 {flags=graph_unlocked
 y1 = -0.0559946
 y2 = 0.0205097
 divy = 5
-x1=1.41996e-07
-x2=2.02558e-07  
+x1=1.48222e-07
+x2=1.94606e-07  
 unity=m
 divx=10
 subdivx=1
