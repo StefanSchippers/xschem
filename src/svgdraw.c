@@ -390,6 +390,45 @@ static void svg_drawgrid()
 }
 
 
+void svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, double ry2, int rot, int flip)
+{
+  const char *ptr;
+  double x1, y1, x2, y2, w, h, scalex = 1.0, scaley = 1.0;
+  int jpg = 0;
+  char opacity[100];
+  char transform[150];
+  double alpha = 1.0;
+
+  x1=X_TO_SVG(rx1);
+  y1=Y_TO_SVG(ry1);
+  x2=X_TO_SVG(rx2);
+  y2=Y_TO_SVG(ry2);
+  if(rot == 1 || rot == 3) {
+    w = fabs(y2 - y1);
+    h = fabs(x2 - x1);
+  } else {
+    h = fabs(y2 - y1);
+    w = fabs(x2 - x1);
+  }
+
+  if(flip && (rot == 0 || rot == 2)) scalex = -1.0;
+  else if(flip && (rot == 1 || rot == 3)) scaley = -1.0;
+  ptr =  get_tok_value(r->prop_ptr, "alpha", 0);
+  if(ptr[0]) alpha = atof(ptr);
+  ptr =  get_tok_value(r->prop_ptr, "image_data", 0);
+  
+  my_snprintf(transform, S(transform), 
+    "transform=\"translate(%g,%g) scale(%g,%g) rotate(%d)\"", x1, y1, scalex, scaley, rot * 90);
+  if(alpha == 1.0)  strcpy(opacity, "");
+  else my_snprintf(opacity, S(opacity), "style=\"opacity:%g;\"", alpha);
+  if(ptr[0]) {
+    if(!strncmp(ptr, "/9j/4", 5)) jpg = 1; /* jpeg base64 header (30 bits checked) */
+    fprintf(fd, "<image x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" %s %s "
+                "xlink:href=\"data:image/%s;base64,%s\"/>\n",
+                0.0, 0.0, w, h, transform, opacity, jpg ? "jpg" : "png", ptr);
+  }
+}
+
 
 static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
         double xoffset, double yoffset)
@@ -400,7 +439,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   short flip;
   int textlayer;
   xLine line;
-  xRect rect;
+  xRect *rect;
   xText text;
   xArc arc;
   xPoly polygon;
@@ -468,11 +507,21 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   }
 
   if( xctx->enable_layer[layer] ) for(j=0;j< symptr->rects[layer];j++) {
-    rect = (symptr->rect[layer])[j];
-    ROTATION(rot, flip, 0.0,0.0,rect.x1,rect.y1,x1,y1);
-    ROTATION(rot, flip, 0.0,0.0,rect.x2,rect.y2,x2,y2);
-    RECTORDER(x1,y1,x2,y2);
-    svg_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, rect.dash);
+    rect = &(symptr->rect[layer])[j];
+    ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
+    ROTATION(rot, flip, 0.0,0.0,rect->x2,rect->y2,x2,y2);
+
+
+    if(layer == GRIDLAYER && rect->flags & 1024) {
+      double xx1 = x0 + x1;
+      double yy1 = y0 + y1;
+      double xx2 = x0 + x2;
+      double yy2 = y0 + y2;
+      svg_embedded_image(rect, xx1, yy1, xx2, yy2, rot, flip);
+    } else {
+      RECTORDER(x1,y1,x2,y2);
+      svg_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, rect->dash);
+    }
   }
   if( (layer==TEXTWIRELAYER  && !(xctx->inst[n].flags&2) ) ||
       (xctx->sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) ) {
@@ -549,34 +598,6 @@ static void fill_svg_colors()
    }
  }
 
-}
-
-void svg_embedded_image(int i)
-{
-  xRect *r = &xctx->rect[GRIDLAYER][i];
-  const char *ptr;
-  double x1,y1,x2,y2;
-  int jpg = 0;
-  char opacity[100];
-  double alpha = 1.0;
-
-  x1=X_TO_SVG(r->x1);
-  y1=Y_TO_SVG(r->y1);
-  x2=X_TO_SVG(r->x2);
-  y2=Y_TO_SVG(r->y2);
-  ptr =  get_tok_value(r->prop_ptr, "alpha", 0);
-  if(ptr[0]) alpha = atof(ptr);
-  ptr =  get_tok_value(r->prop_ptr, "image_data", 0);
-  
-  if(alpha == 1.0)  strcpy(opacity, "");
-  else my_snprintf(opacity, S(opacity), "style=\"opacity:%g;\"", alpha);
-  if(ptr[0]) {
-    if(!strncmp(ptr, "/9j/4", 5)) jpg = 1; /* jpeg base64 header (30 bits checked) */
-    fprintf(fd, "<image x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" %s "
-                "xlink:href=\"data:image/%s;base64,%s\"/>\n",
-                x1, y1, x2 - x1, y2 - y1, opacity, jpg ? "jpg" : "png", ptr);
-  }
- 
 }
 
 void svg_draw(void)
@@ -743,7 +764,8 @@ void svg_draw(void)
      for(i=0;i<xctx->rects[c];i++)
      {
        if(c == GRIDLAYER && (xctx->rect[c][i].flags & 1024) ) {
-          svg_embedded_image(i);
+          xRect *r = &xctx->rect[c][i];
+          svg_embedded_image(r, r->x1, r->y1, r->x2, r->y2, 0, 0);
        } else if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  {
          svg_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                            xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash);
