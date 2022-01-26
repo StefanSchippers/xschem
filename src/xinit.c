@@ -614,6 +614,8 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   my_strdup2(1296, &xctx->top_path, top_path);
   my_strdup2(1462, &xctx->current_win_path, win_path);
   xctx->fill_type=my_calloc(640, cadlayers, sizeof(int));
+  xctx->case_insensitive = 0;
+  xctx->strcmp = strcmp;
   xctx->fill_pattern = 1;
   xctx->draw_window = 0;
   xctx->time_last_modify = 0;

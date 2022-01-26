@@ -30,29 +30,23 @@ unsigned int str_hash(const char *tok)
   register unsigned int hash = 5381;
   register unsigned int c;
 
-  while ( (c = (unsigned char)*tok++) )
-      hash += (hash << 5) + c;
+  while ( (c = (unsigned char)*tok++) ) {
+    hash += (hash << 5) + c;
+  }
   return hash;
 }
 
+/* seems unused */
 int name_strcmp(char *s, char *d) /* compare strings up to '\0' or'[' */
 {
- int i=0;
- while(1)
- {
-  if(d[i]=='\0' || d[i]=='[')
+  int i=0;
+  while(*s == *d) {
   {
-    if(s[i]!='\0' && s[i]!='[') return 1;
-    return 0;
+    if(*s == '\0' || *s == '[') return 0;
+    *s++;
+    *d++;
   }
-  if(s[i]=='\0' || s[i]=='[')
-  {
-    if(d[i]!='\0' && d[i]!='[') return 1;
-    return 0;
-  }
-  if(s[i]!=d[i]) return 1;
-  i++;
- }
+  return *s1 - *s2
 }
 
 /* 20180926 added token_size */
@@ -90,7 +84,7 @@ static Inst_hashentry *inst_hash_lookup(char *token, int value, int what, size_t
       }
       return NULL; /* token was not in hash */
     }
-    if( entry->hash==hashcode && !strcmp(token,entry->token) ) { /* found a matching token */
+    if( entry->hash==hashcode && !xctx->strcmp(token,entry->token) ) { /* found a matching token */
       if(what == XDELETE) {              /* remove token from the hash table ... */
         saveptr=entry->next;
         my_free(969, &entry);

@@ -198,19 +198,19 @@ proc ngspice::annotate {} {
       set type [xschem getprop instance $i cell::type]
       if { $type eq {probe} } {
         set net $path[xschem instance_net $i p]
-        if {[catch {xschem setprop $i voltage [ngspice::get_voltage_probe arr $net] fast} err]} {
+        if {[catch {xschem setprop instance $i voltage [ngspice::get_voltage_probe arr $net] fast} err]} {
           puts "Warning 1: ${err}, net: $net"
         }
       }
       if { $type eq {current_probe} } {
-        if {[catch {xschem setprop $i current [ngspice::get_curr_probe arr $path$name] fast} err]} {
+        if {[catch {xschem setprop $i instance current [ngspice::get_curr_probe arr $path$name] fast} err]} {
           puts "Warning 2: $err"
         }
       }
       if { $type eq {differential_probe} } {
         set netp $path[xschem instance_net $i p]
         set netm $path[xschem instance_net $i m]
-        if {[catch {xschem setprop $i voltage [ngspice::get_diff_probe arr $netp $netm] fast} err]} {
+        if {[catch {xschem setprop instance $i voltage [ngspice::get_diff_probe arr $netp $netm] fast} err]} {
           puts "Warning 3: $err"
         }
       }

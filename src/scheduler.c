@@ -414,6 +414,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
+    else if(!strcmp(argv[1],"case_insensitive"))
+    {
+      cmd_found = 1;
+      if(argc > 2) {
+        int n = atoi(argv[2]);
+        if(n) {
+          xctx->case_insensitive = 1;
+          xctx->strcmp = my_strcasecmp;
+        } else {
+          xctx->case_insensitive = 0;
+          xctx->strcmp = strcmp;
+        }
+      }
+    }
     else if(!strcmp(argv[1],"check_symbols"))
     {
       char sympath[PATH_MAX];
@@ -784,10 +798,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      }
      else if(!strcmp(argv[2],"cadlayers")) {
        char s[30]; /* overflow safe 20161212 */
-       my_snprintf(s, S(s), "%d",cadlayers);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       my_snprintf(s, S(s), "%d", cadlayers);
+       Tcl_SetResult(interp, s, TCL_VOLATILE);
      }
-     else if(!strcmp(argv[2],"color_ps")) {
+     else if(!strcmp(argv[2], "case_insensitive")) {
+       char s[30];
+       my_snprintf(s, S(s), "%d", xctx->case_insensitive);
+       Tcl_SetResult(interp, s, TCL_VOLATILE);
+     }
+     else if(!strcmp(argv[2], "color_ps")) {
        if( color_ps != 0 )
          Tcl_SetResult(interp, "1",TCL_STATIC);
        else
@@ -2067,7 +2086,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             Tcl_AppendResult(interp, s, NULL);
           } else if(!strcmp(argv[2], "list")) {
             for(i = 0 ; i < xctx->graph_nvars; i++) {
-              Tcl_AppendResult(interp, xctx->graph_names[i], "\n", NULL);
+              if(i > 0) Tcl_AppendResult(interp, "\n", NULL);
+              Tcl_AppendResult(interp, xctx->graph_names[i], NULL);
             }
           } 
         }
@@ -2547,73 +2567,117 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-   
+    /* 'fast' argument if given does not redraw and is not undoable */
     else if(!strcmp(argv[1], "setprop"))
     {
-    /*   0       1    2   3      4     5
-     * xschem setprop R4 value [30k] [fast] */
+    /*   0       1       2     3    4     5    6
+     * xschem setprop instance R4 value [30k] [fast] */
       int inst, fast=0;
    
       cmd_found = 1;
-      if(argc >= 6) {
-        if(!strcmp(argv[5], "fast")) {
-          fast = 1;
-          argc = 5;
+      
+      if(argc > 2 && !strcmp(argv[2], "instance")) {
+        if(argc >= 7) {
+          if(!strcmp(argv[6], "fast")) {
+            fast = 1;
+            argc = 6;
+          }
         }
-      }
-      else if(argc >= 5) {
-        if(!strcmp(argv[4], "fast")) {
-          fast = 1;
-          argc = 4;
+        else if(argc >= 6) {
+          if(!strcmp(argv[5], "fast")) {
+            fast = 1;
+            argc = 5;
+          }
         }
-      }
-      if(argc < 4) {
-        Tcl_SetResult(interp, "xschem setprop needs 2 or 3 additional arguments", TCL_STATIC);
-        return TCL_ERROR;
-      }
-      if( (inst = get_instance(argv[2])) < 0 ) {
-        Tcl_SetResult(interp, "xschem setprop: instance not found", TCL_STATIC);
-        return TCL_ERROR;
-      } else {
-        char *type;
-        int cond;
+        if(argc < 5) {
+          Tcl_SetResult(interp, "xschem setprop instance needs 2 or 3 additional arguments", TCL_STATIC);
+          return TCL_ERROR;
+        }
+        if( (inst = get_instance(argv[3])) < 0 ) {
+          Tcl_SetResult(interp, "xschem setprop: instance not found", TCL_STATIC);
+          return TCL_ERROR;
+        } else {
+          char *type;
+          int cond;
+          if(!fast) {
+            bbox(START,0.0,0.0,0.0,0.0);
+            symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
+            bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
+            xctx->push_undo();
+          }
+          set_modify(1);
+          xctx->prep_hash_inst=0;
+          xctx->prep_net_structs=0;
+          xctx->prep_hi_structs=0;
+          if(!strcmp(argv[4], "name")) hash_all_names(inst);
+          if(argc >= 6) {
+            new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[4], argv[5]),fast, 
+              tclgetboolvar("disable_unique_names"));
+          } else {/* assume argc == 5 , delete attribute */
+            new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], NULL),fast, 
+              tclgetboolvar("disable_unique_names"));
+          }
+          type=xctx->sym[xctx->inst[inst].ptr].type;
+          cond= !type || !IS_LABEL_SH_OR_PIN(type);
+          if(cond) xctx->inst[inst].flags|=2;
+          else {
+            xctx->inst[inst].flags &=~2;
+            my_strdup(1215, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
+          }
+  
+          if(!fast) {
+            /* new symbol bbox after prop changes (may change due to text length) */
+            symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
+            bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
+            /* redraw symbol with new props */
+            bbox(SET,0.0,0.0,0.0,0.0);
+            draw();
+            bbox(END,0.0,0.0,0.0,0.0);
+          }
+          Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
+        }
+      } else if(argc > 5 && !strcmp(argv[2], "rect")) {
+      /*  0       1      2   3 4   5    6      7
+       * xschem setprop rect c n token value [fast] */
+        xRect *r;
+        int c = atoi(argv[3]);
+        int n = atoi(argv[4]);
+
+        if (!(c>=0 && c < cadlayers && n >=0 && n < xctx->rects[c]) ) {
+          Tcl_SetResult(interp, "xschem setprop rect: wrong layer or rect number", TCL_STATIC);
+          return TCL_ERROR;
+        }
+        r = &xctx->rect[c][n];
+        if(argc >= 8) {
+          if(!strcmp(argv[7], "fast")) {
+            fast = 1;
+            argc = 7;
+          }
+        }
+        else if(argc >= 7) {
+          if(!strcmp(argv[6], "fast")) {
+            fast = 1;
+            argc = 6;
+          }
+        }
         if(!fast) {
           bbox(START,0.0,0.0,0.0,0.0);
-          symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-          bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
           xctx->push_undo();
         }
-        set_modify(1);
-        xctx->prep_hash_inst=0;
-        xctx->prep_net_structs=0;
-        xctx->prep_hi_structs=0;
-        if(!strcmp(argv[3], "name")) hash_all_names(inst);
-        if(argc >= 5) {
-          new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], argv[4]),fast, 
-            tclgetboolvar("disable_unique_names"));
-        } else {/* assume argc == 4 , delete attribute */
-          new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], NULL),fast, 
-            tclgetboolvar("disable_unique_names"));
-        }
-        type=xctx->sym[xctx->inst[inst].ptr].type;
-        cond= !type || !IS_LABEL_SH_OR_PIN(type);
-        if(cond) xctx->inst[inst].flags|=2;
-        else {
-          xctx->inst[inst].flags &=~2;
-          my_strdup(1215, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
-        }
 
+        if(argc > 6) 
+          my_strdup(1478, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], argv[6]));
+        else
+          my_strdup(1478, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], NULL)); /* delete attr */
         if(!fast) {
-          /* new symbol bbox after prop changes (may change due to text length) */
-          symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-          bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
-          /* redraw symbol with new props */
+          bbox(ADD, r->x1, r->y1, r->x2, r->y2);
+          /* redraw rect with new props */
           bbox(SET,0.0,0.0,0.0,0.0);
           draw();
           bbox(END,0.0,0.0,0.0,0.0);
         }
+        Tcl_ResetResult(interp);
       }
-      Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
     }
     else if(!strcmp(argv[1],"show_pin_net_names")) {
       int i;

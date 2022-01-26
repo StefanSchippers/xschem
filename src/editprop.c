@@ -23,6 +23,30 @@
 #include <stdarg.h>
 #include "xschem.h"
 
+
+
+int my_strcasecmp(const char *s1, const char *s2)
+{
+  while(tolower(*s1) == tolower(*s2)) {
+    if (*s1 == '\0') return 0;
+    s1++;
+    s2++;
+  }
+  return tolower(*s1) - tolower(*s2);
+}
+
+int my_strncasecmp(const char *s1, const char *s2, size_t n)
+{
+  if (n == 0) return 0;
+  while(tolower(*s1) == tolower(*s2)) {
+    if (--n == 0) return 0;
+    if (*s1 == '\0') return 0;
+    s1++;
+    s2++;
+  }
+  return tolower(*s1) - tolower(*s2);
+}
+
 char *my_strtok_r(char *str, const char *delim, char **saveptr)
 {
   char *tok;

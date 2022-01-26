@@ -1283,10 +1283,181 @@ proc waves {} {
   }
 }
 # ============================================================
-proc graph_edit_properties {n} {
 
-  set data [xschem getprop rect 2 $n node]
-  viewdata $data
+proc graph_add_nodes {} {
+  global graph_bus
+  set sel_idx [.dialog.center.left.list1 curselection]
+  set sel {}
+  if {$graph_bus} {
+    set sep ,
+  } else {
+    set sep \n
+  }
+  foreach i $sel_idx {
+    if {$sel ne {}} {append sel $sep}
+    append sel [.dialog.center.left.list1 get $i]
+  }
+  if {$graph_bus} {
+    set sel "BUS_NAME,${sel}\n"
+  } else {
+    set sel "${sel}\n"
+  }
+  .dialog.center.right.text1 insert {insert lineend + 1 char} $sel
+}
+
+proc graph_get_signal_list {siglist pattern } {
+  global graph_sort
+  set direction {-decreasing}
+  if {$graph_sort} {set direction {-increasing}}
+  set result {}
+  set siglist [join [lsort $direction -dictionary $siglist] \n]
+  set err [catch {regexp $pattern {12345}} res]
+  if {$err} {set pattern {}}
+  foreach i $siglist {
+    regsub {^v\((.*)\)$} $i {\1} i
+    if {[regexp $pattern $i] } {
+       lappend result $i
+    }
+  }
+  return $result
+}
+
+proc graph_update_nodelist {} {
+  global graph_selected colors graph_sel_color
+  set nodelist [.dialog.center.right.text1 get 1.0 end]
+  # xschem setprop rect 2 $graph_selected node $nodelist
+
+  # tagging nodes in text widget:
+  set col  [xschem getprop rect 2 $graph_selected color]
+  set col [string trim $col { }]
+  set tt [.dialog.center.right.text1 search -all -nolinestop -regexp -count cc {[^ \n]+} 1.0]
+  set n 0
+  foreach t $tt c $cc {
+    set curr_color [expr {$n % 18 + 4}]
+    set b [lindex $col $n]
+    if {$b eq {}} {
+      if {$col ne {}} {append col { }}
+      append col $curr_color
+      set b [lindex $colors $curr_color]
+    } else {
+     set b [lindex $colors $b]
+    }
+    .dialog.center.right.text1 tag add t$n $t "$t + $c chars"
+    .dialog.center.right.text1 tag configure t$n -background $b
+    if { $n == 4 || $n == 5 || $n == 12 } {
+      .dialog.center.right.text1 tag configure t$n -foreground black}
+    incr n
+  }
+
+  # get tag the cursor is on:
+  #  .dialog.center.right.text1 tag names insert
+  puts $col
+}
+
+proc fill_graph_listbox {} {
+  set retval [.dialog.top.e1 get]
+  set retval [graph_get_signal_list [xschem raw_query list] $retval]
+  .dialog.center.left.list1 delete 0 end
+  eval .dialog.center.left.list1 insert 0 $retval
+}
+
+proc graph_edit_properties {n} {
+  global graph_bus graph_sort graph_digital graph_selected colors graph_sel_color
+
+  set graph_selected $n
+  set_ne graph_sel_color 4
+  set_ne graph_bus 0
+  set_ne graph_sort 0
+  set graph_digital 0
+  if {[xschem getprop rect 2 $n digital] == 1} {set graph_digital 1}
+  toplevel .dialog
+  frame .dialog.top
+  panedwindow .dialog.center -orient horiz
+  frame .dialog.bottom
+  frame .dialog.center.left
+  frame .dialog.center.right
+  .dialog.center add .dialog.center.left .dialog.center.right
+  pack .dialog.top -side top -fill x 
+  pack .dialog.center -side top -fill both -expand yes
+  pack .dialog.bottom -side top -fill x 
+
+  # center-left frame
+  label .dialog.center.left.lab1 -text {Signal list}
+  listbox .dialog.center.left.list1 -width 20 -height 10 -selectmode extended \
+     -yscrollcommand {.dialog.center.left.yscroll set} \
+     -xscrollcommand {.dialog.center.left.xscroll set}
+  scrollbar .dialog.center.left.yscroll -command {.dialog.center.left.list1 yview}
+  scrollbar .dialog.center.left.xscroll -orient horiz -command {.dialog.center.left.list1 xview}
+  grid .dialog.center.left.lab1
+  grid .dialog.center.left.list1 .dialog.center.left.yscroll -sticky nsew
+  grid .dialog.center.left.xscroll -sticky nsew
+  grid rowconfig .dialog.center.left 0 -weight 0
+  grid rowconfig .dialog.center.left 1 -weight 1 -minsize 100
+  grid columnconfig .dialog.center.left 0 -weight 1
+
+  # center right frame
+  label .dialog.center.right.lab1 -text {Signals in graph}
+  text .dialog.center.right.text1 -wrap none -height 10 -bg grey50 -fg white -insertbackground grey40 \
+     -yscrollcommand {.dialog.center.right.yscroll set} \
+     -xscrollcommand {.dialog.center.right.xscroll set}
+  scrollbar .dialog.center.right.yscroll -command {.dialog.center.right.text1 yview}
+  scrollbar .dialog.center.right.xscroll -orient horiz -command {.dialog.center.right.text1 xview}
+
+  grid .dialog.center.right.lab1
+  grid .dialog.center.right.text1 .dialog.center.right.yscroll -sticky nsew
+  grid .dialog.center.right.xscroll -sticky nsew
+  grid rowconfig .dialog.center.right 0 -weight 0
+  grid rowconfig .dialog.center.right 1 -weight 1 -minsize 100
+  grid columnconfig .dialog.center.right 0 -weight 1
+
+
+  # bottom frame
+  button .dialog.bottom.ok -text OK -command {
+    graph_update_nodelist
+    # destroy .dialog
+  }
+  pack .dialog.bottom.ok -side left
+
+  for {set i 4} {$i < 22} {incr i} {
+    radiobutton .dialog.bottom.r$i -value $i -bg [lindex $colors $i] -variable graph_sel_color
+    pack .dialog.bottom.r$i -side left
+  }
+
+  # top frame
+  label .dialog.top.l1 -text Search:
+  entry .dialog.top.e1 -width 20 
+  checkbutton .dialog.top.c1 -text bus -variable graph_bus
+  checkbutton .dialog.top.c2 -text {Increasing sort} -variable graph_sort -indicatoron 1 \
+    -command fill_graph_listbox
+  checkbutton .dialog.top.c3 -text {Digital} -variable graph_digital -indicatoron 1 \
+    -command {xschem setprop rect 2 $graph_selected digital $graph_digital}
+
+  button .dialog.top.b1 -text Clear -command {
+    .dialog.top.e1 delete 0 end
+    fill_graph_listbox 
+  }
+  button .dialog.top.b2 -text Add -command {graph_add_nodes}
+  pack .dialog.top.l1 .dialog.top.e1 .dialog.top.b1 .dialog.top.b2 .dialog.top.c1 -side left
+  pack .dialog.top.c2 .dialog.top.c3 -side left
+  
+  # binding
+  bind .dialog.top.e1 <KeyRelease> {
+    fill_graph_listbox
+  }
+
+  # fill data in left listbox
+  eval .dialog.center.left.list1 insert 0 [graph_get_signal_list [xschem raw_query list] {}]
+
+  # fill data in right textbox
+  set plotted_nodes [xschem getprop rect 2 $n node]
+  if {[string index $plotted_nodes end] ne {\n}} {append plotted_nodes \n}
+  .dialog.center.right.text1 insert 1.0 $plotted_nodes
+
+  # add stuff in textbox at end of line + 1 char (after newline) 
+  # .dialog.center.right.text1 insert {insert lineend + 1 char} foo\n
+
+
+  # tkwait window .dialog
 }
 
 proc graph_show_measure {{action show}} {
@@ -3940,7 +4111,9 @@ set tctx::global_list {
   dark_colorscheme dim_bg dim_value disable_unique_names do_all_inst draw_grid draw_window
   edit_prop_pos edit_prop_size editprop_sympath edit_symbol_prop_new_sel enable_dim_bg enable_stretch 
   en_hilight_conn_inst filetmp
-  flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter hide_empty_graphs hide_symbols hsize hspice_netlist 
+  flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter graph_bus graph_digital
+  graph_sel_color graph_selected graph_sort
+  hide_empty_graphs hide_symbols hsize hspice_netlist 
   incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
   input_line_cmd input_line_data launcher_default_program light_colors line_width local_netlist_dir
   measure_text

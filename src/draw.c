@@ -47,8 +47,10 @@ int textclip(int x1,int y1,int x2,int y2,
 
 void print_image()
 {
-  int save_draw_grid;
+  #if HAS_CAIRO == 0
   char cmd[PATH_MAX+100];
+  #endif
+  int save_draw_grid;
   static char lastdir[PATH_MAX] = "";
   const char *r;
 
@@ -77,12 +79,26 @@ void print_image()
   xctx->draw_pixmap=1;
   draw();
   #ifdef __unix__
+
+  #if HAS_CAIRO == 1 /* use cairo native support for png writing, no need to convert
+                      * XPM and handles Xrender extensions for transparent embedded images */
+  {
+    cairo_surface_t *png_sfc;
+    png_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual,
+               xctx->xrect[0].width, xctx->xrect[0].height);
+    if(xctx->plotfile[0])
+      cairo_surface_write_to_png(png_sfc, xctx->plotfile);
+    else
+      cairo_surface_write_to_png(png_sfc, "plot.png");
+  }
+  #else /* no cairo */
   XpmWriteFileFromPixmap(display, "plot.xpm", xctx->save_pixmap,0, NULL ); /* .gz ???? */
   dbg(1, "print_image(): Window image saved\n");
   if(xctx->plotfile[0]) {
     my_snprintf(cmd, S(cmd), "convert_to_png plot.xpm {%s}", xctx->plotfile);
     tcleval(cmd);
   } else tcleval( "convert_to_png plot.xpm plot.png");
+  #endif
   #else
   char *psfile=NULL;
   create_ps(&psfile, 7);
@@ -2291,7 +2307,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
           } /* for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) */
           if(first != -1) {
             if(dataset == -1 || dataset == sweepvar_wrap) {
-              /* plot graph */
+              /* plot graph. Bus bundles are not plotted if graph is not digital.*/
               if(bus_msb) {
                 if(digital) {
                   draw_graph_bus_points(ntok, n_bits, idx_arr, first, last, wave_color,
