@@ -39,14 +39,12 @@ unsigned int str_hash(const char *tok)
 /* seems unused */
 int name_strcmp(char *s, char *d) /* compare strings up to '\0' or'[' */
 {
-  int i=0;
   while(*s == *d) {
-  {
     if(*s == '\0' || *s == '[') return 0;
-    *s++;
-    *d++;
+    s++;
+    d++;
   }
-  return *s1 - *s2
+  return *s - *d;
 }
 
 /* 20180926 added token_size */
