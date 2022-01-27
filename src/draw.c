@@ -1677,6 +1677,8 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
   double vthl = gr->gy1 * 0.8 + gr->gy2 * 0.2;
   int hex_digits = ((n_bits - 1) >> 2) + 1;
   if(c1 >= gr->ypos1 && c1 <=gr->ypos2) {
+    if(gr->hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+          3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
     drawline(wave_col, NOW, lx1, ylow, lx2, ylow, 0);
     drawline(wave_col, NOW, lx1, yhigh, lx2, yhigh, 0);
     for(p = first ; p <= last; p++) {
@@ -1709,6 +1711,8 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
       draw_string(wave_col, NOW, old_busval, 2, 0, 1, 0, (xval + xval_old) * 0.5,
                   yhigh, labsize, labsize);
     }
+    if(gr->hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+          INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
   }
 }
 
@@ -1723,7 +1727,6 @@ static void draw_graph_points(int v, int first, int last,
   double s2;
   double c, c1;
   register SPICE_DATA *gv = xctx->graph_values[v];
-  int hilight_wave = -1;
 
   digital = gr->digital;
   if(digital) {
@@ -1747,17 +1750,17 @@ static void draw_graph_points(int v, int first, int last,
     }
     /* plot data */
     if(xctx->draw_window) {
-      if(hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+      if(gr->hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
             3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
       XDrawLines(display, xctx->window, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
-      if(hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+      if(gr->hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
             INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
     }
     if(xctx->draw_pixmap) {
-      if(hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+      if(gr->hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
             3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
       XDrawLines(display, xctx->save_pixmap, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
-      if(hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+      if(gr->hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
             INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
     }
   } else dbg(1, "skipping wave: %s\n", xctx->graph_names[v]);
@@ -1854,6 +1857,7 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
   xRect *r = &xctx->rect[GRIDLAYER][i];
 
   /* default values */
+  gr->hilight_wave = -1;
   gr->divx = gr->divy = 5;
   gr->subdivx = gr->subdivy = 0;
   gr->digital = 0;
@@ -2181,11 +2185,14 @@ int read_embedded_rawfile(void)
 }
 
 /* when double clicking in a graph if this happens on a wave label
- * look up the wave and call tcl "graph_edit_wave <graph> <wave>"
- * with graph index and wave index
+ * what == 1: 
+ *   look up the wave and call tcl "graph_edit_wave <graph> <wave>"
+ *   with graph index and wave index
+ * what == 2: 
+ *   look up the wave and draw in bold
  * return 1 if a wave was found
  */
-int edit_wave_attributes(int i, Graph_ctx *gr)
+int edit_wave_attributes(int what, int i, Graph_ctx *gr)
 {
   char *node = NULL, *color = NULL, *sweep = NULL;
   int sweep_idx = 0;
@@ -2227,8 +2234,10 @@ int edit_wave_attributes(int i, Graph_ctx *gr)
         if(POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, xt1, yt1, xt2, yt2)) {
           char s[30];
           ret = 1;
-          my_snprintf(s, S(s), "%d %d", i, wcnt);
-          tclvareval("graph_edit_wave ", s, NULL);
+          if(what == 1) {
+            my_snprintf(s, S(s), "%d %d", i, wcnt);
+            tclvareval("graph_edit_wave ", s, NULL);
+          } else gr->hilight_wave = wcnt;
         }
       }
     } else {
@@ -2239,8 +2248,10 @@ int edit_wave_attributes(int i, Graph_ctx *gr)
       if(POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, xt1, yt1, xt2, yt2)) {
         char s[50];
         ret = 1;
-        my_snprintf(s, S(s), "%d %d", i, wcnt);
-        tclvareval("graph_edit_wave ", s, NULL);
+        if(what == 1) {
+          my_snprintf(s, S(s), "%d %d", i, wcnt);
+          tclvareval("graph_edit_wave ", s, NULL);
+        }  else gr->hilight_wave = wcnt;
       }
     }
     wcnt++;

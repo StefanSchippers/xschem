@@ -235,22 +235,23 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       zoom_m = (xctx->mousex  - gr->x1) / gr->w;
       /* dragging cursors when mouse is very close */
       if(event == ButtonPress && button == Button1) {
-        if( (xctx->graph_flags & 2) && fabs(xctx->mousex - W_X(xctx->graph_cursor1_x)) < 10) {
-          xctx->graph_flags |= 16; /* Start move cursor1 */
-        }
-        if( (xctx->graph_flags & 4) && fabs(xctx->mousex - W_X(xctx->graph_cursor2_x)) < 10) {
-          xctx->graph_flags |= 32; /* Start move cursor2 */
+        if(edit_wave_attributes(2, i, gr)) {
+           draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr); /* draw data in each graph box */
+        } else {
+          if( (xctx->graph_flags & 2) && fabs(xctx->mousex - W_X(xctx->graph_cursor1_x)) < 10) {
+            xctx->graph_flags |= 16; /* Start move cursor1 */
+          }
+          if( (xctx->graph_flags & 4) && fabs(xctx->mousex - W_X(xctx->graph_cursor2_x)) < 10) {
+            xctx->graph_flags |= 32; /* Start move cursor2 */
+          }
         }
       }
       if(event == -3 && button == Button1) {
-        if(!edit_wave_attributes(i, gr)) {
+        if(!edit_wave_attributes(1, i, gr)) {
           char s[30];
           my_snprintf(s, S(s), "%d", i);
           tclvareval("graph_edit_properties ", s, NULL);
         }
-        setup_graph_data(i, xctx->graph_flags, 0, gr);
-        draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr); /* draw data in each graph box */
-        
       }
       /* x cursor1 toggle */
       else if((key == 'a') ) {
