@@ -1472,7 +1472,7 @@ void propagate_logic()
     }
     if(!found) break;
     /* get out from infinite loops (circuit is oscillating) */
-    tclvareval("update; if {$::tclstop == 1} {return 1} else {return 0}", NULL);
+    tclvareval("update; expr {$::tclstop == 1}", NULL);
     if( tclresult()[0] == '1') break;
     iter++;
   } /* while(1) */

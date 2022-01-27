@@ -1723,6 +1723,7 @@ static void draw_graph_points(int v, int first, int last,
   double s2;
   double c, c1;
   register SPICE_DATA *gv = xctx->graph_values[v];
+  int hilight_wave = -1;
 
   digital = gr->digital;
   if(digital) {
@@ -1745,10 +1746,20 @@ static void draw_graph_points(int v, int first, int last,
       poly_npoints++;
     }
     /* plot data */
-    if(xctx->draw_window)
+    if(xctx->draw_window) {
+      if(hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+            3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
       XDrawLines(display, xctx->window, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
-    if(xctx->draw_pixmap)
+      if(hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+            INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
+    }
+    if(xctx->draw_pixmap) {
+      if(hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+            3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
       XDrawLines(display, xctx->save_pixmap, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
+      if(hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+            INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
+    }
   } else dbg(1, "skipping wave: %s\n", xctx->graph_names[v]);
 }
 
@@ -2169,6 +2180,79 @@ int read_embedded_rawfile(void)
   return res;
 }
 
+/* when double clicking in a graph if this happens on a wave label
+ * look up the wave and call tcl "graph_edit_wave <graph> <wave>"
+ * with graph index and wave index
+ * return 1 if a wave was found
+ */
+int edit_wave_attributes(int i, Graph_ctx *gr)
+{
+  char *node = NULL, *color = NULL, *sweep = NULL;
+  int sweep_idx = 0;
+  int n_nodes; /* number of variables to display in a single graph */
+  char *saven, *savec, *saves, *nptr, *cptr, *sptr;
+  const char *ntok, *ctok, *stok;
+  int wcnt = 0, ret = 0;
+  xRect *r = &xctx->rect[GRIDLAYER][i];
+
+  /* get plot data */
+  my_strdup2(1491, &node, get_tok_value(r->prop_ptr,"node",0));
+  my_strdup2(1492, &color, get_tok_value(r->prop_ptr,"color",0)); 
+  my_strdup2(1493, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
+  nptr = node;
+  cptr = color;
+  sptr = sweep;
+  n_nodes = count_items(node, " \t\n");
+  /* process each node given in "node" attribute, get also associated color/sweep var if any */
+  while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) {
+    ctok = my_strtok_r(cptr, " ", &savec);
+    stok = my_strtok_r(sptr, " ", &saves);
+    nptr = cptr = sptr = NULL;
+    dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
+    if(stok && stok[0]) {
+      sweep_idx = get_raw_index(stok);
+      if( sweep_idx == -1) sweep_idx = 0;
+    }
+    if(gr->digital) {
+      double xt1 = gr->rx1; /* <-- waves_selected() is more restrictive than this */
+      double xt2 = gr->x1 - 20 * gr->txtsizelab;
+      double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
+      double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
+      double yt1 = s1 * (double)(n_nodes - wcnt) * gr->gh - (gr->gy1 - gr->gh * 0.1) * s2;
+      double yt2 = yt1 + s1 * gr->gh;
+      if(yt1 <= gr->ypos2 && yt1 >= gr->ypos1) {
+        double tmp = DW_Y(yt1);
+        yt1 = DW_Y(yt2);
+        yt2 = tmp;
+        if(POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, xt1, yt1, xt2, yt2)) {
+          char s[30];
+          ret = 1;
+          my_snprintf(s, S(s), "%d %d", i, wcnt);
+          tclvareval("graph_edit_wave ", s, NULL);
+        }
+      }
+    } else {
+      double xt1 = gr->rx1 + 2 + gr->rw / n_nodes * wcnt;
+      double yt1 = gr->ry1;
+      double xt2 = xt1 + gr->rw / n_nodes;
+      double yt2 = gr->y1;
+      if(POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, xt1, yt1, xt2, yt2)) {
+        char s[50];
+        ret = 1;
+        my_snprintf(s, S(s), "%d %d", i, wcnt);
+        tclvareval("graph_edit_wave ", s, NULL);
+      }
+    }
+    wcnt++;
+  } /* while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) */
+  my_free(1494, &node);
+  my_free(1495, &color);
+  my_free(1496, &sweep);
+  return ret;
+}
+
+
+
 /* flags:
  * 1: do final XCopyArea (copy 2nd buffer areas to screen) 
  *    If draw_graph_all() is called from draw() no need to do XCopyArea, as draw() does it already.
@@ -2179,7 +2263,7 @@ int read_embedded_rawfile(void)
  */
 void draw_graph(int i, const int flags, Graph_ctx *gr)
 {
-  int wave_color = 5;
+  int wave_color = 4;
   char *node = NULL, *color = NULL, *sweep = NULL;
   int sweep_idx = 0;
   int n_nodes; /* number of variables to display in a single graph */
@@ -2194,6 +2278,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
 
   if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
       xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2)) return;
+
+
   /* draw stuff */
   if(flags & 8) {
     /* graph box, gridlines and axes */
@@ -2365,6 +2451,7 @@ void draw_graph_all(int flags)
   int bbox_set = 0;
   const char *tmp;
   int save_bbx1, save_bby1, save_bbx2, save_bby2;
+  dbg(0, "draw_graph_all(): flags=%d\n", flags);
   /* save bbox data, since draw_graph_all() is called from draw() which may be called after a bbox(SET) */
   sch_loaded = schematic_waves_loaded();
   tmp =  tclgetvar("hide_empty_graphs");

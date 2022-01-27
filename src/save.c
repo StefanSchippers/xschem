@@ -29,6 +29,7 @@
  * and writes stdout, return the result in dout[olen].
  * Caller must free the returned buffer.
  */
+#ifdef __unix__
 int filter_data(const char *din,  const size_t ilen,
            char **dout, size_t *olen,
            const char *cmd)
@@ -102,6 +103,16 @@ int filter_data(const char *din,  const size_t ilen,
   signal(SIGPIPE, SIG_DFL); /* restore default SIGPIPE signal action */
   return ret;
 }
+#else
+int filter_data(const char* din, const size_t ilen,
+  char** dout, size_t* olen,
+  const char* cmd)
+{
+  *dout = NULL;
+  *olen = 0;
+  return 1;
+}
+#endif
 
 /* Caller should free returned buffer */
 char *base64_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk) {

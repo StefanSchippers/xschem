@@ -40,7 +40,8 @@ static int waves_selected(int event, int key, int state, int button)
     r = &xctx->rect[GRIDLAYER][i];
     if(!(r->flags & 1) ) continue;
     if( (xctx->ui_state & GRAPHPAN) ||
-       POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1 + 20,  r->x2 - 30,  r->y2 - 10) ) {
+       POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2 - 40,  r->y1 + 20) ||
+       POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1,  r->x2 - 30,  r->y2 - 10) ) {
        is_inside = 1;
        tclvareval(xctx->top_path, ".drw configure -cursor tcross" , NULL);
     }
@@ -185,7 +186,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   Graph_ctx *gr;
   char s[30];
   const char *val;
-  int i, need_redraw = 0, dataset = 0;
+  int i, need_all_redraw = 0, need_redraw = 0, dataset = 0;
   double xx1, xx2, yy1, yy2;
   double delta_threshold = 0.25;
   double zoom_m = 0.5;
@@ -241,21 +242,26 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           xctx->graph_flags |= 32; /* Start move cursor2 */
         }
       }
-      if((key == 'q') ) {
-        char s[30];
-        my_snprintf(s, S(s), "%d", i);
-        tclvareval("graph_edit_properties ", s, NULL);
+      if(event == -3 && button == Button1) {
+        if(!edit_wave_attributes(i, gr)) {
+          char s[30];
+          my_snprintf(s, S(s), "%d", i);
+          tclvareval("graph_edit_properties ", s, NULL);
+        }
+        setup_graph_data(i, xctx->graph_flags, 0, gr);
+        draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr); /* draw data in each graph box */
+        
       }
       /* x cursor1 toggle */
       else if((key == 'a') ) {
         xctx->graph_flags ^= 2;
-        need_redraw = 1;
+        need_all_redraw = 1;
         if(xctx->graph_flags & 2) xctx->graph_cursor1_x = G_X(xctx->mousex);
       }
       /* x cursor2 toggle */
       else if((key == 'b') ) {
         xctx->graph_flags ^= 4;
-        need_redraw = 1;
+        need_all_redraw = 1;
         if(xctx->graph_flags & 4) xctx->graph_cursor2_x = G_X(xctx->mousex);
       }
       /* measurement tooltip */
@@ -293,6 +299,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
     xRect *r;
     r = &xctx->rect[GRIDLAYER][i];
+    need_redraw = 0;
     if( !(r->flags & 1) ) continue;
     gr->gx1 = gr->master_gx1;
     gr->gx2 = gr->master_gx2;
@@ -731,7 +738,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
     } /* else if( event == ButtonRelease) */
-    if(need_redraw) {
+    if(need_redraw || need_all_redraw) {
       setup_graph_data(i, xctx->graph_flags, 0, gr);
       draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr); /* draw data in each graph box */
     }
@@ -1573,10 +1580,6 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='q' && state==0) /* edit attributes */
    {
     if(xctx->semaphore >= 2) break;
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      break;
-    }
     edit_property(0);
     break;
    }
@@ -2537,6 +2540,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    break;
   case -3:  /* double click  : edit prop */
+    if( waves_selected(event, key, state, button)) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
    if(xctx->semaphore >= 2) break;
    dbg(1, "callback(): DoubleClick  ui_state=%ld state=%d\n",xctx->ui_state,state);
    if(button==Button1) {

@@ -1284,6 +1284,44 @@ proc waves {} {
 }
 # ============================================================
 
+
+# allow change color (via graph_change_wave_color) of double clicked wave
+proc graph_edit_wave {n n_wave} {
+  global graph_sel_color graph_selected colors graph_sel_wave
+  set_ne graph_sel_color 4
+  set graph_selected $n
+  set graph_sel_wave $n_wave
+  set col  [xschem getprop rect 2 $graph_selected color]
+  set node [xschem getprop rect 2 $graph_selected node]
+  set n_nodes [llength $node]
+  # add default colors if unspecified in col
+  set i 0
+  foreach graph_node $node {
+    if {[lindex $col $i] eq {}} { lappend col $graph_sel_color}
+    incr i
+  }
+  set graph_sel_color [lindex $col $graph_sel_wave]
+  xschem setprop rect 2 $graph_selected color $col fast
+  # puts "graph: $graph_selected , wave: $n_wave, n_nodes: $n_nodes"
+  # puts "    node: $node, col: $col"
+  # puts "------"
+  toplevel .dialog
+  frame .dialog.f
+  button .dialog.ok -text OK -command {destroy .dialog}
+  button .dialog.cancel -text Cancel -command {destroy .dialog}
+  for {set i 4} {$i < 22} {incr i} {
+    radiobutton .dialog.f.r$i -value $i -bg [lindex $colors $i] \
+         -variable graph_sel_color -command {graph_change_wave_color $graph_sel_wave }
+    pack .dialog.f.r$i -side left -fill both -expand yes
+  }
+  grid .dialog.f  - -sticky nsew
+  grid .dialog.ok .dialog.cancel -sticky ew
+  grid rowconfig .dialog 0 -weight 1
+  grid column .dialog 0 -weight 1
+  grid column .dialog 1 -weight 1
+  tkwait window .dialog
+}
+
 proc graph_add_nodes {} {
   global graph_bus
   set sel_idx [.dialog.center.left.list1 curselection]
@@ -1322,36 +1360,50 @@ proc graph_get_signal_list {siglist pattern } {
   return $result
 }
 
+proc graph_change_wave_color {{wave {}}} {
+  global graph_sel_color graph_selected
+  #  get tag the cursor is on:
+  if { $wave eq {}} {
+    set tag [.dialog.center.right.text1 tag names insert]
+    if { [regexp {^t} $tag]} {
+      set index [string range $tag 1 end]
+      set col  [xschem getprop rect 2 $graph_selected color]
+      set col [lreplace $col $index $index  $graph_sel_color]
+      xschem setprop rect 2 $graph_selected color $col fast
+      graph_update_nodelist
+    }
+  # wave to change provided as parameter
+  } else {
+    set col  [xschem getprop rect 2 $graph_selected color]
+    set col [lreplace $col $wave $wave  $graph_sel_color]
+    xschem setprop rect 2 $graph_selected color $col
+  }
+}
+
 proc graph_update_nodelist {} {
   global graph_selected colors graph_sel_color
   set nodelist [.dialog.center.right.text1 get 1.0 end]
-  # xschem setprop rect 2 $graph_selected node $nodelist
-
+  # delete old tags
+  eval .dialog.center.right.text1 tag delete [ .dialog.center.right.text1 tag names]
   # tagging nodes in text widget:
   set col  [xschem getprop rect 2 $graph_selected color]
-  set col [string trim $col { }]
+  set col [string trim $col " \n"]
   set tt [.dialog.center.right.text1 search -all -nolinestop -regexp -count cc {[^ \n]+} 1.0]
   set n 0
   foreach t $tt c $cc {
-    set curr_color [expr {$n % 18 + 4}]
-    set b [lindex $col $n]
-    if {$b eq {}} {
-      if {$col ne {}} {append col { }}
-      append col $curr_color
-      set b [lindex $colors $curr_color]
-    } else {
-     set b [lindex $colors $b]
+    set col_idx [lindex $col $n]
+    if {$col_idx eq {}} {
+      set col_idx $graph_sel_color
+      lappend col $graph_sel_color
     }
+    set b [lindex $colors $col_idx]  
     .dialog.center.right.text1 tag add t$n $t "$t + $c chars"
     .dialog.center.right.text1 tag configure t$n -background $b
-    if { $n == 4 || $n == 5 || $n == 12 } {
+    if { $col_idx == 8 || $col_idx == 9 || $col_idx == 16 || $col_idx == 19} {
       .dialog.center.right.text1 tag configure t$n -foreground black}
     incr n
   }
-
-  # get tag the cursor is on:
-  #  .dialog.center.right.text1 tag names insert
-  puts $col
+  xschem setprop rect 2 $graph_selected color $col fast
 }
 
 proc fill_graph_listbox {} {
@@ -1397,7 +1449,7 @@ proc graph_edit_properties {n} {
 
   # center right frame
   label .dialog.center.right.lab1 -text {Signals in graph}
-  text .dialog.center.right.text1 -wrap none -height 10 -bg grey50 -fg white -insertbackground grey40 \
+  text .dialog.center.right.text1 -wrap none -width 50 -height 10 -bg grey50 -fg white -insertbackground grey40 \
      -yscrollcommand {.dialog.center.right.yscroll set} \
      -xscrollcommand {.dialog.center.right.xscroll set}
   scrollbar .dialog.center.right.yscroll -command {.dialog.center.right.text1 yview}
@@ -1412,52 +1464,74 @@ proc graph_edit_properties {n} {
 
 
   # bottom frame
+  button .dialog.bottom.cancel -text Cancel -command {
+    destroy .dialog
+  }
   button .dialog.bottom.ok -text OK -command {
+    set node [string trim [.dialog.center.right.text1 get 1.0 end] " \n"]
     graph_update_nodelist
-    # destroy .dialog
+    xschem setprop rect 2 $graph_selected y1 [.dialog.top.e2 get] fast
+    xschem setprop rect 2 $graph_selected y2 [.dialog.top.e3 get] fast
+    xschem setprop rect 2 $graph_selected node $node fast
+    destroy .dialog
   }
   pack .dialog.bottom.ok -side left
+  pack .dialog.bottom.cancel -side left
 
   for {set i 4} {$i < 22} {incr i} {
-    radiobutton .dialog.bottom.r$i -value $i -bg [lindex $colors $i] -variable graph_sel_color
+    radiobutton .dialog.bottom.r$i -value $i -bg [lindex $colors $i] \
+      -variable graph_sel_color -command graph_change_wave_color
     pack .dialog.bottom.r$i -side left
   }
 
   # top frame
   label .dialog.top.l1 -text Search:
-  entry .dialog.top.e1 -width 20 
-  checkbutton .dialog.top.c1 -text bus -variable graph_bus
-  checkbutton .dialog.top.c2 -text {Increasing sort} -variable graph_sort -indicatoron 1 \
+  entry .dialog.top.e1 -width 10 
+  checkbutton .dialog.top.c1 -text bus -padx 2 -variable graph_bus
+  checkbutton .dialog.top.c2 -text {Incr. sort} -variable graph_sort -indicatoron 1 \
     -command fill_graph_listbox
   checkbutton .dialog.top.c3 -text {Digital} -variable graph_digital -indicatoron 1 \
-    -command {xschem setprop rect 2 $graph_selected digital $graph_digital}
+    -command {
+         xschem setprop rect 2 $graph_selected digital $graph_digital fast
+     }
+  label .dialog.top.l2 -text {  Min Value:}
+  entry .dialog.top.e2 -width 5
+  label .dialog.top.l3 -text {  Max Value:}
+  entry .dialog.top.e3 -width 5
 
-  button .dialog.top.b1 -text Clear -command {
+  button .dialog.top.b1 -text Clear -padx 2 -command {
     .dialog.top.e1 delete 0 end
     fill_graph_listbox 
   }
-  button .dialog.top.b2 -text Add -command {graph_add_nodes}
-  pack .dialog.top.l1 .dialog.top.e1 .dialog.top.b1 .dialog.top.b2 .dialog.top.c1 -side left
+  button .dialog.top.b2 -text Add -padx 2 -command {graph_add_nodes; graph_update_nodelist}
+  pack .dialog.top.l1 .dialog.top.e1 -side left
   pack .dialog.top.c2 .dialog.top.c3 -side left
-  
+  pack .dialog.top.l2 .dialog.top.e2 .dialog.top.l3 .dialog.top.e3 -side left
+  pack .dialog.top.b1 .dialog.top.b2 .dialog.top.c1 -side left
+  .dialog.top.e2 insert 0 [xschem getprop rect 2 $graph_selected y1]
+  .dialog.top.e3 insert 0 [xschem getprop rect 2 $graph_selected y2]
   # binding
   bind .dialog.top.e1 <KeyRelease> {
     fill_graph_listbox
   }
-
+  bind .dialog.center.left.list1 <Double-Button-1> {
+   .dialog.top.b2 invoke
+  }
+  bind .dialog.center.right.text1 <KeyRelease> {
+    graph_update_nodelist
+  }
+  
   # fill data in left listbox
   eval .dialog.center.left.list1 insert 0 [graph_get_signal_list [xschem raw_query list] {}]
 
   # fill data in right textbox
   set plotted_nodes [xschem getprop rect 2 $n node]
-  if {[string index $plotted_nodes end] ne {\n}} {append plotted_nodes \n}
+  if {[string index $plotted_nodes end] ne "\n"} {append plotted_nodes \n}
   .dialog.center.right.text1 insert 1.0 $plotted_nodes
-
+  graph_update_nodelist
   # add stuff in textbox at end of line + 1 char (after newline) 
   # .dialog.center.right.text1 insert {insert lineend + 1 char} foo\n
-
-
-  # tkwait window .dialog
+  tkwait window .dialog
 }
 
 proc graph_show_measure {{action show}} {
@@ -4112,7 +4186,7 @@ set tctx::global_list {
   edit_prop_pos edit_prop_size editprop_sympath edit_symbol_prop_new_sel enable_dim_bg enable_stretch 
   en_hilight_conn_inst filetmp
   flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter graph_bus graph_digital
-  graph_sel_color graph_selected graph_sort
+  graph_sel_color graph_selected graph_sel_wave graph_sort
   hide_empty_graphs hide_symbols hsize hspice_netlist 
   incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
   input_line_cmd input_line_data launcher_default_program light_colors line_width local_netlist_dir
@@ -4124,7 +4198,7 @@ set tctx::global_list {
   rawfile_loaded rcode recentfile replace_key retval retval_orig rotated_text save_initialfile search_exact
   search_found search_select search_value selected_tok show_infowindow show_pin_net_names 
   simconf_default_geometry simconf_vpos 
-  spiceprefix split_files svg_colors svg_font_name symbol symbol_width sym_txt tclcmd_txt
+  spiceprefix split_files svg_colors svg_font_name symbol symbol_width sym_txt tclcmd_txt tclstop
   text_line_default_geometry textwindow_fileid textwindow_filename textwindow_w tmp_bus_char 
   toolbar_horiz toolbar_visible top_subckt transparent_svg undo_type
   use_label_prefix use_lab_wire user_wants_copy_cell verilog_2001
@@ -5099,6 +5173,10 @@ set_ne to_png {gm convert}
 ## ps to pdf conversion
 set_ne to_pdf {ps2pdf}
 
+# user clicked this wave 
+set_ne graph_sel_wave {}
+# flag to force simulation stop (Esc key pressed) 
+set_ne tclstop 0
 ## undo_type: disk or memory
 set_ne undo_type disk
 

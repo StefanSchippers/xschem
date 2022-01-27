@@ -2666,7 +2666,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
 
         if(argc > 6) 
-          my_strdup(1478, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], argv[6]));
+          my_strdup(1486, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], argv[6]));
         else
           my_strdup(1478, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], NULL)); /* delete attr */
         if(!fast) {
@@ -2734,8 +2734,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   else if(argv[1][0] == 't') {   
     if(!strcmp(argv[1],"test"))
     {
+      char s[30];
+      int c;
       cmd_found = 1;
-      Tcl_ResetResult(interp);
+      c = xctx->strcmp("aaa","AAA");
+      my_snprintf(s, S(s), "%d", c);
+      
+      Tcl_AppendResult(interp, s, NULL);
     }
    
     else if(!strcmp(argv[1],"toggle_colorscheme"))
@@ -3088,6 +3093,10 @@ int tclvareval(const char *script, ...)
   }
   return_code = Tcl_EvalEx(interp, str, size, TCL_EVAL_GLOBAL);
   va_end(args);
+  if(return_code != TCL_OK) {
+    dbg(0, "tclvareval(): error executing %s: %s\n", str, tclresult());
+    Tcl_ResetResult(interp);
+  }
   my_free(1381, &str);
   return return_code;
 }

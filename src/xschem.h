@@ -1018,6 +1018,7 @@ extern void free_rawfile(int dr);
 extern int read_rawfile(const char *f);
 extern double get_raw_value(int dataset, int idx, int point);
 extern int schematic_waves_loaded(void);
+extern int edit_wave_attributes(int i, Graph_ctx *gr);
 extern void draw_graph(int i, int flags, Graph_ctx *gr);
 extern void draw_graph_all(int flags);
 extern void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr);
