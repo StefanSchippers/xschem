@@ -2687,6 +2687,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_strdup(1486, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], argv[6]));
         else
           my_strdup(1478, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], NULL)); /* delete attr */
+        set_rect_flags(r); /* set cached .flags bitmask from on attributes */
         if(!fast) {
           bbox(ADD, r->x1, r->y1, r->x2, r->y2);
           /* redraw rect with new props */

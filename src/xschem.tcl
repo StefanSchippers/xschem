@@ -1389,7 +1389,7 @@ proc graph_change_wave_color {{wave {}}} {
 
 # tag nodes in text widget with assigned colors 
 # redraw graph
-proc graph_update_nodelist {} {
+proc graph_update_nodelist {{nosave {}}} {
   global graph_selected colors graph_sel_color
   set nodelist [.dialog.center.right.text1 get 1.0 end]
   # delete old tags
@@ -1414,7 +1414,7 @@ proc graph_update_nodelist {} {
       incr n
     }
     set col [lrange $col 0 [expr {$n - 1}]]
-    xschem setprop rect 2 $graph_selected color $col fast
+    if {$nosave ne {nosave}} {xschem setprop rect 2 $graph_selected color $col fast}
   }
   xschem draw_graph $graph_selected
 }
@@ -1428,6 +1428,7 @@ proc fill_graph_listbox {} {
 
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected colors graph_sel_color
+  global graph_unlocked
 
   set graph_selected $n
   set_ne graph_sel_color 4
@@ -1435,6 +1436,12 @@ proc graph_edit_properties {n} {
   set_ne graph_sort 0
   set graph_digital 0
   if {[xschem getprop rect 2 $n digital] == 1} {set graph_digital 1}
+  if {[regexp {unlocked} [xschem getprop rect 2 $n flags]]} {
+    set graph_unlocked 1
+  } else {
+    set graph_unlocked 0
+  }
+  
   toplevel .dialog
   frame .dialog.top
   panedwindow .dialog.center -orient horiz
@@ -1466,18 +1473,20 @@ proc graph_edit_properties {n} {
 
   # center right frame
   label .dialog.center.right.lab1 -text {Signals in graph}
+  checkbutton .dialog.center.right.unlocked -text {Unlocked X axis} -variable graph_unlocked
   text .dialog.center.right.text1 -wrap none -width 50 -height 10 -bg grey50 -fg white -insertbackground grey40 \
      -yscrollcommand {.dialog.center.right.yscroll set} \
      -xscrollcommand {.dialog.center.right.xscroll set}
   scrollbar .dialog.center.right.yscroll -command {.dialog.center.right.text1 yview}
   scrollbar .dialog.center.right.xscroll -orient horiz -command {.dialog.center.right.text1 xview}
 
-  grid .dialog.center.right.lab1
-  grid .dialog.center.right.text1 .dialog.center.right.yscroll -sticky nsew
-  grid .dialog.center.right.xscroll -sticky nsew
+  grid .dialog.center.right.lab1 .dialog.center.right.unlocked
+  grid .dialog.center.right.text1 - .dialog.center.right.yscroll -sticky nsew
+  grid .dialog.center.right.xscroll - -sticky nsew
   grid rowconfig .dialog.center.right 0 -weight 0
   grid rowconfig .dialog.center.right 1 -weight 1 -minsize 100
   grid columnconfig .dialog.center.right 0 -weight 1
+  grid columnconfig .dialog.center.right 1 -weight 1
 
 
   # bottom frame
@@ -1490,6 +1499,11 @@ proc graph_edit_properties {n} {
     xschem setprop rect 2 $graph_selected y1 [.dialog.top.min get] fast
     xschem setprop rect 2 $graph_selected y2 [.dialog.top.max get] fast
     xschem setprop rect 2 $graph_selected node $node fast
+    if {$graph_unlocked} {
+      xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
+    } else {
+      xschem setprop rect 2 $graph_selected flags {graph} fast
+    }
     destroy .dialog
     xschem draw_graph $graph_selected
   }
@@ -1499,6 +1513,11 @@ proc graph_edit_properties {n} {
     xschem setprop rect 2 $graph_selected y1 [.dialog.top.min get] fast
     xschem setprop rect 2 $graph_selected y2 [.dialog.top.max get] fast
     xschem setprop rect 2 $graph_selected node $node fast
+    if {$graph_unlocked} {
+      xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
+    } else {
+      xschem setprop rect 2 $graph_selected flags {graph} fast
+    }
     xschem draw_graph $graph_selected
   }
 
@@ -1570,7 +1589,7 @@ proc graph_edit_properties {n} {
   set plotted_nodes [xschem getprop rect 2 $n node]
   if {[string index $plotted_nodes end] ne "\n"} {append plotted_nodes \n}
   .dialog.center.right.text1 insert 1.0 $plotted_nodes
-  graph_update_nodelist
+  graph_update_nodelist nosave
   # add stuff in textbox at end of line + 1 char (after newline) 
   # .dialog.center.right.text1 insert {insert lineend + 1 char} foo\n
   tkwait window .dialog
@@ -4228,7 +4247,7 @@ set tctx::global_list {
   edit_prop_pos edit_prop_size editprop_sympath edit_symbol_prop_new_sel enable_dim_bg enable_stretch 
   en_hilight_conn_inst filetmp
   flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter graph_bus graph_digital
-  graph_sel_color graph_selected graph_sel_wave graph_sort
+  graph_sel_color graph_selected graph_sel_wave graph_sort graph_unlocked
   hide_empty_graphs hide_symbols hsize hspice_netlist 
   incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
   input_line_cmd input_line_data launcher_default_program light_colors line_width local_netlist_dir
