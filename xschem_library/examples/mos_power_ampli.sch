@@ -11,14 +11,16 @@ y1=-51.3482
 y2=48.6518
 divy=4
 subdivy=4
-x1=0.0157556
-x2=0.0164125
+x1=0.0157468
+x2=0.0164037
 divx=8
 subdivx=1
-node="x1.ga
-x1.gb
-x1.outi
-vnn"
+
+node="tcleval($\{path\}ga
+$\{path\}gb
+$\{path\}outi
+$\{path\}vnn)"
+
 color="7 8 10 11"
 dataset=0
 unitx=m
