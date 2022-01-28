@@ -34,25 +34,33 @@ divy = 3
 subdivy=1
 x1=1.48222e-07
 x2=1.94606e-07  divx=10
-node="
-ldbl[0] ldbl[16] ldbl[32]
-ldbl[1] ldbl[17] ldbl[33]
-ldbl[2] ldbl[18] ldbl[34]
-"
-color="8 9 10 11 12 13 14 15 16 17 18" unitx=n
+node="ldbl[0]
+ldbl[16]
+ldbl[32]
+ldbl[1]
+ldbl[17]
+ldbl[33]
+ldbl[2]
+ldbl[18]
+ldbl[34]"
+color="8 9 10 11 12 13 14 15 11" unitx=n
 }
 B 2 1840 -1160 2890 -1000 {flags=graph_unlocked
 digital=0
-y1 = -0.021
-y2 = 1.5
+y1 = 0
+y2 = 1.6
 subdivy=1
 divy = 4
 x1=1.48222e-07
 x2=1.94606e-07
 divx=10
 subdivx=4
-node="ldcp ldyms[4] ldyms[5] ldyms[6] ldymsref"
-color="6 12 13 14 15"
+node="ldcp
+ldyms[4]
+ldyms[5]
+ldyms[6]
+ldymsref"
+color="6 12 13 14 11"
 unitx=n
 }
 B 2 1840 -400 2890 -240 {flags=graph_unlocked
@@ -63,11 +71,18 @@ subdivy=0
 subdivx = 1
 x1=1.48222e-07
 x2=1.94606e-07  divx=10
-node="
-ldwl[0] ldwl[1] ldwl[2] ldwl[3] 
-ldwl[4] ldwl[5] ldwl[6] ldwl[16] 
-ldwl[7] ldwl[8] ldwl[9]"
-color="4 5 4 5 4 5 4 5 4 5 4 5"  
+node="ldwl[0]
+ldwl[1]
+ldwl[2]
+ldwl[3] 
+ldwl[4]
+ldwl[5]
+ldwl[6]
+ldwl[16] 
+ldwl[7]
+ldwl[8]
+ldwl[9]"
+color="4 5 4 5 4 5 4 5 4 5 4"  
 unitx=n 
 }
 B 2 1840 -1000 2890 -540 {flags=graph,unlocked
@@ -81,8 +96,7 @@ x1=1.48222e-07
 x2=1.94606e-07
 divx=12
 subdivx=4
-node="
----In/Out---
+node="---In/Out---
 ldcp
 ldq[15]
 ldq[14]
@@ -91,28 +105,31 @@ ldq[12]
 LDA,lda[12],lda[11],lda[10],lda[9],lda[8],lda[7],lda[6],lda[5],lda[4],lda[3],lda[2],lda[1],lda[0]
 LDQ,ldq[15],ldq[14],ldq[13],ldq[12],ldq[11],ldq[10],ldq[9],ldq[8],ldq[7],ldq[6],ldq[5],ldq[4],ldq[3],ldq[2],ldq[1],ldq[0]
 ---Timing---
-lden ldprech
+lden
+ldprech
 ---Decoders---
 LDL3X,ldl3x[7],ldl3x[6],ldl3x[5],ldl3x[4],ldl3x[3],ldl3x[2],ldl3x[1],ldl3x[0]
 LDL2X,ldl2x[3],ldl2x[2],ldl2x[1],ldl2x[0]
 LDL1X,ldl1x[15],ldl1x[14],ldl1x[13],ldl1x[12],ldl1x[11],ldl1x[10],ldl1x[9],ldl1x[8],ldl1x[7],ldl1x[6],ldl1x[5],ldl1x[4],ldl1x[3],ldl1x[2],ldl1x[1],ldl1x[0]
 LDY1,ldy1[3],ldy1[2],ldy1[1],ldy1[0]
-WL[15:0],ldwl[15],ldwl[14],ldwl[13],ldwl[12],ldwl[11],ldwl[10],ldwl[9],ldwl[8],ldwl[7],ldwl[6],ldwl[5],ldwl[4],ldwl[3],ldwl[2],ldwl[1],ldwl[0]
-"
-color="18 4 15 4 15 4 15 4 18 15 4 18 4 15 4 15 4 15 4 15 4 15 4 15 4 15"
+WL[15:0],ldwl[15],ldwl[14],ldwl[13],ldwl[12],ldwl[11],ldwl[10],ldwl[9],ldwl[8],ldwl[7],ldwl[6],ldwl[5],ldwl[4],ldwl[3],ldwl[2],ldwl[1],ldwl[0]"
+color="18 4 15 4 15 4 15 4 18 15 4 18 4 15 4 15 11"
  unitx=n
  ypos1=-2.20115 ypos2=2.79884
 }
 B 2 1840 -1300 2890 -1160 {flags=graph_unlocked
-y1 = -0.022
+y1 = 0
 y2 = 1.6
 divy = 4
 x1=1.48222e-07
 x2=1.94606e-07
 divx=8
 unitx=n
-node="xsa[0].ldqib xsa[5].ldqib xsa[0].ldsali xctrl.ldq_b"
-color="4 4 5 12 "
+node="xsa[0].ldqib
+xsa[5].ldqib
+xsa[0].ldsali
+xctrl.ldq_b"
+color="4 12 5 10"
 }
 B 2 1840 -240 2890 0 {flags=graph_unlocked
 y1 = -0.0559946
@@ -123,7 +140,7 @@ x2=1.94606e-07
 unity=m
 divx=10
 subdivx=1
-node="i(vvcc)"
+node=i(vvcc)
 color=3 unitx=n subdivy=4
 }
 B 7 950 -250 980 -80 {}

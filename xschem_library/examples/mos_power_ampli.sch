@@ -15,8 +15,11 @@ x1=0.0157556
 x2=0.0164125
 divx=8
 subdivx=1
-node="tcleval($\{path\}ga $\{path\}gb $\{path\}outi vnn)"
-color="7 8 10 11 12 13 14 15 16 17"
+node="x1.ga
+x1.gb
+x1.outi
+vnn"
+color="7 8 10 11"
 dataset=0
 unitx=m
 }

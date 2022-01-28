@@ -632,6 +632,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, str, TCL_VOLATILE);
       my_free(1161, &str);
     }
+    else if(!strcmp(argv[1], "draw_graph"))
+    {
+      int flags;
+      cmd_found = 1;
+      if(argc > 2) {
+        int i = atoi(argv[2]);
+        if(argc > 3) {
+          flags = atoi(argv[3]);
+        } else {
+          flags = 1 + 8 + (xctx->graph_flags & 6);
+        }
+        setup_graph_data(i, xctx->graph_flags, 0,  &xctx->graph_struct);
+        draw_graph(i, flags, &xctx->graph_struct);
+      }
+      Tcl_ResetResult(interp);
+    }
+
   }
 
   else if(argv[1][0] == 'e') {   
@@ -2098,6 +2115,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       if(schematic_waves_loaded()) {
         free_rawfile(1);
+        tclsetvar("rawfile_loaded", "0");
       } else if(argc > 2) {
         free_rawfile(0);
         read_rawfile(argv[2]);
@@ -2664,7 +2682,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           bbox(START,0.0,0.0,0.0,0.0);
           xctx->push_undo();
         }
-
+        set_modify(1);
         if(argc > 6) 
           my_strdup(1486, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], argv[6]));
         else

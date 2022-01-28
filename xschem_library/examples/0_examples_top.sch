@@ -22,7 +22,9 @@ subdivy=1
 x1=-8.50378e-06
 x2=0.000191496
 divx=9
-node="led panel sw"
+node="led
+panel
+sw"
 color="11 18 6" unitx=m subdivx=4}
 B 2 1200 -400 1490 -270 {flags=graph 
 y1 = 0.360479
@@ -32,7 +34,8 @@ subdivy=1
 x1=-8.50378e-06
 x2=0.000191496
 divx=8
-node="i(vpanel)" unitx=m}
+node=i(vpanel) unitx=m
+color=4}
 B 4 890 -630 910 -570 {}
 B 7 850 -610 920 -590 {dash=4}
 B 8 860 -630 880 -570 {}

@@ -190,7 +190,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   double xx1, xx2, yy1, yy2;
   double delta_threshold = 0.25;
   double zoom_m = 0.5;
-  int save_mouse_at_end = 0;
+  int save_mouse_at_end = 0, clear_graphpan_at_end = 0;
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
@@ -200,9 +200,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   gr = &xctx->graph_struct;
   for(i=0; i < xctx->rects[GRIDLAYER]; i++) {
     xRect *r;
-    /* process only graph boxes */
     if( (xctx->ui_state & GRAPHPAN) && i != xctx->graph_master) continue;
     r = &xctx->rect[GRIDLAYER][i];
+    /* process only graph boxes */
     if(!(r->flags & 1) ) continue;
     /* check if this is the master graph (the one containing the mouse pointer) */
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
@@ -220,7 +220,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         xctx->graph_cursor2_x = G_X(xctx->mousex);
       }
       if(xctx->ui_state & GRAPHPAN) break; /* After GRAPHPAN only need to check Motion events for cursors */
-
+      if(xctx->mousey_snap < W_Y(gr->gy2)) {
+        xctx->graph_top = 1;
+      } else {
+        xctx->graph_top = 0;
+      }
       if(xctx->mousex_snap < W_X(gr->gx1)) {
         xctx->graph_left = 1;
       } else {
@@ -233,20 +237,16 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       xctx->graph_master = i;
       zoom_m = (xctx->mousex  - gr->x1) / gr->w;
-      /* dragging cursors when mouse is very close */
       if(event == ButtonPress && button == Button1) {
-        if(edit_wave_attributes(2, i, gr)) {
-           draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr); /* draw data in each graph box */
-        } else {
-          if( (xctx->graph_flags & 2) && fabs(xctx->mousex - W_X(xctx->graph_cursor1_x)) < 10) {
-            xctx->graph_flags |= 16; /* Start move cursor1 */
-          }
-          if( (xctx->graph_flags & 4) && fabs(xctx->mousex - W_X(xctx->graph_cursor2_x)) < 10) {
-            xctx->graph_flags |= 32; /* Start move cursor2 */
-          }
+        /* dragging cursors when mouse is very close */
+        if( (xctx->graph_flags & 2) && fabs(xctx->mousex - W_X(xctx->graph_cursor1_x)) < 10) {
+          xctx->graph_flags |= 16; /* Start move cursor1 */
+        }
+        if( (xctx->graph_flags & 4) && fabs(xctx->mousex - W_X(xctx->graph_cursor2_x)) < 10) {
+          xctx->graph_flags |= 32; /* Start move cursor2 */
         }
       }
-      if(event == -3 && button == Button1) {
+      else if(event == -3 && button == Button1) {
         if(!edit_wave_attributes(1, i, gr)) {
           char s[30];
           my_snprintf(s, S(s), "%d", i);
@@ -276,17 +276,24 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     } /* if( POINTINSIDE(...) */
   } /* for(i=0; i <  xctx->rects[GRIDLAYER]; i++) */
 
+  /* check if user clicked on a wave label -> draw wave in bold */
+  if(event == ButtonPress && button == Button3 &&
+           edit_wave_attributes(2, i, gr)) {
+    draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr); /* draw data in graph box */
+    return 0;
+  }
   /* save mouse position when doing pan operations */
-  if(
+  else if(
       (
         (event == ButtonPress && (button == Button1 || button == Button3)) ||
         (event == MotionNotify && (state & (Button1Mask | Button3Mask)))
       ) &&
-      !(xctx->ui_state & GRAPHPAN)
+      !(xctx->ui_state & GRAPHPAN) && 
+      !xctx->graph_top /* && !xctx->graph_bottom */
     ) {
     xctx->ui_state |= GRAPHPAN;
-    xctx->mx_double_save = xctx->mousex_snap;
-    xctx->my_double_save = xctx->mousey_snap;
+    if(!xctx->graph_left) xctx->mx_double_save = xctx->mousex_snap;
+    if(xctx->graph_left) xctx->my_double_save = xctx->mousey_snap;
   }
   gr->master_gx1 = 0;
   gr->master_gx2 = 1e-6;
@@ -296,6 +303,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   if(val[0]) gr->master_gx2 = atof(val);
   if(gr->master_gx1 == gr->master_gx2) gr->master_gx2 += 1e-6;
   gr->master_gw = gr->master_gx2 - gr->master_gx1;
+
   /* second loop: after having determined the master graph do the others */
   for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
     xRect *r;
@@ -305,7 +313,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     gr->gx1 = gr->master_gx1;
     gr->gx2 = gr->master_gx2;
     gr->gw = gr->master_gw;
-    setup_graph_data(i, xctx->graph_flags, 1, gr);
+    setup_graph_data(i, xctx->graph_flags, 1, gr); /* skip flag set, no reload x1 and x2 fields */
     /* if no dataset given assume 0 for graph scaling calculations */
     if(gr->dataset == -1) dataset = 0;
     else if(gr->dataset <=  xctx->graph_datasets) dataset =gr->dataset;
@@ -655,33 +663,41 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(xctx->graph_values) {
           if(xctx->graph_left) {
             if(i == xctx->graph_master) {
-              int i, j;
-              double v;
-              double min=0.0, max=0.0;
-              int first = 1;
-              char *saven, *nptr, *ntok, *node = NULL;;
-              my_strdup2(1426, &node, get_tok_value(r->prop_ptr,"node",0));
-              nptr = node;
-              while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) {
-                nptr = NULL;
-                j = get_raw_index(ntok);
-                if(j >= 0) {
-                  for(i = 0; i < xctx->graph_npoints[dataset]; i++) {
-                    v = get_raw_value(dataset, j, i);
-                    if(first || v < min) {min = v; first = 0;}
-                    if(first || v > max) {max = v; first = 0;}
-                  } 
+              if(!gr->digital) {
+                int i, j;
+                double v;
+                double min=0.0, max=0.0;
+                int first = 1;
+                char *saven, *nptr, *ntok, *node = NULL;;
+                my_strdup2(1426, &node, get_tok_value(r->prop_ptr,"node",0));
+                nptr = node;
+                while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) {
+                  nptr = NULL;
+                  j = get_raw_index(ntok);
+                  if(j >= 0) {
+                    for(i = 0; i < xctx->graph_npoints[dataset]; i++) {
+                      v = get_raw_value(dataset, j, i);
+                      if(first || v < min) {min = v; first = 0;}
+                      if(first || v > max) {max = v; first = 0;}
+                    } 
+                  }
                 }
+                if(max == min) max += 0.01;
+                min = floor_to_n_digits(min, 2);
+                max = ceil_to_n_digits(max, 2);
+                my_free(1427, &node);
+                my_snprintf(s, S(s), "%g", min);
+                my_strdup(1422, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
+                my_snprintf(s, S(s), "%g", max);
+                my_strdup(1423, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
+                need_redraw = 1;
+              } else {
+                my_strdup(1497, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1",
+                   get_tok_value(r->prop_ptr, "y1", 0) ));
+                my_strdup(1498, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2",
+                   get_tok_value(r->prop_ptr, "y2", 0) ));
+                need_redraw = 1;
               }
-              if(max == min) max += 0.01;
-              min = floor_to_n_digits(min, 2);
-              max = ceil_to_n_digits(max, 2);
-              my_free(1427, &node);
-              my_snprintf(s, S(s), "%g", min);
-              my_strdup(1422, &r->prop_ptr, subst_token(r->prop_ptr, "y1", s));
-              my_snprintf(s, S(s), "%g", max);
-              my_strdup(1423, &r->prop_ptr, subst_token(r->prop_ptr, "y2", s));
-              need_redraw = 1;
             }
           } else {
             if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
@@ -723,19 +739,23 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         xctx->ui_state &= ~GRAPHPAN;
         xctx->graph_flags &= ~(16 | 32); /* clear move cursor flags */
       }
-      else if(button == Button3) {
+      /* zoom area by mouse drag */
+      else if(button == Button3 && (xctx->ui_state & GRAPHPAN) && 
+              !xctx->graph_left && !xctx->graph_top) {
         if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-          double tmp;
-          xctx->ui_state &= ~GRAPHPAN;
-          xx1 = G_X(xctx->mx_double_save);
-          xx2 = G_X(xctx->mousex_snap);
-          if(xx2 < xx1) { tmp = xx1; xx1 = xx2; xx2 = tmp; }
-          if(xx1 == xx2) xx2 += 1e-6;
-          my_snprintf(s, S(s), "%g", xx1);
-          my_strdup(1440, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
-          my_snprintf(s, S(s), "%g", xx2);
-          my_strdup(1441, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
-          need_redraw = 1;
+          if(xctx->mx_double_save != xctx->mousex_snap) {
+            double tmp;
+            clear_graphpan_at_end = 1;
+            xx1 = G_X(xctx->mx_double_save);
+            xx2 = G_X(xctx->mousex_snap);
+            if(xx2 < xx1) { tmp = xx1; xx1 = xx2; xx2 = tmp; }
+            if(xx1 == xx2) xx2 += 1e-6;
+            my_snprintf(s, S(s), "%g", xx1);
+            my_strdup(1440, &r->prop_ptr, subst_token(r->prop_ptr, "x1", s));
+            my_snprintf(s, S(s), "%g", xx2);
+            my_strdup(1441, &r->prop_ptr, subst_token(r->prop_ptr, "x2", s));
+            need_redraw = 1;
+          }
         }
       }
     } /* else if( event == ButtonRelease) */
@@ -746,6 +766,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   } /* for(i=0; i< xctx->rects[GRIDLAYER]; i++ */
 
 
+  if(clear_graphpan_at_end) xctx->ui_state &= ~GRAPHPAN;
   /* update saved mouse position after processing all graphs */
   if(save_mouse_at_end && 
     fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->cx * gr->gw) * delta_threshold) {

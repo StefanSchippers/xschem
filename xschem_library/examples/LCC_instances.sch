@@ -27,7 +27,9 @@ divy = 6
 x1=-0.0234922
 x2=3.11495
 divx=6
-node="v(a) v(zz) v(zzz)"
+node="a
+zz
+zzz"
 color="4 6 8"
 sweep="v(a)"}
 B 2 10 -930 570 -700 {flags=graph 
@@ -37,8 +39,9 @@ divy = 6
 x1=-0.0339625
 x2=3.10448
 divx=6
-node="v(a) v(z)"
-color="4 6 8"
+node="a
+z"
+color="4 6"
 sweep="v(z) v(a)"}
 P 4 5 560 -700 560 -510 1350 -510 1350 -700 560 -700 {dash=3}
 P 4 5 820 -920 820 -730 1350 -730 1350 -920 820 -920 {dash=3}

@@ -443,8 +443,11 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->graph_cursor1_x = 0;
   xctx->graph_unlock_x = 0;
   xctx->graph_flags = 0;
+  xctx->graph_top = 0;
   xctx->graph_bottom = 0;
   xctx->graph_left = 0;
+  xctx->graph_struct.hilight_wave[0] = -1; /* graph index of hilight wave */
+  xctx->graph_struct.hilight_wave[1] = -1; /* index of wave */
   xctx->raw_schname = NULL;
   xctx->wires = 0;
   xctx->instances = 0;

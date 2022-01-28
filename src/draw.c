@@ -1677,7 +1677,8 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
   double vthl = gr->gy1 * 0.8 + gr->gy2 * 0.2;
   int hex_digits = ((n_bits - 1) >> 2) + 1;
   if(c1 >= gr->ypos1 && c1 <=gr->ypos2) {
-    if(gr->hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+    if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
+       XSetLineAttributes (display, xctx->gc[wave_col],
           3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
     drawline(wave_col, NOW, lx1, ylow, lx2, ylow, 0);
     drawline(wave_col, NOW, lx1, yhigh, lx2, yhigh, 0);
@@ -1711,7 +1712,8 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
       draw_string(wave_col, NOW, old_busval, 2, 0, 1, 0, (xval + xval_old) * 0.5,
                   yhigh, labsize, labsize);
     }
-    if(gr->hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+    if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
+       XSetLineAttributes (display, xctx->gc[wave_col],
           INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
   }
 }
@@ -1750,17 +1752,21 @@ static void draw_graph_points(int v, int first, int last,
     }
     /* plot data */
     if(xctx->draw_window) {
-      if(gr->hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
+         XSetLineAttributes (display, xctx->gc[wave_col],
             3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
       XDrawLines(display, xctx->window, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
-      if(gr->hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
+         XSetLineAttributes (display, xctx->gc[wave_col],
             INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
     }
     if(xctx->draw_pixmap) {
-      if(gr->hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
+         XSetLineAttributes (display, xctx->gc[wave_col],
             3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
       XDrawLines(display, xctx->save_pixmap, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
-      if(gr->hilight_wave == wcnt) XSetLineAttributes (display, xctx->gc[wave_col],
+      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
+         XSetLineAttributes (display, xctx->gc[wave_col],
             INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
     }
   } else dbg(1, "skipping wave: %s\n", xctx->graph_names[v]);
@@ -1856,8 +1862,8 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
   const char *val;
   xRect *r = &xctx->rect[GRIDLAYER][i];
 
+  gr->i = i;
   /* default values */
-  gr->hilight_wave = -1;
   gr->divx = gr->divy = 5;
   gr->subdivx = gr->subdivy = 0;
   gr->digital = 0;
@@ -2084,12 +2090,28 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
       yt = s1 * (double)(n_nodes - wcnt) * gr->gh - (gr->gy1 - gr->gh * 0.1) * s2;
 
     if(yt <= gr->ypos2 && yt >= gr->ypos1) {
+      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt) {
+        cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+        cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+      }
       draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
         xt, DW_Y(yt), gr->digtxtsizelab, gr->digtxtsizelab);
+      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt) {
+        cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+        cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+      }
     }
   } else {
+    if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt) {
+      cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+      cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+    }
     draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
         gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry1, gr->txtsizelab, gr->txtsizelab);
+    if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt) {
+      cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+      cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    }
   }
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
@@ -2236,8 +2258,20 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
           ret = 1;
           if(what == 1) {
             my_snprintf(s, S(s), "%d %d", i, wcnt);
+            gr->hilight_wave[0] = i;
+            gr->hilight_wave[1] = wcnt;
             tclvareval("graph_edit_wave ", s, NULL);
-          } else gr->hilight_wave = wcnt;
+            gr->hilight_wave[0] = -1;
+            gr->hilight_wave[1] = -1;
+          } else {
+             if(gr->hilight_wave[0] == i && gr->hilight_wave[1] == wcnt) {
+               gr->hilight_wave[0] = -1;
+               gr->hilight_wave[1] = -1;
+             } else {
+               gr->hilight_wave[0] = i;
+               gr->hilight_wave[1] = wcnt;
+             }
+          }
         }
       }
     } else {
@@ -2250,8 +2284,20 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
         ret = 1;
         if(what == 1) {
           my_snprintf(s, S(s), "%d %d", i, wcnt);
+          gr->hilight_wave[0] = i;
+          gr->hilight_wave[1] = wcnt;
           tclvareval("graph_edit_wave ", s, NULL);
-        }  else gr->hilight_wave = wcnt;
+          gr->hilight_wave[0] = -1;
+          gr->hilight_wave[1] = -1;
+        } else {
+          if(gr->hilight_wave[0] == i && gr->hilight_wave[1] == wcnt) {
+            gr->hilight_wave[0] = -1;
+            gr->hilight_wave[1] = -1;
+          } else {
+            gr->hilight_wave[0] = i;
+            gr->hilight_wave[1] = wcnt;
+          }
+        }
       }
     }
     wcnt++;
@@ -2286,11 +2332,14 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
   double measure_x;
   double measure_prev_x;
   xRect *r = &xctx->rect[GRIDLAYER][i];
-
+  
   if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
       xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2)) return;
-
-
+  /*
+   * dbg(0, "draw_graph(): window: %d %d %d %d\n", xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
+   * dbg(0, "draw_graph(): graph: %g %g %g %g\n", gr->sx1, gr->sy1, gr->sx2, gr->sy2);
+   * dbg(0, "draw_graph(): i = %d, flags = %d\n", i, flags);
+   */
   /* draw stuff */
   if(flags & 8) {
     /* graph box, gridlines and axes */
@@ -2462,7 +2511,7 @@ void draw_graph_all(int flags)
   int bbox_set = 0;
   const char *tmp;
   int save_bbx1, save_bby1, save_bbx2, save_bby2;
-  dbg(0, "draw_graph_all(): flags=%d\n", flags);
+  dbg(1, "draw_graph_all(): flags=%d\n", flags);
   /* save bbox data, since draw_graph_all() is called from draw() which may be called after a bbox(SET) */
   sch_loaded = schematic_waves_loaded();
   tmp =  tclgetvar("hide_empty_graphs");

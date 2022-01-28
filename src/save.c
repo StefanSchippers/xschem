@@ -415,7 +415,7 @@ int read_rawfile_from_attr(const char *b64s, size_t length)
   }
   if( (fd = open_tmpfile("rawfile_", &tmp_filename)) ) {
     s = base64_decode(b64s, length, &decoded_length);
-    fwrite(s, decoded_length, 1, fd);
+   fwrite(s, decoded_length, 1, fd);
     fclose(fd);
     my_free(1479, &s);
     res = read_rawfile(tmp_filename);

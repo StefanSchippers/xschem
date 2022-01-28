@@ -13,8 +13,10 @@ x1=2.3
 x2=2.7
 divx=6
 subdivx=1
-node="v(diffout) v(plus) v(minus)"
-color="7 8 10 11 12 13 14 15 16 17"
+node="v(diffout)
+v(plus)
+v(minus)"
+color="7 8 10"
 dataset=0
 }
 B 2 1230 -1050 1807 -523 {flags=image,unscaled

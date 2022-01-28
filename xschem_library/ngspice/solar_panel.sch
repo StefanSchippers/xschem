@@ -46,7 +46,8 @@ subdivy=1
 x1=0
 x2=0.0002
 divx=9
-node="v(led) v(sw)"
+node="v(led)
+v(sw)"
 color="11 18" unitx=m subdivx=4}
 B 2 1110 -790 1530 -660 {flags=graph 
 y1 = 0
@@ -56,7 +57,8 @@ subdivy=1
 x1=0
 x2=0.0002
 divx=8
-node="v(panel)" unitx=m}
+node="v(panel)" unitx=m
+color=13}
 B 2 1110 -650 1530 -520 {flags=graph 
 y1 = 0
 y2 = 4

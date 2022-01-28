@@ -676,6 +676,7 @@ typedef struct
 
 /* context struct for waveform graphs */
 typedef struct {
+  int i;  /* index number of container rectangle */
   double digital;
   double rx1, ry1, rx2, ry2, rw, rh; /* container rectangle */
   double sx1, sy1, sx2, sy2; /* screen coordinates of above */
@@ -704,7 +705,7 @@ typedef struct {
   int unity_suffix;
   double txtsizelab, digtxtsizelab, txtsizey, txtsizex;
   int dataset;
-  int hilight_wave;
+  int hilight_wave[2]; /* [0] : graph index, [1] : wave index */
 } Graph_ctx;
 
 typedef struct {
@@ -890,8 +891,9 @@ typedef struct {
    */
   int graph_flags;
   int graph_master; /* graph where mouse operations are started, used to lock x-axis */
-  int graph_bottom; /* graph where mouse operations are started, used to lock x-axis */
-  int graph_left; /* graph where mouse operations are started, used to lock x-axis */
+  int graph_top; /* regions of graph where mouse events occur */
+  int graph_bottom; 
+  int graph_left;
   Int_hashentry **raw_table;
   char *raw_schname;
   /*     */

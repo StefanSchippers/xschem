@@ -6,37 +6,41 @@ S {}
 E {}
 B 2 580 -140 1200 -30 {flags=graph
 y1 = 0
-y2 = 2
+y2 = 1.6
 divy = 2
 x1=1.11978e-07
 x2=2.09815e-07
 divx=8
 comm="example of using tcl to replace the path 
       with $path variable automatically"
-node="tcleval(v($\{path\}ldcp_ref) v($\{path\}ldprechref))"
-color=12\\ 5\\ 13}
+node="v(xctrl.ldcp_ref)
+v(xctrl.ldprechref)"
+color="12 11"}
 B 2 580 -280 1200 -140 {flags=graph
 y1 = 0
-y2 = 2
+y2 = 1.6
 divy = 2
 x1=1.36438e-07
 x2=2.34275e-07
 divx=8
 comm="example of using tcl to replace the path 
       with $path variable automatically"
-node="tcleval(v($\{path\}ldcp_ref) v($\{path\}ldcpb))"
-color=12\\ 5\\ 8}
+node="v(xctrl.ldcp_ref)
+v(xctrl.ldcpb)"
+color="12 11"}
 B 2 580 -400 1200 -280 {flags=graph
 y1 = 0
-y2 = 2
+y2 = 1.6
 divy = 2
 x1=1.11978e-07
 x2=2.09815e-07
 divx=8
 comm="example of using tcl to replace the path 
       with $path variable automatically"
-node="tcleval(v($\{path\}ldcp_ref) v($\{path\}ldouti) v($\{path\}ldoutib))"
-color=12\\ 5\\ 8}
+node="v(xctrl.ldcp_ref)
+v(xctrl.ldouti)
+v(xctrl.ldoutib)"
+color="12 5 11"}
 N 360 -670 500 -670 {lab=LDCPB}
 N 240 -760 250 -760 {lab=LDCPB}
 N 240 -760 240 -670 {lab=LDCPB}
