@@ -895,6 +895,7 @@ typedef struct {
   int graph_top; /* regions of graph where mouse events occur */
   int graph_bottom; 
   int graph_left;
+  int graph_lastsel; /* last graph that was clicked (selected) */
   Int_hashentry **raw_table;
   char *raw_schname;
   /*     */

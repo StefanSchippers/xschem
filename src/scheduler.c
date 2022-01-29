@@ -840,17 +840,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        Tcl_SetResult(interp, xctx->current_win_path, TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"currsch")) {
-       char s[30]; /* overflow safe 20161122 */
+       char s[30];
        my_snprintf(s, S(s), "%d",xctx->currsch);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"debug_var")) {
-       char s[30]; /* overflow safe 20161122 */
+       char s[30];
        my_snprintf(s, S(s), "%d",debug_var);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"draw_window")) {
-       char s[30]; /* overflow safe 20161122 */
+       char s[30];
        my_snprintf(s, S(s), "%d",xctx->draw_window);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
@@ -860,8 +860,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
+     else if(!strcmp(argv[2],"graph_lastsel")) {
+       char s[30];
+       my_snprintf(s, S(s), "%d",xctx->graph_lastsel);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
      else if(!strcmp(argv[2],"gridlayer")) {
-       char s[30]; /* overflow safe 20161122 */
+       char s[30];
        my_snprintf(s, S(s), "%d",GRIDLAYER);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
@@ -872,7 +877,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"instances")) {
-       char s[30]; /* overflow safe 20161122 */
+       char s[30];
        my_snprintf(s, S(s), "%d",xctx->instances);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }

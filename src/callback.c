@@ -1725,7 +1725,11 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
 
      tcleval("winfo exists .graphdialog");
      if(tclresult()[0] == '1') tool = XSCHEM_GRAPH;
-
+     else if(xctx->graph_lastsel >=0 &&
+         xctx->rects[2] > xctx->graph_lastsel &&
+         xctx->rect[2][xctx->graph_lastsel].flags & 1) {
+       tool = XSCHEM_GRAPH;
+     }
      tcleval("info exists sim");
      if(tclresult()[0] == '1') exists = 1;
      xctx->enable_drill = 0;

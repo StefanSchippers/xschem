@@ -826,6 +826,7 @@ void select_box(int c, int i, unsigned short select_mode, int fast)
   if(select_mode) {
     if(select_mode==SELECTED) {
       xctx->rect[c][i].sel = select_mode;
+      if(xctx->rect[c][i].flags & 1) xctx->graph_lastsel = i; /* remember last selected graph */
     } else {
       xctx->rect[c][i].sel |= select_mode;
     }

@@ -446,6 +446,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->graph_top = 0;
   xctx->graph_bottom = 0;
   xctx->graph_left = 0;
+  xctx->graph_lastsel = -1;
   xctx->graph_struct.hilight_wave[0] = -1; /* graph index of hilight wave */
   xctx->graph_struct.hilight_wave[1] = -1; /* index of wave */
   xctx->raw_schname = NULL;

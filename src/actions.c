@@ -630,6 +630,7 @@ int set_rect_extraptr(int what, xRect *drptr)
 void clear_drawing(void)
 {
  int i,j;
+ xctx->graph_lastsel = -1;
  del_inst_table();
  del_wire_table();
  my_free(685, &xctx->schtedaxprop);

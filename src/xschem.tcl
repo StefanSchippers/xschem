@@ -1349,37 +1349,60 @@ proc graph_add_nodes_from_list {nodelist} {
   } else {
     set sep \n
   }
-  set current_node_list [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]
-  set col  [xschem getprop rect 2 $graph_selected color]
-  if {[string length $current_node_list] > 0 && ![regexp "\n$" $current_node_list]} {
-    .graphdialog.center.right.text1 insert end \n
-  }
-  set change_done 0
-  set first 0
-  foreach {i c} $nodelist {
-    if {$sel ne {}} {append sel $sep}
-    if {!$first  || !$graph_bus } {
-      regsub {\[.*} $i {} busname
-      lappend col $c
+
+  if { [winfo exists .graphdialog] } {
+    set current_node_list [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]
+    set col  [xschem getprop rect 2 $graph_selected color]
+    if {[string length $current_node_list] > 0 && ![regexp "\n$" $current_node_list]} {
+      .graphdialog.center.right.text1 insert end \n
     }
-    append sel $i
-    set change_done 1
-    set first 1
-  }
-  if {$change_done && $graph_bus} {
-    set sel "[string toupper $busname],${sel}\n"
+    set change_done 0
+    set first 0
+    foreach {i c} $nodelist {
+      if {$sel ne {}} {append sel $sep}
+      if {!$first  || !$graph_bus } {
+        regsub {\[.*} $i {} busname
+        lappend col $c
+      }
+      append sel $i
+      set change_done 1
+      set first 1
+    }
+    if {$change_done && $graph_bus} {
+      set sel "[string toupper $busname],${sel}\n"
+    } else {
+      set sel "${sel}\n"
+    }
+    if {$change_done} {
+      .graphdialog.center.right.text1 insert end $sel
+      if { [xschem get schname] eq $graph_schname } {
+        set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+        xschem setprop rect 2 $graph_selected color $col fastundo
+        graph_update_nodelist
+        xschem setprop rect 2 $graph_selected node $node fast
+        xschem draw_graph $graph_selected
+      }
+    }
   } else {
-    set sel "${sel}\n"
-  }
-  if {$change_done} {
-    .graphdialog.center.right.text1 insert end $sel
-    if { [xschem get schname] eq $graph_schname } {
-      set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
-      xschem setprop rect 2 $graph_selected color $col fastundo
-      graph_update_nodelist
-      xschem setprop rect 2 $graph_selected node $node fast
-      xschem draw_graph $graph_selected
+    set graph_bus 0
+    set nn {}
+    set cc {}
+    foreach {n c} $nodelist {
+      if { $nn ne {}} {append nn \n}
+      if { $cc ne {}} {append cc " "}
+      append nn $n
+      append cc $c
     }
+
+    set nnn [xschem getprop rect 2 [xschem get graph_lastsel] node]
+    set ccc [xschem getprop rect 2 [xschem get graph_lastsel] color]
+    if { $nnn ne {}} {append nnn "\n"}
+    if { $ccc ne {}} {append ccc " "}
+    append nnn $nn
+    append ccc $cc
+    xschem setprop rect 2 [xschem get graph_lastsel] node $nnn
+    xschem setprop rect 2 [xschem get graph_lastsel] color $ccc
+    puts $nodelist
   }
 }
 
@@ -1520,7 +1543,6 @@ proc graph_edit_properties {n} {
   set graph_selected $n
   set graph_schname [xschem get schname]
   set_ne graph_sel_color 4
-  set_ne graph_bus 0
   set_ne graph_sort 0
   set graph_digital 0
   if {[xschem getprop rect 2 $n digital] == 1} {set graph_digital 1}
@@ -5432,6 +5454,7 @@ set_ne to_png {gm convert}
 set_ne to_pdf {ps2pdf}
 
 # selected graph user is editing attributes with graph GUI
+set_ne graph_bus 0
 set_ne graph_selected {}
 set_ne graph_schname {}
 set_ne graph_unitx 1
