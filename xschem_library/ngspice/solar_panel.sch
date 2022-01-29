@@ -43,8 +43,8 @@ y1 = 0
 y2 = 20
 divy = 5
 subdivy=1
-x1=0
-x2=0.0002
+x1=9.15065e-06
+x2=0.000197012
 divx=9
 node="v(led)
 v(sw)"
@@ -54,8 +54,8 @@ y1 = 0
 y2 = 20
 divy = 6
 subdivy=1
-x1=0
-x2=0.0002
+x1=9.15065e-06
+x2=0.000197012
 divx=8
 node="v(panel)" unitx=m
 color=13}
@@ -64,10 +64,30 @@ y1 = 0
 y2 = 4
 divy = 4
 subdivy=1
-x1=0
-x2=0.0002
+x1=9.15065e-06
+x2=0.000197012
 divx=8
 node="i(vsw)" color=12 unitx=m}
+B 2 100 80 900 480 {flags=graph
+y1=0
+y2=20
+ypos1=1.24368
+ypos2=18.7373
+divy=5
+subdivy=1
+unity=1
+x1=9.15065e-06
+x2=0.000197012
+divx=5
+subdivx=1
+node="led
+panel
+src
+sw"
+color="7 8 9 10"
+dataset=0
+unitx=u
+digital=1}
 B 18 45 -850 300 -665 {}
 A 5 300 -850 5.590169943749475 243.434948822922 360 {fill=true}
 P 7 6 375 -665 320 -821.25 315 -835 302.5 -850 290 -855 45 -865 {}

@@ -32,8 +32,8 @@ y1 = -0.048929
 y2 = 0.999755
 divy = 3
 subdivy=1
-x1=1.09401e-07
-x2=2.07622e-07  divx=10
+x1=1.17185e-07
+x2=2.15406e-07  divx=10
 node="ldbl[0]
 ldbl[16]
 ldbl[32]
@@ -51,8 +51,8 @@ y1 = 0
 y2 = 1.60
 subdivy=1
 divy = 4
-x1=1.09401e-07
-x2=2.07622e-07
+x1=1.17185e-07
+x2=2.15406e-07
 divx=10
 subdivx=4
 node="ldcp
@@ -70,8 +70,8 @@ y2 = 1.60
 divy = 3
 subdivy=0
 subdivx = 1
-x1=1.09401e-07
-x2=2.07622e-07  divx=10
+x1=1.17185e-07
+x2=2.15406e-07  divx=10
 node="ldwl[0]
 ldwl[1]
 ldwl[2]
@@ -90,11 +90,11 @@ B 2 1840 -1000 2890 -540 {flags=graph
 digital=1
 y1 = 0
 y2 = 1.6
-ypos1=0.293142
+ypos1=0.29314
 ypos2=2.77211
 divy = 1
-x1=1.09401e-07
-x2=2.07622e-07
+x1=1.17185e-07
+x2=2.15406e-07
 divx=12
 subdivx=4
 node="---In/Out---
@@ -122,8 +122,8 @@ B 2 1840 -1300 2890 -1160 {flags=graph
 y1 = 0
 y2 = 1.60
 divy = 4
-x1=1.09401e-07
-x2=2.07622e-07
+x1=1.17185e-07
+x2=2.15406e-07
 divx=8
 unitx=n
 node="xsa[0].ldqib
@@ -136,8 +136,8 @@ B 2 1840 -240 2890 0 {flags=graph
 y1 = -0.0559946
 y2 = 0.0205097
 divy = 5
-x1=1.09401e-07
-x2=2.07622e-07  
+x1=1.17185e-07
+x2=2.15406e-07  
 unity=m
 divx=10
 subdivx=1

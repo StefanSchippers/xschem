@@ -1962,9 +1962,9 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
   tmp =  gr->w * 0.00044;
   if(tmp < gr->txtsizelab) gr->txtsizelab = tmp;
   if(flags & 2)
-    gr->digtxtsizelab = 0.001300 * fabs( gr->h / gr->posh );
+    gr->digtxtsizelab = 0.000900 * fabs( gr->h / gr->posh * gr->gh ); 
   else
-    gr->digtxtsizelab = 0.001600 * fabs( gr->h / gr->posh );
+    gr->digtxtsizelab = 0.001200 * fabs( gr->h / gr->posh * gr->gh );
 
   /* x axis, y axis text sizes */
   gr->txtsizey = gr->h / gr->divy * 0.009;
