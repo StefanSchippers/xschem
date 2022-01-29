@@ -306,17 +306,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                    xRECT, GRIDLAYER, SELECTED,
            "flags=graph\n"
            "y1=0\n"
-           "y2=5\n"
+           "y2=2\n"
            "ypos1=0\n"
-           "ypos2=5\n"
-           "divy=4\n"
+           "ypos2=2\n"
+           "divy=5\n"
            "subdivy=1\n"
+           "unity=1\n"
            "x1=0\n"
            "x2=10e-6\n"
-           "divx=8\n"
+           "divx=5\n"
            "subdivx=1\n"
-           "node=\"v(a) v(b) v(c)\"\n"
-           "color=\"7 8 10 11 12 13 14 15 16 17\"\n"
+           "node=\"\"\n"
+           "color=\"\"\n"
            "dataset=0\n"
            "unitx=u\n"
          );
@@ -1621,10 +1622,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_strncpy(f,  abs_sym_path(argv[2], ""), S(f));
           if(f[0] && check_loaded(f, win_path)) {
             char msg[PATH_MAX + 100];
-            my_snprintf(msg, S(msg), "alert_ {xschem load: %s already open: %s}", f, win_path);
-            if(has_x) tcleval(msg);
+            my_snprintf(msg, S(msg),
+               "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
+               "-message {Warning: %s already open.}", f);
+            if(has_x) {
+              tcleval(msg);
+              if(strcmp(tclresult(), "ok")) skip = 1;
+            }
             else dbg(0, "xschem load: %s already open: %s\n", f, win_path);
-            skip = 1;
           }
           if(!skip) {
             clear_all_hilights();
@@ -2590,11 +2595,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
     /*   0       1       2     3    4     5    6
      * xschem setprop instance R4 value [30k] [fast] */
-      int inst, fast=0;
    
       cmd_found = 1;
       
       if(argc > 2 && !strcmp(argv[2], "instance")) {
+        int inst, fast=0;
         if(argc >= 7) {
           if(!strcmp(argv[6], "fast")) {
             fast = 1;
@@ -2657,6 +2662,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       } else if(argc > 5 && !strcmp(argv[2], "rect")) {
       /*  0       1      2   3 4   5    6      7
        * xschem setprop rect c n token value [fast] */
+        int change_done = 0;
+        int fast = 0;
         xRect *r;
         int c = atoi(argv[3]);
         int n = atoi(argv[4]);
@@ -2671,22 +2678,40 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             fast = 1;
             argc = 7;
           }
+          if(!strcmp(argv[7], "fastundo")) {
+            fast = 3;
+            argc = 7;
+          }
         }
         else if(argc >= 7) {
           if(!strcmp(argv[6], "fast")) {
             fast = 1;
             argc = 6;
           }
+          if(!strcmp(argv[6], "fastundo")) {
+            fast = 3;
+            argc = 6;
+          }
         }
         if(!fast) {
           bbox(START,0.0,0.0,0.0,0.0);
-          xctx->push_undo();
         }
-        set_modify(1);
-        if(argc > 6) 
-          my_strdup(1486, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], argv[6]));
-        else
-          my_strdup(1478, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], NULL)); /* delete attr */
+        if(argc > 6) {
+          /* verify if there is some difference */
+          if(strcmp(argv[6], get_tok_value(r->prop_ptr, argv[5], 0))) {
+            change_done = 1;
+            if(fast == 3 || fast == 0) xctx->push_undo();
+            my_strdup2(1486, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], argv[6]));
+          }
+        } else {
+          get_tok_value(r->prop_ptr, argv[5], 0);
+          if(xctx->get_tok_size) {
+            change_done = 1;
+            if(fast == 3 || fast == 0) xctx->push_undo();
+            my_strdup2(1478, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], NULL)); /* delete attr */
+          }
+        }
+        if(change_done) set_modify(1);
         set_rect_flags(r); /* set cached .flags bitmask from on attributes */
         if(!fast) {
           bbox(ADD, r->x1, r->y1, r->x2, r->y2);

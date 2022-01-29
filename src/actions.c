@@ -461,10 +461,14 @@ void ask_new_file(void)
  
       if(check_loaded(f, win_path)) {
         char msg[PATH_MAX + 100];
-        my_snprintf(msg, S(msg), "alert_ {xschem load: %s already open: %s}", f, win_path);
-        if(has_x) tcleval(msg);
+        my_snprintf(msg, S(msg),
+           "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
+           "-message {Warning: %s already open.}", f);
+        if(has_x) {
+          tcleval(msg);
+          if(strcmp(tclresult(), "ok")) skip = 1;
+        }
         else dbg(0, "ask_new_file: %s already open: %s\n", f, win_path);
-        skip = 1;
       }
       if(!skip) {
         dbg(1, "ask_new_file(): load file: %s\n", f);

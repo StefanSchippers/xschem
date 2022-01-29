@@ -1719,22 +1719,30 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      char *tool_name = NULL;
      char str[200];
 
+
+
      if(xctx->semaphore >= 2) break;
+
+     tcleval("winfo exists .graphdialog");
+     if(tclresult()[0] == '1') tool = XSCHEM_GRAPH;
+
      tcleval("info exists sim");
      if(tclresult()[0] == '1') exists = 1;
      xctx->enable_drill = 0;
      if(exists) {
-       tool = atol(tclgetvar("sim(spicewave,default)"));
-       my_snprintf(str, S(str), "sim(spicewave,%d,name)", tool);
-       my_strdup(1271, &tool_name, tclgetvar(str));
-       dbg(1,"callback(): tool_name=%s\n", tool_name);
-       if(strstr(tool_name, "Gaw")) tool=GAW;
-       else if(strstr(tool_name, "Bespice")) tool=BESPICE;
-       if(tool) {
-         hilight_net(tool);
-         redraw_hilights(0);
+       if(!tool) {
+         tool = atol(tclgetvar("sim(spicewave,default)"));
+         my_snprintf(str, S(str), "sim(spicewave,%d,name)", tool);
+         my_strdup(1271, &tool_name, tclgetvar(str));
+         dbg(1,"callback(): tool_name=%s\n", tool_name);
+         if(strstr(tool_name, "Gaw")) tool=GAW;
+         else if(strstr(tool_name, "Bespice")) tool=BESPICE;
+         my_free(1272, &tool_name);
        }
-       my_free(1272, &tool_name);
+     }
+     if(tool) {
+       hilight_net(tool);
+       redraw_hilights(0);
      }
      Tcl_ResetResult(interp);
      break;
@@ -2156,6 +2164,16 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      xctx->my_double_save=xctx->mousey_snap;
      break;
    }
+
+  /*
+   * if(button == Button3 && tclgetvar("graph_selected")[0] && xctx->semaphore >=2 )
+   * {
+   *    sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
+   *    if(sel) send_net_to_graph(1);
+   *   
+   * }
+   * else
+   */
    if(button == Button3 &&  state == ControlMask && xctx->semaphore <2)
    {
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);

@@ -1940,9 +1940,7 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
   /* plot single dataset */
   val = get_tok_value(r->prop_ptr,"dataset",0);
   if(val[0]) gr->dataset = atoi(val);
-
   gr->gh = gr->gy2 - gr->gy1;
-
   /* set margins */
   tmp = gr->rw * 0.14;
   gr->marginx = tmp < 30 ? 30 : tmp;
@@ -1964,9 +1962,9 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
   tmp =  gr->w * 0.00044;
   if(tmp < gr->txtsizelab) gr->txtsizelab = tmp;
   if(flags & 2)
-    gr->digtxtsizelab = 0.300 * fabs( gr->gh / gr->posh);
+    gr->digtxtsizelab = 0.001300 * fabs( gr->h / gr->posh );
   else
-    gr->digtxtsizelab = 0.400 * fabs( gr->gh / gr->posh);
+    gr->digtxtsizelab = 0.001600 * fabs( gr->h / gr->posh );
 
   /* x axis, y axis text sizes */
   gr->txtsizey = gr->h / gr->divy * 0.009;
@@ -2090,28 +2088,36 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
       yt = s1 * (double)(n_nodes - wcnt) * gr->gh - (gr->gy1 - gr->gh * 0.1) * s2;
 
     if(yt <= gr->ypos2 && yt >= gr->ypos1) {
+      #if HAS_CAIRO == 1
       if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt) {
         cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
         cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
       }
+      #endif
       draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
         xt, DW_Y(yt), gr->digtxtsizelab, gr->digtxtsizelab);
+      #if HAS_CAIRO == 1
       if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt) {
         cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
         cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
       }
+      #endif
     }
   } else {
+    #if HAS_CAIRO == 1
     if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt) {
       cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
       cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     }
+    #endif
     draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
         gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry1, gr->txtsizelab, gr->txtsizelab);
+    #if HAS_CAIRO == 1
     if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt) {
       cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
       cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     }
+    #endif
   }
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }

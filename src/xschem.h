@@ -219,6 +219,7 @@ extern char win_temp_dir[PATH_MAX];
 #define NGSPICE 1
 #define GAW 2
 #define BESPICE 3
+#define XSCHEM_GRAPH 4
 
 /*    some useful primes */
 /*    109, 163, 251, 367, 557, 823, 1237, 1861, 2777, 4177, 6247, 9371, 14057 */

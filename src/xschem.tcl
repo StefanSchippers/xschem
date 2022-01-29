@@ -1285,9 +1285,13 @@ proc waves {} {
 # ============================================================
 
 
+
+
 # allow change color (via graph_change_wave_color) of double clicked wave
 proc graph_edit_wave {n n_wave} {
   global graph_sel_color graph_selected colors graph_sel_wave
+  global graph_schname
+  set graph_schname [xschem get schname]
   set_ne graph_sel_color 4
   set graph_selected $n
   set graph_sel_wave $n_wave
@@ -1302,48 +1306,115 @@ proc graph_edit_wave {n n_wave} {
   }
   set col [lrange $col 0 [expr {$i - 1}]]
   set graph_sel_color [lindex $col $graph_sel_wave]
-  xschem setprop rect 2 $graph_selected color $col fast
+  xschem setprop rect 2 $graph_selected color $col fastundo
   xschem draw_graph  $graph_selected
   # puts "graph: $graph_selected , wave: $n_wave, n_nodes: $n_nodes"
   # puts "    node: $node, col: $col"
   # puts "------"
-  toplevel .dialog
-  frame .dialog.f
-  button .dialog.ok -text OK -command {destroy .dialog}
-  button .dialog.cancel -text Cancel -command {destroy .dialog}
+  toplevel .graphdialog
+  frame .graphdialog.f
+  button .graphdialog.ok -text OK -command {destroy .graphdialog}
+  button .graphdialog.cancel -text Cancel -command {destroy .graphdialog}
   for {set i 4} {$i < 22} {incr i} {
-    radiobutton .dialog.f.r$i -value $i -bg [lindex $colors $i] \
+    radiobutton .graphdialog.f.r$i -value $i -bg [lindex $colors $i] \
          -variable graph_sel_color -command {graph_change_wave_color $graph_sel_wave }
-    pack .dialog.f.r$i -side left -fill both -expand yes
+    pack .graphdialog.f.r$i -side left -fill both -expand yes
   }
-  grid .dialog.f  - -sticky nsew
-  grid .dialog.ok .dialog.cancel -sticky ew
-  grid rowconfig .dialog 0 -weight 1
-  grid column .dialog 0 -weight 1
-  grid column .dialog 1 -weight 1
-  tkwait window .dialog
+  grid .graphdialog.f  - -sticky nsew
+  grid .graphdialog.ok .graphdialog.cancel -sticky ew
+  grid rowconfig .graphdialog 0 -weight 1
+  grid column .graphdialog 0 -weight 1
+  grid column .graphdialog 1 -weight 1
+  tkwait window .graphdialog
+  set graph_schname {}
 }
 
-# add nodes from left listbox
-proc graph_add_nodes {} {
-  global graph_bus
-  set sel_idx [.dialog.center.left.list1 curselection]
+
+# get selected text from a text widget:
+#
+# .graphdialog.center.right.text1 get \
+#     [.graphdialog.center.right.text1 index sel.first] \
+#     [.graphdialog.center.right.text1 index sel.last]
+#
+#
+#
+
+
+# add nodes from provided list of {node color} .... 
+proc graph_add_nodes_from_list {nodelist} {
+  global graph_bus graph_selected graph_schname
   set sel {}
   if {$graph_bus} {
     set sep ,
   } else {
     set sep \n
   }
-  foreach i $sel_idx {
-    if {$sel ne {}} {append sel $sep}
-    append sel [.dialog.center.left.list1 get $i]
+  set current_node_list [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]
+  set col  [xschem getprop rect 2 $graph_selected color]
+  if {[string length $current_node_list] > 0 && ![regexp "\n$" $current_node_list]} {
+    .graphdialog.center.right.text1 insert end \n
   }
+  set change_done 0
+  set first 0
+  foreach {i c} $nodelist {
+    if {$sel ne {}} {append sel $sep}
+    if {!$first  || !$graph_bus } {
+      regsub {\[.*} $i {} busname
+      lappend col $c
+    }
+    append sel $i
+    set change_done 1
+    set first 1
+  }
+  if {$change_done && $graph_bus} {
+    set sel "[string toupper $busname],${sel}\n"
+  } else {
+    set sel "${sel}\n"
+  }
+  if {$change_done} {
+    .graphdialog.center.right.text1 insert end $sel
+    if { [xschem get schname] eq $graph_schname } {
+      set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+      xschem setprop rect 2 $graph_selected color $col fastundo
+      graph_update_nodelist
+      xschem setprop rect 2 $graph_selected node $node fast
+      xschem draw_graph $graph_selected
+    }
+  }
+}
+
+# add nodes from left listbox
+proc graph_add_nodes {} {
+  global graph_bus
+  set sel_idx [.graphdialog.center.left.list1 curselection]
+  set sel {}
   if {$graph_bus} {
+    set sep ,
+  } else {
+    set sep \n
+  }
+  set current_node_list [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]
+  if {[string length $current_node_list] > 0 && ![regexp "\n$" $current_node_list]} {
+    .graphdialog.center.right.text1 insert end \n
+  }
+  set change_done 0
+  foreach i $sel_idx {
+    set c [.graphdialog.center.left.list1 get $i]
+    set c [regsub -all {([][])}  $c {\\\1}]
+    if { ![regexp "(^|\[ \t\n\])${c}($|\[ \t\n\])" $current_node_list]} {
+      if {$sel ne {}} {append sel $sep}
+      append sel [.graphdialog.center.left.list1 get $i]
+      set change_done 1
+    }
+  }
+  if {$change_done && $graph_bus} {
     set sel "BUS_NAME,${sel}\n"
   } else {
     set sel "${sel}\n"
   }
-  .dialog.center.right.text1 insert {insert lineend + 1 char} $sel
+  if {$change_done} {
+    .graphdialog.center.right.text1 insert {insert lineend + 1 char} $sel
+  }
 }
 
 proc graph_get_signal_list {siglist pattern } {
@@ -1367,70 +1438,87 @@ proc graph_get_signal_list {siglist pattern } {
 # OR
 # change color attribute of wave given as parameter, redraw graph
 proc graph_change_wave_color {{wave {}}} {
-  global graph_sel_color graph_selected
+  global graph_sel_color graph_selected graph_schname
+
+  if { [xschem get schname] ne $graph_schname } return
   #  get tag the cursor is on:
   if { $wave eq {}} {
-    set tag [.dialog.center.right.text1 tag names insert]
+    set tag [.graphdialog.center.right.text1 tag names insert]
     if { [regexp {^t} $tag]} {
       set index [string range $tag 1 end]
       set col  [xschem getprop rect 2 $graph_selected color]
       set col [lreplace $col $index $index  $graph_sel_color]
-      xschem setprop rect 2 $graph_selected color $col fast
+      xschem setprop rect 2 $graph_selected color $col fastundo
       graph_update_nodelist
+      xschem draw_graph $graph_selected
     }
   # wave to change provided as parameter
   } else {
     set col  [xschem getprop rect 2 $graph_selected color]
     set col [lreplace $col $wave $wave  $graph_sel_color]
-    xschem setprop rect 2 $graph_selected color $col fast
+    xschem setprop rect 2 $graph_selected color $col fastundo
     xschem draw_graph $graph_selected
   }
 }
 
 # tag nodes in text widget with assigned colors 
-# redraw graph
-proc graph_update_nodelist {{nosave {}}} {
-  global graph_selected colors graph_sel_color
-  set nodelist [.dialog.center.right.text1 get 1.0 end]
+proc graph_update_nodelist {} {
+  global graph_selected colors graph_sel_color graph_schname
+  if { [xschem get schname] ne $graph_schname } return
   # delete old tags
-  eval .dialog.center.right.text1 tag delete [ .dialog.center.right.text1 tag names]
+  eval .graphdialog.center.right.text1 tag delete [ .graphdialog.center.right.text1 tag names]
   # tagging nodes in text widget:
   set col  [xschem getprop rect 2 $graph_selected color]
   set col [string trim $col " \n"]
-  set tt [.dialog.center.right.text1 search -all -nolinestop -regexp -count cc {[^ \n]+} 1.0]
+  set tt [.graphdialog.center.right.text1 search -all -nolinestop -regexp -count cc {[^ \n]+} 1.0]
   set n 0
   if { [info exists cc] && ($tt ne {}) } {
     foreach t $tt c $cc {
       set col_idx [lindex $col $n]
+      # add missing colors
       if {$col_idx eq {}} {
         set col_idx $graph_sel_color
         lappend col $graph_sel_color
       }
       set b [lindex $colors $col_idx]  
-      .dialog.center.right.text1 tag add t$n $t "$t + $c chars"
-      .dialog.center.right.text1 tag configure t$n -background $b
-      if { $col_idx == 8 || $col_idx == 9 || $col_idx == 16 || $col_idx == 19} {
-        .dialog.center.right.text1 tag configure t$n -foreground black}
+      .graphdialog.center.right.text1 tag add t$n $t "$t + $c chars"
+      .graphdialog.center.right.text1 tag configure t$n -background $b
       incr n
     }
+    # remove excess colors
     set col [lrange $col 0 [expr {$n - 1}]]
-    if {$nosave ne {nosave}} {xschem setprop rect 2 $graph_selected color $col fast}
+    if { [llength $col] != [llength [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]] } {
+      puts "PROBLEMS: colors and nodes of different length"
+    }
+  } else {
+    set col {}
   }
-  xschem draw_graph $graph_selected
+  xschem setprop rect 2 $graph_selected color $col fastundo
 }
 
 proc fill_graph_listbox {} {
-  set retval [.dialog.top.search get]
+  set retval [.graphdialog.top.search get]
   set retval [graph_get_signal_list [xschem raw_query list] $retval]
-  .dialog.center.left.list1 delete 0 end
-  eval .dialog.center.left.list1 insert 0 $retval
+  .graphdialog.center.left.list1 delete 0 end
+  eval .graphdialog.center.left.list1 insert 0 $retval
 }
 
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected colors graph_sel_color
-  global graph_unlocked
+  global graph_unlocked graph_schname graph_unitx graph_unity
+  global graph_divx graph_divy graph_subdivx graph_subdivy
+
+  set geom {}
+  if { [winfo exists .graphdialog]} {
+    set geom [winfo geometry .graphdialog]
+  } 
+  catch {destroy .graphdialog}
+  toplevel .graphdialog -width 1 -height 1
+  update idletasks
+  if {$geom ne {}} { wm geometry .graphdialog $geom}
 
   set graph_selected $n
+  set graph_schname [xschem get schname]
   set_ne graph_sel_color 4
   set_ne graph_bus 0
   set_ne graph_sort 0
@@ -1442,157 +1530,259 @@ proc graph_edit_properties {n} {
     set graph_unlocked 0
   }
   
-  toplevel .dialog
-  frame .dialog.top
-  panedwindow .dialog.center -orient horiz
-  frame .dialog.bottom
-  frame .dialog.center.left
-  frame .dialog.center.right
-  .dialog.center add .dialog.center.left .dialog.center.right
-  pack .dialog.top -side top -fill x 
-  pack .dialog.center -side top -fill both -expand yes
-  pack .dialog.bottom -side top -fill x 
+  frame .graphdialog.top
+  # another row of buttons
+  frame .graphdialog.top2 
+  panedwindow .graphdialog.center -orient horiz
+  frame .graphdialog.bottom
+  frame .graphdialog.center.left
+  frame .graphdialog.center.right
+  .graphdialog.center add .graphdialog.center.left .graphdialog.center.right
+  pack .graphdialog.top -side top -fill x 
+  pack .graphdialog.top2 -side top -fill x 
+  pack .graphdialog.center -side top -fill both -expand yes
+  pack .graphdialog.bottom -side top -fill x 
 
   # center-left frame
-  label .dialog.center.left.lab1 -text {Signal list}
-  button .dialog.center.left.add -text Add -command {
+  label .graphdialog.center.left.lab1 -text {Signal list}
+  button .graphdialog.center.left.add -text Add -command {
     graph_add_nodes; graph_update_nodelist
   }
-  listbox .dialog.center.left.list1 -width 20 -height 10 -selectmode extended \
-     -yscrollcommand {.dialog.center.left.yscroll set} \
-     -xscrollcommand {.dialog.center.left.xscroll set}
-  scrollbar .dialog.center.left.yscroll -command {.dialog.center.left.list1 yview}
-  scrollbar .dialog.center.left.xscroll -orient horiz -command {.dialog.center.left.list1 xview}
-  grid .dialog.center.left.lab1 .dialog.center.left.add
-  grid .dialog.center.left.list1 - .dialog.center.left.yscroll -sticky nsew
-  grid .dialog.center.left.xscroll - -sticky nsew
-  grid rowconfig .dialog.center.left 0 -weight 0
-  grid rowconfig .dialog.center.left 1 -weight 1 -minsize 100
-  grid columnconfig .dialog.center.left 0 -weight 1
-  grid columnconfig .dialog.center.left 1 -weight 1
+  listbox .graphdialog.center.left.list1 -width 20 -height 10 -selectmode extended \
+     -yscrollcommand {.graphdialog.center.left.yscroll set} \
+     -xscrollcommand {.graphdialog.center.left.xscroll set}
+  scrollbar .graphdialog.center.left.yscroll -command {.graphdialog.center.left.list1 yview}
+  scrollbar .graphdialog.center.left.xscroll -orient horiz -command {.graphdialog.center.left.list1 xview}
+  grid .graphdialog.center.left.lab1 .graphdialog.center.left.add
+  grid .graphdialog.center.left.list1 - .graphdialog.center.left.yscroll -sticky nsew
+  grid .graphdialog.center.left.xscroll - -sticky nsew
+  grid rowconfig .graphdialog.center.left 0 -weight 0
+  grid rowconfig .graphdialog.center.left 1 -weight 1 -minsize 100
+  grid columnconfig .graphdialog.center.left 0 -weight 1
+  grid columnconfig .graphdialog.center.left 1 -weight 1
 
   # center right frame
-  label .dialog.center.right.lab1 -text {Signals in graph}
-  checkbutton .dialog.center.right.unlocked -text {Unlocked X axis} -variable graph_unlocked
-  text .dialog.center.right.text1 -wrap none -width 50 -height 10 -bg grey50 -fg white -insertbackground grey40 \
-     -yscrollcommand {.dialog.center.right.yscroll set} \
-     -xscrollcommand {.dialog.center.right.xscroll set}
-  scrollbar .dialog.center.right.yscroll -command {.dialog.center.right.text1 yview}
-  scrollbar .dialog.center.right.xscroll -orient horiz -command {.dialog.center.right.text1 xview}
+  label .graphdialog.center.right.lab1 -text {Signals in graph}
+  checkbutton .graphdialog.center.right.unlocked -text {Unlocked X axis} -variable graph_unlocked
+  text .graphdialog.center.right.text1 -wrap none -width 50 -height 10 -bg grey70 -fg black \
+     -insertbackground grey40 -exportselection 0 \
+     -yscrollcommand {.graphdialog.center.right.yscroll set} \
+     -xscrollcommand {.graphdialog.center.right.xscroll set}
+  scrollbar .graphdialog.center.right.yscroll -command {.graphdialog.center.right.text1 yview}
+  scrollbar .graphdialog.center.right.xscroll -orient horiz -command {.graphdialog.center.right.text1 xview}
 
-  grid .dialog.center.right.lab1 .dialog.center.right.unlocked
-  grid .dialog.center.right.text1 - .dialog.center.right.yscroll -sticky nsew
-  grid .dialog.center.right.xscroll - -sticky nsew
-  grid rowconfig .dialog.center.right 0 -weight 0
-  grid rowconfig .dialog.center.right 1 -weight 1 -minsize 100
-  grid columnconfig .dialog.center.right 0 -weight 1
-  grid columnconfig .dialog.center.right 1 -weight 1
+  grid .graphdialog.center.right.lab1 .graphdialog.center.right.unlocked
+  grid .graphdialog.center.right.text1 - .graphdialog.center.right.yscroll -sticky nsew
+  grid .graphdialog.center.right.xscroll - -sticky nsew
+  grid rowconfig .graphdialog.center.right 0 -weight 0
+  grid rowconfig .graphdialog.center.right 1 -weight 1 -minsize 100
+  grid columnconfig .graphdialog.center.right 0 -weight 1
+  grid columnconfig .graphdialog.center.right 1 -weight 1
 
 
   # bottom frame
-  button .dialog.bottom.cancel -text Cancel -command {
-    destroy .dialog
+  button .graphdialog.bottom.cancel -text Cancel -command {
+    destroy .graphdialog
+    set graph_selected {}
+    set graph_schname {}
   }
-  button .dialog.bottom.ok -text OK -command {
-    graph_update_nodelist
-    set node [string trim [.dialog.center.right.text1 get 1.0 end] " \n"]
-    xschem setprop rect 2 $graph_selected y1 [.dialog.top.min get] fast
-    xschem setprop rect 2 $graph_selected y2 [.dialog.top.max get] fast
-    xschem setprop rect 2 $graph_selected node $node fast
-    if {$graph_unlocked} {
-      xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
+  button .graphdialog.bottom.ok -text OK -command {
+    if { [xschem get schname] eq $graph_schname } {
+      graph_update_nodelist
+      set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+      xschem setprop rect 2 $graph_selected y1 [.graphdialog.top.min get] fast
+      xschem setprop rect 2 $graph_selected y2 [.graphdialog.top.max get] fast
+      xschem setprop rect 2 $graph_selected node $node fast
+      if {$graph_unlocked} {
+        xschem setprop rect 2 $graph_selected flags {graph,unlocked} fastundo
+      } else {
+        xschem setprop rect 2 $graph_selected flags {graph} fastundo
+      }
+      destroy .graphdialog
+      xschem draw_graph $graph_selected
+      set graph_selected {}
+      set graph_schname {}
     } else {
-      xschem setprop rect 2 $graph_selected flags {graph} fast
+      destroy .graphdialog
+      set graph_selected {}
+      set graph_schname {}
     }
-    destroy .dialog
-    xschem draw_graph $graph_selected
   }
-  button .dialog.bottom.apply -text Apply -command {
-    graph_update_nodelist
-    set node [string trim [.dialog.center.right.text1 get 1.0 end] " \n"]
-    xschem setprop rect 2 $graph_selected y1 [.dialog.top.min get] fast
-    xschem setprop rect 2 $graph_selected y2 [.dialog.top.max get] fast
-    xschem setprop rect 2 $graph_selected node $node fast
-    if {$graph_unlocked} {
-      xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
-    } else {
-      xschem setprop rect 2 $graph_selected flags {graph} fast
+  button .graphdialog.bottom.apply -text Apply -command {
+    if { [xschem get schname] eq $graph_schname } {
+      graph_update_nodelist
+      set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+      xschem setprop rect 2 $graph_selected y1 [.graphdialog.top.min get] fast
+      xschem setprop rect 2 $graph_selected y2 [.graphdialog.top.max get] fast
+      xschem setprop rect 2 $graph_selected node $node fast
+      if {$graph_unlocked} {
+        xschem setprop rect 2 $graph_selected flags {graph,unlocked} fastundo
+      } else {
+        xschem setprop rect 2 $graph_selected flags {graph} fastundo
+      }
+      xschem draw_graph $graph_selected
     }
-    xschem draw_graph $graph_selected
   }
 
-  pack .dialog.bottom.ok -side left
-  pack .dialog.bottom.apply -side left
-  pack .dialog.bottom.cancel -side left
+  # top packs
+  pack .graphdialog.bottom.ok -side left
+  pack .graphdialog.bottom.apply -side left
+  pack .graphdialog.bottom.cancel -side left
 
   for {set i 4} {$i < 22} {incr i} {
-    radiobutton .dialog.bottom.r$i -value $i -bg [lindex $colors $i] \
+    radiobutton .graphdialog.bottom.r$i -value $i -bg [lindex $colors $i] \
       -variable graph_sel_color -command graph_change_wave_color
-    pack .dialog.bottom.r$i -side left
+    pack .graphdialog.bottom.r$i -side left
   }
 
-  # top frame
-  label .dialog.top.labsearch -text Search:
-  entry .dialog.top.search -width 10 
-  checkbutton .dialog.top.bus -text Bus -padx 2 -variable graph_bus
-  checkbutton .dialog.top.incr -text {Incr. sort} -variable graph_sort -indicatoron 1 \
-    -command fill_graph_listbox
-  checkbutton .dialog.top.dig -text {Digital} -variable graph_digital -indicatoron 1 \
-    -command {
-       xschem setprop rect 2 $graph_selected digital $graph_digital fast
-       xschem draw_graph $graph_selected
-     }
-  label .dialog.top.labmin -text {  Min Value:}
-  entry .dialog.top.min -width 5
-  label .dialog.top.labmax -text {  Max Value:}
-  entry .dialog.top.max -width 5
+  # top2 frame
+  label .graphdialog.top2.labunitx -text {X units}
+  spinbox .graphdialog.top2.unitx -values {p n u m 1 k M G} -width 2 -textvar graph_unitx \
+   -command {
+      xschem setprop rect 2 $graph_selected unitx $graph_unitx
+      xschem draw_graph $graph_selected
+    }
 
-  button .dialog.top.clear -text Clear -padx 2 -command {
-    .dialog.top.search delete 0 end
+  label .graphdialog.top2.labunity -text {  Y units}
+  spinbox .graphdialog.top2.unity -values {p n u m 1 k M G} -width 2 -textvar graph_unity \
+   -command {
+      xschem setprop rect 2 $graph_selected unity $graph_unity
+      xschem draw_graph $graph_selected
+    }
+
+  label .graphdialog.top2.labdivx -text {  X div.}
+  entry .graphdialog.top2.divx -textvariable graph_divx -width 2
+  bind .graphdialog.top2.divx <KeyRelease> {
+    xschem setprop rect 2 $graph_selected divx $graph_divx
+    xschem draw_graph $graph_selected
+  }
+
+  label .graphdialog.top2.labdivy -text {  Y div.}
+  entry .graphdialog.top2.divy -textvariable graph_divy -width 2
+  bind .graphdialog.top2.divy <KeyRelease> {
+    xschem setprop rect 2 $graph_selected divy $graph_divy
+    xschem draw_graph $graph_selected
+  }
+
+  label .graphdialog.top2.labsubdivx -text {  X subdiv.}
+  entry .graphdialog.top2.subdivx -textvariable graph_subdivx -width 2
+  bind .graphdialog.top2.subdivx <KeyRelease> {
+    xschem setprop rect 2 $graph_selected subdivx $graph_subdivx
+    xschem draw_graph $graph_selected
+  }
+
+  label .graphdialog.top2.labsubdivy -text {  Y subdiv.}
+  entry .graphdialog.top2.subdivy -textvariable graph_subdivy -width 2
+  bind .graphdialog.top2.subdivy <KeyRelease> {
+    xschem setprop rect 2 $graph_selected subdivy $graph_subdivy
+    xschem draw_graph $graph_selected
+  }
+  
+  set graph_divx [xschem getprop rect 2 $graph_selected divx]
+  if {$graph_divx eq {}} { set graph_divx 5}
+  set graph_divy [xschem getprop rect 2 $graph_selected divy]
+  if {$graph_divy eq {}} { set graph_divy 5}
+  set graph_subdivx [xschem getprop rect 2 $graph_selected subdivx]
+  if {$graph_subdivx eq {}} { set graph_subdivx 1}
+  set graph_subdivy [xschem getprop rect 2 $graph_selected subdivy]
+  if {$graph_subdivy eq {}} { set graph_subdivy 1}
+  set graph_unitx [xschem getprop rect 2 $graph_selected unitx]
+  if {$graph_unitx eq {}} { set graph_unitx 1}
+  set graph_unity [xschem getprop rect 2 $graph_selected unity]
+  if {$graph_unity eq {}} { set graph_unity 1}
+  pack .graphdialog.top2.labunitx .graphdialog.top2.unitx \
+       .graphdialog.top2.labunity .graphdialog.top2.unity -side left
+
+  pack .graphdialog.top2.labdivx .graphdialog.top2.divx \
+       .graphdialog.top2.labdivy .graphdialog.top2.divy \
+       .graphdialog.top2.labsubdivx .graphdialog.top2.subdivx \
+       .graphdialog.top2.labsubdivy .graphdialog.top2.subdivy -side left
+
+       
+  # top frame
+  label .graphdialog.top.labsearch -text Search:
+  entry .graphdialog.top.search -width 10 
+  checkbutton .graphdialog.top.bus -text Bus -padx 2 -variable graph_bus
+  checkbutton .graphdialog.top.incr -text {Incr. sort} -variable graph_sort -indicatoron 1 \
+    -command fill_graph_listbox
+  checkbutton .graphdialog.top.dig -text {Digital} -variable graph_digital -indicatoron 1 \
+    -command {
+       if { [xschem get schname] eq $graph_schname } {
+         xschem setprop rect 2 $graph_selected digital $graph_digital fastundo
+         xschem draw_graph $graph_selected
+       }
+     }
+
+  label .graphdialog.top.labmin -text {  Min Value:}
+  entry .graphdialog.top.min -width 5
+  bind .graphdialog.top.min <KeyRelease> {
+    xschem setprop rect 2 $graph_selected y1 [.graphdialog.top.min get]
+    xschem draw_graph $graph_selected
+  }
+
+  label .graphdialog.top.labmax -text {  Max Value:}
+  entry .graphdialog.top.max -width 5
+  bind .graphdialog.top.max <KeyRelease> {
+    xschem setprop rect 2 $graph_selected y2 [.graphdialog.top.max get]
+    xschem draw_graph $graph_selected
+  }
+
+  button .graphdialog.top.clear -text Clear -padx 2 -command {
+    .graphdialog.top.search delete 0 end
     fill_graph_listbox 
   }
-  pack .dialog.top.labsearch .dialog.top.search -side left
-  pack .dialog.top.clear -side left
-  pack .dialog.top.incr -side left
-  pack .dialog.top.bus -side left
-  pack .dialog.top.dig -side left
-  pack .dialog.top.labmin .dialog.top.min .dialog.top.labmax .dialog.top.max -side left
-  .dialog.top.min insert 0 [xschem getprop rect 2 $graph_selected y1]
-  .dialog.top.max insert 0 [xschem getprop rect 2 $graph_selected y2]
+  pack .graphdialog.top.labsearch .graphdialog.top.search -side left
+  pack .graphdialog.top.clear -side left
+  pack .graphdialog.top.incr -side left
+  pack .graphdialog.top.bus -side left
+  pack .graphdialog.top.dig -side left
+  pack .graphdialog.top.labmin .graphdialog.top.min .graphdialog.top.labmax .graphdialog.top.max -side left
+  .graphdialog.top.min insert 0 [xschem getprop rect 2 $graph_selected y1]
+  .graphdialog.top.max insert 0 [xschem getprop rect 2 $graph_selected y2]
 
+ 
   # binding
-  bind .dialog.top.search <KeyRelease> {
+  bind .graphdialog.top.search <KeyRelease> {
     fill_graph_listbox
   }
-  bind .dialog.center.left.list1 <Double-Button-1> {
-    graph_add_nodes;
-    set node [string trim [.dialog.center.right.text1 get 1.0 end] " \n"]
-    xschem setprop rect 2 $graph_selected node $node fast
-    graph_update_nodelist
+  bind .graphdialog.center.left.list1 <Double-Button-1> {
+    graph_add_nodes
+    if { [xschem get schname] eq $graph_schname } {
+      set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+      graph_update_nodelist
+      xschem setprop rect 2 $graph_selected node $node fast
+      xschem draw_graph $graph_selected
+    }
   }
-  bind .dialog.center.right.text1 <KeyRelease> {
-    set node [string trim [.dialog.center.right.text1 get 1.0 end] " \n"]
-    xschem setprop rect 2 $graph_selected node $node fast
-    graph_update_nodelist
+  bind .graphdialog.center.right.text1 <KeyRelease> {
+    if { [xschem get schname] eq $graph_schname } {
+      set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+      graph_update_nodelist
+      xschem setprop rect 2 $graph_selected node $node fast
+      xschem draw_graph $graph_selected
+    }
   }
-  bind .dialog <Control-Return> {
-    .dialog.bottom.ok invoke
+  bind .graphdialog <Control-Return> {
+    .graphdialog.bottom.ok invoke
   }
-  bind .dialog <Escape> {
-    .dialog.bottom.cancel invoke
+  bind .graphdialog <Escape> {
+    .graphdialog.bottom.cancel invoke
+  }
+  wm protocol .graphdialog  WM_DELETE_WINDOW {
+    .graphdialog.bottom.cancel invoke
   }
   
   # fill data in left listbox
-  eval .dialog.center.left.list1 insert 0 [graph_get_signal_list [xschem raw_query list] {}]
+  eval .graphdialog.center.left.list1 insert 0 [graph_get_signal_list [xschem raw_query list] {}]
 
   # fill data in right textbox
   set plotted_nodes [xschem getprop rect 2 $n node]
-  if {[string index $plotted_nodes end] ne "\n"} {append plotted_nodes \n}
-  .dialog.center.right.text1 insert 1.0 $plotted_nodes
-  graph_update_nodelist nosave
+  if {[string length $plotted_nodes] > 0 && [string index $plotted_nodes end] ne "\n"} {append plotted_nodes \n}
+  .graphdialog.center.right.text1 insert 1.0 $plotted_nodes
+  graph_update_nodelist
   # add stuff in textbox at end of line + 1 char (after newline) 
-  # .dialog.center.right.text1 insert {insert lineend + 1 char} foo\n
-  tkwait window .dialog
+  # .graphdialog.center.right.text1 insert {insert lineend + 1 char} foo\n
+  # tkwait window .graphdialog
 }
 
 proc graph_show_measure {{action show}} {
@@ -4182,6 +4372,10 @@ proc raise_dialog {parent window_path } {
       [wm stackorder .dialog isbelow $parent ]} {
     raise .dialog $window_path
   }
+  if {[winfo exists .graphdialog] && [winfo ismapped .graphdialog] && [winfo ismapped $parent] &&
+      [wm stackorder .graphdialog isbelow $parent ]} {
+    raise .graphdialog $window_path
+  }
 }
 
 proc set_old_tk_fonts {} {
@@ -4246,8 +4440,11 @@ set tctx::global_list {
   dark_colorscheme dim_bg dim_value disable_unique_names do_all_inst draw_grid draw_window
   edit_prop_pos edit_prop_size editprop_sympath edit_symbol_prop_new_sel enable_dim_bg enable_stretch 
   en_hilight_conn_inst filetmp
-  flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter graph_bus graph_digital
-  graph_sel_color graph_selected graph_sel_wave graph_sort graph_unlocked
+  flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter
+  graph_bus graph_digital graph_divx graph_divy
+  graph_sel_color graph_schname graph_selected graph_sel_wave graph_sort
+  graph_subdivx graph_subdivy
+  graph_unitx graph_unity graph_unlocked
   hide_empty_graphs hide_symbols hsize hspice_netlist 
   incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
   input_line_cmd input_line_data launcher_default_program light_colors line_width local_netlist_dir
@@ -5234,6 +5431,15 @@ set_ne to_png {gm convert}
 ## ps to pdf conversion
 set_ne to_pdf {ps2pdf}
 
+# selected graph user is editing attributes with graph GUI
+set_ne graph_selected {}
+set_ne graph_schname {}
+set_ne graph_unitx 1
+set_ne graph_unity 1
+set_ne graph_divx 5
+set_ne graph_divy 5
+set_ne graph_subdivx 1
+set_ne graph_subdivy 1
 # user clicked this wave 
 set_ne graph_sel_wave {}
 # flag to force simulation stop (Esc key pressed) 

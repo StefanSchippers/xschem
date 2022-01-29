@@ -902,6 +902,35 @@ static void send_net_to_bespice(int simtype, const char *node)
   }
 }
 
+static void send_net_to_graph(char **s, int simtype, const char *node)
+{
+  int c, k, tok_mult;
+  Node_hashentry *node_entry;
+  const char *expanded_tok;
+  const char *tok;
+  char ss[1024];
+  if(!node || !node[0]) return;
+  tok = node;
+  node_entry = bus_node_hash_lookup(tok, "", XLOOKUP, 0, "", "", "", "");
+  if(tok[0] == '#') tok++;
+  if(node_entry  && (node_entry->d.port == 0 || !strcmp(xctx->sch_path[xctx->currsch], ".") )) {
+    char *t=NULL, *p=NULL;
+    c = get_color(xctx->hilight_color);
+    expanded_tok = expandlabel(tok, &tok_mult);
+    for(k=1; k<=tok_mult; k++) {
+      my_strdup(1498, &t, find_nth(expanded_tok, ',', k));
+      my_strdup2(1499, &p, xctx->sch_path[xctx->currsch]+1);
+      if(simtype == 0 ) { /* spice */
+        dbg(1, "%s%s color=%d\n", strtolower(p), strtolower(t), c);
+        my_snprintf(ss, S(ss), "%s%s %d ", strtolower(p), strtolower(t), c);
+        my_strcat(1502, s, ss);
+      }
+    }
+    my_free(1500, &p);
+    my_free(1501, &t);
+  }
+}
+
 static void send_net_to_gaw(int simtype, const char *node)
 {
   int c, k, tok_mult;
@@ -1546,7 +1575,7 @@ void hilight_net(int viewer)
   char *type;
   int sim_is_xyce;
   int incr_hi;
-
+  char *s = NULL;
   incr_hi = tclgetboolvar("incr_hilight");
   prepare_netlist_structs(0);
   dbg(1, "hilight_net(): entering\n");
@@ -1559,8 +1588,10 @@ void hilight_net(int viewer)
     case WIRE:
          /* sets xctx->hilight_nets=1 */
      if(!bus_hilight_hash_lookup(xctx->wire[n].node, xctx->hilight_color, XINSERT_NOREPLACE)) {
-       if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->wire[n].node);
-       if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->wire[n].node);
+       if(viewer == XSCHEM_GRAPH) {
+         send_net_to_graph(&s, sim_is_xyce, xctx->wire[n].node);
+       } else if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->wire[n].node);
+       else if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->wire[n].node);
        if(incr_hi) incr_hilight_color();
      }
      break;
@@ -1569,8 +1600,11 @@ void hilight_net(int viewer)
      if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
            /* sets xctx->hilight_nets=1 */
        if(!bus_hilight_hash_lookup(xctx->inst[n].node[0], xctx->hilight_color, XINSERT_NOREPLACE)) {
-         if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->inst[n].node[0]);
-         if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->inst[n].node[0]);
+         if(viewer == XSCHEM_GRAPH) {
+           send_net_to_graph(&s, sim_is_xyce, xctx->inst[n].node[0]);
+         }
+         else if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->inst[n].node[0]);
+         else if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->inst[n].node[0]);
          if(incr_hi) incr_hilight_color();
        }
      } else {
@@ -1578,8 +1612,9 @@ void hilight_net(int viewer)
        xctx->hilight_nets=1;
        xctx->inst[n].color = xctx->hilight_color;
        if(type &&  (!strcmp(type, "current_probe") || !strcmp(type, "vsource")) ) {
-         if(viewer == GAW) send_current_to_gaw(sim_is_xyce, xctx->inst[n].instname);
-         if(viewer == BESPICE) send_current_to_bespice(sim_is_xyce, xctx->inst[n].instname);
+         if(viewer == XSCHEM_GRAPH) ; /* <<<<, */
+         else if(viewer == GAW) send_current_to_gaw(sim_is_xyce, xctx->inst[n].instname);
+         else if(viewer == BESPICE) send_current_to_bespice(sim_is_xyce, xctx->inst[n].instname);
        }
        if(incr_hi) incr_hilight_color();
      }
@@ -1587,6 +1622,10 @@ void hilight_net(int viewer)
     default:
      break;
    }
+  }
+  if( viewer == XSCHEM_GRAPH && s) {
+    tclvareval("graph_add_nodes_from_list {", s, "}", NULL);
+    my_free(1504, &s);
   }
   if(!incr_hi) incr_hilight_color();
   if(xctx->hilight_nets) propagate_hilights(1, 0, XINSERT_NOREPLACE);

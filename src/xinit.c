@@ -960,9 +960,11 @@ int check_loaded(const char *f, char *win_path)
   int found = 0;
   for(i = 0; i < MAX_NEW_WINDOWS; i++) {
     ctx = save_xctx[i];
+    dbg(1, "window_count=%d i=%d\n", window_count, i);
     /* if only one schematic it is not yet saved in save_xctx */
     if(window_count == 0 && i == 0)  ctx = xctx;
     if(ctx) {
+      dbg(1, "%s <--> %s\n", ctx->sch[ctx->currsch], f);
       if(!strcmp(ctx->sch[ctx->currsch], f)) {
         dbg(1, "check_loaded(): f=%s, sch=%s\n", f, ctx->sch[ctx->currsch]);
         found = 1;
@@ -971,6 +973,7 @@ int check_loaded(const char *f, char *win_path)
       }
     }
   }
+  dbg(1, "check_loaded: return %d\n", found);
   return found;
 }
 
@@ -1048,15 +1051,21 @@ static void create_new_window(int *window_count, const char *fname)
   char toppath[WINDOW_PATH_SIZE];
   int i, n;
 
-  dbg(1, "new_schematic() create\n");
-  if(*window_count && fname && fname[0] && check_loaded(fname, toppath)) {
+  dbg(1, "new_schematic() create: fname=%s *window_count = %d\n", fname, *window_count);
+  
+  if(/* *window_count && */ fname && fname[0] && check_loaded(fname, toppath)) {
     char msg[PATH_MAX+100];
-    my_snprintf(msg, S(msg), "alert_ {create_new_window: %s already open: %s}", fname, toppath);
-    if(has_x)
+    my_snprintf(msg, S(msg),
+       "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
+       "-message {Warning: %s already open.}", fname);
+    if(has_x) {
       tcleval(msg);
-    else
+      if(strcmp(tclresult(), "ok")) return;
+    }
+    else {
       dbg(0, "create_new_window: %s already open: %s\n", fname, toppath);
-    return;
+      return;
+    }
   }
   if(*window_count == 0) {
     for(i = 0; i < MAX_NEW_WINDOWS; i++) {
@@ -1124,15 +1133,23 @@ static void create_new_tab(int *window_count, const char *fname)
   char win_path[WINDOW_PATH_SIZE];
 
   dbg(1, "new_schematic() new_tab, creating...\n");
-  if(*window_count && fname && fname[0] && check_loaded(fname, open_path)) {
+  if(/* *window_count && */ fname && fname[0] && check_loaded(fname, open_path)) {
     char msg[PATH_MAX+100];
-    my_snprintf(msg, S(msg), "alert_ {create_new_tab: %s already open: %s}", fname, open_path);
-    if(has_x) 
+    my_snprintf(msg, S(msg),
+       "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
+       "-message {Warning: %s already open.}", fname);
+    if(has_x) {
       tcleval(msg);
-    else
+      if(strcmp(tclresult(), "ok")) {
+        switch_tab(window_count, open_path);
+        return;
+      }
+    }
+    else {
       dbg(0, "create_new_tab: %s already open: %s\n", fname, open_path);
-    switch_tab(window_count, open_path);
-    return;
+      switch_tab(window_count, open_path);
+      return;
+    }
   }
   if(*window_count == 0) {
     for(i = 0; i < MAX_NEW_WINDOWS; i++) {
