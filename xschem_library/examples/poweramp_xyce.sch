@@ -15,11 +15,11 @@ L 18 880 -530 900 -580 {}
 L 18 880 -530 880 -450 {}
 L 18 900 -580 900 -400 {}
 B 2 1260 -230 1940 -40 {flags=graph
-y1 = -3.5e-08
-y2 = 0.04
+y1 = -0.00502997
+y2 = 0.0507651
 divy = 5
 x1=0
-x2=0.02
+x2=0.06
 divx=10
 node=V:X1:3#branch
 color=11 unitx=m unity=m
@@ -29,7 +29,7 @@ y1 = -0.02
 y2 = 11
 divy = 6
 x1=0
-x2=0.02
+x2=0.06
 divx=10
 node="V:X1:U#branch
 V:X0:U#branch
@@ -40,18 +40,18 @@ unitx=m
 }
 B 2 1260 -760 1940 -450 {flags=graph
 y1 = -50
-y2 = 50
+y2 = 59
 divy = 12
 x1=0
-x2=0.02
+x2=0.06
 divx=10
 node="OUTP
 OUTM
 VPP
 VNN
-X1.VBOOST
-X0.VBOOST"
-color="4 15 6 12 7 4"
+X1:VBOOST
+X0:VBOOST"
+color="4 15 6 12 7 18"
 unitx=m
 }
 T {actual value

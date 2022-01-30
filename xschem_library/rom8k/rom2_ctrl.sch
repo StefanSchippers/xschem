@@ -8,8 +8,8 @@ B 2 580 -140 1200 -30 {flags=graph
 y1 = 0
 y2 = 1.6
 divy = 2
-x1=1.14083e-07
-x2=1.90664e-07
+x1=1.17129e-07
+x2=1.9371e-07
 divx=8
 comm="example of using tcl to replace the path 
       with $path variable automatically"
@@ -23,8 +23,8 @@ B 2 580 -280 1200 -140 {flags=graph
 y1 = 0
 y2 = 1.6
 divy = 2
-x1=1.14083e-07
-x2=1.90664e-07
+x1=1.17129e-07
+x2=1.9371e-07
 divx=8
 comm="example of using tcl to replace the path 
       with $path variable automatically"
@@ -38,15 +38,16 @@ B 2 580 -400 1200 -280 {flags=graph
 y1 = 0
 y2 = 1.6
 divy = 2
-x1=1.14083e-07
-x2=1.90664e-07
+x1=1.17129e-07
+x2=1.9371e-07
 divx=8
 comm="example of using tcl to replace the path 
       with $path variable automatically"
-node="xctrl.ldcp_ref
+node="xctrl.ldq_b
+xctrl.ldcp_ref
 xctrl.ldouti
 xctrl.ldoutib"
-color="12 5 11"
+color="12 5 11 8"
 digital=1
 ypos1=0.1572
 ypos2=0.829851}
