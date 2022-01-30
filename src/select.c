@@ -215,6 +215,7 @@ static void del_rect_line_arc_poly(void)
   {
    if(xctx->rect[c][i].sel == SELECTED)
    {
+    if(c == GRIDLAYER) xctx->graph_lastsel = -1; /* invalidate last selected graph */
     j++;
     bbox(ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1, xctx->rect[c][i].x2, xctx->rect[c][i].y2);
     my_free(928, &xctx->rect[c][i].prop_ptr);
@@ -826,7 +827,8 @@ void select_box(int c, int i, unsigned short select_mode, int fast)
   if(select_mode) {
     if(select_mode==SELECTED) {
       xctx->rect[c][i].sel = select_mode;
-      if(xctx->rect[c][i].flags & 1) xctx->graph_lastsel = i; /* remember last selected graph */
+      /* remember last selected graph */
+      if(c == GRIDLAYER && (xctx->rect[c][i].flags & 1)) xctx->graph_lastsel = i;
     } else {
       xctx->rect[c][i].sel |= select_mode;
     }

@@ -8,39 +8,48 @@ B 2 580 -140 1200 -30 {flags=graph
 y1 = 0
 y2 = 1.6
 divy = 2
-x1=1.11978e-07
-x2=2.09815e-07
+x1=1.14083e-07
+x2=1.90664e-07
 divx=8
 comm="example of using tcl to replace the path 
       with $path variable automatically"
-node="v(xctrl.ldcp_ref)
-v(xctrl.ldprechref)"
-color="12 11"}
+node="xctrl.ldcp_ref
+xctrl.ldprechref"
+color="12 11"
+digital=0
+ypos1=-0.0691204
+ypos2=0.68559}
 B 2 580 -280 1200 -140 {flags=graph
 y1 = 0
 y2 = 1.6
 divy = 2
-x1=1.36438e-07
-x2=2.34275e-07
+x1=1.14083e-07
+x2=1.90664e-07
 divx=8
 comm="example of using tcl to replace the path 
       with $path variable automatically"
-node="v(xctrl.ldcp_ref)
-v(xctrl.ldcpb)"
-color="12 11"}
+node="xctrl.ldcp_ref
+xctrl.ldcpb"
+color="12 11"
+digital=0
+ypos1=0.071147
+ypos2=1.0465}
 B 2 580 -400 1200 -280 {flags=graph
 y1 = 0
 y2 = 1.6
 divy = 2
-x1=1.11978e-07
-x2=2.09815e-07
+x1=1.14083e-07
+x2=1.90664e-07
 divx=8
 comm="example of using tcl to replace the path 
       with $path variable automatically"
-node="v(xctrl.ldcp_ref)
-v(xctrl.ldouti)
-v(xctrl.ldoutib)"
-color="12 5 11"}
+node="xctrl.ldcp_ref
+xctrl.ldouti
+xctrl.ldoutib"
+color="12 5 11"
+digital=1
+ypos1=0.1572
+ypos2=0.829851}
 N 360 -670 500 -670 {lab=LDCPB}
 N 240 -760 250 -760 {lab=LDCPB}
 N 240 -760 240 -670 {lab=LDCPB}

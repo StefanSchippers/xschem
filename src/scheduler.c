@@ -302,6 +302,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
        cmd_found = 1;
        unselect_all();
+       xctx->graph_lastsel = xctx->rects[GRIDLAYER];
        storeobject(-1, xctx->mousex_snap-400, xctx->mousey_snap-200, xctx->mousex_snap+400, xctx->mousey_snap+200,
                    xRECT, GRIDLAYER, SELECTED,
            "flags=graph\n"
@@ -796,9 +797,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
      cmd_found = 1;
      if(!strcmp(argv[2],"backlayer")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",BACKLAYER);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(BACKLAYER), TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"bbox_hilighted")) {
        xRect boundbox;
@@ -815,14 +814,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        Tcl_SetResult(interp, res, TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"cadlayers")) {
-       char s[30]; /* overflow safe 20161212 */
-       my_snprintf(s, S(s), "%d", cadlayers);
-       Tcl_SetResult(interp, s, TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(cadlayers), TCL_VOLATILE);
      }
      else if(!strcmp(argv[2], "case_insensitive")) {
-       char s[30];
-       my_snprintf(s, S(s), "%d", xctx->case_insensitive);
-       Tcl_SetResult(interp, s, TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(xctx->case_insensitive), TCL_VOLATILE);
      }
      else if(!strcmp(argv[2], "color_ps")) {
        if( color_ps != 0 )
@@ -840,19 +835,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        Tcl_SetResult(interp, xctx->current_win_path, TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"currsch")) {
-       char s[30];
-       my_snprintf(s, S(s), "%d",xctx->currsch);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(xctx->currsch),TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"debug_var")) {
-       char s[30];
-       my_snprintf(s, S(s), "%d",debug_var);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(debug_var),TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"draw_window")) {
-       char s[30];
-       my_snprintf(s, S(s), "%d",xctx->draw_window);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(xctx->draw_window),TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"flat_netlist")) {
        if( xctx->flat_netlist != 0 )
@@ -861,14 +850,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"graph_lastsel")) {
-       char s[30];
-       my_snprintf(s, S(s), "%d",xctx->graph_lastsel);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(xctx->graph_lastsel),TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"gridlayer")) {
-       char s[30];
-       my_snprintf(s, S(s), "%d",GRIDLAYER);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(GRIDLAYER),TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"help")) {
        if( help != 0 )
@@ -877,20 +862,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"instances")) {
-       char s[30];
-       my_snprintf(s, S(s), "%d",xctx->instances);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(xctx->instances), TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"lastsel")) {
-       char s[30];
        rebuild_selected_array();
-       my_snprintf(s, S(s), "%d", xctx->lastsel);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(xctx->lastsel),TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"line_width")) {
-       char s[40];
-       my_snprintf(s, S(s), "%g", xctx->lw);
-       Tcl_SetResult(interp, s, TCL_VOLATILE);
+       Tcl_SetResult(interp, dtoa(xctx->lw), TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"netlist_name")) {
        Tcl_SetResult(interp, xctx->netlist_name, TCL_VOLATILE);
@@ -923,29 +902,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"ntabs")) {
-       char s[30];
-       my_snprintf(s, S(s), "%d",new_schematic("ntabs", NULL, NULL));
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(new_schematic("ntabs", NULL, NULL)),TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"pinlayer")) {
-       char s[30];
-       my_snprintf(s, S(s), "%d",PINLAYER);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(PINLAYER),TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"rectcolor")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",xctx->rectcolor);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(xctx->rectcolor),TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"sellayer")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",SELLAYER);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(SELLAYER),TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"semaphore")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",xctx->semaphore);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(xctx->semaphore),TCL_VOLATILE);
      }
      #ifndef __unix__
      else if(!strcmp(argv[2], "temp_dir")) {
@@ -986,9 +955,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
      else if(!strcmp(argv[2],"textlayer")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",TEXTLAYER);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(TEXTLAYER), TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"top_path")) {
        Tcl_SetResult(interp, xctx->top_path, TCL_VOLATILE);
@@ -999,14 +966,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        Tcl_SetResult(interp, top_path,TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"version")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%s",XSCHEM_VERSION);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, XSCHEM_VERSION, TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"wirelayer")) {
-       char s[30]; /* overflow safe 20161122 */
-       my_snprintf(s, S(s), "%d",WIRELAYER);
-       Tcl_SetResult(interp, s,TCL_VOLATILE);
+       Tcl_SetResult(interp, itoa(WIRELAYER), TCL_VOLATILE);
      }
      else if(!strcmp(argv[2],"xorigin")) {
        char s[128];
@@ -1149,10 +1112,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"get_tok_size") )
     {
-      char s[30];
-      cmd_found = 1;
-      my_snprintf(s, S(s), "%d", (int)xctx->get_tok_size);
-      Tcl_SetResult(interp, s, TCL_VOLATILE);
+      Tcl_SetResult(interp, itoa((int)xctx->get_tok_size), TCL_VOLATILE);
     }
    
     else if(!strcmp(argv[1],"globals"))
@@ -1364,35 +1324,29 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
     /* xschem instance_nodemap [instance_name] */
       char *pins = NULL;
-      int p, i, no_of_pins;
+      int p, no_of_pins;
       int inst = -1;
 
       cmd_found = 1;
       prepare_netlist_structs(0);
-      if(argc>=3) inst = get_instance(argv[2]);
-      for(i=0;i<xctx->instances;i++) {
-        if(inst>=0 && i != inst) continue;
-        my_strcat(573, &pins, "{ {");
-        my_strcat(574, &pins,  xctx->inst[i].instname);
-        my_strcat(575, &pins, "} ");
-        no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
-        for(p=0;p<no_of_pins;p++) {
-          const char *pin;
-          pin = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr,"name",0);
-          if(!pin[0]) pin = "--ERROR--";
-          if(argc>=4 && strcmp(argv[3], pin)) continue;
-          my_strcat(576, &pins, "{ ");
-          my_strcat(655, &pins, "{");
-          my_strcat(662, &pins, pin);
-          my_strcat(663, &pins, "} {");
-          my_strcat(664, &pins, xctx->inst[i].node[p] ? xctx->inst[i].node[p] : "");
-          my_strcat(665, &pins, "} ");
-          my_strcat(1155, &pins, "} ");
+      if(argc > 2) {
+        inst = get_instance(argv[2]);
+        if(inst >=0) {
+          my_mstrcat(573, &pins, "{ {", xctx->inst[inst].instname, "} ", NULL);
+          no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
+          for(p=0;p<no_of_pins;p++) {
+            const char *pin;
+            pin = get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr,"name",0);
+            if(!pin[0]) pin = "--ERROR--";
+            if(argc>=4 && strcmp(argv[3], pin)) continue;
+            my_mstrcat(576, &pins, "{ {", pin, "} {",
+                 xctx->inst[inst].node[p] ? xctx->inst[inst].node[p] : "", "} } ", NULL);
+          }
+          my_strcat(1188, &pins, "} ");
         }
-        my_strcat(1188, &pins, "} ");
+        Tcl_SetResult(interp, pins, TCL_VOLATILE);
+        my_free(1189, &pins);
       }
-      Tcl_SetResult(interp, pins, TCL_VOLATILE);
-      my_free(1189, &pins);
     }
    
     else if(!strcmp(argv[1],"instance_pin_coord"))
@@ -1474,9 +1428,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         const char *pin;
         pin = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr,"name",0);
         if(!pin[0]) pin = "--ERROR--";
-        my_strcat(376, &pins, "{");
-        my_strcat(523, &pins, pin);
-        my_strcat(533, &pins, "}");
+        my_mstrcat(376, &pins, "{", pin, "}", NULL);
         if(p< no_of_pins-1) my_strcat(377, &pins, " ");
       }
       Tcl_SetResult(interp, pins, TCL_VOLATILE);
@@ -1505,7 +1457,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xRect *rct;
       short flip, rot;
       double x0,y0, pinx0, piny0;
-      char num[40];
    
       char *pins = NULL;
       int p, i, no_of_pins;
@@ -1529,10 +1480,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(!pin[0]) pin = "--ERROR--";
           if(xctx->inst[i].node[p] && !strcmp(xctx->inst[i].node[p], argv[2]) &&
              !IS_LABEL_SH_OR_PIN( (xctx->inst[i].ptr+xctx->sym)->type )) {
-            my_strcat(534, &pins, "{ {");
-            my_strcat(535, &pins,  xctx->inst[i].instname);
-            my_strcat(536, &pins, "} {");
-            my_strcat(537, &pins, pin);
+            my_mstrcat(534, &pins, "{ {", xctx->inst[i].instname, "} {", pin, NULL);
    
             pinx0 = (rct[p].x1+rct[p].x2)/2;
             piny0 = (rct[p].y1+rct[p].y2)/2;
@@ -1540,13 +1488,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             pinx0 += x0;
             piny0 += y0;
    
-            my_strcat(538, &pins, "} {");
-            my_snprintf(num, S(num), "%g", pinx0);
-            my_strcat(539, &pins, num);
-            my_strcat(540, &pins, "} {");
-            my_snprintf(num, S(num), "%g", piny0);
-            my_strcat(541, &pins, num);
-            my_strcat(542, &pins, "} } ");
+            my_mstrcat(538, &pins, "} {", dtoa(pinx0), "} {", dtoa(piny0), "} } ", NULL);
           }
         }
       }
@@ -2433,9 +2375,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       for(n=0; n < xctx->lastsel; n++) {
         if(xctx->sel_array[n].type == ELEMENT) {
           i = xctx->sel_array[n].n;
-          my_strcat(1191, &res, "{");
-          my_strcat(1192, &res, xctx->inst[i].instname);
-          my_strcat(645, &res, "}");
+          my_mstrcat(645, &res, "{", xctx->inst[i].instname, "}", NULL);
           if(n < xctx->lastsel-1) my_strcat(646, &res, " ");
         }
       }
@@ -2783,13 +2723,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   else if(argv[1][0] == 't') {   
     if(!strcmp(argv[1],"test"))
     {
-      char s[30];
-      int c;
       cmd_found = 1;
-      c = xctx->strcmp("aaa","AAA");
-      my_snprintf(s, S(s), "%d", c);
-      
-      Tcl_AppendResult(interp, s, NULL);
+      Tcl_ResetResult(interp);
     }
    
     else if(!strcmp(argv[1],"toggle_colorscheme"))

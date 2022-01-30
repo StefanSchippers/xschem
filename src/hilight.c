@@ -918,7 +918,7 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
     c = get_color(xctx->hilight_color);
     expanded_tok = expandlabel(tok, &tok_mult);
     for(k=1; k<=tok_mult; k++) {
-      my_strdup(1498, &t, find_nth(expanded_tok, ',', k));
+      my_strdup(1503, &t, find_nth(expanded_tok, ',', k));
       my_strdup2(1499, &p, xctx->sch_path[xctx->currsch]+1);
       if(simtype == 0 ) { /* spice */
         dbg(1, "%s%s color=%d\n", strtolower(p), strtolower(t), c);

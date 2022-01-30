@@ -1304,9 +1304,10 @@ proc graph_edit_wave {n n_wave} {
     if {[lindex $col $i] eq {}} { lappend col $graph_sel_color}
     incr i
   }
+  # remove excess colors
   set col [lrange $col 0 [expr {$i - 1}]]
   set graph_sel_color [lindex $col $graph_sel_wave]
-  xschem setprop rect 2 $graph_selected color $col fastundo
+  xschem setprop rect 2 $graph_selected color $col fast
   xschem draw_graph  $graph_selected
   # puts "graph: $graph_selected , wave: $n_wave, n_nodes: $n_nodes"
   # puts "    node: $node, col: $col"
@@ -1332,11 +1333,13 @@ proc graph_edit_wave {n n_wave} {
 
 # get selected text from a text widget:
 #
-# .graphdialog.center.right.text1 get \
-#     [.graphdialog.center.right.text1 index sel.first] \
-#     [.graphdialog.center.right.text1 index sel.last]
+# .graphdialog.center.right.text1 get sel.first sel.last
 #
+# see if a selection is present:
+# .graphdialog.center.right.text1 tag ranges sel
 #
+# replace selected text: 
+# .graphdialog.center.right.text1 replace sel.first sel.last BUS
 #
 
 
@@ -1471,7 +1474,7 @@ proc graph_change_wave_color {{wave {}}} {
       set index [string range $tag 1 end]
       set col  [xschem getprop rect 2 $graph_selected color]
       set col [lreplace $col $index $index  $graph_sel_color]
-      xschem setprop rect 2 $graph_selected color $col fastundo
+      xschem setprop rect 2 $graph_selected color $col fast
       graph_update_nodelist
       xschem draw_graph $graph_selected
     }
@@ -1479,7 +1482,7 @@ proc graph_change_wave_color {{wave {}}} {
   } else {
     set col  [xschem getprop rect 2 $graph_selected color]
     set col [lreplace $col $wave $wave  $graph_sel_color]
-    xschem setprop rect 2 $graph_selected color $col fastundo
+    xschem setprop rect 2 $graph_selected color $col fast
     xschem draw_graph $graph_selected
   }
 }
@@ -1516,7 +1519,7 @@ proc graph_update_nodelist {} {
   } else {
     set col {}
   }
-  xschem setprop rect 2 $graph_selected color $col fastundo
+  xschem setprop rect 2 $graph_selected color $col fast
 }
 
 proc fill_graph_listbox {} {
@@ -1528,9 +1531,9 @@ proc fill_graph_listbox {} {
 
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected colors graph_sel_color
-  global graph_unlocked graph_schname graph_unitx graph_unity
-  global graph_divx graph_divy graph_subdivx graph_subdivy
+  global graph_unlocked graph_schname
 
+  xschem push_undo
   set geom {}
   if { [winfo exists .graphdialog]} {
     set geom [winfo geometry .graphdialog]
@@ -1616,9 +1619,9 @@ proc graph_edit_properties {n} {
       xschem setprop rect 2 $graph_selected y2 [.graphdialog.top.max get] fast
       xschem setprop rect 2 $graph_selected node $node fast
       if {$graph_unlocked} {
-        xschem setprop rect 2 $graph_selected flags {graph,unlocked} fastundo
+        xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
       } else {
-        xschem setprop rect 2 $graph_selected flags {graph} fastundo
+        xschem setprop rect 2 $graph_selected flags {graph} fast
       }
       destroy .graphdialog
       xschem draw_graph $graph_selected
@@ -1638,9 +1641,9 @@ proc graph_edit_properties {n} {
       xschem setprop rect 2 $graph_selected y2 [.graphdialog.top.max get] fast
       xschem setprop rect 2 $graph_selected node $node fast
       if {$graph_unlocked} {
-        xschem setprop rect 2 $graph_selected flags {graph,unlocked} fastundo
+        xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
       } else {
-        xschem setprop rect 2 $graph_selected flags {graph} fastundo
+        xschem setprop rect 2 $graph_selected flags {graph} fast
       }
       xschem draw_graph $graph_selected
     }
@@ -1659,66 +1662,81 @@ proc graph_edit_properties {n} {
 
   # top2 frame
   label .graphdialog.top2.labunitx -text {X units}
-  spinbox .graphdialog.top2.unitx -values {p n u m 1 k M G} -width 2 -textvar graph_unitx \
+  spinbox .graphdialog.top2.unitx -values {p n u m 1 k M G} -width 2 \
    -command {
-      xschem setprop rect 2 $graph_selected unitx $graph_unitx
+      xschem setprop rect 2 $graph_selected unitx [.graphdialog.top2.unitx get]
       xschem draw_graph $graph_selected
     }
 
   label .graphdialog.top2.labunity -text {  Y units}
-  spinbox .graphdialog.top2.unity -values {p n u m 1 k M G} -width 2 -textvar graph_unity \
+  spinbox .graphdialog.top2.unity -values {p n u m 1 k M G} -width 2 \
    -command {
-      xschem setprop rect 2 $graph_selected unity $graph_unity
+      xschem setprop rect 2 $graph_selected unity [.graphdialog.top2.unity get]
       xschem draw_graph $graph_selected
     }
 
   label .graphdialog.top2.labdivx -text {  X div.}
-  entry .graphdialog.top2.divx -textvariable graph_divx -width 2
+  entry .graphdialog.top2.divx -width 2
   bind .graphdialog.top2.divx <KeyRelease> {
-    xschem setprop rect 2 $graph_selected divx $graph_divx
+    xschem setprop rect 2 $graph_selected divx [.graphdialog.top2.divx get]
     xschem draw_graph $graph_selected
   }
 
   label .graphdialog.top2.labdivy -text {  Y div.}
-  entry .graphdialog.top2.divy -textvariable graph_divy -width 2
+  entry .graphdialog.top2.divy -width 2
   bind .graphdialog.top2.divy <KeyRelease> {
-    xschem setprop rect 2 $graph_selected divy $graph_divy
+    xschem setprop rect 2 $graph_selected divy [.graphdialog.top2.divy get]
     xschem draw_graph $graph_selected
   }
 
   label .graphdialog.top2.labsubdivx -text {  X subdiv.}
-  entry .graphdialog.top2.subdivx -textvariable graph_subdivx -width 2
+  entry .graphdialog.top2.subdivx  -width 2
   bind .graphdialog.top2.subdivx <KeyRelease> {
-    xschem setprop rect 2 $graph_selected subdivx $graph_subdivx
+    xschem setprop rect 2 $graph_selected subdivx [.graphdialog.top2.subdivx get]
     xschem draw_graph $graph_selected
   }
 
   label .graphdialog.top2.labsubdivy -text {  Y subdiv.}
-  entry .graphdialog.top2.subdivy -textvariable graph_subdivy -width 2
+  entry .graphdialog.top2.subdivy -width 2
   bind .graphdialog.top2.subdivy <KeyRelease> {
-    xschem setprop rect 2 $graph_selected subdivy $graph_subdivy
+    xschem setprop rect 2 $graph_selected subdivy [.graphdialog.top2.subdivy get]
     xschem draw_graph $graph_selected
   }
   
+  label .graphdialog.top2.labdset -text {  Dataset}
+  entry .graphdialog.top2.dset -width 4
+  bind .graphdialog.top2.dset <KeyRelease> {
+    xschem setprop rect 2 $graph_selected dataset [.graphdialog.top2.dset get]
+    xschem draw_graph $graph_selected
+  }
+  
+  .graphdialog.top2.dset insert 0 [xschem getprop rect 2 $graph_selected dataset]
   set graph_divx [xschem getprop rect 2 $graph_selected divx]
   if {$graph_divx eq {}} { set graph_divx 5}
+  .graphdialog.top2.divx insert 0 $graph_divx
   set graph_divy [xschem getprop rect 2 $graph_selected divy]
   if {$graph_divy eq {}} { set graph_divy 5}
+  .graphdialog.top2.divy insert 0 $graph_divy
   set graph_subdivx [xschem getprop rect 2 $graph_selected subdivx]
   if {$graph_subdivx eq {}} { set graph_subdivx 1}
+  .graphdialog.top2.subdivx insert 0 $graph_subdivx
   set graph_subdivy [xschem getprop rect 2 $graph_selected subdivy]
   if {$graph_subdivy eq {}} { set graph_subdivy 1}
+  .graphdialog.top2.subdivy insert 0 $graph_subdivy
   set graph_unitx [xschem getprop rect 2 $graph_selected unitx]
   if {$graph_unitx eq {}} { set graph_unitx 1}
+  .graphdialog.top2.unitx set $graph_unitx
   set graph_unity [xschem getprop rect 2 $graph_selected unity]
   if {$graph_unity eq {}} { set graph_unity 1}
+  .graphdialog.top2.unity set $graph_unity
   pack .graphdialog.top2.labunitx .graphdialog.top2.unitx \
        .graphdialog.top2.labunity .graphdialog.top2.unity -side left
 
   pack .graphdialog.top2.labdivx .graphdialog.top2.divx \
        .graphdialog.top2.labdivy .graphdialog.top2.divy \
        .graphdialog.top2.labsubdivx .graphdialog.top2.subdivx \
-       .graphdialog.top2.labsubdivy .graphdialog.top2.subdivy -side left
+       .graphdialog.top2.labsubdivy .graphdialog.top2.subdivy \
+       .graphdialog.top2.labdset .graphdialog.top2.dset -side left
 
        
   # top frame
@@ -1730,7 +1748,7 @@ proc graph_edit_properties {n} {
   checkbutton .graphdialog.top.dig -text {Digital} -variable graph_digital -indicatoron 1 \
     -command {
        if { [xschem get schname] eq $graph_schname } {
-         xschem setprop rect 2 $graph_selected digital $graph_digital fastundo
+         xschem setprop rect 2 $graph_selected digital $graph_digital fast
          xschem draw_graph $graph_selected
        }
      }
@@ -4463,10 +4481,9 @@ set tctx::global_list {
   edit_prop_pos edit_prop_size editprop_sympath edit_symbol_prop_new_sel enable_dim_bg enable_stretch 
   en_hilight_conn_inst filetmp
   flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter
-  graph_bus graph_digital graph_divx graph_divy
+  graph_bus graph_digital
   graph_sel_color graph_schname graph_selected graph_sel_wave graph_sort
-  graph_subdivx graph_subdivy
-  graph_unitx graph_unity graph_unlocked
+  graph_unlocked
   hide_empty_graphs hide_symbols hsize hspice_netlist 
   incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
   input_line_cmd input_line_data launcher_default_program light_colors line_width local_netlist_dir
@@ -5457,12 +5474,6 @@ set_ne to_pdf {ps2pdf}
 set_ne graph_bus 0
 set_ne graph_selected {}
 set_ne graph_schname {}
-set_ne graph_unitx 1
-set_ne graph_unity 1
-set_ne graph_divx 5
-set_ne graph_divy 5
-set_ne graph_subdivx 1
-set_ne graph_subdivy 1
 # user clicked this wave 
 set_ne graph_sel_wave {}
 # flag to force simulation stop (Esc key pressed) 

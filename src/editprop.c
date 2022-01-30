@@ -261,6 +261,53 @@ size_t my_strdup2(int id, char **dest, const char *src) /* 20150409 duplicates a
  return 0;
 }
 
+char *itoa(int i)
+{
+  static char s[30];
+  my_snprintf(s, S(s), "%d", i);
+  return s;
+}
+
+char *dtoa(double i)
+{
+  static char s[50];
+  my_snprintf(s, S(s), "%g", i);
+  return s;
+}
+
+size_t my_mstrcat(int id, char **str, const char *add, ...)
+{
+  va_list args;
+  const char *append_str;
+  size_t s, a;
+
+  if(add == NULL) return 0;
+  s = 0;
+  if(*str != NULL) s = strlen(*str);
+  va_start(args, add);
+  append_str = add;
+  do {
+    if( *str != NULL) {
+      if(append_str[0]=='\0') continue;
+      a = strlen(append_str) + 1;
+      my_realloc(id, str, s + a );
+      memcpy(*str + s, append_str, a);
+      s += a - 1;
+      dbg(3,"my_mstrcat(%d,): reallocated string %s\n", id, *str);
+    } else {
+      if(append_str[0] == '\0') continue;
+      a = strlen(append_str) + 1;
+      *str = my_malloc(id, a);
+      memcpy(*str, append_str, a);
+      dbg(3,"my_mstrcat(%d,): allocated string %s\n", id, *str);
+      s = a - 1;
+    }
+    append_str = va_arg(args, const char *);
+  } while(append_str);
+  va_end(args);
+  return s;
+}
+
 size_t my_strcat(int id, char **str, const char *append_str)
 {
   size_t s, a;
@@ -1115,57 +1162,61 @@ void update_symbol(const char *result, int x)
 
 void change_elem_order(void)
 {
-   xInstance tmpinst;
-   xRect tmpbox;
-   xWire tmpwire;
-   char tmp_txt[50]; /* overflow safe */
-   int c, new_n;
+  xInstance tmpinst;
+  xRect tmpbox;
+  xWire tmpwire;
+  char tmp_txt[50]; /* overflow safe */
+  int c, new_n;
 
-    rebuild_selected_array();
-    if(xctx->lastsel==1)
+  rebuild_selected_array();
+  if(xctx->lastsel==1)
+  {
+    my_snprintf(tmp_txt, S(tmp_txt), "%d",xctx->sel_array[0].n);
+    tclsetvar("retval",tmp_txt);
+    xctx->semaphore++;
+    tcleval("text_line {Object Sequence number} 0");
+    xctx->semaphore--;
+    if(strcmp(tclgetvar("rcode"),"") )
     {
-     my_snprintf(tmp_txt, S(tmp_txt), "%d",xctx->sel_array[0].n);
-     tclsetvar("retval",tmp_txt);
-     xctx->semaphore++;
-     tcleval("text_line {Object Sequence number} 0");
-     xctx->semaphore--;
-     if(strcmp(tclgetvar("rcode"),"") )
-     {
       xctx->push_undo();
       set_modify(1);
       xctx->prep_hash_inst=0;
       xctx->prep_net_structs=0;
       xctx->prep_hi_structs=0;
-     }
-     sscanf(tclgetvar("retval"), "%d",&new_n);
+    }
+    sscanf(tclgetvar("retval"), "%d",&new_n);
 
-     if(xctx->sel_array[0].type==ELEMENT)
-     {
+    if(xctx->sel_array[0].type==ELEMENT)
+    {
       if(new_n>=xctx->instances) new_n=xctx->instances-1;
       tmpinst=xctx->inst[new_n];
       xctx->inst[new_n]=xctx->inst[xctx->sel_array[0].n];
       xctx->inst[xctx->sel_array[0].n]=tmpinst;
       dbg(1, "change_elem_order(): selected element %d\n", xctx->sel_array[0].n);
-     }
-     else if(xctx->sel_array[0].type==xRECT)
-     {
+    }
+    else if(xctx->sel_array[0].type==xRECT)
+    {
       c=xctx->sel_array[0].col;
       if(new_n>=xctx->rects[c]) new_n=xctx->rects[c]-1;
       tmpbox=xctx->rect[c][new_n];
       xctx->rect[c][new_n]=xctx->rect[c][xctx->sel_array[0].n];
       xctx->rect[c][xctx->sel_array[0].n]=tmpbox;
       dbg(1, "change_elem_order(): selected element %d\n", xctx->sel_array[0].n);
-     }
-     else if(xctx->sel_array[0].type==WIRE)
-     {
+      if(c == GRIDLAYER) {
+        if(xctx->graph_lastsel == new_n) xctx->graph_lastsel = xctx->sel_array[0].n;
+        else if(xctx->graph_lastsel ==  xctx->sel_array[0].n) xctx->graph_lastsel = new_n;
+      }
+    }
+    else if(xctx->sel_array[0].type==WIRE)
+    {
       if(new_n>=xctx->wires) new_n=xctx->wires-1;
       tmpwire=xctx->wire[new_n];
       xctx->wire[new_n]=xctx->wire[xctx->sel_array[0].n];
       xctx->wire[xctx->sel_array[0].n]=tmpwire;
       dbg(1, "change_elem_order(): selected element %d\n", xctx->sel_array[0].n);
-     }
-     xctx->need_reb_sel_arr = 1;
     }
+    xctx->need_reb_sel_arr = 1;
+  }
 }
 
 /* x=0 use tcl text widget  x=1 use vim editor  x=2 only view data */

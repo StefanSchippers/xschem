@@ -1776,7 +1776,6 @@ static void draw_graph_grid(Graph_ctx *gr)
 {
   double deltax, startx, deltay, starty, wx,wy,  dash_sizex, dash_sizey;
   int j, k;
-  char lab[30];
   double mark_size = gr->marginy/10.0;
 
   /* calculate dash length for grid lines */
@@ -1813,8 +1812,7 @@ static void draw_graph_grid(Graph_ctx *gr)
     drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy2), W_X(wx),   W_Y(gr->gy1), dash_sizey);
     drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy1), W_X(wx),   W_Y(gr->gy1) + mark_size, 0); /* axis marks */
     /* X-axis labels */
-    my_snprintf(lab, S(lab), "%g", wx * gr->unitx);
-    draw_string(3, NOW, lab, 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
+    draw_string(3, NOW, dtoa(wx * gr->unitx), 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
                 gr->txtsizex, gr->txtsizex);
   }
   /* first and last vertical box delimiters */
@@ -1837,8 +1835,7 @@ static void draw_graph_grid(Graph_ctx *gr)
       drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(wy),   W_X(gr->gx2), W_Y(wy), dash_sizex);
       drawline(GRIDLAYER, ADD, W_X(gr->gx1) - mark_size, W_Y(wy),   W_X(gr->gx1), W_Y(wy), 0); /* axis marks */
       /* Y-axis labels */
-      my_snprintf(lab, S(lab), "%g",  wy * gr->unity);
-      draw_string(3, NOW, lab, 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
+      draw_string(3, NOW, dtoa(wy * gr->unity), 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
                   gr->txtsizey, gr->txtsizey);
     }
   }
@@ -2253,7 +2250,7 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
       double xt2 = gr->x1 - 20 * gr->txtsizelab;
       double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
       double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
-      double yt1 = s1 * (double)(n_nodes - wcnt) * gr->gh - (gr->gy1 - gr->gh * 0.1) * s2;
+      double yt1 = s1 * (double)(n_nodes - wcnt) * gr->gh - gr->gy1 * s2;
       double yt2 = yt1 + s1 * gr->gh;
       if(yt1 <= gr->ypos2 && yt1 >= gr->ypos1) {
         double tmp = DW_Y(yt1);
