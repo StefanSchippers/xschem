@@ -1405,7 +1405,6 @@ proc graph_add_nodes_from_list {nodelist} {
     append ccc $cc
     xschem setprop rect 2 [xschem get graph_lastsel] node $nnn
     xschem setprop rect 2 [xschem get graph_lastsel] color $ccc
-    puts $nodelist
   }
 }
 
@@ -2969,8 +2968,12 @@ proc tclpropeval2 {s} {
   if {$debug_var <=-1} {puts "tclpropeval2: $s"}
   set path [string range [xschem get sch_path] 1 end]
   if { $netlist_type eq {spice} } {
+    # this is necessary if spiceprefix is being used in netlists
     regsub {^([^xX])} $path {x\1} path
     while { [regsub {\.([^xX])} $path {.x\1} path] } {}
+  }
+  if { [sim_is_xyce]} {
+    regsub -all {\.} [string toupper $path] {:} path
   }
   if { $debug_var<=-1 } { puts "---> path=$path" }
   regsub {^tcleval\(} $s {} s

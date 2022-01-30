@@ -920,11 +920,20 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
     my_strdup2(1499, &p, xctx->sch_path[xctx->currsch]+1);
     for(k=1; k<=tok_mult; k++) {
       my_strdup(1503, &t, find_nth(expanded_tok, ',', k));
-      if(simtype == 0 ) { /* spice */
+      if(simtype == 0 ) { /* ngspice */
         dbg(1, "%s%s color=%d\n", strtolower(p), strtolower(t), c);
         my_snprintf(ss, S(ss), "%s%s %d ", strtolower(p), strtolower(t), c);
         my_strcat(1502, s, ss);
+      } else { /* Xyce */
+        char *pp=p;
+        while(*pp){
+          if(*pp == '.') *pp = ':'; /* Xyce uses : as path separator */
+          pp++;
+        }
+        my_snprintf(ss, S(ss), "%s%s %d", strtoupper(p), strtoupper(t), c);
+        my_strcat(536, s, ss);
       }
+
     }
     my_free(1500, &p);
     my_free(1501, &t);
@@ -954,7 +963,7 @@ static void send_net_to_gaw(int simtype, const char *node)
     my_strdup2(254, &p, xctx->sch_path[xctx->currsch]+1);
     for(k=1; k<=tok_mult; k++) {
       my_strdup(246, &t, find_nth(expanded_tok, ',', k));
-      if(simtype == 0 ) { /* spice */
+      if(simtype == 0 ) { /* ngspice */
         tclvareval("puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t),
                     ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
       } else { /* Xyce */
@@ -1056,7 +1065,16 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
     if(!simtype) { /* ngspice */
       my_snprintf(ss, S(ss), "i(%s%s%s) %d", xctx->currsch>0 ? "v." : "",
                   strtolower(p), strtolower(t), c);
-      my_strcat(1502, s, ss);
+      my_strcat(537, s, ss);
+    } else { /* Xyce */
+      char *pp=p;
+      while(*pp){
+        if(*pp == '.') *pp = ':'; /* Xyce uses : as path separator */
+        pp++;
+      }
+      my_snprintf(ss, S(ss), "%s%s%s#branch %d", xctx->currsch>0 ? "V:" : "",
+                  strtoupper(p), strtoupper(xctx->currsch>0 ? t+1 : t ), c);
+      my_strcat(535, s, ss);
     }
   }
   my_free(533, &p);

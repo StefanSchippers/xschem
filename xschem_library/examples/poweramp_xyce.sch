@@ -15,21 +15,21 @@ L 18 880 -530 900 -580 {}
 L 18 880 -530 880 -450 {}
 L 18 900 -580 900 -400 {}
 B 2 1260 -230 1940 -40 {flags=graph
-y1 = 0.039127
-y2 = 0.0391312
+y1 = -3.5e-08
+y2 = 0.04
 divy = 5
-x1=0.0257846
-x2=0.0261791
+x1=0
+x2=0.02
 divx=10
 node=V:X1:3#branch
 color=11 unitx=m unity=m
 }
 B 2 1260 -430 1940 -240 {flags=graph
-y1 = 0
-y2 = 12
+y1 = -0.02
+y2 = 11
 divy = 6
-x1=0.0257846
-x2=0.0261791
+x1=0
+x2=0.02
 divx=10
 node="V:X1:U#branch
 V:X0:U#branch
@@ -39,11 +39,11 @@ color="11 13 12 7"
 unitx=m
 }
 B 2 1260 -760 1940 -450 {flags=graph
-y1 = -60
-y2 = 60
+y1 = -50
+y2 = 50
 divy = 12
-x1=0.0257846
-x2=0.0261791
+x1=0
+x2=0.02
 divx=10
 node="OUTP
 OUTM
@@ -139,7 +139,7 @@ vvss vss 0 dc 0
 .param frequ=20e3
 .param gain=42
 * .tran \{2e-3/frequ\} \{1e-3 + 160/frequ\} uic
-.tran 6e-7 0.06 uic
+.tran 6e-6 0.06 uic
 
 ** models are generally not free: you must download
 ** SPICE models for active devices and put them  into the below 
