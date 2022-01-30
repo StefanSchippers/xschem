@@ -2495,6 +2495,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else if(!strcmp(argv[2],"rectcolor")) {
          xctx->rectcolor=atoi(argv[3]);
+         if(xctx->rectcolor < 0 ) xctx->rectcolor = 0;
+         if(xctx->rectcolor >= cadlayers ) xctx->rectcolor = cadlayers - 1;
          rebuild_selected_array();
          if(xctx->lastsel) {
            change_layer();

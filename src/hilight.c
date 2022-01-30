@@ -859,9 +859,9 @@ static void send_net_to_bespice(int simtype, const char *node)
     sprintf(color_str, "%d %d %d", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
                                        xctx->xcolor_array[c].blue>>8);
     expanded_tok = expandlabel(tok, &tok_mult);
+    my_strdup2(1278, &p, xctx->sch_path[xctx->currsch]+1);
     for(k=1; k<=tok_mult; k++) {
       my_strdup(1277, &t, find_nth(expanded_tok, ',', k));
-      my_strdup2(1278, &p, xctx->sch_path[xctx->currsch]+1);
       if(simtype == 0 ) { /* spice */
         tclvareval(
           "puts $bespice_server_getdata(sock) ",
@@ -908,7 +908,7 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
   Node_hashentry *node_entry;
   const char *expanded_tok;
   const char *tok;
-  char ss[1024];
+  char ss[1024] = "";
   if(!node || !node[0]) return;
   tok = node;
   node_entry = bus_node_hash_lookup(tok, "", XLOOKUP, 0, "", "", "", "");
@@ -917,9 +917,9 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
     char *t=NULL, *p=NULL;
     c = get_color(xctx->hilight_color);
     expanded_tok = expandlabel(tok, &tok_mult);
+    my_strdup2(1499, &p, xctx->sch_path[xctx->currsch]+1);
     for(k=1; k<=tok_mult; k++) {
       my_strdup(1503, &t, find_nth(expanded_tok, ',', k));
-      my_strdup2(1499, &p, xctx->sch_path[xctx->currsch]+1);
       if(simtype == 0 ) { /* spice */
         dbg(1, "%s%s color=%d\n", strtolower(p), strtolower(t), c);
         my_snprintf(ss, S(ss), "%s%s %d ", strtolower(p), strtolower(t), c);
@@ -951,9 +951,9 @@ static void send_net_to_gaw(int simtype, const char *node)
     expanded_tok = expandlabel(tok, &tok_mult);
     tcleval("setup_tcp_gaw");
     if(tclresult()[0] == '0') return;
+    my_strdup2(254, &p, xctx->sch_path[xctx->currsch]+1);
     for(k=1; k<=tok_mult; k++) {
       my_strdup(246, &t, find_nth(expanded_tok, ',', k));
-      my_strdup2(254, &p, xctx->sch_path[xctx->currsch]+1);
       if(simtype == 0 ) { /* spice */
         tclvareval("puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t),
                     ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
@@ -991,9 +991,9 @@ static void send_current_to_bespice(int simtype, const char *node)
   sprintf(color_str, "%d %d %d", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
                                      xctx->xcolor_array[c].blue>>8);
   expanded_tok = expandlabel(tok, &tok_mult);
+  my_strdup2(1282, &p, xctx->sch_path[xctx->currsch]+1);
   for(k=1; k<=tok_mult; k++) {
     my_strdup(1281, &t, find_nth(expanded_tok, ',', k));
-    my_strdup2(1282, &p, xctx->sch_path[xctx->currsch]+1);
     if(!simtype) { /* spice */
       tclvareval(
         "puts $bespice_server_getdata(sock) ",
@@ -1038,6 +1038,31 @@ static void send_current_to_bespice(int simtype, const char *node)
   my_free(1284, &t);
 }
 
+static void send_current_to_graph(char **s, int simtype, const char *node)
+{
+  int c, k, tok_mult;
+  const char *expanded_tok;
+  const char *tok;
+  char *t=NULL, *p=NULL;
+  char ss[1024] = "";
+
+  if(!node || !node[0]) return;
+  tok = node;
+  c = get_color(xctx->hilight_color);
+  expanded_tok = expandlabel(tok, &tok_mult);
+  my_strdup2(523, &p, xctx->sch_path[xctx->currsch]+1);
+  for(k=1; k<=tok_mult; k++) {
+    my_strdup(376, &t, find_nth(expanded_tok, ',', k));
+    if(!simtype) { /* ngspice */
+      my_snprintf(ss, S(ss), "i(%s%s%s) %d", xctx->currsch>0 ? "v." : "",
+                  strtolower(p), strtolower(t), c);
+      my_strcat(1502, s, ss);
+    }
+  }
+  my_free(533, &p);
+  my_free(534, &t);
+}
+
 static void send_current_to_gaw(int simtype, const char *node)
 {
   int c, k, tok_mult;
@@ -1055,9 +1080,9 @@ static void send_current_to_gaw(int simtype, const char *node)
   expanded_tok = expandlabel(tok, &tok_mult);
   tcleval("setup_tcp_gaw");
   if(tclresult()[0] == '0') return;
+  my_strdup2(1180, &p, xctx->sch_path[xctx->currsch]+1);
   for(k=1; k<=tok_mult; k++) {
     my_strdup(1179, &t, find_nth(expanded_tok, ',', k));
-    my_strdup2(1180, &p, xctx->sch_path[xctx->currsch]+1);
     if(!simtype) { /* spice */
       tclvareval("puts $gaw_fd {copyvar i(", xctx->currsch>0 ? "v." : "",
                   strtolower(p), strtolower(t),
@@ -1612,7 +1637,7 @@ void hilight_net(int viewer)
        xctx->hilight_nets=1;
        xctx->inst[n].color = xctx->hilight_color;
        if(type &&  (!strcmp(type, "current_probe") || !strcmp(type, "vsource")) ) {
-         if(viewer == XSCHEM_GRAPH) ; /* <<<<, */
+         if(viewer == XSCHEM_GRAPH)  send_current_to_graph(&s, sim_is_xyce, xctx->inst[n].instname);
          else if(viewer == GAW) send_current_to_gaw(sim_is_xyce, xctx->inst[n].instname);
          else if(viewer == BESPICE) send_current_to_bespice(sim_is_xyce, xctx->inst[n].instname);
        }

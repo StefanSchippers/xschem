@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -14,6 +14,46 @@ L 18 900 -580 910 -580 {}
 L 18 880 -530 900 -580 {}
 L 18 880 -530 880 -450 {}
 L 18 900 -580 900 -400 {}
+B 2 1260 -230 1940 -40 {flags=graph
+y1 = 0.039127
+y2 = 0.0391312
+divy = 5
+x1=0.0257846
+x2=0.0261791
+divx=10
+node=V:X1:3#branch
+color=11 unitx=m unity=m
+}
+B 2 1260 -430 1940 -240 {flags=graph
+y1 = 0
+y2 = 12
+divy = 6
+x1=0.0257846
+x2=0.0261791
+divx=10
+node="V:X1:U#branch
+V:X0:U#branch
+V:X1:D#branch
+V:X0:D#branch"
+color="11 13 12 7"
+unitx=m
+}
+B 2 1260 -760 1940 -450 {flags=graph
+y1 = -60
+y2 = 60
+divy = 12
+x1=0.0257846
+x2=0.0261791
+divx=10
+node="OUTP
+OUTM
+VPP
+VNN
+X1.VBOOST
+X0.VBOOST"
+color="4 15 6 12 7 4"
+unitx=m
+}
 T {actual value
 50u} 410 -820 0 0 0.4 0.4 {}
 T {actual value
@@ -24,6 +64,8 @@ T {actual value
 50u} 80 -290 0 0 0.4 0.4 {}
 T {actual value
 200} 870 -1330 0 0 0.4 0.4 {}
+T {Select one or more graphs (and no other objects)
+and use arrow keys to zoom / pan waveforms} 1120 -840 0 0 0.3 0.3 {}
 N 160 -1250 160 -1230 {lab=#net1}
 N 160 -1110 160 -1090 {lab=#net2}
 N 280 -1170 340 -1170 {lab=VSS}
@@ -220,3 +262,10 @@ C {spice_probe.sym} 740 -240 0 0 {name=p41 analysis=tran}
 C {spice_probe.sym} 670 -1250 0 0 {name=p42 analysis=tran}
 C {spice_probe.sym} 680 -1170 0 0 {name=p43 analysis=tran}
 C {spice_probe.sym} 960 -1250 0 0 {name=p44 analysis=tran}
+C {launcher.sym} 1155 -885 0 0 {name=h5 
+descr="Select arrow and 
+Ctrl-Left-Click to load/unload waveforms" 
+tclcommand="
+xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+"
+}

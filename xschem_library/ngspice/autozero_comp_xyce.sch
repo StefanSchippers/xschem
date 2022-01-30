@@ -1,5 +1,6 @@
-v {xschem version=2.9.5 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -16,6 +17,25 @@ L 4 540 -180 540 -160 {}
 L 4 540 -160 700 -160 {}
 L 4 700 -180 700 -160 {}
 L 4 700 -180 820 -180 {}
+B 2 10 -1500 750 -1030 {flags=graph
+y1=0
+y2=0.86
+ypos1=0
+ypos2=2
+divy=5
+subdivy=1
+unity=1
+x1=-2.08023e-08
+x2=4.40002e-07
+divx=5
+subdivx=1
+node="SAOUT
+SAOUTF
+OUTDIFF"
+color="4 7 6"
+dataset=0
+unitx=u
+}
 T {CAL} 270 -190 0 1 0.4 0.4 {}
 T {EN} 270 -140 0 1 0.4 0.4 {}
 T {OFF} 790 -310 0 1 0.4 0.4 {}
@@ -27,9 +47,9 @@ T {CALIBRATION
   30ns} 540 -320 0 1 0.4 0.4 {}
 T {SENSING
   30ns} 670 -320 0 1 0.4 0.4 {}
-N 160 -1180 190 -1180 {lab=VSS}
-N 160 -1150 160 -1130 {lab=VSS}
-N 160 -1230 160 -1210 {lab=VSSI}
+N 310 -850 340 -850 {lab=VSS}
+N 310 -820 310 -800 {lab=VSS}
+N 310 -900 310 -880 {lab=VSSI}
 N 1120 -1100 1150 -1100 {lab=VSS}
 N 1120 -1330 1150 -1330 {lab=VCC}
 N 1090 -1400 1120 -1400 {lab=VCC}
@@ -143,28 +163,28 @@ N 2180 -810 2210 -810 {lab=VCC}
 N 2150 -880 2180 -880 {lab=VCC}
 N 2180 -880 2180 -840 {lab=VCC}
 N 2180 -780 2180 -710 {lab=SAOUT}
-N 590 -770 620 -770 {lab=VCC}
-N 420 -830 420 -800 {lab=SP}
-N 520 -830 620 -830 {lab=SP}
-N 620 -830 620 -800 {lab=SP}
-N 420 -830 520 -830 {lab=SP}
-N 420 -770 450 -770 {lab=VCC}
-N 390 -640 420 -640 {lab=VSS}
-N 620 -640 650 -640 {lab=VSS}
-N 460 -640 580 -640 {lab=GP}
-N 460 -670 460 -640 {lab=GP}
-N 420 -670 460 -670 {lab=GP}
-N 420 -740 420 -670 {lab=GP}
-N 620 -740 620 -670 {lab=OUTDIFF}
-N 620 -610 620 -590 {lab=VSSI}
-N 420 -590 620 -590 {lab=VSSI}
-N 420 -610 420 -590 {lab=VSSI}
-N 490 -550 520 -550 {lab=VSSI}
-N 520 -590 520 -550 {lab=VSSI}
-N 530 -900 560 -900 {lab=VCC}
-N 530 -870 530 -830 {lab=SP}
-N 530 -950 530 -930 {lab=VCC}
-N 620 -700 680 -700 {lab=OUTDIFF}
+N 570 -620 600 -620 {lab=VCC}
+N 400 -680 400 -650 {lab=SP}
+N 500 -680 600 -680 {lab=SP}
+N 600 -680 600 -650 {lab=SP}
+N 400 -680 500 -680 {lab=SP}
+N 400 -620 430 -620 {lab=VCC}
+N 370 -490 400 -490 {lab=VSS}
+N 600 -490 630 -490 {lab=VSS}
+N 440 -490 560 -490 {lab=GP}
+N 440 -520 440 -490 {lab=GP}
+N 400 -520 440 -520 {lab=GP}
+N 400 -590 400 -520 {lab=GP}
+N 600 -590 600 -520 {lab=OUTDIFF}
+N 600 -460 600 -440 {lab=VSSI}
+N 400 -440 600 -440 {lab=VSSI}
+N 400 -460 400 -440 {lab=VSSI}
+N 470 -400 500 -400 {lab=VSSI}
+N 500 -440 500 -400 {lab=VSSI}
+N 510 -750 540 -750 {lab=VCC}
+N 510 -720 510 -680 {lab=SP}
+N 510 -800 510 -780 {lab=VCC}
+N 600 -550 660 -550 {lab=OUTDIFF}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
 C {code.sym} 970 -220 0 0 {name=STIMULI 
 only_toplevel=true
@@ -186,31 +206,31 @@ value="* .option SCALE=1e-6
 .include models_autozero_comp.txt
 .tran 0.1n 900n uic
 "}
-C {ipin.sym} 110 -850 0 0 { name=p92 lab=CAL }
-C {ipin.sym} 110 -910 0 0 { name=p93 lab=PLUS }
-C {ipin.sym} 110 -950 0 0 { name=p94 lab=MINUS }
-C {ipin.sym} 110 -990 0 0 { name=p95 lab=EN }
-C {ipin.sym} 110 -780 0 0 { name=p96 lab=VSS }
-C {ipin.sym} 110 -810 0 0 { name=p97 lab=VCC }
-C {opin.sym} 130 -900 0 0 { name=p116 lab=SAOUT }
-C {lab_pin.sym} 200 -570 0 1 {name=p126 lab=CALB}
-C {lab_pin.sym} 120 -570 0 0 {name=l50 lab=CAL}
-C {inv-2.sym} 160 -570 0 0 {name=x14 m=1 
+C {ipin.sym} 90 -700 0 0 { name=p92 lab=CAL }
+C {ipin.sym} 90 -760 0 0 { name=p93 lab=PLUS }
+C {ipin.sym} 90 -800 0 0 { name=p94 lab=MINUS }
+C {ipin.sym} 90 -840 0 0 { name=p95 lab=EN }
+C {ipin.sym} 90 -630 0 0 { name=p96 lab=VSS }
+C {ipin.sym} 90 -660 0 0 { name=p97 lab=VCC }
+C {opin.sym} 110 -750 0 0 { name=p116 lab=SAOUT }
+C {lab_pin.sym} 180 -420 0 1 {name=p126 lab=CALB}
+C {lab_pin.sym} 100 -420 0 0 {name=l50 lab=CAL}
+C {inv-2.sym} 140 -420 0 0 {name=x14 m=1 
 + wn=0.6u ln=0.2u
 + wp=1u lp=0.2u
 + VCCPIN=VCC VCCBPIN=VCC VSSPIN=VSS VSSBPIN=VSS}
-C {inv-2.sym} 160 -700 0 0 {name=x5 m=1 
+C {inv-2.sym} 140 -550 0 0 {name=x5 m=1 
 + wn=0.6u ln=0.2u
 + wp=1u lp=0.2u
 + VCCPIN=VCC VCCBPIN=VCC VSSPIN=VSS VSSBPIN=VSS}
-C {lab_pin.sym} 120 -700 0 0 {name=p15 lab=CALB}
-C {lab_pin.sym} 200 -700 0 1 {name=l4 lab=CALBB}
-C {lab_pin.sym} 190 -1180 0 1 {name=p283 lab=VSS}
-C {lab_pin.sym} 120 -1180 0 0 {name=l56 lab=EN}
-C {lab_pin.sym} 160 -1130 0 0 {name=p284 lab=VSS}
-C {lab_pin.sym} 160 -1230 0 0 {name=p199 lab=VSSI}
-C {nmos4-v.sym} 140 -1180 0 0 {name=M67 verilog_gate=nmos del=50,50,50 model=nmos w=5u l=0.13u extra="delvto='agauss(0,ABSVAR,3)'"}
-C {parax_cap.sym} 160 -1120 0 0 {name=c38  value=2p}
+C {lab_pin.sym} 100 -550 0 0 {name=p15 lab=CALB}
+C {lab_pin.sym} 180 -550 0 1 {name=l4 lab=CALBB}
+C {lab_pin.sym} 340 -850 0 1 {name=p283 lab=VSS}
+C {lab_pin.sym} 270 -850 0 0 {name=l56 lab=EN}
+C {lab_pin.sym} 310 -800 0 0 {name=p284 lab=VSS}
+C {lab_pin.sym} 310 -900 0 0 {name=p199 lab=VSSI}
+C {nmos4-v.sym} 290 -850 0 0 {name=M67 verilog_gate=nmos del=50,50,50 model=nmos w=5u l=0.13u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {parax_cap.sym} 310 -790 0 0 {name=c38  value=2p}
 C {passgate.sym} 860 -1260 0 1 {name=x1 m=1 
 + wn=0.4u ln=0.13u
 + wp=0.4u lp=0.13u
@@ -297,25 +317,32 @@ C {pmos4-v.sym} 2160 -810 0 0 {name=M6 verilog_gate=pmos del=50,50,50 model=pmos
 C {lab_pin.sym} 2210 -810 0 1 {name=p18 lab=VCC}
 C {lab_pin.sym} 2150 -880 0 0 {name=p19 lab=VCC}
 C {lab_pin.sym} 2140 -810 0 0 {name=l2 lab=EN}
-C {pmos4-v.sym} 640 -770 0 1 {name=M18 verilog_gate=pmos del=50,50,50 model=pmos w=4u l=0.4u  extra="delvto='agauss(0,ABSVAR,3)'"}
-C {lab_pin.sym} 590 -770 0 0 {name=p20 lab=VCC}
-C {pmos4-v.sym} 400 -770 0 0 {name=M25 verilog_gate=pmos del=50,50,50 model=pmos w=4u l=0.4u  extra="delvto='agauss(0,ABSVAR,3)'"}
-C {lab_pin.sym} 450 -770 0 1 {name=p21 lab=VCC}
-C {lab_pin.sym} 390 -640 0 0 {name=p22 lab=VSS}
-C {lab_pin.sym} 650 -640 0 1 {name=p23 lab=VSS}
-C {lab_pin.sym} 490 -550 0 0 {name=p24 lab=VSSI}
-C {pmos4-v.sym} 510 -900 0 0 {name=M28 verilog_gate=pmos del=50,50,50 model=pmos w=2u l=0.5u  extra="delvto='agauss(0,ABSVAR,3)'"}
-C {lab_pin.sym} 560 -900 0 1 {name=p25 lab=VCC}
-C {lab_pin.sym} 530 -950 0 0 {name=p26 lab=VCC}
-C {lab_pin.sym} 490 -900 0 0 {name=l7 lab=GP}
-C {lab_pin.sym} 460 -670 0 1 {name=l9 lab=GP}
-C {lab_pin.sym} 380 -770 0 0 {name=l10 lab=MINUS}
-C {lab_pin.sym} 660 -770 0 1 {name=l11 lab=PLUS}
-C {lab_pin.sym} 680 -700 0 1 {name=l12 lab=OUTDIFF}
-C {nmos4-v.sym} 600 -640 0 0 {name=M26 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u extra="delvto='agauss(0,ABSVAR,3)'"}
-C {nmos4-v.sym} 440 -640 0 1 {name=M1 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u extra="delvto='agauss(0,ABSVAR,3)'"}
-C {parax_cap.sym} 500 -630 0 0 {name=c2  value=4f}
-C {lab_pin.sym} 530 -850 0 0 {name=l13 lab=SP}
+C {pmos4-v.sym} 620 -620 0 1 {name=M18 verilog_gate=pmos del=50,50,50 model=pmos w=4u l=0.4u  extra="delvto='agauss(0,ABSVAR,3)'"}
+C {lab_pin.sym} 570 -620 0 0 {name=p20 lab=VCC}
+C {pmos4-v.sym} 380 -620 0 0 {name=M25 verilog_gate=pmos del=50,50,50 model=pmos w=4u l=0.4u  extra="delvto='agauss(0,ABSVAR,3)'"}
+C {lab_pin.sym} 430 -620 0 1 {name=p21 lab=VCC}
+C {lab_pin.sym} 370 -490 0 0 {name=p22 lab=VSS}
+C {lab_pin.sym} 630 -490 0 1 {name=p23 lab=VSS}
+C {lab_pin.sym} 470 -400 0 0 {name=p24 lab=VSSI}
+C {pmos4-v.sym} 490 -750 0 0 {name=M28 verilog_gate=pmos del=50,50,50 model=pmos w=2u l=0.5u  extra="delvto='agauss(0,ABSVAR,3)'"}
+C {lab_pin.sym} 540 -750 0 1 {name=p25 lab=VCC}
+C {lab_pin.sym} 510 -800 0 0 {name=p26 lab=VCC}
+C {lab_pin.sym} 470 -750 0 0 {name=l7 lab=GP}
+C {lab_pin.sym} 440 -520 0 1 {name=l9 lab=GP}
+C {lab_pin.sym} 360 -620 0 0 {name=l10 lab=MINUS}
+C {lab_pin.sym} 640 -620 0 1 {name=l11 lab=PLUS}
+C {lab_pin.sym} 660 -550 0 1 {name=l12 lab=OUTDIFF}
+C {nmos4-v.sym} 580 -490 0 0 {name=M26 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {nmos4-v.sym} 420 -490 0 1 {name=M1 verilog_gate=nmos del=50,50,50 model=nmos w=1u l=0.5u extra="delvto='agauss(0,ABSVAR,3)'"}
+C {parax_cap.sym} 480 -480 0 0 {name=c2  value=4f}
+C {lab_pin.sym} 510 -700 0 0 {name=l13 lab=SP}
 C {parax_cap.sym} 980 -1090 0 0 {name=c4  value=5f}
 C {parax_cap.sym} 1470 -1090 0 0 {name=c6  value=5f}
 C {parax_cap.sym} 1960 -1090 0 0 {name=c7  value=5f}
+C {launcher.sym} 185 -975 0 0 {name=h1 
+descr="Select arrow and 
+Ctrl-Left-Click to load/unload waveforms" 
+tclcommand="
+xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+"
+}

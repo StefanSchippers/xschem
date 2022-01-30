@@ -2365,6 +2365,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
       nptr = cptr = sptr = NULL;
       dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
       if(ctok && ctok[0]) wave_color = atoi(ctok);
+      if(wave_color < 0) wave_color = 0;
+      if(wave_color >= cadlayers) wave_color = cadlayers - 1;
       if(stok && stok[0]) {
         sweep_idx = get_raw_index(stok);
         if( sweep_idx == -1) {
