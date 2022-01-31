@@ -953,6 +953,7 @@ proc bespice_getdata {sock} {
     unset bespice_server_getdata(sock)
   } else {
     puts "bespice --> $bespice_server_getdata(line,$sock)"
+    set bespice_server_getdata(last) $bespice_server_getdata(line,$sock)
   }
 }
 
