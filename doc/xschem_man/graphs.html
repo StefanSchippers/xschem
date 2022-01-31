@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>GRAPHS</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="simulation.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="developer_info.html" class="next">NEXT</a>
+ <!-- slide title -->
+ <h1>VIEWING SIMULATION DATA WITH XSCHEM</h1><br>
+ <p>
+  Usually when a spice simulation is done you want to see the results, this is usually accomplished
+  with a waveform viewer. There are few open source viewers, like
+  <a href="https://github.com/StefanSchippers/xschem-gaw">GAW</a>... <br>
+  <img src="graphs02.png"><br>
+  
+  ...Or ngspice internal plotting facilities:<br>
+  <img src="graphs01.png"><br>
+  There is also an interesting commercial product from Analog Flavor, called
+  <a href="https://www.analogflavor.com/en/bespice/">BeSpice (bspwave)</a>
+  that offers a free of charge one year evaluation license for non commercial use:<br>
+  <img src="graphs03.png"><br>
+  All these waveform viewers are supported by xschem and more can be added, just by giving the command line 
+  to start the viewer to xschem in the <kbd>Simulation-&gt; Configure simulators and tools</kbd> dialog:<br>
+  <img src="graphs04.png"><br>
+  For <a href="">gaw</a>
+  and 
+  <a href="file:///home/schippes/mysite/stefan/xschem_man/video_tutorials/probe_to_bespice.mp4">bespice</a>
+  xschem can automatically send nets to the viewer by clicking a net on the schematic
+  and pressing the <kbd>Alt-G</kbd> key bind or by menu <kbd>Hilight-&gt;Send selected nets/pins to Viewer</kbd>
+  <br>
+  <img src="graphs05.png"><br>
+ </p>
+ <h2>Using XSCHEM's internal graph functions</h2>
+ <p>
+  Xschem can now display waveforms by itself in the drawing area. in the Simulation menu there is an entry to
+  add a graph: <kbd>Add waveform graph</kbd>. When this menu is pressed a box can be placed in the schematic:<br>
+  <img src="graphs06.png"><br>
+  The next step is loading the simulation data, This is done by menu
+  <kbd>Simulation-&gt;Load/Unload ngspice .raw file</kbd>. This command loads a .raw file produced by a ngspice/Xyce
+  simulation. The file name is expected to be <kbd>circuit.raw</kbd> where 
+  <kbd>circuit.sch</kbd> is the name of the schematic opened
+  in the drawing area. The raw file is searched for in the simulation/netlisting directory 
+  <kbd>Simulation -&gt;set netlist dir</kbd>.<br>
+  After placing a graph box and loading simulation data a wave can be added. If you place the mouse on the inside
+  of the box, close to the bottom/left/right edges and click the graph will be selected. 
+  You can also select a graph by dragging a selection rectangle all around it.
+  This tells xschem where 
+  new nodes to be plotted will go, in case you have multiple graphs.
+  Then, select a node or a net label, press 'Alt-G', the net will be added to the graph. Here after a
+  list of commands you can perform in a graph to modify the viewport. These commands are active when
+  the mouse is Inside the graph (you will notice the mouse pointer changing from an arrow to a <kbd>+</kbd>).
+  if the mouse is outside the graph the usual Xschem functions will be available to operate on schematics:
+ </p>
+ <ul>
+  <li>Pressing <kbd>f</kbd> with the mouse in the middle of the graph area will do a full X-axis zoom.</li>
+  <li>Pressing <kbd>f</kbd> with the mouse on the left of the Y axis will do a full Y-axis zoom.</li>
+  <li>Pressing <kbd>Left/Right</kbd> or <kbd>Up/Down</kbd> arrow keys while the mouse is inside a graph will
+      move the waveforms to the left/right or zoom in/zoom out respectively.</li>
+  <li>Pressing <kbd>Left/Right</kbd> or <kbd>Up/Down</kbd> arrow keys while the mouse is on the left of the Y-axis
+      will move the waveforms or zoom in/zoom out in the Y direction respectively.</li>
+  <li>Pressing the <kbd>left</kbd> mouse button while the pointer is in the center of the graph
+      will move the waves left or right following the pointer X movement.</li>
+  <li>Pressing the <kbd>left</kbd> mouse button while the pointer is on the left of the Y-axis
+      will move the waves high or low following the pointer Y movement.</li>
+  <li> Doing the above with the <kbd>Shift</kbd> key pressed will zoom in/out instead of moving.</li>
+  <li> pressing <kbd>a</kbd> and/or <kbd>b</kbd> will show a vertical cursor. 
+       The sweep variable difference between the <kbd>a</kbd> and the <kbd>b</kbd> cursor is shown and
+       the values of all signals at the X position of the <kbd>a</kbd> cursor is shown. </li>
+  <li> Double clicking the <kbd>left</kbd> mouse button with the pointer above a wave label will 
+       allow to change its color.</li>
+  <li> Pressing the <kbd>right</kbd> mouse button with the pointer above a wave label will show it in bold.</li>
+  <li> Double clicking the <kbd>left</kbd> mouse button with the pointer in the middle of the graph will show a 
+       configuration dialog box, where you can change many graph parameters.</li>
+  <li> Pressing the <kbd>right</kbd> mouse button in the graph area and dragging some distance in the X direction 
+       will zoom in the waveforms to that X range.</li>
+ </ul>
+ <p>
+  <img src="graphs07.png"><br>
+  The graph configuration dialog box which is shown by <kbd>left</kbd> button double clicking inside the graph, 
+  allows to change many graph attributes, like number of X/Y labels, minor ticks, wave colors, add waves
+  from the list of waves found in the raw file, select the dataset to show in case of multiple sweep simulations
+  and more.<br>
+  <img src="graphs08.png"><br>
+  The text area with the colored wave names is just a text widget. You can manually edit it to add / remove waves, 
+  or you can place the cursor somewhere in the text, select some waves from the listbox on the left, press the 
+  <kbd>Add</kbd> button to have these waves added.
+  If you place the insertion cursor in the middle of a node name in the text area, you can click the color
+  radio buttons on the bottom to change the color. The <kbd>Search</kbd> entry can be used to restrict the list
+  of nodes displayed in the listbox. The Search entry supports regular expression patterns. For example,
+  <kbd>^X</kbd> will match all nodes that begin with <kbd>X</kbd>, <kbd>xm[0-9]\.</kbd> will match all nodes
+  containing xm followed by one digit and a dot.
+ </p>
+ <h3>Display bus signals</h3>
+ <p>
+  If you have a design where digital signals are present you might want to group some of these to form a
+  bus and display these bundled signals.
+  After placing a graph box and loading the simulation data as explained above, left-double click the graph
+  to show the configuration dialog, check the <kbd>bus</kbd> and <kbd>digital</kbd> check boxes,
+  use the <kbd>Search</kbd> text entry to restrict the list of signals,
+  then select all the signals you want to show as a bus and click the <kbd>Add</kbd> button. Also set the
+  <kbd>Min value</kbd> and the <kbd>Max value</kbd> of the signals in the bus. This information is needed
+  by Xschem to calculate the logic high and logic low thresholds. Currently the logic '1' is set at 80%
+  of the signal min-max range and the logic '0' level is set at 20% of the signal range.
+  After pressing the <kbd>Add</kbd> button a bus is shown in the text area. The first field is a template 
+  <kbd>BUS_NAME</kbd> you should change to give a meaningful name to the bus.<br>
+  <img src="graphs09.png"><br>
+  You will then see your bussed signal in the graph:<br>
+  <img src="graphs10.png"><br>
+  If you have bussed signals in the schematic , like <kbd>LDA[12:0]</kbd> and your graph has the 
+  <kbd>Digital</kbd> and <kbd>Bus</kbd> checkboxes set you can simply add the LDA bus to the graph by 
+  clicking the net in the schematic (with the configuration dialog open) and pressing <kbd>Alt-G</kbd>:<br>
+  <img src="graphs11.png"><br>
+  You can add many signals to see them stacked in a very compact view:<br>
+  <img src="graphs12.png"><br>
+  It is possible to switch the graph to analog mode, by unchecking the <kbd>Digital</kbd> checkbox in the graph
+  configuration dialog, to better see the waveforms. Switching back to Digital yields the previous view.
+  In analog mode buses are not shown, but are not lost. You will see them again when switching back to
+  Digital mode. <br>
+  <img src="graphs13.png"><br>
+  Many graphs can be created in a schematic, and the configuration of all graphs (viewport, list of signals,
+  colors) is saved together with the schematic. If you re-run a simulation just unloading/loading the data from
+  the simulation menu will update the waveforms.<br>
+  <img src="graphs14.png"><br>
+
+ </p>
+
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+
