@@ -843,20 +843,38 @@ void toggle_fullscreen(const char *topwin)
   }
   XQueryTree(display, topwin_id, &rootwindow, &parent_id, &framewin_child_ptr, &framewindow_nchildren);
   fs = tclgetintvar("fullscreen");
-  fs = (fs+1)%2;
+  fs = (fs+1)%3;
   if(fs==1) tclsetvar("fullscreen","1");
   else if(fs==2) tclsetvar("fullscreen","2");
   else tclsetvar("fullscreen","0");
 
   dbg(1, "toggle_fullscreen(): fullscreen=%d\n", fs);
   if(fs==2) {
-    tclvareval("pack forget ", xctx->top_path, ".menubar ", xctx->top_path, ".statusbar; update", NULL);
-    xctx->menu_removed = 1;
+    if(tclgetboolvar("toolbar_visible")) {
+      xctx->menu_removed |= 2;
+      tclvareval("toolbar_hide ", xctx->top_path, NULL);
+    }
+    tclvareval("pack forget ", xctx->top_path, ".tabs", NULL);
+    tclvareval("pack forget ", xctx->top_path, ".menubar ",
+       xctx->top_path, ".statusbar; update", NULL);
+    xctx->menu_removed |= 1;
   }
-  if(fs !=2 && xctx->menu_removed) {
-    tclvareval("pack ", xctx->top_path,
-       ".menubar -anchor n -side top -fill x  -before ", xctx->top_path, ".drw; pack ",
-       xctx->top_path, ".statusbar -after ", xctx->top_path, ".drw -anchor sw  -fill x; update", NULL);
+  if(fs !=2 && xctx->menu_removed ) {
+    if(tclgetboolvar("tabbed_interface")) {
+      tclvareval("pack ", xctx->top_path, 
+       ".tabs  -fill x -side top -expand false -side top -before ",
+         xctx->top_path, ".drw", NULL);
+      tclvareval("pack ", xctx->top_path,
+         ".menubar -anchor n -side top -fill x  -before ", xctx->top_path, ".tabs; pack ",
+         xctx->top_path, ".statusbar -after ", xctx->top_path,
+         ".drw -anchor sw  -fill x; update", NULL);
+    } else {
+      tclvareval("pack ", xctx->top_path,
+         ".menubar -anchor n -side top -fill x  -before ", xctx->top_path, ".drw; pack ",
+         xctx->top_path, ".statusbar -after ", xctx->top_path,
+          ".drw -anchor sw  -fill x; update", NULL);
+    }
+    if(xctx->menu_removed & 2) tclvareval("toolbar_show ", xctx->top_path, NULL);
     xctx->menu_removed=0;
   }
   if(fs == 1) {
