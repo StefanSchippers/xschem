@@ -82,7 +82,7 @@ static Inst_hashentry *inst_hash_lookup(char *token, int value, int what, size_t
       }
       return NULL; /* token was not in hash */
     }
-    if( entry->hash==hashcode && !xctx->strcmp(token,entry->token) ) { /* found a matching token */
+    if( entry->hash==hashcode && !strcmp(token,entry->token) ) { /* found a matching token */
       if(what == XDELETE) {              /* remove token from the hash table ... */
         saveptr=entry->next;
         my_free(969, &entry);
