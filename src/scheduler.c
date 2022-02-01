@@ -423,10 +423,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int n = atoi(argv[2]);
         if(n) {
           xctx->case_insensitive = 1;
-          xctx->strcmp = my_strcasecmp;
+          xctx->x_strcmp = my_strcasecmp;
         } else {
           xctx->case_insensitive = 0;
-          xctx->strcmp = strcmp;
+          xctx->x_strcmp = strcmp;
         }
       }
     }

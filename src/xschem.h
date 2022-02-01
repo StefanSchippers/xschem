@@ -937,7 +937,7 @@ typedef struct {
   void (*delete_undo)(void);
   void (*clear_undo)(void);
   int case_insensitive; /* for case insensitive compare where needed */
-  int (*strcmp)(const char *, const char *);
+  int (*x_strcmp)(const char *, const char *);
 } Xschem_ctx;
 
 /* GLOBAL VARIABLES */
