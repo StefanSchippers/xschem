@@ -4529,18 +4529,19 @@ proc delete_ctx {context} {
 }
 
 proc restore_ctx {context} {
-  # puts "restoring tcl context $context : semaphore=[xschem get semaphore]"
   global has_x
-  if {![info exists $has_x]} {return}
+  if {![info exists has_x]} {return}
+  # puts "restoring tcl context $context : semaphore=[xschem get semaphore]"
   set tctx::tctx $context
   array unset ::sim
   uplevel #0 {
     if { [ array exists $tctx::tctx ] } {
       # puts "restore_ctx $tctx::tctx"
-      # Cleanup these vars to avoid side effects from previous ctx
+      ## Cleanup these vars to avoid side effects from previous ctx
       unset -nocomplain gaw_fd
       foreach tctx::i $tctx::global_list {
         if { [info exists [subst $tctx::tctx]($tctx::i)] } {
+          # puts "restoring:  $tctx::i"
           set $tctx::i [set [subst $tctx::tctx]($tctx::i)]
         }
       }
@@ -4554,14 +4555,15 @@ proc restore_ctx {context} {
 }
 
 proc save_ctx {context} {
-  # puts "saving tcl context $context : semaphore=[xschem get semaphore]"
   global has_x
-  if {![info exists $has_x]} {return}
+  if {![info exists has_x]} {return}
+  # puts "saving tcl context $context : semaphore=[xschem get semaphore]"
   set tctx::tctx $context
   uplevel #0 {
     # puts "save_ctx $tctx::tctx"
     foreach tctx::i $tctx::global_list {
       if { [info exists $tctx::i] } {
+        # puts "saving:  $tctx::i"
         set [subst $tctx::tctx]($tctx::i) [set $tctx::i]
       }
     }

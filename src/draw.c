@@ -78,34 +78,43 @@ void print_image()
   tclsetvar("draw_grid", "0");
   xctx->draw_pixmap=1;
   draw();
-  #ifdef __unix__
+  
 
   #if HAS_CAIRO == 1 /* use cairo native support for png writing, no need to convert
                       * XPM and handles Xrender extensions for transparent embedded images */
   {
     cairo_surface_t *png_sfc;
+#ifdef __unix__
     png_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual,
                xctx->xrect[0].width, xctx->xrect[0].height);
+#else
+    HWND hwnd = Tk_GetHWND(xctx->window);
+    HDC dc = GetDC(hwnd);
+    png_sfc = cairo_win32_surface_create(dc);
+#endif
+
     if(xctx->plotfile[0])
       cairo_surface_write_to_png(png_sfc, xctx->plotfile);
     else
       cairo_surface_write_to_png(png_sfc, "plot.png");
   }
   #else /* no cairo */
+#ifdef __unix__
   XpmWriteFileFromPixmap(display, "plot.xpm", xctx->save_pixmap,0, NULL ); /* .gz ???? */
   dbg(1, "print_image(): Window image saved\n");
   if(xctx->plotfile[0]) {
     my_snprintf(cmd, S(cmd), "convert_to_png plot.xpm {%s}", xctx->plotfile);
     tcleval(cmd);
   } else tcleval( "convert_to_png plot.xpm plot.png");
-  #endif
-  #else
-  char *psfile=NULL;
+#else
+  char *psfile = NULL;
   create_ps(&psfile, 7);
-  if(xctx->plotfile[0]) {
+  if (xctx->plotfile[0]) {
     my_snprintf(cmd, S(cmd), "convert_to_png {%s} {%s}", psfile, xctx->plotfile);
     tcleval(cmd);
-  } else tcleval( "convert_to_png {%s} plot.png", psfile);
+  }
+  else tcleval("convert_to_png {%s} plot.png", psfile);
+#endif
   #endif
   my_strncpy(xctx->plotfile,"", S(xctx->plotfile));
   tclsetboolvar("draw_grid", save_draw_grid);
@@ -113,8 +122,9 @@ void print_image()
 }
 
 #if HAS_CAIRO==1
-void set_cairo_color(int layer) 
+void set_cairo_color(int layer)
 {
+#ifdef __unix__
   cairo_set_source_rgb(xctx->cairo_ctx,
     (double)xctx->xcolor_array[layer].red/65535.0,
     (double)xctx->xcolor_array[layer].green/65535.0,
@@ -123,6 +133,10 @@ void set_cairo_color(int layer)
     (double)xctx->xcolor_array[layer].red/65535.0,
     (double)xctx->xcolor_array[layer].green/65535.0,
     (double)xctx->xcolor_array[layer].blue/65535.0);
+#else /* temporary until I get find_best_color to work on Windows */
+  cairo_set_source_rgb(xctx->cairo_ctx, 1, 0, 0);
+  cairo_set_source_rgb(xctx->cairo_save_ctx, 1, 0, 0);
+#endif
 }
 
 /* remember to call cairo_restore(xctx->cairo_ctx) when done !! */

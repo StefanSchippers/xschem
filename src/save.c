@@ -222,13 +222,16 @@ unsigned char *base64_decode(const char *data, const size_t input_length, size_t
  * data layout in memory arranged to maximize cache locality 
  * when looking up data 
  */
-static void read_binary_block(FILE *fd)
+static void read_binary_block(FILE *fd, int sim_type)
 {
   int p, v;
   double *tmp;
   size_t size = 0;
   int offset = 0;
+  int mult = 0;
+  double val;
 
+  if(sim_type == 3) mult = 1; /* AC analysis, complex numbers twice the size */
 
   for(p = 0 ; p < xctx->graph_datasets; p++) {
     size += xctx->graph_nvars * xctx->graph_npoints[p];
@@ -236,19 +239,24 @@ static void read_binary_block(FILE *fd)
   }
 
   /* read buffer */
-  tmp = my_calloc(1405, xctx->graph_nvars, sizeof(double *));
+  tmp = my_calloc(1405, xctx->graph_nvars, (sizeof(double *) << mult));
   /* allocate storage for binary block */
   if(!xctx->graph_values) xctx->graph_values = my_calloc(118, xctx->graph_nvars, sizeof(SPICE_DATA *));
   for(p = 0 ; p < xctx->graph_nvars; p++) {
-    my_realloc(372, &xctx->graph_values[p], (size + xctx->graph_npoints[xctx->graph_datasets]) * sizeof(double));
+    my_realloc(372,
+       &xctx->graph_values[p], (size + xctx->graph_npoints[xctx->graph_datasets]) * sizeof(SPICE_DATA));
   }
   /* read binary block */
   for(p = 0; p < xctx->graph_npoints[xctx->graph_datasets]; p++) {
-    if(fread(tmp,  sizeof(double), xctx->graph_nvars, fd) != xctx->graph_nvars) {
+    if(fread(tmp, (sizeof(double) << mult), xctx->graph_nvars, fd) != xctx->graph_nvars) {
        dbg(0, "Warning: binary block is not of correct size\n");
     }
     /* assign to xschem struct, memory aligned per variable, for cache locality */
-    for(v = 0; v < xctx->graph_nvars; v++) {
+    if(mult) for(v = 0; v < xctx->graph_nvars; v++) { /*AC analysis: calculate magnitude */
+      xctx->graph_values[v][offset + p] = 
+         sqrt( tmp[v << mult] * tmp[v << mult] + tmp[(v << mult) + 1] * tmp[(v << mult) + 1]);
+    } 
+    else for(v = 0; v < xctx->graph_nvars; v++) {
       xctx->graph_values[v][offset + p] = tmp[v];
     }
   }
@@ -292,7 +300,7 @@ static int read_dataset(FILE *fd)
       int npoints = xctx->graph_npoints[xctx->graph_datasets];
       if(sim_type) {
         done_header = 1;
-        read_binary_block(fd); 
+        read_binary_block(fd, sim_type); 
         dbg(1, "read_dataset(): read binary block, nvars=%d npoints=%d\n", xctx->graph_nvars, npoints);
         xctx->graph_datasets++;
         exit_status = 1;
@@ -309,6 +317,10 @@ static int read_dataset(FILE *fd)
     else if(!strncmp(line, "Plotname: DC transfer characteristic", 36)) {
       if(sim_type && sim_type != 2) sim_type = 0;
       else sim_type = 2;
+    }
+    else if(!strncmp(line, "Plotname: AC Analysis", 21)) {
+      if(sim_type && sim_type != 3) sim_type = 0;
+      else sim_type = 3;
     }
     else if(!strncmp(line, "Plotname:", 9)) {
       sim_type = 0;

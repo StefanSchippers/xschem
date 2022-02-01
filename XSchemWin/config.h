@@ -4,7 +4,8 @@
 /*************************************************************/
 
 /* Define to 1 if cairo is available and is to be used */
-/*#undef HAS_CAIRO */
+/* #define HAS_CAIRO 1
+#define CAIRO_WIN32_STATIC_BUILD 1 */
 
 /* Define to 1 if Xlib's xcb is available */
 /*#undef HAS_XCB */

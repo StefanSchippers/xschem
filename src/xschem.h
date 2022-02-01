@@ -103,8 +103,12 @@ extern char win_temp_dir[PATH_MAX];
 
 #if HAS_CAIRO==1
 #include <cairo.h>
+#if __unix__
 #include <cairo-xlib.h>
 #include "cairo-xlib-xrender.h"
+#else
+#include <cairo-win32.h>
+#endif
 #endif
 
 #include <tcl.h>
