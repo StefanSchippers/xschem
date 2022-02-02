@@ -228,10 +228,10 @@ static void read_binary_block(FILE *fd, int sim_type)
   double *tmp;
   size_t size = 0;
   int offset = 0;
-  int mult = 0;
+  int m = 0;
   double val;
 
-  if(sim_type == 3) mult = 1; /* AC analysis, complex numbers twice the size */
+  if(sim_type == 3) m = 1; /* AC analysis, complex numbers twice the size */
 
   for(p = 0 ; p < xctx->graph_datasets; p++) {
     size += xctx->graph_nvars * xctx->graph_npoints[p];
@@ -239,7 +239,7 @@ static void read_binary_block(FILE *fd, int sim_type)
   }
 
   /* read buffer */
-  tmp = my_calloc(1405, xctx->graph_nvars, (sizeof(double *) << mult));
+  tmp = my_calloc(1405, xctx->graph_nvars, (sizeof(double *) << m));
   /* allocate storage for binary block */
   if(!xctx->graph_values) xctx->graph_values = my_calloc(118, xctx->graph_nvars, sizeof(SPICE_DATA *));
   for(p = 0 ; p < xctx->graph_nvars; p++) {
@@ -248,13 +248,13 @@ static void read_binary_block(FILE *fd, int sim_type)
   }
   /* read binary block */
   for(p = 0; p < xctx->graph_npoints[xctx->graph_datasets]; p++) {
-    if(fread(tmp, (sizeof(double) << mult), xctx->graph_nvars, fd) != xctx->graph_nvars) {
+    if(fread(tmp, (sizeof(double) << m), xctx->graph_nvars, fd) != xctx->graph_nvars) {
        dbg(0, "Warning: binary block is not of correct size\n");
     }
     /* assign to xschem struct, memory aligned per variable, for cache locality */
-    if(mult) for(v = 0; v < xctx->graph_nvars; v++) { /*AC analysis: calculate magnitude */
+    if(m) for(v = 0; v < xctx->graph_nvars; v++) { /*AC analysis: calculate magnitude */
       xctx->graph_values[v][offset + p] = 
-         sqrt( tmp[v << mult] * tmp[v << mult] + tmp[(v << mult) + 1] * tmp[(v << mult) + 1]);
+         sqrt( tmp[v << m] * tmp[v << m] + tmp[(v << m) + 1] * tmp[(v << m) + 1]);
     } 
     else for(v = 0; v < xctx->graph_nvars; v++) {
       xctx->graph_values[v][offset + p] = tmp[v];
