@@ -320,7 +320,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       if(xctx->graph_flags & 64) {
         if( POINTINSIDE(xctx->mousex, xctx->mousey, gr->x1, gr->y1, gr->x2, gr->y2)) {
           char sx[100], sy[100];
-          double yval;
+          double xval, yval;
           if(gr->digital) { 
             double deltag = gr->gy2 - gr->gy1;
             double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
@@ -333,8 +333,18 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           } else {
             yval = G_Y(xctx->mousey);
           }
-          my_snprintf(sx, S(sx), "%.4g", G_X(xctx->mousex));
-          my_snprintf(sy, S(sy), "%.4g", yval);
+
+          xval = G_X(xctx->mousex);
+          if(xctx->graph_sim_type == 3) xval = pow(10, xval);
+          if(gr->unitx != 0) 
+            my_snprintf(sx, S(sx), "%.4g%c", gr->unitx * xval, gr->unitx_suffix);
+          else
+            my_snprintf(sx, S(sx), "%.4g", xval);
+
+          if(gr->unitx != 0)
+            my_snprintf(sy, S(sy), "%.4g%c", gr->unity * yval, gr->unity_suffix);
+          else
+            my_snprintf(sy, S(sy), "%.4g", yval);
   
           tclvareval("set measure_text \"y=", sy, "\nx=", sx, "\"", NULL);
           tcleval("graph_show_measure");

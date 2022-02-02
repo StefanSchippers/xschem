@@ -222,16 +222,15 @@ unsigned char *base64_decode(const char *data, const size_t input_length, size_t
  * data layout in memory arranged to maximize cache locality 
  * when looking up data 
  */
-static void read_binary_block(FILE *fd, int sim_type)
+static void read_binary_block(FILE *fd)
 {
   int p, v;
   double *tmp;
   size_t size = 0;
   int offset = 0;
-  int m = 0;
-  double val;
+  int ac = 0;
 
-  if(sim_type == 3) m = 1; /* AC analysis, complex numbers twice the size */
+  if(xctx->graph_sim_type == 3) ac = 1; /* AC analysis, complex numbers twice the size */
 
   for(p = 0 ; p < xctx->graph_datasets; p++) {
     size += xctx->graph_nvars * xctx->graph_npoints[p];
@@ -239,7 +238,7 @@ static void read_binary_block(FILE *fd, int sim_type)
   }
 
   /* read buffer */
-  tmp = my_calloc(1405, xctx->graph_nvars, (sizeof(double *) << m));
+  tmp = my_calloc(1405, xctx->graph_nvars, (sizeof(double *) ));
   /* allocate storage for binary block */
   if(!xctx->graph_values) xctx->graph_values = my_calloc(118, xctx->graph_nvars, sizeof(SPICE_DATA *));
   for(p = 0 ; p < xctx->graph_nvars; p++) {
@@ -248,13 +247,19 @@ static void read_binary_block(FILE *fd, int sim_type)
   }
   /* read binary block */
   for(p = 0; p < xctx->graph_npoints[xctx->graph_datasets]; p++) {
-    if(fread(tmp, (sizeof(double) << m), xctx->graph_nvars, fd) != xctx->graph_nvars) {
+    if(fread(tmp, sizeof(double) , xctx->graph_nvars, fd) != xctx->graph_nvars) {
        dbg(0, "Warning: binary block is not of correct size\n");
     }
     /* assign to xschem struct, memory aligned per variable, for cache locality */
-    if(m) for(v = 0; v < xctx->graph_nvars; v++) { /*AC analysis: calculate magnitude */
-      xctx->graph_values[v][offset + p] = 
-         sqrt( tmp[v << m] * tmp[v << m] + tmp[(v << m) + 1] * tmp[(v << m) + 1]);
+    if(ac) {
+      for(v = 0; v < xctx->graph_nvars; v += 2) { /*AC analysis: calculate magnitude */
+        if( v == 0 ) 
+          xctx->graph_values[v][offset + p] = log10(sqrt( tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]));
+        else
+          xctx->graph_values[v][offset + p] = 20 * log10(sqrt(tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]));
+
+        xctx->graph_values[v + 1] [offset + p] = atan2(tmp[v + 1], tmp[v]) * 180.0 / XSCH_PI;
+      }
     } 
     else for(v = 0; v < xctx->graph_nvars; v++) {
       xctx->graph_values[v][offset + p] = tmp[v];
@@ -291,16 +296,17 @@ static int read_dataset(FILE *fd)
   int variables = 0, i, done_points = 0;
   char line[PATH_MAX], varname[PATH_MAX];
   char *ptr;
-  int sim_type = 0; /* 1: transient, 2: dc, 4: ... */
   int done_header = 0;
   int exit_status = 0;
+  xctx->graph_sim_type = 0;
+  
   while((ptr = fgets(line, sizeof(line), fd)) ) {
     /* after this line comes the binary blob made of nvars * npoints * sizeof(double) bytes */
     if(!strcmp(line, "Binary:\n")) {
       int npoints = xctx->graph_npoints[xctx->graph_datasets];
-      if(sim_type) {
+      if(xctx->graph_sim_type) {
         done_header = 1;
-        read_binary_block(fd, sim_type); 
+        read_binary_block(fd); 
         dbg(1, "read_dataset(): read binary block, nvars=%d npoints=%d\n", xctx->graph_nvars, npoints);
         xctx->graph_datasets++;
         exit_status = 1;
@@ -311,19 +317,19 @@ static int read_dataset(FILE *fd)
       done_points = 0;
     }
     else if(!strncmp(line, "Plotname: Transient Analysis", 28)) {
-      if(sim_type && sim_type != 1) sim_type = 0;
-      else sim_type = 1;
+      if(xctx->graph_sim_type && xctx->graph_sim_type != 1) xctx->graph_sim_type = 0;
+      else xctx->graph_sim_type = 1;
     }
     else if(!strncmp(line, "Plotname: DC transfer characteristic", 36)) {
-      if(sim_type && sim_type != 2) sim_type = 0;
-      else sim_type = 2;
+      if(xctx->graph_sim_type && xctx->graph_sim_type != 2) xctx->graph_sim_type = 0;
+      else xctx->graph_sim_type = 2;
     }
     else if(!strncmp(line, "Plotname: AC Analysis", 21)) {
-      if(sim_type && sim_type != 3) sim_type = 0;
-      else sim_type = 3;
+      if(xctx->graph_sim_type && xctx->graph_sim_type != 3) xctx->graph_sim_type = 0;
+      else xctx->graph_sim_type = 3;
     }
     else if(!strncmp(line, "Plotname:", 9)) {
-      sim_type = 0;
+      xctx->graph_sim_type = 0;
     }
     /* points and vars are needed for all sections (also ones we are not interested in)
      * to skip binary blobs */
@@ -335,6 +341,7 @@ static int read_dataset(FILE *fd)
     }
     else if(!strncmp(line, "No. Variables:", 14)) {
       sscanf(line, "No. Variables: %d", &xctx->graph_nvars);
+      if(xctx->graph_sim_type == 3) xctx->graph_nvars <<= 1; /* mag and phase */
     }
     else if(!done_points && !strncmp(line, "No. Points:", 11)) {
       my_realloc(1415, &xctx->graph_npoints, (xctx->graph_datasets+1) * sizeof(int));
@@ -344,14 +351,24 @@ static int read_dataset(FILE *fd)
       /* get the list of lines with index and node name */
       if(!xctx->graph_names) xctx->graph_names = my_calloc(426, xctx->graph_nvars, sizeof(char *));
       sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
-      xctx->graph_names[i] = my_malloc(415, strlen(varname) + 1);
-      strcpy(xctx->graph_names[i], varname);
+      if(xctx->graph_sim_type == 3) { /* AC */
+        my_strcat(414, &xctx->graph_names[i << 1], varname);
+        int_hash_lookup(xctx->raw_table, xctx->graph_names[i << 1], (i << 1), XINSERT_NOREPLACE);
+        if(strstr(varname, "v(") == varname || strstr(varname, "i(") == varname ||
+           strstr(varname, "V(") == varname || strstr(varname, "I(") == varname)
+          my_mstrcat(540, &xctx->graph_names[(i << 1) + 1], "ph(", varname + 2, NULL);
+        else
+          my_mstrcat(540, &xctx->graph_names[(i << 1) + 1], varname, "_ph", NULL);
+        int_hash_lookup(xctx->raw_table, xctx->graph_names[(i << 1) + 1], (i << 1) + 1, XINSERT_NOREPLACE);
+      } else {
+        my_strcat(541, &xctx->graph_names[i], varname);
+        int_hash_lookup(xctx->raw_table, xctx->graph_names[i], i, XINSERT_NOREPLACE);
+      }
       /* use hash table to store index number of variables */
-      int_hash_lookup(xctx->raw_table, xctx->graph_names[i], i, XINSERT_NOREPLACE);
       dbg(1, "read_dataset(): get node list -> names[%d] = %s\n", i, xctx->graph_names[i]);
     }
     /* after this line comes the list of indexes and associated nodes */
-    if(sim_type && !strncmp(line, "Variables:", 10)) {
+    if(xctx->graph_sim_type && !strncmp(line, "Variables:", 10)) {
       variables = 1 ;
     }
   }

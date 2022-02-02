@@ -900,6 +900,7 @@ typedef struct {
   int graph_bottom; 
   int graph_left;
   int graph_lastsel; /* last graph that was clicked (selected) */
+  int graph_sim_type; /* type of sim, 1: Tran, 2: Dc, 3: Ac */
   Int_hashentry **raw_table;
   char *raw_schname;
   /*     */

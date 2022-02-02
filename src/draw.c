@@ -1528,7 +1528,7 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
  *                  112   --> 100
  *                  6300  --> 10000
  */
-static double axis_increment(double a, double b, int div)
+static double axis_increment(double a, double b, int div, int freq)
 {
   double scale;
   double sign;
@@ -1545,10 +1545,16 @@ static double axis_increment(double a, double b, int div)
   delta = fabs(delta);
   scale = pow(10.0, floor(log10(delta)));
   scaled_delta =  delta / scale; /* 1 <= scaled_delta < 10 */
-  if(scaled_delta > 5.5) scaled_delta = 10.0;
+  dbg(1, "a=%g, b=%g, scale=%g, scaled_delta=%g --> ", a, b, scale, scaled_delta);
+  if(freq && scaled_delta > 2.5) scaled_delta = 10.0;
+  else if(freq && scaled_delta > 1.9) scaled_delta = 5.0;
+  else if(freq && scaled_delta > 1.4) scaled_delta = 2.0;
+  else if(freq) scaled_delta = 1.0;
+  else if(scaled_delta > 5.5) scaled_delta = 10.0;
   else if(scaled_delta > 2.2) scaled_delta = 5.0;
   else if(scaled_delta > 1.1) scaled_delta = 2.0;
   else scaled_delta = 1.0;
+  dbg(1, "scaled_delta = %g, scaled_delta * scale * sign=%g\n", scaled_delta, scaled_delta * scale * sign);
   return scaled_delta * scale * sign;
 }
 
@@ -1810,12 +1816,16 @@ static void draw_graph_grid(Graph_ctx *gr)
   bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
   bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
   /* vertical grid lines */
-  deltax = axis_increment(gr->gx1, gr->gx2, gr->divx);
+  deltax = axis_increment(gr->gx1, gr->gx2, gr->divx, (xctx->graph_sim_type == 3));
   startx = axis_start(gr->gx1, deltax, gr->divx);
   for(j = -1;; j++) { /* start one interval before to allow sub grids at beginning */
     wx = startx + j * deltax;
     if(gr->subdivx > 0) for(k = 1; k <=gr->subdivx; k++) {
-      double subwx = wx + k * deltax / (gr->subdivx + 1);
+      double subwx;
+      if(xctx->graph_sim_type == 3)  {
+        subwx = wx + deltax * log10(1.0 + (double)k * 9.0 / ((double)gr->subdivx + 1.0)); 
+      } else
+        subwx = wx + deltax * (double)k / ((double)gr->subdivx + 1.0);
       if(!axis_within_range(subwx, gr->gx1, gr->gx2)) continue;
       if(axis_end(subwx, deltax, gr->gx2)) break;
       drawline(GRIDLAYER, ADD, W_X(subwx),   W_Y(gr->gy2), W_X(subwx),   W_Y(gr->gy1), dash_sizey);
@@ -1826,7 +1836,11 @@ static void draw_graph_grid(Graph_ctx *gr)
     drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy2), W_X(wx),   W_Y(gr->gy1), dash_sizey);
     drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy1), W_X(wx),   W_Y(gr->gy1) + mark_size, 0); /* axis marks */
     /* X-axis labels */
-    draw_string(3, NOW, dtoa(wx * gr->unitx), 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
+    if(xctx->graph_sim_type == 3) 
+      draw_string(3, NOW, dtoa(pow(10, wx ) * gr->unitx), 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
+                gr->txtsizex, gr->txtsizex);
+    else
+      draw_string(3, NOW, dtoa(wx * gr->unitx), 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
                 gr->txtsizex, gr->txtsizex);
   }
   /* first and last vertical box delimiters */
@@ -1834,7 +1848,7 @@ static void draw_graph_grid(Graph_ctx *gr)
   drawline(GRIDLAYER, ADD, W_X(gr->gx2),   W_Y(gr->gy2), W_X(gr->gx2),   W_Y(gr->gy1), 0);
   /* horizontal grid lines */
   if(!gr->digital) {
-    deltay = axis_increment(gr->gy1, gr->gy2, gr->divy);
+    deltay = axis_increment(gr->gy1, gr->gy2, gr->divy, 0);
     starty = axis_start(gr->gy1, deltay, gr->divy);
     for(j = -1;; j++) { /* start one interval before to allow sub grids at beginning */
       wy = starty + j * deltay;
@@ -1922,8 +1936,13 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
   gr->unitx_suffix = val[0];
   gr->unitx = get_unit(val);
   val = get_tok_value(r->prop_ptr,"unity",0);
-  gr->unity_suffix = val[0];
-  gr->unity = get_unit(val);
+  if(xctx->graph_sim_type == 3) { /* AC */
+    gr->unity_suffix = '1';
+    gr->unity = 1.0;
+  } else {
+    gr->unity_suffix = val[0];
+    gr->unity = get_unit(val);
+  }
   val = get_tok_value(r->prop_ptr,"subdivx",0);
   if(val[0]) gr->subdivx = atoi(val);
   val = get_tok_value(r->prop_ptr,"subdivy",0);
@@ -2020,6 +2039,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
 
   if(xx >= gr->x1 && xx <= gr->x2) {
     drawline(cursor_color, NOW, xx, gr->ry1, xx, gr->ry2, 1);
+    if(xctx->graph_sim_type == 3) active_cursorx = pow(10, active_cursorx);
     if(gr->unitx != 1.0)
        my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * active_cursorx , gr->unitx_suffix);
     else
@@ -2046,6 +2066,7 @@ static void draw_cursor_difference(Graph_ctx *gr)
   double yy = gr->ry2 - 1;
   double tmpd;
   double yline;
+  if(xctx->graph_sim_type == 3) return;
   if(gr->unitx != 1.0)
      my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * diffw , gr->unitx_suffix);
   else
@@ -2085,7 +2106,13 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", find_nth(ntok, ',', 1), gr->unity_suffix);
     else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ',', 1));
   } else {
-    if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", ntok, gr->unity_suffix);
+    if(xctx->graph_sim_type == 3) {
+      if(strstr(ntok, "ph(") == ntok)
+        my_snprintf(tmpstr, S(tmpstr), "%s[Phase]", ntok);
+      else
+        my_snprintf(tmpstr, S(tmpstr), "%s[dB]", ntok);
+    }
+    else if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", ntok, gr->unity_suffix);
     else  my_snprintf(tmpstr, S(tmpstr), "%s", ntok);
   }
   if(gr->digital) {

@@ -1449,6 +1449,7 @@ proc graph_get_signal_list {siglist pattern } {
   if {$graph_sort} {set direction {-increasing}}
   set result {}
   set siglist [join [lsort $direction -dictionary $siglist] \n]
+  # just check if pattern is a valid regexp
   set err [catch {regexp $pattern {12345}} res]
   if {$err} {set pattern {}}
   foreach i $siglist {
