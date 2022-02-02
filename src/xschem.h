@@ -1347,7 +1347,6 @@ extern void check_polygon_storage(int c);
 extern const char *expandlabel(const char *s, int *m);
 extern void parse(const char *s);
 extern void clear_expandlabel_data(void);
-extern void merge_inst(int k, FILE *fd);
 extern void merge_file(int selection_load, const char ext[]);
 extern void select_wire(int i, unsigned short select_mode, int fast);
 extern void select_element(int i, unsigned short select_mode, int fast, int override_lock);

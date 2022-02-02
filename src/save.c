@@ -676,13 +676,14 @@ void save_ascii_string(const char *ptr, FILE *fd, int newline)
   fwrite(strbuf, 1, strbuf_pos, fd);
 }
 
-void save_embedded_symbol(xSymbol *s, FILE *fd)
+static void save_embedded_symbol(xSymbol *s, FILE *fd)
 {
   int c, i, j;
 
   fprintf(fd, "v {xschem version=%s file_version=%s}\n", XSCHEM_VERSION, XSCHEM_FILE_VERSION);
-  fprintf(fd, "G ");
+  fprintf(fd, "K ");
   save_ascii_string(s->prop_ptr,fd, 1);
+  fprintf(fd, "G {}\n");
   fprintf(fd, "V {}\n");
   fprintf(fd, "S {}\n");
   fprintf(fd, "E {}\n");
@@ -745,15 +746,17 @@ void save_embedded_symbol(xSymbol *s, FILE *fd)
   }
 }
 
-void save_inst(FILE *fd, int select_only)
+static void save_inst(FILE *fd, int select_only)
 {
  int i, oldversion;
  xInstance *ptr;
  char *tmp = NULL;
+ int *embedded_saved = NULL;
 
  ptr=xctx->inst;
  oldversion = !strcmp(xctx->file_version, "1.0");
  for(i=0;i<xctx->symbols;i++) xctx->sym[i].flags &=~EMBEDDED;
+ embedded_saved = my_calloc(538, xctx->symbols, sizeof(int));
  for(i=0;i<xctx->instances;i++)
  {
    if (select_only && ptr[i].sel != SELECTED) continue;
@@ -767,17 +770,19 @@ void save_inst(FILE *fd, int select_only)
   }
   fprintf(fd, " %.16g %.16g %hd %hd ",ptr[i].x0, ptr[i].y0, ptr[i].rot, ptr[i].flip );
   save_ascii_string(ptr[i].prop_ptr,fd, 1);
-  if( !strcmp(get_tok_value(ptr[i].prop_ptr, "embed", 0), "true") ) {
+  if( !embedded_saved[ptr[i].ptr] && !strcmp(get_tok_value(ptr[i].prop_ptr, "embed", 0), "true") ) {
       /* && !(xctx->sym[ptr[i].ptr].flags & EMBEDDED)) {  */
+    embedded_saved[ptr[i].ptr] = 1;
     fprintf(fd, "[\n");
     save_embedded_symbol( xctx->sym+ptr[i].ptr, fd);
     fprintf(fd, "]\n");
     xctx->sym[ptr[i].ptr].flags |= EMBEDDED;
   }
  }
+ my_free(539, &embedded_saved);
 }
 
-void save_wire(FILE *fd, int select_only)
+static void save_wire(FILE *fd, int select_only)
 {
  int i;
  xWire *ptr;
@@ -792,7 +797,7 @@ void save_wire(FILE *fd, int select_only)
  }
 }
 
-void save_text(FILE *fd, int select_only)
+static void save_text(FILE *fd, int select_only)
 {
  int i;
  xText *ptr;
@@ -809,7 +814,7 @@ void save_text(FILE *fd, int select_only)
  }
 }
 
-void save_polygon(FILE *fd, int select_only)
+static void save_polygon(FILE *fd, int select_only)
 {
     int c, i, j;
     xPoly *ptr;
@@ -828,7 +833,7 @@ void save_polygon(FILE *fd, int select_only)
     }
 }
 
-void save_arc(FILE *fd, int select_only)
+static void save_arc(FILE *fd, int select_only)
 {
     int c, i;
     xArc *ptr;
@@ -845,7 +850,7 @@ void save_arc(FILE *fd, int select_only)
     }
 }
 
-void save_box(FILE *fd, int select_only)
+static void save_box(FILE *fd, int select_only)
 {
     int c, i;
     xRect *ptr;
@@ -862,7 +867,7 @@ void save_box(FILE *fd, int select_only)
     }
 }
 
-void save_line(FILE *fd, int select_only)
+static void save_line(FILE *fd, int select_only)
 {
     int c, i;
     xLine *ptr;
@@ -879,7 +884,7 @@ void save_line(FILE *fd, int select_only)
     }
 }
 
-void write_xschem_file(FILE *fd)
+static void write_xschem_file(FILE *fd)
 {
   int ty=0;
   char *ptr;

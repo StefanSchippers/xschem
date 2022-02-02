@@ -2006,7 +2006,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1], "raw_query"))
     {
       int i;
-      char s[30];
       int dataset = 0;
       cmd_found = 1;
       Tcl_ResetResult(interp);
@@ -2031,8 +2030,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               }
               if(idx >= 0) {
                 double val =   get_raw_value(dataset, idx, point);
-                my_snprintf(s, S(s), "%g", val);
-                Tcl_AppendResult(interp, s, NULL);
+                Tcl_AppendResult(interp, dtoa(val), NULL);
               }
             }
           }
@@ -2043,16 +2041,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             int idx;
             entry = int_hash_lookup(xctx->raw_table, argv[3], 0, XLOOKUP);
             idx = entry ? entry->value : -1;
-            my_snprintf(s, S(s), "%d", idx);
-            Tcl_AppendResult(interp, s, NULL);
+            Tcl_AppendResult(interp, itoa(idx), NULL);
           }
         } else if(argc > 2) {
+          if(!strcmp(argv[2], "datasets")) {
+            Tcl_AppendResult(interp, itoa(xctx->graph_datasets), NULL); 
+          }
           if(!strcmp(argv[2], "points")) {
-            my_snprintf(s, S(s), "%d", xctx->graph_npoints[0]);
-            Tcl_AppendResult(interp, s, NULL);
+            int i, s = 0;
+            for(i = 0; i < xctx->graph_datasets; i++) {
+              s +=  xctx->graph_npoints[i];
+            }
+            Tcl_AppendResult(interp, itoa(s), NULL);
           } else if(!strcmp(argv[2], "vars")) {
-            my_snprintf(s, S(s), "%d", xctx->graph_nvars);
-            Tcl_AppendResult(interp, s, NULL);
+            Tcl_AppendResult(interp, itoa(xctx->graph_nvars), NULL);
           } else if(!strcmp(argv[2], "list")) {
             for(i = 0 ; i < xctx->graph_nvars; i++) {
               if(i > 0) Tcl_AppendResult(interp, "\n", NULL);

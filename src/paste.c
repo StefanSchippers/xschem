@@ -26,7 +26,7 @@
 
 
 
-void merge_text(FILE *fd)
+static void merge_text(FILE *fd)
 {
    int i;
    const char *str;
@@ -72,7 +72,7 @@ void merge_text(FILE *fd)
      xctx->texts++;
 }
 
-void merge_wire(FILE *fd)
+static void merge_wire(FILE *fd)
 {
     int i;
     double x1,y1,x2,y2;
@@ -89,7 +89,7 @@ void merge_wire(FILE *fd)
     select_wire(i, SELECTED, 1);
 }
 
-void merge_box(FILE *fd)
+static void merge_box(FILE *fd)
 {
     int i,c,n;
     xRect *ptr;
@@ -128,7 +128,7 @@ void merge_box(FILE *fd)
     set_modify(1);
 }
 
-void merge_arc(FILE *fd)
+static void merge_arc(FILE *fd)
 {
     int i,c,n;
     xArc *ptr;
@@ -171,7 +171,7 @@ void merge_arc(FILE *fd)
 }
 
 
-void merge_polygon(FILE *fd)
+static void merge_polygon(FILE *fd)
 {
     int i,c, j, points;
     xPoly *ptr;
@@ -227,7 +227,7 @@ void merge_polygon(FILE *fd)
     set_modify(1);
 }
 
-void merge_line(FILE *fd)
+static void merge_line(FILE *fd)
 {
     int i,c,n;
     xLine *ptr;
@@ -267,7 +267,7 @@ void merge_line(FILE *fd)
 
 
 
-void merge_inst(int k,FILE *fd)
+static void merge_inst(int k,FILE *fd)
 {
     int i;
     char *prop_ptr=NULL;
