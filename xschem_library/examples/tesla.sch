@@ -4,12 +4,49 @@ K {}
 V {}
 S {}
 E {}
+B 2 10 -270 390 -110 {flags=graph
+y1=-5400
+y2=5400
+ypos1=0
+ypos2=2
+divy=5
+subdivy=1
+unity=k
+x1=4e-10
+x2=0.001
+divx=5
+subdivx=1
+node=hv
+color=7
+dataset=0
+unitx=u
+}
+B 2 10 -440 390 -280 {flags=graph
+y1=-0.9
+y2=13
+ypos1=0
+ypos2=2
+divy=5
+subdivy=1
+unity=1
+x1=4e-10
+x2=0.001
+divx=5
+subdivx=1
+
+
+dataset=0
+unitx=u
+color="4 7 6"
+node="fb
+d
+vcc"}
 T {PARASITIC
 CAP} 1020 -510 0 0 0.25 0.2 {}
 T {TESLA COIL HIGH VOLTAGE GENERATOR EXAMPLE} 420 -740 0 0 0.4 0.4 {}
-N 140 -550 140 -500 {lab=VCCS}
-N 140 -640 140 -610 {lab=VCC}
-N 230 -640 230 -500 {lab=VCC}
+N 140 -590 140 -540 {lab=VCCS}
+N 140 -680 140 -650 {lab=VCC}
+N 230 -680 230 -540 {lab=VCC}
 N 870 -530 1010 -530 {lab=HV}
 N 1010 -420 1010 -250 {lab=VSS}
 N 1010 -530 1010 -480 {lab=HV}
@@ -80,19 +117,19 @@ N 520 -430 520 -340 {lab=#net3}
 N 520 -340 720 -340 {lab=#net3}
 N 810 -340 870 -340 {lab=FB}
 N 520 -490 580 -490 {lab=VCC}
-N 580 -640 580 -490 {lab=VCC}
+N 580 -680 580 -490 {lab=VCC}
 N 870 -530 870 -490 {lab=HV}
 N 870 -430 870 -340 {lab=FB}
 N 580 -170 580 -150 {lab=VSS}
-N 140 -640 230 -640 {lab=VCC}
-N 140 -420 230 -420 {lab=VSS}
+N 140 -680 230 -680 {lab=VCC}
+N 140 -460 230 -460 {lab=VSS}
 N 800 -220 800 -200 {lab=VCC}
 N 800 -140 870 -140 {lab=FB}
-N 230 -440 230 -420 {lab=VSS}
-N 140 -440 140 -420 {lab=VSS}
+N 230 -480 230 -460 {lab=VSS}
+N 140 -480 140 -460 {lab=VSS}
 N 460 -200 540 -200 {lab=FB}
 N 580 -280 580 -230 {lab=D}
-N 230 -640 580 -640 {lab=VCC}
+N 230 -680 580 -680 {lab=VCC}
 N 470 -280 470 -260 {lab=VCC}
 N 460 -420 460 -400 {lab=VCC}
 N 460 -340 520 -340 {lab=#net3}
@@ -111,16 +148,19 @@ vvss vss 0 dc 0
 ** referenced file in simulation directory.
 .include models_tesla.txt
 .temp 30
-.tran 1n 1m  uic
-.meas tran iavg AVG i(vvcc) from=950u to=990u
-.probe tran p(q5) i(l1) i(l2)
-.meas tran pavg AVG @q5[p] from=950u to=990u
+
+.control
+tran 40n 1m  uic
+meas tran iavg AVG i(vvcc) from=950u to=990u
+save tran p(q5) i(l1) i(l2)
+write tesla.raw
+.endc
 "}
-C {lab_pin.sym} 140 -640 0 0 {name=p1 lab=VCC}
-C {res.sym} 140 -580 0 1 {name=Rs m=1 value=1}
-C {vsource.sym} 140 -470 0 1 {name=Vvcc value="pwl 0 0 1u 12"}
-C {lab_pin.sym} 140 -420 0 0 {name=p7 lab=VSS}
-C {capa.sym} 230 -470 0 0 {name=Cvcc m=1 value=10u}
+C {lab_pin.sym} 140 -680 0 0 {name=p1 lab=VCC}
+C {res.sym} 140 -620 0 1 {name=Rs m=1 value=1}
+C {vsource.sym} 140 -510 0 1 {name=Vvcc value="pwl 0 0 1u 12"}
+C {lab_pin.sym} 140 -460 0 0 {name=p7 lab=VSS}
+C {capa.sym} 230 -510 0 0 {name=Cvcc m=1 value=10u}
 C {launcher.sym} 1180 -530 0 0 {name=h2 
 descr="BJT MODELS" 
 url="http://www.zen22142.zen.co.uk/ltspice/standard.bjt"}
@@ -133,7 +173,7 @@ url="http://hamwaves.com/antennas/inductance.html"}
 C {launcher.sym} 1180 -630 0 0 {name=h4 
 descr="ltwiki BJT MODELS" 
 url="http://ltwiki.org/?title=Standard.bjt"}
-C {lab_pin.sym} 140 -530 0 0 {name=p6 lab=VCCS}
+C {lab_pin.sym} 140 -570 0 0 {name=p6 lab=VCCS}
 C {lab_pin.sym} 870 -560 0 1 {name=p4 lab=HV}
 C {capa.sym} 1010 -450 0 0 {name=C1 m=1 value=1p}
 C {lab_pin.sym} 1010 -250 0 0 {name=p3 lab=VSS}
@@ -165,3 +205,14 @@ C {diode.sym} 720 -310 2 0 {name=D4 model=d1n5400 area=1
 }
 C {lab_pin.sym} 720 -260 0 0 {name=p14 lab=VSS}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
+C {launcher.sym} 100 -810 0 0 {name=h5 
+descr="tcleval(Select arrow and 
+Ctrl key + Left Button-Click to load/unload waveforms
+from $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw)" 
+tclcommand="
+xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+"
+}
+C {launcher.sym} 170 -90 0 0 {name=h6
+descr="Graph Manual page"
+url="https://xschem.sourceforge.io/stefan/xschem_man/graphs.html"}

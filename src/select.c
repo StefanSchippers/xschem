@@ -1128,7 +1128,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
     xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
     sel? select_box(c,i, SELECTED, 1): select_box(c,i, 0, 1);
    }
-   else {
+   else if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 2048)){ /* no stretch on unscaled images */
      if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y1, x1,y1,x2,y2) )
      {                                  /*20070302 added stretch select */
       xctx->ui_state |= SELECTION;

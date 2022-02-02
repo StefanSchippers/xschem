@@ -358,7 +358,7 @@ static int read_dataset(FILE *fd)
            strstr(varname, "V(") == varname || strstr(varname, "I(") == varname)
           my_mstrcat(540, &xctx->graph_names[(i << 1) + 1], "ph(", varname + 2, NULL);
         else
-          my_mstrcat(540, &xctx->graph_names[(i << 1) + 1], varname, "_ph", NULL);
+          my_mstrcat(540, &xctx->graph_names[(i << 1) + 1], "ph(", varname, ")", NULL);
         int_hash_lookup(xctx->raw_table, xctx->graph_names[(i << 1) + 1], (i << 1) + 1, XINSERT_NOREPLACE);
       } else {
         my_strcat(541, &xctx->graph_names[i], varname);

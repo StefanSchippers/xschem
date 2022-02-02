@@ -1988,9 +1988,11 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
   gr->h = gr->y2 - gr->y1;
 
   /* label text size calculations */
-  gr->txtsizelab = gr->marginy * 0.009;
-  tmp =  gr->w * 0.00044;
-  if(tmp < gr->txtsizelab) gr->txtsizelab = tmp;
+  gr->txtsizelab = gr->marginy * 0.007;
+  /* 
+   * tmp =  gr->w * 0.00044;
+   * if(tmp < gr->txtsizelab) gr->txtsizelab = tmp;
+   */
   if(flags & 2)
     gr->digtxtsizelab = 0.000900 * fabs( gr->h / gr->posh * gr->gh ); 
   else
@@ -2107,7 +2109,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ',', 1));
   } else {
     if(xctx->graph_sim_type == 3) {
-      if(strstr(ntok, "ph(") == ntok)
+      if(strstr(ntok, "ph(") == ntok || strstr(ntok, "_ph"))
         my_snprintf(tmpstr, S(tmpstr), "%s[Phase]", ntok);
       else
         my_snprintf(tmpstr, S(tmpstr), "%s[dB]", ntok);
