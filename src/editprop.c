@@ -1053,7 +1053,7 @@ void update_symbol(const char *result, int x)
      to use for inst name (from symbol template) */
   prefix=0;
   sym_number = -1;
-  if(strcmp(symbol, xctx->inst[*ii].name)) {
+  if(xctx->x_strcmp(symbol, xctx->inst[*ii].name)) {
     set_modify(1);
     sym_number=match_symbol(symbol); /* check if exist */
     if(sym_number>=0) {

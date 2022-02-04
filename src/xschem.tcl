@@ -5490,6 +5490,8 @@ set_ne undo_type disk
 
 ## show tab bar (tabbed interface) 
 set_ne tabbed_interface 0
+## case insensitive symbol lookup (on case insensitive filesystems only!)
+set_ne case_insensitive 0
 
 ## remember edit_prop widget size
 set_ne edit_prop_size 80x12

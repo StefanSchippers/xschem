@@ -556,7 +556,7 @@ void  vhdl_block_netlist(FILE *fd, int i)
           if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
             continue;
           }
-          if(!strcmp(xctx->sym[j].name,xctx->inst[l].name))
+          if(!xctx->x_strcmp(xctx->sym[j].name,xctx->inst[l].name))
           {
             found=1; break;
           }

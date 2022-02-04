@@ -230,7 +230,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
  for(i=0;i<xctx->symbols;i++)
  {
   /* dbg(1, "match_symbol(): name=%s, sym[i].name=%s\n",name, xctx->sym[i].name);*/
-  if(strcmp(name, xctx->sym[i].name) == 0)
+  if(xctx->x_strcmp(name, xctx->sym[i].name) == 0)
   {
    dbg(1, "match_symbol(): found matching symbol:%s\n",name);
    found=1;break;

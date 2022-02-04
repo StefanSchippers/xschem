@@ -1072,7 +1072,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           return TCL_ERROR;
         }
         for(i=0; i<xctx->symbols; i++) {
-          if(!strcmp(xctx->sym[i].name,argv[3])){
+          if(!xctx->x_strcmp(xctx->sym[i].name,argv[3])){
             found=1;
             break;
           }

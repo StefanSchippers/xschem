@@ -1201,7 +1201,7 @@ int sym_vs_sch_pins()
                       statusmsg(str,2);
                       tcleval("show_infotext"); /* critical error: force ERC window showing */
                       for(j = 0; j < xctx->instances; j++) {
-                        if(!strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
+                        if(!xctx->x_strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
                           xctx->inst[i].color = -PINLAYER;
                           xctx->hilight_nets=1;
                         }
@@ -1218,7 +1218,7 @@ int sym_vs_sch_pins()
                   statusmsg(str,2);
                   tcleval("show_infotext"); /* critical error: force ERC window showing */
                   for(j = 0; j < xctx->instances; j++) {
-                    if(!strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
+                    if(!xctx->x_strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
                       xctx->inst[i].color = -PINLAYER;
                       xctx->hilight_nets=1;
                     }
@@ -1252,7 +1252,7 @@ int sym_vs_sch_pins()
           statusmsg(str,2);
           tcleval("show_infotext"); /* critical error: force ERC window showing */
           for(j = 0; j < xctx->instances; j++) {
-            if(!strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
+            if(!xctx->x_strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
               xctx->inst[i].color = -PINLAYER;
               xctx->hilight_nets=1;
             }
@@ -1276,7 +1276,7 @@ int sym_vs_sch_pins()
             statusmsg(str,2);
             tcleval("show_infotext"); /* critical error: force ERC window showing */
             for(k = 0; k < xctx->instances; k++) {
-              if(!strcmp(xctx->inst[k].name, xctx->sym[i].name)) {
+              if(!xctx->x_strcmp(xctx->inst[k].name, xctx->sym[i].name)) {
                 xctx->inst[i].color = -PINLAYER;
                 xctx->hilight_nets=1;
               }

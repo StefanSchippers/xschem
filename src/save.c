@@ -1323,12 +1323,12 @@ void read_xschem_file(FILE *fd)
          dbg(1, "read_xschem_file(): sym[i].name=%s, name_embedded=%s\n", xctx->sym[i].name, name_embedded);
          dbg(1, "read_xschem_file(): inst[instances-1].name=%s\n", xctx->inst[xctx->instances-1].name);
          /* symbol has already been loaded: skip [..] */
-         if(!strcmp(xctx->sym[i].name, xctx->inst[xctx->instances-1].name)) {
+         if(!xctx->x_strcmp(xctx->sym[i].name, xctx->inst[xctx->instances-1].name)) {
            found=1; break;
          }
          /* if loading file coming back from embedded symbol delete temporary file */
          /* symbol from this temp file has already been loaded in go_back() */
-         if(!strcmp(name_embedded, xctx->sym[i].name)) {
+         if(!xctx->x_strcmp(name_embedded, xctx->sym[i].name)) {
            my_strdup2(325, &xctx->sym[i].name, xctx->inst[xctx->instances-1].name);
            xunlink(name_embedded);
            found=1;break;
@@ -1880,7 +1880,7 @@ static void get_sym_type(const char *symname, char **type,
   found=0;
   /* first look in already loaded symbols in xctx->sym[] array... */
   for(i=0;i<xctx->symbols;i++) {
-    if(strcmp(symname, xctx->sym[i].name) == 0) {
+    if(xctx->x_strcmp(symname, xctx->sym[i].name) == 0) {
       my_strdup2(316, type, xctx->sym[i].type);
       found = 1;
       break;

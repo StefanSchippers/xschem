@@ -2159,6 +2159,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
    toggle_fullscreen(".");
  }
 
+ if(tclgetboolvar("case_insensitive")) {
+   xctx->case_insensitive = 1;
+   xctx->x_strcmp = my_strcasecmp;
+ }
+
  /*                                */
  /*  START PROCESSING USER OPTIONS */
  /*                                */
