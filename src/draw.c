@@ -2431,7 +2431,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         XPoint *point = NULL;
         int dataset = gr->dataset;
         int digital = gr->digital;
-
+        if(idx ==  xctx->graph_nvars -1) plot_raw_custom_data(sweep_idx);
         ofs = 0;
         start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
         end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
@@ -2687,7 +2687,6 @@ void draw_image(int draw, xRect *r, double *x1, double *y1, double *x2, double *
       filterdata = (char *)base64_decode(attr, strlen(attr), &filtersize);
       filter_data(filterdata, filtersize, (char **)&closure.buffer, &data_size, filter); 
       my_free(1488, &filterdata);
-      my_free(1485, &filter);
     } else {
       closure.buffer = base64_decode(attr, strlen(attr), &data_size);
     }
@@ -2723,7 +2722,6 @@ void draw_image(int draw, xRect *r, double *x1, double *y1, double *x2, double *
       emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
       image_data = base64_encode((unsigned char *)filterdata, filtersize, &olength, 0);
       my_free(1489, &filterdata);
-      my_free(1487, &filter);
     } else {
       closure.buffer = NULL;
       closure.size = 0;
@@ -2737,10 +2735,20 @@ void draw_image(int draw, xRect *r, double *x1, double *y1, double *x2, double *
     /* put base64 encoded data to rect image_data attrinute */
     my_strdup2(1473, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", image_data));
     my_free(1474, &image_data);
-    if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) return;
+    if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
+      my_free(442, &filter);
+      return;
+    }
     dbg(1, "draw_image(): length3 = %d\n", closure.pos);
-  } else return;
-  if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) return;
+  } else {
+    my_free(453, &filter);
+    return;
+  }
+  if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
+    my_free(434, &filter);
+    return;
+  }
+  my_free(1485, &filter);
   ptr = get_tok_value(r->prop_ptr, "alpha", 0);
   alpha = 1.0;
   if(ptr[0]) alpha = atof(ptr);

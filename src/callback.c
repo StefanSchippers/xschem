@@ -311,10 +311,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     gr->gx2 = gr->master_gx2;
     gr->gw = gr->master_gw;
     setup_graph_data(i, xctx->graph_flags, 1, gr); /* skip flag set, no reload x1 and x2 fields */
-    /* if no dataset given assume 0 for graph scaling calculations */
-    if(gr->dataset == -1) dataset = 0;
-    else if(gr->dataset <=  xctx->graph_datasets) dataset =gr->dataset;
-    else dataset = 0;
+    if(gr->dataset >= 0 && gr->dataset < xctx->graph_datasets) dataset =gr->dataset;
+    else dataset = -1;
     /* destroy / show measurement widget */
     if(i == xctx->graph_master) {
       if(xctx->graph_flags & 64) {
@@ -629,6 +627,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           if(xctx->graph_left) {
             if(i == xctx->graph_master) {
               if(!gr->digital) {
+                int dset;
                 int i, j;
                 double v;
                 double min=0.0, max=0.0;
@@ -640,11 +639,16 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                   nptr = NULL;
                   j = get_raw_index(ntok);
                   if(j >= 0) {
-                    for(i = 0; i < xctx->graph_npoints[dataset]; i++) {
-                      v = get_raw_value(dataset, j, i);
-                      if(first || v < min) {min = v; first = 0;}
-                      if(first || v > max) {max = v; first = 0;}
-                    } 
+                    int ofs = 0;
+                    for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
+                      for(i = ofs; i < ofs + xctx->graph_npoints[dset]; i++) {
+                        if(dataset >= 0 && dataset != dset) continue;
+                        v = xctx->graph_values[j][i];
+                        if(first || v < min) {min = v; first = 0;}
+                        if(first || v > max) {max = v; first = 0;}
+                      } 
+                      ofs += xctx->graph_npoints[dset];
+                    }
                   }
                 }
                 if(max == min) max += 0.01;
@@ -663,9 +667,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               }
             }
           } else {
+            int dset = dataset == -1 ? 0 : dataset;
             if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-              xx1 = get_raw_value(dataset, 0, 0);
-              xx2 = get_raw_value(dataset, 0, xctx->graph_npoints[dataset] -1);
+              xx1 = get_raw_value(dset, 0, 0);
+              xx2 = get_raw_value(dset, 0, xctx->graph_npoints[dset] -1);
               my_strdup(1409, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
               my_strdup(1412, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
               need_redraw = 1;
@@ -678,9 +683,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
         if(xctx->graph_values) {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+            int dset = dataset == -1 ? 0 : dataset;
             delta = gr->gw;
-            wwx1 =  get_raw_value(dataset, 0, 0);
-            wwx2 = get_raw_value(dataset, 0, xctx->graph_npoints[dataset] - 1);
+            wwx1 =  get_raw_value(dset, 0, 0);
+            wwx2 = get_raw_value(dset, 0, xctx->graph_npoints[dset] - 1);
             ccx = (gr->x2 - gr->x1) / (wwx2 - wwx1);
             ddx = gr->x1 - wwx1 * ccx;
             p = (xctx->mousex_snap - ddx) / ccx;

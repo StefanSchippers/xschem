@@ -788,6 +788,19 @@ proc simconf_reset {} {
   }
 }
 
+proc simconf_saveconf {scrollframe} {
+  global sim USER_CONF_DIR
+  foreach tool $sim(tool_list) {
+    for {set i 0} { $i < $sim($tool,n)} {incr i} {
+      set sim($tool,$i,cmd) [${scrollframe}.center.$tool.r.$i.cmd get 1.0 {end - 1 chars}]
+    }
+  }
+  # destroy .sim
+  # xschem set semaphore [expr {[xschem get semaphore] -1}]
+  save_sim_defaults ${USER_CONF_DIR}/simrc
+  # puts "saving simrc"
+}
+ 
 proc simconf {} {
   global sim USER_CONF_DIR simconf_default_geometry
 
@@ -875,18 +888,7 @@ To reset to default use the corresponding button or just delete the ~/.xschem/si
 file manually.
     } ro
   }
-  button .sim.bottom.ok  -text {Save Configuration to file} -command {
-    foreach tool $sim(tool_list) {
-      for {set i 0} { $i < $sim($tool,n)} {incr i} {
-        set sim($tool,$i,cmd) [${scrollframe}.center.$tool.r.$i.cmd get 1.0 {end - 1 chars}]
-      }
-    }
-    # destroy .sim
-    # xschem set semaphore [expr {[xschem get semaphore] -1}]
-    save_sim_defaults ${USER_CONF_DIR}/simrc
-    # puts "saving simrc"
-  }
-
+  button .sim.bottom.ok  -text {Save Configuration to file} -command "simconf_saveconf $scrollframe"
   button .sim.bottom.reset -text {Reset to default} -command {
     simconf_reset
   }
