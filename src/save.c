@@ -352,11 +352,11 @@ static int read_dataset(FILE *fd)
       if(!xctx->graph_names) xctx->graph_names = my_calloc(426, xctx->graph_nvars, sizeof(char *));
       sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
       if(xctx->graph_sim_type == 3) { /* AC */
-        my_strcat(414, &xctx->graph_names[i << 1], varname);
+        my_strcat(415, &xctx->graph_names[i << 1], varname);
         int_hash_lookup(xctx->raw_table, xctx->graph_names[i << 1], (i << 1), XINSERT_NOREPLACE);
         if(strstr(varname, "v(") == varname || strstr(varname, "i(") == varname ||
            strstr(varname, "V(") == varname || strstr(varname, "I(") == varname)
-          my_mstrcat(540, &xctx->graph_names[(i << 1) + 1], "ph(", varname + 2, NULL);
+          my_mstrcat(664, &xctx->graph_names[(i << 1) + 1], "ph(", varname + 2, NULL);
         else
           my_mstrcat(540, &xctx->graph_names[(i << 1) + 1], "ph(", varname, ")", NULL);
         int_hash_lookup(xctx->raw_table, xctx->graph_names[(i << 1) + 1], (i << 1) + 1, XINSERT_NOREPLACE);
@@ -773,7 +773,7 @@ static void save_inst(FILE *fd, int select_only)
  ptr=xctx->inst;
  oldversion = !strcmp(xctx->file_version, "1.0");
  for(i=0;i<xctx->symbols;i++) xctx->sym[i].flags &=~EMBEDDED;
- embedded_saved = my_calloc(538, xctx->symbols, sizeof(int));
+ embedded_saved = my_calloc(663, xctx->symbols, sizeof(int));
  for(i=0;i<xctx->instances;i++)
  {
    if (select_only && ptr[i].sel != SELECTED) continue;
@@ -919,7 +919,7 @@ static void write_xschem_file(FILE *fd)
 
   if(xctx->schvhdlprop && !xctx->schsymbolprop) {
     get_tok_value(xctx->schvhdlprop,"type",0);
-    ty = xctx->get_tok_size;
+    ty = xctx->tok_size;
     if(ty && !strcmp(xctx->sch[xctx->currsch] + strlen(xctx->sch[xctx->currsch]) - 4,".sym") ) {
       fprintf(fd, "G {}\nK ");
       save_ascii_string(xctx->schvhdlprop,fd, 1);
@@ -1362,7 +1362,7 @@ void read_xschem_file(FILE *fd)
     if(xctx->schvhdlprop) {
       char *str = xctx->sch[xctx->currsch];
       get_tok_value(xctx->schvhdlprop, "type",0);
-      ty = xctx->get_tok_size;
+      ty = xctx->tok_size;
       if(!xctx->schsymbolprop && ty && !strcmp(str + strlen(str) - 4,".sym")) {
         str = xctx->schsymbolprop;
         xctx->schsymbolprop = xctx->schvhdlprop;

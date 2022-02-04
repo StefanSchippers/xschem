@@ -776,7 +776,7 @@ typedef struct {
   int simdata_ninst;
   int modified;
   int semaphore;
-  int get_tok_size;
+  int tok_size;
   char netlist_name[PATH_MAX];
   int flat_netlist;
   char current_dirname[PATH_MAX];

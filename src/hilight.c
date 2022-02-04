@@ -603,7 +603,7 @@ int search(const char *tok, const char *val, int sub, int sel)
      has_token = (str = (xctx->inst[i].ptr+ xctx->sym)->prop_ptr) ? 1 : 0;
    } else if(!strncmp(tok,"cell::", 6)) { /* cell::xxx looks for xxx in global symbol attributes */
      my_strdup(142, &tmpname,get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr,tok+6,0));
-     has_token = xctx->get_tok_size;
+     has_token = xctx->tok_size;
      if(tmpname) {
        str = tmpname;
      } else {
@@ -614,7 +614,7 @@ int search(const char *tok, const char *val, int sub, int sel)
      str = xctx->inst[i].prop_ptr;
    } else {
      str = get_tok_value(xctx->inst[i].prop_ptr, tok,0);
-     has_token = xctx->get_tok_size;
+     has_token = xctx->tok_size;
    }
    dbg(1, "search(): inst=%d, tok=%s, val=%s \n", i,tok, str);
 
@@ -655,7 +655,7 @@ int search(const char *tok, const char *val, int sub, int sel)
  }
  for(i=0;i<xctx->wires;i++) {
    str = get_tok_value(xctx->wire[i].prop_ptr, tok,0);
-   if(xctx->get_tok_size ) {
+   if(xctx->tok_size ) {
      #ifdef __unix__
      if(   (!regexec(&re, str,0 , NULL, 0) && !sub )  ||       /* 20071120 regex instead of strcmp */
            ( !strcmp(str, val) &&  sub ) )
@@ -684,7 +684,7 @@ int search(const char *tok, const char *val, int sub, int sel)
  if(!sel && xctx->hilight_nets) propagate_hilights(1, 0, XINSERT_NOREPLACE);
  if(sel) for(c = 0; c < cadlayers; c++) for(i=0;i<xctx->lines[c];i++) {
    str = get_tok_value(xctx->line[c][i].prop_ptr, tok,0);
-   if(xctx->get_tok_size) {
+   if(xctx->tok_size) {
      #ifdef __unix__
      if( (!regexec(&re, str,0 , NULL, 0) && !sub ) ||
          ( !strcmp(str, val) &&  sub ))
@@ -710,7 +710,7 @@ int search(const char *tok, const char *val, int sub, int sel)
  }
  if(sel) for(c = 0; c < cadlayers; c++) for(i=0;i<xctx->rects[c];i++) {
    str = get_tok_value(xctx->rect[c][i].prop_ptr, tok,0);
-   if(xctx->get_tok_size) {
+   if(xctx->tok_size) {
      #ifdef __unix__
      if( (!regexec(&re, str,0 , NULL, 0) && !sub ) ||
          ( !strcmp(str, val) &&  sub ))
@@ -1078,7 +1078,7 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
     }
   }
   my_free(533, &p);
-  my_free(534, &t);
+  my_free(662, &t);
 }
 
 static void send_current_to_gaw(int simtype, const char *node)

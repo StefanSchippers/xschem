@@ -264,14 +264,18 @@ size_t my_strdup2(int id, char **dest, const char *src) /* 20150409 duplicates a
 char *itoa(int i)
 {
   static char s[30];
-  my_snprintf(s, S(s), "%d", i);
+  int n;
+  n = my_snprintf(s, S(s), "%d", i);
+  if(xctx) xctx->tok_size = n;
   return s;
 }
 
 char *dtoa(double i)
 {
   static char s[50];
-  my_snprintf(s, S(s), "%g", i);
+  int n;
+  n = my_snprintf(s, S(s), "%g", i);
+  if(xctx) xctx->tok_size = n;
   return s;
 }
 
@@ -1053,7 +1057,7 @@ void update_symbol(const char *result, int x)
      to use for inst name (from symbol template) */
   prefix=0;
   sym_number = -1;
-  if(xctx->x_strcmp(symbol, xctx->inst[*ii].name)) {
+  if(strcmp(symbol, xctx->inst[*ii].name)) {
     set_modify(1);
     sym_number=match_symbol(symbol); /* check if exist */
     if(sym_number>=0) {

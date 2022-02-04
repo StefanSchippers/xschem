@@ -476,7 +476,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->prep_hash_wires = 0;
   xctx->modified = 0;
   xctx->semaphore = 0;
-  xctx->get_tok_size = 0;
+  xctx->tok_size = 0;
   xctx->netlist_name[0] = '\0';
   xctx->flat_netlist = 0;
   xctx->plotfile[0] = '\0';

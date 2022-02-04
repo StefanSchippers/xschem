@@ -326,7 +326,7 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
      token_pos=0;
    }
    get_tok_value(new,token,1);
-   if(xctx->get_tok_size == 0 ) {
+   if(xctx->tok_size == 0 ) {
     mod=1;
     my_strdup(443, s, subst_token(*s, token, NULL) );
    }
@@ -426,7 +426,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
   int escape=0;
   int cmp = 1;
 
-  xctx->get_tok_size = 0;
+  xctx->tok_size = 0;
   if(s==NULL) {
     if(tok == NULL) {
       my_free(976, &result);
@@ -463,7 +463,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
       if(!escape) quote=!quote;
     }
     if(state==TOK_TOKEN) {
-      if(!cmp) { /* previous token matched search and was without value, return xctx->get_tok_size */
+      if(!cmp) { /* previous token matched search and was without value, return xctx->tok_size */
         result[0] = '\0';
         return result;
       }
@@ -475,7 +475,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
           token[token_pos] = '\0';
           if( !(cmp = strcmp(token,tok)) ) {
             /* report back also token size, useful to check if requested token exists */
-            xctx->get_tok_size = token_pos;
+            xctx->tok_size = token_pos;
           }
           /* dbg(2, "get_tok_value(): token=%s\n", token);*/
           token_pos=0;
@@ -491,7 +491,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     escape = (c=='\\' && !escape);
     if(c=='\0') {
       result[0]='\0';
-      xctx->get_tok_size = 0;
+      xctx->tok_size = 0;
       return with_quotes & 2 ? result : tcl_hook2(&result);
     }
   }
@@ -609,14 +609,14 @@ char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
      my_free(981, &pinname);
      str = get_tok_value(xctx->inst[inst].prop_ptr, pname, 0);
      my_free(982, &pname);
-     if(xctx->get_tok_size) my_strdup2(51, &pin_attr_value, str);
+     if(xctx->tok_size) my_strdup2(51, &pin_attr_value, str);
      else {
        pnumber = my_malloc(52, attr_size + 100);
        my_snprintf(pnumber, attr_size + 100, "%s(%d)", attr, pin);
        str = get_tok_value(xctx->inst[inst].prop_ptr, pnumber, 0);
        dbg(1, "get_pin_attr_from_inst(): pnumber=%s\n", pnumber);
        my_free(983, &pnumber);
-       if(xctx->get_tok_size) my_strdup2(40, &pin_attr_value, str);
+       if(xctx->tok_size) my_strdup2(40, &pin_attr_value, str);
      }
    }
    return pin_attr_value; /* caller is responsible for freeing up storage for pin_attr_value */
@@ -1047,7 +1047,7 @@ void print_vhdl_element(FILE *fd, int inst)
      value[value_pos]='\0';
      value_pos=0;
      get_tok_value(template, token, 0);
-     if(xctx->get_tok_size) {
+     if(xctx->tok_size) {
        if(strcmp(token, "name") && value[0] != '\0') /* token has a value */
        {
          if(tmp == 0) {fprintf(fd, "generic map(\n");tmp++;tmp1=0;}
@@ -1631,10 +1631,10 @@ int print_spice_element(FILE *fd, int inst)
           my_snprintf(spiceprefixtag, tok_val_len+22, "**** spice_prefix %s\n", value);
           value = spiceprefixtag;
         }
-        /* xctx->get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
+        /* xctx->tok_size==0 indicates that token(+1) does not exist in instance attributes */
 
-        if (!xctx->get_tok_size) value=get_tok_value(template, token+1, 0);
-        token_exists = xctx->get_tok_size;
+        if (!xctx->tok_size) value=get_tok_value(template, token+1, 0);
+        token_exists = xctx->tok_size;
         /* 
         if (!strncmp(value,"tcleval(", 8)) {
           dbg(1, "print_spice_element(): value=%s\n", value);
@@ -1925,7 +1925,7 @@ void print_tedax_element(FILE *fd, int inst)
        my_strdup2(500, &pinnumber,
               get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][i].prop_ptr,"pinnumber",0));
      }
-     if(!xctx->get_tok_size) my_strdup(501, &pinnumber, "--UNDEF--");
+     if(!xctx->tok_size) my_strdup(501, &pinnumber, "--UNDEF--");
      tmp = net_name(inst,i, &multip, 0, 1);
      if(tmp && !strstr(tmp, "__UNCONNECTED_PIN__")) {
        fprintf(fd, "conn %s %s %s %s %d\n",
@@ -2001,9 +2001,9 @@ void print_tedax_element(FILE *fd, int inst)
     token_pos=0;
 
     value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
-     /* xctx->get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
-    if(!xctx->get_tok_size) value=get_tok_value(template, token+1, 0);
-    if(!xctx->get_tok_size && token[0] =='%') {
+     /* xctx->tok_size==0 indicates that token(+1) does not exist in instance attributes */
+    if(!xctx->tok_size) value=get_tok_value(template, token+1, 0);
+    if(!xctx->tok_size && token[0] =='%') {
       fputs(token + 1, fd);
     } else if(value[0]!='\0')
     {
@@ -2219,7 +2219,7 @@ void print_verilog_element(FILE *fd, int inst)
    value[value_pos]='\0';
    value_pos=0;
    get_tok_value(template, token, 0);
-   if(strcmp(token, "name") && xctx->get_tok_size) {
+   if(strcmp(token, "name") && xctx->tok_size) {
      if(value[0] != '\0') /* token has a value */
      {
        if(strcmp(token,"spice_ignore") && strcmp(token,"vhdl_ignore") && strcmp(token,"tedax_ignore")) {
@@ -2407,10 +2407,10 @@ void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 *
    token_pos=0;
 
    value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
-   /* xctx->get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
-   if(!xctx->get_tok_size)
+   /* xctx->tok_size==0 indicates that token(+1) does not exist in instance attributes */
+   if(!xctx->tok_size)
    value=get_tok_value(template, token+1, 0);
-   if(!xctx->get_tok_size && token[0] =='%') {
+   if(!xctx->tok_size && token[0] =='%') {
      fputs(token + 1, fd);
    } else if(value && value[0]!='\0')
    {  /* instance names (name) and node labels (lab) go thru the expandlabel function. */
@@ -2581,10 +2581,10 @@ void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primiti
     token_pos=0;
 
     value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
-    /* xctx->get_tok_size==0 indicates that token(+1) does not exist in instance attributes */
-    if(!xctx->get_tok_size)
+    /* xctx->tok_size==0 indicates that token(+1) does not exist in instance attributes */
+    if(!xctx->tok_size)
     value=get_tok_value(template, token+1, 0);
-    if(!xctx->get_tok_size && token[0] =='%') {
+    if(!xctx->tok_size && token[0] =='%') {
       fputs(token + 1, fd);
     } else if(value && value[0]!='\0') {
        /* instance names (name) and node labels (lab) go thru the expandlabel function. */
@@ -2989,8 +2989,8 @@ const char *translate(int inst, const char* s)
      /* add nothing */
    } else {
      value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
-     if(!xctx->get_tok_size) value=get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->templ, token+1, 0);
-     if(!xctx->get_tok_size) { /* above lines did not find a value for token */
+     if(!xctx->tok_size) value=get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->templ, token+1, 0);
+     if(!xctx->tok_size) { /* above lines did not find a value for token */
        if(token[0] =='%') {
          /* no definition found -> subst with token without leading % */
          tmp=token_pos -1 ; /* we need token_pos -1 chars, ( strlen(token+1) ) , excluding leading '%' */
@@ -3072,23 +3072,23 @@ const char *translate2(Lcc *lcc, int level, char* s)
       /* if spiceprefix==0 and token == @spiceprefix then set empty value */
       if(!tclgetboolvar("spiceprefix") && !strcmp(token, "@spiceprefix")) {
         my_free(1069, &value1);
-        xctx->get_tok_size = 0;
+        xctx->tok_size = 0;
       } else {
         my_strdup2(332, &value1, get_tok_value(lcc[level].prop_ptr, token + 1, 0));
       }
       value = "";
-      if(xctx->get_tok_size) {
+      if(xctx->tok_size) {
         value = value1;
         i = level;
         /* recursive substitution of value using parent level prop_str attributes */
         while(i > 1) {
-          save_tok_size = xctx->get_tok_size;
+          save_tok_size = xctx->tok_size;
           my_strdup2(440, &value2, get_tok_value(lcc[i-1].prop_ptr, value, 0));
-          if(xctx->get_tok_size && value2[0]) {
+          if(xctx->tok_size && value2[0]) {
             value = value2;
           } else {
             /* restore last successful get_tok_value() size parameters */
-            xctx->get_tok_size = save_tok_size;
+            xctx->tok_size = save_tok_size;
             break;
           }
           i--;

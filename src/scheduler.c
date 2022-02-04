@@ -1112,7 +1112,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"get_tok_size") )
     {
-      Tcl_SetResult(interp, itoa((int)xctx->get_tok_size), TCL_VOLATILE);
+      Tcl_SetResult(interp, itoa((int)xctx->tok_size), TCL_VOLATILE);
     }
    
     else if(!strcmp(argv[1],"globals"))
@@ -1323,7 +1323,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"instance_nodemap"))
     {
     /* xschem instance_nodemap [instance_name] */
-      char *pins = NULL;
       int p, no_of_pins;
       int inst = -1;
 
@@ -1332,20 +1331,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2) {
         inst = get_instance(argv[2]);
         if(inst >=0) {
-          my_mstrcat(573, &pins, "{ {", xctx->inst[inst].instname, "} ", NULL);
+          Tcl_AppendResult(interp,  xctx->inst[inst].instname, " ",  NULL);
           no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
           for(p=0;p<no_of_pins;p++) {
             const char *pin;
             pin = get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr,"name",0);
             if(!pin[0]) pin = "--ERROR--";
             if(argc>=4 && strcmp(argv[3], pin)) continue;
-            my_mstrcat(576, &pins, "{ {", pin, "} {",
-                 xctx->inst[inst].node[p] ? xctx->inst[inst].node[p] : "", "} } ", NULL);
+            Tcl_AppendResult(interp, pin, " ",
+                  xctx->inst[inst].node && xctx->inst[inst].node[p] ? xctx->inst[inst].node[p] : "{}", " ", NULL);
           }
-          my_strcat(1188, &pins, "} ");
         }
-        Tcl_SetResult(interp, pins, TCL_VOLATILE);
-        my_free(1189, &pins);
       }
     }
    
@@ -1428,7 +1424,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         const char *pin;
         pin = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr,"name",0);
         if(!pin[0]) pin = "--ERROR--";
-        my_mstrcat(376, &pins, "{", pin, "}", NULL);
+        my_mstrcat(655, &pins, "{", pin, "}", NULL);
         if(p< no_of_pins-1) my_strcat(377, &pins, " ");
       }
       Tcl_SetResult(interp, pins, TCL_VOLATILE);
@@ -2012,58 +2008,64 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2 && !strcmp(argv[2], "loaded")) {
         Tcl_AppendResult(interp, schematic_waves_loaded() ? "1" : "0", NULL);
       } else if(xctx->graph_values) {
-        if(argc > 5) dataset = atoi(argv[5]);
-        if(argc > 4) {
-          /* xschem rawfile_query value v(ldcp) 123 */
-          if(!strcmp(argv[2], "value")) {
-            int point = atoi(argv[4]);
-            const char *node = argv[3];
-            int idx = -1;
-            if(point >= 0 && point < xctx->graph_npoints[dataset]) {
-              if(isonlydigit(node)) {
-                int i = atoi(node);
-                if(i >= 0 && i < xctx->graph_nvars) {
-                  idx = i;
-                }
-              } else {
-                idx = get_raw_index(node);
+        /* xschem rawfile_query value v(ldcp) 123 */
+        if(argc > 4 && !strcmp(argv[2], "value")) {
+          int point = atoi(argv[4]);
+          const char *node = argv[3];
+          int idx = -1;
+          if(argc > 5) dataset = atoi(argv[5]);
+          if(point >= 0 && point < xctx->graph_npoints[dataset]) {
+            if(isonlydigit(node)) {
+              int i = atoi(node);
+              if(i >= 0 && i < xctx->graph_nvars) {
+                idx = i;
               }
-              if(idx >= 0) {
-                double val =   get_raw_value(dataset, idx, point);
-                Tcl_AppendResult(interp, dtoa(val), NULL);
-              }
+            } else {
+              idx = get_raw_index(node);
+            }
+            if(idx >= 0) {
+              double val =   get_raw_value(dataset, idx, point);
+              Tcl_AppendResult(interp, dtoa(val), NULL);
             }
           }
-        } else if(argc > 3) {
-          /* xschem rawfile_query index v(ldxp) */
-          if(!strcmp(argv[2], "index")) {
-            Int_hashentry *entry; 
-            int idx;
-            entry = int_hash_lookup(xctx->raw_table, argv[3], 0, XLOOKUP);
-            idx = entry ? entry->value : -1;
-            Tcl_AppendResult(interp, itoa(idx), NULL);
-          }
-        } else if(argc > 2) {
-          if(!strcmp(argv[2], "datasets")) {
-            Tcl_AppendResult(interp, itoa(xctx->graph_datasets), NULL); 
-          }
-          if(!strcmp(argv[2], "points")) {
-            int i, s = 0;
-            for(i = 0; i < xctx->graph_datasets; i++) {
-              s +=  xctx->graph_npoints[i];
+        } else if(argc > 3 && !strcmp(argv[2], "index")) {
+          /* xschem rawfile_query index v(ldcp) */
+          Int_hashentry *entry; 
+          int idx;
+          entry = int_hash_lookup(xctx->raw_table, argv[3], 0, XLOOKUP);
+          idx = entry ? entry->value : -1;
+          Tcl_AppendResult(interp, itoa(idx), NULL);
+        } else if(argc > 3 && !strcmp(argv[2], "values")) {
+          /* xschem raw_query values ldcp [dataset] */
+          int idx;
+          int p;
+          idx = get_raw_index(argv[3]);
+          if(argc > 4) dataset = atoi(argv[4]);
+          if(idx >= 0) {
+            int np =  xctx->graph_npoints[dataset];
+            for(p = 0; p < np; p++) {
+              Tcl_AppendResult(interp, dtoa(get_raw_value(dataset, idx, p)), " ", NULL);
             }
-            Tcl_AppendResult(interp, itoa(s), NULL);
-          } else if(!strcmp(argv[2], "vars")) {
-            Tcl_AppendResult(interp, itoa(xctx->graph_nvars), NULL);
-          } else if(!strcmp(argv[2], "list")) {
-            for(i = 0 ; i < xctx->graph_nvars; i++) {
-              if(i > 0) Tcl_AppendResult(interp, "\n", NULL);
-              Tcl_AppendResult(interp, xctx->graph_names[i], NULL);
-            }
-          } 
+          }
+        } else if(argc > 2 && !strcmp(argv[2], "datasets")) {
+          Tcl_AppendResult(interp, itoa(xctx->graph_datasets), NULL); 
+        } else if(argc > 2 && !strcmp(argv[2], "points")) {
+          int i, s = 0;
+          for(i = 0; i < xctx->graph_datasets; i++) {
+            s +=  xctx->graph_npoints[i];
+          }
+          Tcl_AppendResult(interp, itoa(s), NULL);
+        } else if(argc > 2 && !strcmp(argv[2], "vars")) {
+          Tcl_AppendResult(interp, itoa(xctx->graph_nvars), NULL);
+        } else if(argc > 2 && !strcmp(argv[2], "list")) {
+          for(i = 0 ; i < xctx->graph_nvars; i++) {
+            if(i > 0) Tcl_AppendResult(interp, "\n", NULL);
+            Tcl_AppendResult(interp, xctx->graph_names[i], NULL);
+          }
         }
       }
     }
+
     if(!strcmp(argv[1], "raw_read"))
     {
       cmd_found = 1;
@@ -2371,35 +2373,27 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"selected_set"))
     {
       int n, i;
-      char *res = NULL;
       cmd_found = 1;
       rebuild_selected_array();
       for(n=0; n < xctx->lastsel; n++) {
         if(xctx->sel_array[n].type == ELEMENT) {
           i = xctx->sel_array[n].n;
-          my_mstrcat(645, &res, "{", xctx->inst[i].instname, "}", NULL);
-          if(n < xctx->lastsel-1) my_strcat(646, &res, " ");
+          Tcl_AppendResult(interp, /* "{", */ xctx->inst[i].instname, " ", /* "} ", */ NULL);
         }
       }
-      Tcl_SetResult(interp, res, TCL_VOLATILE);
-      my_free(925, &res);
     }
    
     else if(!strcmp(argv[1],"selected_wire"))
     {
       int n, i;
-      char *res = NULL;
       cmd_found = 1;
       rebuild_selected_array();
       for(n=0; n < xctx->lastsel; n++) {
         if(xctx->sel_array[n].type == WIRE) {
           i = xctx->sel_array[n].n;
-          my_strcat(434, &res, get_tok_value(xctx->wire[i].prop_ptr,"lab",0));
-          if(n < xctx->lastsel-1) my_strcat(442, &res, " ");
+          Tcl_AppendResult(interp, get_tok_value(xctx->wire[i].prop_ptr,"lab",0), " ", NULL);
         }
       }
-      Tcl_SetResult(interp, res, TCL_VOLATILE);
-      my_free(453, &res);
     }
    
     else if(!strcmp(argv[1],"send_to_viewer"))
@@ -2654,7 +2648,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         } else {
           get_tok_value(r->prop_ptr, argv[5], 0);
-          if(xctx->get_tok_size) {
+          if(xctx->tok_size) {
             change_done = 1;
             if(fast == 3 || fast == 0) xctx->push_undo();
             my_strdup2(1478, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], NULL)); /* delete attr */

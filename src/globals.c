@@ -196,4 +196,4 @@ int cli_opt_load_initfile=1;
 /* --------------------------------------------------- */
 /* Following data is relative to the current schematic */
 /* --------------------------------------------------- */
-Xschem_ctx *xctx;
+Xschem_ctx *xctx = NULL;

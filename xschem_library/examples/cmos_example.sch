@@ -111,9 +111,9 @@ value=".temp 30
 .save all @m4[gm] @m5[gm] @m1[gm]
 .control
 save all
-*set appendwrite
-*op
-*write cmos_example.raw
+op
+write cmos_example.raw
+set appendwrite
 * tran 1n 300n
 dc vplus 2.3 2.7 0.001
 write cmos_example.raw
