@@ -253,11 +253,11 @@ static void read_binary_block(FILE *fd)
     /* assign to xschem struct, memory aligned per variable, for cache locality */
     if(ac) {
       for(v = 0; v < xctx->graph_nvars; v += 2) { /*AC analysis: calculate magnitude */
-        if( v == 0 ) 
+        if( v == 0 )  /* log scale x */
           xctx->graph_values[v][offset + p] = log10(sqrt( tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]));
-        else
+        else /* dB */
           xctx->graph_values[v][offset + p] = 20 * log10(sqrt(tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]));
-
+        /* AC analysis: calculate phase */
         xctx->graph_values[v + 1] [offset + p] = atan2(tmp[v + 1], tmp[v]) * 180.0 / XSCH_PI;
       }
     } 
