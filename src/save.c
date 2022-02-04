@@ -303,10 +303,11 @@ static int read_dataset(FILE *fd)
     if(!strcmp(line, "Binary:\n")) {
       int npoints = xctx->graph_npoints[xctx->graph_datasets];
       /* name of custom data column */
-      if(!xctx->graph_names[xctx->graph_nvars - 1]) 
+      if( xctx->graph_names && xctx->graph_nvars && !xctx->graph_names[xctx->graph_nvars - 1]) {
          my_strcat(542, &xctx->graph_names[xctx->graph_nvars - 1], "%custom%");
-      int_hash_lookup(xctx->raw_table, xctx->graph_names[xctx->graph_nvars - 1], 
-         xctx->graph_nvars - 1, XINSERT_NOREPLACE);
+         int_hash_lookup(xctx->raw_table, xctx->graph_names[xctx->graph_nvars - 1], 
+           xctx->graph_nvars - 1, XINSERT_NOREPLACE);
+      }
 
       if(xctx->graph_sim_type) {
         done_header = 1;
