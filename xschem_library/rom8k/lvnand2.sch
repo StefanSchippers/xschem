@@ -1,5 +1,6 @@
-v {xschem version=2.9.5_RC6 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
+K {}
 V {assign #200 y = ~(a & b);
 }
 S {}
@@ -35,7 +36,7 @@ C {opin.sym} 410 -280 0 0 {name=p1 lab=y verilog_type=wire}
 C {ipin.sym} 110 -480 0 0 {name=p2 lab=a}
 C {p.sym} 220 -480 0 0 {name=m2 model=cmosp w=wpa l=lpa  m=1 
 }
-C {p.sym} 330 -360 0 0 {name=m1 model=cmosp w=wpb l=lpb  m=1 
+C {p.sym} 330 -360 0 0 {name=m1 model=cmosp w=wpb l=lpb m=1 
 }
 C {ipin.sym} 110 -360 0 0 {name=p3 lab=b}
 C {lab_pin.sym} 150 -510 0 0 {name=l1 sig_type=std_logic lab=VCCPIN}

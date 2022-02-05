@@ -655,6 +655,12 @@ proc sim_is_xyce {} {
   return 0
 }
 
+# generates a proper list, trimming multiple separators
+proc tolist {s} {
+  set s [string trim $s]
+  regsub -all {[\t\n ]+} $s { } s
+  return [split $s]
+}
 
 proc set_sim_defaults {{reset {}}} {
   global sim terminal USER_CONF_DIR has_x bespice_listen_port env OS
@@ -1300,7 +1306,6 @@ proc graph_edit_wave {n n_wave} {
   set graph_sel_wave $n_wave
   set col  [xschem getprop rect 2 $graph_selected color]
   set node [xschem getprop rect 2 $graph_selected node]
-  set n_nodes [llength $node]
   # add default colors if unspecified in col
   set i 0
   foreach graph_node $node {
@@ -1312,9 +1317,6 @@ proc graph_edit_wave {n n_wave} {
   set graph_sel_color [lindex $col $graph_sel_wave]
   xschem setprop rect 2 $graph_selected color $col fast
   xschem draw_graph  $graph_selected
-  # puts "graph: $graph_selected , wave: $n_wave, n_nodes: $n_nodes"
-  # puts "    node: $node, col: $col"
-  # puts "------"
   toplevel .graphdialog
   frame .graphdialog.f
   button .graphdialog.ok -text OK -command {destroy .graphdialog}
@@ -1516,7 +1518,7 @@ proc graph_update_nodelist {} {
     }
     # remove excess colors
     set col [lrange $col 0 [expr {$n - 1}]]
-    if { [llength $col] != [llength [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]] } {
+    if { [llength $col] != [llength [tolist [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]]] } {
       puts "PROBLEMS: colors and nodes of different length"
     }
   } else {
@@ -1530,6 +1532,15 @@ proc fill_graph_listbox {} {
   set retval [graph_get_signal_list [xschem raw_query list] $retval]
   .graphdialog.center.left.list1 delete 0 end
   eval .graphdialog.center.left.list1 insert 0 $retval
+}
+
+# called from event handlers (OK, KeyRelease, DoubleClick) in graph_edit_properties
+proc update_graph_node {node} {
+  global graph_selected
+  graph_update_nodelist
+  regsub -all {(["\\])} $node {\\\1} node_quoted ;#"  editor is confused by the previous quote
+  xschem setprop rect 2 $graph_selected node $node_quoted fast
+  xschem draw_graph $graph_selected
 }
 
 proc graph_edit_properties {n} {
@@ -1607,7 +1618,6 @@ proc graph_edit_properties {n} {
   grid columnconfig .graphdialog.center.right 0 -weight 1
   grid columnconfig .graphdialog.center.right 1 -weight 1
 
-
   # bottom frame
   button .graphdialog.bottom.cancel -text Cancel -command {
     destroy .graphdialog
@@ -1616,18 +1626,17 @@ proc graph_edit_properties {n} {
   }
   button .graphdialog.bottom.ok -text OK -command {
     if { [xschem get schname] eq $graph_schname } {
-      graph_update_nodelist
-      set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+
+      update_graph_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
       xschem setprop rect 2 $graph_selected y1 [.graphdialog.top.min get] fast
       xschem setprop rect 2 $graph_selected y2 [.graphdialog.top.max get] fast
-      xschem setprop rect 2 $graph_selected node $node fast
+
       if {$graph_unlocked} {
         xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
       } else {
         xschem setprop rect 2 $graph_selected flags {graph} fast
       }
       destroy .graphdialog
-      xschem draw_graph $graph_selected
       set graph_selected {}
       set graph_schname {}
     } else {
@@ -1638,17 +1647,15 @@ proc graph_edit_properties {n} {
   }
   button .graphdialog.bottom.apply -text Apply -command {
     if { [xschem get schname] eq $graph_schname } {
-      graph_update_nodelist
-      set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+
+      update_graph_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
       xschem setprop rect 2 $graph_selected y1 [.graphdialog.top.min get] fast
       xschem setprop rect 2 $graph_selected y2 [.graphdialog.top.max get] fast
-      xschem setprop rect 2 $graph_selected node $node fast
       if {$graph_unlocked} {
         xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
       } else {
         xschem setprop rect 2 $graph_selected flags {graph} fast
       }
-      xschem draw_graph $graph_selected
     }
   }
 
@@ -1741,7 +1748,6 @@ proc graph_edit_properties {n} {
        .graphdialog.top2.labsubdivy .graphdialog.top2.subdivy \
        .graphdialog.top2.labdset .graphdialog.top2.dset -side left
 
-       
   # top frame
   label .graphdialog.top.labsearch -text Search:
   entry .graphdialog.top.search -width 10 
@@ -1783,7 +1789,6 @@ proc graph_edit_properties {n} {
   .graphdialog.top.min insert 0 [xschem getprop rect 2 $graph_selected y1]
   .graphdialog.top.max insert 0 [xschem getprop rect 2 $graph_selected y2]
 
- 
   # binding
   bind .graphdialog.top.search <KeyRelease> {
     fill_graph_listbox
@@ -1791,18 +1796,13 @@ proc graph_edit_properties {n} {
   bind .graphdialog.center.left.list1 <Double-Button-1> {
     graph_add_nodes
     if { [xschem get schname] eq $graph_schname } {
-      set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
-      graph_update_nodelist
-      xschem setprop rect 2 $graph_selected node $node fast
-      xschem draw_graph $graph_selected
+      update_graph_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
     }
   }
+
   bind .graphdialog.center.right.text1 <KeyRelease> {
     if { [xschem get schname] eq $graph_schname } {
-      set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
-      graph_update_nodelist
-      xschem setprop rect 2 $graph_selected node $node fast
-      xschem draw_graph $graph_selected
+      update_graph_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
     }
   }
   bind .graphdialog <Control-Return> {
