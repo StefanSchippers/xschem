@@ -2431,7 +2431,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         XPoint *point = NULL;
         int dataset = gr->dataset;
         int digital = gr->digital;
-        if(idx ==  xctx->graph_nvars -1) plot_raw_custom_data(sweep_idx);
+        /* <<<< */
+        /* if(idx ==  xctx->graph_nvars -1) plot_raw_custom_data(sweep_idx); */
         ofs = 0;
         start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
         end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;

@@ -440,7 +440,7 @@ void delete(int to_push_undo)
 
   find_inst_to_be_redrawn(2 + 4 + 8 + 32); /* 32: call prepare_netlist_structs(0)
                                         *  2: add previously built list
-                                        *  4: call symbol_bbox to precisely update bboxes <<< needed?
+                                        *  4: call symbol_bbox to precisely update bboxes ... needed?
                                         *  8: do not iterate over selection (there is no more selection, deleted)
                                         */
   find_inst_to_be_redrawn(16); /* clear data */
