@@ -1671,6 +1671,36 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
   return idx_arr;
 }
 
+/* what == 1: set thick lines,
+ * what == 0: restore default
+ */
+static void set_thick_waves(int what, int wcnt, int wave_col, Graph_ctx *gr)
+{
+  if(what) {
+    if(xctx->draw_window) {
+      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
+         XSetLineAttributes (display, xctx->gc[wave_col],
+            3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
+    }
+    if(xctx->draw_pixmap) {
+      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
+         XSetLineAttributes (display, xctx->gc[wave_col],
+            3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
+    }
+  } else {
+    if(xctx->draw_window) {
+      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
+         XSetLineAttributes (display, xctx->gc[wave_col],
+            INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
+    }
+    if(xctx->draw_pixmap) {
+      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
+         XSetLineAttributes (display, xctx->gc[wave_col],
+            INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
+    }
+  }
+}
+
 /* draw bussed signals: ntok is a comma separated list of items, first item is bus name, 
  * following are bits that are bundled together:
    LDA,LDA[3],LDA[2],LDA1],LDA[0]
@@ -1738,6 +1768,7 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
   }
 }
 
+/* wcnt is the nth wave in graph, v is the index in spice raw file */
 static void draw_graph_points(int v, int first, int last,
          XPoint *point, int wave_col, int wcnt, int n_nodes, Graph_ctx *gr)
 {
@@ -1750,6 +1781,7 @@ static void draw_graph_points(int v, int first, int last,
   double c, c1;
   register SPICE_DATA *gv = xctx->graph_values[v];
 
+  dbg(0, "draw_graph_points: v=%d, first=%d, last=%d, wcnt=%d\n", v, first, last, wcnt);
   digital = gr->digital;
   if(digital) {
     s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
@@ -1770,25 +1802,14 @@ static void draw_graph_points(int v, int first, int last,
       }
       poly_npoints++;
     }
-    /* plot data */
+    set_thick_waves(1, wcnt, wave_col, gr);
     if(xctx->draw_window) {
-      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
-         XSetLineAttributes (display, xctx->gc[wave_col],
-            3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
       XDrawLines(display, xctx->window, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
-      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
-         XSetLineAttributes (display, xctx->gc[wave_col],
-            INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
     }
     if(xctx->draw_pixmap) {
-      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
-         XSetLineAttributes (display, xctx->gc[wave_col],
-            3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
       XDrawLines(display, xctx->save_pixmap, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
-      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
-         XSetLineAttributes (display, xctx->gc[wave_col],
-            INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
     }
+    set_thick_waves(0, wcnt, wave_col, gr);
   } else dbg(1, "skipping wave: %s\n", xctx->graph_names[v]);
 }
 
@@ -2406,7 +2427,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
       ctok = my_strtok_r(cptr, " ", "", &savec);
       stok = my_strtok_r(sptr, " ", "", &saves);
       nptr = cptr = sptr = NULL;
-      dbg(0, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
+      dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
       if(ctok && ctok[0]) wave_color = atoi(ctok);
       if(wave_color < 0) wave_color = 4;
       if(wave_color >= cadlayers) wave_color = cadlayers - 1;

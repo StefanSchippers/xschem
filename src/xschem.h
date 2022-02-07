@@ -268,7 +268,7 @@ extern char win_temp_dir[PATH_MAX];
 /* flag (.flags field) to hide text in symbols when displaying instances */
 #define SYM_HIDE_TEXT 8
 
-#define S(a) (sizeof(a)/sizeof(char))
+#define S(a) (sizeof(a)/sizeof(a[0]))
 #define BUS_WIDTH 4
 #define POINTINSIDE(xa,ya,x1,y1,x2,y2)  \
  (xa>=x1 && xa<=x2 && ya>=y1 && ya<=y2 )
