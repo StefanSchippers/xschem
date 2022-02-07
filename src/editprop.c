@@ -47,7 +47,49 @@ int my_strncasecmp(const char *s1, const char *s2, size_t n)
   return tolower(*s1) - tolower(*s2);
 }
 
-char *my_strtok_r(char *str, const char *delim, char **saveptr)
+/* split a string into tokens like standard strtok_r,
+ * if quote string is not empty any character matching quote is considered a quoting
+ * character, removed from input and all characters before next quote are considered
+ * as part of the token. backslash can be used to enter literal quoting characters and
+ * literal backslashes.
+ * if quote is empty no backslash is removed from input and behavior is identical
+ * to strtok_r
+ */
+char *my_strtok_r(char *str, const char *delim, const char *quote, char **saveptr)
+{
+  char *tok;
+  int q = 0; /* quote */
+  int e = 0; /* escape */
+  int ne = 0; /* number of escapes / quoting chars to remove */
+  if(str) { /* 1st call */
+    *saveptr = str;
+  }
+  while(**saveptr && strchr(delim, **saveptr) ) { /* skip separators */
+    ++(*saveptr);
+  }
+  tok = *saveptr; /* start of token */
+  while(**saveptr && (e || q || !strchr(delim, **saveptr)) ) { /* look for sep. marking end of current token */
+    if(ne) *(*saveptr - ne) = **saveptr; /* shift back eating escapes / quotes */
+    if(!e && strchr(quote, **saveptr)) {
+      q = !q;
+      ne++;
+    }
+    if(quote[0] && !e && **saveptr == '\\') { /* if quote is empty string do not skip backslashes either */
+      e = 1;
+      ne++;
+    } else e = 0;
+    ++(*saveptr);
+  }
+  if(**saveptr) {
+    **saveptr = '\0'; /* mark end of token */
+    if(ne) *(*saveptr - ne) = **saveptr; /* shift back eating escapes / quotes */
+    ++(*saveptr);     /* if not at end of string advance one char for next iteration */
+  } else if(ne) *(*saveptr - ne ) = **saveptr; /* shift back eating escapes / quotes */
+  if(tok[0]) return tok; /* return token */
+  else return NULL; /* no more tokens */
+}
+
+char *xmy_strtok_r(char *str, const char *delim, char **saveptr)
 {
   char *tok;
   if(str) { /* 1st call */

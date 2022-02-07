@@ -1943,8 +1943,8 @@ void print_tedax_element(FILE *fd, int inst)
      /* fprintf(errfp, "extra_pinnumber: |%s|\n", extra_pinnumber); */
      /* fprintf(errfp, "extra: |%s|\n", extra); */
      for(extra_ptr = extra, extra_pinnumber_ptr = extra_pinnumber; ; extra_ptr=NULL, extra_pinnumber_ptr=NULL) {
-       extra_pinnumber_token=my_strtok_r(extra_pinnumber_ptr, " ", &saveptr1);
-       extra_token=my_strtok_r(extra_ptr, " ", &saveptr2);
+       extra_pinnumber_token=my_strtok_r(extra_pinnumber_ptr, " ", "", &saveptr1);
+       extra_token=my_strtok_r(extra_ptr, " ", "", &saveptr2);
        if(!extra_token) break;
        /* fprintf(errfp, "extra_pinnumber_token: |%s|\n", extra_pinnumber_token); */
        /* fprintf(errfp, "extra_token: |%s|\n", extra_token); */

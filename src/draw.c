@@ -1659,8 +1659,8 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
   p = 0;
   my_strdup2(1402, &ntok_copy, ntok);
   ntok_ptr = ntok_copy;
-  my_strtok_r(ntok_ptr, ",", &ntok_savep); /*strip off bus name (1st field) */
-  while( (bit_name = my_strtok_r(NULL, ",", &ntok_savep)) ) {
+  my_strtok_r(ntok_ptr, ",", "", &ntok_savep); /*strip off bus name (1st field) */
+  while( (bit_name = my_strtok_r(NULL, ",", "", &ntok_savep)) ) {
     int idx;
     if( (idx = get_raw_index(bit_name)) != -1) {
       idx_arr[p] = xctx->graph_values[idx];
@@ -2279,9 +2279,9 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
   sptr = sweep;
   n_nodes = count_items(node, " \t\n");
   /* process each node given in "node" attribute, get also associated color/sweep var if any */
-  while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) {
-    ctok = my_strtok_r(cptr, " ", &savec);
-    stok = my_strtok_r(sptr, " ", &saves);
+  while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) {
+    ctok = my_strtok_r(cptr, " ", "", &savec);
+    stok = my_strtok_r(sptr, " ", "", &saves);
     nptr = cptr = sptr = NULL;
     dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
     if(stok && stok[0]) {
@@ -2347,7 +2347,7 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
       }
     }
     wcnt++;
-  } /* while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) */
+  } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", &saven)) ) */
   my_free(1494, &node);
   my_free(1495, &color);
   my_free(1496, &sweep);
@@ -2399,14 +2399,14 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
     sptr = sweep;
     n_nodes = count_items(node, " \t\n");
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
-    while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) {
+    while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) {
       if(strstr(ntok, ",")) {
         my_strdup2(1452, &bus_msb, find_nth(ntok, ',', 2));
       }
-      ctok = my_strtok_r(cptr, " ", &savec);
-      stok = my_strtok_r(sptr, " ", &saves);
+      ctok = my_strtok_r(cptr, " ", "", &savec);
+      stok = my_strtok_r(sptr, " ", "", &saves);
       nptr = cptr = sptr = NULL;
-      dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
+      dbg(0, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
       if(ctok && ctok[0]) wave_color = atoi(ctok);
       if(wave_color < 0) wave_color = 4;
       if(wave_color >= cadlayers) wave_color = cadlayers - 1;
@@ -2526,7 +2526,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
       } /*  if( (idx = get_raw_index(bus_msb ? bus_msb : ntok)) != -1 ) */
       wcnt++;
       if(bus_msb) my_free(1453, &bus_msb);
-    } /* while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) */
+    } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", &saven)) ) */
     my_free(1391, &node);
     my_free(1392, &color);
     my_free(1408, &sweep);

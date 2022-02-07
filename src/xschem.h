@@ -1310,7 +1310,7 @@ extern int  my_snprintf(char *str, int size, const char *fmt, ...);
 extern size_t my_strdup(int id, char **dest, const char *src);
 extern void my_strndup(int id, char **dest, const char *src, int n);
 extern size_t my_strdup2(int id, char **dest, const char *src);
-extern char *my_strtok_r(char *str, const char *delim, char **saveptr);
+extern char *my_strtok_r(char *str, const char *delim, const char *quote, char **saveptr);
 extern int my_strncpy(char *d, const char *s, int n);
 extern int my_strcasecmp(const char *s1, const char *s2);
 extern int my_strncasecmp(const char *s1, const char *s2, size_t n);

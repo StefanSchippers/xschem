@@ -635,7 +635,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                 char *saven, *nptr, *ntok, *node = NULL;;
                 my_strdup2(1426, &node, get_tok_value(r->prop_ptr,"node",0));
                 nptr = node;
-                while( (ntok = my_strtok_r(nptr, "\n\t ", &saven)) ) {
+                while( (ntok = my_strtok_r(nptr, "\n\t ", "", &saven)) ) {
                   nptr = NULL;
                   j = get_raw_index(ntok);
                   if(j >= 0) {

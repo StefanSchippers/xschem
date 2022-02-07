@@ -659,7 +659,11 @@ proc sim_is_xyce {} {
 proc tolist {s} {
   set s [string trim $s]
   regsub -all {[\t\n ]+} $s { } s
-  return [split $s]
+  if { [string is list $s] } {
+    return $s
+  } else {
+    return [split $s]
+  }
 }
 
 proc set_sim_defaults {{reset {}}} {
@@ -1501,7 +1505,7 @@ proc graph_update_nodelist {} {
   # tagging nodes in text widget:
   set col  [xschem getprop rect 2 $graph_selected color]
   set col [string trim $col " \n"]
-  set tt [.graphdialog.center.right.text1 search -all -nolinestop -regexp -count cc {[^ \n]+} 1.0]
+  set tt [.graphdialog.center.right.text1 search -all -nolinestop -regexp -count cc {"[^"]+"|[^ \n]+} 1.0] ;#"4vim
   set n 0
   if { [info exists cc] && ($tt ne {}) } {
     foreach t $tt c $cc {
@@ -1538,7 +1542,7 @@ proc fill_graph_listbox {} {
 proc update_graph_node {node} {
   global graph_selected
   graph_update_nodelist
-  regsub -all {(["\\])} $node {\\\1} node_quoted ;#"  editor is confused by the previous quote
+  regsub -all {(["\\])} $node {\\\1} node_quoted ;#"4vim
   xschem setprop rect 2 $graph_selected node $node_quoted fast
   xschem draw_graph $graph_selected
 }
