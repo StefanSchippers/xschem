@@ -1677,27 +1677,13 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
 static void set_thick_waves(int what, int wcnt, int wave_col, Graph_ctx *gr)
 {
   if(what) {
-    if(xctx->draw_window) {
       if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
          XSetLineAttributes (display, xctx->gc[wave_col],
             3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
-    }
-    if(xctx->draw_pixmap) {
-      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
-         XSetLineAttributes (display, xctx->gc[wave_col],
-            3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
-    }
   } else {
-    if(xctx->draw_window) {
       if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
          XSetLineAttributes (display, xctx->gc[wave_col],
             INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
-    }
-    if(xctx->draw_pixmap) {
-      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
-         XSetLineAttributes (display, xctx->gc[wave_col],
-            INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
-    }
   }
 }
 
@@ -1727,9 +1713,7 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
   double vthl = gr->gy1 * 0.8 + gr->gy2 * 0.2;
   int hex_digits = ((n_bits - 1) >> 2) + 1;
   if(c1 >= gr->ypos1 && c1 <=gr->ypos2) {
-    if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
-       XSetLineAttributes (display, xctx->gc[wave_col],
-          3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
+    set_thick_waves(1, wcnt, wave_col, gr);
     drawline(wave_col, NOW, lx1, ylow, lx2, ylow, 0);
     drawline(wave_col, NOW, lx1, yhigh, lx2, yhigh, 0);
     for(p = first ; p <= last; p++) {
@@ -1762,9 +1746,7 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
       draw_string(wave_col, NOW, old_busval, 2, 0, 1, 0, (xval + xval_old) * 0.5,
                   yhigh, labsize, labsize);
     }
-    if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
-       XSetLineAttributes (display, xctx->gc[wave_col],
-          INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
+    set_thick_waves(0, wcnt, wave_col, gr);
   }
 }
 
@@ -1781,7 +1763,7 @@ static void draw_graph_points(int v, int first, int last,
   double c, c1;
   register SPICE_DATA *gv = xctx->graph_values[v];
 
-  dbg(0, "draw_graph_points: v=%d, first=%d, last=%d, wcnt=%d\n", v, first, last, wcnt);
+  dbg(1, "draw_graph_points: v=%d, first=%d, last=%d, wcnt=%d\n", v, first, last, wcnt);
   digital = gr->digital;
   if(digital) {
     s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
