@@ -46,7 +46,7 @@ void check_opt(char *opt, char *optval, int type)
         dbg(1, "process_options(): set flat netlist\n");
         cli_opt_flat_netlist=1;
 
-    } else if( (type == SHORT && *opt == 'r') || (type == LONG && !strcmp("cli_opt_no_readline", opt)) ) {
+    } else if( (type == SHORT && *opt == 'r') || (type == LONG && !strcmp("no_readline", opt)) ) {
         cli_opt_no_readline=1;
 
     } else if( (type == SHORT && *opt == 'p') || (type == LONG && !strcmp("postscript", opt)) ) {
@@ -61,8 +61,8 @@ void check_opt(char *opt, char *optval, int type)
         dbg(1, "process_options(): user plotfile specified: %s\n", optval ? optval : "NULL");
         if(optval) my_strncpy(cli_opt_plotfile, optval, S(cli_opt_plotfile));
 
-    } else if( (type == LONG && !strcmp("cli_opt_rcfile", opt)) ) {
-        dbg(1, "process_options(): user cli_opt_rcfile specified: %s\n", optval ? optval : "NULL");
+    } else if( (type == LONG && !strcmp("rcfile", opt)) ) {
+        dbg(1, "process_options(): user rcfile specified: %s\n", optval ? optval : "NULL");
         if(optval) my_strncpy(cli_opt_rcfile, optval, S(cli_opt_rcfile));
 
     } else if( (type == LONG && !strcmp("png", opt)) ) {
@@ -191,7 +191,7 @@ int process_options(int argc, char *argv[])
             else if(!strcmp("netlist_path", opt)) {
               optval = argv[++i];
             }
-            else if(!strcmp("cli_opt_rcfile", opt)) {
+            else if(!strcmp("rcfile", opt)) {
               optval = argv[++i];
             }
             else if(!strcmp("plotfile", opt)) {

@@ -41,8 +41,9 @@ unitx=n
 divx=5
 subdivx=4
 node="plus
-minus"
-color="4 5"}
+minus
+\\"plus minus -\\""
+color="4 5 8"}
 T {CAL} 140 -180 0 1 0.4 0.4 {}
 T {EN} 140 -130 0 1 0.4 0.4 {}
 T {CALIBRATION

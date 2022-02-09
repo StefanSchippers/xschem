@@ -948,6 +948,32 @@ const char *get_cell_w_ext(const char *str, int no_of_dir)
 int count_items(const char *s, const char *sep)
 {
   const char *ptr;
+  int items = 0;
+  int state = 0; /* 1 if item is being processed */
+  int c;
+  int j, nsep = strlen(sep);
+
+  ptr = s;
+  while( (c = *(unsigned char *)ptr++) ) {
+    for(j = 0; j < nsep; j++) {
+      if(c == sep[j]) break;
+    }
+    if(j >= nsep) { /* not a separator */
+      if(!state) items++;
+      state = 1;
+    } else {
+      state = 0;
+    }
+  }
+  return items;
+}
+
+/* in a string with tokens separated by characters in 'sep'
+ * count number of tokens. Multiple separators and leading/trailing
+ * separators are allowed. */
+int xcount_items(const char *s, const char *sep)
+{
+  const char *ptr;
   char table[1 << 8 * sizeof(unsigned char)];
   int items = 0;
   int state = 0; /* 1 if item is being processed */
