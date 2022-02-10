@@ -123,7 +123,7 @@ static void merge_box(FILE *fd)
       ptr[i].dash = 0;
     }
     set_rect_flags(&xctx->rect[c][i]); /* set cached .flags bitmask from on attributes */
-    select_box(c,i, SELECTED, 1);
+    select_box(c,i, SELECTED, 1, 1);
     xctx->rects[c]++;
     set_modify(1);
 }

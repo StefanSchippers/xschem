@@ -808,10 +808,13 @@ void select_text(int i,unsigned short select_mode, int fast)
   xctx->need_reb_sel_arr=1;
 }
 
-void select_box(int c, int i, unsigned short select_mode, int fast)
+void select_box(int c, int i, unsigned short select_mode, int fast, int override_lock)
 {
   char str[1024];       /* overflow safe */
   char s[256];          /* overflow safe */
+
+  if(!strcmp(get_tok_value(xctx->rect[c][i].prop_ptr, "lock", 0), "true") &&
+      select_mode == SELECTED && !override_lock) return;
   if(!fast)
   {
    my_strncpy(s,xctx->rect[c][i].prop_ptr!=NULL?xctx->rect[c][i].prop_ptr:"<NULL>",S(s));
@@ -960,7 +963,7 @@ unsigned short select_object(double mx,double my, unsigned short select_mode, in
      select_polygon(sel.col, sel.n, select_mode,0);
      break;
     case xRECT:
-     select_box(sel.col,sel.n, select_mode,0);
+     select_box(sel.col,sel.n, select_mode,0, 0);
      break;
     case ARC:
      select_arc(sel.col,sel.n, select_mode,0);
@@ -1037,7 +1040,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
   if(RECT_INSIDE(xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2, x1,y1,x2,y2))
   {
    xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-   sel ? select_element(i,SELECTED,1, 0): select_element(i,0,1, 0);
+   sel ? select_element(i,SELECTED,1, 1): select_element(i,0,1, 0);
   }
  }
  for(c=0;c<cadlayers;c++)
@@ -1126,28 +1129,28 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
    if(RECT_INSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y1,xctx->rect[c][i].x2,xctx->rect[c][i].y2, x1,y1,x2,y2))
    {
     xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-    sel? select_box(c,i, SELECTED, 1): select_box(c,i, 0, 1);
+    sel? select_box(c,i, SELECTED, 1, 1): select_box(c,i, 0, 1, 0);
    }
    else if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 2048)){ /* no stretch on unscaled images */
      if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y1, x1,y1,x2,y2) )
      {                                  /*20070302 added stretch select */
       xctx->ui_state |= SELECTION;
-      select_box(c, i,SELECTED1,1);
+      select_box(c, i,SELECTED1,1, 0);
      }
      if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x2,xctx->rect[c][i].y1, x1,y1,x2,y2) )
      {
       xctx->ui_state |= SELECTION;
-      select_box(c, i,SELECTED2,1);
+      select_box(c, i,SELECTED2,1, 0);
      }
      if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y2, x1,y1,x2,y2) )
      {
       xctx->ui_state |= SELECTION;
-      select_box(c, i,SELECTED3,1);
+      select_box(c, i,SELECTED3,1, 0);
      }
      if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x2,xctx->rect[c][i].y2, x1,y1,x2,y2) )
      {
       xctx->ui_state |= SELECTION;
-      select_box(c, i,SELECTED4,1);
+      select_box(c, i,SELECTED4,1, 0);
      }
    }
 
@@ -1190,7 +1193,7 @@ void select_all(void)
   }
   for(i=0;i<xctx->rects[c];i++)
   {
-    select_box(c,i, SELECTED, 1);
+    select_box(c,i, SELECTED, 1, 0);
   }
  } /* end for c */
  drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);

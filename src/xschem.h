@@ -1354,7 +1354,7 @@ extern void merge_file(int selection_load, const char ext[]);
 extern void select_wire(int i, unsigned short select_mode, int fast);
 extern void select_element(int i, unsigned short select_mode, int fast, int override_lock);
 extern void select_text(int i, unsigned short select_mode, int fast);
-extern void select_box(int c, int i, unsigned short select_mode, int fast);
+extern void select_box(int c, int i, unsigned short select_mode, int fast, int override_lock);
 extern void select_arc(int c, int i, unsigned short select_mode, int fast);
 extern void select_line(int c, int i, unsigned short select_mode, int fast);
 extern void select_polygon(int c, int i, unsigned short select_mode, int fast );
