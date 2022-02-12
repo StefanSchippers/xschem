@@ -654,7 +654,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                   j = -1;
                   if(!bus_msb && strstr(ntok, " ")) {
                     j = xctx->graph_nvars;
-                    plot_raw_custom_data(sweep_idx, ntok);
+                    plot_raw_custom_data(sweep_idx, 0, xctx->graph_allpoints, ntok);
                   } else {
                     j = get_raw_index(ntok);
                   }

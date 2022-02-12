@@ -519,18 +519,20 @@ int get_raw_index(const char *node)
 #define ABS -9
 #define SGN -10
 #define INTEG -11
-#define DERIV -12
+#define AVG -12
+#define DERIV -13
 #define NUMBER -60
 typedef struct {
   int i;
   double d;
   double prev;
+  double prevy;
+  double prevx;
 } Stack1;
 
-void plot_raw_custom_data(int sweep_idx, const char *expr)
+void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
 {
-  int i, p, idx, ofs = 0;
-  int dset;
+  int i, p, idx;
   const char *n;
   char *endptr, *ntok_copy = NULL, *ntok_save, *ntok_ptr;
   Stack1 stack1[200];
@@ -554,6 +556,7 @@ void plot_raw_custom_data(int sweep_idx, const char *expr)
     else if(!strcmp(n, "abs()")) stack1[stackptr1++].i = ABS;
     else if(!strcmp(n, "sgn()")) stack1[stackptr1++].i = SGN;
     else if(!strcmp(n, "integ()")) stack1[stackptr1++].i = INTEG;
+    else if(!strcmp(n, "avg()")) stack1[stackptr1++].i = AVG;
     else if(!strcmp(n, "deriv()")) stack1[stackptr1++].i = DERIV;
     else if( (v = strtod(n, &endptr)), !*endptr) {
       stack1[stackptr1].i = NUMBER;
@@ -571,80 +574,96 @@ void plot_raw_custom_data(int sweep_idx, const char *expr)
     dbg(1, "  plot_raw_custom_data(): stack1= %d\n", stack1[stackptr1 - 1].i);
   }
   my_free(575, &ntok_copy);
-  for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
-    for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
-      stackptr2 = 0;
-      for(i = 0; i < stackptr1; i++) { /* number */
-        if(stack1[i].i == NUMBER) {
-          stack2[stackptr2++] = stack1[i].d;
+  for(p = first ; p <= last; p++) {
+    stackptr2 = 0;
+    for(i = 0; i < stackptr1; i++) { /* number */
+      if(stack1[i].i == NUMBER) {
+        stack2[stackptr2++] = stack1[i].d;
+      }
+      else if(stack1[i].i >=0 && stack1[i].i < xctx->graph_allpoints) { /* spice node */
+        stack2[stackptr2++] =  xctx->graph_values[stack1[i].i][p];
+      }
+
+      if(stackptr2 > 1) { /* 2 argument operators */
+        if(stack1[i].i == PLUS) {
+          stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] + stack2[stackptr2 - 1];
+          stackptr2--;
         }
-        else if(stack1[i].i >=0 && stack1[i].i < xctx->graph_allpoints) { /* spice node */
-          stack2[stackptr2++] =  xctx->graph_values[stack1[i].i][p];
+        else if(stack1[i].i == MINUS) {
+          stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] - stack2[stackptr2 - 1];
+          stackptr2--;
+        }
+        else if(stack1[i].i == MULT) {
+          stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] * stack2[stackptr2 - 1];
+          stackptr2--;
+        }
+        else if(stack1[i].i == DIVIS) {
+          stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] / stack2[stackptr2 - 1];
+          stackptr2--;
+        }
+        else if(stack1[i].i == POW) {
+          stack2[stackptr2 - 2] =  pow(stack2[stackptr2 - 2], stack2[stackptr2 - 1]);
+          stackptr2--;
+        }
+      }
+      if(stackptr2 > 0) { /* 1 argument operators */
+        if(stack1[i].i == SIN) {
+          stack2[stackptr2 - 1] =  sin(stack2[stackptr2 - 1]);
+        }
+        else if(stack1[i].i == COS) {
+          stack2[stackptr2 - 1] =  cos(stack2[stackptr2 - 1]);
+        }
+        else if(stack1[i].i == ABS) {
+          stack2[stackptr2 - 1] =  fabs(stack2[stackptr2 - 1]);
+        }
+        else if(stack1[i].i == SGN) {
+          stack2[stackptr2 - 1] = stack2[stackptr2 - 1] > 0.0 ? 1 : 
+                                  stack2[stackptr2 - 1] < 0.0 ? -1 : 0; 
+        }
+        else if(stack1[i].i == INTEG) { 
+          double integ = 0;
+          if( p == first ) {
+            integ = 0;
+            stack1[i].prev = 0;
+            stack1[i].prevy = stack2[stackptr2 - 1];
+          } else {
+            integ = stack1[i].prev + (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
+            stack1[i].prev = integ;
+            stack1[i].prevy =  stack2[stackptr2 - 1];
+          }
+          stack2[stackptr2 - 1] =  integ;
+        }
+        else if(stack1[i].i == AVG) {
+          double avg = 0;
+          if( p == first ) {
+            avg = stack2[stackptr2 - 1];
+            stack1[i].prev = stack2[stackptr2 - 1];
+            stack1[i].prevy = stack2[stackptr2 - 1];
+            stack1[i].prevx = x[p];
+          } else {
+            avg = stack1[i].prev * (x[p - 1] - stack1[i].prevx) + 
+                  (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
+            avg /= (x[p] - stack1[i].prevx);
+            stack1[i].prev = avg;
+            stack1[i].prevy =  stack2[stackptr2 - 1];
+          }
+          stack2[stackptr2 - 1] =  avg;
         }
 
-        if(stackptr2 > 1) { /* 2 argument operators */
-          if(stack1[i].i == PLUS) {
-            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] + stack2[stackptr2 - 1];
-            stackptr2--;
+        else if(stack1[i].i == DERIV) { 
+          double deriv = 0;
+          if( p == first ) {
+            deriv = 0;
+            stack1[i].prev = stack2[stackptr2 - 1];
+          } else {
+            deriv =  (stack2[stackptr2 - 1] - stack1[i].prev) / (x[p] - x[p - 1]);
+            stack1[i].prev = stack2[stackptr2 - 1] ;
           }
-          else if(stack1[i].i == MINUS) {
-            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] - stack2[stackptr2 - 1];
-            stackptr2--;
-          }
-          else if(stack1[i].i == MULT) {
-            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] * stack2[stackptr2 - 1];
-            stackptr2--;
-          }
-          else if(stack1[i].i == DIVIS) {
-            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] / stack2[stackptr2 - 1];
-            stackptr2--;
-          }
-          else if(stack1[i].i == POW) {
-            stack2[stackptr2 - 2] =  pow(stack2[stackptr2 - 2], stack2[stackptr2 - 1]);
-            stackptr2--;
-          }
+          stack2[stackptr2 - 1] =  deriv;
         }
-        if(stackptr2 > 0) { /* 1 argument operators */
-          if(stack1[i].i == SIN) {
-            stack2[stackptr2 - 1] =  sin(stack2[stackptr2 - 1]);
-          }
-          else if(stack1[i].i == COS) {
-            stack2[stackptr2 - 1] =  cos(stack2[stackptr2 - 1]);
-          }
-          else if(stack1[i].i == ABS) {
-            stack2[stackptr2 - 1] =  fabs(stack2[stackptr2 - 1]);
-          }
-          else if(stack1[i].i == SGN) {
-            stack2[stackptr2 - 1] = stack2[stackptr2 - 1] > 0.0 ? 1 : 
-                                    stack2[stackptr2 - 1] < 0.0 ? -1 : 0; 
-          }
-          else if(stack1[i].i == INTEG) { 
-            double integ = 0;
-            if( p == ofs ) {
-              integ = 0;
-              stack1[i].prev = 0;
-            } else {
-              integ = stack1[i].prev + (x[p] - x[p - 1]) * stack2[stackptr2 - 1];
-              stack1[i].prev = integ;
-            }
-            stack2[stackptr2 - 1] =  integ;
-          }
-          else if(stack1[i].i == DERIV) { 
-            double deriv = 0;
-            if( p == ofs ) {
-              deriv = 0;
-              stack1[i].prev = stack2[stackptr2 - 1];
-            } else {
-              deriv =  (stack2[stackptr2 - 1] - stack1[i].prev) / (x[p] - x[p - 1]);
-              stack1[i].prev = stack2[stackptr2 - 1] ;
-            }
-            stack2[stackptr2 - 1] =  deriv;
-          }
-        } /* else if(stackptr2 > 0) */
-      } /* for(i = 0; i < stackptr1; i++) */
-      y[p] = stack2[0];
-    }
-    ofs += xctx->graph_npoints[dset];
+      } /* else if(stackptr2 > 0) */
+    } /* for(i = 0; i < stackptr1; i++) */
+    y[p] = stack2[0];
   }
 }
 

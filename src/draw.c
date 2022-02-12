@@ -2424,7 +2424,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
       idx = -1;
       if(xctx->graph_values && !bus_msb && strstr(ntok, " ")) {
         idx = xctx->graph_nvars;
-        plot_raw_custom_data(sweep_idx, ntok);
       }
       /* quickly find index number of ntok variable to be plotted */
       if( idx == xctx->graph_nvars || (idx = get_raw_index(bus_msb ? bus_msb : ntok)) != -1 ) {
@@ -2476,6 +2475,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
                                    sweep_idx, wcnt, n_nodes, gr);
                     }
                   } else {
+                    if(idx == xctx->graph_nvars) plot_raw_custom_data(sweep_idx, first, last, ntok);
                     draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr);
                   }
                 }
@@ -2516,6 +2516,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
                                sweep_idx, wcnt, n_nodes, gr);
                 }
               } else {
+                if(idx == xctx->graph_nvars) plot_raw_custom_data(sweep_idx, first, last, ntok);
                 draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr);
               }
             }
