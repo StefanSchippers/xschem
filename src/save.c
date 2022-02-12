@@ -527,23 +527,23 @@ typedef struct {
   double prev;
 } Stack1;
 
-void plot_raw_custom_data(int sweep_idx, const char *ntok)
+void plot_raw_custom_data(int sweep_idx, const char *expr)
 {
   int i, p, idx, ofs = 0;
-  int dset, nitems;
+  int dset;
   const char *n;
-  char *endptr;
+  char *endptr, *ntok_copy = NULL, *ntok_save, *ntok_ptr;
   Stack1 stack1[200];
   double v, stack2[200];
   int stackptr1 = 0, stackptr2 = 0;
   SPICE_DATA *y = xctx->graph_values[xctx->graph_nvars]; /* custom plot data column */
   SPICE_DATA *x = xctx->graph_values[sweep_idx];
 
-  nitems = count_items(ntok, " ", "");
-  dbg(1, "plot_raw_custom_data(), ntok=%s nitems = %d\n", ntok, nitems);
-  for(i = 1; i <= nitems; i++) {
-    n = find_nth(ntok, ' ', i);
-    dbg(1, "  plot_raw_custom_data(): n = %s i = %d\n", n, i);
+  my_strdup2(574, &ntok_copy, expr);
+  ntok_ptr = ntok_copy;
+  while( (n = my_strtok_r(ntok_ptr, " ", "", &ntok_save)) ) {
+    ntok_ptr = NULL;
+    dbg(1, "  plot_raw_custom_data(): n = %s\n", n);
     if(!strcmp(n, "+")) stack1[stackptr1++].i = PLUS;
     else if(!strcmp(n, "-")) stack1[stackptr1++].i = MINUS;
     else if(!strcmp(n, "*")) stack1[stackptr1++].i = MULT;
@@ -570,6 +570,7 @@ void plot_raw_custom_data(int sweep_idx, const char *ntok)
     }
     dbg(1, "  plot_raw_custom_data(): stack1= %d\n", stack1[stackptr1 - 1].i);
   }
+  my_free(575, &ntok_copy);
   for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
     for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
       stackptr2 = 0;
