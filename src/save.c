@@ -237,9 +237,9 @@ static void read_binary_block(FILE *fd)
 
   /* read buffer */
   tmp = my_calloc(1405, xctx->graph_nvars, (sizeof(double *) ));
-  /* allocate storage for binary block */
-  if(!xctx->graph_values) xctx->graph_values = my_calloc(118, xctx->graph_nvars, sizeof(SPICE_DATA *));
-  for(p = 0 ; p < xctx->graph_nvars; p++) {
+  /* allocate storage for binary block, add one data column for custom data plots */
+  if(!xctx->graph_values) xctx->graph_values = my_calloc(118, xctx->graph_nvars + 1, sizeof(SPICE_DATA *));
+  for(p = 0 ; p <= xctx->graph_nvars; p++) {
     my_realloc(372,
        &xctx->graph_values[p], (offset + xctx->graph_npoints[xctx->graph_datasets]) * sizeof(SPICE_DATA));
   }
@@ -389,7 +389,8 @@ void free_rawfile(int dr)
   }
   if(xctx->graph_values) {
     deleted = 1;
-    for(i = 0 ; i < xctx->graph_nvars; i++) {
+    /* free also extra column for custom data plots */
+    for(i = 0 ; i <= xctx->graph_nvars; i++) {
       my_free(512, &xctx->graph_values[i]);
     }
     my_free(528, &xctx->graph_values);
@@ -488,12 +489,18 @@ int read_rawfile(const char *f)
 int get_raw_index(const char *node)
 {
   char vnode[300];
+  char lnode[300];
   Int_hashentry *entry;
   if(xctx->graph_values) {
     entry = int_hash_lookup(xctx->raw_table, node, 0, XLOOKUP);
     if(!entry) {
       my_snprintf(vnode, S(vnode), "v(%s)", node);
       entry = int_hash_lookup(xctx->raw_table, vnode, 0, XLOOKUP);
+      if(!entry) {
+        my_strncpy(lnode, vnode, S(lnode));
+        strtolower(lnode);
+        entry = int_hash_lookup(xctx->raw_table, lnode, 0, XLOOKUP);
+      }
     }
     if(entry) return entry->value;
   }
@@ -501,35 +508,143 @@ int get_raw_index(const char *node)
 }
 
 /* <<<< */
-void plot_raw_custom_data(int sweep_idx)
+
+#define PLUS -2
+#define MINUS -3
+#define MULT -4
+#define DIVIS -5
+#define POW -6
+#define SIN -7
+#define COS -8
+#define ABS -9
+#define SGN -10
+#define INTEG -11
+#define DERIV -12
+#define NUMBER -60
+typedef struct {
+  int i;
+  double d;
+  double prev;
+} Stack1;
+
+void plot_raw_custom_data(int sweep_idx, const char *ntok)
 {
-  int p, ofs = 0;
-  /* xctx->graph_datasets */
-  int idx = xctx->graph_nvars -1;
-  int dset;
-  int ret;
-  char cmd[100];
+  int i, p, idx, ofs = 0;
+  int dset, nitems;
+  const char *n;
+  char *endptr;
+  Stack1 stack1[200];
+  double v, stack2[200];
+  int stackptr1 = 0, stackptr2 = 0;
+  SPICE_DATA *y = xctx->graph_values[xctx->graph_nvars]; /* custom plot data column */
   SPICE_DATA *x = xctx->graph_values[sweep_idx];
-  SPICE_DATA *y = xctx->graph_values[idx];
-  if(!(tcleval("info procs customplot")[0])) return;
+
+  nitems = count_items(ntok, " ", "");
+  dbg(1, "plot_raw_custom_data(), ntok=%s nitems = %d\n", ntok, nitems);
+  for(i = 1; i <= nitems; i++) {
+    n = find_nth(ntok, ' ', i);
+    dbg(1, "  plot_raw_custom_data(): n = %s i = %d\n", n, i);
+    if(!strcmp(n, "+")) stack1[stackptr1++].i = PLUS;
+    else if(!strcmp(n, "-")) stack1[stackptr1++].i = MINUS;
+    else if(!strcmp(n, "*")) stack1[stackptr1++].i = MULT;
+    else if(!strcmp(n, "/")) stack1[stackptr1++].i = DIVIS;
+    else if(!strcmp(n, "**")) stack1[stackptr1++].i = POW;
+    else if(!strcmp(n, "sin()")) stack1[stackptr1++].i = SIN;
+    else if(!strcmp(n, "cos()")) stack1[stackptr1++].i = COS;
+    else if(!strcmp(n, "abs()")) stack1[stackptr1++].i = ABS;
+    else if(!strcmp(n, "sgn()")) stack1[stackptr1++].i = SGN;
+    else if(!strcmp(n, "integ()")) stack1[stackptr1++].i = INTEG;
+    else if(!strcmp(n, "deriv()")) stack1[stackptr1++].i = DERIV;
+    else if( (v = strtod(n, &endptr)), !*endptr) {
+      stack1[stackptr1].i = NUMBER;
+      stack1[stackptr1++].d = v;
+    }
+    else {
+      idx = get_raw_index(n);
+      if(idx == -1) {
+        dbg(1, "plot_raw_custom_data(): no data found: %s\n", n);
+        return; /* no data found in raw file */
+      }
+      stack1[stackptr1].i = idx;
+      stackptr1++;
+    }
+    dbg(1, "  plot_raw_custom_data(): stack1= %d\n", stack1[stackptr1 - 1].i);
+  }
   for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
     for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
-      my_snprintf(cmd, S(cmd), "customplot %d %g", p, x[p]);
-      ret = Tcl_GlobalEval(interp, cmd);
-      if(ret == TCL_OK) {
-        const char *r = tclresult();
-        if(r[0]) y[p] = atof(r);
-      } else {
-        fprintf(errfp, "plot_raw_custom_data(): evaluation of script: %s failed\n", cmd);
-        fprintf(errfp, "         : %s\n", Tcl_GetStringResult(interp));
-        Tcl_ResetResult(interp);
-        y[p] = 0.0;
-      }
-      /* y[p] = sin(dset * x[p] * 1e7); */
+      stackptr2 = 0;
+      for(i = 0; i < stackptr1; i++) { /* number */
+        if(stack1[i].i == NUMBER) {
+          stack2[stackptr2++] = stack1[i].d;
+        }
+        else if(stack1[i].i >=0 && stack1[i].i < xctx->graph_allpoints) { /* spice node */
+          stack2[stackptr2++] =  xctx->graph_values[stack1[i].i][p];
+        }
+
+        if(stackptr2 > 1) { /* 2 argument operators */
+          if(stack1[i].i == PLUS) {
+            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] + stack2[stackptr2 - 1];
+            stackptr2--;
+          }
+          else if(stack1[i].i == MINUS) {
+            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] - stack2[stackptr2 - 1];
+            stackptr2--;
+          }
+          else if(stack1[i].i == MULT) {
+            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] * stack2[stackptr2 - 1];
+            stackptr2--;
+          }
+          else if(stack1[i].i == DIVIS) {
+            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] / stack2[stackptr2 - 1];
+            stackptr2--;
+          }
+          else if(stack1[i].i == POW) {
+            stack2[stackptr2 - 2] =  pow(stack2[stackptr2 - 2], stack2[stackptr2 - 1]);
+            stackptr2--;
+          }
+        }
+        if(stackptr2 > 0) { /* 1 argument operators */
+          if(stack1[i].i == SIN) {
+            stack2[stackptr2 - 1] =  sin(stack2[stackptr2 - 1]);
+          }
+          else if(stack1[i].i == COS) {
+            stack2[stackptr2 - 1] =  cos(stack2[stackptr2 - 1]);
+          }
+          else if(stack1[i].i == ABS) {
+            stack2[stackptr2 - 1] =  fabs(stack2[stackptr2 - 1]);
+          }
+          else if(stack1[i].i == SGN) {
+            stack2[stackptr2 - 1] = stack2[stackptr2 - 1] > 0.0 ? 1 : 
+                                    stack2[stackptr2 - 1] < 0.0 ? -1 : 0; 
+          }
+          else if(stack1[i].i == INTEG) { 
+            double integ = 0;
+            if( p == ofs ) {
+              integ = 0;
+              stack1[i].prev = 0;
+            } else {
+              integ = stack1[i].prev + (x[p] - x[p - 1]) * stack2[stackptr2 - 1];
+              stack1[i].prev = integ;
+            }
+            stack2[stackptr2 - 1] =  integ;
+          }
+          else if(stack1[i].i == DERIV) { 
+            double deriv = 0;
+            if( p == ofs ) {
+              deriv = 0;
+              stack1[i].prev = stack2[stackptr2 - 1];
+            } else {
+              deriv =  (stack2[stackptr2 - 1] - stack1[i].prev) / (x[p] - x[p - 1]);
+              stack1[i].prev = stack2[stackptr2 - 1] ;
+            }
+            stack2[stackptr2 - 1] =  deriv;
+          }
+        } /* else if(stackptr2 > 0) */
+      } /* for(i = 0; i < stackptr1; i++) */
+      y[p] = stack2[0];
     }
     ofs += xctx->graph_npoints[dset];
   }
-
 }
 
 double get_raw_value(int dataset, int idx, int point)

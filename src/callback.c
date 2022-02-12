@@ -629,23 +629,46 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               if(!gr->digital) {
                 int dset;
                 int i, j;
-                double v;
+                const char *bus_msb = NULL;
+                int sweep_idx = 0;
+                double v, start, end;
                 double min=0.0, max=0.0;
                 int first = 1;
-                char *saven, *nptr, *ntok, *node = NULL;;
+                char *saves, *sptr, *stok, *sweep = NULL, *saven, *nptr, *ntok, *node = NULL;
                 my_strdup2(1426, &node, get_tok_value(r->prop_ptr,"node",0));
+                my_strdup2(542, &sweep, get_tok_value(r->prop_ptr,"sweep",0));
                 nptr = node;
-                while( (ntok = my_strtok_r(nptr, "\n\t ", "", &saven)) ) {
-                  nptr = NULL;
-                  j = get_raw_index(ntok);
+                sptr = sweep;
+                start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
+                end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
+
+                while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) {
+                  stok = my_strtok_r(sptr, " ", "", &saves);
+                  nptr = sptr = NULL;
+                  if(stok && stok[0]) {
+                    sweep_idx = get_raw_index(stok);
+                    if( sweep_idx == -1) sweep_idx = 0;
+                  }
+
+                  bus_msb = strstr(ntok, ",");
+                  j = -1;
+                  if(!bus_msb && strstr(ntok, " ")) {
+                    j = xctx->graph_nvars;
+                    plot_raw_custom_data(sweep_idx, ntok);
+                  } else {
+                    j = get_raw_index(ntok);
+                  }
                   if(j >= 0) {
                     int ofs = 0;
                     for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
                       for(i = ofs; i < ofs + xctx->graph_npoints[dset]; i++) {
                         if(dataset >= 0 && dataset != dset) continue;
+                        if( xctx->graph_values[sweep_idx][i] < start ||
+                            xctx->graph_values[sweep_idx][i] > end)  continue;
                         v = xctx->graph_values[j][i];
-                        if(first || v < min) {min = v; first = 0;}
-                        if(first || v > max) {max = v; first = 0;}
+                        if(first || v < min) min = v;
+                        if(first || v > max) max = v;
+                        first = 0;
                       } 
                       ofs += xctx->graph_npoints[dset];
                     }
@@ -655,6 +678,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                 min = floor_to_n_digits(min, 2);
                 max = ceil_to_n_digits(max, 2);
                 my_free(1427, &node);
+                my_free(573, &sweep);
                 my_strdup(1422, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(min)));
                 my_strdup(1423, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(max)));
                 need_redraw = 1;

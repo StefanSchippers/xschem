@@ -945,52 +945,24 @@ const char *get_cell_w_ext(const char *str, int no_of_dir)
 /* in a string with tokens separated by characters in 'sep'
  * count number of tokens. Multiple separators and leading/trailing
  * separators are allowed. */
-int count_items(const char *s, const char *sep)
+int count_items(const char *s, const char *sep, const char *quote)
 {
   const char *ptr;
   int items = 0;
   int state = 0; /* 1 if item is being processed */
-  int c;
-  int j, nsep = strlen(sep);
+  int c, q = 0;
 
   ptr = s;
   while( (c = *(unsigned char *)ptr++) ) {
-    for(j = 0; j < nsep; j++) {
-      if(c == sep[j]) break;
-    }
-    if(j >= nsep) { /* not a separator */
+    if(strchr(quote, c)) q = !q;
+    if(q || !strchr(sep, c)) { /* not a separator */
       if(!state) items++;
       state = 1;
     } else {
       state = 0;
     }
   }
-  return items;
-}
-
-/* in a string with tokens separated by characters in 'sep'
- * count number of tokens. Multiple separators and leading/trailing
- * separators are allowed. */
-int xcount_items(const char *s, const char *sep)
-{
-  const char *ptr;
-  char table[1 << 8 * sizeof(unsigned char)];
-  int items = 0;
-  int state = 0; /* 1 if item is being processed */
-  int c;
-
-  memset(table, 0, sizeof(table));
-  ptr = sep;
-  while( (c = *(unsigned char *)ptr++) ) table[c] = 1;
-  ptr = s;
-  while( (c = *(unsigned char *)ptr++) ) {
-    if(!table[c]) { /* not a separator */
-      if(!state) items++;
-      state = 1;
-    } else {
-      state = 0;
-    }
-  }
+  dbg(1, "count_items: s=%s, items=%d\n", s, items);
   return items;
 }
 
@@ -2752,7 +2724,8 @@ const char *find_nth(const char *str, char sep, int n)
       if(count==n) {
         return ptr;
       }
-      ptr=result+i+1;
+      while(result[++i] == sep) ;
+      ptr=result+i;
       count++;
     }
   }

@@ -1654,7 +1654,7 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
   int p;
   char *ntok_savep, *ntok_ptr, *ntok_copy = NULL;
   const char *bit_name;
-  *n_bits = count_items(ntok, ",") - 1;
+  *n_bits = count_items(ntok, ",", "") - 1;
   idx_arr = my_malloc(1454, (*n_bits) * sizeof(SPICE_DATA *));
   p = 0;
   my_strdup2(1402, &ntok_copy, ntok);
@@ -1750,8 +1750,8 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
   }
 }
 
-/* wcnt is the nth wave in graph, v is the index in spice raw file */
-static void draw_graph_points(int v, int first, int last,
+/* wcnt is the nth wave in graph, idx is the index in spice raw file */
+static void draw_graph_points(int idx, int first, int last,
          XPoint *point, int wave_col, int wcnt, int n_nodes, Graph_ctx *gr)
 {
   int p;
@@ -1761,9 +1761,9 @@ static void draw_graph_points(int v, int first, int last,
   double s1;
   double s2;
   double c, c1;
-  register SPICE_DATA *gv = xctx->graph_values[v];
+  register SPICE_DATA *gv = xctx->graph_values[idx];
 
-  dbg(1, "draw_graph_points: v=%d, first=%d, last=%d, wcnt=%d\n", v, first, last, wcnt);
+  dbg(1, "draw_graph_points: idx=%d, first=%d, last=%d, wcnt=%d\n", idx, first, last, wcnt);
   digital = gr->digital;
   if(digital) {
     s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
@@ -1792,7 +1792,7 @@ static void draw_graph_points(int v, int first, int last,
       XDrawLines(display, xctx->save_pixmap, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
     }
     set_thick_waves(0, wcnt, wave_col, gr);
-  } else dbg(1, "skipping wave: %s\n", xctx->graph_names[v]);
+  } else dbg(1, "skipping wave: %s\n", xctx->graph_names[idx]);
 }
 
 static void draw_graph_grid(Graph_ctx *gr)
@@ -2280,7 +2280,7 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
   nptr = node;
   cptr = color;
   sptr = sweep;
-  n_nodes = count_items(node, " \t\n");
+  n_nodes = count_items(node, " \t\n", "\"");
   /* process each node given in "node" attribute, get also associated color/sweep var if any */
   while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) {
     ctok = my_strtok_r(cptr, " ", "", &savec);
@@ -2400,7 +2400,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
     nptr = node;
     cptr = color;
     sptr = sweep;
-    n_nodes = count_items(node, " \t\n");
+    n_nodes = count_items(node, " \t\n", "\"");
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) {
       if(strstr(ntok, ",")) {
@@ -2420,8 +2420,14 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         }
       }
       draw_graph_variables(wcnt, wave_color, n_nodes, sweep_idx, flags, ntok, stok, bus_msb, gr);
+      /* custom data plot */
+      idx = -1;
+      if(xctx->graph_values && !bus_msb && strstr(ntok, " ")) {
+        idx = xctx->graph_nvars;
+        plot_raw_custom_data(sweep_idx, ntok);
+      }
       /* quickly find index number of ntok variable to be plotted */
-      if( (idx = get_raw_index(bus_msb ? bus_msb : ntok)) != -1 ) {
+      if( idx == xctx->graph_nvars || (idx = get_raw_index(bus_msb ? bus_msb : ntok)) != -1 ) {
         int p, dset, ofs;
         int poly_npoints;
         int first, last;
@@ -2434,8 +2440,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         XPoint *point = NULL;
         int dataset = gr->dataset;
         int digital = gr->digital;
-        /* <<<< */
-        /* if(idx ==  xctx->graph_nvars -1) plot_raw_custom_data(sweep_idx); */
         ofs = 0;
         start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
         end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;

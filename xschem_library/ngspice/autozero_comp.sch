@@ -22,8 +22,8 @@ B 2 260 -1080 720 -920 {flags=graph
 y1 = 0
 y2 = 0.93
 divy = 5
-x1=1.0603e-07
-x2=4.34086e-07
+x1=1.12193e-07
+x2=4.32192e-07
 divx=5
 subdivx=4
 unitx=n
@@ -32,18 +32,18 @@ saout"
 color="4 5"
 }
 B 2 260 -1220 720 -1090 {flags=graph
-y1 = 0.647719
-y2 = 0.652802
+y1 = 0.647319
+y2 = 0.652563
 divy = 5
-x1=1.0603e-07
-x2=4.34086e-07
+x1=1.12193e-07
+x2=4.32192e-07
 unitx=n
 divx=5
 subdivx=4
 node="plus
-minus
-\\"plus minus -\\""
-color="4 5 8"}
+minus"
+color="4 5"
+dataset=3}
 T {CAL} 140 -180 0 1 0.4 0.4 {}
 T {EN} 140 -130 0 1 0.4 0.4 {}
 T {CALIBRATION
