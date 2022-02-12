@@ -654,10 +654,10 @@ void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
           double deriv = 0;
           if( p == first ) {
             deriv = 0;
-            stack1[i].prev = stack2[stackptr2 - 1];
+            stack1[i].prevy = stack2[stackptr2 - 1];
           } else {
-            deriv =  (stack2[stackptr2 - 1] - stack1[i].prev) / (x[p] - x[p - 1]);
-            stack1[i].prev = stack2[stackptr2 - 1] ;
+            deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (x[p] - x[p - 1]);
+            stack1[i].prevy = stack2[stackptr2 - 1] ;
           }
           stack2[stackptr2 - 1] =  deriv;
         }
