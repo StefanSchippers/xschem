@@ -1536,7 +1536,7 @@ proc graph_update_nodelist {} {
       }
       set b [lindex $colors $col_idx]  
       .graphdialog.center.right.text1 tag add t$n "1.0 + $t chars" "1.0 + $c chars"
-      .graphdialog.center.right.text1 tag configure t$n -background $b -selectbackground grey60
+      .graphdialog.center.right.text1 tag configure t$n -background $b -selectbackground grey40
       incr n
     }
     # remove excess colors
