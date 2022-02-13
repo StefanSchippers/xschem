@@ -2108,8 +2108,8 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
   }
   /* draw node labels in graph */
   if(bus_msb) {
-    if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", find_nth(ntok, ',', 1), gr->unity_suffix);
-    else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ',', 1));
+    if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", find_nth(ntok, ",", 1), gr->unity_suffix);
+    else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ",", 1));
   } else {
     if(xctx->graph_sim_type == 3) {
       if(strstr(ntok, "ph(") == ntok || strstr(ntok, "_ph"))
@@ -2404,7 +2404,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) {
       if(strstr(ntok, ",")) {
-        my_strdup2(1452, &bus_msb, find_nth(ntok, ',', 2));
+        my_strdup2(1452, &bus_msb, find_nth(ntok, ",", 2));
       }
       ctok = my_strtok_r(cptr, " ", "", &savec);
       stok = my_strtok_r(sptr, " ", "", &saves);

@@ -1889,8 +1889,8 @@ void print_tedax_element(FILE *fd, int inst)
      my_strdup2(1197, &pin, expandlabel(pinname, &pin_mult));
      dbg(1, "#net=%s pinname=%s pin=%s net_mult=%d pin_mult=%d\n", net, pinname, pin, net_mult, pin_mult);
      for(n = 0; n < net_mult; n++) {
-       my_strdup(1204, &netbit, find_nth(net, ',', n+1));
-       my_strdup(1205, &pinbit, find_nth(pin, ',', n+1));
+       my_strdup(1204, &netbit, find_nth(net, ",", n+1));
+       my_strdup(1205, &pinbit, find_nth(pin, ",", n+1));
        fprintf(fd, "__map__ %s -> %s\n", 
          pinbit ? pinbit : "__UNCONNECTED_PIN__", 
          netbit ? netbit : "__UNCONNECTED_PIN__");
@@ -2075,7 +2075,7 @@ void print_tedax_element(FILE *fd, int inst)
             int slot;
             if( (ss=strchr(xctx->inst[inst].instname, ':')) ) {
               sscanf(ss+1, "%d", &slot);
-              if(strstr(value, ":")) value = find_nth(value, ':', slot);
+              if(strstr(value, ":")) value = find_nth(value, ":", slot);
             }
             fprintf(fd, "%s", value);
           }
@@ -2698,7 +2698,7 @@ int isonlydigit(const char *s)
 /* find nth occurrence of substring in str separated by sep. 1st substring is position 1
  * find_nth("aaa,bbb,ccc,ddd", ',', 2)  --> "bbb"
  */
-const char *find_nth(const char *str, char sep, int n)
+const char *find_nth(const char *str, char *sep, int n)
 {
   static char *result=NULL; /* safe to keep even with multiple schematic windows */
   static int result_size = 0; /* safe to keep even with multiple schematic windows */
@@ -2719,12 +2719,12 @@ const char *find_nth(const char *str, char sep, int n)
   }
   memcpy(result, str, len);
   for(i=0, count=1, ptr=result; result[i] != 0; i++) {
-    if(result[i]==sep) {
+    if(strchr(sep, result[i])) {
       result[i]=0;
       if(count==n) {
         return ptr;
       }
-      while(result[++i] == sep) ;
+      while(strchr(sep, result[++i])) ;
       ptr=result+i;
       count++;
     }
@@ -2886,7 +2886,7 @@ const char *translate(int inst, const char* s)
            sscanf(ss+1, "%s", tmpstr);
            if(isonlydigit(tmpstr)) {
              slot = atoi(tmpstr);
-             if(strstr(value,":")) value = find_nth(value, ':', slot);
+             if(strstr(value,":")) value = find_nth(value, ":", slot);
            }
          }
          my_free(1177, &tmpstr);

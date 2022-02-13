@@ -1292,7 +1292,7 @@ extern void int_hash_free(Int_hashentry **table);
 extern Int_hashentry *int_hash_lookup(Int_hashentry **table,
        const char *token, const int value, int what);
 
-extern const char *find_nth(const char *str, char sep, int n);
+extern const char *find_nth(const char *str, char *sep, int n);
 extern int isonlydigit(const char *s);
 extern const char *translate(int inst, const char* s);
 extern const char* translate2(Lcc *lcc, int level, char* s);

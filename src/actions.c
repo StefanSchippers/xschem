@@ -1312,7 +1312,7 @@ void descend_schematic(int instnumber)
     if(inst_number <1 || inst_number > inst_mult) inst_number = 1;
   }
   dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
-  my_strcat(15, &xctx->sch_path[xctx->currsch+1], find_nth(str, ',', inst_number));
+  my_strcat(15, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", inst_number));
   dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
   my_strcat(16, &xctx->sch_path[xctx->currsch+1], ".");
   xctx->sch_inst_number[xctx->currsch+1] = inst_number;

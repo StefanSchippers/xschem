@@ -477,16 +477,16 @@ void hilight_parent_pins(void)
 
   for(k = 1; k<=mult; k++) {
     xctx->currsch++;
-    entry = bus_hilight_hash_lookup(find_nth(pin_node, ',', k), 0, XLOOKUP);
+    entry = bus_hilight_hash_lookup(find_nth(pin_node, ",", k), 0, XLOOKUP);
     xctx->currsch--;
     if(entry)
     {
-      bus_hilight_hash_lookup(find_nth(net_node, ',',
+      bus_hilight_hash_lookup(find_nth(net_node, ",",
           ((inst_number - 1) * mult + k - 1) % net_mult + 1), entry->value, XINSERT);
     }
     else
     {
-      bus_hilight_hash_lookup(find_nth(net_node, ',',
+      bus_hilight_hash_lookup(find_nth(net_node, ",",
           ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XDELETE);
     }
    }
@@ -523,19 +523,19 @@ void hilight_child_pins(void)
   for(k = 1; k<=mult; k++) {
     dbg(1, "hilight_child_pins(): looking nth net:%d, k=%d, inst_number=%d, mult=%d\n",
                                (inst_number-1)*mult+k, k, inst_number, mult);
-    dbg(1, "hilight_child_pins(): looking net:%s\n",  find_nth(net_node, ',',
+    dbg(1, "hilight_child_pins(): looking net:%s\n",  find_nth(net_node, ",",
         ((inst_number - 1) * mult + k - 1) % net_mult + 1));
     xctx->currsch--;
-    entry = bus_hilight_hash_lookup(find_nth(net_node, ',', 
+    entry = bus_hilight_hash_lookup(find_nth(net_node, ",", 
       ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XLOOKUP);
     xctx->currsch++;
     if(entry) {
-      bus_hilight_hash_lookup(find_nth(pin_node, ',', k), entry->value, XINSERT_NOREPLACE);
-      dbg(1, "hilight_child_pins(): inserting: %s\n", find_nth(pin_node, ',', k));
+      bus_hilight_hash_lookup(find_nth(pin_node, ",", k), entry->value, XINSERT_NOREPLACE);
+      dbg(1, "hilight_child_pins(): inserting: %s\n", find_nth(pin_node, ",", k));
     }
     else {
-      bus_hilight_hash_lookup(find_nth(pin_node, ',', k), 0, XDELETE);
-      dbg(1, "hilight_child_pins(): deleting: %s\n", find_nth(pin_node, ',', k));
+      bus_hilight_hash_lookup(find_nth(pin_node, ",", k), 0, XDELETE);
+      dbg(1, "hilight_child_pins(): deleting: %s\n", find_nth(pin_node, ",", k));
     }
   } /* for(k..) */
  }
@@ -795,7 +795,7 @@ void drill_hilight(int mode)
           const char *propag;
           dbg(1, "drill_hilight(): inst=%d propagate_str=%s\n", i, propagate_str);
           while(1) {
-            propag = find_nth(propagate_str, ',', n);
+            propag = find_nth(propagate_str, ",", n);
             n++;
             if(!propag[0]) break;
             if(entry) {
@@ -861,7 +861,7 @@ static void send_net_to_bespice(int simtype, const char *node)
     expanded_tok = expandlabel(tok, &tok_mult);
     my_strdup2(1278, &p, xctx->sch_path[xctx->currsch]+1);
     for(k=1; k<=tok_mult; k++) {
-      my_strdup(1277, &t, find_nth(expanded_tok, ',', k));
+      my_strdup(1277, &t, find_nth(expanded_tok, ",", k));
       if(simtype == 0 ) { /* spice */
         tclvareval(
           "puts $bespice_server_getdata(sock) ",
@@ -919,7 +919,7 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
     expanded_tok = expandlabel(tok, &tok_mult);
     my_strdup2(1499, &p, xctx->sch_path[xctx->currsch]+1);
     for(k=1; k<=tok_mult; k++) {
-      my_strdup(1503, &t, find_nth(expanded_tok, ',', k));
+      my_strdup(1503, &t, find_nth(expanded_tok, ",", k));
       if(simtype == 0 ) { /* ngspice */
         dbg(1, "%s%s color=%d\n", strtolower(p), strtolower(t), c);
         my_snprintf(ss, S(ss), "%s%s %d ", strtolower(p), strtolower(t), c);
@@ -962,7 +962,7 @@ static void send_net_to_gaw(int simtype, const char *node)
     if(tclresult()[0] == '0') return;
     my_strdup2(254, &p, xctx->sch_path[xctx->currsch]+1);
     for(k=1; k<=tok_mult; k++) {
-      my_strdup(246, &t, find_nth(expanded_tok, ',', k));
+      my_strdup(246, &t, find_nth(expanded_tok, ",", k));
       if(simtype == 0 ) { /* ngspice */
         tclvareval("puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t),
                     ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
@@ -1002,7 +1002,7 @@ static void send_current_to_bespice(int simtype, const char *node)
   expanded_tok = expandlabel(tok, &tok_mult);
   my_strdup2(1282, &p, xctx->sch_path[xctx->currsch]+1);
   for(k=1; k<=tok_mult; k++) {
-    my_strdup(1281, &t, find_nth(expanded_tok, ',', k));
+    my_strdup(1281, &t, find_nth(expanded_tok, ",", k));
     if(!simtype) { /* spice */
       tclvareval(
         "puts $bespice_server_getdata(sock) ",
@@ -1061,7 +1061,7 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
   expanded_tok = expandlabel(tok, &tok_mult);
   my_strdup2(523, &p, xctx->sch_path[xctx->currsch]+1);
   for(k=1; k<=tok_mult; k++) {
-    my_strdup(376, &t, find_nth(expanded_tok, ',', k));
+    my_strdup(376, &t, find_nth(expanded_tok, ",", k));
     if(!simtype) { /* ngspice */
       my_snprintf(ss, S(ss), "i(%s%s%s) %d", xctx->currsch>0 ? "v." : "",
                   strtolower(p), strtolower(t), c);
@@ -1100,7 +1100,7 @@ static void send_current_to_gaw(int simtype, const char *node)
   if(tclresult()[0] == '0') return;
   my_strdup2(1180, &p, xctx->sch_path[xctx->currsch]+1);
   for(k=1; k<=tok_mult; k++) {
-    my_strdup(1179, &t, find_nth(expanded_tok, ',', k));
+    my_strdup(1179, &t, find_nth(expanded_tok, ",", k));
     if(!simtype) { /* spice */
       tclvareval("puts $gaw_fd {copyvar i(", xctx->currsch>0 ? "v." : "",
                   strtolower(p), strtolower(t),
@@ -1483,7 +1483,7 @@ void propagate_logic()
           }
           dbg(1, "propagate_logic(): inst=%d pin %d, goto=%s\n", i,j, xctx->simdata[i].pin[j].go_to);
           while(1) {
-            propag = find_nth(xctx->simdata[i].pin[j].go_to, ',', n);
+            propag = find_nth(xctx->simdata[i].pin[j].go_to, ",", n);
             n++;
             if(!propag[0]) break;
             propagate = atoi(propag);

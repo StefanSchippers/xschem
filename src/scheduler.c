@@ -1057,7 +1057,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               int slot;
               if( (ss = strchr(xctx->inst[inst].instname, ':')) ) {
                 sscanf(ss + 1, "%d", &slot);
-                if(strstr(value, ":")) value = find_nth(value, ':', slot);
+                if(strstr(value, ":")) value = find_nth(value, ":", slot);
               }
               Tcl_SetResult(interp, (char *)value, TCL_VOLATILE);
             }
@@ -1391,7 +1391,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       for(p = 0;p < no_of_pins; p++) {
         pin = get_tok_value(rct[p].prop_ptr,argv[3],0);
-        if(slot > 0 && !strcmp(argv[3], "pinnumber") && strstr(pin,":")) pin = find_nth(pin, ':', slot);
+        if(slot > 0 && !strcmp(argv[3], "pinnumber") && strstr(pin,":")) pin = find_nth(pin, ":", slot);
         if(!strcmp(pin, argv[4])) break;
       }
       if(p >= no_of_pins) {
