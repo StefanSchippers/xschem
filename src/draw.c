@@ -1615,7 +1615,8 @@ void get_bus_value(int n_bits, int hex_digits, SPICE_DATA **idx_arr, int p, char
   char hexstr[] = "084C2A6E195D3B7F"; /* mirrored (Left/right) hex */
   int x = 0;
   for(i = n_bits - 1; i >= 0; i--) {
-    val = idx_arr[i][p];
+    if(idx_arr[i]) val = idx_arr[i][p];
+    else val = 0.0; /* undefined bus element */
     if(val >= vthl && val <= vthh) { /* signal transitioning --> 'X' */
        x = 1; /* flag for 'X' value */
        i += bin - 3;
@@ -1652,18 +1653,20 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
 {
   SPICE_DATA **idx_arr =NULL;
   int p;
-  char *ntok_savep, *ntok_ptr, *ntok_copy = NULL;
+  char *saven, *nptr, *ntok_copy = NULL;
   const char *bit_name;
-  *n_bits = count_items(ntok, ",", "") - 1;
+  *n_bits = count_items(ntok, ";,", "") - 1;
   idx_arr = my_malloc(1454, (*n_bits) * sizeof(SPICE_DATA *));
   p = 0;
   my_strdup2(1402, &ntok_copy, ntok);
-  ntok_ptr = ntok_copy;
-  my_strtok_r(ntok_ptr, ",", "", &ntok_savep); /*strip off bus name (1st field) */
-  while( (bit_name = my_strtok_r(NULL, ",", "", &ntok_savep)) ) {
+  nptr = ntok_copy;
+  my_strtok_r(nptr, ";,", "", &saven); /*strip off bus name (1st field) */
+  while( (bit_name = my_strtok_r(NULL, ",", "", &saven)) ) {
     int idx;
     if( (idx = get_raw_index(bit_name)) != -1) {
       idx_arr[p] = xctx->graph_values[idx];
+    } else {
+      idx_arr[p] = NULL;
     }
     p++;
   }
@@ -2108,8 +2111,8 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
   }
   /* draw node labels in graph */
   if(bus_msb) {
-    if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", find_nth(ntok, ",", 1), gr->unity_suffix);
-    else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ",", 1));
+    if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", find_nth(ntok, ";,", 1), gr->unity_suffix);
+    else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ";,", 1));
   } else {
     if(xctx->graph_sim_type == 3) {
       if(strstr(ntok, "ph(") == ntok || strstr(ntok, "_ph"))
@@ -2284,7 +2287,7 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
   /* process each node given in "node" attribute, get also associated color/sweep var if any */
   while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) {
     ctok = my_strtok_r(cptr, " ", "", &savec);
-    stok = my_strtok_r(sptr, " ", "", &saves);
+    stok = my_strtok_r(sptr, "\t\n ", "\"", &saves);
     nptr = cptr = sptr = NULL;
     dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
     if(stok && stok[0]) {
@@ -2404,10 +2407,10 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) {
       if(strstr(ntok, ",")) {
-        my_strdup2(1452, &bus_msb, find_nth(ntok, ",", 2));
+        my_strdup2(1452, &bus_msb, find_nth(ntok, ";,", 2));
       }
       ctok = my_strtok_r(cptr, " ", "", &savec);
-      stok = my_strtok_r(sptr, " ", "", &saves);
+      stok = my_strtok_r(sptr, "\t\n ", "\"", &saves);
       nptr = cptr = sptr = NULL;
       dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
       if(ctok && ctok[0]) wave_color = atoi(ctok);

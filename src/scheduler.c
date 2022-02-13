@@ -566,6 +566,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
    
+    else if(!strcmp(argv[1],"count_items"))
+    {
+      if(argc > 4) {
+        Tcl_SetResult(interp, itoa(count_items(argv[2], argv[3], argv[4])), TCL_VOLATILE);
+      }
+      cmd_found = 1;
+    }
     else if(!strcmp(argv[1],"create_plot_cmd") )
     {
       cmd_found = 1;

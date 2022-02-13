@@ -643,7 +643,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                 end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
 
                 while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) {
-                  stok = my_strtok_r(sptr, " ", "", &saves);
+                  stok = my_strtok_r(sptr, "\n\t ", "\"", &saves);
                   nptr = sptr = NULL;
                   if(stok && stok[0]) {
                     sweep_idx = get_raw_index(stok);
