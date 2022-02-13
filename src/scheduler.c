@@ -741,7 +741,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   }
 
   else if(argv[1][0] == 'f') {   
-    if(!strcmp(argv[1],"flip"))
+    if(!strcmp(argv[1],"find_nth"))
+    {
+      cmd_found = 1;
+      if(argc > 4) {
+        Tcl_SetResult(interp, find_nth(argv[2], argv[3], atoi(argv[4])), TCL_VOLATILE);
+      }
+    }
+    else if(!strcmp(argv[1],"flip"))
     {
       cmd_found = 1;
       if(! (xctx->ui_state & (STARTMOVE | STARTCOPY) ) ) { 

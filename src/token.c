@@ -2698,11 +2698,10 @@ int isonlydigit(const char *s)
 /* find nth occurrence of substring in str separated by sep. 1st substring is position 1
  * find_nth("aaa,bbb,ccc,ddd", ',', 2)  --> "bbb"
  */
-const char *find_nth(const char *str, char *sep, int n)
+char *find_nth(const char *str, const char *sep, int n)
 {
   static char *result=NULL; /* safe to keep even with multiple schematic windows */
   static int result_size = 0; /* safe to keep even with multiple schematic windows */
-  static const char *empty="";
   int i, len;
   char *ptr;
   int count;
@@ -2710,7 +2709,7 @@ const char *find_nth(const char *str, char *sep, int n)
   if(!str) {
     my_free(1062, &result);
     result_size = 0;
-    return empty;
+    return NULL;
   }
   len = strlen(str) + 1;
   if(len > result_size) {
@@ -2718,19 +2717,25 @@ const char *find_nth(const char *str, char *sep, int n)
     my_realloc(138, &result, result_size);
   }
   memcpy(result, str, len);
-  for(i=0, count=1, ptr=result; result[i] != 0; i++) {
+  i = 0;
+  while(result[i] && strchr(sep, result[i])) i++; /* strip off leading separators */
+  ptr = result + i;
+  for(count=1; result[i] != 0; i++) {
     if(strchr(sep, result[i])) {
       result[i]=0;
       if(count==n) {
         return ptr;
       }
-      while(strchr(sep, result[++i])) ;
-      ptr=result+i;
+      while(result[++i] && strchr(sep, result[i])) ;
+      ptr = result + i;
       count++;
     }
   }
   if(count==n) return ptr;
-  else return empty;
+  else {
+    result[0] = '\0';
+    return result;
+  }
 }
 
 /* substitute given tokens in a string with their corresponding values */
