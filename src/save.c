@@ -507,8 +507,7 @@ int get_raw_index(const char *node)
   return -1;
 }
 
-/* <<<< */
-
+#define STACKMAX 200
 #define PLUS -2
 #define MINUS -3
 #define MULT -4
@@ -516,12 +515,16 @@ int get_raw_index(const char *node)
 #define POW -6
 #define SIN -7
 #define COS -8
-#define ABS -9
-#define SGN -10
-#define INTEG -11
-#define AVG -12
-#define DERIV -13
+#define EXP -9
+#define LN -10
+#define LOG10 -11
+#define ABS -12
+#define SGN -13
+#define INTEG -14
+#define AVG -15
+#define DERIV -16
 #define NUMBER -60
+
 typedef struct {
   int i;
   double d;
@@ -535,15 +538,20 @@ void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
   int i, p, idx;
   const char *n;
   char *endptr, *ntok_copy = NULL, *ntok_save, *ntok_ptr;
-  Stack1 stack1[200];
-  double v, stack2[200];
+  Stack1 stack1[STACKMAX];
+  double v, stack2[STACKMAX];
   int stackptr1 = 0, stackptr2 = 0;
   SPICE_DATA *y = xctx->graph_values[xctx->graph_nvars]; /* custom plot data column */
   SPICE_DATA *x = xctx->graph_values[sweep_idx];
 
   my_strdup2(574, &ntok_copy, expr);
   ntok_ptr = ntok_copy;
-  while( (n = my_strtok_r(ntok_ptr, " ", "", &ntok_save)) ) {
+  while( (n = my_strtok_r(ntok_ptr, " \t\n", "", &ntok_save)) ) {
+    if(stackptr1 >= STACKMAX -1) {
+      dbg(0, "stack overflow in graph expression parsing. Interrupted\n");
+      my_free(576, &ntok_copy);
+      return;
+    }
     ntok_ptr = NULL;
     dbg(1, "  plot_raw_custom_data(): n = %s\n", n);
     if(!strcmp(n, "+")) stack1[stackptr1++].i = PLUS;
@@ -555,6 +563,9 @@ void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     else if(!strcmp(n, "cos()")) stack1[stackptr1++].i = COS;
     else if(!strcmp(n, "abs()")) stack1[stackptr1++].i = ABS;
     else if(!strcmp(n, "sgn()")) stack1[stackptr1++].i = SGN;
+    else if(!strcmp(n, "exp()")) stack1[stackptr1++].i = EXP;
+    else if(!strcmp(n, "ln()")) stack1[stackptr1++].i = LN;
+    else if(!strcmp(n, "log10()")) stack1[stackptr1++].i = LOG10;
     else if(!strcmp(n, "integ()")) stack1[stackptr1++].i = INTEG;
     else if(!strcmp(n, "avg()")) stack1[stackptr1++].i = AVG;
     else if(!strcmp(n, "deriv()")) stack1[stackptr1++].i = DERIV;
@@ -566,6 +577,7 @@ void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
       idx = get_raw_index(n);
       if(idx == -1) {
         dbg(1, "plot_raw_custom_data(): no data found: %s\n", n);
+        my_free(645, &ntok_copy);
         return; /* no data found in raw file */
       }
       stack1[stackptr1].i = idx;
@@ -615,6 +627,15 @@ void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
         }
         else if(stack1[i].i == ABS) {
           stack2[stackptr2 - 1] =  fabs(stack2[stackptr2 - 1]);
+        }
+        else if(stack1[i].i == EXP) {
+          stack2[stackptr2 - 1] =  exp(stack2[stackptr2 - 1]);
+        }
+        else if(stack1[i].i == LN) {
+          stack2[stackptr2 - 1] =  log(stack2[stackptr2 - 1]);
+        }
+        else if(stack1[i].i == LOG10) {
+          stack2[stackptr2 - 1] =  log10(stack2[stackptr2 - 1]);
         }
         else if(stack1[i].i == SGN) {
           stack2[stackptr2 - 1] = stack2[stackptr2 - 1] > 0.0 ? 1 : 

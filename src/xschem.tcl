@@ -1350,6 +1350,14 @@ proc graph_edit_wave {n n_wave} {
 # replace selected text: 
 # .graphdialog.center.right.text1 replace sel.first sel.last BUS
 #
+# programmatically select text:
+# .graphdialog.center.right.text1 tag add sel 1.0 {end - 1 chars}
+# clear selection
+# .graphdialog.center.right.text1 tag remove sel 1.0 end
+# get position of cursor:
+# .graphdialog.center.right.text1  index insert
+# set cursor position: 
+# .graphdialog.center.right.text1 mark set insert 2.18
 
 
 # add nodes from provided list of {node color} .... 
@@ -1505,9 +1513,20 @@ proc graph_update_nodelist {} {
   # tagging nodes in text widget:
   set col  [xschem getprop rect 2 $graph_selected color]
   set col [string trim $col " \n"]
-  set tt [.graphdialog.center.right.text1 search -all -nolinestop -regexp -count cc {"[^"]+"|[^ \n]+} 1.0] ;#"4vim
+
+  set regx {(?:"[^"]+")|(?:[^\n \t]+)}
+  set txt [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]
+  set tt {}
+  set cc {}
+  set start 0
+  while {[regexp -indices -start $start $regx $txt idx]} {
+    lappend tt [lindex $idx 0]
+    set start [expr {[lindex $idx 1] + 1}]
+    lappend cc $start
+  }
+
   set n 0
-  if { [info exists cc] && ($tt ne {}) } {
+  if { $tt ne {} } {
     foreach t $tt c $cc {
       set col_idx [lindex $col $n]
       # add missing colors
@@ -1516,8 +1535,8 @@ proc graph_update_nodelist {} {
         lappend col $graph_sel_color
       }
       set b [lindex $colors $col_idx]  
-      .graphdialog.center.right.text1 tag add t$n $t "$t + $c chars"
-      .graphdialog.center.right.text1 tag configure t$n -background $b
+      .graphdialog.center.right.text1 tag add t$n "1.0 + $t chars" "1.0 + $c chars"
+      .graphdialog.center.right.text1 tag configure t$n -background $b -selectbackground grey60
       incr n
     }
     # remove excess colors
