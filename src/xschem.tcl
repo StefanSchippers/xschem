@@ -1399,7 +1399,8 @@ proc graph_add_nodes_from_list {nodelist} {
         set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
         xschem setprop rect 2 $graph_selected color $col fastundo
         graph_update_nodelist
-        xschem setprop rect 2 $graph_selected node $node fast
+        regsub -all {\\?(["\\])} $node {\\\1} node_quoted ;#"4vim
+        xschem setprop rect 2 $graph_selected node $node_quoted fast
         xschem draw_graph $graph_selected
       }
     }
@@ -1420,8 +1421,10 @@ proc graph_add_nodes_from_list {nodelist} {
     if { $ccc ne {}} {append ccc " "}
     append nnn $nn
     append ccc $cc
-    xschem setprop rect 2 [xschem get graph_lastsel] node $nnn
-    xschem setprop rect 2 [xschem get graph_lastsel] color $ccc
+    regsub -all {\\?(["\\])} $nnn {\\\1} node_quoted ;#"4vim
+    xschem setprop rect 2 [xschem get graph_lastsel] color $ccc fastundo
+    xschem setprop rect 2 [xschem get graph_lastsel] node $node_quoted fast
+    xschem draw_graph [xschem get graph_lastsel]
   }
 }
 
@@ -1562,7 +1565,7 @@ proc fill_graph_listbox {} {
 proc update_graph_node {node} {
   global graph_selected
   graph_update_nodelist
-  regsub -all {(["\\])} $node {\\\1} node_quoted ;#"4vim
+  regsub -all {\\?(["\\])} $node {\\\1} node_quoted ;#"4vim
   xschem setprop rect 2 $graph_selected node $node_quoted fast
   xschem draw_graph $graph_selected
 }
