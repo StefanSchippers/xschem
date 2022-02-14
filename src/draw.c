@@ -2439,7 +2439,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
       draw_graph_variables(wcnt, wave_color, n_nodes, sweep_idx, flags, ntok, stok, bus_msb, gr);
       /* if ntok following possible 'alias;' definition contains spaces --> custom data plot */
       idx = -1;
-      if(!bus_msb && xctx->graph_values) {
+      if(xctx->graph_values && !bus_msb) {
         if(strstr(ntok, ";")) {
           my_strdup2(1191, &express, find_nth(ntok, ";", 2));
         } else {
