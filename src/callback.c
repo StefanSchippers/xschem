@@ -660,9 +660,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                       my_strdup2(1506, &express, ntok);
                     }
                     if(strstr(express, " ")) {
-                      j = xctx->graph_nvars;
                       for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
-                        plot_raw_custom_data(sweep_idx, ofs, ofs + xctx->graph_npoints[dset] - 1, express);
+                        j = plot_raw_custom_data(sweep_idx, ofs, ofs + xctx->graph_npoints[dset] - 1, express);
                         ofs += xctx->graph_npoints[dset];
                       }
                     } else {

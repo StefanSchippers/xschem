@@ -536,7 +536,7 @@ typedef struct {
   double prevx;
 } Stack1;
 
-void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
+int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
 {
   int i, p, idx;
   const char *n;
@@ -554,7 +554,7 @@ void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     if(stackptr1 >= STACKMAX -2) {
       dbg(0, "stack overflow in graph expression parsing. Interrupted\n");
       my_free(576, &ntok_copy);
-      return;
+      return -1;
     }
     ntok_ptr = NULL;
     dbg(1, "  plot_raw_custom_data(): n = %s\n", n);
@@ -584,7 +584,7 @@ void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
       if(idx == -1) {
         dbg(1, "plot_raw_custom_data(): no data found: %s\n", n);
         my_free(645, &ntok_copy);
-        return; /* no data found in raw file */
+        return -1; /* no data found in raw file */
       }
       stack1[stackptr1].i = idx;
       stackptr1++;
@@ -716,6 +716,7 @@ void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     } /* for(i = 0; i < stackptr1; i++) */
     y[p] = stack2[0];
   }
+  return xctx->graph_nvars;
 }
 
 double get_raw_value(int dataset, int idx, int point)

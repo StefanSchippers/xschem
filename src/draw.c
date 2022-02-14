@@ -1767,6 +1767,7 @@ static void draw_graph_points(int idx, int first, int last,
   register SPICE_DATA *gv = xctx->graph_values[idx];
 
   dbg(1, "draw_graph_points: idx=%d, first=%d, last=%d, wcnt=%d\n", idx, first, last, wcnt);
+  if(idx == -1) return;
   digital = gr->digital;
   if(digital) {
     s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
@@ -2392,7 +2393,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
   char *saven, *savec, *saves, *nptr, *cptr, *sptr;
   const char *ntok, *ctok, *stok;
   char *bus_msb = NULL;
-  int wcnt = 0, idx;
+  int wcnt = 0, idx, expression;
   int measure_p = -1;
   double measure_x;
   double measure_prev_x;
@@ -2439,6 +2440,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
       draw_graph_variables(wcnt, wave_color, n_nodes, sweep_idx, flags, ntok, stok, bus_msb, gr);
       /* if ntok following possible 'alias;' definition contains spaces --> custom data plot */
       idx = -1;
+      expression = 0;
       if(xctx->graph_values && !bus_msb) {
         if(strstr(ntok, ";")) {
           my_strdup2(1191, &express, find_nth(ntok, ";", 2));
@@ -2446,11 +2448,11 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
           my_strdup2(1192, &express, ntok);
         }
         if(strstr(express, " ")) {
-          idx = xctx->graph_nvars;
+          expression = 1;
         }
       }
       /* quickly find index number of ntok variable to be plotted */
-      if( idx == xctx->graph_nvars || (idx = get_raw_index(bus_msb ? bus_msb : express)) != -1 ) {
+      if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express)) != -1 ) {
         int p, dset, ofs;
         int poly_npoints;
         int first, last;
@@ -2499,7 +2501,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
                                    sweep_idx, wcnt, n_nodes, gr);
                     }
                   } else {
-                    if(idx == xctx->graph_nvars) plot_raw_custom_data(sweep_idx, first, last, express);
+                    if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express);
                     draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr);
                   }
                 }
@@ -2540,7 +2542,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
                                sweep_idx, wcnt, n_nodes, gr);
                 }
               } else {
-                if(idx == xctx->graph_nvars) plot_raw_custom_data(sweep_idx, first, last, express);
+                if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express);
                 draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr);
               }
             }
