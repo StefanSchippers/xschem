@@ -32,8 +32,8 @@ y1 = -0.048929
 y2 = 0.999755
 divy = 3
 subdivy=1
-x1=1.35174e-07
-x2=2.76612e-07  divx=10
+x1=1.05327e-07
+x2=2.46765e-07  divx=10
 node="ldbl[0]
 ldbl[16]
 ldbl[32]
@@ -43,7 +43,7 @@ ldbl[33]
 ldbl[2]
 ldbl[18]
 ldbl[34]"
-color="8 9 10 11 12 13 14 15 11" unitx=n
+color="10 9 10 11 12 13 14 15 11" unitx=n
 }
 B 2 1840 -1160 2890 -1000 {flags=graph
 digital=0
@@ -51,8 +51,8 @@ y1 = 0
 y2 = 1.60
 subdivy=1
 divy = 4
-x1=1.35174e-07
-x2=2.76612e-07
+x1=1.05327e-07
+x2=2.46765e-07
 divx=10
 subdivx=4
 node="ldcp
@@ -70,8 +70,8 @@ y2 = 1.6
 divy = 3
 subdivy=0
 subdivx = 1
-x1=1.35174e-07
-x2=2.76612e-07  divx=10
+x1=1.05327e-07
+x2=2.46765e-07  divx=10
 node="ldwl[0]
 ldwl[1]
 ldwl[2]
@@ -93,8 +93,8 @@ y2 = 1.6
 ypos1=0.0990096
 ypos2=2.81842
 divy = 1
-x1=1.35174e-07
-x2=2.76612e-07
+x1=1.05327e-07
+x2=2.46765e-07
 divx=12
 subdivx=4
 node="---In/Out---
@@ -103,17 +103,17 @@ ldq[15]
 ldq[14]
 ldq[13]
 ldq[12]
-LDA,lda[12],lda[11],lda[10],lda[9],lda[8],lda[7],lda[6],lda[5],lda[4],lda[3],lda[2],lda[1],lda[0]
-LDQ,ldq[15],ldq[14],ldq[13],ldq[12],ldq[11],ldq[10],ldq[9],ldq[8],ldq[7],ldq[6],ldq[5],ldq[4],ldq[3],ldq[2],ldq[1],ldq[0]
+LDA;lda[12],lda[11],lda[10],lda[9],lda[8],lda[7],lda[6],lda[5],lda[4],lda[3],lda[2],lda[1],lda[0]
+LDQ;ldq[15],ldq[14],ldq[13],ldq[12],ldq[11],ldq[10],ldq[9],ldq[8],ldq[7],ldq[6],ldq[5],ldq[4],ldq[3],ldq[2],ldq[1],ldq[0]
 ---Timing---
 lden
 ldprech
 ---Decoders---
-LDL3X,ldl3x[7],ldl3x[6],ldl3x[5],ldl3x[4],ldl3x[3],ldl3x[2],ldl3x[1],ldl3x[0]
-LDL2X,ldl2x[3],ldl2x[2],ldl2x[1],ldl2x[0]
-LDL1X,ldl1x[15],ldl1x[14],ldl1x[13],ldl1x[12],ldl1x[11],ldl1x[10],ldl1x[9],ldl1x[8],ldl1x[7],ldl1x[6],ldl1x[5],ldl1x[4],ldl1x[3],ldl1x[2],ldl1x[1],ldl1x[0]
-LDY1,ldy1[3],ldy1[2],ldy1[1],ldy1[0]
-WL[15:0],ldwl[15],ldwl[14],ldwl[13],ldwl[12],ldwl[11],ldwl[10],ldwl[9],ldwl[8],ldwl[7],ldwl[6],ldwl[5],ldwl[4],ldwl[3],ldwl[2],ldwl[1],ldwl[0]"
+LDL3X;ldl3x[7],ldl3x[6],ldl3x[5],ldl3x[4],ldl3x[3],ldl3x[2],ldl3x[1],ldl3x[0]
+LDL2X;ldl2x[3],ldl2x[2],ldl2x[1],ldl2x[0]
+LDL1X;ldl1x[15],ldl1x[14],ldl1x[13],ldl1x[12],ldl1x[11],ldl1x[10],ldl1x[9],ldl1x[8],ldl1x[7],ldl1x[6],ldl1x[5],ldl1x[4],ldl1x[3],ldl1x[2],ldl1x[1],ldl1x[0]
+LDY1;ldy1[3],ldy1[2],ldy1[1],ldy1[0]
+WL[15:0];ldwl[15],ldwl[14],ldwl[13],ldwl[12],ldwl[11],ldwl[10],ldwl[9],ldwl[8],ldwl[7],ldwl[6],ldwl[5],ldwl[4],ldwl[3],ldwl[2],ldwl[1],ldwl[0]"
 color="18 4 15 4 15 4 15 4 18 15 4 18 4 15 4 15 6"
  unitx=n
  ypos1=-2.20115 ypos2=2.79884
@@ -122,8 +122,8 @@ B 2 1840 -1300 2890 -1160 {flags=graph
 y1 = 0
 y2 = 1.60
 divy = 4
-x1=1.35174e-07
-x2=2.76612e-07
+x1=1.05327e-07
+x2=2.46765e-07
 divx=8
 unitx=n
 node="xsa[0].ldqib
@@ -133,17 +133,17 @@ xctrl.ldq_b"
 color="4 12 7 10"
 }
 B 2 1840 -240 2890 0 {flags=graph
-y1 = -0.0286575
-y2 = 0.00267868
+y1 = -0.049
+y2 = 0.00057
 divy = 5
-x1=1.35174e-07
-x2=2.76612e-07  
+x1=1.05327e-07
+x2=2.46765e-07  
 unity=m
 divx=10
 subdivx=1
-node="i(vvcc)
-\\"i(vvcc) avg()\\""
-color="3 7"
+node="\\"Supply current;i(vvcc)\\"
+\\"Average supply current;i(vvcc) avg()\\""
+color="8 7"
 unitx=n
 subdivy=4
 }

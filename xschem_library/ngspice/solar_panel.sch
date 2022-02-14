@@ -38,18 +38,7 @@ L 8 790 -530 790 -510 {}
 L 8 770 -610 790 -610 {}
 L 8 790 -610 807.5 -620 {}
 L 8 810 -610 830 -610 {}
-B 2 1270 -780 1690 -630 {flags=graph 
-y1 = -0.038
-y2 = 20
-divy = 5
-subdivy=1
-x1=-9.66825e-10
-x2=0.0006
-divx=9
-node="v(led)
-v(sw)"
-color="11 18" unitx=m subdivx=4}
-B 2 1270 -630 1690 -500 {flags=graph 
+B 2 1270 -740 1690 -570 {flags=graph 
 y1 = 4.9e-06
 y2 = 20
 divy = 6
@@ -60,7 +49,7 @@ divx=8
 node="panel
 led" unitx=m
 color="7 4"}
-B 2 1270 -500 1690 -370 {flags=graph 
+B 2 1270 -570 1690 -400 {flags=graph 
 y1 = 4e-13
 y2 = 3.8
 divy = 4
@@ -69,10 +58,10 @@ x1=-9.66825e-10
 x2=0.0006
 divx=8
   unitx=m
-color="7 8"
-node="i(vled)
-i(vpanel)"}
-B 2 1270 -930 1690 -780 {flags=graph 
+color="7 4"
+node="i(vpanel)
+i(vled)"}
+B 2 1270 -930 1690 -740 {flags=graph 
 y1 = -6.4e-08
 y2 = 40
 divy = 5
@@ -83,8 +72,8 @@ divx=9
 
  unitx=m subdivx=4
 color="7 4"
-node="\\"i(vled) v(led) *\\"
-\\"i(vpanel) v(panel) *\\""}
+node="\\"Panel power; i(vpanel) v(panel) *\\"
+\\"Led power; i(vled) v(led) *\\""}
 B 18 45 -850 300 -665 {}
 A 5 300 -850 5.590169943749475 243.434948822922 360 {fill=true}
 P 7 6 375 -665 320 -821.25 315 -835 302.5 -850 290 -855 45 -865 {}

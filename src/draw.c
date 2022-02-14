@@ -2114,14 +2114,27 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", find_nth(ntok, ";,", 1), gr->unity_suffix);
     else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ";,", 1));
   } else {
-    if(xctx->graph_sim_type == 3) {
-      if(strstr(ntok, "ph(") == ntok || strstr(ntok, "_ph"))
-        my_snprintf(tmpstr, S(tmpstr), "%s[Phase]", ntok);
-      else
-        my_snprintf(tmpstr, S(tmpstr), "%s[dB]", ntok);
+    char *ntok_ptr = NULL;
+    char *alias_ptr = NULL;
+    if(strstr(ntok, ";")) {
+       my_strdup2(646, &alias_ptr, find_nth(ntok, ";", 1));
+       my_strdup2(665, &ntok_ptr, find_nth(ntok, ";", 2));
     }
-    else if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", ntok, gr->unity_suffix);
-    else  my_snprintf(tmpstr, S(tmpstr), "%s", ntok);
+    else {
+       my_strdup2(925, &alias_ptr, ntok);
+       my_strdup2(1155, &ntok_ptr, ntok);
+    }
+      
+    if(xctx->graph_sim_type == 3) {
+      if(strstr(ntok, "ph(") == ntok_ptr || strstr(ntok_ptr, "_ph"))
+        my_snprintf(tmpstr, S(tmpstr), "%s[Phase]", alias_ptr);
+      else
+        my_snprintf(tmpstr, S(tmpstr), "%s[dB]", alias_ptr);
+    }
+    else if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", alias_ptr, gr->unity_suffix);
+    else  my_snprintf(tmpstr, S(tmpstr), "%s", alias_ptr);
+    my_free(1188, &alias_ptr);
+    my_free(1189, &ntok_ptr);
   }
   if(gr->digital) {
     double xt = gr->x1 - 10 * gr->txtsizelab;
@@ -2383,6 +2396,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
   int measure_p = -1;
   double measure_x;
   double measure_prev_x;
+  char *express = NULL;
   xRect *r = &xctx->rect[GRIDLAYER][i];
   
   if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
@@ -2423,13 +2437,20 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         }
       }
       draw_graph_variables(wcnt, wave_color, n_nodes, sweep_idx, flags, ntok, stok, bus_msb, gr);
-      /* custom data plot */
+      /* if ntok following possible 'alias;' definition contains spaces --> custom data plot */
       idx = -1;
-      if(xctx->graph_values && !bus_msb && strstr(ntok, " ")) {
-        idx = xctx->graph_nvars;
+      if(!bus_msb && xctx->graph_values) {
+        if(strstr(ntok, ";")) {
+          my_strdup2(1191, &express, find_nth(ntok, ";", 2));
+        } else {
+          my_strdup2(1192, &express, ntok);
+        }
+        if(strstr(express, " ")) {
+          idx = xctx->graph_nvars;
+        }
       }
       /* quickly find index number of ntok variable to be plotted */
-      if( idx == xctx->graph_nvars || (idx = get_raw_index(bus_msb ? bus_msb : ntok)) != -1 ) {
+      if( idx == xctx->graph_nvars || (idx = get_raw_index(bus_msb ? bus_msb : express)) != -1 ) {
         int p, dset, ofs;
         int poly_npoints;
         int first, last;
@@ -2478,7 +2499,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
                                    sweep_idx, wcnt, n_nodes, gr);
                     }
                   } else {
-                    if(idx == xctx->graph_nvars) plot_raw_custom_data(sweep_idx, first, last, ntok);
+                    if(idx == xctx->graph_nvars) plot_raw_custom_data(sweep_idx, first, last, express);
                     draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr);
                   }
                 }
@@ -2519,7 +2540,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
                                sweep_idx, wcnt, n_nodes, gr);
                 }
               } else {
-                if(idx == xctx->graph_nvars) plot_raw_custom_data(sweep_idx, first, last, ntok);
+                if(idx == xctx->graph_nvars) plot_raw_custom_data(sweep_idx, first, last, express);
                 draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr);
               }
             }
@@ -2538,6 +2559,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
       wcnt++;
       if(bus_msb) my_free(1453, &bus_msb);
     } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", &saven)) ) */
+    if(express) my_free(1487, &express);
     my_free(1391, &node);
     my_free(1392, &color);
     my_free(1408, &sweep);

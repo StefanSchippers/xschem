@@ -763,7 +763,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
   /* quote new_val if it contains newlines and not "name" token */
   if(new_val) {
     new_val_len = strlen(new_val);
-    if(strcmp(tok, "name") && !is_quoted(new_val) && strpbrk(new_val, "\n \t")) {
+    if(strcmp(tok, "name") && !is_quoted(new_val) && strpbrk(new_val, ";\n \t")) {
       new_val_copy = my_malloc(1210, new_val_len+3);
       my_snprintf(new_val_copy, new_val_len+3, "\"%s\"", new_val);
     }
@@ -2704,7 +2704,7 @@ char *find_nth(const char *str, const char *sep, int n)
   static int result_size = 0; /* safe to keep even with multiple schematic windows */
   int i, len;
   char *ptr;
-  int count;
+  int count = -1;
 
   if(!str) {
     my_free(1062, &result);
@@ -2724,16 +2724,22 @@ char *find_nth(const char *str, const char *sep, int n)
     if(strchr(sep, result[i])) {
       result[i]=0;
       if(count==n) {
+        dbg(1, "1 find_nth(): returning %s\n", ptr);
         return ptr;
       }
-      while(result[++i] && strchr(sep, result[i])) ;
+      i++;
+      while(result[i] && strchr(sep, result[i])) i++;
       ptr = result + i;
       count++;
     }
   }
-  if(count==n) return ptr;
+  if(count==n) {
+     dbg(1, "2 find_nth(): returning %s\n", ptr);
+    return ptr;
+  }
   else {
     result[0] = '\0';
+    dbg(1, "3 find_nth(): returning %s\n", result);
     return result;
   }
 }

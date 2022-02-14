@@ -18,8 +18,8 @@ B 2 1200 -500 1880 -310 {flags=graph
 y1 = -0.0059
 y2 = 11
 divy = 6
-x1=0.0495785
-x2=0.0508396
+x1=0.0367669
+x2=0.0373883
 divx=10
 node="i(v.x1.vu)
 i(v.x0.vu)
@@ -31,8 +31,8 @@ B 2 1200 -830 1880 -520 {flags=graph
 y1 = -49
 y2 = 59
 divy = 12
-x1=0.0495785
-x2=0.0508396
+x1=0.0367669
+x2=0.0373883
 divx=10
 node="outp
 outm
@@ -51,28 +51,28 @@ B 2 1200 -1020 1880 -830 {flags=graph
 y1 = 2.4e-11
 y2 = 840
 divy = 6
-x1=0.0495785
-x2=0.0508396
+x1=0.0367669
+x2=0.0373883
 divx=10
 
 
 unitx=m
 color="4 7"
-node="\\"i(vcurrvnn) vnn * i(vcurrvpp) vpp * +\\"
-\\"i(vcurrvnn) vnn * i(vcurrvpp) vpp * + avg()\\""}
-B 2 1200 -260 1880 -70 {flags=graph
+node="\\"supply power;i(vcurrvnn) vnn * i(vcurrvpp) vpp * +\\"
+\\"average supply power;i(vcurrvnn) vnn * i(vcurrvpp) vpp * + avg()\\""}
+B 2 1200 -310 1880 -120 {flags=graph
 y1 = 0.0077
 y2 = 850
 divy = 6
-x1=0.0495785
-x2=0.0508396
+x1=0.0367669
+x2=0.0373883
 divx=10
 
 
 unitx=m
 color="4 7"
-node="\\"outm outp - i(v.x1.v8) *\\"
-\\"outm outp - i(v.x1.v8) * avg()\\""}
+node="\\"Load power;outm outp - i(v.x1.v8) *\\"
+\\"Average Load power;outm outp - i(v.x1.v8) * avg()\\""}
 T {actual value
 50u} 400 -820 0 0 0.4 0.4 {}
 T {actual value
@@ -99,10 +99,6 @@ annotator dinamically show the correct
 data.} 780 -830 0 0 0.2 0.2 {layer=4}
 T {Select one or more graphs (and no other objects)
 and use arrow keys to zoom / pan waveforms} 1110 -1120 0 0 0.3 0.3 {}
-T {Supply Power} 1270 -1050 0 0 0.4 0.4 {layer=4}
-T {Average Supply Power} 1570 -1050 0 0 0.4 0.4 {layer=7}
-T {Power into load} 1260 -290 0 0 0.4 0.4 {layer=4}
-T {Average Power into load} 1540 -290 0 0 0.4 0.4 {layer=7}
 N 70 -1220 70 -1200 {lab=#net1}
 N 70 -1080 70 -1060 {lab=#net2}
 N 300 -1140 310 -1140 {lab=VSS}

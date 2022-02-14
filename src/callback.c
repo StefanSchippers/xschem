@@ -649,14 +649,26 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                     sweep_idx = get_raw_index(stok);
                     if( sweep_idx == -1) sweep_idx = 0;
                   }
-
                   bus_msb = strstr(ntok, ",");
                   j = -1;
-                  if(!bus_msb && strstr(ntok, " ")) {
-                    j = xctx->graph_nvars;
-                    plot_raw_custom_data(sweep_idx, 0, xctx->graph_allpoints, ntok);
-                  } else {
-                    j = get_raw_index(ntok);
+                  if(!bus_msb && xctx->graph_values) {
+                    char *express = NULL;
+                    int ofs = 0;
+                    if(strstr(ntok, ";")) {
+                      my_strdup2(1505, &express, find_nth(ntok, ";", 2));
+                    } else {
+                      my_strdup2(1506, &express, ntok);
+                    }
+                    if(strstr(express, " ")) {
+                      j = xctx->graph_nvars;
+                      for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
+                        plot_raw_custom_data(sweep_idx, ofs, ofs + xctx->graph_npoints[dset] - 1, express);
+                        ofs += xctx->graph_npoints[dset];
+                      }
+                    } else {
+                      j = get_raw_index(express);
+                    }
+                    my_free(1507, &express);
                   }
                   if(j >= 0) {
                     int ofs = 0;

@@ -1541,9 +1541,10 @@ proc graph_update_nodelist {} {
     }
     # remove excess colors
     set col [lrange $col 0 [expr {$n - 1}]]
-    if { [llength $col] != [llength [tolist [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]]] } {
-      puts "PROBLEMS: colors and nodes of different length"
-    }
+    ## for debug
+    # if { [llength $col] != [llength [tolist [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]]] } {
+    #   puts "PROBLEMS: colors and nodes of different length"
+    # }
   } else {
     set col {}
   }

@@ -491,6 +491,7 @@ int get_raw_index(const char *node)
   char vnode[300];
   char lnode[300];
   Int_hashentry *entry;
+  dbg(1, "get_raw_index(): node=%s, node=%s\n", node, node);
   if(xctx->graph_values) {
     entry = int_hash_lookup(xctx->raw_table, node, 0, XLOOKUP);
     if(!entry) {
@@ -523,6 +524,8 @@ int get_raw_index(const char *node)
 #define INTEG -14
 #define AVG -15
 #define DERIV -16
+#define EXCH -17
+#define DUP -18
 #define NUMBER -60
 
 typedef struct {
@@ -546,8 +549,9 @@ void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
 
   my_strdup2(574, &ntok_copy, expr);
   ntok_ptr = ntok_copy;
+  dbg(1, "plot_raw_custom_data(): expr=%s\n", expr);
   while( (n = my_strtok_r(ntok_ptr, " \t\n", "", &ntok_save)) ) {
-    if(stackptr1 >= STACKMAX -1) {
+    if(stackptr1 >= STACKMAX -2) {
       dbg(0, "stack overflow in graph expression parsing. Interrupted\n");
       my_free(576, &ntok_copy);
       return;
@@ -569,6 +573,8 @@ void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     else if(!strcmp(n, "integ()")) stack1[stackptr1++].i = INTEG;
     else if(!strcmp(n, "avg()")) stack1[stackptr1++].i = AVG;
     else if(!strcmp(n, "deriv()")) stack1[stackptr1++].i = DERIV;
+    else if(!strcmp(n, "exch()")) stack1[stackptr1++].i = EXCH;
+    else if(!strcmp(n, "dup()")) stack1[stackptr1++].i = DUP;
     else if( (v = strtod(n, &endptr)), !*endptr) {
       stack1[stackptr1].i = NUMBER;
       stack1[stackptr1++].d = v;
@@ -592,7 +598,7 @@ void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
       if(stack1[i].i == NUMBER) {
         stack2[stackptr2++] = stack1[i].d;
       }
-      else if(stack1[i].i >=0 && stack1[i].i < xctx->graph_allpoints) { /* spice node */
+      else if(stack1[i].i >=0 && stack1[i].i < xctx->graph_nvars) { /* spice node */
         stack2[stackptr2++] =  xctx->graph_values[stack1[i].i][p];
       }
 
@@ -610,16 +616,81 @@ void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
           stackptr2--;
         }
         else if(stack1[i].i == DIVIS) {
-          stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] / stack2[stackptr2 - 1];
+          if(p == first) stack1[i].prev = 0;
+          if(stack2[stackptr2 - 1]) {
+            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] / stack2[stackptr2 - 1];
+          } else {
+            stack2[stackptr2 - 2] =  stack1[i].prev;
+          }
+          stack1[i].prev = stack2[stackptr2 - 2];
           stackptr2--;
         }
         else if(stack1[i].i == POW) {
           stack2[stackptr2 - 2] =  pow(stack2[stackptr2 - 2], stack2[stackptr2 - 1]);
           stackptr2--;
         }
+        else if(stack1[i].i == EXCH) {
+          double tmp;
+          tmp = stack2[stackptr2 - 2];
+          stack2[stackptr2 - 2] = stack2[stackptr2 - 1];
+          stack2[stackptr2 - 1] = tmp;
+        }
       }
       if(stackptr2 > 0) { /* 1 argument operators */
-        if(stack1[i].i == SIN) {
+        if(stack1[i].i == AVG) {
+          double avg = 0;
+          if( p == first ) {
+            avg = stack2[stackptr2 - 1];
+            stack1[i].prev = stack2[stackptr2 - 1];
+            stack1[i].prevy = stack2[stackptr2 - 1];
+            stack1[i].prevx = x[p];
+          } else {
+            if((x[p] != stack1[i].prevx)) {
+              avg = stack1[i].prev * (x[p - 1] - stack1[i].prevx) + 
+                  (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
+              avg /= (x[p] - stack1[i].prevx);
+            } else  {
+              avg = stack1[i].prev;
+            }
+            stack1[i].prev = avg;
+            stack1[i].prevy =  stack2[stackptr2 - 1];
+          }
+          stack2[stackptr2 - 1] =  avg;
+        }
+        else if(stack1[i].i == DUP) {
+          stack2[stackptr2] =  stack2[stackptr2 - 1];
+          stackptr2++;
+        }
+        else if(stack1[i].i == INTEG) { 
+          double integ = 0;
+          if( p == first ) {
+            integ = 0;
+            stack1[i].prev = 0;
+            stack1[i].prevy = stack2[stackptr2 - 1];
+          } else {
+            integ = stack1[i].prev + (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
+            stack1[i].prev = integ;
+            stack1[i].prevy =  stack2[stackptr2 - 1];
+          }
+          stack2[stackptr2 - 1] =  integ;
+        }
+        else if(stack1[i].i == DERIV) { 
+          double deriv = 0;
+          if( p == first ) {
+            deriv = 0;
+            stack1[i].prev = 0;
+            stack1[i].prevy = stack2[stackptr2 - 1];
+          } else {
+            if((x[p] != x[p - 1])) 
+              deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (x[p] - x[p - 1]);
+            else
+              deriv = stack1[i].prevy;
+            stack1[i].prevy = stack2[stackptr2 - 1] ;
+            stack1[i].prev = deriv;
+          }
+          stack2[stackptr2 - 1] =  deriv;
+        }
+        else if(stack1[i].i == SIN) {
           stack2[stackptr2 - 1] =  sin(stack2[stackptr2 - 1]);
         }
         else if(stack1[i].i == COS) {
@@ -640,47 +711,6 @@ void plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
         else if(stack1[i].i == SGN) {
           stack2[stackptr2 - 1] = stack2[stackptr2 - 1] > 0.0 ? 1 : 
                                   stack2[stackptr2 - 1] < 0.0 ? -1 : 0; 
-        }
-        else if(stack1[i].i == INTEG) { 
-          double integ = 0;
-          if( p == first ) {
-            integ = 0;
-            stack1[i].prev = 0;
-            stack1[i].prevy = stack2[stackptr2 - 1];
-          } else {
-            integ = stack1[i].prev + (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
-            stack1[i].prev = integ;
-            stack1[i].prevy =  stack2[stackptr2 - 1];
-          }
-          stack2[stackptr2 - 1] =  integ;
-        }
-        else if(stack1[i].i == AVG) {
-          double avg = 0;
-          if( p == first ) {
-            avg = stack2[stackptr2 - 1];
-            stack1[i].prev = stack2[stackptr2 - 1];
-            stack1[i].prevy = stack2[stackptr2 - 1];
-            stack1[i].prevx = x[p];
-          } else {
-            avg = stack1[i].prev * (x[p - 1] - stack1[i].prevx) + 
-                  (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
-            avg /= (x[p] - stack1[i].prevx);
-            stack1[i].prev = avg;
-            stack1[i].prevy =  stack2[stackptr2 - 1];
-          }
-          stack2[stackptr2 - 1] =  avg;
-        }
-
-        else if(stack1[i].i == DERIV) { 
-          double deriv = 0;
-          if( p == first ) {
-            deriv = 0;
-            stack1[i].prevy = stack2[stackptr2 - 1];
-          } else {
-            deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (x[p] - x[p - 1]);
-            stack1[i].prevy = stack2[stackptr2 - 1] ;
-          }
-          stack2[stackptr2 - 1] =  deriv;
         }
       } /* else if(stackptr2 > 0) */
     } /* for(i = 0; i < stackptr1; i++) */
