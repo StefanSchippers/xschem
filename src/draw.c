@@ -2189,6 +2189,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
   char tmpstr[1024];
   double yy;
   /* show values of signals if cursor1 active */
+  if(idx == -1) return;
   if(measure_p >= 0) {
    
     /* draw node values in graph */

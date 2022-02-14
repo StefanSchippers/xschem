@@ -521,11 +521,13 @@ int get_raw_index(const char *node)
 #define LOG10 -11
 #define ABS -12
 #define SGN -13
-#define INTEG -14
-#define AVG -15
-#define DERIV -16
-#define EXCH -17
-#define DUP -18
+#define SQRT -14
+#define TAN -15
+#define INTEG -34
+#define AVG -35
+#define DERIV -36
+#define EXCH -37
+#define DUP -38
 #define NUMBER -60
 
 typedef struct {
@@ -542,7 +544,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
   const char *n;
   char *endptr, *ntok_copy = NULL, *ntok_save, *ntok_ptr;
   Stack1 stack1[STACKMAX];
-  double v, stack2[STACKMAX];
+  double v, stack2[STACKMAX], tmp, integ, deriv, avg;
   int stackptr1 = 0, stackptr2 = 0;
   SPICE_DATA *y = xctx->graph_values[xctx->graph_nvars]; /* custom plot data column */
   SPICE_DATA *x = xctx->graph_values[sweep_idx];
@@ -567,6 +569,8 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     else if(!strcmp(n, "cos()")) stack1[stackptr1++].i = COS;
     else if(!strcmp(n, "abs()")) stack1[stackptr1++].i = ABS;
     else if(!strcmp(n, "sgn()")) stack1[stackptr1++].i = SGN;
+    else if(!strcmp(n, "sqrt()")) stack1[stackptr1++].i = SQRT;
+    else if(!strcmp(n, "tan()")) stack1[stackptr1++].i = TAN;
     else if(!strcmp(n, "exp()")) stack1[stackptr1++].i = EXP;
     else if(!strcmp(n, "ln()")) stack1[stackptr1++].i = LN;
     else if(!strcmp(n, "log10()")) stack1[stackptr1++].i = LOG10;
@@ -590,7 +594,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
       stackptr1++;
     }
     dbg(1, "  plot_raw_custom_data(): stack1= %d\n", stack1[stackptr1 - 1].i);
-  }
+  } /* while(n = my_strtok_r(...) */
   my_free(575, &ntok_copy);
   for(p = first ; p <= last; p++) {
     stackptr2 = 0;
@@ -603,116 +607,124 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
       }
 
       if(stackptr2 > 1) { /* 2 argument operators */
-        if(stack1[i].i == PLUS) {
-          stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] + stack2[stackptr2 - 1];
-          stackptr2--;
-        }
-        else if(stack1[i].i == MINUS) {
-          stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] - stack2[stackptr2 - 1];
-          stackptr2--;
-        }
-        else if(stack1[i].i == MULT) {
-          stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] * stack2[stackptr2 - 1];
-          stackptr2--;
-        }
-        else if(stack1[i].i == DIVIS) {
-          if(p == first) stack1[i].prev = 0;
-          if(stack2[stackptr2 - 1]) {
-            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] / stack2[stackptr2 - 1];
-          } else {
-            stack2[stackptr2 - 2] =  stack1[i].prev;
-          }
-          stack1[i].prev = stack2[stackptr2 - 2];
-          stackptr2--;
-        }
-        else if(stack1[i].i == POW) {
-          stack2[stackptr2 - 2] =  pow(stack2[stackptr2 - 2], stack2[stackptr2 - 1]);
-          stackptr2--;
-        }
-        else if(stack1[i].i == EXCH) {
-          double tmp;
-          tmp = stack2[stackptr2 - 2];
-          stack2[stackptr2 - 2] = stack2[stackptr2 - 1];
-          stack2[stackptr2 - 1] = tmp;
-        }
-      }
-      if(stackptr2 > 0) { /* 1 argument operators */
-        if(stack1[i].i == AVG) {
-          double avg = 0;
-          if( p == first ) {
-            avg = stack2[stackptr2 - 1];
-            stack1[i].prev = stack2[stackptr2 - 1];
-            stack1[i].prevy = stack2[stackptr2 - 1];
-            stack1[i].prevx = x[p];
-          } else {
-            if((x[p] != stack1[i].prevx)) {
-              avg = stack1[i].prev * (x[p - 1] - stack1[i].prevx) + 
-                  (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
-              avg /= (x[p] - stack1[i].prevx);
-            } else  {
-              avg = stack1[i].prev;
+        switch(stack1[i].i) {
+          case PLUS:
+            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] + stack2[stackptr2 - 1];
+            stackptr2--;
+            break;
+          case MINUS:
+            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] - stack2[stackptr2 - 1];
+            stackptr2--;
+            break;
+          case MULT:
+            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] * stack2[stackptr2 - 1];
+            stackptr2--;
+            break;
+          case DIVIS:
+            if(p == first) stack1[i].prev = 0;
+            if(stack2[stackptr2 - 1]) {
+              stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] / stack2[stackptr2 - 1];
+            } else {
+              stack2[stackptr2 - 2] =  stack1[i].prev;
             }
-            stack1[i].prev = avg;
-            stack1[i].prevy =  stack2[stackptr2 - 1];
-          }
-          stack2[stackptr2 - 1] =  avg;
-        }
-        else if(stack1[i].i == DUP) {
-          stack2[stackptr2] =  stack2[stackptr2 - 1];
-          stackptr2++;
-        }
-        else if(stack1[i].i == INTEG) { 
-          double integ = 0;
-          if( p == first ) {
-            integ = 0;
-            stack1[i].prev = 0;
-            stack1[i].prevy = stack2[stackptr2 - 1];
-          } else {
-            integ = stack1[i].prev + (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
-            stack1[i].prev = integ;
-            stack1[i].prevy =  stack2[stackptr2 - 1];
-          }
-          stack2[stackptr2 - 1] =  integ;
-        }
-        else if(stack1[i].i == DERIV) { 
-          double deriv = 0;
-          if( p == first ) {
-            deriv = 0;
-            stack1[i].prev = 0;
-            stack1[i].prevy = stack2[stackptr2 - 1];
-          } else {
-            if((x[p] != x[p - 1])) 
-              deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (x[p] - x[p - 1]);
-            else
-              deriv = stack1[i].prevy;
-            stack1[i].prevy = stack2[stackptr2 - 1] ;
-            stack1[i].prev = deriv;
-          }
-          stack2[stackptr2 - 1] =  deriv;
-        }
-        else if(stack1[i].i == SIN) {
-          stack2[stackptr2 - 1] =  sin(stack2[stackptr2 - 1]);
-        }
-        else if(stack1[i].i == COS) {
-          stack2[stackptr2 - 1] =  cos(stack2[stackptr2 - 1]);
-        }
-        else if(stack1[i].i == ABS) {
-          stack2[stackptr2 - 1] =  fabs(stack2[stackptr2 - 1]);
-        }
-        else if(stack1[i].i == EXP) {
-          stack2[stackptr2 - 1] =  exp(stack2[stackptr2 - 1]);
-        }
-        else if(stack1[i].i == LN) {
-          stack2[stackptr2 - 1] =  log(stack2[stackptr2 - 1]);
-        }
-        else if(stack1[i].i == LOG10) {
-          stack2[stackptr2 - 1] =  log10(stack2[stackptr2 - 1]);
-        }
-        else if(stack1[i].i == SGN) {
-          stack2[stackptr2 - 1] = stack2[stackptr2 - 1] > 0.0 ? 1 : 
-                                  stack2[stackptr2 - 1] < 0.0 ? -1 : 0; 
-        }
-      } /* else if(stackptr2 > 0) */
+            stack1[i].prev = stack2[stackptr2 - 2];
+            stackptr2--;
+            break;
+          case POW:
+            stack2[stackptr2 - 2] =  pow(stack2[stackptr2 - 2], stack2[stackptr2 - 1]);
+            stackptr2--;
+            break;
+          case EXCH:
+            tmp = stack2[stackptr2 - 2];
+            stack2[stackptr2 - 2] = stack2[stackptr2 - 1];
+            stack2[stackptr2 - 1] = tmp;
+            break;
+          default:
+            break;
+        } /* switch(...) */
+      } /* if(stackptr2 > 1) */
+      if(stackptr2 > 0) { /* 1 argument operators */
+        switch(stack1[i].i) {
+          case AVG:
+            if( p == first ) {
+              avg = stack2[stackptr2 - 1];
+              stack1[i].prev = stack2[stackptr2 - 1];
+              stack1[i].prevy = stack2[stackptr2 - 1];
+              stack1[i].prevx = x[p];
+            } else {
+              if((x[p] != stack1[i].prevx)) {
+                avg = stack1[i].prev * (x[p - 1] - stack1[i].prevx) + 
+                    (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
+                avg /= (x[p] - stack1[i].prevx);
+              } else  {
+                avg = stack1[i].prev;
+              }
+              stack1[i].prev = avg;
+              stack1[i].prevy =  stack2[stackptr2 - 1];
+            }
+            stack2[stackptr2 - 1] =  avg;
+            break;
+          case DUP:
+            stack2[stackptr2] =  stack2[stackptr2 - 1];
+            stackptr2++;
+            break;
+          case INTEG: 
+            if( p == first ) {
+              integ = 0;
+              stack1[i].prev = 0;
+              stack1[i].prevy = stack2[stackptr2 - 1];
+            } else {
+              integ = stack1[i].prev + (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
+              stack1[i].prev = integ;
+              stack1[i].prevy =  stack2[stackptr2 - 1];
+            }
+            stack2[stackptr2 - 1] =  integ;
+            break;
+          case DERIV: 
+            if( p == first ) {
+              deriv = 0;
+              stack1[i].prev = 0;
+              stack1[i].prevy = stack2[stackptr2 - 1];
+            } else {
+              if((x[p] != x[p - 1])) 
+                deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (x[p] - x[p - 1]);
+              else
+                deriv = stack1[i].prevy;
+              stack1[i].prevy = stack2[stackptr2 - 1] ;
+              stack1[i].prev = deriv;
+            }
+            stack2[stackptr2 - 1] =  deriv;
+            break;
+          case SQRT:
+            stack2[stackptr2 - 1] =  sqrt(stack2[stackptr2 - 1]);
+            break;
+          case TAN:
+            stack2[stackptr2 - 1] =  tan(stack2[stackptr2 - 1]);
+            break;
+          case SIN:
+            stack2[stackptr2 - 1] =  sin(stack2[stackptr2 - 1]);
+            break;
+          case COS:
+            stack2[stackptr2 - 1] =  cos(stack2[stackptr2 - 1]);
+            break;
+          case ABS:
+            stack2[stackptr2 - 1] =  fabs(stack2[stackptr2 - 1]);
+            break;
+          case EXP:
+            stack2[stackptr2 - 1] =  exp(stack2[stackptr2 - 1]);
+            break;
+          case LN:
+            stack2[stackptr2 - 1] =  log(stack2[stackptr2 - 1]);
+            break;
+          case LOG10:
+            stack2[stackptr2 - 1] =  log10(stack2[stackptr2 - 1]);
+            break;
+          case SGN:
+            stack2[stackptr2 - 1] = stack2[stackptr2 - 1] > 0.0 ? 1 : 
+                                    stack2[stackptr2 - 1] < 0.0 ? -1 : 0; 
+            break;
+        } /* switch(...) */
+      } /* if(stackptr2 > 0) */
     } /* for(i = 0; i < stackptr1; i++) */
     y[p] = stack2[0];
   }
