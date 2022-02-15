@@ -563,8 +563,10 @@ static void edit_rect_property(int x)
            bbox(START,0.0,0.0,0.0,0.0);
            drw = 1;
          }
-         draw_image(0, &xctx->rect[c][n], 
-           &xctx->rect[c][n].x1, &xctx->rect[c][n].y1, &xctx->rect[c][n].x2, &xctx->rect[c][n].y2, 0, 0);
+         if( xctx->rect[c][n].flags & 1024) {
+           draw_image(0, &xctx->rect[c][n], &xctx->rect[c][n].x1, &xctx->rect[c][n].y1,
+                         &xctx->rect[c][n].x2, &xctx->rect[c][n].y2, 0, 0);
+         }
          bbox(ADD, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x2, xctx->rect[c][n].y2);
       }
     }
