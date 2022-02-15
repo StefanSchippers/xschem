@@ -2138,7 +2138,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     my_free(1189, &ntok_ptr);
   }
   if(gr->digital) {
-    double xt = gr->x1 - 10 * gr->txtsizelab;
+    double xt = gr->x1 - 15 * gr->txtsizelab;
     double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
     double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
     double yt;
