@@ -55,7 +55,7 @@ L 7 60 -840 70 -835 {}
 L 7 70 -835 90 -775 {}
 L 7 100 -770 140 -770 {}
 L 7 90 -775 100 -770 {}
-B 2 1060 -660 2040 -350 {flags=graph
+B 2 1060 -660 2040 -400 {flags=graph
 y1=-94.5342
 y2=77.5746
 ypos1=2.19058
@@ -63,8 +63,8 @@ ypos2=36.4765
 divy=5
 subdivy=1
 unity=1
-x1=0.000421769
-x2=0.0019873
+x1=0.000589598
+x2=0.00197464
 divx=5
 subdivx=1
 node="out
@@ -74,16 +74,16 @@ color="7 8 6"
 dataset=0
 unitx=u
 digital=0}
-B 2 1060 -340 2040 -150 {flags=graph
-y1=0
-y2=12
-ypos1=0.540742
-ypos2=10.5249
+B 2 1060 -390 2040 -150 {flags=graph
+
+y2=7
+ypos1=1.82525
+ypos2=9.54079
 divy=5
 subdivy=1
 unity=1
-x1=0.000421769
-x2=0.0019873
+x1=0.000589598
+x2=0.00197464
 divx=5
 subdivx=1
 
@@ -97,17 +97,18 @@ node="\\"out;out 8 / 5 +\\"
 \\"Gate Down;gd vnn -\\"
 driveu
 drived
-ref"}
+ref"
+y1=-7}
 B 2 1060 -990 2040 -680 {flags=graph
-y1=0.0016
-y2=10
+y1=-0.1
+y2=11
 ypos1=-3.90706
 ypos2=14.7089
 divy=5
 subdivy=1
 unity=1
-x1=0.000421769
-x2=0.0019873
+x1=0.000589598
+x2=0.00197464
 divx=5
 subdivx=1
 
@@ -131,8 +132,8 @@ ypos2=36.4765
 divy=5
 subdivy=1
 unity=1
-x1=0.000421769
-x2=0.0019873
+x1=0.000589598
+x2=0.00197464
 divx=5
 subdivx=1
 
@@ -153,8 +154,8 @@ T {VREF} 65 -765 0 0 0.2 0.2 {layer=4}
 T {10} 5 -845 0 0 0.2 0.2 {}
 T {VREF} 65 -1085 0 0 0.2 0.2 {layer=4}
 T {10} 5 -1165 0 0 0.2 0.2 {}
-T {DRIVE} 125 -765 0 0 0.2 0.2 {}
-T {DRIVE} 125 -1085 0 0 0.2 0.2 {}
+T {DRIVED} 125 -765 0 0 0.2 0.2 {}
+T {DRIVEU} 125 -1085 0 0 0.2 0.2 {}
 T {Class D amplifier } 430 -1380 0 0 1 1 {}
 N 460 -1020 460 -1000 {lab=#net1}
 N 460 -920 460 -900 {lab=OUT}
@@ -410,7 +411,7 @@ C {lab_pin.sym} 710 -520 0 1 {name=p1 lab=DRIVEU}
 C {parax_cap.sym} 670 -510 0 0 {name=C6 gnd=0 value=200f m=1}
 C {vsource.sym} 440 -460 0 1 {name=Voffs value=0.1}
 C {lab_pin.sym} 440 -490 0 0 {name=p2 lab=REFU}
-C {vsource.sym} 440 -310 2 1 {name=Voffs1 value=-0.1}
+C {vsource.sym} 440 -310 2 1 {name=Voffs1 value=0.1}
 C {lab_pin.sym} 440 -340 0 0 {name=p5 lab=REFD}
 C {lab_pin.sym} 440 -280 0 0 {name=p17 lab=REF}
 C {lab_pin.sym} 440 -430 0 0 {name=p23 lab=REF}
