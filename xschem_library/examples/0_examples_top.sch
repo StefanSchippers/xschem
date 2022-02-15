@@ -70,7 +70,7 @@ T {Arcs/Circles} 960 -240 0 0 0.6 0.6 {layer=4}
 T {Select the components here under
 and press'<Ctrl>-h' or <Ctrl>-click
 them to visit xschem websites
-or local docs} 400 -360 0 0 0.3 0.3 {slant=oblique }
+or local docs} 400 -310 0 0 0.3 0.3 {slant=oblique }
 T {SPECIAL OBJECTS} 1220 -840 0 0 0.6 0.6 {layer=7}
 T {Embedded
 PNG
@@ -81,14 +81,15 @@ that's me...)
 T {Simulation
 Graphs
 } 1530 -550 0 0 0.6 0.6 {layer=4}
+T {Bus rippers} 570 -450 0 0 0.6 0.6 {layer=4}
 N 820 -420 940 -420 {lab=#net1}
 N 860 -460 860 -370 {lab=#net2}
 N 860 -390 920 -390 {lab=#net2}
 N 880 -430 910 -420 {lab=#net1}
-N 370 -430 630 -430 {lab=BUS[4:0]}
-N 500 -540 500 -440 {lab=BUS[1]}
-N 400 -500 400 -440 {lab=BUS[2]}
-C {poweramp.sym} 500 -650 0 0 {name=x1
+N 370 -380 630 -380 {lab=BUS[4:0]}
+N 500 -470 500 -390 {lab=BUS[1]}
+N 400 -430 400 -390 {lab=BUS[2]}
+C {poweramp.sym} 480 -650 0 0 {name=x1
 tclcommand="xschem descend"}
 C {tesla.sym} 160 -530 0 0 {name=x2}
 C {test_ne555.sym} 160 -490 0 0 {name=x3}
@@ -99,26 +100,26 @@ C {cmos_example.sym} 160 -610 0 0 {name=x6}
 C {greycnt.sym} 160 -650 0 0 {name=x8}
 C {loading.sym} 160 -690 0 0 {name=x9}
 C {inv_bsource.sym} 880 -320 0 0 {name=B1 TABLE="1.4 3.0 1.6 0.0"}
-C {launcher.sym} 460 -210 0 0 {name=h1 
+C {launcher.sym} 460 -160 0 0 {name=h1 
 descr="XSCHEM ON REPO.HU" 
 url="http://repo.hu/projects/xschem"
 program=x-www-browser}
-C {launcher.sym} 460 -160 0 0 {name=h3 
+C {launcher.sym} 460 -110 0 0 {name=h3 
 descr="Toggle light/dark 
 colorscheme" 
 tclcommand="xschem toggle_colorscheme"
 }
-C {launcher.sym} 460 -260 0 0 {name=h2 
+C {launcher.sym} 460 -210 0 0 {name=h2 
 descr="LOCAL DOCUMENTATION" 
 url="$\{XSCHEM_SHAREDIR\}/../doc/xschem/index.html"
 program=x-www-browser
 
 }
 C {rlc.sym} 160 -730 0 0 {name=x0}
-C {lab_pin.sym} 630 -430 0 1 {name=l2 sig_type=std_logic lab=BUS[4:0]}
-C {bus_connect.sym} 490 -430 0 0 {name=l3 lab=BUS[1]}
-C {bus_connect_nolab.sym} 390 -430 0 0 {name=r1}
-C {lab_pin.sym} 400 -500 3 1 {name=l4 sig_type=std_logic lab=BUS[2]}
+C {lab_pin.sym} 630 -380 0 1 {name=l2 sig_type=std_logic lab=BUS[4:0]}
+C {bus_connect.sym} 490 -380 0 0 {name=l3 lab=BUS[1]}
+C {bus_connect_nolab.sym} 390 -380 0 0 {name=r1}
+C {lab_pin.sym} 400 -430 3 1 {name=l4 sig_type=std_logic lab=BUS[2]}
 C {LCC_instances.sym} 160 -410 0 0 {name=x7}
 C {test_backannotated_subckt.sym} 160 -370 0 0 {name=x10}
 C {plot_manipulation.sym} 160 -330 0 0 {name=x11}
@@ -1459,7 +1460,8 @@ UsA+"
 }
 C {test_ac.sym} 160 -170 0 0 {name=x15}
 C {test_ac_xyce.sym} 160 -130 0 0 {name=x16}
-C {rom8k.sym} 500 -690 0 0 {name=x17}
-C {poweramp_xyce.sym} 500 -610 0 0 {name=x18
+C {rom8k.sym} 480 -690 0 0 {name=x17}
+C {poweramp_xyce.sym} 480 -610 0 0 {name=x18
 tclcommand="xschem descend"}
 C {test_doublepin.sym} 160 -90 0 0 {name=x19}
+C {classD_amp.sym} 480 -730 0 0 {name=x20}
