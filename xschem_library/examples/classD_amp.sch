@@ -4,6 +4,12 @@ K {}
 V {}
 S {}
 E {}
+L 2 890 -540 890 -340 {dash=2}
+L 2 960 -540 960 -340 {dash=2}
+L 2 950 -540 950 -340 {dash=2}
+L 2 900 -540 900 -340 {dash=2}
+L 2 830 -540 830 -340 {dash=2}
+L 2 840 -540 840 -340 {dash=2}
 L 3 50 -1350 390 -1350 {}
 L 3 920 -1350 1360 -1350 {}
 L 4 475 -210 480 -250 {}
@@ -23,14 +29,14 @@ L 4 332.5 -242.5 337.5 -250 {}
 L 4 337.5 -250 342.5 -250 {}
 L 4 342.5 -250 347.5 -242.5 {}
 L 4 347.5 -242.5 350 -230 {}
-L 4 20 -860 20 -760 {dash=1}
-L 4 10 -770 140 -770 {dash=1}
-L 4 80 -860 80 -770 {dash=2}
-L 4 20 -840 110 -840 {dash=2}
-L 4 20 -1180 20 -1080 {dash=1}
-L 4 10 -1090 140 -1090 {dash=1}
-L 4 80 -1180 80 -1090 {dash=2}
-L 4 20 -1160 110 -1160 {dash=2}
+L 4 30 -865 30 -765 {dash=1}
+L 4 20 -810 150 -810 {dash=1}
+L 4 90 -865 90 -775 {dash=2}
+L 4 30 -845 120 -845 {dash=2}
+L 4 30 -1185 30 -1085 {dash=1}
+L 4 20 -1130 150 -1130 {dash=1}
+L 4 90 -1185 90 -1095 {dash=2}
+L 4 30 -1165 120 -1165 {dash=2}
 L 4 485 -210 490 -250 {}
 L 4 490 -250 495 -210 {}
 L 4 495 -210 500 -250 {}
@@ -45,26 +51,42 @@ L 4 535 -210 540 -250 {}
 L 4 540 -250 545 -210 {}
 L 4 545 -210 550 -250 {}
 L 4 550 -250 555 -210 {}
-L 7 20 -1090 60 -1090 {}
-L 7 60 -1090 70 -1095 {}
-L 7 70 -1095 90 -1155 {}
-L 7 100 -1160 140 -1160 {}
-L 7 90 -1155 100 -1160 {}
-L 7 20 -840 60 -840 {}
-L 7 60 -840 70 -835 {}
-L 7 70 -835 90 -775 {}
-L 7 100 -770 140 -770 {}
-L 7 90 -775 100 -770 {}
+L 4 820 -510 840 -510 {}
+L 4 840 -530 840 -510 {}
+L 4 840 -530 890 -530 {}
+L 4 890 -530 890 -510 {}
+L 4 890 -510 960 -510 {}
+L 4 960 -530 960 -510 {}
+L 4 960 -530 990 -530 {}
+L 4 820 -380 830 -380 {}
+L 4 830 -380 830 -360 {}
+L 4 830 -360 900 -360 {}
+L 4 900 -380 900 -360 {}
+L 4 900 -380 950 -380 {}
+L 4 950 -380 950 -360 {}
+L 4 950 -360 990 -360 {}
+L 4 30 -775 120 -775 {dash=2}
+L 4 30 -1095 120 -1095 {dash=2}
+L 7 30 -1095 70 -1095 {}
+L 7 70 -1095 80 -1100 {}
+L 7 80 -1100 100 -1160 {}
+L 7 110 -1165 150 -1165 {}
+L 7 100 -1160 110 -1165 {}
+L 7 30 -845 70 -845 {}
+L 7 70 -845 80 -840 {}
+L 7 80 -840 100 -780 {}
+L 7 110 -775 150 -775 {}
+L 7 100 -780 110 -775 {}
 B 2 1060 -660 2040 -400 {flags=graph
-y1=-94.5342
-y2=77.5746
+y1=-42
+y2=42
 ypos1=2.19058
 ypos2=36.4765
 divy=5
 subdivy=1
 unity=1
-x1=0.000589598
-x2=0.00197464
+x1=0.000281796
+x2=0.00205104
 divx=5
 subdivx=1
 node="out
@@ -75,15 +97,15 @@ dataset=0
 unitx=u
 digital=0}
 B 2 1060 -390 2040 -150 {flags=graph
-
+y1=-7
 y2=7
-ypos1=1.82525
-ypos2=9.54079
+ypos1=1.21642
+ypos2=9.97407
 divy=5
 subdivy=1
 unity=1
-x1=0.000589598
-x2=0.00197464
+x1=0.000281796
+x2=0.00205104
 divx=5
 subdivx=1
 
@@ -92,23 +114,23 @@ dataset=0
 unitx=u
 digital=1
 color="7 4 4 7 6 4"
-node="\\"out;out 8 / 5 +\\"
+node="\\"out;out 8 / \\"
 \\"Gate Up;gu out -\\"
 \\"Gate Down;gd vnn -\\"
 driveu
 drived
 ref"
-y1=-7}
+}
 B 2 1060 -990 2040 -680 {flags=graph
-y1=-0.1
+y1=-0.11
 y2=11
 ypos1=-3.90706
 ypos2=14.7089
 divy=5
 subdivy=1
 unity=1
-x1=0.000589598
-x2=0.00197464
+x1=0.000281796
+x2=0.00205104
 divx=5
 subdivx=1
 
@@ -125,15 +147,15 @@ B 2 600 -780 996 -635 {flags=image,unscaled
 alpha=0.6
 image_data=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}
 B 2 1060 -1310 2040 -1000 {flags=graph
-y1=-21.5085
-y2=139.735
+y1=-27.9731
+y2=128.999
 ypos1=2.19058
 ypos2=36.4765
 divy=5
 subdivy=1
 unity=1
-x1=0.000589598
-x2=0.00197464
+x1=0.000281796
+x2=0.00205104
 divx=5
 subdivx=1
 
@@ -150,13 +172,13 @@ T {Driver} 230 -930 0 0 0.6 0.6 {}
 T {LP
 Filter} 700 -1040 0 0 0.6 0.6 {}
 T {Load} 860 -1010 0 0 0.6 0.6 {}
-T {VREF} 65 -765 0 0 0.2 0.2 {layer=4}
-T {10} 5 -845 0 0 0.2 0.2 {}
-T {VREF} 65 -1085 0 0 0.2 0.2 {layer=4}
-T {10} 5 -1165 0 0 0.2 0.2 {}
-T {DRIVED} 125 -765 0 0 0.2 0.2 {}
-T {DRIVEU} 125 -1085 0 0 0.2 0.2 {}
+T {10} 25 -850 0 1 0.2 0.2 {}
+T {10} 25 -1170 0 1 0.2 0.2 {}
+T {DRIVED} 135 -805 0 0 0.2 0.2 {}
+T {DRIVEU} 130 -1125 0 0 0.2 0.2 {}
 T {Class D amplifier } 430 -1380 0 0 1 1 {}
+T {-10} 25 -780 0 1 0.2 0.2 {}
+T {-10} 25 -1100 0 1 0.2 0.2 {}
 N 460 -1020 460 -1000 {lab=#net1}
 N 460 -920 460 -900 {lab=OUT}
 N 460 -840 460 -800 {lab=#net2}
@@ -282,7 +304,7 @@ D4 0 6 MD3
 .ENDS
 "}
 C {nmos3.sym} 440 -1090 0 0 {name=xm1 model=irf540 m=1
-program=evince
+program=xdg-open
 url="https://www.vishay.com/docs/91021/irf540.pdf"
 net_name=true
 
@@ -363,7 +385,7 @@ C {lab_pin.sym} 70 -350 0 0 {name=p13 lab=0}
 C {lab_pin.sym} 70 -450 0 0 {name=p14 lab=VSS}
 C {lab_pin.sym} 220 -1090 0 0 {name=p15 lab=GU}
 C {lab_pin.sym} 220 -770 0 0 {name=p16 lab=GD}
-C {launcher.sym} 1290 -50 0 0 {name=h5 
+C {launcher.sym} 1480 -110 0 0 {name=h5 
 descr="Select arrow and 
 Ctrl-Left-Click to load/unload waveforms" 
 tclcommand="
@@ -399,7 +421,7 @@ C {lab_pin.sym} 940 -920 0 1 {name=p4 lab=OUT_LPF}
 C {lab_pin.sym} 780 -810 0 0 {name=p7 lab=VSS}
 C {res.sym} 900 -860 0 1 {name=R4 m=1 value=8}
 C {lab_pin.sym} 900 -810 0 0 {name=p8 lab=VSS}
-C {launcher.sym} 1290 -110 0 0 {name=h1 
+C {launcher.sym} 1120 -110 0 0 {name=h1 
 descr="Netlist + Simulate
 Ctrl-Left-Click" 
 tclcommand="xschem netlist; xschem simulate"

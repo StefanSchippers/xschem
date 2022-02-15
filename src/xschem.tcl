@@ -1631,7 +1631,7 @@ proc graph_edit_properties {n} {
   label .graphdialog.center.right.lab1 -text {Signals in graph}
   checkbutton .graphdialog.center.right.unlocked -text {Unlocked X axis} -variable graph_unlocked
   text .graphdialog.center.right.text1 -wrap none -width 50 -height 10 -bg grey70 -fg black \
-     -insertbackground grey40 -exportselection 0 \
+     -insertbackground grey40 -exportselection 1 \
      -yscrollcommand {.graphdialog.center.right.yscroll set} \
      -xscrollcommand {.graphdialog.center.right.xscroll set}
   scrollbar .graphdialog.center.right.yscroll -command {.graphdialog.center.right.text1 yview}

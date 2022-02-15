@@ -2142,10 +2142,10 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
     double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
     double yt;
-    if(flags &2) 
-      yt = s1 * (double)(n_nodes - wcnt) * gr->gh - (gr->gy1 - gr->gh * 0.4) * s2;
+    if(flags & 2)  /* cursor1 with measures */
+      yt = s1 * (double)(n_nodes - wcnt) * gr->gh + gr->gh * 0.4 * s2;
     else
-      yt = s1 * (double)(n_nodes - wcnt) * gr->gh - (gr->gy1 - gr->gh * 0.1) * s2;
+      yt = s1 * (double)(n_nodes - wcnt) * gr->gh + gr->gh * 0.1 * s2;
 
     if(yt <= gr->ypos2 && yt >= gr->ypos1) {
       #if HAS_CAIRO == 1
@@ -2229,10 +2229,10 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       dbg(1, "node: %s, x=%g, value=%g\n", ntok, measure_x, yy);
     }
     else if(gr->digital) {
-      double xt = gr->x1 - 10 * gr->txtsizelab;
+      double xt = gr->x1 - 15 * gr->txtsizelab;
       double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
       double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
-      double yt = s1 * (double)(n_nodes - wcnt) * gr->gh - (gr->gy1 - gr->gh * 0.4) * s2;
+      double yt = s1 * (double)(n_nodes - wcnt) * gr->gh + gr->gh * 0.4 * s2;
       if(yt <= gr->ypos2 && yt >= gr->ypos1) {
         draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
            xt, DW_Y(yt) + gr->digtxtsizelab * 50, gr->digtxtsizelab * 0.8, gr->digtxtsizelab * 0.8);
