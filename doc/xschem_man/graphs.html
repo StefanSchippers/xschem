@@ -115,7 +115,8 @@ p{padding: 15px  30px 10px;}
   by Xschem to calculate the logic high and logic low thresholds. Currently the logic '1' is set at 80%
   of the signal min-max range and the logic '0' level is set at 20% of the signal range.
   After pressing the <kbd>Add</kbd> button a bus is shown in the text area. The first field is a template 
-  <kbd>BUS_NAME</kbd> you should change to give a meaningful name to the bus.<br>
+  <kbd>BUS_NAME</kbd> that you should change to give a meaningful name to the bus. The bus name is separated from
+  the rest of bits by a <kbd>,</kbd> or <kbd>;</kbd> character.<br>
   <img src="graphs09.png"><br>
   You will then see your bussed signal in the graph:<br>
   <img src="graphs10.png"><br>
@@ -134,8 +135,48 @@ p{padding: 15px  30px 10px;}
   colors) is saved together with the schematic. If you re-run a simulation just unloading/loading the data from
   the simulation menu will update the waveforms.<br>
   <img src="graphs14.png"><br>
-
- </p>
+ <h3>Expression evaluation on waves</h3>
+ <p>
+  It is possible to enter math expressions combining simulation data, for example multiply current and
+  voltage to get the power. The syntax of expressions uses postfix (RPN) notation. When entering an expression
+  use double quotes in the graph edit attribute dialog box, so the expression will be considered as a single 
+  new wave to display. Operands are loaded onto a stack like structure and then evaluated.
+  The syntax is: <br>
+  <kbd>"alias_name;operand operand operator ..."</kbd><br>
+  Example:<br>
+  <kbd>"supply power;i(vcurrvnn) vnn * i(vcurrvpp) vpp * +"</kbd><br>
+  that means: i(vcurrvnn) * vnn +  i(vcurrvpp) * vpp.<br>
+  <kbd>"i(vcurrvnn) 1e6 *"</kbd><br>
+  that means: i(vcurrvnn) * 1e6.<br>
+  <img src="graphs15.png"><br>
+  The optional <kbd>alias_name</kbd> is just a string to display as the wave label instead of the whole expression.
+  The following operators are defined:<br>
+  2 argument operators: 
+  </p>
+  <ul>
+  <li><kbd>+</kbd> Addition</li>
+  <li><kbd>-</kbd> Subtraction</li>
+  <li><kbd>*</kbd> Multiplication</li>
+  <li><kbd>/</kbd> Division</li>
+  <li><kbd>**</kbd> Exponentiation</li>
+  <li><kbd>exch()</kbd> Exchange top 2 operands on stack</li>
+  </ul>
+  <p>1 argument operators:</p>
+  <ul>
+  <li><kbd>sin()</kbd> Trig. sin function</li>
+  <li><kbd>cos()</kbd> Trig. cos function</li>
+  <li><kbd>tan()</kbd> Trig. tan function</li>
+  <li><kbd>sqrt()</kbd> Square root</li>
+  <li><kbd>sgn()</kbd> Sign</li>
+  <li><kbd>abs()</kbd> Absolute value</li>
+  <li><kbd>exp()</kbd> Base-e Exponentiation</li>
+  <li><kbd>ln()</kbd> Base-e logarithm</li>
+  <li><kbd>log10()</kbd> Base 10 logarithm</li>
+  <li><kbd>avg()</kbd> Moving average</li>
+  <li><kbd>deriv()</kbd> Derivative</li>
+  <li><kbd>integ()</kbd> Integration</li>
+  <li><kbd>dup()</kbd> Duplicate last element on stack</li>
+  </ul>
 
  <!-- end of slide -->
  <div class="filler"></div>
