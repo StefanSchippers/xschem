@@ -1,8 +1,8 @@
 v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {type=subcircuit
-format="@name @pinlist @symname VCC=@VCC"
-template="name=x1 VCC=5"
+format="@name @pinlist @symname OFFSET=@OFFSET AMPLITUDE=@AMPLITUDE"
+template="name=x1 OFFSET=0 AMPLITUDE=5"
 }
 V {}
 S {}
