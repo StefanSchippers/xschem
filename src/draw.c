@@ -2730,9 +2730,9 @@ void draw_image(int draw, xRect *r, double *x1, double *y1, double *x2, double *
     closure.pos = 0;
     closure.size = data_size; /* should not be necessary */
     emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-    if(closure.buffer == NULL) dbg(0, "draw_images_all(): image creation failed\n");
+    if(closure.buffer == NULL) dbg(0, "draw_image(): image creation failed\n");
     my_free(1467, &closure.buffer);
-    dbg(1, "draw_images_all(): length2 = %d\n", closure.pos);
+    dbg(1, "draw_image(): length2 = %d\n", closure.pos);
   /* ... or read PNG from file (image attribute) */
   } else if(filename[0] && !stat(filename, &buf)) {
     char *image_data = NULL;
