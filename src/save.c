@@ -508,6 +508,39 @@ int get_raw_index(const char *node)
   return -1;
 }
 
+/* what: 
+ * 0: clear data
+ * 1: store value
+ * 2: retrieve value
+ */
+static double ravg_store(int what , int i, int p, int last, double integ)
+{
+  static int imax = 0;
+  static double **arr = NULL;
+  int j;
+
+  if(what == 0 && imax) {
+    for(j = 0; j < imax; j++) {
+      my_free(1512, &arr[j]);
+    }
+    my_free(1513, &arr);
+    imax = 0;
+  } else if(what == 1) {
+    if(i >= imax) {
+      int new_size = i + 4;
+      my_realloc(1514, &arr, sizeof(double *) * new_size);
+      for(j = imax; j < new_size; j++) {
+        arr[j] = my_calloc(1515, last + 1, sizeof(double));
+      }
+      imax = new_size;
+    }
+    arr[i][p] = integ;
+  } else if(what == 2) {
+    return arr[i][p];
+  }
+  return 0.0;
+}
+
 #define STACKMAX 200
 #define PLUS -2
 #define MINUS -3
@@ -528,14 +561,15 @@ int get_raw_index(const char *node)
 #define DERIV -36
 #define EXCH -37
 #define DUP -38
+#define RAVG -39 /* running average */
 #define NUMBER -60
 
 typedef struct {
   int i;
   double d;
-  double prev;
   double prevy;
-  double prevx;
+  double prev;
+  int prevp;
 } Stack1;
 
 int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
@@ -576,6 +610,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     else if(!strcmp(n, "log10()")) stack1[stackptr1++].i = LOG10;
     else if(!strcmp(n, "integ()")) stack1[stackptr1++].i = INTEG;
     else if(!strcmp(n, "avg()")) stack1[stackptr1++].i = AVG;
+    else if(!strcmp(n, "ravg()")) stack1[stackptr1++].i = RAVG;
     else if(!strcmp(n, "deriv()")) stack1[stackptr1++].i = DERIV;
     else if(!strcmp(n, "exch()")) stack1[stackptr1++].i = EXCH;
     else if(!strcmp(n, "dup()")) stack1[stackptr1++].i = DUP;
@@ -596,6 +631,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     dbg(1, "  plot_raw_custom_data(): stack1= %d\n", stack1[stackptr1 - 1].i);
   } /* while(n = my_strtok_r(...) */
   my_free(575, &ntok_copy);
+  ravg_store(0, 0, 0, 0, 0.0); /* clear data */
   for(p = first ; p <= last; p++) {
     stackptr2 = 0;
     for(i = 0; i < stackptr1; i++) { /* number */
@@ -621,13 +657,32 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             stackptr2--;
             break;
           case DIVIS:
-            if(p == first) stack1[i].prev = 0;
             if(stack2[stackptr2 - 1]) {
               stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] / stack2[stackptr2 - 1];
             } else {
-              stack2[stackptr2 - 2] =  stack1[i].prev;
+              stack2[stackptr2 - 2] =  y[p - 1];
             }
-            stack1[i].prev = stack2[stackptr2 - 2];
+            stackptr2--;
+            break;
+          case RAVG:
+            if( p == first ) {
+              integ = 0;
+              stack1[i].prevy = stack2[stackptr2 - 2];
+              stack1[i].prev = 0;
+              stack1[i].prevp = first;
+            } else {
+              integ = stack1[i].prev + (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 2]) * 0.5;
+              stack1[i].prevy =  stack2[stackptr2 - 2];
+              stack1[i].prev = integ;
+            }
+            ravg_store(1, i, p, last, integ);
+            
+            while(stack1[i].prevp <= last && x[p] - x[stack1[i].prevp] > stack2[stackptr2 - 1]) {
+              dbg(1, "%g  -->  %g\n", x[stack1[i].prevp], x[p]);
+              stack1[i].prevp++;
+            }
+            stack2[stackptr2 - 2] = (integ - ravg_store(2, i, stack1[i].prevp, 0, 0)) / stack2[stackptr2 - 1];
+            dbg(1, "integ=%g ravg_store=%g\n", integ,  ravg_store(2, i, stack1[i].prevp, 0, 0));
             stackptr2--;
             break;
           case POW:
@@ -648,19 +703,18 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
           case AVG:
             if( p == first ) {
               avg = stack2[stackptr2 - 1];
-              stack1[i].prev = stack2[stackptr2 - 1];
               stack1[i].prevy = stack2[stackptr2 - 1];
-              stack1[i].prevx = x[p];
+              stack1[i].prev = stack2[stackptr2 - 1];
             } else {
-              if((x[p] != stack1[i].prevx)) {
-                avg = stack1[i].prev * (x[p - 1] - stack1[i].prevx) + 
+              if((x[p] != x[first])) {
+                avg = stack1[i].prev * (x[p - 1] - x[first]) + 
                     (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
-                avg /= (x[p] - stack1[i].prevx);
+                avg /= (x[p] - x[first]);
               } else  {
                 avg = stack1[i].prev;
               }
-              stack1[i].prev = avg;
               stack1[i].prevy =  stack2[stackptr2 - 1];
+              stack1[i].prev = avg;
             }
             stack2[stackptr2 - 1] =  avg;
             break;
@@ -671,25 +725,25 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
           case INTEG: 
             if( p == first ) {
               integ = 0;
-              stack1[i].prev = 0;
               stack1[i].prevy = stack2[stackptr2 - 1];
+              stack1[i].prev = 0;
             } else {
               integ = stack1[i].prev + (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
-              stack1[i].prev = integ;
               stack1[i].prevy =  stack2[stackptr2 - 1];
+              stack1[i].prev = integ;
             }
             stack2[stackptr2 - 1] =  integ;
             break;
           case DERIV: 
             if( p == first ) {
               deriv = 0;
-              stack1[i].prev = 0;
               stack1[i].prevy = stack2[stackptr2 - 1];
+              stack1[i].prev = 0;
             } else {
               if((x[p] != x[p - 1])) 
                 deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (x[p] - x[p - 1]);
               else
-                deriv = stack1[i].prevy;
+                deriv = stack1[i].prev;
               stack1[i].prevy = stack2[stackptr2 - 1] ;
               stack1[i].prev = deriv;
             }
@@ -727,7 +781,8 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
       } /* if(stackptr2 > 0) */
     } /* for(i = 0; i < stackptr1; i++) */
     y[p] = stack2[0];
-  }
+  } /* for(p = first ...) */
+  ravg_store(0, 0, 0, 0, 0.0); /* clear data */
   return xctx->graph_nvars;
 }
 

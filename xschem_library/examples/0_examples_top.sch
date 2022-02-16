@@ -80,14 +80,14 @@ that's me...)
 T {Simulation
 Graphs
 } 1530 -550 0 0 0.6 0.6 {layer=4}
-T {Bus rippers} 570 -450 0 0 0.6 0.6 {layer=4}
+T {Bus rippers} 580 -440 0 0 0.6 0.6 {layer=4}
 N 820 -420 940 -420 {lab=#net1}
 N 860 -460 860 -370 {lab=#net2}
 N 860 -390 920 -390 {lab=#net2}
 N 880 -430 910 -420 {lab=#net1}
-N 370 -380 630 -380 {lab=BUS[4:0]}
-N 500 -470 500 -390 {lab=BUS[1]}
-N 400 -430 400 -390 {lab=BUS[2]}
+N 380 -370 640 -370 {lab=BUS[4:0]}
+N 510 -460 510 -380 {lab=BUS[1]}
+N 410 -420 410 -380 {lab=BUS[2]}
 C {poweramp.sym} 480 -650 0 0 {name=x1
 tclcommand="xschem descend"}
 C {tesla.sym} 160 -530 0 0 {name=x2}
@@ -115,10 +115,10 @@ program=x-www-browser
 
 }
 C {rlc.sym} 160 -730 0 0 {name=x0}
-C {lab_pin.sym} 630 -380 0 1 {name=l2 sig_type=std_logic lab=BUS[4:0]}
-C {bus_connect.sym} 490 -380 0 0 {name=l3 lab=BUS[1]}
-C {bus_connect_nolab.sym} 390 -380 0 0 {name=r1}
-C {lab_pin.sym} 400 -430 3 1 {name=l4 sig_type=std_logic lab=BUS[2]}
+C {lab_pin.sym} 640 -370 0 1 {name=l2 sig_type=std_logic lab=BUS[4:0]}
+C {bus_connect.sym} 500 -370 0 0 {name=l3 lab=BUS[1]}
+C {bus_connect_nolab.sym} 400 -370 0 0 {name=r1}
+C {lab_pin.sym} 410 -420 3 1 {name=l4 sig_type=std_logic lab=BUS[2]}
 C {LCC_instances.sym} 160 -410 0 0 {name=x7}
 C {test_backannotated_subckt.sym} 160 -370 0 0 {name=x10}
 C {plot_manipulation.sym} 160 -330 0 0 {name=x11}
@@ -1465,3 +1465,4 @@ tclcommand="xschem descend"}
 C {test_doublepin.sym} 160 -90 0 0 {name=x19}
 C {classD_amp.sym} 480 -730 0 0 {name=x20}
 C {delta_sigma.sym} 480 -570 0 0 {name=x21}
+C {solar_panel.sym} 480 -530 0 0 {name=x22}

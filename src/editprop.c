@@ -321,6 +321,16 @@ char *dtoa(double i)
   return s;
 }
 
+char *dtoa_prec(double i)
+{
+  static char s[50];
+  int n;
+  n = my_snprintf(s, S(s), "%.10e", i);
+  if(xctx) xctx->tok_size = n;
+  return s;
+}
+
+
 size_t my_mstrcat(int id, char **str, const char *add, ...)
 {
   va_list args;

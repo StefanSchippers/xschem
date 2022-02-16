@@ -1324,6 +1324,7 @@ extern size_t my_strcat(int id, char **, const char *);
 extern size_t my_mstrcat(int id, char **str, const char *append_str, ...);
 extern char *itoa(int i);
 extern char *dtoa(double i);
+extern char *dtoa_prec(double i);
 extern double my_round(double a);
 extern double round_to_n_digits(double x, int n);
 extern double floor_to_n_digits(double x, int n);

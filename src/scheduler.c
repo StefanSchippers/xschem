@@ -2059,7 +2059,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(idx >= 0) {
             int np =  xctx->graph_npoints[dataset];
             for(p = 0; p < np; p++) {
-              Tcl_AppendResult(interp, dtoa(get_raw_value(dataset, idx, p)), " ", NULL);
+              Tcl_AppendResult(interp, dtoa_prec(get_raw_value(dataset, idx, p)), " ", NULL);
             }
           }
         } else if(argc > 2 && !strcmp(argv[2], "datasets")) {
