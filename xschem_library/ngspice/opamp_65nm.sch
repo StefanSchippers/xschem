@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -68,7 +68,7 @@ C {nmos4.sym} 920 -220 0 0 {name=M7 model=nmos w=4u l=0.4u m=1}
 C {lab_pin.sym} 940 -220 0 1 {name=p5 lab=0}
 C {lab_pin.sym} 940 -170 0 1 {name=p8 lab=0}
 C {res.sym} 880 -340 1 0 {name=R1
-value=30k
+value=5k
 footprint=1206
 device=resistor
 m=1}

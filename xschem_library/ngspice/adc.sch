@@ -4,6 +4,27 @@ K {}
 V {}
 S {}
 E {}
+B 2 1010 -1110 1810 -710 {flags=graph
+y1=0
+y2=2
+ypos1=0
+ypos2=2
+divy=5
+subdivy=1
+unity=1
+x1=1.24319e-06
+x2=1.33458e-06
+divx=5
+subdivx=1
+node="sig_in
+x1.integ
+vref
+x1.q
+x1.comp"
+color="4 7 10 8 12"
+dataset=0
+unitx=u
+}
 P 4 5 670 -580 1650 -580 1650 -190 670 -190 670 -580 {dash=5}
 P 5 5 10 -770 940 -770 940 -330 10 -330 10 -770 { dash=5}
 T {Modulator} 500 -810 0 0 0.6 0.6 { layer=5}
