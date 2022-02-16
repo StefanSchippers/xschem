@@ -1641,8 +1641,10 @@ void get_bus_value(int n_bits, int hex_digits, SPICE_DATA **idx_arr, int p, char
     hex++;
     if(x) 
       busval[hex_digits - hex] = 'X';
-    else
+    else {
+      hexdigit <<= (3 - bin);
       busval[hex_digits - hex] = hexstr[hexdigit]; 
+    }
   }
   busval[hex_digits] = '\0';
 } 
