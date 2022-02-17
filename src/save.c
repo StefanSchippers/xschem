@@ -508,7 +508,8 @@ int get_raw_index(const char *node)
   return -1;
 }
 
-/* what: 
+/* store calculated custom graph data for later retrieval as in running average calculations 
+ * what: 
  * 0: clear data
  * 1: store value
  * 2: retrieve value
@@ -631,7 +632,6 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     dbg(1, "  plot_raw_custom_data(): stack1= %d\n", stack1[stackptr1 - 1].i);
   } /* while(n = my_strtok_r(...) */
   my_free(575, &ntok_copy);
-  ravg_store(0, 0, 0, 0, 0.0); /* clear data */
   for(p = first ; p <= last; p++) {
     stackptr2 = 0;
     for(i = 0; i < stackptr1; i++) { /* number */
