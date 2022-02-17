@@ -653,17 +653,14 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                   j = -1;
                   if(!bus_msb && xctx->graph_values) {
                     char *express = NULL;
-                    int ofs = 0;
                     if(strstr(ntok, ";")) {
                       my_strdup2(1505, &express, find_nth(ntok, ";", 2));
                     } else {
                       my_strdup2(1506, &express, ntok);
                     }
                     if(strstr(express, " ")) {
-                      for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
-                        j = plot_raw_custom_data(sweep_idx, ofs, ofs + xctx->graph_npoints[dset] - 1, express);
-                        ofs += xctx->graph_npoints[dset];
-                      }
+                      /* just probe a single point to get the index. custom data column already calculated */
+                      j = calc_custom_data_yrange(sweep_idx, express, gr);
                     } else {
                       j = get_raw_index(express);
                     }
@@ -693,15 +690,15 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                 my_strdup(1422, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(min)));
                 my_strdup(1423, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(max)));
                 need_redraw = 1;
-              } else {
+              } else { /* digital plot */
                 my_strdup(1497, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1",
                    get_tok_value(r->prop_ptr, "y1", 0) ));
                 my_strdup(1498, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2",
                    get_tok_value(r->prop_ptr, "y2", 0) ));
                 need_redraw = 1;
               }
-            }
-          } else {
+            } /* graph_master */
+          } else { /* not graph_left */
             int dset = dataset == -1 ? 0 : dataset;
             if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
               xx1 = get_raw_value(dset, 0, 0);
@@ -711,8 +708,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               need_redraw = 1;
             }
           }
-        }
-      }
+        } /* graph_values */
+      } /* key == 'f' */
       else if( event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
         double wwx1, wwx2, p, delta, ccx, ddx;
 

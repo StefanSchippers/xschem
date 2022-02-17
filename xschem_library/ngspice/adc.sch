@@ -20,8 +20,9 @@ node="sig_in
 x1.integ
 vref
 x1.q
-x1.comp"
-color="4 7 10 8 12"
+x1.comp
+x1.fb"
+color="4 11 10 8 12 9"
 dataset=0
 unitx=n
 }

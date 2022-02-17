@@ -2129,7 +2129,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     }
       
     if(xctx->graph_sim_type == 3) {
-      if(strstr(ntok, "ph(") == ntok_ptr || strstr(ntok_ptr, "_ph"))
+      if(strstr(ntok_ptr, "ph(") == ntok_ptr || strstr(ntok_ptr, "_ph"))
         my_snprintf(tmpstr, S(tmpstr), "%s[Phase]", alias_ptr);
       else
         my_snprintf(tmpstr, S(tmpstr), "%s[dB]", alias_ptr);
@@ -2377,6 +2377,68 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
   return ret;
 }
 
+/* derived from draw_graph(), calculate y range of custom equation graph data,
+ * handling multiple datasets ad wraps (as in multi-sweep DC sims).
+ */
+int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
+{
+  int idx = -1;
+  int p, dset, ofs;
+  int first, last;
+  double xx; /* the p-th sweep variable value:  xctx->graph_values[sweep_idx][p] */
+  double start;
+  double end;
+  int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
+  int dataset = gr->dataset;
+  ofs = 0;
+  start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
+  end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
+  for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
+    double prev_x, prev_prev_x;
+    int cnt=0, wrap;
+    register SPICE_DATA *gv = xctx->graph_values[sweep_idx];
+    first = -1;
+    prev_prev_x = prev_x = 0;
+    last = ofs; 
+    for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
+      xx = gv[p];
+      wrap = (sweep_idx == 0 && cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
+      if(first != -1) {                      /* there is something to plot ... */
+        if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
+          wrap) {                          /* ... or sweep variable changed direction */
+          if(dataset == -1 || dataset == sweepvar_wrap) {
+            idx = plot_raw_custom_data(sweep_idx, first, last, express);
+          }
+          first = -1;
+        }
+      }
+      if(wrap) {
+         sweepvar_wrap++;
+         cnt = 0;
+      }
+      if(xx >= start && xx <= end) {
+        if(first == -1) first = p;
+        /* Build poly x array. Translate from graph coordinates to screen coords */
+        if(dataset == -1 || dataset == sweepvar_wrap) {
+        } /* if(dataset == -1 || dataset == sweepvar_wrap) */
+        last = p;
+        cnt++;
+      } /* if(xx >= start && xx <= end) */
+      prev_prev_x = prev_x;
+      prev_x = xx;
+    } /* for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) */
+    if(first != -1) {
+      if(dataset == -1 || dataset == sweepvar_wrap) {
+        idx = plot_raw_custom_data(sweep_idx, first, last, express);
+      }
+    }
+    /* offset pointing to next dataset */
+    ofs += xctx->graph_npoints[dset];
+    sweepvar_wrap++;
+  } /* for(dset...) */
+  return idx;
+}
+
 
 
 /* flags:
@@ -2462,7 +2524,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         double xx; /* the p-th sweep variable value:  xctx->graph_values[sweep_idx][p] */
         double start;
         double end;
-        int n_bits = 1, wrap; 
+        int n_bits = 1; 
         SPICE_DATA **idx_arr = NULL;
         int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
         XPoint *point = NULL;
@@ -2480,10 +2542,10 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         /* loop through all datasets found in raw file */
         for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
           double prev_x, prev_prev_x;
-          int cnt=0;
+          int cnt=0, wrap;
           register SPICE_DATA *gv = xctx->graph_values[sweep_idx];
   
-          first = last = -1;
+          first = -1;
           poly_npoints = 0;
           my_realloc(1401, &point, xctx->graph_npoints[dset] * sizeof(XPoint));
           /* Process "npoints" simulation items 
