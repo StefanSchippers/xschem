@@ -220,20 +220,10 @@ unsigned int  find_best_color(char colorname[])
 /*  dbg(1, "find_best_color() start: %g\n", timer(1)); */
 #ifdef __unix__
  if( XAllocNamedColor(display, colormap, colorname, &xcolor_exact, &xcolor) ==0 )
-#else
- Tk_Window mainwindow = Tk_MainWindow(interp);
- XColor* xc = Tk_GetColor(interp, mainwindow, colorname);
- if (XAllocColor(display, colormap, xc) == 0)
-#endif
  {
   for(i=0;i<=255;i++) {
     xctx->xcolor_array[i].pixel=i;
-#ifdef __unix__
     XQueryColor(display, colormap, xctx->xcolor_array+i);
-#else
-    xcolor = *xc;
-    XQueryColors(display, colormap, xc, i);
-#endif
   }
   /* debug ... */
   dbg(2, "find_best_color(): Server failed to allocate requested color, finding substitute\n");
@@ -255,14 +245,16 @@ unsigned int  find_best_color(char colorname[])
  else
  {
   /*XLookupColor(display, colormap, colorname, &xcolor_exact, &xcolor); */
-#ifdef __unix__
   idx = xcolor.pixel;
-#else
-  idx = xc->pixel;
-#endif
  }
  /* dbg(1, "find_best_color() return: %g\n", timer(1)); */
  return idx;
+#else
+ Tk_Window mainwindow = Tk_MainWindow(interp);
+ XColor *xc = Tk_GetColor(interp, mainwindow, colorname);
+ /* if (XAllocColor(display, colormap, xc)) return(xc->pixel); */
+ return xc->pixel;
+#endif
 }
 
 
@@ -780,8 +772,14 @@ int build_colors(double dim, double dim_bg)
       XSetForeground(display, xctx->gcstipple[i], xctx->color_index[i]);
     }
     for(i=0;i<cadlayers;i++) {
+#ifdef __unix__
       XLookupColor(display, colormap, xctx->color_array[i], &xcolor_exact, &xcolor);
       xctx->xcolor_array[i] = xcolor;
+#else
+      Tk_Window mainwindow = Tk_MainWindow(interp);
+      XColor *xc = Tk_GetColor(interp, mainwindow, xctx->color_array[i]);
+      xctx->xcolor_array[i] = *xc;
+#endif
     }
     tcleval("reconfigure_layers_menu");
     return 0; /* success */
@@ -1541,7 +1539,6 @@ void resetcairo(int create, int clear, int force_or_resize)
     HWND hwnd = Tk_GetHWND(xctx->window);
     HDC dc = GetDC(hwnd); 
     xctx->cairo_save_sfc = cairo_win32_surface_create(dc);
-    cairo_surface_set_device_scale(xctx->cairo_save_sfc, 1, 1);
 #endif
     if(cairo_surface_status(xctx->cairo_save_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
@@ -1563,7 +1560,6 @@ void resetcairo(int create, int clear, int force_or_resize)
         xctx->xrect[0].width, xctx->xrect[0].height);
 #else
     xctx->cairo_sfc = cairo_win32_surface_create(dc);
-    cairo_surface_set_device_scale(xctx->cairo_sfc, 1, 1);
 #endif
     if(cairo_surface_status(xctx->cairo_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo surface\n");

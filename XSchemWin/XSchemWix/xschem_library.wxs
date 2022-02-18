@@ -593,6 +593,9 @@
           <Component Id="cmp1CB191EAD2BF728BA3BBB51212CD9247" Guid="{69C694D5-5DD4-4A22-994C-6A3580F442B4}">
             <File Id="fil58F186B07EB593663AEED328B4D974F3" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_doublepin.sch" />
           </Component>
+          <Component Id="cmp67FF7D4EB6E699EEC0A31BF183FA828E" Guid="{7561011E-54C6-42BA-84F5-05F7DAB21752}">
+              <File Id="fil2F44BBFE88AADBFBEF5B4B523B53C26C" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_doublepin.sym" />
+          </Component>
           <Component Id="cmp77E0F6C53A43FB1A2E8231AA49C7A604" Guid="{62C5CBE3-D841-4D0E-A076-75414096A2DA}">
             <File Id="fil44DEAF0637B5696172643A0ED1297267" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_lm324.sch" />
           </Component>
@@ -4858,6 +4861,9 @@
           <Component Id="cmp5547F9E68EDF6E118AD8BA716982ADB3" Guid="{611CA23B-3370-4598-9B95-BC87743F8625}">
               <File Id="filB378B505E858540E93C9E9C4CFE9CFBD" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\delta_sigma.sch" />
           </Component>
+          <Component Id="cmpF330B01CCAB5F41A8CDCA56806CAF501" Guid="{EA4AAF7C-ECCE-4FC7-931D-F32CAE6B9637}">
+              <File Id="fil64ADF324BB301500D7BF472906CEF9AB" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\delta_sigma.sym" />
+          </Component>
           <Component Id="cmp70D8EDA5E2D1C25F9EF091255B0E5459" Guid="{55E78524-0BA3-4BAB-B7D8-B046B29D2755}">
               <File Id="filF63EED06EAB648574272CEC9437B4D1B" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\flip_flop_ngspice.sch" />
           </Component>
@@ -4935,6 +4941,9 @@
           </Component>
           <Component Id="cmp48D7195380E19ED4C8F932A9689DD5B1" Guid="{026D6F37-AB74-4D58-8D8F-F56CC5C049C5}">
             <File Id="fil3AC786059B4ECA2A7AF7C9F680C7A704" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\solar_panel.sch" />
+          </Component>
+          <Component Id="cmpAC42AF41D0318B819EC0508F6B8D20CB" Guid="{6A5E4FD1-DE4F-4B16-91A5-EFD669E965FE}">
+            <File Id="filD4C42E0F4C6F3676046F42C8BB6943CA" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\solar_panel.sym" />
           </Component>
           <Component Id="cmp77356AD341ED858C86F7395F40A57F7A" Guid="{68E2DA53-D106-4E05-914D-6FB52DC02E50}">
             <File Id="fil7FF75E4833B9DD8C894A0995CF34BB96" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\solar_panel_xyce.sch" />
@@ -5575,6 +5584,7 @@
       <ComponentRef Id="cmp0F886DAEE595168D462438D292C5868D" />
       <ComponentRef Id="cmpAEF56BDB09D122243A6EAE07734B3F38" />
       <ComponentRef Id="cmp1CB191EAD2BF728BA3BBB51212CD9247" />
+      <ComponentRef Id="cmp67FF7D4EB6E699EEC0A31BF183FA828E" />
       <ComponentRef Id="cmp77E0F6C53A43FB1A2E8231AA49C7A604" />
       <ComponentRef Id="cmp4B4D8B4C4B196D864383F4138BBA8B2D" />
       <ComponentRef Id="cmp7BBFD4FFD4BD205783E8852433FC5873" />
@@ -6994,6 +7004,7 @@
       <ComponentRef Id="cmp5939E8B864B2C6BA45646DF8566FDC96" />
       <ComponentRef Id="cmp62F93427FE69E5A06D66F6A8CEAEDF3E" />
       <ComponentRef Id="cmp5547F9E68EDF6E118AD8BA716982ADB3" />
+      <ComponentRef Id="cmpF330B01CCAB5F41A8CDCA56806CAF501" />
       <ComponentRef Id="cmp70D8EDA5E2D1C25F9EF091255B0E5459" />
       <ComponentRef Id="cmpBAEAE74C45E5CA5F74FAB388199B41B6" />
       <ComponentRef Id="cmpE6EFB433893F0DC06DEFB3CB09F50A90" />
@@ -7020,6 +7031,7 @@
       <ComponentRef Id="cmpCBC7FB80FEAF230C77237A28A4B323F6" />
       <ComponentRef Id="cmp0F9FE65C90437BA6A6262ADD2D07CC18" />
       <ComponentRef Id="cmp48D7195380E19ED4C8F932A9689DD5B1" />
+      <ComponentRef Id="cmpAC42AF41D0318B819EC0508F6B8D20CB" />
       <ComponentRef Id="cmp77356AD341ED858C86F7395F40A57F7A" />
       <ComponentRef Id="cmpDB6B5CBFE445584C13D50BDB01BBE11A" />
       <ComponentRef Id="cmpC7926C63F014277EC36E893A1F3696D4" />

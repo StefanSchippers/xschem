@@ -124,7 +124,6 @@ void print_image()
 #if HAS_CAIRO==1
 void set_cairo_color(int layer)
 {
-#ifdef __unix__
   cairo_set_source_rgb(xctx->cairo_ctx,
     (double)xctx->xcolor_array[layer].red/65535.0,
     (double)xctx->xcolor_array[layer].green/65535.0,
@@ -133,10 +132,6 @@ void set_cairo_color(int layer)
     (double)xctx->xcolor_array[layer].red/65535.0,
     (double)xctx->xcolor_array[layer].green/65535.0,
     (double)xctx->xcolor_array[layer].blue/65535.0);
-#else /* temporary until I get find_best_color to work on Windows */
-  cairo_set_source_rgb(xctx->cairo_ctx, 1, 0, 0);
-  cairo_set_source_rgb(xctx->cairo_save_ctx, 1, 0, 0);
-#endif
 }
 
 /* remember to call cairo_restore(xctx->cairo_ctx) when done !! */
