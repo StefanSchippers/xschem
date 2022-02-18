@@ -25,7 +25,7 @@ node="out
 in"}
 T {actual value
 50u} 270 -580 0 0 0.4 0.4 {}
-T {Example using a symbol with an extracted schematic} 660 -1180 0 0 1 1 {}
+T {Example using a symbol with an extracted netlist} 220 -1160 0 0 1 1 {}
 N 350 -920 350 -900 {
 lab=MINUS}
 N 290 -280 290 -260 {lab=#net1}
@@ -135,8 +135,8 @@ C {capa.sym} 490 -240 0 0 {name=C2 m=1 value="100u"}
 C {ngspice_probe.sym} 290 -280 0 1 {name=p35}
 C {ngspice_probe.sym} 290 -120 0 1 {name=p36}
 C {ngspice_probe.sym} 530 -200 0 0 {name=p37}
-C {spice_probe.sym} 520 -280 0 0 {name=p45 analysis=tran voltage=49.84}
-C {spice_probe.sym} 520 -120 0 0 {name=p46 analysis=tran voltage=-49.86}
+C {spice_probe.sym} 520 -280 0 0 {name=p45 analysis=tran voltage=49.93}
+C {spice_probe.sym} 520 -120 0 0 {name=p46 analysis=tran voltage=-49.93}
 C {vsource.sym} 660 -160 0 0 {name=VVSS value=0}
 C {lab_pin.sym} 660 -210 0 1 {name=p10 lab=VSS}
 C {lab_pin.sym} 660 -130 0 1 {name=p11 lab=0}
@@ -148,9 +148,9 @@ C {vsource.sym} 30 -420 0 0 {name=VIN value="pwl
 + 310u  -10"
 }
 C {lab_pin.sym} 30 -330 0 1 {name=p1 lab=VSS}
-C {spice_probe.sym} 970 -920 0 0 {name=p2 analysis=tran voltage=-49.86}
-C {spice_probe.sym} 370 -920 0 0 {name=p13 analysis=tran voltage=-49.86}
-C {spice_probe.sym} 120 -510 0 0 {name=p14 analysis=tran voltage=-49.86}
+C {spice_probe.sym} 970 -920 0 0 {name=p2 analysis=tran voltage=-0.1176}
+C {spice_probe.sym} 370 -920 0 0 {name=p13 analysis=tran voltage=21.07}
+C {spice_probe.sym} 120 -510 0 0 {name=p14 analysis=tran voltage=0.0000e+00}
 C {lab_wire.sym} 620 -900 0 0 {name=l3 lab=PLUS}
 C {launcher.sym} 905 -535 0 0 {name=h5 
 descr="Select arrow and 
@@ -182,3 +182,7 @@ footprint=1206
 device=resistor
 m=1}
 C {lab_pin.sym} 1030 -760 0 0 {name=p17 lab=VSS}
+C {launcher.sym} 660 -350 0 0 {name=h1
+descr=Backannotate
+tclcommand="ngspice::annotate"}
+C {spice_probe.sym} 550 -620 0 0 {name=p19 analysis=tran voltage=21.07}
