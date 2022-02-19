@@ -1336,7 +1336,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   if( !rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
     return;
   }
-  if( !xctx->only_probes && (x2-x1)<3.0 && (y2-y1)<3.0) return;
+  if( !xctx->only_probes && (x2-x1)<1.0 && (y2-y1)<1.0) return;
 
   p = my_malloc(38, sizeof(XPoint) * points);
   if(what) {
