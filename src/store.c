@@ -353,18 +353,3 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      set_modify(1);
     }
 }
-
-void freenet_nocheck(int i)
-{
- int j;
-  my_free(959, &xctx->wire[i].prop_ptr);
-  my_free(960, &xctx->wire[i].node);
-  for(j=i+1;j<xctx->wires;j++)
-  {
-    xctx->wire[j-1] = xctx->wire[j];
-    xctx->wire[j].prop_ptr=NULL;
-    xctx->wire[j].node=NULL;
-  } /*end for j */
-  xctx->wires--;
-}
-

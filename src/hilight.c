@@ -544,7 +544,7 @@ void hilight_child_pins(void)
 }
 
 
-int bus_search(const char*s)
+static int bus_search(const char*s)
 {
  int c, bus=0;
  while( (c=*s++) ) {
@@ -760,7 +760,7 @@ int search(const char *tok, const char *val, int sub, int sel)
 
 /* "drill" option (pass through resistors or pass gates or whatever elements with  */
 /* 'propag' properties set on pins) */
-void drill_hilight(int mode)
+static void drill_hilight(int mode)
 {
   char *netname=NULL, *propagated_net=NULL;
   int mult=0;
@@ -1184,7 +1184,7 @@ void propagate_hilights(int set, int clear, int mode)
 
 #define STACKMAX 200
 
-int get_logic_value(int inst, int n)
+static int get_logic_value(int inst, int n)
 {
   int /* mult, */ val;
   Hilight_hashentry *entry;
@@ -1205,17 +1205,7 @@ int get_logic_value(int inst, int n)
   return val;
 }
 
-void print_stack(int  *stack, int sp)
-{
-  int i;
-  fprintf(errfp, "stack: ");
-  for(i = 0; i < sp; i++) {
-    fprintf(errfp, "%d ", stack[i]);
-  }
-  fprintf(errfp, "\n");
-}
-
-int eval_logic_expr(int inst, int output)
+static int eval_logic_expr(int inst, int output)
 {
   int stack[STACKMAX];
   int pos = 0, i, s, sp = 0;
@@ -1387,7 +1377,7 @@ int eval_logic_expr(int inst, int output)
  * to minimize get_token_value() lookups in simulation loops
  */
 
-void create_simdata(void)
+static void create_simdata(void)
 {
   int i, j;
   const char *str;
@@ -1432,7 +1422,7 @@ void free_simdata(void)
   xctx->simdata_ninst = 0;
 }
 
-void propagate_logic()
+static void propagate_logic()
 {
   /* char *propagated_net=NULL; */
   int found, iter = 0 /* , mult */;

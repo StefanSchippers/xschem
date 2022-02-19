@@ -70,7 +70,7 @@ void clear_expandlabel_data(void)
   my_free(868, &dest_string.str);
 }
 
-void str_char_replace(char s[], char chr, char repl_chr)
+static void str_char_replace(char s[], char chr, char repl_chr)
 {
      int i=0;
      while(s[i]!='\0')

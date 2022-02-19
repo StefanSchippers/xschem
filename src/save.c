@@ -866,7 +866,7 @@ char *read_line(FILE *fp, int dbg_level)
 /* return "/<prefix><random string of random_size characters>"
  * example: "/xschem_undo_dj5hcG38T2"
  */
-const char *random_string(const char *prefix)
+static const char *random_string(const char *prefix)
 {
   static const char *charset="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   static const int random_size=10;
@@ -1541,7 +1541,7 @@ static void load_line(FILE *fd)
     xctx->lines[c]++;
 }
 
-void read_xschem_file(FILE *fd)
+static void read_xschem_file(FILE *fd)
 {
   int i, found, endfile;
   char name_embedded[PATH_MAX];
@@ -1725,7 +1725,7 @@ void make_symbol(void)
 
 }
 
-void make_schematic(const char *schname)
+static void make_schematic(const char *schname)
 {
   FILE *fd=NULL;
 
@@ -2364,7 +2364,7 @@ static void use_lcc_pins(int level, char *symtype, char (*filename)[PATH_MAX])
   }
 }
 
-void calc_symbol_bbox(int pos)
+static void calc_symbol_bbox(int pos)
 {
   int c, i, count = 0;
   xRect boundbox, tmp;

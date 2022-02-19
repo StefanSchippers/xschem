@@ -24,6 +24,94 @@
 
 static Str_hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
 
+static void vhdl_netlist(FILE *fd , int vhdl_stop)
+{
+ int i,l;
+ char *type=NULL;
+
+ /* set_modify(1); */ /* 20160302 prepare_netlist_structs could change schematic (wire node naming for example) */
+ if(!vhdl_stop) {
+   xctx->prep_net_structs = 0;
+   prepare_netlist_structs(1);
+   traverse_node_hash();  /* print all warnings about unconnected floatings etc */
+ }
+
+ dbg(1, "vhdl_netlist():       architecture declarations\n");
+ fprintf(fd, "//// begin user declarations\n");
+ for(l=0;l<xctx->instances;l++)
+ {
+  if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
+  if(!(xctx->inst[l].ptr+ xctx->sym)->type) continue;
+  if(xctx->inst[l].ptr<0) continue;
+  if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
+    continue;
+  }
+  if(!strcmp((xctx->inst[l].ptr+ xctx->sym)->type, "arch_declarations") )
+   fprintf(fd, "%s\n", xctx->inst[l].prop_ptr?  xctx->inst[l].prop_ptr: "");
+ }
+ fprintf(fd, "//// end user declarations\n");
+
+ dbg(1, "vhdl_netlist():       print erc checks\n");
+ if(!vhdl_stop) print_vhdl_signals(fd);
+ dbg(1, "vhdl_netlist():       done print erc checks\n");
+
+ dbg(1, "vhdl_netlist():       attributes\n");
+ fprintf(fd, "//// begin user attributes\n");
+ for(l=0;l<xctx->instances;l++)
+ {
+  if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
+  if(xctx->inst[l].ptr<0) continue;
+  if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
+    continue;
+  }
+  my_strdup(602, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
+  if( type && (strcmp(type,"attributes"))==0)
+  {
+   if(xctx->inst[l].prop_ptr) fprintf(fd, "\n%s\n", xctx->inst[l].prop_ptr);
+  }
+ }
+ fprintf(fd, "//// end user attributes\n");
+
+
+ fprintf(fd, "begin\n"); /* begin reintroduced 09122003 */
+ if(!vhdl_stop)
+ {
+   for(i=0;i<xctx->instances;i++) /* ... print all element except ipin opin labels use package */
+   {                       /* dont print elements with vhdl_ignore=true set in symbol */
+    if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
+    if(xctx->inst[i].ptr<0) continue;
+    if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
+      continue;
+    }
+    dbg(2, "vhdl_netlist():       into the netlisting loop\n");
+    my_strdup(603, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+    if( type &&
+       ( !IS_LABEL_OR_PIN(type) &&
+         strcmp(type,"generic")&&
+         strcmp(type,"use")&&
+         strcmp(type,"netlist_commands")&&
+         strcmp(type,"package")  &&
+         strcmp(type,"attributes")  &&
+         strcmp(type,"port_attributes")  &&
+         strcmp(type,"arch_declarations")
+       ))
+    {
+     if(xctx->lastsel)
+     {
+      if(xctx->inst[i].sel==SELECTED) {
+        print_vhdl_element(fd, i) ;
+      }
+     } else {
+        print_vhdl_element(fd, i) ;
+     }
+    }
+   }
+   my_free(1097, &type);
+ }
+ dbg(1, "vhdl_netlist():       end\n");
+ if(!vhdl_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
+}
+
 void global_vhdl_netlist(int global)  /* netlister driver */
 {
  FILE *fd;
@@ -633,90 +721,3 @@ void  vhdl_block_netlist(FILE *fd, int i)
   my_free(1096, &type);
 }
 
-void vhdl_netlist(FILE *fd , int vhdl_stop)
-{
- int i,l;
- char *type=NULL;
-
- /* set_modify(1); */ /* 20160302 prepare_netlist_structs could change schematic (wire node naming for example) */
- if(!vhdl_stop) {
-   xctx->prep_net_structs = 0;
-   prepare_netlist_structs(1);
-   traverse_node_hash();  /* print all warnings about unconnected floatings etc */
- }
-
- dbg(1, "vhdl_netlist():       architecture declarations\n");
- fprintf(fd, "//// begin user declarations\n");
- for(l=0;l<xctx->instances;l++)
- {
-  if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
-  if(!(xctx->inst[l].ptr+ xctx->sym)->type) continue;
-  if(xctx->inst[l].ptr<0) continue;
-  if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
-    continue;
-  }
-  if(!strcmp((xctx->inst[l].ptr+ xctx->sym)->type, "arch_declarations") )
-   fprintf(fd, "%s\n", xctx->inst[l].prop_ptr?  xctx->inst[l].prop_ptr: "");
- }
- fprintf(fd, "//// end user declarations\n");
-
- dbg(1, "vhdl_netlist():       print erc checks\n");
- if(!vhdl_stop) print_vhdl_signals(fd);
- dbg(1, "vhdl_netlist():       done print erc checks\n");
-
- dbg(1, "vhdl_netlist():       attributes\n");
- fprintf(fd, "//// begin user attributes\n");
- for(l=0;l<xctx->instances;l++)
- {
-  if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
-  if(xctx->inst[l].ptr<0) continue;
-  if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
-    continue;
-  }
-  my_strdup(602, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
-  if( type && (strcmp(type,"attributes"))==0)
-  {
-   if(xctx->inst[l].prop_ptr) fprintf(fd, "\n%s\n", xctx->inst[l].prop_ptr);
-  }
- }
- fprintf(fd, "//// end user attributes\n");
-
-
- fprintf(fd, "begin\n"); /* begin reintroduced 09122003 */
- if(!vhdl_stop)
- {
-   for(i=0;i<xctx->instances;i++) /* ... print all element except ipin opin labels use package */
-   {                       /* dont print elements with vhdl_ignore=true set in symbol */
-    if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
-    if(xctx->inst[i].ptr<0) continue;
-    if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
-      continue;
-    }
-    dbg(2, "vhdl_netlist():       into the netlisting loop\n");
-    my_strdup(603, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-    if( type &&
-       ( !IS_LABEL_OR_PIN(type) &&
-         strcmp(type,"generic")&&
-         strcmp(type,"use")&&
-         strcmp(type,"netlist_commands")&&
-         strcmp(type,"package")  &&
-         strcmp(type,"attributes")  &&
-         strcmp(type,"port_attributes")  &&
-         strcmp(type,"arch_declarations")
-       ))
-    {
-     if(xctx->lastsel)
-     {
-      if(xctx->inst[i].sel==SELECTED) {
-        print_vhdl_element(fd, i) ;
-      }
-     } else {
-        print_vhdl_element(fd, i) ;
-     }
-    }
-   }
-   my_free(1097, &type);
- }
- dbg(1, "vhdl_netlist():       end\n");
- if(!vhdl_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
-}

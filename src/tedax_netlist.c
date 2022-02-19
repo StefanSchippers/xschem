@@ -22,6 +22,106 @@
 
 #include "xschem.h"
 
+static void tedax_netlist(FILE *fd, int tedax_stop )
+{
+  int i;
+  char *type=NULL;
+
+  if(!tedax_stop) {
+    xctx->prep_net_structs = 0;
+    prepare_netlist_structs(1);
+    traverse_node_hash();  /* print all warnings about unconnected floatings etc */
+  }
+  if(!tedax_stop) {
+    for(i=0;i<xctx->instances;i++) /* print first ipin/opin defs ... */
+    {
+     if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
+     if(xctx->inst[i].ptr<0) continue;
+     if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "tedax_ignore",0 ), "true") ) {
+       continue;
+     }
+     my_strdup(421, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+     if( type && IS_PIN(type) ) {
+       print_tedax_element(fd, i) ;  /* this is the element line  */
+     }
+    }
+    for(i=0;i<xctx->instances;i++) /* ... then print other lines */
+    {
+     if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
+     if(xctx->inst[i].ptr<0) continue;
+     if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "tedax_ignore",0 ), "true") ) {
+       continue;
+     }
+     my_strdup(423, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+
+     if( type && !IS_LABEL_OR_PIN(type) ) {
+       /* already done in global_tedax_netlist */
+       if(!strcmp(type,"netlist_commands") && xctx->netlist_count==0) continue;
+       if(xctx->netlist_count &&
+          !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "only_toplevel", 0), "true")) continue;
+       if(!strcmp(type,"netlist_commands")) {
+         fprintf(fd,"#**** begin user architecture code\n");
+         print_tedax_element(fd, i) ;  /* this is the element line  */
+         fprintf(fd,"#**** end user architecture code\n");
+       } else {
+         print_tedax_element(fd, i) ;  /* this is the element line  */
+       }
+     }
+    }
+    my_free(967, &type);
+  }
+  if(!tedax_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
+}
+
+static void tedax_block_netlist(FILE *fd, int i)
+{
+  int tedax_stop=0;
+  char filename[PATH_MAX];
+  const char *str_tmp;
+  char *extra=NULL;
+  char *sch = NULL;
+
+  if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"tedax_stop",0),"true") )
+     tedax_stop=1;
+  else
+     tedax_stop=0;
+  if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
+    my_strdup2(1256, &sch, str_tmp);
+    my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
+    my_free(1257, &sch);
+  } else {
+    my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
+  }
+  fprintf(fd, "\n# expanding   symbol:  %s # of pins=%d\n",
+        xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
+  fprintf(fd, "## sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  fprintf(fd, "## sch_path: %s\n", filename);
+
+  fprintf(fd, "begin netlist v1 %s\n",skip_dir(xctx->sym[i].name));
+  print_tedax_subckt(fd, i);
+
+  my_strdup(420, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
+  /* this is now done in print_spice_subckt */
+  /*
+   * fprintf(fd, "%s ", extra ? extra : "" );
+   */
+
+  /* 20081206 new get_sym_template does not return token=value pairs where token listed in extra */
+  fprintf(fd, "%s", get_sym_template(xctx->sym[i].templ, extra));
+  my_free(966, &extra);
+  fprintf(fd, "\n");
+  load_schematic(1,filename, 0);
+  tedax_netlist(fd, tedax_stop);
+  xctx->netlist_count++;
+
+  if(xctx->schprop && xctx->schprop[0]) {
+    fprintf(fd,"#**** begin user architecture code\n");
+    fprintf(fd, "%s\n", xctx->schprop);
+    fprintf(fd,"#**** end user architecture code\n");
+  }
+  fprintf(fd, "end netlist\n\n");
+}
+
 void global_tedax_netlist(int global)  /* netlister driver */
 {
  FILE *fd;
@@ -144,107 +244,6 @@ void global_tedax_netlist(int global)  /* netlister driver */
  }
  if(!debug_var) xunlink(netl_filename);
  xctx->netlist_count = 0;
-}
-
-
-void tedax_block_netlist(FILE *fd, int i)
-{
-  int tedax_stop=0;
-  char filename[PATH_MAX];
-  const char *str_tmp;
-  char *extra=NULL;
-  char *sch = NULL;
-
-  if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"tedax_stop",0),"true") )
-     tedax_stop=1;
-  else
-     tedax_stop=0;
-  if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
-    my_strdup2(1256, &sch, str_tmp);
-    my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
-    my_free(1257, &sch);
-  } else {
-    my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
-  }
-  fprintf(fd, "\n# expanding   symbol:  %s # of pins=%d\n",
-        xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
-  fprintf(fd, "## sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
-  fprintf(fd, "## sch_path: %s\n", filename);
-
-  fprintf(fd, "begin netlist v1 %s\n",skip_dir(xctx->sym[i].name));
-  print_tedax_subckt(fd, i);
-
-  my_strdup(420, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
-  /* this is now done in print_spice_subckt */
-  /*
-   * fprintf(fd, "%s ", extra ? extra : "" );
-   */
-
-  /* 20081206 new get_sym_template does not return token=value pairs where token listed in extra */
-  fprintf(fd, "%s", get_sym_template(xctx->sym[i].templ, extra));
-  my_free(966, &extra);
-  fprintf(fd, "\n");
-  load_schematic(1,filename, 0);
-  tedax_netlist(fd, tedax_stop);
-  xctx->netlist_count++;
-
-  if(xctx->schprop && xctx->schprop[0]) {
-    fprintf(fd,"#**** begin user architecture code\n");
-    fprintf(fd, "%s\n", xctx->schprop);
-    fprintf(fd,"#**** end user architecture code\n");
-  }
-  fprintf(fd, "end netlist\n\n");
-}
-
-void tedax_netlist(FILE *fd, int tedax_stop )
-{
-  int i;
-  char *type=NULL;
-
-  if(!tedax_stop) {
-    xctx->prep_net_structs = 0;
-    prepare_netlist_structs(1);
-    traverse_node_hash();  /* print all warnings about unconnected floatings etc */
-  }
-  if(!tedax_stop) {
-    for(i=0;i<xctx->instances;i++) /* print first ipin/opin defs ... */
-    {
-     if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
-     if(xctx->inst[i].ptr<0) continue;
-     if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "tedax_ignore",0 ), "true") ) {
-       continue;
-     }
-     my_strdup(421, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-     if( type && IS_PIN(type) ) {
-       print_tedax_element(fd, i) ;  /* this is the element line  */
-     }
-    }
-    for(i=0;i<xctx->instances;i++) /* ... then print other lines */
-    {
-     if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
-     if(xctx->inst[i].ptr<0) continue;
-     if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "tedax_ignore",0 ), "true") ) {
-       continue;
-     }
-     my_strdup(423, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-
-     if( type && !IS_LABEL_OR_PIN(type) ) {
-       /* already done in global_tedax_netlist */
-       if(!strcmp(type,"netlist_commands") && xctx->netlist_count==0) continue;
-       if(xctx->netlist_count &&
-          !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "only_toplevel", 0), "true")) continue;
-       if(!strcmp(type,"netlist_commands")) {
-         fprintf(fd,"#**** begin user architecture code\n");
-         print_tedax_element(fd, i) ;  /* this is the element line  */
-         fprintf(fd,"#**** end user architecture code\n");
-       } else {
-         print_tedax_element(fd, i) ;  /* this is the element line  */
-       }
-     }
-    }
-    my_free(967, &type);
-  }
-  if(!tedax_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
 }
 
 

@@ -1033,7 +1033,6 @@ extern int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx
 extern int schematic_waves_loaded(void);
 extern int edit_wave_attributes(int what, int i, Graph_ctx *gr);
 extern void draw_graph(int i, int flags, Graph_ctx *gr);
-extern void draw_graph_all(int flags);
 extern void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr);
 extern double timer(int start);
 extern void enable_layers(void);
@@ -1054,7 +1053,6 @@ extern void schematic_in_new_window(void);
 extern void symbol_in_new_window(void);
 extern void new_xschem_process(const char *cell, int symbol);
 extern void ask_new_file(void);
-extern int samefile(const char *fa, const char *fb);
 extern void saveas(const char *f, int type);
 extern const char *get_file_path(char *f);
 extern int save(int confirm);
@@ -1065,7 +1063,6 @@ extern int  name_strcmp(char *s, char *d) ;
 extern int search(const char *tok, const char *val, int sub, int sel);
 extern int process_options(int argc, char **argv);
 extern void calc_drawing_bbox(xRect *boundbox, int selected);
-extern void create_ps(char **psfile, int what);
 extern int ps_draw(int what);
 extern void svg_draw(void);
 extern void set_viewport_size(int w, int h, double lw);
@@ -1078,7 +1075,6 @@ extern const char *rel_sym_path(const char *s);
 extern const char *abs_sym_path(const char *s, const char *ext);
 extern const char *add_ext(const char *f, const char *ext);
 extern void make_symbol(void);
-extern void make_schematic(const char *schname);
 extern void make_schematic_symbol_from_sel(void);
 extern const char *get_sym_template(char *s, char *extra);
 /* bit0: invoke change_linewidth(), bit1: centered zoom */
@@ -1103,7 +1099,6 @@ extern void hash_inst(int what, int n);
 extern void del_inst_table(void);
 extern void hash_wires(void);
 extern void hash_wire(int what, int n, int incremental);
-extern void wirecheck(int k);
 extern void hash_instances(void); /*  20171203 insert instance bbox in spatial hash table */
 
 #if HAS_CAIRO==1
@@ -1117,20 +1112,10 @@ extern unsigned short select_object(double mx,double my, unsigned short sel_mode
                                     int override_lock); /*  return type 20160503 */
 extern void unselect_all(void);
 extern void select_inside(double x1,double y1, double x2, double y2, int sel);
-extern void xwin_exit(void);
-extern void resetcairo(int create, int clear, int force_or_resize);
 extern int Tcl_AppInit(Tcl_Interp *interp);
-extern int source_tcl_file(char *s);
 extern int callback(const char *winpath, int event, int mx, int my, KeySym key,
                         int button, int aux, int state);
 extern void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h);
-extern void find_closest_net(double mx,double my);
-extern void find_closest_box(double mx,double my);
-extern void find_closest_arc(double mx,double my);
-extern void find_closest_element(double mx,double my);
-extern void find_closest_line(double mx,double my);
-extern void find_closest_polygon(double mx,double my);
-extern void find_closest_text(double mx,double my);
 extern Selected find_closest_obj(double mx,double my);
 extern void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y);
 
@@ -1146,7 +1131,6 @@ extern void filledrect(int c, int what, double rectx1,double recty1,
 
 
 extern void drawtempline(GC gc, int what, double x1,double y1,double x2,double y2);
-extern void drawgrid(void);
 extern void drawtemprect(GC gc, int what, double rectx1,double recty1,
             double rectx2,double recty2);
 extern void drawtemparc(GC gc, int what, double x, double y, double r, double a, double b);
@@ -1160,7 +1144,6 @@ extern void draw_temp_string(GC gc,int what, const char *str, short rot, short f
        double x1, double y1, double xscale, double yscale);
 
 extern void draw(void);
-extern short clip_to_short(double n);
 extern void clip_xy_to_short(double x, double y, short *sx, short *sy);
 extern int clip( double*,double*,double*,double*);
 extern int textclip(int x1,int y1,int x2,int y2,
@@ -1191,19 +1174,13 @@ extern void store_arc(int pos, double x, double y, double r, double a, double b,
                unsigned int rectcolor, unsigned short sel, char *prop_ptr);
 
 extern void hier_psprint(void);
-extern void freenet_nocheck(int i);
-extern void spice_netlist(FILE *fd, int spice_stop);
-extern void tedax_netlist(FILE *fd, int spice_stop);
 extern void global_spice_netlist(int global);
 extern void global_tedax_netlist(int global);
-extern void vhdl_netlist(FILE *fd, int vhdl_stop);
 extern void global_vhdl_netlist(int global);
-extern void verilog_netlist(FILE *fd, int verilog_stop);
 extern void global_verilog_netlist(int global);
 extern void vhdl_block_netlist(FILE *fd, int i);
 extern void verilog_block_netlist(FILE *fd, int i);
 extern void spice_block_netlist(FILE *fd, int i);
-extern void tedax_block_netlist(FILE *fd, int i);
 extern void remove_symbols(void);
 extern void remove_symbol(int i);
 extern void clear_drawing(void);
@@ -1231,7 +1208,6 @@ extern void load_schematic(int load_symbol, const char *abs_name, int reset_undo
 extern int check_loaded(const char *f, char *win_path);
 extern void link_symbols_to_instances(int from);
 extern void load_ascii_string(char **ptr, FILE *fd);
-extern void read_xschem_file(FILE *fd);
 extern char *read_line(FILE *fp, int dbg_level);
 extern void read_record(int firstchar, FILE *fp, int dbg_level);
 extern void create_sch_from_sym(void);
@@ -1303,8 +1279,6 @@ extern void print_spice_subckt(FILE *fd, int symbol);
 extern void print_tedax_subckt(FILE *fd, int symbol);
 extern void print_vhdl_element(FILE *fd, int inst);
 extern void print_verilog_element(FILE *fd, int inst);
-extern void print_verilog_primitive(FILE *fd, int inst);
-extern void print_vhdl_primitive(FILE *fd, int inst);
 extern const char *get_tok_value(const char *s,const char *tok,int with_quotes);
 extern const char *list_tokens(const char *s, int with_quotes);
 extern int  my_snprintf(char *str, int size, const char *fmt, ...);
@@ -1387,7 +1361,6 @@ extern void display_hilights(char **str);
 extern void redraw_hilights(int clear);
 extern void set_tcl_netlist_type(void);
 extern void prepare_netlist_structs(int for_netlist);
-extern void create_simdata(void);
 extern void free_simdata(void);
 extern void delete_netlist_structs(void);
 extern void delete_inst_node(int i);
@@ -1405,23 +1378,17 @@ extern void launcher();
 extern void windowid(const char *winpath);
 extern void preview_window(const char *what, const char *tk_win_path, const char *fname);
 extern int new_schematic(const char *what, const char *win_path, const char *fname);
-extern int window_state (Display *disp, Window win, char *arg);
 extern void toggle_fullscreen(const char *topwin);
 extern void toggle_only_probes();
-extern void update_symbol(const char *result, int x);
-extern void tclexit(ClientData s);
 extern int build_colors(double dim, double dim_bg); /*  reparse the TCL 'colors' list and reassign colors 20171113 */
 extern void set_clip_mask(int what);
 #ifdef __unix__
 extern int pending_events(void);
 #endif
-extern void drill_hilight(int mode);
 extern void get_square(double x, double y, int *xx, int *yy);
 extern void del_wire_table(void);
 extern void del_object_table(void);
-extern const char *random_string(const char *prefix);
 extern const char *create_tmpdir(char *prefix);
 extern FILE *open_tmpfile(char *prefix, char **filename);
-extern void child_handler(int signum);
 
 #endif /*CADGLOBALS */

@@ -23,6 +23,56 @@
 #include "xschem.h"
 static Str_hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
 
+static void verilog_netlist(FILE *fd , int verilog_stop)
+{
+ int i;
+ char *type=NULL;
+
+ if(!verilog_stop) {
+   xctx->prep_net_structs = 0;
+   prepare_netlist_structs(1);
+   dbg(2, "verilog_netlist(): end prepare_netlist_structs\n");
+   traverse_node_hash();  /* print all warnings about unconnected floatings etc */
+   dbg(2, "verilog_netlist(): end traverse_node_hash\n");
+ }
+
+ fprintf(fd,"---- begin signal list\n"); /* these are needed even if signal list empty */
+ if(!verilog_stop) print_verilog_signals(fd);
+ fprintf(fd,"---- end signal list\n");   /* these are needed even if signal list empty */
+
+
+ if(!verilog_stop)
+ {
+   for(i=0;i<xctx->instances;i++) /* ... print all element except ipin opin labels use package */
+   {
+    if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
+    if(xctx->inst[i].ptr<0) continue;
+    if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "verilog_ignore",0 ), "true") ) {
+      continue;
+    }
+
+    dbg(2, "verilog_netlist():       into the netlisting loop\n");
+    my_strdup(570, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+    if( type &&
+       ( !IS_LABEL_OR_PIN(type) &&
+         strcmp(type,"netlist_commands")&&
+         strcmp(type,"timescale")&&
+         strcmp(type,"verilog_preprocessor")
+       ))
+    {
+     if(xctx->lastsel)
+     {
+      if(xctx->inst[i].sel==SELECTED) print_verilog_element(fd, i) ;
+     }
+     else print_verilog_element(fd, i) ;  /* this is the element line  */
+    }
+   }
+   my_free(1084, &type);
+ }
+ dbg(1, "verilog_netlist():       end\n");
+ if(!verilog_stop && !xctx->netlist_count) redraw_hilights(0); /*draw_hilight_net(1); */
+}
+
 void global_verilog_netlist(int global)  /* netlister driver */
 {
  FILE *fd;
@@ -513,52 +563,3 @@ void verilog_block_netlist(FILE *fd, int i)
   my_free(1083, &tmp_string);
 }
 
-void verilog_netlist(FILE *fd , int verilog_stop)
-{
- int i;
- char *type=NULL;
-
- if(!verilog_stop) {
-   xctx->prep_net_structs = 0;
-   prepare_netlist_structs(1);
-   dbg(2, "verilog_netlist(): end prepare_netlist_structs\n");
-   traverse_node_hash();  /* print all warnings about unconnected floatings etc */
-   dbg(2, "verilog_netlist(): end traverse_node_hash\n");
- }
-
- fprintf(fd,"---- begin signal list\n"); /* these are needed even if signal list empty */
- if(!verilog_stop) print_verilog_signals(fd);
- fprintf(fd,"---- end signal list\n");   /* these are needed even if signal list empty */
-
-
- if(!verilog_stop)
- {
-   for(i=0;i<xctx->instances;i++) /* ... print all element except ipin opin labels use package */
-   {
-    if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
-    if(xctx->inst[i].ptr<0) continue;
-    if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "verilog_ignore",0 ), "true") ) {
-      continue;
-    }
-
-    dbg(2, "verilog_netlist():       into the netlisting loop\n");
-    my_strdup(570, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-    if( type &&
-       ( !IS_LABEL_OR_PIN(type) &&
-         strcmp(type,"netlist_commands")&&
-         strcmp(type,"timescale")&&
-         strcmp(type,"verilog_preprocessor")
-       ))
-    {
-     if(xctx->lastsel)
-     {
-      if(xctx->inst[i].sel==SELECTED) print_verilog_element(fd, i) ;
-     }
-     else print_verilog_element(fd, i) ;  /* this is the element line  */
-    }
-   }
-   my_free(1084, &type);
- }
- dbg(1, "verilog_netlist():       end\n");
- if(!verilog_stop && !xctx->netlist_count) redraw_hilights(0); /*draw_hilight_net(1); */
-}

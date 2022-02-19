@@ -41,7 +41,7 @@ void statusmsg(char str[],int n)
   }
 }
 
-int get_instance(const char *s)
+static int get_instance(const char *s)
 {
   int i, found=0;
   for(i=0;i<xctx->instances;i++) {
@@ -61,7 +61,7 @@ int get_instance(const char *s)
   return i;
 }
 
-void xschem_cmd_help(int argc, const char **argv)
+static void xschem_cmd_help(int argc, const char **argv)
 {
   Tcl_ResetResult(interp);
   Tcl_AppendResult(interp, 

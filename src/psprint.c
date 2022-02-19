@@ -671,7 +671,7 @@ static void fill_ps_colors()
 
 }
 
-void create_ps(char **psfile, int what)
+static void create_ps(char **psfile, int what)
 {
   double dx, dy, scale, scaley;
   int landscape=1;

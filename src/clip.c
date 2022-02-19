@@ -102,11 +102,12 @@ void clip_xy_to_short(double x, double y, short *sx, short *sy)
   *sy = y * r;
 }
 
-short clip_to_short(double n)
-{
-  return n > SHRT_MAX ? SHRT_MAX : n < SHRT_MIN ? SHRT_MIN : n;
-}
-
+/* 
+ *static short clip_to_short(double n)
+ *{
+ *  return n > SHRT_MAX ? SHRT_MAX : n < SHRT_MIN ? SHRT_MIN : n;
+ *}
+ */
 int rectclip(int x1,int y1,int x2,int y2,
           double *xa,double *ya,double *xb,double *yb)
 /* coordinates should be ordered, x1<x2,ya<yb and so on... */
@@ -194,26 +195,6 @@ double dist(double x1,double y1,double x2,double y2,double xa,double ya)
  }
     /* debug ... */
     if(debug_var>=0) {fprintf(errfp, "dist(): Internal error, \n");exit(1);}
-}
-
-/*obsolete, will be removed */
-double rectdist(double x1,double y1,double x2,double y2,double xa,double ya)
-{
- double distance,dist;
- double xa1,ya1;
- xa1 = xa - x1; xa1*=xa1;
- ya1 = ya - y1; ya1*=ya1;
- distance = xa1 + ya1;
- xa1 = xa - x1; xa1*=xa1;
- ya1 = ya - y2; ya1*=ya1;
- if((dist = xa1 + ya1) < distance) distance = dist;
- xa1 = xa - x2; xa1*=xa1;
- ya1 = ya - y1; ya1*=ya1;
- if((dist = xa1 + ya1) < distance) distance = dist;
- xa1 = xa - x2; xa1*=xa1;
- ya1 = ya - y2; ya1*=ya1;
- if((dist = xa1 + ya1) < distance) distance = dist;
- return distance;
 }
 
 int touch(double x1,double y1,double x2,double y2,double xa,double ya)

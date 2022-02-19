@@ -157,7 +157,7 @@ static void instpininsert(int n,int pin, double x0, double y0, int x, int y)
 }
 
 
-Instpinentry *delinstpinentry(Instpinentry *t)
+static Instpinentry *delinstpinentry(Instpinentry *t)
 {
   Instpinentry *tmp;
 
@@ -412,7 +412,8 @@ void netlist_options(int i)
 }
 
 /* used only for debug */
-void print_wires(void)
+#if 0
+static void print_wires(void)
 {
  int i,j;
  Wireentry *ptr;
@@ -438,6 +439,7 @@ void print_wires(void)
  }
  draw();
 }
+#endif
 
 static void signal_short( char *n1, char *n2)
 {
@@ -457,7 +459,7 @@ static void signal_short( char *n1, char *n2)
  }
 }
 
-void wirecheck(int k)    /* recursive routine */
+static void wirecheck(int k)    /* recursive routine */
 {
  int tmpi,tmpj, counti,countj,i,j;
  int touches;

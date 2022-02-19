@@ -78,7 +78,7 @@ static int client_msg(Display *disp, Window win, char *msg, /* {{{ */
 }/*}}}*/
 
 
-int window_state (Display *disp, Window win, char *arg) {/*{{{*/
+static int window_state (Display *disp, Window win, char *arg) {/*{{{*/
     char arg_copy[256]; /* overflow safe */
     unsigned long action;
     int i;
@@ -198,7 +198,7 @@ void windowid(const char *winpath)
   Tcl_SetResult(interp,"",TCL_STATIC);
 }
 
-int err(Display *display, XErrorEvent *xev)
+static int err(Display *display, XErrorEvent *xev)
 {
  char s[1024];  /* overflow safe 20161122 */
  int l=250;
@@ -210,7 +210,7 @@ int err(Display *display, XErrorEvent *xev)
  return 0;
 }
 
-unsigned int  find_best_color(char colorname[])
+static unsigned int  find_best_color(char colorname[])
 {
  int i;
  double distance=10000000000.0, dist, r, g, b, red, green, blue;
@@ -291,7 +291,7 @@ static void init_color_array(double dim, double dim_bg)
  }
 }
 
-void init_pixdata()/* populate xctx->fill_type array that is used in create_gc() to set fill styles */
+static void init_pixdata()/* populate xctx->fill_type array that is used in create_gc() to set fill styles */
 {
  int i,j, full, empty;
  for(i=0;i<cadlayers;i++) {
@@ -374,7 +374,7 @@ static void free_xschem_data()
   my_free(269, &xctx);
 }
 
-void create_gc(void)
+static void create_gc(void)
 {
   int i;
   for(i=0;i<cadlayers;i++)
@@ -388,7 +388,7 @@ void create_gc(void)
   }
 }
 
-void free_gc()
+static void free_gc()
 {
   int i;
   for(i=0;i<cadlayers;i++) {
@@ -619,7 +619,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->time_last_modify = 0;
 }
 
-void delete_schematic_data(void)
+static void delete_schematic_data(void)
 {
   dbg(1, "delete_schematic_data()\n");
   unselect_all();
@@ -642,7 +642,7 @@ void delete_schematic_data(void)
   free_xschem_data(); /* delete the xctx struct */
 }
 
-void xwin_exit(void)
+static void xwin_exit(void)
 {
  int i;
 
@@ -889,13 +889,13 @@ void toggle_fullscreen(const char *topwin)
 }
 
 
-void tclexit(ClientData s)
+static void tclexit(ClientData s)
 {
   dbg(1, "tclexit() INVOKED\n");
   if(init_done) xwin_exit();
 }
 
-int source_tcl_file(char *s)
+static int source_tcl_file(char *s)
 {
   char tmp[1024];
   if(Tcl_EvalFile(interp, s)==TCL_ERROR) {
@@ -1513,7 +1513,7 @@ void change_linewidth(double w)
 
 /* clears and creates cairo_sfc, cairo_ctx, cairo_save_sfc, cairo_save_ctx
  * and sets some graphical attributes */
-void resetcairo(int create, int clear, int force_or_resize)
+static void resetcairo(int create, int clear, int force_or_resize)
 { 
   #if HAS_CAIRO==1
   dbg(1, "resetcairo() %d, %d, %d\n", create, clear, force_or_resize);

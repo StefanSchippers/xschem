@@ -122,7 +122,7 @@ void print_image()
 }
 
 #if HAS_CAIRO==1
-void set_cairo_color(int layer)
+static void set_cairo_color(int layer)
 {
   cairo_set_source_rgb(xctx->cairo_ctx,
     (double)xctx->xcolor_array[layer].red/65535.0,
@@ -691,7 +691,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  }
 }
 
-void drawgrid()
+static void drawgrid()
 {
   double x,y;
   double delta,tmp;
@@ -1599,7 +1599,7 @@ int schematic_waves_loaded(void)
   return 0;
 }
 
-void get_bus_value(int n_bits, int hex_digits, SPICE_DATA **idx_arr, int p, char *busval,
+static void get_bus_value(int n_bits, int hex_digits, SPICE_DATA **idx_arr, int p, char *busval,
                    double vthl, double vthh)
 {
   double val;
@@ -2649,7 +2649,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
 /* flags:
  * see draw_graph()
  */
-void draw_graph_all(int flags)
+static void draw_graph_all(int flags)
 {
   int  i, sch_loaded, hide_graphs;
   int bbox_set = 0;

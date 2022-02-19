@@ -164,7 +164,7 @@ void check_collapsing_objects()
   }
 }
 
-void update_symbol_bboxes(short rot, short flip)
+static void update_symbol_bboxes(short rot, short flip)
 {
   int i, n;
   short save_flip, save_rot;

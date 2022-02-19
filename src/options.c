@@ -24,7 +24,7 @@
 #define SHORT 1
 #define LONG 2
 
-void check_opt(char *opt, char *optval, int type)
+static void check_opt(char *opt, char *optval, int type)
 {
     if( (type == SHORT && *opt == 'd') || (type == LONG && !strcmp("debug", opt)) ) {
         if(optval) debug_var=atoi(optval);

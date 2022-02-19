@@ -36,17 +36,6 @@ unsigned int str_hash(const char *tok)
   return hash;
 }
 
-/* seems unused */
-int name_strcmp(char *s, char *d) /* compare strings up to '\0' or'[' */
-{
-  while(*s == *d) {
-    if(*s == '\0' || *s == '[') return 0;
-    s++;
-    d++;
-  }
-  return *s - *d;
-}
-
 /* 20180926 added token_size */
 /* what:
  * 0,XINSERT : lookup token and insert xctx->inst[value].instname in hash table
@@ -580,7 +569,7 @@ const char *get_sym_template(char *s,char *extra)
  return result;
 }
 
-const char *find_bracket(const char *s)
+static const char *find_bracket(const char *s)
 {
  while(*s!='['&& *s!='\0') s++;
  return s;
@@ -588,7 +577,7 @@ const char *find_bracket(const char *s)
 
 /* caller is responsible for freeing up storage for return value
  * return NULL if no matching token found */
-char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
+static char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
 {
    int attr_size;
    char *pinname = NULL, *pname = NULL, *pin_attr_value = NULL;
@@ -701,7 +690,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
 
 
 
-int is_quoted(const char *s)
+static int is_quoted(const char *s)
 {
   int c, escape = 0;
   int openquote = 0;
@@ -731,6 +720,178 @@ int is_quoted(const char *s)
   }
   if(openquote && closequote) return 1;
   return 0;
+}
+
+static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 */
+{
+ int i=0, multip, tmp;
+ const char *str_ptr;
+ register int c, state=TOK_BEGIN, space;
+ const char *lab;
+ char *template=NULL,*format=NULL,*s, *name=NULL, *token=NULL;
+ const char *value;
+ int pin_number;
+ int sizetok=0;
+ int token_pos=0, escape=0;
+ int no_of_pins=0;
+ /* Inst_hashentry *ptr; */
+
+ my_strdup(513, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
+ my_strdup(514, &name, xctx->inst[inst].instname);
+ if(!name) my_strdup(50, &name, get_tok_value(template, "name", 0));
+
+ /* allow format string override in instance */
+ my_strdup(1000, &format, get_tok_value(xctx->inst[inst].prop_ptr,"vhdl_format",2));
+ if(!format || !format[0])
+   my_strdup(516, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"vhdl_format",2));
+ if((name==NULL) || (format==NULL) ) {
+   my_free(1047, &template);
+   my_free(1048, &name);
+   my_free(1151, &format);
+   return; /*do no netlist unwanted insts(no format) */
+ }
+ no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
+ s=format;
+ dbg(1, "print_vhdl_primitive(): name=%s, format=%s xctx->netlist_count=%d\n",name,format, xctx->netlist_count);
+
+ fprintf(fd, "---- start primitive ");
+ lab=expandlabel(name, &tmp);
+ fprintf(fd, "%d\n",tmp);
+ /* begin parsing format string */
+ while(1)
+ {
+  c=*s++;
+  if(c=='\\') {
+    escape=1;
+    c=*s++;
+  }
+  else escape=0;
+  if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
+  space=SPACE(c);
+
+  if( state==TOK_BEGIN && (c=='@' || c=='%') && !escape ) state=TOK_TOKEN;
+  else if(state==TOK_TOKEN && token_pos > 1 &&
+     (
+       ( (space  || c == '%' || c == '@') && !escape ) ||
+       ( (!space && c != '%' && c != '@') && escape  )
+     )
+    ) {
+    state=TOK_SEP;
+  }
+
+  STR_ALLOC(&token, token_pos, &sizetok);
+  if(state==TOK_TOKEN) {
+    token[token_pos++]=c; /* 20171029 remove escaping backslashes */
+  }
+  else if(state==TOK_SEP)                    /* got a token */
+  {
+   token[token_pos]='\0';
+   token_pos=0;
+
+   value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
+   /* xctx->tok_size==0 indicates that token(+1) does not exist in instance attributes */
+   if(!xctx->tok_size)
+   value=get_tok_value(template, token+1, 0);
+   if(!xctx->tok_size && token[0] =='%') {
+     fputs(token + 1, fd);
+   } else if(value && value[0]!='\0')
+   {  /* instance names (name) and node labels (lab) go thru the expandlabel function. */
+      /*if something else must be parsed, put an if here! */
+
+    if(!(strcmp(token+1,"name"))) {
+      if( (lab=expandlabel(value, &tmp)) != NULL)
+         fprintf(fd, "----name(%s)", lab);
+      else
+         fprintf(fd, "%s", value);
+    }
+    else if(!(strcmp(token+1,"lab"))) {
+      if( (lab=expandlabel(value, &tmp)) != NULL)
+         fprintf(fd, "----pin(%s)", lab);
+      else
+         fprintf(fd, "%s", value);
+    }
+    else  fprintf(fd, "%s", value);
+   }
+   else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
+                                        /* in hash table */
+   {
+    fprintf( fd, "%s",skip_dir(xctx->inst[inst].name) );
+   }
+   else if (strcmp(token,"@symname_ext")==0) 
+   {
+     fputs(get_cell_w_ext(xctx->inst[inst].name, 0), fd);
+   }
+   else if(strcmp(token,"@schname")==0) /* of course schname must not be present  */
+                                        /* in hash table */
+   {
+     /* fputs(xctx->sch[xctx->currsch],fd); */
+     fputs(xctx->current_name, fd);
+   }
+   else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present  */
+                                        /* in hash table. print multiplicity */
+   {                                    /* and node number: m1 n1 m2 n2 .... */
+    for(i=0;i<no_of_pins;i++)
+    {
+      char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
+      if(strcmp(get_tok_value(prop,"vhdl_ignore",0), "true")) {
+        str_ptr =  net_name(inst,i, &multip, 0, 1);
+        fprintf(fd, "----pin(%s) ", str_ptr);
+      }
+    }
+   }
+   else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
+    for(i=0;i<no_of_pins;i++) {
+     xSymbol *ptr = xctx->inst[inst].ptr + xctx->sym;
+     if(!strcmp( get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"name",0), token+2)) {
+       if(strcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
+         str_ptr =  net_name(inst,i, &multip, 0, 1);
+         fprintf(fd, "----pin(%s) ", str_ptr);
+       }
+       break;
+     }
+    }
+   }
+   /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
+   else if(token[0]=='@' && token[1]=='#') {
+       pin_number = atoi(token+2);
+       if(pin_number < no_of_pins) {
+         char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][pin_number].prop_ptr;
+         if(strcmp(get_tok_value(prop,"vhdl_ignore",0), "true")) {
+           str_ptr =  net_name(inst,pin_number, &multip, 0, 1);
+           fprintf(fd, "----pin(%s) ", str_ptr);
+         }
+       }
+   }
+   else if(!strncmp(token,"@tcleval", 8)) {
+     /* char tclcmd[strlen(token)+100] ; */
+     size_t s;
+     char *tclcmd=NULL;
+     s = token_pos + strlen(name) + strlen(xctx->inst[inst].name) + 100;
+     tclcmd = my_malloc(518, s);
+     Tcl_ResetResult(interp);
+     my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
+     tcleval(tclcmd);
+     fprintf(fd, "%s", tclresult());
+     my_free(1049, &tclcmd);
+   }
+
+   if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd);
+   if(c == '@' || c == '%') s--;
+   state=TOK_BEGIN;
+  }
+  else if(state==TOK_BEGIN && c!='\0')  fputc(c,fd);
+
+  if(c=='\0')
+  {
+   fputc('\n',fd);
+   fprintf(fd, "---- end primitive\n");
+   break ;
+  }
+ }
+ my_free(1050, &template);
+ my_free(1051, &format);
+ my_free(1052, &name);
+ my_free(1053, &token);
 }
 
 const char *subst_token(const char *s, const char *tok, const char *new_val)
@@ -1093,10 +1254,6 @@ void print_vhdl_element(FILE *fd, int inst)
     }
   }
   if(tmp) fprintf(fd, "\n)\n");
-
-
-
-
    dbg(2, "print_vhdl_element(): printing port maps \n");
   /* print port map */
   fprintf(fd, "port map(\n" );
@@ -2129,6 +2286,180 @@ void print_tedax_element(FILE *fd, int inst)
  my_free(1039, &token);
 }
 
+/* print verilog element if verilog_format is specified */
+static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primitives, 15112003 */
+{
+  int i=0, multip, tmp;
+  const char *str_ptr;
+  register int c, state=TOK_BEGIN, space;
+  const char *lab;
+  char *template=NULL,*format=NULL,*s=NULL, *name=NULL, *token=NULL;
+  const char *value;
+  int sizetok=0;
+  int token_pos=0, escape=0;
+  int no_of_pins=0;
+  /* Inst_hashentry *ptr; */
+
+  my_strdup(519, &template,
+      (xctx->inst[inst].ptr + xctx->sym)->templ);
+
+  my_strdup(520, &name,xctx->inst[inst].instname);
+  if(!name) my_strdup(4, &name, get_tok_value(template, "name", 0));
+
+  /* allow format string override in instance */
+  my_strdup(1186, &format, get_tok_value(xctx->inst[inst].prop_ptr,"verilog_format",2));
+  if(!format || !format[0])
+    my_strdup(522, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"verilog_format",2));
+  if((name==NULL) || (format==NULL) ) {
+    my_free(1054, &template);
+    my_free(1055, &name);
+    my_free(1056, &format);
+    return; /*do no netlist unwanted insts(no format) */
+  }
+  no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
+  s=format;
+  dbg(1, "print_verilog_primitive(): name=%s, format=%s xctx->netlist_count=%d\n",name,format, xctx->netlist_count);
+
+  fprintf(fd, "---- start primitive ");
+  lab=expandlabel(name, &tmp);
+  fprintf(fd, "%d\n",tmp);
+  /* begin parsing format string */
+  while(1)
+  {
+   c=*s++;
+   if(c=='\\') {
+     escape=1;
+     c=*s++;
+   }
+   else escape=0;
+   if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
+   space=SPACE(c);
+   if( state==TOK_BEGIN && (c=='@' || c=='%') && !escape ) state=TOK_TOKEN;
+   else if(state==TOK_TOKEN && token_pos > 1 &&
+      (
+        ( (space  || c == '%' || c == '@') && !escape ) || 
+        ( (!space && c != '%' && c != '@') && escape  )
+      )
+     
+     ) { 
+     state=TOK_SEP;
+   }
+
+   STR_ALLOC(&token, token_pos, &sizetok);
+   if(state==TOK_TOKEN) {
+      token[token_pos++]=c;
+   }
+   else if(state==TOK_SEP)                    /* got a token */
+   {
+    token[token_pos]='\0';
+    token_pos=0;
+
+    value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
+    /* xctx->tok_size==0 indicates that token(+1) does not exist in instance attributes */
+    if(!xctx->tok_size)
+    value=get_tok_value(template, token+1, 0);
+    if(!xctx->tok_size && token[0] =='%') {
+      fputs(token + 1, fd);
+    } else if(value && value[0]!='\0') {
+       /* instance names (name) and node labels (lab) go thru the expandlabel function. */
+       /*if something else must be parsed, put an if here! */
+
+     if(!(strcmp(token+1,"name"))) {
+       if( (lab=expandlabel(value, &tmp)) != NULL)
+          fprintf(fd, "----name(%s)", lab);
+       else
+          fprintf(fd, "%s", value);
+     }
+     else if(!(strcmp(token+1,"lab"))) {
+       if( (lab=expandlabel(value, &tmp)) != NULL)
+          fprintf(fd, "----pin(%s)", lab);
+       else
+          fprintf(fd, "%s", value);
+     }
+     else  fprintf(fd, "%s", value);
+    }
+    else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
+                                         /* in hash table */
+    {
+     fprintf( fd, "%s",skip_dir(xctx->inst[inst]. name) );
+    }
+    else if (strcmp(token,"@symname_ext")==0) 
+    {
+      fputs(get_cell_w_ext(xctx->inst[inst].name, 0), fd);
+    }
+    else if(strcmp(token,"@schname")==0) /* of course schname must not be present  */
+                                         /* in hash table */
+    {
+      /* fputs(xctx->sch[xctx->currsch],fd); */
+      fputs(xctx->current_name, fd);
+    }
+    else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present  */
+                                         /* in hash table. print multiplicity */
+    {                                    /* and node number: m1 n1 m2 n2 .... */
+     for(i=0;i<no_of_pins;i++)
+     {
+       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
+       if(strcmp(get_tok_value(prop, "verilog_ignore",0), "true")) {
+         str_ptr =  net_name(inst,i, &multip, 0, 1);
+         fprintf(fd, "----pin(%s) ", str_ptr);
+       }
+     }
+    }
+    else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
+     for(i=0;i<no_of_pins;i++) {
+      char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
+      if(!strcmp( get_tok_value(prop,"name",0), token+2)) {
+        if(strcmp(get_tok_value(prop, "verilog_ignore",0), "true")) {
+          str_ptr =  net_name(inst,i, &multip, 0, 1);
+          fprintf(fd, "----pin(%s) ", str_ptr);
+        }
+        break;
+      }
+     }
+    }
+    /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
+    else if(token[0]=='@' && token[1]=='#') {
+      int pin_number = atoi(token+2);
+      if(pin_number < no_of_pins) {
+        const char *vi;
+        char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][pin_number].prop_ptr;
+        vi = get_tok_value(prop,"verilog_ignore",0);
+        if(strcmp(vi, "true")) {
+          str_ptr =  net_name(inst,pin_number, &multip, 0, 1);
+          fprintf(fd, "----pin(%s) ", str_ptr);
+        }
+      }
+    }
+    else if(!strncmp(token,"@tcleval", 8)) {
+      /* char tclcmd[strlen(token)+100] ; */
+      size_t s;
+      char *tclcmd=NULL;
+      s = token_pos + strlen(name) + strlen(xctx->inst[inst].name) + 100;
+      tclcmd = my_malloc(524, s);
+      Tcl_ResetResult(interp);
+      my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
+      tcleval(tclcmd);
+      fprintf(fd, "%s", tclresult());
+      my_free(1057, &tclcmd);
+    }
+    if(c!='%' && c!='@' && c!='\0') fputc(c,fd);
+    if(c == '@' || c == '%') s--;
+    state=TOK_BEGIN;
+   }
+   else if(state==TOK_BEGIN && c!='\0')  fputc(c,fd);
+   if(c=='\0')
+   {
+    fputc('\n',fd);
+    fprintf(fd, "---- end primitive\n");
+    break ;
+   }
+  }
+  my_free(1058, &template);
+  my_free(1059, &format);
+  my_free(1060, &name);
+  my_free(1061, &token);
+}
+
 /* verilog module instantiation:
      cmos_inv
      #(
@@ -2355,353 +2686,6 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
      return expandlabel(xctx->inst[i].node[j], &tmp);
    }
  }
-}
-
-
-void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 20071217 */
-{
- int i=0, multip, tmp;
- const char *str_ptr;
- register int c, state=TOK_BEGIN, space;
- const char *lab;
- char *template=NULL,*format=NULL,*s, *name=NULL, *token=NULL;
- const char *value;
- int pin_number;
- int sizetok=0;
- int token_pos=0, escape=0;
- int no_of_pins=0;
- /* Inst_hashentry *ptr; */
-
- my_strdup(513, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
- my_strdup(514, &name, xctx->inst[inst].instname);
- if(!name) my_strdup(50, &name, get_tok_value(template, "name", 0));
-
- /* allow format string override in instance */
- my_strdup(1000, &format, get_tok_value(xctx->inst[inst].prop_ptr,"vhdl_format",2));
- if(!format || !format[0])
-   my_strdup(516, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"vhdl_format",2));
- if((name==NULL) || (format==NULL) ) {
-   my_free(1047, &template);
-   my_free(1048, &name);
-   my_free(1151, &format);
-   return; /*do no netlist unwanted insts(no format) */
- }
- no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
- s=format;
- dbg(1, "print_vhdl_primitive(): name=%s, format=%s xctx->netlist_count=%d\n",name,format, xctx->netlist_count);
-
- fprintf(fd, "---- start primitive ");
- lab=expandlabel(name, &tmp);
- fprintf(fd, "%d\n",tmp);
- /* begin parsing format string */
- while(1)
- {
-  c=*s++;
-  if(c=='\\') {
-    escape=1;
-    c=*s++;
-  }
-  else escape=0;
-  if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
-  space=SPACE(c);
-
-  if( state==TOK_BEGIN && (c=='@' || c=='%') && !escape ) state=TOK_TOKEN;
-  else if(state==TOK_TOKEN && token_pos > 1 &&
-     (
-       ( (space  || c == '%' || c == '@') && !escape ) ||
-       ( (!space && c != '%' && c != '@') && escape  )
-     )
-    ) {
-    state=TOK_SEP;
-  }
-
-  STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==TOK_TOKEN) {
-    token[token_pos++]=c; /* 20171029 remove escaping backslashes */
-  }
-  else if(state==TOK_SEP)                    /* got a token */
-  {
-   token[token_pos]='\0';
-   token_pos=0;
-
-   value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
-   /* xctx->tok_size==0 indicates that token(+1) does not exist in instance attributes */
-   if(!xctx->tok_size)
-   value=get_tok_value(template, token+1, 0);
-   if(!xctx->tok_size && token[0] =='%') {
-     fputs(token + 1, fd);
-   } else if(value && value[0]!='\0')
-   {  /* instance names (name) and node labels (lab) go thru the expandlabel function. */
-      /*if something else must be parsed, put an if here! */
-
-    if(!(strcmp(token+1,"name"))) {
-      if( (lab=expandlabel(value, &tmp)) != NULL)
-         fprintf(fd, "----name(%s)", lab);
-      else
-         fprintf(fd, "%s", value);
-    }
-    else if(!(strcmp(token+1,"lab"))) {
-      if( (lab=expandlabel(value, &tmp)) != NULL)
-         fprintf(fd, "----pin(%s)", lab);
-      else
-         fprintf(fd, "%s", value);
-    }
-    else  fprintf(fd, "%s", value);
-   }
-   else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
-                                        /* in hash table */
-   {
-    fprintf( fd, "%s",skip_dir(xctx->inst[inst].name) );
-   }
-   else if (strcmp(token,"@symname_ext")==0) 
-   {
-     fputs(get_cell_w_ext(xctx->inst[inst].name, 0), fd);
-   }
-   else if(strcmp(token,"@schname")==0) /* of course schname must not be present  */
-                                        /* in hash table */
-   {
-     /* fputs(xctx->sch[xctx->currsch],fd); */
-     fputs(xctx->current_name, fd);
-   }
-   else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present  */
-                                        /* in hash table. print multiplicity */
-   {                                    /* and node number: m1 n1 m2 n2 .... */
-    for(i=0;i<no_of_pins;i++)
-    {
-      char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
-      if(strcmp(get_tok_value(prop,"vhdl_ignore",0), "true")) {
-        str_ptr =  net_name(inst,i, &multip, 0, 1);
-        fprintf(fd, "----pin(%s) ", str_ptr);
-      }
-    }
-   }
-   else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
-    for(i=0;i<no_of_pins;i++) {
-     xSymbol *ptr = xctx->inst[inst].ptr + xctx->sym;
-     if(!strcmp( get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"name",0), token+2)) {
-       if(strcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
-         str_ptr =  net_name(inst,i, &multip, 0, 1);
-         fprintf(fd, "----pin(%s) ", str_ptr);
-       }
-       break;
-     }
-    }
-   }
-   /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
-   else if(token[0]=='@' && token[1]=='#') {
-       pin_number = atoi(token+2);
-       if(pin_number < no_of_pins) {
-         char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][pin_number].prop_ptr;
-         if(strcmp(get_tok_value(prop,"vhdl_ignore",0), "true")) {
-           str_ptr =  net_name(inst,pin_number, &multip, 0, 1);
-           fprintf(fd, "----pin(%s) ", str_ptr);
-         }
-       }
-   }
-   else if(!strncmp(token,"@tcleval", 8)) {
-     /* char tclcmd[strlen(token)+100] ; */
-     size_t s;
-     char *tclcmd=NULL;
-     s = token_pos + strlen(name) + strlen(xctx->inst[inst].name) + 100;
-     tclcmd = my_malloc(518, s);
-     Tcl_ResetResult(interp);
-     my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
-     tcleval(tclcmd);
-     fprintf(fd, "%s", tclresult());
-     my_free(1049, &tclcmd);
-   }
-
-   if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd);
-   if(c == '@' || c == '%') s--;
-   state=TOK_BEGIN;
-  }
-  else if(state==TOK_BEGIN && c!='\0')  fputc(c,fd);
-
-  if(c=='\0')
-  {
-   fputc('\n',fd);
-   fprintf(fd, "---- end primitive\n");
-   break ;
-  }
- }
- my_free(1050, &template);
- my_free(1051, &format);
- my_free(1052, &name);
- my_free(1053, &token);
-}
-
-/* print verilog element if verilog_format is specified */
-void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level primitives, 15112003 */
-{
-  int i=0, multip, tmp;
-  const char *str_ptr;
-  register int c, state=TOK_BEGIN, space;
-  const char *lab;
-  char *template=NULL,*format=NULL,*s=NULL, *name=NULL, *token=NULL;
-  const char *value;
-  int sizetok=0;
-  int token_pos=0, escape=0;
-  int no_of_pins=0;
-  /* Inst_hashentry *ptr; */
-
-  my_strdup(519, &template,
-      (xctx->inst[inst].ptr + xctx->sym)->templ);
-
-  my_strdup(520, &name,xctx->inst[inst].instname);
-  if(!name) my_strdup(4, &name, get_tok_value(template, "name", 0));
-
-  /* allow format string override in instance */
-  my_strdup(1186, &format, get_tok_value(xctx->inst[inst].prop_ptr,"verilog_format",2));
-  if(!format || !format[0])
-    my_strdup(522, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"verilog_format",2));
-  if((name==NULL) || (format==NULL) ) {
-    my_free(1054, &template);
-    my_free(1055, &name);
-    my_free(1056, &format);
-    return; /*do no netlist unwanted insts(no format) */
-  }
-  no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
-  s=format;
-  dbg(1, "print_verilog_primitive(): name=%s, format=%s xctx->netlist_count=%d\n",name,format, xctx->netlist_count);
-
-  fprintf(fd, "---- start primitive ");
-  lab=expandlabel(name, &tmp);
-  fprintf(fd, "%d\n",tmp);
-  /* begin parsing format string */
-  while(1)
-  {
-   c=*s++;
-   if(c=='\\') {
-     escape=1;
-     c=*s++;
-   }
-   else escape=0;
-   if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
-   space=SPACE(c);
-   if( state==TOK_BEGIN && (c=='@' || c=='%') && !escape ) state=TOK_TOKEN;
-   else if(state==TOK_TOKEN && token_pos > 1 &&
-      (
-        ( (space  || c == '%' || c == '@') && !escape ) || 
-        ( (!space && c != '%' && c != '@') && escape  )
-      )
-     
-     ) { 
-     state=TOK_SEP;
-   }
-
-   STR_ALLOC(&token, token_pos, &sizetok);
-   if(state==TOK_TOKEN) {
-      token[token_pos++]=c;
-   }
-   else if(state==TOK_SEP)                    /* got a token */
-   {
-    token[token_pos]='\0';
-    token_pos=0;
-
-    value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
-    /* xctx->tok_size==0 indicates that token(+1) does not exist in instance attributes */
-    if(!xctx->tok_size)
-    value=get_tok_value(template, token+1, 0);
-    if(!xctx->tok_size && token[0] =='%') {
-      fputs(token + 1, fd);
-    } else if(value && value[0]!='\0') {
-       /* instance names (name) and node labels (lab) go thru the expandlabel function. */
-       /*if something else must be parsed, put an if here! */
-
-     if(!(strcmp(token+1,"name"))) {
-       if( (lab=expandlabel(value, &tmp)) != NULL)
-          fprintf(fd, "----name(%s)", lab);
-       else
-          fprintf(fd, "%s", value);
-     }
-     else if(!(strcmp(token+1,"lab"))) {
-       if( (lab=expandlabel(value, &tmp)) != NULL)
-          fprintf(fd, "----pin(%s)", lab);
-       else
-          fprintf(fd, "%s", value);
-     }
-     else  fprintf(fd, "%s", value);
-    }
-    else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
-                                         /* in hash table */
-    {
-     fprintf( fd, "%s",skip_dir(xctx->inst[inst]. name) );
-    }
-    else if (strcmp(token,"@symname_ext")==0) 
-    {
-      fputs(get_cell_w_ext(xctx->inst[inst].name, 0), fd);
-    }
-    else if(strcmp(token,"@schname")==0) /* of course schname must not be present  */
-                                         /* in hash table */
-    {
-      /* fputs(xctx->sch[xctx->currsch],fd); */
-      fputs(xctx->current_name, fd);
-    }
-    else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present  */
-                                         /* in hash table. print multiplicity */
-    {                                    /* and node number: m1 n1 m2 n2 .... */
-     for(i=0;i<no_of_pins;i++)
-     {
-       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
-       if(strcmp(get_tok_value(prop, "verilog_ignore",0), "true")) {
-         str_ptr =  net_name(inst,i, &multip, 0, 1);
-         fprintf(fd, "----pin(%s) ", str_ptr);
-       }
-     }
-    }
-    else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
-     for(i=0;i<no_of_pins;i++) {
-      char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
-      if(!strcmp( get_tok_value(prop,"name",0), token+2)) {
-        if(strcmp(get_tok_value(prop, "verilog_ignore",0), "true")) {
-          str_ptr =  net_name(inst,i, &multip, 0, 1);
-          fprintf(fd, "----pin(%s) ", str_ptr);
-        }
-        break;
-      }
-     }
-    }
-    /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
-    else if(token[0]=='@' && token[1]=='#') {
-      int pin_number = atoi(token+2);
-      if(pin_number < no_of_pins) {
-        const char *vi;
-        char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][pin_number].prop_ptr;
-        vi = get_tok_value(prop,"verilog_ignore",0);
-        if(strcmp(vi, "true")) {
-          str_ptr =  net_name(inst,pin_number, &multip, 0, 1);
-          fprintf(fd, "----pin(%s) ", str_ptr);
-        }
-      }
-    }
-    else if(!strncmp(token,"@tcleval", 8)) {
-      /* char tclcmd[strlen(token)+100] ; */
-      size_t s;
-      char *tclcmd=NULL;
-      s = token_pos + strlen(name) + strlen(xctx->inst[inst].name) + 100;
-      tclcmd = my_malloc(524, s);
-      Tcl_ResetResult(interp);
-      my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
-      tcleval(tclcmd);
-      fprintf(fd, "%s", tclresult());
-      my_free(1057, &tclcmd);
-    }
-    if(c!='%' && c!='@' && c!='\0') fputc(c,fd);
-    if(c == '@' || c == '%') s--;
-    state=TOK_BEGIN;
-   }
-   else if(state==TOK_BEGIN && c!='\0')  fputc(c,fd);
-   if(c=='\0')
-   {
-    fputc('\n',fd);
-    fprintf(fd, "---- end primitive\n");
-    break ;
-   }
-  }
-  my_free(1058, &template);
-  my_free(1059, &format);
-  my_free(1060, &name);
-  my_free(1061, &token);
 }
 
 int isonlydigit(const char *s)

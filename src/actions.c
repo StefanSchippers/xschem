@@ -373,22 +373,6 @@ const char *get_file_path(char *f)
   return tclresult();
 }
 
-
-int samefile(const char *fa, const char *fb)
-{
-
-   struct stat a, b;
-   int statusa, statusb;
-
-   statusa = stat(fa, &a);
-   statusb = stat(fb, &b);
-   if(statusa == 0 && statusb == 0 && a.st_ino == b.st_ino) {
-     return 1;
-   }
-   return 0; /* not same of one of the two not existing */
-}
-
-
 /* return value:
  *  1 : file saved or not needed to save since no change
  * -1 : user cancel
@@ -1837,7 +1821,7 @@ void draw_stuff(void)
    #endif
 }
 
-void restore_selection(double x1, double y1, double x2, double y2)
+static void restore_selection(double x1, double y1, double x2, double y2)
 {
   double xx1,yy1,xx2,yy2;
   xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;

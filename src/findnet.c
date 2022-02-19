@@ -25,7 +25,7 @@
 static double distance; /* safe to keep even with multiple schematics */
 static Selected sel; /* safe to keep even with multiple schematics */
 
-void find_closest_net(double mx,double my)
+static void find_closest_net(double mx,double my)
 /* returns the net that is closest to the mouse pointer */
 /* if there are nets and distance < CADWIREMINDIST */
 {
@@ -47,7 +47,7 @@ void find_closest_net(double mx,double my)
  }
 }
 
-void find_closest_polygon(double mx,double my)
+static void find_closest_polygon(double mx,double my)
 /* returns the polygon that is closest to the mouse pointer */
 /* if there are lines and distance < CADWIREMINDIST */
 {
@@ -83,7 +83,7 @@ void find_closest_polygon(double mx,double my)
 }
 
 
-void find_closest_line(double mx,double my)
+static void find_closest_line(double mx,double my)
 /* returns the line that is closest to the mouse pointer */
 /* if there are lines and distance < CADWIREMINDIST */
 {
@@ -172,7 +172,7 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
   my_free(752, &type);
 }
 
-void find_closest_arc(double mx,double my)
+static void find_closest_arc(double mx,double my)
 {
  double dist, angle, angle1, angle2;
  int i,c,r=-1, col;
@@ -223,7 +223,7 @@ void find_closest_arc(double mx,double my)
 }
 
 
-void find_closest_box(double mx,double my)
+static void find_closest_box(double mx,double my)
 {
  double tmp;
  int i,c,r=-1, col = 0;
@@ -250,7 +250,7 @@ void find_closest_box(double mx,double my)
  }
 }
 
-void find_closest_element(double mx,double my)
+static void find_closest_element(double mx,double my)
 {
  double tmp;
  int i,r=-1;
@@ -274,7 +274,7 @@ void find_closest_element(double mx,double my)
  }
 }
 
-void find_closest_text(double mx,double my)
+static void find_closest_text(double mx,double my)
 {
  short rot,flip;
  double xx1,xx2,yy1,yy2;

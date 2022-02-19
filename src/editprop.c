@@ -89,27 +89,6 @@ char *my_strtok_r(char *str, const char *delim, const char *quote, char **savept
   else return NULL; /* no more tokens */
 }
 
-char *xmy_strtok_r(char *str, const char *delim, char **saveptr)
-{
-  char *tok;
-  if(str) { /* 1st call */
-    *saveptr = str;
-  }
-  while(**saveptr && strchr(delim, **saveptr) ) { /* skip separators */
-    ++(*saveptr);
-  }
-  tok = *saveptr; /* start of token */
-  while(**saveptr && !strchr(delim, **saveptr) ) { /* look for separator marking end of current token */
-    ++(*saveptr);
-  }
-  if(**saveptr) {
-    **saveptr = '\0'; /* mark end of token */
-    ++(*saveptr);     /* if not at end of string advance one char for next iteration */
-  }
-  if(tok[0]) return tok; /* return token */
-  else return NULL; /* no more tokens */
-}
-
 size_t my_strdup(int id, char **dest, const char *src) /* empty source string --> dest=NULL */
 {
  size_t len;
@@ -1014,52 +993,7 @@ static void edit_text_property(int x)
 }
 
 /* x=0 use text widget   x=1 use vim editor */
-static void edit_symbol_property(int x)
-{
-   char *result=NULL;
-   int *ii = &xctx->edit_sym_i; /* static var */
-   int *netl_com = &xctx->netlist_commands; /* static var */
-
-   *ii=xctx->sel_array[0].n;
-   *netl_com = 0;
-   if ((xctx->inst[*ii].ptr + xctx->sym)->type!=NULL)
-     *netl_com = 
-       !strcmp( (xctx->inst[*ii].ptr+ xctx->sym)->type, "netlist_commands");
-   if(xctx->inst[*ii].prop_ptr!=NULL) {
-     if(*netl_com && x==1) {
-       tclsetvar("retval",get_tok_value( xctx->inst[*ii].prop_ptr,"value",0));
-     } else {
-       tclsetvar("retval",xctx->inst[*ii].prop_ptr);
-     }
-   }
-   else {
-     tclsetvar("retval","");
-   }
-   my_strdup(91, &xctx->old_prop, xctx->inst[*ii].prop_ptr);
-   tclsetvar("symbol",xctx->inst[*ii].name);
-
-   if(x==0) {
-     tcleval("edit_prop {Input property:}");
-     my_strdup(77, &result, tclresult());
-   }
-   else {
-     /* edit_vi_netlist_prop will replace \" with " before editing,
-        replace back " with \" when done and wrap the resulting text with quotes
-        ("text") when done */
-     if(*netl_com && x==1)    tcleval("edit_vi_netlist_prop {Input property:}");
-     else if(x==1)    tcleval("edit_vi_prop {Input property:}");
-     else if(x==2)    tcleval("viewdata $::retval");
-     my_strdup(78, &result, tclresult());
-   }
-   dbg(1, "edit_symbol_property(): before update_symbol, modified=%d\n", xctx->modified);
-   update_symbol(result, x);
-   my_free(728, &result);
-   dbg(1, "edit_symbol_property(): done update_symbol, modified=%d\n", xctx->modified);
-   *ii=-1;
-}
-
-/* x=0 use text widget   x=1 use vim editor */
-void update_symbol(const char *result, int x)
+static void update_symbol(const char *result, int x)
 {
   int k, sym_number;
   int no_change_props=0;
@@ -1216,6 +1150,51 @@ void update_symbol(const char *result, int x)
   my_free(732, &ptr);
   my_free(733, &new_prop);
   my_free(734, &xctx->old_prop);
+}
+
+/* x=0 use text widget   x=1 use vim editor */
+static void edit_symbol_property(int x)
+{
+   char *result=NULL;
+   int *ii = &xctx->edit_sym_i; /* static var */
+   int *netl_com = &xctx->netlist_commands; /* static var */
+
+   *ii=xctx->sel_array[0].n;
+   *netl_com = 0;
+   if ((xctx->inst[*ii].ptr + xctx->sym)->type!=NULL)
+     *netl_com = 
+       !strcmp( (xctx->inst[*ii].ptr+ xctx->sym)->type, "netlist_commands");
+   if(xctx->inst[*ii].prop_ptr!=NULL) {
+     if(*netl_com && x==1) {
+       tclsetvar("retval",get_tok_value( xctx->inst[*ii].prop_ptr,"value",0));
+     } else {
+       tclsetvar("retval",xctx->inst[*ii].prop_ptr);
+     }
+   }
+   else {
+     tclsetvar("retval","");
+   }
+   my_strdup(91, &xctx->old_prop, xctx->inst[*ii].prop_ptr);
+   tclsetvar("symbol",xctx->inst[*ii].name);
+
+   if(x==0) {
+     tcleval("edit_prop {Input property:}");
+     my_strdup(77, &result, tclresult());
+   }
+   else {
+     /* edit_vi_netlist_prop will replace \" with " before editing,
+        replace back " with \" when done and wrap the resulting text with quotes
+        ("text") when done */
+     if(*netl_com && x==1)    tcleval("edit_vi_netlist_prop {Input property:}");
+     else if(x==1)    tcleval("edit_vi_prop {Input property:}");
+     else if(x==2)    tcleval("viewdata $::retval");
+     my_strdup(78, &result, tclresult());
+   }
+   dbg(1, "edit_symbol_property(): before update_symbol, modified=%d\n", xctx->modified);
+   update_symbol(result, x);
+   my_free(728, &result);
+   dbg(1, "edit_symbol_property(): done update_symbol, modified=%d\n", xctx->modified);
+   *ii=-1;
 }
 
 void change_elem_order(void)

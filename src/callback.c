@@ -79,7 +79,8 @@ void redraw_w_a_l_r_p_rubbers(void)
     new_polygon(RUBBER);
   }
 }
-void abort_operation(void)
+
+static void abort_operation(void)
 {
   xctx->no_draw = 0;
   tcleval("set constrained_move 0" );
@@ -112,7 +113,7 @@ void abort_operation(void)
   draw();
 }
 
-void start_place_symbol(double mx, double my)
+static void start_place_symbol(double mx, double my)
 {
     xctx->last_command = 0;
     rebuild_selected_array();
@@ -131,7 +132,7 @@ void start_place_symbol(double mx, double my)
     }
 }
 
-void start_line(double mx, double my)
+static void start_line(double mx, double my)
 {
     xctx->last_command = STARTLINE;
     if(xctx->ui_state & STARTLINE) {
@@ -150,7 +151,7 @@ void start_line(double mx, double my)
     new_line(PLACE);
 }
 
-void start_wire(double mx, double my)
+static void start_wire(double mx, double my)
 {
      xctx->last_command = STARTWIRE;
      if(xctx->ui_state & STARTWIRE) {
@@ -2099,7 +2100,6 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if( 0 && (key==';') && (state & ControlMask) )    /* testmode:  for performance testing */
    {
-    draw_stuff();
     break;
    }
    if(0 && key=='~' && (state & ControlMask)) {  /* testmode */

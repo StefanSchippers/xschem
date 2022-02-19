@@ -390,7 +390,7 @@ static void svg_drawgrid()
 }
 
 
-void svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, double ry2, int rot, int flip)
+static void svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, double ry2, int rot, int flip)
 {
   const char *ptr;
   double x1, y1, x2, y2, w, h, scalex = 1.0, scaley = 1.0;

@@ -26,7 +26,7 @@
 #endif
 #include <locale.h>
 
-void sig_handler(int s){
+static void sig_handler(int s){
   char emergency_prefix[PATH_MAX];
   const char *emergency_dir;
 
@@ -58,13 +58,15 @@ void sig_handler(int s){
   exit(EXIT_FAILURE);
 }
 
-void child_handler(int signum)
+#if 0
+static void child_handler(int signum)
 {
     /* fprintf(errfp, "SIGCHLD received\n"); */
 #ifdef __unix__
     wait(NULL);
 #endif
 }
+#endif
 
 int main(int argc, char **argv)
 {
