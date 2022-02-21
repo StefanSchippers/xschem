@@ -515,7 +515,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     {
       text = symptr->text[j];
       if(text.xscale*FONTWIDTH*xctx->mooz<1) continue;
-      if(symptr->text[j].flags & SYM_HIDE_TEXT) continue;
+      if(symptr->text[j].flags & HIDE_TEXT) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
@@ -3035,6 +3035,7 @@ void draw(void)
           for(i=0;i<xctx->texts;i++)
           {
             textlayer = xctx->text[i].layer;
+            if(xctx->text[i].flags & HIDE_TEXT) continue;
             if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
             dbg(1, "draw(): drawing string %d = %s\n",i, xctx->text[i].txt_ptr);
             #if HAS_CAIRO==1

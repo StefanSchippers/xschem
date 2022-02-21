@@ -2558,7 +2558,7 @@ int place_text(int draw_text, double mx, double my)
   str = get_tok_value(t->prop_ptr, "weight", 0);
   t->flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
   str = get_tok_value(t->prop_ptr, "hide", 0);
-  t->flags |= strcmp(str, "true")  ? 0 : SYM_HIDE_TEXT;
+  t->flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
 
   my_strdup(21, &t->font, get_tok_value(t->prop_ptr, "font", 0));
   textlayer = t->layer;

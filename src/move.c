@@ -919,7 +919,7 @@ void copy_objects(int what)
         str = get_tok_value(xctx->text[xctx->texts].prop_ptr, "weight", 0);
         xctx->text[xctx->texts].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
         str = get_tok_value(xctx->text[xctx->texts].prop_ptr, "hide", 0);
-        xctx->text[xctx->texts].flags |= strcmp(str, "true")  ? 0 : SYM_HIDE_TEXT;
+        xctx->text[xctx->texts].flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
   
         xctx->text[xctx->texts].xscale=xctx->text[n].xscale;
         xctx->text[xctx->texts].yscale=xctx->text[n].yscale;

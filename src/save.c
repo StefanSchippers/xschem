@@ -1289,7 +1289,7 @@ static void load_text(FILE *fd)
    str = get_tok_value(xctx->text[i].prop_ptr, "weight", 0);
    xctx->text[i].flags |= strcmp(str, "bold") ? 0 : TEXT_BOLD;
    str = get_tok_value(xctx->text[i].prop_ptr, "hide", 0);
-   xctx->text[i].flags |= strcmp(str, "true") ? 0 : SYM_HIDE_TEXT;
+   xctx->text[i].flags |= strcmp(str, "true") ? 0 : HIDE_TEXT;
 
    xctx->texts++;
 }
@@ -2807,7 +2807,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      str = get_tok_value(tt[i].prop_ptr, "weight", 0);
      tt[i].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
      str = get_tok_value(tt[i].prop_ptr, "hide", 0);
-     tt[i].flags |= strcmp(str, "true")  ? 0 : SYM_HIDE_TEXT;
+     tt[i].flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
      lastt++;
      break;
     case 'N': /* store wires as lines on layer WIRELAYER. */
