@@ -65,10 +65,7 @@ static void merge_text(FILE *fd)
      str = get_tok_value(xctx->text[i].prop_ptr, "weight", 0);
      xctx->text[i].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
      str = get_tok_value(xctx->text[i].prop_ptr, "hide", 0);
-     xctx->text[i].flags |= strcmp(str, "true")  ? 0 : TEXT_HIDE;
-     str = get_tok_value(xctx->text[i].prop_ptr, "inst", 0);
-     xctx->text[i].flags |= str[0] ? TEXT_TRANSLATE : 0;
-
+     xctx->text[i].flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
 
      select_text(i,SELECTED, 1);
      set_modify(1);

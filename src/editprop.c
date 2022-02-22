@@ -837,7 +837,7 @@ static void edit_text_property(int x)
    double xx1,yy1,xx2,yy2;
    double pcx,pcy;      /* pin center 20070317 */
    char property[1024];/* used for float 2 string conv (xscale  and yscale) overflow safe */
-   const char *str, *txtptr;
+   const char *str;
    char *oldprop = NULL;
 
    dbg(1, "edit_text_property(): entering\n");
@@ -884,20 +884,16 @@ static void edit_text_property(int x)
        sel=xctx->sel_array[k].n;
        rot = xctx->text[sel].rot; /* calculate bbox, some cleanup needed here */
        flip = xctx->text[sel].flip;
-       if(xctx->text[sel].flags & TEXT_TRANSLATE) {
-         const char *inst;
-         inst = get_tok_value(xctx->text[sel].prop_ptr, "inst", 0);
-         txtptr = translate(atoi(inst), xctx->text[sel].txt_ptr);
-       } else {
-         txtptr = xctx->text[sel].txt_ptr;
-       }
        #if HAS_CAIRO==1
        customfont = set_text_custom_font(&xctx->text[sel]);
        #endif
-       text_bbox(txtptr, xctx->text[sel].xscale,
+       text_bbox(xctx->text[sel].txt_ptr, xctx->text[sel].xscale,
                  xctx->text[sel].yscale, rot, flip, xctx->text[sel].hcenter,
                  xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
                  &xx1,&yy1,&xx2,&yy2, &tmp, &tmp);
+       #if HAS_CAIRO==1
+       if(customfont) cairo_restore(xctx->cairo_ctx);
+       #endif
        bbox(ADD, xx1, yy1, xx2, yy2 );
        dbg(1, "edit_property(): text props: props=%s  text=%s\n",
          tclgetvar("props"),
@@ -909,6 +905,16 @@ static void edit_text_property(int x)
          for(l=0;l<c;l++) {
            if(!strcmp( (get_tok_value(xctx->rect[PINLAYER][l].prop_ptr, "name",0)),
                         xctx->text[sel].txt_ptr) ) {
+             #if HAS_CAIRO==1
+             customfont = set_text_custom_font(&xctx->text[sel]);
+             #endif
+             text_bbox(xctx->text[sel].txt_ptr, xctx->text[sel].xscale,
+             xctx->text[sel].yscale, rot, flip, xctx->text[sel].hcenter,
+             xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
+             &xx1,&yy1,&xx2,&yy2, &tmp, &tmp);
+             #if HAS_CAIRO==1
+             if(customfont) cairo_restore(xctx->cairo_ctx);
+             #endif
              pcx = (xctx->rect[PINLAYER][l].x1+xctx->rect[PINLAYER][l].x2)/2.0;
              pcy = (xctx->rect[PINLAYER][l].y1+xctx->rect[PINLAYER][l].y2)/2.0;
              if(
@@ -932,9 +938,6 @@ static void edit_text_property(int x)
          }
          my_strdup(74, &xctx->text[sel].txt_ptr, (char *) tclgetvar("retval"));
        }
-       #if HAS_CAIRO==1
-       if(customfont) cairo_restore(xctx->cairo_ctx);
-       #endif
        if(x==0) {
          if(oldprop && preserve)
            set_different_token(&xctx->text[sel].prop_ptr, (char *) tclgetvar("props"), oldprop, 0, 0);
@@ -955,10 +958,7 @@ static void edit_text_property(int x)
          str = get_tok_value(xctx->text[sel].prop_ptr, "weight", 0);
          xctx->text[sel].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
          str = get_tok_value(xctx->text[sel].prop_ptr, "hide", 0);
-         xctx->text[sel].flags |= strcmp(str, "true")  ? 0 : TEXT_HIDE;
-         str = get_tok_value(xctx->text[sel].prop_ptr, "inst", 0);
-         xctx->text[sel].flags |= str[0] ? TEXT_TRANSLATE : 0;
-
+         xctx->text[sel].flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
          if(k == 0 ) {
            hsize =atof(tclgetvar("hsize"));
            vsize =atof(tclgetvar("vsize"));
@@ -975,14 +975,7 @@ static void edit_text_property(int x)
        #if HAS_CAIRO==1
        customfont = set_text_custom_font(&xctx->text[sel]);
        #endif
-       if(xctx->text[sel].flags & TEXT_TRANSLATE) {
-         const char *inst;
-         inst = get_tok_value(xctx->text[sel].prop_ptr, "inst", 0);
-         txtptr = translate(atoi(inst), xctx->text[sel].txt_ptr);
-       } else {
-         txtptr = xctx->text[sel].txt_ptr;
-       }
-       text_bbox(txtptr, xctx->text[sel].xscale,
+       text_bbox(xctx->text[sel].txt_ptr, xctx->text[sel].xscale,
                  xctx->text[sel].yscale, rot, flip, xctx->text[sel].hcenter,
                   xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
                  &xx1,&yy1,&xx2,&yy2, &tmp, &tmp);

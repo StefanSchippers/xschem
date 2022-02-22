@@ -192,7 +192,6 @@ void draw_selection(GC g, int interruptable)
   #if HAS_CAIRO==1
   int customfont;
   #endif
-  const char *txtptr;
 
   if(g == xctx->gc[SELLAYER]) xctx->movelastsel = xctx->lastsel;
   for(i=0;i<xctx->movelastsel;i++)
@@ -211,15 +210,7 @@ void draw_selection(GC g, int interruptable)
      #if HAS_CAIRO==1
      customfont =  set_text_custom_font(&xctx->text[n]);
      #endif
-     if(xctx->text[n].flags & TEXT_TRANSLATE) {
-       const char *inst;
-       inst = get_tok_value(xctx->text[n].prop_ptr, "inst", 0);
-       txtptr = translate(atoi(inst), xctx->text[n].txt_ptr);
-     } else {
-       txtptr = xctx->text[n].txt_ptr;
-     }
-
-     draw_temp_string(g,ADD, txtptr,
+     draw_temp_string(g,ADD, xctx->text[n].txt_ptr,
       (xctx->text[n].rot +
       ( (xctx->move_flip && (xctx->text[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) ) & 0x3,
        xctx->text[n].flip^xctx->move_flip, xctx->text[n].hcenter, xctx->text[n].vcenter,
@@ -616,7 +607,7 @@ void copy_objects(int what)
   #if HAS_CAIRO==1
   int customfont;
   #endif
-  const char *txtptr; 
+ 
   if(what & START)
   {
    xctx->rotatelocal=0;
@@ -928,10 +919,7 @@ void copy_objects(int what)
         str = get_tok_value(xctx->text[xctx->texts].prop_ptr, "weight", 0);
         xctx->text[xctx->texts].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
         str = get_tok_value(xctx->text[xctx->texts].prop_ptr, "hide", 0);
-        xctx->text[xctx->texts].flags |= strcmp(str, "true")  ? 0 : TEXT_HIDE;
-        str = get_tok_value(xctx->text[xctx->texts].prop_ptr, "inst", 0);
-        xctx->text[xctx->texts].flags |= str[0] ? TEXT_TRANSLATE : 0;
-
+        xctx->text[xctx->texts].flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
   
         xctx->text[xctx->texts].xscale=xctx->text[n].xscale;
         xctx->text[xctx->texts].yscale=xctx->text[n].yscale;
@@ -941,14 +929,7 @@ void copy_objects(int what)
         #if HAS_CAIRO==1 /* bbox after copy */
         customfont = set_text_custom_font(&xctx->text[l]);
         #endif
-        if(xctx->text[l].flags & TEXT_TRANSLATE) {
-         const char *inst;
-          inst = get_tok_value(xctx->text[l].prop_ptr, "inst", 0);
-          txtptr = translate(atoi(inst), xctx->text[l].txt_ptr);
-        } else {
-          txtptr = xctx->text[l].txt_ptr;
-        }
-        text_bbox(txtptr, xctx->text[l].xscale,
+        text_bbox(xctx->text[l].txt_ptr, xctx->text[l].xscale,
           xctx->text[l].yscale, xctx->text[l].rot,xctx->text[l].flip, 
           xctx->text[l].hcenter, xctx->text[l].vcenter,
           xctx->text[l].x0, xctx->text[l].y0,
@@ -969,6 +950,9 @@ void copy_objects(int what)
   
   
     } /* end for(k=0;k<cadlayers;k++) */
+  
+  
+  
   
     for(i = 0; i < xctx->lastsel; i++) {
       n = xctx->sel_array[i].n;
@@ -1051,7 +1035,6 @@ void move_objects(int what, int merge, double dx, double dy)
  #endif
  xLine ** const line = xctx->line;
  xWire * const wire = xctx->wire;
- const char *txtptr;
 
  if(what & START)
  {
@@ -1459,14 +1442,7 @@ void move_objects(int what, int merge, double dx, double dy)
       #if HAS_CAIRO==1  /* bbox before move */
       customfont = set_text_custom_font(&xctx->text[n]);
       #endif
-      if(xctx->text[n].flags & TEXT_TRANSLATE) {
-       const char *inst;
-        inst = get_tok_value(xctx->text[n].prop_ptr, "inst", 0);
-        txtptr = translate(atoi(inst), xctx->text[n].txt_ptr);
-      } else {
-        txtptr = xctx->text[n].txt_ptr;
-      }
-      text_bbox(txtptr, xctx->text[n].xscale,
+      text_bbox(xctx->text[n].txt_ptr, xctx->text[n].xscale,
          xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
          xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
          &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &tmpint);
@@ -1490,7 +1466,7 @@ void move_objects(int what, int merge, double dx, double dy)
       #if HAS_CAIRO==1  /* bbox after move */
       customfont = set_text_custom_font(&xctx->text[n]);
       #endif
-      text_bbox(txtptr, xctx->text[n].xscale,
+      text_bbox(xctx->text[n].txt_ptr, xctx->text[n].xscale,
          xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
          xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
          &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &tmpint);

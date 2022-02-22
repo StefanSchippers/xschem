@@ -323,7 +323,6 @@ void delete(int to_push_undo)
   int customfont;
   #endif
   double xx1,yy1,xx2,yy2;
-  const char *txtptr;
 
   dbg(3, "delete(): start\n");
   j = 0;
@@ -344,14 +343,7 @@ void delete(int to_push_undo)
       #if HAS_CAIRO==1
       customfont = set_text_custom_font(&xctx->text[i]);
       #endif
-      if(xctx->text[i].flags & TEXT_TRANSLATE) {
-        const char *inst;
-        inst = get_tok_value(xctx->text[i].prop_ptr, "inst", 0);
-        txtptr = translate(atoi(inst), xctx->text[i].txt_ptr);
-      } else {
-        txtptr = xctx->text[i].txt_ptr;
-      }
-      text_bbox(txtptr, xctx->text[i].xscale,
+      text_bbox(xctx->text[i].txt_ptr, xctx->text[i].xscale,
                 xctx->text[i].yscale, select_rot, select_flip, xctx->text[i].hcenter,
                 xctx->text[i].vcenter, xctx->text[i].x0, xctx->text[i].y0,
                 &xx1,&yy1, &xx2,&yy2, &tmp, &tmp);
@@ -626,19 +618,11 @@ void unselect_all(void)
     {
      if(xctx->text[i].sel == SELECTED)
      {
-      const char *txtptr;
       xctx->text[i].sel = 0;
       #if HAS_CAIRO==1
       customfont = set_text_custom_font(& xctx->text[i]); /* needed for bbox calculation */
       #endif
-      if(xctx->text[i].flags & TEXT_TRANSLATE) {
-       const char *inst;
-        inst = get_tok_value(xctx->text[i].prop_ptr, "inst", 0);
-        txtptr = translate(atoi(inst), xctx->text[i].txt_ptr);
-      } else {
-        txtptr = xctx->text[i].txt_ptr;
-      }
-      draw_temp_string(xctx->gctiled,ADD, txtptr,
+      draw_temp_string(xctx->gctiled,ADD, xctx->text[i].txt_ptr,
        xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
        xctx->text[i].x0, xctx->text[i].y0,
        xctx->text[i].xscale, xctx->text[i].yscale);
@@ -795,7 +779,6 @@ void select_text(int i,unsigned short select_mode, int fast)
   #if HAS_CAIRO==1
   int customfont;
   #endif
-  const char *txtptr;
 
   if(!fast) {
     my_strncpy(s,xctx->text[i].prop_ptr!=NULL?xctx->text[i].prop_ptr:"<NULL>",S(s));
@@ -809,21 +792,13 @@ void select_text(int i,unsigned short select_mode, int fast)
   #if HAS_CAIRO==1
   customfont = set_text_custom_font(&xctx->text[i]);
   #endif
-  if(xctx->text[i].flags & TEXT_TRANSLATE) {
-    const char *inst;
-    inst = get_tok_value(xctx->text[i].prop_ptr, "inst", 0);
-    txtptr = translate(atoi(inst), xctx->text[i].txt_ptr);
-  } else {
-    txtptr = xctx->text[i].txt_ptr;
-  }
-
   if(select_mode)
-    draw_temp_string(xctx->gc[SELLAYER],ADD, txtptr,
+    draw_temp_string(xctx->gc[SELLAYER],ADD, xctx->text[i].txt_ptr,
      xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
      xctx->text[i].x0, xctx->text[i].y0,
      xctx->text[i].xscale, xctx->text[i].yscale);
   else
-    draw_temp_string(xctx->gctiled,NOW, txtptr,
+    draw_temp_string(xctx->gctiled,NOW, xctx->text[i].txt_ptr,
      xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
      xctx->text[i].x0, xctx->text[i].y0,
      xctx->text[i].xscale, xctx->text[i].yscale);
@@ -1019,7 +994,6 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
  #if HAS_CAIRO==1
  int customfont;
  #endif
- const char *txtptr;
 
  en_s = tclgetboolvar("enable_stretch");
  for(i=0;i<xctx->wires;i++)
@@ -1047,15 +1021,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
   #if HAS_CAIRO==1
   customfont = set_text_custom_font(&xctx->text[i]);
   #endif
-  if(xctx->text[i].flags & TEXT_TRANSLATE) {
-    const char *inst;
-    inst = get_tok_value(xctx->text[i].prop_ptr, "inst", 0);
-    txtptr = translate(atoi(inst), xctx->text[i].txt_ptr);
-  } else {
-    txtptr = xctx->text[i].txt_ptr;
-  }
-
-  text_bbox(txtptr,
+  text_bbox(xctx->text[i].txt_ptr,
              xctx->text[i].xscale, xctx->text[i].yscale, select_rot, select_flip, 
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,

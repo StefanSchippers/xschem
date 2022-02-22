@@ -266,8 +266,7 @@ extern char win_temp_dir[PATH_MAX];
 #define TEXT_OBLIQUE 2
 #define TEXT_ITALIC 4
 /* flag (.flags field) to hide text in symbols when displaying instances */
-#define TEXT_HIDE 8
-#define TEXT_TRANSLATE 16
+#define HIDE_TEXT 8
 
 #define S(a) (sizeof(a)/sizeof(a[0]))
 #define BUS_WIDTH 4
@@ -464,7 +463,7 @@ typedef struct
   int layer; /*  20171201 for cairo  */
   short hcenter, vcenter;
   char *font; /*  20171201 for cairo */
-  int flags; /* TEXT_BOLD:1 TEXT_OBLIQUE:2 TEXT_ITALIC:4 TEXT_HIDE:8 */
+  int flags; /* TEXT_BOLD:1 TEXT_OBLIQUE:2 TEXT_ITALIC:4 HIDE_TEXT:8 */
 } xText;
 
 typedef struct

@@ -217,8 +217,10 @@ C {lab_pin.sym} 700 -1200 0 1 {name=p32 lab=REFP}
 C {capa.sym} 260 -1100 0 0 {name=C3 m=1 value="100u"}
 C {res.sym} 130 -1220 1 1 {name=R11 m=1 value=0.3}
 C {res.sym} 130 -1060 1 1 {name=R9 m=1 value=0.3}
-C {res.sym} 550 -920 0 1 {name=R19 m=1 value='100k'}
-C {res.sym} 550 -860 0 1 {name=R0 m=1 value="'100k/gain'"}
+C {res.sym} 550 -920 0 1 {name=R19 m=1 value='100k'
+}
+C {res.sym} 550 -860 0 1 {name=R0 m=1 value="'100k/gain'"
+floaters=true}
 C {lab_pin.sym} 550 -750 0 0 {name=p108 lab=IN}
 C {mos_power_ampli.sym} 500 -660 0 0 {name=x1}
 C {lab_pin.sym} 350 -640 0 0 {name=p2 lab=VPP}

@@ -606,7 +606,7 @@ void svg_draw(void)
   int c,i, textlayer;
   int old_grid;
   static char lastdir[PATH_MAX] = "";
-  const char *r, *textfont, *txtptr;
+  const char *r, *textfont;
   int *unused_layer;
   int color;
   Hilight_hashentry *entry;
@@ -744,20 +744,14 @@ void svg_draw(void)
         my_snprintf(svg_font_style, S(svg_font_style), "italic");
       if( xctx->text[i].flags & TEXT_OBLIQUE)
         my_snprintf(svg_font_style, S(svg_font_style), "oblique");
-      if(xctx->text[i].flags & TEXT_TRANSLATE) {
-        const char *inst;
-        inst = get_tok_value(xctx->text[i].prop_ptr, "inst", 0);
-        txtptr = translate(atoi(inst), xctx->text[i].txt_ptr);
-      } else {
-         txtptr = xctx->text[i].txt_ptr;
-      }
+ 
       if(text_svg) 
-        svg_draw_string(textlayer, txtptr,
+        svg_draw_string(textlayer, xctx->text[i].txt_ptr,
           xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
           xctx->text[i].x0,xctx->text[i].y0,
           xctx->text[i].xscale, xctx->text[i].yscale);
       else
-        old_svg_draw_string(textlayer, txtptr,
+        old_svg_draw_string(textlayer, xctx->text[i].txt_ptr,
           xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
           xctx->text[i].x0,xctx->text[i].y0,
           xctx->text[i].xscale, xctx->text[i].yscale);
