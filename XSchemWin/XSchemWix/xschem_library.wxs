@@ -455,6 +455,12 @@
           <Component Id="cmpA09FF5912D8BA41EEB0996635BEEC9B4" Guid="{78FB528F-AE9B-4FD0-8E38-6FEB527150AF}">
             <File Id="filBA94F3BC5390F4FCD6C45DC3885F9A35" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\mos_power_ampli.sym" />
           </Component>
+          <Component Id="cmpFB71DC857A280B8DAB60A4D728486301" Guid="{06B934B1-E602-4928-833A-8E80C6F5D8ED}">
+              <File Id="fil3C1DD1E8A1FB40C847E9F760E91003E3" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\mos_power_ampli_extracted.sch" />
+          </Component>
+          <Component Id="cmpEECD7C005CB17CFFDDB6648324AA82BD" Guid="{54EB70F0-0F77-4321-9734-FE79566432A4}">
+              <File Id="filBA198FC2A8A0096EB3C0D7A1CD91971E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\mos_power_ampli_extracted.sym" />
+          </Component>
           <Component Id="cmp4645F86F70A874D170C2FA99BE0AB260" Guid="{FE656FCC-CA6B-4D6B-A87F-57C509A58E71}">
             <File Id="filAE190DBFB41992DF835AA5D02698A8BE" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\MSA-2643.sch" />
           </Component>
@@ -595,6 +601,12 @@
           </Component>
           <Component Id="cmp67FF7D4EB6E699EEC0A31BF183FA828E" Guid="{7561011E-54C6-42BA-84F5-05F7DAB21752}">
               <File Id="fil2F44BBFE88AADBFBEF5B4B523B53C26C" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_doublepin.sym" />
+          </Component>
+          <Component Id="cmpC16AA3364EC55046BA68DBB76C8ED4BB" Guid="{9594A853-9699-4A46-B0A4-AF7F1D48371E}">
+              <File Id="filA09BA584D59F52E8214515A03DDB6047" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_extracted_netlist.sch" />
+          </Component>
+          <Component Id="cmp0898DA6C877FCE7864D357A26953F87A" Guid="{A01C4B30-3880-4A65-8930-31C91909C861}">
+              <File Id="fil82A165D995D6368288BB7A46B7261CCD" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_extracted_netlist.sym" />
           </Component>
           <Component Id="cmp77E0F6C53A43FB1A2E8231AA49C7A604" Guid="{62C5CBE3-D841-4D0E-A076-75414096A2DA}">
             <File Id="fil44DEAF0637B5696172643A0ED1297267" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_lm324.sch" />
@@ -5538,6 +5550,8 @@
       <ComponentRef Id="cmpCC1EF43542BF710C9208786B7BAAB640" />
       <ComponentRef Id="cmp6BB4D20CE5F4AB1EA408FC90F4BAAAE7" />
       <ComponentRef Id="cmpA09FF5912D8BA41EEB0996635BEEC9B4" />
+      <ComponentRef Id="cmpFB71DC857A280B8DAB60A4D728486301" />
+      <ComponentRef Id="cmpEECD7C005CB17CFFDDB6648324AA82BD" />
       <ComponentRef Id="cmp4645F86F70A874D170C2FA99BE0AB260" />
       <ComponentRef Id="cmp1C93C0F9C62DFC7BC3512CE705469387" />
       <ComponentRef Id="cmp79988C8256719C0A5B441B02B8ABCECD" />
@@ -5585,6 +5599,8 @@
       <ComponentRef Id="cmpAEF56BDB09D122243A6EAE07734B3F38" />
       <ComponentRef Id="cmp1CB191EAD2BF728BA3BBB51212CD9247" />
       <ComponentRef Id="cmp67FF7D4EB6E699EEC0A31BF183FA828E" />
+      <ComponentRef Id="cmpC16AA3364EC55046BA68DBB76C8ED4BB" />
+      <ComponentRef Id="cmp0898DA6C877FCE7864D357A26953F87A" />
       <ComponentRef Id="cmp77E0F6C53A43FB1A2E8231AA49C7A604" />
       <ComponentRef Id="cmp4B4D8B4C4B196D864383F4138BBA8B2D" />
       <ComponentRef Id="cmp7BBFD4FFD4BD205783E8852433FC5873" />

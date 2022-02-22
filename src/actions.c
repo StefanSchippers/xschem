@@ -1412,6 +1412,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
 {
  xRect rect;
  int c, i;
+ const char *txtptr;
  int count=0;
  #if HAS_CAIRO==1
  int customfont;
@@ -1512,10 +1513,18 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  { 
    int no_of_lines, longest_line;
    if(selected == 1 && !xctx->text[i].sel) continue;
+   if(xctx->text[i].flags & TEXT_TRANSLATE) {
+     const char *inst;
+     inst = get_tok_value(xctx->text[i].prop_ptr, "inst", 0);
+     txtptr = translate(atoi(inst), xctx->text[i].txt_ptr);
+   } else {
+      txtptr = xctx->text[i].txt_ptr;
+   }
+
    #if HAS_CAIRO==1
    customfont = set_text_custom_font(&xctx->text[i]);
    #endif
-   if(text_bbox(xctx->text[i].txt_ptr, xctx->text[i].xscale,
+   if(text_bbox(txtptr, xctx->text[i].xscale,
          xctx->text[i].yscale,xctx->text[i].rot, xctx->text[i].flip,
          xctx->text[i].hcenter, xctx->text[i].vcenter,
          xctx->text[i].x0, xctx->text[i].y0,
@@ -2558,7 +2567,9 @@ int place_text(int draw_text, double mx, double my)
   str = get_tok_value(t->prop_ptr, "weight", 0);
   t->flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
   str = get_tok_value(t->prop_ptr, "hide", 0);
-  t->flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
+  t->flags |= strcmp(str, "true")  ? 0 : TEXT_HIDE;
+  str = get_tok_value(t->prop_ptr, "inst", 0);
+  t->flags |= str[0] ? TEXT_TRANSLATE : 0;
 
   my_strdup(21, &t->font, get_tok_value(t->prop_ptr, "font", 0));
   textlayer = t->layer;

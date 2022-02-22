@@ -515,7 +515,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     {
       text = symptr->text[j];
       if(text.xscale*FONTWIDTH*xctx->mooz<1) continue;
-      if(symptr->text[j].flags & HIDE_TEXT) continue;
+      if(symptr->text[j].flags & TEXT_HIDE) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
@@ -3032,12 +3032,20 @@ void draw(void)
           drawline(WIRELAYER, END, 0.0, 0.0, 0.0, 0.0, 0);
         }
         if(xctx->draw_single_layer ==-1 || xctx->draw_single_layer==TEXTLAYER) {
+          const char *txtptr;
           for(i=0;i<xctx->texts;i++)
           {
             textlayer = xctx->text[i].layer;
-            if(xctx->text[i].flags & HIDE_TEXT) continue;
+            if(xctx->text[i].flags & TEXT_HIDE) continue;
+            if(xctx->text[i].flags & TEXT_TRANSLATE) {
+              const char *inst;
+              inst = get_tok_value(xctx->text[i].prop_ptr, "inst", 0);
+              txtptr = translate(atoi(inst), xctx->text[i].txt_ptr);
+            } else {
+               txtptr = xctx->text[i].txt_ptr;
+            }
             if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-            dbg(1, "draw(): drawing string %d = %s\n",i, xctx->text[i].txt_ptr);
+            dbg(1, "draw(): drawing string %d = %s\n",i, txtptr);
             #if HAS_CAIRO==1
             if(!xctx->enable_layer[textlayer]) continue;
             textfont = xctx->text[i].font;
@@ -3058,7 +3066,7 @@ void draw(void)
               cairo_select_font_face (xctx->cairo_save_ctx, textfont, slant, weight);
             }
             #endif
-            draw_string(textlayer, ADD, xctx->text[i].txt_ptr,
+            draw_string(textlayer, ADD, txtptr,
               xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
               xctx->text[i].x0,xctx->text[i].y0,
               xctx->text[i].xscale, xctx->text[i].yscale);

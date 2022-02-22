@@ -283,6 +283,7 @@ static void find_closest_text(double mx,double my)
  #if HAS_CAIRO==1
  int customfont;
  #endif
+ const char *txtptr;
  threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom;
   for(i=0;i<xctx->texts;i++)
   {
@@ -291,7 +292,14 @@ static void find_closest_text(double mx,double my)
    #if HAS_CAIRO==1
    customfont = set_text_custom_font(&xctx->text[i]);
    #endif
-   text_bbox(xctx->text[i].txt_ptr,
+   if(xctx->text[i].flags & TEXT_TRANSLATE) {
+     const char *inst;
+     inst = get_tok_value(xctx->text[i].prop_ptr, "inst", 0);
+     txtptr = translate(atoi(inst), xctx->text[i].txt_ptr);
+   } else {
+     txtptr = xctx->text[i].txt_ptr;
+   }
+   text_bbox(txtptr,
              xctx->text[i].xscale, xctx->text[i].yscale, rot, flip,
               xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,

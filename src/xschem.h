@@ -266,7 +266,8 @@ extern char win_temp_dir[PATH_MAX];
 #define TEXT_OBLIQUE 2
 #define TEXT_ITALIC 4
 /* flag (.flags field) to hide text in symbols when displaying instances */
-#define HIDE_TEXT 8
+#define TEXT_HIDE 8
+#define TEXT_TRANSLATE 16
 
 #define S(a) (sizeof(a)/sizeof(a[0]))
 #define BUS_WIDTH 4
@@ -463,7 +464,7 @@ typedef struct
   int layer; /*  20171201 for cairo  */
   short hcenter, vcenter;
   char *font; /*  20171201 for cairo */
-  int flags; /* TEXT_BOLD:1 TEXT_OBLIQUE:2 TEXT_ITALIC:4 HIDE_TEXT:8 */
+  int flags; /* TEXT_BOLD:1 TEXT_OBLIQUE:2 TEXT_ITALIC:4 TEXT_HIDE:8 */
 } xText;
 
 typedef struct
@@ -1390,5 +1391,6 @@ extern void del_wire_table(void);
 extern void del_object_table(void);
 extern const char *create_tmpdir(char *prefix);
 extern FILE *open_tmpfile(char *prefix, char **filename);
+extern void create_ps(char** psfile, int what);
 
 #endif /*CADGLOBALS */

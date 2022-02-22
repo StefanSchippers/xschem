@@ -671,7 +671,7 @@ static void fill_ps_colors()
 
 }
 
-static void create_ps(char **psfile, int what)
+void create_ps(char **psfile, int what)
 {
   double dx, dy, scale, scaley;
   int landscape=1;
@@ -684,7 +684,7 @@ static void create_ps(char **psfile, int what)
   xRect boundbox;
   int c,i, textlayer;
   int old_grid;
-  const char *textfont;
+  const char *textfont, *txtptr;
   
   if(what & 1) { /* prolog */
     numpages = 0;
@@ -831,13 +831,20 @@ static void create_ps(char **psfile, int what)
       else if( xctx->text[i].flags & TEXT_OBLIQUE)
         my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
   
+      if(xctx->text[i].flags & TEXT_TRANSLATE) {
+        const char *inst;
+        inst = get_tok_value(xctx->text[i].prop_ptr, "inst", 0);
+        txtptr = translate(atoi(inst), xctx->text[i].txt_ptr);
+      } else {
+         txtptr = xctx->text[i].txt_ptr;
+      }
       if(text_ps) {
-        ps_draw_string(textlayer, xctx->text[i].txt_ptr,
+        ps_draw_string(textlayer, txtptr,
           xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
           xctx->text[i].x0,xctx->text[i].y0,
           xctx->text[i].xscale, xctx->text[i].yscale);
       } else {
-        old_ps_draw_string(textlayer, xctx->text[i].txt_ptr,
+        old_ps_draw_string(textlayer, txtptr,
           xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
           xctx->text[i].x0,xctx->text[i].y0,
           xctx->text[i].xscale, xctx->text[i].yscale);
