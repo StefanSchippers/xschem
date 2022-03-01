@@ -1536,9 +1536,7 @@ static void resetcairo(int create, int clear, int force_or_resize)
     xctx->cairo_save_sfc = 
        cairo_xlib_surface_create(display, xctx->save_pixmap, visual, xctx->xrect[0].width, xctx->xrect[0].height);
 #else
-    HWND hwnd = Tk_GetHWND(xctx->window);
-    HDC dc = GetDC(hwnd); 
-    xctx->cairo_save_sfc = cairo_win32_surface_create(dc);
+    xctx->cairo_save_sfc = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24, xctx->xrect[0].width, xctx->xrect[0].height);
 #endif
     if(cairo_surface_status(xctx->cairo_save_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
@@ -1559,7 +1557,7 @@ static void resetcairo(int create, int clear, int force_or_resize)
     xctx->cairo_sfc = cairo_xlib_surface_create(display, xctx->window, visual,
         xctx->xrect[0].width, xctx->xrect[0].height);
 #else
-    xctx->cairo_sfc = cairo_win32_surface_create(dc);
+    xctx->cairo_sfc = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24, xctx->xrect[0].width, xctx->xrect[0].height);
 #endif
     if(cairo_surface_status(xctx->cairo_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo surface\n");

@@ -28,6 +28,37 @@
 #define xDashType LineDoubleDash
 #else
 #define xDashType LineOnOffDash
+#if defined(HAS_CAIRO)
+static void clear_cairo_surface(cairo_t *cr, double x, double y, double width, double height)
+{
+  cairo_save(cr);
+  cairo_set_source_rgba(cr, 0, 0, 0, 0);
+  cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+  cairo_rectangle(cr, x, y, width, height);
+  cairo_fill(cr);
+  /*cairo_paint(cr);
+  cairo_set_operator(cr, CAIRO_OPERATOR_OVER);*/
+  cairo_restore(cr);
+}
+
+static void my_cairo_fill(cairo_surface_t *src_surface, int x, int y, unsigned int width, unsigned int height)
+{
+  HWND hwnd = Tk_GetHWND(xctx->window);
+  HDC dc = GetDC(hwnd);
+  cairo_surface_t *dest_surface = cairo_win32_surface_create(dc);
+  if (cairo_surface_status(dest_surface) != CAIRO_STATUS_SUCCESS) {
+    fprintf(errfp, "ERROR: invalid cairo surface to copy over\n");
+  }
+  cairo_t *ct = cairo_create(dest_surface);
+  cairo_surface_flush(src_surface);
+  cairo_set_source_surface(ct, src_surface, 0, 0);
+  cairo_rectangle(ct, x, y, width, height);
+  cairo_set_operator(ct, CAIRO_OPERATOR_ADD);
+  cairo_fill(ct);
+  cairo_destroy(ct); ct = NULL;
+  cairo_surface_destroy(dest_surface); dest_surface = NULL;
+}
+#endif
 #endif
 
 int textclip(int x1,int y1,int x2,int y2,
@@ -2469,6 +2500,12 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
    */
   /* draw stuff */
   if(flags & 8) {
+#if !defined(__unix__) && defined(HAS_CAIRO)
+    double sw = (gr->sx2 - gr->sx1);
+    double sh = (gr->sy2 - gr->sy1);
+    clear_cairo_surface(xctx->cairo_save_ctx, gr->sx1, gr->sy1, sw, sh);
+    clear_cairo_surface(xctx->cairo_ctx, gr->sx1, gr->sy1, sw, sh);
+#endif
     /* graph box, gridlines and axes */
     draw_graph_grid(gr);
     /* get data to plot */
@@ -2639,7 +2676,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
   }
   if(flags & 1) { /* copy save buffer to screen */
     if(!xctx->draw_window) {
-      XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
          xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
   }
@@ -2925,6 +2962,12 @@ void draw(void)
 
  #if HAS_CAIRO==1
  const char *textfont;
+#ifndef __unix__
+ clear_cairo_surface(xctx->cairo_save_ctx,
+   xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
+ clear_cairo_surface(xctx->cairo_ctx,
+   xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
+#endif
  #endif
  if(xctx->no_draw) return;
  rebuild_selected_array();
@@ -3078,9 +3121,13 @@ void draw(void)
     } /* !xctx->only_probes, 20110112 */
     draw_hilight_net(xctx->draw_window);
     if(!xctx->draw_window) {
-      XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
          xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
+#if !defined(__unix__) && defined(HAS_CAIRO)
+    else 
+      my_cairo_fill(xctx->cairo_sfc, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
+#endif
     draw_selection(xctx->gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
  } /* if(has_x) */
 }
@@ -3097,3 +3144,12 @@ int XSetTile(Display* display, GC gc, Pixmap s_pixmap)
   return 0;
 }
 #endif
+
+void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y, unsigned int width, unsigned int height, int dest_x, int dest_y)
+{
+  XCopyArea(display, src, dest, gc, src_x, src_y, width, height, dest_x, dest_y);
+#if !defined(__unix__)  && defined(HAS_CAIRO)
+  my_cairo_fill(xctx->cairo_save_sfc, dest_x, dest_y, width, height);
+#endif
+}
+

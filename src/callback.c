@@ -899,7 +899,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
 
   case Expose:
     dbg(1, "callback: Expose, winpath=%s, %dx%d+%d+%d\n", winpath, button, aux, mx, my);
-    XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, mx,my,button,aux,mx,my);
+    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, mx,my,button,aux,mx,my);
     {
       XRectangle xr[1];
       xr[0].x=mx;
@@ -931,7 +931,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
         (xctx->ui_state & STARTCOPY) || (xctx->ui_state & STARTRECT) ||
         (xctx->ui_state & STARTPOLYGON) || (xctx->ui_state & STARTPAN) ||
         (xctx->ui_state & STARTSELECT)) {
-      XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
     #endif
@@ -2513,7 +2513,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        if( !(state & ShiftMask) && !(state & Mod1Mask) ) {
          unselect_all();
 #ifndef __unix__
-         XCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+         MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
            xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
 #endif
        }

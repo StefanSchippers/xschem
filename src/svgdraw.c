@@ -434,7 +434,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
         double xoffset, double yoffset)
                             /* draws current layer only, should be called within  */
 {                           /* a "for(i=0;i<cadlayers;i++)" loop */
-  int j;
+  int j, hide = 0;
   double x0,y0,x1,y1,x2,y2;
   short flip;
   int textlayer;
@@ -448,6 +448,13 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
 
   if(xctx->inst[n].ptr == -1) return;
   if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
+  if( (xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
+      !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") ) || (xctx->hide_symbols == 2) ) {
+    hide = 1;
+  } else {
+    hide = 0;
+  }
+
   if(layer==0) {
     x1=X_TO_SVG(xctx->inst[n].x1);
     x2=X_TO_SVG(xctx->inst[n].x2);
@@ -529,6 +536,8 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     for(j=0;j< symptr->texts;j++) {
       text = symptr->text[j];
       /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
+      if(symptr->text[j].flags & HIDE_TEXT) continue;
+      if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
       textlayer = c;
@@ -730,6 +739,7 @@ void svg_draw(void)
     for(i=0;i<xctx->texts;i++)
     {
       textlayer = xctx->text[i].layer;
+      if(xctx->text[i].flags & HIDE_TEXT) continue;
       if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
       my_snprintf(svg_font_family, S(svg_font_family), tclgetvar("svg_font_name"));
       my_snprintf(svg_font_style, S(svg_font_style), "normal");
