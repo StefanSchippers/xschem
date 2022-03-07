@@ -586,7 +586,7 @@ proc load_recent_file {} {
       puts "Problems opening recent_files: $err"
       if {[info exists has_x]} {
         tk_messageBox -message  "Problems opening recent_files: $err" \
-            -icon warning -parent [xschem get topwindow] -type ok
+            -icon warning -parent . -type ok
       }
     }
   }
