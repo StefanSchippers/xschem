@@ -2771,6 +2771,10 @@ const char *translate(int inst, const char* s)
  char *sch = NULL;
  int sp_prefix;
  int s_pnetname;
+ int level;
+ Lcc *lcc;
+ char *value1 = NULL, *value2 = NULL;
+
 
  s_pnetname = tclgetboolvar("show_pin_net_names");
  sp_prefix = tclgetboolvar("spiceprefix");
@@ -2779,6 +2783,8 @@ const char *translate(int inst, const char* s)
    return empty;
  }
 
+ level = xctx->currsch;
+ lcc = xctx->hier_attr;
  size=CADCHUNKALLOC;
  my_realloc(527, &result,size);
  result[0]='\0';
@@ -3014,10 +3020,27 @@ const char *translate(int inst, const char* s)
          result_pos+=tmp;
        }
      } else {
-       tmp=strlen(value);
+       int i = level;
+       my_strdup2(1521, &value1, value);
+       /* recursive substitution of value using parent level prop_str attributes */
+       while(i > 0) {
+         my_strdup2(1522, &value2, get_tok_value(lcc[i-1].prop_ptr, value1, 0));
+         if(xctx->tok_size && value2[0]) {
+           dbg(1, "value2=%s\n", value2);
+           my_strdup2(1523, &value1, value2);
+         }
+         dbg(1, "2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
+         i--;
+       }
+
+
+       tmp=strlen(value1);
        STR_ALLOC(&result, tmp + result_pos, &size);
-       memcpy(result+result_pos, value, tmp+1);
+       memcpy(result+result_pos, value1, tmp+1);
        result_pos+=tmp;
+       my_free(1524, &value1);
+       my_free(1525, &value2);
+
      }
    }
    token_pos = 0;
@@ -3060,8 +3083,9 @@ const char *translate2(Lcc *lcc, int level, char* s)
     return empty;
   }
   size = CADCHUNKALLOC;
-  my_realloc(661, &result, size);
+  my_realloc(1528, &result, size);
   result[0] = '\0';
+  dbg(1, "translate2(): s=%s\n", s);
   while (1) {
     c = *s++;
     if (c == '\\') {
@@ -3083,6 +3107,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
       token[token_pos] = '\0';
       token_pos = 0;
 
+      dbg(1, "translate2(): lcc[%d].prop_ptr=%s\n", level, lcc[level].prop_ptr);
       /* if spiceprefix==0 and token == @spiceprefix then set empty value */
       if(!tclgetboolvar("spiceprefix") && !strcmp(token, "@spiceprefix")) {
         my_free(1069, &value1);
@@ -3098,6 +3123,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
         while(i > 1) {
           save_tok_size = xctx->tok_size;
           my_strdup2(440, &value2, get_tok_value(lcc[i-1].prop_ptr, value, 0));
+          dbg(1, "translate2(): lcc[%d].prop_ptr=%s\n", i-1, lcc[i-1].prop_ptr);
           if(xctx->tok_size && value2[0]) {
             value = value2;
           } else {
@@ -3141,8 +3167,10 @@ const char *translate2(Lcc *lcc, int level, char* s)
       break;
     }
   }
-  my_free(1070, &token);
-  my_free(1071, &value1);
-  my_free(1072, &value2);
+  my_free(1532, &token);
+  my_free(1533, &value1);
+  my_free(1071, &value2);
+  dbg(1, "translate2(): result=%s\n", result);
   return tcl_hook2(&result);
 }
+

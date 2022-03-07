@@ -351,6 +351,14 @@ proc sframe {container} {
 }
 #### /Scrollable frame
 
+## evaluate expression. if expression has errors or does not evaluate return expression as is
+proc ev {s} {
+  if {![catch {expr $s} res]} {
+    return [format %.4g $res]
+  } else {
+    return $s
+  }
+}
 proc netlist {source_file show netlist_file} {
  global XSCHEM_SHAREDIR flat_netlist hspice_netlist netlist_dir
  global verilog_2001 debug_var OS

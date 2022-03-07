@@ -1270,7 +1270,8 @@ void descend_schematic(int instnumber)
   }
   my_strdup(14, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
   xctx->sch_path_hash[xctx->currsch+1] =0;
-
+  my_strdup(1516, &xctx->hier_attr[xctx->currsch].prop_ptr, 
+            xctx->inst[xctx->sel_array[0].n].prop_ptr);
   inst_number = 1;
   if(inst_mult > 1) { /* on multiple instances ask where to descend, to correctly evaluate
                          the hierarchy path you descend to */

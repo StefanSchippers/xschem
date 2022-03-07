@@ -3213,6 +3213,10 @@ void descend_symbol(void)
   my_strcat(365, &xctx->sch_path[xctx->currsch+1], str);
   my_strcat(366, &xctx->sch_path[xctx->currsch+1], ".");
   xctx->sch_path_hash[xctx->currsch+1] = 0;
+
+  my_strdup(1518, &xctx->hier_attr[xctx->currsch].prop_ptr,
+            xctx->inst[xctx->sel_array[0].n].prop_ptr);
+
   xctx->sch_inst_number[xctx->currsch+1] = 1;
   my_free(921, &str);
   xctx->previous_instance[xctx->currsch]=xctx->sel_array[0].n;

@@ -944,6 +944,7 @@ typedef struct {
   void (*clear_undo)(void);
   int case_insensitive; /* for case insensitive compare where needed */
   int (*x_strcmp)(const char *, const char *);
+  Lcc hier_attr[CADMAXHIER]; /* hierarchical recursive attribute substitution when descending */
 } Xschem_ctx;
 
 /* GLOBAL VARIABLES */
