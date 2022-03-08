@@ -4513,7 +4513,7 @@ proc no_open_dialogs {} {
 ## "viewdata_wcounter" should be kept unique as it is the number of open viewdatas
 ## "measure_id" should be kept unique since we allow only one measure tooltip in graphs
 ## "tabbed_interface"
-
+## "case_insensitive" case insensitive symbol lookup (on case insensitive filesystems only!)
 
 set tctx::global_list {
   auto_hilight autotrim_wires bespice_listen_port big_grid_points bus_replacement_char
@@ -4535,7 +4535,7 @@ set tctx::global_list {
   netlist_type no_change_attrs noprint_libs old_selected_tok
   only_probes path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
   rawfile_loaded rcode recentfile replace_key retval retval_orig rotated_text save_initialfile search_exact
-  search_found search_select search_value selected_tok show_infowindow show_pin_net_names 
+  search_found search_select search_value selected_tok show_hidden_texts show_infowindow show_pin_net_names 
   simconf_default_geometry simconf_vpos 
   spiceprefix split_files svg_colors svg_font_name symbol symbol_width sym_txt tclcmd_txt tclstop
   text_line_default_geometry textwindow_fileid textwindow_filename textwindow_w tmp_bus_char 
@@ -5026,6 +5026,7 @@ proc build_widgets { {topwin {} } } {
           select_layers
           xschem redraw
        }
+  $topwin.menubar.view.menu add checkbutton -label "Show hidden texts"  -variable show_hidden_texts -command {xschem redraw}
   $topwin.menubar.view.menu add command -label "Change current layer color"  -accelerator {} -command {
           change_color
        }
@@ -5490,6 +5491,7 @@ set_ne unzoom_nodrift 0
 set_ne change_lw 1
 set_ne line_width 0
 set_ne draw_window 0
+set_ne show_hidden_texts 0
 set_ne incr_hilight 1
 set_ne enable_stretch 0
 set_ne constrained_move 0
