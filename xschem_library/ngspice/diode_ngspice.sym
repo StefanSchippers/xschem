@@ -1,0 +1,21 @@
+v {xschem version=3.0.0 file_version=1.2 }
+G {}
+K {type=subcircuit
+format="@name @pinlist @symname Ron=@Ron Roff=@Roff m=@m"
+function1="U H 0 m"
+function0="L U 1 m"
+
+
+template="name=X1 m=1 Roff=1e9 Ron=0.1"}
+V {}
+S {}
+E {}
+L 4 0 5 0 30 {}
+L 4 0 -30 0 -5 {}
+L 4 -10 5 10 5 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=plus dir=inout pinnumber=1 propag=1 goto=1}
+B 5 -2.5 27.5 2.5 32.5 {name=minus dir=inout pinnumber=2 goto=0}
+P 4 4 -0 5 -10 -5 10 -5 0 5 {fill=true}
+T {@name} 15 -18.75 0 0 0.2 0.2 {}
+T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15}
