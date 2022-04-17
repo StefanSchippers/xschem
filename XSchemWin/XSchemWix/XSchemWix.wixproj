@@ -55,7 +55,7 @@
   <PropertyGroup>
     <PreBuildEvent>C:\"Program Files (x86)"\"WiX Toolset v3.11"\bin\heat.exe dir "..\..\..\..\doc"  -dr INSTALLFOLDER -cg doc -gg -sfrag -var "var.docSrcDir" -out $(ProjectDir)heat_doc.wxs
 C:\"Program Files (x86)"\"WiX Toolset v3.11"\bin\heat.exe dir "..\..\..\..\xschem_library" -dr INSTALLFOLDER -cg xschem_library -gg -sfrag -var "var.xschemLibrarySrcDir" -out $(ProjectDir)heat_xschem_library.wxs
-curl.exe --output D:\Projects\XSchem\doc\xschem_man\xschem_manual.pdf --url https://xschem.sourceforge.io/stefan/xschem_man/xschem_man.pdf</PreBuildEvent>
+curl.exe --output $(ProjectDir)..\..\doc\xschem_man\xschem_manual.pdf --url https://xschem.sourceforge.io/stefan/xschem_man/xschem_man.pdf</PreBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.

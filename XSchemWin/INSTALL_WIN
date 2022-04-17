@@ -4,6 +4,7 @@
     - ActiveState TCL/TK 8.69 x64 (https://www.activestate.com/products/tcl/)
     - Gawk for Windows (Add directory of awk.exe to PATH)
     - NGSpice for Windows (Add directory of NGSpice to PATH, if it's not already done so)
+    - Windows Ghostscript (to print; Add directory of gswin64.exe to PATH, if it's not already done so)
 
 2. Install Tree
 C:/Program Files/XSchem/bin                          - Binaries (executable file).
