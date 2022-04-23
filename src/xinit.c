@@ -1043,6 +1043,7 @@ static void switch_tab(int *window_count, const char *win_path)
 {        
   int i, n;
 
+  if(xctx->semaphore) return; /* some editing operation ongoing. do nothing */
   if(!strcmp(win_path, xctx->current_win_path)) return; /* already there */
   if(*window_count) {
     dbg(1, "new_schematic() switch_tab: %s\n", win_path);
