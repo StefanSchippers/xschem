@@ -1638,7 +1638,10 @@ void print_spice_subckt(FILE *fd, int symbol)
   {
    token[token_pos]='\0';
    token_pos=0;
-   if(!strcmp(token, "@name")) {
+   if(!strcmp(token, "@spiceprefix")) {
+     /* do nothing */
+   }
+   else if(!strcmp(token, "@name")) {
      /* do nothing */
    }
    else if(strcmp(token, "@symname")==0) {
