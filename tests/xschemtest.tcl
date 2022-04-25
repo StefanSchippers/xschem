@@ -191,7 +191,7 @@ proc netlist_test {} {
   global netlist_dir
   foreach {f t h} {
     rom8k.sch               spice      2289841821
-    greycnt.sch             verilog    3391559642
+    greycnt.sch             verilog    3378316826
     autozero_comp.sch       spice      2011673313
     loading.sch             vhdl       2601437773
     mos_power_ampli.sch     spice      2488555251
