@@ -1443,7 +1443,11 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     set_tcl_netlist_type();
     break;
    }
-
+   if(key=='s' && (state == 0) )      /* simulate */
+   {
+     tcleval("[xschem get top_path].menubar.simulate invoke");
+     break;
+   }
    if(key=='s' && (state == ControlMask) )      /* save 20121201 */
    {
      if(xctx->semaphore >= 2) break;
