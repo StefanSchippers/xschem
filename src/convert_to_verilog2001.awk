@@ -27,7 +27,9 @@ NF==3 && $0 ~/^module/ {
   module=1
   port_decl=0
   parameter = ""
+  ports = ""
   comma=0
+  sub(/[ \t]*\(/, "")
   print
   next
 }
@@ -43,21 +45,23 @@ port_decl==1 && $1 ~ /^(output|input|inout)$/{
   getline 
   sub(/;[ \t]*$/,"")
   $1 = dir " " $1
-  if(comma) printf ",\n"
-  printf "  %s", $0
+  if(comma) ports = ports ",\n"
+  ports = ports  "  " $0
   comma=1
   next
 }
  
 port_decl==1 && $0 ~ /^parameter/{
-  if(parameter!="") parameter = parameter "\n"
-  parameter = parameter  $0
+  sub(/[ \t]*;[ \t]*$/, "")
+  if(parameter!="") parameter = parameter ",\n"
+  parameter =  parameter "  " $0
   next
 }
 port_decl==1 && $0 ~/^[ \t]*$/{
   port_decl=0
-  printf "\n);\n"
-  print parameter
+  if(parameter) print "#(\n" parameter "\n)"
+  print  "(\n" ports "\n);"
+  
   next
 }
 
