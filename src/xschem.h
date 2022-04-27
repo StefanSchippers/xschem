@@ -1092,7 +1092,7 @@ extern int set_text_custom_font(xText *txt);
 extern int text_bbox(const char * str,double xscale, double yscale,
             short rot, short flip, int hcenter, int vcenter, 
             double x1,double y1, double *rx1, double *ry1,
-            double *rx2, double *ry2, int *cairo_lines, int *longest_line);
+            double *rx2, double *ry2, int *cairo_lines, double *longest_line);
 
 extern int get_color(int value);
 extern void incr_hilight_color(void);
@@ -1106,7 +1106,7 @@ extern void hash_instances(void); /*  20171203 insert instance bbox in spatial h
 extern int text_bbox_nocairo(const char * str,double xscale, double yscale,
             short rot, short flip, int hcenter, int vcenter,
             double x1,double y1, double *rx1, double *ry1,
-            double *rx2, double *ry2, int *cairo_lines, int *longest_line);
+            double *rx2, double *ry2, int *cairo_lines, double *longest_line);
 #endif
 
 extern unsigned short select_object(double mx,double my, unsigned short sel_mode,

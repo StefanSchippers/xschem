@@ -599,7 +599,7 @@ void copy_objects(int what)
 {
   int tmpi, c, i, n, k /*, tmp */ ;
   xRect tmp;
-  double angle;
+  double angle, dtmp;
   int newpropcnt;
   double tmpx, tmpy;
   const char *str;
@@ -934,7 +934,7 @@ void copy_objects(int what)
           xctx->text[l].yscale, xctx->text[l].rot,xctx->text[l].flip, 
           xctx->text[l].hcenter, xctx->text[l].vcenter,
           xctx->text[l].x0, xctx->text[l].y0,
-          &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpi, &tmpi);
+          &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpi, &dtmp);
         #if HAS_CAIRO==1
         if(customfont) cairo_restore(xctx->cairo_ctx);
         #endif
@@ -1030,7 +1030,7 @@ void move_objects(int what, int merge, double dx, double dy)
 {
  int c, i, n, k, tmpint;
  xRect tmp;
- double angle;
+ double angle, dtmp;
  double tx1,ty1; /* temporaries for swapping coordinates 20070302 */
  #if HAS_CAIRO==1
  int customfont;
@@ -1448,7 +1448,7 @@ void move_objects(int what, int merge, double dx, double dy)
       text_bbox(xctx->text[n].txt_ptr, xctx->text[n].xscale,
          xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
          xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
-         &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &tmpint);
+         &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
       #if HAS_CAIRO==1
       if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif
@@ -1472,7 +1472,7 @@ void move_objects(int what, int merge, double dx, double dy)
       text_bbox(xctx->text[n].txt_ptr, xctx->text[n].xscale,
          xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
          xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
-         &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &tmpint);
+         &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
       #if HAS_CAIRO==1
       if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif

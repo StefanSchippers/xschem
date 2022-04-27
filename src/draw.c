@@ -197,7 +197,7 @@ int set_text_custom_font(xText *txt)
 static void cairo_draw_string_line(cairo_t *c_ctx, char *s,
     double x, double y, short rot, short flip,
     int lineno, double fontheight, double fontascent, double fontdescent,
-    int llength, int no_of_lines, int longest_line)
+    int llength, int no_of_lines, double longest_line)
 {
   double ix, iy;
   short rot1;
@@ -247,7 +247,8 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
   int lineno=0;
   double size;
   cairo_font_extents_t fext;
-  int llength=0, no_of_lines, longest_line;
+  int llength=0, no_of_lines;
+  double longest_line;
 
   (void)what; /* UNUSED in cairo version, avoid compiler warning */
   if(str==NULL || !has_x ) return;
@@ -329,7 +330,8 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
  int pos=0,pos2=0;
  unsigned int cc;
  double *char_ptr_x1,*char_ptr_y1,*char_ptr_x2,*char_ptr_y2;
- int i,lines, no_of_lines, longest_line;
+ int i,lines, no_of_lines;
+ double longest_line;
 
  if(str==NULL || !has_x ) return;
  dbg(2, "draw_string(): string=%s\n",str);
@@ -387,10 +389,11 @@ void draw_temp_string(GC gctext, int what, const char *str, short rot, short fli
 {
  double textx1,textx2,texty1,texty2;
  int tmp;
+ double dtmp;
  if(!has_x) return;
  dbg(2, "draw_string(): string=%s\n",str);
  if(!text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
-     &textx1,&texty1,&textx2,&texty2, &tmp, &tmp)) return;
+     &textx1,&texty1,&textx2,&texty2, &tmp, &dtmp)) return;
  drawtemprect(gctext,what, textx1,texty1,textx2,texty2);
 }
 
@@ -2075,7 +2078,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
 {
 
   double xx = W_X(active_cursorx);
-  double tx1, ty1, tx2, ty2;
+  double tx1, ty1, tx2, ty2, dtmp;
   int tmp;
   char tmpstr[1024];
   double txtsize = gr->txtsizex;
@@ -2089,7 +2092,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
        my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * active_cursorx , gr->unitx_suffix);
     else
        my_snprintf(tmpstr, S(tmpstr), "%.4g",  active_cursorx);
-    text_bbox(tmpstr, txtsize, txtsize, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, &tx1, &ty1, &tx2, &ty2, &tmp, &tmp);
+    text_bbox(tmpstr, txtsize, txtsize, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
     filledrect(0, NOW,  tx1, ty1, tx2, ty2);
     draw_string(cursor_color, NOW, tmpstr, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, txtsize, txtsize);
   }
@@ -2109,18 +2112,18 @@ static void draw_cursor_difference(Graph_ctx *gr)
   double diffw = fabs(xctx->graph_cursor2_x - xctx->graph_cursor1_x);
   double xx = ( a + b ) * 0.5;
   double yy = gr->ry2 - 1;
-  double tmpd;
+  double dtmp;
   double yline;
   if(xctx->graph_sim_type == 3) return;
   if(gr->unitx != 1.0)
      my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * diffw , gr->unitx_suffix);
   else
      my_snprintf(tmpstr, S(tmpstr), "%.4g",  diffw);
-  text_bbox(tmpstr, txtsize, txtsize, 2, 0, 1, 0, xx, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &tmp);
+  text_bbox(tmpstr, txtsize, txtsize, 2, 0, 1, 0, xx, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
   if( tx2 - tx1 < diff ) {
     draw_string(3, NOW, tmpstr, 2, 0, 1, 0, xx, yy, txtsize, txtsize);
     if( a > b) {
-      tmpd = a; a = b; b = tmpd;
+      dtmp = a; a = b; b = dtmp;
     }
     yline = (ty1 + ty2) * 0.5;
     if( tx1 - a > 4.0) drawline(3, NOW, a + 2, yline, tx1 - 2, yline, 1);

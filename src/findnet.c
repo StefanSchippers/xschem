@@ -279,7 +279,7 @@ static void find_closest_text(double mx,double my)
  short rot,flip;
  double xx1,xx2,yy1,yy2;
  int i,r=-1, tmp;
- double threshold;
+ double threshold, dtmp;
  #if HAS_CAIRO==1
  int customfont;
  #endif
@@ -295,7 +295,7 @@ static void find_closest_text(double mx,double my)
              xctx->text[i].xscale, xctx->text[i].yscale, rot, flip,
               xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
-             &xx1,&yy1, &xx2,&yy2, &tmp, &tmp);
+             &xx1,&yy1, &xx2,&yy2, &tmp, &dtmp);
    #if HAS_CAIRO==1
    if(customfont) cairo_restore(xctx->cairo_ctx);
    #endif

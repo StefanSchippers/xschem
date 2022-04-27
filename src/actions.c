@@ -1512,7 +1512,8 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  }
  if(has_x && selected != 2) for(i=0;i<xctx->texts;i++)
  { 
-   int no_of_lines, longest_line;
+   int no_of_lines; 
+   double longest_line;
    if(selected == 1 && !xctx->text[i].sel) continue;
    #if HAS_CAIRO==1
    customfont = set_text_custom_font(&xctx->text[i]);
@@ -2328,7 +2329,7 @@ void new_polygon(int what)
 #if HAS_CAIRO==1
 int text_bbox(const char *str, double xscale, double yscale,
     short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
-    double *rx2, double *ry2, int *cairo_lines, int *cairo_longest_line)
+    double *rx2, double *ry2, int *cairo_lines, double *cairo_longest_line)
 {
   int c=0;
   char *str_ptr, *s = NULL;
@@ -2376,7 +2377,7 @@ int text_bbox(const char *str, double xscale, double yscale,
   }
   my_free(1159, &s);
   hh = hh*fext.height * cairo_font_line_spacing;
-  *cairo_longest_line = (int) ww;
+  *cairo_longest_line = ww;
 
   *rx1=x1;*ry1=y1;
   if(hcenter) {
@@ -2413,11 +2414,11 @@ int text_bbox(const char *str, double xscale, double yscale,
 }
 int text_bbox_nocairo(const char *str,double xscale, double yscale,
     short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
-    double *rx2, double *ry2, int *cairo_lines, int *cairo_longest_line)
+    double *rx2, double *ry2, int *cairo_lines, double *cairo_longest_line)
 #else
 int text_bbox(const char *str,double xscale, double yscale,
     short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
-    double *rx2, double *ry2, int *cairo_lines, int *cairo_longest_line)
+    double *rx2, double *ry2, int *cairo_lines, double *cairo_longest_line)
 #endif
 {
  register int c=0, length =0;
@@ -2433,7 +2434,7 @@ int text_bbox(const char *str,double xscale, double yscale,
      w = length;
   }
   w *= (FONTWIDTH+FONTWHITESPACE)*xscale* tclgetdoublevar("nocairo_font_xscale");
-  *cairo_longest_line = (int)w;
+  *cairo_longest_line = w;
   h *= (FONTHEIGHT+FONTDESCENT+FONTWHITESPACE)*yscale* tclgetdoublevar("nocairo_font_yscale");
   *rx1=x1;*ry1=y1;
   if(     rot==0) *ry1-=nocairo_vert_correct;

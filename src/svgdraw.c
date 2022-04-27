@@ -187,7 +187,7 @@ static void svg_drawline(int gc, int bus, double linex1,double liney1,double lin
 
 static void svg_draw_string_line(int layer, char *s, double x, double y, double size,
             short rot, short flip, int lineno, double fontheight, double fontascent,
-            double fontdescent, int llength, int no_of_lines, int longest_line)
+            double fontdescent, int llength, int no_of_lines, double longest_line)
 {
   double ix, iy;
   short rot1;
@@ -256,7 +256,8 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
   char c;
   int lineno=0;
   double size, height, ascent, descent;
-  int llength=0, no_of_lines, longest_line;
+  int llength=0, no_of_lines;
+  double longest_line;
 
   if(str==NULL) return;
   size = xscale*52.;
@@ -319,7 +320,8 @@ static void old_svg_draw_string(int layer, const char *str,
 {
  double a,yy,curr_x1,curr_y1,curr_x2,curr_y2,rx1,rx2,ry1,ry2;
  int pos=0,cc,pos2=0;
- int i, no_of_lines, longest_line;
+ int i, no_of_lines;
+ double longest_line;
 
  if(str==NULL) return;
  #if HAS_CAIRO==1

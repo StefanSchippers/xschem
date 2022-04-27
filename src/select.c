@@ -150,7 +150,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
    xText text;
    const char *tmp_txt;
    short rot,flip;
-   double x0, y0 ;
+   double x0, y0, dtmp;
    double text_x0, text_y0;
    short sym_rot, sym_flip;
    double xx1,yy1,xx2,yy2;
@@ -190,7 +190,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      text_bbox(tmp_txt, text.xscale, text.yscale,
        (text.rot + ( (sym_flip && (text.rot & 1) ) ? sym_rot+2 : sym_rot)) &0x3,
        sym_flip ^ text.flip, text.hcenter, text.vcenter,
-       x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2, &tmp, &tmp);
+       x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
      #if HAS_CAIRO==1
      if(customfont) cairo_restore(xctx->cairo_ctx);
      #endif
@@ -322,7 +322,7 @@ void delete(int to_push_undo)
   #if HAS_CAIRO==1
   int customfont;
   #endif
-  double xx1,yy1,xx2,yy2;
+  double xx1,yy1,xx2,yy2, dtmp;
 
   dbg(3, "delete(): start\n");
   j = 0;
@@ -346,7 +346,7 @@ void delete(int to_push_undo)
       text_bbox(xctx->text[i].txt_ptr, xctx->text[i].xscale,
                 xctx->text[i].yscale, select_rot, select_flip, xctx->text[i].hcenter,
                 xctx->text[i].vcenter, xctx->text[i].x0, xctx->text[i].y0,
-                &xx1,&yy1, &xx2,&yy2, &tmp, &tmp);
+                &xx1,&yy1, &xx2,&yy2, &tmp, &dtmp);
       #if HAS_CAIRO==1
       if(customfont) cairo_restore(xctx->cairo_ctx);
       #endif
@@ -987,7 +987,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
 {
  int c,i, tmpint;
  double x, y, r, a, b, xa, ya, xb, yb; /* arc */
- double xx1,yy1,xx2,yy2;
+ double xx1,yy1,xx2,yy2, dtmp;
  xRect tmp;
  int en_s;
  int select_rot = 0, select_flip = 0;
@@ -1025,7 +1025,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
              xctx->text[i].xscale, xctx->text[i].yscale, select_rot, select_flip, 
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
-             &xx1,&yy1, &xx2,&yy2, &tmpint, &tmpint);
+             &xx1,&yy1, &xx2,&yy2, &tmpint, &dtmp);
   #if HAS_CAIRO==1
   if(customfont) cairo_restore(xctx->cairo_ctx);
   #endif

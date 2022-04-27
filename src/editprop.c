@@ -835,7 +835,7 @@ static void edit_text_property(int x)
    #endif
    int sel, k, text_changed, tmp;
    int c,l, preserve, changesize=0;
-   double hsize, vsize;
+   double hsize, vsize, dtmp;
    double xx1,yy1,xx2,yy2;
    double pcx,pcy;      /* pin center 20070317 */
    char property[1024];/* used for float 2 string conv (xscale  and yscale) overflow safe */
@@ -892,7 +892,7 @@ static void edit_text_property(int x)
        text_bbox(xctx->text[sel].txt_ptr, xctx->text[sel].xscale,
                  xctx->text[sel].yscale, rot, flip, xctx->text[sel].hcenter,
                  xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
-                 &xx1,&yy1,&xx2,&yy2, &tmp, &tmp);
+                 &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
        #if HAS_CAIRO==1
        if(customfont) cairo_restore(xctx->cairo_ctx);
        #endif
@@ -913,7 +913,7 @@ static void edit_text_property(int x)
              text_bbox(xctx->text[sel].txt_ptr, xctx->text[sel].xscale,
              xctx->text[sel].yscale, rot, flip, xctx->text[sel].hcenter,
              xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
-             &xx1,&yy1,&xx2,&yy2, &tmp, &tmp);
+             &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
              #if HAS_CAIRO==1
              if(customfont) cairo_restore(xctx->cairo_ctx);
              #endif
@@ -980,7 +980,7 @@ static void edit_text_property(int x)
        text_bbox(xctx->text[sel].txt_ptr, xctx->text[sel].xscale,
                  xctx->text[sel].yscale, rot, flip, xctx->text[sel].hcenter,
                   xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
-                 &xx1,&yy1,&xx2,&yy2, &tmp, &tmp);
+                 &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
        #if HAS_CAIRO==1
        if(customfont) cairo_restore(xctx->cairo_ctx);
        #endif
