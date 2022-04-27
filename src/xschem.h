@@ -176,34 +176,34 @@ extern char win_temp_dir[PATH_MAX];
 
 #define STARTWIRE 1         /*  possible states, encoded in global 'rubber' */
 
-#define STARTRECT 4
-#define STARTLINE 8
-#define SELECTION  16       /*  signals that some objects are selected. */
-#define STARTSELECT 32      /*  used for drawing a selection rectangle */
-#define STARTMOVE 64        /*  used for move/copy  operations */
-#define STARTCOPY 128       /*  used for move/copy  operations */
-#define STARTZOOM 256       /*  used for move/copy  operations */
-#define STARTMERGE 512      /*  used fpr merge schematic/symbol */
-#define MENUSTARTWIRE 1024  /*  start wire invoked from menu */
-#define MENUSTARTLINE 2048  /*  start line invoked from menu */
-#define MENUSTARTRECT 4096  /*  start rect invoked from menu */
-#define MENUSTARTZOOM 8192  /*  start zoom box invoked from menu */
-#define STARTPAN     16384 /*  new pan method with mouse button3 */
-#define PLACE_TEXT 32768
-#define MENUSTARTSNAPWIRE 65536   /*  start wire invoked from menu, snap to pin variant 20171022 */
-#define STARTPOLYGON 131072
-#define MENUSTARTPOLYGON 262144
-#define STARTARC 524288
-#define MENUSTARTARC 1048576
-#define MENUSTARTCIRCLE 2097152
-#define PLACE_SYMBOL 4194304 /* used in move_objects after place_symbol to avoid storing intermediate undo state */
-#define START_SYMPIN 8388608
-#define GRAPHPAN 16777216
-#define SELECTED 1          /*  used in the .sel field for selected objs. */
-#define SELECTED1 2         /*  first point selected... */
-#define SELECTED2 4         /*  second point selected... */
-#define SELECTED3 8
-#define SELECTED4 16
+#define STARTRECT 4U
+#define STARTLINE 8U
+#define SELECTION  16U      /*  signals that some objects are selected. */
+#define STARTSELECT 32U     /*  used for drawing a selection rectangle */
+#define STARTMOVE 64U       /*  used for move/copy  operations */
+#define STARTCOPY 128U      /*  used for move/copy  operations */
+#define STARTZOOM 256U      /*  used for move/copy  operations */
+#define STARTMERGE 512U     /*  used fpr merge schematic/symbol */
+#define MENUSTARTWIRE 1024U /*  start wire invoked from menu */
+#define MENUSTARTLINE 2048U /*  start line invoked from menu */
+#define MENUSTARTRECT 4096U /*  start rect invoked from menu */
+#define MENUSTARTZOOM 8192U /*  start zoom box invoked from menu */
+#define STARTPAN     16384U /*  new pan method with mouse button3 */
+#define PLACE_TEXT 32768U
+#define MENUSTARTSNAPWIRE 65536U  /*  start wire invoked from menu, snap to pin variant 20171022 */
+#define STARTPOLYGON 131072U
+#define MENUSTARTPOLYGON 262144U
+#define STARTARC 524288U
+#define MENUSTARTARC 1048576U
+#define MENUSTARTCIRCLE 2097152U
+#define PLACE_SYMBOL 4194304U /* used in move_objects after place_symbol to avoid storing intermediate undo state */
+#define START_SYMPIN 8388608U
+#define GRAPHPAN 16777216U
+#define SELECTED 1U         /*  used in the .sel field for selected objs. */
+#define SELECTED1 2U        /*  first point selected... */
+#define SELECTED2 4U        /*  second point selected... */
+#define SELECTED3 8U
+#define SELECTED4 16U
 
 #define WIRE 1              /*  types of defined objects */
 #define xRECT  2
@@ -682,7 +682,7 @@ typedef struct
 /* context struct for waveform graphs */
 typedef struct {
   int i;  /* index number of container rectangle */
-  double digital;
+  int digital;
   double rx1, ry1, rx2, ry2, rw, rh; /* container rectangle */
   double sx1, sy1, sx2, sy2; /* screen coordinates of above */
   /* graph box (smaller than rect container due to margins) */
@@ -776,7 +776,7 @@ typedef struct {
   int simdata_ninst;
   int modified;
   int semaphore;
-  int tok_size;
+  size_t tok_size;
   char netlist_name[PATH_MAX];
   int flat_netlist;
   char current_dirname[PATH_MAX];
@@ -1282,9 +1282,9 @@ extern void print_vhdl_element(FILE *fd, int inst);
 extern void print_verilog_element(FILE *fd, int inst);
 extern const char *get_tok_value(const char *s,const char *tok,int with_quotes);
 extern const char *list_tokens(const char *s, int with_quotes);
-extern int  my_snprintf(char *str, int size, const char *fmt, ...);
+extern size_t my_snprintf(char *str, size_t size, const char *fmt, ...);
 extern size_t my_strdup(int id, char **dest, const char *src);
-extern void my_strndup(int id, char **dest, const char *src, int n);
+extern void my_strndup(int id, char **dest, const char *src, size_t n);
 extern size_t my_strdup2(int id, char **dest, const char *src);
 extern char *my_strtok_r(char *str, const char *delim, const char *quote, char **saveptr);
 extern int my_strncpy(char *d, const char *s, int n);
@@ -1298,7 +1298,7 @@ extern void *my_calloc(int id, size_t nmemb, size_t size);
 extern void my_free(int id, void *ptr);
 extern size_t my_strcat(int id, char **, const char *);
 extern size_t my_mstrcat(int id, char **str, const char *append_str, ...);
-extern char *itoa(int i);
+extern char *my_itoa(int i);
 extern char *dtoa(double i);
 extern char *dtoa_prec(double i);
 extern double my_round(double a);

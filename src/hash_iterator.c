@@ -32,11 +32,11 @@ void init_inst_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, doub
         memset(ctx->instflag, 0, xctx->instances*sizeof(unsigned short));
       }
       /* calculate square 4 1st corner of drawing area */
-      ctx->x1a = floor(x1 / BOXSIZE) ;
-      ctx->y1a = floor(y1 / BOXSIZE) ;
+      ctx->x1a = (int)floor(x1 / BOXSIZE) ;
+      ctx->y1a = (int)floor(y1 / BOXSIZE) ;
       /* calculate square 4 2nd corner of drawing area */
-      ctx->x2a = floor(x2 / BOXSIZE);
-      ctx->y2a = floor(y2 / BOXSIZE);
+      ctx->x2a = (int)floor(x2 / BOXSIZE);
+      ctx->y2a = (int)floor(y2 / BOXSIZE);
       ctx->i = ctx->x1a;
       ctx->j = ctx->y1a;
       ctx->tmpi = ctx->i % NBOXES; if(ctx->tmpi < 0) ctx->tmpi += NBOXES;
@@ -87,11 +87,11 @@ void init_wire_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, doub
         memset(ctx->wireflag, 0, xctx->wires*sizeof(unsigned short));
       }
       /* calculate square 4 1st corner of drawing area */
-      ctx->x1a = floor(x1 / BOXSIZE) ;
-      ctx->y1a = floor(y1 / BOXSIZE) ;
+      ctx->x1a = (int)floor(x1 / BOXSIZE) ;
+      ctx->y1a = (int)floor(y1 / BOXSIZE) ;
       /* calculate square 4 2nd corner of drawing area */
-      ctx->x2a = floor(x2 / BOXSIZE);
-      ctx->y2a = floor(y2 / BOXSIZE);
+      ctx->x2a = (int)floor(x2 / BOXSIZE);
+      ctx->y2a = (int)floor(y2 / BOXSIZE);
       ctx->i = ctx->x1a;
       ctx->j = ctx->y1a;
       ctx->tmpi = ctx->i % NBOXES; if(ctx->tmpi < 0) ctx->tmpi += NBOXES;

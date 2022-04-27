@@ -26,7 +26,8 @@ static int waves_selected(int event, int key, int state, int button)
 {
   int i;
   int is_inside = 0, skip = 0;
-  static int excl = STARTZOOM | STARTRECT | STARTLINE | STARTWIRE | STARTPAN | STARTSELECT | STARTMOVE | STARTCOPY;
+  static unsigned int excl = STARTZOOM | STARTRECT | STARTLINE | STARTWIRE |
+                             STARTPAN | STARTSELECT | STARTMOVE | STARTCOPY;
   if(xctx->ui_state & excl) skip = 1;
   else if(state & Mod1Mask) skip = 1;
   else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
@@ -248,7 +249,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       else if(event == -3 && button == Button1) {
         if(!edit_wave_attributes(1, i, gr)) {
-          tclvareval("graph_edit_properties ", itoa(i), NULL);
+          tclvareval("graph_edit_properties ", my_itoa(i), NULL);
         }
       }
       /* x cursor1 toggle */

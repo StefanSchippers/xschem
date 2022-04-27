@@ -236,7 +236,7 @@ static void del_rect_line_arc_poly(void)
    {
     j++;
     if(xctx->line[c][i].bus){
-      int ov, y1, y2;
+      double ov, y1, y2;
       ov = INT_BUS_WIDTH(xctx->lw);
       if(xctx->line[c][i].y1 < xctx->line[c][i].y2) { y1 = xctx->line[c][i].y1-ov; y2 = xctx->line[c][i].y2+ov; }
       else                        { y1 = xctx->line[c][i].y1+ov; y2 = xctx->line[c][i].y2-ov; }
@@ -402,13 +402,13 @@ void delete(int to_push_undo)
     if(xctx->wire[i].sel == SELECTED) {
       j++;
       if(xctx->wire[i].bus){
-        int ov, y1, y2;
+        double ov, y1, y2;
         ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
         if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
         else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
         bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
       } else {
-        int ov, y1, y2;
+        double ov, y1, y2;
         ov = cadhalfdotsize;
         if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
         else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }

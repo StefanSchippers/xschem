@@ -108,7 +108,7 @@ size_t my_strdup(int id, char **dest, const char *src) /* empty source string --
 }
 
 /* 20171004 copy at most n chars, adding a null char at end */
-void my_strndup(int id, char **dest, const char *src, int n) /* empty source string --> dest=NULL */
+void my_strndup(int id, char **dest, const char *src, size_t n) /* empty source string --> dest=NULL */
 
 {
  if(*dest!=NULL) {
@@ -142,7 +142,7 @@ void dbg(int level, char *fmt, ...)
 }
 
 #ifdef HAS_SNPRINTF
-int my_snprintf(char *str, int size, const char *fmt, ...)
+size_t my_snprintf(char *str, size_t size, const char *fmt, ...)
 {
   int  size_of_print;
   char s[200];
@@ -165,11 +165,12 @@ int my_snprintf(char *str, int size, const char *fmt, ...)
    this is a replacement for snprintf(), **however** it implements only
    the bare minimum set of formatting used by XSCHEM
 */
-int my_snprintf(char *string, int size, const char *format, ...)
+size_t my_snprintf(char *string, size_t size, const char *format, ...)
 {
   va_list args;
   const char *f, *fmt = NULL, *prev;
-  int overflow, format_spec, l, n = 0;
+  int overflow, format_spec;
+  size_t l, n = 0;
 
   va_start(args, format);
 
@@ -282,10 +283,10 @@ size_t my_strdup2(int id, char **dest, const char *src) /* 20150409 duplicates a
  return 0;
 }
 
-char *itoa(int i)
+char *my_itoa(int i)
 {
   static char s[30];
-  int n;
+  size_t n;
   n = my_snprintf(s, S(s), "%d", i);
   if(xctx) xctx->tok_size = n;
   return s;
@@ -294,7 +295,7 @@ char *itoa(int i)
 char *dtoa(double i)
 {
   static char s[50];
-  int n;
+  size_t n;
   n = my_snprintf(s, S(s), "%g", i);
   if(xctx) xctx->tok_size = n;
   return s;
@@ -303,7 +304,7 @@ char *dtoa(double i)
 char *dtoa_prec(double i)
 {
   static char s[50];
-  int n;
+  size_t n;
   n = my_snprintf(s, S(s), "%.10e", i);
   if(xctx) xctx->tok_size = n;
   return s;
@@ -471,12 +472,12 @@ int my_strncpy(char *d, const char *s, int n)
 
 char *strtolower(char* s) {
   char *p;
-  for(p=s; *p; p++) *p=tolower(*p);
+  for(p=s; *p; p++) *p=(char)tolower(*p);
   return s;
 }
 char *strtoupper(char* s) {
   char *p;
-  for(p=s; *p; p++) *p=toupper(*p);
+  for(p=s; *p; p++) *p=(char)toupper(*p);
   return s;
 }
 
@@ -587,7 +588,7 @@ static void edit_line_property(void)
   preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
   if(strcmp(tclgetvar("rcode"),"") )
   {
-    int y1, y2;
+    double y1, y2;
     xctx->push_undo();
     set_modify(1);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
@@ -663,7 +664,7 @@ static void edit_wire_property(void)
       }
       bus_ptr = get_tok_value(xctx->wire[k].prop_ptr,"bus",0);
       if(!strcmp(bus_ptr, "true")) {
-        int ov, y1, y2;
+        double ov, y1, y2;
         ov = INT_BUS_WIDTH(xctx->lw) > cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
         if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
         else                        { y1 = xctx->wire[k].y1+ov; y2 = xctx->wire[k].y2-ov; }
@@ -671,7 +672,7 @@ static void edit_wire_property(void)
         xctx->wire[k].bus=1;
       } else {
         if(oldbus){
-          int ov, y1, y2;
+          double ov, y1, y2;
           ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
           if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
           else                        { y1 = xctx->wire[k].y1+ov; y2 = xctx->wire[k].y2-ov; }
@@ -833,7 +834,8 @@ static void edit_text_property(int x)
    int customfont;
    #endif
    int sel, k, text_changed, tmp;
-   int c,l, preserve, hsize, vsize, changesize=0;
+   int c,l, preserve, changesize=0;
+   double hsize, vsize;
    double xx1,yy1,xx2,yy2;
    double pcx,pcy;      /* pin center 20070317 */
    char property[1024];/* used for float 2 string conv (xscale  and yscale) overflow safe */

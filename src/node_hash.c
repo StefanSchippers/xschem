@@ -36,7 +36,6 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
 {
  unsigned int hashcode, index;
  Node_hashentry *entry, *saveptr, **preventry;
- char *ptr;
  int s ;
  Drivers d;
 
@@ -59,8 +58,7 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
    if( what==XINSERT || what==XINSERT_NOREPLACE)          /* insert data */
    {
     s=sizeof( Node_hashentry );
-    ptr= my_malloc(281, s );
-    entry=(Node_hashentry *)ptr;
+    entry=(Node_hashentry *)my_malloc(281, s);
     entry->next = NULL;
     entry->token = entry->sig_type = entry->verilog_type =
                    entry->value = entry->class = entry->orig_tok = NULL;

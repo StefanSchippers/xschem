@@ -98,8 +98,8 @@ void clip_xy_to_short(double x, double y, short *sx, short *sy)
       r = 1.0;
     }
   }
-  *sx = x * r;
-  *sy = y * r;
+  *sx = (short) (x * r);
+  *sy = (short) (y * r);
 }
 
 /* 

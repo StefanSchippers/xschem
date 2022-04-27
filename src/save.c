@@ -252,15 +252,15 @@ static void read_binary_block(FILE *fd)
     if(ac) {
       for(v = 0; v < xctx->graph_nvars; v += 2) { /*AC analysis: calculate magnitude */
         if( v == 0 )  /* log scale x */
-          xctx->graph_values[v][offset + p] = log10(sqrt( tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]));
+          xctx->graph_values[v][offset + p] = (float)log10(sqrt( tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]));
         else /* dB */
-          xctx->graph_values[v][offset + p] = 20 * log10(sqrt(tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]));
+          xctx->graph_values[v][offset + p] = 20 * (float)log10(sqrt(tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]));
         /* AC analysis: calculate phase */
-        xctx->graph_values[v + 1] [offset + p] = atan2(tmp[v + 1], tmp[v]) * 180.0 / XSCH_PI;
+        xctx->graph_values[v + 1] [offset + p] = (float)(atan2(tmp[v + 1], tmp[v]) * 180.0 / XSCH_PI);
       }
     } 
     else for(v = 0; v < xctx->graph_nvars; v++) {
-      xctx->graph_values[v][offset + p] = tmp[v];
+      xctx->graph_values[v][offset + p] = (float)tmp[v];
     }
   }
   my_free(1406, &tmp);
@@ -780,7 +780,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
         } /* switch(...) */
       } /* if(stackptr2 > 0) */
     } /* for(i = 0; i < stackptr1; i++) */
-    y[p] = stack2[0];
+    y[p] = (float)stack2[0];
   } /* for(p = first ...) */
   ravg_store(0, 0, 0, 0, 0.0); /* clear data */
   return xctx->graph_nvars;

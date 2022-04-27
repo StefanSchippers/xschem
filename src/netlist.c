@@ -86,12 +86,12 @@ void hash_inst(int what, int n) /* 20171203 insert object bbox in spatial hash t
   if( y2 < y1) { tmpd=y2;y2=y1;y1=tmpd;}
 
   /* calculate square 4 1st bbox point of object[k] */
-  x1a=floor(x1/BOXSIZE);
-  y1a=floor(y1/BOXSIZE);
+  x1a=(int)floor(x1/BOXSIZE);
+  y1a=(int)floor(y1/BOXSIZE);
 
   /* calculate square 4 2nd bbox point of object[k] */
-  x2a=floor(x2/BOXSIZE);
-  y2a=floor(y2/BOXSIZE);
+  x2a=(int)floor(x2/BOXSIZE);
+  y2a=(int)floor(y2/BOXSIZE);
 
   /*loop thru all squares that intersect bbox of object[k] */
   counti=0;
@@ -228,9 +228,9 @@ void get_square(double x, double y, int *xx, int *yy)
 {
  int xa, xb, ya, yb;
 
- xa=floor(x/BOXSIZE) ;
+ xa=(int)floor(x/BOXSIZE) ;
  xb=xa % NBOXES; if(xb<0) xb+=NBOXES;
- ya=floor(y/BOXSIZE) ;
+ ya=(int)floor(y/BOXSIZE) ;
  yb=ya % NBOXES; if(yb<0) yb+=NBOXES;
 
  *xx=xb;
@@ -314,12 +314,12 @@ void hash_wire(int what, int n, int incremental)
   if( y2 < y1) { tmpd=y2;y2=y1;y1=tmpd;}
 
   /* calculate square 4 1st bbox point of wire[k] */
-  x1a=floor(x1/BOXSIZE) ;
-  y1a=floor(y1/BOXSIZE) ;
+  x1a=(int)floor(x1/BOXSIZE) ;
+  y1a=(int)floor(y1/BOXSIZE) ;
 
   /* calculate square 4 2nd bbox point of wire[k] */
-  x2a=floor(x2/BOXSIZE);
-  y2a=floor(y2/BOXSIZE);
+  x2a=(int)floor(x2/BOXSIZE);
+  y2a=(int)floor(y2/BOXSIZE);
 
   /*loop thru all squares that intersect bbox of wire[k] */
   counti=0;
@@ -476,12 +476,12 @@ static void wirecheck(int k)    /* recursive routine */
   /* ordered bbox */
   RECTORDER(x1, y1, x2, y2);
   /* calculate square 4 1st bbox point of wire[k] */
-  x1a=floor(x1/BOXSIZE) ;
-  y1a=floor(y1/BOXSIZE) ;
+  x1a=(int)floor(x1/BOXSIZE) ;
+  y1a=(int)floor(y1/BOXSIZE) ;
 
   /* calculate square 4 2nd bbox point of wire[k] */
-  x2a=floor(x2/BOXSIZE);
-  y2a=floor(y2/BOXSIZE);
+  x2a=(int)floor(x2/BOXSIZE);
+  y2a=(int)floor(y2/BOXSIZE);
 
   /*loop thru all squares that intersect bbox of wire[k] */
   counti=0;

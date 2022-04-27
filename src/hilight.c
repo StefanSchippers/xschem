@@ -79,7 +79,6 @@ static Hilight_hashentry *hilight_hash_lookup(const char *token, int value, int 
 {
   unsigned int hashcode, index;
   Hilight_hashentry *entry, *saveptr, **preventry;
-  char *ptr;
   int s ;
  
   if(token==NULL) return NULL;
@@ -93,8 +92,7 @@ static Hilight_hashentry *hilight_hash_lookup(const char *token, int value, int 
       int lenp = strlen(xctx->sch_path[xctx->currsch]) + 1;
       if( what==XINSERT || what == XINSERT_NOREPLACE) { /* insert data */
         s=sizeof( Hilight_hashentry );
-        ptr= my_malloc(137, s );
-        entry=(Hilight_hashentry *)ptr;
+        entry= (Hilight_hashentry *)my_malloc(137, s );
         entry->next = NULL;
         entry->token = my_malloc(778, lent);
         memcpy(entry->token, token, lent);

@@ -191,7 +191,7 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
 {
   double ix, iy;
   short rot1;
-  int line_delta;
+  double line_delta;
   double lines;
   char col[20];
   if(color_ps) 

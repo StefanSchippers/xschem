@@ -274,13 +274,13 @@ static void init_color_array(double dim, double dim_bg)
    if(i == BACKLAYER) tmp_dim = dim_bg;
    else tmp_dim = dim;
    if(tmp_dim>=0.) {
-     r +=(51.-r/5.)*tmp_dim;
-     g +=(51.-g/5.)*tmp_dim;
-     b +=(51.-b/5.)*tmp_dim;
+     r +=(int)((51.-r/5.)*tmp_dim);
+     g +=(int)((51.-g/5.)*tmp_dim);
+     b +=(int)((51.-b/5.)*tmp_dim);
    } else {
-     r +=(r/5.)*tmp_dim;
-     g +=(g/5.)*tmp_dim;
-     b +=(b/5.)*tmp_dim;
+     r +=(int)((r/5.)*tmp_dim);
+     g +=(int)((g/5.)*tmp_dim);
+     b +=(int)((b/5.)*tmp_dim);
    }
    /* fprintf(errfp, "init_color_array: colors: %.16g %.16g %.16g dim=%.16g c=%d\n", r, g, b, dim, i); */
    if(r>0xff) r=0xff;
@@ -1493,7 +1493,7 @@ void change_linewidth(double w)
   changed=0;
   /* choose line width automatically based on zoom */
   if(w<0.) {
-    int cs;
+    double cs;
     cs = tclgetdoublevar("cadsnap");
     if(tclgetboolvar("change_lw"))  {
       xctx->lw=xctx->mooz * 0.09 * cs;

@@ -40,7 +40,8 @@ void here(double i)
 unsigned int hash_file(const char *f, int skip_path_lines)
 {
   FILE *fd;
-  int n, i;
+  int i;
+  size_t n;
   int cr = 0;
   unsigned int h=5381;
   char line[4096];
@@ -1483,7 +1484,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  if(selected == 2 && xctx->hilight_nets) prepare_netlist_structs(0);
  for(i=0;i<xctx->wires;i++)
  {
-   int ov, y1, y2;
+   double ov, y1, y2;
    if(selected == 1 && !xctx->wire[i].sel) continue;
    if(selected == 2) {
    /* const char *str;
@@ -2375,7 +2376,7 @@ int text_bbox(const char *str, double xscale, double yscale,
   }
   my_free(1159, &s);
   hh = hh*fext.height * cairo_font_line_spacing;
-  *cairo_longest_line = ww;
+  *cairo_longest_line = (int) ww;
 
   *rx1=x1;*ry1=y1;
   if(hcenter) {
@@ -2432,7 +2433,7 @@ int text_bbox(const char *str,double xscale, double yscale,
      w = length;
   }
   w *= (FONTWIDTH+FONTWHITESPACE)*xscale* tclgetdoublevar("nocairo_font_xscale");
-  *cairo_longest_line = w;
+  *cairo_longest_line = (int)w;
   h *= (FONTHEIGHT+FONTDESCENT+FONTWHITESPACE)*yscale* tclgetdoublevar("nocairo_font_yscale");
   *rx1=x1;*ry1=y1;
   if(     rot==0) *ry1-=nocairo_vert_correct;

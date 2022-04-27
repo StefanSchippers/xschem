@@ -201,14 +201,14 @@ static void cairo_draw_string_line(cairo_t *c_ctx, char *s,
 {
   double ix, iy;
   short rot1;
-  int line_delta;
+  double line_delta;
   double lines;
   double vc; /* 20171121 vert correct */
   
   if(s==NULL) return;
   if(llength==0) return;
 
-  line_delta = lineno*fontheight*cairo_font_line_spacing;
+  line_delta = (lineno*fontheight*cairo_font_line_spacing);
   lines = (no_of_lines-1)*fontheight*cairo_font_line_spacing;
 
   ix=X_TO_SCREEN(x);
@@ -857,9 +857,9 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
      XSetDashes(display, xctx->gc[c], 0, dash_arr, 2);
      XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), xDashType, CapButt, JoinBevel);
    }
-   if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], x1, y1, x2, y2);
+   if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(xctx->draw_pixmap)
-    XDrawLine(display, xctx->save_pixmap, xctx->gc[c], x1, y1, x2, y2);
+    XDrawLine(display, xctx->save_pixmap, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(dash) {
      XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, CapRound, JoinRound);
    }
@@ -882,8 +882,8 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    } else {
      XSetLineAttributes (display, xctx->gc[c], INT_BUS_WIDTH(xctx->lw), LineSolid, CapRound, JoinRound);
    }
-   if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], x1, y1, x2, y2);
-   if(xctx->draw_pixmap) XDrawLine(display, xctx->save_pixmap, xctx->gc[c], x1, y1, x2, y2);
+   if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
+   if(xctx->draw_pixmap) XDrawLine(display, xctx->save_pixmap, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
   }
  }
@@ -948,7 +948,7 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
   y2=Y_TO_SCREEN(liney2);
   if( clip(&x1,&y1,&x2,&y2) )
   {
-   XDrawLine(display, xctx->window, gc, x1, y1, x2, y2);
+   XDrawLine(display, xctx->window, gc, (int)x1, (int)y1, (int)x2, (int)y2);
   }
  }
  else if(what & THICK)
@@ -961,7 +961,7 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
   {
    XSetLineAttributes (display, gc, INT_BUS_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
 
-   XDrawLine(display, xctx->window, gc, x1, y1, x2, y2);
+   XDrawLine(display, xctx->window, gc, (int)x1, (int)y1, (int)x2, (int)y2);
    XSetLineAttributes (display, gc, INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
   }
  }
@@ -1009,8 +1009,8 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
    xarc[i].y=(short)yy1;
    xarc[i].width= (unsigned short)(xx2 - xx1);
    xarc[i].height=(unsigned short)(yy2 - yy1);
-   xarc[i].angle1 = a*64;
-   xarc[i].angle2 = b*64;
+   xarc[i].angle1 = (int)(a*64);
+   xarc[i].angle2 = (int)(b*64);
    i++;
   }
  }
@@ -1027,7 +1027,8 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
   y2=Y_TO_SCREEN(y2);
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
-   XDrawArc(display, xctx->window, gc, xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
+   XDrawArc(display, xctx->window, gc, (int)xx1, (int)yy1, (int)(xx2-xx1), (int)(yy2-yy1),
+            (int)(a*64), (int)(b*64));
   }
  }
  else if((what & END) && i)
@@ -1103,8 +1104,8 @@ void filledarc(int c, int what, double x, double y, double r, double a, double b
    xarc[i].y=(short)yy1;
    xarc[i].width =(unsigned short)(xx2 - xx1);
    xarc[i].height=(unsigned short)(yy2 - yy1);
-   xarc[i].angle1 = a*64;
-   xarc[i].angle2 = b*64;
+   xarc[i].angle1 = (int)(a*64);
+   xarc[i].angle2 = (int)(b*64);
    i++;
   }
  }
@@ -1121,8 +1122,10 @@ void filledarc(int c, int what, double x, double y, double r, double a, double b
   y2=Y_TO_SCREEN(y2);
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
-   if(xctx->draw_window) XFillArc(display, xctx->window, xctx->gc[c], xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
-   if(xctx->draw_pixmap) XFillArc(display, xctx->save_pixmap, xctx->gc[c], xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
+   if(xctx->draw_window) XFillArc(display, xctx->window, xctx->gc[c], (int)xx1, (int)yy1,
+                           (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
+   if(xctx->draw_pixmap) XFillArc(display, xctx->save_pixmap, xctx->gc[c], (int)xx1, (int)yy1,
+                            (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
   }
  }
  else if((what & END) && i)
@@ -1167,8 +1170,8 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
    xarc[i].y=(short)yy1;
    xarc[i].width =(unsigned short)(xx2 - xx1);
    xarc[i].height=(unsigned short)(yy2 - yy1);
-   xarc[i].angle1 = a*64;
-   xarc[i].angle2 = b*64;
+   xarc[i].angle1 = (int)(a*64);
+   xarc[i].angle2 = (int)(b*64);
    i++;
   }
  }
@@ -1196,18 +1199,22 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
    }
 
    if(xctx->draw_window) {
-     XDrawArc(display, xctx->window, xctx->gc[c], xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
+     XDrawArc(display, xctx->window, xctx->gc[c], (int)xx1, (int)yy1,
+              (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
    }
    if(xctx->draw_pixmap) {
-     XDrawArc(display, xctx->save_pixmap, xctx->gc[c], xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
+     XDrawArc(display, xctx->save_pixmap, xctx->gc[c], (int)xx1, (int)yy1, 
+              (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
    }
 
    if(xctx->fill_pattern && xctx->fill_type[c]){
      if(arc_fill) {
        if(xctx->draw_window)
-         XFillArc(display, xctx->window, xctx->gcstipple[c], xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
+         XFillArc(display, xctx->window, xctx->gcstipple[c], (int)xx1, (int)yy1, 
+              (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
        if(xctx->draw_pixmap)
-         XFillArc(display, xctx->save_pixmap, xctx->gcstipple[c], xx1, yy1, xx2-xx1, yy2-yy1, a*64, b*64);
+         XFillArc(display, xctx->save_pixmap, xctx->gcstipple[c], (int)xx1, (int)yy1, 
+              (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
      }
    }
    if(dash) {
@@ -1379,8 +1386,8 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     }
   } else {
       /* preserve cache locality working on contiguous data */
-      for(i=0;i<points; i++) p[i].x = X_TO_SCREEN(x[i]);
-      for(i=0;i<points; i++) p[i].y = Y_TO_SCREEN(y[i]);
+      for(i=0;i<points; i++) p[i].x = (short)X_TO_SCREEN(x[i]);
+      for(i=0;i<points; i++) p[i].y = (short)Y_TO_SCREEN(y[i]);
   }
   if(dash) {
     char dash_arr[2];
@@ -1810,10 +1817,10 @@ static void draw_graph_points(int idx, int first, int last,
       if(digital) {
         yy = c + yy *s2;
         /* Build poly y array. Translate from graph coordinates to screen coordinates  */
-        point[poly_npoints].y = CLIP(DS_Y(yy), xctx->areay1, xctx->areay2);
+        point[poly_npoints].y = (short)CLIP(DS_Y(yy), xctx->areay1, xctx->areay2);
       } else {
         /* Build poly y array. Translate from graph coordinates to screen coordinates  */
-        point[poly_npoints].y = CLIP(S_Y(yy), xctx->areay1, xctx->areay2);
+        point[poly_npoints].y = (short)CLIP(S_Y(yy), xctx->areay1, xctx->areay2);
       }
       poly_npoints++;
     }
@@ -1864,12 +1871,12 @@ static void draw_graph_grid(Graph_ctx *gr)
         subwx = wx + deltax * (double)k / ((double)gr->subdivx + 1.0);
       if(!axis_within_range(subwx, gr->gx1, gr->gx2)) continue;
       if(axis_end(subwx, deltax, gr->gx2)) break;
-      drawline(GRIDLAYER, ADD, W_X(subwx),   W_Y(gr->gy2), W_X(subwx),   W_Y(gr->gy1), dash_sizey);
+      drawline(GRIDLAYER, ADD, W_X(subwx),   W_Y(gr->gy2), W_X(subwx),   W_Y(gr->gy1), (int)dash_sizey);
     }
     if(!axis_within_range(wx, gr->gx1, gr->gx2)) continue;
     if(axis_end(wx, deltax, gr->gx2)) break;
     /* swap order of gy1 and gy2 since grap y orientation is opposite to xorg orientation */
-    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy2), W_X(wx),   W_Y(gr->gy1), dash_sizey);
+    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy2), W_X(wx),   W_Y(gr->gy1), (int)dash_sizey);
     drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy1), W_X(wx),   W_Y(gr->gy1) + mark_size, 0); /* axis marks */
     /* X-axis labels */
     if(xctx->graph_sim_type == 3) 
@@ -1892,11 +1899,11 @@ static void draw_graph_grid(Graph_ctx *gr)
         double subwy = wy + k * deltay / (gr->subdivy + 1);
         if(!axis_within_range(subwy, gr->gy1, gr->gy2)) continue;
         if(axis_end(subwy, deltay, gr->gy2)) break;
-        drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(subwy),   W_X(gr->gx2), W_Y(subwy), dash_sizex);
+        drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(subwy),   W_X(gr->gx2), W_Y(subwy), (int)dash_sizex);
       }
       if(!axis_within_range(wy, gr->gy1, gr->gy2)) continue;
       if(axis_end(wy, deltay, gr->gy2)) break;
-      drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(wy),   W_X(gr->gx2), W_Y(wy), dash_sizex);
+      drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(wy),   W_X(gr->gx2), W_Y(wy), (int)dash_sizex);
       drawline(GRIDLAYER, ADD, W_X(gr->gx1) - mark_size, W_Y(wy),   W_X(gr->gx1), W_Y(wy), 0); /* axis marks */
       /* Y-axis labels */
       draw_string(3, NOW, dtoa(wy * gr->unity), 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
@@ -2614,7 +2621,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
             if(xx >= start && xx <= end) {
               if(first == -1) first = p;
               /* Build poly x array. Translate from graph coordinates to screen coords */
-              point[poly_npoints].x = S_X(xx);
+              point[poly_npoints].x = (int)S_X(xx);
               if(dataset == -1 || dataset == sweepvar_wrap) {
                 if(measure_p == -1 && flags & 2 && cnt) { /* cursor1: show measurements on nodes in graph */
                   if(XSIGN(xx - xctx->graph_cursor1_x) != XSIGN(prev_x - xctx->graph_cursor1_x)) {
@@ -2840,7 +2847,7 @@ void draw_image(int draw, xRect *r, double *x1, double *y1, double *x2, double *
       size_t pngsize = 0;
       char *pngdata = NULL;
       FILE *fd;
-      filtersize = buf.st_size;
+      filtersize = (size_t)buf.st_size;
       if(filtersize) {
         fd = fopen(filename, "r");
         if(fd) {
@@ -2897,8 +2904,8 @@ void draw_image(int draw, xRect *r, double *x1, double *y1, double *x2, double *
     scalex = xctx->mooz;
     scaley = xctx->mooz;
   } else { /* resize image to fit in rectangle */
-    rw = abs(*x2 - *x1);
-    rh = abs(*y2 - *y1);
+    rw = abs((int)(*x2 - *x1));
+    rh = abs((int)(*y2 - *y1));
     scalex = rw/w * xctx->mooz;
     scaley = rh/h * xctx->mooz;
   }

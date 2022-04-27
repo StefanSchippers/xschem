@@ -268,8 +268,8 @@ static void ps_draw_string_line(int layer, char *s, double x, double y, double s
 {
   double ix, iy;
   short rot1;
-  unsigned char c;
-  int line_delta, offset;
+  unsigned char c, offset;
+  double line_delta;
   double lines;
   set_ps_colors(layer);
   if(s==NULL) return;

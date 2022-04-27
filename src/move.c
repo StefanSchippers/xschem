@@ -562,14 +562,14 @@ void find_inst_to_be_redrawn(int what)
         nentry = int_hash_lookup(xctx->node_redraw_table, xctx->wire[i].node, 0, XLOOKUP);
         if(nentry) {
           if(xctx->wire[i].bus){
-            int ov, y1, y2;
+            double ov, y1, y2;
             ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
             if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
             else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
             dbg(1, "find_inst_to_be_redrawn(): 3 bboxing wire %d\n", i);
             bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
           } else {
-            int ov, y1, y2;
+            double ov, y1, y2;
             ov = cadhalfdotsize;
             if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
             else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
@@ -624,7 +624,8 @@ void copy_objects(int what)
   {
    char *str = NULL; /* 20161122 overflow safe */
    draw_selection(xctx->gctiled,0);
-   xctx->move_rot=xctx->move_flip=xctx->deltax=xctx->deltay=0;
+   xctx->move_rot = xctx->move_flip = 0;
+   xctx->deltax = xctx->deltay = 0.;
    xctx->ui_state&=~STARTCOPY;
    my_strdup(225, &str, user_conf_dir);
    my_strcat(226, &str, "/.selection.sch");
@@ -709,13 +710,13 @@ void copy_objects(int what)
   
         l = xctx->wires -1;
         if(xctx->wire[n].bus){
-          int ov, y1, y2;
+          double ov, y1, y2;
           ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
           if(xctx->wire[l].y1 < xctx->wire[l].y2) { y1 = xctx->wire[l].y1-ov; y2 = xctx->wire[l].y2+ov; }
           else                        { y1 = xctx->wire[l].y1+ov; y2 = xctx->wire[l].y2-ov; }
           bbox(ADD, xctx->wire[l].x1-ov, y1 , xctx->wire[l].x2+ov , y2 );
         } else {
-          int ov, y1, y2;
+          double ov, y1, y2;
           ov = cadhalfdotsize;
           if(xctx->wire[l].y1 < xctx->wire[l].y2) { y1 = xctx->wire[l].y1-ov; y2 = xctx->wire[l].y2+ov; }
           else                        { y1 = xctx->wire[l].y1+ov; y2 = xctx->wire[l].y2-ov; }
@@ -769,14 +770,14 @@ void copy_objects(int what)
         
         l = xctx->lines[c] - 1;
         if(xctx->line[c][l].bus){
-          int ov, y1, y2;
+          double ov, y1, y2;
           ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
           if(xctx->line[c][l].y1 < xctx->line[c][l].y2) 
                { y1 = xctx->line[c][l].y1-ov; y2 = xctx->line[c][l].y2+ov; }
           else { y1 = xctx->line[c][l].y1+ov; y2 = xctx->line[c][l].y2-ov; }
           bbox(ADD, xctx->line[c][l].x1-ov, y1 , xctx->line[c][l].x2+ov , y2 );
         } else {
-          int ov, y1, y2;
+          double ov, y1, y2;
           ov = cadhalfdotsize;
           if(xctx->line[c][l].y1 < xctx->line[c][l].y2) 
                 { y1 = xctx->line[c][l].y1-ov; y2 = xctx->line[c][l].y2+ov; }
@@ -1013,7 +1014,8 @@ void copy_objects(int what)
       propagate_hilights(1, 1, XINSERT_NOREPLACE);
     }
     xctx->ui_state &= ~STARTCOPY;
-    xctx->x1=xctx->y_1=xctx->x2=xctx->y_2=xctx->move_rot=xctx->move_flip=xctx->deltax=xctx->deltay=0;
+    xctx->x1 = xctx->y_1 = xctx->x2 = xctx->y_2 = xctx->deltax = xctx->deltay = 0;
+    xctx->move_rot = xctx->move_flip = 0;
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
     draw();
     bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
@@ -1056,7 +1058,8 @@ void move_objects(int what, int merge, double dx, double dy)
  {
   if(xctx->kissing) pop_undo(0, 0);
   draw_selection(xctx->gctiled,0);
-  xctx->move_rot=xctx->move_flip=xctx->deltax=xctx->deltay=0;
+  xctx->move_rot=xctx->move_flip=0;
+  xctx->deltax=xctx->deltay=0.;
   xctx->ui_state &= ~STARTMOVE;
   update_symbol_bboxes(0, 0);
 
@@ -1118,13 +1121,13 @@ void move_objects(int what, int merge, double dx, double dy)
       if(k == 0) {
 
         if(wire[n].bus){ /* bbox before move */
-          int ov, y1, y2;
+          double ov, y1, y2;
           ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
           if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
           else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
           bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
         } else {
-          int ov, y1, y2;
+          double ov, y1, y2;
           ov = cadhalfdotsize;
           if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
           else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
@@ -1166,13 +1169,13 @@ void move_objects(int what, int merge, double dx, double dy)
         wire[n].y2=xctx->ry2;
 
         if(wire[n].bus){ /* bbox after move */
-          int ov, y1, y2;
+          double ov, y1, y2;
           ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
           if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
           else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
           bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
         } else {
-          int ov, y1, y2;
+          double ov, y1, y2;
           ov = cadhalfdotsize;
           if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
           else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
@@ -1184,14 +1187,14 @@ void move_objects(int what, int merge, double dx, double dy)
      case LINE:
       if(c!=k) break;
       if(xctx->line[c][n].bus){ /* bbox before move */
-        int ov, y1, y2;
+        double ov, y1, y2;
         ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
         if(xctx->line[c][n].y1 < xctx->line[c][n].y2)
              { y1 = xctx->line[c][n].y1-ov; y2 = xctx->line[c][n].y2+ov; }
         else { y1 = xctx->line[c][n].y1+ov; y2 = xctx->line[c][n].y2-ov; }
         bbox(ADD, xctx->line[c][n].x1-ov, y1 , xctx->line[c][n].x2+ov , y2 );
       } else {
-        int ov, y1, y2;
+        double ov, y1, y2;
         ov = cadhalfdotsize;
         if(xctx->line[c][n].y1 < xctx->line[c][n].y2)
               { y1 = xctx->line[c][n].y1-ov; y2 = xctx->line[c][n].y2+ov; }
@@ -1235,14 +1238,14 @@ void move_objects(int what, int merge, double dx, double dy)
       line[c][n].y2=xctx->ry2;
 
       if(xctx->line[c][n].bus){ /* bbox after move */
-        int ov, y1, y2;
+        double ov, y1, y2;
         ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
         if(xctx->line[c][n].y1 < xctx->line[c][n].y2)
              { y1 = xctx->line[c][n].y1-ov; y2 = xctx->line[c][n].y2+ov; }
         else { y1 = xctx->line[c][n].y1+ov; y2 = xctx->line[c][n].y2-ov; }
         bbox(ADD, xctx->line[c][n].x1-ov, y1 , xctx->line[c][n].x2+ov , y2 );
       } else {
-        int ov, y1, y2;
+        double ov, y1, y2;
         ov = cadhalfdotsize;
         if(xctx->line[c][n].y1 < xctx->line[c][n].y2)
               { y1 = xctx->line[c][n].y1-ov; y2 = xctx->line[c][n].y2+ov; }
@@ -1520,7 +1523,8 @@ void move_objects(int what, int merge, double dx, double dy)
   xctx->ui_state &= ~STARTMOVE;
   if(xctx->ui_state & STARTMERGE) xctx->ui_state |= SELECTION; /* leave selection state so objects can be deleted */
   xctx->ui_state &= ~STARTMERGE;
-  xctx->x1=xctx->y_1=xctx->x2=xctx->y_2=xctx->move_rot=xctx->move_flip=xctx->deltax=xctx->deltay=0;
+  xctx->move_rot=xctx->move_flip=0;
+  xctx->x1=xctx->y_1=xctx->x2=xctx->y_2=xctx->deltax=xctx->deltay=0.;
   bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
   draw();
   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
