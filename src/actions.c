@@ -696,17 +696,18 @@ void enable_layers(void)
   }
 }
 
-int connect_by_kissing(void)
+short connect_by_kissing(void)
 {
   xSymbol *symbol;
   int npin, i, j;
   double x0,y0, pinx0, piny0;
   short flip, rot;
   xRect *rct;
-  int k,ii, kissing, done_undo = 0;
+  short kissing, changed = 0;
+  int k, ii, done_undo = 0;
   Wireentry *wptr;
   Instpinentry *iptr;
-  int sqx, sqy, changed = 0;
+  int sqx, sqy;
 
   rebuild_selected_array();
   k = xctx->lastsel;
@@ -788,7 +789,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
   const char *symname_pin2 = "lab_pin.sym";
   const char *symname_wire2 = "lab_wire.sym";
   char *type=NULL;
-  int dir;
+  short dir;
   int k,ii, skip;
   int do_all_inst=0;
   const char *rot_txt;
@@ -913,9 +914,9 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
          dir ^= flip; /*  20101129  20111030 */
          if(rotated_text ==-1) {
            rot1=rot;
-           if(rot1==1 || rot1==2) { dir=!dir;rot1 = (rot1+2) %4;}
+           if(rot1==1 || rot1==2) { dir=!dir;rot1 = (short)((rot1+2) %4);}
          } else {
-           rot1=(rot+rotated_text)%4; /*  20111103 20171208 text_rotation */
+           rot1=(short)((rot+rotated_text)%4); /*  20111103 20171208 text_rotation */
          }
          if(!strcmp(tclgetvar("use_lab_wire"),"0")) {
            if(indirect)
@@ -1399,7 +1400,7 @@ void go_back(int confirm) /*  20171006 add confirm */
 so glob patterns containing Windows style path separators need special care.*/
 void change_to_unix_fn(char* fn)
 {
-  int len, i, ii;
+  size_t len, i, ii;
   len = strlen(fn);
   ii = 0;
   for (i = 0; i < len; ++i) {
@@ -1651,8 +1652,8 @@ void set_viewport_size(int w, int h, double lw)
 {
     xctx->xrect[0].x = 0;
     xctx->xrect[0].y = 0;
-    xctx->xrect[0].width = w;
-    xctx->xrect[0].height = h;
+    xctx->xrect[0].width = (unsigned short)w;
+    xctx->xrect[0].height = (unsigned short)h;
     xctx->areax2 = w+2*INT_WIDTH(lw);
     xctx->areay2 = h+2*INT_WIDTH(lw);
     xctx->areax1 = -2*INT_WIDTH(lw);
@@ -1677,8 +1678,8 @@ void save_restore_zoom(int save)
   } else {
     xctx->xrect[0].x = 0;
     xctx->xrect[0].y = 0;
-    xctx->xrect[0].width = savew;
-    xctx->xrect[0].height = saveh;
+    xctx->xrect[0].width = (unsigned short)savew;
+    xctx->xrect[0].height = (unsigned short)saveh;
     xctx->areax2 = savew+2*INT_WIDTH(savelw);
     xctx->areay2 = saveh+2*INT_WIDTH(savelw);
     xctx->areax1 = -2*INT_WIDTH(savelw);
@@ -1768,10 +1769,10 @@ void draw_stuff(void)
    #endif
      for(i = 0; i < n; i++)
       {
-       w=(float)(xctx->areaw*xctx->zoom/800) * rand() / (RAND_MAX+1.0);
-       h=(float)(xctx->areah*xctx->zoom/80) * rand() / (RAND_MAX+1.0);
-       x1=(float)(xctx->areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
-       y1=(float)(xctx->areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
+       w=(xctx->areaw*xctx->zoom/800) * rand() / (RAND_MAX+1.0);
+       h=(xctx->areah*xctx->zoom/80) * rand() / (RAND_MAX+1.0);
+       x1=(xctx->areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
+       y1=(xctx->areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
        x2=x1+w;
        y2=y1+h;
        ORDER(x1,y1,x2,y2);
@@ -1785,10 +1786,10 @@ void draw_stuff(void)
   
      for(i = 0; i < n; i++)
       {
-       w=(float)(xctx->areaw*xctx->zoom/80) * rand() / (RAND_MAX+1.0);
-       h=(float)(xctx->areah*xctx->zoom/800) * rand() / (RAND_MAX+1.0);
-       x1=(float)(xctx->areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
-       y1=(float)(xctx->areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
+       w=(xctx->areaw*xctx->zoom/80) * rand() / (RAND_MAX+1.0);
+       h=(xctx->areah*xctx->zoom/800) * rand() / (RAND_MAX+1.0);
+       x1=(xctx->areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
+       y1=(xctx->areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
        x2=x1+w;
        y2=y1+h;
        ORDER(x1,y1,x2,y2);
@@ -1802,10 +1803,10 @@ void draw_stuff(void)
   
      for(i = 0; i < n; i++)
      {
-       w=(float)xctx->zoom * rand() / (RAND_MAX+1.0);
+       w=xctx->zoom * rand() / (RAND_MAX+1.0);
        h=w;
-       x1=(float)(xctx->areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
-       y1=(float)(xctx->areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
+       x1=(xctx->areaw*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->xorigin;
+       y1=(xctx->areah*xctx->zoom) * rand() / (RAND_MAX+1.0)-xctx->yorigin;
        x2=x1+w;
        y2=y1+h;
        RECTORDER(x1,y1,x2,y2);

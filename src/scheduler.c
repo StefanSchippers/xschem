@@ -53,7 +53,7 @@ static int get_instance(const char *s)
   dbg(1, "get_instance(): found=%d, i=%d\n", found, i);
   if(!found) {
     if(!isonlydigit(s)) return -1;
-    i=atol(s);
+    i=atoi(s);
   }
   if(i<0 || i>xctx->instances) {
     return -1;
@@ -953,7 +953,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
            }
            else {
              change_to_unix_fn(s);
-             int slen = strlen(s);
+             size_t slen = strlen(s);
              if(s[slen - 1] == '/') s[slen - 1] = '\0';
              my_strncpy(win_temp_dir, s, S(win_temp_dir));
              dbg(2, "scheduler(): win_temp_dir is %s\n", win_temp_dir);
@@ -1273,13 +1273,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       cmd_found = 1;
       if(argc==7)
-       /*           pos sym_name      x                y             rot          flip      prop draw first */
-        place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), atoi(argv[5]), atoi(argv[6]),NULL, 3, 1, 1/*to_push_undo*/);
+       /*           pos sym_name      x                y             rot       */
+        place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), (short)atoi(argv[5]), 
+               /* flip              prop draw first ito_push_undo */
+               (short)atoi(argv[6]),NULL,  3,   1,      1);
       else if(argc==8)
-        place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), atoi(argv[5]), atoi(argv[6]), argv[7], 3, 1, 1/*to_push_undo*/);
+        place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), (short)atoi(argv[5]),
+               (short)atoi(argv[6]), argv[7], 3, 1, 1);
       else if(argc==9) {
         int x = !(atoi(argv[8]));
-        place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), atoi(argv[5]), atoi(argv[6]), argv[7], 0, x, 1/*to_push_undo*/);
+        place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), (short)atoi(argv[5]),
+               (short)atoi(argv[6]), argv[7], 0, x, 1);
       }
     }
    
@@ -1522,7 +1526,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         y2=atof(argv[5]);
         ORDER(x1,y1,x2,y2);
         pos=-1;
-        if(argc==7) pos=atol(argv[6]);
+        if(argc==7) pos=atoi(argv[6]);
         storeobject(pos, x1,y1,x2,y2,LINE,xctx->rectcolor,0,NULL);
         save = xctx->draw_window; xctx->draw_window = 1;
         drawline(xctx->rectcolor,NOW, x1,y1,x2,y2, 0);
@@ -2136,7 +2140,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         y2=atof(argv[5]);
         ORDER(x1,y1,x2,y2);
         pos=-1;
-        if(argc==7) pos=atol(argv[6]);
+        if(argc==7) pos=atoi(argv[6]);
         storeobject(pos, x1,y1,x2,y2,xRECT,xctx->rectcolor,0,NULL);
         save = xctx->draw_window; xctx->draw_window = 1;
         drawrect(xctx->rectcolor,NOW, x1,y1,x2,y2, 0);
@@ -2240,7 +2244,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(name && name[0] )
         {
           /* 20110325 only modify prefix if prefix not NUL */
-          if(prefix) name[0]=prefix; /* change prefix if changing symbol type; */
+          if(prefix) name[0]=(char)prefix; /* change prefix if changing symbol type; */
    
           my_strdup(371, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
           hash_all_names(inst);
@@ -2364,12 +2368,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, (i >= 0) ? "1" : "0" , TCL_STATIC);
       }
       else if(!strcmp(argv[2],"wire") && argc==4) {
-        int n=atol(argv[3]);
-        if(n<xctx->wires && n >= 0) select_wire(atol(argv[3]), SELECTED, 0);
+        int n=atoi(argv[3]);
+        if(n<xctx->wires && n >= 0) select_wire(atoi(argv[3]), SELECTED, 0);
       }
       else if(!strcmp(argv[2],"text") && argc==4) {
-        int n=atol(argv[3]);
-        if(n<xctx->texts && n >= 0) select_text(atol(argv[3]), SELECTED, 0);
+        int n=atoi(argv[3]);
+        if(n<xctx->texts && n >= 0) select_text(atoi(argv[3]), SELECTED, 0);
       }
       drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
       drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
@@ -2428,7 +2432,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(tclresult()[0] == '1') exists = 1;
       xctx->enable_drill = 0;
       if(exists) {
-        viewer = atol(tclgetvar("sim(spicewave,default)"));
+        viewer = atoi(tclgetvar("sim(spicewave,default)"));
         my_snprintf(tcl_str, S(tcl_str), "sim(spicewave,%d,name)", viewer);
         my_strdup(1267, &viewer_name, tclgetvar(tcl_str));
         dbg(1,"send_to_viewer: viewer_name=%s\n", viewer_name);
@@ -2894,7 +2898,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc >= 8) prop = argv[7];
         if(argc >= 9) sel = atoi(argv[8]);
         xctx->push_undo();
-        storeobject(pos, x1,y1,x2,y2,WIRE,0,sel,prop);
+        storeobject(pos, x1,y1,x2,y2,WIRE,0,(short)sel,prop);
         xctx->prep_hi_structs=0;
         xctx->prep_net_structs=0;
         xctx->prep_hash_wires=0;

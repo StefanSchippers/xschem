@@ -89,9 +89,9 @@ char *utf8[]={
 static FILE *fd;
 
 typedef struct {
- int red;
- int green;
- int blue;
+ unsigned int red;
+ unsigned int green;
+ unsigned int blue;
 } Ps_color;
 
 static Ps_color *ps_colors;
@@ -673,7 +673,7 @@ static void fill_ps_colors()
   * }
   */
  for(i=0;i<cadlayers;i++) {
-   my_snprintf(s, S(s), "lindex $ps_colors %d", i);
+   my_snprintf(s, S(s), "lindex $ps_colors %u", i);
    tcleval( s);
    sscanf(tclresult(),"%x", &c);
    ps_colors[i].red   = (c & 0xff0000) >> 16;

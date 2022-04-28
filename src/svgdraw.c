@@ -583,7 +583,8 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
 static void fill_svg_colors()
 {
  char s[200]; /* overflow safe 20161122 */
- unsigned int i,c;
+ int i;
+ unsigned int c;
  /* if(debug_var>=1) {
   *   tcleval( "puts $svg_colors");
   * }

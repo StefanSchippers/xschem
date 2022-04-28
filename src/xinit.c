@@ -126,7 +126,7 @@ static int window_state (Display *disp, Window win, char *arg) {/*{{{*/
                 fputs("Invalid zero length property.\n", errfp);
                 return EXIT_FAILURE;
             }
-            for( i = 0; p2[i]; i++) tmp2[i] = toupper( p2[i] );
+            for( i = 0; p2[i]; i++) tmp2[i] = (char)toupper( p2[i] );
             tmp2[i] = '\0';
             my_snprintf(tmp_prop2, S(tmp_prop2), "_NET_WM_STATE_%s", tmp2);
             prop2 = XInternAtom(disp, tmp_prop2, False);
@@ -137,7 +137,7 @@ static int window_state (Display *disp, Window win, char *arg) {/*{{{*/
             fputs("Invalid zero length property.\n", errfp);
             return EXIT_FAILURE;
         }
-        for( i = 0; p1[i]; i++) tmp1[i] = toupper( p1[i] );
+        for( i = 0; p1[i]; i++) tmp1[i] = (char)toupper( p1[i] );
         tmp1[i] = '\0';
         my_snprintf(tmp_prop1, S(tmp_prop1), "_NET_WM_STATE_%s", tmp1);
         prop1 = XInternAtom(disp, tmp_prop1, False);
@@ -157,7 +157,9 @@ static int window_state (Display *disp, Window win, char *arg) {/*{{{*/
 /* used to set icon */
 void windowid(const char *winpath)
 {
+#ifdef __unix__
   int i;
+#endif
   Display *display;
   Tk_Window mainwindow;
 
@@ -200,9 +202,9 @@ void windowid(const char *winpath)
 
 static int err(Display *display, XErrorEvent *xev)
 {
- char s[1024];  /* overflow safe 20161122 */
  int l=250;
 #ifdef __unix__
+ char s[1024];  /* overflow safe 20161122 */
  XGetErrorText(display, xev->error_code, s,l);
  dbg(1, "err(): Err %d :%s maj=%d min=%d\n", xev->error_code, s, xev->request_code,
           xev->minor_code);
@@ -212,13 +214,13 @@ static int err(Display *display, XErrorEvent *xev)
 
 static unsigned int  find_best_color(char colorname[])
 {
+#ifdef __unix__
  int i;
  double distance=10000000000.0, dist, r, g, b, red, green, blue;
  double deltar,deltag,deltab;
  unsigned int idx;
-
 /*  dbg(1, "find_best_color() start: %g\n", timer(1)); */
-#ifdef __unix__
+
  if( XAllocNamedColor(display, colormap, colorname, &xcolor_exact, &xcolor) ==0 )
  {
   for(i=0;i<=255;i++) {
@@ -245,7 +247,7 @@ static unsigned int  find_best_color(char colorname[])
  else
  {
   /*XLookupColor(display, colormap, colorname, &xcolor_exact, &xcolor); */
-  idx = xcolor.pixel;
+  idx = (int)xcolor.pixel;
  }
  /* dbg(1, "find_best_color() return: %g\n", timer(1)); */
  return idx;
@@ -1590,11 +1592,12 @@ static void resetcairo(int create, int clear, int force_or_resize)
 void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
 {
   unsigned int width, height;
-  XWindowAttributes wattr;
   int status;
   #ifndef __unix__
   HWND hwnd = Tk_GetHWND(xctx->window);
   RECT rct;
+  #else
+  XWindowAttributes wattr;
   #endif
 
   if(has_x) {
@@ -1632,8 +1635,8 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
         dbg(1, "resetwin(): changing size\n\n");
         xctx->xrect[0].x = 0;
         xctx->xrect[0].y = 0;
-        xctx->xrect[0].width = width;
-        xctx->xrect[0].height = height;
+        xctx->xrect[0].width = (unsigned short) width;
+        xctx->xrect[0].height = (unsigned short) height;
         if(clear_pixmap) {
           resetcairo(0, 1, 1); /* create, clear, force */
           #ifdef __unix__
@@ -1679,10 +1682,12 @@ int Tcl_AppInit(Tcl_Interp *inter)
  int i;
  double l_width;
  struct stat buf;
- const char *home_buff;
  int running_in_src_dir;
  int fs;
 
+#ifdef __unix__
+ const char* home_buff;
+#endif
  /* get PWD and HOME */
  if(!getcwd(pwd_dir, PATH_MAX)) {
    fprintf(errfp, "Tcl_AppInit(): getcwd() failed\n");
@@ -1691,13 +1696,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if ((home_buff = getenv("HOME")) == NULL) {
    home_buff = getpwuid(getuid())->pw_dir;
  }
+ my_strncpy(home_dir, home_buff, S(home_dir));
 #else
   change_to_unix_fn(pwd_dir);
-  home_buff = getenv("USERPROFILE");
+  char *home_buff = getenv("USERPROFILE");
   change_to_unix_fn(home_buff);
+  my_strncpy(home_dir, home_buff, S(home_dir));
 #endif
- my_strncpy(home_dir, home_buff, S(home_dir));
-
  /* set error and exit handlers */
  XSetErrorHandler(err);
  if(!interp) interp=inter;
@@ -1772,7 +1777,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    /*9*/ "xschem_library/rom8k" };
  GetModuleFileNameA(NULL, install_dir, MAX_PATH);
  change_to_unix_fn(install_dir);
- int dir_len=strlen(install_dir);
+ size_t dir_len=strlen(install_dir);
  if (dir_len>11)
    install_dir[dir_len-11] = '\0'; /* 11 = remove /xschem.exe */
  /* debugging in Visual Studio will not have bin */

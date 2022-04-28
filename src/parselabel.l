@@ -104,7 +104,7 @@ const char *expandlabel(const char *s, int *m)
  yy_delete_buffer(buf);
  if(yyparse_error==1) {
    char *cmd = NULL;
-   int l;
+   size_t l;
    yyparse_error = -1;
    l = strlen(s)+120;
    cmd = my_malloc(526, l);

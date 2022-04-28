@@ -344,7 +344,7 @@ void delete(int to_push_undo)
       customfont = set_text_custom_font(&xctx->text[i]);
       #endif
       text_bbox(xctx->text[i].txt_ptr, xctx->text[i].xscale,
-                xctx->text[i].yscale, select_rot, select_flip, xctx->text[i].hcenter,
+                xctx->text[i].yscale, (short) select_rot, (short) select_flip, xctx->text[i].hcenter,
                 xctx->text[i].vcenter, xctx->text[i].x0, xctx->text[i].y0,
                 &xx1,&yy1, &xx2,&yy2, &tmp, &dtmp);
       #if HAS_CAIRO==1
@@ -537,10 +537,10 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->areaw = (xctx->areax2-xctx->areax1);
    xctx->areah = (xctx->areay2-xctx->areay1);
 
-   xctx->xrect[0].x = xctx->bbx1-INT_WIDTH(xctx->lw);
-   xctx->xrect[0].y = xctx->bby1-INT_WIDTH(xctx->lw);
-   xctx->xrect[0].width = xctx->bbx2-xctx->bbx1+2*INT_WIDTH(xctx->lw);
-   xctx->xrect[0].height = xctx->bby2-xctx->bby1+2*INT_WIDTH(xctx->lw);
+   xctx->xrect[0].x = (short)(xctx->bbx1-INT_WIDTH(xctx->lw));
+   xctx->xrect[0].y = (short)(xctx->bby1-INT_WIDTH(xctx->lw));
+   xctx->xrect[0].width = (unsigned short)(xctx->bbx2-xctx->bbx1+2*INT_WIDTH(xctx->lw));
+   xctx->xrect[0].height = (unsigned short)(xctx->bby2-xctx->bby1+2*INT_WIDTH(xctx->lw));
    if(has_x) {
      set_clip_mask(SET);
        dbg(2, "bbox(SET): setting clip area: %d %d %d %d\n",
@@ -562,10 +562,10 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->areaw = (xctx->areax2-xctx->areax1);
    xctx->areah = (xctx->areay2-xctx->areay1);
 
-   xctx->xrect[0].x = xctx->bbx1+INT_WIDTH(xctx->lw);
-   xctx->xrect[0].y = xctx->bby1+INT_WIDTH(xctx->lw);
-   xctx->xrect[0].width = xctx->bbx2-xctx->bbx1-2*INT_WIDTH(xctx->lw);
-   xctx->xrect[0].height = xctx->bby2-xctx->bby1-2*INT_WIDTH(xctx->lw);
+   xctx->xrect[0].x = (short)(xctx->bbx1+INT_WIDTH(xctx->lw));
+   xctx->xrect[0].y = (short)(xctx->bby1+INT_WIDTH(xctx->lw));
+   xctx->xrect[0].width = (unsigned short)(xctx->bbx2-xctx->bbx1-2*INT_WIDTH(xctx->lw));
+   xctx->xrect[0].height = (unsigned short)(xctx->bby2-xctx->bby1-2*INT_WIDTH(xctx->lw));
    if(has_x) {
      set_clip_mask(SET);
        dbg(2, "bbox(SET): setting clip area: %d %d %d %d\n",
@@ -1022,7 +1022,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
   customfont = set_text_custom_font(&xctx->text[i]);
   #endif
   text_bbox(xctx->text[i].txt_ptr,
-             xctx->text[i].xscale, xctx->text[i].yscale, select_rot, select_flip, 
+             xctx->text[i].xscale, xctx->text[i].yscale, (short)select_rot, (short)select_flip, 
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2, &tmpint, &dtmp);
@@ -1057,7 +1057,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
       if(xctx->poly[c][i].sel==SELECTED) xctx->poly[c][i].selected_point[k] = 1;
       if( POINTINSIDE(xctx->poly[c][i].x[k],xctx->poly[c][i].y[k], x1,y1,x2,y2)) {
         flag=1;
-        xctx->poly[c][i].selected_point[k] = sel;
+        xctx->poly[c][i].selected_point[k] = (short)sel;
       }
       if(xctx->poly[c][i].selected_point[k]) selected_points++;
     }

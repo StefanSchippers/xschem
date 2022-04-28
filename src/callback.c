@@ -22,7 +22,7 @@
 
 #include "xschem.h"
 
-static int waves_selected(int event, int key, int state, int button)
+static int waves_selected(int event, int state, int button)
 {
   int i;
   int is_inside = 0, skip = 0;
@@ -88,7 +88,7 @@ static void abort_operation(void)
   constrained_move=0;
   xctx->last_command=0;
   xctx->manhattan_lines = 0;
-  dbg(1, "abort_operation(): Escape: ui_state=%ld\n", xctx->ui_state);
+  dbg(1, "abort_operation(): Escape: ui_state=%d\n", xctx->ui_state);
   if(xctx->ui_state & STARTMOVE)
   {
    move_objects(ABORT,0,0,0);
@@ -862,7 +862,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  {
    if(debug_var>=2)
      if(event != MotionNotify) 
-       fprintf(errfp, "callback(): reentrant call of callback(), semaphore=%d, ev=%d, ui_state=%ld\n",
+       fprintf(errfp, "callback(): reentrant call of callback(), semaphore=%d, ev=%d, ui_state=%d\n",
                xctx->semaphore, event, xctx->ui_state);
  }
  xctx->mousex=X_TO_XSCHEM(mx);
@@ -903,10 +903,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, mx,my,button,aux,mx,my);
     {
       XRectangle xr[1];
-      xr[0].x=mx;
-      xr[0].y=my;
-      xr[0].width=button;
-      xr[0].height=aux;
+      xr[0].x=(short)mx;
+      xr[0].y=(short)my;
+      xr[0].width=(unsigned short)button;
+      xr[0].height=(unsigned short)aux;
       /* redraw selection on expose, needed if no backing store available on the server 20171112 */
       XSetClipRectangles(display, xctx->gc[SELLAYER], 0,0, xr, 1, Unsorted);
       rebuild_selected_array();
@@ -921,7 +921,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     break;
 
   case MotionNotify:
-    if( waves_selected(event, key, state, button)) {
+    if( waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1324,7 +1324,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key<='9' && key >='0' && state==ControlMask)              /* choose layer */
    {
     char n[30];
-    xctx->rectcolor = key - '0'+4;
+    xctx->rectcolor = (int)key - '0'+4;
     my_snprintf(n, S(n), "%d", xctx->rectcolor);
     tclvareval("xschem set rectcolor ", n, NULL);
 
@@ -1351,7 +1351,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Right && !(state & ControlMask))   /* left */
    {
-    if(waves_selected(event, key, state, button)) {
+    if(waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1362,7 +1362,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Left && !(state & ControlMask))   /* right */
    {
-    if(waves_selected(event, key, state, button)) {
+    if(waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1373,7 +1373,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Down)                     /* down */
    {
-    if(waves_selected(event, key, state, button)) {
+    if(waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1384,7 +1384,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Up)                       /* up */
    {
-    if(waves_selected(event, key, state, button)) {
+    if(waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1502,7 +1502,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='a' && state == 0)   /* make symbol */
    {
     if(xctx->semaphore >= 2) break;
-    if(waves_selected(event, key, state, button)) {
+    if(waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1733,7 +1733,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      xctx->enable_drill = 0;
      if(exists) {
        if(!tool) {
-         tool = atol(tclgetvar("sim(spicewave,default)"));
+         tool = atoi(tclgetvar("sim(spicewave,default)"));
          my_snprintf(str, S(str), "sim(spicewave,%d,name)", tool);
          my_strdup(1271, &tool_name, tclgetvar(str));
          dbg(1,"callback(): tool_name=%s\n", tool_name);
@@ -1860,7 +1860,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key >= '0' && key <= '4' && state == 0) {  /* toggle pin logic level */
      if(xctx->semaphore >= 2) break;
      if(key == '4') logic_set(-1, 1);
-     else logic_set(key - '0', 1);
+     else logic_set((int)key - '0', 1);
      break;
    }
    if(key=='L' && state == (Mod1Mask | ShiftMask)) {                         /* add pin label*/
@@ -1935,7 +1935,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='m' && state==0 && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
    {
-    if(waves_selected(event, key, state, button)) {
+    if(waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -2066,7 +2066,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='b' && state==0)                     /* merge schematic */
    {
     if(xctx->semaphore >= 2) break;
-    if(waves_selected(event, key, state, button)) {
+    if(waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -2133,7 +2133,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='f' && state == 0 )                  /* full zoom */
    {
-    if(waves_selected(event, key, state, button)) {
+    if(waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -2153,8 +2153,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    break;
   case ButtonPress:                     /* end operation */
-   dbg(1, "callback(): ButtonPress  ui_state=%ld state=%d\n",xctx->ui_state,state);
-   if(waves_selected(event, key, state, button)) {
+   dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
+   if(waves_selected(event, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
@@ -2308,21 +2308,21 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      }
    }
    else if(button==Button5 && state == 0 ) {
-    if(waves_selected(event, key, state, button)) {
+    if(waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
      view_unzoom(CADZOOMSTEP);
    }
    else if(button==Button4 && state == 0 ) {
-    if(waves_selected(event, key, state, button)) {
+    if(waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
      view_zoom(CADZOOMSTEP);
    }
    else if(button==Button4 && (state & ShiftMask) && !(state & Button2Mask)) {
-    if(waves_selected(event, key, state, button)) {
+    if(waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -2331,7 +2331,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     redraw_w_a_l_r_p_rubbers();
    }
    else if(button==Button5 && (state & ShiftMask) && !(state & Button2Mask)) {
-    if(waves_selected(event, key, state, button)) {
+    if(waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -2549,7 +2549,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    } /* button==Button1 */
    break;
   case ButtonRelease:
-   if(waves_selected(event, key, state, button)) {
+   if(waves_selected(event, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
@@ -2561,7 +2561,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      redraw_w_a_l_r_p_rubbers();
      break;
    }
-   dbg(1, "callback(): ButtonRelease  ui_state=%ld state=%d\n",xctx->ui_state,state);
+   dbg(1, "callback(): ButtonRelease  ui_state=%d state=%d\n",xctx->ui_state,state);
    if(xctx->semaphore >= 2) break;
    if(xctx->ui_state & STARTSELECT) {
      if(state & ControlMask) {
@@ -2581,12 +2581,12 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    break;
   case -3:  /* double click  : edit prop */
-    if( waves_selected(event, key, state, button)) {
+    if( waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
    if(xctx->semaphore >= 2) break;
-   dbg(1, "callback(): DoubleClick  ui_state=%ld state=%d\n",xctx->ui_state,state);
+   dbg(1, "callback(): DoubleClick  ui_state=%d state=%d\n",xctx->ui_state,state);
    if(button==Button1) {
      if(xctx->ui_state == STARTWIRE) {
        xctx->ui_state &= ~STARTWIRE;

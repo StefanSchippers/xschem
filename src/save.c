@@ -186,7 +186,8 @@ unsigned char *base64_decode(const char *data, const size_t input_length, size_t
     0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f
   };
   unsigned char *decoded_data;
-  int i, j, sextet[4], triple, cnt, padding, actual_length;
+  int i, j, sextet[4], triple, cnt, padding;
+  size_t actual_length;
   
   actual_length = input_length;
   *output_length = input_length / 4 * 3 + 4; /* add 4 more just in case... */
@@ -206,9 +207,9 @@ unsigned char *base64_decode(const char *data, const size_t input_length, size_t
     sextet[cnt & 3] = data[i] == '=' ? 0 : b64_dec[(int)data[i]];
     if((cnt & 3) == 3) {
       triple = (sextet[0] << 18) + (sextet[1] << 12) + (sextet[2] << 6) + (sextet[3]);
-      decoded_data[j++] = (triple >> 16) & 0xFF;
-      decoded_data[j++] = (triple >> 8) & 0xFF;
-      decoded_data[j++] = (triple) & 0xFF;
+      decoded_data[j++] = (unsigned char)((triple >> 16) & 0xFF);
+      decoded_data[j++] = (unsigned char)((triple >> 8) & 0xFF);
+      decoded_data[j++] = (unsigned char)((triple) & 0xFF);
     }
     cnt++;
     i++;
@@ -871,9 +872,8 @@ static const char *random_string(const char *prefix)
   static const char *charset="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   static const int random_size=10;
   static char str[PATH_MAX]; /* safe even with multiple schematics, if immediately copied */
-  int prefix_size;
+  size_t prefix_size, i;
   static unsigned short once=1; /* safe even with multiple schematics, set once and never changed */
-  int i;
   int idx;
   if(once) {
     srand((unsigned short) time(NULL));
@@ -960,9 +960,10 @@ void updatebbox(int count, xRect *boundbox, xRect *tmp)
 
 void save_ascii_string(const char *ptr, FILE *fd, int newline)
 {
-  int c, len, strbuf_pos = 0;
+  int c;
+  size_t len, strbuf_pos = 0;
   static char *strbuf = NULL; /* safe even with multiple schematics */
-  static int strbuf_size=0; /* safe even with multiple schematics */
+  static size_t strbuf_size=0; /* safe even with multiple schematics */
 
   if(ptr == NULL) {
     if( fd == NULL) { /* used to clear static data */
@@ -981,7 +982,7 @@ void save_ascii_string(const char *ptr, FILE *fd, int newline)
   while( (c = *ptr++) ) {
     if(strbuf_pos > strbuf_size - 6) my_realloc(525, &strbuf, (strbuf_size += CADCHUNKALLOC));
     if( c=='\\' || c=='{' || c=='}') strbuf[strbuf_pos++] = '\\';
-    strbuf[strbuf_pos++] = c;
+    strbuf[strbuf_pos++] = (char)c;
   }
   strbuf[strbuf_pos++] = '}';
   if(newline) strbuf[strbuf_pos++] = '\n';
@@ -1199,7 +1200,7 @@ static void save_line(FILE *fd, int select_only)
 
 static void write_xschem_file(FILE *fd)
 {
-  int ty=0;
+  size_t ty=0;
   char *ptr;
 
   if(xctx->version_string && (ptr = strstr(xctx->version_string, "xschem")) &&
@@ -1415,7 +1416,7 @@ static void load_polygon(FILE *fd)
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
-      ptr[i].dash = d >= 0 ? d : 0;
+      ptr[i].dash = (short)(d >= 0 ? d : 0);
     } else {
       ptr[i].dash = 0;
     }
@@ -1455,7 +1456,7 @@ static void load_arc(FILE *fd)
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
-      ptr[i].dash = d >= 0 ? d : 0;
+      ptr[i].dash = (short)(d >= 0 ? d : 0);
     } else {
       ptr[i].dash = 0;
     }
@@ -1492,7 +1493,7 @@ static void load_box(FILE *fd)
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
-      ptr[i].dash = d >= 0 ? d : 0;
+      ptr[i].dash = (short)(d >= 0 ? d : 0);
     } else {
       ptr[i].dash = 0;
     }
@@ -1534,7 +1535,7 @@ static void load_line(FILE *fd)
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
-      ptr[i].dash = d >= 0 ? d : 0;
+      ptr[i].dash = (short)(d >= 0 ? d : 0);
     } else {
       ptr[i].dash = 0;
     }
@@ -1547,7 +1548,7 @@ static void read_xschem_file(FILE *fd)
   char name_embedded[PATH_MAX];
   char tag[1];
   int inst_cnt;
-  int ty=0;
+  size_t ty=0;
 
   dbg(2, "read_xschem_file(): start\n");
   inst_cnt = endfile = 0;
@@ -1701,7 +1702,7 @@ void load_ascii_string(char **ptr, FILE *fd)
         continue;
       }
     }
-    str[i]=c;
+    str[i]=(char)c;
     escape = 0;
     i++;
   } else if(c=='{') begin=1;
@@ -2310,7 +2311,8 @@ static void align_sch_pins_with_sym(const char *name, int pos)
 static void add_pinlayer_boxes(int *lastr, xRect **bb,
                  const char *symtype, char *prop_ptr, double i_x0, double i_y0)
 {
-  int i, save;
+  int i;
+  size_t save;
   const char *label;
   char *pin_label = NULL;
 
@@ -2453,7 +2455,11 @@ int load_sym_def(const char *name, FILE *embed_fd)
   int incremented_level=0;
   int level = 0;
   int max_level, fscan_ret;
+#ifdef __unix__
   long filepos;
+#else
+  __int3264 filepos;
+#endif
   char sympath[PATH_MAX];
   int i,c, k, poly_points;
   char *aux_ptr=NULL;
@@ -2626,7 +2632,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      dash = get_tok_value(ll[c][i].prop_ptr,"dash", 0);
      if( strcmp(dash, "") ) {
        int d = atoi(dash);
-       ll[c][i].dash = d >= 0 ? d : 0;
+       ll[c][i].dash = (short)(d >= 0 ? d : 0);
      } else
        ll[c][i].dash = 0;
      ll[c][i].sel = 0;
@@ -2669,7 +2675,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      dash = get_tok_value(pp[c][i].prop_ptr,"dash", 0);
      if( strcmp(dash, "") ) {
        int d = atoi(dash);
-       pp[c][i].dash = d >= 0 ? d : 0;
+       pp[c][i].dash = (short)(d >= 0 ? d : 0);
      } else
        pp[c][i].dash = 0;
      pp[c][i].sel = 0;
@@ -2715,7 +2721,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      dash = get_tok_value(aa[c][i].prop_ptr,"dash", 0);
      if( strcmp(dash, "") ) {
        int d = atoi(dash);
-       aa[c][i].dash = d >= 0 ? d : 0;
+       aa[c][i].dash = (short)(d >= 0 ? d : 0);
      } else
        aa[c][i].dash = 0;
      aa[c][i].sel = 0;
@@ -2754,7 +2760,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      dash = get_tok_value(bb[c][i].prop_ptr,"dash", 0);
      if( strcmp(dash, "") ) {
        int d = atoi(dash);
-       bb[c][i].dash = d >= 0 ? d : 0;
+       bb[c][i].dash = (short)(d >= 0 ? d : 0);
      } else
        bb[c][i].dash = 0;
      bb[c][i].sel = 0;
@@ -2937,7 +2943,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
           flip = lcc[level-1].flip;
           rot = lcc[level-1].rot;
           ROTATION(rot, flip, 0.0, 0.0, lcc[level].x0, lcc[level].y0,lcc[level].x0, lcc[level].y0);
-          lcc[level].rot = (lcc[(level-1)].flip ? map[lcc[level].rot] : lcc[level].rot) + lcc[(level-1)].rot;
+          lcc[level].rot = (short)((lcc[(level-1)].flip ? map[lcc[level].rot] :
+                           lcc[level].rot) + lcc[(level-1)].rot);
           lcc[level].rot &= 0x3;
           lcc[level].flip = lcc[level].flip ^ lcc[level-1].flip;
           lcc[level].x0 += lcc[(level-1)].x0;
@@ -3079,7 +3086,7 @@ void create_sch_from_sym(void)
   char *str=NULL;
   struct stat buf;
   char *sch = NULL;
-  int ln;
+  size_t ln;
 
   if(!stat(abs_sym_path(pinname[0], ""), &buf)) {
     indirect=1;

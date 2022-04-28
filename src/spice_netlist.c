@@ -98,7 +98,7 @@ static char *model_name(const char *m)
   char *m_lower = NULL;
   char *modelname = NULL;
   int n;
-  int l = strlen(m) + 1;
+  size_t l = strlen(m) + 1;
   my_strdup(255, &m_lower, m);
   strtolower(m_lower);
   my_realloc(256, &modelname, l);

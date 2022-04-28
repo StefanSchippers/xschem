@@ -118,7 +118,7 @@ static void merge_box(FILE *fd)
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
-      ptr[i].dash = d >= 0 ? d : 0;
+      ptr[i].dash = (short)(d >= 0 ? d : 0);
     } else {
       ptr[i].dash = 0;
     }
@@ -160,7 +160,7 @@ static void merge_arc(FILE *fd)
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
-      ptr[i].dash = d >= 0 ? d : 0;
+      ptr[i].dash = (short)(d >= 0 ? d : 0);
     } else {
       ptr[i].dash = 0;
     }
@@ -217,7 +217,7 @@ static void merge_polygon(FILE *fd)
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
-      ptr[i].dash = d >= 0 ? d : 0;
+      ptr[i].dash = (short)(d >= 0 ? d : 0);
     } else {
       ptr[i].dash = 0;
     }
@@ -254,7 +254,7 @@ static void merge_line(FILE *fd)
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
-      ptr[i].dash = d >= 0 ? d : 0;
+      ptr[i].dash = (short)(d >= 0 ? d : 0);
     } else {
       ptr[i].dash = 0;
     }
@@ -262,10 +262,6 @@ static void merge_line(FILE *fd)
     xctx->lines[c]++;
     set_modify(1);
 }
-
-
-
-
 
 static void merge_inst(int k,FILE *fd)
 {

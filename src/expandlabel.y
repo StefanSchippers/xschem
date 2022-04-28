@@ -52,7 +52,7 @@ extern void my_realloc(int id, void *ptr,size_t size);
 extern size_t my_strdup(int id, char **dest, const char *src);
 extern int debug_var;
 extern void dbg(int level, char *fmt, ...);
-extern int  my_snprintf(char *str, int size, const char *fmt, ...);
+extern size_t my_snprintf(char *str, size_t size, const char *fmt, ...);
 extern int yyparse_error;
 
 
@@ -83,7 +83,7 @@ static char *expandlabel_strdup(char *src)
 static char *expandlabel_strcat(char *s1, char *s2)
 /* concatenates s1 and s2, with c in between */
 {
- int l1=0,l2=0;
+ size_t l1=0,l2=0;
  char *res;
 
  if(s1) l1=strlen(s1);
@@ -98,7 +98,7 @@ static char *expandlabel_strcat(char *s1, char *s2)
 static char *expandlabel_strcat_char(char *s1, char c, char *s2)
 /* concatenates s1 and s2, with c in between */
 {
- int l1=0,l2=0;
+ size_t l1=0,l2=0;
  char *res;
 
  if(s1) l1=strlen(s1);
@@ -117,7 +117,8 @@ static char *expandlabel_strcat_char(char *s1, char c, char *s2)
 static char *expandlabel_strmult2(int n, char *s)
 /* if n==0 returns "\0" */
 {
- register int i, len;
+ register int i;
+ register size_t len;
  register char *pos,*prev;
  char *str, *ss;
 
@@ -152,7 +153,8 @@ static char *expandlabel_strmult2(int n, char *s)
 static char *expandlabel_strmult(int n, char *s)
 /* if n==0 returns "\0" */
 {
- register int i, len;
+ register int i;
+ register size_t len;
  register char *pos;
  char *str;
 
@@ -318,7 +320,7 @@ list:     B_NAME        {
         | list B_CAR list
                         {
                          dbg(3, "yyparse(): list B_CAR list\n");
-                         $$.str=expandlabel_strcat_char($1.str, $2, $3.str);
+                         $$.str=expandlabel_strcat_char($1.str, (char)$2, $3.str);
                          $$.m = $1.m + $3.m;
                          my_free(744, &$1.str);
                          my_free(745, &$3.str);
@@ -329,7 +331,7 @@ list:     B_NAME        {
                         }
         | B_NAME  '[' B_NAME  ']' 
                         {
-                         int size = strlen($1) + strlen($3) + 3;
+                         size_t size = strlen($1) + strlen($3) + 3;
                          $$.str = my_malloc(81, size);
                          $$.m=-1;
                          my_snprintf($$.str, size, "%s[%s]", $1, $3);

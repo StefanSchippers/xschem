@@ -351,7 +351,7 @@ extern char win_temp_dir[PATH_MAX];
  * hold 'add' characters */
 #define  STR_ALLOC(dest_string, add, size) \
 do { \
-  register int __str_alloc_tmp__ = add; \
+  register size_t __str_alloc_tmp__ = add; \
   if( __str_alloc_tmp__ >= *size) { \
     *size = __str_alloc_tmp__ + CADCHUNKALLOC; \
     my_realloc(1212, dest_string, *size); \
@@ -758,7 +758,7 @@ typedef struct {
   double zoom;
   double mooz;
   double lw;
-  unsigned long ui_state ; /* this signals that we are doing a net place,panning etc.
+  unsigned int ui_state ; /* this signals that we are doing a net place,panning etc.
                             * used to prevent nesting of some commands */
   double mousex,mousey; /* mouse coord. */
   double mousex_snap,mousey_snap; /* mouse coord. snapped to grid */
@@ -1191,7 +1191,7 @@ extern int place_symbol(int pos, const char *symbol_name, double x, double y, sh
                          const char *inst_props, int draw_sym, int first_call, int to_push_undo);
 extern void place_net_label(int type);
 extern void attach_labels_to_inst(int interactive);
-extern int connect_by_kissing(void);
+extern short connect_by_kissing(void);
 extern void delete_files(void);
 extern int sym_vs_sch_pins(void);
 extern int match_symbol(const char name[]);
@@ -1287,7 +1287,7 @@ extern size_t my_strdup(int id, char **dest, const char *src);
 extern void my_strndup(int id, char **dest, const char *src, size_t n);
 extern size_t my_strdup2(int id, char **dest, const char *src);
 extern char *my_strtok_r(char *str, const char *delim, const char *quote, char **saveptr);
-extern int my_strncpy(char *d, const char *s, int n);
+extern int my_strncpy(char *d, const char *s, size_t n);
 extern int my_strcasecmp(const char *s1, const char *s2);
 extern int my_strncasecmp(const char *s1, const char *s2, size_t n);
 extern char* strtolower(char* s);

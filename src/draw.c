@@ -360,7 +360,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
         a=0.0;
         continue;
      }
-     lines=character[cc][0]*4;
+     lines=(int)character[cc][0]*4;
      char_ptr_x1=character[cc]+1;
      char_ptr_y1=character[cc]+2;
      char_ptr_x2=character[cc]+3;
@@ -776,8 +776,8 @@ static void drawgrid()
         xctx->biggridpoint[i].y1 =  xctx->biggridpoint[i].y2 = (short)(y);
         i++;
       } else {
-        xctx->gridpoint[i].x=(int)(x);
-        xctx->gridpoint[i].y=(int)(y);
+        xctx->gridpoint[i].x=(short)(x);
+        xctx->gridpoint[i].y=(short)(y);
         i++;
       }
     }
@@ -856,7 +856,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
   if( clip(&x1,&y1,&x2,&y2) )
   {
    if(dash) {
-     dash_arr[0] = dash_arr[1] = dash;
+     dash_arr[0] = dash_arr[1] = (char) dash;
      XSetDashes(display, xctx->gc[c], 0, dash_arr, 2);
      XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), xDashType, CapButt, JoinBevel);
    }
@@ -879,7 +879,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
   if( clip(&x1,&y1,&x2,&y2) )
   {
    if(dash) {
-     dash_arr[0] = dash_arr[1] = dash;
+     dash_arr[0] = dash_arr[1] = (char) dash;
      XSetDashes(display, xctx->gc[c], 0, dash_arr, 2);
      XSetLineAttributes (display, xctx->gc[c], INT_BUS_WIDTH(xctx->lw), xDashType, CapButt, JoinBevel);
    } else {
@@ -1012,8 +1012,8 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
    xarc[i].y=(short)yy1;
    xarc[i].width= (unsigned short)(xx2 - xx1);
    xarc[i].height=(unsigned short)(yy2 - yy1);
-   xarc[i].angle1 = (int)(a*64);
-   xarc[i].angle2 = (int)(b*64);
+   xarc[i].angle1 = (short)(a*64);
+   xarc[i].angle2 = (short)(b*64);
    i++;
   }
  }
@@ -1107,8 +1107,8 @@ void filledarc(int c, int what, double x, double y, double r, double a, double b
    xarc[i].y=(short)yy1;
    xarc[i].width =(unsigned short)(xx2 - xx1);
    xarc[i].height=(unsigned short)(yy2 - yy1);
-   xarc[i].angle1 = (int)(a*64);
-   xarc[i].angle2 = (int)(b*64);
+   xarc[i].angle1 = (short)(a*64);
+   xarc[i].angle2 = (short)(b*64);
    i++;
   }
  }
@@ -1173,8 +1173,8 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
    xarc[i].y=(short)yy1;
    xarc[i].width =(unsigned short)(xx2 - xx1);
    xarc[i].height=(unsigned short)(yy2 - yy1);
-   xarc[i].angle1 = (int)(a*64);
-   xarc[i].angle2 = (int)(b*64);
+   xarc[i].angle1 = (short)(a*64);
+   xarc[i].angle2 = (short)(b*64);
    i++;
   }
  }
@@ -1196,7 +1196,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
   {
    if(dash) {
      char dash_arr[2];
-     dash_arr[0] = dash_arr[1] = dash;
+     dash_arr[0] = dash_arr[1] = (char)dash;
      XSetDashes(display, xctx->gc[c], 0, dash_arr, 2);
      XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), xDashType, CapButt, JoinBevel);
    }
@@ -1278,8 +1278,8 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
   {
    r[i].x=(short)x1;
    r[i].y=(short)y1;
-   r[i].width=(unsigned short)x2-r[i].x;
-   r[i].height=(unsigned short)y2-r[i].y;
+   r[i].width=(unsigned short)(x2-r[i].x);
+   r[i].height=(unsigned short)(y2-r[i].y);
    i++;
   }
  }
@@ -1394,7 +1394,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   }
   if(dash) {
     char dash_arr[2];
-    dash_arr[0] = dash_arr[1] = dash;
+    dash_arr[0] = dash_arr[1] = (char)dash;
     XSetDashes(display, xctx->gc[c], 0, dash_arr, 2);
     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), xDashType, CapButt, JoinBevel);
   }
@@ -1458,7 +1458,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    if(dash) {
-     dash_arr[0] = dash_arr[1] = dash;
+     dash_arr[0] = dash_arr[1] = (char)dash;
      XSetDashes(display, xctx->gc[c], 0, dash_arr, 2);
      XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), xDashType, CapButt, JoinBevel);
    }
@@ -1494,8 +1494,8 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
   {
    r[i].x=(short)x1;
    r[i].y=(short)y1;
-   r[i].width=(unsigned short)x2-r[i].x;
-   r[i].height=(unsigned short)y2-r[i].y;
+   r[i].width=(unsigned short)(x2-r[i].x);
+   r[i].height=(unsigned short)(y2-r[i].y);
    i++;
   }
  }
@@ -1544,8 +1544,8 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
   {
    r[i].x=(short)x1;
    r[i].y=(short)y1;
-   r[i].width=(unsigned short)x2-r[i].x;
-   r[i].height=(unsigned short)y2-r[i].y;
+   r[i].width=(unsigned short)(x2-r[i].x);
+   r[i].height=(unsigned short)(y2-r[i].y);
    i++;
   }
  }
@@ -2082,7 +2082,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
   int tmp;
   char tmpstr[1024];
   double txtsize = gr->txtsizex;
-  int flip = (other_cursorx > active_cursorx) ? 0 : 1;
+  short flip = (other_cursorx > active_cursorx) ? 0 : 1;
   int xoffs = flip ? 3 : -3;
 
   if(xx >= gr->x1 && xx <= gr->x2) {
@@ -2624,7 +2624,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
             if(xx >= start && xx <= end) {
               if(first == -1) first = p;
               /* Build poly x array. Translate from graph coordinates to screen coords */
-              point[poly_npoints].x = (int)S_X(xx);
+              point[poly_npoints].x = (short)S_X(xx);
               if(dataset == -1 || dataset == sweepvar_wrap) {
                 if(measure_p == -1 && flags & 2 && cnt) { /* cursor1: show measurements on nodes in graph */
                   if(XSIGN(xx - xctx->graph_cursor1_x) != XSIGN(prev_x - xctx->graph_cursor1_x)) {

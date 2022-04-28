@@ -241,8 +241,8 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
 {
  register int c, state=TOK_BEGIN, space;
  char *token=NULL, *value=NULL;
- int sizetok=0, sizeval=0;
- int token_pos=0, value_pos=0;
+ size_t sizetok=0, sizeval=0;
+ size_t token_pos=0, value_pos=0;
  int quote=0;
  int escape=0;
  int mod;
@@ -269,9 +269,9 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
   else if( state==TOK_VALUE && space && !quote && !escape) state=TOK_END;
   STR_ALLOC(&value, value_pos, &sizeval);
   STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==TOK_TOKEN) token[token_pos++]=c;
+  if(state==TOK_TOKEN) token[token_pos++]=(char)c;
   else if(state==TOK_VALUE) {
-   value[value_pos++]=c;
+   value[value_pos++]=(char)c;
   }
   else if(state==TOK_ENDTOK || state==TOK_SEP) {
    if(token_pos) {
@@ -292,7 +292,8 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
  }
 
  state = TOK_BEGIN;
- escape = quote = token_pos = value_pos = 0;
+ escape = quote = 0;
+ token_pos = value_pos = 0;
  /* parse old string and remove attributes that are not present in new */
  while(old) {
   c=*old++;
@@ -305,9 +306,9 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
   else if( state==TOK_VALUE && space && !quote && !escape) state=TOK_END;
   STR_ALLOC(&value, value_pos, &sizeval);
   STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==TOK_TOKEN) token[token_pos++]=c;
+  if(state==TOK_TOKEN) token[token_pos++]=(char)c;
   else if(state==TOK_VALUE) {
-   value[value_pos++]=c;
+   value[value_pos++]=(char)c;
   }
   else if(state==TOK_ENDTOK || state==TOK_SEP) {
    if(token_pos) {
@@ -340,9 +341,9 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
 const char *list_tokens(const char *s, int with_quotes)
 {
   static char *token=NULL;
-  int  sizetok=0;
+  size_t  sizetok=0;
   register int c, state=TOK_BEGIN, space;
-  register int token_pos=0;
+  register size_t token_pos=0;
   int quote=0;
   int escape=0;
 
@@ -368,10 +369,10 @@ const char *list_tokens(const char *s, int with_quotes)
     }
     if(state==TOK_TOKEN) {
       if(c=='"') {
-        if((with_quotes & 1) || escape)  token[token_pos++]=c;
+        if((with_quotes & 1) || escape)  token[token_pos++]=(char)c;
       }
-      else if( !(c == '\\' && (with_quotes & 2)) ) token[token_pos++]=c;
-      else if(escape && c == '\\') token[token_pos++]=c;
+      else if( !(c == '\\' && (with_quotes & 2)) ) token[token_pos++]=(char)c;
+      else if(escape && c == '\\') token[token_pos++]=(char)c;
     } else if(state==TOK_VALUE) {
       /* do nothing */
     } else if(state==TOK_ENDTOK || state==TOK_SEP) {
@@ -456,9 +457,9 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
         result[0] = '\0';
         return result;
       }
-      if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) token[token_pos++]=c;
+      if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) token[token_pos++]=(char)c;
     } else if(state == TOK_VALUE) {
-      if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) result[value_pos++]=c;
+      if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) result[value_pos++]=(char)c;
     } else if(state == TOK_ENDTOK || state == TOK_SEP) {
         if(token_pos) {
           token[token_pos] = '\0';
@@ -490,17 +491,17 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
 const char *get_sym_template(char *s,char *extra)
 {
  static char *result=NULL;
- int sizeres=0;
- int sizetok=0;
- int sizeval=0;
+ size_t sizeres=0;
+ size_t sizetok=0;
+ size_t sizeval=0;
  char *value=NULL;
  char *token=NULL;
  register int c, state=TOK_BEGIN, space;
- register int token_pos=0, value_pos=0, result_pos=0;
+ register size_t token_pos=0, value_pos=0, result_pos=0;
  int quote=0;
  int escape=0;
  int with_quotes=0;
- int l;
+ size_t l;
 /* with_quotes: */
 /* 0: eat non escaped quotes (") */
 /* 1: return unescaped quotes as part of the token value if they are present */
@@ -527,16 +528,16 @@ const char *get_sym_template(char *s,char *extra)
   STR_ALLOC(&value, value_pos, &sizeval);
   STR_ALLOC(&token, token_pos, &sizetok);
   if(state==TOK_BEGIN) {
-    result[result_pos++] = c;
+    result[result_pos++] = (char)c;
   } else if(state==TOK_TOKEN) {
-    token[token_pos++]=c;
+    token[token_pos++]=(char)c;
   } else if(state==TOK_VALUE) {
     if(c=='"') {
      if(!escape) quote=!quote;
-     if((with_quotes & 1) || escape)  value[value_pos++]=c;
+     if((with_quotes & 1) || escape)  value[value_pos++]=(char)c;
     }
     else if( (c=='\\') && (with_quotes & 2) )  ;  /* dont store backslash */
-    else value[value_pos++]=c;
+    else value[value_pos++]=(char)c;
     escape = (c=='\\' && !escape);
 
   } else if(state==TOK_END) {
@@ -545,7 +546,7 @@ const char *get_sym_template(char *s,char *extra)
       memcpy(result+result_pos, value, value_pos+1);
       result_pos+=value_pos;
     }
-    result[result_pos++] = c;
+    result[result_pos++] = (char)c;
     value_pos=0;
     token_pos=0;
     state=TOK_BEGIN;
@@ -555,7 +556,7 @@ const char *get_sym_template(char *s,char *extra)
       if((!extra || !strstr(extra, token)) && strcmp(token,"name")) {
         memcpy(result+result_pos, token, token_pos+1);
         result_pos+=token_pos;
-        result[result_pos++] = c;
+        result[result_pos++] = (char)c;
       }
       token_pos=0;
     }
@@ -579,7 +580,7 @@ static const char *find_bracket(const char *s)
  * return NULL if no matching token found */
 static char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
 {
-   int attr_size;
+   size_t attr_size;
    char *pinname = NULL, *pname = NULL, *pin_attr_value = NULL;
    char *pnumber = NULL;
    const char *str;
@@ -589,7 +590,7 @@ static char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
    pin_attr_value = NULL;
    str = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][pin].prop_ptr,"name",0);
    if(str[0]) {
-     int tok_val_len;
+     size_t tok_val_len;
      tok_val_len = strlen(str);
      attr_size = strlen(attr);
      my_strdup(498, &pinname, str);
@@ -624,8 +625,8 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  const char *tmp2;
  int q,qq;
  static int last[1 << 8 * sizeof(char) ]; /* safe to keep with multiple schematics, reset on 1st invocation */
- int old_name_len;
- int new_name_len;
+ size_t old_name_len;
+ size_t new_name_len;
  int n;
  char *old_name_base = NULL;
  Inst_hashentry *entry;
@@ -731,8 +732,9 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
  char *template=NULL,*format=NULL,*s, *name=NULL, *token=NULL;
  const char *value;
  int pin_number;
- int sizetok=0;
- int token_pos=0, escape=0;
+ size_t sizetok=0;
+ size_t token_pos=0;
+ int escape=0;
  int no_of_pins=0;
  /* Inst_hashentry *ptr; */
 
@@ -781,7 +783,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
 
   STR_ALLOC(&token, token_pos, &sizetok);
   if(state==TOK_TOKEN) {
-    token[token_pos++]=c; /* 20171029 remove escaping backslashes */
+    token[token_pos++]=(char)c; /* 20171029 remove escaping backslashes */
   }
   else if(state==TOK_SEP)                    /* got a token */
   {
@@ -902,12 +904,12 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
 /* if new_val is NULL *remove* 'token (and =val if any)' from s */
 {
   static char *result=NULL;
-  int size=0;
+  size_t size=0;
   register int c, state=TOK_BEGIN, space;
-  int sizetok=0;
+  size_t sizetok=0;
   char *token=NULL;
-  int token_pos=0, result_pos=0, result_save_pos = 0;
-  int quote=0, tmp;
+  size_t token_pos=0, result_pos=0, result_save_pos = 0, tmp;
+  int quote=0;
   int done_subst=0;
   int escape=0, matched_tok=0;
   char *new_val_copy = NULL;
@@ -1028,16 +1030,16 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
     }
     /* state actions */
     if(state == TOK_BEGIN) {
-      result[result_pos++] = c;
+      result[result_pos++] = (char)c;
     } else if(state == TOK_TOKEN) {
-      token[token_pos++] = c;
-      result[result_pos++] = c;
+      token[token_pos++] = (char)c;
+      result[result_pos++] = (char)c;
     } else if(state == TOK_ENDTOK) {
-      result[result_pos++] = c;
+      result[result_pos++] = (char)c;
     } else if(state == TOK_SEP) {
-      result[result_pos++] = c;
+      result[result_pos++] = (char)c;
     } else if(state==TOK_VALUE) {
-      if(!matched_tok) result[result_pos++] = c; /* skip value for matching token */
+      if(!matched_tok) result[result_pos++] = (char)c; /* skip value for matching token */
     }
     escape = (c=='\\' && !escape);
     if(c == '\0') break;
@@ -1067,12 +1069,13 @@ const char *get_trailing_path(const char *str, int no_of_dir, int skip_ext)
 {
   static char s[PATH_MAX]; /* safe to keep even with multiple schematic windows */
   size_t len;
-  int ext_pos, dir_pos, n_ext, n_dir, c, i;
+  size_t ext_pos, dir_pos;
+  int n_ext, n_dir, c, i;
 
   my_strncpy(s, str, S(s));
   len = strlen(s);
 
-  for(ext_pos=len, dir_pos=len, n_ext=0, n_dir=0, i=len; i>=0; i--) {
+  for(ext_pos=len, dir_pos=len, n_ext=0, n_dir=0, i=(int)len; i>=0; i--) {
     c = s[i];
     if(c=='.' && ++n_ext==1) ext_pos = i;
     if(c=='/' && ++n_dir==no_of_dir+1) dir_pos = i;
@@ -1137,8 +1140,8 @@ void print_vhdl_element(FILE *fd, int inst)
   char  *generic_value=NULL, *generic_type=NULL;
   char *template=NULL,*s, *value=NULL,  *token=NULL;
   int no_of_pins=0, no_of_generics=0;
-  int sizetok=0, sizeval=0;
-  int token_pos=0, value_pos=0;
+  size_t sizetok=0, sizeval=0;
+  size_t token_pos=0, value_pos=0;
   int quote=0;
   int escape=0;
   xRect *pinptr;
@@ -1192,10 +1195,10 @@ void print_vhdl_element(FILE *fd, int inst)
    else if( state==TOK_VALUE && space && !quote) state=TOK_END;
    STR_ALLOC(&value, value_pos, &sizeval);
    STR_ALLOC(&token, token_pos, &sizetok);
-   if(state==TOK_TOKEN) token[token_pos++]=c;
+   if(state==TOK_TOKEN) token[token_pos++]=(char)c;
    else if(state==TOK_VALUE) {
      if(c=='"' && !escape) quote=!quote;
-     else value[value_pos++]=c;
+     else value[value_pos++]=(char)c;
    }
    else if(state==TOK_ENDTOK || state==TOK_SEP) {
      if(token_pos) {
@@ -1289,8 +1292,9 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
   char *template=NULL, *s, *value=NULL,  *token=NULL;
   char *type=NULL, *generic_type=NULL, *generic_value=NULL;
   const char *str_tmp;
-  int i, sizetok=0, sizeval=0;
-  int token_pos=0, value_pos=0;
+  int i;
+  size_t sizetok=0, sizeval=0;
+  size_t token_pos=0, value_pos=0;
   int quote=0;
   int escape=0;
   int token_number=0;
@@ -1328,11 +1332,11 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
    else if( state==TOK_VALUE && space && !quote) state=TOK_END;
    STR_ALLOC(&value, value_pos, &sizeval);
    STR_ALLOC(&token, token_pos, &sizetok);
-   if(state==TOK_TOKEN) token[token_pos++]=c;
+   if(state==TOK_TOKEN) token[token_pos++]=(char)c;
    else if(state==TOK_VALUE)
    {
     if(c=='"' && !escape) quote=!quote;
-    else value[value_pos++]=c;
+    else value[value_pos++]=(char)c;
    }
    else if(state==TOK_ENDTOK || state==TOK_SEP) {
      if(token_pos) {
@@ -1398,8 +1402,8 @@ void print_verilog_param(FILE *fd, int symbol)
 {
  register int c, state=TOK_BEGIN, space;
  char *template=NULL, *s, *value=NULL,  *generic_type=NULL, *token=NULL;
- int sizetok=0, sizeval=0;
- int token_pos=0, value_pos=0;
+ size_t sizetok=0, sizeval=0;
+ size_t token_pos=0, value_pos=0;
  int quote=0;
  int escape=0;
  int token_number=0;
@@ -1433,11 +1437,11 @@ void print_verilog_param(FILE *fd, int symbol)
 
   STR_ALLOC(&value, value_pos, &sizeval);
   STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==TOK_TOKEN) token[token_pos++]=c;
+  if(state==TOK_TOKEN) token[token_pos++]=(char)c;
   else if(state==TOK_VALUE)
   {
    if(c=='"' && !escape) quote=!quote;
-   else value[value_pos++]=c;
+   else value[value_pos++]=(char)c;
   }
   else if(state==TOK_ENDTOK || state==TOK_SEP) {
     if(token_pos) {
@@ -1489,8 +1493,9 @@ void print_tedax_subckt(FILE *fd, int symbol)
  register int c, state=TOK_BEGIN, space;
  char *format=NULL,*s, *token=NULL;
  int pin_number;
- int sizetok=0;
- int token_pos=0, escape=0;
+ size_t sizetok=0;
+ size_t token_pos=0;
+ int escape=0;
  int no_of_pins=0;
 
  my_strdup(460, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
@@ -1524,7 +1529,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
 
   STR_ALLOC(&token, token_pos, &sizetok);
   if(state==TOK_TOKEN) {
-    token[token_pos++]=c;
+    token[token_pos++]=(char)c;
   }
   else if(state==TOK_SEP)                    /* got a token */
   {
@@ -1597,8 +1602,9 @@ void print_spice_subckt(FILE *fd, int symbol)
  register int c, state=TOK_BEGIN, space;
  char *format=NULL,*s, *token=NULL;
  int pin_number;
- int sizetok=0;
- int token_pos=0, escape=0;
+ size_t sizetok=0;
+ size_t token_pos=0;
+ int escape=0;
  int no_of_pins=0;
 
  my_strdup(103, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
@@ -1632,7 +1638,7 @@ void print_spice_subckt(FILE *fd, int symbol)
 
   STR_ALLOC(&token, token_pos, &sizetok);
   if(state==TOK_TOKEN) {
-    token[token_pos++]=c;
+    token[token_pos++]=(char)c;
   }
   else if(state==TOK_SEP)                    /* got a token */
   {
@@ -1702,19 +1708,21 @@ void print_spice_subckt(FILE *fd, int symbol)
 
 int print_spice_element(FILE *fd, int inst)
 {
-  int i=0, multip, tmp;
+  int i=0, multip, itmp;
+  size_t tmp;
   const char *str_ptr=NULL;
   register int c, state=TOK_BEGIN, space;
   char *template=NULL,*format=NULL,*s, *name=NULL,  *token=NULL;
   const char *lab, *value = NULL;
   char *translatedvalue = NULL;
   int pin_number;
-  int sizetok=0;
-  int token_pos=0, escape=0;
+  size_t sizetok=0;
+  size_t token_pos=0;
+  int escape=0;
   int no_of_pins=0;
   char *result = NULL;
-  int result_pos = 0;
-  int size = 0;
+  size_t result_pos = 0;
+  size_t size = 0;
   char *spiceprefixtag = NULL;
 
   size = CADCHUNKALLOC;
@@ -1766,11 +1774,11 @@ int print_spice_element(FILE *fd, int inst)
     }
     STR_ALLOC(&token, token_pos, &sizetok);
     if(state==TOK_TOKEN) {
-      token[token_pos++]=c;
+      token[token_pos++]=(char)c;
     }
     else if (state==TOK_SEP)                    /* got a token */
     {
-      int token_exists = 0;
+      size_t token_exists = 0;
       token[token_pos]='\0';
       token_pos=0;
 
@@ -1778,7 +1786,7 @@ int print_spice_element(FILE *fd, int inst)
       if (!tclgetboolvar("spiceprefix") && !strcmp(token, "@spiceprefix")) {
         value=NULL;
       } else {
-        int tok_val_len;
+        size_t tok_val_len;
         
         dbg(1, "print_spice_element(): token: |%s|\n", token);
         value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
@@ -1815,7 +1823,7 @@ int print_spice_element(FILE *fd, int inst)
         /*if something else must be parsed, put an if here! */
 
         if (!(strcmp(token+1,"name") && strcmp(token+1,"lab"))  /* expand name/labels */
-              && ((lab = expandlabel(value, &tmp)) != NULL)) {
+              && ((lab = expandlabel(value, &itmp)) != NULL)) {
           tmp = strlen(lab) +100 ; /* always make room for some extra chars 
                                     * so 1-char writes to result do not need reallocs */
           STR_ALLOC(&result, tmp + result_pos, &size);
@@ -1969,7 +1977,7 @@ int print_spice_element(FILE *fd, int inst)
   *  if(result && strstr(result, "eval(") == result) {
   *    char *c = strrchr(result, ')');
   *    if(c) while(1) { /* shift following characters back 1 char */
-  *      *c = c[1];
+  *      *c = (char)c[1];
   *      c++;
   *      if(!*c) break;
   *    }
@@ -2005,8 +2013,9 @@ void print_tedax_element(FILE *fd, int inst)
  char *saveptr1, *saveptr2;
  const char *tmp;
  int instance_based=0;
- int sizetok=0;
- int token_pos=0, escape=0;
+ size_t sizetok=0;
+ size_t token_pos=0; 
+ int escape=0;
  int no_of_pins=0;
  int subcircuit = 0;
  /* Inst_hashentry *ptr; */
@@ -2151,7 +2160,7 @@ void print_tedax_element(FILE *fd, int inst)
 
    STR_ALLOC(&token, token_pos, &sizetok);
    if(state==TOK_TOKEN) {
-     token[token_pos++]=c; /* 20171029 remove escaping backslashes */
+     token[token_pos++]=(char)c; /* 20171029 remove escaping backslashes */
    }
    else if(state==TOK_SEP)                   /* got a token */
    {
@@ -2298,8 +2307,9 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
   const char *lab;
   char *template=NULL,*format=NULL,*s=NULL, *name=NULL, *token=NULL;
   const char *value;
-  int sizetok=0;
-  int token_pos=0, escape=0;
+  size_t sizetok=0;
+  size_t token_pos=0;
+  int escape=0;
   int no_of_pins=0;
   /* Inst_hashentry *ptr; */
 
@@ -2350,7 +2360,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
 
    STR_ALLOC(&token, token_pos, &sizetok);
    if(state==TOK_TOKEN) {
-      token[token_pos++]=c;
+      token[token_pos++]=(char)c;
    }
    else if(state==TOK_SEP)                    /* got a token */
    {
@@ -2488,8 +2498,8 @@ void print_verilog_element(FILE *fd, int inst)
  int  tmp1 = 0;
  register int c, state=TOK_BEGIN, space;
  char *value=NULL,  *token=NULL;
- int sizetok=0, sizeval=0;
- int token_pos=0, value_pos=0;
+ size_t sizetok=0, sizeval=0;
+ size_t token_pos=0, value_pos=0;
  int quote=0;
 
  if(get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"verilog_format",2)[0] != '\0') {
@@ -2536,10 +2546,10 @@ void print_verilog_element(FILE *fd, int inst)
 
   STR_ALLOC(&value, value_pos, &sizeval);
   STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==TOK_TOKEN) token[token_pos++]=c;
+  if(state==TOK_TOKEN) token[token_pos++]=(char)c;
   else if(state==TOK_VALUE)
   {
-    value[value_pos++]=c;
+    value[value_pos++]=(char)c;
   }
   else if(state==TOK_ENDTOK || state==TOK_SEP) {
     if(token_pos) {
@@ -2708,8 +2718,9 @@ int isonlydigit(const char *s)
 char *find_nth(const char *str, const char *sep, int n)
 {
   static char *result=NULL; /* safe to keep even with multiple schematic windows */
-  static int result_size = 0; /* safe to keep even with multiple schematic windows */
-  int i, len;
+  static size_t result_size = 0; /* safe to keep even with multiple schematic windows */
+  int i;
+  size_t len;
   char *ptr;
   int count = -1;
 
@@ -2758,12 +2769,13 @@ const char *translate(int inst, const char* s)
 {
  static const char *empty="";
  static char *result=NULL; /* safe to keep even with multiple schematics */
- int size=0, tmp;
+ size_t size=0;
+ size_t tmp;
  register int c, state=TOK_BEGIN, space;
  char *token=NULL;
  const char *tmp_sym_name;
- int sizetok=0;
- int result_pos=0, token_pos=0;
+ size_t sizetok=0;
+ size_t result_pos=0, token_pos=0;
  /* Inst_hashentry *ptr; */
  struct stat time_buf;
  struct tm *tm;
@@ -2815,7 +2827,7 @@ const char *translate(int inst, const char* s)
 
   STR_ALLOC(&result, result_pos, &size);
   STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==TOK_TOKEN) token[token_pos++]=c;
+  if(state==TOK_TOKEN) token[token_pos++]=(char)c;
   else if(state==TOK_SEP)
   {
    token[token_pos]='\0';
@@ -3048,10 +3060,10 @@ const char *translate(int inst, const char* s)
    }
    token_pos = 0;
    if(c == '@' || c == '%') s--;
-   else result[result_pos++]=c;
+   else result[result_pos++]=(char)c;
    state=TOK_BEGIN;
   }
-  else if(state==TOK_BEGIN) result[result_pos++]=c;
+  else if(state==TOK_BEGIN) result[result_pos++]=(char)c;
   if(c=='\0')
   {
    result[result_pos]='\0';
@@ -3070,12 +3082,14 @@ const char *translate2(Lcc *lcc, int level, char* s)
 {
   static const char *empty="";
   static char *result = NULL;
-  int i, size = 0, tmp, save_tok_size;
+  int i;
+  size_t save_tok_size, size = 0;
+  size_t tmp;
   register int c, state = TOK_BEGIN, space;
   char *token = NULL;
   const char *tmp_sym_name;
-  int sizetok = 0;
-  int result_pos = 0, token_pos = 0;
+  size_t sizetok = 0;
+  size_t result_pos = 0, token_pos = 0;
   char *value1 = NULL;
   char *value2 = NULL;
   char *value = NULL;
@@ -3105,7 +3119,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
     }
     STR_ALLOC(&result, result_pos, &size);
     STR_ALLOC(&token, token_pos, &sizetok);
-    if (state == TOK_TOKEN) token[token_pos++] = c;
+    if (state == TOK_TOKEN) token[token_pos++] = (char)c;
     else if (state == TOK_SEP) {
       token[token_pos] = '\0';
       token_pos = 0;
@@ -3161,10 +3175,10 @@ const char *translate2(Lcc *lcc, int level, char* s)
       }
 
       if (c == '@') s--;
-      else result[result_pos++] = c;
+      else result[result_pos++] = (char)c;
       state = TOK_BEGIN;
     }
-    else if (state == TOK_BEGIN) result[result_pos++] = c;
+    else if (state == TOK_BEGIN) result[result_pos++] = (char)c;
     if (c == '\0') {
       result[result_pos] = '\0';
       break;

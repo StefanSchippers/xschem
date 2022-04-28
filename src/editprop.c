@@ -453,7 +453,7 @@ void my_free(int id, void *ptr)
  *   not fit(d[n-1]='\0')
  * return # of copied characters
  */
-int my_strncpy(char *d, const char *s, int n)
+int my_strncpy(char *d, const char *s, size_t n)
 {
   int i = 0;
   n -= 1;
@@ -544,7 +544,7 @@ static void edit_rect_property(int x)
       dash = get_tok_value(xctx->rect[c][n].prop_ptr,"dash",0);
       if( strcmp(dash, "") ) {
         int d = atoi(dash);
-        xctx->rect[c][n].dash = d >= 0? d : 0;
+        xctx->rect[c][n].dash = (short)(d >= 0? d : 0);
       } else
         xctx->rect[c][n].dash = 0;
       if( (oldprop &&  xctx->rect[c][n].prop_ptr && strcmp(oldprop, xctx->rect[c][n].prop_ptr)) ||
@@ -607,7 +607,7 @@ static void edit_line_property(void)
       dash = get_tok_value(xctx->line[c][n].prop_ptr,"dash",0);
       if( strcmp(dash, "") ) {
         int d = atoi(dash);
-        xctx->line[c][n].dash = d >= 0? d : 0;
+        xctx->line[c][n].dash = (short)(d >= 0? d : 0);
       } else
         xctx->line[c][n].dash = 0;
       if(xctx->line[c][n].y1 < xctx->line[c][n].y2) {
@@ -732,7 +732,7 @@ static void edit_arc_property(void)
      dash = get_tok_value(xctx->arc[c][i].prop_ptr,"dash",0);
      if( strcmp(dash, "") ) {
        int d = atoi(dash);
-       xctx->arc[c][i].dash = d >= 0 ? d : 0;
+       xctx->arc[c][i].dash = (short)(d >= 0 ? d : 0);
      } else
        xctx->arc[c][i].dash = 0;
 
@@ -800,7 +800,7 @@ static void edit_polygon_property(void)
      dash = get_tok_value(xctx->poly[c][i].prop_ptr,"dash",0);
      if( strcmp(dash, "") ) {
        int d = atoi(dash);
-       xctx->poly[c][i].dash = d >= 0 ? d : 0;
+       xctx->poly[c][i].dash = (short)(d >= 0 ? d : 0);
      } else
        xctx->poly[c][i].dash = 0;
      if(old_fill != xctx->poly[c][i].fill || old_dash != xctx->poly[c][i].dash) {
@@ -890,7 +890,7 @@ static void edit_text_property(int x)
        customfont = set_text_custom_font(&xctx->text[sel]);
        #endif
        text_bbox(xctx->text[sel].txt_ptr, xctx->text[sel].xscale,
-                 xctx->text[sel].yscale, rot, flip, xctx->text[sel].hcenter,
+                 xctx->text[sel].yscale, (short)rot, (short)flip, xctx->text[sel].hcenter,
                  xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
                  &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
        #if HAS_CAIRO==1
@@ -911,7 +911,7 @@ static void edit_text_property(int x)
              customfont = set_text_custom_font(&xctx->text[sel]);
              #endif
              text_bbox(xctx->text[sel].txt_ptr, xctx->text[sel].xscale,
-             xctx->text[sel].yscale, rot, flip, xctx->text[sel].hcenter,
+             xctx->text[sel].yscale, (short)rot, (short)flip, xctx->text[sel].hcenter,
              xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
              &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
              #if HAS_CAIRO==1
@@ -978,7 +978,7 @@ static void edit_text_property(int x)
        customfont = set_text_custom_font(&xctx->text[sel]);
        #endif
        text_bbox(xctx->text[sel].txt_ptr, xctx->text[sel].xscale,
-                 xctx->text[sel].yscale, rot, flip, xctx->text[sel].hcenter,
+                 xctx->text[sel].yscale, (short)rot, (short)flip, xctx->text[sel].hcenter,
                   xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
                  &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
        #if HAS_CAIRO==1
@@ -1109,7 +1109,7 @@ static void update_symbol(const char *result, int x)
     if(name && name[0] ) {
       dbg(1, "update_symbol(): prefix!='\\0', name=%s\n", name);
       /* 20110325 only modify prefix if prefix not NUL */
-      if(prefix) name[0]=prefix; /* change prefix if changing symbol type; */
+      if(prefix) name[0]=(char)prefix; /* change prefix if changing symbol type; */
       dbg(1, "update_symbol(): name=%s, inst[*ii].prop_ptr=%s\n",
           name, xctx->inst[*ii].prop_ptr);
       my_strdup(89, &ptr,subst_token(xctx->inst[*ii].prop_ptr, "name", name) );

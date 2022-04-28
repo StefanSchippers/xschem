@@ -194,7 +194,7 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
   dash = get_tok_value(xctx->arc[rectc][n].prop_ptr,"dash",0);
   if( strcmp(dash, "") ) {
     int d = atoi(dash);
-    xctx->arc[rectc][n].dash = d >= 0 ? d : 0;
+    xctx->arc[rectc][n].dash = (char) (d >= 0 ? d : 0);
   } else
     xctx->arc[rectc][n].dash = 0;
 
@@ -242,7 +242,7 @@ void store_poly(int pos, double *x, double *y, int points, unsigned int rectc,
   dash = get_tok_value(xctx->poly[rectc][n].prop_ptr,"dash",0);
   if( strcmp(dash, "") ) {
     int d = atoi(dash);
-    xctx->poly[rectc][n].dash = d >= 0 ? d : 0;
+    xctx->poly[rectc][n].dash = (char) (d >= 0 ? d : 0);
   } else
     xctx->poly[rectc][n].dash = 0;
 
@@ -284,7 +284,7 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
        xctx->line[rectc][n].bus = 0;
      if(prop_ptr && (dash = get_tok_value(prop_ptr,"dash",0))[0]) {
        int d = atoi(dash);
-       xctx->line[rectc][n].dash = d >= 0 ? d : 0;
+       xctx->line[rectc][n].dash = (char) (d >= 0 ? d : 0);
      } else
        xctx->line[rectc][n].dash = 0;
      xctx->lines[rectc]++;
@@ -313,7 +313,7 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->rect[rectc][n].sel=sel;
      if(prop_ptr && (dash = get_tok_value(prop_ptr,"dash",0))[0]) {
        int d = atoi(dash);
-       xctx->rect[rectc][n].dash = d >= 0 ? d : 0;
+       xctx->rect[rectc][n].dash = (char) (d >= 0 ? d : 0);
      } else
        xctx->rect[rectc][n].dash = 0;
      set_rect_flags(&xctx->rect[rectc][n]); /* set cached .flags bitmask from on attributes */

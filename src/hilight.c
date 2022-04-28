@@ -88,8 +88,8 @@ static Hilight_hashentry *hilight_hash_lookup(const char *token, int value, int 
   preventry=&xctx->hilight_table[index];
   while(1) {
     if( !entry ) { /* empty slot */
-      int lent = strlen(token) + 1;
-      int lenp = strlen(xctx->sch_path[xctx->currsch]) + 1;
+      size_t lent = strlen(token) + 1;
+      size_t lenp = strlen(xctx->sch_path[xctx->currsch]) + 1;
       if( what==XINSERT || what == XINSERT_NOREPLACE) { /* insert data */
         s=sizeof( Hilight_hashentry );
         entry= (Hilight_hashentry *)my_malloc(137, s );
@@ -254,7 +254,7 @@ void create_plot_cmd(void)
   if(tclresult()[0] == '1') exists = 1;
   xctx->enable_drill = 0;
   if(exists) {
-    viewer = atol(tclgetvar("sim(spicewave,default)"));
+    viewer = atoi(tclgetvar("sim(spicewave,default)"));
     my_snprintf(tcl_str, S(tcl_str), "sim(spicewave,%d,name)", viewer);
     my_strdup(1269, &viewer_name, tclgetvar(tcl_str));
     dbg(1,"create_plot_cmd(): viewer_name=%s\n", viewer_name);
@@ -562,7 +562,7 @@ int search(const char *tok, const char *val, int sub, int sel)
  int i,c, col = 7,tmp,bus=0;
  const char *str;
  char *type;
- int has_token;
+ size_t has_token;
  const char *empty_string = "";
  char *tmpname=NULL;
  int found = 0;
