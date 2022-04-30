@@ -232,7 +232,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
  }
 
  ## .save tran v(?1 GB ) v(?1 SB )
- if(tolower($1) ~ /^\.(save|print)$/) {
+ if(tolower($1) ~ /^\.(save|print)$/ && $0 ~/\?[0-9]/) {
    $0 = tolower($0)
    saveinstr = $1
    if($2 ~/^(dc|ac|tran|op)$/) saveanalysis=$2

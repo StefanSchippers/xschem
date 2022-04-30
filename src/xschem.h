@@ -174,8 +174,7 @@ extern char win_temp_dir[PATH_MAX];
 #define CAD_TEDAX_NETLIST 4
 #define CAD_SYMBOL_ATTRS 5
 
-#define STARTWIRE 1         /*  possible states, encoded in global 'rubber' */
-
+#define STARTWIRE 1U        /*  possible states, encoded in global 'rubber' */
 #define STARTRECT 4U
 #define STARTLINE 8U
 #define SELECTION  16U      /*  signals that some objects are selected. */

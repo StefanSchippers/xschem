@@ -1,0 +1,20 @@
+v {xschem version=3.0.0 file_version=1.2 }
+G {}
+K {type=raw_data_show
+vhdl_ignore=true
+spice_ignore=false
+verilog_ignore=true
+tedax_ignore=true
+template="name=r1
+devicename=M1
+devicemodel=nfet_01v8
+deviceparam=gm"}
+V {}
+S {}
+E {}
+A 15 0 0 1.875 90 360 {fill=true}
+T {tcleval([ngspice::get_node \\@m.[set path]x@devicename\\.msky130_fd_pr__@devicemodel\\\\[@deviceparam\\\\]])
+} 4.375 -8.59375 0 0 0.2 0.2 {vcenter=true layer=15}
+T {@deviceparam\\=} 4.375 -26.09375 0 0 0.2 0.2 {vcenter=true layer=15}
+T {@devicemodel} 4.375 -41.09375 0 0 0.2 0.2 {vcenter=true layer=15}
+T {@devicename} 4.375 -56.09375 0 0 0.2 0.2 {vcenter=true layer=15}
