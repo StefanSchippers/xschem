@@ -147,6 +147,10 @@ void global_tedax_netlist(int global)  /* netlister driver */
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
    tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]), getpid());
  fd=fopen(netl_filename, "w");
+ if(fd==NULL){
+   dbg(0, "global_tedax_netlist(): problems opening netlist file\n");
+   return;
+ }
  fprintf(fd, "## sch_path: %s\n", xctx->sch[xctx->currsch]);
 
  if(xctx->netlist_name[0]) {
@@ -155,10 +159,6 @@ void global_tedax_netlist(int global)  /* netlister driver */
    my_snprintf(cellname, S(cellname), "%s.tdx", skip_dir(xctx->sch[xctx->currsch]));
  }
 
- if(fd==NULL){
-   dbg(0, "global_tedax_netlist(): problems opening netlist file\n");
-   return;
- }
  /* netlist_options */
  for(i=0;i<xctx->instances;i++) {
    if(!(xctx->inst[i].ptr+ xctx->sym)->type) continue;

@@ -18,8 +18,8 @@ B 2 1200 -500 1880 -310 {flags=graph
 y1 = -0.0059
 y2 = 11
 divy = 6
-x1=0.0365975
-x2=0.0372189
+x1=0.0119263
+x2=0.0123791
 divx=10
 node="i(v.x1.vu)
 i(v.x0.vu)
@@ -31,8 +31,8 @@ B 2 1200 -830 1880 -520 {flags=graph
 y1 = -49
 y2 = 59
 divy = 12
-x1=0.0365975
-x2=0.0372189
+x1=0.0119263
+x2=0.0123791
 divx=10
 node="outp
 outm
@@ -46,21 +46,21 @@ B 2 1200 -1020 1880 -830 {flags=graph
 y1 = 2.4e-11
 y2 = 840
 divy = 6
-x1=0.0365975
-x2=0.0372189
+x1=0.0119263
+x2=0.0123791
 divx=10
 
 
 unitx=m
 color="4 7"
 node="\\"supply power;i(vcurrvnn) vnn * i(vcurrvpp) vpp * +\\"
-\\"running average supply power;i(vcurrvnn) vnn * i(vcurrvpp) vpp * + 1e-4 ravg()\\""}
+\\"running average supply power;i(vcurrvnn) vnn * i(vcurrvpp) vpp * + 1.0e-4 ravg()\\""}
 B 2 1200 -310 1880 -120 {flags=graph
 y1 = 0.0077
 y2 = 850
 divy = 6
-x1=0.0365975
-x2=0.0372189
+x1=0.0119263
+x2=0.0123791
 divx=10
 
 

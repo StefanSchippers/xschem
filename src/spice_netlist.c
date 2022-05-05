@@ -227,16 +227,16 @@ void global_spice_netlist(int global)  /* netlister driver */
    tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]), getpid());
  dbg(1, "global_spice_netlist(): opening %s for writing\n",netl_filename);
  fd=fopen(netl_filename, "w");
+ if(fd==NULL) {
+   dbg(0, "global_spice_netlist(): problems opening netlist file\n");
+   return;
+ }
  fprintf(fd, "** sch_path: %s\n", xctx->sch[xctx->currsch]);
 
  if(xctx->netlist_name[0]) {
    my_snprintf(cellname, S(cellname), "%s", get_cell_w_ext(xctx->netlist_name, 0));
  } else {
    my_snprintf(cellname, S(cellname), "%s.spice", skip_dir(xctx->sch[xctx->currsch]));
- }
- if(fd==NULL) {
-   dbg(0, "global_spice_netlist(): problems opening netlist file\n");
-   return;
  }
  first = 0;
  for(i=0;i<xctx->instances;i++) /* print netlist_commands of top level cell with 'place=header' property */

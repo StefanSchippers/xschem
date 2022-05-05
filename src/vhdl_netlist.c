@@ -143,6 +143,10 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]), getpid());
  fd=fopen(netl_filename, "w");
 
+ if(fd==NULL){
+   dbg(0, "global_vhdl_netlist(): problems opening netlist file\n");
+   return;
+ }
  fprintf(fd, "-- sch_path: %s\n", xctx->sch[xctx->currsch]);
 
  if(xctx->netlist_name[0]) {
@@ -151,10 +155,6 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    my_snprintf(cellname, S(cellname), "%s.vhdl", skip_dir(xctx->sch[xctx->currsch]));
  }
 
- if(fd==NULL){
-   dbg(0, "global_vhdl_netlist(): problems opening netlist file\n");
-   return;
- }
  dbg(1, "global_vhdl_netlist(): opening %s for writing\n",netl_filename);
 
  dbg(1, "global_vhdl_netlist(): printing top level packages\n");

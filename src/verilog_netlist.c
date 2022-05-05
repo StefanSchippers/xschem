@@ -103,6 +103,10 @@ void global_verilog_netlist(int global)  /* netlister driver */
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
    tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]),getpid());
  fd=fopen(netl_filename, "w");
+ if(fd==NULL){
+   dbg(0, "global_verilog_netlist(): problems opening netlist file\n");
+   return;
+ }
  fprintf(fd, "// sch_path: %s\n", xctx->sch[xctx->currsch]);
 
  if(xctx->netlist_name[0]) {
@@ -111,10 +115,6 @@ void global_verilog_netlist(int global)  /* netlister driver */
    my_snprintf(cellname, S(cellname), "%s.v", skip_dir(xctx->sch[xctx->currsch]));
  }
 
- if(fd==NULL){
-   dbg(0, "global_verilog_netlist(): problems opening netlist file\n");
-   return;
- }
  dbg(1, "global_verilog_netlist(): opening %s for writing\n",netl_filename);
 
 
