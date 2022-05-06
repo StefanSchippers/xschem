@@ -77,6 +77,10 @@ static void check_opt(char *opt, char *optval, int type)
         dbg(1, "process_options(): passing tcl script file  to interpreter: %s\n", optval);
         if(optval) my_strncpy(cli_opt_tcl_script, optval, S(cli_opt_tcl_script));
 
+    } else if( (type == LONG && !strcmp("command", opt)) ) {
+        dbg(1, "process_options(): passing tcl command to interpreter: %s\n", optval);
+        if(optval)  my_strdup(661, &cli_opt_tcl_post_command, optval);
+
     } else if( (type == LONG && !strcmp("tcp_port", opt)) ) {
         dbg(1, "process_options(): setting tcp port: %s\n", optval);
         if(optval) tcp_port=atoi(optval);
@@ -177,6 +181,9 @@ int process_options(int argc, char *argv[])
               optval = argv[++i];
             }
             else if(!strcmp("script", opt)) {
+              optval = argv[++i];
+            }
+            else if(!strcmp("command", opt)) {
               optval = argv[++i];
             }
             else if(!strcmp("tcp_port", opt)) {

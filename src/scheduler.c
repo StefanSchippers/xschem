@@ -1244,6 +1244,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"hier_psprint"))
     {
       cmd_found = 1;
+      if(argc > 2) {
+        my_strncpy(xctx->plotfile, argv[2], S(xctx->plotfile));
+      }
       hier_psprint();
       Tcl_ResetResult(interp);
     }

@@ -184,6 +184,7 @@ char cli_opt_netlist_dir[PATH_MAX] = "";
 char cli_opt_filename[PATH_MAX] = ""; /* filename given on cmdline */
 int cli_opt_no_readline=0;
 char *cli_opt_tcl_command = NULL; /* tcl command given on command line with --tcl <script> */
+char *cli_opt_tcl_post_command = NULL; /* tcl command given on command line with --command <script> */
 int cli_opt_do_print=0;
 int cli_opt_do_netlist=0;  /* set by process_options if user wants netllist from cmdline */
 int cli_opt_do_simulation=0;

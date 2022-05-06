@@ -687,6 +687,7 @@ static void xwin_exit(void)
  }
  my_free(1122, &pixdata);
  my_free(1138, &cli_opt_tcl_command);
+ my_free(1070, &cli_opt_tcl_post_command);
  clear_expandlabel_data();
  get_sym_template(NULL, NULL); /* clear static data in function */
  list_tokens(NULL, 0); /* clear static data in function */
@@ -2317,14 +2318,18 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tcleval(str);
  }
 
- if(quit) {
-   tcleval("exit");
- }
-
-
  /* load additional files */
  if(has_x) for(i = 2; i < cli_opt_argc; i++) {
    tclvareval("xschem load_new_window ",  cli_opt_argv[i], NULL);
+ }
+
+ /* Execute tcl script given on command line with --command */
+ if(cli_opt_tcl_post_command) {
+   tcleval(cli_opt_tcl_post_command);
+ }
+
+ if(quit) {
+   tcleval("exit");
  }
 
 

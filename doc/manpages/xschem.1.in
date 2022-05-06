@@ -66,6 +66,10 @@ Set netlist type to Verilog.
 Execute specified tcl instructions before any other action, this can be used to change xschemrc variables.
 .TP
 
+.B --command <tcl_cmd>
+Execute specified tcl commands after completing startup.
+.TP
+
 .B --script <file>
 Execute specified tcl file as a command script (perhaps with xschem  commands).
 .TP
@@ -92,6 +96,10 @@ Set netlist type to tEDAx.
 
 .B -s, --spice
 Set netlist type to SPICE.
+.TP
+
+.B -y, --symbol
+Set netlist type to symbol global property edit.
 .TP
 
 .B -x, --no_x
