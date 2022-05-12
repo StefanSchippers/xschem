@@ -2705,6 +2705,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       if( set_netlist_dir(0, NULL) ) {
         tcleval("simulate");
+        Tcl_ResetResult(interp);
       }
     }
    

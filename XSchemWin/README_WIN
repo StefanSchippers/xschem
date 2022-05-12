@@ -21,12 +21,12 @@ SUBDIRECTORIES
 
 XSchemWin:       Windows specific files (e.g. xschem.tcl, xschemrc, config.h)
 
-INSTRUCTIONS TO ADD XSCHEM TO VISUAL STUDIO 2019
+INSTRUCTIONS TO ADD XSCHEM TO VISUAL STUDIO 2022
 
 1. requirements
 
-    - Microsoft Visual Studio 2019
-    - Wix Toolset Visual Studio 2019 Extension (Download through Microsoft Extensions on VS 2019)
+    - Microsoft Visual Studio 2022
+    - Wix Toolset Visual Studio 2022 Extension (Download through Microsoft Extensions on VS 2022)
     - Wix Toolset Build Tools v3.11 (Download online from wixtoolset)
       (WiX Toolset requires the .NET Framework 3.5.1 Windows feature to be enabled.)
         Turn Windows features on or off
@@ -43,9 +43,9 @@ INSTRUCTIONS TO ADD XSCHEM TO VISUAL STUDIO 2019
       Update xschemrc to set variable to_pdf and to_png
       Add directory of gswin64.exe to PATH if installer didn't do it
 
-2. Create new XSchemWin project on Visual Studio 2019 
+2. Create new XSchemWin project on Visual Studio 2022
 
-    a. Open VS2019
+    a. Open VS2022
     b. Create a new project 
     c. Select Empty Project
     d. Project Name: XSchemWin

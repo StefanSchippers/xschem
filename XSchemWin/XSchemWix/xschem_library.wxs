@@ -117,6 +117,9 @@
           <Component Id="cmp5D1B53EF03CED2ECD99EBC6A0CCAD220" Guid="{CE8A06EF-A155-43E9-B2FC-5D480E5525F3}">
             <File Id="fil5C8CCACC8F766C8B1C25F254B9B15FD9" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\delay_line.sym" />
           </Component>
+		  <Component Id="cmp0807E8DF92B47E7D7D181592637972C3" Guid="{10330799-0BED-438A-B2C7-34CF5099C205}">
+			<File Id="fil4C46D71388ACA0A6DB1F611D8E9F541C" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\device_param_probe.sym" />
+		  </Component>
           <Component Id="cmpBAFA0738FE02E2420BF33F5994C1928B" Guid="{8AF35819-D1C9-4C55-B53A-F2AD03364553}">
             <File Id="filC8FE8887649E529D347B7103C3864C67" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\diode.sym" />
           </Component>
@@ -5450,6 +5453,7 @@
       <ComponentRef Id="cmp55400BD632178B862701F2D46A9E6B05" />
       <ComponentRef Id="cmp9859F3EA1CCF502FB2F8FD4B2CED8589" />
       <ComponentRef Id="cmp5D1B53EF03CED2ECD99EBC6A0CCAD220" />
+	  <ComponentRef Id="cmp0807E8DF92B47E7D7D181592637972C3" />
       <ComponentRef Id="cmpBAFA0738FE02E2420BF33F5994C1928B" />
       <ComponentRef Id="cmp115668CD383D0AA174DCCB4DA505B13F" />
       <ComponentRef Id="cmp611EC17997E3C9AFEFC1A1647A44BE0F" />

@@ -598,13 +598,25 @@ static void fill_svg_colors()
      svg_colors[i].green = (c & 0x00ff00) >> 8;
      svg_colors[i].blue  = (c & 0x0000ff);
    } else if(tclgetboolvar("dark_colorscheme")) {
-     svg_colors[i].red   = 255;
-     svg_colors[i].green = 255;
-     svg_colors[i].blue  = 255;
+     if(i == 0) {
+       svg_colors[i].red   = 0;
+       svg_colors[i].green = 0;
+       svg_colors[i].blue  = 0;
+     } else {
+       svg_colors[i].red   = 255;
+       svg_colors[i].green = 255;
+       svg_colors[i].blue  = 255;
+     }
    } else {
-     svg_colors[i].red   = 0;
-     svg_colors[i].green = 0;
-     svg_colors[i].blue  = 0;
+     if(i == 0) {
+       svg_colors[i].red   = 255;
+       svg_colors[i].green = 255;
+       svg_colors[i].blue  = 255;
+     } else {
+       svg_colors[i].red   = 0;
+       svg_colors[i].green = 0;
+       svg_colors[i].blue  = 0;
+     }
    }
    if(debug_var>=1) {
      fprintf(errfp, "svg_colors: %d %d %d\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);

@@ -103,6 +103,7 @@ int main(int argc, char **argv)
 
 
   if(detach && has_x) {
+    fclose(stdin);
     Tcl_FindExecutable(argv[0]); /* tcl stores executable name for its internal usage */
     interp = Tcl_CreateInterp(); /* create the tcl interpreter */
     Tcl_AppInit(interp); /* execute our init function */
