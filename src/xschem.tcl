@@ -2105,10 +2105,12 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   set_ne myload_files2 {}
   panedwindow  .dialog.l -orient horizontal
   frame .dialog.l.paneleft
-  if {$tcl_version > 8.5} { set just {-justify right}} else {set just {}}
-  eval [subst {listbox .dialog.l.paneleft.list -listvariable myload_files1 -width 20 -height 12 $just \
+  eval [subst {listbox .dialog.l.paneleft.list -listvariable myload_files1 -width 20 -height 12 \
     -yscrollcommand ".dialog.l.paneleft.yscroll set" -selectmode browse \
     -xscrollcommand ".dialog.l.paneleft.xscroll set" -exportselection 0}]
+  if { ![catch {.dialog.l.paneleft.list cget -justify}]} {
+    .dialog.l.paneleft.list configure -justify right
+  }
   myload_set_colors1
   scrollbar .dialog.l.paneleft.yscroll -command ".dialog.l.paneleft.list yview" 
   scrollbar .dialog.l.paneleft.xscroll -command ".dialog.l.paneleft.list xview" -orient horiz

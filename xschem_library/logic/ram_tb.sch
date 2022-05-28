@@ -1,5 +1,6 @@
-v {xschem version=2.9.6 file_version=1.1}
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
+K {}
 V {
 integer tck = 10000; // 10 ns
 
@@ -27,7 +28,7 @@ end endtask
 
 initial begin
   $dumpfile("dumpfile.vcd");
-  $dumpvars;
+  $dumpvars(0, ram_tb);
 
   CK = 0;
   WEN = 1;
