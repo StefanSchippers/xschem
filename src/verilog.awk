@@ -268,15 +268,21 @@ begin_module && $1 ~/^\);$/ {
     }
     if(nmult==1) printf "\n .%s( %s )" ,s_b($(j-1)),pin
     else {
-     split(pin,pin_array,",")
-     basename=s_b(pin_array[1])
-     if(check2(pin_array,nmult) && net_ascending==0) {  ## 20140416 if ascending nets print single bits
-      if(nmult==signal_basename[basename] )
-        printf "\n .%s( %s )", s_b($(j-1)),basename
-      else
-        printf "\n .%s( %s[%s:%s] )",s_b($(j-1)),basename,s_i(pin_array[1]),s_i(pin_array[nmult])
-     }
-     else printf "\n .%s( %s )", s_b($(j-1)), (nmult>1? "{" pin "}" : pin)
+      # old code
+      if(1) {
+        split(pin,pin_array,",")
+        basename=s_b(pin_array[1])
+        if(check2(pin_array,nmult) && net_ascending==0) {  ## 20140416 if ascending nets print single bits
+         if(nmult==signal_basename[basename] )
+           printf "\n .%s( %s )", s_b($(j-1)),basename
+         else
+           printf "\n .%s( %s[%s:%s] )",s_b($(j-1)),basename,s_i(pin_array[1]),s_i(pin_array[nmult])
+        }
+        else printf "\n .%s( %s )", s_b($(j-1)), (nmult>1? "{" pin "}" : pin)
+      # new code
+      } else {
+        printf "\n .%s( %s )" ,s_b($(j-1)),compact_label(pin)
+      }
     }
    }
    printf "\n);\n\n"
@@ -462,6 +468,68 @@ function check(arr,n      ,i,start,ok)
  }
  return 1
 }
+
+
+# globals: newlab, startbus, startsig
+function compact_label(lab,      n, i, last, lab_array, bus_current, name, busname)
+{
+  n=split(lab,lab_array,",")
+  startbus=-1
+  startsig=-1
+  newlab=""
+  for(i=1;i<=n;i++) {
+   if(lab_array[i] ~ /\[/) {
+     bus_current=s_i(lab_array[i])
+
+     if( startsig!=-1 &&  lab_array[i] != name )
+         print_signal(name)
+     if( (startbus!=-1) && (s_b(lab_array[i]) != busname) )
+         print_bus(busname, last)
+     # 09032004 fix for errors on buses like D[5],D[4],D[2],D[1]
+     if( (startbus!=-1) && (s_b(lab_array[i]) == busname) && ((bus_current+1!=last) && (bus_current-1!=last)) )
+         print_bus(busname, last)
+
+     if(startbus==-1) { busname=s_b(lab_array[i]); startbus=bus_current; last=bus_current }
+     else if(s_b(lab_array[i])==busname && ((bus_current+1==last) || (bus_current-1==last)) ) { last=bus_current }
+
+     if( (startbus!=-1) && i==n )
+         print_bus(busname, last)
+   }
+   else {
+     if(s_b(lab_array[i]) != busname&& startbus!=-1)
+       print_bus(busname, last)
+     if( (startsig!=-1) && ( lab_array[i] != name) )
+       print_signal(name)
+
+     if(startsig==-1) { name=lab_array[i] ; startsig++ }
+     else if(lab_array[i] == name) { startsig++ }
+
+     if( (startsig!=-1) && i==n )
+       print_signal(name)
+   }
+  }
+  sub(/,$/,"",newlab)
+  if(newlab ~ /,/) newlab="{" newlab "}"
+  return newlab
+}
+
+function print_bus(busname, last) {
+   if(startbus!=last)
+       newlab=newlab busname "[" startbus ":" last "],"
+   else
+       newlab=newlab busname "[" startbus "],"
+   startbus=-1
+}
+
+function print_signal(name,       i) {
+   if(startsig>0) {
+      # newlab = newlab startsig+1 "*" name ","
+      for(i = 0; i <= startsig; i++)  newlab = newlab name ","
+   } else
+      newlab = newlab name ","
+   startsig=-1
+}
+
 
 function s_b(n)
 {

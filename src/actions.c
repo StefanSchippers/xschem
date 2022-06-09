@@ -1085,7 +1085,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   /*   hilight new element 24122002 */
 
   if(draw_sym & 4 ) {
-    select_element(n, SELECTED,0, 0);
+    select_element(n, SELECTED,0, 1);
     drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
     drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
     drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
