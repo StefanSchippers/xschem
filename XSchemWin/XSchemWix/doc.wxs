@@ -723,9 +723,15 @@
           <Component Id="cmpAAFAC577840296567AE39EC857468CD8" Guid="{221877E4-2F59-498D-9102-48EDE9BE8AB2}">
             <File Id="fil5E28FC6603881D32B5E201AC2C3F8E15" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides0812.html" />
           </Component>
-          <Component Id="cmpFECBCF2FF410E56CAF5B28079D9092E6" Guid="{0E0F1B3F-4C09-4920-9818-CD984471B7DE}">
-            <File Id="fil0EE152B03813340BCEC692CEAD588D5B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides082.html" />
-          </Component>
+		  <Component Id="cmp9E8FC6D3F4D0BAEA49D60599C5B9679C" Guid="{F747FFEF-23E6-41E8-9EE3-9403859D1913}">
+			<File Id="fil1A67B7CDCC2D6FE924000D32F90EBF43" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides083.html" />
+		  </Component>
+		  <Component Id="cmp372B72F0070B27C3917E4D4EF5B3AA96" Guid="{9145002E-C8B2-4D82-AD27-3332024F46E5}">
+			<File Id="fil8BCA6F58E08521D4A207CCD4201C447A" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides084.html" />
+		  </Component>
+		  <Component Id="cmpE0730B3DCCC559E42C0979B05EB89CC2" Guid="{823B5933-F7DB-4DC2-95FD-65C653128F6A}">
+			<File Id="filB7FFAA6EB9C163E5B17EA5B73DA21392" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides085.html" />
+		  </Component>
           <Component Id="cmp9869F211F2586C19C8CD064C09659F56" Guid="{6EFDB42E-3234-4525-9A95-6FEB9034C1E6}">
             <File Id="fil5FDEC9156FDA72B9D51614931896738D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides09.html" />
           </Component>
@@ -1100,7 +1106,9 @@
       <ComponentRef Id="cmp345E1BBF10A3BA0B5CDD15539A4F2CA9" />
       <ComponentRef Id="cmpDFD615AED8252A4643F6CD5CCA81E43F" />
       <ComponentRef Id="cmpAAFAC577840296567AE39EC857468CD8" />
-      <ComponentRef Id="cmpFECBCF2FF410E56CAF5B28079D9092E6" />
+	  <ComponentRef Id="cmp9E8FC6D3F4D0BAEA49D60599C5B9679C" />
+	  <ComponentRef Id="cmp372B72F0070B27C3917E4D4EF5B3AA96" />
+	  <ComponentRef Id="cmpE0730B3DCCC559E42C0979B05EB89CC2" />
       <ComponentRef Id="cmp9869F211F2586C19C8CD064C09659F56" />
       <ComponentRef Id="cmp7A89D091242031A87D9E2A41006F172D" />
       <ComponentRef Id="cmpE7FE6FCF7B3C7E5B89E4B37A05E4E669" />

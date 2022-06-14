@@ -361,7 +361,7 @@ proc ev {s} {
 }
 proc netlist {source_file show netlist_file} {
  global XSCHEM_SHAREDIR flat_netlist hspice_netlist netlist_dir
- global verilog_2001 debug_var OS
+ global verilog_2001 debug_var OS verilog_bitblast
  
  simuldir
  set netlist_type [xschem get netlist_type]
@@ -409,7 +409,11 @@ proc netlist {source_file show netlist_file} {
  }
  if {$netlist_type eq {verilog}} {
    set cmd  ${XSCHEM_SHAREDIR}/verilog.awk
-   eval exec {awk -f $cmd $source_file > $dest}
+   if { $verilog_bitblast == 1 } {
+     eval exec {awk -f $cmd -- -bitblast $source_file > $dest}
+   } else {
+     eval exec {awk -f $cmd $source_file > $dest}
+   }
    if { $verilog_2001==1 } { 
      set cmd ${XSCHEM_SHAREDIR}/convert_to_verilog2001.awk
      set interm ${dest}[pid]
@@ -4542,7 +4546,7 @@ set tctx::global_list {
   spiceprefix split_files svg_colors svg_font_name symbol symbol_width sym_txt tclcmd_txt tclstop
   text_line_default_geometry textwindow_fileid textwindow_filename textwindow_w tmp_bus_char 
   toolbar_horiz toolbar_visible top_subckt transparent_svg undo_type
-  use_label_prefix use_lab_wire user_wants_copy_cell verilog_2001
+  use_label_prefix use_lab_wire user_wants_copy_cell verilog_2001 verilog_bitblast
   viewdata_fileid viewdata_filename viewdata_w vsize xschem_libs xschem_listen_port
 }
 
@@ -4899,6 +4903,8 @@ proc build_widgets { {topwin {} } } {
        } 
      }
   $topwin.menubar.option.menu add checkbutton -label "Verilog 2001 netlist variant" -variable verilog_2001
+  $topwin.menubar.option.menu add checkbutton \
+    -label "Group bus slices in Verilog instances" -variable verilog_bitblast
   $topwin.menubar.option.menu add checkbutton -label "Draw grid" -variable draw_grid \
      -accelerator {%} \
      -command {
@@ -5482,6 +5488,7 @@ set_ne top_subckt 0
 set_ne hide_empty_graphs 0 ;# if set to 1 waveform boxes will be hidden if no raw file loaded
 set_ne spiceprefix 1
 set_ne verilog_2001 1
+set_ne verilog_bitblast 0
 set_ne split_files 0
 set_ne flat_netlist 0
 set_ne netlist_show 0

@@ -23,6 +23,15 @@
 
 
 BEGIN{
+ bitblast = 0
+ while( (ARGV[1] ~ /^[-]/) || (ARGV[1] ~ /^$/) ) {
+   if(ARGV[1] == "-bitblast") bitblast = 1
+   for(i=2; i<= ARGC;i++) {
+     ARGV[i-1] = ARGV[i]
+   }
+   ARGC--
+ }
+
  net_types["wire"]=1
  net_types["tri"]=1
  net_types["wor"]=1
@@ -269,7 +278,7 @@ begin_module && $1 ~/^\);$/ {
     if(nmult==1) printf "\n .%s( %s )" ,s_b($(j-1)),pin
     else {
       # old code
-      if(1) {
+      if(!bitblast) {
         split(pin,pin_array,",")
         basename=s_b(pin_array[1])
         if(check2(pin_array,nmult) && net_ascending==0) {  ## 20140416 if ascending nets print single bits

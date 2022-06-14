@@ -260,3 +260,12 @@ C {adc_bridge.sym} 190 -260 0 0 {name=v6 delay=1}
 C {adc_bridge.sym} 190 -240 0 0 {name=v7 delay=1}
 C {adc_bridge.sym} 190 -220 0 0 {name=v8 delay=1}
 C {adc_bridge.sym} 190 -200 0 0 {name=v9 delay=1}
+C {ram.sym} 1390 -470 0 0 {name=xcoderam1   dim=5 width=8 hex=1 datafile=ram.list}
+C {lab_pin.sym} 1540 -530 0 1 {name=p56 lab=DOUT[7:0]}
+C {lab_pin.sym} 1240 -530 0 0 {name=p57 lab=CK,ADD[1:0],ADD[3:4]}
+C {lab_pin.sym} 1240 -490 0 0 {name=p58 lab=DIN[7:0]}
+C {lab_pin.sym} 1240 -470 0 0 {name=p59 lab=WEN}
+C {lab_pin.sym} 1240 -430 0 0 {name=p60 lab=OEN}
+C {lab_pin.sym} 1240 -410 0 0 {name=p61 lab=CK}
+C {lab_pin.sym} 1240 -450 0 0 {name=p62 lab=CEN}
+C {lab_pin.sym} 1240 -510 0 0 {name=p63 lab=M[7:0]}
