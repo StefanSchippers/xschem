@@ -34,27 +34,9 @@ schippes@mazinga:~$ rm -f  ~/xschemrc ~/.xschem/xschemrc
  </pre>
  </li><br>
 
- <li> Create a build directory (here i use ~/build, choose whatever name you like):
+ <li> Checkout xschem from the git repository into a build directory (I use xschem_git here):
  <pre class="code">
-schippes@mazinga:~$ mkdir build
- </pre>
- </li><br>
-
- <li> Go into the build directory
- <pre class="code">
-schippes@mazinga:~$ cd build
- </pre>
- </li><br>
-
- <li> Checkout xschem from the svn repository:
- <pre class="code">
-schippes@mazinga:~/build$ svn checkout svn://repo.hu/xschem/trunk
- </pre>
- </li><br>
-
- <li> Cd into trunk directory:
- <pre class="code">
-schippes@mazinga:~/build$ cd trunk
+git clone https://github.com/StefanSchippers/xschem.git xschem_git
  </pre>
  </li><br>
 
@@ -64,7 +46,7 @@ schippes@mazinga:~/build$ cd trunk
       installed in <kbd>/usr/local/share/xschem/xschem_library</kbd> and xschem user configuration
       stored in user's home directory under <kbd>~/.xschem</kbd>:
  <pre class="code">
-schippes@mazinga:~/build/trunk$ ./configure --prefix=/usr/local --user-conf-dir=~/.xschem \
+schippes@mazinga:~/xschem_git$ ./configure --prefix=/usr/local --user-conf-dir=~/.xschem \
 --user-lib-path=~/share/xschem/xschem_library \
 --sys-lib-path=/usr/local/share/xschem/xschem_library
  </pre>
@@ -106,26 +88,26 @@ Libs &amp; features:
 
 Configuration complete, ready to compile.
 
-schippes@mazinga:~/build/trunk$ 
+schippes@mazinga:~/xschem_git$ 
  </pre>
  </li><br>
 
  <li> Build xschem by running 'make'
  <pre class="code">
-schippes@mazinga:~/build/trunk$ make
+schippes@mazinga:~/xschem_git$ make
  </pre>
  </li><br>
 
  <li> If compilation of source files completed with no errors xschem will be ready for installation:
  <pre class="code">
-schippes@mazinga:~/build/trunk$ sudo make install
+schippes@mazinga:~/xschem_git$ sudo make install
  </pre>
  <br>Note that since we are installing in /usr/local we need root rights (sudo) for doing the installation.
  </li><br>
 
  <li> Test xschem by launching 'xschem' from the terminal:
  <pre class="code">
-schippes@mazinga:~/build/trunk$ cd
+schippes@mazinga:~/xschem_git$ cd
 schippes@mazinga:~$ xschem
  </pre>
  <img src="tutorial_install_xschem_00.png"><br>
