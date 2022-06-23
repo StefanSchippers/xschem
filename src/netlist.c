@@ -1065,19 +1065,13 @@ int sym_vs_sch_pins()
   int endfile;
   char tag[1];
   char filename[PATH_MAX];
-  char *sch = NULL;
   n_syms = xctx->symbols;
   for(i=0;i<n_syms;i++)
   {
     if( xctx->sym[i].type && !strcmp(xctx->sym[i].type,"subcircuit")) {
       rects = xctx->sym[i].rects[PINLAYER];
 
-      my_strdup2(1248, &sch, get_tok_value(xctx->sym[i].prop_ptr, "schematic", 0));
-      my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
-      my_free(1249, &sch);
-      if(!filename[0]) {
-        my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
-      }
+      get_sch_from_sym(filename, xctx->sym + i);
       if(!stat(filename, &buf)) {
         fd = fopen(filename, "r");
         pin_cnt = 0;

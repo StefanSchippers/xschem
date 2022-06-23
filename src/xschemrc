@@ -171,6 +171,15 @@
 #### enable to scale grid point size as done with lines at close zoom, default: 0
 # set big_grid_points 0
 
+#### enable grouping contiguous bits of bus slices in net->pin instance
+#### assignments for verilog netlists. Default: disabled (0)
+# set verilog_bitblast 0
+
+#### allow searching the full search path for schematics associated to symbols
+#### instead of looking only in symbol directory. Default: disabled (0).
+# set search_schematic 0
+
+
 ###########################################################################
 #### EXPORT FORMAT TRANSLATORS, PNG AND PDF
 ###########################################################################

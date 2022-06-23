@@ -1212,6 +1212,7 @@ extern void load_ascii_string(char **ptr, FILE *fd);
 extern char *read_line(FILE *fp, int dbg_level);
 extern void read_record(int firstchar, FILE *fp, int dbg_level);
 extern void create_sch_from_sym(void);
+extern void get_sch_from_sym(char *filename, xSymbol *sym);
 extern void descend_schematic(int instnumber);
 extern void go_back(int confirm);
 extern void view_unzoom(double z);

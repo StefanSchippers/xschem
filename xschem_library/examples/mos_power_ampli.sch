@@ -480,4 +480,3 @@ descr="View Raw file"
 tclcommand="textwindow $netlist_dir/[file tail [file rootname [ xschem get schname 0 ] ] ].raw"
 }
 C {spice_probe.sym} 790 -600 0 0 {name=p60 analysis=tran voltage=-0.1364}
-C {title-2.sym} -270 490 0 0 {name=l3 author="Stefan Schippers" rev=1.0 lock=true}

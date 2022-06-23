@@ -2783,7 +2783,6 @@ const char *translate(int inst, const char* s)
  const char *value;
  int escape=0;
  char date[200];
- char *sch = NULL;
  int sp_prefix;
  int s_pnetname;
  int level;
@@ -2936,12 +2935,8 @@ const char *translate(int inst, const char* s)
      my_free(1065, &pin_attr);
      my_free(1066, &pin_num_or_name);
    } else if(strcmp(token,"@sch_last_modified")==0) {
-    my_strdup2(1258, &sch, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "schematic",0 ));
-    my_strncpy(file_name, abs_sym_path(sch, ""), S(file_name));
-    my_free(1259, &sch);
-    if(!file_name[0]) {
-      my_strncpy(file_name, add_ext(abs_sym_path(xctx->inst[inst].name, ""), ".sch"), S(file_name));
-    }
+
+    get_sch_from_sym(file_name, xctx->inst[inst].ptr + xctx->sym);
     if(!stat(file_name , &time_buf)) {
       tm=localtime(&(time_buf.st_mtime) );
       tmp=strftime(date, sizeof(date), "%Y-%m-%d  %H:%M:%S", tm);

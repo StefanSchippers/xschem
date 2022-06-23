@@ -4541,8 +4541,8 @@ set tctx::global_list {
   netlist_type no_change_attrs noprint_libs old_selected_tok
   only_probes path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
   rawfile_loaded rcode recentfile replace_key retval retval_orig rotated_text save_initialfile search_exact
-  search_found search_select search_value selected_tok show_hidden_texts show_infowindow show_pin_net_names 
-  simconf_default_geometry simconf_vpos 
+  search_found search_schematic search_select search_value selected_tok show_hidden_texts show_infowindow
+  show_pin_net_names simconf_default_geometry simconf_vpos 
   spiceprefix split_files svg_colors svg_font_name symbol symbol_width sym_txt tclcmd_txt tclstop
   text_line_default_geometry textwindow_fileid textwindow_filename textwindow_w tmp_bus_char 
   toolbar_horiz toolbar_visible top_subckt transparent_svg undo_type
@@ -5099,6 +5099,8 @@ proc build_widgets { {topwin {} } } {
           -command "xschem print_hilight_net 2" -accelerator Alt-Shift-J
   $topwin.menubar.sym.menu add command -label "Create pins from highlight nets" \
           -command "xschem print_hilight_net 0" -accelerator Ctrl-J
+  $topwin.menubar.sym.menu add checkbutton \
+     -label "Search all search-paths for schematic associated to symbol" -variable search_schematic
   $topwin.menubar.sym.menu add checkbutton -label "Allow duplicated instance names (refdes)" \
       -variable disable_unique_names
   $topwin.menubar.tools.menu add checkbutton -label "Remember last command" -variable persistent_command
@@ -5489,6 +5491,7 @@ set_ne hide_empty_graphs 0 ;# if set to 1 waveform boxes will be hidden if no ra
 set_ne spiceprefix 1
 set_ne verilog_2001 1
 set_ne verilog_bitblast 0
+set_ne search_schematic 0
 set_ne split_files 0
 set_ne flat_netlist 0
 set_ne netlist_show 0

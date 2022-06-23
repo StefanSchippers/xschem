@@ -1132,7 +1132,6 @@ void symbol_in_new_window(void)
 
 void schematic_in_new_window(void)
 {
- char *sch = NULL;
  char filename[PATH_MAX];
  char win_path[WINDOW_PATH_SIZE];
  rebuild_selected_array();
@@ -1156,13 +1155,7 @@ void schematic_in_new_window(void)
      )
   ) return;
 
-  my_strdup2(1246, &sch, get_tok_value(
-    (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ));
-  my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
-  my_free(1247, &sch);
-  if(!filename[0]) {
-    my_strncpy(filename, add_ext(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), ".sch"), S(filename));
-  }
+  get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym);
 
   if(tclgetvar("tabbed_interface")[0] == '1') {
     if(!check_loaded(filename, win_path)) {
@@ -1201,10 +1194,27 @@ void launcher(void)
   }
 }
 
+void get_sch_from_sym(char *filename, xSymbol *sym)
+{
+  char *sch = NULL;
+  const char *str_tmp;
+
+  if((str_tmp = get_tok_value(sym->prop_ptr, "schematic",0 ))[0]) {
+    my_strdup2(1252, &sch, str_tmp);
+    my_strncpy(filename, abs_sym_path(sch, ""), PATH_MAX);
+    my_free(1253, &sch);
+  } else {
+    if(tclgetboolvar("search_schematic")) {
+      my_strncpy(filename, abs_sym_path(sym->name, ".sch"), PATH_MAX);
+    } else {
+      my_strncpy(filename, add_ext(abs_sym_path(sym->name, ""), ".sch"), PATH_MAX);
+    }
+  }
+}
+
 void descend_schematic(int instnumber)
 {
  const char *str;
- char *sch = NULL;
  char filename[PATH_MAX];
  int inst_mult, inst_number;
  int save_ok = 0;
@@ -1313,18 +1323,11 @@ void descend_schematic(int instnumber)
   xctx->currsch++;
   hilight_child_pins();
 
-  my_strdup2(1244, &sch, 
-    get_tok_value((xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ));
-  my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
-  my_free(1245, &sch);
+  get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym);
   unselect_all();
   remove_symbols();
-  if(filename[0]) {
-    load_schematic(1,filename, 1);
-  } else {
-    my_strncpy(filename, add_ext(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), ".sch"), S(filename));
-    load_schematic(1, filename, 1);
-  }
+  load_schematic(1,filename, 1);
+
   if(xctx->hilight_nets)
   {
     prepare_netlist_structs(0);

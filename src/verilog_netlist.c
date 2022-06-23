@@ -418,7 +418,6 @@ void verilog_block_netlist(FILE *fd, int i)
   char tcl_cmd_netlist[PATH_MAX + 100];
   char cellname[PATH_MAX];
   const char *str_tmp;
-  char *sch = NULL;
   int split_f;
 
   split_f = tclgetboolvar("split_files");
@@ -426,13 +425,7 @@ void verilog_block_netlist(FILE *fd, int i)
      verilog_stop=1;
   else
      verilog_stop=0;
-  if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
-    my_strdup2(1260, &sch, str_tmp);
-    my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
-    my_free(1261, &sch);
-  } else {
-    my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
-  }
+  get_sch_from_sym(filename, xctx->sym + i);
   if(split_f) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
        tclgetvar("netlist_dir"),  skip_dir(xctx->sym[i].name), getpid());

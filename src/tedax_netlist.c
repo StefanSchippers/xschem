@@ -77,21 +77,13 @@ static void tedax_block_netlist(FILE *fd, int i)
 {
   int tedax_stop=0;
   char filename[PATH_MAX];
-  const char *str_tmp;
   char *extra=NULL;
-  char *sch = NULL;
 
   if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"tedax_stop",0),"true") )
      tedax_stop=1;
   else
      tedax_stop=0;
-  if((str_tmp = get_tok_value(xctx->sym[i].prop_ptr, "schematic",0 ))[0]) {
-    my_strdup2(1256, &sch, str_tmp);
-    my_strncpy(filename, abs_sym_path(sch, ""), S(filename));
-    my_free(1257, &sch);
-  } else {
-    my_strncpy(filename, add_ext(abs_sym_path(xctx->sym[i].name, ""), ".sch"), S(filename));
-  }
+  get_sch_from_sym(filename, xctx->sym + i);
   fprintf(fd, "\n# expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
   fprintf(fd, "## sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
