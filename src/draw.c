@@ -2089,9 +2089,9 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
     drawline(cursor_color, NOW, xx, gr->ry1, xx, gr->ry2, 1);
     if(xctx->graph_sim_type == 3) active_cursorx = pow(10, active_cursorx);
     if(gr->unitx != 1.0)
-       my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * active_cursorx , gr->unitx_suffix);
+       my_snprintf(tmpstr, S(tmpstr), "%.5g%c", gr->unitx * active_cursorx , gr->unitx_suffix);
     else
-       my_snprintf(tmpstr, S(tmpstr), "%.4g",  active_cursorx);
+       my_snprintf(tmpstr, S(tmpstr), "%.5g",  active_cursorx);
     text_bbox(tmpstr, txtsize, txtsize, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
     filledrect(0, NOW,  tx1, ty1, tx2, ty2);
     draw_string(cursor_color, NOW, tmpstr, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, txtsize, txtsize);

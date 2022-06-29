@@ -259,8 +259,8 @@ proc execute_fileevent {id} {
         # nonblocking close always succeed 
         close $execute(pipe,$id)
       }
-      if {[info exists execute(callback,$id)]} {
-        eval $execute(callback,$id)
+      if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
+        uplevel #0 "eval $execute(callback,$id)"
         unset execute(callback,$id)
       } 
       unset execute(pipe,$id)
@@ -1178,7 +1178,7 @@ proc simulate {{callback {}}} {
     if {$OS == "Windows"} {
       # $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
       if { $callback ne {} } {
-        eval $callback
+        uplevel #0 "eval  $callback"
       }
       #eval exec {cmd /V /C "cd $netlist_dir&&$cmd}
       eval exec $cmd &
@@ -4542,7 +4542,7 @@ set tctx::global_list {
   only_probes path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
   rawfile_loaded rcode recentfile replace_key retval retval_orig rotated_text save_initialfile search_exact
   search_found search_schematic search_select search_value selected_tok show_hidden_texts show_infowindow
-  show_pin_net_names simconf_default_geometry simconf_vpos 
+  show_pin_net_names simconf_default_geometry simconf_vpos
   spiceprefix split_files svg_colors svg_font_name symbol symbol_width sym_txt tclcmd_txt tclstop
   text_line_default_geometry textwindow_fileid textwindow_filename textwindow_w tmp_bus_char 
   toolbar_horiz toolbar_visible top_subckt transparent_svg undo_type
@@ -4628,10 +4628,7 @@ proc housekeeping_ctx {} {
 }
 
 proc simulate_button {button_path} {
-  if { [set simulate_bg [$button_path cget -bg]] ne {red} } {
-    $button_path configure -bg red
-    simulate "$button_path configure -bg $simulate_bg"
-  }
+  simulate
 }
 
 proc set_bindings {topwin} {

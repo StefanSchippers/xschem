@@ -337,9 +337,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           xval = G_X(xctx->mousex);
           if(xctx->graph_sim_type == 3) xval = pow(10, xval);
           if(gr->unitx != 0) 
-            my_snprintf(sx, S(sx), "%.4g%c", gr->unitx * xval, gr->unitx_suffix);
+            my_snprintf(sx, S(sx), "%.5g%c", gr->unitx * xval, gr->unitx_suffix);
           else
-            my_snprintf(sx, S(sx), "%.4g", xval);
+            my_snprintf(sx, S(sx), "%.5g", xval);
 
           if(gr->unitx != 0)
             my_snprintf(sy, S(sy), "%.4g%c", gr->unity * yval, gr->unity_suffix);
