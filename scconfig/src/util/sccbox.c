@@ -165,6 +165,7 @@ static void help_linstall(const char *prg) {
 	printf("recompilation without needing to reinstall.\n\n");
 	printf("Switches:\n");
 	help_ln_common();
+	printf("  -d          force destination to be interpreted as a directory\n");
 	printf("  --preserve  do not convert source paths to absolute\n\n");
 }
 
@@ -578,8 +579,7 @@ static int safe_link(const char *src, const char *dst, int absolute, int relativ
 			return 1;
 		}
 	}
-
-	if (force)
+	else if (force)
 		remove(dst);
 
 	supp = quiet ? " 2>/dev/null" : "";
