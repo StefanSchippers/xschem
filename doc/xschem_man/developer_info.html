@@ -244,9 +244,21 @@ V {assign #1500 LDOUT = LDIN +1;<br>
 E {}<br>
 S {}</kbd><br>
 in this case only the verilog-related global property has some definition. This is Verilog code that is copied into the output netlist.
-
-
  </p>
+
+ <p class="important">
+  Attribute strings for all Xschem objects are enclosed in curly braces. 
+  This allows attributes to span multiple lines.
+  This component instance:<br>
+   <kbd>C {capa.sym} 890 -160 0 0 {name=C4 m=1 value=10u device="tantalium capacitor"}</kbd><br>
+  and this one:<br>
+   <kbd>C {capa.sym} 890 -160 0 0 {name=C4<br>
+m=1 value=10u<br>
+device="tantalium capacitor"<br>
+}</kbd><br>
+  are perfectly equivalent.
+ </p>
+
  <h3>TEXT OBJECT</h3>
  <p>
   Example: <kbd>T {3 of 4 NANDS of a 74ls00} 500 -580 0 0 0.4 0.4 {font=Monospace layer=4}</kbd><br>
