@@ -30,12 +30,12 @@ p{padding: 15px  30px 10px;}
    <li>A hierarchical design tool: wrap (parametric) sub-blocks into symbols and use them multiple times.</li>
    <li>Has syntax for vector nets (bus notation) like DATA[7:0], WORD[7:0,15:8] as well as vector
        instance placements like Xinv[7:0], to handle repetitive components.</li>
-   <li>Fast: Performance is important. Editing a schematic with 100K instances MUST not be a problem.</li>
+   <li>Fast: Performance is important. Editing a schematic with 100K instances MUST not be a problem.
+       Netlist extraction must be instant (&lt;500ms) on small to medium designs.</li>
    <li>Xschem knows the connectivity. Netlist build is embedded in the core.</li>
    <li>Verilog, VHDL, Spice, tEDAx netlist backends. Adding another backend is not difficult.</li>
    <li>Intensive and time consuming computations all done in pure C.</li>
    <li>Tcl-tk used for GUI and scripting language. Direct Xlib drawing.</li>
-   <li>Netlist extraction must be instant (&lt;500ms) on small to medium designs.</li>
   </ul>
  </h3>
  </div>
@@ -50,7 +50,7 @@ p{padding: 15px  30px 10px;}
    <li>A Gtk or Qt project. Xschem will not bitrot over time due to changed library APIs.
    <li>A layout tool, although the graphical engine was designed to support layout as well.</li>
    <li>A circuit simulator.</li>
-   <li>Super easy to use: there is a learning curve.</li>
+   <li>Easy to use: there is a learning curve.</li>
    <li>A memory hog: XSCHEM with a medium design loaded requires 54M virtual memory, 24M resident set. 
        A full chip design can be handled with a 1GB RAM system and low end processor.
    <li>A C++, C99, C11 project: all code is ANSI-C C89, works on old Solaris, Irix machines, compiles on 32bit, 64 bit and on armhf.
