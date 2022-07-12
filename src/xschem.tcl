@@ -1758,8 +1758,16 @@ proc graph_edit_properties {n} {
     xschem setprop rect 2 $graph_selected dataset [.graphdialog.top2.dset get]
     xschem draw_graph $graph_selected
   }
-  
   .graphdialog.top2.dset insert 0 [xschem getprop rect 2 $graph_selected dataset]
+  
+  label .graphdialog.top2.labsweep -text {  Sweep}
+  entry .graphdialog.top2.sweep -width 10 
+  bind .graphdialog.top2.sweep <KeyRelease> {
+    xschem setprop rect 2 $graph_selected sweep [.graphdialog.top2.sweep get]
+    xschem draw_graph $graph_selected
+  }
+  .graphdialog.top2.sweep insert 0 [xschem getprop rect 2 $graph_selected sweep]
+  
   set graph_divx [xschem getprop rect 2 $graph_selected divx]
   if {$graph_divx eq {}} { set graph_divx 5}
   .graphdialog.top2.divx insert 0 $graph_divx
@@ -1785,7 +1793,8 @@ proc graph_edit_properties {n} {
        .graphdialog.top2.labdivy .graphdialog.top2.divy \
        .graphdialog.top2.labsubdivx .graphdialog.top2.subdivx \
        .graphdialog.top2.labsubdivy .graphdialog.top2.subdivy \
-       .graphdialog.top2.labdset .graphdialog.top2.dset -side left
+       .graphdialog.top2.labdset .graphdialog.top2.dset \
+       .graphdialog.top2.labsweep .graphdialog.top2.sweep -side left
 
   # top frame
   label .graphdialog.top.labsearch -text Search:
