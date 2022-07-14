@@ -638,18 +638,30 @@ int find_fstools_ranlib(const char *name, int logdepth, int fatal)
 {
 	const char *ranlib, *target;
 	char *targetranlib;
-	int len;
+	int len, no_cc, no_ar;
 	char *test_code = NL "int zero() { return 0; }" NL;
 	char *obj = ".o";
 
 	(void) fatal; /* to suppress compiler warnings about not using fatal */
 
-	require("fstools/ar", logdepth, fatal);
-	require("cc/cc", logdepth, fatal);
+	no_ar = require("fstools/ar", logdepth, fatal);
+	no_cc = require("cc/cc", logdepth, fatal);
 
 	report("Checking for ranlib... ");
 	logprintf(logdepth, "find_fstools_ranlib: trying to find ranlib...\n");
 	logdepth++;
+
+	if (no_cc) {
+		report("can't test (no c compiler)\n");
+		logprintf(logdepth, "find_fstools_ranlib: can't test (no c compiler)\n");
+		return 1;
+	}
+
+	if (no_ar) {
+		report("can't test (no ar)\n");
+		logprintf(logdepth, "find_fstools_ranlib: can't test (no ar)\n");
+		return 1;
+	}
 
 	logprintf(logdepth, "compiling test object...\n");
 	if (compile_code(logdepth+1, test_code, &obj, NULL, "-c", NULL) != 0) {

@@ -84,7 +84,12 @@ int compile_file_raw(int logdepth, const char *fn_input, char **fn_output, const
 		*fn_output = tempfile_new(*fn_output);
 	unlink(*fn_output);
 
-	cc_esc = shell_escape_dup(cc == NULL ? get("cc/cc") : cc);
+	cc_esc = (cc == NULL ? get("cc/cc") : cc);
+	if (cc_esc == NULL) {
+		error("Trying to compile without a compiler available (cc/cc is empty)\n");
+		abort();
+	}
+	cc_esc = shell_escape_dup(cc_esc);
 	fn_input_esc = shell_escape_dup(fn_input);
 	fn_output_esc = shell_escape_dup(*fn_output);
 	temp_out_esc = shell_escape_dup(temp_out);
