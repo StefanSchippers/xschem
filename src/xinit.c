@@ -1012,6 +1012,7 @@ int check_loaded(const char *f, char *win_path)
  *
  *   tclvareval("save_ctx ", old_winpath, NULL);
  *   tclvareval("restore_ctx ", winpath, NULL);
+ *   new_schematic("switch_win", winpath, "");
  *   tclvareval("housekeeping_ctx", NULL);
  */
 static void switch_window(int *window_count, const char *win_path)
@@ -1080,10 +1081,12 @@ static void create_new_window(int *window_count, const char *fname)
 {
   Window win_id;
   char toppath[WINDOW_PATH_SIZE];
+  char prev_window[WINDOW_PATH_SIZE];
   int i, n;
 
   dbg(1, "new_schematic() create: fname=%s *window_count = %d\n", fname, *window_count);
   
+  my_strncpy(prev_window,  xctx->current_win_path, S(prev_window));
   if(/* *window_count && */ fname && fname[0] && check_loaded(fname, toppath)) {
     char msg[PATH_MAX+100];
     my_snprintf(msg, S(msg),
@@ -1153,6 +1156,13 @@ static void create_new_window(int *window_count, const char *fname)
   zoom_full(1, 0, 1, 0.97); /* draw */
   tclvareval("set_bindings ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);
+  /* restore previous context,
+   * because the Expose event after new window creation does a context switch prev win -> new win 
+   */
+  tclvareval("restore_ctx ", prev_window, NULL);
+  new_schematic("switch_win", prev_window, "");
+  tclvareval("housekeeping_ctx", NULL);
+
   windowid(toppath);
 }
 

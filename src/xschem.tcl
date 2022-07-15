@@ -4551,7 +4551,7 @@ set tctx::global_list {
   only_probes path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
   rawfile_loaded rcode recentfile replace_key retval retval_orig rotated_text save_initialfile search_exact
   search_found search_schematic search_select search_value selected_tok show_hidden_texts show_infowindow
-  show_pin_net_names simconf_default_geometry simconf_vpos
+  show_pin_net_names simconf_default_geometry simconf_vpos simulate_bg
   spiceprefix split_files svg_colors svg_font_name symbol symbol_width sym_txt tclcmd_txt tclstop
   text_line_default_geometry textwindow_fileid textwindow_filename textwindow_w tmp_bus_char 
   toolbar_horiz toolbar_visible top_subckt transparent_svg undo_type
@@ -4629,15 +4629,35 @@ proc save_ctx {context} {
 }
 
 proc housekeeping_ctx {} {
-  global has_x
-  if {![info exists $has_x]} {return}
+  global has_x simulate_bg
+  if {![info exists has_x]} {return}
   uplevel #0 {
-    # puts housekeeping_ctx
+  }
+  # puts "housekeeping_ctx, path: [xschem get current_win_path]"
+
+  if {![info exists ::[xschem get current_win_path]_simulate]} {
+    [xschem get top_path].menubar.simulate configure -bg $simulate_bg
+  } else {
+    [xschem get top_path].menubar.simulate configure -bg red
   }
 }
 
 proc simulate_button {button_path} {
-  simulate
+  global simulate_bg
+  if { ![info exists ::[xschem get current_win_path]_simulate] } {
+    set ::[xschem get current_win_path]_simulate 1
+    $button_path configure -bg red
+    simulate "clear_simulate_button $button_path ::[xschem get current_win_path]_simulate"
+  }
+
+}
+
+proc clear_simulate_button {button_path simvar} {
+  global simulate_bg
+  if { "::[xschem get current_win_path]_simulate" eq $simvar } {
+    $button_path configure -bg $simulate_bg
+  }
+  unset $simvar
 }
 
 proc set_bindings {topwin} {
@@ -4755,7 +4775,7 @@ proc switch_undo {} {
 }
 
 proc build_widgets { {topwin {} } } {
-  global XSCHEM_SHAREDIR tabbed_interface
+  global XSCHEM_SHAREDIR tabbed_interface simulate_bg
   global colors recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files hspice_netlist tmp_bus_char 
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
@@ -4989,6 +5009,8 @@ proc build_widgets { {topwin {} } } {
    -padx 2 -pady 0 -command waves $bbg
   eval button $topwin.menubar.simulate -text "Simulate"  -activebackground red  -takefocus 0 \
    -padx 2 -pady 0 -command \{simulate_button $topwin.menubar.simulate\} $bbg
+  puts "setting simulate_bg"
+  set simulate_bg [$topwin.menubar.simulate cget -bg]
   eval button $topwin.menubar.netlist -text "Netlist"  -activebackground red  -takefocus 0 \
    -padx 2 -pady 0 -command \{xschem netlist\} $bbg
   # create  $topwin.menubar.layers.menu
