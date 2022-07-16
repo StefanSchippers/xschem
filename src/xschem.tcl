@@ -5009,7 +5009,6 @@ proc build_widgets { {topwin {} } } {
    -padx 2 -pady 0 -command waves $bbg
   eval button $topwin.menubar.simulate -text "Simulate"  -activebackground red  -takefocus 0 \
    -padx 2 -pady 0 -command \{simulate_button $topwin.menubar.simulate\} $bbg
-  puts "setting simulate_bg"
   set simulate_bg [$topwin.menubar.simulate cget -bg]
   eval button $topwin.menubar.netlist -text "Netlist"  -activebackground red  -takefocus 0 \
    -padx 2 -pady 0 -command \{xschem netlist\} $bbg
