@@ -216,7 +216,6 @@ int hook_detect_target()
 			}
                         */
 		}
-                append("cc/cflags", " -Werror=format-security");
 	}
 
 	if (require("libs/io/popen/*",  0, 0) != 0) {
