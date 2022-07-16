@@ -216,8 +216,8 @@
 ###########################################################################
 #### Warning: changing these values will likely break compatibility
 #### with existing symbol libraries. Defaults: grid 20, snap 10.
-# set grid 20
-# set snap 10
+# set cadgrid 20
+# set cadsnap 10
 
 ###########################################################################
 #### CUSTOM COLORS  MAY BE DEFINED HERE
