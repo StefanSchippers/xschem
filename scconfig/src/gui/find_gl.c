@@ -27,8 +27,9 @@
 #include "log.h"
 #include "db.h"
 #include "dep.h"
+#include "find_gl.h"
 
-int find_gl(const char *name, int logdepth, int fatal, const char *call, const char *arg)
+int find_gl(const char *name, int logdepth, int fatal)
 {
 	char test_c[256];
 	const char *test_c_templ =
@@ -48,8 +49,6 @@ int find_gl(const char *name, int logdepth, int fatal, const char *call, const c
 	const char **lf, *ldflgs[] = {"-lGL", "-lopengl32", "-framework OpenGL", NULL};
 	char *cflags = NULL;
 	char *ldflags = NULL;
-	(void) call;  /* not used */
-	(void) arg;  /* not used */
 
 	if (require("cc/cc", logdepth, fatal))
 		return try_fail(logdepth, node);
@@ -93,7 +92,7 @@ int find_gl(const char *name, int logdepth, int fatal, const char *call, const c
 	return 0;
 }
 
-int find_gl_vao(const char *name, int logdepth, int fatal, const char *call, const char *arg)
+int find_gl_vao(const char *name, int logdepth, int fatal)
 {
 	const char *test_c =
 		NL "#include <stdio.h>"
@@ -105,8 +104,6 @@ int find_gl_vao(const char *name, int logdepth, int fatal, const char *call, con
 		NL;
 	const char *node = "libs/gui/gl/vao";
 	const char *cflags, *ldflags, *incs;
-	(void) call;  /* not used */
-	(void) arg;  /* not used */
 
 	if (require("cc/cc", logdepth, fatal))
 		return try_fail(logdepth, node);
@@ -128,7 +125,7 @@ int find_gl_vao(const char *name, int logdepth, int fatal, const char *call, con
 	return try_fail(logdepth, node);
 }
 
-int find_gl_fb_attachment(const char *name, int logdepth, int fatal, const char *call, const char *arg)
+int find_gl_fb_attachment(const char *name, int logdepth, int fatal)
 {
 	const char *test_c_templ =
 		NL "#include <stdio.h>"
@@ -143,8 +140,6 @@ int find_gl_fb_attachment(const char *name, int logdepth, int fatal, const char 
 	char test_c[512];
 	const char *node = "libs/gui/gl/fb_attachment";
 	const char *cflags, *ldflags, *incs, *ip;
-	(void) call;  /* not used */
-	(void) arg;  /* not used */
 
 	if (require("cc/cc", logdepth, fatal))
 		return try_fail(logdepth, node);
@@ -170,7 +165,7 @@ int find_gl_fb_attachment(const char *name, int logdepth, int fatal, const char 
 }
 
 
-int find_glu(const char *name, int logdepth, int fatal, const char *call, const char *arg)
+int find_glu(const char *name, int logdepth, int fatal)
 {
 	char test_c[256];
 	const char *test_c_templ =
@@ -189,8 +184,6 @@ int find_glu(const char *name, int logdepth, int fatal, const char *call, const 
 	char **cf, *cflgs[] = {"", "-I/usr/include/libdrm", NULL};
 	char *cflags = NULL;
 	char *ldflags = NULL;
-	(void) call;  /* not used */
-	(void) arg;  /* not used */
 
 	if (require("cc/cc", logdepth, fatal))
 		return try_fail(logdepth, node);
@@ -239,7 +232,7 @@ int find_glu(const char *name, int logdepth, int fatal, const char *call, const 
 	return 0;
 }
 
-int find_glut(const char *name, int logdepth, int fatal, const char *call, const char *arg)
+int find_glut(const char *name, int logdepth, int fatal)
 {
 	const char *test_c =
 		NL "#include <stdio.h>"
@@ -256,8 +249,6 @@ int find_glut(const char *name, int logdepth, int fatal, const char *call, const
 	char **inc, *incs[] = {"", "#include <openglut.h>", NULL};
 	char *cflags = NULL;
 	char *ldflags = NULL;
-	(void) call;  /* not used */
-	(void) arg;  /* not used */
 
 	incs[0] = freeglut;
 

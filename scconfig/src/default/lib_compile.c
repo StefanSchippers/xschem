@@ -73,6 +73,7 @@ static char *clone_flags(const char *input, const char *node)
 int compile_file_raw(int logdepth, const char *fn_input, char **fn_output, const char *cc, const char *cflags, const char *ldflags)
 {
 	char *cmdline;
+	const char *cc_esc_orig;
 	char *cc_esc, *fn_input_esc, *fn_output_esc, *temp_out_esc, *temp_out;
 	int ret;
 
@@ -84,12 +85,12 @@ int compile_file_raw(int logdepth, const char *fn_input, char **fn_output, const
 		*fn_output = tempfile_new(*fn_output);
 	unlink(*fn_output);
 
-	cc_esc = (cc == NULL ? get("cc/cc") : cc);
-	if (cc_esc == NULL) {
+	cc_esc_orig = (cc == NULL ? get("cc/cc") : cc);
+	if (cc_esc_orig == NULL) {
 		error("Trying to compile without a compiler available (cc/cc is empty)\n");
 		abort();
 	}
-	cc_esc = shell_escape_dup(cc_esc);
+	cc_esc = shell_escape_dup(cc_esc_orig);
 	fn_input_esc = shell_escape_dup(fn_input);
 	fn_output_esc = shell_escape_dup(*fn_output);
 	temp_out_esc = shell_escape_dup(temp_out);

@@ -393,7 +393,7 @@ function attrs(a)
 
 function header()
 {
-  print "v {xschem version=3.0.0  file_version=1.2}"
+  print "v {xschem version=3.1.0  file_version=1.2}"
 }
 
 function round(n)
