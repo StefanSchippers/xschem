@@ -301,6 +301,14 @@ static int read_dataset(FILE *fd)
   
   while((ptr = fgets(line, sizeof(line), fd)) ) {
     /* after this line comes the binary blob made of nvars * npoints * sizeof(double) bytes */
+    if(!strcmp(line, "Values:\n")) { /* this is an ASCII raw file. We don't handle this (yet) */
+      free_rawfile(0);
+      dbg(0, "read_dataset(): ASCII raw files can not be read. "
+             "Use binary format in ngspice (set filetype=binary)\n");
+      tcleval("alert_ {read_dataset(): ASCII raw files can not be read. "
+             "Use binary format in ngspice (set filetype=binary)}");
+      return 0;
+    }
     if(!strcmp(line, "Binary:\n")) {
       int npoints = xctx->graph_npoints[xctx->graph_datasets];
       if(xctx->graph_sim_type) {
