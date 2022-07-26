@@ -93,11 +93,11 @@ INSTRUCTIONS TO ADD XSCHEM TO VISUAL STUDIO 2022
      - After compiling the first time, add expandlabel.c, expandlabel.h, parselabel.c into the project.
        These 3 files are created in D:\Projects\XSchem\XSchemWin
 
-4. running from Visual Studio 2019
+4. running from Visual Studio 2022
 
      F5
 
-INSTRUCTIONS TO COMPILE CAIRO AND COMPILE XSCHEM WITH IT ON VISUAL STUDIO 2019
+INSTRUCTIONS TO COMPILE CAIRO AND COMPILE XSCHEM WITH IT ON VISUAL STUDIO 2022
 
 1. Create a cairo_win directory in XSchemWin
 2. cd cairo_win and git clone from "https://github.com/gleb-t/Cairo-VS" (inside the newly cairo_win directory, use command "git clone https://github.com/gleb-t/Cairo-VS .")
@@ -110,23 +110,24 @@ INSTRUCTIONS TO COMPILE CAIRO AND COMPILE XSCHEM WITH IT ON VISUAL STUDIO 2019
    Put each source content into the appropriate subdirectory in cairo_win directory.
    For example, in cairo_win/cairo folder, you should have the following folders: boilerplate, build, doc, perf, src, test, util, ...
 3. Compile freetype (x64, release_static) library in freetype directory:
-     a. Open builds/windows/vc2010/freetype.sln in VS2019
+     a. Open freetype/builds/windows/vc2010/freetype.sln in VS2022
      b. Select Release_static; x64 and build solution (library file is created in freetype\objs\x64\Release Static\freetype.lib)
-     c. create a libs folder in cairo_win, and make a copy of Release_Static\freetype.lib into this lib folder
-4. Compile cairo: Open VS 2019 solution in projects/cairo.sln
+4. Compile cairo: Open VS 2019 solution in projects/cairo.sln (Retarget solution if using VS 2022)
    a. Change to Release, x64 build
    b. Change cairo > Properties > Librarian > General > freetype271.lib to freetype.lib (Optional: Also do this for Debug,x64 build if needed)
-   c. Edit cairo > Header Files > cairo-features.h by adding the following line "#define CAIRO_HAS_XLIB_SURFACE 1" at the end
-   d. Build solution (If VS2019 complaint about missing freetype.lib, redo step (3c) by copying the file over again)
+   c. cairo > Properties > Configuration Properties > VC++ Directories, append the following to Library directories for freetype.lib compiled in (3):
+        ;$(ProjectDir)../../freetype/objs/x64/Release Static
+   d. Edit cairo > Header Files > cairo-features.h by adding the following line "#define CAIRO_HAS_XLIB_SURFACE 1" at the end before the last #endif
    e. cairo.lib and pixman.lib are in cairo_win/projects/x64/Release
-5. Setup xschem VS 2019 to compile with cairo library 
+5. Setup xschem VS 2022 to compile with cairo library 
    a. Uncomment "#define HAS_CAIRO 1" and "#define CAIRO_WIN32_STATIC_BUILD" in config.h
    Note: Step b and onward is updated in XSchemWin_cairo.vcxproj
+         To use it, rename non cairo XSchemWin.vcxproj to some other name, and change XSchemWin_cairo.vcxproj to XSchemWin.vcxproj.
    For Release, x64
      * Properties > VC++ Directories > Include: ;cairo_win\cairo\src;cairo_win\projects\cairo\src;
-                                       Libraries: ;cairo_win\projects\x64\Release;cairo_win\libs
+                                       Libraries: ;cairo_win\projects\x64\Release;cairo_win\libs;cairo_win\freetype\objs\x64\Release Static
      * Properties > Linker > Input > Additional Dependencies: Add ;cairo.lib;pixman.lib;zlib.lib;libpng.lib;freetype.lib;
   For Debug, x64
      * Properties > VC++ Directories > Include: ;cairo_win\cairo\src;cairo_win\projects\cairo\src;
-                                       Libraries: ;cairo_win\projects\x64\Debug;cairo_win\libs
+                                       Libraries: ;cairo_win\projects\x64\Debug;cairo_win\libs;cairo_win\freetype\objs\x64\Release Static
      * Properties > Linker > Input > Additional Dependencies: Add ;cairo.lib;pixman.lib;zlibd.lib;libpngd.lib;freetype.lib;
