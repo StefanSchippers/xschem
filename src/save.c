@@ -309,7 +309,7 @@ static int read_dataset(FILE *fd)
              "Use binary format in ngspice (set filetype=binary)}");
       return 0;
     }
-    if(!strcmp(line, "Binary:\n")) {
+    if(!strcmp(line, "Binary:\n") || !strcmp(line, "Binary:\r\n")) {
       int npoints = xctx->graph_npoints[xctx->graph_datasets];
       if(xctx->graph_sim_type) {
         done_header = 1;
