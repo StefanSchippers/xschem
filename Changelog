@@ -1,3 +1,10 @@
+3.1.0:
+- Lot of bug fixes.
+- Alow embedding (png) images in schematics
+- Display waveform graphs from ngspice/Xyce .raw files directly into the schematic.
+- Multiple windows handling. Tabbed/multi window interface
+- Add cross probing to Bespice wave viewer.
+
 3.0.0;
 - binary windows release
 - added "place=header" (in addition to "place=end" attribuite value)
