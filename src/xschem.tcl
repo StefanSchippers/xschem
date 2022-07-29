@@ -1178,7 +1178,7 @@ proc simulate {{callback {}}} {
     if {$OS == "Windows"} {
       # $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
       if { $callback ne {} } {
-        uplevel #0 "eval  $callback"
+        uplevel #0 "eval cd $netlist_dir; $callback"
       }
       #eval exec {cmd /V /C "cd $netlist_dir&&$cmd}
       eval exec $cmd &
