@@ -1,0 +1,42 @@
+v {xschem version=3.1.0 file_version=1.2 }
+G {}
+K {type=poly_resistor
+comment="User must provide a 3-terminal subcircuit for this device"
+format="@spiceprefix@name @pinlist @model R=@R W=@W L=@L m=@m"
+template="name=R1
+R=1
+W=1
+L=1
+model=rpoly
+spiceprefix=X
+m=1"
+}
+V {}
+S {}
+E {}
+L 4 0 20 0 30 {}
+L 4 0 20 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 0 -20 {}
+L 4 0 -30 0 -20 {}
+L 4 2.5 -22.5 7.5 -22.5 {}
+L 4 5 -25 5 -20 {}
+L 4 -20 -25 -20 25 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=P dir=inout propag=1 pinnumber=1}
+B 5 -2.5 27.5 2.5 32.5 {name=M dir=inout propag=0 pinnumber=2}
+B 5 -22.5 -2.5 -17.5 2.5 {name=B dir=inout propag=0 pinnumber=3}
+T {@name} 15 -6.75 0 0 0.2 0.2 {}
+T {R=@R} 15 -18.25 0 0 0.2 0.2 {}
+T {@#0:pinnumber} -10 -26.25 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -10 16.25 0 1 0.2 0.2 {layer=13}
+T {@#2:pinnumber} -10 -6.25 0 1 0.2 0.2 {layer=13}
+T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15}
+T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15}
+T {@#2:net_name} 10 -4 0 0 0.15 0.15 {layer=15}
+T {m=@m} 15 6.25 0 0 0.2 0.2 {}
