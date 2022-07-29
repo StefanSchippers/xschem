@@ -283,6 +283,8 @@ int main(int argc, char *argv[])
   }
 
   if(i >= argc) {
+    fprintf(stderr, "Rawtovcd: convert a spice RAW file to VCD\n");
+    fprintf(stderr, "If '-v voltage' is given transform waves to digital (binary values)\n");
     fprintf(stderr, "usage: rawtovcd [-v voltage] rawfile > vcdfile\n");
     exit(EXIT_FAILURE);
   }
