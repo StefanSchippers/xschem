@@ -44,6 +44,7 @@ Ctrl + RightButton      Select object under the mouse and if label/pin
                         select attached nets up to net junctions
                         
 LeftButton Double click Terminate Polygon placement
+                        Edit object attributes
 
 
                         XSCHEM KEY BINDINGS

@@ -2584,18 +2584,23 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     if( waves_selected(event, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
-    }
-   if(xctx->semaphore >= 2) break;
-   dbg(1, "callback(): DoubleClick  ui_state=%d state=%d\n",xctx->ui_state,state);
-   if(button==Button1) {
-     if(xctx->ui_state == STARTWIRE) {
-       xctx->ui_state &= ~STARTWIRE;
-     }
-     if(xctx->ui_state == STARTLINE) {
-       xctx->ui_state &= ~STARTLINE;
-     }
-     if( (xctx->ui_state & STARTPOLYGON) && (state ==0 ) ) {
-       new_polygon(SET);
+    } else {
+     if(xctx->semaphore >= 2) break;
+     dbg(1, "callback(): DoubleClick  ui_state=%d state=%d\n",xctx->ui_state,state);
+     if(button==Button1) {
+       if(xctx->ui_state ==  0 || xctx->ui_state == SELECTION) {
+         edit_property(0);
+       } else {
+         if(xctx->ui_state & STARTWIRE) {
+           xctx->ui_state &= ~STARTWIRE;
+         }
+         if(xctx->ui_state & STARTLINE) {
+           xctx->ui_state &= ~STARTLINE;
+         }
+         if( (xctx->ui_state & STARTPOLYGON) && (state ==0 ) ) {
+           new_polygon(SET);
+         }
+       }
      }
    }
 #ifndef __unix__
