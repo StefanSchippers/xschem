@@ -2173,7 +2173,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
       if(strstr(ntok_ptr, "ph(") == ntok_ptr || strstr(ntok_ptr, "_ph"))
         my_snprintf(tmpstr, S(tmpstr), "%s[Phase]", alias_ptr);
       else
-        my_snprintf(tmpstr, S(tmpstr), "%s[dB]", alias_ptr);
+        my_snprintf(tmpstr, S(tmpstr), "%s[Mag]", alias_ptr);
     }
     else if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", alias_ptr, gr->unity_suffix);
     else  my_snprintf(tmpstr, S(tmpstr), "%s", alias_ptr);

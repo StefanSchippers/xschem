@@ -255,9 +255,14 @@ static void read_binary_block(FILE *fd)
         if( v == 0 )  /* log scale x */
           xctx->graph_values[v][offset + p] = (float)log10(sqrt( tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]));
         else /* dB */
-          xctx->graph_values[v][offset + p] = 20 * (float)log10(sqrt(tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]));
+          /* avoid 0 for dB calculations */
+          if(tmp[v] == 0.0 && tmp[v + 1] == 0.0) xctx->graph_values[v][offset + p] = 1e-35f;
+          else xctx->graph_values[v][offset + p] = 
+                  (float)sqrt(tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]);
         /* AC analysis: calculate phase */
-        xctx->graph_values[v + 1] [offset + p] = (float)(atan2(tmp[v + 1], tmp[v]) * 180.0 / XSCH_PI);
+        if(tmp[v] == 0.0 && tmp[v + 1] == 0.0) xctx->graph_values[v + 1] [offset + p] = 0.0; 
+        else xctx->graph_values[v + 1] [offset + p] =
+                (float)(atan2(tmp[v + 1], tmp[v]) * 180.0 / XSCH_PI);
       }
     } 
     else for(v = 0; v < xctx->graph_nvars; v++) {
@@ -331,6 +336,10 @@ static int read_dataset(FILE *fd)
       if(xctx->graph_sim_type && xctx->graph_sim_type != 2) xctx->graph_sim_type = 0;
       else xctx->graph_sim_type = 2;
     }
+    else if(!strncmp(line, "Plotname: Operating Point", 25)) {
+      if(xctx->graph_sim_type && xctx->graph_sim_type != 4) xctx->graph_sim_type = 0;
+      else xctx->graph_sim_type = 4;
+    }
     else if(!strncmp(line, "Plotname: AC Analysis", 21)) {
       if(xctx->graph_sim_type && xctx->graph_sim_type != 3) xctx->graph_sim_type = 0;
       else xctx->graph_sim_type = 3;
@@ -344,15 +353,24 @@ static int read_dataset(FILE *fd)
       /* array of number of points of datasets (they are of varialbe length) */
       my_realloc(1414, &xctx->graph_npoints, (xctx->graph_datasets+1) * sizeof(int));
       sscanf(line, "No. of Data Rows : %d", &xctx->graph_npoints[xctx->graph_datasets]);
+      /* multi-point OP is equivalent to a DC sweep. Change  xctx->graph_sim_type */
+      if(xctx->graph_npoints[xctx->graph_datasets] > 1 && xctx->graph_sim_type == 4 ) {
+        xctx->graph_sim_type = 2;
+      }
       done_points = 1;
     }
     else if(!strncmp(line, "No. Variables:", 14)) {
       sscanf(line, "No. Variables: %d", &xctx->graph_nvars);
       if(xctx->graph_sim_type == 3) xctx->graph_nvars <<= 1; /* mag and phase */
+      
     }
     else if(!done_points && !strncmp(line, "No. Points:", 11)) {
       my_realloc(1415, &xctx->graph_npoints, (xctx->graph_datasets+1) * sizeof(int));
       sscanf(line, "No. Points: %d", &xctx->graph_npoints[xctx->graph_datasets]);
+      /* multi-point OP is equivalent to a DC sweep. Change  xctx->graph_sim_type */
+      if(xctx->graph_npoints[xctx->graph_datasets] > 1 && xctx->graph_sim_type == 4 ) {
+        xctx->graph_sim_type = 2;
+      }
     }
     if(!done_header && variables) {
       /* get the list of lines with index and node name */
@@ -572,6 +590,7 @@ static double ravg_store(int what , int i, int p, int last, double integ)
 #define EXCH -37
 #define DUP -38
 #define RAVG -39 /* running average */
+#define DB20 -40
 #define NUMBER -60
 
 typedef struct {
@@ -621,6 +640,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     else if(!strcmp(n, "integ()")) stack1[stackptr1++].i = INTEG;
     else if(!strcmp(n, "avg()")) stack1[stackptr1++].i = AVG;
     else if(!strcmp(n, "ravg()")) stack1[stackptr1++].i = RAVG;
+    else if(!strcmp(n, "db20()")) stack1[stackptr1++].i = DB20;
     else if(!strcmp(n, "deriv()")) stack1[stackptr1++].i = DERIV;
     else if(!strcmp(n, "exch()")) stack1[stackptr1++].i = EXCH;
     else if(!strcmp(n, "dup()")) stack1[stackptr1++].i = DUP;
@@ -781,6 +801,9 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             break;
           case LOG10:
             stack2[stackptr2 - 1] =  log10(stack2[stackptr2 - 1]);
+            break;
+          case DB20:
+            stack2[stackptr2 - 1] =  20 * log10(stack2[stackptr2 - 1]);
             break;
           case SGN:
             stack2[stackptr2 - 1] = stack2[stackptr2 - 1] > 0.0 ? 1 : 

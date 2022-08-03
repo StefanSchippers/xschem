@@ -1,11 +1,11 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2 }
 G {}
 K {}
 V {}
 S {}
 E {}
 B 2 1030 -330 1570 -130 {flags=graph
-y1=-5.7
+y1=-4.6
 y2=44
 ypos1=0
 ypos2=2
@@ -16,7 +16,7 @@ x1=3
 x2=10
 
 subdivx=8
-node=diffout
+node="\\"diffout db20()\\""
 color=4
 
 unitx=M
