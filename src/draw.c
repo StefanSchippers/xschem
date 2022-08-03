@@ -1574,6 +1574,7 @@ static double axis_increment(double a, double b, int div, int freq)
   if(div == 1) {
     return delta;
   }
+  if(div < 1) div = 1;
   if(delta == 0.0) return delta;
   /* if user wants only one division, just do what user asks */
   if(div == 1) return delta;
@@ -1597,6 +1598,7 @@ static double axis_increment(double a, double b, int div, int freq)
 
 static double axis_start(double n, double delta, int div)
 {
+  if(div < 1) div = 1;
   if(delta == 0.0) return n;
   /* if user wants only one division, just do what user asks */
   if(div == 1) return n;
@@ -1995,8 +1997,10 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
   if(val[0]) gr->subdivy = atoi(val);
   val = get_tok_value(r->prop_ptr,"divx",0);
   if(val[0]) gr->divx = atoi(val);
+  if(gr->divx < 1) gr->divx = 1;
   val = get_tok_value(r->prop_ptr,"divy",0);
   if(val[0]) gr->divy = atoi(val);
+  if(gr->divy < 1) gr->divy = 1;
   val = get_tok_value(r->prop_ptr,"y1",0);
   if(val[0]) gr->gy1 = atof(val);
   val = get_tok_value(r->prop_ptr,"y2",0);

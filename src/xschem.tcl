@@ -1582,6 +1582,18 @@ proc update_graph_node {node} {
   xschem draw_graph $graph_selected
 }
 
+proc update_div {graph_selected div} {
+  set divis [.graphdialog.top2.$div get]
+  if {[regexp {^[0-9]+$} $divis] && $divis < 1} {
+    set divis 1
+    .graphdialog.top2.$div delete 0 end
+    .graphdialog.top2.$div insert 0 $divis
+  }
+  xschem setprop rect 2 $graph_selected $div $divis
+  xschem draw_graph $graph_selected
+}
+
+
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected colors graph_sel_color
   global graph_unlocked graph_schname
@@ -1727,15 +1739,13 @@ proc graph_edit_properties {n} {
   label .graphdialog.top2.labdivx -text {  X div.}
   entry .graphdialog.top2.divx -width 2
   bind .graphdialog.top2.divx <KeyRelease> {
-    xschem setprop rect 2 $graph_selected divx [.graphdialog.top2.divx get]
-    xschem draw_graph $graph_selected
+    update_div $graph_selected divx
   }
 
   label .graphdialog.top2.labdivy -text {  Y div.}
   entry .graphdialog.top2.divy -width 2
   bind .graphdialog.top2.divy <KeyRelease> {
-    xschem setprop rect 2 $graph_selected divy [.graphdialog.top2.divy get]
-    xschem draw_graph $graph_selected
+    update_div $graph_selected divy
   }
 
   label .graphdialog.top2.labsubdivx -text {  X subdiv.}
