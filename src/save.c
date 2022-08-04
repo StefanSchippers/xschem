@@ -356,7 +356,8 @@ static int read_dataset(FILE *fd)
       /* multi-point OP is equivalent to a DC sweep. Change  xctx->graph_sim_type */
       if(xctx->graph_npoints[xctx->graph_datasets] > 1 && xctx->graph_sim_type == 4 ) {
         xctx->graph_sim_type = 2;
-      }
+      } else if(xctx->graph_sim_type == 4)  xctx->graph_sim_type = 0;
+     
       done_points = 1;
     }
     else if(!strncmp(line, "No. Variables:", 14)) {
@@ -370,7 +371,7 @@ static int read_dataset(FILE *fd)
       /* multi-point OP is equivalent to a DC sweep. Change  xctx->graph_sim_type */
       if(xctx->graph_npoints[xctx->graph_datasets] > 1 && xctx->graph_sim_type == 4 ) {
         xctx->graph_sim_type = 2;
-      }
+      } else if(xctx->graph_sim_type == 4)  xctx->graph_sim_type = 0;
     }
     if(!done_header && variables) {
       /* get the list of lines with index and node name */

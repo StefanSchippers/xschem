@@ -203,7 +203,7 @@ proc ngspice::annotate {} {
         }
       }
       if { $type eq {current_probe} } {
-        if {[catch {xschem setprop $i instance current [ngspice::get_curr_probe arr $path$name] fast} err]} {
+        if {[catch {xschem setprop instance $i current [ngspice::get_curr_probe arr $path$name] fast} err]} {
           puts "Warning 2: $err"
         }
       }
