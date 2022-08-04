@@ -710,6 +710,7 @@ typedef struct {
   double txtsizelab, digtxtsizelab, txtsizey, txtsizex;
   int dataset;
   int hilight_wave[2]; /* [0] : graph index, [1] : wave index */
+  int logx, logy;
 } Graph_ctx;
 
 typedef struct {

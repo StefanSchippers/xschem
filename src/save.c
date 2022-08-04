@@ -252,9 +252,9 @@ static void read_binary_block(FILE *fd)
     /* assign to xschem struct, memory aligned per variable, for cache locality */
     if(ac) {
       for(v = 0; v < xctx->graph_nvars; v += 2) { /*AC analysis: calculate magnitude */
-        if( v == 0 )  /* log scale x */
-          xctx->graph_values[v][offset + p] = (float)log10(sqrt( tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]));
-        else /* dB */
+        if( v == 0 )  /* sweep var */
+          xctx->graph_values[v][offset + p] = (float)sqrt( tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]);
+        else /* magnitude */
           /* avoid 0 for dB calculations */
           if(tmp[v] == 0.0 && tmp[v + 1] == 0.0) xctx->graph_values[v][offset + p] = 1e-35f;
           else xctx->graph_values[v][offset + p] = 
@@ -822,6 +822,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
 double get_raw_value(int dataset, int idx, int point)
 {
   int i, ofs;
+  Graph_ctx *gr = &xctx->graph_struct;
   ofs = 0;
   if(xctx->graph_values) {
     if(dataset == -1) {
@@ -832,7 +833,8 @@ double get_raw_value(int dataset, int idx, int point)
         ofs += xctx->graph_npoints[i];
       }
       if(ofs + point < xctx->graph_allpoints) 
-        return xctx->graph_values[idx][ofs + point];
+        if(gr->logx && idx == 0) return log10(xctx->graph_values[idx][ofs + point]);
+        else         return xctx->graph_values[idx][ofs + point];
     }
   }
   return 0.0;

@@ -335,7 +335,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
 
           xval = G_X(xctx->mousex);
-          if(xctx->graph_sim_type == 3) xval = pow(10, xval);
+          if(gr->logx) xval = pow(10, xval);
           if(gr->unitx != 0) 
             my_snprintf(sx, S(sx), "%.5g%c", gr->unitx * xval, gr->unitx_suffix);
           else
@@ -672,9 +672,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                     int ofs = 0;
                     for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
                       for(i = ofs; i < ofs + xctx->graph_npoints[dset]; i++) {
+                        double sweepval;
+                        if(gr->logx) sweepval = log10(xctx->graph_values[sweep_idx][i]);
+                        else sweepval = xctx->graph_values[sweep_idx][i];
                         if(dataset >= 0 && dataset != dset) continue;
-                        if( xctx->graph_values[sweep_idx][i] < start ||
-                            xctx->graph_values[sweep_idx][i] > end)  continue;
+                        if( sweepval < start ||
+                            sweepval > end)  continue;
                         v = xctx->graph_values[j][i];
                         if(first || v < min) min = v;
                         if(first || v > max) max = v;
@@ -683,7 +686,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                       ofs += xctx->graph_npoints[dset];
                     }
                   }
-                }
+                } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) */
                 if(max == min) max += 0.01;
                 min = floor_to_n_digits(min, 2);
                 max = ceil_to_n_digits(max, 2);

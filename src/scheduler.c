@@ -321,6 +321,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
            "color=\"\"\n"
            "dataset=0\n"
            "unitx=u\n"
+           "logx=0\n"
+           "logy=0\n"
          );
        xctx->need_reb_sel_arr=1;
        rebuild_selected_array();

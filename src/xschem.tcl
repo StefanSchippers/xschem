@@ -1596,7 +1596,7 @@ proc update_div {graph_selected div} {
 
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected colors graph_sel_color
-  global graph_unlocked graph_schname
+  global graph_unlocked graph_schname graph_logx graph_logy
 
   xschem push_undo
   set geom {}
@@ -1854,6 +1854,11 @@ proc graph_edit_properties {n} {
   .graphdialog.top.max insert 0 [xschem getprop rect 2 $graph_selected y2]
 
   # top3 frame
+  set graph_logx [xschem getprop rect 2 $graph_selected logx]
+  set graph_logy [xschem getprop rect 2 $graph_selected logy]
+  if { $graph_logx eq {} } { set graph_logx 0 }
+  if { $graph_logy eq {} } { set graph_logy 0 }
+  puts "graph_logx=$graph_logx , graph_selected=$graph_selected"
   checkbutton .graphdialog.top3.logx -padx 2 -text {Log X scale} -variable graph_logx \
      -command {
        if { [xschem get schname] eq $graph_schname } {
