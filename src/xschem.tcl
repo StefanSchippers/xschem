@@ -1867,7 +1867,7 @@ proc graph_edit_properties {n} {
        }
      }
 
-  checkbutton .graphdialog.top3.logy -text {Log Y scale} -variable graph_logy \
+  checkbutton .graphdialog.top3.logy -text {Log Y scale} -variable graph_logy -state disabled \
      -command {
        if { [xschem get schname] eq $graph_schname } {
          xschem setprop rect 2 $graph_selected logy $graph_logy fast
