@@ -991,6 +991,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
 /*  if symbol_name is a valid string load specified cell and */
 /*  use the given params, otherwise query user */
 {
+ unselect_all();
  int i,j,n;
  char name[PATH_MAX];
  char *type;
