@@ -1838,6 +1838,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int ret;
       cmd_found = 1;
       xctx->semaphore++;
+      unselect_all();
       xctx->mx_double_save = xctx->mousex_snap;
       xctx->my_double_save = xctx->mousey_snap;
       if(argc == 4) {
