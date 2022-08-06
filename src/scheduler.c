@@ -1838,6 +1838,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int ret;
       cmd_found = 1;
       xctx->semaphore++;
+      rebuild_selected_array();
+      if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
+        tclvareval("set INITIALINSTDIR [file dirname {",
+             abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
+      }
       unselect_all();
       xctx->mx_double_save = xctx->mousex_snap;
       xctx->my_double_save = xctx->mousey_snap;
@@ -1847,15 +1852,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         ret = place_symbol(-1,argv[2],xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
       } else {
         xctx->last_command = 0;
-        rebuild_selected_array();
-        if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
-          char f[PATH_MAX];
-          my_strncpy(f, abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), S(f));
-          tclvareval("set INITIALINSTDIR [file dirname {", f, "}]", NULL);
-        } 
         ret = place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
       }
-   
       if(ret) {
         xctx->mousey_snap = xctx->my_double_save;
         xctx->mousex_snap = xctx->mx_double_save;
