@@ -336,12 +336,13 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
           xval = G_X(xctx->mousex);
           if(gr->logx) xval = pow(10, xval);
-          if(gr->unitx != 0) 
+          if(gr->logy) yval = pow(10, yval);
+          if(gr->unitx != 1.0) 
             my_snprintf(sx, S(sx), "%.5g%c", gr->unitx * xval, gr->unitx_suffix);
           else
             my_snprintf(sx, S(sx), "%.5g", xval);
 
-          if(gr->unitx != 0)
+          if(gr->unitx != 1.0)
             my_snprintf(sy, S(sy), "%.4g%c", gr->unity * yval, gr->unity_suffix);
           else
             my_snprintf(sy, S(sy), "%.4g", yval);
@@ -673,12 +674,15 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                     for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
                       for(i = ofs; i < ofs + xctx->graph_npoints[dset]; i++) {
                         double sweepval;
-                        if(gr->logx) sweepval = log10(xctx->graph_values[sweep_idx][i]);
+                        if(gr->logx) sweepval = mylog10(xctx->graph_values[sweep_idx][i]);
                         else sweepval = xctx->graph_values[sweep_idx][i];
                         if(dataset >= 0 && dataset != dset) continue;
                         if( sweepval < start ||
                             sweepval > end)  continue;
-                        v = xctx->graph_values[j][i];
+                        if(gr->logy) 
+                          v =mylog10(xctx->graph_values[j][i]);
+                        else
+                          v = xctx->graph_values[j][i];
                         if(first || v < min) min = v;
                         if(first || v > max) max = v;
                         first = 0;

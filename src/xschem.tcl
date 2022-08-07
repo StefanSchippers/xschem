@@ -1858,7 +1858,6 @@ proc graph_edit_properties {n} {
   set graph_logy [xschem getprop rect 2 $graph_selected logy]
   if { $graph_logx eq {} } { set graph_logx 0 }
   if { $graph_logy eq {} } { set graph_logy 0 }
-  puts "graph_logx=$graph_logx , graph_selected=$graph_selected"
   checkbutton .graphdialog.top3.logx -padx 2 -text {Log X scale} -variable graph_logx \
      -command {
        if { [xschem get schname] eq $graph_schname } {
@@ -1867,7 +1866,7 @@ proc graph_edit_properties {n} {
        }
      }
 
-  checkbutton .graphdialog.top3.logy -text {Log Y scale} -variable graph_logy -state disabled \
+  checkbutton .graphdialog.top3.logy -text {Log Y scale} -variable graph_logy \
      -command {
        if { [xschem get schname] eq $graph_schname } {
          xschem setprop rect 2 $graph_selected logy $graph_logy fast

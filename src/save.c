@@ -832,9 +832,10 @@ double get_raw_value(int dataset, int idx, int point)
       for(i = 0; i < dataset; i++) {
         ofs += xctx->graph_npoints[i];
       }
-      if(ofs + point < xctx->graph_allpoints) 
-        if(gr->logx && idx == 0) return log10(xctx->graph_values[idx][ofs + point]);
+      if(ofs + point < xctx->graph_allpoints) {
+        if(gr->logx && idx == 0) return mylog10(xctx->graph_values[idx][ofs + point]);
         else         return xctx->graph_values[idx][ofs + point];
+      }
     }
   }
   return 0.0;

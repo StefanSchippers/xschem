@@ -23,7 +23,11 @@
 #include <stdarg.h>
 #include "xschem.h"
 
-
+double mylog10(double x)
+{
+  if(x > 0) return log10(x);
+  else return -30;
+}
 
 int my_strcasecmp(const char *s1, const char *s2)
 {
@@ -294,8 +298,9 @@ char *my_itoa(int i)
 
 char *dtoa(double i)
 {
-  static char s[50];
+  static char s[70];
   size_t n;
+
   n = my_snprintf(s, S(s), "%g", i);
   if(xctx) xctx->tok_size = n;
   return s;
@@ -303,7 +308,7 @@ char *dtoa(double i)
 
 char *dtoa_prec(double i)
 {
-  static char s[50];
+  static char s[70];
   size_t n;
   n = my_snprintf(s, S(s), "%.10e", i);
   if(xctx) xctx->tok_size = n;

@@ -1581,7 +1581,7 @@ static double axis_increment(double a, double b, int div, int freq)
   delta /= div;
   sign = (delta < 0.0) ? -1.0 : 1.0;
   delta = fabs(delta);
-  scale = pow(10.0, floor(log10(delta)));
+  scale = pow(10.0, floor(mylog10(delta)));
   scaled_delta =  delta / scale; /* 1 <= scaled_delta < 10 */
   dbg(1, "a=%g, b=%g, scale=%g, scaled_delta=%g --> ", a, b, scale, scaled_delta);
   if(freq && scaled_delta > 2.5) scaled_delta = 10.0;
@@ -1758,8 +1758,8 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
   int hex_digits = ((n_bits - 1) >> 2) + 1;
 
   if(gr->logx) {
-    lx1 = W_X(log10(xctx->graph_values[sweep_idx][first]));
-    lx2 = W_X(log10(xctx->graph_values[sweep_idx][last]));
+    lx1 = W_X(mylog10(xctx->graph_values[sweep_idx][first]));
+    lx2 = W_X(mylog10(xctx->graph_values[sweep_idx][last]));
   } else {
     lx1 = W_X(xctx->graph_values[sweep_idx][first]);
     lx2 = W_X(xctx->graph_values[sweep_idx][last]);
@@ -1773,7 +1773,7 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
       /* hex_digits = */
       get_bus_value(n_bits, hex_digits, idx_arr, p, busval, vthl, vthh);
       if(gr->logx) {
-        xval =  W_X(log10(xctx->graph_values[sweep_idx][p]));
+        xval =  W_X(mylog10(xctx->graph_values[sweep_idx][p]));
       } else {
         xval =  W_X(xctx->graph_values[sweep_idx][p]);
       }
@@ -1837,6 +1837,7 @@ static void draw_graph_points(int idx, int first, int last,
         point[poly_npoints].y = (short)CLIP(DS_Y(yy), xctx->areay1, xctx->areay2);
       } else {
         /* Build poly y array. Translate from graph coordinates to screen coordinates  */
+        if(gr->logy) yy = mylog10(yy);
         point[poly_npoints].y = (short)CLIP(S_Y(yy), xctx->areay1, xctx->areay2);
       }
       poly_npoints++;
@@ -1882,9 +1883,9 @@ static void draw_graph_grid(Graph_ctx *gr)
     wx = startx + j * deltax;
     if(gr->subdivx > 0) for(k = 1; k <=gr->subdivx; k++) {
       double subwx;
-      if(gr->logx)  {
-        subwx = wx + deltax * log10(1.0 + (double)k * 9.0 / ((double)gr->subdivx + 1.0)); 
-      } else
+      if(gr->logx)
+        subwx = wx + deltax * mylog10(1.0 + (double)k * 9.0 / ((double)gr->subdivx + 1.0)); 
+      else
         subwx = wx + deltax * (double)k / ((double)gr->subdivx + 1.0);
       if(!axis_within_range(subwx, gr->gx1, gr->gx2)) continue;
       if(axis_end(subwx, deltax, gr->gx2)) break;
@@ -1897,7 +1898,7 @@ static void draw_graph_grid(Graph_ctx *gr)
     drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy1), W_X(wx),   W_Y(gr->gy1) + mark_size, 0); /* axis marks */
     /* X-axis labels */
     if(gr->logx) 
-      draw_string(3, NOW, dtoa(pow(10, wx ) * gr->unitx), 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
+      draw_string(3, NOW, dtoa(pow(10, wx) * gr->unitx), 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
                 gr->txtsizex, gr->txtsizex);
     else
       draw_string(3, NOW, dtoa(wx * gr->unitx), 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
@@ -1908,12 +1909,16 @@ static void draw_graph_grid(Graph_ctx *gr)
   drawline(GRIDLAYER, ADD, W_X(gr->gx2),   W_Y(gr->gy2), W_X(gr->gx2),   W_Y(gr->gy1), 0);
   /* horizontal grid lines */
   if(!gr->digital) {
-    deltay = axis_increment(gr->gy1, gr->gy2, gr->divy, 0);
+    deltay = axis_increment(gr->gy1, gr->gy2, gr->divy, gr->logy);
     starty = axis_start(gr->gy1, deltay, gr->divy);
     for(j = -1;; j++) { /* start one interval before to allow sub grids at beginning */
       wy = starty + j * deltay;
       if(gr->subdivy > 0) for(k = 1; k <=gr->subdivy; k++) {
-        double subwy = wy + k * deltay / (gr->subdivy + 1);
+        double subwy;
+        if(gr->logy)
+          subwy = wy + deltay * mylog10(1.0 + (double)k * 9.0 / ((double)gr->subdivy + 1.0));
+        else
+          subwy = wy + deltay * (double)k / ((double)gr->subdivy + 1.0);
         if(!axis_within_range(subwy, gr->gy1, gr->gy2)) continue;
         if(axis_end(subwy, deltay, gr->gy2)) break;
         drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(subwy),   W_X(gr->gx2), W_Y(subwy), (int)dash_sizex);
@@ -1923,7 +1928,11 @@ static void draw_graph_grid(Graph_ctx *gr)
       drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(wy),   W_X(gr->gx2), W_Y(wy), (int)dash_sizex);
       drawline(GRIDLAYER, ADD, W_X(gr->gx1) - mark_size, W_Y(wy),   W_X(gr->gx1), W_Y(wy), 0); /* axis marks */
       /* Y-axis labels */
-      draw_string(3, NOW, dtoa(wy * gr->unity), 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
+      if(gr->logy)
+        draw_string(3, NOW, dtoa(pow(10, wy) * gr->unity), 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
+                  gr->txtsizey, gr->txtsizey);
+      else 
+        draw_string(3, NOW, dtoa(wy * gr->unity), 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
                   gr->txtsizey, gr->txtsizey);
     }
   }
@@ -2186,9 +2195,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
        my_strdup2(1155, &ntok_ptr, ntok);
     }
       
-    if(gr->logx && (strstr(ntok_ptr, "ph(") == ntok_ptr || strstr(ntok_ptr, "_ph"))) {
-      my_snprintf(tmpstr, S(tmpstr), "%s[Phase]", alias_ptr);
-    } else if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", alias_ptr, gr->unity_suffix);
+    if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", alias_ptr, gr->unity_suffix);
     else  my_snprintf(tmpstr, S(tmpstr), "%s", alias_ptr);
     my_free(1188, &alias_ptr);
     my_free(1189, &ntok_ptr);
@@ -2456,7 +2463,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
     last = ofs; 
     for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
       if(gr->logx) 
-        xx = log10(gv[p]);
+        xx = mylog10(gv[p]);
       else
         xx = gv[p];
       wrap = (sweep_idx == 0 && cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
@@ -2616,7 +2623,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
           prev_prev_x = prev_x = 0;
           last = ofs; 
           for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
-            if(gr->logx) xx = log10(gv[p]);
+            if(gr->logx) xx = mylog10(gv[p]);
             else  xx = gv[p];
             wrap = (sweep_idx == 0 && cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
             if(first != -1) {                      /* there is something to plot ... */
