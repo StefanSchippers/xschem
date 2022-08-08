@@ -708,10 +708,16 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               }
             } /* graph_master */
           } else { /* not graph_left */
+            int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", 1));
             int dset = dataset == -1 ? 0 : dataset;
+            if(idx < 0 ) idx = 0;
             if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-              xx1 = get_raw_value(dset, 0, 0);
-              xx2 = get_raw_value(dset, 0, xctx->graph_npoints[dset] -1);
+              xx1 = get_raw_value(dset, idx, 0);
+              xx2 = get_raw_value(dset, idx, xctx->graph_npoints[dset] -1);
+              if(gr->logx) {
+                xx1 = mylog10(xx1);
+                xx2 = mylog10(xx2);
+              }
               my_strdup(1409, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
               my_strdup(1412, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
               need_redraw = 1;
@@ -724,10 +730,16 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
         if(xctx->graph_values) {
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+            int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", 1));
             int dset = dataset == -1 ? 0 : dataset;
+            if(idx < 0 ) idx = 0;
             delta = gr->gw;
-            wwx1 =  get_raw_value(dset, 0, 0);
-            wwx2 = get_raw_value(dset, 0, xctx->graph_npoints[dset] - 1);
+            wwx1 =  get_raw_value(dset, idx, 0);
+            wwx2 = get_raw_value(dset, idx, xctx->graph_npoints[dset] - 1);
+            if(gr->logx) {
+              wwx1 = mylog10(wwx1);
+              wwx2 = mylog10(wwx2);
+            }
             ccx = (gr->x2 - gr->x1) / (wwx2 - wwx1);
             ddx = gr->x1 - wwx1 * ccx;
             p = (xctx->mousex_snap - ddx) / ccx;
