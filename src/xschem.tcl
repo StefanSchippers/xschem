@@ -1862,6 +1862,15 @@ proc graph_edit_properties {n} {
      -command {
        if { [xschem get schname] eq $graph_schname } {
          xschem setprop rect 2 $graph_selected logx $graph_logx fast
+         if { $graph_logx eq 1} {
+           xschem setprop rect 2 $graph_selected subdivx 8 fast
+           .graphdialog.top2.subdivx delete 0 end
+           .graphdialog.top2.subdivx insert 0 8
+         } else {
+           xschem setprop rect 2 $graph_selected subdivx 4 fast
+           .graphdialog.top2.subdivx delete 0 end
+           .graphdialog.top2.subdivx insert 0 4
+         }
          xschem draw_graph $graph_selected
        }
      }
@@ -1870,6 +1879,15 @@ proc graph_edit_properties {n} {
      -command {
        if { [xschem get schname] eq $graph_schname } {
          xschem setprop rect 2 $graph_selected logy $graph_logy fast
+         if { $graph_logy eq 1} {
+           xschem setprop rect 2 $graph_selected subdivy 8 fast
+           .graphdialog.top2.subdivy delete 0 end
+           .graphdialog.top2.subdivy insert 0 8
+         } else {
+           xschem setprop rect 2 $graph_selected subdivy 4 fast
+           .graphdialog.top2.subdivy delete 0 end
+           .graphdialog.top2.subdivy insert 0 4
+         }
          xschem draw_graph $graph_selected
        }
      }
