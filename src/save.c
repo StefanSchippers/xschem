@@ -822,7 +822,6 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
 double get_raw_value(int dataset, int idx, int point)
 {
   int i, ofs;
-  Graph_ctx *gr = &xctx->graph_struct;
   ofs = 0;
   if(xctx->graph_values) {
     if(dataset == -1) {

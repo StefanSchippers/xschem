@@ -1712,6 +1712,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1],"net_label"))
     {
       cmd_found = 1;
+      unselect_all();
       if(argc>=3) place_net_label(atoi(argv[2]));
     }
    
@@ -1870,6 +1871,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
       xctx->semaphore++;
       xctx->last_command = 0;
+      unselect_all();
       xctx->mx_double_save = xctx->mousex_snap;
       xctx->my_double_save = xctx->mousey_snap;
       if(place_text(0, xctx->mousex_snap, xctx->mousey_snap)) { /* 1 = draw text 24122002 */
