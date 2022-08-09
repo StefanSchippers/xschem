@@ -829,6 +829,12 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
      /* fputs(xctx->sch[xctx->currsch],fd); */
      fputs(xctx->current_name, fd);
    }
+   else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
+   {
+     const char *topsch;
+     topsch = get_trailing_path(xctx->sch[0], 0, 1);
+     fputs(topsch, fd);
+   }
    else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present  */
                                         /* in hash table. print multiplicity */
    {                                    /* and node number: m1 n1 m2 n2 .... */
@@ -1859,6 +1865,15 @@ int print_spice_element(FILE *fd, int inst)
         result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
         /* fputs(s,fd); */
       }
+      else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
+      {
+        const char *topsch;
+        topsch = get_trailing_path(xctx->sch[0], 0, 1);
+        tmp = strlen(topsch) + 100 ; /* always make room for some extra chars 
+                                                * so 1-char writes to result do not need reallocs */
+        STR_ALLOC(&result, tmp + result_pos, &size);
+        result_pos += my_snprintf(result + result_pos, tmp, "%s", topsch);
+      }
       else if(strcmp(token,"@schname")==0) /* of course schname must not be present in attributes */
       {
         tmp = strlen(xctx->current_name) +100 ; /* always make room for some extra chars 
@@ -2191,6 +2206,12 @@ void print_tedax_element(FILE *fd, int inst)
      /* fputs(xctx->sch[xctx->currsch],fd); */
      fputs(xctx->current_name, fd);
     }
+    else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
+    {
+      const char *topsch;
+      topsch = get_trailing_path(xctx->sch[0], 0, 1);
+      fputs(topsch, fd);
+    }
     else if(strcmp(token,"@pinlist")==0)        /* of course pinlist must not be present  */
                                         /* in hash table. print multiplicity */
     {                                   /* and node number: m1 n1 m2 n2 .... */
@@ -2405,6 +2426,12 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
     {
       /* fputs(xctx->sch[xctx->currsch],fd); */
       fputs(xctx->current_name, fd);
+    }
+    else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
+    {
+      const char *topsch;
+      topsch = get_trailing_path(xctx->sch[0], 0, 1);
+      fputs(topsch, fd);
     }
     else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present  */
                                          /* in hash table. print multiplicity */
@@ -2969,6 +2996,13 @@ const char *translate(int inst, const char* s)
      /* memcpy(result+result_pos,xctx->sch[xctx->currsch], tmp+1); */
      memcpy(result+result_pos, xctx->current_name, tmp+1);
      result_pos+=tmp;
+   } else if(strcmp(token,"@topschname")==0)  {
+      const char *topsch;
+      topsch = get_trailing_path(xctx->sch[0], 0, 1);
+      tmp = strlen(topsch);
+      STR_ALLOC(&result, tmp + result_pos, &size);
+      memcpy(result+result_pos, topsch, tmp+1);
+      result_pos+=tmp;
    } else if(strcmp(token,"@prop_ptr")==0 && xctx->inst[inst].prop_ptr) {
      tmp=strlen(xctx->inst[inst].prop_ptr);
      STR_ALLOC(&result, tmp + result_pos, &size);
