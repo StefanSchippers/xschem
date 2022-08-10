@@ -823,11 +823,15 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
    {
      fputs(get_cell_w_ext(xctx->inst[inst].name, 0), fd);
    }
-   else if(strcmp(token,"@schname")==0) /* of course schname must not be present  */
+   else if(strcmp(token,"@schname_ext")==0) /* of course schname must not be present  */
                                         /* in hash table */
    {
      /* fputs(xctx->sch[xctx->currsch],fd); */
      fputs(xctx->current_name, fd);
+   }
+   else if(strcmp(token,"@schname")==0)
+   {
+     fputs(get_cell(xctx->current_name, 0), fd);
    }
    else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
    {
@@ -1874,14 +1878,21 @@ int print_spice_element(FILE *fd, int inst)
         STR_ALLOC(&result, tmp + result_pos, &size);
         result_pos += my_snprintf(result + result_pos, tmp, "%s", topsch);
       }
-      else if(strcmp(token,"@schname")==0) /* of course schname must not be present in attributes */
+      else if(strcmp(token,"@schname_ext")==0) /* of course schname must not be present in attributes */
       {
         tmp = strlen(xctx->current_name) +100 ; /* always make room for some extra chars 
                                                 * so 1-char writes to result do not need reallocs */
         STR_ALLOC(&result, tmp + result_pos, &size);
         result_pos += my_snprintf(result + result_pos, tmp, "%s", xctx->current_name);
         /* fputs(xctx->current_name, fd); */
-
+      }
+      else if(strcmp(token,"@schname")==0) /* of course schname must not be present in attributes */
+      {
+        const char *schname = get_cell(xctx->current_name, 0);
+        tmp = strlen(schname) +100 ; /* always make room for some extra chars 
+                                      * so 1-char writes to result do not need reallocs */
+        STR_ALLOC(&result, tmp + result_pos, &size);
+        result_pos += my_snprintf(result + result_pos, tmp, "%s", schname);
       }
       else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present in attributes */
                                            /* print multiplicity */
@@ -2200,11 +2211,16 @@ void print_tedax_element(FILE *fd, int inst)
     {
       fputs(get_cell_w_ext(xctx->inst[inst].name, 0), fd);
     }
-    else if(strcmp(token,"@schname")==0)        /* of course schname must not be present  */
-                                        /* in hash table */
+    else if(strcmp(token,"@schname_ext")==0)        /* of course schname must not be present  */
+                                                /* in hash table */
     {
      /* fputs(xctx->sch[xctx->currsch],fd); */
      fputs(xctx->current_name, fd);
+    }
+    else if(strcmp(token,"@schname")==0)        /* of course schname must not be present  */
+                                                /* in hash table */
+    {
+     fputs(get_cell(xctx->current_name, 0), fd);
     }
     else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
     {
@@ -2421,11 +2437,16 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
     {
       fputs(get_cell_w_ext(xctx->inst[inst].name, 0), fd);
     }
-    else if(strcmp(token,"@schname")==0) /* of course schname must not be present  */
+    else if(strcmp(token,"@schname_ext")==0) /* of course schname must not be present  */
                                          /* in hash table */
     {
       /* fputs(xctx->sch[xctx->currsch],fd); */
       fputs(xctx->current_name, fd);
+    }
+    else if(strcmp(token,"@schname")==0) /* of course schname must not be present  */
+                                         /* in hash table */
+    {
+      fputs(get_cell(xctx->current_name, 0), fd);
     }
     else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
     {
@@ -2989,12 +3010,18 @@ const char *translate(int inst, const char* s)
       memcpy(result+result_pos, date, tmp+1);
       result_pos+=tmp;
     }
-   } else if(strcmp(token,"@schname")==0) {
+   } else if(strcmp(token,"@schname_ext")==0) {
      /* tmp=strlen(xctx->sch[xctx->currsch]);*/
      tmp = strlen(xctx->current_name);
      STR_ALLOC(&result, tmp + result_pos, &size);
      /* memcpy(result+result_pos,xctx->sch[xctx->currsch], tmp+1); */
      memcpy(result+result_pos, xctx->current_name, tmp+1);
+     result_pos+=tmp;
+   } else if(strcmp(token,"@schname")==0) {
+     const char *schname = get_cell(xctx->current_name, 0);
+     tmp = strlen(schname);
+     STR_ALLOC(&result, tmp + result_pos, &size);
+     memcpy(result+result_pos, schname, tmp+1);
      result_pos+=tmp;
    } else if(strcmp(token,"@topschname")==0)  {
       const char *topsch;
