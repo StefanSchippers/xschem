@@ -179,7 +179,13 @@
 #### instead of looking only in symbol directory. Default: disabled (0).
 # set search_schematic 0
 
-
+#### focus the schematic window if mouse goes over it, even if a dialog box
+#### is displayed, without needing to click.
+#### This allows to move/zoom/pan the schematic while editing attributes.
+#### Clicking in the schematic window usually closes the dialog box or starts
+#### editing a new component if clicking on a new component.
+#### default: enabled (1)
+# set autofocus_mainwindow 0
 ###########################################################################
 #### EXPORT FORMAT TRANSLATORS, PNG AND PDF
 ###########################################################################

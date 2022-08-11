@@ -4586,7 +4586,7 @@ proc no_open_dialogs {} {
 ## "case_insensitive" case insensitive symbol lookup (on case insensitive filesystems only!)
 
 set tctx::global_list {
-  auto_hilight autotrim_wires bespice_listen_port big_grid_points bus_replacement_char
+  auto_hilight autofocus_mainwindow autotrim_wires bespice_listen_port big_grid_points bus_replacement_char
   cadgrid cadlayers cadsnap cairo_font_name
   change_lw color_ps colors connect_by_kissing constrained_move copy_cell custom_label_prefix custom_token dark_colors
   dark_colorscheme dim_bg dim_value disable_unique_names do_all_inst draw_grid draw_window
@@ -4716,7 +4716,7 @@ proc clear_simulate_button {button_path simvar} {
 }
 
 proc set_bindings {topwin} {
-global env has_x OS
+global env has_x OS autofocus_mainwindow
   ###
   ### Tk event handling
   ###
@@ -4752,8 +4752,13 @@ global env has_x OS
     bind $topwin <ButtonRelease> "xschem callback %W %T %x %y 0 %b 0 %s"
     bind $topwin <KeyPress> "xschem callback %W %T %x %y %N 0 0 %s"
     bind $topwin <KeyRelease> "xschem callback %W %T %x %y %N 0 0 %s"
-    bind $topwin <Motion> "focus $topwin; xschem callback %W %T %x %y 0 0 0 %s"
-    bind $topwin <Enter> "destroy .ctxmenu; focus $topwin; xschem callback %W %T %x %y 0 0 0 0"
+    if {$autofocus_mainwindow} {
+      bind $topwin <Motion> "focus $topwin; xschem callback %W %T %x %y 0 0 0 %s"
+      bind $topwin <Enter> "destroy .ctxmenu; focus $topwin; xschem callback %W %T %x %y 0 0 0 0"
+    } else {
+      bind $topwin <Motion> "xschem callback %W %T %x %y 0 0 0 %s"
+      bind $topwin <Enter> "destroy .ctxmenu; xschem callback %W %T %x %y 0 0 0 0"
+    }
     bind $topwin <Unmap> " wm withdraw .infotext; set show_infowindow 0 "
     bind $topwin  "?" {textwindow "${XSCHEM_SHAREDIR}/xschem.help"}
   
@@ -5525,6 +5530,9 @@ set env(LC_ALL) C
 set_paths
 print_help_and_exit
 
+# focus the schematic window if mouse goes over it, even if a dialog box is displayed,
+# without needing to click. This allows to move/zoom/pan the schematic while editing attributes.
+set_ne autofocus_mainwindow 1
 if {$OS == "Windows"} {
   set_ne XSCHEM_TMP_DIR [xschem get temp_dir]
 } else {
