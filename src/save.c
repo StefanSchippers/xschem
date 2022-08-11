@@ -328,19 +328,19 @@ static int read_dataset(FILE *fd)
       }
       done_points = 0;
     }
-    else if(!strncmp(line, "Plotname: Transient Analysis", 28)) {
+    else if(!strncmp(line, "Plotname:", 9) && strstr(line, "Transient Analysis")) {
       if(xctx->graph_sim_type && xctx->graph_sim_type != 1) xctx->graph_sim_type = 0;
       else xctx->graph_sim_type = 1;
     }
-    else if(!strncmp(line, "Plotname: DC transfer characteristic", 36)) {
+    else if(!strncmp(line, "Plotname:", 9) && strstr(line, "DC transfer characteristic")) {
       if(xctx->graph_sim_type && xctx->graph_sim_type != 2) xctx->graph_sim_type = 0;
       else xctx->graph_sim_type = 2;
     }
-    else if(!strncmp(line, "Plotname: Operating Point", 25)) {
+    else if(!strncmp(line, "Plotname:", 9) && strstr(line, "Operating Point")) {
       if(xctx->graph_sim_type && xctx->graph_sim_type != 4) xctx->graph_sim_type = 0;
       else xctx->graph_sim_type = 4;
     }
-    else if(!strncmp(line, "Plotname: AC Analysis", 21)) {
+    else if(!strncmp(line, "Plotname:", 9) && strstr(line, "AC Analysis")) {
       if(xctx->graph_sim_type && xctx->graph_sim_type != 3) xctx->graph_sim_type = 0;
       else xctx->graph_sim_type = 3;
     }
