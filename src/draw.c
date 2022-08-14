@@ -1834,11 +1834,11 @@ static void draw_graph_points(int idx, int first, int last,
       if(digital) {
         yy = c + yy *s2;
         /* Build poly y array. Translate from graph coordinates to screen coordinates  */
-        point[poly_npoints].y = (short)CLIP(DS_Y(yy), xctx->areay1, xctx->areay2);
+        point[poly_npoints].y = (short)CLIP(DS_Y(yy), -30000, 30000);
       } else {
         /* Build poly y array. Translate from graph coordinates to screen coordinates  */
         if(gr->logy) yy = mylog10(yy);
-        point[poly_npoints].y = (short)CLIP(S_Y(yy), xctx->areay1, xctx->areay2);
+        point[poly_npoints].y = (short)CLIP(S_Y(yy), -30000, 30000);
       }
       poly_npoints++;
     }
