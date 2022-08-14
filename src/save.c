@@ -344,6 +344,10 @@ static int read_dataset(FILE *fd)
       if(xctx->graph_sim_type && xctx->graph_sim_type != 3) xctx->graph_sim_type = 0;
       else xctx->graph_sim_type = 3;
     }
+    else if(!strncmp(line, "Plotname:", 9) && strstr(line, "constants")) {
+      if(xctx->graph_sim_type && xctx->graph_sim_type != 2) xctx->graph_sim_type = 0;
+      else xctx->graph_sim_type = 2;
+    }
     else if(!strncmp(line, "Plotname:", 9)) {
       xctx->graph_sim_type = 0;
     }
