@@ -4,7 +4,7 @@ K {}
 V {}
 S {}
 E {}
-B 2 1060 -550 1690 -70 {flags=graph
+B 2 1060 -430 1690 -70 {flags=graph
 y1=1.16665
 y2=5.05705
 divy=4
@@ -19,12 +19,25 @@ v(minus)"
 color="7 8 10"
 
 }
+B 2 1060 -690 1690 -440 {flags=graph
+y1=0
+y2=130
+divy=4
+subdivy=1
+x1=2.3
+x2=2.7
+divx=6
+subdivx=1
+node="\\"GAIN;diffout deriv()\\""
+color=7
+
+}
 T {CMOS DIFFERENTIAL AMPLIFIER
-EXAMPLE. DC simulation} 140 -730 0 0 0.4 0.4 {}
+EXAMPLE. DC simulation} 40 -710 0 0 0.4 0.4 {}
 T {This is an example of a code block that will
 be placed as a header in the netlist.
 use 'place=header' attribute and set the
-header text as a 'value' attribute} 720 -720 0 0 0.4 0.4 {}
+header text as a 'value' attribute} 480 -740 0 0 0.4 0.4 {}
 N 30 -310 30 -280 {lab=VCC}
 N 30 -310 60 -310 {lab=VCC}
 N 260 -240 260 -190 {lab=GN}
@@ -138,7 +151,7 @@ only_toplevel=true
 value="** ======================== **
 ** This is a netlist header **
 ** ======================== **"}
-C {launcher.sym} 1125 -585 0 0 {name=h3 
+C {launcher.sym} 1095 -805 0 0 {name=h3 
 descr="Select arrow and 
 Ctrl key + Left-button-Click to load/unload waveforms" 
 tclcommand="
@@ -148,7 +161,7 @@ xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]
 C {launcher.sym} 1300 -50 0 0 {name=h4
 descr="Graph Manual page"
 url="https://xschem.sourceforge.io/stefan/xschem_man/graphs.html"}
-C {launcher.sym} 1260 -670 0 0 {name=h5 
+C {launcher.sym} 1230 -890 0 0 {name=h5 
 descr=" Ctrl-Left-Click to load/unload
 embedded waveforms" 
 tclcommand="xschem raw_read_from_attr"
