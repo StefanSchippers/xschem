@@ -1085,8 +1085,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       /* xschem getprop symbol lm358.sym [type] */
       } else if( !strcmp(argv[2],"symbol")) {
         int i, found=0;
-        if(argc!=5 && argc !=4) {
-          Tcl_SetResult(interp, "xschem getprop needs 2 or 3 additional arguments", TCL_STATIC);
+        if(argc!=5 && argc !=4 && argc !=6) {
+          Tcl_SetResult(interp, "xschem getprop symbol needs 1 or 2 or 3 additional arguments", TCL_STATIC);
           return TCL_ERROR;
         }
         for(i=0; i<xctx->symbols; i++) {
@@ -1101,8 +1101,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         if(argc == 4)
           Tcl_SetResult(interp, xctx->sym[i].prop_ptr, TCL_VOLATILE);
-        else
+        else if(argc == 5) 
           Tcl_SetResult(interp, (char *)get_tok_value(xctx->sym[i].prop_ptr, argv[4], 0), TCL_VOLATILE);
+        else if(argc > 5) 
+          Tcl_SetResult(interp, (char *)get_tok_value(xctx->sym[i].prop_ptr, argv[4], atoi(argv[5])), TCL_VOLATILE);
+ 
       } else if (!strcmp(argv[2],"rect")) {
         if(argc <=5) {
           Tcl_SetResult(interp, "xschem getprop rect needs <color> <n> <token>", TCL_STATIC);

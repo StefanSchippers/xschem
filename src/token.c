@@ -743,9 +743,9 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
  if(!name) my_strdup(50, &name, get_tok_value(template, "name", 0));
 
  /* allow format string override in instance */
- my_strdup(1000, &format, get_tok_value(xctx->inst[inst].prop_ptr,"vhdl_format",0));
+ my_strdup(1000, &format, get_tok_value(xctx->inst[inst].prop_ptr,"vhdl_format",2));
  if(!format || !format[0])
-   my_strdup(516, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"vhdl_format",0));
+   my_strdup(516, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"vhdl_format",2));
  if((name==NULL) || (format==NULL) ) {
    my_free(1047, &template);
    my_free(1048, &name);
@@ -1156,7 +1156,7 @@ void print_vhdl_element(FILE *fd, int inst)
   int escape=0;
   xRect *pinptr;
 
-  if(get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"vhdl_format", 0)[0] != '\0') {
+  if(get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"vhdl_format", 2)[0] != '\0') {
    print_vhdl_primitive(fd, inst);
    return;
   }
@@ -1508,7 +1508,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
  int escape=0;
  int no_of_pins=0;
 
- my_strdup(460, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",0));
+ my_strdup(460, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
  if( format==NULL ) {
    my_free(473, &format);
    return; /* no format */
@@ -1617,7 +1617,7 @@ void print_spice_subckt(FILE *fd, int symbol)
  int escape=0;
  int no_of_pins=0;
 
- my_strdup(103, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",0));
+ my_strdup(103, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
  if( format==NULL ) {
    my_free(1012, &format);
    return; /* no format */
@@ -1744,9 +1744,9 @@ int print_spice_element(FILE *fd, int inst)
   if (!name) my_strdup(43, &name, get_tok_value(template, "name", 0));
 
   /* allow format string override in instance */
-  my_strdup(470, &format, get_tok_value(xctx->inst[inst].prop_ptr,"format",0));
+  my_strdup(470, &format, get_tok_value(xctx->inst[inst].prop_ptr,"format",2));
   if(!format || !format[0])
-     my_strdup(486, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"format",0));
+     my_strdup(486, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"format",2));
 
   if ((name==NULL) || (format==NULL)) {
     my_free(1015, &template);
@@ -2061,9 +2061,9 @@ void print_tedax_element(FILE *fd, int inst)
  if(!name) my_strdup(2, &name, get_tok_value(template, "name", 0));
 
  /* allow format string override in instance */
- my_strdup(1185, &format, get_tok_value(xctx->inst[inst].prop_ptr,"tedax_format",0));
+ my_strdup(1185, &format, get_tok_value(xctx->inst[inst].prop_ptr,"tedax_format",2));
  if(!format || !format[0])
-   my_strdup(497, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"tedax_format",0));
+   my_strdup(497, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"tedax_format",2));
 
  no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
  if( !format && !strcmp((xctx->inst[inst].ptr + xctx->sym)->type, "subcircuit") ) {
@@ -2357,9 +2357,9 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
   if(!name) my_strdup(4, &name, get_tok_value(template, "name", 0));
 
   /* allow format string override in instance */
-  my_strdup(1186, &format, get_tok_value(xctx->inst[inst].prop_ptr,"verilog_format",0));
+  my_strdup(1186, &format, get_tok_value(xctx->inst[inst].prop_ptr,"verilog_format",2));
   if(!format || !format[0])
-    my_strdup(522, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"verilog_format",0));
+    my_strdup(522, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"verilog_format",2));
   if((name==NULL) || (format==NULL) ) {
     my_free(1054, &template);
     my_free(1055, &name);
@@ -2550,7 +2550,7 @@ void print_verilog_element(FILE *fd, int inst)
  size_t token_pos=0, value_pos=0;
  int quote=0;
 
- if(get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"verilog_format",0)[0] != '\0') {
+ if(get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"verilog_format",2)[0] != '\0') {
   print_verilog_primitive(fd, inst);
   return;
  }
