@@ -123,14 +123,17 @@ const char *tcl_hook2(char **res)
 {
   static char *result = NULL;
   static const char *empty="";
+  char *unescaped_res;
 
   if(res == NULL || *res == NULL) {
     my_free(1285, &result);
     return empty;
   }
   if(strstr(*res, "tcleval(") == *res) {
-    tclvareval("tclpropeval2 {", *res, "}" , NULL);
+    unescaped_res = str_replace(*res, "\\}", "}");
+    tclvareval("tclpropeval2 {", unescaped_res, "}" , NULL);
     my_strdup2(1286, &result, tclresult());
+    my_free(1245, &unescaped_res);
     return result;
   } else {
     return *res;
@@ -508,12 +511,14 @@ const char *get_sym_template(char *s,char *extra)
 /* 2: eat backslashes */
 /* 3: 1+2  :) */
 
+ dbg(1, "get_sym_template(): s=%s, extra=%s\n", s, extra);
  if(s==NULL) {
    my_free(978, &result);
    return "";
  }
  l = strlen(s);
  STR_ALLOC(&result, l+1, &sizeres);
+ result[0] = '\0';
  sizetok = sizeval = CADCHUNKALLOC;
  my_realloc(438, &value,sizeval);
  my_realloc(439, &token,sizetok);
@@ -1610,14 +1615,17 @@ void print_spice_subckt(FILE *fd, int symbol)
  int i=0, multip;
  const char *str_ptr=NULL;
  register int c, state=TOK_BEGIN, space;
- char *format=NULL,*s, *token=NULL;
+ char *format=NULL, *format1 = NULL, *s, *token=NULL;
  int pin_number;
  size_t sizetok=0;
  size_t token_pos=0;
  int escape=0;
  int no_of_pins=0;
 
- my_strdup(103, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
+ my_strdup(103, &format1, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
+ dbg(1, "print_spice_subckt(): format1=%s\n", format1);
+ my_strdup(455, &format,  tcl_hook2(&format1));
+ dbg(1, "print_spice_subckt(): format=%s\n", format);
  if( format==NULL ) {
    my_free(1012, &format);
    return; /* no format */
@@ -1680,7 +1688,7 @@ void print_spice_subckt(FILE *fd, int symbol)
        if(!strcmp(get_tok_value(prop, "name",0), token + 2)) break;
      }
      if(i<no_of_pins && strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
-       fprintf(fd, "%s ", expandlabel(token+2, &multip));
+       fprintf(fd, "%s", expandlabel(token+2, &multip));
      }
    }
    /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
@@ -1712,6 +1720,7 @@ void print_spice_subckt(FILE *fd, int symbol)
    break ;
   }
  }
+ my_free(1072, &format1);
  my_free(1013, &format);
  my_free(1014, &token);
 }
@@ -1724,7 +1733,7 @@ int print_spice_element(FILE *fd, int inst)
   register int c, state=TOK_BEGIN, space;
   char *template=NULL,*format=NULL,*s, *name=NULL,  *token=NULL;
   const char *lab, *value = NULL;
-  char *translatedvalue = NULL;
+  /* char *translatedvalue = NULL; */
   int pin_number;
   size_t sizetok=0;
   size_t token_pos=0;
@@ -1988,9 +1997,9 @@ int print_spice_element(FILE *fd, int inst)
 
   /* do one level of substitutions to resolve @params and equations*/
   if(result && strstr(result, "tcleval(")== result) {
-    dbg(1, "print_spice_element(): before translate()result=%s\n", result);
+    dbg(1, "print_spice_element(): before translate() result=%s\n", result);
     my_strdup(22, &result, translate(inst, result));
-    dbg(1, "print_spice_element(): after  translate()result=%s\n", result);
+    dbg(1, "print_spice_element(): after  translate() result=%s\n", result);
   }
 
 
@@ -2012,14 +2021,14 @@ int print_spice_element(FILE *fd, int inst)
   #endif
 
 
-  fprintf(fd, "%s", result);
+  if(result) fprintf(fd, "%s", result);
   my_free(1019, &template);
   my_free(1020, &format);
   my_free(1021, &name);
   my_free(1022, &token);
   my_free(1194, &result);
   my_free(298, &spiceprefixtag);
-  my_free(455, &translatedvalue);
+  /* my_free(455, &translatedvalue); */
   return 1;
 }
 

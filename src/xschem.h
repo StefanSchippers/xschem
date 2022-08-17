@@ -1374,6 +1374,7 @@ extern void hilight_parent_pins(void);
 extern void hilight_net_pin_mismatches(void);
 extern Node_hashentry **get_node_table_ptr(void);
 extern void change_elem_order(void);
+extern char *str_replace(char *orig, char *rep, char *with);
 extern int set_different_token(char **s,const char *new, const char *old, int object, int n);
 extern void print_hilight_net(int show);
 extern void list_hilights(void);
