@@ -133,7 +133,6 @@ const char *tcl_hook2(char **res)
     unescaped_res = str_replace(*res, "\\}", "}");
     tclvareval("tclpropeval2 {", unescaped_res, "}" , NULL);
     my_strdup2(1286, &result, tclresult());
-    my_free(1245, &unescaped_res);
     return result;
   } else {
     return *res;

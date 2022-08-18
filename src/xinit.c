@@ -648,6 +648,7 @@ static void delete_schematic_data(void)
   /* delete instances, wires, lines, rects, arcs, polys, texts, hash_inst, hash_wire, 
    * inst & wire .node fields, instance name hash */
   remove_symbols();
+  str_replace(NULL, NULL, NULL);
   free_rawfile(0);
   free_xschem_data(); /* delete the xctx struct */
 }

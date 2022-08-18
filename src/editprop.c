@@ -1263,52 +1263,39 @@ void change_elem_order(void)
   }
 }
 
-/* You must free the result if result is non-NULL. */
-char *str_replace(char *orig, char *rep, char *with)
+char *str_replace(const char *s, const char *rep, const char *with)
 {
-    char *result; /* the return string */
-    char *ins;    /* the next insert point */
-    char *tmp;    /* varies */
-    size_t len_rep;  /* length of rep (the string to remove) */
-    size_t len_with; /* length of with (the string to replace rep with) */
-    size_t len_front; /* distance between rep and end of last rep */
-    int count;    /* number of replacements */
+  static char *result = NULL;
+  static size_t size=0;
+  size_t result_pos = 0;
+  size_t rep_len;
+  size_t with_len;
 
-    /* sanity checks and initialization */
-    if (!orig || !rep)
-        return NULL;
-    len_rep = strlen(rep);
-    if (len_rep == 0)
-        return NULL; /* empty rep causes infinite loop during count */
-    if (!with)
-        with = "";
-    len_with = strlen(with);
-
-    /* count the number of replacements needed */
-    ins = orig;
-    for (count = 0; (tmp = strstr(ins, rep)); ++count) {
-        ins = tmp + len_rep;
+  if(s==NULL || rep == NULL || with == NULL || rep[0] == '\0') {
+    my_free(1244, &result);
+    size = 0;
+    return NULL;
+  }
+  rep_len = strlen(rep);
+  with_len = strlen(with);
+  dbg(1, "str_replace(): %s, %s, %s\n", s, rep, with);
+  if( size == 0 ) {
+    size = CADCHUNKALLOC;
+    my_realloc(1245, &result, size);
+  }
+  while(*s) {
+    STR_ALLOC(&result, result_pos + with_len + 1, &size);
+    if(!strncmp(s, rep, rep_len)) {
+      my_strncpy(result + result_pos, with, with_len + 1);
+      result_pos += with_len;
+      s += rep_len;
+    } else {
+      result[result_pos++] = *s++;
     }
-
-    tmp = result = my_malloc(1244, strlen(orig) + (len_with - len_rep) * count + 1);
-
-    if (!result)
-        return NULL;
-
-    /* first time through the loop, all the variable are set correctly */
-    /* from here on, */
-    /*    tmp points to the end of the result string */
-    /*    ins points to the next occurrence of rep in orig */
-    /*    orig points to the remainder of orig after "end of rep" */
-    while (count--) {
-        ins = strstr(orig, rep);
-        len_front = ins - orig;
-        tmp = strncpy(tmp, orig, len_front) + len_front;
-        tmp = strcpy(tmp, with) + len_with;
-        orig += len_front + len_rep; /* move to next "end of rep" */
-    }
-    strcpy(tmp, orig);
-    return result;
+  }
+  result[result_pos] = '\0';
+  dbg(1, "str_replace(): returning %s\n", result);
+  return result;
 }
 
 /* x=0 use tcl text widget  x=1 use vim editor  x=2 only view data */
