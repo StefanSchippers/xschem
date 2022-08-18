@@ -497,7 +497,7 @@ void spice_block_netlist(FILE *fd, int i)
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
   fprintf(fd, "** sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
   fprintf(fd, "** sch_path: %s\n", filename);
-  fprintf(fd, ".subckt %s ",skip_dir(xctx->sym[i].name));
+  fprintf(fd, ".subckt %s",skip_dir(xctx->sym[i].name));
   print_spice_subckt(fd, i);
 
   my_strdup(387, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
