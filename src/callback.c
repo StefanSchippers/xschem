@@ -188,10 +188,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   Graph_ctx *gr;
   const char *val;
   int i, need_all_redraw = 0, need_redraw = 0, dataset = 0;
-  double xx1, xx2, yy1, yy2;
+  double xx1, xx2, yy1, yy2, tmp;
   double delta_threshold = 0.25;
   double zoom_m = 0.5;
   int save_mouse_at_end = 0, clear_graphpan_at_end = 0;
+  xRect *r;
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
@@ -200,7 +201,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   #endif
   gr = &xctx->graph_struct;
   for(i=0; i < xctx->rects[GRIDLAYER]; i++) {
-    xRect *r;
     if( (xctx->ui_state & GRAPHPAN) && i != xctx->graph_master) continue;
     r = &xctx->rect[GRIDLAYER][i];
     /* process only graph boxes */
@@ -303,6 +303,34 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   if(gr->master_gx1 == gr->master_gx2) gr->master_gx2 += 1e-6;
   gr->master_gw = gr->master_gx2 - gr->master_gx1;
 
+  /* parameters for absolute positioning by mouse drag in bottom graph area */
+  if( event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
+    int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", 1));
+    int dset = dataset == -1 ? 0 : dataset;
+    double wwx1, wwx2, pp, delta, ccx, ddx;
+    if(idx < 0 ) idx = 0;
+    delta = gr->gw;
+    wwx1 =  get_raw_value(dset, idx, 0);
+    wwx2 = get_raw_value(dset, idx, xctx->graph_npoints[dset] - 1);
+    if(gr->logx) {
+      wwx1 = mylog10(wwx1);
+      wwx2 = mylog10(wwx2);
+    }
+    ccx = (gr->x2 - gr->x1) / (wwx2 - wwx1);
+    ddx = gr->x1 - wwx1 * ccx;
+    pp = (xctx->mousex_snap - ddx) / ccx;
+    xx1 = pp - delta / 2.0;
+    xx2 = pp + delta / 2.0;
+  }
+  else if(button == Button3 && (xctx->ui_state & GRAPHPAN) && !xctx->graph_left && !xctx->graph_top) {
+    /* parameters for zoom area by mouse drag */
+    xx1 = G_X(xctx->mx_double_save);
+    xx2 = G_X(xctx->mousex_snap);
+    if(xx2 < xx1) { tmp = xx1; xx1 = xx2; xx2 = tmp; }
+    if(xx1 == xx2) xx2 += 1e-6;
+  }
+
+
   /* second loop: after having determined the master graph do the others */
   for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
     xRect *r;
@@ -397,6 +425,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           save_mouse_at_end = 1;
           delta = gr->gw;
           delta_threshold = 0.01;
+          /* selected or locked or master */
           if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
             if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->cx * delta) * delta_threshold) {
               xx1 = gr->gx1 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
@@ -430,6 +459,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           }
         } else {
+          /* selected or locked or master */
           if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
             delta = gr->gw;
             delta_threshold = 0.05;
@@ -488,6 +518,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           }
         } else {
+          /* selected or locked or master */
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
             delta = gr->gw;
             delta_threshold = 0.05;
@@ -553,6 +584,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           }
         } else {
+          /* selected or locked or master */
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
             double var = 0.2 * gr->gw;
             xx2 = gr->gx2 + var * (1 - zoom_m);
@@ -565,6 +597,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       else if(key == XK_Down) {
         if(!xctx->graph_left) {
+          /* selected or locked or master */
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
             double var = 0.2 * gr->gw;
             xx2 = gr->gx2 + var * (1 - zoom_m);
@@ -603,6 +636,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
           }
         } else {
+          /* selected or locked or master */
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
             double var = 0.2 * gr->gw;
             xx2 = gr->gx2 - var * (1 - zoom_m);
@@ -615,6 +649,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       else if(key == XK_Up) {
         if(!xctx->graph_left) {
+          /* selected or locked or master */
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
             double var = 0.2 * gr->gw;
             xx2 = gr->gx2 - var * (1 - zoom_m);
@@ -627,7 +662,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       else if(key == 'f') {
         if(xctx->graph_values) {
-          if(xctx->graph_left) {
+          if(xctx->graph_left) { /* full Y zoom*/
             if(i == xctx->graph_master) {
               if(!gr->digital) {
                 int dset;
@@ -707,10 +742,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                 need_redraw = 1;
               }
             } /* graph_master */
-          } else { /* not graph_left */
+          } else { /* not graph_left, full X zoom*/ 
             int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", 1));
             int dset = dataset == -1 ? 0 : dataset;
             if(idx < 0 ) idx = 0;
+            /* selected or locked or master */
             if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
               xx1 = get_raw_value(dset, idx, 0);
               xx2 = get_raw_value(dset, idx, xctx->graph_npoints[dset] -1);
@@ -725,13 +761,20 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         } /* graph_values */
       } /* key == 'f' */
+      /* absolute positioning by mouse drag in bottom graph area */
       else if( event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
-        double wwx1, wwx2, p, delta, ccx, ddx;
 
         if(xctx->graph_values) {
+          /* selected or locked or master */
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+
+            /*
+             * this calculation is done in 1st loop, only for master graph 
+             * and applied to all locked graphs 
             int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", 1));
             int dset = dataset == -1 ? 0 : dataset;
+            double wwx1, wwx2, pp, delta, ccx, ddx;
+
             if(idx < 0 ) idx = 0;
             delta = gr->gw;
             wwx1 =  get_raw_value(dset, idx, 0);
@@ -742,9 +785,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             }
             ccx = (gr->x2 - gr->x1) / (wwx2 - wwx1);
             ddx = gr->x1 - wwx1 * ccx;
-            p = (xctx->mousex_snap - ddx) / ccx;
-            xx1 = p - delta / 2.0;
-            xx2 = p + delta / 2.0;
+            pp = (xctx->mousex_snap - ddx) / ccx;
+            xx1 = pp - delta / 2.0;
+            xx2 = pp + delta / 2.0;
+            */
+
             my_strdup(1442, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
             my_strdup(1443, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
@@ -760,14 +805,20 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* zoom area by mouse drag */
       else if(button == Button3 && (xctx->ui_state & GRAPHPAN) && 
               !xctx->graph_left && !xctx->graph_top) {
+        /* selected or locked or master */
         if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
           if(xctx->mx_double_save != xctx->mousex_snap) {
-            double tmp;
             clear_graphpan_at_end = 1;
+
+            /* 
+             * this calculation is done in 1st loop above,
+             * only for graph master and applied to all locked  graphs
             xx1 = G_X(xctx->mx_double_save);
             xx2 = G_X(xctx->mousex_snap);
             if(xx2 < xx1) { tmp = xx1; xx1 = xx2; xx2 = tmp; }
             if(xx1 == xx2) xx2 += 1e-6;
+            */
+
             my_strdup(1440, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
             my_strdup(1441, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
