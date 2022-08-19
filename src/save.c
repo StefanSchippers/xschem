@@ -1970,6 +1970,8 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   if(xctx->hilight_nets && load_symbols) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
+  /* warning if two symbols perfectly overlapped */
+  warning_overlapped_symbols();
 }
 
 void clear_undo(void)

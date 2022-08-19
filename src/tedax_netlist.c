@@ -172,6 +172,8 @@ void global_tedax_netlist(int global)  /* netlister driver */
 
  fprintf(fd, "end netlist\n");
 
+ /* warning if two symbols perfectly overlapped */
+ warning_overlapped_symbols();
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(149, xctx->instances, sizeof(unsigned int));
  for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].color;
@@ -237,5 +239,4 @@ void global_tedax_netlist(int global)  /* netlister driver */
  if(!debug_var) xunlink(netl_filename);
  xctx->netlist_count = 0;
 }
-
 
