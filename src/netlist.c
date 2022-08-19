@@ -1046,45 +1046,28 @@ void prepare_netlist_structs(int for_netlist)
   /* propagate_hilights(1, 0, XINSERT_NOREPLACE);*/
 }
 
-
-static size_t double_hash(double e)
-{
-  union {
-      double a;
-      size_t i;
-  } x;
-  if (e == 0.0) e = 0.0; /* avoid -0.0 */
-  x.i = 0;
-  x.a = e;
-  return x.i;
-}
-
 int warning_overlapped_symbols()
 {
   int i;
   Int_hashentry *table[HASHSIZE];
-  size_t hash;
   Int_hashentry *found;
   char str[2048];
-  char s[40];
+  char s[512];
 
   memset(table, 0, HASHSIZE * sizeof(Int_hashentry *));
   for(i = 0; i < xctx->instances; i++) {
-    hash = 5381;
     dbg(1, "instance:%s: %s\n", xctx->inst[i].instname, xctx->inst[i].name);
-    hash += (hash << 5) + double_hash(xctx->inst[i].xx1);
-    hash += (hash << 5) + double_hash(xctx->inst[i].yy1);
-    hash += (hash << 5) + double_hash(xctx->inst[i].xx2);
-    hash += (hash << 5) + double_hash(xctx->inst[i].yy2);
-    sprintf(s, "%lu", hash);
-    dbg(1, "bbox: %g %g %g %g\n", xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2);
-    dbg(1, "  hash=%lu, s=%s\n", hash, s);
-    found =  int_hash_lookup(table, s, 1, XINSERT_NOREPLACE);
+    my_snprintf(s, S(s), "%g %g %g %g",
+       xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2);
+
+    dbg(1, "  bbox: %g %g %g %g\n", xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2);
+    dbg(1, "  s=%s\n", s);
+    found =  int_hash_lookup(table, s, i, XINSERT_NOREPLACE);
     if(found) {
       xctx->inst[i].color = -PINLAYER;
       xctx->hilight_nets=1;
-      my_snprintf(str, S(str), "Warning: overlapped instance found: %s(%s)\n",
-            xctx->inst[i].instname, xctx->inst[i].name);
+      my_snprintf(str, S(str), "Warning: overlapped instance found: %s(%s) -> %s\n",
+            xctx->inst[i].instname, xctx->inst[i].name, xctx->inst[found->value].instname);
       statusmsg(str,2);
       tcleval("show_infotext"); /* critical error: force ERC window showing */
     }
