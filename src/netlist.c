@@ -1047,33 +1047,26 @@ void prepare_netlist_structs(int for_netlist)
 }
 
 
-static int double_hash(double e)
+static size_t double_hash(double e)
 {
   union {
       double a;
-      struct {
-        int a;
-        int b;
-      } i;
+      size_t i;
   } x;
-
-  /* Make both representations of 0.0 hash to the same value
-   * 0.0 and -0.0
-   * Since -0.0 has a different binary representation than 0.0
-   * And 0.0 == -0.0 is always true
-   */
-  if (e == 0.0) e = 0.0; /* if e == -0.0, now it is 0.0 */
-
+  if (e == 0.0) e = 0.0; /* avoid -0.0 */
+  x.i = 0;
   x.a = e;
-  return 5381 + (x.i.a << 5) + x.i.b;
+  return x.i;
 }
+
 int warning_overlapped_symbols()
 {
   int i;
   Int_hashentry *table[HASHSIZE];
-  int hash;
+  size_t hash;
   Int_hashentry *found;
   char str[2048];
+  char s[40];
 
   memset(table, 0, HASHSIZE * sizeof(Int_hashentry *));
   for(i = 0; i < xctx->instances; i++) {
@@ -1083,9 +1076,10 @@ int warning_overlapped_symbols()
     hash += (hash << 5) + double_hash(xctx->inst[i].yy1);
     hash += (hash << 5) + double_hash(xctx->inst[i].xx2);
     hash += (hash << 5) + double_hash(xctx->inst[i].yy2);
+    sprintf(s, "%lu", hash);
     dbg(1, "bbox: %g %g %g %g\n", xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2);
-    dbg(1, "  hash=%d\n", hash);
-    found =  int_hash_lookup(table, my_itoa(hash), 1, XINSERT_NOREPLACE);
+    dbg(1, "  hash=%lu, s=%s\n", hash, s);
+    found =  int_hash_lookup(table, s, 1, XINSERT_NOREPLACE);
     if(found) {
       xctx->inst[i].color = -PINLAYER;
       xctx->hilight_nets=1;
@@ -1093,50 +1087,7 @@ int warning_overlapped_symbols()
             xctx->inst[i].instname, xctx->inst[i].name);
       statusmsg(str,2);
       tcleval("show_infotext"); /* critical error: force ERC window showing */
-
-
     }
-  }
-  int_hash_free(table);
-  return 0;
-}
-
-
-int xxwarning_overlapped_symbols()
-{
-  int i, j, rects;
-  xSymbol *sym;
-  xRect *rct;
-  double x0, y0, px0, py0, rpx0, rpy0;
-  int symrot, symflip;
-  Int_hashentry *table[HASHSIZE];
-  int hash;
-  Int_hashentry *found;
-
-  memset(table, 0, HASHSIZE * sizeof(Int_hashentry *));
-  for(i = 0; i < xctx->instances; i++) {
-    sym = xctx->inst[i].ptr+ xctx->sym;
-    rct=sym->rect[PINLAYER];
-    x0 = xctx->inst[i].x0;
-    y0 = xctx->inst[i].y0;
-    symrot = xctx->inst[i].rot;
-    symflip = xctx->inst[i].flip;
-    rects = sym->rects[PINLAYER];
-    hash = 5381;
-    dbg(0, "instance:%s\n", xctx->inst[i].instname);
-    for(j = 0; j < rects; j++) {
-      px0 = (rct[j].x1+rct[j].x2)/2;
-      py0 = (rct[j].y1+rct[j].y2)/2;
-      ROTATION(symrot, symflip, 0.0,0.0,px0,py0,rpx0,rpy0);
-      rpx0 += x0;
-      rpy0 += y0;
-      hash += (hash << 5) + double_hash(rpx0);
-      hash += (hash << 5) + double_hash(rpy0);
-      dbg(0, "    rpx0=%g rpy0=%g\n", rpx0, rpy0);
-    }
-    dbg(0, "  hash=%d\n", hash);
-    found =  int_hash_lookup(table, xctx->inst[i].instname, hash, XINSERT_NOREPLACE);
-    if(found) dbg(0, "Warning: overlapped instance found: %d\n", i);
   }
   int_hash_free(table);
   return 0;
