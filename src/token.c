@@ -490,6 +490,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
 }
 
 /* return template string excluding name=... and token=value where token listed in extra */
+/* drop spiceprefix attribute */
 const char *get_sym_template(char *s,char *extra)
 {
  static char *result=NULL;
@@ -546,7 +547,7 @@ const char *get_sym_template(char *s,char *extra)
 
   } else if(state==TOK_END) {
     value[value_pos]='\0';
-    if((!extra || !strstr(extra, token)) && strcmp(token,"name")) {
+    if((!extra || !strstr(extra, token)) && strcmp(token,"name") && strcmp(token,"spiceprefix")) {
       memcpy(result+result_pos, value, value_pos+1);
       result_pos+=value_pos;
     }
@@ -557,7 +558,7 @@ const char *get_sym_template(char *s,char *extra)
   } else if(state==TOK_ENDTOK || state==TOK_SEP) {
     if(token_pos) {
       token[token_pos]='\0';
-      if((!extra || !strstr(extra, token)) && strcmp(token,"name")) {
+      if((!extra || !strstr(extra, token)) && strcmp(token,"name") && strcmp(token,"spiceprefix")) {
         memcpy(result+result_pos, token, token_pos+1);
         result_pos+=token_pos;
         result[result_pos++] = (char)c;

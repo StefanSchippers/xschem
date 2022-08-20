@@ -333,3 +333,91 @@ int find_gui_wgl(const char *name, int logdepth, int fatal)
 	if (try_icl(logdepth, node, test_c, "#include <wingdi.h>", NULL, "-lopengl32")) return 0;
 	return try_fail(logdepth, node);
 }
+
+static int accept_glfw(char *stdout_str)
+{
+	int major = 0, minor = 0, rev = 0;
+	char tmp[32];
+
+	if ((stdout_str[0] != 'O') || (stdout_str[1] != 'K'))
+		return 0;
+
+	sscanf(stdout_str + 2, "%d %d %d", &major, &minor, &rev);
+	sprintf(tmp, "%d", major); put("libs/gui/glfw/ver/major", tmp);
+	sprintf(tmp, "%d", minor); put("libs/gui/glfw/ver/minor", tmp);
+	sprintf(tmp, "%d", rev);   put("libs/gui/glfw/ver/rev", tmp);
+
+	return 1;
+}
+
+int find_glfw(const char *name, int logdepth, int fatal)
+{
+	const char *test_c =
+		NL "#include <stdio.h>"
+		NL "int main()"
+		NL "{"
+		NL "	int major = 0, minor = 0, rev = 0;"
+		NL "	glfwGetVersion(&major, &minor, &rev);"
+		NL "	if (major > 0)"
+		NL "		printf(\"OK %d %d %d\\n\", major, minor, rev);"
+		NL "	return 0;"
+		NL "}"
+		NL;
+	const char *node = "libs/gui/glfw", *ipr;
+	char freeglfw[4096];
+	char **inc, *incs[] = {"", "#include <GLFW/glfw3.h>", NULL};
+	char *cflags = NULL;
+	char *ldflags = NULL;
+
+	incs[0] = freeglfw;
+	freeglfw[0] = 0;
+
+	if (require("cc/cc", logdepth, fatal))
+		return try_fail(logdepth, node);
+
+
+	report("Checking for glfw... ");
+	logprintf(logdepth, "find_glfw: running pkg-config...\n");
+	logdepth++;
+
+	if (run_pkg_config(logdepth, "glfw3", &cflags, &ldflags) == 0) {
+		if (try_icl_(logdepth, node, test_c, incs[1], cflags, ldflags, 1, accept_glfw) != 0)
+			goto success;
+	}
+
+	if (require("libs/gui/gl/include_prefix", logdepth, fatal))
+		return try_fail(logdepth, node);
+	ipr = get("libs/gui/gl/include_prefix");
+	if (ipr == NULL)
+		return try_fail(logdepth, node);
+
+	if (cflags != NULL) {
+		free(cflags);
+		cflags = NULL;
+	}
+
+	if (ldflags != NULL) {
+		free(ldflags);
+		ldflags = NULL;
+	}
+
+	logdepth--;
+	logprintf(logdepth, "find_glfw: manual tries...\n");
+	logdepth++;
+
+	sprintf(freeglfw, "#include <%s/glfw.h>", ipr);
+	ldflags = strclone("-lglfw");
+	for(inc = incs; *inc != NULL; inc++)
+		if (try_icl_(logdepth, node, test_c, *inc, NULL, ldflags, 1, accept_glfw) != 0)
+			goto success;
+	free(ldflags);
+
+	return try_fail(logdepth, node);
+
+	success:;
+	if (cflags != NULL)
+		free(cflags);
+	if (ldflags != NULL)
+		free(ldflags);
+	return 0;
+}

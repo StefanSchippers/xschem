@@ -46,4 +46,5 @@ void deps_gui_init()
 	dep_add("libs/gui/glu/*",               find_glu);
 	dep_add("libs/gui/glut/*",              find_glut);
 	dep_add("libs/gui/wgl/*",               find_gui_wgl);
+	dep_add("libs/gui/glfw/*",              find_glfw);
 }
