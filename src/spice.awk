@@ -185,6 +185,10 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
  # dxm6[0] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)' 
  #20151027 do this for all fields
  for(i=1; i<=NF;i++) {
+   
+   if($i ~/^##[a-zA-Z_]+/) {
+     sub(/^##/, "", $i)
+   } else 
    if($i ~/^#[a-zA-Z_0-9]+#[a-zA-Z_]+/) {
      iprefix=$i
      sub(/^#/,"",iprefix)

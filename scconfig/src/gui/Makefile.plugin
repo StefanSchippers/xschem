@@ -9,6 +9,7 @@ GUI_OBJS = \
   $(BIN)/gui/find_cairo.o \
   $(BIN)/gui/find_misc.o \
   $(BIN)/gui/find_gl.o \
+  $(BIN)/gui/find_sdl2.o \
   $(BIN)/gui/gui.o
 
 

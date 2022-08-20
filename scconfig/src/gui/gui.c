@@ -12,6 +12,7 @@
 #include "find_cairo.h"
 #include "find_misc.h"
 #include "find_gl.h"
+#include "find_sdl2.h"
 
 void deps_gui_init()
 {
@@ -47,4 +48,5 @@ void deps_gui_init()
 	dep_add("libs/gui/glut/*",              find_glut);
 	dep_add("libs/gui/wgl/*",               find_gui_wgl);
 	dep_add("libs/gui/glfw/*",              find_glfw);
+	dep_add("libs/gui/sdl2/*",              find_sdl2);
 }
