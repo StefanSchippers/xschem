@@ -206,7 +206,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  str_hash_free(model_table);
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
  top_sub = 0;
- tclsetvar("spiceprefix", "1");
+ /* tclsetvar("spiceprefix", "1"); */
  bus_char[0] = bus_char[1] = '\0';
  xctx->hiersep[0]='.'; xctx->hiersep[1]='\0';
  str_tmp = tclgetvar("bus_replacement_char");
@@ -273,9 +273,11 @@ void global_spice_netlist(int global)  /* netlister driver */
   }
   my_strdup(380, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   dbg(1, "global_spice_netlist(): |%s|\n", type);
+  /* 
   if( type && !strcmp(type,"netlist_options") ) {
     continue;
   }
+  */
   if( type && IS_PIN(type)) {
    str_tmp = expandlabel ( (xctx->inst[i].lab ? xctx->inst[i].lab : ""), &multip);
    /*must handle  invalid node names */
