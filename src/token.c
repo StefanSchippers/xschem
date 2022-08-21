@@ -114,15 +114,22 @@ static void inst_hash_free(void) /* remove the whole hash table  */
 void hash_all_names(int n)
 {
   int i;
-  char*upinst = NULL;
+  char *upinst = NULL, *type = NULL, *format = NULL;
   inst_hash_free();
   for(i=0; i<xctx->instances; i++) {
-    my_strdup(1254, &upinst, xctx->inst[i].instname);
-    strtoupper(upinst);
-    /* if(i == n) continue; */
-    inst_hash_lookup(upinst, i, XINSERT, strlen(upinst));
+    if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
+      my_strdup(1519, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+      my_strdup(1520, &format, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr,"format",2));
+      if(!type || !format || IS_LABEL_SH_OR_PIN(type) ) continue;
+      my_strdup(1254, &upinst, xctx->inst[i].instname);
+      strtoupper(upinst);
+      /* if(i == n) continue; */
+      inst_hash_lookup(upinst, i, XINSERT, strlen(upinst));
+    }
   }
   my_free(1255, &upinst);
+  my_free(1526, &format);
+  my_free(1527, &type);
 }
 
 const char *tcl_hook2(char **res)
@@ -161,7 +168,7 @@ void check_unique_names(int rename)
   char *tmp = NULL;
   Inst_hashentry *entry;
   int big =  xctx->wires> 2000 || xctx->instances > 2000;
-  char *upinst = NULL;
+  char *upinst = NULL, *type = NULL, *format = NULL;
   /* int save_draw; */
 
   if(xctx->hilight_nets) {
@@ -182,6 +189,9 @@ void check_unique_names(int rename)
   first = 1;
   for(i=0;i<xctx->instances;i++) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
+      my_strdup(1261, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+      my_strdup(1262, &format, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr,"format",2));
+      if(!type || !format || IS_LABEL_SH_OR_PIN(type) ) continue;
       my_strdup(1246, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
       if( (entry = inst_hash_lookup(upinst, i, XINSERT_NOREPLACE, 
@@ -213,6 +223,8 @@ void check_unique_names(int rename)
     }
   } /* for(i...) */
   my_free(1247, &upinst);
+  my_free(1263, &type);
+  my_free(1517, &format);
   if(rename == 1 && xctx->hilight_nets) {
     bbox(SET,0.0,0.0,0.0,0.0);
     draw();
