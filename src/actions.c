@@ -1288,7 +1288,7 @@ int descend_schematic(int instnumber)
   if(inst_mult > 1) { /* on multiple instances ask where to descend, to correctly evaluate
                          the hierarchy path you descend to */
 
-    if(instnumber <= 0 ) {
+    if(instnumber == 0 ) {
       const char *inum;
       tclvareval("input_line ", "{input instance number (leftmost = 1) to descend into:\n"
         "negative numbers select instance starting\nfrom the right (rightmost = -1)}"
