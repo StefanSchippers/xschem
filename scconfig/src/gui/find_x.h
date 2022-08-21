@@ -5,4 +5,5 @@ int find_xcb(const char *name, int logdepth, int fatal);
 int find_xcb_render(const char *name, int logdepth, int fatal);
 int find_xgetxcbconnection(const char *name, int logdepth, int fatal);
 int find_xpm(const char *name, int logdepth, int fatal);
+int find_keysymtoucs4(const char *name, int logdepth, int fatal);
 

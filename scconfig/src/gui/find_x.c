@@ -320,3 +320,40 @@ int find_xpm(const char *name, int logdepth, int fatal)
 	}
 	return try_fail(logdepth, node);
 }
+
+int find_keysymtoucs4(const char *name, int logdepth, int fatal)
+{
+	const char *test_c =
+		NL "#include <stdio.h>"
+		NL "#include <X11/Xlib.h>"
+		NL "extern unsigned int KeySymToUcs4(KeySym keysym);"
+		NL "int main()"
+		NL "{"
+		NL "	if (KeySymToUcs4(32) == 32)"
+		NL "		puts(\"OK\");"
+		NL "	return 0;"
+		NL "}"
+		NL;
+	const char *node = "libs/gui/keysymtoucs4";
+	const char *xincludes, *xcflags, *xldflags;
+
+	if (require("cc/cc", logdepth, fatal))
+		return 1;
+
+	if (require("libs/gui/xopendisplay/*", logdepth, fatal))
+		return 1;
+
+	xincludes = get("libs/gui/xopendisplay/includes");
+	xcflags = get("libs/gui/xopendisplay/cflags");
+	xldflags = get("libs/gui/xopendisplay/ldflags");
+
+	report("Checking for KeySymToUcs4... ");
+	logprintf(logdepth, "find_KeySymToUcs4:\n");
+	logdepth++;
+
+	/* This should be standard X11 call, but not published so better test */
+	if (try_icl_with_deps(logdepth, node, test_c, NULL, NULL, NULL, xincludes, xcflags, xldflags, 1) != 0)
+		return 0;
+
+	return try_fail(logdepth, node);
+}

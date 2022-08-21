@@ -207,7 +207,7 @@ char *uniq_inc_str(const char *includes, const char *isep, const char *osep, int
 
 	/* assemble the output */
 
-	if (0>=eren)
+	if (eren <= 0)
 		uniq_inc_assemble_normal(ret, numelem, arr, osep, oseplen);
 	else
 		uniq_inc_assemble_groups(ret, numelem, arr, osep, oseplen, eren, eres);

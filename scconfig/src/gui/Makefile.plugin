@@ -37,6 +37,9 @@ $(BIN)/gui/find_misc.o: $(SRC)/gui/find_misc.c
 $(BIN)/gui/find_gl.o: $(SRC)/gui/find_gl.c
 	$(CC) $(CFLAGS) -c $(SRC)/gui/find_gl.c -o $(BIN)/gui/find_gl.o
 
+$(BIN)/gui/find_sdl2.o: $(SRC)/gui/find_sdl2.c
+	$(CC) $(CFLAGS) -c $(SRC)/gui/find_sdl2.c -o $(BIN)/gui/find_sdl2.o
+
 $(BIN)/gui/find_cairo.o: $(SRC)/gui/find_cairo.c
 	$(CC) $(CFLAGS) -c $(SRC)/gui/find_cairo.c -o $(BIN)/gui/find_cairo.o
 

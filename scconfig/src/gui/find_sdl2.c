@@ -84,3 +84,98 @@ int find_sdl2(const char *name, int logdepth, int fatal)
 
 	return try_fail(logdepth, node);
 }
+
+int find_sdl2_gfx(const char *name, int logdepth, int fatal)
+{
+	const char *test_c =
+		NL "#include <SDL2_gfxPrimitives.h>"
+		NL "#include <stdlib.h>"
+		NL "int main()"
+		NL "{"
+		NL "	aalineColor(NULL, 1, 2, 3, 4, 100);"
+		NL "	return 0;"
+		NL "}"
+		NL;
+	char *cflags, *ldflags;
+	const char *ocf, *olf;
+	const char *node = "libs/gui/sdl2_gfx";
+	int succ;
+
+	if (require("cc/cc", logdepth, fatal))
+		return 1;
+
+	report("Checking for sdl2_gfx... ");
+	logprintf(logdepth, "find_sdl2_gfx:\n");
+	logdepth++;
+
+	if (run_pkg_config(logdepth, "SDL2_gfx", &cflags, &ldflags) == 0)
+		if (try_icl_norun(logdepth, node, test_c, NULL, cflags, ldflags) != 0)
+			return 0;
+
+	/* extend SDL2's cflags and ldflags */
+	if (require("libs/gui/sdl2/cflags", logdepth, fatal))
+		return try_fail(logdepth, node);
+	if (require("libs/gui/sdl2/ldflags", logdepth, fatal))
+		return try_fail(logdepth, node);
+
+	ocf = get("libs/gui/sdl2/cflags");
+	olf = get("libs/gui/sdl2/ldflags");
+
+	cflags = (char *)ocf;
+	ldflags = str_concat(" ", "-lSDL2_gfx", olf, NULL);
+	succ = try_icl_norun(logdepth, node, test_c, NULL, cflags, ldflags);
+	free(ldflags);
+
+	if (succ != 0)
+		return 0;
+
+	return try_fail(logdepth, node);
+}
+
+int find_sdl2_ttf(const char *name, int logdepth, int fatal)
+{
+	const char *test_c =
+		NL "#include <SDL_ttf.h>"
+		NL "#include <stdio.h>"
+		NL "int main()"
+		NL "{"
+		NL "	if (TTF_Init() == 0)"
+		NL "		puts(\"OK\");"
+		NL "	return 0;"
+		NL "}"
+		NL;
+	char *cflags, *ldflags;
+	const char *ocf, *olf;
+	const char *node = "libs/gui/sdl2_ttf";
+	int succ;
+
+	if (require("cc/cc", logdepth, fatal))
+		return 1;
+
+	report("Checking for sdl2_ttf... ");
+	logprintf(logdepth, "find_sdl2_ttf:\n");
+	logdepth++;
+
+	if (run_pkg_config(logdepth, "SDL2_ttf", &cflags, &ldflags) == 0)
+		if (try_icl(logdepth, node, test_c, NULL, cflags, ldflags) != 0)
+			return 0;
+
+	/* extend SDL2's cflags and ldflags */
+	if (require("libs/gui/sdl2/cflags", logdepth, fatal))
+		return try_fail(logdepth, node);
+	if (require("libs/gui/sdl2/ldflags", logdepth, fatal))
+		return try_fail(logdepth, node);
+
+	ocf = get("libs/gui/sdl2/cflags");
+	olf = get("libs/gui/sdl2/ldflags");
+
+	cflags = (char *)ocf;
+	ldflags = str_concat(" ", "-lSDL2_ttf", olf, NULL);
+	succ = try_icl(logdepth, node, test_c, NULL, cflags, ldflags);
+	free(ldflags);
+
+	if (succ != 0)
+		return 0;
+
+	return try_fail(logdepth, node);
+}
