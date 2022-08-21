@@ -618,14 +618,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"descend"))
     {
+      int ret=0;
       cmd_found = 1;
       if(argc >=3) {
         int n = atoi(argv[2]);
-        descend_schematic(n);
+        ret = descend_schematic(n);
       } else {
-        descend_schematic(0);
+        ret = descend_schematic(0);
       }
-      Tcl_ResetResult(interp);
+      Tcl_SetResult(interp, dtoa(ret), TCL_VOLATILE);
     }
    
     else if(!strcmp(argv[1],"descend_symbol"))

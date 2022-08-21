@@ -1212,7 +1212,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym)
   }
 }
 
-void descend_schematic(int instnumber)
+int descend_schematic(int instnumber)
 {
  const char *str;
  char filename[PATH_MAX];
@@ -1224,7 +1224,7 @@ void descend_schematic(int instnumber)
  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT)
  {
   dbg(1, "descend_schematic(): wrong selection\n");
-  return;
+  return 0;
  }
  else
  {
@@ -1240,10 +1240,10 @@ void descend_schematic(int instnumber)
     my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} .sch.sym INITIALLOADDIR {%s}", filename);
     tcleval(cmd);
     my_strncpy(res, tclresult(), S(res));
-    if(!res[0]) return;
+    if(!res[0]) return 0;
     dbg(1, "descend_schematic(): saving: %s\n",res);
     save_ok = save_schematic(res);
-    if(save_ok==0) return;
+    if(save_ok==0) return 0;
   }
 
   dbg(1, "descend_schematic(): inst type: %s\n", (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type);
@@ -1252,7 +1252,7 @@ void descend_schematic(int instnumber)
      (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type &&
      strcmp( (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type, "subcircuit") &&
      strcmp( (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type, "primitive")
-  ) return;
+  ) return 0;
 
   if(xctx->modified)
   {
@@ -1267,7 +1267,7 @@ void descend_schematic(int instnumber)
      *  0 : file not saved due to errors or per user request
      */
     if(ret == 0) clear_all_hilights();
-    if(ret == -1) return; /* user cancel */
+    if(ret == -1) return 0; /* user cancel */
   }
 
   /*  build up current hierarchy path */
@@ -1298,7 +1298,7 @@ void descend_schematic(int instnumber)
       if(!inum[0]) {
         my_free(710, &xctx->sch_path[xctx->currsch+1]);
         xctx->sch_path_hash[xctx->currsch+1] =0;
-        return;
+        return 0;
       }
       inst_number=atoi(inum);
     } else {
@@ -1336,6 +1336,7 @@ void descend_schematic(int instnumber)
   dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
   zoom_full(1, 0, 1, 0.97);
  }
+ return 1;
 }
 
 void go_back(int confirm) /*  20171006 add confirm */
