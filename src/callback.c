@@ -192,7 +192,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   double delta_threshold = 0.25;
   double zoom_m = 0.5;
   int save_mouse_at_end = 0, clear_graphpan_at_end = 0;
-  xRect *r;
+  xRect *r = NULL;
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
@@ -333,7 +333,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
   /* second loop: after having determined the master graph do the others */
   for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
-    xRect *r;
     r = &xctx->rect[GRIDLAYER][i];
     need_redraw = 0;
     if( !(r->flags & 1) ) continue;

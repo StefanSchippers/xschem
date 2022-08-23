@@ -477,12 +477,12 @@ int my_strncpy(char *d, const char *s, size_t n)
 
 char *strtolower(char* s) {
   char *p;
-  for(p=s; *p; p++) *p=(char)tolower(*p);
+  if(s) for(p=s; *p; p++) *p=(char)tolower(*p);
   return s;
 }
 char *strtoupper(char* s) {
   char *p;
-  for(p=s; *p; p++) *p=(char)toupper(*p);
+  if(s) for(p=s; *p; p++) *p=(char)toupper(*p);
   return s;
 }
 

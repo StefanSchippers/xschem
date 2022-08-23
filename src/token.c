@@ -1653,11 +1653,18 @@ void print_spice_subckt(FILE *fd, int symbol)
  size_t token_pos=0;
  int escape=0;
  int no_of_pins=0;
+ const char *tclres;
 
  my_strdup(103, &format1, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
- dbg(1, "print_spice_subckt(): format1=%s\n", format1);
- my_strdup(455, &format,  tcl_hook2(&format1));
- dbg(1, "print_spice_subckt(): format=%s\n", format);
+ dbg(0, "print_spice_subckt(): format1=%s\n", format1);
+ if(strstr(format1, "tcleval(") == format1) {
+    tclres = tcl_hook2(&format1);
+    if(!strcmp(tclres, "?\n")) my_strdup(1529, &format,  format1 + 8);
+    else my_strdup(455, &format,  tclres);
+ } else {
+   my_strdup(1530, &format,  format1);
+ }
+ dbg(0, "print_spice_subckt(): format=%s\n", format);
  if( format==NULL ) {
    my_free(1012, &format);
    return; /* no format */
