@@ -142,6 +142,7 @@ static void xschem_cmd_help(int argc, const char **argv)
     "  wirelayer\n",
     "  xorigin\n",
     "  yorigin\n",
+    "  zoom\n",
     "get_tok\n",
     "get_tok_size\n",
     "getprop\n",
@@ -542,6 +543,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       build_colors(tclgetdoublevar("dim_value"), tclgetdoublevar("dim_bg"));
       draw();
       Tcl_ResetResult(interp);
+    }
+
+    else if(!strcmp(argv[1], "compare_schematics"))
+    {
+      int ret = 0;
+      cmd_found = 1;
+      if(argc > 2) {
+        ret = compare_schematics(argv[2]);
+      }
+      Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
     }
 
     else if(!strcmp(argv[1],"connected_nets")) /* selected nets connected to currently selected ones */
@@ -1578,13 +1589,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    
     else if(!strcmp(argv[1],"load") )
     {
-      int load_symbols = 1, force = 0;
+      int load_symbols = 1, force = 0, undo_reset = 1;
       size_t i;
       cmd_found = 1;
       if(argc > 3) {
         for(i = 3; i < argc; i++) {
           if(!strcmp(argv[i], "symbol")) load_symbols = 0;
           if(!strcmp(argv[i], "force")) force = 1;
+          if(!strcmp(argv[i], "noundoreset")) undo_reset = 0;
         }
       }
       if(argc>2) {
@@ -1611,10 +1623,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           if(!skip) {
             clear_all_hilights();
-            xctx->currsch = 0;
             unselect_all();
+            if(!undo_reset) xctx->push_undo();
+            xctx->currsch = 0;
             remove_symbols();
-            load_schematic(load_symbols, f, 1);
+            dbg(1, "scheduler: undo_reset=%d\n", undo_reset);
+            load_schematic(load_symbols, f, undo_reset);
             tclvareval("update_recent_file {", f, "}", NULL);
             my_strdup(375, &xctx->sch_path[xctx->currsch],".");
             xctx->sch_path_hash[xctx->currsch] = 0;

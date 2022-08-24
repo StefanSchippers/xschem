@@ -1365,6 +1365,7 @@ extern void display_hilights(char **str);
 extern void redraw_hilights(int clear);
 extern void set_tcl_netlist_type(void);
 extern void prepare_netlist_structs(int for_netlist);
+extern int compare_schematics(const char *filename);
 extern int warning_overlapped_symbols();
 extern void free_simdata(void);
 extern void delete_netlist_structs(void);

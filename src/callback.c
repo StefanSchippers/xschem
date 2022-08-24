@@ -29,6 +29,7 @@ static int waves_selected(int event, int state, int button)
   static unsigned int excl = STARTZOOM | STARTRECT | STARTLINE | STARTWIRE |
                              STARTPAN | STARTSELECT | STARTMOVE | STARTCOPY;
   if(xctx->ui_state & excl) skip = 1;
+  else if(!xctx->graph_values) skip = 1;
   else if(state & Mod1Mask) skip = 1;
   else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
   else if(event == MotionNotify && (state & Button1Mask) && (state & ShiftMask)) skip = 1;

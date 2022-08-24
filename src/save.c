@@ -1121,7 +1121,8 @@ static void save_inst(FILE *fd, int select_only)
   }
   fprintf(fd, " %.16g %.16g %hd %hd ",ptr[i].x0, ptr[i].y0, ptr[i].rot, ptr[i].flip );
   save_ascii_string(ptr[i].prop_ptr,fd, 1);
-  if( !embedded_saved[ptr[i].ptr] && !strcmp(get_tok_value(ptr[i].prop_ptr, "embed", 0), "true") ) {
+  if( embedded_saved && !embedded_saved[ptr[i].ptr] &&
+      !strcmp(get_tok_value(ptr[i].prop_ptr, "embed", 0), "true") ) {
       /* && !(xctx->sym[ptr[i].ptr].flags & EMBEDDED)) {  */
     embedded_saved[ptr[i].ptr] = 1;
     fprintf(fd, "[\n");
@@ -1922,6 +1923,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", filename ? filename: "(null)");
       tcleval(msg);
       clear_drawing();
+      if(reset_undo) set_modify(0);
     } else {
       clear_drawing();
       dbg(1, "load_schematic(): reading file: %s\n", name);

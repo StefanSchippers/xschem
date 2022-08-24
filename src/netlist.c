@@ -1046,6 +1046,77 @@ void prepare_netlist_structs(int for_netlist)
   /* propagate_hilights(1, 0, XINSERT_NOREPLACE);*/
 }
 
+
+int compare_schematics(const char *filename)
+{
+  Int_hashentry *table[HASHSIZE];
+  Int_hashentry *found;
+  char *s = NULL;
+  int i;
+  size_t l;
+  char current_sch[PATH_MAX];
+  int ret=0; /* ret==0 means no differences found */
+
+  my_strncpy(current_sch, abs_sym_path(xctx->current_name, ""), S(current_sch));
+  clear_all_hilights();
+  unselect_all();
+  remove_symbols();
+  xctx->no_draw = 1;
+  load_schematic(1, filename, 1);
+
+  memset(table, 0, HASHSIZE * sizeof(Int_hashentry *));
+  for(i = 0; i < xctx->instances; i++) {
+    l =  1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
+    my_realloc(1534, &s, l);
+    my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
+        xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip, 
+        xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
+    int_hash_lookup(table, s, i, XINSERT_NOREPLACE);
+  }
+  for(i=0;i<xctx->wires;i++)
+  {
+    l =1024 + strlen(xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+    my_realloc(1535, &s, l);
+    my_snprintf(s, l, "N %g %g %g %g %s", xctx->wire[i].x1,  xctx->wire[i].y1,
+        xctx->wire[i].x2, xctx->wire[i].y2, 
+        xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+    int_hash_lookup(table, s, i, XINSERT_NOREPLACE);
+  }
+
+  load_schematic(1, current_sch, 1);
+  xctx->no_draw = 0;
+
+  for(i = 0; i < xctx->instances; i++) {
+    l = 1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
+    my_realloc(1536,&s, l);
+    my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
+        xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip,
+        xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
+    found = int_hash_lookup(table, s, i, XLOOKUP);
+    if(!found) {
+      select_element(i,SELECTED, 1, 1);
+      ret = 1;
+    }
+  }
+  for(i=0;i<xctx->wires;i++)
+  {
+    l = 1024 + strlen(xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+    my_realloc(1537, &s, l);
+    my_snprintf(s, l, "N %g %g %g %g %s", xctx->wire[i].x1,  xctx->wire[i].y1,
+        xctx->wire[i].x2, xctx->wire[i].y2, 
+        xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+    found = int_hash_lookup(table, s, i, XLOOKUP);
+    if(!found) {
+      select_wire(i, SELECTED, 1);
+      ret = 1;
+    }
+  }
+  int_hash_free(table);
+  draw();
+  my_free(1531, &s);
+  return ret;
+}
+
 int warning_overlapped_symbols()
 {
   int i;
