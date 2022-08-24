@@ -147,6 +147,9 @@
       <Component Id="CMPNGSPICEBACKANNOTATE">
         <File Id="NGSPICEBACKANNOTATE" KeyPath="yes" Source="../../src/ngspice_backannotate.tcl" />
       </Component>
+	  <Component Id="CMPTRAVERSAL">
+		<File Id="TRAVERSAL" KeyPath="yes" Source="../../src/traversal.tcl" />
+	  </Component>
       <Component Id="CMPORDERLABELSAWK">
         <File Id="ORDERLABELSAWK" KeyPath="yes" Source="../../src/order_labels.awk" />
       </Component>
@@ -329,6 +332,7 @@
       <ComponentRef Id="CMPMAKESYMAWK" />
       <ComponentRef Id="CMPMAKESYMLCCAWK" />
       <ComponentRef Id="CMPNGSPICEBACKANNOTATE" />
+      <ComponentRef Id="CMPTRAVERSAL" />
       <ComponentRef Id="CMPMAKEVHDLFROMSPICEAWK" />
       <ComponentRef Id="CMPNETLISTCOMPACTORAWK" />
       <ComponentRef Id="CMPORDERLABELSAWK" />

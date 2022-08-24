@@ -999,6 +999,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        my_snprintf(s, S(s), "%.16g", xctx->yorigin);
        Tcl_SetResult(interp, s,TCL_VOLATILE);
      }
+     else if(!strcmp(argv[2],"zoom")) {
+       char s[128];
+       my_snprintf(s, S(s), "%.16g", xctx->zoom);
+       Tcl_SetResult(interp, s,TCL_VOLATILE);
+     }
      else {
        fprintf(errfp, "xschem get %s: invalid command.\n", argv[2]);
      }

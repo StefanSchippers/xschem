@@ -48,13 +48,13 @@ proc spaces {n} {
 proc hier_traversal {fd {level 0}} {
   set schpath [xschem get sch_path]
   set instances  [xschem get instances]
+  set current_level [xschem get currsch]
   for {set i 0} { $i < $instances} { incr i} {
     set instname [xschem getprop instance $i name]
     set symbol [xschem getprop instance $i cell::name]
     set type [xschem getprop symbol $symbol type]
     puts $fd "[spaces $level]$schpath$instname symbol: $symbol, type: $type"
     if {$type eq {subcircuit}} {
-      set current_level [xschem get currsch]
       set ninst [lindex [split [xschem expandlabel $instname] { }] 1]
       for {set n 1} {$n <= $ninst} { incr n} {
         xschem select instance $i
