@@ -1047,9 +1047,9 @@ void prepare_netlist_structs(int for_netlist)
 }
 
 
-int compare_schematics(const char *filename)
+int compare_schematics(const char *f)
 {
-  Int_hashentry *table[HASHSIZE];
+  Int_hashentry *table1[HASHSIZE],  *table2[HASHSIZE];
   Int_hashentry *found;
   char *s = NULL;
   int i;
@@ -1057,21 +1057,29 @@ int compare_schematics(const char *filename)
   char current_sch[PATH_MAX];
   int ret=0; /* ret==0 means no differences found */
 
+  if(f == NULL) {
+    tcleval("load_file_dialog {Schematic to compare with} .sch.sym INITIALLOADDIR");
+    if(tclresult()[0]) my_strncpy(xctx->sch_to_compare, tclresult(), S(xctx->sch_to_compare));
+    else my_strncpy(xctx->sch_to_compare, "", S(xctx->sch_to_compare));
+  } else if(f[0] != '\0') {
+    my_strncpy(xctx->sch_to_compare, f, S(xctx->sch_to_compare));
+  }
+  if(!xctx->sch_to_compare[0]) {
+     dbg(0, "compare_schematics() schematic to compare with not set\n");
+     return -1;
+  }
+  memset(table1, 0, HASHSIZE * sizeof(Int_hashentry *));
+  memset(table2, 0, HASHSIZE * sizeof(Int_hashentry *));
   my_strncpy(current_sch, abs_sym_path(xctx->current_name, ""), S(current_sch));
-  clear_all_hilights();
-  unselect_all();
-  remove_symbols();
-  xctx->no_draw = 1;
-  load_schematic(1, filename, 1);
 
-  memset(table, 0, HASHSIZE * sizeof(Int_hashentry *));
+  /* HASH SCHEMATIC 1 */
   for(i = 0; i < xctx->instances; i++) {
     l =  1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
     my_realloc(1534, &s, l);
     my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
         xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip, 
         xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
-    int_hash_lookup(table, s, i, XINSERT_NOREPLACE);
+    int_hash_lookup(table1, s, i, XINSERT_NOREPLACE);
   }
   for(i=0;i<xctx->wires;i++)
   {
@@ -1080,19 +1088,61 @@ int compare_schematics(const char *filename)
     my_snprintf(s, l, "N %g %g %g %g %s", xctx->wire[i].x1,  xctx->wire[i].y1,
         xctx->wire[i].x2, xctx->wire[i].y2, 
         xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
-    int_hash_lookup(table, s, i, XINSERT_NOREPLACE);
+    int_hash_lookup(table1, s, i, XINSERT_NOREPLACE);
   }
-
+  clear_all_hilights();
+  unselect_all(1);
+  remove_symbols();
+  xctx->no_draw = 1;
+  load_schematic(1, xctx->sch_to_compare, 1);
+  /* HASH SCHEMATIC 2 , CHECK SCHEMATIC 2 WITH SCHEMATIC 1 */
+  for(i = 0; i < xctx->instances; i++) {
+    l =  1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
+    my_realloc(1534, &s, l);
+    my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
+        xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip, 
+        xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
+    int_hash_lookup(table2, s, i, XINSERT_NOREPLACE);
+    found = int_hash_lookup(table1, s, i, XLOOKUP);
+    if(!found) {
+      dbg(1, "schematic 2 instance %d: %s mismatch or not found in schematic 1\n", i,
+         xctx->inst[i].instname ? xctx->inst[i].instname : "");
+      select_element(i,SELECTED, 1, 1);
+      ret = 1;
+    }
+  }
+  for(i=0;i<xctx->wires;i++)
+  {
+    l =1024 + strlen(xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+    my_realloc(1535, &s, l);
+    my_snprintf(s, l, "N %g %g %g %g %s", xctx->wire[i].x1,  xctx->wire[i].y1,
+        xctx->wire[i].x2, xctx->wire[i].y2, 
+        xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+    int_hash_lookup(table2, s, i, XINSERT_NOREPLACE);
+    found = int_hash_lookup(table1, s, i, XLOOKUP);
+    if(!found) {
+      dbg(1, "schematic 2 net %d: %s mismatch or not found in schematic 1\n", i,
+         xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+      select_wire(i, SELECTED, 1);
+      ret = 1;
+    }
+  }
+  if(ret) {
+    rebuild_selected_array();
+    draw_selection(xctx->gc[PINLAYER], 0);
+  }
+  unselect_all(0);
   load_schematic(1, current_sch, 1);
   xctx->no_draw = 0;
 
+  /* CHECK SCHEMATIC 1 WITH SCHEMATIC 2*/
   for(i = 0; i < xctx->instances; i++) {
     l = 1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
     my_realloc(1536,&s, l);
     my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
         xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip,
         xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
-    found = int_hash_lookup(table, s, i, XLOOKUP);
+    found = int_hash_lookup(table2, s, i, XLOOKUP);
     if(!found) {
       select_element(i,SELECTED, 1, 1);
       ret = 1;
@@ -1105,14 +1155,16 @@ int compare_schematics(const char *filename)
     my_snprintf(s, l, "N %g %g %g %g %s", xctx->wire[i].x1,  xctx->wire[i].y1,
         xctx->wire[i].x2, xctx->wire[i].y2, 
         xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
-    found = int_hash_lookup(table, s, i, XLOOKUP);
+    found = int_hash_lookup(table2, s, i, XLOOKUP);
     if(!found) {
       select_wire(i, SELECTED, 1);
       ret = 1;
     }
   }
-  int_hash_free(table);
-  draw();
+  int_hash_free(table1);
+  int_hash_free(table2);
+  rebuild_selected_array();
+  draw_selection(xctx->gc[SELLAYER], 0);
   my_free(1531, &s);
   return ret;
 }

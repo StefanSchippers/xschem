@@ -1830,7 +1830,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
     tcleval("alert_ {file opening for write failed!} {}");
     return 0;
   }
-  unselect_all();
+  unselect_all(1);
   write_xschem_file(fd);
   fclose(fd);
   /* update time stamp */
@@ -2127,7 +2127,7 @@ void pop_undo(int redo, int set_modify_status)
     xctx->cur_undo_ptr--; /* will be restored after building file name */
   }
   clear_drawing();
-  unselect_all();
+  unselect_all(1);
 
   #if HAS_POPEN==1
   my_snprintf(diff_name, S(diff_name), "gzip -d -c %s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
@@ -3282,13 +3282,13 @@ void descend_symbol(void)
     }
     save_embedded_symbol(xctx->inst[xctx->sel_array[0].n].ptr+xctx->sym, fd);
     fclose(fd);
-    unselect_all();
+    unselect_all(1);
     remove_symbols(); /* must follow save (if) embedded */
     /* load_symbol(name_embedded); */
     load_schematic(1, name_embedded, 1);
   } else {
     /* load_symbol(abs_sym_path(name, "")); */
-    unselect_all();
+    unselect_all(1);
     remove_symbols(); /* must follow save (if) embedded */
     load_schematic(1, abs_sym_path(name, ""), 1);
   }

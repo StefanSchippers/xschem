@@ -111,7 +111,7 @@ static void abort_operation(void)
     set_modify(0); /* aborted merge: no change, so reset modify flag set by delete() */
   }
   xctx->ui_state = 0;
-  unselect_all();
+  unselect_all(1);
   draw();
 }
 
@@ -123,7 +123,7 @@ static void start_place_symbol(double mx, double my)
       tclvareval("set INITIALINSTDIR [file dirname {",
            abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
     } 
-    unselect_all();
+    unselect_all(1);
     xctx->mx_double_save = xctx->mousex_snap;
     xctx->my_double_save = xctx->mousey_snap;
     if(place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/* to_push_undo */) ) {
@@ -955,7 +955,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     if( stat(xctx->sel_or_clip, &buf)  && (xctx->ui_state & STARTCOPY) )
     {
       copy_objects(ABORT); /* also unlinks sel_or_flip file */
-      unselect_all();
+      unselect_all(1);
     }
     /* xschem window *receiving* selected objects */
     /* no selected objects and selection file exists */
@@ -1048,10 +1048,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
         if(abs(mx-xctx->mx_save) > 8 ||
            abs(my-xctx->my_save) > 8 ) { /* set reasonable threshold before unsel */
           if(xctx->onetime) {
-            unselect_all(); /* 20171026 avoid multiple calls of unselect_all() */
+            unselect_all(1); /* 20171026 avoid multiple calls of unselect_all() */
             xctx->onetime=0;
           }
-          xctx->ui_state|=STARTSELECT; /* set it again cause unselect_all() clears it... */
+          xctx->ui_state|=STARTSELECT; /* set it again cause unselect_all(1) clears it... */
         }
       }
     }
@@ -1358,7 +1358,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='p' && state == Mod1Mask)                           /* add symbol pin */
    {
-    unselect_all();
+    unselect_all(1);
     storeobject(-1, xctx->mousex_snap-2.5, xctx->mousey_snap-2.5, xctx->mousex_snap+2.5, xctx->mousey_snap+2.5,
                 xRECT, PINLAYER, SELECTED, "name=XXX\ndir=inout");
     xctx->need_reb_sel_arr=1;
@@ -1606,6 +1606,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     }
     break;
    }
+   if(key=='x' && state == Mod1Mask) /* compare schematics(must set first) */
+   {
+     compare_schematics("");
+   }
    if(key=='x' && state == ControlMask) /* cut selection into clipboard */
    {
     if(xctx->semaphore >= 2) break;
@@ -1716,7 +1720,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
              "-message {Are you sure you want to reload from disk?}");
      if(strcmp(tclresult(),"ok")==0) {
         char filename[PATH_MAX];
-        unselect_all();
+        unselect_all(1);
         remove_symbols();
         my_strncpy(filename, abs_sym_path(xctx->sch[xctx->currsch], ""), S(filename));
         load_schematic(1, filename, 1);
@@ -2052,7 +2056,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    {
     yyparse_error = 0;
     if(xctx->semaphore >= 2) break;
-    unselect_all();
+    unselect_all(1);
     if(set_netlist_dir(0, NULL)) {
       dbg(1, "callback(): -------------\n");
       if(xctx->netlist_type == CAD_SPICE_NETLIST)
@@ -2075,7 +2079,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    {
     yyparse_error = 0;
     if(xctx->semaphore >= 2) break;
-    unselect_all();
+    unselect_all(1);
     if( set_netlist_dir(0, NULL) ) {
       dbg(1, "callback(): -------------\n");
       if(xctx->netlist_type == CAD_SPICE_NETLIST)
@@ -2586,7 +2590,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
        if( !(state & ShiftMask) && !(state & Mod1Mask) ) {
-         unselect_all();
+         unselect_all(1);
 #ifndef __unix__
          MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
            xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);

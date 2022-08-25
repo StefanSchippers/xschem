@@ -476,6 +476,9 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->prep_hash_wires = 0;
   xctx->modified = 0;
   xctx->semaphore = 0;
+  xctx->current_name[0] = '\0';
+  xctx->sel_or_clip[0] = '\0';
+  xctx->sch_to_compare[0] = '\0';
   xctx->tok_size = 0;
   xctx->netlist_name[0] = '\0';
   xctx->flat_netlist = 0;
@@ -534,6 +537,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->hilight_nets = 0;
   xctx->hilight_color = 0;
   for(i=0;i<CADMAXHIER;i++) {
+    xctx->sch[i][0] = '\0';
     xctx->sch_path[i]=NULL;
     xctx->sch_path_hash[i]=0;
     xctx->hier_attr[i].prop_ptr = NULL;
@@ -632,8 +636,8 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
 static void delete_schematic_data(void)
 {
   dbg(1, "delete_schematic_data()\n");
-  unselect_all();
-  /* clear static data in get_tok_value() must be done after unselect_all() 
+  unselect_all(1);
+  /* clear static data in get_tok_value() must be done after unselect_all(1) 
    * as this functions re-uses get_tok_value() */
   get_tok_value(NULL, NULL, 0); /* clear static data in function */
   /* delete inst and wire node fields, delete inst_pin spatial hash, and node hash table */

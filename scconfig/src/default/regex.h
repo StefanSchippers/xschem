@@ -3,6 +3,7 @@
 
 extern const char *bopat[];
 extern const char *eopat[];
+extern const char *bol;
 
 
 extern char *re_comp(const char *);

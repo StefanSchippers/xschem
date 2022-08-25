@@ -579,14 +579,14 @@ void bbox(int what,double x1,double y1, double x2, double y2)
  }
 }
 
-void unselect_all(void)
+void unselect_all(int dr)
 {
  int i,c;
  char str[PATH_MAX];
  #if HAS_CAIRO==1
  int customfont;
  #endif
-    dbg(1, "unselect_all(): start\n");
+    dbg(1, "unselect_all(1): start\n");
     xctx->ui_state = 0;
     xctx->lastsel = 0;
 
@@ -596,12 +596,14 @@ void unselect_all(void)
       {
        xctx->wire[i].sel = 0;
        {
-         if(xctx->wire[i].bus)
-           drawtempline(xctx->gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1,
+         if(dr) {
+           if(xctx->wire[i].bus)
+             drawtempline(xctx->gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1,
+                                                xctx->wire[i].x2, xctx->wire[i].y2);
+           else
+             drawtempline(xctx->gctiled, ADD, xctx->wire[i].x1, xctx->wire[i].y1,
                                               xctx->wire[i].x2, xctx->wire[i].y2);
-         else
-           drawtempline(xctx->gctiled, ADD, xctx->wire[i].x1, xctx->wire[i].y1,
-                                            xctx->wire[i].x2, xctx->wire[i].y2);
+         }
        }
       }
      }
@@ -610,7 +612,7 @@ void unselect_all(void)
      if(xctx->inst[i].sel == SELECTED)
      {
       xctx->inst[i].sel = 0;
-      for(c=0;c<cadlayers;c++)
+      if(dr) for(c=0;c<cadlayers;c++)
         draw_temp_symbol(ADD, xctx->gctiled, i, c,0,0,0.0,0.0);
      }
     }
@@ -619,16 +621,18 @@ void unselect_all(void)
      if(xctx->text[i].sel == SELECTED)
      {
       xctx->text[i].sel = 0;
-      #if HAS_CAIRO==1
-      customfont = set_text_custom_font(& xctx->text[i]); /* needed for bbox calculation */
-      #endif
-      draw_temp_string(xctx->gctiled,ADD, xctx->text[i].txt_ptr,
-       xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-       xctx->text[i].x0, xctx->text[i].y0,
-       xctx->text[i].xscale, xctx->text[i].yscale);
-      #if HAS_CAIRO==1
-      if(customfont) cairo_restore(xctx->cairo_ctx);
-      #endif
+      if(dr) {
+        #if HAS_CAIRO==1
+        customfont = set_text_custom_font(& xctx->text[i]); /* needed for bbox calculation */
+        #endif
+        draw_temp_string(xctx->gctiled,ADD, xctx->text[i].txt_ptr,
+         xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+         xctx->text[i].x0, xctx->text[i].y0,
+         xctx->text[i].xscale, xctx->text[i].yscale);
+        #if HAS_CAIRO==1
+        if(customfont) cairo_restore(xctx->cairo_ctx);
+        #endif
+      }
      }
     }
     for(c=0;c<cadlayers;c++)
@@ -638,7 +642,7 @@ void unselect_all(void)
       if(xctx->arc[c][i].sel)
       {
        xctx->arc[c][i].sel = 0;
-       drawtemparc(xctx->gctiled, ADD, xctx->arc[c][i].x, xctx->arc[c][i].y,
+       if(dr) drawtemparc(xctx->gctiled, ADD, xctx->arc[c][i].x, xctx->arc[c][i].y,
                                  xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b);
       }
      }
@@ -647,7 +651,7 @@ void unselect_all(void)
       if(xctx->rect[c][i].sel)
       {
        xctx->rect[c][i].sel = 0;
-       drawtemprect(xctx->gctiled, ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
+       if(dr) drawtemprect(xctx->gctiled, ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                                   xctx->rect[c][i].x2, xctx->rect[c][i].y2);
       }
      }
@@ -656,12 +660,14 @@ void unselect_all(void)
       if(xctx->line[c][i].sel)
       {
        xctx->line[c][i].sel = 0;
-       if(xctx->line[c][i].bus)
-         drawtempline(xctx->gctiled, THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
+       if(dr) {
+         if(xctx->line[c][i].bus)
+           drawtempline(xctx->gctiled, THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
+                                        xctx->line[c][i].x2, xctx->line[c][i].y2);
+         else
+           drawtempline(xctx->gctiled, ADD, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                       xctx->line[c][i].x2, xctx->line[c][i].y2);
-       else
-         drawtempline(xctx->gctiled, ADD, xctx->line[c][i].x1, xctx->line[c][i].y1,
-                                    xctx->line[c][i].x2, xctx->line[c][i].y2);
+       }
       }
      }
      for(i=0;i<xctx->polygons[c];i++)
@@ -671,18 +677,20 @@ void unselect_all(void)
        int k;
        for(k=0;k<xctx->poly[c][i].points; k++) xctx->poly[c][i].selected_point[k] = 0;
        xctx->poly[c][i].sel = 0;
-       drawtemppolygon(xctx->gctiled, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
+       if(dr) drawtemppolygon(xctx->gctiled, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
       }
      }
     }
-    drawtemparc(xctx->gctiled, END, 0.0, 0.0, 0.0, 0.0, 0.0);
-    drawtemprect(xctx->gctiled, END, 0.0, 0.0, 0.0, 0.0);
-    drawtempline(xctx->gctiled,END, 0.0, 0.0, 0.0, 0.0);
+    if(dr) {
+      drawtemparc(xctx->gctiled, END, 0.0, 0.0, 0.0, 0.0, 0.0);
+      drawtemprect(xctx->gctiled, END, 0.0, 0.0, 0.0, 0.0);
+      drawtempline(xctx->gctiled,END, 0.0, 0.0, 0.0, 0.0);
+    }
     xctx->ui_state &= ~SELECTION;
     /*\statusmsg("",2); */
     my_snprintf(str, S(str), "%s/%s", user_conf_dir, ".selection.sch"); /* 20161115  PWD->HOME */
     xunlink(str);
-    dbg(1, "unselect_all(): done\n");
+    dbg(1, "unselect_all(1): done\n");
 }
 
 void select_wire(int i,unsigned short select_mode, int fast)

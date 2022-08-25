@@ -291,7 +291,7 @@ re_comp(const char *pat)
 }
 
 
-static const char *bol;
+const char *bol;
 const char *bopat[MAXTAG];
 const char *eopat[MAXTAG];
 static const char *pmatch(const char *, CHAR *, int *);

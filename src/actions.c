@@ -459,7 +459,7 @@ void ask_new_file(void)
         dbg(1, "ask_new_file(): load file: %s\n", f);
         clear_all_hilights();
         xctx->currsch = 0;
-        unselect_all();
+        unselect_all(1);
         remove_symbols();
         load_schematic(1, f,1); /* 20180925.1 */
         tclvareval("update_recent_file {", f, "}", NULL);
@@ -1324,7 +1324,7 @@ int descend_schematic(int instnumber)
   hilight_child_pins();
 
   get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym);
-  unselect_all();
+  unselect_all(1);
   remove_symbols();
   load_schematic(1,filename, 1);
 
@@ -1363,7 +1363,7 @@ void go_back(int confirm) /*  20171006 add confirm */
     }
   }
   if(save_ok==0) return;
-  unselect_all();
+  unselect_all(1);
   remove_symbols();
   from_embedded_sym=0;
   if(strstr(xctx->sch[xctx->currsch], ".xschem_embedded_")) {
@@ -2057,7 +2057,7 @@ void change_layer()
      }
    }
    if(xctx->lastsel) delete_only_rect_line_arc_poly();
-   unselect_all();
+   unselect_all(1);
 }
 
 void new_arc(int what, double sweep)

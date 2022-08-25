@@ -39,7 +39,7 @@ void hier_psprint(void)  /* netlister driver */
   zoom_full(0, 0, 1, 0.97);
   ps_draw(2); /* page */
   dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
-  unselect_all();
+  unselect_all(1);
   remove_symbols(); /* ensure all unused symbols purged before descending hierarchy */
   /* reload data without popping undo stack, this populates embedded symbols if any */
   xctx->pop_undo(2, 0);
@@ -75,7 +75,7 @@ void hier_psprint(void)  /* netlister driver */
   my_free(1229, &subckt_name);
   my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
   xctx->currsch--;
-  unselect_all();
+  unselect_all(1);
   xctx->pop_undo(0, 0);
   my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
   ps_draw(4); /* trailer */
@@ -348,7 +348,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  if(global)
  { 
    int saved_hilight_nets = xctx->hilight_nets;
-   unselect_all();
+   unselect_all(1);
    remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
    /* reload data without popping undo stack, this populates embedded symbols if any */
    xctx->pop_undo(2, 0);
@@ -388,7 +388,7 @@ void global_spice_netlist(int global)  /* netlister driver */
    /*clear_drawing(); */
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
    xctx->currsch--;
-   unselect_all();
+   unselect_all(1);
    xctx->pop_undo(0, 0);
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
    prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */

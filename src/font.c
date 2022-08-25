@@ -29,12 +29,12 @@ void compile_font(void)
 
  xctx->currsch = 0;
  my_snprintf(name, S(name), "%s/systemlib/font.sch", tclgetvar("XSCHEM_SHAREDIR"));
- unselect_all();
+ unselect_all(1);
  remove_symbols();
  load_schematic(1,name,0);
  for(code=0;code<127;code++)
  {
-  unselect_all();
+  unselect_all(1);
   select_inside(code*FONTOFFSET-1,-FONTHEIGHT-1,
                  code*FONTOFFSET+FONTWIDTH+1,FONTWHITESPACE + FONTDESCENT+1, 1);
   rebuild_selected_array();
@@ -58,7 +58,7 @@ void compile_font(void)
   dbg(2, "};\n");
  }
  clear_drawing();
- unselect_all();
+ unselect_all(1);
  xctx->currsch = 0;
  my_strncpy(xctx->sch[xctx->currsch], "", S(xctx->sch[xctx->currsch]));
 }

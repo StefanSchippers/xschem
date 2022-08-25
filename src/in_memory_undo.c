@@ -479,7 +479,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   }
   slot = xctx->cur_undo_ptr%MAX_UNDO;
   clear_drawing();
-  unselect_all();
+  unselect_all(1);
   my_free(1345, &xctx->wire);
   my_free(1346, &xctx->text);
   my_free(1347, &xctx->inst);

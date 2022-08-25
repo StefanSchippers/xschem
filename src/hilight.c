@@ -1700,7 +1700,7 @@ void unhilight_net(void)
   draw();
   if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
 
-  unselect_all();
+  unselect_all(1);
 }
 
 /* redraws the whole affected rectangle, this avoids artifacts due to antialiased text */

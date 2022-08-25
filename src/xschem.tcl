@@ -5236,6 +5236,14 @@ proc build_widgets { {topwin {} } } {
      -command { xschem connected_nets}
   $topwin.menubar.tools.menu add command -label "Select conn. wires, stop at junctions" \
      -accelerator {Ctrl-Righ Butt.} -command { xschem connected_nets 1 }
+
+  $topwin.menubar.hilight.menu add command \
+   -label {Set schematic to compare and compare with} \
+   -command "xschem compare_schematics" 
+  $topwin.menubar.hilight.menu add command \
+   -label {Compare schematics} \
+   -command "xschem compare_schematics {}" \
+   -accelerator {Alt-X}
   $topwin.menubar.hilight.menu add command \
    -label {Highlight net-pin name mismatches on selected instances} \
    -command "xschem net_pin_mismatch" \

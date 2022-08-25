@@ -289,7 +289,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1],"add_symbol_pin"))
     {
        cmd_found = 1;
-       unselect_all();
+       unselect_all(1);
        storeobject(-1, xctx->mousex_snap-2.5, xctx->mousey_snap-2.5, xctx->mousex_snap+2.5, xctx->mousey_snap+2.5,
                    xRECT, PINLAYER, SELECTED, "name=XXX\ndir=inout");
        xctx->need_reb_sel_arr=1;
@@ -302,7 +302,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1],"add_graph"))
     {
        cmd_found = 1;
-       unselect_all();
+       unselect_all(1);
        xctx->graph_lastsel = xctx->rects[GRIDLAYER];
        storeobject(-1, xctx->mousex_snap-400, xctx->mousey_snap-200, xctx->mousex_snap+400, xctx->mousey_snap+200,
                    xRECT, GRIDLAYER, SELECTED,
@@ -336,7 +336,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
        char str[PATH_MAX+100];
        cmd_found = 1;
-       unselect_all();
+       unselect_all(1);
        tcleval("tk_getOpenFile -filetypes { {{Png} {.png}}   {{All files} *} }");
        if(tclresult()[0]) {
          my_snprintf(str, S(str), "flags=image,unscaled\nalpha=0.8\nimage=%s\n", tclresult());
@@ -487,7 +487,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int i;
    
         xctx->currsch = 0;
-        unselect_all();
+        unselect_all(1);
         remove_symbols();
         clear_drawing();
         if(argc>=3 && !strcmp(argv[2],"SYMBOL")) {
@@ -551,6 +551,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       if(argc > 2) {
         ret = compare_schematics(argv[2]);
+      }
+      else {
+        ret = compare_schematics(NULL); 
       }
       Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
     }
@@ -1623,7 +1626,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           if(!skip) {
             clear_all_hilights();
-            unselect_all();
+            unselect_all(1);
             if(!undo_reset) xctx->push_undo();
             xctx->currsch = 0;
             remove_symbols();
@@ -1735,7 +1738,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1],"net_label"))
     {
       cmd_found = 1;
-      unselect_all();
+      unselect_all(1);
       if(argc>=3) place_net_label(atoi(argv[2]));
     }
    
@@ -1867,7 +1870,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         tclvareval("set INITIALINSTDIR [file dirname {",
              abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
       }
-      unselect_all();
+      unselect_all(1);
       xctx->mx_double_save = xctx->mousex_snap;
       xctx->my_double_save = xctx->mousey_snap;
       if(argc == 4) {
@@ -1894,7 +1897,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
       xctx->semaphore++;
       xctx->last_command = 0;
-      unselect_all();
+      unselect_all(1);
       xctx->mx_double_save = xctx->mousex_snap;
       xctx->my_double_save = xctx->mousey_snap;
       if(place_text(0, xctx->mousex_snap, xctx->mousey_snap)) { /* 1 = draw text 24122002 */
@@ -2195,7 +2198,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"reload"))
     {
       cmd_found = 1;
-      unselect_all();
+      unselect_all(1);
       remove_symbols();
       load_schematic(1, xctx->sch[xctx->currsch], 1);
       if(argc >= 3 && !strcmp(argv[2], "zoom_full") ) {
@@ -2883,7 +2886,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"unselect_all"))
     {
       cmd_found = 1;
-      unselect_all();
+      if(argc > 2) unselect_all(atoi(argv[2]));
+      else unselect_all(1);
       Tcl_ResetResult(interp);
     }
   }

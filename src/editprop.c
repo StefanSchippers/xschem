@@ -1408,7 +1408,7 @@ void edit_property(int x)
   case ELEMENT:
    edit_symbol_property(x);
    while( x == 0 && tclgetvar("edit_symbol_prop_new_sel")[0] == '1' ) {
-     unselect_all();
+     unselect_all(1);
      select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
      rebuild_selected_array();
      if(xctx->lastsel && xctx->sel_array[0].type ==ELEMENT) {

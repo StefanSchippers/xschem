@@ -848,6 +848,8 @@ typedef struct {
   int nl_points, nl_maxpoints;
   /* select_rect */
   double nl_xr, nl_yr, nl_xr2, nl_yr2;
+  /* compare_schematics */
+  char sch_to_compare[PATH_MAX];
   /* pan */
   double xpan,ypan,xpan2,ypan2;
   double p_xx1,p_xx2,p_yy1,p_yy2;
@@ -1112,7 +1114,7 @@ extern int text_bbox_nocairo(const char * str,double xscale, double yscale,
 
 extern unsigned short select_object(double mx,double my, unsigned short sel_mode,
                                     int override_lock); /*  return type 20160503 */
-extern void unselect_all(void);
+extern void unselect_all(int dr);
 extern void select_inside(double x1,double y1, double x2, double y2, int sel);
 extern int Tcl_AppInit(Tcl_Interp *interp);
 extern int callback(const char *winpath, int event, int mx, int my, KeySym key,
