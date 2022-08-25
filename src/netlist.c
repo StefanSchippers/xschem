@@ -1085,9 +1085,8 @@ int compare_schematics(const char *f)
   {
     l =1024 + strlen(xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
     my_realloc(1535, &s, l);
-    my_snprintf(s, l, "N %g %g %g %g %s", xctx->wire[i].x1,  xctx->wire[i].y1,
-        xctx->wire[i].x2, xctx->wire[i].y2, 
-        xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+    my_snprintf(s, l, "N %g %g %g %g", xctx->wire[i].x1,  xctx->wire[i].y1,
+        xctx->wire[i].x2, xctx->wire[i].y2);
     int_hash_lookup(table1, s, i, XINSERT_NOREPLACE);
   }
   clear_all_hilights();
@@ -1115,9 +1114,8 @@ int compare_schematics(const char *f)
   {
     l =1024 + strlen(xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
     my_realloc(1535, &s, l);
-    my_snprintf(s, l, "N %g %g %g %g %s", xctx->wire[i].x1,  xctx->wire[i].y1,
-        xctx->wire[i].x2, xctx->wire[i].y2, 
-        xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+    my_snprintf(s, l, "N %g %g %g %g", xctx->wire[i].x1,  xctx->wire[i].y1,
+        xctx->wire[i].x2, xctx->wire[i].y2);
     int_hash_lookup(table2, s, i, XINSERT_NOREPLACE);
     found = int_hash_lookup(table1, s, i, XLOOKUP);
     if(!found) {
@@ -1152,9 +1150,8 @@ int compare_schematics(const char *f)
   {
     l = 1024 + strlen(xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
     my_realloc(1537, &s, l);
-    my_snprintf(s, l, "N %g %g %g %g %s", xctx->wire[i].x1,  xctx->wire[i].y1,
-        xctx->wire[i].x2, xctx->wire[i].y2, 
-        xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+    my_snprintf(s, l, "N %g %g %g %g", xctx->wire[i].x1,  xctx->wire[i].y1,
+        xctx->wire[i].x2, xctx->wire[i].y2);
     found = int_hash_lookup(table2, s, i, XLOOKUP);
     if(!found) {
       select_wire(i, SELECTED, 1);
