@@ -989,9 +989,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      else if(!strcmp(argv[2],"textlayer")) {
        Tcl_SetResult(interp, my_itoa(TEXTLAYER), TCL_VOLATILE);
      }
+     /* top_path="" for main window, ".x1", ".x2", ... for additional windows.
+      * always "" in tabbed interface */
      else if(!strcmp(argv[2],"top_path")) {
        Tcl_SetResult(interp, xctx->top_path, TCL_VOLATILE);
      }
+     /* same as above but main window returned as "." */
      else if(!strcmp(argv[2],"topwindow")) {
        char *top_path;
        top_path =  xctx->top_path[0] ? xctx->top_path : ".";

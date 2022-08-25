@@ -1057,6 +1057,7 @@ int compare_schematics(const char *f)
   char current_sch[PATH_MAX];
   int ret=0; /* ret==0 means no differences found */
 
+  save(0);
   if(f == NULL) {
     tcleval("load_file_dialog {Schematic to compare with} .sch.sym INITIALLOADDIR");
     if(tclresult()[0]) my_strncpy(xctx->sch_to_compare, tclresult(), S(xctx->sch_to_compare));
