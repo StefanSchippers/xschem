@@ -633,7 +633,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->time_last_modify = 0;
 }
 
-static void delete_schematic_data(void)
+static void delete_schematic_data(int delete_pixmap)
 {
   dbg(1, "delete_schematic_data()\n");
   unselect_all(1);
@@ -645,7 +645,7 @@ static void delete_schematic_data(void)
   clear_all_hilights();      /* data structs for hilighting nets/instances */
   get_unnamed_node(0, 0, 0); /* net### enumerator used for netlisting */
   clear_drawing();
-  if(has_x) {
+  if(has_x && delete_pixmap) {
     resetwin(0, 1, 1, 0, 0);  /* delete preview pixmap, delete cairo surfaces */
     free_gc();
   }
@@ -657,6 +657,170 @@ static void delete_schematic_data(void)
   free_xschem_data(); /* delete the xctx struct */
 }
 
+int compare_schematics(const char *f)
+{
+  Int_hashentry *table1[HASHSIZE],  *table2[HASHSIZE];
+  Int_hashentry *found;
+  char *s = NULL;
+  int i;
+  size_t l;
+  int ret=0; /* ret==0 means no differences found */
+  Xschem_ctx *save_xctx;
+
+  memset(table1, 0, HASHSIZE * sizeof(Int_hashentry *));
+  memset(table2, 0, HASHSIZE * sizeof(Int_hashentry *));
+
+  /* set filename of schematic to compare */
+  if(f == NULL) {
+    tcleval("load_file_dialog {Schematic to compare with} .sch.sym INITIALLOADDIR");
+    if(tclresult()[0]) my_strncpy(xctx->sch_to_compare, tclresult(), S(xctx->sch_to_compare));
+    else my_strncpy(xctx->sch_to_compare, "", S(xctx->sch_to_compare));
+  } else if(f[0] != '\0') {
+    my_strncpy(xctx->sch_to_compare, f, S(xctx->sch_to_compare));
+  }
+  if(!xctx->sch_to_compare[0]) {
+     dbg(0, "compare_schematics() schematic to compare with not set\n");
+     return -1;
+  }
+
+  /* HASH SCHEMATIC 1 */
+  for(i = 0; i < xctx->instances; i++) {
+    l =  1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
+    my_realloc(1534, &s, l);
+    my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
+        xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip, 
+        xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
+    int_hash_lookup(table1, s, i, XINSERT_NOREPLACE);
+  }
+  for(i=0;i<xctx->wires;i++)
+  {
+    l =1024 + strlen(xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+    my_realloc(1535, &s, l);
+    my_snprintf(s, l, "N %g %g %g %g", xctx->wire[i].x1,  xctx->wire[i].y1,
+        xctx->wire[i].x2, xctx->wire[i].y2);
+    int_hash_lookup(table1, s, i, XINSERT_NOREPLACE);
+  }
+
+
+  /* save old xctx and create new xctx for compare schematic */
+  save_xctx = xctx;
+  xctx = NULL; 
+  alloc_xschem_data("", ".drw");
+  xctx->netlist_type = CAD_SPICE_NETLIST;
+  tclsetvar("netlist_type","spice"); 
+  init_pixdata(); /* populate xctx->fill_type array that is used in create_gc() to set fill styles */
+  /* draw in same window */
+  xctx->window = save_xctx->window;
+  /* copy filename from saved schematic ctx */
+  my_strncpy(xctx->sch_to_compare, save_xctx->sch_to_compare, S(xctx->sch_to_compare));
+  set_snap(0); /* set default value specified in xschemrc as 'snap' else CADSNAP */
+  set_grid(0); /* set default value specified in xschemrc as 'grid' else CADGRID */
+  create_gc();
+  enable_layers();
+  build_colors(0.0, 0.0);
+
+  /* copy graphic context data from schematic 1 */
+  xctx->areax1 = save_xctx->areax1;
+  xctx->areax2 = save_xctx->areax2;
+  xctx->areay1 = save_xctx->areay1;
+  xctx->areay2 = save_xctx->areay2;
+  xctx->areaw = save_xctx->areaw;
+  xctx->areah = save_xctx->areah;
+  xctx->xrect[0].x = save_xctx->xrect[0].x;
+  xctx->xrect[0].y = save_xctx->xrect[0].y;
+  xctx->xrect[0].width = save_xctx->xrect[0].width;
+  xctx->xrect[0].height = save_xctx->xrect[0].height;
+  xctx->save_pixmap = save_xctx->save_pixmap;
+  xctx->gctiled = save_xctx->gctiled;
+  xctx->cairo_ctx = save_xctx->cairo_ctx;
+  xctx->cairo_save_ctx = save_xctx->cairo_save_ctx;
+
+  /* set identical viewport */
+  xctx->zoom = save_xctx->zoom;
+  xctx->mooz = save_xctx->mooz;
+  xctx->xorigin = save_xctx->xorigin;
+  xctx->yorigin = save_xctx->yorigin;
+  /* Load schematic 2 for comparing */
+  load_schematic(1, xctx->sch_to_compare, 0); /* last param to 0, do not alter window title */
+
+  /* HASH SCHEMATIC 2 , CHECK SCHEMATIC 2 WITH SCHEMATIC 1 */
+  for(i = 0; i < xctx->instances; i++) {
+    l =  1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
+    my_realloc(1534, &s, l);
+    my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
+        xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip, 
+        xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
+    int_hash_lookup(table2, s, i, XINSERT_NOREPLACE);
+    found = int_hash_lookup(table1, s, i, XLOOKUP);
+    if(!found) {
+      dbg(1, "schematic 2 instance %d: %s mismatch or not found in schematic 1\n", i,
+         xctx->inst[i].instname ? xctx->inst[i].instname : "");
+      select_element(i,SELECTED, 1, 1);
+      ret = 1;
+    }
+  }
+  for(i=0;i<xctx->wires;i++)
+  {
+    l =1024 + strlen(xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+    my_realloc(1535, &s, l);
+    my_snprintf(s, l, "N %g %g %g %g", xctx->wire[i].x1,  xctx->wire[i].y1,
+        xctx->wire[i].x2, xctx->wire[i].y2);
+    int_hash_lookup(table2, s, i, XINSERT_NOREPLACE);
+    found = int_hash_lookup(table1, s, i, XLOOKUP);
+    if(!found) {
+      dbg(1, "schematic 2 net %d: %s mismatch or not found in schematic 1\n", i,
+         xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+      select_wire(i, SELECTED, 1);
+      ret = 1;
+    }
+  }
+  /* draw mismatches in red */
+  if(ret) {
+    rebuild_selected_array();
+    draw_selection(xctx->gc[PINLAYER], 0);
+  }
+  unselect_all(0);
+
+  /* delete compare schematic data */
+  delete_schematic_data(0); /* do not delete save_pixmap */
+
+  /* restore schematic 1 */
+  xctx = save_xctx;
+
+  /* CHECK SCHEMATIC 1 WITH SCHEMATIC 2*/
+  for(i = 0; i < xctx->instances; i++) {
+    l = 1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
+    my_realloc(1536,&s, l);
+    my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
+        xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip,
+        xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
+    found = int_hash_lookup(table2, s, i, XLOOKUP);
+    if(!found) {
+      select_element(i,SELECTED, 1, 1);
+      ret = 1;
+    }
+  }
+  for(i=0;i<xctx->wires;i++)
+  {
+    l = 1024 + strlen(xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
+    my_realloc(1537, &s, l);
+    my_snprintf(s, l, "N %g %g %g %g", xctx->wire[i].x1,  xctx->wire[i].y1,
+        xctx->wire[i].x2, xctx->wire[i].y2);
+    found = int_hash_lookup(table2, s, i, XLOOKUP);
+    if(!found) {
+      select_wire(i, SELECTED, 1);
+      ret = 1;
+    }
+  }
+  int_hash_free(table1);
+  int_hash_free(table2);
+  rebuild_selected_array();
+  draw_selection(xctx->gc[SELLAYER], 0);
+  my_free(1531, &s);
+  return ret;
+}
+
+
 static void xwin_exit(void)
 {
  int i;
@@ -666,7 +830,7 @@ static void xwin_exit(void)
    return;
  }
  tcleval("catch { ngspice::resetdata }"); /* remove ngspice annotation data if any */
- delete_schematic_data();
+ delete_schematic_data(1);
  if(has_x) {
    Tk_DestroyWindow(mainwindow);
    #ifdef __unix__
@@ -952,7 +1116,7 @@ void preview_window(const char *what, const char *win_path, const char *fname)
     xctx = preview_xctx;
     if(!current_file || strcmp(fname, current_file) ) { 
       if(current_file) {
-        delete_schematic_data();
+        delete_schematic_data(1);
       }
       my_strdup(117, &current_file, fname);
       xctx = NULL;      /* reset for preview */
@@ -974,7 +1138,7 @@ void preview_window(const char *what, const char *win_path, const char *fname)
     dbg(1, "preview_window() destroy\n");
     xctx = preview_xctx;
     if(current_file) {
-      delete_schematic_data();
+      delete_schematic_data(1);
       preview_xctx = NULL;
     }
     
@@ -1299,7 +1463,7 @@ static void destroy_window(int *window_count, const char *win_path)
         /* set saved ctx to main window if current is to be destroyed */
         if(savectx == xctx) savectx = save_xctx[0];
         tclvareval("winfo toplevel ", win_path, NULL);
-        delete_schematic_data();
+        delete_schematic_data(1);
         save_xctx[n] = NULL;
         Tk_DestroyWindow(Tk_NameToWindow(interp, window_path[n], mainwindow));
         tclvareval("destroy ", tclresult(), NULL);
@@ -1352,7 +1516,7 @@ static void destroy_tab(int *window_count, const char *win_path)
         tclvareval("delete_ctx ", win_path, NULL);
         tclvareval("delete_tab ", win_path, NULL);
         xctx = save_xctx[n];
-        delete_schematic_data();
+        delete_schematic_data(1);
         save_xctx[n] = NULL;
         my_strncpy(window_path[n], "", S(window_path[n]));
         /* delete Tcl context of deleted schematic window */
@@ -1360,7 +1524,10 @@ static void destroy_tab(int *window_count, const char *win_path)
         if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure 21 -state normal");
       }
       xctx = save_xctx[0]; /* restore main (.drw) schematic */
-      resetwin(1, 0, 0, 0, 0);  /* create pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
+
+      /* seems unnecessary; previous tab save_pixmap was not deleted */
+      /* resetwin(1, 0, 0, 0, 0); */ /* create pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
+ 
       tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
       set_modify(-1); /* sets window title */
       draw();
@@ -1397,7 +1564,7 @@ static void destroy_all_windows(int *window_count)
           Tcl_ResetResult(interp);
           if(close) {
             tclvareval("winfo toplevel ", window_path[i], NULL);
-            delete_schematic_data();
+            delete_schematic_data(1);
             /* set saved ctx to main window if previous is about to be destroyed */
             if(savectx == save_xctx[i]) savectx = save_xctx[0];
             save_xctx[i] = NULL;
@@ -1444,7 +1611,7 @@ static void destroy_all_tabs(int *window_count)
           /* delete Tcl context of deleted schematic window */
           tclvareval("delete_ctx ", window_path[i], NULL);
           tclvareval("delete_tab ", window_path[i], NULL);
-          delete_schematic_data();
+          delete_schematic_data(1);
           /* set saved ctx to main window if previous is about to be destroyed */
           if(savectx == save_xctx[i]) savectx = save_xctx[0];
           save_xctx[i] = NULL;
