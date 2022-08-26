@@ -2883,7 +2883,7 @@ const char *translate(int inst, const char* s)
  int s_pnetname;
  int level;
  Lcc *lcc;
- char *value1 = NULL, *value2 = NULL;
+ char *value1 = NULL;
 
 
  s_pnetname = tclgetboolvar("show_pin_net_names");
@@ -3143,10 +3143,10 @@ const char *translate(int inst, const char* s)
        my_strdup2(1521, &value1, value);
        /* recursive substitution of value using parent level prop_str attributes */
        while(i > 0) {
-         my_strdup2(1522, &value2, get_tok_value(lcc[i-1].prop_ptr, value1, 0));
-         if(xctx->tok_size && value2[0]) {
-           dbg(1, "value2=%s\n", value2);
-           my_strdup2(1523, &value1, value2);
+         const char *tok = get_tok_value(lcc[i-1].prop_ptr, value1, 0);
+         if(xctx->tok_size && tok[0]) {
+           dbg(1, "tok=%s\n", tok);
+           my_strdup2(1523, &value1, tok);
          }
          dbg(1, "2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
          i--;
@@ -3158,8 +3158,6 @@ const char *translate(int inst, const char* s)
        memcpy(result+result_pos, value1, tmp+1);
        result_pos+=tmp;
        my_free(1524, &value1);
-       my_free(1525, &value2);
-
      }
    }
    token_pos = 0;
