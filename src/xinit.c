@@ -679,8 +679,8 @@ int compare_schematics(const char *f)
     my_strncpy(xctx->sch_to_compare, f, S(xctx->sch_to_compare));
   }
   if(!xctx->sch_to_compare[0]) {
-     dbg(0, "compare_schematics() schematic to compare with not set\n");
-     return -1;
+     my_strncpy(xctx->sch_to_compare, abs_sym_path(xctx->current_name, ""), S(xctx->sch_to_compare));
+     dbg(0, "Compare current schematic with saved version of itself!\n");
   }
 
   /* HASH SCHEMATIC 1 */
