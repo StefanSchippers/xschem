@@ -140,6 +140,31 @@ int find_time_mach_absolute_time(const char *name, int logdepth, int fatal)
 	return try_fail(logdepth, "libs/time/mach_absolute_time");
 }
 
+int find_time_QueryPerformanceCounter(const char *name, int logdepth, int fatal)
+{
+	char *test_c =
+		NL "#include <stdio.h>"
+		NL "int main() {"
+		NL "	LARGE_INTEGER tmp;"
+		NL "	BOOL res;"
+		NL "	res = QueryPerformanceCounter(&tmp);"
+		NL "	if (res && (tmp.QuadPart > 1))"
+		NL "		puts(\"OK\");"
+		NL "	return 0;"
+		NL "}"
+		NL;
+
+	require("cc/cc", logdepth, fatal);
+
+	report("Checking for QueryPerformanceCounter()... ");
+	logprintf(logdepth, "find_time_QueryPerformanceCounter: trying to find QueryPerformanceCounter...\n");
+	logdepth++;
+
+	if (try_icl(logdepth, "libs/time/QueryPerformanceCounter", test_c, "#include <windows.h>", NULL, NULL))
+		return 0;
+	return try_fail(logdepth, "libs/time/QueryPerformanceCounter");
+}
+
 
 int find_time_gettimeofday(const char *name, int logdepth, int fatal)
 {

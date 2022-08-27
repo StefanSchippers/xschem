@@ -750,8 +750,8 @@ typedef struct {
   char current_name[PATH_MAX];
   char file_version[100];
   char *sch_path[CADMAXHIER];
-  int sch_path_hash[CADMAXHIER];
-  int sch_inst_number[CADMAXHIER];
+  int sch_path_hash[CADMAXHIER]; /* cached hash of hierarchic schematic path for speed */
+  int sch_inst_number[CADMAXHIER]; /* inst number descended into in case of vector instances X1[5:0] */
   int previous_instance[CADMAXHIER]; /* to remember the instance we came from when going up the hier. */
   Zoom zoom_array[CADMAXHIER];
   double xorigin,yorigin;

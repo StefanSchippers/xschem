@@ -1646,6 +1646,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(argc==2) {
         ask_new_file();
       }
+      Tcl_SetResult(interp, xctx->sch[xctx->currsch], TCL_STATIC);
     }
     else if(!strcmp(argv[1],"load_new_window") )
     {
