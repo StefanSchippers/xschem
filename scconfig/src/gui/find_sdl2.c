@@ -179,3 +179,44 @@ int find_sdl2_ttf(const char *name, int logdepth, int fatal)
 
 	return try_fail(logdepth, node);
 }
+
+int find_sdl2_GetTicks64(const char *name, int logdepth, int fatal)
+{
+	const char *test_c =
+		NL "#include <SDL.h>"
+		NL "#include <stdio.h>"
+		NL "int main()"
+		NL "{"
+		NL "	if (SDL_Init(SDL_INIT_TIMER) == 0) {"
+		NL "		SDL_GetTicks64();"
+		NL "		puts(\"OK\");"
+		NL "	}"
+		NL "	return 0;"
+		NL "}"
+		NL;
+	char *cflags, *ldflags;
+	const char *ocf, *olf;
+	const char *node = "libs/gui/sdl2_GetTicks64";
+
+	if (require("cc/cc", logdepth, fatal))
+		return 1;
+
+	report("Checking for SDL_GetTicks64()... ");
+	logprintf(logdepth, "SDL_GetTicks64():\n");
+	logdepth++;
+
+	/* extend SDL2's cflags and ldflags */
+	if (require("libs/gui/sdl2/cflags", logdepth, fatal))
+		return try_fail(logdepth, node);
+	if (require("libs/gui/sdl2/ldflags", logdepth, fatal))
+		return try_fail(logdepth, node);
+
+	ocf = get("libs/gui/sdl2/cflags");
+	olf = get("libs/gui/sdl2/ldflags");
+
+	if (try_icl(logdepth, node, test_c, NULL, ocf, olf) != 0)
+		return 0;
+
+	return try_fail(logdepth, node);
+}
+

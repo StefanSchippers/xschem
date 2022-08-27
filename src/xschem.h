@@ -709,7 +709,7 @@ typedef struct {
   int unity_suffix;
   double txtsizelab, digtxtsizelab, txtsizey, txtsizex;
   int dataset;
-  int hilight_wave[2]; /* [0] : graph index, [1] : wave index */
+  int hilight_wave; /* wave index */
   int logx, logy;
 } Graph_ctx;
 
@@ -848,6 +848,7 @@ typedef struct {
   int nl_points, nl_maxpoints;
   /* select_rect */
   double nl_xr, nl_yr, nl_xr2, nl_yr2;
+  int nl_sel, nl_sem;
   /* compare_schematics */
   char sch_to_compare[PATH_MAX];
   /* pan */
@@ -878,13 +879,14 @@ typedef struct {
   int undo_initialized;
   /* graph context struct */
   Graph_ctx graph_struct;
-  /* read raw files (draw.c) */
+  /* spice raw file specific data */
   char **graph_names;
   SPICE_DATA **graph_values;
   int graph_nvars;
   int *graph_npoints;
   int graph_allpoints; /* all points of all datasets combined */
   int graph_datasets;
+  /* data related to all graphs, so not stored in per-graph graph_struct */
   double graph_cursor1_x;
   double graph_cursor2_x;
   int graph_unlock_x; 
@@ -904,10 +906,11 @@ typedef struct {
   int graph_left;
   int graph_lastsel; /* last graph that was clicked (selected) */
   int graph_sim_type; /* type of sim, 1: Tran, 2: Dc, 3: Ac */
-  Int_hashentry **raw_table;
-  char *raw_schname;
-  /*     */
-  int nl_sel, nl_sem;
+  Int_hashentry **graph_raw_table;
+  /* when descending hierarchy xctx->current_name changes, xctx->graph_raw_schname
+   * holds the name of the top schematic from which the raw file was loaded */
+  char *graph_raw_schname;
+  /*    */
   XSegment *biggridpoint;
   XPoint *gridpoint;
   char plotfile[PATH_MAX];
@@ -918,7 +921,7 @@ typedef struct {
   int draw_single_layer;
   int draw_dots;
   int only_probes;
-  int menu_removed; /* fullscreen pervious setting */
+  int menu_removed; /* fullscreen previous setting */
   double save_lw; /* used to save linewidth when selecting 'only_probes' view */
   int no_draw;
   int draw_pixmap; /* pixmap used as 2nd buffer */

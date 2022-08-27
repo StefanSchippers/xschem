@@ -325,7 +325,7 @@ static void free_xschem_data()
   my_free(1385, &xctx->inst_table);
   my_free(1386, &xctx->node_redraw_table);
   my_free(1387, &xctx->hilight_table);
-  my_free(1388, &xctx->raw_table);
+  my_free(1388, &xctx->graph_raw_table);
 
   my_free(1098, &xctx->wire);
   my_free(1100, &xctx->text);
@@ -448,9 +448,8 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->graph_left = 0;
   xctx->graph_lastsel = -1;
   xctx->graph_sim_type = 0; /* type of sim, 1: Tran, 2: Dc, 3: Ac */
-  xctx->graph_struct.hilight_wave[0] = -1; /* graph index of hilight wave */
-  xctx->graph_struct.hilight_wave[1] = -1; /* index of wave */
-  xctx->raw_schname = NULL;
+  xctx->graph_struct.hilight_wave = -1; /* index of wave */
+  xctx->graph_raw_schname = NULL;
   xctx->wires = 0;
   xctx->instances = 0;
   xctx->symbols = 0;
@@ -496,7 +495,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->node_redraw_table = my_calloc(973,  HASHSIZE, sizeof(Int_hashentry *));
   xctx->inst_table = my_calloc(1382,  HASHSIZE, sizeof(Inst_hashentry *));
   xctx->hilight_table = my_calloc(1383,  HASHSIZE, sizeof(Hilight_hashentry *));
-  xctx->raw_table = my_calloc(1384,  HASHSIZE, sizeof(Int_hashentry *));
+  xctx->graph_raw_table = my_calloc(1384,  HASHSIZE, sizeof(Int_hashentry *));
 
   xctx->inst_redraw_table = NULL;
   xctx->inst_redraw_table_size = 0;
@@ -686,7 +685,7 @@ int compare_schematics(const char *f)
   /* HASH SCHEMATIC 1 */
   for(i = 0; i < xctx->instances; i++) {
     l =  1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
-    my_realloc(1534, &s, l);
+    my_realloc(1540, &s, l);
     my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
         xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip, 
         xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
@@ -695,7 +694,7 @@ int compare_schematics(const char *f)
   for(i=0;i<xctx->wires;i++)
   {
     l =1024 + strlen(xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
-    my_realloc(1535, &s, l);
+    my_realloc(1541, &s, l);
     my_snprintf(s, l, "N %g %g %g %g", xctx->wire[i].x1,  xctx->wire[i].y1,
         xctx->wire[i].x2, xctx->wire[i].y2);
     int_hash_lookup(table1, s, i, XINSERT_NOREPLACE);

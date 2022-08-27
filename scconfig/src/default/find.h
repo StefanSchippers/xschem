@@ -145,6 +145,9 @@ int find_io_popen(const char *name, int logdepth, int fatal);
 /* find_time.c */
 int find_time_usleep(const char *name, int logdepth, int fatal);
 int find_time_Sleep(const char *name, int logdepth, int fatal);
+int find_time_clock_gettime(const char *name, int logdepth, int fatal);
+int find_time_CLOCK_MONOTONIC_RAW(const char *name, int logdepth, int fatal);
+int find_time_mach_absolute_time(const char *name, int logdepth, int fatal);
 int find_time_gettimeofday(const char *name, int logdepth, int fatal);
 int find_time_ftime(const char *name, int logdepth, int fatal);
 int find_time_timegm(const char *name, int logdepth, int fatal);

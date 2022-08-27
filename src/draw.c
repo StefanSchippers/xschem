@@ -1635,9 +1635,9 @@ static double get_unit(const char *val)
 int schematic_waves_loaded(void)
 {
   int i;
-  if(xctx->graph_values && xctx->raw_schname) {
+  if(xctx->graph_values && xctx->graph_raw_schname) {
     for(i = xctx->currsch; i >= 0; i--) {
-      if( !strcmp(xctx->raw_schname, xctx->sch[i]) ) return 1;
+      if( !strcmp(xctx->graph_raw_schname, xctx->sch[i]) ) return 1;
     } 
   }
   return 0;
@@ -1721,11 +1721,11 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
 static void set_thick_waves(int what, int wcnt, int wave_col, Graph_ctx *gr)
 {
   if(what) {
-      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
+      if(gr->hilight_wave == wcnt)
          XSetLineAttributes (display, xctx->gc[wave_col],
             3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
   } else {
-      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt)
+      if(gr->hilight_wave == wcnt)
          XSetLineAttributes (display, xctx->gc[wave_col],
             INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
   }
@@ -2001,6 +2001,11 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
   gr->rw = gr->rx2 - gr->rx1;
   gr->rh = gr->ry2 - gr->ry1;
 
+  /* wave to display in bold, -1=none */
+  val=get_tok_value(r->prop_ptr,"hilight_wave",0);
+  if(val[0]) gr->hilight_wave = atoi(val);
+  else gr->hilight_wave = -1;
+
   /* get x/y range, grid info etc */
   val = get_tok_value(r->prop_ptr,"unitx",0);
   gr->unitx_suffix = val[0];
@@ -2212,7 +2217,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
 
     if(yt <= gr->ypos2 && yt >= gr->ypos1) {
       #if HAS_CAIRO == 1
-      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt) {
+      if(gr->hilight_wave == wcnt) {
         cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
         cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
       }
@@ -2220,7 +2225,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
       draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
         xt, DW_Y(yt), gr->digtxtsizelab, gr->digtxtsizelab);
       #if HAS_CAIRO == 1
-      if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt) {
+      if(gr->hilight_wave == wcnt) {
         cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
         cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
       }
@@ -2228,7 +2233,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     }
   } else {
     #if HAS_CAIRO == 1
-    if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt) {
+    if(gr->hilight_wave == wcnt) {
       cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
       cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     }
@@ -2236,7 +2241,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
         gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry1, gr->txtsizelab, gr->txtsizelab);
     #if HAS_CAIRO == 1
-    if(gr->hilight_wave[0] == gr->i && gr->hilight_wave[1] == wcnt) {
+    if(gr->hilight_wave == wcnt) {
       cairo_select_font_face(xctx->cairo_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
       cairo_select_font_face(xctx->cairo_save_ctx, "Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     }
@@ -2387,19 +2392,18 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
           char s[30];
           ret = 1;
           if(what == 1) {
+            int save = gr->hilight_wave;
             my_snprintf(s, S(s), "%d %d", i, wcnt);
-            gr->hilight_wave[0] = i;
-            gr->hilight_wave[1] = wcnt;
+            gr->hilight_wave = wcnt;
             tclvareval("graph_edit_wave ", s, NULL);
-            gr->hilight_wave[0] = -1;
-            gr->hilight_wave[1] = -1;
+            gr->hilight_wave = save;
           } else {
-             if(gr->hilight_wave[0] == i && gr->hilight_wave[1] == wcnt) {
-               gr->hilight_wave[0] = -1;
-               gr->hilight_wave[1] = -1;
+             if(gr->hilight_wave == wcnt) {
+               gr->hilight_wave = -1;
+               my_strdup2(1522, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
              } else {
-               gr->hilight_wave[0] = i;
-               gr->hilight_wave[1] = wcnt;
+               gr->hilight_wave = wcnt;
+               my_strdup2(1525, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
              }
           }
         }
@@ -2413,19 +2417,18 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
         char s[50];
         ret = 1;
         if(what == 1) {
+          int save = gr->hilight_wave;
           my_snprintf(s, S(s), "%d %d", i, wcnt);
-          gr->hilight_wave[0] = i;
-          gr->hilight_wave[1] = wcnt;
+          gr->hilight_wave = wcnt;
           tclvareval("graph_edit_wave ", s, NULL);
-          gr->hilight_wave[0] = -1;
-          gr->hilight_wave[1] = -1;
+          gr->hilight_wave = save;
         } else {
-          if(gr->hilight_wave[0] == i && gr->hilight_wave[1] == wcnt) {
-            gr->hilight_wave[0] = -1;
-            gr->hilight_wave[1] = -1;
+          if(gr->hilight_wave == wcnt) {
+            gr->hilight_wave = -1;
+            my_strdup2(1538, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
           } else {
-            gr->hilight_wave[0] = i;
-            gr->hilight_wave[1] = wcnt;
+            gr->hilight_wave = wcnt;
+            my_strdup2(1539, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
           }
         }
       }

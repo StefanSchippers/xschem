@@ -1616,7 +1616,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           int skip = 0;
           dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
           my_strncpy(f,  abs_sym_path(argv[2], ""), S(f));
-          if(f[0] && check_loaded(f, win_path)) {
+          if(!force && f[0] && check_loaded(f, win_path) ) {
             char msg[PATH_MAX + 100];
             my_snprintf(msg, S(msg),
                "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
@@ -2089,7 +2089,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           /* xschem rawfile_query index v(ldcp) */
           Int_hashentry *entry; 
           int idx;
-          entry = int_hash_lookup(xctx->raw_table, argv[3], 0, XLOOKUP);
+          entry = int_hash_lookup(xctx->graph_raw_table, argv[3], 0, XLOOKUP);
           idx = entry ? entry->value : -1;
           Tcl_AppendResult(interp, my_itoa(idx), NULL);
         } else if(argc > 3 && !strcmp(argv[2], "values")) {

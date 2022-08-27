@@ -1162,7 +1162,7 @@ proc simulate {{callback {}}} {
       set N ${n}.${tool}
     }
     if { ![info exists  sim($tool,default)] } {
-      if { $has_x} {alert_ "Warning: simulator for $tool is not configured"}
+      if { [info exists has_x] } {alert_ "Warning: simulator for $tool is not configured"}
       puts "Warning: simulator for $tool is not configured"
       return
     }
@@ -1291,7 +1291,7 @@ proc waves {} {
     }
     set tool ${tool}wave
     if { ![info exists  sim($tool,default)] } {
-      if { $has_x} {alert_ "Warning: viewer for $tool is not configured"}
+      if { [info exists has_x] } {alert_ "Warning: viewer for $tool is not configured"}
       puts "Warning: viewer for $tool is not configured"
       return
     }
@@ -4623,7 +4623,7 @@ set tctx::global_array_list {
 
 proc delete_ctx {context} {
   global has_x
-  if {![info exists $has_x]} {return}
+  if {![info exists has_x]} {return}
   set tctx::tctx $context
   uplevel #0 {
     # puts "delete_ctx $tctx::tctx"

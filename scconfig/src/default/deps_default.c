@@ -127,6 +127,9 @@ void deps_default_init(void)
 	dep_add("libs/types/stdint/*",      find_types_stdint);
 	dep_add("sys/types/size/*",         find_types_sizes);
 	dep_add("libs/time/Sleep/*",        find_time_Sleep);
+	dep_add("libs/time/clock_gettime/*",find_time_clock_gettime);
+	dep_add("libs/time/CLOCK_MONOTONIC_RAW/*",find_time_CLOCK_MONOTONIC_RAW);
+	dep_add("libs/time/mach_absolute_time/*", find_time_mach_absolute_time);
 	dep_add("libs/time/gettimeofday/*", find_time_gettimeofday);
 	dep_add("libs/time/ftime/*",        find_time_ftime);
 	dep_add("libs/time/timegm/*",       find_time_timegm);

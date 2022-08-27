@@ -383,16 +383,16 @@ static int read_dataset(FILE *fd)
       sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
       if(xctx->graph_sim_type == 3) { /* AC */
         my_strcat(415, &xctx->graph_names[i << 1], varname);
-        int_hash_lookup(xctx->raw_table, xctx->graph_names[i << 1], (i << 1), XINSERT_NOREPLACE);
+        int_hash_lookup(xctx->graph_raw_table, xctx->graph_names[i << 1], (i << 1), XINSERT_NOREPLACE);
         if(strstr(varname, "v(") == varname || strstr(varname, "i(") == varname ||
            strstr(varname, "V(") == varname || strstr(varname, "I(") == varname)
           my_mstrcat(664, &xctx->graph_names[(i << 1) + 1], "ph(", varname + 2, NULL);
         else
           my_mstrcat(540, &xctx->graph_names[(i << 1) + 1], "ph(", varname, ")", NULL);
-        int_hash_lookup(xctx->raw_table, xctx->graph_names[(i << 1) + 1], (i << 1) + 1, XINSERT_NOREPLACE);
+        int_hash_lookup(xctx->graph_raw_table, xctx->graph_names[(i << 1) + 1], (i << 1) + 1, XINSERT_NOREPLACE);
       } else {
         my_strcat(541, &xctx->graph_names[i], varname);
-        int_hash_lookup(xctx->raw_table, xctx->graph_names[i], i, XINSERT_NOREPLACE);
+        int_hash_lookup(xctx->graph_raw_table, xctx->graph_names[i], i, XINSERT_NOREPLACE);
       }
       /* use hash table to store index number of variables */
       dbg(1, "read_dataset(): get node list -> names[%d] = %s\n", i, xctx->graph_names[i]);
@@ -429,10 +429,10 @@ void free_rawfile(int dr)
   }
   if(xctx->graph_npoints) my_free(1413, &xctx->graph_npoints);
   xctx->graph_allpoints = 0;
-  if(xctx->raw_schname) my_free(1393, &xctx->raw_schname);
+  if(xctx->graph_raw_schname) my_free(1393, &xctx->graph_raw_schname);
   xctx->graph_datasets = 0;
   xctx->graph_nvars = 0;
-  int_hash_free(xctx->raw_table);
+  int_hash_free(xctx->graph_raw_table);
   if(deleted && dr) draw();
 }
 
@@ -502,7 +502,7 @@ int read_rawfile(const char *f)
     if((res = read_dataset(fd)) == 1) {
       int i;
       dbg(0, "Raw file data read\n");
-      my_strdup2(1394, &xctx->raw_schname, xctx->sch[xctx->currsch]);
+      my_strdup2(1394, &xctx->graph_raw_schname, xctx->sch[xctx->currsch]);
       xctx->graph_allpoints = 0;
       for(i = 0; i < xctx->graph_datasets; i++) {
         xctx->graph_allpoints +=  xctx->graph_npoints[i];
@@ -525,14 +525,14 @@ int get_raw_index(const char *node)
   Int_hashentry *entry;
   dbg(1, "get_raw_index(): node=%s, node=%s\n", node, node);
   if(xctx->graph_values) {
-    entry = int_hash_lookup(xctx->raw_table, node, 0, XLOOKUP);
+    entry = int_hash_lookup(xctx->graph_raw_table, node, 0, XLOOKUP);
     if(!entry) {
       my_snprintf(vnode, S(vnode), "v(%s)", node);
-      entry = int_hash_lookup(xctx->raw_table, vnode, 0, XLOOKUP);
+      entry = int_hash_lookup(xctx->graph_raw_table, vnode, 0, XLOOKUP);
       if(!entry) {
         my_strncpy(lnode, vnode, S(lnode));
         strtolower(lnode);
-        entry = int_hash_lookup(xctx->raw_table, lnode, 0, XLOOKUP);
+        entry = int_hash_lookup(xctx->graph_raw_table, lnode, 0, XLOOKUP);
       }
     }
     if(entry) return entry->value;

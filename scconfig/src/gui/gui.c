@@ -52,4 +52,5 @@ void deps_gui_init()
 	dep_add("libs/gui/sdl2/*",              find_sdl2);
 	dep_add("libs/gui/sdl2_gfx/*",          find_sdl2_gfx);
 	dep_add("libs/gui/sdl2_ttf/*",          find_sdl2_ttf);
+	dep_add("libs/gui/sdl2_GetTicks64/*",   find_sdl2_GetTicks64);
 }
