@@ -131,6 +131,7 @@ void deps_default_init(void)
 	dep_add("libs/time/CLOCK_MONOTONIC_RAW/*",find_time_CLOCK_MONOTONIC_RAW);
 	dep_add("libs/time/mach_absolute_time/*", find_time_mach_absolute_time);
 	dep_add("libs/time/QueryPerformanceCounter/*", find_time_QueryPerformanceCounter);
+	dep_add("libs/time/timeGetTime/*",  find_time_timeGetTime);
 	dep_add("libs/time/gettimeofday/*", find_time_gettimeofday);
 	dep_add("libs/time/ftime/*",        find_time_ftime);
 	dep_add("libs/time/timegm/*",       find_time_timegm);

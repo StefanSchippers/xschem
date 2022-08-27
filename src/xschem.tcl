@@ -5506,7 +5506,7 @@ proc setup_tcp_xschem {} {
   global xschem_listen_port xschem_server_getdata
   if { [info exists xschem_listen_port] && ($xschem_listen_port ne {}) } { 
     if {[catch {socket -server xschem_server $xschem_listen_port} err]} {
-      puts "problems listening to TCP port: $xschem_listen_port"
+      puts "setup_tcp_xschem: problems listening to TCP port: $xschem_listen_port"
       puts $err
       return 0
     } else {
@@ -5520,7 +5520,7 @@ proc setup_tcp_bespice {} {
   global bespice_listen_port bespice_server_getdata
   if { [info exists bespice_listen_port] && ($bespice_listen_port ne {}) } { 
     if {[catch {socket -server bespice_server $bespice_listen_port} err]} {
-      puts "problems listening to TCP port: $bespice_listen_port"
+      puts "setup_tcp_bespice: problems listening to TCP port: $bespice_listen_port"
       puts $err
       return 0
     } else {

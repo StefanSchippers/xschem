@@ -86,7 +86,7 @@ static int test_clock_gettime(const char *name_, int logdepth, int fatal, const 
 		NL;
 	int len = strlen(name_);
 
-	/* truncate "/*" from the end of the node name */
+	/* truncate "/ *" from the end of the node name */
 	memcpy(name, name_, len);
 	if (name[len-1] == '*')
 		name[len-2] = '\0';
@@ -163,6 +163,30 @@ int find_time_QueryPerformanceCounter(const char *name, int logdepth, int fatal)
 	if (try_icl(logdepth, "libs/time/QueryPerformanceCounter", test_c, "#include <windows.h>", NULL, NULL))
 		return 0;
 	return try_fail(logdepth, "libs/time/QueryPerformanceCounter");
+}
+
+int find_time_timeGetTime(const char *name, int logdepth, int fatal)
+{
+	char *test_c =
+		NL "#include <stdio.h>"
+		NL "int main() {"
+		NL "	DWORD now;"
+		NL "	now = timeGetTime();"
+		NL "	if (now > 1)"
+		NL "		puts(\"OK\");"
+		NL "	return 0;"
+		NL "}"
+		NL;
+
+	require("cc/cc", logdepth, fatal);
+
+	report("Checking for timeGetTime()... ");
+	logprintf(logdepth, "find_time_timeGetTime: trying to find timeGetTime...\n");
+	logdepth++;
+
+	if (try_icl(logdepth, "libs/time/timeGetTime", test_c, "#include <windows.h>", NULL, "-lwinmm"))
+		return 0;
+	return try_fail(logdepth, "libs/time/timeGetTime");
 }
 
 
