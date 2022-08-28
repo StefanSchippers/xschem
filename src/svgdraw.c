@@ -729,13 +729,13 @@ void svg_draw(void)
   for(i=0;i<cadlayers;i++){
     if(unused_layer[i]) continue;
     fprintf(fd, ".l%d{\n", i);
-    if(xctx->fill_type[i] == 1) 
+    if( xctx->fill_pattern == 0 || xctx->fill_type[i] == 0) 
+       fprintf(fd, "  fill: none;\n");
+    else if( xctx->fill_pattern == 2 || xctx->fill_type[i] == 1) 
       fprintf(fd, " fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
-    else if(xctx->fill_type[i] == 2) 
+    else 
       fprintf(fd, " fill: #%02x%02x%02x; fill-opacity: 0.5;\n", 
          svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
-    else
-       fprintf(fd, "  fill: none;\n");
     fprintf(fd, "  stroke: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     fprintf(fd, "  stroke-linecap:round;\n");
     fprintf(fd, "  stroke-linejoin:round;\n");

@@ -4301,7 +4301,7 @@ proc toolbar_toolbar { {topwin {} } } {
 # Create a tool button which may be displayed
 #
 proc toolbar_create {name cmd { help "" } {topwin {} } } {
-    button $topwin.toolbar.b$name -image img$name -relief flat -bd 1 -bg white -fg white \
+    button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 -bg white -fg white -height 24 \
     -padx 0 -pady 0 -command $cmd
     if { $help == "" } { balloon $topwin.toolbar.b$name $name } else { balloon $topwin.toolbar.b$name $help }
 }
