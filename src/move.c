@@ -193,7 +193,7 @@ void draw_selection(GC g, int interruptable)
   int customfont;
   #endif
 
-  if(g == xctx->gc[SELLAYER]) xctx->movelastsel = xctx->lastsel;
+  if(g != xctx->gctiled) xctx->movelastsel = xctx->lastsel;
   for(i=0;i<xctx->movelastsel;i++)
   {
    c = xctx->sel_array[i].col;n = xctx->sel_array[i].n;
@@ -437,10 +437,11 @@ void draw_selection(GC g, int interruptable)
        ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
                 xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
      }
-     for(k=0;k<cadlayers;k++)
-      draw_temp_symbol(ADD, g, n, k, xctx->move_flip,
-       ( xctx->move_flip && (xctx->inst[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot,
-       xctx->rx1-xctx->inst[n].x0+xctx->deltax,xctx->ry1-xctx->inst[n].y0+xctx->deltay);
+     for(k=0;k<cadlayers;k++) {
+       draw_temp_symbol(ADD, g, n, k, xctx->move_flip,
+         ( xctx->move_flip && (xctx->inst[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot,
+         xctx->rx1-xctx->inst[n].x0+xctx->deltax,xctx->ry1-xctx->inst[n].y0+xctx->deltay);
+     }
      break;
    }
 #ifdef __unix__

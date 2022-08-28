@@ -754,7 +754,8 @@ int compare_schematics(const char *f)
     if(!found) {
       dbg(1, "schematic 2 instance %d: %s mismatch or not found in schematic 1\n", i,
          xctx->inst[i].instname ? xctx->inst[i].instname : "");
-      select_element(i,SELECTED, 1, 1);
+      xctx->inst[i].sel = SELECTED;
+      xctx->need_reb_sel_arr=1;
       ret = 1;
     }
   }
@@ -769,7 +770,8 @@ int compare_schematics(const char *f)
     if(!found) {
       dbg(1, "schematic 2 net %d: %s mismatch or not found in schematic 1\n", i,
          xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
-      select_wire(i, SELECTED, 1);
+      xctx->wire[i].sel = SELECTED;
+      xctx->need_reb_sel_arr=1;
       ret = 1;
     }
   }
@@ -795,7 +797,8 @@ int compare_schematics(const char *f)
         xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
     found = int_hash_lookup(table2, s, i, XLOOKUP);
     if(!found) {
-      select_element(i,SELECTED, 1, 1);
+      xctx->inst[i].sel = SELECTED;
+      xctx->need_reb_sel_arr=1;
       ret = 1;
     }
   }
@@ -807,7 +810,8 @@ int compare_schematics(const char *f)
         xctx->wire[i].x2, xctx->wire[i].y2);
     found = int_hash_lookup(table2, s, i, XLOOKUP);
     if(!found) {
-      select_wire(i, SELECTED, 1);
+      xctx->wire[i].sel = SELECTED;
+      xctx->need_reb_sel_arr=1;
       ret = 1;
     }
   }
