@@ -5083,9 +5083,10 @@ proc build_widgets { {topwin {} } } {
      }
   $topwin.menubar.view.menu add command -label "Redraw" -command "xschem redraw" -accelerator Esc
   toolbar_create ViewRedraw "xschem redraw" "Redraw" $topwin
-  $topwin.menubar.view.menu add checkbutton -label "Fullscreen" -variable fullscreen \
-     -accelerator {Alt+Shift+F} -command "
-        xschem fullscreen $topwin
+  $topwin.menubar.view.menu add command -label "Fullscreen" \
+     -accelerator "\\" -command "
+        if {\$fullscreen == 1} {set fullscreen 2} ;# avoid hiding menu in true fullscreen
+        xschem fullscreen $topwin.drw
      "
   $topwin.menubar.view.menu add command -label "Zoom Full" -command "xschem zoom_full" -accelerator F
   $topwin.menubar.view.menu add command -label "Zoom In" -command "xschem zoom_in" -accelerator Shift+Z

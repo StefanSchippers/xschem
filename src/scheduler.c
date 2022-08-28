@@ -788,7 +788,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1],"fullscreen"))
     {
       cmd_found = 1;
-      toggle_fullscreen(argv[2]);
+      if(argc > 2) toggle_fullscreen(argv[2]);
+      else toggle_fullscreen(".drw");
       Tcl_ResetResult(interp);
     }
   }
