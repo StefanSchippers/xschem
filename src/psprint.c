@@ -118,7 +118,7 @@ static void set_ps_colors(unsigned int pixel)
 
 static void ps_xdrawarc(int layer, int fillarc, double x, double y, double r, double a, double b)
 {
- if(xctx->fill_pattern && fillarc)
+ if(xctx->fill_pattern && xctx->fill_type[layer]  && fillarc)
    fprintf(fd, "%g %g %g %g %g A %g %g LT C F S\n", x, y, r, -a, -a-b, x, y);
  else
    fprintf(fd, "%g %g %g %g %g A S\n", x, y, r, -a, -a-b);
