@@ -726,12 +726,24 @@ void svg_draw(void)
               " width=\"%g\" height=\"%g\" version=\"1.1\">\n", dx, dy);
  
   fprintf(fd, "<style type=\"text/css\">\n");  /* use css stylesheet 20121119 */
+
+  /* fill_pattern:
+   * 0 : no fill
+   * 1 : stippled fill
+   * 2 : solid fill
+   * fill_type[i]: 
+   * 0 : no fill
+   * 1 : solid fill
+   * 2 : patterned (stippled) fill
+   */
   for(i=0;i<cadlayers;i++){
     if(unused_layer[i]) continue;
     fprintf(fd, ".l%d{\n", i);
     if( xctx->fill_pattern == 0 || xctx->fill_type[i] == 0) 
        fprintf(fd, "  fill: none;\n");
-    else if( xctx->fill_pattern == 2 || xctx->fill_type[i] == 1) 
+    else if( xctx->fill_pattern == 2 && xctx->fill_type[i]) 
+      fprintf(fd, " fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
+    else if( xctx->fill_pattern && xctx->fill_type[i] == 1) 
       fprintf(fd, " fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     else 
       fprintf(fd, " fill: #%02x%02x%02x; fill-opacity: 0.5;\n", 
