@@ -1,8 +1,8 @@
-# This example shows how to add a custom toolbar button to xschem
-# Stefan Schippers 20220827
+## This example shows how to add a custom toolbar button to xschem
+## Stefan Schippers 20220827
 
-# 24x24 GIF image (so it will be loaded by 20 years old tcl8.4, recent
-# tcl accepts also PNG). Transparent background, encoded as base64
+## 24x24 GIF image (so it will be loaded by 20 years old tcl8.4, recent
+## tcl accepts also PNG). Transparent background, encoded as base64
 set MyButtonData {
   R0lGODlhGAAYAPcAACIiIiMjIyUlJSYmJicnJykpKSoqKisrKywsLDAwMDExMTIyMjMzMzQ0NDU1
   NTY2Njc3Nzg4ODk5OTo6Oj09PT4+Pj8/P0FBQUJCQkNDQ0REREVFRUZGRklJSUxMTE1NTU5OTlFR
@@ -27,15 +27,26 @@ set MyButtonData {
   Ow==
 }
 
-# Add a "MyButton" button to toolbar_list
+## Add a "MyButton" button to toolbar_list
 lappend toolbar_list MyButton
 
-# Create an image object. Name should be img<name of button>
-image create photo imgMyButton -data $MyButtonData
+## Create an image object. Name should be img<name of button>
+image create photo imgMyButton 
+imgMyButton put $MyButtonData
 
-# Create the toolbar button
-# constructor     name           tcl command       tooltip    topwindow
+## Create the toolbar button
+## constructor    name           tcl command       tooltip    topwindow
 toolbar_create   MyButton      { puts SMILE! }     "SMILE!"     {}
-# destroy and rebuild the toolbar
-toolbar_hide
-toolbar_show
+
+## Destroy and rebuild the toolbar, but see better option here under ...
+# toolbar_hide
+# toolbar_show
+
+## ... More efficient way: just add the new button ...
+pack .toolbar.bMyButton -side left
+
+## ... or place it before some other button:
+# pack .toolbar.bMyButton -after .toolbar.bViewToggleColors -side left
+
+## To remove the button without destroying it:
+# pack forget .toolbar.bMyButton

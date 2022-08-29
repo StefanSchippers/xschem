@@ -4291,18 +4291,14 @@ proc setup_toolbar {} {
 }
 
 #
-# Toolbar constructor
-#
-proc toolbar_toolbar { {topwin {} } } {
-    frame $topwin.toolbar -relief raised -bd 0 -bg white
-}
-
-#
 # Create a tool button which may be displayed
 #
 proc toolbar_create {name cmd { help "" } {topwin {} } } {
+    if {![winfo exists  $topwin.toolbar]} {
+       frame $topwin.toolbar -relief raised -bd 0 -bg white
+    }
     button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 -bg white -fg white -height 24 \
-    -padx 0 -pady 0 -command $cmd
+    -padx 0 -pady 0  -highlightthickness 0 -command $cmd
     if { $help == "" } { balloon $topwin.toolbar.b$name $name } else { balloon $topwin.toolbar.b$name $help }
 }
 
@@ -4312,7 +4308,11 @@ proc toolbar_create {name cmd { help "" } {topwin {} } } {
 #
 proc toolbar_show { { topwin {} } } {
     global toolbar_horiz toolbar_list toolbar_visible tabbed_interface
-    if { ! $toolbar_visible } { return }
+    set toolbar_visible 1
+    if {![winfo exists  $topwin.toolbar]} {
+       frame $topwin.toolbar -relief raised -bd 0 -bg white
+    }
+    if {[winfo ismapped $topwin.toolbar]} {return}
     if { $toolbar_horiz } { 
         if {$tabbed_interface} {
           pack $topwin.toolbar -fill x -before $topwin.tabs 
@@ -4349,7 +4349,6 @@ proc toolbar_show { { topwin {} } } {
     foreach b { Waves Simulate Netlist } {
         pack $topwin.toolbar.b$b -side $pos
     }
-    set $toolbar_visible 1
 }
 
 #
@@ -4357,6 +4356,9 @@ proc toolbar_show { { topwin {} } } {
 #
 proc toolbar_hide { { topwin {} } } {
     global toolbar_visible
+    set toolbar_visible 0
+    if {![winfo exists $topwin.toolbar]} {return}
+    if {![winfo ismapped $topwin.toolbar]} {return}
     set tlist [ winfo children $topwin.toolbar ]
     foreach b $tlist {
         pack forget $b
@@ -4365,7 +4367,7 @@ proc toolbar_hide { { topwin {} } } {
         }
     }
     pack forget $topwin.toolbar
-    set $toolbar_visible 0
+    set toolbar_visible 0
 }
 
 proc setup_tabbed_interface {} {
@@ -4851,7 +4853,6 @@ proc build_widgets { {topwin {} } } {
     set bbg {-bg gray50 -highlightthickness 0}
   }
   eval frame $topwin.menubar -relief raised -bd 2 $mbg
-  toolbar_toolbar $topwin
   eval menubutton $topwin.menubar.file -text "File" -menu $topwin.menubar.file.menu \
    -padx 3 -pady 0 $mbg
   menu $topwin.menubar.file.menu -tearoff 0
