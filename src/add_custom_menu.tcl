@@ -21,3 +21,9 @@ pack .menubar.test -side left
 # pack forget .menubar.test
 
 
+################################################################
+## adding a button in the menubar (not in the toolbar) 
+################################################################
+# button .menubar.test -pady 0 -highlightthickness 0 -text Test -command {puts Test}
+# pack  .menubar.test -side left
+
