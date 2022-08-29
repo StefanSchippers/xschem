@@ -1684,11 +1684,11 @@ void change_linewidth(double w)
   /* choose line width automatically based on zoom */
   if(w<0.) {
     double cs;
+    changed=1;
     cs = tclgetdoublevar("cadsnap");
     if(tclgetboolvar("change_lw"))  {
       xctx->lw=xctx->mooz * 0.09 * cs;
       cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (cs-10);
-      changed=1;
     }
   /* explicitly set line width */
   } else {
