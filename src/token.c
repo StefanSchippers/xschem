@@ -2730,6 +2730,12 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
  char *pinname = NULL;
 
 
+ /* if merging a ngspice_probe.sym element it contains a @@p token, 
+  * so translate calls net_name, but we are placing the merged objects, 
+  * no net name is assigned yet */
+ if(!xctx->inst[i].node) {
+   return expandlabel("", multip);
+ }
  if(xctx->inst[i].node && xctx->inst[i].node[j] == NULL)
  {
    my_strdup(1508, &pinname, get_tok_value( sym->rect[PINLAYER][j].prop_ptr,"name",0));
@@ -2744,9 +2750,6 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
        break;
      }
    }
- }
- if(xctx->inst[i].node && xctx->inst[i].node[j] == NULL)
- {
    expandlabel(pinname, multip);
    if(pinname) my_free(1511, &pinname);
    if(erc) {
