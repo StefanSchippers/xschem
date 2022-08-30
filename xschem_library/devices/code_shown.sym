@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2 }
 G {}
 K {type=netlist_commands
 template="name=s1 only_toplevel=false value=blabla"
@@ -11,4 +11,4 @@ E {}
 L 4 0 -10 70 -10 {}
 L 4 0 -10 0 10 {}
 T {@name} 5 -30 0 0 0.3 0.3 {}
-T {@value} 15 -5 0 0 0.3 0.3 {}
+T {@value} 15 -5 0 0 0.3 0.3 {font=Monospace}

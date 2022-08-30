@@ -1,4 +1,4 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -126,7 +126,7 @@ lab=CTRL1}
 N 800 -870 800 -690 {
 lab=CTRL1}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
-C {code_shown.sym} 250 -250 0 0 {name=CONTROL value=".control
+C {code_shown.sym} 190 -240 0 0 {name=CONTROL value=".control
 save v(panel) v(sw) v(led) i(vpanel)
 tran 1u 600u uic
 write solar_panel.raw

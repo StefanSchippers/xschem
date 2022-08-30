@@ -131,8 +131,10 @@ char *str_concat(const char *sep, ...)
 	}
 
 	/* first string is NULL; return a new allocation that is a simple \0, empty string to avoid a nasty corner case */
-	if (sum == 0)
+	if (sum == 0) {
+		va_end(ap);
 		return calloc(1, 1);
+	}
 
 	sl = strlen(sep);
 	sum += (v-1) * sl + 1; /* + a sep between each two strings and a terminator at the end */

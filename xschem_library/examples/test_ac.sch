@@ -847,7 +847,6 @@ m=1
 value=1
 footprint=1206
 device="ceramic capacitor"}
-C {nmos4.sym} 540 -250 0 1 {name=m2 model=cmosn w=10u l=1u m=1  net_name=true}
 C {launcher.sym} 1210 -70 0 0 {name=h3
 descr="Graph Manual page"
 url="https://xschem.sourceforge.io/stefan/xschem_man/graphs.html"}

@@ -21,6 +21,7 @@ static const char *get_entry_val(const arg_auto_set_t *as)
 		free(path);
 		return res;
 	}
+	return "unknown";
 }
 
 #define next_word(curr, next) \
