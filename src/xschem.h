@@ -928,6 +928,7 @@ typedef struct {
   int netlist_count; /* netlist counter incremented at any cell being netlisted */
   int hide_symbols;
   int netlist_type;
+  char *format; /* "format", "verilog_format", "vhdl_format" or "tedax_format" */
   char *top_path;
   /* top_path is the path prefix of drawing canvas (current_win_path):
    *

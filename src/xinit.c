@@ -377,6 +377,7 @@ static void free_xschem_data()
   my_free(1295, &xctx->top_path);
   my_free(1463, &xctx->current_win_path);
   my_free(1120, &xctx->fill_type);
+  my_free(1543, &xctx->format);
   if(xctx->inst_redraw_table) my_free(604, &xctx->inst_redraw_table);
   my_free(269, &xctx);
 }
@@ -620,6 +621,8 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->active_layer=my_calloc(563, cadlayers, sizeof(int));
   xctx->hide_symbols = 0;
   xctx->netlist_type = CAD_SPICE_NETLIST;
+  xctx->format = NULL; /* custom format string for netlist, otherwise use
+                        * "format", "verilog_format", "vhdl_format", "tedax_format" */
   xctx->top_path = NULL;
   xctx->current_win_path = NULL;
   my_strdup2(1296, &xctx->top_path, top_path);

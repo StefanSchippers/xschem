@@ -115,11 +115,13 @@ void hash_all_names(int n)
 {
   int i;
   char *upinst = NULL, *type = NULL, *format = NULL;
+  const char *fmt_attr = NULL;
   inst_hash_free();
+  fmt_attr = xctx->format ? xctx->format : "format";
   for(i=0; i<xctx->instances; i++) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
       my_strdup(1519, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-      my_strdup(1520, &format, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr,"format",2));
+      my_strdup(1520, &format, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, fmt_attr,2));
       if(!type || !format || IS_LABEL_SH_OR_PIN(type) ) continue;
       my_strdup(1254, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
@@ -169,6 +171,7 @@ void check_unique_names(int rename)
   Inst_hashentry *entry;
   int big =  xctx->wires> 2000 || xctx->instances > 2000;
   char *upinst = NULL, *type = NULL, *format = NULL;
+  const char *fmt_attr = NULL;
   /* int save_draw; */
 
   if(xctx->hilight_nets) {
@@ -187,10 +190,11 @@ void check_unique_names(int rename)
   }
   inst_hash_free();
   first = 1;
+  fmt_attr = xctx->format ? xctx->format : "format";
   for(i=0;i<xctx->instances;i++) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
       my_strdup(1261, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-      my_strdup(1262, &format, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr,"format",2));
+      my_strdup(1262, &format, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, fmt_attr,2));
       if(!type || !format || IS_LABEL_SH_OR_PIN(type) ) continue;
       my_strdup(1246, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
@@ -774,15 +778,17 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
  int escape=0;
  int no_of_pins=0;
  /* Inst_hashentry *ptr; */
+ char *fmt_attr = NULL;
 
  my_strdup(513, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
  my_strdup(514, &name, xctx->inst[inst].instname);
+ fmt_attr = xctx->format ? xctx->format : "vhdl_format";
  if(!name) my_strdup(50, &name, get_tok_value(template, "name", 0));
 
  /* allow format string override in instance */
- my_strdup(1000, &format, get_tok_value(xctx->inst[inst].prop_ptr,"vhdl_format",2));
+ my_strdup(1000, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
  if(!format || !format[0])
-   my_strdup(516, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"vhdl_format",2));
+   my_strdup(516, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
  if((name==NULL) || (format==NULL) ) {
    my_free(1047, &template);
    my_free(1048, &name);
@@ -1192,8 +1198,10 @@ void print_vhdl_element(FILE *fd, int inst)
   int quote=0;
   int escape=0;
   xRect *pinptr;
+  const char *fmt_attr = NULL;
 
-  if(get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"vhdl_format", 2)[0] != '\0') {
+  fmt_attr = xctx->format ? xctx->format : "vhdl_format";
+  if(get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2)[0] != '\0') {
    print_vhdl_primitive(fd, inst);
    return;
   }
@@ -1544,8 +1552,10 @@ void print_tedax_subckt(FILE *fd, int symbol)
  size_t token_pos=0;
  int escape=0;
  int no_of_pins=0;
+ char *fmt_attr = NULL;
 
- my_strdup(460, &format, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
+ fmt_attr = xctx->format ? xctx->format : "format";
+ my_strdup(460, &format, get_tok_value(xctx->sym[symbol].prop_ptr, fmt_attr, 2));
  if( format==NULL ) {
    my_free(473, &format);
    return; /* no format */
@@ -1653,20 +1663,21 @@ void print_spice_subckt(FILE *fd, int symbol)
  size_t token_pos=0;
  int escape=0;
  int no_of_pins=0;
- const char *tclres;
+ const char *tclres, *fmt_attr = NULL;
 
- my_strdup(103, &format1, get_tok_value(xctx->sym[symbol].prop_ptr,"format",2));
+ fmt_attr = xctx->format ? xctx->format : "format";
+ my_strdup(103, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, fmt_attr, 2));
  dbg(1, "print_spice_subckt(): format1=%s\n", format1);
- if(strstr(format1, "tcleval(") == format1) {
+ if(format1 && strstr(format1, "tcleval(") == format1) {
     tclres = tcl_hook2(&format1);
     if(!strcmp(tclres, "?\n")) my_strdup(1529, &format,  format1 + 8);
     else my_strdup(455, &format,  tclres);
  } else {
    my_strdup(1530, &format,  format1);
  }
+ if(format1) my_free(1544, &format1);
  dbg(1, "print_spice_subckt(): format=%s\n", format);
  if( format==NULL ) {
-   my_free(1012, &format);
    return; /* no format */
  }
  no_of_pins= xctx->sym[symbol].rects[PINLAYER];
@@ -1781,7 +1792,8 @@ int print_spice_element(FILE *fd, int inst)
   char *result = NULL;
   size_t result_pos = 0;
   size_t size = 0;
-  char *spiceprefixtag = NULL;
+  char *spiceprefixtag = NULL; 
+  const char *fmt_attr = NULL;
 
   size = CADCHUNKALLOC;
   my_realloc(1211, &result, size);
@@ -1792,9 +1804,10 @@ int print_spice_element(FILE *fd, int inst)
   if (!name) my_strdup(43, &name, get_tok_value(template, "name", 0));
 
   /* allow format string override in instance */
-  my_strdup(470, &format, get_tok_value(xctx->inst[inst].prop_ptr,"format",2));
+  fmt_attr = xctx->format ? xctx->format : "format";
+  my_strdup(470, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
   if(!format || !format[0])
-     my_strdup(486, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"format",2));
+     my_strdup(486, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
 
   if ((name==NULL) || (format==NULL)) {
     my_free(1015, &template);
@@ -2397,6 +2410,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
   int escape=0;
   int no_of_pins=0;
   /* Inst_hashentry *ptr; */
+  const char *fmt_attr = NULL;
 
   my_strdup(519, &template,
       (xctx->inst[inst].ptr + xctx->sym)->templ);
@@ -2404,10 +2418,11 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
   my_strdup(520, &name,xctx->inst[inst].instname);
   if(!name) my_strdup(4, &name, get_tok_value(template, "name", 0));
 
+  fmt_attr = xctx->format ? xctx->format : "verilog_format";
   /* allow format string override in instance */
-  my_strdup(1186, &format, get_tok_value(xctx->inst[inst].prop_ptr,"verilog_format",2));
+  my_strdup(1186, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
   if(!format || !format[0])
-    my_strdup(522, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"verilog_format",2));
+    my_strdup(522, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
   if((name==NULL) || (format==NULL) ) {
     my_free(1054, &template);
     my_free(1055, &name);
@@ -2597,8 +2612,10 @@ void print_verilog_element(FILE *fd, int inst)
  size_t sizetok=0, sizeval=0;
  size_t token_pos=0, value_pos=0;
  int quote=0;
+ const char *fmt_attr = NULL;
 
- if(get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"verilog_format",2)[0] != '\0') {
+ fmt_attr = xctx->format ? xctx->format : "verilog_format";
+ if(get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2)[0] != '\0') {
   print_verilog_primitive(fd, inst);
   return;
  }

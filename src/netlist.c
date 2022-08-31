@@ -526,12 +526,19 @@ static void wirecheck(int k)    /* recursive routine */
 
 void set_tcl_netlist_type(void)
 {
-    if(xctx->netlist_type == CAD_SPICE_NETLIST) tclsetvar("netlist_type", "spice");
-    else if(xctx->netlist_type == CAD_VERILOG_NETLIST) tclsetvar("netlist_type", "verilog");
-    else if(xctx->netlist_type == CAD_VHDL_NETLIST) tclsetvar("netlist_type", "vhdl");
-    else if(xctx->netlist_type == CAD_TEDAX_NETLIST) tclsetvar("netlist_type", "tedax");
-    else if(xctx->netlist_type == CAD_SYMBOL_ATTRS) tclsetvar("netlist_type", "symbol");
-    else tclsetvar("netlist_type", "unknown");
+    if(xctx->netlist_type == CAD_SPICE_NETLIST) {
+      tclsetvar("netlist_type", "spice");
+    }  else if(xctx->netlist_type == CAD_VERILOG_NETLIST) {
+      tclsetvar("netlist_type", "verilog");
+    } else if(xctx->netlist_type == CAD_VHDL_NETLIST) {
+      tclsetvar("netlist_type", "vhdl");
+    } else if(xctx->netlist_type == CAD_TEDAX_NETLIST) {
+      tclsetvar("netlist_type", "tedax");
+    } else if(xctx->netlist_type == CAD_SYMBOL_ATTRS) {
+      tclsetvar("netlist_type", "symbol");
+    } else {
+      tclsetvar("netlist_type", "unknown");
+    }
 }
 
 /* what==0 -> initialize  */

@@ -90,6 +90,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  char *subckt_name;
  char *abs_path = NULL;
  int split_f;
+ const char *fmt_attr = NULL;
 
  split_f = tclgetboolvar("split_files");
  xctx->push_undo();
@@ -120,6 +121,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
 
 
 /* print verilog timescale 10102004 */
+ fmt_attr = xctx->format ? xctx->format : "verilog_format";
  for(i=0;i<xctx->instances;i++)
  {
   if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
@@ -130,7 +132,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
   my_strdup(105, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"timescale")==0 || strcmp(type,"verilog_preprocessor")==0) )
   {
-   str_tmp = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr ,"verilog_format",2);
+   str_tmp = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr , fmt_attr, 2);
    my_strdup(106, &tmp_string, str_tmp);
    fprintf(fd, "%s\n", str_tmp ? translate(i, tmp_string) : "(NULL)");
   }
@@ -419,7 +421,7 @@ void verilog_block_netlist(FILE *fd, int i)
   char netl_filename[PATH_MAX];
   char tcl_cmd_netlist[PATH_MAX + 100];
   char cellname[PATH_MAX];
-  const char *str_tmp;
+  const char *str_tmp, *fmt_attr = NULL;
   int split_f;
 
   split_f = tclgetboolvar("split_files");
@@ -445,6 +447,7 @@ void verilog_block_netlist(FILE *fd, int i)
 
   verilog_stop? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
   /* print verilog timescale  and preprocessor directives 10102004 */
+  fmt_attr = xctx->format ? xctx->format : "verilog_format";
   for(j=0;j<xctx->instances;j++)
   {
    if( strcmp(get_tok_value(xctx->inst[j].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
@@ -455,7 +458,7 @@ void verilog_block_netlist(FILE *fd, int i)
    my_strdup(544, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
    if( type && ( strcmp(type,"timescale")==0  || strcmp(type,"verilog_preprocessor")==0) )
    {
-    str_tmp = get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr ,"verilog_format",2);
+    str_tmp = get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr, fmt_attr, 2);
     my_strdup(545, &tmp_string, str_tmp);
     fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string) : "(NULL)");
    }

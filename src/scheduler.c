@@ -883,6 +883,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        else
          Tcl_SetResult(interp, "0",TCL_STATIC);
      }
+     else if(!strcmp(argv[2],"format")) {
+       if( !xctx->format )
+         Tcl_SetResult(interp, "<NULL>",TCL_STATIC);
+       else
+         Tcl_SetResult(interp, xctx->format,TCL_VOLATILE);
+     }
      else if(!strcmp(argv[2],"graph_lastsel")) {
        Tcl_SetResult(interp, my_itoa(xctx->graph_lastsel),TCL_VOLATILE);
      }
@@ -2509,6 +2515,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(!strcmp(argv[2],"flat_netlist")) {
             xctx->flat_netlist=atoi(argv[3]);
       }
+      else if(!strcmp(argv[2],"format")) {
+            my_strdup(1542, &xctx->format, argv[3]);
+      }
       else if(!strcmp(argv[2],"hide_symbols")) {
             xctx->hide_symbols=atoi(argv[3]);
       }
@@ -2520,27 +2529,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc > 3) {
           if(!strcmp(argv[3],"spice")){
             xctx->netlist_type=CAD_SPICE_NETLIST;
-            tclsetvar("netlist_type", "spice");
           }
           else if(!strcmp(argv[3],"vhdl")) {
             xctx->netlist_type=CAD_VHDL_NETLIST;
-            tclsetvar("netlist_type", "vhdl");
           }
           else if(!strcmp(argv[3],"verilog")) {
             xctx->netlist_type=CAD_VERILOG_NETLIST;
-            tclsetvar("netlist_type", "verilog");
           }
           else if(!strcmp(argv[3],"tedax")) {
             xctx->netlist_type=CAD_TEDAX_NETLIST;
-            tclsetvar("netlist_type", "tedax");
           }
           else if(!strcmp(argv[3],"symbol")) {
             xctx->netlist_type=CAD_SYMBOL_ATTRS;
-            tclsetvar("netlist_type", "symbol");
           }
           else {
-            tclsetvar("netlist_type", "unknown");
+            dbg(0, "Warning: undefined netlist format: %s\n", argv[3]);
           }
+          set_tcl_netlist_type();
         }
       }
       else if(!strcmp(argv[2],"no_draw")) {
