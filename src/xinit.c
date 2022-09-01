@@ -1292,7 +1292,7 @@ static void create_new_window(int *window_count, const char *fname)
   }
   (*window_count)++;
   tclvareval("[xschem get top_path].menubar.simulate configure -bg $simulate_bg", NULL);
-  tcleval(".menubar.view.menu entryconfigure 21 -state disabled");
+  tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state disabled");
   n = -1;
   for(i = 1; i < MAX_NEW_WINDOWS; i++) { /* search 1st free slot */
     if(save_xctx[i] == NULL) {
@@ -1383,7 +1383,7 @@ static void create_new_tab(int *window_count, const char *fname)
   }
   (*window_count)++;
   tclvareval("[xschem get top_path].menubar.simulate configure -bg $simulate_bg", NULL);
-  tcleval(".menubar.view.menu entryconfigure 21 -state disabled");
+  tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state disabled");
   n = -1;
   for(i = 1; i < MAX_NEW_WINDOWS; i++) { /* search 1st free slot */
     if(save_xctx[i] == NULL) {
@@ -1475,7 +1475,7 @@ static void destroy_window(int *window_count, const char *win_path)
         tclvareval("destroy ", tclresult(), NULL);
         my_strncpy(window_path[n], "", S(window_path[n]));
         (*window_count)--;
-        if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure 21 -state normal");
+        if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
       }
     }
     /* following 3 lines must be done also if window not closed */
@@ -1527,7 +1527,7 @@ static void destroy_tab(int *window_count, const char *win_path)
         my_strncpy(window_path[n], "", S(window_path[n]));
         /* delete Tcl context of deleted schematic window */
         (*window_count)--;
-        if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure 21 -state normal");
+        if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
       }
       xctx = save_xctx[0]; /* restore main (.drw) schematic */
 
@@ -1580,7 +1580,7 @@ static void destroy_all_windows(int *window_count)
             tclvareval("delete_ctx ", window_path[i], NULL);
             my_strncpy(window_path[i], "", S(window_path[i]));
             (*window_count)--;
-            if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure 21 -state normal");
+            if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
           }
         }
       }
