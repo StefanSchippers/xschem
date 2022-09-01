@@ -1210,6 +1210,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym)
       my_strncpy(filename, add_ext(abs_sym_path(sym->name, ""), ".sch"), PATH_MAX);
     }
   }
+  dbg(1, "get_sch_from_sym(): sym->name=%s, filename=%s\n", sym->name, filename);
 }
 
 int descend_schematic(int instnumber)

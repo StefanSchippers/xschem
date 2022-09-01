@@ -113,16 +113,16 @@ static void inst_hash_free(void) /* remove the whole hash table  */
 
 void hash_all_names(int n)
 {
-  int i;
-  char *upinst = NULL, *type = NULL, *format = NULL;
+  int i, has_fmt_attr;
+  char *upinst = NULL, *type = NULL;
   const char *fmt_attr = NULL;
   inst_hash_free();
   fmt_attr = xctx->format ? xctx->format : "format";
   for(i=0; i<xctx->instances; i++) {
+    has_fmt_attr = get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, fmt_attr, 2)[0] ? 1 : 0;
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
       my_strdup(1519, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-      my_strdup(1520, &format, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, fmt_attr,2));
-      if(!type || !format || IS_LABEL_SH_OR_PIN(type) ) continue;
+      if(!type || !has_fmt_attr || IS_LABEL_SH_OR_PIN(type) ) continue;
       my_strdup(1254, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
       /* if(i == n) continue; */
@@ -130,7 +130,6 @@ void hash_all_names(int n)
     }
   }
   my_free(1255, &upinst);
-  my_free(1526, &format);
   my_free(1527, &type);
 }
 
@@ -165,12 +164,12 @@ void clear_instance_hash()
  */
 void check_unique_names(int rename)
 {
-  int i, first = 1;
+  int i, first = 1, has_fmt_attr;
   int newpropcnt = 0;
   char *tmp = NULL;
   Inst_hashentry *entry;
   int big =  xctx->wires> 2000 || xctx->instances > 2000;
-  char *upinst = NULL, *type = NULL, *format = NULL;
+  char *upinst = NULL, *type = NULL;
   const char *fmt_attr = NULL;
   /* int save_draw; */
 
@@ -193,9 +192,9 @@ void check_unique_names(int rename)
   fmt_attr = xctx->format ? xctx->format : "format";
   for(i=0;i<xctx->instances;i++) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
+      has_fmt_attr = get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, fmt_attr, 2)[0] ? 1 : 0;
       my_strdup(1261, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-      my_strdup(1262, &format, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, fmt_attr,2));
-      if(!type || !format || IS_LABEL_SH_OR_PIN(type) ) continue;
+      if(!type || !has_fmt_attr || IS_LABEL_SH_OR_PIN(type) ) continue;
       my_strdup(1246, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
       if( (entry = inst_hash_lookup(upinst, i, XINSERT_NOREPLACE, 
@@ -228,7 +227,6 @@ void check_unique_names(int rename)
   } /* for(i...) */
   my_free(1247, &upinst);
   my_free(1263, &type);
-  my_free(1517, &format);
   if(rename == 1 && xctx->hilight_nets) {
     bbox(SET,0.0,0.0,0.0,0.0);
     draw();
@@ -1544,111 +1542,19 @@ void print_verilog_param(FILE *fd, int symbol)
 void print_tedax_subckt(FILE *fd, int symbol)
 {
  int i=0, multip;
- const char *str_ptr=NULL;
- register int c, state=TOK_BEGIN, space;
- char *format=NULL,*s, *token=NULL;
- int pin_number;
- size_t sizetok=0;
- size_t token_pos=0;
- int escape=0;
  int no_of_pins=0;
- char *fmt_attr = NULL;
+ const char *str_ptr=NULL;
 
- fmt_attr = xctx->format ? xctx->format : "format";
- my_strdup(460, &format, get_tok_value(xctx->sym[symbol].prop_ptr, fmt_attr, 2));
- if( format==NULL ) {
-   my_free(473, &format);
-   return; /* no format */
- }
- no_of_pins= xctx->sym[symbol].rects[PINLAYER];
- s=format;
+  no_of_pins= xctx->sym[symbol].rects[PINLAYER];
 
- /* begin parsing format string */
- while(1)
- {
-  c=*s++;
-  if(c=='\\') {
-    escape=1;
-    c=*s++;
-  }
-  else escape=0;
-  if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
-  space=SPACE(c);
-  if( state==TOK_BEGIN && (c=='@' || c=='%')  && !escape) state=TOK_TOKEN;
-  else if(state==TOK_TOKEN && token_pos > 1 &&
-     (
-       ( (space  || c == '%' || c == '@') && !escape ) ||
-       ( (!space && c != '%' && c != '@') && escape  )
-     )
-    ) {
-    state = TOK_SEP;
-  }
-
-  STR_ALLOC(&token, token_pos, &sizetok);
-  if(state==TOK_TOKEN) {
-    token[token_pos++]=(char)c;
-  }
-  else if(state==TOK_SEP)                    /* got a token */
+  for(i=0;i<no_of_pins;i++)
   {
-   token[token_pos]='\0';
-   token_pos=0;
-   if(!strcmp(token, "@name")) {
-     /* do nothing */
-   }
-   else if(strcmp(token, "@symname")==0) {
-     break ;
-   }
-   else if(strcmp(token, "@pinlist")==0) {
-    for(i=0;i<no_of_pins;i++)
-    {
-      if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
-        str_ptr=
-          expandlabel(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0), &multip);
-        fprintf(fd, "%s ", str_ptr);
-      }
+    if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
+      str_ptr=
+        expandlabel(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0), &multip);
+      fprintf(fd, "%s ", str_ptr);
     }
-   }
-   else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
-     char *prop=NULL;
-     for(i = 0; i<no_of_pins; i++) {
-       prop = xctx->sym[symbol].rect[PINLAYER][i].prop_ptr;
-       if(!strcmp(get_tok_value(prop, "name",0), token + 2)) break;
-     }
-     if(i<no_of_pins && strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
-       fprintf(fd, "%s ", expandlabel(token+2, &multip));
-     }
-   }
-   /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
-   else if(token[0]=='@' && token[1]=='#') {
-     pin_number = atoi(token+2);
-     if(pin_number < no_of_pins) {
-       if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), "true")) {
-       str_ptr =  get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"name",0);
-       fprintf(fd, "%s ",  expandlabel(str_ptr, &multip));
-       }
-     }
-   }
-   /* this will print the other @parameters, usually "extra" nodes so they will be in the order
-    * specified by the format string. The 'extra' attribute is no more used to print extra nodes
-    * in spice_block_netlist(). */
-   else if(token[0] == '@') { /* given previous if() conditions not followed by @ or # */
-     fprintf(fd, "%s ",  token + 1);
-   }
-   if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd);
-   if(c == '@' || c =='%') s--;
-   state=TOK_BEGIN;
   }
-                 /* 20151028 dont print escaping backslashes */
-  else if(state==TOK_BEGIN && c!='\0') {
-   /* do nothing */
-  }
-  if(c=='\0')
-  {
-   break ;
-  }
- }
- my_free(474, &format);
- my_free(478, &token);
 }
 
 
