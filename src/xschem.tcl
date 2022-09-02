@@ -2140,8 +2140,8 @@ proc load_file_dialog_mkdir {dir} {
 }
 proc load_file_dialog_up {dir} {
   global myload_dir1
-  bind .dialog.l.paneright.drw <Expose> {}
-  .dialog.l.paneright.drw configure -background white
+  bind .dialog.l.paneright.draw <Expose> {}
+  .dialog.l.paneright.draw configure -background white
   set d [file dirname $dir]
   if { [file isdirectory $d]} {
     myload_set_home $d
@@ -2186,8 +2186,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   pack  .dialog.l.paneleft.xscroll -side bottom -fill x
   pack  .dialog.l.paneleft.list -fill both -expand true
   bind .dialog.l.paneleft.list <<ListboxSelect>> { 
-    # bind .dialog.l.paneright.drw <Expose> {}
-    # .dialog.l.paneright.drw configure -background white
+    # bind .dialog.l.paneright.draw <Expose> {}
+    # .dialog.l.paneright.draw configure -background white
     set myload_sel [.dialog.l.paneleft.list curselection]
     if { $myload_sel ne {} } {
       set myload_dir1 [abs_sym_path [.dialog.l.paneleft.list get $myload_sel]]
@@ -2199,13 +2199,13 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     }
   }
   frame .dialog.l.paneright
-  frame .dialog.l.paneright.drw -background white -width 200 -height 200
+  frame .dialog.l.paneright.draw -background white -width 200 -height 200
   listbox .dialog.l.paneright.list  -listvariable myload_files2 -width 20 -height 12\
     -yscrollcommand ".dialog.l.paneright.yscroll set" -selectmode browse \
     -xscrollcommand ".dialog.l.paneright.xscroll set" -exportselection 0
   scrollbar .dialog.l.paneright.yscroll -command ".dialog.l.paneright.list yview"
   scrollbar .dialog.l.paneright.xscroll -command ".dialog.l.paneright.list xview" -orient horiz
-  pack .dialog.l.paneright.drw -side bottom -anchor s -fill x 
+  pack .dialog.l.paneright.draw -side bottom -anchor s -fill x 
   pack  .dialog.l.paneright.yscroll -side right -fill y
   pack  .dialog.l.paneright.xscroll -side bottom -fill x
   pack  .dialog.l.paneright.list -side bottom  -fill both -expand true
@@ -2225,8 +2225,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     destroy .dialog
   }
   button .dialog.buttons.home -width 5 -text {Home} -command {
-    bind .dialog.l.paneright.drw <Expose> {}
-    .dialog.l.paneright.drw configure -background white
+    bind .dialog.l.paneright.draw <Expose> {}
+    .dialog.l.paneright.draw configure -background white
     set myload_files1 $pathlist
     update
     myload_set_colors1
@@ -2295,7 +2295,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   bind .dialog.l.paneright.list <Double-Button-1> {
     set myload_retval [.dialog.buttons_bot.entry get]
     if {$myload_retval ne {}  && ![file isdirectory "$myload_dir1/[.dialog.l.paneright.list get $myload_sel]"]} {
-      bind .dialog.l.paneright.drw <Expose> {}
+      bind .dialog.l.paneright.draw <Expose> {}
       destroy .dialog
     }
   }
@@ -2322,7 +2322,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     set myload_yview [.dialog.l.paneright.list yview]
   }
 
-  xschem preview_window create .dialog.l.paneright.drw {}
+  xschem preview_window create .dialog.l.paneright.draw {}
   set myload_dir1 [abs_sym_path [.dialog.l.paneleft.list get $myload_index1]]
   setglob $myload_dir1
   myload_set_colors2
@@ -2356,8 +2356,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
         }
       }
       if { [file isdirectory $myload_d]} {
-        bind .dialog.l.paneright.drw <Expose> {}
-        .dialog.l.paneright.drw configure -background white
+        bind .dialog.l.paneright.draw <Expose> {}
+        .dialog.l.paneright.draw configure -background white
         myload_set_home $myload_d
         setglob $myload_d
         myload_set_colors2
@@ -2371,17 +2371,17 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
          if { $myload_type ne {0}  } {
 	   ### update
            if { [winfo exists .dialog] } {
-             .dialog.l.paneright.drw configure -background {}
-             xschem preview_window draw .dialog.l.paneright.drw "$myload_dir1/$myload_dir2"
-             bind .dialog.l.paneright.drw <Expose> {
-               xschem preview_window draw .dialog.l.paneright.drw "$myload_dir1/$myload_dir2"
+             .dialog.l.paneright.draw configure -background {}
+             xschem preview_window draw .dialog.l.paneright.draw "$myload_dir1/$myload_dir2"
+             bind .dialog.l.paneright.draw <Expose> {
+               xschem preview_window draw .dialog.l.paneright.draw "$myload_dir1/$myload_dir2"
              }
            }
          } else {
-           bind .dialog.l.paneright.drw <Expose> {}
-           .dialog.l.paneright.drw configure -background white
+           bind .dialog.l.paneright.draw <Expose> {}
+           .dialog.l.paneright.draw configure -background white
          }
-         # puts "xschem preview_window draw .dialog.l.paneright.drw \"$myload_dir1/$myload_dir2\""
+         # puts "xschem preview_window draw .dialog.l.paneright.draw \"$myload_dir1/$myload_dir2\""
       }
     }
   }
@@ -4322,7 +4322,7 @@ proc toolbar_show { { topwin {} } } {
           pack $topwin.toolbar -fill x -before $topwin.drw
         }
     } else {
-        pack $topwin.toolbar -side left -anchor w -fill y -before $topwin.drw
+        pack $topwin.toolbar -side left -fill y -before $topwin.drw
     }
     set pos "top"
     if { $toolbar_horiz } { set pos "left" }
@@ -4373,7 +4373,7 @@ proc toolbar_hide { { topwin {} } } {
 }
 
 proc setup_tabbed_interface {} {
-  global tabbed_interface
+  global tabbed_interface toolbar_horiz
 
   if { $tabbed_interface } {
     if { ![winfo exists .tabs] } {
@@ -4385,7 +4385,11 @@ proc setup_tabbed_interface {} {
       pack .tabs.x0 .tabs.add -side left
 
       if {[winfo exists .toolbar] && [winfo ismapped .toolbar] } {
-        pack .tabs  -fill x -side top -after .toolbar
+        if { $toolbar_horiz == 1 } {
+          pack .tabs  -fill x -side top -after .toolbar
+        } else {
+          pack .tabs  -fill x -side top -before .toolbar
+        }
       } else {
         pack .tabs  -fill x -side top -before .drw
       }
@@ -4593,6 +4597,12 @@ proc no_open_dialogs {} {
 ## "measure_id" should be kept unique since we allow only one measure tooltip in graphs
 ## "tabbed_interface"
 ## "case_insensitive" case insensitive symbol lookup (on case insensitive filesystems only!)
+## "dark_colors_save"
+## "light_colors_save" restore default colors
+## "menu_debug_var" there is only a global debug mode
+## "debug_var" there is only a global debug mode
+## "xschem_server_getdata" only one tcp listener per process
+## "bespice_server_getdata" only one tcp listener per process
 
 set tctx::global_list {
   auto_hilight autofocus_mainwindow autotrim_wires bespice_listen_port big_grid_points bus_replacement_char
@@ -4618,12 +4628,13 @@ set tctx::global_list {
   show_pin_net_names simconf_default_geometry simconf_vpos simulate_bg
   spiceprefix split_files svg_colors svg_font_name symbol symbol_width sym_txt tclcmd_txt tclstop
   text_line_default_geometry textwindow_fileid textwindow_filename textwindow_w tmp_bus_char 
-  toolbar_horiz toolbar_visible top_subckt transparent_svg undo_type
+  toolbar_horiz toolbar_list toolbar_visible top_subckt transparent_svg undo_type
   use_label_prefix use_lab_wire user_wants_copy_cell verilog_2001 verilog_bitblast
   viewdata_fileid viewdata_filename viewdata_w vsize xschem_libs xschem_listen_port
 }
 
 ## list of global arrays to save/restore on context switching
+## will be saved as tctx::.drw_dircolor, tctx::.x1.drw_dircolor and so on
 ## EXCEPTIONS, not to be saved/restored:
 ## execute
 set tctx::global_array_list {
@@ -4652,20 +4663,20 @@ proc restore_ctx {context} {
   set tctx::tctx $context
   array unset ::sim
   uplevel #0 {
-    if { [ array exists $tctx::tctx ] } {
-      # puts "restore_ctx $tctx::tctx"
+    if { [ array exists tctx::$tctx::tctx ] } {
+      # puts "restore_ctx tctx::$tctx::tctx"
       ## Cleanup these vars to avoid side effects from previous ctx
       unset -nocomplain gaw_fd
       foreach tctx::i $tctx::global_list {
-        if { [info exists [subst $tctx::tctx]($tctx::i)] } {
+        if { [info exists [subst tctx::$tctx::tctx]($tctx::i)] } {
           # puts "restoring:  $tctx::i"
-          set $tctx::i [set [subst $tctx::tctx]($tctx::i)]
+          set $tctx::i [set [subst tctx::$tctx::tctx]($tctx::i)]
         }
       }
     }
     foreach tctx::i $tctx::global_array_list {
-      if { [array exists ${tctx::tctx}_$tctx::i] } {
-        array set $tctx::i [array get [subst ${tctx::tctx}_$tctx::i]]
+      if { [array exists tctx::${tctx::tctx}_$tctx::i] } {
+        array set $tctx::i [array get [subst tctx::${tctx::tctx}_$tctx::i]]
       }
     }
   }
@@ -4681,12 +4692,12 @@ proc save_ctx {context} {
     foreach tctx::i $tctx::global_list {
       if { [info exists $tctx::i] } {
         # puts "saving:  $tctx::i"
-        set [subst $tctx::tctx]($tctx::i) [set $tctx::i]
+        set [subst tctx::$tctx::tctx]($tctx::i) [set $tctx::i]
       }
     }
     foreach tctx::i $tctx::global_array_list {
       if { [array exists $tctx::i] } {
-        array set [subst ${tctx::tctx}_$tctx::i] [array get $tctx::i]
+        array set [subst tctx::${tctx::tctx}_$tctx::i] [array get $tctx::i]
       }
     }
   }
@@ -4699,7 +4710,7 @@ proc housekeeping_ctx {} {
   }
   # puts "housekeeping_ctx, path: [xschem get current_win_path]"
 
-  if {![info exists ::[xschem get current_win_path]_simulate]} {
+  if {![info exists tctx::[xschem get current_win_path]_simulate]} {
     [xschem get top_path].menubar.simulate configure -bg $simulate_bg
   } else {
     [xschem get top_path].menubar.simulate configure -bg red
@@ -4708,17 +4719,17 @@ proc housekeeping_ctx {} {
 
 proc simulate_button {button_path} {
   global simulate_bg
-  if { ![info exists ::[xschem get current_win_path]_simulate] } {
-    set ::[xschem get current_win_path]_simulate 1
+  if { ![info exists tctx::[xschem get current_win_path]_simulate] } {
+    set tctx::[xschem get current_win_path]_simulate 1
     $button_path configure -bg red
-    simulate "clear_simulate_button $button_path ::[xschem get current_win_path]_simulate"
+    simulate "clear_simulate_button $button_path tctx::[xschem get current_win_path]_simulate"
   }
 
 }
 
 proc clear_simulate_button {button_path simvar} {
   global simulate_bg
-  if { "::[xschem get current_win_path]_simulate" eq $simvar } {
+  if { "tctx::[xschem get current_win_path]_simulate" eq $simvar } {
     $button_path configure -bg $simulate_bg
   }
   unset $simvar
@@ -4804,9 +4815,9 @@ proc pack_widgets { { topwin {} } } {
     pack $topwin.statusbar.7 -side left 
     pack $topwin.statusbar.8 -side left 
     pack $topwin.statusbar.1 -side left -fill x
-    pack $topwin.menubar -anchor n -side top -fill x
+    pack $topwin.menubar -side top -fill x
     pack $topwin.statusbar -side bottom -fill x 
-    pack $topwin.drw -anchor n -side right -fill both -expand true
+    pack $topwin.drw -side right -fill both -expand true
     setup_tabbed_interface
     if {$tabbed_interface} {
        pack $topwin.tabs  -fill x -side top
@@ -5753,8 +5764,6 @@ set_missing_colors_to_black
 # read-only vars to store defaults (so we can switch to default colors) 
 set dark_colors_save $dark_colors
 set light_colors_save $light_colors
-set ps_colors_save $ps_colors
-set svg_colors_save $svg_colors
 
 set_ne colors $dark_colors
 ##### end set colors

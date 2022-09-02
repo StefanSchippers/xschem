@@ -1623,7 +1623,7 @@ static void destroy_all_tabs(int *window_count)
           save_xctx[i] = NULL;
           my_strncpy(window_path[i], "", S(window_path[i]));
           (*window_count)--;
-          if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure 21 -state normal");
+          if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
         }
       }
     }
