@@ -193,6 +193,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   double delta_threshold = 0.25;
   double zoom_m = 0.5;
   int save_mouse_at_end = 0, clear_graphpan_at_end = 0;
+  int track_dset = -2; /* used to find dataset of closest wave to mouse if 't' is pressed */
   xRect *r = NULL;
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
@@ -272,6 +273,21 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           tcleval("graph_show_measure stop");
         }
       }
+      else if((key == 't') ) {
+        if(!gr->digital) {
+            const char *d = get_tok_value(r->prop_ptr, "dataset", 0);
+          if(d[0]) {
+            track_dset = atoi(d);
+          } else {
+            track_dset = -1;
+          }
+          if(track_dset < 0) {
+            track_dset = find_closest_wave(i, gr);
+          } else {
+            track_dset = -1;
+          }
+        }
+      } /* key == 't' */
       break;
     } /* if( POINTINSIDE(...) */
   } /* for(i=0; i <  xctx->rects[GRIDLAYER]; i++) */
@@ -472,22 +488,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
       else if((key == 't') ) {
-        int dset = -1;
-        if(!gr->digital && i == xctx->graph_master) {
-          const char *d = get_tok_value(r->prop_ptr, "dataset", 0);
-          if(d[0]) {
-            dset = atoi(d);
-          } else {
-            dset = -1;
-          }
-          if(dset >= 0) {
-            my_strdup(1448, &r->prop_ptr, subst_token(r->prop_ptr, "dataset", "-1"));
-          } else {
-            dset = find_closest_wave(i, gr);
-            my_strdup(1448, &r->prop_ptr, subst_token(r->prop_ptr, "dataset", my_itoa(dset)));
+        if(!gr->digital) {
+          if(i == xctx->graph_master || r->sel) {
+            my_strdup(1448, &r->prop_ptr, subst_token(r->prop_ptr, "dataset", my_itoa(track_dset)));
           }
           need_redraw = 1;
-           
         }
       } /* key == 't' */
       else if(key == XK_Left) {
