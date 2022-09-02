@@ -1041,6 +1041,7 @@ extern int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx
 extern int schematic_waves_loaded(void);
 extern int edit_wave_attributes(int what, int i, Graph_ctx *gr);
 extern void draw_graph(int i, int flags, Graph_ctx *gr);
+extern int find_closest_wave(int i, Graph_ctx *gr);
 extern void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr);
 extern double timer(int start);
 extern void enable_layers(void);

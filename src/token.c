@@ -121,7 +121,7 @@ void hash_all_names(int n)
   for(i=0; i<xctx->instances; i++) {
     has_fmt_attr = get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, fmt_attr, 2)[0] ? 1 : 0;
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
-      my_strdup(1519, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+      my_strdup(1526, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
       if(!type || !has_fmt_attr || IS_LABEL_SH_OR_PIN(type) ) continue;
       my_strdup(1254, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);

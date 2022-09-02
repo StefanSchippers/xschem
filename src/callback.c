@@ -471,6 +471,25 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         }
       }
+      else if((key == 't') ) {
+        int dset = -1;
+        if(!gr->digital && i == xctx->graph_master) {
+          const char *d = get_tok_value(r->prop_ptr, "dataset", 0);
+          if(d[0]) {
+            dset = atoi(d);
+          } else {
+            dset = -1;
+          }
+          if(dset >= 0) {
+            my_strdup(1448, &r->prop_ptr, subst_token(r->prop_ptr, "dataset", "-1"));
+          } else {
+            dset = find_closest_wave(i, gr);
+            my_strdup(1448, &r->prop_ptr, subst_token(r->prop_ptr, "dataset", my_itoa(dset)));
+          }
+          need_redraw = 1;
+           
+        }
+      } /* key == 't' */
       else if(key == XK_Left) {
         double delta;
         if(xctx->graph_left) {
@@ -483,7 +502,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             yy2 = gr->gy2 + var * b / delta;
             yy1 = gr->gy1 - var * a / delta;
             my_strdup(1451, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
-            my_strdup(1448, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+            my_strdup(1517, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
             need_redraw = 1;
           }
         } else {
@@ -1487,6 +1506,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='t' && state == 0)                        /* place text */
    {
+     if(waves_selected(event, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
      if(xctx->semaphore >= 2) break;
      xctx->last_command = 0;
      xctx->mx_double_save = xctx->mousex_snap;
