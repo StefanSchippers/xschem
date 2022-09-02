@@ -602,7 +602,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->draw_single_layer = -1;
   xctx->draw_dots = 1;
   xctx->only_probes = 0;
-  xctx->menu_removed = 0; /* fullscreen pervious setting */
+  xctx->menu_removed = 0; /* fullscreen previous setting */
   xctx->save_lw = 0.0;  /* used to save linewidth when selecting 'only_probes' view */
   xctx->onetime = 0; /* callback() static var */
   xctx->save_netlist_type = 0;
@@ -1030,35 +1030,27 @@ void toggle_fullscreen(const char *topwin)
   XQueryTree(display, topwin_id, &rootwindow, &parent_id, &framewin_child_ptr, &framewindow_nchildren);
   fs = tclgetintvar("fullscreen");
   fs = (fs+1)%3;
-  if(fs==1) tclsetvar("fullscreen","1");
-  else if(fs==2) tclsetvar("fullscreen","2");
-  else tclsetvar("fullscreen","0");
+  if(fs==1) tclsetvar("fullscreen","1");  /* full screen with menubar, toolbar, tabs, statusbar */
+  else if(fs==2) tclsetvar("fullscreen","2"); /* full screen with only drawing area */
+  else tclsetvar("fullscreen","0"); /* normal view */
 
   dbg(1, "toggle_fullscreen(): fullscreen=%d\n", fs);
   if(fs==2) {
     if(tclgetboolvar("toolbar_visible")) {
-      xctx->menu_removed |= 2;
+      xctx->menu_removed |= 2; /* menu_removed bit 1 == 1: toolbar was removed */
       tclvareval("toolbar_hide ", xctx->top_path, NULL);
     }
     tclvareval("pack forget ", xctx->top_path, ".tabs", NULL);
-    tclvareval("pack forget ", xctx->top_path, ".menubar ",
-       xctx->top_path, ".statusbar; update", NULL);
-    xctx->menu_removed |= 1;
-  }
-  if(fs !=2 && xctx->menu_removed ) {
+    tclvareval("pack forget ", xctx->top_path, ".menubar", NULL);
+    tclvareval("pack forget ", xctx->top_path, ".statusbar", NULL);
+    xctx->menu_removed |= 1; /* menu_removed bit 0 == 1: other bars were removed */
+  } else if(xctx->menu_removed) { /* bars were removed so pack them back */
+    tclvareval("pack forget ", xctx->top_path, ".drw", NULL);
+    tclvareval("pack ", xctx->top_path, ".menubar -side top -fill x", NULL);
+    tclvareval("pack ", xctx->top_path, ".statusbar  -side bottom -fill x", NULL);
+    tclvareval("pack ", xctx->top_path, ".drw  -side right -fill both -expand true", NULL);
     if(tclgetboolvar("tabbed_interface")) {
-      tclvareval("pack ", xctx->top_path, 
-       ".tabs  -fill x -side top -expand false -side top -before ",
-         xctx->top_path, ".drw", NULL);
-      tclvareval("pack ", xctx->top_path,
-         ".menubar -anchor n -side top -fill x  -before ", xctx->top_path, ".tabs; pack ",
-         xctx->top_path, ".statusbar -after ", xctx->top_path,
-         ".drw -anchor sw  -fill x; update", NULL);
-    } else {
-      tclvareval("pack ", xctx->top_path,
-         ".menubar -anchor n -side top -fill x  -before ", xctx->top_path, ".drw; pack ",
-         xctx->top_path, ".statusbar -after ", xctx->top_path,
-          ".drw -anchor sw  -fill x; update", NULL);
+      tclvareval("pack_tabs", NULL);
     }
     if(xctx->menu_removed & 2) tclvareval("toolbar_show ", xctx->top_path, NULL);
     xctx->menu_removed=0;

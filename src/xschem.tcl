@@ -4372,6 +4372,19 @@ proc toolbar_hide { { topwin {} } } {
     set toolbar_visible 0
 }
 
+proc pack_tabs {} {
+  global toolbar_horiz
+  if {[winfo exists .toolbar] && [winfo ismapped .toolbar] } {
+    if { $toolbar_horiz == 1 } {
+      pack .tabs  -fill x -side top -after .toolbar
+    } else {
+      pack .tabs  -fill x -side top -before .toolbar
+    }
+  } else {
+    pack .tabs  -fill x -side top -before .drw
+  }
+}
+
 proc setup_tabbed_interface {} {
   global tabbed_interface toolbar_horiz
 
@@ -4383,16 +4396,7 @@ proc setup_tabbed_interface {} {
       bind .tabs.x0 <ButtonRelease> {swap_tabs %X %Y release}
       button .tabs.add -padx 0 -pady 0  -text { + } -command "xschem new_schematic create"
       pack .tabs.x0 .tabs.add -side left
-
-      if {[winfo exists .toolbar] && [winfo ismapped .toolbar] } {
-        if { $toolbar_horiz == 1 } {
-          pack .tabs  -fill x -side top -after .toolbar
-        } else {
-          pack .tabs  -fill x -side top -before .toolbar
-        }
-      } else {
-        pack .tabs  -fill x -side top -before .drw
-      }
+      pack_tabs
     }
   } else {
     destroy .tabs
@@ -4819,9 +4823,6 @@ proc pack_widgets { { topwin {} } } {
     pack $topwin.statusbar -side bottom -fill x 
     pack $topwin.drw -side right -fill both -expand true
     setup_tabbed_interface
-    if {$tabbed_interface} {
-       pack $topwin.tabs  -fill x -side top
-    }
     if {$toolbar_visible}  {toolbar_show $topwin}
 
     bind $topwin.statusbar.5 <Leave> \
