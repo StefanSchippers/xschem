@@ -489,7 +489,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       else if((key == 't') ) {
         if(track_dset != -2) {
-          if(i == xctx->graph_master || r->sel) {
+          const char *unlocked = strstr(get_tok_value(r->prop_ptr, "flags", 0), "unlocked");
+          if(i == xctx->graph_master || !unlocked) {
             my_strdup(1448, &r->prop_ptr, subst_token(r->prop_ptr, "dataset", my_itoa(track_dset)));
           }
           need_redraw = 1;
