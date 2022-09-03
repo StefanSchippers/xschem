@@ -1490,11 +1490,13 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='q' && state == ControlMask) /* exit */
    {
+     int remaining, save_sem;
      if(xctx->semaphore >= 2) break;
      if(!strcmp(xctx->current_win_path, ".drw")) {
-       int remaining;
+       save_sem = xctx->semaphore;
        /* tcleval("new_window destroy_all"); */ /* close child schematics */
        remaining = new_schematic("destroy_all", NULL, NULL);
+       xctx->semaphore = save_sem;
        /* if(tclresult()[0] == '1') { */
        if(!remaining) {
          if(xctx->modified) {
@@ -1506,7 +1508,9 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        }
      } else {
        /* xschem new_schematic destroy asks user confirmation if schematic changed */
+       save_sem = xctx->semaphore;
        new_schematic("destroy", xctx->current_win_path, NULL);
+       xctx->semaphore = save_sem;
      }
      break;
    }
