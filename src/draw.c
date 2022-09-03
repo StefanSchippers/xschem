@@ -2611,8 +2611,8 @@ int find_closest_wave(int i, Graph_ctx *gr)
                    closest_dataset = sweepvar_wrap;
                  }
                }
-               dbg(1, "find_closest_wave(): xval=%g yval=%g xx=%g yy=%g sweepvar_wrap=%d ntok=%s\n",
-                   xval, yval, xx, yy, sweepvar_wrap, ntok);
+               dbg(1, "find_closest_wave(): xval=%g yval=%g xx=%g yy=%g sweepvar_wrap=%d ntok=%s stok=%s\n",
+                   xval, yval, xx, yy, sweepvar_wrap, ntok, stok? stok : "<NULL>");
             }
             last = p;
             cnt++;
