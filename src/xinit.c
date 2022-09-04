@@ -1527,6 +1527,7 @@ static void destroy_tab(int *window_count, const char *win_path)
       /* resetwin(1, 0, 0, 0, 0); */ /* create pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
  
       tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
+      resetwin(1, 1, 1, 0, 0);
       set_modify(-1); /* sets window title */
       draw();
     }
