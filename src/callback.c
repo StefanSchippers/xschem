@@ -877,6 +877,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
+/* winpath: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
 int callback(const char *winpath, int event, int mx, int my, KeySym key,
                  int button, int aux, int state)
 {
@@ -1011,6 +1012,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     dbg(1, "callback(): Expose\n");
     break;
   case ConfigureNotify:
+    dbg(1,"callback(): ConfigureNotify event\n");
     resetwin(1, 1, 0, 0, 0);
     draw();
     break;

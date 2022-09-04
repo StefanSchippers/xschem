@@ -141,7 +141,8 @@ static int window_state (Display *disp, Window win, char *arg) {/*{{{*/
         tmp1[i] = '\0';
         my_snprintf(tmp_prop1, S(tmp_prop1), "_NET_WM_STATE_%s", tmp1);
         prop1 = XInternAtom(disp, tmp_prop1, False);
-
+        dbg(1, "window_state(): issuing client_msg((disp, win, \"_NET_WM_STATE\", %d, %d, %d\n",
+            action, prop1, prop2);
 
         return client_msg(disp, win, "_NET_WM_STATE",
             action, (unsigned long)prop1, (unsigned long)prop2, 0, 0);
@@ -1010,6 +1011,7 @@ int pending_events(void)
 }
 #endif
 
+/* topwin: .drw (always in tabbed interface) or .x1.drw, .x2.drw ... for multiple windows */
 void toggle_fullscreen(const char *topwin)
 {
   char fullscr[]="add,fullscreen";
@@ -1020,10 +1022,12 @@ void toggle_fullscreen(const char *topwin)
   unsigned int framewindow_nchildren;
   int fs;
 
+  dbg(1, "toggle_fullscreen(): topwin=%s\n", topwin);
   if(!strcmp(topwin, ".drw")) {
     tcleval( "winfo id .");
     sscanf(tclresult(), "0x%x", (unsigned int *) &topwin_id);
   } else {
+    /* xctx->top_path is empty string for main window or .x1, .x2, ... for additional windows */
     tclvareval("winfo id ", xctx->top_path, NULL);
     sscanf(tclresult(), "0x%x", (unsigned int *) &topwin_id);
   }
@@ -1062,6 +1066,10 @@ void toggle_fullscreen(const char *topwin)
     window_state(display , parent_id,fullscr);
   } else {
     window_state(display , parent_id,normal);
+    /* when switching back from fullscreen multiple ConfigureNotify events are generated. 
+     * pending_fullzoom does not work on the last corect ConfigureNotify event,
+     * so wee zoom_full() again */
+    zoom_full(1, 0, 1, 0.97); /* draw */
   }
   xctx->pending_fullzoom=1;
 }
@@ -1783,7 +1791,6 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
   #else
   XWindowAttributes wattr;
   #endif
-
   if(has_x) {
     if(w && h) {
       width = w;
@@ -1805,6 +1812,8 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
       #endif
     }
     if(status) {
+       dbg(1, "resetwin(): create_pixmap=%d, clear_pixmap=%d, force=%d, width=%d, height=%d, pending_fullzoom=%d\n",
+           create_pixmap, clear_pixmap, force, width, height, xctx->pending_fullzoom);
       /* if(wattr.map_state==IsUnmapped) return; */
       xctx->areax2 = width + 2 * INT_WIDTH(xctx->lw);
       xctx->areay2 = height + 2 * INT_WIDTH(xctx->lw);
@@ -2349,7 +2358,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(fs) {
    tclsetvar("fullscreen", "0");
    tcleval("update");
-   toggle_fullscreen(".");
+   toggle_fullscreen(".drw");
  }
 
  if(tclgetboolvar("case_insensitive")) {

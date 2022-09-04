@@ -936,9 +936,9 @@ typedef struct {
    *    canvas           top_path
    *  ----------------------------
    *    ".drw"            ""
-   *    ".xx.drw"         ".xx"
+   *    ".x1.drw"         ".x1"
    */
-  char *current_win_path;
+  char *current_win_path; /* .drw or .x1.drw, .... ; always .drw in tabbed interface */
   int *fill_type; /* for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
   int fill_pattern;
   int draw_window; 
