@@ -4090,12 +4090,15 @@ proc get_file_path {ff} {
 #
 # Balloon help system, from https://wiki.tcl-lang.org/page/balloon+help
 #
-proc balloon {w help} {
-    bind $w <Any-Enter> "after 1000 [list balloon_show %W [list $help]]"
+proc balloon {w help {pos 1}} {
+    bind $w <Any-Enter> "after 1000 [list balloon_show %W [list $help] $pos]"
     bind $w <Any-Leave> "destroy %W.balloon"
 }
 
-proc balloon_show {w arg} {
+### pos: 
+## 0: set balloon close to mouse
+## 1: set balloon below related widget
+proc balloon_show {w arg pos} {
     if {[eval winfo containing  [winfo pointerxy .]]!=$w} {return}
     set top $w.balloon
     catch {destroy $top}
@@ -4106,8 +4109,13 @@ proc balloon_show {w arg} {
     }   
     pack [message $top.txt -aspect 10000 -bg lightyellow \
         -font fixed -text $arg]
-    set wmx [winfo rootx $w]
-    set wmy [expr {[winfo rooty $w]+[winfo height $w]}]
+    if { $pos } {
+      set wmx [winfo rootx $w]
+      set wmy [expr {[winfo rooty $w]+[winfo height $w]}]
+    } else {
+      set wmx [expr [winfo pointerx $w] + 20]
+      set wmy [winfo pointery $w]
+    }
     wm geometry $top [winfo reqwidth $top.txt]x[winfo reqheight $top.txt]+$wmx+$wmy
     raise $top
 }
