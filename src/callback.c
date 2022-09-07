@@ -343,7 +343,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     /* parameters for zoom area by mouse drag */
     xx1 = G_X(xctx->mx_double_save);
     xx2 = G_X(xctx->mousex_snap);
-    /* if(xx2 < xx1) { double tmp; tmp = xx1; xx1 = xx2; xx2 = tmp; } */
+    if(state & ShiftMask) {
+      if(xx1 < xx2) { double tmp; tmp = xx1; xx1 = xx2; xx2 = tmp; }
+    } else {
+      if(xx2 < xx1) { double tmp; tmp = xx1; xx1 = xx2; xx2 = tmp; }
+    }
+
     if(xx1 == xx2) xx2 += 1e-6;
   }
 
