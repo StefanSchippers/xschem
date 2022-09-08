@@ -169,7 +169,7 @@ static void set_cairo_color(int layer)
 int set_text_custom_font(xText *txt) /* 20171122 for correct text_bbox calculation */
 {
   const char *textfont;
-
+  if (xctx->cairo_ctx==NULL) return 0;
   textfont = txt->font;
   if((textfont && textfont[0]) || (txt->flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
     cairo_font_slant_t slant;

@@ -735,8 +735,10 @@ int compare_schematics(const char *f)
   xctx->xrect[0].height = save_xctx->xrect[0].height;
   xctx->save_pixmap = save_xctx->save_pixmap;
   xctx->gctiled = save_xctx->gctiled;
+#if HAS_CAIRO==1
   xctx->cairo_ctx = save_xctx->cairo_ctx;
   xctx->cairo_save_ctx = save_xctx->cairo_save_ctx;
+#endif
 
   /* set identical viewport */
   xctx->zoom = save_xctx->zoom;

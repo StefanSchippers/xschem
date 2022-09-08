@@ -546,11 +546,10 @@ proc edit_file {filename} {
 ##
 ## Other global vars:
 ## netlist_dir
-## computerfarm
 ## terminal
 ## netlist_type can be obtained with [xschem get netlist_type]
 proc save_sim_defaults {f} {
-  global sim netlist_dir computerfarm terminal
+  global sim netlist_dir terminal
   
   set a [catch {open $f w} fd]
   if { $a } {
@@ -1144,7 +1143,7 @@ proc simulate {{callback {}}} {
   ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
   ## $d : netlist directory
 
-  global netlist_dir computerfarm terminal sim
+  global netlist_dir terminal sim
   global execute XSCHEM_SHAREDIR has_x OS
 
   simuldir 
@@ -1272,7 +1271,7 @@ proc waves {} {
   ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
   ## $d : netlist directory
 
-  global netlist_dir computerfarm terminal sim XSCHEM_SHAREDIR has_x 
+  global netlist_dir terminal sim XSCHEM_SHAREDIR has_x 
   global bespice_listen_port env
 
   simuldir
@@ -5684,9 +5683,6 @@ set_ne case_insensitive 0
 set_ne edit_prop_size 80x12
 set_ne text_line_default_geometry 80x12
 set_ne terminal xterm
-
-# set_ne analog_viewer waveview
-set_ne computerfarm {} ;# 20151007
 
 # xschem tcp port number (listen to port and execute commands from there if set) 
 # set a port number in xschemrc if you want accept remote connections.

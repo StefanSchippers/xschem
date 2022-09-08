@@ -2673,6 +2673,9 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
        break;
      }
    }
+ }
+ if(xctx->inst[i].node && xctx->inst[i].node[j] == NULL)
+ {
    expandlabel(pinname, multip);
    if(pinname) my_free(1511, &pinname);
    if(erc) {
