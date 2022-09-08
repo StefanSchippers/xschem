@@ -652,6 +652,21 @@ proc setup_recent_menu { {in_new_window 0} { topwin {} } } {
   }
 }
 
+proc sim_is_ngspice {} {
+  global sim
+
+  set_sim_defaults
+
+  if { [info exists sim(spice,default)] } {
+    set idx $sim(spice,default)
+    if { [regexp {ngspice} $sim(spice,$idx,cmd)] } {
+      return 1
+    }
+  }
+  return 0
+}
+
+
 proc sim_is_xyce {} {
   global sim
 
@@ -727,8 +742,13 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spice,2,fg) 0
     set_ne sim(spice,2,st) 1
     
+    set_ne sim(spice,3,cmd) {# --- to be done----}
+    set sim(spice,3,name) {Xyce parallel batch}
+    set_ne sim(spice,3,fg) 0
+    set_ne sim(spice,3,st) 1
+    
     # number of configured spice simulators, and default one
-    set_ne sim(spice,n) 3
+    set_ne sim(spice,n) 4
     set_ne sim(spice,default) 0
     
     ### spice wave view
@@ -854,7 +874,7 @@ proc simconf {} {
     for {set i 0} { $i < $sim($tool,n)} {incr i} {
       frame ${scrollframe}.center.$tool.r.$i
       pack ${scrollframe}.center.$tool.r.$i -fill x -expand yes
-      entry ${scrollframe}.center.$tool.r.$i.lab -textvariable sim($tool,$i,name) -width 15 -bg $bg($toggle)
+      entry ${scrollframe}.center.$tool.r.$i.lab -textvariable sim($tool,$i,name) -width 18 -bg $bg($toggle)
       radiobutton ${scrollframe}.center.$tool.r.$i.radio -bg $bg($toggle) \
          -variable sim($tool,default) -value $i
       text ${scrollframe}.center.$tool.r.$i.cmd -width 20 -height 3 -wrap none -bg $bg($toggle)
@@ -3072,7 +3092,7 @@ proc tclpropeval2 {s} {
   global debug_var env path
 
   set netlist_type [xschem get netlist_type]
-  # puts "tclpropeval2: s=|$s|"
+  puts "tclpropeval2: s=|$s|"
   if {$debug_var <=-1} {puts "tclpropeval2: $s"}
   set path [string range [xschem get sch_path] 1 end]
   if { $netlist_type eq {spice} } {
@@ -3086,13 +3106,13 @@ proc tclpropeval2 {s} {
   if { $debug_var<=-1 } { puts "---> path=$path" }
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s
-  # puts "tclpropeval2: s=|$s|"
-  # puts "tclpropeval2: subst $s=|[subst $s]|"
+  puts "tclpropeval2: s=|$s|"
+  puts "tclpropeval2: subst $s=|[subst $s]|"
   if { [catch {uplevel #0 "subst \{$s\}"} res] } {
     if { $debug_var<=-1 } { puts "tclpropeval2 warning: $res"}
     set res ?\n
   }
-  # puts "tclpropeval2: res=|$res|"
+  puts "tclpropeval2: res=|$res|"
   return $res
 }
 
