@@ -826,7 +826,33 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, xctx->sch_path[x], TCL_VOLATILE);
       }
     }
+    else if(argc >= 4 && !strcmp(argv[1],"get") && !strcmp(argv[2],"netlist_name") &&
+            !strcmp(argv[3], "fallback")) {
+      char f[PATH_MAX];
+      cmd_found = 1;
 
+      if(xctx->netlist_type == CAD_SPICE_NETLIST) {
+        my_snprintf(f, S(f), "%s.spice", skip_dir(xctx->current_name));
+      }
+      else if(xctx->netlist_type == CAD_VHDL_NETLIST) {
+        my_snprintf(f, S(f), "%s.vhdl", skip_dir(xctx->current_name));
+      }
+      else if(xctx->netlist_type == CAD_VERILOG_NETLIST) {
+        my_snprintf(f, S(f), "%s.v", skip_dir(xctx->current_name));
+      }
+      else if(xctx->netlist_type == CAD_TEDAX_NETLIST) {
+        my_snprintf(f, S(f), "%s.tdx", skip_dir(xctx->current_name));
+      }
+      else {
+        my_snprintf(f, S(f), "%s.unknown", skip_dir(xctx->current_name));
+      }
+
+      if(xctx->netlist_name[0] == '\0') {
+        Tcl_SetResult(interp, f, TCL_VOLATILE);
+      } else {
+        Tcl_SetResult(interp, xctx->netlist_name, TCL_VOLATILE);
+      }
+    }
     else if(!strcmp(argv[1],"get") && argc==3)
     {
      cmd_found = 1;

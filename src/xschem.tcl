@@ -1173,7 +1173,12 @@ proc simulate {{callback {}}} {
     set d ${netlist_dir}
     set tool $netlist_type
     set S [xschem get schname]
-    set s [file tail [file rootname $S]]
+    set custom_netlist_file [xschem get netlist_name]
+    if {$custom_netlist_file ne {}} {
+      set s [file rootname $custom_netlist_file]
+    } else {
+      set s [file tail [file rootname $S]]
+    }
     set n ${netlist_dir}/${s}
     if {$tool eq {verilog}} {
       set N ${n}.v
@@ -1227,8 +1232,12 @@ proc setup_tcp_gaw {} {
  
   if { [info exists gaw_fd] } { return 1; } 
   simuldir
-  set s [file tail [file rootname [xschem get schname 0]]]
-
+  set custom_netlist_file [xschem get netlist_name]
+  if {$custom_netlist_file ne {}} {
+    set s [file rootname $custom_netlist_file]
+  } else {
+    set s [file tail [file rootname [xschem get schname 0]]]
+  }
   if { ![info exists gaw_fd] && [catch {eval socket $gaw_tcp_address} gaw_fd] } {
     puts "Problems opening socket to gaw on address $gaw_tcp_address"
     unset gaw_fd
@@ -1301,7 +1310,13 @@ proc waves {} {
     set d ${netlist_dir}
     set tool ${netlist_type}
     set S [xschem get schname]
-    set s [file tail [file rootname $S]]
+
+    set custom_netlist_file [xschem get netlist_name]
+    if {$custom_netlist_file ne {}} {
+      set s [file rootname $custom_netlist_file]
+    } else {
+      set s [file tail [file rootname $S]]
+    }
     set n ${netlist_dir}/${s}
     if {$tool eq {verilog}} {
       set N ${n}.v
