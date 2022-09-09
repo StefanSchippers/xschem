@@ -518,21 +518,39 @@ int read_rawfile(const char *f)
   return 0;
 }
 
+
+/* given a node XXyy try XXyy , xxyy, XXYY, v(XXyy), v(xxyy), V(XXYY) */
 int get_raw_index(const char *node)
 {
-  char vnode[300];
-  char lnode[300];
+  char vnode[512];
+  char lnode[512];
+  char unode[512];
   Int_hashentry *entry;
   dbg(1, "get_raw_index(): node=%s, node=%s\n", node, node);
   if(xctx->graph_values) {
     entry = int_hash_lookup(xctx->graph_raw_table, node, 0, XLOOKUP);
     if(!entry) {
-      my_snprintf(vnode, S(vnode), "v(%s)", node);
-      entry = int_hash_lookup(xctx->graph_raw_table, vnode, 0, XLOOKUP);
+      my_strncpy(lnode, node, S(lnode));
+      strtolower(lnode);
+      entry = int_hash_lookup(xctx->graph_raw_table, lnode, 0, XLOOKUP);
       if(!entry) {
-        my_strncpy(lnode, vnode, S(lnode));
-        strtolower(lnode);
+        my_strncpy(unode, node, S(lnode));
+        strtoupper(lnode);
         entry = int_hash_lookup(xctx->graph_raw_table, lnode, 0, XLOOKUP);
+        if(!entry) {
+          my_snprintf(vnode, S(vnode), "v(%s)", node);
+          entry = int_hash_lookup(xctx->graph_raw_table, vnode, 0, XLOOKUP);
+          if(!entry) {
+            my_strncpy(lnode, vnode, S(lnode));
+            strtolower(lnode);
+            entry = int_hash_lookup(xctx->graph_raw_table, lnode, 0, XLOOKUP);
+            if(!entry) {
+              my_strncpy(unode, vnode, S(lnode));
+              strtoupper(lnode);
+              entry = int_hash_lookup(xctx->graph_raw_table, lnode, 0, XLOOKUP);
+            }
+          }
+        }
       }
     }
     if(entry) return entry->value;

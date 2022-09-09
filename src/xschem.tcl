@@ -3092,7 +3092,7 @@ proc tclpropeval2 {s} {
   global debug_var env path
 
   set netlist_type [xschem get netlist_type]
-  puts "tclpropeval2: s=|$s|"
+  # puts "tclpropeval2: s=|$s|"
   if {$debug_var <=-1} {puts "tclpropeval2: $s"}
   set path [string range [xschem get sch_path] 1 end]
   if { $netlist_type eq {spice} } {
@@ -3106,13 +3106,13 @@ proc tclpropeval2 {s} {
   if { $debug_var<=-1 } { puts "---> path=$path" }
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s
-  puts "tclpropeval2: s=|$s|"
-  puts "tclpropeval2: subst $s=|[subst $s]|"
+  # puts "tclpropeval2: s=|$s|"
+  # puts "tclpropeval2: subst $s=|[subst $s]|"
   if { [catch {uplevel #0 "subst \{$s\}"} res] } {
     if { $debug_var<=-1 } { puts "tclpropeval2 warning: $res"}
     set res ?\n
   }
-  puts "tclpropeval2: res=|$res|"
+  # puts "tclpropeval2: res=|$res|"
   return $res
 }
 
