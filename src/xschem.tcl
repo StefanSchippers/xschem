@@ -742,7 +742,7 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spice,2,fg) 0
     set_ne sim(spice,2,st) 1
     
-    set_ne sim(spice,3,cmd) {# --- to be done----}
+    set_ne sim(spice,3,cmd) {mpirun /path/to/parallel/Xyce "$N" -r "$n.raw"}
     set sim(spice,3,name) {Xyce parallel batch}
     set_ne sim(spice,3,fg) 0
     set_ne sim(spice,3,st) 1
