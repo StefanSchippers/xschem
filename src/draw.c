@@ -1697,18 +1697,22 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
   char *saven, *nptr, *ntok_copy = NULL;
   const char *bit_name;
   *n_bits = count_items(ntok, ";,", "") - 1;
+  /* dbg(0, "get_bus_idx_array(): ntok=%s\n", ntok); */
+  /* dbg(0, "get_bus_idx_array(): *n_bits=%d\n", *n_bits); */
   idx_arr = my_malloc(1454, (*n_bits) * sizeof(SPICE_DATA *));
   p = 0;
   my_strdup2(1402, &ntok_copy, ntok);
   nptr = ntok_copy;
   my_strtok_r(nptr, ";,", "", &saven); /*strip off bus name (1st field) */
-  while( (bit_name = my_strtok_r(NULL, ",", "", &saven)) ) {
+  while( (bit_name = my_strtok_r(NULL, ";,", "", &saven)) ) {
     int idx;
+    if(p >= *n_bits) break; /* security check to avoid out of bound writing */
     if( (idx = get_raw_index(bit_name)) != -1) {
       idx_arr[p] = xctx->graph_values[idx];
     } else {
       idx_arr[p] = NULL;
     }
+    /* dbg(0, "get_bus_idx_array(): bit_name=%s, p=%d\n", bit_name, p); */
     p++;
   }
   my_free(1404, &ntok_copy);
