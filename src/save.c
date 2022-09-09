@@ -300,7 +300,7 @@ static int read_dataset(FILE *fd)
   int variables = 0, i, done_points = 0;
   char line[PATH_MAX], varname[PATH_MAX];
   char *ptr;
-  int done_header = 0;
+  int n = 0, done_header = 0;
   int exit_status = 0;
   xctx->graph_sim_type = 0;
   
@@ -318,8 +318,8 @@ static int read_dataset(FILE *fd)
       int npoints = xctx->graph_npoints[xctx->graph_datasets];
       if(xctx->graph_sim_type) {
         done_header = 1;
-        read_binary_block(fd); 
         dbg(1, "read_dataset(): read binary block, nvars=%d npoints=%d\n", xctx->graph_nvars, npoints);
+        read_binary_block(fd); 
         xctx->graph_datasets++;
         exit_status = 1;
       } else { 
@@ -356,7 +356,11 @@ static int read_dataset(FILE *fd)
     else if(!strncmp(line, "No. of Data Rows :", 18)) {
       /* array of number of points of datasets (they are of varialbe length) */
       my_realloc(1414, &xctx->graph_npoints, (xctx->graph_datasets+1) * sizeof(int));
-      sscanf(line, "No. of Data Rows : %d", &xctx->graph_npoints[xctx->graph_datasets]);
+      n = sscanf(line, "No. of Data Rows : %d", &xctx->graph_npoints[xctx->graph_datasets]);
+      if(n < 1) {
+        dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
+        return 1;
+      }
       /* multi-point OP is equivalent to a DC sweep. Change  xctx->graph_sim_type */
       if(xctx->graph_npoints[xctx->graph_datasets] > 1 && xctx->graph_sim_type == 4 ) {
         xctx->graph_sim_type = 2;
@@ -365,13 +369,21 @@ static int read_dataset(FILE *fd)
       done_points = 1;
     }
     else if(!strncmp(line, "No. Variables:", 14)) {
-      sscanf(line, "No. Variables: %d", &xctx->graph_nvars);
+      n = sscanf(line, "No. Variables: %d", &xctx->graph_nvars);
+      if(n < 1) {
+        dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
+        return 1;
+      }
       if(xctx->graph_sim_type == 3) xctx->graph_nvars <<= 1; /* mag and phase */
       
     }
     else if(!done_points && !strncmp(line, "No. Points:", 11)) {
       my_realloc(1415, &xctx->graph_npoints, (xctx->graph_datasets+1) * sizeof(int));
-      sscanf(line, "No. Points: %d", &xctx->graph_npoints[xctx->graph_datasets]);
+      n = sscanf(line, "No. Points: %d", &xctx->graph_npoints[xctx->graph_datasets]);
+      if(n < 1) {
+        dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
+        return 1;
+      }
       /* multi-point OP is equivalent to a DC sweep. Change  xctx->graph_sim_type */
       if(xctx->graph_npoints[xctx->graph_datasets] > 1 && xctx->graph_sim_type == 4 ) {
         xctx->graph_sim_type = 2;
@@ -380,7 +392,11 @@ static int read_dataset(FILE *fd)
     if(!done_header && variables) {
       /* get the list of lines with index and node name */
       if(!xctx->graph_names) xctx->graph_names = my_calloc(426, xctx->graph_nvars, sizeof(char *));
-      sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
+      n = sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
+      if(n < 2) {
+        dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
+        return 1;
+      }
       if(xctx->graph_sim_type == 3) { /* AC */
         my_strcat(415, &xctx->graph_names[i << 1], varname);
         int_hash_lookup(xctx->graph_raw_table, xctx->graph_names[i << 1], (i << 1), XINSERT_NOREPLACE);
@@ -522,23 +538,38 @@ int read_rawfile(const char *f)
 /* given a node XXyy try XXyy , xxyy, XXYY, v(XXyy), v(xxyy), V(XXYY) */
 int get_raw_index(const char *node)
 {
+  int simtype;
+  char inode[512];
   char vnode[512];
   char lnode[512];
   char unode[512];
   Int_hashentry *entry;
-  dbg(1, "get_raw_index(): node=%s, node=%s\n", node, node);
+
+
+  dbg(1, "get_raw_index(): node=%s\n", node);
   if(xctx->graph_values) {
-    entry = int_hash_lookup(xctx->graph_raw_table, node, 0, XLOOKUP);
+    tcleval("sim_is_xyce");
+    simtype = atoi( tclresult() );
+    my_strncpy(inode, node, S(lnode));
+  
+    if(simtype) { /* Xyce */
+      char *ptr = inode;
+      while(*ptr) {
+        if(*ptr == '.') *ptr = ':';
+        ptr++;
+      }
+    }
+    entry = int_hash_lookup(xctx->graph_raw_table, inode, 0, XLOOKUP);
     if(!entry) {
-      my_strncpy(lnode, node, S(lnode));
+      my_strncpy(lnode, inode, S(lnode));
       strtolower(lnode);
       entry = int_hash_lookup(xctx->graph_raw_table, lnode, 0, XLOOKUP);
       if(!entry) {
-        my_strncpy(unode, node, S(lnode));
+        my_strncpy(unode, inode, S(lnode));
         strtoupper(lnode);
         entry = int_hash_lookup(xctx->graph_raw_table, lnode, 0, XLOOKUP);
         if(!entry) {
-          my_snprintf(vnode, S(vnode), "v(%s)", node);
+          my_snprintf(vnode, S(vnode), "v(%s)", inode);
           entry = int_hash_lookup(xctx->graph_raw_table, vnode, 0, XLOOKUP);
           if(!entry) {
             my_strncpy(lnode, vnode, S(lnode));

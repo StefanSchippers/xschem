@@ -236,23 +236,23 @@ proc execute_fileevent {id} {
             set details [dict get $options -errorcode]
             if {[lindex $details 0] eq "CHILDSTATUS"} {
               set status [lindex $details 2]
-              viewdata "Failed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)" ro
+              viewdata "Failed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"
             } else {
               set status 1
               if {$execute(status,$id) } {
-                viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)" ro
+                viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"
               }
             }
           } else {
             set status 1
             if {$execute(status,$id) } {
-              viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)" ro
+              viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"
             }
           }
         }
         if {$status == 0} {
           if {$execute(status,$id) } {
-            viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)" ro
+            viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"
           }
         }
       } else {
@@ -737,12 +737,12 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spice,1,fg) 0
     set_ne sim(spice,1,st) 1
     
-    set_ne sim(spice,2,cmd) {Xyce "$N" -r "$n.raw"}
+    set_ne sim(spice,2,cmd) {Xyce "$N"}
     set sim(spice,2,name) {Xyce batch}
     set_ne sim(spice,2,fg) 0
     set_ne sim(spice,2,st) 1
     
-    set_ne sim(spice,3,cmd) {mpirun /path/to/parallel/Xyce "$N" -r "$n.raw"}
+    set_ne sim(spice,3,cmd) {mpirun /path/to/parallel/Xyce "$N"}
     set sim(spice,3,name) {Xyce parallel batch}
     set_ne sim(spice,3,fg) 0
     set_ne sim(spice,3,st) 1
@@ -1188,7 +1188,7 @@ proc simulate {{callback {}}} {
     if { ![info exists  sim($tool,default)] } {
       if { [info exists has_x] } {alert_ "Warning: simulator for $tool is not configured"}
       puts "Warning: simulator for $tool is not configured"
-      return
+      return -1
     }
     set def $sim($tool,default)
     set fg  $sim($tool,$def,fg)
@@ -1206,11 +1206,17 @@ proc simulate {{callback {}}} {
       }
       #eval exec {cmd /V /C "cd $netlist_dir&&$cmd}
       eval exec $cmd &
+      return -1 ;# no execute ID on windows
     } else {
       set execute(callback) $callback
-      $fg $st sh -c "cd $netlist_dir; $cmd"
+      set id [$fg $st sh -c "cd $netlist_dir; $cmd"]
+      puts "Simulation started: execution ID: $id"
+      return $id
     }
+  } else {
+    return -1
   }
+  
 }
 
 proc gaw_echoline {} {
@@ -1993,40 +1999,20 @@ proc get_shell { curpath } {
  execute 0 sh -c "cd $curpath && $terminal"
 }
 
-proc edit_netlist {schname } {
+proc edit_netlist {netlist } {
  global netlist_dir debug_var
  global editor terminal OS
 
  simuldir
  set netlist_type [xschem get netlist_type]
- set tmpname [file rootname "$schname"]
 
  if { [regexp vim $editor] } { set ftype "-c \":set filetype=$netlist_type\"" } else { set ftype {} }
  if { [select_netlist_dir 0] ne "" } {
-   # puts "edit_netlist: \"$editor $ftype  ${schname}.v\" \"$netlist_dir\" bg"
-   if { $netlist_type=="verilog" } {
-     execute 0  sh -c "cd $netlist_dir && $editor $ftype  \"${tmpname}.v\""
-   } elseif { $netlist_type=="spice" } {
-     if {$OS == "Windows"} {
-       set cmd "$editor \"$netlist_dir/${tmpname}.spice\""
-       eval exec $cmd &
-     } else {
-       execute 0  sh -c "cd $netlist_dir && $editor $ftype \"${tmpname}.spice\""
-     }
-   } elseif { $netlist_type=="tedax" } {
-     if {$OS == "Windows"} {
-       set cmd "$editor \"$netlist_dir/${tmpname}.tdx\""
-       eval exec $cmd &
-     } else {
-       execute 0 sh -c "cd $netlist_dir && $editor $ftype \"${tmpname}.tdx\""
-     }
-   } elseif { $netlist_type=="vhdl" } { 
-     if {$OS == "Windows"} {
-       set cmd "$editor \"$netlist_dir/${tmpname}.vhdl\""
-       eval exec $cmd &
-     } else {
-       execute 0 sh -c "cd $netlist_dir && $editor $ftype \"${tmpname}.vhdl\""
-     }
+   if {$OS == "Windows"} {
+     set cmd "$editor \"$netlist_dir/${netlist}\""
+     eval exec $cmd &
+   } else {
+     execute 0  sh -c "cd $netlist_dir && $editor $ftype  \"${netlist}\""
    }
  }
  return {}
@@ -5365,7 +5351,7 @@ proc build_widgets { {topwin {} } } {
      }
    }
   $topwin.menubar.simulation.menu add command -label {Edit Netlist} \
-     -command {edit_netlist [file tail [xschem get schname]]}
+     -command {edit_netlist [xschem get netlist_name fallback]}
   $topwin.menubar.simulation.menu add command -label {Send highlighted nets to viewer} \
     -command {xschem create_plot_cmd} -accelerator Shift+J
   $topwin.menubar.simulation.menu add checkbutton -label "Hide graphs if no spice data loaded" \

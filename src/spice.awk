@@ -71,8 +71,8 @@ END{
       if(tolower($0) ~/^[ \t]*\.save[ \t]+.*\?[0-9]+/) {   # .save file=test1.raw format=raw v( ?1 C2  )
         $1 = ""
         if(tolower($2) == "tran") $2 = ""
-        $0 = ".print tran" $0
-      }
+        $0 = ".print tran " $0
+      } 
       gsub(/ [mM] *= *1 *$/,"") # xyce does not like m=# fields (multiplicity) removing m=1 is no an issue anyway
     }
     process()
@@ -239,7 +239,12 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
  if(tolower($1) ~ /^\.(save|print)$/ && $0 ~/\?[0-9]/) {
    $0 = tolower($0)
    saveinstr = $1
-   if($2 ~/^(dc|ac|tran|op)$/) saveanalysis=$2
+
+   attr=""
+   if($0 !~/format=/ && xyce==1) {
+     attr=" format=raw "
+   }
+   if($2 ~/^(dc|ac|tran|op|sens|hb|es|pce|noise|homotopy)$/) saveanalysis=$2
    else saveanalysis=""
    $1=""
    if(saveanalysis !="") $2=""
@@ -254,7 +259,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
      sub(/\).*/,"", $i)
      num = split($i, name, ",")
      for(j=1; j<= num; j++) {
-       print saveinstr " " saveanalysis " " savetype "(" name[j] ")"
+       print saveinstr " " saveanalysis attr  savetype "(" name[j] ")"
      }
    }
    
