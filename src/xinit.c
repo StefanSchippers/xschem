@@ -2535,7 +2535,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(!detach && !cli_opt_no_readline) {
    tcleval( "if {![catch {package require tclreadline}]} "
      "{::tclreadline::readline builtincompleter 0;"
-     /*  "::tclreadline::readline customcompleter completer;" */
+      "::tclreadline::readline customcompleter completer;"
       "::tclreadline::Loop }" 
    );
  }
