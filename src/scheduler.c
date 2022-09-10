@@ -2096,7 +2096,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       Tcl_ResetResult(interp);
       if(argc > 2 && !strcmp(argv[2], "loaded")) {
-        Tcl_AppendResult(interp, schematic_waves_loaded() ? "1" : "0", NULL);
+        Tcl_SetResult(interp, schematic_waves_loaded() ? "1" : "0", TCL_STATIC);
       } else if(xctx->graph_values) {
         /* xschem rawfile_query value v(ldcp) 123 */
         if(argc > 4 && !strcmp(argv[2], "value")) {
@@ -2117,7 +2117,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
             if(idx >= 0) {
               double val = get_raw_value(dataset, idx, point);
-              Tcl_AppendResult(interp, dtoa(val), NULL);
+              Tcl_SetResult(interp, dtoa(val), TCL_VOLATILE);
             }
           }
         } else if(argc > 3 && !strcmp(argv[2], "index")) {
@@ -2126,35 +2126,38 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           int idx;
           entry = int_hash_lookup(xctx->graph_raw_table, argv[3], 0, XLOOKUP);
           idx = entry ? entry->value : -1;
-          Tcl_AppendResult(interp, my_itoa(idx), NULL);
+          Tcl_SetResult(interp, my_itoa(idx), TCL_VOLATILE);
         } else if(argc > 3 && !strcmp(argv[2], "values")) {
           /* xschem raw_query values ldcp [dataset] */
           int idx;
+          char n[70];
           int p, dataset = 0;
           idx = get_raw_index(argv[3]);
           if(argc > 4) dataset = atoi(argv[4]);
           if(idx >= 0) {
             int np =  xctx->graph_npoints[dataset];
+            Tcl_ResetResult(interp);
             for(p = 0; p < np; p++) {
-              Tcl_AppendResult(interp, dtoa_prec(get_raw_value(dataset, idx, p)), " ", NULL);
+              sprintf(n, "%.10e", get_raw_value(dataset, idx, p));
+              Tcl_AppendResult(interp, n, " ", NULL);
             }
           }
         } else if(argc > 2 && !strcmp(argv[2], "datasets")) {
-          Tcl_AppendResult(interp, my_itoa(xctx->graph_datasets), NULL); 
+          Tcl_SetResult(interp, my_itoa(xctx->graph_datasets), TCL_VOLATILE); 
         } else if(argc > 2 && !strcmp(argv[2], "points")) {
           int dset = -1;
           if(argc > 3) dset = atoi(argv[3]);
-          if(dset == -1) Tcl_AppendResult(interp, my_itoa(xctx->graph_allpoints), NULL);
+          if(dset == -1) Tcl_SetResult(interp, my_itoa(xctx->graph_allpoints), TCL_VOLATILE);
           else {
             if(dset >= 0 && dset <  xctx->graph_datasets) 
-                Tcl_AppendResult(interp, my_itoa(xctx->graph_npoints[dset]), NULL);
+                Tcl_SetResult(interp, my_itoa(xctx->graph_npoints[dset]), TCL_VOLATILE);
           }
         } else if(argc > 2 && !strcmp(argv[2], "vars")) {
-          Tcl_AppendResult(interp, my_itoa(xctx->graph_nvars), NULL);
+          Tcl_SetResult(interp, my_itoa(xctx->graph_nvars), TCL_VOLATILE);
         } else if(argc > 2 && !strcmp(argv[2], "list")) {
           for(i = 0 ; i < xctx->graph_nvars; i++) {
-            if(i > 0) Tcl_AppendResult(interp, "\n", NULL);
-            Tcl_AppendResult(interp, xctx->graph_names[i], NULL);
+            if(i > 0) Tcl_SetResult(interp, "\n", TCL_VOLATILE);
+            Tcl_SetResult(interp, xctx->graph_names[i], TCL_VOLATILE);
           }
         }
       }
