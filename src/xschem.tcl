@@ -737,7 +737,7 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spice,1,fg) 0
     set_ne sim(spice,1,st) 1
     
-    set_ne sim(spice,2,cmd) {Xyce "$N"}
+    set_ne sim(spice,2,cmd) "Xyce \"\$N\"\n# Add -r \"\$n.raw\" if you want all variables saved"
     set sim(spice,2,name) {Xyce batch}
     set_ne sim(spice,2,fg) 0
     set_ne sim(spice,2,st) 1

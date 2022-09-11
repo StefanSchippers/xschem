@@ -2156,8 +2156,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_SetResult(interp, my_itoa(xctx->graph_nvars), TCL_VOLATILE);
         } else if(argc > 2 && !strcmp(argv[2], "list")) {
           for(i = 0 ; i < xctx->graph_nvars; i++) {
-            if(i > 0) Tcl_SetResult(interp, "\n", TCL_VOLATILE);
-            Tcl_SetResult(interp, xctx->graph_names[i], TCL_VOLATILE);
+            if(i > 0) Tcl_AppendResult(interp, "\n", NULL);
+            Tcl_AppendResult(interp, xctx->graph_names[i], NULL);
           }
         }
       }

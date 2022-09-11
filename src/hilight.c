@@ -923,12 +923,7 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
         my_snprintf(ss, S(ss), "%s%s %d ", strtolower(p), strtolower(t), c);
         my_strcat(1502, s, ss);
       } else { /* Xyce */
-        char *pp=p;
-        while(*pp){
-          if(*pp == '.') *pp = ':'; /* Xyce uses : as path separator */
-          pp++;
-        }
-        my_snprintf(ss, S(ss), "%s%s %d", strtoupper(p), strtoupper(t), c);
+        my_snprintf(ss, S(ss), "%s%s %d", strtolower(p), strtolower(t), c);
         my_strcat(536, s, ss);
       }
 
@@ -1065,13 +1060,8 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
                   strtolower(p), strtolower(t), c);
       my_strcat(537, s, ss);
     } else { /* Xyce */
-      char *pp=p;
-      while(*pp){
-        if(*pp == '.') *pp = ':'; /* Xyce uses : as path separator */
-        pp++;
-      }
-      my_snprintf(ss, S(ss), "%s%s%s#branch %d", xctx->currsch>0 ? "V:" : "",
-                  strtoupper(p), strtoupper(xctx->currsch>0 ? t+1 : t ), c);
+      my_snprintf(ss, S(ss), "%s%s%s#branch %d", xctx->currsch>0 ? "v." : "",
+                  strtolower(p), strtolower(xctx->currsch>0 ? t+1 : t ), c);
       my_strcat(535, s, ss);
     }
   }

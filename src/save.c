@@ -301,8 +301,10 @@ static int read_dataset(FILE *fd)
   char line[PATH_MAX], varname[PATH_MAX];
   char *ptr;
   int n = 0, done_header = 0;
-  int exit_status = 0;
+  int simtype, exit_status = 0;
   xctx->graph_sim_type = 0;
+  tcleval("sim_is_xyce");
+  simtype = atoi( tclresult() );
   
   while((ptr = fgets(line, sizeof(line), fd)) ) {
     /* after this line comes the binary blob made of nvars * npoints * sizeof(double) bytes */
@@ -397,11 +399,18 @@ static int read_dataset(FILE *fd)
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         return 1;
       }
+      strtolower(varname);
+      if(simtype) { /* Xyce uses : as path separator */
+        char *ptr = varname;
+        while(*ptr) {
+          if(*ptr == ':') *ptr = '.';
+          ptr++;
+        }
+      }
       if(xctx->graph_sim_type == 3) { /* AC */
         my_strcat(415, &xctx->graph_names[i << 1], varname);
         int_hash_lookup(xctx->graph_raw_table, xctx->graph_names[i << 1], (i << 1), XINSERT_NOREPLACE);
-        if(strstr(varname, "v(") == varname || strstr(varname, "i(") == varname ||
-           strstr(varname, "V(") == varname || strstr(varname, "I(") == varname)
+        if(strstr(varname, "v(") == varname || strstr(varname, "i(") == varname)
           my_mstrcat(664, &xctx->graph_names[(i << 1) + 1], "ph(", varname + 2, NULL);
         else
           my_mstrcat(540, &xctx->graph_names[(i << 1) + 1], "ph(", varname, ")", NULL);
@@ -538,51 +547,19 @@ int read_rawfile(const char *f)
 /* given a node XXyy try XXyy , xxyy, XXYY, v(XXyy), v(xxyy), V(XXYY) */
 int get_raw_index(const char *node)
 {
-  int simtype;
   char inode[512];
   char vnode[512];
-  char lnode[512];
-  char unode[512];
   Int_hashentry *entry;
 
 
   dbg(1, "get_raw_index(): node=%s\n", node);
   if(xctx->graph_values) {
-    tcleval("sim_is_xyce");
-    simtype = atoi( tclresult() );
-    my_strncpy(inode, node, S(lnode));
-  
-    if(simtype) { /* Xyce */
-      char *ptr = inode;
-      while(*ptr) {
-        if(*ptr == '.') *ptr = ':';
-        ptr++;
-      }
-    }
+    my_strncpy(inode, node, S(inode));
+    strtolower(inode);
     entry = int_hash_lookup(xctx->graph_raw_table, inode, 0, XLOOKUP);
     if(!entry) {
-      my_strncpy(lnode, inode, S(lnode));
-      strtolower(lnode);
-      entry = int_hash_lookup(xctx->graph_raw_table, lnode, 0, XLOOKUP);
-      if(!entry) {
-        my_strncpy(unode, inode, S(lnode));
-        strtoupper(lnode);
-        entry = int_hash_lookup(xctx->graph_raw_table, lnode, 0, XLOOKUP);
-        if(!entry) {
-          my_snprintf(vnode, S(vnode), "v(%s)", inode);
-          entry = int_hash_lookup(xctx->graph_raw_table, vnode, 0, XLOOKUP);
-          if(!entry) {
-            my_strncpy(lnode, vnode, S(lnode));
-            strtolower(lnode);
-            entry = int_hash_lookup(xctx->graph_raw_table, lnode, 0, XLOOKUP);
-            if(!entry) {
-              my_strncpy(unode, vnode, S(lnode));
-              strtoupper(lnode);
-              entry = int_hash_lookup(xctx->graph_raw_table, lnode, 0, XLOOKUP);
-            }
-          }
-        }
-      }
+      my_snprintf(vnode, S(vnode), "v(%s)", inode);
+      entry = int_hash_lookup(xctx->graph_raw_table, vnode, 0, XLOOKUP);
     }
     if(entry) return entry->value;
   }
