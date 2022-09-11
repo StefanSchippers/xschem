@@ -1,4 +1,5 @@
-v {xschem version=3.1.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -111,27 +112,6 @@ m=1
 value=2p
 footprint=1206
 device="ceramic capacitor"  net_name=true}
-C {code.sym} 900 -190 0 0 {name=STIMULI
-only_toplevel=true
-value=".temp 30
-** models are generally not free: you must download
-** SPICE models for active devices and put them into the below 
-** referenced file in netlist/simulation directory.
-** http://bwrcs.eecs.berkeley.edu/Classes/icdesign/ee241_s00/ASSIGNMENTS/TSMC035-n96g-params.txt
-.include \\"models_cmos_example.txt\\"
-.option savecurrents
-.save all @m4[gm] @m5[gm] @m1[gm]
-.control
-save all
-op
-write cmos_example.raw
-set appendwrite
-* tran 1n 300n
-dc vplus 2.3 2.7 0.001
-write cmos_example.raw
-.endc
-
-"}
 C {lab_pin.sym} 500 -430 0 0 {name=p12 lab=G  net_name=true}
 C {launcher.sym} 700 -60 0 0 {name=h1
 descr=Backannotate
@@ -145,17 +125,16 @@ C {ngspice_probe.sym} 600 -260 0 0 {name=r3}
 C {ngspice_probe.sym} 770 -420 0 0 {name=r4}
 C {ngspice_get_value.sym} 620 -160 0 0 {name=r5 node=i(@$\{path\}m1[id])
 descr="I="}
-C {code.sym} 890 -580 0 0 {name=HEADER
+C {code.sym} 920 -580 0 0 {name=HEADER
 place=header
 only_toplevel=true
 value="** ======================== **
 ** This is a netlist header **
 ** ======================== **"}
 C {launcher.sym} 1095 -805 0 0 {name=h3 
-descr="Select arrow and 
-Ctrl key + Left-button-Click to load/unload waveforms" 
+descr="Load NGSPICE waveforms (ctrl-left-click)" 
 tclcommand="
-xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+xschem raw_read $netlist_dir/cmos_example_ngspice.raw
 "
 }
 C {launcher.sym} 1300 -50 0 0 {name=h4
@@ -1517,3 +1496,46 @@ qATYwoHxPgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPMYWeXiNho/AAAAAAAAAAAAAAAAAAAAAH/C5o3V
 CM4WDmYpPwAAAAAAAAAAgcd9hMKB8T4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABLuyUYROgVPwAAAAAAAAAAAAAAAAAAAADEUmEID4QTQIWFPStEFwhAgE0obp729D8A
 AAAAAAAEQK/MmE1vlvc/N5mZmZmZBUAAAAAAAAAAAAAAAAAAABRAAAAAAAAAAADsyD76tEgavw=="}
 C {ammeter.sym} 690 -350 0 1 {name=Vmeas}
+C {simulator_commands.sym} 920 -360 0 0 {name=COMMANDS
+simulator=ngspice
+only_toplevel=true 
+value=".temp 30
+** models are generally not free: you must download
+** SPICE models for active devices and put them into the below 
+** referenced file in netlist/simulation directory.
+** http://bwrcs.eecs.berkeley.edu/Classes/icdesign/ee241_s00/ASSIGNMENTS/TSMC035-n96g-params.txt
+.include \\"models_cmos_example.txt\\"
+.option savecurrents
+.save all @m4[gm] @m5[gm] @m1[gm]
+.control
+save all
+op
+write cmos_example.raw
+set appendwrite
+* tran 1n 300n
+dc vplus 2.3 2.7 0.001
+write cmos_example_ngspice.raw
+.endc
+
+"}
+C {launcher.sym} 1095 -765 0 0 {name=h6 
+descr="Load XYCE waveforms (ctrl-left-click)" 
+tclcommand="
+xschem raw_read $netlist_dir/cmos_example_xyce.raw
+"
+}
+C {simulator_commands.sym} 920 -180 0 0 {name=COMMANDS1
+simulator=xyce
+only_toplevel=true 
+value=".temp 30
+** models are generally not free: you must download
+** SPICE models for active devices and put them into the below 
+** referenced file in netlist/simulation directory.
+** http://bwrcs.eecs.berkeley.edu/Classes/icdesign/ee241_s00/ASSIGNMENTS/TSMC035-n96g-params.txt
+.include \\"models_cmos_example.txt\\"
+.print dc format=raw file=cmos_example_xyce.raw
++ v(*) i(*)
+.op
+.dc vplus 2.3 2.7 0.001
+
+"}

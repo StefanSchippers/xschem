@@ -526,7 +526,7 @@ int read_rawfile(const char *f)
   if(fd) {
     if((res = read_dataset(fd)) == 1) {
       int i;
-      dbg(0, "Raw file data read\n");
+      dbg(0, "Raw file data read: %s\n", f);
       my_strdup2(1394, &xctx->graph_raw_schname, xctx->sch[xctx->currsch]);
       xctx->graph_allpoints = 0;
       for(i = 0; i < xctx->graph_datasets; i++) {

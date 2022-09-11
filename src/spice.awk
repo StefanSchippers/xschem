@@ -62,16 +62,27 @@ END{
   ## resolve parametric instance name vector multiplicity
   substitute_instance_param()
   
+  if(xyce == 1) {
+    for(i=0; i<lines; i++) {
+      $0 = line[i]
+      if(tolower($1) ~/^\.tran$/) analysis_type="tran"
+      if(tolower($1) ~/^\.dc$/) analysis_type="dc"
+      if(tolower($1) ~/^\.ac$/) analysis_type="ac"
+    }
+  }
+    
+
   for(i=0; i<lines; i++) {
     $0 = line[i]
 
     ## /place to insert processing awk hooks
     if(xyce == 1) {
       ## transform ".save" lines into ".print tran" *only* for spice_probe elements, not user code
-      if(tolower($0) ~/^[ \t]*\.save[ \t]+.*\?[0-9]+/) {   # .save file=test1.raw format=raw v( ?1 C2  )
+      if(tolower($0) ~/^[ \t]*\.save[ \t]+.*\?-?[0-9]+/) {   # .save file=test1.raw format=raw v( ?1 C2  )
         $1 = ""
-        if(tolower($2) == "tran") $2 = ""
-        $0 = ".print tran " $0
+        if(tolower($2) ~ /^(tran|ac|dc)$/) $2 = ""
+        # analysis_type will be replaced with the analysis found in netlist (.tran, .dc, .ac etc)
+        $0 = ".print analysis_type " $0
       } 
       gsub(/ [mM] *= *1 *$/,"") # xyce does not like m=# fields (multiplicity) removing m=1 is no an issue anyway
     }
@@ -236,7 +247,8 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
  }
 
  ## .save tran v(?1 GB ) v(?1 SB )
- if(tolower($1) ~ /^\.(save|print)$/ && $0 ~/\?[0-9]/) {
+ ## ? may be followed by -1 in some cases
+ if(tolower($1) ~ /^\.(save|print)$/ && $0 ~/\?-?[0-9]/) {
    $0 = tolower($0)
    saveinstr = $1
 
@@ -244,13 +256,15 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
    if($0 !~/format=/ && xyce==1) {
      attr=" format=raw "
    }
-   if($2 ~/^(dc|ac|tran|op|sens|hb|es|pce|noise|homotopy)$/) saveanalysis=$2
+    
+   if(analysis_type !="") saveanalysis = analysis_type
+   else if($2 ~/^(dc|ac|tran|op|sens|hb|es|pce|noise|homotopy)$/) saveanalysis=$2
    else saveanalysis=""
    $1=""
    if(saveanalysis !="") $2=""
    $0 = $0 # reparse line for field splitting
 
-   gsub(/ *\?-?[0-9]+ */, "")
+   gsub(/ *\?-?[0-9]+ */, "")   # in some cases ?-1 is printed (unknow multiplicity) 
    gsub(/\( */, "(")
    gsub(/ *\)/, ")")
    for(i=1; i<=NF; i++) {
