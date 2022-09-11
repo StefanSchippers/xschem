@@ -444,3 +444,11 @@ xschem netlist
 xschem simulate
 "
 }
+C {launcher.sym} 1045 -1105 0 0 {name=h6 
+descr="View simulation status" 
+tclcommand="
+  if \{ [info exists execute(id)] \} \{
+     viewdata $execute(data,$execute(id)) ro
+  \}
+"
+}
