@@ -36,6 +36,12 @@ unsigned int str_hash(const char *tok)
   return hash;
 }
 
+static char *find_bracket(char *s)
+{
+ while(*s!='['&& *s!='\0') s++;
+ return s;
+}
+
 /* 20180926 added token_size */
 /* what:
  * 0,XINSERT : lookup token and insert xctx->inst[value].instname in hash table
@@ -46,15 +52,18 @@ unsigned int str_hash(const char *tok)
  * 1,XDELETE : delete token entry, return NULL
  * 2,XLOOKUP : lookup only
  */
-static Inst_hashentry *inst_hash_lookup(char *token, int value, int what, size_t token_size)
+static Inst_hashentry *inst_hash_lookup(char *token, int value, int what)
 {
   unsigned int hashcode;
   unsigned int idx;
   Inst_hashentry *entry, *saveptr, **preventry;
   int s;
+  char *token_base = NULL;
 
   if(token==NULL) return NULL;
-  hashcode=str_hash(token);
+  my_strdup(1519, &token_base, token);
+  *(find_bracket(token_base)) = '\0';
+  hashcode=str_hash(token_base);
   idx=hashcode % HASHSIZE;
   entry=xctx->inst_table[idx];
   preventry=&xctx->inst_table[idx];
@@ -66,13 +75,13 @@ static Inst_hashentry *inst_hash_lookup(char *token, int value, int what, size_t
         *preventry=entry;
         entry->next=NULL;
         entry->token = NULL;
-        my_strdup(1248, &entry->token, token);
+        my_strdup(1248, &entry->token, token_base);
         entry->hash=hashcode;
         entry->value = value;
       }
       return NULL; /* token was not in hash */
     }
-    if( entry->hash==hashcode && !strcmp(token,entry->token) ) { /* found a matching token */
+    if( entry->hash==hashcode && !strcmp(token_base, entry->token) ) { /* found a matching token */
       if(what == XDELETE) {              /* remove token from the hash table ... */
         saveptr=entry->next;
         my_free(1249, &entry->token);
@@ -88,6 +97,7 @@ static Inst_hashentry *inst_hash_lookup(char *token, int value, int what, size_t
     preventry=&entry->next; /* descend into the list. */
     entry = entry->next;
   }
+  my_free(1545, &token_base);
 }
 
 static void inst_hash_free_entry(Inst_hashentry *entry)
@@ -126,7 +136,7 @@ void hash_all_names(int n)
       my_strdup(1254, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
       /* if(i == n) continue; */
-      inst_hash_lookup(upinst, i, XINSERT, strlen(upinst));
+      inst_hash_lookup(upinst, i, XINSERT);
     }
   }
   my_free(1255, &upinst);
@@ -197,8 +207,7 @@ void check_unique_names(int rename)
       if(!type || !has_fmt_attr || IS_LABEL_SH_OR_PIN(type) ) continue;
       my_strdup(1246, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
-      if( (entry = inst_hash_lookup(upinst, i, XINSERT_NOREPLACE, 
-          strlen(upinst)) ) && entry->value != i) {
+      if( (entry = inst_hash_lookup(upinst, i, XINSERT_NOREPLACE) ) && entry->value != i) {
         xctx->inst[i].color = -PINLAYER;
         xctx->hilight_nets=1;
         if(rename == 1) {
@@ -218,7 +227,7 @@ void check_unique_names(int rename)
         new_prop_string(i, tmp, newpropcnt++, 0);
         my_strdup(1259, &upinst, xctx->inst[i].instname);
         strtoupper(upinst);
-        inst_hash_lookup(upinst, i, XINSERT, strlen(upinst));
+        inst_hash_lookup(upinst, i, XINSERT);
         symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
         bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
         my_free(972, &tmp);
@@ -601,12 +610,6 @@ const char *get_sym_template(char *s,char *extra)
  return result;
 }
 
-static const char *find_bracket(const char *s)
-{
- while(*s!='['&& *s!='\0') s++;
- return s;
-}
-
 /* caller is responsible for freeing up storage for return value
  * return NULL if no matching token found */
 static char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
@@ -657,7 +660,6 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  int q,qq;
  static int last[1 << 8 * sizeof(char) ]; /* safe to keep with multiple schematics, reset on 1st invocation */
  size_t old_name_len;
- size_t new_name_len;
  int n;
  char *old_name_base = NULL;
  Inst_hashentry *entry;
@@ -686,12 +688,12 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  }
  xctx->prefix=old_name[0];
  /* don't change old_prop if name does not conflict. */
- if(dis_uniq_names || (entry = inst_hash_lookup(up_old_name, i, XLOOKUP, old_name_len))==NULL ||
+ if(dis_uniq_names || (entry = inst_hash_lookup(up_old_name, i, XLOOKUP))==NULL ||
      entry->value == i)
  {
   my_strdup(447, &xctx->inst[i].prop_ptr, old_prop);
   my_strdup2(90, &xctx->inst[i].instname, old_name);
-  inst_hash_lookup(up_old_name, i, XINSERT, old_name_len);
+  inst_hash_lookup(up_old_name, i, XINSERT);
   my_free(985, &old_name);
   return;
  }
@@ -703,13 +705,13 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  for(q=qq;;q++)
  {
    if(n >= 1 ) {
-     new_name_len = my_snprintf(new_name, old_name_len + 40, "%s%d%s", old_name_base, q, tmp);
+     my_snprintf(new_name, old_name_len + 40, "%s%d%s", old_name_base, q, tmp);
    } else { /* goes here if weird name set for example to name=[3:0] or name=12 */
-     new_name_len = my_snprintf(new_name, old_name_len + 40, "%c%d%s", xctx->prefix,q, tmp);
+     my_snprintf(new_name, old_name_len + 40, "%c%d%s", xctx->prefix,q, tmp);
    }
    my_strdup(1258, &up_new_name, new_name);
    strtoupper(up_new_name);
-   if((entry = inst_hash_lookup(up_new_name, i, XLOOKUP, new_name_len)) == NULL || entry->value == i)
+   if((entry = inst_hash_lookup(up_new_name, i, XLOOKUP)) == NULL || entry->value == i)
    {
     last[(int)xctx->prefix]=q+1;
     break;
@@ -720,7 +722,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  if(strcmp(tmp2, old_prop) ) {
    my_strdup(449, &xctx->inst[i].prop_ptr, tmp2);
    my_strdup2(235, &xctx->inst[i].instname, new_name);
-   inst_hash_lookup(up_new_name, i, XINSERT, new_name_len); /* reinsert in hash */
+   inst_hash_lookup(up_new_name, i, XINSERT); /* reinsert in hash */
  }
  my_free(987, &old_name);
  my_free(1257, &up_old_name);

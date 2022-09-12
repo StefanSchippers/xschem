@@ -1068,7 +1068,6 @@ extern int save(int confirm);
 extern void save_ascii_string(const char *ptr, FILE *fd, int newline);
 extern Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int what) ;
 extern Hilight_hashentry *hilight_lookup(const char *token, int value, int what);
-extern int  name_strcmp(char *s, char *d) ;
 extern int search(const char *tok, const char *val, int sub, int sel);
 extern int process_options(int argc, char **argv);
 extern void calc_drawing_bbox(xRect *boundbox, int selected);
