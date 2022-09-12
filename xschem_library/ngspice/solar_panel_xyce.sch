@@ -1,4 +1,5 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -38,6 +39,42 @@ L 8 760 -530 760 -510 {}
 L 8 770 -720 790 -720 {}
 L 8 790 -720 807.5 -730 {}
 L 8 810 -720 830 -720 {}
+B 2 1270 -740 1690 -570 {flags=graph 
+y1 = -3.3e-05
+y2 = 21
+divy = 6
+subdivy=1
+x1=0
+x2=0.001
+divx=8
+node="panel
+led" unitx=m
+color="7 4"}
+B 2 1270 -570 1690 -400 {flags=graph 
+y1 = 0.0012
+y2 = 6.3
+divy = 4
+subdivy=1
+x1=0
+x2=0.001
+divx=8
+  unitx=m
+color="7 4"
+node="i(vpanel)
+i(vled)"}
+B 2 1270 -930 1690 -740 {flags=graph 
+y1 = -4.1e-08
+y2 = 110
+divy = 5
+subdivy=1
+x1=0
+x2=0.001
+divx=9
+
+ unitx=m subdivx=4
+color="7 4"
+node="\\"Panel power; i(vpanel) v(panel) *\\"
+\\"Led power; i(vled) v(led) *\\""}
 B 18 45 -850 300 -665 {}
 A 8 300 -850 5.590169943749475 243.434948822922 360 {}
 P 7 6 375 -665 320 -821.25 315 -835 302.5 -850 290 -855 45 -865 {}
@@ -63,6 +100,8 @@ T {Maximum Power} 287.5 -870 0 0 0.2 0.2 {layer=8}
 T {2x10 1W white LED} 1230 -340 0 0 0.4 0.4 {layer=8}
 T {IDEAL Diode} 660 -470 0 0 0.4 0.4 {layer=8}
 T {2xseries 1W white LEDs} 1250 -230 0 0 0.4 0.4 {}
+T {Select one or more graphs (and no other objects)
+and use arrow keys to zoom / pan waveforms} 1190 -1010 0 0 0.3 0.3 {}
 N 80 -450 80 -430 {lab=SRC}
 N 1050 -250 1140 -250 {lab=0}
 N 1140 -290 1140 -250 {lab=0}
@@ -94,7 +133,9 @@ N 820 -530 860 -530 {lab=SW}
 N 370 -450 385 -450 {lab=PANEL}
 N 570 -250 860 -250 {lab=0}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers"}
-C {code_shown.sym} 305 -205 0 0 {name=CONTROL value=".tran 5n 1000u uic"}
+C {code_shown.sym} 305 -205 0 0 {name=CONTROL value=".tran 5n 1000u uic
+.print tran format=raw file=solar_panel_xyce.raw v(*) i(*)
+"}
 C {code.sym} 15 -225 0 0 {name=MODELS value=".MODEL DIODE D(IS=1.139e-08 RS=0.99 CJO=9.3e-12 VJ=1.6 M=0.411 BV=30 EG=0.7 ) 
 .MODEL SWMOD1 VSWITCH VON=0.01 VOFF=-0.01 RON=0.01 ROFF=1e7
 "}
@@ -167,3 +208,10 @@ C {switch_v_xyce.sym} 800 -650 3 1 {name=S1 model=SWMOD1 state=OFF}
 C {lab_pin.sym} 820 -690 0 1 {name=l15 sig_type=std_logic lab=0}
 C {lab_pin.sym} 800 -690 0 0 {name=l16 sig_type=std_logic lab=CTRL1}
 C {switch_v_xyce.sym} 860 -500 2 1 {name=S2 model=SWMOD1 state=OFF}
+C {launcher.sym} 1200 -1050 0 0 {name=h3 
+descr="Select arrow and 
+Ctrl-Left-Click to load/unload waveforms" 
+tclcommand="
+xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+"
+}
