@@ -301,12 +301,10 @@ static int read_dataset(FILE *fd)
   char line[PATH_MAX], varname[PATH_MAX];
   char *ptr;
   int n = 0, done_header = 0;
-  int simtype, exit_status = 0;
+  int exit_status = 0;
   xctx->graph_sim_type = 0;
-  tcleval("sim_is_xyce");
-  simtype = atoi( tclresult() );
   
-  while((ptr = fgets(line, sizeof(line), fd)) ) {
+  while((fgets(line, sizeof(line), fd)) ) {
     /* after this line comes the binary blob made of nvars * npoints * sizeof(double) bytes */
     if(!strcmp(line, "Values:\n") || !strcmp(line, "Values:\r\n")) { /* this is an ASCII raw file. We don't handle this (yet) */
       free_rawfile(0);
@@ -400,12 +398,11 @@ static int read_dataset(FILE *fd)
         return 1;
       }
       strtolower(varname);
-      if(simtype) { /* Xyce uses : as path separator */
-        char *ptr = varname;
-        while(*ptr) {
-          if(*ptr == ':') *ptr = '.';
-          ptr++;
-        }
+      /* transform ':' hierarchy separators (Xyce) to '.' */
+      ptr = varname;
+      while(*ptr) {
+        if(*ptr == ':') *ptr = '.';
+        ptr++;
       }
       if(xctx->graph_sim_type == 3) { /* AC */
         my_strcat(415, &xctx->graph_names[i << 1], varname);
@@ -560,6 +557,13 @@ int get_raw_index(const char *node)
     if(!entry) {
       my_snprintf(vnode, S(vnode), "v(%s)", inode);
       entry = int_hash_lookup(xctx->graph_raw_table, vnode, 0, XLOOKUP);
+    }
+    if(!entry && strstr(inode, "i(v.x")) {
+      char *ptr = inode;
+      inode[2] = 'i';
+      inode[3] = '(';
+      ptr += 2;
+      entry = int_hash_lookup(xctx->graph_raw_table, ptr, 0, XLOOKUP);
     }
     if(entry) return entry->value;
   }

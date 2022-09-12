@@ -1569,7 +1569,7 @@ proc graph_update_nodelist {} {
   set col  [xschem getprop rect 2 $graph_selected color]
   set col [string trim $col " \n"]
 
-  set regx {(?:"[^"]+")|(?:[^\n \t]+)}
+  set regx {(?:(tcleval\()?"[^"]+"\)?)|(?:(tcleval\()?[^\n \t]+\)?)}
   set txt [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]
   set tt {}
   set cc {}

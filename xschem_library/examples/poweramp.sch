@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -18,8 +19,8 @@ B 2 1200 -500 1880 -310 {flags=graph
 y1 = -0.0059
 y2 = 11
 divy = 6
-x1=0.0119263
-x2=0.0123791
+x1=0.0125703
+x2=0.0132608
 divx=10
 node="i(v.x1.vu)
 i(v.x0.vu)
@@ -31,8 +32,8 @@ B 2 1200 -830 1880 -520 {flags=graph
 y1 = -49
 y2 = 59
 divy = 12
-x1=0.0119263
-x2=0.0123791
+x1=0.0125703
+x2=0.0132608
 divx=10
 node="outp
 outm
@@ -46,8 +47,8 @@ B 2 1200 -1020 1880 -830 {flags=graph
 y1 = 2.4e-11
 y2 = 840
 divy = 6
-x1=0.0119263
-x2=0.0123791
+x1=0.0125703
+x2=0.0132608
 divx=10
 
 
@@ -59,8 +60,8 @@ B 2 1200 -310 1880 -120 {flags=graph
 y1 = 0.0077
 y2 = 850
 divy = 6
-x1=0.0119263
-x2=0.0123791
+x1=0.0125703
+x2=0.0132608
 divx=10
 
 
@@ -172,37 +173,6 @@ N 240 -300 240 -270 { lab=INX}
 N 160 -1220 180 -1220 {lab=#net3}
 N 160 -1060 180 -1060 {lab=#net4}
 N 70 -1140 180 -1140 {lab=#net5}
-C {code.sym} 1020 -210 0 0 {name=STIMULI
-only_toplevel=true
-tclcommand="xschem edit_vi_prop"
-value=".option PARHIER=LOCAL RUNLVL=6 post MODMONTE=1 warn maxwarns=400
-.option ITL4=20000 ITL5=0
-* .option sampling_method = SRS  
-* .option method=gear
-vvss vss 0 dc 0 
-.temp 30
-
-.param frequ=5k
-.param gain=45
-.option savecurrents
-
-** models are generally not free: you must download
-** SPICE models for active devices and put them  into the below 
-** referenced file in simulation directory.
-.include \\"models_poweramp.txt\\"
-.control
-save all
-op
-write poweramp.raw
-set appendwrite
-tran  8e-7 0.07 uic
-* .FOUR 20k v(outm,outp)
-* .probe i(*) 
-plot outp outm
-save p(r*) p(v*)
-write poweramp.raw
-.endc
-"}
 C {vsource.sym} 70 -1170 0 0 {name=V1 value="dc 50 pwl 0 0 1m 50"}
 C {vsource.sym} 70 -1110 0 0 {name=V0 value="dc 50 pwl 0 0 1m 50"}
 C {lab_pin.sym} 310 -1220 0 1 {name=p5 lab=VPP}
@@ -212,7 +182,7 @@ C {lab_pin.sym} 860 -240 0 1 {name=p14 lab=OUTP}
 C {res.sym} 860 -490 0 1 {name=R1 m=1 value=8}
 C {lab_pin.sym} 500 -1150 0 0 {name=p26 lab=VSS}
 C {lab_pin.sym} 540 -1190 0 0 {name=p31 lab=IN}
-C {vcvs.sym} 610 -1170 0 0 {name=E3 value='gain*0.99'}
+C {vcvs.sym} 610 -1170 0 0 {name=E3 value=\{gain*0.99\}}
 C {lab_pin.sym} 700 -1200 0 1 {name=p32 lab=REFP}
 C {capa.sym} 260 -1100 0 0 {name=C3 m=1 value="100u"}
 C {res.sym} 130 -1220 1 1 {name=R11 m=1 value=0.3}
@@ -235,7 +205,7 @@ C {res.sym} 260 -160 0 1 {name=R7 m=1 value=100k}
 C {lab_pin.sym} 260 -110 0 0 {name=p15 lab=VSS}
 C {lab_pin.sym} 500 -1070 0 0 {name=p20 lab=VSS}
 C {lab_pin.sym} 540 -1110 0 0 {name=p21 lab=IN}
-C {vcvs.sym} 610 -1090 0 0 {name=E0 value='-gain*0.99'}
+C {vcvs.sym} 610 -1090 0 0 {name=E0 value=\{-gain*0.99\}}
 C {lab_pin.sym} 700 -1120 0 1 {name=p23 lab=REFM}
 C {lab_pin.sym} 240 -250 0 0 {name=p8 lab=INX}
 C {lab_pin.sym} 870 -1050 0 0 {name=p126 lab=VSS}
@@ -249,7 +219,7 @@ C {res.sym} 550 -460 0 1 {name=R2 m=1 value='100k'}
 C {res.sym} 550 -400 0 1 {name=R3 m=1 value="'100k/(gain-2)'"}
 C {vsource.sym} 870 -1140 0 0 {name=V3 
 xvalue="dc 0 pulse -.1 .1 1m .1u .1u 10.1u 20u" 
-value="dc 0 sin 0 1 frequ 1m"
+value="dc 0 sin 0 1 \{frequ\} 1m"
 }
 C {res.sym} 240 -810 0 1 {name=R4 m=1 value=100k}
 C {lab_pin.sym} 240 -860 0 0 {name=p18 lab=VPP}
@@ -356,12 +326,66 @@ tclcommand="textwindow $netlist_dir/[file tail [file rootname [ xschem get schna
 C {spice_probe.sym} 300 -1220 0 0 {name=p45 analysis=tran voltage=49.84}
 C {spice_probe.sym} 300 -1060 0 0 {name=p46 analysis=tran voltage=-49.86}
 C {launcher.sym} 1145 -1165 0 0 {name=h5 
-descr="Select arrow and 
-Ctrl-Left-Click to load/unload waveforms" 
+descr="load ngspice waves" 
 tclcommand="
-xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+xschem raw_read $netlist_dir/poweramp.raw
 "
 }
 C {launcher.sym} 1450 -30 0 0 {name=h6
 descr="Graph Manual page"
 url="https://xschem.sourceforge.io/stefan/xschem_man/graphs.html"}
+C {simulator_commands.sym} 1020 -540 0 0 {name=COMMANDS
+simulator=ngspice
+only_toplevel=false 
+value="
+.option ITL4=20000 ITL5=0
+vvss vss 0 dc 0 
+.temp 30
+
+.param frequ=5k
+.param gain=45
+.option savecurrents
+
+** models are generally not free: you must download
+** SPICE models for active devices and put them  into the below 
+** referenced file in simulation directory.
+.include \\"models_poweramp.txt\\"
+.control
+save all
+op
+write poweramp.raw
+set appendwrite
+tran  8e-7 0.07 uic
+* .FOUR 20k v(outm,outp)
+* .probe i(*) 
+plot outp outm
+save p(r*) p(v*)
+write poweramp.raw
+.endc
+"}
+C {simulator_commands.sym} 1020 -740 0 0 {name=COMMANDS1
+simulator=xyce
+only_toplevel=false 
+value="
+.option ITL4=20000 ITL5=0
+vvss vss 0 dc 0 
+.temp 30
+
+.param frequ=5k
+.param gain=45
+
+** models are generally not free: you must download
+** SPICE models for active devices and put them  into the below 
+** referenced file in simulation directory.
+.include \\"models_poweramp.txt\\"
+* .op
+.tran  8e-7 0.07 uic
+.print tran format=raw file=poweramp_xyce.raw v(*) i(*) 
++ v(x1:*) v(x0:*) i(x1:*) i(x0:*)
+"}
+C {launcher.sym} 1495 -1165 0 0 {name=h7 
+descr="load Xyce waves" 
+tclcommand="
+xschem raw_read $netlist_dir/poweramp_xyce.raw
+"
+}

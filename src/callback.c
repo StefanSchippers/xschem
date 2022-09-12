@@ -1556,7 +1556,12 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='s' && (state == 0) )      /* simulate */
    {
-     tcleval("[xschem get top_path].menubar.simulate invoke");
+
+     tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
+             "-message {Run circuit simulation?}");
+     if(strcmp(tclresult(),"ok")==0) {
+       tcleval("[xschem get top_path].menubar.simulate invoke");
+     }
      break;
    }
    if(key=='s' && (state == ControlMask) )      /* save 20121201 */
@@ -2108,8 +2113,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
         global_tedax_netlist(1);
       else
-        if(has_x) tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
-                          "-message {Please Set netlisting mode (Options menu)}");
+        tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
+                "-message {Please Set netlisting mode (Options menu)}");
 
       dbg(1, "callback(): -------------\n");
     }
@@ -2131,8 +2136,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
         global_tedax_netlist(0);
       else
-        if(has_x) tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
-                          "-message {Please Set netlisting mode (Options menu)}");
+        tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
+                "-message {Please Set netlisting mode (Options menu)}");
       dbg(1, "callback(): -------------\n");
     }
     break;

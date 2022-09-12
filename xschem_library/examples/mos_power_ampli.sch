@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -11,8 +12,8 @@ y1=-47
 y2=50
 divy=4
 subdivy=4
-x1=0.0436647
-x2=0.045091
+x1=0.00763563
+x2=0.00893547
 divx=8
 subdivx=1
 dataset=0
@@ -29,8 +30,8 @@ y1=0.94
 y2=160
 divy=4
 subdivy=9
-x1=0.0436647
-x2=0.045091
+x1=0.00763563
+x2=0.00893547
 divx=8
 subdivx=9
 dataset=0
@@ -38,7 +39,7 @@ unitx=m
 
 
 
-color="4 7"
+color="8 7"
 node="tcleval(\\"Xm1 power;vpp $\{path\}outi - i(v.$\{path\}vu) *\\"
 \\"Average;vpp $\{path\}outi - i(v.$\{path\}vu) * 2e-4 ravg()\\")"
 }
@@ -47,16 +48,14 @@ y1=-0.05
 y2=150
 divy=4
 subdivy=9
-x1=0.0436647
-x2=0.045091
+x1=0.00763563
+x2=0.00893547
 divx=8
 subdivx=9
 dataset=0
 unitx=m
 
-
-
-color="4 7"
+color="8 7"
 node="tcleval(\\"Xm2 Power;$\{path\}outi vnn - i(v.$\{path\}vd) *\\"
 \\"Average;$\{path\}outi vnn - i(v.$\{path\}vd) * 2e-4 ravg()\\")"
 }
