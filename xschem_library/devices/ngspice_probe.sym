@@ -1,4 +1,5 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {type=ngprobe
 vhdl_ignore=true
@@ -11,4 +12,4 @@ S {}
 E {}
 L 15 -0 -0 5 -5 {}
 B 5 -0.46875 -0.46875 0.46875 0.46875 {name=p dir=xxx}
-T {tcleval( [ ngspice::get_node v([set path]@@p\\) ] )} 6.875 -13.59375 0 0 0.2 0.2 {vcenter=true layer=15}
+T {tcleval( [ ngspice::get_node v($\{path\}@@p\\) ] )} 6.875 -13.59375 0 0 0.2 0.2 {vcenter=true layer=15}
