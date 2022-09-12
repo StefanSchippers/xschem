@@ -3101,9 +3101,12 @@ proc tclpropeval2 {s} {
     regsub {^([^xX])} $path {x\1} path
     while { [regsub {\.([^xX])} $path {.x\1} path] } {}
   }
-  if { [sim_is_xyce]} {
-    regsub -all {\.} [string toupper $path] {:} path
-  }
+  
+  ## no more necessary, ':' are converted to '.' when reading raw file */
+  #  if { [sim_is_xyce]} {
+  #    regsub -all {\.} [string toupper $path] {:} path
+  #  }
+
   if { $debug_var<=-1 } { puts "---> path=$path" }
   regsub {^tcleval\(} $s {} s
   regsub {\)([ \n\t]*)$} $s {\1} s

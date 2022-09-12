@@ -19,8 +19,8 @@ B 2 1200 -500 1880 -310 {flags=graph
 y1 = -0.0059
 y2 = 11
 divy = 6
-x1=0.0125703
-x2=0.0132608
+x1=0.0457674
+x2=0.0462507
 divx=10
 node="i(v.x1.vu)
 i(v.x0.vu)
@@ -32,8 +32,8 @@ B 2 1200 -830 1880 -520 {flags=graph
 y1 = -49
 y2 = 59
 divy = 12
-x1=0.0125703
-x2=0.0132608
+x1=0.0457674
+x2=0.0462507
 divx=10
 node="outp
 outm
@@ -47,8 +47,8 @@ B 2 1200 -1020 1880 -830 {flags=graph
 y1 = 2.4e-11
 y2 = 840
 divy = 6
-x1=0.0125703
-x2=0.0132608
+x1=0.0457674
+x2=0.0462507
 divx=10
 
 
@@ -60,8 +60,8 @@ B 2 1200 -310 1880 -120 {flags=graph
 y1 = 0.0077
 y2 = 850
 divy = 6
-x1=0.0125703
-x2=0.0132608
+x1=0.0457674
+x2=0.0462507
 divx=10
 
 
@@ -313,15 +313,12 @@ C {spice_probe.sym} 660 -1200 0 0 {name=p42 analysis=tran voltage=0.0000e+00}
 C {spice_probe.sym} 670 -1120 0 0 {name=p43 analysis=tran voltage=0.0000e+00}
 C {spice_probe.sym} 950 -1200 0 0 {name=p44 analysis=tran voltage=0.0000e+00}
 C {launcher.sym} 1000 -270 0 0 {name=h1
-descr=Backannotate
-tclcommand="ngspice::annotate"}
+descr="Backannotate
+(ngspice)"
+tclcommand="ngspice::annotate $netlist_dir/poweramp_op.raw"}
 C {ngspice_get_expr.sym} 130 -1010 0 0 {name=r19 
 node="[ngspice::get_current \{r9[i]\}]"
 descr = current
-}
-C {launcher.sym} 1000 -310 0 0 {name=h4
-descr="View Raw file" 
-tclcommand="textwindow $netlist_dir/[file tail [file rootname [ xschem get schname 0 ] ] ].raw"
 }
 C {spice_probe.sym} 300 -1220 0 0 {name=p45 analysis=tran voltage=49.84}
 C {spice_probe.sym} 300 -1060 0 0 {name=p46 analysis=tran voltage=-49.86}
@@ -353,8 +350,7 @@ vvss vss 0 dc 0
 .control
 save all
 op
-write poweramp.raw
-set appendwrite
+write poweramp_op.raw
 tran  8e-7 0.07 uic
 * .FOUR 20k v(outm,outp)
 * .probe i(*) 
