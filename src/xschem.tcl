@@ -360,7 +360,7 @@ proc ev {s} {
   }
 }
 proc netlist {source_file show netlist_file} {
- global XSCHEM_SHAREDIR flat_netlist hspice_netlist netlist_dir
+ global XSCHEM_SHAREDIR flat_netlist netlist_dir
  global verilog_2001 debug_var OS verilog_bitblast
  
  simuldir
@@ -368,11 +368,6 @@ proc netlist {source_file show netlist_file} {
  if {$debug_var <= -1} { puts "netlist: source_file=$source_file, netlist_type=$netlist_type" }
  set dest $netlist_dir/$netlist_file
  if {$netlist_type eq {spice}} {
-   if { $hspice_netlist == 1 } {
-     set simulator {-hspice}
-   } else {
-     set simulator {}
-   }
    if { [sim_is_xyce] } {
      set xyce  {-xyce}
    } else {
@@ -382,9 +377,9 @@ proc netlist {source_file show netlist_file} {
    set brk ${XSCHEM_SHAREDIR}/break.awk
    set flatten ${XSCHEM_SHAREDIR}/flatten.awk
    if {$flat_netlist==0} {
-     eval exec {awk -f $cmd -- $simulator $xyce $source_file | awk -f $brk > $dest}
+     eval exec {awk -f $cmd -- $xyce $source_file | awk -f $brk > $dest}
    } else {
-     eval exec {awk -f $cmd -- $simulator $xyce $source_file | awk -f $flatten | awk -f $brk > $dest}
+     eval exec {awk -f $cmd -- $xyce $source_file | awk -f $flatten | awk -f $brk > $dest}
    }
    if ![string compare $show "show"] {
       textwindow $dest
@@ -4650,7 +4645,7 @@ set tctx::global_list {
   graph_bus graph_digital graph_logx graph_logy
   graph_sel_color graph_schname graph_selected graph_sel_wave graph_sort
   graph_unlocked
-  hide_empty_graphs hide_symbols hsize hspice_netlist 
+  hide_empty_graphs hide_symbols hsize
   incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
   input_line_cmd input_line_data launcher_default_program light_colors line_width local_netlist_dir
   measure_text
@@ -4896,7 +4891,7 @@ proc switch_undo {} {
 proc build_widgets { {topwin {} } } {
   global XSCHEM_SHAREDIR tabbed_interface simulate_bg
   global colors recentfile color_ps transparent_svg menu_debug_var enable_stretch
-  global netlist_show flat_netlist split_files hspice_netlist tmp_bus_char 
+  global netlist_show flat_netlist split_files tmp_bus_char 
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
   global cadgrid draw_window show_pin_net_names toolbar_visible hide_symbols undo_type
   global disable_unique_names persistent_command autotrim_wires en_hilight_conn_inst
@@ -5037,8 +5032,6 @@ proc build_widgets { {topwin {} } } {
      }
   $topwin.menubar.option.menu add checkbutton -label "Split netlist" -variable split_files \
      -accelerator {} 
-  $topwin.menubar.option.menu add checkbutton -label "hspice / ngspice netlist" -variable hspice_netlist \
-     -accelerator {}
   $topwin.menubar.option.menu add command -label "Replace \[ and \] for buses in SPICE netlist" \
      -command {
        input_line "Enter two characters to replace default bus \[\] delimiters:" "set tmp_bus_char"
@@ -5642,7 +5635,6 @@ set_ne netlist_dir "$USER_CONF_DIR/simulations"
 set_ne netlist_type spice
 set_ne local_netlist_dir 0 ;# if set use <sch_dir>/simulation for netlist and sims
 set_ne bus_replacement_char {} ;# use {<>} to replace [] with <> in bussed signals
-set_ne hspice_netlist 1
 set_ne top_subckt 0
 set_ne hide_empty_graphs 0 ;# if set to 1 waveform boxes will be hidden if no raw file loaded
 set_ne spiceprefix 1

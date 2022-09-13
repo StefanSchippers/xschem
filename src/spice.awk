@@ -28,7 +28,6 @@ BEGIN{
  user_code=0 #20180129
 
  while( (ARGV[1] ~ /^[-]/) || (ARGV[1] ~ /^$/) ) {
-   if(ARGV[1] == "-hspice") hspice = 1
    if(ARGV[1] == "-xyce") { xyce = 1} 
    for(i=2; i<= ARGC;i++) {
      ARGV[i-1] = ARGV[i]
@@ -62,16 +61,6 @@ END{
   ## resolve parametric instance name vector multiplicity
   substitute_instance_param()
   
-  if(xyce == 1) {
-    for(i=0; i<lines; i++) {
-      $0 = line[i]
-      if(tolower($1) ~/^\.tran$/) analysis_type="tran"
-      if(tolower($1) ~/^\.dc$/) analysis_type="dc"
-      if(tolower($1) ~/^\.ac$/) analysis_type="ac"
-    }
-  }
-    
-
   for(i=0; i<lines; i++) {
     $0 = line[i]
 
@@ -80,9 +69,7 @@ END{
       ## transform ".save" lines into ".print tran" *only* for spice_probe elements, not user code
       if(tolower($0) ~/^[ \t]*\.save[ \t]+.*\?-?[0-9]+/) {   # .save file=test1.raw format=raw v( ?1 C2  )
         $1 = ""
-        if(tolower($2) ~ /^(tran|ac|dc)$/) $2 = ""
-        # analysis_type will be replaced with the analysis found in netlist (.tran, .dc, .ac etc)
-        $0 = ".print analysis_type " $0
+        $0 = ".print " $0
       } 
       gsub(/ [mM] *= *1 *$/,"") # xyce does not like m=# fields (multiplicity) removing m=1 is no an issue anyway
     }
@@ -213,67 +200,56 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
      $0 = $0  # reparse input line 
    }
  }
- if(hspice) {
-   ## 20140506 do not transform {} of variation groups
-   ## nmos N {
-   ## ...
-   ## }
-   if($0 ~ /=/) gsub(/[{}]/,"'")
-   gsub(/PARAM:/,"")     # stefan 20110627
+ ## 20140506 do not transform {} of variation groups
+ ## nmos N {
+ ## ...
+ ## }
+ gsub(/PARAM:/,"")     # stefan 20110627
 
-   if($0 ~/^[gG]/) {
-     IGNORECASE=1
-     sub(/ value=/," cur=")
-     IGNORECASE=0
-   }
-   if($0 ~/^[eE]/) {
-     IGNORECASE=1
-     sub(/ value=/," vol=")
-     IGNORECASE=0
-   }
-   if($0 ~/^[rR]/) {
-     IGNORECASE=1
-     sub(/ value=/," r=")
-     IGNORECASE=0
-   }
-   if($0 ~/^[cC]/) {
-     IGNORECASE=1
-     sub(/ value=/," c=")
-     IGNORECASE=0
-   }
-   gsub(/ value=/," ")
-   gsub(/ VALUE=/," ")
-   if($0 ~ /^D/ ) sub(/PERI[ \t]*=/,"PJ=")
+ if($0 ~/^[gG]/) {
+   IGNORECASE=1
+   sub(/ value=/," cur=")
+   IGNORECASE=0
  }
+ if($0 ~/^[eE]/) {
+   IGNORECASE=1
+   sub(/ value=/," vol=")
+   IGNORECASE=0
+ }
+ if($0 ~/^[rR]/) {
+   IGNORECASE=1
+   sub(/ value=/," r=")
+   IGNORECASE=0
+ }
+ if($0 ~/^[cC]/) {
+   IGNORECASE=1
+   sub(/ value=/," c=")
+   IGNORECASE=0
+ }
+ gsub(/ value=/," ")
+ gsub(/ VALUE=/," ")
+ if($0 ~ /^D/ ) sub(/PERI[ \t]*=/,"PJ=")
 
  ## .save tran v(?1 GB ) v(?1 SB )
  ## ? may be followed by -1 in some cases
  if(tolower($1) ~ /^\.(save|print)$/ && $0 ~/\?-?[0-9]/) {
    $0 = tolower($0)
    saveinstr = $1
-
-   attr=""
-   if($0 !~/format=/ && xyce==1) {
-     attr=" format=raw "
-   }
-    
-   if(analysis_type !="") saveanalysis = analysis_type
-   else if($2 ~/^(dc|ac|tran|op|sens|hb|es|pce|noise|homotopy)$/) saveanalysis=$2
-   else saveanalysis=""
-   $1=""
-   if(saveanalysis !="") $2=""
-   $0 = $0 # reparse line for field splitting
-
-   gsub(/ *\?-?[0-9]+ */, "")   # in some cases ?-1 is printed (unknow multiplicity) 
-   gsub(/\( */, "(")
-   gsub(/ *\)/, ")")
-   for(i=1; i<=NF; i++) {
-     savetype=$i; sub(/\(.*/,"", savetype)  # v(...)  --> v
-     sub(/^.*\(/,"", $i)
-     sub(/\).*/,"", $i)
-     num = split($i, name, ",")
-     for(j=1; j<= num; j++) {
-       print saveinstr " " saveanalysis attr  savetype "(" name[j] ")"
+   if(!xyce) {
+     $1=""
+     $0 = $0 # reparse line for field splitting
+  
+     gsub(/ *\?-?[0-9]+ */, "")   # in some cases ?-1 is printed (unknow multiplicity) 
+     gsub(/\( */, "(")
+     gsub(/ *\)/, ")")
+     for(i=1; i<=NF; i++) {
+       savetype=$i; sub(/\(.*/,"", savetype)  # v(...)  --> v
+       sub(/^.*\(/,"", $i)
+       sub(/\).*/,"", $i)
+       num = split($i, name, ",")
+       for(j=1; j<= num; j++) {
+         print saveinstr " " savetype "(" name[j] ")"
+       }
      }
    }
    

@@ -23,14 +23,6 @@
 
 
 BEGIN{
-## handle options
-# if( ARGV[1] == "-hspice" ) {
-#   hspice=1
-#   for(i=2; i<= ARGC;i++) {
-#     ARGV[i-1] = ARGV[i]
-#   }
-#   ARGC--
-# }
 }
 
 ##1       2     3        4    5           6

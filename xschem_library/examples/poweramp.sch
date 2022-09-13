@@ -19,8 +19,8 @@ B 2 1200 -500 1880 -310 {flags=graph
 y1 = -0.0059
 y2 = 11
 divy = 6
-x1=0.0457674
-x2=0.0462507
+x1=0.024209
+x2=0.0246776
 divx=10
 node="i(v.x1.vu)
 i(v.x0.vu)
@@ -32,8 +32,8 @@ B 2 1200 -830 1880 -520 {flags=graph
 y1 = -49
 y2 = 59
 divy = 12
-x1=0.0457674
-x2=0.0462507
+x1=0.024209
+x2=0.0246776
 divx=10
 node="outp
 outm
@@ -47,8 +47,8 @@ B 2 1200 -1020 1880 -830 {flags=graph
 y1 = 2.4e-11
 y2 = 840
 divy = 6
-x1=0.0457674
-x2=0.0462507
+x1=0.024209
+x2=0.0246776
 divx=10
 
 
@@ -60,8 +60,8 @@ B 2 1200 -310 1880 -120 {flags=graph
 y1 = 0.0077
 y2 = 850
 divy = 6
-x1=0.0457674
-x2=0.0462507
+x1=0.024209
+x2=0.0246776
 divx=10
 
 
@@ -210,9 +210,9 @@ C {lab_pin.sym} 700 -1120 0 1 {name=p23 lab=REFM}
 C {lab_pin.sym} 240 -250 0 0 {name=p8 lab=INX}
 C {lab_pin.sym} 870 -1050 0 0 {name=p126 lab=VSS}
 C {lab_pin.sym} 950 -1200 0 1 {name=p127 lab=IN}
-C {capa.sym} 550 -800 0 0 {name=C5 m=1 value="100n ic=0"}
+C {capa.sym} 550 -800 0 0 {name=C5 m=1 value="100n ; ic=0"}
 C {lab_pin.sym} 550 -290 0 0 {name=p11 lab=VSS}
-C {capa.sym} 550 -340 0 0 {name=C6 m=1 value="100n ic=0"}
+C {capa.sym} 550 -340 0 0 {name=C6 m=1 value="100n ; ic=0"}
 C {lab_pin.sym} 350 -200 0 0 {name=p28 lab=VSS}
 C {lab_pin.sym} 350 -660 0 0 {name=p1 lab=VSS}
 C {res.sym} 550 -460 0 1 {name=R2 m=1 value='100k'}
@@ -226,9 +226,9 @@ C {lab_pin.sym} 240 -860 0 0 {name=p18 lab=VPP}
 C {res.sym} 260 -620 0 1 {name=R5 m=1 value=100k}
 C {lab_pin.sym} 260 -570 0 0 {name=p10 lab=VSS}
 C {res.sym} 400 -950 0 1 {name=R8 m=1 value=100k}
-C {capa.sym} 170 -220 1 0 {name=C4 m=1 value="100n ic=0"}
+C {capa.sym} 170 -220 1 0 {name=C4 m=1 value="100n ; ic=0"}
 C {lab_pin.sym} 140 -220 0 0 {name=p0 lab=IN}
-C {capa.sym} 150 -680 1 0 {name=C1 m=1 value="100n ic=0"}
+C {capa.sym} 150 -680 1 0 {name=C1 m=1 value="100n ; ic=0"}
 C {lab_pin.sym} 120 -680 0 0 {name=p17 lab=VSS}
 C {lab_pin.sym} 240 -710 0 0 {name=p22 lab=VSSX}
 C {res.sym} 920 -1200 1 1 {name=R10 m=1 value=2}
@@ -313,8 +313,7 @@ C {spice_probe.sym} 660 -1200 0 0 {name=p42 analysis=tran voltage=0.0000e+00}
 C {spice_probe.sym} 670 -1120 0 0 {name=p43 analysis=tran voltage=0.0000e+00}
 C {spice_probe.sym} 950 -1200 0 0 {name=p44 analysis=tran voltage=0.0000e+00}
 C {launcher.sym} 1000 -270 0 0 {name=h1
-descr="Backannotate
-(ngspice)"
+descr="Backannotate"
 tclcommand="ngspice::annotate $netlist_dir/poweramp_op.raw"}
 C {ngspice_get_expr.sym} 130 -1010 0 0 {name=r19 
 node="[ngspice::get_current \{r9[i]\}]"
@@ -374,10 +373,12 @@ vvss vss 0 dc 0
 ** SPICE models for active devices and put them  into the below 
 ** referenced file in simulation directory.
 .include \\"models_poweramp.txt\\"
-* .op
 .tran  8e-7 0.07 uic
+* .op
 .print tran format=raw file=poweramp_xyce.raw v(*) i(*) 
 + v(x1:*) v(x0:*) i(x1:*) i(x0:*)
+* .print dc format=raw file=poweramp_op.raw v(*) i(*) v(x1:*) v(x0:*) i(x1:*) i(x0:*)
+
 "}
 C {launcher.sym} 1495 -1165 0 0 {name=h7 
 descr="load Xyce waves" 
@@ -385,3 +386,6 @@ tclcommand="
 xschem raw_read $netlist_dir/poweramp_xyce.raw
 "
 }
+C {ngspice_probe.sym} 880 -1200 0 1 {name=p29}
+C {ngspice_probe.sym} 550 -830 0 1 {name=p29}
+C {ngspice_probe.sym} 550 -750 0 1 {name=p29}

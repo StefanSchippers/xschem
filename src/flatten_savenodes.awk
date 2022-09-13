@@ -33,7 +33,6 @@ BEGIN{
 
 
  while( ARGV[1] ~ /^[-]/) {
-   if(ARGV[1] == "-hspice") hspice = 1
    if(ARGV[1] == "-xyce") { xyce = 1}
    for(i=2; i<= ARGC;i++) {
      ARGV[i-1] = ARGV[i]
