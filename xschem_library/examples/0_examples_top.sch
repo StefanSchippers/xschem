@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -1458,13 +1459,10 @@ cwtAyKwqggMC8z8AAABAXz/APixDHOviNio/cIyWTt0GHEAHmaX3NW0zQHJvU5F/bTNA3V5CW3kqoL85
 UsA+"
 }
 C {test_ac.sym} 160 -210 0 0 {name=x15}
-C {test_ac_xyce.sym} 160 -170 0 0 {name=x16}
 C {rom8k.sym} 480 -730 0 0 {name=x17}
-C {poweramp_xyce.sym} 480 -650 0 0 {name=x18
-tclcommand="xschem descend"}
-C {test_doublepin.sym} 160 -130 0 0 {name=x19}
+C {test_doublepin.sym} 160 -170 0 0 {name=x19}
 C {classD_amp.sym} 480 -770 0 0 {name=x20}
-C {delta_sigma.sym} 480 -610 0 0 {name=x21}
-C {solar_panel.sym} 480 -570 0 0 {name=x22}
-C {test_extracted_netlist.sym} 160 -90 0 0 {name=x23
+C {delta_sigma.sym} 480 -650 0 0 {name=x21}
+C {solar_panel.sym} 480 -610 0 0 {name=x22}
+C {test_extracted_netlist.sym} 160 -130 0 0 {name=x23
 tclcommand="xschem descend"}

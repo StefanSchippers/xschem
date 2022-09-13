@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -30,7 +31,7 @@ unitx=n
 node="cal
 saout"
 color="4 5"
-}
+dataset=-1}
 B 2 260 -1220 720 -1090 {flags=graph
 y1 = 0.647319
 y2 = 0.652563
@@ -43,7 +44,7 @@ subdivx=4
 node="plus
 minus"
 color="4 5"
-dataset=3}
+dataset=-1}
 T {CAL} 140 -180 0 1 0.4 0.4 {}
 T {EN} 140 -130 0 1 0.4 0.4 {}
 T {CALIBRATION

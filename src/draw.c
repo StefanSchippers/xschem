@@ -2527,9 +2527,6 @@ int find_closest_wave(int i, Graph_ctx *gr)
 
   yval = G_Y(xctx->mousey);
   xval = G_X(xctx->mousex);
-  if(gr->logx) xval = pow(10, xval);
-  if(gr->logy) yval = pow(10, yval);
-  dbg(0, "x=%g y=%g\n", xval, yval);
   /* get data to plot */
   my_strdup2(474, &node, get_tok_value(r->prop_ptr,"node",0));
   my_strdup2(1012, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
@@ -2580,14 +2577,16 @@ int find_closest_wave(int i, Graph_ctx *gr)
         int cnt=0, wrap;
         register SPICE_DATA *gvx = xctx->graph_values[sweep_idx];
         register SPICE_DATA *gvy = xctx->graph_values[idx];
+        dbg(1, "find_closest_wave(): dset=%d\n", dset);
         first = -1;
         /* Process "npoints" simulation items 
          * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
         prev_prev_x = prev_x = 0;
         last = ofs; 
+        dbg(1, "find_closest_wave(): xval=%g yval=%g\n", xval, yval);
         for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
           if(gr->logx) xx = mylog10(gvx[p]);
-          else  xx = gvx[p];
+          else xx = gvx[p];
           if(gr->logy) yy = mylog10(gvy[p]);
           else  yy = gvy[p];
           wrap = (sweep_idx == 0 && cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));

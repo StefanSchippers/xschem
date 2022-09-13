@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -14,7 +15,7 @@ C {lab_pin.sym} 180 -260 0 1 {name=l6 sig_type=std_logic lab=IPLUS}
 C {lab_pin.sym} 180 -210 0 1 {name=l1 sig_type=std_logic lab=IMINUS}
 C {lab_pin.sym} 450 -240 0 0 {name=l2 sig_type=std_logic lab=IOUT}
 C {lab_pin.sym} 450 -120 0 0 {name=p35 lab=0}
-C {bsource.sym} 450 -150 0 1 {name=B1 VAR=V FUNC="'OFFSET + AMPLITUDE/2*(tanh(V(IPLUS,IMINUS)*300))'"
+C {bsource.sym} 450 -150 0 1 {name=B1 VAR=V FUNC="\{OFFSET + AMPLITUDE/2*(tanh(V(IPLUS,IMINUS)*300))\}"
 }
 C {title.sym} 160 -30 0 0 {name=l3 author="Stefan Schippers"}
 C {res.sym} 570 -240 1 0 {name=R1
