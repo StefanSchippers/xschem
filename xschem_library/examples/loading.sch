@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {// test}
@@ -119,7 +120,7 @@ use std.TEXTIO.all;
 use ieee.std_logic_1164.all;
 
 library work;
-use work.rrreal.all;
+use work.rrreal_pkg.all;
 
 }
 C {pump.sym} 250 -680 0 0 {name=x4 conduct="1.0/20000.0" val=4.5}
@@ -145,7 +146,7 @@ C {package_not_shown.sym} 830 -340 0 0 {
     library ieee, std;
     use std.textio.all;
  
-    package rrreal is
+    package rrreal_pkg is
 
 
 
@@ -184,10 +185,10 @@ C {package_not_shown.sym} 830 -340 0 0 {
         constant del: IN time
     );
 
-    end rrreal; -- end package declaration
+    end rrreal_pkg; -- end package declaration
  
  
-    package body rrreal is
+    package body rrreal_pkg is
 
 procedure print(s : in string) is
 variable outbuf: line;
@@ -351,7 +352,7 @@ end procedure;
     end glitch;
 
 
-    end rrreal; -- end package body
+    end rrreal_pkg; -- end package body
 }
 C {title.sym} 160 -40 0 0 {name=l9 author="Stefan Schippers"}
 C {arch_declarations.sym} 830 -280 0 0 {

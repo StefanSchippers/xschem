@@ -5335,11 +5335,11 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.simulation.menu add command -label {Configure simulators and tools} -command {simconf}
   $topwin.menubar.simulation.menu add command -label {Utile Stimuli Editor (GUI)} -command {
      simuldir
-     inutile stimuli.[file rootname [file tail [xschem get schname]]]
+     inutile [xschem get current_dirname]/stimuli.[file rootname [file tail [xschem get schname]]]
   }
   $topwin.menubar.simulation.menu add command -label {Utile Stimuli Translate} -command {
      simuldir
-     inutile_translate  stimuli.[file rootname [file tail [xschem get schname]]]
+     inutile_translate  [xschem get current_dirname]/stimuli.[file rootname [file tail [xschem get schname]]]
   }
   $topwin.menubar.simulation.menu add command -label {Shell [simulation path]} -command {
      if { [select_netlist_dir 0] ne "" } {

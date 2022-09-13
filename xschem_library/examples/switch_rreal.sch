@@ -1,4 +1,5 @@
-v {xschem version=2.9.7 file_version=1.2}
+v {xschem version=3.1.0 file_version=1.2
+}
 G {
 
 -- process
@@ -96,11 +97,6 @@ L 4 -150 -10 -110 -10 {}
 L 4 -150 10 -110 10 {}
 T {@symname} -49.5 -6 0 0 0.3 0.3 {}
 T {@name} 65 -32 0 0 0.2 0.2 {}
-C {use.sym} 120 -280 0 0 {    library ieee,work;
-    use ieee.std_logic_1164.all;
-    use work.rrreal.all;
-    use std.textio.all;
-}
 C {ipin.sym} -150 10 0 0 {name=p3 lab=ENAB}
 C {iopin.sym} -150 -10 0 1 {name=p2 lab=A sig_type=rreal}
 C {arch_declarations.sym} 140 -160 0 0 {
@@ -116,3 +112,11 @@ begin
 end print2;
 }
 C {iopin.sym} 150 -10 0 0 {name=p1 lab=B sig_type=rreal}
+C {use.sym} -130 -260 0 0 {library ieee;
+use std.TEXTIO.all;
+use ieee.std_logic_1164.all;
+
+library work;
+use work.rrreal_pkg.all;
+
+}

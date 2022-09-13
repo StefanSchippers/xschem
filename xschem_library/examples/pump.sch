@@ -1,4 +1,5 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.1.0 file_version=1.2
+}
 G {
 
 process 
@@ -33,6 +34,7 @@ end process;
 
 
 }
+K {}
 V {}
 S {}
 E {}
@@ -41,9 +43,8 @@ C {ipin.sym} -80 -90 0 0 {name=p2 lab=ING}
 C {use.sym} -150 -260 0 0 {library ieee;
 use std.TEXTIO.all;
 use ieee.std_logic_1164.all;
-use work.rrreal.all;
 
 library work;
-use work.rrreal.all;
+use work.rrreal_pkg.all;
 
 }
