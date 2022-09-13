@@ -142,10 +142,6 @@ proc inutile { {filename {}}} {
   wm title .inutile "(IN)UTILE (Stefan Schippers, sschippe)"
   wm iconname .inutile "(IN)UTILE"
   set utile_path $XSCHEM_SHAREDIR/utile
-  set savedir [pwd]
-  cd $netlist_dir
-  set filename [file normalize $filename]
-  cd $savedir
   if { ![string compare $filename  ""]  } then {
    wm withdraw .inutile
    tk_messageBox -type ok -message "Please give a file name as argument"
