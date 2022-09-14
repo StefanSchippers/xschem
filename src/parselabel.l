@@ -62,7 +62,6 @@ typedef struct          /* used in expandlabel.y */
 Stringptr dest_string={NULL,0};  /*19102004; */
 
 extern int yyparse(void) ;
-extern int yyparse_error;
 extern int yylex();
 
 void clear_expandlabel_data(void)
