@@ -2040,6 +2040,7 @@ proc is_xschem_file {f} {
   if {$a} {
     puts stderr "Can not open file $f"
   } else {
+    fconfigure $fd -translation binary
     while { [gets $fd line] >=0 } {
       if { [regexp {^[TKGVSE] \{} $line] } { incr score }
       if { [regexp {^[BL] +[0-9]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +\{} $line] } {incr score}
@@ -2049,7 +2050,7 @@ proc is_xschem_file {f} {
         set ret 1
       }
     } 
-    if { $score > 6 }  { set ret 1} ;# Heuristic decision :-)
+    if { $score > 4 }  { set ret 1} ;# Heuristic decision :-)
     if { $ret } {
       if { $instances} {
         set ret SCHEMATIC

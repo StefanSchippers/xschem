@@ -885,6 +885,12 @@ void read_record(int firstchar, FILE *fp, int dbg_level)
 {
   int c;
   char *str = NULL;
+  int unget = 1;
+
+  if(firstchar == -1) {
+     firstchar = fgetc(fp);
+     unget = 0;
+  }
   dbg(dbg_level, "SKIP RECORD\n");
   if(firstchar != '{') {
     dbg(dbg_level, "%c", firstchar);
@@ -893,7 +899,7 @@ void read_record(int firstchar, FILE *fp, int dbg_level)
     if (c=='\r') continue;
     if(c == '\n') {
       dbg(dbg_level, "\n");
-      ungetc(c, fp); /* so following read_line does not skip next line */
+      if(unget) ungetc(c, fp); /* so following read_line does not skip next line */
       break;
     }
     if(c == '{') {
