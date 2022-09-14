@@ -1062,12 +1062,13 @@ void toggle_fullscreen(const char *topwin)
     xctx->menu_removed=0;
   }
   if(fs == 1) {
-    window_state(display , parent_id,fullscr);
+    window_state(display , parent_id,fullscr); /* full screen with menus and toolbars */
   } else if(fs == 2) {
-    window_state(display , parent_id,normal);
+    window_state(display , parent_id,normal); /* full screen, only drawing area */
     window_state(display , parent_id,fullscr);
+    zoom_full(1, 0, 1, 0.97); /* draw */
   } else {
-    window_state(display , parent_id,normal);
+    window_state(display , parent_id,normal); /* normal view */
     /* when switching back from fullscreen multiple ConfigureNotify events are generated. 
      * pending_fullzoom does not work on the last corect ConfigureNotify event,
      * so wee zoom_full() again */
