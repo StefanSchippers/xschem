@@ -27,6 +27,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "xschem.h"
 
 #ifndef STRINGPTR
 #define STRINGPTR
@@ -38,13 +39,12 @@ typedef struct          /* used in expandlabel.y */
 #endif
 
 #define YYERROR_VERBOSE 
-#define SIGN(x) ( (x) < 0 ? -1: 1 )
 #define INITIALIDXSIZE 8
 
 extern Stringptr dest_string; /* 20140108 */
-
 static int idxsize=INITIALIDXSIZE;
 extern int yylex();
+/* 
 extern FILE *errfp;
 extern void *my_malloc(int id, size_t size);
 extern void my_free(int id, void *ptr);
@@ -54,13 +54,14 @@ extern int debug_var;
 extern void dbg(int level, char *fmt, ...);
 extern size_t my_snprintf(char *str, size_t size, const char *fmt, ...);
 extern int yyparse_error;
-
+*/
 
 
 static void yyerror (const char *s)  /* Called by yyparse on error */
 {
   if(yyparse_error == 0 ) yyparse_error = 1;
   dbg(0, "yyerror(): yyparse():%s\n", s);
+  dbg(0, "    schematic: %s\n", xctx->sch[xctx->currsch]);
 }
 
 static char *expandlabel_strdup(char *src)
@@ -365,7 +366,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                          int i;
                          int sign;
 
-                         sign = SIGN($3-$1);
+                         sign = XSIGN($3-$1);
                          $$=my_malloc(130, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
                          dbg(3, "yyparse(): parsing first idx range\n");
@@ -384,7 +385,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                          $$=my_malloc(131, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
                          dbg(3, "yyparse(): parsing first idx range\n");
-                         for(i=$1;;i+=SIGN($3-$1))
+                         for(i=$1;;i+=XSIGN($3-$1))
                          {
                           check_idx(&$$,++$$[0]);
                           $$[$$[0]]=i;
@@ -403,7 +404,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                          int i;                                 
                          int sign;
 
-                         sign = SIGN($5-$3);
+                         sign = XSIGN($5-$3);
                          dbg(3, "yyparse(): parsing comma sep idx range\n");
                          for(i=$3;;i+=sign*$7)
                          {
@@ -417,7 +418,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                         {
                          int i;
                          dbg(3, "yyparse(): parsing comma sep idx range\n");
-                         for(i=$3;;i+=SIGN($5-$3))
+                         for(i=$3;;i+=XSIGN($5-$3))
                          {
                           check_idx(&$$, ++$$[0]);
                           $$[$$[0]]=i;
@@ -437,7 +438,7 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM
                          $$=my_malloc(85, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
                          dbg(3, "yyparse(): doubledot\n");
-                         for(i=$1;;i+=SIGN($3-$1))
+                         for(i=$1;;i+=XSIGN($3-$1))
                          {
                           check_idx(&$$,++$$[0]);
                           $$[$$[0]]=i;
@@ -449,7 +450,7 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM
                          int i;
                          int sign;
 
-                         sign = SIGN($3-$1);
+                         sign = XSIGN($3-$1);
                          $$=my_malloc(109, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
                          dbg(3, "yyparse(): parsing first idx range\n");
