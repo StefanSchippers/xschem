@@ -3131,6 +3131,7 @@ static void draw_images_all(void)
 
 void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, double ry2)
 {
+  #if defined(__unix__) && defined(HAS_CAIRO)
   char *ptr = NULL;
   double x1, y1, x2, y2, w, h;
   int rw, rh;
@@ -3184,6 +3185,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
                 0.0, 0.0, w, h, transform, ptr);
   }
   my_free(1546, &ptr);
+  #endif
 }
 
 
