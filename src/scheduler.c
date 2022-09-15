@@ -1990,6 +1990,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc == 6) {
           w = atoi(argv[4]);
           h = atoi(argv[5]);
+          if(w == 0) w = xctx->xrect[0].width;
+          if(h == 0) h = xctx->xrect[0].height;
           save_restore_zoom(1);
           set_viewport_size(w, h, 0.8);
           zoom_full(0, 0, 2, 0.97);
@@ -2005,6 +2007,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           y1 = atof(argv[7]);
           x2 = atof(argv[8]);
           y2 = atof(argv[9]);
+          if(w == 0) w = (int) fabs(x2 - x1);
+          if(h == 0) h = (int) fabs(y2 - y1);
           save_restore_zoom(1);
           set_viewport_size(w, h, 0.8); 
           zoom_box(x1, y1, x2, y2, 1.0);
