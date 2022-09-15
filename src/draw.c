@@ -81,7 +81,7 @@ void print_image()
   #if HAS_CAIRO == 0
   char cmd[PATH_MAX+100];
   #endif
-  int save_draw_grid;
+  int save_draw_grid, save_draw_window;
   static char lastdir[PATH_MAX] = "";
   const char *r;
 
@@ -107,7 +107,10 @@ void print_image()
   #endif
   save_draw_grid = tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");
+  save_draw_window = xctx->draw_window;
+  xctx->draw_window=0;
   xctx->draw_pixmap=1;
+  xctx->do_copy_area=0;
   draw();
   
 
@@ -115,29 +118,31 @@ void print_image()
                       * XPM and handles Xrender extensions for transparent embedded images */
   {
     cairo_surface_t *png_sfc;
-#ifdef __unix__
+    #ifdef __unix__
     png_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual,
                xctx->xrect[0].width, xctx->xrect[0].height);
-#else
+    #else
     HWND hwnd = Tk_GetHWND(xctx->window);
     HDC dc = GetDC(hwnd);
     png_sfc = cairo_win32_surface_create(dc);
-#endif
+    #endif
 
     if(xctx->plotfile[0])
       cairo_surface_write_to_png(png_sfc, xctx->plotfile);
     else
       cairo_surface_write_to_png(png_sfc, "plot.png");
+
+    cairo_surface_destroy(png_sfc);
   }
   #else /* no cairo */
-#ifdef __unix__
+  #ifdef __unix__
   XpmWriteFileFromPixmap(display, "plot.xpm", xctx->save_pixmap,0, NULL ); /* .gz ???? */
   dbg(1, "print_image(): Window image saved\n");
   if(xctx->plotfile[0]) {
     my_snprintf(cmd, S(cmd), "convert_to_png plot.xpm {%s}", xctx->plotfile);
     tcleval(cmd);
   } else tcleval( "convert_to_png plot.xpm plot.png");
-#else
+  #else
   char *psfile = NULL;
   create_ps(&psfile, 7);
   if (xctx->plotfile[0]) {
@@ -145,11 +150,13 @@ void print_image()
     tcleval(cmd);
   }
   else tcleval("convert_to_png {%s} plot.png", psfile);
-#endif
+  #endif
   #endif
   my_strncpy(xctx->plotfile,"", S(xctx->plotfile));
   tclsetboolvar("draw_grid", save_draw_grid);
   xctx->draw_pixmap=1;
+  xctx->draw_window=save_draw_window;
+  xctx->do_copy_area=1;
 }
 
 #if HAS_CAIRO==1
@@ -2943,10 +2950,10 @@ static cairo_status_t png_writer(void *in_closure, const unsigned char *in_data,
 
 
 /* rot and flip for rotated / flipped symbols
- * draw: 1 draw image
+ * dr: 1 draw image
  *       0 only load image and build base64 
  */
-void draw_image(int draw, xRect *r, double *x1, double *y1, double *x2, double *y2, int rot, int flip)
+void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2, int rot, int flip)
 {
   #if HAS_CAIRO == 1
   const char *ptr;
@@ -2973,7 +2980,7 @@ void draw_image(int draw, xRect *r, double *x1, double *y1, double *x2, double *
                   xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) return;
   set_rect_extraptr(1, r); /* create r->extraptr pointing to a xEmb_image struct */
   emb_ptr = r->extraptr;
-  if(draw) {
+  if(dr) {
     cairo_save(xctx->cairo_ctx);
     cairo_save(xctx->cairo_save_ctx);
   }
@@ -3074,7 +3081,7 @@ void draw_image(int draw, xRect *r, double *x1, double *y1, double *x2, double *
     scalex = rw/w * xctx->mooz;
     scaley = rh/h * xctx->mooz;
   }
-  if(draw && xctx->draw_pixmap) {
+  if(dr && xctx->draw_pixmap) {
     cairo_translate(xctx->cairo_save_ctx, x, y);
     if(flip && (rot == 0 || rot == 2)) cairo_scale(xctx->cairo_save_ctx, -scalex, scaley);
     else if(flip && (rot == 1 || rot == 3)) cairo_scale(xctx->cairo_save_ctx, scalex, -scaley);
@@ -3087,7 +3094,7 @@ void draw_image(int draw, xRect *r, double *x1, double *y1, double *x2, double *
     cairo_clip(xctx->cairo_save_ctx);
     cairo_paint_with_alpha(xctx->cairo_save_ctx, alpha);
   }
-  if(draw && xctx->draw_window) {
+  if(dr && xctx->draw_window) {
     cairo_translate(xctx->cairo_ctx, x, y);
     if(flip && (rot == 0 || rot == 2)) cairo_scale(xctx->cairo_ctx, -scalex, scaley);
     else if(flip && (rot == 1 || rot == 3)) cairo_scale(xctx->cairo_ctx, scalex, -scaley);
@@ -3100,7 +3107,7 @@ void draw_image(int draw, xRect *r, double *x1, double *y1, double *x2, double *
     cairo_clip(xctx->cairo_ctx);
     cairo_paint_with_alpha(xctx->cairo_ctx, alpha);
   }
-  if(draw) {
+  if(dr) {
     cairo_restore(xctx->cairo_ctx);
     cairo_restore(xctx->cairo_save_ctx);
   }
@@ -3122,6 +3129,64 @@ static void draw_images_all(void)
   #endif
 }
 
+void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, double ry2)
+{
+  char *ptr = NULL;
+  double x1, y1, x2, y2, w, h;
+  int rw, rh;
+  char transform[150];
+  png_to_byte_closure_t closure;
+  cairo_surface_t *png_sfc;
+  int save_draw_window, save_draw_grid;
+  size_t olength;
+
+  rw = (int) fabs(rx2 -rx1);
+  rh = (int) fabs(ry2 - ry1);
+  save_restore_zoom(1);
+  set_viewport_size(rw, rh, 0.8);
+  zoom_box(rx1, ry1, rx2, ry2, 1.0);
+  resetwin(1, 1, 1, rw, rh);
+  save_draw_grid = tclgetboolvar("draw_grid");
+  tclsetvar("draw_grid", "0");
+  save_draw_window = xctx->draw_window;
+  xctx->draw_window=0;
+  xctx->draw_pixmap=1;
+  xctx->do_copy_area=0;
+  draw();
+  png_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual,
+               xctx->xrect[0].width, xctx->xrect[0].height);
+  closure.buffer = NULL;
+  closure.size = 0;
+  closure.pos = 0;
+  cairo_surface_write_to_png_stream(png_sfc, png_writer, &closure);
+  ptr = base64_encode(closure.buffer, closure.pos, &olength, 1);
+  my_free(1547, &closure.buffer);
+  cairo_surface_destroy(png_sfc);
+  xctx->draw_pixmap=1;
+  xctx->draw_window=save_draw_window;
+  xctx->do_copy_area=1;
+  tclsetboolvar("draw_grid", save_draw_grid);
+  save_restore_zoom(0);
+  resetwin(1, 1, 1, 0, 0);
+  change_linewidth(-1.);
+
+  x1=X_TO_SVG(rx1);
+  y1=Y_TO_SVG(ry1);
+  x2=X_TO_SVG(rx2);
+  y2=Y_TO_SVG(ry2);
+  h = fabs(y2 - y1);
+  w = fabs(x2 - x1);
+
+  my_snprintf(transform, S(transform), "transform=\"translate(%g,%g)\"", x1, y1);
+  if(ptr[0]) {
+    fprintf(fd, "<image x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" %s "
+                "xlink:href=\"data:image/png;base64,%s\"/>\n",
+                0.0, 0.0, w, h, transform, ptr);
+  }
+  my_free(1546, &ptr);
+}
+
+
 void draw(void)
 {
  /* inst_ptr  and wire hash iterator 20171224 */
@@ -3133,15 +3198,15 @@ void draw(void)
  xSymbol *symptr;
  int textlayer;
  int show_hidden_texts = tclgetboolvar("show_hidden_texts");
-
+ 
  #if HAS_CAIRO==1
  const char *textfont;
-#ifndef __unix__
+ #ifndef __unix__
  clear_cairo_surface(xctx->cairo_save_ctx,
    xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
  clear_cairo_surface(xctx->cairo_ctx,
    xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
-#endif
+ #endif
  #endif
  if(xctx->no_draw) return;
  rebuild_selected_array();
@@ -3179,10 +3244,11 @@ void draw(void)
           if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c];i++) {
             xRect *r = &xctx->rect[c][i]; 
             #if HAS_CAIRO==1
-            if(c != GRIDLAYER || !(r->flags & (1 + 1024)) )  {
+            if(c != GRIDLAYER || !(r->flags & (1 + 1024)))
             #else
-            if(c != GRIDLAYER || !(r->flags & 1) )  {
+            if(c != GRIDLAYER || !(r->flags & 1) )
             #endif
+            {
               drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
               filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
             }
@@ -3294,14 +3360,16 @@ void draw(void)
         }
     } /* !xctx->only_probes, 20110112 */
     draw_hilight_net(xctx->draw_window);
-    if(!xctx->draw_window) {
-      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
-         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+    if(xctx->do_copy_area) { /* this is zero only when doing png hardcopy to avoid video flickering */
+      if(!xctx->draw_window) {
+        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+           xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+      }
+      #if !defined(__unix__) && defined(HAS_CAIRO)
+      else 
+        my_cairo_fill(xctx->cairo_sfc, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
+      #endif
     }
-#if !defined(__unix__) && defined(HAS_CAIRO)
-    else 
-      my_cairo_fill(xctx->cairo_sfc, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
-#endif
     draw_selection(xctx->gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
  } /* if(has_x) */
 }
@@ -3319,7 +3387,8 @@ int XSetTile(Display* display, GC gc, Pixmap s_pixmap)
 }
 #endif
 
-void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y, unsigned int width, unsigned int height, int dest_x, int dest_y)
+void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y,
+     unsigned int width, unsigned int height, int dest_x, int dest_y)
 {
   XCopyArea(display, src, dest, gc, src_x, src_y, width, height, dest_x, dest_y);
 #if !defined(__unix__)  && defined(HAS_CAIRO)

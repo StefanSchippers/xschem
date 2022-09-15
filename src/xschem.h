@@ -327,6 +327,10 @@ extern char win_temp_dir[PATH_MAX];
 #define X_TO_XSCHEM(x) ( (x) * xctx->zoom - xctx->xorigin )
 #define Y_TO_XSCHEM(y) ( (y) * xctx->zoom - xctx->yorigin )
 
+#define X_TO_SVG(x) ( (x+xctx->xorigin)* xctx->mooz )
+#define Y_TO_SVG(y) ( (y+xctx->yorigin)* xctx->mooz )
+
+
 /* coordinate transformations graph to xschem */
 #define W_X(x) (gr->cx * (x) + gr->dx)
 #define W_Y(y) (gr->cy * (y) + gr->dy)
@@ -924,7 +928,6 @@ typedef struct {
   int menu_removed; /* fullscreen previous setting */
   double save_lw; /* used to save linewidth when selecting 'only_probes' view */
   int no_draw;
-  int draw_pixmap; /* pixmap used as 2nd buffer */
   int netlist_count; /* netlist counter incremented at any cell being netlisted */
   int hide_symbols;
   int netlist_type;
@@ -941,7 +944,9 @@ typedef struct {
   char *current_win_path; /* .drw or .x1.drw, .... ; always .drw in tabbed interface */
   int *fill_type; /* for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
   int fill_pattern;
+  int draw_pixmap; /* pixmap used as 2nd buffer */
   int draw_window; 
+  int do_copy_area;
   time_t time_last_modify;
   int undo_type; /* 0: on disk, 1: in memory */
   void (*push_undo)(void);
@@ -1021,7 +1026,7 @@ extern int cli_opt_load_initfile;
 extern Xschem_ctx *xctx;
 
 /*  FUNCTIONS */
-extern void draw_image(int draw, xRect *r, double *x1, double *y1, double *x2, double *y2, int rot, int flip);
+extern void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2, int rot, int flip);
 extern int filter_data(const char *din, const size_t ilen,
            char **dout, size_t *olen, const char *cmd);
 extern int embed_rawfile(const char *rawfile);
@@ -1073,6 +1078,7 @@ extern int process_options(int argc, char **argv);
 extern void calc_drawing_bbox(xRect *boundbox, int selected);
 extern int ps_draw(int what);
 extern void svg_draw(void);
+extern void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, double ry2);
 extern void set_viewport_size(int w, int h, double lw);
 extern void print_image();
 extern const char *get_trailing_path(const char *str, int no_of_dir, int skip_ext);

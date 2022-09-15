@@ -633,6 +633,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->x_strcmp = strcmp;
   xctx->fill_pattern = 1;
   xctx->draw_window = 0;
+  xctx->do_copy_area = 1;
   xctx->time_last_modify = 0;
 }
 

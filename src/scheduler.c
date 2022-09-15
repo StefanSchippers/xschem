@@ -1998,7 +1998,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           save_restore_zoom(0);
           resetwin(1, 1, 1, 0, 0);
           change_linewidth(-1.);
-          draw();
         } else if( argc == 10) {
           w = atoi(argv[4]);
           h = atoi(argv[5]);
@@ -2007,14 +2006,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           x2 = atof(argv[8]);
           y2 = atof(argv[9]);
           save_restore_zoom(1);
-          set_viewport_size(w, h, 0.8);
+          set_viewport_size(w, h, 0.8); 
           zoom_box(x1, y1, x2, y2, 1.0);
           resetwin(1, 1, 1, w, h);
           print_image();
           save_restore_zoom(0);
           resetwin(1, 1, 1, 0, 0);
           change_linewidth(-1.);
-          draw();
         } else {
           print_image();
         }

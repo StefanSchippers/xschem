@@ -115,6 +115,7 @@ int filter_data(const char* din, const size_t ilen,
 #endif
 
 /* Caller should free returned buffer */
+/* set brk to 1 if you want newlines added */
 char *base64_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk) {
   static const char b64_enc[] = {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
