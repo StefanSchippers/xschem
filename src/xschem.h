@@ -954,6 +954,7 @@ typedef struct {
   void (*delete_undo)(void);
   void (*clear_undo)(void);
   int case_insensitive; /* for case insensitive compare where needed */
+  int show_hidden_texts; /* force show texts that have hide=true attribute set */
   int (*x_strcmp)(const char *, const char *);
   Lcc hier_attr[CADMAXHIER]; /* hierarchical recursive attribute substitution when descending */
 } Xschem_ctx;

@@ -5170,7 +5170,8 @@ proc build_widgets { {topwin {} } } {
           select_layers
           xschem redraw
        }
-  $topwin.menubar.view.menu add checkbutton -label "Show hidden texts"  -variable show_hidden_texts -command {xschem redraw}
+  $topwin.menubar.view.menu add checkbutton -label "Show hidden texts"  -variable show_hidden_texts \
+         -command {xschem set show_hidden_texts $show_hidden_texts; xschem redraw}
   $topwin.menubar.view.menu add command -label "Change current layer color"  -accelerator {} -command {
           change_color
        }

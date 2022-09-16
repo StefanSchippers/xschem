@@ -509,7 +509,6 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
  xPoly polygon;
  xSymbol *symptr;
  char *textfont;
- int show_hidden_texts = tclgetboolvar("show_hidden_texts");
 
   if(xctx->inst[n].ptr == -1) return;
   if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
@@ -616,7 +615,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
     {
      text = (xctx->inst[n].ptr+ xctx->sym)->text[j];
      /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
-     if(!show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
+     if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
      if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
      txtptr= translate(n, text.txt_ptr);
      ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
@@ -697,7 +696,6 @@ void create_ps(char **psfile, int what)
   int c,i, textlayer;
   int old_grid;
   const char *textfont;
-  int show_hidden_texts = tclgetboolvar("show_hidden_texts");
 
   if(what & 1) { /* prolog */
     numpages = 0;
@@ -823,7 +821,7 @@ void create_ps(char **psfile, int what)
     for(i=0;i<xctx->texts;i++)
     {
       textlayer = xctx->text[i].layer;
-      if(!show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
+      if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
       if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
   
       my_snprintf(ps_font_family, S(ps_font_name), "Helvetica");

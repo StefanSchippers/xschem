@@ -428,7 +428,6 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   #if HAS_CAIRO==1
   const char *textfont;
   #endif
-  int show_hidden_texts = tclgetboolvar("show_hidden_texts");
 
   if(xctx->inst[n].ptr == -1) return;
   if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
@@ -557,7 +556,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     {
       text = symptr->text[j];
       if(text.xscale*FONTWIDTH*xctx->mooz<1) continue;
-      if(!show_hidden_texts && (symptr->text[j].flags & HIDE_TEXT)) continue;
+      if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
@@ -716,6 +715,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
   for(j=0;j< symptr->texts;j++)
   {
    text = symptr->text[j];
+   if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
    if(text.xscale*FONTWIDTH*xctx->mooz<1) continue;
    txtptr= translate(n, text.txt_ptr);
    ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
@@ -3207,7 +3207,6 @@ void draw(void)
  int c, i = 0;
  xSymbol *symptr;
  int textlayer;
- int show_hidden_texts = tclgetboolvar("show_hidden_texts");
  
  #if HAS_CAIRO==1
  const char *textfont;
@@ -3328,7 +3327,7 @@ void draw(void)
           for(i=0;i<xctx->texts;i++)
           {
             textlayer = xctx->text[i].layer;
-            if(!show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
+            if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
             if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
             dbg(1, "draw(): drawing string %d = %s\n",i, xctx->text[i].txt_ptr);
             #if HAS_CAIRO==1

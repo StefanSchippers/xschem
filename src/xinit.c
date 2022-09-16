@@ -630,6 +630,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   my_strdup2(1462, &xctx->current_win_path, win_path);
   xctx->fill_type=my_calloc(640, cadlayers, sizeof(int));
   xctx->case_insensitive = 0;
+  xctx->show_hidden_texts = 0;
   xctx->x_strcmp = strcmp;
   xctx->fill_pattern = 1;
   xctx->draw_window = 0;
@@ -2369,6 +2370,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(tclgetboolvar("case_insensitive")) {
    xctx->case_insensitive = 1;
    xctx->x_strcmp = my_strcasecmp;
+ }
+
+ if(tclgetboolvar("show_hidden_texts")) {
+   xctx->show_hidden_texts = 1;
  }
 
  /*                                */

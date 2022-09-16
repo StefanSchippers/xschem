@@ -2603,6 +2603,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             dbg(1, "scheduler(): set semaphore to %s\n", argv[3]);
             xctx->semaphore=atoi(argv[3]);
       }
+      else if(!strcmp(argv[2],"show_hidden_texts")) {
+            dbg(1, "scheduler(): set show_hidden_texts to %s\n", argv[3]);
+            xctx->show_hidden_texts=atoi(argv[3]);
+      }
       else if(!strcmp(argv[2],"sym_txt")) {
             xctx->sym_txt=atoi(argv[3]);
       }

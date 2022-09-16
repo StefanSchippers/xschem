@@ -443,7 +443,6 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   xPoly polygon;
   xSymbol *symptr;
   char *textfont;
-  int show_hidden_texts = tclgetboolvar("show_hidden_texts");
 
   if(xctx->inst[n].ptr == -1) return;
   if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
@@ -535,7 +534,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     for(j=0;j< symptr->texts;j++) {
       text = symptr->text[j];
       /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
-      if(!show_hidden_texts && (symptr->text[j].flags & HIDE_TEXT)) continue;
+      if(!xctx->show_hidden_texts && (symptr->text[j].flags & HIDE_TEXT)) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
@@ -631,7 +630,6 @@ void svg_draw(void)
   int *unused_layer;
   int color;
   Hilight_hashentry *entry;
-  int show_hidden_texts = tclgetboolvar("show_hidden_texts");
 
   if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
   if(has_x && !xctx->plotfile[0]) {
@@ -764,7 +762,7 @@ void svg_draw(void)
     for(i=0;i<xctx->texts;i++)
     {
       textlayer = xctx->text[i].layer;
-      if(!show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
+      if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
       if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
       my_snprintf(svg_font_family, S(svg_font_family), tclgetvar("svg_font_name"));
       my_snprintf(svg_font_style, S(svg_font_style), "normal");

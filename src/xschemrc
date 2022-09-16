@@ -358,3 +358,10 @@
 ## Do not set this option if you don't know what you are doing.
 ## Default: not enabled (0)
 # set case_insensitive 1
+
+###########################################################################
+#### SHOW HIDDEN TEXTS
+###########################################################################
+## This option shows text objects even if they have attribute 'hide=true' set
+## default: 0 (not set) 
+# set show_hidden_texts 1
