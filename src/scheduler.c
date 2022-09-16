@@ -3080,7 +3080,7 @@ double tclgetdoublevar(const char *s)
     dbg(0, "%s\n", tclresult());
     return 0.0;
   }
-  return atof(p);
+  return atof_spice(p);
 }
 
 int tclgetintvar(const char *s)

@@ -314,9 +314,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   gr->master_gx1 = 0;
   gr->master_gx2 = 1e-6;
   val = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"x1",0);
-  if(val[0]) gr->master_gx1 = atof(val);
+  if(val[0]) gr->master_gx1 = atof_spice(val);
   val = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"x2",0);
-  if(val[0]) gr->master_gx2 = atof(val);
+  if(val[0]) gr->master_gx2 = atof_spice(val);
   if(gr->master_gx1 == gr->master_gx2) gr->master_gx2 += 1e-6;
   gr->master_gw = gr->master_gx2 - gr->master_gx1;
 

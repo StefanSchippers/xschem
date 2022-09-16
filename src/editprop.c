@@ -287,6 +287,40 @@ size_t my_strdup2(int id, char **dest, const char *src) /* 20150409 duplicates a
  return 0;
 }
 
+/* recognizes spice suffixes: 12p --> 1.2e11, 3MEG --> 3e6 */
+double atof_spice(const char *s)
+{
+  int n;
+  double a = 0.0, mul=1.0;
+  char lower_s[100];
+  const char *p;
+
+  if(!s) return 0.0;
+  my_strncpy(lower_s, s, S(lower_s));
+  strtolower(lower_s);
+  n = sscanf(lower_s, "%lf", &a);
+  if(n == 1) {
+    p = strpbrk(lower_s, "tgmkunpfa");
+    if(!p) mul = 1.0;
+    else if(*p == 't') mul=1e12;
+    else if(*p == 'g') mul=1e9;
+    else if(*p == 'm') {
+      if(strstr(p, "meg") == p) mul=1e6;
+      else if(strstr(p, "mil") == p) mul=25.4e-6;
+      else mul=1e-3;
+    }
+    else if(*p == 'k') mul=1e3;
+    else if(*p == 'u') mul=1e-6;
+    else if(*p == 'n') mul=1e-9;
+    else if(*p == 'p') mul=1e-12;
+    else if(*p == 'f') mul=1e-15;
+    else if(*p == 'a') mul=1e-18;
+    else mul = 1.0;
+    a *= mul;
+  }
+  return a;
+}
+
 char *my_itoa(int i)
 {
   static char s[30];

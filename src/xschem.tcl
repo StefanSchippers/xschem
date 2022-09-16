@@ -1690,7 +1690,6 @@ proc graph_edit_properties {n} {
 
   # center right frame
   label .graphdialog.center.right.lab1 -text {Signals in graph}
-  checkbutton .graphdialog.center.right.unlocked -text {Unlocked X axis} -variable graph_unlocked
   text .graphdialog.center.right.text1 -wrap none -width 50 -height 10 -bg grey70 -fg black \
      -insertbackground grey40 -exportselection 1 \
      -yscrollcommand {.graphdialog.center.right.yscroll set} \
@@ -1698,7 +1697,7 @@ proc graph_edit_properties {n} {
   scrollbar .graphdialog.center.right.yscroll -command {.graphdialog.center.right.text1 yview}
   scrollbar .graphdialog.center.right.xscroll -orient horiz -command {.graphdialog.center.right.text1 xview}
 
-  grid .graphdialog.center.right.lab1 .graphdialog.center.right.unlocked
+  grid .graphdialog.center.right.lab1 
   grid .graphdialog.center.right.text1 - .graphdialog.center.right.yscroll -sticky nsew
   grid .graphdialog.center.right.xscroll - -sticky nsew
   grid rowconfig .graphdialog.center.right 0 -weight 0
@@ -1716,8 +1715,10 @@ proc graph_edit_properties {n} {
     if { [xschem get schname] eq $graph_schname } {
 
       update_graph_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
-      xschem setprop rect 2 $graph_selected y1 [.graphdialog.top.min get] fast
-      xschem setprop rect 2 $graph_selected y2 [.graphdialog.top.max get] fast
+      xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get] fast
+      xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get] fast
+      xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.min get] fast
+      xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.max get] fast
 
       if {$graph_unlocked} {
         xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
@@ -1737,8 +1738,10 @@ proc graph_edit_properties {n} {
     if { [xschem get schname] eq $graph_schname } {
 
       update_graph_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
-      xschem setprop rect 2 $graph_selected y1 [.graphdialog.top.min get] fast
-      xschem setprop rect 2 $graph_selected y2 [.graphdialog.top.max get] fast
+      xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get] fast
+      xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get] fast
+      xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.min get] fast
+      xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.max get] fast
       if {$graph_unlocked} {
         xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
       } else {
@@ -1849,6 +1852,7 @@ proc graph_edit_properties {n} {
   checkbutton .graphdialog.top.bus -text Bus -padx 2 -variable graph_bus
   checkbutton .graphdialog.top.incr -text {Incr. sort} -variable graph_sort -indicatoron 1 \
     -command fill_graph_listbox
+  checkbutton .graphdialog.top.unlocked -text {Unlocked X axis} -variable graph_unlocked
   checkbutton .graphdialog.top.dig -text {Digital} -variable graph_digital -indicatoron 1 \
     -command {
        if { [xschem get schname] eq $graph_schname } {
@@ -1857,17 +1861,32 @@ proc graph_edit_properties {n} {
        }
      }
 
-  label .graphdialog.top.labmin -text {  Min Value:}
-  entry .graphdialog.top.min -width 5
-  bind .graphdialog.top.min <KeyRelease> {
-    xschem setprop rect 2 $graph_selected y1 [.graphdialog.top.min get]
+  label .graphdialog.top3.xlabmin -text { X min:}
+  entry .graphdialog.top3.xmin -width 7
+  bind .graphdialog.top3.xmin <KeyRelease> {
+    xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get]
     xschem draw_graph $graph_selected
   }
 
-  label .graphdialog.top.labmax -text {  Max Value:}
-  entry .graphdialog.top.max -width 5
-  bind .graphdialog.top.max <KeyRelease> {
-    xschem setprop rect 2 $graph_selected y2 [.graphdialog.top.max get]
+  label .graphdialog.top3.xlabmax -text { X max:}
+  entry .graphdialog.top3.xmax -width 7
+  bind .graphdialog.top3.xmax <KeyRelease> {
+    xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get]
+    xschem draw_graph $graph_selected
+  }
+
+
+  label .graphdialog.top3.labmin -text { Y min:}
+  entry .graphdialog.top3.min -width 7
+  bind .graphdialog.top3.min <KeyRelease> {
+    xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.min get]
+    xschem draw_graph $graph_selected
+  }
+
+  label .graphdialog.top3.labmax -text { Y max:}
+  entry .graphdialog.top3.max -width 7
+  bind .graphdialog.top3.max <KeyRelease> {
+    xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.max get]
     xschem draw_graph $graph_selected
   }
 
@@ -1880,9 +1899,11 @@ proc graph_edit_properties {n} {
   pack .graphdialog.top.incr -side left
   pack .graphdialog.top.bus -side left
   pack .graphdialog.top.dig -side left
-  pack .graphdialog.top.labmin .graphdialog.top.min .graphdialog.top.labmax .graphdialog.top.max -side left
-  .graphdialog.top.min insert 0 [xschem getprop rect 2 $graph_selected y1]
-  .graphdialog.top.max insert 0 [xschem getprop rect 2 $graph_selected y2]
+  pack .graphdialog.top.unlocked -side left
+  .graphdialog.top3.min insert 0 [xschem getprop rect 2 $graph_selected y1]
+  .graphdialog.top3.max insert 0 [xschem getprop rect 2 $graph_selected y2]
+  .graphdialog.top3.xmin insert 0 [xschem getprop rect 2 $graph_selected x1]
+  .graphdialog.top3.xmax insert 0 [xschem getprop rect 2 $graph_selected x2]
 
   # top3 frame
   set graph_logx [xschem getprop rect 2 $graph_selected logx]
@@ -1923,6 +1944,8 @@ proc graph_edit_properties {n} {
        }
      }
   pack .graphdialog.top3.logx .graphdialog.top3.logy -side left
+  pack .graphdialog.top3.xlabmin .graphdialog.top3.xmin .graphdialog.top3.xlabmax .graphdialog.top3.xmax -side left
+  pack .graphdialog.top3.labmin .graphdialog.top3.min .graphdialog.top3.labmax .graphdialog.top3.max -side left
   # binding
   bind .graphdialog.top.search <KeyRelease> {
     fill_graph_listbox

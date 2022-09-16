@@ -1978,9 +1978,9 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
     gr->gx1 = 0;
     gr->gx2 = 1e-6;
     val = get_tok_value(r->prop_ptr,"x1",0);
-    if(val[0]) gr->gx1 = atof(val);
+    if(val[0]) gr->gx1 = atof_spice(val);
     val = get_tok_value(r->prop_ptr,"x2",0);
-    if(val[0]) gr->gx2 = atof(val);
+    if(val[0]) gr->gx2 = atof_spice(val);
     if(gr->gx1 == gr->gx2) gr->gx2 += 1e-6;
     gr->gw = gr->gx2 - gr->gx1;
   }
@@ -2044,17 +2044,17 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
   val = get_tok_value(r->prop_ptr,"logy",0);
   if(val[0] == '1') gr->logy = 1;
   val = get_tok_value(r->prop_ptr,"y1",0);
-  if(val[0]) gr->gy1 = atof(val);
+  if(val[0]) gr->gy1 = atof_spice(val);
   val = get_tok_value(r->prop_ptr,"y2",0);
-  if(val[0]) gr->gy2 = atof(val);
+  if(val[0]) gr->gy2 = atof_spice(val);
   if(gr->gy1 == gr->gy2) gr->gy2 += 1.0;
   val = get_tok_value(r->prop_ptr,"digital",0);
   if(val[0]) gr->digital = atoi(val);
   if(gr->digital) {
     val = get_tok_value(r->prop_ptr,"ypos1",0);
-    if(val[0]) gr->ypos1 = atof(val);
+    if(val[0]) gr->ypos1 = atof_spice(val);
     val = get_tok_value(r->prop_ptr,"ypos2",0);
-    if(val[0]) gr->ypos2 = atof(val);
+    if(val[0]) gr->ypos2 = atof_spice(val);
     if(gr->ypos2 == gr->ypos1) gr->ypos2 += 1.0;
   }
   gr->posh = gr->ypos2 - gr->ypos1;
@@ -2193,7 +2193,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     if(gr->unitx != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", stok ? stok : "" , gr->unitx_suffix);
     else  my_snprintf(tmpstr, S(tmpstr), "%s", stok ? stok : "");
     draw_string(wave_color, NOW, tmpstr, 2, 1, 0, 0,
-       gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry2-1, gr->txtsizelab, gr->txtsizelab);
+       gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry2-5, gr->txtsizelab, gr->txtsizelab);
   }
   /* draw node labels in graph */
   if(bus_msb) {

@@ -1315,6 +1315,7 @@ extern void my_free(int id, void *ptr);
 extern size_t my_strcat(int id, char **, const char *);
 extern size_t my_mstrcat(int id, char **str, const char *append_str, ...);
 extern char *my_itoa(int i);
+extern double atof_spice(const char *s);
 extern char *dtoa(double i);
 extern char *dtoa_prec(double i);
 extern double my_round(double a);
