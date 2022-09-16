@@ -3133,20 +3133,28 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
 {
   #if defined(__unix__) && defined(HAS_CAIRO)
   char *ptr = NULL;
-  double x1, y1, x2, y2, w, h;
-  int rw, rh;
+  double x1, y1, x2, y2, w, h, rw, rh, scale;
   char transform[150];
   png_to_byte_closure_t closure;
   cairo_surface_t *png_sfc;
-  int save_draw_window, save_draw_grid;
+  int save_draw_window, save_draw_grid, rwi, rhi;
   size_t olength;
+  const double max_size = 2000.0;
 
-  rw = (int) fabs(rx2 -rx1);
-  rh = (int) fabs(ry2 - ry1);
+  rw = fabs(rx2 -rx1);
+  rh = fabs(ry2 - ry1);
+  scale = 1.0;
+  if(rw > rh && rw > max_size) {
+    scale = max_size / rw;
+  } else if(rh > max_size) {
+    scale = max_size / rh;
+  }
+  rwi = (int) (rw * scale + 1.0);
+  rhi = (int) (rh * scale + 1.0);
   save_restore_zoom(1);
-  set_viewport_size(rw, rh, 0.8);
+  set_viewport_size(rwi, rhi, 1.0);
   zoom_box(rx1, ry1, rx2, ry2, 1.0);
-  resetwin(1, 1, 1, rw, rh);
+  resetwin(1, 1, 1, rwi, rhi);
   save_draw_grid = tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");
   save_draw_window = xctx->draw_window;

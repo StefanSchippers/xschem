@@ -1993,7 +1993,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(w == 0) w = xctx->xrect[0].width;
           if(h == 0) h = xctx->xrect[0].height;
           save_restore_zoom(1);
-          set_viewport_size(w, h, 0.8);
+          set_viewport_size(w, h, 1.0);
           zoom_full(0, 0, 2, 0.97);
           resetwin(1, 1, 1, w, h);
           print_image();
@@ -2010,7 +2010,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(w == 0) w = (int) fabs(x2 - x1);
           if(h == 0) h = (int) fabs(y2 - y1);
           save_restore_zoom(1);
-          set_viewport_size(w, h, 0.8); 
+          set_viewport_size(w, h, 1.0); 
           zoom_box(x1, y1, x2, y2, 1.0);
           resetwin(1, 1, 1, w, h);
           print_image();
@@ -2028,7 +2028,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           w = atoi(argv[4]);
           h = atoi(argv[5]);
           save_restore_zoom(1);
-          set_viewport_size(w, h, 0.8);
+          set_viewport_size(w, h, 1.0);
           zoom_full(0, 0, 2, 0.97);
           svg_draw();
           save_restore_zoom(0);
@@ -2040,7 +2040,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           x2 = atof(argv[8]);
           y2 = atof(argv[9]);
           save_restore_zoom(1);
-          set_viewport_size(w, h, 0.8);
+          set_viewport_size(w, h, 1.0);
           zoom_box(x1, y1, x2, y2, 1.0);
           svg_draw();
           save_restore_zoom(0);

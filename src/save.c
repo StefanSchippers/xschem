@@ -627,6 +627,7 @@ static double ravg_store(int what , int i, int p, int last, double integ)
 #define DUP -38
 #define RAVG -39 /* running average */
 #define DB20 -40
+#define DERIV0 -41 /* derivative to first sweep variable, regardless of specified sweep_idx */
 #define NUMBER -60
 
 typedef struct {
@@ -647,6 +648,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
   int stackptr1 = 0, stackptr2 = 0;
   SPICE_DATA *y = xctx->graph_values[xctx->graph_nvars]; /* custom plot data column */
   SPICE_DATA *x = xctx->graph_values[sweep_idx];
+  SPICE_DATA *sweepx = xctx->graph_values[0];
 
   my_strdup2(574, &ntok_copy, expr);
   ntok_ptr = ntok_copy;
@@ -678,6 +680,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     else if(!strcmp(n, "ravg()")) stack1[stackptr1++].i = RAVG;
     else if(!strcmp(n, "db20()")) stack1[stackptr1++].i = DB20;
     else if(!strcmp(n, "deriv()")) stack1[stackptr1++].i = DERIV;
+    else if(!strcmp(n, "deriv0()")) stack1[stackptr1++].i = DERIV0;
     else if(!strcmp(n, "exch()")) stack1[stackptr1++].i = EXCH;
     else if(!strcmp(n, "dup()")) stack1[stackptr1++].i = DUP;
     else if( (v = strtod(n, &endptr)), !*endptr) {
@@ -807,6 +810,21 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             } else {
               if((x[p] != x[p - 1])) 
                 deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (x[p] - x[p - 1]);
+              else
+                deriv = stack1[i].prev;
+              stack1[i].prevy = stack2[stackptr2 - 1] ;
+              stack1[i].prev = deriv;
+            }
+            stack2[stackptr2 - 1] =  deriv;
+            break;
+          case DERIV0:
+            if( p == first ) {
+              deriv = 0;
+              stack1[i].prevy = stack2[stackptr2 - 1];
+              stack1[i].prev = 0;
+            } else {
+              if((sweepx[p] != sweepx[p - 1]))
+                deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (sweepx[p] - sweepx[p - 1]);
               else
                 deriv = stack1[i].prev;
               stack1[i].prevy = stack2[stackptr2 - 1] ;
