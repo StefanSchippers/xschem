@@ -1063,19 +1063,20 @@ void toggle_fullscreen(const char *topwin)
     xctx->menu_removed=0;
   }
   if(fs == 1) {
+    xctx->pending_fullzoom=1;
     window_state(display , parent_id,fullscr); /* full screen with menus and toolbars */
   } else if(fs == 2) {
+    xctx->pending_fullzoom=2;
     window_state(display , parent_id,normal); /* full screen, only drawing area */
     window_state(display , parent_id,fullscr);
-    zoom_full(1, 0, 1, 0.97); /* draw */
   } else {
+    xctx->pending_fullzoom=1;
     window_state(display , parent_id,normal); /* normal view */
     /* when switching back from fullscreen multiple ConfigureNotify events are generated. 
      * pending_fullzoom does not work on the last corect ConfigureNotify event,
      * so wee zoom_full() again */
-    zoom_full(1, 0, 1, 0.97); /* draw */
   }
-  xctx->pending_fullzoom=1;
+  zoom_full(1, 0, 1, 0.97); /* draw */
 }
 
 
@@ -1860,10 +1861,10 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
         }
       }
     }
-    if(xctx->pending_fullzoom) {
+    if(xctx->pending_fullzoom > 0) {
       dbg(1, "resetwin(): pending_fulzoom: doing zoom_full()\n");
-      zoom_full(0, 0, 1, 0.97);
-      xctx->pending_fullzoom=0;
+      zoom_full(1, 0, 1, 0.97);
+      xctx->pending_fullzoom--;
     }
     dbg(1, "resetwin(): Window reset\n");
   } /* end if(has_x) */
