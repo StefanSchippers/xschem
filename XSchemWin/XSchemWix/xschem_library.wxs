@@ -279,6 +279,12 @@
           <Component Id="cmpD97AE943007C3AC19332BBE4DD1231CC" Guid="{9E87B48E-7BAC-4BA7-ADB9-AF663E891C8F}">
               <File Id="fil15C79DAD681B86515BAC306AF0B7612A" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\rnmos4.sym" />
           </Component>
+	      <Component Id="cmpCEAF5664B6AEF38BECFAF994B2D9A81A" Guid="{A517C018-1127-452D-8357-1A449A11195F}">
+			<File Id="fil12E4A855EEBC2ECDE931964FDE1236E8" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\simulator_commands.sym" />
+		  </Component>
+		  <Component Id="cmp0F9FB8C96A0FFABEBE019FD047730B71" Guid="{58D791FA-7972-42E8-8F6A-A6979B43BD12}">
+			<File Id="fil78EBD0476AD4F83AC6CE17505FD4527D" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\simulator_commands_shown.sym" />
+		  </Component>	
           <Component Id="cmpC0CDD9987356F9D8308F1F96CAA35403" Guid="{1AE154F8-0F7C-4E22-86F5-93F626D48901}">
             <File Id="filEFB8AA2EEFBD6AE16A045E4F3A3EFD2B" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\spice_probe.sym" />
           </Component>
@@ -5510,6 +5516,8 @@
       <ComponentRef Id="cmpA6D9B275607613A4C61E8980D499B751" />
       <ComponentRef Id="cmpE33D206A79E72DCC203BF9219CECA21A" />
       <ComponentRef Id="cmpD97AE943007C3AC19332BBE4DD1231CC" />
+	  <ComponentRef Id="cmpCEAF5664B6AEF38BECFAF994B2D9A81A" />
+	  <ComponentRef Id="cmp0F9FB8C96A0FFABEBE019FD047730B71" />
       <ComponentRef Id="cmpC0CDD9987356F9D8308F1F96CAA35403" />
       <ComponentRef Id="cmp530072B273A8627AFC7F2E628B5116CE" />
       <ComponentRef Id="cmpC76DA8327344C4B4AB04EF665B72B736" />

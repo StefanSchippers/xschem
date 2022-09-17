@@ -1114,7 +1114,12 @@ void preview_window(const char *what, const char *win_path, const char *fname)
   static Xschem_ctx *preview_xctx = NULL; /* save pointer to current schematic context structure */
   static Window pre_window;
   static Tk_Window tkpre_window;
+  static int semaphore=0;
 
+  /* avoid reentrant calls for example if an alert box is displayed while loading file to preview,
+   * and an Expose event calls another preview draw */
+  if(semaphore) return;
+  semaphore++;
   dbg(1, "------\n");
   if(!strcmp(what, "create")) {
     dbg(1, "preview_window() create, save ctx, win_path=%s\n", win_path);
@@ -1160,6 +1165,7 @@ void preview_window(const char *what, const char *win_path, const char *fname)
     save_xctx = NULL;
     set_modify(-1);
   }
+  semaphore--;
 }
 
 /* check if filename is already loaded into a tab or window */
