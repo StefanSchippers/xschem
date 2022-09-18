@@ -4660,15 +4660,13 @@ set tctx::global_list {
   change_lw color_ps colors connect_by_kissing constrained_move copy_cell custom_label_prefix custom_token dark_colors
   dark_colorscheme dim_bg dim_value disable_unique_names do_all_inst draw_grid draw_window
   edit_prop_pos edit_prop_size editprop_sympath edit_symbol_prop_new_sel enable_dim_bg enable_stretch 
-  en_hilight_conn_inst filetmp
-  flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter
+  en_hilight_conn_inst filetmp flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter
   graph_bus graph_digital graph_logx graph_logy
   graph_sel_color graph_schname graph_selected graph_sel_wave graph_sort
-  graph_unlocked
-  hide_empty_graphs hide_symbols hsize
+  graph_unlocked hide_empty_graphs hide_symbols hsize
   incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
-  input_line_cmd input_line_data launcher_default_program light_colors line_width local_netlist_dir
-  measure_text
+  input_line_cmd input_line_data launcher_default_program light_colors line_width 
+  live_cursor2_backannotate local_netlist_dir measure_text
   myload_d myload_default_geometry myload_dir1 myload_dir2 myload_dirs2 myload_files1 myload_files2 myload_index1
   myload_retval myload_sash_pos myload_sel myload_type myload_yview netlist_dir netlist_show
   netlist_type no_change_attrs noprint_libs old_selected_tok
@@ -4754,12 +4752,15 @@ proc save_ctx {context} {
 }
 
 proc housekeeping_ctx {} {
-  global has_x simulate_bg
+  global has_x simulate_bg show_hidden_texts case_insensitive draw_window hide_symbols
   if {![info exists has_x]} {return}
   uplevel #0 {
   }
   # puts "housekeeping_ctx, path: [xschem get current_win_path]"
-
+  xschem set hide_symbols $hide_symbols
+  xschem set draw_window $draw_window
+  xschem case_insensitive $case_insensitive
+  xschem set show_hidden_texts $show_hidden_texts
   if {![info exists tctx::[xschem get current_win_path]_simulate]} {
     [xschem get top_path].menubar.simulate configure -bg $simulate_bg
   } else {
@@ -5378,6 +5379,8 @@ proc build_widgets { {topwin {} } } {
      xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
   }
   $topwin.menubar.simulation.menu add command -label {Add waveform graph} -command {xschem add_graph}
+  $topwin.menubar.simulation.menu add checkbutton -label "Live annotate probes with 'b' cursor" \
+         -variable live_cursor2_backannotate 
   $topwin.menubar.simulation.menu add separator
   $topwin.menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" -variable top_subckt 
   $topwin.menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
@@ -5672,6 +5675,7 @@ set_ne fullscreen 0
 set_ne unzoom_nodrift 0
 set_ne change_lw 1
 set_ne line_width 0
+set_ne live_cursor2_backannotate 0
 set_ne draw_window 0
 set_ne show_hidden_texts 0
 set_ne incr_hilight 1

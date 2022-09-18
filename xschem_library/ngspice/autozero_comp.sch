@@ -23,8 +23,8 @@ B 2 260 -1080 720 -920 {flags=graph
 y1 = 0
 y2 = 0.93
 divy = 5
-x1=1.12193e-07
-x2=4.32192e-07
+x1=1.28193e-07
+x2=4.48192e-07
 divx=5
 subdivx=4
 unitx=n
@@ -36,8 +36,8 @@ B 2 260 -1220 720 -1090 {flags=graph
 y1 = 0.647319
 y2 = 0.652563
 divy = 5
-x1=1.12193e-07
-x2=4.32192e-07
+x1=1.28193e-07
+x2=4.48192e-07
 unitx=n
 divx=5
 subdivx=4
@@ -244,7 +244,8 @@ value="* .option SCALE=1e-6
       reset
       set appendwrite
     end
-    save saout cal i(vvcc) en plus minus saoutf outdiff
+    * save saout cal i(vvcc) en plus minus saoutf outdiff
+    save all
     tran 0.1n 900n uic
     write autozero_comp.raw
     let run = run + 1
@@ -385,3 +386,22 @@ tclcommand="
 xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
 "
 }
+C {ngspice_probe.sym} 890 -700 0 0 {name=r1}
+C {ngspice_probe.sym} 660 -680 0 0 {name=r1}
+C {ngspice_probe.sym} 380 -680 0 1 {name=r1}
+C {ngspice_probe.sym} 1130 -640 0 0 {name=r1}
+C {ngspice_probe.sym} 850 -640 0 1 {name=r2}
+C {ngspice_probe.sym} 1000 -590 0 0 {name=r1}
+C {ngspice_probe.sym} 1260 -710 0 0 {name=r1}
+C {ngspice_probe.sym} 1600 -710 0 0 {name=r1}
+C {ngspice_probe.sym} 2100 -710 0 0 {name=r1}
+C {ngspice_probe.sym} 1610 -1390 0 0 {name=r1}
+C {ngspice_probe.sym} 1920 -1260 0 0 {name=r1}
+C {ngspice_probe.sym} 1430 -1260 0 0 {name=r1}
+C {ngspice_probe.sym} 920 -1260 0 0 {name=r1}
+C {ngspice_probe.sym} 1040 -860 0 0 {name=r1}
+C {ngspice_probe.sym} 530 -860 0 0 {name=r1}
+C {ngspice_probe.sym} 200 -570 0 0 {name=r1}
+C {ngspice_probe.sym} 120 -570 0 1 {name=r1}
+C {ngspice_probe.sym} 200 -700 0 0 {name=r1}
+C {ngspice_probe.sym} 120 -470 0 0 {name=r1}

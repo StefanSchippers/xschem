@@ -1,6 +1,6 @@
 v {xschem version=2.9.8 file_version=1.2}
 G {}
-K {type=isource
+K {type=vcr
 format="@name  @@p @@m @function @@cp @@cm @TABLE"
 template="name=G1 function=\\"vcr pwl(1)\\" TABLE=\\"1 0 2 3\\""
 }

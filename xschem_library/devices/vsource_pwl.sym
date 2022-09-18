@@ -1,6 +1,6 @@
 v {xschem version=2.9.8 file_version=1.2}
 G {}
-K {type=isource
+K {type=vsource
 format="@name  @@p @@m pwl(1) @@cp @@cm @TABLE"
 template="name=E1 TABLE=\\"1 0 2 3\\""
 }

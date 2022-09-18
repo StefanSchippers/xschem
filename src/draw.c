@@ -2870,13 +2870,11 @@ static void draw_graph_all(int flags)
 {
   int  i, sch_loaded, hide_graphs;
   int bbox_set = 0;
-  const char *tmp;
   int save_bbx1, save_bby1, save_bbx2, save_bby2;
   dbg(1, "draw_graph_all(): flags=%d\n", flags);
   /* save bbox data, since draw_graph_all() is called from draw() which may be called after a bbox(SET) */
   sch_loaded = schematic_waves_loaded();
-  tmp =  tclgetvar("hide_empty_graphs");
-  hide_graphs = (tmp && tmp[0] == '1') ? 1 : 0;
+  hide_graphs =  tclgetboolvar("hide_empty_graphs");
   if(sch_loaded || !hide_graphs) {
     if(xctx->sem) {
       bbox_set = 1;

@@ -365,3 +365,17 @@
 ## This option shows text objects even if they have attribute 'hide=true' set
 ## default: 0 (not set) 
 # set show_hidden_texts 1
+
+###########################################################################
+#### HIDE GRAPHS IF NO SPICE DATA LOADED
+###########################################################################
+## if enabled graphs will be hidden if no data is loaded.
+## default: not enabled (0)
+# set hide_empty_graphs 0
+
+###########################################################################
+#### SHOW HIDDEN TEXTS
+###########################################################################
+## if enabled will backannotate values in schematic at cursor 'b' position
+##  in graph. Default: not enabled (0)
+# set live_cursor2_backannotate 1

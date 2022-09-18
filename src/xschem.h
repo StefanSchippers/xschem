@@ -782,7 +782,6 @@ typedef struct {
   int semaphore;
   size_t tok_size;
   char netlist_name[PATH_MAX];
-  int flat_netlist;
   char current_dirname[PATH_MAX];
   int netlist_unconn_cnt; /* unique count of unconnected pins while netlisting */
   Instpinentry *instpin_spatial_table[NBOXES][NBOXES];
@@ -929,7 +928,7 @@ typedef struct {
   double save_lw; /* used to save linewidth when selecting 'only_probes' view */
   int no_draw;
   int netlist_count; /* netlist counter incremented at any cell being netlisted */
-  int hide_symbols;
+  int hide_symbols; /* MIRRORED IN TCL */
   int netlist_type;
   char *format; /* "format", "verilog_format", "vhdl_format" or "tedax_format" */
   char *top_path;
@@ -945,7 +944,7 @@ typedef struct {
   int *fill_type; /* for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
   int fill_pattern;
   int draw_pixmap; /* pixmap used as 2nd buffer */
-  int draw_window; 
+  int draw_window;  /* MIRRORED IN TCL */
   int do_copy_area;
   time_t time_last_modify;
   int undo_type; /* 0: on disk, 1: in memory */
@@ -953,8 +952,8 @@ typedef struct {
   void (*pop_undo)(int, int);
   void (*delete_undo)(void);
   void (*clear_undo)(void);
-  int case_insensitive; /* for case insensitive compare where needed */
-  int show_hidden_texts; /* force show texts that have hide=true attribute set */
+  int case_insensitive; /* for case insensitive compare where needed MIRRORED IN TCL*/
+  int show_hidden_texts; /* force show texts that have hide=true attribute set MIRRORED IN TCL*/
   int (*x_strcmp)(const char *, const char *);
   Lcc hier_attr[CADMAXHIER]; /* hierarchical recursive attribute substitution when descending */
 } Xschem_ctx;

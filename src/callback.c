@@ -22,7 +22,7 @@
 
 #include "xschem.h"
 
-static int waves_selected(int event, int state, int button)
+static int waves_selected(int event, KeySym key, int state, int button)
 {
   int i;
   int is_inside = 0, skip = 0;
@@ -30,7 +30,7 @@ static int waves_selected(int event, int state, int button)
                              STARTPAN | STARTSELECT | STARTMOVE | STARTCOPY;
   if(xctx->ui_state & excl) skip = 1;
   else if(!xctx->graph_values) skip = 1;
-  else if(state & Mod1Mask) skip = 1;
+  else if(key !='a' && (state & Mod1Mask)) skip = 1;
   else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
   else if(event == MotionNotify && (state & Button1Mask) && (state & ShiftMask)) skip = 1;
   else if(event == ButtonPress && button == Button2) skip = 1;
@@ -173,6 +173,96 @@ static void start_wire(double mx, double my)
 
 }
 
+
+static void backannotate_at_cursor_b_pos(xRect *r)
+{
+  dbg(1, "cursor b pos: %g\n",  xctx->graph_cursor2_x);
+  if(xctx->graph_values) {
+     int dataset, i, p, ofs;
+     int sweepvar=0; /* allow different sweep vars? */
+     const char *ds =  get_tok_value(r->prop_ptr, "dataset", 0);
+     double sweep;
+     /*
+      * xSymbol *symptr; 
+      * const char *type;
+      * int c;
+      */
+
+     if(ds[0]) dataset = atoi(ds);
+     else dataset = 0;
+     if(dataset < 0) dataset = 0; 
+     dbg(1, "dataset=%d\n", dataset);
+
+     ofs = 0;
+     for(p = 0; p < dataset; p++) {
+        ofs += xctx->graph_npoints[p];
+     }
+     for(p = ofs; p < ofs + xctx->graph_npoints[dataset]; p++) {
+       int s;
+       sweep = xctx->graph_values[sweepvar][p];
+       if(p == ofs) {
+         if(sweep == xctx->graph_cursor2_x) break;
+         s = XSIGN0(sweep -  xctx->graph_cursor2_x);
+       } else {
+         int ss =  XSIGN0(sweep -  xctx->graph_cursor2_x);
+         if(ss != s) break; 
+       }
+     }
+     dbg(1, "ofs=%d, npoints=%d, close to cursor=%g, p=%d\n",
+          ofs, xctx->graph_npoints[dataset], sweep, p);
+     for(i = 0; i < xctx->graph_nvars; i++) {
+       char s[100];
+       my_snprintf(s, S(s), "%.4g", xctx->graph_values[i][p]);
+       dbg(1, "%s = %g\n", xctx->graph_names[i], xctx->graph_values[i][p]);
+       tclvareval("set ngspice::ngspice_data([list {",  xctx->graph_names[i], "}]) ", s, NULL);
+     }
+     tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( xctx->graph_nvars), NULL);
+     tclvareval("set ngspice::ngspice_data(n\\ points) 1", NULL);
+
+
+     draw();
+
+
+     /* draw only probes. does not work as multiple texts will be overlayed */
+     #if 0 
+     save = xctx->draw_window;
+     xctx->draw_window = 1;
+     for(c=0;c<cadlayers;c++) {
+       if(xctx->draw_single_layer!=-1 && c != xctx->draw_single_layer) continue;
+       for(i = 0; i < xctx->instances; i++) {
+         type = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "type", 0);
+         if(!strstr(type, "source") && !strstr(type, "probe")) continue;
+         if(xctx->inst[i].ptr == -1 || (c > 0 && (xctx->inst[i].flags & 1)) ) continue;
+         symptr = (xctx->inst[i].ptr+ xctx->sym);
+         if(
+             c==0 ||
+             symptr->lines[c] ||
+             symptr->arcs[c] ||
+             symptr->rects[c] ||
+             symptr->polygons[c] ||
+             ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts) )
+         {
+             draw_symbol(ADD, c, i,c,0,0,0.0,0.0);
+         }
+       }
+       filledrect(c, END, 0.0, 0.0, 0.0, 0.0);
+       drawarc(c, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
+       drawrect(c, END, 0.0, 0.0, 0.0, 0.0, 0);
+       drawline(c, END, 0.0, 0.0, 0.0, 0.0, 0);
+     }
+     xctx->draw_window = save;
+     #endif
+
+
+
+
+
+
+
+
+  }
+}
+
 /* process user input (arrow keys for now) when only graphs are selected */
 
 /* xctx->graph_flags:
@@ -254,8 +344,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           tclvareval("graph_edit_properties ", my_itoa(i), NULL);
         }
       }
+      /* backannotate node values at cursor b position */
+      else if(key == 'a' && state == Mod1Mask  && (xctx->graph_flags & 4)) {
+        backannotate_at_cursor_b_pos(r);
+      }
       /* x cursor1 toggle */
-      else if((key == 'a') ) {
+      else if((key == 'a' && state == 0) ) {
         xctx->graph_flags ^= 2;
         need_all_redraw = 1;
         if(xctx->graph_flags & 2) xctx->graph_cursor1_x = G_X(xctx->mousex);
@@ -264,7 +358,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if((key == 'b') ) {
         xctx->graph_flags ^= 4;
         need_all_redraw = 1;
-        if(xctx->graph_flags & 4) xctx->graph_cursor2_x = G_X(xctx->mousex);
+        if(xctx->graph_flags & 4) {
+          xctx->graph_cursor2_x = G_X(xctx->mousex);
+          if(tclgetboolvar("live_cursor2_backannotate")) backannotate_at_cursor_b_pos(r);
+        }
       }
       /* measurement tooltip */
       else if((key == 'm') ) {
@@ -411,7 +508,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       /* move cursor2 */
       else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
-        need_redraw = 1;
+        if(tclgetboolvar("live_cursor2_backannotate")) backannotate_at_cursor_b_pos(r);
+        else  need_redraw = 1;
       }
       else /* drag waves with mouse */
       if(event == MotionNotify && (state & Button1Mask) && !xctx->graph_bottom) {
@@ -1023,7 +1121,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     break;
 
   case MotionNotify:
-    if( waves_selected(event, state, button)) {
+    if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1453,7 +1551,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Right && !(state & ControlMask))   /* left */
    {
-    if(waves_selected(event, state, button)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1464,7 +1562,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Left && !(state & ControlMask))   /* right */
    {
-    if(waves_selected(event, state, button)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1475,7 +1573,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Down)                     /* down */
    {
-    if(waves_selected(event, state, button)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1486,7 +1584,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==XK_Up)                       /* up */
    {
-    if(waves_selected(event, state, button)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -1523,7 +1621,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='t' && state == 0)                        /* place text */
    {
-     if(waves_selected(event, state, button)) {
+     if(waves_selected(event, key, state, button)) {
        waves_callback(event, mx, my, key, button, aux, state);
        break;
      }
@@ -1614,10 +1712,19 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     go_back(1);break;
    }
 
+   if(key=='a' && state == Mod1Mask)   /* graph annotate dc point @cursor2 */
+   {
+    if(xctx->semaphore >= 2) break;
+    if(waves_selected(event, key, state, button)) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }
+    break;
+   }
    if(key=='a' && state == 0)   /* make symbol */
    {
     if(xctx->semaphore >= 2) break;
-    if(waves_selected(event, state, button)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -2054,7 +2161,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='m' && state==0 && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
    {
-    if(waves_selected(event, state, button)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -2171,8 +2278,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key==':')                         /* toggle flat netlist (only spice)  */
    {
-    xctx->flat_netlist = !xctx->flat_netlist;
-    if(xctx->flat_netlist) {
+    if(!tclgetboolvar("flat_netlist")) {
         tcleval("alert_ { enabling flat netlist} {}");
         tclsetvar("flat_netlist","1");
     }
@@ -2185,7 +2291,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='b' && state==0)                     /* merge schematic */
    {
     if(xctx->semaphore >= 2) break;
-    if(waves_selected(event, state, button)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -2252,7 +2358,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='f' && state == 0 )                  /* full zoom */
    {
-    if(waves_selected(event, state, button)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -2273,7 +2379,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    break;
   case ButtonPress:                     /* end operation */
    dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
-   if(waves_selected(event, state, button)) {
+   if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
@@ -2427,21 +2533,21 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      }
    }
    else if(button==Button5 && state == 0 ) {
-    if(waves_selected(event, state, button)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
      view_unzoom(CADZOOMSTEP);
    }
    else if(button==Button4 && state == 0 ) {
-    if(waves_selected(event, state, button)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
      view_zoom(CADZOOMSTEP);
    }
    else if(button==Button4 && (state & ShiftMask) && !(state & Button2Mask)) {
-    if(waves_selected(event, state, button)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -2450,7 +2556,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     redraw_w_a_l_r_p_rubbers();
    }
    else if(button==Button5 && (state & ShiftMask) && !(state & Button2Mask)) {
-    if(waves_selected(event, state, button)) {
+    if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
@@ -2668,7 +2774,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    } /* button==Button1 */
    break;
   case ButtonRelease:
-   if(waves_selected(event, state, button)) {
+   if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
@@ -2700,7 +2806,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    break;
   case -3:  /* double click  : edit prop */
-    if( waves_selected(event, state, button)) {
+    if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     } else {

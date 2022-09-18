@@ -51,8 +51,8 @@ proc ngspice::read_ngspice_raw {arr fp} {
     }
   }
   if {$variables} {
-    set bindata [read $fp [expr 8 * $n_vars * $n_points]]
     if { $n_points == 1} {
+      set bindata [read $fp [expr 8 * $n_vars * $n_points]]
       binary scan $bindata d[expr $n_vars * $n_points] data
       for {set p 0} {$p < $n_points} { incr p} {
         for {set v 0} {$v < $n_vars} { incr v} {
@@ -117,11 +117,12 @@ proc ngspice::get_current {n} {
   set n $path$n
   if { $path ne {} } {
     set n $prefix.$n
-   }
+  }
   if { ![regexp $prefix {[ve]}] } {
     set n @$n
   }
   set n i($n)
+  if { [regexp {\[} $n] } { set n \{$n\} }
   # puts "ngspice::get_current --> $n"
   set err [catch {set ::ngspice::ngspice_data($n)} res]
   if { $err } {
@@ -165,32 +166,40 @@ proc ngspice::resetdata {} {
   array unset ::ngspice::ngspice_data
 }
 
-proc ngspice::annotate {{f {}}} {
+proc ngspice::annotate {{f {}} {read_file 1}} {
   upvar ::ngspice::ngspice_data arr
-  if { $f eq {}} {
-    set rawfile "$::netlist_dir/[file rootname [file tail [xschem get schname 0]]].raw"
+
+
+  if { $read_file == 1} {
+    if { $f eq {}} {
+      set rawfile "$::netlist_dir/[file rootname [file tail [xschem get schname 0]]].raw"
+    } else {
+      set rawfile $f
+    }
+    if { ![file exists $rawfile] } {
+      puts "no raw file found: $rawfile"
+      return
+    }
+    set fp [open $rawfile r]
+    fconfigure $fp -translation binary
+    set op_point_read 0 
+    ## not needed: done in ngspice::read_ngspice_raw
+    # array unset ::ngspice::ngspice_data
+    while 1 {
+      ngspice::read_ngspice_raw arr $fp
+      if { [info exists arr(n\ points)] } {
+        if { $arr(n\ points) == 1 } {
+          set op_point_read 1; break
+        }
+      } else break;
+    }
+    close $fp
+    puts {Raw file read ...} 
   } else {
-    set rawfile $f
+    set op_point_read 1
   }
-  if { ![file exists $rawfile] } {
-    puts "no raw file found: $rawfile"
-    return
-  }
-  set fp [open $rawfile r]
-  fconfigure $fp -translation binary
-  set op_point_read 0 
-  ## not needed: done in ngspice::read_ngspice_raw
-  # array unset ::ngspice::ngspice_data
-  while 1 {
-    ngspice::read_ngspice_raw arr $fp
-    if { [info exists arr(n\ points)] } {
-      if { $arr(n\ points) == 1 } {
-        set op_point_read 1; break
-      }
-    } else break;
-  }
-  close $fp
-  puts {Raw file read ...} 
+
+
   if { $op_point_read } {
     ### disable screen redraw and undo when looping to speed up performance
     ### but save state on undo stack before doing backannotations.
@@ -238,4 +247,4 @@ proc ngspice::annotate {{f {}}} {
   }
 }
 
-if { [info exists ::has_x] } {bind .drw <Alt-a> {puts {Annotating...}; ngspice::annotate} }
+# if { [info exists ::has_x] } {bind .drw <Alt-a> {puts {Annotating...}; ngspice::annotate} }

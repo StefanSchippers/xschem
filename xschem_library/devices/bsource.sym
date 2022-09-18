@@ -1,6 +1,6 @@
 v {xschem version=2.9.8 file_version=1.2}
 G {}
-K {type=isource
+K {type=source
 format="@name @pinlist @VAR = @FUNC "
 template="name=B1 VAR=I FUNC=\\"pwl(V(plus,minus),0,0, 1,10m, 2, 100m)\\""}
 V {}

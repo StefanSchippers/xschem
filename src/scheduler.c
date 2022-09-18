@@ -903,12 +903,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      else if(!strcmp(argv[2],"draw_window")) {
        Tcl_SetResult(interp, my_itoa(xctx->draw_window),TCL_VOLATILE);
      }
-     else if(!strcmp(argv[2],"flat_netlist")) {
-       if( xctx->flat_netlist != 0 )
-         Tcl_SetResult(interp, "1",TCL_STATIC);
-       else
-         Tcl_SetResult(interp, "0",TCL_STATIC);
-     }
      else if(!strcmp(argv[2],"format")) {
        if( !xctx->format )
          Tcl_SetResult(interp, "<NULL>",TCL_STATIC);
@@ -2543,9 +2537,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(!strcmp(argv[2],"draw_window")) {
          xctx->draw_window=atoi(argv[3]);
       }
-      else if(!strcmp(argv[2],"flat_netlist")) {
-            xctx->flat_netlist=atoi(argv[3]);
-      }
       else if(!strcmp(argv[2],"format")) {
             my_strdup(1542, &xctx->format, argv[3]);
       }
@@ -2611,7 +2602,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             xctx->sym_txt=atoi(argv[3]);
       }
       else {
-        Tcl_AppendResult(interp, "xschem set ", argv[1], argv[3], ": invalid command.", NULL);
+        Tcl_AppendResult(interp, "xschem set ", argv[2], ": invalid command.", NULL);
         return TCL_ERROR;
       }
     }
@@ -2682,7 +2673,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[4], argv[5]),fast, 
               tclgetboolvar("disable_unique_names"));
           } else {/* assume argc == 5 , delete attribute */
-            new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[3], NULL),fast, 
+            new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[4], NULL),fast, 
               tclgetboolvar("disable_unique_names"));
           }
           type=xctx->sym[xctx->inst[inst].ptr].type;
