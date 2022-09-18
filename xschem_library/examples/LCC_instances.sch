@@ -1,4 +1,5 @@
-v {xschem version=3.1.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -178,3 +179,7 @@ tclcommand="
 xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
 "
 }
+C {ngspice_probe.sym} 520 -490 0 0 {name=r3}
+C {ngspice_probe.sym} 200 -490 0 1 {name=r3}
+C {ngspice_probe.sym} 360 -190 0 0 {name=r3}
+C {ngspice_probe.sym} 240 -190 0 1 {name=r3}

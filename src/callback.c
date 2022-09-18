@@ -208,6 +208,19 @@ static void backannotate_at_cursor_b_pos(xRect *r)
          if(ss != s) break; 
        }
      }
+     if(p >= ofs + xctx->graph_npoints[dataset]) {
+       double sweep0, sweep1;
+       p--;
+       sweep0 = xctx->graph_values[sweepvar][ofs];
+       sweep1 = xctx->graph_values[sweepvar][p];
+       if(fabs(sweep0 - xctx->graph_cursor2_x) < fabs(sweep1 - xctx->graph_cursor2_x)) {
+         p = ofs;
+       }
+     }
+
+
+
+
      dbg(1, "ofs=%d, npoints=%d, close to cursor=%g, p=%d\n",
           ofs, xctx->graph_npoints[dataset], sweep, p);
      for(i = 0; i < xctx->graph_nvars; i++) {
@@ -300,6 +313,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* set cursor position from master graph x-axis */
       else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
         xctx->graph_cursor2_x = G_X(xctx->mousex);
+        if(tclgetboolvar("live_cursor2_backannotate")) {
+          backannotate_at_cursor_b_pos(r);
+          redraw_all_at_end = 1;
+        }
+        else  need_redraw = 1;
       }
       if(xctx->ui_state & GRAPHPAN) break; /* After GRAPHPAN only need to check Motion events for cursors */
       if(xctx->mousey_snap < W_Y(gr->gy2)) {
@@ -506,7 +524,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* move cursor2 */
       else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
         if(tclgetboolvar("live_cursor2_backannotate")) {
-          backannotate_at_cursor_b_pos(r);
           redraw_all_at_end = 1;
         }
         else  need_redraw = 1;
