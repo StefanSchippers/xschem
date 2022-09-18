@@ -173,68 +173,89 @@ static void start_wire(double mx, double my)
 
 }
 
-
-static void backannotate_at_cursor_b_pos(xRect *r)
+static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
 {
   dbg(1, "cursor b pos: %g\n",  xctx->graph_cursor2_x);
+
   if(xctx->graph_values) {
-     int dataset, i, p, ofs;
-     int sweepvar=0; /* allow different sweep vars? */
-     const char *ds =  get_tok_value(r->prop_ptr, "dataset", 0);
-     double sweep;
+    int dset, first, last, dataset = gr->dataset, i, p, ofs;
+    double start, end;
+    int sweepvar_wrap = 0, sweep_idx=0; /* allow different sweep vars? */
+    double xx, cursor2; /* xx is the p-th sweep variable value, cursor2 is cursor 'b' x position */
+    cursor2 =  xctx->graph_cursor2_x;
+    start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
+    end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
+    if(gr->logx) cursor2 = pow(10, cursor2);
+    if(dataset < 0) dataset = 0; /* if all datasets are plotted use first for backannotation */
+    dbg(1, "dataset=%d\n", dataset);
+    for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
+      double prev_x, prev_prev_x;
+      int cnt=0, wrap;
+      register SPICE_DATA *gv = xctx->graph_values[sweep_idx];
+      first = -1;
+      prev_prev_x = prev_x = 0;
+      last = ofs;
+      for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
+        xx = gv[p];
+        wrap = ( cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
+        if(wrap) {
+           sweepvar_wrap++;
+           cnt = 0;
+        }
+        if(xx >= start && xx <= end) {
+          int s;
+          if((dataset == -1 && sweepvar_wrap == 0) || (dataset == sweepvar_wrap)) {
+            if(first == -1) first = p;
+            if(p == first) {
+              if(xx == cursor2) {dset = xctx->graph_datasets; break;}
+              s = XSIGN0(xx - cursor2);
+            } else {
+              int ss =  XSIGN0(xx -  cursor2);
+              if(ss != s) {dset = xctx->graph_datasets; break;}
+            }
+            last = p;
+          }
+          cnt++;
+        } /* if(xx >= start && xx <= end) */
+        prev_prev_x = prev_x;
+        prev_x = xx;
+      } /* for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) */
+      /* offset pointing to next dataset */
+      ofs += xctx->graph_npoints[dset];
+      sweepvar_wrap++;
+    } /* for(dset...) */
+    if(p > last) {
+      double sweep0, sweep1;
+      p = last;
+      sweep0 = xctx->graph_values[sweep_idx][first];
+      sweep1 = xctx->graph_values[sweep_idx][p];
+      if(fabs(sweep0 - cursor2) < fabs(sweep1 - cursor2)) {
+        p = first;
+      }
+    }
+    dbg(1, "xx=%g, p=%d\n", xx, p);
+    tcleval("array unset ::ngspice::ngspice_data");
+    for(i = 0; i < xctx->graph_nvars; i++) {
+      char s[100];
+      my_snprintf(s, S(s), "%.4g", xctx->graph_values[i][p]);
+      dbg(1, "%s = %g\n", xctx->graph_names[i], xctx->graph_values[i][p]);
+      tclvareval("array set ngspice::ngspice_data [list {",  xctx->graph_names[i], "} ", s, "]", NULL);
+    }
+    tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( xctx->graph_nvars), NULL);
+    tclvareval("set ngspice::ngspice_data(n\\ points) 1", NULL);
+  }
+}
+
+     /* draw only probes. does not work as multiple texts will be overlayed */
+     /* need to draw a background under texts */
+     #if 0 
+
      /*
       * xSymbol *symptr; 
       * const char *type;
       * int c;
       */
 
-     if(ds[0]) dataset = atoi(ds);
-     else dataset = 0;
-     if(dataset < 0) dataset = 0; 
-     dbg(1, "dataset=%d\n", dataset);
-
-     ofs = 0;
-     for(p = 0; p < dataset; p++) {
-        ofs += xctx->graph_npoints[p];
-     }
-     for(p = ofs; p < ofs + xctx->graph_npoints[dataset]; p++) {
-       int s;
-       sweep = xctx->graph_values[sweepvar][p];
-       if(p == ofs) {
-         if(sweep == xctx->graph_cursor2_x) break;
-         s = XSIGN0(sweep -  xctx->graph_cursor2_x);
-       } else {
-         int ss =  XSIGN0(sweep -  xctx->graph_cursor2_x);
-         if(ss != s) break; 
-       }
-     }
-     if(p >= ofs + xctx->graph_npoints[dataset]) {
-       double sweep0, sweep1;
-       p--;
-       sweep0 = xctx->graph_values[sweepvar][ofs];
-       sweep1 = xctx->graph_values[sweepvar][p];
-       if(fabs(sweep0 - xctx->graph_cursor2_x) < fabs(sweep1 - xctx->graph_cursor2_x)) {
-         p = ofs;
-       }
-     }
-
-
-
-
-     dbg(1, "ofs=%d, npoints=%d, close to cursor=%g, p=%d\n",
-          ofs, xctx->graph_npoints[dataset], sweep, p);
-     for(i = 0; i < xctx->graph_nvars; i++) {
-       char s[100];
-       my_snprintf(s, S(s), "%.4g", xctx->graph_values[i][p]);
-       dbg(1, "%s = %g\n", xctx->graph_names[i], xctx->graph_values[i][p]);
-       tclvareval("set ngspice::ngspice_data([list {",  xctx->graph_names[i], "}]) ", s, NULL);
-     }
-     tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( xctx->graph_nvars), NULL);
-     tclvareval("set ngspice::ngspice_data(n\\ points) 1", NULL);
-
-     /* draw only probes. does not work as multiple texts will be overlayed */
-     /* need to draw a background under texts */
-     #if 0 
      save = xctx->draw_window;
      xctx->draw_window = 1;
      for(c=0;c<cadlayers;c++) {
@@ -262,8 +283,6 @@ static void backannotate_at_cursor_b_pos(xRect *r)
      }
      xctx->draw_window = save;
      #endif
-  }
-}
 
 /* process user input (arrow keys for now) when only graphs are selected */
 
@@ -314,7 +333,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
         xctx->graph_cursor2_x = G_X(xctx->mousex);
         if(tclgetboolvar("live_cursor2_backannotate")) {
-          backannotate_at_cursor_b_pos(r);
+          backannotate_at_cursor_b_pos(r, gr);
           redraw_all_at_end = 1;
         }
         else  need_redraw = 1;
@@ -353,7 +372,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       /* backannotate node values at cursor b position */
       else if(key == 'a' && state == Mod1Mask  && (xctx->graph_flags & 4)) {
-        backannotate_at_cursor_b_pos(r);
+        backannotate_at_cursor_b_pos(r, gr);
         redraw_all_at_end = 1;
       }
       /* x cursor1 toggle */
@@ -368,7 +387,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(xctx->graph_flags & 4) {
           xctx->graph_cursor2_x = G_X(xctx->mousex);
           if(tclgetboolvar("live_cursor2_backannotate")) {
-            backannotate_at_cursor_b_pos(r);
+            backannotate_at_cursor_b_pos(r, gr);
             redraw_all_at_end = 1;
           } else {
             need_all_redraw = 1;

@@ -122,7 +122,7 @@ proc ngspice::get_current {n} {
     set n @$n
   }
   set n i($n)
-  if { [regexp {\[} $n] } { set n \{$n\} }
+  # if { [regexp {\[} $n] } { set n \{$n\} }
   # puts "ngspice::get_current --> $n"
   set err [catch {set ::ngspice::ngspice_data($n)} res]
   if { $err } {
@@ -153,6 +153,7 @@ proc ngspice::get_node {n} {
   set path [string range [xschem get sch_path] 1 end]
   # puts "ngspice::get_node  --> $n,  path=$path"
   set n [ subst -nocommand $n ]
+  # if { [regexp {\[} $n] } { set n \{$n\} }
   set err [catch {set ::ngspice::ngspice_data($n)} res]
   if { $err } { 
     set res {?}

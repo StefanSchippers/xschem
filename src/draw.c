@@ -2480,7 +2480,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
         xx = mylog10(gv[p]);
       else
         xx = gv[p];
-      wrap = (sweep_idx == 0 && cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
+      wrap = ( /* sweep_idx == 0 && */ cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
       if(first != -1) {                      /* there is something to plot ... */
         if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
           wrap) {                          /* ... or sweep variable changed direction */
@@ -2596,7 +2596,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
           else xx = gvx[p];
           if(gr->logy) yy = mylog10(gvy[p]);
           else  yy = gvy[p];
-          wrap = (sweep_idx == 0 && cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
+          wrap = (/* sweep_idx == 0 && */ cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
           if(first != -1) {
             if(xx > end || xx < start || wrap) {
               dbg(1, "find_closest_wave(): last=%d\n", last);
@@ -2768,7 +2768,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
           for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
             if(gr->logx) xx = mylog10(gv[p]);
             else  xx = gv[p];
-            wrap = (sweep_idx == 0 && cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
+            wrap = (/* sweep_idx == 0 && */ cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
             if(first != -1) {                      /* there is something to plot ... */
               if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
                 wrap) {                          /* ... or sweep variable changed direction */
