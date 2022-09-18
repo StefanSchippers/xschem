@@ -219,11 +219,8 @@ static void backannotate_at_cursor_b_pos(xRect *r)
      tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( xctx->graph_nvars), NULL);
      tclvareval("set ngspice::ngspice_data(n\\ points) 1", NULL);
 
-
-     draw();
-
-
      /* draw only probes. does not work as multiple texts will be overlayed */
+     /* need to draw a background under texts */
      #if 0 
      save = xctx->draw_window;
      xctx->draw_window = 1;
@@ -252,14 +249,6 @@ static void backannotate_at_cursor_b_pos(xRect *r)
      }
      xctx->draw_window = save;
      #endif
-
-
-
-
-
-
-
-
   }
 }
 
@@ -278,7 +267,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 {
   Graph_ctx *gr;
   const char *val;
-  int i, need_all_redraw = 0, need_redraw = 0, dataset = 0;
+  int i, redraw_all_at_end = 0, need_all_redraw = 0, need_redraw = 0, dataset = 0;
   double xx1, xx2, yy1, yy2;
   double delta_threshold = 0.25;
   double zoom_m = 0.5;
@@ -347,6 +336,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* backannotate node values at cursor b position */
       else if(key == 'a' && state == Mod1Mask  && (xctx->graph_flags & 4)) {
         backannotate_at_cursor_b_pos(r);
+        redraw_all_at_end = 1;
       }
       /* x cursor1 toggle */
       else if((key == 'a' && state == 0) ) {
@@ -357,10 +347,17 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* x cursor2 toggle */
       else if((key == 'b') ) {
         xctx->graph_flags ^= 4;
-        need_all_redraw = 1;
         if(xctx->graph_flags & 4) {
           xctx->graph_cursor2_x = G_X(xctx->mousex);
-          if(tclgetboolvar("live_cursor2_backannotate")) backannotate_at_cursor_b_pos(r);
+          if(tclgetboolvar("live_cursor2_backannotate")) {
+            backannotate_at_cursor_b_pos(r);
+            redraw_all_at_end = 1;
+          } else {
+            need_all_redraw = 1;
+          }
+
+        } else {
+          need_all_redraw = 1;
         }
       }
       /* measurement tooltip */
@@ -508,7 +505,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       /* move cursor2 */
       else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
-        if(tclgetboolvar("live_cursor2_backannotate")) backannotate_at_cursor_b_pos(r);
+        if(tclgetboolvar("live_cursor2_backannotate")) {
+          backannotate_at_cursor_b_pos(r);
+          redraw_all_at_end = 1;
+        }
         else  need_redraw = 1;
       }
       else /* drag waves with mouse */
@@ -960,7 +960,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     }
   } /* for(i=0; i< xctx->rects[GRIDLAYER]; i++ */
 
-
+  if(redraw_all_at_end ==1) {
+    draw();
+    redraw_all_at_end = 0;
+  }
   if(clear_graphpan_at_end) xctx->ui_state &= ~GRAPHPAN;
   /* update saved mouse position after processing all graphs */
   if(save_mouse_at_end && 

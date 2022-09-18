@@ -374,8 +374,8 @@
 # set hide_empty_graphs 0
 
 ###########################################################################
-#### SHOW HIDDEN TEXTS
+#### LIVE BACKANNOTATION OF DATA AT CURSOR 2 (B) POSITION
 ###########################################################################
 ## if enabled will backannotate values in schematic at cursor 'b' position
-##  in graph. Default: not enabled (0)
+## in graph. Default: not enabled (0)
 # set live_cursor2_backannotate 1
