@@ -175,7 +175,7 @@ static void start_wire(double mx, double my)
 
 static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
 {
-  dbg(1, "cursor b pos: %g\n",  xctx->graph_cursor2_x);
+  dbg(1, "cursor b pos: %g dataset=%d\n",  xctx->graph_cursor2_x, gr->dataset);
 
   if(xctx->graph_values) {
     int dset, first, last, dataset = gr->dataset, i, p, ofs;
@@ -392,7 +392,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           } else {
             need_all_redraw = 1;
           }
-
         } else {
           need_all_redraw = 1;
         }
@@ -630,9 +629,16 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(track_dset != -2) {
           const char *unlocked = strstr(get_tok_value(r->prop_ptr, "flags", 0), "unlocked");
           if(i == xctx->graph_master || !unlocked) {
+            gr->dataset = track_dset;
             my_strdup(1448, &r->prop_ptr, subst_token(r->prop_ptr, "dataset", my_itoa(track_dset)));
           }
-          need_redraw = 1;
+          if((xctx->graph_flags & 4)  && tclgetboolvar("live_cursor2_backannotate")) {
+            if(i == xctx->graph_master) backannotate_at_cursor_b_pos(r, gr);
+            redraw_all_at_end = 1;
+          } else {
+            need_redraw = 1;
+          }
+
         }
       } /* key == 't' */
       else if(key == XK_Left) {
