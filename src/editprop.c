@@ -26,7 +26,7 @@
 double mylog10(double x)
 {
   if(x > 0) return log10(x);
-  else return -30;
+  else return -35;
 }
 
 int my_strcasecmp(const char *s1, const char *s2)

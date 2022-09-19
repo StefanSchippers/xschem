@@ -175,7 +175,6 @@ static void start_wire(double mx, double my)
 
 static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
 {
-  dbg(1, "cursor b pos: %g dataset=%d\n",  xctx->graph_cursor2_x, gr->dataset);
 
   if(xctx->graph_values) {
     int dset, first, last, dataset = gr->dataset, i, p, ofs;
@@ -185,7 +184,13 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
     cursor2 =  xctx->graph_cursor2_x;
     start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
     end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
-    if(gr->logx) cursor2 = pow(10, cursor2);
+    dbg(1, "start=%g, end=%g\n", start, end);
+    if(gr->logx) {
+      cursor2 = pow(10, cursor2);
+      start = pow(10, start);
+      end = pow(10, end);
+    }
+    dbg(1, "cursor b pos: %g dataset=%d\n",  cursor2, gr->dataset);
     if(dataset < 0) dataset = 0; /* if all datasets are plotted use first for backannotation */
     dbg(1, "dataset=%d\n", dataset);
     for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
