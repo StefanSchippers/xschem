@@ -115,12 +115,13 @@ proc ngspice::get_current {n} {
   set prefix [string range $n 0 0]
   set path [string range [xschem get sch_path] 1 end]
   set n $path$n
-  if { $path ne {} } {
+  if { ![sim_is_xyce] && $path ne {} } {
     set n $prefix.$n
+    if { ![regexp $prefix {[ve]}] } {
+      set n @$n
+    }
   }
-  if { ![regexp $prefix {[ve]}] } {
-    set n @$n
-  }
+  puts "get_current: $n"
   set n i($n)
   # if { [regexp {\[} $n] } { set n \{$n\} }
   # puts "ngspice::get_current --> $n"
