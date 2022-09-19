@@ -33,7 +33,7 @@ zz
 zzz"
 color="4 6 8"
 sweep="v(a)"
-dataset=0}
+dataset=-1}
 B 2 10 -930 570 -700 {flags=graph 
 y1 = -0.0578112
 y2 = 3.04806
@@ -45,7 +45,7 @@ node="z
 a"
 color="4 6"
 sweep="v(a) v(z)"
-dataset=0}
+dataset=-1}
 P 4 5 560 -700 560 -510 1350 -510 1350 -700 560 -700 {dash=3}
 P 4 5 820 -920 820 -730 1350 -730 1350 -920 820 -920 {dash=3}
 T {These 2 instances are equivalent} 260 -310 0 0 0.4 0.4 {}

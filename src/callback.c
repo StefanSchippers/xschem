@@ -179,8 +179,10 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
   if(xctx->graph_values) {
     int dset, first, last, dataset = gr->dataset, i, p, ofs;
     double start, end;
-    int sweepvar_wrap = 0, sweep_idx=0; /* allow different sweep vars? */
+    int sweepvar_wrap = 0, sweep_idx;
     double xx, cursor2; /* xx is the p-th sweep variable value, cursor2 is cursor 'b' x position */
+    sweep_idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", 1));
+    if(sweep_idx < 0) sweep_idx = 0;
     cursor2 =  xctx->graph_cursor2_x;
     start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
     end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
