@@ -455,6 +455,7 @@ void free_rawfile(int dr)
   if(xctx->graph_raw_schname) my_free(1393, &xctx->graph_raw_schname);
   xctx->graph_datasets = 0;
   xctx->graph_nvars = 0;
+  xctx->graph_backannotate_p = -1;
   int_hash_free(xctx->graph_raw_table);
   if(deleted && dr) draw();
 }

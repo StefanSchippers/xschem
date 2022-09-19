@@ -909,6 +909,7 @@ typedef struct {
   int graph_left;
   int graph_lastsel; /* last graph that was clicked (selected) */
   int graph_sim_type; /* type of sim, 1: Tran, 2: Dc, 3: Ac */
+  int graph_backannotate_p; /* point in raw file to use for annotating schematic voltages/currents/etc */
   Int_hashentry **graph_raw_table;
   /* when descending hierarchy xctx->current_name changes, xctx->graph_raw_schname
    * holds the name of the top schematic from which the raw file was loaded */

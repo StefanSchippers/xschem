@@ -450,6 +450,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->graph_left = 0;
   xctx->graph_lastsel = -1;
   xctx->graph_sim_type = 0; /* type of sim, 1: Tran, 2: Dc, 3: Ac */
+  xctx->graph_backannotate_p = -1; /* point in raw file to use for annotating voltages/currents/etc */
   xctx->graph_struct.hilight_wave = -1; /* index of wave */
   xctx->graph_raw_schname = NULL;
   xctx->wires = 0;

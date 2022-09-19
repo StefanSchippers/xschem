@@ -3015,6 +3015,16 @@ const char *translate(int inst, const char* s)
      memcpy(result+result_pos,xctx->inst[inst].prop_ptr, tmp+1);
      result_pos+=tmp;
    }
+   else if(strcmp(token,"@spice_get_voltage")==0 )
+   {
+     if(xctx->graph_values && xctx->graph_backannotate_p>=0) {
+       int multip;
+       int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
+       if(no_of_pins>0) {
+         dbg(0, "inst %d, net=%s\n",inst,  net_name(inst,0, &multip, 0, 0));
+       }
+     }
+   }
    else if(strcmp(token,"@schvhdlprop")==0 && xctx->schvhdlprop)
    {
      tmp=strlen(xctx->schvhdlprop);

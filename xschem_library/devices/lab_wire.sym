@@ -9,4 +9,4 @@ S {}
 E {}
 B 5 -1.25 -1.25 1.25 1.25 {name=p dir=in}
 T {@lab} -2.5 -1.25 2 0 0.27 0.27 {}
-T {tcleval( [ ngspice::get_node v($\{path\}@@p\\) ] )} -1.875 -24.84375 0 1 0.2 0.2 {vcenter=true layer=15 hide=true}
+T {tcleval( [ ngspice::get_voltage @@p ] )} -1.875 -24.84375 0 1 0.2 0.2 {vcenter=true layer=15 hide=true}
