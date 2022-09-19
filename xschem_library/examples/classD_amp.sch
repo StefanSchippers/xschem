@@ -92,8 +92,8 @@ ypos2=36.4765
 divy=5
 subdivy=1
 unity=1
-x1=0.000192788
-x2=0.00195727
+x1=0.000509817
+x2=0.000687424
 divx=5
 subdivx=1
 node="out
@@ -111,8 +111,8 @@ ypos2=7.14491
 divy=5
 subdivy=1
 unity=1
-x1=0.000192788
-x2=0.00195727
+x1=0.000509817
+x2=0.000687424
 divx=5
 subdivx=1
 
@@ -134,8 +134,8 @@ ypos2=14.7089
 divy=5
 subdivy=1
 unity=1
-x1=0.000192788
-x2=0.00195727
+x1=0.000509817
+x2=0.000687424
 divx=5
 subdivx=1
 
@@ -159,8 +159,8 @@ ypos2=36.4765
 divy=5
 subdivy=1
 unity=1
-x1=0.000192788
-x2=0.00195727
+x1=0.000509817
+x2=0.000687424
 divx=5
 subdivx=1
 
@@ -429,7 +429,7 @@ OFFSET=5
 AMPLITUDE=10}
 C {lab_pin.sym} 710 -520 0 1 {name=p1 lab=DRIVEU}
 C {parax_cap.sym} 670 -510 0 0 {name=C6 gnd=0 value=200f m=1}
-C {vsource.sym} 440 -460 0 1 {name=Voffs value=0.1}
+C {vsource.sym} 440 -460 0 0 {name=Voffs value=0.1}
 C {lab_pin.sym} 440 -490 0 0 {name=p2 lab=REFU}
 C {vsource.sym} 440 -310 2 1 {name=Voffs1 value=0.1}
 C {lab_pin.sym} 440 -340 0 0 {name=p5 lab=REFD}

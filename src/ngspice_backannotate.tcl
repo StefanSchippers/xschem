@@ -204,45 +204,48 @@ proc ngspice::annotate {{f {}} {read_file 1}} {
   if { $op_point_read } {
     ### disable screen redraw and undo when looping to speed up performance
     ### but save state on undo stack before doing backannotations.
-    xschem push_undo
-    xschem set no_undo 1
-    xschem set no_draw 1
-    set lastinst [xschem get instances]
-    set path [string range [xschem get sch_path] 1 end]
-    for { set i 0 } { $i < $lastinst } {incr i } {
-      set name [xschem getprop instance $i name]
-      set type [xschem getprop instance $i cell::type]
-      if { $type eq {probe} } {
-        set net $path[xschem instance_net $i p]
-        if {[catch {xschem setprop instance $i voltage [ngspice::get_voltage_probe arr $net] fast} err]} {
-          puts "Warning 1: ${err}, net: $net"
+
+    if {0} {
+      xschem push_undo
+      xschem set no_undo 1
+      xschem set no_draw 1
+      set lastinst [xschem get instances]
+      set path [string range [xschem get sch_path] 1 end]
+      for { set i 0 } { $i < $lastinst } {incr i } {
+        set name [xschem getprop instance $i name]
+        set type [xschem getprop instance $i cell::type]
+        if { $type eq {probe} } {
+          set net $path[xschem instance_net $i p]
+          if {[catch {xschem setprop instance $i voltage [ngspice::get_voltage_probe arr $net] fast} err]} {
+            puts "Warning 1: ${err}, net: $net"
+          }
         }
-      }
-      if { $type eq {current_probe} } {
-        if {[catch {xschem setprop instance $i current [ngspice::get_curr_probe arr $path$name] fast} err]} {
-          puts "Warning 2: $err"
+        if { $type eq {current_probe} } {
+          if {[catch {xschem setprop instance $i current [ngspice::get_curr_probe arr $path$name] fast} err]} {
+            puts "Warning 2: $err"
+          }
         }
-      }
-      if { $type eq {differential_probe} } {
-        set netp $path[xschem instance_net $i p]
-        set netm $path[xschem instance_net $i m]
-        if {[catch {xschem setprop instance $i voltage [ngspice::get_diff_probe arr $netp $netm] fast} err]} {
-          puts "Warning 3: $err"
+        if { $type eq {differential_probe} } {
+          set netp $path[xschem instance_net $i p]
+          set netm $path[xschem instance_net $i m]
+          if {[catch {xschem setprop instance $i voltage [ngspice::get_diff_probe arr $netp $netm] fast} err]} {
+            puts "Warning 3: $err"
+          }
         }
+        # puts "$i $name $type"
       }
-      # puts "$i $name $type"
-    }
-  
-    # re-enable undo and draw
-    xschem set no_undo 0
-    xschem set no_draw 0
+    
+      # re-enable undo and draw
+      xschem set no_undo 0
+      xschem set no_draw 0
+    
+      ### xschem setprop instructions have not altered circuit topology so 
+      ### in this case a connectivity rebuild is not needed.
+      # xschem rebuild_connectivity
+      #
+      #
+    } ;# if {0}
     xschem redraw
-  
-    ### xschem setprop instructions have not altered circuit topology so 
-    ### in this case a connectivity rebuild is not needed.
-    # xschem rebuild_connectivity
-    #
-    #
   } else {
     puts "no operating point found!"
   }

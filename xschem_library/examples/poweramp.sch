@@ -245,9 +245,9 @@ C {lab_pin.sym} 350 -270 0 0 {name=p19 lab=FB}
 C {lab_pin.sym} 350 -730 0 0 {name=p25 lab=FBN}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan Schippers"}
 C {lab_pin.sym} 870 -1200 0 0 {name=p27 lab=IN_INT}
-C {ammeter.sym} 210 -1220 3 0 {name=vcurrvpp  net_name=true       current=0.54}
-C {ammeter.sym} 210 -1060 3 0 {name=vcurrvnn  net_name=true       current=-0.4526}
-C {ammeter.sym} 210 -1140 3 0 {name=vcurrvss  net_name=true       current=-0.08742}
+C {ammeter.sym} 210 -1220 3 0 {name=vcurrvpp  net_name=true       }
+C {ammeter.sym} 210 -1060 3 0 {name=vcurrvnn  net_name=true       }
+C {ammeter.sym} 210 -1140 3 0 {name=vcurrvss  net_name=true       }
 C {launcher.sym} 780 -120 0 0 {name=h2
 descr="Ctrl-Click
 Clear all probes" 
@@ -274,22 +274,12 @@ tclcommand="
     xschem redraw
 "
 }
-C {ngspice_probe.sym} 350 -810 0 1 {name=p55}
-C {ngspice_probe.sym} 150 -1140 0 1 {name=p34}
 C {capa.sym} 270 -1180 0 0 {name=C2 m=1 value="100u"}
-C {ngspice_probe.sym} 70 -1220 0 1 {name=p35}
-C {ngspice_probe.sym} 70 -1060 0 1 {name=p36}
-C {ngspice_probe.sym} 310 -1140 0 0 {name=p37}
-C {ngspice_probe.sym} 840 -700 0 1 {name=p29}
-C {ngspice_probe.sym} 810 -240 0 1 {name=p38}
-C {ngspice_probe.sym} 300 -680 0 1 {name=p33}
-C {ngspice_probe.sym} 300 -220 0 1 {name=p30}
-C {ngspice_probe.sym} 350 -320 0 1 {name=p39}
 C {ngspice_get_expr.sym} 535 -475 0 1 {name=r18 
 node="[ngspice::get_current \{r2[i]\}]"
 descr = current
  }
-C {ngspice_get_expr.sym} 575 -915 0 0 {name=r1 
+C {ngspice_get_expr.sym} 585 -895 0 0 {name=r1 
 node="[ngspice::get_current \{r19[i]\}]"
 descr = current
  }
@@ -311,11 +301,11 @@ load $netlist_dir/$rawfile
 table_set $rawfile\\"
 unset rawfile"
 }
-C {spice_probe.sym} 710 -860 0 0 {name=p40 analysis=tran voltage=-0.1364}
-C {spice_probe.sym} 710 -400 0 0 {name=p41 analysis=tran voltage=-0.1364}
-C {spice_probe.sym} 660 -1200 0 0 {name=p42 analysis=tran voltage=0.0000e+00}
-C {spice_probe.sym} 670 -1120 0 0 {name=p43 analysis=tran voltage=0.0000e+00}
-C {spice_probe.sym} 950 -1200 0 0 {name=p44 analysis=tran voltage=0.0000e+00}
+C {spice_probe.sym} 710 -860 0 0 {name=p40 analysis=tran }
+C {spice_probe.sym} 710 -400 0 0 {name=p41 analysis=tran }
+C {spice_probe.sym} 660 -1200 0 0 {name=p42 analysis=tran }
+C {spice_probe.sym} 670 -1120 0 0 {name=p43 analysis=tran }
+C {spice_probe.sym} 950 -1200 0 0 {name=p44 analysis=tran }
 C {launcher.sym} 1000 -270 0 0 {name=h1
 descr="Backannotate"
 tclcommand="ngspice::annotate $netlist_dir/poweramp_op.raw"}
@@ -323,8 +313,8 @@ C {ngspice_get_expr.sym} 130 -1010 0 0 {name=r19
 node="[ngspice::get_current \{r9[i]\}]"
 descr = current
 }
-C {spice_probe.sym} 300 -1220 0 0 {name=p45 analysis=tran voltage=49.84}
-C {spice_probe.sym} 300 -1060 0 0 {name=p46 analysis=tran voltage=-49.86}
+C {spice_probe.sym} 300 -1220 0 0 {name=p45 analysis=tran }
+C {spice_probe.sym} 300 -1060 0 0 {name=p46 analysis=tran }
 C {launcher.sym} 1145 -1165 0 0 {name=h5 
 descr="load ngspice waves" 
 tclcommand="
@@ -390,6 +380,3 @@ tclcommand="
 xschem raw_read $netlist_dir/poweramp_xyce.raw
 "
 }
-C {ngspice_probe.sym} 880 -1200 0 1 {name=p29}
-C {ngspice_probe.sym} 550 -830 0 1 {name=p29}
-C {ngspice_probe.sym} 550 -750 0 1 {name=p29}
