@@ -2815,7 +2815,7 @@ const char *translate(int inst, const char* s)
  int level;
  Lcc *lcc;
  char *value1 = NULL;
-
+ int sim_is_xyce;
 
  s_pnetname = tclgetboolvar("show_pin_net_names");
  sp_prefix = tclgetboolvar("spiceprefix");
@@ -2824,6 +2824,7 @@ const char *translate(int inst, const char* s)
    return empty;
  }
 
+ sim_is_xyce = tcleval("sim_is_xyce")[0] == '1' ? 1 : 0;
  level = xctx->currsch;
  lcc = xctx->hier_attr;
  size=CADCHUNKALLOC;
@@ -3020,8 +3021,96 @@ const char *translate(int inst, const char* s)
      if(xctx->graph_values && xctx->graph_backannotate_p>=0) {
        int multip;
        int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
-       if(no_of_pins>0) {
-         dbg(0, "inst %d, net=%s\n",inst,  net_name(inst,0, &multip, 0, 0));
+       if(no_of_pins == 1) {
+         char *fqnet = NULL;
+         const char *path =  xctx->sch_path[xctx->currsch] + 1;
+         const char *net;
+         size_t len;
+         int idx;
+         double val;
+         char valstr[120];
+         if(path) {
+           prepare_netlist_structs(0);
+           net = net_name(inst,0, &multip, 0, 0);
+           len = strlen(path) + strlen(net) + 1;
+           dbg(1, "net=%s\n", net);
+           fqnet = my_malloc(1548, len);
+           my_snprintf(fqnet, len, "%s%s", path, net);
+           strtolower(fqnet);
+           idx = get_raw_index(fqnet);
+           if(idx >= 0) {
+             val = xctx->graph_values[idx][xctx->graph_backannotate_p];
+           }
+           if(idx < 0) {
+              my_snprintf(valstr, S(valstr), "?");
+           } else if( fabs(val) < 1.0e-3 && val != 0.0) {
+             my_snprintf(valstr, S(valstr), "%.4e", val);
+           } else {
+             my_snprintf(valstr, S(valstr), "%.4g", val);
+           }
+           len = strlen(valstr);
+           if(len) {
+             STR_ALLOC(&result, len + result_pos, &size);
+             memcpy(result+result_pos, valstr, len+1);
+             result_pos += len;
+           }
+           dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
+           my_free(1549, &fqnet);
+         }
+       }
+     }
+   }
+   else if(strcmp(token,"@spice_get_current")==0 )
+   {
+     if(xctx->graph_values && xctx->graph_backannotate_p>=0) {
+       char *fqdev = NULL;
+       const char *path =  xctx->sch_path[xctx->currsch] + 1;
+       char *dev = NULL;
+       size_t len;
+       int idx;
+       double val;
+       char valstr[120];
+       if(path) {
+         my_strdup2(1550, &dev, xctx->inst[inst].instname);
+         strtolower(dev);
+         len = strlen(path) + strlen(dev) + 11; /* some extra chars for i(..) wrapper */
+         dbg(1, "dev=%s\n", dev);
+         fqdev = my_malloc(1548, len);
+         if(!sim_is_xyce) {
+           int prefix=dev[0];
+           int vsource = (prefix == 'v') || (prefix == 'e');
+           if(path[0]) {
+             if(vsource) my_snprintf(fqdev, len, "i(%c.%s%s)", prefix, path, dev);
+             else my_snprintf(fqdev, len, "i(@%c.%s%s)", prefix, path, dev);
+           } else {
+             if(vsource) my_snprintf(fqdev, len, "i(%s)", dev);
+             else my_snprintf(fqdev, len, "i(@%s)", dev);
+           }
+         } else {
+           my_snprintf(fqdev, len, "i(%s%s)", path, dev);
+         }
+         dbg(1, "fqdev=%s\n", fqdev);
+         strtolower(fqdev);
+         idx = get_raw_index(fqdev);
+         if(idx >= 0) {
+           val = xctx->graph_values[idx][xctx->graph_backannotate_p];
+         }
+         if(idx < 0) {
+            my_snprintf(valstr, S(valstr), "?");
+         } else if( fabs(val) < 1.0e-3 && val != 0.0) {
+           my_snprintf(valstr, S(valstr), "%.4e", val);
+         } else {
+           my_snprintf(valstr, S(valstr), "%.4g", val);
+         }
+         len = strlen(valstr);
+         if(len) {
+           STR_ALLOC(&result, len + result_pos, &size);
+           memcpy(result+result_pos, valstr, len+1);
+           result_pos += len;
+         }
+         dbg(1, "inst %d, dev=%s, fqdev=%s idx=%d valstr=%s\n", inst,  dev, fqdev, idx, valstr);
+         my_free(1549, &fqdev);
+         my_free(1551, &dev);
        }
      }
    }

@@ -52,11 +52,11 @@ proc ngspice::read_ngspice_raw {arr fp} {
   }
   if {$variables} {
     if { $n_points == 1} {
-      set bindata [read $fp [expr 8 * $n_vars * $n_points]]
-      binary scan $bindata d[expr $n_vars * $n_points] data
+      set bindata [read $fp [expr {8 * $n_vars * $n_points}]]
+      binary scan $bindata d[expr {$n_vars * $n_points}] data
       for {set p 0} {$p < $n_points} { incr p} {
         for {set v 0} {$v < $n_vars} { incr v} {
-          lappend var($idx($v)) [lindex $data [expr $p * $n_vars + $v]]
+          lappend var($idx($v)) [lindex $data [expr {$p * $n_vars + $v}]]
           # puts "-->|$idx($v)|$var($idx($v))|"
         }
       }
@@ -90,7 +90,7 @@ proc ngspice::get_diff_probe {arr p m } {
   if { ! [info exists var([string tolower $mm])] } {
     set mm $m
   }
-  return [format %.4g [expr $var([string tolower $pp]) - $var([string tolower $mm]) ] ]
+  return [format %.4g [expr {$var([string tolower $pp]) - $var([string tolower $mm])} ] ]
   # return DELETE
 }
 
@@ -124,12 +124,12 @@ proc ngspice::get_current {n} {
     }
   }
   set n i($n)
-  puts "ngspice::get_current --> $n"
+  # puts "ngspice::get_current --> $n"
   set err [catch {set ::ngspice::ngspice_data($n)} res]
   if { $err } {
     set res {?}
   } else {
-    if { abs($res) <1e-3} {
+    if { abs($res) <1e-3 && $res != 0.0} {
       set res [ format %.4e $res ]
     } else {
       set res [ format %.4g $res ]
@@ -148,7 +148,7 @@ proc ngspice::get_voltage {n} {
     # puts "get_ngspice_node: $res"
     set res {?}
   } else {
-    if { abs($res) <1e-3} {
+    if { abs($res) <1e-3 && $res != 0.0} {
       set res [ format %.4e $res ]
     } else {
       set res [ format %.4g $res ]
@@ -166,7 +166,7 @@ proc ngspice::get_node {n} {
   if { $err } { 
     set res {?}
   } else {
-    if { abs($res) <1e-3} {
+    if { abs($res) <1e-3 && $res != 0.0} {
       set res [ format %.4e $res ]
     } else {
       set res [ format %.4g $res ]
