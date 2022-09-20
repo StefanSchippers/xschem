@@ -2656,6 +2656,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
   char *express = NULL;
   xRect *r = &xctx->rect[GRIDLAYER][i];
   
+  if(xctx->only_probes) return;
   if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
       xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2)) return;
   
@@ -2954,6 +2955,7 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
   png_to_byte_closure_t closure;
   xEmb_image *emb_ptr;
 
+  if(xctx->only_probes) return;
   xx1 = *x1; yy1 = *y1; /* image anchor point */
   RECTORDER(*x1, *y1, *x2, *y2);
 

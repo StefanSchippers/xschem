@@ -200,6 +200,7 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
       double prev_x, prev_prev_x;
       int cnt=0, wrap;
       register SPICE_DATA *gv = xctx->graph_values[sweep_idx];
+      int s=0;
       first = -1;
       prev_prev_x = prev_x = 0;
       last = ofs;
@@ -211,14 +212,17 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
            cnt = 0;
         }
         if(xx >= start && xx <= end) {
-          int s=0;
           if((dataset == -1 && sweepvar_wrap == 0) || (dataset == sweepvar_wrap)) {
+            dbg(1, "xx=%g cursor2=%g first=%d last=%d start=%g end=%g p=%d wrap=%d sweepvar_wrap=%d ofs=%d\n",
+              xx, cursor2, first, last, start, end, p, wrap, sweepvar_wrap, ofs);
             if(first == -1) first = p;
             if(p == first) {
               if(xx == cursor2) {dset = xctx->graph_datasets; break;}
               s = XSIGN0(xx - cursor2);
+              dbg(1, "s=%d\n", s);
             } else {
               int ss =  XSIGN0(xx -  cursor2);
+              dbg(1, "s=%d, ss=%d\n", s, ss);
               if(ss != s) {dset = xctx->graph_datasets; break;}
             }
             last = p;
