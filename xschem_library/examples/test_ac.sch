@@ -6,7 +6,7 @@ V {}
 S {}
 E {}
 B 2 1030 -330 1570 -130 {flags=graph
-y1=-8.1
+y1=-5.7
 y2=44
 ypos1=0
 ypos2=2
@@ -141,7 +141,7 @@ C {pmos4.sym} 400 -400 0 1 {name=mtop_1st model=cmosp w=5u l=2u m=1  net_name=tr
 C {lab_pin.sym} 330 -400 0 0 {name=p7 lab=VCC  net_name=true}
 C {lab_pin.sym} 450 -490 0 0 {name=p8 lab=VCC  net_name=true}
 C {lab_pin.sym} 320 -250 0 0 {name=p9 lab=PLUS  net_name=true}
-C {lab_pin.sym} 580 -250 0 1 {name=p10 lab=MINUS  net_name=true}
+C {lab_pin.sym} 580 -240 0 1 {name=p10 lab=MINUS  net_name=true}
 C {lab_pin.sym} 900 -330 0 1 {name=p11 lab=DIFFOUT  net_name=true}
 C {lab_pin.sym} 190 -200 0 0 {name=p13 lab=GN  net_name=true}
 C {lab_pin.sym} 30 -280 0 0 {name=p14 lab=0  net_name=true}
@@ -171,7 +171,7 @@ tclcommand="textwindow $netlist_dir/[file tail [file rootname [xschem get curren
 C {launcher.sym} 1040 -770 0 0 {name=h5 
 descr=" Ctrl-Left-Click to load/unload
 embedded waveforms" 
-tclcommand="xschem raw_read_from_attr"
+tclcommand="xschem raw_read_from_attr ac"
 spice_data="
 VGl0bGU6ICoqIHNjaF9wYXRoOiAvaG9tZS9zY2hpcHBlcy94c2NoZW0tcmVwby90cnVuay94c2NoZW1fbGlicmFyeS9leGFtcGxlcy90ZXN0X2FjLnNjaApEYXRlOiBX
 ZWQgRmViICAyIDIyOjM3OjE3ICAyMDIyClBsb3RuYW1lOiBBQyBBbmFseXNpcwpGbGFnczogY29tcGxleApOby4gVmFyaWFibGVzOiAxNwpOby4gUG9pbnRzOiA3MQpW
@@ -799,7 +799,7 @@ descr="tcleval(Select arrow and
 Ctrl key + Left Button-Click to load/unload waveforms
 from $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw)" 
 tclcommand="
-xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw ac
 "
 }
 C {lab_pin.sym} 750 -140 0 0 {name=p12 lab=0  net_name=true}
@@ -832,6 +832,7 @@ value=".temp 30
 
 .param IBIAS=1u
 .control
+save all
 ac dec 10 1000 10G
 write test_ac.raw
 set appendwrite
