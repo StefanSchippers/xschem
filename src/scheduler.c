@@ -376,18 +376,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       tclsetvar("rawfile_loaded", "0");
       free_rawfile(1);
+      tcleval("array unset ngspice::ngspice_data");
       raw_read(f, "op");
-      if(xctx->graph_values) xctx->graph_backannotate_p = 0;
-      for(i = 0; i < xctx->graph_nvars; i++) {
-        char s[100];
-        int p = 0;
-        my_snprintf(s, S(s), "%.4g", xctx->graph_values[i][p]);
-        dbg(1, "%s = %g\n", xctx->graph_names[i], xctx->graph_values[i][p]);
-        tclvareval("array set ngspice::ngspice_data [list {",  xctx->graph_names[i], "} ", s, "]", NULL);
+      if(xctx->graph_values) {
+        xctx->graph_backannotate_p = 0;
+        for(i = 0; i < xctx->graph_nvars; i++) {
+          char s[100];
+          int p = 0;
+          my_snprintf(s, S(s), "%.4g", xctx->graph_values[i][p]);
+          dbg(1, "%s = %g\n", xctx->graph_names[i], xctx->graph_values[i][p]);
+          tclvareval("array set ngspice::ngspice_data [list {",  xctx->graph_names[i], "} ", s, "]", NULL);
+        }
+        tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( xctx->graph_nvars), NULL);
+        tclvareval("set ngspice::ngspice_data(n\\ points) 1", NULL);
+        draw();
       }
-      tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( xctx->graph_nvars), NULL);
-      tclvareval("set ngspice::ngspice_data(n\\ points) 1", NULL);
-      draw();
     }
    
     else if(!strcmp(argv[1],"arc"))

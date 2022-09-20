@@ -246,7 +246,7 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
       }
     }
     dbg(1, "xx=%g, p=%d\n", xx, p);
-    tcleval("array unset ::ngspice::ngspice_data");
+    tcleval("array unset ngspice::ngspice_data");
     xctx->graph_backannotate_p = p;
     for(i = 0; i < xctx->graph_nvars; i++) {
       char s[100];
