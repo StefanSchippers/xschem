@@ -2338,20 +2338,6 @@ int embed_rawfile(const char *rawfile)
   return res;
 }
 
-int read_embedded_rawfile(void)
-{
-  int res = 0;
-
-  if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
-    xInstance *i = &xctx->inst[xctx->sel_array[0].n];
-    const char *b64_spice_data;
-    if(i->prop_ptr && (b64_spice_data = get_tok_value(i->prop_ptr, "spice_data", 0))[0]) {
-      res = read_rawfile_from_attr(b64_spice_data, strlen(b64_spice_data));
-    }
-  }
-  return res;
-}
-
 /* when double clicking in a graph if this happens on a wave label
  * what == 1: 
  *   look up the wave and call tcl "graph_edit_wave <graph> <wave>"

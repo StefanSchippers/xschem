@@ -19,12 +19,12 @@ L 4 410 -150 570 -150 {}
 L 4 570 -170 570 -150 {}
 L 4 570 -170 690 -170 {}
 L 7 1090 -260 2520 -260 {}
-B 2 260 -1080 720 -920 {flags=graph
+B 2 300 -1060 760 -900 {flags=graph
 y1 = 0
 y2 = 0.93
 divy = 5
-x1=8.50726e-08
-x2=4.38966e-07
+x1=6.17604e-08
+x2=4.71882e-07
 divx=5
 subdivx=4
 unitx=n
@@ -32,12 +32,12 @@ node="cal
 saout"
 color="4 5"
 dataset=-1}
-B 2 260 -1220 720 -1090 {flags=graph
+B 2 300 -1200 760 -1070 {flags=graph
 y1 = 0.647319
 y2 = 0.652563
 divy = 5
-x1=8.50726e-08
-x2=4.38966e-07
+x1=6.17604e-08
+x2=4.71882e-07
 unitx=n
 divx=5
 subdivx=4
@@ -45,6 +45,22 @@ node="plus
 minus"
 color="4 5"
 dataset=-1}
+B 2 300 -1300 760 -1200 {flags=graph
+y1 = 0
+y2 = 1
+divy = 5
+x1=6.17604e-08
+x2=4.71882e-07
+unitx=n
+divx=5
+subdivx=4
+node="en
+cal"
+color="4 4"
+dataset=-1
+digital=1
+ypos1=0.0602914
+ypos2=0.292255}
 T {CAL} 140 -180 0 1 0.4 0.4 {}
 T {EN} 140 -130 0 1 0.4 0.4 {}
 T {CALIBRATION
@@ -60,7 +76,7 @@ Gaussian Threshold variation (via delvto parameter) is added to all MOS transist
 T {.param ABSVAR=0.05
 delvto='agauss(0,ABSVAR,3)'} 1390 -120 0 0 0.6 0.6 {layer=8}
 T {Select one or more graphs (and no other objects)
-and use arrow keys to zoom / pan waveforms} 300 -1320 0 0 0.3 0.3 {}
+and use arrow keys to zoom / pan waveforms} 310 -1380 0 0 0.3 0.3 {}
 N 120 -470 120 -450 {lab=TEMPERAT}
 N 160 -1180 190 -1180 {lab=VSS}
 N 160 -1150 160 -1130 {lab=VSS}
@@ -379,7 +395,7 @@ tclcommand="xschem netlist; xschem simulate"}
 C {parax_cap.sym} 980 -1090 0 0 {name=c4  value=5f}
 C {parax_cap.sym} 1470 -1090 0 0 {name=c6  value=5f}
 C {parax_cap.sym} 1960 -1090 0 0 {name=c7  value=5f}
-C {launcher.sym} 315 -1365 0 0 {name=h1 
+C {launcher.sym} 315 -1415 0 0 {name=h1 
 descr="Select arrow and 
 Ctrl-Left-Click to load/unload waveforms" 
 tclcommand="

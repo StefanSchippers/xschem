@@ -177,7 +177,7 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
 {
 
   if(xctx->graph_values) {
-    int dset, first, last, dataset = gr->dataset, i, p, ofs;
+    int dset, first, last, dataset = gr->dataset, i, p, ofs = 0;
     double start, end;
     int sweepvar_wrap = 0, sweep_idx;
     double xx, cursor2; /* xx is the p-th sweep variable value, cursor2 is cursor 'b' x position */
@@ -195,6 +195,7 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
     dbg(1, "cursor b pos: %g dataset=%d\n",  cursor2, gr->dataset);
     if(dataset < 0) dataset = 0; /* if all datasets are plotted use first for backannotation */
     dbg(1, "dataset=%d\n", dataset);
+    ofs = 0;
     for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
       double prev_x, prev_prev_x;
       int cnt=0, wrap;
@@ -210,7 +211,7 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
            cnt = 0;
         }
         if(xx >= start && xx <= end) {
-          int s;
+          int s=0;
           if((dataset == -1 && sweepvar_wrap == 0) || (dataset == sweepvar_wrap)) {
             if(first == -1) first = p;
             if(p == first) {

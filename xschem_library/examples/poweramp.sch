@@ -19,8 +19,8 @@ B 2 1200 -500 1880 -310 {flags=graph
 y1 = -0.0059
 y2 = 11
 divy = 6
-x1=0.00757478
-x2=0.00916695
+x1=8e-09
+x2=0.0124755
 divx=10
 node="i(v.x1.vu)
 i(v.x0.vu)
@@ -29,11 +29,11 @@ i(v.x0.vd)"
 color="11 13 12 7"
 unitx=m}
 B 2 1200 -830 1880 -520 {flags=graph
-y1 = -49
-y2 = 59
+y1 = -31
+y2 = 77
 divy = 12
-x1=0.00757478
-x2=0.00916695
+x1=8e-09
+x2=0.0124755
 divx=10
 node="outp
 outm
@@ -47,8 +47,8 @@ B 2 1200 -1020 1880 -830 {flags=graph
 y1 = 2.4e-11
 y2 = 840
 divy = 6
-x1=0.00757478
-x2=0.00916695
+x1=8e-09
+x2=0.0124755
 divx=10
 
 
@@ -60,8 +60,8 @@ B 2 1200 -310 1880 -120 {flags=graph
 y1 = 0.0077
 y2 = 850
 divy = 6
-x1=0.00757478
-x2=0.00916695
+x1=8e-09
+x2=0.0124755
 divx=10
 
 
@@ -308,7 +308,7 @@ C {spice_probe.sym} 670 -1120 0 0 {name=p43 analysis=tran }
 C {spice_probe.sym} 950 -1200 0 0 {name=p44 analysis=tran }
 C {launcher.sym} 1000 -270 0 0 {name=h1
 descr="Backannotate"
-tclcommand="ngspice::annotate $netlist_dir/poweramp_op.raw"}
+tclcommand="xschem annotate_op"}
 C {ngspice_get_expr.sym} 130 -1010 0 0 {name=r19 
 node="[ngspice::get_current \{r9[i]\}]"
 descr = current
@@ -318,7 +318,7 @@ C {spice_probe.sym} 300 -1060 0 0 {name=p46 analysis=tran }
 C {launcher.sym} 1145 -1165 0 0 {name=h5 
 descr="load ngspice waves" 
 tclcommand="
-xschem raw_read $netlist_dir/poweramp.raw
+xschem raw_read $netlist_dir/poweramp.raw tran
 "
 }
 C {launcher.sym} 1450 -30 0 0 {name=h6
@@ -377,6 +377,6 @@ vvss vss 0 dc 0
 C {launcher.sym} 1495 -1165 0 0 {name=h7 
 descr="load Xyce waves" 
 tclcommand="
-xschem raw_read $netlist_dir/poweramp_xyce.raw
+xschem raw_read $netlist_dir/poweramp_xyce.raw tran
 "
 }

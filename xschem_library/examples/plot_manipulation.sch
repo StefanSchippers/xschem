@@ -1,9 +1,29 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
 S {}
 E {}
+B 2 970 -630 1770 -230 {flags=graph
+y1=-4.3e-13
+y2=1.4
+ypos1=0
+ypos2=2
+divy=5
+subdivy=1
+unity=1
+x1=0
+x2=6
+divx=5
+subdivx=1
+node=s_vec
+color=4
+dataset=0
+unitx=u
+logx=0
+logy=0
+}
 T {This example shows how to create an ngspice custom plot
 some op analyses are done and operating point data for node 'S'
 of all op runs is collected and stored into a new vector,
@@ -97,6 +117,7 @@ value="
 .option savecurrents
 .include \\"models_cmos_example.txt\\"
 .control
+save all
 let vol = 0
 let i = 1
 set curplot = new         $ create a new plot
@@ -131,3 +152,10 @@ plot s_vec
 C {ngspice_probe.sym} 500 -210 0 0 {name=r9}
 C {lab_pin.sym} 430 -370 0 0 {name=p12 lab=G  net_name=true}
 C {lab_pin.sym} 500 -230 0 0 {name=p19 lab=S  net_name=true}
+C {launcher.sym} 1100 -200 0 0 {name=h3 
+descr="Select arrow and 
+Ctrl-Left-Click to load/unload waveforms" 
+tclcommand="
+xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw myplot
+"
+}
