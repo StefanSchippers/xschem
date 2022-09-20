@@ -314,6 +314,7 @@ static int read_dataset(FILE *fd, const char *type)
              "Use binary format in ngspice (set filetype=binary)\n");
       tcleval("alert_ {read_dataset(): ASCII raw files can not be read. "
              "Use binary format in ngspice (set filetype=binary)}");
+      free_rawfile(0);
       return 0;
     }
     /* after this line comes the binary blob made of nvars * npoints * sizeof(double) bytes */
@@ -378,6 +379,7 @@ static int read_dataset(FILE *fd, const char *type)
       n = sscanf(line, "No. of Data Rows : %d", &npoints);
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
+        free_rawfile(0);
         return 1;
       }
       if(xctx->graph_sim_type) {
@@ -396,6 +398,7 @@ static int read_dataset(FILE *fd, const char *type)
       if(ac) nvars <<= 1;
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
+        free_rawfile(0);
         return 1;
       }
       if(xctx->graph_sim_type) {
@@ -406,6 +409,7 @@ static int read_dataset(FILE *fd, const char *type)
       n = sscanf(line, "No. Points: %d", &npoints);
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
+        free_rawfile(0);
         return 1;
       }
       if(xctx->graph_sim_type) {
@@ -423,6 +427,7 @@ static int read_dataset(FILE *fd, const char *type)
       n = sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
       if(n < 2) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
+        free_rawfile(0);
         return 1;
       }
       strtolower(varname);
