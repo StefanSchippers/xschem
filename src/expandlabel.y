@@ -375,8 +375,8 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                           check_idx(&$$,++$$[0]);
                           $$[$$[0]]=i;
 
-                          if(sign==1 && i>=$3) break;
-                          if(sign==-1 && i<=$3) break;
+                          if(sign==1 && i + $5 > $3) break;
+                          if(sign==-1 && i - $5 < $3) break;
                          }
                         }
         | B_IDXNUM ':' B_IDXNUM
@@ -410,8 +410,8 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                          {
                           check_idx(&$$, ++$$[0]);
                           $$[$$[0]]=i;
-                          if(sign==1 && i>=$5) break;
-                          if(sign==-1 && i<=$5) break;
+                          if(sign==1 && i + $7 > $5) break;
+                          if(sign==-1 && i - $7 < $5) break;
                          }                                      
                         }
         | index ',' B_IDXNUM ':' B_IDXNUM
@@ -459,8 +459,8 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM
                           check_idx(&$$,++$$[0]);
                           $$[$$[0]]=i;
 
-                          if(sign==1 && i>=$3) break;
-                          if(sign==-1 && i<=$3) break;
+                          if(sign==1 && i + $5 > $3) break;
+                          if(sign==-1 && i - $5 < $3) break;
                          }
 			}
 
