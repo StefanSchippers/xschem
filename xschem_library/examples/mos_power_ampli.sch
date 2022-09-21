@@ -273,7 +273,7 @@ C {ammeter.sym} 700 -440 3 0 {name=v4  net_name=true }
 C {ammeter.sym} 690 -680 0 0 {name=v5  net_name=true }
 C {ammeter.sym} 180 -870 0 1 {name=v6  net_name=true }
 C {ammeter.sym} 840 -890 0 0 {name=v7  net_name=true }
-C {spice_probe_vdiff.sym} 860 -410 0 0 {name=p37 voltage=3.688}
+C {spice_probe_vdiff.sym} 860 -410 0 0 {name=p37 }
 C {spice_probe_vdiff.sym} 860 -730 0 0 {name=p38 voltage=3.68}
 C {ammeter.sym} 1300 -590 3 0 {name=v8  net_name=true }
 C {opin.sym} 600 -130 0 0 {name=p5 lab=OUT}
@@ -456,7 +456,7 @@ C {spice_probe.sym} 180 -720 0 0 {name=p59  voltage=47.27}
 C {spice_probe.sym} 1020 -1120 0 0 {name=p62  voltage=49.04}
 C {launcher.sym} 770 -110 0 0 {name=h1
 descr=Backannotate
-tclcommand="ngspice::annotate"}
+tclcommand="xschem annotate_op"}
 C {launcher.sym} 770 -150 0 0 {name=h4
 descr="View Raw file" 
 tclcommand="textwindow $netlist_dir/[file tail [file rootname [ xschem get schname 0 ] ] ].raw"

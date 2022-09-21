@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -184,5 +185,5 @@ m=1}
 C {lab_pin.sym} 1030 -760 0 0 {name=p17 lab=VSS}
 C {launcher.sym} 660 -350 0 0 {name=h1
 descr=Backannotate
-tclcommand="ngspice::annotate"}
+tclcommand="xschem annotate_op"}
 C {spice_probe.sym} 550 -620 0 0 {name=p19 analysis=tran voltage=21.07}

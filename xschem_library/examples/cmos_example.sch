@@ -122,7 +122,7 @@ device="ceramic capacitor"  net_name=true}
 C {lab_pin.sym} 500 -430 0 0 {name=p12 lab=G  net_name=true}
 C {launcher.sym} 700 -60 0 0 {name=h1
 descr=Backannotate
-tclcommand="ngspice::annotate"}
+tclcommand="xschem annotate_op"}
 C {launcher.sym} 700 -110 0 0 {name=h2
 descr="View raw file"
 tclcommand="textwindow $netlist_dir/cmos_example.raw"}
