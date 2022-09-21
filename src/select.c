@@ -470,7 +470,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
  switch(what)
  {
   case START:
-   if(xctx->sem==1) {
+   if(xctx->bbox_set==1) {
      fprintf(errfp, "ERROR: rentrant bbox() call\n");
      tcleval("alert_ {ERROR: reentrant bbox() call} {}");
    }
@@ -485,10 +485,10 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->savew = xctx->areaw;
    xctx->saveh = xctx->areah;
    xctx->savexrect = xctx->xrect[0];
-   xctx->sem=1;
+   xctx->bbox_set=1;
    break;
   case ADD:
-   if(xctx->sem==0) {
+   if(xctx->bbox_set==0) {
      fprintf(errfp, "ERROR: bbox(ADD) call before bbox(START)\n");
      tcleval("alert_ {ERROR: bbox(ADD) call before bbox(START)} {}");
    }
@@ -509,7 +509,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    if(y1 > xctx->bby2) xctx->bby2 = (int) y1;
    break;
   case END:
-   if(xctx->sem) {
+   if(xctx->bbox_set) {
      xctx->areax1 = xctx->savex1;
      xctx->areax2 = xctx->savex2;
      xctx->areay1 = xctx->savey1;
@@ -522,11 +522,11 @@ void bbox(int what,double x1,double y1, double x2, double y2)
           xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
        set_clip_mask(END);
      }
-     xctx->sem=0;
+     xctx->bbox_set=0;
    }
    break;
   case SET:
-   if(xctx->sem==0) {
+   if(xctx->bbox_set==0) {
      fprintf(errfp, "ERROR: bbox(SET) call before bbox(START)\n");
      tcleval("alert_ {ERROR: bbox(SET) call before bbox(START)} {}");
    }
@@ -551,7 +551,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
 
 
   case SET_INSIDE: /* do not add line widths to clip rectangle so everything remains inside */
-   if(xctx->sem==0) {
+   if(xctx->bbox_set==0) {
      fprintf(errfp, "ERROR: bbox(SET_INSIDE) call before bbox(START)\n");
      tcleval("alert_ {ERROR: bbox(SET_INSIDE) call before bbox(START)} {}");
    }

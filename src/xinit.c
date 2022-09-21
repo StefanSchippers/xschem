@@ -443,14 +443,13 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->graph_datasets = 0;
   xctx->graph_master = 0;
   xctx->graph_cursor1_x = 0;
-  xctx->graph_unlock_x = 0;
   xctx->graph_flags = 0;
   xctx->graph_top = 0;
   xctx->graph_bottom = 0;
   xctx->graph_left = 0;
   xctx->graph_lastsel = -1;
   xctx->graph_sim_type = NULL; /* type of sim, "tran", "dc", "op", "ac", ... */
-  xctx->graph_backannotate_p = -1; /* point in raw file to use for annotating voltages/currents/etc */
+  xctx->graph_annotate_p = -1; /* point in raw file to use for annotating voltages/currents/etc */
   xctx->graph_struct.hilight_wave = -1; /* index of wave */
   xctx->graph_raw_schname = NULL;
   xctx->wires = 0;
@@ -609,7 +608,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->save_netlist_type = 0;
   xctx->loaded_symbol = 0;
   xctx->no_draw = 0;
-  xctx->sem = 0; /* bbox */
+  xctx->bbox_set = 0; /* bbox */
   xctx->old_prop = NULL;
   xctx->edit_sym_i = -1;
   xctx->netlist_commands = 0;

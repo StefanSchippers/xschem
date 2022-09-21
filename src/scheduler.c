@@ -379,7 +379,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       tcleval("array unset ngspice::ngspice_data");
       raw_read(f, "op");
       if(xctx->graph_values) {
-        xctx->graph_backannotate_p = 0;
+        xctx->graph_annotate_p = 0;
         for(i = 0; i < xctx->graph_nvars; i++) {
           char s[100];
           int p = 0;
@@ -2121,7 +2121,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       Tcl_ResetResult(interp);
       if(argc > 2 && !strcmp(argv[2], "loaded")) {
-        Tcl_SetResult(interp, schematic_waves_loaded() ? "1" : "0", TCL_STATIC);
+        Tcl_SetResult(interp, (sch_waves_loaded() >= 0) ? "1" : "0", TCL_STATIC);
       } else if(xctx->graph_values) {
         /* xschem rawfile_query value v(ldcp) 123 */
         if(argc > 4 && !strcmp(argv[2], "value")) {
@@ -2191,14 +2191,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1], "raw_read"))
     {
       cmd_found = 1;
-      if(schematic_waves_loaded()) {
+      if(sch_waves_loaded() >= 0) {
         free_rawfile(1);
         tclsetvar("rawfile_loaded", "0");
       } else if(argc > 2) {
         free_rawfile(0);
         if(argc > 3) raw_read(argv[2], argv[3]);
         else raw_read(argv[2], NULL);
-        if(schematic_waves_loaded()) {
+        if(sch_waves_loaded() >= 0) {
           tclsetvar("rawfile_loaded", "1");
           draw();
         }
@@ -2209,13 +2209,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1], "raw_read_from_attr"))
     {
       cmd_found = 1;
-      if(schematic_waves_loaded()) {
+      if(sch_waves_loaded() >= 0) {
         free_rawfile(1);
       } else {
         free_rawfile(0);
         if(argc > 2) raw_read_from_attr(argv[2]);
         else  raw_read_from_attr(NULL);
-        if(schematic_waves_loaded()) {
+        if(sch_waves_loaded() >= 0) {
           tclsetvar("rawfile_loaded", "1");
           draw();
         }

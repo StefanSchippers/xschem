@@ -1436,7 +1436,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  {
   const char *tmp = tclgetvar("hide_empty_graphs");
   int hide_graphs =  (tmp && tmp[0] == '1') ? 1 : 0;
-  int waves = schematic_waves_loaded();
+  int waves = (sch_waves_loaded() >= 0);
 
   for(i=0;i<xctx->lines[c];i++)
   {

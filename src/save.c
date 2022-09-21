@@ -489,7 +489,7 @@ void free_rawfile(int dr)
   if(xctx->graph_raw_schname) my_free(1393, &xctx->graph_raw_schname);
   xctx->graph_datasets = 0;
   xctx->graph_nvars = 0;
-  xctx->graph_backannotate_p = -1;
+  xctx->graph_annotate_p = -1;
   int_hash_free(xctx->graph_raw_table);
   if(deleted && dr) draw();
 }
@@ -595,7 +595,7 @@ int get_raw_index(const char *node)
 
 
   dbg(1, "get_raw_index(): node=%s\n", node);
-  if(xctx->graph_values) {
+  if(sch_waves_loaded() >= 0) {
     my_strncpy(inode, node, S(inode));
     strtolower(inode);
     entry = int_hash_lookup(xctx->graph_raw_table, inode, 0, XLOOKUP);

@@ -29,7 +29,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
   static unsigned int excl = STARTZOOM | STARTRECT | STARTLINE | STARTWIRE |
                              STARTPAN | STARTSELECT | STARTMOVE | STARTCOPY;
   if(xctx->ui_state & excl) skip = 1;
-  else if(!xctx->graph_values) skip = 1;
+  else if(sch_waves_loaded() < 0 ) skip = 1;
   else if(key !='a' && (state & Mod1Mask)) skip = 1;
   else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
   else if(event == MotionNotify && (state & Button1Mask) && (state & ShiftMask)) skip = 1;
@@ -176,7 +176,7 @@ static void start_wire(double mx, double my)
 static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
 {
 
-  if(xctx->graph_values) {
+  if(sch_waves_loaded() >= 0) { 
     int dset, first, last, dataset = gr->dataset, i, p, ofs = 0;
     double start, end;
     int sweepvar_wrap = 0, sweep_idx;
@@ -247,7 +247,7 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
     }
     dbg(1, "xx=%g, p=%d\n", xx, p);
     tcleval("array unset ngspice::ngspice_data");
-    xctx->graph_backannotate_p = p;
+    xctx->graph_annotate_p = p;
     for(i = 0; i < xctx->graph_nvars; i++) {
       char s[100];
       my_snprintf(s, S(s), "%.4g", xctx->graph_values[i][p]);
@@ -872,7 +872,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                   }
                   bus_msb = strstr(ntok, ",");
                   j = -1;
-                  if(!bus_msb && xctx->graph_values) {
+                  if(!bus_msb) {
                     char *express = NULL;
                     if(strstr(ntok, ";")) {
                       my_strdup2(1505, &express, find_nth(ntok, ";", 2));

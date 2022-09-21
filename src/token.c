@@ -3018,7 +3018,7 @@ const char *translate(int inst, const char* s)
    }
    else if(strcmp(token,"@spice_get_voltage")==0 )
    {
-     if(xctx->graph_values && xctx->graph_backannotate_p>=0) {
+     if((sch_waves_loaded() >= 0) && xctx->graph_annotate_p>=0) {
        int multip;
        int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
        if(no_of_pins == 1) {
@@ -3039,7 +3039,7 @@ const char *translate(int inst, const char* s)
            strtolower(fqnet);
            idx = get_raw_index(fqnet);
            if(idx >= 0) {
-             val = xctx->graph_values[idx][xctx->graph_backannotate_p];
+             val = xctx->graph_values[idx][xctx->graph_annotate_p];
            }
            if(idx < 0) {
               my_snprintf(valstr, S(valstr), "?");
@@ -3062,7 +3062,7 @@ const char *translate(int inst, const char* s)
    }
    else if(strcmp(token,"@spice_get_current")==0 )
    {
-     if(xctx->graph_values && xctx->graph_backannotate_p>=0) {
+     if((sch_waves_loaded() >= 0) && xctx->graph_annotate_p>=0) {
        char *fqdev = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
        char *dev = NULL;
@@ -3093,7 +3093,7 @@ const char *translate(int inst, const char* s)
          strtolower(fqdev);
          idx = get_raw_index(fqdev);
          if(idx >= 0) {
-           val = xctx->graph_values[idx][xctx->graph_backannotate_p];
+           val = xctx->graph_values[idx][xctx->graph_annotate_p];
          }
          if(idx < 0) {
             my_snprintf(valstr, S(valstr), "?");
