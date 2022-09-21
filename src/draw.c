@@ -1644,9 +1644,15 @@ static double get_unit(const char *val)
 int sch_waves_loaded(void)
 {
   int i;
-  if(xctx->graph_values && xctx->graph_names && xctx->graph_raw_schname) {
+  if(xctx->graph_raw_level == -1) return -1;
+  else if(xctx->graph_values && xctx->graph_names && xctx->graph_raw_schname) {
+    dbg(1, "sch_waves_loaded(): graph_raw_schname=%s\n", xctx->graph_raw_schname);
     for(i = xctx->currsch; i >= 0; i--) {
-      if( !strcmp(xctx->graph_raw_schname, xctx->sch[i]) ) return i;
+      dbg(1, "sch_waves_loaded(): %d --> %s\n", i, xctx->sch[i]);
+      if( !strcmp(xctx->graph_raw_schname, xctx->sch[i]) ) {
+        dbg(1, "sch_waves_loaded(): returning %d\n", i);
+        return i;
+      }
     } 
   }
   return -1;

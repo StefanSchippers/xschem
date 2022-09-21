@@ -111,9 +111,18 @@ proc ngspice::get_curr_probe {arr n } {
 
 
 proc ngspice::get_current {n} {
+  global path graph_raw_level
+  set path [string range [xschem get sch_path] 1 end]
+  # skip hierarchy components above the level where raw file has been loaded. 
+  # node path names to look up in raw file begin from there.
+  set skip 0
+  while { $skip < $graph_raw_level } { 
+    regsub {^[^.]*\.} $path {} path
+    incr skip
+  }
   set n [string tolower $n]
   set prefix [string range $n 0 0]
-  set path [string range [xschem get sch_path] 1 end]
+  #puts "ngspice::get_current: path=$path n=$n"
   set n $path$n
   if { ![sim_is_xyce] } {
     if {$path ne {} } {
@@ -124,8 +133,8 @@ proc ngspice::get_current {n} {
     }
   }
   set n i($n)
-  # puts "ngspice::get_current --> $n"
-  set err [catch {set ::ngspice::ngspice_data($n)} res]
+  #puts "ngspice::get_current --> $n"
+  set err [catch {set ngspice::ngspice_data($n)} res]
   if { $err } {
     set res {?}
   } else {
@@ -140,15 +149,30 @@ proc ngspice::get_current {n} {
 }
 
 proc ngspice::get_voltage {n} {
-  set n [string tolower $n]
+  global path graph_raw_level
   set path [string range [xschem get sch_path] 1 end]
-  set n v($path$n)
-  set err [catch {set ::ngspice::ngspice_data($n)} res]
+  # skip hierarchy components above the level where raw file has been loaded. 
+  # node path names to look up in raw file begin from there.
+  set skip 0
+  while { $skip < $graph_raw_level } { 
+    regsub {^[^.]*\.} $path {} path
+    incr skip
+  }
+  set n [string tolower $n]
+  # puts "ngspice::get_voltage: path=$path n=$n"
+  set node $path$n
+  set err [catch {set ngspice::ngspice_data($node)} res]
+  if {$err} {
+    set node v(${path}${n})
+    # puts "ngspice::get_voltage: trying $node"
+    set err [catch {set ngspice::ngspice_data($node)} res]
+  }
   if { $err } {
-    # puts "get_ngspice_node: $res"
     set res {?}
   } else {
-    if { abs($res) <1e-3 && $res != 0.0} {
+    if { abs($res) <1e-5} {
+      set res 0
+    } elseif { abs($res) <1e-3 && $res != 0.0} {
       set res [ format %.4e $res ]
     } else {
       set res [ format %.4g $res ]
@@ -158,11 +182,19 @@ proc ngspice::get_voltage {n} {
 }
 
 proc ngspice::get_node {n} {
-  set n [string tolower $n]
+  global path graph_raw_level
   set path [string range [xschem get sch_path] 1 end]
-  # puts "ngspice::get_node  --> $n,  path=$path"
+  # skip hierarchy components above the level where raw file has been loaded. 
+  # node path names to look up in raw file begin from there.
+  set skip 0
+  while { $skip < $graph_raw_level } { 
+    regsub {^[^.]*\.} $path {} path
+    incr skip
+  }
+  set n [string tolower $n]
+  # n may contain $path, so substitute its value
   set n [ subst -nocommand $n ]
-  set err [catch {set ::ngspice::ngspice_data($n)} res]
+  set err [catch {set ngspice::ngspice_data($n)} res]
   if { $err } { 
     set res {?}
   } else {
@@ -176,11 +208,11 @@ proc ngspice::get_node {n} {
 }
 
 proc ngspice::resetdata {} {
-  array unset ::ngspice::ngspice_data
+  array unset ngspice::ngspice_data
 }
 
 proc ngspice::annotate {{f {}} {read_file 1}} {
-  upvar ::ngspice::ngspice_data arr
+  upvar ngspice::ngspice_data arr
 
 
   if { $read_file == 1} {
@@ -197,7 +229,7 @@ proc ngspice::annotate {{f {}} {read_file 1}} {
     fconfigure $fp -translation binary
     set op_point_read 0 
     ## not needed: done in ngspice::read_ngspice_raw
-    # array unset ::ngspice::ngspice_data
+    # array unset ngspice::ngspice_data
     while 1 {
       ngspice::read_ngspice_raw arr $fp
       if { [info exists arr(n\ points)] } {

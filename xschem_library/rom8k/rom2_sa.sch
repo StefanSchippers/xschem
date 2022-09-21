@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -11,10 +12,10 @@ divy = 4
 x1=2.6e-07
 x2=3.4e-07
 divx=8
-node="v(xsa[0].ldqi)
-v(xsa[0].ldqib)
-v(xsa[0].ldsali)"
-color="12 5 10"}
+node="tcleval($\{path\}ldqi
+$\{path\}ldqib
+$\{path\}ldsali)"
+color="9 6 7"}
 B 2 380 -940 1060 -830 {flags=graph
 y1 = 0
 y2 = 2
@@ -32,10 +33,10 @@ divy = 2
 x1=2.6e-07
 x2=3.4e-07
 divx=8
-node="v(xsa[0].ldqiii)
-v(xsa[0].ldqii)
-v(xsa[0].ldsali)"
-color="12 5 4"}
+node="tcleval($\{path\}ldqiii
+$\{path\}ldqii
+$\{path\}ldsali)"
+color="6 8 7"}
 T {Was:
 60/24} 1420 -310 0 0 0.4 0.4 {}
 T {was: LDCP_B} 510 -410 0 0 0.4 0.4 {}
@@ -127,5 +128,5 @@ C {spice_probe.sym} 1320 -600 3 1 {name=p3 analysis=tran}
 C {spice_probe.sym} 200 -390 0 0 {name=p6 analysis=tran}
 C {spice_probe.sym} 270 -630 0 0 {name=p7 analysis=tran}
 C {spice_probe.sym} 940 -380 0 0 {name=p11 analysis=tran}
-C {spice_probe.sym} 1560 -330 2 1 {name=p30 analysis=tran}
+C {spice_probe.sym} 1510 -370 2 1 {name=p30 analysis=tran}
 C {lab_pin.sym} 640 -380 0 0 {name=p12 lab=LDCP_B}

@@ -3019,7 +3019,7 @@ const char *translate(int inst, const char* s)
    else if(strcmp(token,"@spice_get_voltage")==0 )
    {
      int start_level; /* hierarchy level where waves were loaded */
-     if((start_level = sch_waves_loaded() >= 0) && xctx->graph_annotate_p>=0) {
+     if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
        int multip;
        int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
        if(no_of_pins == 1) {
@@ -3044,12 +3044,15 @@ const char *translate(int inst, const char* s)
            fqnet = my_malloc(1548, len);
            my_snprintf(fqnet, len, "%s%s", path, net);
            strtolower(fqnet);
+           dbg(1, "translate(): fqnet=%s start_level=%d\n", fqnet, start_level);
            idx = get_raw_index(fqnet);
            if(idx >= 0) {
              val = xctx->graph_values[idx][xctx->graph_annotate_p];
            }
            if(idx < 0) {
-              my_snprintf(valstr, S(valstr), "?");
+              my_snprintf(valstr, S(valstr), "");
+           } else if( fabs(val) < 1.0e-5) {
+             my_snprintf(valstr, S(valstr), "0");
            } else if( fabs(val) < 1.0e-3 && val != 0.0) {
              my_snprintf(valstr, S(valstr), "%.4e", val);
            } else {
@@ -3070,7 +3073,7 @@ const char *translate(int inst, const char* s)
    else if(strcmp(token,"@spice_get_current")==0 )
    {
      int start_level; /* hierarchy level where waves were loaded */
-     if((start_level = sch_waves_loaded() >= 0) && xctx->graph_annotate_p>=0) {
+     if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
        char *fqdev = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
        char *dev = NULL;
@@ -3110,7 +3113,7 @@ const char *translate(int inst, const char* s)
            val = xctx->graph_values[idx][xctx->graph_annotate_p];
          }
          if(idx < 0) {
-            my_snprintf(valstr, S(valstr), "?");
+            my_snprintf(valstr, S(valstr), "");
          } else if( fabs(val) < 1.0e-3 && val != 0.0) {
            my_snprintf(valstr, S(valstr), "%.4e", val);
          } else {
