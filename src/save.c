@@ -487,6 +487,8 @@ void free_rawfile(int dr)
   if(xctx->graph_npoints) my_free(1413, &xctx->graph_npoints);
   xctx->graph_allpoints = 0;
   if(xctx->graph_raw_schname) my_free(1393, &xctx->graph_raw_schname);
+  xctx->graph_raw_level = -1;
+  tclsetintvar("graph_raw_level", -1);
   xctx->graph_datasets = 0;
   xctx->graph_nvars = 0;
   xctx->graph_annotate_p = -1;
@@ -568,6 +570,8 @@ int raw_read(const char *f, const char *type)
     if((res = read_dataset(fd, type)) == 1) {
       int i;
       my_strdup2(1394, &xctx->graph_raw_schname, xctx->sch[xctx->currsch]);
+      xctx->graph_raw_level = xctx->currsch;
+      tclsetintvar("graph_raw_level",  xctx->currsch);
       xctx->graph_allpoints = 0;
       for(i = 0; i < xctx->graph_datasets; i++) {
         xctx->graph_allpoints +=  xctx->graph_npoints[i];

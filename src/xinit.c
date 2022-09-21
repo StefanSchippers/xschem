@@ -452,6 +452,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->graph_annotate_p = -1; /* point in raw file to use for annotating voltages/currents/etc */
   xctx->graph_struct.hilight_wave = -1; /* index of wave */
   xctx->graph_raw_schname = NULL;
+  xctx->graph_raw_level = -1; /* hierarchy level where raw file has been read */
   xctx->wires = 0;
   xctx->instances = 0;
   xctx->symbols = 0;

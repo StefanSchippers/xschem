@@ -3018,7 +3018,8 @@ const char *translate(int inst, const char* s)
    }
    else if(strcmp(token,"@spice_get_voltage")==0 )
    {
-     if((sch_waves_loaded() >= 0) && xctx->graph_annotate_p>=0) {
+     int start_level; /* hierarchy level where waves were loaded */
+     if((start_level = sch_waves_loaded() >= 0) && xctx->graph_annotate_p>=0) {
        int multip;
        int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
        if(no_of_pins == 1) {
@@ -3030,6 +3031,12 @@ const char *translate(int inst, const char* s)
          double val;
          char valstr[120];
          if(path) {
+           int skip = 0;
+           /* skip path components that are above the level where raw file was loaded */
+           while(*path && skip < start_level) {
+             if(*path == '.') skip++;
+             path++;
+           }
            prepare_netlist_structs(0);
            net = net_name(inst,0, &multip, 0, 0);
            len = strlen(path) + strlen(net) + 1;
@@ -3062,7 +3069,8 @@ const char *translate(int inst, const char* s)
    }
    else if(strcmp(token,"@spice_get_current")==0 )
    {
-     if((sch_waves_loaded() >= 0) && xctx->graph_annotate_p>=0) {
+     int start_level; /* hierarchy level where waves were loaded */
+     if((start_level = sch_waves_loaded() >= 0) && xctx->graph_annotate_p>=0) {
        char *fqdev = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
        char *dev = NULL;
@@ -3071,6 +3079,12 @@ const char *translate(int inst, const char* s)
        double val;
        char valstr[120];
        if(path) {
+         int skip = 0;
+         /* skip path components that are above the level where raw file was loaded */
+         while(*path && skip < start_level) {
+           if(*path == '.') skip++;
+           path++;
+         }
          my_strdup2(1550, &dev, xctx->inst[inst].instname);
          strtolower(dev);
          len = strlen(path) + strlen(dev) + 11; /* some extra chars for i(..) wrapper */

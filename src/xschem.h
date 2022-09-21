@@ -912,6 +912,7 @@ typedef struct {
   /* when descending hierarchy xctx->current_name changes, xctx->graph_raw_schname
    * holds the name of the top schematic from which the raw file was loaded */
   char *graph_raw_schname;
+  int graph_raw_level;  /* hierarchy level where raw file has been read MIRRORED IN TCL*/
   /*    */
   XSegment *biggridpoint;
   XPoint *gridpoint;

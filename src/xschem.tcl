@@ -3105,12 +3105,21 @@ proc tclpropeval {s instname symname} {
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s} {
-  global debug_var env path
+  global debug_var env path graph_raw_level
 
   set netlist_type [xschem get netlist_type]
   # puts "tclpropeval2: s=|$s|"
   if {$debug_var <=-1} {puts "tclpropeval2: $s"}
   set path [string range [xschem get sch_path] 1 end]
+
+  # skip hierarchy components above the level where raw file has been loaded. 
+  # node path names to look up in raw file begin from there.
+  set skip 0
+  while { $skip < $graph_raw_level } {
+    regsub {^[^.]*\.} $path {} path
+    incr skip
+  }
+  
   if { $netlist_type eq {spice} } {
     # this is necessary if spiceprefix is being used in netlists
     regsub {^([^xX])} $path {x\1} path
@@ -4661,7 +4670,7 @@ set tctx::global_list {
   dark_colorscheme dim_bg dim_value disable_unique_names do_all_inst draw_grid draw_window
   edit_prop_pos edit_prop_size editprop_sympath edit_symbol_prop_new_sel enable_dim_bg enable_stretch 
   en_hilight_conn_inst filetmp flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter
-  graph_bus graph_digital graph_logx graph_logy
+  graph_bus graph_digital graph_logx graph_logy graph_raw_level
   graph_sel_color graph_schname graph_selected graph_sel_wave graph_sort
   graph_unlocked hide_empty_graphs hide_symbols hsize
   incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
@@ -5708,6 +5717,7 @@ set_ne graph_logx 0
 set_ne graph_logy 0
 set_ne graph_selected {}
 set_ne graph_schname {}
+set_ne graph_raw_level -1 ;# hierarchy level where raw file has been loaded 
 # user clicked this wave 
 set_ne graph_sel_wave {}
 # flag to force simulation stop (Esc key pressed) 
