@@ -320,7 +320,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
            "subdivx=1\n"
            "node=\"\"\n"
            "color=\"\"\n"
-           "dataset=0\n"
+           "dataset=-1\n"
            "unitx=u\n"
            "logx=0\n"
            "logy=0\n"
