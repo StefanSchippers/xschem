@@ -2019,7 +2019,8 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       if(!stat(name, &buf)) { /* file exists */
         xctx->time_last_modify =  buf.st_mtime;
       } else {
-        xctx->time_last_modify = time(NULL); /* file does not exist, set mtime to current time */
+        /* xctx->time_last_modify = time(NULL); */ /* file does not exist, set mtime to current time */
+        xctx->time_last_modify = 0; /* file does not exist, set mtime to 0 (undefined)*/
       }
     }
     if( (fd=fopen(name,fopen_read_mode))== NULL) {
@@ -2055,7 +2056,8 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     }
     dbg(1, "load_schematic(): %s, returning\n", xctx->sch[xctx->currsch]);
   } else {
-    if(reset_undo) xctx->time_last_modify = time(NULL); /* no file given, set mtime to current time */
+    /* if(reset_undo) xctx->time_last_modify = time(NULL); */ /* no file given, set mtime to current time */
+    if(reset_undo) xctx->time_last_modify = 0; /* no file given, set mtime to 0 (undefined) */
     clear_drawing();
     for(i=0;;i++) {
       if(xctx->netlist_type == CAD_SYMBOL_ATTRS) {
