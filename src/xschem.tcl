@@ -657,6 +657,9 @@ proc sim_is_ngspice {} {
   return 0
 }
 
+proc sim_is_Xyce {} {
+  return [sim_is_xyce]
+}
 
 proc sim_is_xyce {} {
   global sim

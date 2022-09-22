@@ -761,20 +761,22 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
       if(stackptr2 > 1) { /* 2 argument operators */
         switch(stack1[i].i) {
           case PLUS:
-            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] + stack2[stackptr2 - 1];
+            stack2[stackptr2 - 2] = stack2[stackptr2 - 2] + stack2[stackptr2 - 1];
             stackptr2--;
             break;
           case MINUS:
-            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] - stack2[stackptr2 - 1];
+            stack2[stackptr2 - 2] = stack2[stackptr2 - 2] - stack2[stackptr2 - 1];
             stackptr2--;
             break;
           case MULT:
-            stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] * stack2[stackptr2 - 1];
+            stack2[stackptr2 - 2] = stack2[stackptr2 - 2] * stack2[stackptr2 - 1];
             stackptr2--;
             break;
           case DIVIS:
             if(stack2[stackptr2 - 1]) {
-              stack2[stackptr2 - 2] =  stack2[stackptr2 - 2] / stack2[stackptr2 - 1];
+              stack2[stackptr2 - 2] = stack2[stackptr2 - 2] / stack2[stackptr2 - 1];
+            } else if(stack2[stackptr2 - 2] == 0.0) {
+              stack2[stackptr2 - 2] = 0;
             } else {
               stack2[stackptr2 - 2] =  y[p - 1];
             }
