@@ -3094,18 +3094,18 @@ const char *translate(int inst, const char* s)
            prepare_netlist_structs(0);
            net1 = net_name(inst, 0, &multip, 0, 0);
            len = strlen(path) + strlen(net1) + 1;
-           dbg(0, "net1=%s\n", net1);
+           dbg(1, "net1=%s\n", net1);
            fqnet1 = my_malloc(1552, len);
            my_snprintf(fqnet1, len, "%s%s", path, net1);
            strtolower(fqnet1);
            net2 = net_name(inst, 1, &multip, 0, 0);
            len = strlen(path) + strlen(net2) + 1;
-           dbg(0, "net2=%s\n", net2);
+           dbg(1, "net2=%s\n", net2);
            fqnet2 = my_malloc(1554, len);
            my_snprintf(fqnet2, len, "%s%s", path, net2);
            strtolower(fqnet2);
-           dbg(0, "translate(): fqnet1=%s start_level=%d\n", fqnet1, start_level);
-           dbg(0, "translate(): fqnet2=%s start_level=%d\n", fqnet2, start_level);
+           dbg(1, "translate(): fqnet1=%s start_level=%d\n", fqnet1, start_level);
+           dbg(1, "translate(): fqnet2=%s start_level=%d\n", fqnet2, start_level);
            idx1 = get_raw_index(fqnet1);
            if(idx1 >= 0) {
              val1 = xctx->graph_values[idx1][xctx->graph_annotate_p];
@@ -3130,7 +3130,7 @@ const char *translate(int inst, const char* s)
              memcpy(result+result_pos, valstr, len+1);
              result_pos += len;
            }
-           dbg(0, "inst %d, fqnet1=%s fqnet2=%s idx1=%d idx2=%d, val1=%g val2=%g valstr=%s\n",
+           dbg(1, "inst %d, fqnet1=%s fqnet2=%s idx1=%d idx2=%d, val1=%g val2=%g valstr=%s\n",
                inst, fqnet1, fqnet2, idx1, idx2, val1, val2, valstr);
            my_free(1553, &fqnet1);
            my_free(1555, &fqnet2);
