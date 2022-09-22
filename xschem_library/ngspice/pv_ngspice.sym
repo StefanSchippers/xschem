@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {type=subcircuit
 format="@name @pinlist @symname R1=@R1 R2=@R2 Vmp=@Vmp Voc=@Voc m=@m"
@@ -16,8 +17,8 @@ L 4 -10 5 10 5 {}
 L 4 -20 -5 20 -5 {}
 L 4 -15 -20 -5 -20 {}
 L 4 -10 -25 -10 -15 {}
-B 5 -2.5 -32.5 2.5 -27.5 {name=plus dir=inout pinnumber=1 propag=1 goto=1}
-B 5 -2.5 27.5 2.5 32.5 {name=minus dir=inout pinnumber=2 goto=0}
+B 5 -2.5 -32.5 2.5 -27.5 {name=plus dir=inout}
+B 5 -2.5 27.5 2.5 32.5 {name=minus dir=inout}
 P 4 7 -35 -30 -25 -20 -20 -25 -15 -10 -30 -15 -25 -20 -35 -30 {}
 P 4 7 -35 -5 -25 5 -20 0 -15 15 -30 10 -25 5 -35 -5 {}
 T {@name} 15 -28.75 0 0 0.2 0.2 {}

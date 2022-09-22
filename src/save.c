@@ -692,7 +692,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
   const char *n;
   char *endptr, *ntok_copy = NULL, *ntok_save, *ntok_ptr;
   Stack1 stack1[STACKMAX];
-  double v, stack2[STACKMAX], tmp, integ, deriv, avg;
+  double stack2[STACKMAX], tmp, integ, deriv, avg;
   int stackptr1 = 0, stackptr2 = 0;
   SPICE_DATA *y = xctx->graph_values[xctx->graph_nvars]; /* custom plot data column */
   SPICE_DATA *x = xctx->graph_values[sweep_idx];
@@ -731,9 +731,9 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     else if(!strcmp(n, "deriv0()")) stack1[stackptr1++].i = DERIV0;
     else if(!strcmp(n, "exch()")) stack1[stackptr1++].i = EXCH;
     else if(!strcmp(n, "dup()")) stack1[stackptr1++].i = DUP;
-    else if( (v = strtod(n, &endptr)), !*endptr) {
+    else if( (strtod(n, &endptr)), endptr > n) {
       stack1[stackptr1].i = NUMBER;
-      stack1[stackptr1++].d = v;
+      stack1[stackptr1++].d = atof_spice(n);
     }
     else {
       idx = get_raw_index(n);

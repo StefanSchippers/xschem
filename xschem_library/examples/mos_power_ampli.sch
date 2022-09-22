@@ -12,8 +12,8 @@ y1=-47
 y2=50
 divy=4
 subdivy=4
-x1=0.00819414
-x2=0.00888885
+x1=0.00824068
+x2=0.00893539
 divx=8
 subdivx=1
 dataset=0
@@ -30,8 +30,8 @@ y1=0
 y2=160
 divy=4
 subdivy=9
-x1=0.00819414
-x2=0.00888885
+x1=0.00824068
+x2=0.00893539
 divx=8
 subdivx=9
 dataset=0
@@ -41,15 +41,15 @@ unitx=m
 
 color="8 7"
 node="tcleval(\\"Xm1 power;vpp $\{path\}outi - i(v.$\{path\}vu) *\\"
-\\"Average;vpp $\{path\}outi - i(v.$\{path\}vu) * 2e-4 ravg()\\")"
+\\"Average;vpp $\{path\}outi - i(v.$\{path\}vu) * 200u ravg()\\")"
 }
 B 2 1520 -1130 2440 -830 {flags=graph
 y1=-0.19
 y2=160
 divy=4
 subdivy=9
-x1=0.00819414
-x2=0.00888885
+x1=0.00824068
+x2=0.00893539
 divx=8
 subdivx=9
 dataset=0
@@ -57,7 +57,7 @@ unitx=m
 
 color="8 7"
 node="tcleval(\\"Xm2 Power;$\{path\}outi vnn - i(v.$\{path\}vd) *\\"
-\\"Average;$\{path\}outi vnn - i(v.$\{path\}vd) * 2e-4 ravg()\\")"
+\\"Average;$\{path\}outi vnn - i(v.$\{path\}vd) * 200u ravg()\\")"
 }
 B 2 960 -960 1094 -897 {flags=image
 alpha=0.7
