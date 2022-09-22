@@ -4782,7 +4782,6 @@ proc housekeeping_ctx {} {
   xschem set hide_symbols $hide_symbols
   xschem set draw_window $draw_window
   xschem case_insensitive $case_insensitive
-  xschem set show_hidden_texts $show_hidden_texts
   if {![info exists tctx::[xschem get current_win_path]_simulate]} {
     [xschem get top_path].menubar.simulate configure -bg $simulate_bg
   } else {
@@ -5217,7 +5216,7 @@ proc build_widgets { {topwin {} } } {
           xschem redraw
        }
   $topwin.menubar.view.menu add checkbutton -label "Show hidden texts"  -variable show_hidden_texts \
-         -command {xschem set show_hidden_texts $show_hidden_texts; xschem redraw}
+         -command {xschem redraw}
   $topwin.menubar.view.menu add command -label "Change current layer color"  -accelerator {} -command {
           change_color
        }
@@ -5403,6 +5402,8 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.simulation.menu add command -label {Add waveform graph} -command {xschem add_graph}
   $topwin.menubar.simulation.menu add checkbutton -label "Live annotate probes with 'b' cursor" \
          -variable live_cursor2_backannotate 
+  $topwin.menubar.simulation.menu add command -label "Annotate Operating Point into schematic" \
+         -command {set show_hidden_texts 1; xschem annotate_op}
   $topwin.menubar.simulation.menu add separator
   $topwin.menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" -variable top_subckt 
   $topwin.menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \

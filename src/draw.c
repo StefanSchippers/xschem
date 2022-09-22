@@ -3214,6 +3214,7 @@ void draw(void)
  #endif
  #endif
  if(xctx->no_draw) return;
+ xctx->show_hidden_texts = tclgetboolvar("show_hidden_texts");
  rebuild_selected_array();
  if(has_x) {
     if(xctx->draw_pixmap)
