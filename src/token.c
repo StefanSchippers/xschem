@@ -3070,6 +3070,74 @@ const char *translate(int inst, const char* s)
        }
      }
    }
+   else if(strcmp(token,"@spice_get_diff_voltage")==0 )
+   {
+     int start_level; /* hierarchy level where waves were loaded */
+     if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
+       int multip;
+       int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
+       if(no_of_pins == 2) {
+         char *fqnet1 = NULL, *fqnet2 = NULL;
+         const char *path =  xctx->sch_path[xctx->currsch] + 1;
+         const char *net1, *net2;
+         size_t len;
+         int idx1, idx2;
+         double val = 0.0, val1 = 0.0, val2 = 0.0;
+         char valstr[120];
+         if(path) {
+           int skip = 0;
+           /* skip path components that are above the level where raw file was loaded */
+           while(*path && skip < start_level) {
+             if(*path == '.') skip++;
+             path++;
+           }
+           prepare_netlist_structs(0);
+           net1 = net_name(inst, 0, &multip, 0, 0);
+           len = strlen(path) + strlen(net1) + 1;
+           dbg(0, "net1=%s\n", net1);
+           fqnet1 = my_malloc(1552, len);
+           my_snprintf(fqnet1, len, "%s%s", path, net1);
+           strtolower(fqnet1);
+           net2 = net_name(inst, 1, &multip, 0, 0);
+           len = strlen(path) + strlen(net2) + 1;
+           dbg(0, "net2=%s\n", net2);
+           fqnet2 = my_malloc(1554, len);
+           my_snprintf(fqnet2, len, "%s%s", path, net2);
+           strtolower(fqnet2);
+           dbg(0, "translate(): fqnet1=%s start_level=%d\n", fqnet1, start_level);
+           dbg(0, "translate(): fqnet2=%s start_level=%d\n", fqnet2, start_level);
+           idx1 = get_raw_index(fqnet1);
+           if(idx1 >= 0) {
+             val1 = xctx->graph_values[idx1][xctx->graph_annotate_p];
+           }
+           idx2 = get_raw_index(fqnet2);
+           if(idx2 >= 0) {
+             val2 = xctx->graph_values[idx2][xctx->graph_annotate_p];
+           }
+           val = val1 - val2;
+           if(idx1 < 0 || idx2 < 0) {
+              my_snprintf(valstr, S(valstr), "");
+           } else if( fabs(val) < 1.0e-5) {
+             my_snprintf(valstr, S(valstr), "0");
+           } else if( fabs(val) < 1.0e-3 && val != 0.0) {
+             my_snprintf(valstr, S(valstr), "%.4e", val);
+           } else {
+             my_snprintf(valstr, S(valstr), "%.4g", val);
+           }
+           len = strlen(valstr);
+           if(len) {
+             STR_ALLOC(&result, len + result_pos, &size);
+             memcpy(result+result_pos, valstr, len+1);
+             result_pos += len;
+           }
+           dbg(0, "inst %d, fqnet1=%s fqnet2=%s idx1=%d idx2=%d, val1=%g val2=%g valstr=%s\n",
+               inst, fqnet1, fqnet2, idx1, idx2, val1, val2, valstr);
+           my_free(1553, &fqnet1);
+           my_free(1555, &fqnet2);
+         }
+       }
+     }
+   }
    else if(strcmp(token,"@spice_get_current")==0 )
    {
      int start_level; /* hierarchy level where waves were loaded */
@@ -3092,7 +3160,7 @@ const char *translate(int inst, const char* s)
          strtolower(dev);
          len = strlen(path) + strlen(dev) + 11; /* some extra chars for i(..) wrapper */
          dbg(1, "dev=%s\n", dev);
-         fqdev = my_malloc(1548, len);
+         fqdev = my_malloc(1556, len);
          if(!sim_is_xyce) {
            int prefix=dev[0];
            int vsource = (prefix == 'v') || (prefix == 'e');
@@ -3126,7 +3194,7 @@ const char *translate(int inst, const char* s)
            result_pos += len;
          }
          dbg(1, "inst %d, dev=%s, fqdev=%s idx=%d valstr=%s\n", inst,  dev, fqdev, idx, valstr);
-         my_free(1549, &fqdev);
+         my_free(1557, &fqdev);
          my_free(1551, &dev);
        }
      }

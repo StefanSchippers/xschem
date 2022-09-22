@@ -675,11 +675,22 @@ proc sim_is_xyce {} {
   return 0
 }
 
+# wrapper to "xschem list_tokens" comand to handle non list results
+# usually as a result of malformed input strings
+proc list_tokens {s} {
+  set res [xschem list_tokens $s 0]
+  if {[string is list $res]} {
+    return $res
+  } else {
+    return [split $res]
+  }
+}
+
 # generates a proper list, trimming multiple separators
 proc tolist {s} {
   set s [string trim $s]
   regsub -all {[\t\n ]+} $s { } s
-  if { [string is list $s] } {
+  if {[string is list $s] } {
     return $s
   } else {
     return [split $s]
@@ -3487,7 +3498,7 @@ proc edit_prop {txtlabel} {
   checkbutton .dialog.f2.r1 -text "No change properties" -variable no_change_attrs -state normal
   checkbutton .dialog.f2.r2 -text "Preserve unchanged props" -variable preserve_unchanged_attrs -state normal
   checkbutton .dialog.f2.r3 -text "Copy cell" -variable copy_cell -state normal
-  set tok_list "<ALL> [xschem list_tokens $retval 0]"
+  set tok_list "<ALL> [list_tokens $retval]"
   set selected_tok {<ALL>}
   set old_selected_tok {<ALL>}
   label .dialog.f2.r4 -text {   Edit Attr:}
@@ -3615,7 +3626,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   set X [expr {[winfo pointerx .dialog] - 60}]
   set Y [expr {[winfo pointery .dialog] - 35}]
 
-  set tok_list "<ALL> [xschem list_tokens $retval 0]"
+  set tok_list "<ALL> [list_tokens $retval]"
   set selected_tok {<ALL>}
   set old_selected_tok {<ALL>}
   bind .dialog <Configure> {
