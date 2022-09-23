@@ -2555,7 +2555,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
       } else {
         my_strdup2(1192, &express, ntok);
       }
-      if(strstr(express, " ")) {
+      if(strpbrk(express, " \n\t")) {
         expression = 1;
       }
     }
@@ -2719,7 +2719,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
         } else {
           my_strdup2(473, &express, ntok);
         }
-        if(strstr(express, " ")) {
+        if(strpbrk(express, " \n\t")) {
           expression = 1;
         }
       }

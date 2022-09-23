@@ -879,7 +879,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                     } else {
                       my_strdup2(1506, &express, ntok);
                     }
-                    if(strstr(express, " ")) {
+                    if(strpbrk(express, " \n\t")) {
                       /* just probe a single point to get the index. custom data column already calculated */
                       j = calc_custom_data_yrange(sweep_idx, express, gr);
                     } else {
