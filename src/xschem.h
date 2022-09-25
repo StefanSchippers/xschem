@@ -1045,7 +1045,7 @@ extern int plot_raw_custom_data(int sweep_idx, int first, int last, const char *
 extern int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr);
 extern int sch_waves_loaded(void);
 extern int edit_wave_attributes(int what, int i, Graph_ctx *gr);
-extern void draw_graph(int i, int flags, Graph_ctx *gr);
+extern void draw_graph(int i, int flags, Graph_ctx *gr, void *ct);
 extern int find_closest_wave(int i, Graph_ctx *gr);
 extern void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr);
 extern double timer(int start);
@@ -1127,13 +1127,14 @@ extern unsigned short select_object(double mx,double my, unsigned short sel_mode
 extern void unselect_all(int dr);
 extern void select_inside(double x1,double y1, double x2, double y2, int sel);
 extern int Tcl_AppInit(Tcl_Interp *interp);
+extern void abort_operation(void);
 extern int callback(const char *winpath, int event, int mx, int my, KeySym key,
                         int button, int aux, int state);
 extern void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h);
 extern Selected find_closest_obj(double mx,double my);
 extern void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y);
 
-extern void drawline(int c, int what, double x1,double y1,double x2,double y2, int dash);
+extern void drawline(int c, int what, double x1,double y1,double x2,double y2, int dash, void *ct);
 extern void draw_string(int layer,int what, const char *str, short rot, short flip, int hcenter, int vcenter,
        double x1, double y1, double xscale, double yscale);
 extern void draw_symbol(int what,int c, int n,int layer,

@@ -1800,10 +1800,10 @@ void draw_hilight_net(int on_window)
    if( (entry = bus_hilight_hash_lookup(xctx->wire[i].node, 0, XLOOKUP)) ) {
      if(xctx->wire[i].bus)
        drawline(get_color(entry->value), THICK,
-          xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, 0);
+          xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, 0, NULL);
      else
        drawline(get_color(entry->value), NOW,
-          xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, 0);
+          xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, 0, NULL);
      if(cadhalfdotsize*xctx->mooz>=0.7) {
        if( xctx->wire[i].end1 >1 ) {
          filledarc(get_color(entry->value), NOW, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360);
@@ -1839,7 +1839,7 @@ void draw_hilight_net(int on_window)
       filledrect(col, END, 0.0, 0.0, 0.0, 0.0);
       drawarc(col, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
       drawrect(col, END, 0.0, 0.0, 0.0, 0.0, 0);
-      drawline(col, END, 0.0, 0.0, 0.0, 0.0, 0);
+      drawline(col, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
      }
    }
  }

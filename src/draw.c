@@ -381,7 +381,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
         ROTATION(rot, flip, x1,y1,curr_x1,curr_y1,rx1,ry1);
         ROTATION(rot, flip, x1,y1,curr_x2,curr_y2,rx2,ry2);
         ORDER(rx1,ry1,rx2,ry2);
-        drawline(layer, what, rx1, ry1, rx2, ry2, 0);
+        drawline(layer, what, rx1, ry1, rx2, ry2, 0, NULL);
      }
      pos++;
      a += FONTWIDTH+FONTWHITESPACE;
@@ -492,9 +492,9 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       ROTATION(rot, flip, 0.0,0.0,line->x2,line->y2,x2,y2);
       ORDER(x1,y1,x2,y2);
       if(line->bus)
-        drawline(c,THICK, x0+x1, y0+y1, x0+x2, y0+y2, line->dash);
+        drawline(c,THICK, x0+x1, y0+y1, x0+x2, y0+y2, line->dash, NULL);
       else
-        drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, line->dash);
+        drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, line->dash, NULL);
     }
     for(j=0;j< symptr->polygons[layer];j++)
     {
@@ -592,7 +592,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           x0+x1, y0+y1, text.xscale, text.yscale);
         #if HAS_CAIRO!=1
         drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
-        drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
+        drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
         #endif
         #if HAS_CAIRO==1
         if( (textfont && textfont[0]) || (symptr->text[j].flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
@@ -805,8 +805,56 @@ static void drawgrid()
   }
 }
 
+#if !defined(__unix__) && defined(HAS_CAIRO)
+static void my_cairo_drawline(cairo_t *ct, int layer, double x1, double y1, double x2, double y2, int dash)
+{
+  cairo_set_source_rgb(ct,
+    (double)xctx->xcolor_array[layer].red/65535.0,
+    (double)xctx->xcolor_array[layer].green/65535.0,
+    (double)xctx->xcolor_array[layer].blue/65535.0);
+  if (dash) {
+    double dashes[1];
+    dashes[0] = dash;
+    cairo_set_dash(ct, dashes, 1, 0);
+  }
+  cairo_move_to(ct, x1, y1);
+  cairo_line_to(ct,x2, y2);
+  cairo_stroke(ct); /* This lines need to be here */
+}
 
-void drawline(int c, int what, double linex1, double liney1, double linex2, double liney2, int dash)
+static void my_cairo_drawpoints(cairo_t *ct, int layer, XPoint *points, int npoints)
+{
+  cairo_set_source_rgb(ct,
+    (double)xctx->xcolor_array[layer].red/65535.0,
+    (double)xctx->xcolor_array[layer].green/65535.0,
+    (double)xctx->xcolor_array[layer].blue/65535.0);
+  for (int i =0; i<npoints; ++i) {
+    cairo_move_to(ct, points[i].x, points[i].y);
+    cairo_rel_line_to(ct,1, 1);
+    cairo_stroke(ct); /* This lines need to be here */
+  }
+}
+#endif
+
+#if !defined(__unix__) && defined(HAS_CAIRO)
+static void check_cairo_drawline(void *cr, int layer, double x1, double y1, double x2, double y2, int dash)
+{
+  if (cr==NULL) return;
+  cairo_t *ct = (cairo_t *)cr; 
+  my_cairo_drawline(cr, layer, x1, y1, x2, y2, dash);
+}
+#endif
+
+#if !defined(__unix__) && defined(HAS_CAIRO)
+static void check_cairo_drawpoints(void *cr, int layer, XPoint *points, int npoints)
+{
+  if (cr==NULL) return;
+  cairo_t *ct = (cairo_t *)cr; 
+  my_cairo_drawpoints(cr, layer, points, npoints);
+}
+#endif
+
+void drawline(int c, int what, double linex1, double liney1, double linex2, double liney2, int dash, void *ct)
 {
   static int i = 0;
 #ifndef __unix__
@@ -835,6 +883,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
         XDrawLine(display, xctx->window, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
       if (xctx->draw_pixmap)
         XDrawLine(display, xctx->save_pixmap, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
+      check_cairo_drawline(ct, c, rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2, 0);
     }
 #endif
    i=0;
@@ -873,6 +922,9 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    if(dash) {
      XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, CapRound, JoinRound);
    }
+   #ifndef __unix__
+   check_cairo_drawline(ct, c, x1, y1, x2, y2, dash);
+   #endif
   }
  }
 
@@ -894,6 +946,9 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    }
    if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(xctx->draw_pixmap) XDrawLine(display, xctx->save_pixmap, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
+   #ifndef __unix__
+   check_cairo_drawline(ct, c, x1, y1, x2, y2, dash);
+   #endif
    XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
   }
  }
@@ -908,6 +963,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
        XDrawLine(display, xctx->window, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
      if (xctx->draw_pixmap)
        XDrawLine(display, xctx->save_pixmap, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
+     check_cairo_drawline(ct, c, rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2, 0);
    }
 #endif
   i=0;
@@ -1755,7 +1811,7 @@ static void set_thick_waves(int what, int wcnt, int wave_col, Graph_ctx *gr)
    LDA,LDA[3],LDA[2],LDA1],LDA[0]
  */
 static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx_arr, 
-         int first, int last, int wave_col, int sweep_idx, int wcnt, int n_nodes, Graph_ctx *gr)
+         int first, int last, int wave_col, int sweep_idx, int wcnt, int n_nodes, Graph_ctx *gr, void *ct)
 {
   int p;
   double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
@@ -1785,8 +1841,8 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
   }
   if(c1 >= gr->ypos1 && c1 <=gr->ypos2) {
     set_thick_waves(1, wcnt, wave_col, gr);
-    drawline(wave_col, NOW, lx1, ylow, lx2, ylow, 0);
-    drawline(wave_col, NOW, lx1, yhigh, lx2, yhigh, 0);
+    drawline(wave_col, NOW, lx1, ylow, lx2, ylow, 0, ct);
+    drawline(wave_col, NOW, lx1, yhigh, lx2, yhigh, 0, ct);
     for(p = first ; p <= last; p++) {
       /* calculate value of bus by adding all binary bits */
       /* hex_digits = */
@@ -1803,10 +1859,10 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
       }
       if(p > first &&  strcmp(busval, old_busval)) {
         /* draw transition ('X') */
-        drawline(BACKLAYER, NOW, xval-x_size, yhigh, xval+x_size, yhigh, 0);
-        drawline(BACKLAYER, NOW, xval-x_size, ylow,  xval+x_size, ylow, 0);
-        drawline(wave_col, NOW, xval-x_size, ylow,  xval+x_size, yhigh, 0);
-        drawline(wave_col, NOW, xval-x_size, yhigh, xval+x_size, ylow, 0);
+        drawline(BACKLAYER, NOW, xval-x_size, yhigh, xval+x_size, yhigh, 0, ct);
+        drawline(BACKLAYER, NOW, xval-x_size, ylow,  xval+x_size, ylow, 0, ct);
+        drawline(wave_col, NOW, xval-x_size, ylow,  xval+x_size, yhigh, 0, ct);
+        drawline(wave_col, NOW, xval-x_size, yhigh, xval+x_size, ylow, 0, ct);
         /* draw hex bus value if there is enough room */
         if(  fabs(xval - xval_old) > hex_digits * charwidth) {
           draw_string(wave_col, NOW, old_busval, 2, 0, 1, 0, (xval + xval_old) * 0.5,
@@ -1827,7 +1883,7 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
 
 /* wcnt is the nth wave in graph, idx is the index in spice raw file */
 static void draw_graph_points(int idx, int first, int last,
-         XPoint *point, int wave_col, int wcnt, int n_nodes, Graph_ctx *gr)
+         XPoint *point, int wave_col, int wcnt, int n_nodes, Graph_ctx *gr, void *ct)
 {
   int p;
   register double yy;
@@ -1868,11 +1924,14 @@ static void draw_graph_points(int idx, int first, int last,
     if(xctx->draw_pixmap) {
       XDrawLines(display, xctx->save_pixmap, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
     }
+    #ifndef __unix__
+    check_cairo_drawpoints(ct, wave_col, point, poly_npoints);
+    #endif
     set_thick_waves(0, wcnt, wave_col, gr);
   } else dbg(1, "skipping wave: %s\n", xctx->graph_names[idx]);
 }
 
-static void draw_graph_grid(Graph_ctx *gr)
+static void draw_graph_grid(Graph_ctx *gr, void *ct)
 {
   double deltax, startx, deltay, starty, wx,wy,  dash_sizex, dash_sizey;
   int j, k;
@@ -1908,13 +1967,13 @@ static void draw_graph_grid(Graph_ctx *gr)
         subwx = wx + deltax * (double)k / ((double)gr->subdivx + 1.0);
       if(!axis_within_range(subwx, gr->gx1, gr->gx2)) continue;
       if(axis_end(subwx, deltax, gr->gx2)) break;
-      drawline(GRIDLAYER, ADD, W_X(subwx),   W_Y(gr->gy2), W_X(subwx),   W_Y(gr->gy1), (int)dash_sizey);
+      drawline(GRIDLAYER, ADD, W_X(subwx),   W_Y(gr->gy2), W_X(subwx),   W_Y(gr->gy1), (int)dash_sizey, ct);
     }
     if(!axis_within_range(wx, gr->gx1, gr->gx2)) continue;
     if(axis_end(wx, deltax, gr->gx2)) break;
     /* swap order of gy1 and gy2 since grap y orientation is opposite to xorg orientation */
-    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy2), W_X(wx),   W_Y(gr->gy1), (int)dash_sizey);
-    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy1), W_X(wx),   W_Y(gr->gy1) + mark_size, 0); /* axis marks */
+    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy2), W_X(wx),   W_Y(gr->gy1), (int)dash_sizey, ct);
+    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy1), W_X(wx),   W_Y(gr->gy1) + mark_size, 0, ct); /* axis marks */
     /* X-axis labels */
     if(gr->logx) 
       draw_string(3, NOW, dtoa(pow(10, wx) * gr->unitx), 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
@@ -1924,8 +1983,8 @@ static void draw_graph_grid(Graph_ctx *gr)
                 gr->txtsizex, gr->txtsizex);
   }
   /* first and last vertical box delimiters */
-  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy2), W_X(gr->gx1),   W_Y(gr->gy1), 0);
-  drawline(GRIDLAYER, ADD, W_X(gr->gx2),   W_Y(gr->gy2), W_X(gr->gx2),   W_Y(gr->gy1), 0);
+  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy2), W_X(gr->gx1),   W_Y(gr->gy1), 0, ct);
+  drawline(GRIDLAYER, ADD, W_X(gr->gx2),   W_Y(gr->gy2), W_X(gr->gx2),   W_Y(gr->gy1), 0, ct);
   /* horizontal grid lines */
   if(!gr->digital) {
     deltay = axis_increment(gr->gy1, gr->gy2, gr->divy, gr->logy);
@@ -1940,12 +1999,12 @@ static void draw_graph_grid(Graph_ctx *gr)
           subwy = wy + deltay * (double)k / ((double)gr->subdivy + 1.0);
         if(!axis_within_range(subwy, gr->gy1, gr->gy2)) continue;
         if(axis_end(subwy, deltay, gr->gy2)) break;
-        drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(subwy),   W_X(gr->gx2), W_Y(subwy), (int)dash_sizex);
+        drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(subwy),   W_X(gr->gx2), W_Y(subwy), (int)dash_sizex, ct);
       }
       if(!axis_within_range(wy, gr->gy1, gr->gy2)) continue;
       if(axis_end(wy, deltay, gr->gy2)) break;
-      drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(wy),   W_X(gr->gx2), W_Y(wy), (int)dash_sizex);
-      drawline(GRIDLAYER, ADD, W_X(gr->gx1) - mark_size, W_Y(wy),   W_X(gr->gx1), W_Y(wy), 0); /* axis marks */
+      drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(wy),   W_X(gr->gx2), W_Y(wy), (int)dash_sizex, ct);
+      drawline(GRIDLAYER, ADD, W_X(gr->gx1) - mark_size, W_Y(wy),   W_X(gr->gx1), W_Y(wy), 0, ct); /* axis marks */
       /* Y-axis labels */
       if(gr->logy)
         draw_string(3, NOW, dtoa(pow(10, wy) * gr->unity), 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
@@ -1956,16 +2015,16 @@ static void draw_graph_grid(Graph_ctx *gr)
     }
   }
   /* first and last horizontal box delimiters */
-  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy1), W_X(gr->gx2),   W_Y(gr->gy1), 0);
-  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy2), W_X(gr->gx2),   W_Y(gr->gy2), 0);
+  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy1), W_X(gr->gx2),   W_Y(gr->gy1), 0, ct);
+  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy2), W_X(gr->gx2),   W_Y(gr->gy2), 0, ct);
   /* Horizontal axis (if in viewport) */
   if(!gr->digital && gr->gy1 <= 0 && gr->gy2 >= 0)
-    drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(0), W_X(gr->gx2), W_Y(0), 0);
+    drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(0), W_X(gr->gx2), W_Y(0), 0, ct);
   /* Vertical axis (if in viewport) 
    * swap order of gy1 and gy2 since grap y orientation is opposite to xorg orientation */
   if(gr->gx1 <= 0 && gr->gx2 >= 0)
-    drawline(GRIDLAYER, ADD, W_X(0),   W_Y(gr->gy2), W_X(0),   W_Y(gr->gy1), 0);
-  drawline(GRIDLAYER, END, 0.0, 0.0, 0.0, 0.0, 0);
+    drawline(GRIDLAYER, ADD, W_X(0),   W_Y(gr->gy2), W_X(0),   W_Y(gr->gy1), 0, ct);
+  drawline(GRIDLAYER, END, 0.0, 0.0, 0.0, 0.0, 0, ct);
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
@@ -2139,7 +2198,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
   int xoffs = flip ? 3 : -3;
 
   if(xx >= gr->x1 && xx <= gr->x2) {
-    drawline(cursor_color, NOW, xx, gr->ry1, xx, gr->ry2, 1);
+    drawline(cursor_color, NOW, xx, gr->ry1, xx, gr->ry2, 1, NULL);
     if(gr->logx) active_cursorx = pow(10, active_cursorx);
     if(gr->unitx != 1.0)
        my_snprintf(tmpstr, S(tmpstr), "%.5g%c", gr->unitx * active_cursorx , gr->unitx_suffix);
@@ -2179,8 +2238,8 @@ static void draw_cursor_difference(Graph_ctx *gr)
       dtmp = a; a = b; b = dtmp;
     }
     yline = (ty1 + ty2) * 0.5;
-    if( tx1 - a > 4.0) drawline(3, NOW, a + 2, yline, tx1 - 2, yline, 1);
-    if( b - tx2 > 4.0) drawline(3, NOW, tx2 + 2, yline, b - 2, yline, 1);
+    if( tx1 - a > 4.0) drawline(3, NOW, a + 2, yline, tx1 - 2, yline, 1, NULL);
+    if( b - tx2 > 4.0) drawline(3, NOW, tx2 + 2, yline, b - 2, yline, 1, NULL);
   }
 }
 
@@ -2647,7 +2706,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
  * 4: draw x-cursor2
  * 8: all drawing, if not set do only XCopyArea / x-cursor if specified
  */
-void draw_graph(int i, const int flags, Graph_ctx *gr)
+void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
 {
   int wave_color = 4;
   char *node = NULL, *color = NULL, *sweep = NULL;
@@ -2682,7 +2741,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
     clear_cairo_surface(xctx->cairo_ctx, gr->sx1, gr->sy1, sw, sh);
 #endif
     /* graph box, gridlines and axes */
-    draw_graph_grid(gr);
+    draw_graph_grid(gr, ct);
     /* get data to plot */
     my_strdup2(1389, &node, get_tok_value(r->prop_ptr,"node",0));
     my_strdup2(1390, &color, get_tok_value(r->prop_ptr,"color",0)); 
@@ -2771,11 +2830,11 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
                   if(bus_msb) {
                     if(digital) {
                       draw_graph_bus_points(ntok, n_bits, idx_arr, first, last, wave_color,
-                                   sweep_idx, wcnt, n_nodes, gr);
+                                   sweep_idx, wcnt, n_nodes, gr, ct);
                     }
                   } else {
                     if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express);
-                    draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr);
+                    draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr, ct);
                   }
                 }
                 poly_npoints = 0;
@@ -2812,11 +2871,11 @@ void draw_graph(int i, const int flags, Graph_ctx *gr)
               if(bus_msb) {
                 if(digital) {
                   draw_graph_bus_points(ntok, n_bits, idx_arr, first, last, wave_color,
-                               sweep_idx, wcnt, n_nodes, gr);
+                               sweep_idx, wcnt, n_nodes, gr, ct);
                 }
               } else {
                 if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express);
-                draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr);
+                draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr, ct);
               }
             }
           }
@@ -2892,7 +2951,7 @@ static void draw_graph_all(int flags)
         xRect *r = &xctx->rect[GRIDLAYER][i];
         if(r->flags & 1) {
           setup_graph_data(i, flags, 0, &xctx->graph_struct);
-          draw_graph(i, flags, &xctx->graph_struct); /* draw data in each graph box */
+          draw_graph(i, flags, &xctx->graph_struct, NULL); /* draw data in each graph box */
         }
       }
     }
@@ -3127,7 +3186,7 @@ static void draw_images_all(void)
 
 void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, double ry2)
 {
-  #if defined(__unix__) && defined(HAS_CAIRO)
+  #if defined(HAS_CAIRO)
   char *ptr = NULL;
   double x1, y1, x2, y2, w, h, rw, rh, scale;
   char transform[150];
@@ -3158,8 +3217,26 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   xctx->draw_pixmap=1;
   xctx->do_copy_area=0;
   draw();
+#ifdef __unix__
   png_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual,
                xctx->xrect[0].width, xctx->xrect[0].height);
+#else
+  /* pixmap doesn't work on windows 
+       Copy from cairo_save_sfc and use cairo
+       to draw in the data points to embed the graph */
+    png_sfc = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, xctx->xrect[0].width, xctx->xrect[0].height);
+    cairo_t *ct = cairo_create(png_sfc);
+    cairo_set_source_surface(ct, xctx->cairo_save_sfc, 0, 0);
+    cairo_set_operator(ct, CAIRO_OPERATOR_SOURCE);
+    cairo_paint(ct);
+    for(int i = 0; i < xctx->rects[GRIDLAYER]; i++) {
+      xRect *r = &xctx->rect[GRIDLAYER][i];
+      if(r->flags & 1) {
+        setup_graph_data(i, 8, 0, &xctx->graph_struct);
+        draw_graph(i, 8, &xctx->graph_struct, (void *)ct);
+      }
+    }
+#endif
   closure.buffer = NULL;
   closure.size = 0;
   closure.pos = 0;
@@ -3244,8 +3321,8 @@ void draw(void)
 
           if(xctx->enable_layer[c]) for(i=0;i<xctx->lines[c];i++) {
             xLine *l = &xctx->line[c][i];
-            if(l->bus) drawline(c, THICK, l->x1, l->y1, l->x2, l->y2, l->dash);
-            else       drawline(c, ADD, l->x1, l->y1, l->x2, l->y2, l->dash);
+            if(l->bus) drawline(c, THICK, l->x1, l->y1, l->x2, l->y2, l->dash, NULL);
+            else       drawline(c, ADD, l->x1, l->y1, l->x2, l->y2, l->dash, NULL);
           }
           if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c];i++) {
             xRect *r = &xctx->rect[c][i]; 
@@ -3294,7 +3371,7 @@ void draw(void)
           filledrect(c, END, 0.0, 0.0, 0.0, 0.0);
           drawarc(c, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
           drawrect(c, END, 0.0, 0.0, 0.0, 0.0, 0);
-          drawline(c, END, 0.0, 0.0, 0.0, 0.0, 0);
+          drawline(c, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
         }
         if(xctx->draw_single_layer==-1 || xctx->draw_single_layer==WIRELAYER) {
           if(use_hash) init_wire_iterator(&ctx, x1, y1, x2, y2);
@@ -3310,15 +3387,15 @@ void draw(void)
             }
             if(xctx->wire[i].bus) {
               drawline(WIRELAYER, THICK, xctx->wire[i].x1,xctx->wire[i].y1,
-                xctx->wire[i].x2,xctx->wire[i].y2, 0);
+                xctx->wire[i].x2,xctx->wire[i].y2, 0, NULL);
             }
             else
               drawline(WIRELAYER, ADD, xctx->wire[i].x1,xctx->wire[i].y1,
-                xctx->wire[i].x2,xctx->wire[i].y2, 0);
+                xctx->wire[i].x2,xctx->wire[i].y2, 0, NULL);
           }
           update_conn_cues(1, xctx->draw_window);
           filledrect(WIRELAYER, END, 0.0, 0.0, 0.0, 0.0);
-          drawline(WIRELAYER, END, 0.0, 0.0, 0.0, 0.0, 0);
+          drawline(WIRELAYER, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
         }
         if(xctx->draw_single_layer ==-1 || xctx->draw_single_layer==TEXTLAYER) {
           for(i=0;i<xctx->texts;i++)
@@ -3360,7 +3437,7 @@ void draw(void)
             #endif
             #if HAS_CAIRO!=1
             drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
-            drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
+            drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
             #endif
           }
         }

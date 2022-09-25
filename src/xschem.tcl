@@ -583,6 +583,10 @@ proc load_recent_file {} {
             -icon warning -parent . -type ok
       }
     }
+    set hash $c_toolbar::c_t(hash)
+    if { [info exists c_toolbar::c_t_$hash]} {
+      array set c_toolbar::c_t [array get c_toolbar::c_t_$hash]
+    }
   }
 }
 
@@ -616,6 +620,21 @@ proc write_recent_file {} {
     return
   }
   puts $fd "set recentfile {$recentfile}"
+
+  if {[info exists c_toolbar::c_t]} {
+    set hash $c_toolbar::c_t(hash)
+    set c_toolbar::c_t(time) [clock seconds]
+    array set c_toolbar::c_t_$hash [array get c_toolbar::c_t]
+    foreach i [info vars c_toolbar::c_t_*] {
+      ## old (~3 months) recent components will expire
+      if { [info exists [subst $i](time)]} {
+        if { [clock seconds] -  [set [subst $i](time)] < 7500000} {
+          puts $fd "array set $i {[array get $i]}"
+        }
+        # puts "Age: [expr {[clock seconds] -  [set [subst $i](time)]}]"
+      }
+    }
+  }
   close $fd
 }
 
@@ -2101,6 +2120,127 @@ proc is_xschem_file {f} {
   return $ret
 }
 
+## Recent component toolbar
+namespace eval c_toolbar {
+  # Create a variable inside the namespace
+  variable c_t
+  set c_t(w) .c_t
+  set c_t(update) 1
+  set c_t(hash) [hash_string $XSCHEM_LIBRARY_PATH]
+  
+  proc create {} {
+    variable c_t 
+    if { ![info exists c_t(n)]} {
+      set c_t(n) 20
+      set c_t(top) 0
+      for {set i 0} {$i < $c_t(n)} {incr i} {
+        set c_t($i,text)  "               "
+        set c_t($i,command) {}
+        set c_t($i,file) {}
+      }
+    }
+  }
+
+  proc cleanup {} {
+    variable c_t 
+    if {![info exists c_t(n)]} return
+    set j 0
+    set n $c_t(n)
+    set top $c_t(top)
+    for { set i $top} {1} {} {
+      if { $j } {
+        set k [expr {$i - $j}]
+        set c_t($k,text) $c_t($i,text)
+        set c_t($k,command) $c_t($i,command)
+        set c_t($k,file) $c_t($i,file)
+      }
+      set f [abs_sym_path $c_t($i,file)]
+      if {![file exists $f]} {
+        incr j
+      }
+      set i [expr {($i + 1) % $n} ]
+      if {$i == $top} break
+      if {$j} {
+        set c_t($i,text) "               "
+        set c_t($i,command) {}
+        set c_t($i,file) {}
+      }
+    }
+  }
+
+  proc display {} {
+    variable c_t
+    create
+    set w $c_t(w)
+    set n $c_t(n)
+    cleanup
+    if { [winfo exists $w]} {
+      for {set i 0} {$i < $n} {incr i} {
+        destroy $w.b$i
+      }
+    } else {
+      toplevel $w
+      wm geometry $w +[winfo rootx .]+[expr {[winfo rooty .] + 100}]
+      wm title $w "Recent"
+    }
+    set i $c_t(top)
+    while {1} {
+      button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command $c_t($i,command)
+      pack $w.b$i -side top -fill x
+      set i [expr {($i + 1) % $n}]
+      if { $i == $c_t(top) } break
+    }
+    update
+    set height [winfo height $w]
+    wm minsize $w 70 $height
+    wm maxsize $w 9999 $height
+  }
+
+  proc add {f} {
+    variable c_t
+    create
+    if { $c_t(update) } {
+      set found 0
+      for { set i 0} { $i < $c_t(n)} { incr i} {
+        if { [string first "xschem place_symbol {$f}" $c_t($i,command)] >=0} {
+          set found 1
+        }
+      }
+      if {$found} return
+      set i [expr { ($c_t(top)-1) % $c_t(n) } ];# last element
+      set c_t($i,file) $f
+      set c_t($i,command) "
+        xschem abort_operation
+        set c_toolbar::c_t(update) 0
+        xschem place_symbol {$f}
+      "
+      set c_t($i,text)  [file tail [file rootname $f]]
+      set c_t(top) $i
+    }
+    set c_t(update) 1
+  }
+}
+
+proc c_toolbar {what {f {}}} {
+  upvar #0 c_toolbar::c_t c_t
+  set w $c_t(w)
+  if {$what eq {create}} {
+    c_toolbar::create
+  } elseif {$what eq {add}} {
+    c_toolbar::create
+    c_toolbar::add $f
+  } elseif {$what eq {update}} {
+    if {[winfo exists $w]} {
+      c_toolbar::display
+    }
+  } elseif {$what eq {display}} {
+    c_toolbar::display
+  } elseif {$what eq {destroy}} {
+    destroy $w
+  }
+}
+## end Recent component toolbar
+
 proc myload_set_colors1 {} {
   global myload_files1 dircolor
   for {set i 0} { $i< [.dialog.l.paneleft.list index end] } { incr i} {
@@ -2199,6 +2339,19 @@ proc load_file_dialog_up {dir} {
     set myload_dir1 $d
   }
 }
+
+
+proc hash_string {s} {
+  set hash 5381
+  set len [string length $s]
+  for {set i 0} { $i < $len} { incr i} {
+    set c [string index $s $i]
+    set ascii [scan $c %c]
+    set hash [expr {($hash + ($hash << 5) + $ascii)%4294967296} ]
+  }
+  return $hash
+}
+
 
 proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} 
      {loadfile {1}} {confirm_overwrt {1}} {initialf {}}} {
@@ -4605,13 +4758,13 @@ proc set_tab_names {{mod {}}} {
 }
 
 proc raise_dialog {parent window_path } {
-  if {[winfo exists .dialog] && [winfo ismapped .dialog] && [winfo ismapped $parent] &&
-      [wm stackorder .dialog isbelow $parent ]} {
-    raise .dialog $window_path
-  }
-  if {[winfo exists .graphdialog] && [winfo ismapped .graphdialog] && [winfo ismapped $parent] &&
-      [wm stackorder .graphdialog isbelow $parent ]} {
-    raise .graphdialog $window_path
+  set ct  $c_toolbar::c_t(w) ;# recent component toolbar
+
+  foreach i ".dialog .graphdialog $ct" {
+    if {[winfo exists $i] && [winfo ismapped $i] && [winfo ismapped $parent] &&
+        [wm stackorder $i isbelow $parent ]} {
+      raise $i $window_path
+    }
   }
 }
 
@@ -5019,6 +5172,8 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.file.menu add command -label "Open Most Recent" \
     -command {xschem load [lindex "$recentfile" 0]} -accelerator {Ctrl+Shift+O}
+  $topwin.menubar.file.menu add command -label "Recent components browser" \
+    -command {c_toolbar display} -accelerator {Shift+Insert}
   $topwin.menubar.file.menu add command -label "Save" -command "xschem save" -accelerator {Ctrl+S}
   toolbar_add FileSave "xschem save" "Save File" $topwin
   $topwin.menubar.file.menu add command -label "Merge" -command "xschem merge" -accelerator {Shift+B}

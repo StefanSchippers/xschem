@@ -286,82 +286,88 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   */
 
   if(argv[1][0] == 'a') {   
+    if(!strcmp(argv[1],"abort_operation"))
+    {
+      cmd_found = 1;
+      abort_operation();
+    }
+
     if(!strcmp(argv[1],"add_symbol_pin"))
     {
-       cmd_found = 1;
-       unselect_all(1);
-       storeobject(-1, xctx->mousex_snap-2.5, xctx->mousey_snap-2.5, xctx->mousex_snap+2.5, xctx->mousey_snap+2.5,
-                   xRECT, PINLAYER, SELECTED, "name=XXX\ndir=inout");
-       xctx->need_reb_sel_arr=1;
-       rebuild_selected_array();
-       move_objects(START,0,0,0);
-       xctx->ui_state |= START_SYMPIN;
-       Tcl_ResetResult(interp);
+      cmd_found = 1;
+      unselect_all(1);
+      storeobject(-1, xctx->mousex_snap-2.5, xctx->mousey_snap-2.5, xctx->mousex_snap+2.5, xctx->mousey_snap+2.5,
+                  xRECT, PINLAYER, SELECTED, "name=XXX\ndir=inout");
+      xctx->need_reb_sel_arr=1;
+      rebuild_selected_array();
+      move_objects(START,0,0,0);
+      xctx->ui_state |= START_SYMPIN;
+      Tcl_ResetResult(interp);
     }
 
     if(!strcmp(argv[1],"add_graph"))
     {
-       cmd_found = 1;
-       unselect_all(1);
-       xctx->graph_lastsel = xctx->rects[GRIDLAYER];
-       storeobject(-1, xctx->mousex_snap-400, xctx->mousey_snap-200, xctx->mousex_snap+400, xctx->mousey_snap+200,
-                   xRECT, GRIDLAYER, SELECTED,
-           "flags=graph\n"
-           "y1=0\n"
-           "y2=2\n"
-           "ypos1=0\n"
-           "ypos2=2\n"
-           "divy=5\n"
-           "subdivy=1\n"
-           "unity=1\n"
-           "x1=0\n"
-           "x2=10e-6\n"
-           "divx=5\n"
-           "subdivx=1\n"
-           "node=\"\"\n"
-           "color=\"\"\n"
-           "dataset=-1\n"
-           "unitx=u\n"
-           "logx=0\n"
-           "logy=0\n"
-         );
-       xctx->need_reb_sel_arr=1;
-       rebuild_selected_array();
-       move_objects(START,0,0,0);
-       xctx->ui_state |= START_SYMPIN;
-       Tcl_ResetResult(interp);
+      cmd_found = 1;
+      unselect_all(1);
+      xctx->graph_lastsel = xctx->rects[GRIDLAYER];
+      storeobject(-1, xctx->mousex_snap-400, xctx->mousey_snap-200, xctx->mousex_snap+400, xctx->mousey_snap+200,
+                  xRECT, GRIDLAYER, SELECTED,
+          "flags=graph\n"
+          "y1=0\n"
+          "y2=2\n"
+          "ypos1=0\n"
+          "ypos2=2\n"
+          "divy=5\n"
+          "subdivy=1\n"
+          "unity=1\n"
+          "x1=0\n"
+          "x2=10e-6\n"
+          "divx=5\n"
+          "subdivx=1\n"
+          "node=\"\"\n"
+          "color=\"\"\n"
+          "dataset=-1\n"
+          "unitx=u\n"
+          "logx=0\n"
+          "logy=0\n"
+        );
+      xctx->need_reb_sel_arr=1;
+      rebuild_selected_array();
+      move_objects(START,0,0,0);
+      xctx->ui_state |= START_SYMPIN;
+      Tcl_ResetResult(interp);
     }
 
     if(!strcmp(argv[1],"add_png"))
     {
-       char str[PATH_MAX+100];
-       cmd_found = 1;
-       unselect_all(1);
-       tcleval("tk_getOpenFile -filetypes { {{Png} {.png}}   {{All files} *} }");
-       if(tclresult()[0]) {
-         my_snprintf(str, S(str), "flags=image,unscaled\nalpha=0.8\nimage=%s\n", tclresult());
-         storeobject(-1, xctx->mousex_snap-100, xctx->mousey_snap-100, xctx->mousex_snap+100, xctx->mousey_snap+100,
-                     xRECT, GRIDLAYER, SELECTED, str);
-         xctx->need_reb_sel_arr=1;
-         rebuild_selected_array();
-         move_objects(START,0,0,0);
-         xctx->ui_state |= START_SYMPIN;
-       }
-       Tcl_ResetResult(interp);
+      char str[PATH_MAX+100];
+      cmd_found = 1;
+      unselect_all(1);
+      tcleval("tk_getOpenFile -filetypes { {{Png} {.png}}   {{All files} *} }");
+      if(tclresult()[0]) {
+        my_snprintf(str, S(str), "flags=image,unscaled\nalpha=0.8\nimage=%s\n", tclresult());
+        storeobject(-1, xctx->mousex_snap-100, xctx->mousey_snap-100, xctx->mousex_snap+100, xctx->mousey_snap+100,
+                    xRECT, GRIDLAYER, SELECTED, str);
+        xctx->need_reb_sel_arr=1;
+        rebuild_selected_array();
+        move_objects(START,0,0,0);
+        xctx->ui_state |= START_SYMPIN;
+      }
+      Tcl_ResetResult(interp);
     }
 
     else if(!strcmp(argv[1],"align"))
     {
-       cmd_found = 1;
-       xctx->push_undo();
-       round_schematic_to_grid(tclgetdoublevar("cadsnap"));
-       if(tclgetboolvar("autotrim_wires")) trim_wires();
-       set_modify(1);
-       xctx->prep_hash_inst=0;
-       xctx->prep_hash_wires=0;
-       xctx->prep_net_structs=0;
-       xctx->prep_hi_structs=0;
-       draw();
+      cmd_found = 1;
+      xctx->push_undo();
+      round_schematic_to_grid(tclgetdoublevar("cadsnap"));
+      if(tclgetboolvar("autotrim_wires")) trim_wires();
+      set_modify(1);
+      xctx->prep_hash_inst=0;
+      xctx->prep_hash_wires=0;
+      xctx->prep_net_structs=0;
+      xctx->prep_hi_structs=0;
+      draw();
     }
    
     else if(!strcmp(argv[1],"annotate_op"))
@@ -699,7 +705,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           flags = 1 + 8 + (xctx->graph_flags & 6);
         }
         setup_graph_data(i, xctx->graph_flags, 0,  &xctx->graph_struct);
-        draw_graph(i, flags, &xctx->graph_struct);
+        draw_graph(i, flags, &xctx->graph_struct, NULL);
       }
       Tcl_ResetResult(interp);
     }
@@ -1617,7 +1623,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc==7) pos=atoi(argv[6]);
         storeobject(pos, x1,y1,x2,y2,LINE,xctx->rectcolor,0,NULL);
         save = xctx->draw_window; xctx->draw_window = 1;
-        drawline(xctx->rectcolor,NOW, x1,y1,x2,y2, 0);
+        drawline(xctx->rectcolor,NOW, x1,y1,x2,y2, 0, NULL);
         xctx->draw_window = save;
       }
       else xctx->ui_state |= MENUSTARTLINE;
@@ -3010,7 +3016,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xctx->prep_net_structs=0;
         xctx->prep_hash_wires=0;
         save = xctx->draw_window; xctx->draw_window = 1;
-        drawline(WIRELAYER,NOW, x1,y1,x2,y2, 0);
+        drawline(WIRELAYER,NOW, x1,y1,x2,y2, 0, NULL);
         xctx->draw_window = save;
         if(tclgetboolvar("autotrim_wires")) trim_wires();
       }

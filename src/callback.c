@@ -82,7 +82,7 @@ void redraw_w_a_l_r_p_rubbers(void)
   }
 }
 
-static void abort_operation(void)
+void abort_operation(void)
 {
   xctx->no_draw = 0;
   tcleval("set constrained_move 0" );
@@ -292,7 +292,7 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
        filledrect(c, END, 0.0, 0.0, 0.0, 0.0);
        drawarc(c, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
        drawrect(c, END, 0.0, 0.0, 0.0, 0.0, 0);
-       drawline(c, END, 0.0, 0.0, 0.0, 0.0, 0);
+       drawline(c, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
      }
      xctx->draw_window = save;
      #endif
@@ -438,7 +438,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   /* check if user clicked on a wave label -> draw wave in bold */
   if(event == ButtonPress && button == Button3 &&
            edit_wave_attributes(2, i, gr)) {
-    draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr); /* draw data in graph box */
+    draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr, NULL); /* draw data in graph box */
     return 0;
   }
   /* save mouse position when doing pan operations */
@@ -1011,7 +1011,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     } /* else if( event == ButtonRelease) */
     if(need_redraw || need_all_redraw) {
       setup_graph_data(i, xctx->graph_flags, 0, gr);
-      draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr); /* draw data in each graph box */
+      draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr, NULL); /* draw data in each graph box */
     }
   } /* for(i=0; i< xctx->rects[GRIDLAYER]; i++ */
 
@@ -1916,7 +1916,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     if(xctx->semaphore >= 2) break;
     descend_symbol();break;
    }
-   if(key==XK_Insert || (key == 'I' && state == ShiftMask) ) /* insert sym */
+   if(key==XK_Insert && state == ShiftMask) {
+     tcleval("c_toolbar display");
+   }
+   if((key==XK_Insert && state == 0) || (key == 'I' && state == ShiftMask) ) /* insert sym */
    {
     if(xctx->semaphore >= 2) break;
     start_place_symbol(mx, my);
