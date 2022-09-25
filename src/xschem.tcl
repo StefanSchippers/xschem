@@ -2120,6 +2120,18 @@ proc is_xschem_file {f} {
   return $ret
 }
 
+
+proc hash_string {s} {
+  set hash 5381
+  set len [string length $s]
+  for {set i 0} { $i < $len} { incr i} {
+    set c [string index $s $i]
+    set ascii [scan $c %c]
+    set hash [expr {($hash + ($hash << 5) + $ascii)%4294967296} ]
+  }
+  return $hash
+}
+
 ## Recent component toolbar
 namespace eval c_toolbar {
   # Create a variable inside the namespace
@@ -2338,18 +2350,6 @@ proc load_file_dialog_up {dir} {
     myload_set_colors2
     set myload_dir1 $d
   }
-}
-
-
-proc hash_string {s} {
-  set hash 5381
-  set len [string length $s]
-  for {set i 0} { $i < $len} { incr i} {
-    set c [string index $s $i]
-    set ascii [scan $c %c]
-    set hash [expr {($hash + ($hash << 5) + $ascii)%4294967296} ]
-  }
-  return $hash
 }
 
 
