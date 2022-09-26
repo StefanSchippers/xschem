@@ -2136,17 +2136,16 @@ proc hash_string {s} {
 namespace eval c_toolbar {
   # Create a variable inside the namespace
   variable c_t
-  set c_t(w) .c_t
-  set c_t(update) 1
+  set c_t(w) .load.recent
   set c_t(hash) [hash_string $XSCHEM_LIBRARY_PATH]
   
   proc create {} {
     variable c_t 
     if { ![info exists c_t(n)]} {
-      set c_t(n) 20
+      set c_t(n) 30
       set c_t(top) 0
       for {set i 0} {$i < $c_t(n)} {incr i} {
-        set c_t($i,text)  "               "
+        set c_t($i,text) {}
         set c_t($i,command) {}
         set c_t($i,file) {}
       }
@@ -2159,110 +2158,87 @@ namespace eval c_toolbar {
     set j 0
     set n $c_t(n)
     set top $c_t(top)
-    for { set i $top} {1} {} {
+    set i $top
+    while {1} {
+      set f [abs_sym_path $c_t($i,file)]
+      if { $c_t($i,text) eq {} } {break}
       if { $j } {
         set k [expr {$i - $j}]
+        if {$k < 0 } { set k [expr {$k + $n}]}
         set c_t($k,text) $c_t($i,text)
         set c_t($k,command) $c_t($i,command)
         set c_t($k,file) $c_t($i,file)
-      }
-      set f [abs_sym_path $c_t($i,file)]
-      if {![file exists $f]} {
-        incr j
-      }
-      set i [expr {($i + 1) % $n} ]
-      if {$i == $top} break
-      if {$j} {
-        set c_t($i,text) "               "
+        set c_t($i,text) {}
         set c_t($i,command) {}
         set c_t($i,file) {}
       }
+      if {$f ne {} && ![file exists $f]} {
+        incr j
+      } elseif {[array names files -exact $f] ne {}} {
+        incr j
+      }
+      set files($f) 1
+      set i [expr {($i + 1) % $n} ]
+      if {$i == $top} break
     }
   }
 
   proc display {} {
     variable c_t
-    create
-    set w $c_t(w)
-    set n $c_t(n)
-    cleanup
-    if { [winfo exists $w]} {
+    if { [winfo exists $c_t(w)]} {
+      create
+      set w $c_t(w)
+      set n $c_t(n)
+      cleanup
+      destroy $w.title
       for {set i 0} {$i < $n} {incr i} {
         destroy $w.b$i
       }
-    } else {
-      toplevel $w
-      wm geometry $w +[winfo rootx .]+[expr {[winfo rooty .] + 100}]
-      wm title $w "Recent"
+      set i $c_t(top)
+      button $w.title -text Recent -pady 0 -padx 0 -width 13 -state disabled -disabledforeground black \
+        -background grey60 -highlightthickness 0 -borderwidth 0 -font {TkDefaultFont 12 bold}
+      pack $w.title -side top -fill x
+      while {1} {
+        button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command $c_t($i,command) -width 13
+        pack $w.b$i -side top -fill x
+        set i [expr {($i + 1) % $n}]
+        if { $i == $c_t(top) } break
+      }
     }
-    set i $c_t(top)
-    while {1} {
-      button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command $c_t($i,command)
-      pack $w.b$i -side top -fill x
-      set i [expr {($i + 1) % $n}]
-      if { $i == $c_t(top) } break
-    }
-    update
-    set height [winfo height $w]
-    wm minsize $w 70 $height
-    wm maxsize $w 9999 $height
   }
 
   proc add {f} {
     variable c_t
     create
-    if { $c_t(update) } {
-      set found 0
-      for { set i 0} { $i < $c_t(n)} { incr i} {
-        if { [string first "xschem place_symbol {$f}" $c_t($i,command)] >=0} {
-          set found 1
-        }
-      }
-      if {$found} return
-      set i [expr { ($c_t(top)-1) % $c_t(n) } ];# last element
-      set c_t($i,file) $f
-      set c_t($i,command) "
-        xschem abort_operation
-        set c_toolbar::c_t(update) 0
-        xschem place_symbol {$f}
-      "
-      set c_t($i,text)  [file tail [file rootname $f]]
-      set c_t(top) $i
+    for {set i 0} {$i < $c_t(n)} {incr i} {
+      if {  $c_t($i,file) eq $f } { return 0}
     }
-    set c_t(update) 1
-  }
-}
-
-proc c_toolbar {what {f {}}} {
-  upvar #0 c_toolbar::c_t c_t
-  set w $c_t(w)
-  if {$what eq {create}} {
-    c_toolbar::create
-  } elseif {$what eq {add}} {
-    c_toolbar::create
-    c_toolbar::add $f
-  } elseif {$what eq {update}} {
-    if {[winfo exists $w]} {
-      c_toolbar::display
-    }
-  } elseif {$what eq {display}} {
-    c_toolbar::display
-  } elseif {$what eq {destroy}} {
-    destroy $w
+    set ret 0
+    set ret 1
+    set i [expr { ($c_t(top)-1) % $c_t(n) } ];# last element
+    set c_t($i,file) $f
+    set c_t($i,command) "
+      xschem abort_operation
+      xschem place_symbol {$f}
+    "
+    set c_t($i,text)  [file tail [file rootname $f]]
+    set c_t(top) $i
+    if {$ret} {write_recent_file}
+    return $ret
   }
 }
 ## end Recent component toolbar
 
 proc myload_set_colors1 {} {
   global myload_files1 dircolor
-  for {set i 0} { $i< [.dialog.l.paneleft.list index end] } { incr i} {
+  for {set i 0} { $i< [.load.l.paneleft.list index end] } { incr i} {
     set name "[lindex $myload_files1 $i]"
-    .dialog.l.paneleft.list itemconfigure $i -foreground black -selectforeground black
+    .load.l.paneleft.list itemconfigure $i -foreground black -selectforeground black
     foreach j [array names dircolor] {
       set pattern $j
       set color $dircolor($j)
       if { [regexp $pattern $name] } {
-        .dialog.l.paneleft.list itemconfigure $i -foreground $color -selectforeground $color
+        .load.l.paneleft.list itemconfigure $i -foreground $color -selectforeground $color
       }
     }
   }
@@ -2270,21 +2246,21 @@ proc myload_set_colors1 {} {
 
 proc myload_set_colors2 {} {
   global myload_index1 myload_files2 dircolor
-  set dir1 [abs_sym_path [.dialog.l.paneleft.list get $myload_index1]]
-  for {set i 0} { $i< [.dialog.l.paneright.list index end] } { incr i} {
+  set dir1 [abs_sym_path [.load.l.paneleft.list get $myload_index1]]
+  for {set i 0} { $i< [.load.l.paneright.list index end] } { incr i} {
     set name "$dir1/[lindex $myload_files2 $i]"
     if {[ file isdirectory $name]} {
-      .dialog.l.paneright.list itemconfigure $i -foreground blue
+      .load.l.paneright.list itemconfigure $i -foreground blue
       foreach j [array names dircolor] {
         set pattern $j 
         set color $dircolor($j)
         if { [regexp $pattern $name] } {
-          .dialog.l.paneright.list itemconfigure $i -foreground $color -selectforeground $color
+          .load.l.paneright.list itemconfigure $i -foreground $color -selectforeground $color
         }
       }
 
     } else {
-      .dialog.l.paneright.list itemconfigure $i -foreground black
+      .load.l.paneright.list itemconfigure $i -foreground black
     }
   }
 }
@@ -2293,7 +2269,7 @@ proc myload_set_home {dir} {
   global pathlist  myload_files1 myload_index1
 
   set curr_dirname [xschem get current_dirname]
-  .dialog.l.paneleft.list selection clear 0 end
+  .load.l.paneleft.list selection clear 0 end
   if { $dir eq {.}} { set dir $curr_dirname}
   # puts "set home: dir=$dir, pathlist=$pathlist"
   set pl {}
@@ -2308,16 +2284,16 @@ proc myload_set_home {dir} {
     set myload_files1 $pathlist
     update
     myload_set_colors1
-    .dialog.l.paneleft.list xview moveto 1
+    .load.l.paneleft.list xview moveto 1
     set myload_index1 $i
-    .dialog.l.paneleft.list selection set $myload_index1
+    .load.l.paneleft.list selection set $myload_index1
   } else {
     set myload_files1 [list $dir]
     update
     myload_set_colors1
-    .dialog.l.paneleft.list xview moveto 1
+    .load.l.paneleft.list xview moveto 1
     set myload_index1 0
-    .dialog.l.paneleft.list selection set 0
+    .load.l.paneleft.list selection set 0
   }
 }
 
@@ -2341,8 +2317,8 @@ proc load_file_dialog_mkdir {dir} {
 }
 proc load_file_dialog_up {dir} {
   global myload_dir1
-  bind .dialog.l.paneright.draw <Expose> {}
-  .dialog.l.paneright.draw configure -background white
+  bind .load.l.paneright.draw <Expose> {}
+  .load.l.paneright.draw configure -background white
   set d [file dirname $dir]
   if { [file isdirectory $d]} {
     myload_set_home $d
@@ -2353,247 +2329,9 @@ proc load_file_dialog_up {dir} {
 }
 
 
-proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} 
-     {loadfile {1}} {confirm_overwrt {1}} {initialf {}}} {
-  global myload_index1 myload_files2 myload_files1 myload_retval myload_dir1 pathlist OS
-  global myload_default_geometry myload_sash_pos myload_yview tcl_version globfilter myload_dirs2
-  global save_initialfile
-
-  set save_initialfile $initialf
-  set globfilter *
-  set myload_retval {} 
-  upvar #0 $global_initdir initdir
-  if { [winfo exists .dialog] } return
-  xschem set semaphore [expr {[xschem get semaphore] +1}]
-  toplevel .dialog -class dialog
-  wm title .dialog $msg
-  set_ne myload_index1 0
-  if { ![info exists myload_files1]} {
-    set myload_files1 $pathlist
-    set myload_index1 0
-  }
-  set_ne myload_files2 {}
-  panedwindow  .dialog.l -orient horizontal
-  frame .dialog.l.paneleft
-  eval [subst {listbox .dialog.l.paneleft.list -listvariable myload_files1 -width 20 -height 12 \
-    -yscrollcommand ".dialog.l.paneleft.yscroll set" -selectmode browse \
-    -xscrollcommand ".dialog.l.paneleft.xscroll set" -exportselection 0}]
-  if { ![catch {.dialog.l.paneleft.list cget -justify}]} {
-    .dialog.l.paneleft.list configure -justify right
-  }
-  myload_set_colors1
-  scrollbar .dialog.l.paneleft.yscroll -command ".dialog.l.paneleft.list yview" 
-  scrollbar .dialog.l.paneleft.xscroll -command ".dialog.l.paneleft.list xview" -orient horiz
-  pack  .dialog.l.paneleft.yscroll -side right -fill y
-  pack  .dialog.l.paneleft.xscroll -side bottom -fill x
-  pack  .dialog.l.paneleft.list -fill both -expand true
-  bind .dialog.l.paneleft.list <<ListboxSelect>> { 
-    # bind .dialog.l.paneright.draw <Expose> {}
-    # .dialog.l.paneright.draw configure -background white
-    set myload_sel [.dialog.l.paneleft.list curselection]
-    if { $myload_sel ne {} } {
-      set myload_dir1 [abs_sym_path [.dialog.l.paneleft.list get $myload_sel]]
-      set myload_index1 $myload_sel
-      set globfilter *
-      if {$save_initialfile eq {}} {.dialog.buttons_bot.entry delete 0 end}
-      setglob $myload_dir1
-      myload_set_colors2
-    }
-  }
-  frame .dialog.l.paneright
-  frame .dialog.l.paneright.draw -background white -width 200 -height 200
-  listbox .dialog.l.paneright.list  -listvariable myload_files2 -width 20 -height 12\
-    -yscrollcommand ".dialog.l.paneright.yscroll set" -selectmode browse \
-    -xscrollcommand ".dialog.l.paneright.xscroll set" -exportselection 0
-  scrollbar .dialog.l.paneright.yscroll -command ".dialog.l.paneright.list yview"
-  scrollbar .dialog.l.paneright.xscroll -command ".dialog.l.paneright.list xview" -orient horiz
-  pack .dialog.l.paneright.draw -side bottom -anchor s -fill x 
-  pack  .dialog.l.paneright.yscroll -side right -fill y
-  pack  .dialog.l.paneright.xscroll -side bottom -fill x
-  pack  .dialog.l.paneright.list -side bottom  -fill both -expand true
-
-  .dialog.l  add .dialog.l.paneleft -minsize 40
-  .dialog.l  add .dialog.l.paneright -minsize 40
-  # .dialog.l paneconfigure .dialog.l.paneleft -stretch always
-  # .dialog.l paneconfigure .dialog.l.paneright -stretch always
-  frame .dialog.buttons 
-  frame .dialog.buttons_bot
-  button .dialog.buttons_bot.ok -width 5 -text OK -command {
-    set myload_retval [.dialog.buttons_bot.entry get]
-    destroy .dialog
-  } 
-  button .dialog.buttons_bot.cancel -width 5 -text Cancel -command {
-    set myload_retval {}
-    destroy .dialog
-  }
-  button .dialog.buttons.home -width 5 -text {Home} -command {
-    bind .dialog.l.paneright.draw <Expose> {}
-    .dialog.l.paneright.draw configure -background white
-    set myload_files1 $pathlist
-    update
-    myload_set_colors1
-    .dialog.l.paneleft.list xview moveto 1
-    set myload_index1 0
-    set myload_dir1 [abs_sym_path [.dialog.l.paneleft.list get $myload_index1]]
-    setglob $myload_dir1
-    myload_set_colors2
-    .dialog.l.paneleft.list selection clear 0 end
-    .dialog.l.paneright.list selection clear 0 end
-    .dialog.l.paneleft.list selection set $myload_index1
-  }
-  label .dialog.buttons_bot.label  -text {  File/Search:}
-  entry .dialog.buttons_bot.entry
-  if { $save_initialfile ne {} } { 
-    .dialog.buttons_bot.entry insert 0 $save_initialfile
-  }
-  bind .dialog.buttons_bot.entry <KeyRelease> {
-    if {$save_initialfile eq {} } {
-      set globfilter  *[.dialog.buttons_bot.entry get]*
-      if { $globfilter eq {**} } { set globfilter * }
-      setglob $myload_dir1
-    }
-  }
-  radiobutton .dialog.buttons_bot.all -text All -variable globfilter -value {*} \
-     -command { setglob $myload_dir1 }
-  radiobutton .dialog.buttons_bot.sym -text .sym -variable globfilter -value {*.sym} \
-     -command { setglob $myload_dir1 }
-  radiobutton .dialog.buttons_bot.sch -text .sch -variable globfilter -value {*.sch} \
-     -command { setglob $myload_dir1 }
-  button .dialog.buttons.up -width 5 -text Up -command {load_file_dialog_up  $myload_dir1}
-  label .dialog.buttons.mkdirlab -text { New dir: } -fg blue
-  entry .dialog.buttons.newdir -width 16
-  button .dialog.buttons.mkdir -width 5 -text Create -fg blue -command { 
-    load_file_dialog_mkdir [.dialog.buttons.newdir get]
-  }
-  button .dialog.buttons.rmdir -width 5 -text Delete -fg blue -command { 
-    if { [.dialog.buttons.newdir get] ne {} } {
-      file delete "${myload_dir1}/[.dialog.buttons.newdir get]"
-      setglob ${myload_dir1}
-      myload_set_colors2
-    }
-  }
-  button .dialog.buttons.pwd -text {Current dir} -command {load_file_dialog_up  [xschem get schname]}
-  pack .dialog.buttons.home .dialog.buttons.up .dialog.buttons.pwd -side left
-  pack .dialog.buttons.mkdirlab -side left
-  pack .dialog.buttons.newdir -expand true -fill x -side left
-  pack .dialog.buttons.rmdir .dialog.buttons.mkdir -side right
-  pack .dialog.buttons_bot.all .dialog.buttons_bot.sym .dialog.buttons_bot.sch -side left
-  pack .dialog.buttons_bot.label -side left
-  pack .dialog.buttons_bot.entry -side left -fill x -expand true
-  pack .dialog.buttons_bot.cancel .dialog.buttons_bot.ok -side left
-  pack .dialog.l -expand true -fill both
-  pack .dialog.buttons -side top -fill x
-  pack .dialog.buttons_bot -side top -fill x
-  if { [info exists myload_default_geometry]} {
-     wm geometry .dialog "${myload_default_geometry}"
-  }
-  myload_set_home $initdir
-  bind .dialog <Return> { 
-    set myload_retval [.dialog.buttons_bot.entry get]
-    if {$myload_retval ne {} } {
-      destroy .dialog
-    }
-  }
-  bind .dialog.l.paneright.list <Double-Button-1> {
-    set myload_retval [.dialog.buttons_bot.entry get]
-    if {$myload_retval ne {}  && ![file isdirectory "$myload_dir1/[.dialog.l.paneright.list get $myload_sel]"]} {
-      bind .dialog.l.paneright.draw <Expose> {}
-      destroy .dialog
-    }
-  }
-  bind .dialog <Escape> {
-    set myload_retval {}
-    destroy .dialog
-  }
-
-  ### update
-  if { [ info exists myload_sash_pos] } {
-    eval .dialog.l sash mark 0 [.dialog.l sash coord 0]
-    eval .dialog.l sash dragto 0 [subst $myload_sash_pos]
-  }
-  ### update
-  .dialog.l.paneleft.list xview moveto 1
-  bind .dialog <Configure> {
-    set myload_sash_pos [.dialog.l sash coord 0]
-    set myload_default_geometry [wm geometry .dialog]
-    .dialog.l.paneleft.list xview moveto 1
-    # regsub {\+.*} $myload_default_geometry {} myload_default_geometry
-  }
-
-  bind .dialog.l.paneright.yscroll <Motion> {
-    set myload_yview [.dialog.l.paneright.list yview]
-  }
-
-  xschem preview_window create .dialog.l.paneright.draw {}
-  set myload_dir1 [abs_sym_path [.dialog.l.paneleft.list get $myload_index1]]
-  setglob $myload_dir1
-  myload_set_colors2
-
-  bind .dialog.l.paneright.list <ButtonPress> { 
-    set myload_yview [.dialog.l.paneright.list yview]
-  }
-  bind .dialog.l.paneright.list <<ListboxSelect>> {
-    set myload_yview [.dialog.l.paneright.list yview] 
-    set myload_sel [.dialog.l.paneright.list curselection]
-    if { $myload_sel ne {} } {
-      set myload_dir1 [abs_sym_path [.dialog.l.paneleft.list get $myload_index1]]
-      set myload_dir2 [.dialog.l.paneright.list get $myload_sel]
-      if {$myload_dir2 eq {..}} {
-        set myload_d [file dirname $myload_dir1]
-      } elseif { $myload_dir2 eq {.} } {
-        set myload_d  $myload_dir1
-      } else {
-        if {$OS == "Windows"} {
-          if {[regexp {^[A-Za-z]\:/$} $myload_dir1]} {
-            set myload_d "$myload_dir1$myload_dir2"
-          } else {
-            set myload_d "$myload_dir1/$myload_dir2"
-          }
-        } else {
-          if {$myload_dir1 eq "/"} {
-            set myload_d "$myload_dir1$myload_dir2"
-          } else {
-            set myload_d "$myload_dir1/$myload_dir2"
-          }
-        }
-      }
-      if { [file isdirectory $myload_d]} {
-        bind .dialog.l.paneright.draw <Expose> {}
-        .dialog.l.paneright.draw configure -background white
-        myload_set_home $myload_d
-        setglob $myload_d
-        myload_set_colors2
-        set myload_dir1 $myload_d
-        # .dialog.buttons_bot.entry delete 0 end
-      } else {
-        set globfilter *
-        .dialog.buttons_bot.entry delete 0 end
-        .dialog.buttons_bot.entry insert 0 $myload_dir2
-         set myload_type [is_xschem_file $myload_dir1/$myload_dir2]
-         if { $myload_type ne {0}  } {
-	   ### update
-           if { [winfo exists .dialog] } {
-             .dialog.l.paneright.draw configure -background {}
-             xschem preview_window draw .dialog.l.paneright.draw "$myload_dir1/$myload_dir2"
-             bind .dialog.l.paneright.draw <Expose> {
-               xschem preview_window draw .dialog.l.paneright.draw "$myload_dir1/$myload_dir2"
-             }
-           }
-         } else {
-           bind .dialog.l.paneright.draw <Expose> {}
-           .dialog.l.paneright.draw configure -background white
-         }
-         # puts "xschem preview_window draw .dialog.l.paneright.draw \"$myload_dir1/$myload_dir2\""
-      }
-    }
-  }
-  if { [ info exists myload_yview]} {
-   .dialog.l.paneright.list yview moveto  [lindex $myload_yview 0]
-  }
-  tkwait window .dialog
-  xschem set semaphore [expr {[xschem get semaphore] -1}]
-  xschem preview_window destroy {} {} 
-  set initdir "$myload_dir1"
+proc myload_getresult {loadfile confirm_overwrt} {
+  global myload_dir1 myload_retval myload_ext
+  
   if { $myload_retval ne {}} {
     if {![file exists "$myload_dir1/$myload_retval"] } {
       return "$myload_dir1/$myload_retval"
@@ -2624,7 +2362,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       } else {
         return "$myload_dir1/$myload_retval"
       }
-    } elseif { $myload_type ne {SYMBOL} && ($ext eq {.sym}) } {
+    } elseif { $myload_type ne {SYMBOL} && ($myload_ext eq {.sym}) } {
       set answer [
         tk_messageBox -message "$myload_dir1/$myload_retval does not seem to be a SYMBOL file...\nContinue?" \
            -icon warning -parent [xschem get topwindow] -type yesno]
@@ -2640,6 +2378,289 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   } else {
     return {}
   }
+}
+
+# global_initdir: name of global variable containing the initial directory
+# loadfile: set to 0 if calling for saving instead of loading a file
+#           set to 2 for non blocking operation (symbol insertion)
+# confirm_overwrt: ask before overwriting an existing file
+# initialf: fill the file entry box with this name (used when saving)
+#
+proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} 
+     {loadfile {1}} {confirm_overwrt {1}} {initialf {}}} {
+  global myload_index1 myload_files2 myload_files1 myload_retval myload_dir1 pathlist OS
+  global myload_default_geometry myload_sash_pos myload_yview tcl_version globfilter myload_dir2
+  global save_initialfile myload_loadfile myload_ext
+
+  if { [winfo exists .load] } {
+    .load.buttons_bot.cancel invoke
+  }
+  set myload_loadfile $loadfile
+  set myload_ext $ext
+  set save_initialfile $initialf
+  set globfilter *
+  set myload_retval {} 
+  upvar #0 $global_initdir initdir
+  if { $loadfile != 2} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
+  toplevel .load -class dialog
+  wm title .load $msg
+  set_ne myload_index1 0
+  if { ![info exists myload_files1]} {
+    set myload_files1 $pathlist
+    set myload_index1 0
+  }
+  set_ne myload_files2 {}
+  if { $loadfile == 2} {frame .load.recent}
+  panedwindow  .load.l -orient horizontal
+  frame .load.l.paneleft
+  eval [subst {listbox .load.l.paneleft.list -listvariable myload_files1 -width 20 -height 12 \
+    -yscrollcommand ".load.l.paneleft.yscroll set" -selectmode browse \
+    -xscrollcommand ".load.l.paneleft.xscroll set" -exportselection 0}]
+  if { ![catch {.load.l.paneleft.list cget -justify}]} {
+    .load.l.paneleft.list configure -justify right
+  }
+  myload_set_colors1
+  scrollbar .load.l.paneleft.yscroll -command ".load.l.paneleft.list yview" 
+  scrollbar .load.l.paneleft.xscroll -command ".load.l.paneleft.list xview" -orient horiz
+  pack  .load.l.paneleft.yscroll -side right -fill y
+  pack  .load.l.paneleft.xscroll -side bottom -fill x
+  pack  .load.l.paneleft.list -fill both -expand true
+  bind .load.l.paneleft.list <<ListboxSelect>> { 
+    # bind .load.l.paneright.draw <Expose> {}
+    # .load.l.paneright.draw configure -background white
+    set myload_sel [.load.l.paneleft.list curselection]
+    if { $myload_sel ne {} } {
+      set myload_dir1 [abs_sym_path [.load.l.paneleft.list get $myload_sel]]
+      set myload_index1 $myload_sel
+      set globfilter *
+      if {$save_initialfile eq {}} {.load.buttons_bot.entry delete 0 end}
+      setglob $myload_dir1
+      myload_set_colors2
+    }
+  }
+  frame .load.l.paneright
+  frame .load.l.paneright.draw -background white -width 200 -height 200
+  listbox .load.l.paneright.list  -listvariable myload_files2 -width 20 -height 12\
+    -yscrollcommand ".load.l.paneright.yscroll set" -selectmode browse \
+    -xscrollcommand ".load.l.paneright.xscroll set" -exportselection 0
+  scrollbar .load.l.paneright.yscroll -command ".load.l.paneright.list yview"
+  scrollbar .load.l.paneright.xscroll -command ".load.l.paneright.list xview" -orient horiz
+  pack .load.l.paneright.draw -side bottom -anchor s -fill x 
+  pack  .load.l.paneright.yscroll -side right -fill y
+  pack  .load.l.paneright.xscroll -side bottom -fill x
+  pack  .load.l.paneright.list -side bottom  -fill both -expand true
+
+  .load.l  add .load.l.paneleft -minsize 40
+  .load.l  add .load.l.paneright -minsize 40
+  # .load.l paneconfigure .load.l.paneleft -stretch always
+  # .load.l paneconfigure .load.l.paneright -stretch always
+  frame .load.buttons 
+  frame .load.buttons_bot
+  button .load.buttons_bot.ok -width 5 -text OK -command {
+    set myload_retval [.load.buttons_bot.entry get]
+    destroy .load
+    xschem preview_window destroy {} {}
+    set initdir "$myload_dir1"
+  } 
+  button .load.buttons_bot.cancel -width 5 -text Cancel -command {
+    set myload_retval {}
+    destroy .load
+    if {$myload_loadfile == 2} {xschem abort_operation}
+    xschem preview_window destroy {} {}
+    set initdir "$myload_dir1"
+  }
+  button .load.buttons.home -width 5 -text {Home} -command {
+    bind .load.l.paneright.draw <Expose> {}
+    .load.l.paneright.draw configure -background white
+    set myload_files1 $pathlist
+    update
+    myload_set_colors1
+    .load.l.paneleft.list xview moveto 1
+    set myload_index1 0
+    set myload_dir1 [abs_sym_path [.load.l.paneleft.list get $myload_index1]]
+    setglob $myload_dir1
+    myload_set_colors2
+    .load.l.paneleft.list selection clear 0 end
+    .load.l.paneright.list selection clear 0 end
+    .load.l.paneleft.list selection set $myload_index1
+  }
+  label .load.buttons_bot.label  -text {  File/Search:}
+  entry .load.buttons_bot.entry
+  if { $save_initialfile ne {} } { 
+    .load.buttons_bot.entry insert 0 $save_initialfile
+  }
+  bind .load.buttons_bot.entry <KeyRelease> {
+    if {$save_initialfile eq {} } {
+      set globfilter  *[.load.buttons_bot.entry get]*
+      if { $globfilter eq {**} } { set globfilter * }
+      setglob $myload_dir1
+    }
+  }
+  radiobutton .load.buttons_bot.all -text All -variable globfilter -value {*} \
+     -command { setglob $myload_dir1 }
+  radiobutton .load.buttons_bot.sym -text .sym -variable globfilter -value {*.sym} \
+     -command { setglob $myload_dir1 }
+  radiobutton .load.buttons_bot.sch -text .sch -variable globfilter -value {*.sch} \
+     -command { setglob $myload_dir1 }
+  button .load.buttons.up -width 5 -text Up -command {load_file_dialog_up  $myload_dir1}
+  label .load.buttons.mkdirlab -text { New dir: } -fg blue
+  entry .load.buttons.newdir -width 16
+  button .load.buttons.mkdir -width 5 -text Create -fg blue -command { 
+    load_file_dialog_mkdir [.load.buttons.newdir get]
+  }
+  button .load.buttons.rmdir -width 5 -text Delete -fg blue -command { 
+    if { [.load.buttons.newdir get] ne {} } {
+      file delete "${myload_dir1}/[.load.buttons.newdir get]"
+      setglob ${myload_dir1}
+      myload_set_colors2
+    }
+  }
+  button .load.buttons.pwd -text {Current dir} -command {load_file_dialog_up  [xschem get schname]}
+  pack .load.buttons.home .load.buttons.up .load.buttons.pwd -side left
+  pack .load.buttons.mkdirlab -side left
+  pack .load.buttons.newdir -expand true -fill x -side left
+  pack .load.buttons.rmdir .load.buttons.mkdir -side right
+  pack .load.buttons_bot.all .load.buttons_bot.sym .load.buttons_bot.sch -side left
+  pack .load.buttons_bot.label -side left
+  pack .load.buttons_bot.entry -side left -fill x -expand true
+  pack .load.buttons_bot.cancel .load.buttons_bot.ok -side left
+  if { $loadfile == 2} {
+    pack .load.recent -side left -fill y
+    c_toolbar::display
+  }
+  pack .load.l -expand true -fill both
+  pack .load.buttons -side top -fill x
+  pack .load.buttons_bot -side top -fill x
+  if { [info exists myload_default_geometry]} {
+     wm geometry .load "${myload_default_geometry}"
+  }
+  myload_set_home $initdir
+  if { $loadfile != 2} {
+    bind .load <Return> { 
+      set myload_retval [.load.buttons_bot.entry get]
+      if {$myload_retval ne {} } {
+        destroy .load
+        xschem preview_window destroy {} {}
+        set initdir "$myload_dir1"
+      }
+    }
+    bind .load.l.paneright.list <Double-Button-1> {
+      set myload_retval [.load.buttons_bot.entry get]
+      if {$myload_retval ne {}  && 
+          ![file isdirectory "$myload_dir1/[.load.l.paneright.list get $myload_sel]"]} {
+        bind .load.l.paneright.draw <Expose> {}
+        destroy .load
+        xschem preview_window destroy {} {}
+        set initdir "$myload_dir1"
+      }
+    }
+  }
+  bind .load <Escape> {
+    set myload_retval {}
+    destroy .load
+    if {$myload_loadfile == 2} {xschem abort_operation}
+    xschem preview_window destroy {} {}
+    set initdir "$myload_dir1"
+  }
+
+  ### update
+  if { [ info exists myload_sash_pos] } {
+    eval .load.l sash mark 0 [.load.l sash coord 0]
+    eval .load.l sash dragto 0 [subst $myload_sash_pos]
+  }
+  ### update
+  .load.l.paneleft.list xview moveto 1
+  bind .load <Configure> {
+    set myload_sash_pos [.load.l sash coord 0]
+    set myload_default_geometry [wm geometry .load]
+    .load.l.paneleft.list xview moveto 1
+    # regsub {\+.*} $myload_default_geometry {} myload_default_geometry
+  }
+
+  bind .load.l.paneright.yscroll <Motion> {
+    set myload_yview [.load.l.paneright.list yview]
+  }
+
+  xschem preview_window create .load.l.paneright.draw {}
+  set myload_dir1 [abs_sym_path [.load.l.paneleft.list get $myload_index1]]
+  setglob $myload_dir1
+  myload_set_colors2
+
+  bind .load.l.paneright.list <ButtonPress> { 
+    set myload_yview [.load.l.paneright.list yview]
+  }
+  bind .load.l.paneright.list <<ListboxSelect>> {
+    set myload_yview [.load.l.paneright.list yview] 
+    set myload_sel [.load.l.paneright.list curselection]
+    if { $myload_sel ne {} } {
+      set myload_dir1 [abs_sym_path [.load.l.paneleft.list get $myload_index1]]
+      set myload_dir2 [.load.l.paneright.list get $myload_sel]
+      if {$myload_dir2 eq {..}} {
+        set myload_d [file dirname $myload_dir1]
+      } elseif { $myload_dir2 eq {.} } {
+        set myload_d  $myload_dir1
+      } else {
+        if {$OS == "Windows"} {
+          if {[regexp {^[A-Za-z]\:/$} $myload_dir1]} {
+            set myload_d "$myload_dir1$myload_dir2"
+          } else {
+            set myload_d "$myload_dir1/$myload_dir2"
+          }
+        } else {
+          if {$myload_dir1 eq "/"} {
+            set myload_d "$myload_dir1$myload_dir2"
+          } else {
+            set myload_d "$myload_dir1/$myload_dir2"
+          }
+        }
+      }
+      if { [file isdirectory $myload_d]} {
+        bind .load.l.paneright.draw <Expose> {}
+        .load.l.paneright.draw configure -background white
+        myload_set_home $myload_d
+        setglob $myload_d
+        myload_set_colors2
+        set myload_dir1 $myload_d
+        # .load.buttons_bot.entry delete 0 end
+      } else {
+        set globfilter *
+        .load.buttons_bot.entry delete 0 end
+        .load.buttons_bot.entry insert 0 $myload_dir2
+         set myload_type [is_xschem_file $myload_dir1/$myload_dir2]
+         if { $myload_type ne {0}  } {
+	   ### update
+           if { [winfo exists .load] } {
+             .load.l.paneright.draw configure -background {}
+             xschem preview_window draw .load.l.paneright.draw "$myload_dir1/$myload_dir2"
+             bind .load.l.paneright.draw <Expose> {
+               xschem preview_window draw .load.l.paneright.draw "$myload_dir1/$myload_dir2"
+             }
+           }
+         } else {
+           bind .load.l.paneright.draw <Expose> {}
+           .load.l.paneright.draw configure -background white
+         }
+         # puts "xschem preview_window draw .load.l.paneright.draw \"$myload_dir1/$myload_dir2\""
+      }
+    }
+    if {$myload_loadfile == 2} {
+      set myload_retval  [.load.buttons_bot.entry get]
+      set r [myload_getresult 2 0]
+      # puts "r=$r myload_dir1=$myload_dir1 myload_dir2=$myload_dir2"
+      xschem abort_operation
+      if {$r ne {}} {
+        xschem place_symbol "$myload_dir1/$myload_dir2"
+      }
+    }
+  };# bind .load.l.paneright.list <<ListboxSelect>>
+  if { [ info exists myload_yview]} {
+   .load.l.paneright.list yview moveto  [lindex $myload_yview 0]
+  }
+  if {$loadfile != 2} {
+    tkwait window .load
+    xschem set semaphore [expr {[xschem get semaphore] -1}]
+  }
+  return [myload_getresult $loadfile $confirm_overwrt]
 }
 
 # get last n path components: example , n=1 --> /aaa/bbb/ccc/ddd.sch -> ccc/ddd.sch
@@ -4758,9 +4779,11 @@ proc set_tab_names {{mod {}}} {
 }
 
 proc raise_dialog {parent window_path } {
-  set ct  $c_toolbar::c_t(w) ;# recent component toolbar
-
-  foreach i ".dialog .graphdialog $ct" {
+  global myload_loadfile
+  foreach i ".dialog .graphdialog .load" {
+    if {[info exists myload_loadfile ] && $myload_loadfile == 2 && $i eq {.load} } {
+      continue
+    }
     if {[winfo exists $i] && [winfo ismapped $i] && [winfo ismapped $parent] &&
         [wm stackorder $i isbelow $parent ]} {
       raise $i $window_path
@@ -4842,7 +4865,8 @@ set tctx::global_list {
   incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
   input_line_cmd input_line_data launcher_default_program light_colors line_width 
   live_cursor2_backannotate local_netlist_dir measure_text
-  myload_d myload_default_geometry myload_dir1 myload_dir2 myload_dirs2 myload_files1 myload_files2 myload_index1
+  myload_d myload_default_geometry myload_dir1 myload_dir2 myload_dir2 
+  myload_ext myload_files1 myload_files2 myload_index1 myload_loadfile
   myload_retval myload_sash_pos myload_sel myload_type myload_yview netlist_dir netlist_show
   netlist_type no_change_attrs noprint_libs old_selected_tok
   only_probes path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
@@ -5172,8 +5196,6 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.file.menu add command -label "Open Most Recent" \
     -command {xschem load [lindex "$recentfile" 0]} -accelerator {Ctrl+Shift+O}
-  $topwin.menubar.file.menu add command -label "Recent components browser" \
-    -command {c_toolbar display} -accelerator {Shift+Insert}
   $topwin.menubar.file.menu add command -label "Save" -command "xschem save" -accelerator {Ctrl+S}
   toolbar_add FileSave "xschem save" "Save File" $topwin
   $topwin.menubar.file.menu add command -label "Merge" -command "xschem merge" -accelerator {Shift+B}

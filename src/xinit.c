@@ -1110,7 +1110,7 @@ static int source_tcl_file(char *s)
 void preview_window(const char *what, const char *win_path, const char *fname)
 {
   static char *current_file = NULL;
-  static Xschem_ctx *save_xctx = NULL; /* save pointer to current schematic context structure */
+  Xschem_ctx *save_xctx = NULL; /* save pointer to current schematic context structure */
   static Xschem_ctx *preview_xctx = NULL; /* save pointer to current schematic context structure */
   static Window pre_window;
   static Tk_Window tkpre_window;
@@ -1126,10 +1126,10 @@ void preview_window(const char *what, const char *win_path, const char *fname)
     tkpre_window = Tk_NameToWindow(interp, win_path, mainwindow);
     Tk_MakeWindowExist(tkpre_window);
     pre_window = Tk_WindowId(tkpre_window);
-    save_xctx = xctx; /* save current schematic */
   }
   else if(!strcmp(what, "draw")) {
     dbg(1, "preview_window() draw\n");
+    save_xctx = xctx; /* save current schematic */
     xctx = preview_xctx;
     if(!current_file || strcmp(fname, current_file) ) { 
       if(current_file) {
@@ -1153,6 +1153,7 @@ void preview_window(const char *what, const char *win_path, const char *fname)
   }
   else if(!strcmp(what, "destroy")) {
     dbg(1, "preview_window() destroy\n");
+    save_xctx = xctx; /* save current schematic */
     xctx = preview_xctx;
     if(current_file) {
       delete_schematic_data(1);

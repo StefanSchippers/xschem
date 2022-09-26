@@ -1063,7 +1063,6 @@ void move_objects(int what, int merge, double dx, double dy)
   xctx->deltax=xctx->deltay=0.;
   xctx->ui_state &= ~STARTMOVE;
   update_symbol_bboxes(0, 0);
-
  }
  if(what & RUBBER)                              /* abort operation */
  {
@@ -1096,6 +1095,11 @@ void move_objects(int what, int merge, double dx, double dy)
   if( !xctx->kissing && !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
     dbg(1, "move_objects(): push undo state\n");
     xctx->push_undo();
+  }
+  if((xctx->ui_state & PLACE_SYMBOL)) {
+    int n = xctx->sel_array[0].n;
+    const char *f =  abs_sym_path((xctx->inst[n].ptr+ xctx->sym)->name, "");
+    tclvareval("c_toolbar::add {",f, "}; c_toolbar::display", NULL);
   }
   xctx->ui_state &= ~PLACE_SYMBOL;
   xctx->ui_state &= ~PLACE_TEXT;

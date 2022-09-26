@@ -1010,8 +1010,6 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
 
  if(i!=-1)
  {
-  tclvareval("c_toolbar add {", name, "}", NULL);
-  tclvareval("c_toolbar update; write_recent_file", NULL);
   check_inst_storage();
   if(pos==-1 || pos > xctx->instances) n=xctx->instances;
   else
@@ -1077,8 +1075,10 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   if(xctx->prep_hash_inst) hash_inst(XINSERT, n); /* no need to rehash, add item */
   /* xctx->prep_hash_inst=0; */
 
-  if(draw_sym & 3) bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2);
-  set_modify(1);
+  if(draw_sym & 3) {
+    bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2);
+  }
+  /* set_modify(1); */
   if(draw_sym&1) {
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
     draw();

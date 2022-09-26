@@ -92,9 +92,12 @@ void abort_operation(void)
   dbg(1, "abort_operation(): Escape: ui_state=%d\n", xctx->ui_state);
   if(xctx->ui_state & STARTMOVE)
   {
+   int save;
    move_objects(ABORT,0,0,0);
    if(xctx->ui_state & (START_SYMPIN | PLACE_SYMBOL | PLACE_TEXT)) {
+     save =  xctx->modified;
      delete(1/* to_push_undo */);
+     set_modify(save); /* aborted placement: no change, so reset modify flag set by delete() */
      xctx->ui_state &= ~START_SYMPIN;
      xctx->ui_state &= ~PLACE_SYMBOL;
      xctx->ui_state &= ~PLACE_TEXT;
@@ -1916,8 +1919,9 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     if(xctx->semaphore >= 2) break;
     descend_symbol();break;
    }
-   if(key==XK_Insert && state == ShiftMask) {
-     tcleval("c_toolbar display");
+   if((key==XK_Insert && state == ShiftMask)) /* insert sym */
+   {
+     tcleval("load_file_dialog {Insert symbol} .sym INITIALINSTDIR 2");
    }
    if((key==XK_Insert && state == 0) || (key == 'I' && state == ShiftMask) ) /* insert sym */
    {
