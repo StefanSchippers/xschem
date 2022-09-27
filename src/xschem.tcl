@@ -583,9 +583,15 @@ proc load_recent_file {} {
             -icon warning -parent . -type ok
       }
     }
+    foreach i [info vars c_toolbar::c_t_*] {
+      if {[set ${i}(w)] != $c_toolbar::c_t(w) ||
+          [set ${i}(n)] != $c_toolbar::c_t(n)} {
+         array unset $i
+      }
+    }
     set hash $c_toolbar::c_t(hash)
     if { [info exists c_toolbar::c_t_$hash]} {
-      array set c_toolbar::c_t [array get c_toolbar::c_t_$hash]
+        array set c_toolbar::c_t [array get c_toolbar::c_t_$hash]
     }
   }
 }
@@ -2136,22 +2142,17 @@ proc hash_string {s} {
 namespace eval c_toolbar {
   # Create a variable inside the namespace
   variable c_t
-  set c_t(w) .load.recent
+  variable i
+  set c_t(w) .load.l.recent
   set c_t(hash) [hash_string $XSCHEM_LIBRARY_PATH]
-  
-  proc create {} {
-    variable c_t 
-    if { ![info exists c_t(n)]} {
-      set c_t(n) 30
-      set c_t(top) 0
-      for {set i 0} {$i < $c_t(n)} {incr i} {
-        set c_t($i,text) {}
-        set c_t($i,command) {}
-        set c_t($i,file) {}
-      }
-    }
+  set c_t(n) 25
+  set c_t(top) 0
+  for {set i 0} {$i < $c_t(n)} {incr i} {
+    set c_t($i,text) {}
+    set c_t($i,command) {}
+    set c_t($i,file) {}
   }
-
+  
   proc cleanup {} {
     variable c_t 
     if {![info exists c_t(n)]} return
@@ -2186,7 +2187,6 @@ namespace eval c_toolbar {
   proc display {} {
     variable c_t
     if { [winfo exists $c_t(w)]} {
-      create
       set w $c_t(w)
       set n $c_t(n)
       cleanup
@@ -2195,11 +2195,11 @@ namespace eval c_toolbar {
         destroy $w.b$i
       }
       set i $c_t(top)
-      button $w.title -text Recent -pady 0 -padx 0 -width 13 -state disabled -disabledforeground black \
+      button $w.title -text Recent -pady 0 -padx 0 -width 7 -state disabled -disabledforeground black \
         -background grey60 -highlightthickness 0 -borderwidth 0 -font {TkDefaultFont 12 bold}
       pack $w.title -side top -fill x
       while {1} {
-        button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command $c_t($i,command) -width 13
+        button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command $c_t($i,command) -width 7
         pack $w.b$i -side top -fill x
         set i [expr {($i + 1) % $n}]
         if { $i == $c_t(top) } break
@@ -2209,7 +2209,6 @@ namespace eval c_toolbar {
 
   proc add {f} {
     variable c_t
-    create
     for {set i 0} {$i < $c_t(n)} {incr i} {
       if {  $c_t($i,file) eq $f } { return 0}
     }
@@ -2217,10 +2216,7 @@ namespace eval c_toolbar {
     set ret 1
     set i [expr { ($c_t(top)-1) % $c_t(n) } ];# last element
     set c_t($i,file) $f
-    set c_t($i,command) "
-      xschem abort_operation
-      xschem place_symbol {$f}
-    "
+    set c_t($i,command) "xschem abort_operation; xschem place_symbol {$f}"
     set c_t($i,text)  [file tail [file rootname $f]]
     set c_t(top) $i
     if {$ret} {write_recent_file}
@@ -2410,8 +2406,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     set myload_index1 0
   }
   set_ne myload_files2 {}
-  if { $loadfile == 2} {frame .load.recent}
   panedwindow  .load.l -orient horizontal
+  if { $loadfile == 2} {frame .load.l.recent}
   frame .load.l.paneleft
   eval [subst {listbox .load.l.paneleft.list -listvariable myload_files1 -width 20 -height 12 \
     -yscrollcommand ".load.l.paneleft.yscroll set" -selectmode browse \
@@ -2450,6 +2446,10 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   pack  .load.l.paneright.xscroll -side bottom -fill x
   pack  .load.l.paneright.list -side bottom  -fill both -expand true
 
+  if { $loadfile == 2} {
+    .load.l  add .load.l.recent -minsize 30
+    c_toolbar::display
+  }
   .load.l  add .load.l.paneleft -minsize 40
   .load.l  add .load.l.paneright -minsize 40
   # .load.l paneconfigure .load.l.paneleft -stretch always
@@ -2524,10 +2524,10 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   pack .load.buttons_bot.label -side left
   pack .load.buttons_bot.entry -side left -fill x -expand true
   pack .load.buttons_bot.cancel .load.buttons_bot.ok -side left
-  if { $loadfile == 2} {
-    pack .load.recent -side left -fill y
-    c_toolbar::display
-  }
+  # if { $loadfile == 2} {
+  #   pack .load.recent -side left -fill y
+  #   c_toolbar::display
+  # }
   pack .load.l -expand true -fill both
   pack .load.buttons -side top -fill x
   pack .load.buttons_bot -side top -fill x

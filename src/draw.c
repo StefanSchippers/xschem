@@ -834,18 +834,14 @@ static void my_cairo_drawpoints(cairo_t *ct, int layer, XPoint *points, int npoi
     cairo_stroke(ct); /* This lines need to be here */
   }
 }
-#endif
 
-#if !defined(__unix__) && defined(HAS_CAIRO)
 static void check_cairo_drawline(void *cr, int layer, double x1, double y1, double x2, double y2, int dash)
 {
   if (cr==NULL) return;
   cairo_t *ct = (cairo_t *)cr; 
   my_cairo_drawline(cr, layer, x1, y1, x2, y2, dash);
 }
-#endif
 
-#if !defined(__unix__) && defined(HAS_CAIRO)
 static void check_cairo_drawpoints(void *cr, int layer, XPoint *points, int npoints)
 {
   if (cr==NULL) return;
@@ -883,7 +879,9 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
         XDrawLine(display, xctx->window, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
       if (xctx->draw_pixmap)
         XDrawLine(display, xctx->save_pixmap, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
+      #if defined(HAS_CAIRO)
       check_cairo_drawline(ct, c, rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2, 0);
+      #endif
     }
 #endif
    i=0;
@@ -922,7 +920,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    if(dash) {
      XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, CapRound, JoinRound);
    }
-   #ifndef __unix__
+   #if !defined(__unix__) && defined(HAS_CAIRO)
    check_cairo_drawline(ct, c, x1, y1, x2, y2, dash);
    #endif
   }
@@ -946,7 +944,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    }
    if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(xctx->draw_pixmap) XDrawLine(display, xctx->save_pixmap, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
-   #ifndef __unix__
+   #if !defined(__unix__) && defined(HAS_CAIRO)
    check_cairo_drawline(ct, c, x1, y1, x2, y2, dash);
    #endif
    XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
@@ -963,7 +961,9 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
        XDrawLine(display, xctx->window, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
      if (xctx->draw_pixmap)
        XDrawLine(display, xctx->save_pixmap, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
+     #if defined(HAS_CAIRO)
      check_cairo_drawline(ct, c, rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2, 0);
+     #endif
    }
 #endif
   i=0;
@@ -1924,7 +1924,7 @@ static void draw_graph_points(int idx, int first, int last,
     if(xctx->draw_pixmap) {
       XDrawLines(display, xctx->save_pixmap, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
     }
-    #ifndef __unix__
+    #if !defined(__unix__) && defined(HAS_CAIRO)
     check_cairo_drawpoints(ct, wave_col, point, poly_npoints);
     #endif
     set_thick_waves(0, wcnt, wave_col, gr);

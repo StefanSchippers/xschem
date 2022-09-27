@@ -1919,11 +1919,12 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     if(xctx->semaphore >= 2) break;
     descend_symbol();break;
    }
-   if((key==XK_Insert && state == ShiftMask)) /* insert sym */
+   if((key==XK_Insert && state & ShiftMask)) /* insert sym */
    {
      tcleval("load_file_dialog {Insert symbol} .sym INITIALINSTDIR 2");
+     break;
    }
-   if((key==XK_Insert && state == 0) || (key == 'I' && state == ShiftMask) ) /* insert sym */
+   if(key==XK_Insert || (key == 'I' && state == ShiftMask) ) /* insert sym */
    {
     if(xctx->semaphore >= 2) break;
     start_place_symbol(mx, my);
