@@ -3182,7 +3182,7 @@ void make_schematic_symbol_from_sel(void)
   char filename[PATH_MAX] = "";
   char name[1024]; 
 
-  my_snprintf(name, S(name), "save_file_dialog {Save file} .sch.sym INITIALLOADDIR");
+  my_snprintf(name, S(name), "save_file_dialog {Save file} *.\\{sch,sym\\} INITIALLOADDIR");
   tcleval(name);
   my_strncpy(filename, tclresult(), S(filename));
   if (!strcmp(filename, xctx->sch[xctx->currsch])) {

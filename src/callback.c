@@ -1921,7 +1921,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if((key==XK_Insert && (state & ShiftMask)) ||  (key == 'i' && state == ControlMask)) /* insert sym */
    {
-     tcleval("load_file_dialog {Insert symbol} .sym INITIALINSTDIR 2");
+     tcleval("load_file_dialog {Insert symbol} *.sym INITIALINSTDIR 2");
      break;
    }
    if(key==XK_Insert || (key == 'I' && state == ShiftMask) ) /* insert sym */

@@ -407,9 +407,9 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
         if( (p = strrchr(filename, '.')) && !strcmp(p, ".sch") ) {
           my_strncpy(filename, add_ext(filename, ".sym"), S(filename));
         }
-        my_snprintf(name, S(name), "save_file_dialog {Save file} .sym.sch INITIALLOADDIR {%s}", filename);
+        my_snprintf(name, S(name), "save_file_dialog {Save file} *.\\{sch,sym\\} INITIALLOADDIR {%s}", filename);
       } else {
-        my_snprintf(name, S(name), "save_file_dialog {Save file} .sch.sym INITIALLOADDIR {%s}", filename);
+        my_snprintf(name, S(name), "save_file_dialog {Save file} *.\\{sch,sym\\} INITIALLOADDIR {%s}", filename);
       }
 
       tcleval(name);
@@ -437,7 +437,7 @@ void ask_new_file(void)
     if(xctx->modified) {
       if(save(1) == -1 ) return; /*  user cancels save, so do nothing. */
     }
-    tcleval("load_file_dialog {Load file} .sch.sym INITIALLOADDIR");
+    tcleval("load_file_dialog {Load file} *.\\{sch,sym\\} INITIALLOADDIR");
     my_snprintf(f, S(f),"%s", tclresult());
     if(f[0]) {
       char win_path[WINDOW_PATH_SIZE];
@@ -996,7 +996,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  char *type;
  int cond;
  if(symbol_name==NULL) {
-   tcleval("load_file_dialog {Choose symbol} .sym INITIALINSTDIR");
+   tcleval("load_file_dialog {Choose symbol} *.sym INITIALINSTDIR");
    my_strncpy(name, tclresult(), S(name));
  } else {
    my_strncpy(name, symbol_name, S(name));
@@ -1243,7 +1243,7 @@ int descend_schematic(int instnumber)
     char res[PATH_MAX];
 
     my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
-    my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} .sch.sym INITIALLOADDIR {%s}", filename);
+    my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} *.\\{sch,sym\\} INITIALLOADDIR {%s}", filename);
     tcleval(cmd);
     my_strncpy(res, tclresult(), S(res));
     if(!res[0]) return 0;

@@ -2358,7 +2358,7 @@ proc myload_getresult {loadfile confirm_overwrt} {
       } else {
         return "$myload_dir1/$myload_retval"
       }
-    } elseif { $myload_type ne {SYMBOL} && ($myload_ext eq {.sym}) } {
+    } elseif { $myload_type ne {SYMBOL} && ($myload_ext eq {*.sym}) } {
       set answer [
         tk_messageBox -message "$myload_dir1/$myload_retval does not seem to be a SYMBOL file...\nContinue?" \
            -icon warning -parent [xschem get topwindow] -type yesno]
@@ -2409,8 +2409,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   }
   set myload_loadfile $loadfile
   set myload_ext $ext
+  set globfilter $ext
   set save_initialfile $initialf
-  set globfilter *
   set myload_retval {} 
   upvar #0 $global_initdir initdir
   if { $loadfile != 2} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
@@ -2444,7 +2444,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     if { $myload_sel ne {} } {
       set myload_dir1 [abs_sym_path [.load.l.paneleft.list get $myload_sel]]
       set myload_index1 $myload_sel
-      set globfilter *
+      set globfilter $myload_ext
       if {$save_initialfile eq {}} {.load.buttons_bot.entry delete 0 end}
       setglob $myload_dir1
       myload_set_colors2
@@ -2635,7 +2635,6 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
         set myload_dir1 $myload_d
         # .load.buttons_bot.entry delete 0 end
       } else {
-        set globfilter *
         .load.buttons_bot.entry delete 0 end
         .load.buttons_bot.entry insert 0 $myload_dir2
         myload_display_preview  $myload_dir1/$myload_dir2
@@ -5179,7 +5178,7 @@ proc build_widgets { {topwin {} } } {
     }
   $topwin.menubar.file.menu add command -label "Component browser" -accelerator {Shift-Ins, Ctrl-I} \
     -command {
-      load_file_dialog {Insert symbol} .sym INITIALINSTDIR 2
+      load_file_dialog {Insert symbol} *.sym INITIALINSTDIR 2
     }
   $topwin.menubar.file.menu add command -label "Open" -command "xschem load" -accelerator {Ctrl+O}
   $topwin.menubar.file.menu add cascade -label "Open recent" -menu $topwin.menubar.file.menu.recent

@@ -677,7 +677,7 @@ int compare_schematics(const char *f)
 
   /* set filename of schematic to compare */
   if(f == NULL) {
-    tcleval("load_file_dialog {Schematic to compare with} .sch.sym INITIALLOADDIR");
+    tcleval("load_file_dialog {Schematic to compare with} *.\\{sch,sym\\} INITIALLOADDIR");
     if(tclresult()[0]) my_strncpy(xctx->sch_to_compare, tclresult(), S(xctx->sch_to_compare));
     else my_strncpy(xctx->sch_to_compare, "", S(xctx->sch_to_compare));
   } else if(f[0] != '\0') {
