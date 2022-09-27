@@ -179,9 +179,10 @@ C {ammeter.sym} 510 -370 2 1 {name=Vm}
 C {lab_pin.sym} 510 -510 2 0 {name=l2 sig_type=std_logic lab=pn}
 C {lab_pin.sym} 510 -410 2 0 {name=l3 sig_type=std_logic lab=mn}
 C {isource_arith.sym} 510 -460 2 0 {name=G1
-CUR="v(f) * 6.35 * (1 - exp( (v(pn,mn)
-+  -19 - v(f)*3 ) * .5) -
-+  0.002 * (v(pn,mn) - 19 - v(f)*3))"}
+CUR="v(f) * 6 * (1 - exp( (v(pn,mn)
++  -18.5 - v(f)*3 ) * 0.7) -
++  0.005 * (v(pn,mn) - 18.5 - v(f)*3))"
+}
 C {ipin.sym} 280 -360 2 1 {name=p2 lab=fade}
 C {ammeter.sym} 330 -360 3 0 {name=Vf}
 C {lab_pin.sym} 360 -360 2 0 {name=l3 sig_type=std_logic lab=f}
