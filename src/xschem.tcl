@@ -2216,7 +2216,7 @@ namespace eval c_toolbar {
     set ret 1
     set i [expr { ($c_t(top)-1) % $c_t(n) } ];# last element
     set c_t($i,file) $f
-    set c_t($i,command) "xschem abort_operation; xschem place_symbol {$f}"
+    set c_t($i,command) "xschem abort_operation; myload_display_preview {$f}; xschem place_symbol {$f} "
     set c_t($i,text)  [file tail [file rootname $f]]
     set c_t(top) $i
     if {$ret} {write_recent_file}
@@ -2376,6 +2376,22 @@ proc myload_getresult {loadfile confirm_overwrt} {
   }
 }
 
+proc myload_display_preview {f} {
+  set myload_type [is_xschem_file $f]
+  if { $myload_type ne {0}  } {
+    ### update
+    if { [winfo exists .load] } {
+      .load.l.paneright.draw configure -background {}
+      xschem preview_window draw .load.l.paneright.draw "$f"
+      bind .load.l.paneright.draw <Expose> [subst {xschem preview_window draw .load.l.paneright.draw "$f"}]
+      
+    }
+  } else {
+    bind .load.l.paneright.draw <Expose> {}
+    .load.l.paneright.draw configure -background white
+  }
+}
+
 # global_initdir: name of global variable containing the initial directory
 # loadfile: set to 0 if calling for saving instead of loading a file
 #           set to 2 for non blocking operation (symbol insertion)
@@ -2524,10 +2540,6 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   pack .load.buttons_bot.label -side left
   pack .load.buttons_bot.entry -side left -fill x -expand true
   pack .load.buttons_bot.cancel .load.buttons_bot.ok -side left
-  # if { $loadfile == 2} {
-  #   pack .load.recent -side left -fill y
-  #   c_toolbar::display
-  # }
   pack .load.buttons_bot -side bottom -fill x
   pack .load.buttons -side bottom -fill x
   pack .load.l -expand true -fill both
@@ -2626,21 +2638,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
         set globfilter *
         .load.buttons_bot.entry delete 0 end
         .load.buttons_bot.entry insert 0 $myload_dir2
-         set myload_type [is_xschem_file $myload_dir1/$myload_dir2]
-         if { $myload_type ne {0}  } {
-	   ### update
-           if { [winfo exists .load] } {
-             .load.l.paneright.draw configure -background {}
-             xschem preview_window draw .load.l.paneright.draw "$myload_dir1/$myload_dir2"
-             bind .load.l.paneright.draw <Expose> {
-               xschem preview_window draw .load.l.paneright.draw "$myload_dir1/$myload_dir2"
-             }
-           }
-         } else {
-           bind .load.l.paneright.draw <Expose> {}
-           .load.l.paneright.draw configure -background white
-         }
-         # puts "xschem preview_window draw .load.l.paneright.draw \"$myload_dir1/$myload_dir2\""
+        myload_display_preview  $myload_dir1/$myload_dir2
+        # puts "xschem preview_window draw .load.l.paneright.draw \"$myload_dir1/$myload_dir2\""
       }
     }
     if {$myload_loadfile == 2} {
@@ -5178,6 +5177,10 @@ proc build_widgets { {topwin {} } } {
     -command {
       xschem new_symbol_window
     }
+  $topwin.menubar.file.menu add command -label "Component browser" -accelerator {Shift-Ins, Ctrl-I} \
+    -command {
+      load_file_dialog {Insert symbol} .sym INITIALINSTDIR 2
+    }
   $topwin.menubar.file.menu add command -label "Open" -command "xschem load" -accelerator {Ctrl+O}
   $topwin.menubar.file.menu add cascade -label "Open recent" -menu $topwin.menubar.file.menu.recent
   $topwin.menubar.file.menu add cascade -label {Open recent in new window} \
@@ -5573,7 +5576,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.simulation.menu add checkbutton -label "Hide graphs if no spice data loaded" \
      -variable hide_empty_graphs -command {xschem redraw}
   $topwin.menubar.simulation.menu add checkbutton -variable rawfile_loaded \
-     -label {Load/Unload ngspice .raw file} -command {
+     -label {Load/Unload spice .raw file} -command {
      xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
   }
   $topwin.menubar.simulation.menu add command -label {Add waveform graph} -command {xschem add_graph}
