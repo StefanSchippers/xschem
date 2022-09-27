@@ -1714,7 +1714,7 @@ proc graph_edit_properties {n} {
   button .graphdialog.center.left.add -text Add -command {
     graph_add_nodes; graph_update_nodelist
   }
-  listbox .graphdialog.center.left.list1 -width 20 -height 10 -selectmode extended \
+  listbox .graphdialog.center.left.list1 -width 20 -height 5 -selectmode extended \
      -yscrollcommand {.graphdialog.center.left.yscroll set} \
      -xscrollcommand {.graphdialog.center.left.xscroll set}
   scrollbar .graphdialog.center.left.yscroll -command {.graphdialog.center.left.list1 yview}
@@ -1723,13 +1723,13 @@ proc graph_edit_properties {n} {
   grid .graphdialog.center.left.list1 - .graphdialog.center.left.yscroll -sticky nsew
   grid .graphdialog.center.left.xscroll - -sticky nsew
   grid rowconfig .graphdialog.center.left 0 -weight 0
-  grid rowconfig .graphdialog.center.left 1 -weight 1 -minsize 100
+  grid rowconfig .graphdialog.center.left 1 -weight 1 -minsize 2c
   grid columnconfig .graphdialog.center.left 0 -weight 1
   grid columnconfig .graphdialog.center.left 1 -weight 1
 
   # center right frame
   label .graphdialog.center.right.lab1 -text {Signals in graph}
-  text .graphdialog.center.right.text1 -wrap none -width 50 -height 10 -bg grey70 -fg black \
+  text .graphdialog.center.right.text1 -wrap none -width 50 -height 5 -bg grey70 -fg black \
      -insertbackground grey40 -exportselection 1 \
      -yscrollcommand {.graphdialog.center.right.yscroll set} \
      -xscrollcommand {.graphdialog.center.right.xscroll set}
@@ -1740,7 +1740,7 @@ proc graph_edit_properties {n} {
   grid .graphdialog.center.right.text1 - .graphdialog.center.right.yscroll -sticky nsew
   grid .graphdialog.center.right.xscroll - -sticky nsew
   grid rowconfig .graphdialog.center.right 0 -weight 0
-  grid rowconfig .graphdialog.center.right 1 -weight 1 -minsize 100
+  grid rowconfig .graphdialog.center.right 1 -weight 1 -minsize 3c
   grid columnconfig .graphdialog.center.right 0 -weight 1
   grid columnconfig .graphdialog.center.right 1 -weight 1
 
@@ -1802,14 +1802,14 @@ proc graph_edit_properties {n} {
 
   # top2 frame
   label .graphdialog.top2.labunitx -text {X units}
-  spinbox .graphdialog.top2.unitx -values {p n u m 1 k M G} -width 2 \
+  spinbox .graphdialog.top2.unitx -values {f p n u m 1 k M G T} -width 2 \
    -command {
       xschem setprop rect 2 $graph_selected unitx [.graphdialog.top2.unitx get]
       xschem draw_graph $graph_selected
     }
 
   label .graphdialog.top2.labunity -text {  Y units}
-  spinbox .graphdialog.top2.unity -values {p n u m 1 k M G} -width 2 \
+  spinbox .graphdialog.top2.unity -values {f p n u m 1 k M G T} -width 2 \
    -command {
       xschem setprop rect 2 $graph_selected unity [.graphdialog.top2.unity get]
       xschem draw_graph $graph_selected
@@ -2406,7 +2406,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     set myload_index1 0
   }
   set_ne myload_files2 {}
-  panedwindow  .load.l -orient horizontal
+  panedwindow  .load.l -orient horizontal -height 8c
   if { $loadfile == 2} {frame .load.l.recent}
   frame .load.l.paneleft
   eval [subst {listbox .load.l.paneleft.list -listvariable myload_files1 -width 20 -height 12 \
@@ -2435,7 +2435,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     }
   }
   frame .load.l.paneright
-  frame .load.l.paneright.draw -background white -width 200 -height 200
+  frame .load.l.paneright.draw -background white -height 3.8c
   listbox .load.l.paneright.list  -listvariable myload_files2 -width 20 -height 12\
     -yscrollcommand ".load.l.paneright.yscroll set" -selectmode browse \
     -xscrollcommand ".load.l.paneright.xscroll set" -exportselection 0
@@ -2528,9 +2528,9 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   #   pack .load.recent -side left -fill y
   #   c_toolbar::display
   # }
+  pack .load.buttons_bot -side bottom -fill x
+  pack .load.buttons -side bottom -fill x
   pack .load.l -expand true -fill both
-  pack .load.buttons -side top -fill x
-  pack .load.buttons_bot -side top -fill x
   if { [info exists myload_default_geometry]} {
      wm geometry .load "${myload_default_geometry}"
   }

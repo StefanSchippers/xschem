@@ -1685,6 +1685,7 @@ static int axis_within_range(double x, double a, double b)
 static double get_unit(const char *val)
 {
   if(!val)               return 1.0;
+  else if(val[0] == 'f') return 1e15;
   else if(val[0] == 'p') return 1e12;
   else if(val[0] == 'n') return 1e9;
   else if(val[0] == 'u') return 1e6;
@@ -1692,6 +1693,7 @@ static double get_unit(const char *val)
   else if(val[0] == 'k') return 1e-3;
   else if(val[0] == 'M') return 1e-6;
   else if(val[0] == 'G') return 1e-9;
+  else if(val[0] == 'T') return 1e-12;
   return 1.0;
 }
 
