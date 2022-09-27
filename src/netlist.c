@@ -1053,7 +1053,7 @@ void prepare_netlist_structs(int for_netlist)
   /* propagate_hilights(1, 0, XINSERT_NOREPLACE);*/
 }
 
-int warning_overlapped_symbols()
+int warning_overlapped_symbols(int sel)
 {
   int i;
   Int_hashentry *table[HASHSIZE];
@@ -1071,8 +1071,13 @@ int warning_overlapped_symbols()
     dbg(1, "  s=%s\n", s);
     found =  int_hash_lookup(table, s, i, XINSERT_NOREPLACE);
     if(found) {
-      xctx->inst[i].color = -PINLAYER;
-      xctx->hilight_nets=1;
+      if(sel == 0) {
+        xctx->inst[i].color = -PINLAYER;
+        xctx->hilight_nets=1;
+      } else {
+        xctx->inst[i].sel = SELECTED;
+        xctx->need_reb_sel_arr = 1;
+      }
       my_snprintf(str, S(str), "Warning: overlapped instance found: %s(%s) -> %s\n",
             xctx->inst[i].instname, xctx->inst[i].name, xctx->inst[found->value].instname);
       statusmsg(str,2);
@@ -1080,6 +1085,7 @@ int warning_overlapped_symbols()
     }
   }
   int_hash_free(table);
+  if(sel && xctx->need_reb_sel_arr) rebuild_selected_array();
   return 0;
 }
 

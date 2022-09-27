@@ -420,7 +420,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  xctx->netlist_count++;
 
  /* warning if two symbols perfectly overlapped */
- warning_overlapped_symbols();
+ warning_overlapped_symbols(0);
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(151, xctx->instances, sizeof(unsigned int));
  for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].color;

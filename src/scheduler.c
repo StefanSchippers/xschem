@@ -2981,7 +2981,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   }
 
   else if(argv[1][0] == 'w') {   
-    if(!strcmp(argv[1],"windowid")) /* used by xschem.tcl for configure events */
+    if(!strcmp(argv[1],"warning_overlapped_symbols"))
+    {
+      cmd_found = 1;
+      if(argc >= 3) {
+        warning_overlapped_symbols(atoi(argv[2]));
+      } else {
+        warning_overlapped_symbols(0);
+      }
+    }
+    else if(!strcmp(argv[1],"windowid")) /* used by xschem.tcl for configure events */
     {
       cmd_found = 1;
       if(argc >= 3) {

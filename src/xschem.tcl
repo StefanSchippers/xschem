@@ -5524,6 +5524,8 @@ proc build_widgets { {topwin {} } } {
      -command "xschem check_unique_names 0"  -accelerator {#} 
   $topwin.menubar.hilight.menu add command -label {Rename duplicate instance names} \
      -command "xschem check_unique_names 1" -accelerator {Ctrl+#}
+  $topwin.menubar.hilight.menu add command -label {Select overlapped instances} \
+     -command "xschem warning_overlapped_symbols 1; xschem redraw" -accelerator {}
   $topwin.menubar.hilight.menu add command -label {Propagate Highlight selected net/pins} \
      -command "xschem hilight drill" -accelerator {Ctrl+Shift+K}
   $topwin.menubar.hilight.menu add checkbutton -label "Increment Hilight Color" -variable incr_hilight

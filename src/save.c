@@ -2080,7 +2080,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
   /* warning if two symbols perfectly overlapped */
-  warning_overlapped_symbols();
+  warning_overlapped_symbols(0);
 }
 
 void clear_undo(void)

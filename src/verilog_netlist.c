@@ -327,7 +327,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  }
 
  /* warning if two symbols perfectly overlapped */
- warning_overlapped_symbols();
+ warning_overlapped_symbols(0);
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(150, xctx->instances, sizeof(unsigned int));
  for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].color;
