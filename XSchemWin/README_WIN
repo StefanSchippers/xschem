@@ -21,7 +21,7 @@ SUBDIRECTORIES
 
 XSchemWin:       Windows specific files (e.g. xschem.tcl, xschemrc, config.h)
 
-INSTRUCTIONS TO ADD XSCHEM TO VISUAL STUDIO 2022
+INSTRUCTIONS TO COMPILE XSCHEM IN VISUAL STUDIO 2022
 
 1. requirements
 
@@ -40,10 +40,14 @@ INSTRUCTIONS TO ADD XSCHEM TO VISUAL STUDIO 2022
    
    Optional:
     - Windows Ghostscript (to print)
-      Update xschemrc to set variable to_pdf and to_png
       Add directory of gswin64.exe to PATH if installer didn't do it
 
-2. Create new XSchemWin project on Visual Studio 2022
+*** NOTE: DO 2A OR 2B, but NOT BOTH ***
+2A. Steps in (2B) are already saved in XSchemWin/XSchemWin.sln.
+    Open "XSchemWin/XSchemWin.sln" in VS2022  and proceed to (3).
+    2B is very helpful if you run into compile errors in VS2022.
+
+2B. Create new XSchemWin project on Visual Studio 2022
 
     a. Open VS2022
     b. Create a new project 
@@ -77,7 +81,7 @@ INSTRUCTIONS TO ADD XSCHEM TO VISUAL STUDIO 2022
           Command Line: bison -d -o expandlabel.c ..\src\expandlabel.y 
           Outputs: expandlabel.c
 
-3. compiling
+3. Compiling
 
     - config.h can be edited to change default's XSCHEM_LIBRARY_PATH.
       It's defaulted to include the following directories:
@@ -93,9 +97,15 @@ INSTRUCTIONS TO ADD XSCHEM TO VISUAL STUDIO 2022
      - After compiling the first time, add expandlabel.c, expandlabel.h, parselabel.c into the project.
        These 3 files are created in D:\Projects\XSchem\XSchemWin
 
-4. running from Visual Studio 2022
+4. running from Visual Studio 2022.  If you run the debug version, you can set breakpoints on the code and step the code with VS 2022.
 
      F5
+
+5. To compile and create Xschem Windows Installer
+   a. Right click on "XSchemWix" and select "Build"
+   b. If the compilation is successful, the Windows installer is located in XSchemWix/bin/Release/XSchem.msi
+   c. Double click on XSchem.msi to install it into it on your Windows machine.
+   d. Use Windows "Add or Remove Programs" to uninstall Xschem before installing a newer version.
 
 INSTRUCTIONS TO COMPILE CAIRO AND COMPILE XSCHEM WITH IT ON VISUAL STUDIO 2022
 
@@ -122,13 +132,19 @@ INSTRUCTIONS TO COMPILE CAIRO AND COMPILE XSCHEM WITH IT ON VISUAL STUDIO 2022
    e. cairo.lib and pixman.lib are in cairo_win/projects/x64/Release
 5. Setup xschem VS 2022 to compile with cairo library 
    a. Uncomment "#define HAS_CAIRO 1" and "#define CAIRO_WIN32_STATIC_BUILD" in config.h
-   Note: Step b and onward is updated in XSchemWin_cairo.vcxproj
-         To use it, rename non cairo XSchemWin.vcxproj to some other name, and change XSchemWin_cairo.vcxproj to XSchemWin.vcxproj.
-   For Release, x64
-     * Properties > VC++ Directories > Include: ;cairo_win\cairo\src;cairo_win\projects\cairo\src;
-                                       Libraries: ;cairo_win\projects\x64\Release;cairo_win\libs;cairo_win\freetype\objs\x64\Release Static
-     * Properties > Linker > Input > Additional Dependencies: Add ;cairo.lib;pixman.lib;zlib.lib;libpng.lib;freetype.lib;
-  For Debug, x64
-     * Properties > VC++ Directories > Include: ;cairo_win\cairo\src;cairo_win\projects\cairo\src;
-                                       Libraries: ;cairo_win\projects\x64\Debug;cairo_win\libs;cairo_win\freetype\objs\x64\Debug Static
-     * Properties > Linker > Input > Additional Dependencies: Add ;cairo.lib;pixman.lib;zlibd.lib;libpngd.lib;freetype.lib;
+
+   *** Note: Do 5B OR 5BB, but NOT BOTH *** 
+   Steps in (5bb) are saved in XSchemWin_cairo.vcxproj *** 
+   b. To use it:
+      (i) Close the solution
+      (ii) Rename non cairo XSchemWin.vcxproj to some other name
+      (iii) Change XSchemWin_cairo.vcxproj to XSchemWin.vcxproj.
+       
+   bb. For Release, x64
+       * Properties > VC++ Directories > Include: ;cairo_win\cairo\src;cairo_win\projects\cairo\src;
+                                         Libraries: ;cairo_win\projects\x64\Release;cairo_win\libs;cairo_win\freetype\objs\x64\Release Static
+       * Properties > Linker > Input > Additional Dependencies: Add ;cairo.lib;pixman.lib;zlib.lib;libpng.lib;freetype.lib;
+       For Debug, x64
+       * Properties > VC++ Directories > Include: ;cairo_win\cairo\src;cairo_win\projects\cairo\src;
+                                         Libraries: ;cairo_win\projects\x64\Debug;cairo_win\libs;cairo_win\freetype\objs\x64\Debug Static
+       * Properties > Linker > Input > Additional Dependencies: Add ;cairo.lib;pixman.lib;zlibd.lib;libpngd.lib;freetype.lib;
