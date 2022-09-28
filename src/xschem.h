@@ -690,7 +690,7 @@ typedef struct {
   /* graph box (smaller than rect container due to margins) */
   double x1, y1, x2, y2, w, h;
   double gx1, gy1, gx2, gy2, gw, gh;
-  double master_gx1, master_gx2, master_gw;
+  double master_gx1, master_gx2, master_gw, master_cx;
   /* y area range for digital graphs */
   double ypos1, ypos2, posh;
   double marginx; /* will be recalculated later */
@@ -1317,6 +1317,7 @@ extern size_t my_mstrcat(int id, char **str, const char *append_str, ...);
 extern char *my_itoa(int i);
 extern double atof_spice(const char *s);
 extern char *dtoa(double i);
+extern char *dtoa_eng(double i);
 extern char *dtoa_prec(double i);
 extern double my_round(double a);
 extern double round_to_n_digits(double x, int n);

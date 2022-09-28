@@ -314,7 +314,6 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
 static int waves_callback(int event, int mx, int my, KeySym key, int button, int aux, int state)
 {
   Graph_ctx *gr;
-  const char *val;
   int i, redraw_all_at_end = 0, need_all_redraw = 0, need_redraw = 0, dataset = 0;
   double xx1, xx2, yy1, yy2;
   double delta_threshold = 0.25;
@@ -337,6 +336,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     /* check if this is the master graph (the one containing the mouse pointer) */
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
     if( POINTINSIDE(xctx->mousex, xctx->mousey, r->x1, r->y1, r->x2, r->y2)) {
+      dbg(1, "mouse inside: %d\n", i);
       setup_graph_data(i, xctx->graph_flags, 0, gr);
 
       /* move cursor1 */
@@ -354,6 +354,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
         else  need_redraw = 1;
       }
+      gr->master_gx1 = gr->gx1;
+      gr->master_gx2 = gr->gx2;
+      gr->master_gw = gr->gw;
+      gr->master_cx = gr->cx;
       if(xctx->ui_state & GRAPHPAN) break; /* After GRAPHPAN only need to check Motion events for cursors */
       if(xctx->mousey_snap < W_Y(gr->gy2)) {
         xctx->graph_top = 1;
@@ -437,6 +441,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       break;
     } /* if( POINTINSIDE(...) */
   } /* for(i=0; i <  xctx->rects[GRIDLAYER]; i++) */
+  dbg(1, "out of 1st loop: i=%d\n", i);
 
   /* check if user clicked on a wave label -> draw wave in bold */
   if(event == ButtonPress && button == Button3 &&
@@ -454,17 +459,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       !xctx->graph_top /* && !xctx->graph_bottom */
     ) {
     xctx->ui_state |= GRAPHPAN;
+    dbg(1, "save mouse\n");
     if(!xctx->graph_left) xctx->mx_double_save = xctx->mousex_snap;
     if(xctx->graph_left) xctx->my_double_save = xctx->mousey_snap;
   }
-  gr->master_gx1 = 0;
-  gr->master_gx2 = 1e-6;
-  val = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"x1",0);
-  if(val[0]) gr->master_gx1 = atof_spice(val);
-  val = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"x2",0);
-  if(val[0]) gr->master_gx2 = atof_spice(val);
-  if(gr->master_gx1 == gr->master_gx2) gr->master_gx2 += 1e-6;
-  gr->master_gw = gr->master_gx2 - gr->master_gx1;
+  dbg(1, "graph_master=%d\n", xctx->graph_master);
 
   /* parameters for absolute positioning by mouse drag in bottom graph area */
   if( event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
@@ -547,8 +546,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         } else {
           tcleval("graph_show_measure stop");
         }
-      }
-    }
+      } /* if(xctx->graph_flags & 64) */
+    } /* if(i == xctx->graph_master) */
     dbg(1, "%g %g %g %g - %d %d\n", gr->gx1, gr->gy1, gr->gx2, gr->gy2, gr->divx, gr->divy);
     if( event == KeyPress || event == ButtonPress || event == MotionNotify ) {
       /* move cursor1 */
@@ -597,6 +596,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           delta_threshold = 0.01;
           /* selected or locked or master */
           if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+            dbg(1, "moving waves: %d\n", i);
             if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->cx * delta) * delta_threshold) {
               xx1 = gr->gx1 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
               xx2 = gr->gx2 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
@@ -1024,10 +1024,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   }
   if(clear_graphpan_at_end) xctx->ui_state &= ~GRAPHPAN;
   /* update saved mouse position after processing all graphs */
-  if(save_mouse_at_end && 
-    fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->cx * gr->gw) * delta_threshold) {
-    xctx->mx_double_save = xctx->mousex_snap;
-    xctx->my_double_save = xctx->mousey_snap;
+  if(save_mouse_at_end) {
+    if( fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->master_cx * gr->master_gw) * delta_threshold) {
+      dbg(1, "save mose pos\n");
+      xctx->mx_double_save = xctx->mousex_snap;
+      xctx->my_double_save = xctx->mousey_snap;
+    }
   }
 
 

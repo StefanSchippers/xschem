@@ -20,7 +20,7 @@ subdivx=1
 node=s_vec
 color=4
 dataset=0
-unitx=u
+unitx=1
 logx=0
 logy=0
 }

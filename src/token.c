@@ -3029,7 +3029,7 @@ const char *translate(int inst, const char* s)
          size_t len;
          int idx;
          double val;
-         char valstr[120];
+         const char *valstr;
          if(path) {
            int skip = 0;
            /* skip path components that are above the level where raw file was loaded */
@@ -3050,15 +3050,13 @@ const char *translate(int inst, const char* s)
              val = xctx->graph_values[idx][xctx->graph_annotate_p];
            }
            if(idx < 0) {
-              my_snprintf(valstr, S(valstr), "");
-           } else if( fabs(val) < 1.0e-5) {
-             my_snprintf(valstr, S(valstr), "0");
-           } else if( fabs(val) < 1.0e-3 && val != 0.0) {
-             my_snprintf(valstr, S(valstr), "%.4e", val);
+             valstr = "";
+             xctx->tok_size = 0;
+             len = 0;
            } else {
-             my_snprintf(valstr, S(valstr), "%.4g", val);
+             valstr = dtoa_eng(val);
+             len = xctx->tok_size;
            }
-           len = strlen(valstr);
            if(len) {
              STR_ALLOC(&result, len + result_pos, &size);
              memcpy(result+result_pos, valstr, len+1);
@@ -3083,7 +3081,7 @@ const char *translate(int inst, const char* s)
          size_t len;
          int idx1, idx2;
          double val = 0.0, val1 = 0.0, val2 = 0.0;
-         char valstr[120];
+         const char *valstr;
          if(path) {
            int skip = 0;
            /* skip path components that are above the level where raw file was loaded */
@@ -3116,15 +3114,13 @@ const char *translate(int inst, const char* s)
            }
            val = val1 - val2;
            if(idx1 < 0 || idx2 < 0) {
-              my_snprintf(valstr, S(valstr), "");
-           } else if( fabs(val) < 1.0e-5) {
-             my_snprintf(valstr, S(valstr), "0");
-           } else if( fabs(val) < 1.0e-3 && val != 0.0) {
-             my_snprintf(valstr, S(valstr), "%.4e", val);
+             valstr = "";
+             xctx->tok_size = 0;
+             len = 0;
            } else {
-             my_snprintf(valstr, S(valstr), "%.4g", val);
+             valstr = dtoa_eng(val);
+             len = xctx->tok_size;
            }
-           len = strlen(valstr);
            if(len) {
              STR_ALLOC(&result, len + result_pos, &size);
              memcpy(result+result_pos, valstr, len+1);
@@ -3148,7 +3144,7 @@ const char *translate(int inst, const char* s)
        size_t len;
        int idx;
        double val;
-       char valstr[120];
+       const char *valstr;
        if(path) {
          int skip = 0;
          /* skip path components that are above the level where raw file was loaded */
@@ -3181,13 +3177,13 @@ const char *translate(int inst, const char* s)
            val = xctx->graph_values[idx][xctx->graph_annotate_p];
          }
          if(idx < 0) {
-            my_snprintf(valstr, S(valstr), "");
-         } else if( fabs(val) < 1.0e-3 && val != 0.0) {
-           my_snprintf(valstr, S(valstr), "%.4e", val);
+           valstr = "";
+           xctx->tok_size = 0;
+           len = 0;
          } else {
-           my_snprintf(valstr, S(valstr), "%.4g", val);
+           valstr = dtoa_eng(val);
+           len = xctx->tok_size;
          }
-         len = strlen(valstr);
          if(len) {
            STR_ALLOC(&result, len + result_pos, &size);
            memcpy(result+result_pos, valstr, len+1);

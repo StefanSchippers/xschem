@@ -340,6 +340,35 @@ char *dtoa(double i)
   return s;
 }
 
+char *dtoa_eng(double i)
+{
+  static char s[70];
+  size_t n;
+  int suffix = 0;
+  double absi = fabs(i);
+
+  if     (absi == 0.0)  { suffix = 0;}
+  else if(absi >=1e12)  { i /= 1e12; suffix = 'T';}
+  else if(absi >=1e9)   { i /= 1e9 ; suffix = 'G';}
+  else if(absi >=1e6)   { i /= 1e6 ; suffix = 'M';}
+  else if(absi >=1e3)   { i /= 1e3 ; suffix = 'k';}
+  else if(absi >=0.1)   { suffix = 0;}
+  else if(absi >=1e-3)  { i *= 1e3 ; suffix = 'm';}
+  else if(absi >=1e-6)  { i *= 1e6 ; suffix = 'u';}
+  else if(absi >=1e-9)  { i *= 1e9 ; suffix = 'n';}
+  else if(absi >=1e-12) { i *= 1e12; suffix = 'p';}
+  else if(absi >=1e-15) { i *= 1e15; suffix = 'f';}
+  else                  { i *= 1e18; suffix = 'a';}
+  if(suffix) {
+    n = my_snprintf(s, S(s), "%.5g%c", i, suffix);
+  } else {
+    n = my_snprintf(s, S(s), "%.5g", i);
+  }
+  if(xctx) xctx->tok_size = n;
+  return s;
+}
+
+
 char *dtoa_prec(double i)
 {
   static char s[70];

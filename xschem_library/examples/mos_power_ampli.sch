@@ -323,7 +323,7 @@ C {ngspice_get_expr.sym} 330 -900 0 1 {name=r17
 node="[ngspice::get_current v2]" 
 descr = current
 }
-C {ngspice_get_expr.sym} 360 -1040 0 0 {name=r18 
+C {ngspice_get_expr.sym} 380 -1030 0 0 {name=r18 
 node="[ngspice::get_current \{r2[i]\}]"
 descr = current
 }
@@ -356,7 +356,7 @@ node="[format %.4g [expr ([ngspice::get_voltage e11] - [ngspice::get_voltage ga]
 descr = power
 }
 C {ngspice_get_expr.sym} 1000 -710 0 0 {name=r20 
-node="[ngspice::get_current \{r0[i]\}]" 
+node="[to_eng [ngspice::get_current \{r0[i]\}]]" 
 descr = current
 }
 C {ngspice_get_expr.sym} 280 -200 2 1 {name=r3 

@@ -1978,10 +1978,10 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
     drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy1), W_X(wx),   W_Y(gr->gy1) + mark_size, 0, ct); /* axis marks */
     /* X-axis labels */
     if(gr->logx) 
-      draw_string(3, NOW, dtoa(pow(10, wx) * gr->unitx), 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
-                gr->txtsizex, gr->txtsizex);
+      draw_string(3, NOW, dtoa_eng(pow(10, wx) * gr->unitx), 0, 0, 1, 0, W_X(wx),
+                gr->y2 + mark_size + 5 * gr->txtsizex, gr->txtsizex, gr->txtsizex);
     else
-      draw_string(3, NOW, dtoa(wx * gr->unitx), 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
+      draw_string(3, NOW, dtoa_eng(wx * gr->unitx), 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
                 gr->txtsizex, gr->txtsizex);
   }
   /* first and last vertical box delimiters */
@@ -2009,10 +2009,10 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
       drawline(GRIDLAYER, ADD, W_X(gr->gx1) - mark_size, W_Y(wy),   W_X(gr->gx1), W_Y(wy), 0, ct); /* axis marks */
       /* Y-axis labels */
       if(gr->logy)
-        draw_string(3, NOW, dtoa(pow(10, wy) * gr->unity), 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
-                  gr->txtsizey, gr->txtsizey);
+        draw_string(3, NOW, dtoa_eng(pow(10, wy) * gr->unity), 0, 1, 0, 1, 
+                  gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy), gr->txtsizey, gr->txtsizey);
       else 
-        draw_string(3, NOW, dtoa(wy * gr->unity), 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
+        draw_string(3, NOW, dtoa_eng(wy * gr->unity), 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
                   gr->txtsizey, gr->txtsizey);
     }
   }
@@ -2036,6 +2036,7 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
   const char *val;
   xRect *r = &xctx->rect[GRIDLAYER][i];
 
+  dbg(1, "setup_graph_data: i=%d\n", i);
   /* default values */
   gr->divx = gr->divy = 5;
   gr->subdivx = gr->subdivy = 0;

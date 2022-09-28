@@ -266,7 +266,6 @@ proc execute_fileevent {id} {
   }
 }
 
-
 proc execute_wait {status args} {
   global execute 
   set id [eval execute $status $args]
@@ -346,6 +345,33 @@ proc sframe {container} {
   return $container.f.scrl
 }
 #### /Scrollable frame
+
+
+## convert number to engineering form
+proc to_eng {i} {
+  set suffix {}
+  set absi [expr {abs($i)}]
+
+  if       {$absi == 0.0}  { set mult 1    ; set suffix {}
+  } elseif {$absi >=1e12}  { set mult 1e-12; set suffix T
+  } elseif {$absi >=1e9}   { set mult 1e-9 ; set suffix G
+  } elseif {$absi >=1e6}   { set mult 1e-6 ; set suffix M
+  } elseif {$absi >=1e3}   { set mult 1e-3 ; set suffix k
+  } elseif {$absi >=0.1}   { set mult 1    ; set suffix {}
+  } elseif {$absi >=1e-3}  { set mult 1e3  ; set suffix m
+  } elseif {$absi >=1e-6}  { set mult 1e6  ; set suffix u
+  } elseif {$absi >=1e-9}  { set mult 1e9  ; set suffix n
+  } elseif {$absi >=1e-12} { set mult 1e12 ; set suffix p
+  } elseif {$absi >=1e-15} { set mult 1e15 ; set suffix f
+  } else                   { set mult 1e18 ; set suffix a}
+  if {$suffix ne {}} {
+    set i [expr {$i * $mult}]
+    set s [format  {%.5g%s} $i $suffix]
+  } else {
+    set s [format  {%.5g} $i]
+  }
+  return $s
+}
 
 ## evaluate expression. if expression has errors or does not evaluate return expression as is
 proc ev {s} {
@@ -667,6 +693,125 @@ proc setup_recent_menu { {in_new_window 0} { topwin {} } } {
     }
   }
 }
+
+
+
+## ngspice:: raw file access functions
+namespace eval ngspice {
+  # Create a variable inside the namespace
+  variable ngspice_data
+  variable op_point_read
+}
+
+proc ngspice::get_current {n} {
+  global path graph_raw_level
+  set path [string range [xschem get sch_path] 1 end]
+  # skip hierarchy components above the level where raw file has been loaded. 
+  # node path names to look up in raw file begin from there.
+  set skip 0
+  while { $skip < $graph_raw_level } { 
+    regsub {^[^.]*\.} $path {} path
+    incr skip
+  }
+  set n [string tolower $n]
+  set prefix [string range $n 0 0]
+  #puts "ngspice::get_current: path=$path n=$n"
+  set n $path$n
+  if { ![sim_is_xyce] } {
+    if {$path ne {} } {
+      set n $prefix.$n
+    }
+    if { ![regexp $prefix {[ve]}] } {
+      set n @$n
+    }
+  }
+  set n i($n)
+  #puts "ngspice::get_current --> $n"
+  set err [catch {set ngspice::ngspice_data($n)} res]
+  if { $err } {
+    set res {?}
+  }
+  # puts "$n --> $res"
+  return $res
+}
+
+proc ngspice::get_diff_voltage {n m} {
+  global path graph_raw_level
+  set path [string range [xschem get sch_path] 1 end]
+  # skip hierarchy components above the level where raw file has been loaded. 
+  # node path names to look up in raw file begin from there.
+  set skip 0
+  while { $skip < $graph_raw_level } {
+    regsub {^[^.]*\.} $path {} path
+    incr skip
+  }
+  set n [string tolower $n]
+  set m [string tolower $m]
+  set nn $path$n
+  set mm $path$m
+  set errn [catch {set ngspice::ngspice_data($nn)} resn]
+  if {$errn} {
+    set nn v(${path}${n})
+    set errn [catch {set ngspice::ngspice_data($nn)} resn]
+  }
+  set errm [catch {set ngspice::ngspice_data($mm)} resm]
+  if {$errm} {
+    set mm v(${path}${m})
+    set errm [catch {set ngspice::ngspice_data($mm)} resm]
+  }
+  if { $errn  || $errm} {
+    set res {?}
+  }
+  return $res
+}
+
+
+proc ngspice::get_voltage {n} {
+  global path graph_raw_level
+  set path [string range [xschem get sch_path] 1 end]
+  # skip hierarchy components above the level where raw file has been loaded. 
+  # node path names to look up in raw file begin from there.
+  set skip 0
+  while { $skip < $graph_raw_level } { 
+    regsub {^[^.]*\.} $path {} path
+    incr skip
+  }
+  set n [string tolower $n]
+  # puts "ngspice::get_voltage: path=$path n=$n"
+  set node $path$n
+  set err [catch {set ngspice::ngspice_data($node)} res]
+  if {$err} {
+    set node v(${path}${n})
+    # puts "ngspice::get_voltage: trying $node"
+    set err [catch {set ngspice::ngspice_data($node)} res]
+  }
+  if { $err } {
+    set res {?}
+  }
+  return $res
+}
+
+proc ngspice::get_node {n} {
+  global path graph_raw_level
+  set path [string range [xschem get sch_path] 1 end]
+  # skip hierarchy components above the level where raw file has been loaded. 
+  # node path names to look up in raw file begin from there.
+  set skip 0
+  while { $skip < $graph_raw_level } { 
+    regsub {^[^.]*\.} $path {} path
+    incr skip
+  }
+  set n [string tolower $n]
+  # n may contain $path, so substitute its value
+  set n [ subst -nocommand $n ]
+  set err [catch {set ngspice::ngspice_data($n)} res]
+  if { $err } { 
+    set res {?}
+  }
+  return $res
+}
+
+## end ngspice:: functions
 
 proc sim_is_ngspice {} {
   global sim
