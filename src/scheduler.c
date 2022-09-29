@@ -302,7 +302,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   * ********** xschem commands  IN SORTED ORDER !!! *********
   */
 
-  if(argv[1][0] == 'a') {   
+  switch(argv[1][0]) {
+
+    case 'a': /*----------------------------------------------*/
     if(!strcmp(argv[1], "abort_operation"))
     {
       cmd_found = 1;
@@ -386,7 +388,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->prep_hi_structs=0;
       draw();
     }
-   
+
     else if(!strcmp(argv[1], "annotate_op"))
     {
       int i;
@@ -415,22 +417,22 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         draw();
       }
     }
-   
+
     else if(!strcmp(argv[1], "arc"))
     {
       cmd_found = 1;
       xctx->ui_state |= MENUSTARTARC;
     }
-   
+
     else if(!strcmp(argv[1], "attach_labels")) /* attach pins to selected component 20171005 */
     {
       cmd_found = 1;
       attach_labels_to_inst(0);
       Tcl_ResetResult(interp);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'b') {   
+    case 'b': /*----------------------------------------------*/
     if(!strcmp(argv[1], "bbox"))
     {
       cmd_found = 1;
@@ -445,7 +447,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "break_wires"))
     {
       cmd_found = 1;
@@ -459,9 +461,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       build_colors(tclgetdoublevar("dim_value"), tclgetdoublevar("dim_bg"));
       Tcl_ResetResult(interp);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'c') {
+    case 'c': /*----------------------------------------------*/
     if(!strcmp(argv[1], "callback") )
     {
       cmd_found = 1;
@@ -471,7 +473,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9]);
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "case_insensitive"))
     {
       cmd_found = 1;
@@ -522,24 +524,22 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "circle"))
     {
       cmd_found = 1;
       xctx->ui_state |= MENUSTARTCIRCLE;
     }
-   
+
     else if(!strcmp(argv[1], "clear"))
     {
       int cancel = 0;
-   
       cmd_found = 1;
       if( argc < 3 || strcmp(argv[2], "force") ) cancel=save(1);
       if(cancel != -1) { /* -1 means user cancel save request */
         char name[PATH_MAX];
         struct stat buf;
         int i;
-   
         xctx->currsch = 0;
         unselect_all(1);
         remove_symbols();
@@ -577,14 +577,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "clear_drawing"))
     {
       cmd_found = 1;
       if(argc==2) clear_drawing();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "color_dim"))
     {
       cmd_found = 1;
@@ -628,20 +628,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       save_selection(2);
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "copy_objects"))
     {
       cmd_found = 1;
       copy_objects(START);
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "count_items"))
     {
+      cmd_found = 1;
       if(argc > 4) {
         Tcl_SetResult(interp, my_itoa(count_items(argv[2], argv[3], argv[4])), TCL_VOLATILE);
       }
-      cmd_found = 1;
     }
     else if(!strcmp(argv[1], "create_plot_cmd") )
     {
@@ -649,7 +649,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       create_plot_cmd();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "cut"))
     {
       cmd_found = 1;
@@ -658,9 +658,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       delete(1/*to_push_undo*/);
       Tcl_ResetResult(interp);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'd') {   
+    case 'd': /*----------------------------------------------*/
     if(!strcmp(argv[1], "debug"))
     {
       cmd_found = 1;
@@ -670,20 +670,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "delete"))
     {
       cmd_found = 1;
       if(argc==2) delete(1/*to_push_undo*/);
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "delete_files"))
     {
       cmd_found = 1;
       delete_files();
     }
-   
+
     else if(!strcmp(argv[1], "descend"))
     {
       int ret=0;
@@ -696,14 +696,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_SetResult(interp, dtoa(ret), TCL_VOLATILE);
     }
-   
+
     else if(!strcmp(argv[1], "descend_symbol"))
     {
       cmd_found = 1;
       descend_symbol();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "display_hilights"))
     {
       char *str = NULL;
@@ -728,10 +728,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
+    break;
 
-  }
-
-  else if(argv[1][0] == 'e') {   
+    case 'e': /*----------------------------------------------*/
     if(!strcmp(argv[1], "edit_file") )
     {
       cmd_found = 1;
@@ -746,24 +745,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_snprintf(name, S(name), "edit_file {%s}",
             abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""));
         tcleval(name);
-  
       }
     }
-   
+
     else if(!strcmp(argv[1], "edit_prop"))
     {
       cmd_found = 1;
       edit_property(0);
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "edit_vi_prop"))
     {
       cmd_found = 1;
       edit_property(1);
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "embed_rawfile"))
     {
       cmd_found = 1;
@@ -778,7 +776,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       enable_layers();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "exit"))
     {
       cmd_found = 1;
@@ -801,14 +799,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "expandlabel") && argc == 3) 
     {
       int tmp;
       size_t llen;
       char *result=NULL;
       const char *l;
-   
       cmd_found = 1;
       l = expandlabel(argv[2], &tmp);
       llen = strlen(l);
@@ -818,9 +815,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, result, TCL_VOLATILE);
       my_free(927, &result);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'f') {   
+    case 'f': /*----------------------------------------------*/
     if(!strcmp(argv[1], "find_nth"))
     {
       cmd_found = 1;
@@ -840,7 +837,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "fullscreen"))
     {
       cmd_found = 1;
@@ -848,13 +845,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else toggle_fullscreen(".drw");
       Tcl_ResetResult(interp);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'g') {   
+    case 'g': /*----------------------------------------------*/
     /*
      * ********** xschem get subcommands
      */
-   
     if(!strcmp(argv[1], "get")) {
       cmd_found = 1;
       if(argc >= 3 && !strcmp(argv[2], "schname"))
@@ -883,7 +879,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(argc >= 4 && !strcmp(argv[2], "netlist_name") &&
               !strcmp(argv[3], "fallback")) {
         char f[PATH_MAX];
-  
         if(xctx->netlist_type == CAD_SPICE_NETLIST) {
           my_snprintf(f, S(f), "%s.spice", skip_dir(xctx->current_name));
         }
@@ -1208,7 +1203,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_SetResult(interp, (char *)get_tok_value(xctx->sym[i].prop_ptr, argv[4], 0), TCL_VOLATILE);
         else if(argc > 5) 
           Tcl_SetResult(interp, (char *)get_tok_value(xctx->sym[i].prop_ptr, argv[4], atoi(argv[5])), TCL_VOLATILE);
- 
+
       } else if (!strcmp(argv[2], "rect")) {
         if(argc <=5) {
           Tcl_SetResult(interp, "xschem getprop rect needs <color> <n> <token>", TCL_STATIC);
@@ -1220,7 +1215,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
     }
-   
+
     else if(!strcmp(argv[1], "get_tok") )
     {
       char *s=NULL;
@@ -1233,121 +1228,124 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, s, TCL_VOLATILE);
       my_free(649, &s);
     }
-   
+
     else if(!strcmp(argv[1], "get_tok_size") )
     {
+      cmd_found = 1;
       Tcl_SetResult(interp, my_itoa((int)xctx->tok_size), TCL_VOLATILE);
     }
-   
+
     else if(!strcmp(argv[1], "globals"))
     {
-     static char res[8192];
-     cmd_found = 1;
-     Tcl_ResetResult(interp);
-     my_snprintf(res, S(res), "*******global variables:*******\n"); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "INT_WIDTH(lw)=%d\n", INT_WIDTH(xctx->lw)); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "wires=%d\n", xctx->wires); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "instances=%d\n", xctx->instances); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "symbols=%d\n", xctx->symbols); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "lastsel=%d\n", xctx->lastsel); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "texts=%d\n", xctx->texts); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "maxt=%d\n", xctx->maxt); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "maxw=%d\n", xctx->maxw); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "maxi=%d\n", xctx->maxi); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "maxsel=%d\n", xctx->maxsel); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "zoom=%.16g\n", xctx->zoom); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "xorigin=%.16g\n", xctx->xorigin); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "yorigin=%.16g\n", xctx->yorigin); Tcl_AppendResult(interp, res, NULL);
-     for(i=0;i<8;i++)
-     {
-       my_snprintf(res, S(res), "rects[%d]=%d\n", i, xctx->rects[i]); Tcl_AppendResult(interp, res, NULL);
-       my_snprintf(res, S(res), "lines[%d]=%d\n", i, xctx->lines[i]); Tcl_AppendResult(interp, res, NULL);
-       my_snprintf(res, S(res), "maxr[%d]=%d\n", i, xctx->maxr[i]); Tcl_AppendResult(interp, res, NULL);
-       my_snprintf(res, S(res), "maxl[%d]=%d\n", i, xctx->maxl[i]); Tcl_AppendResult(interp, res, NULL);
-     }
-     my_snprintf(res, S(res), "current_name=%s\n", xctx->current_name); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "currsch=%d\n", xctx->currsch); Tcl_AppendResult(interp, res, NULL);
-     for(i=0;i<=xctx->currsch;i++)
-     {
-       my_snprintf(res, S(res), "previous_instance[%d]=%d\n",i,xctx->previous_instance[i]); Tcl_AppendResult(interp, res, NULL);
-       my_snprintf(res, S(res), "sch_path[%d]=%s\n",i,xctx->sch_path[i]? xctx->sch_path[i]:"<NULL>"); Tcl_AppendResult(interp, res, NULL);
-       my_snprintf(res, S(res), "sch[%d]=%s\n",i,xctx->sch[i]); Tcl_AppendResult(interp, res, NULL);
-     }
-     my_snprintf(res, S(res), "modified=%d\n", xctx->modified); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "areaw=%d\n", xctx->areaw); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "areah=%d\n", xctx->areah); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "color_ps=%d\n", color_ps); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "hilight_nets=%d\n", xctx->hilight_nets); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "semaphore=%d\n", xctx->semaphore); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "ui_state=%d\n", xctx->ui_state); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "prep_net_structs=%d\n", xctx->prep_net_structs); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "prep_hi_structs=%d\n", xctx->prep_hi_structs); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "prep_hash_inst=%d\n", xctx->prep_hash_inst); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "prep_hash_wires=%d\n", xctx->prep_hash_wires); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "undo_type=%d\n", xctx->undo_type); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "******* end global variables:*******\n"); Tcl_AppendResult(interp, res, NULL);
-     my_snprintf(res, S(res), "******* Compile options:*******\n"); Tcl_AppendResult(interp, res, NULL);
-     #ifdef HAS_DUP2
-     my_snprintf(res, S(res), "HAS_DUP2=%d\n", HAS_DUP2); Tcl_AppendResult(interp, res, NULL); 
-     #endif
-     #ifdef HAS_PIPE
-     my_snprintf(res, S(res), "HAS_PIPE=%d\n", HAS_PIPE); Tcl_AppendResult(interp, res, NULL); 
-     #endif
-     #ifdef HAS_POPEN
-     my_snprintf(res, S(res), "HAS_POPEN=%d\n", HAS_POPEN); Tcl_AppendResult(interp, res, NULL); 
-     #endif
-     #ifdef HAS_CAIRO
-     my_snprintf(res, S(res), "HAS_CAIRO=%d\n", HAS_CAIRO); Tcl_AppendResult(interp, res, NULL); 
-     #endif
-     #ifdef XSCHEM_SHAREDIR
-     my_snprintf(res, S(res), "XSCHEM_SHAREDIR=%s\n", XSCHEM_SHAREDIR); Tcl_AppendResult(interp, res, NULL); 
-     #endif
-     #ifdef PREFIX
-     my_snprintf(res, S(res), "PREFIX=%s\n", PREFIX); Tcl_AppendResult(interp, res, NULL); 
-     #endif
-     #ifdef USER_CONF_DIR
-     my_snprintf(res, S(res), "USER_CONF_DIR=%s\n", USER_CONF_DIR); Tcl_AppendResult(interp, res, NULL); 
-     #endif
-     #ifdef XSCHEM_LIBRARY_PATH
-     my_snprintf(res, S(res), "XSCHEM_LIBRARY_PATH=%s\n", XSCHEM_LIBRARY_PATH); Tcl_AppendResult(interp, res, NULL); 
-     #endif
-     #ifdef HAS_SNPRINTF
-     my_snprintf(res, S(res), "HAS_SNPRINTF=%s\n", HAS_SNPRINTF); Tcl_AppendResult(interp, res, NULL); 
-     #endif
+      static char res[8192];
+      cmd_found = 1;
+      Tcl_ResetResult(interp);
+      my_snprintf(res, S(res), "*******global variables:*******\n"); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "INT_WIDTH(lw)=%d\n", INT_WIDTH(xctx->lw)); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "wires=%d\n", xctx->wires); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "instances=%d\n", xctx->instances); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "symbols=%d\n", xctx->symbols); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "lastsel=%d\n", xctx->lastsel); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "texts=%d\n", xctx->texts); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "maxt=%d\n", xctx->maxt); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "maxw=%d\n", xctx->maxw); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "maxi=%d\n", xctx->maxi); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "maxsel=%d\n", xctx->maxsel); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "zoom=%.16g\n", xctx->zoom); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "xorigin=%.16g\n", xctx->xorigin); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "yorigin=%.16g\n", xctx->yorigin); Tcl_AppendResult(interp, res, NULL);
+      for(i=0;i<8;i++)
+      {
+        my_snprintf(res, S(res), "rects[%d]=%d\n", i, xctx->rects[i]); Tcl_AppendResult(interp, res, NULL);
+        my_snprintf(res, S(res), "lines[%d]=%d\n", i, xctx->lines[i]); Tcl_AppendResult(interp, res, NULL);
+        my_snprintf(res, S(res), "maxr[%d]=%d\n", i, xctx->maxr[i]); Tcl_AppendResult(interp, res, NULL);
+        my_snprintf(res, S(res), "maxl[%d]=%d\n", i, xctx->maxl[i]); Tcl_AppendResult(interp, res, NULL);
+      }
+      my_snprintf(res, S(res), "current_name=%s\n", xctx->current_name); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "currsch=%d\n", xctx->currsch); Tcl_AppendResult(interp, res, NULL);
+      for(i=0;i<=xctx->currsch;i++)
+      {
+        my_snprintf(res, S(res), "previous_instance[%d]=%d\n",
+            i,xctx->previous_instance[i]); Tcl_AppendResult(interp, res, NULL);
+        my_snprintf(res, S(res), "sch_path[%d]=%s\n",i,xctx->sch_path[i]? 
+            xctx->sch_path[i]:"<NULL>"); Tcl_AppendResult(interp, res, NULL);
+        my_snprintf(res, S(res), "sch[%d]=%s\n",i,xctx->sch[i]); Tcl_AppendResult(interp, res, NULL);
+      }
+      my_snprintf(res, S(res), "modified=%d\n", xctx->modified); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "areaw=%d\n", xctx->areaw); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "areah=%d\n", xctx->areah); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "color_ps=%d\n", color_ps); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "hilight_nets=%d\n", xctx->hilight_nets); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "semaphore=%d\n", xctx->semaphore); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "ui_state=%d\n", xctx->ui_state); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "prep_net_structs=%d\n", xctx->prep_net_structs); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "prep_hi_structs=%d\n", xctx->prep_hi_structs); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "prep_hash_inst=%d\n", xctx->prep_hash_inst); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "prep_hash_wires=%d\n", xctx->prep_hash_wires); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "undo_type=%d\n", xctx->undo_type); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "******* end global variables:*******\n"); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "******* Compile options:*******\n"); Tcl_AppendResult(interp, res, NULL);
+      #ifdef HAS_DUP2
+      my_snprintf(res, S(res), "HAS_DUP2=%d\n", HAS_DUP2); Tcl_AppendResult(interp, res, NULL); 
+      #endif
+      #ifdef HAS_PIPE
+      my_snprintf(res, S(res), "HAS_PIPE=%d\n", HAS_PIPE); Tcl_AppendResult(interp, res, NULL); 
+      #endif
+      #ifdef HAS_POPEN
+      my_snprintf(res, S(res), "HAS_POPEN=%d\n", HAS_POPEN); Tcl_AppendResult(interp, res, NULL); 
+      #endif
+      #ifdef HAS_CAIRO
+      my_snprintf(res, S(res), "HAS_CAIRO=%d\n", HAS_CAIRO); Tcl_AppendResult(interp, res, NULL); 
+      #endif
+      #ifdef XSCHEM_SHAREDIR
+      my_snprintf(res, S(res), "XSCHEM_SHAREDIR=%s\n", XSCHEM_SHAREDIR); Tcl_AppendResult(interp, res, NULL); 
+      #endif
+      #ifdef PREFIX
+      my_snprintf(res, S(res), "PREFIX=%s\n", PREFIX); Tcl_AppendResult(interp, res, NULL); 
+      #endif
+      #ifdef USER_CONF_DIR
+      my_snprintf(res, S(res), "USER_CONF_DIR=%s\n", USER_CONF_DIR); Tcl_AppendResult(interp, res, NULL); 
+      #endif
+      #ifdef XSCHEM_LIBRARY_PATH
+      my_snprintf(res, S(res), "XSCHEM_LIBRARY_PATH=%s\n", XSCHEM_LIBRARY_PATH); Tcl_AppendResult(interp, res, NULL); 
+      #endif
+      #ifdef HAS_SNPRINTF
+      my_snprintf(res, S(res), "HAS_SNPRINTF=%s\n", HAS_SNPRINTF); Tcl_AppendResult(interp, res, NULL); 
+      #endif
     }
-   
+
     else if(!strcmp(argv[1], "go_back"))
     {
       cmd_found = 1;
       go_back(1);
       Tcl_ResetResult(interp);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'h') {   
+    case 'h': /*----------------------------------------------*/
     if(!strcmp(argv[1], "hash_file"))
     {
-     unsigned int h;
-     char s[40];
-     cmd_found = 1;
-     if(argc > 2) {
-       if(argc > 3) {
-         h = hash_file(argv[2], atoi(argv[3]));
-       } else {
-         h = hash_file(argv[2], 0);
-       }
-       my_snprintf(s, S(s), "%u", h);
-       Tcl_SetResult(interp, s, TCL_VOLATILE);
-     }
+      unsigned int h;
+      char s[40];
+      cmd_found = 1;
+      if(argc > 2) {
+        if(argc > 3) {
+          h = hash_file(argv[2], atoi(argv[3]));
+        } else {
+          h = hash_file(argv[2], 0);
+        }
+        my_snprintf(s, S(s), "%u", h);
+        Tcl_SetResult(interp, s, TCL_VOLATILE);
+      }
     }
-   
+
     else if(!strcmp(argv[1], "help"))
     {
-     cmd_found = 1;
-     xschem_cmd_help(argc, argv);
+      cmd_found = 1;
+      xschem_cmd_help(argc, argv);
     }
-   
+
     else if(!strcmp(argv[1], "hier_psprint"))
     {
       cmd_found = 1;
@@ -1366,7 +1364,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       redraw_hilights(0);
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "hilight_netname"))
     {
       int ret = 0;
@@ -1376,9 +1374,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_SetResult(interp,ret ? "1" : "0" , TCL_STATIC);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'i') {   
+    case 'i': /*----------------------------------------------*/
     if(!strcmp(argv[1], "instance"))
     {
       cmd_found = 1;
@@ -1396,7 +1394,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                (short)atoi(argv[6]), argv[7], 0, x, 1);
       }
     }
-   
+
     else if(!strcmp(argv[1], "instance_bbox"))
     {
       int i;
@@ -1419,13 +1417,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_AppendResult(interp, s, NULL);
       }
     }
-   
+
     else if(!strcmp(argv[1], "instance_net"))
     {
       /* xschem instance_net inst pin */
       int no_of_pins, i, p, multip;
       const char *str_ptr=NULL;
-   
       cmd_found = 1;
       if( argc <4) {
         Tcl_SetResult(interp, "xschem instance_net needs 2 additional arguments", TCL_STATIC);
@@ -1449,13 +1446,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_SetResult(interp, (char *)str_ptr, TCL_VOLATILE);
     }
-   
+
     else if(!strcmp(argv[1], "instance_nodemap"))
     {
     /* xschem instance_nodemap [instance_name] */
       int p, no_of_pins;
       int inst = -1;
-
       cmd_found = 1;
       prepare_netlist_structs(0);
       if(argc > 2) {
@@ -1474,7 +1470,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
     }
-   
+
     else if(!strcmp(argv[1], "instance_pin_coord"))
     {
     /*   0            1           2       3     4
@@ -1491,7 +1487,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       const char *pin;
       char *ss;
       char *tmpstr = NULL;
-   
       cmd_found = 1;
       if(argc < 5) {
         Tcl_SetResult(interp,
@@ -1537,12 +1532,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, num, TCL_VOLATILE);
       my_free(530, &tmpstr);
     }
-   
+
     else if(!strcmp(argv[1], "instance_pins"))
     {
       char *pins = NULL;
       int p, i, no_of_pins;
-
       cmd_found = 1;
       prepare_netlist_structs(0);
       if( (i = get_instance(argv[2])) < 0 ) {
@@ -1560,7 +1554,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, pins, TCL_VOLATILE);
       my_free(1195, &pins);
     }
-   
+
     else if(!strcmp(argv[1], "instance_pos"))
     {
       int i;
@@ -1575,7 +1569,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_snprintf(s, S(s), "%d", i);
       Tcl_SetResult(interp, s, TCL_VOLATILE);
     }
-   
+
     else if(!strcmp(argv[1], "instances_to_net"))
     {
     /* xschem instances_to_net PLUS */
@@ -1583,7 +1577,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xRect *rct;
       short flip, rot;
       double x0,y0, pinx0, piny0;
-   
       char *pins = NULL;
       int p, i, no_of_pins;
       cmd_found = 1;
@@ -1607,13 +1600,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(xctx->inst[i].node[p] && !strcmp(xctx->inst[i].node[p], argv[2]) &&
              !IS_LABEL_SH_OR_PIN( (xctx->inst[i].ptr+xctx->sym)->type )) {
             my_mstrcat(534, &pins, "{ {", xctx->inst[i].instname, "} {", pin, NULL);
-   
             pinx0 = (rct[p].x1+rct[p].x2)/2;
             piny0 = (rct[p].y1+rct[p].y2)/2;
             ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, pinx0, piny0);
             pinx0 += x0;
             piny0 += y0;
-   
             my_mstrcat(538, &pins, "} {", dtoa(pinx0), "} {", dtoa(piny0), "} } ", NULL);
           }
         }
@@ -1621,9 +1612,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, pins ? pins : "", TCL_VOLATILE);
       my_free(926, &pins);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'l') {   
+    case 'l': /*----------------------------------------------*/
     if(!strcmp(argv[1], "line"))
     {
       double x1,y1,x2,y2;
@@ -1644,14 +1635,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else xctx->ui_state |= MENUSTARTLINE;
     }
-   
+
     else if(!strcmp(argv[1], "line_width") && argc==3)
     {
       cmd_found = 1;
       change_linewidth(atof(argv[2]));
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "list_hilights"))
     {
       const char *sep;
@@ -1671,7 +1662,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
       Tcl_SetResult(interp, (char *)list_tokens(argv[2], atoi(argv[3])), TCL_VOLATILE);
     }
-   
+
     else if(!strcmp(argv[1], "load") )
     {
       int load_symbols = 1, force = 0, undo_reset = 1;
@@ -1764,16 +1755,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'm') {   
+    case 'm': /*----------------------------------------------*/
     if(!strcmp(argv[1], "make_sch")) /* make schematic from selected symbol 20171004 */
     {
       cmd_found = 1;
       create_sch_from_sym();
       Tcl_ResetResult(interp);
     }
-   
+
     else if (!strcmp(argv[1], "make_sch_from_sel"))
     {
       cmd_found = 1;
@@ -1804,7 +1795,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "move_objects"))
     {
       cmd_found = 1;
@@ -1815,22 +1806,22 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else move_objects(START,0,0,0);
       Tcl_ResetResult(interp);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'n') {   
+    case 'n': /*----------------------------------------------*/
     if(!strcmp(argv[1], "net_label"))
     {
       cmd_found = 1;
       unselect_all(1);
       if(argc>=3) place_net_label(atoi(argv[2]));
     }
-   
+
     else if(!strcmp(argv[1], "net_pin_mismatch"))
     {
       cmd_found = 1;
       hilight_net_pin_mismatches();
     }
-   
+
     else if(!strcmp(argv[1], "netlist") )
     {
       cmd_found = 1;
@@ -1849,7 +1840,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                             "-message {Please Set netlisting mode (Options menu)}");
       }
     }
-   
+
     else if(!strcmp(argv[1], "new_schematic"))
     {
       int r = -1;
@@ -1861,7 +1852,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_snprintf(s, S(s), "%d", r);
       Tcl_SetResult(interp, s, TCL_VOLATILE);
     }
-   
+
     else if(!strcmp(argv[1], "new_symbol_window"))
     {
       cmd_found = 1;
@@ -1877,16 +1868,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else new_xschem_process(argv[2],0);
       Tcl_ResetResult(interp);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'o') {   
+    case 'o': /*----------------------------------------------*/
     if(!strcmp(argv[1], "only_probes"))
     {
       cmd_found = 1;
       toggle_only_probes();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "origin"))
     {
       cmd_found = 1;
@@ -1898,15 +1889,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->mooz=1/xctx->zoom;
       draw();
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'p') {   
+    case 'p': /*----------------------------------------------*/
     if(!strcmp(argv[1], "parselabel") && argc ==3) 
     {
       cmd_found = 1;
       parse( argv[2]);
     }
-   
+
     else if(!strcmp(argv[1], "paste"))
     {
       cmd_found = 1;
@@ -1918,7 +1909,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "pinlist"))
     {
       int i, p, no_of_pins;
@@ -1939,10 +1930,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_AppendResult(interp, "{ {", s, "} {", 
              (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, "} } ", NULL);
         }
-   
       }
     }
-   
+
     else if(!strcmp(argv[1], "place_symbol"))
     {
       int ret;
@@ -1973,11 +1963,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->semaphore--;
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "place_text"))
     {
       cmd_found = 1;
-
       xctx->semaphore++;
       xctx->last_command = 0;
       unselect_all(1);
@@ -1992,13 +1981,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->semaphore--;
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "polygon"))
     {
       cmd_found = 1;
       xctx->ui_state |= MENUSTARTPOLYGON;
     }
-   
+
     else if(!strcmp(argv[1], "preview_window"))
     {
       cmd_found = 1;
@@ -2007,7 +1996,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(argc == 5) preview_window(argv[2], argv[3], argv[4]);
       Tcl_ResetResult(interp);
     }
-   
+
     /*                          img x   y size    xschem area to export
      *    0     1    2    3         4   5             6    7   8   9
      * xschem print png file.png   400 300        [ -300 -200 300 200 ]
@@ -2025,7 +2014,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         tclvareval("file normalize {", argv[3], "}", NULL);
         my_strncpy(xctx->plotfile, Tcl_GetStringResult(interp), S(xctx->plotfile));
       }
-
       if(!strcmp(argv[2], "pdf") || !strcmp(argv[2],"ps")) {
         ps_draw(7);
       }
@@ -2096,19 +2084,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       draw();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "print_hilight_net") && argc == 3)
     {
       cmd_found = 1;
       print_hilight_net(atoi(argv[2]));
     }
-   
+
     else if(!strcmp(argv[1], "print_spice_element") )
     {
       cmd_found = 1;
       if(argc>2) print_spice_element(stderr, atoi(argv[2]));
     }
-   
+
     else if(!strcmp(argv[1], "propagate_hilights"))
     {
       int set = 1, clear = 0;
@@ -2126,9 +2114,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->push_undo();
       Tcl_ResetResult(interp);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'r') {   
+    case 'r': /*----------------------------------------------*/
     if(!strcmp(argv[1], "raw_clear"))
     {
       cmd_found = 1;
@@ -2255,7 +2243,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       prepare_netlist_structs(1);
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "rect"))
     {
       double x1,y1,x2,y2;
@@ -2276,21 +2264,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else xctx->ui_state |= MENUSTARTRECT;
     }
-   
+
     else if(!strcmp(argv[1], "redo"))
     {
       cmd_found = 1;
       xctx->pop_undo(1, 1); /* 2nd param: set_modify_status */
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "redraw"))
     {
       cmd_found = 1;
       draw();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "reload"))
     {
       cmd_found = 1;
@@ -2304,7 +2292,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "reload_symbols"))
     {
       cmd_found = 1;
@@ -2313,14 +2301,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       draw();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "remove_symbols"))
     {
       cmd_found = 1;
       remove_symbols();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "replace_symbol"))
     {
     /* xschem replace_symbol R3 capa.sym */
@@ -2345,7 +2333,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         char *type;
         char *name=NULL;
         char *ptr=NULL;
-   
         bbox(START,0.0,0.0,0.0,0.0);
         my_strncpy(symbol, argv[3], S(symbol));
         xctx->push_undo();
@@ -2367,13 +2354,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_strdup2(369, &xctx->inst[inst].name, rel_sym_path(symbol));
         xctx->inst[inst].ptr=sym_number;
         bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
-   
         my_strdup(370, &name, xctx->inst[inst].instname);
         if(name && name[0] )
         {
           /* 20110325 only modify prefix if prefix not NUL */
           if(prefix) name[0]=(char)prefix; /* change prefix if changing symbol type; */
-   
           my_strdup(371, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
           hash_all_names(inst);
           new_prop_string(inst, ptr,0, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
@@ -2397,7 +2382,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
       }
     }
-   
+
     else if(!strcmp(argv[1], "rotate"))
     {
       cmd_found = 1;
@@ -2409,21 +2394,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 's') {   
+    case 's': /*----------------------------------------------*/
     if(!strcmp(argv[1], "save"))
     {
       cmd_found = 1;
       dbg(1, "scheduler(): saving: current schematic\n");
-   
       if(!strcmp(xctx->sch[xctx->currsch], "")) {   /* check if unnamed schematic, use saveas in this case... */
         saveas(NULL, SCHEMATIC);
       } else {
         save(0);
       }
     }
-   
+
     else if(!strcmp(argv[1], "saveas"))
     {
       cmd_found = 1;
@@ -2441,14 +2425,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else saveas(NULL, SCHEMATIC);
     }
-   
+
     else if(!strcmp(argv[1], "schematic_in_new_window"))
     {
       cmd_found = 1;
       schematic_in_new_window();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "search") || !strcmp(argv[1],"searchmenu"))
     {
       /*   0      1         2        3       4   5   */
@@ -2474,7 +2458,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         return TCL_OK;
       }
     }
-   
+
     else if(!strcmp(argv[1], "select"))
     {
       cmd_found = 1;
@@ -2482,7 +2466,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, "xschem select: missing arguments.", TCL_STATIC);
         return TCL_ERROR;
       }
-   
       if(!strcmp(argv[2], "instance") && argc>=4) {
         int i;
         /* find by instance name  or number*/
@@ -2507,21 +2490,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
       drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
     }
-   
+
     else if(!strcmp(argv[1], "select_all"))
     {
       cmd_found = 1;
       select_all();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "select_hilight_net"))
     {
       cmd_found = 1;
       select_hilight_net();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "selected_set"))
     {
       int n, i;
@@ -2534,7 +2517,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
     }
-   
+
     else if(!strcmp(argv[1], "selected_wire"))
     {
       int n, i;
@@ -2547,14 +2530,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
     }
-   
+
     else if(!strcmp(argv[1], "send_to_viewer"))
     {
       int viewer = 0;
       int exists = 0;
       char *viewer_name = NULL;
       char tcl_str[200];
-      
       cmd_found = 1;
       tcleval("info exists sim");
       if(tclresult()[0] == '1') exists = 1;
@@ -2574,14 +2556,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "set"))
     {
+      cmd_found = 1;
       if(argc >= 4) {
         /*
          * ********** xschem  set subcommands
          */
-        cmd_found = 1;
         if(!strcmp(argv[2], "cadgrid")) {
               set_grid( atof(argv[3]) );
         }
@@ -2665,7 +2647,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
     }
-   
+
     else if(!strcmp(argv[1], "set_different_tok") )
     {
       char *s = NULL;
@@ -2676,7 +2658,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, s, TCL_VOLATILE);
       my_free(1156, &s);
     }
-   
+
     else if(!strcmp(argv[1], "set_modify"))
     {
       cmd_found = 1;
@@ -2690,9 +2672,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
     /*   0       1       2     3    4     5    6
      * xschem setprop instance R4 value [30k] [fast] */
-   
       cmd_found = 1;
-      
       if(argc > 2 && !strcmp(argv[2], "instance")) {
         int inst, fast=0;
         if(argc >= 7) {
@@ -2742,7 +2722,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             xctx->inst[inst].flags &=~2;
             my_strdup(1215, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
           }
-  
           if(!fast) {
             /* new symbol bbox after prop changes (may change due to text length) */
             symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
@@ -2762,7 +2741,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xRect *r;
         int c = atoi(argv[3]);
         int n = atoi(argv[4]);
-
         if (!(c>=0 && c < cadlayers && n >=0 && n < xctx->rects[c]) ) {
           Tcl_SetResult(interp, "xschem setprop rect: wrong layer or rect number", TCL_STATIC);
           return TCL_ERROR;
@@ -2832,13 +2810,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         tcleval("simulate");
       }
     }
-   
+
     else if(!strcmp(argv[1], "snap_wire"))
     {
       cmd_found = 1;
       xctx->ui_state |= MENUSTARTSNAPWIRE;
     }
-   
+
     else if(!strcmp(argv[1], "subst_tok") )
     {
       char *s=NULL;
@@ -2848,14 +2826,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, s, TCL_VOLATILE);
       my_free(1150, &s);
     }
-   
+
     else if(!strcmp(argv[1], "symbol_in_new_window"))
     {
       cmd_found = 1;
       symbol_in_new_window();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "symbols"))
     {
       int i;
@@ -2868,15 +2846,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_AppendResult(interp, "\n", NULL);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 't') {   
+    case 't': /*----------------------------------------------*/
     if(!strcmp(argv[1], "test"))
     {
       cmd_found = 1;
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "toggle_colorscheme"))
     {
       int d_c;
@@ -2890,7 +2868,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       draw();
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "translate") )
     {
       cmd_found = 1;
@@ -2899,7 +2877,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_AppendResult(interp, translate(atoi(argv[2]), argv[3]), NULL);
       }
     }
-   
+
     else if(!strcmp(argv[1], "trim_wires"))
     {
       cmd_found = 1;
@@ -2908,9 +2886,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       draw();
       Tcl_ResetResult(interp);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'u') {   
+    case 'u': /*----------------------------------------------*/
     if(!strcmp(argv[1], "undo"))
     {
       int redo = 0, set_modify = 1;
@@ -2969,7 +2947,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       draw();
       if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
-   
       Tcl_ResetResult(interp);
     }
     else if(!strcmp(argv[1], "unhilight"))
@@ -2977,7 +2954,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       unhilight_net();
     }
-   
+
     else if(!strcmp(argv[1], "unselect_all"))
     {
       cmd_found = 1;
@@ -2985,18 +2962,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else unselect_all(1);
       Tcl_ResetResult(interp);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'v') {   
+    case 'v': /*----------------------------------------------*/
     if(!strcmp(argv[1], "view_prop"))
     {
       cmd_found = 1;
       edit_property(2);
       Tcl_ResetResult(interp);
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'w') {   
+    case 'w': /*----------------------------------------------*/
     if(!strcmp(argv[1], "warning_overlapped_symbols"))
     {
       cmd_found = 1;
@@ -3013,13 +2990,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         windowid(argv[2]);
       }
     }
-   
+
     else if(!strcmp(argv[1], "windows"))
     {
       cmd_found = 1;
       printf("top win:%lx\n", Tk_WindowId(Tk_Parent(Tk_MainWindow(interp))));
     }
-   
+
     else if(!strcmp(argv[1], "wire"))
     {
       double x1,y1,x2,y2;
@@ -3047,9 +3024,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else xctx->ui_state |= MENUSTARTWIRE;
     }
-  }
+    break;
 
-  else if(argv[1][0] == 'z') {      
+    case 'z': /*----------------------------------------------*/
     if(!strcmp(argv[1], "zoom_box"))
     {
       double x1, y1, x2, y2, factor;
@@ -3072,7 +3049,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-   
+
     /* xschem zoom_full [center | nodraw | nolinewidth] */
     else if(!strcmp(argv[1], "zoom_full"))
     {
@@ -3080,7 +3057,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int draw = 1;
       double shrink = 0.97;
       char * endptr;
-
       cmd_found = 1;
       for(i = 2; i < argc; i++) {
         if(!strcmp(argv[i], "center")) flags  |= 2;
@@ -3094,41 +3070,48 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       zoom_full(draw, 0, flags, shrink);
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "zoom_hilighted"))
     {
       cmd_found = 1;
       zoom_full(1, 2, 1, 0.97);
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "zoom_in"))
     {
       cmd_found = 1;
       view_zoom(0.0);
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "zoom_out"))
     {
       cmd_found = 1;
       view_unzoom(0.0);
       Tcl_ResetResult(interp);
     }
-   
+
     else if(!strcmp(argv[1], "zoom_selected"))
     {
       cmd_found = 1;
       zoom_full(1, 1, 1, 0.97);
       Tcl_ResetResult(interp);
     }
-  }
+    break;
+
+    default:
+    Tcl_AppendResult(interp, "xschem ", argv[1], ": invalid command.", NULL);
+    return TCL_ERROR;
+    break;
+
+  } /* switch */
 
   if(!cmd_found) {
     Tcl_AppendResult(interp, "xschem ", argv[1], ": invalid command.", NULL);
     return TCL_ERROR;
   }
- return TCL_OK;
+  return TCL_OK;
 }
 
 double tclgetdoublevar(const char *s)
