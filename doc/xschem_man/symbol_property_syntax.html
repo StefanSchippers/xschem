@@ -145,10 +145,12 @@ type=nmos
   <li><kbd>vhdl_ignore</kbd></li>
   <li><kbd>spice_ignore</kbd></li>
   <li><kbd>verilog_ignore</kbd></li>
+  <li><kbd>tedax_ignore</kbd></li>
   <p>These 3 attributes tell XSCHEM to ignore completely the symbol in the respective netlist formats.</p>
   <li><kbd>vhdl_stop</kbd></li>
   <li><kbd>spice_stop</kbd></li>
   <li><kbd>verilog_stop</kbd></li>
+  <li><kbd>tedax_stop</kbd></li>
   <p> These 3 attributes will avoid XSCHEM to descend into the schematic representation of the symbol
     (if there is one) when building the respective netlist format. For example, if an analog block
     has a schematic (.sch) file describing the circuit that is meaningless when doing a VHDL netlist,
@@ -162,6 +164,28 @@ type=nmos
   <p> same as above <kbd>_stop</kbd> attributes, but in this case the schematic subcircuit is completely ignored,
    only the 'format' string is dumped to netlist. No component/entity is generated in vhdl netlist, 
    no module declaration in verilog, no .subckt in spice, no schematic global attributes are exported to netlist.</p>
+
+
+  <li><kbd>spice_sym_def</kbd></li>
+  <li><kbd>verilog_sym_def</kbd></li>
+  <li><kbd>vhdl_sym_def</kbd></li>
+  <p> If any of these attributes are present and not empty the corresponding netlister will ignore the schematic subcircuit
+   and dump into the netlist the content of this attribute. The typical usage is to include a file, example:<br>
+  <pre class="code">
+    verilog_sym_def="tcleval(`include \"[abs_sym_path verilog_include_file.v]\")"
+  </pre>
+  </p>
+  <p>
+   In this example a <kbd>verilog_include_file.v</kbd> is included using the verilog <kbd>`include</kbd> directive.
+   In order to generate a full path for it the <kbd>abs_sym_path</kbd> TCL function is used that searches for this file
+   in any of the <kbd>XCHEM_LIBRARY_PATH</kbd> directories. Since TCL is used the attribute is wrappend into a tcleval(...),<br>
+   The following will appear in the generated netlist:
+   <pre class="code">
+// expanding   symbol:  verilog_include.sym # of pins=3
+// sym_path: /home/schippes/.xschem/xschem_library/verilog_include.sym
+`include "/home/schippes/.xschem/xschem_library/verilog_include_file.v"
+   </pre>
+  </p>
   <li><kbd>highlight</kbd></li>
   <p>If set to <kbd>true</kbd> the symbol will be highlighted when one of the nets attached to its pins are highlighted.</p>
   <li><kbd>net_name</kbd></li>

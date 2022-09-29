@@ -515,6 +515,7 @@ void  vhdl_block_netlist(FILE *fd, int i)
   char *abs_path = NULL;
   const char *str_tmp;
   int split_f;
+  const char *sym_def;
 
   split_f = tclgetboolvar("split_files");
   if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"vhdl_stop",0),"true") )
@@ -534,170 +535,175 @@ void  vhdl_block_netlist(FILE *fd, int i)
   fprintf(fd, "\n-- expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
   fprintf(fd, "-- sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
-  fprintf(fd, "-- sch_path: %s\n", filename);
-
-
-
-  load_schematic(1,filename, 0);
-  dbg(1, "vhdl_block_netlist():       packages\n");
-  for(l=0;l<xctx->instances;l++)
-  {
-   if(!(xctx->inst[l].ptr+ xctx->sym)->type) continue;
-   if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
-   if(xctx->inst[l].ptr<0) continue;
-   if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
-     continue;
-   }
-   if( !strcmp((xctx->inst[l].ptr+ xctx->sym)->type, "package") )
-    fprintf(fd, "%s\n", xctx->inst[l].prop_ptr);
-  }
-
-  dbg(1, "vhdl_block_netlist():       use statements\n");
-  for(l=0;l<xctx->instances;l++)
-  {
-   if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
-   if(xctx->inst[l].ptr<0) continue;
-   if(!(xctx->inst[l].ptr+ xctx->sym)->type) continue;
-   if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
-     continue;
-   }
-   if( !strcmp((xctx->inst[l].ptr+ xctx->sym)->type, "use") )
-    fprintf(fd, "%s\n", xctx->inst[l].prop_ptr);
-  }
-
-  dbg(1, "vhdl_block_netlist():       entity generics\n");
-  /* print entity generics */
-  print_generic(fd, "entity", i);
-
-  dbg(1, "vhdl_block_netlist():       entity ports\n");
-  /* print entity ports */
-  tmp=0;
-  for(j=0;j<xctx->sym[i].rects[PINLAYER];j++)
-  {
-    if(strcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"vhdl_ignore",0), "true")) {
-      my_strdup(592, &sig_type,
-         get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"sig_type",0));
-      my_strdup(593, &port_value,
-         get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"value", 0) );
-      if(!sig_type || sig_type[0]=='\0') my_strdup(594, &sig_type,"std_logic");
-      my_strdup(595, &dir_tmp, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"dir",0) );
-      str_tmp = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"name",0);
-      if(tmp) fprintf(fd, " ;\n");
-      if(!tmp)  fprintf(fd,"port (\n");
-      fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>",
-                                         dir_tmp ? dir_tmp : "<NULL>", sig_type);
-      my_free(1092, &dir_tmp);
-      if(port_value &&port_value[0])
-        fprintf(fd," := %s", port_value);
-      tmp=1;
-    }
-  }
-  if(tmp) fprintf(fd, "\n);\n");
-
-  dbg(1, "vhdl_block_netlist():       port attributes\n");
-  for(l=0;l<xctx->instances;l++)
-  {
-   if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
-   if(xctx->inst[l].ptr<0) continue;
-   if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
-     continue;
-   }
-   my_strdup(596, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
-   if( type && (strcmp(type,"port_attributes"))==0)
-   {
-    if(xctx->inst[l].prop_ptr) fprintf(fd, "%s\n", xctx->inst[l].prop_ptr);
-   }
-  }
-  fprintf(fd,"end %s ;\n\n", skip_dir(xctx->sym[i].name) );
-
-  dbg(1, "vhdl_block_netlist():       architecture\n");
-  fprintf(fd,"architecture arch_%s of %s is\n\n",
-     skip_dir(xctx->sym[i].name), skip_dir(xctx->sym[i].name) );
-  /*    skip_dir( xctx->sch[xctx->currsch]), skip_dir( xctx->sch[xctx->currsch])); */
-  /* load current schematic to print used components */
-
-  dbg(1, "vhdl_block_netlist():       used components\n");
-  /* print all components */
-  if(!vhdl_stop) {
-    for(j=0;j<xctx->symbols;j++)
+  sym_def = get_tok_value(xctx->sym[i].prop_ptr,"vhdl_sym_def",0);
+  if(sym_def[0]) {
+    fprintf(fd, "%s\n", sym_def);
+  } else {
+    fprintf(fd, "-- sch_path: %s\n", filename);
+    load_schematic(1,filename, 0);
+    dbg(1, "vhdl_block_netlist():       packages\n");
+    for(l=0;l<xctx->instances;l++)
     {
-      if( strcmp(get_tok_value(xctx->sym[j].prop_ptr,"vhdl_primitive",0),"true")==0 ) continue;
-      if(!xctx->sym[j].type || (strcmp(xctx->sym[j].type,"primitive")!=0 && 
-         strcmp(xctx->sym[j].type,"subcircuit")!=0))
-           continue;
-      my_strdup2(1238, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
-      if(( strcmp(xctx->sym[j].type,"subcircuit")==0 || strcmp(xctx->sym[j].type,"primitive")==0) && 
-          check_lib(1, abs_path)
-        ) {
- 
-        /* only print component declaration if used in current subcircuit */
-        found=0;
-        for(l=0;l<xctx->instances;l++)
-        {
-          if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
-          if(xctx->inst[l].ptr<0) continue;
-          if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
-            continue;
-          }
-          if(!xctx->x_strcmp(xctx->sym[j].name,xctx->inst[l].name))
-          {
-            found=1; break;
-          }
-        }
-        if(!found) continue;
-        /* component generics */
-        print_generic(fd, "component",j);
+     if(!(xctx->inst[l].ptr+ xctx->sym)->type) continue;
+     if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
+     if(xctx->inst[l].ptr<0) continue;
+     if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
+       continue;
+     }
+     if( !strcmp((xctx->inst[l].ptr+ xctx->sym)->type, "package") )
+      fprintf(fd, "%s\n", xctx->inst[l].prop_ptr);
+    }
   
-        /* component ports */
-        tmp=0;
-        for(k=0;k<xctx->sym[j].rects[PINLAYER];k++)
-        {
-          if(strcmp(get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"vhdl_ignore",0), "true")) {
-            my_strdup(597, &sig_type,get_tok_value(
-                      xctx->sym[j].rect[PINLAYER][k].prop_ptr,"sig_type",0));
-            my_strdup(598, &port_value,
-               get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"value", 0) );
- 
-            if(!sig_type || sig_type[0]=='\0') my_strdup(599, &sig_type,"std_logic");
-            my_strdup(600, &dir_tmp, get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"dir",0) );
-            str_tmp = get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"name",0);
-            if(!tmp) fprintf(fd, "port (\n");
-             if(tmp) fprintf(fd, " ;\n");
-            fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>",
-                                            dir_tmp ? dir_tmp : "<NULL>", sig_type);
-            my_free(1093, &dir_tmp);
-            if(port_value &&port_value[0])
-              fprintf(fd," := %s", port_value);
-            tmp=1;
-          }
-        }
-        if(tmp) fprintf(fd, "\n);\n");
-        fprintf(fd, "end component ;\n\n");
+    dbg(1, "vhdl_block_netlist():       use statements\n");
+    for(l=0;l<xctx->instances;l++)
+    {
+     if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
+     if(xctx->inst[l].ptr<0) continue;
+     if(!(xctx->inst[l].ptr+ xctx->sym)->type) continue;
+     if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
+       continue;
+     }
+     if( !strcmp((xctx->inst[l].ptr+ xctx->sym)->type, "use") )
+      fprintf(fd, "%s\n", xctx->inst[l].prop_ptr);
+    }
+  
+    dbg(1, "vhdl_block_netlist():       entity generics\n");
+    /* print entity generics */
+    print_generic(fd, "entity", i);
+  
+    dbg(1, "vhdl_block_netlist():       entity ports\n");
+    /* print entity ports */
+    tmp=0;
+    for(j=0;j<xctx->sym[i].rects[PINLAYER];j++)
+    {
+      if(strcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"vhdl_ignore",0), "true")) {
+        my_strdup(592, &sig_type,
+           get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"sig_type",0));
+        my_strdup(593, &port_value,
+           get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"value", 0) );
+        if(!sig_type || sig_type[0]=='\0') my_strdup(594, &sig_type,"std_logic");
+        my_strdup(595, &dir_tmp, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"dir",0) );
+        str_tmp = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"name",0);
+        if(tmp) fprintf(fd, " ;\n");
+        if(!tmp)  fprintf(fd,"port (\n");
+        fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>",
+                                           dir_tmp ? dir_tmp : "<NULL>", sig_type);
+        my_free(1092, &dir_tmp);
+        if(port_value &&port_value[0])
+          fprintf(fd," := %s", port_value);
+        tmp=1;
       }
-    } /* for(j...) */
-  } /* if(!vhdl_stop) */
-  my_free(1239, &abs_path);
-  dbg(1, "vhdl_block_netlist():  netlisting %s\n", skip_dir( xctx->sch[xctx->currsch]));
-  vhdl_netlist(fd, vhdl_stop);
-  fprintf(fd,"//// begin user architecture code\n");
-
-  for(l=0;l<xctx->instances;l++) {
-    if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
-    if(xctx->inst[l].ptr<0) continue;
-    if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
-      continue;
     }
-    if(xctx->netlist_count &&
-      !strcmp(get_tok_value(xctx->inst[l].prop_ptr, "only_toplevel", 0), "true")) continue;
-
-    my_strdup(601, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
-    if(type && !strcmp(type,"netlist_commands")) {
-      fprintf(fd, "%s\n", get_tok_value(xctx->inst[l].prop_ptr,"value", 0));
+    if(tmp) fprintf(fd, "\n);\n");
+  
+    dbg(1, "vhdl_block_netlist():       port attributes\n");
+    for(l=0;l<xctx->instances;l++)
+    {
+     if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
+     if(xctx->inst[l].ptr<0) continue;
+     if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
+       continue;
+     }
+     my_strdup(596, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
+     if( type && (strcmp(type,"port_attributes"))==0)
+     {
+      if(xctx->inst[l].prop_ptr) fprintf(fd, "%s\n", xctx->inst[l].prop_ptr);
+     }
     }
-  }
-
-  if(xctx->schvhdlprop && xctx->schvhdlprop[0]) fprintf(fd, "%s\n", xctx->schvhdlprop);
-  fprintf(fd, "end arch_%s ;\n\n", skip_dir(xctx->sym[i].name) ); /* skip_dir( xctx->sch[xctx->currsch]) ); */
+    fprintf(fd,"end %s ;\n\n", skip_dir(xctx->sym[i].name) );
+  
+    dbg(1, "vhdl_block_netlist():       architecture\n");
+    fprintf(fd,"architecture arch_%s of %s is\n\n",
+       skip_dir(xctx->sym[i].name), skip_dir(xctx->sym[i].name) );
+    /*    skip_dir( xctx->sch[xctx->currsch]), skip_dir( xctx->sch[xctx->currsch])); */
+    /* load current schematic to print used components */
+  
+    dbg(1, "vhdl_block_netlist():       used components\n");
+    /* print all components */
+    if(!vhdl_stop) {
+      for(j=0;j<xctx->symbols;j++)
+      {
+        if( strcmp(get_tok_value(xctx->sym[j].prop_ptr,"vhdl_primitive",0),"true")==0 ) continue;
+        if(!xctx->sym[j].type || (strcmp(xctx->sym[j].type,"primitive")!=0 && 
+           strcmp(xctx->sym[j].type,"subcircuit")!=0))
+             continue;
+        my_strdup2(1238, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
+        if(( strcmp(xctx->sym[j].type,"subcircuit")==0 || strcmp(xctx->sym[j].type,"primitive")==0) && 
+            check_lib(1, abs_path)
+          ) {
+   
+          /* only print component declaration if used in current subcircuit */
+          found=0;
+          for(l=0;l<xctx->instances;l++)
+          {
+            if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
+            if(xctx->inst[l].ptr<0) continue;
+            if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
+              continue;
+            }
+            if(!xctx->x_strcmp(xctx->sym[j].name,xctx->inst[l].name))
+            {
+              found=1; break;
+            }
+          }
+          if(!found) continue;
+          /* component generics */
+          print_generic(fd, "component",j);
+    
+          /* component ports */
+          tmp=0;
+          for(k=0;k<xctx->sym[j].rects[PINLAYER];k++)
+          {
+            if(strcmp(get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"vhdl_ignore",0), "true")) {
+              my_strdup(597, &sig_type,get_tok_value(
+                        xctx->sym[j].rect[PINLAYER][k].prop_ptr,"sig_type",0));
+              my_strdup(598, &port_value,
+                 get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"value", 0) );
+   
+              if(!sig_type || sig_type[0]=='\0') my_strdup(599, &sig_type,"std_logic");
+              my_strdup(600, &dir_tmp, get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"dir",0) );
+              str_tmp = get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"name",0);
+              if(!tmp) fprintf(fd, "port (\n");
+               if(tmp) fprintf(fd, " ;\n");
+              fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>",
+                                              dir_tmp ? dir_tmp : "<NULL>", sig_type);
+              my_free(1093, &dir_tmp);
+              if(port_value &&port_value[0])
+                fprintf(fd," := %s", port_value);
+              tmp=1;
+            }
+          }
+          if(tmp) fprintf(fd, "\n);\n");
+          fprintf(fd, "end component ;\n\n");
+        }
+      } /* for(j...) */
+    } /* if(!vhdl_stop) */
+    my_free(1239, &abs_path);
+    dbg(1, "vhdl_block_netlist():  netlisting %s\n", skip_dir( xctx->sch[xctx->currsch]));
+    vhdl_netlist(fd, vhdl_stop);
+    fprintf(fd,"//// begin user architecture code\n");
+  
+    for(l=0;l<xctx->instances;l++) {
+      if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
+      if(xctx->inst[l].ptr<0) continue;
+      if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
+        continue;
+      }
+      if(xctx->netlist_count &&
+        !strcmp(get_tok_value(xctx->inst[l].prop_ptr, "only_toplevel", 0), "true")) continue;
+  
+      my_strdup(601, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
+      if(type && !strcmp(type,"netlist_commands")) {
+        fprintf(fd, "%s\n", get_tok_value(xctx->inst[l].prop_ptr,"value", 0));
+      }
+    }
+  
+    if(xctx->schvhdlprop && xctx->schvhdlprop[0]) fprintf(fd, "%s\n", xctx->schvhdlprop);
+    fprintf(fd, "end arch_%s ;\n\n", skip_dir(xctx->sym[i].name) ); /* skip_dir( xctx->sch[xctx->currsch]) ); */
+    my_free(1094, &sig_type);
+    my_free(1095, &port_value);
+    my_free(1096, &type);
+  } /* if(!sym_def[0]) */
   if(split_f) {
     int save;
     fclose(fd);
@@ -711,8 +717,5 @@ void  vhdl_block_netlist(FILE *fd, int i)
     if(debug_var==0) xunlink(netl_filename);
   }
   xctx->netlist_count++;
-  my_free(1094, &sig_type);
-  my_free(1095, &port_value);
-  my_free(1096, &type);
 }
 

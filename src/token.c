@@ -2430,21 +2430,16 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
     {                                    /* and node number: m1 n1 m2 n2 .... */
      for(i=0;i<no_of_pins;i++)
      {
-       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
-       if(strcmp(get_tok_value(prop, "verilog_ignore",0), "true")) {
-         str_ptr =  net_name(inst,i, &multip, 0, 1);
-         fprintf(fd, "----pin(%s) ", str_ptr);
-       }
+       str_ptr =  net_name(inst,i, &multip, 0, 1);
+       fprintf(fd, "----pin(%s) ", str_ptr);
      }
     }
     else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
      for(i=0;i<no_of_pins;i++) {
       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
       if(!strcmp( get_tok_value(prop,"name",0), token+2)) {
-        if(strcmp(get_tok_value(prop, "verilog_ignore",0), "true")) {
-          str_ptr =  net_name(inst,i, &multip, 0, 1);
-          fprintf(fd, "----pin(%s) ", str_ptr);
-        }
+        str_ptr =  net_name(inst,i, &multip, 0, 1);
+        fprintf(fd, "----pin(%s)", str_ptr);
         break;
       }
      }
@@ -2453,13 +2448,8 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
     else if(token[0]=='@' && token[1]=='#') {
       int pin_number = atoi(token+2);
       if(pin_number < no_of_pins) {
-        const char *vi;
-        char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][pin_number].prop_ptr;
-        vi = get_tok_value(prop,"verilog_ignore",0);
-        if(strcmp(vi, "true")) {
-          str_ptr =  net_name(inst,pin_number, &multip, 0, 1);
-          fprintf(fd, "----pin(%s) ", str_ptr);
-        }
+        str_ptr =  net_name(inst,pin_number, &multip, 0, 1);
+        fprintf(fd, "----pin(%s) ", str_ptr);
       }
     }
     else if(!strncmp(token,"@tcleval", 8)) {

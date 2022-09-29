@@ -59,6 +59,7 @@ BEGIN{
 /^---- end primitive/{
   primitive=0
   $0 = primitive_line
+  split(primitive_line, primitive_line_sep,  /[^ \n\t]+/)
   gsub(/----pin\(/, " ----pin(",$0)
   gsub(/----name\(/, " ----name(",$0)
   for(j=1;j<= primitive_mult; j++) {
@@ -89,13 +90,14 @@ BEGIN{
               printf "%s", prefix prim_field_array[s]
               if(s<pport_mult) printf ","
             }
-            printf "} "
+            printf "}%s", primitive_line_sep[i+1]
          }
         } 
         else 
         # 20060919 end
 
-        printf "%s ", prim_field_array[1+(j-1) % pport_mult]   #  20140401 1+(j-1) % pport_mult instead of j
+        printf "%s", prim_field_array[1+(j-1) % pport_mult]   #  20140401 1+(j-1) % pport_mult instead of j
+        printf "%s", primitive_line_sep[i+1]
       }
       else if($i ~ /^----name\(.*\)/) {
         sub(/----name\(/,"",prim_field)
@@ -104,9 +106,9 @@ BEGIN{
         split(prim_field, prim_field_array,/,/)
         sub(/\[/,"_", prim_field_array[j])
         sub(/\]/,"", prim_field_array[j])
-        printf "%s ", prefix prim_field_array[j]
+        printf "%s%s", prefix prim_field_array[j], primitive_line_sep[i+1]
       }
-      else  printf "%s ", prim_field
+      else  printf "%s%s", prim_field, primitive_line_sep[i+1]
       prefix=""
     } # end for i
     printf "\n"
@@ -114,7 +116,7 @@ BEGIN{
   next
 }
 
-primitive==1{primitive_line=primitive_line " " $0; next  }
+primitive==1{primitive_line=primitive_line "\n" $0; next  }
 
 # print signals/regs/variables
 /---- end signal list/{
@@ -148,7 +150,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  }
     }
     printf "%s ", i
     if(i in signal_value) printf " = %s ", signal_value[i]
-    printf " ;\n"
+    printf ";\n"
   }
  }
  # /20161118

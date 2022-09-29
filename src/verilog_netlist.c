@@ -423,6 +423,7 @@ void verilog_block_netlist(FILE *fd, int i)
   char cellname[PATH_MAX];
   const char *str_tmp, *fmt_attr = NULL;
   int split_f;
+  const char *sym_def;
 
   split_f = tclgetboolvar("split_files");
   if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"verilog_stop",0),"true") )
@@ -438,110 +439,113 @@ void verilog_block_netlist(FILE *fd, int i)
     my_snprintf(cellname, S(cellname), "%s.v", skip_dir(xctx->sym[i].name) );
 
   }
-
   dbg(1, "verilog_block_netlist(): expanding %s\n",  xctx->sym[i].name);
   fprintf(fd, "\n// expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
   fprintf(fd, "// sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
-  fprintf(fd, "// sch_path: %s\n", filename);
-
-  verilog_stop? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
-  /* print verilog timescale  and preprocessor directives 10102004 */
-  fmt_attr = xctx->format ? xctx->format : "verilog_format";
-  for(j=0;j<xctx->instances;j++)
-  {
-   if( strcmp(get_tok_value(xctx->inst[j].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
-   if(xctx->inst[j].ptr<0) continue;
-   if(!strcmp(get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr, "verilog_ignore",0 ), "true") ) {
-     continue;
-   }
-   my_strdup(544, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
-   if( type && ( strcmp(type,"timescale")==0  || strcmp(type,"verilog_preprocessor")==0) )
-   {
-    str_tmp = get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr, fmt_attr, 2);
-    my_strdup(545, &tmp_string, str_tmp);
-    fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string) : "(NULL)");
-   }
-  }
-
-  fprintf(fd, "module %s (\n", skip_dir(xctx->sym[i].name));
-  /*print_generic(fd, "entity", i); */
-
-  dbg(1, "verilog_block_netlist():       entity ports\n");
-
-  /* print ports directions */
-  tmp=0;
-  for(j=0;j<xctx->sym[i].rects[PINLAYER];j++)
-  {
-    if(strcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
-      str_tmp = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"name",0);
-      if(tmp) fprintf(fd, " ,\n");
-      tmp++;
-      fprintf(fd,"  %s", str_tmp ? str_tmp : "<NULL>");
+  sym_def = get_tok_value(xctx->sym[i].prop_ptr,"verilog_sym_def",0);
+  if(sym_def[0]) {
+    fprintf(fd, "%s\n", sym_def);
+  } else {
+    fprintf(fd, "// sch_path: %s\n", filename);
+    verilog_stop? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
+    /* print verilog timescale  and preprocessor directives 10102004 */
+    fmt_attr = xctx->format ? xctx->format : "verilog_format";
+    for(j=0;j<xctx->instances;j++)
+    {
+     if( strcmp(get_tok_value(xctx->inst[j].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
+     if(xctx->inst[j].ptr<0) continue;
+     if(!strcmp(get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr, "verilog_ignore",0 ), "true") ) {
+       continue;
+     }
+     my_strdup(544, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
+     if( type && ( strcmp(type,"timescale")==0  || strcmp(type,"verilog_preprocessor")==0) )
+     {
+      str_tmp = get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr, fmt_attr, 2);
+      my_strdup(545, &tmp_string, str_tmp);
+      fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string) : "(NULL)");
+     }
     }
-  }
-  fprintf(fd, "\n);\n");
-
-
-  dbg(1, "verilog_block_netlist():       entity generics\n");
-  /* print module  default parameters */
-  print_verilog_param(fd,i);
-
-
-
-
-  /* print port types */
-  tmp=0;
-  for(j=0;j<xctx->sym[i].rects[PINLAYER];j++)
-  {
-    if(strcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
-      my_strdup(564, &sig_type,get_tok_value(
-                xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_type",0));
-      my_strdup(565, &port_value, 
-        get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"value", 0) );
-      my_strdup(566, &dir_tmp, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"dir",0) );
-      if(strcmp(dir_tmp,"in")){
-         if(!sig_type || sig_type[0]=='\0') my_strdup(567, &sig_type,"wire"); /* 20070720 changed reg to wire */
-      } else {
-         if(!sig_type || sig_type[0]=='\0') my_strdup(568, &sig_type,"wire");
+  
+    fprintf(fd, "module %s (\n", skip_dir(xctx->sym[i].name));
+    /*print_generic(fd, "entity", i); */
+  
+    dbg(1, "verilog_block_netlist():       entity ports\n");
+  
+    /* print ports directions */
+    tmp=0;
+    for(j=0;j<xctx->sym[i].rects[PINLAYER];j++)
+    {
+      if(strcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
+        str_tmp = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"name",0);
+        if(tmp) fprintf(fd, " ,\n");
+        tmp++;
+        fprintf(fd,"  %s", str_tmp ? str_tmp : "<NULL>");
       }
-      str_tmp = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"name",0);
-      fprintf(fd,"  %s %s ;\n",
-        strcmp(dir_tmp,"in")? ( strcmp(dir_tmp,"out")? "inout" :"output"  ) : "input",
-        str_tmp ? str_tmp : "<NULL>");
-      fprintf(fd,"  %s %s",
-        sig_type,
-        str_tmp ? str_tmp : "<NULL>");
-      if(port_value &&port_value[0])
-        fprintf(fd," = %s", port_value);
-      fprintf(fd," ;\n");
     }
-  }
-
-  dbg(1, "verilog_block_netlist():       netlisting %s\n", skip_dir( xctx->sch[xctx->currsch]));
-  verilog_netlist(fd, verilog_stop);
-  xctx->netlist_count++;
-  fprintf(fd,"---- begin user architecture code\n");
-  for(l=0;l<xctx->instances;l++) {
-    if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
-    if(xctx->inst[l].ptr<0) continue;
-    if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "verilog_ignore",0 ), "true") ) {
-      continue;
+    fprintf(fd, "\n);\n");
+  
+  
+    dbg(1, "verilog_block_netlist():       entity generics\n");
+    /* print module  default parameters */
+    print_verilog_param(fd,i);
+    /* print port types */
+    tmp=0;
+    for(j=0;j<xctx->sym[i].rects[PINLAYER];j++)
+    {
+      if(strcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
+        my_strdup(564, &sig_type,get_tok_value(
+                  xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_type",0));
+        my_strdup(565, &port_value, 
+          get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"value", 0) );
+        my_strdup(566, &dir_tmp, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"dir",0) );
+        if(strcmp(dir_tmp,"in")){
+           if(!sig_type || sig_type[0]=='\0') my_strdup(567, &sig_type,"wire"); /* 20070720 changed reg to wire */
+        } else {
+           if(!sig_type || sig_type[0]=='\0') my_strdup(568, &sig_type,"wire");
+        }
+        str_tmp = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"name",0);
+        fprintf(fd,"  %s %s ;\n",
+          strcmp(dir_tmp,"in")? ( strcmp(dir_tmp,"out")? "inout" :"output"  ) : "input",
+          str_tmp ? str_tmp : "<NULL>");
+        fprintf(fd,"  %s %s",
+          sig_type,
+          str_tmp ? str_tmp : "<NULL>");
+        if(port_value &&port_value[0])
+          fprintf(fd," = %s", port_value);
+        fprintf(fd," ;\n");
+      }
     }
-    if(xctx->netlist_count &&
-      !strcmp(get_tok_value(xctx->inst[l].prop_ptr, "only_toplevel", 0), "true")) continue;
-
-    my_strdup(569, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
-    if(type && !strcmp(type,"netlist_commands")) {
-      fprintf(fd, "%s\n", get_tok_value(xctx->inst[l].prop_ptr,"value", 0));
+  
+    dbg(1, "verilog_block_netlist():       netlisting %s\n", skip_dir( xctx->sch[xctx->currsch]));
+    verilog_netlist(fd, verilog_stop);
+    fprintf(fd,"---- begin user architecture code\n");
+    for(l=0;l<xctx->instances;l++) {
+      if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
+      if(xctx->inst[l].ptr<0) continue;
+      if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "verilog_ignore",0 ), "true") ) {
+        continue;
+      }
+      if(xctx->netlist_count &&
+        !strcmp(get_tok_value(xctx->inst[l].prop_ptr, "only_toplevel", 0), "true")) continue;
+  
+      my_strdup(569, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
+      if(type && !strcmp(type,"netlist_commands")) {
+        fprintf(fd, "%s\n", get_tok_value(xctx->inst[l].prop_ptr,"value", 0));
+      }
     }
-  }
-
-  if(xctx->schverilogprop && xctx->schverilogprop[0]) {
-    fprintf(fd, "%s\n", xctx->schverilogprop);
-  }
-  fprintf(fd,"---- end user architecture code\n");
-  fprintf(fd, "endmodule\n");
+  
+    if(xctx->schverilogprop && xctx->schverilogprop[0]) {
+      fprintf(fd, "%s\n", xctx->schverilogprop);
+    }
+    fprintf(fd,"---- end user architecture code\n");
+    fprintf(fd, "endmodule\n");
+    my_free(1079, &dir_tmp);
+    my_free(1080, &sig_type);
+    my_free(1081, &port_value);
+    my_free(1082, &type);
+    my_free(1083, &tmp_string);
+  } /* if(!sym_def[0]) */
   if(split_f) {
     int save;
     fclose(fd);
@@ -554,10 +558,6 @@ void verilog_block_netlist(FILE *fd, int i)
     set_tcl_netlist_type();
     if(debug_var==0) xunlink(netl_filename);
   }
-  my_free(1079, &dir_tmp);
-  my_free(1080, &sig_type);
-  my_free(1081, &port_value);
-  my_free(1082, &type);
-  my_free(1083, &tmp_string);
+  xctx->netlist_count++;
 }
 

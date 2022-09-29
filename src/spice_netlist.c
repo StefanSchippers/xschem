@@ -482,6 +482,7 @@ void spice_block_netlist(FILE *fd, int i)
   /* int multip; */
   char *extra=NULL;
   int split_f;
+  const char *sym_def;
 
   split_f = tclgetboolvar("split_files");
 
@@ -500,31 +501,36 @@ void spice_block_netlist(FILE *fd, int i)
   fprintf(fd, "\n* expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
   fprintf(fd, "** sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
-  fprintf(fd, "** sch_path: %s\n", filename);
-  fprintf(fd, ".subckt %s",skip_dir(xctx->sym[i].name));
-  print_spice_subckt(fd, i);
 
-  my_strdup(387, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
-  /* this is now done in print_spice_subckt */
-  /*
-   * fprintf(fd, "%s ", extra ? extra : "" );
-   */
- 
-  /* 20081206 new get_sym_template does not return token=value pairs where token listed in extra */
-  fprintf(fd, "%s", get_sym_template(xctx->sym[i].templ, extra));
-  my_free(950, &extra);
-  fprintf(fd, "\n");
-
-  spice_stop ? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
-  spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
-  xctx->netlist_count++;
-
-  if(xctx->schprop && xctx->schprop[0]) {
-    fprintf(fd,"**** begin user architecture code\n");
-    fprintf(fd, "%s\n", xctx->schprop);
-    fprintf(fd,"**** end user architecture code\n");
+  sym_def = get_tok_value(xctx->sym[i].prop_ptr,"spice_sym_def",0);
+  if(sym_def[0]) {
+    fprintf(fd, "%s\n", sym_def);
+  } else {
+    fprintf(fd, "** sch_path: %s\n", filename);
+    fprintf(fd, ".subckt %s",skip_dir(xctx->sym[i].name));
+    print_spice_subckt(fd, i);
+  
+    my_strdup(387, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
+    /* this is now done in print_spice_subckt */
+    /*
+     * fprintf(fd, "%s ", extra ? extra : "" );
+     */
+   
+    /* 20081206 new get_sym_template does not return token=value pairs where token listed in extra */
+    fprintf(fd, "%s", get_sym_template(xctx->sym[i].templ, extra));
+    my_free(950, &extra);
+    fprintf(fd, "\n");
+  
+    spice_stop ? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
+    spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
+  
+    if(xctx->schprop && xctx->schprop[0]) {
+      fprintf(fd,"**** begin user architecture code\n");
+      fprintf(fd, "%s\n", xctx->schprop);
+      fprintf(fd,"**** end user architecture code\n");
+    }
+    fprintf(fd, ".ends\n\n");
   }
-  fprintf(fd, ".ends\n\n");
   if(split_f) {
     int save;
     fclose(fd);
@@ -537,6 +543,7 @@ void spice_block_netlist(FILE *fd, int i)
     set_tcl_netlist_type();
     if(debug_var==0) xunlink(netl_filename);
   }
+  xctx->netlist_count++;
 }
 
 /* GENERIC PURPOSE HASH TABLE */
