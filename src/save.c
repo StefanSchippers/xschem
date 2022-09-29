@@ -678,10 +678,13 @@ static double ravg_store(int what , int i, int p, int last, double integ)
 #define DERIV0 -41 /* derivative to first sweep variable, regardless of specified sweep_idx */
 #define NUMBER -60
 
+#define ORDER_DERIV 2 /* 1 or 2: 1st order or 2nd order differentiation. 1st order is faster */
+
 typedef struct {
   int i;
   double d;
   double prevy;
+  double prevprevy;
   double prev;
   int prevp;
 } Stack1;
@@ -852,6 +855,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             }
             stack2[stackptr2 - 1] =  integ;
             break;
+          #if ORDER_DERIV==1
           case DERIV: 
             if( p == first ) {
               deriv = 0;
@@ -882,6 +886,72 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             }
             stack2[stackptr2 - 1] =  deriv;
             break;
+          #else /* second order backward differentiation formulas */
+          case DERIV:
+            if( p == first ) {
+              deriv = 0;
+              stack1[i].prevy = stack2[stackptr2 - 1];
+              stack1[i].prev = 0;
+            } else if(p == first + 1) {
+              if((x[p] != x[p - 1]))
+                deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (x[p] - x[p - 1]);
+              else
+                deriv = stack1[i].prev;
+              stack1[i].prevprevy =  stack1[i].prevy;
+              stack1[i].prevy = stack2[stackptr2 - 1] ;
+              stack1[i].prev = deriv;
+            } else {
+              double a = x[p - 2] - x[p];
+              double c = x[p - 1] - x[p];
+              double b = a * a / 2.0;
+              double d = c * c / 2.0;
+              double b_on_d = b / d;
+              double fa = stack1[i].prevprevy;
+              double fb = stack1[i].prevy;
+              double fc = stack2[stackptr2 - 1];
+              if(a != 0.0) 
+                deriv = (fa - b_on_d * fb - (1 - b_on_d) * fc ) / (a - c * b_on_d);
+              else
+                deriv = stack1[i].prev;
+              stack1[i].prevprevy =  stack1[i].prevy;
+              stack1[i].prevy = stack2[stackptr2 - 1] ;
+              stack1[i].prev = deriv;
+            }
+            stack2[stackptr2 - 1] =  deriv;
+            break;
+          case DERIV0:
+            if( p == first ) {
+              deriv = 0;
+              stack1[i].prevy = stack2[stackptr2 - 1];
+              stack1[i].prev = 0;
+            } else if(p == first + 1) {
+              if((sweepx[p] != sweepx[p - 1]))
+                deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (sweepx[p] - sweepx[p - 1]);
+              else
+                deriv = stack1[i].prev;
+              stack1[i].prevprevy =  stack1[i].prevy;
+              stack1[i].prevy = stack2[stackptr2 - 1] ;
+              stack1[i].prev = deriv;
+            } else {
+              double a = sweepx[p - 2] - sweepx[p];
+              double c = sweepx[p - 1] - sweepx[p];
+              double b = a * a / 2.0;
+              double d = c * c / 2.0;
+              double b_on_d = b / d;
+              double fa = stack1[i].prevprevy;
+              double fb = stack1[i].prevy;
+              double fc = stack2[stackptr2 - 1];
+              if(a != 0.0)
+                deriv = (fa - b_on_d * fb - (1 - b_on_d) * fc ) / (a - c * b_on_d);
+              else
+                deriv = stack1[i].prev;
+              stack1[i].prevprevy =  stack1[i].prevy;
+              stack1[i].prevy = stack2[stackptr2 - 1] ;
+              stack1[i].prev = deriv;
+            }
+            stack2[stackptr2 - 1] =  deriv;
+            break;
+          #endif
           case SQRT:
             stack2[stackptr2 - 1] =  sqrt(stack2[stackptr2 - 1]);
             break;

@@ -1517,8 +1517,7 @@ value=".temp 30
 .control
 save all
 op
-write cmos_example.raw
-set appendwrite
+write cmos_example_ngspice.raw
 * tran 1n 300n
 dc vplus 2.3 2.7 0.001
 write cmos_example_ngspice.raw
