@@ -292,7 +292,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       abort_operation();
     }
 
-    if(!strcmp(argv[1],"add_symbol_pin"))
+    else if(!strcmp(argv[1],"add_symbol_pin"))
     {
       cmd_found = 1;
       unselect_all(1);
@@ -305,7 +305,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    if(!strcmp(argv[1],"add_graph"))
+    else if(!strcmp(argv[1],"add_graph"))
     {
       cmd_found = 1;
       unselect_all(1);
@@ -338,7 +338,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    if(!strcmp(argv[1],"add_png"))
+    else if(!strcmp(argv[1],"add_png"))
     {
       char str[PATH_MAX+100];
       cmd_found = 1;
@@ -450,7 +450,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       cmd_found = 1;
       callback( argv[2], atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), (KeySym)atol(argv[6]),
                atoi(argv[7]), atoi(argv[8]), atoi(argv[9]) );
-      dbg(2, "callback %s %s %s %s %s %s %s %s\n", argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9]);
+      dbg(2, "callback %s %s %s %s %s %s %s %s\n",
+          argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9]);
       Tcl_ResetResult(interp);
     }
    
@@ -468,6 +469,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
     }
+
     else if(!strcmp(argv[1],"check_symbols"))
     {
       char sympath[PATH_MAX];
@@ -809,6 +811,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, find_nth(argv[2], argv[3], atoi(argv[4])), TCL_VOLATILE);
       }
     }
+
     else if(!strcmp(argv[1],"flip"))
     {
       cmd_found = 1;
@@ -861,6 +864,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, xctx->sch_path[x], TCL_VOLATILE);
       }
     }
+
     else if(argc >= 4 && !strcmp(argv[1],"get") && !strcmp(argv[2],"netlist_name") &&
             !strcmp(argv[3], "fallback")) {
       char f[PATH_MAX];
@@ -881,13 +885,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else {
         my_snprintf(f, S(f), "%s.unknown", skip_dir(xctx->current_name));
       }
-
       if(xctx->netlist_name[0] == '\0') {
         Tcl_SetResult(interp, f, TCL_VOLATILE);
       } else {
         Tcl_SetResult(interp, xctx->netlist_name, TCL_VOLATILE);
       }
     }
+
     else if(!strcmp(argv[1],"get") && argc==3)
     {
      cmd_found = 1;
