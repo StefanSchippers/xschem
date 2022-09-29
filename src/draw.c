@@ -2195,7 +2195,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
   double xx = W_X(active_cursorx);
   double tx1, ty1, tx2, ty2, dtmp;
   int tmp;
-  char tmpstr[1024];
+  char tmpstr[100];
   double txtsize = gr->txtsizex;
   short flip = (other_cursorx > active_cursorx) ? 0 : 1;
   int xoffs = flip ? 3 : -3;
@@ -2206,7 +2206,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
     if(gr->unitx != 1.0)
        my_snprintf(tmpstr, S(tmpstr), "%.5g%c", gr->unitx * active_cursorx , gr->unitx_suffix);
     else
-       my_snprintf(tmpstr, S(tmpstr), "%.5g",  active_cursorx);
+       my_snprintf(tmpstr, S(tmpstr), "%s",  dtoa_eng(active_cursorx));
     text_bbox(tmpstr, txtsize, txtsize, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
     filledrect(0, NOW,  tx1, ty1, tx2, ty2);
     draw_string(cursor_color, NOW, tmpstr, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, txtsize, txtsize);
@@ -2216,7 +2216,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
 static void draw_cursor_difference(Graph_ctx *gr)
 {
   int tmp; 
-  char tmpstr[1024];
+  char tmpstr[100];
   double txtsize = gr->txtsizex;
   double tx1, ty1, tx2, ty2;
   double aa = W_X(xctx->graph_cursor1_x);
@@ -2233,7 +2233,7 @@ static void draw_cursor_difference(Graph_ctx *gr)
   if(gr->unitx != 1.0)
      my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * diffw , gr->unitx_suffix);
   else
-     my_snprintf(tmpstr, S(tmpstr), "%.4g",  diffw);
+     my_snprintf(tmpstr, S(tmpstr), "%s",  dtoa_eng(diffw));
   text_bbox(tmpstr, txtsize, txtsize, 2, 0, 1, 0, xx, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
   if( tx2 - tx1 < diff ) {
     draw_string(3, NOW, tmpstr, 2, 0, 1, 0, xx, yy, txtsize, txtsize);

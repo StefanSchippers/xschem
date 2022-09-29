@@ -2439,12 +2439,14 @@ proc myload_set_home {dir} {
 }
 
 proc setglob {dir} {
-      global globfilter myload_files2
+      global myload_globfilter myload_files2
       set myload_files2 [lsort [glob -nocomplain -directory $dir -tails -type d .* *]]
-      if { $globfilter eq {*}} {
-        set myload_files2 ${myload_files2}\ [lsort [glob -nocomplain -directory $dir -tails -type {f} .* $globfilter]]
+      if { $myload_globfilter eq {*}} {
+        set myload_files2 ${myload_files2}\ [lsort [
+           glob -nocomplain -directory $dir -tails -type {f} .* $myload_globfilter]]
       } else {
-        set myload_files2 ${myload_files2}\ [lsort [glob -nocomplain -directory $dir -tails -type {f} $globfilter]]
+        set myload_files2 ${myload_files2}\ [lsort [
+           glob -nocomplain -directory $dir -tails -type {f} $myload_globfilter]]
       }
 }
 
@@ -2492,8 +2494,8 @@ proc myload_getresult {loadfile confirm_overwrt} {
         }
       }
     }
-    set myload_type [is_xschem_file "$myload_dir1/$myload_retval"]
-    if { $myload_type eq {0}  } {
+    set type [is_xschem_file "$myload_dir1/$myload_retval"]
+    if { $type eq {0}  } {
       set answer [
         tk_messageBox -message "$myload_dir1/$myload_retval does not seem to be an xschem file...\nContinue?" \
          -icon warning -parent [xschem get topwindow] -type yesno]
@@ -2503,7 +2505,7 @@ proc myload_getresult {loadfile confirm_overwrt} {
       } else {
         return "$myload_dir1/$myload_retval"
       }
-    } elseif { $myload_type ne {SYMBOL} && ($myload_ext eq {*.sym}) } {
+    } elseif { $type ne {SYMBOL} && ($myload_ext eq {*.sym}) } {
       set answer [
         tk_messageBox -message "$myload_dir1/$myload_retval does not seem to be a SYMBOL file...\nContinue?" \
            -icon warning -parent [xschem get topwindow] -type yesno]
@@ -2522,8 +2524,8 @@ proc myload_getresult {loadfile confirm_overwrt} {
 }
 
 proc myload_display_preview {f} {
-  set myload_type [is_xschem_file $f]
-  if { $myload_type ne {0}  } {
+  set type [is_xschem_file $f]
+  if { $type ne {0}  } {
     ### update
     if { [winfo exists .load] } {
       .load.l.paneright.draw configure -background {}
@@ -2546,16 +2548,16 @@ proc myload_display_preview {f} {
 proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} 
      {loadfile {1}} {confirm_overwrt {1}} {initialf {}}} {
   global myload_index1 myload_files2 myload_files1 myload_retval myload_dir1 pathlist OS
-  global myload_default_geometry myload_sash_pos myload_yview tcl_version globfilter myload_dir2
-  global save_initialfile myload_loadfile myload_ext
+  global myload_default_geometry myload_sash_pos myload_yview tcl_version myload_globfilter myload_dir2
+  global myload_save_initialfile myload_loadfile myload_ext
 
   if { [winfo exists .load] } {
     .load.buttons_bot.cancel invoke
   }
   set myload_loadfile $loadfile
   set myload_ext $ext
-  set globfilter $ext
-  set save_initialfile $initialf
+  set myload_globfilter $ext
+  set myload_save_initialfile $initialf
   set myload_retval {} 
   upvar #0 $global_initdir initdir
   if { $loadfile != 2} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
@@ -2589,8 +2591,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     if { $myload_sel ne {} } {
       set myload_dir1 [abs_sym_path [.load.l.paneleft.list get $myload_sel]]
       set myload_index1 $myload_sel
-      set globfilter $myload_ext
-      if {$save_initialfile eq {}} {.load.buttons_bot.entry delete 0 end}
+      set myload_globfilter $myload_ext
+      if {$myload_save_initialfile eq {}} {.load.buttons_bot.entry delete 0 end}
       setglob $myload_dir1
       myload_set_colors2
     }
@@ -2647,21 +2649,21 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   }
   label .load.buttons_bot.label  -text {  File/Search:}
   entry .load.buttons_bot.entry
-  if { $save_initialfile ne {} } { 
-    .load.buttons_bot.entry insert 0 $save_initialfile
+  if { $myload_save_initialfile ne {} } { 
+    .load.buttons_bot.entry insert 0 $myload_save_initialfile
   }
   bind .load.buttons_bot.entry <KeyRelease> {
-    if {$save_initialfile eq {} } {
-      set globfilter  *[.load.buttons_bot.entry get]*
-      if { $globfilter eq {**} } { set globfilter * }
+    if {$myload_save_initialfile eq {} } {
+      set myload_globfilter  *[.load.buttons_bot.entry get]*
+      if { $myload_globfilter eq {**} } { set myload_globfilter * }
       setglob $myload_dir1
     }
   }
-  radiobutton .load.buttons_bot.all -text All -variable globfilter -value {*} \
+  radiobutton .load.buttons_bot.all -text All -variable myload_globfilter -value {*} \
      -command { setglob $myload_dir1 }
-  radiobutton .load.buttons_bot.sym -text .sym -variable globfilter -value {*.sym} \
+  radiobutton .load.buttons_bot.sym -text .sym -variable myload_globfilter -value {*.sym} \
      -command { setglob $myload_dir1 }
-  radiobutton .load.buttons_bot.sch -text .sch -variable globfilter -value {*.sch} \
+  radiobutton .load.buttons_bot.sch -text .sch -variable myload_globfilter -value {*.sch} \
      -command { setglob $myload_dir1 }
   button .load.buttons.up -width 5 -text Up -command {load_file_dialog_up  $myload_dir1}
   label .load.buttons.mkdirlab -text { New dir: } -fg blue
@@ -4994,33 +4996,30 @@ proc no_open_dialogs {} {
 ## "debug_var" there is only a global debug mode
 ## "xschem_server_getdata" only one tcp listener per process
 ## "bespice_server_getdata" only one tcp listener per process
+## "myload_*" only one load_file_dialog window is allowed
 
 set tctx::global_list {
-  auto_hilight autofocus_mainwindow autotrim_wires bespice_listen_port big_grid_points bus_replacement_char
-  cadgrid cadlayers cadsnap cairo_font_name
-  change_lw color_ps colors connect_by_kissing constrained_move copy_cell custom_label_prefix custom_token dark_colors
-  dark_colorscheme dim_bg dim_value disable_unique_names do_all_inst draw_grid draw_window
-  edit_prop_pos edit_prop_size editprop_sympath edit_symbol_prop_new_sel enable_dim_bg enable_stretch 
-  en_hilight_conn_inst filetmp flat_netlist fullscreen gaw_fd gaw_tcp_address globfilter
-  graph_bus graph_digital graph_logx graph_logy graph_raw_level
-  graph_sel_color graph_schname graph_selected graph_sel_wave graph_sort
-  graph_unlocked hide_empty_graphs hide_symbols hsize
-  incr_hilight infowindow_text INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR
-  input_line_cmd input_line_data launcher_default_program light_colors line_width 
-  live_cursor2_backannotate local_netlist_dir measure_text
-  myload_d myload_default_geometry myload_dir1 myload_dir2 myload_dir2 
-  myload_ext myload_files1 myload_files2 myload_index1 myload_loadfile
-  myload_retval myload_sash_pos myload_sel myload_type myload_yview netlist_dir netlist_show
-  netlist_type no_change_attrs noprint_libs old_selected_tok
-  only_probes path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
-  rawfile_loaded rcode recentfile replace_key retval retval_orig rotated_text save_initialfile search_exact
-  search_found search_schematic search_select search_value selected_tok show_hidden_texts show_infowindow
-  show_pin_net_names simconf_default_geometry simconf_vpos simulate_bg
-  spiceprefix split_files svg_colors svg_font_name symbol symbol_width sym_txt tclcmd_txt tclstop
-  text_line_default_geometry textwindow_fileid textwindow_filename textwindow_w tmp_bus_char 
-  toolbar_horiz toolbar_list toolbar_visible top_subckt transparent_svg undo_type
-  use_label_prefix use_lab_wire user_wants_copy_cell verilog_2001 verilog_bitblast
-  viewdata_fileid viewdata_filename viewdata_w vsize xschem_libs xschem_listen_port
+  INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR auto_hilight autofocus_mainwindow
+  autotrim_wires bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
+  cadsnap cairo_font_name change_lw color_ps colors connect_by_kissing constrained_move
+  copy_cell custom_label_prefix custom_token dark_colors dark_colorscheme dim_bg dim_value
+  disable_unique_names do_all_inst draw_grid draw_window edit_prop_pos edit_prop_size
+  edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
+  filetmp flat_netlist fullscreen gaw_fd gaw_tcp_address graph_bus graph_digital graph_logx
+  graph_logy graph_raw_level graph_schname graph_sel_color graph_sel_wave graph_selected
+  graph_sort graph_unlocked hide_empty_graphs hide_symbols hsize incr_hilight infowindow_text
+  input_line_cmd input_line_data launcher_default_program light_colors line_width
+  live_cursor2_backannotate local_netlist_dir measure_text netlist_show netlist_type
+  no_change_attrs noprint_libs old_selected_tok only_probes path pathlist persistent_command
+  preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors rawfile_loaded rcode recentfile
+  replace_key retval retval_orig rotated_text search_exact search_found search_schematic
+  search_select search_value selected_tok show_hidden_texts show_infowindow show_pin_net_names
+  simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
+  svg_font_name sym_txt symbol symbol_width tclcmd_txt tclstop text_line_default_geometry
+  textwindow_fileid textwindow_filename textwindow_w tmp_bus_char toolbar_horiz toolbar_list
+  toolbar_visible top_subckt transparent_svg undo_type use_lab_wire use_label_prefix
+  user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
+  vsize xschem_libs xschem_listen_port
 }
 
 ## list of global arrays to save/restore on context switching
@@ -5999,7 +5998,7 @@ if { ![info exists dircolor] } {
   set_ne dircolor(/share/doc/xschem/) {#338844}
 }
 
-set_ne globfilter {*}
+set_ne myload_globfilter {*}
 ## list of tcl procedures to load at end of xschem.tcl
 set_ne tcl_files {}
 set_ne netlist_dir "$USER_CONF_DIR/simulations"
