@@ -2271,7 +2271,7 @@ proc is_xschem_file {f} {
   return $ret
 }
 
-
+# "xschem hash_string" in scheduler.c is faster
 proc hash_string {s} {
   set hash 5381
   set len [string length $s]
@@ -2289,7 +2289,7 @@ namespace eval c_toolbar {
   variable c_t
   variable i
   set c_t(w) .load.l.recent
-  set c_t(hash) [hash_string $XSCHEM_LIBRARY_PATH]
+  set c_t(hash) [xschem hash_string $XSCHEM_LIBRARY_PATH]
   set c_t(n) 25
   set c_t(top) 0
   for {set i 0} {$i < $c_t(n)} {incr i} {
