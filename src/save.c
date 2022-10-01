@@ -625,7 +625,7 @@ int get_raw_index(const char *node)
  * 1: store value
  * 2: retrieve value
  */
-static double ravg_store(int what , int i, int p, int last, double integ)
+static double ravg_store(int what , int i, int p, int last, double value)
 {
   static int imax = 0;
   static double **arr = NULL;
@@ -639,14 +639,14 @@ static double ravg_store(int what , int i, int p, int last, double integ)
     imax = 0;
   } else if(what == 1) {
     if(i >= imax) {
-      int new_size = i + 4;
+      int new_size = i + 8;
       my_realloc(1514, &arr, sizeof(double *) * new_size);
       for(j = imax; j < new_size; j++) {
         arr[j] = my_calloc(1515, last + 1, sizeof(double));
       }
       imax = new_size;
     }
-    arr[i][p] = integ;
+    arr[i][p] = value;
   } else if(what == 2) {
     return arr[i][p];
   }
@@ -676,6 +676,7 @@ static double ravg_store(int what , int i, int p, int last, double integ)
 #define RAVG -39 /* running average */
 #define DB20 -40
 #define DERIV0 -41 /* derivative to first sweep variable, regardless of specified sweep_idx */
+#define PREV -42 /* previous point */
 #define NUMBER -60
 
 #define ORDER_DERIV 2 /* 1 or 2: 1st order or 2nd order differentiation. 1st order is faster */
@@ -695,7 +696,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
   const char *n;
   char *endptr, *ntok_copy = NULL, *ntok_save, *ntok_ptr;
   Stack1 stack1[STACKMAX];
-  double stack2[STACKMAX], tmp, integ, deriv, avg;
+  double stack2[STACKMAX], tmp, result, avg;
   int stackptr1 = 0, stackptr2 = 0;
   SPICE_DATA *y = xctx->graph_values[xctx->graph_nvars]; /* custom plot data column */
   SPICE_DATA *x = xctx->graph_values[sweep_idx];
@@ -732,6 +733,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     else if(!strcmp(n, "db20()")) stack1[stackptr1++].i = DB20;
     else if(!strcmp(n, "deriv()")) stack1[stackptr1++].i = DERIV;
     else if(!strcmp(n, "deriv0()")) stack1[stackptr1++].i = DERIV0;
+    else if(!strcmp(n, "prev()")) stack1[stackptr1++].i = PREV;
     else if(!strcmp(n, "exch()")) stack1[stackptr1++].i = EXCH;
     else if(!strcmp(n, "dup()")) stack1[stackptr1++].i = DUP;
     else if( (strtod(n, &endptr)), endptr > n) {
@@ -753,8 +755,8 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
   my_free(575, &ntok_copy);
   for(p = first ; p <= last; p++) {
     stackptr2 = 0;
-    for(i = 0; i < stackptr1; i++) { /* number */
-      if(stack1[i].i == NUMBER) {
+    for(i = 0; i < stackptr1; i++) {
+      if(stack1[i].i == NUMBER) { /* number */
         stack2[stackptr2++] = stack1[i].d;
       }
       else if(stack1[i].i >=0 && stack1[i].i < xctx->graph_nvars) { /* spice node */
@@ -787,23 +789,23 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             break;
           case RAVG:
             if( p == first ) {
-              integ = 0;
+              result = 0;
               stack1[i].prevy = stack2[stackptr2 - 2];
               stack1[i].prev = 0;
               stack1[i].prevp = first;
             } else {
-              integ = stack1[i].prev + (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 2]) * 0.5;
+              result = stack1[i].prev + (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 2]) * 0.5;
               stack1[i].prevy =  stack2[stackptr2 - 2];
-              stack1[i].prev = integ;
+              stack1[i].prev = result;
             }
-            ravg_store(1, i, p, last, integ);
+            ravg_store(1, i, p, last, result);
             
             while(stack1[i].prevp <= last && x[p] - x[stack1[i].prevp] > stack2[stackptr2 - 1]) {
               dbg(1, "%g  -->  %g\n", x[stack1[i].prevp], x[p]);
               stack1[i].prevp++;
             }
-            stack2[stackptr2 - 2] = (integ - ravg_store(2, i, stack1[i].prevp, 0, 0)) / stack2[stackptr2 - 1];
-            dbg(1, "integ=%g ravg_store=%g\n", integ,  ravg_store(2, i, stack1[i].prevp, 0, 0));
+            stack2[stackptr2 - 2] = (result - ravg_store(2, i, stack1[i].prevp, 0, 0)) / stack2[stackptr2 - 1];
+            dbg(1, "result=%g ravg_store=%g\n", result,  ravg_store(2, i, stack1[i].prevp, 0, 0));
             stackptr2--;
             break;
           case POW:
@@ -845,61 +847,61 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             break;
           case INTEG: 
             if( p == first ) {
-              integ = 0;
+              result = 0;
               stack1[i].prevy = stack2[stackptr2 - 1];
               stack1[i].prev = 0;
             } else {
-              integ = stack1[i].prev + (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
+              result = stack1[i].prev + (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
               stack1[i].prevy =  stack2[stackptr2 - 1];
-              stack1[i].prev = integ;
+              stack1[i].prev = result;
             }
-            stack2[stackptr2 - 1] =  integ;
+            stack2[stackptr2 - 1] =  result;
             break;
           #if ORDER_DERIV==1
           case DERIV: 
             if( p == first ) {
-              deriv = 0;
+              result = 0;
               stack1[i].prevy = stack2[stackptr2 - 1];
               stack1[i].prev = 0;
             } else {
               if((x[p] != x[p - 1])) 
-                deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (x[p] - x[p - 1]);
+                result =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (x[p] - x[p - 1]);
               else
-                deriv = stack1[i].prev;
+                result = stack1[i].prev;
               stack1[i].prevy = stack2[stackptr2 - 1] ;
-              stack1[i].prev = deriv;
+              stack1[i].prev = result;
             }
-            stack2[stackptr2 - 1] =  deriv;
+            stack2[stackptr2 - 1] =  result;
             break;
           case DERIV0:
             if( p == first ) {
-              deriv = 0;
+              result = 0;
               stack1[i].prevy = stack2[stackptr2 - 1];
               stack1[i].prev = 0;
             } else {
               if((sweepx[p] != sweepx[p - 1]))
-                deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (sweepx[p] - sweepx[p - 1]);
+                result =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (sweepx[p] - sweepx[p - 1]);
               else
-                deriv = stack1[i].prev;
+                result = stack1[i].prev;
               stack1[i].prevy = stack2[stackptr2 - 1] ;
-              stack1[i].prev = deriv;
+              stack1[i].prev = result;
             }
-            stack2[stackptr2 - 1] =  deriv;
+            stack2[stackptr2 - 1] =  result;
             break;
           #else /* second order backward differentiation formulas */
           case DERIV:
             if( p == first ) {
-              deriv = 0;
+              result = 0;
               stack1[i].prevy = stack2[stackptr2 - 1];
               stack1[i].prev = 0;
             } else if(p == first + 1) {
               if((x[p] != x[p - 1]))
-                deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (x[p] - x[p - 1]);
+                result =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (x[p] - x[p - 1]);
               else
-                deriv = stack1[i].prev;
+                result = stack1[i].prev;
               stack1[i].prevprevy =  stack1[i].prevy;
               stack1[i].prevy = stack2[stackptr2 - 1] ;
-              stack1[i].prev = deriv;
+              stack1[i].prev = result;
             } else {
               double a = x[p - 2] - x[p];
               double c = x[p - 1] - x[p];
@@ -910,28 +912,28 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
               double fb = stack1[i].prevy;
               double fc = stack2[stackptr2 - 1];
               if(a != 0.0) 
-                deriv = (fa - b_on_d * fb - (1 - b_on_d) * fc ) / (a - c * b_on_d);
+                result = (fa - b_on_d * fb - (1 - b_on_d) * fc ) / (a - c * b_on_d);
               else
-                deriv = stack1[i].prev;
+                result = stack1[i].prev;
               stack1[i].prevprevy =  stack1[i].prevy;
               stack1[i].prevy = stack2[stackptr2 - 1] ;
-              stack1[i].prev = deriv;
+              stack1[i].prev = result;
             }
-            stack2[stackptr2 - 1] =  deriv;
+            stack2[stackptr2 - 1] =  result;
             break;
           case DERIV0:
             if( p == first ) {
-              deriv = 0;
+              result = 0;
               stack1[i].prevy = stack2[stackptr2 - 1];
               stack1[i].prev = 0;
             } else if(p == first + 1) {
               if((sweepx[p] != sweepx[p - 1]))
-                deriv =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (sweepx[p] - sweepx[p - 1]);
+                result =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (sweepx[p] - sweepx[p - 1]);
               else
-                deriv = stack1[i].prev;
+                result = stack1[i].prev;
               stack1[i].prevprevy =  stack1[i].prevy;
               stack1[i].prevy = stack2[stackptr2 - 1] ;
-              stack1[i].prev = deriv;
+              stack1[i].prev = result;
             } else {
               double a = sweepx[p - 2] - sweepx[p];
               double c = sweepx[p - 1] - sweepx[p];
@@ -942,16 +944,25 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
               double fb = stack1[i].prevy;
               double fc = stack2[stackptr2 - 1];
               if(a != 0.0)
-                deriv = (fa - b_on_d * fb - (1 - b_on_d) * fc ) / (a - c * b_on_d);
+                result = (fa - b_on_d * fb - (1 - b_on_d) * fc ) / (a - c * b_on_d);
               else
-                deriv = stack1[i].prev;
+                result = stack1[i].prev;
               stack1[i].prevprevy =  stack1[i].prevy;
               stack1[i].prevy = stack2[stackptr2 - 1] ;
-              stack1[i].prev = deriv;
+              stack1[i].prev = result;
             }
-            stack2[stackptr2 - 1] =  deriv;
+            stack2[stackptr2 - 1] =  result;
             break;
           #endif
+          case PREV:
+            if(p == first) {
+              result = stack2[stackptr2 - 1];
+            } else {
+              result =  stack1[i].prev;
+            }
+            stack1[i].prev =  stack2[stackptr2 - 1];
+            stack2[stackptr2 - 1] =  result;
+            break;
           case SQRT:
             stack2[stackptr2 - 1] =  sqrt(stack2[stackptr2 - 1]);
             break;
