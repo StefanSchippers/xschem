@@ -2431,7 +2431,8 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
      for(i=0;i<no_of_pins;i++)
      {
        str_ptr =  net_name(inst,i, &multip, 0, 1);
-       fprintf(fd, "----pin(%s) ", str_ptr);
+       fprintf(fd, "----pin(%s)", str_ptr);
+       if(i < no_of_pins - 1) fprintf(fd, " , ");
      }
     }
     else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */

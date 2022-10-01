@@ -368,7 +368,6 @@ char *dtoa_eng(double i)
   return s;
 }
 
-
 char *dtoa_prec(double i)
 {
   static char s[70];
@@ -377,7 +376,6 @@ char *dtoa_prec(double i)
   if(xctx) xctx->tok_size = n;
   return s;
 }
-
 
 size_t my_mstrcat(int id, char **str, const char *add, ...)
 {
@@ -636,7 +634,6 @@ static void edit_rect_property(int x)
   }
   my_free(725, &oldprop);
 }
-
 
 static void edit_line_property(void)
 {
