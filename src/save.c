@@ -639,7 +639,7 @@ static double ravg_store(int what , int i, int p, int last, double value)
     imax = 0;
   } else if(what == 1) {
     if(i >= imax) {
-      int new_size = i + 8;
+      int new_size = i + 4;
       my_realloc(1514, &arr, sizeof(double *) * new_size);
       for(j = imax; j < new_size; j++) {
         arr[j] = my_calloc(1515, last + 1, sizeof(double));
@@ -677,9 +677,10 @@ static double ravg_store(int what , int i, int p, int last, double value)
 #define DB20 -40
 #define DERIV0 -41 /* derivative to first sweep variable, regardless of specified sweep_idx */
 #define PREV -42 /* previous point */
+#define DEL -43 /* delay by an anount of sweep axis distance */
 #define NUMBER -60
 
-#define ORDER_DERIV 2 /* 1 or 2: 1st order or 2nd order differentiation. 1st order is faster */
+#define ORDER_DERIV 1 /* 1 or 2: 1st order or 2nd order differentiation. 1st order is faster */
 
 typedef struct {
   int i;
@@ -727,13 +728,31 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     else if(!strcmp(n, "exp()")) stack1[stackptr1++].i = EXP;
     else if(!strcmp(n, "ln()")) stack1[stackptr1++].i = LN;
     else if(!strcmp(n, "log10()")) stack1[stackptr1++].i = LOG10;
-    else if(!strcmp(n, "integ()")) stack1[stackptr1++].i = INTEG;
+    else if(!strcmp(n, "integ()")) {
+      if(first > 0) first--;
+      stack1[stackptr1++].i = INTEG;
+    }
     else if(!strcmp(n, "avg()")) stack1[stackptr1++].i = AVG;
     else if(!strcmp(n, "ravg()")) stack1[stackptr1++].i = RAVG;
+    else if(!strcmp(n, "del()")) {
+      stack1[stackptr1++].i = DEL;
+      first = 0;
+    }
     else if(!strcmp(n, "db20()")) stack1[stackptr1++].i = DB20;
-    else if(!strcmp(n, "deriv()")) stack1[stackptr1++].i = DERIV;
-    else if(!strcmp(n, "deriv0()")) stack1[stackptr1++].i = DERIV0;
-    else if(!strcmp(n, "prev()")) stack1[stackptr1++].i = PREV;
+    else if(!strcmp(n, "deriv()")) {
+      stack1[stackptr1++].i = DERIV;
+      if(first > 0) first--;
+      if(first > 0) first--;
+    }
+    else if(!strcmp(n, "deriv0()")) {
+      stack1[stackptr1++].i = DERIV0;
+      if(first > 0) first--;
+      if(first > 0) first--;
+    }
+    else if(!strcmp(n, "prev()")) {
+      stack1[stackptr1++].i = PREV;
+      if(first > 0) first--;
+    }
     else if(!strcmp(n, "exch()")) stack1[stackptr1++].i = EXCH;
     else if(!strcmp(n, "dup()")) stack1[stackptr1++].i = DUP;
     else if( (strtod(n, &endptr)), endptr > n) {
@@ -785,6 +804,29 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             } else {
               stack2[stackptr2 - 2] =  y[p - 1];
             }
+            stackptr2--;
+            break;
+          case DEL:
+            /* dbg(0, "p=%d, x[p]=%g\n", p, x[p]);  */
+            tmp = stack2[stackptr2 - 1];
+            ravg_store(1, i, p, last, stack2[stackptr2 - 2]);
+            if(fabs(x[p] - x[first]) < tmp) {
+              result = stack2[stackptr2 - 2];
+              stack1[i].prevp = first;
+            } else {
+              double delta =  fabs(x[p] - x[stack1[i].prevp]);
+              while(stack1[i].prevp <= last && delta > tmp) {
+                stack1[i].prevp++;
+                delta = fabs(x[p] - x[stack1[i].prevp]);
+              }
+              /* choose the closest:  stack1[i].prev or stack1[i].prev - 1 */
+              if( stack1[i].prevp > 0) {
+                double delta1 =  fabs(x[p] - x[stack1[i].prevp-1]);
+                if(fabs(delta1 - tmp) < fabs(delta - tmp)) stack1[i].prevp--;
+              }
+              result =  ravg_store(2, i, stack1[i].prevp, 0, 0);
+            }
+            stack2[stackptr2 - 2] = result;
             stackptr2--;
             break;
           case RAVG:
