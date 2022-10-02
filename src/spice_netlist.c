@@ -507,11 +507,11 @@ void spice_block_netlist(FILE *fd, int i)
     fprintf(fd, "%s\n", sym_def);
   } else {
     fprintf(fd, "** sch_path: %s\n", filename);
-    fprintf(fd, ".subckt %s",skip_dir(xctx->sym[i].name));
-    print_spice_subckt(fd, i);
+    fprintf(fd, ".subckt %s ",skip_dir(xctx->sym[i].name));
+    print_spice_subckt_nodes(fd, i);
   
     my_strdup(387, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
-    /* this is now done in print_spice_subckt */
+    /* this is now done in print_spice_subckt_nodes */
     /*
      * fprintf(fd, "%s ", extra ? extra : "" );
      */

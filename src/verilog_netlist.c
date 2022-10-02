@@ -449,8 +449,8 @@ void verilog_block_netlist(FILE *fd, int i)
   if(sym_def[0]) {
     fprintf(fd, "%s\n", sym_def);
   } else {
-    my_strdup(1040, &extra, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, "extra", 0));
-    my_strdup(1563, &extra2, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, "extra", 0));
+    my_strdup(1040, &extra, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, "verilog_extra", 0));
+    my_strdup(1563, &extra2, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, "verilog_extra", 0));
     fprintf(fd, "// sch_path: %s\n", filename);
     verilog_stop? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
     /* print verilog timescale  and preprocessor directives 10102004 */

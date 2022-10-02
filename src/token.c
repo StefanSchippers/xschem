@@ -1561,7 +1561,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
 }
 
 
-void print_spice_subckt(FILE *fd, int symbol)
+void print_spice_subckt_nodes(FILE *fd, int symbol)
 {
  int i=0, multip;
  const char *str_ptr=NULL;
@@ -1647,7 +1647,7 @@ void print_spice_subckt(FILE *fd, int symbol)
        if(!strcmp(get_tok_value(prop, "name",0), token + 2)) break;
      }
      if(i<no_of_pins && strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
-       fprintf(fd, "%s", expandlabel(token+2, &multip));
+       fprintf(fd, "%s ", expandlabel(token+2, &multip));
      }
    }
    /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
@@ -1664,9 +1664,12 @@ void print_spice_subckt(FILE *fd, int symbol)
     * specified by the format string. The 'extra' attribute is no more used to print extra nodes
     * in spice_block_netlist(). */
    else if(token[0] == '@') { /* given previous if() conditions not followed by @ or # */
-     fprintf(fd, "%s ",  token + 1);
+     /* if token not followed by white space it is not an extra node */
+     if( ( (space  || c == '%' || c == '@') && !escape ) ) {
+       fprintf(fd, "%s ",  token + 1);
+     }
    }
-   if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd);
+   /* if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd); */ 
    if(c == '@' || c =='%') s--;
    state=TOK_BEGIN;
   }
@@ -2527,7 +2530,7 @@ void print_verilog_element(FILE *fd, int inst)
    my_free(1041, &name);
    return;
  }
- my_strdup(1559, &extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "extra", 0));
+ my_strdup(1559, &extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_extra", 0));
  my_strdup(506, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
  no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
 

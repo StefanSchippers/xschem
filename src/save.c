@@ -395,6 +395,13 @@ static int read_dataset(FILE *fd, const char *type)
     else if(!strncmp(line, "No. Variables:", 14)) {
       n = sscanf(line, "No. Variables: %d", &nvars);
       dbg(dbglev, "read_dataset(): nvars=%d\n", nvars);
+
+      if(xctx->graph_datasets > 0  && xctx->graph_nvars != nvars) {
+        dbg(0, "Xschem requires all datasets to be saved with identical and same number of variables\n");
+        dbg(0, "There is a mismatch, so this and following datasets will not be read\n");
+        return 1;
+      }
+
       if(ac) nvars <<= 1;
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
