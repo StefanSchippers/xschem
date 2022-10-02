@@ -1462,14 +1462,15 @@ void print_verilog_param(FILE *fd, int symbol)
  int quote=0;
  int escape=0;
  int token_number=0;
+ char *extra = NULL;
 
  my_strdup(479, &template, xctx->sym[symbol].templ); /* 20150409 20171103 */
- my_strdup(480, &generic_type, get_tok_value(xctx->sym[symbol].prop_ptr,"generic_type",0));
  if( !template || !(template[0]) )  {
    my_free(1006, &template);
-   my_free(1007, &generic_type);
    return;
  }
+ my_strdup(480, &generic_type, get_tok_value(xctx->sym[symbol].prop_ptr,"generic_type",0));
+ my_strdup(1558, &extra, get_tok_value(xctx->sym[symbol].prop_ptr,"extra",0) );
  dbg(2, "print_verilog_param(): symbol=%d template=%s \n", symbol, template);
 
  s=template;
@@ -1511,9 +1512,8 @@ void print_verilog_param(FILE *fd, int symbol)
 
    if(value[0] != '\0') /* token has a value */
    {
-    if(token_number>1)
+    if(token_number>1 && (!extra || !strstr(extra, token)))
     {
-
       /* 20080915 put "" around string params */
       if( !generic_type || strcmp(get_tok_value(generic_type,token, 0), "time")  ) {
         if( generic_type && !strcmp(get_tok_value(generic_type,token, 0), "string")  ) {
@@ -1536,6 +1536,7 @@ void print_verilog_param(FILE *fd, int symbol)
  my_free(1009, &generic_type);
  my_free(1010, &value);
  my_free(1011, &token);
+ my_free(1007, &extra);
 }
 
 
@@ -2507,7 +2508,8 @@ void print_verilog_element(FILE *fd, int inst)
  int no_of_pins=0;
  int  tmp1 = 0;
  register int c, state=TOK_BEGIN, space;
- char *value=NULL,  *token=NULL;
+ char *value=NULL,  *token=NULL, *extra = NULL;
+ char *extra_ptr, *saveptr1, *extra_token;
  size_t sizetok=0, sizeval=0;
  size_t token_pos=0, value_pos=0;
  int quote=0;
@@ -2518,16 +2520,15 @@ void print_verilog_element(FILE *fd, int inst)
   print_verilog_primitive(fd, inst);
   return;
  }
- my_strdup(506, &template,
-     (xctx->inst[inst].ptr + xctx->sym)->templ);
 
  my_strdup(507, &name,xctx->inst[inst].instname);
  if(!name) my_strdup(3, &name, get_tok_value(template, "name", 0));
  if(name==NULL) {
-   my_free(1040, &template);
    my_free(1041, &name);
    return;
  }
+ my_strdup(1559, &extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "extra", 0));
+ my_strdup(506, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
  no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
 
  /* 20080915 use generic_type property to decide if some properties are strings, see later */
@@ -2573,7 +2574,7 @@ void print_verilog_element(FILE *fd, int inst)
    value[value_pos]='\0';
    value_pos=0;
    get_tok_value(template, token, 0);
-   if(strcmp(token, "name") && xctx->tok_size) {
+   if(strcmp(token, "name") && xctx->tok_size && (!extra || !strstr(extra, token))) {
      if(value[0] != '\0') /* token has a value */
      {
        if(strcmp(token,"spice_ignore") && strcmp(token,"vhdl_ignore") && strcmp(token,"tedax_ignore")) {
@@ -2624,6 +2625,22 @@ void print_verilog_element(FILE *fd, int inst)
      }
    }
  }
+
+ if(extra) {
+   const char *val;
+   for(extra_ptr = extra; ; extra_ptr=NULL) {
+     extra_token=my_strtok_r(extra_ptr, " ", "", &saveptr1);
+     if(!extra_token) break;
+
+     val = get_tok_value(xctx->inst[inst].prop_ptr, extra_token, 0);
+     if(!val[0]) val = get_tok_value( (xctx->inst[inst].ptr + xctx->sym)->prop_ptr, extra_token, 0);
+     if(tmp) fprintf(fd,"\n");
+     fprintf(fd, "  ?%d %s %s ", 1, extra_token, val);
+     tmp = 1;
+   }
+ }
+
+
  fprintf(fd, "\n);\n\n");
  dbg(2, "print_verilog_element(): ------- end ------ \n");
  my_free(1042, &name);
@@ -2631,6 +2648,7 @@ void print_verilog_element(FILE *fd, int inst)
  my_free(1044, &template);
  my_free(1045, &value);
  my_free(1046, &token);
+ my_free(1560, &extra);
 }
 
 

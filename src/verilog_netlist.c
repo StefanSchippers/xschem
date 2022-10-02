@@ -424,6 +424,8 @@ void verilog_block_netlist(FILE *fd, int i)
   const char *str_tmp, *fmt_attr = NULL;
   int split_f;
   const char *sym_def;
+  char *extra_ptr, *saveptr1, *extra_token, *extra = NULL, *extra2=NULL;
+
 
   split_f = tclgetboolvar("split_files");
   if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"verilog_stop",0),"true") )
@@ -447,6 +449,8 @@ void verilog_block_netlist(FILE *fd, int i)
   if(sym_def[0]) {
     fprintf(fd, "%s\n", sym_def);
   } else {
+    my_strdup(1040, &extra, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, "extra", 0));
+    my_strdup(1563, &extra2, get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, "extra", 0));
     fprintf(fd, "// sch_path: %s\n", filename);
     verilog_stop? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
     /* print verilog timescale  and preprocessor directives 10102004 */
@@ -472,7 +476,7 @@ void verilog_block_netlist(FILE *fd, int i)
   
     dbg(1, "verilog_block_netlist():       entity ports\n");
   
-    /* print ports directions */
+    /* print port list */
     tmp=0;
     for(j=0;j<xctx->sym[i].rects[PINLAYER];j++)
     {
@@ -483,14 +487,22 @@ void verilog_block_netlist(FILE *fd, int i)
         fprintf(fd,"  %s", str_tmp ? str_tmp : "<NULL>");
       }
     }
+  
+    if(extra) {
+      for(extra_ptr = extra; ; extra_ptr=NULL) {
+        extra_token=my_strtok_r(extra_ptr, " ", "", &saveptr1);
+        if(!extra_token) break;
+        if(tmp) fprintf(fd, " ,\n");
+        fprintf(fd, "  %s", extra_token);
+        tmp++;
+      }
+    }
     fprintf(fd, "\n);\n");
-  
-  
+
     dbg(1, "verilog_block_netlist():       entity generics\n");
     /* print module  default parameters */
     print_verilog_param(fd,i);
     /* print port types */
-    tmp=0;
     for(j=0;j<xctx->sym[i].rects[PINLAYER];j++)
     {
       if(strcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
@@ -516,7 +528,15 @@ void verilog_block_netlist(FILE *fd, int i)
         fprintf(fd," ;\n");
       }
     }
-  
+    if(extra2) {
+      saveptr1 = NULL;
+      for(extra_ptr = extra2; ; extra_ptr=NULL) {
+        extra_token=my_strtok_r(extra_ptr, " ", "", &saveptr1);
+        if(!extra_token) break;
+        fprintf(fd, "  inout %s ;\n", extra_token);
+        fprintf(fd, "  wire %s ;\n", extra_token);
+      }
+    }
     dbg(1, "verilog_block_netlist():       netlisting %s\n", skip_dir( xctx->sch[xctx->currsch]));
     verilog_netlist(fd, verilog_stop);
     fprintf(fd,"---- begin user architecture code\n");
@@ -545,6 +565,8 @@ void verilog_block_netlist(FILE *fd, int i)
     my_free(1081, &port_value);
     my_free(1082, &type);
     my_free(1083, &tmp_string);
+    my_free(1561, &extra);
+    my_free(1564, &extra2);
   } /* if(!sym_def[0]) */
   if(split_f) {
     int save;

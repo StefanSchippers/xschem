@@ -810,7 +810,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             /* dbg(0, "p=%d, x[p]=%g\n", p, x[p]);  */
             tmp = stack2[stackptr2 - 1];
             ravg_store(1, i, p, last, stack2[stackptr2 - 2]);
-            if(fabs(x[p] - x[first]) < tmp) {
+            if(fabs(x[p] - x[first]) <= tmp) {
               result = stack2[stackptr2 - 2];
               stack1[i].prevp = first;
             } else {

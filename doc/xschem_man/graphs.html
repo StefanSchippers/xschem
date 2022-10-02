@@ -161,6 +161,7 @@ p{padding: 15px  30px 10px;}
   <li><kbd>**</kbd> Exponentiation</li>
   <li><kbd>exch()</kbd> Exchange top 2 operands on stack</li>
   <li><kbd>ravg()</kbd> Running average of over a specified time window</li>
+  <li><kbd>del()</kbd> Delete waveform by specified quantity on the X-axis</li>
   </ul>
   <p>1 argument operators:</p>
   <ul>
@@ -173,7 +174,9 @@ p{padding: 15px  30px 10px;}
   <li><kbd>exp()</kbd> Base-e Exponentiation</li>
   <li><kbd>ln()</kbd> Base-e logarithm</li>
   <li><kbd>log10()</kbd> Base 10 logarithm</li>
-  <li><kbd>avg()</kbd> Moving average</li>
+  <li><kbd>db20()</kbd> Value in deciBel (20 * log10(n))</li>
+  <li><kbd>avg()</kbd> Average</li>
+  <li><kbd>prev()</kbd> Delete waveform by one point (at any x-axis position take the previous value)</li>
   <li><kbd>deriv()</kbd> Derivative w.r.t. graph sweep variable</li>
   <li><kbd>deriv0()</kbd> Derivative w.r.t. simulation (index 0) sweep variable</li>
   <li><kbd>integ()</kbd> Integration</li>
