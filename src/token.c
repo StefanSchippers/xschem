@@ -2435,7 +2435,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
      for(i=0;i<no_of_pins;i++)
      {
        str_ptr =  net_name(inst,i, &multip, 0, 1);
-       fprintf(fd, "----pin(%s)", str_ptr);
+       fprintf(fd, "----pin(%s) ", str_ptr);
        if(i < no_of_pins - 1) fprintf(fd, " , ");
      }
     }
@@ -2444,7 +2444,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
       if(!strcmp( get_tok_value(prop,"name",0), token+2)) {
         str_ptr =  net_name(inst,i, &multip, 0, 1);
-        fprintf(fd, "----pin(%s)", str_ptr);
+        fprintf(fd, "----pin(%s) ", str_ptr);
         break;
       }
      }

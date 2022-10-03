@@ -169,7 +169,8 @@ type=nmos
   <li><kbd>spice_sym_def</kbd></li>
   <li><kbd>verilog_sym_def</kbd></li>
   <li><kbd>vhdl_sym_def</kbd></li>
-  <p> If any of these attributes are present and not empty the corresponding netlister will ignore the schematic subcircuit
+  <p> If any of these attributes are present and not empty  and the symbol type is set to <kbd>subcircuit</kbd>
+   the corresponding netlister will ignore the schematic subcircuit
    and dump into the netlist the content of this attribute. The typical usage is to include a file, example:<br>
   <pre class="code">
     verilog_sym_def="tcleval(`include \"[abs_sym_path verilog_include_file.v]\")"
