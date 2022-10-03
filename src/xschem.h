@@ -1305,6 +1305,7 @@ extern char *my_strtok_r(char *str, const char *delim, const char *quote, char *
 extern int my_strncpy(char *d, const char *s, size_t n);
 extern int my_strcasecmp(const char *s1, const char *s2);
 extern double mylog10(double x);
+extern double mylog(double x);
 extern int my_strncasecmp(const char *s1, const char *s2, size_t n);
 extern char* strtolower(char* s);
 extern char* strtoupper(char* s);

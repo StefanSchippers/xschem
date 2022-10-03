@@ -764,11 +764,11 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     }
     else if(!strcmp(n, "exch()")) stack1[stackptr1++].i = EXCH;
     else if(!strcmp(n, "dup()")) stack1[stackptr1++].i = DUP;
-    else if( (strtod(n, &endptr)), endptr > n) {
+    else if( (strtod(n, &endptr)), endptr > n) { /* NUMBER */
       stack1[stackptr1].i = NUMBER;
       stack1[stackptr1++].d = atof_spice(n);
     }
-    else {
+    else { /* SPICE_NODE */
       idx = get_raw_index(n);
       if(idx == -1) {
         dbg(1, "plot_raw_custom_data(): no data found: %s\n", n);
@@ -1034,13 +1034,13 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             stack2[stackptr2 - 1] =  exp(stack2[stackptr2 - 1]);
             break;
           case LN:
-            stack2[stackptr2 - 1] =  log(stack2[stackptr2 - 1]);
+            stack2[stackptr2 - 1] =  mylog(stack2[stackptr2 - 1]);
             break;
           case LOG10:
-            stack2[stackptr2 - 1] =  log10(stack2[stackptr2 - 1]);
+            stack2[stackptr2 - 1] =  mylog10(stack2[stackptr2 - 1]);
             break;
           case DB20:
-            stack2[stackptr2 - 1] =  20 * log10(stack2[stackptr2 - 1]);
+            stack2[stackptr2 - 1] =  20 * mylog10(stack2[stackptr2 - 1]);
             break;
           case SGN:
             stack2[stackptr2 - 1] = stack2[stackptr2 - 1] > 0.0 ? 1 : 
