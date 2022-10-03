@@ -661,37 +661,39 @@ static double ravg_store(int what , int i, int p, int last, double value)
 }
 
 #define STACKMAX 200
-#define PLUS -2
-#define MINUS -3
-#define MULT -4
-#define DIVIS -5
-#define POW -6
-#define SIN -7
-#define COS -8
-#define EXP -9
-#define LN -10
-#define LOG10 -11
-#define ABS -12
-#define SGN -13
-#define SQRT -14
-#define TAN -15
-#define INTEG -34
-#define AVG -35
-#define DERIV -36
-#define EXCH -37
-#define DUP -38
-#define RAVG -39 /* running average */
-#define DB20 -40
-#define DERIV0 -41 /* derivative to first sweep variable, regardless of specified sweep_idx */
-#define PREV -42 /* previous point */
-#define DEL -43 /* delay by an anount of sweep axis distance */
-#define NUMBER -60
+#define SPICE_NODE 1
+#define NUMBER 2
+#define PLUS 3
+#define MINUS 4
+#define MULT 5
+#define DIVIS 6
+#define POW 7
+#define SIN 8
+#define COS 9
+#define EXP 10
+#define LN 11
+#define LOG10 12
+#define ABS 13
+#define SGN 14
+#define SQRT 15
+#define TAN 16
+#define INTEG 17
+#define AVG 18
+#define DERIV 19
+#define EXCH 20
+#define DUP 21
+#define RAVG 22 /* running average */
+#define DB20 23
+#define DERIV0 24 /* derivative to first sweep variable, regardless of specified sweep_idx */
+#define PREV 25 /* previous point */
+#define DEL 26 /* delay by an anount of sweep axis distance */
 
 #define ORDER_DERIV 1 /* 1 or 2: 1st order or 2nd order differentiation. 1st order is faster */
 
 typedef struct {
   int i;
   double d;
+  int idx; /* spice index node */
   double prevy;
   double prevprevy;
   double prev;
@@ -773,7 +775,8 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
         my_free(645, &ntok_copy);
         return -1; /* no data found in raw file */
       }
-      stack1[stackptr1].i = idx;
+      stack1[stackptr1].i = SPICE_NODE;
+      stack1[stackptr1].idx = idx;
       stackptr1++;
     }
     dbg(1, "  plot_raw_custom_data(): stack1= %d\n", stack1[stackptr1 - 1].i);
@@ -785,8 +788,8 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
       if(stack1[i].i == NUMBER) { /* number */
         stack2[stackptr2++] = stack1[i].d;
       }
-      else if(stack1[i].i >=0 && stack1[i].i < xctx->graph_nvars) { /* spice node */
-        stack2[stackptr2++] =  xctx->graph_values[stack1[i].i][p];
+      else if(stack1[i].i == SPICE_NODE && stack1[i].idx < xctx->graph_nvars) { /* spice node */
+        stack2[stackptr2++] =  xctx->graph_values[stack1[i].idx][p];
       }
 
       if(stackptr2 > 1) { /* 2 argument operators */

@@ -5725,6 +5725,17 @@ proc build_widgets { {topwin {} } } {
      xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
   }
   $topwin.menubar.simulation.menu add command -label {Add waveform graph} -command {xschem add_graph}
+  $topwin.menubar.simulation.menu add command -label {Add waveform reload launcher} -command {
+    if { [file exists [abs_sym_path devices/launcher.sym]] } {
+      xschem place_symbol devices/launcher.sym "name=h5\ndescr=\"load waves\" 
+tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get current_name]]].raw tran\"
+"
+    } else {
+      xschem place_symbol launcher.sym "name=h5\ndescr=\"load waves\" 
+tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get current_name]]].raw tran\"
+"
+    }
+  }
   $topwin.menubar.simulation.menu add checkbutton -label "Live annotate probes with 'b' cursor" \
          -variable live_cursor2_backannotate 
   $topwin.menubar.simulation.menu add command -label "Annotate Operating Point into schematic" \
