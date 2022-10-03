@@ -2511,7 +2511,7 @@ void print_verilog_element(FILE *fd, int inst)
  int no_of_pins=0;
  int  tmp1 = 0;
  register int c, state=TOK_BEGIN, space;
- char *value=NULL,  *token=NULL, *extra = NULL;
+ char *value=NULL,  *token=NULL, *extra = NULL, *v_extra = NULL;
  char *extra_ptr, *saveptr1, *extra_token;
  size_t sizetok=0, sizeval=0;
  size_t token_pos=0, value_pos=0;
@@ -2530,7 +2530,10 @@ void print_verilog_element(FILE *fd, int inst)
    my_free(1041, &name);
    return;
  }
- my_strdup(1559, &extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_extra", 0));
+ /* verilog_extra is the list of additional nodes passed as attributes */
+ my_strdup(1562, &v_extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_extra", 0));
+ /* extra is the list of attributes NOT to consider as instance parameters */
+ my_strdup(1559, &extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "extra", 0));
  my_strdup(506, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
  no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
 
@@ -2577,6 +2580,7 @@ void print_verilog_element(FILE *fd, int inst)
    value[value_pos]='\0';
    value_pos=0;
    get_tok_value(template, token, 0);
+   dbg(1, "token=%s, extra=%s\n", token, extra);
    if(strcmp(token, "name") && xctx->tok_size && (!extra || !strstr(extra, token))) {
      if(value[0] != '\0') /* token has a value */
      {
@@ -2629,9 +2633,9 @@ void print_verilog_element(FILE *fd, int inst)
    }
  }
 
- if(extra) {
+ if(v_extra) {
    const char *val;
-   for(extra_ptr = extra; ; extra_ptr=NULL) {
+   for(extra_ptr = v_extra; ; extra_ptr=NULL) {
      extra_token=my_strtok_r(extra_ptr, " ", "", &saveptr1);
      if(!extra_token) break;
 
@@ -2652,6 +2656,7 @@ void print_verilog_element(FILE *fd, int inst)
  my_free(1045, &value);
  my_free(1046, &token);
  my_free(1560, &extra);
+ my_free(1567, &v_extra);
 }
 
 
