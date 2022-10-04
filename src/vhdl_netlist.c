@@ -130,6 +130,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  char *abs_path = NULL;
  int split_f;
 
+ xctx->hash_size = HASHSIZE;
  split_f = tclgetboolvar("split_files");
  xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */

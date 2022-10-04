@@ -492,6 +492,7 @@ void find_inst_to_be_redrawn(int what)
 
   int s_pnetname = tclgetboolvar("show_pin_net_names");
 
+  xctx->hash_size = HASHSIZE;
   dbg(1,"find_inst_to_be_redrawn(): what=%d\n", what);
   if(what & 16) {
     my_free(1202, &xctx->inst_redraw_table);

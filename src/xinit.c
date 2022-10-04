@@ -470,6 +470,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->need_reb_sel_arr = 1;
   xctx->lastsel = 0;
   xctx->maxsel = 0;
+  xctx->hash_size = HASHSIZE;
   xctx->prep_net_structs = 0;
   xctx->prep_hi_structs = 0;
   xctx->simdata = NULL;
@@ -672,6 +673,7 @@ int compare_schematics(const char *f)
   int ret=0; /* ret==0 means no differences found */
   Xschem_ctx *save_xctx;
 
+  xctx->hash_size = HASHSIZE;
   memset(table1, 0, HASHSIZE * sizeof(Int_hashentry *));
   memset(table2, 0, HASHSIZE * sizeof(Int_hashentry *));
 

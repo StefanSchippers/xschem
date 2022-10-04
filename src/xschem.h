@@ -770,6 +770,7 @@ typedef struct {
   int need_reb_sel_arr;
   int lastsel;
   int maxsel;
+  int hash_size; /* used in str_hash_lookup and int_hash_lookup */
   Selected *sel_array;
   int prep_net_structs;
   int prep_hi_structs;

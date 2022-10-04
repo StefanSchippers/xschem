@@ -2098,6 +2098,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           /* xschem rawfile_query index v(ldcp) */
           Int_hashentry *entry; 
           int idx;
+          xctx->hash_size = HASHSIZE;
           entry = int_hash_lookup(xctx->graph_raw_table, argv[3], 0, XLOOKUP);
           idx = entry ? entry->value : -1;
           Tcl_SetResult(interp, my_itoa(idx), TCL_VOLATILE);

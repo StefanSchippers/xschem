@@ -304,6 +304,7 @@ static int read_dataset(FILE *fd, const char *type)
   int n = 0, done_header = 0, ac = 0;
   int exit_status = 0, npoints, nvars;
   int dbglev=1;
+  xctx->hash_size = HASHSIZE;
   xctx->graph_sim_type = NULL;
   dbg(1, "read_dataset(): type=%s\n", type ? type : "<NULL>");
   while((fgets(line, sizeof(line), fd)) ) {
@@ -476,6 +477,7 @@ void free_rawfile(int dr)
   int i;
 
   int deleted = 0;
+  xctx->hash_size = HASHSIZE;
   if(xctx->graph_names) {
     deleted = 1;
     for(i = 0 ; i < xctx->graph_nvars; i++) {
@@ -606,6 +608,7 @@ int get_raw_index(const char *node)
 
 
   dbg(1, "get_raw_index(): node=%s\n", node);
+  xctx->hash_size = HASHSIZE;
   if(sch_waves_loaded() >= 0) {
     my_strncpy(inode, node, S(inode));
     strtolower(inode);
@@ -2450,6 +2453,7 @@ static void get_sym_type(const char *symname, char **type,
   FILE *fd;
   char tag[1];
   int found = 0;
+  xctx->hash_size = HASHSIZE;
   if(!strcmp(xctx->file_version,"1.0")) {
     my_strncpy(name, abs_sym_path(symname, ".sym"), S(name));
   } else {
@@ -2548,6 +2552,7 @@ static void align_sch_pins_with_sym(const char *name, int pos)
   int i, fail = 0, sym_n_pins=0;
   Int_hashentry *pintable[HASHSIZE];
 
+  xctx->hash_size = HASHSIZE;
   if ((ptr = strrchr(name, '.')) && !strcmp(ptr, ".sch")) {
     my_strncpy(symname, add_ext(name, ".sym"), S(symname));
     memset(pintable, 0, HASHSIZE * sizeof(Int_hashentry *));

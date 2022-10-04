@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {
@@ -23,17 +24,11 @@ vvss vss 0 dc 0
 
 .tran 1n 200n}
 E {}
-L 5 130 -460 910 -270 {}
-L 5 160 -270 950 -470 {}
-P 5 7 530 -390 525 -380 530 -380 530 -240 530 -380 535 -380 530 -390 {}
-P 5 7 100 -375 95 -365 100 -365 100 -240 100 -365 105 -365 100 -375 {}
-T {WRONG!} 410 -490 0 0 1 1 {layer=5}
 T {OK!} 470 -750 0 0 1 1 {layer=4}
 T {OK!} 470 -1010 0 0 1 1 {layer=4}
 T {OK!} 470 -1260 0 0 1 1 {layer=4}
 T {Spice netlist allows duplicated pins on symbols} 20 -1350 0 0 1 1 {}
-T {if connecting both duplicated pins you should name the nets otherwise
-xschem might pick 'net2' instead of 'CCKK'} 50 -230 0 0 0.5 0.5 {layer=5}
+T {OK!} 470 -490 0 0 1 1 {layer=4}
 N 450 -660 600 -660 {
 lab=RRSSTT}
 N 450 -640 600 -640 {

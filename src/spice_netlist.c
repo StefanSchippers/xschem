@@ -33,6 +33,7 @@ void hier_psprint(void)  /* netlister driver */
   char filename[PATH_MAX];
   char *abs_path = NULL;
  
+  xctx->hash_size = HASHSIZE;
   if(!ps_draw(1)) return; /* prolog */
   xctx->push_undo();
   str_hash_free(subckt_table);
@@ -111,7 +112,8 @@ static void spice_netlist(FILE *fd, int spice_stop )
   int i, flag = 0;
   char *type=NULL;
   int top_sub;
- 
+
+  xctx->hash_size = HASHSIZE; 
   top_sub = tclgetboolvar("top_subckt");
   if(!spice_stop) {
     xctx->prep_net_structs = 0;
@@ -197,6 +199,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  int top_sub;
  int split_f;
 
+ xctx->hash_size = HASHSIZE;
  split_f = tclgetboolvar("split_files");
  top_sub = tclgetboolvar("top_subckt");
  xctx->push_undo();
@@ -435,7 +438,7 @@ void global_spice_netlist(int global)  /* netlister driver */
 
  }
  /* print device_model attributes */
- for(i=0;i<HASHSIZE; i++) {
+ for(i=0;i<xctx->hash_size; i++) {
    model_entry=model_table[i];
    while(model_entry) {
      if(first == 0) fprintf(fd,"**** begin user architecture code\n");
@@ -568,7 +571,7 @@ Str_hashentry *str_hash_lookup(Str_hashentry **table, const char *token, const c
 
   if(token==NULL) return NULL;
   hashcode=str_hash(token);
-  idx=hashcode % HASHSIZE;
+  idx=hashcode % xctx->hash_size;
   entry=table[idx];
   preventry=&table[idx];
   while(1)
@@ -626,7 +629,7 @@ void str_hash_free(Str_hashentry **table)
 {
   int i;
 
-  for(i=0;i<HASHSIZE;i++)
+  for(i=0;i<xctx->hash_size;i++)
   {
     str_hash_free_entry( table[i] );
     table[i] = NULL;
@@ -634,7 +637,6 @@ void str_hash_free(Str_hashentry **table)
 }
 
 /* GENERIC PURPOSE INT HASH TABLE */
-
 
 /*    token        value      what    ... what ...
  * --------------------------------------------------------------------------
@@ -655,7 +657,7 @@ Int_hashentry *int_hash_lookup(Int_hashentry **table, const char *token, const i
 
   if(token==NULL) return NULL;
   hashcode=str_hash(token);
-  idx=hashcode % HASHSIZE;
+  idx=hashcode % xctx->hash_size;
   entry=table[idx];
   preventry=&table[idx];
   while(1)
@@ -710,7 +712,7 @@ void int_hash_free(Int_hashentry **table)
 {
   int i;
 
-  for(i=0;i<HASHSIZE;i++)
+  for(i=0;i<xctx->hash_size;i++)
   {
     int_hash_free_entry( table[i] );
     table[i] = NULL;

@@ -92,6 +92,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  int split_f;
  const char *fmt_attr = NULL;
 
+ xctx->hash_size = HASHSIZE;
  split_f = tclgetboolvar("split_files");
  xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */

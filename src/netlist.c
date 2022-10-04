@@ -622,6 +622,123 @@ int record_global_node(int what, FILE *fp, char *node)
  return 0;
 }
 
+
+/* name nets that are attached to symbols with duplicated pins.
+ * if another duplicated pin is attached to a named net/label/pin get name from there */
+static void name_pass_through_nets()
+{
+  int i, j, rects, rot, flip, sqx, sqy, changed = 0;
+  double x0, y0, rx1, ry1;
+  char *type = NULL, *type2 = NULL;
+  xRect *rct;
+  Wireentry *wptr;
+  Instpinentry *iptr;
+  xInstance * const inst = xctx->inst;
+  int const instances = xctx->instances;
+  Str_hashentry *table[17];
+  Str_hashentry *entry;
+  const char *pin_name;
+
+  xctx->hash_size = 17;
+  do { /* keep looping until propagation of nets occurs */
+    changed = 0;
+    memset(table, 0, xctx->hash_size * sizeof(Str_hashentry *));
+    for (i=0;i<instances;i++) {
+      dbg(1, "instance %d: %s\n", i, inst[i].instname);
+      if(inst[i].ptr<0) continue;
+      my_strdup(1565, &type, (inst[i].ptr + xctx->sym)->type);
+      if (type && !IS_LABEL_OR_PIN(type) ) {
+        if ((rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0) {
+          /* 1st loop: hash symbol pins that are attached to named nets/pins/labels */
+          for (j=0;j<rects;j++) {
+            rct=(inst[i].ptr+ xctx->sym)->rect[PINLAYER];
+            x0=(rct[j].x1+rct[j].x2)/2;
+            y0=(rct[j].y1+rct[j].y2)/2;
+            rot=inst[i].rot;
+            flip=inst[i].flip;
+            ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
+            x0=inst[i].x0+rx1;
+            y0=inst[i].y0+ry1;
+            get_square(x0, y0, &sqx, &sqy);
+            pin_name = get_tok_value(rct[j].prop_ptr, "name", 0);
+            /* find attached nets */
+            wptr = xctx->wire_spatial_table[sqx][sqy];
+            while(wptr) {
+              if (touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
+                xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0)) {
+                if(xctx->wire[wptr->n].node) {
+                   dbg(1, "pin_name=%s, node=%s\n", pin_name, xctx->wire[wptr->n].node);
+                   entry = str_hash_lookup(table, pin_name, xctx->wire[wptr->n].node, XINSERT_NOREPLACE);
+                   if(entry) signal_short(xctx->wire[wptr->n].node, entry->value);
+                }
+              }
+              wptr=wptr->next;
+            }
+            /* find attached pins/labels */
+            iptr=xctx->instpin_spatial_table[sqx][sqy];
+            while (iptr) {
+              if (iptr->n == i || inst[iptr->n].ptr < 0) {
+                iptr=iptr->next;
+                continue;
+              }
+              my_strdup(1566, &type2, (inst[iptr->n].ptr + xctx->sym)->type);
+              if (!type2 || !IS_LABEL_OR_PIN(type2) ) {
+                iptr=iptr->next;
+                continue;
+              }
+              if ((iptr->x0==x0) && (iptr->y0==y0)) {
+                if(xctx->inst[iptr->n].node[0]) {
+                   dbg(1, "pin_name=%s, node=%s\n", pin_name, xctx->inst[iptr->n].node[0]);
+                   entry = str_hash_lookup(table, pin_name, xctx->inst[iptr->n].node[0], XINSERT_NOREPLACE);
+                   if(entry) signal_short(xctx->inst[iptr->n].node[0], entry->value);
+                }
+  
+              }
+              iptr=iptr->next;
+            }
+          } /* for (j=0;j<rects;j++) */
+          /* 2nd loop: if unnamed nets, get name from duplicated pins */
+          for (j=0;j<rects;j++) {
+            rct=(inst[i].ptr+ xctx->sym)->rect[PINLAYER];
+            x0=(rct[j].x1+rct[j].x2)/2;
+            y0=(rct[j].y1+rct[j].y2)/2;
+            rot=inst[i].rot;
+            flip=inst[i].flip;
+            ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
+            x0=inst[i].x0+rx1;
+            y0=inst[i].y0+ry1;
+            get_square(x0, y0, &sqx, &sqy);
+            wptr = xctx->wire_spatial_table[sqx][sqy];
+            pin_name = get_tok_value(rct[j].prop_ptr, "name", 0);
+            while(wptr) {
+              if (touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
+                xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0)) {
+                if(!xctx->wire[wptr->n].node) { /* net is unnamed */
+                   dbg(1, "lookup pin_name=%s\n", pin_name);
+                   entry = str_hash_lookup(table, pin_name, NULL, XLOOKUP);
+                   if(entry) { /* found duplicated pin */
+                     my_strdup(1568,  &xctx->wire[wptr->n].node, entry->value);
+                     my_strdup(1569, &xctx->wire[wptr->n].prop_ptr,
+                     subst_token(xctx->wire[wptr->n].prop_ptr, "lab", entry->value));
+                     wirecheck(wptr->n);
+                     changed = 1;
+                   }
+                }
+              }
+              wptr=wptr->next;
+            }
+          } /* for (j=0;j<rects;j++) */
+        } /* if ((rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0) */
+      } /* if (type && !IS_LABEL_OR_PIN(type) ) */
+      str_hash_free(table);
+    } /* for (i=0;i<instances;i++) */
+  } while(changed);
+  my_free(1570, &type);
+  my_free(1571, &type2);
+  xctx->hash_size = HASHSIZE;
+}
+
+
 void prepare_netlist_structs(int for_netlist)
 {
   xRect *rct;
@@ -669,7 +786,7 @@ void prepare_netlist_structs(int for_netlist)
     statusmsg(nn,2);
   }
   /* reset wire & inst node labels */
-  dbg(2, "prepare_netlist_structs(): rehashing wires and instances in spatial hash table\n");
+  dbg(2, "prepare_netlist_structs(): rehashing wires and instance pins in spatial hash table\n");
   hash_wires();
   for (i=0;i<instances;i++)
   {
@@ -810,6 +927,7 @@ void prepare_netlist_structs(int for_netlist)
     } /* if(type && ... */
   } /* for(i=0;i<instances... */
 
+  name_pass_through_nets(); /* name nets that are attached to symbols with duplicated pins. */
 
   /* name nets that do not touch ipin opin alias instances */
   dbg(2, "prepare_netlist_structs(): naming nets that dont touch labels\n");
@@ -1061,6 +1179,7 @@ int warning_overlapped_symbols(int sel)
   char str[2048];
   char s[512];
 
+  xctx->hash_size = HASHSIZE;
   memset(table, 0, HASHSIZE * sizeof(Int_hashentry *));
   for(i = 0; i < xctx->instances; i++) {
     dbg(1, "instance:%s: %s\n", xctx->inst[i].instname, xctx->inst[i].name);
