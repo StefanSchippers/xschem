@@ -635,38 +635,37 @@ static void name_pass_through_nets()
   Instpinentry *iptr;
   xInstance * const inst = xctx->inst;
   int const instances = xctx->instances;
-  Str_hashentry *table[17];
+  Str_hashtable table = {NULL, 0};
   Str_hashentry *entry;
   const char *pin_name;
   int *pt_symbol = NULL; /* pass-through symbols, symbols with duplicated ports */
   int there_are_pt = 0;
 
-  xctx->hash_size = 17;
-  pt_symbol = my_calloc(1573, xctx->symbols, sizeof(int));
+  pt_symbol = my_calloc(973, xctx->symbols, sizeof(int));
   for(i = 0; i < xctx->symbols; i++) {
-    memset(table, 0, xctx->hash_size * sizeof(Str_hashentry *));
+    str_hash_init(&table, 17);
     for(j = 0; j < xctx->sym[i].rects[PINLAYER]; j++) {
       const char *pin_name = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0);
-      entry = str_hash_lookup(table, pin_name, "1", XINSERT_NOREPLACE);
+      entry = str_hash_lookup(&table, pin_name, "1", XINSERT_NOREPLACE);
       if(entry) {
         pt_symbol[i] = 1;
         there_are_pt = 1;
       }
     }
+    str_hash_free(&table);
     if(pt_symbol[i]) dbg(1, "duplicated pins: %s\n", xctx->sym[i].name);
   }
-  str_hash_free(table);
   if(!there_are_pt) { /* nothing to do: no pass through symbols */
     my_free(1573, &pt_symbol);
     return;
   }
   do { /* keep looping until propagation of nets occurs */
     changed = 0;
-    memset(table, 0, xctx->hash_size * sizeof(Str_hashentry *));
     for (i=0;i<instances;i++) {
       dbg(1, "instance %d: %s\n", i, inst[i].instname);
       if(inst[i].ptr<0) continue;
       if(!pt_symbol[ inst[i].ptr ]) continue;
+      str_hash_init(&table, 17);
       my_strdup(1565, &type, (inst[i].ptr + xctx->sym)->type);
       if (type && !IS_LABEL_OR_PIN(type) ) {
         if ((rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0) {
@@ -689,7 +688,7 @@ static void name_pass_through_nets()
                 xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0)) {
                 if(xctx->wire[wptr->n].node) {
                    dbg(1, "pin_name=%s, node=%s\n", pin_name, xctx->wire[wptr->n].node);
-                   entry = str_hash_lookup(table, pin_name, xctx->wire[wptr->n].node, XINSERT_NOREPLACE);
+                   entry = str_hash_lookup(&table, pin_name, xctx->wire[wptr->n].node, XINSERT_NOREPLACE);
                    if(entry) signal_short(xctx->wire[wptr->n].node, entry->value);
                 }
               }
@@ -710,7 +709,7 @@ static void name_pass_through_nets()
               if ((iptr->x0==x0) && (iptr->y0==y0)) {
                 if(xctx->inst[iptr->n].node[0]) {
                    dbg(1, "pin_name=%s, node=%s\n", pin_name, xctx->inst[iptr->n].node[0]);
-                   entry = str_hash_lookup(table, pin_name, xctx->inst[iptr->n].node[0], XINSERT_NOREPLACE);
+                   entry = str_hash_lookup(&table, pin_name, xctx->inst[iptr->n].node[0], XINSERT_NOREPLACE);
                    if(entry) signal_short(xctx->inst[iptr->n].node[0], entry->value);
                 }
   
@@ -736,7 +735,7 @@ static void name_pass_through_nets()
                 xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0)) {
                 if(!xctx->wire[wptr->n].node) { /* net is unnamed */
                    dbg(1, "lookup pin_name=%s\n", pin_name);
-                   entry = str_hash_lookup(table, pin_name, NULL, XLOOKUP);
+                   entry = str_hash_lookup(&table, pin_name, NULL, XLOOKUP);
                    if(entry) { /* found duplicated pin */
                      my_strdup(1568,  &xctx->wire[wptr->n].node, entry->value);
                      my_strdup(1569, &xctx->wire[wptr->n].prop_ptr,
@@ -751,13 +750,12 @@ static void name_pass_through_nets()
           } /* for (j=0;j<rects;j++) */
         } /* if ((rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0) */
       } /* if (type && !IS_LABEL_OR_PIN(type) ) */
-      str_hash_free(table);
+      str_hash_free(&table);
     } /* for (i=0;i<instances;i++) */
   } while(changed);
   my_free(1570, &type);
   my_free(1571, &type2);
   my_free(1572, &pt_symbol);
-  xctx->hash_size = HASHSIZE;
 }
 
 
@@ -1196,13 +1194,12 @@ void prepare_netlist_structs(int for_netlist)
 int warning_overlapped_symbols(int sel)
 {
   int i;
-  Int_hashentry *table[HASHSIZE];
+  Int_hashtable table = {NULL, 0};
   Int_hashentry *found;
   char str[2048];
   char s[512];
 
-  xctx->hash_size = HASHSIZE;
-  memset(table, 0, HASHSIZE * sizeof(Int_hashentry *));
+  int_hash_init(&table, HASHSIZE);
   for(i = 0; i < xctx->instances; i++) {
     dbg(1, "instance:%s: %s\n", xctx->inst[i].instname, xctx->inst[i].name);
     my_snprintf(s, S(s), "%g %g %g %g",
@@ -1210,7 +1207,7 @@ int warning_overlapped_symbols(int sel)
 
     dbg(1, "  bbox: %g %g %g %g\n", xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2);
     dbg(1, "  s=%s\n", s);
-    found =  int_hash_lookup(table, s, i, XINSERT_NOREPLACE);
+    found =  int_hash_lookup(&table, s, i, XINSERT_NOREPLACE);
     if(found) {
       if(sel == 0) {
         xctx->inst[i].color = -PINLAYER;
@@ -1225,7 +1222,7 @@ int warning_overlapped_symbols(int sel)
       tcleval("show_infotext"); /* critical error: force ERC window showing */
     }
   }
-  int_hash_free(table);
+  int_hash_free(&table);
   if(sel && xctx->need_reb_sel_arr) rebuild_selected_array();
   return 0;
 }

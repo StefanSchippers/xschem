@@ -324,9 +324,7 @@ static void free_xschem_data()
 
   my_free(970, &xctx->node_table);
   my_free(1385, &xctx->inst_table);
-  my_free(1386, &xctx->node_redraw_table);
   my_free(1387, &xctx->hilight_table);
-  my_free(1388, &xctx->graph_raw_table);
 
   my_free(1098, &xctx->wire);
   my_free(1100, &xctx->text);
@@ -470,7 +468,10 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->need_reb_sel_arr = 1;
   xctx->lastsel = 0;
   xctx->maxsel = 0;
-  xctx->hash_size = HASHSIZE;
+  xctx->graph_raw_table.size = 0;
+  xctx->graph_raw_table.table = NULL;
+  xctx->node_redraw_table.size = 0;
+  xctx->node_redraw_table.table = NULL;
   xctx->prep_net_structs = 0;
   xctx->prep_hi_structs = 0;
   xctx->simdata = NULL;
@@ -495,10 +496,8 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
     }
   }
   xctx->node_table = my_calloc(517,  HASHSIZE, sizeof(Node_hashentry *));
-  xctx->node_redraw_table = my_calloc(973,  HASHSIZE, sizeof(Int_hashentry *));
   xctx->inst_table = my_calloc(1382,  HASHSIZE, sizeof(Inst_hashentry *));
   xctx->hilight_table = my_calloc(1383,  HASHSIZE, sizeof(Hilight_hashentry *));
-  xctx->graph_raw_table = my_calloc(1384,  HASHSIZE, sizeof(Int_hashentry *));
 
   xctx->inst_redraw_table = NULL;
   xctx->inst_redraw_table_size = 0;
@@ -665,7 +664,7 @@ static void delete_schematic_data(int delete_pixmap)
 
 int compare_schematics(const char *f)
 {
-  Int_hashentry *table1[HASHSIZE],  *table2[HASHSIZE];
+  Int_hashtable table1 = {NULL, 0},  table2 = {NULL, 0};
   Int_hashentry *found;
   char *s = NULL;
   int i;
@@ -673,9 +672,8 @@ int compare_schematics(const char *f)
   int ret=0; /* ret==0 means no differences found */
   Xschem_ctx *save_xctx;
 
-  xctx->hash_size = HASHSIZE;
-  memset(table1, 0, HASHSIZE * sizeof(Int_hashentry *));
-  memset(table2, 0, HASHSIZE * sizeof(Int_hashentry *));
+  int_hash_init(&table1, HASHSIZE);
+  int_hash_init(&table2, HASHSIZE);
 
   /* set filename of schematic to compare */
   if(f == NULL) {
@@ -697,7 +695,7 @@ int compare_schematics(const char *f)
     my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
         xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip, 
         xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
-    int_hash_lookup(table1, s, i, XINSERT_NOREPLACE);
+    int_hash_lookup(&table1, s, i, XINSERT_NOREPLACE);
   }
   for(i=0;i<xctx->wires;i++)
   {
@@ -705,7 +703,7 @@ int compare_schematics(const char *f)
     my_realloc(1541, &s, l);
     my_snprintf(s, l, "N %g %g %g %g", xctx->wire[i].x1,  xctx->wire[i].y1,
         xctx->wire[i].x2, xctx->wire[i].y2);
-    int_hash_lookup(table1, s, i, XINSERT_NOREPLACE);
+    int_hash_lookup(&table1, s, i, XINSERT_NOREPLACE);
   }
 
 
@@ -759,8 +757,8 @@ int compare_schematics(const char *f)
     my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
         xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip, 
         xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
-    int_hash_lookup(table2, s, i, XINSERT_NOREPLACE);
-    found = int_hash_lookup(table1, s, i, XLOOKUP);
+    int_hash_lookup(&table2, s, i, XINSERT_NOREPLACE);
+    found = int_hash_lookup(&table1, s, i, XLOOKUP);
     if(!found) {
       dbg(1, "schematic 2 instance %d: %s mismatch or not found in schematic 1\n", i,
          xctx->inst[i].instname ? xctx->inst[i].instname : "");
@@ -775,8 +773,8 @@ int compare_schematics(const char *f)
     my_realloc(1535, &s, l);
     my_snprintf(s, l, "N %g %g %g %g", xctx->wire[i].x1,  xctx->wire[i].y1,
         xctx->wire[i].x2, xctx->wire[i].y2);
-    int_hash_lookup(table2, s, i, XINSERT_NOREPLACE);
-    found = int_hash_lookup(table1, s, i, XLOOKUP);
+    int_hash_lookup(&table2, s, i, XINSERT_NOREPLACE);
+    found = int_hash_lookup(&table1, s, i, XLOOKUP);
     if(!found) {
       dbg(1, "schematic 2 net %d: %s mismatch or not found in schematic 1\n", i,
          xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
@@ -805,7 +803,7 @@ int compare_schematics(const char *f)
     my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
         xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip,
         xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
-    found = int_hash_lookup(table2, s, i, XLOOKUP);
+    found = int_hash_lookup(&table2, s, i, XLOOKUP);
     if(!found) {
       xctx->inst[i].sel = SELECTED;
       xctx->need_reb_sel_arr=1;
@@ -818,15 +816,15 @@ int compare_schematics(const char *f)
     my_realloc(1537, &s, l);
     my_snprintf(s, l, "N %g %g %g %g", xctx->wire[i].x1,  xctx->wire[i].y1,
         xctx->wire[i].x2, xctx->wire[i].y2);
-    found = int_hash_lookup(table2, s, i, XLOOKUP);
+    found = int_hash_lookup(&table2, s, i, XLOOKUP);
     if(!found) {
       xctx->wire[i].sel = SELECTED;
       xctx->need_reb_sel_arr=1;
       ret = 1;
     }
   }
-  int_hash_free(table1);
-  int_hash_free(table2);
+  int_hash_free(&table1);
+  int_hash_free(&table2);
   rebuild_selected_array();
   draw_selection(xctx->gc[SELLAYER], 0);
   my_free(1531, &s);

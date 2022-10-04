@@ -22,7 +22,7 @@
 
 #include "xschem.h"
 
-static Str_hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
+static Str_hashtable subckt_table = {NULL, 0}; /* safe even with multiple schematics */
 
 static void vhdl_netlist(FILE *fd , int vhdl_stop)
 {
@@ -130,7 +130,6 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  char *abs_path = NULL;
  int split_f;
 
- xctx->hash_size = HASHSIZE;
  split_f = tclgetboolvar("split_files");
  xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
@@ -139,7 +138,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  /* to be printed before any entity declarations */
 
  xctx->netlist_count=0;
- str_hash_free(subckt_table);
+ str_hash_init(&subckt_table, HASHSIZE);
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
    tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]), getpid());
  fd=fopen(netl_filename, "w");
@@ -349,8 +348,8 @@ void global_vhdl_netlist(int global)  /* netlister driver */
   {
    /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
    my_strdup(317, &subckt_name, get_cell(xctx->sym[j].name, 0));
-   if (str_hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL) {
-     str_hash_lookup(subckt_table, subckt_name, "", XINSERT);
+   if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL) {
+     str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
      /* component generics */
      print_generic(fd,"component", j);
 
@@ -382,7 +381,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
   }
   my_free(1241, &abs_path);
  }
- str_hash_free(subckt_table);
+ str_hash_free(&subckt_table);
  my_free(1086, &subckt_name);
 
  dbg(1, "global_vhdl_netlist(): netlisting  top level\n");
@@ -429,6 +428,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  if(global)
  {
    int saved_hilight_nets = xctx->hilight_nets;
+   str_hash_init(&subckt_table, HASHSIZE);
    unselect_all(1);
    remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
    /* reload data without popping undo stack, this populates embedded symbols if any */
@@ -450,9 +450,9 @@ void global_vhdl_netlist(int global)  /* netlister driver */
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(327, &subckt_name, get_cell(xctx->sym[i].name, 0));
-      if (str_hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)
+      if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
-        str_hash_lookup(subckt_table, subckt_name, "", XINSERT);
+        str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         if( split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_netlist",0),"true")==0 )
           verilog_block_netlist(fd, i);
         else if( split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_netlist",0),"true")==0 )
@@ -464,7 +464,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
     }
     my_free(1243, &abs_path);
    }
-   str_hash_free(subckt_table);
+   str_hash_free(&subckt_table);
    my_free(1087, &subckt_name);
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
    xctx->currsch--;

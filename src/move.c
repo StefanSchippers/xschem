@@ -492,15 +492,16 @@ void find_inst_to_be_redrawn(int what)
 
   int s_pnetname = tclgetboolvar("show_pin_net_names");
 
-  xctx->hash_size = HASHSIZE;
+  
   dbg(1,"find_inst_to_be_redrawn(): what=%d\n", what);
   if(what & 16) {
     my_free(1202, &xctx->inst_redraw_table);
     xctx->inst_redraw_table_size = 0;
-    if((s_pnetname || xctx->hilight_nets)) int_hash_free(xctx->node_redraw_table);
+    if((s_pnetname || xctx->hilight_nets)) int_hash_free(&xctx->node_redraw_table);
     return;
   }
   if((s_pnetname || xctx->hilight_nets)) {
+    if(xctx->node_redraw_table.table == NULL)  int_hash_init(&xctx->node_redraw_table, HASHSIZE);
     if(what & 32) prepare_netlist_structs(0);
     if(!(what & 8)) {
       for(i=0;i<xctx->lastsel;i++)
@@ -514,14 +515,14 @@ void find_inst_to_be_redrawn(int what)
             for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
               if( inst[n].node && inst[n].node[p]) {
                 dbg(1,"find_inst_to_be_redrawn(): hashing inst %s, node %s\n", inst[n].instname, inst[n].node[p]);
-                int_hash_lookup(xctx->node_redraw_table, xctx->inst[n].node[p], 0, XINSERT_NOREPLACE);
+                int_hash_lookup(&xctx->node_redraw_table, xctx->inst[n].node[p], 0, XINSERT_NOREPLACE);
               }
             }
           }
         }
         /* collect all nodes connected to selected wires (node names will change if wire deleted/moved) */
         if(xctx->sel_array[i].type == WIRE) {
-          int_hash_lookup(xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
+          int_hash_lookup(&xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
         }
       }
     } /* if(!(what & 8)) */
@@ -544,7 +545,7 @@ void find_inst_to_be_redrawn(int what)
       }
       for(p = 0; p < rects; p++) {
         if(xctx->inst[i].node && xctx->inst[i].node[p]) {
-          nentry = int_hash_lookup(xctx->node_redraw_table, xctx->inst[i].node[p], 0, XLOOKUP);
+          nentry = int_hash_lookup(&xctx->node_redraw_table, xctx->inst[i].node[p], 0, XLOOKUP);
           if(nentry) {
             dbg(1, "find_inst_to_be_redrawn(): 2 bboxing inst %s\n", xctx->inst[i].instname);
             if(what & 1) bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
@@ -561,7 +562,7 @@ void find_inst_to_be_redrawn(int what)
   
     if(what & 5) for(i=0;i < xctx->wires; i++) {
       if(xctx->wire[i].node) {
-        nentry = int_hash_lookup(xctx->node_redraw_table, xctx->wire[i].node, 0, XLOOKUP);
+        nentry = int_hash_lookup(&xctx->node_redraw_table, xctx->wire[i].node, 0, XLOOKUP);
         if(nentry) {
           if(xctx->wire[i].bus){
             double ov, y1, y2;

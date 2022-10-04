@@ -599,6 +599,7 @@ struct inst_hashentry
 };
 
 /* generic string hash table */
+
 typedef struct str_hashentry Str_hashentry;
 struct str_hashentry
 {
@@ -607,6 +608,11 @@ struct str_hashentry
   char *token;
   char *value;
 };
+
+typedef struct {
+  Str_hashentry **table;
+  int size;
+} Str_hashtable;
 
 /* generic int hash table */
 typedef struct int_hashentry Int_hashentry;
@@ -617,6 +623,12 @@ struct int_hashentry
   char *token;
   int value;
 };
+
+typedef struct {
+  Int_hashentry **table;
+  int size;
+} Int_hashtable;
+
 
 typedef struct node_hashentry Node_hashentry;
 struct node_hashentry
@@ -770,7 +782,6 @@ typedef struct {
   int need_reb_sel_arr;
   int lastsel;
   int maxsel;
-  int hash_size; /* used in str_hash_lookup and int_hash_lookup */
   Selected *sel_array;
   int prep_net_structs;
   int prep_hi_structs;
@@ -824,7 +835,7 @@ typedef struct {
   char sel_or_clip[PATH_MAX];
   int onetime;
   /* list of nodes, instances attached to these need redraw */
-  Int_hashentry **node_redraw_table;
+  Int_hashtable node_redraw_table;
   /* list of instances, collected using previous table, that need redraw */
   unsigned char *inst_redraw_table;
   int inst_redraw_table_size;
@@ -909,7 +920,7 @@ typedef struct {
   int graph_lastsel; /* last graph that was clicked (selected) */
   const char *graph_sim_type; /* type of sim, "tran", "dc", "ac", "op", ... */
   int graph_annotate_p; /* point in raw file to use for annotating schematic voltages/currents/etc */
-  Int_hashentry **graph_raw_table;
+  Int_hashtable graph_raw_table;
   /* when descending hierarchy xctx->current_name changes, xctx->graph_raw_schname
    * holds the name of the top schematic from which the raw file was loaded */
   char *graph_raw_schname;
@@ -1279,11 +1290,13 @@ extern void check_unique_names(int rename);
 extern void clear_instance_hash();
 
 extern unsigned int str_hash(const char *tok);
-extern void str_hash_free(Str_hashentry **table);
-extern Str_hashentry *str_hash_lookup(Str_hashentry **table,
+extern void str_hash_free(Str_hashtable *hashtable);
+extern Str_hashentry *str_hash_lookup(Str_hashtable *hashtable,
        const char *token, const char *value, int what);
-extern void int_hash_free(Int_hashentry **table);
-extern Int_hashentry *int_hash_lookup(Int_hashentry **table,
+extern void str_hash_init(Str_hashtable *hashtable, int size);
+extern void int_hash_init(Int_hashtable *hashtable, int size);
+extern void int_hash_free(Int_hashtable *hashtable);
+extern Int_hashentry *int_hash_lookup(Int_hashtable *hashtable,
        const char *token, const int value, int what);
 
 extern char *find_nth(const char *str, const char *sep, int n);

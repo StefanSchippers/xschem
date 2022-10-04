@@ -1853,7 +1853,6 @@ void new_wire(int what, double mx_snap, double my_snap)
 {
   int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
   int s_pnetname;
-  xctx->hash_size = HASHSIZE;
   if( (what & PLACE) ) {
     s_pnetname = tclgetboolvar("show_pin_net_names");
     if( (xctx->ui_state & STARTWIRE) && (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) ) {
@@ -1907,7 +1906,8 @@ void new_wire(int what, double mx_snap, double my_snap)
                                      * this clears both xctx->prep_hi_structs and xctx->prep_net_structs. */
         if(!big) {
           bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
-          int_hash_lookup(xctx->node_redraw_table,  xctx->wire[xctx->wires-1].node, 0, XINSERT_NOREPLACE);
+          if(xctx->node_redraw_table.table == NULL)  int_hash_init(&xctx->node_redraw_table, HASHSIZE);
+          int_hash_lookup(&(xctx->node_redraw_table),  xctx->wire[xctx->wires-1].node, 0, XINSERT_NOREPLACE);
         } 
         if(!big) {
           find_inst_to_be_redrawn(1 + 4 + 8); /* add bboxes before and after symbol_bbox, don't use selection */

@@ -304,7 +304,6 @@ static int read_dataset(FILE *fd, const char *type)
   int n = 0, done_header = 0, ac = 0;
   int exit_status = 0, npoints, nvars;
   int dbglev=1;
-  xctx->hash_size = HASHSIZE;
   xctx->graph_sim_type = NULL;
   dbg(1, "read_dataset(): type=%s\n", type ? type : "<NULL>");
   while((fgets(line, sizeof(line), fd)) ) {
@@ -397,7 +396,7 @@ static int read_dataset(FILE *fd, const char *type)
       n = sscanf(line, "No. Variables: %d", &nvars);
       dbg(dbglev, "read_dataset(): nvars=%d\n", nvars);
 
-      if(xctx->graph_datasets > 0  && xctx->graph_nvars != nvars) {
+      if(xctx->graph_datasets > 0  && xctx->graph_nvars != nvars && xctx->graph_sim_type) {
         dbg(0, "Xschem requires all datasets to be saved with identical and same number of variables\n");
         dbg(0, "There is a mismatch, so this and following datasets will not be read\n");
         return 1;
@@ -447,15 +446,15 @@ static int read_dataset(FILE *fd, const char *type)
       }
       if(xctx->graph_sim_type && !strcmp(xctx->graph_sim_type, "ac")) { /* AC */
         my_strcat(415, &xctx->graph_names[i << 1], varname);
-        int_hash_lookup(xctx->graph_raw_table, xctx->graph_names[i << 1], (i << 1), XINSERT_NOREPLACE);
+        int_hash_lookup(&xctx->graph_raw_table, xctx->graph_names[i << 1], (i << 1), XINSERT_NOREPLACE);
         if(strstr(varname, "v(") == varname || strstr(varname, "i(") == varname)
           my_mstrcat(664, &xctx->graph_names[(i << 1) + 1], "ph(", varname + 2, NULL);
         else
           my_mstrcat(540, &xctx->graph_names[(i << 1) + 1], "ph(", varname, ")", NULL);
-        int_hash_lookup(xctx->graph_raw_table, xctx->graph_names[(i << 1) + 1], (i << 1) + 1, XINSERT_NOREPLACE);
+        int_hash_lookup(&xctx->graph_raw_table, xctx->graph_names[(i << 1) + 1], (i << 1) + 1, XINSERT_NOREPLACE);
       } else {
         my_strcat(541, &xctx->graph_names[i], varname);
-        int_hash_lookup(xctx->graph_raw_table, xctx->graph_names[i], i, XINSERT_NOREPLACE);
+        int_hash_lookup(&xctx->graph_raw_table, xctx->graph_names[i], i, XINSERT_NOREPLACE);
       }
       /* use hash table to store index number of variables */
       dbg(dbglev, "read_dataset(): get node list -> names[%d] = %s\n", i, xctx->graph_names[i]);
@@ -477,7 +476,6 @@ void free_rawfile(int dr)
   int i;
 
   int deleted = 0;
-  xctx->hash_size = HASHSIZE;
   if(xctx->graph_names) {
     deleted = 1;
     for(i = 0 ; i < xctx->graph_nvars; i++) {
@@ -501,7 +499,7 @@ void free_rawfile(int dr)
   xctx->graph_datasets = 0;
   xctx->graph_nvars = 0;
   xctx->graph_annotate_p = -1;
-  int_hash_free(xctx->graph_raw_table);
+  if(xctx->graph_raw_table.table) int_hash_free(&xctx->graph_raw_table);
   if(deleted && dr) draw();
 }
 
@@ -570,6 +568,7 @@ int raw_read(const char *f, const char *type)
 {
   int res = 0;
   FILE *fd;
+  int_hash_init(&xctx->graph_raw_table, HASHSIZE);
   if(xctx->graph_values || xctx->graph_npoints || xctx->graph_nvars || xctx->graph_datasets) {
     dbg(0, "raw_read(): must clear current raw file before loading new\n");
     return res;
@@ -608,21 +607,20 @@ int get_raw_index(const char *node)
 
 
   dbg(1, "get_raw_index(): node=%s\n", node);
-  xctx->hash_size = HASHSIZE;
   if(sch_waves_loaded() >= 0) {
     my_strncpy(inode, node, S(inode));
     strtolower(inode);
-    entry = int_hash_lookup(xctx->graph_raw_table, inode, 0, XLOOKUP);
+    entry = int_hash_lookup(&xctx->graph_raw_table, inode, 0, XLOOKUP);
     if(!entry) {
       my_snprintf(vnode, S(vnode), "v(%s)", inode);
-      entry = int_hash_lookup(xctx->graph_raw_table, vnode, 0, XLOOKUP);
+      entry = int_hash_lookup(&xctx->graph_raw_table, vnode, 0, XLOOKUP);
     }
     if(!entry && strstr(inode, "i(v.x")) {
       char *ptr = inode;
       inode[2] = 'i';
       inode[3] = '(';
       ptr += 2;
-      entry = int_hash_lookup(xctx->graph_raw_table, ptr, 0, XLOOKUP);
+      entry = int_hash_lookup(&xctx->graph_raw_table, ptr, 0, XLOOKUP);
     }
     if(entry) return entry->value;
   }
@@ -2446,14 +2444,13 @@ void pop_undo(int redo, int set_modify_status)
  * if pintable given (!=NULL) hash all symbol pins
  * if embed_fd is not NULL read symbol from embedded '[...]' tags using embed_fd file pointer */
 static void get_sym_type(const char *symname, char **type, 
-                         Int_hashentry **pintable, FILE *embed_fd, int *sym_n_pins)
+                         Int_hashtable *pintable, FILE *embed_fd, int *sym_n_pins)
 {
   int i, c, n = 0;
   char name[PATH_MAX];
   FILE *fd;
   char tag[1];
   int found = 0;
-  xctx->hash_size = HASHSIZE;
   if(!strcmp(xctx->file_version,"1.0")) {
     my_strncpy(name, abs_sym_path(symname, ".sym"), S(name));
   } else {
@@ -2550,14 +2547,13 @@ static void align_sch_pins_with_sym(const char *name, int pos)
   char *symtype = NULL;
   const char *pinname;
   int i, fail = 0, sym_n_pins=0;
-  Int_hashentry *pintable[HASHSIZE];
+  Int_hashtable pintable = {NULL, 0};
 
-  xctx->hash_size = HASHSIZE;
   if ((ptr = strrchr(name, '.')) && !strcmp(ptr, ".sch")) {
     my_strncpy(symname, add_ext(name, ".sym"), S(symname));
-    memset(pintable, 0, HASHSIZE * sizeof(Int_hashentry *));
+    int_hash_init(&pintable, HASHSIZE);
     /* hash all symbol pins with their position into pintable hash*/
-    get_sym_type(symname, &symtype, pintable, NULL, &sym_n_pins);
+    get_sym_type(symname, &symtype, &pintable, NULL, &sym_n_pins);
     if(symtype[0]) { /* found a .sym for current .sch LCC instance */
       xRect *rect = NULL;
       if (sym_n_pins!=xctx->sym[pos].rects[PINLAYER]) {
@@ -2570,7 +2566,7 @@ static void align_sch_pins_with_sym(const char *name, int pos)
       for(i=0; i < xctx->sym[pos].rects[PINLAYER]; i++) {
         Int_hashentry *entry;
         pinname = get_tok_value(xctx->sym[pos].rect[PINLAYER][i].prop_ptr, "name", 0);
-        entry = int_hash_lookup(pintable, pinname, 0 , XLOOKUP);
+        entry = int_hash_lookup(&pintable, pinname, 0 , XLOOKUP);
         if(!entry) {
           dbg(0, " align_sch_pins_with_sym(): warning: pin mismatch between %s and %s : %s\n",
             name, symname, pinname);
@@ -2586,9 +2582,9 @@ static void align_sch_pins_with_sym(const char *name, int pos)
           xctx->sym[pos].rect[PINLAYER][i] = rect[i];
         }
       }
-      int_hash_free(pintable);
       my_free(1169, &rect);
     }
+    int_hash_free(&pintable);
     my_free(1170, &symtype);
   }
 }

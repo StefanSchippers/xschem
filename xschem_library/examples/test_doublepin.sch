@@ -57,30 +57,30 @@ N 450 -1130 600 -1130 {
 lab=AA}
 N 450 -1110 600 -1110 {
 lab=BB}
-N 450 -410 600 -410 {
+N 450 -410 630 -410 {
 lab=RRSSTT}
-N 450 -390 600 -390 {
+N 450 -390 630 -390 {
 lab=CCKK}
-N 450 -370 600 -370 {
+N 450 -370 630 -370 {
 lab=AA}
-N 450 -350 600 -350 {
+N 450 -350 630 -350 {
 lab=BB}
 N 450 -310 480 -310 {
 lab=ZZ7}
-N 900 -310 930 -310 {
+N 600 -310 630 -310 {
 lab=ZZ8}
-N 900 -410 1050 -410 {
+N 930 -410 1050 -410 {
 lab=RRSSTT}
-N 900 -390 1050 -390 {
+N 930 -390 1050 -390 {
 lab=CCKK}
-N 900 -370 1050 -370 {
+N 930 -370 1050 -370 {
 lab=AA}
-N 900 -350 1050 -350 {
+N 930 -350 1050 -350 {
 lab=BB}
 N 1350 -310 1380 -310 {
 lab=ZZ9}
 C {doublepin.sym} 1200 -360 0 0 {name=x9}
-C {doublepin.sym} 750 -360 0 0 {name=x8}
+C {doublepin.sym} 780 -360 0 1 {name=x8}
 C {doublepin.sym} 750 -610 0 0 {name=x2}
 C {lab_wire.sym} 520 -620 0 0 {name=l2 sig_type=std_logic lab=AA}
 C {lab_pin.sym} 480 -560 0 1 {name=p3 lab=ZZ5}
@@ -119,7 +119,7 @@ C {lab_wire.sym} 520 -1110 0 0 {name=l25 sig_type=std_logic lab=BB}
 C {lab_pin.sym} 150 -350 0 0 {name=l33 sig_type=std_logic lab=BB}
 C {doublepin.sym} 300 -610 0 0 {name=x1}
 C {lab_pin.sym} 480 -310 0 1 {name=p7 lab=ZZ7}
-C {lab_pin.sym} 930 -310 0 1 {name=p8 lab=ZZ8}
+C {lab_pin.sym} 600 -310 0 0 {name=p8 lab=ZZ8}
 C {lab_pin.sym} 150 -370 0 0 {name=l30 sig_type=std_logic lab=AA}
 C {lab_pin.sym} 150 -410 0 0 {name=l31 sig_type=std_logic lab=RRSSTT}
 C {lab_pin.sym} 150 -390 0 0 {name=l32 sig_type=std_logic lab=CCKK}

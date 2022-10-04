@@ -22,9 +22,9 @@
 
 #include "xschem.h"
 
-static Str_hashentry *model_table[HASHSIZE]; /* safe even with multiple schematics */
+static Str_hashtable model_table = {NULL, 0}; /* safe even with multiple schematics */
 static Str_hashentry *model_entry; /* safe even with multiple schematics */
-static Str_hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
+static Str_hashtable subckt_table = {NULL, 0}; /* safe even with multiple schematics */
 
 void hier_psprint(void)  /* netlister driver */
 {
@@ -33,10 +33,9 @@ void hier_psprint(void)  /* netlister driver */
   char filename[PATH_MAX];
   char *abs_path = NULL;
  
-  xctx->hash_size = HASHSIZE;
   if(!ps_draw(1)) return; /* prolog */
   xctx->push_undo();
-  str_hash_free(subckt_table);
+  str_hash_init(&subckt_table, HASHSIZE);
   zoom_full(0, 0, 1, 0.97);
   ps_draw(2); /* page */
   dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
@@ -59,9 +58,9 @@ void hier_psprint(void)  /* netlister driver */
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(1228, &subckt_name, get_cell(xctx->sym[i].name, 0));
-      if (str_hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)
+      if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
-        str_hash_lookup(subckt_table, subckt_name, "", XINSERT);
+        str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         get_sch_from_sym(filename, xctx->sym + i);
         /* for printing we go down to bottom regardless of spice_stop attribute */
         load_schematic(1,filename, 0);
@@ -72,7 +71,7 @@ void hier_psprint(void)  /* netlister driver */
     }
   }
   my_free(1231, &abs_path);
-  str_hash_free(subckt_table);
+  str_hash_free(&subckt_table);
   my_free(1229, &subckt_name);
   my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
   xctx->currsch--;
@@ -113,7 +112,6 @@ static void spice_netlist(FILE *fd, int spice_stop )
   char *type=NULL;
   int top_sub;
 
-  xctx->hash_size = HASHSIZE; 
   top_sub = tclgetboolvar("top_subckt");
   if(!spice_stop) {
     xctx->prep_net_structs = 0;
@@ -167,10 +165,10 @@ static void spice_netlist(FILE *fd, int spice_stop )
          if(print_spice_element(fd, i)) fprintf(fd, "**** end_element\n");
          /* hash device_model attribute if any */
          m = get_tok_value(xctx->inst[i].prop_ptr, "device_model", 0);
-         if(m[0]) str_hash_lookup(model_table, model_name(m), m, XINSERT);
+         if(m[0]) str_hash_lookup(&model_table, model_name(m), m, XINSERT);
          else {
            m = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "device_model", 0);
-           if(m[0]) str_hash_lookup(model_table, model_name(m), m, XINSERT);
+           if(m[0]) str_hash_lookup(&model_table, model_name(m), m, XINSERT);
          }
          my_free(951, &model_name_result);
        }
@@ -199,14 +197,13 @@ void global_spice_netlist(int global)  /* netlister driver */
  int top_sub;
  int split_f;
 
- xctx->hash_size = HASHSIZE;
  split_f = tclgetboolvar("split_files");
  top_sub = tclgetboolvar("top_subckt");
  xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
- str_hash_free(subckt_table);
- str_hash_free(model_table);
+ str_hash_init(&subckt_table, HASHSIZE);
+ str_hash_init(&model_table, HASHSIZE);
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
  top_sub = 0;
  /* tclsetvar("spiceprefix", "1"); */
@@ -372,9 +369,9 @@ void global_spice_netlist(int global)  /* netlister driver */
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(391, &subckt_name, get_cell(xctx->sym[i].name, 0));
-      if (str_hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)
+      if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
-        str_hash_lookup(subckt_table, subckt_name, "", XINSERT);
+        str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         if( split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
           vhdl_block_netlist(fd, i);
         else if(split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_netlist",0),"true")==0 )
@@ -386,7 +383,7 @@ void global_spice_netlist(int global)  /* netlister driver */
     }
     my_free(1233, &abs_path);
    }
-   str_hash_free(subckt_table);
+   str_hash_free(&subckt_table);
    my_free(944, &subckt_name);
    /*clear_drawing(); */
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
@@ -438,8 +435,8 @@ void global_spice_netlist(int global)  /* netlister driver */
 
  }
  /* print device_model attributes */
- for(i=0;i<xctx->hash_size; i++) {
-   model_entry=model_table[i];
+ for(i=0;i<model_table.size; i++) {
+   model_entry=model_table.table[i];
    while(model_entry) {
      if(first == 0) fprintf(fd,"**** begin user architecture code\n");
      first++;
@@ -447,7 +444,7 @@ void global_spice_netlist(int global)  /* netlister driver */
      model_entry = model_entry->next;
    }
  }
- str_hash_free(model_table);
+ str_hash_free(&model_table);
  if(first) fprintf(fd,"**** end user architecture code\n");
 
 
@@ -563,15 +560,17 @@ void spice_block_netlist(FILE *fd, int i)
  *                                      return NULL if not found
  * "whatever"    "whatever"  XDELETE     delete entry if found,return NULL
  */
-Str_hashentry *str_hash_lookup(Str_hashentry **table, const char *token, const char *value, int what)
+Str_hashentry *str_hash_lookup(Str_hashtable *hashtable, const char *token, const char *value, int what)
 {
   unsigned int hashcode, idx;
   Str_hashentry *entry, *saveptr, **preventry;
   int s ;
+  int size = hashtable->size;
+  Str_hashentry **table = hashtable->table;
 
-  if(token==NULL) return NULL;
+  if(token==NULL || size == 0 || table == NULL) return NULL;
   hashcode=str_hash(token);
-  idx=hashcode % xctx->hash_size;
+  idx=hashcode % size;
   entry=table[idx];
   preventry=&table[idx];
   while(1)
@@ -612,6 +611,15 @@ Str_hashentry *str_hash_lookup(Str_hashentry **table, const char *token, const c
   }
 }
 
+void str_hash_init(Str_hashtable *hashtable, int size)
+{
+  if(hashtable->size !=0 || hashtable->table != NULL) {
+    dbg(0, "str_hash_init(): Warning hash table not empty, possible data leak\n");
+  }
+  hashtable->size = size;
+  hashtable->table = my_calloc(1574, size, sizeof(Str_hashentry *));
+}
+
 static void str_hash_free_entry(Str_hashentry *entry)
 {
   Str_hashentry *tmp;
@@ -625,14 +633,18 @@ static void str_hash_free_entry(Str_hashentry *entry)
 }
 
 
-void str_hash_free(Str_hashentry **table)
+void str_hash_free(Str_hashtable *hashtable)
 {
-  int i;
-
-  for(i=0;i<xctx->hash_size;i++)
-  {
-    str_hash_free_entry( table[i] );
-    table[i] = NULL;
+  if(hashtable->table) {
+    int i;
+    Str_hashentry **table = hashtable->table;
+    for(i=0;i < hashtable->size;i++)
+    {
+      str_hash_free_entry( table[i] );
+      table[i] = NULL;
+    }
+    my_free(1384, &(hashtable->table));
+    hashtable->size = 0;
   }
 }
 
@@ -649,15 +661,17 @@ void str_hash_free(Str_hashentry **table)
  *                                       return NULL if not found
  * "whatever"    "whatever"  XDELETE     delete entry if found,return NULL
  */
-Int_hashentry *int_hash_lookup(Int_hashentry **table, const char *token, const int value, int what)
+Int_hashentry *int_hash_lookup(Int_hashtable *hashtable, const char *token, const int value, int what)
 {
   unsigned int hashcode, idx;
   Int_hashentry *entry, *saveptr, **preventry;
   int s ;
+  int size = hashtable->size;
+  Int_hashentry **table = hashtable->table;
 
-  if(token==NULL) return NULL;
+  if(token==NULL || size == 0 || table == NULL) return NULL;
   hashcode=str_hash(token);
-  idx=hashcode % xctx->hash_size;
+  idx=hashcode % size;
   entry=table[idx];
   preventry=&table[idx];
   while(1)
@@ -696,6 +710,15 @@ Int_hashentry *int_hash_lookup(Int_hashentry **table, const char *token, const i
   }
 }
 
+void int_hash_init(Int_hashtable *hashtable, int size)
+{
+  if(hashtable->size !=0 || hashtable->table != NULL) {
+    dbg(0, "int_hash_init(): Warning hash table not empty, possible data leak\n");
+  }
+  hashtable->size = size;
+  hashtable->table = my_calloc(1576, size, sizeof(Int_hashentry *));
+}
+
 static void int_hash_free_entry(Int_hashentry *entry)
 {
   Int_hashentry *tmp;
@@ -708,14 +731,17 @@ static void int_hash_free_entry(Int_hashentry *entry)
 }
 
 
-void int_hash_free(Int_hashentry **table)
+void int_hash_free(Int_hashtable *hashtable)
 {
-  int i;
-
-  for(i=0;i<xctx->hash_size;i++)
-  {
-    int_hash_free_entry( table[i] );
-    table[i] = NULL;
+  if(hashtable->table) {
+    int i;
+    Int_hashentry **table = hashtable->table;
+    for(i=0;i < hashtable->size;i++)
+    {
+      int_hash_free_entry( table[i] );
+      table[i] = NULL;
+    }
+    my_free(1575, &(hashtable->table));
+    hashtable->size = 0;
   }
 }
-

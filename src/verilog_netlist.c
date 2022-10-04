@@ -21,7 +21,7 @@
  */
 
 #include "xschem.h"
-static Str_hashentry *subckt_table[HASHSIZE]; /* safe even with multiple schematics */
+static Str_hashtable subckt_table = {NULL, 0}; /* safe even with multiple schematics */
 
 static void verilog_netlist(FILE *fd , int verilog_stop)
 {
@@ -92,12 +92,11 @@ void global_verilog_netlist(int global)  /* netlister driver */
  int split_f;
  const char *fmt_attr = NULL;
 
- xctx->hash_size = HASHSIZE;
  split_f = tclgetboolvar("split_files");
  xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
- str_hash_free(subckt_table);
+ str_hash_init(&subckt_table, HASHSIZE);
  xctx->netlist_count=0;
  /* top sch properties used for library use declarations and type definitions */
  /* to be printed before any entity declarations */
@@ -356,9 +355,9 @@ void global_verilog_netlist(int global)  /* netlister driver */
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path)) {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(328, &subckt_name, get_cell(xctx->sym[i].name, 0));
-      if (str_hash_lookup(subckt_table, subckt_name, "", XLOOKUP)==NULL)
+      if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
-        str_hash_lookup(subckt_table, subckt_name, "", XINSERT);
+        str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         if( split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
           vhdl_block_netlist(fd, i);
         else if(split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_netlist",0),"true")==0 )
@@ -370,7 +369,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
     }
    }
    my_free(1235, &abs_path);
-   str_hash_free(subckt_table);
+   str_hash_free(&subckt_table);
    my_free(1073, &subckt_name);
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
    xctx->currsch--;
