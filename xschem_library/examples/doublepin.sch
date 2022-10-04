@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {
@@ -17,11 +18,7 @@ always begin
   A=~A;
   if(i==20) $finish;
 end}
-S {va a 0 pwl 0 0 100n 0 101n 3
-vvcc vcc 0 dc 3
-vvss vss 0 dc 0
-
-.tran 1n 200n}
+S {}
 E {}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
 C {ipin.sym} 210 -220 0 0 {name=p1 lab=A}

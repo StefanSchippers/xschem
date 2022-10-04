@@ -58,19 +58,29 @@ lab=AA}
 N 450 -1110 600 -1110 {
 lab=BB}
 N 450 -410 600 -410 {
-lab=#net1}
+lab=RRSSTT}
 N 450 -390 600 -390 {
-lab=#net2}
+lab=CCKK}
 N 450 -370 600 -370 {
-lab=#net3}
+lab=AA}
 N 450 -350 600 -350 {
-lab=#net4}
+lab=BB}
 N 450 -310 480 -310 {
 lab=ZZ7}
 N 900 -310 930 -310 {
 lab=ZZ8}
-C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
-C {doublepin.sym} 300 -610 0 0 {name=x1}
+N 900 -410 1050 -410 {
+lab=RRSSTT}
+N 900 -390 1050 -390 {
+lab=CCKK}
+N 900 -370 1050 -370 {
+lab=AA}
+N 900 -350 1050 -350 {
+lab=BB}
+N 1350 -310 1380 -310 {
+lab=ZZ9}
+C {doublepin.sym} 1200 -360 0 0 {name=x9}
+C {doublepin.sym} 750 -360 0 0 {name=x8}
 C {doublepin.sym} 750 -610 0 0 {name=x2}
 C {lab_wire.sym} 520 -620 0 0 {name=l2 sig_type=std_logic lab=AA}
 C {lab_pin.sym} 480 -560 0 1 {name=p3 lab=ZZ5}
@@ -106,16 +116,18 @@ C {lab_wire.sym} 520 -1130 0 0 {name=l22 sig_type=std_logic lab=AA}
 C {lab_wire.sym} 520 -1170 0 0 {name=l23 sig_type=std_logic lab=RRSSTT}
 C {lab_wire.sym} 520 -1150 0 0 {name=l24 sig_type=std_logic lab=CCKK}
 C {lab_wire.sym} 520 -1110 0 0 {name=l25 sig_type=std_logic lab=BB}
-C {doublepin.sym} 300 -360 0 0 {name=x7}
-C {doublepin.sym} 750 -360 0 0 {name=x8}
+C {lab_pin.sym} 150 -350 0 0 {name=l33 sig_type=std_logic lab=BB}
+C {doublepin.sym} 300 -610 0 0 {name=x1}
 C {lab_pin.sym} 480 -310 0 1 {name=p7 lab=ZZ7}
 C {lab_pin.sym} 930 -310 0 1 {name=p8 lab=ZZ8}
 C {lab_pin.sym} 150 -370 0 0 {name=l30 sig_type=std_logic lab=AA}
 C {lab_pin.sym} 150 -410 0 0 {name=l31 sig_type=std_logic lab=RRSSTT}
 C {lab_pin.sym} 150 -390 0 0 {name=l32 sig_type=std_logic lab=CCKK}
-C {lab_pin.sym} 150 -350 0 0 {name=l33 sig_type=std_logic lab=BB}
+C {doublepin.sym} 300 -360 0 0 {name=x7}
 C {ipin.sym} 100 -80 0 0 { name=p9 lab=RRSSTT }
 C {ipin.sym} 100 -100 0 0 { name=p10 lab=CCKK }
 C {ipin.sym} 100 -120 0 0 { name=p11 lab=BB }
 C {ipin.sym} 100 -140 0 0 { name=p12 lab=AA }
-C {opin.sym} 270 -120 0 0 { name=p13 lab=ZZ[8..1]}
+C {opin.sym} 270 -120 0 0 { name=p13 lab=ZZ[9..1]}
+C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
+C {lab_pin.sym} 1380 -310 0 1 {name=p8 lab=ZZ9}

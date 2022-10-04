@@ -638,14 +638,35 @@ static void name_pass_through_nets()
   Str_hashentry *table[17];
   Str_hashentry *entry;
   const char *pin_name;
+  int *pt_symbol = NULL; /* pass-through symbols, symbols with duplicated ports */
+  int there_are_pt = 0;
 
   xctx->hash_size = 17;
+  pt_symbol = my_calloc(1573, xctx->symbols, sizeof(int));
+  for(i = 0; i < xctx->symbols; i++) {
+    memset(table, 0, xctx->hash_size * sizeof(Str_hashentry *));
+    for(j = 0; j < xctx->sym[i].rects[PINLAYER]; j++) {
+      const char *pin_name = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0);
+      entry = str_hash_lookup(table, pin_name, "1", XINSERT_NOREPLACE);
+      if(entry) {
+        pt_symbol[i] = 1;
+        there_are_pt = 1;
+      }
+    }
+    if(pt_symbol[i]) dbg(1, "duplicated pins: %s\n", xctx->sym[i].name);
+  }
+  str_hash_free(table);
+  if(!there_are_pt) { /* nothing to do: no pass through symbols */
+    my_free(1573, &pt_symbol);
+    return;
+  }
   do { /* keep looping until propagation of nets occurs */
     changed = 0;
     memset(table, 0, xctx->hash_size * sizeof(Str_hashentry *));
     for (i=0;i<instances;i++) {
       dbg(1, "instance %d: %s\n", i, inst[i].instname);
       if(inst[i].ptr<0) continue;
+      if(!pt_symbol[ inst[i].ptr ]) continue;
       my_strdup(1565, &type, (inst[i].ptr + xctx->sym)->type);
       if (type && !IS_LABEL_OR_PIN(type) ) {
         if ((rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0) {
@@ -735,6 +756,7 @@ static void name_pass_through_nets()
   } while(changed);
   my_free(1570, &type);
   my_free(1571, &type2);
+  my_free(1572, &pt_symbol);
   xctx->hash_size = HASHSIZE;
 }
 
