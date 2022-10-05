@@ -143,10 +143,12 @@ const char *expandlabel(const char *s, int *m)
 
 SP [ \t\n]*
 NOTSP [^ \t\n]
-INT [0-9]+
+INT -?[0-9]+
 DDOT {SP}".."{SP}
 CLN {SP}":"{SP}
-LAB [-a-zA-Z_%$~"+#!/\\<>]
+MULTIP {SP}"*"{SP}
+LAB [-(a-zA-Z_%$~"+#!/\\<>]
+LAB_NODASH [(a-zA-Z_%$~"+#!/\\<>]
   /* includes numbers */
 LAB_NUM [-a-zA-Z_%$~"+#!/\\<>0-9]
   /* includes numbers and space and *+(). */
@@ -154,13 +156,13 @@ IDX_LAB_NUM_SP [-a-zA-Z_%$~"#!/\\<> \t\n0-9*+().]
   /* identifier, may start with a number */
 IDX_ID_N ({LAB_NUM}+({IDX_LAB_NUM_SP}*{LAB_NUM})*)
   /* identifier, not starting with a number */
-IDX_ID (("("|{LAB})+{IDX_LAB_NUM_SP}*)
+IDX_ID (-?{LAB_NODASH}+{IDX_LAB_NUM_SP}*)
   /* includes numbers and space and +().  and :*/
 LAB_NUM_SP [-a-zA-Z_%$~"#!:/\\<> \t\n0-9+().]
   /* identifier, may start with a number */
 ID_NUM ({LAB_NUM}+({LAB_NUM_SP}*{LAB_NUM})*\??)
   /* identifier, not starting with a number */
-ID (("("|{LAB})+{LAB_NUM_SP}*\??)
+ID ({LAB}+{LAB_NUM_SP}*\??)
   /* ~#diUV=9_(\#-hgvUY=) */
 ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-zA-Z0-9]*\))
 
@@ -237,7 +239,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
                           return B_LINE;
                         }
   /* prefix multiplier */
-{INT}/{SP}\*{SP}        {
+{INT}/{MULTIP}          {
                           sscanf(yytext, "%d",&yylval.val);
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): premult B_NUM: |%s|\n", yytext);
                           BEGIN(INITIAL);
@@ -283,7 +285,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
                           return '*';
                         }
   /* "*16" postfix multiplication */
-{SP}\*{SP}/{INT}        {
+{MULTIP}/{INT}          {
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): post *: |%s|\n", yytext);
                           BEGIN(mult);
                           return '*';
