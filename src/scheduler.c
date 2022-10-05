@@ -335,7 +335,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           "node=\"\"\n"
           "color=\"\"\n"
           "dataset=-1\n"
-          "unitx=u\n"
+          "unitx=1\n"
           "logx=0\n"
           "logy=0\n"
         );
@@ -2070,7 +2070,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int i;
       Tcl_ResetResult(interp);
       if(argc > 2 && !strcmp(argv[2], "loaded")) {
-        Tcl_SetResult(interp, (sch_waves_loaded() >= 0) ? "1" : "0", TCL_STATIC);
+        Tcl_SetResult(interp, my_itoa(sch_waves_loaded()), TCL_VOLATILE);
       } else if(xctx->graph_values) {
         /* xschem rawfile_query value v(ldcp) 123 */
         if(argc > 4 && !strcmp(argv[2], "value")) {

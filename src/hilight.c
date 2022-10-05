@@ -913,17 +913,31 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
   if(tok[0] == '#') tok++;
   if(node_entry  && (node_entry->d.port == 0 || !strcmp(xctx->sch_path[xctx->currsch], ".") )) {
     char *t=NULL, *p=NULL;
+    char *path;
+    int start_level;
     c = get_color(xctx->hilight_color);
     expanded_tok = expandlabel(tok, &tok_mult);
     my_strdup2(1499, &p, xctx->sch_path[xctx->currsch]+1);
+    path = p;
+    start_level = sch_waves_loaded();
+    if(path) {
+      int skip = 0;
+      /* skip path components that are above the level where raw file was loaded */
+      while(*path && skip < start_level) {
+        if(*path == '.') skip++;
+        path++;
+      }
+    }
+    strtolower(path);
     for(k=1; k<=tok_mult; k++) {
       my_strdup(1503, &t, find_nth(expanded_tok, ",", k));
+      strtolower(t);
       if(simtype == 0 ) { /* ngspice */
-        dbg(1, "%s%s color=%d\n", strtolower(p), strtolower(t), c);
-        my_snprintf(ss, S(ss), "%s%s %d ", strtolower(p), strtolower(t), c);
+        dbg(1, "%s%s color=%d\n", path, t, c);
+        my_snprintf(ss, S(ss), "%s%s %d ", path, t, c);
         my_strcat(1502, s, ss);
       } else { /* Xyce */
-        my_snprintf(ss, S(ss), "%s%s %d", strtolower(p), strtolower(t), c);
+        my_snprintf(ss, S(ss), "%s%s %d", path, t, c);
         my_strcat(536, s, ss);
       }
 
@@ -947,6 +961,7 @@ static void send_net_to_gaw(int simtype, const char *node)
   if(tok[0] == '#') tok++;
   if(node_entry  && (node_entry->d.port == 0 || !strcmp(xctx->sch_path[xctx->currsch], ".") )) {
     char *t=NULL, *p=NULL;
+    char *path;
     c = get_color(xctx->hilight_color);
     sprintf(color_str, "%02x%02x%02x", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
                                        xctx->xcolor_array[c].blue>>8);
@@ -954,19 +969,17 @@ static void send_net_to_gaw(int simtype, const char *node)
     tcleval("setup_tcp_gaw");
     if(tclresult()[0] == '0') return;
     my_strdup2(254, &p, xctx->sch_path[xctx->currsch]+1);
+    path = p;
+    strtolower(path);
     for(k=1; k<=tok_mult; k++) {
       my_strdup(246, &t, find_nth(expanded_tok, ",", k));
+      strtolower(t);
       if(simtype == 0 ) { /* ngspice */
-        tclvareval("puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t),
+        tclvareval("puts $gaw_fd {copyvar v(", path, t,
                     ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
       } else { /* Xyce */
-        char *c=p;
-        while(*c){
-          if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
-          c++;
-        }
-        tclvareval("puts $gaw_fd {copyvar ", strtoupper(p), strtoupper(t),
-                    " sel #", color_str, "}\nvwait gaw_fd\n", NULL);
+        tclvareval("puts $gaw_fd {copyvar v(", path, t,
+                    ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
       }
     }
     my_free(774, &p);
@@ -1042,10 +1055,10 @@ static void send_current_to_bespice(int simtype, const char *node)
 
 static void send_current_to_graph(char **s, int simtype, const char *node)
 {
-  int c, k, tok_mult;
+  int c, k, tok_mult, start_level, there_is_hierarchy;
   const char *expanded_tok;
   const char *tok;
-  char *t=NULL, *p=NULL;
+  char *t=NULL, *p=NULL, *path;
   char ss[1024] = "";
 
   if(!node || !node[0]) return;
@@ -1053,15 +1066,30 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
   c = get_color(xctx->hilight_color);
   expanded_tok = expandlabel(tok, &tok_mult);
   my_strdup2(523, &p, xctx->sch_path[xctx->currsch]+1);
+  path = p;
+  start_level = sch_waves_loaded();
+  if(path) {
+    int skip = 0;
+    /* skip path components that are above the level where raw file was loaded */
+    while(*path && skip < start_level) {
+      if(*path == '.') skip++;
+      path++;
+    }
+  }
+  strtolower(path);
+  there_is_hierarchy = (strstr(path, ".") != NULL);
   for(k=1; k<=tok_mult; k++) {
     my_strdup(376, &t, find_nth(expanded_tok, ",", k));
+    strtolower(t);
     if(!simtype) { /* ngspice */
-      my_snprintf(ss, S(ss), "i(%s%s%s) %d", xctx->currsch>0 ? "v." : "",
-                  strtolower(p), strtolower(t), c);
+      my_snprintf(ss, S(ss), "i(%s%s%s) %d", there_is_hierarchy ? "v." : "", path, t, c);
       my_strcat(537, s, ss);
     } else { /* Xyce */
-      my_snprintf(ss, S(ss), "%s%s%s#branch %d", xctx->currsch>0 ? "v." : "",
-                  strtolower(p), strtolower(xctx->currsch>0 ? t+1 : t ), c);
+      /* 
+      my_snprintf(ss, S(ss), "%s%s%s#branch %d", there_is_hierarchy ? "v." : "",
+                  path, (there_is_hierarchy ? t+1 : t) , c);
+      */
+      my_snprintf(ss, S(ss), "i(%s%s) %d", path, t, c);
       my_strcat(535, s, ss);
     }
   }
@@ -1071,11 +1099,11 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
 
 static void send_current_to_gaw(int simtype, const char *node)
 {
-  int c, k, tok_mult;
+  int c, k, tok_mult, there_is_hierarchy;
   const char *expanded_tok;
   const char *tok;
   char color_str[8];
-  char *t=NULL, *p=NULL;
+  char *t=NULL, *p=NULL, *path;
 
   if(!node || !node[0]) return;
   tok = node;
@@ -1087,11 +1115,14 @@ static void send_current_to_gaw(int simtype, const char *node)
   tcleval("setup_tcp_gaw");
   if(tclresult()[0] == '0') return;
   my_strdup2(1180, &p, xctx->sch_path[xctx->currsch]+1);
+  path = p;
+  strtolower(path);
+  there_is_hierarchy = (xctx->currsch > 0);
   for(k=1; k<=tok_mult; k++) {
     my_strdup(1179, &t, find_nth(expanded_tok, ",", k));
+    strtolower(t);
     if(!simtype) { /* spice */
-      tclvareval("puts $gaw_fd {copyvar i(", xctx->currsch>0 ? "v." : "",
-                  strtolower(p), strtolower(t),
+      tclvareval("puts $gaw_fd {copyvar i(", there_is_hierarchy ? "v." : "", path, t,
                   ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
     } else {       /* Xyce */
       char *c=p;
@@ -1099,8 +1130,12 @@ static void send_current_to_gaw(int simtype, const char *node)
         if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
         c++;
       }
-      tclvareval("puts $gaw_fd {copyvar ", xctx->currsch>0 ? "V:" : "",
-                  strtoupper(p), strtoupper( xctx->currsch>0 ? t+1 : t ), "#branch",
+      /*
+      tclvareval("puts $gaw_fd {copyvar ", there_is_hierarchy ? "V:" : "",
+                  path,  there_is_hierarchy ? t+1 : t , "#branch",
+                  " sel #", color_str, "}\nvwait gaw_fd\n", NULL);
+      */
+      tclvareval("puts $gaw_fd {copyvar i(", path, t ,")",
                   " sel #", color_str, "}\nvwait gaw_fd\n", NULL);
     }
   }
