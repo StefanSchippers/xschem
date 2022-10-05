@@ -32,6 +32,8 @@ p{padding: 15px  30px 10px;}
     and <kbd>AAA[3],AAA[2],AAA[1],AAA[0]</kbd> are exactly equivalent.</li>
  <li><kbd>AAA[1:0],BBB[5:4]</kbd>: describes the bundle: <kbd>AAA[1],AAA[0],BBB[5],BBB[4]</kbd>.</li>
  <li><kbd>AAA[6:0:2]</kbd>: describes the bundle <kbd>AAA[6],AAA[4],AAA[2],AAA[0]</kbd>.</li>
+ <li><kbd>AAA[0:1:4:3]</kbd>: describes the bundle <kbd>AAA[0],AAA[1],AAA[4],AAA[5],AAA[8],AAA[9]</kbd>.<br>
+     The meaning of the 4 parameters are: start:end:offset:repetitions.</li>
  <li><kbd>2*AAA[1:0]</kbd>: describes the bundle <kbd>AAA[1],AAA[0],AAA[1],AAA[0]</kbd>.</li>
  <li><kbd>AAA[1:0]*2</kbd>: describes the bundle <kbd>AAA[1],AAA[1],AAA[0],AAA[0]</kbd>.</li>
  <li><kbd>2*(AAA[1:0],BBB)</kbd>: describes the bundle <kbd>AAA[1],AAA[0],BBB,AAA[1],AAA[0],BBB</kbd>.</li>
