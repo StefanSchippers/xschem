@@ -758,7 +758,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc >=3) {
         l = expandlabel(argv[2], &tmp);
         llen = strlen(l);
-        dbg(0, "l=%s\n", l ? l : "<NULL>");
+        dbg(1, "l=%s\n", l ? l : "<NULL>");
         result = my_malloc(378, llen + 30);
         my_snprintf(result, llen + 30, "%s %d", l, tmp);
         Tcl_SetResult(interp, result, TCL_VOLATILE);

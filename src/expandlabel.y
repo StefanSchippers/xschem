@@ -361,7 +361,24 @@ list:     B_NAME        {
                          idxsize=INITIALIDXSIZE;
                         }
 ;
-index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
+index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
+                        {
+                         /* start : end : extend : repetitions */
+                         int r, i, sign, offset;
+                         sign = XSIGN($3-$1);
+                         $$=my_malloc(1580, INITIALIDXSIZE*sizeof(int));
+                         $$[0]=0;
+                         offset = 0;
+                         for(r=0; r < $7; r++) {
+                           for(i = $1;; i += sign) {
+                             check_idx(&$$,++$$[0]);
+                             $$[$$[0]] = i + offset;
+                             if(i == $3) break;
+                           }
+                           offset += $5;
+                         }
+                        }
+        | B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                         {
                          int i;
                          int sign;
@@ -398,6 +415,21 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                          $$[0]=0;
                           check_idx(&$$, ++$$[0]);
                          $$[$$[0]]=$1;
+                        }
+        | index ',' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
+                        {
+                         /* start : end : extend : repetitions */
+                         int r, i, sign, offset;
+                         sign = XSIGN($5-$3);
+                         offset = 0;
+                         for(r=0; r < $9; r++) {
+                           for(i = $3;; i += sign) {
+                             check_idx(&$$,++$$[0]);
+                             $$[$$[0]] = i + offset;
+                             if(i == $5) break;
+                           }
+                           offset += $7;
+                         }
                         }
         | index ',' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                         {
