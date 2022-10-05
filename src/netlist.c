@@ -643,7 +643,7 @@ static void name_pass_through_nets()
 
   pt_symbol = my_calloc(973, xctx->symbols, sizeof(int));
   for(i = 0; i < xctx->symbols; i++) {
-    str_hash_init(&table, 17);
+    str_hash_init(&table, 37);
     for(j = 0; j < xctx->sym[i].rects[PINLAYER]; j++) {
       const char *pin_name = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0);
       entry = str_hash_lookup(&table, pin_name, "1", XINSERT_NOREPLACE);
@@ -665,7 +665,7 @@ static void name_pass_through_nets()
       dbg(1, "instance %d: %s\n", i, inst[i].instname);
       if(inst[i].ptr<0) continue;
       if(!pt_symbol[ inst[i].ptr ]) continue;
-      str_hash_init(&table, 17);
+      str_hash_init(&table, 37);
       my_strdup(1565, &type, (inst[i].ptr + xctx->sym)->type);
       if (type && !IS_LABEL_OR_PIN(type) ) {
         if ((rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0) {

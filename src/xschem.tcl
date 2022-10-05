@@ -4924,9 +4924,9 @@ proc set_tab_names {{mod {}}} {
 }
 
 proc raise_dialog {parent window_path } {
-  global myload_loadfile
+  global myload_loadfile component_browser_on_top
   foreach i ".dialog .graphdialog .load" {
-    if {[info exists myload_loadfile ] && $myload_loadfile == 2 && $i eq {.load} } {
+    if {!$component_browser_on_top && [info exists myload_loadfile ] && $myload_loadfile == 2 && $i eq {.load} } {
       continue
     }
     if {[winfo exists $i] && [winfo ismapped $i] && [winfo ismapped $parent] &&
@@ -6010,6 +6010,7 @@ if { ![info exists dircolor] } {
 }
 
 set_ne myload_globfilter {*}
+set_ne component_browser_on_top 1
 ## list of tcl procedures to load at end of xschem.tcl
 set_ne tcl_files {}
 set_ne netlist_dir "$USER_CONF_DIR/simulations"
