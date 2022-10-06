@@ -1153,8 +1153,9 @@ void propagate_hilights(int set, int clear, int mode)
   char *type;
   int en_hi;
 
-  dbg(1, "propagate_hilights()\n");
+  dbg(1, "propagate_hilights() for %s\n", xctx->current_name);
   en_hi = tclgetboolvar("en_hilight_conn_inst");
+  
   prepare_netlist_structs(0);
   for(i = 0; i < xctx->instances; i++) {
     if(xctx->inst[i].ptr < 0 ) {

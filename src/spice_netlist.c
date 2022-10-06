@@ -114,6 +114,7 @@ static void spice_netlist(FILE *fd, int spice_stop )
 
   top_sub = tclgetboolvar("top_subckt");
   if(!spice_stop) {
+    dbg(1, "spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
     xctx->prep_net_structs = 0;
     prepare_netlist_structs(1);
     traverse_node_hash();  /* print all warnings about unconnected floatings etc */
@@ -199,6 +200,7 @@ void global_spice_netlist(int global)  /* netlister driver */
 
  split_f = tclgetboolvar("split_files");
  top_sub = tclgetboolvar("top_subckt");
+ dbg(1, "global_spice_netlist(): invoking push_undo()\n");
  xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
@@ -351,6 +353,7 @@ void global_spice_netlist(int global)  /* netlister driver */
    unselect_all(1);
    remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
    /* reload data without popping undo stack, this populates embedded symbols if any */
+   dbg(1, "global_spice_netlist(): invoking pop_undo(2, 0)\n");
    xctx->pop_undo(2, 0);
    /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
    my_strdup(469, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
@@ -389,8 +392,10 @@ void global_spice_netlist(int global)  /* netlister driver */
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
    xctx->currsch--;
    unselect_all(1);
+   dbg(1, "global_spice_netlist(): invoking pop_undo(0, 0)\n");
    xctx->pop_undo(0, 0);
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
+   dbg(1, "spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
    prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    sym_vs_sch_pins();

@@ -565,7 +565,7 @@ int get_unnamed_node(int what, int mult,int node)
       xctx->node_mult_size += CADCHUNKALLOC;
       my_realloc(242, &xctx->node_mult, sizeof(int) * xctx->node_mult_size );
       for (i=xctx->node_mult_size-CADCHUNKALLOC;i<xctx->node_mult_size;i++) xctx->node_mult[i]=0;
-  }
+    }
     xctx->node_mult[xctx->new_node]=mult;
     return xctx->new_node;
   }
@@ -625,9 +625,9 @@ int record_global_node(int what, FILE *fp, char *node)
 
 /* name nets that are attached to symbols with duplicated pins.
  * if another duplicated pin is attached to a named net/label/pin get name from there */
-static void name_pass_through_nets()
+static void name_pass_through_nets(int for_netlist)
 {
-  int i, j, rects, rot, flip, sqx, sqy, changed = 0;
+  int i, j, k, rects, rot, flip, sqx, sqy, changed = 0;
   double x0, y0, rx1, ry1;
   char *type = NULL, *type2 = NULL;
   xRect *rct;
@@ -637,29 +637,43 @@ static void name_pass_through_nets()
   int const instances = xctx->instances;
   Str_hashtable table = {NULL, 0};
   Str_hashentry *entry;
+  int *symtable = NULL;
   const char *pin_name;
   int *pt_symbol = NULL; /* pass-through symbols, symbols with duplicated ports */
   int there_are_pt = 0;
-
+  int lev = 1;
+  
+  dbg(1, "name_pass_through_nets() start...\n");
   pt_symbol = my_calloc(973, xctx->symbols, sizeof(int));
-  for(i = 0; i < xctx->symbols; i++) {
+  symtable = my_calloc(1581,  xctx->symbols, sizeof(int));
+  /* we can not loop over xctx->symbols since we keep symbols of parent circuit while netlisting */
+  for(i = 0; i < xctx->instances; i++) {
+    k = xctx->inst[i].ptr;
+    if( k < 0 || symtable[k] ) continue;
+    symtable[k] =1;
+    dbg(lev, "name_pass_through_nets(): inst=%s sym=%s\n", xctx->inst[i].instname, xctx->sym[k].name);
+    
     str_hash_init(&table, 37);
-    for(j = 0; j < xctx->sym[i].rects[PINLAYER]; j++) {
-      const char *pin_name = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0);
+    for(j = 0; j < xctx->sym[k].rects[PINLAYER]; j++) {
+      const char *pin_name = get_tok_value(xctx->sym[k].rect[PINLAYER][j].prop_ptr, "name", 0);
       entry = str_hash_lookup(&table, pin_name, "1", XINSERT_NOREPLACE);
       if(entry) {
-        pt_symbol[i] = 1;
+        dbg(lev, "   pass thru symbol found\n");
+        pt_symbol[k] = 1;
         there_are_pt = 1;
+        break;
       }
     }
     str_hash_free(&table);
-    if(pt_symbol[i]) dbg(1, "duplicated pins: %s\n", xctx->sym[i].name);
+    if(pt_symbol[k]) dbg(1, "duplicated pins: %s\n", xctx->sym[i].name);
   }
+  my_free(1582, &symtable);
   if(!there_are_pt) { /* nothing to do: no pass through symbols */
     my_free(1573, &pt_symbol);
     return;
   }
   do { /* keep looping until propagation of nets occurs */
+    dbg(lev, "name_pass_through_nets(): do loop\n");
     changed = 0;
     for (i=0;i<instances;i++) {
       dbg(1, "instance %d: %s\n", i, inst[i].instname);
@@ -687,9 +701,33 @@ static void name_pass_through_nets()
               if (touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
                 xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0)) {
                 if(xctx->wire[wptr->n].node) {
-                   dbg(1, "pin_name=%s, node=%s\n", pin_name, xctx->wire[wptr->n].node);
-                   entry = str_hash_lookup(&table, pin_name, xctx->wire[wptr->n].node, XINSERT_NOREPLACE);
-                   if(entry) signal_short(xctx->wire[wptr->n].node, entry->value);
+                  dbg(1, "pin_name=%s, node=%s\n", pin_name, xctx->wire[wptr->n].node);
+                  entry = str_hash_lookup(&table, pin_name, NULL, XLOOKUP);
+                  if(entry) {
+                    if(entry->value[0] != '#') {
+                      if(xctx->wire[wptr->n].node[0] != '#') {
+                        /* named net attached and another named net on duplicated pin -> check short */
+                        if(for_netlist) signal_short(xctx->wire[wptr->n].node, entry->value);
+                      }
+                    } else { /* pin begins with '#' */
+                        if(xctx->wire[wptr->n].node[0] != '#') {
+                          /* named net has precedence over auto-named net */
+                          str_hash_lookup(&table, pin_name, xctx->wire[wptr->n].node, XINSERT);
+                        } else { /* pin and wire both begin with '#' */
+                          int n, p;
+                          sscanf(xctx->wire[wptr->n].node, "#net%d", &n);
+                          sscanf(entry->value, "#net%d", &p);
+                          if(n < p) { /* lower numbered #nets have precedence */
+                            dbg(lev, "inst: %s pin %s <--- net %s\n",
+                                inst[i].instname, entry->value, xctx->wire[wptr->n].node);
+                            str_hash_lookup(&table, pin_name, xctx->wire[wptr->n].node, XINSERT);
+                          }
+                        }
+                    }
+                  } else {
+                    /* pin unconnected. Assign from net */
+                    entry = str_hash_lookup(&table, pin_name, xctx->wire[wptr->n].node, XINSERT);
+                  }
                 }
               }
               wptr=wptr->next;
@@ -709,10 +747,13 @@ static void name_pass_through_nets()
               if ((iptr->x0==x0) && (iptr->y0==y0)) {
                 if(xctx->inst[iptr->n].node[0]) {
                    dbg(1, "pin_name=%s, node=%s\n", pin_name, xctx->inst[iptr->n].node[0]);
-                   entry = str_hash_lookup(&table, pin_name, xctx->inst[iptr->n].node[0], XINSERT_NOREPLACE);
-                   if(entry) signal_short(xctx->inst[iptr->n].node[0], entry->value);
+                   entry = str_hash_lookup(&table, pin_name, xctx->inst[iptr->n].node[0], XLOOKUP);
+                   if(entry && entry->value[0] != '#') {
+                     if(for_netlist) signal_short(xctx->inst[iptr->n].node[0], entry->value);
+                   } else {
+                     str_hash_lookup(&table, pin_name, xctx->inst[iptr->n].node[0], XINSERT);
+                  }
                 }
-  
               }
               iptr=iptr->next;
             }
@@ -731,20 +772,45 @@ static void name_pass_through_nets()
             wptr = xctx->wire_spatial_table[sqx][sqy];
             pin_name = get_tok_value(rct[j].prop_ptr, "name", 0);
             while(wptr) {
+              int assign = 0;
               if (touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
                 xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0)) {
-                if(!xctx->wire[wptr->n].node) { /* net is unnamed */
-                   dbg(1, "lookup pin_name=%s\n", pin_name);
-                   entry = str_hash_lookup(&table, pin_name, NULL, XLOOKUP);
-                   if(entry) { /* found duplicated pin */
-                     my_strdup(1568,  &xctx->wire[wptr->n].node, entry->value);
-                     my_strdup(1569, &xctx->wire[wptr->n].prop_ptr,
-                     subst_token(xctx->wire[wptr->n].prop_ptr, "lab", entry->value));
-                     wirecheck(wptr->n);
-                     changed = 1;
-                   }
+                entry = str_hash_lookup(&table, pin_name, NULL, XLOOKUP);
+                if(entry) {
+                  if(xctx->wire[wptr->n].node) {
+                    if(strcmp(xctx->wire[wptr->n].node, entry->value)) { /* net node name is different */
+                      if(xctx->wire[wptr->n].node[0] == '#') { /* autonamed net */
+                        if(entry->value[0] == '#') { /* autonamed pin */
+                          int n, p;
+                          sscanf(xctx->wire[wptr->n].node, "#net%d", &n);
+                          sscanf(entry->value, "#net%d", &p);
+                          dbg(lev, "2nd loop: net=%s pin=%s\n", xctx->wire[wptr->n].node, entry->value);
+                          if(n > p) assign = 1; /* lower numbered #net names on pins have precedence */
+                        } else { /* not autonamed pin */
+                          assign = 1;
+                        }
+                      } else { /* not autonamed net */
+                        if(entry->value[0] != '#') { /* not autonamed pin */
+                          if(for_netlist) signal_short(xctx->wire[wptr->n].node, entry->value);
+                        }
+                      }
+                    }
+                  } else { /* wire .node is NULL */
+                    assign = 1;
+                  }
                 }
-              }
+    
+                if(assign) {
+                  dbg(lev, "inst %s pin %s(%s) --> net %s\n",
+                      inst[i].instname, entry->token, entry->value, 
+                      xctx->wire[wptr->n].node ? xctx->wire[wptr->n].node : "<NULL>");
+                  my_strdup(1568,  &xctx->wire[wptr->n].node, entry->value);
+                  my_strdup(1569, &xctx->wire[wptr->n].prop_ptr,
+                  subst_token(xctx->wire[wptr->n].prop_ptr, "lab", entry->value));
+                  wirecheck(wptr->n);
+                  changed = 1;
+                }
+              } /* if(touch...) */
               wptr=wptr->next;
             }
           } /* for (j=0;j<rects;j++) */
@@ -756,6 +822,7 @@ static void name_pass_through_nets()
   my_free(1570, &type);
   my_free(1571, &type2);
   my_free(1572, &pt_symbol);
+  dbg(lev, "name_pass_through_nets() end...\n");
 }
 
 
@@ -793,7 +860,7 @@ void prepare_netlist_structs(int for_netlist)
   /* delete instance pins spatial hash, wires spatial hash, node_hash, wires and inst nodes.*/
   delete_netlist_structs();
   free_simdata(); /* invalidate simulation cache */
-  dbg(1, "prepare_netlist_structs(): extraction\n");
+  dbg(1, "prepare_netlist_structs(): extraction: %s\n", xctx->sch[xctx->currsch]);
   if(xctx->netlist_count == 0 ) startlevel = xctx->currsch;
   /* print_erc is 1 the first time prepare_netlist_structs() is called on top level while
    * doing the netlist, when netlist of sub blocks is completed and toplevel is reloaded
@@ -947,7 +1014,6 @@ void prepare_netlist_structs(int for_netlist)
     } /* if(type && ... */
   } /* for(i=0;i<instances... */
 
-  name_pass_through_nets(); /* name nets that are attached to symbols with duplicated pins. */
 
   /* name nets that do not touch ipin opin alias instances */
   dbg(2, "prepare_netlist_structs(): naming nets that dont touch labels\n");
@@ -971,6 +1037,7 @@ void prepare_netlist_structs(int for_netlist)
     }
   }
 
+  name_pass_through_nets(for_netlist); /* name nets that are attached to symbols with duplicated pins. */
 
   /* NAME GENERICS  */
 
@@ -1186,7 +1253,7 @@ void prepare_netlist_structs(int for_netlist)
   my_free(839, &value);
   my_free(840, &class);
   my_free(841, &global_node);
-  dbg(2, "prepare_netlist_structs(): returning\n");
+  dbg(1, "prepare_netlist_structs(): returning\n");
   /* avoid below call: it in turn calls prepare_netlist_structs(), too many side effects */
   /* propagate_hilights(1, 0, XINSERT_NOREPLACE);*/
 }
