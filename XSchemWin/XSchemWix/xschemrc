@@ -15,28 +15,27 @@
 #### XSCHEM SYSTEM-WIDE DESIGN LIBRARY PATHS: XSCHEM_LIBRARY_PATH
 ###########################################################################
 #### If unset xschem starts with XSCHEM_LIBRARY_PATH set to the default, typically:
-# /home/schippes/.xschem/xschem_library
-# /home/schippes/share/xschem/xschem_library/devices
-# /home/schippes/share/doc/xschem/examples
-# /home/schippes/share/doc/xschem/ngspice
-# /home/schippes/share/doc/xschem/logic
-# /home/schippes/share/doc/xschem/xschem_simulator
-# /home/schippes/share/doc/xschem/binto7seg
-# /home/schippes/share/doc/xschem/pcb
-# /home/schippes/share/doc/xschem/rom8k
+#### /home/schippes/.xschem/xschem_library
+#### /home/schippes/share/xschem/xschem_library/devices
+#### /home/schippes/share/doc/xschem/examples
+#### /home/schippes/share/doc/xschem/ngspice
+#### /home/schippes/share/doc/xschem/logic
+#### /home/schippes/share/doc/xschem/xschem_simulator
+#### /home/schippes/share/doc/xschem/binto7seg
+#### /home/schippes/share/doc/xschem/pcb
+#### /home/schippes/share/doc/xschem/rom8k
 
 #### For testing in build src directory
 #### if unset following paths are set and maintained if existing:
-#
-# ~/.xschem/xschem_library
-# ../xschem_library/devices
-# ../xschem_library/examples
-# ../xschem_library/ngspice
-# ../xschem_library/logic
-# ../xschem_library/xschem_simulator
-# ../xschem_library/binto7seg
-# ../xschem_library/pcb
-# ../xschem_library/rom8k
+#### ~/.xschem/xschem_library
+#### ../xschem_library/devices
+#### ../xschem_library/examples
+#### ../xschem_library/ngspice
+#### ../xschem_library/logic
+#### ../xschem_library/xschem_simulator
+#### ../xschem_library/binto7seg
+#### ../xschem_library/pcb
+#### ../xschem_library/rom8k
 
 #### For testing after installation: uncomment following lines
 # set xschem_doc_dir [file dirname ${XSCHEM_SHAREDIR}]/doc/xschem
@@ -185,6 +184,11 @@
 #### editing a new component if clicking on a new component.
 #### default: enabled (1)
 # set autofocus_mainwindow 0
+
+#### set component browser always above drawing canvas.
+#### default: enabled (1)
+# set component_browser_on_top 0
+
 ###########################################################################
 #### EXPORT FORMAT TRANSLATORS, PNG AND PDF
 ###########################################################################
@@ -342,40 +346,40 @@ set editor {notepad.exe}
 ###########################################################################
 #### TABBED WINDOWS
 ###########################################################################
-# default: not enabled. Interface can be changed runtime if only one window 
-# or tab is open.
+#### default: not enabled. Interface can be changed runtime if only one window 
+#### or tab is open.
 # set tabbed_interface 1
 
 ###########################################################################
 #### CASE INSENSITIVE SYMBOL LOOKUP
 ###########################################################################
-## this option might be useful on filesystems that are case insensitive and
-## on designs ported from windows where case of file names does not matter.
-## if this option is set symbol lookup will be case insensitive,
-## so a symbol reference 'AMPLI.SYM' will match with 'ampli.sym' or
-## Amply.sym on disk. File system must be case insensitive for this to work,
-## like FAT32 or NTFS.
-## Do not set this option if you don't know what you are doing.
-## Default: not enabled (0)
+#### this option might be useful on filesystems that are case insensitive and
+#### on designs ported from windows where case of file names does not matter.
+#### if this option is set symbol lookup will be case insensitive,
+#### so a symbol reference 'AMPLI.SYM' will match with 'ampli.sym' or
+#### Amply.sym on disk. File system must be case insensitive for this to work,
+#### like FAT32 or NTFS.
+#### Do not set this option if you don't know what you are doing.
+#### Default: not enabled (0)
 # set case_insensitive 1
 
 ###########################################################################
 #### SHOW HIDDEN TEXTS
 ###########################################################################
-## This option shows text objects even if they have attribute 'hide=true' set
-## default: 0 (not set) 
+#### This option shows text objects even if they have attribute 'hide=true' set
+#### default: 0 (not set) 
 # set show_hidden_texts 1
 
 ###########################################################################
 #### HIDE GRAPHS IF NO SPICE DATA LOADED
 ###########################################################################
-## if enabled graphs will be hidden if no data is loaded.
-## default: not enabled (0)
+#### if enabled graphs will be hidden if no data is loaded.
+#### default: not enabled (0)
 # set hide_empty_graphs 0
 
 ###########################################################################
 #### LIVE BACKANNOTATION OF DATA AT CURSOR 2 (B) POSITION
 ###########################################################################
-## if enabled will backannotate values in schematic at cursor 'b' position
-## in graph. Default: not enabled (0)
+#### if enabled will backannotate values in schematic at cursor 'b' position
+#### in graph. Default: not enabled (0)
 # set live_cursor2_backannotate 1

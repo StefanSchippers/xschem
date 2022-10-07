@@ -51,8 +51,14 @@ vhdl_netlist.c \
 xinit.c \
 | sort -n \
 | awk '{
-  if(n>0 && $1 <= prev)         print ">>>>>>>>>>> ERROR >>>>>>>>>"
-  else  if(n++>0 && $1 != prev+1) print ">>>>>>>>>>>>>>>>>>>>>>>>>>>"
+  if(n>0 && $1 <= prev)           print ">>>>>>>>>>> ERROR >>>>>>>>> " $0
+  else  if(n++>0 && $1 != prev+1) {
+                                  if($1-1 > prev+1) 
+                                  print ">>>>>>>>>>> FREE  >>>>>>>>> " prev+1 ":" $1-1
+                                  else
+                                  print ">>>>>>>>>>> FREE  >>>>>>>>> " $1-1
+
+                                  print
+  } else  print
   prev = $1
-  print
 }'

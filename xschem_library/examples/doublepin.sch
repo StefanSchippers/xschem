@@ -21,7 +21,7 @@ end}
 S {}
 E {}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
-C {ipin.sym} 210 -220 0 0 {name=p1 lab=A}
+C {ipin.sym} 210 -220 0 0 {name=p1 lab=A[3:0]}
 C {ipin.sym} 210 -190 0 0 {name=p3 lab=B}
 C {opin.sym} 520 -240 0 0 {name=p4 lab=Z}
 C {ipin.sym} 210 -260 0 0 {name=p5 lab=RST}

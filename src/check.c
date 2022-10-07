@@ -381,10 +381,8 @@ void trim_wires(void)
 void break_wires_at_pins(void)
 {
   int k, i, j, r, rects, sqx, sqy;
-  short rot, flip;
   Wireentry *wptr;
-  xRect *rct;
-  double x0, y0, rx1, ry1;
+  double x0, y0;
   int changed=0;
 
   hash_wires();
@@ -398,14 +396,7 @@ void break_wires_at_pins(void)
     {
       for(r=0;r<rects;r++)
       {
-        rct=(xctx->inst[k].ptr+ xctx->sym)->rect[PINLAYER];
-        x0=(rct[r].x1+rct[r].x2)/2;
-        y0=(rct[r].y1+rct[r].y2)/2;
-        rot=xctx->inst[k].rot;
-        flip=xctx->inst[k].flip;
-        ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
-        x0=xctx->inst[k].x0+rx1;
-        y0=xctx->inst[k].y0+ry1;
+        get_inst_pin_coord(k, r, &x0, &y0);
         get_square(x0, y0, &sqx, &sqy);
         for(wptr=xctx->wire_spatial_table[sqx][sqy]; wptr; wptr=wptr->next) {
           i = wptr->n;

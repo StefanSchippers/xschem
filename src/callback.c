@@ -1131,9 +1131,12 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  xctx->mousey=Y_TO_XSCHEM(my);
  xctx->mousex_snap=my_round(xctx->mousex / c_snap) * c_snap;
  xctx->mousey_snap=my_round(xctx->mousey / c_snap) * c_snap;
- my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
-   xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
- statusmsg(str,1);
+
+ if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
+   my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
+     xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
+   statusmsg(str,1);
+ }
 
  switch(event)
  {
@@ -1201,12 +1204,14 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     #endif
     if(xctx->semaphore >= 2) break;
     if(xctx->ui_state) {
-      my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.16g h=%.16g",
-        xctx->mousex_snap, xctx->mousey_snap,
-        xctx->lastsel ,
-        xctx->mousex_snap-xctx->mx_double_save, xctx->mousey_snap-xctx->my_double_save
-      );
-      statusmsg(str,1);
+      if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
+        my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.16g h=%.16g",
+          xctx->mousex_snap, xctx->mousey_snap,
+          xctx->lastsel ,
+          xctx->mousex_snap-xctx->mx_double_save, xctx->mousey_snap-xctx->my_double_save
+        );
+        statusmsg(str,1);
+      }
     }
     if(xctx->ui_state & STARTZOOM)   zoom_rectangle(RUBBER);
     if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & (PLACE_SYMBOL | STARTPAN | PLACE_TEXT)) ) {

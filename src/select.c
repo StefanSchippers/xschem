@@ -45,18 +45,11 @@ static void check_connected_wire(int stop_at_junction, int n)
     k = instptr->n;
     type = (xctx->inst[k].ptr+ xctx->sym)->type;
     if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe") || !strcmp(type, "ngprobe"))) {
-      double rx1, ry1, x0, y0;
-      int rot, flip;
+      double x0, y0;
       xRect *rct;
       rct=(xctx->inst[k].ptr+ xctx->sym)->rect[PINLAYER];
       if(rct) {
-        x0=(rct[0].x1+rct[0].x2)/2;
-        y0=(rct[0].y1+rct[0].y2)/2;
-        rot=xctx->inst[k].rot;
-        flip=xctx->inst[k].flip;
-        ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
-        x0=xctx->inst[k].x0+rx1;
-        y0=xctx->inst[k].y0+ry1;
+        get_inst_pin_coord(k, 0, &x0, &y0);
         touches = touch(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, x0, y0);
         if(touches) {
           xctx->need_reb_sel_arr=1;
@@ -106,19 +99,13 @@ void select_connected_wires(int stop_at_junction)
       case ELEMENT:
         type = (xctx->inst[i].ptr+ xctx->sym)->type;
         if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe") || !strcmp(type, "ngprobe"))) {
-          double rx1, ry1, x0, y0;
-          int rot, flip, sqx, sqy;
+          double x0, y0;
+          int sqx, sqy;
           xRect *rct;
           Wireentry *wptr;
           rct = (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER];
           if(rct) {
-            x0 = (rct[0].x1 + rct[0].x2) / 2;
-            y0 = (rct[0].y1 + rct[0].y2) / 2;
-            rot = xctx->inst[i].rot;
-            flip = xctx->inst[i].flip;
-            ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
-            x0 = xctx->inst[i].x0+rx1;
-            y0 = xctx->inst[i].y0+ry1;
+            get_inst_pin_coord(i, 0, &x0, &y0);
             get_square(x0, y0, &sqx, &sqy);
             wptr = xctx->wire_spatial_table[sqx][sqy];
             while (wptr) {

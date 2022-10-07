@@ -461,66 +461,46 @@ static void signal_short( char *n1, char *n2)
 
 static void wirecheck(int k)    /* recursive routine */
 {
- int tmpi,tmpj, counti,countj,i,j;
- int touches;
- double x1, y1, x2, y2;
- int x1a, x2a, y1a, y2a;
- Wireentry *ptr2;
- xWire * const wire = xctx->wire;
+  int tmpi, tmpj, counti, countj, i, j, touches, x1a, x2a, y1a, y2a;
+  double x1, y1, x2, y2;
+  Wireentry *ptr2;
+  xWire * const wire = xctx->wire;
  
-  x1=wire[k].x1;
-  x2=wire[k].x2;
-  y1=wire[k].y1;
-  y2=wire[k].y2;
-
+  x1 = wire[k].x1; y1 = wire[k].y1;
+  x2 = wire[k].x2; y2 = wire[k].y2;
   /* ordered bbox */
   RECTORDER(x1, y1, x2, y2);
   /* calculate square 4 1st bbox point of wire[k] */
-  x1a=(int)floor(x1/BOXSIZE) ;
-  y1a=(int)floor(y1/BOXSIZE) ;
-
+  x1a = (int)floor(x1 / BOXSIZE);
+  y1a = (int)floor(y1 / BOXSIZE);
   /* calculate square 4 2nd bbox point of wire[k] */
-  x2a=(int)floor(x2/BOXSIZE);
-  y2a=(int)floor(y2/BOXSIZE);
-
+  x2a = (int)floor(x2 / BOXSIZE);
+  y2a = (int)floor(y2 / BOXSIZE);
   /*loop thru all squares that intersect bbox of wire[k] */
-  counti=0;
-  for(i=x1a; i<=x2a && counti < NBOXES; i++)
-  {
-   counti++;
-   tmpi=i%NBOXES; if(tmpi<0) tmpi+=NBOXES;
-   countj=0;
-   for(j=y1a; j<=y2a && countj < NBOXES; j++)
-   {
-    countj++;
-    tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
-    /*check if wire[k]  touches wires in square [tmpi, tmpj] */
-    ptr2=xctx->wire_spatial_table[tmpi][tmpj];
-    while(ptr2)
-    {
-     if(wire[ptr2->n].node) {ptr2=ptr2->next; continue;} /* 20171207 net already checked. Move on */
-     if(ptr2->n != k) { /* 20171204 avoid checking wire against itself */
-       touches = touch(wire[k].x1,wire[k].y1,wire[k].x2,wire[k].y2,
-                    wire[ptr2->n].x1,wire[ptr2->n].y1) ||
-                 touch(wire[k].x1,wire[k].y1,wire[k].x2,wire[k].y2,
-                    wire[ptr2->n].x2,wire[ptr2->n].y2) ||
-                 touch(wire[ptr2->n].x1,wire[ptr2->n].y1,wire[ptr2->n].x2,
-                    wire[ptr2->n].y2, wire[k].x1,wire[k].y1) ||
-                 touch(wire[ptr2->n].x1,wire[ptr2->n].y1,wire[ptr2->n].x2,
-                    wire[ptr2->n].y2, wire[k].x2,wire[k].y2);
-       if( touches )
-       {
-         my_strdup(239, &wire[ptr2->n].node, wire[k].node);
-         my_strdup(240, &wire[ptr2->n].prop_ptr,
-           subst_token(wire[ptr2->n].prop_ptr, "lab", wire[ptr2->n].node));
-         wirecheck(ptr2->n); /* recursive check */
-       }
-     }
-     ptr2=ptr2->next;
+  counti = 0;
+  for(i = x1a; i <= x2a && counti < NBOXES; i++) {
+    counti++;
+    tmpi = i % NBOXES; if(tmpi < 0) tmpi += NBOXES;
+    countj = 0;
+    for(j = y1a; j <= y2a && countj < NBOXES; j++) {
+      countj++;
+      tmpj = j % NBOXES; if(tmpj < 0) tmpj += NBOXES;
+      /*check if wire[k]  touches wires in square [tmpi, tmpj] */
+      for(ptr2 = xctx->wire_spatial_table[tmpi][tmpj]; ptr2; ptr2 = ptr2->next) {
+        if(ptr2->n == k || wire[ptr2->n].node) {continue;} /* itself or net already checked. Move on */
+        touches = 
+          touch(wire[k].x1,wire[k].y1,wire[k].x2,wire[k].y2, wire[ptr2->n].x1,wire[ptr2->n].y1) ||
+          touch(wire[k].x1,wire[k].y1,wire[k].x2,wire[k].y2, wire[ptr2->n].x2,wire[ptr2->n].y2) ||
+          touch(wire[ptr2->n].x1,wire[ptr2->n].y1,wire[ptr2->n].x2, wire[ptr2->n].y2, wire[k].x1,wire[k].y1) ||
+          touch(wire[ptr2->n].x1,wire[ptr2->n].y1,wire[ptr2->n].x2, wire[ptr2->n].y2, wire[k].x2,wire[k].y2);
+        if( touches ) {
+          my_strdup(239, &wire[ptr2->n].node, wire[k].node);
+          my_strdup(240, &wire[ptr2->n].prop_ptr,
+            subst_token(wire[ptr2->n].prop_ptr, "lab", wire[ptr2->n].node));
+          wirecheck(ptr2->n); /* recursive check */
+        }
+      }
     }
-     dbg(2, "wirecheck(): %d/%d\n", tmpi,tmpj );
-   }
-    dbg(2, "wirecheck(): \n");
   }
 }
 
@@ -541,6 +521,17 @@ void set_tcl_netlist_type(void)
     }
 }
 
+static void set_unnamed_net(int i)
+{
+  char tmp_str[30];
+  my_snprintf(tmp_str, S(tmp_str), "#net%d", get_unnamed_node(1,0,0));
+  my_strdup(265, &xctx->wire[i].node, tmp_str);
+  my_strdup(266, &xctx->wire[i].prop_ptr, subst_token(xctx->wire[i].prop_ptr, "lab", tmp_str));
+  /* insert unnamed wire name in hash table */
+  bus_node_hash_lookup(tmp_str, "", XINSERT, 0,"","","","");
+  wirecheck(i);
+}
+
 /* what==0 -> initialize  */
 /* what==1 -> get new node name, net##   */
 /* what==2 -> update multiplicity   */
@@ -550,17 +541,23 @@ int get_unnamed_node(int what, int mult,int node)
   int i;
 
   dbg(2, "get_unnamed_node(): what=%d mult=%d node=%d\n", what, mult, node);
-  if (what==0)  /* initialize unnamed node data structures */
+  if(what==0)  /* initialize unnamed node data structures */
   {
     xctx->new_node=0;
     my_free(828, &xctx->node_mult);
     xctx->node_mult_size=0;
     return 0;
   }
-  else if (what==1) /* get a new unique unnamed node */
+  else if(what==1) /* get a new unique unnamed node */
   {
-    ++xctx->new_node;
-    if (xctx->new_node>= xctx->node_mult_size)  /* enlarge array and zero it */
+    char tmp_str[30];
+    do {
+      ++xctx->new_node;
+      my_snprintf(tmp_str, S(tmp_str), "net%d", xctx->new_node);
+    /* JL avoid autonamed nets clash with user defined 'net#' names */
+    } while (bus_node_hash_lookup(tmp_str, "", XLOOKUP, 0, "", "", "", "")!=NULL);
+
+    while(xctx->new_node>= xctx->node_mult_size)  /* enlarge array and zero it */
     {
       xctx->node_mult_size += CADCHUNKALLOC;
       my_realloc(242, &xctx->node_mult, sizeof(int) * xctx->node_mult_size );
@@ -571,8 +568,8 @@ int get_unnamed_node(int what, int mult,int node)
   }
   else if(what==2)    /* update node multiplicity if given mult is lower */
   {
-    if (xctx->node_mult[node]==0) xctx->node_mult[node]=mult;
-    else if (mult<xctx->node_mult[node]) xctx->node_mult[node]=mult;
+    if(xctx->node_mult[node]==0) xctx->node_mult[node]=mult;
+    else if(mult < xctx->node_mult[node]) xctx->node_mult[node]=mult;
     return 0;
   }
   else /* what=3 , return node multiplicity */
@@ -622,6 +619,376 @@ int record_global_node(int what, FILE *fp, char *node)
  return 0;
 }
 
+void get_inst_pin_coord(int i, int j, double *x, double *y)
+{
+  xRect *rct;
+  int rects, rot, flip;
+  double x0, y0, rx1, ry1;
+  xInstance * const inst = xctx->inst;
+  rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER];
+  if(j < rects) {
+    rct=(inst[i].ptr+ xctx->sym)->rect[PINLAYER];
+    x0=(rct[j].x1+rct[j].x2)/2;
+    y0=(rct[j].y1+rct[j].y2)/2;
+    rot=inst[i].rot;
+    flip=inst[i].flip;
+    ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
+    *x=inst[i].x0+rx1;
+    *y=inst[i].y0+ry1;
+  } else {
+    *x = 0;
+    *y = 0;
+  }
+}
+
+static void set_inst_node(int i, int j, const char *node, int for_netlist)
+{
+  xInstance * const inst = xctx->inst;
+  my_strdup(275,  &inst[i].node[j], node);
+  if(!for_netlist) {
+    bus_node_hash_lookup(inst[i].node[j],"", XINSERT, 0,"","","","");
+  } else {
+    bus_node_hash_lookup(inst[i].node[j],
+      get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr, "dir",0),
+      XINSERT, 0,"","","","");
+  }
+}
+
+static void name_non_label_inst_pins(for_netlist)
+{
+  char tmp_str[30]; /* overflow safe */
+  double x0, y0;
+  int sqx, sqy;
+  int touches=0;
+  int touches_unnamed=0;
+  Wireentry *wptr;
+  Instpinentry *iptr;
+  int i,j, rects;
+  char *type=NULL;
+  int inst_mult, pin_mult;
+  xInstance * const inst = xctx->inst;
+  int const instances = xctx->instances;
+
+  /* name instance pins  of non (label,pin) instances */
+  dbg(2, "prepare_netlist_structs(): assigning node names on instance pins\n");
+  for (i=0;i<instances;i++) { /* ... assign node fields on all (non label) instances */
+    if(inst[i].ptr<0) continue;
+    my_strdup(272, &type,(inst[i].ptr+ xctx->sym)->type);
+    if(type && !IS_LABEL_OR_PIN(type) ) {
+      rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER];
+      expandlabel(inst[i].instname, &inst_mult);
+      for (j=0;j<rects;j++) {
+        touches=0;
+        if(inst[i].node[j]) continue; /* already named node */
+        get_inst_pin_coord(i, j, &x0, &y0);
+        get_square(x0, y0, &sqx, &sqy);
+        /* name instance nodes that touch named nets */
+        dbg(2, "prepare_netlist_structs():           from attached nets\n");
+        for(wptr=xctx->wire_spatial_table[sqx][sqy]; wptr; wptr = wptr->next) {
+          if(touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
+            xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0)) {
+            /* short circuit check */
+            if(touches) {
+              if(for_netlist>0) signal_short(inst[i].node[j],  xctx->wire[wptr->n].node);
+            }
+            if(!touches) {
+              set_inst_node(i, j,  xctx->wire[wptr->n].node, for_netlist);
+              if(xctx->wire[wptr->n].node[0]=='#') { /* unnamed node, update its multiplicity */
+                expandlabel(get_tok_value(
+                  (inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0),&pin_mult);
+                get_unnamed_node(2, pin_mult * inst_mult, atoi((inst[i].node[j])+4) );
+              }
+            } /* end if(!touches) */
+            touches=1;
+          }
+        }
+        dbg(2, "prepare_netlist_structs():           from other instances\n");
+        touches_unnamed=0;
+        for(iptr=xctx->instpin_spatial_table[sqx][sqy]; iptr; iptr= iptr->next) {
+          if(iptr->n == i ||  inst[iptr->n].ptr < 0) continue;
+          if((iptr->x0==x0) && (iptr->y0==y0)) {
+            if(inst[iptr->n].node && inst[iptr->n].node[iptr->pin] != NULL) {
+              /* short circuit check */
+              if(touches) {
+                if(for_netlist>0) signal_short(inst[i].node[j],  inst[iptr->n].node[iptr->pin]);
+              }
+              if(!touches) {
+                set_inst_node(i, j, inst[iptr->n].node[iptr->pin], for_netlist);
+                if((inst[i].node[j])[0] == '#') {
+                  expandlabel(get_tok_value(
+                    (inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0),&pin_mult );
+                  get_unnamed_node(2, pin_mult * inst_mult, atoi((inst[i].node[j])+4));
+                }
+              }
+              touches=1;
+            } /* end if(inst[iptr->n].node[iptr->pin] != NULL) */
+            else { /* touches instance with unnamed pins */
+              touches_unnamed=1;
+            }
+          } /* end if( (iptr->x0==x0) && (iptr->y0==y0) ) */
+        }
+        /*   pin did not touch named pins or nets so we name it now */
+        dbg(2, "prepare_netlist_structs():           naming the other pins\n");
+        if(!touches) { /* pin does not touch any other instance pin with non NULL node[] field ...*/
+          if(touches_unnamed) { /* ... but touches some other instance pin, so create unnamed net */
+            expandlabel(get_tok_value(
+            (inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), &pin_mult);
+            /* done at beginning of for(i) loop 20171210 */
+            /* expandlabel(get_tok_value( */
+            /* inst[i].prop_ptr,"name",0), &inst_mult); */
+            my_snprintf( tmp_str, S(tmp_str), "#net%d", get_unnamed_node(1, pin_mult * inst_mult, 0));
+            set_inst_node(i, j, tmp_str, for_netlist);
+          }
+        }
+      } /* for(j=0;j<rects;j++) */
+    } /* if(type && !IS_LABEL_OR_PIN(type) ) */
+  } /* for(i...) */
+  /* END name instance pins  of non (label,pin) instances */
+}
+
+static void name_generics(int for_netlist)
+{
+  xRect *rct;
+  double x0, y0;
+  short rot = 0;
+  short flip = 0;
+  int sqx, sqy;
+  double rx1,ry1;
+  Instpinentry *iptr;
+  int i,j, rects, generic_rects;
+  char *type=NULL;
+  char *sig_type=NULL;
+  xInstance * const inst = xctx->inst;
+  int const instances = xctx->instances;
+
+  /* name generic pins from attached labels */
+  dbg(2, "prepare_netlist_structs(): naming generics from attached labels\n");
+  if(for_netlist) for (i=0;i<instances;i++) { /* ... assign node fields on all (non label) instances */
+    if(inst[i].ptr<0) continue;
+    my_strdup(267, &type,(inst[i].ptr+ xctx->sym)->type);
+    if(type && !IS_LABEL_OR_PIN(type) ) {
+      if((generic_rects = (inst[i].ptr+ xctx->sym)->rects[GENERICLAYER]) > 0) {
+        rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER];
+        for (j=rects;j<rects+generic_rects;j++) {
+          if(inst[i].node[j]) continue; /* already named node */
+          rct=(inst[i].ptr+ xctx->sym)->rect[GENERICLAYER];
+          x0=(rct[j-rects].x1+rct[j-rects].x2)/2;
+          y0=(rct[j-rects].y1+rct[j-rects].y2)/2;
+          rot=inst[i].rot;
+          flip=inst[i].flip;
+          ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
+          x0=inst[i].x0+rx1;
+          y0=inst[i].y0+ry1;
+          get_square(x0, y0, &sqx, &sqy);
+
+          for(iptr=xctx->instpin_spatial_table[sqx][sqy]; iptr; iptr = iptr ->next) {
+            if(iptr->n == i) continue;
+            if((iptr->x0==x0) && (iptr->y0==y0)) {
+              if((inst[iptr->n].ptr+ xctx->sym)->type && inst[iptr->n].node[iptr->pin] != NULL &&
+                 !strcmp((inst[iptr->n].ptr+ xctx->sym)->type, "label")) {
+                dbg(2, "prepare_netlist_structs(): naming generic %s\n",
+                  inst[iptr->n].node[iptr->pin]);
+                my_strdup(268,  &inst[i].node[j], get_tok_value(inst[iptr->n].prop_ptr,"value",0) );
+                if(!for_netlist) {
+                  my_strdup(270, &sig_type,"");
+                  bus_node_hash_lookup(inst[iptr->n].node[iptr->pin],"",
+                    XINSERT, 1, sig_type,"", "","");
+                } else {
+                  my_strdup(271, &sig_type,get_tok_value(
+                    (inst[i].ptr+ xctx->sym)->rect[GENERICLAYER][j-rects].prop_ptr, "sig_type",0));
+                  /* insert generic label in hash table as a port so it will not */
+                  /* be declared as a signal in the vhdl netlist. this is a workaround */
+                  /* that should be fixed 25092001 */
+                  bus_node_hash_lookup(inst[iptr->n].node[iptr->pin],
+                    get_tok_value((inst[i].ptr+ xctx->sym)->rect[GENERICLAYER][j-rects].prop_ptr, "dir",0),
+                    XINSERT, 1, sig_type,"", "","");
+                }
+              } /* end if(inst[iptr->n].node[iptr->pin] != NULL) */
+            } /* end if( (iptr->x0==x0) && (iptr->y0==y0) ) */
+          } /* end for(iptr=xctx->instpin_spatial_table[sqx][sqy]; iptr; iptr = iptr ->next) */
+        } /* end for(j=0;j<rects;j++) */
+      } /* end if( rects=...>0) */
+    } /* end if(type not a label nor pin)... */
+  } /* end for(i...) */
+}
+
+static void name_nodes_of_pins_labels_and_attached_nets(for_netlist)
+{
+  double x0, y0;
+  int i, sqx, sqy;
+  int port;
+  Wireentry *wptr;
+  char *dir=NULL;
+  char *type=NULL;
+  char *sig_type=NULL;
+  char *verilog_type=NULL;
+  char *value=NULL;
+  char *class=NULL;
+  char *global_node=NULL;
+  int print_erc;
+  xInstance * const inst = xctx->inst;
+  int const instances = xctx->instances;
+  static int startlevel = 0; /* safe to keep even with multiple schematic windows, netlist is not interruptable */
+
+  if(xctx->netlist_count == 0 ) startlevel = xctx->currsch;
+  dbg(2, "prepare_netlist_structs(): naming pins from attrs\n");
+  /* print_erc is 1 the first time prepare_netlist_structs() is called on top level while
+   * doing the netlist, when netlist of sub blocks is completed and toplevel is reloaded
+   * a second prepare_netlist_structs() is called to name unnamed nets, in this second call
+   * print_erc must be set to 0 to avoid double erc printing
+   */
+  print_erc =  (xctx->netlist_count == 0 || startlevel < xctx->currsch) && for_netlist;
+  for (i=0;i<instances;i++) {
+    /* name ipin opin label node fields from prop_ptr attributes */
+    if(inst[i].ptr<0) continue;
+
+    my_strdup(248, &type,(inst[i].ptr+ xctx->sym)->type);
+    if(print_erc && (!inst[i].instname || !inst[i].instname[0]) &&
+      !get_tok_value((inst[i].ptr+ xctx->sym)->templ, "name", 0)[0]
+        ) {
+      char str[2048];
+      if(  type && 
+           strcmp(type, "package") &&
+           strcmp(type, "port_attributes") &&
+           strcmp(type, "architecture") &&
+           strcmp(type, "arch_declarations") &&
+           strcmp(type, "attributes") &&
+           strcmp(type, "netlist_options") &&
+           strcmp(type, "use")) {
+        my_snprintf(str, S(str), "instance: %d (%s): no name attribute set", i, inst[i].name);
+        statusmsg(str,2);
+        inst[i].color = -PINLAYER;
+        xctx->hilight_nets=1;
+      }
+    }
+    if(print_erc && (!type || !type[0]) ) {
+      char str[2048];
+      my_snprintf(str, S(str), "Symbol: %s: no type attribute set", inst[i].name);
+      statusmsg(str,2);
+      inst[i].color = -PINLAYER;
+      xctx->hilight_nets=1;
+    }
+    if(type && inst[i].node && IS_LABEL_OR_PIN(type) ) { /* instance must have a pin! */
+      if(for_netlist>0) {
+        /* 20150918 skip labels / pins if ignore property specified on instance */
+        if( xctx->netlist_type == CAD_VERILOG_NETLIST &&
+          strcmp(get_tok_value(inst[i].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
+        if( xctx->netlist_type == CAD_SPICE_NETLIST &&
+          strcmp(get_tok_value(inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
+        if( xctx->netlist_type == CAD_VHDL_NETLIST &&
+          strcmp(get_tok_value(inst[i].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
+        if( xctx->netlist_type == CAD_TEDAX_NETLIST &&
+          strcmp(get_tok_value(inst[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
+      }
+      port=0;
+      my_strdup2(249, &dir, "");
+      if(strcmp(type,"label")) {  /* instance is a port (not a label) */
+        port=1;
+        /* 20071204 only define a dir property if instance is not a label */
+        if(for_netlist)
+          my_strdup2(250, &dir, get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][0].prop_ptr, "dir",0));
+      }
+      else {
+        /* handle global nodes (global=1 set as symbol property) 28032003 */
+        my_strdup(251, &global_node,get_tok_value((inst[i].ptr+ xctx->sym)->prop_ptr,"global",0));
+        /*20071204 if instance is a label dont define a dir property for more precise erc checking */
+      }
+      /* obtain ipin/opin/label signal type (default: std_logic) */
+      if(for_netlist) {
+        my_strdup(258, &sig_type,get_tok_value(inst[i].prop_ptr,"sig_type",0));
+        my_strdup(259, &verilog_type,get_tok_value(inst[i].prop_ptr,"verilog_type",0));
+        my_strdup(260, &value,get_tok_value(inst[i].prop_ptr,"value",0));
+        my_strdup(261, &class,get_tok_value(inst[i].prop_ptr,"class",0));
+      }
+      my_strdup(262, &inst[i].node[0], inst[i].lab);
+      if(!(inst[i].node[0])) {
+        my_strdup(65, &inst[i].node[0], get_tok_value((inst[i].ptr+ xctx->sym)->templ, "lab",0));
+        dbg(1, "prepare_netlist_structs(): no lab attr on instance, pick from symbol: %s\n", inst[i].node[0]);
+      }
+      /* handle global nodes (global=1 set as symbol property) 28032003 */
+      if(!strcmp(type,"label") && global_node && !strcmp(global_node, "true")) {
+        dbg(1, "prepare_netlist_structs(): global node: %s\n",inst[i].node[0]);
+        record_global_node(1,NULL, inst[i].node[0]);
+      }
+
+      /* do not count multiple labels/pins with same name */
+      bus_node_hash_lookup(inst[i].node[0],    /* insert node in hash table */
+        dir, XINSERT, port, sig_type, verilog_type, value, class);
+
+      dbg(2, "prepare_netlist_structs(): pin=%s\n",
+        get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][0].prop_ptr, "name",0));
+      dbg(2, "prepare_netlist_structs(): dir=%s\n",
+        get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][0].prop_ptr, "dir",0));
+
+      /* name nets that touch ioin opin alias instances */
+      get_inst_pin_coord(i, 0, &x0, &y0);
+      get_square(x0, y0, &sqx, &sqy);
+      if(inst[i].node[0]) for(wptr = xctx->wire_spatial_table[sqx][sqy]; wptr; wptr = wptr->next)
+      {
+        if(touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
+          xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0))
+        {
+          /* short circuit check */
+          if(for_netlist>0) signal_short(xctx->wire[wptr->n].node, inst[i].node[0]);
+          my_strdup(263,  &xctx->wire[wptr->n].node, inst[i].node[0]);
+          my_strdup(264, &xctx->wire[wptr->n].prop_ptr,
+          subst_token(xctx->wire[wptr->n].prop_ptr, "lab", xctx->wire[wptr->n].node));
+          wirecheck(wptr->n);
+        }
+      }
+    } /* if(type && ... */
+  } /* for(i=0;i<instances... */
+  my_free(835, &dir);
+  my_free(836, &type);
+  my_free(841, &global_node);
+  if(for_netlist) {
+    my_free(837, &sig_type);
+    my_free(838, &verilog_type);
+    my_free(839, &value);
+    my_free(840, &class);
+  }
+}
+
+static void name_unlabeled_nets()
+{
+  int i;
+
+  /* name nets that do not touch ipin opin alias instances */
+  dbg(2, "prepare_netlist_structs(): naming nets that dont touch labels\n");
+  for (i=0;i<xctx->wires;i++)
+  {
+    if(xctx->wire[i].node == NULL)
+    {
+      set_unnamed_net(i);
+    }
+  }
+}
+
+static void reset_node_data_and_rehash(int for_netlist)
+{
+  int i,j, rects;
+  xInstance * const inst = xctx->inst;
+  int const instances = xctx->instances;
+
+  /* reset wire & inst node labels */
+  dbg(2, "prepare_netlist_structs(): rehashing wires and instance pins in spatial hash table\n");
+  hash_wires();
+  for (i=0;i<instances;i++)
+  {
+    if(inst[i].ptr<0) continue;
+    rects=(inst[i].ptr+ xctx->sym)->rects[PINLAYER] +
+          (inst[i].ptr+ xctx->sym)->rects[GENERICLAYER];
+    if(rects > 0)
+    {
+      inst[i].node = my_malloc(247, sizeof(char *) * rects);
+      for (j=0;j<rects;j++)
+      {
+        inst[i].node[j]=NULL;
+        hash_inst_pin(for_netlist, XINSERT, i, j);
+      }
+    }
+  }
+}
 
 /* name nets that are attached to symbols with duplicated pins.
  * if another duplicated pin is attached to a named net/label/pin get name from there */
@@ -825,437 +1192,196 @@ static void name_pass_through_nets(int for_netlist)
   dbg(lev, "name_pass_through_nets() end...\n");
 }
 
+static void name_nets_from_pass_through_syms(int for_netlist)
+{
+  int i, j, k, sqx, sqy;
+  double x0, y0;
+  Int_hashtable table = {NULL, 0};
+  int *symtable = NULL, *pt_symbol = NULL;
+  Wireentry *wptr;
+  Instpinentry *iptr;
+  char *type = NULL;
+  int there_are_pt = 0;
+  xWire * const wire = xctx->wire;
+  xInstance * const inst = xctx->inst;
+  int changed = 0;
+
+  pt_symbol = my_calloc(973, xctx->symbols, sizeof(int));
+  symtable = my_calloc(1581,  xctx->symbols, sizeof(int));
+  /* we can not loop over xctx->symbols since we keep symbols of parent circuit while netlisting */
+  for(i = 0; i < xctx->instances; i++) {
+    k = inst[i].ptr;
+    if( k < 0 || symtable[k] ) continue;
+    symtable[k] =1;
+    dbg(1, "name_pass_through_nets(): inst=%s sym=%s\n", inst[i].instname, xctx->sym[k].name);
+    int_hash_init(&table, 37);
+    for(j = 0; j < xctx->sym[k].rects[PINLAYER]; j++) {
+      const char *pin_name = get_tok_value(xctx->sym[k].rect[PINLAYER][j].prop_ptr, "name", 0);
+      if(int_hash_lookup(&table, pin_name, j, XINSERT_NOREPLACE)) {
+        dbg(1, "   pass thru symbol found\n");
+        pt_symbol[k] = 1;
+        there_are_pt = 1;
+      }
+    }
+    int_hash_free(&table);
+    if(pt_symbol[k]) dbg(1, "duplicated pins: %s\n", xctx->sym[i].name);
+  }
+  my_free(831, &symtable);
+  if(!there_are_pt) { /* nothing to do: no pass through symbols */
+    my_free(832, &pt_symbol);
+    return;
+  }
+  dbg(0, "\nname_pass_through_nets() start...\n");
+
+  do {
+    dbg(0, "\n\n    do loop\n\n");
+    changed = 0;
+    for(i = 0; i < xctx->instances; i++) {
+      Str_hashtable table = {NULL, 0};
+      Str_hashentry *entry;
+      str_hash_init(&table, 37);
+      k = inst[i].ptr;
+      if( k < 0 ) continue;
+      if(!inst[i].node) continue;
+      if(!pt_symbol[k]) continue;
+      for(j = 0; j < xctx->sym[k].rects[PINLAYER]; j++) {
+        const char *pin_name = get_tok_value(xctx->sym[k].rect[PINLAYER][j].prop_ptr, "name", 0);
+        get_inst_pin_coord(i, j, &x0, &y0);
+        get_square(x0, y0, &sqx, &sqy);
+        for(wptr = xctx->wire_spatial_table[sqx][sqy]; wptr; wptr = wptr->next) {
+          if(!wire[wptr->n].node) continue;
+          if(touch(wire[wptr->n].x1, wire[wptr->n].y1, wire[wptr->n].x2, wire[wptr->n].y2, x0,y0)) {
+            dbg(0, "check inst %s pin %s(%d) wire %d(%s)\n", inst[i].instname, pin_name, j,
+                wptr->n, wire[wptr->n].node ? wire[wptr->n].node : "<NULL>");
+            str_hash_lookup(&table, pin_name, wire[wptr->n].node, XINSERT_NOREPLACE);
+          }
+        }
+        for(iptr=xctx->instpin_spatial_table[sqx][sqy]; iptr; iptr = iptr ->next) {
+          if(iptr->n == i || inst[iptr->n].ptr < 0) continue;
+          if((iptr->x0==x0) && (iptr->y0==y0)) {
+            my_strdup(1572, &type,(inst[iptr->n].ptr+ xctx->sym)->type);
+            if(inst[iptr->n].node && type && (IS_LABEL_OR_PIN(type) || pt_symbol[inst[iptr->n].ptr])) {
+              if(inst[iptr->n].node[iptr->pin]) {
+                dbg(0, "inst %s pin %s(%d) hash_lookup %s\n",
+                    inst[i].instname, pin_name, j, inst[iptr->n].node[iptr->pin]);
+                str_hash_lookup(&table, pin_name, inst[iptr->n].node[iptr->pin], XINSERT_NOREPLACE);
+              } 
+            }
+          }
+        }
+        my_free(1570, &type);
+      } /* for(j = 0; j < xctx->sym[k].rects[PINLAYER]; j++) */
+
+      for(j = 0; j < xctx->sym[k].rects[PINLAYER]; j++) {
+        const char *pin_name = get_tok_value(xctx->sym[k].rect[PINLAYER][j].prop_ptr, "name", 0);
+        get_inst_pin_coord(i, j, &x0, &y0);
+        get_square(x0, y0, &sqx, &sqy);
+        entry = str_hash_lookup(&table, pin_name, NULL, XLOOKUP);
+        if(!entry) dbg(0, "inst %s pin %s(%d) is unset\n", inst[i].instname, pin_name, j);
+        if(!entry) continue;
+        if(!inst[i].node[j]) set_inst_node(i, j, entry->value, for_netlist);
+        dbg(0, "inst %s pin %s(%d) <-- %s\n", inst[i].instname, pin_name, j, entry->value);
+        for(wptr = xctx->wire_spatial_table[sqx][sqy]; wptr; wptr = wptr->next) {
+          if(touch(wire[wptr->n].x1, wire[wptr->n].y1, wire[wptr->n].x2, wire[wptr->n].y2, x0,y0)) {
+            if(!wire[wptr->n].node) {
+              dbg(0, "wire %d <-- inst %s pin %s net %s\n", wptr->n, inst[i].instname, pin_name, entry->value);
+              my_strdup(1565, &wire[wptr->n].node, entry->value);
+              my_strdup(834, &wire[wptr->n].prop_ptr,
+                subst_token(wire[wptr->n].prop_ptr, "lab", wire[wptr->n].node));
+              wirecheck(wptr->n); /* recursive check */
+              changed = 1;
+            } else {
+              dbg(0, "wire %d has already node: %s\n", wptr->n, wire[wptr->n].node);
+            }
+          }
+        } /*  for(wptr=...) */
+        for(iptr=xctx->instpin_spatial_table[sqx][sqy]; iptr; iptr= iptr->next) {
+          if(iptr->n == i ||  inst[iptr->n].ptr < 0) continue;
+          my_strdup(1569, &type,(inst[i].ptr+ xctx->sym)->type);
+          if(type && !IS_LABEL_OR_PIN(type) && pt_symbol[iptr->n] && inst[iptr->n].node) {
+            if((iptr->x0==x0) && (iptr->y0==y0)) {
+              if(!inst[iptr->n].node[iptr->pin]) {
+                set_inst_node(iptr->n, iptr->pin, entry->value, for_netlist);
+              } else {
+                dbg(0, "inst %s pin %s(%d) has already node: %s\n",
+                  inst[iptr->n].instname, pin_name, iptr->pin, inst[iptr->n].node[iptr->pin]);
+              }
+            }
+          }
+        }
+      } /* for(j = 0; j < xctx->sym[k].rects[PINLAYER]; j++) */
+      str_hash_free(&table);
+    } /* for(i = 0; i < xctx->instances; i++) */
+  } while(changed);
+  my_free(833, &pt_symbol);
+}
 
 void prepare_netlist_structs(int for_netlist)
 {
-  xRect *rct;
-  char tmp_str[30]; /* overflow safe */
   char nn[PATH_MAX+30];
-  double x0, y0;
-  short rot = 0;
-  short flip = 0;
-  int sqx, sqy;
-  int port;
-  int touches=0;
-  int touches_unnamed=0;
-  double rx1,ry1;
-  Wireentry *wptr;
-  Instpinentry *iptr;
-  int i,j, rects, generic_rects;
-  char *dir=NULL;
-  char *type=NULL;
-  char *sig_type=NULL;
-  char *verilog_type=NULL;
-  char *value=NULL;
-  char *class=NULL;
-  char *global_node=NULL;
-  int inst_mult, pin_mult;
-  int print_erc;
-  static int startlevel = 0; /* safe to keep even with multiple schematic windows, netlist is not interruptable */
-  xInstance * const inst = xctx->inst;
-  int const instances = xctx->instances;
 
-  if (for_netlist>0 && xctx->prep_net_structs) return;
-  else if (!for_netlist && xctx->prep_hi_structs) return;
+  if(for_netlist>0 && xctx->prep_net_structs) return;
+  else if(!for_netlist && xctx->prep_hi_structs) return;
   /* delete instance pins spatial hash, wires spatial hash, node_hash, wires and inst nodes.*/
-  delete_netlist_structs();
-  free_simdata(); /* invalidate simulation cache */
-  dbg(1, "prepare_netlist_structs(): extraction: %s\n", xctx->sch[xctx->currsch]);
-  if(xctx->netlist_count == 0 ) startlevel = xctx->currsch;
-  /* print_erc is 1 the first time prepare_netlist_structs() is called on top level while
-   * doing the netlist, when netlist of sub blocks is completed and toplevel is reloaded
-   * a second prepare_netlist_structs() is called to name unnamed nets, in this second call
-   * print_erc must be set to 0 to avoid double erc printing
-   */
-  print_erc =  (xctx->netlist_count == 0 || startlevel < xctx->currsch) && for_netlist;
-  if (for_netlist) {
+  if(for_netlist) {
     my_snprintf(nn, S(nn), "-----------%s", xctx->sch[xctx->currsch]);
     statusmsg(nn,2);
   }
-  /* reset wire & inst node labels */
-  dbg(2, "prepare_netlist_structs(): rehashing wires and instance pins in spatial hash table\n");
-  hash_wires();
-  for (i=0;i<instances;i++)
-  {
-    if (inst[i].ptr<0) continue;
-    /* delete_inst_node(i); */ /* done in delete_netlist_structs() */
-    rects=(inst[i].ptr+ xctx->sym)->rects[PINLAYER] +
-          (inst[i].ptr+ xctx->sym)->rects[GENERICLAYER];
-    if (rects > 0)
-    {
-      inst[i].node = my_malloc(247, sizeof(char *) * rects);
-      for (j=0;j<rects;j++)
-      {
-        inst[i].node[j]=NULL;
-        hash_inst_pin(for_netlist, XINSERT, i, j);
-      }
-    }
-  }
-
-  dbg(2, "prepare_netlist_structs(): naming pins from attrs\n");
-  for (i=0;i<instances;i++)
-  {
-    /* name ipin opin label node fields from prop_ptr attributes */
-    if (inst[i].ptr<0) continue;
-
-    my_strdup(248, &type,(inst[i].ptr+ xctx->sym)->type);
-    if(print_erc && (!inst[i].instname || !inst[i].instname[0]) &&
-      !get_tok_value((inst[i].ptr+ xctx->sym)->templ, "name", 0)[0]
-        ) {
-      char str[2048];
-      if(  type && 
-           strcmp(type, "package") &&
-           strcmp(type, "port_attributes") &&
-           strcmp(type, "architecture") &&
-           strcmp(type, "arch_declarations") &&
-           strcmp(type, "attributes") &&
-           strcmp(type, "netlist_options") &&
-           strcmp(type, "use")) {
-        my_snprintf(str, S(str), "instance: %d (%s): no name attribute set", i, inst[i].name);
-        statusmsg(str,2);
-        inst[i].color = -PINLAYER;
-        xctx->hilight_nets=1;
-      }
-    }
-    if(print_erc && (!type || !type[0]) ) {
-      char str[2048];
-      my_snprintf(str, S(str), "Symbol: %s: no type attribute set", inst[i].name);
-      statusmsg(str,2);
-      inst[i].color = -PINLAYER;
-      xctx->hilight_nets=1;
-    }
-    if(type && inst[i].node && IS_LABEL_OR_PIN(type) ) { /* instance must have a pin! */
-      if (for_netlist>0) {
-        /* 20150918 skip labels / pins if ignore property specified on instance */
-        if( xctx->netlist_type == CAD_VERILOG_NETLIST &&
-          strcmp(get_tok_value(inst[i].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
-        if( xctx->netlist_type == CAD_SPICE_NETLIST &&
-          strcmp(get_tok_value(inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
-        if( xctx->netlist_type == CAD_VHDL_NETLIST &&
-          strcmp(get_tok_value(inst[i].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
-        if( xctx->netlist_type == CAD_TEDAX_NETLIST &&
-          strcmp(get_tok_value(inst[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
-      }
-      port=0;
-      if (strcmp(type,"label")) {  /* instance is a port (not a label) */
-        port=1;
-        /* 20071204 only define a dir property if instance is not a label */
-        if (!for_netlist) my_strdup(249, &dir, "");
-        else
-          my_strdup(250, &dir, get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][0].prop_ptr, "dir",0));
-      }
-      else {
-        /* handle global nodes (global=1 set as symbol property) 28032003 */
-        my_strdup(251, &global_node,get_tok_value((inst[i].ptr+ xctx->sym)->prop_ptr,"global",0));
-        /*20071204 if instance is a label dont define a dir property for more precise erc checking */
-        my_strdup(252, &dir,"none");
-      }
-
-      if (!dir) my_strdup(253, &dir,"none"); /* 20100422, define dir if not alrerady defined by  */
-                                    /* previous code, to avoid nasty segfaults if pins not correctly defined */
-
-      /* obtain ipin/opin/label signal type (default: std_logic) */
-      if (!for_netlist) {
-        my_free(831, &sig_type);
-        my_free(832, &verilog_type);
-        my_free(833, &value);
-        my_free(834, &class);
-      } else {
-        my_strdup(258, &sig_type,get_tok_value(inst[i].prop_ptr,"sig_type",0));
-        my_strdup(259, &verilog_type,get_tok_value(inst[i].prop_ptr,"verilog_type",0));
-        my_strdup(260, &value,get_tok_value(inst[i].prop_ptr,"value",0));
-        my_strdup(261, &class,get_tok_value(inst[i].prop_ptr,"class",0));
-      }
-      my_strdup(262, &inst[i].node[0], inst[i].lab);
-      if (!(inst[i].node[0])) {
-        my_strdup(65, &inst[i].node[0], get_tok_value((inst[i].ptr+ xctx->sym)->templ, "lab",0));
-        dbg(1, "prepare_netlist_structs(): no lab attr on instance, pick from symbol: %s\n", inst[i].node[0]);
-      }
-      /* handle global nodes (global=1 set as symbol property) 28032003 */
-      if (!strcmp(type,"label") && global_node && !strcmp(global_node, "true")) {
-        dbg(1, "prepare_netlist_structs(): global node: %s\n",inst[i].node[0]);
-        record_global_node(1,NULL, inst[i].node[0]);
-      }
-
-      /* do not count multiple labels/pins with same name */
-      bus_node_hash_lookup(inst[i].node[0],    /* insert node in hash table */
-        dir, XINSERT, port, sig_type, verilog_type, value, class);
-
-      dbg(2, "prepare_netlist_structs(): pin=%s\n",
-        get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][0].prop_ptr, "name",0));
-      dbg(2, "prepare_netlist_structs(): dir=%s\n",
-        get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][0].prop_ptr, "dir",0));
-
-      /* name nets that touch ioin opin alias instances */
-      rct=(inst[i].ptr+ xctx->sym)->rect[PINLAYER];
-      x0=(rct[0].x1+rct[0].x2)/2;
-      y0=(rct[0].y1+rct[0].y2)/2;
-      rot=inst[i].rot;
-      flip=inst[i].flip;
-      ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
-      x0=inst[i].x0+rx1;
-      y0=inst[i].y0+ry1;
-      get_square(x0, y0, &sqx, &sqy);
-      wptr=xctx->wire_spatial_table[sqx][sqy];
-      if (inst[i].node[0]) while(wptr)
-      {
-        if (touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
-          xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0))
-        {
-          /* short circuit check */
-          if (for_netlist>0) signal_short(xctx->wire[wptr->n].node, inst[i].node[0]);
-          my_strdup(263,  &xctx->wire[wptr->n].node, inst[i].node[0]);
-          my_strdup(264, &xctx->wire[wptr->n].prop_ptr,
-          subst_token(xctx->wire[wptr->n].prop_ptr, "lab", xctx->wire[wptr->n].node));
-          wirecheck(wptr->n);
-        }
-        wptr=wptr->next;
-      }
-    } /* if(type && ... */
-  } /* for(i=0;i<instances... */
-
-
-  /* name nets that do not touch ipin opin alias instances */
-  dbg(2, "prepare_netlist_structs(): naming nets that dont touch labels\n");
+  dbg(1, "prepare_netlist_structs(): extraction: %s\n", xctx->sch[xctx->currsch]);
+  delete_netlist_structs();
+  free_simdata(); /* invalidate simulation cache */
+  reset_node_data_and_rehash(for_netlist);
   get_unnamed_node(0,0,0); /*initializes node multiplicity data struct */
-  for (i=0;i<xctx->wires;i++)
-  {
-    if(xctx->wire[i].node == NULL)
-    {
-      my_snprintf(tmp_str, S(tmp_str), "#net%d", get_unnamed_node(1,0,0));
+  name_nodes_of_pins_labels_and_attached_nets(for_netlist);
+  /* name_nets_from_pass_through_syms(for_netlist); */
+  name_unlabeled_nets();
+  name_pass_through_nets(for_netlist);
+  name_generics(for_netlist);
+  name_non_label_inst_pins(for_netlist);
 
-      /* JL avoid autonamed nets clash with user defined 'net#' names */
-      while (bus_node_hash_lookup(&tmp_str[1], "", XLOOKUP, 0, "", "", "", "")!=NULL)
-         my_snprintf(tmp_str, S(tmp_str), "#net%d", get_unnamed_node(1, 0, 0));
-
-      my_strdup(265, &xctx->wire[i].node , tmp_str);
-      my_strdup(266, &xctx->wire[i].prop_ptr,
-      subst_token(xctx->wire[i].prop_ptr, "lab", xctx->wire[i].node));
-      /* insert unnamed wire name in hash table */
-      bus_node_hash_lookup(xctx->wire[i].node,"", XINSERT, 0,"","","","");
-      wirecheck(i);
-    }
-  }
-
-  name_pass_through_nets(for_netlist); /* name nets that are attached to symbols with duplicated pins. */
-
-  /* NAME GENERICS  */
-
-  /* name generic pins from attached labels */
-  dbg(2, "prepare_netlist_structs(): naming generics from attached labels\n");
-  if(for_netlist) for (i=0;i<instances;i++) { /* ... assign node fields on all (non label) instances */
-    if (inst[i].ptr<0) continue;
-    my_strdup(267, &type,(inst[i].ptr+ xctx->sym)->type);
-    if (type && !IS_LABEL_OR_PIN(type) ) {
-      if ((generic_rects = (inst[i].ptr+ xctx->sym)->rects[GENERICLAYER]) > 0)
-      {
-        rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER];
-        for (j=rects;j<rects+generic_rects;j++)
-        {
-          if (inst[i].node[j]) continue; /* already named node */
-          rct=(inst[i].ptr+ xctx->sym)->rect[GENERICLAYER];
-          x0=(rct[j-rects].x1+rct[j-rects].x2)/2;
-          y0=(rct[j-rects].y1+rct[j-rects].y2)/2;
-          rot=inst[i].rot;
-          flip=inst[i].flip;
-          ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
-          x0=inst[i].x0+rx1;
-          y0=inst[i].y0+ry1;
-          get_square(x0, y0, &sqx, &sqy);
-
-          iptr=xctx->instpin_spatial_table[sqx][sqy];
-          while (iptr)
-          {
-            if (iptr->n == i)
-            {
-              iptr=iptr->next;
-              continue;
-            }
-            if ((iptr->x0==x0) && (iptr->y0==y0))
-            {
-              if ((inst[iptr->n].ptr+ xctx->sym)->type && inst[iptr->n].node[iptr->pin] != NULL &&
-                 !strcmp((inst[iptr->n].ptr+ xctx->sym)->type, "label"))
-              {
-                dbg(2, "prepare_netlist_structs(): naming generic %s\n",
-                  inst[iptr->n].node[iptr->pin]);
-
-                my_strdup(268,  &inst[i].node[j], get_tok_value(inst[iptr->n].prop_ptr,"value",0) );
-
-                /*my_strdup(269,  &inst[i].node[j], inst[iptr->n].node[iptr->pin] ); */
-
-                if (!for_netlist) {
-                  my_strdup(270, &sig_type,"");
-                  bus_node_hash_lookup(inst[iptr->n].node[iptr->pin],"none",
-                    XINSERT, 1, sig_type,"", "","");
-                } else {
-                  my_strdup(271, &sig_type,get_tok_value(
-                    (inst[i].ptr+ xctx->sym)->rect[GENERICLAYER][j-rects].prop_ptr, "sig_type",0));
-
-                  /* insert generic label in hash table as a port so it will not */
-                  /* be declared as a signal in the vhdl netlist. this is a workaround */
-                  /* that should be fixed 25092001 */
-                  bus_node_hash_lookup(inst[iptr->n].node[iptr->pin],
-                    get_tok_value((inst[i].ptr+ xctx->sym)->rect[GENERICLAYER][j-rects].prop_ptr, "dir",0),
-                    XINSERT, 1, sig_type,"", "","");
-                }
-              } /* end if(inst[iptr->n].node[iptr->pin] != NULL) */
-            } /* end if( (iptr->x0==x0) && (iptr->y0==y0) ) */
-            iptr=iptr->next;
-          }
-        } /* end for(j=0;j<rects;j++) */
-      } /* end if( rects=...>0) */
-    } /* end if(type not a label nor pin)... */
-  } /* end for(i...) */
-
-  /* END NAME GENERICS  */
-
-  /* name instance pins  of non (label,pin) instances */
-  dbg(2, "prepare_netlist_structs(): assigning node names on instance pins\n");
-  for (i=0;i<instances;i++) /* ... assign node fields on all (non label) instances */
-  {
-    if(inst[i].ptr<0) continue;
-    expandlabel(inst[i].instname, &inst_mult);
-    my_strdup(272, &type,(inst[i].ptr+ xctx->sym)->type);
-    if (type && !IS_LABEL_OR_PIN(type) ) {
-      if ((rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0)
-      {
-        for (j=0;j<rects;j++)
-        {
-          touches=0;
-          if (inst[i].node[j]) continue; /* already named node */
-          rct=(inst[i].ptr+ xctx->sym)->rect[PINLAYER];
-          x0=(rct[j].x1+rct[j].x2)/2;
-          y0=(rct[j].y1+rct[j].y2)/2;
-          rot=inst[i].rot;
-          flip=inst[i].flip;
-          ROTATION(rot, flip, 0.0,0.0,x0,y0,rx1,ry1);
-          x0=inst[i].x0+rx1;
-          y0=inst[i].y0+ry1;
-          get_square(x0, y0, &sqx, &sqy);
-          /* name instance nodes that touch named nets */
-          wptr=xctx->wire_spatial_table[sqx][sqy];
-          dbg(2, "prepare_netlist_structs():           from attached nets\n");
-          while (wptr)
-          {
-            if (touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
-              xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0))
-            {
-
-              /* short circuit check */
-              if (touches)
-              {
-                if (for_netlist>0) signal_short(inst[i].node[j],  xctx->wire[wptr->n].node);
-              }
-              if (!touches)
-              {
-                my_strdup(273,  &inst[i].node[j], xctx->wire[wptr->n].node );
-                  bus_node_hash_lookup(inst[i].node[j],
-                get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr, "dir",0),
-                  XINSERT, 0,"","","","");
-
-                if (xctx->wire[wptr->n].node[0]=='#')  /* unnamed node, update its multiplicity */
-                {
-                  expandlabel(get_tok_value(
-                    (inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0),&pin_mult);
-
-                   get_unnamed_node(2, pin_mult * inst_mult, atoi((inst[i].node[j])+4) );
-                }
-              } /* end if(!touches) */
-              touches=1;
-            }
-            wptr=wptr->next;
-          }
-
-          dbg(2, "prepare_netlist_structs():           from other instances\n");
-          touches_unnamed=0;
-          iptr=xctx->instpin_spatial_table[sqx][sqy];
-          while (iptr)
-          {
-            if (iptr->n == i)
-            {
-              iptr=iptr->next;
-              continue;
-            }
-            if ((iptr->x0==x0) && (iptr->y0==y0))
-            {
-              if (inst[iptr->n].node[iptr->pin] != NULL)
-              {
-                /* short circuit check */
-                if (touches)
-                {
-                  if (for_netlist>0) signal_short(inst[i].node[j],  inst[iptr->n].node[iptr->pin]);
-                }
-                if (!touches)
-                {
-                  my_strdup(274,  &inst[i].node[j], inst[iptr->n].node[iptr->pin] );
-                  if (!for_netlist) {
-                    bus_node_hash_lookup(inst[i].node[j],"none", XINSERT, 0,"","","","");
-                  } else {
-                    bus_node_hash_lookup(inst[i].node[j],
-                      get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr, "dir",0),
-                      XINSERT, 0,"","","","");
-                  }
-                  if ((inst[i].node[j])[0] == '#')
-                  {
-                    expandlabel(get_tok_value(
-                      (inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0),&pin_mult );
-                    /* done at beginning of for(i) loop 20171210 */
-                    /* expandlabel(get_tok_value( */
-                    /*   inst[i].prop_ptr,"name",0), &inst_mult); */
-                    get_unnamed_node(2, pin_mult * inst_mult, atoi((inst[i].node[j])+4));
-                  }
-                }
-                touches=1;
-              } /* end if(inst[iptr->n].node[iptr->pin] != NULL) */
-              else  /* touches instance with unnamed pins */
-              {
-                touches_unnamed=1;
-              }
-            } /* end if( (iptr->x0==x0) && (iptr->y0==y0) ) */
-            iptr=iptr->next;
-          }
-
-          /*   pin did not touch named pins or nets so we name it now */
-          dbg(2, "prepare_netlist_structs():           naming the other pins\n");
-          if (!touches) { /* pin does not touch any other instance pin with non NULL node[] field ...*/
-            if (touches_unnamed) /* ... but touches some other instance pin, so create unnamed net */
-            {
-              expandlabel(get_tok_value(
-              (inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), &pin_mult);
-              /* done at beginning of for(i) loop 20171210 */
-              /* expandlabel(get_tok_value( */
-              /* inst[i].prop_ptr,"name",0), &inst_mult); */
-              my_snprintf( tmp_str, S(tmp_str), "#net%d", get_unnamed_node(1, pin_mult * inst_mult, 0));
-              my_strdup(275,  &inst[i].node[j], tmp_str );
-              if (!for_netlist) {
-                bus_node_hash_lookup(inst[i].node[j],"none", XINSERT, 0,"","","","");
-              } else {
-                bus_node_hash_lookup(inst[i].node[j],
-                  get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr, "dir",0),
-                  XINSERT, 0,"","","","");
-              }
-            }
-          }
-        } /* end for(j=0;j<rects;j++) */
-      } /* end if( rects=...>0) */
-    } /* end if(type not a label nor pin)... */
-  } /* end for(i...) */
-  /*---------------------- */
   rebuild_selected_array();
-  if (for_netlist>0) {
+  if(for_netlist>0) {
     xctx->prep_net_structs=1;
     xctx->prep_hi_structs=1;
   } else xctx->prep_hi_structs=1;
-  my_free(835, &dir);
-  my_free(836, &type);
-  my_free(837, &sig_type);
-  my_free(838, &verilog_type);
-  my_free(839, &value);
-  my_free(840, &class);
-  my_free(841, &global_node);
   dbg(1, "prepare_netlist_structs(): returning\n");
   /* avoid below call: it in turn calls prepare_netlist_structs(), too many side effects */
   /* propagate_hilights(1, 0, XINSERT_NOREPLACE);*/
+}
+
+void delete_inst_node(int i)
+{
+   int j, rects;
+   if( xctx->inst[i].ptr == -1 || !xctx->inst[i].node) return;
+   rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER] +
+           (xctx->inst[i].ptr+ xctx->sym)->rects[GENERICLAYER];
+   if( rects > 0 )
+   {
+     for(j=0;j< rects ;j++)
+       my_free(849, &xctx->inst[i].node[j]);
+     my_free(850, &xctx->inst[i].node );
+   }
+}
+
+void delete_netlist_structs(void)
+{
+ int i;
+  /* erase node data structures */
+   dbg(1, "delete_netlist_structs(): begin erasing\n");
+  for(i=0;i<xctx->instances;i++)
+  {
+   delete_inst_node(i);
+  }
+  for(i=0;i<xctx->wires;i++)
+  {
+    my_free(851, &xctx->wire[i].node);
+  }
+  /* erase inst and wire topological hash tables */
+  del_inst_pin_table();
+  node_hash_free();
+  dbg(1, "delete_netlist_structs(): end erasing\n");
+  xctx->prep_net_structs=0;
+  xctx->prep_hi_structs=0;
 }
 
 int warning_overlapped_symbols(int sel)
@@ -1546,39 +1672,4 @@ int sym_vs_sch_pins()
 
   while(xctx->symbols > n_syms) remove_symbol(xctx->symbols - 1);
   return 0;
-}
-
-void delete_inst_node(int i)
-{
-   int j, rects;
-   if( xctx->inst[i].ptr == -1 || !xctx->inst[i].node) return;
-   rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER] +
-           (xctx->inst[i].ptr+ xctx->sym)->rects[GENERICLAYER];
-   if( rects > 0 )
-   {
-     for(j=0;j< rects ;j++)
-       my_free(849, &xctx->inst[i].node[j]);
-     my_free(850, &xctx->inst[i].node );
-   }
-}
-
-void delete_netlist_structs(void)
-{
- int i;
-  /* erase node data structures */
-   dbg(1, "delete_netlist_structs(): begin erasing\n");
-  for(i=0;i<xctx->instances;i++)
-  {
-   delete_inst_node(i);
-  }
-  for(i=0;i<xctx->wires;i++)
-  {
-    my_free(851, &xctx->wire[i].node);
-  }
-  /* erase inst and wire topological hash tables */
-  del_inst_pin_table();
-  node_hash_free();
-  dbg(1, "delete_netlist_structs(): end erasing\n");
-  xctx->prep_net_structs=0;
-  xctx->prep_hi_structs=0;
 }

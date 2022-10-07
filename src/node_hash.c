@@ -43,9 +43,11 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
  dbg(3, "node_hash_lookup(): called with: %s dir=%s what=%d port=%d\n",
         token, dir, what, port);
  d.in=d.out=d.inout=0;
- if(!strcmp(dir,"in") )  d.in=1;
- else if(!strcmp(dir,"out") ) d.out=1;
- else if(!strcmp(dir,"inout") ) d.inout=1;
+ if(dir) {
+   if(!strcmp(dir,"in") )  d.in=1;
+   else if(!strcmp(dir,"out") ) d.out=1;
+   else if(!strcmp(dir,"inout") ) d.inout=1;
+ }
  d.port=port;
  hashcode=str_hash(token);
  index=hashcode % HASHSIZE;

@@ -1122,6 +1122,7 @@ extern int text_bbox(const char * str,double xscale, double yscale,
 extern int get_color(int value);
 extern void incr_hilight_color(void);
 extern void hash_inst(int what, int n);
+extern void get_inst_pin_coord(int i, int j, double *x, double *y);
 extern void del_inst_table(void);
 extern void hash_wires(void);
 extern void hash_wire(int what, int n, int incremental);
