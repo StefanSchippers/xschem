@@ -538,47 +538,39 @@ static void set_unnamed_net(int i)
 /* what==3 -> get node multiplicity */
 int get_unnamed_node(int what, int mult,int node)
 {
-  int i;
-
   dbg(2, "get_unnamed_node(): what=%d mult=%d node=%d\n", what, mult, node);
-  if(what==0)  /* initialize unnamed node data structures */
-  {
+  if(what==0) { /* initialize unnamed node data structures */
     xctx->new_node=0;
     my_free(828, &xctx->node_mult);
     xctx->node_mult_size=0;
     return 0;
   }
-  else if(what==1) /* get a new unique unnamed node */
-  {
+  else if(what==1) { /* get a new unique unnamed node */
     char tmp_str[30];
     do {
       ++xctx->new_node;
       my_snprintf(tmp_str, S(tmp_str), "net%d", xctx->new_node);
     /* JL avoid autonamed nets clash with user defined 'net#' names */
     } while (bus_node_hash_lookup(tmp_str, "", XLOOKUP, 0, "", "", "", "")!=NULL);
-
-    while(xctx->new_node>= xctx->node_mult_size)  /* enlarge array and zero it */
-    {
-      xctx->node_mult_size += CADCHUNKALLOC;
-      my_realloc(242, &xctx->node_mult, sizeof(int) * xctx->node_mult_size );
-      for (i=xctx->node_mult_size-CADCHUNKALLOC;i<xctx->node_mult_size;i++) xctx->node_mult[i]=0;
+    if(xctx->new_node >= xctx->node_mult_size) { /* enlarge array and zero it */
+      int oldsize = xctx->node_mult_size;
+      xctx->node_mult_size = xctx->new_node + CADCHUNKALLOC;
+      my_realloc(242, &xctx->node_mult, sizeof(xctx->node_mult[0]) * xctx->node_mult_size );
+      memset(xctx->node_mult + oldsize, 0, (xctx->node_mult_size - oldsize) * sizeof(xctx->node_mult[0]));
     }
     xctx->node_mult[xctx->new_node]=mult;
     return xctx->new_node;
   }
-  else if(what==2)    /* update node multiplicity if given mult is lower */
-  {
+  else if(what==2) { /* update node multiplicity if given mult is lower */
     if(xctx->node_mult[node]==0) xctx->node_mult[node]=mult;
     else if(mult < xctx->node_mult[node]) xctx->node_mult[node]=mult;
     return 0;
   }
-  else /* what=3 , return node multiplicity */
-  {
+  else { /* what=3 , return node multiplicity */
     dbg(2, "get_unnamed_node(): returning mult=%d\n", xctx->node_mult[node]);
     return xctx->node_mult[node];
   }
 }
-/*------------ */
 
 /* store list of global nodes (global=1 set in symbol props) to be printed in netlist 28032003 */
 /* what: */
