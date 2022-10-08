@@ -61,4 +61,8 @@ xinit.c \
                                   print
   } else  print
   prev = $1
-}'
+}
+END{
+  print ">>>>>>>>>>> FREE  >>>>>>>>> " n " ..."
+}
+'

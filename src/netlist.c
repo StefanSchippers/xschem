@@ -1011,8 +1011,8 @@ static void name_pass_through_nets(int for_netlist)
   int lev = 1;
   
   dbg(1, "name_pass_through_nets() start...\n");
-  pt_symbol = my_calloc(973, xctx->symbols, sizeof(int));
-  symtable = my_calloc(1581,  xctx->symbols, sizeof(int));
+  pt_symbol = my_calloc(0, xctx->symbols, sizeof(int));
+  symtable = my_calloc(0,  xctx->symbols, sizeof(int));
   /* we can not loop over xctx->symbols since we keep symbols of parent circuit while netlisting */
   for(i = 0; i < xctx->instances; i++) {
     k = xctx->inst[i].ptr;
@@ -1034,9 +1034,9 @@ static void name_pass_through_nets(int for_netlist)
     str_hash_free(&table);
     if(pt_symbol[k]) dbg(1, "duplicated pins: %s\n", xctx->sym[i].name);
   }
-  my_free(1582, &symtable);
+  my_free(0, &symtable);
   if(!there_are_pt) { /* nothing to do: no pass through symbols */
-    my_free(1573, &pt_symbol);
+    my_free(0, &pt_symbol);
     return;
   }
   do { /* keep looping until propagation of nets occurs */
@@ -1047,7 +1047,7 @@ static void name_pass_through_nets(int for_netlist)
       if(inst[i].ptr<0) continue;
       if(!pt_symbol[ inst[i].ptr ]) continue;
       str_hash_init(&table, 37);
-      my_strdup(1565, &type, (inst[i].ptr + xctx->sym)->type);
+      my_strdup(0, &type, (inst[i].ptr + xctx->sym)->type);
       if (type && !IS_LABEL_OR_PIN(type) ) {
         if ((rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER]) > 0) {
           /* 1st loop: hash symbol pins that are attached to named nets/pins/labels */
@@ -1106,7 +1106,7 @@ static void name_pass_through_nets(int for_netlist)
                 iptr=iptr->next;
                 continue;
               }
-              my_strdup(1566, &type2, (inst[iptr->n].ptr + xctx->sym)->type);
+              my_strdup(0, &type2, (inst[iptr->n].ptr + xctx->sym)->type);
               if (!type2 || !IS_LABEL_OR_PIN(type2) ) {
                 iptr=iptr->next;
                 continue;
@@ -1171,8 +1171,8 @@ static void name_pass_through_nets(int for_netlist)
                   dbg(lev, "inst %s pin %s(%s) --> net %s\n",
                       inst[i].instname, entry->token, entry->value, 
                       xctx->wire[wptr->n].node ? xctx->wire[wptr->n].node : "<NULL>");
-                  my_strdup(1568,  &xctx->wire[wptr->n].node, entry->value);
-                  my_strdup(1569, &xctx->wire[wptr->n].prop_ptr,
+                  my_strdup(0,  &xctx->wire[wptr->n].node, entry->value);
+                  my_strdup(0, &xctx->wire[wptr->n].prop_ptr,
                   subst_token(xctx->wire[wptr->n].prop_ptr, "lab", entry->value));
                   wirecheck(wptr->n);
                   changed = 1;
@@ -1186,9 +1186,9 @@ static void name_pass_through_nets(int for_netlist)
       str_hash_free(&table);
     } /* for (i=0;i<instances;i++) */
   } while(changed);
-  my_free(1570, &type);
-  my_free(1571, &type2);
-  my_free(1572, &pt_symbol);
+  my_free(0, &type);
+  my_free(0, &type2);
+  my_free(0, &pt_symbol);
   dbg(lev, "name_pass_through_nets() end...\n");
 }
 

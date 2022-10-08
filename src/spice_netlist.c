@@ -786,10 +786,10 @@ Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable, const char *token, void
       if(what==XINSERT || what == XINSERT_NOREPLACE)            /* insert data */
       {
         s=sizeof( Ptr_hashentry );
-        entry=(Ptr_hashentry *)my_malloc(659, s);
+        entry=(Ptr_hashentry *)my_malloc(253, s);
         entry->next=NULL;
         entry->token=NULL;
-        my_strdup(658, &entry->token, token);
+        my_strdup(252, &entry->token, token);
         entry->value = value;
         entry->hash=hashcode;
         *preventry=entry;
@@ -801,8 +801,8 @@ Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable, const char *token, void
       if(what==XDELETE)             /* remove token from the hash table ... */
       {
         saveptr=entry->next;
-        my_free(896, &entry->token);
-        my_free(897, &entry);
+        my_free(273, &entry->token);
+        my_free(274, &entry);
         *preventry=saveptr;
       }
       else if(what == XINSERT ) {
@@ -821,7 +821,7 @@ void ptr_hash_init(Ptr_hashtable *hashtable, int size)
     dbg(0, "ptr_hash_init(): Warning hash table not empty, possible data leak\n");
   }
   hashtable->size = size;
-  hashtable->table = my_calloc(1576, size, sizeof(Ptr_hashentry *));
+  hashtable->table = my_calloc(1583, size, sizeof(Ptr_hashentry *));
 }
 
 static void ptr_hash_free_entry(Ptr_hashentry *entry)
@@ -829,8 +829,8 @@ static void ptr_hash_free_entry(Ptr_hashentry *entry)
   Ptr_hashentry *tmp;
   while( entry ) {
     tmp = entry -> next;
-    my_free(1171, &(entry->token));
-    my_free(1172, &entry);
+    my_free(1584, &(entry->token));
+    my_free(1585, &entry);
     entry = tmp;
   }
 }
@@ -846,7 +846,7 @@ void ptr_hash_free(Ptr_hashtable *hashtable)
       ptr_hash_free_entry( table[i] );
       table[i] = NULL;
     }
-    my_free(1575, &(hashtable->table));
+    my_free(1586, &(hashtable->table));
     hashtable->size = 0;
   }
 }

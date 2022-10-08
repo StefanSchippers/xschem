@@ -2758,6 +2758,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     case 't': /*----------------------------------------------*/
     if(!strcmp(argv[1], "test"))
     {
+      Ptr_hashtable table = {NULL, 0};
+      Ptr_hashentry *entry;
+      double a = 10.1;
+      ptr_hash_init(&table, 37);
+      ptr_hash_lookup(&table, "val", &a, XINSERT);
+    
+      entry = ptr_hash_lookup(&table, "val", NULL, XLOOKUP);
+      dbg(0, "val=%g\n", *(double *)entry->value);
+      ptr_hash_free(&table);
+    
       Tcl_ResetResult(interp);
     }
 
