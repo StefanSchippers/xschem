@@ -817,7 +817,7 @@ Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable, const char *token, void
 
 void ptr_hash_init(Ptr_hashtable *hashtable, int size)
 {
-  if(hashtable-,>size !=0 || hashtable->table != NULL) {
+  if(hashtable->size !=0 || hashtable->table != NULL) {
     dbg(0, "ptr_hash_init(): Warning hash table not empty, possible data leak\n");
   }
   hashtable->size = size;
