@@ -2657,7 +2657,7 @@ void print_verilog_element(FILE *fd, int inst)
      if(!extra_token) break;
 
      val = get_tok_value(xctx->inst[inst].prop_ptr, extra_token, 0);
-     if(!val[0]) val = get_tok_value( (xctx->inst[inst].ptr + xctx->sym)->prop_ptr, extra_token, 0);
+     if(!val[0]) val = get_tok_value(template, extra_token, 0);
      if(tmp) fprintf(fd,"\n");
      fprintf(fd, "  ?%d %s %s ", 1, extra_token, val);
      tmp = 1;

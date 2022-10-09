@@ -29,7 +29,6 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
  *                                        if already present just return entry address
  *                                        and update in/out fields sum up port field
  *                                        return NULL otherwise
- * "whatever"     "in"/"out"    0,XINSERT_NOREPLACE same as XINSERT but do not replace existing value
  *
  * "whatever"     whatever      2,XDELETE  delete entry if found return NULL
  * "whatever"     whatever      1,XLOOKUP  only look up element, dont insert */
@@ -57,7 +56,7 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
  {
   if( !entry )                  /* empty slot */
   {
-   if( what==XINSERT || what==XINSERT_NOREPLACE)          /* insert data */
+   if( what==XINSERT )          /* insert data */
    {
     s=sizeof( Node_hashentry );
     entry=(Node_hashentry *)my_malloc(281, s);

@@ -3164,6 +3164,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
       if(  /* add here symbol types not to consider when loading schematic-as-symbol instances */
           !strcmp(symtype, "logo") ||
           !strcmp(symtype, "netlist_commands") ||
+          !strcmp(symtype, "netlist_options") ||
           !strcmp(symtype, "arch_declarations") ||
           !strcmp(symtype, "architecture") ||
           !strcmp(symtype, "attributes") ||

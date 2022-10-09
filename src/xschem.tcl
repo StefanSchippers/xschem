@@ -2619,19 +2619,19 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   # .load.l paneconfigure .load.l.paneright -stretch always
   frame .load.buttons 
   frame .load.buttons_bot
-  button .load.buttons_bot.ok -width 5 -text OK -command {
-    set myload_retval [.load.buttons_bot.entry get]
+  button .load.buttons_bot.ok -width 5 -text OK -command "
+    set myload_retval \[.load.buttons_bot.entry get\]
     destroy .load
     xschem preview_window destroy {} {}
-    set initdir "$myload_dir1"
-  } 
-  button .load.buttons_bot.cancel -width 5 -text Cancel -command {
+    set $global_initdir \"\$myload_dir1\"
+  "
+  button .load.buttons_bot.cancel -width 5 -text Cancel -command "
     set myload_retval {}
     destroy .load
-    if {$myload_loadfile == 2} {xschem abort_operation}
+    if {\$myload_loadfile == 2} {xschem abort_operation}
     xschem preview_window destroy {} {}
-    set initdir "$myload_dir1"
-  }
+    set $global_initdir \"\$myload_dir1\"
+  "
   button .load.buttons.home -width 5 -text {Home} -command {
     bind .load.l.paneright.draw <Expose> {}
     .load.l.paneright.draw configure -background white
@@ -2695,32 +2695,32 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   }
   myload_set_home $initdir
   if { $loadfile != 2} {
-    bind .load <Return> { 
-      set myload_retval [.load.buttons_bot.entry get]
-      if {$myload_retval ne {} } {
+    bind .load <Return> " 
+      set myload_retval \[.load.buttons_bot.entry get\]
+      if {\$myload_retval ne {} } {
         destroy .load
         xschem preview_window destroy {} {}
-        set initdir "$myload_dir1"
+        set $global_initdir \"\$myload_dir1\"
       }
-    }
-    bind .load.l.paneright.list <Double-Button-1> {
-      set myload_retval [.load.buttons_bot.entry get]
-      if {$myload_retval ne {}  && 
-          ![file isdirectory "$myload_dir1/[.load.l.paneright.list get $myload_sel]"]} {
+    "
+    bind .load.l.paneright.list <Double-Button-1> "
+      set myload_retval \[.load.buttons_bot.entry get\]
+      if {\$myload_retval ne {}  && 
+          !\[file isdirectory \"\$myload_dir1/\[.load.l.paneright.list get \$myload_sel\]\"\]} {
         bind .load.l.paneright.draw <Expose> {}
         destroy .load
         xschem preview_window destroy {} {}
-        set initdir "$myload_dir1"
+        set $global_initdir \"\$myload_dir1\"
       }
-    }
+    "
   }
-  bind .load <Escape> {
+  bind .load <Escape> "
     set myload_retval {}
     destroy .load
-    if {$myload_loadfile == 2} {xschem abort_operation}
+    if {\$myload_loadfile == 2} {xschem abort_operation}
     xschem preview_window destroy {} {}
-    set initdir "$myload_dir1"
-  }
+    set $global_initdir \"\$myload_dir1\"
+  "
 
   ### update
   if { [ info exists myload_sash_pos] } {
