@@ -46,6 +46,16 @@ BEGIN{
 }
 {
  if( ($0 !~/^\.include/) && ($0 !~/^\.INCLUDE/) ) $0=toupper($0)
+ # allow to specify *.nodes[W]=2 or *.nodes["W"] = 2 in the netlist for additional
+ # custom devices nodes specification.
+ if($0 ~/^[ \t]*\*\.[ \t]*NODES\["?[^]["]"?\][ \t]*=[ \t]*.*/) {
+   n_nodes = $0
+   sub(/^.*=[ \t]*/, "", n_nodes)
+   n_initial = $0
+   sub(/"?\].*/, "", n_initial)
+   sub(/^.*\["?/, "", n_initial)
+   nodes[n_initial] = n_nodes
+ }
  if($0 ~ /^\**\.SUBCKT/ && first_subckt) {
    topcell=$2
    sub(/^\*\*/,"",$0)
