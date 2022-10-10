@@ -196,9 +196,9 @@ proc netlist_test {} {
     loading.sch             vhdl        584526899
     mos_power_ampli.sch     spice      1004049459
     hierarchical_tedax.sch  tedax       998070173
-    LCC_instances.sch       spice       103017336
+    LCC_instances.sch       spice      2610855064
     pcb_test1.sch           tedax      1925087189
-    test_doublepin.sch      spice      4034844719
+    test_doublepin.sch      spice      2249536600
     simulate_ff.sch         spice      1321596936
   } {
     xschem set netlist_type $t
