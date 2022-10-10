@@ -24,7 +24,8 @@ vvss vss 0 dc 0
 
 .tran 1n 200n}
 E {}
-T {Spice netlist allows duplicated pins on symbols} 50 -1570 0 0 1 1 {}
+T {Netlister allows duplicated pins on symbols
+Electrical nodes are propagated through duplicated symbol pins} 50 -1570 0 0 1 1 {}
 N 480 -930 630 -930 {
 lab=RRSSTT}
 N 480 -910 630 -910 {
@@ -54,35 +55,35 @@ lab=AA[3:0]}
 N 480 -1330 630 -1330 {
 lab=BB}
 N 480 -720 660 -720 {
-lab=#net1}
+lab=RRSSTT}
 N 480 -700 660 -700 {
-lab=#net2}
+lab=CCKK}
 N 480 -680 660 -680 {
-lab=#net3}
+lab=AA[3:0]}
 N 480 -660 660 -660 {
-lab=#net4}
+lab=BB}
 N 480 -620 510 -620 {
 lab=ZZ7}
 N 630 -620 660 -620 {
 lab=ZZ8}
 N 960 -720 1080 -720 {
-lab=#net5}
+lab=RRSSTT}
 N 960 -700 1080 -700 {
-lab=#net6}
+lab=CCKK}
 N 960 -680 1080 -680 {
-lab=#net7}
+lab=AA[3:0]}
 N 960 -660 1080 -660 {
-lab=#net8}
+lab=BB}
 N 1380 -620 1410 -620 {
 lab=ZZ9}
 N 480 -510 660 -510 {
-lab=#net9}
+lab=#net1}
 N 480 -490 660 -490 {
-lab=#net10}
+lab=#net2}
 N 480 -470 660 -470 {
-lab=#net11}
+lab=#net3}
 N 480 -450 660 -450 {
-lab=#net12}
+lab=#net4}
 N 480 -410 510 -410 {
 lab=ZZ12}
 N 630 -410 660 -410 {
@@ -92,59 +93,59 @@ lab=ZZ10}
 N 1520 -990 1550 -990 {
 lab=ZZ13}
 N 1170 -1090 1220 -1090 {
-lab=#net13}
+lab=RRSSTT}
 N 1170 -1070 1220 -1070 {
-lab=#net14}
+lab=CCKK}
 N 1170 -1050 1220 -1050 {
-lab=#net15}
+lab=AA[3:0]}
 N 1170 -1030 1220 -1030 {
-lab=#net16}
+lab=BB}
 N 1190 -1250 1220 -1250 {
 lab=ZZ14}
 N 1170 -1350 1220 -1350 {
-lab=#net17}
+lab=RRSSTT}
 N 1170 -1330 1220 -1330 {
-lab=#net18}
+lab=CCKK}
 N 1170 -1310 1220 -1310 {
-lab=#net19}
+lab=AA[3:0]}
 N 1170 -1290 1220 -1290 {
-lab=#net20}
-N 480 -280 660 -280 {
-lab=#net21}
+lab=BB}
+N 620 -280 660 -280 {
+lab=#net5}
 N 480 -260 660 -260 {
-lab=#net22}
+lab=#net6}
 N 480 -240 660 -240 {
-lab=#net23}
+lab=#net7}
 N 480 -220 660 -220 {
-lab=#net24}
+lab=#net8}
 N 480 -180 510 -180 {
 lab=ZZ17}
 N 630 -180 660 -180 {
 lab=ZZ16}
 N 960 -280 1080 -280 {
-lab=#net25}
+lab=#net5}
 N 960 -260 1080 -260 {
-lab=#net26}
+lab=#net6}
 N 960 -240 1080 -240 {
-lab=#net27}
+lab=#net7}
 N 960 -220 1080 -220 {
-lab=#net28}
+lab=#net8}
 N 1380 -180 1410 -180 {
 lab=ZZ15}
 N 10 -260 40 -260 {
-lab=#net29}
+lab=#net9}
 N 120 -260 180 -260 {
-lab=#net30}
+lab=#net6}
 N 70 -450 100 -450 {
-lab=#net31}
+lab=#net10}
 N 1260 -510 1440 -510 {
-lab=#net32}
+lab=#net1}
 N 1260 -490 1440 -490 {
-lab=#net33}
+lab=#net2}
 N 1260 -470 1440 -470 {
-lab=#net34}
+lab=#net3}
 N 1260 -450 1440 -450 {
-lab=#net35}
+lab=#net4}
 N 1740 -310 1770 -310 {
 lab=ZZ18}
 N 1740 -410 1740 -310 {
@@ -154,11 +155,11 @@ lab=ZZ19}
 N 2040 -410 2040 -310 {
 lab=ZZ19}
 N 620 -350 620 -280 {
-lab=#net21}
+lab=#net5}
 N 620 -350 680 -350 {
-lab=#net21}
+lab=#net5}
 N 760 -350 810 -350 {
-lab=#net36}
+lab=#net11}
 N 1110 -920 1260 -920 {
 lab=RRSSTT}
 N 1110 -900 1260 -900 {
@@ -169,24 +170,88 @@ N 1110 -860 1260 -860 {
 lab=BB}
 N 1560 -820 1590 -820 {
 lab=ZZ20}
-N 1560 -920 1760 -920 {
+N 1690 -920 1760 -920 {
 lab=RRSSTT}
 N 1560 -900 1760 -900 {
 lab=CCKK}
 N 1560 -880 1760 -880 {
 lab=AA[3:0]}
-N 1560 -860 1760 -860 {
+N 1730 -860 1760 -860 {
 lab=BB}
 N 1730 -820 1760 -820 {
 lab=ZZ21}
-N 2060 -880 2180 -880 {
-lab=#net37}
-N 2060 -860 2180 -860 {
-lab=#net38}
-N 2060 -900 2180 -900 {
-lab=#net39}
-N 2060 -920 2180 -920 {
-lab=#net40}
+N 2060 -880 2080 -880 {
+lab=AA[3:0]}
+N 2060 -860 2080 -860 {
+lab=BB}
+N 2060 -900 2080 -900 {
+lab=CCKK}
+N 2060 -920 2080 -920 {
+lab=RRSSTT}
+N 1690 -1070 1690 -920 {
+lab=RRSSTT}
+N 1690 -1370 1820 -1370 {
+lab=RRSSTT}
+N 1730 -1110 1730 -860 {
+lab=BB}
+N 1730 -1410 1820 -1410 {
+lab=BB}
+N 1980 -1330 2060 -1330 {
+lab=BB}
+N 2220 -1330 2280 -1330 {
+lab=RRSSTT}
+N 2220 -1250 2280 -1250 {
+lab=BB}
+N 2260 -1030 2360 -1030 {
+lab=BB}
+N 2260 -950 2300 -950 {
+lab=RRSSTT}
+N 1730 -1110 1780 -1110 {
+lab=BB}
+N 1690 -1070 1780 -1070 {
+lab=RRSSTT}
+N 2330 -930 2360 -930 {
+lab=ZZ22}
+N 2660 -990 2690 -990 {
+lab=#net12}
+N 2660 -970 2690 -970 {
+lab=RRSSTT}
+N 2660 -1010 2690 -1010 {
+lab=#net13}
+N 2660 -1030 2690 -1030 {
+lab=BB}
+N 2300 -970 2300 -950 {
+lab=RRSSTT}
+N 2300 -970 2360 -970 {
+lab=RRSSTT}
+N 480 -280 620 -280 {
+lab=#net5}
+N 1560 -920 1690 -920 {
+lab=RRSSTT}
+N 1560 -860 1730 -860 {
+lab=BB}
+N 1730 -1410 1730 -1110 {
+lab=BB}
+N 2300 -1010 2360 -1010 {
+lab=#net13}
+N 2300 -990 2360 -990 {
+lab=#net12}
+N 1690 -1370 1690 -1070 {
+lab=RRSSTT}
+N 1980 -1290 2060 -1290 {
+lab=RRSSTT}
+N 2220 -1290 2280 -1290 {
+lab=BB}
+N 2220 -1210 2280 -1210 {
+lab=RRSSTT}
+N 2140 -1410 2200 -1410 {
+lab=BB}
+N 2140 -1370 2200 -1370 {
+lab=RRSSTT}
+N 1920 -1490 1980 -1490 {
+lab=BB}
+N 1920 -1450 1980 -1450 {
+lab=RRSSTT}
 C {doublepin.sym} 1230 -670 0 0 {name=x9
 net_name=true}
 C {doublepin.sym} 810 -670 0 1 {name=x8
@@ -245,7 +310,7 @@ C {ipin.sym} 100 -80 0 0 { name=p9 lab=RRSSTT }
 C {ipin.sym} 100 -100 0 0 { name=p10 lab=CCKK }
 C {ipin.sym} 100 -120 0 0 { name=p11 lab=BB }
 C {ipin.sym} 100 -140 0 0 { name=p12 lab=AA[3:0] }
-C {opin.sym} 270 -120 0 0 { name=p13 lab=ZZ[21..1]}
+C {opin.sym} 270 -120 0 0 { name=p13 lab=ZZ[22..1]}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
 C {lab_pin.sym} 1410 -620 0 1 {name=p8 lab=ZZ9}
 C {doublepin.sym} 1110 -460 0 0 {name=x10
@@ -299,3 +364,12 @@ C {lab_wire.sym} 1180 -860 0 0 {name=l5 sig_type=std_logic lab=BB}
 C {doublepin.sym} 1910 -870 0 1 {name=x24
 net_name=true}
 C {lab_pin.sym} 1730 -820 0 0 {name=p5 lab=ZZ21}
+C {cross.sym} 1900 -1370 0 0 {name=x25}
+C {cross.sym} 2140 -1290 0 0 {name=x26}
+C {cross.sym} 1860 -1070 0 0 {name=x27}
+C {cross.sym} 2020 -1070 0 0 {name=x28}
+C {cross.sym} 2180 -990 0 0 {name=x29}
+C {doublepin.sym} 2510 -980 0 1 {name=x30
+net_name=true}
+C {lab_pin.sym} 2330 -930 0 0 {name=p5 lab=ZZ22}
+C {cross.sym} 2060 -1410 2 0 {name=x31}
