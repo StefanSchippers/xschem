@@ -22,8 +22,8 @@ L 4 1420 -770 1420 -730 {dash=3}
 L 4 1420 -770 1440 -750 {dash=3}
 L 4 1350 -750 1420 -750 {dash=3}
 B 2 750 -490 1410 -260 {flags=graph 
-y1 = -0.0578106
-y2 = 3.04806
+y1 = 0
+y2 = 3
 divy = 6
 x1=0
 x2=3
@@ -35,8 +35,8 @@ color="4 6 8"
 sweep="v(a)"
 dataset=-1}
 B 2 10 -930 570 -700 {flags=graph 
-y1 = -0.0578112
-y2 = 3.04806
+y1 = 0
+y2 = 3
 divy = 6
 x1=0
 x2=3
@@ -80,9 +80,9 @@ C {code_shown.sym} 510 -250 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
 value=".control
+save all
 dc v1 0 3 0.001
 * .tran 10n 10u uic
-save all
 write LCC_instances.raw
 
 set appendwrite 
