@@ -1038,6 +1038,7 @@ extern char cli_opt_netlist_dir[PATH_MAX];
 extern char cli_opt_filename[PATH_MAX];
 extern int cli_opt_no_readline;
 extern char *cli_opt_tcl_command;
+extern char *cli_opt_preinit_command;
 extern char *cli_opt_tcl_post_command;
 extern int cli_opt_do_print;
 extern int cli_opt_do_netlist;

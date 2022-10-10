@@ -10,7 +10,9 @@ Options:
                        type chosen).
   -w  --verilog        Set netlist type to Verilog.
   --tcl <tcl_cmd>      Execute specified tcl instructions before any other action,
-                       this can be used to change xschemrc variables.
+                       after sourcing xschemrc, this can be used to change xschemrc variables.
+  --preinit <tcl_cmd>  Execute specified tcl instructions before any other action,
+                       and before loading xschemrc.
   --script <file>      Execute specified tcl file as a command script (perhaps with xschem  commands).
   --command <tcl_cmd>  Execute specified tcl commands after completing startup.
   --tcp_port <number>  Listen to specified tcp port for client connections. (number >=1024).

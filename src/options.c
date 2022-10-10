@@ -69,6 +69,10 @@ static void check_opt(char *opt, char *optval, int type)
         dbg(1, "process_options(): will print png\n");
         cli_opt_do_print=2;
 
+    } else if( (type == LONG && !strcmp("preinit", opt)) ) {
+        dbg(1, "process_options(): passing tcl command to interpreter: %s\n", optval);
+        if(optval) my_strdup(1565, &cli_opt_preinit_command, optval);
+
     } else if( (type == LONG && !strcmp("tcl", opt)) ) {
         dbg(1, "process_options(): passing tcl command to interpreter: %s\n", optval);
         if(optval) my_strdup(110, &cli_opt_tcl_command, optval);
@@ -178,6 +182,9 @@ int process_options(int argc, char *argv[])
               optval = argv[++i];
             }
             else if(!strcmp("tcl", opt)) {
+              optval = argv[++i];
+            }
+            else if(!strcmp("preinit", opt)) {
               optval = argv[++i];
             }
             else if(!strcmp("script", opt)) {

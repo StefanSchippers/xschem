@@ -389,6 +389,12 @@
           <Component Id="cmpEE71F9B2266EB5D5942CCFD07E500A7B" Guid="{2F5161AB-FDE5-4F23-BFA7-BAB51687A35A}">
             <File Id="fil3E54C9EB76BA0C4948F348194C65BC0C" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\cmos_inv.sym" />
           </Component>
+	      <Component Id="cmp7B638600CF97F07A1A28630B8B0AA89D" Guid="{13525D30-3B86-4CF2-95EA-C1FA17E82CD1}">
+			<File Id="fil336C8A349DF3CF8C433D345DEDC3BA60" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\cross.sch" />
+		  </Component>
+		  <Component Id="cmp9EA5369C321EA6C92B5E5252E1232CCE" Guid="{9883ECAA-3FD6-4F6E-82E8-0AACCAC690DD}">
+			<File Id="fil7C5844700BE513415386982411303722" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\cross.sym" />
+		  </Component>
           <Component Id="cmp6758C5CAFB49CCFE98ED4A0CB79444A2" Guid="{8A248740-7FDF-4900-A491-2C5FF43270D2}">
             <File Id="filB0C628ED9C6CE9A400A928741D85657E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\diode_1.sch" />
           </Component>
@@ -5552,6 +5558,8 @@
       <ComponentRef Id="cmp32F04546D3D34E506668FDCAF140AD26" />
       <ComponentRef Id="cmp691FABAD9E70CAB633C4951FA945525F" />
       <ComponentRef Id="cmpEE71F9B2266EB5D5942CCFD07E500A7B" />
+	  <ComponentRef Id="cmp7B638600CF97F07A1A28630B8B0AA89D" />
+	  <ComponentRef Id="cmp9EA5369C321EA6C92B5E5252E1232CCE" />
       <ComponentRef Id="cmp6758C5CAFB49CCFE98ED4A0CB79444A2" />
       <ComponentRef Id="cmpDAB9FD1BFB650AB1F914EC01154D3191" />
       <ComponentRef Id="cmpADED9789CB9FCC2F3F7C192D39844489" />

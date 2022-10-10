@@ -867,6 +867,7 @@ static void xwin_exit(void)
  }
  my_free(1122, &pixdata);
  my_free(1138, &cli_opt_tcl_command);
+ my_free(1566, &cli_opt_preinit_command);
  my_free(1070, &cli_opt_tcl_post_command);
  clear_expandlabel_data();
  get_sym_template(NULL, NULL); /* clear static data in function */
@@ -2049,8 +2050,14 @@ int Tcl_AppInit(Tcl_Interp *inter)
     fprintf(errfp, "Tcl_AppInit(): failure creating %s\n", user_conf_dir);
     Tcl_Exit(EXIT_FAILURE);
    }
- }
+ 
+}
 
+ /* Execute tcl script given on command line with --preinit, before sourcing xschemrc */
+ if(cli_opt_preinit_command) {
+   tcleval(cli_opt_preinit_command);
+ }
+ 
  /*                         */
  /*    SOURCE xschemrc file */
  /*                         */
