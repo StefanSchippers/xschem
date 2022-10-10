@@ -44,7 +44,6 @@ BEGIN{
  nodes["I"]=2; nodes["C"]=2; nodes["L"]=2; nodes["Q"]=3
  nodes["E"]=4; nodes["G"]=4; nodes["H"]=2; nodes["F"]=2
 }
-
 {
  if( ($0 !~/^\.include/) && ($0 !~/^\.INCLUDE/) ) $0=toupper($0)
  if($0 ~ /^\**\.SUBCKT/ && first_subckt) {
@@ -63,6 +62,11 @@ BEGIN{
 } 
 
 END{
+ devpattern = "^["
+ for(j in nodes) {
+   devpattern = devpattern j
+ }
+ devpattern = devpattern "]"
  for(j=0;j<lines;j++) 
  {
   $0=a[j]
@@ -156,7 +160,7 @@ function expand(name, path, param,ports,   		# func. params
   }
   else
   {
-   if(line[1] ~ /^[EGHFCMDQRGIV]/)
+   if(line[1] ~ devpattern)
    {
     printf "%s ",line[1] pathname
     for(k=2;k<=nodes[substr(line[1],1,1)]+1;k++)
