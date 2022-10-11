@@ -3,6 +3,8 @@ v {xschem version=3.1.0 file_version=1.2
 G {}
 K {type=subcircuit
 verilog_primitive=true
+vhdl_primitive=true
+vhdl_format="@@Y <= @@A after 90 ps;"
 verilog_format="assign #90 @@Y = ~@@A ;"
 format="@name @pinlist @symname ROUT=@ROUT"
 template="name=x1 ROUT=1000"

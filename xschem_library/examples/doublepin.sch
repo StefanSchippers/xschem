@@ -16,3 +16,7 @@ C {noconn.sym} 210 -260 2 0 {name=l3}
 C {noconn.sym} 210 -220 2 0 {name=l4}
 C {noconn.sym} 210 -190 2 0 {name=l5}
 C {noconn.sym} 520 -240 2 1 {name=l6}
+C {use.sym} 380 -480 0 0 {------------------------------------------------
+library ieee;
+        use ieee.std_logic_1164.all;
+        use ieee.numeric_std.all;}

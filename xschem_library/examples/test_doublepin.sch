@@ -4,11 +4,17 @@ G {}
 K {}
 V {
 }
-S {va a 0 pwl 0 0 100n 0 101n 3
-vvcc vcc 0 dc 3
-vvss vss 0 dc 0
-
-.tran 1n 200n}
+S {
+.param VCC=2
+vaa3 aa[3] 0 dc 0
+vaa2 aa[2] 0 dc 0
+vaa1 aa[1] 0 dc 0
+vaa0 aa[0] 0 dc 0
+vbb bb 0 dc 0
+vcckk cckk 0 dc 0
+vrrsstt rrsstt 0 dc 0
+.op
+}
 E {}
 T {Netlister allows duplicated pins on symbols
 Electrical nodes are propagated through duplicated symbol pins} 50 -1570 0 0 1 1 {}
@@ -292,10 +298,10 @@ C {lab_pin.sym} 180 -720 0 0 {name=l31 sig_type=std_logic lab=RRSSTT}
 C {lab_pin.sym} 180 -700 0 0 {name=l32 sig_type=std_logic lab=CCKK}
 C {doublepin.sym} 330 -670 0 0 {name=x7
 net_name=true}
-C {ipin.sym} 100 -80 0 0 { name=p9 lab=RRSSTT }
-C {ipin.sym} 100 -100 0 0 { name=p10 lab=CCKK }
-C {ipin.sym} 100 -120 0 0 { name=p11 lab=BB }
-C {ipin.sym} 100 -140 0 0 { name=p12 lab=AA[3:0] }
+C {iopin.sym} 100 -80 0 0 { name=p9 lab=RRSSTT }
+C {iopin.sym} 100 -100 0 0 { name=p10 lab=CCKK }
+C {iopin.sym} 100 -120 0 0 { name=p11 lab=BB }
+C {iopin.sym} 100 -140 0 0 { name=p12 lab=AA[3:0] }
 C {opin.sym} 270 -120 0 0 { name=p13 lab=ZZ[22:1]}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
 C {lab_pin.sym} 1410 -620 0 1 {name=p8 lab=ZZ[9]}
@@ -359,3 +365,7 @@ C {doublepin.sym} 2510 -980 0 1 {name=x30
 net_name=true}
 C {lab_pin.sym} 2330 -930 0 0 {name=p5 lab=ZZ[22]}
 C {xcross.sym} 2060 -1410 2 0 {name=x31}
+C {use.sym} 1590 -100 0 0 {------------------------------------------------
+library ieee;
+        use ieee.std_logic_1164.all;
+        use ieee.numeric_std.all;}
