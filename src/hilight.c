@@ -649,7 +649,7 @@ int search(const char *tok, const char *val, int sub, int sel)
            bus_hilight_hash_lookup(xctx->inst[i].node[0], col, XINSERT_NOREPLACE); /* sets xctx->hilight_nets=1; */
          } else {
            dbg(1, "search(): setting hilight flag on inst %d\n",i);
-           xctx->hilight_nets=1;
+           /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */
            xctx->inst[i].color = col;
            inst_hilight_hash_lookup(xctx->inst[i].instname, col, XINSERT_NOREPLACE);
          }
@@ -1209,8 +1209,7 @@ void propagate_hilights(int set, int clear, int mode)
       }
       else {
         entry=inst_hilight_hash_lookup(xctx->inst[i].instname, 0, XLOOKUP);
-        if (entry && set)
-          xctx->inst[i].color=entry->value;
+        if (entry && set) xctx->inst[i].color=entry->value;
       }
     /* ... else hilight/clear pin/label instances attached to hilight nets */
     } else if(type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type) ) {
@@ -1693,7 +1692,7 @@ void hilight_net(int viewer)
        }
      } else {
        dbg(1, "hilight_net(): setting hilight flag on inst %d\n",n);
-       xctx->hilight_nets=1;
+       /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */
        xctx->inst[n].color = xctx->hilight_color;
        inst_hilight_hash_lookup(xctx->inst[n].instname, xctx->hilight_color, XINSERT_NOREPLACE);
        if(type &&  (!strcmp(type, "current_probe") || !strcmp(type, "vsource")) ) {
