@@ -78,7 +78,7 @@ C {vsource.sym} 270 -640 0 0 {name=v2 value="'VCC/2'"}
 C {lab_pin.sym} 270 -610 0 0 {name=p34 lab=0}
 C {code_shown.sym} 10 -440 0 0 {name=CONTROL 
 tclcommand="xschem edit_vi_prop"
-place=end
+xxplace=end
 value="
 ** download the models from:
 ** https://ptm.asu.edu/modelcard/65nm_bulk.txt

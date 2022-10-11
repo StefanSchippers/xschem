@@ -231,7 +231,7 @@ C {lab_pin.sym} 200 -570 0 1 {name=p126 lab=CALB}
 C {lab_pin.sym} 120 -570 0 0 {name=l50 lab=CAL}
 C {code.sym} 840 -190 0 0 {name=STIMULI 
 only_toplevel=true
-place=end
+xxplace=end
 value="* .option SCALE=1e-6 
 .option method=gear $$ seed=12
 .param VCC=0.9

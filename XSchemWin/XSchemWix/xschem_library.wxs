@@ -389,12 +389,6 @@
           <Component Id="cmpEE71F9B2266EB5D5942CCFD07E500A7B" Guid="{2F5161AB-FDE5-4F23-BFA7-BAB51687A35A}">
             <File Id="fil3E54C9EB76BA0C4948F348194C65BC0C" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\cmos_inv.sym" />
           </Component>
-	      <Component Id="cmp7B638600CF97F07A1A28630B8B0AA89D" Guid="{13525D30-3B86-4CF2-95EA-C1FA17E82CD1}">
-			<File Id="fil336C8A349DF3CF8C433D345DEDC3BA60" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\cross.sch" />
-		  </Component>
-		  <Component Id="cmp9EA5369C321EA6C92B5E5252E1232CCE" Guid="{9883ECAA-3FD6-4F6E-82E8-0AACCAC690DD}">
-			<File Id="fil7C5844700BE513415386982411303722" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\cross.sym" />
-		  </Component>
           <Component Id="cmp6758C5CAFB49CCFE98ED4A0CB79444A2" Guid="{8A248740-7FDF-4900-A491-2C5FF43270D2}">
             <File Id="filB0C628ED9C6CE9A400A928741D85657E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\diode_1.sch" />
           </Component>
@@ -641,6 +635,12 @@
           <Component Id="cmp653D0A919716C77B0160A681BB3332EC" Guid="{C96DAE2B-0D94-4BD4-803E-8914DB2DB851}">
             <File Id="fil8C86CA039409D917D8D2709BC846BEF9" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\TwoStageAmp.sch" />
           </Component>
+		  <Component Id="cmp9006ACB643F7A2C6C3634882DBF943FA" Guid="{B88F52AD-D170-496D-8FA4-21B513C11A6E}">
+			<File Id="filF1A62E77676511ECA0E3FE5EDEF8A841" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\xcross.sch" />
+	  	  </Component>
+		  <Component Id="cmp30D416247CB7868426C9E8075767CD1A" Guid="{52EE3186-47F1-4EB5-9197-98C830178888}">
+			<File Id="filF5A70F7E36226A2E9F1F9AA2B0CAA833" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\xcross.sym" />
+	      </Component>
           <Component Id="cmpB573F1750B3939F980B65D02B78EE0E3" Guid="{3286D1EA-EA76-4CA3-A542-E335B89FBBFD}">
             <File Id="filBCAF4D858D3BA6A0902F217004CD2351" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\xnor.sch" />
           </Component>
@@ -5558,8 +5558,6 @@
       <ComponentRef Id="cmp32F04546D3D34E506668FDCAF140AD26" />
       <ComponentRef Id="cmp691FABAD9E70CAB633C4951FA945525F" />
       <ComponentRef Id="cmpEE71F9B2266EB5D5942CCFD07E500A7B" />
-	  <ComponentRef Id="cmp7B638600CF97F07A1A28630B8B0AA89D" />
-	  <ComponentRef Id="cmp9EA5369C321EA6C92B5E5252E1232CCE" />
       <ComponentRef Id="cmp6758C5CAFB49CCFE98ED4A0CB79444A2" />
       <ComponentRef Id="cmpDAB9FD1BFB650AB1F914EC01154D3191" />
       <ComponentRef Id="cmpADED9789CB9FCC2F3F7C192D39844489" />
@@ -5642,6 +5640,8 @@
       <ComponentRef Id="cmp7BBFD4FFD4BD205783E8852433FC5873" />
       <ComponentRef Id="cmp5AF7A46758E91CA41D0CD61668C9C69A" />
       <ComponentRef Id="cmp653D0A919716C77B0160A681BB3332EC" />
+	  <ComponentRef Id="cmp9006ACB643F7A2C6C3634882DBF943FA" />
+	  <ComponentRef Id="cmp30D416247CB7868426C9E8075767CD1A" />
       <ComponentRef Id="cmpB573F1750B3939F980B65D02B78EE0E3" />
       <ComponentRef Id="cmp07A884BAD56D6B1718967173C498C3C3" />
       <ComponentRef Id="cmp93CCC992DFDB8670EC1762AF056E9A71" />

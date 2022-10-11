@@ -192,13 +192,13 @@ proc netlist_test {} {
   foreach {f t h} {
     rom8k.sch               spice      1975420796
     greycnt.sch             verilog    2415454714
-    autozero_comp.sch       spice      2275498269
+    autozero_comp.sch       spice      1181616733
     loading.sch             vhdl        584526899
     mos_power_ampli.sch     spice      1004049459
     hierarchical_tedax.sch  tedax       998070173
     LCC_instances.sch       spice      2610855064
     pcb_test1.sch           tedax      1925087189
-    test_doublepin.sch      spice      1447757360
+    test_doublepin.sch      spice       556408606
     simulate_ff.sch         spice      1321596936
   } {
     xschem set netlist_type $t
