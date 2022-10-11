@@ -349,12 +349,14 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
    my_strdup(317, &subckt_name, get_cell(xctx->sym[j].name, 0));
    if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL) {
+     Int_hashtable table = {NULL, 0};
      str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
      /* component generics */
      print_generic(fd,"component", j);
 
      /* component ports */
      tmp=0;
+     int_hash_init(&table, 37);
      for(i=0;i<xctx->sym[j].rects[PINLAYER];i++)
      {
        if(strcmp(get_tok_value(xctx->sym[j].rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
@@ -365,16 +367,18 @@ void global_vhdl_netlist(int global)  /* netlister driver */
          if(!sig_type || sig_type[0]=='\0') my_strdup(589, &sig_type,"std_logic");
          my_strdup(590, &dir_tmp, get_tok_value(xctx->sym[j].rect[PINLAYER][i].prop_ptr,"dir",0) );
          str_tmp = get_tok_value(xctx->sym[j].rect[PINLAYER][i].prop_ptr,"name",0);
-         if(!tmp) fprintf(fd, "port (\n");
-         if(tmp) fprintf(fd, " ;\n");
-         fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>",
-                              dir_tmp ? dir_tmp : "<NULL>", sig_type);
-         my_free(1085, &dir_tmp);
-         if(port_value &&port_value[0])
-           fprintf(fd," := %s", port_value);
-         tmp=1;
+         if(!int_hash_lookup(&table, str_tmp, 1, XINSERT_NOREPLACE)) {
+           if(!tmp) fprintf(fd, "port (\n");
+           if(tmp) fprintf(fd, " ;\n");
+           fprintf(fd,"  %s : %s %s",str_tmp, dir_tmp ? dir_tmp : "<NULL>", sig_type);
+           my_free(1085, &dir_tmp);
+           if(port_value &&port_value[0])
+             fprintf(fd," := %s", port_value);
+           tmp=1;
+         }
        }
      }
+     int_hash_free(&table);
      if(tmp) fprintf(fd, "\n);\n");
      fprintf(fd, "end component ;\n\n");
    }
@@ -540,6 +544,7 @@ void  vhdl_block_netlist(FILE *fd, int i)
   if(sym_def[0]) {
     fprintf(fd, "%s\n", sym_def);
   } else {
+    Int_hashtable table = {NULL, 0};
     fprintf(fd, "-- sch_path: %s\n", filename);
     load_schematic(1,filename, 0);
     dbg(1, "vhdl_block_netlist():       packages\n");
@@ -575,6 +580,7 @@ void  vhdl_block_netlist(FILE *fd, int i)
     dbg(1, "vhdl_block_netlist():       entity ports\n");
     /* print entity ports */
     tmp=0;
+    int_hash_init(&table, 37);
     for(j=0;j<xctx->sym[i].rects[PINLAYER];j++)
     {
       if(strcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"vhdl_ignore",0), "true")) {
@@ -585,16 +591,19 @@ void  vhdl_block_netlist(FILE *fd, int i)
         if(!sig_type || sig_type[0]=='\0') my_strdup(594, &sig_type,"std_logic");
         my_strdup(595, &dir_tmp, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"dir",0) );
         str_tmp = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"name",0);
-        if(tmp) fprintf(fd, " ;\n");
-        if(!tmp)  fprintf(fd,"port (\n");
-        fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>",
-                                           dir_tmp ? dir_tmp : "<NULL>", sig_type);
-        my_free(1092, &dir_tmp);
-        if(port_value &&port_value[0])
-          fprintf(fd," := %s", port_value);
-        tmp=1;
+        if(!int_hash_lookup(&table, str_tmp, 1, XINSERT_NOREPLACE)) {
+          if(tmp) fprintf(fd, " ;\n");
+          if(!tmp)  fprintf(fd,"port (\n");
+          fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>",
+                                             dir_tmp ? dir_tmp : "<NULL>", sig_type);
+          my_free(1092, &dir_tmp);
+          if(port_value &&port_value[0])
+            fprintf(fd," := %s", port_value);
+          tmp=1;
+        }
       }
     }
+    int_hash_free(&table);
     if(tmp) fprintf(fd, "\n);\n");
   
     dbg(1, "vhdl_block_netlist():       port attributes\n");
@@ -650,9 +659,9 @@ void  vhdl_block_netlist(FILE *fd, int i)
           if(!found) continue;
           /* component generics */
           print_generic(fd, "component",j);
-    
           /* component ports */
           tmp=0;
+          int_hash_init(&table, 37);
           for(k=0;k<xctx->sym[j].rects[PINLAYER];k++)
           {
             if(strcmp(get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"vhdl_ignore",0), "true")) {
@@ -664,16 +673,17 @@ void  vhdl_block_netlist(FILE *fd, int i)
               if(!sig_type || sig_type[0]=='\0') my_strdup(599, &sig_type,"std_logic");
               my_strdup(600, &dir_tmp, get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"dir",0) );
               str_tmp = get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"name",0);
-              if(!tmp) fprintf(fd, "port (\n");
-               if(tmp) fprintf(fd, " ;\n");
-              fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>",
-                                              dir_tmp ? dir_tmp : "<NULL>", sig_type);
-              my_free(1093, &dir_tmp);
-              if(port_value &&port_value[0])
-                fprintf(fd," := %s", port_value);
-              tmp=1;
+              if(!int_hash_lookup(&table, str_tmp, 1, XINSERT_NOREPLACE)) {
+                if(!tmp) fprintf(fd, "port (\n");
+                if(tmp) fprintf(fd, " ;\n");
+                fprintf(fd,"  %s : %s %s",str_tmp, dir_tmp ? dir_tmp : "<NULL>", sig_type);
+                my_free(1093, &dir_tmp);
+                if(port_value &&port_value[0]) fprintf(fd," := %s", port_value);
+                tmp=1;
+              }
             }
           }
+          int_hash_free(&table);
           if(tmp) fprintf(fd, "\n);\n");
           fprintf(fd, "end component ;\n\n");
         }

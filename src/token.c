@@ -890,14 +890,23 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
    else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present  */
                                         /* in hash table. print multiplicity */
    {                                    /* and node number: m1 n1 m2 n2 .... */
+    Int_hashtable table = {NULL, 0};
+    int first = 1;
+    int_hash_init(&table, 37);
     for(i=0;i<no_of_pins;i++)
     {
       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
       if(strcmp(get_tok_value(prop,"vhdl_ignore",0), "true")) {
-        str_ptr =  net_name(inst,i, &multip, 0, 1);
-        fprintf(fd, "----pin(%s) ", str_ptr);
+        const char *name = get_tok_value(prop,"name",0);
+        if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
+          if(!first) fprintf(fd, " , ");
+          str_ptr =  net_name(inst,i, &multip, 0, 1);
+          fprintf(fd, "----pin(%s) ", str_ptr);
+          first = 0;
+        }
       }
     }
+    int_hash_free(&table);
    }
    else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
     for(i=0;i<no_of_pins;i++) {
@@ -1204,6 +1213,7 @@ void print_vhdl_element(FILE *fd, int inst)
   int escape=0;
   xRect *pinptr;
   const char *fmt_attr = NULL;
+  Int_hashtable table = {NULL, 0};
 
   fmt_attr = xctx->format ? xctx->format : "vhdl_format";
   if(get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2)[0] != '\0') {
@@ -1322,19 +1332,24 @@ void print_vhdl_element(FILE *fd, int inst)
   fprintf(fd, "port map(\n" );
   tmp=0;
   pinptr = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER];
+  int_hash_init(&table, 37);
   for(i=0;i<no_of_pins;i++)
   {
     if(strcmp(get_tok_value(pinptr[i].prop_ptr,"vhdl_ignore",0), "true")) {
-      if( (str_ptr =  net_name(inst,i, &multip, 0, 1)) )
-      {
-        if(tmp) fprintf(fd, " ,\n");
-        fprintf(fd, "   %s => %s",
-          get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0),
-          str_ptr);
-        tmp=1;
+      const char *name = get_tok_value(pinptr[i].prop_ptr, "name", 0);
+      if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
+        if( (str_ptr =  net_name(inst,i, &multip, 0, 1)) )
+        {
+          if(tmp) fprintf(fd, " ,\n");
+          fprintf(fd, "   %s => %s",
+            get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0),
+            str_ptr);
+          tmp=1;
+        }
       }
     }
   }
+  int_hash_free(&table);
   fprintf(fd, "\n);\n\n");
    dbg(2, "print_vhdl_element(): ------- end ------ \n");
   my_free(992, &name);
@@ -2218,8 +2233,8 @@ void print_tedax_element(FILE *fd, int inst)
       topsch = get_trailing_path(xctx->sch[0], 0, 1);
       fputs(topsch, fd);
     }
-    else if(strcmp(token,"@pinlist")==0)        /* of course pinlist must not be present  */
-                                        /* in hash table. print multiplicity */
+    else if(strcmp(token,"@pinlist")==0)
+                                        /* print multiplicity */
     {                                   /* and node number: m1 n1 m2 n2 .... */
      for(i=0;i<no_of_pins;i++)
      {
@@ -2338,6 +2353,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
   size_t token_pos=0;
   int escape=0;
   int no_of_pins=0;
+  int symbol = xctx->inst[inst].ptr;
   /* Inst_hashentry *ptr; */
   const char *fmt_attr = NULL;
 
@@ -2449,12 +2465,21 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
     else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present  */
                                          /* in hash table. print multiplicity */
     {                                    /* and node number: m1 n1 m2 n2 .... */
-     for(i=0;i<no_of_pins;i++)
-     {
-       str_ptr =  net_name(inst,i, &multip, 0, 1);
-       fprintf(fd, "----pin(%s) ", str_ptr);
-       if(i < no_of_pins - 1) fprintf(fd, " , ");
+     Int_hashtable table = {NULL, 0};
+     int first = 1;
+     int_hash_init(&table, 37);
+     for(i=0;i<no_of_pins;i++) {
+       if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
+         const char *name = get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0);
+         if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
+           if(!first) fprintf(fd, " , ");
+           str_ptr =  net_name(inst,i, &multip, 0, 1);
+           fprintf(fd, "----pin(%s) ", str_ptr);
+           first = 0;
+         }
+       }
      }
+     int_hash_free(&table);
     }
     else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
      for(i=0;i<no_of_pins;i++) {
@@ -2534,6 +2559,7 @@ void print_verilog_element(FILE *fd, int inst)
  size_t token_pos=0, value_pos=0;
  int quote=0;
  const char *fmt_attr = NULL;
+ Int_hashtable table = {NULL, 0};
 
  fmt_attr = xctx->format ? xctx->format : "verilog_format";
  if(get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2)[0] != '\0') {
@@ -2635,21 +2661,23 @@ void print_verilog_element(FILE *fd, int inst)
   dbg(2, "print_verilog_element(): printing port maps \n");
  /* print port map */
  tmp=0;
+ int_hash_init(&table, 37);
  for(i=0;i<no_of_pins;i++)
  {
    xSymbol *ptr = xctx->inst[inst].ptr + xctx->sym;
    if(strcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
-     if( (str_ptr =  net_name(inst,i, &multip, 0, 1)) )
-     {
-       if(tmp) fprintf(fd,"\n");
-       fprintf(fd, "  ?%d %s %s ", multip,
-         get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"name",0),
-         str_ptr);
-       tmp=1;
+     const char *name = get_tok_value(ptr->rect[PINLAYER][i].prop_ptr, "name", 0);
+     if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
+       if( (str_ptr =  net_name(inst,i, &multip, 0, 1)) )
+       {
+         if(tmp) fprintf(fd,"\n");
+         fprintf(fd, "  ?%d %s %s ", multip, get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"name",0), str_ptr);
+         tmp=1;
+       }
      }
    }
  }
-
+ int_hash_free(&table);
  if(v_extra) {
    const char *val;
    for(extra_ptr = v_extra; ; extra_ptr=NULL) {

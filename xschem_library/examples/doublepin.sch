@@ -2,22 +2,7 @@ v {xschem version=3.1.0 file_version=1.2
 }
 G {}
 K {}
-V {
-
-initial begin
-  $dumpfile("dumpfile.vcd");
-  $dumpvars;
-  A=0;
-end
-
-integer i = 0;
-always begin
-  i = i + 1;
-  #100000;
-  $display("time= %t: A= %08b   Y= %08b", $time, A, Y);
-  A=~A;
-  if(i==20) $finish;
-end}
+V {}
 S {}
 E {}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}

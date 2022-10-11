@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {
 
     process(data, CEN, OEN) begin
@@ -148,7 +149,7 @@ library ieee;
 C {arch_declarations.sym} 750 -630 0 0 {    constant RAM_DEPTH :integer := 2**dim;
 
 
-    type RAM is array (integer range <>)of std_logic_vector (width-1 downto 0);
-    signal mem : RAM (0 to RAM_DEPTH-1);
+    type RAMARR is array (integer range <>)of std_logic_vector (width-1 downto 0);
+    signal mem : RAMARR (0 to RAM_DEPTH-1);
     signal data : std_logic_vector(width-1 downto 0);
 }

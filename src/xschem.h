@@ -1099,6 +1099,8 @@ extern const char *get_file_path(char *f);
 extern int save(int confirm);
 extern void save_ascii_string(const char *ptr, FILE *fd, int newline);
 extern Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int what) ;
+/* wrapper function to hash highlighted instances, avoid clash with net names */
+extern Hilight_hashentry *inst_hilight_hash_lookup(const char *token, int value, int what);
 extern Hilight_hashentry *hilight_lookup(const char *token, int value, int what);
 extern int search(const char *tok, const char *val, int sub, int sel);
 extern int process_options(int argc, char **argv);

@@ -449,6 +449,8 @@ void verilog_block_netlist(FILE *fd, int i)
   if(sym_def[0]) {
     fprintf(fd, "%s\n", sym_def);
   } else {
+    Int_hashtable table = {NULL, 0};
+    int_hash_init(&table, 37);
     my_strdup(1040, &extra, get_tok_value(xctx->sym[i].prop_ptr, "verilog_extra", 0));
     my_strdup(1563, &extra2, get_tok_value(xctx->sym[i].prop_ptr, "verilog_extra", 0));
     fprintf(fd, "// sch_path: %s\n", filename);
@@ -481,12 +483,16 @@ void verilog_block_netlist(FILE *fd, int i)
     for(j=0;j<xctx->sym[i].rects[PINLAYER];j++)
     {
       if(strcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
-        str_tmp = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"name",0);
-        if(tmp) fprintf(fd, " ,\n");
-        tmp++;
-        fprintf(fd,"  %s", str_tmp ? str_tmp : "<NULL>");
+        const char *name = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0);
+        if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
+          dbg(0, "verilog port: %s\n", name);
+          if(tmp) fprintf(fd, " ,\n");
+          tmp++;
+          fprintf(fd,"  %s", name);
+        }
       }
     }
+    int_hash_free(&table);
   
     if(extra) {
       for(extra_ptr = extra; ; extra_ptr=NULL) {
@@ -503,6 +509,7 @@ void verilog_block_netlist(FILE *fd, int i)
     /* print module  default parameters */
     print_verilog_param(fd,i);
     /* print port types */
+    int_hash_init(&table, 37);
     for(j=0;j<xctx->sym[i].rects[PINLAYER];j++)
     {
       if(strcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
@@ -517,17 +524,17 @@ void verilog_block_netlist(FILE *fd, int i)
            if(!sig_type || sig_type[0]=='\0') my_strdup(568, &sig_type,"wire");
         }
         str_tmp = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"name",0);
-        fprintf(fd,"  %s %s ;\n",
-          strcmp(dir_tmp,"in")? ( strcmp(dir_tmp,"out")? "inout" :"output"  ) : "input",
-          str_tmp ? str_tmp : "<NULL>");
-        fprintf(fd,"  %s %s",
-          sig_type,
-          str_tmp ? str_tmp : "<NULL>");
-        if(port_value &&port_value[0])
-          fprintf(fd," = %s", port_value);
-        fprintf(fd," ;\n");
+        if(!int_hash_lookup(&table, str_tmp, 1, XINSERT_NOREPLACE)) {
+          fprintf(fd,"  %s %s ;\n",
+            strcmp(dir_tmp,"in")? ( strcmp(dir_tmp,"out")? "inout" :"output"  ) : "input", str_tmp);
+          fprintf(fd,"  %s %s", sig_type, str_tmp);
+          if(port_value &&port_value[0])
+            fprintf(fd," = %s", port_value);
+          fprintf(fd," ;\n");
+        }
       }
     }
+    int_hash_free(&table);
     if(extra2) {
       saveptr1 = NULL;
       for(extra_ptr = extra2; ; extra_ptr=NULL) {

@@ -59,9 +59,9 @@ BEGIN{
 /^---- end primitive/{
   primitive=0
   $0 = primitive_line
-  split(primitive_line, primitive_line_sep,  /[^ \n\t]+/)
   gsub(/----pin\(/, " ----pin(",$0)
   gsub(/----name\(/, " ----name(",$0)
+  split($0, primitive_line_sep,  /[^ \n\t]+/)
   for(j=1;j<= primitive_mult; j++) {
     prefix=""
     # print $0 > "/dev/stderr"
@@ -108,7 +108,9 @@ BEGIN{
         sub(/\]/,"", prim_field_array[j])
         printf "%s%s", prefix prim_field_array[j], primitive_line_sep[i+1]
       }
-      else  printf "%s%s", prim_field, primitive_line_sep[i+1]
+      else {
+        printf "%s%s", prim_field, primitive_line_sep[i+1]
+      }
       prefix=""
     } # end for i
     printf "\n"
