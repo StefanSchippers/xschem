@@ -2080,22 +2080,27 @@ void print_tedax_element(FILE *fd, int inst)
    int net_mult;
    int pin_mult;
    int n;
+   Int_hashtable table={NULL, 0};
    subcircuit = 1;
    fprintf(fd, "__subcircuit__ %s %s\n", skip_dir(xctx->inst[inst].name), xctx->inst[inst].instname);
+   int_hash_init(&table, 37);
    for(i=0;i<no_of_pins; i++) {
      my_strdup2(531, &net, net_name(inst,i, &net_mult, 0, 1));
      my_strdup2(1196, &pinname, 
        get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0));
      my_strdup2(1197, &pin, expandlabel(pinname, &pin_mult));
-     dbg(1, "#net=%s pinname=%s pin=%s net_mult=%d pin_mult=%d\n", net, pinname, pin, net_mult, pin_mult);
-     for(n = 0; n < net_mult; n++) {
-       my_strdup(1204, &netbit, find_nth(net, ",", n+1));
-       my_strdup(1205, &pinbit, find_nth(pin, ",", n+1));
-       fprintf(fd, "__map__ %s -> %s\n", 
-         pinbit ? pinbit : "__UNCONNECTED_PIN__", 
-         netbit ? netbit : "__UNCONNECTED_PIN__");
+     if(!int_hash_lookup(&table, pinname, 1, XINSERT_NOREPLACE)) {
+       dbg(1, "#net=%s pinname=%s pin=%s net_mult=%d pin_mult=%d\n", net, pinname, pin, net_mult, pin_mult);
+       for(n = 0; n < net_mult; n++) {
+         my_strdup(1204, &netbit, find_nth(net, ",", n+1));
+         my_strdup(1205, &pinbit, find_nth(pin, ",", n+1));
+         fprintf(fd, "__map__ %s -> %s\n", 
+           pinbit ? pinbit : "__UNCONNECTED_PIN__", 
+           netbit ? netbit : "__UNCONNECTED_PIN__");
+       }
      }
    }
+   int_hash_free(&table);
    my_free(1199, &net);
    my_free(1200, &pin);
    my_free(1201, &pinname);
@@ -2628,9 +2633,14 @@ void print_verilog_element(FILE *fd, int inst)
      if(value[0] != '\0') /* token has a value */
      {
        if(strcmp(token,"spice_ignore") && strcmp(token,"vhdl_ignore") && strcmp(token,"tedax_ignore")) {
-         if(tmp == 0) {fprintf(fd, "#(\n---- start parameters\n");tmp++;tmp1=0;}
-         if(tmp1) fprintf(fd, " ,\n");
+         if(tmp == 0) {
+           fprintf(fd, "#(\n---- start parameters\n");
+           tmp++;
+           tmp1=0;
+         }
+         /* skip attributes of type time (delay="20 ns") that have VHDL syntax */
          if( !generic_type || strcmp(get_tok_value(generic_type,token, 0), "time")  ) {
+           if(tmp1) fprintf(fd, " ,\n");
            if( generic_type && !strcmp(get_tok_value(generic_type,token, 0), "string")  ) {
              fprintf(fd, "  .%s ( \"%s\" )", token, value);
            } else {
