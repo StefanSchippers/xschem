@@ -126,19 +126,15 @@ static void inst_hash_free(void) /* remove the whole hash table  */
 
 void hash_all_names(int n)
 {
-  int i, has_fmt_attr;
+  int i;
   char *upinst = NULL, *type = NULL;
-  const char *fmt_attr = NULL;
   inst_hash_free();
-  fmt_attr = xctx->format ? xctx->format : "format";
   for(i=0; i<xctx->instances; i++) {
-    has_fmt_attr = get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, fmt_attr, 2)[0] ? 1 : 0;
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
       my_strdup(1526, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-      if(!type || !has_fmt_attr || IS_LABEL_SH_OR_PIN(type) ) continue;
+      if(!type) continue;
       my_strdup(1254, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
-      /* if(i == n) continue; */
       inst_hash_lookup(upinst, i, XINSERT);
     }
   }
@@ -177,21 +173,18 @@ void clear_instance_hash()
  */
 void check_unique_names(int rename)
 {
-  int i, first = 1, has_fmt_attr;
+  int i, first = 1;
   int newpropcnt = 0;
   char *tmp = NULL;
   Inst_hashentry *entry;
   int big =  xctx->wires> 2000 || xctx->instances > 2000;
   char *upinst = NULL, *type = NULL;
-  const char *fmt_attr = NULL;
-  /* int save_draw; */
 
   if(xctx->hilight_nets) {
     xRect boundbox;
     if(!big) calc_drawing_bbox(&boundbox, 2);
     xctx->enable_drill=0;
     clear_all_hilights();
-    /* undraw_hilight_net(1); */
     if(!big) {
       bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
       bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
@@ -202,17 +195,15 @@ void check_unique_names(int rename)
   }
   inst_hash_free();
   first = 1;
-  fmt_attr = xctx->format ? xctx->format : "format";
   for(i=0;i<xctx->instances;i++) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
-      has_fmt_attr = get_tok_value((xctx->inst[i].ptr + xctx->sym)->prop_ptr, fmt_attr, 2)[0] ? 1 : 0;
       my_strdup(1261, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-      if(!type || !has_fmt_attr || IS_LABEL_SH_OR_PIN(type) ) continue;
+      if(!type) continue;
       my_strdup(1246, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
       if( (entry = inst_hash_lookup(upinst, i, XINSERT_NOREPLACE) ) && entry->value != i) {
         xctx->inst[i].color = -PINLAYER;
-        xctx->hilight_nets=1;
+        inst_hilight_hash_lookup(xctx->inst[i].instname, -PINLAYER, XINSERT_NOREPLACE);
         if(rename == 1) {
           if(first) {
             bbox(START,0.0,0.0,0.0,0.0);
@@ -244,9 +235,7 @@ void check_unique_names(int rename)
     draw();
     bbox(END,0.0,0.0,0.0,0.0);
   }
-  /* draw_hilight_net(1); */
   redraw_hilights(0);
-  /* xctx->draw_window = save_draw; */
 }
 
 

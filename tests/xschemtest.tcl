@@ -198,7 +198,7 @@ proc netlist_test {} {
     hierarchical_tedax.sch  tedax       998070173
     LCC_instances.sch       spice      2610855064
     pcb_test1.sch           tedax      1925087189
-    test_doublepin.sch      spice       556408606
+    test_doublepin.sch      spice        64707104
     simulate_ff.sch         spice      1321596936
   } {
     xschem set netlist_type $t

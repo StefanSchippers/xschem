@@ -19,4 +19,6 @@ C {res.sym} 150 -50 0 0 {name=R1
 value=1k
 footprint=1206
 device=resistor
+verilog_ignore=true
+vhdl_ignore=true
 m=1}

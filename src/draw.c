@@ -458,8 +458,8 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           (                                     /* ... and inst is hilighted ...          */
             IS_LABEL_SH_OR_PIN(type) && xctx->inst[n].node && xctx->inst[n].node[0] &&
             bus_hilight_hash_lookup(xctx->inst[n].node[0], 0, XLOOKUP )
-          ) || ( !IS_LABEL_SH_OR_PIN(type) && (xctx->inst[n].color != -10000)) )) {
-      xctx->inst[n].flags|=1;                    /* ... then SKIP instance now and for following layers */
+          ) || (/* !IS_LABEL_SH_OR_PIN(type) && */ (xctx->inst[n].color != -10000)) )) {
+      xctx->inst[n].flags|=1;      /* ... then SKIP instance now and for following layers */
       return;
     }
     else if(!xctx->only_probes && (xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&

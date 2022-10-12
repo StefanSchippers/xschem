@@ -1556,7 +1556,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
       entry=bus_hilight_hash_lookup(xctx->inst[i].lab, 0, XLOOKUP );
       if(entry) found = 1;
     }
-    else if( xctx->inst[i].color != -10000 ) {
+    if(!found &&  xctx->inst[i].color != -10000 ) {
       found = 1;
     }
     if(!found) continue;

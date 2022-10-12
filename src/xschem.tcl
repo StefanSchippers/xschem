@@ -4778,10 +4778,11 @@ proc setup_tabbed_interface {} {
   if { $tabbed_interface } {
     if { ![winfo exists .tabs] } {
       frame .tabs
-      button .tabs.x0 -padx 2 -pady 0 -anchor nw -text Main -command "xschem new_schematic switch_tab .drw"
+      button .tabs.x0 -padx 2 -pady 0 -anchor nw -takefocus 0 \
+          -text Main -command "xschem new_schematic switch_tab .drw"
       bind .tabs.x0 <ButtonPress> {swap_tabs %X %Y press}
       bind .tabs.x0 <ButtonRelease> {swap_tabs %X %Y release}
-      button .tabs.add -padx 0 -pady 0  -text { + } -command "xschem new_schematic create"
+      button .tabs.add -padx 0 -pady 0  -takefocus 0 -text { + } -command "xschem new_schematic create"
       pack .tabs.x0 .tabs.add -side left
       pack_tabs
     }
@@ -5159,7 +5160,7 @@ global env has_x OS autofocus_mainwindow
     bind $topwin <Double-Button-2> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-3> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Configure> "xschem callback %W %T %x %y 0 %w %h 0"
-    bind $topwin <ButtonPress> "xschem callback %W %T %x %y 0 %b 0 %s"
+    bind $topwin <ButtonPress> "focus $topwin; xschem callback %W %T %x %y 0 %b 0 %s"
     bind $topwin <ButtonRelease> "xschem callback %W %T %x %y 0 %b 0 %s"
     bind $topwin <KeyPress> "xschem callback %W %T %x %y %N 0 0 %s"
     bind $topwin <KeyRelease> "xschem callback %W %T %x %y %N 0 0 %s"

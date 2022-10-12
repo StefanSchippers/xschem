@@ -133,6 +133,7 @@ Hilight_hashentry *inst_hilight_hash_lookup(const char *token, int value, int wh
   char *inst_tok = NULL;
   size_t len = strlen(token) + 2; /* token plus one more character and \0 */
   Hilight_hashentry *entry;
+  dbg(1, "inst_hilight_hash_lookup: token=%s value=%s what=%d\n", token, value, what);
   inst_tok = my_malloc(1568, len);
   /* instance name uglyfication: add a space at beginning so it will never match a valid net name */
   my_snprintf(inst_tok, len, " %s", token);
