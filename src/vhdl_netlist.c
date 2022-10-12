@@ -106,8 +106,8 @@ static void vhdl_netlist(FILE *fd , int vhdl_stop)
      }
     }
    }
-   my_free(1097, &type);
  }
+ if(type) my_free(1097, &type);
  dbg(1, "vhdl_netlist():       end\n");
  if(!vhdl_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
 }
@@ -371,11 +371,11 @@ void global_vhdl_netlist(int global)  /* netlister driver */
            if(!tmp) fprintf(fd, "port (\n");
            if(tmp) fprintf(fd, " ;\n");
            fprintf(fd,"  %s : %s %s",str_tmp, dir_tmp ? dir_tmp : "<NULL>", sig_type);
-           my_free(1085, &dir_tmp);
            if(port_value &&port_value[0])
              fprintf(fd," := %s", port_value);
            tmp=1;
          }
+         my_free(1085, &dir_tmp);
        }
      }
      int_hash_free(&table);
@@ -596,11 +596,11 @@ void  vhdl_block_netlist(FILE *fd, int i)
           if(!tmp)  fprintf(fd,"port (\n");
           fprintf(fd,"  %s : %s %s",str_tmp ? str_tmp : "<NULL>",
                                              dir_tmp ? dir_tmp : "<NULL>", sig_type);
-          my_free(1092, &dir_tmp);
           if(port_value &&port_value[0])
             fprintf(fd," := %s", port_value);
           tmp=1;
         }
+        my_free(1092, &dir_tmp);
       }
     }
     int_hash_free(&table);
