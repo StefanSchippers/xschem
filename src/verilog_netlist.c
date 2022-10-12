@@ -485,7 +485,6 @@ void verilog_block_netlist(FILE *fd, int i)
       if(strcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
         const char *name = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0);
         if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
-          dbg(0, "verilog port: %s\n", name);
           if(tmp) fprintf(fd, " ,\n");
           tmp++;
           fprintf(fd,"  %s", name);
