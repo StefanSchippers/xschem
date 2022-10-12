@@ -646,7 +646,7 @@ int search(const char *tok, const char *val, int sub, int sel)
      {
        if(!sel) {
          type = (xctx->inst[i].ptr+ xctx->sym)->type;
-         if( type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type) ) {
+         if( !strcmp(tok, "lab") && type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type) ) {
            bus_hilight_hash_lookup(xctx->inst[i].node[0], col, XINSERT_NOREPLACE); /* sets xctx->hilight_nets=1; */
          } else {
            dbg(1, "search(): setting hilight flag on inst %d\n",i);

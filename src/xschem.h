@@ -832,7 +832,7 @@ typedef struct {
   int cur_undo_ptr;
   int tail_undo_ptr;
   int head_undo_ptr;
-  Inst_hashentry **inst_table;
+  Int_hashtable inst_table;
   Node_hashentry **node_table;
   Hilight_hashentry **hilight_table;
 
@@ -1305,8 +1305,6 @@ extern void init_wire_iterator(Iterator_ctx *ctx, double x1, double y1, double x
 extern Wireentry *wire_iterator_next(Iterator_ctx *ctx);
 extern void check_unique_names(int rename);
 
-extern void clear_instance_hash();
-
 extern unsigned int str_hash(const char *tok);
 extern void str_hash_free(Str_hashtable *hashtable);
 extern Str_hashentry *str_hash_lookup(Str_hashtable *hashtable,
@@ -1363,7 +1361,7 @@ extern double ceil_to_n_digits(double x, int n);
 extern const char *subst_token(const char *s, const char *tok, const char *new_val);
 extern void new_prop_string(int i, const char *old_prop,int fast, int dis_uniq_names);
 extern void hash_name(char *token, int remove);
-extern void hash_all_names(int n);
+extern void hash_all_names(void);
 extern void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2);
 /* extern char *escape_chars(char *dest, const char *source, int size); */
 

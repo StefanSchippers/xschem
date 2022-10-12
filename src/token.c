@@ -42,100 +42,19 @@ static char *find_bracket(char *s)
  return s;
 }
 
-/* 20180926 added token_size */
-/* what:
- * 0,XINSERT : lookup token and insert xctx->inst[value].instname in hash table
- *   When inserting token must be set to xctx->inst[value].instname
- *   (return NULL if token was not found). If token was found update value
- *   as the table stores only the pointer to xctx->inst[value].instname
- * 3,XINSERT_NOREPLACE : same as XINSERT but do not replace existing value if token found.
- * 1,XDELETE : delete token entry, return NULL
- * 2,XLOOKUP : lookup only
- */
-static Inst_hashentry *inst_hash_lookup(char *token, int value, int what)
-{
-  unsigned int hashcode;
-  unsigned int idx;
-  Inst_hashentry *entry, *saveptr, **preventry;
-  int s;
-  char *token_base = NULL;
-
-  if(token==NULL) return NULL;
-  my_strdup(1519, &token_base, token);
-  *(find_bracket(token_base)) = '\0';
-  hashcode=str_hash(token_base);
-  idx=hashcode % HASHSIZE;
-  entry=xctx->inst_table[idx];
-  preventry=&xctx->inst_table[idx];
-  while(1) {
-    if( !entry ) {                         /* empty slot */
-      if(what == XINSERT || what == XINSERT_NOREPLACE) {            /* insert data */
-        s=sizeof( Inst_hashentry );
-        entry=(Inst_hashentry *) my_malloc(425, s);
-        *preventry=entry;
-        entry->next=NULL;
-        entry->token = NULL;
-        my_strdup(1248, &entry->token, token_base);
-        entry->hash=hashcode;
-        entry->value = value;
-      }
-      my_free(1386, &token_base);
-      return NULL; /* token was not in hash */
-    }
-    if( entry->hash==hashcode && !strcmp(token_base, entry->token) ) { /* found a matching token */
-      if(what == XDELETE) {              /* remove token from the hash table ... */
-        saveptr=entry->next;
-        my_free(1249, &entry->token);
-        my_free(969, &entry);
-        *preventry=saveptr;
-        my_free(1388, &token_base);
-        return NULL;
-      } else if(what == XINSERT) {
-        entry->value = value;
-      }
-      /* dbg(1, "inst_hash_lookup(): returning: %s , %d\n", entry->token, entry->value); */
-      my_free(1577, &token_base);
-      return entry;        /* found matching entry, return the address */
-    }
-    preventry=&entry->next; /* descend into the list. */
-    entry = entry->next;
-  }
-}
-
-static void inst_hash_free_entry(Inst_hashentry *entry)
-{
-  Inst_hashentry *tmp;
-  while( entry ) {
-    tmp = entry -> next;
-    my_free(1545, &entry->token);
-    my_free(971, &entry);
-    entry = tmp;
-  }
-}
-
-static void inst_hash_free(void) /* remove the whole hash table  */
-{
-  int i;
-
-  dbg(1, "inst_hash_free(): removing hash table\n");
-  for(i=0;i<HASHSIZE;i++) {
-    inst_hash_free_entry( xctx->inst_table[i] );
-    xctx->inst_table[i] = NULL;
-  }
-}
-
-void hash_all_names(int n)
+void hash_all_names(void)
 {
   int i;
   char *upinst = NULL, *type = NULL;
-  inst_hash_free();
+  int_hash_free(&xctx->inst_table);
+  int_hash_init(&xctx->inst_table, HASHSIZE);
   for(i=0; i<xctx->instances; i++) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
       my_strdup(1526, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
       if(!type) continue;
       my_strdup(1254, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
-      inst_hash_lookup(upinst, i, XINSERT);
+      int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT);
     }
   }
   my_free(1255, &upinst);
@@ -162,11 +81,6 @@ const char *tcl_hook2(char **res)
   }
 }
 
-void clear_instance_hash()
-{
-  inst_hash_free();
-}
-
 /* Missing: 
  * if one instance is named R1[3:0] and another is named R1[2] 
  * the name collision is not detected nor corrected
@@ -176,7 +90,7 @@ void check_unique_names(int rename)
   int i, first = 1;
   int newpropcnt = 0;
   char *tmp = NULL;
-  Inst_hashentry *entry;
+  Int_hashentry *entry;
   int big =  xctx->wires> 2000 || xctx->instances > 2000;
   char *upinst = NULL, *type = NULL;
 
@@ -193,7 +107,8 @@ void check_unique_names(int rename)
     draw();
     if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   }
-  inst_hash_free();
+  int_hash_free(&xctx->inst_table);
+  int_hash_init(&xctx->inst_table, HASHSIZE);
   first = 1;
   for(i=0;i<xctx->instances;i++) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
@@ -201,7 +116,8 @@ void check_unique_names(int rename)
       if(!type) continue;
       my_strdup(1246, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
-      if( (entry = inst_hash_lookup(upinst, i, XINSERT_NOREPLACE) ) && entry->value != i) {
+      if( (entry = int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT_NOREPLACE) ) && entry->value != i) {
+        dbg(1, "check_unique_names(): found duplicate: i=%d name=%s\n", i, xctx->inst[i].instname);
         xctx->inst[i].color = -PINLAYER;
         inst_hilight_hash_lookup(xctx->inst[i].instname, -PINLAYER, XINSERT_NOREPLACE);
         if(rename == 1) {
@@ -221,7 +137,7 @@ void check_unique_names(int rename)
         new_prop_string(i, tmp, newpropcnt++, 0);
         my_strdup(1259, &upinst, xctx->inst[i].instname);
         strtoupper(upinst);
-        inst_hash_lookup(upinst, i, XINSERT);
+        int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT);
         symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
         bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
         my_free(972, &tmp);
@@ -236,6 +152,7 @@ void check_unique_names(int rename)
     bbox(END,0.0,0.0,0.0,0.0);
   }
   redraw_hilights(0);
+  int_hash_free(&xctx->inst_table);
 }
 
 
@@ -654,7 +571,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  size_t old_name_len;
  int n;
  char *old_name_base = NULL;
- Inst_hashentry *entry;
+ Int_hashentry *entry;
  char *up_old_name = NULL;
  char *up_new_name = NULL;
 
@@ -681,12 +598,13 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  }
  xctx->prefix=old_name[0];
  /* don't change old_prop if name does not conflict. */
- if(dis_uniq_names || (entry = inst_hash_lookup(up_old_name, i, XLOOKUP))==NULL ||
+ /* if no hash_all_names() is done and inst_table uninitialized --> use old_prop */
+ if(dis_uniq_names || (entry = int_hash_lookup(&xctx->inst_table, up_old_name, i, XLOOKUP))==NULL ||
      entry->value == i)
  {
   my_strdup(447, &xctx->inst[i].prop_ptr, old_prop);
   my_strdup2(90, &xctx->inst[i].instname, old_name);
-  inst_hash_lookup(up_old_name, i, XINSERT);
+  int_hash_lookup(&xctx->inst_table, up_old_name, i, XINSERT);
   my_free(985, &old_name);
   my_free(1578, &up_old_name);
   return;
@@ -705,7 +623,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
    }
    my_strdup(1258, &up_new_name, new_name);
    strtoupper(up_new_name);
-   if((entry = inst_hash_lookup(up_new_name, i, XLOOKUP)) == NULL || entry->value == i)
+   if((entry = int_hash_lookup(&xctx->inst_table, up_new_name, i, XLOOKUP)) == NULL || entry->value == i)
    {
     last[(int)xctx->prefix]=q+1;
     break;
@@ -716,7 +634,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  if(strcmp(tmp2, old_prop) ) {
    my_strdup(449, &xctx->inst[i].prop_ptr, tmp2);
    my_strdup2(235, &xctx->inst[i].instname, new_name);
-   inst_hash_lookup(up_new_name, i, XINSERT); /* reinsert in hash */
+   int_hash_lookup(&xctx->inst_table, up_new_name, i, XINSERT); /* reinsert in hash */
  }
  my_free(987, &old_name);
  my_free(1257, &up_old_name);
@@ -771,7 +689,6 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
  size_t token_pos=0;
  int escape=0;
  int no_of_pins=0;
- /* Inst_hashentry *ptr; */
  char *fmt_attr = NULL;
 
  my_strdup(513, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
@@ -2038,7 +1955,6 @@ void print_tedax_element(FILE *fd, int inst)
  int escape=0;
  int no_of_pins=0;
  int subcircuit = 0;
- /* Inst_hashentry *ptr; */
 
  my_strdup(489, &extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"extra",0));
  my_strdup(41, &extra_pinnumber, get_tok_value(xctx->inst[inst].prop_ptr,"extra_pinnumber",0));
@@ -2348,7 +2264,6 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
   int escape=0;
   int no_of_pins=0;
   int symbol = xctx->inst[inst].ptr;
-  /* Inst_hashentry *ptr; */
   const char *fmt_attr = NULL;
 
   my_strdup(519, &template,
@@ -2864,7 +2779,6 @@ const char *translate(int inst, const char* s)
  const char *tmp_sym_name;
  size_t sizetok=0;
  size_t result_pos=0, token_pos=0;
- /* Inst_hashentry *ptr; */
  struct stat time_buf;
  struct tm *tm;
  char file_name[PATH_MAX];

@@ -2289,7 +2289,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           /* 20110325 only modify prefix if prefix not NUL */
           if(prefix) name[0]=(char)prefix; /* change prefix if changing symbol type; */
           my_strdup(371, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
-          hash_all_names(inst);
+          hash_all_names();
           new_prop_string(inst, ptr,0, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
           type=xctx->sym[xctx->inst[inst].ptr].type;
           cond= !type || !IS_LABEL_SH_OR_PIN(type);
@@ -2620,7 +2620,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           xctx->prep_hash_inst=0;
           xctx->prep_net_structs=0;
           xctx->prep_hi_structs=0;
-          if(!strcmp(argv[4], "name")) hash_all_names(inst);
+          if(!strcmp(argv[4], "name")) hash_all_names();
           if(argc > 5) {
             new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[4], argv[5]),fast, 
               tclgetboolvar("disable_unique_names"));

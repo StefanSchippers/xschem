@@ -673,7 +673,7 @@ void clear_drawing(void)
   xctx->polygons[i] = 0;
  }
  dbg(1, "clear drawing(): deleted data structures, now deleting hash\n");
- clear_instance_hash();
+ int_hash_free(&xctx->inst_table);
 }
 
 void enable_layers(void)
@@ -1043,7 +1043,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->inst[n].node=NULL;
   xctx->inst[n].prop_ptr=NULL;
   dbg(1, "place_symbol() :all inst_ptr members set\n");  /*  03-02-2000 */
-  if(first_call) hash_all_names(n);
+  if(first_call) hash_all_names();
   if(inst_props) {
     new_prop_string(n, inst_props,!first_call, tclgetboolvar("disable_unique_names")); /*  20171214 first_call */
   }

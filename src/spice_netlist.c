@@ -648,7 +648,7 @@ void str_hash_free(Str_hashtable *hashtable)
       str_hash_free_entry( table[i] );
       table[i] = NULL;
     }
-    my_free(1384, &(hashtable->table));
+    if(hashtable->table) my_free(1384, &(hashtable->table));
     hashtable->size = 0;
   }
 }
@@ -746,7 +746,7 @@ void int_hash_free(Int_hashtable *hashtable)
       int_hash_free_entry( table[i] );
       table[i] = NULL;
     }
-    my_free(1575, &(hashtable->table));
+    if(hashtable->table) my_free(1575, &(hashtable->table));
     hashtable->size = 0;
   }
 }

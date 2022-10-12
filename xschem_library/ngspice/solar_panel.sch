@@ -232,7 +232,7 @@ C {code.sym} 20 -190 0 0 {name=MODELS value=".MODEL DIODE D(IS=1.139e-08 RS=0.99
 C {lab_pin.sym} 660 -440 0 1 {name=l4  lab=PANEL }
 C {lab_pin.sym} 630 -160 0 0 {name=l6  lab=0 }
 C {ammeter.sym} 1070 -390 3 0 {name=Vled net_name=true}
-C {ind.sym} 890 -560 3 1 {name=L1
+C {ind.sym} 890 -560 3 1 {name=L2
 m=1
 value=40u
 footprint=1206
@@ -245,7 +245,7 @@ value=500n
 footprint=1206
 device="ceramic capacitor" net_name=true}
 C {lab_pin.sym} 1010 -350 0 1 {name=l10  lab=VO }
-C {lab_pin.sym} 530 -560 0 0 {name=l2  lab=PANEL }
+C {lab_pin.sym} 530 -560 0 0 {name=l3  lab=PANEL }
 C {ammeter.sym} 970 -560 3 0 {name=Vind net_name=true}
 C {isource_table.sym} 1100 -280 0 0 {name=G2[9..0] CTRL="V(LED)" TABLE="
 + (0, 0)
@@ -285,11 +285,11 @@ C {lab_pin.sym} 510 -280 0 0 {name=l90  lab=0 }
 C {ammeter.sym} 440 -440 3 1 {name=Vpanel net_name=true}
 C {diode_ngspice.sym} 820 -410 2 0 {name=X2  m=1 Roff=1e9 Ron=0.1}
 C {switch_ngspice.sym} 760 -560 1 0 {name=S1 model=swmod}
-C {lab_pin.sym} 740 -600 0 0 {name=l3  lab=0 }
+C {lab_pin.sym} 740 -600 0 0 {name=l5  lab=0 }
 C {ammeter.sym} 570 -440 3 1 {name=Vpanel1 net_name=true}
 C {ammeter.sym} 510 -330 0 0 {name=Vcap net_name=true}
 C {vsource.sym} 170 -300 0 0 {name=Vfade value="pwl 0 1 1m 0"}
-C {lab_pin.sym} 170 -250 0 0 {name=l5  lab=0 }
+C {lab_pin.sym} 170 -250 0 0 {name=l8  lab=0 }
 C {ngspice_get_expr.sym} 1120 -320 0 0 {name=r29 
 node="[format %.4g [expr \{[ngspice::get_voltage led] * [ngspice::get_current vled]\}]] W"
 descr = power
@@ -300,12 +300,12 @@ C {lab_pin.sym} 770 -1080 0 1 {name=l14
 lab=TRIANG }
 C {vsource.sym} 550 -770 0 0 {name=Vref value=7}
 C {lab_pin.sym} 550 -740 0 0 {name=l17  lab=0 }
-C {lab_pin.sym} 760 -670 0 0 {name=l8  lab=CTRL1 }
+C {lab_pin.sym} 760 -670 0 0 {name=l13  lab=CTRL1 }
 C {comp_ngspice.sym} 660 -870 0 0 {name=x3 OFFSET=0.5 AMPLITUDE=1 ROUT=7k COUT=1n}
 C {lab_pin.sym} 550 -840 0 0 {name=l16
 lab=REF}
-C {lab_pin.sym} 550 -900 0 0 {name=l7  lab=LED }
+C {lab_pin.sym} 550 -900 0 0 {name=l15  lab=LED }
 C {lab_pin.sym} 830 -870 0 1 {name=l18  lab=LEVEL}
 C {comp_ngspice.sym} 950 -1000 0 0 {name=x4 OFFSET=0.5 AMPLITUDE=1 ROUT=1 COUT=1p}
-C {lab_pin.sym} 1060 -1000 0 1 {name=l8  lab=CTRL1 }
-C {lab_pin.sym} 170 -360 0 0 {name=l4  lab=SUN }
+C {lab_pin.sym} 1060 -1000 0 1 {name=l19  lab=CTRL1 }
+C {lab_pin.sym} 170 -360 0 0 {name=l20  lab=SUN }

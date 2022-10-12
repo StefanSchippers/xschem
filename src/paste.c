@@ -294,7 +294,7 @@ static void merge_inst(int k,FILE *fd)
     xctx->inst[i].lab=NULL;  /* assigned in link_symbols_to_instances */
     xctx->inst[i].node=NULL;
     load_ascii_string(&prop_ptr,fd);
-    if(!k) hash_all_names(i);
+    if(!k) hash_all_names();
     new_prop_string(i, prop_ptr, k, tclgetboolvar("disable_unique_names")); /* will also assign .instname */
     /* the final tmp argument is zero for the 1st call and used in */
     /* new_prop_string() for cleaning some internal caches. */
