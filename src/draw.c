@@ -2042,6 +2042,7 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
   gr->subdivx = gr->subdivy = 0;
   gr->logx = gr->logy = 0;
   gr->digital = 0;
+  gr->rainbow = 0;
 
   if(!skip) {
     gr->gx1 = 0;
@@ -2108,6 +2109,8 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
   val = get_tok_value(r->prop_ptr,"divy",0);
   if(val[0]) gr->divy = atoi(val);
   if(gr->divy < 1) gr->divy = 1;
+  val = get_tok_value(r->prop_ptr,"rainbow",0);
+  if(val[0] == '1') gr->rainbow = 1;
   val = get_tok_value(r->prop_ptr,"logx",0);
   if(val[0] == '1') gr->logx = 1;
   val = get_tok_value(r->prop_ptr,"logy",0);
@@ -2814,6 +2817,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           int cnt=0, wrap;
           register SPICE_DATA *gv = xctx->graph_values[sweep_idx];
   
+          if(gr->rainbow) wave_color = 4 + sweepvar_wrap % (cadlayers - 4);
           first = -1;
           poly_npoints = 0;
           my_realloc(1401, &point, xctx->graph_npoints[dset] * sizeof(XPoint));

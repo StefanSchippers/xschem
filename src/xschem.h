@@ -740,6 +740,7 @@ typedef struct {
   int dataset;
   int hilight_wave; /* wave index */
   int logx, logy;
+  int rainbow; /* draw multiple datasets with incrementing colors */
 } Graph_ctx;
 
 typedef struct {

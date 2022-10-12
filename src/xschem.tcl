@@ -1530,7 +1530,7 @@ proc waves {} {
 # allow change color (via graph_change_wave_color) of double clicked wave
 proc graph_edit_wave {n n_wave} {
   global graph_sel_color graph_selected colors graph_sel_wave
-  global graph_schname
+  global graph_schname cadlayers
   set graph_schname [xschem get schname]
   set_ne graph_sel_color 4
   set graph_selected $n
@@ -1552,7 +1552,7 @@ proc graph_edit_wave {n n_wave} {
   frame .graphdialog.f
   button .graphdialog.ok -text OK -command {destroy .graphdialog}
   button .graphdialog.cancel -text Cancel -command {destroy .graphdialog}
-  for {set i 4} {$i < 22} {incr i} {
+  for {set i 4} {$i < $cadlayers} {incr i} {
     radiobutton .graphdialog.f.r$i -value $i -bg [lindex $colors $i] \
          -variable graph_sel_color -command {graph_change_wave_color $graph_sel_wave }
     pack .graphdialog.f.r$i -side left -fill both -expand yes
@@ -1811,7 +1811,7 @@ proc update_div {graph_selected div} {
 
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected colors graph_sel_color
-  global graph_unlocked graph_schname graph_logx graph_logy
+  global graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow
 
   xschem push_undo
   set geom {}
@@ -1827,6 +1827,8 @@ proc graph_edit_properties {n} {
   set graph_schname [xschem get schname]
   set_ne graph_sel_color 4
   set_ne graph_sort 0
+  set graph_rainbow 0
+  if {[xschem getprop rect 2 $n rainbow] == 1} {set graph_rainbow 1}
   set graph_logx 0
   if {[xschem getprop rect 2 $n logx] == 1} {set graph_logx 1}
   set graph_logy 0
@@ -1939,7 +1941,7 @@ proc graph_edit_properties {n} {
   pack .graphdialog.bottom.apply -side left
   pack .graphdialog.bottom.cancel -side left
 
-  for {set i 4} {$i < 22} {incr i} {
+  for {set i 4} {$i < $cadlayers} {incr i} {
     radiobutton .graphdialog.bottom.r$i -value $i -bg [lindex $colors $i] \
       -variable graph_sel_color -command graph_change_wave_color
     pack .graphdialog.bottom.r$i -side left
@@ -2036,6 +2038,13 @@ proc graph_edit_properties {n} {
   checkbutton .graphdialog.top.bus -text Bus -padx 2 -variable graph_bus
   checkbutton .graphdialog.top.incr -text {Incr. sort} -variable graph_sort -indicatoron 1 \
     -command fill_graph_listbox
+  checkbutton .graphdialog.top.rainbow -text {Rainbow colors} -variable graph_rainbow \
+    -command {
+       if { [xschem get schname] eq $graph_schname } {
+         xschem setprop rect 2 $graph_selected rainbow $graph_rainbow fast
+         xschem draw_graph $graph_selected
+       }
+     }
   checkbutton .graphdialog.top.unlocked -text {Unlocked X axis} -variable graph_unlocked
   checkbutton .graphdialog.top.dig -text {Digital} -variable graph_digital -indicatoron 1 \
     -command {
@@ -2044,14 +2053,12 @@ proc graph_edit_properties {n} {
          xschem draw_graph $graph_selected
        }
      }
-
   label .graphdialog.top3.xlabmin -text { X min:}
   entry .graphdialog.top3.xmin -width 7
   bind .graphdialog.top3.xmin <KeyRelease> {
     xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get]
     xschem draw_graph $graph_selected
   }
-
   label .graphdialog.top3.xlabmax -text { X max:}
   entry .graphdialog.top3.xmax -width 7
   bind .graphdialog.top3.xmax <KeyRelease> {
@@ -2084,14 +2091,17 @@ proc graph_edit_properties {n} {
   pack .graphdialog.top.bus -side left
   pack .graphdialog.top.dig -side left
   pack .graphdialog.top.unlocked -side left
+  pack .graphdialog.top.rainbow -side left
   .graphdialog.top3.min insert 0 [xschem getprop rect 2 $graph_selected y1]
   .graphdialog.top3.max insert 0 [xschem getprop rect 2 $graph_selected y2]
   .graphdialog.top3.xmin insert 0 [xschem getprop rect 2 $graph_selected x1]
   .graphdialog.top3.xmax insert 0 [xschem getprop rect 2 $graph_selected x2]
 
   # top3 frame
+  set graph_rainbow [xschem getprop rect 2 $graph_selected rainbow]
   set graph_logx [xschem getprop rect 2 $graph_selected logx]
   set graph_logy [xschem getprop rect 2 $graph_selected logy]
+  if { $graph_rainbow eq {} } { set graph_rainbow 0 }
   if { $graph_logx eq {} } { set graph_logx 0 }
   if { $graph_logy eq {} } { set graph_logy 0 }
   checkbutton .graphdialog.top3.logx -padx 2 -text {Log X scale} -variable graph_logx \
@@ -5000,19 +5010,22 @@ proc no_open_dialogs {} {
 ## "myload_*" only one load_file_dialog window is allowed
 
 set tctx::global_list {
-  INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR auto_hilight autofocus_mainwindow
+  PDK_ROOT PDK SKYWATER_MODELS SKYWATER_STDCELLS 
+  INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR XSCHEM_LIBRARY_PATH
+  auto_hilight autofocus_mainwindow
   autotrim_wires bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
   cadsnap cairo_font_name change_lw color_ps colors connect_by_kissing constrained_move
   copy_cell custom_label_prefix custom_token dark_colors dark_colorscheme dim_bg dim_value
   disable_unique_names do_all_inst draw_grid draw_window edit_prop_pos edit_prop_size
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
   filetmp flat_netlist fullscreen gaw_fd gaw_tcp_address graph_bus graph_digital graph_logx
-  graph_logy graph_raw_level graph_schname graph_sel_color graph_sel_wave graph_selected
-  graph_sort graph_unlocked hide_empty_graphs hide_symbols hsize incr_hilight infowindow_text
-  input_line_cmd input_line_data launcher_default_program light_colors line_width
-  live_cursor2_backannotate local_netlist_dir measure_text netlist_show netlist_type
-  no_change_attrs noprint_libs old_selected_tok only_probes path pathlist persistent_command
-  preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors rawfile_loaded rcode recentfile
+  graph_logy graph_rainbow graph_raw_level graph_schname graph_sel_color graph_sel_wave
+  graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols hsize
+  incr_hilight infowindow_text input_line_cmd input_line_data launcher_default_program
+  light_colors line_width live_cursor2_backannotate local_netlist_dir measure_text netlist_show
+  netlist_type no_change_attrs noprint_libs old_selected_tok only_probes path pathlist
+  persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
+  rawfile_loaded rcode recentfile
   replace_key retval retval_orig rotated_text search_exact search_found search_schematic
   search_select search_value selected_tok show_hidden_texts show_infowindow show_pin_net_names
   simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
@@ -6067,6 +6080,7 @@ set_ne to_pdf {ps2pdf}
 set_ne graph_bus 0
 set_ne graph_logx 0
 set_ne graph_logy 0
+set_ne graph_rainbow 0
 set_ne graph_selected {}
 set_ne graph_schname {}
 set_ne graph_raw_level -1 ;# hierarchy level where raw file has been loaded 
