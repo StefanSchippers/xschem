@@ -598,7 +598,7 @@ int search(const char *tok, const char *val, int sub, int sel)
  save_draw = xctx->draw_window;
  xctx->draw_window=1;
 #ifdef __unix__
- if(regcomp(&re, val , REG_EXTENDED)) return TCL_ERROR;
+ if(regcomp(&re, val , REG_NOSUB | REG_EXTENDED)) return TCL_ERROR;
 #endif
  dbg(1, "search():val=%s\n", val);
  if(!sel) {

@@ -405,7 +405,7 @@ C {vsource.sym} 280 -180 0 0 {name=V7 value="SIN ( 5 4 2000 0 0 0 )"
 C {lab_pin.sym} 280 -130 0 0 {name=p21 lab=VSS}
 C {lab_pin.sym} 280 -230 0 0 {name=p22 lab=IN}
 C {parax_cap.sym} 670 -360 0 0 {name=C4 gnd=0 value=200f m=1}
-C {ind.sym} 710 -920 1 0 {name=L1
+C {ind.sym} 710 -920 1 0 {name=L3
 m=1
 value=0.03m
 footprint=1206
