@@ -2067,6 +2067,20 @@ void change_layer()
        y2 = xctx->rect[c][n].y2;
        storeobject(-1, x1,y1,x2,y2,xRECT,xctx->rectcolor, 0, xctx->rect[c][n].prop_ptr);
      }
+     else if(type==xTEXT && xctx->text[n].sel==SELECTED) {
+       if(xctx->rectcolor != xctx->text[n].layer) {
+         char *p;
+         set_modify(1);
+         my_strdup(1386, &xctx->text[n].prop_ptr, 
+           subst_token(xctx->text[n].prop_ptr, "layer", dtoa(xctx->rectcolor) ));
+         xctx->text[n].layer = xctx->rectcolor;
+         p = xctx->text[n].prop_ptr;
+         while(*p) {
+           if(*p == '\n') *p = ' ';
+           p++;
+         }
+       }
+     }
    }
    if(xctx->lastsel) delete_only_rect_line_arc_poly();
    unselect_all(1);
