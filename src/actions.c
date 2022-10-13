@@ -44,19 +44,23 @@ unsigned int hash_file(const char *f, int skip_path_lines)
   size_t n;
   int cr = 0;
   unsigned int h=5381;
-  char line[4096];
+  char *line = NULL;
   fd = fopen(f, "r"); /* windows won't return \r in the lines and we chop them out anyway in the code */
   if(fd) {
-    while( fgets(line, sizeof(line), fd) ) {
+    while((line = my_fgets(fd))) {
       /* skip lines of type: '** sch_path: ...' or '-- sch_path: ...' or '// sym_path: ...' */
-      if(skip_path_lines) {
-        if(!strncmp(line+2, " sch_path: ", 11) || !strncmp(line+2, " sym_path: ", 11) ) continue;
+      if(skip_path_lines && strlen(line) > 14) {
+        if(!strncmp(line+2, " sch_path: ", 11) || !strncmp(line+2, " sym_path: ", 11) ) {
+          my_free(1388, &line);
+          continue;
+        }
       }
       n = strlen(line);
       for(i = 0; i < n; i++) {
         /* skip CRs so hashes will match on unix / windows */
         if(line[i] == '\r') {
           cr = 1;
+          my_free(1519, &line);
           continue;
         } else if(line[i] == '\n' && cr) {
           cr = 0;
@@ -66,6 +70,7 @@ unsigned int hash_file(const char *f, int skip_path_lines)
         }
         h += (h << 5) + (unsigned char)line[i];
       }
+      my_free(1545, &line);
     }
     if(cr) h += (h << 5) + '\r'; /* file ends with \r not followed by \n: keep it */
     fclose(fd);

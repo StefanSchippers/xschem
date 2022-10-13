@@ -57,6 +57,22 @@ int my_strncasecmp(const char *s1, const char *s2, size_t n)
   return tolower(*s1) - tolower(*s2);
 }
 
+/* caller should free allocated storage for s */
+char *my_fgets(FILE *fd)
+{
+  enum { SIZE = 1024 };
+  char buf[SIZE];
+  char *s = NULL;
+  size_t len;
+
+  while(fgets(buf, SIZE, fd)) {
+    my_strcat(425, &s, buf);
+    len = strlen(buf);
+    if(buf[len - 1] == '\n') break;
+  }
+  return s;
+}
+
 /* split a string into tokens like standard strtok_r,
  * if quote string is not empty any character matching quote is considered a quoting
  * character, removed from input and all characters before next quote are considered
@@ -510,7 +526,7 @@ void my_realloc(int id, void *ptr,size_t size)
 
 }
 
-void my_free(int id, void *ptr)
+char *my_free(int id, void *ptr)
 {
  if(*(void **)ptr) {
    free(*(void **)ptr);
@@ -519,6 +535,7 @@ void my_free(int id, void *ptr)
  } else {
    dbg(3, "\n--> my_free(%d,): trying to free NULL pointer\n", id);
  }
+ return NULL;
 }
 
 /* n characters at most are copied, *d will be always NUL terminated if *s does

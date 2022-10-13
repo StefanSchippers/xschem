@@ -299,14 +299,16 @@ static void read_binary_block(FILE *fd)
 static int read_dataset(FILE *fd, const char *type)
 { 
   int variables = 0, i, done_points = 0;
-  char line[PATH_MAX], varname[PATH_MAX];
+  char *line = NULL, *varname = NULL, *lowerline = NULL;
   char *ptr;
   int n = 0, done_header = 0, ac = 0;
   int exit_status = 0, npoints, nvars;
   int dbglev=1;
   xctx->graph_sim_type = NULL;
   dbg(1, "read_dataset(): type=%s\n", type ? type : "<NULL>");
-  while((fgets(line, sizeof(line), fd)) ) {
+  while((line = my_fgets(fd))) {
+    my_strdup2(971, &lowerline, line);
+    strtolower(lowerline);
     /* this is an ASCII raw file. We don't handle this (yet) */
     if(!strcmp(line, "Values:\n") || !strcmp(line, "Values:\r\n")) {
       free_rawfile(0);
@@ -334,28 +336,28 @@ static int read_dataset(FILE *fd, const char *type)
     }
     /* if type is given (not NULL) choose the simulation that matches type, else take the first one */
     /* if xctx->graph_sim_type is set skip all datasets that do not match */
-    else if(!strncmp(line, "Plotname:", 9) && strstr(line, "Transient Analysis")) {
+    else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "transient analysis")) {
       if(xctx->graph_sim_type && strcmp(xctx->graph_sim_type, "tran")) xctx->graph_sim_type = NULL;
       else if(type && !strcmp(type, "tran")) xctx->graph_sim_type = "tran";
       else if(type && strcmp(type, "tran")) xctx->graph_sim_type = NULL;
       else xctx->graph_sim_type = "tran";
       dbg(dbglev, "read_dataset(): tran graph_sim_type=%s\n", xctx->graph_sim_type ? xctx->graph_sim_type : "<NULL>");
     }
-    else if(!strncmp(line, "Plotname:", 9) && strstr(line, "DC transfer characteristic")) {
+    else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "dc transfer characteristic")) {
       if(xctx->graph_sim_type && strcmp(xctx->graph_sim_type, "dc")) xctx->graph_sim_type = NULL;
       else if(type && !strcmp(type, "dc")) xctx->graph_sim_type = "dc";
       else if(type && strcmp(type, "dc")) xctx->graph_sim_type = NULL;
       else xctx->graph_sim_type = "dc";
       dbg(dbglev, "read_dataset(): dc graph_sim_type=%s\n", xctx->graph_sim_type ? xctx->graph_sim_type : "<NULL>");
     }
-    else if(!strncmp(line, "Plotname:", 9) && strstr(line, "Operating Point")) {
+    else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "operating point")) {
       if(xctx->graph_sim_type && strcmp(xctx->graph_sim_type, "op")) xctx->graph_sim_type = NULL;
       else if(type && !strcmp(type, "op")) xctx->graph_sim_type = "op";
       else if(type && strcmp(type, "op")) xctx->graph_sim_type = NULL;
       else xctx->graph_sim_type = "op";
       dbg(dbglev, "read_dataset(): op graph_sim_type=%s\n", xctx->graph_sim_type ? xctx->graph_sim_type : "<NULL>");
     }
-    else if(!strncmp(line, "Plotname:", 9) && strstr(line, "AC Analysis")) {
+    else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "ac analysis")) {
       ac = 1;
       if(xctx->graph_sim_type && strcmp(xctx->graph_sim_type, "ac")) xctx->graph_sim_type = NULL;
       else if(type && !strcmp(type, "ac")) xctx->graph_sim_type = "ac";
@@ -431,6 +433,7 @@ static int read_dataset(FILE *fd, const char *type)
     if(xctx->graph_sim_type && !done_header && variables) {
       /* get the list of lines with index and node name */
       if(!xctx->graph_names) xctx->graph_names = my_calloc(426, xctx->graph_nvars, sizeof(char *));
+      my_realloc(1249, &varname, strlen(line) + 1) ;
       n = sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
       if(n < 2) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
@@ -463,7 +466,10 @@ static int read_dataset(FILE *fd, const char *type)
     if(xctx->graph_sim_type && !strncmp(line, "Variables:", 10)) {
       variables = 1 ;
     }
-  }
+    my_free(969, &line);
+  } /*  while((line = my_fgets(fd))  */
+  my_free(1248, &lowerline);
+  my_free(1382, &varname);
   if(exit_status == 0 && xctx->graph_datasets && xctx->graph_npoints) {
     dbg(dbglev, "raw file read: datasets=%d, last dataset points=%d, nvars=%d\n",
         xctx->graph_datasets,  xctx->graph_npoints[xctx->graph_datasets-1], xctx->graph_nvars);
