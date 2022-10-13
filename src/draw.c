@@ -2718,7 +2718,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
  */
 void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
 {
-  int wave_color = 4;
+  int wc = 4, wave_color;
   char *node = NULL, *color = NULL, *sweep = NULL;
   int sweep_idx = 0;
   int n_nodes; /* number of variables to display in a single graph */
@@ -2769,16 +2769,16 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       stok = my_strtok_r(sptr, "\t\n ", "\"", &saves);
       nptr = cptr = sptr = NULL;
       dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
-      if(ctok && ctok[0]) wave_color = atoi(ctok);
-      if(wave_color < 0) wave_color = 4;
-      if(wave_color >= cadlayers) wave_color = cadlayers - 1;
+      if(ctok && ctok[0]) wc = atoi(ctok);
+      if(wc < 0) wc = 4;
+      if(wc >= cadlayers) wc = cadlayers - 1;
       if(stok && stok[0]) {
         sweep_idx = get_raw_index(stok);
         if( sweep_idx == -1) {
           sweep_idx = 0;
         }
       }
-      draw_graph_variables(wcnt, wave_color, n_nodes, sweep_idx, flags, ntok, stok, bus_msb, gr);
+      draw_graph_variables(wcnt, wc, n_nodes, sweep_idx, flags, ntok, stok, bus_msb, gr);
       /* if ntok following possible 'alias;' definition contains spaces --> custom data plot */
       idx = -1;
       expression = 0;
@@ -2821,7 +2821,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           int cnt=0, wrap;
           register SPICE_DATA *gv = xctx->graph_values[sweep_idx];
   
-          if(gr->rainbow) wave_color = 4 + sweepvar_wrap % (cadlayers - 4);
+          if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
+          else wave_color = wc;
           first = -1;
           poly_npoints = 0;
           my_realloc(1401, &point, xctx->graph_npoints[dset] * sizeof(XPoint));
