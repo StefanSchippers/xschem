@@ -2209,8 +2209,14 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       }
       if(stat(name, &buf)) break;
     }
-    my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", pwd_dir, name);
     my_strncpy(xctx->current_name, name, S(xctx->current_name));
+    if(getenv("PWD")) {
+      /* $env(PWD) better than pwd_dir as it does not dereference symlinks */
+      my_strncpy(xctx->current_dirname, getenv("PWD"), S(xctx->current_dirname));
+    } else {
+      my_strncpy(xctx->current_dirname, pwd_dir, S(xctx->current_dirname));
+    }
+    my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", xctx->current_dirname, name);
     if(reset_undo) set_modify(0);
   }
   check_collapsing_objects();

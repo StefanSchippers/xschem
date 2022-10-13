@@ -315,15 +315,20 @@ double atof_spice(const char *s)
   int n;
   double a = 0.0, mul=1.0;
   char lower_s[100];
+  char suffix[100];
   const char *p;
 
   if(!s) return 0.0;
   my_strncpy(lower_s, s, S(lower_s));
   strtolower(lower_s);
-  n = sscanf(lower_s, "%lf", &a);
-  if(n == 1) {
-    p = strpbrk(lower_s, "tgmkunpfa");
-    if(!p) mul = 1.0;
+  n = sscanf(lower_s, "%lf%s", &a, suffix);
+  if(n == 0) {
+    return 0.0;
+  } else if(n == 1) {
+    mul = 1.0;
+  } else {
+    p = strpbrk(suffix, "tgmkunpfa");
+    if(p != suffix ) mul = 1.0;
     else if(*p == 't') mul=1e12;
     else if(*p == 'g') mul=1e9;
     else if(*p == 'm') {
