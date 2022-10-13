@@ -1665,8 +1665,8 @@ static double axis_start(double n, double delta, int div)
   if(delta == 0.0) return n;
   /* if user wants only one division, just do what user asks */
   if(div == 1) return n;
-  if(delta < 0.0) return floor(n / delta) * delta;
-  return ceil(n / delta) * delta;
+  if(delta < 0.0) return ceil(n / delta) * delta;
+  return floor(n / delta) * delta;
 }
 
 static int axis_end(double x, double delta, double b)
@@ -1676,10 +1676,13 @@ static int axis_end(double x, double delta, double b)
   return x < b + delta / 100000.0;
 }
 
-static int axis_within_range(double x, double a, double b)
+static int axis_within_range(double x, double a, double b, double delta, int subdiv)
 {
-  if(a < b) return x >= a;
-  return x <= a;
+  double eps;
+  if(subdiv == 0) subdiv = 1;
+  eps = delta / (double) subdiv / 100.0;
+  if(a < b) return x >= a - eps;
+  return x <= a + eps;
 }
 
 static double get_unit(const char *val)
@@ -1967,11 +1970,11 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
         subwx = wx + deltax * mylog10(1.0 + (double)k * 9.0 / ((double)gr->subdivx + 1.0)); 
       else
         subwx = wx + deltax * (double)k / ((double)gr->subdivx + 1.0);
-      if(!axis_within_range(subwx, gr->gx1, gr->gx2)) continue;
+      if(!axis_within_range(subwx, gr->gx1, gr->gx2, deltax, gr->subdivx)) continue;
       if(axis_end(subwx, deltax, gr->gx2)) break;
       drawline(GRIDLAYER, ADD, W_X(subwx),   W_Y(gr->gy2), W_X(subwx),   W_Y(gr->gy1), (int)dash_sizey, ct);
     }
-    if(!axis_within_range(wx, gr->gx1, gr->gx2)) continue;
+    if(!axis_within_range(wx, gr->gx1, gr->gx2, deltax, gr->subdivx)) continue;
     if(axis_end(wx, deltax, gr->gx2)) break;
     /* swap order of gy1 and gy2 since grap y orientation is opposite to xorg orientation */
     drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy2), W_X(wx),   W_Y(gr->gy1), (int)dash_sizey, ct);
@@ -1999,11 +2002,11 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
           subwy = wy + deltay * mylog10(1.0 + (double)k * 9.0 / ((double)gr->subdivy + 1.0));
         else
           subwy = wy + deltay * (double)k / ((double)gr->subdivy + 1.0);
-        if(!axis_within_range(subwy, gr->gy1, gr->gy2)) continue;
+        if(!axis_within_range(subwy, gr->gy1, gr->gy2, deltay, gr->subdivy)) continue;
         if(axis_end(subwy, deltay, gr->gy2)) break;
         drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(subwy),   W_X(gr->gx2), W_Y(subwy), (int)dash_sizex, ct);
       }
-      if(!axis_within_range(wy, gr->gy1, gr->gy2)) continue;
+      if(!axis_within_range(wy, gr->gy1, gr->gy2, deltay, gr->subdivy)) continue;
       if(axis_end(wy, deltay, gr->gy2)) break;
       drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(wy),   W_X(gr->gx2), W_Y(wy), (int)dash_sizex, ct);
       drawline(GRIDLAYER, ADD, W_X(gr->gx1) - mark_size, W_Y(wy),   W_X(gr->gx1), W_Y(wy), 0, ct); /* axis marks */
@@ -2711,6 +2714,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
  * 2: draw x-cursor1
  * 4: draw x-cursor2
  * 8: all drawing, if not set do only XCopyArea / x-cursor if specified
+ * ct is a pointer used in windows for cairo
  */
 void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
 {
