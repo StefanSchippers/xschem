@@ -93,6 +93,57 @@ p{padding: 15px  30px 10px;}
   You may choose either method, but please be consistent throughout your design.
  </h3>
 
+ <h1> Change project setup runtime</h1>
+ <p>
+  Since Xschem now handles multiple windows or tabs, it is desirasble to load schematics from different projects
+  into a single running instance of xschem.
+  This is not difficult to do and you might want to write your own procedure into your xschemrc to automate this.
+  Lets suppose you open a new schematic tab. After opening the new tab go to the xschem prompt in the terminal 
+  you launched Xschem from, and redefine your XSCHEM_LIBRARY_PATH:</p>
+ <pre class="code">
+    set XSCHEM_LIBRARY_PATH {} ;# clear previous definitions
+    append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/xschem_library  ;# for devices/
+    append XSCHEM_LIBRARY_PATH :/home/schippes/share/pdk/sky130A/libs.tech/xschem ;# for sky130 libs
+    # project specific variables (either tcl variables or shell variables via the TCL env() array)
+    set PDK_ROOT /home/schippes/share/pdk
+    set PDK sky130A
+    set SKYWATER_MODELS ${PDK_ROOT}/${PDK}/libs.tech/ngspice
+    set SKYWATER_STDCELLS ${PDK_ROOT}/${PDK}/libs.ref/sky130_fd_sc_hd/spice
+    # the following command does the necessary housekeeping to load the new paths
+    set_paths
+ </pre>
+ <p>
+  At this point your new tab will work with the new defnitions while the previous tab
+  will continue with its previous settings.
+ </p>
+ <p class="important">
+  you should create a small procedure and put int into your xschemrc so you will just need to type the 
+  procedure name:
+ </p><br>
+ <pre class="code">
+  proc set_sky130 {} {
+      ## XSCHEM_SHAREDIR points to XSCHEM install path, example: /usr/local/share/xschem
+      ## USER_CONF_DIR is usually ~/.xschem
+      ## env may be used to set environment variables, like:
+      ## set env(PDK_ROOT) .....
+      global XSCHEM_LIBRARY_PATH XSCHEM_SHAREDIR USER_CONF_DIR env
+      ## Other global TCL variables listed here depend on the project setup.
+      global PDK_ROOT PDK SKYWATER_MODELS SKYWATER_STDCELLS
+
+      # project specific variables (either tcl variables or shell variables via the TCL env() array)
+      set PDK_ROOT /home/schippes/share/pdk
+      set PDK sky130A
+      set SKYWATER_MODELS ${PDK_ROOT}/${PDK}/libs.tech/ngspice
+      set SKYWATER_STDCELLS ${PDK_ROOT}/${PDK}/libs.ref/sky130_fd_sc_hd/spice
+
+      set XSCHEM_LIBRARY_PATH {} ;# clear previous definitions
+      append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/xschem_library  ;# for devices/
+      append XSCHEM_LIBRARY_PATH :${PDK_ROOT}/${PDK}/libs.tech/xschem
+      # the following command does the necessary housekeeping to load the new paths
+      set_paths
+  }
+ </pre>
+
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
