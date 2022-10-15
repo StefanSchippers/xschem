@@ -3278,7 +3278,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      read_line(lcc[level-1].fd, 0); /* discard any remaining characters till (but not including) newline */
    else
      read_line(lcc[level].fd, 0); /* discard any remaining characters till (but not including) newline */
-  }
+  } /* while(1) */
   if(!embed_fd) {
     dbg(1, "l_s_d(): fclose2, level=%d, fd=%p\n", level, lcc[0].fd);
     fclose(lcc[0].fd);

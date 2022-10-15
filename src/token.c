@@ -2997,10 +2997,11 @@ const char *translate(int inst, const char* s)
      if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
        int multip;
        int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
+       const char *pin_prop_ptr = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][0].prop_ptr;
        if(no_of_pins == 1) {
          char *fqnet = NULL;
          const char *path =  xctx->sch_path[xctx->currsch] + 1;
-         const char *net;
+         const char *net = NULL;
          size_t len;
          int idx;
          double val;
@@ -3013,7 +3014,8 @@ const char *translate(int inst, const char* s)
              path++;
            }
            prepare_netlist_structs(0);
-           net = net_name(inst,0, &multip, 0, 0);
+           if(pin_prop_ptr) net = get_tok_value(pin_prop_ptr, "lab", 0);
+           if(net == 0 || net[0] == '\0') net = net_name(inst,0, &multip, 0, 0);
            len = strlen(path) + strlen(net) + 1;
            dbg(1, "net=%s\n", net);
            fqnet = my_malloc(1548, len);
