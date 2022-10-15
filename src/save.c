@@ -3068,6 +3068,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      tt[i].txt_ptr=NULL;
      tt[i].font=NULL;
      load_ascii_string(&tt[i].txt_ptr, lcc[level].fd);
+     dbg(1, "l_s_d(): txt1: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
      if(fscanf(lcc[level].fd, "%lf %lf %hd %hd %lf %lf ",&tt[i].x0, &tt[i].y0, &tt[i].rot,
         &tt[i].flip, &tt[i].xscale, &tt[i].yscale) < 6 ) {
        fprintf(errfp,"l_s_d(): WARNING:  missing fields for Text object, ignoring\n");
@@ -3076,9 +3077,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
      }
      if (level>0) {
        const char* tmp = translate2(lcc, level, tt[i].txt_ptr);
-       dbg(1, "load_sym_def(): tmp=%s tt[i].txt_ptr=%s i=%d\n", tmp, tt[i].txt_ptr, i);
+       dbg(1, "l_s_d(): txt2: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
        rot = lcc[level].rot; flip = lcc[level].flip;
-       if (tmp) my_strdup(651, &tt[i].txt_ptr, tmp);
+       if (tmp && tmp[0]) my_strdup(651, &tt[i].txt_ptr, tmp);
+       dbg(1, "l_s_d(): txt3: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
        ROTATION(rot, flip, 0.0, 0.0, tt[i].x0, tt[i].y0, rx1, ry1);
        tt[i].x0 = lcc[level].x0 + rx1;  tt[i].y0 = lcc[level].y0 + ry1;
        tt[i].rot = (tt[i].rot + ((lcc[level].flip && (tt[i].rot & 1)) ?
