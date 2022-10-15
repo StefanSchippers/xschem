@@ -3015,7 +3015,7 @@ const char *translate(int inst, const char* s)
            }
            prepare_netlist_structs(0);
            if(pin_prop_ptr) net = get_tok_value(pin_prop_ptr, "lab", 0);
-           if(net == 0 || net[0] == '\0') net = net_name(inst,0, &multip, 0, 0);
+           if(net == NULL || net[0] == '\0') net = net_name(inst,0, &multip, 0, 0);
            len = strlen(path) + strlen(net) + 1;
            dbg(1, "net=%s\n", net);
            fqnet = my_malloc(1548, len);
@@ -3054,7 +3054,7 @@ const char *translate(int inst, const char* s)
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
        char *net = NULL;
        size_t len;
-       int idx;
+       int idx, n;
        double val;
        const char *valstr;
        tmp = strlen(token) + 1;
@@ -3066,33 +3066,35 @@ const char *translate(int inst, const char* s)
            path++;
          }
          net = my_malloc(1571, tmp);
-         sscanf(token + 19, "%[^)]", net);
-         strtolower(net);
-         len = strlen(path) + strlen(net) + 1;
-         dbg(1, "net=%s\n", net);
-         fqnet = my_malloc(1548, len);
-         my_snprintf(fqnet, len, "%s%s", path, net);
-         strtolower(fqnet);
-         dbg(1, "translate(): fqnet=%s start_level=%d\n", fqnet, start_level);
-         idx = get_raw_index(fqnet);
-         if(idx >= 0) {
-           val = xctx->graph_values[idx][xctx->graph_annotate_p];
+         n = sscanf(token + 19, "%[^)]", net);
+         if(n == 1) {
+           strtolower(net);
+           len = strlen(path) + strlen(net) + 1;
+           dbg(1, "net=%s\n", net);
+           fqnet = my_malloc(1548, len);
+           my_snprintf(fqnet, len, "%s%s", path, net);
+           strtolower(fqnet);
+           dbg(1, "translate(): fqnet=%s start_level=%d\n", fqnet, start_level);
+           idx = get_raw_index(fqnet);
+           if(idx >= 0) {
+             val = xctx->graph_values[idx][xctx->graph_annotate_p];
+           }
+           if(idx < 0) {
+             valstr = "";
+             xctx->tok_size = 0;
+             len = 0;
+           } else {
+             valstr = dtoa_eng(val);
+             len = xctx->tok_size;
+           }
+           if(len) {
+             STR_ALLOC(&result, len + result_pos, &size);
+             memcpy(result+result_pos, valstr, len+1);
+             result_pos += len;
+           }
+           dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
+           my_free(1549, &fqnet);
          }
-         if(idx < 0) {
-           valstr = "";
-           xctx->tok_size = 0;
-           len = 0;
-         } else {
-           valstr = dtoa_eng(val);
-           len = xctx->tok_size;
-         }
-         if(len) {
-           STR_ALLOC(&result, len + result_pos, &size);
-           memcpy(result+result_pos, valstr, len+1);
-           result_pos += len;
-         }
-         dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
-         my_free(1549, &fqnet);
          my_free(1570, &net);
        }
      }

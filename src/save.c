@@ -3076,6 +3076,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      }
      if (level>0) {
        const char* tmp = translate2(lcc, level, tt[i].txt_ptr);
+       dbg(1, "load_sym_def(): tmp=%s tt[i].txt_ptr=%s i=%d\n", tmp, tt[i].txt_ptr, i);
        rot = lcc[level].rot; flip = lcc[level].flip;
        if (tmp) my_strdup(651, &tt[i].txt_ptr, tmp);
        ROTATION(rot, flip, 0.0, 0.0, tt[i].x0, tt[i].y0, rx1, ry1);
