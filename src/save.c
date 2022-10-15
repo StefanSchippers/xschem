@@ -3079,7 +3079,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        const char* tmp = translate2(lcc, level, tt[i].txt_ptr);
        dbg(1, "l_s_d(): txt2: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
        rot = lcc[level].rot; flip = lcc[level].flip;
-       if (tmp && tmp[0]) my_strdup(651, &tt[i].txt_ptr, tmp);
+       if (tmp) my_strdup(651, &tt[i].txt_ptr, tmp);
        dbg(1, "l_s_d(): txt3: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
        ROTATION(rot, flip, 0.0, 0.0, tt[i].x0, tt[i].y0, rx1, ry1);
        tt[i].x0 = lcc[level].x0 + rx1;  tt[i].y0 = lcc[level].y0 + ry1;

@@ -2820,11 +2820,11 @@ const char *translate(int inst, const char* s)
   space=SPACE(c);
   if( state==TOK_BEGIN && (c=='@' || c=='%' ) && !escape  ) state=TOK_TOKEN; /* 20161210 escape */
   else if( state==TOK_TOKEN && (
-                              (space && !escape)  ||
-                               (c =='@' || c == '%') ||
-                              (!space && escape)
-                            )
-                         && token_pos > 1 ) state=TOK_SEP;
+                                 (space && !escape)  ||
+                                 (c =='@' || c == '%') ||
+                                 (!space && escape)
+                               )
+                            && token_pos > 1 ) state=TOK_SEP;
 
 
   STR_ALLOC(&result, result_pos, &size);
@@ -3018,7 +3018,7 @@ const char *translate(int inst, const char* s)
            if(net == NULL || net[0] == '\0') net = net_name(inst,0, &multip, 0, 0);
            len = strlen(path) + strlen(net) + 1;
            dbg(1, "net=%s\n", net);
-           fqnet = my_malloc(1548, len);
+           fqnet = my_malloc(1573, len);
            my_snprintf(fqnet, len, "%s%s", path, net);
            strtolower(fqnet);
            dbg(1, "translate(): fqnet=%s start_level=%d\n", fqnet, start_level);
@@ -3040,7 +3040,7 @@ const char *translate(int inst, const char* s)
              result_pos += len;
            }
            dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
-           my_free(1549, &fqnet);
+           my_free(1577, &fqnet);
          }
        }
      }
@@ -3371,7 +3371,10 @@ const char *translate2(Lcc *lcc, int level, char* s)
       dbg(1, "translate2(): lcc[%d].prop_ptr=%s\n", level, lcc[level].prop_ptr);
       /* if spiceprefix==0 and token == @spiceprefix then set empty value */
       if(!tclgetboolvar("spiceprefix") && !strcmp(token, "@spiceprefix")) {
-        my_free(1069, &value1);
+        if(value1) my_free(1069, &value1);
+        xctx->tok_size = 0;
+      } else if(!strncmp(token, "@#",2)) { /* get rid of pin attribute info */
+        if(value1) my_free(1572, &value1);
         xctx->tok_size = 0;
       } else {
         my_strdup2(332, &value1, get_tok_value(lcc[level].prop_ptr, token + 1, 0));
@@ -3403,6 +3406,12 @@ const char *translate2(Lcc *lcc, int level, char* s)
         memcpy(result + result_pos + 1 , value, tmp + 1);
         result_pos += tmp + 1;
       }
+      else if (strncmp(token, "@spice_get_voltage", 18) == 0) { /* return unchanged */
+        tmp = strlen(token);
+        STR_ALLOC(&result, tmp + result_pos, &size);
+        memcpy(result + result_pos, token, tmp + 1);
+        result_pos += tmp;
+      }
       else if (strcmp(token, "@symname") == 0) {
         tmp_sym_name = lcc[level].symname ? get_cell(lcc[level].symname, 0) : "";
         tmp = strlen(tmp_sym_name);
@@ -3426,7 +3435,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
       result[result_pos] = '\0';
       break;
     }
-  }
+  } /* while(1) */
   my_free(1532, &token);
   my_free(1533, &value1);
   my_free(1071, &value2);
