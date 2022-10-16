@@ -3129,13 +3129,9 @@ const char *translate(int inst, const char* s)
            fqdev = my_malloc(1599, len);
            if(!sim_is_xyce) {
              int prefix, vsource;
-             char *ptr = dev;
-             char *prefix_ptr = dev;
-             while(*ptr) { /* since dev is something like X1.X2.V2 find last . before V */
-               if(*ptr == '.') prefix_ptr = ptr + 1;
-               ptr++;
-             }
-             prefix = prefix_ptr[0]; /* character after last '.' */
+             char *prefix_ptr = strrchr(dev, '.'); /* last '.' in dev */
+             if(prefix_ptr) prefix = prefix_ptr[1]; /* character after last '.' */
+             else prefix=dev[0];
              dbg(1, "prefix=%c, path=%s\n", prefix, path);
              vsource = (prefix == 'v') || (prefix == 'e');
              if(vsource) my_snprintf(fqdev, len, "i(%c.%s%s.%s)", prefix, path, xctx->inst[inst].instname, dev);
