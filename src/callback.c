@@ -534,12 +534,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           if(gr->unitx != 1.0) 
             my_snprintf(sx, S(sx), "%.5g%c", gr->unitx * xval, gr->unitx_suffix);
           else
-            my_snprintf(sx, S(sx), "%s",  dtoa_eng(xval));
+            strncpy(sx, dtoa_eng(xval), S(sx));
 
           if(gr->unitx != 1.0)
             my_snprintf(sy, S(sy), "%.4g%c", gr->unity * yval, gr->unity_suffix);
           else
-            my_snprintf(sy, S(sy), "%s",  dtoa_eng(yval));
+            strncpy(sy, dtoa_eng(yval), S(sy));
   
           tclvareval("set measure_text \"y=", sy, "\nx=", sx, "\"", NULL);
           tcleval("graph_show_measure");
