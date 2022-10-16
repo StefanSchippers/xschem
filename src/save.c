@@ -2730,6 +2730,63 @@ static void calc_symbol_bbox(int pos)
   xctx->sym[pos].maxy = boundbox.y2;
 }
 
+static int order_changed;
+static int pin_compare(const void *a, const void *b)
+{
+  int pinnumber_a, pinnumber_b;
+  const char *tmp;
+  int result;
+  
+  tmp = get_tok_value(((xRect *)a)->prop_ptr, "pinnumber", 0);
+  pinnumber_a = tmp[0] ?  atoi(tmp) : -1;
+  tmp = get_tok_value(((xRect *)b)->prop_ptr, "pinnumber", 0);
+  pinnumber_b = tmp[0] ?atoi(tmp) : -1;
+  result =  pinnumber_a < pinnumber_b ? -1 : pinnumber_a == pinnumber_b ? 0 : 1;
+  if(result >= 0) order_changed = 1;
+  return result;
+}
+
+void sort_symbol_pins(int i)
+{
+  xSymbol *sym = xctx->sym;
+  xRect *pin_array = sym[i].rect[PINLAYER];
+  int j, do_sort = 0;
+  int npins = sym[i].rects[PINLAYER];
+  const char *pinnumber;
+  order_changed = 0;
+
+  if(npins > 0) do_sort = 1; /* no pins, no sort... */
+  /* do not sort if some pins don't have pinnumber attribute */
+  for(j = 0; j < npins; j++) {
+    pinnumber = get_tok_value(pin_array[j].prop_ptr, "pinnumber", 0);
+    if(!pinnumber[0]) do_sort = 0;
+  }
+  if(do_sort) {
+    const char *pinname;
+    
+    if(debug_var >= 1) for(j = 0; j < npins; j++) {
+      pinname = get_tok_value(pin_array[j].prop_ptr, "name", 0);
+      dbg(0, "pin name=%s\n", pinname);
+    }
+    qsort(pin_array, npins, sizeof(xRect), pin_compare);
+    if(order_changed) {
+      dbg(0, "Symbol %s has pinnumber attributes on pins. Pins will be sorted\n", sym[i].name);
+      /* 
+      tclvareval("alert_ {",
+                 "About to load symbol ", sym[i].name, ".\n",
+                 "It has pinnumber attributes on pins, so pins will be sorted\n",
+                 "To avoid this message descend into ", sym[i].name, "\n",
+                 "and save the symbol.",
+                 "}", NULL);
+      */
+    }
+    if(debug_var >= 1) for(j = 0; j < npins; j++) {
+      pinname = get_tok_value(pin_array[j].prop_ptr, "name", 0);
+      dbg(1, "pin name=%s\n", pinname);
+    }
+  }
+}
+
 /* Global (or static global) variables used:
  * cadlayers
  * errfp
@@ -3367,6 +3424,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   my_free(912, &symname);
   my_free(913, &symtype);
   recursion_counter--;
+  sort_symbol_pins(xctx->symbols - 1); /* sort on pinnumber if given in pins */
   return 1;
 }
 
