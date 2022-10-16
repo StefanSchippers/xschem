@@ -2784,7 +2784,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   symbols = xctx->symbols;
   dbg(1, "l_s_d(): recursion_counter=%d, name=%s\n", recursion_counter, name);
   recursion_counter++;
-  dbg(1, "l_s_d(): name=%s\n", name);
+  dbg(1, "l_s_d(): loading name=%s\n", name);
   lcc=NULL;
   my_realloc(647, &lcc, (level + 1) * sizeof(Lcc));
   max_level = level + 1;
@@ -3068,7 +3068,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      tt[i].txt_ptr=NULL;
      tt[i].font=NULL;
      load_ascii_string(&tt[i].txt_ptr, lcc[level].fd);
-     dbg(1, "l_s_d(): txt1: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
+     dbg(1, "l_s_d(): txt1: level=%d tt[i].txt_ptr=%s, i=%d\n", level, tt[i].txt_ptr, i);
      if(fscanf(lcc[level].fd, "%lf %lf %hd %hd %lf %lf ",&tt[i].x0, &tt[i].y0, &tt[i].rot,
         &tt[i].flip, &tt[i].xscale, &tt[i].yscale) < 6 ) {
        fprintf(errfp,"l_s_d(): WARNING:  missing fields for Text object, ignoring\n");
@@ -3081,6 +3081,49 @@ int load_sym_def(const char *name, FILE *embed_fd)
        rot = lcc[level].rot; flip = lcc[level].flip;
        if (tmp) my_strdup(651, &tt[i].txt_ptr, tmp);
        dbg(1, "l_s_d(): txt3: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
+       /* allow annotation inside LCC instances. */
+       if(tt[i].txt_ptr && !strcmp(tt[i].txt_ptr, "@spice_get_voltage")) {
+         /* prop_ptr is the attribute string of last loaded LCC component */
+         const char *lab;
+         size_t new_size = 0;
+         char *path = NULL;
+         if(level > 1) { /* add parent LCC instance names (X1, Xinv etc) */
+           int i;
+           for(i = 1; i <level; i++) {
+             const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
+             my_strcat(1582, &path, instname);
+             my_strcat(1588, &path, ".");
+           }
+         }
+         if(path) new_size += strlen(path);
+         lab = get_tok_value(prop_ptr, "lab", 0);
+         new_size += xctx->tok_size + 21; /* @spice_get_voltage(<lab>) */
+         my_realloc(1587, &tt[i].txt_ptr, new_size);
+         my_snprintf(tt[i].txt_ptr, new_size, "@spice_get_voltage(%s%s)", path ? path : "", lab);
+         my_free(1589, &path);
+         dbg(1, " --> tt[i].txt_ptr=%s\n", tt[i].txt_ptr);
+       }
+       if(tt[i].txt_ptr && !strcmp(tt[i].txt_ptr, "@spice_get_current")) {
+         /* prop_ptr is the attribute string of last loaded LCC component */
+         const char *dev;
+         size_t new_size = 0;
+         char *path = NULL;
+         if(level > 1) { /* add parent LCC instance names (X1, Xinv etc) */
+           int i;
+           for(i = 1; i <level; i++) {
+             const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
+             my_strcat(1582, &path, instname);
+             my_strcat(1588, &path, "."); 
+           }
+         } 
+         if(path) new_size += strlen(path);
+         dev = get_tok_value(prop_ptr, "name", 0);
+         new_size += xctx->tok_size + 21; /* @spice_get_current(<dev>) */
+         my_realloc(1587, &tt[i].txt_ptr, new_size);
+         my_snprintf(tt[i].txt_ptr, new_size, "@spice_get_current(%s%s)", path ? path : "", dev);
+         my_free(1589, &path);
+         dbg(1, " --> tt[i].txt_ptr=%s\n", tt[i].txt_ptr);
+       } 
        ROTATION(rot, flip, 0.0, 0.0, tt[i].x0, tt[i].y0, rx1, ry1);
        tt[i].x0 = lcc[level].x0 + rx1;  tt[i].y0 = lcc[level].y0 + ry1;
        tt[i].rot = (tt[i].rot + ((lcc[level].flip && (tt[i].rot & 1)) ?
@@ -3143,13 +3186,13 @@ int load_sym_def(const char *name, FILE *embed_fd)
      break;
     case 'C':
       load_ascii_string(&symname, lcc[level].fd);
-      dbg(1, "l_s_d(): C line: symname=%s\n", symname);
       if (fscanf(lcc[level].fd, "%lf %lf %hd %hd", &inst_x0, &inst_y0, &inst_rot, &inst_flip) < 4) {
         fprintf(errfp, "l_s_d(): WARNING: missing fields for COMPONENT object, ignoring\n");
         read_line(lcc[level].fd, 0);
         continue;
       }
       load_ascii_string(&prop_ptr, lcc[level].fd);
+      dbg(1, "l_s_d() component: level=%d, sym=%s, prop_ptr = %s\n", level, symname, prop_ptr);
       if(level + 1 >=CADMAXHIER) {
         fprintf(errfp, "l_s_d(): Symbol recursively instantiating symbol: max depth reached, skipping\n");
         if(has_x) tcleval("alert_ {xSymbol recursively instantiating symbol: max depth reached, skipping} {} 1");
@@ -3274,7 +3317,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      if( tag[0] == '{' ) ungetc(tag[0], lcc[level].fd);
      read_record(tag[0], lcc[level].fd, 0);
      break;
-   }
+   } /* switch(tag[0]) */
    /* if a 'C' line was encountered and level was incremented, rest of line must be read
       with lcc[level-1].fd file pointer */
    if(incremented_level)

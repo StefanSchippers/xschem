@@ -3017,11 +3017,12 @@ const char *translate(int inst, const char* s)
            if(pin_prop_ptr) net = get_tok_value(pin_prop_ptr, "lab", 0);
            if(net == NULL || net[0] == '\0') net = net_name(inst,0, &multip, 0, 0);
            len = strlen(path) + strlen(net) + 1;
-           dbg(1, "net=%s\n", net);
+           dbg(1, "translate() @spice_get_voltage: inst=%s\n", xctx->inst[inst].instname);
+           dbg(1, "                                net=%s, pin_prop_ptr=%s\n", net, pin_prop_ptr);
            fqnet = my_malloc(1573, len);
            my_snprintf(fqnet, len, "%s%s", path, net);
            strtolower(fqnet);
-           dbg(1, "translate(): fqnet=%s start_level=%d\n", fqnet, start_level);
+           dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
            idx = get_raw_index(fqnet);
            if(idx >= 0) {
              val = xctx->graph_values[idx][xctx->graph_annotate_p];
@@ -3069,12 +3070,12 @@ const char *translate(int inst, const char* s)
          n = sscanf(token + 19, "%[^)]", net);
          if(n == 1) {
            strtolower(net);
-           len = strlen(path) + strlen(net) + 1;
+           len = strlen(path) + strlen(xctx->inst[inst].instname) + strlen(net) + 2;
            dbg(1, "net=%s\n", net);
            fqnet = my_malloc(1548, len);
-           my_snprintf(fqnet, len, "%s%s", path, net);
+           my_snprintf(fqnet, len, "%s%s.%s", path, xctx->inst[inst].instname, net);
            strtolower(fqnet);
-           dbg(1, "translate(): fqnet=%s start_level=%d\n", fqnet, start_level);
+           dbg(1, "translate(): net=%s, fqnet=%s start_level=%d\n", net, fqnet, start_level);
            idx = get_raw_index(fqnet);
            if(idx >= 0) {
              val = xctx->graph_values[idx][xctx->graph_annotate_p];
@@ -3098,6 +3099,75 @@ const char *translate(int inst, const char* s)
          my_free(1570, &net);
        }
      }
+   }
+   else if(strncmp(token,"@spice_get_current(", 19)==0 )
+   {
+     int start_level; /* hierarchy level where waves were loaded */
+     if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
+       char *fqdev = NULL;
+       const char *path =  xctx->sch_path[xctx->currsch] + 1;
+       char *dev = NULL;
+       size_t len;
+       int idx, n;
+       double val;
+       const char *valstr;
+       tmp = strlen(token) + 1;
+       if(path) {
+         int skip = 0;
+         /* skip path components that are above the level where raw file was loaded */
+         while(*path && skip < start_level) {
+           if(*path == '.') skip++;
+           path++;
+         }
+         dev = my_malloc(1550, tmp);
+         n = sscanf(token + 19, "%[^)]", dev);
+         if(n == 1) {
+           strtolower(dev);
+           len = strlen(path) + strlen(xctx->inst[inst].instname) +
+                 strlen(dev) + 11; /* some extra chars for i(..) wrapper */
+           dbg(1, "dev=%s\n", dev);
+           fqdev = my_malloc(1556, len);
+           if(!sim_is_xyce) {
+             int prefix, vsource;
+             char *ptr = dev;
+             char *prefix_ptr = dev;
+             while(*ptr) { /* since dev is something like X1.X2.V2 find last . before V */
+               if(*ptr == '.') prefix_ptr = ptr + 1;
+               ptr++;
+             }
+             prefix = prefix_ptr[0]; /* character after last '.' */
+             dbg(1, "prefix=%c, path=%s\n", prefix, path);
+             vsource = (prefix == 'v') || (prefix == 'e');
+             if(vsource) my_snprintf(fqdev, len, "i(%c.%s%s.%s)", prefix, path, xctx->inst[inst].instname, dev);
+             else my_snprintf(fqdev, len, "i(@%c.%s%s.%s)", prefix, path, xctx->inst[inst].instname, dev);
+           } else {
+             my_snprintf(fqdev, len, "i(%s%s.%s)", path, xctx->inst[inst].instname, dev);
+           }
+           strtolower(fqdev);
+           dbg(1, "fqdev=%s\n", fqdev);
+           idx = get_raw_index(fqdev);
+           if(idx >= 0) {
+             val = xctx->graph_values[idx][xctx->graph_annotate_p];
+           }
+           if(idx < 0) {
+             valstr = "";
+             xctx->tok_size = 0;
+             len = 0;
+           } else {
+             valstr = dtoa_eng(val);
+             len = xctx->tok_size;
+           }
+           if(len) {
+             STR_ALLOC(&result, len + result_pos, &size);
+             memcpy(result+result_pos, valstr, len+1);
+             result_pos += len;
+           }
+           dbg(1, "inst %d, dev=%s, fqdev=%s idx=%d valstr=%s\n", inst,  dev, fqdev, idx, valstr);
+           my_free(1557, &fqdev);
+         } /* if(n == 1) */
+         my_free(1551, &dev);
+       } /* if(path) */
+     } /* if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) */
    }
    else if(strcmp(token,"@spice_get_diff_voltage")==0 )
    {
@@ -3407,6 +3477,12 @@ const char *translate2(Lcc *lcc, int level, char* s)
         result_pos += tmp + 1;
       }
       else if (strncmp(token, "@spice_get_voltage", 18) == 0) { /* return unchanged */
+        tmp = strlen(token);
+        STR_ALLOC(&result, tmp + result_pos, &size);
+        memcpy(result + result_pos, token, tmp + 1);
+        result_pos += tmp;
+      }
+      else if (strncmp(token, "@spice_get_current", 18) == 0) { /* return unchanged */
         tmp = strlen(token);
         STR_ALLOC(&result, tmp + result_pos, &size);
         memcpy(result + result_pos, token, tmp + 1);

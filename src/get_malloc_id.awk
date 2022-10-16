@@ -52,7 +52,7 @@ xinit.c \
 | sort -n \
 | awk '{
   if(n>0 && $1 <= prev)           print ">>>>>>>>>>> ERROR >>>>>>>>> " $0
-  else  if(n++>0 && $1 != prev+1) {
+  else  if(n>0 && $1 != prev+1) {
                                   if($1-1 > prev+1) 
                                   print ">>>>>>>>>>> FREE  >>>>>>>>> " prev+1 ":" $1-1
                                   else
@@ -60,6 +60,7 @@ xinit.c \
 
                                   print
   } else  print
+  n++
   prev = $1
 }
 END{

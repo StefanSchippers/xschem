@@ -34,7 +34,7 @@ zzz"
 color="4 6 8"
 sweep="v(a)"
 dataset=-1}
-B 2 10 -930 570 -700 {flags=graph 
+B 2 10 -950 570 -720 {flags=graph 
 y1 = 0
 y2 = 3
 divy = 6
@@ -58,7 +58,7 @@ T {LCC schematics can be nested
 If only .sch is used there is
 no need for a .sym file at all} 840 -880 0 0 0.6 0.6 {}
 T {Select one or more graphs (and no other objects)
-and use arrow keys to zoom / pan waveforms} 20 -980 0 0 0.3 0.3 {}
+and use arrow keys to zoom / pan waveforms} 20 -1000 0 0 0.3 0.3 {}
 T {Butterfly diagram
 of a cmos latch} 620 -950 0 0 0.4 0.4 {layer=8}
 N 410 -100 410 -80 {lab=HALF}
@@ -67,12 +67,15 @@ N 410 -190 410 -160 {lab=ZZZ}
 N 420 -400 420 -380 {lab=HALF}
 N 420 -490 700 -490 {lab=ZZ}
 N 420 -490 420 -460 {lab=ZZ}
-N 700 -490 700 -240 {lab=ZZ}
-N 700 -240 1450 -240 {lab=ZZ}
+N 700 -240 1450 -240 {lab=#net1}
 N 320 -190 410 -190 {lab=ZZZ}
 N 330 -490 420 -490 {lab=ZZ}
 N 730 -860 730 -770 { lab=Z}
 N 650 -860 650 -770 { lab=A}
+N 700 -320 700 -240 {
+lab=#net1}
+N 700 -490 700 -380 {
+lab=ZZ}
 C {vsource.sym} 50 -140 0 0 {name=V1 value="pwl 0 0 1u 0 5u 3"}
 C {lab_pin.sym} 50 -170 0 0 {name=p4 lab=A}
 C {lab_pin.sym} 50 -110 0 0 {name=p5 lab=0}
@@ -158,7 +161,7 @@ C {lab_pin.sym} 410 -80 0 0 {name=p10 lab=HALF}
 C {vsource.sym} 50 -340 0 0 {name=V3 value=1.5}
 C {lab_pin.sym} 50 -370 0 0 {name=p11 lab=HALF}
 C {lab_pin.sym} 50 -310 0 0 {name=p12 lab=0}
-C {lab_pin.sym} 200 -490 0 0 {name=p13 lab=A}
+C {lab_pin.sym} 120 -490 0 0 {name=p13 lab=A}
 C {res.sym} 420 -430 0 0 {name=R2
 value=20k
 footprint=1206
@@ -166,7 +169,7 @@ device=resistor
 m=1}
 C {lab_pin.sym} 420 -380 0 0 {name=p15 lab=HALF}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
-C {cmos_inv.sch} 140 -260 0 0 {name=Xinv WN=15u WP=45u LLN=3u LLP=3u}
+C {cmos_inv.sch} 60 -260 0 0 {name=Xinv WN=15u WP=45u LLN=3u LLP=3u}
 C {cmos_inv.sym} 280 -190 0 0 {name=Xinv2 WN=15u WP=45u LLN=3u LLP=3u}
 C {bus_keeper.sch} 1200 60 0 0 {name=Xkeeper WN_FB=3u WP_FB=5u}
 C {lab_pin.sym} 700 -490 0 1 {name=p1 lab=ZZ}
@@ -174,10 +177,11 @@ C {lab_pin.sym} 650 -770 0 0 {name=p14 lab=A}
 C {cmos_inv.sym} 690 -860 0 1 {name=Xinv3 WN=3u WP=5u LLN=3u LLP=3u}
 C {lab_pin.sym} 730 -770 0 1 {name=p2 lab=Z}
 C {cmos_inv.sym} 690 -770 0 0 {name=Xinv1 WN=3u WP=5u LLN=3u LLP=3u}
-C {launcher.sym} 85 -1015 0 0 {name=h1 
+C {launcher.sym} 85 -1035 0 0 {name=h1 
 descr="Select arrow and 
 Ctrl-Left-Click to load/unload waveforms" 
 tclcommand="
 xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
 "
 }
+C {ammeter.sym} 700 -350 0 1 {name=Vmeas}
