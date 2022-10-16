@@ -3112,16 +3112,16 @@ int load_sym_def(const char *name, FILE *embed_fd)
            int i;
            for(i = 1; i <level; i++) {
              const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
-             my_strcat(1582, &path, instname);
-             my_strcat(1588, &path, "."); 
+             my_strcat(1590, &path, instname);
+             my_strcat(1591, &path, "."); 
            }
          } 
          if(path) new_size += strlen(path);
          dev = get_tok_value(prop_ptr, "name", 0);
          new_size += xctx->tok_size + 21; /* @spice_get_current(<dev>) */
-         my_realloc(1587, &tt[i].txt_ptr, new_size);
+         my_realloc(1592, &tt[i].txt_ptr, new_size);
          my_snprintf(tt[i].txt_ptr, new_size, "@spice_get_current(%s%s)", path ? path : "", dev);
-         my_free(1589, &path);
+         my_free(1593, &path);
          dbg(1, " --> tt[i].txt_ptr=%s\n", tt[i].txt_ptr);
        } 
        ROTATION(rot, flip, 0.0, 0.0, tt[i].x0, tt[i].y0, rx1, ry1);

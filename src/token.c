@@ -3119,14 +3119,14 @@ const char *translate(int inst, const char* s)
            if(*path == '.') skip++;
            path++;
          }
-         dev = my_malloc(1550, tmp);
+         dev = my_malloc(1598, tmp);
          n = sscanf(token + 19, "%[^)]", dev);
          if(n == 1) {
            strtolower(dev);
            len = strlen(path) + strlen(xctx->inst[inst].instname) +
                  strlen(dev) + 11; /* some extra chars for i(..) wrapper */
            dbg(1, "dev=%s\n", dev);
-           fqdev = my_malloc(1556, len);
+           fqdev = my_malloc(1599, len);
            if(!sim_is_xyce) {
              int prefix, vsource;
              char *ptr = dev;
@@ -3163,9 +3163,9 @@ const char *translate(int inst, const char* s)
              result_pos += len;
            }
            dbg(1, "inst %d, dev=%s, fqdev=%s idx=%d valstr=%s\n", inst,  dev, fqdev, idx, valstr);
-           my_free(1557, &fqdev);
+           my_free(1600, &fqdev);
          } /* if(n == 1) */
-         my_free(1551, &dev);
+         my_free(1601, &dev);
        } /* if(path) */
      } /* if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) */
    }
