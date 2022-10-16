@@ -2762,27 +2762,9 @@ void sort_symbol_pins(int i)
     if(!pinnumber[0]) do_sort = 0;
   }
   if(do_sort) {
-    const char *pinname;
-    
-    if(debug_var >= 1) for(j = 0; j < npins; j++) {
-      pinname = get_tok_value(pin_array[j].prop_ptr, "name", 0);
-      dbg(0, "pin name=%s\n", pinname);
-    }
     qsort(pin_array, npins, sizeof(xRect), pin_compare);
     if(order_changed) {
-      dbg(0, "Symbol %s has pinnumber attributes on pins. Pins will be sorted\n", sym[i].name);
-      /* 
-      tclvareval("alert_ {",
-                 "About to load symbol ", sym[i].name, ".\n",
-                 "It has pinnumber attributes on pins, so pins will be sorted\n",
-                 "To avoid this message descend into ", sym[i].name, "\n",
-                 "and save the symbol.",
-                 "}", NULL);
-      */
-    }
-    if(debug_var >= 1) for(j = 0; j < npins; j++) {
-      pinname = get_tok_value(pin_array[j].prop_ptr, "name", 0);
-      dbg(1, "pin name=%s\n", pinname);
+      dbg(1, "Symbol %s has pinnumber attributes on pins. Pins will be sorted\n", sym[i].name);
     }
   }
 }
