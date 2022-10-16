@@ -1119,7 +1119,8 @@ extern const char *rel_sym_path(const char *s);
 extern const char *abs_sym_path(const char *s, const char *ext);
 extern const char *add_ext(const char *f, const char *ext);
 extern void make_symbol(void);
-extern void sort_symbol_pins(int i); /* sort based on pinnumber pin attribute if present */
+/* sort based on pinnumber pin attribute if present */
+extern void sort_symbol_pins(xRect *pin_array, int npins, const char *name);
 extern void make_schematic_symbol_from_sel(void);
 extern const char *get_sym_template(char *s, char *extra);
 /* bit0: invoke change_linewidth(), bit1: centered zoom */

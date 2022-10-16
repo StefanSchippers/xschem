@@ -2054,6 +2054,8 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   FILE *fd;
   char name[PATH_MAX]; /* overflow safe 20161122 */
   struct stat buf;
+  xRect *rect;
+  int rects;
 
   if( strcmp(schname,"") ) my_strncpy(xctx->sch[xctx->currsch], schname, S(xctx->sch[xctx->currsch]));
   else return 0;
@@ -2076,6 +2078,9 @@ int save_schematic(const char *schname) /* 20171020 added return value */
     return 0;
   }
   unselect_all(1);
+  rects = xctx->rects[PINLAYER];
+  rect = xctx->rect[PINLAYER];
+  sort_symbol_pins(rect, rects, schname);
   write_xschem_file(fd);
   fclose(fd);
   /* update time stamp */
@@ -2746,12 +2751,9 @@ static int pin_compare(const void *a, const void *b)
   return result;
 }
 
-void sort_symbol_pins(int i)
+void sort_symbol_pins(xRect *pin_array, int npins, const char *name)
 {
-  xSymbol *sym = xctx->sym;
-  xRect *pin_array = sym[i].rect[PINLAYER];
   int j, do_sort = 0;
-  int npins = sym[i].rects[PINLAYER];
   const char *pinnumber;
   order_changed = 0;
 
@@ -2764,7 +2766,7 @@ void sort_symbol_pins(int i)
   if(do_sort) {
     qsort(pin_array, npins, sizeof(xRect), pin_compare);
     if(order_changed) {
-      dbg(1, "Symbol %s has pinnumber attributes on pins. Pins will be sorted\n", sym[i].name);
+      dbg(1, "Symbol %s has pinnumber attributes on pins. Pins will be sorted\n", name);
     }
   }
 }
@@ -3391,7 +3393,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
   /* given a .sch file used as instance in LCC schematics, order its pin
    * as in corresponding .sym file if it exists */
   align_sch_pins_with_sym(name, symbols);
-  xctx->symbols++;
   my_free(910, &prop_ptr);
   my_free(901, &lastl);
   my_free(902, &lastr);
@@ -3406,7 +3407,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
   my_free(912, &symname);
   my_free(913, &symtype);
   recursion_counter--;
-  sort_symbol_pins(xctx->symbols - 1); /* sort on pinnumber if given in pins */
+  sort_symbol_pins(xctx->sym[xctx->symbols].rect[PINLAYER],
+                   xctx->sym[xctx->symbols].rects[PINLAYER],
+                   xctx->sym[xctx->symbols].name);
+  xctx->symbols++;
   return 1;
 }
 
