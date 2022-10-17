@@ -4326,19 +4326,61 @@ proc viewdata {data {ro {}}} {
   return $rcode
 }
 
+# find files into $paths directories matching $f
+# use $pathlist global search path if $paths empty
+# recursively descend directories
+proc sub_match_file { f {paths {}} } {
+  global pathlist match_file_dir_arr
+  set res {}
+  if {$paths eq {}} {set paths $pathlist}
+  foreach i $paths {
+    foreach j [glob -nocomplain -directory $i *] {
+      # puts "--> $j  $f"
+      # set jj [regsub {/ $} [file normalize ${j}/\ ] {}]
+      if {[file isdirectory $j]} {
+        set jj [regsub {/ $} [file normalize ${j}/\ ] {}]
+        if {[array names match_file_dir_arr -exact $jj] == {}} {
+          set match_file_dir_arr($jj) 1
+          # puts "********** directory $jj"
+          set sub_res [sub_match_file $f $j] ;# recursive call
+          if {$sub_res != {} } {eval lappend res $sub_res}
+        }
+      } else {
+        set fname [file tail $j]
+        if {[regexp $f $fname]} {
+          lappend res $j
+        }
+      }
+    }
+  }
+  return $res
+}
+
+proc match_file  { f {paths {}} } {
+  global match_file_dir_arr
+  catch {unset match_file_dir_arr}
+  set res  [sub_match_file $f $paths]
+  catch {unset match_file_dir_arr}
+  return $res
+}
+
 # find given file $f into $paths directories 
 # use $pathlist global search path if $paths empty
 # recursively descend directories
-proc find_file { f {paths {}} } {
-  global pathlist
+proc sub_find_file { f {paths {}} } {
+  global pathlist match_file_dir_arr
   set res {}
   if {$paths eq {}} {set paths $pathlist}
   foreach i $paths {
     foreach j [glob -nocomplain -directory $i *] {
       # puts "--> $j  $f"
       if {[file isdirectory $j]} {
-        # puts "directory $j"
-        set res [find_file $f $j] ;# recursive call
+        set jj [regsub {/ $} [file normalize ${j}/\ ] {}]
+        if {[array names match_file_dir_arr -exact $jj] == {}} {
+          set match_file_dir_arr($jj) 1
+          # puts "********** directory $jj"
+          set res [sub_find_file $f $j] ;# recursive call
+        }
       } else {
         set fname [file tail $j]
         if {$fname == $f} {
@@ -4350,6 +4392,15 @@ proc find_file { f {paths {}} } {
   }
   return $res
 }
+
+proc find_file  { f {paths {}} } {
+  global match_file_dir_arr
+  catch {unset match_file_dir_arr}
+  set res  [sub_find_file $f $paths]
+  catch {unset match_file_dir_arr}
+  return $res
+}
+
 
 # given an absolute path of a symbol/schematic remove the path prefix
 # if file is in a library directory (a $pathlist dir)
