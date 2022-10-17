@@ -2742,9 +2742,9 @@ static int pin_compare(const void *a, const void *b)
   const char *tmp;
   int result;
   
-  tmp = get_tok_value(((xRect *)a)->prop_ptr, "pinnumber", 0);
+  tmp = get_tok_value(((xRect *)a)->prop_ptr, "sim_pinnumber", 0);
   pinnumber_a = tmp[0] ?  atoi(tmp) : -1;
-  tmp = get_tok_value(((xRect *)b)->prop_ptr, "pinnumber", 0);
+  tmp = get_tok_value(((xRect *)b)->prop_ptr, "sim_pinnumber", 0);
   pinnumber_b = tmp[0] ?atoi(tmp) : -1;
   result =  pinnumber_a < pinnumber_b ? -1 : pinnumber_a == pinnumber_b ? 0 : 1;
   if(result >= 0) order_changed = 1;
@@ -2760,7 +2760,7 @@ void sort_symbol_pins(xRect *pin_array, int npins, const char *name)
   if(npins > 0) do_sort = 1; /* no pins, no sort... */
   /* do not sort if some pins don't have pinnumber attribute */
   for(j = 0; j < npins; j++) {
-    pinnumber = get_tok_value(pin_array[j].prop_ptr, "pinnumber", 0);
+    pinnumber = get_tok_value(pin_array[j].prop_ptr, "sim_pinnumber", 0);
     if(!pinnumber[0]) do_sort = 0;
   }
   if(do_sort) {
@@ -2797,7 +2797,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
 #endif
   char sympath[PATH_MAX];
   int i,c, k, poly_points;
-  char *aux_ptr=NULL;
+  char ch = 0, *aux_ptr=NULL;
   char *prop_ptr=NULL, *symtype=NULL;
   double inst_x0, inst_y0;
   short inst_rot, inst_flip;
@@ -2834,9 +2834,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
   } else {
     my_strncpy(sympath, abs_sym_path(name, ""), S(sympath));
   }
-  if(!embed_fd) {
+  if(!embed_fd) { /* regular symbol: open file */
     if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL)
     {
+      /* issue warning only on top level symbol loading */
       if(recursion_counter == 1) dbg(0, "l_s_d(): Symbol not found: %s\n",sympath);
       my_snprintf(sympath, S(sympath), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing.sym");
       if((lcc[level].fd=fopen(sympath, fopen_read_mode))==NULL)
@@ -2846,11 +2847,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
       }
     }
     dbg(1, "l_s_d(): fopen1(%s), level=%d, fd=%p\n",sympath, level, lcc[level].fd);
-  } else {
+  } else { /* embedded symbol (defined after instantiation within [...] ) */
     dbg(1, "l_s_d(): getting embed_fd, level=%d\n", level);
     lcc[level].fd = embed_fd;
   }
   endfile=0;
+  /* initialize data for loading a new symbol */
   for(c=0;c<cadlayers;c++)
   {
    lasta[c] = lastl[c] = lastr[c] = lastp[c] = 0;
@@ -2863,6 +2865,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   symbol[symbols].templ = NULL;
   symbol[symbols].name=NULL;
   my_strdup2(352, &symbol[symbols].name,name);
+  /* read symbol from file */
   while(1)
   {
    if(endfile && embed_fd && level == 0) break; /* ']' line encountered --> exit */
@@ -2881,7 +2884,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      continue;
    }
    incremented_level = 0;
-   switch(tag[0])
+   switch(tag[0]) /* first character of line defines type of object */
    {
     case 'v':
      load_ascii_string(&aux_ptr, lcc[level].fd);
@@ -3070,8 +3073,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        read_line(lcc[level].fd, 0);
        continue;
      }
-     if (level>0 && c == PINLAYER)  /* Don't care about pins inside SYM */
-       c = 7;
+     if (level>0 && c == PINLAYER) c = 7; /* Don't care about pins inside SYM: set on different layer */
      i=lastr[c];
      my_realloc(349, &bb[c],(i+1)*sizeof(xRect));
      if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&bb[c][i].x1, &bb[c][i].y1,
@@ -3090,14 +3092,17 @@ int load_sym_def(const char *name, FILE *embed_fd)
      RECTORDER(bb[c][i].x1, bb[c][i].y1, bb[c][i].x2, bb[c][i].y2);
      bb[c][i].prop_ptr=NULL;
      load_ascii_string( &bb[c][i].prop_ptr, lcc[level].fd);
+     /* don't load graphs of LCC schematic instances */
+     if(strstr(get_tok_value(bb[c][i].prop_ptr, "flags", 0), "graph")) {
+       my_free(1594, &bb[c][i].prop_ptr);
+       continue;
+     }
      dbg(2, "l_s_d(): loaded rect: ptr=%lx\n", (unsigned long)bb[c]);
-
      dash = get_tok_value(bb[c][i].prop_ptr,"dash", 0);
      if( strcmp(dash, "") ) {
        int d = atoi(dash);
        bb[c][i].dash = (short)(d >= 0 ? d : 0);
-     } else
-       bb[c][i].dash = 0;
+     } else bb[c][i].dash = 0;
      bb[c][i].sel = 0;
      bb[c][i].extraptr = NULL;
      set_rect_flags(&bb[c][i]);
@@ -3225,7 +3230,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      ll[WIRELAYER][i].sel = 0;
      lastl[WIRELAYER]++;
      break;
-    case 'C':
+    case 'C': /* symbol is LCC: contains components */
       load_ascii_string(&symname, lcc[level].fd);
       if (fscanf(lcc[level].fd, "%lf %lf %hd %hd", &inst_x0, &inst_y0, &inst_rot, &inst_flip) < 4) {
         fprintf(errfp, "l_s_d(): WARNING: missing fields for COMPONENT object, ignoring\n");
@@ -3241,23 +3246,20 @@ int load_sym_def(const char *name, FILE *embed_fd)
         continue;
       }
 
-      {
-        char c;
-        filepos = xftell(lcc[level].fd); /* store file pointer position to inspect next line */
-        fd_tmp = NULL;
-        read_line(lcc[level].fd, 1);
-        fscan_ret = fscanf(lcc[level].fd, " ");
-        if(fscanf(lcc[level].fd," %c",&c)!=EOF) {
-          if( c == '[') {
-            fd_tmp = lcc[level].fd;
-          }
+      filepos = xftell(lcc[level].fd); /* store file pointer position to inspect next line */
+      fd_tmp = NULL;
+      read_line(lcc[level].fd, 1);
+      fscan_ret = fscanf(lcc[level].fd, " ");
+      if(fscanf(lcc[level].fd," %c",&ch)!=EOF) {
+        if( ch == '[') {
+          fd_tmp = lcc[level].fd;
         }
-        /* get symbol type by looking into list of loaded symbols or (if not found) by
-         * opening/closing the symbol file and getting the 'type' attribute from global symbol attributes
-         * if fd_tmp set read symbol from embedded tags '[...]' */
-        get_sym_type(symname, &symtype, NULL, fd_tmp, &sym_n_pins);
-        xfseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
       }
+      /* get symbol type by looking into list of loaded symbols or (if not found) by
+       * opening/closing the symbol file and getting the 'type' attribute from global symbol attributes
+       * if fd_tmp set read symbol from embedded tags '[...]' */
+      get_sym_type(symname, &symtype, NULL, fd_tmp, &sym_n_pins);
+      xfseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
 
       dbg(1, "l_s_d(): level=%d, symname=%s symtype=%s\n", level, symname, symtype);
       if(  /* add here symbol types not to consider when loading schematic-as-symbol instances */
