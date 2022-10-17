@@ -330,20 +330,12 @@ C {ngspice_get_expr.sym} 860 -1010 0 0 {name=r17
 node="[format %.4g [expr ([ngspice::get_voltage e4] - [ngspice::get_voltage e11]) * [ngspice::get_current \{q4[ic]\}]]] W"
 descr = power
 }
-C {ngspice_get_expr.sym} 330 -990 0 1 {name=r19 
-node="[ngspice::get_current v2]" 
-descr = current
-}
 C {ngspice_get_expr.sym} 380 -1120 0 0 {name=r20 
 node="[ngspice::get_current \{r2[i]\}]"
 descr = current
 }
 C {ngspice_get_expr.sym} 860 -1130 0 0 {name=r21 
 node="[ngspice::get_current \{r9[i]\}]"
-descr = current
-}
-C {ngspice_get_expr.sym} 820 -980 0 1 {name=r22 
-node="[ngspice::get_current \{q4[ic]\}]"
 descr = current
 }
 C {ngspice_get_expr.sym} 800 -1060 0 1 {name=r23 
@@ -353,10 +345,6 @@ descr = Ib
 C {ngspice_get_expr.sym} 580 -550 0 0 {name=r24 
 node="[format %.4g [expr ([ngspice::get_voltage e8] - [ngspice::get_voltage c8]) * [ngspice::get_current \{q8[ic]\}]]] W"
 descr = power
-}
-C {ngspice_get_expr.sym} 190 -950 0 0 {name=r25 
-node="[ngspice::get_current v6]" 
-descr = current
 }
 C {ngspice_get_expr.sym} 240 -300 0 1 {name=r26 
 node="[format %.4g [expr [ngspice::get_current \{q3[ic]\}] / [ngspice::get_current \{q3[ib]\}] ] ]"
@@ -402,14 +390,6 @@ C {ngspice_get_expr.sym} 330 -850 0 1 {name=r36
 node="[format %.4g [expr [ngspice::get_current \{q2[ic]\}] / [ngspice::get_current \{q2[ib]\}] ] ]"
 descr = beta
 }
-C {ngspice_get_expr.sym} 1090 -730 0 1 {name=r37 
-node="[ngspice::get_current vu]" 
-descr = current
-}
-C {ngspice_get_expr.sym} 1090 -620 0 1 {name=r38 
-node="[ngspice::get_current vd]" 
-descr = current
-}
 C {ngspice_get_expr.sym} 890 -1230 0 1 {name=r39 
 node="[ngspice::get_current \{d0[id]\}]"
 descr = current
@@ -431,10 +411,6 @@ descr = power
 C {lab_wire.sym} 910 -690 0 1 {name=l40 lab=OUTI}
 C {ngspice_get_expr.sym} 980 -490 0 0 {name=r44 
 node="[ngspice::get_current \{r7[i]\}]" 
-descr = current
-}
-C {ngspice_get_expr.sym} 700 -530 2 0 {name=r45 
-node="[ngspice::get_current \{v4\}]" 
 descr = current
 }
 C {ngspice_get_expr.sym} 1130 -510 2 1 {name=r46 
@@ -473,8 +449,4 @@ descr="View Raw file"
 tclcommand="textwindow $netlist_dir/[file tail [file rootname [ xschem get schname 0 ] ] ].raw"
 }
 C {spice_probe.sym} 790 -690 0 0 {name=p60 analysis=tran voltage=-0.1364}
-C {ngspice_get_expr.sym} 1300 -640 0 1 {name=r48 
-node="[ngspice::get_current v8]" 
-descr = current
-}
 C {ipin.sym} 0 -1270 0 0 {name=p11 lab=VPP}
