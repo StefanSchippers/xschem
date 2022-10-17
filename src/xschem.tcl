@@ -4343,7 +4343,7 @@ proc sub_match_file { f {paths {}} } {
           set match_file_dir_arr($jj) 1
           # puts "********** directory $jj"
           set sub_res [sub_match_file $f $j] ;# recursive call
-          if {$sub_res != {} } {eval lappend res $sub_res}
+          if {$sub_res != {} } {set res [concat $res $sub_res]}
         }
       } else {
         set fname [file tail $j]
