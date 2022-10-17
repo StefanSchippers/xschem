@@ -375,6 +375,7 @@ char *dtoa_eng(double i)
   double absi = fabs(i);
 
   if     (absi == 0.0)  { suffix = 0;}
+  else if(absi < 1e-23) { i = 0; suffix = 0;}
   else if(absi >=1e12)  { i /= 1e12; suffix = 'T';}
   else if(absi >=1e9)   { i /= 1e9 ; suffix = 'G';}
   else if(absi >=1e6)   { i /= 1e6 ; suffix = 'M';}

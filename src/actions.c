@@ -789,10 +789,8 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
   xRect *rct;
   char *labname=NULL;
   char *prop=NULL; /*  20161122 overflow safe */
-  const char *symname_pin = "devices/lab_pin.sym";
-  const char *symname_wire = "devices/lab_wire.sym";
-  const char *symname_pin2 = "lab_pin.sym";
-  const char *symname_wire2 = "lab_wire.sym";
+  char *symname_pin = NULL;
+  char *symname_wire = NULL;
   char *type=NULL;
   short dir;
   int k,ii, skip;
@@ -804,150 +802,144 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
   Instpinentry *iptr;
   int sqx, sqy;
   int first_call;
-  struct stat buf;
-  int indirect;
   int use_label_prefix;
   int found=0;
 
-  if(!stat(abs_sym_path(symname_pin, ""), &buf)) {
-    indirect=1;
-  } else {
-    indirect=0;
-  }
-  /* printf("indirect=%d\n", indirect); */
-
-  rebuild_selected_array();
-  k = xctx->lastsel;
-  first_call=1; /*  20171214 for place_symbol--> new_prop_string */
-  prepare_netlist_structs(0);
-  for(j=0;j<k;j++) if(xctx->sel_array[j].type==ELEMENT) {
-    found=1;
-    my_strdup(5, &prop, xctx->inst[xctx->sel_array[j].n].instname);
-    my_strcat(6, &prop, "_");
-    tclsetvar("custom_label_prefix",prop);
-
-    if(interactive && !do_all_inst) {
-      dbg(1,"attach_labels_to_inst(): invoking tcl attach_labels_to_inst\n");
-      tcleval("attach_labels_to_inst");
-      if(!strcmp(tclgetvar("rcode"),"") ) {
-        bbox(END, 0., 0., 0., 0.);
-        my_free(706, &prop);
-        return;
+  my_strdup(1607, &symname_pin, tcleval("rel_sym_path [find_file lab_pin.sym]"));
+  my_strdup(1607, &symname_wire, tcleval("rel_sym_path [find_file lab_wire.sym]"));
+  if(symname_pin && symname_wire) {
+    rebuild_selected_array();
+    k = xctx->lastsel;
+    first_call=1; /*  20171214 for place_symbol--> new_prop_string */
+    prepare_netlist_structs(0);
+    for(j=0;j<k;j++) if(xctx->sel_array[j].type==ELEMENT) {
+      found=1;
+      my_strdup(5, &prop, xctx->inst[xctx->sel_array[j].n].instname);
+      my_strcat(6, &prop, "_");
+      tclsetvar("custom_label_prefix",prop);
+  
+      if(interactive && !do_all_inst) {
+        dbg(1,"attach_labels_to_inst(): invoking tcl attach_labels_to_inst\n");
+        tcleval("attach_labels_to_inst");
+        if(!strcmp(tclgetvar("rcode"),"") ) {
+          bbox(END, 0., 0., 0., 0.);
+          my_free(706, &prop);
+          return;
+        }
+      }
+      if(interactive == 0 ) {
+        tclsetvar("rcode", "yes");
+        tclsetvar("use_lab_wire", "0");
+        tclsetvar("use_label_prefix", "0");
+        tclsetvar("do_all_inst", "1");
+        tclsetvar("rotated_text", "0");
+      }
+      use_label_prefix = atoi(tclgetvar("use_label_prefix"));
+      rot_txt = tclgetvar("rotated_text");
+      if(strcmp(rot_txt,"")) rotated_text=atoi(rot_txt);
+      my_strdup(7, &type,(xctx->inst[xctx->sel_array[j].n].ptr+ xctx->sym)->type);
+      if( type && IS_LABEL_OR_PIN(type) ) {
+        continue;
+      }
+      if(!do_all_inst && !strcmp(tclgetvar("do_all_inst"),"1")) do_all_inst=1;
+      dbg(1, "attach_labels_to_inst(): 1--> %s %.16g %.16g   %s\n",
+          xctx->inst[xctx->sel_array[j].n].name,
+          xctx->inst[xctx->sel_array[j].n].x0,
+          xctx->inst[xctx->sel_array[j].n].y0,
+          xctx->sym[xctx->inst[xctx->sel_array[j].n].ptr].name);
+  
+      x0 = xctx->inst[xctx->sel_array[j].n].x0;
+      y0 = xctx->inst[xctx->sel_array[j].n].y0;
+      rot = xctx->inst[xctx->sel_array[j].n].rot;
+      flip = xctx->inst[xctx->sel_array[j].n].flip;
+      symbol = xctx->sym + xctx->inst[xctx->sel_array[j].n].ptr;
+      npin = symbol->rects[PINLAYER];
+      rct=symbol->rect[PINLAYER];
+  
+      for(i=0;i<npin;i++) {
+         my_strdup(8, &labname,get_tok_value(rct[i].prop_ptr,"name",1));
+         dbg(1,"attach_labels_to_inst(): 2 --> labname=%s\n", labname);
+  
+         pinx0 = (rct[i].x1+rct[i].x2)/2;
+         piny0 = (rct[i].y1+rct[i].y2)/2;
+  
+         if(strcmp(get_tok_value(rct[i].prop_ptr,"dir",0),"in")) dir=1; /*  out or inout pin */
+         else dir=0; /*  input pin */
+  
+         /*  opin or iopin on left of symbol--> reverse orientation 20171205 */
+         if(rotated_text ==-1 && dir==1 && pinx0<0) dir=0;
+  
+         ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, pinx0, piny0);
+  
+         pinx0 += x0;
+         piny0 += y0;
+  
+         get_square(pinx0, piny0, &sqx, &sqy);
+         iptr=xctx->instpin_spatial_table[sqx][sqy];
+         wptr=xctx->wire_spatial_table[sqx][sqy];
+  
+         skip=0;
+         while(iptr) {
+           ii = iptr->n;
+           if(ii == xctx->sel_array[j].n) {
+             iptr = iptr->next;
+             continue;
+           }
+  
+           if( iptr->x0 == pinx0 && iptr->y0 == piny0 ) {
+             skip=1;
+             break;
+           }
+           iptr = iptr->next;
+         }
+         while(wptr) {
+           if( touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
+               xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, pinx0, piny0) ) {
+             skip=1;
+             break;
+           }
+           wptr = wptr->next;
+         }
+         if(!skip) {
+           my_strdup(9, &prop, "name=p1 lab=");
+           if(use_label_prefix) {
+             my_strcat(10, &prop, (char *)tclgetvar("custom_label_prefix"));
+           }
+           /*  /20171005 */
+  
+           my_strcat(11, &prop, labname);
+           dir ^= flip; /*  20101129  20111030 */
+           if(rotated_text ==-1) {
+             rot1=rot;
+             if(rot1==1 || rot1==2) { dir=!dir;rot1 = (short)((rot1+2) %4);}
+           } else {
+             rot1=(short)((rot+rotated_text)%4); /*  20111103 20171208 text_rotation */
+           }
+           if(!strcmp(tclgetvar("use_lab_wire"),"0")) {
+             place_symbol(-1,symname_pin, pinx0, piny0, rot1, dir, prop, 2, first_call, 1/*to_push_undo*/);
+             first_call=0;
+           } else {
+             place_symbol(-1,symname_wire, pinx0, piny0, rot1, dir, prop, 2, first_call, 1/*to_push_undo*/);
+             first_call=0;
+           }
+         }
+         dbg(1, "attach_labels_to_inst(): %d   %.16g %.16g %s\n", i, pinx0, piny0,labname);
       }
     }
-    if(interactive == 0 ) {
-      tclsetvar("rcode", "yes");
-      tclsetvar("use_lab_wire", "0");
-      tclsetvar("use_label_prefix", "0");
-      tclsetvar("do_all_inst", "1");
-      tclsetvar("rotated_text", "0");
-    }
-    use_label_prefix = atoi(tclgetvar("use_label_prefix"));
-    rot_txt = tclgetvar("rotated_text");
-    if(strcmp(rot_txt,"")) rotated_text=atoi(rot_txt);
-    my_strdup(7, &type,(xctx->inst[xctx->sel_array[j].n].ptr+ xctx->sym)->type);
-    if( type && IS_LABEL_OR_PIN(type) ) {
-      continue;
-    }
-    if(!do_all_inst && !strcmp(tclgetvar("do_all_inst"),"1")) do_all_inst=1;
-    dbg(1, "attach_labels_to_inst(): 1--> %s %.16g %.16g   %s\n",
-        xctx->inst[xctx->sel_array[j].n].name,
-        xctx->inst[xctx->sel_array[j].n].x0,
-        xctx->inst[xctx->sel_array[j].n].y0,
-        xctx->sym[xctx->inst[xctx->sel_array[j].n].ptr].name);
-
-    x0 = xctx->inst[xctx->sel_array[j].n].x0;
-    y0 = xctx->inst[xctx->sel_array[j].n].y0;
-    rot = xctx->inst[xctx->sel_array[j].n].rot;
-    flip = xctx->inst[xctx->sel_array[j].n].flip;
-    symbol = xctx->sym + xctx->inst[xctx->sel_array[j].n].ptr;
-    npin = symbol->rects[PINLAYER];
-    rct=symbol->rect[PINLAYER];
-
-    for(i=0;i<npin;i++) {
-       my_strdup(8, &labname,get_tok_value(rct[i].prop_ptr,"name",1));
-       dbg(1,"attach_labels_to_inst(): 2 --> labname=%s\n", labname);
-
-       pinx0 = (rct[i].x1+rct[i].x2)/2;
-       piny0 = (rct[i].y1+rct[i].y2)/2;
-
-       if(strcmp(get_tok_value(rct[i].prop_ptr,"dir",0),"in")) dir=1; /*  out or inout pin */
-       else dir=0; /*  input pin */
-
-       /*  opin or iopin on left of symbol--> reverse orientation 20171205 */
-       if(rotated_text ==-1 && dir==1 && pinx0<0) dir=0;
-
-       ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, pinx0, piny0);
-
-       pinx0 += x0;
-       piny0 += y0;
-
-       get_square(pinx0, piny0, &sqx, &sqy);
-       iptr=xctx->instpin_spatial_table[sqx][sqy];
-       wptr=xctx->wire_spatial_table[sqx][sqy];
-
-       skip=0;
-       while(iptr) {
-         ii = iptr->n;
-         if(ii == xctx->sel_array[j].n) {
-           iptr = iptr->next;
-           continue;
-         }
-
-         if( iptr->x0 == pinx0 && iptr->y0 == piny0 ) {
-           skip=1;
-           break;
-         }
-         iptr = iptr->next;
-       }
-       while(wptr) {
-         if( touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
-             xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, pinx0, piny0) ) {
-           skip=1;
-           break;
-         }
-         wptr = wptr->next;
-       }
-       if(!skip) {
-         my_strdup(9, &prop, "name=p1 lab=");
-         if(use_label_prefix) {
-           my_strcat(10, &prop, (char *)tclgetvar("custom_label_prefix"));
-         }
-         /*  /20171005 */
-
-         my_strcat(11, &prop, labname);
-         dir ^= flip; /*  20101129  20111030 */
-         if(rotated_text ==-1) {
-           rot1=rot;
-           if(rot1==1 || rot1==2) { dir=!dir;rot1 = (short)((rot1+2) %4);}
-         } else {
-           rot1=(short)((rot+rotated_text)%4); /*  20111103 20171208 text_rotation */
-         }
-         if(!strcmp(tclgetvar("use_lab_wire"),"0")) {
-           if(indirect)
-             place_symbol(-1,symname_pin, pinx0, piny0, rot1, dir, prop, 2, first_call, 1/*to_push_undo*/);
-           else
-             place_symbol(-1,symname_pin2, pinx0, piny0, rot1, dir, prop, 2, first_call, 1/*to_push_undo*/);
-           first_call=0;
-         } else {
-           if(indirect)
-             place_symbol(-1,symname_wire, pinx0, piny0, rot1, dir, prop, 2, first_call, 1/*to_push_undo*/);
-           else
-             place_symbol(-1,symname_wire2, pinx0, piny0, rot1, dir, prop, 2, first_call, 1/*to_push_undo*/);
-           first_call=0;
-         }
-       }
-       dbg(1, "attach_labels_to_inst(): %d   %.16g %.16g %s\n", i, pinx0, piny0,labname);
-    }
+    my_free(707, &prop);
+    my_free(708, &labname);
+    my_free(709, &type);
+    if(!found) return;
+    /*  draw things  */
+    bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+    draw();
+    bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+  } else {
+    fprintf(errfp, "attach_labels_to_inst(): location of schematic labels not found\n");
+    tcleval("alert_ {attach_labels_to_inst(): location of schematic labels not found} {}");
   }
-  my_free(707, &prop);
-  my_free(708, &labname);
-  my_free(709, &type);
-  if(!found) return;
-  /*  draw things  */
-  bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-  draw();
-  bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+  my_free(1609, &symname_pin);
+  my_free(1610, &symname_wire);
 }
 
 void delete_files(void)
@@ -966,19 +958,12 @@ void delete_files(void)
 
 void place_net_label(int type)
 {
-  struct stat buf;
   if(type == 1) {
-    if(!stat(abs_sym_path("lab_pin.sym", ""), &buf)) {
-      place_symbol(-1, "lab_pin.sym", xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
-    } else if(!stat(abs_sym_path("devices/lab_pin.sym", ""), &buf)) {
-      place_symbol(-1, "devices/lab_pin.sym", xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
-    }
+      const char *lab = tcleval("rel_sym_path [find_file lab_pin.sym]");
+      place_symbol(-1, lab, xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
   } else {
-    if(!stat(abs_sym_path("lab_wire.sym", ""), &buf)) {
-      place_symbol(-1, "lab_wire.sym", xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
-    } else if(!stat(abs_sym_path("devices/lab_wire.sym", ""), &buf)) {
-      place_symbol(-1, "devices/lab_wire.sym", xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
-    }
+      const char *lab = tcleval("rel_sym_path [find_file lab_wire.sym]");
+      place_symbol(-1, lab, xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
   }
   move_objects(START,0,0,0);
   xctx->ui_state |= START_SYMPIN;

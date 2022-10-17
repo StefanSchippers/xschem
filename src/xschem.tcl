@@ -4326,6 +4326,31 @@ proc viewdata {data {ro {}}} {
   return $rcode
 }
 
+# find given file $f into $paths directories 
+# use $pathlist global search path if $paths empty
+# recursively descend directories
+proc find_file { f {paths {}} } {
+  global pathlist
+  set res {}
+  if {$paths eq {}} {set paths $pathlist}
+  foreach i $paths {
+    foreach j [glob -nocomplain -directory $i *] {
+      # puts "--> $j  $f"
+      if {[file isdirectory $j]} {
+        # puts "directory $j"
+        set res [find_file $f $j] ;# recursive call
+      } else {
+        set fname [file tail $j]
+        if {$fname == $f} {
+          set res $j
+        }
+      }
+      if {$res ne {} } {return $res}
+    }
+  }
+  return $res
+}
+
 # given an absolute path of a symbol/schematic remove the path prefix
 # if file is in a library directory (a $pathlist dir)
 proc rel_sym_path {symbol} {

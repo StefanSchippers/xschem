@@ -3463,11 +3463,8 @@ void create_sch_from_sym(void)
   xRect *rct;
   FILE *fd;
   char *pindir[3] = {"in", "out", "inout"};
-  char *pinname[3] = {"devices/ipin.sym", "devices/opin.sym", "devices/iopin.sym"};
-  char *generic_pin = {"devices/generic_pin.sym"};
-  char *pinname2[3] = {"ipin.sym", "opin.sym", "iopin.sym"};
-  char *generic_pin2 = {"generic_pin.sym"};
-  int indirect;
+  char *pinname[3] = {NULL, NULL, NULL};
+  char *generic_pin = NULL;
 
   char *dir = NULL;
   char *prop = NULL;
@@ -3479,99 +3476,101 @@ void create_sch_from_sym(void)
   char *sch = NULL;
   size_t ln;
 
-  if(!stat(abs_sym_path(pinname[0], ""), &buf)) {
-    indirect=1;
-  } else {
-    indirect=0;
-  }
-  /* printf("indirect=%d\n", indirect); */
-
-  rebuild_selected_array();
-  if(xctx->lastsel > 1)  return;
-  if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT)
-  {
-    my_strdup2(1250, &sch,
-      get_tok_value((xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ));
-    my_strncpy(schname, abs_sym_path(sch, ""), S(schname));
-    my_free(1251, &sch);
-    if(!schname[0]) {
-      my_strncpy(schname, add_ext(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), ".sch"), S(schname));
-    }
-    if( !stat(schname, &buf) ) {
-      tclvareval("ask_save \"Create schematic file: ", schname,
-          "?\nWARNING: This schematic file already exists, it will be overwritten\"", NULL);
-      if(strcmp(tclresult(), "yes") ) {
+  my_strdup(1595, &pinname[0], tcleval("rel_sym_path [find_file ipin.sym]"));
+  my_strdup(1596, &pinname[1], tcleval("rel_sym_path [find_file opin.sym]"));
+  my_strdup(1597, &pinname[2], tcleval("rel_sym_path [find_file iopin.sym]"));
+  my_strdup(1606, &generic_pin, tcleval("rel_sym_path [find_file generic_pin.sym]"));
+  
+  if(pinname[0] && pinname[1] && pinname[2] && generic_pin) {
+    rebuild_selected_array();
+    if(xctx->lastsel > 1)  return;
+    if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT)
+    {
+      my_strdup2(1250, &sch,
+        get_tok_value((xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ));
+      my_strncpy(schname, abs_sym_path(sch, ""), S(schname));
+      my_free(1251, &sch);
+      if(!schname[0]) {
+        my_strncpy(schname, add_ext(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""),
+             ".sch"), S(schname));
+      }
+      if( !stat(schname, &buf) ) {
+        tclvareval("ask_save \"Create schematic file: ", schname,
+            "?\nWARNING: This schematic file already exists, it will be overwritten\"", NULL);
+        if(strcmp(tclresult(), "yes") ) {
+          return;
+        }
+      }
+      if(!(fd=fopen(schname,"w")))
+      {
+        fprintf(errfp, "create_sch_from_sym(): problems opening file %s \n",schname);
+        tcleval("alert_ {file opening for write failed!} {}");
         return;
       }
-    }
-    if(!(fd=fopen(schname,"w")))
-    {
-      fprintf(errfp, "create_sch_from_sym(): problems opening file %s \n",schname);
-      tcleval("alert_ {file opening for write failed!} {}");
-      return;
-    }
-    fprintf(fd, "v {xschem version=%s file_version=%s}\n", XSCHEM_VERSION, XSCHEM_FILE_VERSION);
-    fprintf(fd, "G {}");
-    fputc('\n', fd);
-    fprintf(fd, "V {}");
-    fputc('\n', fd);
-    fprintf(fd, "E {}");
-    fputc('\n', fd);
-    fprintf(fd, "S {}");
-    fputc('\n', fd);
-    ptr = xctx->inst[xctx->sel_array[0].n].ptr+xctx->sym;
-    npin = ptr->rects[GENERICLAYER];
-    rct = ptr->rect[GENERICLAYER];
-    ypos=0;
-    for(i=0;i<npin;i++) {
-      my_strdup(356, &prop, rct[i].prop_ptr);
-      if(!prop) continue;
-      sub_prop=strstr(prop,"name=")+5;
-      if(!sub_prop) continue;
-      x=-120.0;
-      ln = 100+strlen(sub_prop);
-      my_realloc(357, &str, ln);
-      my_snprintf(str, ln, "name=g%d lab=%s", p++, sub_prop);
-      if(indirect)
-        fprintf(fd, "C {%s} %.16g %.16g %.16g %.16g ", generic_pin, x, 20.0*(ypos++), 0.0, 0.0 );
-      else
-        fprintf(fd, "C {%s} %.16g %.16g %.16g %.16g ", generic_pin2, x, 20.0*(ypos++), 0.0, 0.0 );
-      save_ascii_string(str, fd, 1);
-    } /* for(i) */
-    npin = ptr->rects[PINLAYER];
-    rct = ptr->rect[PINLAYER];
-    for(j=0;j<3;j++) {
-      if(j==1) ypos=0;
+      fprintf(fd, "v {xschem version=%s file_version=%s}\n", XSCHEM_VERSION, XSCHEM_FILE_VERSION);
+      fprintf(fd, "G {}");
+      fputc('\n', fd);
+      fprintf(fd, "V {}");
+      fputc('\n', fd);
+      fprintf(fd, "E {}");
+      fputc('\n', fd);
+      fprintf(fd, "S {}");
+      fputc('\n', fd);
+      ptr = xctx->inst[xctx->sel_array[0].n].ptr+xctx->sym;
+      npin = ptr->rects[GENERICLAYER];
+      rct = ptr->rect[GENERICLAYER];
+      ypos=0;
       for(i=0;i<npin;i++) {
-        my_strdup(358, &prop, rct[i].prop_ptr);
+        my_strdup(356, &prop, rct[i].prop_ptr);
         if(!prop) continue;
         sub_prop=strstr(prop,"name=")+5;
         if(!sub_prop) continue;
-        /* remove dir=... from prop string 20171004 */
-        my_strdup(360, &sub2_prop, subst_token(sub_prop, "dir", NULL));
-
-        my_strdup(361, &dir, get_tok_value(rct[i].prop_ptr,"dir",0));
-        if(!sub2_prop) continue;
-        if(!dir) continue;
-        if(j==0) x=-120.0; else x=120.0;
-        if(!strcmp(dir, pindir[j])) {
-          ln = 100+strlen(sub2_prop);
-          my_realloc(362, &str, ln);
-          my_snprintf(str, ln, "name=g%d lab=%s", p++, sub2_prop);
-          if(indirect)
-            fprintf(fd, "C {%s} %.16g %.16g %.16g %.16g ", pinname[j], x, 20.0*(ypos++), 0.0, 0.0);
-          else
-            fprintf(fd, "C {%s} %.16g %.16g %.16g %.16g ", pinname2[j], x, 20.0*(ypos++), 0.0, 0.0);
-          save_ascii_string(str, fd, 1);
-        } /* if() */
+        x=-120.0;
+        ln = 100+strlen(sub_prop);
+        my_realloc(357, &str, ln);
+        my_snprintf(str, ln, "name=g%d lab=%s", p++, sub_prop);
+        fprintf(fd, "C {%s} %.16g %.16g %.16g %.16g ", generic_pin, x, 20.0*(ypos++), 0.0, 0.0 );
+        save_ascii_string(str, fd, 1);
       } /* for(i) */
-    }  /* for(j) */
-    fclose(fd);
-  } /* if(xctx->lastsel...) */
-  my_free(916, &dir);
-  my_free(917, &prop);
-  my_free(919, &sub2_prop);
-  my_free(920, &str);
+      npin = ptr->rects[PINLAYER];
+      rct = ptr->rect[PINLAYER];
+      for(j=0;j<3;j++) {
+        if(j==1) ypos=0;
+        for(i=0;i<npin;i++) {
+          my_strdup(358, &prop, rct[i].prop_ptr);
+          if(!prop) continue;
+          sub_prop=strstr(prop,"name=")+5;
+          if(!sub_prop) continue;
+          /* remove dir=... from prop string 20171004 */
+          my_strdup(360, &sub2_prop, subst_token(sub_prop, "dir", NULL));
+  
+          my_strdup(361, &dir, get_tok_value(rct[i].prop_ptr,"dir",0));
+          if(!sub2_prop) continue;
+          if(!dir) continue;
+          if(j==0) x=-120.0; else x=120.0;
+          if(!strcmp(dir, pindir[j])) {
+            ln = 100+strlen(sub2_prop);
+            my_realloc(362, &str, ln);
+            my_snprintf(str, ln, "name=g%d lab=%s", p++, sub2_prop);
+            fprintf(fd, "C {%s} %.16g %.16g %.16g %.16g ", pinname[j], x, 20.0*(ypos++), 0.0, 0.0);
+            save_ascii_string(str, fd, 1);
+          } /* if() */
+        } /* for(i) */
+      }  /* for(j) */
+      fclose(fd);
+    } /* if(xctx->lastsel...) */
+    my_free(916, &dir);
+    my_free(917, &prop);
+    my_free(919, &sub2_prop);
+    my_free(920, &str);
+  } else {
+    fprintf(errfp, "create_sch_from_sym(): location of schematic pins not found\n");
+    tcleval("alert_ {create_sch_from_sym(): location of schematic pins not found} {}");
+  }
+  my_free(1602, &pinname[0]);
+  my_free(1603, &pinname[1]);
+  my_free(1604, &pinname[2]);
+  my_free(1605, &generic_pin);
 }
 
 void descend_symbol(void)
