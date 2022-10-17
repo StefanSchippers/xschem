@@ -133,21 +133,21 @@ T {data0} 310 -365 0 0 0.3 0.3 {}
 T {prech} 215 -550 0 0 0.18 0.3 {}
 T {sense} 260 -550 0 0 0.18 0.3 {}
 C {opin.sym} 340 -220 0 0 {name=p10 lab=DOUT[width-1:0] verilog_type=wire
-pinnumber=8}
+sim_pinnumber=8}
 C {ipin.sym} 200 -220 0 0 {name=p8 lab=DIN[width-1:0]
-pinnumber=5}
+sim_pinnumber=5}
 C {ipin.sym} 200 -110 0 0 {name=p12 lab=CK
-pinnumber=1}
+sim_pinnumber=1}
 C {ipin.sym} 200 -140 0 0 {name=p1 lab=OEN
-pinnumber=2}
+sim_pinnumber=2}
 C {ipin.sym} 200 -260 0 0 {name=p3 lab=ADD[dim-1:0]
-pinnumber=7}
+sim_pinnumber=7}
 C {ipin.sym} 200 -190 0 0 {name=p2 lab=WEN
-pinnumber=4}
+sim_pinnumber=4}
 C {ipin.sym} 200 -170 0 0 {name=p4 lab=CEN
-pinnumber=3}
+sim_pinnumber=3}
 C {ipin.sym} 200 -240 0 0 {name=p5 lab=M[width-1:0]
-pinnumber=6}
+sim_pinnumber=6}
 C {verilog_timescale.sym} 710 -197.5 0 0 {name=s1 timestep="1ps" precision="1ps" }
 C {title.sym} 160 -30 0 0 {name=l2}
 C {use.sym} 360 -130 0 0 {------------------------------------------------

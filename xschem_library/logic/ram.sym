@@ -24,15 +24,14 @@ L 4 -150 0 -130 0 {}
 L 4 -150 20 -130 20 {}
 L 4 -150 40 -130 40 {}
 L 4 -150 60 -130 60 {}
-B 5 -152.5 -62.5 -147.5 -57.5 {name=ADD[dim-1:0] dir=in pinnumber=7}
-B 5 -152.5 -42.5 -147.5 -37.5 {name=M[width-1:0] dir=in pinnumber=6}
-B 5 147.5 -62.5 152.5 -57.5 {name=DOUT[width-1:0] verilog_type=wire dir=out
-pinnumber=8 }
-B 5 -152.5 -22.5 -147.5 -17.5 {name=DIN[width-1:0] dir=in pinnumber=5}
-B 5 -152.5 -2.5 -147.5 2.5 {name=WEN dir=in pinnumber=4}
-B 5 -152.5 17.5 -147.5 22.5 {name=CEN dir=in pinnumber=3}
-B 5 -152.5 37.5 -147.5 42.5 {name=OEN dir=in pinnumber=2}
-B 5 -152.5 57.5 -147.5 62.5 {name=CK dir=in pinnumber=1}
+B 5 -152.5 57.5 -147.5 62.5 {name=CK dir=in sim_pinnumber=1}
+B 5 -152.5 37.5 -147.5 42.5 {name=OEN dir=in sim_pinnumber=2}
+B 5 -152.5 17.5 -147.5 22.5 {name=CEN dir=in sim_pinnumber=3}
+B 5 -152.5 -2.5 -147.5 2.5 {name=WEN dir=in sim_pinnumber=4}
+B 5 -152.5 -22.5 -147.5 -17.5 {name=DIN[width-1:0] dir=in sim_pinnumber=5}
+B 5 -152.5 -42.5 -147.5 -37.5 {name=M[width-1:0] dir=in sim_pinnumber=6}
+B 5 -152.5 -62.5 -147.5 -57.5 {name=ADD[dim-1:0] dir=in sim_pinnumber=7}
+B 5 147.5 -62.5 152.5 -57.5 {name=DOUT[width-1:0] verilog_type=wire dir=out sim_pinnumber=8 }
 T {@symname} -31.5 -6 0 0 0.3 0.3 {}
 T {@name} 135 -82 0 0 0.2 0.2 {}
 T {ADD[dim-1:0]} -125 -64 0 0 0.2 0.2 {}

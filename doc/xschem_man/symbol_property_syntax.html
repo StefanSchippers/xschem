@@ -338,33 +338,35 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
    Defines the direction of a symbol pin. Allowed values are <kbd>in</kbd>, <kbd>out</kbd>, <kbd>inout</kbd>.
   </p>
    <img src="symbol_property_syntax2.png">
-
+  <a id="pinnumber">
   <li><kbd>pinnumber</kbd></li>
+  </a>
   <p> 
    For packaged devices (tEDAx netlists) : indicate the position of the pin on the package.
    This can be overriden at instance level by attributes <kbd>pinnumber(name)</kbd> set in the instance
    for tEDAx netlists.
    <br><br>
+  <li><kbd>sim_pinnumber</kbd></li>
    For VHDL, SPICE, Verilog netlists: define the ordering of symbol ports in netlist.
-   If all symbol pins have a pinnumber attribute this symbol will be netlisted 
-   (in all netlist formats) with pins sorted in ascending order according to pinnumber value.
-   Start value of pinnumber does not matter (may start at 1 or 0) , it is used as the sort key.
-   You can assign the pinnumber attribute directly in the symbol...
+   If all symbol pins have a sim_pinnumber attribute this symbol will be netlisted 
+   (in all netlist formats) with pins sorted in ascending order according to sim_pinnumber value.
+   Start value of sim_pinnumber does not matter (may start at 1 or 0) , it is used as the sort key.
+   You can assign the sim_pinnumber attribute directly in the symbol...
   </p>
   <img src="pinnumber1.png">
   <p>
   ... Or you can assign these in the schematic pins, if you use the "Make symbol from schematic"
   function ('a' key) these attributes will be transferred to the symbol.<br>
-  The pinnumber attributes that determine the netlist port ordering are those defined in the symbol.
+  The sim_pinnumber attributes that determine the netlist port ordering are those defined in the symbol.
   </p>
   <img src="pinnumber2.png">
   <p>
-  For sorting to happen all symbol pins must have a pinnumber attribute.
+  For sorting to happen all symbol pins must have a sim_pinnumber attribute.
   If some pins miss this attribute no sorting is done and pin ordering will be unchanged,
   the stored order of symbol pins will be used (first created pin netlisted first).<br>
-  If there are duplicate pinnumber attributes (but all pins have this attribute) sorting
-  will happen but relative ordering or pins with identical pinnumber is undefined.<br>
-  As an example you may give pinnumber=9999 on a symbol output and pinnumber=1 on all other
+  If there are duplicate sim_pinnumber attributes (but all pins have this attribute) sorting
+  will happen but relative ordering or pins with identical sim_pinnumber is undefined.<br>
+  As an example you may give sim_pinnumber=9999 on a symbol output and sim_pinnumber=1 on all other
   pins if you only require the output pin to be netlisted at the end, and don't care about
   the other pin ordering.
   </p>
