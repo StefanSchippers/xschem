@@ -645,12 +645,12 @@ static double ravg_store(int what , int i, int p, int last, double value)
   static double **arr = NULL;
   int j;
 
-  if(what == 0 && imax) {
-    for(j = 0; j < imax; j++) {
-      my_free(1512, &arr[j]);
-    }
-    my_free(1513, &arr);
-    imax = 0;
+  /* 
+  dbg(0, "ravg_store: what= %d i= %d p= %d last= %d value=%g\n",
+              what, i, p, last, value);
+  */
+  if(what == 2) {
+    return arr[i][p];
   } else if(what == 1) {
     if(i >= imax) {
       int new_size = i + 4;
@@ -661,8 +661,12 @@ static double ravg_store(int what , int i, int p, int last, double value)
       imax = new_size;
     }
     arr[i][p] = value;
-  } else if(what == 2) {
-    return arr[i][p];
+  } else if(what == 0 && imax) {
+    for(j = 0; j < imax; j++) {
+      my_free(1512, &arr[j]);
+    }
+    my_free(1513, &arr);
+    imax = 0;
   }
   return 0.0;
 }
@@ -860,11 +864,11 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             ravg_store(1, i, p, last, result);
             
             while(stack1[i].prevp <= last && x[p] - x[stack1[i].prevp] > stack2[stackptr2 - 1]) {
-              dbg(1, "%g  -->  %g\n", x[stack1[i].prevp], x[p]);
+              /* dbg(1, "%g  -->  %g\n", x[stack1[i].prevp], x[p]); */
               stack1[i].prevp++;
             }
             stack2[stackptr2 - 2] = (result - ravg_store(2, i, stack1[i].prevp, 0, 0)) / stack2[stackptr2 - 1];
-            dbg(1, "result=%g ravg_store=%g\n", result,  ravg_store(2, i, stack1[i].prevp, 0, 0));
+            /* dbg(1, "result=%g ravg_store=%g\n", result,  ravg_store(2, i, stack1[i].prevp, 0, 0)); */
             stackptr2--;
             break;
           case POW:
