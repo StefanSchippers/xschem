@@ -3147,7 +3147,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
          }
          if(path) new_size += strlen(path);
          lab = get_tok_value(prop_ptr, "lab", 0);
-         new_size += xctx->tok_size + 21; /* @spice_get_voltage(<lab>) */
+         new_size += strlen(lab) + 21; /* @spice_get_voltage(<lab>) */
          my_realloc(1587, &tt[i].txt_ptr, new_size);
          my_snprintf(tt[i].txt_ptr, new_size, "@spice_get_voltage(%s%s)", path ? path : "", lab);
          my_free(1589, &path);
@@ -3168,7 +3168,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
          } 
          if(path) new_size += strlen(path);
          dev = get_tok_value(prop_ptr, "name", 0);
-         new_size += xctx->tok_size + 21; /* @spice_get_current(<dev>) */
+         new_size += strlen(dev) + 21; /* @spice_get_current(<dev>) */
          my_realloc(1592, &tt[i].txt_ptr, new_size);
          my_snprintf(tt[i].txt_ptr, new_size, "@spice_get_current(%s%s)", path ? path : "", dev);
          my_free(1593, &path);
