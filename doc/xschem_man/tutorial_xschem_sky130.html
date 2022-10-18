@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM SKY130 INTEGRATION</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+</style>
+</head>
+<body>
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="what_is_xschem.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="run_xschem.html" class="next">NEXT</a>
+
+ <!-- slide title -->
+ <h1> XSCHEM SKY130 INTEGRATION </h1><br>
+ <p>
+ To use Xschem with the Google-Skywater 130nm process (here: Sky130) The following items must be followed:
+ </p>
+ <ul>
+  <li> Install XSchem. Follow the Manual <a href="install_xschem.html">Install instructions</a></li>
+
+  <li> Install the Magic VLSI layout editor. Instructions <a href="http://opencircuitdesign.com/magic/index.html">here.</a></li>
+
+  <li> Install <a href="http://opencircuitdesign.com/open_pdks/index.html">Open_Pdks</a>
+       that will provide among other things all the sky130 PDK data, including standard 
+       cells, SPICE models, layout data, timing information, design rules and also the Xschem symbols of available
+       silicon primitive devices and the set of locic standard cells built on top of these primitive devices.
+       Instructions are <a href="http://opencircuitdesign.com/open_pdks/index.html">here</a>.<br>
+       Please ensure sufficient disk space is available (Open_pdks uses several GB, a lot of space can be recovered
+       after installation by removing the source files if needed). Also keep in mind that the installation takes 
+       considerable time.
+       The following steps are needed:<br><br>
+       <pre class="code">
+## fetch the repository with git:
+git clone git://opencircuitdesign.com/open_pdks
+cd open_pdks
+## configure the build, a --prefix option can be given to install in a different place,
+## by default after installation a /usr/local/share/pdk directory is created if no --prefix is provided.
+## Below line for example requests installation in my home directory (/home/schippes/share/pdk)
+## ./configure --enable-sky130-pdk --prefix=/home/schippes
+## Do the following steps one at a time and ensure no errors are reported after each step.
+./configure --enable-sky130-pdk 
+make
+make install </pre><br>
+  </li>
+
+  <li> At this point the complete PDK has been installed in <kbd>/usr/local/share/pdk</kbd> (or 
+       <kbd>&lt;prefix&gt;/share/pdk</kbd> if --prefix was provided).<br>
+       Xschem libraries also have been installed and are located under
+       <kbd>&lt;prefix&gt;/share/pdk/sky130A/libs.tech/xschem/</kbd> or
+       <kbd>&lt;prefix&gt;/share/pdk/sky130B/libs.tech/xschem/</kbd>.<br>
+       the <kbd>sky130B</kbd> directory contains the ReRAM Sky130 process option in addition
+       to all <kbd>Sky130A</kbd> devices.
+  </li>
+  <li> After completing the above steps you can do a test run of xschem and use the Sky130 devices.
+       You need to create a new empty drectory, copy the provided xschemrc
+       (<kbd>&lt;prefix&gt;/share/pdk/sky130B/libs.tech/xschem/xschemrc</kbd>) into it and run xschem:<br><br>
+       <pre class="code">
+mkdir test_xschem_sky130
+cd test_xschem_sky130
+cp /usr/local/share/pdk/sky130B/libs.tech/xschem/xschemrc .
+xschem
+       </pre><br><br>
+  </li>  
+  <li> If all went well the following welcome page will be shown.  The page contains some example
+       circuits on the left and shows all the available silicon devices on the right.
+       You can descend into the example circuits on the left by clicking the symbols (they will turn to grey
+       meaning they are selected) and press the <kbd>e</kbd> key or by menu <kbd>Edit-&gt;Push schematic</kbd>.
+       You can return to the parent level by pressing <kbd>Ctrl-e</kbd> or by menu <kbd>Edit-&gt;Pop</kbd>.
+       <br><img src="tutorial_xschem_sky130_01.png"><br><br>
+       You can disable the welcome page by commenting the following line in the xschemrc file:<br><br>
+       <pre class="code">
+set XSCHEM_START_WINDOW {sky130_tests/top.sch} </pre>
+  </li>
+ </ul><br><br>
+ <h2> PDK_ROOT and PDK environment variables </h2>
+ <p>
+  Xschem (via the xschemrc file) looks for a <kbd>PDK_ROOT</kbd> environment variable that points to the installed pdk to use.
+  This is expecially useful if multiple or different versions of the pdk are installed.
+  If the pdk is installed in <kbd>/usr/local/share/pdk</kbd> PDK_ROOT should be set to <kbd>/usr/local/share/pdk</kbd>.
+  For <kbd>Sky130</kbd> another variable <kbd>PDK</kbd> tells the process variant to use (currently <kbd>sky130A</kbd>)
+  or <kbd>sky130B</kbd>). If <kbd>PDK</kbd> is unset the default <kbd>sky130A</kbd> will be used.
+  If no PDK_ROOT variable is defined xschem will look into the following locations and pick the first existing found 
+  in the order listed below:
+  </p>
+  <ol>
+   <li><kbd>/usr/share/pdk</kbd></li>
+   <li><kbd>/usr/local/share/pdk</kbd></li>
+   <li><kbd>~/share/pdk</kbd></li>
+  </ol>
+ <p>
+  If no pdk is found a warning message is displayed on the xschem launching terminal.
+ </p>
+
+ <h2> Simulating a circuit with sky130 devices</h2>
+ <p>
+  The best way to quickly set up a simulation with Xschem is to look at some of the provided examples.
+  If you descend into the <kbd>test_inv</kbd> component you see a working circuit ready for simulation.
+  <br><img src="tutorial_xschem_sky130_02.png"><br><br>
+  One line is needed in the spice netlist to load the spice models:
+  </p>
+  <pre class="code">
+.lib /usr/local/share/pdk/sky130A/libs.tech/ngspice/sky130.lib.spice tt </pre>
+ <p>
+  The exact path depends on the install location of the pdk as explained above.
+  In the picture above the <kbd>TT_MODELS</kbd> component takes care of generating the .lib line in the netlist. 
+  the <kbd>tt</kbd> at the end of the <kbd>.lib</kbd> line is the process corner (tt = typical n, typical p transistors).
+  You can change the corner to <kbd>ss, sf, fs, ff </kbd> to verify your design across process variations.
+ </p>
+ <p>
+  You see in the circuit a <kbd>COMMANDS2</kbd> component. This component allows to enter text to specify the simulation to run, 
+  giving simulator commands and options.
+  You place this component by pressing the <kbd>Insert</kbd> or <kbd>i</kbd> key, browsing into the standard xschem
+  <kbd>devices</kbd> directory and placing <kbd>code_shown.sym</kbd> or <kbd>code.sym</kbd> into the schematic.
+  <br><img src="tutorial_xschem_sky130_03.png"><br><br>
+  Once placed in the schematic, you may click the component, press <kbd>q</kbd> to edit its attributes, set the
+  <kbd>Edit attr.</kbd> listbox on the right to <kbd>value</kbd> and enter the simulator commands to run the simulation.
+  You can give a reference name to this component by setting the  <kbd>Edit attr.</kbd> listbox to <kbd>name</kbd> and give it
+  a name that will be diplayed in the schematic. (<kbd>COMMANDS2</kbd> in the example).
+  <br><img src="tutorial_xschem_sky130_04.png"><br><br>
+ </p>
+ <p class="important">
+  Note in above commands a <kbd>write test_inv_ngspice.raw</kbd> command. This example runs simulation with both
+  Xyce and ngspice so the output raw file is differentiated. If you just plan to use one simulator a good suggestion is
+  to write a raw file with the same name as the circuit, so <kbd>write test_inv.raw</kbd>.
+ </p>
+ <p>
+  If you select the TT_MODELS component and press <kbd>q</kbd> you see the reference to the PDK top library SPICE file.
+  The path is specified using TCL variables that have been generated by xschem when the pdk installation was looked up.
+  This allows to have portable schematics, no absolute path is hardcoded in the schematic files.
+  <br><img src="tutorial_xschem_sky130_05.png"><br><br>
+  If everything is set up correctly pressing the <kbd>Netlist</kbd> button or hitting the <kbd>n</kbd> key will produce
+  a spice netlist of the circuit. The netlist location is by default set to your home directory:
+  <kbd>~/.xschem/simulations</kbd>
+ </p><br>
+ <pre class="code">
+schippes@mazinga:~/x/test_open_pdks$ ls -ltr ~/.xschem/simulations/
+...
+...
+-rw-r--r-- 1 schippes schippes      3266 ott 18 15:26  test_inv.spice </pre> <br>
+ <p>
+ You can then simulate the circuit. Select the simulator to use by clicking menu
+ <kbd>Simulation-&gt;Configure simulators and tools</kbd> and selecting (for this example) <kbd>ngspice</kbd>
+  <br><img src="tutorial_xschem_sky130_06.png"><br><br>
+  Press the <kbd>Simulation</kbd> button and see the ngspice running in a terminal:
+  <br><img src="tutorial_xschem_sky130_07.png"><br><br>
+ </p>
+ <p class="important">
+  The default terminal used by xschem to run the simulator is <kbd>xterm</kbd>. I strongly suggest you to install xterm
+  (on ubuntu/debian Linux: <kbd>sudo apt install xterm</kbd>) since it is a very small package and is not a broken terminal 
+  like most Gnome/KDE/LXDE stuff. You can however use any terminal editor by specifying the one to use in your xschemrc.
+  If not specified xschem defaults to <kbd>xterm</kbd>
+  <kbd><br><br>
+   ## set terminal xterm<br>
+   set terminal gnome-terminal<br>
+  </kbd><br>
+ </p>
+ <p>
+  After completing simulation you can add into the schematic a graph (<kbd>Simulation-&gt;Add waveform graph</kbd>)
+  and a waveform reload launcher (<kbd>Simulation-&gt;Add waveform reload launcher</kbd>).
+  The launcher has a <kbd>tclcommand</kbd> attribute that loads the simulator data file (<kbd>test_inv.raw</kbd>) and 
+  specifies the type of analysis (<kbd>op, dc, ac, tran</kbd>)
+  <br><img src="tutorial_xschem_sky130_08.png"><br><br>
+  See the <a href="graphs.html#graphs">manual</a> for details
+  <br><img src="tutorial_xschem_sky130_09.png"><br><br>
+ </p>
+ <br><br>
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+
