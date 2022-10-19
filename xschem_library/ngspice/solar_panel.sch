@@ -53,7 +53,7 @@ L 4 1130 -1060 1150 -1060 {}
 L 4 1150 -1060 1150 -1020 {}
 L 4 1150 -1020 1160 -1020 {}
 B 2 1260 -560 1680 -390 {flags=graph 
-y1 = -1.1e-05
+y1 = -0.42
 y2 = 22
 divy = 6
 subdivy=1
@@ -64,8 +64,8 @@ node="panel
 led" unitx=m
 color="7 4"}
 B 2 1260 -390 1680 -220 {flags=graph 
-y1 = -0.003
-y2 = 7.6
+y1 = 0
+y2 = 6.7
 divy = 4
 subdivy=1
 x1=5e-10
@@ -77,8 +77,8 @@ node="i(vpanel)
 i(vled)
 \\"R.Avg. I(vpanel); i(vpanel) 20u ravg()\\""}
 B 2 1260 -750 1680 -560 {flags=graph 
-y1 = -0.065
-y2 = 110
+y1 = -8.9e-05
+y2 = 100
 divy = 5
 subdivy=1
 x1=5e-10
@@ -89,7 +89,7 @@ divx=9
 color="7 4 6 10"
 node="\\"Panel power; i(vpanel) v(panel) *\\"
 \\"Led power; i(vled) v(led) *\\"
-\\"R.Avg.Pan. Pwr; i(vpanel) v(panel) * 20u ravg()\\"
+\\"Avg.Pan. Pwr; i(vpanel) v(panel) * 20u ravg()\\"
 \\"SUN %; sun 100 *\\""
 hilight_wave=-1}
 B 2 1260 -940 1680 -750 {flags=graph 
@@ -170,7 +170,6 @@ N 630 -160 820 -160 {lab=0}
 N 1000 -560 1010 -560 {lab=VO}
 N 1100 -390 1140 -390 {lab=LED}
 N 1100 -390 1100 -310 {lab=LED}
-N 820 -280 820 -160 {lab=0}
 N 820 -380 820 -340 { lab=#net2}
 N 920 -560 940 -560 { lab=#net3}
 N 370 -440 370 -390 {
@@ -218,6 +217,8 @@ N 770 -1080 770 -1030 {
 lab=TRIANG}
 N 770 -1030 890 -1030 {
 lab=TRIANG}
+N 820 -280 820 -160 {
+lab=0}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
 C {code_shown.sym} 190 -200 0 0 {name=CONTROL value=".control
 save all

@@ -16,7 +16,7 @@ divx=8
   unitx=1
 color=15
 node=i(vload)
-dataset=4}
+dataset=-1}
 B 2 860 -790 1360 -550 {flags=graph 
 y1 = 0
 y2 = 120
@@ -31,35 +31,39 @@ node="\\"Power;
 plus
 i(vload)
 *\\""
-dataset=4}
+dataset=-1}
 T {Voc = 22
 Wp = 100W
-Vmp = 17.5} 610 -370 0 0 0.4 0.4 {}
-N 510 -340 510 -120 {
+Vmp = 17.5} 320 -550 0 0 0.4 0.4 {}
+T {position the mouse close to one of the curves
+and press 't' to display only that curve.
+This allows you to annotate the active
+waveform in the schematic.} 480 -470 0 0 0.3 0.3 {}
+N 230 -440 230 -380 {
 lab=minus}
-N 510 -430 510 -400 {
+N 230 -530 230 -500 {
 lab=mn}
-N 280 -360 300 -360 {
+N 90 -420 110 -420 {
 lab=fade}
-N 510 -560 510 -490 {
+N 230 -660 230 -590 {
 lab=pn}
-N 510 -680 510 -620 {
+N 230 -760 230 -720 {
 lab=plus}
-C {iopin.sym} 510 -680 2 1 {name=p1 lab=plus}
-C {iopin.sym} 510 -120 2 1 {name=p2 lab=minus}
+C {iopin.sym} 230 -760 2 1 {name=p1 lab=plus}
+C {iopin.sym} 230 -380 2 1 {name=p2 lab=minus}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
-C {ammeter.sym} 510 -370 2 1 {name=Vm}
-C {lab_pin.sym} 510 -510 2 0 {name=l2 sig_type=std_logic lab=pn}
-C {lab_pin.sym} 510 -410 2 0 {name=l3 sig_type=std_logic lab=mn}
-C {isource_arith.sym} 510 -460 2 0 {name=G1
+C {ammeter.sym} 230 -470 2 1 {name=Vm}
+C {lab_pin.sym} 230 -610 2 0 {name=l2 sig_type=std_logic lab=pn}
+C {lab_pin.sym} 230 -510 2 0 {name=l3 sig_type=std_logic lab=mn}
+C {isource_arith.sym} 230 -560 2 0 {name=G1
 CUR="v(f) * 6 * (1 - exp( (v(pn,mn)
 +  -18.5 - v(f)*3 ) * 0.7) -
 +  0.005 * (v(pn,mn) - 18.5 - v(f)*3))"
 }
-C {ipin.sym} 280 -360 2 1 {name=p2 lab=fade}
-C {ammeter.sym} 330 -360 3 0 {name=Vf}
-C {lab_pin.sym} 360 -360 2 0 {name=l3 sig_type=std_logic lab=f}
-C {ammeter.sym} 510 -590 2 1 {name=Vp}
+C {ipin.sym} 90 -420 2 1 {name=p2 lab=fade}
+C {ammeter.sym} 140 -420 3 0 {name=Vf}
+C {lab_pin.sym} 170 -420 2 0 {name=l3 sig_type=std_logic lab=f}
+C {ammeter.sym} 230 -690 2 1 {name=Vp}
 C {code_shown.sym} 30 -280 0 0 {name=CONTROL 
 only_toplevel=true
 value="
@@ -67,7 +71,7 @@ vload plus minus 0
 vsun fade 0 0
 vref minus 0 0
 .control
-save plus i(vload)
+save plus i(vload) i(vm) n(pn) v(mn)
 dc vload 0 22 0.5 vsun 0.2 1.0 0.2
 write pv_ngspice.raw 
 quit
@@ -150,3 +154,7 @@ AAAAMEAAAAAAAAAwQA6s7aA3JhhAAAAAAACAMEAAAAAAAIAwQJ87BDkR4BdAAAAAAAAAMUAAAAAAAAAx
 AAAAMkAAAAAAAAAyQKt0WwtVWRZAAAAAAACAMkAAAAAAAIAyQKjNBafJaxVAAAAAAAAAM0AAAAAAAAAzQLZmLAUiIRRAAAAAAACAM0AAAAAAAIAzQOzoJCdZUhJAAAAA
 AAAANEAAAAAAAAA0QIBI//sfkA9AAAAAAACANEAAAAAAAIA0QEAKcVhmZwhAAAAAAAAANUAAAAAAAAA1QACsoYcGl/w/AAAAAACANUAAAAAAAIA1QAAAAAAAAAAAAAAA
 AAAANkAAAAAAAAA2QACfbNc4PATA"}
+C {ngspice_get_expr.sym} 280 -560 0 0 {name=r24 
+node="[format %.4g [expr ([ngspice::get_voltage pn] - [ngspice::get_voltage mn]) * [ngspice::get_current Vm]]] W"
+descr = power
+}
