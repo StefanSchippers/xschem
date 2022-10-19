@@ -1,4 +1,5 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {type=ipin
 format="*.ipin @lab"
@@ -7,6 +8,7 @@ template="name=p1 lab=xxx"
 V {}
 S {}
 E {}
-B 5 -0.009765619999999999 -0.009765619999999999 0.009765619999999999 0.009765619999999999 {name=p dir=out}
-P 5 6 -0 -0 -6.25 -5 -14.375 -5 -14.375 5 -6.25 5 0 0 {fill=true}
+L 5 -5 0 0 0 {}
+B 5 -1.25 -1.25 1.25 1.25 {name=p dir=out}
+P 5 7 -5 0 -8.75 -5 -17.5 -5 -13.75 0 -17.5 5 -8.75 5 -5 0 {fill=true}
 T {@lab} -18.75 -8.75 0 1 0.33 0.33 {}
