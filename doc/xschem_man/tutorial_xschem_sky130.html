@@ -49,7 +49,17 @@ make
 ## install the program and needed files.
 make install
  </pre><br><br>
-
+   <h2 style="text-align: center;">IMPORTANT!!</h2><br>
+ <p class="important">
+  You need to create the following <kbd><b>.spiceinit</b></kbd> file in the directory where simulations are run
+  (typically <kbd>~/.xschem/simulations</kbd>)
+  or in your home directory. This file sets some default behavior for reading .lib files and speeds up loading pdk model files.
+<kbd><br><br>
+set ngbehavior=hsa<br>
+set ng_nomodcheck<br>
+</kbd>
+ </p><br><br>
+ 
   <li> Install <a href="http://opencircuitdesign.com/open_pdks/index.html">Open_Pdks</a>
        that will provide among other things all the sky130 PDK data, including standard 
        cells, SPICE models, layout data, timing information, design rules and also the Xschem symbols of available
