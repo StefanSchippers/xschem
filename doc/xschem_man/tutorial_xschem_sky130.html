@@ -27,7 +27,7 @@ p{padding: 15px  30px 10px;}
   <li> Install the Magic VLSI layout editor. Instructions <a href="http://opencircuitdesign.com/magic/index.html">here.</a></li>
 
   <li> Install <a href="https://sourceforge.net/projects/ngspice/">ngspice</a>, by cloning the git source repository
-       and building the program. If you want adms integration you must instal adms (<kbd>sudo apt install adms</kbd>).
+       and building the program. If you want adms integration you must instal adms (<kbd>sudo apt-get install adms</kbd>).
        Otherwise run <kbd>autogen.sh</kbd> (see below) without the <kbd>--adms</kbd> option.
        Without the --adms also the following <kbd>../configure ...</kbd> line should have <kbd>--enable-adms</kbd> removed.
   </li><br>
@@ -37,7 +37,7 @@ p{padding: 15px  30px 10px;}
 git clone https://git.code.sf.net/p/ngspice/ngspice ngspice_git
 cd ngspice_git
 mkdir release
-## in order to run the following you must have adms installed (<kbd>sudo apt install adms</kbd>)
+## in order to run the following you must have adms installed (<kbd>sudo apt-get install adms</kbd>)
 ## Otherwise run without <kbd>--adms</kbd> and remove <kbd>--enable-adms</kbd> in the following <kbd>../configure... </kbd> line.
 ./autogen.sh --adms
 cd release
@@ -62,7 +62,7 @@ set ng_nomodcheck<br>
  
   <li> Install <a href="http://opencircuitdesign.com/open_pdks/index.html">Open_Pdks</a>
        that will provide among other things all the sky130 PDK data, including standard 
-       cells, SPICE models, layout data, timing information, design rules and also the Xschem symbols of available
+       cells, SPICE models, layout data, timing information, design rules and provides also also the Xschem symbols of available
        silicon primitive devices and the set of locic standard cells built on top of these primitive devices.
        Instructions are <a href="http://opencircuitdesign.com/open_pdks/index.html">here</a>.<br>
        Please ensure sufficient disk space is available (Open_pdks uses several GB, a lot of space can be recovered
@@ -188,7 +188,7 @@ schippes@mazinga:~/x/test_open_pdks$ ls -ltr ~/.xschem/simulations/
  </p>
  <p class="important">
   The default terminal used by xschem to run the simulator is <kbd>xterm</kbd>. I strongly suggest you to install xterm
-  (on ubuntu/debian Linux: <kbd>sudo apt install xterm</kbd>) since it is a very small package and is not a broken terminal 
+  (on ubuntu/debian Linux: <kbd>sudo apt-get install xterm</kbd>) since it is a very small package and is not a broken terminal 
   like most Gnome/KDE/LXDE stuff. You can however use any terminal editor by specifying the one to use in your xschemrc.
   If not specified xschem defaults to <kbd>xterm</kbd>
   <kbd><br><br>
