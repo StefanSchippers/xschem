@@ -26,6 +26,25 @@ p{padding: 15px  30px 10px;}
 
   <li> Install the Magic VLSI layout editor. Instructions <a href="http://opencircuitdesign.com/magic/index.html">here.</a></li>
 
+
+  <li> Install <a href="https://sourceforge.net/projects/ngspice/">ngspice</a>, by cloning the git source repository
+       and building the program. If you want adms integration you must instal adms (<kbd>sudo apt install adms</kbd>).</li><br>
+
+  <pre class="code">
+git clone https://git.code.sf.net/p/ngspice/ngspice ngspice_git
+cd ngspice_git
+mkdir release
+## in order to run the following you must have adms installed (<kbd>sudo apt install adms</kbd>)
+./autogen-sh --adms
+cd release
+## by default if no <kbd>--prefix</kbd> is provided ngspice will install under <kbd>/usr/local/{bin,share,man,lib}</kbd>
+## you can add a <kbd>--prefix=/home/username</kbd> to install into your home directory.
+../configure --with-x --enable-xspice --disable-debug --enable-cider --with-readline=yes --enable-openmp --enable-adms
+## build the program
+make
+## install the program and needed files.
+make install
+ </pre><br><br>
   <li> Install <a href="http://opencircuitdesign.com/open_pdks/index.html">Open_Pdks</a>
        that will provide among other things all the sky130 PDK data, including standard 
        cells, SPICE models, layout data, timing information, design rules and also the Xschem symbols of available
@@ -34,7 +53,7 @@ p{padding: 15px  30px 10px;}
        Please ensure sufficient disk space is available (Open_pdks uses several GB, a lot of space can be recovered
        after installation by removing the source files if needed). Also keep in mind that the installation takes 
        considerable time.
-       The following steps are needed:<br><br>
+       The following steps are needed:<br><br></li>
        <pre class="code">
 ## fetch the repository with git:
 git clone git://opencircuitdesign.com/open_pdks
@@ -50,7 +69,6 @@ cd open_pdks
 ./configure --enable-sky130-pdk 
 make
 make install </pre><br>
-  </li>
 
   <li> At this point the complete PDK has been installed in <kbd>/usr/local/share/pdk</kbd> (or 
        <kbd>&lt;prefix&gt;/share/pdk</kbd> if --prefix was provided).<br>
@@ -62,24 +80,22 @@ make install </pre><br>
   </li>
   <li> After completing the above steps you can do a test run of xschem and use the Sky130 devices.
        You need to create a new empty drectory, copy the provided xschemrc
-       (<kbd>&lt;prefix&gt;/share/pdk/sky130B/libs.tech/xschem/xschemrc</kbd>) into it and run xschem:<br><br>
+       (<kbd>&lt;prefix&gt;/share/pdk/sky130B/libs.tech/xschem/xschemrc</kbd>) into it and run xschem:<br><br></li>
        <pre class="code">
 mkdir test_xschem_sky130
 cd test_xschem_sky130
 cp /usr/local/share/pdk/sky130B/libs.tech/xschem/xschemrc .
 xschem
        </pre><br><br>
-  </li>  
   <li> If all went well the following welcome page will be shown.  The page contains some example
        circuits on the left and shows all the available silicon devices on the right.
        You can descend into the example circuits on the left by clicking the symbols (they will turn to grey
        meaning they are selected) and press the <kbd>e</kbd> key or by menu <kbd>Edit-&gt;Push schematic</kbd>.
        You can return to the parent level by pressing <kbd>Ctrl-e</kbd> or by menu <kbd>Edit-&gt;Pop</kbd>.
        <br><br><img src="tutorial_xschem_sky130_01.png"><br><br>
-       You can disable the welcome page by commenting the following line in the xschemrc file:<br><br>
+       You can disable the welcome page by commenting the following line in the xschemrc file:<br><br></li>
        <pre class="code">
 set XSCHEM_START_WINDOW {sky130_tests/top.sch} </pre>
-  </li>
  </ul><br><br>
  <h2> PDK_ROOT and PDK environment variables </h2>
  <p>
