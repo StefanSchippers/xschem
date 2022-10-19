@@ -22,13 +22,15 @@ p{padding: 15px  30px 10px;}
  To use Xschem with the Google-Skywater 130nm process (here: Sky130) The following items must be followed:
  </p>
  <ul>
-  <li> Install XSchem. Follow the Manual <a href="install_xschem.html">Install instructions</a></li>
+  <li> Install Xschem. Follow the Manual <a href="install_xschem.html">Install instructions</a></li>
 
   <li> Install the Magic VLSI layout editor. Instructions <a href="http://opencircuitdesign.com/magic/index.html">here.</a></li>
 
-
   <li> Install <a href="https://sourceforge.net/projects/ngspice/">ngspice</a>, by cloning the git source repository
-       and building the program. If you want adms integration you must instal adms (<kbd>sudo apt install adms</kbd>).</li><br>
+       and building the program. If you want adms integration you must instal adms (<kbd>sudo apt install adms</kbd>).
+       Otherwise run <kbd>autogen.sh</kbd> (see below) without the <kbd>--adms</kbd> option.
+       Without the --adms also the following <kbd>../configure ...</kbd> line should have <kbd>--enable-adms</kbd> removed.
+  </li><br>
 
   <pre class="code">
 ## clone the source repository into a local <kbd>ngspice_git</kbd> directory
@@ -36,6 +38,7 @@ git clone https://git.code.sf.net/p/ngspice/ngspice ngspice_git
 cd ngspice_git
 mkdir release
 ## in order to run the following you must have adms installed (<kbd>sudo apt install adms</kbd>)
+## Otherwise run without <kbd>--adms</kbd> and remove <kbd>--enable-adms</kbd> in the following <kbd>../configure... </kbd> line.
 ./autogen-sh --adms
 cd release
 ## by default if no <kbd>--prefix</kbd> is provided ngspice will install under <kbd>/usr/local/{bin,share,man,lib}</kbd>
@@ -46,6 +49,7 @@ make
 ## install the program and needed files.
 make install
  </pre><br><br>
+
   <li> Install <a href="http://opencircuitdesign.com/open_pdks/index.html">Open_Pdks</a>
        that will provide among other things all the sky130 PDK data, including standard 
        cells, SPICE models, layout data, timing information, design rules and also the Xschem symbols of available
@@ -79,6 +83,7 @@ make install </pre><br>
        the <kbd>sky130B</kbd> directory contains the ReRAM Sky130 process option in addition
        to all <kbd>Sky130A</kbd> devices.
   </li>
+
   <li> After completing the above steps you can do a test run of xschem and use the Sky130 devices.
        You need to create a new empty drectory, copy the provided xschemrc
        (<kbd>&lt;prefix&gt;/share/pdk/sky130B/libs.tech/xschem/xschemrc</kbd>) into it and run xschem:<br><br></li>
@@ -98,6 +103,7 @@ xschem
        <pre class="code">
 set XSCHEM_START_WINDOW {sky130_tests/top.sch} </pre>
  </ul><br><br>
+
  <h2> PDK_ROOT and PDK environment variables </h2>
  <p>
   Xschem (via the xschemrc file) looks for a <kbd>PDK_ROOT</kbd> environment variable that points to the installed pdk to use.
