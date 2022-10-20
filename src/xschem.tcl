@@ -1251,10 +1251,7 @@ proc select_inst {fullinst {redraw 1 } } {
 }
 
 proc pin_label {} {
-  if { [file exists [abs_sym_path devices/lab_pin.sym]] } {
-    return {devices/lab_pin.sym}
-  }
-  return {lab_pin.sym}
+  return [rel_sym_path [find_file lab_pin.sym]]
 }
 
 ## given a hierarchical net name x1.xamp.netname go down in the hierarchy and 
@@ -2868,23 +2865,16 @@ proc create_pins {} {
   regsub -all {<} $retval {[} retval 
   regsub -all {>} $retval {]} retval 
   set lines [split $retval \n]
-  if { [file exists [abs_sym_path devices/ipin.sym]] } {
-    set indirect 1
-  } else {
-    set indirect 0
-  }
+  set dirprefix [file dirname [rel_sym_path [find_file ipin.sym]]]
+  if {$dirprefix == {.}} { set dirprefix {}} else {append dirprefix {/}}
+  
   # viewdata $retval
   set pcnt 0
   set y 0
   set fd [open $USER_CONF_DIR/.clipboard.sch "w"]
   foreach i $lines { 
-    if {$indirect} {
-      puts $fd "C \{[rel_sym_path devices/[lindex $i 1].sym]\} 0 [set y [expr {$y-20}]] \
+    puts $fd "C \{${dirprefix}[lindex $i 1].sym\} 0 [set y [expr {$y-20}]] \
                 0 0 \{ name=p[incr pcnt] lab=[lindex $i 0] \}"
-    } else {
-      puts $fd "C \{[rel_sym_path [lindex $i 1].sym]\} 0 [set y [expr {$y-20}]] \
-                0 0 \{ name=p[incr pcnt] lab=[lindex $i 0] \}"
-    }
   }
   close $fd
   xschem merge $USER_CONF_DIR/.clipboard.sch
@@ -2979,11 +2969,8 @@ proc add_lab_no_prefix {} {
   global env retval USER_CONF_DIR
   global filetmp
 
-  if { [file exists [abs_sym_path devices/ipin.sym]] } {
-    set indirect 1
-  } else {
-    set indirect 0
-  }
+  set dirprefix [file dirname [rel_sym_path [find_file ipin.sym]]]
+  if {$dirprefix == {.}} { set dirprefix {}} else {append dirprefix {/}}
   set retval [ read_data_nonewline $filetmp ]
   regsub -all {<} $retval {[} retval
   regsub -all {>} $retval {]} retval
@@ -2993,13 +2980,8 @@ proc add_lab_no_prefix {} {
   set y 0
   set fd [open $USER_CONF_DIR/.clipboard.sch "w"]
   foreach i $lines {
-    if {$indirect} {
-      puts $fd "C \{devices/lab_pin.sym\} 0 [set y [expr {$y+20}]] \
+    puts $fd "C \{${dirprefix}lab_pin.sym\} 0 [set y [expr {$y+20}]] \
                0 0 \{ name=p[incr pcnt] verilog_type=wire lab=[lindex $i 0] \}"
-    } else {
-      puts $fd "C \{lab_pin.sym\} 0 [set y [expr {$y+20}]] \
-               0 0 \{ name=p[incr pcnt] verilog_type=wire lab=[lindex $i 0] \}"
-    }
   }
   close $fd
   xschem merge $USER_CONF_DIR/.clipboard.sch
@@ -3009,11 +2991,8 @@ proc add_lab_prefix {} {
   global env retval USER_CONF_DIR
   global filetmp
 
-  if { [file exists [abs_sym_path devices/ipin.sym]] } {
-    set indirect 1
-  } else {
-    set indirect 0
-  }
+  set dirprefix [file dirname [rel_sym_path [find_file ipin.sym]]]
+  if {$dirprefix == {.}} { set dirprefix {}} else {append dirprefix {/}}
   set retval [ read_data_nonewline $filetmp ]
   regsub -all {<} $retval {[} retval
   regsub -all {>} $retval {]} retval
@@ -3023,13 +3002,8 @@ proc add_lab_prefix {} {
   set y 0
   set fd [open $USER_CONF_DIR/.clipboard.sch "w"]
   foreach i $lines {
-    if {$indirect} {
-      puts $fd "C \{devices/lab_pin.sym\} 0 [set y [expr {$y+20}]] \
+    puts $fd "C \{${dirprefix}lab_pin.sym\} 0 [set y [expr {$y+20}]] \
                0 0 \{ name=p[incr pcnt] verilog_type=reg lab=i[lindex $i 0] \}"
-    } else {
-      puts $fd "C \{lab_pin.sym\} 0 [set y [expr {$y+20}]] \
-               0 0 \{ name=p[incr pcnt] verilog_type=reg lab=i[lindex $i 0] \}"
-    }
   }
   close $fd
   xschem merge $USER_CONF_DIR/.clipboard.sch
@@ -5873,15 +5847,9 @@ proc build_widgets { {topwin {} } } {
   }
   $topwin.menubar.simulation.menu add command -label {Add waveform graph} -command {xschem add_graph}
   $topwin.menubar.simulation.menu add command -label {Add waveform reload launcher} -command {
-    if { [file exists [abs_sym_path devices/launcher.sym]] } {
-      xschem place_symbol devices/launcher.sym "name=h5\ndescr=\"load waves\" 
+      xschem place_symbol [rel_sym_path [find_file launcher.sym]] "name=h5\ndescr=\"load waves\" 
 tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get current_name]]].raw tran\"
 "
-    } else {
-      xschem place_symbol launcher.sym "name=h5\ndescr=\"load waves\" 
-tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get current_name]]].raw tran\"
-"
-    }
   }
   $topwin.menubar.simulation.menu add checkbutton -label "Live annotate probes with 'b' cursor" \
          -variable live_cursor2_backannotate 
