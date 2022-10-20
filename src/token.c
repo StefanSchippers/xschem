@@ -3404,9 +3404,8 @@ const char *translate2(Lcc *lcc, int level, char* s)
   const char *tmp_sym_name;
   size_t sizetok = 0;
   size_t result_pos = 0, token_pos = 0;
-  char *value1 = NULL;
-  char *value2 = NULL;
   char *value = NULL;
+  char *value2 = NULL;
   int escape = 0;
 
   if(!s) {
@@ -3441,25 +3440,24 @@ const char *translate2(Lcc *lcc, int level, char* s)
       dbg(1, "translate2(): lcc[%d].prop_ptr=%s\n", level, lcc[level].prop_ptr);
       /* if spiceprefix==0 and token == @spiceprefix then set empty value */
       if(!tclgetboolvar("spiceprefix") && !strcmp(token, "@spiceprefix")) {
-        if(value1) my_free(1069, &value1);
+        if(value) my_free(1069, &value);
         xctx->tok_size = 0;
       } else if(!strncmp(token, "@#",2)) { /* get rid of pin attribute info */
-        if(value1) my_free(1572, &value1);
+        if(value) my_free(1572, &value);
         xctx->tok_size = 0;
       } else {
-        my_strdup2(332, &value1, get_tok_value(lcc[level].prop_ptr, token + 1, 0));
+        my_strdup2(332, &value, get_tok_value(lcc[level].prop_ptr, token + 1, 0));
+        dbg(1, "translate2(): lcc[%d].prop_ptr=%s value=%s\n", level, lcc[level].prop_ptr, value);
       }
-      value = "";
-      if(xctx->tok_size) {
-        value = value1;
+      if(xctx->tok_size && value[0]) {
         i = level;
         /* recursive substitution of value using parent level prop_str attributes */
         while(i > 1) {
           save_tok_size = xctx->tok_size;
           my_strdup2(440, &value2, get_tok_value(lcc[i-1].prop_ptr, value, 0));
-          dbg(1, "translate2(): lcc[%d].prop_ptr=%s\n", i-1, lcc[i-1].prop_ptr);
+          dbg(1, "translate2(): lcc[%d].prop_ptr=%s value2=%s\n", i-1, lcc[i-1].prop_ptr, value2);
           if(xctx->tok_size && value2[0]) {
-            value = value2;
+            my_strdup2(1615, &value, value2);
           } else {
             /* restore last successful get_tok_value() size parameters */
             xctx->tok_size = save_tok_size;
@@ -3513,7 +3511,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
     }
   } /* while(1) */
   my_free(1532, &token);
-  my_free(1533, &value1);
+  my_free(1533, &value);
   my_free(1071, &value2);
   dbg(1, "translate2(): result=%s\n", result);
   return tcl_hook2(&result);
