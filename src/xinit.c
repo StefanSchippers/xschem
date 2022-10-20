@@ -360,9 +360,10 @@ static void free_xschem_data()
   my_free(1133, &xctx->maxl);
   my_free(1108, &xctx->sel_array);
   for(i=0;i<CADMAXHIER;i++) {
-    my_free(1139, &xctx->sch_path[i]);
-    my_free(959, &xctx->hier_attr[i].prop_ptr);
-    my_free(960, &xctx->hier_attr[i].symname);
+    if(xctx->sch_path[i]) my_free(1139, &xctx->sch_path[i]);
+    if(xctx->hier_attr[i].templ) my_free(1608, &xctx->hier_attr[i].templ);
+    if(xctx->hier_attr[i].prop_ptr) my_free(959, &xctx->hier_attr[i].prop_ptr);
+    if(xctx->hier_attr[i].symname) my_free(960, &xctx->hier_attr[i].symname);
   }
     
   my_free(1099, &xctx->gridpoint);
@@ -543,6 +544,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
     xctx->sch_path[i]=NULL;
     xctx->sch_path_hash[i]=0;
     xctx->hier_attr[i].prop_ptr = NULL;
+    xctx->hier_attr[i].templ = NULL;
     xctx->hier_attr[i].symname = NULL;
     xctx->hier_attr[i].fd = NULL;
   }

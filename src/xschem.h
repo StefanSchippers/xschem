@@ -578,6 +578,7 @@ typedef struct
   short flip;
   FILE *fd;
   char *prop_ptr;
+  char *templ;
   char *symname;
 } Lcc;
 

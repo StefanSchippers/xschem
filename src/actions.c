@@ -805,7 +805,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
   int use_label_prefix;
   int found=0;
 
-  my_strdup(1607, &symname_pin, tcleval("rel_sym_path [find_file lab_pin.sym]"));
+  my_strdup(1611, &symname_pin, tcleval("rel_sym_path [find_file lab_pin.sym]"));
   my_strdup(1607, &symname_wire, tcleval("rel_sym_path [find_file lab_wire.sym]"));
   if(symname_pin && symname_wire) {
     rebuild_selected_array();
@@ -1214,7 +1214,7 @@ int descend_schematic(int instnumber)
  char filename[PATH_MAX];
  int inst_mult, inst_number;
  int save_ok = 0;
-
+ int n = 0;
 
  rebuild_selected_array();
  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT)
@@ -1224,7 +1224,8 @@ int descend_schematic(int instnumber)
  }
  else
  {
-  dbg(1, "descend_schematic(): selected:%s\n", xctx->inst[xctx->sel_array[0].n].name);
+  n = xctx->sel_array[0].n;
+  dbg(1, "descend_schematic(): selected:%s\n", xctx->inst[n].name);
   /* no name set for current schematic: save it before descending*/
   if(!strcmp(xctx->sch[xctx->currsch],""))
   {
@@ -1242,12 +1243,12 @@ int descend_schematic(int instnumber)
     if(save_ok==0) return 0;
   }
 
-  dbg(1, "descend_schematic(): inst type: %s\n", (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type);
+  dbg(1, "descend_schematic(): inst type: %s\n", (xctx->inst[n].ptr+ xctx->sym)->type);
 
   if(                   /*  do not descend if not subcircuit */
-     (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type &&
-     strcmp( (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type, "subcircuit") &&
-     strcmp( (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type, "primitive")
+     (xctx->inst[n].ptr+ xctx->sym)->type &&
+     strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") &&
+     strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "primitive")
   ) return 0;
 
   if(xctx->modified)
@@ -1267,11 +1268,11 @@ int descend_schematic(int instnumber)
   }
 
   /*  build up current hierarchy path */
-  dbg(1, "descend_schematic(): selected instname=%s\n", xctx->inst[xctx->sel_array[0].n].instname);
+  dbg(1, "descend_schematic(): selected instname=%s\n", xctx->inst[n].instname);
 
 
-  if(xctx->inst[xctx->sel_array[0].n].instname && xctx->inst[xctx->sel_array[0].n].instname[0]) {
-    str=expandlabel(xctx->inst[xctx->sel_array[0].n].instname, &inst_mult);
+  if(xctx->inst[n].instname && xctx->inst[n].instname[0]) {
+    str=expandlabel(xctx->inst[n].instname, &inst_mult);
   } else {
     str = "";
     inst_mult = 1;
@@ -1279,7 +1280,9 @@ int descend_schematic(int instnumber)
   my_strdup(14, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
   xctx->sch_path_hash[xctx->currsch+1] =0;
   my_strdup(1516, &xctx->hier_attr[xctx->currsch].prop_ptr, 
-            xctx->inst[xctx->sel_array[0].n].prop_ptr);
+            xctx->inst[n].prop_ptr);
+  my_strdup(1613, &xctx->hier_attr[xctx->currsch].templ,
+            get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "template", 0));
   inst_number = 1;
   if(inst_mult > 1) { /* on multiple instances ask where to descend, to correctly evaluate
                          the hierarchy path you descend to */
@@ -1312,14 +1315,14 @@ int descend_schematic(int instnumber)
   dbg(1, "descend_schematic(): current path: %s\n", xctx->sch_path[xctx->currsch+1]);
   dbg(1, "descend_schematic(): inst_number=%d\n", inst_number);
 
-  xctx->previous_instance[xctx->currsch]=xctx->sel_array[0].n;
+  xctx->previous_instance[xctx->currsch]=n;
   xctx->zoom_array[xctx->currsch].x=xctx->xorigin;
   xctx->zoom_array[xctx->currsch].y=xctx->yorigin;
   xctx->zoom_array[xctx->currsch].zoom=xctx->zoom;
   xctx->currsch++;
   hilight_child_pins();
 
-  get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym);
+  get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym);
   unselect_all(1);
   remove_symbols();
   load_schematic(1,filename, 1);

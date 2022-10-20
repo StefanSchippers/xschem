@@ -3355,12 +3355,16 @@ const char *translate(int inst, const char* s)
          if(xctx->tok_size && tok[0]) {
            dbg(1, "tok=%s\n", tok);
            my_strdup2(1523, &value1, tok);
+         } else {
+           tok = get_tok_value(lcc[i-1].templ,  value1, 0);
+           if(xctx->tok_size && tok[0]) {
+             dbg(1, "from parent template: tok=%s\n", tok);
+             my_strdup2(1614, &value1, tok);
+           }
          }
          dbg(1, "2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
          i--;
        }
-
-
        tmp=strlen(value1);
        STR_ALLOC(&result, tmp + result_pos, &size);
        memcpy(result+result_pos, value1, tmp+1);

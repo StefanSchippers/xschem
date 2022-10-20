@@ -3579,13 +3579,14 @@ void descend_symbol(void)
   FILE *fd;
   char name[PATH_MAX];
   char name_embedded[PATH_MAX];
+  int n = 0;
   rebuild_selected_array();
   if(xctx->lastsel > 1)  return;
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
+    n =xctx->sel_array[0].n;
     if(xctx->modified)
     {
       int ret;
-  
       ret = save(1);
       /* if circuit is changed but not saved before descending
        * state will be inconsistent when returning, can not propagare hilights
@@ -3597,39 +3598,39 @@ void descend_symbol(void)
       if(ret == 0) clear_all_hilights();
       if(ret == -1) return; /* user cancel */
     }
-    my_snprintf(name, S(name), "%s", xctx->inst[xctx->sel_array[0].n].name);
+    my_snprintf(name, S(name), "%s", xctx->inst[n].name);
     /* dont allow descend in the default missing symbol */
-    if((xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type &&
-       !strcmp( (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type,"missing")) return;
+    if((xctx->inst[n].ptr+ xctx->sym)->type &&
+       !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type,"missing")) return;
   }
   else return;
-
   /* build up current hierarchy path */
-  my_strdup(363,  &str, xctx->inst[xctx->sel_array[0].n].instname);
+  my_strdup(363,  &str, xctx->inst[n].instname);
   my_strdup(364, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
   my_strcat(365, &xctx->sch_path[xctx->currsch+1], str);
   my_strcat(366, &xctx->sch_path[xctx->currsch+1], ".");
   xctx->sch_path_hash[xctx->currsch+1] = 0;
 
   my_strdup(1518, &xctx->hier_attr[xctx->currsch].prop_ptr,
-            xctx->inst[xctx->sel_array[0].n].prop_ptr);
-
+            xctx->inst[n].prop_ptr);
+  my_strdup(1612, &xctx->hier_attr[xctx->currsch].templ,
+            get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "template", 0));
   xctx->sch_inst_number[xctx->currsch+1] = 1;
   my_free(921, &str);
-  xctx->previous_instance[xctx->currsch]=xctx->sel_array[0].n;
+  xctx->previous_instance[xctx->currsch]=n;
   xctx->zoom_array[xctx->currsch].x=xctx->xorigin;
   xctx->zoom_array[xctx->currsch].y=xctx->yorigin;
   xctx->zoom_array[xctx->currsch].zoom=xctx->zoom;
   ++xctx->currsch;
-  if((xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->flags & EMBEDDED ||
-    !strcmp(get_tok_value(xctx->inst[xctx->sel_array[0].n].prop_ptr,"embed", 0), "true")) {
+  if((xctx->inst[n].ptr+ xctx->sym)->flags & EMBEDDED ||
+    !strcmp(get_tok_value(xctx->inst[n].prop_ptr,"embed", 0), "true")) {
     /* save embedded symbol into a temporary file */
     my_snprintf(name_embedded, S(name_embedded),
       "%s/.xschem_embedded_%d_%s", tclgetvar("XSCHEM_TMP_DIR"), getpid(), get_cell_w_ext(name, 0));
     if(!(fd = fopen(name_embedded, "w")) ) {
       fprintf(errfp, "descend_symbol(): problems opening file %s \n", name_embedded);
     }
-    save_embedded_symbol(xctx->inst[xctx->sel_array[0].n].ptr+xctx->sym, fd);
+    save_embedded_symbol(xctx->inst[n].ptr+xctx->sym, fd);
     fclose(fd);
     unselect_all(1);
     remove_symbols(); /* must follow save (if) embedded */
