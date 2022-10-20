@@ -23,7 +23,11 @@ p{padding: 15px  30px 10px;}
  </p>
  <ul>
   <li> Install Xschem. Follow the Manual <a href="install_xschem.html">Install instructions</a></li>
-
+  <p class="important">
+   If you install xschem from sources ensure no xschem package is already installed in your linux system. Packaged xschem versions
+   are too old so you should remove the installed package. The command for ubuntu/Debian systems is 
+  <kbd>sudo apt-get remove --purge xschem </kbd><br>
+  </p><br>
   <li> Install the Magic VLSI layout editor. Instructions <a href="http://opencircuitdesign.com/magic/index.html">here.</a></li>
 
   <li> Install <a href="https://sourceforge.net/projects/ngspice/">ngspice</a>, by cloning the git source repository

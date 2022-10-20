@@ -45,9 +45,12 @@ BEGIN{
  nodes["I"]=2; nodes["C"]=2; nodes["L"]=2; nodes["Q"]=3
  nodes["E"]=4; nodes["G"]=4; nodes["H"]=2; nodes["F"]=2
  nodes["B"]=2; nodes["S"]=4
+ controlblock = 0
 }
 {
- if( toupper($0) !~/^(\.INCLUDE|\.LIB|\.WRITE| *WRITE)/) $0=toupper($0)
+ if(toupper($0) ~ /^[ \t]*\.CONTROL/) controlblock = 1
+ if(controlblock == 0 && toupper($0) !~/^(\.INCLUDE|\.LIB|\.WRITE| *WRITE)/) $0=toupper($0)
+ if(toupper($0) ~ /^[ \t]*\.ENDC/) controlblock = 0
  # allow to specify *.nodes[W]=2 or *.nodes["W"] = 2 metadata in the netlist for additional
  # custom devices nodes specification.
  if($0 ~/^[ \t]*\*\.[ \t]*NODES\["?[^]["]"?\][ \t]*=[ \t]*.*/) {
@@ -76,6 +79,8 @@ BEGIN{
 } 
 
 END{
+
+ for(j=0;j<lines;j++) a[j] = trim_quoted_spaces(a[j])
  devpattern = "^["
  for(j in nodes) {
    devpattern = devpattern j
@@ -84,6 +89,7 @@ END{
  for(j=0;j<lines;j++) 
  {
   $0=a[j]
+
   if($1 ~ /\.GLOBAL/)			# get global nodes
    for(i=2;i<=NF;i++) global[$i]=i;
   if($1 ~ /^\.SUBCKT/)			# parse subckts
@@ -138,10 +144,14 @@ function expand(name, path, param,ports,   		# func. params
   paramarray2[parameter[1]]=parameter[2]
  }
  split(ports,portarray)
+ controlblock = 0
  for(j=subckt[name , "first"]+1;j<subckt[name , "last"];j++)
  {
+  if(a[j] ~ /^[ \t]*\.control/) controlblock = 1
   num=split(a[j],line)
-  if(line[1] ~ /^X/ )
+  if(controlblock) {
+    print a[j]
+  } else if(line[1] ~ /^X/ )
   {
    paramlist = ""; portlist = ""; subname=""
    for(k=num;k>=2;k--)
@@ -217,6 +227,7 @@ function expand(name, path, param,ports,   		# func. params
    }
    printf "\n"
   }
+  if(a[j] ~ /^[ \t]*\.endc/) controlblock = 0
  }
 }
 
@@ -284,4 +295,18 @@ function general_sub(string,name,pathnode,portarray,       nod, sss, state, last
  }
  sss=sss string
  return sss
-}                                      
+}
+
+function trim_quoted_spaces(s,                p, m)
+{
+  p = ""
+  while(match(s, /['{][^}']*['}]/)) {
+    m = substr(s, RSTART, RLENGTH)
+    gsub(/ /, "", m)
+    p = p substr(s, 1, RSTART -1) m
+    s = substr(s, RSTART + RLENGTH)
+  }
+  p = p s
+  return p
+}
+

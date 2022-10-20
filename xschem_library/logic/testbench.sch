@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {process
 begin
 A<='0';
@@ -217,7 +218,8 @@ C {use.sym} 40 -670 0 0 {------------------------------------------------
 library ieee;
         use ieee.std_logic_1164.all;
         use ieee.numeric_std.all;}
-C {ram.sym} 840 -630 0 0 {name=xcoderam   dim=5 width=8 hex=1 datafile=ram.list}
+C {ram.sym} 840 -630 0 0 {name=xcoderam   dim=5 width=8 hex=1 datafile=ram.list
+spice_ignore=true}
 C {lab_pin.sym} 990 -690 0 1 {name=p25 lab=DOUT[7:0]}
 C {lab_pin.sym} 690 -690 0 0 {name=p26 lab=ADD[4:0]}
 C {lab_pin.sym} 690 -650 0 0 {name=p27 lab=DIN[7:0]}
@@ -233,7 +235,7 @@ C {lab_pin.sym} 220 -220 0 1 {name=p37 lab=OEN verilog_type=reg}
 C {lab_pin.sym} 220 -200 0 1 {name=p38 lab=CK verilog_type=reg}
 C {lab_pin.sym} 220 -260 0 1 {name=p39 lab=CEN verilog_type=reg}
 C {lab_pin.sym} 220 -300 0 1 {name=p40 lab=M[7:0] verilog_type=reg}
-C {sync_reg.sym} 840 -810 0 0 {name=x8 width=8}
+C {sync_reg.sym} 840 -810 0 0 {name=x8 width=8 spice_ignore=true}
 C {lab_pin.sym} 740 -840 0 0 {name=p33 lab=DIN[7:0]}
 C {lab_pin.sym} 740 -780 0 0 {name=p41 lab=CK}
 C {lab_pin.sym} 740 -800 0 0 {name=p42 lab=BN}
