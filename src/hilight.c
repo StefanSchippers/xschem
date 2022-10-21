@@ -536,19 +536,19 @@ void hilight_child_pins(void)
   for(k = 1; k<=mult; k++) {
     dbg(1, "hilight_child_pins(): looking nth net:%d, k=%d, inst_number=%d, mult=%d\n",
                                (inst_number-1)*mult+k, k, inst_number, mult);
-    dbg(1, "hilight_child_pins(): looking net:%s\n",  find_nth(net_node, ",",
-        ((inst_number - 1) * mult + k - 1) % net_mult + 1));
+    /* dbg(1, "hilight_child_pins(): looking net:%s\n",  find_nth(net_node, ",",
+        ((inst_number - 1) * mult + k - 1) % net_mult + 1)); */
     xctx->currsch--;
     entry = bus_hilight_hash_lookup(find_nth(net_node, ",", 
       ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XLOOKUP);
     xctx->currsch++;
     if(entry) {
       bus_hilight_hash_lookup(find_nth(pin_node, ",", k), entry->value, XINSERT_NOREPLACE);
-      dbg(1, "hilight_child_pins(): inserting: %s\n", find_nth(pin_node, ",", k));
+      /* dbg(1, "hilight_child_pins(): inserting: %s\n", find_nth(pin_node, ",", k)); */
     }
     else {
       bus_hilight_hash_lookup(find_nth(pin_node, ",", k), 0, XDELETE);
-      dbg(1, "hilight_child_pins(): deleting: %s\n", find_nth(pin_node, ",", k));
+      /* dbg(1, "hilight_child_pins(): deleting: %s\n", find_nth(pin_node, ",", k)); */
     }
   } /* for(k..) */
  }

@@ -2064,7 +2064,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   else return 0;
   dbg(1, "save_schematic(): currsch=%d name=%s\n",xctx->currsch, schname);
   dbg(1, "save_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
-  dbg(1, "save_schematic(): abs_sym_path=%s\n", abs_sym_path(xctx->sch[xctx->currsch], ""));
+  /* dbg(1, "save_schematic(): abs_sym_path=%s\n", abs_sym_path(xctx->sch[xctx->currsch], "")); */
   my_strncpy(name, xctx->sch[xctx->currsch], S(name));
   set_modify(-1);
   if(!stat(name, &buf)) {
@@ -2268,7 +2268,7 @@ static void init_undo(void)
     /* create undo directory */
     if( !my_strdup(644, &xctx->undo_dirname, create_tmpdir("xschem_undo_") )) {
       dbg(0, "xinit(): problems creating tmp undo dir, Undo will be disabled\n");
-      dbg(0, "xinit(): Check permissions in %s\n", tclgetvar("XSCHEM_TMP_DIR"));
+      dbg(0, "init_undo(): Check permissions in %s\n", tclgetvar("XSCHEM_TMP_DIR"));
       xctx->no_undo = 1; /* disable undo */
     }
     xctx->undo_initialized = 1;
@@ -2538,7 +2538,7 @@ static void get_sym_type(const char *symname, char **type,
            if (pintable && c == PINLAYER) {
              /* hash pins to get LCC schematic have same order as corresponding symbol */
              int_hash_lookup(pintable, get_tok_value(rect.prop_ptr, "name", 0), n++, XINSERT);
-             dbg(1, "get_sym_type() : hashing %s\n", get_tok_value(rect.prop_ptr, "name", 0));
+             /* dbg(1, "get_sym_type() : hashing %s\n", get_tok_value(rect.prop_ptr, "name", 0));*/
              ++(*sym_n_pins);
            }
            break;
