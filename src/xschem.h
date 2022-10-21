@@ -511,6 +511,7 @@ typedef struct
   short rot;
   short flip;
   short sel;
+  short embed; /* cache embed=true|false attribute in prop_ptr */
   int color; /* hilight color */
   short flags; /* bit 0: skip field, 
                 * bit 1: flag for different textlayer for pin/labels,

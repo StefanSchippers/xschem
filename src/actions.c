@@ -1048,14 +1048,9 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   cond= !type || !IS_LABEL_SH_OR_PIN(type);
   if(cond) xctx->inst[n].flags|=2;
   else my_strdup(145, &xctx->inst[n].lab, get_tok_value(xctx->inst[n].prop_ptr,"lab",0));
-
+  xctx->inst[n].embed = !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "embed", 2), "true");
   if(first_call && (draw_sym & 3) ) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-
   xctx->instances++; /* must be updated before calling symbol_bbox() */
-
-
-
-
   /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
    * to translate @#n:net_name texts */
   xctx->prep_net_structs=0;

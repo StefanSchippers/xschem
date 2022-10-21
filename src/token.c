@@ -372,7 +372,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     }
     return "";
   }
-  /* dbg(2, "get_tok_value(): looking for <%s> in <%s>\n",tok,s); */
+  /* dbg(0, "get_tok_value(): looking for <%s> in <%.30s>\n",tok,s); */
   if( size == 0 ) {
     sizetok = size = CADCHUNKALLOC;
     my_realloc(454, &result, size);
@@ -3396,17 +3396,11 @@ const char *translate2(Lcc *lcc, int level, char* s)
 {
   static const char *empty="";
   static char *result = NULL;
-  int i;
-  size_t save_tok_size, size = 0;
-  size_t tmp;
+  int i, escape = 0;
   register int c, state = TOK_BEGIN, space;
-  char *token = NULL;
   const char *tmp_sym_name;
-  size_t sizetok = 0;
-  size_t result_pos = 0, token_pos = 0;
-  char *value = NULL;
-  char *value2 = NULL;
-  int escape = 0;
+  size_t sizetok = 0, result_pos = 0, token_pos = 0, size = 0, tmp = 0;
+  char  *token = NULL, *value = NULL;
 
   if(!s) {
     my_free(1068, &result);
@@ -3453,14 +3447,11 @@ const char *translate2(Lcc *lcc, int level, char* s)
         i = level;
         /* recursive substitution of value using parent level prop_str attributes */
         while(i > 1) {
-          save_tok_size = xctx->tok_size;
-          my_strdup2(440, &value2, get_tok_value(lcc[i-1].prop_ptr, value, 0));
-          dbg(1, "translate2(): lcc[%d].prop_ptr=%s value2=%s\n", i-1, lcc[i-1].prop_ptr, value2);
-          if(xctx->tok_size && value2[0]) {
-            my_strdup2(1615, &value, value2);
+          const char *upperval = get_tok_value(lcc[i-1].prop_ptr, value, 0);
+          dbg(1, "translate2(): lcc[%d].prop_ptr=%s upperval=%s\n", i-1, lcc[i-1].prop_ptr, upperval);
+          if(xctx->tok_size && upperval[0]) {
+            my_strdup2(1615, &value, upperval);
           } else {
-            /* restore last successful get_tok_value() size parameters */
-            xctx->tok_size = save_tok_size;
             break;
           }
           i--;
@@ -3474,13 +3465,8 @@ const char *translate2(Lcc *lcc, int level, char* s)
         memcpy(result + result_pos + 1 , value, tmp + 1);
         result_pos += tmp + 1;
       }
-      else if (strncmp(token, "@spice_get_voltage", 18) == 0) { /* return unchanged */
-        tmp = strlen(token);
-        STR_ALLOC(&result, tmp + result_pos, &size);
-        memcpy(result + result_pos, token, tmp + 1);
-        result_pos += tmp;
-      }
-      else if (strncmp(token, "@spice_get_current", 18) == 0) { /* return unchanged */
+      else if (strncmp(token, "@spice_get_voltage", 18) == 0 ||
+               strncmp(token, "@spice_get_current", 18) == 0) { /* return unchanged */
         tmp = strlen(token);
         STR_ALLOC(&result, tmp + result_pos, &size);
         memcpy(result + result_pos, token, tmp + 1);
@@ -3500,7 +3486,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
         memcpy(result + result_pos, tmp_sym_name, tmp + 1);
         result_pos += tmp;
       }
-      if (c == '@') s--;
+      if (c == '@') s--; /* push back to input for next token */
       else result[result_pos++] = (char)c;
       state = TOK_BEGIN;
     }
@@ -3512,7 +3498,6 @@ const char *translate2(Lcc *lcc, int level, char* s)
   } /* while(1) */
   my_free(1532, &token);
   my_free(1533, &value);
-  my_free(1071, &value2);
   dbg(1, "translate2(): result=%s\n", result);
   return tcl_hook2(&result);
 }

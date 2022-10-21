@@ -985,6 +985,7 @@ void copy_objects(int what)
         xctx->inst[xctx->instances].instname = NULL; /* will be set in new_prop_string() */
         my_strdup(312, &xctx->inst[xctx->instances].lab, xctx->inst[n].lab);
         xctx->inst[n].sel=0;
+        xctx->inst[xctx->instances].embed = xctx->inst[n].embed;
         xctx->inst[xctx->instances].flags = xctx->inst[n].flags;
         xctx->inst[xctx->instances].color = -10000;
         xctx->inst[xctx->instances].x0 = xctx->rx1+xctx->deltax;

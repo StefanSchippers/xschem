@@ -300,7 +300,7 @@ static void merge_inst(int k,FILE *fd)
     /* new_prop_string() for cleaning some internal caches. */
     if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"highlight",0), "true"))
        xctx->inst[i].flags |= HILIGHT_CONN;
-
+    xctx->inst[i].embed = !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "embed", 2), "true");
     my_free(871, &prop_ptr);
     xctx->instances++;
     set_modify(1);

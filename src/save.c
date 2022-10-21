@@ -1349,35 +1349,33 @@ static void save_embedded_symbol(xSymbol *s, FILE *fd)
 static void save_inst(FILE *fd, int select_only)
 {
  int i, oldversion;
- xInstance *ptr;
+ xInstance *inst;
  char *tmp = NULL;
  int *embedded_saved = NULL;
 
- ptr=xctx->inst;
+ inst=xctx->inst;
  oldversion = !strcmp(xctx->file_version, "1.0");
  for(i=0;i<xctx->symbols;i++) xctx->sym[i].flags &=~EMBEDDED;
  embedded_saved = my_calloc(663, xctx->symbols, sizeof(int));
  for(i=0;i<xctx->instances;i++)
  {
-   if (select_only && ptr[i].sel != SELECTED) continue;
+   if (select_only && inst[i].sel != SELECTED) continue;
   fputs("C ", fd);
   if(oldversion) {
-    my_strdup2(57, &tmp, add_ext(ptr[i].name, ".sym"));
+    my_strdup2(57, &tmp, add_ext(inst[i].name, ".sym"));
     save_ascii_string(tmp, fd, 0);
     my_free(882, &tmp);
   } else {
-    save_ascii_string(ptr[i].name, fd, 0);
+    save_ascii_string(inst[i].name, fd, 0);
   }
-  fprintf(fd, " %.16g %.16g %hd %hd ",ptr[i].x0, ptr[i].y0, ptr[i].rot, ptr[i].flip );
-  save_ascii_string(ptr[i].prop_ptr,fd, 1);
-  if( embedded_saved && !embedded_saved[ptr[i].ptr] &&
-      !strcmp(get_tok_value(ptr[i].prop_ptr, "embed", 0), "true") ) {
-      /* && !(xctx->sym[ptr[i].ptr].flags & EMBEDDED)) {  */
-    embedded_saved[ptr[i].ptr] = 1;
+  fprintf(fd, " %.16g %.16g %hd %hd ",inst[i].x0, inst[i].y0, inst[i].rot, inst[i].flip );
+  save_ascii_string(inst[i].prop_ptr,fd, 1);
+  if( embedded_saved && !embedded_saved[inst[i].ptr] && inst[i].embed) {
+    embedded_saved[inst[i].ptr] = 1;
     fprintf(fd, "[\n");
-    save_embedded_symbol( xctx->sym+ptr[i].ptr, fd);
+    save_embedded_symbol( xctx->sym+inst[i].ptr, fd);
     fprintf(fd, "]\n");
-    xctx->sym[ptr[i].ptr].flags |= EMBEDDED;
+    xctx->sym[inst[i].ptr].flags |= EMBEDDED;
   }
  }
  my_free(539, &embedded_saved);
@@ -1651,6 +1649,7 @@ static void load_inst(int k, FILE *fd)
 
       dbg(2, "load_inst(): n=%d name=%s prop=%s\n", i, xctx->inst[i].name? xctx->inst[i].name:"<NULL>",
                xctx->inst[i].prop_ptr? xctx->inst[i].prop_ptr:"<NULL>");
+      xctx->inst[i].embed = !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "embed", 2), "true");
       xctx->instances++;
     }
     my_free(885, &prop_ptr);
@@ -3622,8 +3621,7 @@ void descend_symbol(void)
   xctx->zoom_array[xctx->currsch].y=xctx->yorigin;
   xctx->zoom_array[xctx->currsch].zoom=xctx->zoom;
   ++xctx->currsch;
-  if((xctx->inst[n].ptr+ xctx->sym)->flags & EMBEDDED ||
-    !strcmp(get_tok_value(xctx->inst[n].prop_ptr,"embed", 0), "true")) {
+  if((xctx->inst[n].ptr+ xctx->sym)->flags & EMBEDDED || xctx->inst[n].embed) {
     /* save embedded symbol into a temporary file */
     my_snprintf(name_embedded, S(name_embedded),
       "%s/.xschem_embedded_%d_%s", tclgetvar("XSCHEM_TMP_DIR"), getpid(), get_cell_w_ext(name, 0));
