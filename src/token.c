@@ -3431,12 +3431,12 @@ const char *translate2(Lcc *lcc, int level, char* s)
       token[token_pos] = '\0';
       token_pos = 0;
 
-      dbg(1, "translate2(): lcc[%d].prop_ptr=%s\n", level, lcc[level].prop_ptr);
+      dbg(1, "translate2(): lcc[%d].prop_ptr=%s token=%s\n", level, lcc[level].prop_ptr, token);
       /* if spiceprefix==0 and token == @spiceprefix then set empty value */
       if(!tclgetboolvar("spiceprefix") && !strcmp(token, "@spiceprefix")) {
         if(value) my_free(1069, &value);
         xctx->tok_size = 0;
-      } else if(!strncmp(token, "@#",2)) { /* get rid of pin attribute info */
+      } else if(token[0] == '@' && (token[1] == '@' || token[1] == '#')) { /* get rid of pin attribute info */
         if(value) my_free(1572, &value);
         xctx->tok_size = 0;
       } else {

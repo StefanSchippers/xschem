@@ -3128,10 +3128,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
        const char* tmp = translate2(lcc, level, tt[i].txt_ptr);
        dbg(1, "l_s_d(): txt2: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
        rot = lcc[level].rot; flip = lcc[level].flip;
-       if (tmp) my_strdup(651, &tt[i].txt_ptr, tmp);
+       my_strdup2(651, &tt[i].txt_ptr, tmp);
        dbg(1, "l_s_d(): txt3: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
        /* allow annotation inside LCC instances. */
-       if(tt[i].txt_ptr && !strcmp(tt[i].txt_ptr, "@spice_get_voltage")) {
+       if(!strcmp(tt[i].txt_ptr, "@spice_get_voltage")) {
          /* prop_ptr is the attribute string of last loaded LCC component */
          const char *lab;
          size_t new_size = 0;
@@ -3152,7 +3152,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
          my_free(1589, &path);
          dbg(1, " --> tt[i].txt_ptr=%s\n", tt[i].txt_ptr);
        }
-       if(tt[i].txt_ptr && !strcmp(tt[i].txt_ptr, "@spice_get_current")) {
+       if(!strcmp(tt[i].txt_ptr, "@spice_get_current")) {
          /* prop_ptr is the attribute string of last loaded LCC component */
          const char *dev;
          size_t new_size = 0;
