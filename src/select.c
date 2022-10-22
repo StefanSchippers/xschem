@@ -193,8 +193,11 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
 static void del_rect_line_arc_poly(void)
 {
  xRect tmp;
- int c, j, i, k, itmp, customfont;
+ int c, j, i, k, itmp;
  double dtmp;
+ #if HAS_CAIRO==1
+ int customfont;
+ #endif
 
  for(k=0;k<xctx->lastsel;k++)
  {
