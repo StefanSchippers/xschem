@@ -72,59 +72,26 @@ lappend tcl_files ${XSCHEM_SHAREDIR}/ngspice_backannotate.tcl
   You can close the simulator since we need only the <kbd>cmos_example.raw</kbd> file that is now saved
   in the simulation directory (usually <kbd>~/.xschem/simulations/cmos_example.raw</kbd>).<br>
   Now verify that xschem is able to read the raw file: issue this command in the xschem console:<br>
-  <kbd>ngspice::annotate</kbd>
+  <kbd>xschem annotate_op</kbd>
  </p>
  <pre class="code">
-xschem [~] ngspice::annotate
-Raw file read ...
-xschem [~] 
+xschem [~] xschem annotate_op
+Raw file data read: /home/schippes/.xschem/simulations/cmos_example.raw
+points=1, vars=38, datasets=1
+0
+xschem [~]
  </pre>
  <p>
   If there are no errors we are ready and set.
  </p>
 
- <h3> PUSH ANNOTATION METHOD </H3>
+ <h3> ANNOTATION </H3>
  <p>
-  Start placing some probe elements into the schematic.
-  The first element is the <kbd>devices/spice_probe.sym</kbd> component. This must be attached to
-  some schematic wires to show the voltage value.
- </p>
- <img style="box-shadow:none;" src="backannotation4.png">
- <p>
-  Place some of these elements on various nets, issue the above mentioned <kbd>ngspice::annotate</kbd>
-  command and see the voltage values in the schematic.
- </p>
- <img style="box-shadow:none;" src="backannotation5.png">
- <p>
-  Another useful component is the <kbd>devices/ammeter.sym</kbd> one which allow to monitor branch currents. 
-  Break some wires  and insert this component as shown here:
- </p>
- <img style="box-shadow:none;" src="backannotation6.png">
- <p class="important">
-  IMPORTANT: When inserting current probes the circuit topology changes (new nodes are created) so you need to 
-  re-create the netlist and re-run the simulation
- </p><br>
- <p>
-  Doing again the <kbd>ngspice::annotate</kbd> command after simulation will update the ammeters showing
-  the branch currents.
- </p>
- <img style="box-shadow:none;" src="backannotation7.png">
- <p>
-  These voltage and current values are inserted in the probe components as <b>attributes</b> and thus can be saved 
-  to file. Remember that if you change the circuit the values shown in the probe elements are no longer valid,
-  you should update the values with a new simulation + annotate operation when done with the changes.<br><br>
-  What i have described so far is the simplest annotation procedure based on a <b>push</b> method: a tcl script
-  reads the simulation raw file and 'pushes' voltage and current values into the probe components as instance
-  attributes. If you do an edit attribute on one of these elements you see the attribute 'pushed' into it by the
-  annotate script. The advantage of this method is that values pushed into probes can be saved to file and are
-  thus persistent. 
- </p>
- <img src="backannotation8.png">
-
- <h3> PULL ANNOTATION METHOD </H3>
- <p>
-  There is another annotation procedure that is based on a <b>pull</b> method: the probe objects have tcl commands
-  embedded that fetch simulation data from a table that has been read by the annotate script.
+  The annotation procedure is based on a <b>pull</b> method: the probe objects have atributes
+  or tcl commands
+  embedded that fetch simulation data from a table that has been read by Xschem.
+  In addition to specific probe elements also net labels will show voltage values and 
+  ammeters / voltage sources will show currents.
  </p>
 
  <p>
@@ -153,7 +120,9 @@ write cmos_example.raw
  </p>
  <img src="backannotation9.png">
  <p>
-  Run again the simulation and the <kbd>ngspice::annotate</kbd> command and values will be updated.
+  Run again the simulation and the <kbd>xschem annotate_op</kbd> command and values will be updated.
+  If you enable <kbd>View -&gt; Show hidden texts</kbd> net labels, voltage sources and ammeters will also show 
+  voltages and currents.
  </p>
  <img  style="box-shadow:none;" src="backannotation10.png">
  <p>
@@ -164,7 +133,7 @@ write cmos_example.raw
  <p>
   Data annotated into the schematic using these components allows more simulation parameters to be viewed into 
   the schematic, not being restricted to currents and voltages. Since these components get data using a pull method
-  data is not persistent and not saved to file. After reloading the file just do a <kbd>ngspice::annotate</kbd> 
+  data is not persistent and not saved to file. After reloading the file just do a <kbd>xschem annotate_op</kbd> 
   to view data again.
  </p>
 
