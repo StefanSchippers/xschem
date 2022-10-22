@@ -1589,6 +1589,6 @@ C {ngspice_get_value.sym} 520 -310 0 0 {name=r6 node=i(@$\{path\}m4[id])
 descr="I="}
 C {ngspice_get_value.sym} 670 -310 0 1 {name=r7 node=i(@$\{path\}m5[id])
 descr="I="}
-C {ngspice_get_expr.sym} 160 -160 0 0 {name=r8 node="[expr \{[ngspice::get_voltage gn] * [ngspice::get_current \{m3[id]\}]\}]"
+C {ngspice_get_expr.sym} 160 -150 0 0 {name=r8 node="[to_eng [expr \{[ngspice::get_voltage gn] * [ngspice::get_current \{m3[id]\}]\}]]"
 descr="Power="
 }
