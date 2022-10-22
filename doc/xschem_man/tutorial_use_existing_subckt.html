@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM TUTORIAL: CREATE A SYMBOL AND USE AN EXISTING NETLIST</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="xschem_man.html" class="home">UP</a>
+
+ <!-- slide title -->
+ <h1> TUTORIAL:  CREATE A SYMBOL AND USE AN EXISTING NETLIST</h1>
+ <p>
+  In some cases you have an existing netlist for a circuit block, perhaps from a previous design or
+  from a layout parasitic netlist extraction. 
+  In order to use this netlist in your design you might consider creating a symbol for it in xschem.
+  This symbol should match the I/O interface and name of the block netlist and does not need to have 
+  a corresponding schematic since we want to use the existing netlist.
+  One such example in the standard xschem distribution is the test_ne555.sch circuit.
+  The test schematic contains a symbol for the popular NE555 timer. The symbol does not provide any
+  implementation, the implementation is included in the top design as a .subckt netlist.
+ </p>
+ <img src="tutorial_use_existing_subckt00.png"> 
+ <p>
+  The symbol is implemented in the following way:
+  the symbol attributes are:
+ </p>
+ <img src="tutorial_use_existing_subckt01.png"> 
+ <pre class="code">
+type=primitive
+format="@name @pinlist @symname"
+template="name=x1"
+ </pre>
+ <p>
+  the <kbd>primitive</kbd> value for the <kbd>type</kbd> attribute (instead of the more used
+  <kbd>subcircuit</kbd> for symbols with a corresponding implementation schematic) tells xschem
+  to generate only the instance calls (the X lines for spice netlists) and not descend into the
+   symbol and not generate a .subckt for it.
+ </p>
+ <p>
+  The <kbd>@pinlist</kbd> is expanded into the netlist to the list of I/O ports. The order of the ports in
+  this case is the order these pins are created in the symbol. If you click a pin (the small red square box) 
+  a "<kbd> n = &lt;number&gt;</kbd>" appears in the status line. This is the index of the pin. The first
+  created pin starts from 0.<br>
+ </p>
+ <img src="tutorial_use_existing_subckt02.png"> 
+ <ol>
+ <li>
+ <h3> Changing the pin ordering by altering the object sequence number</h3>
+ <p>
+  You can change the order the pins are stored into the .sym file.
+  Start by clicking the pin that you want to have first in the
+  netlist, then press <kbd>Shift-s</kbd>, set the number to 0.
+ </p>
+ <img src="tutorial_use_existing_subckt03.png"> 
+ <p>
+  This will put the selected pin in first position. 
+  Then move to the pin you want in second position, repeat above steps and assing to it index number 1,
+  and so on for all the symbol pins. At the end save your symbol and this will be the pin
+  ordering in netlists.
+  When netlist is produced this order will be used.
+  If left pins in above example have sequence numbers of (starting from the top) 0, 1, 2, 3 and
+  right pins have sequence numbers (starting from the bottom) 4, 5, 6, 7 the instance line in 
+  the netlist will be (check the net names with the schematc in the first image above):
+ </p>
+ <pre class="code"> 
+x1 VSS TRIG OUT VSUPPLY CTRL TRIG DIS VSUPPLY ne555
+ </pre>
+ <p>
+  Then move on the pin you want in second position and set its index number to 1 and so on.
+ </p> 
+ </li>
+
+ <li>
+ <h3> Changing the pin ordering by using the <kbd>sim_pinnumber</kbd> attribute</h3>
+ <p>
+  If all symbol pins have a <kbd>sim_pinnumber</kbd> attribute
+  this symbol will be netlisted (in all
+  netlist formats) with pins sorted in ascending order according to <kbd>sim_pinnumber</kbd> value.
+  Start value of sim_pinnumber does not matter (may start at 1 or 0) , it is used as the sort key.
+  You can assign the sim_pinnumber attribute directly in the symbol...
+ </p>
+ <img src="tutorial_use_existing_subckt04.png"> 
+ <p>
+  ... Or you can assign these in the schematic pins, if you use the
+  <kbd>Make symbol from schematic</kbd> function ('a' key) these attributes
+  will be transferred to the symbol.
+  The <kbd>sim_pinnumber</kbd> attributes that determine the netlist port ordering are
+  those defined in the symbol.
+ </p>
+ <img src="tutorial_use_existing_subckt05.png"> 
+ <p>
+  For sorting to happen all symbol pins must have a sim_pinnumber attribute.
+  If some pins miss this attribute no sorting is done and pin ordering will be unchanged,
+  the stored order of symbol pins will be used (first created pin netlisted first).
+  If there are duplicate sim_pinnumber attributes (but all pins have this attribute)
+  sorting will happen but relative ordering or pins with identical sim_pinnumber is undefined.<br>
+  As an example you may give <kbd>sim_pinnumber=9999</kbd> on a symbol output and
+  <kbd>sim_pinnumber=1</kbd> on
+  all other pins if you only require the output pin to be netlisted at the end
+  and don't care about the other pin ordering.
+ </p>
+ </li>
+
+ <li>
+ <h3> Explicitly specify port ordering in <kbd>format</kbd> 
+      (or <kbd>verilog_format</kbd> or <kbd>vhdl_format</kbd>) string</h3>
+ <p>
+  Instead of the following format string that defines the netlist instance line syntax:
+ </p>
+ <pre class="code">
+format="@name @pinlist @symname"
+ </pre>
+ <p>
+  You can use the following:
+ </p>
+ <pre class="code">
+format="@name @@GND @@TRIG @@OUT @@RESETB @@CTRL @@THRES @@DIS @@VCC @symname"
+ </pre>
+ </p>
+  In this case you specify the port order one by one explicitly. This can be used for spice
+  primitive devices, spice subcircuits (like this example), VHDL and Verilog primitives.
+  This method can NOT be used for VHDL and verilog subcircuits since for these you
+  do not provide a <kbd>vhdl_format</kbd> or <kbd>verilog_format</kbd> string.
+  For these use one of the first two methods.
+  In general for VHDL and Verilog port order is not important since port-net association
+  is <b>named</b> and not <b>positional</b>.
+ </p>
+ </li>
+ </ol>
+
+ <h2>Specifying subcircuit netlist</h2>
+ <ol>
+ <li><h3>Add a <kbd>.include &lt;file&gt;</kbd> line in the top level</h3>
+ <p>
+  The first method is to declare the symbol as <kbd>type=primitive</kbd> (this is the case in all 
+  images above) and simply add a <kbd>.include /path/to/subcircuit.spice</kbd> in the top level netlist:
+ </p>
+ <img src="tutorial_use_existing_subckt06.png">
+ </li>
+ <li><h3>Use a <kbd>spice_sym_def=".include &lt;file&gt;"</kbd> line in the symbol</h3>
+ <p>
+  The second method is to declare the symbol <kbd>type</kbd> as <kbd>subcircuit</kbd> and
+  add a <kbd>spice_sym_def</kbd> attribute
+  in the symbol. the value of this attribute will be copied verbatim to the netlist, so 
+  for the example shown here this should do the job:<br>
+  <kbd>spice_sym_def=".include model_test_ne555.txt"</kbd><br>
+ </p>
+ <img src="tutorial_use_existing_subckt07.png">
+ <p>
+  The produced netlist will be:
+ </p>
+ <pre class="code">
+** sch_path: /home/schippes/xschem-repo/trunk/xschem_library/examples/test_ne555.sch
+**.subckt test_ne555
+x1 VSS TRIG OUT VSUPPLY CTRL TRIG DIS VSUPPLY ne555
+...
+...
+* expanding   symbol:  ne555.sym # of pins=8
+** sym_path: /home/schippes/xschem-repo/trunk/xschem_library/examples/ne555.sym
+.include model_test_ne555.txt
+.end
+ </pre>
+ <p>
+  The advantage of this method is that the reference of the subcircuit is embedded in the symbol
+  and if the symbol is reused in another design the .include line travels with the symbol and you
+  don't have to add the line in the top level.
+ </p>
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+

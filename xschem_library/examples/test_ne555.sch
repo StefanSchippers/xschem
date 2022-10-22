@@ -1,9 +1,30 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
 S {}
 E {}
+B 2 730 -720 1530 -320 {flags=graph
+y1=-0.052
+y2=5
+ypos1=0
+ypos2=2
+divy=5
+subdivy=1
+unity=1
+x1=0.000177095
+x2=0.00025416
+divx=5
+subdivx=1
+node="out
+trig"
+color="4 15"
+dataset=-1
+unitx=1
+logx=0
+logy=0
+}
 T {NE555 TIMER IC EXAMPLE} 360 -490 0 0 0.4 0.4 {}
 N 130 -150 200 -150 {lab=TRIG}
 C {code.sym} 710 -190 0 0 {
@@ -16,10 +37,14 @@ vvss vss 0 dc 0
 ** models are generally not free: you must download
 ** SPICE models for active devices and put them  into the below 
 ** referenced file in netlist/simulation directory.
-.include \\"model_test_ne555.txt\\"
-.save all
 .temp 30
-.tran 0.1u 1m uic
+* .include \\"model_test_ne555.txt\\"
+
+.control
+  save all
+  tran 0.1u 1m uic
+  write test_ne555.raw
+.endc
 "}
 C {ne555.sym} 490 -220 0 0 {name=x1}
 C {res.sym} 130 -180 0 0 {name=r3 m=1 value=2k}
@@ -41,3 +66,7 @@ C {lab_pin.sym} 570 -260 0 1 {name=p17 lab=DIS}
 C {res.sym} 130 -240 0 0 {name=r5 m=1 value=2k}
 C {lab_pin.sym} 130 -210 0 0 {name=p18 lab=DIS}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
+C {launcher.sym} 790 -290 0 0 {name=h5
+descr="load waves" 
+tclcommand="xschem raw_read $netlist_dir/test_ne555.raw tran"
+}

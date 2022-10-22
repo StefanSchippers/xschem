@@ -1,6 +1,10 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
-G {type=primitive
-format="@name @pinlist @symname"
+v {xschem version=3.1.0 file_version=1.2
+}
+G {}
+K {type=subcircuit
+xformat="@name @pinlist @symname"
+format="@name @@GND @@TRIG @@OUT @@RESETB @@CTRL @@THRES @@DIS @@VCC @symname"
+spice_sym_def=".include model_test_ne555.txt"
 template="name=x1"
 
 }
