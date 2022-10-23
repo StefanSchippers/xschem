@@ -235,7 +235,39 @@ set replace_key(Shift-W) w
 set replace_key(w) Shift-W
  </pre><br>
 
-
+ <a id="select"><h3>SELECT OBJECTS</h3></a>
+ <p>
+  Objects can be selected by clicking the left mouse button when the pointer is very close to the object.
+  For rectangle objects the best point to select it is the internal side, close to one of the corners.
+  More objects can be selected by pressing the <kbd>Shift</kbd> key and clicking another object.
+  Once objects are selected they can be copied (<kbd>c</kbd> key), moved (<kbd>m</kbd> key), deleted
+  (<kbd>Delete</kbd> key) or attributes changed (<kbd>q</kbd> key).<br>
+  Objects can also be selected by area, by dragging with the left mouse button pressed a rectangle around the objects 
+  you want to select.
+ </p>
+ <img src="commands9.png">
+ <a id="resize"><h3>RESIZE OBJECTS</h3></a>
+ <p>
+  All Xschem base objects can be resized.
+  For lines, rectangles, polygons you need to drag the mouse with left button pressed and Ctrl key pressed 
+  over one vertex/endpoint.
+ </p>
+ <img src="commands6.png">
+ <p>
+  After releasing the mouse button the object will become selected
+  and a subsequent move operation (<kbd>m</kbd> key) will move the selected vertex/endpoint.
+ </p>
+ <img src="commands7.png">
+ <p>
+  More objects can be rezized. You can add vertex/endpoints by pressing Ctrl and Shift and dragging the mouse 
+  to enclose another vertex/endpoint. After selecting all desired elements pressing the <kbd>m</kbd> key
+  will resize all objects.
+ </p>
+ <img src="commands8.png">
+ <p>
+  Circles can be resized as well. Capture the center of the circle with the above described mouse drag operation, the radius can be changed.
+  For arcs you can capture the center (to modify the radius) or the endpoints to change the start/end angle or the arc angle.
+ </p>
  <h3>STRETCH OPERATIONS</h3>
  <p>
   An important operation that deserves a special paragraph is the <kbd>Stretch</kbd> operation.
