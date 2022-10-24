@@ -2665,7 +2665,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      xctx->ui_state |= STARTPAN;
    }
    else if(xctx->semaphore >= 2) { /* button1 click to select another instance while edit prop dialog open */
-     if(tcleval("winfo exists .dialog.txt")[0] == '1') {
+     if(tcleval("winfo exists .dialog.textinput")[0] == '1') { /* proc text_line */
+       tcleval(".dialog.f1.b1 invoke");
+       break;
+     } else if(tcleval("winfo exists .dialog.txt")[0] == '1') { /* proc enter_text */
        tcleval(".dialog.buttons.ok invoke");
        break;
      } else if(button==Button1 && state==0 && tclgetvar("edit_symbol_prop_new_sel")[0]) {

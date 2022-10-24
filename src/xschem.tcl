@@ -3450,7 +3450,6 @@ proc property_search {} {
     focus  .dialog
     bind .dialog <Escape> {.dialog.but.cancel invoke}
     bind .dialog <Return> {.dialog.but.ok invoke}
-    bind .dialog <Control-Return> {.dialog.but.ok invoke}
     grab set .dialog
     tkwait window .dialog
     xschem set semaphore [expr {[xschem get semaphore] -1}]
@@ -3568,7 +3567,6 @@ proc attach_labels_to_inst {} {
   focus  .dialog
   bind .dialog <Escape> {.dialog.but.cancel invoke}
   bind .dialog <Return> {.dialog.but.ok invoke}
-  bind .dialog <Control-Return> {.dialog.but.ok invoke}
   grab set .dialog
   tkwait window .dialog
   xschem set semaphore [expr {[xschem get semaphore] -1}]
@@ -3780,13 +3778,13 @@ proc edit_prop {txtlabel} {
   frame .dialog.f4
   label .dialog.f4.l1  -text $txtlabel
   label .dialog.f4.path  -text "Path:"
-  entry .dialog.f4.e1  -textvariable editprop_sympath -width 0 -state readonly
-  text .dialog.e1   -yscrollcommand ".dialog.yscroll set" -setgrid 1 \
+  entry .dialog.f4.symprop  -textvariable editprop_sympath -width 0 -state readonly
+  text .dialog.symprop   -yscrollcommand ".dialog.yscroll set" -setgrid 1 \
                   -xscrollcommand ".dialog.xscroll set" -wrap none
-    .dialog.e1 delete 1.0 end
-    .dialog.e1 insert 1.0 $retval
-  scrollbar .dialog.yscroll -command  ".dialog.e1 yview"
-  scrollbar .dialog.xscroll -command ".dialog.e1 xview" -orient horiz
+    .dialog.symprop delete 1.0 end
+    .dialog.symprop insert 1.0 $retval
+  scrollbar .dialog.yscroll -command  ".dialog.symprop yview"
+  scrollbar .dialog.xscroll -command ".dialog.symprop xview" -orient horiz
   frame .dialog.f1
   frame .dialog.f2
   label .dialog.f1.l2 -text "Symbol"
@@ -3801,7 +3799,7 @@ proc edit_prop {txtlabel} {
     raise .dialog .drw
   }
   button .dialog.f1.b1 -text "OK" -command   {
-    set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+    set retval [.dialog.symprop get 1.0 {end - 1 chars}]
     if { $selected_tok ne {<ALL>} } {
       regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
       set retval \"${retval}\"
@@ -3852,11 +3850,11 @@ proc edit_prop {txtlabel} {
     set a [tk_getOpenFile -parent .dialog -initialdir $INITIALPROPDIR ]
     if [string compare $a ""] {
      set INITIALPROPDIR [file dirname $a]
-     read_data_window  .dialog.e1  $a
+     read_data_window  .dialog.symprop  $a
     }
   }
   button .dialog.f1.b4 -text "Del" -command {
-    .dialog.e1 delete 1.0 end
+    .dialog.symprop delete 1.0 end
   }
   checkbutton .dialog.f2.r1 -text "No change properties" -variable no_change_attrs -state normal
   checkbutton .dialog.f2.r2 -text "Preserve unchanged props" -variable preserve_unchanged_attrs -state normal
@@ -3871,9 +3869,9 @@ proc edit_prop {txtlabel} {
   pack .dialog.f1.l2 .dialog.f1.e2 .dialog.f1.b1 .dialog.f1.b2 .dialog.f1.b3 \
        .dialog.f1.b4 .dialog.f1.b5 -side left -expand 1
   pack .dialog.f4 -side top  -anchor nw
-  #pack .dialog.f4.path .dialog.f4.e1 .dialog.f4.l1 -side left -fill x 
+  #pack .dialog.f4.path .dialog.f4.symprop .dialog.f4.l1 -side left -fill x 
   pack .dialog.f4.path -side left
-  pack .dialog.f4.e1 -side left 
+  pack .dialog.f4.symprop -side left 
   pack .dialog.f1 .dialog.f2 -side top -fill x 
   pack .dialog.f2.r1 -side left
   pack .dialog.f2.r2 -side left
@@ -3882,10 +3880,10 @@ proc edit_prop {txtlabel} {
   if { [ info tclversion] > 8.4 } { pack .dialog.f2.r5 -side left }
   pack .dialog.yscroll -side right -fill y 
   pack .dialog.xscroll -side bottom -fill x
-  pack .dialog.e1  -fill both -expand yes
-  bind .dialog <Control-Return> {.dialog.f1.b1 invoke}
+  pack .dialog.symprop  -fill both -expand yes
+  bind .dialog.symprop <Shift-KeyRelease-Return> {return_release %W;.dialog.f1.b1 invoke}
   bind .dialog <Escape> {
-    if { ![string compare $retval [.dialog.e1 get 1.0 {end - 1 chars}]] && \
+    if { ![string compare $retval [.dialog.symprop get 1.0 {end - 1 chars}]] && \
          ![string compare $symbol [ .dialog.f1.e2 get]] } {
       .dialog.f1.b2 invoke
     }
@@ -3894,9 +3892,9 @@ proc edit_prop {txtlabel} {
     bind .dialog.f2.r5 <<ComboboxSelected>> {
       if {$old_selected_tok ne $selected_tok} {
         if { $old_selected_tok eq {<ALL>} } {
-          set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
+          set retval_orig [.dialog.symprop get 1.0 {end - 1 chars}]
         } else {
-          set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+          set retval [.dialog.symprop get 1.0 {end - 1 chars}]
           regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
           set retval \"${retval}\"
           set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
@@ -3908,17 +3906,17 @@ proc edit_prop {txtlabel} {
         set retval [xschem get_tok $retval_orig $selected_tok 2]
         # regsub -all {\\?"} $retval {"} retval
       }
-      .dialog.e1 delete 1.0 end
-      .dialog.e1 insert 1.0 $retval
+      .dialog.symprop delete 1.0 end
+      .dialog.symprop insert 1.0 $retval
       set old_selected_tok $selected_tok
     }
  
     bind .dialog.f2.r5 <KeyRelease> {
       set selected_tok [.dialog.f2.r5 get]
       if { $old_selected_tok eq {<ALL>}} {
-        set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
+        set retval_orig [.dialog.symprop get 1.0 {end - 1 chars}]
       } else {
-        set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+        set retval [.dialog.symprop get 1.0 {end - 1 chars}]
         if {$retval ne {}} {
           regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
           set retval \"${retval}\"
@@ -3931,8 +3929,8 @@ proc edit_prop {txtlabel} {
         set retval [xschem get_tok $retval_orig $selected_tok 2]
         # regsub -all {\\?"} $retval {"} retval
       }
-      .dialog.e1 delete 1.0 end
-      .dialog.e1 insert 1.0 $retval
+      .dialog.symprop delete 1.0 end
+      .dialog.symprop insert 1.0 $retval
       set old_selected_tok $selected_tok
     }
   }
@@ -4005,15 +4003,15 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   frame .dialog.f0
   frame .dialog.f1
   label .dialog.f0.l1  -text $txtlabel
-  text .dialog.e1 -relief sunken -bd 2 -yscrollcommand ".dialog.yscroll set" -setgrid 1 \
+  text .dialog.textinput -relief sunken -bd 2 -yscrollcommand ".dialog.yscroll set" -setgrid 1 \
        -xscrollcommand ".dialog.xscroll set" -wrap none -width 90 -height 40
-  scrollbar .dialog.yscroll -command  ".dialog.e1 yview"
-  scrollbar .dialog.xscroll -command ".dialog.e1 xview" -orient horiz
-  .dialog.e1 delete 1.0 end
-  .dialog.e1 insert 1.0 $retval
+  scrollbar .dialog.yscroll -command  ".dialog.textinput yview"
+  scrollbar .dialog.xscroll -command ".dialog.textinput xview" -orient horiz
+  .dialog.textinput delete 1.0 end
+  .dialog.textinput insert 1.0 $retval
   button .dialog.f1.b1 -text "OK" -command  \
   {
-    set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+    set retval [.dialog.textinput get 1.0 {end - 1 chars}]
     if { $selected_tok ne {<ALL>} } {
       regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
       set retval \"${retval}\"
@@ -4025,7 +4023,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   }
   button .dialog.f1.b2 -text "Cancel" -command  \
   {
-    set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+    set retval [.dialog.textinput get 1.0 {end - 1 chars}]
     set rcode {}
     destroy .dialog
   }
@@ -4035,12 +4033,12 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
     set a [tk_getOpenFile -parent .dialog -initialdir $INITIALPROPDIR ]
     if [string compare $a ""] {
      set INITIALPROPDIR [file dirname $a]
-     read_data_window  .dialog.e1  $a
+     read_data_window  .dialog.textinput  $a
     }
   }
   button .dialog.f1.b4 -text "Del" -command \
   {
-    .dialog.e1 delete 1.0 end
+    .dialog.textinput delete 1.0 end
   }
   label .dialog.f1.r4 -text {   Edit Attr:}
   if  { [ info tclversion] > 8.4} {
@@ -4062,9 +4060,9 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
 
   pack .dialog.yscroll -side right -fill y 
   pack .dialog.xscroll -side bottom -fill x
-  pack .dialog.e1   -expand yes -fill both
+  pack .dialog.textinput   -expand yes -fill both
   bind .dialog <Escape> {
-    if ![string compare $retval [.dialog.e1 get 1.0 {end - 1 chars}]] {
+    if ![string compare $retval [.dialog.textinput get 1.0 {end - 1 chars}]] {
       .dialog.f1.b2 invoke
     }
   }
@@ -4073,9 +4071,9 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
     bind .dialog.f1.r5 <<ComboboxSelected>> {
       if {$old_selected_tok ne $selected_tok} {
         if { $old_selected_tok eq {<ALL>} } {
-          set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
+          set retval_orig [.dialog.textinput get 1.0 {end - 1 chars}]
         } else {
-          set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+          set retval [.dialog.textinput get 1.0 {end - 1 chars}]
           regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
           set retval \"${retval}\"
           set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
@@ -4087,17 +4085,17 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
         set retval [xschem get_tok $retval_orig $selected_tok 2]
         # regsub -all {\\?"} $retval {"} retval
       }
-      .dialog.e1 delete 1.0 end
-      .dialog.e1 insert 1.0 $retval
+      .dialog.textinput delete 1.0 end
+      .dialog.textinput insert 1.0 $retval
       set old_selected_tok $selected_tok
     }
  
     bind .dialog.f1.r5 <KeyRelease> {
       set selected_tok [.dialog.f1.r5 get]
       if { $old_selected_tok eq {<ALL>}} {
-        set retval_orig [.dialog.e1 get 1.0 {end - 1 chars}]
+        set retval_orig [.dialog.textinput get 1.0 {end - 1 chars}]
       } else {
-        set retval [.dialog.e1 get 1.0 {end - 1 chars}]
+        set retval [.dialog.textinput get 1.0 {end - 1 chars}]
         if {$retval ne {}} {
           regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
           set retval \"${retval}\"
@@ -4110,15 +4108,15 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
         set retval [xschem get_tok $retval_orig $selected_tok 2]
         # regsub -all {\\?"} $retval {"} retval
       }
-      .dialog.e1 delete 1.0 end
-      .dialog.e1 insert 1.0 $retval
+      .dialog.textinput delete 1.0 end
+      .dialog.textinput insert 1.0 $retval
       set old_selected_tok $selected_tok
     }
   }
-  bind .dialog <Control-Return> {.dialog.f1.b1 invoke}
+  bind .dialog.textinput <Shift-KeyRelease-Return> {return_release %W; .dialog.f1.b1 invoke}
   #tkwait visibility .dialog
   #grab set .dialog
-  #focus .dialog.e1
+  #focus .dialog.textinput
   set rcode {}   
   tkwait window .dialog
   return $rcode
