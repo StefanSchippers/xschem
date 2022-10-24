@@ -1883,6 +1883,11 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
   } /* end if(has_x) */
 }
 
+static void tclmainloop(void)
+{
+  while(1) Tcl_DoOneEvent(TCL_ALL_EVENTS);
+}
+
 int Tcl_AppInit(Tcl_Interp *inter)
 {
  char name[PATH_MAX]; /* overflow safe 20161122 */
@@ -2564,7 +2569,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
       "::tclreadline::Loop }" 
    );
  }
-
+ /* set up a tcl event handler to serve events (tcp connections) if no other
+  * event queue is running (no tk event queue, no tclreadline event loop)
+  * otherwise you have to manually call a vwait or update command to let
+  * tcp callbacks respond */
+ if(!has_x) Tcl_SetMainLoop(tclmainloop);
  dbg(1, "Tcl_AppInit(): returning TCL_OK\n");
  return TCL_OK;
 }
