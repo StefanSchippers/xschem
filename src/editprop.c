@@ -927,12 +927,12 @@ static void edit_text_property(int x)
    #if HAS_CAIRO==1
    int customfont;
    #endif
-   int sel, k, text_changed, tmp;
-   int c,l, preserve, changesize=0;
+   int sel, k, text_changed = 0, props_changed = 0, size_changed = 0, tmp;
+   int c,l, preserve;
    double hsize, vsize, dtmp;
    double xx1,yy1,xx2,yy2;
    double pcx,pcy;      /* pin center 20070317 */
-   char property[1024];/* used for float 2 string conv (xscale  and yscale) overflow safe */
+   char property[100];/* used for float 2 string conv (xscale  and yscale) overflow safe */
    const char *str;
    char *oldprop = NULL;
 
@@ -940,7 +940,7 @@ static void edit_text_property(int x)
    sel = xctx->sel_array[0].n;
    my_strdup(656, &oldprop, xctx->text[sel].prop_ptr);
    if(oldprop && oldprop[0])
-      tclsetvar("props",xctx->text[sel].prop_ptr);
+      tclsetvar("props", oldprop);
    else
       tclsetvar("props","");
    tclsetvar("retval",xctx->text[sel].txt_ptr);
@@ -949,9 +949,17 @@ static void edit_text_property(int x)
    my_snprintf(property, S(property), "%.16g",xctx->text[sel].xscale);
    tclsetvar("hsize",property);
    if(x==0) {
+     const char *props;
      xctx->semaphore++;
      tcleval("enter_text {text:} normal");
      xctx->semaphore--;
+     hsize =atof(tclgetvar("hsize"));
+     vsize =atof(tclgetvar("vsize"));
+     props = tclgetvar("props");
+     if(xctx->text[sel].xscale != hsize || xctx->text[sel].yscale != vsize) {
+       size_changed = 1;
+     }
+     if( (oldprop && strcmp(oldprop, tclgetvar("props"))) || (!oldprop && props[0]) ) props_changed = 1;
    }
    else if(x==2) tcleval("viewdata $::retval");
    else if(x==1) tcleval("edit_vi_prop {Text:}");
@@ -959,20 +967,19 @@ static void edit_text_property(int x)
      fprintf(errfp, "edit_text_property() : unknown parameter x=%d\n",x); exit(EXIT_FAILURE);
    }
    preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
-   text_changed=0;
    if(x == 0 || x == 1) {
-     if( strcmp(xctx->text[sel].txt_ptr, tclgetvar("retval") ) ) {
+     if(strcmp(xctx->text[sel].txt_ptr, tclgetvar("retval") ) ) {
        dbg(1, "edit_text_property(): x=%d, text_changed=1\n", x);
        text_changed=1;
-     } else {
-       dbg(1, "edit_text_property(): x=%d, text_changed=0\n", x);
-       text_changed=0;
      }
    }
    if(strcmp(tclgetvar("rcode"),"") )
    {
      dbg(1, "edit_text_property(): rcode !=\"\"\n");
-     set_modify(1); xctx->push_undo();
+     if(text_changed || size_changed || props_changed) {
+       set_modify(1);
+       xctx->push_undo();
+     }
      bbox(START,0.0,0.0,0.0,0.0);
      for(k=0;k<xctx->lastsel;k++)
      {
@@ -991,9 +998,7 @@ static void edit_text_property(int x)
        if(customfont) cairo_restore(xctx->cairo_ctx);
        #endif
        bbox(ADD, xx1, yy1, xx2, yy2 );
-       dbg(1, "edit_property(): text props: props=%s  text=%s\n",
-         tclgetvar("props"),
-         tclgetvar("retval") );
+       /* dbg(1, "edit_property(): text props=%s text=%s\n", tclgetvar("props"), tclgetvar("retval")); */
        if(text_changed) {
          double cg;
          cg = tclgetdoublevar("cadgrid");
@@ -1034,7 +1039,7 @@ static void edit_text_property(int x)
          }
          my_strdup(74, &xctx->text[sel].txt_ptr, (char *) tclgetvar("retval"));
        }
-       if(x==0) {
+       if(x==0 && props_changed) {
          if(oldprop && preserve)
            set_different_token(&xctx->text[sel].prop_ptr, (char *) tclgetvar("props"), oldprop, 0, 0);
          else
@@ -1055,16 +1060,9 @@ static void edit_text_property(int x)
          xctx->text[sel].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
          str = get_tok_value(xctx->text[sel].prop_ptr, "hide", 0);
          xctx->text[sel].flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
-         if(k == 0 ) {
-           hsize =atof(tclgetvar("hsize"));
-           vsize =atof(tclgetvar("vsize"));
-           if(xctx->text[sel].xscale != hsize || xctx->text[sel].yscale != vsize) {
-             changesize = 1;
-           }
-         }
-         if(changesize) {
-           xctx->text[sel].xscale=atof(tclgetvar("hsize"));
-           xctx->text[sel].yscale=atof(tclgetvar("vsize"));
+         if(size_changed) {
+           xctx->text[sel].xscale=hsize;
+           xctx->text[sel].yscale=vsize;
          }
        }
        /* calculate bbox, some cleanup needed here */
