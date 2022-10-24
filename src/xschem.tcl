@@ -3084,7 +3084,7 @@ proc select_netlist_dir { force {dir {} }} {
 
 
 proc enter_text {textlabel {preserve_disabled disabled}} {
-  global retval rcode has_cairo preserve_unchanged_attrs wm_fix
+  global retval rcode has_cairo preserve_unchanged_attrs wm_fix props
   set rcode {}
   toplevel .dialog -class Dialog
   wm title .dialog {Enter text}
@@ -3108,28 +3108,34 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
 
   pack .dialog.txt -side top -fill  both -expand yes
   frame .dialog.edit
-    frame .dialog.edit.lab
-    frame .dialog.edit.entries
-    pack  .dialog.edit.lab -side left 
-    pack  .dialog.edit.entries -side left -fill x  -expand yes
-    pack .dialog.edit  -side top  -fill x 
-      if {$has_cairo } {
-        entry .dialog.edit.entries.hsize -relief sunken -textvariable vsize -width 20
-      } else {
-        entry .dialog.edit.entries.hsize -relief sunken -textvariable hsize -width 20
-      }
-      entry .dialog.edit.entries.vsize -relief sunken -textvariable vsize -width 20
-      entry .dialog.edit.entries.props -relief sunken -textvariable props -width 20 
-      pack .dialog.edit.entries.hsize .dialog.edit.entries.vsize  \
-       .dialog.edit.entries.props -side top  -fill x -expand yes
-      label .dialog.edit.lab.hlab -text "hsize:"
-      label .dialog.edit.lab.vlab -text "vsize:"
-      label .dialog.edit.lab.proplab -text "props:"
-      pack .dialog.edit.lab.hlab .dialog.edit.lab.vlab  \
-       .dialog.edit.lab.proplab -side top
+  frame .dialog.edit.hsize
+  frame .dialog.edit.vsize
+  frame .dialog.edit.props
+  pack  .dialog.edit.hsize -side bottom -expand yes -fill x 
+  pack  .dialog.edit.vsize -side bottom -expand yes -fill x 
+  pack  .dialog.edit.props -side bottom -expand yes -fill x 
+  pack .dialog.edit  -side top  -fill x 
+  if {$has_cairo } {
+    entry .dialog.edit.hsize.hsize -relief sunken -textvariable vsize -width 20
+  } else {
+    entry .dialog.edit.hsize.hsize -relief sunken -textvariable hsize -width 20
+  }
+  entry .dialog.edit.vsize.vsize -relief sunken -textvariable vsize -width 20
+  text .dialog.edit.props.props -width 70 -height 3
+  .dialog.edit.props.props insert 1.0 $props
+  label .dialog.edit.hsize.hlab -text "hsize:"
+  label .dialog.edit.vsize.vlab -text "vsize:"
+  label .dialog.edit.props.proplab -text "props:"
+  pack .dialog.edit.hsize.hlab -side left
+  pack .dialog.edit.hsize.hsize -side left -fill x -expand yes
+  pack .dialog.edit.vsize.vlab  -side left
+  pack .dialog.edit.vsize.vsize -side left -fill x -expand yes
+  pack .dialog.edit.props.proplab -side left
+  pack .dialog.edit.props.props -side left -fill x -expand yes
   frame .dialog.buttons
   button .dialog.buttons.ok -text "OK" -command  \
   {
+   set props [.dialog.edit.props.props get 1.0 {end - 1 chars}]
    set retval [.dialog.txt get 1.0 {end - 1 chars}]
    if {$has_cairo} { 
      set hsize $vsize
@@ -3167,7 +3173,7 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
       .dialog.buttons.cancel invoke
     }
   }
-  bind .dialog <Control-Return> {.dialog.buttons.ok invoke}
+  bind .dialog.txt <Shift-KeyRelease-Return> {return_release %W; .dialog.buttons.ok invoke}
   #grab set .dialog
   tkwait window .dialog
   return $retval
@@ -3205,16 +3211,13 @@ proc redef_puts w {
   }
 }
 
-# return key release
-proc tclcmd_shift_return2 {state} {
-  set curs [.tclcmd.t index insert]
-  .tclcmd.t delete "$curs - 1 chars" $curs
+# return key release, used to remove last entered character
+# when binding close text-widget window to Shift-return or Control-return.
+proc return_release {window} {
+  set curs [$window index insert]
+  $window delete "$curs - 1 chars" $curs
 }
 
-# return key press
-proc tclcmd_shift_return {state} {
-  .tclcmd.b.ok invoke
-}
 
 proc tclcmd_ok_button {} {
   global tclcmd_txt
@@ -3252,12 +3255,12 @@ proc tclcmd {} {
     .tclcmd.r.r delete 1.0 end
   }
   button .tclcmd.b.close -text Close -command {
-    set tclcmd_txt [.tclcmd.t get 1.0 end]
+    set tclcmd_txt [.tclcmd.t get 1.0 {end - 1 chars}]
     destroy .tclcmd
   }
   button .tclcmd.b.ok -text Evaluate -command {tclcmd_ok_button}
-  bind .tclcmd.t <Shift-KeyPress-Return> { tclcmd_shift_return %s }
-  bind .tclcmd.t <Shift-KeyRelease-Return> { tclcmd_shift_return2 %s }
+  # bind .tclcmd.t <Shift-KeyPress-Return> { .tclcmd.b.ok invoke }
+  bind .tclcmd.t <Shift-KeyRelease-Return> {return_release %W; .tclcmd.b.ok invoke }
   pack .tclcmd.txtlab -side top -fill x
   pack .tclcmd.b -side bottom -fill x
   pack .tclcmd.p -side top -fill  both -expand yes
