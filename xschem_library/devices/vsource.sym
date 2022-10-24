@@ -18,5 +18,4 @@ T {@name} 20 -18.75 0 0 0.2 0.2 {}
 T {@value} 20 6.25 0 0 0.2 0.2 {}
 T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15}
 T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15}
-T {@spice_get_current} 20 -6.25 0 0 0.2 0.2 {layer=15
-hide=true}
+T {@spice_get_current} 20 -6.25 0 0 0.2 0.2 {layer=15}

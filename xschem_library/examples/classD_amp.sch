@@ -11,8 +11,8 @@ L 2 1000 -540 1000 -340 {dash=2}
 L 2 950 -540 950 -340 {dash=2}
 L 2 880 -540 880 -340 {dash=2}
 L 2 890 -540 890 -340 {dash=2}
-L 3 50 -1350 390 -1350 {}
-L 3 920 -1350 1360 -1350 {}
+L 3 30 -1220 370 -1220 {}
+L 3 900 -1220 1240 -1220 {}
 L 4 475 -210 480 -250 {}
 L 4 480 -250 485 -210 {}
 L 4 30 -865 30 -765 {dash=1}
@@ -190,7 +190,7 @@ T {10} 25 -850 0 1 0.2 0.2 {}
 T {10} 25 -1170 0 1 0.2 0.2 {}
 T {DRIVED} 135 -805 0 0 0.2 0.2 {}
 T {DRIVEU} 130 -1125 0 0 0.2 0.2 {}
-T {Class D amplifier } 430 -1380 0 0 1 1 {}
+T {Class D amplifier } 410 -1250 0 0 1 1 {}
 T {-10} 25 -780 0 1 0.2 0.2 {}
 T {-10} 25 -1100 0 1 0.2 0.2 {}
 N 460 -1020 460 -1000 {lab=#net1}
@@ -384,9 +384,8 @@ C {lab_pin.sym} 190 -590 0 0 {name=p12 lab=VNN}
 C {vsource.sym} 70 -400 0 0 {name=VVSS value=0}
 C {lab_pin.sym} 70 -350 0 0 {name=p13 lab=0}
 C {lab_pin.sym} 70 -450 0 0 {name=p14 lab=VSS}
-C {launcher.sym} 1480 -110 0 0 {name=h5 
-descr="Select arrow and 
-Ctrl-Left-Click to load/unload waveforms" 
+C {launcher.sym} 1000 -130 0 0 {name=h5 
+descr="Reload waveforms" 
 tclcommand="
 xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
 "
@@ -420,7 +419,7 @@ C {lab_pin.sym} 940 -920 0 1 {name=p4 lab=OUT_LPF}
 C {lab_pin.sym} 780 -810 0 0 {name=p7 lab=VSS}
 C {res.sym} 900 -860 0 1 {name=R4 m=1 value=8}
 C {lab_pin.sym} 900 -810 0 0 {name=p8 lab=VSS}
-C {launcher.sym} 1120 -110 0 0 {name=h1 
+C {launcher.sym} 1000 -90 0 0 {name=h1 
 descr="Netlist + Simulate
 Ctrl-Left-Click" 
 tclcommand="xschem netlist; xschem simulate"
