@@ -20,12 +20,42 @@ p{padding: 15px  30px 10px;}
 <a href="run_xschem.html" class="next">NEXT</a>
 
  <!-- slide title -->
+ <h1> DOWNLOAD XSCHEM </h1><br>
+ <p>
+  You should download the xschem sources from one of these repositories:
+ </p>
+ <ul>
+ <li> From repo.hu with subversion:</li>
+ <pre class="code">
+  svn checkout svn://repo.hu/xschem/trunk xschem-src
+ </pre><br>
+
+ <li> From sourceforge.net with subversion:</li>
+ <pre class="code">
+  svn checkout https://svn.code.sf.net/p/xschem/code/ xschem-src
+ </pre><br>
+
+ <li> From github.com with git:</li>
+ <pre class="code">
+  git clone https://github.com/StefanSchippers/xschem.git xschem-src
+ </pre><br>
+ </ul>
+
+ <h2> Attention </h2>
+ <p class="important">
+  If you have a binary xschem package installed on the system you should remove it.
+  Packaged xschem versions are too old and they conflict with the one you are building from source.
+  To remove: (this command is for Debian/Ubuntu, use similar commands for other distributions)<br>
+  <kbd> sudo apt-get purge xschem</kbd><br>
+ </p>
+ 
+
  <h1> INSTALL XSCHEM </h1><br>
  <p>
  in order to install the program run the following command:
  </p>
  <pre class="code">
-  user:~$ cd xschem-&lt;version&gt;; ./configure
+  user:~$ cd xschem-src; ./configure
  </pre>
  <p>
   This will make all the necessary checks for required libraries and system tools. 
