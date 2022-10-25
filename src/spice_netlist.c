@@ -23,8 +23,6 @@
 #include "xschem.h"
 
 static Str_hashtable model_table = {NULL, 0}; /* safe even with multiple schematics */
-static Str_hashentry *model_entry; /* safe even with multiple schematics */
-static Str_hashtable subckt_table = {NULL, 0}; /* safe even with multiple schematics */
 
 void hier_psprint(void)  /* netlister driver */
 {
@@ -32,6 +30,7 @@ void hier_psprint(void)  /* netlister driver */
   char *subckt_name;
   char filename[PATH_MAX];
   char *abs_path = NULL;
+  Str_hashtable subckt_table = {NULL, 0};
  
   if(!ps_draw(1)) return; /* prolog */
   xctx->push_undo();
@@ -197,6 +196,8 @@ void global_spice_netlist(int global)  /* netlister driver */
  char *abs_path = NULL;
  int top_sub;
  int split_f;
+ Str_hashtable subckt_table = {NULL, 0};
+ Str_hashentry *model_entry;
 
  split_f = tclgetboolvar("split_files");
  top_sub = tclgetboolvar("top_subckt");

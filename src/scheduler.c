@@ -1788,6 +1788,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         else
           if(has_x) tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                             "-message {Please Set netlisting mode (Options menu)}");
+        Tcl_ResetResult(interp);
       }
     }
 

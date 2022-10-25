@@ -22,7 +22,6 @@
 
 #include "xschem.h"
 
-static Str_hashtable subckt_table = {NULL, 0}; /* safe even with multiple schematics */
 
 static void vhdl_netlist(FILE *fd , int vhdl_stop)
 {
@@ -129,6 +128,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  char *subckt_name;
  char *abs_path = NULL;
  int split_f;
+ Str_hashtable subckt_table = {NULL, 0};
 
  split_f = tclgetboolvar("split_files");
  xctx->push_undo();

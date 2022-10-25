@@ -21,7 +21,6 @@
  */
 
 #include "xschem.h"
-static Str_hashtable subckt_table = {NULL, 0}; /* safe even with multiple schematics */
 
 static void verilog_netlist(FILE *fd , int verilog_stop)
 {
@@ -91,6 +90,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  char *abs_path = NULL;
  int split_f;
  const char *fmt_attr = NULL;
+ Str_hashtable subckt_table = {NULL, 0};
 
  split_f = tclgetboolvar("split_files");
  xctx->push_undo();
