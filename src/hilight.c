@@ -777,15 +777,11 @@ int search(const char *tok, const char *val, int sub, int sel)
 static void drill_hilight(int mode)
 {
   char *netname=NULL, *propagated_net=NULL;
-  int mult=0;
-  int found;
+  int mult=0, found, i, j, npin, en_hi, propagate, hilight_connected_inst;
   xSymbol *symbol;
   xRect *rct;
-  int i, j, npin;
   char *propagate_str = NULL;
-  int propagate, hilight_connected_inst;
   Hilight_hashentry *entry, *propag_entry;
-  int en_hi;
 
   en_hi = tclgetboolvar("en_hilight_conn_inst");
   prepare_netlist_structs(0);
