@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -539,14 +540,13 @@ tclcommand="
   xschem select instance p11 clear ;# release CLEAR
   xschem select instance p8
   update ;# allow event loop to come in (update screen, user input etc) 
-  after 1000
   set logic_value 0
   while \{1\} \{
     update ;# allow event loop to come in (update screen, user input etc) 
     incr count
-    after 500
     if \{$count==30 || $tclstop == 1\} break
     xschem logic_set $logic_value
+    after 500
     set logic_value [expr !$logic_value]
   \}
 "
