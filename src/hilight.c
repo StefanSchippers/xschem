@@ -776,11 +776,10 @@ int search(const char *tok, const char *val, int sub, int sel)
 /* 'propag' properties set on pins) */
 static void drill_hilight(int mode)
 {
-  char *netname=NULL, *propagated_net=NULL;
+  char *netname=NULL, *propagated_net=NULL, *propagate_str = NULL;
   int mult=0, found, i, j, npin, en_hi, propagate, hilight_connected_inst;
   xSymbol *symbol;
   xRect *rct;
-  char *propagate_str = NULL;
   Hilight_hashentry *entry, *propag_entry;
 
   en_hi = tclgetboolvar("en_hilight_conn_inst");
@@ -795,21 +794,17 @@ static void drill_hilight(int mode)
        ((xctx->inst[i].flags & HILIGHT_CONN) || ((xctx->inst[i].ptr+ xctx->sym)->flags & HILIGHT_CONN));
       for(j=0; j<npin;j++) {
         my_strdup(143, &netname, net_name(i, j, &mult, 1, 0));
-        entry=bus_hilight_hash_lookup(netname, 0, XLOOKUP);
-        if(entry && (hilight_connected_inst || (symbol->type && IS_LABEL_SH_OR_PIN(symbol->type))) ) {
-          xctx->inst[i].color = entry->value;
-          inst_hilight_hash_lookup(xctx->inst[i].instname, entry->value, XINSERT_NOREPLACE); 
-        }
-        my_strdup(1225, &propagate_str, get_tok_value(rct[j].prop_ptr, "propag", 0));
-        if(propagate_str) {
-          int n = 1;
-          const char *propag;
-          dbg(1, "drill_hilight(): inst=%d propagate_str=%s\n", i, propagate_str);
-          while(1) {
-            propag = find_nth(propagate_str, ",", n);
-            n++;
-            if(!propag[0]) break;
-            if(entry) {
+        if( (entry=bus_hilight_hash_lookup(netname, 0, XLOOKUP)) ) {
+          if( hilight_connected_inst || (symbol->type && IS_LABEL_SH_OR_PIN(symbol->type)) ) {
+            xctx->inst[i].color = entry->value;
+            inst_hilight_hash_lookup(xctx->inst[i].instname, entry->value, XINSERT_NOREPLACE); 
+          }
+          my_strdup(1225, &propagate_str, get_tok_value(rct[j].prop_ptr, "propag", 0));
+          if(propagate_str) {
+            int n = 1;
+            const char *propag;
+            dbg(1, "drill_hilight(): inst=%d propagate_str=%s\n", i, propagate_str);
+            while((propag = find_nth(propagate_str, ",", n++))[0]) {
               propagate = atoi(propag);
               if(propagate < 0 || propagate >= npin) {
                  dbg(0, "Error: inst: %s, pin %d, goto set to %s <<%d>>\n",
@@ -823,14 +818,14 @@ static void drill_hilight(int mode)
               if(!propag_entry) found=1; /* keep looping until no more nets are found. */
             }
           }
-        }
+        } /* if(entry) */
       } /* for(j...) */
     } /* for(i...) */
     if(!found) break;
   } /* while(1) */
   my_free(772, &netname);
-  my_free(773, &propagated_net);
-  my_free(1226, &propagate_str);
+  if(propagated_net) my_free(773, &propagated_net);
+  if(propagate_str) my_free(1226, &propagate_str);
 }
 
 int hilight_netname(const char *name)
