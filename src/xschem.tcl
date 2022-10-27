@@ -6047,7 +6047,7 @@ proc set_replace_key_binding {} {
 proc source_user_tcl_files {} {
   global tcl_files
   foreach i $tcl_files {
-    uplevel #0 "source $i"
+    uplevel #0 [list source $i]
   }
 }
 
