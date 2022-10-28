@@ -4380,8 +4380,7 @@ proc find_file  { f {paths {}} } {
 # given an absolute path of a symbol/schematic remove the path prefix
 # if file is in a library directory (a $pathlist dir)
 proc rel_sym_path {symbol} {
-  global pathlist
-
+  global OS pathlist
   set curr_dirname [xschem get current_dirname]
   set name {}
   foreach path_elem $pathlist {
@@ -4391,6 +4390,13 @@ proc rel_sym_path {symbol} {
     set pl [string length $path_elem]
     if { [string equal -length $pl $path_elem $symbol] } {
       set name [string range $symbol [expr {$pl+1}] end]
+      # When $path_elem is "C:/", string equal will match, 
+      # but $path_elem should not be removed from $name if $name 
+      # has more / for more directory levels.
+      if {$OS eq "Windows" && [regexp {^[A-Za-z]\:/$} $path_elem ] && [regexp {/} $name]} {
+           set name {}
+           continue
+      }
       break
     }
   }
@@ -5141,7 +5147,7 @@ set tctx::global_list {
   textwindow_fileid textwindow_filename textwindow_w tmp_bus_char toolbar_horiz toolbar_list
   toolbar_visible top_subckt transparent_svg undo_type use_lab_wire use_label_prefix
   user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
-  vsize xschem_libs xschem_listen_port
+  vsize xschem_libs xschem_listen_port add_all_windows_drives
 }
 
 ## list of global arrays to save/restore on context switching
@@ -5929,11 +5935,17 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
 }
 
 proc set_paths {} {
-  global XSCHEM_LIBRARY_PATH env pathlist OS
+  global XSCHEM_LIBRARY_PATH env pathlist OS add_all_windows_drives
   set pathlist {}
   if { [info exists XSCHEM_LIBRARY_PATH] } {
     if {$OS == "Windows"} {
       set pathlist_orig [split $XSCHEM_LIBRARY_PATH \;]
+      if {$add_all_windows_drives} {
+        set win_vol [file volumes]
+        foreach disk $win_vol {
+          lappend pathlist_orig $disk
+        }
+      }
     } else {
       set pathlist_orig [split $XSCHEM_LIBRARY_PATH :]
     }
@@ -6086,6 +6098,7 @@ set OS [lindex $tcl_platform(os) 0]
 set env(LC_ALL) C
 
 # tcl variable XSCHEM_LIBRARY_PATH  should already be set in xschemrc
+set_ne add_all_windows_drives 1
 set_paths
 print_help_and_exit
 

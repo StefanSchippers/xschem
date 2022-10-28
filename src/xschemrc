@@ -383,3 +383,11 @@
 #### if enabled will backannotate values in schematic at cursor 'b' position
 #### in graph. Default: not enabled (0)
 # set live_cursor2_backannotate 1
+
+###########################################################################
+#### INCLUDE ALL WINDOWS DRIVES IN XSCHEM PATHS
+###########################################################################
+#### This option will not include all windows drives in xschem paths
+#### Instead, additional drives can be added using XSCHEM_LIBRARY_PATH
+#### default: 1
+# set add_all_windows_drives 0
