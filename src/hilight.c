@@ -777,7 +777,9 @@ int search(const char *tok, const char *val, int sub, int sel)
 static void drill_hilight(int mode)
 {
   char *netname=NULL, *propagated_net=NULL, *propagate_str = NULL;
-  int mult=0, found, i, j, npin, en_hi, propagate, hilight_connected_inst;
+  const char *netbitname;
+  int found, i, j, k, npin, en_hi, propagate, hilight_connected_inst;
+  int /* pinmult = 0, instmult = 0, */ mult = 0, mult2 = 0;
   xSymbol *symbol;
   xRect *rct;
   Hilight_hashentry *entry, *propag_entry;
@@ -787,38 +789,50 @@ static void drill_hilight(int mode)
   while(1) {
     found=0;
     for(i=0; i<xctx->instances;i++) {
+      /* expandlabel(xctx->inst[i].instname, &instmult); */
       symbol = xctx->inst[i].ptr+xctx->sym;
       npin = symbol->rects[PINLAYER];
       rct=symbol->rect[PINLAYER];
       hilight_connected_inst = en_hi &&
-       ((xctx->inst[i].flags & HILIGHT_CONN) || ((xctx->inst[i].ptr+ xctx->sym)->flags & HILIGHT_CONN));
+       ((xctx->inst[i].flags & HILIGHT_CONN) || (symbol->flags & HILIGHT_CONN));
       for(j=0; j<npin;j++) {
-        my_strdup(143, &netname, net_name(i, j, &mult, 1, 0));
-        if( (entry=bus_hilight_hash_lookup(netname, 0, XLOOKUP)) ) {
-          if( hilight_connected_inst || (symbol->type && IS_LABEL_SH_OR_PIN(symbol->type)) ) {
-            xctx->inst[i].color = entry->value;
-            inst_hilight_hash_lookup(xctx->inst[i].instname, entry->value, XINSERT_NOREPLACE); 
-          }
-          my_strdup(1225, &propagate_str, get_tok_value(rct[j].prop_ptr, "propag", 0));
-          if(propagate_str) {
-            int n = 1;
-            const char *propag;
-            dbg(1, "drill_hilight(): inst=%d propagate_str=%s\n", i, propagate_str);
-            while((propag = find_nth(propagate_str, ",", n++))[0]) {
-              propagate = atoi(propag);
-              if(propagate < 0 || propagate >= npin) {
-                 dbg(0, "Error: inst: %s, pin %d, goto set to %s <<%d>>\n",
-                   xctx->inst[i].instname, j, propagate_str, propagate);
-                   continue;
-              }
-              /* get net to propagate hilight to...*/
-              my_strdup(144, &propagated_net, net_name(i, propagate, &mult, 1, 0));
-              /* add net to highlight list */
-              propag_entry = bus_hilight_hash_lookup(propagated_net, entry->value, mode);
-              if(!propag_entry) found=1; /* keep looping until no more nets are found. */
+        my_strdup2(143, &netname, net_name(i, j, &mult, 1, 0));
+        expandlabel(netname, &mult);
+        dbg(1, "inst=%s, pin=%d, netname=%s, mult=%d\n", xctx->inst[i].instname, j, netname, mult);
+        for(k = 1; k <= mult; k++) {
+          netbitname = find_nth(netname, ",", k);
+          dbg(1, "netbitname=%s\n", netbitname);
+          if( (entry=bus_hilight_hash_lookup(netbitname, 0, XLOOKUP)) ) {
+            if( hilight_connected_inst || (symbol->type && IS_LABEL_SH_OR_PIN(symbol->type)) ) {
+              xctx->inst[i].color = entry->value;
+              inst_hilight_hash_lookup(xctx->inst[i].instname, entry->value, XINSERT_NOREPLACE); 
             }
-          }
-        } /* if(entry) */
+            my_strdup(1225, &propagate_str, get_tok_value(rct[j].prop_ptr, "propag", 0));
+            if(propagate_str) {
+              int n = 1;
+              const char *propag;
+              dbg(1, "drill_hilight(): inst=%d propagate_str=%s\n", i, propagate_str);
+              while((propag = find_nth(propagate_str, ",", n++))[0]) {
+                propagate = atoi(propag);
+
+                if(propagate < 0 || propagate >= npin) {
+                   dbg(0, "Error: inst: %s, pin %d, goto set to %s <<%d>>\n",
+                     xctx->inst[i].instname, j, propagate_str, propagate);
+                     continue;
+                }
+                /* expandlabel(rct[propagate].name, &pinmult); */
+                /* get net to propagate hilight to...*/
+                my_strdup2(144, &propagated_net, net_name(i, propagate, &mult2, 1, 0));
+                netbitname = find_nth(propagated_net, ",", k);
+                dbg(1, "netbitname=%s\n", netbitname);
+                /* add net to highlight list */
+                if(!netbitname[0]) continue;
+                propag_entry = bus_hilight_hash_lookup(netbitname, entry->value, mode);
+                if(!propag_entry) found=1; /* keep looping until no more nets are found. */
+              }
+            }
+          } /* if(entry) */
+        } /* for(k = 1; k <= mult; k++) */
       } /* for(j...) */
     } /* for(i...) */
     if(!found) break;
