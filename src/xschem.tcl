@@ -5934,6 +5934,21 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   label $topwin.statusbar.8 -activebackground red -text {} 
 }
 
+proc set_initial_dirs {} {
+  global INITIALLOADDIR INITIALINSTDIR INITIALPROPDIR pathlist
+  set INITIALLOADDIR {}
+  set INITIALINSTDIR {}
+  set INITIALPROPDIR {}
+  foreach i $pathlist  {
+    if { [file exists $i] } {
+      set INITIALLOADDIR $i
+      set INITIALINSTDIR $i
+      set INITIALPROPDIR $i
+      break
+    }
+  }
+}
+
 proc set_paths {} {
   global XSCHEM_LIBRARY_PATH env pathlist OS add_all_windows_drives
   set pathlist {}
@@ -5959,7 +5974,10 @@ proc set_paths {} {
         lappend pathlist $i
       }
     }
+    set myload_files1 $pathlist
   }
+  # set INITIALLOADDIR INITIALINSTDIR INITIALPROPDIR as initial locations in load file dialog box
+  set_initial_dirs
 }
 
 proc print_help_and_exit {} {
@@ -5991,21 +6009,6 @@ proc set_missing_colors_to_black {} {
   foreach i {svg_colors ps_colors light_colors dark_colors} {
     if { [llength [set $i]] > $cadlayers} {
        set $i [lrange [set $i] 0 [expr {$cadlayers -1}]]
-    }
-  }
-}
-
-proc set_initial_dirs {} {
-  global INITIALLOADDIR INITIALINSTDIR INITIALPROPDIR pathlist
-  set INITIALLOADDIR {}
-  set INITIALINSTDIR {}
-  set INITIALPROPDIR {}
-  foreach i $pathlist  {
-    if { [file exists $i] } {
-      set INITIALLOADDIR $i
-      set INITIALINSTDIR $i
-      set INITIALPROPDIR $i
-      break
     }
   }
 }
@@ -6327,9 +6330,6 @@ set_ne copy_cell 0
 load_recent_file
 # schematic to preload in new windows 20090708
 set_ne XSCHEM_START_WINDOW {}
-
-# set INITIALLOADDIR INITIALINSTDIR INITIALPROPDIR as initial locations in load file dialog box
-set_initial_dirs
 
 set custom_token {lab}
 set search_value {}
