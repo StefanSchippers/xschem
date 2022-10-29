@@ -316,6 +316,10 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
        xctx->rect[rectc][n].dash = (char) (d >= 0 ? d : 0);
      } else
        xctx->rect[rectc][n].dash = 0;
+     if(!strcmp(get_tok_value(xctx->rect[rectc][n].prop_ptr,"fill",0),"false") )
+       xctx->rect[rectc][n].fill =0;
+     else
+       xctx->rect[rectc][n].fill =1;
      set_rect_flags(&xctx->rect[rectc][n]); /* set cached .flags bitmask from on attributes */
      if(rectc == GRIDLAYER && (xctx->rect[rectc][n].flags & 1024)) {
         xRect *r = &xctx->rect[GRIDLAYER][n];

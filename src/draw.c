@@ -545,7 +545,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       {
         RECTORDER(x1,y1,x2,y2);
         drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, rect->dash);
-        filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
+        if(rect->fill) filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
       }
     }
   }
@@ -3345,7 +3345,7 @@ void draw(void)
             #endif
             {
               drawrect(c, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
-              filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
+              if(r->fill) filledrect(c, ADD, r->x1, r->y1, r->x2, r->y2);
             }
           }
           if(xctx->enable_layer[c]) for(i=0;i<xctx->arcs[c];i++) {

@@ -529,7 +529,6 @@ void my_realloc(int id, void *ptr,size_t size)
    dbg(3, "\nmy_realloc(%d,): reallocating %p --> %p to %lu bytes\n",
            id, a, *(void **)ptr,(unsigned long) size);
  }
-
 }
 
 char *my_free(int id, void *ptr)
@@ -598,7 +597,7 @@ static void edit_rect_property(int x)
 {
   int i, c, n;
   int drw = 0;
-  const char *dash;
+  const char *dash, *fill;
   int preserve;
   char *oldprop=NULL;
   my_strdup(67, &oldprop, xctx->rect[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
@@ -642,8 +641,13 @@ static void edit_rect_property(int x)
         xctx->rect[c][n].dash = (short)(d >= 0? d : 0);
       } else
         xctx->rect[c][n].dash = 0;
+
+      fill = get_tok_value(xctx->rect[c][n].prop_ptr,"fill", 0);
+      if(!strcmp(fill, "false")) xctx->rect[c][n].fill = 0;
+      else xctx->rect[c][n].fill = 1;
+
       if( (oldprop &&  xctx->rect[c][n].prop_ptr && strcmp(oldprop, xctx->rect[c][n].prop_ptr)) ||
-          (!oldprop && xctx->rect[c][n].prop_ptr) ) {
+          (!oldprop && xctx->rect[c][n].prop_ptr) || (oldprop && !xctx->rect[c][n].prop_ptr)) {
          if(!drw) {
            bbox(START,0.0,0.0,0.0,0.0);
            drw = 1;
@@ -761,7 +765,7 @@ static void edit_wire_property(void)
         double ov, y1, y2;
         ov = INT_BUS_WIDTH(xctx->lw) > cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
         if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
-        else                        { y1 = xctx->wire[k].y1+ov; y2 = xctx->wire[k].y2-ov; }
+        else { y1 = xctx->wire[k].y1+ov; y2 = xctx->wire[k].y2-ov; }
         bbox(ADD, xctx->wire[k].x1-ov, y1 , xctx->wire[k].x2+ov , y2 );
         xctx->wire[k].bus=1;
       } else {

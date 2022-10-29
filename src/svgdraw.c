@@ -56,11 +56,14 @@ static void svg_xdrawpoint(int layer, double x1, double y1)
  fprintf(fd,"M%g %gL%g %gL%g%gL%g %gL%g %gz\"/>\n", x1, y1, x1+1.0, y1, x1+1.0, y1+1.0, x1, y1+1.0, x1, y1);
 }
 
-static void svg_xfillrectangle(int layer, double x1, double y1, double x2, double y2, int dash)
+static void svg_xfillrectangle(int layer, double x1, double y1, double x2, double y2, int dash, int fill)
 {
- fprintf(fd,"<path class=\"l%d\" ", layer);
- if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
- fprintf(fd,"d=\"M%g %gL%g %gL%g %gL%g %gL%g %gz\"/>\n", x1, y1, x2, y1, x2, y2, x1, y2, x1, y1);
+  fprintf(fd,"<path class=\"l%d\" ", layer);
+  if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
+  if(!fill) {
+    fprintf(fd,"style=\"fill:none;\" ");
+  } 
+  fprintf(fd,"d=\"M%g %gL%g %gL%g %gL%g %gL%g %gz\"/>\n", x1, y1, x2, y1, x2, y2, x1, y2, x1, y1);
 }
 
 static void svg_drawpolygon(int c, int what, double *x, double *y, int points, int fill, int dash)
@@ -92,7 +95,7 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points, i
   fprintf(fd, "\"/>\n");
 }
 
-static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,double recty2, int dash)
+static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,double recty2, int dash, int fill)
 {
  double x1,y1,x2,y2;
 
@@ -102,7 +105,7 @@ static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,dou
   y2=Y_TO_SVG(recty2);
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
-   svg_xfillrectangle(gc, x1,y1,x2,y2, dash);
+   svg_xfillrectangle(gc, x1,y1,x2,y2, dash, fill);
   }
 }
 
@@ -525,7 +528,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
       svg_embedded_image(rect, xx1, yy1, xx2, yy2, rot, flip);
     } else {
       RECTORDER(x1,y1,x2,y2);
-      svg_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, rect->dash);
+      svg_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, rect->dash, rect->fill);
     }
   }
   if( (layer==TEXTWIRELAYER  && !(xctx->inst[n].flags&2) ) ||
@@ -816,7 +819,8 @@ void svg_draw(void)
           svg_embedded_image(r, r->x1, r->y1, r->x2, r->y2, 0, 0);
        } else {
          svg_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
-                           xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash);
+                           xctx->rect[c][i].x2, xctx->rect[c][i].y2,
+                           xctx->rect[c][i].dash,  xctx->rect[c][i].fill);
        }
      }
      for(i=0;i<xctx->arcs[c];i++)

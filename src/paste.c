@@ -122,6 +122,10 @@ static void merge_box(FILE *fd)
     } else {
       ptr[i].dash = 0;
     }
+    if( !strcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"false") )
+      ptr[i].fill =0;
+    else
+      ptr[i].fill =1;
     set_rect_flags(&xctx->rect[c][i]); /* set cached .flags bitmask from on attributes */
     select_box(c,i, SELECTED, 1, 1);
     xctx->rects[c]++;

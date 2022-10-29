@@ -419,6 +419,7 @@ typedef struct
   unsigned short sel;
   char *prop_ptr;
   void *extraptr; /* generic data pointer (images) */
+  short fill;
   short dash;
   /* bit0=1 for graph function, bit1=1 for unlocked x axis
    * bit10: image embedding (png)

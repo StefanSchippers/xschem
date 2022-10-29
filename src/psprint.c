@@ -137,10 +137,10 @@ static void ps_xdrawpoint(int layer, double x1, double y1)
 }
 
 static void ps_xfillrectange(int layer, double x1, double y1, double x2,
-                  double y2)
+                  double y2, int fill)
 {
  fprintf(fd, "%g %g %g %g R\n", x1,y1,x2-x1,y2-y1);
- if( (xctx->fill_type[layer] == 1) && xctx->fill_pattern) {
+ if(fill &&  (xctx->fill_type[layer] == 1) && xctx->fill_pattern) {
    fprintf(fd, "%g %g %g %g RF\n", x1,y1,x2-x1,y2-y1);
    /* fprintf(fd,"fill\n"); */
  }
@@ -187,7 +187,7 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points, in
 }
 
 
-static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,double recty2, int dash)
+static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,double recty2, int dash, int fill)
 {
  double x1,y1,x2,y2;
  double psdash;
@@ -202,7 +202,7 @@ static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,doub
     if(dash) {
       fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
     }
-    ps_xfillrectange(gc, x1,y1,x2,y2);
+    ps_xfillrectange(gc, x1,y1,x2,y2, fill);
     if(dash) {
       fprintf(fd, "[] 0 setdash\n");
     }
@@ -605,7 +605,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
     ROTATION(rot, flip, 0.0,0.0,rect.x1,rect.y1,x1,y1);
     ROTATION(rot, flip, 0.0,0.0,rect.x2,rect.y2,x2,y2);
     RECTORDER(x1,y1,x2,y2);
-    ps_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, rect.dash);
+    ps_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, rect.dash, rect.fill);
    }
    if(  (layer==TEXTWIRELAYER  && !(xctx->inst[n].flags&2) ) ||
         (xctx->sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) )
@@ -865,7 +865,7 @@ void create_ps(char **psfile, int what)
       {
         if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  {
           ps_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
-            xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash);
+            xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash, xctx->rect[c][i].fill);
         }
       }
       for(i=0;i<xctx->arcs[c];i++)
