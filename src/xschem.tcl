@@ -4422,7 +4422,11 @@ proc abs_sym_path {fname {ext {} } } {
     ## absolute path: return as is
     if { [regexp {^[A-Za-z]\:/} $fname ] } {
       return "$fname"
-    } 
+    }
+    # network drive, return as is
+    if { [regexp {^/} $fname] } {
+      return "$fname"
+    }
   } else {
     ## absolute path: return as is
     if { [regexp {^/} $fname] } {

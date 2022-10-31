@@ -56,6 +56,7 @@
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/gschem_import/sym
 
 #### For Windows, use ; instead of :, and enclosed pathname with ""
+# append XSCHEM_LIBRARY_PATH ";//192.168.1.1/Projects/mysch"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/devices"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/examples"
