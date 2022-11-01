@@ -478,6 +478,11 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
  <ul>
   <li><kbd>@symname</kbd></li>
   <p> This expands to the name of the symbol</p>
+  <li><kbd>@symname_ext</kbd></li>
+  <p> This expands to the name of the symbol, keeping the extension (usually .sym)</p>
+  <li><kbd>@path</kbd></li>
+  <p> This expands to the hierarchy path the symbol instance is placed in
+      (example: <kbd>xcontrol.xdec[3].xinv</kbd>)</p>
   <li><kbd>@pinlist</kbd></li>
   <p> This expands to the list of nets that connect to symbol pins in
    the order they are set in the symbol</p>
