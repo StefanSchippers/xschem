@@ -3489,7 +3489,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
             my_strcat(1071, &path, ".");
           }
         }
-        dbg(0, "path=%s\n", path);
+        dbg(1, "path=%s\n", path);
         tmp=strlen(path);
         STR_ALLOC(&result, tmp + result_pos, &size);
         memcpy(result+result_pos, path, tmp+1);
