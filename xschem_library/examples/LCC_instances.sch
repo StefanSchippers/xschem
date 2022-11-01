@@ -50,6 +50,7 @@ sweep="v(a) v(z)"
 dataset=-1}
 P 4 5 560 -700 560 -510 1350 -510 1350 -700 560 -700 {dash=3}
 P 4 5 820 -920 820 -730 1350 -730 1350 -920 820 -920 {dash=3}
+P 4 5 0 -1160 1840 -1160 1840 0 -0 0 0 -1160 {dash=4}
 T {These 2 instances are equivalent} 260 -310 0 0 0.4 0.4 {}
 T {Example of using a schematic as a component instance
 instead of the usual symbol. LCC: Local Custom Cell.
@@ -63,6 +64,8 @@ T {Select one or more graphs (and no other objects)
 and use arrow keys to zoom / pan waveforms} 20 -1000 0 0 0.3 0.3 {}
 T {Butterfly diagram
 of a cmos latch} 620 -950 0 0 0.4 0.4 {layer=8}
+T {@symname
+@name} 1840 -1250 0 1 0.7 0.7 {}
 N 410 -100 410 -80 {lab=HALF}
 N 410 -190 430 -190 {lab=ZZZ}
 N 410 -190 410 -160 {lab=ZZZ}

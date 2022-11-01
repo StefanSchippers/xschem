@@ -1,5 +1,7 @@
-v {xschem version=2.9.5 file_version=1.1}
-G {type=pmos
+v {xschem version=3.1.0 file_version=1.2
+}
+G {}
+K {type=pmos
 format="@name @pinlist @model w=@w l=@l 
 + ad='@w *4.6u' as='@w *4.6u' 
 + pd='@w *2+9.2u' ps='@w *2+9.2u' 
@@ -40,4 +42,4 @@ B 5 -22.5 -2.5 -17.5 2.5 {name=g dir=in}
 B 5 17.5 -32.5 22.5 -27.5 {name=s dir=inout}
 B 5 17.5 -2.5 22.5 2.5 {name=b dir=in}
 T {@w\\/@l\\/@m} 7.5 -17.5 0 0 0.2 0.2 {}
-T {@name} 7.5 5 0 0 0.2 0.2 {999}
+T {@path@name} 7.5 5 0 0 0.2 0.2 {999}

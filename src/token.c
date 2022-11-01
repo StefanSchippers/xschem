@@ -2844,6 +2844,12 @@ const char *translate(int inst, const char* s)
     STR_ALLOC(&result, tmp + result_pos, &size);
     memcpy(result+result_pos,tmp_sym_name, tmp+1);
     result_pos+=tmp;
+   } else if(strcmp(token,"@path")==0) {
+    const char *path = xctx->sch_path[xctx->currsch] + 1;
+    tmp=strlen(path);
+    STR_ALLOC(&result, tmp + result_pos, &size);
+    memcpy(result+result_pos, path, tmp+1);
+    result_pos+=tmp;
    } else if(strcmp(token,"@symname_ext")==0) {
     tmp_sym_name=xctx->inst[inst].name ? get_cell_w_ext(xctx->inst[inst].name, 0) : "";
     tmp=strlen(tmp_sym_name);
@@ -3471,6 +3477,24 @@ const char *translate2(Lcc *lcc, int level, char* s)
         STR_ALLOC(&result, tmp + result_pos, &size);
         memcpy(result + result_pos, token, tmp + 1);
         result_pos += tmp;
+      }
+      else if(strcmp(token,"@path")==0) {
+        char *path = NULL;
+        my_strdup2(1617, &path, "@path@name\\.");
+        if(level > 1) { /* add parent LCC instance names (X1, Xinv etc) */
+          int i;
+          for(i = 1; i <level; i++) {
+            const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
+            my_strcat(440, &path, instname);
+            my_strcat(1071, &path, ".");
+          }
+        }
+        dbg(0, "path=%s\n", path);
+        tmp=strlen(path);
+        STR_ALLOC(&result, tmp + result_pos, &size);
+        memcpy(result+result_pos, path, tmp+1);
+        my_free(1616, &path);
+        result_pos+=tmp;
       }
       else if (strcmp(token, "@symname") == 0) {
         tmp_sym_name = lcc[level].symname ? get_cell(lcc[level].symname, 0) : "";
