@@ -768,6 +768,10 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
     }
     else  fprintf(fd, "%s", value);
    }
+   else if(strcmp(token,"@path")==0)
+   {
+    fprintf( fd, "%s",xctx->sch_path[xctx->currsch] + 1);
+   }
    else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
                                         /* in hash table */
    {
@@ -1755,6 +1759,15 @@ int print_spice_element(FILE *fd, int inst)
           /* fputs(value,fd); */
         }
       }
+      else if (strcmp(token,"@path")==0) /* of course symname must not be present in attributes */
+      {
+        const char *s = xctx->sch_path[xctx->currsch] + 1;
+        tmp = strlen(s) +100 ; /* always make room for some extra chars 
+                                * so 1-char writes to result do not need reallocs */
+        STR_ALLOC(&result, tmp + result_pos, &size);
+        result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
+        /* fputs(s,fd); */
+      }
       else if (strcmp(token,"@symname")==0) /* of course symname must not be present in attributes */
       {
         const char *s = skip_dir(xctx->inst[inst].name);
@@ -2117,6 +2130,10 @@ void print_tedax_element(FILE *fd, int inst)
     {
       fputs(value,fd);
     }
+    else if(strcmp(token,"@path")==0)
+    {
+     fputs(xctx->sch_path[xctx->currsch] + 1, fd);
+    }
     else if(strcmp(token,"@symname")==0)        /* of course symname must not be present  */
                                         /* in hash table */
     {
@@ -2344,6 +2361,10 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
           fprintf(fd, "%s", value);
      }
      else  fprintf(fd, "%s", value);
+    }
+    else if(strcmp(token,"@path")==0)
+    {
+     fputs(xctx->sch_path[xctx->currsch] + 1, fd);
     }
     else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
                                          /* in hash table */
