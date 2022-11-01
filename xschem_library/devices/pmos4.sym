@@ -31,7 +31,7 @@ B 5 -22.5 -2.5 -17.5 2.5 {name=g dir=in}
 B 5 17.5 -32.5 22.5 -27.5 {name=s dir=inout}
 B 5 17.5 -2.5 22.5 2.5 {name=b dir=in}
 T {@w\\/@l\\/@m} 7.5 -17.5 0 0 0.2 0.2 {}
-T {@path@spiceprefix@name} 7.5 7.5 0 0 0.2 0.2 {}
+T {@spiceprefix@name} 7.5 7.5 0 0 0.2 0.2 {}
 T {D} 25 20 0 0 0.15 0.15 {}
 T {@#2:net_name} 25 -42.5 0 0 0.15 0.15 {layer=15}
 T {@#0:net_name} 25 32.5 0 0 0.15 0.15 {layer=15}

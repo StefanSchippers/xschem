@@ -176,10 +176,6 @@ N 1530 -350 1530 -330 {lab=vss}
 N 1530 -530 1530 -510 {lab=vss}
 N 1710 -180 1710 -160 {lab=vss}
 N 1530 -180 1530 -160 {lab=vss}
-N 780 -900 780 -890 {}
-N 780 -930 790 -930 {}
-N 730 -930 740 -930 {}
-N 780 -970 780 -960 {}
 C {title.sym} 170 0 0 0 {name=l3 author="Stefan Schippers"}
 C {rom2_coldec.sym} 1190 -890 0 0 {name=xcdec[15:0]}
 C {lab_pin.sym} 1040 -910 0 0 {name=p377 lab=LDY1[15:0]}
@@ -456,4 +452,3 @@ tclcommand="
   \}
 "
 }
-C {n.sym} 760 -930 0 0 {name=m1 model=cmosn w=4u l=2.4u m=1}

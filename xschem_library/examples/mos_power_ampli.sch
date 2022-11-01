@@ -409,7 +409,7 @@ node="[format %.4g [expr \{([ngspice::get_node v(vpp)] - [ngspice::get_voltage o
 descr = power
 }
 C {lab_wire.sym} 910 -690 0 1 {name=l40 lab=OUTI}
-C {ngspice_get_expr.sym} 980 -490 0 0 {name=r44 
+C {ngspice_get_expr.sym} 1000 -480 0 0 {name=r44 
 node="[ngspice::get_current \{r7[i]\}]" 
 descr = current
 }
