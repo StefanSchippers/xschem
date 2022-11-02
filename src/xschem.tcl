@@ -721,7 +721,7 @@ proc ngspice::get_current {n} {
   # puts "ngspice::get_current: path=$path n=$n prefix=$prefix"
   set n $path$n
   set currname i
-  if { ![sim_is_xyce] } {
+  if { ![sim_is_xyce] } { ;# ngspice
     if {$path ne {} } {
       set n $prefix.$n
     }
@@ -729,9 +729,10 @@ proc ngspice::get_current {n} {
       set n @$n
     }
     set n i($n)
-  } else {
+  } else { ;# xyce
     if { [regexp {\[i[bcedgsb]\]$} $n] } {
       regexp {\[(i[bcesdgb])\]$} $n curr1 currname
+      if { $prefix == {d} } {set currname i}
       regsub {\[(i[bcesdgb])\]$} $n {} n
     }
     regsub {\[i\]} $n {} n
