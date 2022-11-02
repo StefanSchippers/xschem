@@ -316,8 +316,6 @@ tclcommand="
     xschem redraw
 "
 }
-C {ngspice_get_value.sym} 1130 -870 0 0 {name=nmos1 node=i(@r.$\{path\}xm1.rd[i])
-descr="Id="}
 C {ngspice_get_expr.sym} 800 -1090 0 1 {name=r8 
 node="[format %.4g [expr [ngspice::get_voltage e4] - [ngspice::get_voltage c7]]]"
 descr = veb
@@ -398,8 +396,6 @@ C {ngspice_get_expr.sym} 1210 -1240 0 1 {name=r40
 node="[ngspice::get_current \{d1[id]\}]"
 descr = current
 }
-C {ngspice_get_value.sym} 1130 -550 0 0 {name=r41 node=i(@r.$\{path\}xm2.rd[i])
-descr="Id="}
 C {ngspice_get_expr.sym} 160 -320 0 0 {name=r42 
 node="[format %.4g [expr ([ngspice::get_node v(vpp)] - [ngspice::get_voltage b3]) * [ngspice::get_current \{r1[i]\}]]] W"
 descr = power
@@ -450,3 +446,11 @@ tclcommand="textwindow $netlist_dir/[file tail [file rootname [ xschem get schna
 }
 C {spice_probe.sym} 790 -690 0 0 {name=p60 analysis=tran voltage=-0.1364}
 C {ipin.sym} 0 -1270 0 0 {name=p11 lab=VPP}
+C {ngspice_get_expr.sym} 1130 -550 0 0 {name=r19 
+node="[ngspice::get_current \{xm2.rd[i]\}]" 
+descr = current
+}
+C {ngspice_get_expr.sym} 1130 -860 0 0 {name=r22 
+node="[ngspice::get_current \{xm1.rd[i]\}]" 
+descr = current
+}

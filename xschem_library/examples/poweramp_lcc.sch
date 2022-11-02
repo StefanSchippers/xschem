@@ -19,21 +19,21 @@ B 2 2520 -210 3200 -20 {flags=graph
 y1 = -0.0035
 y2 = 11
 divy = 6
-x1=0.019472
-x2=0.0205918
+x1=0.0176314
+x2=0.0183299
 divx=10
 node="i(v.x1.vu)
 i(v.x0.vu)
 i(v.x1.vd)
 i(v.x0.vd)"
 color="11 13 12 7"
-unitx=m}
+unitx=1}
 B 2 2520 -540 3200 -230 {flags=graph
 y1 = -49
 y2 = 59
 divy = 12
-x1=0.019472
-x2=0.0205918
+x1=0.0176314
+x2=0.0183299
 divx=10
 node="outp
 outm
@@ -42,18 +42,18 @@ vnn
 x1.vboost
 x0.vboost"
 color="4 15 6 12 7 4"
-unitx=m
+unitx=1
 hilight_wave=-1}
 B 2 2520 -730 3200 -540 {flags=graph
 y1 = 0
 y2 = 840
 divy = 6
-x1=0.019472
-x2=0.0205918
+x1=0.0176314
+x2=0.0183299
 divx=10
 
 
-unitx=m
+unitx=1
 color="4 7"
 node="\\"supply power;i(vcurrvnn) vnn * i(vcurrvpp) vpp * +\\"
 \\"running average supply power;i(vcurrvnn) vnn * i(vcurrvpp) vpp * + 200u ravg()\\""
@@ -62,12 +62,12 @@ B 2 2520 -20 3200 170 {flags=graph
 y1 = 0
 y2 = 850
 divy = 6
-x1=0.019472
-x2=0.0205918
+x1=0.0176314
+x2=0.0183299
 divx=10
 
 
-unitx=m
+unitx=1
 color="4 7"
 node="\\"Load power;outm outp - i(v.x1.v8) *\\"
 \\"Running Average Load power;outm outp - i(v.x1.v8) * 200u ravg()\\""}
@@ -346,9 +346,7 @@ C {simulator_commands.sym} 2340 -450 0 0 {name=COMMANDS1
 simulator=xyce
 only_toplevel=false 
 value="
-.option ITL4=20000 ITL5=0
 vvss vss 0 dc 0 
-.temp 30
 
 .param frequ=5k
 .param gain=45
@@ -361,6 +359,10 @@ vvss vss 0 dc 0
 * .op
 .print tran format=raw file=poweramp_lcc_xyce.raw v(*) i(*) 
 + v(x1:*) v(x0:*) i(x1:*) i(x0:*)
++ id(x0:*) ig(x0:*) is(x0:*) ib(x0:*)
++ ib(x0:*) ic(x0:*) ie(x0:*)
++ id(x1:*) ig(x1:*) is(x0:*) ib(x1:*)
++ ib(x1:*) ic(x1:*) ie(x1:*)
 * .print dc format=raw file=poweramp_op.raw v(*) i(*) v(x1:*) v(x0:*) i(x1:*) i(x0:*)
 
 "}
