@@ -11,7 +11,7 @@ value=\\"
 
 format="tcleval(
 [if \{[ sim_is_@simulator ]\} \{ return \{
-@value
+\\\\@value
 \}\}]
 )"
 }
