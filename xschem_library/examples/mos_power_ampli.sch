@@ -178,7 +178,7 @@ C {nmos3.sym} 1090 -850 0 0 {name=xm1 model=irf540 m=1
 program=evince
 url="https://www.vishay.com/docs/91021/irf540.pdf" net_name=true}
 C {res.sym} 960 -820 0 1 {name=R0 m=1 value=190 net_name=true}
-C {lab_wire.sym} 920 -530 0 0 {name=l8 lab=GB}
+C {lab_wire.sym} 880 -530 0 0 {name=l8 lab=GB}
 C {res.sym} 340 -1140 0 1 {name=R2 m=1 value=50 net_name=true}
 C {res.sym} 180 -1140 0 1 {name=R3 m=1 value=50 net_name=true}
 C {lab_pin.sym} 340 -1170 0 0 {name=p10 lab=VPP}
@@ -265,7 +265,7 @@ C {lab_pin.sym} 340 -550 0 1 {name=p13 lab=E9}
 C {lab_pin.sym} 560 -530 0 0 {name=p19 lab=C8}
 C {lab_pin.sym} 560 -650 0 1 {name=p20 lab=E8}
 C {lab_pin.sym} 840 -940 0 0 {name=p21 lab=E11}
-C {lab_pin.sym} 260 -250 0 1 {name=p22 lab=E3}
+C {lab_pin.sym} 260 -260 0 1 {name=p22 lab=E3}
 C {lab_pin.sym} 260 -350 0 0 {name=p26 lab=C3}
 C {lab_pin.sym} 50 -300 0 0 {name=p30 lab=B3}
 C {lab_pin.sym} 520 -580 0 0 {name=p33 lab=VSS}
@@ -328,14 +328,6 @@ C {ngspice_get_expr.sym} 860 -1010 0 0 {name=r17
 node="[format %.4g [expr ([ngspice::get_voltage e4] - [ngspice::get_voltage e11]) * [ngspice::get_current \{q4[ic]\}]]] W"
 descr = power
 }
-C {ngspice_get_expr.sym} 380 -1120 0 0 {name=r20 
-node="[ngspice::get_current \{r2[i]\}]"
-descr = current
-}
-C {ngspice_get_expr.sym} 860 -1130 0 0 {name=r21 
-node="[ngspice::get_current \{r9[i]\}]"
-descr = current
-}
 C {ngspice_get_expr.sym} 800 -1060 0 1 {name=r23 
 node="[ngspice::get_current \{q4[ib]\}]"
 descr = Ib
@@ -356,11 +348,11 @@ C {ngspice_get_expr.sym} 1000 -800 0 0 {name=r28
 node="[to_eng [ngspice::get_current \{r0[i]\}]]" 
 descr = current
 }
-C {ngspice_get_expr.sym} 280 -290 2 1 {name=r29 
+C {ngspice_get_expr.sym} 300 -290 2 1 {name=r29 
 node="[format %.4g [expr ([ngspice::get_voltage c3] - [ngspice::get_voltage e3]) * [ngspice::get_current \{q3[ic]\}]]] W"
 descr = power
 }
-C {ngspice_get_expr.sym} 240 -280 2 0 {name=r30 
+C {ngspice_get_expr.sym} 300 -260 2 1 {name=r30 
 node="[format %.4g [expr [ngspice::get_voltage b3] - [ngspice::get_voltage e3]]]"
 descr = vbe
 }
@@ -368,7 +360,7 @@ C {ngspice_get_expr.sym} 340 -470 0 0 {name=r31
 node="[format %.4g [expr ([ngspice::get_voltage e9] - [ngspice::get_voltage c3]) * [ngspice::get_current \{r5[i]\}]]] W"
 descr = power
 }
-C {ngspice_get_expr.sym} 570 -850 0 0 {name=r32 
+C {ngspice_get_expr.sym} 570 -910 0 0 {name=r32 
 node="[format %.4g [expr ([ngspice::get_voltage e6] - [ngspice::get_voltage c6]) * [ngspice::get_current \{q6[ic]\}]]] W"
 descr = power
 }
@@ -388,15 +380,7 @@ C {ngspice_get_expr.sym} 330 -850 0 1 {name=r36
 node="[format %.4g [expr [ngspice::get_current \{q2[ic]\}] / [ngspice::get_current \{q2[ib]\}] ] ]"
 descr = beta
 }
-C {ngspice_get_expr.sym} 890 -1230 0 1 {name=r39 
-node="[ngspice::get_current \{d0[id]\}]"
-descr = current
-}
-C {ngspice_get_expr.sym} 1210 -1240 0 1 {name=r40 
-node="[ngspice::get_current \{d1[id]\}]"
-descr = current
-}
-C {ngspice_get_expr.sym} 160 -320 0 0 {name=r42 
+C {ngspice_get_expr.sym} 160 -350 0 0 {name=r42 
 node="[format %.4g [expr ([ngspice::get_node v(vpp)] - [ngspice::get_voltage b3]) * [ngspice::get_current \{r1[i]\}]]] W"
 descr = power
 }
@@ -405,10 +389,6 @@ node="[format %.4g [expr \{([ngspice::get_node v(vpp)] - [ngspice::get_voltage o
 descr = power
 }
 C {lab_wire.sym} 910 -690 0 1 {name=l40 lab=OUTI}
-C {ngspice_get_expr.sym} 1000 -480 0 0 {name=r44 
-node="[ngspice::get_current \{r7[i]\}]" 
-descr = current
-}
 C {ngspice_get_expr.sym} 1130 -510 2 1 {name=r46 
 node="[format %.4g [expr \{([ngspice::get_voltage outi] - [ngspice::get_node v(vnn)]) * [ngspice::get_current vd]\}]] W"
 descr = power

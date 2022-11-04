@@ -271,10 +271,6 @@ C {ngspice_get_expr.sym} 95 1005 0 0 {name=r18
 node="[ngspice::get_current \{r2[i]\}]"
 descr = current
  }
-C {ngspice_get_expr.sym} 55 -545 0 1 {name=r1 
-node="[ngspice::get_current \{r19[i]\}]"
-descr = current
- }
 C {ngspice_get_expr.sym} 2150 -10 2 0 {name=r29 
 node="[format %.4g [expr \{([ngspice::get_voltage outm] - [ngspice::get_voltage outp]) * [ngspice::get_current \{r1[i]\}]\}]] "
 descr = power

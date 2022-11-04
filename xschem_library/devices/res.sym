@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {type=resistor
 
@@ -41,9 +42,10 @@ L 4 5 -25 5 -20 {}
 B 5 -2.5 -32.5 2.5 -27.5 {name=P dir=inout propag=1 pinnumber=1 goto=1}
 B 5 -2.5 27.5 2.5 32.5 {name=M dir=inout propag=0 pinnumber=2 goto=0}
 T {@name} -15 -13.75 0 1 0.2 0.2 {}
-T {@value} 15 -6.25 0 0 0.2 0.2 {}
+T {@value} 15 -3.75 0 0 0.2 0.2 {}
 T {@#0:pinnumber} -10 -26.25 0 1 0.2 0.2 {layer=13}
 T {@#1:pinnumber} -10 16.25 0 1 0.2 0.2 {layer=13}
 T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15}
 T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15}
 T {m=@m} -15 1.25 0 1 0.2 0.2 {}
+T {@spice_get_current} 12.5 -16.25 0 0 0.2 0.2 {layer=15}

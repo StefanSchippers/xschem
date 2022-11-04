@@ -1,4 +1,5 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {type=diode
 format="@spiceprefix@name @pinlist @model"
@@ -28,3 +29,4 @@ T {@name} 15 -18.75 0 0 0.2 0.2 {}
 T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15}
 T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15}
 T {@model} 15 6.25 0 0 0.2 0.2 {}
+T {@spice_get_current} -22.5 -2.5 0 1 0.2 0.2 {layer=15}

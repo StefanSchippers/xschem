@@ -75,8 +75,10 @@ const char *tcl_hook2(char **res)
     unescaped_res = str_replace(*res, "\\}", "}");
     tclvareval("tclpropeval2 {", unescaped_res, "}" , NULL);
     my_strdup2(1286, &result, tclresult());
+    /* dbg(0, "tcl_hook2: return: %s\n", result);*/
     return result;
   } else {
+    /* dbg(0, "tcl_hook2: return: %s\n", *res); */
     return *res;
   }
 }
@@ -3151,7 +3153,7 @@ const char *translate(int inst, const char* s)
          if(n == 1) {
            strtolower(dev);
            len = strlen(path) + strlen(xctx->inst[inst].instname) +
-                 strlen(dev) + 11; /* some extra chars for i(..) wrapper */
+                 strlen(dev) + 21; /* some extra chars for i(..) wrapper */
            dbg(1, "dev=%s\n", dev);
            fqdev = my_malloc(1599, len);
            if(!sim_is_xyce) {
@@ -3162,7 +3164,9 @@ const char *translate(int inst, const char* s)
              dbg(1, "prefix=%c, path=%s\n", prefix, path);
              vsource = (prefix == 'v') || (prefix == 'e');
              if(vsource) my_snprintf(fqdev, len, "i(%c.%s%s.%s)", prefix, path, xctx->inst[inst].instname, dev);
-             else my_snprintf(fqdev, len, "i(@%c.%s%s.%s)", prefix, path, xctx->inst[inst].instname, dev);
+             else if(prefix == 'd')
+               my_snprintf(fqdev, len, "i(@%c.%s%s.%s[id])", prefix, path, xctx->inst[inst].instname, dev);
+             else my_snprintf(fqdev, len, "i(@%c.%s%s.%s[i])", prefix, path, xctx->inst[inst].instname, dev);
            } else {
              my_snprintf(fqdev, len, "i(%s%s.%s)", path, xctx->inst[inst].instname, dev);
            }
@@ -3278,7 +3282,7 @@ const char *translate(int inst, const char* s)
          }
          my_strdup2(1550, &dev, xctx->inst[inst].instname);
          strtolower(dev);
-         len = strlen(path) + strlen(dev) + 11; /* some extra chars for i(..) wrapper */
+         len = strlen(path) + strlen(dev) + 21; /* some extra chars for i(..) wrapper */
          dbg(1, "dev=%s\n", dev);
          fqdev = my_malloc(1556, len);
          if(!sim_is_xyce) {
@@ -3286,10 +3290,12 @@ const char *translate(int inst, const char* s)
            int vsource = (prefix == 'v') || (prefix == 'e');
            if(path[0]) {
              if(vsource) my_snprintf(fqdev, len, "i(%c.%s%s)", prefix, path, dev);
-             else my_snprintf(fqdev, len, "i(@%c.%s%s)", prefix, path, dev);
+             else if(prefix=='d') my_snprintf(fqdev, len, "i(@%c.%s%s[id])", prefix, path, dev);
+             else my_snprintf(fqdev, len, "i(@%c.%s%s[i])", prefix, path, dev);
            } else {
              if(vsource) my_snprintf(fqdev, len, "i(%s)", dev);
-             else my_snprintf(fqdev, len, "i(@%s)", dev);
+             else if(prefix == 'd') my_snprintf(fqdev, len, "i(@%s[id])", dev);
+             else my_snprintf(fqdev, len, "i(@%s[i])", dev);
            }
          } else {
            my_snprintf(fqdev, len, "i(%s%s)", path, dev);
@@ -3436,7 +3442,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
   size = CADCHUNKALLOC;
   my_realloc(1528, &result, size);
   result[0] = '\0';
-  dbg(1, "translate2(): s=%s\n", s);
+  dbg(1, "translate2(): s=%s, level=%d\n", s, level);
   while (1) {
     c = *s++;
     if (c == '\\') {
@@ -3544,6 +3550,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
   my_free(1532, &token);
   my_free(1533, &value);
   dbg(1, "translate2(): result=%s\n", result);
-  return tcl_hook2(&result);
+  /* return tcl_hook2(&result); */
+  return result;
 }
 
