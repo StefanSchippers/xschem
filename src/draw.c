@@ -3302,7 +3302,11 @@ void draw(void)
   rebuild_selected_array();
   if(has_x) {
     Iterator_ctx ctx;
-    if(xctx->only_probes) build_colors(-1.5, 0);
+
+    if(xctx->only_probes) {
+      if(tclgetboolvar("dark_colorscheme")) build_colors(-1.5, 0);
+      else build_colors(1.5, 0);
+    }
     if(xctx->draw_pixmap)
       XFillRectangle(display, xctx->save_pixmap, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
                      xctx->areaw, xctx->areah);
