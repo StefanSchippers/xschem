@@ -1207,7 +1207,7 @@ extern int touch(double,double,double,double,double,double);
 extern int rectclip(int,int,int,int,
            double*,double*,double*,double*);
 extern void trim_wires(void);
-extern void update_conn_cues(int draw_cues, int dr_win);
+extern void update_conn_cues(int layer, int draw_cues, int dr_win);
 extern void break_wires_at_pins(void);
 
 extern void check_touch(int i, int j,

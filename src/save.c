@@ -2233,7 +2233,7 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   }
   check_collapsing_objects();
   if(tclgetboolvar("autotrim_wires")) trim_wires();
-  update_conn_cues(0, 0);
+  update_conn_cues(WIRELAYER, 0, 0);
   if(xctx->hilight_nets && load_symbols) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
@@ -2453,7 +2453,7 @@ void pop_undo(int redo, int set_modify_status)
   xctx->prep_net_structs=0;
   xctx->prep_hi_structs=0;
   link_symbols_to_instances(-1);
-  update_conn_cues(0, 0);
+  update_conn_cues(WIRELAYER, 0, 0);
   if(xctx->hilight_nets) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }

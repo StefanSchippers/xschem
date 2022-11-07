@@ -43,7 +43,7 @@ static int check_breaks(double x1, double y1, double x2, double y2, double x, do
   return 0;
 }
 
-void update_conn_cues(int draw_cues, int dr_win)
+void update_conn_cues(int layer, int draw_cues, int dr_win)
 {
   int k, i, l, sqx, sqy, save_draw;
   Wireentry *wptr;
@@ -98,7 +98,6 @@ void update_conn_cues(int draw_cues, int dr_win)
   }
   dbg(3, "update_conn_cues(): check3\n");
   if(draw_cues) {
-    int cc = xctx->only_probes ? GRIDLAYER : WIRELAYER;
     save_draw = xctx->draw_window; xctx->draw_window = dr_win;
     for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
       i = wireptr->n;
@@ -106,13 +105,13 @@ void update_conn_cues(int draw_cues, int dr_win)
       if(LINE_OUTSIDE(wire[i].x1, wire[i].y1,
                       wire[i].x2, wire[i].y2, x1, y1, x2, y2)) continue;
       if( wire[i].end1 >1 ) {
-        filledarc(cc, ADD, wire[i].x1, wire[i].y1, cadhalfdotsize, 0, 360);
+        filledarc(layer, ADD, wire[i].x1, wire[i].y1, cadhalfdotsize, 0, 360);
       }
       if( wire[i].end2 >1 ) {
-        filledarc(cc, ADD, wire[i].x2, wire[i].y2, cadhalfdotsize, 0, 360);
+        filledarc(layer, ADD, wire[i].x2, wire[i].y2, cadhalfdotsize, 0, 360);
       }
     }
-    filledarc(cc, END, 0.0, 0.0, 0.0, 0.0, 0.0);
+    filledarc(layer, END, 0.0, 0.0, 0.0, 0.0, 0.0);
     xctx->draw_window = save_draw;
   }
 }
@@ -376,7 +375,7 @@ void trim_wires(void)
   } while(changed);
   dbg(1, "trim_wires(): doloops=%d changed=%d\n", doloops, changed);
   my_free(115, &wireflag);
-  update_conn_cues(0, 0);
+  update_conn_cues(WIRELAYER, 0, 0);
 }
 
 void break_wires_at_pins(void)
@@ -490,6 +489,6 @@ void break_wires_at_pins(void)
   xctx->prep_net_structs=0;
   xctx->prep_hi_structs=0;
   xctx->prep_hash_wires=0;
-  /*update_conn_cues(0, 0); */
+  /*update_conn_cues(WIRELAYER, 0, 0); */
 
 }

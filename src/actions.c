@@ -1900,7 +1900,7 @@ void new_wire(int what, double mx_snap, double my_snap)
         }
         draw();
         if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
-      } else update_conn_cues(1,1);
+      } else update_conn_cues(WIRELAYER, 1,1);
       /* draw_hilight_net(1);*/  /* for updating connection bubbles on hilight nets */
     }
     if(! (what &END)) {

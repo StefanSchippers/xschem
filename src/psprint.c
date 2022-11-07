@@ -891,7 +891,7 @@ void create_ps(char **psfile, int what)
       Wireentry *wireptr;
       int i;
       Iterator_ctx ctx;
-      update_conn_cues(0, 0);
+      update_conn_cues(WIRELAYER, 0, 0);
       /* draw connecting dots */
       x1 = X_TO_XSCHEM(xctx->areax1);
       y1 = Y_TO_XSCHEM(xctx->areay1);

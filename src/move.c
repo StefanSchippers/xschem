@@ -1013,7 +1013,6 @@ void copy_objects(int what)
     find_inst_to_be_redrawn(16); /* clear data */
     check_collapsing_objects();
     if(tclgetboolvar("autotrim_wires")) trim_wires();
-    /* update_conn_cues(1, 1); */
     if(xctx->hilight_nets) {
       propagate_hilights(1, 1, XINSERT_NOREPLACE);
     }
@@ -1522,7 +1521,6 @@ void move_objects(int what, int merge, double dx, double dy)
   find_inst_to_be_redrawn(16); /* clear data */
   check_collapsing_objects();
   if(tclgetboolvar("autotrim_wires")) trim_wires();
-  /* update_conn_cues(1, 1); */
 
   if(xctx->hilight_nets) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);

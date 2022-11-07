@@ -444,7 +444,7 @@ void delete(int to_push_undo)
   }
   if(tclgetboolvar("autotrim_wires")) trim_wires();
   del_rect_line_arc_poly();
-  update_conn_cues(0, 0);
+  update_conn_cues(WIRELAYER, 0, 0);
   if(xctx->hilight_nets) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }

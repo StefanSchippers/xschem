@@ -3405,7 +3405,7 @@ void draw(void)
           drawline(cc, ADD, xctx->wire[i].x1,xctx->wire[i].y1,
             xctx->wire[i].x2,xctx->wire[i].y2, 0, NULL);
       }
-      update_conn_cues(1, xctx->draw_window);
+      update_conn_cues(cc, 1, xctx->draw_window);
       filledrect(cc, END, 0.0, 0.0, 0.0, 0.0);
       drawline(cc, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
     }
