@@ -256,13 +256,6 @@ const char *add_ext(const char *f, const char *ext)
 void toggle_only_probes()
 {
   xctx->only_probes =  tclgetboolvar("only_probes");
-  if(xctx->only_probes) {
-    xctx->save_lw = xctx->lw;
-    xctx->lw=3.0;
-  } else {
-    xctx->lw= xctx->save_lw;
-  }
-  change_linewidth(xctx->lw);
   draw();
 }
 

@@ -1777,6 +1777,7 @@ void redraw_hilights(int clear)
   if(!big) {
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+    dbg(1, "bbox: %g %g %g %g\n", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
   }
   draw();

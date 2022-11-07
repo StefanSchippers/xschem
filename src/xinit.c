@@ -1724,12 +1724,14 @@ void change_linewidth(double w)
     }
     XSetLineAttributes (display, xctx->gctiled, INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
   }
-  xctx->areax1 = -2*INT_WIDTH(xctx->lw);
-  xctx->areay1 = -2*INT_WIDTH(xctx->lw);
-  xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
-  xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
-  xctx->areaw = xctx->areax2-xctx->areax1;
-  xctx->areah = xctx->areay2 - xctx->areay1;
+  if(!xctx->only_probes) {
+    xctx->areax1 = -2*INT_WIDTH(xctx->lw);
+    xctx->areay1 = -2*INT_WIDTH(xctx->lw);
+    xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
+    xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
+    xctx->areaw = xctx->areax2-xctx->areax1;
+    xctx->areah = xctx->areay2 - xctx->areay1;
+  }
 }
 
 /* clears and creates cairo_sfc, cairo_ctx, cairo_save_sfc, cairo_save_ctx

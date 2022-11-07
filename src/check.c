@@ -98,6 +98,7 @@ void update_conn_cues(int draw_cues, int dr_win)
   }
   dbg(3, "update_conn_cues(): check3\n");
   if(draw_cues) {
+    int cc = xctx->only_probes ? GRIDLAYER : WIRELAYER;
     save_draw = xctx->draw_window; xctx->draw_window = dr_win;
     for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
       i = wireptr->n;
@@ -105,13 +106,13 @@ void update_conn_cues(int draw_cues, int dr_win)
       if(LINE_OUTSIDE(wire[i].x1, wire[i].y1,
                       wire[i].x2, wire[i].y2, x1, y1, x2, y2)) continue;
       if( wire[i].end1 >1 ) {
-        filledarc(WIRELAYER, ADD, wire[i].x1, wire[i].y1, cadhalfdotsize, 0, 360);
+        filledarc(cc, ADD, wire[i].x1, wire[i].y1, cadhalfdotsize, 0, 360);
       }
       if( wire[i].end2 >1 ) {
-        filledarc(WIRELAYER, ADD, wire[i].x2, wire[i].y2, cadhalfdotsize, 0, 360);
+        filledarc(cc, ADD, wire[i].x2, wire[i].y2, cadhalfdotsize, 0, 360);
       }
     }
-    filledarc(WIRELAYER, END, 0.0, 0.0, 0.0, 0.0, 0.0);
+    filledarc(cc, END, 0.0, 0.0, 0.0, 0.0, 0.0);
     xctx->draw_window = save_draw;
   }
 }
