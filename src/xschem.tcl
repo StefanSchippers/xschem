@@ -2260,6 +2260,8 @@ proc save_file_dialog { msg ext global_initdir {initialf {}} {overwrt 1} } {
 }
 
 proc is_xschem_file {f} {
+  if { ![file exists $f] } { return 0 
+  } elseif { [file isdirectory $f] } { return 0 }
   set a [catch {open "$f" r} fd]
   set ret 0
   set score 0
@@ -2494,49 +2496,53 @@ proc load_file_dialog_up {dir} {
 
 proc myload_getresult {loadfile confirm_overwrt} {
   global myload_dir1 myload_retval myload_ext
-  
   if { $myload_retval ne {}} {
-    if {![file exists "$myload_dir1/$myload_retval"] } {
-      return "$myload_dir1/$myload_retval"
+    if { [regexp {^http[s]?://} $myload_retval] } {
+      set fname $myload_retval
+    } elseif { [regexp {^/} $myload_retval]} {
+      set fname $myload_retval
+    } else {
+      set fname "$myload_dir1/$myload_retval"
+    }
+    if {![file exists "$fname"] } {
+      return "$fname"
     }
     if { $loadfile == 0 } {
-      if {[file exists "$myload_dir1/$myload_retval"]} {
+      if {[file exists "$fname"]} {
         if {$confirm_overwrt == 1 } {
-          set answer [tk_messageBox -message  "Overwrite $myload_dir1/${myload_retval}?" \
-               -icon warning -parent [xschem get topwindow] -type okcancel]
+          set answer [alert_ "Overwrite $fname?" {} 0 1]
         } else {
-          set answer ok
+          set answer 1
         }
-        if {$answer eq {ok}} {
-          return "$myload_dir1/$myload_retval"
+        if {$answer eq {1}} {
+          return "$fname"
         } else { 
+          set myload_retval {}
           return {}
         }
       }
     }
-    set type [is_xschem_file "$myload_dir1/$myload_retval"]
+    set type [is_xschem_file "$fname"]
     if { $type eq {0}  } {
       set answer [
-        tk_messageBox -message "$myload_dir1/$myload_retval does not seem to be an xschem file...\nContinue?" \
-         -icon warning -parent [xschem get topwindow] -type yesno]
-      if { $answer eq "no"} {
+        alert_ "$fname does not seem to be an xschem file...\nContinue?" {} 0 1]
+      if { $answer eq {0}} {
         set myload_retval {}
         return {}
       } else {
-        return "$myload_dir1/$myload_retval"
+        return "$fname"
       }
     } elseif { $type ne {SYMBOL} && ($myload_ext eq {*.sym}) } {
       set answer [
-        tk_messageBox -message "$myload_dir1/$myload_retval does not seem to be a SYMBOL file...\nContinue?" \
-           -icon warning -parent [xschem get topwindow] -type yesno]
-      if { $answer eq "no"} {
+        alert_ "$fname does not seem to be a SYMBOL file...\nContinue?" {} 0 1]
+      if { $answer eq {0}} {
         set myload_retval {}
         return {}
       } else {
-        return "$myload_dir1/$myload_retval"
+        return "$fname"
       }
     } else {
-      return "$myload_dir1/$myload_retval"
+      return "$fname"
     }
   } else {
     return {}
@@ -2551,7 +2557,6 @@ proc myload_display_preview {f} {
       .load.l.paneright.draw configure -background {}
       xschem preview_window draw .load.l.paneright.draw "$f"
       bind .load.l.paneright.draw <Expose> [subst {xschem preview_window draw .load.l.paneright.draw "$f"}]
-      
     }
   } else {
     bind .load.l.paneright.draw <Expose> {}
@@ -2765,6 +2770,19 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   setglob $myload_dir1
   myload_set_colors2
 
+
+  if {$myload_loadfile == 2} { 
+    bind .load.buttons_bot.entry <Leave> {
+      set myload_retval  [.load.buttons_bot.entry get]
+      set r [myload_getresult 2 0]
+      # puts "r=$r myload_dir1=$myload_dir1 myload_dir2=$myload_dir2"
+      xschem abort_operation
+      if {$r ne {}} {
+        xschem place_symbol "$r"
+      }
+    }
+  }
+
   bind .load.l.paneright.list <ButtonPress> { 
     set myload_yview [.load.l.paneright.list yview]
   }
@@ -2814,7 +2832,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       # puts "r=$r myload_dir1=$myload_dir1 myload_dir2=$myload_dir2"
       xschem abort_operation
       if {$r ne {}} {
-        xschem place_symbol "$myload_dir1/$myload_dir2"
+        xschem place_symbol "$r"
       }
     }
   };# bind .load.l.paneright.list <<ListboxSelect>>
@@ -4135,8 +4153,9 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   return $rcode
 }
 
-proc alert_ {txtlabel {position +200+300} {nowait {0}}} {
-  global has_x
+proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
+  global has_x rcode
+  set recode 1
   if {![info exists has_x] } {return}
   toplevel .alert -class Dialog
   wm title .alert {Alert}
@@ -4148,12 +4167,27 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}}} {
     wm geometry .alert "+$X+$Y"
   }
   label .alert.l1  -text $txtlabel -wraplength 700
-  button .alert.b1 -text "OK" -command  \
+  if { $yesno} {
+    set oktxt Yes
+  } else {
+    set oktxt OK
+  }
+  button .alert.b1 -text $oktxt -command  \
   {
+    set rcode 1
     destroy .alert
   } 
+  if {$yesno} {
+    button .alert.b2 -text "No" -command  \
+    {  
+      set rcode 0
+      destroy .alert
+    }  
+  }
+
   pack .alert.l1 -side top -fill x
-  pack .alert.b1 -side top -fill x
+  pack .alert.b1 -side left -fill x
+  if {$yesno} {pack .alert.b2 -side left -fill x}
   tkwait visibility .alert
   grab set .alert
   focus .alert.b1
@@ -4169,9 +4203,8 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}}} {
       
     }
   }
-
   if {!$nowait} {tkwait window .alert}
-  return {}
+  return $rcode
 }
 
 proc show_infotext {} {
