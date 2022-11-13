@@ -2497,7 +2497,7 @@ proc load_file_dialog_up {dir} {
 proc myload_getresult {loadfile confirm_overwrt} {
   global myload_dir1 myload_retval myload_ext
   if { $myload_retval ne {}} {
-    if { [regexp {^http[s]?://} $myload_retval] } {
+    if { [regexp {^https?://} $myload_retval] } {
       set fname $myload_retval
     } elseif { [regexp {^/} $myload_retval]} {
       set fname $myload_retval
@@ -4456,13 +4456,16 @@ proc rel_sym_path {symbol} {
 ## given a library/symbol return its absolute path
 proc abs_sym_path {fname {ext {} } } {
   global pathlist OS
-
   set  curr_dirname [xschem get current_dirname]
   ## empty: do nothing
   if {$fname eq {} } return {}
   ## add extension for 1.0 file format compatibility
   if { $ext ne {} } { 
     set fname [file rootname $fname]$ext
+  }
+  # web url: return as is
+  if { [regexp {^https?://} $fname]} { 
+     return "$fname"
   }
   if {$OS eq "Windows"} {
     ## absolute path: return as is
