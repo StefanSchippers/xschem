@@ -2164,14 +2164,17 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
     if(strstr(filename , "http://") == filename ||
        strstr(filename , "https://") == filename) {
       tclvareval("download_url {", filename, "}", NULL);
-      my_snprintf(name, S(name), "%s/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
+      my_snprintf(name, S(name), "%s/xschem_web/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
       my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
-      dbg(1, "load_schematic(): filename=%s\n", filename);
       my_strncpy(xctx->sch[xctx->currsch], name, S(xctx->sch[xctx->currsch]));
       my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
-    } else if(xctx->currsch > 0 && (strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
+    } else if(/* xctx->currsch > 0 && */ (strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
                strstr(xctx->current_dirname, "https://") == xctx->current_dirname)) {
+      if(!strstr(filename, "/tmp/xschem_web")) {
+        my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
+        my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
+      }
       my_strncpy(xctx->sch[xctx->currsch], filename, S(xctx->sch[xctx->currsch]));
       my_strncpy(xctx->current_name, rel_sym_path(filename), S(xctx->current_name));
     } else {
@@ -2863,7 +2866,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
       if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
           strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
         tclvareval("try_download_url {", xctx->current_dirname, "} {", name, "}", NULL);
-        my_snprintf(sympath, S(sympath), "%s/%s", tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(name, 0));
+        my_snprintf(sympath, S(sympath), "%s/xschem_web/%s", tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(name, 0));
         lcc[level].fd=fopen(sympath,fopen_read_mode);
       }
     }

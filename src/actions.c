@@ -1326,7 +1326,7 @@ int descend_schematic(int instnumber)
       strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
     char sympath[PATH_MAX];
     tclvareval("try_download_url {", xctx->current_dirname, "} {", filename, "}", NULL);
-    my_snprintf(sympath, S(sympath), "%s/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
+    my_snprintf(sympath, S(sympath), "%s/xschem_web/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
     load_schematic(1, sympath, 1);
   } else {
     load_schematic(1, filename, 1);

@@ -4435,7 +4435,10 @@ proc get_directory {f} {
 
 proc download_url {url} {
   global XSCHEM_TMP_DIR download_url_helper
-  set r [catch {exec sh -c "cd $XSCHEM_TMP_DIR; $download_url_helper $url"} res]
+  if {![file exists ${XSCHEM_TMP_DIR}/xschem_web]} { 
+    file mkdir ${XSCHEM_TMP_DIR}/xschem_web
+  }
+  set r [catch {exec sh -c "cd ${XSCHEM_TMP_DIR}/xschem_web; $download_url_helper $url"} res]
   # puts "download_url: url=$url, exit code=$r, res=$res"
   return $r
 }
