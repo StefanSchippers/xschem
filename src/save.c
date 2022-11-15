@@ -2171,7 +2171,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
       my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
     } else if(/* xctx->currsch > 0 && */ (strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
                strstr(xctx->current_dirname, "https://") == xctx->current_dirname)) {
-      if(!strstr(filename, "/tmp/xschem_web")) {
+      if(strstr(filename, "/tmp/xschem_web") != filename) {
         my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
         my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       }
