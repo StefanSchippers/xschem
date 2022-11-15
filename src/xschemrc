@@ -337,6 +337,13 @@
 # lappend tcl_files ${XSCHEM_SHAREDIR}/ngspice_backannotate.tcl
 
 ###########################################################################
+#### WEB URL DOWNLOAD HELPER APPLICATION
+###########################################################################
+#### used to download files from web: default: {curl -f -s -O}
+# set download_url_helper {curl -f -s -O}
+# set download_url_helper {wget --quiet}
+
+###########################################################################
 #### XSCHEM TOOLBAR
 ###########################################################################
 #### default: not enabled.

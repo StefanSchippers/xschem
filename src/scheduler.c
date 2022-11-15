@@ -3109,8 +3109,10 @@ int tclvareval(const char *script, ...)
 
   va_start(args, script);
   size = my_strcat(1379, &str, script);
+  dbg(1, "tclvareval(): script=%s, str=%s, size=%d\n", script, str, size);
   while( (p = va_arg(args, const char *)) ) {
     size = my_strcat(1380, &str, p);
+    dbg(1, "tclvareval(): p=%s, str=%s, size=%d\n", p, str, size);
   }
   return_code = Tcl_EvalEx(interp, str, (int)size, TCL_EVAL_GLOBAL);
   va_end(args);

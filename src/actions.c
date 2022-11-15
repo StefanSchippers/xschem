@@ -1182,15 +1182,23 @@ void get_sch_from_sym(char *filename, xSymbol *sym)
   char *sch = NULL;
   const char *str_tmp;
 
+  int web_url = 0;
+  if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
+      strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
+    web_url = 1;
+  }
   if((str_tmp = get_tok_value(sym->prop_ptr, "schematic",0 ))[0]) {
     my_strdup2(1252, &sch, str_tmp);
-    my_strncpy(filename, abs_sym_path(sch, ""), PATH_MAX);
+    if(web_url) my_strncpy(filename, sch, PATH_MAX);
+    else my_strncpy(filename, abs_sym_path(sch, ""), PATH_MAX);
     my_free(1253, &sch);
   } else {
     if(tclgetboolvar("search_schematic")) {
-      my_strncpy(filename, abs_sym_path(sym->name, ".sch"), PATH_MAX);
+      if(web_url) my_strncpy(filename, add_ext(sym->name, ".sch"), PATH_MAX);
+      else my_strncpy(filename, abs_sym_path(sym->name, ".sch"), PATH_MAX);
     } else {
-      my_strncpy(filename, add_ext(abs_sym_path(sym->name, ""), ".sch"), PATH_MAX);
+      if(web_url) my_strncpy(filename, add_ext(sym->name, ".sch"), PATH_MAX);
+      else my_strncpy(filename, add_ext(abs_sym_path(sym->name, ""), ".sch"), PATH_MAX);
     }
   }
   dbg(1, "get_sch_from_sym(): sym->name=%s, filename=%s\n", sym->name, filename);
@@ -1311,10 +1319,18 @@ int descend_schematic(int instnumber)
   hilight_child_pins();
 
   get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym);
+  dbg(1, "descend_schematic(): filename=%s\n", filename);
   unselect_all(1);
   remove_symbols();
-  load_schematic(1,filename, 1);
-
+  if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
+      strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
+    char sympath[PATH_MAX];
+    tclvareval("try_download_url {", xctx->current_dirname, "} {", filename, "}", NULL);
+    my_snprintf(sympath, S(sympath), "%s/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
+    load_schematic(1, sympath, 1);
+  } else {
+    load_schematic(1, filename, 1);
+  }
   if(xctx->hilight_nets)
   {
     prepare_netlist_structs(0);

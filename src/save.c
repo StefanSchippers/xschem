@@ -2142,13 +2142,15 @@ void link_symbols_to_instances(int from) /* from >= 0 : linking symbols from pas
 }
 
 /* ALWAYS use absolute pathname for filename!!! */
-void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 20150327 added reset_undo */
+void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 20150327 added reset_undo */
 {
   FILE *fd;
   char name[PATH_MAX];
+  char filename[PATH_MAX];
   char msg[PATH_MAX+100];
   struct stat buf;
   int i;
+  
   xctx->prep_hi_structs=0;
   xctx->prep_net_structs=0;
   xctx->prep_hash_inst=0;
@@ -2156,17 +2158,28 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
   if(reset_undo) xctx->clear_undo();
   if(reset_undo) xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
   else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
-  if(filename && filename[0]) {
+  if(fname && fname[0]) {
+    my_strncpy(filename, fname, S(filename));
     my_strncpy(name, filename, S(name));
-    my_strncpy(xctx->sch[xctx->currsch], name, S(xctx->sch[xctx->currsch]));
+    if(strstr(filename , "http://") == filename ||
+       strstr(filename , "https://") == filename) {
+      tclvareval("download_url {", filename, "}", NULL);
+      my_snprintf(name, S(name), "%s/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
+      my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
+      my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
+      dbg(1, "load_schematic(): filename=%s\n", filename);
+    } else if((strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
+               strstr(xctx->current_dirname, "https://") == xctx->current_dirname)) {
+    } else {
+      my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
+      my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
+    }
     /* if name is /some/path/.  remove /. at end */
-    my_snprintf(msg, S(msg), "regsub {/\\.$} [file dirname {%s}] {}", name);
-    my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
-    my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
+    my_strncpy(xctx->sch[xctx->currsch], filename, S(xctx->sch[xctx->currsch]));
+    my_strncpy(xctx->current_name, rel_sym_path(filename), S(xctx->current_name));
     dbg(1, "load_schematic(): opening file for loading:%s, filename=%s\n", name, filename);
     dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
     if(!name[0]) return;
-
     if(reset_undo) {
       if(!stat(name, &buf)) { /* file exists */
         xctx->time_last_modify =  buf.st_mtime;
@@ -2176,9 +2189,8 @@ void load_schematic(int load_symbols, const char *filename, int reset_undo) /* 2
       }
     }
     if( (fd=fopen(name,fopen_read_mode))== NULL) {
-      fprintf(errfp, "load_schematic(): unable to open file: %s, filename=%s\n",
-          name, filename ? filename : "<NULL>");
-      my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", filename ? filename: "(null)");
+      fprintf(errfp, "load_schematic(): unable to open file: %s, filename=%s\n", name, filename );
+      my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", filename);
       tcleval(msg);
       clear_drawing();
       if(reset_undo) set_modify(0);
@@ -2842,8 +2854,16 @@ int load_sym_def(const char *name, FILE *embed_fd)
     my_strncpy(sympath, abs_sym_path(name, ""), S(sympath));
   }
   if(!embed_fd) { /* regular symbol: open file */
-    if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL)
-    {
+    if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL) {
+      /* not found: try web URL */
+      if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
+          strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
+        tclvareval("try_download_url {", xctx->current_dirname, "} {", name, "}", NULL);
+        my_snprintf(sympath, S(sympath), "%s/%s", tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(name, 0));
+        lcc[level].fd=fopen(sympath,fopen_read_mode);
+      }
+    }
+    if(lcc[level].fd==NULL) {
       /* issue warning only on top level symbol loading */
       if(recursion_counter == 1) dbg(0, "l_s_d(): Symbol not found: %s\n",sympath);
       my_snprintf(sympath, S(sympath), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing.sym");
@@ -3587,6 +3607,7 @@ void descend_symbol(void)
   char name[PATH_MAX];
   char name_embedded[PATH_MAX];
   int n = 0;
+  struct stat buf;
   rebuild_selected_array();
   if(xctx->lastsel > 1)  return;
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
@@ -3643,10 +3664,20 @@ void descend_symbol(void)
     /* load_symbol(name_embedded); */
     load_schematic(1, name_embedded, 1);
   } else {
-    /* load_symbol(abs_sym_path(name, "")); */
+    char sympath[PATH_MAX];
+    my_strncpy(sympath, abs_sym_path(name, ""), S(sympath));
     unselect_all(1);
     remove_symbols(); /* must follow save (if) embedded */
-    load_schematic(1, abs_sym_path(name, ""), 1);
+    dbg(1, "name=%s, sympath=%s\n", name, sympath);
+
+    if( stat(sympath, &buf) && /* file does not exists */
+        (strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
+         strstr(xctx->current_dirname, "https://") == xctx->current_dirname)) {
+      my_snprintf(sympath, S(sympath), "%s/%s", tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(name, 0));
+      load_schematic(1, sympath, 1);
+    } else {
+      load_schematic(1, sympath, 1);
+    }
   }
   zoom_full(1, 0, 1, 0.97);
 }

@@ -2320,7 +2320,7 @@ namespace eval c_toolbar {
     set c_t($i,file) {}
   }
   
-  proc cleanup {} {
+proc cleanup {} {
     variable c_t 
     if {![info exists c_t(n)]} return
     set j 0
@@ -2349,9 +2349,9 @@ namespace eval c_toolbar {
       set i [expr {($i + 1) % $n} ]
       if {$i == $top} break
     }
-  }
+}
 
-  proc display {} {
+proc display {} {
     variable c_t
     if { [winfo exists $c_t(w)]} {
       set w $c_t(w)
@@ -2372,9 +2372,9 @@ namespace eval c_toolbar {
         if { $i == $c_t(top) } break
       }
     }
-  }
+}
 
-  proc add {f} {
+proc add {f} {
     variable c_t
     for {set i 0} {$i < $c_t(n)} {incr i} {
       if {  $c_t($i,file) eq $f } { return 0}
@@ -3805,7 +3805,7 @@ proc edit_prop {txtlabel} {
   }
   wm geometry .dialog "${edit_prop_size}+$X+$Y"
   set prev_symbol $symbol
-  set editprop_sympath [file dirname [abs_sym_path $symbol]]
+  set editprop_sympath [get_directory [abs_sym_path $symbol]]
   frame .dialog.f4
   label .dialog.f4.l1  -text $txtlabel
   label .dialog.f4.path  -text "Path:"
@@ -4422,6 +4422,39 @@ proc find_file  { f {paths {}} } {
   return $res
 }
 
+# alternative implementation of "file dirname ... "
+# that does not mess with http:// (file dirname removes double slashes)
+proc get_directory {f} {
+  if {![regexp {/} $f]} {
+    set r .
+  } else {
+    set r [regsub {/[^/]*$} $f {}]
+  }
+  return $r
+}
+
+proc download_url {url} {
+  global XSCHEM_TMP_DIR download_url_helper
+  set r [catch {exec sh -c "cd $XSCHEM_TMP_DIR; $download_url_helper $url"} res]
+  puts "download_url: url=$url, exit code=$r, res=$res"
+  return $r
+}
+
+proc try_download_url {dirname sch_or_sym} {
+  set url $dirname/$sch_or_sym
+  puts "try_download_url: dirname=$dirname, sch_or_sym=$sch_or_sym"
+  set r [download_url $url]
+  if { $r!=0} {
+    set nitems [regexp -all {/+} $sch_or_sym]
+    puts "try_download_url: dirname=$dirname, sch_or_sym=$sch_or_sym, nitems=$nitems"
+    while { $nitems > 0} {
+      set dirname [get_directory $dirname]
+      incr nitems -1
+    }
+    set url $dirname/$sch_or_sym
+    set r [download_url $url]
+  }
+}
 
 # given an absolute path of a symbol/schematic remove the path prefix
 # if file is in a library directory (a $pathlist dir)
@@ -6198,6 +6231,7 @@ set_ne myload_globfilter {*}
 set_ne component_browser_on_top 1
 ## list of tcl procedures to load at end of xschem.tcl
 set_ne tcl_files {}
+set_ne download_url_helper {curl -f -s -O}
 set_ne netlist_dir "$USER_CONF_DIR/simulations"
 # this global exists only for netlist_type radiobuttons, don't use, use [xschem] subcommand to get/set values
 # it is also used in xschemrc to set initial netlist type.

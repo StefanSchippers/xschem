@@ -451,10 +451,10 @@ size_t my_strcat(int id, char **str, const char *append_str)
     memcpy(*str + s, append_str, a);
     dbg(3,"my_strcat(%d,): reallocated string %s\n", id, *str);
     return s + a - 1;
-  } else {
+  } else { /* str = NULL */
     if(append_str == NULL || append_str[0] == '\0') return 0;
     a = strlen(append_str) + 1;
-    *str = my_malloc(id, a);
+    *str = my_malloc(id, a );
     memcpy(*str, append_str, a);
     dbg(3,"my_strcat(%d,): allocated string %s\n", id, *str);
     return a - 1;
