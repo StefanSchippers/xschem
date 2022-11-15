@@ -341,7 +341,7 @@
 ###########################################################################
 #### used to download files from web: default: {curl -f -s -O}
 # set download_url_helper {curl -f -s -O}
-# set download_url_helper {wget --quiet}
+# set download_url_helper {wget -N --quiet}
 
 ###########################################################################
 #### XSCHEM TOOLBAR
