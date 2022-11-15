@@ -2168,15 +2168,19 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
       my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       dbg(1, "load_schematic(): filename=%s\n", filename);
+      my_strncpy(xctx->sch[xctx->currsch], name, S(xctx->sch[xctx->currsch]));
+      my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
     } else if(xctx->currsch > 0 && (strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
                strstr(xctx->current_dirname, "https://") == xctx->current_dirname)) {
+      my_strncpy(xctx->sch[xctx->currsch], filename, S(xctx->sch[xctx->currsch]));
+      my_strncpy(xctx->current_name, rel_sym_path(filename), S(xctx->current_name));
     } else {
       my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
+      my_strncpy(xctx->sch[xctx->currsch], filename, S(xctx->sch[xctx->currsch]));
+      my_strncpy(xctx->current_name, rel_sym_path(filename), S(xctx->current_name));
     }
     /* if name is /some/path/.  remove /. at end */
-    my_strncpy(xctx->sch[xctx->currsch], filename, S(xctx->sch[xctx->currsch]));
-    my_strncpy(xctx->current_name, rel_sym_path(filename), S(xctx->current_name));
     dbg(1, "load_schematic(): opening file for loading:%s, filename=%s\n", name, filename);
     dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
     if(!name[0]) return;
