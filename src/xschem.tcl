@@ -4436,17 +4436,17 @@ proc get_directory {f} {
 proc download_url {url} {
   global XSCHEM_TMP_DIR download_url_helper
   set r [catch {exec sh -c "cd $XSCHEM_TMP_DIR; $download_url_helper $url"} res]
-  puts "download_url: url=$url, exit code=$r, res=$res"
+  # puts "download_url: url=$url, exit code=$r, res=$res"
   return $r
 }
 
 proc try_download_url {dirname sch_or_sym} {
   set url $dirname/$sch_or_sym
-  puts "try_download_url: dirname=$dirname, sch_or_sym=$sch_or_sym"
+  # puts "try_download_url: dirname=$dirname, sch_or_sym=$sch_or_sym"
   set r [download_url $url]
   if { $r!=0} {
     set nitems [regexp -all {/+} $sch_or_sym]
-    puts "try_download_url: dirname=$dirname, sch_or_sym=$sch_or_sym, nitems=$nitems"
+    # puts "try_download_url: dirname=$dirname, sch_or_sym=$sch_or_sym, nitems=$nitems"
     while { $nitems > 0} {
       set dirname [get_directory $dirname]
       incr nitems -1

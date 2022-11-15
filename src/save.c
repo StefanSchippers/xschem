@@ -2168,7 +2168,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
       my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       dbg(1, "load_schematic(): filename=%s\n", filename);
-    } else if((strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
+    } else if(xctx->currsch > 0 && (strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
                strstr(xctx->current_dirname, "https://") == xctx->current_dirname)) {
     } else {
       my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
