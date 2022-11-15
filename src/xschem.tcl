@@ -4433,6 +4433,7 @@ proc get_directory {f} {
   return $r
 }
 
+# fetch a remote url into ${XSCHEM_TMP_DIR}/xschem_web
 proc download_url {url} {
   global XSCHEM_TMP_DIR download_url_helper
   if {![file exists ${XSCHEM_TMP_DIR}/xschem_web]} { 
@@ -4443,19 +4444,24 @@ proc download_url {url} {
   return $r
 }
 
+# use some heuristic to find a sub sch/sym reference in the web repository.
 proc try_download_url {dirname sch_or_sym} {
   set url $dirname/$sch_or_sym
   # puts "try_download_url: dirname=$dirname, sch_or_sym=$sch_or_sym"
   set r [download_url $url]
   if { $r!=0} {
+    # count # of directories in sch/sym reference
     set nitems [regexp -all {/+} $sch_or_sym]
     # puts "try_download_url: dirname=$dirname, sch_or_sym=$sch_or_sym, nitems=$nitems"
     while { $nitems > 0} {
+      # remove one path component from dirname and try to download URL
       set dirname [get_directory $dirname]
       incr nitems -1
+      set url $dirname/$sch_or_sym
+      set r [download_url $url]
+      # done if url found
+      if { $r == 0 } { break } 
     }
-    set url $dirname/$sch_or_sym
-    set r [download_url $url]
   }
 }
 

@@ -1183,20 +1183,25 @@ void get_sch_from_sym(char *filename, xSymbol *sym)
   const char *str_tmp;
 
   int web_url = 0;
+
+  /* get sch/sym name from parent schematic downloaded from web */
   if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
       strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
     web_url = 1;
   }
   if((str_tmp = get_tok_value(sym->prop_ptr, "schematic",0 ))[0]) {
     my_strdup2(1252, &sch, str_tmp);
+    /* for schematics referenced from web symbols do not build absolute path */
     if(web_url) my_strncpy(filename, sch, PATH_MAX);
     else my_strncpy(filename, abs_sym_path(sch, ""), PATH_MAX);
     my_free(1253, &sch);
   } else {
     if(tclgetboolvar("search_schematic")) {
+      /* for schematics referenced from web symbols do not build absolute path */
       if(web_url) my_strncpy(filename, add_ext(sym->name, ".sch"), PATH_MAX);
       else my_strncpy(filename, abs_sym_path(sym->name, ".sch"), PATH_MAX);
     } else {
+      /* for schematics referenced from web symbols do not build absolute path */
       if(web_url) my_strncpy(filename, add_ext(sym->name, ".sch"), PATH_MAX);
       else my_strncpy(filename, add_ext(abs_sym_path(sym->name, ""), ".sch"), PATH_MAX);
     }
@@ -1322,10 +1327,13 @@ int descend_schematic(int instnumber)
   dbg(1, "descend_schematic(): filename=%s\n", filename);
   unselect_all(1);
   remove_symbols();
+  /* we are descending from a parent schematic downloaded from the web */
   if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
       strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
     char sympath[PATH_MAX];
+    /* download item into ${XSCHEM_TMP_DIR}/xschem_web */
     tclvareval("try_download_url {", xctx->current_dirname, "} {", filename, "}", NULL);
+    /* build local file name of downloaded object and load it */
     my_snprintf(sympath, S(sympath), "%s/xschem_web/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
     load_schematic(1, sympath, 1);
   } else {
