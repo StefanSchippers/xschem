@@ -6194,7 +6194,6 @@ proc setup_tcp_bespice {} {
 ###
 set OS [lindex $tcl_platform(os) 0]
 set env(LC_ALL) C
-
 # tcl variable XSCHEM_LIBRARY_PATH  should already be set in xschemrc
 set_ne add_all_windows_drives 1
 set_paths
@@ -6207,6 +6206,16 @@ if {$OS == "Windows"} {
   set_ne XSCHEM_TMP_DIR [xschem get temp_dir]
 } else {
   set_ne XSCHEM_TMP_DIR {/tmp}
+}
+
+# Remove temporary location for web objects
+if {[file exists ${XSCHEM_TMP_DIR}/xschem_web] } {
+  foreach file [glob -nocomplain ${XSCHEM_TMP_DIR}/xschem_web/* ${XSCHEM_TMP_DIR}/xschem_web/.*] {
+    # skip /${XSCHEM_TMP_DIR}/xschem_web/.. and /${XSCHEM_TMP_DIR}/xschem_web/.
+    if {[regexp {/\.\.$} $file] || [regexp {/\.$} $file] } {continue}
+    file delete $file
+  } 
+  file delete ${XSCHEM_TMP_DIR}/xschem_web
 }
 
 # used in C code
