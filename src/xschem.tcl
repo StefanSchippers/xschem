@@ -2461,12 +2461,15 @@ proc myload_set_home {dir} {
 }
 
 proc setglob {dir} {
-      global myload_globfilter myload_files2
+      global myload_globfilter myload_files2 OS
       set myload_files2 [lsort [glob -nocomplain -directory $dir -tails -type d .* *]]
       if { $myload_globfilter eq {*}} {
         set myload_files2 ${myload_files2}\ [lsort [
            glob -nocomplain -directory $dir -tails -type {f} .* $myload_globfilter]]
       } else {
+        if {$OS == "Windows"} {
+          regsub {:} $myload_globfilter {\:} myload_globfilter
+        }
         set myload_files2 ${myload_files2}\ [lsort [
            glob -nocomplain -directory $dir -tails -type {f} $myload_globfilter]]
       }
@@ -4435,11 +4438,16 @@ proc get_directory {f} {
 
 # fetch a remote url into ${XSCHEM_TMP_DIR}/xschem_web
 proc download_url {url} {
-  global XSCHEM_TMP_DIR download_url_helper
+  global XSCHEM_TMP_DIR download_url_helper OS
   if {![file exists ${XSCHEM_TMP_DIR}/xschem_web]} { 
     file mkdir ${XSCHEM_TMP_DIR}/xschem_web
   }
-  set r [catch {exec sh -c "cd ${XSCHEM_TMP_DIR}/xschem_web; $download_url_helper $url"} res]
+  if {$OS eq "Windows"} {
+    set cmd "cmd /c \"cd ${XSCHEM_TMP_DIR}/xschem_web & $download_url_helper $url\""
+    set r [catch {eval exec $cmd } res]
+  } else {
+    set r [catch {exec sh -c "cd ${XSCHEM_TMP_DIR}/xschem_web; $download_url_helper $url"} res]
+  }
   # puts "download_url: url=$url, exit code=$r, res=$res"
   return $r
 }

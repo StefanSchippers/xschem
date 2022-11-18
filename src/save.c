@@ -2180,7 +2180,9 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
     } else if((strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
                strstr(xctx->current_dirname, "https://") == xctx->current_dirname)) {
       /* ... but not local file from web download --> reset current_dirname */
-      if(strstr(filename, "/tmp/xschem_web") != filename) {
+      char sympath[PATH_MAX];
+      my_snprintf(sympath, S(sympath), "%s/xschem_web",  tclgetvar("XSCHEM_TMP_DIR"));
+      if(strstr(filename, sympath) != filename) {
         my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
         my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       }
