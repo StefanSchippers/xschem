@@ -333,6 +333,11 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
    <kbd>extra="VPWR VGND subckt"</kbd> since <kbd>subckt</kbd> is probably a spice attribute and you don't
    want it in verilog.
   </p>
+  <li><kbd>verilogprefix</kbd></li>
+  <p>
+  If this attribute is defined in symbol it will be used as a prefix to the symbol name and subcircuit
+  expansion in verilog netlists.
+  </p>
   <li><kbd>dir</kbd></li>
   <p> 
    Defines the direction of a symbol pin. Allowed values are <kbd>in</kbd>, <kbd>out</kbd>, <kbd>inout</kbd>.
