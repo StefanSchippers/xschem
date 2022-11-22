@@ -415,7 +415,7 @@ void verilog_block_netlist(FILE *fd, int i)
   char *dir_tmp = NULL;
   char *sig_type = NULL;
   char *port_value = NULL;
-  char *type = NULL;
+  char *type = NULL, *verilogprefix=NULL, *symname=NULL;
   char *tmp_string = NULL;
   char filename[PATH_MAX];
   char netl_filename[PATH_MAX];
@@ -472,8 +472,22 @@ void verilog_block_netlist(FILE *fd, int i)
       fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string) : "(NULL)");
      }
     }
-  
-    fprintf(fd, "module %s (\n", skip_dir(xctx->sym[i].name));
+ 
+
+    my_strdup(1618, &verilogprefix, 
+       get_tok_value(xctx->sym[i].prop_ptr, "verilogprefix", 0));
+    if(verilogprefix) {
+      my_strdup(1625, &symname, verilogprefix);
+      my_strcat(1626, &symname, skip_dir(xctx->sym[i].name));
+    } else {
+      my_strdup(1627, &symname, skip_dir(xctx->sym[i].name));
+    }
+    my_free(1628, &verilogprefix);
+
+
+ 
+    fprintf(fd, "module %s (\n", symname);
+    my_free(1629, &symname);
     /*print_generic(fd, "entity", i); */
   
     dbg(1, "verilog_block_netlist():       entity ports\n");
