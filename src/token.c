@@ -2479,9 +2479,9 @@ void print_verilog_element(FILE *fd, int inst)
  int i=0, multip, tmp;
  const char *str_ptr;
  const char *lab;
- char *name=NULL;
+ char *name=NULL, *symname = NULL;
  char  *generic_type=NULL;
- char *template=NULL,*s;
+ char *template=NULL, *verilogprefix = NULL, *s;
  int no_of_pins=0;
  int  tmp1 = 0;
  register int c, state=TOK_BEGIN, space;
@@ -2509,18 +2509,25 @@ void print_verilog_element(FILE *fd, int inst)
  my_strdup(1562, &v_extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_extra", 0));
  /* extra is the list of attributes NOT to consider as instance parameters */
  my_strdup(1559, &extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "extra", 0));
+ my_strdup(1619, &verilogprefix, 
+    get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilogprefix", 0));
+ if(verilogprefix) {
+   my_strdup(1620, &symname, verilogprefix);
+   my_strcat(1621, &symname, skip_dir(xctx->inst[inst].name));
+ } else {
+   my_strdup(1622, &symname, skip_dir(xctx->inst[inst].name));
+ }
+ my_free(1624, &verilogprefix);
  my_strdup(506, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
  no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
 
  /* 20080915 use generic_type property to decide if some properties are strings, see later */
  my_strdup(505, &generic_type, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"generic_type",0));
-
  s=xctx->inst[inst].prop_ptr;
-
 /* print instance  subckt */
-  dbg(2, "print_verilog_element(): printing inst name & subcircuit name\n");
-  fprintf(fd, "%s\n", skip_dir(xctx->inst[inst].name) );
-
+ dbg(2, "print_verilog_element(): printing inst name & subcircuit name\n");
+ fprintf(fd, "%s\n", symname);
+ my_free(1623, &symname);
  /* -------- print generics passed as properties */
  tmp=0;
  while(1)
