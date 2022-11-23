@@ -1064,10 +1064,10 @@ static void edit_text_property(int x)
          xctx->text[sel].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
          str = get_tok_value(xctx->text[sel].prop_ptr, "hide", 0);
          xctx->text[sel].flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
-         if(size_changed) {
-           xctx->text[sel].xscale=hsize;
-           xctx->text[sel].yscale=vsize;
-         }
+       }
+       if(size_changed) {
+         xctx->text[sel].xscale=hsize;
+         xctx->text[sel].yscale=vsize;
        }
        /* calculate bbox, some cleanup needed here */
        #if HAS_CAIRO==1

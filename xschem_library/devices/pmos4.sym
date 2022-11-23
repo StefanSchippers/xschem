@@ -3,7 +3,6 @@ v {xschem version=3.1.0 file_version=1.2
 G {}
 K {type=pmos
 format="@spiceprefix@name @pinlist @model w=@w l=@l @extra m=@m"
-lvs_format="tcleval(@spiceprefix@name @pinlist @model w=@w l=@l @extra area=[expr [from_eng @w ] * [from_eng @l ] ] m=@m )"
 template="name=M1 model=pmos w=5u l=0.18u del=0 m=1"
 verilog_format="pmos #@del @name ( @@d , @@s , @@g );"}
 V {}
