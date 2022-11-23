@@ -346,6 +346,29 @@ proc sframe {container} {
 }
 #### /Scrollable frame
 
+## convert engineering form to number
+proc from_eng {i} {
+  set str {}
+  scan $i "%g%s" n str
+  set str [string tolower $str]
+  if { [regexp {^meg} $str] } { set str {meg} } else {
+    set suffix [string index $str 0]
+  }
+  set mult [switch $suffix {
+    a         { expr {1e-18}}
+    f         { expr {1e-15}}
+    p         { expr {1e-12}}
+    n         { expr { 1e-9}}
+    u         { expr {1e-6}}
+    m         { expr {1e-3}}
+    k         { expr {1e3}}
+    meg       { expr {1e6}}
+    g         { expr {1e9}}
+    t         { expr {1e12}}
+    default   { expr {1.0}}
+  }]
+  return [expr {$n * $mult}]
+}
 
 ## convert number to engineering form
 proc to_eng {i} {

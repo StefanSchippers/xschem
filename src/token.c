@@ -697,11 +697,14 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
  my_strdup(514, &name, xctx->inst[inst].instname);
  fmt_attr = xctx->format ? xctx->format : "vhdl_format";
  if(!name) my_strdup(50, &name, get_tok_value(template, "name", 0));
-
  /* allow format string override in instance */
  my_strdup(1000, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
- if(!format || !format[0])
+ if(!format && strcmp(fmt_attr, "vhdl_format"))               
+    my_strdup(1630, &format, get_tok_value(xctx->inst[inst].prop_ptr, "vhdl_format", 2));
+ if(!format)
    my_strdup(516, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
+ if(!format && strcmp(fmt_attr, "vhdl_format"))               
+   my_strdup(1631, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "vhdl_format", 2));
  if((name==NULL) || (format==NULL) ) {
    my_free(1047, &template);
    my_free(1048, &name);
@@ -1126,9 +1129,13 @@ void print_vhdl_element(FILE *fd, int inst)
   xRect *pinptr;
   const char *fmt_attr = NULL;
   Int_hashtable table = {NULL, 0};
+  const char *fmt;
 
   fmt_attr = xctx->format ? xctx->format : "vhdl_format";
-  if(get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2)[0] != '\0') {
+  fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2);
+  if(!fmt[0] && strcmp(fmt_attr, "vhdl_format") )
+    fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "vhdl_format", 2);
+  if(fmt[0]) {
    print_vhdl_primitive(fd, inst);
    return;
   }
@@ -1508,6 +1515,8 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
 
  fmt_attr = xctx->format ? xctx->format : "format";
  my_strdup(103, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, fmt_attr, 2));
+ if(!format1 && strcmp(fmt_attr, "format") )
+   my_strdup(1632, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, "format", 2));
  dbg(1, "print_spice_subckt(): format1=%s\n", format1);
  if(format1 && strstr(format1, "tcleval(") == format1) {
     tclres = tcl_hook2(&format1);
@@ -1655,9 +1664,12 @@ int print_spice_element(FILE *fd, int inst)
   /* allow format string override in instance */
   fmt_attr = xctx->format ? xctx->format : "format";
   my_strdup(470, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
-  if(!format || !format[0])
+  if(!format && strcmp(fmt_attr, "format") )
+    my_strdup(1633, &format, get_tok_value(xctx->inst[inst].prop_ptr, "format", 2));
+  if(!format)
      my_strdup(486, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
-
+  if(!format && strcmp(fmt_attr, "format"))
+     my_strdup(1634, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "format", 2));
   if ((name==NULL) || (format==NULL)) {
     my_free(1015, &template);
     my_free(1016, &format);
@@ -2294,8 +2306,12 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
   fmt_attr = xctx->format ? xctx->format : "verilog_format";
   /* allow format string override in instance */
   my_strdup(1186, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
+  if(!format && strcmp(fmt_attr, "verilog_format") )
+    my_strdup(1635, &format, get_tok_value(xctx->inst[inst].prop_ptr, "verilog_format", 2));
   if(!format || !format[0])
     my_strdup(522, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
+  if(!format && strcmp(fmt_attr, "verilog_format"))
+     my_strdup(1636, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_format", 2));
   if((name==NULL) || (format==NULL) ) {
     my_free(1054, &template);
     my_free(1055, &name);
@@ -2492,9 +2508,13 @@ void print_verilog_element(FILE *fd, int inst)
  int quote=0;
  const char *fmt_attr = NULL;
  Int_hashtable table = {NULL, 0};
+ const char *fmt;
 
  fmt_attr = xctx->format ? xctx->format : "verilog_format";
- if(get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2)[0] != '\0') {
+ fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2);
+ if(!fmt[0] && strcmp(fmt_attr, "verilog_format"))
+   fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_format", 2);
+ if(fmt[0]) {
   print_verilog_primitive(fd, inst);
   return;
  }
