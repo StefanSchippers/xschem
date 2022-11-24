@@ -5989,7 +5989,14 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   $topwin.menubar.simulation.menu add command -label "Annotate Operating Point into schematic" \
          -command {set show_hidden_texts 1; xschem annotate_op}
   $topwin.menubar.simulation.menu add separator
-  $topwin.menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" -variable top_subckt 
+  $topwin.menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" \
+  -variable top_subckt -command {
+    if {$top_subckt == 1} {
+      xschem set format lvs_format 
+    } else {
+      xschem set format {}
+    }
+  }
   $topwin.menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
          -command {xschem save; xschem reload}
 
