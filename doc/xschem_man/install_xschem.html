@@ -131,6 +131,27 @@ p{padding: 15px  30px 10px;}
  </pre><br>
  <br><br>
 
+
+ <h2> - Build xschem with a custom tcl-tk installation </h2>
+ <p> If you need to build xschem against a tcl-tk installation located in a non-standard place you
+     must provide additional options to the .configure script.<br>
+     Suppose there is a tcl-tk version 8.4 installation in <kbd>/home/schippes/x/tcltk</kbd>
+     then the following commands must be given before runninkg make and make install:
+ </p>
+ <pre class=code>
+export LD_LIBRARY_PATH=/home/schippes/x/tcltk/lib
+
+./configure \
+--prefix=/home/schippes \
+/arg/tcl-version=8.4 \
+/arg/tk-version=8.4 \
+--prefix/libs/script/tcl=/home/schippes/x/tcltk \
+--prefix/libs/script/tk=/home/schippes/x/tcltk \
+--debug
+ </pre>
+ <p> This is the command I run to build and test xschem with tcl-tk 8.4 which was released 20 years ago.</p>
+
+
  <h2> -Technical information - Detailed XSCHEM startup sequence </h2>
  <p class="important"> Information here under is not meant to be executed by the user </p><br>
  <ol>
