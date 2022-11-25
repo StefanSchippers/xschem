@@ -62,7 +62,7 @@ p{padding: 15px  30px 10px;}
     Only symbols of type <kbd>subcircuit</kbd> or <kbd>primitive</kbd> may be descended into
     with the <kbd>'e'</kbd> bindkey if they have a schematic view.
    </p><br>
- <li><kbd>format</kbd>:The format attribute defines the syntax for the SPICE netlist. the <kbd>@</kbd>
+ <li><kbd>format</kbd>: The format attribute defines the syntax for the SPICE netlist. the <kbd>@</kbd>
      character is a 'substitution character', it means that the token that follows is a parameter
      that will be substituted with the value passed at component instantiation. If no 
      value is given there a value will be picked from the attribute declared in the <kbd>template</kbd>
@@ -88,6 +88,15 @@ p{padding: 15px  30px 10px;}
      or LVS (no device subcircuits).
      </li>
      <img src="spiceprefix.png">
+
+ <li><kbd>lvs_format</kbd>: This is the netlisting format attribute that is automatically selected if Xschem is set
+     to produce a LVS netlist (<kbd>Simulation-&gt;LVS netlist: top level is a subckt</kbd>). This means that a
+     symbol may have two different attributes for netlisting: <kbd>format</kbd> use dfor spice simulations and 
+     <kbd>lvs_format</kbd> for schematic to layout (LVS) comparison. More in general the xschem command
+     <kbd>xschem set format my_format</kbd> will instruct xschem to use <kbd>my_format</kbd> as netlisting
+     rule for components that have this attribute defined. If symbols do not have the <kbd>my_format</kbd>
+     attribute the default fallback (<kbd>format</kbd> for spice netlist) is used.</li><br>
+
  <li><kbd>template</kbd>: Specifies default values for symbol parameters</li>
 <img src="general_rules.png">
  </ul>
