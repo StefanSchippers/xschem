@@ -28,6 +28,9 @@
 #define xDashType LineDoubleDash
 #else
 #define xDashType LineOnOffDash
+#endif
+
+#if !defined(__unix__)
 #if defined(HAS_CAIRO)
 static void clear_cairo_surface(cairo_t *cr, double x, double y, double width, double height)
 {
@@ -738,30 +741,70 @@ static void drawgrid()
 {
   double x,y;
   double delta,tmp;
+  #if DRAW_ALL_CAIRO==0
   int i=0;
   int big_gr;
-  
-  dbg(1, "drawgrid(): draw grid\n");
   big_gr = tclgetboolvar("big_grid_points");
+  #endif
+  dbg(1, "drawgrid(): draw grid\n");
   if( !tclgetboolvar("draw_grid") || !has_x) return;
   delta=tclgetdoublevar("cadgrid")*xctx->mooz;
+  #if DRAW_ALL_CAIRO==1
+  set_cairo_color(GRIDLAYER);
+  #endif
   while(delta < CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
   x = xctx->xorigin*xctx->mooz; y = xctx->yorigin*xctx->mooz;
   if(y > xctx->areay1 && y < xctx->areay2) {
-    if(xctx->draw_window)
+    if(xctx->draw_window) {
+      #if DRAW_ALL_CAIRO==1
+      cairo_move_to(xctx->cairo_ctx, xctx->areax1+1, y);
+      cairo_line_to(xctx->cairo_ctx, xctx->areax2-1, y);
+      #else
       XDrawLine(display, xctx->window, xctx->gc[GRIDLAYER],xctx->areax1+1,(int)y, xctx->areax2-1, (int)y);
-    if(xctx->draw_pixmap)
+      #endif
+    }
+    if(xctx->draw_pixmap) {
+      #if DRAW_ALL_CAIRO==1
+      cairo_move_to(xctx->cairo_save_ctx, xctx->areax1+1, y);
+      cairo_line_to(xctx->cairo_save_ctx, xctx->areax2-1, y);
+      #else
       XDrawLine(display, xctx->save_pixmap, xctx->gc[GRIDLAYER],xctx->areax1+1,(int)y, xctx->areax2-1, (int)y);
+      #endif
+    }
   }
   if(x > xctx->areax1 && x < xctx->areax2) {
-    if(xctx->draw_window)
+    if(xctx->draw_window) {
+      #if DRAW_ALL_CAIRO==1
+      cairo_move_to(xctx->cairo_ctx, x, xctx->areay1+1);
+      cairo_line_to(xctx->cairo_ctx, x, xctx->areay2-1);
+      #else
       XDrawLine(display, xctx->window, xctx->gc[GRIDLAYER],(int)x,xctx->areay1+1, (int)x, xctx->areay2-1);
-    if(xctx->draw_pixmap)
+      #endif
+    }
+    if(xctx->draw_pixmap) {
+      #if DRAW_ALL_CAIRO==1
+      cairo_move_to(xctx->cairo_save_ctx, x, xctx->areay1+1);
+      cairo_line_to(xctx->cairo_save_ctx, x, xctx->areay2-1);
+      #else
       XDrawLine(display, xctx->save_pixmap, xctx->gc[GRIDLAYER],(int)x,xctx->areay1+1, (int)x, xctx->areay2-1);
+      #endif
+    }
   }
   tmp = floor((xctx->areay1+1)/delta)*delta-fmod(-xctx->yorigin*xctx->mooz,delta);
   for(x=floor((xctx->areax1+1)/delta)*delta-fmod(-xctx->xorigin*xctx->mooz,delta); x < xctx->areax2; x += delta) {
     for(y=tmp; y < xctx->areay2; y += delta) {
+      #if DRAW_ALL_CAIRO==1
+        if(xctx->draw_window) {
+          cairo_move_to(xctx->cairo_ctx, x, y);
+          /* cairo_line_to(xctx->cairo_ctx, x, y); */
+          cairo_close_path(xctx->cairo_ctx);
+        }
+        if(xctx->draw_pixmap) {
+          cairo_move_to(xctx->cairo_save_ctx, x, y);
+          /* cairo_line_to(xctx->cairo_save_ctx, x, y); */
+          cairo_close_path(xctx->cairo_save_ctx);
+        }
+      #else
       if(i>=CADMAXGRIDPOINTS) {
         if(xctx->draw_window) {
           if(big_gr) {
@@ -788,8 +831,10 @@ static void drawgrid()
         xctx->gridpoint[i].y=(short)(y);
         i++;
       }
+      #endif
     }
   }
+  #if DRAW_ALL_CAIRO==0
   if(xctx->draw_window) {
     if(big_gr) {
       XDrawSegments(display,xctx->window,xctx->gc[GRIDLAYER],xctx->biggridpoint,i);
@@ -804,6 +849,12 @@ static void drawgrid()
       XDrawPoints(display,xctx->save_pixmap,xctx->gc[GRIDLAYER],xctx->gridpoint,i,CoordModeOrigin);
     }
   }
+  #endif
+  
+  #if DRAW_ALL_CAIRO==1
+  if(xctx->draw_pixmap) cairo_stroke(xctx->cairo_save_ctx);
+  if(xctx->draw_window) cairo_stroke(xctx->cairo_ctx);
+  #endif
 }
 
 #if !defined(__unix__) && defined(HAS_CAIRO)
@@ -3472,7 +3523,8 @@ void draw(void)
       }
       #if !defined(__unix__) && defined(HAS_CAIRO)
       else 
-        my_cairo_fill(xctx->cairo_sfc, xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
+        my_cairo_fill(xctx->cairo_sfc, xctx->xrect[0].x, xctx->xrect[0].y,
+                      xctx->xrect[0].width, xctx->xrect[0].height);
       #endif
     }
     draw_selection(xctx->gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
@@ -3495,9 +3547,14 @@ int XSetTile(Display* display, GC gc, Pixmap s_pixmap)
 void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y,
      unsigned int width, unsigned int height, int dest_x, int dest_y)
 {
-  XCopyArea(display, src, dest, gc, src_x, src_y, width, height, dest_x, dest_y);
-#if !defined(__unix__)  && defined(HAS_CAIRO)
+
+  #if !defined(__unix__)  && defined(HAS_CAIRO)
   my_cairo_fill(xctx->cairo_save_sfc, dest_x, dest_y, width, height);
-#endif
+  #elif (defined(__unix__)  && defined(HAS_CAIRO)) || DRAW_ALL_CAIRO==1
+  cairo_set_source_surface(xctx->cairo_ctx, xctx->cairo_save_sfc, 0, 0);
+  cairo_paint(xctx->cairo_ctx);
+  #else
+  XCopyArea(display, src, dest, gc, src_x, src_y, width, height, dest_x, dest_y);
+  #endif
 }
 

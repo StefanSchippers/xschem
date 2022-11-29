@@ -1723,6 +1723,7 @@ void change_linewidth(double w)
         XSetLineAttributes (display, xctx->gc[i], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
     }
     XSetLineAttributes (display, xctx->gctiled, INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
+
   }
   if(!xctx->only_probes) {
     xctx->areax1 = -2*INT_WIDTH(xctx->lw);
@@ -1732,6 +1733,10 @@ void change_linewidth(double w)
     xctx->areaw = xctx->areax2-xctx->areax1;
     xctx->areah = xctx->areay2 - xctx->areay1;
   }
+  #if HAS_CAIRO==1
+  cairo_set_line_width(xctx->cairo_ctx, INT_WIDTH(xctx->lw));
+  cairo_set_line_width(xctx->cairo_save_ctx, INT_WIDTH(xctx->lw));
+  #endif
 }
 
 /* clears and creates cairo_sfc, cairo_ctx, cairo_save_sfc, cairo_save_ctx
@@ -1756,10 +1761,11 @@ static void resetcairo(int create, int clear, int force_or_resize)
     cairo_font_options_set_hint_style(options, CAIRO_HINT_STYLE_SLIGHT);
     /***** Create Cairo save buffer drawing area *****/
 #ifdef __unix__
-    xctx->cairo_save_sfc = 
-       cairo_xlib_surface_create(display, xctx->save_pixmap, visual, xctx->xrect[0].width, xctx->xrect[0].height);
+    xctx->cairo_save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap,
+         visual, xctx->xrect[0].width, xctx->xrect[0].height);
 #else
-    xctx->cairo_save_sfc = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24, xctx->xrect[0].width, xctx->xrect[0].height);
+    xctx->cairo_save_sfc = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24,
+         xctx->xrect[0].width, xctx->xrect[0].height);
 #endif
     if(cairo_surface_status(xctx->cairo_save_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
@@ -1772,7 +1778,6 @@ static void resetcairo(int create, int clear, int force_or_resize)
 
     cairo_set_font_options(xctx->cairo_save_ctx, options);
 
-    cairo_set_line_width(xctx->cairo_save_ctx, 1);
     cairo_set_line_join(xctx->cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
     cairo_set_line_cap(xctx->cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
     /***** Create Cairo main drawing window structures *****/
@@ -1780,7 +1785,8 @@ static void resetcairo(int create, int clear, int force_or_resize)
     xctx->cairo_sfc = cairo_xlib_surface_create(display, xctx->window, visual,
         xctx->xrect[0].width, xctx->xrect[0].height);
 #else
-    xctx->cairo_sfc = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24, xctx->xrect[0].width, xctx->xrect[0].height);
+    xctx->cairo_sfc = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24,
+        xctx->xrect[0].width, xctx->xrect[0].height);
 #endif
     if(cairo_surface_status(xctx->cairo_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo surface\n");
@@ -1792,7 +1798,6 @@ static void resetcairo(int create, int clear, int force_or_resize)
 
     cairo_set_font_options(xctx->cairo_ctx, options);
 
-    cairo_set_line_width(xctx->cairo_ctx, 1);
     cairo_set_line_join(xctx->cairo_ctx, CAIRO_LINE_JOIN_ROUND);
     cairo_set_line_cap(xctx->cairo_ctx, CAIRO_LINE_CAP_ROUND);
     cairo_font_options_destroy(options);
@@ -1871,8 +1876,8 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
           XSetTile(display,xctx->gctiled, xctx->save_pixmap);
           XSetFillStyle(display,xctx->gctiled,FillTiled);
           /* whenever a pixmap is recreated all GC attributes must be reissued */
-          change_linewidth(-1.0);
           resetcairo(1, 0, 1); /* create, clear, force */
+          change_linewidth(-1.0);
         }
       }
     }

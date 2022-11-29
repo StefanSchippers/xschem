@@ -102,6 +102,7 @@ extern char win_temp_dir[PATH_MAX];
 #endif
 
 #if HAS_CAIRO==1
+#define DRAW_ALL_CAIRO 0 /* use cairo for all graphics. Work in progress! */
 #include <cairo.h>
 #ifdef __unix__
 #include <cairo-xlib.h>
