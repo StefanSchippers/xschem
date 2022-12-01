@@ -1760,13 +1760,13 @@ static void resetcairo(int create, int clear, int force_or_resize)
     cairo_font_options_set_antialias(options, CAIRO_ANTIALIAS_FAST);
     cairo_font_options_set_hint_style(options, CAIRO_HINT_STYLE_SLIGHT);
     /***** Create Cairo save buffer drawing area *****/
-#ifdef __unix__
+    #ifdef __unix__
     xctx->cairo_save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap,
          visual, xctx->xrect[0].width, xctx->xrect[0].height);
-#else
+    #else
     xctx->cairo_save_sfc = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24,
          xctx->xrect[0].width, xctx->xrect[0].height);
-#endif
+    #endif
     if(cairo_surface_status(xctx->cairo_save_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
     }
@@ -1781,13 +1781,13 @@ static void resetcairo(int create, int clear, int force_or_resize)
     cairo_set_line_join(xctx->cairo_save_ctx, CAIRO_LINE_JOIN_ROUND);
     cairo_set_line_cap(xctx->cairo_save_ctx, CAIRO_LINE_CAP_ROUND);
     /***** Create Cairo main drawing window structures *****/
-#ifdef __unix__
+    #ifdef __unix__
     xctx->cairo_sfc = cairo_xlib_surface_create(display, xctx->window, visual,
         xctx->xrect[0].width, xctx->xrect[0].height);
-#else
+    #else
     xctx->cairo_sfc = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24,
         xctx->xrect[0].width, xctx->xrect[0].height);
-#endif
+    #endif
     if(cairo_surface_status(xctx->cairo_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo surface\n");
     }
