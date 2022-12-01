@@ -1981,17 +1981,13 @@ static void draw_graph_points(int idx, int first, int last,
 
 static void draw_graph_grid(Graph_ctx *gr, void *ct)
 {
-  double deltax, startx, deltay, starty, wx,wy,  dash_sizex, dash_sizey;
+  double deltax, startx, deltay, starty, wx,wy,  dash_size;
   int j, k;
   double mark_size = gr->marginy/10.0;
 
   /* calculate dash length for grid lines */
-  dash_sizex = 1.5 * xctx->mooz;
-  dash_sizex = dash_sizex > 2.0 ? 2.0 : dash_sizex;
-  if(dash_sizex <= 1.0) dash_sizex = 1.0;
-  dash_sizey = 1.5 * xctx->mooz;
-  dash_sizey = dash_sizey > 2.0 ? 2.0 : dash_sizey;
-  if(dash_sizey <= 1.0) dash_sizey = 1.0;
+  dash_size = 1.5 * xctx->mooz;
+  dash_size = dash_size < 1.0 ? 0.0: (dash_size > 3.0 ? 3.0 : 2.0);
 
   /* clipping everything outside container area */
   /* background */
@@ -2015,12 +2011,12 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
         subwx = wx + deltax * (double)k / ((double)gr->subdivx + 1.0);
       if(!axis_within_range(subwx, gr->gx1, gr->gx2, deltax, gr->subdivx)) continue;
       if(axis_end(subwx, deltax, gr->gx2)) break;
-      drawline(GRIDLAYER, ADD, W_X(subwx),   W_Y(gr->gy2), W_X(subwx),   W_Y(gr->gy1), (int)dash_sizey, ct);
+      drawline(GRIDLAYER, ADD, W_X(subwx),   W_Y(gr->gy2), W_X(subwx),   W_Y(gr->gy1), (int)dash_size, ct);
     }
     if(!axis_within_range(wx, gr->gx1, gr->gx2, deltax, gr->subdivx)) continue;
     if(axis_end(wx, deltax, gr->gx2)) break;
     /* swap order of gy1 and gy2 since grap y orientation is opposite to xorg orientation */
-    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy2), W_X(wx),   W_Y(gr->gy1), (int)dash_sizey, ct);
+    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy2), W_X(wx),   W_Y(gr->gy1), (int)dash_size, ct);
     drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy1), W_X(wx),   W_Y(gr->gy1) + mark_size, 0, ct); /* axis marks */
     /* X-axis labels */
     if(gr->logx) 
@@ -2047,11 +2043,11 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
           subwy = wy + deltay * (double)k / ((double)gr->subdivy + 1.0);
         if(!axis_within_range(subwy, gr->gy1, gr->gy2, deltay, gr->subdivy)) continue;
         if(axis_end(subwy, deltay, gr->gy2)) break;
-        drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(subwy),   W_X(gr->gx2), W_Y(subwy), (int)dash_sizex, ct);
+        drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(subwy),   W_X(gr->gx2), W_Y(subwy), (int)dash_size, ct);
       }
       if(!axis_within_range(wy, gr->gy1, gr->gy2, deltay, gr->subdivy)) continue;
       if(axis_end(wy, deltay, gr->gy2)) break;
-      drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(wy),   W_X(gr->gx2), W_Y(wy), (int)dash_sizex, ct);
+      drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(wy),   W_X(gr->gx2), W_Y(wy), (int)dash_size, ct);
       drawline(GRIDLAYER, ADD, W_X(gr->gx1) - mark_size, W_Y(wy),   W_X(gr->gx1), W_Y(wy), 0, ct); /* axis marks */
       /* Y-axis labels */
       if(gr->logy)
