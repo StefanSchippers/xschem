@@ -2,11 +2,11 @@ v {xschem version=3.1.0 file_version=1.2
 }
 G {}
 K {type=subcircuit
-format="@name @pinlist @symname m=@m"
+format="@name @pinlist @symname power=@power n=@n m=@m"
 
 
 
-template="name=X1 m=1"}
+template="name=X1 power=100 n=36 m=1"}
 V {}
 S {}
 E {}
@@ -22,7 +22,6 @@ B 5 -42.5 -2.5 -37.5 2.5 {name=fade dir=in}
 P 4 7 -35 -30 -25 -20 -20 -25 -15 -10 -30 -15 -25 -20 -35 -30 {}
 P 4 7 -35 -5 -25 5 -20 0 -15 15 -30 10 -25 5 -35 -5 {}
 T {@name} 15 -28.75 0 0 0.2 0.2 {}
-T {Voc = 22
-Wp = 100W
-Vmp = 17.5} 30 -10 0 0 0.2 0.2 {}
+T {Wp = @power
+n = @n} 30 -10 0 0 0.2 0.2 {}
 T {m=@m} -5 16.25 0 1 0.2 0.2 {}

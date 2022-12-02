@@ -1734,8 +1734,10 @@ void change_linewidth(double w)
     xctx->areah = xctx->areay2 - xctx->areay1;
   }
   #if HAS_CAIRO==1
-  cairo_set_line_width(xctx->cairo_ctx, INT_WIDTH(xctx->lw));
-  cairo_set_line_width(xctx->cairo_save_ctx, INT_WIDTH(xctx->lw));
+  if(has_x) {
+    cairo_set_line_width(xctx->cairo_ctx, INT_WIDTH(xctx->lw));
+    cairo_set_line_width(xctx->cairo_save_ctx, INT_WIDTH(xctx->lw));
+  }
   #endif
 }
 
@@ -1772,6 +1774,7 @@ static void resetcairo(int create, int clear, int force_or_resize)
     }
 
     xctx->cairo_save_ctx = cairo_create(xctx->cairo_save_sfc);
+    /* cairo_set_antialias (xctx->cairo_save_ctx, CAIRO_ANTIALIAS_NONE); */
     cairo_select_font_face(xctx->cairo_save_ctx, tclgetvar("cairo_font_name"), 
       CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(xctx->cairo_save_ctx, 20);
@@ -1792,6 +1795,7 @@ static void resetcairo(int create, int clear, int force_or_resize)
       fprintf(errfp, "ERROR: invalid cairo surface\n");
     }
     xctx->cairo_ctx = cairo_create(xctx->cairo_sfc);
+    /* cairo_set_antialias (xctx->cairo_ctx, CAIRO_ANTIALIAS_NONE); */
     cairo_select_font_face(xctx->cairo_ctx, tclgetvar("cairo_font_name"),
       CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(xctx->cairo_ctx, 20);

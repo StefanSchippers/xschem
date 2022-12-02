@@ -3540,9 +3540,11 @@ int XSetTile(Display* display, GC gc, Pixmap s_pixmap)
 void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y,
      unsigned int width, unsigned int height, int dest_x, int dest_y)
 {
-
-  #if !defined(__unix__)  && defined(HAS_CAIRO)
+  #if !defined(__unix__)
+  XCopyArea(display, src, dest, gc, src_x, src_y, width, height, dest_x, dest_y);
+  #if defined(HAS_CAIRO)
   my_cairo_fill(xctx->cairo_save_sfc, dest_x, dest_y, width, height);
+  #endif
   #elif (defined(__unix__)  && defined(HAS_CAIRO)) || DRAW_ALL_CAIRO==1
   cairo_set_source_surface(xctx->cairo_ctx, xctx->cairo_save_sfc, 0, 0);
   cairo_paint(xctx->cairo_ctx);
@@ -3550,4 +3552,3 @@ void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x
   XCopyArea(display, src, dest, gc, src_x, src_y, width, height, dest_x, dest_y);
   #endif
 }
-

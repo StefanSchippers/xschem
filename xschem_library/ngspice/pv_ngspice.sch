@@ -7,23 +7,23 @@ S {}
 E {}
 B 2 860 -550 1360 -160 {flags=graph 
 y1 = 0
-y2 = 6.6
+y2 = 6
 divy = 4
 subdivy=1
-x1=0
-x2=24
+x1=-0.0573452
+x2=22.5919
 divx=8
   unitx=1
 color=15
 node=i(vload)
 dataset=-1}
 B 2 860 -790 1360 -550 {flags=graph 
-y1 = 0
-y2 = 112
+y1 = 7.29412e-05
+y2 = 99.9997
 divy = 4
 subdivy=1
-x1=0
-x2=24
+x1=-0.0573452
+x2=22.5919
 divx=8
   unitx=1
 color=8
@@ -32,47 +32,43 @@ plus
 i(vload)
 *\\""
 dataset=-1}
-T {Voc = 22
-Wp = 100W
-Vmp = 17.5} 320 -550 0 0 0.4 0.4 {}
 T {position the mouse close to one of the curves
 and press 't' to display only that curve.
 This allows you to annotate the active
-waveform in the schematic.} 480 -470 0 0 0.3 0.3 {}
-N 230 -440 230 -380 {
+waveform in the schematic.} 480 -370 0 0 0.3 0.3 {}
+N 430 -480 430 -420 {
 lab=minus}
-N 230 -530 230 -500 {
+N 430 -570 430 -540 {
 lab=mn}
-N 90 -420 110 -420 {
+N 290 -460 310 -460 {
 lab=fade}
-N 230 -660 230 -590 {
+N 430 -700 430 -630 {
 lab=pn}
-N 230 -760 230 -720 {
+N 430 -800 430 -760 {
 lab=plus}
-C {iopin.sym} 230 -760 2 1 {name=p1 lab=plus}
-C {iopin.sym} 230 -380 2 1 {name=p2 lab=minus}
+C {iopin.sym} 430 -800 2 1 {name=p1 lab=plus}
+C {iopin.sym} 430 -420 2 1 {name=p2 lab=minus}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
-C {ammeter.sym} 230 -470 2 1 {name=Vm}
-C {lab_pin.sym} 230 -610 2 0 {name=l2 sig_type=std_logic lab=pn}
-C {lab_pin.sym} 230 -510 2 0 {name=l3 sig_type=std_logic lab=mn}
-C {isource_arith.sym} 230 -560 2 0 {name=G1
-CUR="v(f) * 5.5 * (1 - exp( (v(pn,mn)
-+  -21 - v(f)*2.5 ) * 0.6) -
-+  0.002 * (v(pn,mn) - 21 - v(f)*2.5))"
+C {ammeter.sym} 430 -510 2 1 {name=Vm}
+C {lab_pin.sym} 430 -650 2 0 {name=l2 sig_type=std_logic lab=pn}
+C {lab_pin.sym} 430 -550 2 0 {name=l3 sig_type=std_logic lab=mn}
+C {isource_arith.sym} 430 -600 2 0 {name=G1
+CUR="v(f) * power * 2.16 / n  * (1 - (3.5e-7 * exp( v(pn,mn) / n / 0.041)))"
 }
-C {ipin.sym} 90 -420 2 1 {name=p2 lab=fade}
-C {ammeter.sym} 140 -420 3 0 {name=Vf}
-C {lab_pin.sym} 170 -420 2 0 {name=l3 sig_type=std_logic lab=f}
-C {ammeter.sym} 230 -690 2 1 {name=Vp}
+C {ipin.sym} 290 -460 2 1 {name=p2 lab=fade}
+C {ammeter.sym} 340 -460 3 0 {name=Vf}
+C {lab_pin.sym} 370 -460 2 0 {name=l3 sig_type=std_logic lab=f}
+C {ammeter.sym} 430 -730 2 1 {name=Vp}
 C {code_shown.sym} 30 -280 0 0 {name=CONTROL 
 only_toplevel=true
-value="
+value=".param power=100
+.param n=36
 vload plus minus 0
 vsun fade 0 0
 vref minus 0 0
 .control
 save plus i(vload) i(vm) n(pn) v(mn)
-dc vload 0 24 0.5 vsun 0.2 1.0 0.2
+dc vload 0 48 0.2 vsun 0.2 1.0 0.2
 write pv_ngspice.raw 
 quit
 .endc
@@ -262,7 +258,13 @@ AAAAAAAAAAA2QAAAAAAAADZAAAAAAAAAAADARn38MD4KQMBGffwwPgpAwEZ9/DA+CkAAAAAAAIA2QAAA
 A0CQxRO3tvADQJDFE7e28ANAAAAAAAAAN0AAAAAAAAAAAAAAAAAAADdAAAAAAAAAN0AAAAAAAAAAAEB3KAhg5fY/QHcoCGDl9j9AdygIYOX2PwAAAAAAgDdAAAAAAAAA
 AAAAAAAAAIA3QAAAAAAAgDdAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4QAAAAAAAAAAAAAAAAAAAOEAAAAAAAAA4QAAAAAAAAAAAgJ4EsCXg
 /r+AngSwJeD+v4CeBLAl4P6/"}
-C {ngspice_get_expr.sym} 280 -560 0 0 {name=r24 
+C {ngspice_get_expr.sym} 480 -600 0 0 {name=r24 
 node="[format %.4g [expr ([ngspice::get_voltage pn] - [ngspice::get_voltage mn]) * [ngspice::get_current Vm]]] W"
 descr = power
+}
+C {launcher.sym} 1300 -90 0 0 {name=h2 
+descr="Reload waves" 
+tclcommand="
+xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+"
 }

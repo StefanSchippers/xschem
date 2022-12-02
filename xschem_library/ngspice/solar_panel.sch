@@ -275,7 +275,7 @@ tclcommand="
 xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw tran
 "
 }
-C {pv_ngspice.sym} 370 -360 0 0 {name=X1  m=1}
+C {pv_ngspice.sym} 370 -360 0 0 {name=X1  m=1 power=100 n=36}
 C {lab_pin.sym} 370 -280 0 0 {name=l12  lab=0 }
 C {capa.sym} 510 -410 0 0 {name=C11
 m=1
