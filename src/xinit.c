@@ -2313,6 +2313,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
        return TCL_ERROR;
     }
     display = Tk_Display(mainwindow);
+
+    #if 0
+    #ifdef HAS_XCB
+    xcb_conn = XGetXCBConnection(display);
+    #endif
+    #endif
+
     tkwindow = Tk_NameToWindow(interp, ".drw", mainwindow);
     Tk_MakeWindowExist(tkwindow);
     xctx->window = Tk_WindowId(tkwindow);

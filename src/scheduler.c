@@ -414,6 +414,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       attach_labels_to_inst(0);
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 'b': /*----------------------------------------------*/
     if(!strcmp(argv[1], "bbox"))
@@ -441,6 +442,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       build_colors(tclgetdoublevar("dim_value"), tclgetdoublevar("dim_bg"));
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 'c': /*----------------------------------------------*/
     if(!strcmp(argv[1], "callback") )
@@ -622,6 +624,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       delete(1/*to_push_undo*/);
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 'd': /*----------------------------------------------*/
     if(!strcmp(argv[1], "debug"))
@@ -684,6 +687,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 'e': /*----------------------------------------------*/
     if(!strcmp(argv[1], "edit_file") )
@@ -765,6 +769,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_free(927, &result);
       }
     }
+    else { cmd_found = 0;}
     break;
     case 'f': /*----------------------------------------------*/
     if(!strcmp(argv[1], "find_nth"))
@@ -791,6 +796,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else toggle_fullscreen(".drw");
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 'g': /*----------------------------------------------*/
     /************ xschem get subcommands *************/
@@ -1290,6 +1296,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       go_back(1);
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 'h': /*----------------------------------------------*/
     if(!strcmp(argv[1], "hash_file"))
@@ -1348,6 +1355,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_SetResult(interp,ret ? "1" : "0" , TCL_STATIC);
     }
+    else { cmd_found = 0;}
     break;
     case 'i': /*----------------------------------------------*/
     if(!strcmp(argv[1], "instance"))
@@ -1577,6 +1585,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, pins ? pins : "", TCL_VOLATILE);
       my_free(926, &pins);
     }
+    else { cmd_found = 0;}
     break;
     case 'l': /*----------------------------------------------*/
     if(!strcmp(argv[1], "line"))
@@ -1715,6 +1724,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 'm': /*----------------------------------------------*/
     if(!strcmp(argv[1], "make_sch")) /* make schematic from selected symbol 20171004 */
@@ -1760,6 +1770,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else move_objects(START,0,0,0);
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 'n': /*----------------------------------------------*/
     if(!strcmp(argv[1], "net_label"))
@@ -1818,6 +1829,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else new_xschem_process(argv[2],0);
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 'o': /*----------------------------------------------*/
     if(!strcmp(argv[1], "only_probes"))
@@ -1838,6 +1850,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         draw();
       }
     }
+    else { cmd_found = 0;}
     break;
     case 'p': /*----------------------------------------------*/
     if(!strcmp(argv[1], "parselabel")) 
@@ -2057,6 +2070,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->push_undo();
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 'r': /*----------------------------------------------*/
     if(!strcmp(argv[1], "raw_clear"))
@@ -2324,6 +2338,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 's': /*----------------------------------------------*/
     if(!strcmp(argv[1], "save"))
@@ -2757,6 +2772,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_AppendResult(interp, "\n", NULL);
     }
+    else { cmd_found = 0;}
     break;
     case 't': /*----------------------------------------------*/
     if(!strcmp(argv[1], "test"))
@@ -2802,6 +2818,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       draw();
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 'u': /*----------------------------------------------*/
     if(!strcmp(argv[1], "undo"))
@@ -2873,6 +2890,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else unselect_all(1);
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 'v': /*----------------------------------------------*/
     if(!strcmp(argv[1], "view_prop"))
@@ -2880,6 +2898,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       edit_property(2);
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
     case 'w': /*----------------------------------------------*/
     if(!strcmp(argv[1], "warning_overlapped_symbols"))
@@ -2928,6 +2947,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else xctx->ui_state |= MENUSTARTWIRE;
     }
+    else { cmd_found = 0;}
+    break;
+    case 'x': /*----------------------------------------------*/
+    #ifdef HAS_XCB
+    if(!strcmp(argv[1], "xcb_info"))
+    {
+      dbg(0, "maximum xcb req length=%u\n", xcb_get_maximum_request_length(xcb_conn));
+    }
+    else { cmd_found = 0;}
+    #endif
     break;
     case 'z': /*----------------------------------------------*/
     if(!strcmp(argv[1], "zoom_box"))
@@ -2995,6 +3024,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       zoom_full(1, 1, 1, 0.97);
       Tcl_ResetResult(interp);
     }
+    else { cmd_found = 0;}
     break;
 
     default:

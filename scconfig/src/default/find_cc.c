@@ -1095,16 +1095,34 @@ int find_alloca(const char *name, int logdepth, int fatal)
 }
 
 
-int find__exit(const char *name, int logdepth, int fatal)
+static int find__exit_(const char *inc, int logdepth, int fatal)
 {
-	const char *test_c =
+	const char *test_c_ =
 		NL "#include <stdio.h>"
+		NL "%s"
 		NL "int main() {"
 		NL "	_exit(0);"
 		NL "	puts(\"BAD\");"
 		NL "	return 0;"
 		NL "}"
 		NL ;
+	char test_c[256];
+
+	sprintf(test_c, test_c_, inc); /* safe because called only with a few hardwired inc values */
+
+	if (try_flags_inv(logdepth, NULL, test_c, NULL, NULL, "BAD")) {
+		put("cc/_exit/presents", strue);
+		put("cc/_exit/includes", inc);
+		report("found\n");
+		return 0;
+	}
+
+	return 1;
+}
+
+int find__exit(const char *name, int logdepth, int fatal)
+{
+	const char **i, *incs[] = {"#include <unistd.h>", NULL};
 
 	require("cc/cc", logdepth, fatal);
 
@@ -1112,11 +1130,9 @@ int find__exit(const char *name, int logdepth, int fatal)
 	logprintf(logdepth, "find__exit: trying to find _exit()...\n");
 	logdepth++;
 
-	if (try_flags_inv(logdepth, NULL, test_c, NULL, NULL, "BAD")) {
-		put("cc/_exit/presents", strue);
-		report("found\n");
-		return 0;
-	}
+	for(i = incs; *i != NULL; i++)
+		if (find__exit_(*i, logdepth, fatal) == 0)
+			return 0;
 
 	put("cc/_exit/presents", sfalse);
 	report("Not found.\n");

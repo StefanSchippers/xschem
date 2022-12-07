@@ -82,6 +82,7 @@ int find_xinerama(const char *name, int logdepth, int fatal)
 	const char *node = "libs/gui/xinerama";
 	char **cflags,  *cflags_arr[]  = {"", NULL};
 	char **ldflags, *ldflags_arr[] = {"-lXinerama", NULL};
+	char **incs, *incs_arr[] = {"#include <X11/extensions/Xinerama.h>", "", NULL};
 	const char *xincludes, *xcflags, *xldflags;
 
 	if (require("cc/cc", logdepth, fatal))
@@ -100,8 +101,10 @@ int find_xinerama(const char *name, int logdepth, int fatal)
 
 	for(cflags = cflags_arr; *cflags != NULL; cflags++) {
 		for(ldflags = ldflags_arr; *ldflags != NULL; ldflags++) {
-			if (try_icl_with_deps(logdepth, node, test_c, NULL, *cflags, *ldflags, xincludes, xcflags, xldflags, 0) != 0) {
-				return 0;
+			for(incs = incs_arr; *incs != NULL; incs++) {
+				if (try_icl_with_deps(logdepth, node, test_c, *incs, *cflags, *ldflags, xincludes, xcflags, xldflags, 0) != 0) {
+					return 0;
+				}
 			}
 		}
 	}

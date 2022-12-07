@@ -27,6 +27,13 @@
 /* X11 specific globals                             */
 /* ------------------------------------------------ */
 Display *display;
+
+#if 0
+#ifdef HAS_XCB
+xcb_connection_t *xcb_conn;
+#endif
+#endif
+
 Colormap colormap;
 unsigned char **pixdata;
 unsigned char pixdata_init[22][32]={    /* fill patterns... indexed by laynumb. */

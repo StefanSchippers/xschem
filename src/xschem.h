@@ -85,6 +85,13 @@
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
 #include <X11/xpm.h>
+
+#if 0
+#ifdef HAS_XCB
+#include <X11/Xlib-xcb.h>
+#endif
+#endif
+
 #define xunlink unlink
 #define xfseek fseek
 #define xftell ftell
@@ -996,6 +1003,10 @@ extern Colormap colormap;
 extern unsigned char **pixdata;
 extern unsigned char pixdata_init[22][32];
 extern Display *display;
+
+#ifdef HAS_XCB
+extern xcb_connection_t *xcb_conn;
+#endif
 extern int screen_number;
 extern int screendepth;
 extern Pixmap cad_icon_pixmap, cad_icon_mask, *pixmap;
