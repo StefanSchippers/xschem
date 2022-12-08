@@ -1004,8 +1004,10 @@ extern unsigned char **pixdata;
 extern unsigned char pixdata_init[22][32];
 extern Display *display;
 
+#undef HAS_XCB
+
 #ifdef HAS_XCB
-extern xcb_connection_t *xcb_conn;
+xcb_connection_t *xcb_conn;
 #endif
 extern int screen_number;
 extern int screendepth;
