@@ -216,7 +216,7 @@ proc execute_fileevent {id} {
   append execute(data,$id) [read $execute(pipe,$id) 1024]
   if {[eof $execute(pipe,$id)]} {
       fileevent $execute(pipe,$id) readable ""
-      if { $execute(status,$id) } {
+      if { [regexp {1} $execute(status,$id)] } {
         # setting pipe to blocking before closing allows to see if pipeline failed
         # do not ask status for processes that close stdout/stderr, as eof might
         # occur before process ends and following close blocks until process terminates.
@@ -235,21 +235,15 @@ proc execute_fileevent {id} {
               viewdata "Failed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"
             } else {
               set status 1
-              if {$execute(status,$id) } {
-                viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"
-              }
+              viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"
             }
           } else {
             set status 1
-            if {$execute(status,$id) } {
-              viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"
-            }
+            viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"
           }
         }
         if {$status == 0} {
-          if {$execute(status,$id) } {
-            viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"
-          }
+          viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"
         }
       } else {
         # nonblocking close always succeed 
@@ -281,6 +275,13 @@ proc execute_wait {status args} {
 # equivalent to the 'exec' tcl function but keeps the event loop
 # responding, so widgets get updated properly
 # while waiting for process to end.
+# status:
+#   rw     open pipe in 'r+' (read write) mode instead of 'r'
+#   line   set line buffering mode of channel
+#   1      get status report at process end
+#   0      no status report
+#   these  options can be combined as in '1rwline'
+#
 proc execute {status args} {
   global execute has_x
   if {![info exists execute(id)]} {
@@ -293,7 +294,11 @@ proc execute {status args} {
     set execute(callback,$id) $execute(callback)
     unset execute(callback)
   }
-  if { [catch {open "|$args" r} err] } {
+  set mode r
+  if {[regexp {rw} $status]} {
+    set mode r+
+  }
+  if { [catch {open "|$args" $mode} err] } {
     puts stderr "Proc execute error: $err"
     if { [info exists has_x]} {
         tk_messageBox -message  \
@@ -309,6 +314,9 @@ proc execute {status args} {
   set execute(cmd,$id) $args
   set execute(data,$id) ""
   fconfigure $pipe -blocking 0
+  if {[regexp {line} $status]} {
+    fconfigure $pipe -buffering line
+  }
   fileevent $pipe readable "execute_fileevent $id"
   return $id
 }
