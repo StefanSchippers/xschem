@@ -86,12 +86,6 @@
 #include <X11/Xatom.h>
 #include <X11/xpm.h>
 
-#if 0
-#ifdef HAS_XCB
-#include <X11/Xlib-xcb.h>
-#endif
-#endif
-
 #define xunlink unlink
 #define xfseek fseek
 #define xftell ftell
@@ -106,6 +100,12 @@ extern void change_to_unix_fn(char* fn);
 extern char win_temp_dir[PATH_MAX];
 #define xfseek _fseeki64
 #define xftell _ftelli64
+#endif
+
+#undef HAS_XCB
+#ifdef  HAS_XCB
+#include <xcb/render.h>
+#include <X11/Xlib-xcb.h>
 #endif
 
 #if HAS_CAIRO==1
@@ -1004,10 +1004,8 @@ extern unsigned char **pixdata;
 extern unsigned char pixdata_init[22][32];
 extern Display *display;
 
-#undef HAS_XCB
-
 #ifdef HAS_XCB
-xcb_connection_t *xcb_conn;
+extern xcb_connection_t *xcb_conn;
 #endif
 extern int screen_number;
 extern int screendepth;

@@ -232,7 +232,6 @@ int hook_detect_target()
 			}
                         */
 		}
-                /* append("cc/cflags", " -Wformat -Werror=format-security"); */
 	}
 
 	if (require("libs/io/popen/*",  0, 0) != 0) {
@@ -243,12 +242,10 @@ int hook_detect_target()
 	require("libs/io/dup2/*",  0, 0); /* Stefan: query dup2() availability */
 	require("parsgen/flex/presents",  0, 1);
 	require("parsgen/bison/presents",  0, 1);
-	require("libs/script/tk/*",  0, 1); /* this will also bring libs/script/tcl */
+	require("libs/script/tk/*",  0, 1); /* this will also bring libs/script/tcl/* */
 	require("fstools/awk",  0, 1);
 	require("libs/gui/xpm/*",  0, 1);
 	require("libs/gui/cairo/*",  0, 0);
-
-
 
 	if (require("libs/gui/cairo-xcb/*",  0, 0) != 0) {
 		put("libs/gui/xcb/presents", sfalse);
@@ -268,9 +265,6 @@ int hook_detect_target()
 			}
 		}
 	}
-
-
-
 
 	return 0;
 }

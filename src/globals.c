@@ -28,10 +28,8 @@
 /* ------------------------------------------------ */
 Display *display;
 
-#if 0
 #ifdef HAS_XCB
 xcb_connection_t *xcb_conn;
-#endif
 #endif
 
 Colormap colormap;
