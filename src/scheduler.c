@@ -1335,7 +1335,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2) {
         my_strncpy(xctx->plotfile, argv[2], S(xctx->plotfile));
       }
-      hier_psprint();
+      hier_psprint(NULL, 1);
       Tcl_ResetResult(interp);
     }
     else if(!strcmp(argv[1], "hilight"))
@@ -1614,6 +1614,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         change_linewidth(atof(argv[2]));
         Tcl_ResetResult(interp);
       }
+    }
+
+    else if(!strcmp(argv[1], "list_hierarchy"))
+    {
+      char *res = NULL;
+      Tcl_ResetResult(interp);
+      hier_psprint(&res, 2);
+      Tcl_SetResult(interp, res, TCL_VOLATILE);
+      my_free(1645, &res);
     }
 
     else if(!strcmp(argv[1], "list_hilights"))

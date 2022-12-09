@@ -1255,6 +1255,15 @@ proc xschem_server {sock addr port} {
   fileevent $sock readable [list xschem_getdata $sock]
 }
 
+proc list_hierarchy {} {
+  set s [xschem list_hierarchy]
+  set r {}
+  foreach {a b} [lsort -decreasing -dictionary -index 0 -stride 2 $s] {
+    append r  $a {  } $b \n
+  }
+  return $r
+}
+
 ## given a path (x1.x2.m4) descend into x1.x2 and return m4 whether m4 found or not 
 proc descend_hierarchy {path {redraw 1}} {
   xschem set no_draw 1
@@ -6004,6 +6013,9 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
     } else {
       xschem set format {}
     }
+  }
+  $topwin.menubar.simulation.menu add command -label {Changelog from current hierarchy} -command {
+    viewdata [list_hierarchy]
   }
   $topwin.menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
          -command {xschem save; xschem reload}

@@ -1236,7 +1236,7 @@ extern void store_poly(int pos, double *x, double *y, int points,
 extern void store_arc(int pos, double x, double y, double r, double a, double b,
                unsigned int rectcolor, unsigned short sel, char *prop_ptr);
 
-extern void hier_psprint(void);
+extern void hier_psprint(char **res, int what);
 extern void global_spice_netlist(int global);
 extern void global_tedax_netlist(int global);
 extern void global_vhdl_netlist(int global);

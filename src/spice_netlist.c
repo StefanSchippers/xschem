@@ -24,7 +24,24 @@
 
 static Str_hashtable model_table = {NULL, 0}; /* safe even with multiple schematics */
 
-void hier_psprint(void)  /* netlister driver */
+static const char *hier_psprint_mtime(const char *file_name)
+{
+  static char date[200] = "";
+  struct stat time_buf;
+  struct tm *tm;
+  if(!stat(file_name , &time_buf)) {
+    tm=localtime(&(time_buf.st_mtime) );
+    strftime(date, sizeof(date), "%Y%m%d_%H%M%S", tm);
+  }
+  return date;
+}
+
+/* 
+ * what: 
+ * 1 : ps/pdf print
+ * 2 : list hierarchy
+ */
+void hier_psprint(char **res, int what)  /* netlister driver */
 {
   int i;
   char *subckt_name;
@@ -32,11 +49,17 @@ void hier_psprint(void)  /* netlister driver */
   char *abs_path = NULL;
   Str_hashtable subckt_table = {NULL, 0};
  
-  if(!ps_draw(1)) return; /* prolog */
+  if((what & 1)  && !ps_draw(1)) return; /* prolog */
   xctx->push_undo();
   str_hash_init(&subckt_table, HASHSIZE);
   zoom_full(0, 0, 1, 0.97);
-  ps_draw(2); /* page */
+  if(what & 1) ps_draw(2); /* page */
+  if(what & 2) { /* print cellname */
+    my_strcat(1637, res, hier_psprint_mtime(xctx->sch[xctx->currsch]));
+    my_strcat(1638, res, "  {");
+    my_strcat(1639, res, xctx->sch[xctx->currsch]);
+    my_strcat(1640, res, "}\n");
+  }
   dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
   unselect_all(1);
   remove_symbols(); /* ensure all unused symbols purged before descending hierarchy */
@@ -50,10 +73,13 @@ void hier_psprint(void)  /* netlister driver */
   subckt_name=NULL;
   for(i=0;i<xctx->symbols;i++)
   {
+    int flag;
     /* for printing we process also symbols that have *_ignore attribute */
     if(!xctx->sym[i].type || !xctx->sym[i].name || !xctx->sym[i].name[0]) continue; /* can not descend into */
     my_strdup2(1230, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
-    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(2, abs_path))
+    if(what & 1) flag = check_lib(2, abs_path); /* noprint_libs */
+    else flag = check_lib(1, abs_path); /* xschem_libs */
+    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && flag)
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(1228, &subckt_name, get_cell(xctx->sym[i].name, 0));
@@ -64,7 +90,13 @@ void hier_psprint(void)  /* netlister driver */
         /* for printing we go down to bottom regardless of spice_stop attribute */
         load_schematic(1,filename, 0);
         zoom_full(0, 0, 1, 0.97);
-        ps_draw(2); /* page */
+        if(what & 1) ps_draw(2); /* page */
+        if(what & 2) { /* print cellname */
+          my_strcat(1641, res, hier_psprint_mtime(xctx->sch[xctx->currsch]));
+          my_strcat(1642, res, "  {");
+          my_strcat(1643, res, xctx->sch[xctx->currsch]);
+          my_strcat(1644, res, "}\n");
+        }
         dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
       }
     }
@@ -77,7 +109,7 @@ void hier_psprint(void)  /* netlister driver */
   unselect_all(1);
   xctx->pop_undo(0, 0);
   my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
-  ps_draw(4); /* trailer */
+  if(what & 1) ps_draw(4); /* trailer */
   zoom_full(0, 0, 1, 0.97);
   draw();
 }
