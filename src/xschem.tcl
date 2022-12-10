@@ -5280,7 +5280,7 @@ set tctx::global_list {
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols hsize
   incr_hilight infowindow_text input_line_cmd input_line_data launcher_default_program
   light_colors line_width live_cursor2_backannotate local_netlist_dir measure_text netlist_show
-  netlist_type no_change_attrs noprint_libs old_selected_tok only_probes path pathlist
+  netlist_type no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
   rawfile_loaded rcode recentfile
   replace_key retval retval_orig rotated_text search_exact search_found search_schematic
@@ -6279,6 +6279,7 @@ if {[file exists ${XSCHEM_TMP_DIR}/xschem_web] } {
 # used in C code
 set_ne xschem_libs {}
 set_ne noprint_libs {}
+set_ne nolist_libs {}
 set_ne debug_var 0
 # used to activate debug from menu
 set_ne menu_debug_var 0

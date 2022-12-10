@@ -78,7 +78,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
     if(!xctx->sym[i].type || !xctx->sym[i].name || !xctx->sym[i].name[0]) continue; /* can not descend into */
     my_strdup2(1230, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(what & 1) flag = check_lib(2, abs_path); /* noprint_libs */
-    else flag = check_lib(1, abs_path); /* xschem_libs */
+    else flag = check_lib(4, abs_path); /* nolist_libs */
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && flag)
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */

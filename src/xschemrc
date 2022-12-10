@@ -105,6 +105,11 @@
 #### variable controls hierarchical print
 #### default value: empty
 # set noprint_libs {}
+#### nolist_libs is a list with same rules as for xschem_libs. This
+#### variable controls cell listing in procedure list_hierarchy.
+#### default value: empty
+# set nolist_libs {}
+
 
 ###########################################################################
 #### CHANGE DEFAULT [] WITH SOME OTHER CHARACTERS FOR BUSSED SIGNALS 
