@@ -1050,6 +1050,7 @@ extern char **cli_opt_argv;
 extern int cli_opt_netlist_type;
 extern int cli_opt_flat_netlist;
 extern char cli_opt_plotfile[PATH_MAX];
+extern char cli_opt_diff[PATH_MAX];
 extern char cli_opt_netlist_dir[PATH_MAX];
 extern char cli_opt_filename[PATH_MAX];
 extern int cli_opt_no_readline;

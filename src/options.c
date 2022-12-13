@@ -85,6 +85,10 @@ static void check_opt(char *opt, char *optval, int type)
         dbg(1, "process_options(): passing tcl command to interpreter: %s\n", optval);
         if(optval)  my_strdup(661, &cli_opt_tcl_post_command, optval);
 
+    } else if( (type == LONG && !strcmp("diff", opt)) ) {
+        dbg(1, "process_options(): diff with: %s\n", optval);
+        if(optval) my_strncpy(cli_opt_diff, optval, S(cli_opt_diff));
+
     } else if( (type == LONG && !strcmp("tcp_port", opt)) ) {
         dbg(1, "process_options(): setting tcp port: %s\n", optval);
         if(optval) tcp_port=atoi(optval);
@@ -193,6 +197,9 @@ int process_options(int argc, char *argv[])
             else if(!strcmp("command", opt)) {
               optval = argv[++i];
             }
+            else if(!strcmp("diff", opt)) {
+              optval = argv[++i];
+            }
             else if(!strcmp("tcp_port", opt)) {
               optval = argv[++i];
             }
@@ -242,7 +249,7 @@ int process_options(int argc, char *argv[])
       argv[arg_cnt++] = opt;
     }
   }
-  if (arg_cnt>=2) {
+  if (arg_cnt > 1) {
     dbg(1, "process_option(): file name given: %s\n",argv[1]);
     my_strncpy(cli_opt_filename, argv[1], S(cli_opt_filename));
 #ifndef __unix__

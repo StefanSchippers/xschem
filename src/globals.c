@@ -185,6 +185,7 @@ char **cli_opt_argv = NULL;
 int cli_opt_netlist_type = 0;
 int cli_opt_flat_netlist = 0;
 char cli_opt_plotfile[PATH_MAX] = "";
+char cli_opt_diff[PATH_MAX] = "";
 char cli_opt_netlist_dir[PATH_MAX] = "";
 char cli_opt_filename[PATH_MAX] = ""; /* filename given on cmdline */
 int cli_opt_no_readline=0;

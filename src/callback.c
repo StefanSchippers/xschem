@@ -1175,7 +1175,11 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       /* redraw selection on expose, needed if no backing store available on the server 20171112 */
       XSetClipRectangles(display, xctx->gc[SELLAYER], 0,0, xr, 1, Unsorted);
       rebuild_selected_array();
-      draw_selection(xctx->gc[SELLAYER],0);
+      if(tclgetboolvar("compare_sch") && xctx->sch_to_compare[0]){
+        compare_schematics("");
+      } else {
+        draw_selection(xctx->gc[SELLAYER],0);
+      }
       XSetClipMask(display, xctx->gc[SELLAYER], None);
     }
     dbg(1, "callback(): Expose\n");
@@ -1826,9 +1830,19 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     }
     break;
    }
+   if(key=='X' && state == (ShiftMask|ControlMask)) /* swap compare schematics */
+   {
+     tcleval("swap_compare_schematics");
+   }
    if(key=='x' && state == Mod1Mask) /* compare schematics(must set first) */
    {
-     compare_schematics("");
+     unselect_all(0);
+     if(tclgetboolvar("compare_sch")) {
+       tclsetvar("compare_sch", "0");
+     } else {
+       tclsetvar("compare_sch", "1");
+     }
+     draw();
    }
    if(key=='x' && state == ControlMask) /* cut selection into clipboard */
    {

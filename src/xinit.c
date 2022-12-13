@@ -687,7 +687,7 @@ int compare_schematics(const char *f)
     my_strncpy(xctx->sch_to_compare, f, S(xctx->sch_to_compare));
   }
   if(!xctx->sch_to_compare[0]) {
-     my_strncpy(xctx->sch_to_compare, abs_sym_path(xctx->current_name, ""), S(xctx->sch_to_compare));
+     my_strncpy(xctx->sch_to_compare, xctx->sch[xctx->currsch], S(xctx->sch_to_compare));
      dbg(0, "Compare current schematic with saved version of itself!\n");
   }
 
@@ -2437,10 +2437,15 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_snprintf(pwd_dir, S(pwd_dir), "%s", tclgetvar("env(PWD)"));
  }
 
+ if(cli_opt_diff[0]) {
+   my_strncpy(xctx->sch_to_compare, abs_sym_path(cli_opt_diff, ""), S(xctx->sch_to_compare));
+   tclsetvar("compare_sch", "1");
+ } 
+
  if(cli_opt_filename[0]) {
     char f[PATH_MAX];
 
-#ifdef __unix__
+   #ifdef __unix__
    if(strstr(cli_opt_filename, "http://") == cli_opt_filename ||
       strstr(cli_opt_filename, "https://") == cli_opt_filename) {
      my_snprintf(f, S(f), "%s", cli_opt_filename);
@@ -2453,9 +2458,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
    } else {
      my_snprintf(f, S(f), "%s", cli_opt_filename);
    }
-#else
+   #else
    my_strncpy(f, abs_sym_path(cli_opt_filename, ""), S(f));
-#endif
+   #endif
    dbg(1, "Tcl_AppInit(): cli_opt_filename %s given, removing symbols\n", cli_opt_filename);
    remove_symbols();
    /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
@@ -2466,9 +2471,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
    char * tmp;
    char fname[PATH_MAX];
    tmp = (char *) tclgetvar("XSCHEM_START_WINDOW");
-#ifndef __unix__
+   #ifndef __unix__
    change_to_unix_fn(tmp);
-#endif
+   #endif
    dbg(1, "Tcl_AppInit(): tmp=%s\n", tmp? tmp: "NULL");
    my_strncpy(fname, abs_sym_path(tmp, ""), S(fname));
     /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
@@ -2528,7 +2533,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
        print_image();
      }
    }
-   else svg_draw();
+   else {
+     tcleval("tkwait visibility .drw");
+     svg_draw();
+   }
  }
 
  if(cli_opt_do_simulation) {

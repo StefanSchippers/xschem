@@ -66,8 +66,10 @@ int textclip(int x1,int y1,int x2,int y2,
 /* check if some of (xa,ya-xb,yb) is inside (x1,y1-x2,y2) */
 /* coordinates should be ordered, x1<x2,ya<yb and so on... */
 {
+ /* 
  dbg(2, "textclip(): %.16g %.16g %.16g %.16g - %d %d %d %d\n",
  X_TO_SCREEN(xa),Y_TO_SCREEN(ya), X_TO_SCREEN(xb),Y_TO_SCREEN(yb),x1,y1,x2,y2);
+ */
  /* drawtemprect(xctx->gc[WIRELAYER],xa,ya,xb,yb); */
  if          (X_TO_SCREEN(xa)>x2) return 0;
  else if     (Y_TO_SCREEN(ya)>y2) return 0;
@@ -85,7 +87,7 @@ void print_image()
   static char lastdir[PATH_MAX] = "";
   const char *r;
 
-  if(!has_x) return ;
+  if(!has_x) return;
   if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
   if(!xctx->plotfile[0]) {
     tclvareval("tk_getSaveFile -title {Select destination file} -initialfile {",
@@ -3247,6 +3249,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   size_t olength;
   const double max_size = 2000.0;
 
+  if(!has_x) return;
   rw = fabs(rx2 -rx1);
   rh = fabs(ry2 - ry1);
   scale = 1.0;
@@ -3520,7 +3523,11 @@ void draw(void)
                       xctx->xrect[0].width, xctx->xrect[0].height);
       #endif
     }
-    draw_selection(xctx->gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
+    if(tclgetboolvar("compare_sch") && xctx->sch_to_compare[0]){
+      compare_schematics("");
+    } else {
+      draw_selection(xctx->gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
+    }
   } /* if(has_x) */
 }
 

@@ -15,6 +15,7 @@ Options:
                        and before loading xschemrc.
   --script <file>      Execute specified tcl file as a command script (perhaps with xschem  commands).
   --command <tcl_cmd>  Execute specified tcl commands after completing startup.
+  --diff <file>        Show differences with given file.
   --tcp_port <number>  Listen to specified tcp port for client connections. (number >=1024).
   -i  --no_rcload      Do not load any xschemrc file.
   --netlist_path <path>
