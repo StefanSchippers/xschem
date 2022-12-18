@@ -2192,6 +2192,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
       my_strncpy(xctx->current_name, rel_sym_path(filename), S(xctx->current_name));
     /* local file specified and not coming from web url */
     } else {
+      /* if name is /some/path/.  remove /. at end */
       my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       /* local file name */
@@ -2199,7 +2200,6 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
       /* local relative reference */
       my_strncpy(xctx->current_name, rel_sym_path(filename), S(xctx->current_name));
     }
-    /* if name is /some/path/.  remove /. at end */
     dbg(1, "load_schematic(): opening file for loading:%s, filename=%s\n", name, filename);
     dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
     if(!name[0]) return;

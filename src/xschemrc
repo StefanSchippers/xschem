@@ -21,6 +21,7 @@
 #### /home/schippes/share/doc/xschem/ngspice
 #### /home/schippes/share/doc/xschem/logic
 #### /home/schippes/share/doc/xschem/xschem_simulator
+#### /home/schippes/share/doc/xschem/generators
 #### /home/schippes/share/doc/xschem/binto7seg
 #### /home/schippes/share/doc/xschem/pcb
 #### /home/schippes/share/doc/xschem/rom8k
@@ -33,6 +34,7 @@
 #### ../xschem_library/ngspice
 #### ../xschem_library/logic
 #### ../xschem_library/xschem_simulator
+#### ../xschem_library/generators
 #### ../xschem_library/binto7seg
 #### ../xschem_library/pcb
 #### ../xschem_library/rom8k
@@ -48,6 +50,7 @@
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/rom8k
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/logic
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/pcb
+# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/generators
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/binto7seg
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/symgen
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/xTAG
@@ -64,6 +67,7 @@
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/rom8k"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/logic"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/pcb"
+# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/generators"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/binto7seg"
 
 ###########################################################################

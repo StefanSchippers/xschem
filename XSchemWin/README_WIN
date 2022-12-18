@@ -90,6 +90,7 @@ INSTRUCTIONS TO COMPILE XSCHEM IN VISUAL STUDIO 2022
         C:/Program Files/XSchem/xschem_library/ngspice
         C:/Program Files/XSchem/xschem_library/logic
         C:/Program Files/XSchem/xschem_library/binto7seg
+        C:/Program Files/XSchem/xschem_library/generators
         C:/Program Files/XSchem/xschem_library/pcb
         C:/Program Files/XSchem/xschem_library/rom8k
 

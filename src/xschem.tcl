@@ -6149,8 +6149,9 @@ proc set_paths {} {
         lappend pathlist $i
       }
     }
-    set myload_files1 $pathlist
   }
+  if {$pathlist eq {}} { set pathlist [pwd] }
+  set myload_files1 $pathlist
   # set INITIALLOADDIR INITIALINSTDIR INITIALPROPDIR as initial locations in load file dialog box
   set_initial_dirs
 }

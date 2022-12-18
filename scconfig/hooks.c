@@ -141,6 +141,11 @@ int hook_postarg()
 		append("/local/xschem/xschem-lib-path", ":");
 		append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
 		append("/local/xschem/xschem-lib-path", "/");
+		append("/local/xschem/xschem-lib-path", "share/doc/xschem/generators");
+
+		append("/local/xschem/xschem-lib-path", ":");
+		append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
+		append("/local/xschem/xschem-lib-path", "/");
 		append("/local/xschem/xschem-lib-path", "share/doc/xschem/binto7seg");
 
 		append("/local/xschem/xschem-lib-path", ":");
