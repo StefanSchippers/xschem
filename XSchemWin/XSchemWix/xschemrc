@@ -59,7 +59,6 @@
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/gschem_import/sym
 
 #### For Windows, use ; instead of :, and enclosed pathname with ""
-# append XSCHEM_LIBRARY_PATH ";//192.168.1.1/Projects/mysch"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/devices"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/examples"
@@ -110,6 +109,11 @@
 #### variable controls hierarchical print
 #### default value: empty
 # set noprint_libs {}
+#### nolist_libs is a list with same rules as for xschem_libs. This
+#### variable controls cell listing in procedure list_hierarchy.
+#### default value: empty
+# set nolist_libs {}
+
 
 ###########################################################################
 #### CHANGE DEFAULT [] WITH SOME OTHER CHARACTERS FOR BUSSED SIGNALS 

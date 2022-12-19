@@ -1994,7 +1994,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
 #else
  char *up_hier=NULL, *win_xschem_library_path=NULL;
- #define WIN_XSCHEM_LIBRARY_PATH_NUM 9
+ #define WIN_XSCHEM_LIBRARY_PATH_NUM 10
  const char *WIN_XSCHEM_LIBRARY_PATH[WIN_XSCHEM_LIBRARY_PATH_NUM] = {
    /*1*/  "xschem_library",
    /*2*/  "xschem_library/devices", 

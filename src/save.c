@@ -2141,12 +2141,11 @@ void link_symbols_to_instances(int from) /* from >= 0 : linking symbols from pas
   }
 }
 
-/* ALWAYS use absolute pathname for filename!!! */
+/* ALWAYS use absolute pathname for fname!!! */
 void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 20150327 added reset_undo */
 {
   FILE *fd;
   char name[PATH_MAX];
-  char filename[PATH_MAX];
   char msg[PATH_MAX+100];
   struct stat buf;
   int i;
@@ -2159,17 +2158,16 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
   if(reset_undo) xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
   else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
   if(fname && fname[0]) {
-    my_strncpy(filename, fname, S(filename));
-    my_strncpy(name, filename, S(name));
+    my_strncpy(name, fname, S(name));
     /* remote web object specified */
-    if(strstr(filename , "http://") == filename ||
-       strstr(filename , "https://") == filename) {
+    if(strstr(fname , "http://") == fname ||
+       strstr(fname , "https://") == fname) {
       /* download into ${XSCHEM_TMP_DIR}/xschem_web */
-      tclvareval("download_url {", filename, "}", NULL);
+      tclvareval("download_url {", fname, "}", NULL);
       /* build local file name of downloaded object */
-      my_snprintf(name, S(name), "%s/xschem_web/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
+      my_snprintf(name, S(name), "%s/xschem_web/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(fname, 0));
       /* build current_dirname by stripping off last filename from url */
-      my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
+      my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", fname);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       /* local file name */
       my_strncpy(xctx->sch[xctx->currsch], name, S(xctx->sch[xctx->currsch]));
@@ -2182,25 +2180,25 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
       /* ... but not local file from web download --> reset current_dirname */
       char sympath[PATH_MAX];
       my_snprintf(sympath, S(sympath), "%s/xschem_web",  tclgetvar("XSCHEM_TMP_DIR"));
-      if(strstr(filename, sympath) != filename) {
-        my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
+      if(strstr(fname, sympath) != fname) {
+        my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", fname);
         my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       }
       /* local file name */
-      my_strncpy(xctx->sch[xctx->currsch], filename, S(xctx->sch[xctx->currsch]));
+      my_strncpy(xctx->sch[xctx->currsch], fname, S(xctx->sch[xctx->currsch]));
       /* local relative reference */
-      my_strncpy(xctx->current_name, rel_sym_path(filename), S(xctx->current_name));
+      my_strncpy(xctx->current_name, rel_sym_path(fname), S(xctx->current_name));
     /* local file specified and not coming from web url */
     } else {
       /* if name is /some/path/.  remove /. at end */
-      my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", filename);
+      my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", fname);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       /* local file name */
-      my_strncpy(xctx->sch[xctx->currsch], filename, S(xctx->sch[xctx->currsch]));
+      my_strncpy(xctx->sch[xctx->currsch], fname, S(xctx->sch[xctx->currsch]));
       /* local relative reference */
-      my_strncpy(xctx->current_name, rel_sym_path(filename), S(xctx->current_name));
+      my_strncpy(xctx->current_name, rel_sym_path(fname), S(xctx->current_name));
     }
-    dbg(1, "load_schematic(): opening file for loading:%s, filename=%s\n", name, filename);
+    dbg(1, "load_schematic(): opening file for loading:%s, fname=%s\n", name, fname);
     dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
     if(!name[0]) return;
     if(reset_undo) {
@@ -2212,8 +2210,8 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
       }
     }
     if( (fd=fopen(name,fopen_read_mode))== NULL) {
-      fprintf(errfp, "load_schematic(): unable to open file: %s, filename=%s\n", name, filename );
-      my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", filename);
+      fprintf(errfp, "load_schematic(): unable to open file: %s, fname=%s\n", name, fname );
+      my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", fname);
       tcleval(msg);
       clear_drawing();
       if(reset_undo) set_modify(0);
