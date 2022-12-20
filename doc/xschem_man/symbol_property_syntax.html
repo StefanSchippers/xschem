@@ -485,7 +485,22 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
   <li><kbd>schematic</kbd></li>
   <p>
    This attribute specifies an alternate schematic file to open when descending into the subcircuit:
+  </p>
    <pre class="code"> schematic=inv_2.sch</pre>
+  <p>
+   It is possible to call a TCL procedure to decide the schematic to descend into:
+  </p>
+   <pre class="code"> schematic="tcleval([hierarchy_config @symname])"</pre>
+  <p>
+   The above <kbd>schematic</kbd> attribute will be evaluated by a <kbd>hierarchy_config</kbd>
+   TCL procedure (which must be defined) and the @symname attribute will be expanded to the name of the
+   symbol before passing the argument to the TCL procedure.
+   This allows user defined schematic selection in the hierarchy to simulate the design at different 
+   details/abstraction levels.<br>
+   One suggested approach is to define for a given <kbd>opamp_65nm.sym</kbd> symbol several schematics like
+   <kbd>opamp_65nm.sch</kbd>, <kbd>opamp_65nm_pex.sch</kbd>, <kbd>opamp_65nm_aged.sch</kbd>, 
+   <kbd>opamp_65nm_empty.sch</kbd>, ... and define some user accessible method in hierarchy_config procedure
+   to select one of these 'switch' schematics.
   </p>
  </ul>
  <h3>PREDEFINED SYMBOL VALUES</h3>
