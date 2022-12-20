@@ -1180,8 +1180,8 @@ void launcher(void)
 void get_sch_from_sym(char *filename, xSymbol *sym)
 {
   char *sch = NULL;
-  const char *str_tmp;
-
+  char *str_tmp = NULL;
+  char *ptr;
   int web_url = 0;
 
   /* get sch/sym name from parent schematic downloaded from web */
@@ -1189,8 +1189,21 @@ void get_sch_from_sym(char *filename, xSymbol *sym)
       strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
     web_url = 1;
   }
-  if((str_tmp = get_tok_value(sym->prop_ptr, "schematic",0 ))[0]) {
-    my_strdup2(1252, &sch, str_tmp);
+  my_strdup2(1646, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 2));
+  if(str_tmp[0]) {
+    /* @symname in schematic attribute will be replaced with symbol name */
+    if( (ptr = strstr(str_tmp, "@symname"))) {
+      *ptr = '\0';
+      my_strdup2(1648, &sch, str_tmp);
+      my_strcat(1649, &sch, sym->name);
+      ptr += 8;
+      my_strcat(1650, &sch, ptr);
+    } else {
+      my_strdup2(1252, &sch, str_tmp);
+    }
+    dbg(1, "get_sch_from_sym(): sch=%s\n", sch);
+    my_strdup2(1651, &sch, tcl_hook2(&sch));
+    dbg(1, "get_sch_from_sym(): after tcl_hook2 sch=%s\n", sch);
     /* for schematics referenced from web symbols do not build absolute path */
     if(web_url) my_strncpy(filename, sch, PATH_MAX);
     else my_strncpy(filename, abs_sym_path(sch, ""), PATH_MAX);
@@ -1206,6 +1219,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym)
       else my_strncpy(filename, add_ext(abs_sym_path(sym->name, ""), ".sch"), PATH_MAX);
     }
   }
+  my_free(1647, &str_tmp);
   dbg(1, "get_sch_from_sym(): sym->name=%s, filename=%s\n", sym->name, filename);
 }
 
