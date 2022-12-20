@@ -20,7 +20,7 @@ subdivx=8
 node="\\"diffout db20()\\""
 color=4
 
-unitx=M
+unitx=1
 divx=10
 
 logx=1

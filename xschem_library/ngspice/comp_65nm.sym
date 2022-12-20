@@ -1,9 +1,11 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {type=subcircuit
 format="@name @pinlist @symname"
 template="name=x1"
-}
+xschematic="tcleval([ hier_conf @symname ])"
+schematic=@symname}
 V {}
 S {}
 E {}
