@@ -147,7 +147,9 @@ p{padding: 15px  30px 10px;}
      <pre class="code">
 C {TECHLIB/PCH} 620 -810 0 0 {name=x5 model=PCHLV w=4 l=0.09  m=1 embed=true}
 [
-G {type=pmos
+v {xschem version=2.9.7 file_version=1.2}
+G {}
+K {type=pmos
 format="@name @pinlist @model w=@w l=@l m=@m"
 verilog_format="@verilog_gate #(@del ) @name ( @@d , @@s , @@g );"
 template=" name=x1 verilog_gate=pmos del=50,50,50 model=PCH w=0.68 l=0.07 m=1 "
@@ -214,7 +216,7 @@ v {xschem version=3.1.0 file_version=1.2
  <h3>GLOBAL SCHEMATIC/SYMBOL PROPERTIES</h3>
  <p>
   Example:<kbd><br>
-G {type=regulator<br>
+K {type=regulator<br>
 format="x@name @pinlist r@symname"<br>
 verilog_format="assign @#2 = @#0 ;"<br>
 tedax_format="footprint @name @footprint<br>
@@ -348,7 +350,8 @@ device="tantalium capacitor"<br>
  </p>
  <h3>EXAMPLE OF A COMPLETE SYMBOL FILE (7805.sym)</h3><br>
  <pre class="code">
-G {type=regulator
+G {}
+K {type=regulator
 format="x@name @pinlist r@symname"
 verilog_format="assign @#2 = @#0 ;"
 tedax_format="footprint @name @footprint
@@ -378,6 +381,7 @@ T {@#2:pinnumber} 47.5 -2.5 0 1 0.12 0.12 {}
  <h3>EXAMPLE OF A COMPLETE SCHEMATIC FILE (pcb_test1.sch)</h3><br>
  <pre class="code">
 G {}
+K {}
 V {}
 S {}
 E {}
