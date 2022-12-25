@@ -508,6 +508,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
 #if HAS_CAIRO==1
   xctx->cairo_ctx = xctx->cairo_save_ctx = NULL;
   xctx->cairo_sfc = xctx->cairo_save_sfc = NULL;
+  xctx->cairo_font = NULL;
 #endif
   xctx->gctiled = 0;
   /* get_unnamed_node() */
@@ -1772,11 +1773,12 @@ static void resetcairo(int create, int clear, int force_or_resize)
     if(cairo_surface_status(xctx->cairo_save_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
     }
+    xctx->cairo_font =
+       cairo_toy_font_face_create(tclgetvar("cairo_font_name"), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
     xctx->cairo_save_ctx = cairo_create(xctx->cairo_save_sfc);
     /* cairo_set_antialias (xctx->cairo_save_ctx, CAIRO_ANTIALIAS_NONE); */
-    cairo_select_font_face(xctx->cairo_save_ctx, tclgetvar("cairo_font_name"), 
-      CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
     cairo_set_font_size(xctx->cairo_save_ctx, 20);
 
     cairo_set_font_options(xctx->cairo_save_ctx, options);
@@ -1796,8 +1798,7 @@ static void resetcairo(int create, int clear, int force_or_resize)
     }
     xctx->cairo_ctx = cairo_create(xctx->cairo_sfc);
     /* cairo_set_antialias (xctx->cairo_ctx, CAIRO_ANTIALIAS_NONE); */
-    cairo_select_font_face(xctx->cairo_ctx, tclgetvar("cairo_font_name"),
-      CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
     cairo_set_font_size(xctx->cairo_ctx, 20);
 
     cairo_set_font_options(xctx->cairo_ctx, options);

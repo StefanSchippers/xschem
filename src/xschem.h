@@ -830,6 +830,7 @@ typedef struct {
   #if HAS_CAIRO==1
   cairo_surface_t *cairo_sfc, *cairo_save_sfc;
   cairo_t *cairo_ctx, *cairo_save_ctx;
+  cairo_font_face_t *cairo_font;
   #endif
   GC gctiled;
   GC *gc;

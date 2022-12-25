@@ -2623,8 +2623,10 @@ int place_text(int draw_text, double mx, double my)
     if(t->flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
     cairo_save(xctx->cairo_ctx);
     cairo_save(xctx->cairo_save_ctx);
-    cairo_select_font_face (xctx->cairo_ctx, textfont, slant, weight);
-    cairo_select_font_face (xctx->cairo_save_ctx, textfont, slant, weight);
+    xctx->cairo_font =
+          cairo_toy_font_face_create(textfont, slant, weight);
+    cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
+    cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
   }
   #endif
   save_draw=xctx->draw_window;
