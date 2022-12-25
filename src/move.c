@@ -217,7 +217,9 @@ void draw_selection(GC g, int interruptable)
        xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
        xctx->text[n].xscale, xctx->text[n].yscale);
      #if HAS_CAIRO==1
-     if(customfont) cairo_restore(xctx->cairo_ctx);
+     if(customfont) {
+       cairo_restore(xctx->cairo_ctx);
+     }
      #endif
 
      break;
@@ -939,7 +941,9 @@ void copy_objects(int what)
           xctx->text[l].x0, xctx->text[l].y0,
           &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpi, &dtmp);
         #if HAS_CAIRO==1
-        if(customfont) cairo_restore(xctx->cairo_ctx);
+        if(customfont) {
+          cairo_restore(xctx->cairo_ctx);
+        }
         #endif
         bbox(ADD, xctx->rx1, xctx->ry1, xctx->rx2, xctx->ry2 );
   
@@ -1457,7 +1461,9 @@ void move_objects(int what, int merge, double dx, double dy)
          xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
          &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
       #if HAS_CAIRO==1
-      if(customfont) cairo_restore(xctx->cairo_ctx);
+      if(customfont) {
+        cairo_restore(xctx->cairo_ctx);
+      }
       #endif
       bbox(ADD, xctx->rx1, xctx->ry1, xctx->rx2, xctx->ry2 );
       if(xctx->rotatelocal) {
@@ -1481,7 +1487,9 @@ void move_objects(int what, int merge, double dx, double dy)
          xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
          &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
       #if HAS_CAIRO==1
-      if(customfont) cairo_restore(xctx->cairo_ctx);
+      if(customfont) {
+        cairo_restore(xctx->cairo_ctx);
+      }
       #endif
       bbox(ADD, xctx->rx1, xctx->ry1, xctx->rx2, xctx->ry2 );
 

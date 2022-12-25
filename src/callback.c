@@ -328,6 +328,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         cairo_toy_font_face_create("Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
   cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
+  cairo_font_face_destroy(xctx->cairo_font);
   #endif
   gr = &xctx->graph_struct;
   for(i=0; i < xctx->rects[GRIDLAYER]; i++) {

@@ -999,7 +999,9 @@ static void edit_text_property(int x)
                  xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
                  &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
        #if HAS_CAIRO==1
-       if(customfont) cairo_restore(xctx->cairo_ctx);
+       if(customfont) {
+         cairo_restore(xctx->cairo_ctx);
+       }
        #endif
        bbox(ADD, xx1, yy1, xx2, yy2 );
        /* dbg(1, "edit_property(): text props=%s text=%s\n", tclgetvar("props"), tclgetvar("retval")); */
@@ -1018,7 +1020,9 @@ static void edit_text_property(int x)
              xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
              &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
              #if HAS_CAIRO==1
-             if(customfont) cairo_restore(xctx->cairo_ctx);
+             if(customfont) {
+               cairo_restore(xctx->cairo_ctx);
+             }
              #endif
              pcx = (xctx->rect[PINLAYER][l].x1+xctx->rect[PINLAYER][l].x2)/2.0;
              pcy = (xctx->rect[PINLAYER][l].y1+xctx->rect[PINLAYER][l].y2)/2.0;
@@ -1078,7 +1082,9 @@ static void edit_text_property(int x)
                   xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
                  &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
        #if HAS_CAIRO==1
-       if(customfont) cairo_restore(xctx->cairo_ctx);
+       if(customfont) {
+         cairo_restore(xctx->cairo_ctx);
+       }
        #endif
 
        bbox(ADD, xx1, yy1, xx2, yy2 );

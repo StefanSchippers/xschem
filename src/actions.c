@@ -1557,7 +1557,9 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
      updatebbox(count,boundbox,&rect);
    }
    #if HAS_CAIRO==1
-   if(customfont) cairo_restore(xctx->cairo_ctx);
+   if(customfont) {
+     cairo_restore(xctx->cairo_ctx);
+   }
    #endif
  }
  for(i=0;i<xctx->instances;i++)
@@ -2391,9 +2393,9 @@ int text_bbox(const char *str, double xscale, double yscale,
   /*  if(size*xctx->mooz>800.) { */
   /*    return 0; */
   /*  } */
+
   cairo_set_font_size (xctx->cairo_ctx, size*xctx->mooz);
   cairo_font_extents(xctx->cairo_ctx, &fext);
-
   ww=0.; hh=1.;
   c=0;
   *cairo_lines=1;
@@ -2627,6 +2629,7 @@ int place_text(int draw_text, double mx, double my)
           cairo_toy_font_face_create(textfont, slant, weight);
     cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
     cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
+    cairo_font_face_destroy(xctx->cairo_font);
   }
   #endif
   save_draw=xctx->draw_window;

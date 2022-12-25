@@ -179,7 +179,9 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
        sym_flip ^ text.flip, text.hcenter, text.vcenter,
        x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
      #if HAS_CAIRO==1
-     if(customfont) cairo_restore(xctx->cairo_ctx);
+     if(customfont) {
+       cairo_restore(xctx->cairo_ctx);
+     }
      #endif
      if(xx1<*x1) *x1=xx1;
      if(yy1<*y1) *y1=yy1;
@@ -214,7 +216,9 @@ static void del_rect_line_arc_poly(void)
                xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
                &xx1,&yy1,&xx2,&yy2, &itmp, &dtmp);
      #if HAS_CAIRO==1
-     if(customfont) cairo_restore(xctx->cairo_ctx);
+     if(customfont) {
+       cairo_restore(xctx->cairo_ctx);
+     }
      #endif
      bbox(ADD, xx1, yy1, xx2, yy2 );
    }
@@ -359,7 +363,9 @@ void delete(int to_push_undo)
                 xctx->text[i].vcenter, xctx->text[i].x0, xctx->text[i].y0,
                 &xx1,&yy1, &xx2,&yy2, &tmp, &dtmp);
       #if HAS_CAIRO==1
-      if(customfont) cairo_restore(xctx->cairo_ctx);
+      if(customfont) {
+        cairo_restore(xctx->cairo_ctx);
+      }
       #endif
       bbox(ADD, xx1, yy1, xx2, yy2 );
       my_free(935, &xctx->text[i].prop_ptr);
@@ -641,7 +647,9 @@ void unselect_all(int dr)
          xctx->text[i].x0, xctx->text[i].y0,
          xctx->text[i].xscale, xctx->text[i].yscale);
         #if HAS_CAIRO==1
-        if(customfont) cairo_restore(xctx->cairo_ctx);
+        if(customfont) {
+          cairo_restore(xctx->cairo_ctx);
+        }
         #endif
       }
      }
@@ -822,7 +830,9 @@ void select_text(int i,unsigned short select_mode, int fast)
      xctx->text[i].x0, xctx->text[i].y0,
      xctx->text[i].xscale, xctx->text[i].yscale);
   #if HAS_CAIRO==1
-  if(customfont) cairo_restore(xctx->cairo_ctx);
+  if(customfont) {
+    cairo_restore(xctx->cairo_ctx);
+  }
   #endif
   xctx->need_reb_sel_arr=1;
 }
@@ -1046,7 +1056,9 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2, &tmpint, &dtmp);
   #if HAS_CAIRO==1
-  if(customfont) cairo_restore(xctx->cairo_ctx);
+  if(customfont) {
+    cairo_restore(xctx->cairo_ctx);
+  }
   #endif
   if(RECT_INSIDE(xx1,yy1, xx2, yy2,x1,y1,x2,y2))
   {
