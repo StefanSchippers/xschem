@@ -49,7 +49,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
     }
   }
   if(!is_inside) {
-    tclvareval(xctx->top_path, ".drw configure -cursor arrow" , NULL);
+    //tclvareval(xctx->top_path, ".drw configure -cursor arrow" , NULL);
     if(xctx->graph_flags & 64) {
       tcleval("graph_show_measure stop");
     }
