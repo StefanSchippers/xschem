@@ -778,7 +778,7 @@ void int_hash_free(Int_hashtable *hashtable)
       int_hash_free_entry( table[i] );
       table[i] = NULL;
     }
-    if(hashtable->table) my_free(1575, &(hashtable->table));
+    my_free(1575, &(hashtable->table));
     hashtable->size = 0;
   }
 }
