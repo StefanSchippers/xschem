@@ -835,6 +835,15 @@ proc ngspice::get_voltage {n} {
   return $res
 }
 
+proc update_schematic_header {} {
+  global retval rcode
+  set retval [xschem get header_text]
+  text_line {Header/License text:} 0
+  if { $rcode ne {}} {
+    xschem set header_text $retval
+  }
+}
+
 proc ngspice::get_node {n} {
   global graph_raw_level
   set path [string range [xschem get sch_path] 1 end]
@@ -5861,13 +5870,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.prop.menu add command -label "Edit with editor" -command "xschem edit_vi_prop" -accelerator Shift+Q
   $topwin.menubar.prop.menu add command -label "View" -command "xschem view_prop" -accelerator Ctrl+Shift+Q
   $topwin.menubar.prop.menu add command -label "Edit Header/License text" \
-     -command {
-       set retval [xschem get header_text]
-       text_line {Header/License text:} 0
-       if { $rcode ne {}} {
-         xschem set header_text $retval
-       }
-     }
+     -command { update_schematic_header } -accelerator Shift+B
   $topwin.menubar.prop.menu add command -background red -label "Edit file (danger!)" \
      -command "xschem edit_file" -accelerator Alt+Q
   $topwin.menubar.sym.menu add radiobutton -label "Show Symbols" \

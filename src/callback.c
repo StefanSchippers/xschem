@@ -2378,6 +2378,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     }
     break;
    }
+   if(key=='B' && state==ShiftMask)    /* edit schematic header/license */
+   {
+     tcleval("update_schematic_header");
+   }
    if(key=='b' && state==0)                     /* merge schematic */
    {
     if(xctx->semaphore >= 2) break;

@@ -1,5 +1,7 @@
 v {xschem version=3.1.0 file_version=1.2
-}
+Solar panel simulation. 
+A Photovoltaic model has been created for this (pv_ngspice.sym)
+Stefan.}
 G {}
 K {}
 V {}
