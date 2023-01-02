@@ -71,7 +71,8 @@ static int try_size(int logdepth, char *cflags, char *ldflags, const char *type,
 			if ((size > 0) && (size < max_width)) {
 				sprintf(test_c, "%d", size);
 				put(path, test_c);
-				sizearr[size] = type;
+				if (sizearr[size] == NULL)
+					sizearr[size] = type;
 				if (inc_stdint != NULL)
 					inc_stdint[size] = use_stdint;
 				report(" OK, size %d byte%s\n", size, (size > 1) ? "s" : "");
@@ -139,17 +140,17 @@ int find_types_sizes(const char *name, int logdepth, int fatal)
 	for(n = 0; n < MAX_FLT_WIDTH; n++)
 		sizearr_f[n] = NULL;
 
-	try_size(logdepth+1, NULL, NULL, "unsigned long long int", 0, "sys/types/size/unsigned_long_long_int", sizearr_u, NULL, MAX_INT_WIDTH);
 	try_size(logdepth+1, NULL, NULL, "unsigned char", 0, "sys/types/size/unsigned_char", sizearr_u, NULL, MAX_INT_WIDTH);
 	try_size(logdepth+1, NULL, NULL, "unsigned short int", 0, "sys/types/size/unsigned_short_int", sizearr_u, NULL, MAX_INT_WIDTH);
 	try_size(logdepth+1, NULL, NULL, "unsigned int", 0, "sys/types/size/unsigned_int", sizearr_u, NULL, MAX_INT_WIDTH);
 	try_size(logdepth+1, NULL, NULL, "unsigned long int", 0, "sys/types/size/unsigned_long_int", sizearr_u, NULL, MAX_INT_WIDTH);
+	try_size(logdepth+1, NULL, NULL, "unsigned long long int", 0, "sys/types/size/unsigned_long_long_int", sizearr_u, NULL, MAX_INT_WIDTH);
 
-	try_size(logdepth+1, NULL, NULL, "signed long long int", 0, "sys/types/size/signed_long_long_int", sizearr_s, NULL, MAX_INT_WIDTH);
 	try_size(logdepth+1, NULL, NULL, "signed char", 0, "sys/types/size/signed_char", sizearr_s, NULL, MAX_INT_WIDTH);
 	try_size(logdepth+1, NULL, NULL, "signed short int", 0, "sys/types/size/signed_short_int", sizearr_s, NULL, MAX_INT_WIDTH);
 	try_size(logdepth+1, NULL, NULL, "signed int", 0, "sys/types/size/signed_int", sizearr_s, NULL, MAX_INT_WIDTH);
 	try_size(logdepth+1, NULL, NULL, "signed long int", 0, "sys/types/size/signed_long_int", sizearr_s, NULL, MAX_INT_WIDTH);
+	try_size(logdepth+1, NULL, NULL, "signed long long int", 0, "sys/types/size/signed_long_long_int", sizearr_s, NULL, MAX_INT_WIDTH);
 
 	if ((stdint != NULL) && (istrue(stdint))) {
 		try_size(logdepth+1, NULL, NULL, "uint8_t", 1, "sys/types/size/uint8_t", sizearr_u, inc_stdint_u, MAX_INT_WIDTH);
