@@ -463,6 +463,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->schsymbolprop=NULL; /* symbol property string */
   xctx->schverilogprop=NULL;/* verilog */
   xctx->version_string = NULL;
+  xctx->header_text = NULL;
   xctx->rectcolor= 4;  /* this is the current layer when xschem started. */
   xctx->currsch = 0;
   xctx->ui_state = 0;

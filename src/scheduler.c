@@ -874,6 +874,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(help != 0 ) Tcl_SetResult(interp, "1",TCL_STATIC);
             else Tcl_SetResult(interp, "0",TCL_STATIC);
           }
+          else if(!strcmp(argv[2], "header_text")) {
+            if(xctx && xctx->header_text) {
+              Tcl_SetResult(interp, xctx->header_text, TCL_VOLATILE);
+            } else {
+              Tcl_SetResult(interp, "", TCL_VOLATILE);
+            }
+          }
           break;
           case 'i':
           if(!strcmp(argv[2], "instances")) {
@@ -2528,6 +2535,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           else if(!strcmp(argv[2], "format")) {
             my_strdup(1542, &xctx->format, argv[3]);
+          }
+          else if(!strcmp(argv[2], "header_text")) {
+            if(!xctx->header_text || strcmp(xctx->header_text, argv[3])) {
+              set_modify(1); xctx->push_undo();
+              my_strdup2(1660, &xctx->header_text, argv[3]);
+            } 
           }
           else if(!strcmp(argv[2], "hide_symbols")) {
             xctx->hide_symbols=atoi(argv[3]);

@@ -621,6 +621,7 @@ void clear_drawing(void)
  my_free(687, &xctx->schprop);
  my_free(688, &xctx->schvhdlprop);
  my_free(689, &xctx->version_string);
+ if(xctx->header_text) my_free(1654, &xctx->header_text);
  my_free(690, &xctx->schverilogprop);
  for(i=0;i<xctx->wires;i++)
  {

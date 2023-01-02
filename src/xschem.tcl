@@ -5860,6 +5860,14 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.prop.menu add command -label "Edit" -command "xschem edit_prop" -accelerator Q
   $topwin.menubar.prop.menu add command -label "Edit with editor" -command "xschem edit_vi_prop" -accelerator Shift+Q
   $topwin.menubar.prop.menu add command -label "View" -command "xschem view_prop" -accelerator Ctrl+Shift+Q
+  $topwin.menubar.prop.menu add command -label "Edit Header/License text" \
+     -command {
+       set retval [xschem get header_text]
+       text_line {Header/License text:} 0
+       if { $rcode ne {}} {
+         xschem set header_text $retval
+       }
+     }
   $topwin.menubar.prop.menu add command -background red -label "Edit file (danger!)" \
      -command "xschem edit_file" -accelerator Alt+Q
   $topwin.menubar.sym.menu add radiobutton -label "Show Symbols" \

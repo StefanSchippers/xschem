@@ -1,6 +1,7 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
-K {type=isource
+K {type=isource_only_for_hspice
 format="@name  @@p @@m pwl(1) @@cp @@cm @TABLE"
 template="name=G1 TABLE=\\"1 0 2 1m\\""
 }

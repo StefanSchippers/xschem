@@ -788,6 +788,7 @@ typedef struct {
   char sch[CADMAXHIER][PATH_MAX];
   int currsch;
   char *version_string;
+  char *header_text; /* header text (license info) placed in the 'v' record after xschem/file version */
   char current_name[PATH_MAX];
   char file_version[100];
   char *sch_path[CADMAXHIER];

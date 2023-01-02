@@ -1486,18 +1486,16 @@ static void save_line(FILE *fd, int select_only)
 static void write_xschem_file(FILE *fd)
 {
   size_t ty=0;
-  char *ptr;
-
-  if(xctx->version_string && (ptr = strstr(xctx->version_string, "xschem")) &&
-    (ptr - xctx->version_string < 50)) {
-    my_strdup2(59, &xctx->version_string, subst_token(xctx->version_string, "xschem", NULL));
-  }
-  my_strdup2(1183, &xctx->version_string, subst_token(xctx->version_string, "version", NULL));
-  my_strdup2(1184, &xctx->version_string, subst_token(xctx->version_string, "file_version", NULL));
-  ptr = xctx->version_string;
-  while(*ptr == ' ' || *ptr == '\t' || *ptr == '\n') ptr++; /* strip leading spaces */
-  fprintf(fd, "v {xschem version=%s file_version=%s\n%s}\n", XSCHEM_VERSION, XSCHEM_FILE_VERSION, ptr);
-
+  char *tmpstring = NULL;
+  size_t tmpstring_size;
+  char *header_ptr = xctx->header_text ? xctx->header_text : "";
+  tmpstring_size = strlen(header_ptr) + 100;
+  tmpstring = my_malloc(1652, tmpstring_size);
+  my_snprintf(tmpstring, tmpstring_size, "xschem version=%s file_version=%s\n%s",
+      XSCHEM_VERSION, XSCHEM_FILE_VERSION, header_ptr);
+  fprintf(fd, "v ");
+  save_ascii_string(tmpstring, fd, 1);
+  my_free(1653, &tmpstring);
 
   if(xctx->schvhdlprop && !xctx->schsymbolprop) {
     get_tok_value(xctx->schvhdlprop,"type",0);
@@ -1839,6 +1837,7 @@ static void read_xschem_file(FILE *fd)
   char tag[1];
   int inst_cnt;
   size_t ty=0;
+  char *ptr = NULL, *ptr2;
 
   dbg(2, "read_xschem_file(): start\n");
   inst_cnt = endfile = 0;
@@ -1853,6 +1852,19 @@ static void read_xschem_file(FILE *fd)
       if(xctx->version_string) {
         my_snprintf(xctx->file_version, S(xctx->file_version), "%s",
                     get_tok_value(xctx->version_string, "file_version", 0));
+
+
+        if((ptr2 = strstr(xctx->version_string, "xschem")) && (ptr2 - xctx->version_string < 50)) {
+          my_strdup2(1655, &ptr, subst_token(xctx->version_string, "xschem", NULL));
+        }                 
+        my_strdup2(1656, &ptr, subst_token(ptr, "version", NULL));
+        my_strdup2(1657, &ptr, subst_token(ptr, "file_version", NULL));
+        
+        ptr2 = ptr;
+        while(*ptr2 == ' ' || *ptr2 =='\t') ptr2++; /* strip leading spaces */
+        if(*ptr2 == '\n') ptr2++; /* strip leading newline */
+        my_strdup2(1658, &xctx->header_text, ptr2);
+        my_free(1659,&ptr);
       }
       dbg(1, "read_xschem_file(): file_version=%s\n", xctx->file_version);
       break;
