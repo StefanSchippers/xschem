@@ -79,6 +79,7 @@ ctrl        '0-9'       set current layer (4 -13)
 ctrl        'a'         Select all
 shift       'A'         Toggle show netlist
 -           'b'         Merge file
+Shift       'B'         Edit/add header/license metadata to the schematic/symbol file.
 ctrl        'b'         Toggle show text in symbol
 alt         'b'         Toggle show symbol details / only bounding boxes
 -           'c'         Copy selected obj. 
