@@ -1,4 +1,5 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -111,3 +112,4 @@ C {spice_probe.sym} 780 -470 0 0 {name=p1 analysis=tran}
 C {spice_probe.sym} 90 -640 0 0 {name=p2 analysis=tran}
 C {spice_probe.sym} 410 -460 0 0 {name=p3 analysis=tran}
 C {spice_probe.sym} 290 -400 0 0 {name=p4 analysis=tran}
+C {title-2.sym} -170 100 0 0 {name=l11 author="Stefan Schippers" rev=1.0 lock=false}

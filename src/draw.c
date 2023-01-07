@@ -1860,7 +1860,7 @@ static void set_thick_waves(int what, int wcnt, int wave_col, Graph_ctx *gr)
   } else {
       if(gr->hilight_wave == wcnt)
          XSetLineAttributes (display, xctx->gc[wave_col],
-            INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
+            (int)(xctx->lw) ,LineSolid, CapRound , JoinRound);
   }
 }
 

@@ -467,6 +467,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->rectcolor= 4;  /* this is the current layer when xschem started. */
   xctx->currsch = 0;
   xctx->ui_state = 0;
+  xctx->lw = -1.0;
   xctx->need_reb_sel_arr = 1;
   xctx->lastsel = 0;
   xctx->maxsel = 0;
@@ -1702,13 +1703,12 @@ int new_schematic(const char *what, const char *win_path, const char *fname)
 
 void change_linewidth(double w)
 {
-  int i, changed;
+  int i, changed = 0, linew;
+  double oldw = xctx->lw;
 
-  changed=0;
   /* choose line width automatically based on zoom */
-  if(w<0.) {
+  if(w<0. || xctx->lw == -1.0) {
     double cs;
-    changed=1;
     cs = tclgetdoublevar("cadsnap");
     if(tclgetboolvar("change_lw"))  {
       xctx->lw=xctx->mooz * 0.09 * cs;
@@ -1717,15 +1717,18 @@ void change_linewidth(double w)
   /* explicitly set line width */
   } else {
     xctx->lw=w;
-    changed=1;
+  }
+  if(xctx->lw != oldw) {
+    changed = 1;
   }
   if(!changed) return;
   if(has_x) {
+    linew = INT_WIDTH(xctx->lw);
+    dbg(1, "Line width = %d\n", linew);
     for(i=0;i<cadlayers;i++) {
-        XSetLineAttributes (display, xctx->gc[i], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
+        XSetLineAttributes (display, xctx->gc[i], linew, LineSolid, CapRound , JoinRound);
     }
-    XSetLineAttributes (display, xctx->gctiled, INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
-
+    XSetLineAttributes (display, xctx->gctiled, linew, LineSolid, CapRound , JoinRound);
   }
   if(!xctx->only_probes) {
     xctx->areax1 = -2*INT_WIDTH(xctx->lw);

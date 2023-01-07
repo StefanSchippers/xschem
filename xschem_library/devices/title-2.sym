@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {type=logo
 template="name=l1 author=\\"Stefan Schippers\\" rev=1.0 lock=true"
@@ -12,9 +13,9 @@ S {}
 E {}
 L 4 385 0 3430 0 {}
 L 4 0 0 65 0 {}
-L 4 3430 -2350 3430 0 {}
-L 4 0 -2350 3430 -2350 {}
-L 4 0 -2350 0 0 {}
+L 4 3430 -2430 3430 0 {}
+L 4 0 -2430 3430 -2430 {}
+L 4 0 -2430 0 0 {}
 L 4 2110 -160 2110 0 {}
 L 4 2110 -160 3430 -160 {}
 L 4 2110 -80 3430 -80 {}

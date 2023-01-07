@@ -1,0 +1,31 @@
+v {xschem version=3.1.0 file_version=1.2
+}
+G {}
+K {type=logo
+template="name=l1 author=\\"Stefan Schippers\\" rev=1.0 lock=true"
+verilog_ignore=true
+vhdl_ignore=true
+spice_ignore=true
+tedax_ignore=true
+}
+V {}
+S {}
+E {}
+L 4 385 0 2500 0 {}
+L 4 0 0 65 0 {}
+L 4 2500 -1770 2500 0 {}
+L 4 0 -1770 2500 -1770 {}
+L 4 0 -1770 0 0 {}
+L 4 1180 -160 1180 0 {}
+L 4 1180 -160 2500 -160 {}
+L 4 1180 -80 2500 -80 {}
+L 4 1810 -80 1810 0 {}
+L 4 1810 -160 1810 -80 {}
+L 4 1520 -80 1520 0 {}
+P 5 13 165 -30 135 0 165 30 145 30 125 10 105 30 85 30 115 0 85 -30 105 -30 125 -10 145 -30 165 -30 {fill=true}
+T {SCHEM} 165 -25 0 0 1 1 {}
+T {@time_last_modified} 1820 -60 0 0 0.8 0.8 {}
+T {@author} 1190 -140 0 0 0.8 0.8 {}
+T {Page @page of @pages} 1190 -60 0 0 0.8 0.8 {}
+T {@title} 1820 -120 0 0 0.6 0.6 {vcenter=true}
+T {Rev. @rev} 1530 -60 0 0 0.8 0.8 {}

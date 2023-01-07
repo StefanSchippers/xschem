@@ -369,7 +369,7 @@ do { \
   } \
 } while(0)
 
-#define INT_WIDTH(x) ( (int)(x) == 0 ? 1 : (int)(x) ) 
+#define INT_WIDTH(x) ( tclgetboolvar("change_lw") ? ( (int)(x) == 0 ? 1 : (int)(x) ) : (int)(x) ) 
 #define INT_BUS_WIDTH(x) ( (int)( (BUS_WIDTH) * (x) ) == 0 ? 1 : (int)( (BUS_WIDTH) * (x) ) ) 
 
 /* set do double if you need more precision at the expense of memory */
