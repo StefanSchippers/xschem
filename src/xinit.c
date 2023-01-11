@@ -1781,7 +1781,7 @@ static void resetcairo(int create, int clear, int force_or_resize)
        cairo_toy_font_face_create(tclgetvar("cairo_font_name"), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     /* dbg(0, "1 refcount=%d\n", cairo_font_face_get_reference_count(xctx->cairo_font)); */
     xctx->cairo_save_ctx = cairo_create(xctx->cairo_save_sfc);
-    /* cairo_set_antialias (xctx->cairo_save_ctx, CAIRO_ANTIALIAS_NONE); */
+    cairo_set_antialias (xctx->cairo_save_ctx, CAIRO_ANTIALIAS_NONE);
     cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
     cairo_set_font_size(xctx->cairo_save_ctx, 20);
 
@@ -1801,7 +1801,7 @@ static void resetcairo(int create, int clear, int force_or_resize)
       fprintf(errfp, "ERROR: invalid cairo surface\n");
     }
     xctx->cairo_ctx = cairo_create(xctx->cairo_sfc);
-    /* cairo_set_antialias (xctx->cairo_ctx, CAIRO_ANTIALIAS_NONE); */
+    cairo_set_antialias (xctx->cairo_ctx, CAIRO_ANTIALIAS_NONE);
     cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
     cairo_set_font_size(xctx->cairo_ctx, 20);
     cairo_set_font_options(xctx->cairo_ctx, options);

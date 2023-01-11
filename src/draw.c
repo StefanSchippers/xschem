@@ -760,7 +760,11 @@ static void drawgrid()
   set_cairo_color(GRIDLAYER);
   #endif
   while(delta < CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
-  x = xctx->xorigin*xctx->mooz; y = xctx->yorigin*xctx->mooz;
+  #if DRAW_ALL_CAIRO==1
+  x =floor(xctx->xorigin*xctx->mooz) + 0.5; y = floor(xctx->yorigin*xctx->mooz) + 0.5;
+  #else
+  x =xctx->xorigin*xctx->mooz; y = xctx->yorigin*xctx->mooz;
+  #endif
   if(y > xctx->areay1 && y < xctx->areay2) {
     if(xctx->draw_window) {
       #if DRAW_ALL_CAIRO==1
@@ -799,16 +803,18 @@ static void drawgrid()
   }
   tmp = floor((xctx->areay1+1)/delta)*delta-fmod(-xctx->yorigin*xctx->mooz,delta);
   for(x=floor((xctx->areax1+1)/delta)*delta-fmod(-xctx->xorigin*xctx->mooz,delta); x < xctx->areax2; x += delta) {
+    #if DRAW_ALL_CAIRO==1
+    double xx = floor(x) + 0.5;
+    #endif
     for(y=tmp; y < xctx->areay2; y += delta) {
       #if DRAW_ALL_CAIRO==1
+        double yy = floor(y) + 0.5;
         if(xctx->draw_window) {
-          cairo_move_to(xctx->cairo_ctx, x, y);
-          /* cairo_line_to(xctx->cairo_ctx, x, y); */
+          cairo_move_to(xctx->cairo_ctx, xx, yy) ;
           cairo_close_path(xctx->cairo_ctx);
         }
         if(xctx->draw_pixmap) {
-          cairo_move_to(xctx->cairo_save_ctx, x, y);
-          /* cairo_line_to(xctx->cairo_save_ctx, x, y); */
+          cairo_move_to(xctx->cairo_save_ctx, xx, yy);
           cairo_close_path(xctx->cairo_save_ctx);
         }
       #else
