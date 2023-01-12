@@ -168,7 +168,7 @@ proc inutile { {filename {}}} {
     inutile_read_data .inutile.text \"$filename\""
   button .inutile.buttons.send -text "Template" -command "
     if { !\[string compare \[.inutile.text get 0.0 {end - 1 chars}\]  {}\]} {
-      template  .inutile.text  $utile_path/template.stimuli}"
+      inutile_template  .inutile.text  $utile_path/template.stimuli}"
   label .inutile.buttons.timelab -text "time:"
   entry .inutile.buttons.time  -width  11
   pack .inutile.buttons.dismiss .inutile.buttons.code \
