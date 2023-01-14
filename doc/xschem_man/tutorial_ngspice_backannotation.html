@@ -48,18 +48,40 @@ lappend tcl_files ${XSCHEM_SHAREDIR}/ngspice_backannotate.tcl
 ** referenced file in netlist/simulation directory.
 .include "models_cmos_example.txt"
 .control
-<span style="color: red;"> op </span>
-<span style="color: red;"> save all </span>
-<span style="color: red;"> write cmos_example.raw </span>
+<span style="color: red;white-space: pre;">op
+save all
+write cmos_example.raw</span>
 .endc
  </pre>
  <p>
   The important parts are in red in above text. This ensures all variables are saved into the raw file.
   These instructions are for an interactive ngspice run.<br>
+  You may have other simulations saved in the raw file (dc, tran, ac) however one operating point 
+  must also be present:
+ </p>
+
+ <pre class="code">
+.temp 30
+** models are generally not free: you must download
+** SPICE models for active devices and put them into the below
+** referenced file in netlist/simulation directory.
+.include "models_cmos_example.txt"
+.control
+save all
+dc vplus 2.3 2.7 0.001
+write cmos_example.raw
+set appendwrite
+<span style="color: red;white-space: pre;">op
+save all
+write cmos_example.raw</span>
+.endc
+ </pre>
+ <p>
   When done open the <kbd>Simulation-&gt; Configure simulators and tools</kbd> dialog box and ensure the 
   <kbd>Ngspice</kbd> simulator is selected (not Ngspice batch). Also ensure the spice netlist mode is
-  selected (<kbd>Options -&gt; Spice netlist</kbd>).
+  selected (<kbd>Options -&gt; Spice netlist</kbd>).<br>
  </p>
+ 
  <img src="backannotation2.png">
 
  <h3> SIMULATION </H3>
@@ -82,8 +104,12 @@ points=1, vars=38, datasets=1
 xschem [~]
  </pre>
  <p>
-  If there are no errors we are ready and set.
+  If there are no errors we are ready and set.<br>
+  you can load also a specific file:
  </p>
+ <pre class="code">
+xschem [~] xschem annotate_op $netlist_dir/cmos_example_ngspice.raw
+ </pre>
 
  <h3> ANNOTATION </H3>
  <p>
@@ -93,7 +119,6 @@ xschem [~]
   In addition to specific probe elements also net labels will show voltage values and 
   ammeters / voltage sources will show currents.
  </p>
-
  <p>
   To ensure all currents are saved modify the <kbd>STIMULI</kbd> attributes as follows:
  </p>
@@ -121,8 +146,6 @@ write cmos_example.raw
  <img src="backannotation9.png">
  <p>
   Run again the simulation and the <kbd>xschem annotate_op</kbd> command and values will be updated.
-  If you enable <kbd>View -&gt; Show hidden texts</kbd> net labels, voltage sources and ammeters will also show 
-  voltages and currents.
  </p>
  <img  style="box-shadow:none;" src="backannotation10.png">
  <p>

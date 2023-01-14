@@ -133,7 +133,6 @@ int find_fs_findnextfile(const char *name, int logdepth, int fatal)
 	char *test_c =
 		NL "#include <stdlib.h>"
 		NL "#include <stdio.h>"
-		NL "#include <windows.h>"
 		NL "int main(int argc, char *argv[]) {"
 		NL "	WIN32_FIND_DATA fd;"
 		NL "	HANDLE h;"
@@ -156,7 +155,7 @@ int find_fs_findnextfile(const char *name, int logdepth, int fatal)
 	logprintf(logdepth, "find_fs_findnextfile: trying to find FindNextFile...\n");
 	logdepth++;
 
-	if (try_icl(logdepth, "libs/fs/findnextfile", test_c, NULL, NULL, NULL)) return 0;
+	if (try_icl(logdepth, "libs/fs/findnextfile", test_c, "#include <windows.h>", NULL, NULL)) return 0;
 	return try_fail(logdepth, "libs/fs/findnextfile");
 }
 
