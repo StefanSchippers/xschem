@@ -141,13 +141,15 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
   int png_size_x, png_size_y;
   unsigned char *png_data, BG_r, BG_g, BG_b;
   const char *invertImage;
-  static char str[PATH_MAX];
-  unsigned char* jpgData;
-  FILE* fp;
+  /* static char str[PATH_MAX];
+   * FILE* fp;
+   */
   unsigned char* hexEncodedJPG;
-  long fileSize;
   const char* image_data64_ptr;
   cairo_surface_t* surface;
+  unsigned char* jpgData = NULL;
+  size_t fileSize = 0;
+
   my_strdup(59, &filter, get_tok_value(r->prop_ptr, "filter", 0));
 
   image_data64_ptr = get_tok_value(r->prop_ptr, "image_data", 0);
@@ -166,7 +168,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
   closure.pos = 0;
   closure.size = data_size; /* should not be necessary */
   surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-
+  my_free(1666, &closure.buffer);
   png_size_x = cairo_image_surface_get_width(surface);
   png_size_y = cairo_image_surface_get_height(surface);
 
@@ -202,18 +204,19 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
     }
   }
   cairo_surface_mark_dirty(surface);
-  my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), "/temp.jpg");
-  cairo_image_surface_write_to_jpeg(surface, str, 100);
-  fp = fopen(str, "rb"); /* Open the file for reading */
-  fseek(fp, 0L, SEEK_END);
-  fileSize = ftell(fp);
-  rewind(fp);
-  jpgData = my_malloc(1662, fileSize);
-  fread(jpgData, sizeof(jpgData[0]), fileSize, fp);
-  fclose(fp);
-
+  cairo_image_surface_write_to_jpeg_mem(surface, &jpgData, &fileSize, 100);
+  /* 
+   * my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), "/temp.jpg");
+   * cairo_image_surface_write_to_jpeg(surface, str, 100);
+   * fp = fopen(str, "rb");
+   * fseek(fp, 0L, SEEK_END);
+   * fileSize = ftell(fp);
+   * rewind(fp);
+   * jpgData = my_malloc(1662, fileSize);
+   * fread(jpgData, sizeof(jpgData[0]), fileSize, fp);
+   * fclose(fp);
+   */
   hexEncodedJPG = bin2hex(jpgData, fileSize);
-
   fprintf(fd, "gsave\n");
   fprintf(fd, "%g %g translate\n", X_TO_PS(x1), Y_TO_PS(y1));
   fprintf(fd, "%g %g scale\n", X_TO_PS(x2) - X_TO_PS(x1), Y_TO_PS(y2) - Y_TO_PS(y1));
@@ -231,7 +234,8 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
   fprintf(fd, "3\n");
   fprintf(fd, "colorimage\n");
   fprintf(fd, "grestore\n");
-  my_free(1663, &hexEncodedJPG); my_free(1664, &jpgData);
+  my_free(1663, &hexEncodedJPG);
+  free(jpgData);
 }
 
 
@@ -243,10 +247,12 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   int save_draw_window, save_draw_grid, rwi, rhi;
   const double max_size = 2000.0;
   int d_c;
-  static char str[PATH_MAX];
-  unsigned char* jpgData;
-  FILE* fp;
-  long fileSize;
+  unsigned char* jpgData = NULL;
+  size_t fileSize = 0;
+  /* 
+   * FILE* fp;
+   * static char str[PATH_MAX];
+   */
   unsigned char *hexEncodedJPG;
   if (!has_x) return;
   rw = fabs(rx2 - rx1);
@@ -294,16 +300,18 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
     }
   }
   #endif
-  my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), "/temp.jpg");
-  cairo_image_surface_write_to_jpeg(png_sfc, str, 100);
-  
-  fp = fopen(str, "rb"); 
-  fseek(fp, 0L, SEEK_END);
-  fileSize = ftell(fp);
-  rewind(fp);
-  jpgData = my_malloc(1668, fileSize);
-  fread(jpgData, sizeof(jpgData[0]), fileSize, fp);
-  fclose(fp);
+  cairo_image_surface_write_to_jpeg_mem(png_sfc, &jpgData, &fileSize, 100);
+  /*
+   * my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), "/temp.jpg");
+   * cairo_image_surface_write_to_jpeg(png_sfc, str, 100);
+   * fp = fopen(str, "rb"); 
+   * fseek(fp, 0L, SEEK_END);
+   * fileSize = ftell(fp);
+   * rewind(fp);
+   * jpgData = my_malloc(1668, fileSize);
+   * fread(jpgData, sizeof(jpgData[0]), fileSize, fp);
+   * fclose(fp);
+   */
 
   hexEncodedJPG = bin2hex(jpgData, fileSize);
 
@@ -335,7 +343,8 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   fprintf(fd, "3\n");
   fprintf(fd, "colorimage\n");
   fprintf(fd, "grestore\n");
-  my_free(1666, &hexEncodedJPG); my_free(1667, &jpgData);
+  my_free(1666, &hexEncodedJPG);
+  free(jpgData);
   #endif
 }
 static void set_lw(void)
