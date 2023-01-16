@@ -157,6 +157,7 @@ cairo_status_t cairo_image_surface_write_to_jpeg_mem(cairo_surface_t *sfc, unsig
    struct jpeg_error_mgr jerr;
    JSAMPROW row_pointer[1];
    cairo_surface_t *other = NULL;
+   cairo_t *ctx;
 
    /* check valid input format (must be IMAGE_SURFACE && (ARGB32 || RGB24)) */
    if (cairo_surface_get_type(sfc) != CAIRO_SURFACE_TYPE_IMAGE ||
@@ -167,13 +168,13 @@ cairo_status_t cairo_image_surface_write_to_jpeg_mem(cairo_surface_t *sfc, unsig
       /*  does not fulfill the requirements */
       double x1, y1, x2, y2;
       other = sfc;
-      cairo_t *ctx = cairo_create(other);
+      ctx = cairo_create(other);
       /*  get extents of original surface */
       cairo_clip_extents(ctx, &x1, &y1, &x2, &y2);
       cairo_destroy(ctx);
 
       /*  create new image surface */
-      sfc = cairo_surface_create_similar_image(other, CAIRO_FORMAT_RGB24, x2 - x1, y2 - y1);
+      sfc = cairo_surface_create_similar_image(other, CAIRO_FORMAT_RGB24, (int)(x2 - x1), (int)(y2 - y1));
       if (cairo_surface_status(sfc) != CAIRO_STATUS_SUCCESS)
          return CAIRO_STATUS_INVALID_FORMAT;
 
@@ -247,7 +248,7 @@ cairo_status_t cairo_image_surface_write_to_jpeg_mem(cairo_surface_t *sfc, unsig
  */
 static cairo_status_t cj_write(void *closure, const unsigned char *data, unsigned int length)
 {
-   return write((intptr_t) closure, data, length) < length ?
+   return write((int)(intptr_t) closure, data, length) < length ?
       CAIRO_STATUS_WRITE_ERROR : CAIRO_STATUS_SUCCESS;
 }
 
@@ -276,7 +277,7 @@ cairo_status_t cairo_image_surface_write_to_jpeg_stream(cairo_surface_t *sfc, ca
       return e;
 
    /*  write whole memory block with stream function */
-   e = write_func(closure, data, len);
+   e = write_func(closure, data, (unsigned int)len);
 
    /*  free JPEG memory again and return the return value */
    free(data);
@@ -462,6 +463,7 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg(const char *filename)
    void *data;
    int infile;
    struct stat stat;
+   int s;
 
    /*  open input file */
    if ((infile = open(filename, O_RDONLY)) == -1)
@@ -476,7 +478,7 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg(const char *filename)
       return cairo_image_surface_create(CAIRO_FORMAT_INVALID, 0, 0);
 
    /*  read data */
-   int s = read(infile, data, stat.st_size);
+   s = (int)read(infile, data, stat.st_size);
    if ( s < stat.st_size)
       return cairo_image_surface_create(CAIRO_FORMAT_INVALID, 0, 0);
 
