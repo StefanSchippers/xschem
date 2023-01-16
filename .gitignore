@@ -31,3 +31,12 @@ src/xschem
 CMakeLists.txt
 .vscode
 
+src/Makefile
+scconfig/sccbox
+scconfig/configure
+scconfig/config.log
+scconfig/config.cache
+doc/manpages/xschem.1
+Makefile.conf
+config.h
+*.Identifier
