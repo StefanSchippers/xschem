@@ -1122,19 +1122,20 @@ void create_ps(char **psfile, int what)
           xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
       for(i=0;i<xctx->rects[c];i++)
       {
-        if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  {
+        if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1024)) { /* image */
+          xRect* r = &xctx->rect[c][i];
+          /* PNG Code Here */
+          ps_drawPNG(r, r->x1, r->y1, r->x2, r->y2);
+        }
+        else if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1)) { /* graph */
+          xRect* r = &xctx->rect[c][i];
+          ps_embedded_graph(r, r->x1, r->y1, r->x2, r->y2);
+        }
+        /* else if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  */
+        else {
           ps_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
             xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash, xctx->rect[c][i].fill);
         }
-        if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1024)) { /* image */
-            xRect* r = &xctx->rect[c][i];
-            /* PNG Code Here */
-            ps_drawPNG(r, r->x1, r->y1, r->x2, r->y2);
-        }
-                if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1)) { /* graph */
-                        xRect* r = &xctx->rect[c][i];
-                        ps_embedded_graph(r, r->x1, r->y1, r->x2, r->y2);
-                }
       }
       for(i=0;i<xctx->arcs[c];i++)
       {
