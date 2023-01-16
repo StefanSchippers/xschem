@@ -122,7 +122,7 @@ unsigned char* bin2hex(const unsigned char* bin, size_t len)
         if (bin == NULL || len == 0)
                 return NULL;
 
-        out = malloc(len * 2 + 1);
+        out = my_malloc(1665, len * 2 + 1);
         for (i = 0; i < len; i++) {
                 out[i * 2] = "0123456789abcdef"[bin[i] >> 4];
                 out[i * 2 + 1] = "0123456789abcdef"[bin[i] & 0x0F];
@@ -148,7 +148,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
   long fileSize;
   const char* image_data64_ptr;
   cairo_surface_t* surface;
-  my_strdup(1484, &filter, get_tok_value(r->prop_ptr, "filter", 0));
+  my_strdup(59, &filter, get_tok_value(r->prop_ptr, "filter", 0));
 
   image_data64_ptr = get_tok_value(r->prop_ptr, "image_data", 0);
   if (filter) {
@@ -157,11 +157,12 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
     closure.buffer = NULL;
     filterdata = (char*)base64_decode(image_data64_ptr, strlen(image_data64_ptr), &filtersize);
     filter_data(filterdata, filtersize, (char**)&closure.buffer, &data_size, filter);
-    my_free(1488, &filterdata);
+    my_free(1661, &filterdata);
   }
   else {
     closure.buffer = base64_decode(image_data64_ptr, strlen(image_data64_ptr), &data_size);
   }
+  my_free(1663, &filter);
   closure.pos = 0;
   closure.size = data_size; /* should not be necessary */
   surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
@@ -207,7 +208,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
   fseek(fp, 0L, SEEK_END);
   fileSize = ftell(fp);
   rewind(fp);
-  jpgData = malloc(fileSize);
+  jpgData = my_malloc(1662, fileSize);
   fread(jpgData, sizeof(jpgData[0]), fileSize, fp);
   fclose(fp);
 
@@ -230,7 +231,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
   fprintf(fd, "3\n");
   fprintf(fd, "colorimage\n");
   fprintf(fd, "grestore\n");
-  free(hexEncodedJPG); free(jpgData);
+  my_free(1663, &hexEncodedJPG); my_free(1664, &jpgData);
 }
 
 
@@ -300,7 +301,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   fseek(fp, 0L, SEEK_END);
   fileSize = ftell(fp);
   rewind(fp);
-  jpgData = malloc(fileSize);
+  jpgData = my_malloc(1668, fileSize);
   fread(jpgData, sizeof(jpgData[0]), fileSize, fp);
   fclose(fp);
 
@@ -334,7 +335,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   fprintf(fd, "3\n");
   fprintf(fd, "colorimage\n");
   fprintf(fd, "grestore\n");
-  free(hexEncodedJPG); free(jpgData);
+  my_free(1666, &hexEncodedJPG); my_free(1667, &jpgData);
   #endif
 }
 static void set_lw(void)
