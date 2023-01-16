@@ -57,8 +57,9 @@
 /*! Macro to activate main() function. This is only used for testing. Comment
  * it out (#undef) if you link this file to your own program.
  */
-//#define CAIRO_JPEG_MAIN
-//
+
+/* #define CAIRO_JPEG_MAIN */
+
 /*! Define this to use an alternate implementation of
  * cairo_image_surface_create_from_jpeg() which fstat(3)s the file before
  * reading (see below). For huge files this /may/ be slightly faster.
@@ -107,7 +108,7 @@ static void pix_conv(unsigned char *dst, int dw, const unsigned char *src, int s
 {
    int si, di;
 
-   // safety check
+   /*  safety check */
    if (dw < 3 || sw < 3 || dst == NULL || src == NULL)
       return;
 
@@ -119,7 +120,7 @@ static void pix_conv(unsigned char *dst, int dw, const unsigned char *src, int s
       dst[di + 1] = src[si + 1];
       dst[di + 0] = src[si + 2];
 #else
-      // FIXME: This is untested, it may be wrong.
+      /*  FIXME: This is untested, it may be wrong. */
       dst[di - 3] = src[si - 3];
       dst[di - 2] = src[si - 2];
       dst[di - 1] = src[si - 1];
@@ -157,49 +158,49 @@ cairo_status_t cairo_image_surface_write_to_jpeg_mem(cairo_surface_t *sfc, unsig
    JSAMPROW row_pointer[1];
    cairo_surface_t *other = NULL;
 
-   // check valid input format (must be IMAGE_SURFACE && (ARGB32 || RGB24))
+   /* check valid input format (must be IMAGE_SURFACE && (ARGB32 || RGB24)) */
    if (cairo_surface_get_type(sfc) != CAIRO_SURFACE_TYPE_IMAGE ||
          (cairo_image_surface_get_format(sfc) != CAIRO_FORMAT_ARGB32 &&
          cairo_image_surface_get_format(sfc) != CAIRO_FORMAT_RGB24))
    {
-      // create a similar surface with a proper format if supplied input format
-      // does not fulfill the requirements
+      /*  create a similar surface with a proper format if supplied input format */
+      /*  does not fulfill the requirements */
       double x1, y1, x2, y2;
       other = sfc;
       cairo_t *ctx = cairo_create(other);
-      // get extents of original surface
+      /*  get extents of original surface */
       cairo_clip_extents(ctx, &x1, &y1, &x2, &y2);
       cairo_destroy(ctx);
 
-      // create new image surface
+      /*  create new image surface */
       sfc = cairo_surface_create_similar_image(other, CAIRO_FORMAT_RGB24, x2 - x1, y2 - y1);
       if (cairo_surface_status(sfc) != CAIRO_STATUS_SUCCESS)
          return CAIRO_STATUS_INVALID_FORMAT;
 
-      // paint original surface to new surface
+      /*  paint original surface to new surface */
       ctx = cairo_create(sfc);
       cairo_set_source_surface(ctx, other, 0, 0);
       cairo_paint(ctx);
       cairo_destroy(ctx);
    }
 
-   // finish queued drawing operations
+   /*  finish queued drawing operations */
    cairo_surface_flush(sfc);
 
-   // init jpeg compression structures
+   /*  init jpeg compression structures */
    cinfo.err = jpeg_std_error(&jerr);
    jpeg_create_compress(&cinfo);
 
-   // set compression parameters
+   /*  set compression parameters */
    jpeg_mem_dest(&cinfo, data, len);
    cinfo.image_width = cairo_image_surface_get_width(sfc);
    cinfo.image_height = cairo_image_surface_get_height(sfc);
 #ifdef LIBJPEG_TURBO_VERSION
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-   //cinfo.in_color_space = JCS_EXT_BGRX;
+   /* cinfo.in_color_space = JCS_EXT_BGRX; */
    cinfo.in_color_space = cairo_image_surface_get_format(sfc) == CAIRO_FORMAT_ARGB32 ? JCS_EXT_BGRA : JCS_EXT_BGRX;
 #else
-   //cinfo.in_color_space = JCS_EXT_XRGB;
+   /* cinfo.in_color_space = JCS_EXT_XRGB; */
    cinfo.in_color_space = cairo_image_surface_get_format(sfc) == CAIRO_FORMAT_ARGB32 ? JCS_EXT_ARGB : JCS_EXT_XRGB;
 #endif
    cinfo.input_components = 4;
@@ -210,10 +211,10 @@ cairo_status_t cairo_image_surface_write_to_jpeg_mem(cairo_surface_t *sfc, unsig
    jpeg_set_defaults(&cinfo);
    jpeg_set_quality(&cinfo, quality, TRUE);
 
-   // start compressor
+   /*  start compressor */
    jpeg_start_compress(&cinfo, TRUE);
 
-   // loop over all lines and compress
+   /*  loop over all lines and compress */
    while (cinfo.next_scanline < cinfo.image_height)
    {
 #ifdef LIBJPEG_TURBO_VERSION
@@ -221,7 +222,7 @@ cairo_status_t cairo_image_surface_write_to_jpeg_mem(cairo_surface_t *sfc, unsig
             * cairo_image_surface_get_stride(sfc));
 #else
       unsigned char* row_buf = malloc(3 * cinfo.image_width);
-      //unsigned char row_buf[3 * cinfo.image_width];
+      /* unsigned char row_buf[3 * cinfo.image_width]; */
       pix_conv(row_buf, 3, cairo_image_surface_get_data(sfc) +
             (cinfo.next_scanline * cairo_image_surface_get_stride(sfc)), 4, cinfo.image_width);
       row_pointer[0] = row_buf;
@@ -229,11 +230,11 @@ cairo_status_t cairo_image_surface_write_to_jpeg_mem(cairo_surface_t *sfc, unsig
       (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
    }
 
-   // finalize and close everything
+   /*  finalize and close everything */
    jpeg_finish_compress(&cinfo);
    jpeg_destroy_compress(&cinfo);
 
-   // destroy temporary image surface (if available)
+   /*  destroy temporary image surface (if available) */
    if (other != NULL)
       cairo_surface_destroy(sfc);
 
@@ -270,14 +271,14 @@ cairo_status_t cairo_image_surface_write_to_jpeg_stream(cairo_surface_t *sfc, ca
    unsigned char *data = NULL;
    size_t len = 0;
 
-   // create JPEG data in memory from surface
+   /*  create JPEG data in memory from surface */
    if ((e = cairo_image_surface_write_to_jpeg_mem(sfc, &data, &len, quality)) != CAIRO_STATUS_SUCCESS)
       return e;
 
-   // write whole memory block with stream function
+   /*  write whole memory block with stream function */
    e = write_func(closure, data, len);
 
-   // free JPEG memory again and return the return value
+   /*  free JPEG memory again and return the return value */
    free(data);
    return e;
 
@@ -301,14 +302,14 @@ cairo_status_t cairo_image_surface_write_to_jpeg(cairo_surface_t *sfc, const cha
    cairo_status_t e;
    int outfile;
 
-   // Open/create new file
+   /*  Open/create new file */
    if ((outfile = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) == -1)
       return CAIRO_STATUS_DEVICE_ERROR;
 
-   // write surface to file
+   /*  write surface to file */
    e = cairo_image_surface_write_to_jpeg_stream(sfc, cj_write, (void*)(intptr_t) outfile, quality);
 
-   // close file again and return
+   /*  close file again and return */
    close(outfile);
    return e;
 }
@@ -330,7 +331,7 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg_mem(void *data, size_t len
    JSAMPROW row_pointer[1];
    cairo_surface_t *sfc;
  
-   // initialize jpeg decompression structures
+   /*  initialize jpeg decompression structures */
    cinfo.err = jpeg_std_error(&jerr);
    jpeg_create_decompress(&cinfo);
    jpeg_mem_src(&cinfo, data, len);
@@ -346,10 +347,10 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg_mem(void *data, size_t len
    cinfo.out_color_space = JCS_RGB;
 #endif
 
-   // start decompressor
+   /*  start decompressor */
    (void) jpeg_start_decompress(&cinfo);
 
-   // create Cairo image surface
+   /*  create Cairo image surface */
    sfc = cairo_image_surface_create(CAIRO_FORMAT_RGB24, cinfo.output_width, cinfo.output_height);
    if (cairo_surface_status(sfc) != CAIRO_STATUS_SUCCESS)
    {
@@ -357,7 +358,7 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg_mem(void *data, size_t len
       return sfc;
    }
 
-   // loop over all scanlines and fill Cairo image surface
+   /*  loop over all scanlines and fill Cairo image surface */
    while (cinfo.output_scanline < cinfo.output_height)
    {
       unsigned char *row_address = cairo_image_surface_get_data(sfc) +
@@ -369,12 +370,12 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg_mem(void *data, size_t len
 #endif
    }
 
-   // finish and close everything
+   /*  finish and close everything */
    cairo_surface_mark_dirty(sfc);
    (void) jpeg_finish_decompress(&cinfo);
    jpeg_destroy_decompress(&cinfo);
 
-   // set jpeg mime data
+   /*  set jpeg mime data */
    cairo_surface_set_mime_data(sfc, CAIRO_MIME_TYPE_JPEG, data, len, free, data);
 
    return sfc;
@@ -403,39 +404,39 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg_stream(cairo_read_func_t r
    ssize_t len, rlen;
    int eof = 0;
 
-   // read all data into memory buffer in blocks of CAIRO_JPEG_IO_BLOCK_SIZE 
+   /*  read all data into memory buffer in blocks of CAIRO_JPEG_IO_BLOCK_SIZE  */
    for (len = 0, data = NULL; !eof; len += rlen)
    {
-      // grow memory buffer and check for error
+      /*  grow memory buffer and check for error */
       if ((tmp = realloc(data, len + CAIRO_JPEG_IO_BLOCK_SIZE)) == NULL)
          break;
       data = tmp;
 
-      // read bytes into buffer and check for error
+      /*  read bytes into buffer and check for error */
       rlen = read_func(closure, data + len, CAIRO_JPEG_IO_BLOCK_SIZE);
 #ifdef USE_CAIRO_READ_FUNC_LEN_T
-      // check for error
+      /*  check for error */
       if (rlen == -1)
          break;
 
-      // check if EOF occured
+      /*  check if EOF occured */
       if (rlen < CAIRO_JPEG_IO_BLOCK_SIZE)
          eof++;
 #else
-      // check for error
+      /*  check for error */
       if (rlen == CAIRO_STATUS_READ_ERROR)
          eof++;
 #endif
    }
 
-   // check for error in read loop
+   /*  check for error in read loop */
    if (!eof)
    {
       free(data);
       return cairo_image_surface_create(CAIRO_FORMAT_INVALID, 0, 0);
    }
 
-   // call jpeg decompression and return surface
+   /*  call jpeg decompression and return surface */
    sfc = cairo_image_surface_create_from_jpeg_mem(data, len);
    if (cairo_surface_status(sfc) != CAIRO_STATUS_SUCCESS)
       free(data);
@@ -462,19 +463,19 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg(const char *filename)
    int infile;
    struct stat stat;
 
-   // open input file
+   /*  open input file */
    if ((infile = open(filename, O_RDONLY)) == -1)
       return cairo_image_surface_create(CAIRO_FORMAT_INVALID, 0, 0);
 
-   // get stat structure for file size
+   /*  get stat structure for file size */
    if (fstat(infile, &stat) == -1)
       return cairo_image_surface_create(CAIRO_FORMAT_INVALID, 0, 0);
 
-   // allocate memory
+   /*  allocate memory */
    if ((data = malloc(stat.st_size)) == NULL)
       return cairo_image_surface_create(CAIRO_FORMAT_INVALID, 0, 0);
 
-   // read data
+   /*  read data */
    int s = read(infile, data, stat.st_size);
    if ( s < stat.st_size)
       return cairo_image_surface_create(CAIRO_FORMAT_INVALID, 0, 0);
@@ -520,11 +521,11 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg(const char *filename)
    cairo_surface_t *sfc;
    int infile;
 
-   // open input file
+   /*  open input file */
    if ((infile = open(filename, O_RDONLY)) == -1)
       return cairo_image_surface_create(CAIRO_FORMAT_INVALID, 0, 0);
 
-   // call stream loading function
+   /*  call stream loading function */
    sfc = cairo_image_surface_create_from_jpeg_stream(cj_read, (void*)(intptr_t) infile);
    close(infile);
 
@@ -540,7 +541,7 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg(const char *filename)
 
 int strrcasecmp(const char *s1, const char *s2)
 {
-   int off = (int) strlen(s1) - (int) strlen(s2); // typecast size_t to int because size_t typically is unsigned
+   int off = (int) strlen(s1) - (int) strlen(s2); /* typecast size_t to int because size_t typically is unsigned */
    return strcasecmp(s1 + (off < 0 ? 0 : off), s2);
 }
 
@@ -558,15 +559,15 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   // test input file type and read file
+   /*  test input file type and read file */
    if (!strrcasecmp(argv[1], ".png"))
    {
-      // read PNG file
+      /*  read PNG file */
       sfc = cairo_image_surface_create_from_png(argv[1]);
    }
    else if (!strrcasecmp(argv[1], ".jpg"))
    {
-      // read JPEG file
+      /*  read JPEG file */
       sfc = cairo_image_surface_create_from_jpeg(argv[1]);
    }
    else
@@ -575,22 +576,22 @@ int main(int argc, char **argv)
       return 1;
    }
 
-   // check surface status
+   /*  check surface status */
    if (cairo_surface_status(sfc) != CAIRO_STATUS_SUCCESS)
    {
       fprintf(stderr, "error loading image: %s", cairo_status_to_string(cairo_surface_status(sfc)));
       return 2;
    }
 
-   // test output file type and write file
+   /*  test output file type and write file */
    if (!strrcasecmp(argv[2], ".png"))
    {
-       // write PNG file
+       /*  write PNG file */
       cairo_surface_write_to_png(sfc, argv[2]);
    }
    else if (!strrcasecmp(argv[2], ".jpg"))
    {
-      // write JPEG file
+      /*  write JPEG file */
       cairo_image_surface_write_to_jpeg(sfc, argv[2], 90);
    }
    else

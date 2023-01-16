@@ -100,77 +100,78 @@ static char ps_font_family[80] = "Helvetica"; /* Courier Times Helvetica Symbol 
 
 typedef struct
 {
-	unsigned char* buffer;
-	size_t pos;
-	size_t size;
+        unsigned char* buffer;
+        size_t pos;
+        size_t size;
 } png_to_byte_closure_t;
 
 cairo_status_t png_reader(void* in_closure, unsigned char* out_data, unsigned int length)
 {
-	png_to_byte_closure_t* closure = (png_to_byte_closure_t*)in_closure;
-	if (!closure->buffer) return CAIRO_STATUS_READ_ERROR;
-	memcpy(out_data, closure->buffer + closure->pos, length);
-	closure->pos += length;
-	return CAIRO_STATUS_SUCCESS;
+        png_to_byte_closure_t* closure = (png_to_byte_closure_t*)in_closure;
+        if (!closure->buffer) return CAIRO_STATUS_READ_ERROR;
+        memcpy(out_data, closure->buffer + closure->pos, length);
+        closure->pos += length;
+        return CAIRO_STATUS_SUCCESS;
 }
 
 char* bin2hex(const unsigned char* bin, size_t len)
 {
-	char* out;
-	size_t  i;
+        char* out;
+        size_t  i;
 
-	if (bin == NULL || len == 0)
-		return NULL;
+        if (bin == NULL || len == 0)
+                return NULL;
 
-	out = malloc(len * 2 + 1);
-	for (i = 0; i < len; i++) {
-		out[i * 2] = "0123456789abcdef"[bin[i] >> 4];
-		out[i * 2 + 1] = "0123456789abcdef"[bin[i] & 0x0F];
-	}
-	out[len * 2] = '\0';
+        out = malloc(len * 2 + 1);
+        for (i = 0; i < len; i++) {
+                out[i * 2] = "0123456789abcdef"[bin[i] >> 4];
+                out[i * 2 + 1] = "0123456789abcdef"[bin[i] & 0x0F];
+        }
+        out[len * 2] = '\0';
 
-	return out;
+        return out;
 }
 
 void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
 {
-	size_t data_size;
-	png_to_byte_closure_t closure;
-	char* filter = NULL;
-	my_strdup(1484, &filter, get_tok_value(r->prop_ptr, "filter", 0));
-	unsigned char* image_data64_ptr = get_tok_value(r->prop_ptr, "image_data", 0);
+        int i;
+        size_t data_size;
+        png_to_byte_closure_t closure;
+        char* filter = NULL;
+        my_strdup(1484, &filter, get_tok_value(r->prop_ptr, "filter", 0));
+        unsigned char* image_data64_ptr = get_tok_value(r->prop_ptr, "image_data", 0);
   
 
-	if (filter) {
-		size_t filtersize = 0;
-		char* filterdata = NULL;
-		closure.buffer = NULL;
-		filterdata = (char*)base64_decode(image_data64_ptr, strlen(image_data64_ptr), &filtersize);
-		filter_data(filterdata, filtersize, (char**)&closure.buffer, &data_size, filter);
-		my_free(1488, &filterdata);
-	}
-	else {
-		closure.buffer = base64_decode(image_data64_ptr, strlen(image_data64_ptr), &data_size);
-	}
-	closure.pos = 0;
-	closure.size = data_size; /* should not be necessary */
-	cairo_surface_t* surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+        if (filter) {
+                size_t filtersize = 0;
+                char* filterdata = NULL;
+                closure.buffer = NULL;
+                filterdata = (char*)base64_decode(image_data64_ptr, strlen(image_data64_ptr), &filtersize);
+                filter_data(filterdata, filtersize, (char**)&closure.buffer, &data_size, filter);
+                my_free(1488, &filterdata);
+        }
+        else {
+                closure.buffer = base64_decode(image_data64_ptr, strlen(image_data64_ptr), &data_size);
+        }
+        closure.pos = 0;
+        closure.size = data_size; /* should not be necessary */
+        cairo_surface_t* surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
 
-	int png_size_x = cairo_image_surface_get_width(surface);
-	int png_size_y = cairo_image_surface_get_height(surface);
+        int png_size_x = cairo_image_surface_get_width(surface);
+        int png_size_y = cairo_image_surface_get_height(surface);
 
-	cairo_surface_flush(surface);
-	unsigned char* png_data = cairo_image_surface_get_data(surface);
+        cairo_surface_flush(surface);
+        unsigned char* png_data = cairo_image_surface_get_data(surface);
 
-  unsigned char* invertImage = get_tok_value(r->prop_ptr, "InvertOnExport", 0);
-	unsigned char BG_r = 0xFF, BG_g = 0xFF, BG_b = 0xFF;
-	for (int i = 0; i < (png_size_x * png_size_y * 4); i += 4)
-	{
+        unsigned char* invertImage = get_tok_value(r->prop_ptr, "InvertOnExport", 0);
+        unsigned char BG_r = 0xFF, BG_g = 0xFF, BG_b = 0xFF;
+        for (i = 0; i < (png_size_x * png_size_y * 4); i += 4)
+        {
 
-		unsigned char png_r = png_data[i + 0];
-		unsigned char png_g = png_data[i + 1];
-		unsigned char png_b = png_data[i + 2];
-		unsigned char png_a = png_data[i + 3];
+                unsigned char png_r = png_data[i + 0];
+                unsigned char png_g = png_data[i + 1];
+                unsigned char png_b = png_data[i + 2];
+                unsigned char png_a = png_data[i + 3];
 
     if(invertImage[0]=='1')
     {
@@ -185,43 +186,43 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
       png_data[i + 2] = png_b + (unsigned char)((double)BG_b * ((double)(0xFF - png_a)) / ((double)(0xFF)));
       png_data[i + 3] = 0xFF;
     }
-		
-	}
-	cairo_surface_mark_dirty(surface);
+                
+        }
+        cairo_surface_mark_dirty(surface);
   static char str[PATH_MAX];
   my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), "/temp.jpg");
-	cairo_image_surface_write_to_jpeg(surface, str, 100);
-	unsigned char* jpgData;
-	FILE* fp;
-	fp = fopen(str, "rb"); /* Open the file for reading */
-	fseek(fp, 0L, SEEK_END);
-	int fileSize = ftell(fp);
-	rewind(fp);
-	jpgData = malloc(fileSize);
-	fread(jpgData, sizeof(jpgData[0]), fileSize, fp);
-	fclose(fp);
+        cairo_image_surface_write_to_jpeg(surface, str, 100);
+        unsigned char* jpgData;
+        FILE* fp;
+        fp = fopen(str, "rb"); /* Open the file for reading */
+        fseek(fp, 0L, SEEK_END);
+        int fileSize = ftell(fp);
+        rewind(fp);
+        jpgData = malloc(fileSize);
+        fread(jpgData, sizeof(jpgData[0]), fileSize, fp);
+        fclose(fp);
 
-	unsigned char* hexEncodedJPG = bin2hex(jpgData, fileSize);
+        unsigned char* hexEncodedJPG = bin2hex(jpgData, fileSize);
 
-	fprintf(fd, "gsave\n");
-	fprintf(fd, "%g %g translate\n", X_TO_PS(x1), Y_TO_PS(y1));
-	fprintf(fd, "%g %g scale\n", X_TO_PS(x2) - X_TO_PS(x1), Y_TO_PS(y2) - Y_TO_PS(y1));
-	fprintf(fd, "%d\n", png_size_x);
-	fprintf(fd, "%d\n", png_size_y);
-	fprintf(fd, "8\n");
-	fprintf(fd, "[%d 0 0 %d 0 0]\n", png_size_x, png_size_y);
-	fprintf(fd, "(%s)\n", hexEncodedJPG);
-	fprintf(fd, "/ASCIIHexDecode\n");
-	fprintf(fd, "filter\n");
-	fprintf(fd, "0 dict\n");
-	fprintf(fd, "/DCTDecode\n");
-	fprintf(fd, "filter\n");
-	fprintf(fd, "false\n");
-	fprintf(fd, "3\n");
-	fprintf(fd, "colorimage\n");
-	fprintf(fd, "grestore\n");
+        fprintf(fd, "gsave\n");
+        fprintf(fd, "%g %g translate\n", X_TO_PS(x1), Y_TO_PS(y1));
+        fprintf(fd, "%g %g scale\n", X_TO_PS(x2) - X_TO_PS(x1), Y_TO_PS(y2) - Y_TO_PS(y1));
+        fprintf(fd, "%d\n", png_size_x);
+        fprintf(fd, "%d\n", png_size_y);
+        fprintf(fd, "8\n");
+        fprintf(fd, "[%d 0 0 %d 0 0]\n", png_size_x, png_size_y);
+        fprintf(fd, "(%s)\n", hexEncodedJPG);
+        fprintf(fd, "/ASCIIHexDecode\n");
+        fprintf(fd, "filter\n");
+        fprintf(fd, "0 dict\n");
+        fprintf(fd, "/DCTDecode\n");
+        fprintf(fd, "filter\n");
+        fprintf(fd, "false\n");
+        fprintf(fd, "3\n");
+        fprintf(fd, "colorimage\n");
+        fprintf(fd, "grestore\n");
 
-	free(hexEncodedJPG); free(jpgData);
+        free(hexEncodedJPG); free(jpgData);
 }
 
 
@@ -287,53 +288,53 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
     closure.size = 0;
     closure.pos = 0;
 
-	static char str[PATH_MAX];
+        static char str[PATH_MAX];
   my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), "/temp.jpg");
-	cairo_image_surface_write_to_jpeg(png_sfc, str, 100);
+        cairo_image_surface_write_to_jpeg(png_sfc, str, 100);
     
-	unsigned char* jpgData;
-	FILE* fp;
-	fp = fopen(str, "rb"); 
-	fseek(fp, 0L, SEEK_END);
-	int fileSize = ftell(fp);
-	rewind(fp);
-	jpgData = malloc(fileSize);
-	fread(jpgData, sizeof(jpgData[0]), fileSize, fp);
-	fclose(fp);
+        unsigned char* jpgData;
+        FILE* fp;
+        fp = fopen(str, "rb"); 
+        fseek(fp, 0L, SEEK_END);
+        int fileSize = ftell(fp);
+        rewind(fp);
+        jpgData = malloc(fileSize);
+        fread(jpgData, sizeof(jpgData[0]), fileSize, fp);
+        fclose(fp);
 
-	unsigned char* hexEncodedJPG = bin2hex(jpgData, fileSize);
+        unsigned char* hexEncodedJPG = bin2hex(jpgData, fileSize);
 
-	cairo_surface_destroy(png_sfc);
-	xctx->draw_pixmap = 1;
-	xctx->draw_window = save_draw_window;
-	xctx->do_copy_area = 1;
-	tclsetboolvar("draw_grid", save_draw_grid);
-	save_restore_zoom(0);
-	resetwin(1, 1, 1, 0, 0);
-	change_linewidth(-1.);
+        cairo_surface_destroy(png_sfc);
+        xctx->draw_pixmap = 1;
+        xctx->draw_window = save_draw_window;
+        xctx->do_copy_area = 1;
+        tclsetboolvar("draw_grid", save_draw_grid);
+        save_restore_zoom(0);
+        resetwin(1, 1, 1, 0, 0);
+        change_linewidth(-1.);
   tclsetboolvar("dark_colorscheme", d_c);
   build_colors(0, 0);
   draw();
     
-	fprintf(fd, "gsave\n");
-	fprintf(fd, "%f %f translate\n", X_TO_PS(rx1), Y_TO_PS(ry1));
-	fprintf(fd, "%f %f scale\n", X_TO_PS(rx2) - X_TO_PS(rx1), Y_TO_PS(ry2) - Y_TO_PS(ry1));
-	fprintf(fd, "%d\n", rwi);
-	fprintf(fd, "%d\n", rhi);
-	fprintf(fd, "8\n");
-	fprintf(fd, "[%d 0 0 %d 0 0]\n", rwi, rhi);
-	fprintf(fd, "(%s)\n", hexEncodedJPG);
-	fprintf(fd, "/ASCIIHexDecode\n");
-	fprintf(fd, "filter\n");
-	fprintf(fd, "0 dict\n");
-	fprintf(fd, "/DCTDecode\n");
-	fprintf(fd, "filter\n");
-	fprintf(fd, "false\n");
-	fprintf(fd, "3\n");
-	fprintf(fd, "colorimage\n");
-	fprintf(fd, "grestore\n");
+        fprintf(fd, "gsave\n");
+        fprintf(fd, "%f %f translate\n", X_TO_PS(rx1), Y_TO_PS(ry1));
+        fprintf(fd, "%f %f scale\n", X_TO_PS(rx2) - X_TO_PS(rx1), Y_TO_PS(ry2) - Y_TO_PS(ry1));
+        fprintf(fd, "%d\n", rwi);
+        fprintf(fd, "%d\n", rhi);
+        fprintf(fd, "8\n");
+        fprintf(fd, "[%d 0 0 %d 0 0]\n", rwi, rhi);
+        fprintf(fd, "(%s)\n", hexEncodedJPG);
+        fprintf(fd, "/ASCIIHexDecode\n");
+        fprintf(fd, "filter\n");
+        fprintf(fd, "0 dict\n");
+        fprintf(fd, "/DCTDecode\n");
+        fprintf(fd, "filter\n");
+        fprintf(fd, "false\n");
+        fprintf(fd, "3\n");
+        fprintf(fd, "colorimage\n");
+        fprintf(fd, "grestore\n");
 
-	free(hexEncodedJPG); free(jpgData);
+        free(hexEncodedJPG); free(jpgData);
     #endif
 }
 static void set_lw(void)
@@ -842,7 +843,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
       ROTATION(rot, flip, 0.0,0.0,rect.x1,rect.y1,x1,y1);
       ROTATION(rot, flip, 0.0,0.0,rect.x2,rect.y2,x2,y2);
       RECTORDER(x1,y1,x2,y2);
-      if (rect.flags & 1024)//image
+      if (rect.flags & 1024) /* image */
       {
         ps_drawPNG(&rect, x0 + x1, y0 + y1, x0 + x2, y0 + y2);
         continue;
@@ -924,8 +925,7 @@ static void fill_ps_colors()
 
 }
 
-
-
+#define A4
 void create_ps(char **psfile, int what)
 {
   double dx, dy, scale, scaley;
@@ -933,9 +933,14 @@ void create_ps(char **psfile, int what)
   static int numpages = 0;
   double margin=10; /* in postscript points, (1/72)". No need to add margin as xschem zoom full already has margins.*/
 
-  /* Legal: 612 792 */
-  double pagex=792;/* a4, in postscript points, (1/72)" */
-  double pagey=612;/* a4, in postscript points, (1/72)" */
+  /* Legal: 612 792, A4: 842 595 */
+  #ifdef A4
+  double pagex=842;/* a4, in postscript points, (1/72)" */
+  double pagey=595;/* a4, in postscript points, (1/72)" */
+  #else
+  double pagex=792;/* Legal, in postscript points, (1/72)" */
+  double pagey=612;/* Legal, in postscript points, (1/72)" */
+  #endif
   xRect boundbox;
   int c,i, textlayer;
   int old_grid;
@@ -1113,13 +1118,13 @@ void create_ps(char **psfile, int what)
         }
         if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1024)) { /* image */
             xRect* r = &xctx->rect[c][i];
-            //PNG Code Here
+            /* PNG Code Here */
             ps_drawPNG(r, r->x1, r->y1, r->x2, r->y2);
         }
-		if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1)) { /* graph */
-			xRect* r = &xctx->rect[c][i];
-			ps_embedded_graph(r, r->x1, r->y1, r->x2, r->y2);
-		}
+                if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1)) { /* graph */
+                        xRect* r = &xctx->rect[c][i];
+                        ps_embedded_graph(r, r->x1, r->y1, r->x2, r->y2);
+                }
       }
       for(i=0;i<xctx->arcs[c];i++)
       {

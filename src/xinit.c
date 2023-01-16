@@ -1726,9 +1726,9 @@ void change_linewidth(double w)
     linew = INT_WIDTH(xctx->lw);
     dbg(1, "Line width = %d\n", linew);
     for(i=0;i<cadlayers;i++) {
-        XSetLineAttributes (display, xctx->gc[i], linew, LineSolid, CapRound , JoinRound);
+        XSetLineAttributes (display, xctx->gc[i], linew, LineSolid, LINECAP , LINEJOIN);
     }
-    XSetLineAttributes (display, xctx->gctiled, linew, LineSolid, CapRound , JoinRound);
+    XSetLineAttributes (display, xctx->gctiled, linew, LineSolid, LINECAP , LINEJOIN);
   }
   if(!xctx->only_probes) {
     xctx->areax1 = -2*INT_WIDTH(xctx->lw);

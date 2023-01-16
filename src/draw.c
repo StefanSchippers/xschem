@@ -981,7 +981,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    if(xctx->draw_pixmap)
     XDrawLine(display, xctx->save_pixmap, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(dash) {
-     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, CapRound, JoinRound);
+     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
    }
    #if !defined(__unix__) && defined(HAS_CAIRO)
    check_cairo_drawline(ct, c, x1, y1, x2, y2, dash);
@@ -1002,14 +1002,14 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
      XSetLineAttributes (display, xctx->gc[c], INT_BUS_WIDTH(xctx->lw), xDashType, xCap, xJoin);
    } else {
-     XSetLineAttributes (display, xctx->gc[c], INT_BUS_WIDTH(xctx->lw), LineSolid, CapRound, JoinRound);
+     XSetLineAttributes (display, xctx->gc[c], INT_BUS_WIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
    }
    if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(xctx->draw_pixmap) XDrawLine(display, xctx->save_pixmap, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    #if !defined(__unix__) && defined(HAS_CAIRO)
    check_cairo_drawline(ct, c, x1, y1, x2, y2, dash);
    #endif
-   XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
+   XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
   }
  }
  else if((what & END) && i)
@@ -1087,10 +1087,10 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
   y2=Y_TO_SCREEN(liney2);
   if( clip(&x1,&y1,&x2,&y2) )
   {
-   XSetLineAttributes (display, gc, INT_BUS_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
+   XSetLineAttributes (display, gc, INT_BUS_WIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
 
    XDrawLine(display, xctx->window, gc, (int)x1, (int)y1, (int)x2, (int)y2);
-   XSetLineAttributes (display, gc, INT_WIDTH(xctx->lw), LineSolid, CapRound , JoinRound);
+   XSetLineAttributes (display, gc, INT_WIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
   }
  }
 
@@ -1346,7 +1346,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
      }
    }
    if(dash) {
-     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
+     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
    }
   }
  }
@@ -1534,7 +1534,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     }
   }
   if(dash) {
-    XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
+    XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
   }
   my_free(722, &p);
 }
@@ -1595,7 +1595,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
     (unsigned int)y2 - (unsigned int)y1);
    }
    if(dash) {
-     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
+     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw) ,LineSolid, LINECAP, LINEJOIN);
    }
   }
  }
@@ -1862,11 +1862,11 @@ static void set_thick_waves(int what, int wcnt, int wave_col, Graph_ctx *gr)
   if(what) {
       if(gr->hilight_wave == wcnt)
          XSetLineAttributes (display, xctx->gc[wave_col],
-            3 * INT_WIDTH(xctx->lw) ,LineSolid, CapRound , JoinRound);
+            3 * INT_WIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
   } else {
       if(gr->hilight_wave == wcnt)
          XSetLineAttributes (display, xctx->gc[wave_col],
-            (int)(xctx->lw) ,LineSolid, CapRound , JoinRound);
+            (int)(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
   }
 }
 
