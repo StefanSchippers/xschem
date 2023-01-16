@@ -24,6 +24,9 @@
 #define X_TO_PS(x) ( (x+xctx->xorigin)* xctx->mooz )
 #define Y_TO_PS(y) ( (y+xctx->yorigin)* xctx->mooz )
 
+/* FIXME This must be investigated, without some fflushes the ps file is corrupted */
+#define FFLUSH_PS
+
 #if 0
 *   /* FIXME: overflow check. Not used, BTW */
 *   static char *strreplace(char s[], char token[], char replace[])
@@ -140,19 +143,19 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
   char* filter = NULL;
   int png_size_x, png_size_y;
   unsigned char *png_data, BG_r, BG_g, BG_b;
-  const char *invertImage;
+  int invertImage;
   /* static char str[PATH_MAX];
    * FILE* fp;
    */
   unsigned char* hexEncodedJPG;
-  const char* image_data64_ptr;
+  char* image_data64_ptr = NULL;
   cairo_surface_t* surface;
   unsigned char* jpgData = NULL;
   size_t fileSize = 0;
 
   my_strdup(59, &filter, get_tok_value(r->prop_ptr, "filter", 0));
 
-  image_data64_ptr = get_tok_value(r->prop_ptr, "image_data", 0);
+  my_strdup2(1183, &image_data64_ptr, get_tok_value(r->prop_ptr, "image_data", 0));
   if (filter) {
     size_t filtersize = 0;
     char* filterdata = NULL;
@@ -165,6 +168,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
     closure.buffer = base64_decode(image_data64_ptr, strlen(image_data64_ptr), &data_size);
   }
   my_free(1663, &filter);
+  my_free(1184, &image_data64_ptr);
   closure.pos = 0;
   closure.size = data_size; /* should not be necessary */
   surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
@@ -175,7 +179,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
   cairo_surface_flush(surface);
   png_data = cairo_image_surface_get_data(surface);
 
-  invertImage = get_tok_value(r->prop_ptr, "InvertOnExport", 0);
+  invertImage = !strcmp(get_tok_value(r->prop_ptr, "InvertOnExport", 0), "true");
   BG_r = 0xFF; BG_g = 0xFF; BG_b = 0xFF;
   for (i = 0; i < (png_size_x * png_size_y * 4); i += 4)
   {
@@ -184,7 +188,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
     unsigned char png_b = png_data[i + 2];
     unsigned char png_a = png_data[i + 3];
 
-    if(invertImage[0]=='1')
+    if(invertImage)
     {
       png_data[i + 0] = (unsigned char)(0xFF-png_r) +
          (unsigned char)((double)BG_r * ((double)(0xFF - png_a)) / ((double)(0xFF)));
@@ -234,6 +238,9 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
   fprintf(fd, "3\n");
   fprintf(fd, "colorimage\n");
   fprintf(fd, "grestore\n");
+  #ifdef FFLUSH_PS /* FIXME: why is this needed? */
+  fflush(fd);
+  #endif
   my_free(1663, &hexEncodedJPG);
   free(jpgData);
 }
@@ -343,6 +350,9 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   fprintf(fd, "3\n");
   fprintf(fd, "colorimage\n");
   fprintf(fd, "grestore\n");
+  #ifdef FFLUSH_PS /* FIXME: why is this needed? */
+  fflush(fd);
+  #endif
   my_free(1666, &hexEncodedJPG);
   free(jpgData);
   #endif
@@ -359,8 +369,11 @@ static void set_ps_colors(unsigned int pixel)
 {
 
    if(color_ps) fprintf(fd, "%g %g %g RGB\n",
-    (double)ps_colors[pixel].red/256.0, (double)ps_colors[pixel].green/256.0,
-    (double)ps_colors[pixel].blue/256.0);
+     (double)ps_colors[pixel].red/256.0, (double)ps_colors[pixel].green/256.0,
+     (double)ps_colors[pixel].blue/256.0);
+   #ifdef FFLUSH_PS /* FIXME: why is this needed? */
+   fflush(fd);
+   #endif
 
 }
 
@@ -943,13 +956,13 @@ void create_ps(char **psfile, int what)
   static int numpages = 0;
   double margin=10; /* in postscript points, (1/72)". No need to add margin as xschem zoom full already has margins.*/
 
-  /* Legal: 612 792, A4: 842 595 */
+  /* Letter: 612 792, A4: 595 842 */
   #ifdef A4
   double pagex=842;/* a4, in postscript points, (1/72)" */
   double pagey=595;/* a4, in postscript points, (1/72)" */
-  #else
-  double pagex=792;/* Legal, in postscript points, (1/72)" */
-  double pagey=612;/* Legal, in postscript points, (1/72)" */
+  #else /* Letter */
+  double pagex=792;/* Letter, in postscript points, (1/72)" */
+  double pagey=612;/* Letter, in postscript points, (1/72)" */
   #endif
   xRect boundbox;
   int c,i, textlayer;
