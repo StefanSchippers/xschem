@@ -27,4 +27,7 @@ src/parselabel.h
 src/rawtovcd
 src/xschem
 
+/build
+CMakeLists.txt
+.vscode
 
