@@ -933,11 +933,13 @@ static int try_dll_or_so(int logdepth, int is_dll, const char *lib_ldflags, cons
 		lib_filename = file_name(libname);
 		lib_dirname = dir_name(libname);
 
+		len = strlen(lib_filename) - strlen(libname_ext);
 		if (!is_dll) {
-			len = strlen(lib_filename) - strlen(libname_ext);
 			for (ii=3; ii<len; ++ii)
 				lib_filename[ii-3] = lib_filename[ii];
 			lib_filename[len-3] = 0;
+		} else {
+			lib_filename[len] = 0;
 		}
 
 		app_ldflags_new = str_concat("", "-L", lib_dirname, " -l", lib_filename,

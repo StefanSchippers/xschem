@@ -162,7 +162,7 @@ device="ceramic capacitor"  net_name=true}
 C {lab_pin.sym} 500 -430 0 0 {name=p12 lab=G  net_name=true}
 C {launcher.sym} 700 -60 0 0 {name=h1
 descr=Backannotate
-tclcommand="xschem annotate_op"}
+tclcommand="xschem annotate_op $\{netlist_dir\}/cmos_example_ngspice.raw"}
 C {launcher.sym} 700 -110 0 0 {name=h2
 descr="View raw file"
 tclcommand="textwindow $netlist_dir/cmos_example.raw"}
@@ -1558,6 +1558,7 @@ value=".temp 30
 save all
 op
 write cmos_example_ngspice.raw
+set appendwrite
 * tran 1n 300n
 dc vplus 2.3 2.7 0.001
 write cmos_example_ngspice.raw
