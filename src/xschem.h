@@ -378,7 +378,8 @@ do { \
 #define DIG_NWAVES 0.1  /* inverse number: by default 10 digital traces per graph */
 #define DIG_SPACE 0.07 /* trace extends from 0 to DIG_SPACE, so we have DIG_WAVES-DIG_SPACE
                         * spacing between traces */
-
+#define LINECAP CapRound /* CapNotLast, CapButt, CapRound, or CapProjecting */
+#define LINEJOIN JoinRound /* JoinMiter, JoinRound, or JoinBevel */
 typedef struct
 {
   unsigned short type;
