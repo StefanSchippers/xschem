@@ -188,11 +188,12 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
 		
 	}
 	cairo_surface_mark_dirty(surface);
-
-	cairo_image_surface_write_to_jpeg(surface, "temp.jpg", 100);
+  static char str[PATH_MAX];
+  my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), "/temp.jpg");
+	cairo_image_surface_write_to_jpeg(surface, str, 100);
 	unsigned char* jpgData;
 	FILE* fp;
-	fp = fopen("temp.jpg", "rb"); /* Open the file for reading */
+	fp = fopen(str, "rb"); /* Open the file for reading */
 	fseek(fp, 0L, SEEK_END);
 	int fileSize = ftell(fp);
 	rewind(fp);
@@ -286,12 +287,13 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
     closure.size = 0;
     closure.pos = 0;
 
-	
-	cairo_image_surface_write_to_jpeg(png_sfc, "temp.jpg", 100);
+	static char str[PATH_MAX];
+  my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), "/temp.jpg");
+	cairo_image_surface_write_to_jpeg(png_sfc, str, 100);
     
 	unsigned char* jpgData;
 	FILE* fp;
-	fp = fopen("temp.jpg", "rb"); 
+	fp = fopen(str, "rb"); 
 	fseek(fp, 0L, SEEK_END);
 	int fileSize = ftell(fp);
 	rewind(fp);
