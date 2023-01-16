@@ -1,0 +1,186 @@
+
+.\" xschem - manual
+.\" Copyright (C) 2018 Tibor 'Igor2' Palinkas
+.\" 
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+.\" GNU General Public License for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+.\" 
+.\" Contact: TODO: an email address
+.TH xschem 1 2018-01-01 "" "xschem manual"
+.SH NAME
+xschem - schematic capture and netlisting EDA tool
+.SH SYNPOSIS
+.nf
+.sp
+\fBxschem [\fIoptions\fB] [\fIinputfile\fB]
+.fi
+.SH DECSRIPTION
+
+.BR Xschem
+is a schematic capture program, it allows creation of
+hierarchical representation of circuits with a top down approach.
+.SH OPTIONS
+
+.TP
+
+.B -h, --help
+Print help and exit.
+.TP
+
+.B -b, --detach
+Detach xschem from console.
+.TP
+
+.B -n, --netlist
+Do a netlist of the given schematic cell.
+.TP
+
+.B -v, --version
+Print version information and exit.
+.TP
+
+.B -V, --vhdl
+Set netlist type to VHDL.
+.TP
+
+.B -S, --simulate
+Run a simulation of the current schematc file (spice/Verilog/VHDL, depending on the netlist type chosen).
+.TP
+
+.B -w, --verilog
+Set netlist type to Verilog.
+.TP
+
+.B --tcl <tcl_script>
+Execute specified tcl instructions before any other action, this can be used to change xschemrc variables.
+.TP
+
+.B --command <tcl_cmd>
+Execute specified tcl commands after completing startup.
+.TP
+
+.B --script <file>
+Execute specified tcl file as a command script (perhaps with xschem  commands).
+.TP
+
+.B --tcp-port <number>
+Listen to specified tcp port for client connections. (number >=1024).
+.TP
+
+.B -i, --no_rcload
+Do not load any xschemrc file.
+.TP
+
+.B -o, --netlist_path
+Set output for netlist.
+.TP
+
+.B -N, --netlist_filename
+Set name (only name, not path) of top level netlist file.
+.TP
+
+.B -t, --tedax
+Set netlist type to tEDAx.
+.TP
+
+.B -s, --spice
+Set netlist type to SPICE.
+.TP
+
+.B -y, --symbol
+Set netlist type to symbol global property edit.
+.TP
+
+.B -x, --no_x
+Dont use X (only command mode).
+.TP
+
+.B -z, --rainbow
+Use a raibow-looking layer color table.
+.TP
+
+.B -W, --waves
+Show simulation waveforms.
+.TP
+
+.B -f, --flat_netlist
+Set flat netlist (for spice format only).
+.TP
+
+.B -r, --no_readline
+Start without the tclreadline package ( this is necessary if stdin and stdout are to be redirected for example to /dev/null).
+.TP
+
+.B -c, --color_ps
+Set color postscript.
+.TP
+
+.B --plotfile <file>
+Use <file> as output for plot export (png, svg, postscript/pdf)
+.TP
+
+.B --rcfile <file>
+Use <file> as a rc file for startup instead of the default xschemrc.
+.TP
+
+.B -p, --postscript, --pdf
+Export pdf schematic.
+.TP
+
+.B --png
+Export png schematic.
+.TP
+
+.B --svg
+Export svg schematic.
+.TP
+
+.B -q, --quit
+Quit after doing things (no interactive mode).
+.TP
+
+.B -l file, --log file
+Set a log file.
+.TP
+
+.B -d n, --debug n
+Set debug level: 1, 2, 3,...: C program debug, -1, -2, -3...: TCL frontend debug.
+
+
+.SH FILES
+
+.TP
+
+.B /usr/local/share/xschem/xschemrc
+default configuration.
+.TP
+
+.B ~/.xschem/xschemrc
+user configuration; if exists overrides settings from default configuration;
+may be partial: settings not overridden will remain as set from the system
+config.
+.TP
+
+.B ./xschemrc
+local/per-project configuration; if exists overrides settings from
+the user configuration and default configuration.
+.TP
+
+.B /usr/local/share/xschem/systemlib
+builtin essentials, such as font and missing symbol graphics.
+.TP
+
+.B /usr/local/share/xschem/utile
+TODO.
+.TP
