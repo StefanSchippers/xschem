@@ -25,7 +25,7 @@
 #define Y_TO_PS(y) ( (y+xctx->yorigin)* xctx->mooz )
 
 /* FIXME This must be investigated, without some fflushes the ps file is corrupted */
-#define FFLUSH_PS
+//#define FFLUSH_PS
 
 #if 0
 *   /* FIXME: overflow check. Not used, BTW */
@@ -135,7 +135,7 @@ unsigned char* bin2hex(const unsigned char* bin, size_t len)
         return out;
 }
 
-void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
+void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
 {
   int i;
   size_t data_size;
@@ -188,22 +188,19 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
     unsigned char png_b = png_data[i + 2];
     unsigned char png_a = png_data[i + 3];
 
+    double ainv=((double)(0xFF - png_a)) / ((double)(0xFF));
+
     if(invertImage)
     {
-      png_data[i + 0] = (unsigned char)(0xFF-png_r) +
-         (unsigned char)((double)BG_r * ((double)(0xFF - png_a)) / ((double)(0xFF)));
-      png_data[i + 1] = (unsigned char)(0xFF-png_g) +
-         (unsigned char)((double)BG_g * ((double)(0xFF - png_a)) / ((double)(0xFF)));
-      png_data[i + 2] = (unsigned char)(0xFF-png_b) +
-         (unsigned char)((double)BG_b * ((double)(0xFF - png_a)) / ((double)(0xFF)));
-      png_data[i + 3] = (unsigned char)0xFF;
-    }else {
-      png_data[i + 0] = png_r +
-         (unsigned char)((double)BG_r * ((double)(0xFF - png_a)) / ((double)(0xFF)));
-      png_data[i + 1] = png_g +
-         (unsigned char)((double)BG_g * ((double)(0xFF - png_a)) / ((double)(0xFF)));
-      png_data[i + 2] = png_b +
-         (unsigned char)((double)BG_b * ((double)(0xFF - png_a)) / ((double)(0xFF)));
+      png_data[i + 0] = (0xFF-png_r) + (unsigned char)((double)BG_r * ainv);
+      png_data[i + 1] = (0xFF-png_g) + (unsigned char)((double)BG_g * ainv);
+      png_data[i + 2] = (0xFF-png_b) + (unsigned char)((double)BG_b * ainv);
+      png_data[i + 3] = 0xFF;
+    }else
+    {
+      png_data[i + 0] = png_r + (unsigned char)((double)BG_r * ainv);
+      png_data[i + 1] = png_g + (unsigned char)((double)BG_g * ainv);
+      png_data[i + 2] = png_b + (unsigned char)((double)BG_b * ainv);
       png_data[i + 3] = 0xFF;
     }
   }
@@ -221,13 +218,32 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
    * fclose(fp);
    */
   hexEncodedJPG = bin2hex(jpgData, fileSize);
-  fprintf(fd, "gsave\n");
+  fprintf(fd, "gsave\n"); 
   fprintf(fd, "%g %g translate\n", X_TO_PS(x1), Y_TO_PS(y1));
-  fprintf(fd, "%g %g scale\n", X_TO_PS(x2) - X_TO_PS(x1), Y_TO_PS(y2) - Y_TO_PS(y1));
-  fprintf(fd, "%d\n", png_size_x);
-  fprintf(fd, "%d\n", png_size_y);
+  if(rot==1) fprintf(fd, "90 rotate\n");
+  if(rot==2) fprintf(fd, "180 rotate\n");
+  if(rot==3) fprintf(fd, "270 rotate\n");
+  fprintf(fd, "%g %g scale\n", (X_TO_PS(x2) - X_TO_PS(x1))*0.97, (Y_TO_PS(y2) - Y_TO_PS(y1))*0.97);
+  
+  fprintf(fd, "%g\n", (double)png_size_x);
+  fprintf(fd, "%g\n", (double)png_size_y);
   fprintf(fd, "8\n");
-  fprintf(fd, "[%d 0 0 %d 0 0]\n", png_size_x, png_size_y);
+  if(!flip)
+  {
+    if(rot==1) fprintf(fd, "[%g 0 0 %g 0 %g]\n", (double)png_size_y, (double)png_size_x, (double)png_size_y);
+    else if(rot==2) fprintf(fd, "[%g 0 0 %g %g %g]\n", (double)png_size_x, (double)png_size_y, (double)png_size_x, (double)png_size_y);
+    else if(rot==3) fprintf(fd, "[%g 0 0 %g %g 0]\n", (double)png_size_y, (double)png_size_x, (double)png_size_x);
+    else fprintf(fd, "[%g 0 0 %g 0 0]\n", (double)png_size_x, (double)png_size_y); 
+  }
+  else
+  {
+    if(rot==1) fprintf(fd, "[%g 0 0 %g %g %g]\n", -(double)png_size_y, (double)png_size_x, (double)png_size_x, (double)png_size_y);
+    else if(rot==2) fprintf(fd, "[%g 0 0 %g 0 %g]\n", -(double)png_size_x, (double)png_size_y, (double)png_size_y);
+    else if(rot==3) fprintf(fd, "[%g 0 0 %g 0 0]\n", -(double)png_size_y, (double)png_size_x);
+    else fprintf(fd, "[%g 0 0 %g %g 0]\n", -(double)png_size_x, (double)png_size_y, (double)png_size_x); 
+  }
+   
+  
   fprintf(fd, "(%s)\n", hexEncodedJPG);
   fprintf(fd, "/ASCIIHexDecode\n");
   fprintf(fd, "filter\n");
@@ -238,11 +254,10 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2)
   fprintf(fd, "3\n");
   fprintf(fd, "colorimage\n");
   fprintf(fd, "grestore\n");
-  #ifdef FFLUSH_PS /* FIXME: why is this needed? */
-  fflush(fd);
-  #endif
+
   my_free(1663, &hexEncodedJPG);
   free(jpgData);
+  fflush(fd);
 }
 
 
@@ -350,12 +365,11 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   fprintf(fd, "3\n");
   fprintf(fd, "colorimage\n");
   fprintf(fd, "grestore\n");
-  #ifdef FFLUSH_PS /* FIXME: why is this needed? */
-  fflush(fd);
-  #endif
   my_free(1666, &hexEncodedJPG);
   free(jpgData);
+  fflush(fd);
   #endif
+
 }
 static void set_lw(void)
 {
@@ -868,7 +882,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
       RECTORDER(x1,y1,x2,y2);
       if (rect.flags & 1024) /* image */
       {
-        ps_drawPNG(&rect, x0 + x1, y0 + y1, x0 + x2, y0 + y2);
+        ps_drawPNG(&rect, x0 + x1, y0 + y1, x0 + x2, y0 + y2, rot, flip);
         continue;
       }
       ps_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, rect.dash, rect.fill);
@@ -1135,17 +1149,18 @@ void create_ps(char **psfile, int what)
           xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
       for(i=0;i<xctx->rects[c];i++)
       {
+        
         if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1024)) { /* image */
-          xRect* r = &xctx->rect[c][i];
-          /* PNG Code Here */
-          ps_drawPNG(r, r->x1, r->y1, r->x2, r->y2);
+            xRect* r = &xctx->rect[c][i];
+            /* PNG Code Here */
+            ps_drawPNG(r, r->x1, r->y1, r->x2, r->y2,0 ,0);
+            continue;
         }
-        else if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1)) { /* graph */
-          xRect* r = &xctx->rect[c][i];
-          ps_embedded_graph(r, r->x1, r->y1, r->x2, r->y2);
+        if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1)) { /* graph */
+                xRect* r = &xctx->rect[c][i];
+                ps_embedded_graph(r, r->x1, r->y1, r->x2, r->y2);
         }
-        /* else if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  */
-        else {
+        if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  {
           ps_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
             xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash, xctx->rect[c][i].fill);
         }

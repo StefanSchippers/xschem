@@ -3215,15 +3215,23 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
   } else { /* resize image to fit in rectangle */
     rw = abs((int)(*x2 - *x1));
     rh = abs((int)(*y2 - *y1));
-    scalex = rw/w * xctx->mooz;
-    scaley = rh/h * xctx->mooz;
+    if (rot == 1 || rot == 3)
+    {
+      scalex = rh/w * xctx->mooz;
+      scaley = rw/h * xctx->mooz;
+    }else
+    {
+      scalex = rw/w * xctx->mooz;
+      scaley = rh/h * xctx->mooz;
+    }
   }
   if(dr && xctx->draw_pixmap) {
     cairo_translate(xctx->cairo_save_ctx, x, y);
-    if(flip && (rot == 0 || rot == 2)) cairo_scale(xctx->cairo_save_ctx, -scalex, scaley);
-    else if(flip && (rot == 1 || rot == 3)) cairo_scale(xctx->cairo_save_ctx, scalex, -scaley);
-    else cairo_scale(xctx->cairo_save_ctx, scalex, scaley);
     cairo_rotate(xctx->cairo_save_ctx, rot * XSCH_PI * 0.5);
+    if(flip && (rot == 0 || rot == 2)) cairo_scale(xctx->cairo_save_ctx, -scalex, scaley);
+    else if(flip && (rot == 1 || rot == 3)) cairo_scale(xctx->cairo_save_ctx, -scalex, scaley);
+    else cairo_scale(xctx->cairo_save_ctx, scalex, scaley);
+    
     cairo_set_source_surface(xctx->cairo_save_ctx, emb_ptr->image, 0. , 0.);
     cairo_rectangle(xctx->cairo_save_ctx, 0, 0, w , h );
     /* cairo_fill(xctx->cairo_save_ctx);
@@ -3233,10 +3241,10 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
   }
   if(dr && xctx->draw_window) {
     cairo_translate(xctx->cairo_ctx, x, y);
+    cairo_rotate(xctx->cairo_ctx, rot * XSCH_PI * 0.5);
     if(flip && (rot == 0 || rot == 2)) cairo_scale(xctx->cairo_ctx, -scalex, scaley);
     else if(flip && (rot == 1 || rot == 3)) cairo_scale(xctx->cairo_ctx, scalex, -scaley);
     else cairo_scale(xctx->cairo_ctx, scalex, scaley);
-    cairo_rotate(xctx->cairo_ctx, rot * XSCH_PI * 0.5);
     cairo_set_source_surface(xctx->cairo_ctx, emb_ptr->image, 0. , 0.);
     cairo_rectangle(xctx->cairo_ctx, 0, 0, w , h );
     /* cairo_fill(xctx->cairo_ctx);

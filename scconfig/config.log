@@ -1,0 +1,321 @@
+CLI arg 0: './configure'
+(Required node: 'sys/name')
+ (Required node: 'sys/tmp')
+  (Required node: 'sys/shell')
+###report### Looking for a shell...    finding a shell
+    testing '/bin/sh -c' as shell
+     run: ' /bin/sh -c echo hello >scc_30886 2>>scc_89383.out'
+      ========= empty stderr =================
+     run result: 0
+     stdout: '
+'
+    refused.
+    testing '/bin/sh -c' as shell
+     run: ' /bin/sh -c "echo hello" >scc_36915 2>>scc_92777.out'
+      ========= empty stderr =================
+     run result: 0
+     stdout: 'hello
+'
+    accepted.
+###report### /bin/sh -c
+   found a shell '/bin/sh -c', need quote: true
+###report### Looking for a shell escape character...    finding shell escape character...
+    run: ' echo \\\ \{\}\&\;\| >scc_38335 2>>scc_47793.out'
+     ========= empty stderr =================
+    run result: 0
+    stdout: '\ {}&;|
+'
+###report### found: '\'
+   found shell escape char '\'
+###report### Detecting temp dir...  Finding temp dir (current working directory)...
+   testing if shell eats \...
+    run: '  /bin/sh -c "echo c:\n" >scc_60492 2>>scc_85386.out'
+     ========= empty stderr =================
+    run result: 0
+    stdout: 'c:n
+'
+   shell eats \...
+    run: '  /bin/sh -c "pwd" >scc_41421 2>>scc_16649.out'
+     ========= empty stderr =================
+    run result: 0
+    stdout: '/home/rafmag/xschem/scconfig
+'
+   cwd is '/home/rafmag/xschem/scconfig/'
+    trying detected temp dir '/home/rafmag/xschem/scconfig/'
+     validating temp dir '/home/rafmag/xschem/scconfig/'
+     temp dir works!
+###report###  validated /home/rafmag/xschem/scconfig/
+  Detected temp dir '/home/rafmag/xschem/scconfig/'
+  Path sep: '/'
+###report### Checking for system type...  [find_uname] checking for sys/name
+  not set, running
+  run: '  /bin/sh -c "uname -a" >/home/rafmag/xschem/scconfig/scc_68690 2>>/home/rafmag/xschem/scconfig/scc_90027.out'
+   ========= empty stderr =================
+  run result: 0
+  stdout: 'Linux MSI 5.10.16.3-microsoft-standard-WSL2 #1 SMP Fri Apr 2 22:23:49 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
+'
+  run: '  /bin/sh -c "uname -m" >/home/rafmag/xschem/scconfig/scc_97763 2>>/home/rafmag/xschem/scconfig/scc_20059.out'
+   ========= empty stderr =================
+  run result: 0
+  stdout: 'x86_64
+'
+  run: '  /bin/sh -c "uname -o" >/home/rafmag/xschem/scconfig/scc_80540 2>>/home/rafmag/xschem/scconfig/scc_13926.out'
+   ========= empty stderr =================
+  run result: 0
+  stdout: 'GNU/Linux
+'
+###report### OK (name: Linux; class: UNIX)
+(Required node: 'cc/fpic')
+ (Required node: 'cc/cc')
+###report### Checking for cc (target)...   find_cc: trying to find cc (target)...
+   find_cc: Detecting cc (host)
+    trying cc:try_flags with cc='gcc' cflags='' ldflags=''
+      compile: '/bin/sh -c "gcc  /home/rafmag/xschem/scconfig/scc_83426.c  -o /home/rafmag/xschem/scconfig/scc_55736 2>&1" >/home/rafmag/xschem/scconfig/scc_89172.out'
+       ========= empty stderr =================
+      compile result: 0
+      run: ' /home/rafmag/xschem/scconfig/scc_55736 >/home/rafmag/xschem/scconfig/scc_95368 2>>/home/rafmag/xschem/scconfig/scc_5211.out'
+       ========= empty stderr =================
+      run result: 0
+      stdout: 'OK
+'
+   find_cc: Detecting -pipe
+     compile: '/bin/sh -c "gcc -pipe /home/rafmag/xschem/scconfig/scc_2567.c  -o /home/rafmag/xschem/scconfig/scc_65782 2>&1" >/home/rafmag/xschem/scconfig/scc_56429.out'
+      ========= empty stderr =================
+     compile result: 0
+     run: ' /home/rafmag/xschem/scconfig/scc_65782 >/home/rafmag/xschem/scconfig/scc_22862 2>>/home/rafmag/xschem/scconfig/scc_21530.out'
+      ========= empty stderr =================
+     run result: 0
+     stdout: 'OK
+'
+   find_cc: final test on cc and all flags 
+     compile: '/bin/sh -c "gcc  -pipe /home/rafmag/xschem/scconfig/scc_65123.c  -o /home/rafmag/xschem/scconfig/scc_3135 2>&1" >/home/rafmag/xschem/scconfig/scc_74067.out'
+      ========= empty stderr =================
+     compile result: 0
+     run: ' /home/rafmag/xschem/scconfig/scc_3135 >/home/rafmag/xschem/scconfig/scc_79802 2>>/home/rafmag/xschem/scconfig/scc_13929.out'
+      ========= empty stderr =================
+     run result: 0
+     stdout: 'OK
+'
+###report### OK ('gcc', ' -pipe', '')
+   find_cc: conclusion: cc='gcc' cflags=' -pipe' ldflags=''
+###report### Checking for -fpic...  find_fpic: trying to find -fpic...
+  trying cc:try_flags with cc='gcc' cflags='' ldflags='-fPIC'
+    compile: '/bin/sh -c "gcc  -pipe /home/rafmag/xschem/scconfig/scc_34022.c -fPIC -o /home/rafmag/xschem/scconfig/scc_33069 2>&1" >/home/rafmag/xschem/scconfig/scc_23058.out'
+     ========= empty stderr =================
+    compile result: 0
+    run: ' /home/rafmag/xschem/scconfig/scc_33069 >/home/rafmag/xschem/scconfig/scc_61393 2>>/home/rafmag/xschem/scconfig/scc_98167.out'
+     ========= empty stderr =================
+    run result: 0
+    stdout: 'OK
+'
+###report### OK (-fPIC)
+(Required node: 'libs/io/popen/*')
+###report### Checking for popen(3)...  find_io_popen: trying to find popen(3)...
+  trying '#define _XOPEN_SOURCE' and '' and '', with a run
+    compile: '/bin/sh -c "gcc  -pipe -O2 /home/rafmag/xschem/scconfig/scc_18456.c  -o /home/rafmag/xschem/scconfig/scc_78042 2>&1" >/home/rafmag/xschem/scconfig/scc_75011.out'
+     ========= empty stderr =================
+    compile result: 0
+    run: ' /home/rafmag/xschem/scconfig/scc_78042 >/home/rafmag/xschem/scconfig/scc_77373 2>>/home/rafmag/xschem/scconfig/scc_76229.out'
+     ========= empty stderr =================
+    run result: 0
+    stdout: 'OK
+
+'
+###report### OK ('#define _XOPEN_SOURCE\n', '' and '')
+(Required node: 'libs/io/dup2/*')
+###report### Checking for dup2(2)...  find_io_dup2: trying to find dup2(2)...
+  trying '' and '' and '', with a run
+    compile: '/bin/sh -c "gcc  -pipe -O2 /home/rafmag/xschem/scconfig/scc_84421.c  -o /home/rafmag/xschem/scconfig/scc_13784 2>&1" >/home/rafmag/xschem/scconfig/scc_44919.out'
+     ========= output dump start ============
+     /home/rafmag/xschem/scconfig/scc_84421.c: In function ‘main’:
+     /home/rafmag/xschem/scconfig/scc_84421.c:6:17: warning: ignoring return value of ‘write’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+         6 |                 write(4, "OK\n", 3);
+           |                 ^~~~~~~~~~~~~~~~~~~
+     ========= output dump end ==============
+    compile result: 0
+    run: ' /home/rafmag/xschem/scconfig/scc_13784 >/home/rafmag/xschem/scconfig/scc_75198 2>>/home/rafmag/xschem/scconfig/scc_98537.out'
+     ========= empty stderr =================
+    run result: 0
+    stdout: 'OK
+'
+###report### OK ('', '' and '')
+(Required node: 'parsgen/flex/presents')
+###report### Checking for flex...  find_flex: trying to find flex...
+  run: ' flex /home/rafmag/xschem/scconfig/scc_94324.lex >/home/rafmag/xschem/scconfig/scc_64370 2>>/home/rafmag/xschem/scconfig/scc_98315.out'
+   ========= empty stderr =================
+  run result: 0
+  stdout: ''
+###report### Found.
+(Required node: 'parsgen/bison/presents')
+###report### Checking for bison...  find_bison: trying to find bison...
+  run: ' bison /home/rafmag/xschem/scconfig/scc_66413.y >/home/rafmag/xschem/scconfig/scc_76091 2>>/home/rafmag/xschem/scconfig/scc_3526.out'
+   ========= empty stderr =================
+  run result: 0
+  stdout: ''
+###report### Found.
+(Required node: 'libs/script/tk/*')
+ (Required node: 'libs/gui/xopendisplay/cflags')
+###report### Checking for XOpenDisplay...   find_xopendisplay:
+   trying '' and '' and '-lX11', with no run
+    compile: '/bin/sh -c "gcc  -pipe -O2  /home/rafmag/xschem/scconfig/scc_68980.c -lX11 -o /home/rafmag/xschem/scconfig/scc_41873 2>&1" >/home/rafmag/xschem/scconfig/scc_59956.out'
+     ========= empty stderr =================
+    compile result: 0
+###report### OK ('', '' and '-lX11')
+###report### Checking for tk...  find_tk: trying to find tk...
+###report### 8.6...    trying '' and '' and '-ltcl86', with a run
+     compile: '/bin/sh -c "gcc  -pipe -O2 /home/rafmag/xschem/scconfig/scc_6862.c -ltcl86 -o /home/rafmag/xschem/scconfig/scc_6996 2>&1" >/home/rafmag/xschem/scconfig/scc_99170.out'
+      ========= output dump start ============
+      /home/rafmag/xschem/scconfig/scc_6862.c:3:10: fatal error: tcl.h: No such file or directory
+          3 | #include <tcl.h>
+            |          ^~~~~~~
+      compilation terminated.
+      ========= output dump end ==============
+     compile result: 256
+   trying '' and '' and '-ltcl8.6', with a run
+     compile: '/bin/sh -c "gcc  -pipe -O2 /home/rafmag/xschem/scconfig/scc_97281.c -ltcl8.6 -o /home/rafmag/xschem/scconfig/scc_20925 2>&1" >/home/rafmag/xschem/scconfig/scc_2305.out'
+      ========= output dump start ============
+      /home/rafmag/xschem/scconfig/scc_97281.c:3:10: fatal error: tcl.h: No such file or directory
+          3 | #include <tcl.h>
+            |          ^~~~~~~
+      compilation terminated.
+      ========= output dump end ==============
+     compile result: 256
+   trying '' and '-I/usr/include/tcl86' and '-ltcl86', with a run
+     compile: '/bin/sh -c "gcc  -pipe -O2 -I/usr/include/tcl86 /home/rafmag/xschem/scconfig/scc_77084.c -ltcl86 -o /home/rafmag/xschem/scconfig/scc_60336 2>&1" >/home/rafmag/xschem/scconfig/scc_36327.out'
+      ========= output dump start ============
+      /home/rafmag/xschem/scconfig/scc_77084.c:3:10: fatal error: tcl.h: No such file or directory
+          3 | #include <tcl.h>
+            |          ^~~~~~~
+      compilation terminated.
+      ========= output dump end ==============
+     compile result: 256
+   trying '' and '-I/usr/include/tcl8.6' and '-ltcl8.6', with a run
+     compile: '/bin/sh -c "gcc  -pipe -O2 -I/usr/include/tcl8.6 /home/rafmag/xschem/scconfig/scc_26505.c -ltcl8.6 -o /home/rafmag/xschem/scconfig/scc_21729 2>&1" >/home/rafmag/xschem/scconfig/scc_50846.out'
+      ========= empty stderr =================
+     compile result: 0
+     run: ' /home/rafmag/xschem/scconfig/scc_21729 >/home/rafmag/xschem/scconfig/scc_25857 2>>/home/rafmag/xschem/scconfig/scc_61313.out'
+      ========= empty stderr =================
+     run result: 0
+     stdout: 'OK
+'
+###report### OK ('', '-I/usr/include/tcl8.6' and '-ltcl8.6')
+  trying '' and '-I/usr/include/tcl8.6 ' and '-ltcl8.6  -ltk86', with a run
+    compile: '/bin/sh -c "gcc  -pipe -O2 -I/usr/include/tcl8.6  /home/rafmag/xschem/scconfig/scc_16124.c -ltcl8.6  -ltk86 -o /home/rafmag/xschem/scconfig/scc_19582 2>&1" >/home/rafmag/xschem/scconfig/scc_53895.out'
+     ========= output dump start ============
+     /usr/bin/ld: cannot find -ltk86
+     collect2: error: ld returned 1 exit status
+     ========= output dump end ==============
+    compile result: 256
+  trying '' and '-I/usr/include/tcl8.6 ' and '-ltcl8.6  -ltk8.6', with a run
+    compile: '/bin/sh -c "gcc  -pipe -O2 -I/usr/include/tcl8.6  /home/rafmag/xschem/scconfig/scc_545.c -ltcl8.6  -ltk8.6 -o /home/rafmag/xschem/scconfig/scc_33367 2>&1" >/home/rafmag/xschem/scconfig/scc_98814.out'
+     ========= empty stderr =================
+    compile result: 0
+    run: ' /home/rafmag/xschem/scconfig/scc_33367 >/home/rafmag/xschem/scconfig/scc_90364 2>>/home/rafmag/xschem/scconfig/scc_15434.out'
+     ========= empty stderr =================
+    run result: 0
+    stdout: 'OK
+'
+###report### OK ('', '-I/usr/include/tcl8.6 ' and '-ltcl8.6  -ltk8.6')
+(Required node: 'fstools/awk')
+###report### Checking for awk...  find_fstools_awk: trying to find awk...
+  trying 'awk'
+  run: '  /bin/sh -c "awk -v "t=blobb" -f /home/rafmag/xschem/scconfig/scc_44043.awk" >/home/rafmag/xschem/scconfig/scc_71087 2>>/home/rafmag/xschem/scconfig/scc_13750.out'
+   ========= empty stderr =================
+  run result: 0
+  stdout: 'BloBB
+'
+###report### OK (awk)
+(Required node: 'libs/gui/xpm/*')
+###report### Checking for xpm...  find_xpm:
+  trying '' and '' and '-lX11 -lXpm', with a run
+    compile: '/bin/sh -c "gcc  -pipe -O2  /home/rafmag/xschem/scconfig/scc_26808.c -lX11 -lXpm -o /home/rafmag/xschem/scconfig/scc_47178 2>&1" >/home/rafmag/xschem/scconfig/scc_17276.out'
+     ========= empty stderr =================
+    compile result: 0
+    run: ' /home/rafmag/xschem/scconfig/scc_47178 >/home/rafmag/xschem/scconfig/scc_93584 2>>/home/rafmag/xschem/scconfig/scc_95788.out'
+     ========= empty stderr =================
+    run result: 0
+    stdout: 'OK
+'
+###report### OK ('', '' and '-lX11 -lXpm')
+(Required node: 'libs/gui/cairo/*')
+###report### Checking for cairo...  find_cairo: running pkg-config...
+  run: ' pkg-config --cflags cairo >/home/rafmag/xschem/scconfig/scc_2651 2>>/home/rafmag/xschem/scconfig/scc_5403.out'
+   ========= empty stderr =================
+  run result: 0
+  stdout: '-I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16
+'
+  run: ' pkg-config --libs cairo >/home/rafmag/xschem/scconfig/scc_12399 2>>/home/rafmag/xschem/scconfig/scc_92754.out'
+   ========= empty stderr =================
+  run result: 0
+  stdout: '-lcairo
+'
+  trying '' and '-I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16' and '-lcairo', with a run
+    compile: '/bin/sh -c "gcc  -pipe -O2 -I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 /home/rafmag/xschem/scconfig/scc_99932.c -lcairo -o /home/rafmag/xschem/scconfig/scc_49676 2>&1" >/home/rafmag/xschem/scconfig/scc_95060.out'
+     ========= empty stderr =================
+    compile result: 0
+    run: ' /home/rafmag/xschem/scconfig/scc_49676 >/home/rafmag/xschem/scconfig/scc_47739 2>>/home/rafmag/xschem/scconfig/scc_93368.out'
+     ========= empty stderr =================
+    run result: 0
+    stdout: 'OK
+'
+###report### OK ('', '-I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16' and '-lcairo')
+(Required node: 'libs/gui/cairo-xcb/*')
+ (Required node: 'libs/gui/cairo')
+###report### Checking for cairo...   find_cairo: running pkg-config...
+   run: ' pkg-config --cflags cairo >/home/rafmag/xschem/scconfig/scc_36226 2>>/home/rafmag/xschem/scconfig/scc_10012.out'
+    ========= empty stderr =================
+   run result: 0
+   stdout: '-I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16
+'
+   run: ' pkg-config --libs cairo >/home/rafmag/xschem/scconfig/scc_48094 2>>/home/rafmag/xschem/scconfig/scc_98586.out'
+    ========= empty stderr =================
+   run result: 0
+   stdout: '-lcairo
+'
+   trying '' and '-I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16' and '-lcairo', with a run
+     compile: '/bin/sh -c "gcc  -pipe -O2 -I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 /home/rafmag/xschem/scconfig/scc_97539.c -lcairo -o /home/rafmag/xschem/scconfig/scc_80570 2>&1" >/home/rafmag/xschem/scconfig/scc_40795.out'
+      ========= empty stderr =================
+     compile result: 0
+     run: ' /home/rafmag/xschem/scconfig/scc_80570 >/home/rafmag/xschem/scconfig/scc_60378 2>>/home/rafmag/xschem/scconfig/scc_51434.out'
+      ========= empty stderr =================
+     run result: 0
+     stdout: 'OK
+'
+###report### OK ('', '-I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16' and '-lcairo')
+###report### Checking for cairo-xcb...  find_cairo-xcb: 
+  trying '#include <cairo-xcb.h>' and '-I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16' and '-lcairo', with a run
+    compile: '/bin/sh -c "gcc  -pipe -O2 -I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 /home/rafmag/xschem/scconfig/scc_97467.c -lcairo -o /home/rafmag/xschem/scconfig/scc_10097 2>&1" >/home/rafmag/xschem/scconfig/scc_66601.out'
+     ========= empty stderr =================
+    compile result: 0
+    run: ' /home/rafmag/xschem/scconfig/scc_10097 >/home/rafmag/xschem/scconfig/scc_73317 2>>/home/rafmag/xschem/scconfig/scc_12902.out'
+     ========= empty stderr =================
+    run result: 0
+    stdout: 'OK
+'
+###report### OK ('#include <cairo-xcb.h>\n', '-I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16' and '-lcairo')
+(Required node: 'libs/gui/xcb/*')
+###report### Checking for xcb...  find_xcb:
+  trying '' and '' and '-lX11 -lxcb', with a run
+    compile: '/bin/sh -c "gcc  -pipe -O2  /home/rafmag/xschem/scconfig/scc_70492.c -lX11 -lxcb -o /home/rafmag/xschem/scconfig/scc_60756 2>&1" >/home/rafmag/xschem/scconfig/scc_26652.out'
+     ========= empty stderr =================
+    compile result: 0
+    run: ' /home/rafmag/xschem/scconfig/scc_60756 >/home/rafmag/xschem/scconfig/scc_60280 2>>/home/rafmag/xschem/scconfig/scc_97301.out'
+     ========= empty stderr =================
+    run result: 0
+    stdout: 'OK
+'
+###report### OK ('', '' and '-lX11 -lxcb')
+(Required node: 'libs/gui/xgetxcbconnection/*')
+###report### Checking for xgetxcbconnection...  find_xgetxcbconnection:
+  trying '' and '' and '-lX11 -lX11-xcb', with no run
+   compile: '/bin/sh -c "gcc  -pipe -O2  /home/rafmag/xschem/scconfig/scc_24286.c -lX11 -lX11-xcb -o /home/rafmag/xschem/scconfig/scc_53865 2>&1" >/home/rafmag/xschem/scconfig/scc_9441.out'
+    ========= empty stderr =================
+   compile result: 0
+###report### OK ('', '' and '-lX11 -lX11-xcb')
+(Required node: 'libs/gui/xcb_render/*')
+###report### Checking for xcb_render...  find_xcb_render:
+  trying '' and '' and '-lX11 -lxcb-render', with no run
+   compile: '/bin/sh -c "gcc  -pipe -O2  /home/rafmag/xschem/scconfig/scc_29689.c -lX11 -lxcb-render -o /home/rafmag/xschem/scconfig/scc_46619 2>&1" >/home/rafmag/xschem/scconfig/scc_28444.out'
+    ========= empty stderr =================
+   compile result: 0
+###report### OK ('', '' and '-lX11 -lxcb-render')
