@@ -1361,6 +1361,7 @@ extern void my_strndup(int id, char **dest, const char *src, size_t n);
 extern size_t my_strdup2(int id, char **dest, const char *src);
 extern char *my_fgets(FILE *fd);
 extern char *my_strtok_r(char *str, const char *delim, const char *quote, char **saveptr);
+extern char **parse_cmd_string(const char *cmd, int *argc);
 extern int my_strncpy(char *d, const char *s, size_t n);
 extern int my_strcasecmp(const char *s1, const char *s2);
 extern double mylog10(double x);

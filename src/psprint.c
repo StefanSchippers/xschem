@@ -24,9 +24,6 @@
 #define X_TO_PS(x) ( (x+xctx->xorigin)* xctx->mooz )
 #define Y_TO_PS(y) ( (y+xctx->yorigin)* xctx->mooz )
 
-/* FIXME This must be investigated, without some fflushes the ps file is corrupted */
-#define FFLUSH_PS 
-
 #if 0
 *   /* FIXME: overflow check. Not used, BTW */
 *   static char *strreplace(char s[], char token[], char replace[])
@@ -129,24 +126,24 @@ unsigned char* bin2hex(const unsigned char* bin, size_t len)
 void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
 {
   int i;
-  size_t data_size;
-  png_to_byte_closure_t closure;
+  size_t data_size = 0;
+  png_to_byte_closure_t closure = {NULL, 0, 0};
   char* filter = NULL;
   int png_size_x, png_size_y;
-  unsigned char *png_data, BG_r, BG_g, BG_b;
+  unsigned char *png_data = NULL, BG_r, BG_g, BG_b;
   int invertImage;
   /* static char str[PATH_MAX];
    * FILE* fp;
    */
-  unsigned char* hexEncodedJPG;
+  unsigned char* hexEncodedJPG = NULL;
   char* image_data64_ptr = NULL;
-  cairo_surface_t* surface;
+  cairo_surface_t* surface = NULL;
   unsigned char* jpgData = NULL;
   size_t fileSize = 0;
 
   my_strdup(59, &filter, get_tok_value(r->prop_ptr, "filter", 0));
-
   my_strdup2(1183, &image_data64_ptr, get_tok_value(r->prop_ptr, "image_data", 0));
+
   if (filter) {
     size_t filtersize = 0;
     char* filterdata = NULL;
@@ -163,6 +160,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   closure.pos = 0;
   closure.size = data_size; /* should not be necessary */
   surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+
   png_size_x = cairo_image_surface_get_width(surface);
   png_size_y = cairo_image_surface_get_height(surface);
 
@@ -187,7 +185,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
       png_data[i + 1] = (unsigned char)(0xFF-png_g) + (unsigned char)((double)BG_g * ainv);
       png_data[i + 2] = (unsigned char)(0xFF-png_b) + (unsigned char)((double)BG_b * ainv);
       png_data[i + 3] = 0xFF;
-    }else
+    } else
     {
       png_data[i + 0] = png_r + (unsigned char)((double)BG_r * ainv);
       png_data[i + 1] = png_g + (unsigned char)((double)BG_g * ainv);
@@ -246,9 +244,6 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   fprintf(fd, "3\n");
   fprintf(fd, "colorimage\n");
   fprintf(fd, "grestore\n");
-  #ifdef FFLUSH_PS /* FIXME: why is this needed? */
-  fflush(fd);
-  #endif
   cairo_surface_destroy(surface);
   my_free(1663, &hexEncodedJPG);
 }
@@ -359,9 +354,6 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   fprintf(fd, "3\n");
   fprintf(fd, "colorimage\n");
   fprintf(fd, "grestore\n");
-  #ifdef FFLUSH_PS /* FIXME: why is this needed? */
-  fflush(fd);
-  #endif
   my_free(1666, &hexEncodedJPG);
   #endif
 
@@ -380,9 +372,6 @@ static void set_ps_colors(unsigned int pixel)
    if(color_ps) fprintf(fd, "%g %g %g RGB\n",
      (double)ps_colors[pixel].red/256.0, (double)ps_colors[pixel].green/256.0,
      (double)ps_colors[pixel].blue/256.0);
-   #ifdef FFLUSH_PS /* FIXME: why is this needed? */
-   fflush(fd);
-   #endif
 
 }
 

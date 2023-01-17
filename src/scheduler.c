@@ -1875,7 +1875,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'p': /*----------------------------------------------*/
-    if(!strcmp(argv[1], "parselabel")) 
+    if(!strcmp(argv[1], "parse_cmd")) 
+    {
+      if(argc > 2) {
+        int c, i;
+        char **av;
+        av = parse_cmd_string(argv[2], &c);
+        for(i = 0; i < c; i++) {
+          dbg(0, "--> %s\n", av[i]);
+        }
+      }
+    }
+
+    else if(!strcmp(argv[1], "parselabel")) 
     {
       if(argc > 2) {
         parse(argv[2]);

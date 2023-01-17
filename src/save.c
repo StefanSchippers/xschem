@@ -25,6 +25,35 @@
 #include <sys/wait.h>  /* waitpid */
 #endif
 
+
+/* splits a command string into argv-like arguments
+ * return # of args in *argc
+ * argv[*argc] is always set to NULL
+ * parse_cmd_string(NULL, NULL) to clear static allocated data */
+#define PARSE_SIZE 128
+char **parse_cmd_string(const char *cmd, int *argc)
+{
+  static char *cmd_copy = NULL;
+  static char *argv[PARSE_SIZE];
+  char *cmd_ptr, *cmd_save;
+  if(!cmd || !cmd[0]) {
+    if(cmd_copy) my_free(1670, &cmd_copy);
+    return NULL;
+  }
+  *argc = 0;
+  my_strdup2(1669, &cmd_copy, cmd);
+  cmd_ptr = cmd_copy;
+  while( (argv[*argc] = my_strtok_r(cmd_ptr, " \t", "'\"", &cmd_save)) ) {
+    cmd_ptr = NULL;
+    dbg(1, "--> %s\n", argv[*argc]);
+    (*argc)++;
+    if(*argc >= PARSE_SIZE) break;
+  }
+  argv[*argc] = NULL; /*terminating pointer needed by execvp() */
+  return argv;
+}
+
+
 /* get an input databuffer (din[ilen]), and a shell command (cmd) that reads stdin
  * and writes stdout, return the result in dout[olen].
  * Caller must free the returned buffer.
@@ -50,29 +79,32 @@ int filter_data(const char *din,  const size_t ilen,
   pipe(p1);
   pipe(p2);
   signal(SIGPIPE, SIG_IGN); /* so attempting write/read a broken pipe won't kill program */
+/* 
+ *                                  p2
+ *  -------------------   p2[0] <--------- p2[1]   -------------------  
+ * |   Parent program  |                          |   Child filter    |    
+ *  -------------------   p1[1] ---------> p1[0]   -------------------  
+ *                                  p1
+ */
   if( (pid = fork()) == 0) {
+    char **av;
+    int ac;
     /* child */
     close(p1[1]); /* only read from p1 */
     close(p2[0]); /* only write to p2 */
-    #if 0
-    dup2(p1[0],0); /* some systems lack this function */
-    #else
     close(0); /* dup2(p1[0],0); */  /* connect read side of read pipe to stdin */
     dup(p1[0]);
-    #endif
-    #if 0
-    dup2(p2[1],1); /* some systems lack this function */
-    #else
     close(1); /* dup2(p2[1],1); */ /* connect write side of write pipe to stdout */
     dup(p2[1]);
-    #endif
-    /* execlp("gm", "gm", "convert", "-", "-quality", "50", "jpg:-", NULL); */
-    if(system(cmd)) {
+
+
+    av = parse_cmd_string(cmd, &ac);
+    if(execvp(av[0], av) == -1) {
       fprintf(stderr, "error: conversion failed\n");
+      close(p1[0]);
+      close(p2[1]);
       ret = 1;
     }
-    close(p1[0]);
-    close(p2[1]);
     exit(ret);
   }
   /* parent */
@@ -85,7 +117,7 @@ int filter_data(const char *din,  const size_t ilen,
   fsync(p1[1]);
   close(p1[1]);
   if(!ret) {
-    oalloc = bufsize + 1; /* add extra space for final '\0' */
+    oalloc = bufsize + 10000000; /* add extra space for final '\0' */
     *dout = my_malloc(1480, oalloc);
     *olen = 0;
     while( (n = read(p2[0], *dout + *olen, bufsize)) > 0) {
@@ -100,7 +132,6 @@ int filter_data(const char *din,  const size_t ilen,
     }
     if(*olen) (*dout)[*olen] = '\0'; /* so (if ascii) it can be used as a string */
   }
-  close(p2[0]);
   if(n < 0 || !*olen) {
     if(oalloc) {
       my_free(1483, dout);
@@ -110,6 +141,7 @@ int filter_data(const char *din,  const size_t ilen,
     ret = 1;
   }
   waitpid(pid, NULL, 0); /* write for child process to finish and unzombie it */
+  close(p2[0]);
   signal(SIGPIPE, SIG_DFL); /* restore default SIGPIPE signal action */
   return ret;
 }
