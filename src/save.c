@@ -54,10 +54,18 @@ int filter_data(const char *din,  const size_t ilen,
     /* child */
     close(p1[1]); /* only read from p1 */
     close(p2[0]); /* only write to p2 */
+    #if 0
+    dup2(p1[0],0); /* some systems lack this function */
+    #else
     close(0); /* dup2(p1[0],0); */  /* connect read side of read pipe to stdin */
     dup(p1[0]);
+    #endif
+    #if 0
+    dup2(p2[1],1); /* some systems lack this function */
+    #else
     close(1); /* dup2(p2[1],1); */ /* connect write side of write pipe to stdout */
     dup(p2[1]);
+    #endif
     /* execlp("gm", "gm", "convert", "-", "-quality", "50", "jpg:-", NULL); */
     if(system(cmd)) {
       fprintf(stderr, "error: conversion failed\n");
@@ -74,6 +82,7 @@ int filter_data(const char *din,  const size_t ilen,
     fprintf(stderr, "filter_data() write to pipe failed or not completed\n");
     ret = 1;
   }
+  fsync(p1[1]);
   close(p1[1]);
   if(!ret) {
     oalloc = bufsize + 1; /* add extra space for final '\0' */
@@ -81,6 +90,7 @@ int filter_data(const char *din,  const size_t ilen,
     *olen = 0;
     while( (n = read(p2[0], *dout + *olen, bufsize)) > 0) {
       *olen += n;
+      dbg(1, "filter_data(): olen=%d, oalloc=%d\n", *olen, oalloc);
       if(*olen + bufsize + 1 >= oalloc) { /* allocate for next read */
         oalloc = *olen + bufsize + 1; /* add extra space for final '\0' */
         oalloc = ((oalloc << 2) + oalloc) >> 2; /* size up 1.25x */

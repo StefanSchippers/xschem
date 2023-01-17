@@ -25,7 +25,7 @@
 #define Y_TO_PS(y) ( (y+xctx->yorigin)* xctx->mooz )
 
 /* FIXME This must be investigated, without some fflushes the ps file is corrupted */
-//#define FFLUSH_PS
+#define FFLUSH_PS 
 
 #if 0
 *   /* FIXME: overflow check. Not used, BTW */
@@ -108,15 +108,6 @@ typedef struct
         size_t size;
 } png_to_byte_closure_t;
 
-cairo_status_t png_reader(void* in_closure, unsigned char* out_data, unsigned int length)
-{
-        png_to_byte_closure_t* closure = (png_to_byte_closure_t*)in_closure;
-        if (!closure->buffer) return CAIRO_STATUS_READ_ERROR;
-        memcpy(out_data, closure->buffer + closure->pos, length);
-        closure->pos += length;
-        return CAIRO_STATUS_SUCCESS;
-}
-
 unsigned char* bin2hex(const unsigned char* bin, size_t len)
 {
         unsigned char* out;
@@ -167,16 +158,16 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   else {
     closure.buffer = base64_decode(image_data64_ptr, strlen(image_data64_ptr), &data_size);
   }
-  my_free(1663, &filter);
+  my_free(1664, &filter);
   my_free(1184, &image_data64_ptr);
   closure.pos = 0;
   closure.size = data_size; /* should not be necessary */
   surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-  my_free(1666, &closure.buffer);
   png_size_x = cairo_image_surface_get_width(surface);
   png_size_y = cairo_image_surface_get_height(surface);
 
   cairo_surface_flush(surface);
+  my_free(1667, &closure.buffer);
   png_data = cairo_image_surface_get_data(surface);
 
   invertImage = !strcmp(get_tok_value(r->prop_ptr, "InvertOnExport", 0), "true");
@@ -192,9 +183,9 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
 
     if(invertImage)
     {
-      png_data[i + 0] = (0xFF-png_r) + (unsigned char)((double)BG_r * ainv);
-      png_data[i + 1] = (0xFF-png_g) + (unsigned char)((double)BG_g * ainv);
-      png_data[i + 2] = (0xFF-png_b) + (unsigned char)((double)BG_b * ainv);
+      png_data[i + 0] = (unsigned char)(0xFF-png_r) + (unsigned char)((double)BG_r * ainv);
+      png_data[i + 1] = (unsigned char)(0xFF-png_g) + (unsigned char)((double)BG_g * ainv);
+      png_data[i + 2] = (unsigned char)(0xFF-png_b) + (unsigned char)((double)BG_b * ainv);
       png_data[i + 3] = 0xFF;
     }else
     {
@@ -218,6 +209,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
    * fclose(fp);
    */
   hexEncodedJPG = bin2hex(jpgData, fileSize);
+  free(jpgData);
   fprintf(fd, "gsave\n"); 
   fprintf(fd, "%g %g translate\n", X_TO_PS(x1), Y_TO_PS(y1));
   if(rot==1) fprintf(fd, "90 rotate\n");
@@ -254,10 +246,11 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   fprintf(fd, "3\n");
   fprintf(fd, "colorimage\n");
   fprintf(fd, "grestore\n");
-
-  my_free(1663, &hexEncodedJPG);
-  free(jpgData);
+  #ifdef FFLUSH_PS /* FIXME: why is this needed? */
   fflush(fd);
+  #endif
+  cairo_surface_destroy(surface);
+  my_free(1663, &hexEncodedJPG);
 }
 
 
@@ -336,6 +329,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
    */
 
   hexEncodedJPG = bin2hex(jpgData, fileSize);
+  free(jpgData);
 
   cairo_surface_destroy(png_sfc);
   xctx->draw_pixmap = 1;
@@ -365,9 +359,10 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   fprintf(fd, "3\n");
   fprintf(fd, "colorimage\n");
   fprintf(fd, "grestore\n");
-  my_free(1666, &hexEncodedJPG);
-  free(jpgData);
+  #ifdef FFLUSH_PS /* FIXME: why is this needed? */
   fflush(fd);
+  #endif
+  my_free(1666, &hexEncodedJPG);
   #endif
 
 }
