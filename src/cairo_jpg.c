@@ -39,6 +39,8 @@
  * @license LGPL3.
  */
 
+#include "../config.h"
+#if defined(HAS_LIBJPEG) && defined(HAS_CAIRO)
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -625,4 +627,5 @@ int main(int argc, char **argv)
 }
 
 #endif
-
+#endif /* HAS_LIBJPEG  && HAS_CAIRO */
+typedef int make_iso_compilers_happy; /* to avoid empty translation unit */

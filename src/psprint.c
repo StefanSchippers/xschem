@@ -122,9 +122,9 @@ unsigned char* bin2hex(const unsigned char* bin, size_t len)
 
         return out;
 }
-
 void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
 {
+  #if defined(HAS_LIBJPEG) && defined(HAS_CAIRO)
   int i;
   size_t data_size = 0;
   png_to_byte_closure_t closure = {NULL, 0, 0};
@@ -246,12 +246,12 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   fprintf(fd, "grestore\n");
   cairo_surface_destroy(surface);
   my_free(1663, &hexEncodedJPG);
+  #endif
 }
-
 
 void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
 {
-  #if defined(HAS_CAIRO)
+  #if defined(HAS_LIBJPEG) && defined(HAS_CAIRO)
   double  rw, rh, scale;
   cairo_surface_t* png_sfc;
   int save_draw_window, save_draw_grid, rwi, rhi;
@@ -356,7 +356,6 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   fprintf(fd, "grestore\n");
   my_free(1666, &hexEncodedJPG);
   #endif
-
 }
 static void set_lw(void)
 {
