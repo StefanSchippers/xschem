@@ -20,6 +20,9 @@ print [@/*************************************************************/
 /* Source: config.h.in; to regenerate run ./configure        */
 /*************************************************************/@]
 
+print {\n\n/* Define this var if libjpeg is available and is to be used */\n}
+print_ternary ?libs/sul/libjpeg/presents {#define HAS_LIBJPEG 1} {/*#undef HAS_LIBJPEG */}
+
 print {\n\n/* Define this var if cairo is available and is to be used */\n}
 print_ternary ?libs/gui/cairo/presents {#define HAS_CAIRO 1} {/*#undef HAS_CAIRO */}
 

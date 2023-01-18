@@ -1,5 +1,6 @@
 put /local/xschem/cflags [@
   @cc/cflags@
+  @?libs/sul/libjpeg/cflags@
   @?libs/gui/cairo/cflags@
   @?libs/gui/xrender/cflags@
   @?libs/gui/xcb/cflags@
@@ -13,6 +14,7 @@ put /local/xschem/cflags [@
 put /local/xschem/ldflags [@
   @cc/ldflags@
   -lm
+  @?libs/sul/libjpeg/ldflags@
   @?libs/gui/cairo/ldflags@
   @?libs/gui/xrender/ldflags@
   @?libs/gui/xcb/ldflags@
