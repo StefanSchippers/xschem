@@ -140,7 +140,11 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   cairo_surface_t* surface = NULL;
   unsigned char* jpgData = NULL;
   size_t fileSize = 0;
+  int quality=100;
+  const char *quality_attr;
 
+  quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
+  if(quality_attr[0]) quality = atoi(quality_attr);
   my_strdup(59, &filter, get_tok_value(r->prop_ptr, "filter", 0));
   my_strdup2(1183, &image_data64_ptr, get_tok_value(r->prop_ptr, "image_data", 0));
 
@@ -169,6 +173,8 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   png_data = cairo_image_surface_get_data(surface);
 
   invertImage = !strcmp(get_tok_value(r->prop_ptr, "InvertOnExport", 0), "true");
+  if(!invertImage)
+    invertImage = !strcmp(get_tok_value(r->prop_ptr, "ps_invert", 0), "true");
   BG_r = 0xFF; BG_g = 0xFF; BG_b = 0xFF;
   for (i = 0; i < (png_size_x * png_size_y * 4); i += 4)
   {
@@ -194,7 +200,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
     }
   }
   cairo_surface_mark_dirty(surface);
-  cairo_image_surface_write_to_jpeg_mem(surface, &jpgData, &fileSize, 100);
+  cairo_image_surface_write_to_jpeg_mem(surface, &jpgData, &fileSize, quality);
   /* 
    * my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), "/temp.jpg");
    * cairo_image_surface_write_to_jpeg(surface, str, 100);
@@ -264,6 +270,11 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
    * static char str[PATH_MAX];
    */
   unsigned char *hexEncodedJPG;
+  int quality=100;
+  const char *quality_attr;
+
+  quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
+  if(quality_attr[0]) quality = atoi(quality_attr);
   if (!has_x) return;
   rw = fabs(rx2 - rx1);
   rh = fabs(ry2 - ry1);
@@ -310,7 +321,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
     }
   }
   #endif
-  cairo_image_surface_write_to_jpeg_mem(png_sfc, &jpgData, &fileSize, 100);
+  cairo_image_surface_write_to_jpeg_mem(png_sfc, &jpgData, &fileSize, quality);
   /*
    * my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), "/temp.jpg");
    * cairo_image_surface_write_to_jpeg(png_sfc, str, 100);

@@ -33,8 +33,8 @@ y1 = -0.048929
 y2 = 0.999755
 divy = 3
 subdivy=1
-x1=100n
-x2=400n  divx=10
+x1=1.30906e-07
+x2=2.4887e-07  divx=10
 node="ldbl[0]
 ldbl[16]
 ldbl[32]
@@ -45,15 +45,15 @@ ldbl[2]
 ldbl[18]
 ldbl[34]"
 color="10 9 10 11 12 13 14 15 11" unitx=n
-}
+jpeg_quality=25}
 B 2 1840 -1160 2890 -1000 {flags=graph
 digital=0
 y1 = 0
 y2 = 1.60
 subdivy=1
 divy = 4
-x1=100n
-x2=400n
+x1=1.30906e-07
+x2=2.4887e-07
 divx=10
 subdivx=4
 node="ldcp
@@ -64,15 +64,15 @@ ldymsref
 xsa[14].ldqii"
 color="6 12 13 14 11 4"
 unitx=n
-}
+jpeg_quality=25}
 B 2 1840 -400 2890 -240 {flags=graph
 y1 = -0.0072
 y2 = 1.6
 divy = 3
 subdivy=0
 subdivx = 1
-x1=100n
-x2=400n  divx=10
+x1=1.30906e-07
+x2=2.4887e-07  divx=10
 node="ldwl[0]
 ldwl[1]
 ldwl[2]
@@ -86,7 +86,8 @@ ldwl[8]
 ldwl[9]"
 color="4 5 4 5 4 5 4 5 4 5 4"  
 unitx=n 
-hilight_wave=3}
+hilight_wave=3
+jpeg_quality=25}
 B 2 1840 -1000 2890 -540 {flags=graph
 digital=1
 y1 = 0
@@ -94,8 +95,8 @@ y2 = 1.6
 ypos1=0.0990096
 ypos2=2.81842
 divy = 1
-x1=100n
-x2=400n
+x1=1.30906e-07
+x2=2.4887e-07
 divx=12
 subdivx=4
 node="---In/Out---
@@ -118,13 +119,13 @@ WL[15:0];ldwl[15],ldwl[14],ldwl[13],ldwl[12],ldwl[11],ldwl[10],ldwl[9],ldwl[8],l
 color="18 4 15 4 15 4 15 4 18 15 4 18 4 15 4 15 6"
  unitx=n
  ypos1=-2.20115 ypos2=2.79884
-}
+jpeg_quality=25}
 B 2 1840 -1300 2890 -1160 {flags=graph
 y1 = 0
 y2 = 1.60
 divy = 4
-x1=100n
-x2=400n
+x1=1.30906e-07
+x2=2.4887e-07
 divx=8
 unitx=n
 node="xsa[0].ldqib
@@ -132,13 +133,13 @@ xsa[5].ldqib
 xsa[0].ldsali
 xctrl.ldq_b"
 color="4 12 7 10"
-}
+jpeg_quality=25}
 B 2 1840 -240 2890 0 {flags=graph
 y1 = -0.049
 y2 = 0.00057
 divy = 5
-x1=100n
-x2=400n  
+x1=1.30906e-07
+x2=2.4887e-07  
 unity=m
 divx=10
 subdivx=1
@@ -147,7 +148,7 @@ node="\\"Supply current;i(vvcc)\\"
 color="8 7"
 unitx=n
 subdivy=4
-}
+jpeg_quality=25}
 B 2 480 -1010 617 -950 {flags=image
 alpha=0.6
 InvertOnExport=true
