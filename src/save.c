@@ -53,7 +53,6 @@ char **parse_cmd_string(const char *cmd, int *argc)
   return argv;
 }
 
-
 /* get an input databuffer (din[ilen]), and a shell command (cmd) that reads stdin
  * and writes stdout, return the result in dout[olen].
  * Caller must free the returned buffer.
@@ -117,7 +116,7 @@ int filter_data(const char *din,  const size_t ilen,
   fsync(p1[1]);
   close(p1[1]);
   if(!ret) {
-    oalloc = bufsize + 10000000; /* add extra space for final '\0' */
+    oalloc = bufsize + 1; /* add extra space for final '\0' */
     *dout = my_malloc(1480, oalloc);
     *olen = 0;
     while( (n = read(p2[0], *dout + *olen, bufsize)) > 0) {
@@ -145,7 +144,7 @@ int filter_data(const char *din,  const size_t ilen,
   signal(SIGPIPE, SIG_DFL); /* restore default SIGPIPE signal action */
   return ret;
 }
-#else
+#else /* anyone wanting to write a similar function for windows Welcome! */
 int filter_data(const char* din, const size_t ilen,
   char** dout, size_t* olen,
   const char* cmd)
