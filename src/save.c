@@ -64,7 +64,7 @@ int filter_data(const char *din,  const size_t ilen,
 {
   int p1[2]; /* parent -> child, 0: read, 1: write */
   int p2[2]; /* child -> parent, 0: read, 1: write */
-  int ret = 0;
+  int ret = 0, wstatus;
   pid_t pid;
   size_t bufsize = 32768, oalloc = 0, n = 0;
 
@@ -77,6 +77,13 @@ int filter_data(const char *din,  const size_t ilen,
   dbg(1, "filter_data(): ilen=%ld, cmd=%s\n", ilen, cmd);
   pipe(p1);
   pipe(p2);
+
+  dbg(1, "p1[0] = %d\n", p1[0]);
+  dbg(1, "p1[1] = %d\n", p1[1]);
+  dbg(1, "p2[0] = %d\n", p2[0]);
+  dbg(1, "p2[1] = %d\n", p2[1]);
+
+   
   signal(SIGPIPE, SIG_IGN); /* so attempting write/read a broken pipe won't kill program */
 /* 
  *                                  p2
@@ -85,26 +92,39 @@ int filter_data(const char *din,  const size_t ilen,
  *  -------------------   p1[1] ---------> p1[0]   -------------------  
  *                                  p1
  */
+  fflush(NULL); /* flush all stdio streams before process forking */
   if( (pid = fork()) == 0) {
+    #if 1
     char **av;
     int ac;
+    #endif
     /* child */
     close(p1[1]); /* only read from p1 */
     close(p2[0]); /* only write to p2 */
     close(0); /* dup2(p1[0],0); */  /* connect read side of read pipe to stdin */
     dup(p1[0]);
+    close(p1[0]);
     close(1); /* dup2(p2[1],1); */ /* connect write side of write pipe to stdout */
     dup(p2[1]);
+    close(p2[1]);
 
-
+    #if 1
     av = parse_cmd_string(cmd, &ac);
     if(execvp(av[0], av) == -1) {
+    #endif
+
+    #if 0
+    if(execl("/bin/sh", "sh", "-c", cmd, (char *) NULL) == -1) {
+    #endif
+
+    #if 0
+    if(system(cmd) == -1) {
+    #endif
+
       fprintf(stderr, "error: conversion failed\n");
-      close(p1[0]);
-      close(p2[1]);
       ret = 1;
     }
-    exit(ret);
+    _exit(ret);
   }
   /* parent */
   close(p1[0]); /*only write to p1 */
@@ -139,9 +159,13 @@ int filter_data(const char *din,  const size_t ilen,
     fprintf(stderr, "no data read\n");
     ret = 1;
   }
-  waitpid(pid, NULL, 0); /* write for child process to finish and unzombie it */
+  waitpid(pid, &wstatus, 0); /* write for child process to finish and unzombie it */
   close(p2[0]);
   signal(SIGPIPE, SIG_DFL); /* restore default SIGPIPE signal action */
+
+  if(WIFEXITED(wstatus)) dbg(1, "Child exited normally\n");
+  dbg(1, "Child exit status=%d\n", WEXITSTATUS(wstatus));
+  if(WIFSIGNALED(wstatus))dbg(1, "Child was terminated by signal\n");
   return ret;
 }
 #else /* anyone wanting to write a similar function for windows Welcome! */
@@ -2391,12 +2415,13 @@ void push_undo(void)
     #elif HAS_PIPE==1
     my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
     pipe(pd);
+    fflush(NULL); /* flush all stdio streams before process forking */
     if((pid = fork()) ==0) {                                    /* child process */
       close(pd[1]);                                     /* close write side of pipe */
       if(!(diff_fd=freopen(diff_name,"w", stdout)))     /* redirect stdout to file diff_name */
       {
         dbg(1, "push_undo(): problems opening file %s \n",diff_name);
-        tcleval("exit");
+        _exit(1);
       }
 
       /* the following 2 statements are a replacement for dup2() which is not c89
@@ -2411,7 +2436,7 @@ void push_undo(void)
       execlp("gzip", "gzip", "--fast", "-c", NULL);       /* replace current process with comand */
       /* never gets here */
       fprintf(errfp, "push_undo(): problems with execlp\n");
-      tcleval("exit");
+      _exit(1);
     }
     close(pd[0]);                                       /* close read side of pipe */
     fd=fdopen(pd[1],"w");
@@ -2491,12 +2516,13 @@ void pop_undo(int redo, int set_modify_status)
   #elif HAS_PIPE==1
   my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
   pipe(pd);
+  fflush(NULL); /* flush all stdio streams before process forking */
   if((pid = fork())==0) {                                     /* child process */
     close(pd[0]);                                    /* close read side of pipe */
     if(!(diff_fd=freopen(diff_name,"r", stdin)))     /* redirect stdin from file name */
     {
       dbg(1, "pop_undo(): problems opening file %s \n",diff_name);
-      tcleval("exit");
+      _exit(1);
     }
     /* connect write side of pipe to stdout */
     #if HAS_DUP2
@@ -2508,7 +2534,7 @@ void pop_undo(int redo, int set_modify_status)
     execlp("gzip", "gzip", "-d", "-c", NULL);       /* replace current process with command */
     /* never gets here */
     dbg(1, "pop_undo(): problems with execlp\n");
-    tcleval("exit");
+    _exit(1);
   }
   close(pd[1]);                                       /* close write side of pipe */
   fd=fdopen(pd[0],"r");

@@ -142,22 +142,23 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   size_t fileSize = 0;
   int quality=100;
   const char *quality_attr;
+  size_t image_data_len;
 
   quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
   if(quality_attr[0]) quality = atoi(quality_attr);
   my_strdup(59, &filter, get_tok_value(r->prop_ptr, "filter", 0));
-  my_strdup2(1183, &image_data64_ptr, get_tok_value(r->prop_ptr, "image_data", 0));
+  image_data_len = my_strdup2(1183, &image_data64_ptr, get_tok_value(r->prop_ptr, "image_data", 0));
 
   if (filter) {
     size_t filtersize = 0;
     char* filterdata = NULL;
     closure.buffer = NULL;
-    filterdata = (char*)base64_decode(image_data64_ptr, strlen(image_data64_ptr), &filtersize);
+    filterdata = (char*)base64_decode(image_data64_ptr, image_data_len, &filtersize);
     filter_data(filterdata, filtersize, (char**)&closure.buffer, &data_size, filter);
     my_free(1661, &filterdata);
   }
   else {
-    closure.buffer = base64_decode(image_data64_ptr, strlen(image_data64_ptr), &data_size);
+    closure.buffer = base64_decode(image_data64_ptr, image_data_len, &data_size);
   }
   my_free(1664, &filter);
   my_free(1184, &image_data64_ptr);
@@ -220,7 +221,6 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   if(rot==2) fprintf(fd, "180 rotate\n");
   if(rot==3) fprintf(fd, "270 rotate\n");
   fprintf(fd, "%g %g scale\n", (X_TO_PS(x2) - X_TO_PS(x1))*0.97, (Y_TO_PS(y2) - Y_TO_PS(y1))*0.97);
-  
   fprintf(fd, "%g\n", (double)png_size_x);
   fprintf(fd, "%g\n", (double)png_size_y);
   fprintf(fd, "8\n");

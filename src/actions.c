@@ -273,16 +273,16 @@ void new_xschem_process(const char *cell, int symbol)
     fprintf(errfp, "new_xschem_process(): executable not found\n");
     return;
   }
-
+  fflush(NULL); /* flush all stdio streams before process forking */
   /* double fork method to avoid zombies 20180925*/
-  if ( (pid1 = fork()) ) {
+  if ( (pid1 = fork()) > 0 ) {
     /* parent process */
     waitpid(pid1, &status, 0);
-  } else if (!pid1) {
+  } else if (pid1 == 0) {
     /* child process  */
-    if ( (pid2 = fork()) ) {
-      exit(0); /* --> child of child will be reparented to init */
-    } else if (!pid2) {
+    if ( (pid2 = fork()) > 0 ) {
+      _exit(0); /* --> child of child will be reparented to init */
+    } else if (pid2 == 0) {
       /* child of child */
       if(!cell || !cell[0]) {
         if(!symbol)
@@ -303,7 +303,7 @@ void new_xschem_process(const char *cell, int symbol)
     } else {
       /* error */
       fprintf(errfp, "new_xschem_process(): fork error 1\n");
-      tcleval("exit");
+      _exit(1);
     }
   } else {
     /* error */
