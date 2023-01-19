@@ -124,7 +124,8 @@ int filter_data(const char *din,  const size_t ilen,
       fprintf(stderr, "error: conversion failed\n");
       ret = 1;
     }
-    _exit(ret);
+    _exit(ret); /* childs should always use _exit() to avoid 
+                 * flushing open stdio streams and other unwanted side effects */
   }
   /* parent */
   close(p1[0]); /*only write to p1 */

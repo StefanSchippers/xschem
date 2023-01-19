@@ -1501,6 +1501,13 @@ void edit_property(int x)
    return;
  } /* if((xctx->lastsel==0 ) */
 
+ /* set 'preserve unchanged properties if multiple selection */
+ if(xctx->lastsel > 1) {
+   tclsetvar("preserve_unchanged_attrs", "1");
+ } else {
+   tclsetvar("preserve_unchanged_attrs", "0");
+ }
+
  switch(xctx->sel_array[0].type)
  {
   case ELEMENT:
