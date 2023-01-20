@@ -146,6 +146,10 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
 
   quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
   if(quality_attr[0]) quality = atoi(quality_attr);
+  else {
+    quality_attr = get_tok_value(r->prop_ptr, "jpg_quality", 0);
+    if(quality_attr[0]) quality = atoi(quality_attr);
+  }
   my_strdup(59, &filter, get_tok_value(r->prop_ptr, "filter", 0));
   image_data_len = my_strdup2(1183, &image_data64_ptr, get_tok_value(r->prop_ptr, "image_data", 0));
 
@@ -274,6 +278,11 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   const char *quality_attr;
 
   quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
+  if(quality_attr[0]) quality = atoi(quality_attr);
+  else {
+    quality_attr = get_tok_value(r->prop_ptr, "jpg_quality", 0);
+    if(quality_attr[0]) quality = atoi(quality_attr);
+  }
   if(quality_attr[0]) quality = atoi(quality_attr);
   if (!has_x) return;
   rw = fabs(rx2 - rx1);

@@ -548,6 +548,7 @@ void free_rawfile(int dr)
   int i;
 
   int deleted = 0;
+  dbg(1, "free_rawfile(): clearing data\n");
   if(xctx->graph_names) {
     deleted = 1;
     for(i = 0 ; i < xctx->graph_nvars; i++) {
