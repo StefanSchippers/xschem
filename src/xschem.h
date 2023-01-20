@@ -1077,7 +1077,6 @@ extern Xschem_ctx *xctx;
 extern void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2, int rot, int flip);
 extern int filter_data(const char *din, const size_t ilen,
            char **dout, size_t *olen, const char *cmd);
-extern cairo_status_t png_reader(void* in_closure, unsigned char* out_data, unsigned int length);
 extern int embed_rawfile(const char *rawfile);
 extern int read_rawfile_from_attr(const char *b64s, size_t length, const char *type);
 extern int raw_read_from_attr(const char *type);
@@ -1170,6 +1169,7 @@ extern void hash_wire(int what, int n, int incremental);
 extern void hash_instances(void); /*  20171203 insert instance bbox in spatial hash table */
 
 #if HAS_CAIRO==1
+extern cairo_status_t png_reader(void* in_closure, unsigned char* out_data, unsigned int length);
 extern int text_bbox_nocairo(const char * str,double xscale, double yscale,
             short rot, short flip, int hcenter, int vcenter,
             double x1,double y1, double *rx1, double *ry1,

@@ -108,6 +108,7 @@ static void check_opt(char *opt, char *optval, int type)
     } else if( (type == SHORT && *opt == 'l') || (type == LONG && !strcmp("log", opt)) ) {
         if(optval) {
           errfp = fopen(optval, "w");
+          setvbuf(errfp, NULL, _IOLBF, 0); /* line (_IOLBF) or disable (_IONBF) buffering on error log */
           if(!errfp) {
             errfp=stderr;
             dbg(0, "Problems opening log file: %s\n", optval);
