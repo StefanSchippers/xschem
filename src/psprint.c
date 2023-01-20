@@ -288,8 +288,8 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   rwi = (int)(rw * scale + 1.0);
   rhi = (int)(rh * scale + 1.0);
   save_restore_zoom(1);
-  set_viewport_size(rwi, rhi, 1.0);
-  zoom_box(rx1-2, ry1-2, rx2+2, ry2+2, 1.0);
+  set_viewport_size(rwi, rhi, xctx->lw);
+  zoom_box(rx1 - xctx->lw, ry1 - xctx->lw, rx2 + xctx->lw, ry2 + xctx->lw, 1.0);
   resetwin(1, 1, 1, rwi, rhi);
   save_draw_grid = tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");

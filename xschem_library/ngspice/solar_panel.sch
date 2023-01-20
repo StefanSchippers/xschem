@@ -64,7 +64,8 @@ x2=0.001
 divx=8
 node="panel
 led" unitx=m
-color="7 4"}
+color="7 4"
+jpeg_quality=20}
 B 2 1260 -390 1680 -220 {flags=graph 
 y1 = 0
 y2 = 6.7
@@ -77,7 +78,8 @@ divx=8
 color="7 4 6"
 node="i(vpanel)
 i(vled)
-\\"R.Avg. I(vpanel); i(vpanel) 20u ravg()\\""}
+\\"R.Avg. I(vpanel); i(vpanel) 20u ravg()\\""
+jpeg_quality=20}
 B 2 1260 -750 1680 -560 {flags=graph 
 y1 = -8.9e-05
 y2 = 100
@@ -93,7 +95,8 @@ node="\\"Panel power; i(vpanel) v(panel) *\\"
 \\"Led power; i(vled) v(led) *\\"
 \\"Avg.Pan. Pwr; i(vpanel) v(panel) * 20u ravg()\\"
 \\"SUN %; sun 100 *\\""
-hilight_wave=-1}
+hilight_wave=-1
+jpeg_quality=20}
 B 2 1260 -940 1680 -750 {flags=graph 
 y1 = 0
 y2 = 1
@@ -110,7 +113,8 @@ level"
 hilight_wave=-1
 digital=0
 ypos1=0.00261891
-ypos2=0.51596}
+ypos2=0.51596
+jpeg_quality=20}
 B 2 1260 -1140 1680 -950 {flags=graph 
 y1 = 0
 y2 = 1
@@ -128,7 +132,8 @@ digital=0
 ypos1=0.00261891
 ypos2=0.51596
 color=8
-node="\\"CTRL1 Duty cycle; ctrl1 20u ravg()\\""}
+node="\\"CTRL1 Duty cycle; ctrl1 20u ravg()\\""
+jpeg_quality=20}
 B 18 85 -840 340 -655 {}
 A 5 340 -840 5.590169943749475 243.434948822922 360 {fill=true}
 P 7 6 415 -655 360 -811.25 355 -825 342.5 -840 330 -845 85 -855 {}
