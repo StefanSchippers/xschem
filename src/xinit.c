@@ -1703,8 +1703,7 @@ int new_schematic(const char *what, const char *win_path, const char *fname)
 
 void change_linewidth(double w)
 {
-  int i, changed = 0, linew;
-  double oldw = xctx->lw;
+  int i, linew;
 
   /* choose line width automatically based on zoom */
   if(w<0. || xctx->lw == -1.0) {
@@ -1718,10 +1717,6 @@ void change_linewidth(double w)
   } else {
     xctx->lw=w;
   }
-  if(xctx->lw != oldw) {
-    changed = 1;
-  }
-  if(!changed) return;
   if(has_x) {
     linew = INT_WIDTH(xctx->lw);
     dbg(1, "Line width = %d\n", linew);
