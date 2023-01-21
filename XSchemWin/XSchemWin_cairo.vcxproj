@@ -223,6 +223,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\actions.c" />
+    <ClCompile Include="..\src\cairo_jpg.c" />
     <ClCompile Include="..\src\callback.c" />
     <ClCompile Include="..\src\check.c" />
     <ClCompile Include="..\src\clip.c" />
@@ -257,6 +258,7 @@
     <ClCompile Include="parselabel.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\cairo_jpg.h" />
     <ClInclude Include="..\src\xschem.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="expandlabel.h" />

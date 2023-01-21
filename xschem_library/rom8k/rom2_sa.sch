@@ -15,7 +15,8 @@ divx=8
 node="tcleval($\{path\}ldqi
 $\{path\}ldqib
 $\{path\}ldsali)"
-color="9 6 7"}
+color="9 6 7"
+jpeg_quality=30}
 B 2 380 -940 1060 -830 {flags=graph
 y1 = 0
 y2 = 2
@@ -25,7 +26,8 @@ x2=3.4e-07
 divx=8
 node="v(ldcp)
 v(ldprech)"
-color="12 10"}
+color="12 10"
+jpeg_quality=30}
 B 2 380 -650 1060 -510 {flags=graph
 y1 = 0
 y2 = 2
@@ -36,7 +38,8 @@ divx=8
 node="tcleval($\{path\}ldqiii
 $\{path\}ldqii
 $\{path\}ldsali)"
-color="6 8 7"}
+color="6 8 7"
+jpeg_quality=30}
 T {Was:
 60/24} 1420 -310 0 0 0.4 0.4 {}
 T {was: LDCP_B} 510 -410 0 0 0.4 0.4 {}
