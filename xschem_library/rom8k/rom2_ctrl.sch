@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -18,7 +19,8 @@ xctrl.ldprechref"
 color="12 11"
 digital=0
 ypos1=-0.0691204
-ypos2=0.68559}
+ypos2=0.68559
+jpeg_quality=30}
 B 2 580 -280 1200 -140 {flags=graph
 y1 = 0
 y2 = 1.6
@@ -33,7 +35,8 @@ xctrl.ldcpb"
 color="12 11"
 digital=0
 ypos1=0.071147
-ypos2=1.0465}
+ypos2=1.0465
+jpeg_quality=30}
 B 2 580 -400 1200 -280 {flags=graph
 y1 = 0
 y2 = 1.6
@@ -50,7 +53,8 @@ xctrl.ldoutib"
 color="12 5 11 8"
 digital=1
 ypos1=0.1572
-ypos2=0.829851}
+ypos2=0.829851
+jpeg_quality=30}
 N 360 -670 500 -670 {lab=LDCPB}
 N 240 -760 250 -760 {lab=LDCPB}
 N 240 -760 240 -670 {lab=LDCPB}
