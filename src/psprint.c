@@ -127,7 +127,6 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   const char *quality_attr;
   size_t image_data_len;
   size_t oLength;
-  int idx = 0;
 
   quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
   if(quality_attr[0]) quality = atoi(quality_attr);
@@ -190,7 +189,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   }
   cairo_surface_mark_dirty(surface);
   cairo_image_surface_write_to_jpeg_mem(surface, &jpgData, &fileSize, quality);
-  ascii85EncodedJpeg = ascii85_encode(jpgData, fileSize, &oLength, 0);
+  ascii85EncodedJpeg = ascii85_encode(jpgData, fileSize, &oLength);
   fprintf(fd, "gsave\n");
   fprintf(fd, "save\n");
   fprintf(fd, "/RawData currentfile /ASCII85Decode filter def\n");
@@ -235,18 +234,20 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   fprintf(fd, "  restore\n");
   fprintf(fd, "} exec\n");
 
+  #if 1  /* break lines */
   for (i = 0; i < oLength; i++)
   {
     fputc(ascii85EncodedJpeg[i],fd);
-    idx++;
-    if(idx==64)
+    if(i > 0 && (i % 64) == 0)
     {
-      idx=0;
       fputc('\n',fd);
       /* if (ascii85Encode[i+1]=='%') idx=63; imageMagic does this for some reason?!
        *  Doesn't seem to be necesary. */
     }
   }
+  #else
+  fprintf(fd, "%s", ascii85EncodedJpeg);
+  #endif
   fprintf(fd, "~>\n");
   
   fprintf(fd, "grestore\n");
@@ -274,7 +275,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   int quality=100;
   const char *quality_attr;
   size_t oLength;
-  int i, idx = 0;
+  int i;
 
   quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
   if(quality_attr[0]) quality = atoi(quality_attr);
@@ -331,7 +332,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   #endif
   cairo_image_surface_write_to_jpeg_mem(png_sfc, &jpgData, &fileSize, quality);
 
-  ascii85EncodedJpeg = ascii85_encode(jpgData, fileSize, &oLength, 0);
+  ascii85EncodedJpeg = ascii85_encode(jpgData, fileSize, &oLength);
   free(jpgData);
 
   cairo_surface_destroy(png_sfc);
@@ -365,18 +366,20 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   fprintf(fd, "  restore\n");
   fprintf(fd, "} exec\n");
 
+  #if 1 /* break lines */
   for (i = 0; i < oLength; i++)
   {
     fputc(ascii85EncodedJpeg[i],fd);
-    idx++;
-    if(idx==64)
+    if(i > 0 && (i % 64) == 0) 
     {
-      idx=0;
       fputc('\n',fd);
       /* if (ascii85Encode[i+1]=='%') idx=63; imageMagic does this for some reason?!
        *  Doesn't seem to be necesary. */
     }
   }
+  #else
+  fprintf(fd, "%s", ascii85EncodedJpeg);
+  #endif
   fprintf(fd, "~>\n");
   
   fprintf(fd, "grestore\n");

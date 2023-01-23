@@ -22,13 +22,11 @@ BEGIN{
     while(getline < filename) {
       if(create_id == 0) {
         if(!start) f = f "\n"
-        start = 0
         str = gensub(/(my_(malloc|calloc|realloc|free|strdup|strdup2))\([0-9]+,/, "\\1(_ALLOC_ID_,", "G")
         if(str != $0) changed = 1
         f = f str
       } else {
         if(!start) f = f "\n"
-        start = 0
         if($0 !~ /^#define *_ALLOC_ID_/) {
           while(sub(/_ALLOC_ID_/, cnt)) {
             changed = 1
@@ -37,6 +35,7 @@ BEGIN{
         }
         f = f $0
       }
+      start = 0
     }
     close(filename)
     if(changed) {

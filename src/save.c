@@ -287,7 +287,7 @@ unsigned char *base64_decode(const char *data, const size_t input_length, size_t
 
 /* Caller should free returned buffer */
 /* set brk to 1 if you want newlines added */
-unsigned char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk) {
+unsigned char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length) {
   static const char b85_enc[] = {
     '!', '"', '#', '$', '%', '&', '\'', '(',
     ')', '*', '+', ',', '-', '.', '/', '0',
