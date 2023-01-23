@@ -342,7 +342,7 @@ unsigned char *ascii85_encode(const unsigned char *data, const size_t input_leng
     encoded_data[idx]=b85_enc[encoded_data[idx]];
     idx++;
   }
-  my_free(1668, &paddedData);
+  /* my_free(1668, &paddedData); */
   *output_length-=padding;
   encoded_data[*output_length]=0;
   return encoded_data;
