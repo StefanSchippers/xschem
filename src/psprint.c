@@ -248,6 +248,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   cairo_surface_destroy(surface);
   my_free(1663, &ascii85EncodedJpeg);
   free(jpgData);
+  #endif
 }
 
 void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
