@@ -76,7 +76,6 @@ END{
     print "  address[ " i ", " idx[i] " ]= " address[i]
     if(show_source) {
       pipe = "egrep -n 'my_(malloc|calloc|realloc|free|strdup|strdup2)\\(" idx[i] ",' *.c xschem.h"
-      print pipe
       while( pipe | getline a) print "    " a
       close(pipe)
     }
