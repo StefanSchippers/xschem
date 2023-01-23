@@ -123,7 +123,8 @@ extern char win_temp_dir[PATH_MAX];
 #include <tcl.h>
 #include <tk.h>
 
-#define _ALLOC_ID_ 0 /* to be replaced with unique IDs in my_*() allocations for memory tracking */
+#define _ALLOC_ID_ 0 /* to be replaced with unique IDs in my_*() allocations for memory tracking
+                      * see create_alloc_ids.awk */
 #define CADHEIGHT 700                   /*  initial window size */
 #define CADWIDTH 1000
 
@@ -367,7 +368,7 @@ do { \
   register size_t __str_alloc_tmp__ = add; \
   if( __str_alloc_tmp__ >= *size) { \
     *size = __str_alloc_tmp__ + CADCHUNKALLOC; \
-    my_realloc(1212, dest_string, *size); \
+    my_realloc(_ALLOC_ID_, dest_string, *size); \
   } \
 } while(0)
 

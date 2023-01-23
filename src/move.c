@@ -104,8 +104,8 @@ void check_collapsing_objects()
   {
    if(xctx->wire[i].x1==xctx->wire[i].x2 && xctx->wire[i].y1 == xctx->wire[i].y2)
    {
-    my_free(812, &xctx->wire[i].prop_ptr);
-    my_free(813, &xctx->wire[i].node);
+    my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
+    my_free(_ALLOC_ID_, &xctx->wire[i].node);
     found=1;
     j++;
     continue;
@@ -125,7 +125,7 @@ void check_collapsing_objects()
     {
      if(xctx->line[c][i].x1==xctx->line[c][i].x2 && xctx->line[c][i].y1 == xctx->line[c][i].y2)
      {
-      my_free(814, &xctx->line[c][i].prop_ptr);
+      my_free(_ALLOC_ID_, &xctx->line[c][i].prop_ptr);
       found=1;
       j++;
       continue;
@@ -144,7 +144,7 @@ void check_collapsing_objects()
     {
      if(xctx->rect[c][i].x1==xctx->rect[c][i].x2 || xctx->rect[c][i].y1 == xctx->rect[c][i].y2)
      {
-      my_free(815, &xctx->rect[c][i].prop_ptr);
+      my_free(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr);
       set_rect_extraptr(0, &xctx->rect[c][i]);
       found=1;
       j++;
@@ -296,8 +296,8 @@ void draw_selection(GC g, int interruptable)
      break;
     case POLYGON:
      {
-      double *x = my_malloc(223, sizeof(double) *xctx->poly[c][n].points);
-      double *y = my_malloc(224, sizeof(double) *xctx->poly[c][n].points);
+      double *x = my_malloc(_ALLOC_ID_, sizeof(double) *xctx->poly[c][n].points);
+      double *y = my_malloc(_ALLOC_ID_, sizeof(double) *xctx->poly[c][n].points);
       if(xctx->poly[c][n].sel==SELECTED || xctx->poly[c][n].sel==SELECTED1) {
         for(k=0;k<xctx->poly[c][n].points; k++) {
           if( xctx->poly[c][n].sel==SELECTED || xctx->poly[c][n].selected_point[k]) {
@@ -317,8 +317,8 @@ void draw_selection(GC g, int interruptable)
         }
         drawtemppolygon(g, NOW, x, y, xctx->poly[c][n].points);
       }
-      my_free(816, &x);
-      my_free(817, &y);
+      my_free(_ALLOC_ID_, &x);
+      my_free(_ALLOC_ID_, &y);
      }
      break;
 
@@ -497,7 +497,7 @@ void find_inst_to_be_redrawn(int what)
   
   dbg(1,"find_inst_to_be_redrawn(): what=%d\n", what);
   if(what & 16) {
-    my_free(1202, &xctx->inst_redraw_table);
+    my_free(_ALLOC_ID_, &xctx->inst_redraw_table);
     xctx->inst_redraw_table_size = 0;
     if((s_pnetname || xctx->hilight_nets)) int_hash_free(&xctx->node_redraw_table);
     return;
@@ -530,7 +530,7 @@ void find_inst_to_be_redrawn(int what)
     } /* if(!(what & 8)) */
   
     if(!xctx->inst_redraw_table || xctx->instances > xctx->inst_redraw_table_size) {
-      my_realloc(1203, &xctx->inst_redraw_table, xctx->instances * sizeof(unsigned char));
+      my_realloc(_ALLOC_ID_, &xctx->inst_redraw_table, xctx->instances * sizeof(unsigned char));
       xctx->inst_redraw_table_size = xctx->instances;
     }
     for(i=0; i < xctx->instances; i++) {
@@ -632,11 +632,11 @@ void copy_objects(int what)
    xctx->move_rot = xctx->move_flip = 0;
    xctx->deltax = xctx->deltay = 0.;
    xctx->ui_state&=~STARTCOPY;
-   my_strdup(225, &str, user_conf_dir);
+   my_strdup(_ALLOC_ID_, &str, user_conf_dir);
    my_strcat(226, &str, "/.selection.sch");
    xunlink(str);
    update_symbol_bboxes(0, 0);
-   my_free(818, &str);
+   my_free(_ALLOC_ID_, &str);
   }
   if(what & RUBBER)                              /* draw objects while moving */
   {
@@ -796,8 +796,8 @@ void copy_objects(int what)
         {
           xPoly *p = &xctx->poly[c][n];
           double bx1 = 0.0, by1 = 0.0, bx2 = 0.0, by2 = 0.0;
-          double *x = my_malloc(227, sizeof(double) *p->points);
-          double *y = my_malloc(228, sizeof(double) *p->points);
+          double *x = my_malloc(_ALLOC_ID_, sizeof(double) *p->points);
+          double *y = my_malloc(_ALLOC_ID_, sizeof(double) *p->points);
           int j;
           for(j=0; j<p->points; j++) {
             if( p->sel==SELECTED || p->selected_point[j]) {
@@ -821,8 +821,8 @@ void copy_objects(int what)
           xctx->sel_array[i].n=xctx->polygons[c];
           store_poly(-1, x, y, p->points, c, p->sel, p->prop_ptr);
           p->sel=0;
-          my_free(819, &x);
-          my_free(820, &y);
+          my_free(_ALLOC_ID_, &x);
+          my_free(_ALLOC_ID_, &y);
         }
         break;
        case ARC:
@@ -894,7 +894,7 @@ void copy_objects(int what)
              xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
         }
         xctx->text[xctx->texts].txt_ptr=NULL;
-        my_strdup(229, &xctx->text[xctx->texts].txt_ptr,xctx->text[n].txt_ptr);
+        my_strdup(_ALLOC_ID_, &xctx->text[xctx->texts].txt_ptr,xctx->text[n].txt_ptr);
         xctx->text[n].sel=0;
          dbg(2, "copy_objects(): current str=%s\n",
           xctx->text[xctx->texts].txt_ptr);
@@ -906,8 +906,8 @@ void copy_objects(int what)
         xctx->text[xctx->texts].sel=SELECTED;
         xctx->text[xctx->texts].prop_ptr=NULL;
         xctx->text[xctx->texts].font=NULL;
-        my_strdup(230, &xctx->text[xctx->texts].prop_ptr, xctx->text[n].prop_ptr);
-        my_strdup(231, &xctx->text[xctx->texts].font, get_tok_value(xctx->text[xctx->texts].prop_ptr, "font", 0));
+        my_strdup(_ALLOC_ID_, &xctx->text[xctx->texts].prop_ptr, xctx->text[n].prop_ptr);
+        my_strdup(_ALLOC_ID_, &xctx->text[xctx->texts].font, get_tok_value(xctx->text[xctx->texts].prop_ptr, "font", 0));
   
         str = get_tok_value(xctx->text[xctx->texts].prop_ptr, "hcenter", 0);
         xctx->text[xctx->texts].hcenter = strcmp(str, "true")  ? 0 : 1;
@@ -981,13 +981,13 @@ void copy_objects(int what)
         xctx->inst[xctx->instances].lab=NULL;
         xctx->inst[xctx->instances].node=NULL;
         xctx->inst[xctx->instances].name=NULL;
-        my_strdup2(232, &xctx->inst[xctx->instances].name, xctx->inst[n].name);
-        my_strdup(233, &xctx->inst[xctx->instances].prop_ptr, xctx->inst[n].prop_ptr);
+        my_strdup2(_ALLOC_ID_, &xctx->inst[xctx->instances].name, xctx->inst[n].name);
+        my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances].prop_ptr, xctx->inst[n].prop_ptr);
         /* 
-         * my_strdup2(234, &xctx->inst[xctx->instances].instname, get_tok_value(xctx->inst[n].prop_ptr, "name",0));
+         * my_strdup2(_ALLOC_ID_, &xctx->inst[xctx->instances].instname, get_tok_value(xctx->inst[n].prop_ptr, "name",0));
          */
         xctx->inst[xctx->instances].instname = NULL; /* will be set in new_prop_string() */
-        my_strdup(312, &xctx->inst[xctx->instances].lab, xctx->inst[n].lab);
+        my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances].lab, xctx->inst[n].lab);
         xctx->inst[n].sel=0;
         xctx->inst[xctx->instances].embed = xctx->inst[n].embed;
         xctx->inst[xctx->instances].flags = xctx->inst[n].flags;

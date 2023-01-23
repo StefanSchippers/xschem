@@ -126,7 +126,7 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
     y0=xctx->inst[i].y0;
     rot = xctx->inst[i].rot;
     flip = xctx->inst[i].flip;
-    my_strdup(133, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+    my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
     if(!type) continue;
 
     no_of_pin_rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
@@ -169,7 +169,7 @@ void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y)
   }
   *x = min_dist_x;
   *y = min_dist_y;
-  my_free(752, &type);
+  my_free(_ALLOC_ID_, &type);
 }
 
 static void find_closest_arc(double mx,double my)

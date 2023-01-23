@@ -304,7 +304,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
   dbg(1, "draw_string(): size * mooz=%g height=%g ascent=%g descent=%g\n",
        size * xctx->mooz, fext.height, fext.ascent, fext.descent);
   llength=0;
-  my_strdup2(73, &sss, str);
+  my_strdup2(_ALLOC_ID_, &sss, str);
   tt=ss=sss;
   for(;;) {
     c=*ss;
@@ -325,7 +325,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
     }
     ss++;
   }
-  my_free(1157, &sss);
+  my_free(_ALLOC_ID_, &sss);
 }
 
 #else /* !HAS_CAIRO */
@@ -504,16 +504,16 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     for(j=0;j< symptr->polygons[layer];j++)
     {
       polygon = &(symptr->poly[layer])[j];
-      x = my_malloc(34, sizeof(double) * polygon->points);
-      y = my_malloc(35, sizeof(double) * polygon->points);
+      x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
+      y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
       for(k=0;k<polygon->points;k++) {
         ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
         x[k]+= x0;
         y[k] += y0;
       }
       drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, polygon->dash); /* added fill */
-      my_free(718, &x);
-      my_free(719, &y);
+      my_free(_ALLOC_ID_, &x);
+      my_free(_ALLOC_ID_, &y);
     }
     for(j=0;j< symptr->arcs[layer];j++)
     {
@@ -683,16 +683,16 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
 
    {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
      int k;
-     double *x = my_malloc(36, sizeof(double) * polygon->points);
-     double *y = my_malloc(37, sizeof(double) * polygon->points);
+     double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
+     double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
      for(k=0;k<polygon->points;k++) {
        ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
        x[k] += x0;
        y[k] += y0;
      }
      drawtemppolygon(gc, NOW, x, y, polygon->points);
-     my_free(720, &x);
-     my_free(721, &y);
+     my_free(_ALLOC_ID_, &x);
+     my_free(_ALLOC_ID_, &y);
    }
  }
 
@@ -1504,7 +1504,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     return;
   }
   if(!xctx->only_probes && (x2-x1)<1.0 && (y2-y1)<1.0) return;
-  p = my_malloc(38, sizeof(XPoint) * points);
+  p = my_malloc(_ALLOC_ID_, sizeof(XPoint) * points);
   if(what) {
     for(i=0;i<points; i++) {
       clip_xy_to_short(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), &sx, &sy);
@@ -1536,7 +1536,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   if(dash) {
     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
   }
-  my_free(722, &p);
+  my_free(_ALLOC_ID_, &p);
 }
 
 void drawtemppolygon(GC g, int what, double *x, double *y, int points)
@@ -1551,7 +1551,7 @@ void drawtemppolygon(GC g, int what, double *x, double *y, int points)
   y1=Y_TO_SCREEN(y1);
   x2=X_TO_SCREEN(x2);
   y2=Y_TO_SCREEN(y2);
-  p = my_malloc(39, sizeof(XPoint) * points);
+  p = my_malloc(_ALLOC_ID_, sizeof(XPoint) * points);
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
     for(i=0;i<points; i++) {
       clip_xy_to_short(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), &sx, &sy);
@@ -1560,7 +1560,7 @@ void drawtemppolygon(GC g, int what, double *x, double *y, int points)
     }
     XDrawLines(display, xctx->window, g, p, points, CoordModeOrigin);
   }
-  my_free(723, &p);
+  my_free(_ALLOC_ID_, &p);
 }
 
 void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double recty2, int dash)
@@ -1834,9 +1834,9 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
   *n_bits = count_items(ntok, ";,", "") - 1;
   /* dbg(0, "get_bus_idx_array(): ntok=%s\n", ntok); */
   /* dbg(0, "get_bus_idx_array(): *n_bits=%d\n", *n_bits); */
-  idx_arr = my_malloc(1454, (*n_bits) * sizeof(SPICE_DATA *));
+  idx_arr = my_malloc(_ALLOC_ID_, (*n_bits) * sizeof(SPICE_DATA *));
   p = 0;
-  my_strdup2(1402, &ntok_copy, ntok);
+  my_strdup2(_ALLOC_ID_, &ntok_copy, ntok);
   nptr = ntok_copy;
   my_strtok_r(nptr, ";,", "", &saven); /*strip off bus name (1st field) */
   while( (bit_name = my_strtok_r(NULL, ";,", "", &saven)) ) {
@@ -1850,7 +1850,7 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
     /* dbg(0, "get_bus_idx_array(): bit_name=%s, p=%d\n", bit_name, p); */
     p++;
   }
-  my_free(1404, &ntok_copy);
+  my_free(_ALLOC_ID_, &ntok_copy);
   return idx_arr;
 }
 
@@ -2333,18 +2333,18 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     char *ntok_ptr = NULL;
     char *alias_ptr = NULL;
     if(strstr(ntok, ";")) {
-       my_strdup2(646, &alias_ptr, find_nth(ntok, ";", 1));
-       my_strdup2(665, &ntok_ptr, find_nth(ntok, ";", 2));
+       my_strdup2(_ALLOC_ID_, &alias_ptr, find_nth(ntok, ";", 1));
+       my_strdup2(_ALLOC_ID_, &ntok_ptr, find_nth(ntok, ";", 2));
     }
     else {
-       my_strdup2(925, &alias_ptr, ntok);
-       my_strdup2(1155, &ntok_ptr, ntok);
+       my_strdup2(_ALLOC_ID_, &alias_ptr, ntok);
+       my_strdup2(_ALLOC_ID_, &ntok_ptr, ntok);
     }
       
     if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", alias_ptr, gr->unity_suffix);
     else  my_snprintf(tmpstr, S(tmpstr), "%s", alias_ptr);
-    my_free(1188, &alias_ptr);
-    my_free(1189, &ntok_ptr);
+    my_free(_ALLOC_ID_, &alias_ptr);
+    my_free(_ALLOC_ID_, &ntok_ptr);
   }
   if(gr->digital) {
     double xt = gr->x1 - 15 * gr->txtsizelab;
@@ -2474,8 +2474,8 @@ int embed_rawfile(const char *rawfile)
     xctx->push_undo();
     set_modify(1);
     ptr = base64_from_file(rawfile, &len);
-    my_strdup2(1466, &i->prop_ptr, subst_token(i->prop_ptr, "spice_data", ptr));
-    my_free(1481, &ptr);
+    my_strdup2(_ALLOC_ID_, &i->prop_ptr, subst_token(i->prop_ptr, "spice_data", ptr));
+    my_free(_ALLOC_ID_, &ptr);
   }
   return res;
 }
@@ -2499,9 +2499,9 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
   xRect *r = &xctx->rect[GRIDLAYER][i];
 
   /* get plot data */
-  my_strdup2(1491, &node, get_tok_value(r->prop_ptr,"node",0));
-  my_strdup2(1492, &color, get_tok_value(r->prop_ptr,"color",0)); 
-  my_strdup2(1493, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
+  my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
+  my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color",0)); 
+  my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
   nptr = node;
   cptr = color;
   sptr = sweep;
@@ -2539,10 +2539,10 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
           } else {
              if(gr->hilight_wave == wcnt) {
                gr->hilight_wave = -1;
-               my_strdup2(1522, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+               my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
              } else {
                gr->hilight_wave = wcnt;
-               my_strdup2(1525, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+               my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
              }
           }
         }
@@ -2564,19 +2564,19 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
         } else {
           if(gr->hilight_wave == wcnt) {
             gr->hilight_wave = -1;
-            my_strdup2(1538, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+            my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
           } else {
             gr->hilight_wave = wcnt;
-            my_strdup2(1539, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+            my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
           }
         }
       }
     }
     wcnt++;
   } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", &saven)) ) */
-  my_free(1494, &node);
-  my_free(1495, &color);
-  my_free(1496, &sweep);
+  my_free(_ALLOC_ID_, &node);
+  my_free(_ALLOC_ID_, &color);
+  my_free(_ALLOC_ID_, &sweep);
   return ret;
 }
 
@@ -2663,8 +2663,8 @@ int find_closest_wave(int i, Graph_ctx *gr)
   yval = G_Y(xctx->mousey);
   xval = G_X(xctx->mousex);
   /* get data to plot */
-  my_strdup2(474, &node, get_tok_value(r->prop_ptr,"node",0));
-  my_strdup2(1012, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
+  my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
+  my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
   nptr = node;
   sptr = sweep;
   /* process each node given in "node" attribute, get also associated sweep var if any*/
@@ -2686,9 +2686,9 @@ int find_closest_wave(int i, Graph_ctx *gr)
     expression = 0;
     if(xctx->graph_values) {
       if(strstr(ntok, ";")) {
-        my_strdup2(1191, &express, find_nth(ntok, ";", 2));
+        my_strdup2(_ALLOC_ID_, &express, find_nth(ntok, ";", 2));
       } else {
-        my_strdup2(1192, &express, ntok);
+        my_strdup2(_ALLOC_ID_, &express, ntok);
       }
       if(strpbrk(express, " \n\t")) {
         expression = 1;
@@ -2767,9 +2767,9 @@ int find_closest_wave(int i, Graph_ctx *gr)
     wcnt++;
   } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", &saven)) ) */
   dbg(0, "closest dataset=%d\n", closest_dataset);
-  if(express) my_free(1487, &express);
-  my_free(478, &node);
-  my_free(1262, &sweep);
+  if(express) my_free(_ALLOC_ID_, &express);
+  my_free(_ALLOC_ID_, &node);
+  my_free(_ALLOC_ID_, &sweep);
   return closest_dataset;
 }
 
@@ -2820,9 +2820,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     /* graph box, gridlines and axes */
     draw_graph_grid(gr, ct);
     /* get data to plot */
-    my_strdup2(1389, &node, get_tok_value(r->prop_ptr,"node",0));
-    my_strdup2(1390, &color, get_tok_value(r->prop_ptr,"color",0)); 
-    my_strdup2(1407, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
+    my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
+    my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color",0)); 
+    my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
     nptr = node;
     cptr = color;
     sptr = sweep;
@@ -2830,7 +2830,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) {
       if(strstr(ntok, ",")) {
-        my_strdup2(1452, &bus_msb, find_nth(ntok, ";,", 2));
+        my_strdup2(_ALLOC_ID_, &bus_msb, find_nth(ntok, ";,", 2));
       }
       ctok = my_strtok_r(cptr, " ", "", &savec);
       stok = my_strtok_r(sptr, "\t\n ", "\"", &saves);
@@ -2851,9 +2851,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       expression = 0;
       if(xctx->graph_values && !bus_msb) {
         if(strstr(ntok, ";")) {
-          my_strdup2(460, &express, find_nth(ntok, ";", 2));
+          my_strdup2(_ALLOC_ID_, &express, find_nth(ntok, ";", 2));
         } else {
-          my_strdup2(473, &express, ntok);
+          my_strdup2(_ALLOC_ID_, &express, ntok);
         }
         if(strpbrk(express, " \n\t")) {
           expression = 1;
@@ -2892,7 +2892,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           else wave_color = wc;
           first = -1;
           poly_npoints = 0;
-          my_realloc(1401, &point, xctx->graph_npoints[dset] * sizeof(XPoint));
+          my_realloc(_ALLOC_ID_, &point, xctx->graph_npoints[dset] * sizeof(XPoint));
           /* Process "npoints" simulation items 
            * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
           prev_prev_x = prev_x = 0;
@@ -2966,16 +2966,16 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         if(measure_p != -1) show_node_measures(measure_p, measure_x, measure_prev_x, bus_msb, wave_color, 
             idx, idx_arr, n_bits, n_nodes, ntok, wcnt, gr);
 
-        my_free(1403, &point);
-        if(idx_arr) my_free(1455, &idx_arr);
+        my_free(_ALLOC_ID_, &point);
+        if(idx_arr) my_free(_ALLOC_ID_, &idx_arr);
       } /* if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express)) != -1 ) */
       wcnt++;
-      if(bus_msb) my_free(1453, &bus_msb);
+      if(bus_msb) my_free(_ALLOC_ID_, &bus_msb);
     } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", &saven)) ) */
-    if(express) my_free(1520, &express);
-    my_free(1391, &node);
-    my_free(1392, &color);
-    my_free(1408, &sweep);
+    if(express) my_free(_ALLOC_ID_, &express);
+    my_free(_ALLOC_ID_, &node);
+    my_free(_ALLOC_ID_, &color);
+    my_free(_ALLOC_ID_, &sweep);
   } /* if(flags & 8) */
   bbox(START, 0.0, 0.0, 0.0, 0.0);
   bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
@@ -3075,7 +3075,7 @@ static cairo_status_t png_writer(void *in_closure, const unsigned char *in_data,
   png_to_byte_closure_t *closure = (png_to_byte_closure_t *) in_closure;
   if(!in_data) return CAIRO_STATUS_WRITE_ERROR;
   if(closure->pos + length > closure->size) {
-    my_realloc(1472, &closure->buffer, closure->pos + length + 65536);
+    my_realloc(_ALLOC_ID_, &closure->buffer, closure->pos + length + 65536);
     closure->size =  closure->pos + length + 65536;
   }
   memcpy(closure->buffer + closure->pos, in_data, length);
@@ -3122,7 +3122,7 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
     cairo_save(xctx->cairo_save_ctx);
   }
   my_strncpy(filename, get_tok_value(r->prop_ptr, "image", 0), S(filename));
-  my_strdup(1484, &filter, get_tok_value(r->prop_ptr, "filter", 0));
+  my_strdup(_ALLOC_ID_, &filter, get_tok_value(r->prop_ptr, "filter", 0));
 
   /* read PNG from in-memory buffer ... */
   if(emb_ptr && emb_ptr->image) {
@@ -3137,7 +3137,7 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
       closure.buffer = NULL;
       filterdata = (char *)base64_decode(attr, strlen(attr), &filtersize);
       filter_data(filterdata, filtersize, (char **)&closure.buffer, &data_size, filter); 
-      my_free(1488, &filterdata);
+      my_free(_ALLOC_ID_, &filterdata);
     } else {
       closure.buffer = base64_decode(attr, strlen(attr), &data_size);
     }
@@ -3145,7 +3145,7 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
     closure.size = data_size; /* should not be necessary */
     emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
     if(closure.buffer == NULL) dbg(0, "draw_image(): image creation failed\n");
-    my_free(1467, &closure.buffer);
+    my_free(_ALLOC_ID_, &closure.buffer);
     dbg(1, "draw_image(): length2 = %d\n", closure.pos);
   /* ... or read PNG from file (image attribute) */
   } else if(filename[0] && !stat(filename, &buf)) {
@@ -3161,7 +3161,7 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
       if(filtersize) {
         fd = fopen(filename, "r");
         if(fd) {
-          filterdata = my_malloc(1490, filtersize);
+          filterdata = my_malloc(_ALLOC_ID_, filtersize);
           fread(filterdata, filtersize, 1, fd);
           fclose(fd);
         }
@@ -3172,7 +3172,7 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
       closure.pos = 0;
       emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
       image_data = base64_encode((unsigned char *)filterdata, filtersize, &olength, 0);
-      my_free(1489, &filterdata);
+      my_free(_ALLOC_ID_, &filterdata);
     } else {
       closure.buffer = NULL;
       closure.size = 0;
@@ -3181,25 +3181,25 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
       /* write PNG to in-memory buffer */
       cairo_surface_write_to_png_stream(emb_ptr->image, png_writer, &closure);
       image_data = base64_encode(closure.buffer, closure.pos, &olength, 0);
-      my_free(1468, &closure.buffer);
+      my_free(_ALLOC_ID_, &closure.buffer);
     }
     /* put base64 encoded data to rect image_data attrinute */
-    my_strdup2(1473, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", image_data));
-    my_free(1474, &image_data);
+    my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", image_data));
+    my_free(_ALLOC_ID_, &image_data);
     if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
-      my_free(442, &filter);
+      my_free(_ALLOC_ID_, &filter);
       return;
     }
     dbg(1, "draw_image(): length3 = %d\n", closure.pos);
   } else {
-    my_free(453, &filter);
+    my_free(_ALLOC_ID_, &filter);
     return;
   }
   if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
-    my_free(434, &filter);
+    my_free(_ALLOC_ID_, &filter);
     return;
   }
-  my_free(1485, &filter);
+  my_free(_ALLOC_ID_, &filter);
   ptr = get_tok_value(r->prop_ptr, "alpha", 0);
   alpha = 1.0;
   if(ptr[0]) alpha = atof(ptr);
@@ -3334,7 +3334,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   closure.pos = 0;
   cairo_surface_write_to_png_stream(png_sfc, png_writer, &closure);
   ptr = base64_encode(closure.buffer, closure.pos, &olength, 1);
-  my_free(1547, &closure.buffer);
+  my_free(_ALLOC_ID_, &closure.buffer);
   cairo_surface_destroy(png_sfc);
   xctx->draw_pixmap=1;
   xctx->draw_window=save_draw_window;
@@ -3357,7 +3357,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
                 "xlink:href=\"data:image/png;base64,%s\"/>\n",
                 0.0, 0.0, w, h, transform, ptr);
   }
-  my_free(1546, &ptr);
+  my_free(_ALLOC_ID_, &ptr);
   #endif
 }
 

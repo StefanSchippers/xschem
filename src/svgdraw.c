@@ -291,7 +291,7 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
     if(rot == 3 && flip == 1 ) { x=textx1;}
   }
   llength=0;
-  my_strdup2(465, &sss, str);
+  my_strdup2(_ALLOC_ID_, &sss, str);
   tt=ss=sss;
   for(;;) {
     c=*ss;
@@ -309,7 +309,7 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
     }
     ss++;
   }
-  my_free(1154, &sss);
+  my_free(_ALLOC_ID_, &sss);
 }
 
 
@@ -489,16 +489,16 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     polygon = (symptr->poly[layer])[j];
     { /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
       int k;
-      double *x = my_malloc(417, sizeof(double) * polygon.points);
-      double *y = my_malloc(418, sizeof(double) * polygon.points);
+      double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
+      double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
       for(k=0;k<polygon.points;k++) {
         ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
         x[k]+= x0;
         y[k] += y0;
       }
       svg_drawpolygon(c, NOW, x, y, polygon.points, polygon.fill, polygon.dash);
-      my_free(961, &x);
-      my_free(962, &y);
+      my_free(_ALLOC_ID_, &x);
+      my_free(_ALLOC_ID_, &y);
     }
   }
   for(j=0;j< symptr->arcs[layer];j++) {
@@ -647,7 +647,7 @@ void svg_draw(void)
     else return;
   }
   svg_restore_lw();
-  svg_colors=my_calloc(419, cadlayers, sizeof(Svg_color));
+  svg_colors=my_calloc(_ALLOC_ID_, cadlayers, sizeof(Svg_color));
   if(svg_colors==NULL){
     fprintf(errfp, "svg_draw(): calloc error\n");
     return;
@@ -674,7 +674,7 @@ void svg_draw(void)
   }
   my_strncpy(xctx->plotfile,"", S(xctx->plotfile));
 
-  unused_layer = my_calloc(873, cadlayers, sizeof(int));
+  unused_layer = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   #if 0
   *     /* Determine used layers. Disabled since we want hilight colors */
   *     for(c=0;c<cadlayers;c++) unused_layer[c] = 1;
@@ -877,8 +877,8 @@ void svg_draw(void)
   fprintf(fd, "</svg>\n");
   fclose(fd);
   tclsetboolvar("draw_grid", old_grid);
-  my_free(964, &svg_colors);
-  my_free(1217, &unused_layer);
+  my_free(_ALLOC_ID_, &svg_colors);
+  my_free(_ALLOC_ID_, &unused_layer);
   Tcl_SetResult(interp,"",TCL_STATIC);
 }
 

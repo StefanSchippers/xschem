@@ -48,9 +48,9 @@ static void hilight_hash_free_entry(Hilight_hashentry *entry)
   Hilight_hashentry *tmp;
   while(entry) {
     tmp = entry->next;
-    my_free(1287, &entry->token); 
-    my_free(1288, &entry->path); 
-    my_free(757, &entry);
+    my_free(_ALLOC_ID_, &entry->token); 
+    my_free(_ALLOC_ID_, &entry->path); 
+    my_free(_ALLOC_ID_, &entry);
     entry = tmp;
   }
 }
@@ -92,11 +92,11 @@ static Hilight_hashentry *hilight_hash_lookup(const char *token, int value, int 
       size_t lenp = strlen(xctx->sch_path[xctx->currsch]) + 1;
       if( what==XINSERT || what == XINSERT_NOREPLACE) { /* insert data */
         s=sizeof( Hilight_hashentry );
-        entry= (Hilight_hashentry *)my_malloc(137, s );
+        entry= (Hilight_hashentry *)my_malloc(_ALLOC_ID_, s );
         entry->next = NULL;
-        entry->token = my_malloc(778, lent);
+        entry->token = my_malloc(_ALLOC_ID_, lent);
         memcpy(entry->token, token, lent);
-        entry->path = my_malloc(779, lenp);
+        entry->path = my_malloc(_ALLOC_ID_, lenp);
         memcpy(entry->path, xctx->sch_path[xctx->currsch], lenp);
         entry->oldvalue = value-1000; /* no old value, set different value anyway*/
         entry->value = value;
@@ -111,9 +111,9 @@ static Hilight_hashentry *hilight_hash_lookup(const char *token, int value, int 
          !strcmp(xctx->sch_path[xctx->currsch], entry->path)  ) { /* found matching tok */
       if(what==XDELETE) {              /* remove token from the hash table ... */
         saveptr=entry->next;
-        my_free(1145, &entry->token);
-        my_free(1198, &entry->path);
-        my_free(764, &entry);
+        my_free(_ALLOC_ID_, &entry->token);
+        my_free(_ALLOC_ID_, &entry->path);
+        my_free(_ALLOC_ID_, &entry);
         *preventry=saveptr;
       } else if(what == XINSERT ) {
         entry->oldvalue = entry->value;
@@ -134,11 +134,11 @@ Hilight_hashentry *inst_hilight_hash_lookup(const char *token, int value, int wh
   size_t len = strlen(token) + 2; /* token plus one more character and \0 */
   Hilight_hashentry *entry;
   dbg(1, "inst_hilight_hash_lookup: token=%s value=%d what=%d\n", token, value, what);
-  inst_tok = my_malloc(1568, len);
+  inst_tok = my_malloc(_ALLOC_ID_, len);
   /* instance name uglyfication: add a space at beginning so it will never match a valid net name */
   my_snprintf(inst_tok, len, " %s", token);
   entry = hilight_hash_lookup(inst_tok, value, what);
-  my_free(1569, &inst_tok);
+  my_free(_ALLOC_ID_, &inst_tok);
   return entry;
 }
 
@@ -156,7 +156,7 @@ Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int wha
     ptr1=hilight_hash_lookup(token, value, what);
     return ptr1;
   }
-  my_strdup(141, &string, expandlabel(token,&mult));
+  my_strdup(_ALLOC_ID_, &string, expandlabel(token,&mult));
   if(string==NULL) {
     return NULL;
   }
@@ -179,7 +179,7 @@ Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int wha
     string_ptr++;
   }
   /* if something found return first pointer */
-  my_free(765, &string);
+  my_free(_ALLOC_ID_, &string);
   return ptr2;
 }
 
@@ -271,12 +271,12 @@ void create_plot_cmd(void)
   if(exists) {
     viewer = atoi(tclgetvar("sim(spicewave,default)"));
     my_snprintf(tcl_str, S(tcl_str), "sim(spicewave,%d,name)", viewer);
-    my_strdup(1269, &viewer_name, tclgetvar(tcl_str));
+    my_strdup(_ALLOC_ID_, &viewer_name, tclgetvar(tcl_str));
     dbg(1,"create_plot_cmd(): viewer_name=%s\n", viewer_name);
     if(strstr(viewer_name, "Gaw")) viewer=GAW;
     else if(strstr(viewer_name, "Bespice")) viewer=BESPICE;
     else if(strstr(viewer_name, "Ngspice")) viewer=NGSPICE;
-    my_free(1270, &viewer_name);
+    my_free(_ALLOC_ID_, &viewer_name);
   }
   if(!exists || !viewer) return;
   my_snprintf(plotfile, S(plotfile), "%s/xplot", tclgetvar("netlist_dir"));
@@ -310,7 +310,7 @@ void create_plot_cmd(void)
             fprintf(fd, "%s", str);
             fprintf(fd, "\n");
             first = 1;
-            my_free(758, &str);
+            my_free(_ALLOC_ID_, &str);
           }
           fprintf(fd, "set color%d=rgb:%s\n", idx, color_str);
           if(first) {
@@ -326,8 +326,8 @@ void create_plot_cmd(void)
           char *t=NULL, *p=NULL;
           sprintf(color_str, "%02x%02x%02x", 
             xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8, xctx->xcolor_array[c].blue>>8);
-          my_strdup(1273, &t, tok);
-          my_strdup2(1274, &p, (entry->path)+1);
+          my_strdup(_ALLOC_ID_, &t, tok);
+          my_strdup2(_ALLOC_ID_, &p, (entry->path)+1);
           if(simtype == 0 ) { /* spice */
             tclvareval("puts $gaw_fd {copyvar v(", strtolower(p), strtolower(t),
                         ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
@@ -340,15 +340,15 @@ void create_plot_cmd(void)
             tclvareval("puts $gaw_fd {copyvar ", strtoupper(p), strtoupper(t),
                         " sel #", color_str, "}\nvwait gaw_fd\n", NULL);
           }
-          my_free(1275, &p);
-          my_free(1276, &t);
+          my_free(_ALLOC_ID_, &p);
+          my_free(_ALLOC_ID_, &t);
         }
         if(viewer == BESPICE) {
           char *t=NULL, *p=NULL;
           sprintf(color_str, "%d %d %d", 
             xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8, xctx->xcolor_array[c].blue>>8);
-          my_strdup(241, &t, tok);
-          my_strdup2(245, &p, (entry->path)+1);
+          my_strdup(_ALLOC_ID_, &t, tok);
+          my_strdup2(_ALLOC_ID_, &p, (entry->path)+1);
 
           if(simtype == 0 ) { /* spice */
             tclvareval(
@@ -384,8 +384,8 @@ void create_plot_cmd(void)
               "\" \"\"}",
               NULL);
           }
-          my_free(759, &p);
-          my_free(760, &t);
+          my_free(_ALLOC_ID_, &p);
+          my_free(_ALLOC_ID_, &t);
         }
       }
       entry = entry->next;
@@ -394,7 +394,7 @@ void create_plot_cmd(void)
   if(viewer == NGSPICE) {
     fprintf(fd, "%s", str);
     fprintf(fd, "\nremcirc\n.endc\n");
-    my_free(761, &str);
+    my_free(_ALLOC_ID_, &str);
     fclose(fd);
   }
   if(viewer == GAW) {
@@ -434,16 +434,16 @@ void hilight_net_pin_mismatches(void)
   for(k=0; k<xctx->lastsel; k++) {
     if(xctx->sel_array[k].type!=ELEMENT) continue;
     j = xctx->sel_array[k].n ;
-    my_strdup(23, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
+    my_strdup(_ALLOC_ID_, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
     if( type && IS_LABEL_SH_OR_PIN(type)) break;
     symbol = xctx->sym + xctx->inst[j].ptr;
     npin = symbol->rects[PINLAYER];
     rct=symbol->rect[PINLAYER];
     dbg(1, "hilight_net_pin_mismatches(): \n");
     for(i=0;i<npin;i++) {
-      my_strdup(24, &labname,get_tok_value(rct[i].prop_ptr,"name",0));
-      my_strdup(25, &lab, expandlabel(labname, &mult));
-      my_strdup(26, &netname, net_name(j,i, &mult, 0, 0));
+      my_strdup(_ALLOC_ID_, &labname,get_tok_value(rct[i].prop_ptr,"name",0));
+      my_strdup(_ALLOC_ID_, &lab, expandlabel(labname, &mult));
+      my_strdup(_ALLOC_ID_, &netname, net_name(j,i, &mult, 0, 0));
       dbg(1, "hilight_net_pin_mismatches(): i=%d labname=%s explabname = %s  net = %s\n", i, labname, lab, netname);
       if(netname && strcmp(lab, netname)) {
         dbg(1, "hilight_net_pin_mismatches(): hilight: %s\n", netname);
@@ -452,10 +452,10 @@ void hilight_net_pin_mismatches(void)
       }
     }
   }
-  my_free(713, &type);
-  my_free(714, &labname);
-  my_free(715, &lab);
-  my_free(716, &netname);
+  my_free(_ALLOC_ID_, &type);
+  my_free(_ALLOC_ID_, &labname);
+  my_free(_ALLOC_ID_, &lab);
+  my_free(_ALLOC_ID_, &netname);
   if(xctx->hilight_nets) propagate_hilights(1, 0, XINSERT_NOREPLACE);
   redraw_hilights(0);
 }
@@ -481,11 +481,11 @@ void hilight_parent_pins(void)
  for(j=0;j<rects;j++)
  {
   if(!xctx->inst[i].node[j]) continue;
-  my_strdup(445, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
+  my_strdup(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
   dbg(1, "hilight_parent_pins(): net_node=%s\n", net_node);
   pin_name = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0);
   if(!pin_name[0]) continue;
-  my_strdup(450, &pin_node, expandlabel(pin_name, &mult));
+  my_strdup(_ALLOC_ID_, &pin_node, expandlabel(pin_name, &mult));
   dbg(1, "hilight_parent_pins(): pin_node=%s\n", pin_node);
 
   for(k = 1; k<=mult; k++) {
@@ -504,8 +504,8 @@ void hilight_parent_pins(void)
     }
    }
  }
- my_free(767, &pin_node);
- my_free(768, &net_node);
+ my_free(_ALLOC_ID_, &pin_node);
+ my_free(_ALLOC_ID_, &net_node);
 }
 
 void hilight_child_pins(void)
@@ -527,11 +527,11 @@ void hilight_child_pins(void)
   dbg(1, "hilight_child_pins(): inst_number=%d\n", inst_number);
 
   if(!xctx->inst[i].node[j]) continue;
-  my_strdup(508, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
+  my_strdup(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
   dbg(1, "hilight_child_pins(): net_node=%s\n", net_node);
   pin_name = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0);
   if(!pin_name[0]) continue;
-  my_strdup(521, &pin_node, expandlabel(pin_name, &mult));
+  my_strdup(_ALLOC_ID_, &pin_node, expandlabel(pin_name, &mult));
   dbg(1, "hilight_child_pins(): pin_node=%s\n", pin_node);
   for(k = 1; k<=mult; k++) {
     dbg(1, "hilight_child_pins(): looking nth net:%d, k=%d, inst_number=%d, mult=%d\n",
@@ -552,8 +552,8 @@ void hilight_child_pins(void)
     }
   } /* for(k..) */
  }
- my_free(769, &pin_node);
- my_free(770, &net_node);
+ my_free(_ALLOC_ID_, &pin_node);
+ my_free(_ALLOC_ID_, &net_node);
 }
 
 
@@ -615,7 +615,7 @@ int search(const char *tok, const char *val, int sub, int sel)
    } else if(!strcmp(tok,"cell::propstring")) {
      has_token = (str = (xctx->inst[i].ptr+ xctx->sym)->prop_ptr) ? 1 : 0;
    } else if(!strncmp(tok,"cell::", 6)) { /* cell::xxx looks for xxx in global symbol attributes */
-     my_strdup(142, &tmpname,get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr,tok+6,0));
+     my_strdup(_ALLOC_ID_, &tmpname,get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr,tok+6,0));
      has_token = xctx->tok_size;
      if(tmpname) {
        str = tmpname;
@@ -768,7 +768,7 @@ int search(const char *tok, const char *val, int sub, int sel)
  regfree(&re);
  #endif
  xctx->draw_window = save_draw;
- my_free(771, &tmpname);
+ my_free(_ALLOC_ID_, &tmpname);
  return found;
 }
 
@@ -796,7 +796,7 @@ static void drill_hilight(int mode)
       hilight_connected_inst = en_hi &&
        ((xctx->inst[i].flags & HILIGHT_CONN) || (symbol->flags & HILIGHT_CONN));
       for(j=0; j<npin;j++) {
-        my_strdup2(143, &netname, net_name(i, j, &mult, 1, 0));
+        my_strdup2(_ALLOC_ID_, &netname, net_name(i, j, &mult, 1, 0));
         expandlabel(netname, &mult);
         dbg(1, "inst=%s, pin=%d, netname=%s, mult=%d\n", xctx->inst[i].instname, j, netname, mult);
         for(k = 1; k <= mult; k++) {
@@ -807,7 +807,7 @@ static void drill_hilight(int mode)
               xctx->inst[i].color = entry->value;
               inst_hilight_hash_lookup(xctx->inst[i].instname, entry->value, XINSERT_NOREPLACE); 
             }
-            my_strdup(1225, &propagate_str, get_tok_value(rct[j].prop_ptr, "propag", 0));
+            my_strdup(_ALLOC_ID_, &propagate_str, get_tok_value(rct[j].prop_ptr, "propag", 0));
             if(propagate_str) {
               int n = 1;
               const char *propag;
@@ -822,7 +822,7 @@ static void drill_hilight(int mode)
                 }
                 /* expandlabel(rct[propagate].name, &pinmult); */
                 /* get net to propagate hilight to...*/
-                my_strdup2(144, &propagated_net, net_name(i, propagate, &mult2, 1, 0));
+                my_strdup2(_ALLOC_ID_, &propagated_net, net_name(i, propagate, &mult2, 1, 0));
                 netbitname = find_nth(propagated_net, ",", k);
                 dbg(1, "netbitname=%s\n", netbitname);
                 /* add net to highlight list */
@@ -837,9 +837,9 @@ static void drill_hilight(int mode)
     } /* for(i...) */
     if(!found) break;
   } /* while(1) */
-  my_free(772, &netname);
-  if(propagated_net) my_free(773, &propagated_net);
-  if(propagate_str) my_free(1226, &propagate_str);
+  my_free(_ALLOC_ID_, &netname);
+  if(propagated_net) my_free(_ALLOC_ID_, &propagated_net);
+  if(propagate_str) my_free(_ALLOC_ID_, &propagate_str);
 }
 
 int hilight_netname(const char *name)
@@ -879,9 +879,9 @@ static void send_net_to_bespice(int simtype, const char *node)
     sprintf(color_str, "%d %d %d", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
                                        xctx->xcolor_array[c].blue>>8);
     expanded_tok = expandlabel(tok, &tok_mult);
-    my_strdup2(1278, &p, xctx->sch_path[xctx->currsch]+1);
+    my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
     for(k=1; k<=tok_mult; k++) {
-      my_strdup(1277, &t, find_nth(expanded_tok, ",", k));
+      my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
       if(simtype == 0 ) { /* spice */
         tclvareval(
           "puts $bespice_server_getdata(sock) ",
@@ -917,8 +917,8 @@ static void send_net_to_bespice(int simtype, const char *node)
           NULL);
       }
     }
-    my_free(1279, &p);
-    my_free(1280, &t);
+    my_free(_ALLOC_ID_, &p);
+    my_free(_ALLOC_ID_, &t);
   }
 }
 
@@ -939,7 +939,7 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
     int start_level;
     c = get_color(xctx->hilight_color);
     expanded_tok = expandlabel(tok, &tok_mult);
-    my_strdup2(1499, &p, xctx->sch_path[xctx->currsch]+1);
+    my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
     path = p;
     start_level = sch_waves_loaded();
     if(path) {
@@ -952,7 +952,7 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
     }
     strtolower(path);
     for(k=1; k<=tok_mult; k++) {
-      my_strdup(1503, &t, find_nth(expanded_tok, ",", k));
+      my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
       strtolower(t);
       if(simtype == 0 ) { /* ngspice */
         dbg(1, "%s%s color=%d\n", path, t, c);
@@ -964,8 +964,8 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
       }
 
     }
-    my_free(1500, &p);
-    my_free(1501, &t);
+    my_free(_ALLOC_ID_, &p);
+    my_free(_ALLOC_ID_, &t);
   }
 }
 
@@ -990,11 +990,11 @@ static void send_net_to_gaw(int simtype, const char *node)
     expanded_tok = expandlabel(tok, &tok_mult);
     tcleval("setup_tcp_gaw");
     if(tclresult()[0] == '0') return;
-    my_strdup2(254, &p, xctx->sch_path[xctx->currsch]+1);
+    my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
     path = p;
     strtolower(path);
     for(k=1; k<=tok_mult; k++) {
-      my_strdup(246, &t, find_nth(expanded_tok, ",", k));
+      my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
       strtolower(t);
       if(simtype == 0 ) { /* ngspice */
         tclvareval("puts $gaw_fd {copyvar v(", path, t,
@@ -1004,8 +1004,8 @@ static void send_net_to_gaw(int simtype, const char *node)
                     ") sel #", color_str, "}\nvwait gaw_fd\n", NULL);
       }
     }
-    my_free(774, &p);
-    my_free(775, &t);
+    my_free(_ALLOC_ID_, &p);
+    my_free(_ALLOC_ID_, &t);
   }
 }
 
@@ -1028,9 +1028,9 @@ static void send_current_to_bespice(int simtype, const char *node)
   sprintf(color_str, "%d %d %d", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
                                      xctx->xcolor_array[c].blue>>8);
   expanded_tok = expandlabel(tok, &tok_mult);
-  my_strdup2(1282, &p, xctx->sch_path[xctx->currsch]+1);
+  my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
   for(k=1; k<=tok_mult; k++) {
-    my_strdup(1281, &t, find_nth(expanded_tok, ",", k));
+    my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
     if(!simtype) { /* spice */
       tclvareval(
         "puts $bespice_server_getdata(sock) ",
@@ -1071,8 +1071,8 @@ static void send_current_to_bespice(int simtype, const char *node)
         NULL);
     }
   }
-  my_free(1283, &p);
-  my_free(1284, &t);
+  my_free(_ALLOC_ID_, &p);
+  my_free(_ALLOC_ID_, &t);
 }
 
 static void send_current_to_graph(char **s, int simtype, const char *node)
@@ -1087,7 +1087,7 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
   tok = node;
   c = get_color(xctx->hilight_color);
   expanded_tok = expandlabel(tok, &tok_mult);
-  my_strdup2(523, &p, xctx->sch_path[xctx->currsch]+1);
+  my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
   path = p;
   start_level = sch_waves_loaded();
   if(path) {
@@ -1101,7 +1101,7 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
   strtolower(path);
   there_is_hierarchy = (strstr(path, ".") != NULL);
   for(k=1; k<=tok_mult; k++) {
-    my_strdup(376, &t, find_nth(expanded_tok, ",", k));
+    my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
     strtolower(t);
     if(!simtype) { /* ngspice */
       my_snprintf(ss, S(ss), "i(%s%s%s) %d", there_is_hierarchy ? "v." : "", path, t, c);
@@ -1115,8 +1115,8 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
       my_strcat(535, s, ss);
     }
   }
-  my_free(533, &p);
-  my_free(662, &t);
+  my_free(_ALLOC_ID_, &p);
+  my_free(_ALLOC_ID_, &t);
 }
 
 static void send_current_to_gaw(int simtype, const char *node)
@@ -1136,12 +1136,12 @@ static void send_current_to_gaw(int simtype, const char *node)
   expanded_tok = expandlabel(tok, &tok_mult);
   tcleval("setup_tcp_gaw");
   if(tclresult()[0] == '0') return;
-  my_strdup2(1180, &p, xctx->sch_path[xctx->currsch]+1);
+  my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
   path = p;
   strtolower(path);
   there_is_hierarchy = (xctx->currsch > 0);
   for(k=1; k<=tok_mult; k++) {
-    my_strdup(1179, &t, find_nth(expanded_tok, ",", k));
+    my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
     strtolower(t);
     if(!simtype) { /* spice */
       tclvareval("puts $gaw_fd {copyvar i(", there_is_hierarchy ? "v." : "", path, t,
@@ -1161,8 +1161,8 @@ static void send_current_to_gaw(int simtype, const char *node)
                   " sel #", color_str, "}\nvwait gaw_fd\n", NULL);
     }
   }
-  my_free(1181, &p);
-  my_free(1182, &t);
+  my_free(_ALLOC_ID_, &p);
+  my_free(_ALLOC_ID_, &t);
 }
 
 /* hilight/clear pin/label instances attached to hilight nets, or instances with "hilight=true"
@@ -1438,21 +1438,21 @@ static void create_simdata(void)
   int i, j;
   const char *str;
   free_simdata();
-  my_realloc(60, &xctx->simdata, xctx->instances * sizeof(Simdata));
+  my_realloc(_ALLOC_ID_, &xctx->simdata, xctx->instances * sizeof(Simdata));
   xctx->simdata_ninst =  xctx->instances;
   for(i = 0; i < xctx->instances; i++) {
     xSymbol *symbol = xctx->inst[i].ptr + xctx->sym;
     int npin = symbol->rects[PINLAYER];
     xctx->simdata[i].pin = NULL;
-    if(npin) my_realloc(61, &xctx->simdata[i].pin, npin * sizeof(Simdata_pin));
+    if(npin) my_realloc(_ALLOC_ID_, &xctx->simdata[i].pin, npin * sizeof(Simdata_pin));
     xctx->simdata[i].npin = npin;
     for(j = 0; j < npin; j++) {
       char function[20];
       xctx->simdata[i].pin[j].function=NULL;
       xctx->simdata[i].pin[j].go_to=NULL;
       my_snprintf(function, S(function), "function%d", j);
-      my_strdup(717, &xctx->simdata[i].pin[j].function, get_tok_value(symbol->prop_ptr, function, 0));
-      my_strdup(963, &xctx->simdata[i].pin[j].go_to, 
+      my_strdup(_ALLOC_ID_, &xctx->simdata[i].pin[j].function, get_tok_value(symbol->prop_ptr, function, 0));
+      my_strdup(_ALLOC_ID_, &xctx->simdata[i].pin[j].go_to, 
                 get_tok_value(symbol->rect[PINLAYER][j].prop_ptr, "goto", 0));
       str = get_tok_value(symbol->rect[PINLAYER][j].prop_ptr, "clock", 0);
       xctx->simdata[i].pin[j].clock = str[0] ? str[0] - '0' : -1;
@@ -1468,12 +1468,12 @@ void free_simdata(void)
     for(i = 0; i < xctx->simdata_ninst; i++) { /* can not use xctx->instances if a new sch is loaded */
       int npin = xctx->simdata[i].npin;
       for(j = 0; j < npin; j++) {
-        my_free(1219, &xctx->simdata[i].pin[j].function);
-        my_free(1220, &xctx->simdata[i].pin[j].go_to);
+        my_free(_ALLOC_ID_, &xctx->simdata[i].pin[j].function);
+        my_free(_ALLOC_ID_, &xctx->simdata[i].pin[j].go_to);
       }
-      if(npin) my_free(1221, &xctx->simdata[i].pin);
+      if(npin) my_free(_ALLOC_ID_, &xctx->simdata[i].pin);
     }
-    my_free(1222, &xctx->simdata);
+    my_free(_ALLOC_ID_, &xctx->simdata);
   }
   xctx->simdata_ninst = 0;
 }
@@ -1594,7 +1594,7 @@ static void propagate_logic()
     if( tclresult()[0] == '1') break;
     iter++;
   } /* while(1) */
-  /* my_free(1222, &propagated_net); */
+  /* my_free(_ALLOC_ID_, &propagated_net); */
 }
 
 void logic_set(int value, int num)
@@ -1715,7 +1715,7 @@ void hilight_net(int viewer)
   }
   if( viewer == XSCHEM_GRAPH && s) {
     tclvareval("graph_add_nodes_from_list {", s, "}", NULL);
-    my_free(1504, &s);
+    my_free(_ALLOC_ID_, &s);
   }
   if(!incr_hi) incr_hilight_color();
   if(xctx->hilight_nets) propagate_hilights(1, 0, XINSERT_NOREPLACE);
@@ -1947,14 +1947,14 @@ void print_hilight_net(int show)
    fprintf(errfp, "print_hilight_net(): can not create tmpfile %s\n", filename_ptr);
    return;
  }
- my_strdup(147, &filetmp2, filename_ptr);
+ my_strdup(_ALLOC_ID_, &filetmp2, filename_ptr);
  fclose(fd);
  if(!(fd = open_tmpfile("hilight1_", &filename_ptr))) {
    fprintf(errfp, "print_hilight_net(): can not create tmpfile %s\n", filename_ptr);
-   my_free(776, &filetmp2);
+   my_free(_ALLOC_ID_, &filetmp2);
    return;
  }
- my_strdup(148, &filetmp1, filename_ptr);
+ my_strdup(_ALLOC_ID_, &filetmp1, filename_ptr);
  my_snprintf(cmd, S(cmd), "awk -f \"%s/order_labels.awk\"", tclgetvar("XSCHEM_SHAREDIR"));
  my_snprintf(cmd2, S(cmd2), "%s %s > %s", cmd, filetmp1, filetmp2);
  my_snprintf(cmd3, S(cmd3), "awk -f \"%s/sort_labels.awk\" %s", tclgetvar("XSCHEM_SHAREDIR"), filetmp1);
@@ -2027,8 +2027,8 @@ void print_hilight_net(int show)
  xctx->prep_hi_structs=0;
  xctx->prep_net_structs=0;
 
- my_free(781, &filetmp1);
- my_free(782, &filetmp2);
+ my_free(_ALLOC_ID_, &filetmp1);
+ my_free(_ALLOC_ID_, &filetmp2);
 }
 
 void list_hilights(void)

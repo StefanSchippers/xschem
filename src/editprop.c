@@ -126,7 +126,7 @@ size_t my_strdup(int id, char **dest, const char *src) /* empty source string --
    dbg(3,"my_strdup(%d,): duplicated string %s\n", id, src);
    return len-1;
  } else if(*dest) {
-   my_free(1146, dest);
+   my_free(_ALLOC_ID_, dest);
    dbg(3,"my_strdup(%d,): freed destination ptr\n", id);
  }
 
@@ -139,7 +139,7 @@ void my_strndup(int id, char **dest, const char *src, size_t n) /* empty source 
 {
  if(*dest!=NULL) {
    dbg(3,"  my_strndup:  calling my_free\n");
-   my_free(1147, dest);
+   my_free(_ALLOC_ID_, dest);
  }
  if(src!=NULL && src[0]!='\0')
  {
@@ -303,7 +303,7 @@ size_t my_strdup2(int id, char **dest, const char *src) /* 20150409 duplicates a
    dbg(3,"my_strdup2(%d,): duplicated string %s\n", id, src);
    return len-1;
  } else if(*dest) {
-   my_free(1148, dest);
+   my_free(_ALLOC_ID_, dest);
    dbg(3,"my_strdup2(%d,): freed destination ptr\n", id);
  }
  return 0;
@@ -584,12 +584,12 @@ void set_inst_prop(int i)
   ptr = (xctx->inst[i].ptr+ xctx->sym)->templ;
   dbg(1, "set_inst_prop(): i=%d, name=%s, prop_ptr = %s, template=%s\n",
      i, xctx->inst[i].name, xctx->inst[i].prop_ptr, ptr);
-  my_strdup(69, &xctx->inst[i].prop_ptr, ptr);
-  my_strdup2(70, &xctx->inst[i].instname, get_tok_value(ptr, "name",0));
+  my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, ptr);
+  my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, get_tok_value(ptr, "name",0));
   if(xctx->inst[i].instname[0]) {
-    my_strdup(101, &tmp, xctx->inst[i].prop_ptr);
+    my_strdup(_ALLOC_ID_, &tmp, xctx->inst[i].prop_ptr);
     new_prop_string(i, tmp, 0, tclgetboolvar("disable_unique_names"));
-    my_free(724, &tmp);
+    my_free(_ALLOC_ID_, &tmp);
   }
 }
 
@@ -600,7 +600,7 @@ static void edit_rect_property(int x)
   const char *dash, *fill;
   int preserve;
   char *oldprop=NULL;
-  my_strdup(67, &oldprop, xctx->rect[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
+  my_strdup(_ALLOC_ID_, &oldprop, xctx->rect[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
   if(oldprop && oldprop[0]) {
     tclsetvar("retval",oldprop);
   } else {
@@ -629,7 +629,7 @@ static void edit_rect_property(int x)
         set_different_token(&xctx->rect[c][n].prop_ptr,
                (char *) tclgetvar("retval"), oldprop, 0, 0);
       } else {
-        my_strdup(99, &xctx->rect[c][n].prop_ptr,
+        my_strdup(_ALLOC_ID_, &xctx->rect[c][n].prop_ptr,
                (char *) tclgetvar("retval"));
       }
       set_rect_flags(&xctx->rect[c][n]); /* set cached .flags bitmask from on attributes */
@@ -665,7 +665,7 @@ static void edit_rect_property(int x)
       bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     }
   }
-  my_free(725, &oldprop);
+  my_free(_ALLOC_ID_, &oldprop);
 }
 
 static void edit_line_property(void)
@@ -674,7 +674,7 @@ static void edit_line_property(void)
   const char *dash;
   int preserve;
   char *oldprop=NULL;
-  my_strdup(46, &oldprop, xctx->line[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
+  my_strdup(_ALLOC_ID_, &oldprop, xctx->line[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
   if(oldprop && oldprop[0]) {
     tclsetvar("retval", oldprop);
   } else {
@@ -698,7 +698,7 @@ static void edit_line_property(void)
         set_different_token(&xctx->line[c][n].prop_ptr,
                (char *) tclgetvar("retval"), oldprop, 0, 0);
       } else {
-        my_strdup(102, &xctx->line[c][n].prop_ptr,
+        my_strdup(_ALLOC_ID_, &xctx->line[c][n].prop_ptr,
                (char *) tclgetvar("retval"));
       }
       xctx->line[c][n].bus = !strcmp(get_tok_value(xctx->line[c][n].prop_ptr,"bus",0), "true");
@@ -719,7 +719,7 @@ static void edit_line_property(void)
     draw();
     bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   }
-  my_free(726, &oldprop);
+  my_free(_ALLOC_ID_, &oldprop);
 }
 
 
@@ -730,7 +730,7 @@ static void edit_wire_property(void)
   char *oldprop=NULL;
   const char *bus_ptr;
 
-  my_strdup(47, &oldprop, xctx->wire[xctx->sel_array[0].n].prop_ptr);
+  my_strdup(_ALLOC_ID_, &oldprop, xctx->wire[xctx->sel_array[0].n].prop_ptr);
   if(oldprop && oldprop[0]) {
     tclsetvar("retval", oldprop);
   } else {
@@ -758,7 +758,7 @@ static void edit_wire_property(void)
         set_different_token(&xctx->wire[k].prop_ptr,
                (char *) tclgetvar("retval"), oldprop, 0, 0);
       } else {
-        my_strdup(100, &xctx->wire[k].prop_ptr,(char *) tclgetvar("retval"));
+        my_strdup(_ALLOC_ID_, &xctx->wire[k].prop_ptr,(char *) tclgetvar("retval"));
       }
       bus_ptr = get_tok_value(xctx->wire[k].prop_ptr,"bus",0);
       if(!strcmp(bus_ptr, "true")) {
@@ -783,7 +783,7 @@ static void edit_wire_property(void)
     draw();
     bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   }
-  my_free(727, &oldprop);
+  my_free(_ALLOC_ID_, &oldprop);
 }
 
 static void edit_arc_property(void)
@@ -795,7 +795,7 @@ static void edit_arc_property(void)
   const char *dash;
   int preserve;
 
-  my_strdup(98, &oldprop, xctx->arc[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
+  my_strdup(_ALLOC_ID_, &oldprop, xctx->arc[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
   if(oldprop && oldprop[0]) {
     tclsetvar("retval", oldprop);
   } else {
@@ -819,7 +819,7 @@ static void edit_arc_property(void)
         set_different_token(&xctx->arc[c][i].prop_ptr, (char *) tclgetvar("retval"), oldprop, 0, 0);
 
      } else {
-        my_strdup(156, &xctx->arc[c][i].prop_ptr, (char *) tclgetvar("retval"));
+        my_strdup(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr, (char *) tclgetvar("retval"));
      }
      old_fill = xctx->arc[c][i].fill;
      if( !strcmp(get_tok_value(xctx->arc[c][i].prop_ptr,"fill",0),"true") )
@@ -864,7 +864,7 @@ static void edit_polygon_property(void)
   int preserve;
 
   dbg(1, "edit_property(): input property:\n");
-  my_strdup(112, &oldprop, xctx->poly[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
+  my_strdup(_ALLOC_ID_, &oldprop, xctx->poly[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
   if(oldprop && oldprop[0]) {
     tclsetvar("retval", oldprop);
   } else {
@@ -887,7 +887,7 @@ static void edit_polygon_property(void)
      if(oldprop && preserve == 1) {
         set_different_token(&xctx->poly[c][i].prop_ptr, (char *) tclgetvar("retval"), oldprop, 0, 0);
      } else {
-        my_strdup(113, &xctx->poly[c][i].prop_ptr, (char *) tclgetvar("retval"));
+        my_strdup(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr, (char *) tclgetvar("retval"));
      }
      old_fill = xctx->poly[c][i].fill;
      old_dash = xctx->poly[c][i].dash;
@@ -942,7 +942,7 @@ static void edit_text_property(int x)
 
    dbg(1, "edit_text_property(): entering\n");
    sel = xctx->sel_array[0].n;
-   my_strdup(656, &oldprop, xctx->text[sel].prop_ptr);
+   my_strdup(_ALLOC_ID_, &oldprop, xctx->text[sel].prop_ptr);
    if(oldprop && oldprop[0])
       tclsetvar("props", oldprop);
    else
@@ -1035,24 +1035,24 @@ static void edit_text_property(int x)
                  (fabs(yy1 - pcy) < cg*3 || fabs(yy2 - pcy) < cg*3) )
              ) {
                if(x==0)
-                 my_strdup(71, &xctx->rect[PINLAYER][l].prop_ptr,
+                 my_strdup(_ALLOC_ID_, &xctx->rect[PINLAYER][l].prop_ptr,
                    subst_token(xctx->rect[PINLAYER][l].prop_ptr, "name",
                    (char *) tclgetvar("retval")) );
                else
-                 my_strdup(72, &xctx->rect[PINLAYER][l].prop_ptr,
+                 my_strdup(_ALLOC_ID_, &xctx->rect[PINLAYER][l].prop_ptr,
                    subst_token(xctx->rect[PINLAYER][l].prop_ptr, "name",
                    (char *) tclgetvar("retval")) );
              }
            }
          }
-         my_strdup(74, &xctx->text[sel].txt_ptr, (char *) tclgetvar("retval"));
+         my_strdup(_ALLOC_ID_, &xctx->text[sel].txt_ptr, (char *) tclgetvar("retval"));
        }
        if(x==0 && props_changed) {
          if(oldprop && preserve)
            set_different_token(&xctx->text[sel].prop_ptr, (char *) tclgetvar("props"), oldprop, 0, 0);
          else
-           my_strdup(75, &xctx->text[sel].prop_ptr,(char *) tclgetvar("props"));
-         my_strdup(76, &xctx->text[sel].font, get_tok_value(xctx->text[sel].prop_ptr, "font", 0));
+           my_strdup(_ALLOC_ID_, &xctx->text[sel].prop_ptr,(char *) tclgetvar("props"));
+         my_strdup(_ALLOC_ID_, &xctx->text[sel].font, get_tok_value(xctx->text[sel].prop_ptr, "font", 0));
          str = get_tok_value(xctx->text[sel].prop_ptr, "hcenter", 0);
          xctx->text[sel].hcenter = strcmp(str, "true")  ? 0 : 1;
          str = get_tok_value(xctx->text[sel].prop_ptr, "vcenter", 0);
@@ -1093,7 +1093,7 @@ static void edit_text_property(int x)
      draw();
      bbox(END,0.0,0.0,0.0,0.0);
    }
-   my_free(890, &oldprop);
+   my_free(_ALLOC_ID_, &oldprop);
 }
 
 /* x=0 use text widget   x=1 use vim editor */
@@ -1116,19 +1116,19 @@ static void update_symbol(const char *result, int x)
   *ii=xctx->sel_array[0].n;
   if(!result) {
    dbg(1, "update_symbol(): edit symbol prop aborted\n");
-   my_free(1289, &xctx->old_prop);
+   my_free(_ALLOC_ID_, &xctx->old_prop);
    return;
   }
   /* create new_prop updated attribute string */
   if(*netl_com && x==1) {
-    my_strdup(79,  &new_prop,
+    my_strdup(_ALLOC_ID_,  &new_prop,
       subst_token(xctx->old_prop, "value", (char *) tclgetvar("retval") )
     );
     dbg(1, "update_symbol(): new_prop=%s\n", new_prop);
     dbg(1, "update_symbol(): tcl retval==%s\n", tclgetvar("retval"));
   }
   else {
-    my_strdup(80, &new_prop, (char *) tclgetvar("retval"));
+    my_strdup(_ALLOC_ID_, &new_prop, (char *) tclgetvar("retval"));
     dbg(1, "update_symbol(): new_prop=%s\n", new_prop);
   }
   my_strncpy(symbol, (char *) tclgetvar("symbol") , S(symbol));
@@ -1169,7 +1169,7 @@ static void update_symbol(const char *result, int x)
       delete_inst_node(*ii); /* 20180208 fix crashing bug: delete node info if changing symbol */
                         /* if number of pins is different we must delete these data *before* */
                         /* changing ysmbol, otherwise *ii might end up deleting non allocated data. */
-      my_strdup2(82, &xctx->inst[*ii].name, rel_sym_path(symbol));
+      my_strdup2(_ALLOC_ID_, &xctx->inst[*ii].name, rel_sym_path(symbol));
       xctx->inst[*ii].ptr=sym_number; /* update instance to point to new symbol */
     }
     bbox(ADD, xctx->inst[*ii].x1, xctx->inst[*ii].y1,
@@ -1181,13 +1181,13 @@ static void update_symbol(const char *result, int x)
       dbg(1, "update_symbol(): no_change_props=%d\n", no_change_props);
       if(only_different) {
         char * ss=NULL;
-        my_strdup(119, &ss, xctx->inst[*ii].prop_ptr);
+        my_strdup(_ALLOC_ID_, &ss, xctx->inst[*ii].prop_ptr);
         if( set_different_token(&ss, new_prop, xctx->old_prop, 0, 0) ) {
           if(!pushed) { xctx->push_undo(); pushed=1;}
-          my_strdup(111, &xctx->inst[*ii].prop_ptr, ss);
+          my_strdup(_ALLOC_ID_, &xctx->inst[*ii].prop_ptr, ss);
           set_modify(1);
         }
-        my_free(729, &ss);
+        my_free(_ALLOC_ID_, &ss);
       }
       else {
         if(new_prop) {
@@ -1195,39 +1195,39 @@ static void update_symbol(const char *result, int x)
             dbg(1, "update_symbol(): changing prop: |%s| -> |%s|\n",
                 xctx->inst[*ii].prop_ptr, new_prop);
             if(!pushed) { xctx->push_undo(); pushed=1;}
-            my_strdup(84, &xctx->inst[*ii].prop_ptr, new_prop);
+            my_strdup(_ALLOC_ID_, &xctx->inst[*ii].prop_ptr, new_prop);
             set_modify(1);
           }
         }  else {
           if(!pushed) { xctx->push_undo(); pushed=1;}
-          my_strdup(86, &xctx->inst[*ii].prop_ptr, "");
+          my_strdup(_ALLOC_ID_, &xctx->inst[*ii].prop_ptr, "");
           set_modify(1);
         }
       }
     }
     /* if symbol changed ensure instance name (with new prefix char) is unique */
     /* preserve backslashes in name ----------------------------------->. */
-    my_strdup(152, &name, get_tok_value(xctx->inst[*ii].prop_ptr, "name", 1));
+    my_strdup(_ALLOC_ID_, &name, get_tok_value(xctx->inst[*ii].prop_ptr, "name", 1));
     if(name && name[0] ) {
       dbg(1, "update_symbol(): prefix!='\\0', name=%s\n", name);
       /* 20110325 only modify prefix if prefix not NUL */
       if(prefix) name[0]=(char)prefix; /* change prefix if changing symbol type; */
       dbg(1, "update_symbol(): name=%s, inst[*ii].prop_ptr=%s\n",
           name, xctx->inst[*ii].prop_ptr);
-      my_strdup(89, &ptr,subst_token(xctx->inst[*ii].prop_ptr, "name", name) );
+      my_strdup(_ALLOC_ID_, &ptr,subst_token(xctx->inst[*ii].prop_ptr, "name", name) );
                      /* set name of current inst */
       if(!pushed) { xctx->push_undo(); pushed=1;}
       if(!k) hash_all_names();
       new_prop_string(*ii, ptr, k, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
     } else {
-      my_strdup2(367, &xctx->inst[*ii].instname, "");
+      my_strdup2(_ALLOC_ID_, &xctx->inst[*ii].instname, "");
     }
     type=xctx->sym[xctx->inst[*ii].ptr].type;
     cond= !type || !IS_LABEL_SH_OR_PIN(type);
     if(cond) xctx->inst[*ii].flags |= 2; /* bit 1: flag for different textlayer for pin/labels */
     else {
       xctx->inst[*ii].flags &= ~2;
-      my_strdup(880, &xctx->inst[*ii].lab,
+      my_strdup(_ALLOC_ID_, &xctx->inst[*ii].lab,
                 get_tok_value(xctx->inst[*ii].prop_ptr, "lab",0));
     }
     if(!strcmp(get_tok_value(xctx->inst[*ii].prop_ptr,"highlight",0), "true"))
@@ -1251,10 +1251,10 @@ static void update_symbol(const char *result, int x)
   dbg(1, "update_symbol(): redrawing inst_ptr.txtprop string\n");
   draw();
   bbox(END,0.0,0.0,0.0,0.0);
-  my_free(731, &name);
-  my_free(732, &ptr);
-  my_free(733, &new_prop);
-  my_free(734, &xctx->old_prop);
+  my_free(_ALLOC_ID_, &name);
+  my_free(_ALLOC_ID_, &ptr);
+  my_free(_ALLOC_ID_, &new_prop);
+  my_free(_ALLOC_ID_, &xctx->old_prop);
 }
 
 /* x=0 use text widget   x=1 use vim editor */
@@ -1279,12 +1279,12 @@ static void edit_symbol_property(int x)
    else {
      tclsetvar("retval","");
    }
-   my_strdup(91, &xctx->old_prop, xctx->inst[*ii].prop_ptr);
+   my_strdup(_ALLOC_ID_, &xctx->old_prop, xctx->inst[*ii].prop_ptr);
    tclsetvar("symbol",xctx->inst[*ii].name);
 
    if(x==0) {
      tcleval("edit_prop {Input property:}");
-     my_strdup(77, &result, tclresult());
+     my_strdup(_ALLOC_ID_, &result, tclresult());
    }
    else {
      /* edit_vi_netlist_prop will replace \" with " before editing,
@@ -1293,11 +1293,11 @@ static void edit_symbol_property(int x)
      if(*netl_com && x==1)    tcleval("edit_vi_netlist_prop {Input property:}");
      else if(x==1)    tcleval("edit_vi_prop {Input property:}");
      else if(x==2)    tcleval("viewdata $::retval");
-     my_strdup(78, &result, tclresult());
+     my_strdup(_ALLOC_ID_, &result, tclresult());
    }
    dbg(1, "edit_symbol_property(): before update_symbol, modified=%d\n", xctx->modified);
    update_symbol(result, x);
-   my_free(728, &result);
+   my_free(_ALLOC_ID_, &result);
    dbg(1, "edit_symbol_property(): done update_symbol, modified=%d\n", xctx->modified);
    *ii=-1;
 }
@@ -1370,7 +1370,7 @@ char *str_replace(const char *s, const char *rep, const char *with)
   size_t with_len;
 
   if(s==NULL || rep == NULL || with == NULL || rep[0] == '\0') {
-    my_free(1244, &result);
+    my_free(_ALLOC_ID_, &result);
     size = 0;
     return NULL;
   }
@@ -1379,7 +1379,7 @@ char *str_replace(const char *s, const char *rep, const char *with)
   dbg(1, "str_replace(): %s, %s, %s\n", s, rep, with);
   if( size == 0 ) {
     size = CADCHUNKALLOC;
-    my_realloc(1245, &result, size);
+    my_realloc(_ALLOC_ID_, &result, size);
   }
   while(*s) {
     STR_ALLOC(&result, result_pos + with_len + 1, &size);
@@ -1451,9 +1451,9 @@ void edit_property(int x)
    dbg(1, "edit_property(): done executing edit_vi_prop, result=%s\n",tclresult());
    dbg(1, "edit_property(): rcode=%s\n",tclgetvar("rcode") );
 
-   my_strdup(650, &new_prop, (char *) tclgetvar("retval"));
+   my_strdup(_ALLOC_ID_, &new_prop, (char *) tclgetvar("retval"));
    tclsetvar("retval", new_prop);
-   my_free(893, &new_prop);
+   my_free(_ALLOC_ID_, &new_prop);
 
 
    if(strcmp(tclgetvar("rcode"),"") )
@@ -1461,27 +1461,27 @@ void edit_property(int x)
      if(xctx->netlist_type==CAD_SYMBOL_ATTRS && 
         (!xctx->schsymbolprop || strcmp(xctx->schsymbolprop, tclgetvar("retval") ) ) ) {
         set_modify(1); xctx->push_undo();
-        my_strdup(422, &xctx->schsymbolprop, (char *) tclgetvar("retval"));
+        my_strdup(_ALLOC_ID_, &xctx->schsymbolprop, (char *) tclgetvar("retval"));
 
      } else if(xctx->netlist_type==CAD_VERILOG_NETLIST &&
         (!xctx->schverilogprop || strcmp(xctx->schverilogprop, tclgetvar("retval") ) ) ) {
         set_modify(1); xctx->push_undo();
-        my_strdup(94, &xctx->schverilogprop, (char *) tclgetvar("retval"));
+        my_strdup(_ALLOC_ID_, &xctx->schverilogprop, (char *) tclgetvar("retval"));
 
      } else if(xctx->netlist_type==CAD_SPICE_NETLIST && 
         (!xctx->schprop || strcmp(xctx->schprop, tclgetvar("retval") ) ) ) {
         set_modify(1); xctx->push_undo();
-        my_strdup(95, &xctx->schprop, (char *) tclgetvar("retval"));
+        my_strdup(_ALLOC_ID_, &xctx->schprop, (char *) tclgetvar("retval"));
 
      } else if(xctx->netlist_type==CAD_TEDAX_NETLIST &&
         (!xctx->schtedaxprop || strcmp(xctx->schtedaxprop, tclgetvar("retval") ) ) ) {
         set_modify(1); xctx->push_undo();
-        my_strdup(96, &xctx->schtedaxprop, (char *) tclgetvar("retval"));
+        my_strdup(_ALLOC_ID_, &xctx->schtedaxprop, (char *) tclgetvar("retval"));
 
      } else if(xctx->netlist_type==CAD_VHDL_NETLIST &&
         (!xctx->schvhdlprop || strcmp(xctx->schvhdlprop, tclgetvar("retval") ) ) ) {
         set_modify(1); xctx->push_undo();
-        my_strdup(97, &xctx->schvhdlprop, (char *) tclgetvar("retval"));
+        my_strdup(_ALLOC_ID_, &xctx->schvhdlprop, (char *) tclgetvar("retval"));
      }
    }
 

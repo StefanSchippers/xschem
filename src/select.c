@@ -233,7 +233,7 @@ static void del_rect_line_arc_poly(void)
     if(c == GRIDLAYER) xctx->graph_lastsel = -1; /* invalidate last selected graph */
     j++;
     bbox(ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1, xctx->rect[c][i].x2, xctx->rect[c][i].y2);
-    my_free(928, &xctx->rect[c][i].prop_ptr);
+    my_free(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr);
     set_rect_extraptr(0, &xctx->rect[c][i]);
     set_modify(1);
     continue;
@@ -260,7 +260,7 @@ static void del_rect_line_arc_poly(void)
       bbox(ADD, xctx->line[c][i].x1, xctx->line[c][i].y1 , xctx->line[c][i].x2 , xctx->line[c][i].y2 );
     }
     set_modify(1);
-    my_free(929, &xctx->line[c][i].prop_ptr);
+    my_free(_ALLOC_ID_, &xctx->line[c][i].prop_ptr);
     continue;
    }
    if(j)
@@ -284,7 +284,7 @@ static void del_rect_line_arc_poly(void)
       arc_bbox(xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b,
                &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
     bbox(ADD, tmp.x1, tmp.y1, tmp.x2, tmp.y2);
-    my_free(930, &xctx->arc[c][i].prop_ptr);
+    my_free(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr);
     set_modify(1);
     continue;
    }
@@ -312,10 +312,10 @@ static void del_rect_line_arc_poly(void)
     }
     j++;
     bbox(ADD, x1, y1, x2, y2);
-    my_free(931, &xctx->poly[c][i].prop_ptr);
-    my_free(932, &xctx->poly[c][i].x);
-    my_free(933, &xctx->poly[c][i].y);
-    my_free(934, &xctx->poly[c][i].selected_point);
+    my_free(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr);
+    my_free(_ALLOC_ID_, &xctx->poly[c][i].x);
+    my_free(_ALLOC_ID_, &xctx->poly[c][i].y);
+    my_free(_ALLOC_ID_, &xctx->poly[c][i].selected_point);
     /*fprintf(errfp, "bbox: %.16g %.16g %.16g %.16g\n", x1, y1, x2, y2); */
     set_modify(1);
     continue;
@@ -368,9 +368,9 @@ void delete(int to_push_undo)
       }
       #endif
       bbox(ADD, xx1, yy1, xx2, yy2 );
-      my_free(935, &xctx->text[i].prop_ptr);
-      my_free(936, &xctx->text[i].font);
-      my_free(937, &xctx->text[i].txt_ptr);
+      my_free(_ALLOC_ID_, &xctx->text[i].prop_ptr);
+      my_free(_ALLOC_ID_, &xctx->text[i].font);
+      my_free(_ALLOC_ID_, &xctx->text[i].txt_ptr);
       set_modify(1);
       j++;
       continue;
@@ -392,12 +392,12 @@ void delete(int to_push_undo)
       set_modify(1);
       if(xctx->inst[i].prop_ptr != NULL)
       {
-        my_free(938, &xctx->inst[i].prop_ptr);
+        my_free(_ALLOC_ID_, &xctx->inst[i].prop_ptr);
       }
       delete_inst_node(i);
-      my_free(939, &xctx->inst[i].name);
-      my_free(940, &xctx->inst[i].instname);
-      my_free(878, &xctx->inst[i].lab);
+      my_free(_ALLOC_ID_, &xctx->inst[i].name);
+      my_free(_ALLOC_ID_, &xctx->inst[i].instname);
+      my_free(_ALLOC_ID_, &xctx->inst[i].lab);
       j++;
       continue;
     }
@@ -432,8 +432,8 @@ void delete(int to_push_undo)
         bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
       }
 
-      my_free(941, &xctx->wire[i].prop_ptr);
-      my_free(942, &xctx->wire[i].node);
+      my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
+      my_free(_ALLOC_ID_, &xctx->wire[i].node);
 
       set_modify(1);
       continue;

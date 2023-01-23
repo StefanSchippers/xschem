@@ -135,8 +135,8 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
     quality_attr = get_tok_value(r->prop_ptr, "jpg_quality", 0);
     if(quality_attr[0]) quality = atoi(quality_attr);
   }
-  my_strdup(59, &filter, get_tok_value(r->prop_ptr, "filter", 0));
-  image_data_len = my_strdup2(1183, &image_data64_ptr, get_tok_value(r->prop_ptr, "image_data", 0));
+  my_strdup(_ALLOC_ID_, &filter, get_tok_value(r->prop_ptr, "filter", 0));
+  image_data_len = my_strdup2(_ALLOC_ID_, &image_data64_ptr, get_tok_value(r->prop_ptr, "image_data", 0));
 
   if (filter) {
     size_t filtersize = 0;
@@ -144,13 +144,13 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
     closure.buffer = NULL;
     filterdata = (char*)base64_decode(image_data64_ptr, image_data_len, &filtersize);
     filter_data(filterdata, filtersize, (char**)&closure.buffer, &data_size, filter);
-    my_free(1661, &filterdata);
+    my_free(_ALLOC_ID_, &filterdata);
   }
   else {
     closure.buffer = base64_decode(image_data64_ptr, image_data_len, &data_size);
   }
-  my_free(1664, &filter);
-  my_free(1184, &image_data64_ptr);
+  my_free(_ALLOC_ID_, &filter);
+  my_free(_ALLOC_ID_, &image_data64_ptr);
   closure.pos = 0;
   closure.size = data_size; /* should not be necessary */
   surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
@@ -159,7 +159,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   png_size_y = cairo_image_surface_get_height(surface);
 
   cairo_surface_flush(surface);
-  my_free(1667, &closure.buffer);
+  my_free(_ALLOC_ID_, &closure.buffer);
   png_data = cairo_image_surface_get_data(surface);
 
   invertImage = !strcmp(get_tok_value(r->prop_ptr, "InvertOnExport", 0), "true");
@@ -251,7 +251,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   
   fprintf(fd, "grestore\n");
   cairo_surface_destroy(surface);
-  my_free(1663, &ascii85EncodedJpeg);
+  my_free(_ALLOC_ID_, &ascii85EncodedJpeg);
   free(jpgData);
   #endif
 }
@@ -381,7 +381,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   
   fprintf(fd, "grestore\n");
 
-  my_free(1666, &ascii85EncodedJpeg);
+  my_free(_ALLOC_ID_, &ascii85EncodedJpeg);
   
   #endif
 }
@@ -675,7 +675,7 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
     if(rot == 3 && flip == 1 ) { x=textx1;}
   }
   llength=0;
-  my_strdup2(54, &sss, str);
+  my_strdup2(_ALLOC_ID_, &sss, str);
   tt=ss=sss;
   for(;;) {
     c=*ss;
@@ -693,7 +693,7 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
     }
     ss++;
   }
-  my_free(53, &sss);
+  my_free(_ALLOC_ID_, &sss);
 }
 
 static void old_ps_draw_string(int gctext,  const char *str,
@@ -858,16 +858,16 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
      polygon = ((xctx->inst[n].ptr+ xctx->sym)->poly[layer])[j];
      {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
        int k;
-       double *x = my_malloc(309, sizeof(double) * polygon.points);
-       double *y = my_malloc(310, sizeof(double) * polygon.points);
+       double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
+       double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
        for(k=0;k<polygon.points;k++) {
          ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
          x[k]+= x0;
          y[k] += y0;
        }
        ps_drawpolygon(layer, NOW, x, y, polygon.points, polygon.fill, polygon.dash);
-       my_free(876, &x);
-       my_free(877, &y);
+       my_free(_ALLOC_ID_, &x);
+       my_free(_ALLOC_ID_, &y);
      }
 
    }
@@ -1002,7 +1002,7 @@ void create_ps(char **psfile, int what)
     }
   }
   setbuf(fd, NULL); /*To prevent buffer errors, still investigating cause. */
-  ps_colors=my_calloc(311, cadlayers, sizeof(Ps_color));
+  ps_colors=my_calloc(_ALLOC_ID_, cadlayers, sizeof(Ps_color));
   if(ps_colors==NULL){
     fprintf(errfp, "create_ps(): calloc error\n");
     return;
@@ -1226,7 +1226,7 @@ void create_ps(char **psfile, int what)
     fclose(fd);
   }
   tclsetboolvar("draw_grid", old_grid);
-  my_free(879, &ps_colors);
+  my_free(_ALLOC_ID_, &ps_colors);
 }
 
 int ps_draw(int what)

@@ -575,8 +575,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(gr->dcy * delta) * delta_threshold) {
                 yy1 = gr->ypos1 + (xctx->my_double_save - xctx->mousey_snap) / gr->dcy;
                 yy2 = gr->ypos2 + (xctx->my_double_save - xctx->mousey_snap) / gr->dcy;
-                my_strdup(1424, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
-                my_strdup(1425, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
+                my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
+                my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
                 xctx->my_double_save = xctx->mousey_snap;
                 need_redraw = 1;
               }
@@ -586,8 +586,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(gr->cy * delta) * delta_threshold) {
                 yy1 = gr->gy1 + (xctx->my_double_save - xctx->mousey_snap) / gr->cy;
                 yy2 = gr->gy2 + (xctx->my_double_save - xctx->mousey_snap) / gr->cy;
-                my_strdup(1435, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
-                my_strdup(1437, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+                my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
+                my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
                 xctx->my_double_save = xctx->mousey_snap;
                 need_redraw = 1;
               }
@@ -603,8 +603,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->cx * delta) * delta_threshold) {
               xx1 = gr->gx1 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
               xx2 = gr->gx2 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
-              my_strdup(1410, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-              my_strdup(1411, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
               need_redraw = 1;
             }
           }
@@ -618,16 +618,16 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               delta = gr->posh * 0.05;
               yy1 = gr->ypos1 + delta;
               yy2 = gr->ypos2 + delta;
-              my_strdup(1456, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
-              my_strdup(1457, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
               need_redraw = 1;
             } else {
               delta = gr->gh/ gr->divy;
               delta_threshold = 1.0;
               yy1 = gr->gy1 + delta * delta_threshold;
               yy2 = gr->gy2 + delta * delta_threshold;
-              my_strdup(1420, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
-              my_strdup(1421, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
               need_redraw = 1;
             }
           }
@@ -638,8 +638,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             delta_threshold = 0.05;
             xx1 = gr->gx1 - delta * delta_threshold;
             xx2 =gr->gx2 - delta * delta_threshold;
-            my_strdup(1428, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(1429, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
           }
         }
@@ -649,7 +649,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           const char *unlocked = strstr(get_tok_value(r->prop_ptr, "flags", 0), "unlocked");
           if(i == xctx->graph_master || !unlocked) {
             gr->dataset = track_dset;
-            my_strdup(1448, &r->prop_ptr, subst_token(r->prop_ptr, "dataset", my_itoa(track_dset)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "dataset", my_itoa(track_dset)));
           }
           if((xctx->graph_flags & 4)  && tclgetboolvar("live_cursor2_backannotate")) {
             if(i == xctx->graph_master) backannotate_at_cursor_b_pos(r, gr);
@@ -671,8 +671,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             double var = delta * 0.2;
             yy2 = gr->gy2 + var * b / delta;
             yy1 = gr->gy1 - var * a / delta;
-            my_strdup(1451, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
-            my_strdup(1517, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
             need_redraw = 1;
           }
         } else {
@@ -680,8 +680,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           delta_threshold = 0.05;
           xx1 = gr->gx1 - delta * delta_threshold;
           xx2 = gr->gx2 - delta * delta_threshold;
-          my_strdup(1395, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-          my_strdup(1396, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
           need_redraw = 1;
         }
       }
@@ -693,16 +693,16 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               delta = gr->posh * 0.05;
               yy1 = gr->ypos1 - delta;
               yy2 = gr->ypos2 - delta;
-              my_strdup(1416, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
-              my_strdup(1417, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
               need_redraw = 1;
             } else {
               delta = gr->gh / gr->divy;
               delta_threshold = 1.0;
               yy1 = gr->gy1 - delta * delta_threshold;
               yy2 = gr->gy2 - delta * delta_threshold;
-              my_strdup(1458, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
-              my_strdup(1434, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
               need_redraw = 1;
             }
           }
@@ -713,8 +713,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             delta_threshold = 0.05;
             xx1 = gr->gx1 + delta * delta_threshold;
             xx2 = gr->gx2 + delta * delta_threshold;
-            my_strdup(1397, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(1398, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
           }
         }
@@ -730,8 +730,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             double var = delta * 0.2;
             yy2 = gr->gy2 - var * b / delta;
             yy1 = gr->gy1 + var * a / delta;
-            my_strdup(1433, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
-            my_strdup(1439, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
             need_redraw = 1;
           }
         } else {
@@ -739,8 +739,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           delta_threshold = 0.05;
           xx1 = gr->gx1 + delta * delta_threshold;
           xx2 = gr->gx2 + delta * delta_threshold;
-          my_strdup(1430, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-          my_strdup(1431, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
           need_redraw = 1;
         }
       }
@@ -755,8 +755,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               double var = delta * 0.05;
               yy2 = gr->ypos2 + var * b / delta;
               yy1 = gr->ypos1 - var * a / delta;
-              my_strdup(1461, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
-              my_strdup(1459, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
               need_redraw = 1;
 
             } else {
@@ -767,8 +767,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               double var = delta * 0.2;
               yy2 = gr->gy2 + var * b / delta;
               yy1 = gr->gy1 - var * a / delta;
-              my_strdup(1460, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
-              my_strdup(1438, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
               need_redraw = 1;
             }
           }
@@ -778,8 +778,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             double var = 0.2 * gr->gw;
             xx2 = gr->gx2 + var * (1 - zoom_m);
             xx1 = gr->gx1 - var * zoom_m;
-            my_strdup(1399, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(1400, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
           }
         }
@@ -791,8 +791,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             double var = 0.2 * gr->gw;
             xx2 = gr->gx2 + var * (1 - zoom_m);
             xx1 = gr->gx1 - var * zoom_m;
-            my_strdup(1418, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(1432, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
           }
         }
@@ -808,8 +808,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               double var = delta * 0.05;
               yy2 = gr->ypos2 - var * b / delta;
               yy1 = gr->ypos1 + var * a / delta;
-              my_strdup(1447, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
-              my_strdup(1436, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
               need_redraw = 1;
             } else {
               double m = G_Y(xctx->mousey);
@@ -819,8 +819,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               double var = delta * 0.2;
               yy2 = gr->gy2 - var * b / delta;
               yy1 = gr->gy1 + var * a / delta;
-              my_strdup(1419, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
-              my_strdup(1444, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
               need_redraw = 1;
             }
           }
@@ -830,8 +830,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             double var = 0.2 * gr->gw;
             xx2 = gr->gx2 - var * (1 - zoom_m);
             xx1 = gr->gx1 + var * zoom_m;
-            my_strdup(1449, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(1450, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
           }
         }
@@ -843,8 +843,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             double var = 0.2 * gr->gw;
             xx2 = gr->gx2 - var * (1 - zoom_m);
             xx1 = gr->gx1 + var * zoom_m;
-            my_strdup(1445, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(1446, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
           }
         }
@@ -862,8 +862,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                 double min=0.0, max=0.0;
                 int first = 1;
                 char *saves, *sptr, *stok, *sweep = NULL, *saven, *nptr, *ntok, *node = NULL;
-                my_strdup2(1426, &node, get_tok_value(r->prop_ptr,"node",0));
-                my_strdup2(542, &sweep, get_tok_value(r->prop_ptr,"sweep",0));
+                my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
+                my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0));
                 nptr = node;
                 sptr = sweep;
                 start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
@@ -881,9 +881,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                   if(!bus_msb) {
                     char *express = NULL;
                     if(strstr(ntok, ";")) {
-                      my_strdup2(1505, &express, find_nth(ntok, ";", 2));
+                      my_strdup2(_ALLOC_ID_, &express, find_nth(ntok, ";", 2));
                     } else {
-                      my_strdup2(1506, &express, ntok);
+                      my_strdup2(_ALLOC_ID_, &express, ntok);
                     }
                     if(strpbrk(express, " \n\t")) {
                       /* just probe a single point to get the index. custom data column already calculated */
@@ -891,7 +891,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                     } else {
                       j = get_raw_index(express);
                     }
-                    my_free(1507, &express);
+                    my_free(_ALLOC_ID_, &express);
                   }
                   if(j >= 0) {
                     int ofs = 0;
@@ -918,15 +918,15 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                 if(max == min) max += 0.01;
                 min = floor_to_n_digits(min, 2);
                 max = ceil_to_n_digits(max, 2);
-                my_free(1427, &node);
-                my_free(573, &sweep);
-                my_strdup(1422, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(min)));
-                my_strdup(1423, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(max)));
+                my_free(_ALLOC_ID_, &node);
+                my_free(_ALLOC_ID_, &sweep);
+                my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(min)));
+                my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(max)));
                 need_redraw = 1;
               } else { /* digital plot */
-                my_strdup(1497, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1",
+                my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1",
                    get_tok_value(r->prop_ptr, "y1", 0) ));
-                my_strdup(1498, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2",
+                my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2",
                    get_tok_value(r->prop_ptr, "y2", 0) ));
                 need_redraw = 1;
               }
@@ -943,8 +943,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                 xx1 = mylog10(xx1);
                 xx2 = mylog10(xx2);
               }
-              my_strdup(1409, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-              my_strdup(1412, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
               need_redraw = 1;
             }
           }
@@ -979,8 +979,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             xx2 = pp + delta / 2.0;
             */
 
-            my_strdup(1442, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(1443, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
           }
         }
@@ -1008,8 +1008,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             if(xx1 == xx2) xx2 += 1e-6;
             */
 
-            my_strdup(1440, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(1441, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
           }
         }
@@ -2051,11 +2051,11 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        if(!tool) {
          tool = atoi(tclgetvar("sim(spicewave,default)"));
          my_snprintf(str, S(str), "sim(spicewave,%d,name)", tool);
-         my_strdup(1271, &tool_name, tclgetvar(str));
+         my_strdup(_ALLOC_ID_, &tool_name, tclgetvar(str));
          dbg(1,"callback(): tool_name=%s\n", tool_name);
          if(strstr(tool_name, "Gaw")) tool=GAW;
          else if(strstr(tool_name, "Bespice")) tool=BESPICE;
-         my_free(1272, &tool_name);
+         my_free(_ALLOC_ID_, &tool_name);
        }
      }
      if(tool) {
