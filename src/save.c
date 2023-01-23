@@ -202,7 +202,7 @@ char *base64_encode(const unsigned char *data, const size_t input_length, size_t
 
   *output_length = 4 * ((input_length + 2) / 3);
   alloc_length = (1 + (*output_length / 4096)) * 4096;
-  encoded_data = my_malloc(1469, alloc_length);
+  encoded_data = my_malloc(1665, alloc_length);
   if (encoded_data == NULL) return NULL;
   cnt = 0;
   
@@ -287,7 +287,7 @@ unsigned char *base64_decode(const char *data, const size_t input_length, size_t
 
 /* Caller should free returned buffer */
 /* set brk to 1 if you want newlines added */
-char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk) {
+unsigned char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk) {
   static const char b85_enc[] = {
     '!', '"', '#', '$', '%', '&', '\'', '(',
     ')', '*', '+', ',', '-', '.', '/', '0',
@@ -303,15 +303,18 @@ char *ascii85_encode(const unsigned char *data, const size_t input_length, size_
   };
   
   int padding = (4-(input_length % 4))%4;
+  static u_int32_t pow85[] = {1, 85, 7225, 614125, 52200625};
   unsigned char *paddedData = my_calloc(1469, input_length+padding, 1);
+  unsigned char *encoded_data;
+  int i, idx = 0;
   memcpy( paddedData, data, input_length);
   *output_length = 5*(input_length+padding)/4;
-  char *encoded_data = my_malloc(1469, *output_length +1);
+  encoded_data = my_malloc(1662, *output_length +1);
   encoded_data[*output_length]=0;
-  int idx = 0;
-  for (int i = 0; i < input_length+padding; i+=4)
+  for (i = 0; i < input_length+padding; i+=4)
   {
-    u_int32_t val = ((u_int32_t)(paddedData[i])<<24) + ((u_int32_t)(paddedData[i+1])<<16) + ((u_int32_t)(paddedData[i+2])<<8) + ((u_int32_t)(paddedData[i+3]));
+    u_int32_t val = ((u_int32_t)(paddedData[i])<<24) +  ((u_int32_t)(paddedData[i+1])<<16) +
+                    ((u_int32_t)(paddedData[i+2])<<8) + ((u_int32_t)(paddedData[i+3]));
     if (val==0)
     {
       encoded_data[idx]='z';
@@ -319,23 +322,23 @@ char *ascii85_encode(const unsigned char *data, const size_t input_length, size_
       idx++;
       continue;
     }
-    encoded_data[idx] = val / pow(85,4);
-    val = val - encoded_data[idx] * pow(85,4);
+    encoded_data[idx] = (unsigned char)(val / pow85[4]);
+    val = val - encoded_data[idx] * pow85[4];
     encoded_data[idx]=b85_enc[encoded_data[idx]];
     idx++;
-    encoded_data[idx] = val / pow(85,3);
-    val = val - encoded_data[idx] * pow(85,3);
+    encoded_data[idx] = (unsigned char)(val / pow85[3]);
+    val = val - encoded_data[idx] * pow85[3];
     encoded_data[idx]=b85_enc[encoded_data[idx]];
     idx++;
-    encoded_data[idx] = val / pow(85,2);
-    val = val - encoded_data[idx] * pow(85,2);
+    encoded_data[idx] = (unsigned char)(val / pow85[2]);
+    val = val - encoded_data[idx] * pow85[2];
     encoded_data[idx]=b85_enc[encoded_data[idx]];
     idx++;
-    encoded_data[idx] = val / pow(85,1);
-    val = val - encoded_data[idx] * pow(85,1);
+    encoded_data[idx] = (unsigned char)(val / pow85[1]);
+    val = val - encoded_data[idx] * pow85[1];
     encoded_data[idx]=b85_enc[encoded_data[idx]];
     idx++;
-    encoded_data[idx] = val;
+    encoded_data[idx] = (unsigned char)val;
     encoded_data[idx]=b85_enc[encoded_data[idx]];
     idx++;
   }

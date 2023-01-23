@@ -104,6 +104,7 @@ typedef struct
         size_t pos;
         size_t size;
 } png_to_byte_closure_t;
+
 void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
 {
   #if defined(HAS_LIBJPEG) && defined(HAS_CAIRO)
@@ -125,6 +126,8 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   int quality=100;
   const char *quality_attr;
   size_t image_data_len;
+  size_t oLength;
+  int idx = 0;
 
   quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
   if(quality_attr[0]) quality = atoi(quality_attr);
@@ -169,7 +172,6 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
     unsigned char png_g = png_data[i + 1];
     unsigned char png_b = png_data[i + 2];
     unsigned char png_a = png_data[i + 3];
-
     double ainv=((double)(0xFF - png_a)) / ((double)(0xFF));
 
     if(invertImage)
@@ -187,11 +189,8 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
     }
   }
   cairo_surface_mark_dirty(surface);
-  cairo_image_surface_write_to_jpeg_mem(surface, &jpgData, &fileSize, 100);
-
-  int oLength;
+  cairo_image_surface_write_to_jpeg_mem(surface, &jpgData, &fileSize, quality);
   ascii85EncodedJpeg = ascii85_encode(jpgData, fileSize, &oLength, 0);
-
   fprintf(fd, "gsave\n");
   fprintf(fd, "save\n");
   fprintf(fd, "/RawData currentfile /ASCII85Decode filter def\n");
@@ -208,19 +207,25 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   
   if(!flip)
   {
-    if(rot==1) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 %g]\n", (double)png_size_y, (double)png_size_x, (double)png_size_y);
-    else if(rot==2) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g %g]\n", (double)png_size_x, (double)png_size_y, (double)png_size_x, (double)png_size_y);
-    else if(rot==3) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g 0]\n", (double)png_size_y, (double)png_size_x, (double)png_size_x);
+    if(rot==1) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 %g]\n",
+           (double)png_size_y, (double)png_size_x, (double)png_size_y);
+    else if(rot==2) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g %g]\n",
+           (double)png_size_x, (double)png_size_y, (double)png_size_x, (double)png_size_y);
+    else if(rot==3) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g 0]\n", 
+           (double)png_size_y, (double)png_size_x, (double)png_size_x);
     else fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 0]\n", (double)png_size_x, (double)png_size_y); 
   }
   else
   {
-    if(rot==1) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g %g]\n", -(double)png_size_y, (double)png_size_x, (double)png_size_x, (double)png_size_y);
-    else if(rot==2) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 %g]\n", -(double)png_size_x, (double)png_size_y, (double)png_size_y);
-    else if(rot==3) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 0]\n", -(double)png_size_y, (double)png_size_x);
-    else fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g 0]\n", -(double)png_size_x, (double)png_size_y, (double)png_size_x); 
+    if(rot==1) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g %g]\n",
+          -(double)png_size_y, (double)png_size_x, (double)png_size_x, (double)png_size_y);
+    else if(rot==2) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 %g]\n",
+          -(double)png_size_x, (double)png_size_y, (double)png_size_y);
+    else if(rot==3) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 0]\n",
+          -(double)png_size_y, (double)png_size_x);
+    else fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g 0]\n",
+          -(double)png_size_x, (double)png_size_y, (double)png_size_x); 
   }
-
   fprintf(fd, "     /DataSource Data\n");
   fprintf(fd, "     /BitsPerComponent 8\n");
   fprintf(fd, "     /Decode [0 1 0 1 0 1]\n");
@@ -230,8 +235,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   fprintf(fd, "  restore\n");
   fprintf(fd, "} exec\n");
 
-  int idx = 0;
-  for (int i = 0; i < oLength; i++)
+  for (i = 0; i < oLength; i++)
   {
     fputc(ascii85EncodedJpeg[i],fd);
     idx++;
@@ -239,7 +243,8 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
     {
       idx=0;
       fputc('\n',fd);
-      //if (ascii85Encode[i+1]=='%') idx=63; imageMagic does this for some reason?! Doesn't seem to be necesary.
+      /* if (ascii85Encode[i+1]=='%') idx=63; imageMagic does this for some reason?!
+       *  Doesn't seem to be necesary. */
     }
   }
   fprintf(fd, "~>\n");
@@ -268,6 +273,8 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   unsigned char *ascii85EncodedJpeg;
   int quality=100;
   const char *quality_attr;
+  size_t oLength;
+  int i, idx = 0;
 
   quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
   if(quality_attr[0]) quality = atoi(quality_attr);
@@ -324,7 +331,6 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   #endif
   cairo_image_surface_write_to_jpeg_mem(png_sfc, &jpgData, &fileSize, quality);
 
-  int oLength;
   ascii85EncodedJpeg = ascii85_encode(jpgData, fileSize, &oLength, 0);
   free(jpgData);
 
@@ -359,8 +365,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   fprintf(fd, "  restore\n");
   fprintf(fd, "} exec\n");
 
-  int idx = 0;
-  for (int i = 0; i < oLength; i++)
+  for (i = 0; i < oLength; i++)
   {
     fputc(ascii85EncodedJpeg[i],fd);
     idx++;
@@ -368,7 +373,8 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
     {
       idx=0;
       fputc('\n',fd);
-      //if (ascii85Encode[i+1]=='%') idx=63; imageMagic does this for some reason?! Doesn't seem to be necesary.
+      /* if (ascii85Encode[i+1]=='%') idx=63; imageMagic does this for some reason?!
+       *  Doesn't seem to be necesary. */
     }
   }
   fprintf(fd, "~>\n");
@@ -995,7 +1001,7 @@ void create_ps(char **psfile, int what)
       return;
     }
   }
-  setbuf(fd, NULL); //To prevent buffer errors, still investigating cause.
+  setbuf(fd, NULL); /*To prevent buffer errors, still investigating cause. */
   ps_colors=my_calloc(311, cadlayers, sizeof(Ps_color));
   if(ps_colors==NULL){
     fprintf(errfp, "create_ps(): calloc error\n");

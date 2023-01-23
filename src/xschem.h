@@ -1085,7 +1085,7 @@ extern int set_rect_flags(xRect *r);
 extern int set_rect_extraptr(int what, xRect *drptr);
 extern unsigned char *base64_decode(const char *data, const size_t input_length, size_t *output_length);
 extern char *base64_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk);
-extern char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk);
+extern unsigned char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk);
 extern int get_raw_index(const char *node);
 extern void free_rawfile(int dr);
 extern int raw_read(const char *f, const char *type);
