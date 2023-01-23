@@ -117,24 +117,6 @@ cairo_status_t png_reader(void* in_closure, unsigned char* out_data, unsigned in
         return CAIRO_STATUS_SUCCESS;
 }
 
-unsigned char* bin2hex(const unsigned char* bin, size_t len)
-{
-        unsigned char* out;
-        size_t  i;
-
-        if (bin == NULL || len == 0)
-                return NULL;
-
-        out = my_malloc(1665, len * 2 + 1);
-        for (i = 0; i < len; i++) {
-                out[i * 2] = "0123456789abcdef"[bin[i] >> 4];
-                out[i * 2 + 1] = "0123456789abcdef"[bin[i] & 0x0F];
-        }
-        out[len * 2] = '\0';
-
-        return out;
-}
-
 void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
 {
   int i;
@@ -147,7 +129,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   /* static char str[PATH_MAX];
    * FILE* fp;
    */
-  unsigned char* hexEncodedJPG;
+  unsigned char* ascii85EncodedJpeg;
   char* image_data64_ptr = NULL;
   cairo_surface_t* surface;
   unsigned char* jpgData = NULL;
@@ -206,58 +188,66 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   }
   cairo_surface_mark_dirty(surface);
   cairo_image_surface_write_to_jpeg_mem(surface, &jpgData, &fileSize, 100);
-  /* 
-   * my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), "/temp.jpg");
-   * cairo_image_surface_write_to_jpeg(surface, str, 100);
-   * fp = fopen(str, "rb");
-   * fseek(fp, 0L, SEEK_END);
-   * fileSize = ftell(fp);
-   * rewind(fp);
-   * jpgData = my_malloc(1662, fileSize);
-   * fread(jpgData, sizeof(jpgData[0]), fileSize, fp);
-   * fclose(fp);
-   */
-  hexEncodedJPG = bin2hex(jpgData, fileSize);
-  fprintf(fd, "gsave\n"); 
+
+  int oLength;
+  ascii85EncodedJpeg = ascii85_encode(jpgData, fileSize, &oLength, 0);
+
+  fprintf(fd, "gsave\n");
+  fprintf(fd, "save\n");
+  fprintf(fd, "/RawData currentfile /ASCII85Decode filter def\n");
+  fprintf(fd, "/Data RawData << >> /DCTDecode filter def\n");
   fprintf(fd, "%g %g translate\n", X_TO_PS(x1), Y_TO_PS(y1));
   if(rot==1) fprintf(fd, "90 rotate\n");
   if(rot==2) fprintf(fd, "180 rotate\n");
   if(rot==3) fprintf(fd, "270 rotate\n");
   fprintf(fd, "%g %g scale\n", (X_TO_PS(x2) - X_TO_PS(x1))*0.97, (Y_TO_PS(y2) - Y_TO_PS(y1))*0.97);
+  fprintf(fd, "/DeviceRGB setcolorspace\n");
+  fprintf(fd, "{ << /ImageType 1\n");
+  fprintf(fd, "     /Width %g\n", (double)png_size_x);
+  fprintf(fd, "     /Height %g\n", (double)png_size_y);
   
-  fprintf(fd, "%g\n", (double)png_size_x);
-  fprintf(fd, "%g\n", (double)png_size_y);
-  fprintf(fd, "8\n");
   if(!flip)
   {
-    if(rot==1) fprintf(fd, "[%g 0 0 %g 0 %g]\n", (double)png_size_y, (double)png_size_x, (double)png_size_y);
-    else if(rot==2) fprintf(fd, "[%g 0 0 %g %g %g]\n", (double)png_size_x, (double)png_size_y, (double)png_size_x, (double)png_size_y);
-    else if(rot==3) fprintf(fd, "[%g 0 0 %g %g 0]\n", (double)png_size_y, (double)png_size_x, (double)png_size_x);
-    else fprintf(fd, "[%g 0 0 %g 0 0]\n", (double)png_size_x, (double)png_size_y); 
+    if(rot==1) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 %g]\n", (double)png_size_y, (double)png_size_x, (double)png_size_y);
+    else if(rot==2) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g %g]\n", (double)png_size_x, (double)png_size_y, (double)png_size_x, (double)png_size_y);
+    else if(rot==3) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g 0]\n", (double)png_size_y, (double)png_size_x, (double)png_size_x);
+    else fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 0]\n", (double)png_size_x, (double)png_size_y); 
   }
   else
   {
-    if(rot==1) fprintf(fd, "[%g 0 0 %g %g %g]\n", -(double)png_size_y, (double)png_size_x, (double)png_size_x, (double)png_size_y);
-    else if(rot==2) fprintf(fd, "[%g 0 0 %g 0 %g]\n", -(double)png_size_x, (double)png_size_y, (double)png_size_y);
-    else if(rot==3) fprintf(fd, "[%g 0 0 %g 0 0]\n", -(double)png_size_y, (double)png_size_x);
-    else fprintf(fd, "[%g 0 0 %g %g 0]\n", -(double)png_size_x, (double)png_size_y, (double)png_size_x); 
+    if(rot==1) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g %g]\n", -(double)png_size_y, (double)png_size_x, (double)png_size_x, (double)png_size_y);
+    else if(rot==2) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 %g]\n", -(double)png_size_x, (double)png_size_y, (double)png_size_y);
+    else if(rot==3) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 0]\n", -(double)png_size_y, (double)png_size_x);
+    else fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g 0]\n", -(double)png_size_x, (double)png_size_y, (double)png_size_x); 
   }
-   
+
+  fprintf(fd, "     /DataSource Data\n");
+  fprintf(fd, "     /BitsPerComponent 8\n");
+  fprintf(fd, "     /Decode [0 1 0 1 0 1]\n");
+  fprintf(fd, "  >> image\n");
+  fprintf(fd, "  Data closefile\n");
+  fprintf(fd, "  RawData flushfile\n");
+  fprintf(fd, "  restore\n");
+  fprintf(fd, "} exec\n");
+
+  int idx = 0;
+  for (int i = 0; i < oLength; i++)
+  {
+    fputc(ascii85EncodedJpeg[i],fd);
+    idx++;
+    if(idx==64)
+    {
+      idx=0;
+      fputc('\n',fd);
+      //if (ascii85Encode[i+1]=='%') idx=63; imageMagic does this for some reason?! Doesn't seem to be necesary.
+    }
+  }
+  fprintf(fd, "~>\n");
   
-  fprintf(fd, "(%s)\n", hexEncodedJPG);
-  fprintf(fd, "/ASCIIHexDecode\n");
-  fprintf(fd, "filter\n");
-  fprintf(fd, "0 dict\n");
-  fprintf(fd, "/DCTDecode\n");
-  fprintf(fd, "filter\n");
-  fprintf(fd, "false\n");
-  fprintf(fd, "3\n");
-  fprintf(fd, "colorimage\n");
   fprintf(fd, "grestore\n");
 
-  my_free(1663, &hexEncodedJPG);
+  my_free(1663, &ascii85EncodedJpeg);
   free(jpgData);
-  fflush(fd);
 }
 
 
@@ -275,7 +265,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
    * FILE* fp;
    * static char str[PATH_MAX];
    */
-  unsigned char *hexEncodedJPG;
+  unsigned char *ascii85EncodedJpeg;
   if (!has_x) return;
   rw = fabs(rx2 - rx1);
   rh = fabs(ry2 - ry1);
@@ -323,19 +313,9 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   }
   #endif
   cairo_image_surface_write_to_jpeg_mem(png_sfc, &jpgData, &fileSize, 100);
-  /*
-   * my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), "/temp.jpg");
-   * cairo_image_surface_write_to_jpeg(png_sfc, str, 100);
-   * fp = fopen(str, "rb"); 
-   * fseek(fp, 0L, SEEK_END);
-   * fileSize = ftell(fp);
-   * rewind(fp);
-   * jpgData = my_malloc(1668, fileSize);
-   * fread(jpgData, sizeof(jpgData[0]), fileSize, fp);
-   * fclose(fp);
-   */
 
-  hexEncodedJPG = bin2hex(jpgData, fileSize);
+  int oLength;
+  ascii85EncodedJpeg = ascii85_encode(jpgData, fileSize, &oLength, 0);
 
   cairo_surface_destroy(png_sfc);
   xctx->draw_pixmap = 1;
@@ -349,25 +329,43 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   build_colors(0, 0);
   draw();
   fprintf(fd, "gsave\n");
+  fprintf(fd, "save\n");
+  fprintf(fd, "/RawData currentfile /ASCII85Decode filter def\n");
+  fprintf(fd, "/Data RawData << >> /DCTDecode filter def\n");
   fprintf(fd, "%f %f translate\n", X_TO_PS(rx1), Y_TO_PS(ry1));
   fprintf(fd, "%f %f scale\n", X_TO_PS(rx2) - X_TO_PS(rx1), Y_TO_PS(ry2) - Y_TO_PS(ry1));
-  fprintf(fd, "%d\n", rwi);
-  fprintf(fd, "%d\n", rhi);
-  fprintf(fd, "8\n");
-  fprintf(fd, "[%d 0 0 %d 0 0]\n", rwi, rhi);
-  fprintf(fd, "(%s)\n", hexEncodedJPG);
-  fprintf(fd, "/ASCIIHexDecode\n");
-  fprintf(fd, "filter\n");
-  fprintf(fd, "0 dict\n");
-  fprintf(fd, "/DCTDecode\n");
-  fprintf(fd, "filter\n");
-  fprintf(fd, "false\n");
-  fprintf(fd, "3\n");
-  fprintf(fd, "colorimage\n");
+  fprintf(fd, "/DeviceRGB setcolorspace\n");
+  fprintf(fd, "{ << /ImageType 1\n");
+  fprintf(fd, "     /Width %d\n", rwi);
+  fprintf(fd, "     /Height %d\n", rhi);
+  fprintf(fd, "     /ImageMatrix [%d 0 0 %d 0 0]\n", rwi, rhi);
+  fprintf(fd, "     /DataSource Data\n");
+  fprintf(fd, "     /BitsPerComponent 8\n");
+  fprintf(fd, "     /Decode [0 1 0 1 0 1]\n");
+  fprintf(fd, "  >> image\n");
+  fprintf(fd, "  Data closefile\n");
+  fprintf(fd, "  RawData flushfile\n");
+  fprintf(fd, "  restore\n");
+  fprintf(fd, "} exec\n");
+
+  int idx = 0;
+  for (int i = 0; i < oLength; i++)
+  {
+    fputc(ascii85EncodedJpeg[i],fd);
+    idx++;
+    if(idx==64)
+    {
+      idx=0;
+      fputc('\n',fd);
+      //if (ascii85Encode[i+1]=='%') idx=63; imageMagic does this for some reason?! Doesn't seem to be necesary.
+    }
+  }
+  fprintf(fd, "~>\n");
+  
   fprintf(fd, "grestore\n");
-  my_free(1666, &hexEncodedJPG);
+
+  my_free(1666, &ascii85EncodedJpeg);
   free(jpgData);
-  fflush(fd);
   #endif
 
 }
@@ -990,6 +988,7 @@ void create_ps(char **psfile, int what)
       return;
     }
   }
+  setbuf(fd, NULL); //To prevent buffer errors, still investigating cause.
   ps_colors=my_calloc(311, cadlayers, sizeof(Ps_color));
   if(ps_colors==NULL){
     fprintf(errfp, "create_ps(): calloc error\n");

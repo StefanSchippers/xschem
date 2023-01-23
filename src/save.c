@@ -219,6 +219,65 @@ unsigned char *base64_decode(const char *data, const size_t input_length, size_t
   return decoded_data;
 }
 
+/* Caller should free returned buffer */
+/* set brk to 1 if you want newlines added */
+char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk) {
+  static const char b85_enc[] = {
+    '!', '"', '#', '$', '%', '&', '\'', '(',
+    ')', '*', '+', ',', '-', '.', '/', '0',
+    '1', '2', '3', '4', '5', '6', '7', '8',
+    '9', ':', ';', '<', '=', '>', '?', '@',
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+    'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+    'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+    'Y', 'Z', '[', '\\', ']', '^', '_', '`',
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
+    'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
+    'q', 'r', 's', 't', 'u'
+  };
+  
+  int padding = (4-(input_length % 4))%4;
+  unsigned char *paddedData = my_calloc(1469, input_length+padding, 1);
+  memcpy( paddedData, data, input_length);
+  *output_length = 5*(input_length+padding)/4;
+  char *encoded_data = my_malloc(1469, *output_length +1);
+  encoded_data[*output_length]=0;
+  int idx = 0;
+  for (int i = 0; i < input_length+padding; i+=4)
+  {
+    u_int32_t val = ((u_int32_t)(paddedData[i])<<24) + ((u_int32_t)(paddedData[i+1])<<16) + ((u_int32_t)(paddedData[i+2])<<8) + ((u_int32_t)(paddedData[i+3]));
+    if (val==0)
+    {
+      encoded_data[idx]='z';
+      *output_length-=4;
+      idx++;
+      continue;
+    }
+    encoded_data[idx] = val / pow(85,4);
+    val = val - encoded_data[idx] * pow(85,4);
+    encoded_data[idx]=b85_enc[encoded_data[idx]];
+    idx++;
+    encoded_data[idx] = val / pow(85,3);
+    val = val - encoded_data[idx] * pow(85,3);
+    encoded_data[idx]=b85_enc[encoded_data[idx]];
+    idx++;
+    encoded_data[idx] = val / pow(85,2);
+    val = val - encoded_data[idx] * pow(85,2);
+    encoded_data[idx]=b85_enc[encoded_data[idx]];
+    idx++;
+    encoded_data[idx] = val / pow(85,1);
+    val = val - encoded_data[idx] * pow(85,1);
+    encoded_data[idx]=b85_enc[encoded_data[idx]];
+    idx++;
+    encoded_data[idx] = val;
+    encoded_data[idx]=b85_enc[encoded_data[idx]];
+    idx++;
+  }
+  *output_length-=padding;
+  encoded_data[*output_length]=0;
+  return encoded_data;
+}
+
 /* SPICE RAWFILE ROUTINES */
 /* read the binary portion of a ngspice raw simulation file
  * data layout in memory arranged to maximize cache locality 
