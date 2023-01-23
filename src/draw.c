@@ -3061,7 +3061,7 @@ typedef struct
   size_t size;
 } png_to_byte_closure_t;
 
-static cairo_status_t png_reader(void *in_closure, unsigned char *out_data, unsigned int length)
+cairo_status_t png_reader(void *in_closure, unsigned char *out_data, unsigned int length)
 {
   png_to_byte_closure_t *closure = (png_to_byte_closure_t *) in_closure;
   if(!closure->buffer) return CAIRO_STATUS_READ_ERROR;
@@ -3133,6 +3133,7 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
     if(filter) {
       size_t filtersize = 0;
       char *filterdata = NULL;
+      dbg(1, "draw_image(): filter=%s, image_data=%s\n", filter, attr);
       closure.buffer = NULL;
       filterdata = (char *)base64_decode(attr, strlen(attr), &filtersize);
       filter_data(filterdata, filtersize, (char **)&closure.buffer, &data_size, filter); 
@@ -3298,8 +3299,8 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   rwi = (int) (rw * scale + 1.0);
   rhi = (int) (rh * scale + 1.0);
   save_restore_zoom(1);
-  set_viewport_size(rwi, rhi, 1.0);
-  zoom_box(rx1, ry1, rx2, ry2, 1.0);
+  set_viewport_size(rwi, rhi, xctx->lw);
+  zoom_box(rx1 - xctx->lw, ry1 - xctx->lw, rx2 + xctx->lw, ry2 + xctx->lw, 1.0);
   resetwin(1, 1, 1, rwi, rhi);
   save_draw_grid = tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");

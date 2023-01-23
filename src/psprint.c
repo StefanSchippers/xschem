@@ -24,9 +24,6 @@
 #define X_TO_PS(x) ( (x+xctx->xorigin)* xctx->mooz )
 #define Y_TO_PS(y) ( (y+xctx->yorigin)* xctx->mooz )
 
-/* FIXME This must be investigated, without some fflushes the ps file is corrupted */
-//#define FFLUSH_PS
-
 #if 0
 *   /* FIXME: overflow check. Not used, BTW */
 *   static char *strreplace(char s[], char token[], char replace[])
@@ -107,61 +104,64 @@ typedef struct
         size_t pos;
         size_t size;
 } png_to_byte_closure_t;
-
-cairo_status_t png_reader(void* in_closure, unsigned char* out_data, unsigned int length)
-{
-        png_to_byte_closure_t* closure = (png_to_byte_closure_t*)in_closure;
-        if (!closure->buffer) return CAIRO_STATUS_READ_ERROR;
-        memcpy(out_data, closure->buffer + closure->pos, length);
-        closure->pos += length;
-        return CAIRO_STATUS_SUCCESS;
-}
-
 void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
 {
+  #if defined(HAS_LIBJPEG) && defined(HAS_CAIRO)
   int i;
-  size_t data_size;
-  png_to_byte_closure_t closure;
+  size_t data_size = 0;
+  png_to_byte_closure_t closure = {NULL, 0, 0};
   char* filter = NULL;
   int png_size_x, png_size_y;
-  unsigned char *png_data, BG_r, BG_g, BG_b;
+  unsigned char *png_data = NULL, BG_r, BG_g, BG_b;
   int invertImage;
   /* static char str[PATH_MAX];
    * FILE* fp;
    */
   unsigned char* ascii85EncodedJpeg;
   char* image_data64_ptr = NULL;
-  cairo_surface_t* surface;
+  cairo_surface_t* surface = NULL;
   unsigned char* jpgData = NULL;
   size_t fileSize = 0;
+  int quality=100;
+  const char *quality_attr;
+  size_t image_data_len;
 
+  quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
+  if(quality_attr[0]) quality = atoi(quality_attr);
+  else {
+    quality_attr = get_tok_value(r->prop_ptr, "jpg_quality", 0);
+    if(quality_attr[0]) quality = atoi(quality_attr);
+  }
   my_strdup(59, &filter, get_tok_value(r->prop_ptr, "filter", 0));
+  image_data_len = my_strdup2(1183, &image_data64_ptr, get_tok_value(r->prop_ptr, "image_data", 0));
 
-  my_strdup2(1183, &image_data64_ptr, get_tok_value(r->prop_ptr, "image_data", 0));
   if (filter) {
     size_t filtersize = 0;
     char* filterdata = NULL;
     closure.buffer = NULL;
-    filterdata = (char*)base64_decode(image_data64_ptr, strlen(image_data64_ptr), &filtersize);
+    filterdata = (char*)base64_decode(image_data64_ptr, image_data_len, &filtersize);
     filter_data(filterdata, filtersize, (char**)&closure.buffer, &data_size, filter);
     my_free(1661, &filterdata);
   }
   else {
-    closure.buffer = base64_decode(image_data64_ptr, strlen(image_data64_ptr), &data_size);
+    closure.buffer = base64_decode(image_data64_ptr, image_data_len, &data_size);
   }
-  my_free(1663, &filter);
+  my_free(1664, &filter);
   my_free(1184, &image_data64_ptr);
   closure.pos = 0;
   closure.size = data_size; /* should not be necessary */
   surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-  my_free(1666, &closure.buffer);
+
   png_size_x = cairo_image_surface_get_width(surface);
   png_size_y = cairo_image_surface_get_height(surface);
 
   cairo_surface_flush(surface);
+  my_free(1667, &closure.buffer);
   png_data = cairo_image_surface_get_data(surface);
 
   invertImage = !strcmp(get_tok_value(r->prop_ptr, "InvertOnExport", 0), "true");
+  if(!invertImage)
+    invertImage = !strcmp(get_tok_value(r->prop_ptr, "ps_invert", 0), "true");
   BG_r = 0xFF; BG_g = 0xFF; BG_b = 0xFF;
   for (i = 0; i < (png_size_x * png_size_y * 4); i += 4)
   {
@@ -174,11 +174,11 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
 
     if(invertImage)
     {
-      png_data[i + 0] = (0xFF-png_r) + (unsigned char)((double)BG_r * ainv);
-      png_data[i + 1] = (0xFF-png_g) + (unsigned char)((double)BG_g * ainv);
-      png_data[i + 2] = (0xFF-png_b) + (unsigned char)((double)BG_b * ainv);
+      png_data[i + 0] = (unsigned char)(0xFF-png_r) + (unsigned char)((double)BG_r * ainv);
+      png_data[i + 1] = (unsigned char)(0xFF-png_g) + (unsigned char)((double)BG_g * ainv);
+      png_data[i + 2] = (unsigned char)(0xFF-png_b) + (unsigned char)((double)BG_b * ainv);
       png_data[i + 3] = 0xFF;
-    }else
+    } else
     {
       png_data[i + 0] = png_r + (unsigned char)((double)BG_r * ainv);
       png_data[i + 1] = png_g + (unsigned char)((double)BG_g * ainv);
@@ -245,15 +245,14 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   fprintf(fd, "~>\n");
   
   fprintf(fd, "grestore\n");
-
+  cairo_surface_destroy(surface);
   my_free(1663, &ascii85EncodedJpeg);
   free(jpgData);
 }
 
-
 void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
 {
-  #if defined(HAS_CAIRO)
+  #if defined(HAS_LIBJPEG) && defined(HAS_CAIRO)
   double  rw, rh, scale;
   cairo_surface_t* png_sfc;
   int save_draw_window, save_draw_grid, rwi, rhi;
@@ -266,6 +265,16 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
    * static char str[PATH_MAX];
    */
   unsigned char *ascii85EncodedJpeg;
+  int quality=100;
+  const char *quality_attr;
+
+  quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
+  if(quality_attr[0]) quality = atoi(quality_attr);
+  else {
+    quality_attr = get_tok_value(r->prop_ptr, "jpg_quality", 0);
+    if(quality_attr[0]) quality = atoi(quality_attr);
+  }
+  if(quality_attr[0]) quality = atoi(quality_attr);
   if (!has_x) return;
   rw = fabs(rx2 - rx1);
   rh = fabs(ry2 - ry1);
@@ -279,8 +288,8 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   rwi = (int)(rw * scale + 1.0);
   rhi = (int)(rh * scale + 1.0);
   save_restore_zoom(1);
-  set_viewport_size(rwi, rhi, 1.0);
-  zoom_box(rx1-2, ry1-2, rx2+2, ry2+2, 1.0);
+  set_viewport_size(rwi, rhi, xctx->lw);
+  zoom_box(rx1 - xctx->lw, ry1 - xctx->lw, rx2 + xctx->lw, ry2 + xctx->lw, 1.0);
   resetwin(1, 1, 1, rwi, rhi);
   save_draw_grid = tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");
@@ -312,10 +321,11 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
     }
   }
   #endif
-  cairo_image_surface_write_to_jpeg_mem(png_sfc, &jpgData, &fileSize, 100);
+  cairo_image_surface_write_to_jpeg_mem(png_sfc, &jpgData, &fileSize, quality);
 
   int oLength;
   ascii85EncodedJpeg = ascii85_encode(jpgData, fileSize, &oLength, 0);
+  free(jpgData);
 
   cairo_surface_destroy(png_sfc);
   xctx->draw_pixmap = 1;
@@ -365,9 +375,8 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   fprintf(fd, "grestore\n");
 
   my_free(1666, &ascii85EncodedJpeg);
-  free(jpgData);
+  
   #endif
-
 }
 static void set_lw(void)
 {
@@ -383,9 +392,6 @@ static void set_ps_colors(unsigned int pixel)
    if(color_ps) fprintf(fd, "%g %g %g RGB\n",
      (double)ps_colors[pixel].red/256.0, (double)ps_colors[pixel].green/256.0,
      (double)ps_colors[pixel].blue/256.0);
-   #ifdef FFLUSH_PS /* FIXME: why is this needed? */
-   fflush(fd);
-   #endif
 
 }
 

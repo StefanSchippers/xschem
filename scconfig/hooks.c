@@ -9,38 +9,38 @@
 
 #define version "2.0.1"
 
-int find_sul_pcre(const char *name, int logdepth, int fatal)
+int find_sul_libjpeg(const char *name, int logdepth, int fatal)
 {
         const char *test_c =
                 NL "#include <stdio.h>"
                 NL "#include <stdlib.h>"
-                NL "#include <pcre.h>"
+                NL "#include <jpeglib.h>"
+                NL ""
                 NL "int main()"
                 NL "{"
-                NL "    const char *err;"
-                NL "    int erro, ret;"
-                NL "    pcre *p = pcre_compile(\"fo+b\", 0, &err, &erro, NULL);"
-                NL "    ret = pcre_exec(p, NULL, \"hi foobar\", 9, 0, 0, &erro, 1);"
-                NL "    if (ret == 0)"
-                NL "            puts(\"OK\");"
-                NL "    return 0;"
+                NL "     struct jpeg_compress_struct cinfo;"
+                NL "     struct jpeg_error_mgr jerr;"
+                NL "     jerr.error_exit = NULL;"
+                NL "     cinfo.err = jpeg_std_error(&jerr);"
+                NL "     jpeg_create_compress(&cinfo);"
+                NL "     jpeg_destroy_compress(&cinfo);"
+                NL "     if(jerr.error_exit)"
+                NL "         puts(\"OK\");"
+                NL "     return 0;"
                 NL "}"
                 NL;
 
-        const char *node = "libs/sul/pcre";
+        const char *node = "libs/sul/libjpeg";
 
         if (require("cc/cc", logdepth, fatal))
                 return 1;
 
-        report("Checking for pcre... ");
+        report("Checking for libjpeg... ");
 
-        if (try_icl_pkg_config(logdepth, "libs/sul/pcre", test_c, NULL, "libpcre", NULL))
+        if (try_icl_pkg_config(logdepth, node, test_c, NULL, "libjpeg", NULL))
                 return 0;
 
-        if (try_icl(logdepth, node, test_c, NULL, "-I/usr/include/pcre", "-lpcre"))
-                return 0;
-
-        if (try_icl(logdepth, node, test_c, NULL, "-I/usr/include/pcre", "-lpcre3"))
+        if (try_icl(logdepth, node, test_c, NULL, NULL, "-ljpeg"))
                 return 0;
 
         return try_fail(logdepth, node);
@@ -123,6 +123,9 @@ int hook_preinit()
 /* Runs after initialization */
 int hook_postinit()
 {
+        /* libjpeg detection */
+        dep_add("libs/sul/libjpeg/*",     find_sul_libjpeg);
+
 	db_mkdir("/local");
 	db_mkdir("/local/xschem");
 
@@ -289,6 +292,7 @@ int hook_detect_target()
 	require("fstools/awk",  0, 1);
 	require("libs/gui/xpm/*",  0, 1);
 	require("libs/gui/cairo/*",  0, 0);
+	require("libs/sul/libjpeg/*",  0, 0);
 
 	if (require("libs/gui/cairo-xcb/*",  0, 0) != 0) {
 		put("libs/gui/xcb/presents", sfalse);
@@ -357,6 +361,7 @@ int hook_generate()
 		printf(" tcl:       %s\n", get("/target/libs/script/tcl/ldflags"));
 		printf(" tk:        %s\n", get("/target/libs/script/tk/ldflags"));
 		printf(" cairo:     %s\n", istrue(get("/target/libs/gui/cairo/presents")) ? "yes" : "no");
+		printf(" libjpeg:   %s\n", istrue(get("/target/libs/sul/libjpeg/presents")) ? "yes" : "no");
 		printf(" xcb:       %s\n", istrue(get("/target/libs/gui/xcb/presents")) ? "yes" : "no");
 
 		printf("\nConfiguration complete, ready to compile.\n\n");

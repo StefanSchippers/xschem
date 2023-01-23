@@ -1170,6 +1170,7 @@ extern void hash_wire(int what, int n, int incremental);
 extern void hash_instances(void); /*  20171203 insert instance bbox in spatial hash table */
 
 #if HAS_CAIRO==1
+extern cairo_status_t png_reader(void* in_closure, unsigned char* out_data, unsigned int length);
 extern int text_bbox_nocairo(const char * str,double xscale, double yscale,
             short rot, short flip, int hcenter, int vcenter,
             double x1,double y1, double *rx1, double *ry1,
@@ -1361,6 +1362,7 @@ extern void my_strndup(int id, char **dest, const char *src, size_t n);
 extern size_t my_strdup2(int id, char **dest, const char *src);
 extern char *my_fgets(FILE *fd);
 extern char *my_strtok_r(char *str, const char *delim, const char *quote, char **saveptr);
+extern char **parse_cmd_string(const char *cmd, int *argc);
 extern int my_strncpy(char *d, const char *s, size_t n);
 extern int my_strcasecmp(const char *s1, const char *s2);
 extern double mylog10(double x);
