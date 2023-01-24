@@ -303,7 +303,7 @@ unsigned char *ascii85_encode(const unsigned char *data, const size_t input_leng
   };
   
   int padding = (4-(input_length % 4))%4;
-  static u_int32_t pow85[] = {1, 85, 7225, 614125, 52200625};
+  static unsigned int pow85[] = {1, 85, 7225, 614125, 52200625};
   unsigned char *paddedData = my_calloc(_ALLOC_ID_, input_length+padding, 1);
   unsigned char *encoded_data;
   int i, idx = 0;
@@ -313,8 +313,8 @@ unsigned char *ascii85_encode(const unsigned char *data, const size_t input_leng
   encoded_data[*output_length]=0;
   for (i = 0; i < input_length+padding; i+=4)
   {
-    u_int32_t val = ((u_int32_t)(paddedData[i])<<24) +  ((u_int32_t)(paddedData[i+1])<<16) +
-                    ((u_int32_t)(paddedData[i+2])<<8) + ((u_int32_t)(paddedData[i+3]));
+    unsigned int val = ((unsigned int)(paddedData[i])<<24) +  ((unsigned int)(paddedData[i+1])<<16) +
+                    ((unsigned int)(paddedData[i+2])<<8) + ((unsigned int)(paddedData[i+3]));
     if (val==0)
     {
       encoded_data[idx]='z';
