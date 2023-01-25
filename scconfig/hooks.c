@@ -294,8 +294,8 @@ int hook_detect_target()
 	require("libs/gui/cairo/*",  0, 0);
 	require("libs/sul/libjpeg/*",  0, 0);
 	/* require("libs/types/stdint/*",  0, 0); */
-        require("sys/types/size/4_u_int", 0, 0);
-        require("sys/types/size/4_s_int", 0, 0);
+        require("sys/types/size/4_u_int", 0, 1);
+        require("sys/types/size/4_s_int", 0, 1);
 
 	if (require("libs/gui/cairo-xcb/*",  0, 0) != 0) {
 		put("libs/gui/xcb/presents", sfalse);
