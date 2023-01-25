@@ -40,6 +40,8 @@ print_ternary ?libs/io/pipe/presents {#define HAS_PIPE 1} {/*#undef HAS_PIPE */}
 
 print [@
 
+/* typedef @sys/types/size/4_u_int@ xuint32_t; */
+/* typedef @sys/types/size/4_s_int@ xint32_t; */
 #define PREFIX               "@/local/xschem/prefix@"
 #define XSCHEM_LIBRARY_PATH  "@/local/xschem/xschem-lib-path@"
 #define USER_CONF_DIR        "@/local/xschem/user-conf-dir@"

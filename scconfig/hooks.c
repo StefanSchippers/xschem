@@ -293,6 +293,9 @@ int hook_detect_target()
 	require("libs/gui/xpm/*",  0, 1);
 	require("libs/gui/cairo/*",  0, 0);
 	require("libs/sul/libjpeg/*",  0, 0);
+	/* require("libs/types/stdint/*",  0, 0); */
+        require("sys/types/size/4_u_int", 0, 0);
+        require("sys/types/size/4_s_int", 0, 0);
 
 	if (require("libs/gui/cairo-xcb/*",  0, 0) != 0) {
 		put("libs/gui/xcb/presents", sfalse);
@@ -358,6 +361,9 @@ int hook_generate()
 		printf(" sys-lib-path:  %s\n", get("/local/xschem/sys-lib-path"));
 
 		printf("\nLibs & features:\n");
+                /*
+		 * printf(" stdint:    %s\n", istrue(get("/target/libs/types/stdint/presents")) ? "yes" : "no");
+                 */
 		printf(" tcl:       %s\n", get("/target/libs/script/tcl/ldflags"));
 		printf(" tk:        %s\n", get("/target/libs/script/tk/ldflags"));
 		printf(" cairo:     %s\n", istrue(get("/target/libs/gui/cairo/presents")) ? "yes" : "no");

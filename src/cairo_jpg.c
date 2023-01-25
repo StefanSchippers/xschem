@@ -39,23 +39,11 @@
  * @license LGPL3.
  */
 
-#ifdef __unix__
-#include "../config.h"
-#else
-#include "../XSchemWin/config.h"
-#endif
+#include "xschem.h"
 #if defined(HAS_LIBJPEG) && defined(HAS_CAIRO)
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include "unistd.h"
-#include <cairo.h>
 #include <jpeglib.h>
 
 #include "cairo_jpg.h"
@@ -254,7 +242,7 @@ cairo_status_t cairo_image_surface_write_to_jpeg_mem(cairo_surface_t *sfc, unsig
  */
 static cairo_status_t cj_write(void *closure, const unsigned char *data, unsigned int length)
 {
-   return write((int)(intptr_t) closure, data, length) < length ?
+   return write((int)(long) closure, data, length) < length ?
       CAIRO_STATUS_WRITE_ERROR : CAIRO_STATUS_SUCCESS;
 }
 
@@ -314,7 +302,7 @@ cairo_status_t cairo_image_surface_write_to_jpeg(cairo_surface_t *sfc, const cha
       return CAIRO_STATUS_DEVICE_ERROR;
 
    /*  write surface to file */
-   e = cairo_image_surface_write_to_jpeg_stream(sfc, cj_write, (void*)(intptr_t) outfile, quality);
+   e = cairo_image_surface_write_to_jpeg_stream(sfc, cj_write, (void*)(long) outfile, quality);
 
    /*  close file again and return */
    close(outfile);
@@ -503,12 +491,12 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg(const char *filename)
 #ifdef USE_CAIRO_READ_FUNC_LEN_T
 static ssize_t cj_read(void *closure, unsigned char *data, unsigned int length)
 {
-   return read((intptr_t) closure, data, length);
+   return read((long) closure, data, length);
 }
 #else
 static cairo_status_t cj_read(void *closure, unsigned char *data, unsigned int length)
 {
-   return read((intptr_t) closure, data, length) < length ? CAIRO_STATUS_READ_ERROR : CAIRO_STATUS_SUCCESS;
+   return read((long) closure, data, length) < length ? CAIRO_STATUS_READ_ERROR : CAIRO_STATUS_SUCCESS;
 }
 #endif
 
@@ -534,7 +522,7 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg(const char *filename)
       return cairo_image_surface_create(CAIRO_FORMAT_INVALID, 0, 0);
 
    /*  call stream loading function */
-   sfc = cairo_image_surface_create_from_jpeg_stream(cj_read, (void*)(intptr_t) infile);
+   sfc = cairo_image_surface_create_from_jpeg_stream(cj_read, (void*)(long) infile);
    close(infile);
 
    return sfc;
