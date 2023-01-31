@@ -581,6 +581,32 @@ int set_rect_flags(xRect *r)
   return f;
 }
 
+int set_text_flags(xText *t)
+{
+  const char *str;
+  t->flags = 0;
+  t->hcenter = 0;
+  t->vcenter = 0;
+  t->layer = -1;
+  if(t->prop_ptr) {
+    my_strdup(_ALLOC_ID_, &t->font, get_tok_value(t->prop_ptr, "font", 0));
+    str = get_tok_value(t->prop_ptr, "hcenter", 0);
+    t->hcenter = strcmp(str, "true")  ? 0 : 1;
+    str = get_tok_value(t->prop_ptr, "vcenter", 0);
+    t->vcenter = strcmp(str, "true")  ? 0 : 1;
+    str = get_tok_value(t->prop_ptr, "layer", 0);
+    if(str[0]) t->layer = atoi(str);
+    str = get_tok_value(t->prop_ptr, "slant", 0);
+    t->flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
+    t->flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
+    str = get_tok_value(t->prop_ptr, "weight", 0);
+    t->flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
+    str = get_tok_value(t->prop_ptr, "hide", 0);
+    t->flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
+  }
+  return 0;
+}
+
 /* what: 
  * 1: create
  * 0: clear
@@ -2553,7 +2579,7 @@ int place_text(int draw_text, double mx, double my)
 {
   char *txt;
   int textlayer;
-  const char *str;
+  /* const char *str; */
   int save_draw;
   xText *t = &xctx->text[xctx->texts];
   #if HAS_CAIRO==1
@@ -2592,26 +2618,7 @@ int place_text(int draw_text, double mx, double my)
   /*  debug ... */
   /*  t->prop_ptr=NULL; */
   dbg(1, "place_text(): done text input\n");
-
-  str = get_tok_value(t->prop_ptr, "hcenter", 0);
-  t->hcenter = strcmp(str, "true")  ? 0 : 1;
-  str = get_tok_value(t->prop_ptr, "vcenter", 0);
-  t->vcenter = strcmp(str, "true")  ? 0 : 1;
-
-  str = get_tok_value(t->prop_ptr, "layer", 0);
-  if(str[0]) t->layer = atoi(str);
-  else t->layer = -1;
-
-  t->flags = 0;
-  str = get_tok_value(t->prop_ptr, "slant", 0);
-  t->flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
-  t->flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
-  str = get_tok_value(t->prop_ptr, "weight", 0);
-  t->flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
-  str = get_tok_value(t->prop_ptr, "hide", 0);
-  t->flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
-
-  my_strdup(_ALLOC_ID_, &t->font, get_tok_value(t->prop_ptr, "font", 0));
+  set_text_flags(t);
   textlayer = t->layer;
   if(textlayer < 0 || textlayer >= cadlayers) textlayer = TEXTLAYER;
   #if HAS_CAIRO==1

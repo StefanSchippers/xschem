@@ -492,6 +492,18 @@
           <Component Id="cmpD26202FAF4841795B6A741328CB6A67B" Guid="{441F633B-DC57-4EAE-8FB0-819B897778EB}">
             <File Id="fil04059F87A12DD86AC2F4D7D04EDF2509" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\spice_backannotate.png" />
           </Component>
+		  <Component Id="cmpFCCC97C98C208E2AD8D77D0E602DCCB5" Guid="{73F77A5C-00FB-41E0-8608-C8D989D80FCC}">
+			<File Id="fil86078E1882AA8C8E213CC6E73715F770" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\subckt_with_parameters.html" />
+		  </Component>
+		  <Component Id="cmp86B15C77A8299391AB325D60FE0DF00B" Guid="{BB357EB8-3110-4E12-BC68-17E54644358F}">
+			<File Id="fil7C341E8EECF059A23CB41B8681D858B8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\subckt_with_parameters01.png" />
+	  	  </Component>
+		  <Component Id="cmp1216112358A36C49D8502C1490913BFA" Guid="{E8A6B9C8-B45F-421E-BD22-E0AF26CDBC81}">
+			<File Id="fil8074FA9C4C1D1805628B66558A72E253" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\subckt_with_parameters02.png" />
+		  </Component>
+		  <Component Id="cmp7361D09B42DD785D86E85494B40CB7E5" Guid="{570D8B44-356C-48BC-9B5A-F38165701D5C}">
+			<File Id="fil43936C413EB9D19DB383F88975C352A7" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\subckt_with_parameters03.png" />
+  		  </Component>
           <Component Id="cmpFD4E64677B8277F8F66B179CC7D77CBF" Guid="{3F397D26-6C59-4A68-AF93-ABC765E6C5C5}">
             <File Id="fil02E6440D43CE38B206156921E6E06E4E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_generation5.png" />
           </Component>
@@ -1114,6 +1126,10 @@
       <ComponentRef Id="cmp5DE5BF3A93CF32E9741EE29282B2D837" />
       <ComponentRef Id="cmpC7B56D2632EEBF106FA79FA33B3C75B7" />
       <ComponentRef Id="cmpD26202FAF4841795B6A741328CB6A67B" />
+	  <ComponentRef Id="cmpFCCC97C98C208E2AD8D77D0E602DCCB5" />
+	  <ComponentRef Id="cmp86B15C77A8299391AB325D60FE0DF00B" />
+	  <ComponentRef Id="cmp1216112358A36C49D8502C1490913BFA" />
+	  <ComponentRef Id="cmp7361D09B42DD785D86E85494B40CB7E5" />
       <ComponentRef Id="cmpFD4E64677B8277F8F66B179CC7D77CBF" />
       <ComponentRef Id="cmp80D71431189149660F707A733ED9DC48" />
       <ComponentRef Id="cmp4E173EB8A7B4151CF229043A306A5618" />

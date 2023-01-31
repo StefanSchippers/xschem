@@ -298,7 +298,11 @@ cairo_status_t cairo_image_surface_write_to_jpeg(cairo_surface_t *sfc, const cha
    int outfile;
 
    /*  Open/create new file */
+#ifdef __unix__
    if ((outfile = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) == -1)
+#else
+   if ((outfile = open(filename, O_WRONLY | O_CREAT, _S_IREAD | _S_IWRITE)) == -1)
+#endif
       return CAIRO_STATUS_DEVICE_ERROR;
 
    /*  write surface to file */
@@ -388,6 +392,11 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg_mem(void *data, size_t len
  * intend to check errno you shall set it to 0 before calling this function
  * because it modifies errno only in case of an error.
  */
+
+#ifndef __unix__
+typedef SSIZE_T ssize_t;
+#endif
+
 #ifdef USE_CAIRO_READ_FUNC_LEN_T
 cairo_surface_t *cairo_image_surface_create_from_jpeg_stream(cairo_read_func_len_t read_func, void *closure)
 #else

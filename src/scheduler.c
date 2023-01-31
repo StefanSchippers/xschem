@@ -1194,7 +1194,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         else if(argc > 5) 
           Tcl_SetResult(interp, (char *)get_tok_value(xctx->sym[i].prop_ptr, argv[4], atoi(argv[5])), TCL_VOLATILE);
 
-      } else if(!strcmp(argv[2], "rect")) {
+      } else if(!strcmp(argv[2], "rect")) { /* xschem getprop rect c n token */
         if(argc < 6) {
           Tcl_SetResult(interp, "xschem getprop rect needs <color> <n> <token>", TCL_STATIC);
           return TCL_ERROR;
@@ -1202,6 +1202,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           int c = atoi(argv[3]);
           int n = atoi(argv[4]);
           Tcl_SetResult(interp, (char *)get_tok_value(xctx->rect[c][n].prop_ptr, argv[5], 2), TCL_VOLATILE);
+        }
+      } else if(!strcmp(argv[2], "text")) { /* xschem getprop text n token */
+        if(argc < 5) {
+          Tcl_SetResult(interp, "xschem getprop text needs <n> <token>", TCL_STATIC);
+          return TCL_ERROR;
+        } else {
+          int n = atoi(argv[3]);
+          Tcl_SetResult(interp, (char *)get_tok_value(xctx->text[n].prop_ptr, argv[4], 2), TCL_VOLATILE);
         }
       }
     }
@@ -2762,6 +2770,73 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         set_rect_flags(r); /* set cached .flags bitmask from on attributes */
         if(!fast) {
           bbox(ADD, r->x1, r->y1, r->x2, r->y2);
+          /* redraw rect with new props */
+          bbox(SET,0.0,0.0,0.0,0.0);
+          draw();
+          bbox(END,0.0,0.0,0.0,0.0);
+        }
+        Tcl_ResetResult(interp);
+
+      } else if(argc > 4 && !strcmp(argv[2], "text")) {
+      /*  0       1      2   3   4    5      6
+       * xschem setprop text n token value [fast] */
+        int change_done = 0;
+        int tmp, fast = 0;
+        double xx1, xx2, yy1, yy2, dtmp;
+        xText *t;
+        int n = atoi(argv[3]);
+        if(!(n >=0 && n < xctx->texts) ) {
+          Tcl_SetResult(interp, "xschem setprop text: wrong text number", TCL_STATIC);
+          return TCL_ERROR;
+        }
+        t = &xctx->text[n];
+        if(argc > 6) {
+          if(!strcmp(argv[6], "fast")) {
+            fast = 1;
+            argc = 6;
+          }
+          if(!strcmp(argv[6], "fastundo")) {
+            fast = 3;
+            argc = 6;
+          }
+        }
+        else if(argc > 5) {
+          if(!strcmp(argv[5], "fast")) {
+            fast = 1;
+            argc = 5;
+          }
+          if(!strcmp(argv[5], "fastundo")) {
+            fast = 3;
+            argc = 5;
+          }
+        }
+        if(!fast) {
+          bbox(START,0.0,0.0,0.0,0.0);
+        }
+        if(argc > 5) {
+          /* verify if there is some difference */
+          if(strcmp(argv[5], get_tok_value(t->prop_ptr, argv[4], 0))) {
+            change_done = 1;
+            if(fast == 3 || fast == 0) xctx->push_undo();
+            my_strdup2(_ALLOC_ID_, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], argv[5]));
+          }
+        } else {
+          get_tok_value(t->prop_ptr, argv[4], 0);
+          if(xctx->tok_size) {
+            change_done = 1;
+            if(fast == 3 || fast == 0) xctx->push_undo();
+            my_strdup2(_ALLOC_ID_, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], NULL)); /* delete attr */
+          }
+        }
+        if(change_done) set_modify(1);
+        set_text_flags(t);
+        text_bbox(t->txt_ptr, t->xscale,
+                  t->yscale, t->rot, t->flip, t->hcenter,
+                  t->vcenter, t->x0, t->y0,
+                  &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
+
+        if(!fast) {
+          bbox(ADD, xx1, yy1, xx2, yy2);
           /* redraw rect with new props */
           bbox(SET,0.0,0.0,0.0,0.0);
           draw();

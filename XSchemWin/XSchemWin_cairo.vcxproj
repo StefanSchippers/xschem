@@ -102,8 +102,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\ActiveTcl\include;cairo_win\cairo\src;cairo_win\projects\cairo\src;</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;C:\ActiveTcl\lib;cairo_win\projects\x64\Debug;cairo_win\libs;cairo_win\freetype\objs\x64\Debug Static</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\ActiveTcl\include;cairo_win\cairo\src;cairo_win\projects\cairo\src;cairo_win\jpeg-9e</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;C:\ActiveTcl\lib;cairo_win\projects\x64\Debug;cairo_win\libs;cairo_win\freetype\objs\x64\Debug Static;cairo_win\jpeg-9e\Release\x64</LibraryPath>
     <ExecutablePath>$(VC_ExecutablePath_x64);$(CommonExecutablePath);D:\GnuWin32\bin</ExecutablePath>
     <TargetName>XSchem</TargetName>
   </PropertyGroup>
@@ -115,15 +115,15 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\ActiveTcl\include;cairo_win\cairo\src;cairo_win\projects\cairo\src;</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;C:\ActiveTcl\lib;cairo_win\projects\x64\Release;cairo_win\libs;cairo_win/freetype\objs\x64\Release Static</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\ActiveTcl\include;cairo_win\cairo\src;cairo_win\projects\cairo\src;cairo_win\jpeg-9e</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;C:\ActiveTcl\lib;cairo_win\projects\x64\Release;cairo_win\libs;cairo_win/freetype\objs\x64\Release Static;cairo_win\jpeg-9e\Release\x64</LibraryPath>
     <ExecutablePath>$(VC_ExecutablePath_x64);$(CommonExecutablePath);D:\GnuWin32\bin</ExecutablePath>
     <TargetName>XSchem</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_binary|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\myTcl86\include;cairo_win\cairo\src;cairo_win\projects\cairo\src;</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;C:\myTcl86\lib;cairo_win\projects\x64\Release;cairo_win\libs;cairo_win/freetype\objs\x64\Release Static</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\myTcl86\include;cairo_win\cairo\src;cairo_win\projects\cairo\src;cairo_win\jpeg-9e</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;C:\myTcl86\lib;cairo_win\projects\x64\Release;cairo_win\libs;cairo_win/freetype\objs\x64\Release Static;cairo_win\jpeg-9e\Release\x64</LibraryPath>
     <ExecutablePath>$(VC_ExecutablePath_x64);$(CommonExecutablePath);D:\GnuWin32\bin</ExecutablePath>
     <TargetName>XSchem</TargetName>
   </PropertyGroup>
@@ -150,7 +150,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>cairo.lib;pixman.lib;zlibd.lib;libpngd.lib;freetype.lib;tcl86t.lib;tk86t.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jpeg.lib;cairo.lib;pixman.lib;zlibd.lib;libpngd.lib;freetype.lib;tcl86t.lib;tk86t.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -200,7 +200,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>cairo.lib;pixman.lib;zlib.lib;libpng.lib;freetype.lib;tcl86t.lib;tk86t.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jpeg.lib;cairo.lib;pixman.lib;zlib.lib;libpng.lib;freetype.lib;tcl86t.lib;tk86t.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_binary|x64'">
@@ -218,7 +218,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>cairo.lib;pixman.lib;zlib.lib;libpng.lib;freetype.lib;tcl86t.lib;tk86t.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jpeg.lib;cairo.lib;pixman.lib;zlib.lib;libpng.lib;freetype.lib;tcl86t.lib;tk86t.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

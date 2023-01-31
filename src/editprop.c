@@ -937,7 +937,7 @@ static void edit_text_property(int x)
    double xx1,yy1,xx2,yy2;
    double pcx,pcy;      /* pin center 20070317 */
    char property[100];/* used for float 2 string conv (xscale  and yscale) overflow safe */
-   const char *str;
+   /* const char *str; */
    char *oldprop = NULL;
 
    dbg(1, "edit_text_property(): entering\n");
@@ -1052,22 +1052,7 @@ static void edit_text_property(int x)
            set_different_token(&xctx->text[sel].prop_ptr, (char *) tclgetvar("props"), oldprop, 0, 0);
          else
            my_strdup(_ALLOC_ID_, &xctx->text[sel].prop_ptr,(char *) tclgetvar("props"));
-         my_strdup(_ALLOC_ID_, &xctx->text[sel].font, get_tok_value(xctx->text[sel].prop_ptr, "font", 0));
-         str = get_tok_value(xctx->text[sel].prop_ptr, "hcenter", 0);
-         xctx->text[sel].hcenter = strcmp(str, "true")  ? 0 : 1;
-         str = get_tok_value(xctx->text[sel].prop_ptr, "vcenter", 0);
-         xctx->text[sel].vcenter = strcmp(str, "true")  ? 0 : 1;
-         str = get_tok_value(xctx->text[sel].prop_ptr, "layer", 0);
-         if(str[0]) xctx->text[sel].layer = atoi(str);
-         else xctx->text[sel].layer=-1;
-         xctx->text[sel].flags = 0;
-         str = get_tok_value(xctx->text[sel].prop_ptr, "slant", 0);
-         xctx->text[sel].flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
-         xctx->text[sel].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
-         str = get_tok_value(xctx->text[sel].prop_ptr, "weight", 0);
-         xctx->text[sel].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
-         str = get_tok_value(xctx->text[sel].prop_ptr, "hide", 0);
-         xctx->text[sel].flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
+         set_text_flags(&xctx->text[sel]);
        }
        if(size_changed) {
          xctx->text[sel].xscale=hsize;

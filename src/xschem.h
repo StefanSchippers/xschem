@@ -1084,6 +1084,7 @@ extern int read_rawfile_from_attr(const char *b64s, size_t length, const char *t
 extern int raw_read_from_attr(const char *type);
 extern char *base64_from_file(const char *f, size_t *length);
 extern int set_rect_flags(xRect *r);
+extern int set_text_flags(xText *t);
 extern int set_rect_extraptr(int what, xRect *drptr);
 extern unsigned char *base64_decode(const char *data, const size_t input_length, size_t *output_length);
 extern char *base64_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk);

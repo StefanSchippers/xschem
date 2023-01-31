@@ -3,6 +3,9 @@
 /* Source: config.h.in; to regenerate run ./configure        */
 /*************************************************************/
 
+/* Define this var if libjpeg is available and is to be used */
+/* #define HAS_LIBJPEG 1 */
+
 /* Define to 1 if cairo is available and is to be used */
 /* #define HAS_CAIRO 1
 #define CAIRO_WIN32_STATIC_BUILD 1 */

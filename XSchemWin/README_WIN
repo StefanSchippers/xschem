@@ -41,6 +41,8 @@ INSTRUCTIONS TO COMPILE XSCHEM IN VISUAL STUDIO 2022
    Optional:
     - Windows Ghostscript (to print)
       Add directory of gswin64.exe to PATH if installer didn't do it
+    - Jpeg for Windows (GNU Win32)
+      http://www.ijg.org
 
 *** NOTE: DO 2A OR 2B, but NOT BOTH ***
 2A. Steps in (2B) are already saved in XSchemWin/XSchemWin.sln.
@@ -149,3 +151,21 @@ INSTRUCTIONS TO COMPILE CAIRO AND COMPILE XSCHEM WITH IT ON VISUAL STUDIO 2022
        * Properties > VC++ Directories > Include: ;cairo_win\cairo\src;cairo_win\projects\cairo\src;
                                          Libraries: ;cairo_win\projects\x64\Debug;cairo_win\libs;cairo_win\freetype\objs\x64\Debug Static
        * Properties > Linker > Input > Additional Dependencies: Add ;cairo.lib;pixman.lib;zlibd.lib;libpngd.lib;freetype.lib;
+
+OPTIONAL: INSTRUCTIONS TO COMPILE WITH JPEG FOR WINDOW (To be used with CAIRO)
+   1. Download jpegsr9e.zip from http://www.ijg.org/ (as of 1/30/2023)
+   2. Unzip jpeg-9e into cairo_win directory (See above)
+   3. Open the Developer Command Prompt for VS 2022 (Tools > Command Line > Developer Command Prompt)
+   4. cd to source  in (2) 
+   5. Type: nmake /f makefile.vs setupcopy-v17
+   6. Open the solution file jpeg.sln, build the library project.
+   7. Build for Release, x64
+
+   Updating Xschem's properties and compile:
+
+   Uncomment the following from config.h
+   a. /* #define HAS_LIBJPEG 1 */
+   b. For Release and Debug, x64
+        * Properties > VC++ Directories > Include: ;cairo_win\jpeg-9e
+                                          Libraries: ;cairo_win\jpeg-9e\Release\x64
+        * Properties > Linker > Input > Additional Dependencies: Add ;jpeg.lib

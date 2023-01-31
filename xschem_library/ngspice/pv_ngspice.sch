@@ -59,7 +59,7 @@ C {ipin.sym} 290 -460 2 1 {name=p2 lab=fade}
 C {ammeter.sym} 340 -460 3 0 {name=Vf}
 C {lab_pin.sym} 370 -460 2 0 {name=l3 sig_type=std_logic lab=f}
 C {ammeter.sym} 430 -730 2 1 {name=Vp}
-C {code_shown.sym} 30 -280 0 0 {name=CONTROL 
+C {code_shown.sym} 20 -340 0 0 {name=CONTROL 
 only_toplevel=true
 value=".param power=100
 .param n=36

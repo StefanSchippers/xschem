@@ -2,7 +2,6 @@
 # replaces _ALLOC_ID_ in all source files with unique ID for memory tracking
 
 BEGIN{
-
   if(ARGC <= 1) {
      print "Usage: " ENVIRON["_"] " create|reset"
      exit

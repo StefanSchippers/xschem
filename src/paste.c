@@ -29,7 +29,6 @@
 static void merge_text(FILE *fd)
 {
    int i;
-   const char *str;
     check_text_storage();
     i=xctx->texts;
      xctx->text[i].txt_ptr=NULL;
@@ -46,27 +45,7 @@ static void merge_text(FILE *fd)
      xctx->text[i].font=NULL;
      xctx->text[i].sel=0;
      load_ascii_string(&xctx->text[i].prop_ptr,fd);
-     my_strdup(_ALLOC_ID_, &xctx->text[i].font, get_tok_value(xctx->text[i].prop_ptr, "font", 0));
-
-
-     str = get_tok_value(xctx->text[i].prop_ptr, "hcenter", 0);
-     xctx->text[i].hcenter = strcmp(str, "true")  ? 0 : 1;
-     str = get_tok_value(xctx->text[i].prop_ptr, "vcenter", 0);
-     xctx->text[i].vcenter = strcmp(str, "true")  ? 0 : 1;
-
-     str = get_tok_value(xctx->text[i].prop_ptr, "layer", 0);
-     if(str[0]) xctx->text[i].layer = atoi(str);
-     else xctx->text[i].layer = -1;
-
-     xctx->text[i].flags = 0;
-     str = get_tok_value(xctx->text[i].prop_ptr, "slant", 0);
-     xctx->text[i].flags |= strcmp(str, "oblique")  ? 0 : TEXT_OBLIQUE;
-     xctx->text[i].flags |= strcmp(str, "italic")  ? 0 : TEXT_ITALIC;
-     str = get_tok_value(xctx->text[i].prop_ptr, "weight", 0);
-     xctx->text[i].flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
-     str = get_tok_value(xctx->text[i].prop_ptr, "hide", 0);
-     xctx->text[i].flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
-
+     set_text_flags(&xctx->text[i]);
      select_text(i,SELECTED, 1);
      set_modify(1);
      xctx->texts++;
