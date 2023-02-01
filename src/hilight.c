@@ -1689,9 +1689,7 @@ void hilight_net(int viewer)
      if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
            /* sets xctx->hilight_nets=1 */
        if(!bus_hilight_hash_lookup(xctx->inst[n].node[0], xctx->hilight_color, XINSERT_NOREPLACE)) {
-         if(viewer == XSCHEM_GRAPH) {
-           send_net_to_graph(&s, sim_is_xyce, xctx->inst[n].node[0]);
-         }
+         if(viewer == XSCHEM_GRAPH) send_net_to_graph(&s, sim_is_xyce, xctx->inst[n].node[0]);
          else if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->inst[n].node[0]);
          else if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->inst[n].node[0]);
          if(incr_hi) incr_hilight_color();

@@ -1366,6 +1366,38 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    else if(!strcmp(argv[1], "hilight_instname"))
+    {
+      int inst;
+      char *type;
+      int incr_hi;
+      xctx->enable_drill=0;
+      incr_hi = tclgetboolvar("incr_hilight");
+      prepare_netlist_structs(0);
+      if((inst = get_instance(argv[2])) < 0 ) {
+        Tcl_SetResult(interp, "xschem hilight_instname: instance not found", TCL_STATIC);
+        return TCL_ERROR;
+      } else {
+        type = (xctx->inst[inst].ptr+ xctx->sym)->type;
+        if( type && xctx->inst[inst].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
+              /* sets xctx->hilight_nets=1 */
+          if(!bus_hilight_hash_lookup(xctx->inst[inst].node[0], xctx->hilight_color, XINSERT_NOREPLACE)) {
+            dbg(1, "xschem hilight_instname: node=%s\n", xctx->inst[inst].node[0]);
+            if(incr_hi) incr_hilight_color();
+          }
+        } else {
+          dbg(1, "xschem hilight_instname: setting hilight flag on inst %d\n",inst);
+          /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */
+          xctx->inst[inst].color = xctx->hilight_color;
+          inst_hilight_hash_lookup(xctx->inst[inst].instname, xctx->hilight_color, XINSERT_NOREPLACE);
+          if(incr_hi) incr_hilight_color();
+        }
+        dbg(1, "hilight_nets=%d\n", xctx->hilight_nets);
+        if(xctx->hilight_nets) propagate_hilights(1, 0, XINSERT_NOREPLACE);
+        redraw_hilights(0);
+      }
+      Tcl_ResetResult(interp);
+    }
     else if(!strcmp(argv[1], "hilight_netname"))
     {
       int ret = 0;
