@@ -632,7 +632,7 @@ void copy_objects(int what)
    xctx->deltax = xctx->deltay = 0.;
    xctx->ui_state&=~STARTCOPY;
    my_strdup(_ALLOC_ID_, &str, user_conf_dir);
-   my_strcat(226, &str, "/.selection.sch");
+   my_strcat(_ALLOC_ID_, &str, "/.selection.sch");
    xunlink(str);
    update_symbol_bboxes(0, 0);
    my_free(_ALLOC_ID_, &str);

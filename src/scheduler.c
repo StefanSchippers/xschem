@@ -1543,7 +1543,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         pin = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, "name",0);
         if(!pin[0]) pin = "--ERROR--";
         my_mstrcat(655, &pins, "{", pin, "}", NULL);
-        if(p< no_of_pins-1) my_strcat(377, &pins, " ");
+        if(p< no_of_pins-1) my_strcat(_ALLOC_ID_, &pins, " ");
       }
       Tcl_SetResult(interp, pins, TCL_VOLATILE);
       my_free(_ALLOC_ID_, &pins);
@@ -3256,10 +3256,10 @@ int tclvareval(const char *script, ...)
   va_list args;
 
   va_start(args, script);
-  size = my_strcat(1379, &str, script);
+  size = my_strcat(_ALLOC_ID_, &str, script);
   dbg(1, "tclvareval(): script=%s, str=%s, size=%d\n", script, str, size);
   while( (p = va_arg(args, const char *)) ) {
-    size = my_strcat(1380, &str, p);
+    size = my_strcat(_ALLOC_ID_, &str, p);
     dbg(1, "tclvareval(): p=%s, str=%s, size=%d\n", p, str, size);
   }
   return_code = Tcl_EvalEx(interp, str, (int)size, TCL_EVAL_GLOBAL);

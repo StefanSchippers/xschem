@@ -55,10 +55,10 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   zoom_full(0, 0, 1, 0.97);
   if(what & 1) ps_draw(2); /* page */
   if(what & 2) { /* print cellname */
-    my_strcat(1637, res, hier_psprint_mtime(xctx->sch[xctx->currsch]));
-    my_strcat(1638, res, "  {");
-    my_strcat(1639, res, xctx->sch[xctx->currsch]);
-    my_strcat(1640, res, "}\n");
+    my_strcat(_ALLOC_ID_, res, hier_psprint_mtime(xctx->sch[xctx->currsch]));
+    my_strcat(_ALLOC_ID_, res, "  {");
+    my_strcat(_ALLOC_ID_, res, xctx->sch[xctx->currsch]);
+    my_strcat(_ALLOC_ID_, res, "}\n");
   }
   dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
   unselect_all(1);
@@ -67,7 +67,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   xctx->pop_undo(2, 0);
   /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
   my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
-  my_strcat(1227, &xctx->sch_path[xctx->currsch+1], "->netlisting");
+  my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
   xctx->sch_path_hash[xctx->currsch+1] = 0;
   xctx->currsch++;
   subckt_name=NULL;
@@ -92,10 +92,10 @@ void hier_psprint(char **res, int what)  /* netlister driver */
         zoom_full(0, 0, 1, 0.97);
         if(what & 1) ps_draw(2); /* page */
         if(what & 2) { /* print cellname */
-          my_strcat(1641, res, hier_psprint_mtime(xctx->sch[xctx->currsch]));
-          my_strcat(1642, res, "  {");
-          my_strcat(1643, res, xctx->sch[xctx->currsch]);
-          my_strcat(1644, res, "}\n");
+          my_strcat(_ALLOC_ID_, res, hier_psprint_mtime(xctx->sch[xctx->currsch]));
+          my_strcat(_ALLOC_ID_, res, "  {");
+          my_strcat(_ALLOC_ID_, res, xctx->sch[xctx->currsch]);
+          my_strcat(_ALLOC_ID_, res, "}\n");
         }
         dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
       }
@@ -130,7 +130,7 @@ static char *model_name(const char *m)
   if(n<2) my_strncpy(model_name_result, m_lower, l);
   else {
     /* build a hash key value with no spaces to make device_model attributes with different spaces equivalent*/
-    my_strcat(296, &model_name_result, modelname);
+    my_strcat(_ALLOC_ID_, &model_name_result, modelname);
   }
   my_free(_ALLOC_ID_, &modelname);
   my_free(_ALLOC_ID_, &m_lower);
@@ -389,7 +389,7 @@ void global_spice_netlist(int global)  /* netlister driver */
    xctx->pop_undo(2, 0);
    /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
    my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
-   my_strcat(481, &xctx->sch_path[xctx->currsch+1], "->netlisting");
+   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;
    xctx->currsch++;
    

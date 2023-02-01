@@ -2020,11 +2020,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_strdup(_ALLOC_ID_, &up_hier, "../../..");
  }
  else my_strdup(_ALLOC_ID_, &up_hier, "..");
- /* my_strcat(415, &win_xschem_library_path, "."); */
+ /* my_strcat(_ALLOC_ID_, &win_xschem_library_path, "."); */
  for (i = 0; i < WIN_XSCHEM_LIBRARY_PATH_NUM; ++i) {
    my_snprintf(tmp, S(tmp),"%s/%s/%s", install_dir, up_hier, WIN_XSCHEM_LIBRARY_PATH[i]);
-   if (i > 0) my_strcat(416, &win_xschem_library_path, "\;"); 
-   my_strcat(431, &win_xschem_library_path, tmp);
+   if (i > 0) my_strcat(_ALLOC_ID_, &win_xschem_library_path, "\;"); 
+   my_strcat(_ALLOC_ID_, &win_xschem_library_path, tmp);
  }
  my_snprintf(tmp, S(tmp), "set tmp2 {%s}; "
    "while {[regsub {([^/]*\\.*[^./]+[^/]*)/\\.\\./?} $tmp2 {} tmp2]} {}; ", win_xschem_library_path); 

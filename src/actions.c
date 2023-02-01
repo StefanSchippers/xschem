@@ -835,7 +835,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
     for(j=0;j<k;j++) if(xctx->sel_array[j].type==ELEMENT) {
       found=1;
       my_strdup(_ALLOC_ID_, &prop, xctx->inst[xctx->sel_array[j].n].instname);
-      my_strcat(6, &prop, "_");
+      my_strcat(_ALLOC_ID_, &prop, "_");
       tclsetvar("custom_label_prefix",prop);
   
       if(interactive && !do_all_inst) {
@@ -923,11 +923,11 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
          if(!skip) {
            my_strdup(_ALLOC_ID_, &prop, "name=p1 lab=");
            if(use_label_prefix) {
-             my_strcat(10, &prop, (char *)tclgetvar("custom_label_prefix"));
+             my_strcat(_ALLOC_ID_, &prop, (char *)tclgetvar("custom_label_prefix"));
            }
            /*  /20171005 */
   
-           my_strcat(11, &prop, labname);
+           my_strcat(_ALLOC_ID_, &prop, labname);
            dir ^= flip; /*  20101129  20111030 */
            if(rotated_text ==-1) {
              rot1=rot;
@@ -1222,9 +1222,9 @@ void get_sch_from_sym(char *filename, xSymbol *sym)
     if( (ptr = strstr(str_tmp, "@symname"))) {
       *ptr = '\0';
       my_strdup2(_ALLOC_ID_, &sch, str_tmp);
-      my_strcat(1649, &sch, sym->name);
+      my_strcat(_ALLOC_ID_, &sch, sym->name);
       ptr += 8;
-      my_strcat(1650, &sch, ptr);
+      my_strcat(_ALLOC_ID_, &sch, ptr);
     } else {
       my_strdup2(_ALLOC_ID_, &sch, str_tmp);
     }
@@ -1350,9 +1350,9 @@ int descend_schematic(int instnumber)
     if(inst_number <1 || inst_number > inst_mult) inst_number = 1;
   }
   dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
-  my_strcat(15, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", inst_number));
+  my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", inst_number));
   dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
-  my_strcat(16, &xctx->sch_path[xctx->currsch+1], ".");
+  my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], ".");
   xctx->sch_inst_number[xctx->currsch+1] = inst_number;
   dbg(1, "descend_schematic(): current path: %s\n", xctx->sch_path[xctx->currsch+1]);
   dbg(1, "descend_schematic(): inst_number=%d\n", inst_number);

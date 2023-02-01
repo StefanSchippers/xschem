@@ -66,7 +66,7 @@ char *my_fgets(FILE *fd)
   size_t len;
 
   while(fgets(buf, SIZE, fd)) {
-    my_strcat(425, &s, buf);
+    my_strcat(_ALLOC_ID_, &s, buf);
     len = strlen(buf);
     if(buf[len - 1] == '\n') break;
   }

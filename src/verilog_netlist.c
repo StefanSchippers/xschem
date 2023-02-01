@@ -344,7 +344,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
    xctx->pop_undo(2, 0);
    /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
    my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
-   my_strcat(496, &xctx->sch_path[xctx->currsch+1], "->netlisting");
+   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;
    xctx->currsch++;
 
@@ -483,7 +483,7 @@ void verilog_block_netlist(FILE *fd, int i)
        get_tok_value(xctx->sym[i].prop_ptr, "verilogprefix", 0));
     if(verilogprefix) {
       my_strdup(_ALLOC_ID_, &symname, verilogprefix);
-      my_strcat(1626, &symname, skip_dir(xctx->sym[i].name));
+      my_strcat(_ALLOC_ID_, &symname, skip_dir(xctx->sym[i].name));
     } else {
       my_strdup(_ALLOC_ID_, &symname, skip_dir(xctx->sym[i].name));
     }

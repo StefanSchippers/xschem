@@ -2533,7 +2533,7 @@ void print_verilog_element(FILE *fd, int inst)
     get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilogprefix", 0));
  if(verilogprefix) {
    my_strdup(_ALLOC_ID_, &symname, verilogprefix);
-   my_strcat(1621, &symname, skip_dir(xctx->inst[inst].name));
+   my_strcat(_ALLOC_ID_, &symname, skip_dir(xctx->inst[inst].name));
  } else {
    my_strdup(_ALLOC_ID_, &symname, skip_dir(xctx->inst[inst].name));
  }
@@ -3539,8 +3539,8 @@ const char *translate2(Lcc *lcc, int level, char* s)
           int i;
           for(i = 1; i <level; i++) {
             const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
-            my_strcat(440, &path, instname);
-            my_strcat(1071, &path, ".");
+            my_strcat(_ALLOC_ID_, &path, instname);
+            my_strcat(_ALLOC_ID_, &path, ".");
           }
         }
         dbg(1, "path=%s\n", path);

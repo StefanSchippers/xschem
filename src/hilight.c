@@ -191,11 +191,11 @@ void display_hilights(char **str)
   for(i=0;i<HASHSIZE;i++) {
     entry = xctx->hilight_table[i];
     while(entry) {
-      if(!first) my_strcat(93, str, " ");
-      my_strcat(943, str,"{");
-      my_strcat(1190, str, entry->path+1);
-      my_strcat(1160, str, entry->token);
-      my_strcat(562, str,"}");
+      if(!first) my_strcat(_ALLOC_ID_, str, " ");
+      my_strcat(_ALLOC_ID_, str,"{");
+      my_strcat(_ALLOC_ID_, str, entry->path+1);
+      my_strcat(_ALLOC_ID_, str, entry->token);
+      my_strcat(_ALLOC_ID_, str,"}");
       first = 0;
       entry = entry->next;
     }
@@ -314,13 +314,13 @@ void create_plot_cmd(void)
           }
           fprintf(fd, "set color%d=rgb:%s\n", idx, color_str);
           if(first) {
-            my_strcat(164, &str, "plot ");
+            my_strcat(_ALLOC_ID_, &str, "plot ");
             first = 0;
           }
-          my_strcat(160, &str, "\"");
-          my_strcat(161, &str, (entry->path)+1);
-          my_strcat(162, &str, tok);
-          my_strcat(163, &str, "\" ");
+          my_strcat(_ALLOC_ID_, &str, "\"");
+          my_strcat(_ALLOC_ID_, &str, (entry->path)+1);
+          my_strcat(_ALLOC_ID_, &str, tok);
+          my_strcat(_ALLOC_ID_, &str, "\" ");
         }
         if(viewer == GAW) {
           char *t=NULL, *p=NULL;
@@ -957,10 +957,10 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
       if(simtype == 0 ) { /* ngspice */
         dbg(1, "%s%s color=%d\n", path, t, c);
         my_snprintf(ss, S(ss), "%s%s %d ", path, t, c);
-        my_strcat(1502, s, ss);
+        my_strcat(_ALLOC_ID_, s, ss);
       } else { /* Xyce */
         my_snprintf(ss, S(ss), "%s%s %d", path, t, c);
-        my_strcat(536, s, ss);
+        my_strcat(_ALLOC_ID_, s, ss);
       }
 
     }
@@ -1105,14 +1105,14 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
     strtolower(t);
     if(!simtype) { /* ngspice */
       my_snprintf(ss, S(ss), "i(%s%s%s) %d", there_is_hierarchy ? "v." : "", path, t, c);
-      my_strcat(537, s, ss);
+      my_strcat(_ALLOC_ID_, s, ss);
     } else { /* Xyce */
       /* 
       my_snprintf(ss, S(ss), "%s%s%s#branch %d", there_is_hierarchy ? "v." : "",
                   path, (there_is_hierarchy ? t+1 : t) , c);
       */
       my_snprintf(ss, S(ss), "i(%s%s) %d", path, t, c);
-      my_strcat(535, s, ss);
+      my_strcat(_ALLOC_ID_, s, ss);
     }
   }
   my_free(_ALLOC_ID_, &p);
