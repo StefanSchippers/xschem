@@ -20,9 +20,74 @@ p{padding: 15px  30px 10px;}
 <a href="parameters.html" class="next">NEXT</a>
  <!-- slide title -->
  <h1>CREATING SYMBOLS</h1><br>
- <h3> creating a new symbol and schematic by cloning</h3>
+ <h3> Creating a subcircuit symbol</h3>
  <p>
-  A useful approach to create a new component (both symbol and schematic view) is to 'clone' it
+  Suppose you have just finished creating a circuit and you now want to create a
+  symbol for it so you can use this circuit as a sub block in other schematics:
+ </p>
+ <img src="creating_symbols01.png">
+ <p>
+  Above schematic contains <kbd>VPP</kbd>, <kbd>PLUS</kbd>, <kbd>MINUS</kbd>,
+  <kbd>VSS</kbd>, <kbd>VNN</kbd> input pins and <kbd>OUT</kbd> output pin.<br>
+  If you press the <kbd>a</kbd> key xschem will generate a symbol automatically.
+ </p>
+ <img src="creating_symbols02.png">
+ <p>
+  If your schematic is called <kbd>mos_power_amplifier.sch</kbd> the symbol will be saved
+  in the same place as the schematic and named <kbd>mos_power_amplifier.sym</kbd>.<br>
+  If you open a new empty schematic and use the <kbd>Insert</kbd> or <kbd>Shift-I</kbd> key
+  to insert a symbol and select the <kbd>mos_power_amplifier.sym</kbd> you get this:
+ </p>
+ <img src="creating_symbols03.png">
+ <p>
+  If you select the symbol instance and press <kbd>q</kbd> you see the instance <kbd>name</kbd>
+  attribute; the name attribute specifies an unique name in current schematic. There can not be two
+  <kbd>x2</kbd> instances in a schematic. If you copy the placed instance to get two of them the new 
+  one will be automatically renamed (to <kbd>x3</kbd> or <kbd>x1</kbd>, or any available unique name).
+ </p>
+ <img src="creating_symbols06.png">
+ <p>
+  If you descend into the symbol and press <kbd>q</kbd> you see the following attributes:
+ </p>
+ <img src="creating_symbols04.png">
+ <pre class="code"style="width:500px;margin-left:40px;">
+type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1"
+ </pre>
+ <p>
+  These attributes are using by xschem to generate the subcircuit netlist line. the <kbd>format</kbd>
+  attribute tells xschem that a line containing the instance name (<kbd>@name</kbd>, replaced by
+  <kbd>x2</kbd>), the list of attached nets
+  (<kbd>@pinlist</kbd>, replaced by the nets attached to the symbol i/o ports in the
+  order they are declared in the subcircuit)
+  and the symbol name (<kbd>@symname</kbd>, replaced by <kbd>mos_power_amplifier</kbd>).<br>
+  The <kbd>type</kbd> attribute tells xschem that the symbol is a subcircuit (not a terminal symbol)
+  and netlister should further descend into the corresponding schematic to complete the netlist.<br>
+  The <kbd>template</kbd> attribute defines default values for attributes when the symbol is
+  placed in a schematic. For example if you place an instance of this symbol in an empty schematic 
+  the instance <kbd>name</kbd> attribute will be set to <kbd>x1</kbd>. If there is already an
+  <kbd>x1</kbd> instance xschem will automatically rename the instance to a unique name.
+  <br><br>
+  You can manually edit the symbol to change its shape or change the pin ordering.<br>
+  If you change the pin positions always move the pin (the red square) and the label together.
+ </p>
+ <img src="creating_symbols05.png">
+ <p>
+  If you select one pin (the small red square box) and press 'q' you see the pin attributes:<br>
+  <kbd>name</kbd> specifies the pin name.<br>
+  <kbd>dir</kbd> specifies the pin direction (<kbd>in, out, inout</kbd>).<br>
+  It is good practice to verify that the pin <kbd>name</kbd> attribute matches the name of the text label next to it.
+ </p>
+ <p class="important">
+  If you edit the text label next to a pin the pin name attribute will be changed automatically.
+ </p>
+ <img src="creating_symbols07.png">
+ <br>
+
+ <h3> Creating a new symbol and schematic by cloning</h3>
+ <p>
+  Another useful approach to create a new component (both symbol and schematic view) is to 'clone' it
   from a similar existing component: after copying a component to a different place in the schematic,
   press the edit property bindkey (<kbd>q</kbd> key) and set a new name for the symbol, set also the 
   <kbd>copy cell</kbd> checkbox: 
