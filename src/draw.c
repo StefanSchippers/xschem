@@ -2580,7 +2580,8 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
   return ret;
 }
 
-/* derived from draw_graph(), calculate y range of custom equation graph data,
+/* derived from draw_graph(), used to calculate y range of custom equation graph data,
+ * call the plot_raw_custom_data
  * handling multiple datasets ad wraps (as in multi-sweep DC sims).
  */
 int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
@@ -2624,9 +2625,6 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
       }
       if(xx >= start && xx <= end) {
         if(first == -1) first = p;
-        /* Build poly x array. Translate from graph coordinates to screen coords */
-        if(dataset == -1 || dataset == sweepvar_wrap) {
-        } /* if(dataset == -1 || dataset == sweepvar_wrap) */
         last = p;
         cnt++;
       } /* if(xx >= start && xx <= end) */
@@ -2694,8 +2692,9 @@ int find_closest_wave(int i, Graph_ctx *gr)
         expression = 1;
       }
     }
-    if(expression) idx = plot_raw_custom_data(sweep_idx, 0, xctx->graph_allpoints-1, express);
+    if(expression) idx = xctx->graph_nvars;
     else idx = get_raw_index(express);
+    dbg(1, "find_closest_wave(): expression=%d, idx=%d\n", expression, idx);
     if( idx != -1 ) {
       int p, dset, ofs;
       int first, last;
@@ -2711,7 +2710,9 @@ int find_closest_wave(int i, Graph_ctx *gr)
         double prev_x, prev_prev_x;
         int cnt=0, wrap;
         register SPICE_DATA *gvx = xctx->graph_values[sweep_idx];
-        register SPICE_DATA *gvy = xctx->graph_values[idx];
+        register SPICE_DATA *gvy;
+        if(expression) plot_raw_custom_data(sweep_idx, ofs, ofs + xctx->graph_npoints[dset]-1, express);
+        gvy = xctx->graph_values[idx];
         dbg(1, "find_closest_wave(): dset=%d\n", dset);
         first = -1;
         /* Process "npoints" simulation items 
