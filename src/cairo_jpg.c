@@ -44,6 +44,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#undef EXTERN
 #include <jpeglib.h>
 
 #include "cairo_jpg.h"

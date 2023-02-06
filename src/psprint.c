@@ -98,13 +98,6 @@ static Ps_color *ps_colors;
 static char ps_font_name[80] = "Helvetica"; /* Courier Times Helvetica Symbol */
 static char ps_font_family[80] = "Helvetica"; /* Courier Times Helvetica Symbol */
 
-typedef struct
-{
-        unsigned char* buffer;
-        size_t pos;
-        size_t size;
-} png_to_byte_closure_t;
-
 void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
 {
   #if defined(HAS_LIBJPEG) && defined(HAS_CAIRO)

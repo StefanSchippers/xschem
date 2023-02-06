@@ -1397,7 +1397,7 @@ proc simulate {{callback {}}} {
   ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
   ## $d : netlist directory
 
-  global netlist_dir terminal sim
+  global netlist_dir terminal sim env
   global execute XSCHEM_SHAREDIR has_x OS
 
   simuldir 

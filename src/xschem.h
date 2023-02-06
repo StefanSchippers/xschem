@@ -416,6 +416,14 @@ typedef struct
 } xLine;
 
 #if HAS_CAIRO==1
+
+typedef struct
+{
+        unsigned char* buffer;
+        size_t pos;
+        size_t size;
+} png_to_byte_closure_t;
+
 typedef struct
 {
   cairo_surface_t *image;
