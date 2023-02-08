@@ -419,6 +419,14 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           need_all_redraw = 1;
         }
       }
+      /* swap cursors */
+      else if((key == 's') ) {
+        double tmp;
+        tmp = xctx->graph_cursor2_x;
+        xctx->graph_cursor2_x = xctx->graph_cursor1_x;
+        xctx->graph_cursor1_x = tmp;
+        need_all_redraw = 1;
+      }
       /* measurement tooltip */
       else if((key == 'm') ) {
         xctx->graph_flags ^= 64;
@@ -1729,7 +1737,11 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='s' && (state == 0) )      /* simulate */
    {
-
+     if(xctx->semaphore >= 2) break;
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
      tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
              "-message {Run circuit simulation?}");
      if(strcmp(tclresult(),"ok")==0) {
