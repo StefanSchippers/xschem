@@ -735,9 +735,27 @@ int raw_read(const char *f, const char *type)
 
 
 /* Read data organized as a table
- * First line is the header line. First column is sweep variable
- * empty lines start a new dataset
- * lines beginning with '#' are comments
+ * First line is the header line containing variable names.
+ * data is presented in column format after the header line
+ * First column is sweep (x-axis) variable
+ * Double empty lines start a new dataset
+ * Single empty lines are ignored
+ * Datasets can have different # of lines.
+ * new dataset do not start with a header row.
+ * Lines beginning with '#' are comments and ignored
+ *
+ *    time    var_a   var_b   var_c
+ * # this is a comment, ignored
+ *     0.0     0.0     1.8    0.3
+ *   <single empty line: ignored>
+ *     0.1     0.0     1.5    0.6
+ *     ...     ...     ...    ...
+ *   <empty line>
+ *   <Second empty line: start new dataset>
+ *     0.0     0.0     1.8    0.3
+ *     0.1     0.0     1.5    0.6
+ *     ...     ...     ...    ...
+ *
  */
 int table_read(const char *f)
 {
@@ -755,27 +773,59 @@ int table_read(const char *f)
   if(fd) {
     int nline = 0;
     int field;
-    res = 0;
-    /* read data */
+    int npoints = 0;
+    int dataset_points = 0;
+    int prev_empty = 0;
+    res = 1;
+    /* read data line by line */
     while((line = my_fgets(fd))) {
-      if(line[0] == '#') continue;
+      int empty = 1;
+      if(line[0] == '#') continue; /* skip comments */
+      line_ptr = line;
+      while(*line_ptr) { /* non empty line ? */
+        if(*line_ptr != ' ' && *line_ptr != '\t' && *line_ptr != '\n') empty = 0;
+        line_ptr++;
+      }
+      if(empty && prev_empty) { /* second empty line: start new dataset */
+        xctx->graph_datasets++;
+        dataset_points = 0;
+        continue;
+      } else if(empty) {
+        prev_empty = 1;
+        continue;
+      }
+      prev_empty = 0;
       line_ptr = line;
       field = 0;
       while( (line_tok = my_strtok_r(line_ptr, " \t\n", "", &line_save)) ) {
         line_ptr = NULL;
-        dbg(0,"%s ", line_tok);
-        if(nline == 0) {
-          my_realloc(_ALLOC_ID_, &xctx->graph_names, field + 1);
+        dbg(1,"%s ", line_tok);
+        if(nline == 0) { /* header line */
+          my_realloc(_ALLOC_ID_, &xctx->graph_names, (field + 1) * sizeof(char *));
           xctx->graph_names[field] = NULL;
           my_strcat(_ALLOC_ID_, &xctx->graph_names[field], line_tok);
           int_hash_lookup(&xctx->graph_raw_table, xctx->graph_names[field], field, XINSERT_NOREPLACE);
+        } else { /* data line */
+          my_realloc(_ALLOC_ID_, &xctx->graph_values[field], (npoints + 1) * sizeof(SPICE_DATA));
+          xctx->graph_values[field][npoints] = (float)atof(line_tok);
+          xctx->graph_npoints[xctx->graph_datasets - 1] = dataset_points + 1;
         }
         field++;
+        xctx->graph_nvars = field;
       }
-      dbg(0, "\n");
+      if(nline) { /* skip header line for npoints calculation*/
+        npoints++;
+        dataset_points++;
+      }
+      dbg(1, "\n");
       nline++;
+      if(nline == 1) {
+        xctx->graph_values = my_calloc(_ALLOC_ID_, xctx->graph_nvars + 1, sizeof(SPICE_DATA *));
+        my_realloc(_ALLOC_ID_, &xctx->graph_npoints, (xctx->graph_datasets+1) * sizeof(int));
+        xctx->graph_datasets++;
+      }
     }
-
+    xctx->graph_allpoints = 0;
     if(res == 1) {
       int i;
       my_strdup2(_ALLOC_ID_, &xctx->graph_raw_schname, xctx->sch[xctx->currsch]);
@@ -785,11 +835,11 @@ int table_read(const char *f)
       for(i = 0; i < xctx->graph_datasets; i++) {
         xctx->graph_allpoints +=  xctx->graph_npoints[i];
       }
-      dbg(0, "Raw file data read: %s\n", f);
+      dbg(0, "Table file data read: %s\n", f);
       dbg(0, "points=%d, vars=%d, datasets=%d\n",
              xctx->graph_allpoints, xctx->graph_nvars, xctx->graph_datasets);
     } else {
-      dbg(0, "raw_read(): no useful data found\n");
+      dbg(0, "table_read(): no useful data found\n");
     }
     fclose(fd);
     my_free(_ALLOC_ID_, &line);
