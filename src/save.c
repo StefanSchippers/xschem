@@ -704,11 +704,11 @@ int raw_read(const char *f, const char *type)
 {
   int res = 0;
   FILE *fd;
-  int_hash_init(&xctx->graph_raw_table, HASHSIZE);
   if(xctx->graph_values || xctx->graph_npoints || xctx->graph_nvars || xctx->graph_datasets) {
     dbg(0, "raw_read(): must clear current raw file before loading new\n");
     return res;
   }
+  int_hash_init(&xctx->graph_raw_table, HASHSIZE);
   fd = fopen(f, fopen_read_mode);
   if(fd) {
     if((res = read_dataset(fd, type)) == 1) {
@@ -764,11 +764,11 @@ int table_read(const char *f)
   char *line = NULL, *line_ptr, *line_save;
   const char *line_tok;
   
-  int_hash_init(&xctx->graph_raw_table, HASHSIZE);
   if(xctx->graph_values || xctx->graph_npoints || xctx->graph_nvars || xctx->graph_datasets) {
-    dbg(0, "raw_read(): must clear current data file before loading new\n");
+    dbg(0, "table_read(): must clear current data file before loading new\n");
     return res;
   }
+  int_hash_init(&xctx->graph_raw_table, HASHSIZE);
   fd = fopen(f, fopen_read_mode);
   if(fd) {
     int nline = 0;
