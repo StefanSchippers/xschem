@@ -28,7 +28,7 @@ void init_inst_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, doub
       dbg(3, "init_inst_iterator(): instances=%d\n", xctx->instances);
       
       if(xctx->instances) {
-        my_realloc(334, &ctx->instflag, xctx->instances*sizeof(unsigned short));
+        my_realloc(_ALLOC_ID_, &ctx->instflag, xctx->instances*sizeof(unsigned short));
         memset(ctx->instflag, 0, xctx->instances*sizeof(unsigned short));
       }
       /* calculate square 4 1st corner of drawing area */
@@ -72,7 +72,7 @@ Instentry *inst_iterator_next(Iterator_ctx *ctx)
       ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
       ctx->instanceptr = xctx->inst_spatial_table[ctx->tmpi][ctx->tmpj];
     } else {
-      my_free(335, &ctx->instflag);
+      my_free(_ALLOC_ID_, &ctx->instflag);
       return NULL;
     }
   }
@@ -83,7 +83,7 @@ void init_wire_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, doub
       ctx->wireflag = NULL;
       dbg(3, "init_wire_iterator(): wires=%d\n", xctx->wires);
       if(xctx->wires) {
-        my_realloc(336, &ctx->wireflag, xctx->wires*sizeof(unsigned short));
+        my_realloc(_ALLOC_ID_, &ctx->wireflag, xctx->wires*sizeof(unsigned short));
         memset(ctx->wireflag, 0, xctx->wires*sizeof(unsigned short));
       }
       /* calculate square 4 1st corner of drawing area */
@@ -127,7 +127,7 @@ Wireentry *wire_iterator_next(Iterator_ctx *ctx)
       ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
       ctx->wireptr = xctx->wire_spatial_table[ctx->tmpi][ctx->tmpj];
     } else {
-      my_free(337, &ctx->wireflag);
+      my_free(_ALLOC_ID_, &ctx->wireflag);
       return NULL;
     }
   }

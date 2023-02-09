@@ -40,7 +40,7 @@ static void tedax_netlist(FILE *fd, int tedax_stop )
      if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "tedax_ignore",0 ), "true") ) {
        continue;
      }
-     my_strdup(1146, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
      if( type && IS_PIN(type) ) {
        print_tedax_element(fd, i) ;  /* this is the element line  */
      }
@@ -52,7 +52,7 @@ static void tedax_netlist(FILE *fd, int tedax_stop )
      if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "tedax_ignore",0 ), "true") ) {
        continue;
      }
-     my_strdup(1147, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
 
      if( type && !IS_LABEL_OR_PIN(type) ) {
        /* already done in global_tedax_netlist */
@@ -68,7 +68,7 @@ static void tedax_netlist(FILE *fd, int tedax_stop )
        }
      }
     }
-    my_free(1148, &type);
+    my_free(_ALLOC_ID_, &type);
   }
   if(!tedax_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
 }
@@ -92,7 +92,7 @@ static void tedax_block_netlist(FILE *fd, int i)
   fprintf(fd, "begin netlist v1 %s\n",skip_dir(xctx->sym[i].name));
   print_tedax_subckt(fd, i);
 
-  my_strdup(1149, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
+  my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
   /* this is now done in print_spice_subckt */
   /*
    * fprintf(fd, "%s ", extra ? extra : "" );
@@ -100,7 +100,7 @@ static void tedax_block_netlist(FILE *fd, int i)
 
   /* 20081206 new get_sym_template does not return token=value pairs where token listed in extra */
   fprintf(fd, "%s", get_sym_template(xctx->sym[i].templ, extra));
-  my_free(1150, &extra);
+  my_free(_ALLOC_ID_, &extra);
   fprintf(fd, "\n");
   load_schematic(1,filename, 0);
   tedax_netlist(fd, tedax_stop);
@@ -175,7 +175,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
  /* warning if two symbols perfectly overlapped */
  warning_overlapped_symbols(0);
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
- stored_flags = my_calloc(1151, xctx->instances, sizeof(unsigned int));
+ stored_flags = my_calloc(_ALLOC_ID_, xctx->instances, sizeof(unsigned int));
  for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].color;
 
  if(global) /* was if(global) ... 20180901 no hierarchical tEDAx netlist for now */
@@ -186,8 +186,8 @@ void global_tedax_netlist(int global)  /* netlister driver */
    /* reload data without popping undo stack, this populates embedded symbols if any */
    xctx->pop_undo(2, 0);
    /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
-   my_strdup(1152, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
-   my_strcat(1153, &xctx->sch_path[xctx->currsch+1], "->netlisting");
+   my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
+   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;
    xctx->currsch++;
 
@@ -196,13 +196,13 @@ void global_tedax_netlist(int global)  /* netlister driver */
    {
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
-    my_strdup2(1154, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
+    my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
       tedax_block_netlist(fd, i);
     }
    }
-   my_free(1155, &abs_path);
+   my_free(_ALLOC_ID_, &abs_path);
    /*clear_drawing(); */
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
    xctx->currsch--;
@@ -219,7 +219,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
  for(i=0;i<xctx->instances; i++) xctx->inst[i].color = stored_flags[i];
  propagate_hilights(1, 0, XINSERT_NOREPLACE);
  draw_hilight_net(1);
- my_free(1156, &stored_flags);
+ my_free(_ALLOC_ID_, &stored_flags);
 
  /* print globals nodes found in netlist 28032003 */
  record_global_node(0,fd,NULL);

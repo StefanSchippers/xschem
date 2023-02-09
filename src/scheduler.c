@@ -670,7 +670,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char *str = NULL;
       display_hilights(&str);
       Tcl_SetResult(interp, str, TCL_VOLATILE);
-      my_free(985, &str);
+      my_free(_ALLOC_ID_, &str);
     }
     else if(!strcmp(argv[1], "draw_graph"))
     {
@@ -763,10 +763,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         l = expandlabel(argv[2], &tmp);
         llen = strlen(l);
         dbg(1, "l=%s\n", l ? l : "<NULL>");
-        result = my_malloc(986, llen + 30);
+        result = my_malloc(_ALLOC_ID_, llen + 30);
         my_snprintf(result, llen + 30, "%s %d", l, tmp);
         Tcl_SetResult(interp, result, TCL_VOLATILE);
-        my_free(987, &result);
+        my_free(_ALLOC_ID_, &result);
       }
     }
     else { cmd_found = 0;}
@@ -1148,7 +1148,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
            Tcl_SetResult(interp, (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][n].prop_ptr, TCL_VOLATILE);
           } else {
             tmp = 100 + strlen(argv[4]) + strlen(argv[5]);
-            subtok = my_malloc(988,tmp);
+            subtok = my_malloc(_ALLOC_ID_,tmp);
             my_snprintf(subtok, tmp, "%s(%s)", argv[5], argv[4]);
             value = get_tok_value(xctx->inst[inst].prop_ptr,subtok,0);
             if(!value[0]) {
@@ -1167,7 +1167,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               }
               Tcl_SetResult(interp, (char *)value, TCL_VOLATILE);
             }
-            my_free(989, &subtok);
+            my_free(_ALLOC_ID_, &subtok);
           }
         }
       /* xschem getprop symbol lm358.sym [type] */
@@ -1221,9 +1221,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc < 4) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
       if(argc == 5) t = atoi(argv[4]);
       else t = 0;
-      my_strdup(990, &s, get_tok_value(argv[2], argv[3], t));
+      my_strdup(_ALLOC_ID_, &s, get_tok_value(argv[2], argv[3], t));
       Tcl_SetResult(interp, s, TCL_VOLATILE);
-      my_free(991, &s);
+      my_free(_ALLOC_ID_, &s);
     }
 
     else if(!strcmp(argv[1], "get_tok_size") )
@@ -1534,7 +1534,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       rct=symbol->rect[PINLAYER];
       /* slotted devices: name= U1:2, pinnumber=2:5 */
       slot = -1;
-      tmpstr = my_malloc(992, sizeof(xctx->inst[i].instname));
+      tmpstr = my_malloc(_ALLOC_ID_, sizeof(xctx->inst[i].instname));
       if((ss=strchr(xctx->inst[i].instname, ':')) ) {
         sscanf(ss+1, "%s", tmpstr);
         if(isonlydigit(tmpstr)) {
@@ -1557,7 +1557,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       piny0 += y0;
       my_snprintf(num, S(num), "{%s} %g %g", get_tok_value(rct[p].prop_ptr, "name", 0), pinx0, piny0);
       Tcl_SetResult(interp, num, TCL_VOLATILE);
-      my_free(993, &tmpstr);
+      my_free(_ALLOC_ID_, &tmpstr);
     }
 
     else if(!strcmp(argv[1], "instance_pins"))
@@ -1575,10 +1575,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         pin = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, "name",0);
         if(!pin[0]) pin = "--ERROR--";
         my_mstrcat(655, &pins, "{", pin, "}", NULL);
-        if(p< no_of_pins-1) my_strcat(994, &pins, " ");
+        if(p< no_of_pins-1) my_strcat(_ALLOC_ID_, &pins, " ");
       }
       Tcl_SetResult(interp, pins, TCL_VOLATILE);
-      my_free(995, &pins);
+      my_free(_ALLOC_ID_, &pins);
     }
 
     else if(!strcmp(argv[1], "instance_pos"))
@@ -1634,7 +1634,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       Tcl_SetResult(interp, pins ? pins : "", TCL_VOLATILE);
-      my_free(996, &pins);
+      my_free(_ALLOC_ID_, &pins);
     }
     else { cmd_found = 0;}
     break;
@@ -1673,7 +1673,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
       hier_psprint(&res, 2);
       Tcl_SetResult(interp, res, TCL_VOLATILE);
-      my_free(997, &res);
+      my_free(_ALLOC_ID_, &res);
     }
 
     else if(!strcmp(argv[1], "list_hilights"))
@@ -1739,7 +1739,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             dbg(1, "scheduler: undo_reset=%d\n", undo_reset);
             load_schematic(load_symbols, f, undo_reset);
             tclvareval("update_recent_file {", f, "}", NULL);
-            my_strdup(998, &xctx->sch_path[xctx->currsch], ".");
+            my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
             xctx->sch_path_hash[xctx->currsch] = 0;
             xctx->sch_inst_number[xctx->currsch] = 1;
             if(nofullzoom) draw();
@@ -2369,15 +2369,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         delete_inst_node(inst); /* 20180208 fix crashing bug: delete node info if changing symbol */
                              /* if number of pins is different we must delete these data *before* */
                              /* changing ysmbol, otherwise i might end up deleting non allocated data. */
-        my_strdup2(999, &xctx->inst[inst].name, rel_sym_path(symbol));
+        my_strdup2(_ALLOC_ID_, &xctx->inst[inst].name, rel_sym_path(symbol));
         xctx->inst[inst].ptr=sym_number;
         bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
-        my_strdup(1000, &name, xctx->inst[inst].instname);
+        my_strdup(_ALLOC_ID_, &name, xctx->inst[inst].instname);
         if(name && name[0] )
         {
           /* 20110325 only modify prefix if prefix not NUL */
           if(prefix) name[0]=(char)prefix; /* change prefix if changing symbol type; */
-          my_strdup(1001, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
+          my_strdup(_ALLOC_ID_, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
           hash_all_names();
           new_prop_string(inst, ptr,0, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
           type=xctx->sym[xctx->inst[inst].ptr].type;
@@ -2385,12 +2385,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(cond) xctx->inst[inst].flags|=2;
           else {
             xctx->inst[inst].flags &=~2;
-            my_strdup(1002, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
+            my_strdup(_ALLOC_ID_, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
           }
           xctx->inst[inst].embed = !strcmp(get_tok_value(xctx->inst[inst].prop_ptr, "embed", 2), "true");
-          my_free(1003, &ptr);
+          my_free(_ALLOC_ID_, &ptr);
         }
-        my_free(1004, &name);
+        my_free(_ALLOC_ID_, &name);
         /* new symbol bbox after prop changes (may change due to text length) */
         symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
         bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
@@ -2552,7 +2552,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(exists) {
         viewer = atoi(tclgetvar("sim(spicewave,default)"));
         my_snprintf(tcl_str, S(tcl_str), "sim(spicewave,%d,name)", viewer);
-        my_strdup(1005, &viewer_name, tclgetvar(tcl_str));
+        my_strdup(_ALLOC_ID_, &viewer_name, tclgetvar(tcl_str));
         dbg(1, "send_to_viewer: viewer_name=%s\n", viewer_name);
         if(strstr(viewer_name, "Gaw")) viewer=GAW;
         else if(strstr(viewer_name, "Bespice")) viewer=BESPICE;
@@ -2560,7 +2560,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           hilight_net(viewer);
           redraw_hilights(0);
         }
-        my_free(1006, &viewer_name);
+        my_free(_ALLOC_ID_, &viewer_name);
       }
       Tcl_ResetResult(interp);
     }
@@ -2586,12 +2586,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             xctx->draw_window=atoi(argv[3]);
           }
           else if(!strcmp(argv[2], "format")) {
-            my_strdup(1007, &xctx->format, argv[3]);
+            my_strdup(_ALLOC_ID_, &xctx->format, argv[3]);
           }
           else if(!strcmp(argv[2], "header_text")) {
             if(!xctx->header_text || strcmp(xctx->header_text, argv[3])) {
               set_modify(1); xctx->push_undo();
-              my_strdup2(1008, &xctx->header_text, argv[3]);
+              my_strdup2(_ALLOC_ID_, &xctx->header_text, argv[3]);
             } 
           }
           else if(!strcmp(argv[2], "hide_symbols")) {
@@ -2668,10 +2668,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       char *s = NULL;
       if(argc < 5) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
-      my_strdup(1009, &s, argv[2]);
+      my_strdup(_ALLOC_ID_, &s, argv[2]);
       set_different_token(&s, argv[3], argv[4], 0, 0);
       Tcl_SetResult(interp, s, TCL_VOLATILE);
-      my_free(1010, &s);
+      my_free(_ALLOC_ID_, &s);
     }
 
     else if(!strcmp(argv[1], "set_modify"))
@@ -2733,7 +2733,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(cond) xctx->inst[inst].flags|=2;
           else {
             xctx->inst[inst].flags &=~2;
-            my_strdup(1011, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
+            my_strdup(_ALLOC_ID_, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
           }
           xctx->inst[inst].embed = !strcmp(get_tok_value(xctx->inst[inst].prop_ptr, "embed", 2), "true");
           if(!fast) {
@@ -2788,14 +2788,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(strcmp(argv[6], get_tok_value(r->prop_ptr, argv[5], 0))) {
             change_done = 1;
             if(fast == 3 || fast == 0) xctx->push_undo();
-            my_strdup2(1012, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], argv[6]));
+            my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], argv[6]));
           }
         } else {
           get_tok_value(r->prop_ptr, argv[5], 0);
           if(xctx->tok_size) {
             change_done = 1;
             if(fast == 3 || fast == 0) xctx->push_undo();
-            my_strdup2(1013, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], NULL)); /* delete attr */
+            my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], NULL)); /* delete attr */
           }
         }
         if(change_done) set_modify(1);
@@ -2850,14 +2850,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(strcmp(argv[5], get_tok_value(t->prop_ptr, argv[4], 0))) {
             change_done = 1;
             if(fast == 3 || fast == 0) xctx->push_undo();
-            my_strdup2(1014, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], argv[5]));
+            my_strdup2(_ALLOC_ID_, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], argv[5]));
           }
         } else {
           get_tok_value(t->prop_ptr, argv[4], 0);
           if(xctx->tok_size) {
             change_done = 1;
             if(fast == 3 || fast == 0) xctx->push_undo();
-            my_strdup2(1015, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], NULL)); /* delete attr */
+            my_strdup2(_ALLOC_ID_, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], NULL)); /* delete attr */
           }
         }
         if(change_done) set_modify(1);
@@ -2900,9 +2900,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       char *s=NULL;
       if(argc < 5) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
-      my_strdup(1016, &s, subst_token(argv[2], argv[3], strcmp(argv[4], "NULL") ? argv[4] : NULL));
+      my_strdup(_ALLOC_ID_, &s, subst_token(argv[2], argv[3], strcmp(argv[4], "NULL") ? argv[4] : NULL));
       Tcl_SetResult(interp, s, TCL_VOLATILE);
-      my_free(1017, &s);
+      my_free(_ALLOC_ID_, &s);
     }
 
     else if(!strcmp(argv[1], "symbol_in_new_window"))
@@ -3296,10 +3296,10 @@ int tclvareval(const char *script, ...)
   va_list args;
 
   va_start(args, script);
-  size = my_strcat(1018, &str, script);
+  size = my_strcat(_ALLOC_ID_, &str, script);
   dbg(1, "tclvareval(): script=%s, str=%s, size=%d\n", script, str, size);
   while( (p = va_arg(args, const char *)) ) {
-    size = my_strcat(1019, &str, p);
+    size = my_strcat(_ALLOC_ID_, &str, p);
     dbg(1, "tclvareval(): p=%s, str=%s, size=%d\n", p, str, size);
   }
   return_code = Tcl_EvalEx(interp, str, (int)size, TCL_EVAL_GLOBAL);
@@ -3308,6 +3308,6 @@ int tclvareval(const char *script, ...)
     dbg(0, "tclvareval(): error executing %s: %s\n", str, tclresult());
     Tcl_ResetResult(interp);
   }
-  my_free(1020, &str);
+  my_free(_ALLOC_ID_, &str);
   return return_code;
 }

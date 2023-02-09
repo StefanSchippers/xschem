@@ -28,7 +28,7 @@ void check_wire_storage(void)
  if(xctx->wires >= xctx->maxw)
  {
   xctx->maxw=(1+xctx->wires / CADMAXWIRES)*CADMAXWIRES;
-  my_realloc(1111, &xctx->wire, sizeof(xWire)*xctx->maxw);
+  my_realloc(_ALLOC_ID_, &xctx->wire, sizeof(xWire)*xctx->maxw);
  }
 }
 
@@ -37,7 +37,7 @@ void check_selected_storage(void)
  if(xctx->lastsel >= xctx->maxsel)
  {
   xctx->maxsel=(1+xctx->lastsel / MAXGROUP) * MAXGROUP;
-  my_realloc(1112, &xctx->sel_array, sizeof(Selected)*xctx->maxsel);
+  my_realloc(_ALLOC_ID_, &xctx->sel_array, sizeof(Selected)*xctx->maxsel);
  }
 }
 
@@ -46,7 +46,7 @@ void check_text_storage(void)
  if(xctx->texts >= xctx->maxt)
  {
   xctx->maxt=(1 + xctx->texts / CADMAXTEXT) * CADMAXTEXT;
-  my_realloc(1113, &xctx->text, sizeof(xText)*xctx->maxt);
+  my_realloc(_ALLOC_ID_, &xctx->text, sizeof(xText)*xctx->maxt);
  }
 }
 
@@ -58,42 +58,42 @@ void check_symbol_storage(void)
   dbg(1, "check_symbol_storage(): more than maxs, %s\n",
         xctx->sch[xctx->currsch] );
   xctx->maxs=(1 + xctx->symbols / ELEMDEF) * ELEMDEF;
-  my_realloc(1114, &xctx->sym, sizeof(xSymbol)*xctx->maxs);
+  my_realloc(_ALLOC_ID_, &xctx->sym, sizeof(xSymbol)*xctx->maxs);
   for(i=xctx->symbols;i<xctx->maxs;i++) {
-    xctx->sym[i].poly=my_calloc(1115, cadlayers, sizeof(xPoly *));
+    xctx->sym[i].poly=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
     if(xctx->sym[i].poly==NULL){
        fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
     }
 
-    xctx->sym[i].arc=my_calloc(1116, cadlayers, sizeof(xArc *));
+    xctx->sym[i].arc=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
     if(xctx->sym[i].arc==NULL){
        fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
     }
 
-    xctx->sym[i].line=my_calloc(1117, cadlayers, sizeof(xLine *));
+    xctx->sym[i].line=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
     if(xctx->sym[i].line==NULL){
        fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
     }
 
-    xctx->sym[i].rect=my_calloc(1118, cadlayers, sizeof(xRect *));
+    xctx->sym[i].rect=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xRect *));
     if(xctx->sym[i].rect==NULL){
       fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
     }
 
-    xctx->sym[i].lines=my_calloc(1119, cadlayers, sizeof(int));
+    xctx->sym[i].lines=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
     if(xctx->sym[i].lines==NULL){
       fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
     }
 
-    xctx->sym[i].rects=my_calloc(1120, cadlayers, sizeof(int));
+    xctx->sym[i].rects=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
     if(xctx->sym[i].rects==NULL){
       fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
     }
-    xctx->sym[i].polygons=my_calloc(1121, cadlayers, sizeof(int));
+    xctx->sym[i].polygons=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
     if(xctx->sym[i].polygons==NULL){
       fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
     }
-    xctx->sym[i].arcs=my_calloc(1122, cadlayers, sizeof(int));
+    xctx->sym[i].arcs=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
     if(xctx->sym[i].arcs==NULL){
       fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
     }
@@ -109,7 +109,7 @@ void check_inst_storage(void)
  if(xctx->instances >= xctx->maxi)
  {
   xctx->maxi=(1 + xctx->instances / ELEMINST) * ELEMINST;
-  my_realloc(1123, &xctx->inst, sizeof(xInstance)*xctx->maxi);
+  my_realloc(_ALLOC_ID_, &xctx->inst, sizeof(xInstance)*xctx->maxi);
   #ifdef ZERO_REALLOC
   memset(xctx->inst + xctx->instances, 0, sizeof(xInstance) * (xctx->maxi - xctx->instances));
   #endif
@@ -121,7 +121,7 @@ void check_arc_storage(int c)
  if(xctx->arcs[c] >= xctx->maxa[c])
  {
   xctx->maxa[c]=(1 + xctx->arcs[c] / CADMAXOBJECTS) * CADMAXOBJECTS;
-  my_realloc(1124, &xctx->arc[c], sizeof(xArc)*xctx->maxa[c]);
+  my_realloc(_ALLOC_ID_, &xctx->arc[c], sizeof(xArc)*xctx->maxa[c]);
   #ifdef ZERO_REALLOC
   memset(xctx->arc[c] + xctx->arcs[c], 0, sizeof(xArc) * (xctx->maxa[c] - xctx->arcs[c]));
   #endif
@@ -133,7 +133,7 @@ void check_box_storage(int c)
  if(xctx->rects[c] >= xctx->maxr[c])
  {
   xctx->maxr[c]=(1 + xctx->rects[c] / CADMAXOBJECTS) * CADMAXOBJECTS;
-  my_realloc(1125, &xctx->rect[c], sizeof(xRect)*xctx->maxr[c]);
+  my_realloc(_ALLOC_ID_, &xctx->rect[c], sizeof(xRect)*xctx->maxr[c]);
   #ifdef ZERO_REALLOC
   memset(xctx->rect[c] + xctx->rects[c], 0, sizeof(xRect) * (xctx->maxr[c] - xctx->rects[c]));
   #endif
@@ -145,7 +145,7 @@ void check_line_storage(int c)
  if(xctx->lines[c] >= xctx->maxl[c])
  {
   xctx->maxl[c]=(1 + xctx->lines[c] / CADMAXOBJECTS) * CADMAXOBJECTS;
-  my_realloc(1126, &xctx->line[c], sizeof(xLine)*xctx->maxl[c]);
+  my_realloc(_ALLOC_ID_, &xctx->line[c], sizeof(xLine)*xctx->maxl[c]);
   #ifdef ZERO_REALLOC
   memset(xctx->line[c] + xctx->lines[c], 0, sizeof(xLine) * (xctx->maxl[c] - xctx->lines[c]));
   #endif
@@ -157,7 +157,7 @@ void check_polygon_storage(int c)
  if(xctx->polygons[c] >= xctx->maxp[c])
  {
   xctx->maxp[c]=(1 + xctx->polygons[c] / CADMAXOBJECTS) * CADMAXOBJECTS;
-  my_realloc(1127, &xctx->poly[c], sizeof(xPoly)*xctx->maxp[c]);
+  my_realloc(_ALLOC_ID_, &xctx->poly[c], sizeof(xPoly)*xctx->maxp[c]);
   #ifdef ZERO_REALLOC
   memset(xctx->poly[c] + xctx->polygons[c], 0, sizeof(xPoly) * (xctx->maxp[c] - xctx->polygons[c]));
   #endif
@@ -185,7 +185,7 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
   xctx->arc[rectc][n].a = a;
   xctx->arc[rectc][n].b = b;
   xctx->arc[rectc][n].prop_ptr = NULL;
-  my_strdup(1128, &xctx->arc[rectc][n].prop_ptr, prop_ptr);
+  my_strdup(_ALLOC_ID_, &xctx->arc[rectc][n].prop_ptr, prop_ptr);
   xctx->arc[rectc][n].sel = sel;
   if( !strcmp(get_tok_value(xctx->arc[rectc][n].prop_ptr,"fill",0),"true") )
     xctx->arc[rectc][n].fill =1;
@@ -223,10 +223,10 @@ void store_poly(int pos, double *x, double *y, int points, unsigned int rectc,
   xctx->poly[rectc][n].y=NULL;
   xctx->poly[rectc][n].selected_point=NULL;
   xctx->poly[rectc][n].prop_ptr=NULL;
-  xctx->poly[rectc][n].x= my_calloc(1129, points, sizeof(double));
-  xctx->poly[rectc][n].y= my_calloc(1130, points, sizeof(double));
-  xctx->poly[rectc][n].selected_point= my_calloc(1131, points, sizeof(unsigned short));
-  my_strdup(1132, &xctx->poly[rectc][n].prop_ptr, prop_ptr);
+  xctx->poly[rectc][n].x= my_calloc(_ALLOC_ID_, points, sizeof(double));
+  xctx->poly[rectc][n].y= my_calloc(_ALLOC_ID_, points, sizeof(double));
+  xctx->poly[rectc][n].selected_point= my_calloc(_ALLOC_ID_, points, sizeof(unsigned short));
+  my_strdup(_ALLOC_ID_, &xctx->poly[rectc][n].prop_ptr, prop_ptr);
   for(j=0;j<points; j++) {
     xctx->poly[rectc][n].x[j] = x[j];
     xctx->poly[rectc][n].y[j] = y[j];
@@ -276,7 +276,7 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->line[rectc][n].y1=y1;
      xctx->line[rectc][n].y2=y2;
      xctx->line[rectc][n].prop_ptr=NULL;
-     my_strdup(1133, &xctx->line[rectc][n].prop_ptr, prop_ptr);
+     my_strdup(_ALLOC_ID_, &xctx->line[rectc][n].prop_ptr, prop_ptr);
      xctx->line[rectc][n].sel=sel;
      if( prop_ptr && !strcmp(get_tok_value(prop_ptr, "bus", 0), "true") )
        xctx->line[rectc][n].bus = 1;
@@ -309,7 +309,7 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->rect[rectc][n].y2=y2;
      xctx->rect[rectc][n].prop_ptr=NULL;
      xctx->rect[rectc][n].extraptr=NULL;
-     my_strdup(1134, &xctx->rect[rectc][n].prop_ptr, prop_ptr);
+     my_strdup(_ALLOC_ID_, &xctx->rect[rectc][n].prop_ptr, prop_ptr);
      xctx->rect[rectc][n].sel=sel;
      if(prop_ptr && (dash = get_tok_value(prop_ptr,"dash",0))[0]) {
        int d = atoi(dash);
@@ -349,7 +349,7 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->wire[n].node=NULL;
      xctx->wire[n].end1=0;
      xctx->wire[n].end2=0;
-     my_strdup(1135, &xctx->wire[n].prop_ptr, prop_ptr);
+     my_strdup(_ALLOC_ID_, &xctx->wire[n].prop_ptr, prop_ptr);
      if(prop_ptr && !strcmp(get_tok_value(prop_ptr,"bus",0), "true")) xctx->wire[n].bus=1;
      else xctx->wire[n].bus=0;
      xctx->wire[n].sel=sel;

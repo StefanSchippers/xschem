@@ -38,7 +38,7 @@ void compile_font(void)
   select_inside(code*FONTOFFSET-1,-FONTHEIGHT-1,
                  code*FONTOFFSET+FONTWIDTH+1,FONTWHITESPACE + FONTDESCENT+1, 1);
   rebuild_selected_array();
-  character[code] = my_calloc(333, xctx->lastsel*4+1, sizeof(double));
+  character[code] = my_calloc(_ALLOC_ID_, xctx->lastsel*4+1, sizeof(double));
   character[code][0] = (double)xctx->lastsel;
   dbg(2, "compile_font(): character[%d][]={%.16g",code,character[code][0]);
   for(i=0;i<xctx->lastsel;i++)

@@ -30,7 +30,7 @@ static void instdelete(int n, int x, int y)
   prevptr = &xctx->inst_spatial_table[x][y];
   while( (*prevptr)->n != n) prevptr = &(*prevptr)->next;
   saveptr = (*prevptr)->next;
-  my_free(658, prevptr);
+  my_free(_ALLOC_ID_, prevptr);
   *prevptr = saveptr;
 }
 
@@ -38,7 +38,7 @@ static void instinsert(int n, int x, int y)
 {
   Instentry *ptr, *newptr;
   ptr=xctx->inst_spatial_table[x][y];
-  newptr=my_malloc(659, sizeof(Instentry));
+  newptr=my_malloc(_ALLOC_ID_, sizeof(Instentry));
   newptr->next=ptr;
   newptr->n=n;
   xctx->inst_spatial_table[x][y]=newptr;
@@ -50,7 +50,7 @@ static Instentry *delinstentry(Instentry *t)
   Instentry *tmp;
   while( t ) {
     tmp = t->next;
-    my_free(660, &t);
+    my_free(_ALLOC_ID_, &t);
     t = tmp;
   }
   return NULL;
@@ -132,7 +132,7 @@ static void instpindelete(int n,int pin, int x, int y)
   while(ptr) {
     if(ptr->n == n && ptr->pin == pin) {
       saveptr = ptr->next;
-      my_free(661, &ptr);
+      my_free(_ALLOC_ID_, &ptr);
       *prevptr = saveptr;
       return;
     }
@@ -147,7 +147,7 @@ static void instpininsert(int n,int pin, double x0, double y0, int x, int y)
  Instpinentry *ptr, *newptr;
 
  ptr=xctx->instpin_spatial_table[x][y];
- newptr=my_malloc(662, sizeof(Instpinentry));
+ newptr=my_malloc(_ALLOC_ID_, sizeof(Instpinentry));
  newptr->next=ptr;
  newptr->n=n;
  newptr->x0=x0;
@@ -164,7 +164,7 @@ static Instpinentry *delinstpinentry(Instpinentry *t)
 
   while(t) {
     tmp = t->next;
-    my_free(663, &t);
+    my_free(_ALLOC_ID_, &t);
     t = tmp;
   }
   return NULL;
@@ -187,7 +187,7 @@ static void wiredelete(int n, int x, int y)
   prevptr = &xctx->wire_spatial_table[x][y];
   while( (*prevptr)->n != n) prevptr = &(*prevptr)->next;
   saveptr = (*prevptr)->next;
-  my_free(664, prevptr);
+  my_free(_ALLOC_ID_, prevptr);
   *prevptr = saveptr;
 }
 
@@ -196,7 +196,7 @@ static void wireinsert(int n, int x, int y)
   Wireentry *ptr, *newptr;
 
   ptr=xctx->wire_spatial_table[x][y];
-  newptr=my_malloc(665, sizeof(Wireentry));
+  newptr=my_malloc(_ALLOC_ID_, sizeof(Wireentry));
   newptr->next=ptr;
   newptr->n=n;
   xctx->wire_spatial_table[x][y]=newptr;
@@ -209,7 +209,7 @@ static Wireentry *delwireentry(Wireentry *t)
 
   while( t ) {
     tmp = t->next;
-    my_free(666, &t);
+    my_free(_ALLOC_ID_, &t);
     t = tmp;
   }
   return NULL;
@@ -487,18 +487,18 @@ int record_global_node(int what, FILE *fp, char *node)
     if(what == 3) return 0; /* node is not a global */
     if(max_globals>=size_globals) {
        size_globals+=CADCHUNKALLOC;
-       my_realloc(667, &globals, size_globals*sizeof(char *) );
+       my_realloc(_ALLOC_ID_, &globals, size_globals*sizeof(char *) );
     }
     globals[max_globals]=NULL;
-    my_strdup(668, &globals[max_globals], node);
+    my_strdup(_ALLOC_ID_, &globals[max_globals], node);
     max_globals++;
  } else if(what == 0 || what == 2) {
     for(i=0;i<max_globals;i++) {
        if(what == 0 && xctx->netlist_type == CAD_SPICE_NETLIST) fprintf(fp, ".GLOBAL %s\n", globals[i]);
        if(what == 0 && xctx->netlist_type == CAD_TEDAX_NETLIST) fprintf(fp, "__GLOBAL__ %s\n", globals[i]);
-       my_free(669, &globals[i]);
+       my_free(_ALLOC_ID_, &globals[i]);
     }
-    my_free(670, &globals);
+    my_free(_ALLOC_ID_, &globals);
     size_globals=max_globals=0;
  }
  return 0;
@@ -535,7 +535,7 @@ int get_unnamed_node(int what, int mult,int node)
   dbg(2, "get_unnamed_node(): what=%d mult=%d node=%d\n", what, mult, node);
   if(what==0) { /* initialize unnamed node data structures */
     xctx->new_node=0;
-    my_free(671, &xctx->node_mult);
+    my_free(_ALLOC_ID_, &xctx->node_mult);
     xctx->node_mult_size=0;
     return 0;
   }
@@ -549,7 +549,7 @@ int get_unnamed_node(int what, int mult,int node)
     if(xctx->new_node >= xctx->node_mult_size) { /* enlarge array and zero it */
       int oldsize = xctx->node_mult_size;
       xctx->node_mult_size = xctx->new_node + CADCHUNKALLOC;
-      my_realloc(672, &xctx->node_mult, sizeof(xctx->node_mult[0]) * xctx->node_mult_size );
+      my_realloc(_ALLOC_ID_, &xctx->node_mult, sizeof(xctx->node_mult[0]) * xctx->node_mult_size );
       memset(xctx->node_mult + oldsize, 0, (xctx->node_mult_size - oldsize) * sizeof(xctx->node_mult[0]));
     }
     xctx->node_mult[xctx->new_node]=mult;
@@ -585,7 +585,7 @@ static void name_generics()
   dbg(2, "prepare_netlist_structs(): naming generics from attached labels\n");
   if(for_netlist) for (i=0;i<instances;i++) { /* ... assign node fields on all (non label) instances */
     if(inst[i].ptr<0) continue;
-    my_strdup(673, &type,(inst[i].ptr+ xctx->sym)->type);
+    my_strdup(_ALLOC_ID_, &type,(inst[i].ptr+ xctx->sym)->type);
     if(type && !IS_LABEL_OR_PIN(type) ) {
       if((generic_rects = (inst[i].ptr+ xctx->sym)->rects[GENERICLAYER]) > 0) {
         rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER];
@@ -609,12 +609,12 @@ static void name_generics()
               if((inst[n].ptr+ xctx->sym)->type && inst[n].node[p] != NULL &&
                  !strcmp((inst[n].ptr+ xctx->sym)->type, "label")) {
                 dbg(2, "prepare_netlist_structs(): naming generic %s\n", inst[n].node[p]);
-                my_strdup(674,  &inst[i].node[j], get_tok_value(inst[n].prop_ptr,"value",0) );
+                my_strdup(_ALLOC_ID_,  &inst[i].node[j], get_tok_value(inst[n].prop_ptr,"value",0) );
                 if(!for_netlist) {
-                  my_strdup(675, &sig_type,"");
+                  my_strdup(_ALLOC_ID_, &sig_type,"");
                   bus_node_hash_lookup(inst[n].node[p],"", XINSERT, 1, sig_type,"", "","");
                 } else {
-                  my_strdup(676, &sig_type,get_tok_value(
+                  my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(
                     (inst[i].ptr+ xctx->sym)->rect[GENERICLAYER][j-rects].prop_ptr, "sig_type",0));
                   /* insert generic label in hash table as a port so it will not */
                   /* be declared as a signal in the vhdl netlist. this is a workaround */
@@ -630,7 +630,7 @@ static void name_generics()
       } /* end if( rects=...>0) */
     } /* end if(type not a label nor pin)... */
   } /* end for(i...) */
-  if(type) my_free(677, &type);
+  if(type) my_free(_ALLOC_ID_, &type);
 }
 
 static void signal_short( const char *tag, const char *n1, const char *n2)
@@ -659,7 +659,7 @@ static void set_inst_node(int i, int j, const char *node)
 
   dbg(1, "set_inst_node(): inst %s pin %d <-- %s\n", inst[i].instname, j, node);
   expandlabel(inst[i].instname, &inst_mult);
-  my_strdup(678,  &inst[i].node[j], node);
+  my_strdup(_ALLOC_ID_,  &inst[i].node[j], node);
   if(!for_netlist) {
     bus_node_hash_lookup(inst[i].node[j],"", XINSERT, 0,"","","","");
   } else {
@@ -741,8 +741,8 @@ static void wirecheck(int k)    /* recursive routine */
           touch(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, wire[k].x2, wire[k].y2);
         if( touches ) {
           if(!wire[n].node) {
-            my_strdup(679, &wire[n].node, wire[k].node);
-            my_strdup(680, &wire[n].prop_ptr, subst_token(wire[n].prop_ptr, "lab", wire[n].node));
+            my_strdup(_ALLOC_ID_, &wire[n].node, wire[k].node);
+            my_strdup(_ALLOC_ID_, &wire[n].prop_ptr, subst_token(wire[n].prop_ptr, "lab", wire[n].node));
             name_attached_inst_to_net(n, tmpi, tmpj);
             wirecheck(n); /* recursive check */
           } else {
@@ -762,8 +762,8 @@ static void name_attached_nets(double x0, double y0, int sqx, int sqy, const cha
     int n = wptr->n;
     if(touch(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, x0,y0)) {
       if(!wire[n].node) {
-        my_strdup(681,  &wire[n].node, node);
-        my_strdup(682, &wire[n].prop_ptr, subst_token(wire[n].prop_ptr, "lab", wire[n].node));
+        my_strdup(_ALLOC_ID_,  &wire[n].node, node);
+        my_strdup(_ALLOC_ID_, &wire[n].prop_ptr, subst_token(wire[n].prop_ptr, "lab", wire[n].node));
         wirecheck(n);
       } else {
         if(for_netlist>0) signal_short("Net", wire[n].node, node);
@@ -812,8 +812,8 @@ static int find_pass_through_symbols(int what, int ninst)
   int *symtable = NULL;
 
   if(what == 0 ) { /* initialize */
-    pt_symbol = my_calloc(683, xctx->symbols, sizeof(int));
-    symtable = my_calloc(684,  xctx->symbols, sizeof(int));
+    pt_symbol = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(int));
+    symtable = my_calloc(_ALLOC_ID_,  xctx->symbols, sizeof(int));
     for(i = 0; i < instances; i++) {
       k = inst[i].ptr;
       if( k < 0 || symtable[k] ) continue;
@@ -829,13 +829,13 @@ static int find_pass_through_symbols(int what, int ninst)
       int_hash_free(&table);
       if(pt_symbol[k]) dbg(1, "duplicated pins: %s\n", xctx->sym[i].name);
     }
-    my_free(685, &symtable);
+    my_free(_ALLOC_ID_, &symtable);
   } else if(what ==1) { /* query */
     k = inst[ninst].ptr;
     if(k >=0 && pt_symbol[k]) return 1;
     return 0;
   } else if(what ==2) { /* cleanup */
-    my_free(686, &pt_symbol);
+    my_free(_ALLOC_ID_, &pt_symbol);
   }
   return -1;
 }
@@ -855,7 +855,7 @@ static void instcheck(int n, int p)
     int k = inst[n].ptr;
     int rects = xctx->sym[k].rects[PINLAYER];
     char *pin_name = NULL;
-    my_strdup(687, &pin_name, get_tok_value(xctx->sym[k].rect[PINLAYER][p].prop_ptr, "name", 0));
+    my_strdup(_ALLOC_ID_, &pin_name, get_tok_value(xctx->sym[k].rect[PINLAYER][p].prop_ptr, "name", 0));
     if(p >= rects) return;
     for(j = 0; j < rects; j++) {
       const char *other_pin;
@@ -875,7 +875,7 @@ static void instcheck(int n, int p)
         }
       }
     }
-    my_free(688, &pin_name);
+    my_free(_ALLOC_ID_, &pin_name);
   }
 }
 
@@ -911,7 +911,7 @@ static void name_nodes_of_pins_labels_and_propagate()
     /* name ipin opin label node fields from prop_ptr attributes */
     if(inst[i].ptr<0) continue;
 
-    my_strdup(689, &type,(inst[i].ptr+ xctx->sym)->type);
+    my_strdup(_ALLOC_ID_, &type,(inst[i].ptr+ xctx->sym)->type);
     if(print_erc && (!inst[i].instname || !inst[i].instname[0]) &&
       !get_tok_value((inst[i].ptr+ xctx->sym)->templ, "name", 0)[0]
         ) {
@@ -950,28 +950,28 @@ static void name_nodes_of_pins_labels_and_propagate()
           strcmp(get_tok_value(inst[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
       }
       port=0;
-      my_strdup2(690, &dir, "");
+      my_strdup2(_ALLOC_ID_, &dir, "");
       if(strcmp(type,"label")) {  /* instance is a port (not a label) */
         port=1;
         /* 20071204 only define a dir property if instance is not a label */
         if(for_netlist)
-          my_strdup2(691, &dir, get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][0].prop_ptr, "dir",0));
+          my_strdup2(_ALLOC_ID_, &dir, get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][0].prop_ptr, "dir",0));
       }
       else {
         /* handle global nodes (global=1 set as symbol property) 28032003 */
-        my_strdup(692, &global_node,get_tok_value((inst[i].ptr+ xctx->sym)->prop_ptr,"global",0));
+        my_strdup(_ALLOC_ID_, &global_node,get_tok_value((inst[i].ptr+ xctx->sym)->prop_ptr,"global",0));
         /*20071204 if instance is a label dont define a dir property for more precise erc checking */
       }
       /* obtain ipin/opin/label signal type (default: std_logic) */
       if(for_netlist) {
-        my_strdup(693, &sig_type,get_tok_value(inst[i].prop_ptr,"sig_type",0));
-        my_strdup(694, &verilog_type,get_tok_value(inst[i].prop_ptr,"verilog_type",0));
-        my_strdup(695, &value,get_tok_value(inst[i].prop_ptr,"value",0));
-        my_strdup(696, &class,get_tok_value(inst[i].prop_ptr,"class",0));
+        my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(inst[i].prop_ptr,"sig_type",0));
+        my_strdup(_ALLOC_ID_, &verilog_type,get_tok_value(inst[i].prop_ptr,"verilog_type",0));
+        my_strdup(_ALLOC_ID_, &value,get_tok_value(inst[i].prop_ptr,"value",0));
+        my_strdup(_ALLOC_ID_, &class,get_tok_value(inst[i].prop_ptr,"class",0));
       }
-      my_strdup(697, &inst[i].node[0], inst[i].lab);
+      my_strdup(_ALLOC_ID_, &inst[i].node[0], inst[i].lab);
       if(!(inst[i].node[0])) {
-        my_strdup(698, &inst[i].node[0], get_tok_value((inst[i].ptr+ xctx->sym)->templ, "lab",0));
+        my_strdup(_ALLOC_ID_, &inst[i].node[0], get_tok_value((inst[i].ptr+ xctx->sym)->templ, "lab",0));
         dbg(1, "prepare_netlist_structs(): no lab attr on instance, pick from symbol: %s\n", inst[i].node[0]);
       }
       /* handle global nodes (global=1 set as symbol property) 28032003 */
@@ -992,14 +992,14 @@ static void name_nodes_of_pins_labels_and_propagate()
       name_attached_inst(i, x0, y0, sqx, sqy, inst[i].node[0]);
     } /* if(type && ... */
   } /* for(i=0;i<instances... */
-  my_free(699, &dir);
-  my_free(700, &type);
-  my_free(701, &global_node);
+  my_free(_ALLOC_ID_, &dir);
+  my_free(_ALLOC_ID_, &type);
+  my_free(_ALLOC_ID_, &global_node);
   if(for_netlist) {
-    my_free(702, &sig_type);
-    my_free(703, &verilog_type);
-    my_free(704, &value);
-    my_free(705, &class);
+    my_free(_ALLOC_ID_, &sig_type);
+    my_free(_ALLOC_ID_, &verilog_type);
+    my_free(_ALLOC_ID_, &value);
+    my_free(_ALLOC_ID_, &class);
   }
 }
 
@@ -1007,8 +1007,8 @@ static void set_unnamed_net(int i)
 {
   char tmp_str[30];
   my_snprintf(tmp_str, S(tmp_str), "#net%d", get_unnamed_node(1,0,0));
-  my_strdup(706, &xctx->wire[i].node, tmp_str);
-  my_strdup(707, &xctx->wire[i].prop_ptr, subst_token(xctx->wire[i].prop_ptr, "lab", tmp_str));
+  my_strdup(_ALLOC_ID_, &xctx->wire[i].node, tmp_str);
+  my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr, subst_token(xctx->wire[i].prop_ptr, "lab", tmp_str));
   /* insert unnamed wire name in hash table */
   bus_node_hash_lookup(tmp_str, "", XINSERT, 0,"","","","");
   wirecheck(i);
@@ -1081,7 +1081,7 @@ static void reset_node_data_and_rehash()
           (inst[i].ptr+ xctx->sym)->rects[GENERICLAYER];
     if(rects > 0)
     {
-      inst[i].node = my_malloc(708, sizeof(char *) * rects);
+      inst[i].node = my_malloc(_ALLOC_ID_, sizeof(char *) * rects);
       for (j=0;j<rects;j++)
       {
         inst[i].node[j]=NULL;
@@ -1135,8 +1135,8 @@ void delete_inst_node(int i)
    if( rects > 0 )
    {
      for(j=0;j< rects ;j++)
-       my_free(709, &xctx->inst[i].node[j]);
-     my_free(710, &xctx->inst[i].node );
+       my_free(_ALLOC_ID_, &xctx->inst[i].node[j]);
+     my_free(_ALLOC_ID_, &xctx->inst[i].node );
    }
 }
 
@@ -1151,7 +1151,7 @@ void delete_netlist_structs(void)
   }
   for(i=0;i<xctx->wires;i++)
   {
-    my_free(711, &xctx->wire[i].node);
+    my_free(_ALLOC_ID_, &xctx->wire[i].node);
   }
   /* erase inst and wire topological hash tables */
   del_inst_pin_table();
@@ -1318,21 +1318,21 @@ int sym_vs_sch_pins()
               }
               load_ascii_string(&tmp,fd);
               symbol = match_symbol(name);
-              my_strdup(712, &type, xctx->sym[symbol].type);
+              my_strdup(_ALLOC_ID_, &type, xctx->sym[symbol].type);
               if(type && IS_PIN(type)) {
-                my_strdup(713, &lab, expandlabel(get_tok_value(tmp, "lab", 0), &mult));
+                my_strdup(_ALLOC_ID_, &lab, expandlabel(get_tok_value(tmp, "lab", 0), &mult));
                 if(pin_cnt >= lab_array_size) {
                   lab_array_size += CADCHUNKALLOC;
-                  my_realloc(714, &lab_array, lab_array_size * sizeof(char *));
+                  my_realloc(_ALLOC_ID_, &lab_array, lab_array_size * sizeof(char *));
                 }
                 lab_array[pin_cnt] = NULL;
-                my_strdup(715, &(lab_array[pin_cnt]), lab);
+                my_strdup(_ALLOC_ID_, &(lab_array[pin_cnt]), lab);
                 pin_cnt++;
                 pin_match = 0;
                 for(j=0; j < rects; j++) {
-                  my_strdup(716, &pin_name, 
+                  my_strdup(_ALLOC_ID_, &pin_name, 
                     expandlabel(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0), &mult));
-                  my_strdup(717, &pin_dir, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "dir", 0));
+                  my_strdup(_ALLOC_ID_, &pin_dir, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "dir", 0));
                   if( pin_name && !strcmp(pin_name, lab)) {
                     if(!(
                           ( !strcmp(type, "ipin") && !strcmp(pin_dir, "in") ) ||
@@ -1406,7 +1406,7 @@ int sym_vs_sch_pins()
           }
         }
         for(j=0; j < rects; j++) {
-          my_strdup(718, &pin_name,
+          my_strdup(_ALLOC_ID_, &pin_name,
              expandlabel(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0), &mult));
           pin_match = 0;
           for(k=0; k<pin_cnt; k++) {
@@ -1433,18 +1433,18 @@ int sym_vs_sch_pins()
       }
       if(lab_array_size) {
         for(k=0;k<pin_cnt;k++) {
-          my_free(719, &(lab_array[k]));
+          my_free(_ALLOC_ID_, &(lab_array[k]));
         }
-        my_free(720, &lab_array);
+        my_free(_ALLOC_ID_, &lab_array);
         lab_array_size = 0;
         pin_cnt=0;
       }
     } /* if( ... "subcircuit"... ) */
-    my_free(721, &type);
-    my_free(722, &tmp);
-    my_free(723, &lab);
-    my_free(724, &pin_name);
-    my_free(725, &pin_dir);
+    my_free(_ALLOC_ID_, &type);
+    my_free(_ALLOC_ID_, &tmp);
+    my_free(_ALLOC_ID_, &lab);
+    my_free(_ALLOC_ID_, &pin_name);
+    my_free(_ALLOC_ID_, &pin_dir);
   } /* for(i=0;i<n_syms;i++) */
 
   while(xctx->symbols > n_syms) remove_symbol(xctx->symbols - 1);
