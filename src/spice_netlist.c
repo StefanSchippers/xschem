@@ -143,7 +143,7 @@ static void spice_netlist(FILE *fd, int spice_stop )
   char *type=NULL;
   int top_sub;
 
-  top_sub = tclgetboolvar("top_subckt");
+  top_sub = tclgetboolvar("lvs_netlist");
   if(!spice_stop) {
     dbg(1, "spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
     xctx->prep_net_structs = 0;
@@ -232,7 +232,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  Str_hashentry *model_entry;
 
  split_f = tclgetboolvar("split_files");
- top_sub = tclgetboolvar("top_subckt");
+ top_sub = tclgetboolvar("lvs_netlist");
  dbg(1, "global_spice_netlist(): invoking push_undo()\n");
  xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
@@ -294,7 +294,7 @@ void global_spice_netlist(int global)  /* netlister driver */
      netlist_options(i);
    }
  }
- top_sub = tclgetboolvar("top_subckt");
+ top_sub = tclgetboolvar("lvs_netlist");
  if(!top_sub) fprintf(fd,"**");
  fprintf(fd,".subckt %s", skip_dir( xctx->sch[xctx->currsch]) );
 

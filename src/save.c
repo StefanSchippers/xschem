@@ -734,6 +734,71 @@ int raw_read(const char *f, const char *type)
 }
 
 
+/* Read data organized as a table
+ * First line is the header line. First column is sweep variable
+ * empty lines start a new dataset
+ * lines beginning with '#' are comments
+ */
+int table_read(const char *f)
+{
+  int res = 0;
+  FILE *fd;
+  char *line = NULL, *line_ptr, *line_save;
+  const char *line_tok;
+  
+  int_hash_init(&xctx->graph_raw_table, HASHSIZE);
+  if(xctx->graph_values || xctx->graph_npoints || xctx->graph_nvars || xctx->graph_datasets) {
+    dbg(0, "raw_read(): must clear current data file before loading new\n");
+    return res;
+  }
+  fd = fopen(f, fopen_read_mode);
+  if(fd) {
+    int nline = 0;
+    int field;
+    res = 0;
+    /* read data */
+    while((line = my_fgets(fd))) {
+      if(line[0] == '#') continue;
+      line_ptr = line;
+      field = 0;
+      while( (line_tok = my_strtok_r(line_ptr, " \t\n", "", &line_save)) ) {
+        line_ptr = NULL;
+        dbg(0,"%s ", line_tok);
+        if(nline == 0) {
+          my_realloc(_ALLOC_ID_, &xctx->graph_names, field + 1);
+          xctx->graph_names[field] = NULL;
+          my_strcat(_ALLOC_ID_, &xctx->graph_names[field], line_tok);
+          int_hash_lookup(&xctx->graph_raw_table, xctx->graph_names[field], field, XINSERT_NOREPLACE);
+        }
+        field++;
+      }
+      dbg(0, "\n");
+      nline++;
+    }
+
+    if(res == 1) {
+      int i;
+      my_strdup2(_ALLOC_ID_, &xctx->graph_raw_schname, xctx->sch[xctx->currsch]);
+      xctx->graph_raw_level = xctx->currsch;
+      tclsetintvar("graph_raw_level",  xctx->currsch);
+      xctx->graph_allpoints = 0;
+      for(i = 0; i < xctx->graph_datasets; i++) {
+        xctx->graph_allpoints +=  xctx->graph_npoints[i];
+      }
+      dbg(0, "Raw file data read: %s\n", f);
+      dbg(0, "points=%d, vars=%d, datasets=%d\n",
+             xctx->graph_allpoints, xctx->graph_nvars, xctx->graph_datasets);
+    } else {
+      dbg(0, "raw_read(): no useful data found\n");
+    }
+    fclose(fd);
+    my_free(_ALLOC_ID_, &line);
+    return res;
+  }
+  dbg(0, "raw_read(): failed to open file %s for reading\n", f);
+  return 0;
+}
+
 /* given a node XXyy try XXyy , xxyy, XXYY, v(XXyy), v(xxyy), V(XXYY) */
 int get_raw_index(const char *node)
 {

@@ -1229,7 +1229,7 @@ proc bespice_getdata {sock} {
 }
 
 proc xschem_getdata {sock} {
-  global xschem_server_getdata
+  global xschem_server_getdata tclcmd_puts
   if {[eof $sock] || [catch {gets $sock xschem_server_getdata(line,$sock)}]} {
     close $sock
     puts "Close $xschem_server_getdata(addr,$sock)"
@@ -1237,10 +1237,19 @@ proc xschem_getdata {sock} {
     unset xschem_server_getdata(line,$sock)
     unset xschem_server_getdata(res,$sock)
   } else {
-    puts "tcp--> $xschem_server_getdata(line,$sock)"
+    puts "tcp<-- $xschem_server_getdata(line,$sock)"
     # xschem command must be executed at global scope...
-    uplevel #0 [list catch $xschem_server_getdata(line,$sock) xschem_server_getdata(res,$sock)]
-    puts $sock "$xschem_server_getdata(res,$sock)"
+    redef_puts
+    uplevel #0 [list catch $xschem_server_getdata(line,$sock) tclcmd_puts]
+    rename puts {}
+    rename ::tcl::puts puts
+    puts "tcp--> $tclcmd_puts"
+    if {![regexp {\n$} $tclcmd_puts]} {
+      set xschem_server_getdata(res,$sock) "$tclcmd_puts\n" 
+    } else {
+      set xschem_server_getdata(res,$sock) "$tclcmd_puts" 
+    }
+    puts -nonewline $sock "$xschem_server_getdata(res,$sock)"
   }
 } 
 
@@ -3262,9 +3271,9 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   return $retval
 }
 
-# will redefine puts to output into a text widget 'w'
-proc redef_puts w {
-  set ::putsw $w
+# will redefine puts to output into tclcmd_puts
+proc redef_puts {} {
+  global tclcmd_puts
   if ![llength [info command ::tcl::puts]] {
     rename puts ::tcl::puts
     proc puts args {
@@ -3283,14 +3292,14 @@ proc redef_puts w {
       foreach {channel s} $args break
       #set s [join $s] ;# (1) prevent braces at leading/tailing spaces
       if {$channel=="stdout" || $channel=="stderr"} {
-        $::putsw insert end $s$nl
+        append tclcmd_puts $s$nl
       } else {
         set cmd ::tcl::puts
         if {$nl==""} {lappend cmd -nonewline}
         lappend cmd $channel $s
         eval $cmd
       }
-    }
+    };# puts
   }
 }
 
@@ -3303,17 +3312,17 @@ proc return_release {window} {
 
 
 proc tclcmd_ok_button {} {
-  global tclcmd_txt
+  global tclcmd_txt tclcmd_puts
 
   set tclcmd_txt [.tclcmd.t get 1.0 end]
-  redef_puts .tclcmd.r.r
-  catch {uplevel #0 $tclcmd_txt} res
+  redef_puts 
+  catch {uplevel #0 $tclcmd_txt} tclcmd_puts
   rename puts {}
   rename ::tcl::puts puts
-  if {$res != {} && [string index $res end] != "\n"} {
-    append res "\n"
+  if {$tclcmd_puts != {} && [string index $tclcmd_puts end] != "\n"} {
+    append tclcmd_puts "\n"
   }
-  .tclcmd.r.r insert end $res
+  .tclcmd.r.r insert end $tclcmd_puts
   .tclcmd.r.r yview moveto 1
 }
 
@@ -5304,7 +5313,8 @@ set tctx::global_list {
   graph_logy graph_rainbow graph_raw_level graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols hsize
   incr_hilight infowindow_text input_line_cmd input_line_data launcher_default_program
-  light_colors line_width live_cursor2_backannotate local_netlist_dir measure_text netlist_show
+  light_colors line_width live_cursor2_backannotate local_netlist_dir
+  lvs_netlist  measure_text netlist_show
   netlist_type no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
   rawfile_loaded rcode recentfile
@@ -5313,7 +5323,7 @@ set tctx::global_list {
   simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
   svg_font_name sym_txt symbol symbol_width tclcmd_txt tclstop text_line_default_geometry
   textwindow_fileid textwindow_filename textwindow_w tmp_bus_char toolbar_horiz toolbar_list
-  toolbar_visible top_subckt transparent_svg undo_type use_lab_wire use_label_prefix
+  toolbar_visible transparent_svg undo_type use_lab_wire use_label_prefix
   user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
   vsize xschem_libs xschem_listen_port add_all_windows_drives
 }
@@ -6040,8 +6050,8 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
          -command {set show_hidden_texts 1; xschem annotate_op}
   $topwin.menubar.simulation.menu add separator
   $topwin.menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" \
-  -variable top_subckt -command {
-    if {$top_subckt == 1} {
+  -variable lvs_netlist -command {
+    if {$lvs_netlist == 1} {
       xschem set format lvs_format 
     } else {
       xschem set format {}
@@ -6349,7 +6359,7 @@ set_ne netlist_dir "$USER_CONF_DIR/simulations"
 set_ne netlist_type spice
 set_ne local_netlist_dir 0 ;# if set use <sch_dir>/simulation for netlist and sims
 set_ne bus_replacement_char {} ;# use {<>} to replace [] with <> in bussed signals
-set_ne top_subckt 0
+set_ne lvs_netlist 0
 set_ne hide_empty_graphs 0 ;# if set to 1 waveform boxes will be hidden if no raw file loaded
 set_ne spiceprefix 1
 set_ne verilog_2001 1

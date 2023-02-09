@@ -1100,6 +1100,7 @@ extern unsigned char *ascii85_encode(const unsigned char *data, const size_t inp
 extern int get_raw_index(const char *node);
 extern void free_rawfile(int dr);
 extern int raw_read(const char *f, const char *type);
+extern int table_read(const char *f);
 extern double get_raw_value(int dataset, int idx, int point);
 extern int plot_raw_custom_data(int sweep_idx, int first, int last, const char *ntok);
 extern int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr);

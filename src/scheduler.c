@@ -2925,7 +2925,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 't': /*----------------------------------------------*/
-    if(!strcmp(argv[1], "test"))
+    if(!strcmp(argv[1], "table_read"))
+    {
+      if(argc > 2) {
+        table_read(argv[2]);
+        Tcl_ResetResult(interp);
+      }
+    }
+
+    else if(!strcmp(argv[1], "test"))
     {
       Ptr_hashtable table = {NULL, 0};
       Ptr_hashentry *entry;

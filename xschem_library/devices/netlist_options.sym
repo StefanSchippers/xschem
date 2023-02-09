@@ -3,7 +3,7 @@ G {}
 K {type=netlist_options
 template="
 bus_replacement_char="[]"
-top_subckt=false
+lvs_netlist=false
 spiceprefix=true
 hiersep=.
 "
