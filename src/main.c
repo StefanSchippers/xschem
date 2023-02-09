@@ -71,7 +71,7 @@ static void child_handler(int signum)
 int main(int argc, char **argv)
 {
   int i;
-  my_strdup(_ALLOC_ID_, &xschem_executable, argv[0]);
+  my_strdup(632, &xschem_executable, argv[0]);
   signal(SIGINT, sig_handler);
   signal(SIGSEGV, sig_handler);
   signal(SIGILL, sig_handler);
@@ -94,10 +94,10 @@ int main(int argc, char **argv)
 
 
   cli_opt_argc = argc;
-  cli_opt_argv = my_malloc(_ALLOC_ID_, cli_opt_argc * sizeof(char *));
+  cli_opt_argv = my_malloc(633, cli_opt_argc * sizeof(char *));
   for(i = 0; i < cli_opt_argc; i++) {
     cli_opt_argv[i] = NULL;
-    my_strdup(_ALLOC_ID_, &cli_opt_argv[i], argv[i]);
+    my_strdup(634, &cli_opt_argv[i], argv[i]);
   }
 
 

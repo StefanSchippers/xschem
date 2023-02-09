@@ -51,7 +51,7 @@ unsigned int hash_file(const char *f, int skip_path_lines)
       /* skip lines of type: '** sch_path: ...' or '-- sch_path: ...' or '// sym_path: ...' */
       if(skip_path_lines && strlen(line) > 14) {
         if(!strncmp(line+2, " sch_path: ", 11) || !strncmp(line+2, " sym_path: ", 11) ) {
-          my_free(_ALLOC_ID_, &line);
+          my_free(0, &line);
           continue;
         }
       }
@@ -60,7 +60,7 @@ unsigned int hash_file(const char *f, int skip_path_lines)
         /* skip CRs so hashes will match on unix / windows */
         if(line[i] == '\r') {
           cr = 1;
-          my_free(_ALLOC_ID_, &line);
+          my_free(1, &line);
           continue;
         } else if(line[i] == '\n' && cr) {
           cr = 0;
@@ -70,7 +70,7 @@ unsigned int hash_file(const char *f, int skip_path_lines)
         }
         h += (h << 5) + (unsigned char)line[i];
       }
-      my_free(_ALLOC_ID_, &line);
+      my_free(2, &line);
     }
     if(cr) h += (h << 5) + '\r'; /* file ends with \r not followed by \n: keep it */
     fclose(fd);
@@ -461,7 +461,7 @@ void ask_new_file(void)
         remove_symbols();
         load_schematic(1, f,1); /* 20180925.1 */
         tclvareval("update_recent_file {", f, "}", NULL);
-        my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch],".");
+        my_strdup(3, &xctx->sch_path[xctx->currsch],".");
         xctx->sch_path_hash[xctx->currsch] = 0;
         xctx->sch_inst_number[xctx->currsch] = 1;
         zoom_full(1, 0, 1, 0.97);
@@ -479,60 +479,60 @@ void remove_symbol(int j)
   xSymbol save;
 
   dbg(1,"clearing symbol %s\n", xctx->sym[j].name);
-  my_free(_ALLOC_ID_, &xctx->sym[j].prop_ptr);
-  my_free(_ALLOC_ID_, &xctx->sym[j].templ);
-  my_free(_ALLOC_ID_, &xctx->sym[j].type);
-  my_free(_ALLOC_ID_, &xctx->sym[j].name);
+  my_free(4, &xctx->sym[j].prop_ptr);
+  my_free(5, &xctx->sym[j].templ);
+  my_free(6, &xctx->sym[j].type);
+  my_free(7, &xctx->sym[j].name);
   /*  /20150409 */
   for(c=0;c<cadlayers;c++) {
     for(i=0;i<xctx->sym[j].polygons[c];i++) {
       if(xctx->sym[j].poly[c][i].prop_ptr != NULL) {
-        my_free(_ALLOC_ID_, &xctx->sym[j].poly[c][i].prop_ptr);
+        my_free(8, &xctx->sym[j].poly[c][i].prop_ptr);
       }
-      my_free(_ALLOC_ID_, &xctx->sym[j].poly[c][i].x);
-      my_free(_ALLOC_ID_, &xctx->sym[j].poly[c][i].y);
-      my_free(_ALLOC_ID_, &xctx->sym[j].poly[c][i].selected_point);
+      my_free(9, &xctx->sym[j].poly[c][i].x);
+      my_free(10, &xctx->sym[j].poly[c][i].y);
+      my_free(11, &xctx->sym[j].poly[c][i].selected_point);
     }
-    my_free(_ALLOC_ID_, &xctx->sym[j].poly[c]);
+    my_free(12, &xctx->sym[j].poly[c]);
     xctx->sym[j].polygons[c] = 0;
  
     for(i=0;i<xctx->sym[j].lines[c];i++) {
       if(xctx->sym[j].line[c][i].prop_ptr != NULL) {
-        my_free(_ALLOC_ID_, &xctx->sym[j].line[c][i].prop_ptr);
+        my_free(13, &xctx->sym[j].line[c][i].prop_ptr);
       }
     }
-    my_free(_ALLOC_ID_, &xctx->sym[j].line[c]);
+    my_free(14, &xctx->sym[j].line[c]);
     xctx->sym[j].lines[c] = 0;
  
     for(i=0;i<xctx->sym[j].arcs[c];i++) {
       if(xctx->sym[j].arc[c][i].prop_ptr != NULL) {
-        my_free(_ALLOC_ID_, &xctx->sym[j].arc[c][i].prop_ptr);
+        my_free(15, &xctx->sym[j].arc[c][i].prop_ptr);
       }
     }
-    my_free(_ALLOC_ID_, &xctx->sym[j].arc[c]);
+    my_free(16, &xctx->sym[j].arc[c]);
     xctx->sym[j].arcs[c] = 0;
  
     for(i=0;i<xctx->sym[j].rects[c];i++) {
       if(xctx->sym[j].rect[c][i].prop_ptr != NULL) {
-        my_free(_ALLOC_ID_, &xctx->sym[j].rect[c][i].prop_ptr);
+        my_free(17, &xctx->sym[j].rect[c][i].prop_ptr);
       }
       set_rect_extraptr(0, &xctx->sym[j].rect[c][i]);
     }
-    my_free(_ALLOC_ID_, &xctx->sym[j].rect[c]);
+    my_free(18, &xctx->sym[j].rect[c]);
     xctx->sym[j].rects[c] = 0;
   }
   for(i=0;i<xctx->sym[j].texts;i++) {
     if(xctx->sym[j].text[i].prop_ptr != NULL) {
-      my_free(_ALLOC_ID_, &xctx->sym[j].text[i].prop_ptr);
+      my_free(19, &xctx->sym[j].text[i].prop_ptr);
     }
     if(xctx->sym[j].text[i].txt_ptr != NULL) {
-      my_free(_ALLOC_ID_, &xctx->sym[j].text[i].txt_ptr);
+      my_free(20, &xctx->sym[j].text[i].txt_ptr);
     }
     if(xctx->sym[j].text[i].font != NULL) {
-      my_free(_ALLOC_ID_, &xctx->sym[j].text[i].font);
+      my_free(21, &xctx->sym[j].text[i].font);
     }
   }
-  my_free(_ALLOC_ID_, &xctx->sym[j].text);
+  my_free(22, &xctx->sym[j].text);
   xctx->sym[j].texts = 0;
 
   save = xctx->sym[j]; /* save cleared symbol slot */
@@ -589,7 +589,7 @@ int set_text_flags(xText *t)
   t->vcenter = 0;
   t->layer = -1;
   if(t->prop_ptr) {
-    my_strdup(_ALLOC_ID_, &t->font, get_tok_value(t->prop_ptr, "font", 0));
+    my_strdup(23, &t->font, get_tok_value(t->prop_ptr, "font", 0));
     str = get_tok_value(t->prop_ptr, "hcenter", 0);
     t->hcenter = strcmp(str, "true")  ? 0 : 1;
     str = get_tok_value(t->prop_ptr, "vcenter", 0);
@@ -618,7 +618,7 @@ int set_rect_extraptr(int what, xRect *drptr)
     if(drptr->flags & 1024) { /* embedded image */
       if(!drptr->extraptr) {
         xEmb_image *d;
-        d = my_malloc(_ALLOC_ID_, sizeof(xEmb_image));
+        d = my_malloc(24, sizeof(xEmb_image));
         d->image = NULL;
         drptr->extraptr = d;
       }
@@ -628,7 +628,7 @@ int set_rect_extraptr(int what, xRect *drptr)
       if(drptr->extraptr) {
         xEmb_image *d = drptr->extraptr;
         if(d->image) cairo_surface_destroy(d->image);
-        my_free(_ALLOC_ID_, &drptr->extraptr);
+        my_free(25, &drptr->extraptr);
       }
     }
   }
@@ -642,55 +642,55 @@ void clear_drawing(void)
  xctx->graph_lastsel = -1;
  del_inst_table();
  del_wire_table();
- my_free(_ALLOC_ID_, &xctx->schtedaxprop);
- my_free(_ALLOC_ID_, &xctx->schsymbolprop);
- my_free(_ALLOC_ID_, &xctx->schprop);
- my_free(_ALLOC_ID_, &xctx->schvhdlprop);
- my_free(_ALLOC_ID_, &xctx->version_string);
- if(xctx->header_text) my_free(_ALLOC_ID_, &xctx->header_text);
- my_free(_ALLOC_ID_, &xctx->schverilogprop);
+ my_free(26, &xctx->schtedaxprop);
+ my_free(27, &xctx->schsymbolprop);
+ my_free(28, &xctx->schprop);
+ my_free(29, &xctx->schvhdlprop);
+ my_free(30, &xctx->version_string);
+ if(xctx->header_text) my_free(31, &xctx->header_text);
+ my_free(32, &xctx->schverilogprop);
  for(i=0;i<xctx->wires;i++)
  {
-  my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
-  my_free(_ALLOC_ID_, &xctx->wire[i].node);
+  my_free(33, &xctx->wire[i].prop_ptr);
+  my_free(34, &xctx->wire[i].node);
  }
  xctx->wires = 0;
  for(i=0;i<xctx->instances;i++)
  {
-  my_free(_ALLOC_ID_, &xctx->inst[i].prop_ptr);
-  my_free(_ALLOC_ID_, &xctx->inst[i].name);
-  my_free(_ALLOC_ID_, &xctx->inst[i].instname);
-  my_free(_ALLOC_ID_, &xctx->inst[i].lab);
+  my_free(35, &xctx->inst[i].prop_ptr);
+  my_free(36, &xctx->inst[i].name);
+  my_free(37, &xctx->inst[i].instname);
+  my_free(38, &xctx->inst[i].lab);
   delete_inst_node(i);
  }
  xctx->instances = 0;
  for(i=0;i<xctx->texts;i++)
  {
-  my_free(_ALLOC_ID_, &xctx->text[i].font);
-  my_free(_ALLOC_ID_, &xctx->text[i].prop_ptr);
-  my_free(_ALLOC_ID_, &xctx->text[i].txt_ptr);
+  my_free(39, &xctx->text[i].font);
+  my_free(40, &xctx->text[i].prop_ptr);
+  my_free(41, &xctx->text[i].txt_ptr);
  }
  xctx->texts = 0;
  for(i=0;i<cadlayers;i++)
  {
   for(j=0;j<xctx->lines[i];j++)
   {
-   my_free(_ALLOC_ID_, &xctx->line[i][j].prop_ptr);
+   my_free(42, &xctx->line[i][j].prop_ptr);
   }
   for(j=0;j<xctx->rects[i];j++)
   {
-   my_free(_ALLOC_ID_, &xctx->rect[i][j].prop_ptr);
+   my_free(43, &xctx->rect[i][j].prop_ptr);
    set_rect_extraptr(0, &xctx->rect[i][j]);
   }
   for(j=0;j<xctx->arcs[i];j++)
   {
-   my_free(_ALLOC_ID_, &xctx->arc[i][j].prop_ptr);
+   my_free(44, &xctx->arc[i][j].prop_ptr);
   }
   for(j=0;j<xctx->polygons[i]; j++) {
-    my_free(_ALLOC_ID_, &xctx->poly[i][j].x);
-    my_free(_ALLOC_ID_, &xctx->poly[i][j].y);
-    my_free(_ALLOC_ID_, &xctx->poly[i][j].prop_ptr);
-    my_free(_ALLOC_ID_, &xctx->poly[i][j].selected_point);
+    my_free(45, &xctx->poly[i][j].x);
+    my_free(46, &xctx->poly[i][j].y);
+    my_free(47, &xctx->poly[i][j].prop_ptr);
+    my_free(48, &xctx->poly[i][j].selected_point);
   }
   xctx->lines[i] = 0;
   xctx->arcs[i] = 0;
@@ -825,8 +825,8 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
   int use_label_prefix;
   int found=0;
 
-  my_strdup(_ALLOC_ID_, &symname_pin, tcleval("rel_sym_path [find_file lab_pin.sym]"));
-  my_strdup(_ALLOC_ID_, &symname_wire, tcleval("rel_sym_path [find_file lab_wire.sym]"));
+  my_strdup(49, &symname_pin, tcleval("rel_sym_path [find_file lab_pin.sym]"));
+  my_strdup(50, &symname_wire, tcleval("rel_sym_path [find_file lab_wire.sym]"));
   if(symname_pin && symname_wire) {
     rebuild_selected_array();
     k = xctx->lastsel;
@@ -834,8 +834,8 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
     prepare_netlist_structs(0);
     for(j=0;j<k;j++) if(xctx->sel_array[j].type==ELEMENT) {
       found=1;
-      my_strdup(_ALLOC_ID_, &prop, xctx->inst[xctx->sel_array[j].n].instname);
-      my_strcat(_ALLOC_ID_, &prop, "_");
+      my_strdup(51, &prop, xctx->inst[xctx->sel_array[j].n].instname);
+      my_strcat(52, &prop, "_");
       tclsetvar("custom_label_prefix",prop);
   
       if(interactive && !do_all_inst) {
@@ -843,7 +843,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
         tcleval("attach_labels_to_inst");
         if(!strcmp(tclgetvar("rcode"),"") ) {
           bbox(END, 0., 0., 0., 0.);
-          my_free(_ALLOC_ID_, &prop);
+          my_free(53, &prop);
           return;
         }
       }
@@ -857,7 +857,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
       use_label_prefix = atoi(tclgetvar("use_label_prefix"));
       rot_txt = tclgetvar("rotated_text");
       if(strcmp(rot_txt,"")) rotated_text=atoi(rot_txt);
-      my_strdup(_ALLOC_ID_, &type,(xctx->inst[xctx->sel_array[j].n].ptr+ xctx->sym)->type);
+      my_strdup(54, &type,(xctx->inst[xctx->sel_array[j].n].ptr+ xctx->sym)->type);
       if( type && IS_LABEL_OR_PIN(type) ) {
         continue;
       }
@@ -877,7 +877,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
       rct=symbol->rect[PINLAYER];
   
       for(i=0;i<npin;i++) {
-         my_strdup(_ALLOC_ID_, &labname,get_tok_value(rct[i].prop_ptr,"name",1));
+         my_strdup(55, &labname,get_tok_value(rct[i].prop_ptr,"name",1));
          dbg(1,"attach_labels_to_inst(): 2 --> labname=%s\n", labname);
   
          pinx0 = (rct[i].x1+rct[i].x2)/2;
@@ -921,13 +921,13 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
            wptr = wptr->next;
          }
          if(!skip) {
-           my_strdup(_ALLOC_ID_, &prop, "name=p1 lab=");
+           my_strdup(56, &prop, "name=p1 lab=");
            if(use_label_prefix) {
-             my_strcat(_ALLOC_ID_, &prop, (char *)tclgetvar("custom_label_prefix"));
+             my_strcat(57, &prop, (char *)tclgetvar("custom_label_prefix"));
            }
            /*  /20171005 */
   
-           my_strcat(_ALLOC_ID_, &prop, labname);
+           my_strcat(58, &prop, labname);
            dir ^= flip; /*  20101129  20111030 */
            if(rotated_text ==-1) {
              rot1=rot;
@@ -946,9 +946,9 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
          dbg(1, "attach_labels_to_inst(): %d   %.16g %.16g %s\n", i, pinx0, piny0,labname);
       }
     }
-    my_free(_ALLOC_ID_, &prop);
-    my_free(_ALLOC_ID_, &labname);
-    my_free(_ALLOC_ID_, &type);
+    my_free(59, &prop);
+    my_free(60, &labname);
+    my_free(61, &type);
     if(!found) return;
     /*  draw things  */
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
@@ -958,8 +958,8 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
     fprintf(errfp, "attach_labels_to_inst(): location of schematic labels not found\n");
     tcleval("alert_ {attach_labels_to_inst(): location of schematic labels not found} {}");
   }
-  my_free(_ALLOC_ID_, &symname_pin);
-  my_free(_ALLOC_ID_, &symname_wire);
+  my_free(62, &symname_pin);
+  my_free(63, &symname_wire);
 }
 
 void delete_files(void)
@@ -1038,7 +1038,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->inst[n].instname=NULL;
   xctx->inst[n].lab=NULL;
   dbg(1, "place_symbol(): entering my_strdup: name=%s\n",name);  /*  03-02-2000 */
-  my_strdup2(_ALLOC_ID_, &xctx->inst[n].name ,name);
+  my_strdup2(64, &xctx->inst[n].name ,name);
   dbg(1, "place_symbol(): done my_strdup: name=%s\n",name);  /*  03-02-2000 */
   /*  xctx->inst[n].x0=symbol_name ? x : xctx->mousex_snap; */
   /*  xctx->inst[n].y0=symbol_name ? y : xctx->mousey_snap; */
@@ -1067,7 +1067,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   type = xctx->sym[xctx->inst[n].ptr].type;
   cond= !type || !IS_LABEL_SH_OR_PIN(type);
   if(cond) xctx->inst[n].flags|=2;
-  else my_strdup(_ALLOC_ID_, &xctx->inst[n].lab, get_tok_value(xctx->inst[n].prop_ptr,"lab",0));
+  else my_strdup(65, &xctx->inst[n].lab, get_tok_value(xctx->inst[n].prop_ptr,"lab",0));
   xctx->inst[n].embed = !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "embed", 2), "true");
   if(first_call && (draw_sym & 3) ) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   xctx->instances++; /* must be updated before calling symbol_bbox() */
@@ -1216,25 +1216,25 @@ void get_sch_from_sym(char *filename, xSymbol *sym)
       strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
     web_url = 1;
   }
-  my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 2));
+  my_strdup2(66, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 2));
   if(str_tmp[0]) {
     /* @symname in schematic attribute will be replaced with symbol name */
     if( (ptr = strstr(str_tmp, "@symname"))) {
       *ptr = '\0';
-      my_strdup2(_ALLOC_ID_, &sch, str_tmp);
-      my_strcat(_ALLOC_ID_, &sch, sym->name);
+      my_strdup2(67, &sch, str_tmp);
+      my_strcat(68, &sch, sym->name);
       ptr += 8;
-      my_strcat(_ALLOC_ID_, &sch, ptr);
+      my_strcat(69, &sch, ptr);
     } else {
-      my_strdup2(_ALLOC_ID_, &sch, str_tmp);
+      my_strdup2(70, &sch, str_tmp);
     }
     dbg(1, "get_sch_from_sym(): sch=%s\n", sch);
-    my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(&sch));
+    my_strdup2(71, &sch, tcl_hook2(&sch));
     dbg(1, "get_sch_from_sym(): after tcl_hook2 sch=%s\n", sch);
     /* for schematics referenced from web symbols do not build absolute path */
     if(web_url) my_strncpy(filename, sch, PATH_MAX);
     else my_strncpy(filename, abs_sym_path(sch, ""), PATH_MAX);
-    my_free(_ALLOC_ID_, &sch);
+    my_free(72, &sch);
   } else {
     if(tclgetboolvar("search_schematic")) {
       /* for schematics referenced from web symbols do not build absolute path */
@@ -1246,7 +1246,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym)
       else my_strncpy(filename, add_ext(abs_sym_path(sym->name, ""), ".sch"), PATH_MAX);
     }
   }
-  my_free(_ALLOC_ID_, &str_tmp);
+  my_free(73, &str_tmp);
   dbg(1, "get_sch_from_sym(): sym->name=%s, filename=%s\n", sym->name, filename);
 }
 
@@ -1319,11 +1319,11 @@ int descend_schematic(int instnumber)
     str = "";
     inst_mult = 1;
   }
-  my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
+  my_strdup(74, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
   xctx->sch_path_hash[xctx->currsch+1] =0;
-  my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr, 
+  my_strdup(75, &xctx->hier_attr[xctx->currsch].prop_ptr, 
             xctx->inst[n].prop_ptr);
-  my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ,
+  my_strdup(76, &xctx->hier_attr[xctx->currsch].templ,
             get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "template", 0));
   inst_number = 1;
   if(inst_mult > 1) { /* on multiple instances ask where to descend, to correctly evaluate
@@ -1337,7 +1337,7 @@ int descend_schematic(int instnumber)
       inum = tclresult();
       dbg(1, "descend_schematic(): inum=%s\n", inum);
       if(!inum[0]) {
-        my_free(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1]);
+        my_free(77, &xctx->sch_path[xctx->currsch+1]);
         xctx->sch_path_hash[xctx->currsch+1] =0;
         return 0;
       }
@@ -1350,9 +1350,9 @@ int descend_schematic(int instnumber)
     if(inst_number <1 || inst_number > inst_mult) inst_number = 1;
   }
   dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
-  my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", inst_number));
+  my_strcat(78, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", inst_number));
   dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
-  my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], ".");
+  my_strcat(79, &xctx->sch_path[xctx->currsch+1], ".");
   xctx->sch_inst_number[xctx->currsch+1] = inst_number;
   dbg(1, "descend_schematic(): current path: %s\n", xctx->sch_path[xctx->currsch+1]);
   dbg(1, "descend_schematic(): inst_number=%d\n", inst_number);
@@ -2114,7 +2114,7 @@ void change_layer()
        if(xctx->rectcolor != xctx->text[n].layer) {
          char *p;
          set_modify(1);
-         my_strdup(_ALLOC_ID_, &xctx->text[n].prop_ptr, 
+         my_strdup(80, &xctx->text[n].prop_ptr, 
            subst_token(xctx->text[n].prop_ptr, "layer", dtoa(xctx->rectcolor) ));
          xctx->text[n].layer = xctx->rectcolor;
          p = xctx->text[n].prop_ptr;
@@ -2338,8 +2338,8 @@ void new_polygon(int what)
 
    if(xctx->nl_points >= xctx->nl_maxpoints-1) {  /*  check storage for 2 xctx->nl_points */
      xctx->nl_maxpoints = (1+xctx->nl_points / CADCHUNKALLOC) * CADCHUNKALLOC;
-     my_realloc(_ALLOC_ID_, &xctx->nl_polyx, sizeof(double)*xctx->nl_maxpoints);
-     my_realloc(_ALLOC_ID_, &xctx->nl_polyy, sizeof(double)*xctx->nl_maxpoints);
+     my_realloc(81, &xctx->nl_polyx, sizeof(double)*xctx->nl_maxpoints);
+     my_realloc(82, &xctx->nl_polyy, sizeof(double)*xctx->nl_maxpoints);
    }
    if( what & PLACE )
    {
@@ -2386,8 +2386,8 @@ void new_polygon(int what)
      drawtemppolygon(xctx->gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points);
      xctx->ui_state &= ~STARTPOLYGON;
      drawpolygon(xctx->rectcolor, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0, 0);
-     my_free(_ALLOC_ID_, &xctx->nl_polyx);
-     my_free(_ALLOC_ID_, &xctx->nl_polyy);
+     my_free(83, &xctx->nl_polyx);
+     my_free(84, &xctx->nl_polyy);
      xctx->nl_maxpoints = xctx->nl_points = 0;
    }
    if(what & RUBBER)
@@ -2426,7 +2426,7 @@ int text_bbox(const char *str, double xscale, double yscale,
   ww=0.; hh=1.;
   c=0;
   *cairo_lines=1;
-  my_strdup2(_ALLOC_ID_, &s, str);
+  my_strdup2(85, &s, str);
   str_ptr = s;
   while( s && s[c] ) {
     if(s[c] == '\n') {
@@ -2449,7 +2449,7 @@ int text_bbox(const char *str, double xscale, double yscale,
     maxw = ext.x_advance > ext.width ? ext.x_advance : ext.width;
     if(maxw > ww) ww= maxw;
   }
-  my_free(_ALLOC_ID_, &s);
+  my_free(86, &s);
   hh = hh*fext.height * cairo_font_line_spacing;
   *cairo_longest_line = ww;
 
@@ -2606,7 +2606,7 @@ int place_text(int draw_text, double mx, double my)
   t->txt_ptr=NULL;
   t->prop_ptr=NULL;  /*  20111006 added missing initialization of pointer */
   t->font=NULL;
-  my_strdup(_ALLOC_ID_, &t->txt_ptr, txt);
+  my_strdup(87, &t->txt_ptr, txt);
   t->x0=mx;
   t->y0=my;
   t->rot=0;
@@ -2614,7 +2614,7 @@ int place_text(int draw_text, double mx, double my)
   t->sel=0;
   t->xscale= atof(tclgetvar("hsize"));
   t->yscale= atof(tclgetvar("vsize"));
-  my_strdup(_ALLOC_ID_, &t->prop_ptr, (char *)tclgetvar("props"));
+  my_strdup(88, &t->prop_ptr, (char *)tclgetvar("props"));
   /*  debug ... */
   /*  t->prop_ptr=NULL; */
   dbg(1, "place_text(): done text input\n");

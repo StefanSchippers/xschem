@@ -59,16 +59,16 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
    if( what==XINSERT )          /* insert data */
    {
     s=sizeof( Node_hashentry );
-    entry=(Node_hashentry *)my_malloc(_ALLOC_ID_, s);
+    entry=(Node_hashentry *)my_malloc(726, s);
     entry->next = NULL;
     entry->token = entry->sig_type = entry->verilog_type =
                    entry->value = entry->class = entry->orig_tok = NULL;
-    my_strdup(_ALLOC_ID_, &(entry->token),token);
-    if(sig_type &&sig_type[0]) my_strdup(_ALLOC_ID_,  &(entry->sig_type), sig_type);
-    if(verilog_type &&verilog_type[0]) my_strdup(_ALLOC_ID_,  &(entry->verilog_type), verilog_type);
-    if(class && class[0]) my_strdup(_ALLOC_ID_,  &(entry->class), class);
-    if(orig_tok && orig_tok[0]) my_strdup(_ALLOC_ID_,  &(entry->orig_tok), orig_tok);
-    if(value && value[0]) my_strdup(_ALLOC_ID_,  &(entry->value), value);
+    my_strdup(727, &(entry->token),token);
+    if(sig_type &&sig_type[0]) my_strdup(728,  &(entry->sig_type), sig_type);
+    if(verilog_type &&verilog_type[0]) my_strdup(729,  &(entry->verilog_type), verilog_type);
+    if(class && class[0]) my_strdup(730,  &(entry->class), class);
+    if(orig_tok && orig_tok[0]) my_strdup(731,  &(entry->orig_tok), orig_tok);
+    if(value && value[0]) my_strdup(732,  &(entry->value), value);
     entry->d.port=d.port;
     entry->d.in=d.in;
     entry->d.out=d.out;
@@ -87,13 +87,13 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
    if(what==XDELETE)                /* remove token from the hash table ... */
    {
     saveptr=entry->next;
-    my_free(_ALLOC_ID_, &entry->token);
-    my_free(_ALLOC_ID_, &entry->verilog_type);
-    my_free(_ALLOC_ID_, &entry->sig_type);
-    my_free(_ALLOC_ID_, &entry->class);
-    my_free(_ALLOC_ID_, &entry->orig_tok);
-    my_free(_ALLOC_ID_, &entry->value);
-    my_free(_ALLOC_ID_, &entry);
+    my_free(733, &entry->token);
+    my_free(734, &entry->verilog_type);
+    my_free(735, &entry->sig_type);
+    my_free(736, &entry->class);
+    my_free(737, &entry->orig_tok);
+    my_free(738, &entry->value);
+    my_free(739, &entry);
     *preventry=saveptr;
     return NULL;
    }
@@ -104,11 +104,11 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
     entry->d.out+=d.out;
     entry->d.inout+=d.inout;
     if(sig_type && sig_type[0] !='\0')
-      my_strdup(_ALLOC_ID_,  &(entry->sig_type), sig_type);
+      my_strdup(740,  &(entry->sig_type), sig_type);
     if(verilog_type && verilog_type[0] !='\0')
-      my_strdup(_ALLOC_ID_,  &(entry->verilog_type), verilog_type);
+      my_strdup(741,  &(entry->verilog_type), verilog_type);
     if(value && value[0] !='\0')
-      my_strdup(_ALLOC_ID_,  &(entry->value), value);
+      my_strdup(742,  &(entry->value), value);
     dbg(3, "node_hash_lookup(): hashing %s : value=%s\n\n",
            entry->token, entry->value? entry->value:"NULL");
     return entry;
@@ -132,12 +132,12 @@ Node_hashentry *bus_node_hash_lookup(const char *token, const char *dir, int wha
  if(token==NULL || token[0] == 0) return NULL;
  if( token[0] == '#')
  {
-   my_strdup(_ALLOC_ID_, &string, token);
+   my_strdup(743, &string, token);
  }
  else
  {
    dbg(3, "bus_node_hash_lookup(): expanding node: %s\n", token);
-   my_strdup(_ALLOC_ID_, &string, expandlabel(token,&mult));
+   my_strdup(744, &string, expandlabel(token,&mult));
    dbg(3, "bus_node_hash_lookup(): done expanding node: %s\n", token);
  }
  if(string==NULL) return NULL;
@@ -159,7 +159,7 @@ Node_hashentry *bus_node_hash_lookup(const char *token, const char *dir, int wha
   string_ptr++;
  }
  /* if something found return first pointer */
- my_free(_ALLOC_ID_, &string);
+ my_free(745, &string);
  return ptr2;
 }
 
@@ -169,13 +169,13 @@ static void node_hash_free_entry(Node_hashentry *entry)
 
   while(entry) {
     tmp = entry->next;
-    my_free(_ALLOC_ID_, &entry->token);
-    my_free(_ALLOC_ID_, &entry->verilog_type);
-    my_free(_ALLOC_ID_, &entry->sig_type);
-    my_free(_ALLOC_ID_, &entry->class);
-    my_free(_ALLOC_ID_, &entry->orig_tok);
-    my_free(_ALLOC_ID_, &entry->value);
-    my_free(_ALLOC_ID_, &entry);
+    my_free(746, &entry->token);
+    my_free(747, &entry->verilog_type);
+    my_free(748, &entry->sig_type);
+    my_free(749, &entry->class);
+    my_free(750, &entry->orig_tok);
+    my_free(751, &entry->value);
+    my_free(752, &entry);
     entry = tmp;
   }
 }
@@ -278,9 +278,9 @@ void print_vhdl_signals(FILE *fd)
         dbg(2, "print_vhdl_signals(): node: %s mult: %d value=%s \n\n",
               ptr->token,mult, ptr->value?ptr->value:"NULL");
         if( ptr->class && ptr->class[0] )
-          my_strdup(_ALLOC_ID_, &class, ptr->class);
+          my_strdup(753, &class, ptr->class);
         else
-          my_strdup(_ALLOC_ID_, &class, "signal");
+          my_strdup(754, &class, "signal");
         if(mult>1) {
           for(j=mult-1;j>=0;j--) {
             fprintf(fd, "%s %s[%d] : ", class, ptr->token[0]=='#' ? ptr->token+1 : ptr->token,j);
@@ -310,7 +310,7 @@ void print_vhdl_signals(FILE *fd)
     }
   }
   if(found) fprintf(fd, "\n" );
-  my_free(_ALLOC_ID_, &class);
+  my_free(755, &class);
 }
 
 

@@ -50,15 +50,15 @@ void hash_all_names(void)
   int_hash_init(&xctx->inst_table, HASHSIZE);
   for(i=0; i<xctx->instances; i++) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
-      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+      my_strdup(1157, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
       if(!type) continue;
-      my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
+      my_strdup(1158, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
       int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT);
     }
   }
-  my_free(_ALLOC_ID_, &upinst);
-  my_free(_ALLOC_ID_, &type);
+  my_free(1159, &upinst);
+  my_free(1160, &type);
 }
 
 const char *tcl_hook2(char **res)
@@ -68,13 +68,13 @@ const char *tcl_hook2(char **res)
   char *unescaped_res;
 
   if(res == NULL || *res == NULL) {
-    my_free(_ALLOC_ID_, &result);
+    my_free(1161, &result);
     return empty;
   }
   if(strstr(*res, "tcleval(") == *res) {
     unescaped_res = str_replace(*res, "\\}", "}");
     tclvareval("tclpropeval2 {", unescaped_res, "}" , NULL);
-    my_strdup2(_ALLOC_ID_, &result, tclresult());
+    my_strdup2(1162, &result, tclresult());
     /* dbg(0, "tcl_hook2: return: %s\n", result);*/
     return result;
   } else {
@@ -114,9 +114,9 @@ void check_unique_names(int rename)
   first = 1;
   for(i=0;i<xctx->instances;i++) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
-      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+      my_strdup(1163, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
       if(!type) continue;
-      my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
+      my_strdup(1164, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
       if( (entry = int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT_NOREPLACE) ) && entry->value != i) {
         dbg(1, "check_unique_names(): found duplicate: i=%d name=%s\n", i, xctx->inst[i].instname);
@@ -135,19 +135,19 @@ void check_unique_names(int rename)
         }
       }
       if( (xctx->inst[i].color != -10000) && rename) {
-        my_strdup(_ALLOC_ID_, &tmp, xctx->inst[i].prop_ptr);
+        my_strdup(1165, &tmp, xctx->inst[i].prop_ptr);
         new_prop_string(i, tmp, newpropcnt++, 0);
-        my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
+        my_strdup(1166, &upinst, xctx->inst[i].instname);
         strtoupper(upinst);
         int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT);
         symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
         bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
-        my_free(_ALLOC_ID_, &tmp);
+        my_free(1167, &tmp);
       }
     }
   } /* for(i...) */
-  my_free(_ALLOC_ID_, &upinst);
-  my_free(_ALLOC_ID_, &type);
+  my_free(1168, &upinst);
+  my_free(1169, &type);
   if(rename == 1 && xctx->hilight_nets) {
     bbox(SET,0.0,0.0,0.0,0.0);
     draw();
@@ -202,8 +202,8 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
  if(new==NULL) return 0;
 
  sizeval = sizetok = CADCHUNKALLOC;
- my_realloc(_ALLOC_ID_, &token, sizetok);
- my_realloc(_ALLOC_ID_, &value, sizeval);
+ my_realloc(1170, &token, sizetok);
+ my_realloc(1171, &value, sizeval);
 
  /* parse new string and add / change attributes that are missing / different from old */
  while(1) {
@@ -231,7 +231,7 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
    value_pos=0;
    if(strcmp(value, get_tok_value(old,token,1))) {
     mod=1;
-    my_strdup(_ALLOC_ID_, s, subst_token(*s, token, value) );
+    my_strdup(1172, s, subst_token(*s, token, value) );
    }
    state=TOK_BEGIN;
   }
@@ -266,7 +266,7 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
    get_tok_value(new,token,1);
    if(xctx->tok_size == 0 ) {
     mod=1;
-    my_strdup(_ALLOC_ID_, s, subst_token(*s, token, NULL) );
+    my_strdup(1173, s, subst_token(*s, token, NULL) );
    }
   } else if(state==TOK_END) {
    value[value_pos]='\0';
@@ -276,8 +276,8 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
   escape = (c=='\\' && !escape);
   if(c=='\0') break;
  }
- my_free(_ALLOC_ID_, &token);
- my_free(_ALLOC_ID_, &value);
+ my_free(1174, &token);
+ my_free(1175, &value);
  return mod;
 }
 
@@ -296,12 +296,12 @@ const char *list_tokens(const char *s, int with_quotes)
   int escape=0;
 
   if(s==NULL) {
-    my_free(_ALLOC_ID_, &token);
+    my_free(1176, &token);
     sizetok = 0;
     return "";
   }
   sizetok = CADCHUNKALLOC;
-  my_realloc(_ALLOC_ID_, &token, sizetok);
+  my_realloc(1177, &token, sizetok);
   token[0] = '\0';
   while(1) {
     c=*s++;
@@ -367,8 +367,8 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
   xctx->tok_size = 0;
   if(s==NULL) {
     if(tok == NULL) {
-      my_free(_ALLOC_ID_, &result);
-      my_free(_ALLOC_ID_, &token);
+      my_free(1178, &result);
+      my_free(1179, &token);
       size = sizetok = 0;
       dbg(2, "get_tok_value(): clear static data\n");
     }
@@ -377,8 +377,8 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
   /* dbg(0, "get_tok_value(): looking for <%s> in <%.30s>\n",tok,s); */
   if( size == 0 ) {
     sizetok = size = CADCHUNKALLOC;
-    my_realloc(_ALLOC_ID_, &result, size);
-    my_realloc(_ALLOC_ID_, &token, sizetok);
+    my_realloc(1180, &result, size);
+    my_realloc(1181, &token, sizetok);
   }
   while(1) {
     c=*s++;
@@ -391,11 +391,11 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     /* don't use STR_ALLOC() for efficiency reasons */
     if(value_pos>=size) {
       size+=CADCHUNKALLOC;
-      my_realloc(_ALLOC_ID_, &result,size);
+      my_realloc(1182, &result,size);
     }
     if(token_pos>=sizetok) {
       sizetok+=CADCHUNKALLOC;
-      my_realloc(_ALLOC_ID_, &token,sizetok);
+      my_realloc(1183, &token,sizetok);
     }
     if(c=='"') {
       if(!escape) quote=!quote;
@@ -459,15 +459,15 @@ const char *get_sym_template(char *s,char *extra)
 
  dbg(1, "get_sym_template(): s=%s, extra=%s\n", s, extra);
  if(s==NULL) {
-   my_free(_ALLOC_ID_, &result);
+   my_free(1184, &result);
    return "";
  }
  l = strlen(s);
  STR_ALLOC(&result, l+1, &sizeres);
  result[0] = '\0';
  sizetok = sizeval = CADCHUNKALLOC;
- my_realloc(_ALLOC_ID_, &value,sizeval);
- my_realloc(_ALLOC_ID_, &token,sizetok);
+ my_realloc(1185, &value,sizeval);
+ my_realloc(1186, &token,sizetok);
  while(1) {
   c=*s++;
   space=SPACE(c) ;
@@ -516,8 +516,8 @@ const char *get_sym_template(char *s,char *extra)
     break;
   }
  }
- my_free(_ALLOC_ID_, &value);
- my_free(_ALLOC_ID_, &token);
+ my_free(1187, &value);
+ my_free(1188, &token);
  return result;
 }
 
@@ -538,20 +538,20 @@ static char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
      size_t tok_val_len;
      tok_val_len = strlen(str);
      attr_size = strlen(attr);
-     my_strdup(_ALLOC_ID_, &pinname, str);
-     pname =my_malloc(_ALLOC_ID_, tok_val_len + attr_size + 30);
+     my_strdup(1189, &pinname, str);
+     pname =my_malloc(1190, tok_val_len + attr_size + 30);
      my_snprintf(pname, tok_val_len + attr_size + 30, "%s(%s)", attr, pinname);
-     my_free(_ALLOC_ID_, &pinname);
+     my_free(1191, &pinname);
      str = get_tok_value(xctx->inst[inst].prop_ptr, pname, 0);
-     my_free(_ALLOC_ID_, &pname);
-     if(xctx->tok_size) my_strdup2(_ALLOC_ID_, &pin_attr_value, str);
+     my_free(1192, &pname);
+     if(xctx->tok_size) my_strdup2(1193, &pin_attr_value, str);
      else {
-       pnumber = my_malloc(_ALLOC_ID_, attr_size + 100);
+       pnumber = my_malloc(1194, attr_size + 100);
        my_snprintf(pnumber, attr_size + 100, "%s(%d)", attr, pin);
        str = get_tok_value(xctx->inst[inst].prop_ptr, pnumber, 0);
        dbg(1, "get_pin_attr_from_inst(): pnumber=%s\n", pnumber);
-       my_free(_ALLOC_ID_, &pnumber);
-       if(xctx->tok_size) my_strdup2(_ALLOC_ID_, &pin_attr_value, str);
+       my_free(1195, &pnumber);
+       if(xctx->tok_size) my_strdup2(1196, &pin_attr_value, str);
      }
    }
    return pin_attr_value; /* caller is responsible for freeing up storage for pin_attr_value */
@@ -583,19 +583,19 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  }
  if(old_prop==NULL)
  {
-  my_free(_ALLOC_ID_, &xctx->inst[i].prop_ptr);
-  my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, "");
+  my_free(1197, &xctx->inst[i].prop_ptr);
+  my_strdup2(1198, &xctx->inst[i].instname, "");
   return;
  }
- old_name_len = my_strdup(_ALLOC_ID_, &old_name,get_tok_value(old_prop,"name",0) ); /* added old_name_len */
- my_strdup(_ALLOC_ID_, &up_old_name, old_name);
+ old_name_len = my_strdup(1199, &old_name,get_tok_value(old_prop,"name",0) ); /* added old_name_len */
+ my_strdup(1200, &up_old_name, old_name);
  strtoupper(up_old_name);
 
  if(old_name==NULL)
  {
-  my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);  /* changed to copy old props if no name */
-  my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, "");
-  my_free(_ALLOC_ID_, &up_old_name);
+  my_strdup(1201, &xctx->inst[i].prop_ptr, old_prop);  /* changed to copy old props if no name */
+  my_strdup2(1202, &xctx->inst[i].instname, "");
+  my_free(1203, &up_old_name);
   return;
  }
  xctx->prefix=old_name[0];
@@ -604,17 +604,17 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  if(dis_uniq_names || (entry = int_hash_lookup(&xctx->inst_table, up_old_name, i, XLOOKUP))==NULL ||
      entry->value == i)
  {
-  my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);
-  my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, old_name);
+  my_strdup(1204, &xctx->inst[i].prop_ptr, old_prop);
+  my_strdup2(1205, &xctx->inst[i].instname, old_name);
   int_hash_lookup(&xctx->inst_table, up_old_name, i, XINSERT);
-  my_free(_ALLOC_ID_, &old_name);
-  my_free(_ALLOC_ID_, &up_old_name);
+  my_free(1206, &old_name);
+  my_free(1207, &up_old_name);
   return;
  }
- old_name_base = my_malloc(_ALLOC_ID_, old_name_len+1);
+ old_name_base = my_malloc(1208, old_name_len+1);
  n = sscanf(old_name, "%[^[0-9]",old_name_base);
  tmp=find_bracket(old_name);
- my_realloc(_ALLOC_ID_, &new_name, old_name_len + 40); /* strlen(old_name)+40); */
+ my_realloc(1209, &new_name, old_name_len + 40); /* strlen(old_name)+40); */
  qq=fast ?  last[(int)xctx->prefix] : 1;
  for(q=qq;;q++)
  {
@@ -623,7 +623,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
    } else { /* goes here if weird name set for example to name=[3:0] or name=12 */
      my_snprintf(new_name, old_name_len + 40, "%c%d%s", xctx->prefix,q, tmp);
    }
-   my_strdup(_ALLOC_ID_, &up_new_name, new_name);
+   my_strdup(1210, &up_new_name, new_name);
    strtoupper(up_new_name);
    if((entry = int_hash_lookup(&xctx->inst_table, up_new_name, i, XLOOKUP)) == NULL || entry->value == i)
    {
@@ -631,17 +631,17 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
     break;
    }
  }
- my_free(_ALLOC_ID_, &old_name_base);
+ my_free(1211, &old_name_base);
  tmp2 = subst_token(old_prop, "name", new_name);
  if(strcmp(tmp2, old_prop) ) {
-   my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, tmp2);
-   my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, new_name);
+   my_strdup(1212, &xctx->inst[i].prop_ptr, tmp2);
+   my_strdup2(1213, &xctx->inst[i].instname, new_name);
    int_hash_lookup(&xctx->inst_table, up_new_name, i, XINSERT); /* reinsert in hash */
  }
- my_free(_ALLOC_ID_, &old_name);
- my_free(_ALLOC_ID_, &up_old_name);
- my_free(_ALLOC_ID_, &new_name);
- my_free(_ALLOC_ID_, &up_new_name);
+ my_free(1214, &old_name);
+ my_free(1215, &up_old_name);
+ my_free(1216, &new_name);
+ my_free(1217, &up_new_name);
 }
 
 
@@ -693,22 +693,22 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
  int no_of_pins=0;
  char *fmt_attr = NULL;
 
- my_strdup(_ALLOC_ID_, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
- my_strdup(_ALLOC_ID_, &name, xctx->inst[inst].instname);
+ my_strdup(1218, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
+ my_strdup(1219, &name, xctx->inst[inst].instname);
  fmt_attr = xctx->format ? xctx->format : "vhdl_format";
- if(!name) my_strdup(_ALLOC_ID_, &name, get_tok_value(template, "name", 0));
+ if(!name) my_strdup(1220, &name, get_tok_value(template, "name", 0));
  /* allow format string override in instance */
- my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
+ my_strdup(1221, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
  if(!format && strcmp(fmt_attr, "vhdl_format"))               
-    my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, "vhdl_format", 2));
+    my_strdup(1222, &format, get_tok_value(xctx->inst[inst].prop_ptr, "vhdl_format", 2));
  if(!format)
-   my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
+   my_strdup(1223, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
  if(!format && strcmp(fmt_attr, "vhdl_format"))               
-   my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "vhdl_format", 2));
+   my_strdup(1224, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "vhdl_format", 2));
  if((name==NULL) || (format==NULL) ) {
-   my_free(_ALLOC_ID_, &template);
-   my_free(_ALLOC_ID_, &name);
-   my_free(_ALLOC_ID_, &format);
+   my_free(1225, &template);
+   my_free(1226, &name);
+   my_free(1227, &format);
    return; /*do no netlist unwanted insts(no format) */
  }
  no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
@@ -851,12 +851,12 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
      size_t s;
      char *tclcmd=NULL;
      s = token_pos + strlen(name) + strlen(xctx->inst[inst].name) + 100;
-     tclcmd = my_malloc(_ALLOC_ID_, s);
+     tclcmd = my_malloc(1228, s);
      Tcl_ResetResult(interp);
      my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
      tcleval(tclcmd);
      fprintf(fd, "%s", tclresult());
-     my_free(_ALLOC_ID_, &tclcmd);
+     my_free(1229, &tclcmd);
    }
 
    if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd);
@@ -872,10 +872,10 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
    break ;
   }
  }
- my_free(_ALLOC_ID_, &template);
- my_free(_ALLOC_ID_, &format);
- my_free(_ALLOC_ID_, &name);
- my_free(_ALLOC_ID_, &token);
+ my_free(1230, &template);
+ my_free(1231, &format);
+ my_free(1232, &name);
+ my_free(1233, &token);
 }
 
 const char *subst_token(const char *s, const char *tok, const char *new_val)
@@ -898,26 +898,26 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
   size_t new_val_len;
 
   if(s==NULL && tok == NULL){
-    my_free(_ALLOC_ID_, &result);
+    my_free(1234, &result);
     return "";
   }
   if((tok == NULL || tok[0]=='\0') && s ){
-    my_strdup2(_ALLOC_ID_, &result, s);
+    my_strdup2(1235, &result, s);
     return result;
   }
   /* quote new_val if it contains newlines and not "name" token */
   if(new_val) {
     new_val_len = strlen(new_val);
     if(strcmp(tok, "name") && !is_quoted(new_val) && strpbrk(new_val, ";\n \t")) {
-      new_val_copy = my_malloc(_ALLOC_ID_, new_val_len+3);
+      new_val_copy = my_malloc(1236, new_val_len+3);
       my_snprintf(new_val_copy, new_val_len+3, "\"%s\"", new_val);
     }
-    else my_strdup(_ALLOC_ID_, &new_val_copy, new_val);
+    else my_strdup(1237, &new_val_copy, new_val);
   } else new_val_copy = NULL;
   dbg(1, "subst_token(): %s, %s, %s\n", s ? s : "<NULL>", tok ? tok : "<NULL>", new_val ? new_val : "<NULL>");
   sizetok = size = CADCHUNKALLOC;
-  my_realloc(_ALLOC_ID_, &result, size);
-  my_realloc(_ALLOC_ID_, &token, sizetok);
+  my_realloc(1238, &result, size);
+  my_realloc(1239, &token, sizetok);
   result[0] = '\0';
   while( s ) {
     c=*s++;
@@ -1042,8 +1042,8 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
     }
   }
   dbg(2, "subst_token(): returning: %s\n",result);
-  my_free(_ALLOC_ID_, &token);
-  my_free(_ALLOC_ID_, &new_val_copy);
+  my_free(1240, &token);
+  my_free(1241, &new_val_copy);
   return result;
 }
 
@@ -1139,13 +1139,13 @@ void print_vhdl_element(FILE *fd, int inst)
    print_vhdl_primitive(fd, inst);
    return;
   }
-  my_strdup(_ALLOC_ID_, &name,xctx->inst[inst].instname);
-  if(!name) my_strdup(_ALLOC_ID_, &name, get_tok_value(template, "name", 0));
+  my_strdup(1242, &name,xctx->inst[inst].instname);
+  if(!name) my_strdup(1243, &name, get_tok_value(template, "name", 0));
   if(name==NULL) {
-    my_free(_ALLOC_ID_, &name);
+    my_free(1244, &name);
     return;
   }
-  my_strdup(_ALLOC_ID_, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
+  my_strdup(1245, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
   no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
   no_of_generics= (xctx->inst[inst].ptr + xctx->sym)->rects[GENERICLAYER];
 
@@ -1164,7 +1164,7 @@ void print_vhdl_element(FILE *fd, int inst)
 
   tmp=0;
   /* 20080213 use generic_type property to decide if some properties are strings, see later */
-  my_strdup(_ALLOC_ID_, &generic_type, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"generic_type", 0));
+  my_strdup(1246, &generic_type, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"generic_type", 0));
 
   while(1)
   {
@@ -1229,10 +1229,10 @@ void print_vhdl_element(FILE *fd, int inst)
      /* print generic map */
      for(i=0;i<no_of_generics;i++)
      {
-       my_strdup(_ALLOC_ID_, &generic_type,get_tok_value(
+       my_strdup(1247, &generic_type,get_tok_value(
          (xctx->inst[inst].ptr + xctx->sym)->rect[GENERICLAYER][i].prop_ptr,"type",0));
-       my_strdup(_ALLOC_ID_, &generic_value,   xctx->inst[inst].node[no_of_pins+i] );
-       /*my_strdup(_ALLOC_ID_, &generic_value, get_tok_value( */
+       my_strdup(1248, &generic_value,   xctx->inst[inst].node[no_of_pins+i] );
+       /*my_strdup(1249, &generic_value, get_tok_value( */
        /*  (xctx->inst[inst].ptr + xctx->sym)->rect[GENERICLAYER][i].prop_ptr,"value") ); */
        str_ptr = get_tok_value(
          (xctx->inst[inst].ptr + xctx->sym)->rect[GENERICLAYER][i].prop_ptr,"name",0);
@@ -1271,12 +1271,12 @@ void print_vhdl_element(FILE *fd, int inst)
   int_hash_free(&table);
   fprintf(fd, "\n);\n\n");
    dbg(2, "print_vhdl_element(): ------- end ------ \n");
-  my_free(_ALLOC_ID_, &name);
-  my_free(_ALLOC_ID_, &generic_value);
-  my_free(_ALLOC_ID_, &generic_type);
-  my_free(_ALLOC_ID_, &template);
-  my_free(_ALLOC_ID_, &value);
-  my_free(_ALLOC_ID_, &token);
+  my_free(1250, &name);
+  my_free(1251, &generic_value);
+  my_free(1252, &generic_type);
+  my_free(1253, &template);
+  my_free(1254, &value);
+  my_free(1255, &token);
 }
 
 void print_generic(FILE *fd, char *ent_or_comp, int symbol)
@@ -1293,12 +1293,12 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
   int escape=0;
   int token_number=0;
 
-  my_strdup(_ALLOC_ID_, &template, xctx->sym[symbol].templ);
+  my_strdup(1256, &template, xctx->sym[symbol].templ);
   if( !template || !(template[0]) ) {
-    my_free(_ALLOC_ID_, &template);
+    my_free(1257, &template);
     return;
   }
-  my_strdup(_ALLOC_ID_, &generic_type, get_tok_value(xctx->sym[symbol].prop_ptr,"generic_type",0));
+  my_strdup(1258, &generic_type, get_tok_value(xctx->sym[symbol].prop_ptr,"generic_type",0));
   dbg(2, "print_generic(): symbol=%d template=%s \n", symbol, template);
 
   fprintf(fd, "%s %s ",ent_or_comp, skip_dir(xctx->sym[symbol].name));
@@ -1342,7 +1342,7 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
     token_number++;
     value[value_pos]='\0';
     value_pos=0;
-    my_strdup(_ALLOC_ID_, &type, get_tok_value(generic_type,token,0));
+    my_strdup(1259, &type, get_tok_value(generic_type,token,0));
 
     if(value[0] != '\0') /* token has a value */
     {
@@ -1369,9 +1369,9 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
 
   for(i=0;i<xctx->sym[symbol].rects[GENERICLAYER];i++)
   {
-    my_strdup(_ALLOC_ID_, &generic_type,
+    my_strdup(1260, &generic_type,
        get_tok_value(xctx->sym[symbol].rect[GENERICLAYER][i].prop_ptr,"generic_type",0));
-    my_strdup(_ALLOC_ID_, &generic_value, 
+    my_strdup(1261, &generic_value, 
        get_tok_value(xctx->sym[symbol].rect[GENERICLAYER][i].prop_ptr,"value", 0) );
     str_tmp = get_tok_value(xctx->sym[symbol].rect[GENERICLAYER][i].prop_ptr,"name",0);
     if(!tmp) fprintf(fd, "generic (\n");
@@ -1383,12 +1383,12 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
     tmp=1;
   }
   if(tmp) fprintf(fd, "\n);\n");
-  my_free(_ALLOC_ID_, &template);
-  my_free(_ALLOC_ID_, &value);
-  my_free(_ALLOC_ID_, &token);
-  my_free(_ALLOC_ID_, &type);
-  my_free(_ALLOC_ID_, &generic_type);
-  my_free(_ALLOC_ID_, &generic_value);
+  my_free(1262, &template);
+  my_free(1263, &value);
+  my_free(1264, &token);
+  my_free(1265, &type);
+  my_free(1266, &generic_type);
+  my_free(1267, &generic_value);
 }
 
 
@@ -1403,13 +1403,13 @@ void print_verilog_param(FILE *fd, int symbol)
  int token_number=0;
  char *extra = NULL;
 
- my_strdup(_ALLOC_ID_, &template, xctx->sym[symbol].templ); /* 20150409 20171103 */
+ my_strdup(1268, &template, xctx->sym[symbol].templ); /* 20150409 20171103 */
  if( !template || !(template[0]) )  {
-   my_free(_ALLOC_ID_, &template);
+   my_free(1269, &template);
    return;
  }
- my_strdup(_ALLOC_ID_, &generic_type, get_tok_value(xctx->sym[symbol].prop_ptr,"generic_type",0));
- my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[symbol].prop_ptr,"extra",0) );
+ my_strdup(1270, &generic_type, get_tok_value(xctx->sym[symbol].prop_ptr,"generic_type",0));
+ my_strdup(1271, &extra, get_tok_value(xctx->sym[symbol].prop_ptr,"extra",0) );
  dbg(2, "print_verilog_param(): symbol=%d template=%s \n", symbol, template);
 
  s=template;
@@ -1471,11 +1471,11 @@ void print_verilog_param(FILE *fd, int symbol)
    break ;
   }
  }
- my_free(_ALLOC_ID_, &template);
- my_free(_ALLOC_ID_, &generic_type);
- my_free(_ALLOC_ID_, &value);
- my_free(_ALLOC_ID_, &token);
- my_free(_ALLOC_ID_, &extra);
+ my_free(1272, &template);
+ my_free(1273, &generic_type);
+ my_free(1274, &value);
+ my_free(1275, &token);
+ my_free(1276, &extra);
 }
 
 
@@ -1514,18 +1514,18 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
  const char *tclres, *fmt_attr = NULL;
 
  fmt_attr = xctx->format ? xctx->format : "format";
- my_strdup(_ALLOC_ID_, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, fmt_attr, 2));
+ my_strdup(1277, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, fmt_attr, 2));
  if(!format1 && strcmp(fmt_attr, "format") )
-   my_strdup(_ALLOC_ID_, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, "format", 2));
+   my_strdup(1278, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, "format", 2));
  dbg(1, "print_spice_subckt(): format1=%s\n", format1);
  if(format1 && strstr(format1, "tcleval(") == format1) {
     tclres = tcl_hook2(&format1);
-    if(!strcmp(tclres, "?\n")) my_strdup(_ALLOC_ID_, &format,  format1 + 8);
-    else my_strdup(_ALLOC_ID_, &format,  tclres);
+    if(!strcmp(tclres, "?\n")) my_strdup(1279, &format,  format1 + 8);
+    else my_strdup(1280, &format,  tclres);
  } else {
-   my_strdup(_ALLOC_ID_, &format,  format1);
+   my_strdup(1281, &format,  format1);
  }
- if(format1) my_free(_ALLOC_ID_, &format1);
+ if(format1) my_free(1282, &format1);
  dbg(1, "print_spice_subckt(): format=%s\n", format);
  if( format==NULL ) {
    return; /* no format */
@@ -1628,9 +1628,9 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
    break ;
   }
  }
- my_free(_ALLOC_ID_, &format1);
- my_free(_ALLOC_ID_, &format);
- my_free(_ALLOC_ID_, &token);
+ my_free(1283, &format1);
+ my_free(1284, &format);
+ my_free(1285, &token);
 }
 
 int print_spice_element(FILE *fd, int inst)
@@ -1654,27 +1654,27 @@ int print_spice_element(FILE *fd, int inst)
   const char *fmt_attr = NULL;
 
   size = CADCHUNKALLOC;
-  my_realloc(_ALLOC_ID_, &result, size);
+  my_realloc(1286, &result, size);
   result[0] = '\0';
 
-  my_strdup(_ALLOC_ID_, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
-  my_strdup(_ALLOC_ID_, &name,xctx->inst[inst].instname);
-  if (!name) my_strdup(_ALLOC_ID_, &name, get_tok_value(template, "name", 0));
+  my_strdup(1287, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
+  my_strdup(1288, &name,xctx->inst[inst].instname);
+  if (!name) my_strdup(1289, &name, get_tok_value(template, "name", 0));
 
   /* allow format string override in instance */
   fmt_attr = xctx->format ? xctx->format : "format";
-  my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
+  my_strdup(1290, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
   if(!format && strcmp(fmt_attr, "format") )
-    my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, "format", 2));
+    my_strdup(1291, &format, get_tok_value(xctx->inst[inst].prop_ptr, "format", 2));
   if(!format)
-     my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
+     my_strdup(1292, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
   if(!format && strcmp(fmt_attr, "format"))
-     my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "format", 2));
+     my_strdup(1293, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "format", 2));
   if ((name==NULL) || (format==NULL)) {
-    my_free(_ALLOC_ID_, &template);
-    my_free(_ALLOC_ID_, &format);
-    my_free(_ALLOC_ID_, &name);
-    my_free(_ALLOC_ID_, &result);
+    my_free(1294, &template);
+    my_free(1295, &format);
+    my_free(1296, &name);
+    my_free(1297, &result);
     return 0; /* do no netlist unwanted insts(no format) */
   }
   no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
@@ -1725,7 +1725,7 @@ int print_spice_element(FILE *fd, int inst)
         tok_val_len = strlen(value);
         
         if(!strcmp(token, "@spiceprefix")) {
-          my_realloc(_ALLOC_ID_, &spiceprefixtag, tok_val_len+22);
+          my_realloc(1298, &spiceprefixtag, tok_val_len+22);
           my_snprintf(spiceprefixtag, tok_val_len+22, "**** spice_prefix %s\n", value);
           value = spiceprefixtag;
         }
@@ -1736,8 +1736,8 @@ int print_spice_element(FILE *fd, int inst)
         /* 
         if (!strncmp(value,"tcleval(", 8)) {
           dbg(1, "print_spice_element(): value=%s\n", value);
-          my_strdup2(_ALLOC_ID_, &translatedvalue, value);
-          my_strdup2(_ALLOC_ID_, &translatedvalue, translate(inst, translatedvalue));
+          my_strdup2(1299, &translatedvalue, value);
+          my_strdup2(1300, &translatedvalue, translate(inst, translatedvalue));
           value = translatedvalue;
         }
         */
@@ -1886,7 +1886,7 @@ int print_spice_element(FILE *fd, int inst)
         char *tclcmd=NULL;
         const char *res;
         s = token_pos + strlen(name) + strlen(xctx->inst[inst].name) + 100;
-        tclcmd = my_malloc(_ALLOC_ID_, s);
+        tclcmd = my_malloc(1301, s);
         Tcl_ResetResult(interp);
         my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
         dbg(1, "print_spice_element(): tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
@@ -1897,7 +1897,7 @@ int print_spice_element(FILE *fd, int inst)
         STR_ALLOC(&result, tmp + result_pos, &size);
         result_pos += my_snprintf(result + result_pos, tmp, "%s", res);
         /* fprintf(fd, "%s", tclresult()); */
-        my_free(_ALLOC_ID_, &tclcmd);
+        my_free(1302, &tclcmd);
       } /* /20171029 */
 
 
@@ -1927,7 +1927,7 @@ int print_spice_element(FILE *fd, int inst)
   /* do one level of substitutions to resolve @params and equations*/
   if(result && strstr(result, "tcleval(")== result) {
     dbg(1, "print_spice_element(): before translate() result=%s\n", result);
-    my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+    my_strdup(1303, &result, translate(inst, result));
     dbg(1, "print_spice_element(): after  translate() result=%s\n", result);
   }
 
@@ -1945,19 +1945,19 @@ int print_spice_element(FILE *fd, int inst)
   *      c++;
   *      if(!*c) break;
   *    }
-  *    my_strdup2(_ALLOC_ID_, &result, translate(inst, result+5));
+  *    my_strdup2(1304, &result, translate(inst, result+5));
   *  }
   #endif
 
 
   if(result) fprintf(fd, "%s", result);
-  my_free(_ALLOC_ID_, &template);
-  my_free(_ALLOC_ID_, &format);
-  my_free(_ALLOC_ID_, &name);
-  my_free(_ALLOC_ID_, &token);
-  my_free(_ALLOC_ID_, &result);
-  my_free(_ALLOC_ID_, &spiceprefixtag);
-  /* my_free(_ALLOC_ID_, &translatedvalue); */
+  my_free(1305, &template);
+  my_free(1306, &format);
+  my_free(1307, &name);
+  my_free(1308, &token);
+  my_free(1309, &result);
+  my_free(1310, &spiceprefixtag);
+  /* my_free(1311, &translatedvalue); */
   return 1;
 }
 
@@ -1983,24 +1983,24 @@ void print_tedax_element(FILE *fd, int inst)
  int no_of_pins=0;
  int subcircuit = 0;
 
- my_strdup(_ALLOC_ID_, &extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"extra",0));
- my_strdup(_ALLOC_ID_, &extra_pinnumber, get_tok_value(xctx->inst[inst].prop_ptr,"extra_pinnumber",0));
- if(!extra_pinnumber) my_strdup(_ALLOC_ID_, &extra_pinnumber,
+ my_strdup(1312, &extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"extra",0));
+ my_strdup(1313, &extra_pinnumber, get_tok_value(xctx->inst[inst].prop_ptr,"extra_pinnumber",0));
+ if(!extra_pinnumber) my_strdup(1314, &extra_pinnumber,
          get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"extra_pinnumber",0));
- my_strdup(_ALLOC_ID_, &template,
+ my_strdup(1315, &template,
      (xctx->inst[inst].ptr + xctx->sym)->templ);
- my_strdup(_ALLOC_ID_, &numslots, get_tok_value(xctx->inst[inst].prop_ptr,"numslots",0));
- if(!numslots) my_strdup(_ALLOC_ID_, &numslots, get_tok_value(template,"numslots",0));
- if(!numslots) my_strdup(_ALLOC_ID_, &numslots, "1");
+ my_strdup(1316, &numslots, get_tok_value(xctx->inst[inst].prop_ptr,"numslots",0));
+ if(!numslots) my_strdup(1317, &numslots, get_tok_value(template,"numslots",0));
+ if(!numslots) my_strdup(1318, &numslots, "1");
 
- my_strdup(_ALLOC_ID_, &name,xctx->inst[inst].instname);
+ my_strdup(1319, &name,xctx->inst[inst].instname);
  /* my_strdup(xxx, &name,get_tok_value(xctx->inst[inst].prop_ptr,"name",0)); */
- if(!name) my_strdup(_ALLOC_ID_, &name, get_tok_value(template, "name", 0));
+ if(!name) my_strdup(1320, &name, get_tok_value(template, "name", 0));
 
  /* allow format string override in instance */
- my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr,"tedax_format",2));
+ my_strdup(1321, &format, get_tok_value(xctx->inst[inst].prop_ptr,"tedax_format",2));
  if(!format || !format[0])
-   my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"tedax_format",2));
+   my_strdup(1322, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"tedax_format",2));
 
  no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
  if( !format && !strcmp((xctx->inst[inst].ptr + xctx->sym)->type, "subcircuit") ) {
@@ -2017,15 +2017,15 @@ void print_tedax_element(FILE *fd, int inst)
    fprintf(fd, "__subcircuit__ %s %s\n", skip_dir(xctx->inst[inst].name), xctx->inst[inst].instname);
    int_hash_init(&table, 37);
    for(i=0;i<no_of_pins; i++) {
-     my_strdup2(_ALLOC_ID_, &net, net_name(inst,i, &net_mult, 0, 1));
-     my_strdup2(_ALLOC_ID_, &pinname, 
+     my_strdup2(1323, &net, net_name(inst,i, &net_mult, 0, 1));
+     my_strdup2(1324, &pinname, 
        get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0));
-     my_strdup2(_ALLOC_ID_, &pin, expandlabel(pinname, &pin_mult));
+     my_strdup2(1325, &pin, expandlabel(pinname, &pin_mult));
      if(!int_hash_lookup(&table, pinname, 1, XINSERT_NOREPLACE)) {
        dbg(1, "#net=%s pinname=%s pin=%s net_mult=%d pin_mult=%d\n", net, pinname, pin, net_mult, pin_mult);
        for(n = 0; n < net_mult; n++) {
-         my_strdup(_ALLOC_ID_, &netbit, find_nth(net, ",", n+1));
-         my_strdup(_ALLOC_ID_, &pinbit, find_nth(pin, ",", n+1));
+         my_strdup(1326, &netbit, find_nth(net, ",", n+1));
+         my_strdup(1327, &pinbit, find_nth(pin, ",", n+1));
          fprintf(fd, "__map__ %s -> %s\n", 
            pinbit ? pinbit : "__UNCONNECTED_PIN__", 
            netbit ? netbit : "__UNCONNECTED_PIN__");
@@ -2033,21 +2033,21 @@ void print_tedax_element(FILE *fd, int inst)
      }
    }
    int_hash_free(&table);
-   my_free(_ALLOC_ID_, &net);
-   my_free(_ALLOC_ID_, &pin);
-   my_free(_ALLOC_ID_, &pinname);
-   my_free(_ALLOC_ID_, &pinbit);
-   my_free(_ALLOC_ID_, &netbit);
+   my_free(1328, &net);
+   my_free(1329, &pin);
+   my_free(1330, &pinname);
+   my_free(1331, &pinbit);
+   my_free(1332, &netbit);
    fprintf(fd, "\n");
  }
 
  if(name==NULL || !format || !format[0]) {
-   my_free(_ALLOC_ID_, &extra);
-   my_free(_ALLOC_ID_, &extra_pinnumber);
-   my_free(_ALLOC_ID_, &template);
-   my_free(_ALLOC_ID_, &numslots);
-   my_free(_ALLOC_ID_, &format);
-   my_free(_ALLOC_ID_, &name);
+   my_free(1333, &extra);
+   my_free(1334, &extra_pinnumber);
+   my_free(1335, &template);
+   my_free(1336, &numslots);
+   my_free(1337, &format);
+   my_free(1338, &name);
    return;
  }
 
@@ -2057,10 +2057,10 @@ void print_tedax_element(FILE *fd, int inst)
      char *pinnumber;
      pinnumber = get_pin_attr_from_inst(inst, i, "pinnumber");
      if(!pinnumber) {
-       my_strdup2(_ALLOC_ID_, &pinnumber,
+       my_strdup2(1339, &pinnumber,
               get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr,"pinnumber",0));
      }
-     if(!xctx->tok_size) my_strdup(_ALLOC_ID_, &pinnumber, "--UNDEF--");
+     if(!xctx->tok_size) my_strdup(1340, &pinnumber, "--UNDEF--");
      tmp = net_name(inst,i, &multip, 0, 1);
      if(tmp && !strstr(tmp, "__UNCONNECTED_PIN__")) {
        fprintf(fd, "conn %s %s %s %s %d\n",
@@ -2070,7 +2070,7 @@ void print_tedax_element(FILE *fd, int inst)
              pinnumber,
              i+1);
      }
-     my_free(_ALLOC_ID_, &pinnumber);
+     my_free(1341, &pinnumber);
    }
   
    if(extra){
@@ -2210,8 +2210,8 @@ void print_tedax_element(FILE *fd, int inst)
       if( strchr(token, ':') )  {
 
         int n;
-        char *subtok = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
-        char *subtok2 = my_malloc(_ALLOC_ID_, sizetok * sizeof(char)+20);
+        char *subtok = my_malloc(1342, sizetok * sizeof(char));
+        char *subtok2 = my_malloc(1343, sizetok * sizeof(char)+20);
         subtok[0]='\0';
         n=-1;
         sscanf(token+2, "%d:%s", &n, subtok);
@@ -2232,8 +2232,8 @@ void print_tedax_element(FILE *fd, int inst)
             fprintf(fd, "%s", value);
           }
         }
-        my_free(_ALLOC_ID_, &subtok);
-        my_free(_ALLOC_ID_, &subtok2);
+        my_free(1344, &subtok);
+        my_free(1345, &subtok2);
       } else {
         /* reference by pin number instead of pin name, allows faster lookup of the attached net name */
         /* @#n --> return net name attached to pin of index 'n' */
@@ -2249,12 +2249,12 @@ void print_tedax_element(FILE *fd, int inst)
       size_t s;
       char *tclcmd=NULL;
       s = token_pos + strlen(name) + strlen(xctx->inst[inst].name) + 100;
-      tclcmd = my_malloc(_ALLOC_ID_, s);
+      tclcmd = my_malloc(1346, s);
       Tcl_ResetResult(interp);
       my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
       tcleval(tclcmd);
       fprintf(fd, "%s", tclresult());
-      my_free(_ALLOC_ID_, &tclcmd);
+      my_free(1347, &tclcmd);
       /* fprintf(errfp, "%s\n", tclcmd); */
     } /* /20171029 */
 
@@ -2272,13 +2272,13 @@ void print_tedax_element(FILE *fd, int inst)
   }
  } /* if(format) */
  if(!subcircuit) fprintf(fd,"end_inst\n");
- my_free(_ALLOC_ID_, &extra);
- my_free(_ALLOC_ID_, &extra_pinnumber);
- my_free(_ALLOC_ID_, &template);
- my_free(_ALLOC_ID_, &numslots);
- my_free(_ALLOC_ID_, &format);
- my_free(_ALLOC_ID_, &name);
- my_free(_ALLOC_ID_, &token);
+ my_free(1348, &extra);
+ my_free(1349, &extra_pinnumber);
+ my_free(1350, &template);
+ my_free(1351, &numslots);
+ my_free(1352, &format);
+ my_free(1353, &name);
+ my_free(1354, &token);
 }
 
 /* print verilog element if verilog_format is specified */
@@ -2297,25 +2297,25 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
   int symbol = xctx->inst[inst].ptr;
   const char *fmt_attr = NULL;
 
-  my_strdup(_ALLOC_ID_, &template,
+  my_strdup(1355, &template,
       (xctx->inst[inst].ptr + xctx->sym)->templ);
 
-  my_strdup(_ALLOC_ID_, &name,xctx->inst[inst].instname);
-  if(!name) my_strdup(_ALLOC_ID_, &name, get_tok_value(template, "name", 0));
+  my_strdup(1356, &name,xctx->inst[inst].instname);
+  if(!name) my_strdup(1357, &name, get_tok_value(template, "name", 0));
 
   fmt_attr = xctx->format ? xctx->format : "verilog_format";
   /* allow format string override in instance */
-  my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
+  my_strdup(1358, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
   if(!format && strcmp(fmt_attr, "verilog_format") )
-    my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, "verilog_format", 2));
+    my_strdup(1359, &format, get_tok_value(xctx->inst[inst].prop_ptr, "verilog_format", 2));
   if(!format || !format[0])
-    my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
+    my_strdup(1360, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
   if(!format && strcmp(fmt_attr, "verilog_format"))
-     my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_format", 2));
+     my_strdup(1361, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_format", 2));
   if((name==NULL) || (format==NULL) ) {
-    my_free(_ALLOC_ID_, &template);
-    my_free(_ALLOC_ID_, &name);
-    my_free(_ALLOC_ID_, &format);
+    my_free(1362, &template);
+    my_free(1363, &name);
+    my_free(1364, &format);
     return; /*do no netlist unwanted insts(no format) */
   }
   no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
@@ -2452,12 +2452,12 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
       size_t s;
       char *tclcmd=NULL;
       s = token_pos + strlen(name) + strlen(xctx->inst[inst].name) + 100;
-      tclcmd = my_malloc(_ALLOC_ID_, s);
+      tclcmd = my_malloc(1365, s);
       Tcl_ResetResult(interp);
       my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
       tcleval(tclcmd);
       fprintf(fd, "%s", tclresult());
-      my_free(_ALLOC_ID_, &tclcmd);
+      my_free(1366, &tclcmd);
     }
     if(c!='%' && c!='@' && c!='\0') fputc(c,fd);
     if(c == '@' || c == '%') s--;
@@ -2471,10 +2471,10 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
     break ;
    }
   }
-  my_free(_ALLOC_ID_, &template);
-  my_free(_ALLOC_ID_, &format);
-  my_free(_ALLOC_ID_, &name);
-  my_free(_ALLOC_ID_, &token);
+  my_free(1367, &template);
+  my_free(1368, &format);
+  my_free(1369, &name);
+  my_free(1370, &token);
 }
 
 /* verilog module instantiation:
@@ -2519,35 +2519,35 @@ void print_verilog_element(FILE *fd, int inst)
   return;
  }
 
- my_strdup(_ALLOC_ID_, &name,xctx->inst[inst].instname);
- if(!name) my_strdup(_ALLOC_ID_, &name, get_tok_value(template, "name", 0));
+ my_strdup(1371, &name,xctx->inst[inst].instname);
+ if(!name) my_strdup(1372, &name, get_tok_value(template, "name", 0));
  if(name==NULL) {
-   my_free(_ALLOC_ID_, &name);
+   my_free(1373, &name);
    return;
  }
  /* verilog_extra is the list of additional nodes passed as attributes */
- my_strdup(_ALLOC_ID_, &v_extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_extra", 0));
+ my_strdup(1374, &v_extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_extra", 0));
  /* extra is the list of attributes NOT to consider as instance parameters */
- my_strdup(_ALLOC_ID_, &extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "extra", 0));
- my_strdup(_ALLOC_ID_, &verilogprefix, 
+ my_strdup(1375, &extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "extra", 0));
+ my_strdup(1376, &verilogprefix, 
     get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilogprefix", 0));
  if(verilogprefix) {
-   my_strdup(_ALLOC_ID_, &symname, verilogprefix);
-   my_strcat(_ALLOC_ID_, &symname, skip_dir(xctx->inst[inst].name));
+   my_strdup(1377, &symname, verilogprefix);
+   my_strcat(1378, &symname, skip_dir(xctx->inst[inst].name));
  } else {
-   my_strdup(_ALLOC_ID_, &symname, skip_dir(xctx->inst[inst].name));
+   my_strdup(1379, &symname, skip_dir(xctx->inst[inst].name));
  }
- my_free(_ALLOC_ID_, &verilogprefix);
- my_strdup(_ALLOC_ID_, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
+ my_free(1380, &verilogprefix);
+ my_strdup(1381, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
  no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
 
  /* 20080915 use generic_type property to decide if some properties are strings, see later */
- my_strdup(_ALLOC_ID_, &generic_type, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"generic_type",0));
+ my_strdup(1382, &generic_type, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"generic_type",0));
  s=xctx->inst[inst].prop_ptr;
 /* print instance  subckt */
  dbg(2, "print_verilog_element(): printing inst name & subcircuit name\n");
  fprintf(fd, "%s\n", symname);
- my_free(_ALLOC_ID_, &symname);
+ my_free(1383, &symname);
  /* -------- print generics passed as properties */
  tmp=0;
  while(1)
@@ -2659,13 +2659,13 @@ void print_verilog_element(FILE *fd, int inst)
 
  fprintf(fd, "\n);\n\n");
  dbg(2, "print_verilog_element(): ------- end ------ \n");
- my_free(_ALLOC_ID_, &name);
- my_free(_ALLOC_ID_, &generic_type);
- my_free(_ALLOC_ID_, &template);
- my_free(_ALLOC_ID_, &value);
- my_free(_ALLOC_ID_, &token);
- my_free(_ALLOC_ID_, &extra);
- my_free(_ALLOC_ID_, &v_extra);
+ my_free(1384, &name);
+ my_free(1385, &generic_type);
+ my_free(1386, &template);
+ my_free(1387, &value);
+ my_free(1388, &token);
+ my_free(1389, &extra);
+ my_free(1390, &v_extra);
 }
 
 
@@ -2689,14 +2689,14 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
  }
  if(xctx->inst[i].node && xctx->inst[i].node[j] == NULL)
  {
-   my_strdup(_ALLOC_ID_, &pinname, get_tok_value( sym->rect[PINLAYER][j].prop_ptr,"name",0));
+   my_strdup(1391, &pinname, get_tok_value( sym->rect[PINLAYER][j].prop_ptr,"name",0));
    /* before reporting unconnected pin try to locate duplicated pin and use it if found */
    for(k = 0; k < no_of_pins; k++) {
      const char *duplicated_pinname;
      if(k == j) continue;
      duplicated_pinname =  get_tok_value( sym->rect[PINLAYER][k].prop_ptr,"name",0);
      if(!strcmp(duplicated_pinname , pinname)) {
-       my_strdup(_ALLOC_ID_, &pinname, duplicated_pinname);
+       my_strdup(1392, &pinname, duplicated_pinname);
        j = k;
        break;
      }
@@ -2705,7 +2705,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
  if(xctx->inst[i].node && xctx->inst[i].node[j] == NULL)
  {
    expandlabel(pinname, multip);
-   if(pinname) my_free(_ALLOC_ID_, &pinname);
+   if(pinname) my_free(1393, &pinname);
    if(erc) {
      my_snprintf(errstr, S(errstr), "Warning: unconnected pin,  Inst idx: %d, Pin idx: %d  Inst:%s\n",
                  i, j, xctx->inst[i].instname ) ;
@@ -2723,7 +2723,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
    return expandlabel(unconn, &tmp);
  }
  else { /* xctx->inst[i].node[j] not NULL */
-   if(pinname) my_free(_ALLOC_ID_, &pinname);
+   if(pinname) my_free(1394, &pinname);
    if((xctx->inst[i].node[j])[0] == '#') /* unnamed net */
    {
      /* get unnamed node multiplicity ( minimum multip found in circuit) */
@@ -2778,14 +2778,14 @@ char *find_nth(const char *str, const char *sep, int n)
   int count = -1;
 
   if(!str) {
-    my_free(_ALLOC_ID_, &result);
+    my_free(1395, &result);
     result_size = 0;
     return NULL;
   }
   len = strlen(str) + 1;
   if(len > result_size) {
     result_size = len + CADCHUNKALLOC;
-    my_realloc(_ALLOC_ID_, &result, result_size);
+    my_realloc(1396, &result, result_size);
   }
   memcpy(result, str, len);
   i = 0;
@@ -2845,7 +2845,7 @@ const char *translate(int inst, const char* s)
  s_pnetname = tclgetboolvar("show_pin_net_names");
  sp_prefix = tclgetboolvar("spiceprefix");
  if(!s) {
-   my_free(_ALLOC_ID_, &result);
+   my_free(1397, &result);
    return empty;
  }
 
@@ -2853,7 +2853,7 @@ const char *translate(int inst, const char* s)
  level = xctx->currsch;
  lcc = xctx->hier_attr;
  size=CADCHUNKALLOC;
- my_realloc(_ALLOC_ID_, &result,size);
+ my_realloc(1398, &result,size);
  result[0]='\0';
 
  dbg(1, "translate(): substituting props in <%s>, instance <%s>\n",
@@ -2924,8 +2924,8 @@ const char *translate(int inst, const char* s)
      }
    } else if(token[0]=='@' && token[1]=='#') {
      int n;
-     char *pin_attr = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
-     char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
+     char *pin_attr = my_malloc(1399, sizetok * sizeof(char));
+     char *pin_num_or_name = my_malloc(1400, sizetok * sizeof(char));
 
      pin_num_or_name[0]='\0';
      pin_attr[0]='\0';
@@ -2949,7 +2949,7 @@ const char *translate(int inst, const char* s)
          pin_attr_value = get_pin_attr_from_inst(inst, n, pin_attr);
          /* get pin_attr from instance pin attribute string */
          if(!pin_attr_value) {
-          my_strdup(_ALLOC_ID_, &pin_attr_value,
+          my_strdup(1401, &pin_attr_value,
              get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr, pin_attr, 0));
          }
        }
@@ -2961,21 +2961,21 @@ const char *translate(int inst, const char* s)
          if(s_pnetname && (!strcmp(get_tok_value(instprop, "net_name", 0), "true") ||
             !strcmp(get_tok_value(symprop, "net_name", 0), "true"))) {
             prepare_netlist_structs(0);
-            my_strdup2(_ALLOC_ID_, &pin_attr_value,
+            my_strdup2(1402, &pin_attr_value,
                  xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "?");
          /* do not show net_name: set to empty string */
          } else {
-            my_strdup2(_ALLOC_ID_, &pin_attr_value, "");
+            my_strdup2(1403, &pin_attr_value, "");
          }
        }
-       if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
+       if(!pin_attr_value ) my_strdup(1404, &pin_attr_value, "--UNDEF--");
        value = pin_attr_value;
        /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
        if(value && value[0] != 0 && !strcmp(pin_attr, "pinnumber") ) {
          char *ss;
          int slot;
          char *tmpstr = NULL;
-         tmpstr = my_malloc(_ALLOC_ID_, sizeof(xctx->inst[inst].instname));
+         tmpstr = my_malloc(1405, sizeof(xctx->inst[inst].instname));
          if( (ss=strchr(xctx->inst[inst].instname, ':')) ) {
            sscanf(ss+1, "%s", tmpstr);
            if(isonlydigit(tmpstr)) {
@@ -2983,16 +2983,16 @@ const char *translate(int inst, const char* s)
              if(strstr(value,":")) value = find_nth(value, ":", slot);
            }
          }
-         my_free(_ALLOC_ID_, &tmpstr);
+         my_free(1406, &tmpstr);
        }
        tmp=strlen(value);
        STR_ALLOC(&result, tmp + result_pos, &size);
        memcpy(result+result_pos, value, tmp+1);
        result_pos+=tmp;
-       my_free(_ALLOC_ID_, &pin_attr_value);
+       my_free(1407, &pin_attr_value);
      }
-     my_free(_ALLOC_ID_, &pin_attr);
-     my_free(_ALLOC_ID_, &pin_num_or_name);
+     my_free(1408, &pin_attr);
+     my_free(1409, &pin_num_or_name);
    } else if(strcmp(token,"@sch_last_modified")==0) {
 
     get_sch_from_sym(file_name, xctx->inst[inst].ptr + xctx->sym);
@@ -3075,7 +3075,7 @@ const char *translate(int inst, const char* s)
            len = strlen(path) + strlen(net) + 1;
            dbg(1, "translate() @spice_get_voltage: inst=%s\n", xctx->inst[inst].instname);
            dbg(1, "                                net=%s, pin_prop_ptr=%s\n", net, pin_prop_ptr);
-           fqnet = my_malloc(_ALLOC_ID_, len);
+           fqnet = my_malloc(1410, len);
            my_snprintf(fqnet, len, "%s%s", path, net);
            strtolower(fqnet);
            dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
@@ -3097,7 +3097,7 @@ const char *translate(int inst, const char* s)
              result_pos += len;
            }
            dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
-           my_free(_ALLOC_ID_, &fqnet);
+           my_free(1411, &fqnet);
          }
        }
      }
@@ -3122,13 +3122,13 @@ const char *translate(int inst, const char* s)
            if(*path == '.') skip++;
            path++;
          }
-         net = my_malloc(_ALLOC_ID_, tmp);
+         net = my_malloc(1412, tmp);
          n = sscanf(token + 19, "%[^)]", net);
          if(n == 1) {
            strtolower(net);
            len = strlen(path) + strlen(xctx->inst[inst].instname) + strlen(net) + 2;
            dbg(1, "net=%s\n", net);
-           fqnet = my_malloc(_ALLOC_ID_, len);
+           fqnet = my_malloc(1413, len);
            my_snprintf(fqnet, len, "%s%s.%s", path, xctx->inst[inst].instname, net);
            strtolower(fqnet);
            dbg(1, "translate(): net=%s, fqnet=%s start_level=%d\n", net, fqnet, start_level);
@@ -3150,9 +3150,9 @@ const char *translate(int inst, const char* s)
              result_pos += len;
            }
            dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
-           my_free(_ALLOC_ID_, &fqnet);
+           my_free(1414, &fqnet);
          }
-         my_free(_ALLOC_ID_, &net);
+         my_free(1415, &net);
        }
      }
    }
@@ -3175,14 +3175,14 @@ const char *translate(int inst, const char* s)
            if(*path == '.') skip++;
            path++;
          }
-         dev = my_malloc(_ALLOC_ID_, tmp);
+         dev = my_malloc(1416, tmp);
          n = sscanf(token + 19, "%[^)]", dev);
          if(n == 1) {
            strtolower(dev);
            len = strlen(path) + strlen(xctx->inst[inst].instname) +
                  strlen(dev) + 21; /* some extra chars for i(..) wrapper */
            dbg(1, "dev=%s\n", dev);
-           fqdev = my_malloc(_ALLOC_ID_, len);
+           fqdev = my_malloc(1417, len);
            if(!sim_is_xyce) {
              int prefix, vsource;
              char *prefix_ptr = strrchr(dev, '.'); /* last '.' in dev */
@@ -3217,9 +3217,9 @@ const char *translate(int inst, const char* s)
              result_pos += len;
            }
            dbg(1, "inst %d, dev=%s, fqdev=%s idx=%d valstr=%s\n", inst,  dev, fqdev, idx, valstr);
-           my_free(_ALLOC_ID_, &fqdev);
+           my_free(1418, &fqdev);
          } /* if(n == 1) */
-         my_free(_ALLOC_ID_, &dev);
+         my_free(1419, &dev);
        } /* if(path) */
      } /* if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) */
    }
@@ -3248,13 +3248,13 @@ const char *translate(int inst, const char* s)
            net1 = net_name(inst, 0, &multip, 0, 0);
            len = strlen(path) + strlen(net1) + 1;
            dbg(1, "net1=%s\n", net1);
-           fqnet1 = my_malloc(_ALLOC_ID_, len);
+           fqnet1 = my_malloc(1420, len);
            my_snprintf(fqnet1, len, "%s%s", path, net1);
            strtolower(fqnet1);
            net2 = net_name(inst, 1, &multip, 0, 0);
            len = strlen(path) + strlen(net2) + 1;
            dbg(1, "net2=%s\n", net2);
-           fqnet2 = my_malloc(_ALLOC_ID_, len);
+           fqnet2 = my_malloc(1421, len);
            my_snprintf(fqnet2, len, "%s%s", path, net2);
            strtolower(fqnet2);
            dbg(1, "translate(): fqnet1=%s start_level=%d\n", fqnet1, start_level);
@@ -3283,8 +3283,8 @@ const char *translate(int inst, const char* s)
            }
            dbg(1, "inst %d, fqnet1=%s fqnet2=%s idx1=%d idx2=%d, val1=%g val2=%g valstr=%s\n",
                inst, fqnet1, fqnet2, idx1, idx2, val1, val2, valstr);
-           my_free(_ALLOC_ID_, &fqnet1);
-           my_free(_ALLOC_ID_, &fqnet2);
+           my_free(1422, &fqnet1);
+           my_free(1423, &fqnet2);
          }
        }
      }
@@ -3307,11 +3307,11 @@ const char *translate(int inst, const char* s)
            if(*path == '.') skip++;
            path++;
          }
-         my_strdup2(_ALLOC_ID_, &dev, xctx->inst[inst].instname);
+         my_strdup2(1424, &dev, xctx->inst[inst].instname);
          strtolower(dev);
          len = strlen(path) + strlen(dev) + 21; /* some extra chars for i(..) wrapper */
          dbg(1, "dev=%s\n", dev);
-         fqdev = my_malloc(_ALLOC_ID_, len);
+         fqdev = my_malloc(1425, len);
          if(!sim_is_xyce) {
            int prefix=dev[0];
            int vsource = (prefix == 'v') || (prefix == 'e');
@@ -3347,8 +3347,8 @@ const char *translate(int inst, const char* s)
            result_pos += len;
          }
          dbg(1, "inst %d, dev=%s, fqdev=%s idx=%d valstr=%s\n", inst,  dev, fqdev, idx, valstr);
-         my_free(_ALLOC_ID_, &fqdev);
-         my_free(_ALLOC_ID_, &dev);
+         my_free(1426, &fqdev);
+         my_free(1427, &dev);
        }
      }
    }
@@ -3408,18 +3408,18 @@ const char *translate(int inst, const char* s)
        }
      } else {
        int i = level;
-       my_strdup2(_ALLOC_ID_, &value1, value);
+       my_strdup2(1428, &value1, value);
        /* recursive substitution of value using parent level prop_str attributes */
        while(i > 0) {
          const char *tok = get_tok_value(lcc[i-1].prop_ptr, value1, 0);
          if(xctx->tok_size && tok[0]) {
            dbg(1, "tok=%s\n", tok);
-           my_strdup2(_ALLOC_ID_, &value1, tok);
+           my_strdup2(1429, &value1, tok);
          } else {
            tok = get_tok_value(lcc[i-1].templ,  value1, 0);
            if(xctx->tok_size && tok[0]) {
              dbg(1, "from parent template: tok=%s\n", tok);
-             my_strdup2(_ALLOC_ID_, &value1, tok);
+             my_strdup2(1430, &value1, tok);
            }
          }
          dbg(1, "2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
@@ -3429,7 +3429,7 @@ const char *translate(int inst, const char* s)
        STR_ALLOC(&result, tmp + result_pos, &size);
        memcpy(result+result_pos, value1, tmp+1);
        result_pos+=tmp;
-       my_free(_ALLOC_ID_, &value1);
+       my_free(1431, &value1);
      }
    }
    token_pos = 0;
@@ -3445,7 +3445,7 @@ const char *translate(int inst, const char* s)
   }
  }
  dbg(2, "translate(): returning %s\n", result);
- my_free(_ALLOC_ID_, &token);
+ my_free(1432, &token);
 
  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
   * can be calculated */
@@ -3463,11 +3463,11 @@ const char *translate2(Lcc *lcc, int level, char* s)
   char  *token = NULL, *value = NULL;
 
   if(!s) {
-    my_free(_ALLOC_ID_, &result);
+    my_free(1433, &result);
     return empty;
   }
   size = CADCHUNKALLOC;
-  my_realloc(_ALLOC_ID_, &result, size);
+  my_realloc(1434, &result, size);
   result[0] = '\0';
   dbg(1, "translate2(): s=%s, level=%d\n", s, level);
   while (1) {
@@ -3494,13 +3494,13 @@ const char *translate2(Lcc *lcc, int level, char* s)
       dbg(1, "translate2(): lcc[%d].prop_ptr=%s token=%s\n", level, lcc[level].prop_ptr, token);
       /* if spiceprefix==0 and token == @spiceprefix then set empty value */
       if(!tclgetboolvar("spiceprefix") && !strcmp(token, "@spiceprefix")) {
-        if(value) my_free(_ALLOC_ID_, &value);
+        if(value) my_free(1435, &value);
         xctx->tok_size = 0;
       } else if(token[0] == '@' && (token[1] == '@' || token[1] == '#')) { /* get rid of pin attribute info */
-        if(value) my_free(_ALLOC_ID_, &value);
+        if(value) my_free(1436, &value);
         xctx->tok_size = 0;
       } else {
-        my_strdup2(_ALLOC_ID_, &value, get_tok_value(lcc[level].prop_ptr, token + 1, 0));
+        my_strdup2(1437, &value, get_tok_value(lcc[level].prop_ptr, token + 1, 0));
         dbg(1, "translate2(): lcc[%d].prop_ptr=%s value=%s\n", level, lcc[level].prop_ptr, value);
       }
       if(xctx->tok_size && value[0]) {
@@ -3510,7 +3510,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
           const char *upperval = get_tok_value(lcc[i-1].prop_ptr, value, 0);
           dbg(1, "translate2(): lcc[%d].prop_ptr=%s upperval=%s\n", i-1, lcc[i-1].prop_ptr, upperval);
           if(xctx->tok_size && upperval[0]) {
-            my_strdup2(_ALLOC_ID_, &value, upperval);
+            my_strdup2(1438, &value, upperval);
           } else {
             break;
           }
@@ -3534,20 +3534,20 @@ const char *translate2(Lcc *lcc, int level, char* s)
       }
       else if(strcmp(token,"@path")==0) {
         char *path = NULL;
-        my_strdup2(_ALLOC_ID_, &path, "@path@name\\.");
+        my_strdup2(1439, &path, "@path@name\\.");
         if(level > 1) { /* add parent LCC instance names (X1, Xinv etc) */
           int i;
           for(i = 1; i <level; i++) {
             const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
-            my_strcat(_ALLOC_ID_, &path, instname);
-            my_strcat(_ALLOC_ID_, &path, ".");
+            my_strcat(1440, &path, instname);
+            my_strcat(1441, &path, ".");
           }
         }
         dbg(1, "path=%s\n", path);
         tmp=strlen(path);
         STR_ALLOC(&result, tmp + result_pos, &size);
         memcpy(result+result_pos, path, tmp+1);
-        my_free(_ALLOC_ID_, &path);
+        my_free(1442, &path);
         result_pos+=tmp;
       }
       else if (strcmp(token, "@symname") == 0) {
@@ -3574,8 +3574,8 @@ const char *translate2(Lcc *lcc, int level, char* s)
       break;
     }
   } /* while(1) */
-  my_free(_ALLOC_ID_, &token);
-  my_free(_ALLOC_ID_, &value);
+  my_free(1443, &token);
+  my_free(1444, &value);
   dbg(1, "translate2(): result=%s\n", result);
   /* return tcl_hook2(&result); */
   return result;

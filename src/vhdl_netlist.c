@@ -63,7 +63,7 @@ static void vhdl_netlist(FILE *fd , int vhdl_stop)
   if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
     continue;
   }
-  my_strdup(_ALLOC_ID_, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
+  my_strdup(1500, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"attributes"))==0)
   {
    if(xctx->inst[l].prop_ptr) fprintf(fd, "\n%s\n", xctx->inst[l].prop_ptr);
@@ -83,7 +83,7 @@ static void vhdl_netlist(FILE *fd , int vhdl_stop)
       continue;
     }
     dbg(2, "vhdl_netlist():       into the netlisting loop\n");
-    my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+    my_strdup(1501, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
     if( type &&
        ( !IS_LABEL_OR_PIN(type) &&
          strcmp(type,"generic")&&
@@ -106,7 +106,7 @@ static void vhdl_netlist(FILE *fd , int vhdl_stop)
     }
    }
  }
- if(type) my_free(_ALLOC_ID_, &type);
+ if(type) my_free(1502, &type);
  dbg(1, "vhdl_netlist():       end\n");
  if(!vhdl_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
 }
@@ -167,7 +167,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    }
 
 
-   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+   my_strdup(1503, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
    if( type && (strcmp(type,"package"))==0)
    {
     if(xctx->inst[i].prop_ptr) {                          /* */
@@ -186,7 +186,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
      continue;
    }
-   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+   my_strdup(1504, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
    if( type && (strcmp(type,"use"))==0)
    {
     if(xctx->inst[i].prop_ptr) fprintf(fd, "%s\n", xctx->inst[i].prop_ptr);
@@ -255,9 +255,9 @@ void global_vhdl_netlist(int global)  /* netlister driver */
   if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
     continue;
   }
-  my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"sig_type",0));
-  if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"std_logic");
-  my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+  my_strdup(1505, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"sig_type",0));
+  if(!sig_type || sig_type[0]=='\0') my_strdup(1506, &sig_type,"std_logic");
+  my_strdup(1507, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"opin"))==0)
   {
    str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
@@ -276,9 +276,9 @@ void global_vhdl_netlist(int global)  /* netlister driver */
   if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
     continue;
   }
-  my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"sig_type",0));
-  if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"std_logic");
-  my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+  my_strdup(1508, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"sig_type",0));
+  if(!sig_type || sig_type[0]=='\0') my_strdup(1509, &sig_type,"std_logic");
+  my_strdup(1510, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"iopin"))==0)
   {
    str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
@@ -297,9 +297,9 @@ void global_vhdl_netlist(int global)  /* netlister driver */
   if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
     continue;
   }
-  my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"sig_type",0));
-  if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"std_logic");
-  my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+  my_strdup(1511, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"sig_type",0));
+  if(!sig_type || sig_type[0]=='\0') my_strdup(1512, &sig_type,"std_logic");
+  my_strdup(1513, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"ipin"))==0)
   {
    str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
@@ -319,7 +319,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
      continue;
    }
-   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+   my_strdup(1514, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
    if( type && (strcmp(type,"port_attributes"))==0)
    {
     if(xctx->inst[i].prop_ptr) fprintf(fd, "%s\n", xctx->inst[i].prop_ptr);
@@ -339,7 +339,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
   if( strcmp(get_tok_value(xctx->sym[j].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
   if(!xctx->sym[j].type || (strcmp(xctx->sym[j].type,"primitive")!=0 &&
      strcmp(xctx->sym[j].type,"subcircuit")!=0)) continue;
-  my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[j].name, ""));
+  my_strdup(1515, &abs_path, abs_sym_path(xctx->sym[j].name, ""));
   if((
       strcmp(xctx->sym[j].type,"subcircuit")==0 ||
       strcmp(xctx->sym[j].type,"primitive")==0
@@ -347,7 +347,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
     )
   {
    /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
-   my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[j].name, 0));
+   my_strdup(1516, &subckt_name, get_cell(xctx->sym[j].name, 0));
    if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL) {
      Int_hashtable table = {NULL, 0};
      str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
@@ -360,12 +360,12 @@ void global_vhdl_netlist(int global)  /* netlister driver */
      for(i=0;i<xctx->sym[j].rects[PINLAYER];i++)
      {
        if(strcmp(get_tok_value(xctx->sym[j].rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
-         my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(
+         my_strdup(1517, &sig_type,get_tok_value(
                    xctx->sym[j].rect[PINLAYER][i].prop_ptr,"sig_type",0));
-         my_strdup(_ALLOC_ID_, &port_value,
+         my_strdup(1518, &port_value,
             get_tok_value(xctx->sym[j].rect[PINLAYER][i].prop_ptr,"value", 0) );
-         if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"std_logic");
-         my_strdup(_ALLOC_ID_, &dir_tmp, get_tok_value(xctx->sym[j].rect[PINLAYER][i].prop_ptr,"dir",0) );
+         if(!sig_type || sig_type[0]=='\0') my_strdup(1519, &sig_type,"std_logic");
+         my_strdup(1520, &dir_tmp, get_tok_value(xctx->sym[j].rect[PINLAYER][i].prop_ptr,"dir",0) );
          str_tmp = get_tok_value(xctx->sym[j].rect[PINLAYER][i].prop_ptr,"name",0);
          if(!int_hash_lookup(&table, str_tmp, 1, XINSERT_NOREPLACE)) {
            if(!tmp) fprintf(fd, "port (\n");
@@ -375,7 +375,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
              fprintf(fd," := %s", port_value);
            tmp=1;
          }
-         my_free(_ALLOC_ID_, &dir_tmp);
+         my_free(1521, &dir_tmp);
        }
      }
      int_hash_free(&table);
@@ -383,10 +383,10 @@ void global_vhdl_netlist(int global)  /* netlister driver */
      fprintf(fd, "end component ;\n\n");
    }
   }
-  my_free(_ALLOC_ID_, &abs_path);
+  my_free(1522, &abs_path);
  }
  str_hash_free(&subckt_table);
- my_free(_ALLOC_ID_, &subckt_name);
+ my_free(1523, &subckt_name);
 
  dbg(1, "global_vhdl_netlist(): netlisting  top level\n");
  vhdl_netlist(fd, 0);
@@ -398,7 +398,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
      continue;
    }
-   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+   my_strdup(1524, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
    if(type && !strcmp(type,"netlist_commands")) {
      fprintf(fd, "%s\n", get_tok_value(xctx->inst[i].prop_ptr,"value", 0));
    }
@@ -426,7 +426,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  /* warning if two symbols perfectly overlapped */
  warning_overlapped_symbols(0);
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
- stored_flags = my_calloc(_ALLOC_ID_, xctx->instances, sizeof(unsigned int));
+ stored_flags = my_calloc(1525, xctx->instances, sizeof(unsigned int));
  for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].color;
 
  if(global)
@@ -438,8 +438,8 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    /* reload data without popping undo stack, this populates embedded symbols if any */
    xctx->pop_undo(2, 0);
    /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
-   my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
-   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
+   my_strdup(1526, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
+   my_strcat(1527, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;
    xctx->currsch++;
 
@@ -449,11 +449,11 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    {
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
-    my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
+    my_strdup(1528, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
-      my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
+      my_strdup(1529, &subckt_name, get_cell(xctx->sym[i].name, 0));
       if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
         str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
@@ -466,10 +466,10 @@ void global_vhdl_netlist(int global)  /* netlister driver */
             vhdl_block_netlist(fd, i);
       }
     }
-    my_free(_ALLOC_ID_, &abs_path);
+    my_free(1530, &abs_path);
    }
    str_hash_free(&subckt_table);
-   my_free(_ALLOC_ID_, &subckt_name);
+   my_free(1531, &subckt_name);
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
    xctx->currsch--;
    unselect_all(1);
@@ -484,7 +484,7 @@ void global_vhdl_netlist(int global)  /* netlister driver */
  for(i=0;i<xctx->instances; i++) xctx->inst[i].color = stored_flags[i];
  propagate_hilights(1, 0, XINSERT_NOREPLACE);
  draw_hilight_net(1);
- my_free(_ALLOC_ID_, &stored_flags);
+ my_free(1532, &stored_flags);
  dbg(1, "global_vhdl_netlist(): starting awk on netlist!\n");
  if(!split_f) {
    fclose(fd);
@@ -498,9 +498,9 @@ void global_vhdl_netlist(int global)  /* netlister driver */
    }
    if(!debug_var) xunlink(netl_filename);
  }
- my_free(_ALLOC_ID_, &sig_type);
- my_free(_ALLOC_ID_, &type);
- my_free(_ALLOC_ID_, &port_value);
+ my_free(1533, &sig_type);
+ my_free(1534, &type);
+ my_free(1535, &port_value);
  xctx->netlist_count = 0;
 }
 
@@ -584,12 +584,12 @@ void  vhdl_block_netlist(FILE *fd, int i)
     for(j=0;j<xctx->sym[i].rects[PINLAYER];j++)
     {
       if(strcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"vhdl_ignore",0), "true")) {
-        my_strdup(_ALLOC_ID_, &sig_type,
+        my_strdup(1536, &sig_type,
            get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"sig_type",0));
-        my_strdup(_ALLOC_ID_, &port_value,
+        my_strdup(1537, &port_value,
            get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"value", 0) );
-        if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"std_logic");
-        my_strdup(_ALLOC_ID_, &dir_tmp, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"dir",0) );
+        if(!sig_type || sig_type[0]=='\0') my_strdup(1538, &sig_type,"std_logic");
+        my_strdup(1539, &dir_tmp, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"dir",0) );
         str_tmp = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"name",0);
         if(!int_hash_lookup(&table, str_tmp, 1, XINSERT_NOREPLACE)) {
           if(tmp) fprintf(fd, " ;\n");
@@ -600,7 +600,7 @@ void  vhdl_block_netlist(FILE *fd, int i)
             fprintf(fd," := %s", port_value);
           tmp=1;
         }
-        my_free(_ALLOC_ID_, &dir_tmp);
+        my_free(1540, &dir_tmp);
       }
     }
     int_hash_free(&table);
@@ -614,7 +614,7 @@ void  vhdl_block_netlist(FILE *fd, int i)
      if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
        continue;
      }
-     my_strdup(_ALLOC_ID_, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
+     my_strdup(1541, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
      if( type && (strcmp(type,"port_attributes"))==0)
      {
       if(xctx->inst[l].prop_ptr) fprintf(fd, "%s\n", xctx->inst[l].prop_ptr);
@@ -637,7 +637,7 @@ void  vhdl_block_netlist(FILE *fd, int i)
         if(!xctx->sym[j].type || (strcmp(xctx->sym[j].type,"primitive")!=0 && 
            strcmp(xctx->sym[j].type,"subcircuit")!=0))
              continue;
-        my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
+        my_strdup2(1542, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
         if(( strcmp(xctx->sym[j].type,"subcircuit")==0 || strcmp(xctx->sym[j].type,"primitive")==0) && 
             check_lib(1, abs_path)
           ) {
@@ -665,19 +665,19 @@ void  vhdl_block_netlist(FILE *fd, int i)
           for(k=0;k<xctx->sym[j].rects[PINLAYER];k++)
           {
             if(strcmp(get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"vhdl_ignore",0), "true")) {
-              my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(
+              my_strdup(1543, &sig_type,get_tok_value(
                         xctx->sym[j].rect[PINLAYER][k].prop_ptr,"sig_type",0));
-              my_strdup(_ALLOC_ID_, &port_value,
+              my_strdup(1544, &port_value,
                  get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"value", 0) );
    
-              if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"std_logic");
-              my_strdup(_ALLOC_ID_, &dir_tmp, get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"dir",0) );
+              if(!sig_type || sig_type[0]=='\0') my_strdup(1545, &sig_type,"std_logic");
+              my_strdup(1546, &dir_tmp, get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"dir",0) );
               str_tmp = get_tok_value(xctx->sym[j].rect[PINLAYER][k].prop_ptr,"name",0);
               if(!int_hash_lookup(&table, str_tmp, 1, XINSERT_NOREPLACE)) {
                 if(!tmp) fprintf(fd, "port (\n");
                 if(tmp) fprintf(fd, " ;\n");
                 fprintf(fd,"  %s : %s %s",str_tmp, dir_tmp ? dir_tmp : "<NULL>", sig_type);
-                my_free(_ALLOC_ID_, &dir_tmp);
+                my_free(1547, &dir_tmp);
                 if(port_value &&port_value[0]) fprintf(fd," := %s", port_value);
                 tmp=1;
               }
@@ -689,7 +689,7 @@ void  vhdl_block_netlist(FILE *fd, int i)
         }
       } /* for(j...) */
     } /* if(!vhdl_stop) */
-    my_free(_ALLOC_ID_, &abs_path);
+    my_free(1548, &abs_path);
     dbg(1, "vhdl_block_netlist():  netlisting %s\n", skip_dir( xctx->sch[xctx->currsch]));
     vhdl_netlist(fd, vhdl_stop);
     fprintf(fd,"//// begin user architecture code\n");
@@ -703,7 +703,7 @@ void  vhdl_block_netlist(FILE *fd, int i)
       if(xctx->netlist_count &&
         !strcmp(get_tok_value(xctx->inst[l].prop_ptr, "only_toplevel", 0), "true")) continue;
   
-      my_strdup(_ALLOC_ID_, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
+      my_strdup(1549, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
       if(type && !strcmp(type,"netlist_commands")) {
         fprintf(fd, "%s\n", get_tok_value(xctx->inst[l].prop_ptr,"value", 0));
       }
@@ -711,9 +711,9 @@ void  vhdl_block_netlist(FILE *fd, int i)
   
     if(xctx->schvhdlprop && xctx->schvhdlprop[0]) fprintf(fd, "%s\n", xctx->schvhdlprop);
     fprintf(fd, "end arch_%s ;\n\n", skip_dir(xctx->sym[i].name) ); /* skip_dir( xctx->sch[xctx->currsch]) ); */
-    my_free(_ALLOC_ID_, &sig_type);
-    my_free(_ALLOC_ID_, &port_value);
-    my_free(_ALLOC_ID_, &type);
+    my_free(1550, &sig_type);
+    my_free(1551, &port_value);
+    my_free(1552, &type);
   } /* if(!sym_def[0]) */
   if(split_f) {
     int save;

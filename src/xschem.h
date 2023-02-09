@@ -368,7 +368,7 @@ do { \
   register size_t __str_alloc_tmp__ = add; \
   if( __str_alloc_tmp__ >= *size) { \
     *size = __str_alloc_tmp__ + CADCHUNKALLOC; \
-    my_realloc(_ALLOC_ID_, dest_string, *size); \
+    my_realloc(1677, dest_string, *size); \
   } \
 } while(0)
 

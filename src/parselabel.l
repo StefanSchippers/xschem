@@ -66,7 +66,7 @@ extern int yylex();
 
 void clear_expandlabel_data(void)
 {
-  my_free(_ALLOC_ID_, &dest_string.str);
+  my_free(759, &dest_string.str);
 }
 
 static void str_char_replace(char s[], char chr, char repl_chr)
@@ -95,7 +95,7 @@ void parse(const char *s)
 const char *expandlabel(const char *s, int *m)
 {
  YY_BUFFER_STATE buf;
- my_free(_ALLOC_ID_, &dest_string.str);     /* 30102004  delete 'memory' of previous execution */
+ my_free(760, &dest_string.str);     /* 30102004  delete 'memory' of previous execution */
 
  if(dbg_var >= 3) fprintf(errfp, "expandlabel(): entering\n");
  buf=yy_scan_string(s);
@@ -106,13 +106,13 @@ const char *expandlabel(const char *s, int *m)
    size_t l;
    yyparse_error = -1;
    l = strlen(s)+400;
-   cmd = my_malloc(_ALLOC_ID_, l);
+   cmd = my_malloc(761, l);
    fprintf(errfp, "syntax error in %s\n", s);
    my_snprintf(cmd, l, 
      "tk_messageBox -icon error -type ok -parent [xschem get topwindow] "
      "-message {Syntax error in identifier expansion: %s\nschematic:\n%s}", s, xctx->sch[xctx->currsch]);
    if(has_x) tcleval(cmd);
-   my_free(_ALLOC_ID_, &cmd);
+   my_free(762, &cmd);
 
  }
  if(dbg_var >= 3) 
@@ -209,14 +209,14 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
   /* recognize AA[aa:bb:33] or AA[33:cc:dd] or AA[aa..bb..11] .... */
 ({IDX_ID}{DDOT}{IDX_ID_N}{DDOT}{IDX_ID_N})|({IDX_ID_N}{DDOT}{IDX_ID}{DDOT}{IDX_ID_N})|({IDX_ID_N}{DDOT}{IDX_ID_N}{DDOT}{IDX_ID}) {
                           yylval.ptr.str=NULL;
-                          my_strdup(_ALLOC_ID_, &yylval.ptr.str, yytext);
+                          my_strdup(763, &yylval.ptr.str, yytext);
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME3: |%s|\n", yytext);
                           return B_NAME;
                         }
 
 ({IDX_ID}{CLN}{IDX_ID_N}{CLN}{IDX_ID_N})|({IDX_ID_N}{CLN}{IDX_ID}{CLN}{IDX_ID_N})|({IDX_ID_N}{CLN}{IDX_ID_N}{CLN}{IDX_ID}) {
                           yylval.ptr.str=NULL;
-                          my_strdup(_ALLOC_ID_, &yylval.ptr.str, yytext);
+                          my_strdup(764, &yylval.ptr.str, yytext);
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME2: |%s|\n", yytext);
                           return B_NAME;
                         }
@@ -224,7 +224,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
   /* recognize AA[width-1:0], AA[0:width-1], AA[width-1..4], AA[3..width+3], AA[aa:bb] AA[aa..bb] */
 ({IDX_ID}{CLN}{IDX_ID_N})|({IDX_ID_N}{CLN}{IDX_ID})|({IDX_ID}{DDOT}{IDX_ID_N})|({IDX_ID_N}{DDOT}{IDX_ID}) {
                           yylval.ptr.str=NULL;
-                          my_strdup(_ALLOC_ID_, &yylval.ptr.str, yytext);
+                          my_strdup(765, &yylval.ptr.str, yytext);
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME1: |%s|\n", yytext);
                           return B_NAME;
                         }
@@ -234,7 +234,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
 ^\*.*                   {
                           yylval.ptr.str=NULL; /*19102004 */
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): B_LINE: |%s|\n",yytext);
-                          my_strdup(_ALLOC_ID_, &yylval.ptr.str, yytext); /* freed after use in expandlabel.y */
+                          my_strdup(766, &yylval.ptr.str, yytext); /* freed after use in expandlabel.y */
                           BEGIN(INITIAL);
                           return B_LINE;
                         }
@@ -248,7 +248,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
   /* a number: if not a multiplier nor a node index return as a node name */
 {INT}                   {
                           yylval.ptr.str=NULL;
-                          my_strdup(_ALLOC_ID_, &yylval.ptr.str, yytext);
+                          my_strdup(767, &yylval.ptr.str, yytext);
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME4: |%s|\n", yytext);
                           BEGIN(INITIAL);
                           return B_NAME;
@@ -267,7 +267,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
   /* recognize the most esotheric identifiers */
 {ID_NUM}|{ID_EXT_PARENTHESIS} {
                           yylval.ptr.str=NULL;/*19102004 */
-                          my_strdup(_ALLOC_ID_, &yylval.ptr.str, yytext); /* freed after use in expandlabel.y */
+                          my_strdup(768, &yylval.ptr.str, yytext); /* freed after use in expandlabel.y */
                           if(dbg_var >= 3) fprintf(errfp, "yylex(): B_NAME0: |%s|\n", yytext);
                           BEGIN(INITIAL);
                           return B_NAME;
