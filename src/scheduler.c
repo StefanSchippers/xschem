@@ -2927,10 +2927,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     case 't': /*----------------------------------------------*/
     if(!strcmp(argv[1], "table_read"))
     {
-      if(argc > 2) {
+      if(sch_waves_loaded() >= 0) {
+        free_rawfile(1);
+        tclsetvar("rawfile_loaded", "0");
+      } else if(argc > 2) {
+        free_rawfile(0);
         table_read(argv[2]);
-        Tcl_ResetResult(interp);
-      }
+        if(sch_waves_loaded() >= 0) {
+          tclsetvar("rawfile_loaded", "1");
+          draw();
+        }
+        else  tclsetvar("rawfile_loaded", "0");
+      } 
+      Tcl_ResetResult(interp);
     }
 
     else if(!strcmp(argv[1], "test"))
