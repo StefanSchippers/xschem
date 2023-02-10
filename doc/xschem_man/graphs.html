@@ -60,8 +60,13 @@ p{padding: 15px  30px 10px;}
   The next step is loading the simulation data, This is done by menu
   <kbd>Simulation-&gt;Load/Unload ngspice .raw file</kbd>. This command loads a .raw file produced by a ngspice/Xyce
   simulation. The file name is expected to be <kbd>circuit.raw</kbd> where 
-  <kbd>circuit.sch</kbd> is the name of the schematic opened
-  in the drawing area. The raw file is searched for in the simulation/netlisting directory 
+  <kbd>circuit.sch</kbd> is the name of the schematic opened in the drawing area. 
+ </p>
+ <p class="important">
+   Ensure the <kbd>circuit.raw</kbd> is saved in binary format (no <kbd>set filetype=ascii</kbd> in your testbench)
+ </p>
+ <p>
+  The raw file is searched for in the simulation/netlisting directory 
   <kbd>Simulation -&gt;set netlist dir</kbd>.<br>
   After placing a graph box and loading simulation data a wave can be added. If you place the mouse on the inside
   of the box, close to the bottom/left/right edges and click the graph will be selected. 
