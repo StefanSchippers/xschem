@@ -766,7 +766,7 @@ int table_read(const char *f)
   
   if(xctx->graph_values || xctx->graph_npoints || xctx->graph_nvars || xctx->graph_datasets) {
     dbg(0, "table_read(): must clear current data file before loading new\n");
-    return res;
+    return 0;
   }
   int_hash_init(&xctx->graph_raw_table, HASHSIZE);
   fd = fopen(f, fopen_read_mode);
@@ -775,31 +775,31 @@ int table_read(const char *f)
     int field;
     int npoints = 0;
     int dataset_points = 0;
-    int prev_empty = 0;
+    int prev_prev_empty = 0, prev_empty = 0;
     res = 1;
     /* read data line by line */
     while((line = my_fgets(fd))) {
       int empty = 1;
       if(line[0] == '#') {
-        my_free(_ALLOC_ID_, &line);
-        continue; /* skip comments */
+        goto clear;
       }
       line_ptr = line;
       while(*line_ptr) { /* non empty line ? */
         if(*line_ptr != ' ' && *line_ptr != '\t' && *line_ptr != '\n') empty = 0;
         line_ptr++;
       }
-      if(empty && prev_empty) { /* second empty line: start new dataset */
-        xctx->graph_datasets++;
-        dataset_points = 0;
-        my_free(_ALLOC_ID_, &line);
-        continue;
-      } else if(empty) {
+      if(empty) {
+        prev_prev_empty = prev_empty;
         prev_empty = 1;
-        my_free(_ALLOC_ID_, &line);
-        continue;
+        goto clear;
       }
-      prev_empty = 0;
+      if(prev_prev_empty == 1 && prev_empty == 1) {
+        xctx->graph_datasets++;
+        my_realloc(_ALLOC_ID_, &xctx->graph_npoints, xctx->graph_datasets * sizeof(int));
+        dataset_points = 0;
+      }
+      if(!xctx->graph_datasets) xctx->graph_datasets++;
+      prev_prev_empty = prev_empty = 0;
       line_ptr = line;
       field = 0;
       while( (line_tok = my_strtok_r(line_ptr, " \t\n", "", &line_save)) ) {
@@ -826,11 +826,11 @@ int table_read(const char *f)
       nline++;
       if(nline == 1) {
         xctx->graph_values = my_calloc(_ALLOC_ID_, xctx->graph_nvars + 1, sizeof(SPICE_DATA *));
-        my_realloc(_ALLOC_ID_, &xctx->graph_npoints, (xctx->graph_datasets+1) * sizeof(int));
-        xctx->graph_datasets++;
+        my_realloc(_ALLOC_ID_, &xctx->graph_npoints, xctx->graph_datasets * sizeof(int));
       }
+      clear:
       my_free(_ALLOC_ID_, &line);
-    }
+    } /* while(line ....) */
     xctx->graph_allpoints = 0;
     if(res == 1) {
       int i;
@@ -844,9 +844,12 @@ int table_read(const char *f)
       dbg(0, "Table file data read: %s\n", f);
       dbg(0, "points=%d, vars=%d, datasets=%d\n",
              xctx->graph_allpoints, xctx->graph_nvars, xctx->graph_datasets);
+      /* allocate extra column for custom calculated data (expressions) */
+      my_realloc(_ALLOC_ID_, &xctx->graph_values[xctx->graph_nvars], npoints * sizeof(SPICE_DATA));
     } else {
       dbg(0, "table_read(): no useful data found\n");
     }
+    
     fclose(fd);
     return res;
   }

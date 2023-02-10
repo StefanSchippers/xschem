@@ -3366,9 +3366,12 @@ void draw(void)
   int cc, c, i = 0;
   xSymbol *symptr;
   int textlayer;
-  
   #if HAS_CAIRO==1
   const char *textfont;
+  #endif
+
+  if(!xctx || xctx->no_draw) return;
+  #if HAS_CAIRO==1
   #ifndef __unix__
   clear_cairo_surface(xctx->cairo_save_ctx,
     xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
@@ -3376,7 +3379,6 @@ void draw(void)
     xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
   #endif
   #endif
-  if(xctx->no_draw) return;
   xctx->show_hidden_texts = tclgetboolvar("show_hidden_texts");
   rebuild_selected_array();
   if(has_x) {

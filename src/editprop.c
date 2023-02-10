@@ -57,6 +57,21 @@ int my_strncasecmp(const char *s1, const char *s2, size_t n)
   return tolower(*s1) - tolower(*s2);
 }
 
+/* return lenght of line and skip */
+size_t my_fgets_skip(FILE *fd)
+{
+  enum { SIZE = 1024 };
+  char buf[SIZE];
+  size_t line_len = 0, len;
+
+  while(fgets(buf, SIZE, fd)) {
+    len = strlen(buf);
+    line_len += len;
+    if(buf[len - 1] == '\n') break;
+  }
+  return line_len;
+}
+
 /* caller should free allocated storage for s */
 char *my_fgets(FILE *fd)
 {
