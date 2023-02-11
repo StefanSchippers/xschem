@@ -793,16 +793,15 @@ int table_read(const char *f)
         prev_empty = 1;
         goto clear;
       }
-      if(prev_prev_empty == 1 && prev_empty == 1) {
+      if(!xctx->graph_datasets || (prev_prev_empty == 1 && prev_empty == 1) ) {
         xctx->graph_datasets++;
         my_realloc(_ALLOC_ID_, &xctx->graph_npoints, xctx->graph_datasets * sizeof(int));
         dataset_points = 0;
       }
-      if(!xctx->graph_datasets) xctx->graph_datasets++;
       prev_prev_empty = prev_empty = 0;
       line_ptr = line;
       field = 0;
-      while( (line_tok = my_strtok_r(line_ptr, " \t\n", "", &line_save)) ) {
+      while( (line_tok = strtok_r(line_ptr, " \t\n", &line_save)) ) {
         line_ptr = NULL;
         dbg(1,"%s ", line_tok);
         if(nline == 0) { /* header line */
@@ -813,7 +812,6 @@ int table_read(const char *f)
         } else { /* data line */
           my_realloc(_ALLOC_ID_, &xctx->graph_values[field], (npoints + 1) * sizeof(SPICE_DATA));
           xctx->graph_values[field][npoints] = (float)atof(line_tok);
-          xctx->graph_npoints[xctx->graph_datasets - 1] = dataset_points + 1;
         }
         field++;
         xctx->graph_nvars = field;
@@ -822,11 +820,11 @@ int table_read(const char *f)
         npoints++;
         dataset_points++;
       }
+      xctx->graph_npoints[xctx->graph_datasets - 1] = dataset_points;
       dbg(1, "\n");
       nline++;
       if(nline == 1) {
         xctx->graph_values = my_calloc(_ALLOC_ID_, xctx->graph_nvars + 1, sizeof(SPICE_DATA *));
-        my_realloc(_ALLOC_ID_, &xctx->graph_npoints, xctx->graph_datasets * sizeof(int));
       }
       clear:
       my_free(_ALLOC_ID_, &line);
@@ -853,7 +851,7 @@ int table_read(const char *f)
     fclose(fd);
     return res;
   }
-  dbg(0, "raw_read(): failed to open file %s for reading\n", f);
+  dbg(0, "table_read(): failed to open file %s for reading\n", f);
   return 0;
 }
 
