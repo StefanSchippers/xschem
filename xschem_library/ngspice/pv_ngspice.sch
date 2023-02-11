@@ -53,7 +53,7 @@ C {ammeter.sym} 430 -510 2 1 {name=Vm}
 C {lab_pin.sym} 430 -650 2 0 {name=l2 sig_type=std_logic lab=pn}
 C {lab_pin.sym} 430 -550 2 0 {name=l3 sig_type=std_logic lab=mn}
 C {isource_arith.sym} 430 -600 2 0 {name=G1
-CUR="v(f) * power * 2.16 / n  * (1 - (3.5e-7 * exp( v(pn,mn) / n / 0.041)))"
+CUR="v(f) * power * 2.16 / n - power * 2.16 / n * (3.5e-7 * exp( v(pn,mn) / n / 0.041))"
 }
 C {ipin.sym} 290 -460 2 1 {name=p2 lab=fade}
 C {ammeter.sym} 340 -460 3 0 {name=Vf}
