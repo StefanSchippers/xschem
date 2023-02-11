@@ -1398,6 +1398,7 @@ extern double my_round(double a);
 extern double round_to_n_digits(double x, int n);
 extern double floor_to_n_digits(double x, int n);
 extern double ceil_to_n_digits(double x, int n);
+extern int count_lines_bytes(int fd, size_t *lines, size_t *bytes);
 extern const char *subst_token(const char *s, const char *tok, const char *new_val);
 extern void new_prop_string(int i, const char *old_prop,int fast, int dis_uniq_names);
 extern void hash_name(char *token, int remove);

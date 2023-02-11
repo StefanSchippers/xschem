@@ -851,6 +851,7 @@ int table_read(const char *f)
     fclose(fd);
     return res;
   }
+  err:
   dbg(0, "table_read(): failed to open file %s for reading\n", f);
   return 0;
 }

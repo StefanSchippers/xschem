@@ -608,6 +608,34 @@ void set_inst_prop(int i)
   }
 }
 
+/* super fast count # of lines (and bytes) in a file */
+int count_lines_bytes(int fd, size_t *lines, size_t *bytes)
+{
+  enum {BUFFER_SIZE=16384};
+  size_t nread;
+  size_t nls, nbytes;
+  char buf[BUFFER_SIZE];
+
+  if(!lines || !bytes) return 0;
+  nls = nbytes = 0;
+  while((nread = read(fd, buf, BUFFER_SIZE)) > 0) {
+    char *p;
+    char *last;
+
+    if(nread == -1) return 0;
+    nbytes += nread;
+    p = buf;
+    last = buf + nread;
+    while((p = memchr(p, '\n', last - p))) {
+      ++p;
+      ++nls;
+    }
+  }
+  *bytes = nbytes;
+  *lines = nls;
+  return 1;
+}
+
 static void edit_rect_property(int x)
 {
   int i, c, n;
