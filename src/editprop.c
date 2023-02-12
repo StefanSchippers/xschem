@@ -662,14 +662,14 @@ float my_atof(const char *p)
       p++;
     } else if(*p == '+') p++;
     /* Get digits of exponent, if any. */
-    for(exponent = 0; is_a_digit(*p); p += 1) {
+    for(exponent = 0; is_a_digit(*p); p++) {
       exponent = exponent * 10 + (*p - '0');
     }
     if(exponent > 38) exponent = 38;
-    /* Calculate scaling factor. */
-    while (exponent >= 12) { scale *= 1E12f; exponent -= 12; }
-    while (exponent >=  4) { scale *= 1E4f;  exponent -=  4; }
-    while (exponent >   0) { scale *= 10.0f; exponent -=  1; }
+    /* Scale result */
+    while(exponent >= 12) { scale *= 1E12f; exponent -= 12; }
+    while(exponent >=  4) { scale *= 1E4f;  exponent -=  4; }
+    while(exponent >   0) { scale *= 10.0f; exponent -=  1; }
   }
   return sign * (frac ? (value / scale) : (value * scale));
 }
@@ -719,14 +719,14 @@ double my_atod(const char *p)
       p++;
     } else if(*p == '+') p++;
     /* Get digits of exponent, if any. */
-    for(exponent = 0; is_a_digit(*p); p += 1) {
+    for(exponent = 0; is_a_digit(*p); p++) {
       exponent = exponent * 10 + (*p - '0');
     }
     if(exponent > 308) exponent = 308;
-    /* Calculate scaling factor. */
-    while (exponent >= 50) { scale *= 1E50; exponent -= 50; }
-    while (exponent >=  8) { scale *= 1E8;  exponent -=  8; }
-    while (exponent >   0) { scale *= 10.0; exponent -=  1; }
+    /* Scale result */
+    while(exponent >= 50) { scale *= 1E50; exponent -= 50; }
+    while(exponent >=  8) { scale *= 1E8;  exponent -=  8; }
+    while(exponent >   0) { scale *= 10.0; exponent -=  1; }
   }
   return sign * (frac ? (value / scale) : (value * scale));
 }
