@@ -608,6 +608,129 @@ void set_inst_prop(int i)
   }
 }
 
+
+
+
+
+
+
+
+#define is_a_digit(c) ((c) >= '0' && (c) <= '9')
+#define is_a_space(c) ((c) == ' ' || (c) == '\t')
+
+/* fast convert (decimal) string to float */
+float my_atof(const char *p)
+{
+  static const float p10[]={
+    1e-1f, 1e-2f, 1e-3f, 1e-4f, 1e-5f, 1e-6f, 1e-7f, 1e-8f
+  };
+  int frac;
+  float sign, value, scale;
+
+  /* skip initial spaces */
+  while(is_a_space(*p)) p++;
+  /* sign */
+  sign = 1.0;
+  if(*p == '-') {
+    sign = -1.0;
+    p++;
+  } else if(*p == '+') {
+    p++;
+  }
+  /* Get digits */
+  for(value = 0.0; is_a_digit(*p); p++) {
+    value = value * 10.0f + (*p - '0');
+  }
+  /* get fractional part */
+  if(*p == '.') {
+    int cnt = 0;
+    p++;
+    while (is_a_digit(*p)) {
+      if(cnt >= 17) continue; /* after 17 skip additional fractional digits */
+      value += (*(p++) - '0') * p10[cnt++];
+    }
+  }
+  /* Exponent */
+  frac = 0;
+  scale = 1.0;
+  if((*p == 'e') || (*p == 'E')) {
+    unsigned int exponent;
+    /* Exponent sign */
+    p++;
+    if(*p == '-') {
+      frac = 1;
+      p++;
+    } else if(*p == '+') p++;
+    /* Get digits of exponent, if any. */
+    for(exponent = 0; is_a_digit(*p); p += 1) {
+      exponent = exponent * 10 + (*p - '0');
+    }
+    if(exponent > 38) exponent = 38;
+    /* Calculate scaling factor. */
+    while (exponent >= 12) { scale *= 1E12f; exponent -= 12; }
+    while (exponent >=  4) { scale *= 1E4f;  exponent -=  4; }
+    while (exponent >   0) { scale *= 10.0f; exponent -=  1; }
+  }
+  return sign * (frac ? (value / scale) : (value * scale));
+}
+
+/* fast convert (decimal) string to double */
+double my_atod(const char *p)
+{
+  static const double p10[]={
+    1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 
+    1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 1e-16, 1e-17, 1e-18
+  };
+  int frac;
+  double sign, value, scale;
+
+  /* skip initial spaces */
+  while(is_a_space(*p)) p++;
+  /* sign */
+  sign = 1.0;
+  if(*p == '-') {
+    sign = -1.0;
+    p++;
+  } else if(*p == '+') {
+    p++;
+  }
+  /* Get digits */
+  for(value = 0.0; is_a_digit(*p); p++) {
+    value = value * 10.0 + (*p - '0');
+  }
+  /* get fractional part */
+  if(*p == '.') {
+    int cnt = 0;
+    p++;
+    while (is_a_digit(*p)) {
+      if(cnt >= 17) continue; /* after 17 skip additional fractional digits */
+      value += (*(p++) - '0') * p10[cnt++];
+    }
+  }
+  /* Exponent */
+  frac = 0;
+  scale = 1.0;
+  if((*p == 'e') || (*p == 'E')) {
+    unsigned int exponent;
+    /* Exponent sign */
+    p++;
+    if(*p == '-') {
+      frac = 1;
+      p++;
+    } else if(*p == '+') p++;
+    /* Get digits of exponent, if any. */
+    for(exponent = 0; is_a_digit(*p); p += 1) {
+      exponent = exponent * 10 + (*p - '0');
+    }
+    if(exponent > 308) exponent = 308;
+    /* Calculate scaling factor. */
+    while (exponent >= 50) { scale *= 1E50; exponent -= 50; }
+    while (exponent >=  8) { scale *= 1E8;  exponent -=  8; }
+    while (exponent >   0) { scale *= 10.0; exponent -=  1; }
+  }
+  return sign * (frac ? (value / scale) : (value * scale));
+}
+
 /* super fast count # of lines (and bytes) in a file */
 int count_lines_bytes(int fd, size_t *lines, size_t *bytes)
 {

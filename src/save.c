@@ -383,20 +383,20 @@ static void read_binary_block(FILE *fd)
     if(ac) {
       for(v = 0; v < xctx->graph_nvars; v += 2) { /*AC analysis: calculate magnitude */
         if( v == 0 )  /* sweep var */
-          xctx->graph_values[v][offset + p] = (float)sqrt( tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]);
+          xctx->graph_values[v][offset + p] = (SPICE_DATA)sqrt( tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]);
         else /* magnitude */
           /* avoid 0 for dB calculations */
           if(tmp[v] == 0.0 && tmp[v + 1] == 0.0) xctx->graph_values[v][offset + p] = 1e-35f;
           else xctx->graph_values[v][offset + p] = 
-                  (float)sqrt(tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]);
+                  (SPICE_DATA)sqrt(tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]);
         /* AC analysis: calculate phase */
         if(tmp[v] == 0.0 && tmp[v + 1] == 0.0) xctx->graph_values[v + 1] [offset + p] = 0.0; 
         else xctx->graph_values[v + 1] [offset + p] =
-                (float)(atan2(tmp[v + 1], tmp[v]) * 180.0 / XSCH_PI);
+                (SPICE_DATA)(atan2(tmp[v + 1], tmp[v]) * 180.0 / XSCH_PI);
       }
     } 
     else for(v = 0; v < xctx->graph_nvars; v++) {
-      xctx->graph_values[v][offset + p] = (float)tmp[v];
+      xctx->graph_values[v][offset + p] = (SPICE_DATA)tmp[v];
     }
   }
   my_free(_ALLOC_ID_, &tmp);
@@ -761,6 +761,8 @@ int table_read(const char *f)
 {
   int res = 0;
   FILE *fd;
+  int ufd;
+  size_t lines, bytes;
   char *line = NULL, *line_ptr, *line_save;
   const char *line_tok;
   
@@ -768,6 +770,12 @@ int table_read(const char *f)
     dbg(0, "table_read(): must clear current data file before loading new\n");
     return 0;
   }
+  /* quick inspect file and get upper bound of number of data lines */
+  ufd = open(f, O_RDONLY);
+  if(ufd < 0) goto err;
+  count_lines_bytes(ufd, &lines, &bytes);
+  close(ufd);
+
   int_hash_init(&xctx->graph_raw_table, HASHSIZE);
   fd = fopen(f, fopen_read_mode);
   if(fd) {
@@ -803,28 +811,37 @@ int table_read(const char *f)
       field = 0;
       while( (line_tok = strtok_r(line_ptr, " \t\n", &line_save)) ) {
         line_ptr = NULL;
-        dbg(1,"%s ", line_tok);
+        /* dbg(1,"%s ", line_tok); */
         if(nline == 0) { /* header line */
           my_realloc(_ALLOC_ID_, &xctx->graph_names, (field + 1) * sizeof(char *));
           xctx->graph_names[field] = NULL;
           my_strcat(_ALLOC_ID_, &xctx->graph_names[field], line_tok);
           int_hash_lookup(&xctx->graph_raw_table, xctx->graph_names[field], field, XINSERT_NOREPLACE);
+          xctx->graph_nvars = field + 1;
         } else { /* data line */
-          my_realloc(_ALLOC_ID_, &xctx->graph_values[field], (npoints + 1) * sizeof(SPICE_DATA));
-          xctx->graph_values[field][npoints] = (float)atof(line_tok);
+          if(field >= xctx->graph_nvars) break;
+          #if SPICE_DATA == float
+          xctx->graph_values[field][npoints] = (SPICE_DATA)my_atof(line_tok);
+          #else
+          xctx->graph_values[field][npoints] = (SPICE_DATA)my_atod(line_tok);
+          #endif
+      
         }
         field++;
-        xctx->graph_nvars = field;
       }
       if(nline) { /* skip header line for npoints calculation*/
         npoints++;
         dataset_points++;
       }
       xctx->graph_npoints[xctx->graph_datasets - 1] = dataset_points;
-      dbg(1, "\n");
+      /* dbg(1, "\n"); */
       nline++;
       if(nline == 1) {
+        int f;
         xctx->graph_values = my_calloc(_ALLOC_ID_, xctx->graph_nvars + 1, sizeof(SPICE_DATA *));
+        for(f = 0; f <= xctx->graph_nvars; f++) { /* one extra column for wave expressions */
+          my_realloc(_ALLOC_ID_, &xctx->graph_values[f], lines * sizeof(SPICE_DATA));
+        }
       }
       clear:
       my_free(_ALLOC_ID_, &line);
@@ -842,8 +859,6 @@ int table_read(const char *f)
       dbg(0, "Table file data read: %s\n", f);
       dbg(0, "points=%d, vars=%d, datasets=%d\n",
              xctx->graph_allpoints, xctx->graph_nvars, xctx->graph_datasets);
-      /* allocate extra column for custom calculated data (expressions) */
-      my_realloc(_ALLOC_ID_, &xctx->graph_values[xctx->graph_nvars], npoints * sizeof(SPICE_DATA));
     } else {
       dbg(0, "table_read(): no useful data found\n");
     }
@@ -1312,7 +1327,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
         } /* switch(...) */
       } /* if(stackptr2 > 0) */
     } /* for(i = 0; i < stackptr1; i++) */
-    y[p] = (float)stack2[0];
+    y[p] = (SPICE_DATA)stack2[0];
   } /* for(p = first ...) */
   ravg_store(0, 0, 0, 0, 0.0); /* clear data */
   return xctx->graph_nvars;
