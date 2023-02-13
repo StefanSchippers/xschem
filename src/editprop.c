@@ -615,8 +615,8 @@ void set_inst_prop(int i)
 
 
 
-#define is_a_digit(c) ((c) >= '0' && (c) <= '9')
-#define is_a_space(c) ((c) == ' ' || (c) == '\t')
+#define DGT(c) ((c) >= '0' && (c) <= '9')
+#define SPC(c) ((c) == ' ' || (c) == '\t')
 
 /* fast convert (decimal) string to float */
 float my_atof(const char *p)
@@ -626,9 +626,10 @@ float my_atof(const char *p)
   };
   int frac;
   float sign, value, scale;
+  unsigned int exponent = 0;
 
   /* skip initial spaces */
-  while(is_a_space(*p)) p++;
+  while(SPC(*p)) p++;
   /* sign */
   sign = 1.0;
   if(*p == '-') {
@@ -638,31 +639,30 @@ float my_atof(const char *p)
     p++;
   }
   /* Get digits */
-  for(value = 0.0; is_a_digit(*p); p++) {
+  for(value = 0.0; DGT(*p); p++) {
     value = value * 10.0f + (*p - '0');
   }
   /* get fractional part */
   if(*p == '.') {
     int cnt = 0;
     p++;
-    while (is_a_digit(*p)) {
-      if(cnt >= 17) continue; /* after 17 skip additional fractional digits */
-      value += (*(p++) - '0') * p10[cnt++];
+    while (DGT(*p)) {
+      if(cnt < 8) value += (*p - '0') * p10[cnt++];
+      p++;
     }
   }
   /* Exponent */
   frac = 0;
   scale = 1.0;
   if((*p == 'e') || (*p == 'E')) {
-    unsigned int exponent;
     /* Exponent sign */
     p++;
     if(*p == '-') {
       frac = 1;
       p++;
     } else if(*p == '+') p++;
-    /* Get digits of exponent, if any. */
-    for(exponent = 0; is_a_digit(*p); p++) {
+    /* Get exponent. */
+    for(; DGT(*p); p++) {
       exponent = exponent * 10 + (*p - '0');
     }
     if(exponent > 38) exponent = 38;
@@ -670,8 +670,9 @@ float my_atof(const char *p)
     while(exponent >= 12) { scale *= 1E12f; exponent -= 12; }
     while(exponent >=  4) { scale *= 1E4f;  exponent -=  4; }
     while(exponent >   0) { scale *= 10.0f; exponent -=  1; }
+    return sign * (frac ? (value / scale) : (value * scale));
   }
-  return sign * (frac ? (value / scale) : (value * scale));
+  return sign * value;
 }
 
 /* fast convert (decimal) string to double */
@@ -683,9 +684,10 @@ double my_atod(const char *p)
   };
   int frac;
   double sign, value, scale;
+  unsigned int exponent = 0;
 
   /* skip initial spaces */
-  while(is_a_space(*p)) p++;
+  while(SPC(*p)) p++;
   /* sign */
   sign = 1.0;
   if(*p == '-') {
@@ -695,31 +697,30 @@ double my_atod(const char *p)
     p++;
   }
   /* Get digits */
-  for(value = 0.0; is_a_digit(*p); p++) {
+  for(value = 0.0; DGT(*p); p++) {
     value = value * 10.0 + (*p - '0');
   }
   /* get fractional part */
   if(*p == '.') {
     int cnt = 0;
     p++;
-    while (is_a_digit(*p)) {
-      if(cnt >= 17) continue; /* after 17 skip additional fractional digits */
-      value += (*(p++) - '0') * p10[cnt++];
+    while (DGT(*p)) {
+      if(cnt < 18) value += (*p - '0') * p10[cnt++];
+      p++;
     }
   }
   /* Exponent */
   frac = 0;
   scale = 1.0;
   if((*p == 'e') || (*p == 'E')) {
-    unsigned int exponent;
     /* Exponent sign */
     p++;
     if(*p == '-') {
       frac = 1;
       p++;
     } else if(*p == '+') p++;
-    /* Get digits of exponent, if any. */
-    for(exponent = 0; is_a_digit(*p); p++) {
+    /* Get exponent. */
+    for(; DGT(*p); p++) {
       exponent = exponent * 10 + (*p - '0');
     }
     if(exponent > 308) exponent = 308;
@@ -727,8 +728,9 @@ double my_atod(const char *p)
     while(exponent >= 50) { scale *= 1E50; exponent -= 50; }
     while(exponent >=  8) { scale *= 1E8;  exponent -=  8; }
     while(exponent >   0) { scale *= 10.0; exponent -=  1; }
+    return sign * (frac ? (value / scale) : (value * scale));
   }
-  return sign * (frac ? (value / scale) : (value * scale));
+  return sign * value;
 }
 
 /* super fast count # of lines (and bytes) in a file */
