@@ -733,7 +733,6 @@ int raw_read(const char *f, const char *type)
   return 0;
 }
 
-
 /* Read data organized as a table
  * First line is the header line containing variable names.
  * data is presented in column format after the header line

@@ -503,7 +503,6 @@ size_t my_strncat(int id, char **str, size_t n, const char *append_str)
  }
 }
 
-
 void *my_calloc(int id, size_t nmemb, size_t size)
 {
    void *ptr;
@@ -608,16 +607,8 @@ void set_inst_prop(int i)
   }
 }
 
-
-
-
-
-
-
-
 #define DGT(c) ((c) >= '0' && (c) <= '9')
 #define SPC(c) ((c) == ' ' || (c) == '\t')
-
 /* fast convert (decimal) string to float */
 float my_atof(const char *p)
 {
@@ -733,7 +724,7 @@ double my_atod(const char *p)
   return sign * value;
 }
 
-/* super fast count # of lines (and bytes) in a file */
+/* super fast count # of newlines (and bytes) in a file */
 int count_lines_bytes(int fd, size_t *lines, size_t *bytes)
 {
   enum {BUFFER_SIZE=16384};
