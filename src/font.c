@@ -41,7 +41,7 @@ void compile_font(void)
   character[code] = my_calloc(_ALLOC_ID_, xctx->lastsel*4+1, sizeof(double));
   character[code][0] = (double)xctx->lastsel;
   dbg(2, "compile_font(): character[%d][]={%.16g",code,character[code][0]);
-  for(i=0;i<xctx->lastsel;i++)
+  for(i=0;i<xctx->lastsel; ++i)
   {
    character[code][i*4+1] =
       xctx->line[xctx->sel_array[i].col][xctx->sel_array[i].n].x1-code*FONTOFFSET;

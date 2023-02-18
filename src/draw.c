@@ -315,15 +315,15 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
          lineno, fext.height, fext.ascent, fext.descent, llength, no_of_lines, longest_line);
       if(xctx->draw_pixmap) cairo_draw_string_line(xctx->cairo_save_ctx, tt, x, y, rot, flip,
          lineno, fext.height, fext.ascent, fext.descent, llength, no_of_lines, longest_line);
-      lineno++;
+      ++lineno;
       if(c==0) break;
       *ss='\n';
       tt=ss+1;
       llength=0;
     } else {
-      llength++;
+      ++llength;
     }
-    ss++;
+    ++ss;
   }
   my_free(_ALLOC_ID_, &sss);
 }
@@ -388,7 +388,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
         ORDER(rx1,ry1,rx2,ry2);
         drawline(layer, what, rx1, ry1, rx2, ry2, 0, NULL);
      }
-     pos++;
+     ++pos;
      a += FONTWIDTH+FONTWHITESPACE;
   }
  }
@@ -417,7 +417,7 @@ void draw_temp_string(GC gctext, int what, const char *str, short rot, short fli
 void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         double xoffset, double yoffset)
                             /* draws current layer only, should be called within  */
-{                           /* a "for(i=0;i<cadlayers;i++)" loop */
+{                           /* a "for(i=0;i<cadlayers; ++i)" loop */
   int k, j, textlayer, hide = 0;
   double x0,y0,x1,y1,x2,y2;
   double *x, *y; /* polygon point arrays */
@@ -490,7 +490,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   y0=xctx->inst[n].y0 + yoffset;
   symptr = (xctx->inst[n].ptr+ xctx->sym);
   if(!hide) {
-    for(j=0;j< symptr->lines[layer];j++)
+    for(j=0;j< symptr->lines[layer]; ++j)
     {
       line = &(symptr->line[layer])[j];
       ROTATION(rot, flip, 0.0,0.0,line->x1,line->y1,x1,y1);
@@ -501,12 +501,12 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       else
         drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, line->dash, NULL);
     }
-    for(j=0;j< symptr->polygons[layer];j++)
+    for(j=0;j< symptr->polygons[layer]; ++j)
     {
       polygon = &(symptr->poly[layer])[j];
       x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
       y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
-      for(k=0;k<polygon->points;k++) {
+      for(k=0;k<polygon->points; ++k) {
         ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
         x[k]+= x0;
         y[k] += y0;
@@ -515,7 +515,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       my_free(_ALLOC_ID_, &x);
       my_free(_ALLOC_ID_, &y);
     }
-    for(j=0;j< symptr->arcs[layer];j++)
+    for(j=0;j< symptr->arcs[layer]; ++j)
     {
   
       arc = &(symptr->arc[layer])[j];
@@ -533,7 +533,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
 
   if( (!hide && xctx->enable_layer[layer])  ||
       (hide && layer == PINLAYER && xctx->enable_layer[layer]) ) {
-    for(j=0;j< symptr->rects[layer];j++)
+    for(j=0;j< symptr->rects[layer]; ++j)
     {
       rect = &(symptr->rect[layer])[j];
       ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
@@ -557,7 +557,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   if( (layer==TEXTWIRELAYER && !(xctx->inst[n].flags&2) ) ||
       (xctx->sym_txt && (layer==TEXTLAYER) && (xctx->inst[n].flags&2) ) ) {
     const char *txtptr;
-    for(j=0;j< symptr->texts;j++)
+    for(j=0;j< symptr->texts; ++j)
     {
       text = symptr->text[j];
       if(!text.txt_ptr || !text.txt_ptr[0] || text.xscale*FONTWIDTH*xctx->mooz<1) continue;
@@ -617,7 +617,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
 void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot,
         double xoffset, double yoffset)
                             /* draws current layer only, should be called within */
-{                           /* a "for(i=0;i<cadlayers;i++)" loop */
+{                           /* a "for(i=0;i<cadlayers; ++i)" loop */
  int j;
  double x0,y0,x1,y1,x2,y2;
  short flip;
@@ -666,7 +666,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  x0=xctx->inst[n].x0 + xoffset;
  y0=xctx->inst[n].y0 + yoffset;
  symptr = (xctx->inst[n].ptr+ xctx->sym);
- for(j=0;j< symptr->lines[layer];j++)
+ for(j=0;j< symptr->lines[layer]; ++j)
  {
   line = &(symptr->line[layer])[j];
   ROTATION(rot, flip, 0.0,0.0,line->x1,line->y1,x1,y1);
@@ -677,7 +677,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
   else
     drawtempline(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
  }
- for(j=0;j< symptr->polygons[layer];j++)
+ for(j=0;j< symptr->polygons[layer]; ++j)
  {
    polygon = &(symptr->poly[layer])[j];
 
@@ -685,7 +685,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
      int k;
      double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
      double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
-     for(k=0;k<polygon->points;k++) {
+     for(k=0;k<polygon->points; ++k) {
        ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
        x[k] += x0;
        y[k] += y0;
@@ -696,7 +696,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
    }
  }
 
- for(j=0;j< symptr->rects[layer];j++)
+ for(j=0;j< symptr->rects[layer]; ++j)
  {
   rect = &(symptr->rect[layer])[j];
   ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
@@ -704,7 +704,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
   RECTORDER(x1,y1,x2,y2);
   drawtemprect(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
  }
- for(j=0;j< symptr->arcs[layer];j++)
+ for(j=0;j< symptr->arcs[layer]; ++j)
  {
    arc = &(symptr->arc[layer])[j];
    if(flip) {
@@ -721,7 +721,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  if(layer==PROPERTYLAYER && xctx->sym_txt)
  {
   const char *txtptr;
-  for(j=0;j< symptr->texts;j++)
+  for(j=0;j< symptr->texts; ++j)
   {
    text = symptr->text[j];
    if(!text.txt_ptr || !text.txt_ptr[0] || text.xscale*FONTWIDTH*xctx->mooz<1) continue;
@@ -838,11 +838,11 @@ static void drawgrid()
       if(big_gr) {
         xctx->biggridpoint[i].x1 = xctx->biggridpoint[i].x2 = (short)(x);
         xctx->biggridpoint[i].y1 =  xctx->biggridpoint[i].y2 = (short)(y);
-        i++;
+        ++i;
       } else {
         xctx->gridpoint[i].x=(short)(x);
         xctx->gridpoint[i].y=(short)(y);
-        i++;
+        ++i;
       }
       #endif
     }
@@ -961,7 +961,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    rr[i].y1=(short)y1;
    rr[i].x2=(short)x2;
    rr[i].y2=(short)y2;
-   i++;
+   ++i;
   }
  }
  else if(what & NOW)
@@ -1065,7 +1065,7 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
    r[i].y1=(short)y1;
    r[i].x2=(short)x2;
    r[i].y2=(short)y2;
-   i++;
+   ++i;
   }
  }
  else if(what & NOW)
@@ -1139,7 +1139,7 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
    xarc[i].height=(unsigned short)(yy2 - yy1);
    xarc[i].angle1 = (short)(a*64);
    xarc[i].angle2 = (short)(b*64);
-   i++;
+   ++i;
   }
  }
  else if(what & NOW)
@@ -1234,7 +1234,7 @@ void filledarc(int c, int what, double x, double y, double r, double a, double b
    xarc[i].height=(unsigned short)(yy2 - yy1);
    xarc[i].angle1 = (short)(a*64);
    xarc[i].angle2 = (short)(b*64);
-   i++;
+   ++i;
   }
  }
  else if(what & NOW)
@@ -1300,7 +1300,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
    xarc[i].height=(unsigned short)(yy2 - yy1);
    xarc[i].angle1 = (short)(a*64);
    xarc[i].angle2 = (short)(b*64);
-   i++;
+   ++i;
   }
  }
  else if(what & NOW)
@@ -1405,7 +1405,7 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
    r[i].y=(short)y1;
    r[i].width=(unsigned short)(x2-r[i].x);
    r[i].height=(unsigned short)(y2-r[i].y);
-   i++;
+   ++i;
   }
  }
  else if((what & END) && i)
@@ -1419,7 +1419,7 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
 void polygon_bbox(double *x, double *y, int points, double *bx1, double *by1, double *bx2, double *by2)
 {
   int j;
-  for(j=0; j<points; j++) {
+  for(j=0; j<points; ++j) {
     if(j==0 || x[j] < *bx1) *bx1 = x[j];
     if(j==0 || x[j] > *bx2) *bx2 = x[j];
     if(j==0 || y[j] < *by1) *by1 = y[j];
@@ -1466,7 +1466,7 @@ void arc_bbox(double x, double y, double r, double a, double b,
   *by2  = y2;
   if(y3 > *by2) *by2 = y3;
 
-  for(i=aa; i<=bb; i++) {
+  for(i=aa; i<=bb; ++i) {
     if(i%360==0) {
       *bx2 = x + r;
     }
@@ -1506,15 +1506,15 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   if(!xctx->only_probes && (x2-x1)<1.0 && (y2-y1)<1.0) return;
   p = my_malloc(_ALLOC_ID_, sizeof(XPoint) * points);
   if(what) {
-    for(i=0;i<points; i++) {
+    for(i=0;i<points; ++i) {
       clip_xy_to_short(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), &sx, &sy);
       p[i].x = sx;
       p[i].y = sy;
     }
   } else {
       /* preserve cache locality working on contiguous data */
-      for(i=0;i<points; i++) p[i].x = (short)X_TO_SCREEN(x[i]);
-      for(i=0;i<points; i++) p[i].y = (short)Y_TO_SCREEN(y[i]);
+      for(i=0;i<points; ++i) p[i].x = (short)X_TO_SCREEN(x[i]);
+      for(i=0;i<points; ++i) p[i].y = (short)Y_TO_SCREEN(y[i]);
   }
   if(dash) {
     char dash_arr[2];
@@ -1553,7 +1553,7 @@ void drawtemppolygon(GC g, int what, double *x, double *y, int points)
   y2=Y_TO_SCREEN(y2);
   p = my_malloc(_ALLOC_ID_, sizeof(XPoint) * points);
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
-    for(i=0;i<points; i++) {
+    for(i=0;i<points; ++i) {
       clip_xy_to_short(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), &sx, &sy);
       p[i].x = sx;
       p[i].y = sy;
@@ -1618,7 +1618,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
    r[i].y=(short)y1;
    r[i].width=(unsigned short)(x2-r[i].x);
    r[i].height=(unsigned short)(y2-r[i].y);
-   i++;
+   ++i;
   }
  }
  else if((what & END) && i)
@@ -1668,7 +1668,7 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
    r[i].y=(short)y1;
    r[i].width=(unsigned short)(x2-r[i].x);
    r[i].height=(unsigned short)(y2-r[i].y);
-   i++;
+   ++i;
   }
  }
  else if((what & END) && i)
@@ -1798,10 +1798,10 @@ static void get_bus_value(int n_bits, int hex_digits, SPICE_DATA **idx_arr, int 
        if(i < 0) break; /* MSB nibble is less than 4 bits --> break */
     } else hexdigit |= (val >= vthh ? 1 : 0);
     if(bin < 3) {
-      bin++;
+      ++bin;
       hexdigit <<= 1;
     } else {
-      hex++;
+      ++hex;
       if(x) 
         busval[hex_digits - hex] = 'X';
       else
@@ -1812,7 +1812,7 @@ static void get_bus_value(int n_bits, int hex_digits, SPICE_DATA **idx_arr, int 
     }
   }
   if(bin) { /* process (incomplete) MSB nibble */
-    hex++;
+    ++hex;
     if(x) 
       busval[hex_digits - hex] = 'X';
     else {
@@ -1848,7 +1848,7 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
       idx_arr[p] = NULL;
     }
     /* dbg(0, "get_bus_idx_array(): bit_name=%s, p=%d\n", bit_name, p); */
-    p++;
+    ++p;
   }
   my_free(_ALLOC_ID_, &ntok_copy);
   return idx_arr;
@@ -2017,9 +2017,9 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
   /* vertical grid lines */
   deltax = axis_increment(gr->gx1, gr->gx2, gr->divx, (gr->logx));
   startx = axis_start(gr->gx1, deltax, gr->divx);
-  for(j = -1;; j++) { /* start one interval before to allow sub grids at beginning */
+  for(j = -1;; ++j) { /* start one interval before to allow sub grids at beginning */
     wx = startx + j * deltax;
-    if(gr->subdivx > 0) for(k = 1; k <=gr->subdivx; k++) {
+    if(gr->subdivx > 0) for(k = 1; k <=gr->subdivx; ++k) {
       double subwx;
       if(gr->logx)
         subwx = wx + deltax * mylog10(1.0 + (double)k * 9.0 / ((double)gr->subdivx + 1.0)); 
@@ -2049,9 +2049,9 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
   if(!gr->digital) {
     deltay = axis_increment(gr->gy1, gr->gy2, gr->divy, gr->logy);
     starty = axis_start(gr->gy1, deltay, gr->divy);
-    for(j = -1;; j++) { /* start one interval before to allow sub grids at beginning */
+    for(j = -1;; ++j) { /* start one interval before to allow sub grids at beginning */
       wy = starty + j * deltay;
-      if(gr->subdivy > 0) for(k = 1; k <=gr->subdivy; k++) {
+      if(gr->subdivy > 0) for(k = 1; k <=gr->subdivy; ++k) {
         double subwy;
         if(gr->logy)
           subwy = wy + deltay * mylog10(1.0 + (double)k * 9.0 / ((double)gr->subdivy + 1.0));
@@ -2572,7 +2572,7 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
         }
       }
     }
-    wcnt++;
+    ++wcnt;
   } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", &saven)) ) */
   my_free(_ALLOC_ID_, &node);
   my_free(_ALLOC_ID_, &color);
@@ -2626,7 +2626,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
       if(xx >= start && xx <= end) {
         if(first == -1) first = p;
         last = p;
-        cnt++;
+        ++cnt;
       } /* if(xx >= start && xx <= end) */
       prev_prev_x = prev_x;
       prev_x = xx;
@@ -2754,7 +2754,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
                    xval, yval, xx, yy, sweepvar_wrap, ntok, stok? stok : "<NULL>");
             }
             last = p;
-            cnt++;
+            ++cnt;
           } /* if(xx >= start && xx <= end) */
           prev_prev_x = prev_x;
           prev_x = xx;
@@ -2765,7 +2765,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
       } /* for(dset...) */
 
     } /*  if( (idx = get_raw_index(ntok)) != -1 ) */
-    wcnt++;
+    ++wcnt;
   } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", &saven)) ) */
   dbg(0, "closest dataset=%d\n", closest_dataset);
   if(express) my_free(_ALLOC_ID_, &express);
@@ -2940,7 +2940,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               } /* if(dataset == -1 || dataset == sweepvar_wrap) */
               last = p;
               poly_npoints++;
-              cnt++;
+              ++cnt;
             } /* if(xx >= start && xx <= end) */
             prev_prev_x = prev_x;
             prev_x = xx;
@@ -2970,7 +2970,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         my_free(_ALLOC_ID_, &point);
         if(idx_arr) my_free(_ALLOC_ID_, &idx_arr);
       } /* if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express)) != -1 ) */
-      wcnt++;
+      ++wcnt;
       if(bus_msb) my_free(_ALLOC_ID_, &bus_msb);
     } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", &saven)) ) */
     if(express) my_free(_ALLOC_ID_, &express);
@@ -3030,7 +3030,7 @@ static void draw_graph_all(int flags)
     cairo_font_face_destroy(xctx->cairo_font);
     #endif
     if(xctx->draw_single_layer==-1 || GRIDLAYER == xctx->draw_single_layer) {
-      if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; i++) {
+      if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; ++i) {
         xRect *r = &xctx->rect[GRIDLAYER][i];
         if(r->flags & 1) {
           setup_graph_data(i, flags, 0, &xctx->graph_struct);
@@ -3259,7 +3259,7 @@ static void draw_images_all(void)
   #if HAS_CAIRO==1
   int i;
   if(xctx->draw_single_layer==-1 || GRIDLAYER == xctx->draw_single_layer) {
-    if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; i++) {
+    if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; ++i) {
       xRect *r = &xctx->rect[GRIDLAYER][i];
       if(r->flags & 1024) {
         draw_image(1, r, &r->x1, &r->y1, &r->x2, &r->y2, 0, 0);
@@ -3315,7 +3315,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
     cairo_set_source_surface(ct, xctx->cairo_save_sfc, 0, 0);
     cairo_set_operator(ct, CAIRO_OPERATOR_SOURCE);
     cairo_paint(ct);
-    for(int i = 0; i < xctx->rects[GRIDLAYER]; i++) {
+    for(int i = 0; i < xctx->rects[GRIDLAYER]; ++i) {
       xRect *r = &xctx->rect[GRIDLAYER][i];
       if(r->flags & 1) {
         setup_graph_data(i, 8, 0, &xctx->graph_struct);
@@ -3408,15 +3408,15 @@ void draw(void)
       hash_wires();
     }
     dbg(3, "draw(): check4\n");
-    for(c=0;c<cadlayers;c++) {
+    for(c=0;c<cadlayers; ++c) {
       if(xctx->draw_single_layer!=-1 && c != xctx->draw_single_layer) continue;
       cc = c; if(xctx->only_probes) cc = GRIDLAYER;
-      if(xctx->enable_layer[c]) for(i=0;i<xctx->lines[c];i++) {
+      if(xctx->enable_layer[c]) for(i=0;i<xctx->lines[c]; ++i) {
         xLine *l = &xctx->line[c][i];
         if(l->bus) drawline(cc, THICK, l->x1, l->y1, l->x2, l->y2, l->dash, NULL);
         else       drawline(cc, ADD, l->x1, l->y1, l->x2, l->y2, l->dash, NULL);
       }
-      if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c];i++) {
+      if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c]; ++i) {
         xRect *r = &xctx->rect[c][i]; 
         #if HAS_CAIRO==1
         if(c != GRIDLAYER || !(r->flags & (1 + 1024)))
@@ -3428,11 +3428,11 @@ void draw(void)
           if(r->fill) filledrect(cc, ADD, r->x1, r->y1, r->x2, r->y2);
         }
       }
-      if(xctx->enable_layer[c]) for(i=0;i<xctx->arcs[c];i++) {
+      if(xctx->enable_layer[c]) for(i=0;i<xctx->arcs[c]; ++i) {
         xArc *a = &xctx->arc[c][i];
         drawarc(cc, ADD, a->x, a->y, a->r, a->a, a->b, a->fill, a->dash);
       }
-      if(xctx->enable_layer[c]) for(i=0;i<xctx->polygons[c];i++) {
+      if(xctx->enable_layer[c]) for(i=0;i<xctx->polygons[c]; ++i) {
         xPoly *p = &xctx->poly[c][i];
         drawpolygon(cc, NOW, p->x, p->y, p->points, p->fill, p->dash);
       }
@@ -3444,7 +3444,7 @@ void draw(void)
           i = instanceptr->n;
         }
         else {
-          i++;
+          ++i;
           if(i >= xctx->instances) break;
         }
         if(xctx->inst[i].ptr == -1 || (c > 0 && (xctx->inst[i].flags & 1)) ) continue;
@@ -3475,7 +3475,7 @@ void draw(void)
           i = wireptr->n;
         }
         else {
-          i++;
+          ++i;
           if(i >= xctx->wires) break;
         }
         if(xctx->wire[i].bus) {
@@ -3491,7 +3491,7 @@ void draw(void)
       drawline(cc, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
     }
     if(xctx->draw_single_layer ==-1 || xctx->draw_single_layer==TEXTLAYER) {
-      for(i=0;i<xctx->texts;i++)
+      for(i=0;i<xctx->texts; ++i)
       {
         textlayer = xctx->text[i].layer;
         if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
@@ -3536,7 +3536,7 @@ void draw(void)
         drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
         drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
         #endif
-      } /* for(i=0;i<xctx->texts;i++) */
+      } /* for(i=0;i<xctx->texts; ++i) */
     } /*  if(xctx->draw_single_layer ==-1 || xctx->draw_single_layer==TEXTLAYER) */
     if(xctx->only_probes) build_colors(1.0, 0);
     if(xctx->only_probes) {

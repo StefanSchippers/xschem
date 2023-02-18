@@ -224,9 +224,9 @@ char *base64_encode(const unsigned char *data, const size_t input_length, size_t
     encoded_data[j++] = b64_enc[(triple >> 12) & 0x3F];
     encoded_data[j++] = b64_enc[(triple >> 6) & 0x3F];
     encoded_data[j++] = b64_enc[(triple) & 0x3F];
-    cnt++;
+    ++cnt;
   }
-  for (i = 0; i < mod_table[input_length % 3]; i++)
+  for (i = 0; i < mod_table[input_length % 3]; ++i)
     encoded_data[*output_length - 1 - i] = '=';
   encoded_data[*output_length] = '\0'; /* add \0 at end so it can be used as a regular char string */
   return encoded_data;
@@ -268,7 +268,7 @@ unsigned char *base64_decode(const char *data, const size_t input_length, size_t
     if(data[i] == '\n' || data[i] == ' '  || data[i] == '\r' || data[i] == '\t') {
       dbg(1, "base64_decode(): white space: i=%d, cnt=%d, j=%d\n", i, cnt, j);
       actual_length--;
-      i++;
+      ++i;
       continue;
     }
     sextet[cnt & 3] = data[i] == '=' ? 0 : b64_dec[(int)data[i]];
@@ -278,8 +278,8 @@ unsigned char *base64_decode(const char *data, const size_t input_length, size_t
       decoded_data[j++] = (unsigned char)((triple >> 8) & 0xFF);
       decoded_data[j++] = (unsigned char)((triple) & 0xFF);
     }
-    cnt++;
-    i++;
+    ++cnt;
+    ++i;
   }
   *output_length = actual_length / 4 * 3 - padding;
   return decoded_data;
@@ -319,28 +319,28 @@ unsigned char *ascii85_encode(const unsigned char *data, const size_t input_leng
     {
       encoded_data[idx]='z';
       *output_length-=4;
-      idx++;
+      ++idx;
       continue;
     }
     encoded_data[idx] = (unsigned char)(val / pow85[4]);
     val = val - encoded_data[idx] * pow85[4];
     encoded_data[idx]=b85_enc[encoded_data[idx]];
-    idx++;
+    ++idx;
     encoded_data[idx] = (unsigned char)(val / pow85[3]);
     val = val - encoded_data[idx] * pow85[3];
     encoded_data[idx]=b85_enc[encoded_data[idx]];
-    idx++;
+    ++idx;
     encoded_data[idx] = (unsigned char)(val / pow85[2]);
     val = val - encoded_data[idx] * pow85[2];
     encoded_data[idx]=b85_enc[encoded_data[idx]];
-    idx++;
+    ++idx;
     encoded_data[idx] = (unsigned char)(val / pow85[1]);
     val = val - encoded_data[idx] * pow85[1];
     encoded_data[idx]=b85_enc[encoded_data[idx]];
-    idx++;
+    ++idx;
     encoded_data[idx] = (unsigned char)val;
     encoded_data[idx]=b85_enc[encoded_data[idx]];
-    idx++;
+    ++idx;
   }
   my_free(_ALLOC_ID_, &paddedData);
   *output_length-=padding;
@@ -574,7 +574,7 @@ static int read_dataset(FILE *fd, const char *type)
       ptr = varname;
       while(*ptr) {
         if(*ptr == ':') *ptr = '.';
-        ptr++;
+        ++ptr;
       }
       if(xctx->graph_sim_type && !strcmp(xctx->graph_sim_type, "ac")) { /* AC */
         my_strcat(_ALLOC_ID_, &xctx->graph_names[i << 1], varname);
@@ -614,7 +614,7 @@ void free_rawfile(int dr)
   dbg(1, "free_rawfile(): clearing data\n");
   if(xctx->graph_names) {
     deleted = 1;
-    for(i = 0 ; i < xctx->graph_nvars; i++) {
+    for(i = 0 ; i < xctx->graph_nvars; ++i) {
       my_free(_ALLOC_ID_, &xctx->graph_names[i]);
     }
     my_free(_ALLOC_ID_, &xctx->graph_names);
@@ -622,7 +622,7 @@ void free_rawfile(int dr)
   if(xctx->graph_values) {
     deleted = 1;
     /* free also extra column for custom data plots */
-    for(i = 0 ; i <= xctx->graph_nvars; i++) {
+    for(i = 0 ; i <= xctx->graph_nvars; ++i) {
       my_free(_ALLOC_ID_, &xctx->graph_values[i]);
     }
     my_free(_ALLOC_ID_, &xctx->graph_values);
@@ -717,7 +717,7 @@ int raw_read(const char *f, const char *type)
       xctx->graph_raw_level = xctx->currsch;
       tclsetintvar("graph_raw_level",  xctx->currsch);
       xctx->graph_allpoints = 0;
-      for(i = 0; i < xctx->graph_datasets; i++) {
+      for(i = 0; i < xctx->graph_datasets; ++i) {
         xctx->graph_allpoints +=  xctx->graph_npoints[i];
       }
       dbg(0, "Raw file data read: %s\n", f);
@@ -826,15 +826,15 @@ int table_read(const char *f)
           #endif
       
         }
-        field++;
+        ++field;
       }
       if(nline) { /* skip header line for npoints calculation*/
-        npoints++;
+        ++npoints;
         dataset_points++;
       }
       xctx->graph_npoints[xctx->graph_datasets - 1] = dataset_points;
       /* dbg(1, "\n"); */
-      nline++;
+      ++nline;
       if(nline == 1) {
         int f;
         xctx->graph_values = my_calloc(_ALLOC_ID_, xctx->graph_nvars + 1, sizeof(SPICE_DATA *));
@@ -852,7 +852,7 @@ int table_read(const char *f)
       xctx->graph_raw_level = xctx->currsch;
       tclsetintvar("graph_raw_level",  xctx->currsch);
       xctx->graph_allpoints = 0;
-      for(i = 0; i < xctx->graph_datasets; i++) {
+      for(i = 0; i < xctx->graph_datasets; ++i) {
         xctx->graph_allpoints +=  xctx->graph_npoints[i];
       }
       dbg(0, "Table file data read: %s\n", f);
@@ -921,14 +921,14 @@ static double ravg_store(int what , int i, int p, int last, double value)
     if(i >= imax) {
       int new_size = i + 4;
       my_realloc(_ALLOC_ID_, &arr, sizeof(double *) * new_size);
-      for(j = imax; j < new_size; j++) {
+      for(j = imax; j < new_size; ++j) {
         arr[j] = my_calloc(_ALLOC_ID_, last + 1, sizeof(double));
       }
       imax = new_size;
     }
     arr[i][p] = value;
   } else if(what == 0 && imax) {
-    for(j = 0; j < imax; j++) {
+    for(j = 0; j < imax; ++j) {
       my_free(_ALLOC_ID_, &arr[j]);
     }
     my_free(_ALLOC_ID_, &arr);
@@ -1061,7 +1061,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
   my_free(_ALLOC_ID_, &ntok_copy);
   for(p = first ; p <= last; p++) {
     stackptr2 = 0;
-    for(i = 0; i < stackptr1; i++) {
+    for(i = 0; i < stackptr1; ++i) {
       if(stack1[i].i == NUMBER) { /* number */
         stack2[stackptr2++] = stack1[i].d;
       }
@@ -1325,7 +1325,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             break;
         } /* switch(...) */
       } /* if(stackptr2 > 0) */
-    } /* for(i = 0; i < stackptr1; i++) */
+    } /* for(i = 0; i < stackptr1; ++i) */
     y[p] = (SPICE_DATA)stack2[0];
   } /* for(p = first ...) */
   ravg_store(0, 0, 0, 0, 0.0); /* clear data */
@@ -1341,7 +1341,7 @@ double get_raw_value(int dataset, int idx, int point)
       if(point < xctx->graph_allpoints)
         return xctx->graph_values[idx][point];
     } else {
-      for(i = 0; i < dataset; i++) {
+      for(i = 0; i < dataset; ++i) {
         ofs += xctx->graph_npoints[i];
       }
       if(ofs + point < xctx->graph_allpoints) {
@@ -1434,7 +1434,7 @@ static const char *random_string(const char *prefix)
   prefix_size = strlen(prefix);
   str[0]='/';
   memcpy(str+1, prefix, prefix_size);
-  for(i=prefix_size+1; i < prefix_size + random_size+1; i++) {
+  for(i=prefix_size+1; i < prefix_size + random_size+1; ++i) {
     idx = rand()%(sizeof(charset)-1);
     str[i] = charset[idx];
   }
@@ -1455,7 +1455,7 @@ const char *create_tmpdir(char *prefix)
   static char str[PATH_MAX]; /* safe even with multiple schematics if immediately copied */
   int i;
   struct stat buf;
-  for(i=0; i<5;i++) {
+  for(i=0; i<5; ++i) {
     my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix));
     if(stat(str, &buf) && !mkdir(str, 0700) ) { /* dir must not exist */
       dbg(1, "create_tmpdir(): created dir: %s\n", str);
@@ -1481,7 +1481,7 @@ FILE *open_tmpfile(char *prefix, char **filename)
   int i;
   FILE *fd;
   struct stat buf;
-  for(i=0; i<5;i++) {
+  for(i=0; i<5; ++i) {
     my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix));
     *filename = str;
     if(stat(str, &buf) && (fd = fopen(str, "w")) ) { /* file must not exist */
@@ -1553,40 +1553,40 @@ static void save_embedded_symbol(xSymbol *s, FILE *fd)
   fprintf(fd, "V {}\n");
   fprintf(fd, "S {}\n");
   fprintf(fd, "E {}\n");
-  for(c=0;c<cadlayers;c++)
+  for(c=0;c<cadlayers; ++c)
   {
    xLine *ptr;
    ptr=s->line[c];
-   for(i=0;i<s->lines[c];i++)
+   for(i=0;i<s->lines[c]; ++i)
    {
     fprintf(fd, "L %d %.16g %.16g %.16g %.16g ", c,ptr[i].x1, ptr[i].y1,ptr[i].x2,
      ptr[i].y2 );
     save_ascii_string(ptr[i].prop_ptr,fd, 1);
    }
   }
-  for(c=0;c<cadlayers;c++)
+  for(c=0;c<cadlayers; ++c)
   {
    xRect *ptr;
    ptr=s->rect[c];
-   for(i=0;i<s->rects[c];i++)
+   for(i=0;i<s->rects[c]; ++i)
    {
     fprintf(fd, "B %d %.16g %.16g %.16g %.16g ", c,ptr[i].x1, ptr[i].y1,ptr[i].x2,
      ptr[i].y2);
     save_ascii_string(ptr[i].prop_ptr,fd, 1);
    }
   }
-  for(c=0;c<cadlayers;c++)
+  for(c=0;c<cadlayers; ++c)
   {
    xArc *ptr;
    ptr=s->arc[c];
-   for(i=0;i<s->arcs[c];i++)
+   for(i=0;i<s->arcs[c]; ++i)
    {
     fprintf(fd, "A %d %.16g %.16g %.16g %.16g %.16g ", c,ptr[i].x, ptr[i].y,ptr[i].r,
      ptr[i].a, ptr[i].b);
     save_ascii_string(ptr[i].prop_ptr,fd, 1);
    }
   }
-  for(i=0;i<s->texts;i++)
+  for(i=0;i<s->texts; ++i)
   {
    xText *ptr;
    ptr = s->text;
@@ -1597,14 +1597,14 @@ static void save_embedded_symbol(xSymbol *s, FILE *fd)
      ptr[i].yscale);
    save_ascii_string(ptr[i].prop_ptr,fd, 1);
   }
-  for(c=0;c<cadlayers;c++)
+  for(c=0;c<cadlayers; ++c)
   {
    xPoly *ptr;
    ptr=s->poly[c];
-   for(i=0;i<s->polygons[c];i++)
+   for(i=0;i<s->polygons[c]; ++i)
    {
     fprintf(fd, "P %d %d ", c,ptr[i].points);
-    for(j=0;j<ptr[i].points;j++) {
+    for(j=0;j<ptr[i].points; ++j) {
       fprintf(fd, "%.16g %.16g ", ptr[i].x[j], ptr[i].y[j]);
     }
     save_ascii_string(ptr[i].prop_ptr,fd, 1);
@@ -1621,9 +1621,9 @@ static void save_inst(FILE *fd, int select_only)
 
  inst=xctx->inst;
  oldversion = !strcmp(xctx->file_version, "1.0");
- for(i=0;i<xctx->symbols;i++) xctx->sym[i].flags &=~EMBEDDED;
+ for(i=0;i<xctx->symbols; ++i) xctx->sym[i].flags &=~EMBEDDED;
  embedded_saved = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(int));
- for(i=0;i<xctx->instances;i++)
+ for(i=0;i<xctx->instances; ++i)
  {
    if (select_only && inst[i].sel != SELECTED) continue;
   fputs("C ", fd);
@@ -1653,7 +1653,7 @@ static void save_wire(FILE *fd, int select_only)
  xWire *ptr;
 
  ptr=xctx->wire;
- for(i=0;i<xctx->wires;i++)
+ for(i=0;i<xctx->wires; ++i)
  {
    if (select_only && ptr[i].sel != SELECTED) continue;
   fprintf(fd, "N %.16g %.16g %.16g %.16g ",ptr[i].x1, ptr[i].y1, ptr[i].x2,
@@ -1667,7 +1667,7 @@ static void save_text(FILE *fd, int select_only)
  int i;
  xText *ptr;
  ptr=xctx->text;
- for(i=0;i<xctx->texts;i++)
+ for(i=0;i<xctx->texts; ++i)
  {
    if (select_only && ptr[i].sel != SELECTED) continue;
   fprintf(fd, "T ");
@@ -1683,14 +1683,14 @@ static void save_polygon(FILE *fd, int select_only)
 {
     int c, i, j;
     xPoly *ptr;
-    for(c=0;c<cadlayers;c++)
+    for(c=0;c<cadlayers; ++c)
     {
      ptr=xctx->poly[c];
-     for(i=0;i<xctx->polygons[c];i++)
+     for(i=0;i<xctx->polygons[c]; ++i)
      {
        if (select_only && ptr[i].sel != SELECTED) continue;
       fprintf(fd, "P %d %d ", c,ptr[i].points);
-      for(j=0;j<ptr[i].points;j++) {
+      for(j=0;j<ptr[i].points; ++j) {
         fprintf(fd, "%.16g %.16g ", ptr[i].x[j], ptr[i].y[j]);
       }
       save_ascii_string(ptr[i].prop_ptr,fd, 1);
@@ -1702,10 +1702,10 @@ static void save_arc(FILE *fd, int select_only)
 {
     int c, i;
     xArc *ptr;
-    for(c=0;c<cadlayers;c++)
+    for(c=0;c<cadlayers; ++c)
     {
      ptr=xctx->arc[c];
-     for(i=0;i<xctx->arcs[c];i++)
+     for(i=0;i<xctx->arcs[c]; ++i)
      {
        if (select_only && ptr[i].sel != SELECTED) continue;
       fprintf(fd, "A %d %.16g %.16g %.16g %.16g %.16g ", c,ptr[i].x, ptr[i].y,ptr[i].r,
@@ -1719,10 +1719,10 @@ static void save_box(FILE *fd, int select_only)
 {
     int c, i;
     xRect *ptr;
-    for(c=0;c<cadlayers;c++)
+    for(c=0;c<cadlayers; ++c)
     {
      ptr=xctx->rect[c];
-     for(i=0;i<xctx->rects[c];i++)
+     for(i=0;i<xctx->rects[c]; ++i)
      {
        if (select_only && ptr[i].sel != SELECTED) continue;
       fprintf(fd, "B %d %.16g %.16g %.16g %.16g ", c,ptr[i].x1, ptr[i].y1,ptr[i].x2,
@@ -1736,10 +1736,10 @@ static void save_line(FILE *fd, int select_only)
 {
     int c, i;
     xLine *ptr;
-    for(c=0;c<cadlayers;c++)
+    for(c=0;c<cadlayers; ++c)
     {
      ptr=xctx->line[c];
-     for(i=0;i<xctx->lines[c];i++)
+     for(i=0;i<xctx->lines[c]; ++i)
      {
        if (select_only && ptr[i].sel != SELECTED) continue;
       fprintf(fd, "L %d %.16g %.16g %.16g %.16g ", c,ptr[i].x1, ptr[i].y1,ptr[i].x2,
@@ -1928,7 +1928,7 @@ static void load_polygon(FILE *fd)
     ptr[i].selected_point= my_calloc(_ALLOC_ID_, points, sizeof(unsigned short));
     ptr[i].points=points;
     ptr[i].sel=0;
-    for(j=0;j<points;j++) {
+    for(j=0;j<points; ++j) {
       if(fscanf(fd, "%lf %lf ",&(ptr[i].x[j]), &(ptr[i].y[j]))<2) {
         fprintf(errfp,"WARNING: missing fields for POLYGON points, ignoring.\n");
         my_free(_ALLOC_ID_, &ptr[i].x);
@@ -2163,7 +2163,7 @@ static void read_xschem_file(FILE *fd)
       if(xctx->inst[xctx->instances-1].name) {
         my_snprintf(name_embedded, S(name_embedded), "%s/.xschem_embedded_%d_%s",
                     tclgetvar("XSCHEM_TMP_DIR"), getpid(), get_cell_w_ext(xctx->inst[xctx->instances-1].name, 0));
-        for(i=0;i<xctx->symbols;i++)
+        for(i=0;i<xctx->symbols; ++i)
         {
          dbg(1, "read_xschem_file(): sym[i].name=%s, name_embedded=%s\n", xctx->sym[i].name, name_embedded);
          dbg(1, "read_xschem_file(): inst[instances-1].name=%s\n", xctx->inst[xctx->instances-1].name);
@@ -2252,7 +2252,7 @@ void load_ascii_string(char **ptr, FILE *fd)
     }
     str[i]=(char)c;
     escape = 0;
-    i++;
+    ++i;
   } else if(c=='{') begin=1;
  }
  dbg(2, "load_ascii_string(): string read=%s\n",str? str:"<NULL>");
@@ -2376,13 +2376,13 @@ void link_symbols_to_instances(int from) /* from >= 0 : linking symbols from pas
     from = 0;
     merge = 0;
   }
-  for(i = from; i < xctx->instances; i++) {
+  for(i = from; i < xctx->instances; ++i) {
     dbg(2, "link_symbols_to_instances(): inst=%d\n", i);
     dbg(2, "link_symbols_to_instances(): matching inst %d name=%s \n",i, xctx->inst[i].name);
     dbg(2, "link_symbols_to_instances(): -------\n");
     xctx->inst[i].ptr = match_symbol(xctx->inst[i].name);
   }
-  for(i = from; i < xctx->instances; i++) {
+  for(i = from; i < xctx->instances; ++i) {
     type=xctx->sym[xctx->inst[i].ptr].type;
     cond= !type || !IS_LABEL_SH_OR_PIN(type);
     if(cond) xctx->inst[i].flags|=2; /* ordinary symbol */
@@ -2393,7 +2393,7 @@ void link_symbols_to_instances(int from) /* from >= 0 : linking symbols from pas
   }
   /* symbol_bbox() might call translate() that might call prepare_netlist_structs() that 
    * needs .lab field set above, so this must be done last */
-  for(i = from; i < xctx->instances; i++) {
+  for(i = from; i < xctx->instances; ++i) {
     symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
     if(merge) select_element(i,SELECTED,1, 0); /* leave elements selected if a paste/copy from windows is done */
   }
@@ -2502,7 +2502,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
     /* if(reset_undo) xctx->time_last_modify = time(NULL); */ /* no file given, set mtime to current time */
     if(reset_undo) xctx->time_last_modify = 0; /* no file given, set mtime to 0 (undefined) */
     clear_drawing();
-    for(i=0;;i++) {
+    for(i=0;; ++i) {
       if(xctx->netlist_type == CAD_SYMBOL_ATTRS) {
         if(i == 0) my_snprintf(name, S(name), "%s.sym", "untitled");
         else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
@@ -2547,7 +2547,7 @@ void delete_undo(void)
   dbg(1, "delete_undo(): undo_initialized = %d\n", xctx->undo_initialized);
   if(!xctx->undo_initialized) return;
   clear_undo();
-  for(i=0; i<MAX_UNDO; i++) {
+  for(i=0; i<MAX_UNDO; ++i) {
     my_snprintf(diff_name, S(diff_name), "%s/undo%d",xctx->undo_dirname, i);
     xunlink(diff_name);
   }
@@ -2775,7 +2775,7 @@ static void get_sym_type(const char *symname, char **type,
   }
   found=0;
   /* first look in already loaded symbols in xctx->sym[] array... */
-  for(i=0;i<xctx->symbols;i++) {
+  for(i=0;i<xctx->symbols; ++i) {
     if(xctx->x_strcmp(symname, xctx->sym[i].name) == 0) {
       my_strdup2(_ALLOC_ID_, type, xctx->sym[i].type);
       found = 1;
@@ -2785,7 +2785,7 @@ static void get_sym_type(const char *symname, char **type,
   /* hash pins to get LCC schematic have same order as corresponding symbol */
   if(found && pintable) {
     *sym_n_pins = xctx->sym[i].rects[PINLAYER];
-    for (c = 0; c < xctx->sym[i].rects[PINLAYER]; c++) {
+    for (c = 0; c < xctx->sym[i].rects[PINLAYER]; ++c) {
       int_hash_lookup(pintable, get_tok_value(xctx->sym[i].rect[PINLAYER][c].prop_ptr, "name", 0), c, XINSERT);
     }
   }
@@ -2880,7 +2880,7 @@ static void align_sch_pins_with_sym(const char *name, int pos)
       }
       rect = (xRect *) my_malloc(_ALLOC_ID_, sizeof(xRect) * sym_n_pins);
       dbg(1, "align_sch_pins_with_sym(): symbol: %s\n", symname);
-      for(i=0; i < xctx->sym[pos].rects[PINLAYER]; i++) {
+      for(i=0; i < xctx->sym[pos].rects[PINLAYER]; ++i) {
         Int_hashentry *entry;
         pinname = get_tok_value(xctx->sym[pos].rect[PINLAYER][i].prop_ptr, "name", 0);
         entry = int_hash_lookup(&pintable, pinname, 0 , XLOOKUP);
@@ -2895,7 +2895,7 @@ static void align_sch_pins_with_sym(const char *name, int pos)
       }
       if(!fail) {
         /* copy rect[] ordererd array to LCC schematic instance */
-        for(i=0; i < xctx->sym[pos].rects[PINLAYER]; i++) {
+        for(i=0; i < xctx->sym[pos].rects[PINLAYER]; ++i) {
           xctx->sym[pos].rect[PINLAYER][i] = rect[i];
         }
       }
@@ -2971,39 +2971,39 @@ static void calc_symbol_bbox(int pos)
   xRect boundbox, tmp;
 
   boundbox.x1 = boundbox.x2 = boundbox.y1 = boundbox.y2 = 0;
-  for(c=0;c<cadlayers;c++)
+  for(c=0;c<cadlayers; ++c)
   {
-   for(i=0;i<xctx->sym[pos].lines[c];i++)
+   for(i=0;i<xctx->sym[pos].lines[c]; ++i)
    {
-    count++;
+    ++count;
     tmp.x1=xctx->sym[pos].line[c][i].x1;tmp.y1=xctx->sym[pos].line[c][i].y1;
     tmp.x2=xctx->sym[pos].line[c][i].x2;tmp.y2=xctx->sym[pos].line[c][i].y2;
     updatebbox(count,&boundbox,&tmp);
     dbg(2, "calc_symbol_bbox(): line[%d][%d]: %g %g %g %g\n",
 			c, i, tmp.x1,tmp.y1,tmp.x2,tmp.y2);
    }
-   for(i=0;i<xctx->sym[pos].arcs[c];i++)
+   for(i=0;i<xctx->sym[pos].arcs[c]; ++i)
    {
-    count++;
+    ++count;
     arc_bbox(xctx->sym[pos].arc[c][i].x, xctx->sym[pos].arc[c][i].y, xctx->sym[pos].arc[c][i].r,
              xctx->sym[pos].arc[c][i].a, xctx->sym[pos].arc[c][i].b,
              &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
     /* printf("arc bbox: %g %g %g %g\n", tmp.x1, tmp.y1, tmp.x2, tmp.y2); */
     updatebbox(count,&boundbox,&tmp);
    }
-   for(i=0;i<xctx->sym[pos].rects[c];i++)
+   for(i=0;i<xctx->sym[pos].rects[c]; ++i)
    {
-    count++;
+    ++count;
     tmp.x1=xctx->sym[pos].rect[c][i].x1;tmp.y1=xctx->sym[pos].rect[c][i].y1;
     tmp.x2=xctx->sym[pos].rect[c][i].x2;tmp.y2=xctx->sym[pos].rect[c][i].y2;
     updatebbox(count,&boundbox,&tmp);
    }
-   for(i=0;i<xctx->sym[pos].polygons[c];i++)
+   for(i=0;i<xctx->sym[pos].polygons[c]; ++i)
    {
      double x1=0., y1=0., x2=0., y2=0.;
      int k;
-     count++;
-     for(k=0; k<xctx->sym[pos].poly[c][i].points; k++) {
+     ++count;
+     for(k=0; k<xctx->sym[pos].poly[c][i].points; ++k) {
        /*fprintf(errfp, "  poly: point %d: %.16g %.16g\n", k, pp[c][i].x[k], pp[c][i].y[k]); */
        if(k==0 || xctx->sym[pos].poly[c][i].x[k] < x1) x1 = xctx->sym[pos].poly[c][i].x[k];
        if(k==0 || xctx->sym[pos].poly[c][i].y[k] < y1) y1 = xctx->sym[pos].poly[c][i].y[k];
@@ -3018,7 +3018,7 @@ static void calc_symbol_bbox(int pos)
 *   do not include symbol text in bounding box, since text length
 *   is variable from one instance to another due to '@' variable expansions
 *
-*   for(i=0;i<lastt;i++)
+*   for(i=0;i<lastt; ++i)
 *   {
      int tmp;
 *    count++;
@@ -3059,7 +3059,7 @@ void sort_symbol_pins(xRect *pin_array, int npins, const char *name)
 
   if(npins > 0) do_sort = 1; /* no pins, no sort... */
   /* do not sort if some pins don't have pinnumber attribute */
-  for(j = 0; j < npins; j++) {
+  for(j = 0; j < npins; ++j) {
     pinnumber = get_tok_value(pin_array[j].prop_ptr, "sim_pinnumber", 0);
     if(!pinnumber[0]) do_sort = 0;
   }
@@ -3160,7 +3160,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   }
   endfile=0;
   /* initialize data for loading a new symbol */
-  for(c=0;c<cadlayers;c++)
+  for(c=0;c<cadlayers; ++c)
   {
    lasta[c] = lastl[c] = lastr[c] = lastp[c] = 0;
    ll[c] = NULL; bb[c] = NULL; pp[c] = NULL; aa[c] = NULL;
@@ -3300,7 +3300,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      pp[c][i].y = my_calloc(_ALLOC_ID_, poly_points, sizeof(double));
      pp[c][i].selected_point = my_calloc(_ALLOC_ID_, poly_points, sizeof(unsigned short));
      pp[c][i].points = poly_points;
-     for(k=0;k<poly_points;k++) {
+     for(k=0;k<poly_points; ++k) {
        if(fscanf(lcc[level].fd, "%lf %lf ",&(pp[c][i].x[k]), &(pp[c][i].y[k]) ) < 2 ) {
          fprintf(errfp,"l_s_d(): WARNING: missing fields for POLYGON object\n");
        }
@@ -3446,7 +3446,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
          char *path = NULL;
          if(level > 1) { /* add parent LCC instance names (X1, Xinv etc) */
            int i;
-           for(i = 1; i <level; i++) {
+           for(i = 1; i <level; ++i) {
              const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
              my_strcat(_ALLOC_ID_, &path, instname);
              my_strcat(_ALLOC_ID_, &path, ".");
@@ -3467,7 +3467,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
          char *path = NULL;
          if(level > 1) { /* add parent LCC instance names (X1, Xinv etc) */
            int i;
-           for(i = 1; i <level; i++) {
+           for(i = 1; i <level; ++i) {
              const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
              my_strcat(_ALLOC_ID_, &path, instname);
              my_strcat(_ALLOC_ID_, &path, "."); 
@@ -3496,7 +3496,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      }
      dbg(1, "l_s_d(): loaded text : t=%s p=%s\n", tt[i].txt_ptr, tt[i].prop_ptr ? tt[i].prop_ptr : "NULL");
      set_text_flags(&tt[i]);
-     lastt++;
+     ++lastt;
      break;
     case 'N': /* store wires as lines on layer WIRELAYER. */
      i = lastl[WIRELAYER];
@@ -3674,7 +3674,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
     symbol[symbols].flags &= ~EMBEDDED;
   }
   dbg(2, "l_s_d(): finished parsing file\n");
-  for(c=0;c<cadlayers;c++)
+  for(c=0;c<cadlayers; ++c)
   {
    symbol[symbols].arcs[c] = lasta[c];
    symbol[symbols].lines[c] = lastl[c];
@@ -3812,7 +3812,7 @@ void create_sch_from_sym(void)
       npin = ptr->rects[GENERICLAYER];
       rct = ptr->rect[GENERICLAYER];
       ypos=0;
-      for(i=0;i<npin;i++) {
+      for(i=0;i<npin; ++i) {
         my_strdup(_ALLOC_ID_, &prop, rct[i].prop_ptr);
         if(!prop) continue;
         sub_prop=strstr(prop,"name=")+5;
@@ -3826,9 +3826,9 @@ void create_sch_from_sym(void)
       } /* for(i) */
       npin = ptr->rects[PINLAYER];
       rct = ptr->rect[PINLAYER];
-      for(j=0;j<3;j++) {
+      for(j=0;j<3; ++j) {
         if(j==1) ypos=0;
-        for(i=0;i<npin;i++) {
+        for(i=0;i<npin; ++i) {
           my_strdup(_ALLOC_ID_, &prop, rct[i].prop_ptr);
           if(!prop) continue;
           sub_prop=strstr(prop,"name=")+5;
@@ -3955,7 +3955,7 @@ void round_schematic_to_grid(double c_snap)
 {
  int i, c, n, p;
  rebuild_selected_array();
- for(i=0;i<xctx->lastsel;i++)
+ for(i=0;i<xctx->lastsel; ++i)
  {
    c = xctx->sel_array[i].col; n = xctx->sel_array[i].n;
    switch(xctx->sel_array[i].type)
@@ -4049,7 +4049,7 @@ void save_selection(int what)
  }
  fprintf(fd, "v {xschem version=%s file_version=%s}\n", XSCHEM_VERSION, XSCHEM_FILE_VERSION);
  fprintf(fd, "G { %.16g %.16g }\n", xctx->mousex_snap, xctx->mousey_snap);
- for(i=0;i<xctx->lastsel;i++)
+ for(i=0;i<xctx->lastsel; ++i)
  {
    c = xctx->sel_array[i].col;n = xctx->sel_array[i].n;
    switch(xctx->sel_array[i].type)
@@ -4078,7 +4078,7 @@ void save_selection(int what)
 
      case POLYGON:
       fprintf(fd, "P %d %d ", c, xctx->poly[c][n].points);
-      for(k=0; k<xctx->poly[c][n].points; k++) {
+      for(k=0; k<xctx->poly[c][n].points; ++k) {
         fprintf(fd, "%.16g %.16g ", xctx->poly[c][n].x[k], xctx->poly[c][n].y[k]);
       }
       save_ascii_string(xctx->poly[c][n].prop_ptr,fd, 1);

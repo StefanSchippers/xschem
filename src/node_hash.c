@@ -185,7 +185,7 @@ void node_hash_free(void) /* remove the whole hash table  */
  int i;
 
  dbg(2, "node_hash_free(): removing hash table\n");
- for(i=0;i<HASHSIZE;i++)
+ for(i=0;i<HASHSIZE; ++i)
  {
   node_hash_free_entry( xctx->node_table[i] );
   xctx->node_table[i] = NULL;
@@ -200,7 +200,7 @@ void traverse_node_hash()
  int incr_hi;
  
  incr_hi = tclgetboolvar("incr_hilight");
- for(i=0;i<HASHSIZE;i++)
+ for(i=0;i<HASHSIZE; ++i)
  {
   entry = xctx->node_table[i];
   while(entry)
@@ -259,7 +259,7 @@ void print_vhdl_signals(FILE *fd)
   char *class=NULL;
  
   found=0;
-  for(i=0;i<HASHSIZE;i++) {
+  for(i=0;i<HASHSIZE; ++i) {
     ptr = xctx->node_table[i];
     while(ptr) {
       if(strstr(ptr->token, ".")) {
@@ -323,7 +323,7 @@ void print_verilog_signals(FILE *fd)
  
   dbg(2, " print_verilog_signals(): entering routine\n");
   found=0;
-  for(i=0;i<HASHSIZE;i++) {
+  for(i=0;i<HASHSIZE; ++i) {
     ptr = xctx->node_table[i];
     while(ptr) {
       if(ptr->d.port == 0 ) {

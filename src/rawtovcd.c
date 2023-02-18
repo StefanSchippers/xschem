@@ -45,7 +45,7 @@ void replace_bracket(char *s)
   while(*s) {
    /* if(*s =='[' || *s == ']') *s='_'; */
    if(*s ==':') *s='.';
-   s++;
+   ++s;
   }
 }
 
@@ -250,11 +250,11 @@ void free_storage()
 {
   int i;
 
-  for(i = 0 ; i < nvars; i++) {
+  for(i = 0 ; i < nvars; ++i) {
     free(names[i]);
     free(vcd_ids[i]);
   }
-  for(i = 0 ; i < npoints; i++) {
+  for(i = 0 ; i < npoints; ++i) {
     free(values[i]);
   }
   free(values);
@@ -267,16 +267,16 @@ int main(int argc, char *argv[])
   int res;
   int i = 1;
 
-  for(i = 1; i < argc; i++) {
+  for(i = 1; i < argc; ++i) {
     if(!strcmp(argv[i], "-v")) {
-      i++;
+      ++i;
       if(i + 1 >= argc) continue;
       binary_waves = 1;
       voltage = atof(argv[i]);
       vth = voltage * 0.75;
       vtl = voltage * 0.25;
     } else if(argv[i][0] == '-') {
-      i++;
+      ++i;
     } else {
       break;
     }

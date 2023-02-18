@@ -37,7 +37,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
   else if(event == ButtonPress && button == Button1 && (state & ShiftMask) ) skip = 1;
   else if(event == ButtonRelease && button == Button2) skip = 1;
   else if(event == KeyPress && (state & ShiftMask)) skip = 1;
-  else if(!skip) for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
+  else if(!skip) for(i=0; i< xctx->rects[GRIDLAYER]; ++i) {
     xRect *r;
     r = &xctx->rect[GRIDLAYER][i];
     if(!(r->flags & 1) ) continue;
@@ -230,7 +230,7 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
             }
             last = p;
           }
-          cnt++;
+          ++cnt;
         } /* if(xx >= start && xx <= end) */
         prev_prev_x = prev_x;
         prev_x = xx;
@@ -251,7 +251,7 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
     dbg(1, "xx=%g, p=%d\n", xx, p);
     tcleval("array unset ngspice::ngspice_data");
     xctx->graph_annotate_p = p;
-    for(i = 0; i < xctx->graph_nvars; i++) {
+    for(i = 0; i < xctx->graph_nvars; ++i) {
       char s[100];
       my_snprintf(s, S(s), "%.4g", xctx->graph_values[i][p]);
       dbg(1, "%s = %g\n", xctx->graph_names[i], xctx->graph_values[i][p]);
@@ -274,9 +274,9 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
 
      save = xctx->draw_window;
      xctx->draw_window = 1;
-     for(c=0;c<cadlayers;c++) {
+     for(c=0;c<cadlayers; ++c) {
        if(xctx->draw_single_layer!=-1 && c != xctx->draw_single_layer) continue;
-       for(i = 0; i < xctx->instances; i++) {
+       for(i = 0; i < xctx->instances; ++i) {
          type = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "type", 0);
          if(!strstr(type, "source") && !strstr(type, "probe")) continue;
          if(xctx->inst[i].ptr == -1 || (c > 0 && (xctx->inst[i].flags & 1)) ) continue;
@@ -331,7 +331,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   cairo_font_face_destroy(xctx->cairo_font);
   #endif
   gr = &xctx->graph_struct;
-  for(i=0; i < xctx->rects[GRIDLAYER]; i++) {
+  for(i=0; i < xctx->rects[GRIDLAYER]; ++i) {
     if( (xctx->ui_state & GRAPHPAN) && i != xctx->graph_master) continue;
     r = &xctx->rect[GRIDLAYER][i];
     /* process only graph boxes */
@@ -451,7 +451,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       } /* key == 't' */
       break;
     } /* if( POINTINSIDE(...) */
-  } /* for(i=0; i <  xctx->rects[GRIDLAYER]; i++) */
+  } /* for(i=0; i <  xctx->rects[GRIDLAYER]; ++i) */
   dbg(1, "out of 1st loop: i=%d\n", i);
 
   /* check if user clicked on a wave label -> draw wave in bold */
@@ -510,7 +510,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
 
   /* second loop: after having determined the master graph do the others */
-  for(i=0; i< xctx->rects[GRIDLAYER]; i++) {
+  for(i=0; i< xctx->rects[GRIDLAYER]; ++i) {
     r = &xctx->rect[GRIDLAYER][i];
     need_redraw = 0;
     if( !(r->flags & 1) ) continue;
@@ -904,7 +904,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                   if(j >= 0) {
                     int ofs = 0;
                     for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
-                      for(i = ofs; i < ofs + xctx->graph_npoints[dset]; i++) {
+                      for(i = ofs; i < ofs + xctx->graph_npoints[dset]; ++i) {
                         double sweepval;
                         if(gr->logx) sweepval = mylog10(xctx->graph_values[sweep_idx][i]);
                         else sweepval = xctx->graph_values[sweep_idx][i];

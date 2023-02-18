@@ -169,17 +169,17 @@ int process_options(int argc, char *argv[])
   int i, arg_cnt;
   char *opt, *optval;
 
-  for(arg_cnt = i = 1; i < argc; i++) {
+  for(arg_cnt = i = 1; i < argc; ++i) {
     opt = argv[i];
     if(*opt == '-') { /* options */
-      opt++;
+      ++opt;
       if(opt && *opt=='-') { /* long options */
-        opt++;
+        ++opt;
         if(*opt) {
           optval = strchr(opt, '=');
           if(optval) {
             *optval = '\0';
-            optval++;
+            ++optval;
           }
           if(!optval && i < argc-1 && argv[i+1][0] != '-') {
             /* options requiring arguments are listed here */
@@ -242,7 +242,7 @@ int process_options(int argc, char *argv[])
           }
           check_opt(opt, optval, SHORT);
           /* printf("opt: %c, value: %s\n", *opt, optval ? optval : "no value"); */
-          opt++;
+          ++opt;
         }
       }
     } else { /* arguments */

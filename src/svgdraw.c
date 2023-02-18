@@ -85,7 +85,7 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points, i
     fprintf(fd,"style=\"fill:none;\" ");
   }
   fprintf(fd, "d=\"");
-  for(i=0;i<points; i++) {
+  for(i=0;i<points; ++i) {
     xx = X_TO_SVG(x[i]);
     yy = Y_TO_SVG(y[i]);
     if(i==0) fprintf(fd, "M%g %g", xx, yy);
@@ -244,7 +244,7 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
       default:
        fputc(*s, fd);
     }
-    s++;
+    ++s;
   }
   fprintf(fd, "</text>\n");
 }
@@ -299,15 +299,15 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
       *ss='\0';
       svg_draw_string_line(layer, tt, x, y, size, rot, flip, lineno, height,
                ascent, descent, llength, no_of_lines, longest_line);
-      lineno++;
+      ++lineno;
       if(c==0) break;
       *ss='\n';
       tt=ss+1;
       llength=0;
     } else {
-      llength++;
+      ++llength;
     }
-    ss++;
+    ++ss;
   }
   my_free(_ALLOC_ID_, &sss);
 }
@@ -361,7 +361,7 @@ static void old_svg_draw_string(int layer, const char *str,
    ORDER(rx1,ry1,rx2,ry2);
    svg_drawline(layer, 0, rx1, ry1, rx2, ry2, 0);
   }
-  pos++;
+  ++pos;
  }
 }
 
@@ -434,7 +434,7 @@ static void svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, dou
 static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
         double xoffset, double yoffset)
                             /* draws current layer only, should be called within  */
-{                           /* a "for(i=0;i<cadlayers;i++)" loop */
+{                           /* a "for(i=0;i<cadlayers; ++i)" loop */
   int j, hide = 0;
   double x0,y0,x1,y1,x2,y2;
   short flip;
@@ -478,20 +478,20 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   x0=xctx->inst[n].x0 + xoffset;
   y0=xctx->inst[n].y0 + yoffset;
   symptr = (xctx->inst[n].ptr+ xctx->sym);
-  for(j=0;j< symptr->lines[layer];j++) {
+  for(j=0;j< symptr->lines[layer]; ++j) {
     line = (symptr->line[layer])[j];
     ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
     ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
     ORDER(x1,y1,x2,y2);
     svg_drawline(c, line.bus, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
   }
-  for(j=0;j< symptr->polygons[layer];j++) {
+  for(j=0;j< symptr->polygons[layer]; ++j) {
     polygon = (symptr->poly[layer])[j];
     { /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
       int k;
       double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
       double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
-      for(k=0;k<polygon.points;k++) {
+      for(k=0;k<polygon.points; ++k) {
         ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
         x[k]+= x0;
         y[k] += y0;
@@ -501,7 +501,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
       my_free(_ALLOC_ID_, &y);
     }
   }
-  for(j=0;j< symptr->arcs[layer];j++) {
+  for(j=0;j< symptr->arcs[layer]; ++j) {
     double angle;
     arc = (symptr->arc[layer])[j];
     if(flip) {
@@ -515,7 +515,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     svg_drawarc(c, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
   }
 
-  if( xctx->enable_layer[layer] ) for(j=0;j< symptr->rects[layer];j++) {
+  if( xctx->enable_layer[layer] ) for(j=0;j< symptr->rects[layer]; ++j) {
     rect = &(symptr->rect[layer])[j];
     ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
     ROTATION(rot, flip, 0.0,0.0,rect->x2,rect->y2,x2,y2);
@@ -534,7 +534,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   if( (layer==TEXTWIRELAYER  && !(xctx->inst[n].flags&2) ) ||
       (xctx->sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) ) {
     const char *txtptr;
-    for(j=0;j< symptr->texts;j++) {
+    for(j=0;j< symptr->texts; ++j) {
       text = symptr->text[j];
       /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
       if(!xctx->show_hidden_texts && (symptr->text[j].flags & HIDE_TEXT)) continue;
@@ -587,7 +587,7 @@ static void fill_svg_colors()
   *   tcleval( "puts $svg_colors");
   * }
   */
- for(i=0;i<cadlayers;i++) {
+ for(i=0;i<cadlayers; ++i) {
    if(color_ps) {
      my_snprintf(s, S(s), "lindex $svg_colors %d", i);
      tcleval( s);
@@ -677,20 +677,20 @@ void svg_draw(void)
   unused_layer = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   #if 0
   *     /* Determine used layers. Disabled since we want hilight colors */
-  *     for(c=0;c<cadlayers;c++) unused_layer[c] = 1;
+  *     for(c=0;c<cadlayers; ++c) unused_layer[c] = 1;
   *     unused_layer[0] = 0; /* background */
-  *     for(i=0;i<xctx->texts;i++)
+  *     for(i=0;i<xctx->texts; ++i)
   *     {
   *       textlayer = xctx->text[i].layer;
   *       if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
   *       unused_layer[textlayer] = 0;
   *     }
-  *     for(c=0;c<cadlayers;c++)
+  *     for(c=0;c<cadlayers; ++c)
   *     {
   *       xSymbol symptr = (xctx->inst[i].ptr + xctx->sym);
   *       if(xctx->lines[c] || xctx->rects[c] || xctx->arcs[c] || xctx->polygons[c]) unused_layer[c] = 0;
   *       if(xctx->wires) unused_layer[WIRELAYER] = 0;
-  *       for(i=0;i<xctx->instances;i++) {
+  *       for(i=0;i<xctx->instances; ++i) {
   *         if( (c == PINLAYER || xctx->enable_layer[c]) && symptr->lines[c] ) unused_layer[c] = 0;
   *         if( (c == PINLAYER || xctx->enable_layer[c]) && symptr->polygons[c] ) unused_layer[c] = 0;
   *         if( (c == PINLAYER || xctx->enable_layer[c]) && symptr->arcs[c] ) unused_layer[c] = 0;
@@ -699,7 +699,7 @@ void svg_draw(void)
   *             (xctx->sym_txt && (c==TEXTLAYER)   && (xctx->inst[i].flags&2) ) )
   *         {
   *           int j;
-  *           for(j=0;j< symptr->texts;j++)
+  *           for(j=0;j< symptr->texts; ++j)
   *           {
   *             textlayer = c;
   *             if( !(xctx->inst[i].color == PINLAYER)) {
@@ -733,7 +733,7 @@ void svg_draw(void)
    * 1 : solid fill
    * 2 : patterned (stippled) fill
    */
-  for(i=0;i<cadlayers;i++){
+  for(i=0;i<cadlayers; ++i){
     if(unused_layer[i]) continue;
     fprintf(fd, ".l%d{\n", i);
     if( xctx->fill_pattern == 0 || xctx->fill_type[i] == 0) 
@@ -762,7 +762,7 @@ void svg_draw(void)
     /* background */
     fprintf(fd, "<rect class=\"l0\" x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\"/>\n", 0.0, 0.0, dx, dy);
     svg_drawgrid();
-    for(i=0;i<xctx->texts;i++)
+    for(i=0;i<xctx->texts; ++i)
     {
       textlayer = xctx->text[i].layer;
       if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
@@ -795,9 +795,9 @@ void svg_draw(void)
 
 
     /* do first graphs as these require draw() which clobbers xctx->inst[n].flags bit 0 */
-    for(c=0;c<cadlayers;c++)
+    for(c=0;c<cadlayers; ++c)
     {
-     for(i=0;i<xctx->rects[c];i++)
+     for(i=0;i<xctx->rects[c]; ++i)
      {
        if(c == GRIDLAYER && (xctx->rect[c][i].flags & 1) ) { /* graph */
          xRect *r = &xctx->rect[c][i];
@@ -805,12 +805,12 @@ void svg_draw(void)
        }
      }
     }
-    for(c=0;c<cadlayers;c++)
+    for(c=0;c<cadlayers; ++c)
     {
-     for(i=0;i<xctx->lines[c];i++)
+     for(i=0;i<xctx->lines[c]; ++i)
       svg_drawline(c, xctx->line[c][i].bus, xctx->line[c][i].x1, xctx->line[c][i].y1,
                       xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
-     for(i=0;i<xctx->rects[c];i++)
+     for(i=0;i<xctx->rects[c]; ++i)
      {
        if(c == GRIDLAYER && (xctx->rect[c][i].flags & 1) ) { /* graph */
          /* do nothing, done above */
@@ -823,23 +823,23 @@ void svg_draw(void)
                            xctx->rect[c][i].dash,  xctx->rect[c][i].fill);
        }
      }
-     for(i=0;i<xctx->arcs[c];i++)
+     for(i=0;i<xctx->arcs[c]; ++i)
      {
        svg_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r,
                     xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].dash);
      }
-     for(i=0;i<xctx->polygons[c];i++) {
+     for(i=0;i<xctx->polygons[c]; ++i) {
        svg_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
                        xctx->poly[c][i].fill, xctx->poly[c][i].dash);
      }
-     for(i=0;i<xctx->instances;i++) {
+     for(i=0;i<xctx->instances; ++i) {
        color = c;
        if(xctx->inst[i].color != -10000) color = get_color(xctx->inst[i].color);
        svg_draw_symbol(color,i,c,0,0,0.0,0.0);
      }
     }
     prepare_netlist_structs(0); /* NEEDED: data was cleared by trim_wires() */
-    for(i=0;i<xctx->wires;i++)
+    for(i=0;i<xctx->wires; ++i)
     {
       color = WIRELAYER;
       if(xctx->hilight_nets && (entry=bus_hilight_hash_lookup( xctx->wire[i].node, 0, XLOOKUP))) {

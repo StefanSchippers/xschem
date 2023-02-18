@@ -26,8 +26,8 @@ static void free_undo_lines(int slot)
 {
   int i, c;
 
-  for(c = 0;c<cadlayers; c++) {
-    for(i = 0;i<xctx->uslot[slot].lines[c]; i++) {
+  for(c = 0;c<cadlayers; ++c) {
+    for(i = 0;i<xctx->uslot[slot].lines[c]; ++i) {
       my_free(_ALLOC_ID_, &xctx->uslot[slot].lptr[c][i].prop_ptr);
     }
     my_free(_ALLOC_ID_, &xctx->uslot[slot].lptr[c]);
@@ -39,8 +39,8 @@ static void free_undo_rects(int slot)
 {
   int i, c;
 
-  for(c = 0;c<cadlayers; c++) {
-    for(i = 0;i<xctx->uslot[slot].rects[c]; i++) {
+  for(c = 0;c<cadlayers; ++c) {
+    for(i = 0;i<xctx->uslot[slot].rects[c]; ++i) {
       my_free(_ALLOC_ID_, &xctx->uslot[slot].bptr[c][i].prop_ptr);
     }
     my_free(_ALLOC_ID_, &xctx->uslot[slot].bptr[c]);
@@ -52,8 +52,8 @@ static void free_undo_polygons(int slot)
 {
   int i, c;
 
-  for(c = 0;c<cadlayers; c++) {
-    for(i = 0;i<xctx->uslot[slot].polygons[c]; i++) {
+  for(c = 0;c<cadlayers; ++c) {
+    for(i = 0;i<xctx->uslot[slot].polygons[c]; ++i) {
       my_free(_ALLOC_ID_, &xctx->uslot[slot].pptr[c][i].prop_ptr);
       my_free(_ALLOC_ID_, &xctx->uslot[slot].pptr[c][i].x);
       my_free(_ALLOC_ID_, &xctx->uslot[slot].pptr[c][i].y);
@@ -68,8 +68,8 @@ static void free_undo_arcs(int slot)
 {
   int i, c;
 
-  for(c = 0;c<cadlayers; c++) {
-    for(i = 0;i<xctx->uslot[slot].arcs[c]; i++) {
+  for(c = 0;c<cadlayers; ++c) {
+    for(i = 0;i<xctx->uslot[slot].arcs[c]; ++i) {
       my_free(_ALLOC_ID_, &xctx->uslot[slot].aptr[c][i].prop_ptr);
     }
     my_free(_ALLOC_ID_, &xctx->uslot[slot].aptr[c]);
@@ -81,7 +81,7 @@ static void free_undo_wires(int slot)
 {
   int i;
 
-  for(i = 0;i<xctx->uslot[slot].wires; i++) {
+  for(i = 0;i<xctx->uslot[slot].wires; ++i) {
     my_free(_ALLOC_ID_, &xctx->uslot[slot].wptr[i].prop_ptr);
   }
   my_free(_ALLOC_ID_, &xctx->uslot[slot].wptr);
@@ -92,7 +92,7 @@ static void free_undo_texts(int slot)
 {
   int i;
 
-  for(i = 0;i<xctx->uslot[slot].texts; i++) {
+  for(i = 0;i<xctx->uslot[slot].texts; ++i) {
     my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].prop_ptr);
     my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].txt_ptr);
     my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].font);
@@ -105,7 +105,7 @@ static void free_undo_instances(int slot)
 {
   int i;
 
-  for(i = 0;i<xctx->uslot[slot].instances; i++) {
+  for(i = 0;i<xctx->uslot[slot].instances; ++i) {
     my_free(_ALLOC_ID_, &xctx->uslot[slot].iptr[i].name);
     my_free(_ALLOC_ID_, &xctx->uslot[slot].iptr[i].prop_ptr);
     my_free(_ALLOC_ID_, &xctx->uslot[slot].iptr[i].instname);
@@ -121,15 +121,15 @@ static void free_undo_symbols(int slot)
   xSymbol *sym;
 
   symbols = xctx->uslot[slot].symbols;
-  for(i = 0;i < symbols; i++) {
+  for(i = 0;i < symbols; ++i) {
     sym = &xctx->uslot[slot].symptr[i];
     my_free(_ALLOC_ID_, &sym->name);
     my_free(_ALLOC_ID_, &sym->prop_ptr);
     my_free(_ALLOC_ID_, &sym->type);
     my_free(_ALLOC_ID_, &sym->templ);
 
-    for(c = 0;c<cadlayers;c++) {
-      for(j = 0;j<sym->polygons[c];j++) {
+    for(c = 0;c<cadlayers; ++c) {
+      for(j = 0;j<sym->polygons[c]; ++j) {
         if(sym->poly[c][j].prop_ptr != NULL) {
           my_free(_ALLOC_ID_, &sym->poly[c][j].prop_ptr);
         }
@@ -140,7 +140,7 @@ static void free_undo_symbols(int slot)
       my_free(_ALLOC_ID_, &sym->poly[c]);
       sym->polygons[c] = 0;
   
-      for(j = 0;j<sym->lines[c];j++) {
+      for(j = 0;j<sym->lines[c]; ++j) {
         if(sym->line[c][j].prop_ptr != NULL) {
           my_free(_ALLOC_ID_, &sym->line[c][j].prop_ptr);
         }
@@ -148,7 +148,7 @@ static void free_undo_symbols(int slot)
       my_free(_ALLOC_ID_, &sym->line[c]);
       sym->lines[c] = 0;
   
-      for(j = 0;j<sym->arcs[c];j++) {
+      for(j = 0;j<sym->arcs[c]; ++j) {
         if(sym->arc[c][j].prop_ptr != NULL) {
           my_free(_ALLOC_ID_, &sym->arc[c][j].prop_ptr);
         }
@@ -156,7 +156,7 @@ static void free_undo_symbols(int slot)
       my_free(_ALLOC_ID_, &sym->arc[c]);
       sym->arcs[c] = 0;
   
-      for(j = 0;j<sym->rects[c];j++) {
+      for(j = 0;j<sym->rects[c]; ++j) {
         if(sym->rect[c][j].prop_ptr != NULL) {
           my_free(_ALLOC_ID_, &sym->rect[c][j].prop_ptr);
         }
@@ -164,7 +164,7 @@ static void free_undo_symbols(int slot)
       my_free(_ALLOC_ID_, &sym->rect[c]);
       sym->rects[c] = 0;
     }
-    for(j = 0;j<sym->texts;j++) {
+    for(j = 0;j<sym->texts; ++j) {
       if(sym->text[j].prop_ptr != NULL) {
         my_free(_ALLOC_ID_, &sym->text[j].prop_ptr);
       }
@@ -280,7 +280,7 @@ void mem_push_undo(void)
   memcpy(xctx->uslot[slot].rects, xctx->rects, sizeof(xctx->rects[0]) * cadlayers);
   memcpy(xctx->uslot[slot].arcs, xctx->arcs, sizeof(xctx->arcs[0]) * cadlayers);
   memcpy(xctx->uslot[slot].polygons, xctx->polygons, sizeof(xctx->polygons[0]) * cadlayers);
-  for(c = 0;c<cadlayers;c++) {
+  for(c = 0;c<cadlayers; ++c) {
     xctx->uslot[slot].lptr[c] = my_calloc(_ALLOC_ID_, xctx->lines[c], sizeof(xLine));
     xctx->uslot[slot].bptr[c] = my_calloc(_ALLOC_ID_, xctx->rects[c], sizeof(xRect));
     xctx->uslot[slot].pptr[c] = my_calloc(_ALLOC_ID_, xctx->polygons[c], sizeof(xPoly));
@@ -295,28 +295,28 @@ void mem_push_undo(void)
   xctx->uslot[slot].symbols = xctx->symbols;
   xctx->uslot[slot].wires = xctx->wires;
 
-  for(c = 0;c<cadlayers;c++) {
+  for(c = 0;c<cadlayers; ++c) {
     /* lines */
-    for(i = 0;i<xctx->lines[c];i++) {
+    for(i = 0;i<xctx->lines[c]; ++i) {
       xctx->uslot[slot].lptr[c][i] = xctx->line[c][i];
       xctx->uslot[slot].lptr[c][i].prop_ptr = NULL;
       my_strdup(_ALLOC_ID_, &xctx->uslot[slot].lptr[c][i].prop_ptr, xctx->line[c][i].prop_ptr);
     }
     /* rects */
-    for(i = 0;i<xctx->rects[c];i++) {
+    for(i = 0;i<xctx->rects[c]; ++i) {
       xctx->uslot[slot].bptr[c][i] = xctx->rect[c][i];
       xctx->uslot[slot].bptr[c][i].prop_ptr = NULL;
       xctx->uslot[slot].bptr[c][i].extraptr = NULL;
       my_strdup(_ALLOC_ID_, &xctx->uslot[slot].bptr[c][i].prop_ptr, xctx->rect[c][i].prop_ptr);
     }
     /* arcs */
-    for(i = 0;i<xctx->arcs[c];i++) {
+    for(i = 0;i<xctx->arcs[c]; ++i) {
       xctx->uslot[slot].aptr[c][i] = xctx->arc[c][i];
       xctx->uslot[slot].aptr[c][i].prop_ptr = NULL;
       my_strdup(_ALLOC_ID_, &xctx->uslot[slot].aptr[c][i].prop_ptr, xctx->arc[c][i].prop_ptr);
     }
     /*polygons */
-    for(i = 0;i<xctx->polygons[c];i++) {
+    for(i = 0;i<xctx->polygons[c]; ++i) {
       int points = xctx->poly[c][i].points;
       xctx->uslot[slot].pptr[c][i] = xctx->poly[c][i];
       xctx->uslot[slot].pptr[c][i].prop_ptr = NULL;
@@ -331,7 +331,7 @@ void mem_push_undo(void)
     }
   }
   /* instances */
-  for(i = 0;i<xctx->instances;i++) {
+  for(i = 0;i<xctx->instances; ++i) {
     xctx->uslot[slot].iptr[i] = xctx->inst[i];
     xctx->uslot[slot].iptr[i].prop_ptr = NULL;
     xctx->uslot[slot].iptr[i].name = NULL;
@@ -345,7 +345,7 @@ void mem_push_undo(void)
   }
 
   /* symbols */
-  for(i = 0;i<xctx->symbols;i++) {
+  for(i = 0;i<xctx->symbols; ++i) {
     sym = &xctx->uslot[slot].symptr[i];
     xctx->uslot[slot].symptr[i] = xctx->sym[i];
     sym->name = NULL;
@@ -370,17 +370,17 @@ void mem_push_undo(void)
     memcpy(sym->rects, xctx->sym[i].rects, sizeof(sym->rects[0]) * cadlayers);
     memcpy(sym->arcs, xctx->sym[i].arcs, sizeof(sym->arcs[0]) * cadlayers);
     memcpy(sym->polygons, xctx->sym[i].polygons, sizeof(sym->polygons[0]) * cadlayers);
-    for(c = 0;c<cadlayers;c++) {
+    for(c = 0;c<cadlayers; ++c) {
       /* symbol lines */
       sym->line[c] = my_calloc(_ALLOC_ID_, xctx->sym[i].lines[c], sizeof(xLine));
-      for(j = 0; j < xctx->sym[i].lines[c]; j++) { 
+      for(j = 0; j < xctx->sym[i].lines[c]; ++j) { 
         sym->line[c][j] = xctx->sym[i].line[c][j];
         sym->line[c][j].prop_ptr = NULL;
         my_strdup(_ALLOC_ID_, &sym->line[c][j].prop_ptr, xctx->sym[i].line[c][j].prop_ptr);
       }
       /* symbol rects */
       sym->rect[c] = my_calloc(_ALLOC_ID_, xctx->sym[i].rects[c], sizeof(xRect));
-      for(j = 0; j < xctx->sym[i].rects[c]; j++) { 
+      for(j = 0; j < xctx->sym[i].rects[c]; ++j) { 
         sym->rect[c][j] = xctx->sym[i].rect[c][j];
         sym->rect[c][j].prop_ptr = NULL;
         sym->rect[c][j].extraptr = NULL;
@@ -388,14 +388,14 @@ void mem_push_undo(void)
       }
       /* symbol arcs */
       sym->arc[c] = my_calloc(_ALLOC_ID_, xctx->sym[i].arcs[c], sizeof(xArc));
-      for(j = 0; j < xctx->sym[i].arcs[c]; j++) { 
+      for(j = 0; j < xctx->sym[i].arcs[c]; ++j) { 
         sym->arc[c][j] = xctx->sym[i].arc[c][j];
         sym->arc[c][j].prop_ptr = NULL;
         my_strdup(_ALLOC_ID_, &sym->arc[c][j].prop_ptr, xctx->sym[i].arc[c][j].prop_ptr);
       }
       /* symbol polygons */
       sym->poly[c] = my_calloc(_ALLOC_ID_, xctx->sym[i].polygons[c], sizeof(xPoly));
-      for(j = 0; j < xctx->sym[i].polygons[c]; j++) { 
+      for(j = 0; j < xctx->sym[i].polygons[c]; ++j) { 
         int points = xctx->sym[i].poly[c][j].points;
         sym->poly[c][j] = xctx->sym[i].poly[c][j];
         sym->poly[c][j].prop_ptr = NULL;
@@ -410,7 +410,7 @@ void mem_push_undo(void)
       }
     }
     /* symbol texts */
-    for(j = 0; j < xctx->sym[i].texts; j++) {
+    for(j = 0; j < xctx->sym[i].texts; ++j) {
       sym->text[j] = xctx->sym[i].text[j];
       sym->text[j].prop_ptr = NULL;
       sym->text[j].txt_ptr = NULL;
@@ -422,7 +422,7 @@ void mem_push_undo(void)
    
   }
   /* texts */
-  for(i = 0;i<xctx->texts;i++) {
+  for(i = 0;i<xctx->texts; ++i) {
     xctx->uslot[slot].tptr[i] = xctx->text[i];
     xctx->uslot[slot].tptr[i].prop_ptr = NULL;
     xctx->uslot[slot].tptr[i].txt_ptr = NULL;
@@ -433,7 +433,7 @@ void mem_push_undo(void)
   }
 
   /* wires */
-  for(i = 0;i<xctx->wires;i++) {
+  for(i = 0;i<xctx->wires; ++i) {
     xctx->uslot[slot].wptr[i] = xctx->wire[i];
     xctx->uslot[slot].wptr[i].prop_ptr = NULL;
     xctx->uslot[slot].wptr[i].node = NULL;
@@ -484,7 +484,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   my_free(_ALLOC_ID_, &xctx->text);
   my_free(_ALLOC_ID_, &xctx->inst);
 
-  for(i = 0;i<cadlayers;i++) {
+  for(i = 0;i<cadlayers; ++i) {
     my_free(_ALLOC_ID_, &xctx->rect[i]);
     my_free(_ALLOC_ID_, &xctx->line[i]);
     my_free(_ALLOC_ID_, &xctx->poly[i]);
@@ -494,7 +494,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   remove_symbols();
 
 
-  for(i = 0;i<xctx->maxs;i++) {
+  for(i = 0;i<xctx->maxs; ++i) {
     my_free(_ALLOC_ID_, &xctx->sym[i].line);
     my_free(_ALLOC_ID_, &xctx->sym[i].rect);
     my_free(_ALLOC_ID_, &xctx->sym[i].arc);
@@ -515,11 +515,11 @@ void mem_pop_undo(int redo, int set_modify_status)
   my_strdup(_ALLOC_ID_, &xctx->schsymbolprop, xctx->uslot[slot].kptr);
   my_strdup(_ALLOC_ID_, &xctx->schtedaxprop, xctx->uslot[slot].eptr);
 
-  for(c = 0;c<cadlayers;c++) {
+  for(c = 0;c<cadlayers; ++c) {
     /* lines */
     xctx->maxl[c] = xctx->lines[c] = xctx->uslot[slot].lines[c];
     xctx->line[c] = my_calloc(_ALLOC_ID_, xctx->lines[c], sizeof(xLine));
-    for(i = 0;i<xctx->lines[c];i++) {
+    for(i = 0;i<xctx->lines[c]; ++i) {
       xctx->line[c][i] = xctx->uslot[slot].lptr[c][i];
       xctx->line[c][i].prop_ptr = NULL;
       my_strdup(_ALLOC_ID_, &xctx->line[c][i].prop_ptr, xctx->uslot[slot].lptr[c][i].prop_ptr);
@@ -527,7 +527,7 @@ void mem_pop_undo(int redo, int set_modify_status)
     /* rects */
     xctx->maxr[c] = xctx->rects[c] = xctx->uslot[slot].rects[c];
     xctx->rect[c] = my_calloc(_ALLOC_ID_, xctx->rects[c], sizeof(xRect));
-    for(i = 0;i<xctx->rects[c];i++) {
+    for(i = 0;i<xctx->rects[c]; ++i) {
       xctx->rect[c][i] = xctx->uslot[slot].bptr[c][i];
       xctx->rect[c][i].prop_ptr = NULL;
       xctx->rect[c][i].extraptr = NULL;
@@ -536,7 +536,7 @@ void mem_pop_undo(int redo, int set_modify_status)
     /* arcs */
     xctx->maxa[c] = xctx->arcs[c] = xctx->uslot[slot].arcs[c];
     xctx->arc[c] = my_calloc(_ALLOC_ID_, xctx->arcs[c], sizeof(xArc));
-    for(i = 0;i<xctx->arcs[c];i++) {
+    for(i = 0;i<xctx->arcs[c]; ++i) {
       xctx->arc[c][i] = xctx->uslot[slot].aptr[c][i];
       xctx->arc[c][i].prop_ptr = NULL;
       my_strdup(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr, xctx->uslot[slot].aptr[c][i].prop_ptr);
@@ -544,7 +544,7 @@ void mem_pop_undo(int redo, int set_modify_status)
     /* polygons */
     xctx->maxp[c] = xctx->polygons[c] = xctx->uslot[slot].polygons[c];
     xctx->poly[c] = my_calloc(_ALLOC_ID_, xctx->polygons[c], sizeof(xPoly));
-    for(i = 0;i<xctx->polygons[c];i++) {
+    for(i = 0;i<xctx->polygons[c]; ++i) {
       int points = xctx->uslot[slot].pptr[c][i].points;
       xctx->poly[c][i] = xctx->uslot[slot].pptr[c][i];
       xctx->poly[c][i].prop_ptr = NULL;
@@ -562,7 +562,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   /* instances */
   xctx->maxi = xctx->instances = xctx->uslot[slot].instances;
   xctx->inst = my_calloc(_ALLOC_ID_, xctx->instances, sizeof(xInstance));
-  for(i = 0;i<xctx->instances;i++) {
+  for(i = 0;i<xctx->instances; ++i) {
     xctx->inst[i] = xctx->uslot[slot].iptr[i];
     xctx->inst[i].prop_ptr = NULL;
     xctx->inst[i].name = NULL;
@@ -578,7 +578,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   xctx->maxs = xctx->symbols = xctx->uslot[slot].symbols;
   xctx->sym = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(xSymbol));
 
-  for(i = 0;i<xctx->symbols;i++) {
+  for(i = 0;i<xctx->symbols; ++i) {
     sym = &xctx->uslot[slot].symptr[i];
     xctx->sym[i] =  *sym;
     xctx->sym[i].name = NULL;
@@ -605,17 +605,17 @@ void mem_pop_undo(int redo, int set_modify_status)
     memcpy(xctx->sym[i].arcs, sym->arcs, sizeof(sym->arcs[0]) * cadlayers);
     memcpy(xctx->sym[i].polygons, sym->polygons, sizeof(sym->polygons[0]) * cadlayers);
 
-    for(c = 0;c<cadlayers;c++) {
+    for(c = 0;c<cadlayers; ++c) {
       /* symbol lines */
       xctx->sym[i].line[c] = my_calloc(_ALLOC_ID_, sym->lines[c], sizeof(xLine));
-      for(j = 0; j < xctx->sym[i].lines[c]; j++) {
+      for(j = 0; j < xctx->sym[i].lines[c]; ++j) {
         xctx->sym[i].line[c][j] = sym->line[c][j];
         xctx->sym[i].line[c][j].prop_ptr = NULL;
         my_strdup(_ALLOC_ID_, & xctx->sym[i].line[c][j].prop_ptr, sym->line[c][j].prop_ptr);
       }
       /* symbol rects */
       xctx->sym[i].rect[c] = my_calloc(_ALLOC_ID_, sym->rects[c], sizeof(xRect));
-      for(j = 0; j < xctx->sym[i].rects[c]; j++) {
+      for(j = 0; j < xctx->sym[i].rects[c]; ++j) {
         xctx->sym[i].rect[c][j] = sym->rect[c][j];
         xctx->sym[i].rect[c][j].prop_ptr = NULL;
         xctx->sym[i].rect[c][j].extraptr = NULL;
@@ -623,14 +623,14 @@ void mem_pop_undo(int redo, int set_modify_status)
       }
       /* symbol arcs */
       xctx->sym[i].arc[c] = my_calloc(_ALLOC_ID_, sym->arcs[c], sizeof(xArc));
-      for(j = 0; j < xctx->sym[i].arcs[c]; j++) {
+      for(j = 0; j < xctx->sym[i].arcs[c]; ++j) {
         xctx->sym[i].arc[c][j] = sym->arc[c][j];
         xctx->sym[i].arc[c][j].prop_ptr = NULL;
         my_strdup(_ALLOC_ID_, & xctx->sym[i].arc[c][j].prop_ptr, sym->arc[c][j].prop_ptr);
       }
       /* symbol polygons */
       xctx->sym[i].poly[c] = my_calloc(_ALLOC_ID_, sym->polygons[c], sizeof(xPoly));
-      for(j = 0; j < xctx->sym[i].polygons[c]; j++) { 
+      for(j = 0; j < xctx->sym[i].polygons[c]; ++j) { 
         int points = sym->poly[c][j].points;
         xctx->sym[i].poly[c][j] = sym->poly[c][j];
         xctx->sym[i].poly[c][j].prop_ptr = NULL;
@@ -645,7 +645,7 @@ void mem_pop_undo(int redo, int set_modify_status)
       }
     }
     /* symbol texts */
-    for(j = 0; j < xctx->sym[i].texts; j++) {
+    for(j = 0; j < xctx->sym[i].texts; ++j) {
       xctx->sym[i].text[j] = sym->text[j];
       xctx->sym[i].text[j].prop_ptr = NULL;
       xctx->sym[i].text[j].txt_ptr = NULL;
@@ -659,7 +659,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   /* texts */
   xctx->maxt = xctx->texts = xctx->uslot[slot].texts;
   xctx->text = my_calloc(_ALLOC_ID_, xctx->texts, sizeof(xText));
-  for(i = 0;i<xctx->texts;i++) {
+  for(i = 0;i<xctx->texts; ++i) {
     xctx->text[i] = xctx->uslot[slot].tptr[i];
     xctx->text[i].txt_ptr = NULL;
     xctx->text[i].font = NULL;
@@ -672,7 +672,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   /* wires */
   xctx->maxw = xctx->wires = xctx->uslot[slot].wires;
   xctx->wire = my_calloc(_ALLOC_ID_, xctx->wires, sizeof(xWire));
-  for(i = 0;i<xctx->wires;i++) {
+  for(i = 0;i<xctx->wires; ++i) {
     xctx->wire[i] = xctx->uslot[slot].wptr[i];
     xctx->wire[i].prop_ptr = NULL;
     xctx->wire[i].node = NULL;

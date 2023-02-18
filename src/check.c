@@ -65,7 +65,7 @@ void update_conn_cues(int layer, int draw_cues, int dr_win)
     k=wireptr->n;
     /* optimization when editing small areas (detailed zoom)  of a huge schematic */
     if(LINE_OUTSIDE(wire[k].x1, wire[k].y1, wire[k].x2, wire[k].y2, x1, y1, x2, y2)) continue;
-    for(l = 0;l < 2;l++) {
+    for(l = 0;l < 2; ++l) {
       if(l==0 ) {
         if(wire[k].end1 !=-1) continue;
         wire[k].end1=0;
@@ -149,12 +149,12 @@ void trim_wires(void)
   do {
     /* dbg(1, "trim_wires(): start: %g\n", timer(1)); */
     changed = 0;
-    doloops++;
+    ++doloops;
     hash_wires(); /* end1 and end2 reset to -1 */
     /* dbg(1, "trim_wires(): hash_wires_1: %g\n", timer(1)); */
 
     /* break all wires */
-    for(i=0;i<xctx->wires;i++) {
+    for(i=0;i<xctx->wires; ++i) {
       int hashloopcnt = 0;
       x0 = xctx->wire[i].x1;
       y0 = xctx->wire[i].y1;
@@ -173,7 +173,7 @@ void trim_wires(void)
         }
         j = wptr->n;
         if(i == j) continue;
-        hashloopcnt++;
+        ++hashloopcnt;
         breaks = check_breaks(xctx->wire[j].x1, xctx->wire[j].y1, xctx->wire[j].x2, xctx->wire[j].y2, x0, y0);
         if(breaks) { /* wire[i] breaks wire[j] */
           dbg(2, "trim_wires(): %d (%g %g %g %g) breaks %d (%g %g %g %g) in (%g, %g)\n", i,
@@ -214,7 +214,7 @@ void trim_wires(void)
     /* reduce included wires */
     my_realloc(_ALLOC_ID_, &wireflag, xctx->wires*sizeof(unsigned short));
     memset(wireflag, 0, xctx->wires*sizeof(unsigned short));
-    for(i=0;i<xctx->wires;i++) {
+    for(i=0;i<xctx->wires; ++i) {
       if(wireflag[i]) continue;
       x0 = xctx->wire[i].x1;
       y0 = xctx->wire[i].y1;
@@ -250,10 +250,10 @@ void trim_wires(void)
   
     /* delete wires */
     j = 0;
-    for(i=0;i<xctx->wires;i++)
+    for(i=0;i<xctx->wires; ++i)
     {
       if(wireflag[i]) {
-        j++;
+        ++j;
         /* hash_wire(XDELETE, i, 0);*/ /* can not be done since wire deletions change wire idexes in array */
         my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
         my_free(_ALLOC_ID_, &xctx->wire[i].node);
@@ -278,7 +278,7 @@ void trim_wires(void)
     /* dbg(1, "trim_wires(): hash_wires_2: %g\n", timer(1)); */
 
     /* update endpoint (end1, end2) connection counters */
-    for(i=0;i<xctx->wires;i++) {
+    for(i=0;i<xctx->wires; ++i) {
       x0 = xctx->wire[i].x1;
       y0 = xctx->wire[i].y1;
       xctx->wire[i].end1 = xctx->wire[i].end2 = 0;
@@ -317,7 +317,7 @@ void trim_wires(void)
     /* dbg(1, "trim_wires(): endpoints: %g\n", timer(1)); */
   
     /* merge parallel touching (in wire[i].x2, wire[i].y2) wires */
-    for(i=0;i<xctx->wires;i++) {
+    for(i=0;i<xctx->wires; ++i) {
       if(wireflag[i]) continue;
       x0 = xctx->wire[i].x2;
       y0 = xctx->wire[i].y2;
@@ -345,11 +345,11 @@ void trim_wires(void)
   
     /* delete wires */
     j = 0;
-    for(i=0;i<xctx->wires;i++)
+    for(i=0;i<xctx->wires; ++i)
     {
       xctx->wire[i].end1 = xctx->wire[i].end2 = -1; /* reset all endpoints we recalculate all at end */
       if(wireflag[i]) {
-        j++;
+        ++j;
         /* hash_wire(XDELETE, i, 0);*/ /* can not be done since wire deletions change wire idexes in array */
         my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
         my_free(_ALLOC_ID_, &xctx->wire[i].node);
@@ -389,8 +389,8 @@ void break_wires_at_pins(void)
   /* xctx->need_reb_sel_arr=1; */ /* seems not needed */
   rebuild_selected_array();
 
-  /* for(k=0;k<xctx->instances;k++) */
-  for(j=0;j<xctx->lastsel;j++) if(xctx->sel_array[j].type==ELEMENT) {
+  /* for(k=0;k<xctx->instances; ++k) */
+  for(j=0;j<xctx->lastsel; ++j) if(xctx->sel_array[j].type==ELEMENT) {
     k = xctx->sel_array[j].n;
     if( (rects = (xctx->inst[k].ptr+ xctx->sym)->rects[PINLAYER]) > 0 )
     {
@@ -434,12 +434,12 @@ void break_wires_at_pins(void)
   /* xctx->prep_hash_wires=0; */
   /* hash_wires(); */
   rebuild_selected_array();
-  for(j=0;j<xctx->lastsel;j++) if(xctx->sel_array[j].type==WIRE) {
-  /* for(k=0; k < xctx->wires; k++) { */
+  for(j=0;j<xctx->lastsel; ++j) if(xctx->sel_array[j].type==WIRE) {
+  /* for(k=0; k < xctx->wires; ++k) { */
     int l;
 
     k = xctx->sel_array[j].n;
-    for(l=0;l<2;l++) {
+    for(l=0;l<2; ++l) {
       if(l==0 ) {
         x0 = xctx->wire[k].x1;
         y0 = xctx->wire[k].y1;

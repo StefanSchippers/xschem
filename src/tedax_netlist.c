@@ -33,7 +33,7 @@ static void tedax_netlist(FILE *fd, int tedax_stop )
     traverse_node_hash();  /* print all warnings about unconnected floatings etc */
   }
   if(!tedax_stop) {
-    for(i=0;i<xctx->instances;i++) /* print first ipin/opin defs ... */
+    for(i=0;i<xctx->instances; ++i) /* print first ipin/opin defs ... */
     {
      if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
      if(xctx->inst[i].ptr<0) continue;
@@ -45,7 +45,7 @@ static void tedax_netlist(FILE *fd, int tedax_stop )
        print_tedax_element(fd, i) ;  /* this is the element line  */
      }
     }
-    for(i=0;i<xctx->instances;i++) /* ... then print other lines */
+    for(i=0;i<xctx->instances; ++i) /* ... then print other lines */
     {
      if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
      if(xctx->inst[i].ptr<0) continue;
@@ -152,7 +152,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
  }
 
  /* netlist_options */
- for(i=0;i<xctx->instances;i++) {
+ for(i=0;i<xctx->instances; ++i) {
    if(!(xctx->inst[i].ptr+ xctx->sym)->type) continue;
    if( !strcmp((xctx->inst[i].ptr+ xctx->sym)->type,"netlist_options") ) {
      netlist_options(i);
@@ -176,7 +176,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
  warning_overlapped_symbols(0);
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(_ALLOC_ID_, xctx->instances, sizeof(unsigned int));
- for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].color;
+ for(i=0;i<xctx->instances; ++i) stored_flags[i] = xctx->inst[i].color;
 
  if(global) /* was if(global) ... 20180901 no hierarchical tEDAx netlist for now */
  {
@@ -192,7 +192,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
    xctx->currsch++;
 
     dbg(2, "global_tedax_netlist(): last defined symbol=%d\n",xctx->symbols);
-   for(i=0;i<xctx->symbols;i++)
+   for(i=0;i<xctx->symbols; ++i)
    {
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
@@ -216,7 +216,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
- for(i=0;i<xctx->instances; i++) xctx->inst[i].color = stored_flags[i];
+ for(i=0;i<xctx->instances; ++i) xctx->inst[i].color = stored_flags[i];
  propagate_hilights(1, 0, XINSERT_NOREPLACE);
  draw_hilight_net(1);
  my_free(_ALLOC_ID_, &stored_flags);

@@ -48,7 +48,7 @@ void hash_all_names(void)
   char *upinst = NULL, *type = NULL;
   int_hash_free(&xctx->inst_table);
   int_hash_init(&xctx->inst_table, HASHSIZE);
-  for(i=0; i<xctx->instances; i++) {
+  for(i=0; i<xctx->instances; ++i) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
       my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
       if(!type) continue;
@@ -112,7 +112,7 @@ void check_unique_names(int rename)
   int_hash_free(&xctx->inst_table);
   int_hash_init(&xctx->inst_table, HASHSIZE);
   first = 1;
-  for(i=0;i<xctx->instances;i++) {
+  for(i=0;i<xctx->instances; ++i) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
       my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
       if(!type) continue;
@@ -164,7 +164,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
  int i,found;
 
  found=0;
- for(i=0;i<xctx->symbols;i++)
+ for(i=0;i<xctx->symbols; ++i)
  {
   /* dbg(1, "match_symbol(): name=%s, sym[i].name=%s\n",name, xctx->sym[i].name);*/
   if(xctx->x_strcmp(name, xctx->sym[i].name) == 0)
@@ -808,7 +808,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
     Int_hashtable table = {NULL, 0};
     int first = 1;
     int_hash_init(&table, 37);
-    for(i=0;i<no_of_pins;i++)
+    for(i=0;i<no_of_pins; ++i)
     {
       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
       if(strcmp(get_tok_value(prop,"vhdl_ignore",0), "true")) {
@@ -824,7 +824,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
     int_hash_free(&table);
    }
    else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
-    for(i=0;i<no_of_pins;i++) {
+    for(i=0;i<no_of_pins; ++i) {
      xSymbol *ptr = xctx->inst[inst].ptr + xctx->sym;
      if(!strcmp( get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"name",0), token+2)) {
        if(strcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
@@ -1227,7 +1227,7 @@ void print_vhdl_element(FILE *fd, int inst)
       dbg(2, "print_vhdl_element(): printing generic maps \n");
 
      /* print generic map */
-     for(i=0;i<no_of_generics;i++)
+     for(i=0;i<no_of_generics; ++i)
      {
        my_strdup(_ALLOC_ID_, &generic_type,get_tok_value(
          (xctx->inst[inst].ptr + xctx->sym)->rect[GENERICLAYER][i].prop_ptr,"type",0));
@@ -1252,7 +1252,7 @@ void print_vhdl_element(FILE *fd, int inst)
   tmp=0;
   pinptr = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER];
   int_hash_init(&table, 37);
-  for(i=0;i<no_of_pins;i++)
+  for(i=0;i<no_of_pins; ++i)
   {
     if(strcmp(get_tok_value(pinptr[i].prop_ptr,"vhdl_ignore",0), "true")) {
       const char *name = get_tok_value(pinptr[i].prop_ptr, "name", 0);
@@ -1367,7 +1367,7 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
    }
   }
 
-  for(i=0;i<xctx->sym[symbol].rects[GENERICLAYER];i++)
+  for(i=0;i<xctx->sym[symbol].rects[GENERICLAYER]; ++i)
   {
     my_strdup(_ALLOC_ID_, &generic_type,
        get_tok_value(xctx->sym[symbol].rect[GENERICLAYER][i].prop_ptr,"generic_type",0));
@@ -1489,7 +1489,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
 
   no_of_pins= xctx->sym[symbol].rects[PINLAYER];
 
-  for(i=0;i<no_of_pins;i++)
+  for(i=0;i<no_of_pins; ++i)
   {
     if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
       str_ptr=
@@ -1574,7 +1574,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
    else if(strcmp(token, "@pinlist")==0) {
     Int_hashtable table = {NULL, 0};
     int_hash_init(&table, 37);
-    for(i=0;i<no_of_pins;i++)
+    for(i=0;i<no_of_pins; ++i)
     {
       if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
         const char *name = get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0);
@@ -1588,7 +1588,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
    }
    else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
      char *prop=NULL;
-     for(i = 0; i<no_of_pins; i++) {
+     for(i = 0; i<no_of_pins; ++i) {
        prop = xctx->sym[symbol].rect[PINLAYER][i].prop_ptr;
        if(!strcmp(get_tok_value(prop, "name",0), token + 2)) break;
      }
@@ -1830,7 +1830,7 @@ int print_spice_element(FILE *fd, int inst)
       {                                    /* and node number: m1 n1 m2 n2 .... */
         Int_hashtable table = {NULL, 0};
         int_hash_init(&table, 37);
-        for(i=0;i<no_of_pins;i++)
+        for(i=0;i<no_of_pins; ++i)
         {
           char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
           int spice_ignore = !strcmp(get_tok_value(prop, "spice_ignore", 0), "true");
@@ -1849,7 +1849,7 @@ int print_spice_element(FILE *fd, int inst)
         int_hash_free(&table);
       }
       else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
-        for(i=0;i<no_of_pins;i++) {
+        for(i=0;i<no_of_pins; ++i) {
           char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
           if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
             if(strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
@@ -2016,14 +2016,14 @@ void print_tedax_element(FILE *fd, int inst)
    subcircuit = 1;
    fprintf(fd, "__subcircuit__ %s %s\n", skip_dir(xctx->inst[inst].name), xctx->inst[inst].instname);
    int_hash_init(&table, 37);
-   for(i=0;i<no_of_pins; i++) {
+   for(i=0;i<no_of_pins; ++i) {
      my_strdup2(_ALLOC_ID_, &net, net_name(inst,i, &net_mult, 0, 1));
      my_strdup2(_ALLOC_ID_, &pinname, 
        get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0));
      my_strdup2(_ALLOC_ID_, &pin, expandlabel(pinname, &pin_mult));
      if(!int_hash_lookup(&table, pinname, 1, XINSERT_NOREPLACE)) {
        dbg(1, "#net=%s pinname=%s pin=%s net_mult=%d pin_mult=%d\n", net, pinname, pin, net_mult, pin_mult);
-       for(n = 0; n < net_mult; n++) {
+       for(n = 0; n < net_mult; ++n) {
          my_strdup(_ALLOC_ID_, &netbit, find_nth(net, ",", n+1));
          my_strdup(_ALLOC_ID_, &pinbit, find_nth(pin, ",", n+1));
          fprintf(fd, "__map__ %s -> %s\n", 
@@ -2053,7 +2053,7 @@ void print_tedax_element(FILE *fd, int inst)
 
  if(!subcircuit) {
    fprintf(fd, "begin_inst %s numslots %s\n", name, numslots);
-   for(i=0;i<no_of_pins; i++) {
+   for(i=0;i<no_of_pins; ++i) {
      char *pinnumber;
      pinnumber = get_pin_attr_from_inst(inst, i, "pinnumber");
      if(!pinnumber) {
@@ -2095,7 +2095,7 @@ void print_tedax_element(FILE *fd, int inst)
        if(!extra_token_val[0]) extra_token_val="--UNDEF--";
   
        fprintf(fd, "conn %s %s %s %s %d", name, extra_token_val, extra_token, extra_pinnumber_token, i+1);
-       i++;
+       ++i;
        if(instance_based) fprintf(fd, " # instance_based");
        fprintf(fd,"\n");
      }
@@ -2177,7 +2177,7 @@ void print_tedax_element(FILE *fd, int inst)
     else if(strcmp(token,"@pinlist")==0)
                                         /* print multiplicity */
     {                                   /* and node number: m1 n1 m2 n2 .... */
-     for(i=0;i<no_of_pins;i++)
+     for(i=0;i<no_of_pins; ++i)
      {
        str_ptr =  net_name(inst,i, &multip, 0, 1);
        /* fprintf(errfp, "inst: %s  --> %s\n", name, str_ptr); */
@@ -2185,7 +2185,7 @@ void print_tedax_element(FILE *fd, int inst)
      }
     }
     else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
-     for(i=0;i<no_of_pins;i++) {
+     for(i=0;i<no_of_pins; ++i) {
       if(!strcmp(
            get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0),
            token+2
@@ -2416,7 +2416,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
      Int_hashtable table = {NULL, 0};
      int first = 1;
      int_hash_init(&table, 37);
-     for(i=0;i<no_of_pins;i++) {
+     for(i=0;i<no_of_pins; ++i) {
        if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
          const char *name = get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0);
          if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
@@ -2430,7 +2430,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
      int_hash_free(&table);
     }
     else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
-     for(i=0;i<no_of_pins;i++) {
+     for(i=0;i<no_of_pins; ++i) {
       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
       if(!strcmp( get_tok_value(prop,"name",0), token+2)) {
         str_ptr =  net_name(inst,i, &multip, 0, 1);
@@ -2589,7 +2589,7 @@ void print_verilog_element(FILE *fd, int inst)
        if(strcmp(token,"spice_ignore") && strcmp(token,"vhdl_ignore") && strcmp(token,"tedax_ignore")) {
          if(tmp == 0) {
            fprintf(fd, "#(\n---- start parameters\n");
-           tmp++;
+           ++tmp;
            tmp1=0;
          }
          /* skip attributes of type time (delay="20 ns") that have VHDL syntax */
@@ -2626,7 +2626,7 @@ void print_verilog_element(FILE *fd, int inst)
  /* print port map */
  tmp=0;
  int_hash_init(&table, 37);
- for(i=0;i<no_of_pins;i++)
+ for(i=0;i<no_of_pins; ++i)
  {
    xSymbol *ptr = xctx->inst[inst].ptr + xctx->sym;
    if(strcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
@@ -2691,7 +2691,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
  {
    my_strdup(_ALLOC_ID_, &pinname, get_tok_value( sym->rect[PINLAYER][j].prop_ptr,"name",0));
    /* before reporting unconnected pin try to locate duplicated pin and use it if found */
-   for(k = 0; k < no_of_pins; k++) {
+   for(k = 0; k < no_of_pins; ++k) {
      const char *duplicated_pinname;
      if(k == j) continue;
      duplicated_pinname =  get_tok_value( sym->rect[PINLAYER][k].prop_ptr,"name",0);
@@ -2760,7 +2760,7 @@ int isonlydigit(const char *s)
     if(s == NULL || *s == '\0') return 0;
     while( (c = *s) ) {
      if(c < '0' || c > '9') return 0;
-     s++;
+     ++s;
     }
     return 1;
 }
@@ -2791,17 +2791,17 @@ char *find_nth(const char *str, const char *sep, int n)
   i = 0;
   while(result[i] && strchr(sep, result[i])) i++; /* strip off leading separators */
   ptr = result + i;
-  for(count=1; result[i] != 0; i++) {
+  for(count=1; result[i] != 0; ++i) {
     if(strchr(sep, result[i])) {
       result[i]=0;
       if(count==n) {
         dbg(1, "1 find_nth(): returning %s\n", ptr);
         return ptr;
       }
-      i++;
+      ++i;
       while(result[i] && strchr(sep, result[i])) i++;
       ptr = result + i;
-      count++;
+      ++count;
     }
   }
   if(count==n) {
@@ -2910,7 +2910,7 @@ const char *translate(int inst, const char* s)
      int i, multip;
      int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
      prepare_netlist_structs(0);
-     for(i=0;i<no_of_pins;i++) {
+     for(i=0;i<no_of_pins; ++i) {
        char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
        if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
          if(strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
@@ -2935,7 +2935,7 @@ const char *translate(int inst, const char* s)
        n = atoi(pin_num_or_name);
      }
      else if(pin_num_or_name[0]) {
-       for(n = 0 ; n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]; n++) {
+       for(n = 0 ; n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]; ++n) {
          char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
          if(!strcmp(get_tok_value(prop,"name",0), pin_num_or_name)) break;
        }
@@ -3067,7 +3067,7 @@ const char *translate(int inst, const char* s)
            /* skip path components that are above the level where raw file was loaded */
            while(*path && skip < start_level) {
              if(*path == '.') skip++;
-             path++;
+             ++path;
            }
            prepare_netlist_structs(0);
            if(pin_prop_ptr) net = get_tok_value(pin_prop_ptr, "lab", 0);
@@ -3120,7 +3120,7 @@ const char *translate(int inst, const char* s)
          /* skip path components that are above the level where raw file was loaded */
          while(*path && skip < start_level) {
            if(*path == '.') skip++;
-           path++;
+           ++path;
          }
          net = my_malloc(_ALLOC_ID_, tmp);
          n = sscanf(token + 19, "%[^)]", net);
@@ -3173,7 +3173,7 @@ const char *translate(int inst, const char* s)
          /* skip path components that are above the level where raw file was loaded */
          while(*path && skip < start_level) {
            if(*path == '.') skip++;
-           path++;
+           ++path;
          }
          dev = my_malloc(_ALLOC_ID_, tmp);
          n = sscanf(token + 19, "%[^)]", dev);
@@ -3242,7 +3242,7 @@ const char *translate(int inst, const char* s)
            /* skip path components that are above the level where raw file was loaded */
            while(*path && skip < start_level) {
              if(*path == '.') skip++;
-             path++;
+             ++path;
            }
            prepare_netlist_structs(0);
            net1 = net_name(inst, 0, &multip, 0, 0);
@@ -3305,7 +3305,7 @@ const char *translate(int inst, const char* s)
          /* skip path components that are above the level where raw file was loaded */
          while(*path && skip < start_level) {
            if(*path == '.') skip++;
-           path++;
+           ++path;
          }
          my_strdup2(_ALLOC_ID_, &dev, xctx->inst[inst].instname);
          strtolower(dev);
@@ -3537,7 +3537,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
         my_strdup2(_ALLOC_ID_, &path, "@path@name\\.");
         if(level > 1) { /* add parent LCC instance names (X1, Xinv etc) */
           int i;
-          for(i = 1; i <level; i++) {
+          for(i = 1; i <level; ++i) {
             const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
             my_strcat(_ALLOC_ID_, &path, instname);
             my_strcat(_ALLOC_ID_, &path, ".");

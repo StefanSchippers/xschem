@@ -56,7 +56,7 @@ unsigned int hash_file(const char *f, int skip_path_lines)
         }
       }
       n = strlen(line);
-      for(i = 0; i < n; i++) {
+      for(i = 0; i < n; ++i) {
         /* skip CRs so hashes will match on unix / windows */
         if(line[i] == '\r') {
           cr = 1;
@@ -484,8 +484,8 @@ void remove_symbol(int j)
   my_free(_ALLOC_ID_, &xctx->sym[j].type);
   my_free(_ALLOC_ID_, &xctx->sym[j].name);
   /*  /20150409 */
-  for(c=0;c<cadlayers;c++) {
-    for(i=0;i<xctx->sym[j].polygons[c];i++) {
+  for(c=0;c<cadlayers; ++c) {
+    for(i=0;i<xctx->sym[j].polygons[c]; ++i) {
       if(xctx->sym[j].poly[c][i].prop_ptr != NULL) {
         my_free(_ALLOC_ID_, &xctx->sym[j].poly[c][i].prop_ptr);
       }
@@ -496,7 +496,7 @@ void remove_symbol(int j)
     my_free(_ALLOC_ID_, &xctx->sym[j].poly[c]);
     xctx->sym[j].polygons[c] = 0;
  
-    for(i=0;i<xctx->sym[j].lines[c];i++) {
+    for(i=0;i<xctx->sym[j].lines[c]; ++i) {
       if(xctx->sym[j].line[c][i].prop_ptr != NULL) {
         my_free(_ALLOC_ID_, &xctx->sym[j].line[c][i].prop_ptr);
       }
@@ -504,7 +504,7 @@ void remove_symbol(int j)
     my_free(_ALLOC_ID_, &xctx->sym[j].line[c]);
     xctx->sym[j].lines[c] = 0;
  
-    for(i=0;i<xctx->sym[j].arcs[c];i++) {
+    for(i=0;i<xctx->sym[j].arcs[c]; ++i) {
       if(xctx->sym[j].arc[c][i].prop_ptr != NULL) {
         my_free(_ALLOC_ID_, &xctx->sym[j].arc[c][i].prop_ptr);
       }
@@ -512,7 +512,7 @@ void remove_symbol(int j)
     my_free(_ALLOC_ID_, &xctx->sym[j].arc[c]);
     xctx->sym[j].arcs[c] = 0;
  
-    for(i=0;i<xctx->sym[j].rects[c];i++) {
+    for(i=0;i<xctx->sym[j].rects[c]; ++i) {
       if(xctx->sym[j].rect[c][i].prop_ptr != NULL) {
         my_free(_ALLOC_ID_, &xctx->sym[j].rect[c][i].prop_ptr);
       }
@@ -521,7 +521,7 @@ void remove_symbol(int j)
     my_free(_ALLOC_ID_, &xctx->sym[j].rect[c]);
     xctx->sym[j].rects[c] = 0;
   }
-  for(i=0;i<xctx->sym[j].texts;i++) {
+  for(i=0;i<xctx->sym[j].texts; ++i) {
     if(xctx->sym[j].text[i].prop_ptr != NULL) {
       my_free(_ALLOC_ID_, &xctx->sym[j].text[i].prop_ptr);
     }
@@ -536,7 +536,7 @@ void remove_symbol(int j)
   xctx->sym[j].texts = 0;
 
   save = xctx->sym[j]; /* save cleared symbol slot */
-  for(i = j + 1; i < xctx->symbols; i++) {
+  for(i = j + 1; i < xctx->symbols; ++i) {
     xctx->sym[i-1] = xctx->sym[i];
   }
   xctx->sym[xctx->symbols-1] = save; /* fill end with cleared symbol slot */
@@ -547,7 +547,7 @@ void remove_symbols(void)
 {
   int j;
 
-  for(j = 0; j < xctx->instances; j++) {
+  for(j = 0; j < xctx->instances; ++j) {
     delete_inst_node(j); /* must be deleted before symbols are deleted */
     xctx->inst[j].ptr = -1; /* clear symbol reference on instanecs */
   }
@@ -649,13 +649,13 @@ void clear_drawing(void)
  my_free(_ALLOC_ID_, &xctx->version_string);
  if(xctx->header_text) my_free(_ALLOC_ID_, &xctx->header_text);
  my_free(_ALLOC_ID_, &xctx->schverilogprop);
- for(i=0;i<xctx->wires;i++)
+ for(i=0;i<xctx->wires; ++i)
  {
   my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
   my_free(_ALLOC_ID_, &xctx->wire[i].node);
  }
  xctx->wires = 0;
- for(i=0;i<xctx->instances;i++)
+ for(i=0;i<xctx->instances; ++i)
  {
   my_free(_ALLOC_ID_, &xctx->inst[i].prop_ptr);
   my_free(_ALLOC_ID_, &xctx->inst[i].name);
@@ -664,29 +664,29 @@ void clear_drawing(void)
   delete_inst_node(i);
  }
  xctx->instances = 0;
- for(i=0;i<xctx->texts;i++)
+ for(i=0;i<xctx->texts; ++i)
  {
   my_free(_ALLOC_ID_, &xctx->text[i].font);
   my_free(_ALLOC_ID_, &xctx->text[i].prop_ptr);
   my_free(_ALLOC_ID_, &xctx->text[i].txt_ptr);
  }
  xctx->texts = 0;
- for(i=0;i<cadlayers;i++)
+ for(i=0;i<cadlayers; ++i)
  {
-  for(j=0;j<xctx->lines[i];j++)
+  for(j=0;j<xctx->lines[i]; ++j)
   {
    my_free(_ALLOC_ID_, &xctx->line[i][j].prop_ptr);
   }
-  for(j=0;j<xctx->rects[i];j++)
+  for(j=0;j<xctx->rects[i]; ++j)
   {
    my_free(_ALLOC_ID_, &xctx->rect[i][j].prop_ptr);
    set_rect_extraptr(0, &xctx->rect[i][j]);
   }
-  for(j=0;j<xctx->arcs[i];j++)
+  for(j=0;j<xctx->arcs[i]; ++j)
   {
    my_free(_ALLOC_ID_, &xctx->arc[i][j].prop_ptr);
   }
-  for(j=0;j<xctx->polygons[i]; j++) {
+  for(j=0;j<xctx->polygons[i]; ++j) {
     my_free(_ALLOC_ID_, &xctx->poly[i][j].x);
     my_free(_ALLOC_ID_, &xctx->poly[i][j].y);
     my_free(_ALLOC_ID_, &xctx->poly[i][j].prop_ptr);
@@ -707,7 +707,7 @@ void enable_layers(void)
   char tmp[50];
   const char *en;
   xctx->n_active_layers = 0;
-  for(i = 0; i< cadlayers; i++) {
+  for(i = 0; i< cadlayers; ++i) {
     my_snprintf(tmp, S(tmp), "enable_layer(%d)",i);
     en = tclgetvar(tmp);
     if(!en || en[0] == '0') xctx->enable_layer[i] = 0;
@@ -737,7 +737,7 @@ short connect_by_kissing(void)
   rebuild_selected_array();
   k = xctx->lastsel;
   prepare_netlist_structs(0);
-  for(j=0;j<k;j++) if(xctx->sel_array[j].type==ELEMENT) {
+  for(j=0;j<k; ++j) if(xctx->sel_array[j].type==ELEMENT) {
     x0 = xctx->inst[xctx->sel_array[j].n].x0;
     y0 = xctx->inst[xctx->sel_array[j].n].y0;
     rot = xctx->inst[xctx->sel_array[j].n].rot;
@@ -745,7 +745,7 @@ short connect_by_kissing(void)
     symbol = xctx->sym + xctx->inst[xctx->sel_array[j].n].ptr;
     npin = symbol->rects[PINLAYER];
     rct=symbol->rect[PINLAYER];
-    for(i=0;i<npin;i++) {
+    for(i=0;i<npin; ++i) {
       pinx0 = (rct[i].x1+rct[i].x2)/2;
       piny0 = (rct[i].y1+rct[i].y2)/2;
       ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, pinx0, piny0);
@@ -832,7 +832,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
     k = xctx->lastsel;
     first_call=1; /*  20171214 for place_symbol--> new_prop_string */
     prepare_netlist_structs(0);
-    for(j=0;j<k;j++) if(xctx->sel_array[j].type==ELEMENT) {
+    for(j=0;j<k; ++j) if(xctx->sel_array[j].type==ELEMENT) {
       found=1;
       my_strdup(_ALLOC_ID_, &prop, xctx->inst[xctx->sel_array[j].n].instname);
       my_strcat(_ALLOC_ID_, &prop, "_");
@@ -876,7 +876,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
       npin = symbol->rects[PINLAYER];
       rct=symbol->rect[PINLAYER];
   
-      for(i=0;i<npin;i++) {
+      for(i=0;i<npin; ++i) {
          my_strdup(_ALLOC_ID_, &labname,get_tok_value(rct[i].prop_ptr,"name",1));
          dbg(1,"attach_labels_to_inst(): 2 --> labname=%s\n", labname);
   
@@ -1480,30 +1480,30 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  boundbox->x2=100;
  boundbox->y1=-100;
  boundbox->y2=100;
- if(selected != 2) for(c=0;c<cadlayers;c++)
+ if(selected != 2) for(c=0;c<cadlayers; ++c)
  {
   const char *tmp = tclgetvar("hide_empty_graphs");
   int hide_graphs =  (tmp && tmp[0] == '1') ? 1 : 0;
   int waves = (sch_waves_loaded() >= 0);
 
-  for(i=0;i<xctx->lines[c];i++)
+  for(i=0;i<xctx->lines[c]; ++i)
   {
    if(selected == 1 && !xctx->line[c][i].sel) continue;
    rect.x1=xctx->line[c][i].x1;
    rect.x2=xctx->line[c][i].x2;
    rect.y1=xctx->line[c][i].y1;
    rect.y2=xctx->line[c][i].y2;
-   count++;
+   ++count;
    updatebbox(count,boundbox,&rect);
   }
 
-  for(i=0;i<xctx->polygons[c];i++)
+  for(i=0;i<xctx->polygons[c]; ++i)
   {
     double x1=0., y1=0., x2=0., y2=0.;
     int k;
     if(selected == 1 && !xctx->poly[c][i].sel) continue;
-    count++;
-    for(k=0; k<xctx->poly[c][i].points; k++) {
+    ++count;
+    for(k=0; k<xctx->poly[c][i].points; ++k) {
       /* fprintf(errfp, "  poly: point %d: %.16g %.16g\n", k, pp[c][i].x[k], pp[c][i].y[k]); */
       if(k==0 || xctx->poly[c][i].x[k] < x1) x1 = xctx->poly[c][i].x[k];
       if(k==0 || xctx->poly[c][i].y[k] < y1) y1 = xctx->poly[c][i].y[k];
@@ -1514,16 +1514,16 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
     updatebbox(count,boundbox,&rect);
   }
 
-  for(i=0;i<xctx->arcs[c];i++)
+  for(i=0;i<xctx->arcs[c]; ++i)
   {
     if(selected == 1 && !xctx->arc[c][i].sel) continue;
     arc_bbox(xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b,
              &rect.x1, &rect.y1, &rect.x2, &rect.y2);
-    count++;
+    ++count;
     updatebbox(count,boundbox,&rect);
   }
 
-  for(i=0;i<xctx->rects[c];i++)
+  for(i=0;i<xctx->rects[c]; ++i)
   {
    if(selected == 1 && !xctx->rect[c][i].sel) continue;
    /* skip graph objects if no datafile loaded */
@@ -1534,12 +1534,12 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
    rect.x2=xctx->rect[c][i].x2;
    rect.y1=xctx->rect[c][i].y1;
    rect.y2=xctx->rect[c][i].y2;
-   count++;
+   ++count;
    updatebbox(count,boundbox,&rect);
   }
  }
  if(selected == 2 && xctx->hilight_nets) prepare_netlist_structs(0);
- for(i=0;i<xctx->wires;i++)
+ for(i=0;i<xctx->wires; ++i)
  {
    double ov, y1, y2;
    if(selected == 1 && !xctx->wire[i].sel) continue;
@@ -1564,10 +1564,10 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
    rect.x2 = xctx->wire[i].x2+ov;
    rect.y1 = y1;
    rect.y2 = y2;
-   count++;
+   ++count;
    updatebbox(count,boundbox,&rect);
  }
- if(has_x && selected != 2) for(i=0;i<xctx->texts;i++)
+ if(has_x && selected != 2) for(i=0;i<xctx->texts; ++i)
  { 
    int no_of_lines; 
    double longest_line;
@@ -1580,7 +1580,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
          xctx->text[i].hcenter, xctx->text[i].vcenter,
          xctx->text[i].x0, xctx->text[i].y0,
          &rect.x1,&rect.y1, &rect.x2,&rect.y2, &no_of_lines, &longest_line) ) {
-     count++;
+     ++count;
      updatebbox(count,boundbox,&rect);
    }
    #if HAS_CAIRO==1
@@ -1589,7 +1589,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
    }
    #endif
  }
- for(i=0;i<xctx->instances;i++)
+ for(i=0;i<xctx->instances; ++i)
  {
   char *type;
   Hilight_hashentry *entry;
@@ -1616,7 +1616,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
   rect.y1=xctx->inst[i].y1;
   rect.x2=xctx->inst[i].x2;
   rect.y2=xctx->inst[i].y2;
-  count++;
+  ++count;
   updatebbox(count,boundbox,&rect);
  }
 }
@@ -1825,7 +1825,7 @@ void draw_stuff(void)
    for(xctx->rectcolor = 4; xctx->rectcolor < cadlayers; xctx->rectcolor++) {
    #else
    #endif
-     for(i = 0; i < n; i++)
+     for(i = 0; i < n; ++i)
       {
        w=(xctx->areaw*xctx->zoom/800) * rand() / (RAND_MAX+1.0);
        h=(xctx->areah*xctx->zoom/80) * rand() / (RAND_MAX+1.0);
@@ -1842,7 +1842,7 @@ void draw_stuff(void)
        #endif
      }
   
-     for(i = 0; i < n; i++)
+     for(i = 0; i < n; ++i)
       {
        w=(xctx->areaw*xctx->zoom/80) * rand() / (RAND_MAX+1.0);
        h=(xctx->areah*xctx->zoom/800) * rand() / (RAND_MAX+1.0);
@@ -1859,7 +1859,7 @@ void draw_stuff(void)
        #endif
      }
   
-     for(i = 0; i < n; i++)
+     for(i = 0; i < n; ++i)
      {
        w=xctx->zoom * rand() / (RAND_MAX+1.0);
        h=w;
@@ -2079,7 +2079,7 @@ void change_layer()
 
 
    if(xctx->lastsel) xctx->push_undo();
-   for(k=0;k<xctx->lastsel;k++)
+   for(k=0;k<xctx->lastsel; ++k)
    {
      n=xctx->sel_array[k].n;
      type=xctx->sel_array[k].type;
@@ -2120,7 +2120,7 @@ void change_layer()
          p = xctx->text[n].prop_ptr;
          while(*p) {
            if(*p == '\n') *p = ' ';
-           p++;
+           ++p;
          }
        }
      }
@@ -2431,7 +2431,7 @@ int text_bbox(const char *str, double xscale, double yscale,
   while( s && s[c] ) {
     if(s[c] == '\n') {
       s[c]='\0';
-      hh++;
+      ++hh;
       (*cairo_lines)++;
       if(str_ptr[0]!='\0') {
         cairo_text_extents(xctx->cairo_ctx, str_ptr, &ext);
@@ -2442,7 +2442,7 @@ int text_bbox(const char *str, double xscale, double yscale,
       str_ptr = s+c+1;
     } else {
     }
-    c++;
+    ++c;
   }
   if(str_ptr && str_ptr[0]!='\0') {
     cairo_text_extents(xctx->cairo_ctx, str_ptr, &ext);

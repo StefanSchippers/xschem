@@ -95,7 +95,7 @@ int main(int argc, char **argv)
 
   cli_opt_argc = argc;
   cli_opt_argv = my_malloc(_ALLOC_ID_, cli_opt_argc * sizeof(char *));
-  for(i = 0; i < cli_opt_argc; i++) {
+  for(i = 0; i < cli_opt_argc; ++i) {
     cli_opt_argv[i] = NULL;
     my_strdup(_ALLOC_ID_, &cli_opt_argv[i], argv[i]);
   }

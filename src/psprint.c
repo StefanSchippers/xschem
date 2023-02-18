@@ -228,7 +228,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   fprintf(fd, "} exec\n");
 
   #if 1  /* break lines */
-  for (i = 0; i < oLength; i++)
+  for (i = 0; i < oLength; ++i)
   {
     fputc(ascii85EncodedJpeg[i],fd);
     if(i > 0 && (i % 64) == 0)
@@ -315,7 +315,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   cairo_set_source_surface(ct, xctx->cairo_save_sfc, 0, 0);
   cairo_set_operator(ct, CAIRO_OPERATOR_SOURCE);
   cairo_paint(ct);
-  for (i = 0; i < xctx->rects[GRIDLAYER]; i++) {
+  for (i = 0; i < xctx->rects[GRIDLAYER]; ++i) {
     xRect* r2 = &xctx->rect[GRIDLAYER][i];
     if (r2->flags & 1) {
       setup_graph_data(i, 8, 0, &xctx->graph_struct);
@@ -360,7 +360,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   fprintf(fd, "} exec\n");
 
   #if 1 /* break lines */
-  for (i = 0; i < oLength; i++)
+  for (i = 0; i < oLength; ++i)
   {
     fputc(ascii85EncodedJpeg[i],fd);
     if(i > 0 && (i % 64) == 0) 
@@ -450,7 +450,7 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points, in
   if(dash) {
     fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
   }
-  for(i=0;i<points; i++) {
+  for(i=0;i<points; ++i) {
     xx = X_TO_PS(x[i]);
     yy = Y_TO_PS(y[i]);
     if(i==0) fprintf(fd, "NP\n%g %g MT\n", xx, yy);
@@ -603,7 +603,7 @@ static void ps_draw_string_line(int layer, char *s, double x, double y, double s
       default:
        fputc(c, fd);
     }
-    s++;
+    ++s;
   }
   fprintf(fd, ")\n");
   if     (rot==1 && flip==0) {fprintf(fd, "dup SW pop neg 0 RMT\n");}
@@ -679,15 +679,15 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
       *ss='\0';
       ps_draw_string_line(layer, tt, x, y, size, rot, flip, lineno, 
               height, ascent, descent, llength, no_of_lines, longest_line);
-      lineno++;
+      ++lineno;
       if(c==0) break;
       *ss='\n';
       tt=ss+1;
       llength=0;
     } else {
-      llength++;
+      ++llength;
     }
-    ss++;
+    ++ss;
   }
   my_free(_ALLOC_ID_, &sss);
 }
@@ -743,7 +743,7 @@ static void old_ps_draw_string(int gctext,  const char *str,
    ORDER(rx1,ry1,rx2,ry2);
    ps_drawline(gctext,  rx1, ry1, rx2, ry2, 0);
   }
-  pos++;
+  ++pos;
  }
 }
 
@@ -779,7 +779,7 @@ static void ps_drawgrid()
 
 static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot, double xoffset, double yoffset)
                             /* draws current layer only, should be called within  */
-{                           /* a "for(i=0;i<cadlayers;i++)" loop */
+{                           /* a "for(i=0;i<cadlayers; ++i)" loop */
  int j, hide = 0;
  double x0,y0,x1,y1,x2,y2;
  short flip; 
@@ -841,7 +841,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
   x0=xctx->inst[n].x0 + xoffset;
   y0=xctx->inst[n].y0 + yoffset;
   symptr = (xctx->inst[n].ptr+ xctx->sym);
-   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->lines[layer];j++)
+   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->lines[layer]; ++j)
    {
     line = ((xctx->inst[n].ptr+ xctx->sym)->line[layer])[j];
     ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
@@ -849,14 +849,14 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
     ORDER(x1,y1,x2,y2);
     ps_drawline(layer, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
    }
-   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->polygons[layer];j++)
+   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->polygons[layer]; ++j)
    {
      polygon = ((xctx->inst[n].ptr+ xctx->sym)->poly[layer])[j];
      {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
        int k;
        double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
        double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
-       for(k=0;k<polygon.points;k++) {
+       for(k=0;k<polygon.points; ++k) {
          ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
          x[k]+= x0;
          y[k] += y0;
@@ -867,7 +867,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
      }
 
    }
-   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->arcs[layer];j++)
+   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->arcs[layer]; ++j)
    {
      double angle;
      arc = ((xctx->inst[n].ptr+ xctx->sym)->arc[layer])[j];
@@ -881,7 +881,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
      ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
      ps_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
    }
-   if( xctx->enable_layer[layer] ) for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer];j++)
+   if( xctx->enable_layer[layer] ) for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer]; ++j)
    {
       rect = ((xctx->inst[n].ptr+ xctx->sym)->rect[layer])[j];
       ROTATION(rot, flip, 0.0,0.0,rect.x1,rect.y1,x1,y1);
@@ -898,7 +898,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
         (xctx->sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) )
    {
     const char *txtptr;
-    for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->texts;j++)
+    for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->texts; ++j)
     {
      text = (xctx->inst[n].ptr+ xctx->sym)->text[j];
      /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
@@ -958,7 +958,7 @@ static void fill_ps_colors()
   *   tcleval( "puts $ps_colors");
   * }
   */
- for(i=0;i<cadlayers;i++) {
+ for(i=0;i<cadlayers; ++i) {
    my_snprintf(s, S(s), "lindex $ps_colors %u", i);
    tcleval( s);
    sscanf(tclresult(),"%x", &c);
@@ -1038,10 +1038,10 @@ void create_ps(char **psfile, int what)
     fprintf(fd, "%%%%EndComments\n");
     fprintf(fd, "%%%%BeginProlog\n\n");
   
-    for(i = 0; i < sizeof(utf8_enc)/sizeof(char *); i++) {
+    for(i = 0; i < sizeof(utf8_enc)/sizeof(char *); ++i) {
       fprintf(fd, "%s", utf8_enc[i]);
     }
-    for(i = 0; i < sizeof(utf8)/sizeof(char *); i++) {
+    for(i = 0; i < sizeof(utf8)/sizeof(char *); ++i) {
       fprintf(fd, "%s", utf8[i]);
     }
   
@@ -1082,7 +1082,7 @@ void create_ps(char **psfile, int what)
 
 
   if(what & 2) { /* page */
-    numpages++;
+    ++numpages;
     fprintf(fd, "%%%%BeginSetup\n");
     fprintf(fd, "<< /PageSize [%g %g] /Orientation 0 >> setpagedevice\n", pagex, pagey);
     fprintf(fd, "%%%%Page: %d %d\n\n", numpages, numpages);
@@ -1112,7 +1112,7 @@ void create_ps(char **psfile, int what)
     set_lw();
     ps_drawgrid();
   
-    for(i=0;i<xctx->texts;i++)
+    for(i=0;i<xctx->texts; ++i)
     {
       textlayer = xctx->text[i].layer;
       if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
@@ -1149,13 +1149,13 @@ void create_ps(char **psfile, int what)
           xctx->text[i].xscale, xctx->text[i].yscale);
       }
     }
-    for(c=0;c<cadlayers;c++)
+    for(c=0;c<cadlayers; ++c)
     {
       set_ps_colors(c);
-      for(i=0;i<xctx->lines[c];i++)
+      for(i=0;i<xctx->lines[c]; ++i)
         ps_drawline(c, xctx->line[c][i].x1, xctx->line[c][i].y1,
           xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
-      for(i=0;i<xctx->rects[c];i++)
+      for(i=0;i<xctx->rects[c]; ++i)
       {
         
         if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1024)) { /* image */
@@ -1173,20 +1173,20 @@ void create_ps(char **psfile, int what)
             xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash, xctx->rect[c][i].fill);
         }
       }
-      for(i=0;i<xctx->arcs[c];i++)
+      for(i=0;i<xctx->arcs[c]; ++i)
       {
         ps_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y, 
           xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].dash);
       }
-      for(i=0;i<xctx->polygons[c];i++) {
+      for(i=0;i<xctx->polygons[c]; ++i) {
         ps_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
           xctx->poly[c][i].fill, xctx->poly[c][i].dash);
       }
-      for(i=0;i<xctx->instances;i++)
+      for(i=0;i<xctx->instances; ++i)
         ps_draw_symbol(i,c,what,0,0,0.0,0.0);
     }
     set_ps_colors(WIRELAYER);
-    for(i=0;i<xctx->wires;i++)
+    for(i=0;i<xctx->wires; ++i)
     {
       ps_drawline(WIRELAYER, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
     }

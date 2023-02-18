@@ -113,11 +113,11 @@ char *my_strtok_r(char *str, const char *delim, const char *quote, char **savept
     if(ne) *(*saveptr - ne) = **saveptr; /* shift back eating escapes / quotes */
     if(!e && strchr(quote, **saveptr)) {
       q = !q;
-      ne++;
+      ++ne;
     }
     if(quote[0] && !e && **saveptr == '\\') { /* if quote is empty string do not skip backslashes either */
       e = 1;
-      ne++;
+      ++ne;
     } else e = 0;
     ++(*saveptr);
   }
@@ -573,7 +573,7 @@ int my_strncpy(char *d, const char *s, size_t n)
       d[i] = '\0';
       return i;
     }
-    i++;
+    ++i;
   }
   return i;
 }
@@ -625,9 +625,9 @@ float my_atof(const char *p)
   sign = 1.0;
   if(*p == '-') {
     sign = -1.0;
-    p++;
+    ++p;
   } else if(*p == '+') {
-    p++;
+    ++p;
   }
   /* Get digits */
   for(value = 0.0; DGT(*p); p++) {
@@ -636,10 +636,10 @@ float my_atof(const char *p)
   /* get fractional part */
   if(*p == '.') {
     int cnt = 0;
-    p++;
+    ++p;
     while (DGT(*p)) {
       if(cnt < 8) value += (*p - '0') * p10[cnt++];
-      p++;
+      ++p;
     }
   }
   /* Exponent */
@@ -647,10 +647,10 @@ float my_atof(const char *p)
   scale = 1.0;
   if((*p == 'e') || (*p == 'E')) {
     /* Exponent sign */
-    p++;
+    ++p;
     if(*p == '-') {
       frac = 1;
-      p++;
+      ++p;
     } else if(*p == '+') p++;
     /* Get exponent. */
     for(; DGT(*p); p++) {
@@ -683,9 +683,9 @@ double my_atod(const char *p)
   sign = 1.0;
   if(*p == '-') {
     sign = -1.0;
-    p++;
+    ++p;
   } else if(*p == '+') {
-    p++;
+    ++p;
   }
   /* Get digits */
   for(value = 0.0; DGT(*p); p++) {
@@ -694,10 +694,10 @@ double my_atod(const char *p)
   /* get fractional part */
   if(*p == '.') {
     int cnt = 0;
-    p++;
+    ++p;
     while (DGT(*p)) {
       if(cnt < 18) value += (*p - '0') * p10[cnt++];
-      p++;
+      ++p;
     }
   }
   /* Exponent */
@@ -705,10 +705,10 @@ double my_atod(const char *p)
   scale = 1.0;
   if((*p == 'e') || (*p == 'E')) {
     /* Exponent sign */
-    p++;
+    ++p;
     if(*p == '-') {
       frac = 1;
-      p++;
+      ++p;
     } else if(*p == '+') p++;
     /* Get exponent. */
     for(; DGT(*p); p++) {
@@ -780,7 +780,7 @@ static void edit_rect_property(int x)
   {
     xctx->push_undo();
     set_modify(1);
-    for(i=0; i<xctx->lastsel; i++) {
+    for(i=0; i<xctx->lastsel; ++i) {
       if(xctx->sel_array[i].type != xRECT) continue;
       c = xctx->sel_array[i].col;
       n = xctx->sel_array[i].n;
@@ -849,7 +849,7 @@ static void edit_line_property(void)
     xctx->push_undo();
     set_modify(1);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-    for(i=0; i<xctx->lastsel; i++) {
+    for(i=0; i<xctx->lastsel; ++i) {
       if(xctx->sel_array[i].type != LINE) continue;
       c = xctx->sel_array[i].col;
       n = xctx->sel_array[i].n;
@@ -904,7 +904,7 @@ static void edit_wire_property(void)
     xctx->push_undo();
     set_modify(1);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-    for(i=0; i<xctx->lastsel; i++) {
+    for(i=0; i<xctx->lastsel; ++i) {
       int oldbus=0;
       int k = xctx->sel_array[i].n;
       if(xctx->sel_array[i].type != WIRE) continue;
@@ -1065,7 +1065,7 @@ static void edit_polygon_property(void)
          bbox(START,0.0,0.0,0.0,0.0);
          drw = 1;
        }
-       for(k=0; k<xctx->poly[c][i].points; k++) {
+       for(k=0; k<xctx->poly[c][i].points; ++k) {
          if(k==0 || xctx->poly[c][i].x[k] < x1) x1 = xctx->poly[c][i].x[k];
          if(k==0 || xctx->poly[c][i].y[k] < y1) y1 = xctx->poly[c][i].y[k];
          if(k==0 || xctx->poly[c][i].x[k] > x2) x2 = xctx->poly[c][i].x[k];
@@ -1144,7 +1144,7 @@ static void edit_text_property(int x)
        xctx->push_undo();
      }
      bbox(START,0.0,0.0,0.0,0.0);
-     for(k=0;k<xctx->lastsel;k++)
+     for(k=0;k<xctx->lastsel; ++k)
      {
        if(xctx->sel_array[k].type!=xTEXT) continue;
        sel=xctx->sel_array[k].n;
@@ -1168,7 +1168,7 @@ static void edit_text_property(int x)
          double cg;
          cg = tclgetdoublevar("cadgrid");
          c = xctx->rects[PINLAYER];
-         for(l=0;l<c;l++) {
+         for(l=0;l<c; ++l) {
            if(!strcmp( (get_tok_value(xctx->rect[PINLAYER][l].prop_ptr, "name",0)),
                         xctx->text[sel].txt_ptr) ) {
              #if HAS_CAIRO==1
@@ -1300,7 +1300,7 @@ static void update_symbol(const char *result, int x)
       prefix=(get_tok_value((xctx->sym+sym_number)->templ, "name",0))[0]; /* get new symbol prefix  */
     }
   }
-  for(k=0;k<xctx->lastsel;k++) {
+  for(k=0;k<xctx->lastsel; ++k) {
     dbg(1, "update_symbol(): for k loop: k=%d\n", k);
     if(xctx->sel_array[k].type!=ELEMENT) continue;
     *ii=xctx->sel_array[k].n;
@@ -1378,7 +1378,7 @@ static void update_symbol(const char *result, int x)
           xctx->inst[*ii].flags |= HILIGHT_CONN;
     else  xctx->inst[*ii].flags &= ~HILIGHT_CONN;
     xctx->inst[*ii].embed = !strcmp(get_tok_value(xctx->inst[*ii].prop_ptr, "embed", 2), "true");
-  }  /* end for(k=0;k<xctx->lastsel;k++) */
+  }  /* end for(k=0;k<xctx->lastsel; ++k) */
   /* new symbol bbox after prop changes (may change due to text length) */
   if(xctx->modified) {
     xctx->prep_hash_inst=0;
@@ -1631,7 +1631,7 @@ void edit_property(int x)
 
    /* update the bounding box of vhdl "architecture" instances that embed */
    /* the xctx->schvhdlprop string. 04102001 */
-   for(j=0;j<xctx->instances;j++)
+   for(j=0;j<xctx->instances; ++j)
    {
     if( xctx->inst[j].ptr !=-1 &&
         (xctx->inst[j].ptr+ xctx->sym)->type &&

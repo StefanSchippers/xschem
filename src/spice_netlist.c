@@ -71,7 +71,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   xctx->sch_path_hash[xctx->currsch+1] = 0;
   xctx->currsch++;
   subckt_name=NULL;
-  for(i=0;i<xctx->symbols;i++)
+  for(i=0;i<xctx->symbols; ++i)
   {
     int flag;
     /* for printing we process also symbols that have *_ignore attribute */
@@ -149,7 +149,7 @@ static void spice_netlist(FILE *fd, int spice_stop )
     xctx->prep_net_structs = 0;
     prepare_netlist_structs(1);
     traverse_node_hash();  /* print all warnings about unconnected floatings etc */
-    for(i=0;i<xctx->instances;i++) /* print first ipin/opin defs ... */
+    for(i=0;i<xctx->instances; ++i) /* print first ipin/opin defs ... */
     {
      if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
      if(xctx->inst[i].ptr<0) continue;
@@ -174,7 +174,7 @@ static void spice_netlist(FILE *fd, int spice_stop )
      }
     }
     if(top_sub) fprintf(fd, "\n");
-    for(i=0;i<xctx->instances;i++) /* ... then print other lines */
+    for(i=0;i<xctx->instances; ++i) /* ... then print other lines */
     {
      if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
      if(xctx->inst[i].ptr<0) continue;
@@ -265,7 +265,7 @@ void global_spice_netlist(int global)  /* netlister driver */
    my_snprintf(cellname, S(cellname), "%s.spice", skip_dir(xctx->sch[xctx->currsch]));
  }
  first = 0;
- for(i=0;i<xctx->instances;i++) /* print netlist_commands of top level cell with 'place=header' property */
+ for(i=0;i<xctx->instances; ++i) /* print netlist_commands of top level cell with 'place=header' property */
  {
   if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
   if(xctx->inst[i].ptr<0) continue;
@@ -280,7 +280,7 @@ void global_spice_netlist(int global)  /* netlister driver */
    }
    if(place && !strcmp(place, "header" )) {
      if(first == 0) fprintf(fd,"**** begin user header code\n");
-     first++;
+     ++first;
      print_spice_element(fd, i) ;  /* this is the element line  */
    }
   }
@@ -288,7 +288,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  if(first) fprintf(fd,"**** end user header code\n");
 
  /* netlist_options */
- for(i=0;i<xctx->instances;i++) {
+ for(i=0;i<xctx->instances; ++i) {
    if(!(xctx->inst[i].ptr+ xctx->sym)->type) continue;
    if( !strcmp((xctx->inst[i].ptr+ xctx->sym)->type,"netlist_options") ) {
      netlist_options(i);
@@ -299,7 +299,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  fprintf(fd,".subckt %s", skip_dir( xctx->sch[xctx->currsch]) );
 
  /* print top subckt ipin/opins */
- for(i=0;i<xctx->instances;i++) {
+ for(i=0;i<xctx->instances; ++i) {
   if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
   if(xctx->inst[i].ptr<0) continue;
   if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "spice_ignore",0 ), "true") ) {
@@ -323,7 +323,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  spice_netlist(fd, 0);
 
  first = 0;
- for(i=0;i<xctx->instances;i++) /* print netlist_commands of top level cell with no 'place=end' property
+ for(i=0;i<xctx->instances; ++i) /* print netlist_commands of top level cell with no 'place=end' property
                                    and no place=header */
  {
   if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
@@ -339,7 +339,7 @@ void global_spice_netlist(int global)  /* netlister driver */
    }
    if(!place || (strcmp(place, "end") && strcmp(place, "header")) ) {
      if(first == 0) fprintf(fd,"**** begin user architecture code\n");
-     first++;
+     ++first;
      print_spice_element(fd, i) ;  /* this is the element line  */
    }
   }
@@ -349,7 +349,7 @@ void global_spice_netlist(int global)  /* netlister driver */
 
  if(xctx->schprop && xctx->schprop[0]) {
    if(first == 0) fprintf(fd,"**** begin user architecture code\n");
-   first++;
+   ++first;
    fprintf(fd, "%s\n", xctx->schprop);
  }
  if(first) fprintf(fd,"**** end user architecture code\n");
@@ -377,7 +377,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  warning_overlapped_symbols(0);
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(_ALLOC_ID_, xctx->instances, sizeof(unsigned int));
- for(i=0;i<xctx->instances;i++) stored_flags[i] = xctx->inst[i].color;
+ for(i=0;i<xctx->instances; ++i) stored_flags[i] = xctx->inst[i].color;
  
  if(global)
  { 
@@ -395,7 +395,7 @@ void global_spice_netlist(int global)  /* netlister driver */
    
     dbg(1, "global_spice_netlist(): last defined symbol=%d\n",xctx->symbols);
    subckt_name=NULL;
-   for(i=0;i<xctx->symbols;i++)
+   for(i=0;i<xctx->symbols; ++i)
    {
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
@@ -434,7 +434,7 @@ void global_spice_netlist(int global)  /* netlister driver */
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
- for(i=0;i<xctx->instances; i++) xctx->inst[i].color = stored_flags[i];
+ for(i=0;i<xctx->instances; ++i) xctx->inst[i].color = stored_flags[i];
  propagate_hilights(1, 0, XINSERT_NOREPLACE);
  draw_hilight_net(1);
  my_free(_ALLOC_ID_, &stored_flags);
@@ -445,7 +445,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  /* =================================== 20121223 */
  first = 0;
  if(!split_f) {
-   for(i=0;i<xctx->instances;i++) /* print netlist_commands of top level cell with 'place=end' property */
+   for(i=0;i<xctx->instances; ++i) /* print netlist_commands of top level cell with 'place=end' property */
    {
     if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
     if(xctx->inst[i].ptr<0) continue;
@@ -457,13 +457,13 @@ void global_spice_netlist(int global)  /* netlister driver */
     if( type && !strcmp(type,"netlist_commands") ) {
      if(place && !strcmp(place, "end" )) {
        if(first == 0) fprintf(fd,"**** begin user architecture code\n");
-       first++;
+       ++first;
        print_spice_element(fd, i) ;
      } else {
        my_strdup(_ALLOC_ID_, &place,get_tok_value(xctx->inst[i].prop_ptr,"place",0));
        if(place && !strcmp(place, "end" )) {
          if(first == 0) fprintf(fd,"**** begin user architecture code\n");
-         first++;
+         ++first;
          print_spice_element(fd, i) ;
        }
      }
@@ -472,11 +472,11 @@ void global_spice_netlist(int global)  /* netlister driver */
 
  }
  /* print device_model attributes */
- for(i=0;i<model_table.size; i++) {
+ for(i=0;i<model_table.size; ++i) {
    model_entry=model_table.table[i];
    while(model_entry) {
      if(first == 0) fprintf(fd,"**** begin user architecture code\n");
-     first++;
+     ++first;
      fprintf(fd, "%s\n",  model_entry->value);
      model_entry = model_entry->next;
    }
@@ -675,7 +675,7 @@ void str_hash_free(Str_hashtable *hashtable)
   if(hashtable->table) {
     int i;
     Str_hashentry **table = hashtable->table;
-    for(i=0;i < hashtable->size;i++)
+    for(i=0;i < hashtable->size; ++i)
     {
       str_hash_free_entry( table[i] );
       table[i] = NULL;
@@ -773,7 +773,7 @@ void int_hash_free(Int_hashtable *hashtable)
   if(hashtable->table) {
     int i;
     Int_hashentry **table = hashtable->table;
-    for(i=0;i < hashtable->size;i++)
+    for(i=0;i < hashtable->size; ++i)
     {
       int_hash_free_entry( table[i] );
       table[i] = NULL;
@@ -873,7 +873,7 @@ void ptr_hash_free(Ptr_hashtable *hashtable)
   if(hashtable->table) {
     int i;
     Ptr_hashentry **table = hashtable->table;
-    for(i=0;i < hashtable->size;i++)
+    for(i=0;i < hashtable->size; ++i)
     {
       ptr_hash_free_entry( table[i] );
       table[i] = NULL;

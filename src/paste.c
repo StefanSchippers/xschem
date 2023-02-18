@@ -182,7 +182,7 @@ static void merge_polygon(FILE *fd)
     ptr[i].selected_point= my_calloc(_ALLOC_ID_, points, sizeof(unsigned short));
     ptr[i].points=points;
     ptr[i].sel=0;
-    for(j=0;j<points;j++) {
+    for(j=0;j<points; ++j) {
       if(fscanf(fd, "%lf %lf ",&(ptr[i].x[j]), &(ptr[i].y[j]))<2) {
         fprintf(errfp,"merge_polygon(): WARNING: missing fields for POLYGON points, ignoring.\n");
         my_free(_ALLOC_ID_, &ptr[i].x);

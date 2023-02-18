@@ -59,7 +59,7 @@ void check_symbol_storage(void)
         xctx->sch[xctx->currsch] );
   xctx->maxs=(1 + xctx->symbols / ELEMDEF) * ELEMDEF;
   my_realloc(_ALLOC_ID_, &xctx->sym, sizeof(xSymbol)*xctx->maxs);
-  for(i=xctx->symbols;i<xctx->maxs;i++) {
+  for(i=xctx->symbols;i<xctx->maxs; ++i) {
     xctx->sym[i].poly=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
     if(xctx->sym[i].poly==NULL){
        fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
@@ -227,7 +227,7 @@ void store_poly(int pos, double *x, double *y, int points, unsigned int rectc,
   xctx->poly[rectc][n].y= my_calloc(_ALLOC_ID_, points, sizeof(double));
   xctx->poly[rectc][n].selected_point= my_calloc(_ALLOC_ID_, points, sizeof(unsigned short));
   my_strdup(_ALLOC_ID_, &xctx->poly[rectc][n].prop_ptr, prop_ptr);
-  for(j=0;j<points; j++) {
+  for(j=0;j<points; ++j) {
     xctx->poly[rectc][n].x[j] = x[j];
     xctx->poly[rectc][n].y[j] = y[j];
   }
