@@ -863,10 +863,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             if(i == xctx->graph_master) {
               if(!gr->digital) {
                 int dset;
-                int i, j;
+                int p, v;
                 const char *bus_msb = NULL;
                 int sweep_idx = 0;
-                double v, start, end;
+                double val, start, end;
                 double min=0.0, max=0.0;
                 int first = 1;
                 char *saves, *sptr, *stok, *sweep = NULL, *saven, *nptr, *ntok, *node = NULL;
@@ -885,7 +885,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                     if( sweep_idx == -1) sweep_idx = 0;
                   }
                   bus_msb = strstr(ntok, ",");
-                  j = -1;
+                  v = -1;
                   if(!bus_msb) {
                     char *express = NULL;
                     if(strstr(ntok, ";")) {
@@ -895,28 +895,28 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
                     }
                     if(strpbrk(express, " \n\t")) {
                       /* just probe a single point to get the index. custom data column already calculated */
-                      j = calc_custom_data_yrange(sweep_idx, express, gr);
+                      v = calc_custom_data_yrange(sweep_idx, express, gr);
                     } else {
-                      j = get_raw_index(express);
+                      v = get_raw_index(express);
                     }
                     my_free(_ALLOC_ID_, &express);
                   }
-                  if(j >= 0) {
+                  if(v >= 0) {
                     int ofs = 0;
                     for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
-                      for(i = ofs; i < ofs + xctx->graph_npoints[dset]; ++i) {
+                      for(p = ofs; p < ofs + xctx->graph_npoints[dset]; ++p) {
                         double sweepval;
-                        if(gr->logx) sweepval = mylog10(xctx->graph_values[sweep_idx][i]);
-                        else sweepval = xctx->graph_values[sweep_idx][i];
+                        if(gr->logx) sweepval = mylog10(xctx->graph_values[sweep_idx][p]);
+                        else sweepval = xctx->graph_values[sweep_idx][p];
                         if(dataset >= 0 && dataset != dset) continue;
                         if( sweepval < start ||
                             sweepval > end)  continue;
                         if(gr->logy) 
-                          v =mylog10(xctx->graph_values[j][i]);
+                          val =mylog10(xctx->graph_values[v][p]);
                         else
-                          v = xctx->graph_values[j][i];
-                        if(first || v < min) min = v;
-                        if(first || v > max) max = v;
+                          val = xctx->graph_values[v][p];
+                        if(first || val < min) min = val;
+                        if(first || val > max) max = val;
                         first = 0;
                       } 
                       ofs += xctx->graph_npoints[dset];
