@@ -1709,10 +1709,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       if(argc>2) {
-        i = strlen(argv[2]);
-        if(i > 4 && !strcmp(argv[2] + i - 4, ".sym")) {
-          load_symbols = 0;
-        }
         if(force || !has_x || !xctx->modified  || save(1) != -1 ) { /* save(1)==-1 --> user cancel */
           char f[PATH_MAX];
           char win_path[WINDOW_PATH_SIZE];
