@@ -23,10 +23,6 @@
 
 # procedure to create a graph in an empty xschem window and display waveforms
 proc create_graph {rawfile node {analysis tran} {color {4 5 6 7 8 9 10 11 12 13 14}}} {
-
-
-  puts " -->$node"
-
   # clear window if not already empty
   xschem clear force
   # clear loaded raw file if any
