@@ -1109,6 +1109,8 @@ extern int edit_wave_attributes(int what, int i, Graph_ctx *gr);
 extern void draw_graph(int i, int flags, Graph_ctx *gr, void *ct);
 extern int find_closest_wave(int i, Graph_ctx *gr);
 extern void setup_graph_data(int i, int skip, Graph_ctx *gr);
+extern int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int dataset);
+extern int graph_fullxzoom(xRect *r, Graph_ctx *gr, int dataset);
 extern double timer(int start);
 extern void enable_layers(void);
 extern void set_snap(double);

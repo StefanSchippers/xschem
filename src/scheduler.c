@@ -2745,7 +2745,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       } else if(argc > 5 && !strcmp(argv[2], "rect")) {
       /*  0       1      2   3 4   5    6      7
-       * xschem setprop rect c n token value [fast] */
+       * xschem setprop rect c n token [value] [fast] */
         int change_done = 0;
         int fast = 0;
         xRect *r;
@@ -2779,7 +2779,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(!fast) {
           bbox(START,0.0,0.0,0.0,0.0);
         }
-        if(argc > 6) {
+        if(argc > 5 && c == 2 && !strcmp(argv[5], "fullxzoom")) {
+          xRect *r = &xctx->rect[c][n];
+          Graph_ctx *gr = &xctx->graph_struct;
+          int dataset;
+          if(gr->dataset >= 0 && gr->dataset < xctx->graph_datasets) dataset = gr->dataset;
+          else dataset = -1;
+          graph_fullxzoom(r, gr, dataset);
+        } 
+        if(argc > 5 && c == 2 && !strcmp(argv[5], "fullyzoom")) {
+          xRect *r = &xctx->rect[c][n];
+          Graph_ctx *gr = &xctx->graph_struct;
+          int dataset;
+          setup_graph_data(n, 0, gr);
+          if(gr->dataset >= 0 && gr->dataset < xctx->graph_datasets) dataset =gr->dataset;
+          else dataset = -1;
+          graph_fullyzoom(r, gr, dataset);
+        }
+        else if(argc > 6) {
           /* verify if there is some difference */
           if(strcmp(argv[6], get_tok_value(r->prop_ptr, argv[5], 0))) {
             change_done = 1;
