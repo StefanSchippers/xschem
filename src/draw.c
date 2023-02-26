@@ -1896,84 +1896,88 @@ int graph_fullxzoom(xRect *r, Graph_ctx *gr, int dataset)
 int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int dataset)
 {
   int need_redraw = 0;
-  if(!gr->digital) {
-    int dset;
-    int p, v;
-    const char *bus_msb = NULL;
-    int sweep_idx = 0;
-    double val, start, end;
-    double min=0.0, max=0.0;
-    int first = 1;
-    char *saves, *sptr, *stok, *sweep = NULL, *saven, *nptr, *ntok, *node = NULL;
-    my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
-    my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0));
-    nptr = node;
-    sptr = sweep;
-    start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
-    end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
-
-    while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) {
-      stok = my_strtok_r(sptr, "\n\t ", "\"", &saves);
-      nptr = sptr = NULL;
-      if(stok && stok[0]) {
-        sweep_idx = get_raw_index(stok);
-        if( sweep_idx == -1) sweep_idx = 0;
-      }
-      bus_msb = strstr(ntok, ",");
-      v = -1;
-      if(!bus_msb) {
-        char *express = NULL;
-        if(strstr(ntok, ";")) {
-          my_strdup2(_ALLOC_ID_, &express, find_nth(ntok, ";", 2));
-        } else {
-          my_strdup2(_ALLOC_ID_, &express, ntok);
+  if( sch_waves_loaded() >= 0) {
+    if(!gr->digital) {
+      int dset;
+      int p, v;
+      const char *bus_msb = NULL;
+      int sweep_idx = 0;
+      double val, start, end;
+      double min=0.0, max=0.0;
+      int first = 1;
+      char *saves, *sptr, *stok, *sweep = NULL, *saven, *nptr, *ntok, *node = NULL;
+      my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
+      my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0));
+      nptr = node;
+      sptr = sweep;
+      start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
+      end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
+  
+      while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) {
+        stok = my_strtok_r(sptr, "\n\t ", "\"", &saves);
+        nptr = sptr = NULL;
+        if(stok && stok[0]) {
+          sweep_idx = get_raw_index(stok);
+          if( sweep_idx == -1) sweep_idx = 0;
         }
-        if(strpbrk(express, " \n\t")) {
-          /* just probe a single point to get the index. custom data column already calculated */
-          v = calc_custom_data_yrange(sweep_idx, express, gr);
-        } else {
-          v = get_raw_index(express);
+        bus_msb = strstr(ntok, ",");
+        v = -1;
+        if(!bus_msb) {
+          char *express = NULL;
+          if(strstr(ntok, ";")) {
+            my_strdup2(_ALLOC_ID_, &express, find_nth(ntok, ";", 2));
+          } else {
+            my_strdup2(_ALLOC_ID_, &express, ntok);
+          }
+          if(strpbrk(express, " \n\t")) {
+            /* just probe a single point to get the index. custom data column already calculated */
+            v = calc_custom_data_yrange(sweep_idx, express, gr);
+          } else {
+            v = get_raw_index(express);
+          }
+          my_free(_ALLOC_ID_, &express);
         }
-        my_free(_ALLOC_ID_, &express);
-      }
-      if(v >= 0) {
-        int ofs = 0;
-        for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
-          for(p = ofs; p < ofs + xctx->graph_npoints[dset]; ++p) {
-            double sweepval;
-            if(gr->logx) sweepval = mylog10(xctx->graph_values[sweep_idx][p]);
-            else sweepval = xctx->graph_values[sweep_idx][p];
-            if(dataset >= 0 && dataset != dset) continue;
-            if( sweepval < start ||
-                sweepval > end)  continue;
-            if(gr->logy) 
-              val =mylog10(xctx->graph_values[v][p]);
-            else
-              val = xctx->graph_values[v][p];
-            if(first || val < min) min = val;
-            if(first || val > max) max = val;
-            first = 0;
-          } 
-          ofs += xctx->graph_npoints[dset];
+        if(v >= 0) {
+          int ofs = 0;
+          for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
+            for(p = ofs; p < ofs + xctx->graph_npoints[dset]; ++p) {
+              double sweepval;
+              if(gr->logx) sweepval = mylog10(xctx->graph_values[sweep_idx][p]);
+              else sweepval = xctx->graph_values[sweep_idx][p];
+              if(dataset >= 0 && dataset != dset) continue;
+              if( sweepval < start ||
+                  sweepval > end)  continue;
+              if(gr->logy) 
+                val =mylog10(xctx->graph_values[v][p]);
+              else
+                val = xctx->graph_values[v][p];
+              if(first || val < min) min = val;
+              if(first || val > max) max = val;
+              first = 0;
+            } 
+            ofs += xctx->graph_npoints[dset];
+          }
         }
-      }
-    } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) */
-    if(max == min) max += 0.01;
-    min = floor_to_n_digits(min, 2);
-    max = ceil_to_n_digits(max, 2);
-    my_free(_ALLOC_ID_, &node);
-    my_free(_ALLOC_ID_, &sweep);
-    my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(min)));
-    my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(max)));
-    need_redraw = 1;
-  } else { /* digital plot */
-    my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1",
-       get_tok_value(r->prop_ptr, "y1", 0) ));
-    my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2",
-       get_tok_value(r->prop_ptr, "y2", 0) ));
-    need_redraw = 1;
+      } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", &saven)) ) */
+      if(max == min) max += 0.01;
+      min = floor_to_n_digits(min, 2);
+      max = ceil_to_n_digits(max, 2);
+      my_free(_ALLOC_ID_, &node);
+      my_free(_ALLOC_ID_, &sweep);
+      my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(min)));
+      my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(max)));
+      need_redraw = 1;
+    } else { /* digital plot */
+      my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1",
+         get_tok_value(r->prop_ptr, "y1", 0) ));
+      my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2",
+         get_tok_value(r->prop_ptr, "y2", 0) ));
+      need_redraw = 1;
+    }
+    return need_redraw;
+  } else {
+   return 0;
   }
-  return need_redraw;
 }
 
 /* draw bussed signals: ntok is a comma separated list of items, first item is bus name, 
