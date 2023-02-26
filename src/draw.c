@@ -1872,21 +1872,25 @@ static void set_thick_waves(int what, int wcnt, int wave_col, Graph_ctx *gr)
 
 int graph_fullxzoom(xRect *r, Graph_ctx *gr, int dataset)
 {
-  int need_redraw = 0;
-  double xx1, xx2;
-  int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", 1));
-  int dset = dataset == -1 ? 0 : dataset;
-  if(idx < 0 ) idx = 0;
-  xx1 = get_raw_value(dset, idx, 0);
-  xx2 = get_raw_value(dset, idx, xctx->graph_npoints[dset] -1);
-  if(gr->logx) {
-    xx1 = mylog10(xx1);
-    xx2 = mylog10(xx2);
+  if( sch_waves_loaded() >= 0) {
+    int need_redraw = 0;
+    double xx1, xx2;
+    int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", 1));
+    int dset = dataset == -1 ? 0 : dataset;
+    if(idx < 0 ) idx = 0;
+    xx1 = get_raw_value(dset, idx, 0);
+    xx2 = get_raw_value(dset, idx, xctx->graph_npoints[dset] -1);
+    if(gr->logx) {
+      xx1 = mylog10(xx1);
+      xx2 = mylog10(xx2);
+    }
+    my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+    my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+    need_redraw = 1;
+    return need_redraw;
+  } else {
+    return 0;
   }
-  my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-  my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
-  need_redraw = 1;
-  return need_redraw;
 }
 
 int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int dataset)
