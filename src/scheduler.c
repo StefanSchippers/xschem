@@ -682,7 +682,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } else {
           flags = 1 + 8 + (xctx->graph_flags & 6);
         }
-        setup_graph_data(i, xctx->graph_flags, 0,  &xctx->graph_struct);
+        setup_graph_data(i, 0,  &xctx->graph_struct);
         draw_graph(i, flags, &xctx->graph_struct, NULL);
       }
       Tcl_ResetResult(interp);

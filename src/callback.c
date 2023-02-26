@@ -340,7 +340,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
     if( POINTINSIDE(xctx->mousex, xctx->mousey, r->x1, r->y1, r->x2, r->y2)) {
       dbg(1, "mouse inside: %d\n", i);
-      setup_graph_data(i, xctx->graph_flags, 0, gr);
+      setup_graph_data(i, 0, gr);
 
       /* move cursor1 */
       /* set cursor position from master graph x-axis */
@@ -517,7 +517,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     gr->gx1 = gr->master_gx1;
     gr->gx2 = gr->master_gx2;
     gr->gw = gr->master_gw;
-    setup_graph_data(i, xctx->graph_flags, 1, gr); /* skip flag set, no reload x1 and x2 fields */
+    setup_graph_data(i, 1, gr); /* skip flag set, no reload x1 and x2 fields */
     if(gr->dataset >= 0 && gr->dataset < xctx->graph_datasets) dataset =gr->dataset;
     else dataset = -1;
     /* destroy / show measurement widget */
@@ -1024,7 +1024,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
     } /* else if( event == ButtonRelease) */
     if(need_redraw || need_all_redraw) {
-      setup_graph_data(i, xctx->graph_flags, 0, gr);
+      setup_graph_data(i, 0, gr);
       draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr, NULL); /* draw data in each graph box */
     }
   } /* for(i=0; i< xctx->rects[GRIDLAYER]; i++ */

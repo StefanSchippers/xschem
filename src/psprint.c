@@ -318,7 +318,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   for (i = 0; i < xctx->rects[GRIDLAYER]; ++i) {
     xRect* r2 = &xctx->rect[GRIDLAYER][i];
     if (r2->flags & 1) {
-      setup_graph_data(i, 8, 0, &xctx->graph_struct);
+      setup_graph_data(i, 0, &xctx->graph_struct); 
       draw_graph(i, 8, &xctx->graph_struct, (void*)ct);
     }
   }

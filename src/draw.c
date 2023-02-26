@@ -2088,7 +2088,7 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
-void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
+void setup_graph_data(int i, int skip, Graph_ctx *gr)
 {
   double tmp;
   const char *val;
@@ -2215,7 +2215,7 @@ void setup_graph_data(int i, const int flags, int skip, Graph_ctx *gr)
    * tmp =  gr->w * 0.00044;
    * if(tmp < gr->txtsizelab) gr->txtsizelab = tmp;
    */
-  if(flags & 2)
+  if(xctx->graph_flags & 2)
     gr->digtxtsizelab = 0.000900 * fabs( gr->h / gr->posh * gr->gh ); 
   else
     gr->digtxtsizelab = 0.001200 * fabs( gr->h / gr->posh * gr->gh );
@@ -3033,7 +3033,7 @@ static void draw_graph_all(int flags)
       if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; ++i) {
         xRect *r = &xctx->rect[GRIDLAYER][i];
         if(r->flags & 1) {
-          setup_graph_data(i, flags, 0, &xctx->graph_struct);
+          setup_graph_data(i, 0, &xctx->graph_struct);
           draw_graph(i, flags, &xctx->graph_struct, NULL); /* draw data in each graph box */
         }
       }
@@ -3318,7 +3318,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
     for(int i = 0; i < xctx->rects[GRIDLAYER]; ++i) {
       xRect *r = &xctx->rect[GRIDLAYER][i];
       if(r->flags & 1) {
-        setup_graph_data(i, 8, 0, &xctx->graph_struct);
+        setup_graph_data(i, 0, &xctx->graph_struct);
         draw_graph(i, 8, &xctx->graph_struct, (void *)ct);
       }
     }
