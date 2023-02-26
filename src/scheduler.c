@@ -2783,6 +2783,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           xRect *r = &xctx->rect[c][n];
           Graph_ctx *gr = &xctx->graph_struct;
           int dataset;
+          setup_graph_data(n, 0, gr);
           if(gr->dataset >= 0 && gr->dataset < xctx->graph_datasets) dataset = gr->dataset;
           else dataset = -1;
           graph_fullxzoom(r, gr, dataset);
@@ -2792,7 +2793,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Graph_ctx *gr = &xctx->graph_struct;
           int dataset;
           setup_graph_data(n, 0, gr);
-          if(gr->dataset >= 0 && gr->dataset < xctx->graph_datasets) dataset =gr->dataset;
+          if(gr->dataset >= 0 && gr->dataset < xctx->graph_datasets) dataset = gr->dataset;
           else dataset = -1;
           graph_fullyzoom(r, gr, dataset);
         }
