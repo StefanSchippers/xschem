@@ -377,6 +377,7 @@ do { \
 
 /* set do double if you need more precision at the expense of memory */
 #define SPICE_DATA float
+#define SPICE_DATA_TYPE 1 /* Use 1 for float, 2 for double */
 #define DIG_NWAVES 0.1  /* inverse number: by default 10 digital traces per graph */
 #define DIG_SPACE 0.07 /* trace extends from 0 to DIG_SPACE, so we have DIG_WAVES-DIG_SPACE
                         * spacing between traces */

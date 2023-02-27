@@ -189,6 +189,9 @@
       <Component Id="CMPSRCXSCHEMTCL">
         <File Id="XSCHEMTCL" KeyPath="yes" Source="../../src/xschem.tcl" />
       </Component>
+	  <Component Id="CMPSRCCREATEGRAPHMTCL">
+		<File Id="CREATEGRAPHMTCL" KeyPath="yes" Source="../../src/create_graph.tcl" />
+	  </Component>
       <Component Id="CMPMAKESCHFROMVHDLAWK">
         <File Id="MAKESCHFROMVHDLAWK" KeyPath="yes" Source="../../src/make_sch_from_vhdl.awk" />
       </Component>
@@ -310,6 +313,7 @@
   <Fragment>
     <ComponentGroup Id="src">
       <ComponentRef Id="CMPSRCXSCHEMTCL" />
+	  <ComponentRef Id="CMPSRCCREATEGRAPHMTCL" />
       <ComponentRef Id="CMPSRCXSCHEMRC" />
     </ComponentGroup>
     <ComponentGroup Id="share">
