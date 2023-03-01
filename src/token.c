@@ -94,7 +94,7 @@ void check_unique_names(int rename)
   char *tmp = NULL;
   Int_hashentry *entry;
   int big =  xctx->wires> 2000 || xctx->instances > 2000;
-  char *upinst = NULL, *type = NULL;
+  char *upinst = NULL;
 
   if(xctx->hilight_nets) {
     xRect boundbox;
@@ -111,15 +111,16 @@ void check_unique_names(int rename)
   }
   int_hash_free(&xctx->inst_table);
   int_hash_init(&xctx->inst_table, HASHSIZE);
+
+  /* look for duplicates */
   first = 1;
   for(i=0;i<xctx->instances; ++i) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
-      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-      if(!type) continue;
+      if(!(xctx->inst[i].ptr+ xctx->sym)->type) continue;
       my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
       if( (entry = int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT_NOREPLACE) ) && entry->value != i) {
-        dbg(1, "check_unique_names(): found duplicate: i=%d name=%s\n", i, xctx->inst[i].instname);
+        dbg(0, "check_unique_names(): found duplicate: i=%d name=%s\n", i, xctx->inst[i].instname);
         xctx->inst[i].color = -PINLAYER;
         inst_hilight_hash_lookup(xctx->inst[i].instname, -PINLAYER, XINSERT_NOREPLACE);
         if(rename == 1) {
@@ -134,20 +135,23 @@ void check_unique_names(int rename)
           bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
         }
       }
-      if( (xctx->inst[i].color != -10000) && rename) {
-        my_strdup(_ALLOC_ID_, &tmp, xctx->inst[i].prop_ptr);
-        new_prop_string(i, tmp, newpropcnt++, 0);
-        my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
-        strtoupper(upinst);
-        int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT);
-        symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
-        bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
-        my_free(_ALLOC_ID_, &tmp);
-      }
+    }
+  } /* for(i...) */
+
+  /* rename duplicates */
+  for(i=0;i<xctx->instances; ++i) {
+    if( (xctx->inst[i].color != -10000) && rename) {
+      my_strdup(_ALLOC_ID_, &tmp, xctx->inst[i].prop_ptr);
+      new_prop_string(i, tmp, newpropcnt++, 0);
+      my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
+      strtoupper(upinst);
+      int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT);
+      symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
+      bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
+      my_free(_ALLOC_ID_, &tmp);
     }
   } /* for(i...) */
   my_free(_ALLOC_ID_, &upinst);
-  my_free(_ALLOC_ID_, &type);
   if(rename == 1 && xctx->hilight_nets) {
     bbox(SET,0.0,0.0,0.0,0.0);
     draw();

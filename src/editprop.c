@@ -330,7 +330,7 @@ double atof_spice(const char *s)
   int n;
   double a = 0.0, mul=1.0;
   char lower_s[100];
-  char suffix[100];
+  char suffix[100]={0};
   const char *p;
 
   if(!s) return 0.0;

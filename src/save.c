@@ -986,7 +986,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
   const char *n;
   char *endptr, *ntok_copy = NULL, *ntok_save, *ntok_ptr;
   Stack1 stack1[STACKMAX];
-  double stack2[STACKMAX], tmp, result, avg;
+  double stack2[STACKMAX]={0}, tmp, result, avg;
   int stackptr1 = 0, stackptr2 = 0;
   SPICE_DATA *y = xctx->graph_values[xctx->graph_nvars]; /* custom plot data column */
   SPICE_DATA *x = xctx->graph_values[sweep_idx];
@@ -3924,9 +3924,10 @@ void descend_symbol(void)
       "%s/.xschem_embedded_%d_%s", tclgetvar("XSCHEM_TMP_DIR"), getpid(), get_cell_w_ext(name, 0));
     if(!(fd = fopen(name_embedded, "w")) ) {
       fprintf(errfp, "descend_symbol(): problems opening file %s \n", name_embedded);
+    } else {
+      save_embedded_symbol(xctx->inst[n].ptr+xctx->sym, fd);
+      fclose(fd);
     }
-    save_embedded_symbol(xctx->inst[n].ptr+xctx->sym, fd);
-    fclose(fd);
     unselect_all(1);
     remove_symbols(); /* must follow save (if) embedded */
     /* load_symbol(name_embedded); */

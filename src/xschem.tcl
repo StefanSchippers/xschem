@@ -5419,9 +5419,18 @@ proc simulate_button {button_path} {
   if { ![info exists tctx::[xschem get current_win_path]_simulate] } {
     set tctx::[xschem get current_win_path]_simulate 1
     $button_path configure -bg red
-    simulate "clear_simulate_button $button_path tctx::[xschem get current_win_path]_simulate"
+    if {[catch {
+      simulate "clear_simulate_button $button_path tctx::[xschem get current_win_path]_simulate"
+    } err ]} {
+      puts {Error running simulation procedure}
+      alert_ {Error running simulation procedure}
+      clear_simulate_button $button_path tctx::[xschem get current_win_path]_simulate
+    }
+    if {$err == -1} {
+       puts {Error: simulate procedure returned error code -1}
+       alert_ {Error: simulate procedure returned error code -1}
+    }
   }
-
 }
 
 proc clear_simulate_button {button_path simvar} {
@@ -5610,14 +5619,14 @@ proc build_widgets { {topwin {} } } {
   
   $topwin.menubar.file.menu add command -label "New Schematic"  -accelerator Ctrl+N\
     -command {
-      xschem clear SCHEMATIC
+      xschem clear schematic
     }
-  # toolbar_add FileNew {xschem clear SCHEMATIC} "New Schematic" $topwin
+  # toolbar_add FileNew {xschem clear schematic} "New Schematic" $topwin
   $topwin.menubar.file.menu add command -label "New Symbol" -accelerator Ctrl+Shift+N \
     -command {
-      xschem clear SYMBOL
+      xschem clear symbol
     }
-  # toolbar_add FileNewSym {xschem clear SYMBOL} "New Symbol" $topwin
+  # toolbar_add FileNewSym {xschem clear symbol} "New Symbol" $topwin
   $topwin.menubar.file.menu add command -label "New empty Schematic window" -accelerator {Alt+N} \
     -command {
       xschem new_window
@@ -5667,7 +5676,7 @@ proc build_widgets { {topwin {} } } {
     } "Reload File" $topwin
   $topwin.menubar.file.menu add command -label "Save as" -command "xschem saveas" -accelerator {Ctrl+Shift+S}
   $topwin.menubar.file.menu add command -label "Save as symbol" \
-     -command "xschem saveas {} SYMBOL" -accelerator {Ctrl+Alt+S}
+     -command "xschem saveas {} symbol" -accelerator {Ctrl+Alt+S}
   # added svg, png 20171022
   $topwin.menubar.file.menu add command -label "PDF/PS Export" -command "xschem print pdf" -accelerator {*}
   $topwin.menubar.file.menu add command -label "Hierarchical PDF/PS Export" -command "xschem hier_psprint"

@@ -82,6 +82,7 @@ void redraw_w_a_l_r_p_rubbers(void)
   }
 }
 
+/* resets UI state, unselect all and abort any pending operation */
 void abort_operation(void)
 {
   xctx->no_draw = 0;

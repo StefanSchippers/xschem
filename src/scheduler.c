@@ -297,11 +297,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   */
   switch(argv[1][0]) {
     case 'a': /*----------------------------------------------*/
+    /* resets UI state, unselect all and abort any pending operation */
     if(!strcmp(argv[1], "abort_operation"))
     {
       abort_operation();
     }
 
+    /* start a GUI placement of a symbol pin */
     else if(!strcmp(argv[1], "add_symbol_pin"))
     {
       unselect_all(1);
@@ -314,6 +316,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* start a GUI placement of a graph object */
     else if(!strcmp(argv[1], "add_graph"))
     {
       unselect_all(1);
@@ -346,6 +349,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* ask user to choose a png file and start a GUI placement of the image */
     else if(!strcmp(argv[1], "add_png"))
     {
       char str[PATH_MAX+100];
@@ -363,6 +367,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* align currently selected objects to current snap setting */
     else if(!strcmp(argv[1], "align"))
     {
       xctx->push_undo();
@@ -376,6 +381,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       draw();
     }
 
+    /* annotate operating point data into current schematic. 
+     * use <schematic name>.raw or use supplied argument as raw file to open
+     * look for operating point data and annotate voltages/currents into schematic */
     else if(!strcmp(argv[1], "annotate_op"))
     {
       int i;
@@ -404,12 +412,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* Start a GUI placement of an arc.
+     * User should click 3 unaligned points to define the arc */
     else if(!strcmp(argv[1], "arc"))
     {
       xctx->ui_state |= MENUSTARTARC;
     }
 
-    else if(!strcmp(argv[1], "attach_labels")) /* attach pins to selected component 20171005 */
+    /* Attach net labels to selected component(s) instance(s) */
+    else if(!strcmp(argv[1], "attach_labels"))
     {
       attach_labels_to_inst(0);
       Tcl_ResetResult(interp);
@@ -417,6 +428,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'b': /*----------------------------------------------*/
+    /* start/end bounding box calculation: parameter is either 'begin' or 'end' */
     if(!strcmp(argv[1], "bbox"))
     {
       if(argc > 2) {
@@ -431,12 +443,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* break wires at selected instance pins */
     else if(!strcmp(argv[1], "break_wires"))
     {
       break_wires_at_pins();
       Tcl_ResetResult(interp);
     }
 
+    /* rebuild color palette using values of tcl vars dim_value and dim_bg */
     else if(!strcmp(argv[1], "build_colors"))
     {
       build_colors(tclgetdoublevar("dim_value"), tclgetdoublevar("dim_bg"));
@@ -445,6 +459,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'c': /*----------------------------------------------*/
+    /* invoke the callback event dispatcher */
     if(!strcmp(argv[1], "callback") )
     {
       callback( argv[2], atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), (KeySym)atol(argv[6]),
@@ -454,6 +469,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* set case insensitive symbol lookup. Use only on case insensitive filesystems */
     else if(!strcmp(argv[1], "case_insensitive"))
     {
       if(argc > 2) {
@@ -468,6 +484,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* list all used symbols in current schematic and warn if some symbol is newer */
     else if(!strcmp(argv[1], "check_symbols"))
     {
       char sympath[PATH_MAX];
@@ -492,9 +509,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* check if all instances have a unique refdes (name attribute in xschem), 
+     * highlight such instances. If second parameter is '1' rename duplicates */
     else if(!strcmp(argv[1], "check_unique_names"))
     {
-      if(!strcmp(argv[2], "1")) {
+      if(argc > 2 && !strcmp(argv[2], "1")) {
         check_unique_names(1);
       } else {
         check_unique_names(0);
@@ -502,15 +521,27 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* Start a GUI placement of a circle.
+     * User should click 3 unaligned points to define the circle */
     else if(!strcmp(argv[1], "circle"))
     {
       xctx->ui_state |= MENUSTARTCIRCLE;
     }
 
+    /* clear current schematic window.
+     * xschem clear [force] [schematic|symbol]
+     * the 'force' parameter will not ask to save existing modified schematic.
+     * the 'schematic' or 'symbol' parameter specifies to default to a schematic
+     * or symbol window (default: schematic) */
     else if(!strcmp(argv[1], "clear"))
     {
-      int cancel = 0;
-      if(argc < 3 || strcmp(argv[2], "force") ) cancel=save(1);
+      int i, cancel = 1, symbol = 0;;
+
+      for(i = 2; i < argc; i++) {
+        if(!strcmp(argv[i], "force") ) cancel = 0;
+        if(!strcmp(argv[i], "symbol")) symbol = 1;
+      }
+      if(cancel == 1) cancel=save(1);
       if(cancel != -1) { /* -1 means user cancel save request */
         char name[PATH_MAX];
         struct stat buf;
@@ -519,7 +550,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         unselect_all(1);
         remove_symbols();
         clear_drawing();
-        if(argc > 2 && !strcmp(argv[2], "SYMBOL")) {
+        if(symbol == 1) {
           xctx->netlist_type = CAD_SYMBOL_ATTRS;
           set_tcl_netlist_type();
           for(i=0;; ++i) { /* find a non-existent untitled[-n].sym */
@@ -553,9 +584,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* clears drawing but does not purge symbols */
     else if(!strcmp(argv[1], "clear_drawing"))
     {
-      if(argc==2) clear_drawing();
+      if(argc==2) {
+        unselect_all(1);
+        clear_drawing();
+      }
       Tcl_ResetResult(interp);
     }
 
@@ -2426,8 +2461,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc == 4) {
         const char *f;
         f = !strcmp(argv[2], "") ? NULL : argv[2];
-        if(!strcmp(argv[3], "SCHEMATIC")) saveas(f, SCHEMATIC);
-        else if(!strcmp(argv[3], "SYMBOL")) saveas(f, SYMBOL);
+        if(!strcmp(argv[3], "schematic")) saveas(f, SCHEMATIC);
+        else if(!strcmp(argv[3], "symbol")) saveas(f, SYMBOL);
         else saveas(f, SCHEMATIC);
       }
       else if(argc == 3) {
