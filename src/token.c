@@ -189,7 +189,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
 /* update **s modifying only the token values that are */
 /* different between *new and *old */
 /* return 1 if s modified 20081221 */
-int set_different_token(char **s,const char *new, const char *old, int object, int n)
+int set_different_token(char **s,const char *new, const char *old)
 {
  register int c, state=TOK_BEGIN, space;
  char *token=NULL, *value=NULL;
@@ -202,7 +202,7 @@ int set_different_token(char **s,const char *new, const char *old, int object, i
 
  mod=0;
  my_new = new;
- dbg(1, "set_different_token(): *s=%s, new=%s, old=%s n=%d\n",*s, new, old, n);
+ dbg(1, "set_different_token(): *s=%s, new=%s, old=%s\n",*s, new, old);
  if(new==NULL) return 0;
 
  sizeval = sizetok = CADCHUNKALLOC;
@@ -2769,7 +2769,7 @@ int isonlydigit(const char *s)
     return 1;
 }
 
-/* find nth occurrence of substring in str separated by sep. 1st substring is position 1
+/* find nth field in str separated by sep. 1st field is position 1
  * find_nth("aaa,bbb,ccc,ddd", ',', 2)  --> "bbb"
  */
 char *find_nth(const char *str, const char *sep, int n)

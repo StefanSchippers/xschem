@@ -570,6 +570,9 @@ static int bus_search(const char*s)
 /* sel: -1 --> unselect
  *       1 --> select
  *       0 --> highlight
+ * sub:
+ *       0 : regex search
+ *       1 : exact search
  */
 int search(const char *tok, const char *val, int sub, int sel)
 {
@@ -607,7 +610,7 @@ int search(const char *tok, const char *val, int sub, int sel)
  }
  has_token = 0;
  prepare_netlist_structs(0);
- bus=bus_search(val);
+ bus=bus_search(val); /* searching for a single bit in a bus, like val -> "DATA[13]" */
  for(i=0;i<xctx->instances; ++i) {
    if(!strcmp(tok,"cell::name")) {
      has_token = (xctx->inst[i].name != NULL) && xctx->inst[i].name[0];
@@ -637,11 +640,11 @@ int search(const char *tok, const char *val, int sub, int sel)
    }
    if(str && has_token) {
      #ifdef __unix__
-     if( (!regexec(&re, str,0 , NULL, 0) && !sub) ||           /* 20071120 regex instead of strcmp */
-         (!strcmp(str, val) && sub && !bus) || (strstr(str,val) && sub && bus))
+     if( (!sub && !regexec(&re, str,0 , NULL, 0) ) ||           /* 20071120 regex instead of strcmp */
+         (sub && !strcmp(str, val) && !bus) || (sub && strstr(str,val) && bus))
      #else
-     if( (strstr(str,val) && !sub) ||
-         (!strcmp(str, val) && sub && !bus) || (strstr(str,val) && sub && bus))
+     if( !sub && (strstr(str,val) ) ||
+         (sub && !strcmp(str, val) && !bus) || (sub && strstr(str,val) && bus))
      #endif
      {
        if(!sel) {

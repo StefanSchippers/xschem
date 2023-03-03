@@ -5741,7 +5741,7 @@ proc build_widgets { {topwin {} } } {
        }
   $topwin.menubar.option.menu add checkbutton -label "Show net names on symbol pins" -variable show_pin_net_names \
      -command {
-        xschem show_pin_net_names
+        xschem update_all_sym_bboxes
         xschem redraw
      }
   $topwin.menubar.option.menu add separator

@@ -47,20 +47,18 @@ unsigned int hash_file(const char *f, int skip_path_lines)
   char *line = NULL;
   fd = fopen(f, "r"); /* windows won't return \r in the lines and we chop them out anyway in the code */
   if(fd) {
-    while((line = my_fgets(fd))) {
+    while((line = my_fgets(fd, &n))) {
       /* skip lines of type: '** sch_path: ...' or '-- sch_path: ...' or '// sym_path: ...' */
-      if(skip_path_lines && strlen(line) > 14) {
+      if(skip_path_lines && n > 14) {
         if(!strncmp(line+2, " sch_path: ", 11) || !strncmp(line+2, " sym_path: ", 11) ) {
           my_free(_ALLOC_ID_, &line);
           continue;
         }
       }
-      n = strlen(line);
       for(i = 0; i < n; ++i) {
         /* skip CRs so hashes will match on unix / windows */
         if(line[i] == '\r') {
           cr = 1;
-          my_free(_ALLOC_ID_, &line);
           continue;
         } else if(line[i] == '\n' && cr) {
           cr = 0;
@@ -71,7 +69,7 @@ unsigned int hash_file(const char *f, int skip_path_lines)
         h += (h << 5) + (unsigned char)line[i];
       }
       my_free(_ALLOC_ID_, &line);
-    }
+    } /* while(line ....) */
     if(cr) h += (h << 5) + '\r'; /* file ends with \r not followed by \n: keep it */
     fclose(fd);
     return h;
@@ -701,6 +699,7 @@ void clear_drawing(void)
  int_hash_free(&xctx->inst_table);
 }
 
+/*  xctx->n_active_layers is the total number of layers for hilights. */
 void enable_layers(void)
 {
   int i;
@@ -1104,77 +1103,54 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  return 1;
 }
 
-void symbol_in_new_window(void)
+void symbol_in_new_window(int new_process)
 {
- char filename[PATH_MAX];
- char win_path[WINDOW_PATH_SIZE];
- rebuild_selected_array();
- 
- if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT)
- {
-  my_strncpy(filename,  xctx->sch[xctx->currsch], S(filename));
-  if(tclgetvar("tabbed_interface")[0] == '1') {
-    dbg(1, "symbol_in_new_window(): filename=%s, current=%s\n", 
-       filename, xctx->sch[xctx->currsch]);
-    if(!check_loaded(filename, win_path)) {
-      new_schematic("create", NULL, filename);
-    }
-  } else {
-    new_xschem_process(filename, 1);
+  char filename[PATH_MAX];
+  char win_path[WINDOW_PATH_SIZE];
+  rebuild_selected_array();
+  
+  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT) {
+    my_strncpy(filename,  xctx->sch[xctx->currsch], S(filename));
+    if(new_process) new_xschem_process(filename, 1);
+    else new_schematic("create", NULL, filename);
   }
- }
- else
- {
-  my_strncpy(filename, abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), S(filename));
-  if(tclgetvar("tabbed_interface")[0] == '1') {
+  else {
+    my_strncpy(filename, abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), S(filename));
     if(!check_loaded(filename, win_path)) {
-      new_schematic("create", NULL, filename);
+      if(new_process) new_xschem_process(filename, 1);
+      else new_schematic("create", NULL, filename);
     }
-  } else {
-    new_xschem_process(filename, 1);
   }
- }
 }
 
-
-void schematic_in_new_window(void)
+ /*  20111007 duplicate current schematic if no inst selected */
+void schematic_in_new_window(int new_process)
 {
- char filename[PATH_MAX];
- char win_path[WINDOW_PATH_SIZE];
- rebuild_selected_array();
- if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT)
- {
-  if(tclgetvar("tabbed_interface")[0] == '1') {
-    new_schematic("create", NULL, xctx->sch[xctx->currsch]);
-  } else {
-    new_xschem_process(xctx->sch[xctx->currsch], 0); /*  20111007 duplicate current schematic if no inst selected */
+  char filename[PATH_MAX];
+  char win_path[WINDOW_PATH_SIZE];
+  rebuild_selected_array();
+  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT) {
+    if(new_process) new_xschem_process(xctx->sch[xctx->currsch], 0);
+    else new_schematic("create", NULL, xctx->sch[xctx->currsch]);
   }
-  return;
- }
- else
- {
-  if(                   /*  do not descend if not subcircuit */
-     (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type &&
-     strcmp(
-        (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type,
-         "subcircuit"
-     ) &&
-     strcmp(
-        (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type,
-         "primitive"
-     )
-  ) return;
-
-  get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym);
-
-  if(tclgetvar("tabbed_interface")[0] == '1') {
+  else {
+    if(                   /*  do not descend if not subcircuit */
+       (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type &&
+       strcmp(
+          (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type,
+           "subcircuit"
+       ) &&
+       strcmp(
+          (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type,
+           "primitive"
+       )
+    ) return;
+    get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym);
     if(!check_loaded(filename, win_path)) {
-      new_schematic("create", NULL, filename);
+      if(new_process) new_xschem_process(filename, 0);
+      else new_schematic("create", NULL, filename);
     }
-  } else {
-    new_xschem_process(filename, 0);
   }
- }
 }
 
 void launcher(void)

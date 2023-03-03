@@ -768,7 +768,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
     /* 20190526 */ /*Why this? 20191125 only on small schematics. slow down on big schematics */
     if(xctx->instances < 150) {
       prepare_netlist_structs(0);
-      for(j=0;j< (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER] ; ++j)
+      if(xctx->inst[i].ptr != -1) for(j=0;j< (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER] ; ++j)
       {
         if(xctx->inst[i].node && (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr)
         {

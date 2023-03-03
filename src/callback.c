@@ -1695,7 +1695,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    {
     int save = xctx->semaphore;
     xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
-    schematic_in_new_window();
+    schematic_in_new_window(0);
     xctx->semaphore = save;
     break;
    }
@@ -1703,7 +1703,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    {
     int save =  xctx->semaphore;
     xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
-    symbol_in_new_window();
+    symbol_in_new_window(0);
     xctx->semaphore = save;
     break;
    }

@@ -73,16 +73,18 @@ size_t my_fgets_skip(FILE *fd)
 }
 
 /* caller should free allocated storage for s */
-char *my_fgets(FILE *fd)
+char *my_fgets(FILE *fd, size_t *line_len)
 {
   enum { SIZE = 1024 };
   char buf[SIZE];
   char *s = NULL;
   size_t len;
 
+  if(line_len) *line_len = 0;
   while(fgets(buf, SIZE, fd)) {
     my_strcat(_ALLOC_ID_, &s, buf);
     len = strlen(buf);
+    if(line_len) *line_len += len;
     if(buf[len - 1] == '\n') break;
   }
   return s;
@@ -785,8 +787,7 @@ static void edit_rect_property(int x)
       c = xctx->sel_array[i].col;
       n = xctx->sel_array[i].n;
       if(oldprop && preserve == 1) {
-        set_different_token(&xctx->rect[c][n].prop_ptr,
-               (char *) tclgetvar("retval"), oldprop, 0, 0);
+        set_different_token(&xctx->rect[c][n].prop_ptr, (char *) tclgetvar("retval"), oldprop);
       } else {
         my_strdup(_ALLOC_ID_, &xctx->rect[c][n].prop_ptr,
                (char *) tclgetvar("retval"));
@@ -854,8 +855,7 @@ static void edit_line_property(void)
       c = xctx->sel_array[i].col;
       n = xctx->sel_array[i].n;
       if(oldprop && preserve == 1) {
-        set_different_token(&xctx->line[c][n].prop_ptr,
-               (char *) tclgetvar("retval"), oldprop, 0, 0);
+        set_different_token(&xctx->line[c][n].prop_ptr, (char *) tclgetvar("retval"), oldprop);
       } else {
         my_strdup(_ALLOC_ID_, &xctx->line[c][n].prop_ptr,
                (char *) tclgetvar("retval"));
@@ -914,8 +914,7 @@ static void edit_wire_property(void)
       *  xctx->prep_hi_structs=0; */
       oldbus = xctx->wire[k].bus;
       if(oldprop && preserve == 1) {
-        set_different_token(&xctx->wire[k].prop_ptr,
-               (char *) tclgetvar("retval"), oldprop, 0, 0);
+        set_different_token(&xctx->wire[k].prop_ptr, (char *) tclgetvar("retval"), oldprop);
       } else {
         my_strdup(_ALLOC_ID_, &xctx->wire[k].prop_ptr,(char *) tclgetvar("retval"));
       }
@@ -975,7 +974,7 @@ static void edit_arc_property(void)
      c = xctx->sel_array[ii].col;
 
      if(oldprop && preserve == 1) {
-        set_different_token(&xctx->arc[c][i].prop_ptr, (char *) tclgetvar("retval"), oldprop, 0, 0);
+        set_different_token(&xctx->arc[c][i].prop_ptr, (char *) tclgetvar("retval"), oldprop);
 
      } else {
         my_strdup(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr, (char *) tclgetvar("retval"));
@@ -1044,7 +1043,7 @@ static void edit_polygon_property(void)
      c = xctx->sel_array[ii].col;
 
      if(oldprop && preserve == 1) {
-        set_different_token(&xctx->poly[c][i].prop_ptr, (char *) tclgetvar("retval"), oldprop, 0, 0);
+        set_different_token(&xctx->poly[c][i].prop_ptr, (char *) tclgetvar("retval"), oldprop);
      } else {
         my_strdup(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr, (char *) tclgetvar("retval"));
      }
@@ -1208,7 +1207,7 @@ static void edit_text_property(int x)
        }
        if(x==0 && props_changed) {
          if(oldprop && preserve)
-           set_different_token(&xctx->text[sel].prop_ptr, (char *) tclgetvar("props"), oldprop, 0, 0);
+           set_different_token(&xctx->text[sel].prop_ptr, (char *) tclgetvar("props"), oldprop);
          else
            my_strdup(_ALLOC_ID_, &xctx->text[sel].prop_ptr,(char *) tclgetvar("props"));
          set_text_flags(&xctx->text[sel]);
@@ -1326,7 +1325,7 @@ static void update_symbol(const char *result, int x)
       if(only_different) {
         char * ss=NULL;
         my_strdup(_ALLOC_ID_, &ss, xctx->inst[*ii].prop_ptr);
-        if( set_different_token(&ss, new_prop, xctx->old_prop, 0, 0) ) {
+        if( set_different_token(&ss, new_prop, xctx->old_prop) ) {
           if(!pushed) { xctx->push_undo(); pushed=1;}
           my_strdup(_ALLOC_ID_, &xctx->inst[*ii].prop_ptr, ss);
           set_modify(1);

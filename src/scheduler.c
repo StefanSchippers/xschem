@@ -297,13 +297,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
   */
   switch(argv[1][0]) {
     case 'a': /*----------------------------------------------*/
-    /* resets UI state, unselect all and abort any pending operation */
+    /* abort_operation
+     *   Resets UI state, unselect all and abort any pending operation */
     if(!strcmp(argv[1], "abort_operation"))
     {
       abort_operation();
     }
 
-    /* start a GUI placement of a symbol pin */
+    /* add_symbol_pin
+     *   Start a GUI placement of a symbol pin */
     else if(!strcmp(argv[1], "add_symbol_pin"))
     {
       unselect_all(1);
@@ -316,7 +318,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* start a GUI placement of a graph object */
+    /* add_graph
+     *   Start a GUI placement of a graph object */
     else if(!strcmp(argv[1], "add_graph"))
     {
       unselect_all(1);
@@ -349,7 +352,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* ask user to choose a png file and start a GUI placement of the image */
+    /* add_png
+     *   Ask user to choose a png file and start a GUI placement of the image */
     else if(!strcmp(argv[1], "add_png"))
     {
       char str[PATH_MAX+100];
@@ -367,7 +371,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* align currently selected objects to current snap setting */
+    /* align
+     *   Align currently selected objects to current snap setting */
     else if(!strcmp(argv[1], "align"))
     {
       xctx->push_undo();
@@ -381,9 +386,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       draw();
     }
 
-    /* annotate operating point data into current schematic. 
-     * use <schematic name>.raw or use supplied argument as raw file to open
-     * look for operating point data and annotate voltages/currents into schematic */
+    /* annotate_op [raw_file]
+     *   Annotate operating point data into current schematic. 
+     *   use <schematic name>.raw or use supplied argument as raw file to open
+     *   look for operating point data and annotate voltages/currents into schematic */
     else if(!strcmp(argv[1], "annotate_op"))
     {
       int i;
@@ -412,14 +418,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* Start a GUI placement of an arc.
-     * User should click 3 unaligned points to define the arc */
+    /* arc
+     *   Start a GUI placement of an arc.
+     *   User should click 3 unaligned points to define the arc */
     else if(!strcmp(argv[1], "arc"))
     {
       xctx->ui_state |= MENUSTARTARC;
     }
 
-    /* Attach net labels to selected component(s) instance(s) */
+    /* attach_labels
+     *   Attach net labels to selected component(s) instance(s) */
     else if(!strcmp(argv[1], "attach_labels"))
     {
       attach_labels_to_inst(0);
@@ -428,7 +436,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'b': /*----------------------------------------------*/
-    /* start/end bounding box calculation: parameter is either 'begin' or 'end' */
+    /* bbox begin|end
+     *   Start/end bounding box calculation: parameter is either 'begin' or 'end' */
     if(!strcmp(argv[1], "bbox"))
     {
       if(argc > 2) {
@@ -443,14 +452,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* break wires at selected instance pins */
+    /* break_wires
+     *   Break wires at selected instance pins */
     else if(!strcmp(argv[1], "break_wires"))
     {
       break_wires_at_pins();
       Tcl_ResetResult(interp);
     }
 
-    /* rebuild color palette using values of tcl vars dim_value and dim_bg */
+    /* build_colors
+     *   Rebuild color palette using values of tcl vars dim_value and dim_bg */
     else if(!strcmp(argv[1], "build_colors"))
     {
       build_colors(tclgetdoublevar("dim_value"), tclgetdoublevar("dim_bg"));
@@ -459,7 +470,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'c': /*----------------------------------------------*/
-    /* invoke the callback event dispatcher */
+    /* callback winpath event mx my key button aux state
+     *   Invoke the callback event dispatcher with a software event */
     if(!strcmp(argv[1], "callback") )
     {
       callback( argv[2], atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), (KeySym)atol(argv[6]),
@@ -469,7 +481,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* set case insensitive symbol lookup. Use only on case insensitive filesystems */
+    /* case_insensitive 1|0
+     *   Set case insensitive symbol lookup. Use only on case insensitive filesystems */
     else if(!strcmp(argv[1], "case_insensitive"))
     {
       if(argc > 2) {
@@ -484,7 +497,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* list all used symbols in current schematic and warn if some symbol is newer */
+    /* check_symbols
+     *   List all used symbols in current schematic and warn if some symbol is newer */
     else if(!strcmp(argv[1], "check_symbols"))
     {
       char sympath[PATH_MAX];
@@ -509,8 +523,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* check if all instances have a unique refdes (name attribute in xschem), 
-     * highlight such instances. If second parameter is '1' rename duplicates */
+    /* check_unique_names [1|0]
+     *   Check if all instances have a unique refdes (name attribute in xschem), 
+     *   highlight such instances. If second parameter is '1' rename duplicates */
     else if(!strcmp(argv[1], "check_unique_names"))
     {
       if(argc > 2 && !strcmp(argv[2], "1")) {
@@ -521,18 +536,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* Start a GUI placement of a circle.
-     * User should click 3 unaligned points to define the circle */
+    /* circle
+     *   Start a GUI placement of a circle.
+     *   User should click 3 unaligned points to define the circle */
     else if(!strcmp(argv[1], "circle"))
     {
       xctx->ui_state |= MENUSTARTCIRCLE;
     }
 
-    /* clear current schematic window.
-     * xschem clear [force] [schematic|symbol]
-     * the 'force' parameter will not ask to save existing modified schematic.
-     * the 'schematic' or 'symbol' parameter specifies to default to a schematic
-     * or symbol window (default: schematic) */
+    /* clear [force] [symbol|schematic]
+     *   Clear current schematic window. Resets hierarchy level. Remove symbols
+     *   the 'force' parameter will not ask to save existing modified schematic.
+     *   the 'schematic' or 'symbol' parameter specifies to default to a schematic
+     *   or symbol window (default: schematic) */
     else if(!strcmp(argv[1], "clear"))
     {
       int i, cancel = 1, symbol = 0;;
@@ -584,7 +600,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* clears drawing but does not purge symbols */
+    /* clear_drawing
+     *   Clears drawing but does not purge symbols */
     else if(!strcmp(argv[1], "clear_drawing"))
     {
       if(argc==2) {
@@ -594,6 +611,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* color_dim value
+     *   Dim colors or brite colors depending on value parameter: -5 <= value <= 5 */
     else if(!strcmp(argv[1], "color_dim"))
     {
       if(argc > 2) {
@@ -607,11 +626,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* compare_schematics [sch_file]
+     *   Compare currently loaded schematic with another 'sch_file' schematic.
+     *   if no file is given prompt user to choose one */
     else if(!strcmp(argv[1], "compare_schematics"))
     {
       int ret = 0;
       if(argc > 2) {
-        ret = compare_schematics(abs_sym_path(argv[2], ""));
+        /* ret = compare_schematics(abs_sym_path(argv[2], "")); */
+        ret = compare_schematics(argv[2]);
       }
       else {
         ret = compare_schematics(NULL); 
@@ -619,7 +642,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
     }
 
-    else if(!strcmp(argv[1], "connected_nets")) /* selected nets connected to currently selected ones */
+    /* connected_nets [1|0]
+     *   Selected nets connected to currently selected net or net label/pin.
+     *   if '1' argument is given, stop at wire junctions */
+    else if(!strcmp(argv[1], "connected_nets"))
     {
       int stop_at_junction = 0;
       if(argc > 2 && argv[2][0] == '1') stop_at_junction = 1;
@@ -627,6 +653,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* copy
+     *   Copy selection to clipboard */
     else if(!strcmp(argv[1], "copy"))
     {
       rebuild_selected_array();
@@ -634,24 +662,33 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* copy_objects
+     *   Start a GUI copy operation */
     else if(!strcmp(argv[1], "copy_objects"))
     {
       copy_objects(START);
       Tcl_ResetResult(interp);
     }
 
+    /* count_items string separator quoting_chars
+         Debug command */
     else if(!strcmp(argv[1], "count_items"))
     {
       if(argc > 4) {
         Tcl_SetResult(interp, my_itoa(count_items(argv[2], argv[3], argv[4])), TCL_VOLATILE);
       }
     }
+    /* Create_plot_cmd
+     *   Create an xplot file in netlist/simulation directory with the list of highlighted nodes
+     *   in a format the selected waveform viewer understands (bespice, gaw, ngspice) */
     else if(!strcmp(argv[1], "create_plot_cmd") )
     {
       create_plot_cmd();
       Tcl_ResetResult(interp);
     }
 
+    /* cut
+     *   Cut selection to clipboard */
     else if(!strcmp(argv[1], "cut"))
     {
       rebuild_selected_array();
@@ -662,30 +699,39 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'd': /*----------------------------------------------*/
+    /* debug n
+     *   Set xschem in debug mode.'n' is the debug level (0=no debug). Higher levels yield more debug info.*/
     if(!strcmp(argv[1], "debug"))
     {
-      if(argc==3) {
+      if(argc > 2) {
          debug_var=atoi(argv[2]);
          tclsetvar("debug_var",argv[2]);
       }
       Tcl_ResetResult(interp);
     }
 
+    /* delete
+     *   Delete selection */
     else if(!strcmp(argv[1], "delete"))
     {
       if(argc==2) delete(1/*to_push_undo*/);
       Tcl_ResetResult(interp);
     }
 
+    /* delete_files
+     *   Bring up a file selector the user can use to delete files */
     else if(!strcmp(argv[1], "delete_files"))
     {
       delete_files();
     }
 
+    /* descend [n]
+     *   Descend into selected component instance. Optional number 'n' specifies the 
+     *   instance number to descend into for vector instances (default: 0). */
     else if(!strcmp(argv[1], "descend"))
     {
       int ret=0;
-      if(argc >=3) {
+      if(argc > 2) {
         int n = atoi(argv[2]);
         ret = descend_schematic(n);
       } else {
@@ -694,12 +740,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, dtoa(ret), TCL_VOLATILE);
     }
 
+    /* descend_symbol
+     *   Descend into the symbol view of selected component instance */
     else if(!strcmp(argv[1], "descend_symbol"))
     {
       descend_symbol();
       Tcl_ResetResult(interp);
     }
 
+    /* display_hilights
+     *   Print a list of highlighted objects (nets, net labels/pins, instances) */
     else if(!strcmp(argv[1], "display_hilights"))
     {
       char *str = NULL;
@@ -707,6 +757,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, str, TCL_VOLATILE);
       my_free(_ALLOC_ID_, &str);
     }
+
+    /* draw_graph [n] [flags]
+     *   Redraw graph rectangle number 'n'. If the optional 'flags' integer is given it will be used as the 
+     *   flags bitmask to use while drawing (can be used to restrict what to redraw) */
     else if(!strcmp(argv[1], "draw_graph"))
     {
       int flags;
@@ -725,6 +779,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'e': /*----------------------------------------------*/
+    /* edit_file
+     *   Edit xschem file of current schematic if nothing is selected.
+     *   Edit .sym file if a component is selected. */
     if(!strcmp(argv[1], "edit_file") )
     {
       rebuild_selected_array();
@@ -740,19 +797,26 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         tcleval(name);
       }
     }
-
+    /* edit_prop
+     *   Edit global schematic/symbol attributes or attributes of currently selected instances */
     else if(!strcmp(argv[1], "edit_prop"))
     {
       edit_property(0);
       Tcl_ResetResult(interp);
     }
 
+    /* edit_prop
+     *   Edit global schematic/symbol attributes or attributes of currently selected instances
+     *   using a text editor (defined in tcl 'editor' variable) */
     else if(!strcmp(argv[1], "edit_vi_prop"))
     {
       edit_property(1);
       Tcl_ResetResult(interp);
     }
 
+    /* embed_rawfile raw_file
+     *   Embed base 64 encoded 'raw_file' into currently selected element as a 'spice_data'
+     *   attribute. */
     else if(!strcmp(argv[1], "embed_rawfile"))
     {
       if(argc > 2) {
@@ -760,12 +824,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
+
+    /* enable_layers
+     *   Enable/disable layers depending on tcl array variable enable_layer() */
     else if(!strcmp(argv[1], "enable_layers"))
     {
       enable_layers();
       Tcl_ResetResult(interp);
     }
 
+    /* exit
+     *   Exit the program, ask for confirm if current file modified. */
     else if(!strcmp(argv[1], "exit"))
     {
       if(!strcmp(xctx->current_win_path, ".drw")) {
@@ -788,13 +857,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* expandlabel lab
+     *   Expand vectored labels/instance names:
+     *   xschem expandlabel {2*A[3:0]} --> A[3],A[2],A[1],A[0],A[3],A[2],A[1],A[0] 8
+     *   last field is the number of bits
+     *   since [ and ] are TCL special characters argument must be quoted with { and } */
     else if(!strcmp(argv[1], "expandlabel")) 
     {
       int tmp;
       size_t llen;
       char *result=NULL;
       const char *l;
-      if(argc >=3) {
+      if(argc > 2) {
         l = expandlabel(argv[2], &tmp);
         llen = strlen(l);
         dbg(1, "l=%s\n", l ? l : "<NULL>");
@@ -807,6 +881,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'f': /*----------------------------------------------*/
+    /* find_nth string sep n
+     *   Find n-th field string separated by characters in sep. 1st field is in position 1
+     *   xschem find_nth {aaa,bbb,ccc,ddd} {,} 2  --> bbb */
     if(!strcmp(argv[1], "find_nth"))
     {
       if(argc > 4) {
@@ -814,9 +891,29 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* flip
+     *   Flip selection horizontally */
     else if(!strcmp(argv[1], "flip"))
     {
       if(! (xctx->ui_state & (STARTMOVE | STARTCOPY) ) ) { 
+        rebuild_selected_array();
+        xctx->mx_double_save=xctx->mousex_snap;
+        xctx->my_double_save=xctx->mousey_snap;
+        move_objects(START,0,0,0);
+        if(xctx->lastsel>1) move_objects(FLIP,0, 0, 0);
+        else                move_objects(FLIP|ROTATELOCAL,0,0,0);
+        xctx->deltax = -xctx->mx_double_save;
+        xctx->deltay = 0;
+        move_objects(END,0,0,0);
+      }
+      Tcl_ResetResult(interp);
+    }
+
+    /* flip_in_place
+     *   Flip selection horizontally, each object around its center */
+    else if(!strcmp(argv[1], "flip_in_place"))
+    {
+      if(! (xctx->ui_state & (STARTMOVE | STARTCOPY) ) ) {
         rebuild_selected_array();
         move_objects(START,0,0,0);
         move_objects(FLIP|ROTATELOCAL,0,0,0);
@@ -825,6 +922,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* fullscreen
+     *   Toggle fullscreen modes: fullscreen with menu & status, fullscreen, normal */
     else if(!strcmp(argv[1], "fullscreen"))
     {
       if(argc > 2) toggle_fullscreen(argv[2]);
@@ -835,6 +934,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     break;
     case 'g': /*----------------------------------------------*/
     /************ xschem get subcommands *************/
+    /* get var
+     *   Get C variable/constant 'var' */
     if(!strcmp(argv[1], "get"))
     {
       if(argc > 2) {
@@ -1127,6 +1228,42 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
     /************ end xschem get subcommands *************/
+    /* getprop instance inst 
+     *   Get the full attribute string of 'inst'
+     *
+     * getprop instance inst attr
+     *   Get the value of attribute 'attr'
+     *   If 'attr has the form 'cell::sym_attr' look up attribute 'sym_attr'
+     *   of the symbol referenced by the instance.
+     *
+     * getprop instance_pin inst pin
+     *   Get the full attribute string of pin 'pin' of instance 'inst'
+     *   Example: xschem getprop instance_pin x3 MINUS --> name=MINUS dir=in
+     *
+     * getprop instance_pin inst pin pin_attr
+     *   Get attribute 'pin_attr' of pin 'pin' of instance 'inst'
+     *   Example: xschem getprop instance_pin x3 MINUS dir --> in
+     *
+     * getprop symbol sym_name
+     *   Get full attribute string of symbol 'sym_name'
+     *   example:
+     *   xschem getprop symbol comp_ngspice.sym -->
+     *     type=subcircuit
+     *     format="@name @pinlist @symname OFFSET=@OFFSET AMPLITUDE=@AMPLITUDE GAIN=@GAIN ROUT=@ROUT COUT=@COUT"
+     *     template="name=x1 OFFSET=0 AMPLITUDE=5 GAIN=100 ROUT=1000 COUT=1p"
+     *
+     * getprop symbol sym_name sym_attr [with_quotes]
+     *   Get value of attribute 'sym_attr' of symbol 'sym_name'
+     *   'with_quotes' (default:0) is an integer passed to get_tok_value()
+     * getprop rect layer num attr
+     *   Get attribute 'attr' of rectangle number 'num' on layer 'layer'
+     *
+     * getprop text num attr
+     *   Get attribute 'attr' of text number 'num'
+     *
+     * ('inst' can be an instance name or instance number)
+     * ('pin' can be a pin name or pin number)
+     */
     else if(!strcmp(argv[1], "getprop"))
     {
       if(argc > 2 && !strcmp(argv[2], "instance")) {
@@ -1248,7 +1385,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
     }
-
+    
+    /* get_tok str tok [with_quotes]
+     *   get value of token 'tok' in string 'str'
+     *  'with_quotes' (default:0) is an integer passed to get_tok_value() */
     else if(!strcmp(argv[1], "get_tok") )
     {
       char *s=NULL;
@@ -1261,11 +1401,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_free(_ALLOC_ID_, &s);
     }
 
+    /* get_tok_size
+     *   Get length of last looked up attribute name (not its value) 
+     *   if returned value is 0 it means that last searched attribute did not exist */
     else if(!strcmp(argv[1], "get_tok_size") )
     {
       Tcl_SetResult(interp, my_itoa((int)xctx->tok_size), TCL_VOLATILE);
     }
 
+    /* globals
+     *   Return various global variables used in the program */
     else if(!strcmp(argv[1], "globals"))
     {
       static char res[8192];
@@ -1345,6 +1490,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       #endif
     }
 
+    /* go_back
+     *   Go up one level (pop) in hierarchy */
     else if(!strcmp(argv[1], "go_back"))
     {
       go_back(1);
@@ -1353,6 +1500,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'h': /*----------------------------------------------*/
+    /* hash_file file [skip_path_lines]
+     *   Do a simple hash of 'file'
+     *   'skip_path_lines' is an integer (default: 0) passed to hash_file() */
     if(!strcmp(argv[1], "hash_file"))
     {
       unsigned int h;
@@ -1368,6 +1518,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* hash_string str
+     *   Do a simple hashing of string 'str' */
     else if(!strcmp(argv[1], "hash_string"))
     {
       if(argc > 2) {
@@ -1379,11 +1531,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+   
+    /* help
+     *  Print command help */
     else if(!strcmp(argv[1], "help"))
     {
       xschem_cmd_help(argc, argv);
     }
 
+    /* hier_psprint [file]
+     *   Hierarchical postscript / pdf print
+     *   if 'file' is not given show a fileselector dialog box */
     else if(!strcmp(argv[1], "hier_psprint"))
     {
       if(argc > 2) {
@@ -1392,6 +1550,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       hier_psprint(NULL, 1);
       Tcl_ResetResult(interp);
     }
+
+    /* hilight [drill]
+     *   Highlight selected element/pins/labels/nets
+     *   if 'drill' is given propagate net highlights through conducting elements
+     *   (elements that have the 'propag' attribute on pins ) */
     else if(!strcmp(argv[1], "hilight"))
     {
       xctx->enable_drill = 0;
@@ -1400,50 +1563,62 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       redraw_hilights(0);
       Tcl_ResetResult(interp);
     }
-
+    /* hilight_instname inst
+     *   Highlight instance 'inst' 
+     *   'inst' can be an instance name or number */
     else if(!strcmp(argv[1], "hilight_instname"))
     {
-      int inst;
-      char *type;
-      int incr_hi;
-      xctx->enable_drill=0;
-      incr_hi = tclgetboolvar("incr_hilight");
-      prepare_netlist_structs(0);
-      if((inst = get_instance(argv[2])) < 0 ) {
-        Tcl_SetResult(interp, "xschem hilight_instname: instance not found", TCL_STATIC);
-        return TCL_ERROR;
-      } else {
-        type = (xctx->inst[inst].ptr+ xctx->sym)->type;
-        if( type && xctx->inst[inst].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
-              /* sets xctx->hilight_nets=1 */
-          if(!bus_hilight_hash_lookup(xctx->inst[inst].node[0], xctx->hilight_color, XINSERT_NOREPLACE)) {
-            dbg(1, "xschem hilight_instname: node=%s\n", xctx->inst[inst].node[0]);
+      if(argc > 2) {
+        int inst;
+        char *type;
+        int incr_hi;
+        xctx->enable_drill=0;
+        incr_hi = tclgetboolvar("incr_hilight");
+        prepare_netlist_structs(0);
+        if((inst = get_instance(argv[2])) < 0 ) {
+          Tcl_SetResult(interp, "xschem hilight_instname: instance not found", TCL_STATIC);
+          return TCL_ERROR;
+        } else {
+          type = (xctx->inst[inst].ptr+ xctx->sym)->type;
+          if( type && xctx->inst[inst].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
+                /* sets xctx->hilight_nets=1 */
+            if(!bus_hilight_hash_lookup(xctx->inst[inst].node[0], xctx->hilight_color, XINSERT_NOREPLACE)) {
+              dbg(1, "xschem hilight_instname: node=%s\n", xctx->inst[inst].node[0]);
+              if(incr_hi) incr_hilight_color();
+            }
+          } else {
+            dbg(1, "xschem hilight_instname: setting hilight flag on inst %d\n",inst);
+            /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */
+            xctx->inst[inst].color = xctx->hilight_color;
+            inst_hilight_hash_lookup(xctx->inst[inst].instname, xctx->hilight_color, XINSERT_NOREPLACE);
             if(incr_hi) incr_hilight_color();
           }
-        } else {
-          dbg(1, "xschem hilight_instname: setting hilight flag on inst %d\n",inst);
-          /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */
-          xctx->inst[inst].color = xctx->hilight_color;
-          inst_hilight_hash_lookup(xctx->inst[inst].instname, xctx->hilight_color, XINSERT_NOREPLACE);
-          if(incr_hi) incr_hilight_color();
+          dbg(1, "hilight_nets=%d\n", xctx->hilight_nets);
+          if(xctx->hilight_nets) propagate_hilights(1, 0, XINSERT_NOREPLACE);
+          redraw_hilights(0);
         }
-        dbg(1, "hilight_nets=%d\n", xctx->hilight_nets);
-        if(xctx->hilight_nets) propagate_hilights(1, 0, XINSERT_NOREPLACE);
-        redraw_hilights(0);
       }
       Tcl_ResetResult(interp);
     }
+    /* hilight_netname net
+     *   Highlight net name 'net' */
     else if(!strcmp(argv[1], "hilight_netname"))
     {
       int ret = 0;
       if(argc > 2) {
         ret = hilight_netname(argv[2]);
       }
-      Tcl_SetResult(interp,ret ? "1" : "0" , TCL_STATIC);
+      Tcl_SetResult(interp, ret ? "1" : "0" , TCL_STATIC);
     }
     else { cmd_found = 0;}
     break;
     case 'i': /*----------------------------------------------*/
+    /* instance sym_name x y rot flip [prop] [first_call]
+     *   Place a new instance of symbol 'sym_name' at position x,y,
+     *    rotation and flip  set to 'rot', 'flip'
+     *   if 'prop' is given it is the new instance attribute string (default: symbol template string)
+     *   if 'first_call' is given it must be 1 on first call and zero on following calls
+     *   It is used only for efficiency reasons if placing multiple instances */
     if(!strcmp(argv[1], "instance"))
     {
       if(argc==7)
@@ -1461,28 +1636,35 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* instance_bbox inst
+     *   return instance and symbol bounding boxes
+     *   'inst' can be an instance name or number */
     else if(!strcmp(argv[1], "instance_bbox"))
     {
       int i;
       char s[200];
-      for(i=0;i<xctx->instances; ++i) {
-        if(!strcmp(xctx->inst[i].instname, argv[2])) {
-          break;
-        }
-      }
-      if(i<xctx->instances) {
-      my_snprintf(s, S(s), "Instance: %g %g %g %g", xctx->inst[i].x1, xctx->inst[i].y1,
-                                                     xctx->inst[i].x2, xctx->inst[i].y2);
-      Tcl_AppendResult(interp, s, NULL);
-      my_snprintf(s, S(s), "\nSymbol: %g %g %g %g",
-   	(xctx->inst[i].ptr+ xctx->sym)->minx,
-   	(xctx->inst[i].ptr+ xctx->sym)->miny,
-   	(xctx->inst[i].ptr+ xctx->sym)->maxx,
-   	(xctx->inst[i].ptr+ xctx->sym)->maxy);
-      Tcl_AppendResult(interp, s, NULL);
+
+      if(argc > 2) {
+        if((i = get_instance(argv[2])) < 0 ) {
+          Tcl_SetResult(interp, "xschem instance_bbox: instance not found", TCL_STATIC);
+          return TCL_ERROR;
+        }   
+  
+        my_snprintf(s, S(s), "Instance: %g %g %g %g", xctx->inst[i].x1, xctx->inst[i].y1,
+                                                       xctx->inst[i].x2, xctx->inst[i].y2);
+        Tcl_AppendResult(interp, s, NULL);
+        my_snprintf(s, S(s), "\nSymbol: %g %g %g %g",
+   	  (xctx->inst[i].ptr+ xctx->sym)->minx,
+   	  (xctx->inst[i].ptr+ xctx->sym)->miny,
+   	  (xctx->inst[i].ptr+ xctx->sym)->maxx,
+   	  (xctx->inst[i].ptr+ xctx->sym)->maxy);
+        Tcl_AppendResult(interp, s, NULL);
       }
     }
 
+    /* instance_net inst pin
+     *   Return the name of the net attached to pin 'pin' of instance 'inst'
+     *   Example: xschem instance_net x3 MINUS --> REF */
     else if(!strcmp(argv[1], "instance_net"))
     {
       /* xschem instance_net inst pin */
@@ -1511,6 +1693,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, (char *)str_ptr, TCL_VOLATILE);
     }
 
+    /* instance_nodemap inst
+     *   Return the instance name followed by a list of 'pin net' associations
+     *   example:  xschem instance_nodemap x3
+     *   --> x3 PLUS LED OUT LEVEL MINUS REF
+     *   instance x3 pin PLUS is attached to net LED, pin OUT to net LEVEL and so on... */
     else if(!strcmp(argv[1], "instance_nodemap"))
     {
     /* xschem instance_nodemap [instance_name] */
@@ -1534,12 +1721,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* instance_pin_coord inst attr value
+     *   Return the name and coordinates of pin with attribute 'attr' set to 'value' of instance 'inst'
+     *   'inst can be an instance name or a number
+     *   Example: xschem instance_pin_coord x3 name MINUS --> {MINUS} 600 -840 */
     else if(!strcmp(argv[1], "instance_pin_coord"))
     {
     /*   0            1           2       3     4
      * xschem instance_pin_coord m12  pinnumber 2
      * xschem instance_pin_coord U3:2 pinnumber 5
-     * xschem instance_pin_coord m12 name p
+     * xschem instance_pin_coord m12 name d
      * returns pin_name x y */
       xSymbol *symbol;
       xRect *rct;
@@ -1595,48 +1786,56 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_free(_ALLOC_ID_, &tmpstr);
     }
 
+    /* instance_pins inst
+         Return list of pins of instance 'inst'
+         'inst can be an instance name or a number */
     else if(!strcmp(argv[1], "instance_pins"))
     {
       char *pins = NULL;
       int p, i, no_of_pins;
-      prepare_netlist_structs(0);
-      if((i = get_instance(argv[2])) < 0 ) {
-        Tcl_SetResult(interp, "xschem instance_pins: instance not found", TCL_STATIC);
-        return TCL_ERROR;
+      if(argc > 2) {
+        prepare_netlist_structs(0);
+        if((i = get_instance(argv[2])) < 0 ) {
+          Tcl_SetResult(interp, "xschem instance_pins: instance not found", TCL_STATIC);
+          return TCL_ERROR;
+        }
+        no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
+        for(p=0;p<no_of_pins;p++) {
+          const char *pin;
+          pin = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, "name",0);
+          if(!pin[0]) pin = "--ERROR--";
+          my_mstrcat(_ALLOC_ID_, &pins, "{", pin, "}", NULL);
+          if(p< no_of_pins-1) my_strcat(_ALLOC_ID_, &pins, " ");
+        }
+        Tcl_SetResult(interp, pins, TCL_VOLATILE);
+        my_free(_ALLOC_ID_, &pins);
       }
-      no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
-      for(p=0;p<no_of_pins;p++) {
-        const char *pin;
-        pin = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, "name",0);
-        if(!pin[0]) pin = "--ERROR--";
-        my_mstrcat(655, &pins, "{", pin, "}", NULL);
-        if(p< no_of_pins-1) my_strcat(_ALLOC_ID_, &pins, " ");
-      }
-      Tcl_SetResult(interp, pins, TCL_VOLATILE);
-      my_free(_ALLOC_ID_, &pins);
     }
 
+    /* instance_pos inst
+     *   Get number (position) of instance name 'inst' */
     else if(!strcmp(argv[1], "instance_pos"))
     {
       int i;
       char s[30];
-      for(i=0;i<xctx->instances; ++i) {
-        if(!strcmp(xctx->inst[i].instname, argv[2])) {
-          break;
-        }
+      if(argc > 2) {
+        i = get_instance(argv[2]);
+        my_snprintf(s, S(s), "%d", i);
+        Tcl_SetResult(interp, s, TCL_VOLATILE);
       }
-      if(i==xctx->instances) i = -1;
-      my_snprintf(s, S(s), "%d", i);
-      Tcl_SetResult(interp, s, TCL_VOLATILE);
     }
 
+    /* instances_to_net net
+     *   Return list of instances names and pins attached to net 'net' 
+     *   Example: xschem instances_to_net PANEL
+     *    --> { {Vsw} {plus} {580} {-560} } { {p2} {p} {660} {-440} } { {Vpanel1} {minus} {600} {-440} } */
     else if(!strcmp(argv[1], "instances_to_net"))
     {
     /* xschem instances_to_net PLUS */
       xSymbol *symbol;
       xRect *rct;
       short flip, rot;
-      double x0,y0, pinx0, piny0;
+      double x0,y0, pinx0, piny0, rpinx0, rpiny0;
       char *pins = NULL;
       int p, i, no_of_pins;
       prepare_netlist_structs(0);
@@ -1654,17 +1853,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         rct=symbol->rect[PINLAYER];
         for(p = 0;p < no_of_pins; p++) {
           const char *pin;
+          char xx[70], yy[70];
           pin = get_tok_value(rct[p].prop_ptr, "name",0);
           if(!pin[0]) pin = "--ERROR--";
           if(xctx->inst[i].node[p] && !strcmp(xctx->inst[i].node[p], argv[2]) &&
              !IS_LABEL_SH_OR_PIN( (xctx->inst[i].ptr+xctx->sym)->type )) {
-            my_mstrcat(534, &pins, "{ {", xctx->inst[i].instname, "} {", pin, NULL);
+            my_mstrcat(_ALLOC_ID_, &pins, "{ {", xctx->inst[i].instname, "} {", pin, NULL);
             pinx0 = (rct[p].x1+rct[p].x2)/2;
             piny0 = (rct[p].y1+rct[p].y2)/2;
-            ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, pinx0, piny0);
-            pinx0 += x0;
-            piny0 += y0;
-            my_mstrcat(538, &pins, "} {", dtoa(pinx0), "} {", dtoa(piny0), "} } ", NULL);
+            ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, rpinx0, rpiny0);
+            rpinx0 += x0;
+            rpiny0 += y0;
+            my_strncpy(xx, dtoa(rpinx0), S(xx));
+            my_strncpy(yy, dtoa(rpiny0), S(yy));
+            my_mstrcat(_ALLOC_ID_, &pins, "} {", xx, "} {", yy, "} } ", NULL);
           }
         }
       }
@@ -1674,6 +1876,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'l': /*----------------------------------------------*/
+    /* line x1 y1 x2 y2 [pos]
+     *   Place a line on current layer (rectcolor) 
+     *   if integer number 'pos' is given place lien at indicated position in the line array. */
     if(!strcmp(argv[1], "line"))
     {
       double x1,y1,x2,y2;
@@ -1694,6 +1899,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else xctx->ui_state |= MENUSTARTLINE;
     }
 
+    /* line_width n
+     *   set line width to floating point number 'n' */
     else if(!strcmp(argv[1], "line_width"))
     {
       if(argc > 2) {
@@ -1702,6 +1909,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* list_hierarchy
+     *   List all schematics at or below current hierarchy with modification times.
+     *   Example: xschem list_hiearchy
+     *   -->
+     *   20230302_003134  {/home/schippes/xschem-repo//trunk/xschem_library/ngspice/solar_panel.sch}
+     *   20230211_010031  {/home/schippes/xschem-repo/trunk/xschem_library/ngspice/pv_ngspice.sch}
+     *   20221011_175308  {/home/schippes/xschem-repo/trunk/xschem_library/ngspice/diode_ngspice.sch}
+     *   20221014_091945  {/home/schippes/xschem-repo/trunk/xschem_library/ngspice/comp_ngspice.sch}
+     */
     else if(!strcmp(argv[1], "list_hierarchy"))
     {
       char *res = NULL;
@@ -1711,6 +1927,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_free(_ALLOC_ID_, &res);
     }
 
+    /* list_hilights [sep]
+     *    Sorted list of highlight nets, separated by character 'sep' (default: space) */
     else if(!strcmp(argv[1], "list_hilights"))
     {
       const char *sep;
@@ -1723,6 +1941,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       tclvareval("join [lsort -decreasing -dictionary {", tclresult(), "}] ", sep, NULL);
     }
 
+    /* list_tokens str with_quotes
+     *   List tokens in string 'str'
+     *   with_quotes:
+     *   0: eat non escaped quotes (")
+     *   1: return unescaped quotes as part of the token value if they are present
+     *   2: eat backslashes */
     else if(!strcmp(argv[1], "list_tokens"))
     {
       if(argc > 3) {
@@ -1731,6 +1955,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* load f [symbol|force|noundoreset|nofullzoom]
+     *   Load a new file 'f'.
+     *   'force': do not ask to save modified file or warn if opening an already open file
+     *   'noundoreset': do not reset the undo history
+     *   'symbol': do not load symbols (used if loading a symbol instead of a schematic)
+     *   'nofullzoom': do not do a fll zoom on new schematic.
+     */
     else if(!strcmp(argv[1], "load") )
     {
       int load_symbols = 1, force = 0, undo_reset = 1, nofullzoom = 0;
@@ -1783,6 +2014,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_SetResult(interp, xctx->sch[xctx->currsch], TCL_STATIC);
     }
+ 
+    /* load_new_window [f]
+     *   Load schematic in a new tab/window. If 'f' not given prompt user */
     else if(!strcmp(argv[1], "load_new_window") )
     {
       char fullname[PATH_MAX];
@@ -1801,11 +2035,26 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_ResetResult(interp);
       }
     }
+    
+    /* log f
+     * if 'f' is given output stderr messages to file 'f'
+     * if 'f' is not given and a file log is open, close log file and resume logging to stderr */
     else if(!strcmp(argv[1], "log"))
     {
       if(argc==3 && errfp == stderr ) { errfp = fopen(argv[2], "w"); } /* added check to avoid multiple open */
       else if(argc==2 && errfp != stderr) { fclose(errfp); errfp=stderr; }
     }
+
+    /* logic_set n num
+     *   Set selected nets, net labels or pins to logic level 'n' 'num' times.
+     *   'n': 
+     *       0  set to logic value 0
+     *       1  set to logic value 1
+     *       2  set to logic value X
+     *       3  set to logic value Z
+     *      -1  toggle logic valie (1->0, 0->1)
+     *   the 'num' parameter is essentially useful only with 'toggle' (-1)  value
+     */
     else if(!strcmp(argv[1], "logic_set"))
     {
       int num =  1;
@@ -1826,12 +2075,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* make_sch_from_sel 
+     *   create an LCC instance from selection and place it instead of selection
+     *   also ask if a symbol (.sym) file needs to be created */
     else if(!strcmp(argv[1], "make_sch_from_sel"))
     {
       make_schematic_symbol_from_sel();
       Tcl_ResetResult(interp);
     }
 
+    /* make_symbol
+     *   From current schematic (circuit.sch) create a symbol (circuit.sym) 
+     *   using ipin.sym, opin.sym, iopin.sym in schematic
+     *   to deduce symbol interface pins. */
     else if(!strcmp(argv[1], "make_symbol"))
     {
       if(has_x) tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
@@ -1843,6 +2099,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* merge [f]
+     *   Merge another file. if 'f' not given prompt user. */
     else if(!strcmp(argv[1], "merge"))
     {
       if(argc < 3) {
@@ -1854,6 +2112,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* move_objects [dx dy]
+     *   Start a move operation on selection and let user terminate the operation in the GUI
+     *   if dx and dy are given move by that amount. */
     else if(!strcmp(argv[1], "move_objects"))
     {
       if(argc==4) {
@@ -1866,17 +2127,28 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'n': /*----------------------------------------------*/
+    /* net_label [type]
+     *   Place a new net label
+     *   'type': 1: place a 'lab_pin.sym' label
+     *           0: place a 'lab_wire.sym' label
+     *   User should complete the placement in the GUI. */
     if(!strcmp(argv[1], "net_label"))
     {
-      unselect_all(1);
-      if(argc > 2) place_net_label(atoi(argv[2]));
+      if(argc > 2) {
+        unselect_all(1);
+        place_net_label(atoi(argv[2]));
+      }
     }
 
+    /* net_pin_mismatch
+     *   Highlight nets attached to selected symbols with a different name than symbol pin */
     else if(!strcmp(argv[1], "net_pin_mismatch"))
     {
       hilight_net_pin_mismatches();
     }
 
+    /* netlist
+     * do a netlist of current schematic in currently defined netlist format */
     else if(!strcmp(argv[1], "netlist") )
     {
       yyparse_error = 0;
@@ -1896,6 +2168,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* new_schematic create|destroy|destroy_all|switch_win winpath file
+     *   Open/destroy a new tab or window 
+     *     create: create new empty window or with 'file' loaded if 'file' given.
+     *             The winpath must be given (even {} is ok) but not used.
+     *     destroy: destroy tab/window identified by winpath. Example:
+     *              xschem new_schematic destroy .x1.drw
+     *     destroy_all: close all tabs/additional windows
+     *     switch_win: switch context to specified 'winpath' window
+     *     switch_tab: switch context to specified 'winpath' tab
+     *   Main window/tab has winpath set to .drw,
+     *   Additional windows/tabs have winpath set to .x1.drw, .x2.drw and so on...
+     */
     else if(!strcmp(argv[1], "new_schematic"))
     {
       int r = -1;
@@ -1909,28 +2193,40 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* new_symbol_window [f]
+     *   Start a new xschem process for a symbol.
+     *   If 'f' is given load specified symbol. */
     else if(!strcmp(argv[1], "new_symbol_window"))
     {
-      if(argc==2) new_xschem_process("",1);
-      else new_xschem_process(argv[2],1);
+      if(argc > 2)  new_xschem_process(argv[2], 1);
+      else new_xschem_process("", 1);
       Tcl_ResetResult(interp);
     }
 
+    /* new_window [f]
+     *   Start a new xschem process for a schematic.
+     *   If 'f' is given load specified schematic. */
     else if(!strcmp(argv[1], "new_window"))
     {
-      if(argc==2) new_xschem_process("",0);
-      else new_xschem_process(argv[2],0);
+      if(argc > 2)  new_xschem_process(argv[2],0);
+      else new_xschem_process("",0);
       Tcl_ResetResult(interp);
     }
     else { cmd_found = 0;}
     break;
     case 'o': /*----------------------------------------------*/
+    /* only_probes
+     * dim schematic to better show highlights */
     if(!strcmp(argv[1], "only_probes"))
     {
+      xctx->only_probes = !xctx->only_probes;
+      tclsetboolvar("only_probes", xctx->only_probes);
       toggle_only_probes();
       Tcl_ResetResult(interp);
     }
 
+    /* origin x y [zoom]
+     *   Move origin to 'x, y', optionally changing zoom level to 'zoom' */
     else if(!strcmp(argv[1], "origin"))
     {
       if(argc > 3) {
@@ -1946,6 +2242,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'p': /*----------------------------------------------*/
+    /* parse_cmd
+     *   debug command to test parse_cmd_string()
+     *   splits a command string into argv-like arguments
+     *   return # of args in *argc
+     *   argv[*argc] is always set to NULL */
     if(!strcmp(argv[1], "parse_cmd")) 
     {
       if(argc > 2) {
@@ -1957,7 +2258,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
     }
-
+  
+    /* parselabel str
+     *   Debug command to test vector net syntax parser */
     else if(!strcmp(argv[1], "parselabel")) 
     {
       if(argc > 2) {
@@ -1965,6 +2268,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* paste [x y]
+     *   Paste clipboard. If 'x y' not given user should complete placement in the GUI */
     else if(!strcmp(argv[1], "paste"))
     {
       merge_file(2, ".sch");
@@ -1976,6 +2281,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* pinlist inst
+     *   List all pins of instance 'inst' 
+     *   Example: xschem pinlist x3
+     *   -->
+     *   { {0} {name=PLUS dir=in } } { {1} {name=OUT dir=out } } { {2} {name=MINUS dir=in } }
+     */
     else if(!strcmp(argv[1], "pinlist"))
     {
       int i, p, no_of_pins;
@@ -2000,6 +2311,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* place_symbol [sym_name] [prop]
+         Start a GUI placement operation of specified 'sym_name' symbol.
+         If 'sym_name' not given prompt user
+         'prop' is the attribute string of the symbol. If not given take from symbol template attribute.
+     */
     else if(!strcmp(argv[1], "place_symbol"))
     {
       int ret;
@@ -2013,12 +2329,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->mx_double_save = xctx->mousex_snap;
       xctx->my_double_save = xctx->mousey_snap;
       if(argc > 3) {
-        ret = place_symbol(-1,argv[2],xctx->mousex_snap, xctx->mousey_snap, 0, 0, argv[3], 4, 1, 1/*to_push_undo*/);
+        /*               pos  name     x                  y               rot flip prop   draw first to_push_undo */
+        ret = place_symbol(-1,argv[2],xctx->mousex_snap, xctx->mousey_snap, 0, 0,  argv[3], 4,   1,    1);
       } else if(argc > 2) {
-        ret = place_symbol(-1,argv[2],xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
+        ret = place_symbol(-1,argv[2],xctx->mousex_snap, xctx->mousey_snap, 0, 0,  NULL,    4,   1,    1);
       } else {
         xctx->last_command = 0;
-        ret = place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
+        ret = place_symbol(-1,NULL,   xctx->mousex_snap, xctx->mousey_snap, 0, 0,  NULL,    4,   1,    1);
       }
       if(ret) {
         xctx->mousey_snap = xctx->my_double_save;
@@ -2030,6 +2347,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* place_text 
+     *   Start a GUI placement of a text object */
     else if(!strcmp(argv[1], "place_text"))
     {
       xctx->semaphore++;
@@ -2047,11 +2366,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* polygon
+     *   Start a GUI placement of a polygon */
     else if(!strcmp(argv[1], "polygon"))
     {
       xctx->ui_state |= MENUSTARTPOLYGON;
     }
 
+    /* preview_window create|draw|destroy [winpath] [file]
+       used in fileselector to show a schematic preview.
+     */
     else if(!strcmp(argv[1], "preview_window"))
     {
       if(argc == 3) preview_window(argv[2], "{}", "{}");
@@ -2060,12 +2384,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /*                          img x   y size    xschem area to export
-     *    0     1    2    3         4   5             6    7   8   9
-     * xschem print png file.png   400 300        [ -300 -200 300 200 ]
-     * xschem print svg file.svg   400 300        [ -300 -200 300 200 ]
-     * xschem print ps  file.ps
-     * xschem print pdf file.pdf
+
+    /* print png|svg|ps|pdf img_file img_x img_y [x1 y1 x2 y2]
+     *   Export current schematic to image.
+     *                            img x   y size    xschem area to export
+     *      0     1    2    3         4   5             6    7   8   9
+     *   xschem print png file.png   400 300        [ -300 -200 300 200 ]
+     *   xschem print svg file.svg   400 300        [ -300 -200 300 200 ]
+     *   xschem print ps  file.ps
+     *   xschem print pdf file.pdf
      */
     else if(!strcmp(argv[1], "print") )
     {
@@ -2148,6 +2475,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* print_hilight_net show
+     *   from highlighted nets/pins/labels:
+     * show == 0   ==> create pins from highlight nets
+     * show == 1   ==> show list of highlight net in a dialog box
+     * show == 2   ==> create labels with i prefix from hilight nets
+     * show == 3   ==> show list of highlight net with path and label expansion in a dialog box
+     * show == 4   ==> create labels without i prefix from hilight nets
+     * for show = 0, 2, 4 user should complete GUI placement of created objects */
     else if(!strcmp(argv[1], "print_hilight_net"))
     {
       if(argc > 2) {
@@ -2155,11 +2490,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* print_spice_element inst
+     * print spice raw netlist line for instance (number or name) 'inst' */
     else if(!strcmp(argv[1], "print_spice_element") )
     {
-      if(argc > 2) print_spice_element(stderr, atoi(argv[2]));
+      if(argc > 2) {
+        int inst;
+        if((inst = get_instance(argv[2])) < 0 ) {
+          Tcl_SetResult(interp, "xschem replace_symbol: instance not found", TCL_STATIC);
+          return TCL_ERROR;
+        }
+        print_spice_element(stderr, inst);
+      }
     }
 
+    
+    /* propagate_hilights [set clear] 
+     *   Debug: wrapper to propagate_hilights() function */
     else if(!strcmp(argv[1], "propagate_hilights"))
     {
       int set = 1, clear = 0;
@@ -2170,6 +2517,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       propagate_hilights(set, clear, XINSERT_NOREPLACE);
     }
 
+    /* push_undo
+     *   Push current state on undo stack */
     else if(!strcmp(argv[1], "push_undo"))
     {
       xctx->push_undo();
@@ -2178,6 +2527,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'r': /*----------------------------------------------*/
+    /* raw_clear 
+     *   Delete loaded simulation raw file */
     if(!strcmp(argv[1], "raw_clear"))
     {
       tclsetvar("rawfile_loaded", "0");
@@ -2185,6 +2536,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* raw_query loaded|value|index|values|datasets|vars|list 
+     *   xschem raw_query list: get list of saved simulation variables
+     *   xschem raw_query vars: get number of simulation variables
+     *   xschem raw_query datasets: get number of datasets (simulation runs)
+     *   xschem raw_query value node n: return n-th value of 'node' in raw file
+     *   xschem raw_query loaded: return hierarchy level where raw file was loaded or -1 if no raw loaded
+     *   xschem raw_query index node: get index of simulation variable 'node'. 
+     *     Example:  raw_query index v(led) --> 46
+     *   xschem raw_query values node [dset] : print all simulation values of 'node' for dataset 'dset'
+     *     (default dset=0)
+     *   xschem raw_query points [dset] : print simulation points for dataset 'dset' (default dset=0)
+     */
     else if(!strcmp(argv[1], "raw_query"))
     {
       int i;
@@ -2216,10 +2579,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         } else if(argc > 3 && !strcmp(argv[2], "index")) {
           /* xschem rawfile_query index v(ldcp) */
-          Int_hashentry *entry; 
           int idx;
-          entry = int_hash_lookup(&xctx->graph_raw_table, argv[3], 0, XLOOKUP);
-          idx = entry ? entry->value : -1;
+          idx = get_raw_index(argv[3]);
           Tcl_SetResult(interp, my_itoa(idx), TCL_VOLATILE);
         } else if(argc > 3 && !strcmp(argv[2], "values")) {
           /* xschem raw_query values ldcp [dataset] */
@@ -2257,6 +2618,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* raw_read [file] [sim]
+     *   If a raw file is already loaded delete from memory
+     *   else load specified file and analysis 'sim' (dc, ac, tran, op, ...)
+     *   If 'sim' not specified load first section found in raw file. */
     else if(!strcmp(argv[1], "raw_read"))
     {
       if(sch_waves_loaded() >= 0) {
@@ -2274,6 +2639,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
+
+    /* raw_read_from_attr [sim]
+     *   If a simulation raw file is already loaded delete from memory
+     *   else read section 'sim' (tran, dc, ac, op, ...) of base64 encoded data from a 'spice_data'
+     *   attribute of selected instance
+     *   If sim not given read first section found */
     else if(!strcmp(argv[1], "raw_read_from_attr"))
     {
       if(sch_waves_loaded() >= 0) {
@@ -2290,6 +2661,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
+
+    /* rebuild_connectivity 
+         Rebuild logical connectivity abstraction of schematic */
     else if(!strcmp(argv[1], "rebuild_connectivity"))
     {
       xctx->prep_hash_inst=0;
@@ -2300,6 +2674,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* rebuild_selection 
+         Rebuild selection list*/
+    else if(!strcmp(argv[1], "rebuild_selection"))
+    {
+      rebuild_selected_array();
+    }
+
+    /* rect [x1 y1 x2 y2] [pos]
+     *   if 'x1 y1 x2 y2'is given place recangle on current layer (rectcolor) at indicated coordinates.
+     *   if 'pos' is given insert at given position in rectangle array.
+     *   If no coordinates are given start a GUI operation of rectangle placement */
     else if(!strcmp(argv[1], "rect"))
     {
       double x1,y1,x2,y2;
@@ -2320,18 +2705,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else xctx->ui_state |= MENUSTARTRECT;
     }
 
+    /* redo
+     *   Redo last undone action */
     else if(!strcmp(argv[1], "redo"))
     {
       xctx->pop_undo(1, 1); /* 2nd param: set_modify_status */
       Tcl_ResetResult(interp);
     }
 
+    /* redraw
+     *   redraw window */
     else if(!strcmp(argv[1], "redraw"))
     {
       draw();
       Tcl_ResetResult(interp);
     }
 
+    /* reload
+     *   Forced (be careful!) Reload current schematic from disk */
     else if(!strcmp(argv[1], "reload"))
     {
       unselect_all(1);
@@ -2345,6 +2736,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* reload_symbols
+     *   Reload all used symbols from disk */
     else if(!strcmp(argv[1], "reload_symbols"))
     {
       remove_symbols();
@@ -2353,15 +2746,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* remove_symbols
+     *   Internal command: remove all symbol definitions */
     else if(!strcmp(argv[1], "remove_symbols"))
     {
       remove_symbols();
       Tcl_ResetResult(interp);
     }
 
+    /* replace_symbol inst new_symbol [fast]
+     *   Replace 'inst' symbol with 'new_symbol'
+     *   If doing multiple substitutions set 'fast' to 0 on first call and non zero on next calls
+     *   for faster operation
+     *   Example: xschem replace_symbol R3 capa.sym */
     else if(!strcmp(argv[1], "replace_symbol"))
     {
-    /* xschem replace_symbol R3 capa.sym */
       int inst, fast = 0;
       if(argc == 5) {
         if(!strcmp(argv[4], "fast")) {
@@ -2402,6 +2801,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                              /* changing ysmbol, otherwise i might end up deleting non allocated data. */
         my_strdup2(_ALLOC_ID_, &xctx->inst[inst].name, rel_sym_path(symbol));
         xctx->inst[inst].ptr=sym_number;
+        symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
         bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
         my_strdup(_ALLOC_ID_, &name, xctx->inst[inst].instname);
         if(name && name[0] )
@@ -2433,6 +2833,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* rotate
+     *   Rotate selected objects around their centers */
     else if(!strcmp(argv[1], "rotate"))
     {
       if(! (xctx->ui_state & (STARTMOVE | STARTCOPY) ) ) { 
@@ -2446,6 +2848,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 's': /*----------------------------------------------*/
+    /* save
+     *   Save schematic if modified. Does not ask confirmation! */
     if(!strcmp(argv[1], "save"))
     {
       dbg(1, "scheduler(): saving: current schematic\n");
@@ -2456,29 +2860,58 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* saveas [file] [type]
+     *   save current schematic as 'file'
+     *   if file is empty ({}) use current schematic name
+     *   as defalt and prompt user with file selector
+     *   'type' is used used to set/change file extension:
+     *     schematic: save as schematic (*.sch)
+     *     symbol: save as symbol (*.sym)
+     *     If not specified default to schematic (*.sch)
+     *   Does not ask confirmation if file name given
+     */
     else if(!strcmp(argv[1], "saveas"))
     {
-      if(argc == 4) {
-        const char *f;
+      const char *f;
+      if(argc > 3) {
         f = !strcmp(argv[2], "") ? NULL : argv[2];
         if(!strcmp(argv[3], "schematic")) saveas(f, SCHEMATIC);
         else if(!strcmp(argv[3], "symbol")) saveas(f, SYMBOL);
         else saveas(f, SCHEMATIC);
       }
-      else if(argc == 3) {
-        const char *f;
+      else if(argc > 2) {
         f = !strcmp(argv[2], "") ? NULL : argv[2];
         saveas(f, SCHEMATIC);
       }
       else saveas(NULL, SCHEMATIC);
     }
 
+    /* schematic_in_new_window [new_process]
+     *  When a symbol is selected edit corresponding schematic in a new tab/window if not already open.
+     *  If nothing selected open another window of the second schematic (issues a warning).
+     *  if 'new_process' is given start a new xschem process */
     else if(!strcmp(argv[1], "schematic_in_new_window"))
     {
-      schematic_in_new_window();
+      int new_process = 0;
+      if(argc > 2 && !strcmp(argv[2], "new_process")) new_process = 1;
+      schematic_in_new_window(new_process);
       Tcl_ResetResult(interp);
     }
 
+    /* search regex|exact select tok val
+     *   Search instances with attribute string containing 'tok' attribute and value 'val'
+     *   search can be exact ('exact') or as a regular expression ('regex')
+     *   select: 
+     *      0 : highlight matching instances
+     *      1 : select matching instances
+     *     -1 : unselect matching instances 
+     *   'tok' set as:
+     *       propstring : will search for 'val' in the entire *instance* attribute string.
+     *       cell::propstring : will search for 'val' in the entire *symbol* attribute string. 
+     *       cell::name : will search for 'val' in the symbol name
+     *       cell::<attr> will search for 'val' in symbol attribute 'attr'
+     *         example: xschem search regex 0 cell::template GAIN=100
+     */
     else if(!strcmp(argv[1], "search") || !strcmp(argv[1], "searchmenu"))
     {
       /*   0      1         2        3       4   5   */
@@ -2489,7 +2922,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, "xschem search requires 4 or 5 additional fields.", TCL_STATIC);
         return TCL_ERROR;
       }
-      if(argc==6) {
+      if(argc > 5) {
         select = atoi(argv[3]);
         if(!strcmp(argv[2], "regex") )  r = search(argv[4],argv[5],0,select);
         else  r = search(argv[4],argv[5],1,select);
@@ -2504,49 +2937,59 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* select instance|wire|text id [clear]
+     * Select indicated instance or wire or text.
+     * For 'instance' 'id' can be the instance name or number
+     * for 'wire' or 'text' 'id' is the position in the respective arrays
+     * if 'clear' is specified does an unselect operation */
     else if(!strcmp(argv[1], "select"))
     {
+      short unsigned int  sel = SELECTED;
       if(argc < 3) {
         Tcl_SetResult(interp, "xschem select: missing arguments.", TCL_STATIC);
         return TCL_ERROR;
       }
-      if(!strcmp(argv[2], "instance") && argc>=4) {
+      if(argc > 4 && !strcmp(argv[4], "clear")) sel = 0;
+      if(!strcmp(argv[2], "instance") && argc > 3) {
         int i;
         /* find by instance name  or number*/
         i = get_instance(argv[3]);
         if(i >= 0) {
-          if(argc > 4 && !strcmp(argv[4], "clear"))
-            select_element(i, 0, 0, 0);
-          else
-            select_element(i, SELECTED, 0, 0);
+           select_element(i, sel, 0, 0);
         }
         Tcl_SetResult(interp, (i >= 0) ? "1" : "0" , TCL_STATIC);
       }
-      else if(!strcmp(argv[2], "wire") && argc==4) {
+      else if(!strcmp(argv[2], "wire") && argc > 3) {
         int n=atoi(argv[3]);
-        if(n<xctx->wires && n >= 0) select_wire(atoi(argv[3]), SELECTED, 0);
+        if(n<xctx->wires && n >= 0) select_wire(atoi(argv[3]), sel, 0);
       }
-      else if(!strcmp(argv[2], "text") && argc==4) {
+      else if(!strcmp(argv[2], "text") && argc > 3) {
         int n=atoi(argv[3]);
-        if(n<xctx->texts && n >= 0) select_text(atoi(argv[3]), SELECTED, 0);
+        if(n<xctx->texts && n >= 0) select_text(atoi(argv[3]), sel, 0);
       }
       drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
       drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
       drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
     }
 
+    /* select_all
+     *   Selects all objects in schematic */
     else if(!strcmp(argv[1], "select_all"))
     {
       select_all();
       Tcl_ResetResult(interp);
     }
 
-    else if(!strcmp(argv[1], "select_hilight_net"))
+    /* select_hilight_net
+     *   Select all highlight objects (wires, labels, pins, instances) */
+    else if(!strcmp(argv[1], "select_hilight_net"))  
     {
       select_hilight_net();
       Tcl_ResetResult(interp);
     }
 
+    /* selected_set
+     *   Return a list of selected instance names */
     else if(!strcmp(argv[1], "selected_set"))
     {
       int n, i;
@@ -2559,6 +3002,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* selected_wire
+     *  Return list of selected nets */
     else if(!strcmp(argv[1], "selected_wire"))
     {
       int n, i;
@@ -2571,6 +3016,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* send_to_viewer
+     *   Send selected wires/net labels/pins/voltage source or ammeter currents to current
+     *   open viewer (gaw or bespice) */
     else if(!strcmp(argv[1], "send_to_viewer"))
     {
       int viewer = 0;
@@ -2596,7 +3044,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /************ xschem set subcommands *************/
+    /* set var value
+     *   Set C variable 'var' to 'value' */
     else if(!strcmp(argv[1], "set"))
     {
       if(argc > 3) {
@@ -2695,16 +3144,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       } /* if(argc > 3 */
     }
     /************ end xschem set subcommands *************/
+    /* set_different_tok str new_str old_str
+     * Return string 'str' replacing/adding/removing tokens that are different between 'new_str' and 'old_str' */
     else if(!strcmp(argv[1], "set_different_tok") )
     {
       char *s = NULL;
       if(argc < 5) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
       my_strdup(_ALLOC_ID_, &s, argv[2]);
-      set_different_token(&s, argv[3], argv[4], 0, 0);
+      set_different_token(&s, argv[3], argv[4]);
       Tcl_SetResult(interp, s, TCL_VOLATILE);
       my_free(_ALLOC_ID_, &s);
     }
 
+    /* set_modify
+     *   Force modify status on current schematic */
     else if(!strcmp(argv[1], "set_modify"))
     {
       if(argc > 2) {
@@ -2712,7 +3165,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-    /* 'fast' argument if given does not redraw and is not undoable */
+    /* setprop instance inst tok [val] [fast]
+     *   set attribute 'tok' of instance (name or number) 'inst' to value 'val'
+     *   If 'val' not given (no attribute value) delete attribute from instance
+     *   If 'fast' argument if given does not redraw and is not undoable 
+     * setprop rect lay n tok [val] [fast|fastundo]
+     *   Set attribute 'tok' of rectangle number'n' on layer 'lay'
+     *   If 'val' not given (no attribute value) delete attribute from rect
+     *   If 'fast' argument is given does not redraw and is not undoable
+     *   If 'fastundo' s given same as above but action is undoable.
+     * setprop rect 2 n fullxzoom
+     * setprop rect 2 n fullyzoom
+     *   These commands do full x/y zoom of graph 'n' (on layer 2, this is hardcoded).
+     * setprop text n tok [val] [fast|fastundo]
+     *   Set attribute 'tok' of text number 'n'
+     *   If 'val' not given (no attribute value) delete attribute from text
+     *   If 'fast' argument is given does not redraw and is not undoable
+     *   If 'fastundo' s given same as above but action is undoable.
+     */
     else if(!strcmp(argv[1], "setprop"))
     {
     /*   0       1       2     3    4     5    6
@@ -2780,7 +3250,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       } else if(argc > 5 && !strcmp(argv[2], "rect")) {
       /*  0       1      2   3 4   5    6      7
-       * xschem setprop rect c n token [value] [fast] */
+       * xschem setprop rect c n token [value] [fast|fastundo] */
         int change_done = 0;
         int fast = 0;
         xRect *r;
@@ -2926,13 +3396,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_ResetResult(interp);
       }
     }
-    else if(!strcmp(argv[1], "show_pin_net_names"))
-    {
-      int i;
-      for(i = 0; i < xctx->instances; ++i) {
-        symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
-      }
-    }
+    /* simulate
+     *   Run a simulation (start simulator configured as default in Tools -> Configure simulators and tools */
     else if(!strcmp(argv[1], "simulate") )
     {
       if(set_netlist_dir(0, NULL) ) {
@@ -2940,11 +3405,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* snap_wire 
+     *  Start a GUI start snapped wire placement (click to start a wire to closest pin/net endpoint */
     else if(!strcmp(argv[1], "snap_wire"))
     {
       xctx->ui_state |= MENUSTARTSNAPWIRE;
     }
 
+    /* 
+     * subst_tok str tok newval
+     *   Return string 'str' with 'tok' attribute value replaced with 'newval' */
     else if(!strcmp(argv[1], "subst_tok") )
     {
       char *s=NULL;
@@ -2954,12 +3424,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_free(_ALLOC_ID_, &s);
     }
 
+    /* symbol_in_new_window [new_process]
+     *  When a symbol is selected edit it in a new tab/window if not already open.
+     *  If nothing selected open another window of the second schematic (issues a warning).
+     *  if 'new_process' is given start a new xschem process */
     else if(!strcmp(argv[1], "symbol_in_new_window"))
     {
-      symbol_in_new_window();
+      int new_process = 0;
+      if(argc > 2 && !strcmp(argv[2], "new_process")) new_process = 1;
+      symbol_in_new_window(new_process);
       Tcl_ResetResult(interp);
     }
 
+    /* symbols
+     *   List all used symbols */
     else if(!strcmp(argv[1], "symbols"))
     {
       int i;
@@ -2974,6 +3452,30 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 't': /*----------------------------------------------*/
+    /* table_read [table_file]
+     *   If a simulation raw file is lodaded unload from memory.
+     *   else read a tabular file 'table_file'
+     *   First line is the header line containing variable names.
+     *   data is presented in column format after the header line
+     *   First column is sweep (x-axis) variable
+     *   Double empty lines start a new dataset
+     *   Single empty lines are ignored
+     *   Datasets can have different # of lines.
+     *   new dataset do not start with a header row.
+     *   Lines beginning with '#' are comments and ignored
+     *      
+     *      time    var_a   var_b   var_c
+     *   # this is a comment, ignored
+     *       0.0     0.0     1.8    0.3
+     *     <single empty line: ignored>
+     *       0.1     0.0     1.5    0.6
+     *       ...     ...     ...    ...
+     *     <empty line>
+     *     <Second empty line: start new dataset>
+     *       0.0     0.0     1.8    0.3
+     *       0.1     0.0     1.5    0.6
+     *       ...     ...     ...    ...
+     */
     if(!strcmp(argv[1], "table_read"))
     {
       if(sch_waves_loaded() >= 0) {
@@ -2990,7 +3492,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       } 
       Tcl_ResetResult(interp);
     }
-
+    /* test 
+     *   testmode */
     else if(!strcmp(argv[1], "test"))
     {
       Ptr_hashtable table = {NULL, 0};
@@ -3006,6 +3509,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* toggle_colorscheme
+     *   Toggle dark/light colorscheme */
     else if(!strcmp(argv[1], "toggle_colorscheme"))
     {
       int d_c;
@@ -3019,14 +3524,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* translate n str
+     *   Translate string 'str' replacing @xxx tokens with values in instance 'n' attributes */
     else if(!strcmp(argv[1], "translate") )
     {
       if(argc>3) {
+        char *s = NULL;
+        my_strdup2(_ALLOC_ID_, &s, translate(atoi(argv[2]), argv[3]));
         Tcl_ResetResult(interp);
-        Tcl_AppendResult(interp, translate(atoi(argv[2]), argv[3]), NULL);
+        Tcl_SetResult(interp, s, TCL_VOLATILE);
+        my_free(_ALLOC_ID_, &s);
       }
     }
 
+    /* trim_wires
+     *   Remove operlapping wires, join lines, trim wires at intersections */
     else if(!strcmp(argv[1], "trim_wires"))
     {
       xctx->push_undo();
@@ -3037,6 +3549,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'u': /*----------------------------------------------*/
+    /* undo
+         Undo last action */
     if(!strcmp(argv[1], "undo"))
     {
       int redo = 0, set_modify = 1;
@@ -3050,6 +3564,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* undo_type disk|memory
+     *   Use disk file ('disk') or RAM ('memory') for undo bufer
+     */
     else if(!strcmp(argv[1], "undo_type"))
     {
       if(argc > 2) {
@@ -3078,6 +3595,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* unhilight_all
+     *   Clear all highlights */
     else if(!strcmp(argv[1], "unhilight_all"))
     {
       xRect boundbox;
@@ -3095,20 +3614,39 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
       Tcl_ResetResult(interp);
     }
+    
+    /* unhilight
+     *   Unhighlight selected nets/pins */
     else if(!strcmp(argv[1], "unhilight"))
     {
       unhilight_net();
     }
 
+    /* unselect_all
+     *   Unselect everything */
     else if(!strcmp(argv[1], "unselect_all"))
     {
       if(argc > 2) unselect_all(atoi(argv[2]));
       else unselect_all(1);
       Tcl_ResetResult(interp);
     }
+
+    /* update_all_sym_bboxes
+     *   Update all symbol bounding boxes (useful if show_pin_net_names is set) */
+    else if(!strcmp(argv[1], "update_all_sym_bboxes"))
+    {
+      int i;
+      for(i = 0; i < xctx->instances; ++i) {
+        symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
+      }
+    }
+
     else { cmd_found = 0;}
     break;
     case 'v': /*----------------------------------------------*/
+    /* view_prop
+     *   View attributes of selected element (read only)
+     *   if multiple selection show the first element (in xschem  array order) */
     if(!strcmp(argv[1], "view_prop"))
     {
       edit_property(2);
@@ -3117,6 +3655,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'w': /*----------------------------------------------*/
+    /* warning_overlapped_symbols [sel]
+         Highlight or select (if 'sel' set to 1) perfectly overlapped instances
+         this is usually an error and difficult to grasp visually */
     if(!strcmp(argv[1], "warning_overlapped_symbols"))
     {
       if(argc > 2) {
@@ -3125,18 +3666,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         warning_overlapped_symbols(0);
       }
     }
-    else if(!strcmp(argv[1], "windowid")) /* used by xschem.tcl for configure events */
+    /* windowid
+     *   Used by xschem.tcl for configure events */
+    else if(!strcmp(argv[1], "windowid"))
     {
       if(argc > 2) {
         windowid(argv[2]);
       }
     }
 
-    else if(!strcmp(argv[1], "windows"))
-    {
-      printf("top win:%lx\n", Tk_WindowId(Tk_Parent(Tk_MainWindow(interp))));
-    }
-
+    /* wire [x1 y1 x2 y2] [pos] [prop] [sel]
+     *   Place a new wire
+     *   if no coordinates are given start a GUI wire placement */
     else if(!strcmp(argv[1], "wire"))
     {
       double x1,y1,x2,y2;
@@ -3153,6 +3694,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc > 8) sel = atoi(argv[8]);
         xctx->push_undo();
         storeobject(pos, x1,y1,x2,y2,WIRE,0,(short)sel,prop);
+        if(sel) xctx->need_reb_sel_arr=1;
         xctx->prep_hi_structs=0;
         xctx->prep_net_structs=0;
         xctx->prep_hash_wires=0;
@@ -3167,6 +3709,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     break;
     case 'x': /*----------------------------------------------*/
     #ifdef HAS_XCB
+    /* xcb_info
+     *   For debug */
     if(!strcmp(argv[1], "xcb_info"))
     {
       dbg(0, "maximum xcb req length=%u\n", xcb_get_maximum_request_length(xcb_conn));
@@ -3175,6 +3719,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     #endif
     break;
     case 'z': /*----------------------------------------------*/
+    /* zoom_box [x1 y1 x2 y2] [factor]
+     *   Zoom to specified coordinates, if 'factor' is given reduce view (factor < 1.0) 
+     *   or add border (factor > 1.0)
+     *   If no coordinates are given start GUI zoom box operation */
     if(!strcmp(argv[1], "zoom_box"))
     {
       double x1, y1, x2, y2, factor;
@@ -3197,7 +3745,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* xschem zoom_full [center | nodraw | nolinewidth] */
+    /* zoom_full [center|nodraw|nolinewidth]
+     *   Set full view. 
+     *   If 'center' is given center vire instead of lower-left align
+     *   If 'nodraw' is given don't redraw
+     *   If 'nolinewidth]' is given don't reset line widths. */
     else if(!strcmp(argv[1], "zoom_full"))
     {
       int i, flags = 1;
@@ -3217,24 +3769,32 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* zoom_hilighted 
+     *   Zoom to highlighted objects */
     else if(!strcmp(argv[1], "zoom_hilighted"))
     {
       zoom_full(1, 2, 1, 0.97);
       Tcl_ResetResult(interp);
     }
 
+    /* zoom_in
+     *   Zoom in drawing */
     else if(!strcmp(argv[1], "zoom_in"))
     {
       view_zoom(0.0);
       Tcl_ResetResult(interp);
     }
 
+    /* zoom_out
+     *   Zoom out drawing */
     else if(!strcmp(argv[1], "zoom_out"))
     {
       view_unzoom(0.0);
       Tcl_ResetResult(interp);
     }
 
+    /* zoom_selected
+     *   Zoom to selection */
     else if(!strcmp(argv[1], "zoom_selected"))
     {
       zoom_full(1, 1, 1, 0.97);

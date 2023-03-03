@@ -435,7 +435,7 @@ static int read_dataset(FILE *fd, const char *type)
   int dbglev=1;
   xctx->graph_sim_type = NULL;
   dbg(1, "read_dataset(): type=%s\n", type ? type : "<NULL>");
-  while((line = my_fgets(fd))) {
+  while((line = my_fgets(fd, NULL))) {
     my_strdup2(_ALLOC_ID_, &lowerline, line);
     strtolower(lowerline);
     /* this is an ASCII raw file. We don't handle this (yet) */
@@ -580,9 +580,9 @@ static int read_dataset(FILE *fd, const char *type)
         my_strcat(_ALLOC_ID_, &xctx->graph_names[i << 1], varname);
         int_hash_lookup(&xctx->graph_raw_table, xctx->graph_names[i << 1], (i << 1), XINSERT_NOREPLACE);
         if(strstr(varname, "v(") == varname || strstr(varname, "i(") == varname)
-          my_mstrcat(664, &xctx->graph_names[(i << 1) + 1], "ph(", varname + 2, NULL);
+          my_mstrcat(_ALLOC_ID_, &xctx->graph_names[(i << 1) + 1], "ph(", varname + 2, NULL);
         else
-          my_mstrcat(540, &xctx->graph_names[(i << 1) + 1], "ph(", varname, ")", NULL);
+          my_mstrcat(_ALLOC_ID_, &xctx->graph_names[(i << 1) + 1], "ph(", varname, ")", NULL);
         int_hash_lookup(&xctx->graph_raw_table, xctx->graph_names[(i << 1) + 1], (i << 1) + 1, XINSERT_NOREPLACE);
       } else {
         my_strcat(_ALLOC_ID_, &xctx->graph_names[i], varname);
@@ -596,7 +596,7 @@ static int read_dataset(FILE *fd, const char *type)
       variables = 1 ;
     }
     my_free(_ALLOC_ID_, &line);
-  } /*  while((line = my_fgets(fd))  */
+  } /*  while((line = my_fgets(fd, NULL))  */
   my_free(_ALLOC_ID_, &lowerline);
   my_free(_ALLOC_ID_, &varname);
   if(exit_status == 0 && xctx->graph_datasets && xctx->graph_npoints) {
@@ -785,7 +785,7 @@ int table_read(const char *f)
     int prev_prev_empty = 0, prev_empty = 0;
     res = 1;
     /* read data line by line */
-    while((line = my_fgets(fd))) {
+    while((line = my_fgets(fd, NULL))) {
       int empty = 1;
       if(line[0] == '#') {
         goto clear;

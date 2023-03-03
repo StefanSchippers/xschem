@@ -650,6 +650,7 @@ static void delete_schematic_data(int delete_pixmap)
   unselect_all(1);
   /* clear static data in get_tok_value() must be done after unselect_all(1) 
    * as this functions re-uses get_tok_value() */
+  parse_cmd_string(NULL, NULL); /* clear static data in function */
   get_tok_value(NULL, NULL, 0); /* clear static data in function */
   /* delete inst and wire node fields, delete inst_pin spatial hash, and node hash table */
   delete_netlist_structs();
