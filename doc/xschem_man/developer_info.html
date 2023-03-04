@@ -1087,6 +1087,189 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
  </ul>
 
+
+  <!-- TCL global variables -->
+ <h1>XSCHEM <a id="tclglobals">TCL GLOBAL</a> VARIABLES</h1><br>
+
+ <pre class="code">
+   sim(spice,0,cmd) {$terminal -e 'ngspice -i "$N" -a || sh'}
+   sim(spice,0,fg) 0
+   sim(spice,0,st) 0
+   sim(spice,1,cmd) {ngspice -b -r "$n.raw" -o "$n.out" "$N"}
+   sim(spice,1,fg) 0
+   sim(spice,1,st) 1
+   sim(spice,2,cmd) "Xyce \"\$N\"\n# Add -r \"\$n.raw\" if you want all variables saved"
+   sim(spice,2,fg) 0
+   sim(spice,2,st) 1
+   sim(spice,3,cmd) {mpirun /path/to/parallel/Xyce "$N"}
+   sim(spice,3,fg) 0
+   sim(spice,3,st) 1
+   sim(spice,n) 4
+   sim(spice,default) 0
+   sim(spicewave,0,cmd) {gaw "$n.raw" } 
+   sim(spicewave,0,fg) 0
+   sim(spicewave,0,st) 0
+   sim(spicewave,1,cmd) {$terminal -e ngspice}
+   sim(spicewave,1,fg) 0
+   sim(spicewave,1,st) 0
+   sim(spicewave,2,cmd) {rawtovcd -v 1.5 "$n.raw" &gt; "$n.vcd" &amp;&amp; gtkwave "$n.vcd" "$n.sav" 2&gt;/dev/null} 
+   sim(spicewave,2,fg) 0
+   sim(spicewave,2,st) 0
+   sim(spicewave,3,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port "$n.raw" } 
+   sim(spicewave,3,fg) 0
+   sim(spicewave,3,st) 0
+   sim(spicewave,n) 4
+   sim(spicewave,default) 0
+   sim(verilog,0,cmd) {iverilog -o .verilog_object -g2012 "$N" &amp;&amp; vvp .verilog_object}
+   sim(verilog,0,fg) 0
+   sim(verilog,0,st) 1
+   sim(verilog,n) 1
+   sim(verilog,default) 0
+   sim(verilogwave,0,cmd) {gtkwave dumpfile.vcd "$N.sav" 2&gt;/dev/null}
+   sim(verilogwave,0,fg) 0
+   sim(verilogwave,0,st) 0
+   sim(verilogwave,n) 1
+   sim(verilogwave,default) 0
+   sim(vhdl,0,cmd) {ghdl -c --ieee=synopsys -fexplicit "$N" -r "$s" --wave="$n.ghw"}
+   sim(vhdl,0,fg) 0
+   sim(vhdl,0,st) 1
+   sim(vhdl,n) 1
+   sim(vhdl,default) 0
+   sim(vhdlwave,0,cmd) {gtkwave "$n.ghw" "$N.sav" 2&gt;/dev/null}
+   sim(vhdlwave,0,fg) 0
+   sim(vhdlwave,0,st) 0
+   sim(vhdlwave,n) 1
+   sim(vhdlwave,default) 0
+
+   add_all_windows_drives 1
+   autofocus_mainwindow 1
+   auto_hilight 0
+   autotrim_wires 0
+   bespice_listen_port {}
+   bespice_server_getdata
+   big_grid_points 0
+   bus_replacement_char {} ;# use {&lt;&gt;} to replace [] with &lt;&gt; in bussed signals
+   cadlayers 22
+   cairo_font_line_spacing 1.0
+   cairo_font_name {Sans-Serif}
+   cairo_font_scale 1.0
+   cairo_vert_correct 0
+   case_insensitive 0
+   change_lw 1
+   color_ps 1
+   colors $dark_colors
+   compare_sch 0
+   component_browser_on_top 1
+   connect_by_kissing 0
+   constrained_move 0
+   copy_cell 0
+   dark_colors {
+     "#000000" "#00ccee" "#3f3f3f" "#cccccc" "#88dd00" "#bb2200" "#00ccee" "#ff0000"
+     "#ffff00" "#ffffff" "#ff00ff" "#00ff00" "#0044dd" "#aaaa00" "#aaccaa" "#ff7777"
+     "#bfff81" "#00ffcc" "#ce0097" "#d2d46b" "#ef6158" "#fdb200"}
+   dark_colorscheme 1
+   dark_colors_save
+   debug_var 0
+   dim_bg 0.0
+   dim_value 0.0
+   dircolor(/share/doc/xschem/) {#338844}
+   dircolor(/share/xschem/) red
+   disable_unique_names 0
+   download_url_helper {curl -f -s -O}
+   draw_grid 1
+   draw_window 0
+   editor {gvim -f}
+   edit_prop_size 80x12
+   edit_symbol_prop_new_sel {}
+   enable_dim_bg 0
+   enable_layer($i) 1
+   enable_stretch 0
+   en_hilight_conn_inst 0
+   flat_netlist 0
+   fullscreen 0
+   gaw_tcp_address {localhost 2020}
+   graph_bus 0
+   graph_logx 0
+   graph_logy 0
+   graph_rainbow 0
+   graph_raw_level -1 ;# hierarchy level where raw file has been loaded 
+   graph_schname {}
+   graph_sel_color 4
+   graph_selected {}
+   graph_sel_wave {}
+   graph_sort 0
+   has_cairo 1
+   has_x
+   hide_empty_graphs 0 ;# if set to 1 waveform boxes will be hidden if no raw file loaded
+   hide_symbols 0
+   incr_hilight 1
+   initial_geometry {900x600}
+   launcher_default_program {xdg-open}
+   light_colors {
+     "#ffffff" "#0044ee" "#aaaaaa" "#222222" "#229900" "#bb2200" "#00ccee" "#ff0000"
+     "#888800" "#00aaaa" "#880088" "#00ff00" "#0000cc" "#666600" "#557755" "#aa2222"
+     "#7ccc40" "#00ffcc" "#ce0097" "#d2d46b" "#ef6158" "#fdb200"}
+   light_colors_save
+   line_width 0
+   live_cursor2_backannotate 0
+   local_netlist_dir 0 ;# if set use &lt;sch_dir&gt;/simulation for netlist and sims
+   lvs_netlist 0
+   measure_text "y=\nx="
+   menu_debug_var 0
+   myload_files2 {}
+   myload_globfilter {*}
+   myload_index1 0
+   netlist_dir "$USER_CONF_DIR/simulations"
+   netlist_show 0
+   netlist_type spice
+   nocairo_font_xscale .85
+   nocairo_font_yscale .88
+   nocairo_vert_correct 0
+   no_change_attrs 0
+   nolist_libs {}
+   noprint_libs {}
+   only_probes 0  ; # 20110112
+   OS
+   persistent_command 0
+   preserve_unchanged_attrs 0
+   rainbow_colors 0
+   search_schematic 0
+   show_hidden_texts 0
+   show_infowindow 0 
+   show_pin_net_names 0
+   spiceprefix 1
+   split_files 0
+   svg_font_name {Sans-Serif}
+   symbol_width 150
+   sym_txt 1
+   tabbed_interface 0
+   tcl_files {}
+   tclstop 0
+   terminal xterm
+   text_line_default_geometry 80x12
+   textwindow_wcounter
+   toolbar_horiz   1
+   toolbar_list { 
+   toolbar_visible 0
+   to_pdf {ps2pdf}
+   to_png {gm convert} 
+   transparent_svg 0
+   undo_type disk
+   unzoom_nodrift 0
+   USER_CONF_DIR
+   verilog_2001 1
+   verilog_bitblast 0
+   viewdata_wcounter
+   xschem_libs {}
+   xschem_listen_port {}
+   xschem_server_getdata
+   XSCHEM_SHAREDIR
+   XSCHEM_START_WINDOW {}
+   XSCHEM_TMP_DIR {/tmp}
+</pre>
+
+
+
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
