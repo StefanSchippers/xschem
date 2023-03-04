@@ -479,8 +479,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
     /* Create_plot_cmd
-     *   Create an xplot file in netlist/simulation directory with the list of highlighted nodes
-     *   in a format the selected waveform viewer understands (bespice, gaw, ngspice) */
+     *   Create an xplot file in netlist/simulation directory with
+     *   the list of highlighted nodes in a format the selected waveform
+     *   viewer understands (bespice, gaw, ngspice) */
     else if(!strcmp(argv[1], "create_plot_cmd") )
     {
       create_plot_cmd();
@@ -500,7 +501,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     break;
     case 'd': /*----------------------------------------------*/
     /* debug n
-     *   Set xschem in debug mode.'n' is the debug level (0=no debug). Higher levels yield more debug info.*/
+     *   Set xschem in debug mode.'n' is the debug level 
+     *   (0=no debug). Higher levels yield more debug info.*/
     if(!strcmp(argv[1], "debug"))
     {
       if(argc > 2) {
@@ -559,7 +561,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* draw_graph [n] [flags]
-     *   Redraw graph rectangle number 'n'. If the optional 'flags' integer is given it will be used as the 
+     *   Redraw graph rectangle number 'n'.
+     *   If the optional 'flags' integer is given it will be used as the 
      *   flags bitmask to use while drawing (can be used to restrict what to redraw) */
     else if(!strcmp(argv[1], "draw_graph"))
     {
@@ -598,7 +601,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
     /* edit_prop
-     *   Edit global schematic/symbol attributes or attributes of currently selected instances */
+     *   Edit global schematic/symbol attributes or attributes
+     *   of currently selected instances */
     else if(!strcmp(argv[1], "edit_prop"))
     {
       edit_property(0);
@@ -606,7 +610,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* edit_prop
-     *   Edit global schematic/symbol attributes or attributes of currently selected instances
+     *   Edit global schematic/symbol attributes or
+     *   attributes of currently selected instances
      *   using a text editor (defined in tcl 'editor' variable) */
     else if(!strcmp(argv[1], "edit_vi_prop"))
     {
@@ -615,7 +620,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* embed_rawfile raw_file
-     *   Embed base 64 encoded 'raw_file' into currently selected element as a 'spice_data'
+     *   Embed base 64 encoded 'raw_file' into currently
+     *   selected element as a 'spice_data'
      *   attribute. */
     else if(!strcmp(argv[1], "embed_rawfile"))
     {
@@ -1049,7 +1055,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   example:
      *   xschem getprop symbol comp_ngspice.sym -->
      *     type=subcircuit
-     *     format="@name @pinlist @symname OFFSET=@OFFSET AMPLITUDE=@AMPLITUDE GAIN=@GAIN ROUT=@ROUT COUT=@COUT"
+     *     format="@name @pinlist @symname
+     *        OFFSET=@OFFSET AMPLITUDE=@AMPLITUDE GAIN=@GAIN ROUT=@ROUT COUT=@COUT"
      *     template="name=x1 OFFSET=0 AMPLITUDE=5 GAIN=100 ROUT=1000 COUT=1p"
      *
      * getprop symbol sym_name sym_attr [with_quotes]
@@ -1415,9 +1422,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     case 'i': /*----------------------------------------------*/
     /* instance sym_name x y rot flip [prop] [first_call]
      *   Place a new instance of symbol 'sym_name' at position x,y,
-     *    rotation and flip  set to 'rot', 'flip'
-     *   if 'prop' is given it is the new instance attribute string (default: symbol template string)
-     *   if 'first_call' is given it must be 1 on first call and zero on following calls
+     *   rotation and flip  set to 'rot', 'flip'
+     *   if 'prop' is given it is the new instance attribute
+     *   string (default: symbol template string)
+     *   if 'first_call' is given it must be 1 on first call
+     *   and zero on following calls
      *   It is used only for efficiency reasons if placing multiple instances */
     if(!strcmp(argv[1], "instance"))
     {
@@ -1522,7 +1531,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* instance_pin_coord inst attr value
-     *   Return the name and coordinates of pin with attribute 'attr' set to 'value' of instance 'inst'
+     *   Return the name and coordinates of pin with 
+     *   attribute 'attr' set to 'value' of instance 'inst'
      *   'inst can be an instance name or a number
      *   Example: xschem instance_pin_coord x3 name MINUS --> {MINUS} 600 -840 */
     else if(!strcmp(argv[1], "instance_pin_coord"))
@@ -1628,7 +1638,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* instances_to_net net
      *   Return list of instances names and pins attached to net 'net' 
      *   Example: xschem instances_to_net PANEL
-     *    --> { {Vsw} {plus} {580} {-560} } { {p2} {p} {660} {-440} } { {Vpanel1} {minus} {600} {-440} } */
+     *    --> { {Vsw} {plus} {580} {-560} } { {p2} {p} {660} {-440} }
+     *        { {Vpanel1} {minus} {600} {-440} } */
     else if(!strcmp(argv[1], "instances_to_net"))
     {
     /* xschem instances_to_net PLUS */
@@ -1678,7 +1689,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     case 'l': /*----------------------------------------------*/
     /* line x1 y1 x2 y2 [pos]
      *   Place a line on current layer (rectcolor) 
-     *   if integer number 'pos' is given place lien at indicated position in the line array. */
+     *   if integer number 'pos' is given place line at indicated
+     *   position in the line array. */
     if(!strcmp(argv[1], "line"))
     {
       double x1,y1,x2,y2;
@@ -1713,10 +1725,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   List all schematics at or below current hierarchy with modification times.
      *   Example: xschem list_hiearchy
      *   -->
-     *   20230302_003134  {/home/schippes/xschem-repo//trunk/xschem_library/ngspice/solar_panel.sch}
-     *   20230211_010031  {/home/schippes/xschem-repo/trunk/xschem_library/ngspice/pv_ngspice.sch}
-     *   20221011_175308  {/home/schippes/xschem-repo/trunk/xschem_library/ngspice/diode_ngspice.sch}
-     *   20221014_091945  {/home/schippes/xschem-repo/trunk/xschem_library/ngspice/comp_ngspice.sch}
+     *   20230302_003134  {/home/.../ngspice/solar_panel.sch}
+     *   20230211_010031  {/home/.../ngspice/pv_ngspice.sch}
+     *   20221011_175308  {/home/.../ngspice/diode_ngspice.sch}
+     *   20221014_091945  {/home/.../ngspice/comp_ngspice.sch}
      */
     else if(!strcmp(argv[1], "list_hierarchy"))
     {
@@ -1837,8 +1849,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
     
     /* log f
-     * if 'f' is given output stderr messages to file 'f'
-     * if 'f' is not given and a file log is open, close log file and resume logging to stderr */
+     *   If 'f' is given output stderr messages to file 'f'
+     *   if 'f' is not given and a file log is open, close log
+     *   file and resume logging to stderr */
     else if(!strcmp(argv[1], "log"))
     {
       if(argc==3 && errfp == stderr ) { errfp = fopen(argv[2], "w"); } /* added check to avoid multiple open */
@@ -1941,7 +1954,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* net_pin_mismatch
-     *   Highlight nets attached to selected symbols with a different name than symbol pin */
+     *   Highlight nets attached to selected symbols with
+     *   a different name than symbol pin */
     else if(!strcmp(argv[1], "net_pin_mismatch"))
     {
       hilight_net_pin_mismatches();
@@ -2084,8 +2098,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* pinlist inst
      *   List all pins of instance 'inst' 
      *   Example: xschem pinlist x3
-     *   -->
-     *   { {0} {name=PLUS dir=in } } { {1} {name=OUT dir=out } } { {2} {name=MINUS dir=in } }
+     *   -->  { {0} {name=PLUS dir=in } } { {1} {name=OUT dir=out } }
+     *        { {2} {name=MINUS dir=in } }
      */
     else if(!strcmp(argv[1], "pinlist"))
     {
@@ -2112,9 +2126,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* place_symbol [sym_name] [prop]
-         Start a GUI placement operation of specified 'sym_name' symbol.
-         If 'sym_name' not given prompt user
-         'prop' is the attribute string of the symbol. If not given take from symbol template attribute.
+     *   Start a GUI placement operation of specified 'sym_name' symbol.
+     *   If 'sym_name' not given prompt user
+     *   'prop' is the attribute string of the symbol.
+     *   If not given take from symbol template attribute.
      */
     else if(!strcmp(argv[1], "place_symbol"))
     {
@@ -2174,7 +2189,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* preview_window create|draw|destroy [winpath] [file]
-       used in fileselector to show a schematic preview.
+     *   Used in fileselector to show a schematic preview.
      */
     else if(!strcmp(argv[1], "preview_window"))
     {
@@ -2277,12 +2292,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* print_hilight_net show
      *   from highlighted nets/pins/labels:
-     * show == 0   ==> create pins from highlight nets
-     * show == 1   ==> show list of highlight net in a dialog box
-     * show == 2   ==> create labels with i prefix from hilight nets
-     * show == 3   ==> show list of highlight net with path and label expansion in a dialog box
-     * show == 4   ==> create labels without i prefix from hilight nets
-     * for show = 0, 2, 4 user should complete GUI placement of created objects */
+     *   show == 0   ==> create pins from highlight nets
+     *   show == 1   ==> show list of highlight net in a dialog box
+     *   show == 2   ==> create labels with i prefix from hilight nets
+     *   show == 3   ==> show list of highlight net with path and label
+     *                  expansion in a dialog box
+     *   show == 4   ==> create labels without i prefix from hilight nets
+     *   for show = 0, 2, 4 user should complete GUI placement
+     *   of created objects */
     else if(!strcmp(argv[1], "print_hilight_net"))
     {
       if(argc > 2) {
@@ -2291,7 +2308,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* print_spice_element inst
-     * print spice raw netlist line for instance (number or name) 'inst' */
+     *   Print spice raw netlist line for instance (number or name) 'inst' */
     else if(!strcmp(argv[1], "print_spice_element") )
     {
       if(argc > 2) {
@@ -2341,12 +2358,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   xschem raw_query vars: get number of simulation variables
      *   xschem raw_query datasets: get number of datasets (simulation runs)
      *   xschem raw_query value node n: return n-th value of 'node' in raw file
-     *   xschem raw_query loaded: return hierarchy level where raw file was loaded or -1 if no raw loaded
+     *   xschem raw_query loaded: return hierarchy level
+     *   where raw file was loaded or -1 if no raw loaded
      *   xschem raw_query index node: get index of simulation variable 'node'. 
      *     Example:  raw_query index v(led) --> 46
-     *   xschem raw_query values node [dset] : print all simulation values of 'node' for dataset 'dset'
-     *     (default dset=0)
-     *   xschem raw_query points [dset] : print simulation points for dataset 'dset' (default dset=0)
+     *   xschem raw_query values node [dset] : print all simulation
+     *   values of 'node' for dataset 'dset' (default dset=0)
+     *   xschem raw_query points [dset] : print simulation points for
+     *   dataset 'dset' (default dset=0)
      */
     else if(!strcmp(argv[1], "raw_query"))
     {
@@ -2442,7 +2461,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* raw_read_from_attr [sim]
      *   If a simulation raw file is already loaded delete from memory
-     *   else read section 'sim' (tran, dc, ac, op, ...) of base64 encoded data from a 'spice_data'
+     *   else read section 'sim' (tran, dc, ac, op, ...)
+     *   of base64 encoded data from a 'spice_data'
      *   attribute of selected instance
      *   If sim not given read first section found */
     else if(!strcmp(argv[1], "raw_read_from_attr"))
@@ -2482,7 +2502,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* rect [x1 y1 x2 y2] [pos]
-     *   if 'x1 y1 x2 y2'is given place recangle on current layer (rectcolor) at indicated coordinates.
+     *   if 'x1 y1 x2 y2'is given place recangle on current
+     *   layer (rectcolor) at indicated coordinates.
      *   if 'pos' is given insert at given position in rectangle array.
      *   If no coordinates are given start a GUI operation of rectangle placement */
     else if(!strcmp(argv[1], "rect"))
@@ -2556,7 +2577,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* replace_symbol inst new_symbol [fast]
      *   Replace 'inst' symbol with 'new_symbol'
-     *   If doing multiple substitutions set 'fast' to 0 on first call and non zero on next calls
+     *   If doing multiple substitutions set 'fast' to 0
+     *    on first call and non zero on next calls
      *   for faster operation
      *   Example: xschem replace_symbol R3 capa.sym */
     else if(!strcmp(argv[1], "replace_symbol"))
@@ -2687,9 +2709,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* schematic_in_new_window [new_process]
-     *  When a symbol is selected edit corresponding schematic in a new tab/window if not already open.
-     *  If nothing selected open another window of the second schematic (issues a warning).
-     *  if 'new_process' is given start a new xschem process */
+     *   When a symbol is selected edit corresponding schematic
+     *   in a new tab/window if not already open.
+     *   If nothing selected open another window of the second
+     *   schematic (issues a warning).
+     *   if 'new_process' is given start a new xschem process */
     else if(!strcmp(argv[1], "schematic_in_new_window"))
     {
       int new_process = 0;
@@ -2699,15 +2723,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* search regex|exact select tok val
-     *   Search instances with attribute string containing 'tok' attribute and value 'val'
+     *   Search instances with attribute string containing 'tok'
+     *   attribute and value 'val'
      *   search can be exact ('exact') or as a regular expression ('regex')
      *   select: 
      *      0 : highlight matching instances
      *      1 : select matching instances
      *     -1 : unselect matching instances 
      *   'tok' set as:
-     *       propstring : will search for 'val' in the entire *instance* attribute string.
-     *       cell::propstring : will search for 'val' in the entire *symbol* attribute string. 
+     *       propstring : will search for 'val' in the entire 
+     *       *instance* attribute string.
+     *       cell::propstring : will search for 'val' in the entire
+     *       *symbol* attribute string. 
      *       cell::name : will search for 'val' in the symbol name
      *       cell::<attr> will search for 'val' in symbol attribute 'attr'
      *         example: xschem search regex 0 cell::template GAIN=100
@@ -2945,7 +2972,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
     /************ end xschem set subcommands *************/
     /* set_different_tok str new_str old_str
-     * Return string 'str' replacing/adding/removing tokens that are different between 'new_str' and 'old_str' */
+     *   Return string 'str' replacing/adding/removing tokens that are
+     *   different between 'new_str' and 'old_str' */
     else if(!strcmp(argv[1], "set_different_tok") )
     {
       char *s = NULL;
@@ -3197,7 +3225,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
     /* simulate
-     *   Run a simulation (start simulator configured as default in Tools -> Configure simulators and tools) */
+     *   Run a simulation (start simulator configured as default in
+     *   Tools -> Configure simulators and tools) */
     else if(!strcmp(argv[1], "simulate") )
     {
       if(set_netlist_dir(0, NULL) ) {
@@ -3206,7 +3235,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* snap_wire 
-     *  Start a GUI start snapped wire placement (click to start a wire to closest pin/net endpoint) */
+     *   Start a GUI start snapped wire placement (click to start a
+     *   wire to closest pin/net endpoint) */
     else if(!strcmp(argv[1], "snap_wire"))
     {
       xctx->ui_state |= MENUSTARTSNAPWIRE;
@@ -3224,9 +3254,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* symbol_in_new_window [new_process]
-     *  When a symbol is selected edit it in a new tab/window if not already open.
-     *  If nothing selected open another window of the second schematic (issues a warning).
-     *  if 'new_process' is given start a new xschem process */
+     *   When a symbol is selected edit it in a new tab/window if not already open.
+     *   If nothing selected open another window of the second schematic (issues a warning).
+     *   if 'new_process' is given start a new xschem process */
     else if(!strcmp(argv[1], "symbol_in_new_window"))
     {
       int new_process = 0;
