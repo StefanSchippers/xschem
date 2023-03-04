@@ -253,6 +253,9 @@ proc execute_fileevent {id} {
         uplevel #0 "eval $execute(callback,$id)"
         unset execute(callback,$id)
       } 
+      set execute(cmd,last) $execute(cmd,$id)
+      set execute(data,last) $execute(data,$id)
+      set execute(status,last) $execute(status,$id)
       unset execute(pipe,$id)
       unset execute(data,$id)
       unset execute(status,$id)
