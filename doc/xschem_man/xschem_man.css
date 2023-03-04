@@ -196,7 +196,7 @@ h3{
 /* mobile rendering  */
 @media all and (-webkit-min-device-pixel-ratio: 2) and (min-resolution: 192dpi)  and (orientation : portrait){ 
   * {
-    font-size:20px;
+    font-size:18;
   }
   .prev {
     width: 10%;
@@ -219,7 +219,7 @@ h3{
 }
 @media all and (-webkit-min-device-pixel-ratio: 2) and (min-resolution: 192dpi)  and (orientation : landscape){ 
   * {
-    font-size:25px;
+    font-size:22px;
   }
 
   li{
