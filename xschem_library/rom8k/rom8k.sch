@@ -33,8 +33,8 @@ y1 = -0.048929
 y2 = 0.999755
 divy = 3
 subdivy=1
-x1=1.30906e-07
-x2=2.4887e-07  divx=10
+x1=1.25008e-07
+x2=2.42972e-07  divx=10
 node="ldbl[0]
 ldbl[16]
 ldbl[32]
@@ -52,8 +52,8 @@ y1 = 0
 y2 = 1.60
 subdivy=1
 divy = 4
-x1=1.30906e-07
-x2=2.4887e-07
+x1=1.25008e-07
+x2=2.42972e-07
 divx=10
 subdivx=4
 node="ldcp
@@ -71,8 +71,8 @@ y2 = 1.6
 divy = 3
 subdivy=0
 subdivx = 1
-x1=1.30906e-07
-x2=2.4887e-07  divx=10
+x1=1.25008e-07
+x2=2.42972e-07  divx=10
 node="ldwl[0]
 ldwl[1]
 ldwl[2]
@@ -95,8 +95,8 @@ y2 = 1.6
 ypos1=0.0990096
 ypos2=2.81842
 divy = 1
-x1=1.30906e-07
-x2=2.4887e-07
+x1=1.25008e-07
+x2=2.42972e-07
 divx=12
 subdivx=4
 node="---In/Out---
@@ -124,8 +124,8 @@ B 2 1840 -1300 2890 -1160 {flags=graph
 y1 = 0
 y2 = 1.60
 divy = 4
-x1=1.30906e-07
-x2=2.4887e-07
+x1=1.25008e-07
+x2=2.42972e-07
 divx=8
 unitx=n
 node="xsa[0].ldqib
@@ -138,8 +138,8 @@ B 2 1840 -240 2890 0 {flags=graph
 y1 = -0.049
 y2 = 0.00057
 divy = 5
-x1=1.30906e-07
-x2=2.4887e-07  
+x1=1.25008e-07
+x2=2.42972e-07  
 unity=m
 divx=10
 subdivx=1
@@ -388,8 +388,7 @@ vvss vss 0 0
 * .op ALL  4n
 *.dc vvcc 0 2 0.1
 .print tran format=raw i(vvcc) i(vsa) i(vl) i(vdec)
-
-
+.print tran format=raw v(*)
 .print tran format=raw v(xctrl:LDCPB) 
 .print tran format=raw v(xctrl:LDCP_REF) 
 .print tran format=raw v(xctrl:LDOUTI) 
@@ -424,7 +423,7 @@ descr="Load XYCE waves"
 tclcommand="
 set_sim_defaults
 set sim(spice,default) 2 ;# 3rd simulator: Xyce
-xschem raw_read $netlist_dir/rom8k_xyce.spice.raw
+xschem raw_read $netlist_dir/rom8k.spice.raw
 "
 }
 C {launcher.sym} 590 -1250 0 0 {name=h1 

@@ -324,6 +324,16 @@ proc execute {status args} {
   return $id
 }
 
+proc view_current_sim_output {} {
+  global execute viewdata_wcounter
+  if {[catch { set t $execute(data,$execute(id)) } err]} {
+    set t $err
+  }
+  viewdata $t ro
+  .view${viewdata_wcounter}.text yview moveto 1
+
+}
+
 #### Scrollable frame 
 proc scrollyview {container args} {
   global ${container}_vpos ;# global to remember scrollbar position
@@ -6027,6 +6037,9 @@ proc build_widgets { {topwin {} } } {
     -variable local_netlist_dir \
     -command { if {$local_netlist_dir == 0 } { select_netlist_dir 1 } else { simuldir} }
   $topwin.menubar.simulation.menu add command -label {Configure simulators and tools} -command {simconf}
+  $topwin.menubar.simulation.menu add command -label {Monitor current simulation} -command {
+    view_current_sim_output
+  }
   $topwin.menubar.simulation.menu add command -label {Utile Stimuli Editor (GUI)} -command {
      simuldir
      inutile [xschem get current_dirname]/stimuli.[file rootname [file tail [xschem get schname]]]
