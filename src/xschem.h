@@ -986,7 +986,7 @@ typedef struct {
   char *format; /* "format", "verilog_format", "vhdl_format" or "tedax_format" */
   char *top_path;
   /* top_path is the path prefix of drawing canvas (current_win_path):
-   *
+   * top_path is always "" in tabbed interface 
    * current_win_path
    *    canvas           top_path
    *  ----------------------------
