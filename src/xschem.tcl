@@ -327,8 +327,10 @@ proc execute {status args} {
 proc view_current_sim_output {} {
   global execute viewdata_wcounter
   if {[catch { set t $execute(data,$execute(id)) } err]} {
-    set t $err
-  }
+    if {[catch { set t $execute(data,last) } err]} {
+      set t $err
+    }
+  } 
   viewdata $t ro
   .view${viewdata_wcounter}.text yview moveto 1
 
