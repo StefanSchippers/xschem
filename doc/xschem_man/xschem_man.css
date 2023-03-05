@@ -22,6 +22,10 @@ html, body{
   background-color: #cccccc;
 }
 
+pre{
+  white-space:pre-wrap;
+}
+
 kbd{
   color: #993333;
   text-align: left;
@@ -194,9 +198,9 @@ h3{
 }
 
 /* mobile rendering  */
-@media all and (-webkit-min-device-pixel-ratio: 2) and (min-resolution: 192dpi)  and (orientation : portrait){ 
+@media all and (-webkit-min-device-pixel-ratio: 2) and (min-resolution: 92dpi)  and (orientation : portrait){ 
   * {
-    font-size:16;
+    font-size:18;
   }
   .prev {
     width: 10%;
@@ -217,9 +221,9 @@ h3{
     left:24%
   }
 }
-@media all and (-webkit-min-device-pixel-ratio: 2) and (min-resolution: 192dpi)  and (orientation : landscape){ 
+@media all and (-webkit-min-device-pixel-ratio: 2) and (min-resolution: 92dpi)  and (orientation : landscape){ 
   * {
-    font-size:20px;
+    font-size:23px;
   }
 
   li{
