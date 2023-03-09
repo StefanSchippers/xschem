@@ -8,22 +8,24 @@ beginfile stimuli_test_ngspice.cir
 
 set A_A 0
 set B_A 0
-s 1000
+s 3000
 set A_A 1
 set B_A 0
-s 2000
+s 3000
 set A_A 1
 set B_A 1
-s 2000
+s 3000
 set A_A 0
 set B_A 1
-s 2000
+s 3000
 set A_A 0
 set B_A 0
-s 2000
+s 3000
 set A_A 0
 set B_A 1
-s 2000
+s 3000
+set A_A 0
+set B_A 0
 endfile
 
 
