@@ -150,6 +150,10 @@
 #### default setting: 0
 # set unzoom_nodrift 0
 
+#### if set to 1 full zoom will center the drawing instead of anhoring to lower
+#### left corner. Default: 0
+# set zoom_full_center 1
+
 #### if set to 1 allow to place multiple components with same name.
 #### Warning: this is normally not allowed in any simulation netlist.
 #### default: 0, do not allow place multiple elements with same name (refdes)

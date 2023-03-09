@@ -2377,12 +2377,14 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     break;
    }
    if(key=='f' && state == 0 )                  /* full zoom */
-   {
+   { 
+    int flags = 1;
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
-    zoom_full(1, 0, 1, 0.97);
+    if(tclgetboolvar("zoom_full_center")) flags |= 2;
+    zoom_full(1, 0, flags, 0.97);
     break;
    }
    if((key=='z' && state==ControlMask))                         /* zoom out */

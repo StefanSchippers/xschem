@@ -5318,7 +5318,7 @@ proc no_open_dialogs {} {
 set tctx::global_list {
   PDK_ROOT PDK SKYWATER_MODELS SKYWATER_STDCELLS 
   INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR XSCHEM_LIBRARY_PATH
-  auto_hilight autofocus_mainwindow
+  add_all_windows_drives auto_hilight autofocus_mainwindow
   autotrim_wires bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
   cadsnap cairo_font_name change_lw color_ps colors compare_sch connect_by_kissing constrained_move
   copy_cell custom_label_prefix custom_token dark_colors dark_colorscheme dim_bg dim_value
@@ -5340,7 +5340,7 @@ set tctx::global_list {
   textwindow_fileid textwindow_filename textwindow_w tmp_bus_char toolbar_horiz toolbar_list
   toolbar_visible transparent_svg undo_type use_lab_wire use_label_prefix
   user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
-  vsize xschem_libs xschem_listen_port add_all_windows_drives
+  vsize xschem_libs xschem_listen_port zoom_full_center
 }
 
 ## list of global arrays to save/restore on context switching
@@ -6400,6 +6400,7 @@ set_ne transparent_svg 0
 set_ne only_probes 0  ; # 20110112
 set_ne fullscreen 0
 set_ne unzoom_nodrift 0
+set_ne zoom_full_center 0
 set_ne change_lw 1
 set_ne line_width 0
 set_ne live_cursor2_backannotate 0

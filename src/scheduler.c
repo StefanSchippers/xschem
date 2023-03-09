@@ -3594,6 +3594,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(endptr == argv[i]) shrink = 1.0;
         }
       }
+      if(tclgetboolvar("zoom_full_center")) flags |= 2;
       zoom_full(draw, 0, flags, shrink);
       Tcl_ResetResult(interp);
     }
