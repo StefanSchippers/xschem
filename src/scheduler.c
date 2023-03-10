@@ -1858,6 +1858,40 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(argc==2 && errfp != stderr) { fclose(errfp); errfp=stderr; }
     }
 
+    /* logic_get net_name
+     *   Get logic state of net named 'net_name'
+     *   Returns 0, 1, 2, 3 for logic levels 0, 1, X, Z or nothing if no net found.
+     */
+    else if(!strcmp(argv[1], "logic_get"))
+    {
+      static char s[2]=".";
+      Tcl_ResetResult(interp);
+      if(argc > 2) {
+        Hilight_hashentry  *entry;
+        entry = bus_hilight_hash_lookup(argv[2], 0, XLOOKUP);
+        if(entry) {
+          switch(entry->value) {
+            case -5:
+            s[0] = '1';
+            break;
+            case -12:
+            s[0] = '0';
+            break;
+            case -1:
+            s[0] = '2';
+            break;
+            case -13:
+            s[0] = '3';
+            break;
+            default:
+            s[0] = '2';
+            break;
+          }
+          Tcl_SetResult(interp, s, TCL_VOLATILE);
+        }
+      }
+    }
+
     /* logic_set n num
      *   Set selected nets, net labels or pins to logic level 'n' 'num' times.
      *   'n': 
@@ -1882,6 +1916,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'm': /*----------------------------------------------*/
+    /* make_sch
+     *   Make a schematic from selected symbol */
     if(!strcmp(argv[1], "make_sch")) /* make schematic from selected symbol 20171004 */
     {
       create_sch_from_sym();
@@ -1889,7 +1925,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* make_sch_from_sel 
-     *   create an LCC instance from selection and place it instead of selection
+     *   Create an LCC instance from selection and place it instead of selection
      *   also ask if a symbol (.sym) file needs to be created */
     else if(!strcmp(argv[1], "make_sch_from_sel"))
     {

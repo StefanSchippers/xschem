@@ -480,6 +480,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
         -->
 
 
+
   <li><kbd>       abort_operation</kbd></li><pre>
   Resets UI state, unselect all and abort any pending operation </pre>
   <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -772,6 +773,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
   If 'f' is given output stderr messages to file 'f'
   if 'f' is not given and a file log is open, close log
   file and resume logging to stderr </pre>
+  <li><kbd>       logic_get net_name</kbd></li><pre>
+  Get logic state of net named 'net_name'
+  Returns 0, 1, 2, 3 for logic levels 0, 1, X, Z or nothing if no net found.</pre>
   <li><kbd>       logic_set n num</kbd></li><pre>
   Set selected nets, net labels or pins to logic level 'n' 'num' times.
   'n': 
@@ -781,17 +785,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
   3  set to logic value Z
   -1  toggle logic valie (1-&gt;0, 0-&gt;1)
   the 'num' parameter is essentially useful only with 'toggle' (-1)  value</pre>
-  <li><kbd>       logic_set n num</kbd></li><pre>
-  Set selected nets, net labels or pins to logic level 'n' 'num' times.
-  'n': 
-  0  set to logic value 0
-  1  set to logic value 1
-  2  set to logic value X
-  3  set to logic value Z
-  -1  toggle logic valie (1-&gt;0, 0-&gt;1)
-  the 'num' parameter is essentially useful only with 'toggle' (-1)  value</pre>
+  <li><kbd>       make_sch</kbd></li><pre>
+  Make a schematic from selected symbol </pre>
   <li><kbd>       make_sch_from_sel </kbd></li><pre>
-  create an LCC instance from selection and place it instead of selection
+  Create an LCC instance from selection and place it instead of selection
   also ask if a symbol (.sym) file needs to be created </pre>
   <li><kbd>       make_symbol</kbd></li><pre>
   From current schematic (circuit.sch) create a symbol (circuit.sym) 
@@ -1114,6 +1111,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
   Zoom out drawing </pre>
   <li><kbd>       zoom_selected</kbd></li><pre>
   Zoom to selection </pre>
+
+
 
  </ul>
 
