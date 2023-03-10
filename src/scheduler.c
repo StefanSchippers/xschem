@@ -3122,6 +3122,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             xctx->inst[inst].flags &=~2;
             my_strdup(_ALLOC_ID_, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
           }
+
+          if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"highlight",0), "true"))
+                xctx->inst[inst].flags |= HILIGHT_CONN;
+          else  xctx->inst[inst].flags &= ~HILIGHT_CONN;
+          if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"hide",0), "true"))
+                xctx->inst[inst].flags |= HIDE_INST;
+          else  xctx->inst[inst].flags &= ~HIDE_INST;
           xctx->inst[inst].embed = !strcmp(get_tok_value(xctx->inst[inst].prop_ptr, "embed", 2), "true");
           if(!fast) {
             /* new symbol bbox after prop changes (may change due to text length) */
