@@ -1451,7 +1451,7 @@ extern void print_verilog_signals(FILE *fd);
 extern void print_generic(FILE *fd, char *ent_or_comp, int symbol);
 extern void print_verilog_param(FILE *fd, int symbol);
 extern void hilight_net(int to_waveform);
-extern void logic_set(int v, int num);
+extern void logic_set(int v, int num, const char *net_name);
 extern int hilight_netname(const char *name);
 extern void unhilight_net();
 extern void propagate_hilights(int set, int clear, int mode);

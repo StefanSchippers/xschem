@@ -1892,8 +1892,30 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* logic_set n num
-     *   Set selected nets, net labels or pins to logic level 'n' 'num' times.
+    /* logic_set_net net_name n [num]
+     *   set 'net_name' to logic level 'n' 'num' times.
+     *   'n': 
+     *       0  set to logic value 0
+     *       1  set to logic value 1
+     *       2  set to logic value X
+     *       3  set to logic value Z
+     *      -1  toggle logic valie (1->0, 0->1)
+     *   the 'num' parameter is essentially useful only with 'toggle' (-1)  value
+     */
+    else if(!strcmp(argv[1], "logic_set_net"))
+    {
+      int num =  1;
+      if(argc > 4 ) num = atoi(argv[4]);
+      if(argc > 3) {
+        int n = atoi(argv[3]);
+        if(n == 4) n = -1;
+        logic_set(n, num, argv[2]);
+      }
+      Tcl_ResetResult(interp);
+    }
+
+    /* logic_set n [num]
+     *   set selected nets, net labels or pins to logic level 'n' 'num' times.
      *   'n': 
      *       0  set to logic value 0
      *       1  set to logic value 1
@@ -1909,7 +1931,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2) {
         int n = atoi(argv[2]);
         if(n == 4) n = -1;
-        logic_set(n, num);
+        logic_set(n, num, NULL);
       }
       Tcl_ResetResult(interp);
     }

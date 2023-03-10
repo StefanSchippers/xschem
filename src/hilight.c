@@ -1600,7 +1600,7 @@ static void propagate_logic()
   /* my_free(_ALLOC_ID_, &propagated_net); */
 }
 
-void logic_set(int value, int num)
+void logic_set(int value, int num, const char *net_name)
 {
   int i, j, n, newval;
   char *type;
@@ -1620,7 +1620,15 @@ void logic_set(int value, int num)
     bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
   }
   for(j = 0; j < num; ++j) {
-    for(i=0;i<xctx->lastsel; ++i)
+    if(net_name) {
+      if(value == -1) { /* toggle */
+        entry = bus_hilight_hash_lookup(net_name, 0, XLOOKUP);
+        if(entry)
+          newval = (entry->value == LOGIC_1) ? 0 : (entry->value == LOGIC_0) ? 1 : 2;
+        else newval = 2;
+      }
+      bus_hilight_hash_lookup(net_name, map[newval], XINSERT);
+    } else for(i=0;i<xctx->lastsel; ++i)
     {
       char *node = NULL;
       n = xctx->sel_array[i].n;

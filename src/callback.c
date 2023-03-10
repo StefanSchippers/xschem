@@ -2101,8 +2101,8 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key >= '0' && key <= '4' && state == 0) {  /* toggle pin logic level */
      if(xctx->semaphore >= 2) break;
-     if(key == '4') logic_set(-1, 1);
-     else logic_set((int)key - '0', 1);
+     if(key == '4') logic_set(-1, 1, NULL);
+     else logic_set((int)key - '0', 1, NULL);
      break;
    }
    if(key=='L' && state == (Mod1Mask | ShiftMask)) {                         /* add pin label*/
