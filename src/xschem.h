@@ -165,6 +165,7 @@ extern char win_temp_dir[PATH_MAX];
 #define ELEMDEF 50         /*  (initial) max # of defined elements */
 #define EMBEDDED 1   /* used for embedded symbols marking in Symbol.flags */
 #define HILIGHT_CONN 4 /* used to hilight instances if connected wire is hilighted */
+#define HIDE_INST 8    /*  will only show a bounding box for specific symbol instance */
 #define CADMAXGRIDPOINTS 512
 #define CADMAXHIER 80
 #define CADCHUNKALLOC 512 /*  was 256  20102004 */
@@ -537,8 +538,9 @@ typedef struct
   int color; /* hilight color */
   short flags; /* bit 0: skip field, 
                 * bit 1: flag for different textlayer for pin/labels,
-                * 1: ordinary symbol, 0: label/pin/show 
-                * bit 2: highlight if connected net/label is highlighted */
+                *        1: ordinary symbol, 0: label/pin/show 
+                * bit 2: highlight if connected net/label is highlighted
+                * bit 3: hidden instance, show only bounding box (hide=true attribute)*/
   char *prop_ptr;
   char **node;
   char *lab;      /*  lab attribute if any (pin/label) */

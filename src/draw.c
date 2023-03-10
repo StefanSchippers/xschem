@@ -437,8 +437,10 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   if(xctx->inst[n].ptr == -1) return;
   if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
   if(!has_x) return;
-  if( (xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
-      !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") ) || (xctx->hide_symbols == 2) ) {
+  if( (xctx->inst[n].flags & HIDE_INST) ||
+      (xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
+      !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") ) ||
+      (xctx->hide_symbols == 2) ) {
     hide = 1;
   } else {
     hide = 0;
@@ -618,7 +620,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
         double xoffset, double yoffset)
                             /* draws current layer only, should be called within */
 {                           /* a "for(i=0;i<cadlayers; ++i)" loop */
- int j;
+ int j, hide = 0;
  double x0,y0,x1,y1,x2,y2;
  short flip;
  xLine *line;
@@ -635,6 +637,15 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
 
  if(xctx->inst[n].ptr == -1) return;
  if(!has_x) return;
+
+ if( (xctx->inst[n].flags & HIDE_INST) ||
+     (xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
+     !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") ) ||
+     (xctx->hide_symbols == 2) ) {
+   hide = 1;
+ } else {
+   hide = 0;
+ }
 
  flip = xctx->inst[n].flip;
  if(tmp_flip) flip = !flip;
@@ -658,6 +669,17 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
      return;
    }
    else xctx->inst[n].flags&=~1;
+   if(hide) {
+     symptr = (xctx->inst[n].ptr+ xctx->sym);
+     x0=xctx->inst[n].x0;
+     y0=xctx->inst[n].y0;
+     x0 += xoffset;
+     y0 += yoffset;
+     ROTATION(rot, flip, 0.0,0.0,symptr->minx, symptr->miny,x1,y1);
+     ROTATION(rot, flip, 0.0,0.0,symptr->maxx, symptr->maxy,x2,y2);
+     RECTORDER(x1,y1,x2,y2);
+     drawtemprect(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
+   }
  } else if(xctx->inst[n].flags&1) {
    dbg(2, "draw_symbol(): skipping inst %d\n", n);
    return;
@@ -666,81 +688,83 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  x0=xctx->inst[n].x0 + xoffset;
  y0=xctx->inst[n].y0 + yoffset;
  symptr = (xctx->inst[n].ptr+ xctx->sym);
- for(j=0;j< symptr->lines[layer]; ++j)
- {
-  line = &(symptr->line[layer])[j];
-  ROTATION(rot, flip, 0.0,0.0,line->x1,line->y1,x1,y1);
-  ROTATION(rot, flip, 0.0,0.0,line->x2,line->y2,x2,y2);
-  ORDER(x1,y1,x2,y2);
-  if(line->bus)
-    drawtempline(gc,THICK, x0+x1, y0+y1, x0+x2, y0+y2);
-  else
-    drawtempline(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
- }
- for(j=0;j< symptr->polygons[layer]; ++j)
- {
-   polygon = &(symptr->poly[layer])[j];
-
-   {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
-     int k;
-     double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
-     double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
-     for(k=0;k<polygon->points; ++k) {
-       ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
-       x[k] += x0;
-       y[k] += y0;
+ if(!hide) {
+   for(j=0;j< symptr->lines[layer]; ++j)
+   {
+    line = &(symptr->line[layer])[j];
+    ROTATION(rot, flip, 0.0,0.0,line->x1,line->y1,x1,y1);
+    ROTATION(rot, flip, 0.0,0.0,line->x2,line->y2,x2,y2);
+    ORDER(x1,y1,x2,y2);
+    if(line->bus)
+      drawtempline(gc,THICK, x0+x1, y0+y1, x0+x2, y0+y2);
+    else
+      drawtempline(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
+   }
+   for(j=0;j< symptr->polygons[layer]; ++j)
+   {
+     polygon = &(symptr->poly[layer])[j];
+  
+     {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
+       int k;
+       double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
+       double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
+       for(k=0;k<polygon->points; ++k) {
+         ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
+         x[k] += x0;
+         y[k] += y0;
+       }
+       drawtemppolygon(gc, NOW, x, y, polygon->points);
+       my_free(_ALLOC_ID_, &x);
+       my_free(_ALLOC_ID_, &y);
      }
-     drawtemppolygon(gc, NOW, x, y, polygon->points);
-     my_free(_ALLOC_ID_, &x);
-     my_free(_ALLOC_ID_, &y);
    }
- }
-
- for(j=0;j< symptr->rects[layer]; ++j)
- {
-  rect = &(symptr->rect[layer])[j];
-  ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
-  ROTATION(rot, flip, 0.0,0.0,rect->x2,rect->y2,x2,y2);
-  RECTORDER(x1,y1,x2,y2);
-  drawtemprect(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
- }
- for(j=0;j< symptr->arcs[layer]; ++j)
- {
-   arc = &(symptr->arc[layer])[j];
-   if(flip) {
-     angle = 270.*rot+180.-arc->b-arc->a;
-   } else {
-     angle = arc->a+rot*270.;
+  
+   for(j=0;j< symptr->rects[layer]; ++j)
+   {
+    rect = &(symptr->rect[layer])[j];
+    ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
+    ROTATION(rot, flip, 0.0,0.0,rect->x2,rect->y2,x2,y2);
+    RECTORDER(x1,y1,x2,y2);
+    drawtemprect(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
    }
-   angle = fmod(angle, 360.);
-   if(angle<0.) angle+=360.;
-   ROTATION(rot, flip, 0.0,0.0,arc->x,arc->y,x1,y1);
-   drawtemparc(gc, what, x0+x1, y0+y1, arc->r, angle, arc->b);
- }
-
- if(layer==PROPERTYLAYER && xctx->sym_txt)
- {
-  const char *txtptr;
-  for(j=0;j< symptr->texts; ++j)
-  {
-   text = symptr->text[j];
-   if(!text.txt_ptr || !text.txt_ptr[0] || text.xscale*FONTWIDTH*xctx->mooz<1) continue;
-   if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
-   txtptr= translate(n, text.txt_ptr);
-   ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
-   #if HAS_CAIRO==1
-   customfont = set_text_custom_font(&text);
-   #endif
-   if(txtptr[0]) draw_temp_string(gc, what, txtptr,
-     (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
-     flip^text.flip, text.hcenter, text.vcenter, x0+x1, y0+y1, text.xscale, text.yscale);
-   #if HAS_CAIRO==1
-   if(customfont) {
-     cairo_restore(xctx->cairo_ctx);
+   for(j=0;j< symptr->arcs[layer]; ++j)
+   {
+     arc = &(symptr->arc[layer])[j];
+     if(flip) {
+       angle = 270.*rot+180.-arc->b-arc->a;
+     } else {
+       angle = arc->a+rot*270.;
+     }
+     angle = fmod(angle, 360.);
+     if(angle<0.) angle+=360.;
+     ROTATION(rot, flip, 0.0,0.0,arc->x,arc->y,x1,y1);
+     drawtemparc(gc, what, x0+x1, y0+y1, arc->r, angle, arc->b);
    }
-   #endif
-
-  }
+  
+   if(layer==PROPERTYLAYER && xctx->sym_txt)
+   {
+    const char *txtptr;
+    for(j=0;j< symptr->texts; ++j)
+    {
+     text = symptr->text[j];
+     if(!text.txt_ptr || !text.txt_ptr[0] || text.xscale*FONTWIDTH*xctx->mooz<1) continue;
+     if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
+     txtptr= translate(n, text.txt_ptr);
+     ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
+     #if HAS_CAIRO==1
+     customfont = set_text_custom_font(&text);
+     #endif
+     if(txtptr[0]) draw_temp_string(gc, what, txtptr,
+       (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
+       flip^text.flip, text.hcenter, text.vcenter, x0+x1, y0+y1, text.xscale, text.yscale);
+     #if HAS_CAIRO==1
+     if(customfont) {
+       cairo_restore(xctx->cairo_ctx);
+     }
+     #endif
+  
+    }
+   }
  }
 }
 

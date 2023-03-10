@@ -1376,6 +1376,9 @@ static void update_symbol(const char *result, int x)
     if(!strcmp(get_tok_value(xctx->inst[*ii].prop_ptr,"highlight",0), "true"))
           xctx->inst[*ii].flags |= HILIGHT_CONN;
     else  xctx->inst[*ii].flags &= ~HILIGHT_CONN;
+    if(!strcmp(get_tok_value(xctx->inst[*ii].prop_ptr,"hide",0), "true"))
+          xctx->inst[*ii].flags |= HIDE_INST;
+    else  xctx->inst[*ii].flags &= ~HIDE_INST;
     xctx->inst[*ii].embed = !strcmp(get_tok_value(xctx->inst[*ii].prop_ptr, "embed", 2), "true");
   }  /* end for(k=0;k<xctx->lastsel; ++k) */
   /* new symbol bbox after prop changes (may change due to text length) */

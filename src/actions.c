@@ -1061,6 +1061,8 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   }
   dbg(1, "place_symbol(): done set_inst_prop()\n");  /*  03-02-2000 */
 
+  if(!strcmp(get_tok_value(xctx->inst[n].prop_ptr,"hide",0), "true"))
+    xctx->inst[n].flags |= HIDE_INST;
   if(!strcmp(get_tok_value(xctx->inst[n].prop_ptr,"highlight",0), "true"))
     xctx->inst[n].flags |= HILIGHT_CONN;
   type = xctx->sym[xctx->inst[n].ptr].type;

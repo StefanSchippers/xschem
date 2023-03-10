@@ -1891,6 +1891,8 @@ static void load_inst(int k, FILE *fd)
       load_ascii_string(&prop_ptr,fd);
       my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, prop_ptr);
       my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
+      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"hide",0), "true"))
+        xctx->inst[i].flags |= HIDE_INST;
       if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"highlight",0), "true"))
         xctx->inst[i].flags |= HILIGHT_CONN;
 
@@ -3225,6 +3227,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
        if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"highlight",0), "true"))
          symbol[symbols].flags |= HILIGHT_CONN;
        else symbol[symbols].flags &= ~HILIGHT_CONN;
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"hide",0), "true"))
+         symbol[symbols].flags |= HIDE_INST;
+       else symbol[symbols].flags &= ~HIDE_INST;
 
      }
      else {
@@ -3242,6 +3247,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
        if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"highlight",0), "true"))
          symbol[symbols].flags |= HILIGHT_CONN;
        else symbol[symbols].flags &= ~HILIGHT_CONN;
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"hide",0), "true"))
+         symbol[symbols].flags |= HIDE_INST;
+       else symbol[symbols].flags &= ~HIDE_INST;
      }
      else {
        load_ascii_string(&aux_ptr, lcc[level].fd);
