@@ -1858,11 +1858,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(argc==2 && errfp != stderr) { fclose(errfp); errfp=stderr; }
     }
 
-    /* logic_get net_name
+    /* logic_get_net net_name
      *   Get logic state of net named 'net_name'
      *   Returns 0, 1, 2, 3 for logic levels 0, 1, X, Z or nothing if no net found.
      */
-    else if(!strcmp(argv[1], "logic_get"))
+    else if(!strcmp(argv[1], "logic_get_net"))
     {
       static char s[2]="X";
       Tcl_ResetResult(interp);
