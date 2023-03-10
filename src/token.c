@@ -703,11 +703,14 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
  if(!name) my_strdup(_ALLOC_ID_, &name, get_tok_value(template, "name", 0));
  /* allow format string override in instance */
  my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
- if(!format && strcmp(fmt_attr, "vhdl_format"))               
-    my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, "vhdl_format", 2));
- if(!format)
+ /* get netlist format rule from symbol */
+ if(!xctx->tok_size)
    my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
- if(!format && strcmp(fmt_attr, "vhdl_format"))               
+ /* allow format string override in instance */
+ if(xctx->tok_size && strcmp(fmt_attr, "vhdl_format"))               
+    my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, "vhdl_format", 2));
+ /* get netlist format rule from symbol */
+ if(!xctx->tok_size && strcmp(fmt_attr, "vhdl_format"))               
    my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "vhdl_format", 2));
  if((name==NULL) || (format==NULL) ) {
    my_free(_ALLOC_ID_, &template);
@@ -1137,7 +1140,7 @@ void print_vhdl_element(FILE *fd, int inst)
 
   fmt_attr = xctx->format ? xctx->format : "vhdl_format";
   fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2);
-  if(!fmt[0] && strcmp(fmt_attr, "vhdl_format") )
+  if(!xctx->tok_size && strcmp(fmt_attr, "vhdl_format") )
     fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "vhdl_format", 2);
   if(fmt[0]) {
    print_vhdl_primitive(fd, inst);
@@ -1519,7 +1522,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
 
  fmt_attr = xctx->format ? xctx->format : "format";
  my_strdup(_ALLOC_ID_, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, fmt_attr, 2));
- if(!format1 && strcmp(fmt_attr, "format") )
+ if(!xctx->tok_size && strcmp(fmt_attr, "format") )
    my_strdup(_ALLOC_ID_, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, "format", 2));
  dbg(1, "print_spice_subckt(): format1=%s\n", format1);
  if(format1 && strstr(format1, "tcleval(") == format1) {
@@ -1665,15 +1668,19 @@ int print_spice_element(FILE *fd, int inst)
   my_strdup(_ALLOC_ID_, &name,xctx->inst[inst].instname);
   if (!name) my_strdup(_ALLOC_ID_, &name, get_tok_value(template, "name", 0));
 
-  /* allow format string override in instance */
   fmt_attr = xctx->format ? xctx->format : "format";
+  /* allow format string override in instance */
   my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
-  if(!format && strcmp(fmt_attr, "format") )
+  /* get netlist format rule from symbol */
+  if(!xctx->tok_size)
+    my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
+  /* allow format string override in instance */
+  if(!xctx->tok_size && strcmp(fmt_attr, "format") )
     my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, "format", 2));
-  if(!format)
-     my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
-  if(!format && strcmp(fmt_attr, "format"))
+  /* get netlist format rule from symbol */
+  if(!xctx->tok_size && strcmp(fmt_attr, "format"))
      my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "format", 2));
+
   if ((name==NULL) || (format==NULL)) {
     my_free(_ALLOC_ID_, &template);
     my_free(_ALLOC_ID_, &format);
@@ -2310,11 +2317,14 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
   fmt_attr = xctx->format ? xctx->format : "verilog_format";
   /* allow format string override in instance */
   my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
-  if(!format && strcmp(fmt_attr, "verilog_format") )
-    my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, "verilog_format", 2));
-  if(!format || !format[0])
+  /* get netlist format rule from symbol */
+  if(!xctx->tok_size)
     my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
-  if(!format && strcmp(fmt_attr, "verilog_format"))
+  /* allow format string override in instance */
+  if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format") )
+    my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, "verilog_format", 2));
+  /* get netlist format rule from symbol */
+  if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format"))
      my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_format", 2));
   if((name==NULL) || (format==NULL) ) {
     my_free(_ALLOC_ID_, &template);
@@ -2516,7 +2526,7 @@ void print_verilog_element(FILE *fd, int inst)
 
  fmt_attr = xctx->format ? xctx->format : "verilog_format";
  fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2);
- if(!fmt[0] && strcmp(fmt_attr, "verilog_format"))
+ if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format"))
    fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_format", 2);
  if(fmt[0]) {
   print_verilog_primitive(fd, inst);
