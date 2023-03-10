@@ -1864,7 +1864,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "logic_get"))
     {
-      static char s[2]=".";
+      static char s[2]="X";
       Tcl_ResetResult(interp);
       if(argc > 2) {
         Hilight_hashentry  *entry;
@@ -1887,8 +1887,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             s[0] = '2';
             break;
           }
-          Tcl_SetResult(interp, s, TCL_VOLATILE);
         }
+        Tcl_SetResult(interp, s, TCL_VOLATILE);
       }
     }
 
