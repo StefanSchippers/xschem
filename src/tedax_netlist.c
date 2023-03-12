@@ -84,6 +84,17 @@ static void tedax_block_netlist(FILE *fd, int i)
   else
      tedax_stop=0;
   get_sch_from_sym(filename, xctx->sym + i);
+
+  if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
+      strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
+    char sympath[PATH_MAX];
+    /* download item into ${XSCHEM_TMP_DIR}/xschem_web */
+    tclvareval("try_download_url {", xctx->current_dirname, "} {", filename, "}", NULL);
+    /* build local file name of downloaded object and load it */
+    my_snprintf(sympath, S(sympath), "%s/xschem_web/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
+    my_strncpy(filename, sympath, S(filename));
+  }
+
   fprintf(fd, "\n# expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
   fprintf(fd, "## sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));

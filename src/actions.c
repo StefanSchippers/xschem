@@ -1250,7 +1250,6 @@ int descend_schematic(int instnumber)
   if(!strcmp(xctx->sch[xctx->currsch],""))
   {
     char cmd[PATH_MAX+1000];
-    char filename[PATH_MAX];
     char res[PATH_MAX];
 
     my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
@@ -1342,10 +1341,10 @@ int descend_schematic(int instnumber)
   xctx->currsch++;
   hilight_child_pins();
 
-  get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym);
-  dbg(1, "descend_schematic(): filename=%s\n", filename);
   unselect_all(1);
+  get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym);
   remove_symbols();
+  dbg(1, "descend_schematic(): filename=%s\n", filename);
   /* we are descending from a parent schematic downloaded from the web */
   if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
       strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
@@ -1354,10 +1353,9 @@ int descend_schematic(int instnumber)
     tclvareval("try_download_url {", xctx->current_dirname, "} {", filename, "}", NULL);
     /* build local file name of downloaded object and load it */
     my_snprintf(sympath, S(sympath), "%s/xschem_web/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
-    load_schematic(1, sympath, 1);
-  } else {
-    load_schematic(1, filename, 1);
+    my_strncpy(filename, sympath, S(filename));
   }
+  load_schematic(1, filename, 1);
   if(xctx->hilight_nets)
   {
     prepare_netlist_structs(0);
