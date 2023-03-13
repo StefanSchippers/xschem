@@ -1250,123 +1250,113 @@ int descend_schematic(int instnumber)
  int n = 0;
 
  rebuild_selected_array();
- if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT)
- {
-  dbg(1, "descend_schematic(): wrong selection\n");
-  return 0;
+ if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT) {
+   dbg(1, "descend_schematic(): wrong selection\n");
+   return 0;
  }
- else
- {
-  n = xctx->sel_array[0].n;
-  dbg(1, "descend_schematic(): selected:%s\n", xctx->inst[n].name);
-  /* no name set for current schematic: save it before descending*/
-  if(!strcmp(xctx->sch[xctx->currsch],""))
-  {
-    char cmd[PATH_MAX+1000];
-    char res[PATH_MAX];
-
-    my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
-    my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} *.\\{sch,sym\\} INITIALLOADDIR {%s}", filename);
-    tcleval(cmd);
-    my_strncpy(res, tclresult(), S(res));
-    if(!res[0]) return 0;
-    dbg(1, "descend_schematic(): saving: %s\n",res);
-    save_ok = save_schematic(res);
-    if(save_ok==0) return 0;
-  }
-
-  dbg(1, "descend_schematic(): inst type: %s\n", (xctx->inst[n].ptr+ xctx->sym)->type);
-
-  if(                   /*  do not descend if not subcircuit */
-     (xctx->inst[n].ptr+ xctx->sym)->type &&
-     strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") &&
-     strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "primitive")
-  ) return 0;
-
-  if(xctx->modified)
-  {
-    int ret;
-
-    ret = save(1);
-    /* if circuit is changed but not saved before descending
-     * state will be inconsistent when returning, can not propagare hilights
-     * save() return value:
-     *  1 : file saved 
-     * -1 : user cancel
-     *  0 : file not saved due to errors or per user request
-     */
-    if(ret == 0) clear_all_hilights();
-    if(ret == -1) return 0; /* user cancel */
-  }
-
-  /*  build up current hierarchy path */
-  dbg(1, "descend_schematic(): selected instname=%s\n", xctx->inst[n].instname);
-
-
-  if(xctx->inst[n].instname && xctx->inst[n].instname[0]) {
-    str=expandlabel(xctx->inst[n].instname, &inst_mult);
-  } else {
-    str = "";
-    inst_mult = 1;
-  }
-  my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
-  xctx->sch_path_hash[xctx->currsch+1] =0;
-  my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr, 
-            xctx->inst[n].prop_ptr);
-  my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ,
-            get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "template", 0));
-  inst_number = 1;
-  if(inst_mult > 1) { /* on multiple instances ask where to descend, to correctly evaluate
-                         the hierarchy path you descend to */
-
-    if(instnumber == 0 ) {
-      const char *inum;
-      tclvareval("input_line ", "{input instance number (leftmost = 1) to descend into:\n"
-        "negative numbers select instance starting\nfrom the right (rightmost = -1)}"
-        " {} 1 6", NULL);
-      inum = tclresult();
-      dbg(1, "descend_schematic(): inum=%s\n", inum);
-      if(!inum[0]) {
-        my_free(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1]);
-        xctx->sch_path_hash[xctx->currsch+1] =0;
-        return 0;
-      }
-      inst_number=atoi(inum);
-    } else {
-      inst_number = instnumber;
-    }
-    if(inst_number < 0 ) inst_number += inst_mult+1;
-    /* any invalid number->descend to leftmost inst */
-    if(inst_number <1 || inst_number > inst_mult) inst_number = 1;
-  }
-  dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
-  my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", inst_number));
-  dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
-  my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], ".");
-  xctx->sch_inst_number[xctx->currsch+1] = inst_number;
-  dbg(1, "descend_schematic(): current path: %s\n", xctx->sch_path[xctx->currsch+1]);
-  dbg(1, "descend_schematic(): inst_number=%d\n", inst_number);
-
-  xctx->previous_instance[xctx->currsch]=n;
-  xctx->zoom_array[xctx->currsch].x=xctx->xorigin;
-  xctx->zoom_array[xctx->currsch].y=xctx->yorigin;
-  xctx->zoom_array[xctx->currsch].zoom=xctx->zoom;
-  xctx->currsch++;
-  hilight_child_pins();
-
-  unselect_all(1);
-  get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym);
-  dbg(1, "descend_schematic(): filename=%s\n", filename);
-  /* we are descending from a parent schematic downloaded from the web */
-  remove_symbols();
-  load_schematic(1, filename, 1);
-  if(xctx->hilight_nets)
-  {
-    prepare_netlist_structs(0);
-    propagate_hilights(1, 0, XINSERT_NOREPLACE);
-  }
-  dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
-  zoom_full(1, 0, 1, 0.97);
+ else {
+   /* no name set for current schematic: save it before descending*/
+   if(!strcmp(xctx->sch[xctx->currsch],""))
+   {
+     char cmd[PATH_MAX+1000];
+     char res[PATH_MAX];
+ 
+     my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
+     my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} *.\\{sch,sym\\} INITIALLOADDIR {%s}", filename);
+     tcleval(cmd);
+     my_strncpy(res, tclresult(), S(res));
+     if(!res[0]) return 0;
+     dbg(1, "descend_schematic(): saving: %s\n",res);
+     save_ok = save_schematic(res);
+     if(save_ok==0) return 0;
+   }
+   n = xctx->sel_array[0].n;
+   dbg(1, "descend_schematic(): selected:%s\n", xctx->inst[n].name);
+   dbg(1, "descend_schematic(): inst type: %s\n", (xctx->inst[n].ptr+ xctx->sym)->type);
+   if(                   /*  do not descend if not subcircuit */
+      (xctx->inst[n].ptr+ xctx->sym)->type &&
+      strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") &&
+      strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "primitive")
+   ) return 0;
+   if(xctx->modified) {
+     int ret;
+ 
+     ret = save(1);
+     /* if circuit is changed but not saved before descending
+      * state will be inconsistent when returning, can not propagare hilights
+      * save() return value:
+      *  1 : file saved 
+      * -1 : user cancel
+      *  0 : file not saved due to errors or per user request
+      */
+     if(ret == 0) clear_all_hilights();
+     if(ret == -1) return 0; /* user cancel */
+   }
+   /*  build up current hierarchy path */
+   dbg(1, "descend_schematic(): selected instname=%s\n", xctx->inst[n].instname);
+ 
+   if(xctx->inst[n].instname && xctx->inst[n].instname[0]) {
+     str=expandlabel(xctx->inst[n].instname, &inst_mult);
+   } else {
+     str = "";
+     inst_mult = 1;
+   }
+   my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
+   xctx->sch_path_hash[xctx->currsch+1] =0;
+   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr, 
+             xctx->inst[n].prop_ptr);
+   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ,
+             get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "template", 0));
+   inst_number = 1;
+   if(inst_mult > 1) { /* on multiple instances ask where to descend, to correctly evaluate
+                          the hierarchy path you descend to */
+     if(instnumber == 0 ) {
+       const char *inum;
+       tclvareval("input_line ", "{input instance number (leftmost = 1) to descend into:\n"
+         "negative numbers select instance starting\nfrom the right (rightmost = -1)}"
+         " {} 1 6", NULL);
+       inum = tclresult();
+       dbg(1, "descend_schematic(): inum=%s\n", inum);
+       if(!inum[0]) {
+         my_free(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1]);
+         xctx->sch_path_hash[xctx->currsch+1] =0;
+         return 0;
+       }
+       inst_number=atoi(inum);
+     } else {
+       inst_number = instnumber;
+     }
+     if(inst_number < 0 ) inst_number += inst_mult+1;
+     /* any invalid number->descend to leftmost inst */
+     if(inst_number <1 || inst_number > inst_mult) inst_number = 1;
+   }
+   dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
+   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", inst_number));
+   dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
+   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], ".");
+   xctx->sch_inst_number[xctx->currsch+1] = inst_number;
+   dbg(1, "descend_schematic(): current path: %s\n", xctx->sch_path[xctx->currsch+1]);
+   dbg(1, "descend_schematic(): inst_number=%d\n", inst_number);
+ 
+   xctx->previous_instance[xctx->currsch]=n;
+   xctx->zoom_array[xctx->currsch].x=xctx->xorigin;
+   xctx->zoom_array[xctx->currsch].y=xctx->yorigin;
+   xctx->zoom_array[xctx->currsch].zoom=xctx->zoom;
+   xctx->currsch++;
+   hilight_child_pins();
+ 
+   unselect_all(1);
+   get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym);
+   dbg(1, "descend_schematic(): filename=%s\n", filename);
+   /* we are descending from a parent schematic downloaded from the web */
+   remove_symbols();
+   load_schematic(1, filename, 1);
+   if(xctx->hilight_nets) {
+     prepare_netlist_structs(0);
+     propagate_hilights(1, 0, XINSERT_NOREPLACE);
+   }
+   dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
+   zoom_full(1, 0, 1, 0.97);
  }
  return 1;
 }
