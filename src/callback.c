@@ -1299,7 +1299,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key == 'h'  && state==ControlMask )       /* go to http link */
    {
+     int savesem = xctx->semaphore;
+     xctx->semaphore = 0;
      launcher();
+     xctx->semaphore = savesem;
      break;
    }
    if(key == 'h'  && state==Mod1Mask)   /* create symbol pins from schematic pins 20171208 */
@@ -2781,7 +2784,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        draw_selection(xctx->gc[SELLAYER], 0);
 #endif
        if(sel && state == ControlMask) {
+         int savesem = xctx->semaphore;
+         xctx->semaphore = 0;
          launcher();
+         xctx->semaphore = savesem;
        }
        if( !(state & ShiftMask) )  {
          if(tclgetboolvar("auto_hilight") && xctx->hilight_nets && sel == 0 ) {
