@@ -1224,6 +1224,19 @@ void get_sch_from_sym(char *filename, xSymbol *sym)
       else my_strncpy(filename, add_ext(abs_sym_path(sym->name, ""), ".sch"), PATH_MAX);
     }
   }
+
+
+  /* if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
+   *  strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
+   */
+    if(web_url) {
+    char sympath[PATH_MAX];
+    /* download item into ${XSCHEM_TMP_DIR}/xschem_web */
+    tclvareval("try_download_url {", xctx->current_dirname, "} {", filename, "}", NULL);
+    /* build local file name of downloaded object and load it */
+    my_snprintf(sympath, S(sympath), "%s/xschem_web/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
+    my_strncpy(filename, sympath, PATH_MAX);
+  }
   my_free(_ALLOC_ID_, &str_tmp);
   dbg(1, "get_sch_from_sym(): sym->name=%s, filename=%s\n", sym->name, filename);
 }
@@ -1343,18 +1356,9 @@ int descend_schematic(int instnumber)
 
   unselect_all(1);
   get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym);
-  remove_symbols();
   dbg(1, "descend_schematic(): filename=%s\n", filename);
   /* we are descending from a parent schematic downloaded from the web */
-  if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
-      strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
-    char sympath[PATH_MAX];
-    /* download item into ${XSCHEM_TMP_DIR}/xschem_web */
-    tclvareval("try_download_url {", xctx->current_dirname, "} {", filename, "}", NULL);
-    /* build local file name of downloaded object and load it */
-    my_snprintf(sympath, S(sympath), "%s/xschem_web/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
-    my_strncpy(filename, sympath, S(filename));
-  }
+  remove_symbols();
   load_schematic(1, filename, 1);
   if(xctx->hilight_nets)
   {

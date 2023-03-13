@@ -4506,6 +4506,7 @@ proc get_directory {f} {
   } else {
     set r [regsub {/[^/]*$} $f {}]
   }
+  regsub {/\.$} $r {} r
   return $r
 }
 

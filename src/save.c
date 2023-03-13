@@ -2430,7 +2430,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
       /* build local file name of downloaded object */
       my_snprintf(name, S(name), "%s/xschem_web/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(fname, 0));
       /* build current_dirname by stripping off last filename from url */
-      my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", fname);
+      my_snprintf(msg, S(msg), "get_directory {%s}", fname);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       /* local file name */
       my_strncpy(xctx->sch[xctx->currsch], name, S(xctx->sch[xctx->currsch]));
@@ -2443,8 +2443,9 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
       /* ... but not local file from web download --> reset current_dirname */
       char sympath[PATH_MAX];
       my_snprintf(sympath, S(sympath), "%s/xschem_web",  tclgetvar("XSCHEM_TMP_DIR"));
-      if(strstr(fname, sympath) != fname) {
-        my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", fname);
+      /* fname does not begin with $XSCHEM_TMP_DIR/xschem_web and fname does not exist */
+      if(strstr(fname, sympath) != fname && stat(fname, &buf)) { 
+        my_snprintf(msg, S(msg), "get_directory {%s}", fname);
         my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       }
       /* local file name */
@@ -2454,7 +2455,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
     /* local file specified and not coming from web url */
     } else {
       /* if name is /some/path/.  remove /. at end */
-      my_snprintf(msg, S(msg), "regsub {/\\.$} [get_directory {%s}] {}", fname);
+      my_snprintf(msg, S(msg), "get_directory {%s}", fname);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       /* local file name */
       my_strncpy(xctx->sch[xctx->currsch], fname, S(xctx->sch[xctx->currsch]));
@@ -2503,7 +2504,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
       }
     }
     dbg(1, "load_schematic(): %s, returning\n", xctx->sch[xctx->currsch]);
-  } else {
+  } else { /* fname == NULL or empty */
     /* if(reset_undo) xctx->time_last_modify = time(NULL); */ /* no file given, set mtime to current time */
     if(reset_undo) xctx->time_last_modify = 0; /* no file given, set mtime to 0 (undefined) */
     clear_drawing();
