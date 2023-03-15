@@ -65,10 +65,31 @@ static void xschem_cmd_help(int argc, const char **argv)
   if( get_file_path("chromium")[0] == '/' ) goto done;
   if( get_file_path("chrome")[0] == '/' ) goto done;
   if( get_file_path("xdg-open")[0] == '/' ) goto done;
+  if(has_x) tcleval("alert_ { No application to display html documentation} {}");
+  else  dbg(0, "No application to display html documentation\n");
+  return;
   done: 
   my_strncpy(prog, tclresult(), S(prog));
+  #ifdef __unix__
   tclvareval("launcher {", "file://", XSCHEM_SHAREDIR,
              "/../doc/xschem/xschem_man/developer_info.html#cmdref", "} ", prog, NULL);
+  #else
+  const char *xschem_sharedir=tclgetvar("XSCHEM_SHAREDIR");
+  if (xschem_sharedir) {
+    wchar_t app[MAX_PATH] = {0};
+    char url[PATH_MAX]="", url2[PATH_MAX]="";
+    my_snprintf(url, S(url), "%s/../doc/xschem_man/developer_info.html", xschem_sharedir);
+    wchar_t w_url[PATH_MAX];
+    MultiByteToWideChar(CP_ACP, 0, url, -1, w_url, S(w_url));
+    int result = (int)FindExecutable(w_url, NULL, app);
+    /* The file:// url scheme doesn't have any allowance for HTTP parameters. 
+       So, gets ShellExecute for the browser app and then ShellExecute */
+    my_snprintf(url2, S(url2), "file://%s#cmdref", url);
+    MultiByteToWideChar(CP_ACP, 0, url2, -1, w_url, S(w_url));
+    if (result > 32) 
+      ShellExecute(0, NULL, app, w_url, NULL, SW_SHOWNORMAL); 
+  }
+  #endif
   Tcl_ResetResult(interp);
 }
 
@@ -443,7 +464,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* connected_nets [1|0]
-     *   Selected nets connected to currently selected net or net label/pin.
+     *   Select nets connected to currently selected net or net label/pin.
      *   if '1' argument is given, stop at wire junctions */
     else if(!strcmp(argv[1], "connected_nets"))
     {
