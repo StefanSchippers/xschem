@@ -4664,12 +4664,18 @@ proc add_ext {fname ext} {
 }
 
 proc swap_compare_schematics {} {
-  global compare_sch
+  global compare_sch XSCHEM_TMP_DIR
   set sch1 [xschem get schname]
   set sch2 [xschem get sch_to_compare]
+  puts "swap_compare_schematics:\n  sch1=$sch1\n  sch2=$sch2"
   if {$sch2 ne {}} {
     xschem load $sch2 nofullzoom
-    if {[xschem get schname] eq $sch2} { ;# user did not cancel loading
+    set current  [xschem get schname]
+    # Use "file tail" to handle equality of
+    # https://raw.githubusercon...tb_reram.sch and /tmp/xschem_web/tb_reram.sch
+    if {( [regexp "^${XSCHEM_TMP_DIR}/xschem_web/" $current] && [file tail $current] eq [file tail $sch2] ) || 
+        ( $current eq $sch2 )} { ;# user did not cancel loading
+      puts "swapping..."
       if {$compare_sch} {
         xschem compare_schematics $sch1
       } else {
