@@ -1216,7 +1216,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     
     /* get_tok str tok [with_quotes]
      *   get value of token 'tok' in string 'str'
-     *  'with_quotes' (default:0) is an integer passed to get_tok_value() */
+     *   'with_quotes' (default:0) is an integer passed to get_tok_value() */
     else if(!strcmp(argv[1], "get_tok") )
     {
       char *s=NULL;
@@ -2042,7 +2042,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* netlist
-     * do a netlist of current schematic in currently defined netlist format */
+     *   do a netlist of current schematic in currently defined netlist format */
     else if(!strcmp(argv[1], "netlist") )
     {
       yyparse_error = 0;
