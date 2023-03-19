@@ -325,6 +325,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char sympath[PATH_MAX];
       const char *name;
       struct stat buf;
+      char *res=NULL;
       for(i=0;i<xctx->symbols; ++i) {
         name = xctx->sym[i].name;
         if(!strcmp(xctx->file_version, "1.0")) {
@@ -334,14 +335,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         if(!stat(sympath, &buf)) { /* file exists */
           if(xctx->time_last_modify < buf.st_mtime) {
-            dbg(0, "Warning: symbol %s is newer than schematic\n", sympath);
+            my_mstrcat(_ALLOC_ID_, &res, "Warning: symbol ", sympath, " is newer than schematic\n", NULL);
           }
         } else { /* not found */
-            dbg(0, "Warning: symbol %s not found\n", sympath);
+            my_mstrcat(_ALLOC_ID_, &res, "Warning: symbol ", sympath, " not found\n", NULL);
         }
-        dbg(0, "symbol %d: %s\n", i, sympath);
+        my_mstrcat(_ALLOC_ID_, &res, "symbol ", my_itoa(i), " : ", sympath, "\n", NULL);
       }
-      Tcl_ResetResult(interp);
+      Tcl_SetResult(interp, res, TCL_VOLATILE);
+      my_free(_ALLOC_ID_, &res);
     }
 
     /* check_unique_names [1|0]
