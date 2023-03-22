@@ -942,9 +942,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             /* allows to retrieve name of n-th parent schematic */
             if(argc > 3) x = atoi(argv[3]);
             else x = xctx->currsch;
-            if(x<0 && xctx->currsch+x>=0) {
-              Tcl_SetResult(interp, xctx->sch[xctx->currsch+x], TCL_VOLATILE);
-            } else if(x<=xctx->currsch) {
+            if(x < 0 ) x = xctx->currsch + x;
+            if(x<=xctx->currsch && x >= 0) {
               Tcl_SetResult(interp, xctx->sch[x], TCL_VOLATILE);
             }
           }
@@ -953,9 +952,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             int x;
             if(argc > 3) x = atoi(argv[3]);
             else x = xctx->currsch;
-            if(x<0 && xctx->currsch+x>=0) {
-              Tcl_SetResult(interp, xctx->sch_path[xctx->currsch+x], TCL_VOLATILE);
-            } else if(x<=xctx->currsch) {
+            if(x < 0 ) x = xctx->currsch + x;
+            if(x<=xctx->currsch && x >= 0) {
               Tcl_SetResult(interp, xctx->sch_path[x], TCL_VOLATILE);
             }
           }
@@ -1009,7 +1007,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           /* top_path="" for main window, ".x1", ".x2", ... for additional windows.
            * always "" in tabbed interface */
-          else if(!strcmp(argv[2], "top_path")) { /* get top hier path of current window (always "") for tabbed if */
+          else if(!strcmp(argv[2], "top_path")) { /* get top hier path of current window (always "" for tabbed if) */
             Tcl_SetResult(interp, xctx->top_path, TCL_VOLATILE);
           }
           /* same as above but main window returned as "." */
