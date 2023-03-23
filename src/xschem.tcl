@@ -6193,7 +6193,8 @@ proc set_paths {} {
       set pathlist_orig [split $XSCHEM_LIBRARY_PATH :]
     }
     foreach i $pathlist_orig {
-      regsub {^~} $i $env(HOME) i
+      regsub {^~$} $i ${env(HOME)} i
+      regsub {^~/} $i ${env(HOME)}/ i
       if { ![string compare $i .] } {
         lappend pathlist $i
       } elseif { [ regexp {\.\.\/} $i] } {
