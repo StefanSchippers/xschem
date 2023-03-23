@@ -1261,13 +1261,13 @@ extern void store_arc(int pos, double x, double y, double r, double a, double b,
                unsigned int rectcolor, unsigned short sel, char *prop_ptr);
 
 extern void hier_psprint(char **res, int what);
-extern void global_spice_netlist(int global);
-extern void global_tedax_netlist(int global);
-extern void global_vhdl_netlist(int global);
-extern void global_verilog_netlist(int global);
-extern void vhdl_block_netlist(FILE *fd, int i);
-extern void verilog_block_netlist(FILE *fd, int i);
-extern void spice_block_netlist(FILE *fd, int i);
+extern int global_spice_netlist(int global);
+extern int global_tedax_netlist(int global);
+extern int global_vhdl_netlist(int global);
+extern int global_verilog_netlist(int global);
+extern int vhdl_block_netlist(FILE *fd, int i);
+extern int verilog_block_netlist(FILE *fd, int i);
+extern int spice_block_netlist(FILE *fd, int i);
 extern void remove_symbols(void);
 extern void remove_symbol(int i);
 extern void clear_drawing(void);
@@ -1441,7 +1441,7 @@ extern int record_global_node(int what, FILE *fp, char *node);
 extern int count_items(const char *s, const char *sep, const char *quote);
 extern int get_unnamed_node(int what, int mult, int node);
 extern void node_hash_free(void);
-extern void traverse_node_hash();
+extern int traverse_node_hash();
 extern Node_hashentry
                 *bus_node_hash_lookup(const char *token, const char *dir,int what, int port, char *sig_type,
                 char *verilog_type, char *value, char *class);
@@ -1462,7 +1462,7 @@ extern void draw_hilight_net(int on_window);
 extern void display_hilights(char **str);
 extern void redraw_hilights(int clear);
 extern void set_tcl_netlist_type(void);
-extern void prepare_netlist_structs(int for_netlist);
+extern int prepare_netlist_structs(int for_netlist);
 extern int compare_schematics(const char *filename);
 extern int warning_overlapped_symbols(int sel);
 extern void free_simdata(void);

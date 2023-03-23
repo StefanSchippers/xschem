@@ -1,5 +1,7 @@
-v {xschem version=2.9.5_RC5 file_version=1.1}
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
+K {}
 V {}
 S {}
 E {}
@@ -39,3 +41,5 @@ C {capa.sym} 820 -250 0 0 {name=c1 m=1 value=1n}
 C {lab_pin.sym} 820 -220 0 0 {name=p5 lab=VSS}
 C {lab_pin.sym} 900 -220 0 0 {name=p6 lab=VSS}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
+C {noconn.sym} 520 -340 1 0 {name=l2}
+C {noconn.sym} 640 -370 2 0 {name=l3}

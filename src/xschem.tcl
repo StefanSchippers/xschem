@@ -215,39 +215,35 @@ proc execute_fileevent {id} {
   global execute
   append execute(data,$id) [read $execute(pipe,$id) 1024]
   if {[eof $execute(pipe,$id)]} {
+      set report [regexp {1} $execute(status,$id)]
       fileevent $execute(pipe,$id) readable ""
-      if { [regexp {1} $execute(status,$id)] } {
-        # setting pipe to blocking before closing allows to see if pipeline failed
-        # do not ask status for processes that close stdout/stderr, as eof might
-        # occur before process ends and following close blocks until process terminates.
-        fconfigure $execute(pipe,$id) -blocking 1
-        set status 0
-        if { [ info tclversion]  > 8.4} {
-          set catch_return [eval catch [list {close $execute(pipe,$id)} err options] ]
-        } else {
-          set catch_return [eval catch [list {close $execute(pipe,$id)} err] ]
-        }
-        if {$catch_return} {
-          if {[info tclversion] > 8.4} {
-            set details [dict get $options -errorcode]
-            if {[lindex $details 0] eq "CHILDSTATUS"} {
-              set status [lindex $details 2]
-              viewdata "Failed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"
-            } else {
-              set status 1
-              viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"
-            }
+      # setting pipe to blocking before closing allows to see if pipeline failed
+      # do not ask status for processes that close stdout/stderr, as eof might
+      # occur before process ends and following close blocks until process terminates.
+      fconfigure $execute(pipe,$id) -blocking 1
+      set status 0
+      if { [ info tclversion]  > 8.4} {
+        set catch_return [eval catch [list {close $execute(pipe,$id)} err options] ]
+      } else {
+        set catch_return [eval catch [list {close $execute(pipe,$id)} err] ]
+      }
+      if {$catch_return} {
+        if {[info tclversion] > 8.4} {
+          set details [dict get $options -errorcode]
+          if {[lindex $details 0] eq "CHILDSTATUS"} {
+            set status [lindex $details 2]
+            if {$report} {viewdata "Failed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
           } else {
             set status 1
-            viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"
+            if {$report} {viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
           }
+        } else {
+          set status 1
+          if {$report} {viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
         }
-        if {$status == 0} {
-          viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"
-        }
-      } else {
-        # nonblocking close always succeed 
-        close $execute(pipe,$id)
+      }
+      if {$status == 0} {
+        if {$report} {viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"}
       }
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
         uplevel #0 "eval $execute(callback,$id)"
@@ -255,7 +251,9 @@ proc execute_fileevent {id} {
       } 
       set execute(cmd,last) $execute(cmd,$id)
       set execute(data,last) $execute(data,$id)
+      set execute(error,last) $err
       set execute(status,last) $execute(status,$id)
+      set execute(exitcode,last) $status
       unset execute(pipe,$id)
       unset execute(data,$id)
       unset execute(status,$id)

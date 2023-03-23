@@ -22,17 +22,16 @@
 
 #include "xschem.h"
 
-static void verilog_netlist(FILE *fd , int verilog_stop)
+static int verilog_netlist(FILE *fd , int verilog_stop)
 {
+ int err = 0;
  int i;
  char *type=NULL;
 
  if(!verilog_stop) {
    xctx->prep_net_structs = 0;
-   prepare_netlist_structs(1);
-   dbg(2, "verilog_netlist(): end prepare_netlist_structs\n");
-   traverse_node_hash();  /* print all warnings about unconnected floatings etc */
-   dbg(2, "verilog_netlist(): end traverse_node_hash\n");
+   err |= prepare_netlist_structs(1);
+   err |= traverse_node_hash();  /* print all warnings about unconnected floatings etc */
  }
 
  fprintf(fd,"---- begin signal list\n"); /* these are needed even if signal list empty */
@@ -70,10 +69,12 @@ static void verilog_netlist(FILE *fd , int verilog_stop)
  }
  dbg(1, "verilog_netlist():       end\n");
  if(!verilog_stop && !xctx->netlist_count) redraw_hilights(0); /*draw_hilight_net(1); */
+ return err;
 }
 
-void global_verilog_netlist(int global)  /* netlister driver */
+int global_verilog_netlist(int global)  /* netlister driver */
 {
+ int err = 0;
  FILE *fd;
  const char *str_tmp;
  char *sig_type = NULL;
@@ -106,7 +107,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  fd=fopen(netl_filename, "w");
  if(fd==NULL){
    dbg(0, "global_verilog_netlist(): problems opening netlist file\n");
-   return;
+   return 1;
  }
  fprintf(fd, "// sch_path: %s\n", xctx->sch[xctx->currsch]);
 
@@ -293,7 +294,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  }
 
  dbg(1, "global_verilog_netlist(): netlisting  top level\n");
- verilog_netlist(fd, 0);
+ err |= verilog_netlist(fd, 0);
  xctx->netlist_count++;
  fprintf(fd,"---- begin user architecture code\n");
 
@@ -330,7 +331,7 @@ void global_verilog_netlist(int global)  /* netlister driver */
  }
 
  /* warning if two symbols perfectly overlapped */
- warning_overlapped_symbols(0);
+ err |= warning_overlapped_symbols(0);
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(_ALLOC_ID_, xctx->instances, sizeof(unsigned int));
  for(i=0;i<xctx->instances; ++i) stored_flags[i] = xctx->inst[i].color;
@@ -362,12 +363,11 @@ void global_verilog_netlist(int global)  /* netlister driver */
       {
         str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         if( split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
-          vhdl_block_netlist(fd, i);
+          err |= vhdl_block_netlist(fd, i);
         else if(split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_netlist",0),"true")==0 )
-          spice_block_netlist(fd, i);
-        else
-          if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_primitive",0), "true"))
-            verilog_block_netlist(fd, i);
+          err |= spice_block_netlist(fd, i);
+        else if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_primitive",0), "true"))
+          err |= verilog_block_netlist(fd, i);
       }
     }
    }
@@ -379,9 +379,9 @@ void global_verilog_netlist(int global)  /* netlister driver */
    unselect_all(1);
    xctx->pop_undo(0, 0);
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
-   prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
+   err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
-   sym_vs_sch_pins();
+   err |= sym_vs_sch_pins();
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
@@ -408,11 +408,13 @@ void global_verilog_netlist(int global)  /* netlister driver */
  my_free(_ALLOC_ID_, &tmp_string);
  my_free(_ALLOC_ID_, &type);
  xctx->netlist_count = 0;
+ return err;
 }
 
 
-void verilog_block_netlist(FILE *fd, int i)
+int verilog_block_netlist(FILE *fd, int i)
 {
+  int err = 0;
   int j, l, tmp;
   int verilog_stop=0;
   char *dir_tmp = NULL;
@@ -564,7 +566,7 @@ void verilog_block_netlist(FILE *fd, int i)
       }
     }
     dbg(1, "verilog_block_netlist():       netlisting %s\n", skip_dir( xctx->sch[xctx->currsch]));
-    verilog_netlist(fd, verilog_stop);
+    err |= verilog_netlist(fd, verilog_stop);
     fprintf(fd,"---- begin user architecture code\n");
     for(l=0;l<xctx->instances; ++l) {
       if( strcmp(get_tok_value(xctx->inst[l].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
@@ -607,5 +609,6 @@ void verilog_block_netlist(FILE *fd, int i)
     if(debug_var==0) xunlink(netl_filename);
   }
   xctx->netlist_count++;
+  return err;
 }
 

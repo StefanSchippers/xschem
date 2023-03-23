@@ -360,3 +360,13 @@ signal V_VX, V_VX2, V_VXS, V_SP: real;
 
 }
 C {lab_wire.sym} 430 -680 0 1 {name=l1  lab=VX sig_type=rrreal }
+C {lab_pin.sym} 110 -500 0 0 { name=p1 lab=SW2 }
+C {lab_pin.sym} 110 -520 0 0 { name=p2 lab=SW1 }
+C {lab_pin.sym} 110 -540 0 0 { name=p3 lab=SW }
+C {lab_pin.sym} 110 -560 0 0 { name=p4 lab=ING1 }
+C {lab_pin.sym} 110 -580 0 0 { name=p5 lab=ING }
+C {noconn.sym} 110 -580 0 1 {name=l10}
+C {noconn.sym} 110 -560 0 1 {name=l11}
+C {noconn.sym} 110 -540 0 1 {name=l12}
+C {noconn.sym} 110 -520 0 1 {name=l13}
+C {noconn.sym} 110 -500 0 1 {name=l14}

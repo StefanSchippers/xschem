@@ -2045,20 +2045,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   do a netlist of current schematic in currently defined netlist format */
     else if(!strcmp(argv[1], "netlist") )
     {
+      int err = 0;
       yyparse_error = 0;
       if(set_netlist_dir(0, NULL) ) {
         if(xctx->netlist_type == CAD_SPICE_NETLIST)
-          global_spice_netlist(1);                  /* 1 means global netlist */
+          err = global_spice_netlist(1);                  /* 1 means global netlist */
         else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-          global_vhdl_netlist(1);
+          err = global_vhdl_netlist(1);
         else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-          global_verilog_netlist(1);
+          err = global_verilog_netlist(1);
         else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
           global_tedax_netlist(1);
         else
           if(has_x) tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                             "-message {Please Set netlisting mode (Options menu)}");
-        Tcl_ResetResult(interp);
+        Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
       }
     }
 
@@ -2566,12 +2567,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          Rebuild logical connectivity abstraction of schematic */
     else if(!strcmp(argv[1], "rebuild_connectivity"))
     {
+      int err = 0;
       xctx->prep_hash_inst=0;
       xctx->prep_hash_wires=0;
       xctx->prep_net_structs=0;
       xctx->prep_hi_structs=0;
-      prepare_netlist_structs(1);
-      Tcl_ResetResult(interp);
+      err |= prepare_netlist_structs(1);
+      Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
     }
 
     /* rebuild_selection 
@@ -3441,12 +3443,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* translate n str
-     *   Translate string 'str' replacing @xxx tokens with values in instance 'n' attributes */
+     *   Translate string 'str' replacing @xxx tokens with values in instance 'n' attributes
+     *     Example: xschem translate vref {the voltage is @value}
+     *     the voltage is 1.8 */
+
     else if(!strcmp(argv[1], "translate") )
     {
       if(argc>3) {
+        int i;
         char *s = NULL;
-        my_strdup2(_ALLOC_ID_, &s, translate(atoi(argv[2]), argv[3]));
+        if((i = get_instance(argv[2])) < 0 ) {
+          Tcl_SetResult(interp, "xschem translate: instance not found", TCL_STATIC);
+          return TCL_ERROR;
+        }
+        my_strdup2(_ALLOC_ID_, &s, translate(i, argv[3]));
         Tcl_ResetResult(interp);
         Tcl_SetResult(interp, s, TCL_VOLATILE);
         my_free(_ALLOC_ID_, &s);

@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -80,3 +81,9 @@ C {title.sym} 160 -30 0 0 {name=l2 author="Stefan Schippers"}
 C {opin.sym} 210 -160 0 0 {name=p5 lab=OUT}
 C {ipin.sym} 140 -210 0 0 {name=p1 lab=MINUS}
 C {ipin.sym} 140 -170 0 0 {name=p4 lab=VSS}
+C {noconn.sym} 140 -210 2 0 {name=l1}
+C {noconn.sym} 140 -190 2 0 {name=l3}
+C {noconn.sym} 140 -170 2 0 {name=l4}
+C {noconn.sym} 140 -150 2 0 {name=l5}
+C {noconn.sym} 140 -130 2 0 {name=l6}
+C {noconn.sym} 210 -160 2 1 {name=l7}

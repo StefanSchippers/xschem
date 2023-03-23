@@ -137,8 +137,9 @@ static char *model_name(const char *m)
   return model_name_result;
 }
 
-static void spice_netlist(FILE *fd, int spice_stop )
+static int spice_netlist(FILE *fd, int spice_stop )
 {
+  int err = 0;
   int i, flag = 0;
   char *type=NULL;
   int top_sub;
@@ -147,8 +148,8 @@ static void spice_netlist(FILE *fd, int spice_stop )
   if(!spice_stop) {
     dbg(1, "spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
     xctx->prep_net_structs = 0;
-    prepare_netlist_structs(1);
-    traverse_node_hash();  /* print all warnings about unconnected floatings etc */
+    err |= prepare_netlist_structs(1);
+    err |= traverse_node_hash();  /* print all warnings about unconnected floatings etc */
     for(i=0;i<xctx->instances; ++i) /* print first ipin/opin defs ... */
     {
      if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
@@ -209,10 +210,12 @@ static void spice_netlist(FILE *fd, int spice_stop )
     my_free(_ALLOC_ID_, &type);
   }
   if(!spice_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
+  return err;
 }
 
-void global_spice_netlist(int global)  /* netlister driver */
+int global_spice_netlist(int global)  /* netlister driver */
 {
+ int err = 0;
  int first;
  FILE *fd;
  const char *str_tmp;
@@ -255,7 +258,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  fd=fopen(netl_filename, "w");
  if(fd==NULL) {
    dbg(0, "global_spice_netlist(): problems opening netlist file\n");
-   return;
+   return 1;
  }
  fprintf(fd, "** sch_path: %s\n", xctx->sch[xctx->currsch]);
 
@@ -320,7 +323,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  }
  fprintf(fd,"\n");
 
- spice_netlist(fd, 0);
+ err |= spice_netlist(fd, 0);
 
  first = 0;
  for(i=0;i<xctx->instances; ++i) /* print netlist_commands of top level cell with no 'place=end' property
@@ -374,7 +377,7 @@ void global_spice_netlist(int global)  /* netlister driver */
  }
 
  /* warning if two symbols perfectly overlapped */
- warning_overlapped_symbols(0);
+ err |= warning_overlapped_symbols(0);
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(_ALLOC_ID_, xctx->instances, sizeof(unsigned int));
  for(i=0;i<xctx->instances; ++i) stored_flags[i] = xctx->inst[i].color;
@@ -408,12 +411,12 @@ void global_spice_netlist(int global)  /* netlister driver */
       {
         str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         if( split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
-          vhdl_block_netlist(fd, i);
+          err |= vhdl_block_netlist(fd, i);
         else if(split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_netlist",0),"true")==0 )
-          verilog_block_netlist(fd, i);
+          err |= verilog_block_netlist(fd, i);
         else
           if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_primitive",0),"true") )
-            spice_block_netlist(fd, i);
+            err |= spice_block_netlist(fd, i);
       }
     }
     my_free(_ALLOC_ID_, &abs_path);
@@ -428,9 +431,9 @@ void global_spice_netlist(int global)  /* netlister driver */
    xctx->pop_undo(0, 0);
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
    dbg(1, "spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
-   prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
+   err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
-   sym_vs_sch_pins();
+   err |= sym_vs_sch_pins();
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
@@ -506,10 +509,12 @@ void global_spice_netlist(int global)  /* netlister driver */
  my_free(_ALLOC_ID_, &type);
  my_free(_ALLOC_ID_, &place);
  xctx->netlist_count = 0;
+ return err;
 }
 
-void spice_block_netlist(FILE *fd, int i)
+int spice_block_netlist(FILE *fd, int i)
 {
+  int err = 0;
   int spice_stop=0;
   char netl_filename[PATH_MAX];
   char tcl_cmd_netlist[PATH_MAX + 100];
@@ -560,7 +565,7 @@ void spice_block_netlist(FILE *fd, int i)
     fprintf(fd, "\n");
   
     spice_stop ? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
-    spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
+    err |= spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
   
     if(xctx->schprop && xctx->schprop[0]) {
       fprintf(fd,"**** begin user architecture code\n");
@@ -582,6 +587,7 @@ void spice_block_netlist(FILE *fd, int i)
     if(debug_var==0) xunlink(netl_filename);
   }
   xctx->netlist_count++;
+  return err;
 }
 
 /* GENERIC PURPOSE HASH TABLE */

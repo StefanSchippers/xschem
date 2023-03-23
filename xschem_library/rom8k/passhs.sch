@@ -1,4 +1,5 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {// these are the stimulus parameters
@@ -1511,8 +1512,8 @@ N 420 -290 450 -290 {lab=A}
 N 480 -410 480 -390 {lab=EN}
 N 420 -410 480 -410 {lab=EN}
 N 510 -290 540 -290 {lab=Z}
-N 480 -350 480 -340 {lab=VDDPIN}
-N 480 -180 480 -170 {lab=GNDPIN}
+N 480 -350 480 -320 {lab=VCCPIN}
+N 480 -210 480 -170 {lab=VSSPIN}
 C {p.sym} 480 -370 3 1 {name=m60 model=cmosp w=WP l=2.4u m=1
 }
 C {n.sym} 480 -150 3 0 {name=m1 model=cmosn w=WN l=2.4u m=1}
@@ -1520,6 +1521,8 @@ C {iopin.sym} 540 -290 0 0 {name=p1 lab=Z}
 C {iopin.sym} 420 -290 0 1 {name=p2 lab=A}
 C {ipin.sym} 420 -410 0 0 {name=p3 lab=EN}
 C {ipin.sym} 420 -110 0 0 {name=p4 lab=E}
-C {lab_pin.sym} 480 -340 3 0 {name=l1 sig_type=std_logic lab=VCCPIN}
-C {lab_pin.sym} 480 -180 3 1 {name=l2 sig_type=std_logic lab=VSSPIN}
+C {lab_pin.sym} 480 -320 3 0 {name=l1 sig_type=std_logic lab=VCCPIN}
+C {lab_pin.sym} 480 -210 3 1 {name=l2 sig_type=std_logic lab=VSSPIN}
 C {title.sym} 160 0 0 0 {name=l3 author="Stefan Schippers"}
+C {noconn.sym} 480 -210 2 0 {name=l4}
+C {noconn.sym} 480 -320 2 0 {name=l5}

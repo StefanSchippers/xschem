@@ -1,4 +1,5 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=3.1.0 file_version=1.2
+}
 G {process
 begin
   if now = 0 ns then
@@ -172,3 +173,4 @@ use ieee.std_logic_unsigned.all;
 
 
 }
+C {noconn.sym} 90 -200 0 1 {name=l1}

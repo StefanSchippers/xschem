@@ -241,11 +241,11 @@ void get_square(double x, double y, int *xx, int *yy)
 /* what:
  * 0, XINSERT : add to hash
  * 1, XDELETE : remove from hash
- */
-static void hash_inst_pin(int what, int i, int j)
-/*                                                    inst   pin */
-
+ *
+ *                                 inst   pin */
+static int hash_inst_pin(int what, int i, int j)
 {
+  int err = 0;
   xRect *rct;
   char *prop_ptr;
   double x0, y0, rx1, ry1;
@@ -276,6 +276,7 @@ static void hash_inst_pin(int what, int i, int j)
     my_snprintf(str, S(str), "symbol %s: missing all or name or dir attributes on pin %d\n  %s",
         xctx->inst[i].name, j, prop_ptr);
     statusmsg(str,2);
+    err |= 1;
     tcleval("show_infotext"); /* critical error: force ERC window showing */
     if(!xctx->netlist_count) {
       xctx->inst[i].color = -PINLAYER;
@@ -290,6 +291,7 @@ static void hash_inst_pin(int what, int i, int j)
   get_square(x0, y0, &sqx, &sqy);
   if( what == XINSERT ) instpininsert(i, j, x0, y0, sqx, sqy);
   else                 instpindelete(i, j, sqx, sqy);
+  return err;
 }
 
 /* what:
@@ -582,7 +584,7 @@ static void name_generics()
   int const instances = xctx->instances;
 
   /* name generic pins from attached labels */
-  dbg(2, "prepare_netlist_structs(): naming generics from attached labels\n");
+  dbg(2, "name_generics(): naming generics from attached labels\n");
   if(for_netlist) for (i=0;i<instances; ++i) { /* ... assign node fields on all (non label) instances */
     if(inst[i].ptr<0) continue;
     my_strdup(_ALLOC_ID_, &type,(inst[i].ptr+ xctx->sym)->type);
@@ -608,7 +610,7 @@ static void name_generics()
             if((iptr->x0==x0) && (iptr->y0==y0)) {
               if((inst[n].ptr+ xctx->sym)->type && inst[n].node[p] != NULL &&
                  !strcmp((inst[n].ptr+ xctx->sym)->type, "label")) {
-                dbg(2, "prepare_netlist_structs(): naming generic %s\n", inst[n].node[p]);
+                dbg(2, "name_generics(): naming generic %s\n", inst[n].node[p]);
                 my_strdup(_ALLOC_ID_,  &inst[i].node[j], get_tok_value(inst[n].prop_ptr,"value",0) );
                 if(!for_netlist) {
                   my_strdup(_ALLOC_ID_, &sig_type,"");
@@ -633,11 +635,13 @@ static void name_generics()
   if(type) my_free(_ALLOC_ID_, &type);
 }
 
-static void signal_short( const char *tag, const char *n1, const char *n2)
+static int signal_short( const char *tag, const char *n1, const char *n2)
 {
+ int err = 0;
  char str[2048];
  if( n1 && n2 && strcmp( n1, n2) )
  {
+   err |= 1;
    my_snprintf(str, S(str), "%s shorted: %s - %s", tag, n1, n2);
    dbg(1, "signal_short(): signal_short: shorted: %s - %s", n1, n2);
    statusmsg(str,2);
@@ -649,6 +653,7 @@ static void signal_short( const char *tag, const char *n1, const char *n2)
       if(tclgetboolvar("incr_hilight")) incr_hilight_color();
    }
  }
+ return err;
 }
 
 static void set_inst_node(int i, int j, const char *node)
@@ -673,10 +678,11 @@ static void set_inst_node(int i, int j, const char *node)
   }
 }
 
-static void instcheck(int n, int p);
+static int instcheck(int n, int p);
 
-static void name_attached_inst_to_net(int k, int sqx, int sqy)
-{       
+static int name_attached_inst_to_net(int k, int sqx, int sqy)
+{
+  int err = 0;
   xInstance * const inst = xctx->inst;
   xWire * const wire = xctx->wire;
   Instpinentry *iptr;
@@ -693,16 +699,18 @@ static void name_attached_inst_to_net(int k, int sqx, int sqy)
         dbg(1, "name_attached_inst_to_net(): inst %s, pin %d <-- %s\n", 
               inst[n].instname, p, wire[k].node);
         set_inst_node(n, p, wire[k].node);
-        instcheck(n, p);
+        err |= instcheck(n, p);
       } else {
-        if(for_netlist>0) signal_short("net to named instance pin", wire[k].node, inst[n].node[p]);
+        if(for_netlist>0) err |= signal_short("net to named instance pin", wire[k].node, inst[n].node[p]);
       }
     }
-  }     
+  }
+  return err;
 }
 
-static void wirecheck(int k)    /* recursive routine */
+static int wirecheck(int k)    /* recursive routine */
 {
+  int err = 0;
   int tmpi, tmpj, counti, countj, i, j, touches, x1a, x2a, y1a, y2a;
   double x1, y1, x2, y2;
   Wireentry *wptr;
@@ -731,7 +739,7 @@ static void wirecheck(int k)    /* recursive routine */
       for(wptr = xctx->wire_spatial_table[tmpi][tmpj]; wptr; wptr = wptr->next) {
         int n = wptr->n;
         if(n == k) { /* itself */
-          name_attached_inst_to_net(k, tmpi, tmpj);
+          err |= name_attached_inst_to_net(k, tmpi, tmpj);
           continue;
         } 
         touches = 
@@ -743,19 +751,21 @@ static void wirecheck(int k)    /* recursive routine */
           if(!wire[n].node) {
             my_strdup(_ALLOC_ID_, &wire[n].node, wire[k].node);
             my_strdup(_ALLOC_ID_, &wire[n].prop_ptr, subst_token(wire[n].prop_ptr, "lab", wire[n].node));
-            name_attached_inst_to_net(n, tmpi, tmpj);
-            wirecheck(n); /* recursive check */
+            err |= name_attached_inst_to_net(n, tmpi, tmpj);
+            err |= wirecheck(n); /* recursive check */
           } else {
-            if(for_netlist>0) signal_short("Net to net", wire[n].node, wire[k].node);
+            if(for_netlist>0) err |= signal_short("Net to net", wire[n].node, wire[k].node);
           }
         }
       }
     }
   }
+  return err;
 }
 
-static void name_attached_nets(double x0, double y0, int sqx, int sqy, const char *node)
+static int name_attached_nets(double x0, double y0, int sqx, int sqy, const char *node)
 {
+  int err = 0;
   xWire * const wire = xctx->wire;
   Wireentry *wptr;
   for(wptr = xctx->wire_spatial_table[sqx][sqy]; wptr; wptr = wptr->next) {
@@ -764,17 +774,18 @@ static void name_attached_nets(double x0, double y0, int sqx, int sqy, const cha
       if(!wire[n].node) {
         my_strdup(_ALLOC_ID_,  &wire[n].node, node);
         my_strdup(_ALLOC_ID_, &wire[n].prop_ptr, subst_token(wire[n].prop_ptr, "lab", wire[n].node));
-        wirecheck(n);
+        err |= wirecheck(n);
       } else {
-        if(for_netlist>0) signal_short("Net", wire[n].node, node);
+        if(for_netlist>0) err |= signal_short("Net", wire[n].node, node);
       }
     }
-   
   }
+  return err;
 }
 
-static void name_attached_inst(int i, double x0, double y0, int sqx, int sqy, const char *node)
-{     
+static int name_attached_inst(int i, double x0, double y0, int sqx, int sqy, const char *node)
+{
+  int err = 0;
   xInstance * const inst = xctx->inst;
   Instpinentry *iptr;
   for(iptr = xctx->instpin_spatial_table[sqx][sqy]; iptr; iptr = iptr->next) {
@@ -787,13 +798,13 @@ static void name_attached_inst(int i, double x0, double y0, int sqx, int sqy, co
     if(iptr->x0 == x0 && iptr->y0 == y0 ) {
       if(!inst[n].node[p]) {
         set_inst_node(n, p, node);
-        instcheck(n, p);
+        err |= instcheck(n, p);
       } else {
-        if(for_netlist>0) signal_short("Instance pin", inst[n].node[p], node);
+        if(for_netlist>0) err |= signal_short("Instance pin", inst[n].node[p], node);
       }
     }
-
   }
+  return err;
 }
 
 /* what: 
@@ -844,8 +855,9 @@ static int find_pass_through_symbols(int what, int ninst)
  * Given an instance pin (inst n, pin p) propagate electrical information through 
  * other pins with identical "name" attribute (pass-through symbols)
  */
-static void instcheck(int n, int p)
+static int instcheck(int n, int p)
 {
+  int err = 0;
   xInstance * const inst = xctx->inst;
   int j, sqx, sqy;
   double x0, y0;
@@ -856,7 +868,7 @@ static void instcheck(int n, int p)
     int rects = xctx->sym[k].rects[PINLAYER];
     char *pin_name = NULL;
     my_strdup(_ALLOC_ID_, &pin_name, get_tok_value(xctx->sym[k].rect[PINLAYER][p].prop_ptr, "name", 0));
-    if(p >= rects) return;
+    if(p >= rects) return 1;
     for(j = 0; j < rects; ++j) {
       const char *other_pin;
       if(j == p) continue;
@@ -868,22 +880,24 @@ static void instcheck(int n, int p)
           set_inst_node(n, j, inst[n].node[p]);
           get_inst_pin_coord(n, j, &x0, &y0);
           get_square(x0, y0, &sqx, &sqy);
-          name_attached_nets(x0, y0, sqx, sqy, inst[n].node[j]);
-          name_attached_inst(n, x0, y0, sqx, sqy, inst[n].node[j]);
+          err |= name_attached_nets(x0, y0, sqx, sqy, inst[n].node[j]);
+          err |= name_attached_inst(n, x0, y0, sqx, sqy, inst[n].node[j]);
         } else {
-          if(for_netlist>0) signal_short("Pass_through symbol", inst[n].node[p], inst[n].node[j]);
+          if(for_netlist>0) err |= signal_short("Pass_through symbol", inst[n].node[p], inst[n].node[j]);
         }
       }
     }
     my_free(_ALLOC_ID_, &pin_name);
   }
+  return err;
 }
 
 /* starting from labels, ipins, opins, iopins propagate electrical
  * nodes to attached nets and instances
  */
-static void name_nodes_of_pins_labels_and_propagate()
+static int name_nodes_of_pins_labels_and_propagate()
 {
+  int err = 0;
   int i, sqx, sqy;
   double x0, y0;
   int port;
@@ -900,7 +914,7 @@ static void name_nodes_of_pins_labels_and_propagate()
   static int startlevel = 0; /* safe to keep even with multiple schematic windows, netlist is not interruptable */
 
   if(xctx->netlist_count == 0 ) startlevel = xctx->currsch;
-  dbg(2, "prepare_netlist_structs(): naming pins from attrs\n");
+  dbg(2, "name_nodes_of_pins_labels_and_propagate(): naming pins from attrs\n");
   /* print_erc is 1 the first time prepare_netlist_structs() is called on top level while
    * doing the netlist, when netlist of sub blocks is completed and toplevel is reloaded
    * a second prepare_netlist_structs() is called to name unnamed nets, in this second call
@@ -955,7 +969,8 @@ static void name_nodes_of_pins_labels_and_propagate()
         port=1;
         /* 20071204 only define a dir property if instance is not a label */
         if(for_netlist)
-          my_strdup2(_ALLOC_ID_, &dir, get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][0].prop_ptr, "dir",0));
+          my_strdup2(_ALLOC_ID_, &dir,
+              get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][0].prop_ptr, "dir",0));
       }
       else {
         /* handle global nodes (global=1 set as symbol property) 28032003 */
@@ -972,11 +987,12 @@ static void name_nodes_of_pins_labels_and_propagate()
       my_strdup(_ALLOC_ID_, &inst[i].node[0], inst[i].lab);
       if(!(inst[i].node[0])) {
         my_strdup(_ALLOC_ID_, &inst[i].node[0], get_tok_value((inst[i].ptr+ xctx->sym)->templ, "lab",0));
-        dbg(1, "prepare_netlist_structs(): no lab attr on instance, pick from symbol: %s\n", inst[i].node[0]);
+        dbg(1, "name_nodes_of_pins_labels_and_propagate(): no lab attr on instance, pick from symbol: %s\n",
+                inst[i].node[0]);
       }
       /* handle global nodes (global=1 set as symbol property) 28032003 */
       if(!strcmp(type,"label") && global_node && !strcmp(global_node, "true")) {
-        dbg(1, "prepare_netlist_structs(): global node: %s\n",inst[i].node[0]);
+        dbg(1, "name_nodes_of_pins_labels_and_propagate(): global node: %s\n",inst[i].node[0]);
         record_global_node(1,NULL, inst[i].node[0]);
       }
 
@@ -987,9 +1003,9 @@ static void name_nodes_of_pins_labels_and_propagate()
       get_inst_pin_coord(i, 0, &x0, &y0);
       get_square(x0, y0, &sqx, &sqy);
       /* name nets that touch ioin opin alias instances */
-      name_attached_nets(x0, y0, sqx, sqy, inst[i].node[0]);
+      err |= name_attached_nets(x0, y0, sqx, sqy, inst[i].node[0]);
       /* name instances that touch ioin opin alias instances */
-      name_attached_inst(i, x0, y0, sqx, sqy, inst[i].node[0]);
+      err |= name_attached_inst(i, x0, y0, sqx, sqy, inst[i].node[0]);
     } /* if(type && ... */
   } /* for(i=0;i<instances... */
   my_free(_ALLOC_ID_, &dir);
@@ -1001,36 +1017,41 @@ static void name_nodes_of_pins_labels_and_propagate()
     my_free(_ALLOC_ID_, &value);
     my_free(_ALLOC_ID_, &class);
   }
+  return err;
 }
 
-static void set_unnamed_net(int i)
+static int set_unnamed_net(int i)
 {
+  int err = 0;
   char tmp_str[30];
   my_snprintf(tmp_str, S(tmp_str), "#net%d", get_unnamed_node(1,0,0));
   my_strdup(_ALLOC_ID_, &xctx->wire[i].node, tmp_str);
   my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr, subst_token(xctx->wire[i].prop_ptr, "lab", tmp_str));
   /* insert unnamed wire name in hash table */
   bus_node_hash_lookup(tmp_str, "", XINSERT, 0,"","","","");
-  wirecheck(i);
+  err |= wirecheck(i);
+  return err;
 }
 
-static void name_unlabeled_nets()
+static int name_unlabeled_nets()
 {
+  int err = 0;
   int i;
-
   /* name nets that do not touch ipin opin alias instances */
-  dbg(2, "prepare_netlist_structs(): naming nets that dont touch labels\n");
+  dbg(2, "name_unlabeled_nets(): naming nets that dont touch labels\n");
   for (i = 0; i < xctx->wires; ++i)
   {
     if(xctx->wire[i].node == NULL)
     {
-      set_unnamed_net(i);
+      err |= set_unnamed_net(i);
     }
   }
+  return err;
 }
 
-static void set_unnamed_inst(int i, int j)
+static int set_unnamed_inst(int i, int j)
 {
+  int err = 0;
   char tmp_str[30];
   xInstance * const inst = xctx->inst;
   int sqx, sqy;
@@ -1040,18 +1061,20 @@ static void set_unnamed_inst(int i, int j)
   set_inst_node(i, j, tmp_str);
   get_inst_pin_coord(i, j, &x0, &y0);
   get_square(x0, y0, &sqx, &sqy);
-  name_attached_inst(i, x0, y0, sqx, sqy, inst[i].node[j]);
+  err |= name_attached_inst(i, x0, y0, sqx, sqy, inst[i].node[j]);
+  return err;
 }
 
-static void name_unlabeled_instances()
+static int name_unlabeled_instances()
 { 
+  int err = 0;
   int i, j;
   xInstance * const inst = xctx->inst;
   int const instances = xctx->instances;
   int rects;
     
   /* name nets that do not touch ipin opin alias instances */
-  dbg(2, "prepare_netlist_structs(): naming nets that dont touch labels\n");
+  dbg(2, "name_unlabeled_instances(): naming nets that dont touch labels\n");
   for (i = 0; i < instances; ++i)
   {
     if(inst[i].ptr != -1) {
@@ -1059,22 +1082,23 @@ static void name_unlabeled_instances()
       for(j = 0; j < rects; ++j) {
         if(inst[i].node[j] == NULL)
         {
-          set_unnamed_inst(i, j);
+          err |= set_unnamed_inst(i, j);
         }
       }
     }
   }
+  return err;
 } 
 
-
-static void reset_node_data_and_rehash()
+static int reset_node_data_and_rehash()
 {
+  int err = 0;
   int i,j, rects;
   xInstance * const inst = xctx->inst;
   int const instances = xctx->instances;
 
   /* reset wire & inst node labels */
-  dbg(2, "prepare_netlist_structs(): rehashing wires and instance pins in spatial hash table\n");
+  dbg(2, "reset_node_data_and_rehash(): rehashing wires and instance pins in spatial hash table\n");
   hash_wires();
   for (i=0;i<instances; ++i)
   {
@@ -1087,19 +1111,20 @@ static void reset_node_data_and_rehash()
       for (j=0;j<rects; ++j)
       {
         inst[i].node[j]=NULL;
-        hash_inst_pin(XINSERT, i, j);
+        err |= hash_inst_pin(XINSERT, i, j);
       }
     }
   }
+  return err;
 }
 
-void prepare_netlist_structs(int for_netl)
+int prepare_netlist_structs(int for_netl)
 {
+  int err = 0;
   char nn[PATH_MAX+30];
- 
   for_netlist = for_netl;
-  if(for_netlist>0 && xctx->prep_net_structs) return;
-  else if(!for_netlist && xctx->prep_hi_structs) return;
+  if(for_netlist>0 && xctx->prep_net_structs) return 0;
+  else if(!for_netlist && xctx->prep_hi_structs) return 0;
   /* delete instance pins spatial hash, wires spatial hash, node_hash, wires and inst nodes.*/
   if(for_netlist) {
     my_snprintf(nn, S(nn), "-----------%s", xctx->sch[xctx->currsch]);
@@ -1108,12 +1133,12 @@ void prepare_netlist_structs(int for_netl)
   dbg(1, "prepare_netlist_structs(): extraction: %s\n", xctx->sch[xctx->currsch]);
   delete_netlist_structs();
   free_simdata(); /* invalidate simulation cache */
-  reset_node_data_and_rehash();
+  err |= reset_node_data_and_rehash();
   get_unnamed_node(0,0,0); /*initializes node multiplicity data struct */
   find_pass_through_symbols(0, 0); /* initialize data struct to quickly find pass-through syms */
-  name_nodes_of_pins_labels_and_propagate();
-  name_unlabeled_nets();
-  name_unlabeled_instances();
+  err |= name_nodes_of_pins_labels_and_propagate();
+  err |= name_unlabeled_nets();
+  err |= name_unlabeled_instances();
   name_generics();
   /* name_non_label_inst_pins(); */
 
@@ -1126,6 +1151,7 @@ void prepare_netlist_structs(int for_netl)
   dbg(1, "prepare_netlist_structs(): returning\n");
   /* avoid below call: it in turn calls prepare_netlist_structs(), too many side effects */
   /* propagate_hilights(1, 0, XINSERT_NOREPLACE);*/
+  return err;
 }
 
 void delete_inst_node(int i)
@@ -1165,6 +1191,7 @@ void delete_netlist_structs(void)
 
 int warning_overlapped_symbols(int sel)
 {
+  int err = 0;
   int i;
   Int_hashtable table = {NULL, 0};
   Int_hashentry *found;
@@ -1191,16 +1218,18 @@ int warning_overlapped_symbols(int sel)
       my_snprintf(str, S(str), "Warning: overlapped instance found: %s(%s) -> %s\n",
             xctx->inst[i].instname, xctx->inst[i].name, xctx->inst[found->value].instname);
       statusmsg(str,2);
+      err |= 1;
       tcleval("show_infotext"); /* critical error: force ERC window showing */
     }
   }
   int_hash_free(&table);
   if(sel && xctx->need_reb_sel_arr) rebuild_selected_array();
-  return 0;
+  return err;
 }
 
 int sym_vs_sch_pins()
 {
+  int err = 0;
   char **lab_array =NULL;
   int lab_array_size = 0;
   int i, j, k, symbol, n_syms, rects, pin_cnt=0, pin_match, mult;
@@ -1348,6 +1377,7 @@ int sym_vs_sch_pins()
                       statusmsg(str,2);
                       my_snprintf(str, S(str), "    %s <--> %s", type, pin_dir);
                       statusmsg(str,2);
+                      err |= 1;
                       tcleval("show_infotext"); /* critical error: force ERC window showing */
                       for(j = 0; j < xctx->instances; ++j) {
                         if(!xctx->x_strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
@@ -1365,6 +1395,7 @@ int sym_vs_sch_pins()
                   /* fprintf(errfp, "  unmatched sch / sym pin: %s\n", lab); */
                   my_snprintf(str, S(str), "Symbol %s: schematic pin: %s not in symbol", xctx->sym[i].name, lab);
                   statusmsg(str,2);
+                  err |= 1;
                   tcleval("show_infotext"); /* critical error: force ERC window showing */
                   for(j = 0; j < xctx->instances; ++j) {
                     if(!xctx->x_strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
@@ -1399,6 +1430,7 @@ int sym_vs_sch_pins()
           my_snprintf(str, S(str), "Symbol %s has %d pins, its schematic has %d pins",
                       xctx->sym[i].name, rects, pin_cnt);
           statusmsg(str,2);
+          err |= 1;
           tcleval("show_infotext"); /* critical error: force ERC window showing */
           for(j = 0; j < xctx->instances; ++j) {
             if(!xctx->x_strcmp(xctx->inst[j].name, xctx->sym[i].name)) {
@@ -1423,6 +1455,7 @@ int sym_vs_sch_pins()
             my_snprintf(str, S(str), "Symbol %s: symbol pin: %s not in schematic",
                         xctx->sym[i].name, pin_name ? pin_name : "<NULL>");
             statusmsg(str,2);
+            err |= 1;
             tcleval("show_infotext"); /* critical error: force ERC window showing */
             for(k = 0; k < xctx->instances; ++k) {
               if(!xctx->x_strcmp(xctx->inst[k].name, xctx->sym[i].name)) {
@@ -1450,5 +1483,5 @@ int sym_vs_sch_pins()
   } /* for(i=0;i<n_syms; ++i) */
 
   while(xctx->symbols > n_syms) remove_symbol(xctx->symbols - 1);
-  return 0;
+  return err;
 }

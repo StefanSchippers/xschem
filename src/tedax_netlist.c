@@ -22,15 +22,16 @@
 
 #include "xschem.h"
 
-static void tedax_netlist(FILE *fd, int tedax_stop )
+static int tedax_netlist(FILE *fd, int tedax_stop )
 {
+  int err = 0;
   int i;
   char *type=NULL;
 
   if(!tedax_stop) {
     xctx->prep_net_structs = 0;
-    prepare_netlist_structs(1);
-    traverse_node_hash();  /* print all warnings about unconnected floatings etc */
+    err |= prepare_netlist_structs(1);
+    err |= traverse_node_hash();  /* print all warnings about unconnected floatings etc */
   }
   if(!tedax_stop) {
     for(i=0;i<xctx->instances; ++i) /* print first ipin/opin defs ... */
@@ -71,10 +72,12 @@ static void tedax_netlist(FILE *fd, int tedax_stop )
     my_free(_ALLOC_ID_, &type);
   }
   if(!tedax_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
+  return err;
 }
 
-static void tedax_block_netlist(FILE *fd, int i)
+static int tedax_block_netlist(FILE *fd, int i)
 {
+  int err = 0;
   int tedax_stop=0;
   char filename[PATH_MAX];
   char *extra=NULL;
@@ -104,7 +107,7 @@ static void tedax_block_netlist(FILE *fd, int i)
   my_free(_ALLOC_ID_, &extra);
   fprintf(fd, "\n");
   load_schematic(1,filename, 0);
-  tedax_netlist(fd, tedax_stop);
+  err |= tedax_netlist(fd, tedax_stop);
   xctx->netlist_count++;
 
   if(xctx->schprop && xctx->schprop[0]) {
@@ -113,10 +116,12 @@ static void tedax_block_netlist(FILE *fd, int i)
     fprintf(fd,"#**** end user architecture code\n");
   }
   fprintf(fd, "end netlist\n\n");
+  return err;
 }
 
-void global_tedax_netlist(int global)  /* netlister driver */
+int global_tedax_netlist(int global)  /* netlister driver */
 {
+ int err = 0;
  FILE *fd;
  const char *str_tmp;
  int i;
@@ -142,7 +147,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
  fd=fopen(netl_filename, "w");
  if(fd==NULL){
    dbg(0, "global_tedax_netlist(): problems opening netlist file\n");
-   return;
+   return 1;
  }
  fprintf(fd, "## sch_path: %s\n", xctx->sch[xctx->currsch]);
 
@@ -174,7 +179,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
  fprintf(fd, "end netlist\n");
 
  /* warning if two symbols perfectly overlapped */
- warning_overlapped_symbols(0);
+ err |= warning_overlapped_symbols(0);
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(_ALLOC_ID_, xctx->instances, sizeof(unsigned int));
  for(i=0;i<xctx->instances; ++i) stored_flags[i] = xctx->inst[i].color;
@@ -200,7 +205,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
     my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
-      tedax_block_netlist(fd, i);
+      err |= tedax_block_netlist(fd, i);
     }
    }
    my_free(_ALLOC_ID_, &abs_path);
@@ -210,7 +215,7 @@ void global_tedax_netlist(int global)  /* netlister driver */
    unselect_all(1);
    xctx->pop_undo(0, 0);
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
-   prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
+   err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
 
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    sym_vs_sch_pins();

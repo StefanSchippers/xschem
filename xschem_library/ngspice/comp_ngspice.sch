@@ -19,8 +19,8 @@ C {bsource.sym} 450 -150 0 1 {name=B1 VAR=V FUNC="\{OFFSET + AMPLITUDE/2*(tanh(V
 }
 C {title.sym} 160 -30 0 0 {name=l3 author="Stefan Schippers"}
 C {res.sym} 570 -240 1 0 {name=R1
-value=ROUT
+value='ROUT'
 m=1}
-C {parax_cap.sym} 630 -230 0 0 {name=C3 gnd=0 value=COUT m=1}
+C {parax_cap.sym} 630 -230 0 0 {name=C3 gnd=0 value='COUT' m=1}
 C {vsource.sym} 150 -260 1 0 {name=V1 value=0}
 C {vsource.sym} 150 -210 1 0 {name=V2 value=0}

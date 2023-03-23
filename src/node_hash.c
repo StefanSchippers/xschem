@@ -192,9 +192,10 @@ void node_hash_free(void) /* remove the whole hash table  */
  }
 }
 
-void traverse_node_hash()
+int traverse_node_hash()
 {
  int i;
+ int err = 0;
  Node_hashentry *entry;
  char str[2048]; /* 20161122 overflow safe */
  int incr_hi;
@@ -211,7 +212,8 @@ void traverse_node_hash()
        my_snprintf(str, S(str), "undriven node: %s", entry->token);
        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
        if(incr_hi) incr_hilight_color();
-       statusmsg(str,2);
+       statusmsg(str, 2);
+       err |= 1;
        tcleval("show_infotext"); /* critical error: force ERC window showing */
      }
      else if(entry->d.out + entry->d.inout + entry->d.in == 1)
@@ -249,6 +251,7 @@ void traverse_node_hash()
    entry = entry->next;
   }
  }
+ return err;
 }
 
 void print_vhdl_signals(FILE *fd)

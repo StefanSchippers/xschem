@@ -18,8 +18,9 @@ x2=0.00025416
 divx=5
 subdivx=1
 node="out
-trig"
-color="4 15"
+trig
+ctrl"
+color="4 15 7"
 dataset=-1
 unitx=1
 logx=0
@@ -27,6 +28,8 @@ logy=0
 }
 T {NE555 TIMER IC EXAMPLE} 360 -490 0 0 0.4 0.4 {}
 N 130 -150 200 -150 {lab=TRIG}
+N 570 -130 570 -100 {
+lab=CTRL}
 C {code.sym} 710 -190 0 0 {
 name=STIMULI 
 value=".option SCALE=1e-6 PARHIER=LOCAL RUNLVL=6 post MODMONTE=1
@@ -70,3 +73,4 @@ C {launcher.sym} 790 -290 0 0 {name=h5
 descr="load waves" 
 tclcommand="xschem raw_read $netlist_dir/test_ne555.raw tran"
 }
+C {noconn.sym} 570 -130 2 0 {name=l2}
