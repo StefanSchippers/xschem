@@ -242,8 +242,8 @@ proc execute_fileevent {id} {
       }
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
         uplevel #0 "eval $execute(callback,$id)"
-        unset execute(callback,$id)
       } 
+      catch {unset execute(callback,$id)} 
       set execute(cmd,last) $execute(cmd,$id)
       set execute(data,last) $execute(data,$id)
       set execute(error,last) $err
