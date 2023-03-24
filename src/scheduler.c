@@ -214,9 +214,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "annotate_op"))
     {
       int i;
-      char f[PATH_MAX];
+      char f[PATH_MAX + 100];
       if(argc > 2) {
-        my_snprintf(f, S(f), "%s", argv[2]);
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        tcleval(f);
+        my_strncpy(f, tclresult(), S(f));  
       } else {
         my_snprintf(f, S(f), "%s/%s.raw",  tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]));
       }
@@ -454,10 +456,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   if no file is given prompt user to choose one */
     else if(!strcmp(argv[1], "compare_schematics"))
     {
+      char f[PATH_MAX + 100];
       int ret = 0;
       if(argc > 2) {
-        /* ret = compare_schematics(abs_sym_path(argv[2], "")); */
-        ret = compare_schematics(argv[2]);
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        tcleval(f);
+        my_strncpy(f, tclresult(), S(f));
+        ret = compare_schematics(f);
       }
       else {
         ret = compare_schematics(NULL); 
@@ -648,8 +653,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   attribute. */
     else if(!strcmp(argv[1], "embed_rawfile"))
     {
+      char f[PATH_MAX + 100];
       if(argc > 2) {
-        embed_rawfile(argv[2]);
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        tcleval(f);
+        my_strncpy(f, tclresult(), S(f));
+        embed_rawfile(f);
       }
       Tcl_ResetResult(interp);
     }
@@ -1809,12 +1818,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       if(argc>2) {
+        char f[PATH_MAX + 100];
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        tcleval(f);
+        my_strncpy(f, tclresult(), S(f));
         if(force || !has_x || !xctx->modified  || save(1) != -1 ) { /* save(1)==-1 --> user cancel */
-          char f[PATH_MAX];
           char win_path[WINDOW_PATH_SIZE];
           int skip = 0;
           dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
-          my_strncpy(f,  abs_sym_path(argv[2], ""), S(f));
+          my_strncpy(f,  abs_sym_path(f, ""), S(f));
           if(!force && f[0] && check_loaded(f, win_path) ) {
             char msg[PATH_MAX + 100];
             my_snprintf(msg, S(msg),
@@ -1853,17 +1865,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Load schematic in a new tab/window. If 'f' not given prompt user */
     else if(!strcmp(argv[1], "load_new_window") )
     {
-      char fullname[PATH_MAX];
+      char f[PATH_MAX + 100];
       if(has_x) {
         if(argc > 2) {
-          my_snprintf(fullname, S(fullname), "%s", argv[2]);
+          my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+          tcleval(f);
+          my_strncpy(f, tclresult(), S(f));
         } else {
           tcleval("load_file_dialog {Load file} *.\\{sch,sym\\} INITIALLOADDIR");
-          my_snprintf(fullname, S(fullname), "%s", tclresult());
+          my_snprintf(f, S(f), "%s", tclresult());
         }
-        if(fullname[0] ) {
-         new_schematic("create", NULL, fullname);
-         tclvareval("update_recent_file {", fullname, "}", NULL);
+        if(f[0] ) {
+         new_schematic("create", NULL, f);
+         tclvareval("update_recent_file {", f, "}", NULL);
         }
       } else {
         Tcl_ResetResult(interp);
@@ -1875,8 +1889,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   if 'f' is not given and a file log is open, close log
      *   file and resume logging to stderr */
     else if(!strcmp(argv[1], "log"))
-    {
-      if(argc==3 && errfp == stderr ) { errfp = fopen(argv[2], "w"); } /* added check to avoid multiple open */
+    { /* added check to avoid multiple open */
+      if(argc > 2 && errfp == stderr ) {
+        char f[PATH_MAX + 100];
+        FILE *fp;
+
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        tcleval(f);
+        my_strncpy(f, tclresult(), S(f));
+        fp = fopen(f, "w");
+        if(fp) errfp = fp;
+        else dbg(0, "xschem log: problems opening file %s\n", f);
+    }
       else if(argc==2 && errfp != stderr) { fclose(errfp); errfp=stderr; }
     }
 
@@ -1996,11 +2020,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Merge another file. if 'f' not given prompt user. */
     else if(!strcmp(argv[1], "merge"))
     {
+      char f[PATH_MAX + 100];
       if(argc < 3) {
         merge_file(0, "");  /* 2nd param not used for merge 25122002 */
       }
       else {
-        merge_file(0,argv[2]);
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        tcleval(f);
+        my_strncpy(f, tclresult(), S(f));
+        merge_file(0, f);
       }
       Tcl_ResetResult(interp);
     }
@@ -2066,7 +2094,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* new_schematic create|destroy|destroy_all|switch_win winpath file
      *   Open/destroy a new tab or window 
      *     create: create new empty window or with 'file' loaded if 'file' given.
-     *             The winpath must be given (even {} is ok) but not used.
+     *             The winpath must be given (even {} is ok) but is not used.
      *     destroy: destroy tab/window identified by winpath. Example:
      *              xschem new_schematic destroy .x1.drw
      *     destroy_all: close all tabs/additional windows
@@ -2080,9 +2108,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int r = -1;
       char s[20];
       if(argc > 2) {
+
         if(argc == 3) r = new_schematic(argv[2], NULL, NULL);
         else if(argc == 4) r = new_schematic(argv[2], argv[3], NULL);
-        else if(argc == 5) r = new_schematic(argv[2], argv[3], argv[4]);
+        else if(argc == 5) {
+          char f[PATH_MAX + 100];
+          my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[4], home_dir);
+          tcleval(f);
+          my_strncpy(f, tclresult(), S(f));  
+          r = new_schematic(argv[2], argv[3], f);
+        }
         my_snprintf(s, S(s), "%d", r);
         Tcl_SetResult(interp, s, TCL_VOLATILE);
       }
@@ -2093,8 +2128,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   If 'f' is given load specified symbol. */
     else if(!strcmp(argv[1], "new_symbol_window"))
     {
-      if(argc > 2)  new_xschem_process(argv[2], 1);
-      else new_xschem_process("", 1);
+      if(argc > 2)  {
+        char f[PATH_MAX + 100];
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        tcleval(f);
+        my_strncpy(f, tclresult(), S(f));  
+        new_xschem_process(f, 1);
+      } else new_xschem_process("", 1);
       Tcl_ResetResult(interp);
     }
 
@@ -2103,8 +2143,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   If 'f' is given load specified schematic. */
     else if(!strcmp(argv[1], "new_window"))
     {
-      if(argc > 2)  new_xschem_process(argv[2],0);
-      else new_xschem_process("",0);
+      if(argc > 2) {
+        char f[PATH_MAX + 100];
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        tcleval(f);
+        my_strncpy(f, tclresult(), S(f));  
+        new_xschem_process(f, 0);
+      } else new_xschem_process("", 0);
       Tcl_ResetResult(interp);
     }
     else { cmd_found = 0;}
@@ -2276,7 +2321,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       if(argc == 3) preview_window(argv[2], "{}", "{}");
       else if(argc == 4) preview_window(argv[2], argv[3], "{}");
-      else if(argc == 5) preview_window(argv[2], argv[3], argv[4]);
+      else if(argc == 5) {
+        char f[PATH_MAX + 100];
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[4], home_dir);
+        tcleval(f);
+        my_strncpy(f, tclresult(), S(f));  
+        preview_window(argv[2], argv[3], f);
+      }
       Tcl_ResetResult(interp);
     }
 
@@ -2524,20 +2575,25 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   If 'sim' not specified load first section found in raw file. */
     else if(!strcmp(argv[1], "raw_read"))
     {
+      char f[PATH_MAX + 100];
+      int res = 0;
       if(sch_waves_loaded() >= 0) {
         free_rawfile(1);
         tclsetvar("rawfile_loaded", "0");
       } else if(argc > 2) {
         free_rawfile(0);
-        if(argc > 3) raw_read(argv[2], argv[3]);
-        else raw_read(argv[2], NULL);
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        tcleval(f);
+        my_strncpy(f, tclresult(), S(f));
+        if(argc > 3) res = raw_read(f, argv[3]);
+        else res = raw_read(f, NULL);
         if(sch_waves_loaded() >= 0) {
           tclsetvar("rawfile_loaded", "1");
           draw();
         }
         else  tclsetvar("rawfile_loaded", "0");
       }
-      Tcl_ResetResult(interp);
+      Tcl_SetResult(interp, my_itoa(res), TCL_VOLATILE);
     }
 
     /* raw_read_from_attr [sim]
@@ -2776,16 +2832,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "saveas"))
     {
-      const char *f;
+      const char *fptr;
+      char f[PATH_MAX + 100];
+
+      if(argc > 2) {
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        tcleval(f);
+        my_strncpy(f, tclresult(), S(f));  
+      }
       if(argc > 3) {
-        f = !strcmp(argv[2], "") ? NULL : argv[2];
-        if(!strcmp(argv[3], "schematic")) saveas(f, SCHEMATIC);
-        else if(!strcmp(argv[3], "symbol")) saveas(f, SYMBOL);
-        else saveas(f, SCHEMATIC);
+        fptr = !strcmp(f, "") ? NULL : f;
+        if(!strcmp(argv[3], "schematic")) saveas(fptr, SCHEMATIC);
+        else if(!strcmp(argv[3], "symbol")) saveas(fptr, SYMBOL);
+        else saveas(fptr, SCHEMATIC);
       }
       else if(argc > 2) {
-        f = !strcmp(argv[2], "") ? NULL : argv[2];
-        saveas(f, SCHEMATIC);
+        fptr = !strcmp(f, "") ? NULL : f;
+        saveas(fptr, SCHEMATIC);
       }
       else saveas(NULL, SCHEMATIC);
     }
@@ -3401,12 +3464,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     if(!strcmp(argv[1], "table_read"))
     {
+      char f[PATH_MAX + 100];
       if(sch_waves_loaded() >= 0) {
         free_rawfile(1);
         tclsetvar("rawfile_loaded", "0");
       } else if(argc > 2) {
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        tcleval(f);
+        my_strncpy(f, tclresult(), S(f));  
         free_rawfile(0);
-        table_read(argv[2]);
+        table_read(f);
         if(sch_waves_loaded() >= 0) {
           tclsetvar("rawfile_loaded", "1");
           draw();
