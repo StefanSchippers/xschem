@@ -1033,9 +1033,13 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    If 'val' not given (no attribute value) delete attribute from text
    If 'fast' argument is given does not redraw and is not undoable
    If 'fastundo' s given same as above but action is undoable.</pre>
-   <li><kbd>       simulate</kbd></li><pre>
+   <li><kbd>       simulate [callback]</kbd></li><pre>
    Run a simulation (start simulator configured as default in
-   Tools -&gt; Configure simulators and tools) </pre>
+   Tools -&gt; Configure simulators and tools) 
+   If 'callback' procedure name is given execute the procedure when simulation
+   is finished. all execute(..., id) data is available (id = execute(id) )
+   A callback prodedure is useful if simulation is launched in background mode
+   ( set sim(spice,1,fg) 0 )</pre>
    <li><kbd>       snap_wire </kbd></li><pre>
    Start a GUI start snapped wire placement (click to start a
    wire to closest pin/net endpoint) </pre>
@@ -1130,9 +1134,15 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
  <h1>XSCHEM <a id="tclglobals">TCL GLOBAL</a> VARIABLES</h1><br>
 
  <pre class="code">
+   # default command for first spice simulation command (interactive ngspice) 
    sim(spice,0,cmd) {$terminal -e 'ngspice -i "$N" -a || sh'}
+
+   # flag for foreground (1) or background (0) operation
    sim(spice,0,fg) 0
+
+   # flag for status dialog box opening (1) at simulation end or not (0)
    sim(spice,0,st) 0
+
    sim(spice,1,cmd) {ngspice -b -r "$n.raw" -o "$n.out" "$N"}
    sim(spice,1,fg) 0
    sim(spice,1,st) 1
@@ -1142,8 +1152,13 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    sim(spice,3,cmd) {mpirun /path/to/parallel/Xyce "$N"}
    sim(spice,3,fg) 0
    sim(spice,3,st) 1
+
+   # Number of configured spice simulation commands (4), [ sim(spice,0,...) ... sim(spice,3,...) ]
    sim(spice,n) 4
+
+   # default spice command to use (0) --&gt; sim(spice,0,...)
    sim(spice,default) 0
+
    sim(spicewave,0,cmd) {gaw "$n.raw" } 
    sim(spicewave,0,fg) 0
    sim(spicewave,0,st) 0
@@ -1158,6 +1173,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    sim(spicewave,3,st) 0
    sim(spicewave,n) 4
    sim(spicewave,default) 0
+
+   # list of configured tools. For each of these there is a set of sim(tool,...) settings
+   sim(tool_list) spice spicewave verilog verilogwave vhdl vhdlwave
+
    sim(verilog,0,cmd) {iverilog -o .verilog_object -g2012 "$N" &amp;&amp; vvp .verilog_object}
    sim(verilog,0,fg) 0
    sim(verilog,0,st) 1
@@ -1247,6 +1266,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    hide_empty_graphs 0 ;# if set to 1 waveform boxes will be hidden if no raw file loaded
    hide_symbols 0
    incr_hilight 1
+
+   # text saved into the ERC informational dialog box.
+   # netlist warnings and errors are shown here.
+   infowindow_text 
+
    initial_geometry {900x600}
    launcher_default_program {xdg-open}
    light_colors {
@@ -1256,7 +1280,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    light_colors_save
    line_width 0
    live_cursor2_backannotate 0
-   local_netlist_dir 0 ;# if set use &lt;sch_dir&gt;/simulation for netlist and sims
+
+   # if set use &lt;sch_dir&gt;/simulation for netlist and sims
+   local_netlist_dir 0
+
    lvs_netlist 0
    measure_text "y=\nx="
    menu_debug_var 0
@@ -1311,9 +1338,278 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    XSCHEM_START_WINDOW {}
    XSCHEM_TMP_DIR {/tmp}
    zoom_full_center 0
-</pre>
+ </pre>
 
+ <h3> Simulator / waveform setup </h3>
 
+ <p>
+  In xschem a tcl array variable <kbd>sim</kbd> is used to specify external process commands,
+  like simulators and waveform viewers. This variable is set in the GUI with the 
+  <kbd>Simulation-&gt; Configure simulators and tools</kbd> menu entry. First of all you need to set the 
+  <kbd>tool_list</kbd> list of configured tools:</p>
+  <pre class = "code">
+     set sim(tool_list) { spice spicewave verilog verilogwave vhdl vhdlwave } </pre>
+ <p>
+  For each tool you need to define some sub elements:</p>
+  <pre class = "code">
+     # Number of configured spice simulation commands (4), [ sim(spice,0,...) ... sim(spice,3,...) ]
+     sim(spice,n) 4
+     # default spice command to use (0) --&gt; sim(spice,0,...)
+     sim(spice,default) 0
+     # default command for first spice simulation command (interactive ngspice)
+     sim(spice,0,cmd) {$terminal -e 'ngspice -i "$N" -a || sh'}
+     # flag for foreground (1) or background (0) operation
+     sim(spice,0,fg) 0
+     # flag for status dialog box opening (1) at simulation end or not (0)
+     sim(spice,0,st) 0
+     sim(spice,1,cmd) {ngspice -b -r "$n.raw" -o "$n.out" "$N"}
+     sim(spice,1,fg) 0
+     sim(spice,1,st) 1
+     sim(spice,2,cmd) "Xyce \"\$N\"\n# Add -r \"\$n.raw\" if you want all variables saved"
+     sim(spice,2,fg) 0
+     sim(spice,2,st) 1
+     sim(spice,3,cmd) {mpirun /path/to/parallel/Xyce "$N"}
+     sim(spice,3,fg) 0
+     sim(spice,3,st) 1
+  </pre>
+ 
+  <!-- TCL procedures -->
+ <h1>XSCHEM <a id="tclprocs">TCL PROCEDURES</a></h1><br>
+ <p> Commands in brackets are internal procedures, not supposed to be used by end users </p>
+ <pre class = "code">
+      # show xschem about dialog
+      about
+
+      # given a symbol reference 'sym' return its absolute path
+      # Example: % abs_sym_path devices/iopin.sch
+      #          /home/schippes/share/xschem/xschem_library/devices/iopin.sym
+      abs_sym_path sym
+
+      add_ext
+      add_lab_no_prefix
+      add_lab_prefix
+
+      # show an alert dialog box and display 'text'.
+      # if 'position' is empty (example: alert_ {hello, world} {}) show at mouse coordinates
+      # otherwise use specified coordinates example: alert_ {hello, world} +300+400
+      # if nowait is 1 do not wait for user to close dialog box
+      # if yesnow is 1 show yes and no buttons and return user choice (1 / 0).
+      # (this works only if nowait is unset).
+      alert_ text [position] [nowait] [yesno]
+
+      ask_save
+      attach_labels_to_inst
+      balloon
+      balloon_show
+      bespice_getdata
+      bespice_server
+      build_widgets
+      change_color
+      clear_simulate_button
+      color_dim
+      context_menu
+      convert_to_pdf
+      convert_to_png
+      create_layers_menu
+      create_pins
+      delete_ctx
+      delete_files
+      delete_tab
+      descend_hierarchy
+      download_url
+      edit_file
+      edit_netlist
+      edit_prop
+      edit_vi_netlist_prop
+      edit_vi_prop
+      enter_text
+
+      # evaluate 'expr'. if 'expr' has errors or does not evaluate return 'expr' as is
+      ev expr
+
+      every
+      execute
+      execute_fileevent
+      execute_wait
+      fill_graph_listbox
+
+      # find file into $paths directories matching $f
+      # use $pathlist global search path if $paths empty
+      # recursively descend directories
+      find_file f [paths]
+
+      from_eng
+      gaw_cmd
+      gaw_echoline
+      get_cell
+      get_directory
+      get_file_path
+
+      # launch a terminal shell, if 'curpath' is given set path to 'curpath'
+      get_shell
+
+      graph_add_nodes
+      graph_add_nodes_from_list
+      graph_change_wave_color
+      graph_edit_properties
+      graph_edit_wave
+      graph_get_signal_list
+      graph_show_measure
+      graph_update_nodelist
+      hash_string
+      history
+      housekeeping_ctx
+      infowindow
+      input_line
+      inutile
+      inutile_alias_window
+      inutile_get_time
+      inutile_help_window
+      inutile_line
+      inutile_read_data
+      inutile_template
+      inutile_translate
+      inutile_write_data
+      is_xschem_file
+      key_binding
+      launcher
+      list_hierarchy
+      list_tokens
+      load_file_dialog
+      load_file_dialog_mkdir
+      load_file_dialog_up
+      load_recent_file
+      make_symbol
+      make_symbol_lcc
+
+      # find files into $paths directories matching $f
+      # use $pathlist global search path if $paths empty
+      # recursively descend directories
+      match_file f [paths]
+
+      myload_display_preview
+      myload_getresult
+      myload_set_colors1
+      myload_set_colors2
+      myload_set_home
+      netlist
+      next_tab
+      no_open_dialogs
+      order
+      pack_tabs
+      pack_widgets
+      path_head
+      pin_label
+      prev_tab
+      print_help_and_exit
+      probe_net
+      property_search
+      raise_dialog
+      read_data
+      read_data_nonewline
+      read_data_window
+      reconfigure_layers_button
+      reconfigure_layers_menu
+      rectorder
+      redef_puts
+
+      # Given an absolute path 'symbol' of a symbol/schematic remove the path prefix
+      # if file is in a library directory (a $pathlist dir)
+      # Example: rel_sym_path /home/schippes/share/xschem/xschem_library/devices/iopin.sym
+      #          devices/iopin.sym
+      rel_sym_path symbol
+      
+      reroute_inst
+      reroute_net
+      reset_colors
+      restore_ctx
+      return_release
+      rotation
+      save_ctx
+      save_file_dialog
+      save_sim_defaults
+      schpins_to_sympins
+      select_inst
+      select_layers
+      select_netlist_dir
+      set_bindings
+      set_env
+      setglob
+      set_initial_dirs
+      set_missing_colors_to_black
+
+      # set 'var' with '$val' if 'var' not existing
+      set_ne var val
+
+      set_old_tk_fonts
+
+      # when XSCHEM_LIBRARY_PATH is changed call this function to refresh and cache
+      # new library search path.
+      set_paths
+      
+      set_replace_key_binding
+
+      # Initialize the tcl sim array variable (if not already set) 
+      # setting up simulator / wave viewer commands
+      set_sim_defaults
+
+      set_tab_names
+      setup_recent_menu
+      setup_tabbed_interface
+      setup_tcp_bespice
+      setup_tcp_gaw
+      setup_tcp_xschem
+      setup_toolbar
+      sframe
+
+      # show ERC (electrical rule check) dialog box
+      show_infotext
+
+      simconf
+      simconf_add
+      simconf_reset
+      simconf_saveconf
+      sim_is_ngspice
+      sim_is_xyce
+      sim_is_Xyce
+      simulate
+      simulate_button
+      simuldir
+      source_user_tcl_files
+      sub_find_file
+      sub_match_file
+      swap_compare_schematics
+      swap_tabs
+
+      # show a dialog box asking user to switch undo bguffer from memory to disk
+      switch_undo
+
+      # evaluate a tcl command from GUI
+      tclcmd
+
+      tclcmd_ok_button
+      tclpropeval
+      tclpropeval2
+      text_line
+      textwindow
+      to_eng
+      tolist
+      toolbar_add
+      toolbar_hide
+      toolbar_show
+      try_download_url
+      update_div
+      update_graph_node
+      update_recent_file
+      update_schematic_header
+      view_current_sim_output
+      waves
+      write_data
+      write_recent_file
+      xschem_getdata
+      xschem_server
+
+ </pre>
 
  <!-- end of slide -->
  <div class="filler"></div>

@@ -3313,13 +3313,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_ResetResult(interp);
       }
     }
-    /* simulate
+    /* simulate [callback]
      *   Run a simulation (start simulator configured as default in
-     *   Tools -> Configure simulators and tools) */
+     *   Tools -> Configure simulators and tools) 
+     *   If 'callback' procedure name is given execute the procedure when simulation
+     *   is finished. all execute(..., id) data is available (id = execute(id) )
+     *   A callback prodedure is useful if simulation is launched in background mode
+     *   ( set sim(spice,1,fg) 0 ) */
     else if(!strcmp(argv[1], "simulate") )
     {
       if(set_netlist_dir(0, NULL) ) {
-        tcleval("simulate");
+        if(argc > 2) tclvareval("simulate ", argv[2], NULL);
+        else tcleval("simulate");
       }
     }
 

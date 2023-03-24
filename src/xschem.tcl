@@ -197,9 +197,7 @@ proc inutile { {filename {}}} {
 ### for tclreadline: disable customcompleters
 proc completer { text start end line } { return {}}
 
-###
-### set var with $val if var Not existing
-###
+# set 'var' with '$val' if 'var' not existing
 proc set_ne { var val } {
     upvar #0 $var v
     if { ![ info exists v ] } {
@@ -207,9 +205,6 @@ proc set_ne { var val } {
     }
 }
 
-###
-### Tk procedures
-###
 # execute service function
 proc execute_fileevent {id} {
   global execute
@@ -879,6 +874,7 @@ proc ngspice::get_node {n} {
 
 ## end ngspice:: functions
 
+# test if currently set simulator is ngspice
 proc sim_is_ngspice {} {
   global sim
 
@@ -893,6 +889,7 @@ proc sim_is_ngspice {} {
   return 0
 }
 
+# test if currently set simulator is Xyce
 proc sim_is_Xyce {} {
   return [sim_is_xyce]
 }
@@ -933,6 +930,8 @@ proc tolist {s} {
   }
 }
 
+# Initialize the tcl sim array variable (if not already set) 
+# setting up simulator / wave viewer commands
 proc set_sim_defaults {{reset {}}} {
   global sim terminal USER_CONF_DIR has_x bespice_listen_port env OS
   if {$reset eq {reset} } { file delete ${USER_CONF_DIR}/simrc }
@@ -2280,12 +2279,16 @@ proc graph_show_measure {{action show}} {
   }]
 }
 
-proc get_shell { curpath } {
+# launch a terminal shell, if 'curpath' is given set path to 'curpath'
+proc get_shell { {curpath {}} } {
  global netlist_dir debug_var
  global  terminal
 
- simuldir
- execute 0 sh -c "cd $curpath && $terminal"
+ if { $curpath ne {} } {
+   execute 0 sh -c "cd $curpath && $terminal"
+ } else {
+   execute 0 sh -c "$terminal"
+ }
 }
 
 proc edit_netlist {netlist } {
@@ -3462,6 +3465,7 @@ proc color_dim {} {
   xschem set semaphore [expr {[xschem get semaphore] -1}]
 }
 
+# show xschem about dialog
 proc about {} {
   if [winfo exists .about] { 
     bind .about.link <Button-1> {}
@@ -4227,6 +4231,13 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   return $rcode
 }
 
+# alert_ text [position] [nowait] [yesno]
+# show an alert dialog box and display 'text'.
+# if 'position' is empty (example: alert_ {hello, world} {}) show at mouse coordinates
+# otherwise use specified coordinates example: alert_ {hello, world} +300+400
+# if nowait is 1 do not wait for user to close dialog box
+# if yesnow is 1 show yes and no buttons and return user choice (1 / 0).
+# (this works only if nowait is unset).
 proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
   global has_x rcode
   set recode 1
@@ -4421,9 +4432,6 @@ proc viewdata {data {ro {}}} {
   return $rcode
 }
 
-# find files into $paths directories matching $f
-# use $pathlist global search path if $paths empty
-# recursively descend directories
 proc sub_match_file { f {paths {}} } {
   global pathlist match_file_dir_arr
   set res {}
@@ -4451,6 +4459,9 @@ proc sub_match_file { f {paths {}} } {
   return $res
 }
 
+# find files into $paths directories matching $f
+# use $pathlist global search path if $paths empty
+# recursively descend directories
 proc match_file  { f {paths {}} } {
   global match_file_dir_arr
   catch {unset match_file_dir_arr}
@@ -4459,9 +4470,6 @@ proc match_file  { f {paths {}} } {
   return $res
 }
 
-# find given file $f into $paths directories 
-# use $pathlist global search path if $paths empty
-# recursively descend directories
 proc sub_find_file { f {paths {}} } {
   global pathlist match_file_dir_arr
   set res {}
@@ -4488,6 +4496,9 @@ proc sub_find_file { f {paths {}} } {
   return $res
 }
 
+# find given file $f into $paths directories 
+# use $pathlist global search path if $paths empty
+# recursively descend directories
 proc find_file  { f {paths {}} } {
   global match_file_dir_arr
   catch {unset match_file_dir_arr}
@@ -4545,8 +4556,10 @@ proc try_download_url {dirname sch_or_sym} {
   }
 }
 
-# given an absolute path of a symbol/schematic remove the path prefix
+# Given an absolute path 'symbol' of a symbol/schematic remove the path prefix
 # if file is in a library directory (a $pathlist dir)
+# Example: rel_sym_path /home/schippes/share/xschem/xschem_library/devices/iopin.sym
+#          devices/iopin.sym
 proc rel_sym_path {symbol} {
   global OS pathlist
   set curr_dirname [xschem get current_dirname]
@@ -4575,7 +4588,9 @@ proc rel_sym_path {symbol} {
   return $name
 }
 
-## given a library/symbol return its absolute path
+# given a symbol reference 'sym' return its absolute path
+# Example: % abs_sym_path devices/iopin.sch
+#          /home/schippes/share/xschem/xschem_library/devices/iopin.sym
 proc abs_sym_path {fname {ext {} } } {
   global pathlist OS
   set  curr_dirname [xschem get current_dirname]
@@ -6057,7 +6072,7 @@ proc build_widgets { {topwin {} } } {
   }
   $topwin.menubar.simulation.menu add command -label {Shell [simulation path]} -command {
      if { [select_netlist_dir 0] ne "" } {
-        get_shell $netlist_dir
+        simuldir; get_shell $netlist_dir
      }
    }
   $topwin.menubar.simulation.menu add command -label {Edit Netlist} \
@@ -6177,6 +6192,8 @@ proc set_initial_dirs {} {
   }
 }
 
+# when XSCHEM_LIBRARY_PATH is changed call this function to refresh and cache
+# new library search path.
 proc set_paths {} {
   global XSCHEM_LIBRARY_PATH env pathlist OS add_all_windows_drives
   set pathlist {}
