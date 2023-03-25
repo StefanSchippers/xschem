@@ -457,7 +457,7 @@ void ask_new_file(void)
         xctx->currsch = 0;
         unselect_all(1);
         remove_symbols();
-        load_schematic(1, f,1); /* 20180925.1 */
+        load_schematic(1, f, 1, 1);
         tclvareval("update_recent_file {", f, "}", NULL);
         my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch],".");
         xctx->sch_path_hash[xctx->currsch] = 0;
@@ -1350,7 +1350,7 @@ int descend_schematic(int instnumber)
    dbg(1, "descend_schematic(): filename=%s\n", filename);
    /* we are descending from a parent schematic downloaded from the web */
    remove_symbols();
-   load_schematic(1, filename, 1);
+   load_schematic(1, filename, 1, 1);
    if(xctx->hilight_nets) {
      prepare_netlist_structs(0);
      propagate_hilights(1, 0, XINSERT_NOREPLACE);
@@ -1401,7 +1401,7 @@ void go_back(int confirm) /*  20171006 add confirm */
                             /* by default) to parent schematic if going back from embedded symbol */
 
   my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
-  load_schematic(1, filename, 1);
+  load_schematic(1, filename, 1, 1);
   if(from_embedded_sym) xctx->modified=save_modified; /* to force ask save embedded sym in parent schematic */
 
   if(xctx->hilight_nets) {

@@ -755,7 +755,7 @@ int compare_schematics(const char *f)
   xctx->xorigin = save_xctx->xorigin;
   xctx->yorigin = save_xctx->yorigin;
   /* Load schematic 2 for comparing */
-  load_schematic(1, xctx->sch_to_compare, 0); /* last param to 0, do not alter window title */
+  load_schematic(1, xctx->sch_to_compare, 0, 1); /* last param to 0, do not alter window title */
 
   /* HASH SCHEMATIC 2 , CHECK SCHEMATIC 2 WITH SCHEMATIC 1 */
   for(i = 0; i < xctx->instances; ++i) {
@@ -1154,7 +1154,7 @@ void preview_window(const char *what, const char *win_path, const char *fname)
       build_colors(0.0, 0.0);
       resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
       dbg(1, "preview_window() draw, load schematic\n");
-      load_schematic(1,fname, 0);
+      load_schematic(1,fname, 0, 1);
     }
     zoom_full(1, 0, 1, 0.97); /* draw */
     xctx = save_xctx;
@@ -1349,7 +1349,7 @@ static void create_new_window(int *window_count, const char *fname)
   resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
   /* draw empty window so if following load fails due to missing file window appears correctly drawn */
   zoom_full(1, 0, 1, 0.97);
-  load_schematic(1, fname, 1);
+  load_schematic(1, fname, 1, 1);
   zoom_full(1, 0, 1, 0.97); /* draw */
   tclvareval("set_bindings ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);
@@ -1449,7 +1449,7 @@ static void create_new_tab(int *window_count, const char *fname)
   /* draw empty window so if following load fails due to missing file window appears correctly drawn */
   tclvareval("housekeeping_ctx", NULL);
   zoom_full(1, 0, 1, 0.97);
-  load_schematic(1,fname, 1);
+  load_schematic(1,fname, 1, 1);
   zoom_full(1, 0, 1, 0.97); /* draw */
 }
 
@@ -2469,7 +2469,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    remove_symbols();
    /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
       to tcl is_xschem_file that could change xctx->netlist_type to symbol */
-   load_schematic(1, f, !cli_opt_do_netlist);
+   load_schematic(1, f, !cli_opt_do_netlist, 1);
    tclvareval("update_recent_file {", f, "}", NULL);
  } else if(!cli_opt_tcl_script[0]) {
    char * tmp;
@@ -2482,7 +2482,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_strncpy(fname, abs_sym_path(tmp, ""), S(fname));
     /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
        to tcl is_xschem_file that could change xctx->netlist_type to symbol */
-   load_schematic(1, fname, !cli_opt_do_netlist);
+   load_schematic(1, fname, !cli_opt_do_netlist, 1);
  }
 
 

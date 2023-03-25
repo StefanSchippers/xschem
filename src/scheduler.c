@@ -1845,7 +1845,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             xctx->currsch = 0;
             remove_symbols();
             dbg(1, "scheduler: undo_reset=%d\n", undo_reset);
-            load_schematic(load_symbols, f, undo_reset);
+            load_schematic(load_symbols, f, undo_reset, 0);
             tclvareval("update_recent_file {", f, "}", NULL);
             my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
             xctx->sch_path_hash[xctx->currsch] = 0;
@@ -2686,7 +2686,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       unselect_all(1);
       remove_symbols();
-      load_schematic(1, xctx->sch[xctx->currsch], 1);
+      load_schematic(1, xctx->sch[xctx->currsch], 1, 1);
       if(argc > 2 && !strcmp(argv[2], "zoom_full") ) {
         zoom_full(1, 0, 1, 0.97);
       } else {

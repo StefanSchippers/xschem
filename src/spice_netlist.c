@@ -88,7 +88,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
         str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         get_sch_from_sym(filename, xctx->sym + i);
         /* for printing we go down to bottom regardless of spice_stop attribute */
-        load_schematic(1,filename, 0);
+        load_schematic(1,filename, 0, 1);
         zoom_full(0, 0, 1, 0.97);
         if(what & 1) ps_draw(2); /* page */
         if(what & 2) { /* print cellname */
@@ -564,7 +564,7 @@ int spice_block_netlist(FILE *fd, int i)
     my_free(_ALLOC_ID_, &extra);
     fprintf(fd, "\n");
   
-    spice_stop ? load_schematic(0,filename, 0) : load_schematic(1,filename, 0);
+    spice_stop ? load_schematic(0,filename, 0, 1) : load_schematic(1,filename, 0, 1);
     err |= spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
   
     if(xctx->schprop && xctx->schprop[0]) {

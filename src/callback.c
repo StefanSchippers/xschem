@@ -1894,7 +1894,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
         unselect_all(1);
         remove_symbols();
         my_strncpy(filename, abs_sym_path(xctx->sch[xctx->currsch], ""), S(filename));
-        load_schematic(1, filename, 1);
+        load_schematic(1, filename, 1, 1);
         draw();
      }
      break;

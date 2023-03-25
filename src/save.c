@@ -2404,8 +2404,9 @@ void link_symbols_to_instances(int from) /* from >= 0 : linking symbols from pas
   }
 }
 
-/* ALWAYS use absolute pathname for fname!!! */
-void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 20150327 added reset_undo */
+/* ALWAYS use absolute pathname for fname!!!
+ * alert = 0 --> do not show alert if file not existing */
+void load_schematic(int load_symbols, const char *fname, int reset_undo, int alert)
 {
   FILE *fd;
   char name[PATH_MAX];
@@ -2474,9 +2475,11 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo) /* 2015
       }
     }
     if( (fd=fopen(name,fopen_read_mode))== NULL) {
-      fprintf(errfp, "load_schematic(): unable to open file: %s, fname=%s\n", name, fname );
-      my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", fname);
-      tcleval(msg);
+      if(alert) {
+        fprintf(errfp, "load_schematic(): unable to open file: %s, fname=%s\n", name, fname );
+        my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", fname);
+        tcleval(msg);
+      }
       clear_drawing();
       if(reset_undo) set_modify(0);
     } else {
@@ -3940,7 +3943,7 @@ void descend_symbol(void)
     unselect_all(1);
     remove_symbols(); /* must follow save (if) embedded */
     /* load_symbol(name_embedded); */
-    load_schematic(1, name_embedded, 1);
+    load_schematic(1, name_embedded, 1, 1);
   } else {
     char sympath[PATH_MAX];
     my_strncpy(sympath, abs_sym_path(name, ""), S(sympath));
@@ -3954,9 +3957,9 @@ void descend_symbol(void)
          strstr(xctx->current_dirname, "https://") == xctx->current_dirname)) {
       /* symbols have already been downloaded while loading parent schematic: set local file path */
       my_snprintf(sympath, S(sympath), "%s/xschem_web/%s", tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(name, 0));
-      load_schematic(1, sympath, 1);
+      load_schematic(1, sympath, 1, 1);
     } else {
-      load_schematic(1, sympath, 1);
+      load_schematic(1, sympath, 1, 1);
     }
   }
   zoom_full(1, 0, 1, 0.97);

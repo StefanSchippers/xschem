@@ -106,7 +106,7 @@ static int tedax_block_netlist(FILE *fd, int i)
   fprintf(fd, "%s", get_sym_template(xctx->sym[i].templ, extra));
   my_free(_ALLOC_ID_, &extra);
   fprintf(fd, "\n");
-  load_schematic(1,filename, 0);
+  load_schematic(1,filename, 0, 1);
   err |= tedax_netlist(fd, tedax_stop);
   xctx->netlist_count++;
 
@@ -244,5 +244,6 @@ int global_tedax_netlist(int global)  /* netlister driver */
  }
  if(!debug_var) xunlink(netl_filename);
  xctx->netlist_count = 0;
+ return err;
 }
 

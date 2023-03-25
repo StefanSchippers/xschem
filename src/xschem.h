@@ -1290,7 +1290,7 @@ extern void mem_push_undo(void);
 extern void mem_pop_undo(int redo, int set_modify_status);
 extern void mem_delete_undo(void);
 extern void mem_clear_undo(void);
-extern void load_schematic(int load_symbol, const char *fname, int reset_undo);
+extern void load_schematic(int load_symbol, const char *fname, int reset_undo, int alert);
 /* check if filename already in an open window/tab */
 extern int check_loaded(const char *f, char *win_path);
 extern void link_symbols_to_instances(int from);

@@ -550,7 +550,7 @@ int vhdl_block_netlist(FILE *fd, int i)
   } else {
     Int_hashtable table = {NULL, 0};
     fprintf(fd, "-- sch_path: %s\n", filename);
-    load_schematic(1,filename, 0);
+    load_schematic(1,filename, 0, 1);
     dbg(1, "vhdl_block_netlist():       packages\n");
     for(l=0;l<xctx->instances; ++l)
     {
