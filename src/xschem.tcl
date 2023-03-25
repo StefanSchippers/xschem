@@ -216,28 +216,15 @@ proc execute_fileevent {id} {
       # do not ask status for processes that close stdout/stderr, as eof might
       # occur before process ends and following close blocks until process terminates.
       fconfigure $execute(pipe,$id) -blocking 1
-      set status 0
-      if { [ info tclversion]  > 8.4} {
-        set catch_return [eval catch [list {close $execute(pipe,$id)} err options] ]
-      } else {
-        set catch_return [eval catch [list {close $execute(pipe,$id)} err] ]
-      }
+      set exit_status 0
+      set catch_return [eval catch [list {close $execute(pipe,$id)} err] ]
       if {$catch_return} {
-        if {[info tclversion] > 8.4} {
-          set details [dict get $options -errorcode]
-          if {[lindex $details 0] eq "CHILDSTATUS"} {
-            set status [lindex $details 2]
-            if {$report} {viewdata "Failed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
-          } else {
-            set status 1
-            if {$report} {viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
-          }
-        } else {
-          set status 1
-          if {$report} {viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
+        global errorCode
+        if {"CHILDSTATUS" == [lindex $errorCode 0]} {
+          set exit_status [lindex $errorCode 2]
         }
-      }
-      if {$status == 0} {
+        if {$report} {viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
+      } else {
         if {$report} {viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"}
       }
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
@@ -248,7 +235,7 @@ proc execute_fileevent {id} {
       set execute(data,last) $execute(data,$id)
       set execute(error,last) $err
       set execute(status,last) $execute(status,$id)
-      set execute(exitcode,last) $status
+      set execute(exitcode,last) $exit_status
       unset execute(pipe,$id)
       unset execute(data,$id)
       unset execute(status,$id)

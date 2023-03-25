@@ -3389,6 +3389,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc > 2) tclvareval("simulate ", argv[2], NULL);
         else tcleval("simulate");
       }
+      Tcl_ResetResult(interp);
     }
 
     /* snap_wire 

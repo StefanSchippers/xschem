@@ -227,13 +227,11 @@ lab=TRIANG}
 N 820 -280 820 -160 {
 lab=0}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
-C {code_shown.sym} 190 -250 0 0 {name=CONTROL value="* following line for batch mode...
-.tran .05u 1m uic
-* following block for interactive mode
-.control
+C {code_shown.sym} 190 -250 0 0 {name=CONTROL value=".control
 * save all
 tran .05u 1m uic
 write solar_panel.raw
+exit
 .endc
 " net_name=true}
 C {code.sym} 20 -190 0 0 {name=MODELS value=".MODEL DIODE D(IS=1.139e-08 RS=0.99 CJO=9.3e-12 VJ=1.6 M=0.411 BV=30 EG=0.7 ) 
