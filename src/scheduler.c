@@ -1845,7 +1845,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             xctx->currsch = 0;
             remove_symbols();
             dbg(1, "scheduler: undo_reset=%d\n", undo_reset);
-            load_schematic(load_symbols, f, undo_reset, 0);
+            load_schematic(load_symbols, f, undo_reset, !force);
             tclvareval("update_recent_file {", f, "}", NULL);
             my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
             xctx->sch_path_hash[xctx->currsch] = 0;
