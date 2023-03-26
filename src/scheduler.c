@@ -1800,7 +1800,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* load f [symbol|force|noundoreset|nofullzoom]
      *   Load a new file 'f'.
-     *   'force': do not ask to save modified file or warn if opening an already open file
+     *   'force': do not ask to save modified file or warn if opening an already
+     *   open file or opening a new(not existing) file.
      *   'noundoreset': do not reset the undo history
      *   'symbol': do not load symbols (used if loading a symbol instead of a schematic)
      *   'nofullzoom': do not do a fll zoom on new schematic.
