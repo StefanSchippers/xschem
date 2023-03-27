@@ -176,6 +176,9 @@
 #### default: unset (tk uses its default) > 1.0 ==> bigger 
 # set tk_scaling 1.7
 
+#### use the tclreadline package if available , Default: 1 (enabled).
+# set use_tclreadline 1
+
 #### disable some symbol layers. Default: none, all layers are visible.
 # set enable_layer(5) 0 ;# example to disable pin red boxes
 

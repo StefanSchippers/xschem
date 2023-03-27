@@ -5345,7 +5345,7 @@ set tctx::global_list {
   simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
   svg_font_name sym_txt symbol symbol_width tclcmd_txt tclstop text_line_default_geometry
   textwindow_fileid textwindow_filename textwindow_w tmp_bus_char toolbar_horiz toolbar_list
-  toolbar_visible transparent_svg undo_type use_lab_wire use_label_prefix
+  toolbar_visible transparent_svg undo_type use_lab_wire use_label_prefix use_tclreadline
   user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
   vsize xschem_libs xschem_listen_port zoom_full_center
 }
@@ -6435,6 +6435,7 @@ set_ne initial_geometry {900x600}
 set_ne edit_symbol_prop_new_sel {}
 set_ne launcher_default_program {xdg-open}
 set_ne auto_hilight 0
+set_ne use_tclreadline 1
 set_ne en_hilight_conn_inst 0
 ## xpm to png conversion
 set_ne to_png {gm convert} 
