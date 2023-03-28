@@ -58,13 +58,27 @@ static int get_instance(const char *s)
 
 static void xschem_cmd_help(int argc, const char **argv)
 {
-  
   char prog[PATH_MAX];
   if( get_file_path("x-www-browser")[0] == '/' ) goto done;
   if( get_file_path("firefox")[0] == '/' ) goto done;
   if( get_file_path("chromium")[0] == '/' ) goto done;
   if( get_file_path("chrome")[0] == '/' ) goto done;
   if( get_file_path("xdg-open")[0] == '/' ) goto done;
+  #ifndef __unix__
+  const char *xschem_sharedir=tclgetvar("XSCHEM_SHAREDIR");
+  wchar_t app[MAX_PATH] = {0};
+  wchar_t w_url[PATH_MAX];
+  char url[PATH_MAX]="", url2[PATH_MAX]="";
+  int result = 0;
+  if (xschem_sharedir) {  
+    my_snprintf(url, S(url), "%s/../doc/xschem_man/developer_info.html", xschem_sharedir);
+    MultiByteToWideChar(CP_ACP, 0, url, -1, w_url, S(w_url));
+    /* The file:// url scheme doesn't have any allowance for HTTP parameters. 
+     So, use FindExecutable to get the browser app and then ShellExecute */
+    result = (int)FindExecutable(w_url, NULL, app);
+    if (result > 32) goto done;
+  }
+  #endif
   if(has_x) tcleval("alert_ { No application to display html documentation} {}");
   else  dbg(0, "No application to display html documentation\n");
   return;
@@ -74,21 +88,9 @@ static void xschem_cmd_help(int argc, const char **argv)
   tclvareval("launcher {", "file://", XSCHEM_SHAREDIR,
              "/../doc/xschem/xschem_man/developer_info.html#cmdref", "} ", prog, NULL);
   #else
-  const char *xschem_sharedir=tclgetvar("XSCHEM_SHAREDIR");
-  if (xschem_sharedir) {
-    wchar_t app[MAX_PATH] = {0};
-    char url[PATH_MAX]="", url2[PATH_MAX]="";
-    my_snprintf(url, S(url), "%s/../doc/xschem_man/developer_info.html", xschem_sharedir);
-    wchar_t w_url[PATH_MAX];
-    MultiByteToWideChar(CP_ACP, 0, url, -1, w_url, S(w_url));
-    int result = (int)FindExecutable(w_url, NULL, app);
-    /* The file:// url scheme doesn't have any allowance for HTTP parameters. 
-       So, gets ShellExecute for the browser app and then ShellExecute */
-    my_snprintf(url2, S(url2), "file://%s#cmdref", url);
-    MultiByteToWideChar(CP_ACP, 0, url2, -1, w_url, S(w_url));
-    if (result > 32) 
-      ShellExecute(0, NULL, app, w_url, NULL, SW_SHOWNORMAL); 
-  }
+  my_snprintf(url2, S(url2), "file://%s#cmdref", url);
+  MultiByteToWideChar(CP_ACP, 0, url2, -1, w_url, S(w_url));
+  ShellExecute(0, NULL, app, w_url, NULL, SW_SHOWNORMAL); 
   #endif
   Tcl_ResetResult(interp);
 }

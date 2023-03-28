@@ -218,7 +218,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
    err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
 
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
-   sym_vs_sch_pins();
+   err |= sym_vs_sch_pins();
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
