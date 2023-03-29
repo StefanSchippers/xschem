@@ -36,7 +36,7 @@ imgMyButton put $MyButtonData
 
 ## Create the toolbar button
 ## constructor    name           tcl command       tooltip    topwindow
-toolbar_create   MyButton      { puts SMILE! }     "SMILE!"     {}
+toolbar_add   MyButton      { puts SMILE! }     "SMILE!"     {}
 
 ## Destroy and rebuild the toolbar, but see better option here under ...
 # toolbar_hide

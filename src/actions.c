@@ -445,11 +445,8 @@ void ask_new_file(void)
         my_snprintf(msg, S(msg),
            "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
            "-message {Warning: %s already open.}", f);
-        if(has_x) {
-          tcleval(msg);
-          if(strcmp(tclresult(), "ok")) skip = 1;
-        }
-        else dbg(0, "ask_new_file: %s already open: %s\n", f, win_path);
+        tcleval(msg);
+        if(strcmp(tclresult(), "ok")) skip = 1;
       }
       if(!skip) {
         dbg(1, "ask_new_file(): load file: %s\n", f);
