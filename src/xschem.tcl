@@ -212,24 +212,20 @@ proc execute_fileevent {id} {
   if {[eof $execute(pipe,$id)]} {
       set report [regexp {1} $execute(status,$id)]
       fileevent $execute(pipe,$id) readable ""
-      if { $execute(status,$id) } {
-        # setting pipe to blocking before closing allows to see if pipeline failed
-        # do not ask status for processes that close stdout/stderr, as eof might
-        # occur before process ends and following close blocks until process terminates.
-        fconfigure $execute(pipe,$id) -blocking 1
-        set exit_status 0
-        set catch_return [eval catch [list {close $execute(pipe,$id)} err] ]
-        if {$catch_return} {
-          global errorCode
-          if {"CHILDSTATUS" == [lindex $errorCode 0]} {
-            set exit_status [lindex $errorCode 2]
-          }
-          if {$report} {viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
-        } else {
-          if {$report} {viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"}
+      # setting pipe to blocking before closing allows to see if pipeline failed
+      # do not ask status for processes that close stdout/stderr, as eof might
+      # occur before process ends and following close blocks until process terminates.
+      fconfigure $execute(pipe,$id) -blocking 1
+      set exit_status 0
+      set catch_return [eval catch [list {close $execute(pipe,$id)} err] ]
+      if {$catch_return} {
+        global errorCode
+        if {"CHILDSTATUS" == [lindex $errorCode 0]} {
+          set exit_status [lindex $errorCode 2]
         }
+        if {$report} {viewdata "Failed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
       } else {
-        close $execute(pipe,$id)
+        if {$report} {viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"}
       }
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
         uplevel #0 "eval $execute(callback,$id)"
