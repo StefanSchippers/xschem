@@ -212,20 +212,24 @@ proc execute_fileevent {id} {
   if {[eof $execute(pipe,$id)]} {
       set report [regexp {1} $execute(status,$id)]
       fileevent $execute(pipe,$id) readable ""
-      # setting pipe to blocking before closing allows to see if pipeline failed
-      # do not ask status for processes that close stdout/stderr, as eof might
-      # occur before process ends and following close blocks until process terminates.
-      fconfigure $execute(pipe,$id) -blocking 1
-      set exit_status 0
-      set catch_return [eval catch [list {close $execute(pipe,$id)} err] ]
-      if {$catch_return} {
-        global errorCode
-        if {"CHILDSTATUS" == [lindex $errorCode 0]} {
-          set exit_status [lindex $errorCode 2]
+      if { $execute(status,$id) } {
+        # setting pipe to blocking before closing allows to see if pipeline failed
+        # do not ask status for processes that close stdout/stderr, as eof might
+        # occur before process ends and following close blocks until process terminates.
+        fconfigure $execute(pipe,$id) -blocking 1
+        set exit_status 0
+        set catch_return [eval catch [list {close $execute(pipe,$id)} err] ]
+        if {$catch_return} {
+          global errorCode
+          if {"CHILDSTATUS" == [lindex $errorCode 0]} {
+            set exit_status [lindex $errorCode 2]
+          }
+          if {$report} {viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
+        } else {
+          if {$report} {viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"}
         }
-        if {$report} {viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
       } else {
-        if {$report} {viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"}
+        close $execute(pipe,$id)
       }
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
         uplevel #0 "eval $execute(callback,$id)"
@@ -233,8 +237,10 @@ proc execute_fileevent {id} {
       catch {unset execute(callback,$id)} 
       set execute(cmd,last) $execute(cmd,$id)
       set execute(data,last) $execute(data,$id)
+      if { ![info exists err] } { set err {} }
       set execute(error,last) $err
       set execute(status,last) $execute(status,$id)
+      if { ![info exists exit_status] } { set exit_status 0 }
       set execute(exitcode,last) $exit_status
       unset execute(pipe,$id)
       unset execute(data,$id)
@@ -303,6 +309,14 @@ proc execute {status args} {
   fileevent $pipe readable "execute_fileevent $id"
   return $id
 }
+
+# pause for $del_ms milliseconds, keep event loop responsive
+proc delay {del_ms} {
+  global delay_flag
+  after $del_ms {set delay_flag 1}
+  vwait delay_flag
+  unset delay_flag
+}  
 
 proc view_current_sim_output {} {
   global execute viewdata_wcounter
