@@ -43,7 +43,7 @@ install: FORCE
 uninstall: FORCE
 	$(SCCBOX) rm -f "$(system_library_dir)"/* "$(XDOCDIR)"/examples/* "$(XDOCDIR)"/pcb/* \
                         "$(XDOCDIR)"/ngspice/* "$(XDOCDIR)"/symgen/* "$(XDOCDIR)"/logic/* "$(XDOCDIR)"/xTAG/* \
-                        "$(XDOCDIR)"/rom8k/* "$(XDOCDIR)"/xschem_simulator/ "$(XDOCDIR)"/binto7seg/* \
+                        "$(XDOCDIR)"/rom8k/* "$(XDOCDIR)"/xschem_simulator/* "$(XDOCDIR)"/binto7seg/* \
                         "$(XDOCDIR)"/rulz-r8c33/* "$(XDOCDIR)"/generators/* \
                         "$(XDOCDIR)"/gschem_import/*.sym \
                         "$(XDOCDIR)"/gschem_import/*.sch \
