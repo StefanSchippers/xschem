@@ -207,15 +207,31 @@ proc set_ne { var val } {
 
 # execute service function
 proc execute_fileevent {id} {
-  global execute
+  global execute OS
+
   append execute(data,$id) [read $execute(pipe,$id) 1024]
-  if {[eof $execute(pipe,$id)]} {
+  if { $OS != {Windows} } {
+    set eof [eof $execute(pipe,$id)]
+    # handle processes that close stdout. Read pipe will go into eof condition
+    # but process is still running. Doing a close operation in blocking mode
+    # will block execution until process exits.
+    # In this situation we avoid setting pipe to blocking mode and do an
+    # asynchronous close. We lose exit status and stderr though, but
+    # avoid the program to freeze waiting for process to exit.
+    set lastproc [lindex [pid $execute(pipe,$id)] end]
+    set ps_status [exec ps -o s= [pid $execute(pipe,$id)]]
+    set finished [regexp Z $ps_status] ;# if zombie consider process to be finished.
+  } else {
+    set eof [eof $execute(pipe,$id)]
+    set finished 1
+  }
+  if {$eof} {
       set report [regexp {1} $execute(status,$id)]
       fileevent $execute(pipe,$id) readable ""
-      # setting pipe to blocking before closing allows to see if pipeline failed
+      # setting pipe to blocking before closing allows to get pipeline exit status
       # do not ask status for processes that close stdout/stderr, as eof might
       # occur before process ends and following close blocks until process terminates.
-      fconfigure $execute(pipe,$id) -blocking 1
+      if {$finished} {fconfigure $execute(pipe,$id) -blocking 1}
       set exit_status 0
       set catch_return [eval catch [list {close $execute(pipe,$id)} err] ]
       if {$catch_return} {
