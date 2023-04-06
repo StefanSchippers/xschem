@@ -2972,7 +2972,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       for(n=0; n < xctx->lastsel; ++n) {
         if(xctx->sel_array[n].type == ELEMENT) {
           i = xctx->sel_array[n].n;
-          Tcl_AppendResult(interp, /* "{", */ xctx->inst[i].instname, " ", /* "} ", */ NULL);
+          Tcl_AppendResult(interp, "{", xctx->inst[i].instname, "} ", NULL);
         }
       }
     }
