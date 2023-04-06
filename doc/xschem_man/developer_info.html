@@ -569,7 +569,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       edit_prop</kbd></li><pre>
    Edit global schematic/symbol attributes or attributes
    of currently selected instances </pre>
-   <li><kbd>       edit_prop</kbd></li><pre>
+   <li><kbd>       edit_vi_prop</kbd></li><pre>
    Edit global schematic/symbol attributes or
    attributes of currently selected instances
    using a text editor (defined in tcl 'editor' variable) </pre>
@@ -716,6 +716,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       instance_bbox inst</kbd></li><pre>
    return instance and symbol bounding boxes
    'inst' can be an instance name or number </pre>
+   <li><kbd>       instance_list</kbd></li><pre>
+   Return a list of 3-items. Each 3-item is 
+   an instance name followed by the symbol reference and symbol type.
+   Example: xschem instance_list --&gt;
+      {x1} {sky130_tests/bandgap.sym} {subcircuit}} {...} {...} {...} ... </pre>
    <li><kbd>       instance_net inst pin</kbd></li><pre>
    Return the name of the net attached to pin 'pin' of instance 'inst'
    Example: xschem instance_net x3 MINUS --&gt; REF </pre>

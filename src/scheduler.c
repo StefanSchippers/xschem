@@ -639,7 +639,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* edit_prop
+    /* edit_vi_prop
      *   Edit global schematic/symbol attributes or
      *   attributes of currently selected instances
      *   using a text editor (defined in tcl 'editor' variable) */
@@ -1503,7 +1503,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_AppendResult(interp, s, NULL);
       }
     }
-
+    /* instance_list
+     *   Return a list of 3-items. Each 3-item is 
+     *   an instance name followed by the symbol reference and symbol type.
+     *   Example: xschem instance_list -->
+     *     {x1} {sky130_tests/bandgap.sym} {subcircuit}} {...} {...} {...} ... */
+    else if(!strcmp(argv[1], "instance_list"))
+    {
+      int i;
+      for(i = 0; i < xctx->instances; ++i) {
+        char *name = xctx->inst[i].name ? xctx->inst[i].name : "";
+        char *instname = xctx->inst[i].instname ? xctx->inst[i].instname : "";
+        char *type = (xctx->inst[i].ptr + xctx->sym)->type;
+        type = type ? type : "";
+        if(i > 0) Tcl_AppendResult(interp, " ", NULL);
+        Tcl_AppendResult(interp, "{", instname, "} {", name, "} {", type, "}", NULL);
+      }
+    }
     /* instance_net inst pin
      *   Return the name of the net attached to pin 'pin' of instance 'inst'
      *   Example: xschem instance_net x3 MINUS --> REF */
