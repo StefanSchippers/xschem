@@ -1270,11 +1270,7 @@ proc xschem_getdata {sock} {
   rename puts {}
   rename ::tcl::puts puts
   puts "tcp--> $tclcmd_puts"
-  if {![regexp {\n$} $tclcmd_puts]} {
-    set xschem_server_getdata(res,$sock) "$tclcmd_puts\n" 
-  } else {
-    set xschem_server_getdata(res,$sock) "$tclcmd_puts" 
-  }
+  set xschem_server_getdata(res,$sock) "$tclcmd_puts"
   puts -nonewline $sock "$xschem_server_getdata(res,$sock)"
   flush $sock
   close $sock ;# server closes
