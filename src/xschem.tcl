@@ -1256,7 +1256,7 @@ proc bespice_getdata {sock} {
 proc xschem_getdata {sock} {
   global xschem_server_getdata tclcmd_puts
   if {[eof $sock] || [catch {gets $sock xschem_server_getdata(line,$sock)}]} {
-    close $sock
+    close $sock ;# close due to client shutdown
     puts "Close $xschem_server_getdata(addr,$sock)"
     unset xschem_server_getdata(addr,$sock)
     unset xschem_server_getdata(line,$sock)
@@ -1275,6 +1275,12 @@ proc xschem_getdata {sock} {
       set xschem_server_getdata(res,$sock) "$tclcmd_puts" 
     }
     puts -nonewline $sock "$xschem_server_getdata(res,$sock)"
+    flush $sock
+    close $sock ;# server closes
+    puts "Close $xschem_server_getdata(addr,$sock)"
+    unset xschem_server_getdata(addr,$sock)
+    unset xschem_server_getdata(line,$sock)
+    unset xschem_server_getdata(res,$sock)
   }
 } 
 
