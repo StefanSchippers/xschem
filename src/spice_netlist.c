@@ -47,6 +47,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   char *subckt_name;
   char filename[PATH_MAX];
   char *abs_path = NULL;
+  struct stat buf;
   Str_hashtable subckt_table = {NULL, 0};
  
   if((what & 1)  && !ps_draw(1)) return; /* prolog */
@@ -87,17 +88,19 @@ void hier_psprint(char **res, int what)  /* netlister driver */
       {
         str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         get_sch_from_sym(filename, xctx->sym + i);
-        /* for printing we go down to bottom regardless of spice_stop attribute */
-        load_schematic(1,filename, 0, 1);
-        zoom_full(0, 0, 1, 0.97);
-        if(what & 1) ps_draw(2); /* page */
-        if(what & 2) { /* print cellname */
-          my_strcat(_ALLOC_ID_, res, hier_psprint_mtime(xctx->sch[xctx->currsch]));
-          my_strcat(_ALLOC_ID_, res, "  {");
-          my_strcat(_ALLOC_ID_, res, xctx->sch[xctx->currsch]);
-          my_strcat(_ALLOC_ID_, res, "}\n");
+        if(!stat(filename, &buf)) {
+          /* for printing we go down to bottom regardless of spice_stop attribute */
+          load_schematic(1,filename, 0, 1);
+          zoom_full(0, 0, 1, 0.97);
+          if(what & 1) ps_draw(2); /* page */
+          if(what & 2) { /* print cellname */
+            my_strcat(_ALLOC_ID_, res, hier_psprint_mtime(xctx->sch[xctx->currsch]));
+            my_strcat(_ALLOC_ID_, res, "  {");
+            my_strcat(_ALLOC_ID_, res, xctx->sch[xctx->currsch]);
+            my_strcat(_ALLOC_ID_, res, "}\n");
+          }
+          dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
         }
-        dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
       }
     }
   }

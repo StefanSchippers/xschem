@@ -1255,33 +1255,33 @@ proc bespice_getdata {sock} {
 
 proc xschem_getdata {sock} {
   global xschem_server_getdata tclcmd_puts
-  if {[eof $sock] || [catch {gets $sock xschem_server_getdata(line,$sock)}]} {
-    close $sock ;# close due to client shutdown
-    puts "Close $xschem_server_getdata(addr,$sock)"
-    unset xschem_server_getdata(addr,$sock)
-    unset xschem_server_getdata(line,$sock)
-    unset xschem_server_getdata(res,$sock)
-  } else {
-    puts "tcp<-- $xschem_server_getdata(line,$sock)"
-    # xschem command must be executed at global scope...
-    redef_puts
-    uplevel #0 [list catch $xschem_server_getdata(line,$sock) tclcmd_puts]
-    rename puts {}
-    rename ::tcl::puts puts
-    puts "tcp--> $tclcmd_puts"
-    if {![regexp {\n$} $tclcmd_puts]} {
-      set xschem_server_getdata(res,$sock) "$tclcmd_puts\n" 
+
+  while {1} {
+    if {[gets $sock line] < 0} {
+      break
     } else {
-      set xschem_server_getdata(res,$sock) "$tclcmd_puts" 
+      append xschem_server_getdata(line,$sock) $line \n
     }
-    puts -nonewline $sock "$xschem_server_getdata(res,$sock)"
-    flush $sock
-    close $sock ;# server closes
-    puts "Close $xschem_server_getdata(addr,$sock)"
-    unset xschem_server_getdata(addr,$sock)
-    unset xschem_server_getdata(line,$sock)
-    unset xschem_server_getdata(res,$sock)
   }
+  puts "tcp<-- $xschem_server_getdata(line,$sock)"
+  # xschem command must be executed at global scope...
+  redef_puts
+  uplevel #0 [list catch $xschem_server_getdata(line,$sock) tclcmd_puts]
+  rename puts {}
+  rename ::tcl::puts puts
+  puts "tcp--> $tclcmd_puts"
+  if {![regexp {\n$} $tclcmd_puts]} {
+    set xschem_server_getdata(res,$sock) "$tclcmd_puts\n" 
+  } else {
+    set xschem_server_getdata(res,$sock) "$tclcmd_puts" 
+  }
+  puts -nonewline $sock "$xschem_server_getdata(res,$sock)"
+  flush $sock
+  close $sock ;# server closes
+  puts "Close $xschem_server_getdata(addr,$sock)"
+  unset xschem_server_getdata(addr,$sock)
+  unset xschem_server_getdata(line,$sock)
+  unset xschem_server_getdata(res,$sock)
 } 
 
 proc bespice_server {sock addr port} {
@@ -1295,12 +1295,12 @@ proc bespice_server {sock addr port} {
   }
 }
 
-
 proc xschem_server {sock addr port} {
   global xschem_server_getdata
   puts "Accept $sock from $addr port $port"
-  fconfigure $sock -buffering line
+  fconfigure $sock -buffering line -blocking 0
   set xschem_server_getdata(addr,$sock) [list $addr $port]
+  set xschem_server_getdata(line,$sock) {}
   fileevent $sock readable [list xschem_getdata $sock]
 }
 
