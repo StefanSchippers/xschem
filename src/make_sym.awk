@@ -151,6 +151,8 @@ function rest_of_props()
   sub(/lab[ \t]*=[ \t]*[^ \t]+[ \t]?/, "")
   sub(/value[ \t]*=[ \t]*[^ \t]+[ \t]?/, "")
   sub(/name[ \t]*=[ \t]*[^ \t]+[ \t]?/, "")
+  sub(/^[ \t]*/, " ") # always begin with a space separator
+  sub(/[ \t]*$/, "") # remove trailing white space
   sub(/^[ \t]*$/, "")
   return $0
 }
@@ -259,8 +261,8 @@ function endfile(f) {
   if(dir=="generic")
   {
    printf "B 3 " (x-size) " " (y+num_i*space-size) " " (x+size) " " (y+num_i*space+size) \
-         " {name=" label_pin[i] " generic_type=" sig_type " " >sym
-   if(value !="") printf "value=" value " " >sym
+         " {name=" label_pin[i] " generic_type=" sig_type >sym
+   if(value !="") printf " value=" value >sym
    printf props_pin[i] > sym
    printf "}\n" >sym
    print "L 4 " x,y+num_i*space,x+lwidth, y+num_i*space,"{}" >sym
@@ -270,8 +272,8 @@ function endfile(f) {
   if(dir=="ipin")
   {
    printf "B 5 " (x-size) " " (y+num_i*space-size) " " (x+size) " " (y+num_i*space+size) \
-         " {name=" label_pin[i] vhdt vert " dir=in " >sym
-   if(value !="") printf "value=" value " " >sym
+         " {name=" label_pin[i] vhdt vert " dir=in" >sym
+   if(value !="") printf " value=" value >sym
    printf props_pin[i] > sym
    printf "}\n" >sym
    print "L 4 " x,y+num_i*space,x+lwidth, y+num_i*space,"{}" >sym
@@ -281,8 +283,8 @@ function endfile(f) {
   if(dir=="opin")
   {
    printf "B 5 " (-x-size) " " (y+num_o*space-size) " " (-x+size) " " (y+num_o*space+size) \
-         " {name=" label_pin[i] vhdt vert " dir=out " >sym
-   if(value !="") printf "value=" value " " >sym
+         " {name=" label_pin[i] vhdt vert " dir=out" >sym
+   if(value !="") printf " value=" value >sym
    printf props_pin[i] > sym
    printf "}\n" >sym
    print "L 4 " (-x-lwidth),(y+num_o*space),-x, (y+num_o*space),"{}" >sym
@@ -292,8 +294,8 @@ function endfile(f) {
   if(dir=="iopin")
   {
    printf "B 5 " (-x-size) " " (y+num_o*space-size) " " (-x+size) " " (y+num_o*space+size) \
-         " {name=" label_pin[i] vhdt vert " dir=inout " >sym
-   if(value !="") printf "value=" value " " >sym
+         " {name=" label_pin[i] vhdt vert " dir=inout" >sym
+   if(value !="") printf " value=" value >sym
    printf props_pin[i] > sym
    printf "}\n" >sym
    print "L 7 " (-x-lwidth),(y+num_o*space),-x, (y+num_o*space),"{}" >sym

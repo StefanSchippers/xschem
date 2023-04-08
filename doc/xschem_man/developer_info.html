@@ -766,9 +766,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    0: eat non escaped quotes (")
    1: return unescaped quotes as part of the token value if they are present
    2: eat backslashes </pre>
-   <li><kbd>       load f [symbol|force|noundoreset|nofullzoom]</kbd></li><pre>
+   <li><kbd>       load f [symbol|gui|noundoreset|nofullzoom]</kbd></li><pre>
    Load a new file 'f'.
-   'force': do not ask to save modified file or warn if opening an already
+   'gui': ask to save modified file or warn if opening an already
     open file or opening a new(not existing) file.
    'noundoreset': do not reset the undo history
    'symbol': do not load symbols (used if loading a symbol instead of a schematic)
@@ -854,11 +854,17 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Debug command to test vector net syntax parser </pre>
    <li><kbd>       paste [x y]</kbd></li><pre>
    Paste clipboard. If 'x y' not given user should complete placement in the GUI </pre>
-   <li><kbd>       pinlist inst</kbd></li><pre>
+   <li><kbd>       pinlist inst [attr]</kbd></li><pre>
    List all pins of instance 'inst' 
+   if no 'attr' is given return full attribute string,
+   else return value for attribute 'attr'.
+   Example: xschem pinlist x3 name
+   --&gt;  {PLUS} {OUT} {MINUS}
+   Example: xschem pinlist x3 dir
+   --&gt;  {in} {out} {in}
    Example: xschem pinlist x3
-   --&gt;  { {0} {name=PLUS dir=in } } { {1} {name=OUT dir=out } }
-        { {2} {name=MINUS dir=in } }</pre>
+   --&gt; { {0} {name=PLUS dir=in } } { {1} {name=OUT dir=out } }
+       { {2} {name=MINUS dir=in } }</pre>
    <li><kbd>       place_symbol [sym_name] [prop]</kbd></li><pre>
    Start a GUI placement operation of specified 'sym_name' symbol.
    If 'sym_name' not given prompt user
@@ -957,6 +963,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      symbol: save as symbol (*.sym)
      If not specified default to schematic (*.sch)
    Does not ask confirmation if file name given</pre>
+   <li><kbd>       sch_pinlist</kbd></li><pre>
+   List a 2-item list of all pins  and directions of current schematic
+   Example: xschem sch_pinlist
+   --&gt;  {PLUS} {in} {OUT} {out} {MINUS} {in} {VCC} {inout} {VSS} {inout}</pre>
    <li><kbd>       schematic_in_new_window [new_process]</kbd></li><pre>
    When a symbol is selected edit corresponding schematic
    in a new tab/window if not already open.

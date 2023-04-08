@@ -735,11 +735,11 @@ proc setup_recent_menu { {in_new_window 0} { topwin {} } } {
     foreach i $recentfile {
       if {$in_new_window} {
         $topwin.menubar.file.menu.recent_new_window add command \
-          -command "xschem load_new_window {$i}" \
+          -command "xschem load_new_window {$i} gui" \
           -label [file tail $i]
       } else {
         $topwin.menubar.file.menu.recent add command \
-          -command "xschem load {$i}" \
+          -command "xschem load {$i} gui" \
           -label [file tail $i]
       }
     }
@@ -4697,7 +4697,7 @@ proc swap_compare_schematics {} {
   set sch2 [xschem get sch_to_compare]
   puts "swap_compare_schematics:\n  sch1=$sch1\n  sch2=$sch2"
   if {$sch2 ne {}} {
-    xschem load $sch2 nofullzoom
+    xschem load $sch2 nofullzoom gui
     set current  [xschem get schname]
     # Use "file tail" to handle equality of
     # https://raw.githubusercon...tb_reram.sch and /tmp/xschem_web/tb_reram.sch
@@ -5706,7 +5706,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.file.menu add command -label "Delete files" -command "xschem delete_files" -accelerator {Shift-D}
 
   $topwin.menubar.file.menu add command -label "Open Most Recent" \
-    -command {xschem load [lindex "$recentfile" 0]} -accelerator {Ctrl+Shift+O}
+    -command {xschem load [lindex "$recentfile" 0] gui} -accelerator {Ctrl+Shift+O}
   $topwin.menubar.file.menu add command -label "Save" -command "xschem save" -accelerator {Ctrl+S}
   toolbar_add FileSave "xschem save" "Save File" $topwin
   $topwin.menubar.file.menu add command -label "Merge" -command "xschem merge" -accelerator {Shift+B}

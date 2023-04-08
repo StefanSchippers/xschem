@@ -1815,7 +1815,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='O' && (state == (ControlMask|ShiftMask)) )   /* load most recent tile */
    {
-     tclvareval("xschem load [lindex $recentfile 0]", NULL);
+     tclvareval("xschem load [lindex $recentfile 0] gui", NULL);
      break;
    }
    if(key=='O' && state == ShiftMask)   /* toggle light/dark colorscheme 20171113 */
@@ -2498,7 +2498,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
          merge_file(2,".sch");
          break;
        case 9: /* load most recent file */
-         tclvareval("xschem load [lindex $recentfile 0]", NULL);
+         tclvareval("xschem load [lindex $recentfile 0] gui", NULL);
          break;
        case 10: /* edit attributes */
          edit_property(0);

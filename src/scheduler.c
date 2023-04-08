@@ -1816,9 +1816,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* load f [symbol|force|noundoreset|nofullzoom]
+    /* load f [symbol|gui|noundoreset|nofullzoom]
      *   Load a new file 'f'.
-     *   'force': do not ask to save modified file or warn if opening an already
+     *   'gui': ask to save modified file or warn if opening an already
      *   open file or opening a new(not existing) file.
      *   'noundoreset': do not reset the undo history
      *   'symbol': do not load symbols (used if loading a symbol instead of a schematic)
@@ -1826,12 +1826,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "load") )
     {
-      int load_symbols = 1, force = 0, undo_reset = 1, nofullzoom = 0;
+      int load_symbols = 1, force = 1, undo_reset = 1, nofullzoom = 0;
       size_t i;
       if(argc > 3) {
         for(i = 3; i < argc; ++i) {
           if(!strcmp(argv[i], "symbol")) load_symbols = 0;
-          if(!strcmp(argv[i], "force")) force = 1;
+          if(!strcmp(argv[i], "gui")) force = 0;
           if(!strcmp(argv[i], "noundoreset")) undo_reset = 0;
           if(!strcmp(argv[i], "nofullzoom")) nofullzoom = 1;
         }
@@ -2240,11 +2240,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* pinlist inst
+    /* pinlist inst [attr]
      *   List all pins of instance 'inst' 
+     *   if no 'attr' is given return full attribute string,
+     *   else return value for attribute 'attr'.
+     *   Example: xschem pinlist x3 name
+     *   -->  {PLUS} {OUT} {MINUS}
+     *   Example: xschem pinlist x3 dir
+     *   -->  {in} {out} {in}
      *   Example: xschem pinlist x3
-     *   -->  { {0} {name=PLUS dir=in } } { {1} {name=OUT dir=out } }
-     *        { {2} {name=MINUS dir=in } }
+     *   --> { {0} {name=PLUS dir=in } } { {1} {name=OUT dir=out } }
+     *       { {2} {name=MINUS dir=in } }
      */
     else if(!strcmp(argv[1], "pinlist"))
     {
@@ -2256,14 +2262,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
         for(p=0;p<no_of_pins;p++) {
-          char s[10];
-          my_snprintf(s, S(s), "%d", p);
-          if(argc == 4 && argv[3][0]) {
-            Tcl_AppendResult(interp, "{ {", s, "} {",
+          if(argc > 3 && argv[3][0]) {
+            Tcl_AppendResult(interp, "{",
               get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, argv[3], 0),
-              "} } ", NULL);
+              "} ", NULL);
           } else {
-            Tcl_AppendResult(interp, "{ {", s, "} {", 
+            Tcl_AppendResult(interp, "{ {", my_itoa(p), "} {",
                (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, "} } ", NULL);
           }
         }
@@ -2870,6 +2874,29 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         saveas(fptr, SCHEMATIC);
       }
       else saveas(NULL, SCHEMATIC);
+    }
+
+    /* sch_pinlist
+     *   List a 2-item list of all pins  and directions of current schematic
+     *   Example: xschem sch_pinlist
+     *   -->  {PLUS} {in} {OUT} {out} {MINUS} {in} {VCC} {inout} {VSS} {inout}
+     */
+    else if(!strcmp(argv[1], "sch_pinlist"))
+    {
+      int i;
+      char *dir = NULL;
+      const char *lab;
+      for(i = 0; i < xctx->instances; ++i) {
+        if( !strcmp((xctx->inst[i].ptr + xctx->sym)->type, "ipin") ) dir="in";
+        else if( !strcmp((xctx->inst[i].ptr + xctx->sym)->type, "opin") ) dir="out";
+        else if( !strcmp((xctx->inst[i].ptr + xctx->sym)->type, "iopin") ) dir="inout";
+        else dir = NULL;
+        if(dir) {
+          lab = get_tok_value(xctx->inst[i].prop_ptr, "lab", 0);
+          Tcl_AppendResult(interp, "{", lab, "} {", dir, "} ", NULL);
+             
+        }
+      }
     }
 
     /* schematic_in_new_window [new_process]
