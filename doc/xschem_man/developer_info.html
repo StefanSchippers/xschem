@@ -479,8 +479,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
            Include ~/xxx here between <ul> and </ul>
         -->
 
-
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -720,15 +718,16 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Return a list of 3-items. Each 3-item is 
    an instance name followed by the symbol reference and symbol type.
    Example: xschem instance_list --&gt;
-      {x1} {sky130_tests/bandgap.sym} {subcircuit}} {...} {...} {...} ... </pre>
+     {x1} {sky130_tests/bandgap.sym} {subcircuit}} {...} {...} {...} ... </pre>
    <li><kbd>       instance_net inst pin</kbd></li><pre>
    Return the name of the net attached to pin 'pin' of instance 'inst'
    Example: xschem instance_net x3 MINUS --&gt; REF </pre>
-   <li><kbd>       instance_nodemap inst</kbd></li><pre>
+   <li><kbd>       instance_nodemap inst [pin]</kbd></li><pre>
    Return the instance name followed by a list of 'pin net' associations
    example:  xschem instance_nodemap x3
    --&gt; x3 PLUS LED OUT LEVEL MINUS REF
-   instance x3 pin PLUS is attached to net LED, pin OUT to net LEVEL and so on... </pre>
+   instance x3 pin PLUS is attached to net LED, pin OUT to net LEVEL and so on...
+   If 'pin' is given restrict map to only that pin </pre>
    <li><kbd>       instance_pin_coord inst attr value</kbd></li><pre>
    Return the name and coordinates of pin with 
    attribute 'attr' set to 'value' of instance 'inst'
@@ -769,7 +768,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       load f [symbol|gui|noundoreset|nofullzoom]</kbd></li><pre>
    Load a new file 'f'.
    'gui': ask to save modified file or warn if opening an already
-    open file or opening a new(not existing) file.
+   open file or opening a new(not existing) file.
    'noundoreset': do not reset the undo history
    'symbol': do not load symbols (used if loading a symbol instead of a schematic)
    'nofullzoom': do not do a fll zoom on new schematic.</pre>
@@ -827,7 +826,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       new_schematic create|destroy|destroy_all|switch_win winpath file</kbd></li><pre>
    Open/destroy a new tab or window 
      create: create new empty window or with 'file' loaded if 'file' given.
-             The winpath must be given (even {} is ok) but not used.
+             The winpath must be given (even {} is ok) but is not used.
      destroy: destroy tab/window identified by winpath. Example:
               xschem new_schematic destroy .x1.drw
      destroy_all: close all tabs/additional windows
@@ -1055,7 +1054,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    If 'callback' procedure name is given execute the procedure when simulation
    is finished. all execute(..., id) data is available (id = execute(id) )
    A callback prodedure is useful if simulation is launched in background mode
-   ( set sim(spice,1,fg) 0 )</pre>
+   ( set sim(spice,1,fg) 0 ) </pre>
    <li><kbd>       snap_wire </kbd></li><pre>
    Start a GUI start snapped wire placement (click to start a
    wire to closest pin/net endpoint) </pre>
@@ -1096,8 +1095,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Toggle dark/light colorscheme </pre>
    <li><kbd>       translate n str</kbd></li><pre>
    Translate string 'str' replacing @xxx tokens with values in instance 'n' attributes
-     Example: xschem translate vref {the voltage is @value} 
-              the voltage is 1.8</pre>
+     Example: xschem translate vref {the voltage is @value}
+     the voltage is 1.8 
+</pre>
    <li><kbd>       trim_wires</kbd></li><pre>
    Remove operlapping wires, join lines, trim wires at intersections </pre>
    <li><kbd>       undo</kbd></li><pre>
@@ -1144,7 +1144,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom to selection </pre>
 
  </ul>
-
 
   <!-- TCL global variables -->
  <h1>XSCHEM <a id="tclglobals">TCL GLOBAL</a> VARIABLES</h1><br>

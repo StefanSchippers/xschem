@@ -1551,16 +1551,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, (char *)str_ptr, TCL_VOLATILE);
     }
 
-    /* instance_nodemap inst
+    /* instance_nodemap inst [pin]
      *   Return the instance name followed by a list of 'pin net' associations
      *   example:  xschem instance_nodemap x3
      *   --> x3 PLUS LED OUT LEVEL MINUS REF
-     *   instance x3 pin PLUS is attached to net LED, pin OUT to net LEVEL and so on... */
+     *   instance x3 pin PLUS is attached to net LED, pin OUT to net LEVEL and so on...
+     *   If 'pin' is given restrict map to only that pin */
     else if(!strcmp(argv[1], "instance_nodemap"))
     {
     /* xschem instance_nodemap [instance_name] */
       int p, no_of_pins;
-      int inst = -1;
+      int inst = -1, first=1;
       prepare_netlist_structs(0);
       if(argc > 2) {
         inst = get_instance(argv[2]);
@@ -1572,8 +1573,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             pin = get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, "name",0);
             if(!pin[0]) pin = "--ERROR--";
             if(argc > 3 && strcmp(argv[3], pin)) continue;
+            if(first == 0) Tcl_AppendResult(interp, " ", NULL); 
             Tcl_AppendResult(interp, pin, " ",
-                  xctx->inst[inst].node && xctx->inst[inst].node[p] ? xctx->inst[inst].node[p] : "{}", " ", NULL);
+                  xctx->inst[inst].node && xctx->inst[inst].node[p] ? xctx->inst[inst].node[p] : "{}", NULL);
+            first = 0;
           }
         }
       }
@@ -1646,8 +1649,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* instance_pins inst
-         Return list of pins of instance 'inst'
-         'inst can be an instance name or a number */
+     *   Return list of pins of instance 'inst'
+     *   'inst can be an instance name or a number */
     else if(!strcmp(argv[1], "instance_pins"))
     {
       char *pins = NULL;
@@ -2254,7 +2257,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "pinlist"))
     {
-      int i, p, no_of_pins;
+      int i, p, no_of_pins, first = 1;
       if(argc > 2) {
         if((i = get_instance(argv[2])) < 0 ) {
           Tcl_SetResult(interp, "xschem pinlist: instance not found", TCL_STATIC);
@@ -2262,14 +2265,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
         for(p=0;p<no_of_pins;p++) {
+          if(first == 0) Tcl_AppendResult(interp, " ", NULL);
           if(argc > 3 && argv[3][0]) {
             Tcl_AppendResult(interp, "{",
               get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, argv[3], 0),
-              "} ", NULL);
+              "}", NULL);
           } else {
             Tcl_AppendResult(interp, "{ {", my_itoa(p), "} {",
-               (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, "} } ", NULL);
+               (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, "} }", NULL);
           }
+          first = 0;
         }
       }
     }
@@ -2883,7 +2888,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "sch_pinlist"))
     {
-      int i;
+      int i, first = 1;
       char *dir = NULL;
       const char *lab;
       for(i = 0; i < xctx->instances; ++i) {
@@ -2893,7 +2898,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         else dir = NULL;
         if(dir) {
           lab = get_tok_value(xctx->inst[i].prop_ptr, "lab", 0);
-          Tcl_AppendResult(interp, "{", lab, "} {", dir, "} ", NULL);
+          if(first == 0) Tcl_AppendResult(interp, " ", NULL);
+          Tcl_AppendResult(interp, "{", lab, "} {", dir, "}", NULL);
+          first = 0;
              
         }
       }
@@ -3010,12 +3017,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Return a list of selected instance names */
     else if(!strcmp(argv[1], "selected_set"))
     {
-      int n, i;
+      int n, i, first = 1;
       rebuild_selected_array();
       for(n=0; n < xctx->lastsel; ++n) {
         if(xctx->sel_array[n].type == ELEMENT) {
           i = xctx->sel_array[n].n;
-          Tcl_AppendResult(interp, "{", xctx->inst[i].instname, "} ", NULL);
+          if(first == 0)  Tcl_AppendResult(interp, " ", NULL);
+          Tcl_AppendResult(interp, "{", xctx->inst[i].instname, "}", NULL);
+          first = 0;
         }
       }
     }
@@ -3024,12 +3033,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *  Return list of selected nets */
     else if(!strcmp(argv[1], "selected_wire"))
     {
-      int n, i;
+      int n, i, first = 1;
       rebuild_selected_array();
       for(n=0; n < xctx->lastsel; ++n) {
         if(xctx->sel_array[n].type == WIRE) {
           i = xctx->sel_array[n].n;
-          Tcl_AppendResult(interp, get_tok_value(xctx->wire[i].prop_ptr, "lab",0), " ", NULL);
+          if(first == 0)  Tcl_AppendResult(interp, " ", NULL);
+          Tcl_AppendResult(interp, "{", get_tok_value(xctx->wire[i].prop_ptr, "lab",0), "}", NULL);
+          first = 0;
         }
       }
     }
@@ -3475,12 +3486,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int i;
       char n[100];
-      Tcl_SetResult(interp, "\n", TCL_STATIC);
       for(i=0; i<xctx->symbols; ++i) {
         my_snprintf(n , S(n), "%d", i);
         Tcl_AppendResult(interp, "  {", n, " ", "{", xctx->sym[i].name, "}", "}\n", NULL);
       }
-      Tcl_AppendResult(interp, "\n", NULL);
     }
     else { cmd_found = 0;}
     break;
