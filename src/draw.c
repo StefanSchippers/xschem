@@ -29,7 +29,7 @@
 /* JoinMiter, JoinRound, or JoinBevel */
 #define xJoin JoinBevel
 
-#if !defined(__unix__) && defined(HAS_CAIRO)
+#if !defined(__unix__) && HAS_CAIRO==1
 static void clear_cairo_surface(cairo_t *cr, double x, double y, double width, double height)
 {
   cairo_save(cr);
@@ -894,7 +894,7 @@ static void drawgrid()
   #endif
 }
 
-#if !defined(__unix__) && defined(HAS_CAIRO)
+#if !defined(__unix__) && HAS_CAIRO==1
 static void my_cairo_drawline(cairo_t *ct, int layer, double x1, double y1, double x2, double y2, int dash)
 {
   cairo_set_source_rgb(ct,
@@ -968,7 +968,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
         XDrawLine(display, xctx->window, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
       if (xctx->draw_pixmap)
         XDrawLine(display, xctx->save_pixmap, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
-      #if defined(HAS_CAIRO)
+      #if HAS_CAIRO==1
       check_cairo_drawline(ct, c, rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2, 0);
       #endif
     }
@@ -1007,7 +1007,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    if(dash) {
      XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
    }
-   #if !defined(__unix__) && defined(HAS_CAIRO)
+   #if !defined(__unix__) && HAS_CAIRO==1
    check_cairo_drawline(ct, c, x1, y1, x2, y2, dash);
    #endif
   }
@@ -1030,7 +1030,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    }
    if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(xctx->draw_pixmap) XDrawLine(display, xctx->save_pixmap, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
-   #if !defined(__unix__) && defined(HAS_CAIRO)
+   #if !defined(__unix__) && HAS_CAIRO==1
    check_cairo_drawline(ct, c, x1, y1, x2, y2, dash);
    #endif
    XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
@@ -1047,7 +1047,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
        XDrawLine(display, xctx->window, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
      if (xctx->draw_pixmap)
        XDrawLine(display, xctx->save_pixmap, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
-     #if defined(HAS_CAIRO)
+     #if HAS_CAIRO==1
      check_cairo_drawline(ct, c, rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2, 0);
      #endif
    }
@@ -2122,7 +2122,7 @@ static void draw_graph_points(int idx, int first, int last,
     if(xctx->draw_pixmap) {
       XDrawLines(display, xctx->save_pixmap, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);
     }
-    #if !defined(__unix__) && defined(HAS_CAIRO)
+    #if !defined(__unix__) && HAS_CAIRO==1
     check_cairo_drawpoints(ct, wave_col, point, poly_npoints);
     #endif
     set_thick_waves(0, wcnt, wave_col, gr);
@@ -2946,7 +2946,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
  
   /* draw stuff */
   if(flags & 8) {
-#if !defined(__unix__) && defined(HAS_CAIRO)
+#if !defined(__unix__) && HAS_CAIRO==1
     double sw = (gr->sx2 - gr->sx1);
     double sh = (gr->sy2 - gr->sy1);
     clear_cairo_surface(xctx->cairo_save_ctx, gr->sx1, gr->sy1, sw, sh);
@@ -3405,7 +3405,7 @@ static void draw_images_all(void)
 
 void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, double ry2)
 {
-  #if defined(HAS_CAIRO)
+  #if HAS_CAIRO==1
   char *ptr = NULL;
   double x1, y1, x2, y2, w, h, rw, rh, scale;
   char transform[150];
@@ -3688,7 +3688,7 @@ void draw(void)
         MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
            xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
       }
-      #if !defined(__unix__) && defined(HAS_CAIRO)
+      #if !defined(__unix__) && HAS_CAIRO==1
       else 
         my_cairo_fill(xctx->cairo_sfc, xctx->xrect[0].x, xctx->xrect[0].y,
                       xctx->xrect[0].width, xctx->xrect[0].height);
@@ -3720,10 +3720,10 @@ void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x
 {
   #if !defined(__unix__)
   XCopyArea(display, src, dest, gc, src_x, src_y, width, height, dest_x, dest_y);
-  #if defined(HAS_CAIRO)
+  #if HAS_CAIRO==1
   my_cairo_fill(xctx->cairo_save_sfc, dest_x, dest_y, width, height);
   #endif
-  #elif (defined(__unix__)  && defined(HAS_CAIRO)) || DRAW_ALL_CAIRO==1
+  #elif (defined(__unix__)  && HAS_CAIRO==1) || DRAW_ALL_CAIRO==1
   cairo_set_source_surface(xctx->cairo_ctx, xctx->cairo_save_sfc, 0, 0);
   cairo_paint(xctx->cairo_ctx);
   #else

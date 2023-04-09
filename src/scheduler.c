@@ -1310,7 +1310,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       #ifdef HAS_POPEN
       my_snprintf(res, S(res), "HAS_POPEN=%d\n", HAS_POPEN); Tcl_AppendResult(interp, res, NULL); 
       #endif
-      #ifdef HAS_CAIRO
+      #if HAS_CAIRO==1
       my_snprintf(res, S(res), "HAS_CAIRO=%d\n", HAS_CAIRO); Tcl_AppendResult(interp, res, NULL); 
       #endif
       #ifdef XSCHEM_SHAREDIR
@@ -3970,11 +3970,11 @@ int tclvareval(const char *script, ...)
 
   va_start(args, script);
   size = my_strcat(_ALLOC_ID_, &str, script);
-  dbg(1, "tclvareval(): script=%s, str=%s, size=%d\n", script, str, size);
   while( (p = va_arg(args, const char *)) ) {
     size = my_strcat(_ALLOC_ID_, &str, p);
-    dbg(1, "tclvareval(): p=%s, str=%s, size=%d\n", p, str, size);
+    dbg(2, "tclvareval(): p=%s, str=%s, size=%d\n", p, str, size);
   }
+  dbg(1, "tclvareval(): script=%s, str=%s, size=%d\n", script, str ? str : "<NULL>", size);
   return_code = Tcl_EvalEx(interp, str, (int)size, TCL_EVAL_GLOBAL);
   va_end(args);
   if(return_code != TCL_OK) {

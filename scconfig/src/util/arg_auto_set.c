@@ -17,7 +17,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 		Project page: http://repo.hu/projects/scconfig
-		Contact via email: scconfig [at] igor2.repo.hu
+		Contact (email and IRC): http://igor2.repo.hu/contact.html
 */
 
 #include <stdio.h>

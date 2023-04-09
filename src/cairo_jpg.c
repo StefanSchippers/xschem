@@ -40,7 +40,7 @@
  */
 
 #include "xschem.h"
-#if defined(HAS_LIBJPEG) && defined(HAS_CAIRO)
+#if defined(HAS_LIBJPEG) && HAS_CAIRO==1
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
