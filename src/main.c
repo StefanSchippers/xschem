@@ -101,7 +101,13 @@ int main(int argc, char **argv)
   }
 
 
-  if(detach) fclose(stdin);
+  if(detach) {
+    fclose(stdin);
+    #ifdef __unix__
+    freopen("/dev/null", "w", stdout);
+    freopen("/dev/null", "w", stderr);
+    #endif
+  }
   if(detach && has_x) {
     Tcl_FindExecutable(argv[0]); /* tcl stores executable name for its internal usage */
     interp = Tcl_CreateInterp(); /* create the tcl interpreter */

@@ -39,7 +39,7 @@ Print help and exit.
 .TP
 
 .B -b, --detach
-Detach xschem from console.
+Detach xschem from console (no output and no input from console)
 .TP
 
 .B -n, --netlist
@@ -66,12 +66,20 @@ Set netlist type to Verilog.
 Execute specified tcl instructions before any other action, this can be used to change xschemrc variables.
 .TP
 
+.B --preinit <file>
+Execute specified tcl instructions before any other action and before loading xschemrc.
+.TP
+
 .B --command <tcl_cmd>
 Execute specified tcl commands after completing startup.
 .TP
 
 .B --script <file>
 Execute specified tcl file as a command script (perhaps with xschem  commands).
+.TP
+
+.B --diff <file>
+Show differences with given file.
 .TP
 
 .B --tcp-port <number>
