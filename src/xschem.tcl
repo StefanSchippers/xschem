@@ -6123,8 +6123,8 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
     viewdata [list_hierarchy]
   }
   $topwin.menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
-         -command {xschem save; xschem reload}
-
+         -command {xschem redraw} 
+                  # {xschem save; xschem reload}
   toolbar_add Netlist { xschem netlist } "Create netlist" $topwin
   toolbar_add Simulate "simulate_button $topwin.menubar.simulate" "Run simulation" $topwin
   toolbar_add Waves { waves } "View results" $topwin

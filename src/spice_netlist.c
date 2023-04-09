@@ -238,7 +238,6 @@ int global_spice_netlist(int global)  /* netlister driver */
  Str_hashentry *model_entry;
 
  split_f = tclgetboolvar("split_files");
- top_sub = tclgetboolvar("lvs_netlist");
  dbg(1, "global_spice_netlist(): invoking push_undo()\n");
  xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
@@ -246,7 +245,6 @@ int global_spice_netlist(int global)  /* netlister driver */
  str_hash_init(&subckt_table, HASHSIZE);
  str_hash_init(&model_table, HASHSIZE);
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
- top_sub = 0;
  bus_char[0] = bus_char[1] = '\0';
  xctx->hiersep[0]='.'; xctx->hiersep[1]='\0';
  str_tmp = tclgetvar("bus_replacement_char");
