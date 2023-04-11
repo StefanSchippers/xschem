@@ -5709,7 +5709,7 @@ proc build_widgets { {topwin {} } } {
     -command {xschem load [lindex "$recentfile" 0] gui} -accelerator {Ctrl+Shift+O}
   $topwin.menubar.file.menu add command -label "Save" -command "xschem save" -accelerator {Ctrl+S}
   toolbar_add FileSave "xschem save" "Save File" $topwin
-  $topwin.menubar.file.menu add command -label "Merge" -command "xschem merge" -accelerator {Shift+B}
+  $topwin.menubar.file.menu add command -label "Merge" -command "xschem merge" -accelerator {B}
   # toolbar_add FileMerge "xschem merge" "Merge File" $topwin
   $topwin.menubar.file.menu add command -label "Reload" -accelerator {Alt+S} \
     -command {

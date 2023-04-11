@@ -661,9 +661,6 @@
 		  <Component Id="cmpA3A8C99756B5494DF212791423946D83" Guid="{36014B23-7000-4768-9D74-140CFCD1DF1B}">
 			  <File Id="fil04CAE669A88A44DBB23F914651373D6E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\gen1.awk" />
 		  </Component>
-		  <Component Id="cmpF0846AE0BBACE4805CEC8BB3AEA6C4B6" Guid="{A3909B9E-8464-423D-B6B0-4E1DDBBBCB38}">
-			  <File Id="filFFB20D471DDD259419E514A8B3810029" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\gmon.out" />
-		  </Component>
 		</Directory>
         <Directory Id="dirC2FFADF72B5C7D98118119748AE42242" Name="gschem_import">
           <Component Id="cmp93CCC992DFDB8670EC1762AF056E9A71" Guid="{DB0D8728-2193-4999-A6D3-7640310FDE36}">
@@ -5665,7 +5662,6 @@
       <ComponentRef Id="cmpB573F1750B3939F980B65D02B78EE0E3" />
       <ComponentRef Id="cmp07A884BAD56D6B1718967173C498C3C3" />
 	  <ComponentRef Id="cmpA3A8C99756B5494DF212791423946D83" />
-	  <ComponentRef Id="cmpF0846AE0BBACE4805CEC8BB3AEA6C4B6" />
       <ComponentRef Id="cmp93CCC992DFDB8670EC1762AF056E9A71" />
       <ComponentRef Id="cmp0B11FB04799ACF558B70C4BCB047090B" />
       <ComponentRef Id="cmpE6B72E17713734939AF051305C56B340" />
