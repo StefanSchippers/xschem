@@ -1198,8 +1198,8 @@ const char *get_sym_name(int inst, int ext)
 
 
 /* what = 1: start
-   what = 0 : end
-*/
+ * what = 0 : end
+ */
 void get_additional_symbols(int what)
 {
   int i;

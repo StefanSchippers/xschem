@@ -178,6 +178,16 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
    in the symbol if any.
   </p>
 
+  <li><kbd>schematic</kbd></li>
+  <p>
+   This attribute specifies an alternate schematic file to open when descending into the subcircuit.
+   This is done only for the specific instance allowing to differentiate implementation ona specific
+   instance of a given subcircuit.
+   The specified schematic must have the same interface (in/out/inout pins) as the base schematic (that
+   is inferred from the symbol name).<br>
+   Example: <kbd>schematic=sky130_tests/inv2.sym</kbd>
+  </p>
+
   <li><kbd>pinnumber(name)</kbd></li>
   <p> This will override at instance level the value of attribute <kbd>pinnumber</kbd> of pin <kbd>name</kbd> of the symbol.
       This is mainly used for tedax, where by back annotation a connection to a symbol must be changed.</p>

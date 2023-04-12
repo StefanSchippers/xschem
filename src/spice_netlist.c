@@ -399,9 +399,8 @@ int global_spice_netlist(int global)  /* netlister driver */
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;
    xctx->currsch++;
-   
-    dbg(1, "global_spice_netlist(): last defined symbol=%d\n",xctx->symbols);
    subckt_name=NULL;
+   dbg(2, "global_spice_netlist(): last defined symbol=%d\n",xctx->symbols);
    get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
@@ -410,6 +409,8 @@ int global_spice_netlist(int global)  /* netlister driver */
     my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
+      tclvareval("get_directory ", xctx->sch[xctx->currsch - 1], NULL);
+      my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
       if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
@@ -530,7 +531,8 @@ int spice_block_netlist(FILE *fd, int i)
   /* int multip; */
   char *extra=NULL;
   int split_f;
-  const char *sym_def;
+  const char *sym_def, *sympath;
+  struct stat buf;
 
   split_f = tclgetboolvar("split_files");
 
@@ -549,7 +551,9 @@ int spice_block_netlist(FILE *fd, int i)
   }
   fprintf(fd, "\n* expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
-  fprintf(fd, "** sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  sympath = abs_sym_path(xctx->sym[i].name, "");
+  if(!stat(sympath, &buf)) fprintf(fd, "** sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  else  fprintf(fd, "** sym_path: %s\n", xctx->sym[i].name);
 
   sym_def = get_tok_value(xctx->sym[i].prop_ptr,"spice_sym_def",0);
   if(sym_def[0]) {

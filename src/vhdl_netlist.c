@@ -458,6 +458,8 @@ int global_vhdl_netlist(int global)  /* netlister driver */
     my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
+      tclvareval("get_directory ", xctx->sch[xctx->currsch - 1], NULL);
+      my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
       if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
@@ -527,7 +529,8 @@ int vhdl_block_netlist(FILE *fd, int i)
   char *abs_path = NULL;
   const char *str_tmp;
   int split_f;
-  const char *sym_def;
+  const char *sym_def, *sympath;
+  struct stat buf;
 
   split_f = tclgetboolvar("split_files");
   if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"vhdl_stop",0),"true") )
@@ -547,7 +550,10 @@ int vhdl_block_netlist(FILE *fd, int i)
   dbg(1, "vhdl_block_netlist(): expanding %s\n",  xctx->sym[i].name);
   fprintf(fd, "\n-- expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
-  fprintf(fd, "-- sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  sympath = abs_sym_path(xctx->sym[i].name, "");
+  if(!stat(sympath, &buf)) fprintf(fd, "-- sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  else  fprintf(fd, "-- sym_path: %s\n", xctx->sym[i].name);
+
   sym_def = get_tok_value(xctx->sym[i].prop_ptr,"vhdl_sym_def",0);
   if(sym_def[0]) {
     fprintf(fd, "%s\n", sym_def);

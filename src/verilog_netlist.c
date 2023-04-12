@@ -358,6 +358,8 @@ int global_verilog_netlist(int global)  /* netlister driver */
     if(!xctx->sym[i].type) continue;
     my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path)) {
+      tclvareval("get_directory ", xctx->sch[xctx->currsch - 1], NULL);
+      my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
       if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
@@ -430,7 +432,8 @@ int verilog_block_netlist(FILE *fd, int i)
   char cellname[PATH_MAX];
   const char *str_tmp, *fmt_attr = NULL;
   int split_f;
-  const char *sym_def;
+  const char *sym_def, *sympath;
+  struct stat buf;
   char *extra_ptr, *saveptr1, *extra_token, *extra = NULL, *extra2=NULL;
 
 
@@ -452,7 +455,9 @@ int verilog_block_netlist(FILE *fd, int i)
   dbg(1, "verilog_block_netlist(): expanding %s\n",  xctx->sym[i].name);
   fprintf(fd, "\n// expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
-  fprintf(fd, "// sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  sympath = abs_sym_path(xctx->sym[i].name, "");
+  if(!stat(sympath, &buf)) fprintf(fd, "// sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  else  fprintf(fd, "// sym_path: %s\n", xctx->sym[i].name);
   sym_def = get_tok_value(xctx->sym[i].prop_ptr,"verilog_sym_def",0);
   if(sym_def[0]) {
     fprintf(fd, "%s\n", sym_def);

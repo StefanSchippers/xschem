@@ -4464,7 +4464,8 @@ proc sub_match_file { f {paths {}} } {
           if {$sub_res != {} } {set res [concat $res $sub_res]}
         }
       } else {
-        set fname [file tail $j]
+        # set fname [file tail $j]
+        set fname $j
         if {[regexp $f $fname]} {
           lappend res $j
         }
