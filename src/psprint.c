@@ -825,7 +825,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
           "/Subtype /Link "
           "/ANN pdfmark\n",
           x1, y1, x2, y2,
-          add_ext(skip_dir(xctx->inst[n].name), ".sch"));
+          add_ext(get_sym_name(n, 0), ".sch"));
       }
     }
   }

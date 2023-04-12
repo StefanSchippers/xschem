@@ -86,7 +86,7 @@ static int tedax_block_netlist(FILE *fd, int i)
      tedax_stop=1;
   else
      tedax_stop=0;
-  get_sch_from_sym(filename, xctx->sym + i);
+  get_sch_from_sym(filename, xctx->sym + i, -1);
 
   fprintf(fd, "\n# expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );

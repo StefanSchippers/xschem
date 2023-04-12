@@ -72,6 +72,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   xctx->sch_path_hash[xctx->currsch+1] = 0;
   xctx->currsch++;
   subckt_name=NULL;
+  get_additional_symbols(1);
   for(i=0;i<xctx->symbols; ++i)
   {
     int flag;
@@ -87,7 +88,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
       if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
         str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
-        get_sch_from_sym(filename, xctx->sym + i);
+        get_sch_from_sym(filename, xctx->sym + i, -1);
         if(!stat(filename, &buf)) {
           /* for printing we go down to bottom regardless of spice_stop attribute */
           load_schematic(1,filename, 0, 1);
@@ -104,6 +105,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
       }
     }
   }
+  get_additional_symbols(0);
   my_free(_ALLOC_ID_, &abs_path);
   str_hash_free(&subckt_table);
   my_free(_ALLOC_ID_, &subckt_name);
@@ -268,6 +270,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  } else {
    my_snprintf(cellname, S(cellname), "%s.spice", skip_dir(xctx->sch[xctx->currsch]));
  }
+
  first = 0;
  for(i=0;i<xctx->instances; ++i) /* print netlist_commands of top level cell with 'place=header' property */
  {
@@ -399,6 +402,7 @@ int global_spice_netlist(int global)  /* netlister driver */
    
     dbg(1, "global_spice_netlist(): last defined symbol=%d\n",xctx->symbols);
    subckt_name=NULL;
+   get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
@@ -420,8 +424,9 @@ int global_spice_netlist(int global)  /* netlister driver */
             err |= spice_block_netlist(fd, i);
       }
     }
-    my_free(_ALLOC_ID_, &abs_path);
    }
+   my_free(_ALLOC_ID_, &abs_path);
+   get_additional_symbols(0);
    str_hash_free(&subckt_table);
    my_free(_ALLOC_ID_, &subckt_name);
    /*clear_drawing(); */
@@ -533,8 +538,8 @@ int spice_block_netlist(FILE *fd, int i)
      spice_stop=1;
   else
      spice_stop=0;
-  get_sch_from_sym(filename, xctx->sym + i);
-
+  get_sch_from_sym(filename, xctx->sym + i, -1);
+  dbg(1, "spice_block_netlist(): filename=%s\n", filename);
   if(split_f) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
          tclgetvar("netlist_dir"), skip_dir(xctx->sym[i].name), getpid());

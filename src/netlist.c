@@ -1253,7 +1253,7 @@ int sym_vs_sch_pins()
   {
     if( xctx->sym[i].type && !strcmp(xctx->sym[i].type,"subcircuit")) {
       rects = xctx->sym[i].rects[PINLAYER];
-      get_sch_from_sym(filename, xctx->sym + i);
+      get_sch_from_sym(filename, xctx->sym + i, -1);
       if(!stat(filename, &buf)) {
         fd = fopen(filename, "r");
         pin_cnt = 0;

@@ -1144,7 +1144,7 @@ void schematic_in_new_window(int new_process)
            "primitive"
        )
     ) return;
-    get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym);
+    get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym, xctx->sel_array[0].n);
     if(!check_loaded(filename, win_path)) {
       if(new_process) new_xschem_process(filename, 0);
       else new_schematic("create", NULL, filename);
@@ -1179,19 +1179,85 @@ void launcher(void)
   }
 }
 
-void get_sch_from_sym(char *filename, xSymbol *sym)
+const char *get_sym_name(int inst, int ext)
+{
+  const char *sym, *sch;
+
+  sch = get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 0);
+  if(xctx->tok_size) { /* token exists */
+    if(ext) sym = get_cell_w_ext(add_ext(rel_sym_path(sch), ".sym"), 0);
+    else sym = skip_dir(add_ext(rel_sym_path(sch), ".sym"));
+  } 
+  else if(ext) {
+    sym = get_cell_w_ext(xctx->inst[inst].name, 0);
+  } else {
+    sym = skip_dir(xctx->inst[inst].name);
+  }
+  return sym;
+}
+
+
+/* what = 1: start
+   what = 0 : end
+*/
+void get_additional_symbols(int what)
+{
+  int i;
+  static int num_syms; /* no context switch between start and end so it is safe */
+  Int_hashentry *found;
+  Int_hashtable sym_table = {NULL, 0};
+  int_hash_init(&sym_table, HASHSIZE);
+
+
+  if(what == 1) { /* start */
+    num_syms = xctx->symbols;
+    for(i = 0; i < xctx->symbols; ++i) {
+      int_hash_lookup(&sym_table, xctx->sym[i].name, i, XINSERT);
+    }
+    /* handle instances with "schematic=..." attribute (polymorphic symbols) */
+    for(i=0;i<xctx->instances; ++i) {
+      const char *sch = get_tok_value(xctx->inst[i].prop_ptr,"schematic",0);
+      if(xctx->tok_size) { /* token exists */
+        const char *sym = add_ext(rel_sym_path(sch), ".sym");
+        int j;
+        found = int_hash_lookup(&sym_table, sym, 0, XLOOKUP);
+        if(!found) {
+          j = xctx->symbols;
+          int_hash_lookup(&sym_table, sym, j, XINSERT);
+          dbg(1, "get_additional_symbols(): adding symbol %s\n", sym);
+          check_symbol_storage();
+          copy_symbol(&xctx->sym[j], xctx->inst[i].ptr + xctx->sym);
+          my_strdup(_ALLOC_ID_, &xctx->sym[j].name, sym);
+          xctx->symbols++;
+        } else {
+         j = found->value;
+        }
+      }
+    }
+    int_hash_free(&sym_table);
+  } else { /* end */
+    for(i = xctx->symbols - 1; i >= num_syms; --i) {
+      remove_symbol(i);
+    }
+    xctx->symbols = num_syms;
+  }
+}
+
+void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
 {
   char *sch = NULL;
   char *str_tmp = NULL;
   char *ptr;
   int web_url = 0;
+  struct stat buf;
 
   /* get sch/sym name from parent schematic downloaded from web */
   if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
       strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
     web_url = 1;
   }
-  my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 2));
+  if(inst >= 0) my_strdup(_ALLOC_ID_, &str_tmp,  get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 2));
+  if(!str_tmp) my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 2));
   if(str_tmp[0]) {
     /* @symname in schematic attribute will be replaced with symbol name */
     if( (ptr = strstr(str_tmp, "@symname"))) {
@@ -1218,7 +1284,12 @@ void get_sch_from_sym(char *filename, xSymbol *sym)
     } else {
       /* for schematics referenced from web symbols do not build absolute path */
       if(web_url) my_strncpy(filename, add_ext(sym->name, ".sch"), PATH_MAX);
-      else my_strncpy(filename, add_ext(abs_sym_path(sym->name, ""), ".sch"), PATH_MAX);
+      else {
+        if(!stat(abs_sym_path(sym->name, ""), &buf)) /* symbol exists. pretend schematic exists too ... */
+          my_strncpy(filename, add_ext(abs_sym_path(sym->name, ""), ".sch"), PATH_MAX);
+        else /* ... symbol does not exist (instances with schematic=... attr) so can not pretend that */
+          my_strncpy(filename, abs_sym_path(sym->name, ".sch"), PATH_MAX);
+      }
     }
   }
 
@@ -1343,7 +1414,7 @@ int descend_schematic(int instnumber)
    hilight_child_pins();
  
    unselect_all(1);
-   get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym);
+   get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym, n);
    dbg(1, "descend_schematic(): filename=%s\n", filename);
    /* we are descending from a parent schematic downloaded from the web */
    remove_symbols();

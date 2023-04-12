@@ -336,6 +336,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
  dbg(1, "global_vhdl_netlist(): printing top level used components\n");
  /* print all components */
  subckt_name=NULL;
+ get_additional_symbols(1);
  for(j=0;j<xctx->symbols; ++j)
  {
   if( strcmp(get_tok_value(xctx->sym[j].prop_ptr,"vhdl_primitive",0),"true")==0 ) continue;
@@ -388,6 +389,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
   }
   my_free(_ALLOC_ID_, &abs_path);
  }
+ get_additional_symbols(0);
  str_hash_free(&subckt_table);
  my_free(_ALLOC_ID_, &subckt_name);
 
@@ -448,6 +450,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
 
     dbg(2, "global_vhdl_netlist(): last defined symbol=%d\n",xctx->symbols);
    subckt_name=NULL;
+   get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
@@ -468,8 +471,9 @@ int global_vhdl_netlist(int global)  /* netlister driver */
           err |= vhdl_block_netlist(fd, i);
       }
     }
-    my_free(_ALLOC_ID_, &abs_path);
    }
+   my_free(_ALLOC_ID_, &abs_path);
+   get_additional_symbols(0);
    str_hash_free(&subckt_table);
    my_free(_ALLOC_ID_, &subckt_name);
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
@@ -530,7 +534,7 @@ int vhdl_block_netlist(FILE *fd, int i)
     vhdl_stop=1;
   else
     vhdl_stop=0;
-  get_sch_from_sym(filename, xctx->sym + i);
+  get_sch_from_sym(filename, xctx->sym + i, -1);
 
   if(split_f) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
@@ -635,6 +639,7 @@ int vhdl_block_netlist(FILE *fd, int i)
     dbg(1, "vhdl_block_netlist():       used components\n");
     /* print all components */
     if(!vhdl_stop) {
+      get_additional_symbols(1);
       for(j=0;j<xctx->symbols; ++j)
       {
         if( strcmp(get_tok_value(xctx->sym[j].prop_ptr,"vhdl_primitive",0),"true")==0 ) continue;
@@ -692,6 +697,7 @@ int vhdl_block_netlist(FILE *fd, int i)
           fprintf(fd, "end component ;\n\n");
         }
       } /* for(j...) */
+      get_additional_symbols(0);
     } /* if(!vhdl_stop) */
     my_free(_ALLOC_ID_, &abs_path);
     dbg(1, "vhdl_block_netlist():  netlisting %s\n", skip_dir( xctx->sch[xctx->currsch]));
