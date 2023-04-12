@@ -1282,6 +1282,7 @@ extern void delete_files(void);
 extern int sym_vs_sch_pins(void);
 extern int match_symbol(const char name[]);
 extern int save_schematic(const char *); /*  20171020 added return value */
+extern void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym);
 extern void push_undo(void);
 extern void pop_undo(int redo, int set_modify_status);
 extern void delete_undo(void);

@@ -106,6 +106,9 @@ int main(int argc, char **argv)
     #ifdef __unix__
     freopen("/dev/null", "w", stdout);
     freopen("/dev/null", "w", stderr);
+    #else
+    freopen("nul", "w", stdout);
+    freopen("nul", "w", stderr);
     #endif
   }
   if(detach && has_x) {
