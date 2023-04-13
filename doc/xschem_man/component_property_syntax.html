@@ -144,6 +144,35 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
   <p> This tells XSCHEM that for Verilog netlist this component will be <b>completely</b> ignored.</p>
   <li><kbd>vhdl_ignore</kbd></li>
   <p> This tells XSCHEM that for VHDL netlist this component will be <b>completely</b> ignored.</p>
+
+
+  <li><kbd>spice_sym_def</kbd></li>
+  <li><kbd>verilog_sym_def</kbd></li>
+  <li><kbd>vhdl_sym_def</kbd></li>
+  <p> If any of these attributes are present and not empty and the symbol type is set to <kbd>subcircuit</kbd>
+   the corresponding netlister will ignore the schematic subcircuit for this specific instance
+   and dump into the netlist the content of this attribute.
+   This attribute must be paired with a <kbd>schematic=...</kbd> attribute set on the instance that tells
+   the subcircuit name to use for this particular instance.
+   The typical usage is to include a file, example:<br>
+  <pre class="code">
+    verilog_sym_def="tcleval(`include \"[abs_sym_path verilog_include_file.v]\")"
+  </pre>
+  </p> 
+  <p>
+   In this example a <kbd>verilog_include_file.v</kbd> is included using the verilog <kbd>`include</kbd> directive.
+   In order to generate a full path for it the <kbd>abs_sym_path</kbd> TCL function is used that searches for this file
+   in any of the <kbd>XCHEM_LIBRARY_PATH</kbd> directories. Since TCL is used the attribute is wrappend into a tcleval(...),<br>
+   The following will appear in the generated netlist:
+   <pre class="code">
+// expanding   symbol:  verilog_include.sym # of pins=3 
+// sym_path: /home/schippes/.xschem/xschem_library/verilog_include.sym
+`include "/home/schippes/.xschem/xschem_library/verilog_include_file.v"
+   </pre>
+  </p>
+
+
+
   <li><kbd>sig_type</kbd></li>
   <p> For VHDL type netlist, this tells that the current label names a signal (or constant) of
     type <kbd>sig_type</kbd>. For example a label can be placed with name <kbd>TEST</kbd> and 
@@ -185,7 +214,7 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
    instance of a given subcircuit.
    The specified schematic must have the same interface (in/out/inout pins) as the base schematic (that
    is inferred from the symbol name).<br>
-   Example: <kbd>schematic=sky130_tests/inv2.sym</kbd>
+   Example: <kbd>schematic=sky130_tests/inv2.sch</kbd>
   </p>
 
   <li><kbd>pinnumber(name)</kbd></li>

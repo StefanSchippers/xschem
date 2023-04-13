@@ -1216,7 +1216,15 @@ void get_additional_symbols(int what)
     }
     /* handle instances with "schematic=..." attribute (polymorphic symbols) */
     for(i=0;i<xctx->instances; ++i) {
-      const char *sch = get_tok_value(xctx->inst[i].prop_ptr,"schematic",0);
+      char *spice_sym_def = NULL;
+      char *vhdl_sym_def = NULL;
+      char *verilog_sym_def = NULL;
+      const char *sch;
+      
+      my_strdup(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spice_sym_def",0));
+      my_strdup(_ALLOC_ID_, &verilog_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"verilog_sym_def",0));
+      my_strdup(_ALLOC_ID_, &vhdl_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"vhdl_sym_def",0));
+      sch = get_tok_value(xctx->inst[i].prop_ptr,"schematic",0);
       if(xctx->tok_size) { /* token exists */
         const char *sym = add_ext(rel_sym_path(sch), ".sym");
         int j;
@@ -1228,11 +1236,24 @@ void get_additional_symbols(int what)
           check_symbol_storage();
           copy_symbol(&xctx->sym[j], xctx->inst[i].ptr + xctx->sym);
           my_strdup(_ALLOC_ID_, &xctx->sym[j].name, sym);
+
+          if(spice_sym_def)
+             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr, 
+               subst_token(xctx->sym[j].prop_ptr, "spice_sym_def", spice_sym_def));
+          if(verilog_sym_def)
+             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
+               subst_token(xctx->sym[j].prop_ptr, "verilog_sym_def", verilog_sym_def));
+          if(vhdl_sym_def)
+             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
+               subst_token(xctx->sym[j].prop_ptr, "vhdl_sym_def", vhdl_sym_def));
           xctx->symbols++;
         } else {
          j = found->value;
         }
       }
+      my_free(_ALLOC_ID_, &spice_sym_def);
+      my_free(_ALLOC_ID_, &vhdl_sym_def);
+      my_free(_ALLOC_ID_, &verilog_sym_def);
     }
     int_hash_free(&sym_table);
   } else { /* end */
