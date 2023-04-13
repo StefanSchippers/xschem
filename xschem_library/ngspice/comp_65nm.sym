@@ -4,13 +4,6 @@ G {}
 K {type=subcircuit
 format="@name @pinlist @symname"
 template="name=x1"
-schematic="tcleval([
-  proc hier_config \{f\} \{
-    set sch [file rootname $f]
-    return $sch.sch
-  \}
-  hier_config @symname
-])"
 }
 V {}
 S {}

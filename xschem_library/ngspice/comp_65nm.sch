@@ -1,4 +1,5 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -16,7 +17,7 @@ N 670 -340 670 -300 { lab=#net3}
 N 550 -410 550 -380 { lab=#net2}
 N 510 -380 550 -380 { lab=#net2}
 N 510 -380 510 -340 { lab=#net2}
-N 510 -460 510 -440 { lab=VCC}
+N 510 -460 510 -440 { lab=#net4}
 N 800 -460 800 -400 { lab=VCC}
 N 670 -370 760 -370 { lab=#net3}
 N 330 -210 370 -210 { lab=GN1}
@@ -24,35 +25,35 @@ N 370 -210 370 -180 { lab=GN1}
 N 670 -460 670 -440 { lab=VCC}
 N 550 -410 640 -410 { lab=#net2}
 N 800 -150 800 -130 { lab=0}
-N 800 -340 800 -210 { lab=#net4}
+N 800 -340 800 -210 { lab=#net5}
 N 550 -180 550 -170 { lab=GN1}
 N 550 -170 660 -170 { lab=GN1}
 N 660 -180 660 -170 { lab=GN1}
 N 660 -180 760 -180 { lab=GN1}
 N 670 -380 670 -340 { lab=#net3}
 N 1130 -290 1170 -290 { lab=OUT}
-N 800 -290 870 -290 { lab=#net4}
+N 800 -290 870 -290 { lab=#net5}
 N 980 -150 980 -130 { lab=0}
 N 980 -420 980 -400 { lab=VCC}
-N 940 -370 940 -180 { lab=#net4}
-N 980 -340 980 -210 { lab=#net5}
-N 870 -290 940 -290 { lab=#net4}
+N 940 -370 940 -180 { lab=#net5}
+N 980 -340 980 -210 { lab=#net6}
+N 870 -290 940 -290 { lab=#net5}
 N 1130 -150 1130 -130 { lab=0}
 N 1130 -420 1130 -400 { lab=VCC}
-N 1090 -370 1090 -180 { lab=#net5}
+N 1090 -370 1090 -180 { lab=#net6}
 N 1130 -340 1130 -210 { lab=OUT}
-N 980 -290 1090 -290 { lab=#net5}
-N 990 -620 990 -510 { lab=#net5}
-N 930 -620 930 -510 { lab=#net4}
-N 890 -560 930 -560 { lab=#net4}
-N 890 -560 890 -290 { lab=#net4}
-N 990 -560 1010 -560 { lab=#net5}
-N 1010 -560 1030 -560 { lab=#net5}
-N 1030 -560 1030 -290 { lab=#net5}
-N 960 -660 990 -660 { lab=#net5}
-N 990 -660 990 -620 { lab=#net5}
-N 930 -510 930 -470 { lab=#net4}
-N 930 -470 960 -470 { lab=#net4}
+N 980 -290 1090 -290 { lab=#net6}
+N 990 -620 990 -510 { lab=#net6}
+N 930 -620 930 -510 { lab=#net5}
+N 890 -560 930 -560 { lab=#net5}
+N 890 -560 890 -290 { lab=#net5}
+N 990 -560 1010 -560 { lab=#net6}
+N 1010 -560 1030 -560 { lab=#net6}
+N 1030 -560 1030 -290 { lab=#net6}
+N 960 -660 990 -660 { lab=#net6}
+N 990 -660 990 -620 { lab=#net6}
+N 930 -510 930 -470 { lab=#net5}
+N 930 -470 960 -470 { lab=#net5}
 C {nmos4.sym} 570 -180 0 0 {name=M1 model=nmos w=4u l=0.4u m=1}
 C {lab_pin.sym} 590 -180 0 1 {name=p2 lab=0}
 C {lab_pin.sym} 590 -130 0 0 {name=p6 lab=0}
@@ -66,7 +67,6 @@ C {lab_pin.sym} 510 -270 0 1 {name=p17 lab=0}
 C {nmos4.sym} 690 -270 0 1 {name=M4 model=nmos w=1.5u l=0.2u m=1}
 C {lab_pin.sym} 670 -270 0 0 {name=p18 lab=0 l=0.2u}
 C {pmos4.sym} 530 -410 0 1 {name=M5 model=pmos w=6u l=0.3u m=1}
-C {lab_pin.sym} 510 -460 0 0 {name=p19 lab=VCC}
 C {pmos4.sym} 650 -410 0 0 {name=M6 model=pmos w=6u l=0.3u m=1}
 C {lab_pin.sym} 670 -460 0 0 {name=p21 lab=VCC}
 C {lab_pin.sym} 510 -410 0 0 {name=p23 lab=VCC}
@@ -107,3 +107,4 @@ C {nmos4.sym} 960 -640 1 0 {name=M12 model=nmos w=2u l=0.1u m=1}
 C {lab_pin.sym} 960 -620 1 1 {name=p30 lab=0}
 C {spice_probe.sym} 560 -240 0 0 {name=p32 attrs=""}
 C {parax_cap.sym} 390 -170 0 0 {name=C2 gnd=0 value=200f m=1}
+C {vdd.sym} 510 -460 0 0 {name=l3 lab=VCC}
