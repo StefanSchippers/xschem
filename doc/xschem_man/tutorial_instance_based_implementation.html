@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XSCHEM TUTORIAL: INSTANCE BASED SELECTION OF SYMBOL IMPLEMENTATION</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="xschem_man.html" class="home">UP</a>
+
+ <!-- slide title -->
+ <h1> TUTORIAL: INSTANCE BASED SELECTION OF SYMBOL IMPLEMENTATION</h1>
+ <p>
+  It is quite common to have in a design multiple instances of the same subcircuit.
+  Think for example of memory arrays and decoder circuits.
+  In some cases there are numerous instances of the same identical circuit. This lead so a very 
+  large netlist and heavy simulation loads (both in time and space).<br>
+  On the other hand typically only a small portion of these repetitive circuits are exercised in 
+  simulation. For example you might want to simulate the selection of the first 2 Wordlines in 
+  a 1024 wordlines memory array.
+ </p>
+ <p>
+  In these situations it might be useful to keep the full subcircuit implementation for the circuit parts
+  that are exercised and provide a simplified subcircuit for the parts that are idle during simulation.
+  The simplified parts may just do the 'essential work' like driving the idle value on the outputs and
+  loading the inputs with an equivalent of the input capacitance, in order to not alter the full circuit behavior.
+ </p>
+ <h3> schematic attribute on instance </h3>
+ <p>
+  Inside a symbol it is possible to specify an alternate <kbd>schematic</kbd> to descend into.
+  For example if symbol <kbd>inv.sym</kbd> has attribute <kbd>schematic=inv2.sch</kbd> then
+  xschem will descend into <kbd>inv2.sch</kbd> instead
+  of the default <kbd>inv.sch</kbd>.
+  See <a href="symbol_property_syntax.html">symbol_property_syntax man page</a>.
+  However these attributes at symbol level are applied to all instances of that symbol.
+  To enable instance based differentiation it is now possible to use this attribute in the instance.<br>
+  A <kbd>schematic=&lt;schematic reference&gt;</kbd> attribute attached to an instance will specify the
+  schematic implementation to be used for that (and only that) instance of the subcircuit.<br>
+  Example:<br>
+  <kbd>schematic=comp_65nm_parax.sch</kbd>
+ </p>
+ <img src="instance_based_implementation_01.png"> 
+ <p>
+  The <kbd>comp_65nm_parax.sch</kbd> schematic may be something like this, that is a simplified 
+  circuit that just keeps a known value on the outputs and adds some parasitic capacitance
+  to the inputs.
+ </p>
+ <img src="instance_based_implementation_03.png"> 
+ <h3> spice_sym_def attribute on instance </h3>
+ <p>
+  A <kbd>spice_sym_def=&lt;...text...&gt;</kbd> attribute attached to an instance will specify some text that describes 
+  the subcircuit (it can be a simplified spice subcircuit netlist or a spice .include line that gets the  subcircuit from
+  an external file). This attribute on an instance must always be paired with a matching <kbd>schematic</kbd> attribute
+  that specifies the subcircuit name the instance is linked to. 
+ </p>
+ <img src="instance_based_implementation_02.png"> 
+ <p>
+  Another possibility is to specify these attributes so the actual netlist will be included by the simulator.<br>
+ <kbd>schematic=comp_65nm_pex</kbd><br>
+ <kbd>spice_sym_def=".include /path/to/comp_65nm_pex.cir"</kbd><br>
+ <br>
+ When a <kbd>spice_sym_def</kbd> is specified no alternate schematic is used for this instance. 
+ The definition is provided as text (a piece of netlist, like for example a parasitic spice netlist extraction).
+ </p>
+ <p>
+  Putting this all together here is a schematic with 3 instances of <kbd>comp_65nm.sch</kbd>.
+ </p>
+  <ul>
+  <li><kbd>x1</kbd> is the standard instance using the default <kbd>comp_65nm.sch</kbd></li>
+  <li><kbd>x2</kbd> is a simplified instance that hust keeps the output low.</li>
+  <li><kbd>x3</kbd> uses a parasitic extraction netlist.</li>
+  </ul>
+ <p>
+  See the waveforms of the OUT, OUT2, OUT3 signals that behave accordingly.
+ </p>
+ <img src="instance_based_implementation_04.png"> 
+
+ <p class="important">
+  Note: when creating alternate alternate netlist files ensure the port order is identical to the base
+  circuit. The assumption for all alternate circuits created using the methods explained above is that the
+  alternate circuits have all the same interface as the base circuit (same input, output, inout pins, in the smae order).
+ </p><br><br>
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+
