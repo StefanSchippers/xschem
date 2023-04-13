@@ -531,8 +531,7 @@ int spice_block_netlist(FILE *fd, int i)
   /* int multip; */
   char *extra=NULL;
   int split_f;
-  const char *sym_def, *sympath;
-  struct stat buf;
+  const char *sym_def;
 
   split_f = tclgetboolvar("split_files");
 
@@ -551,10 +550,8 @@ int spice_block_netlist(FILE *fd, int i)
   }
   fprintf(fd, "\n* expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
-  sympath = abs_sym_path(xctx->sym[i].name, "");
-  if(!stat(sympath, &buf)) fprintf(fd, "** sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
-  else  fprintf(fd, "** sym_path: %s\n", xctx->sym[i].name);
-
+  if(xctx->sym[i].base_name) fprintf(fd, "** sym_path: %s\n", abs_sym_path(xctx->sym[i].base_name, ""));
+  else fprintf(fd, "** sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
   sym_def = get_tok_value(xctx->sym[i].prop_ptr,"spice_sym_def",0);
   if(sym_def[0]) {
     fprintf(fd, "%s\n", sym_def);

@@ -495,6 +495,8 @@ typedef struct
 typedef struct
 {
   char *name;
+  const char *base_name; /* points to the base symbol name this symbol is inherited from
+                          * (schematic attribute set on instances, create "virtual" symbol) */
   double minx;
   double maxx;
   double miny;

@@ -1235,6 +1235,7 @@ void get_additional_symbols(int what)
           dbg(1, "get_additional_symbols(): adding symbol %s\n", sym);
           check_symbol_storage();
           copy_symbol(&xctx->sym[j], xctx->inst[i].ptr + xctx->sym);
+          xctx->sym[j].base_name = (xctx->inst[i].ptr + xctx->sym)->name;
           my_strdup(_ALLOC_ID_, &xctx->sym[j].name, sym);
 
           if(spice_sym_def)
