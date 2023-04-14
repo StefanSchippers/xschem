@@ -21,11 +21,11 @@ p{padding: 15px  30px 10px;}
  <p>
   It is quite common to have in a design multiple instances of the same subcircuit.
   Think for example of memory arrays and decoder circuits.
-  In some cases there are numerous instances of the same identical circuit. This lead so a very 
+  In some cases there are numerous instances of the same identical circuit. This leads to a very 
   large netlist and heavy simulation loads (both in time and space).<br>
   On the other hand typically only a small portion of these repetitive circuits are exercised in 
-  simulation. For example you might want to simulate the selection of the first 2 Wordlines in 
-  a 1024 wordlines memory array.
+  simulation. For example you might want to simulate the selection only of the first 2 wordlines 
+  and the last 2 wordlines in a 1024 wordlines memory array.
  </p>
  <p>
   In these situations it might be useful to keep the full subcircuit implementation for the circuit parts
@@ -71,7 +71,7 @@ p{padding: 15px  30px 10px;}
  The definition is provided as text (a piece of netlist, like for example a parasitic spice netlist extraction).
  </p>
  <p>
-  Putting this all together here is a schematic with 3 instances of <kbd>comp_65nm.sch</kbd>.
+  Putting this all together here is a schematic with 3 instances of <kbd>comp_65nm.sym</kbd>.
  </p>
   <ul>
   <li><kbd>x1</kbd> is the standard instance using the default <kbd>comp_65nm.sch</kbd></li>

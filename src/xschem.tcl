@@ -1476,7 +1476,7 @@ proc simulate {{callback {}}} {
       }
       #eval exec {cmd /V /C "cd $netlist_dir&&$cmd}
       eval exec $cmd &
-      return -1 ;# no execute ID on windows
+      return 0 # no execute ID on windows
     } else {
       set execute(callback) $callback
       set id [$fg $st sh -c "cd $netlist_dir; $cmd"]

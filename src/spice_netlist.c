@@ -409,7 +409,7 @@ int global_spice_netlist(int global)  /* netlister driver */
     my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
-      tclvareval("get_directory ", xctx->sch[xctx->currsch - 1], NULL);
+      tclvareval("get_directory [list ", xctx->sch[xctx->currsch - 1], "]", NULL);
       my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
