@@ -1528,8 +1528,11 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
  dbg(1, "print_spice_subckt(): format1=%s\n", format1);
  if(format1 && strstr(format1, "tcleval(") == format1) {
     tclres = tcl_hook2(&format1);
-    if(!strcmp(tclres, "?\n")) my_strdup(_ALLOC_ID_, &format,  format1 + 8);
-    else my_strdup(_ALLOC_ID_, &format,  tclres);
+    if(!strcmp(tclres, "?\n")) {
+      char *ptr = strrchr(format1 + 8, ')');
+      *ptr = '\0';
+      my_strdup(_ALLOC_ID_, &format,  format1 + 8);
+    } else my_strdup(_ALLOC_ID_, &format,  tclres);
  } else {
    my_strdup(_ALLOC_ID_, &format,  format1);
  }
@@ -1647,7 +1650,7 @@ int print_spice_element(FILE *fd, int inst)
   size_t tmp;
   const char *str_ptr=NULL;
   register int c, state=TOK_BEGIN, space;
-  char *template=NULL,*format=NULL,*s, *name=NULL,  *token=NULL;
+  char *template=NULL,*format=NULL, *s, *name=NULL,  *token=NULL;
   const char *lab, *value = NULL;
   /* char *translatedvalue = NULL; */
   int pin_number;
@@ -1681,7 +1684,6 @@ int print_spice_element(FILE *fd, int inst)
   /* get netlist format rule from symbol */
   if(!xctx->tok_size && strcmp(fmt_attr, "format"))
      my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "format", 2));
-
   if ((name==NULL) || (format==NULL)) {
     my_free(_ALLOC_ID_, &template);
     my_free(_ALLOC_ID_, &format);
