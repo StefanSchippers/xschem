@@ -1527,7 +1527,9 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
    my_strdup(_ALLOC_ID_, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, "format", 2));
  dbg(1, "print_spice_subckt(): format1=%s\n", format1);
 
- my_strdup(_ALLOC_ID_, &format1, str_replace(format1, "@symname", skip_dir(xctx->sym[symbol].name), '\\'));
+ /* can not do this, since @symname is used as a marker later */
+ /* my_strdup(_ALLOC_ID_, &format1, str_replace(format1, "@symname", skip_dir(xctx->sym[symbol].name), '\\')); */
+
  if(format1 && strstr(format1, "tcleval(") == format1) {
     tclres = tcl_hook2(&format1);
     if(!strcmp(tclres, "?\n")) {
