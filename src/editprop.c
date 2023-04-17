@@ -1507,13 +1507,15 @@ void change_elem_order(void)
   }
 }
 
-char *str_replace(const char *s, const char *rep, const char *with)
+char *str_replace(const char *str, const char *rep, const char *with, int escape)
 {
   static char *result = NULL;
   static size_t size=0;
   size_t result_pos = 0;
   size_t rep_len;
   size_t with_len;
+  const char *s = str;
+  int cond;
 
   if(s==NULL || rep == NULL || with == NULL || rep[0] == '\0') {
     my_free(_ALLOC_ID_, &result);
@@ -1529,7 +1531,9 @@ char *str_replace(const char *s, const char *rep, const char *with)
   }
   while(*s) {
     STR_ALLOC(&result, result_pos + with_len + 1, &size);
-    if(!strncmp(s, rep, rep_len)) {
+
+    cond = ((s == str) || ((*(s - 1) != escape))) && (!strncmp(s, rep, rep_len));
+    if(cond) {
       my_strncpy(result + result_pos, with, with_len + 1);
       result_pos += with_len;
       s += rep_len;

@@ -72,7 +72,7 @@ const char *tcl_hook2(char **res)
     return empty;
   }
   if(strstr(*res, "tcleval(") == *res) {
-    unescaped_res = str_replace(*res, "\\}", "}");
+    unescaped_res = str_replace(*res, "\\}", "}", 0);
     tclvareval("tclpropeval2 {", unescaped_res, "}" , NULL);
     my_strdup2(_ALLOC_ID_, &result, tclresult());
     /* dbg(0, "tcl_hook2: return: %s\n", result);*/
@@ -1526,6 +1526,8 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
  if(!xctx->tok_size && strcmp(fmt_attr, "format") )
    my_strdup(_ALLOC_ID_, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, "format", 2));
  dbg(1, "print_spice_subckt(): format1=%s\n", format1);
+
+ my_strdup(_ALLOC_ID_, &format1, str_replace(format1, "@symname", skip_dir(xctx->sym[symbol].name), '\\'));
  if(format1 && strstr(format1, "tcleval(") == format1) {
     tclres = tcl_hook2(&format1);
     if(!strcmp(tclres, "?\n")) {

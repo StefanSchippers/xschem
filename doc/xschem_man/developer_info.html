@@ -481,7 +481,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1073,14 +1072,18 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       snap_wire </kbd></li><pre>
    Start a GUI start snapped wire placement (click to start a
    wire to closest pin/net endpoint) </pre>
+   <li><kbd>       str_replace str rep with [escape]</kbd></li><pre>
+   replace 'rep' with 'with' in string 'str' 
+   if rep not preceeded by an 'escape' character </pre>
    <li><kbd>       subst_tok str tok newval</kbd></li><pre>
    Return string 'str' with 'tok' attribute value replaced with 'newval' </pre>
    <li><kbd>       symbol_in_new_window [new_process]</kbd></li><pre>
    When a symbol is selected edit it in a new tab/window if not already open.
    If nothing selected open another window of the second schematic (issues a warning).
    if 'new_process' is given start a new xschem process </pre>
-   <li><kbd>       symbols</kbd></li><pre>
-   List all used symbols </pre>
+   <li><kbd>       symbols [n]</kbd></li><pre>
+   if 'n' given list symbol with name or number 'n', else 
+   list all used symbols </pre>
    <li><kbd>       table_read [table_file]</kbd></li><pre>
    If a simulation raw file is lodaded unload from memory.
    else read a tabular file 'table_file'
@@ -1157,6 +1160,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
 
 
  </ul>

@@ -1269,7 +1269,6 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
 {
   char *sch = NULL;
   char *str_tmp = NULL;
-  char *ptr;
   int web_url = 0;
   struct stat buf;
 
@@ -1282,15 +1281,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
   if(!str_tmp) my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 2));
   if(str_tmp[0]) {
     /* @symname in schematic attribute will be replaced with symbol name */
-    if( (ptr = strstr(str_tmp, "@symname")) && ( ptr == str_tmp || *(ptr - 1) != '\\') ) {
-      *ptr = '\0';
-      my_strdup2(_ALLOC_ID_, &sch, str_tmp);
-      my_strcat(_ALLOC_ID_, &sch, sym->name);
-      ptr += 8;
-      my_strcat(_ALLOC_ID_, &sch, ptr);
-    } else {
-      my_strdup2(_ALLOC_ID_, &sch, str_tmp);
-    }
+    my_strdup(_ALLOC_ID_, &sch, str_replace(str_tmp, "@symname", skip_dir(sym->name), '\\'));
     dbg(1, "get_sch_from_sym(): sch=%s\n", sch);
     my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(&sch));
     dbg(1, "get_sch_from_sym(): after tcl_hook2 sch=%s\n", sch);

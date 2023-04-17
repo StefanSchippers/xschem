@@ -3506,6 +3506,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->ui_state |= MENUSTARTSNAPWIRE;
     }
 
+    /* str_replace str rep with [escape]
+     *   replace 'rep' with 'with' in string 'str' 
+     *   if rep not preceeded by an 'escape' character */
+    else if(!strcmp(argv[1], "str_replace"))
+    {
+      int escape = 0;
+      if(argc > 5) escape = argv[5][0];
+      if(argc > 4) {
+        Tcl_AppendResult(interp, str_replace(argv[2], argv[3], argv[4], escape), NULL);
+      } else { 
+        Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);
+        return TCL_ERROR;
+      }
+    }
+
     /* subst_tok str tok newval
      *   Return string 'str' with 'tok' attribute value replaced with 'newval' */
     else if(!strcmp(argv[1], "subst_tok"))
@@ -3529,13 +3544,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* symbols
-     *   List all used symbols */
+    /* symbols [n]
+     *   if 'n' given list symbol with name or number 'n', else 
+     *   list all used symbols */
     else if(!strcmp(argv[1], "symbols"))
     {
       int i;
       char n[100];
-      for(i=0; i<xctx->symbols; ++i) {
+      if(argc > 2) {
+        i = get_symbol(argv[2]);
+        Tcl_AppendResult(interp,  my_itoa(i), " {", xctx->sym[i].name, "}", NULL);
+      } else for(i=0; i<xctx->symbols; ++i) {
         my_snprintf(n , S(n), "%d", i);
         Tcl_AppendResult(interp, "  {", n, " ", "{", xctx->sym[i].name, "}", "}\n", NULL);
       }

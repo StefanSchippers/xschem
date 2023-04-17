@@ -1479,7 +1479,7 @@ extern void hilight_parent_pins(void);
 extern void hilight_net_pin_mismatches(void);
 extern Node_hashentry **get_node_table_ptr(void);
 extern void change_elem_order(void);
-extern char *str_replace(const char *s, const char *rep, const char *with);
+extern char *str_replace(const char *str, const char *rep, const char *with, int escape);
 extern int set_different_token(char **s,const char *new, const char *old);
 extern void print_hilight_net(int show);
 extern void list_hilights(void);
