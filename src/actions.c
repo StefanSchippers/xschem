@@ -1282,7 +1282,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
   if(!str_tmp) my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 2));
   if(str_tmp[0]) {
     /* @symname in schematic attribute will be replaced with symbol name */
-    if( (ptr = strstr(str_tmp, "@symname"))) {
+    if( (ptr = strstr(str_tmp, "@symname")) && ( ptr == str_tmp || *(ptr - 1) != '\\') ) {
       *ptr = '\0';
       my_strdup2(_ALLOC_ID_, &sch, str_tmp);
       my_strcat(_ALLOC_ID_, &sch, sym->name);
