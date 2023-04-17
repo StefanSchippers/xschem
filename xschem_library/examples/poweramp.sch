@@ -19,8 +19,8 @@ B 2 1200 -500 1880 -310 {flags=graph
 y1 = -0.0059
 y2 = 11
 divy = 6
-x1=0.00853103
-x2=0.00916896
+x1=-2.36168e-05
+x2=0.0109434
 divx=10
 node="i(v.x1.vu)
 i(v.x0.vu)
@@ -33,8 +33,8 @@ B 2 1200 -830 1880 -520 {flags=graph
 y1 = -49
 y2 = 58
 divy = 12
-x1=0.00853103
-x2=0.00916896
+x1=-2.36168e-05
+x2=0.0109434
 divx=10
 node="outp
 outm
@@ -49,8 +49,8 @@ B 2 1200 -1020 1880 -830 {flags=graph
 y1 = 0
 y2 = 830
 divy = 6
-x1=0.00853103
-x2=0.00916896
+x1=-2.36168e-05
+x2=0.0109434
 divx=10
 
 
@@ -63,8 +63,8 @@ B 2 1200 -310 1880 -120 {flags=graph
 y1 = 0
 y2 = 840
 divy = 6
-x1=0.00853103
-x2=0.00916896
+x1=-2.36168e-05
+x2=0.0109434
 divx=10
 
 
@@ -94,20 +94,6 @@ T {actual value
 50u} 80 -290 0 0 0.4 0.4 {}
 T {actual value
 200} 860 -1280 0 0 0.4 0.4 {}
-T {Different type of annotators.} 740 -960 0 0 0.4 0.4 {}
-T {In this annotator (push method) 
-the annotated value is "pushed"
-into it as an attribute by the
-tcl annotate script. This attribute
-is persistent and may be saved to file.} 780 -920 0 0 0.2 0.2 {layer=4}
-T {This annotator uses a "pull"
-method, calling a tcl procedure 
-to return the operating point data.
-This information is not persistent,
-however when used in multiple instances
-each with different bias points these
-annotator dinamically show the correct 
-data.} 780 -830 0 0 0.2 0.2 {layer=4}
 T {Select one or more graphs (and no other objects)
 and use arrow keys to zoom / pan waveforms} 1110 -1120 0 0 0.3 0.3 {}
 N 70 -1220 70 -1200 {lab=#net1}
@@ -291,7 +277,7 @@ C {ngspice_get_expr.sym} 585 -895 0 0 {name=r1
 node="[ngspice::get_current \{r19[i]\}]"
 descr = current
  }
-C {ngspice_get_expr.sym} 820 -510 2 0 {name=r29 
+C {ngspice_get_expr.sym} 830 -480 2 0 {name=r29 
 node="[format %.4g [expr \{([ngspice::get_voltage outm] - [ngspice::get_voltage outp]) * [ngspice::get_current \{r1[i]\}]\}]] "
 descr = power
 }
@@ -316,7 +302,7 @@ C {spice_probe.sym} 670 -1120 0 0 {name=p43 analysis=tran }
 C {spice_probe.sym} 950 -1200 0 0 {name=p44 analysis=tran }
 C {launcher.sym} 1000 -270 0 0 {name=h1
 descr="Backannotate"
-tclcommand="xschem annotate_op"}
+tclcommand="xschem annotate_op $netlist_dir/poweramp_op.raw"}
 C {ngspice_get_expr.sym} 130 -1010 0 0 {name=r19 
 node="[ngspice::get_current \{r9[i]\}]"
 descr = current
