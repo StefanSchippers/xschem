@@ -1066,7 +1066,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
     /************ end xschem get subcommands *************/
-    /* getprop instance inst 
+    /* getprop instance|instance_pin|symbol|text ref 
+     *
+     * getprop instance inst
      *   Get the full attribute string of 'inst'
      *
      * getprop instance inst attr
@@ -1094,6 +1096,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      * getprop symbol sym_name sym_attr [with_quotes]
      *   Get value of attribute 'sym_attr' of symbol 'sym_name'
      *   'with_quotes' (default:0) is an integer passed to get_tok_value()
+     *
      * getprop rect layer num attr
      *   Get attribute 'attr' of rectangle number 'num' on layer 'layer'
      *
@@ -3195,18 +3198,27 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-    /* setprop instance inst tok [val] [fast]
+    /* setprop instance|symbol|text|rect ref tok [val] [fast]
+     *
+     * setprop instance inst tok [val] [fast]
      *   set attribute 'tok' of instance (name or number) 'inst' to value 'val'
      *   If 'val' not given (no attribute value) delete attribute from instance
      *   If 'fast' argument if given does not redraw and is not undoable 
+     *
+     * setprop symbol name tok [val]
+     *   Set attribute 'tok' of symbol name 'name' to 'val'
+     *   If 'val' not given (no attribute value) delete attribute from symbol
+     *
      * setprop rect lay n tok [val] [fast|fastundo]
      *   Set attribute 'tok' of rectangle number'n' on layer 'lay'
      *   If 'val' not given (no attribute value) delete attribute from rect
      *   If 'fast' argument is given does not redraw and is not undoable
      *   If 'fastundo' s given same as above but action is undoable.
+     *
      * setprop rect 2 n fullxzoom
      * setprop rect 2 n fullyzoom
      *   These commands do full x/y zoom of graph 'n' (on layer 2, this is hardcoded).
+     *
      * setprop text n tok [val] [fast|fastundo]
      *   Set attribute 'tok' of text number 'n'
      *   If 'val' not given (no attribute value) delete attribute from text
@@ -3285,6 +3297,32 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
         }
+      } else if(argc > 2 && !strcmp(argv[2], "symbol")) {
+      /*  0       1       2      3    4     5    
+       * xschem setprop symbol name token [value] */
+
+        int i, found=0;
+        xSymbol *sym;
+        if(argc < 4) {
+          Tcl_SetResult(interp, "xschem setprop symbol needs 1 or 2 or 3 additional arguments", TCL_STATIC);
+          return TCL_ERROR;
+        }
+        for(i=0; i<xctx->symbols; ++i) {
+          if(!xctx->x_strcmp(xctx->sym[i].name,argv[3])){
+            found=1;
+            break;
+          }
+        }
+        if(!found) {
+          Tcl_SetResult(interp, "Symbol not found", TCL_STATIC);
+          return TCL_ERROR;
+        }
+        sym = &xctx->sym[i];
+        if(argc > 5) 
+          my_strdup2(_ALLOC_ID_, &sym->prop_ptr, subst_token(sym->prop_ptr, argv[4], argv[5]));
+        else
+          my_strdup2(_ALLOC_ID_, &sym->prop_ptr, subst_token(sym->prop_ptr, argv[4], NULL)); /* delete attr */
+
       } else if(argc > 5 && !strcmp(argv[2], "rect")) {
       /*  0       1      2   3 4   5    6      7
        * xschem setprop rect c n token [value] [fast|fastundo] */

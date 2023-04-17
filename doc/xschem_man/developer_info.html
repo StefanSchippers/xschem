@@ -479,6 +479,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
            Include ~/xxx here between <ul> and </ul>
         -->
 
+
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -638,7 +641,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> yorigin </kbd> y coordinate of origin </li>
      <li><kbd> zoom </kbd> zoom level </li>
    </ul>
-   <li><kbd>       getprop instance inst </kbd></li><pre>
+   <li><kbd>       getprop instance|instance_pin|symbol|text ref </kbd></li><pre>
+      
+       getprop instance inst
    Get the full attribute string of 'inst'
       
        getprop instance inst attr
@@ -666,6 +671,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
        getprop symbol sym_name sym_attr [with_quotes]
    Get value of attribute 'sym_attr' of symbol 'sym_name'
    'with_quotes' (default:0) is an integer passed to get_tok_value()
+      
        getprop rect layer num attr
    Get attribute 'attr' of rectangle number 'num' on layer 'layer'
       
@@ -1031,18 +1037,27 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    different between 'new_str' and 'old_str' </pre>
    <li><kbd>       set_modify</kbd></li><pre>
    Force modify status on current schematic </pre>
-   <li><kbd>       setprop instance inst tok [val] [fast]</kbd></li><pre>
+   <li><kbd>       setprop instance|symbol|text|rect ref tok [val] [fast]</kbd></li><pre>
+      
+       setprop instance inst tok [val] [fast]
    set attribute 'tok' of instance (name or number) 'inst' to value 'val'
    If 'val' not given (no attribute value) delete attribute from instance
    If 'fast' argument if given does not redraw and is not undoable 
+      
+       setprop symbol name tok [val]
+   Set attribute 'tok' of symbol name 'name' to 'val'
+   If 'val' not given (no attribute value) delete attribute from symbol
+      
        setprop rect lay n tok [val] [fast|fastundo]
    Set attribute 'tok' of rectangle number'n' on layer 'lay'
    If 'val' not given (no attribute value) delete attribute from rect
    If 'fast' argument is given does not redraw and is not undoable
    If 'fastundo' s given same as above but action is undoable.
+      
        setprop rect 2 n fullxzoom
        setprop rect 2 n fullyzoom
    These commands do full x/y zoom of graph 'n' (on layer 2, this is hardcoded).
+      
        setprop text n tok [val] [fast|fastundo]
    Set attribute 'tok' of text number 'n'
    If 'val' not given (no attribute value) delete attribute from text
@@ -1142,6 +1157,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
  </ul>
 
