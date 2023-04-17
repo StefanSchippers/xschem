@@ -36,6 +36,26 @@ void statusmsg(char str[],int n)
   }
 }
 
+static int get_symbol(const char *s)
+{   
+  int i, found=0; 
+  for(i=0;i<xctx->symbols; ++i) {
+    if(!strcmp(xctx->sym[i].name, s)) {
+      found=1;
+      break;
+    }     
+  }     
+  dbg(1, "get_symbol(): found=%d, i=%d\n", found, i);
+  if(!found) {
+    if(!isonlydigit(s)) return -1;
+    i=atoi(s);
+  }     
+  if(i<0 || i>xctx->symbols) {
+    return -1; 
+  }       
+  return i;
+}       
+
 static int get_instance(const char *s)
 {
   int i, found=0;
@@ -1186,18 +1206,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       /* xschem getprop symbol lm358.sym [type] */
       } else if(!strcmp(argv[2], "symbol")) {
-        int i, found=0;
+        int i;
         if(argc < 4) {
           Tcl_SetResult(interp, "xschem getprop symbol needs 1 or 2 or 3 additional arguments", TCL_STATIC);
           return TCL_ERROR;
         }
-        for(i=0; i<xctx->symbols; ++i) {
-          if(!xctx->x_strcmp(xctx->sym[i].name,argv[3])){
-            found=1;
-            break;
-          }
-        }
-        if(!found) {
+
+        i = get_symbol(argv[3]);
+        if( i == -1) {
           Tcl_SetResult(interp, "Symbol not found", TCL_STATIC);
           return TCL_ERROR;
         }
@@ -3301,19 +3317,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       /*  0       1       2      3    4     5    
        * xschem setprop symbol name token [value] */
 
-        int i, found=0;
+        int i;
         xSymbol *sym;
         if(argc < 4) {
           Tcl_SetResult(interp, "xschem setprop symbol needs 1 or 2 or 3 additional arguments", TCL_STATIC);
           return TCL_ERROR;
         }
-        for(i=0; i<xctx->symbols; ++i) {
-          if(!xctx->x_strcmp(xctx->sym[i].name,argv[3])){
-            found=1;
-            break;
-          }
-        }
-        if(!found) {
+        i = get_symbol(argv[3]);
+        if(i == -1) {
           Tcl_SetResult(interp, "Symbol not found", TCL_STATIC);
           return TCL_ERROR;
         }
