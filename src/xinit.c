@@ -665,6 +665,7 @@ static void delete_schematic_data(int delete_pixmap)
    * inst & wire .node fields, instance name hash */
   remove_symbols();
   str_replace(NULL, NULL, NULL, 0);
+  escape_chars(NULL);
   free_rawfile(0);
   free_xschem_data(); /* delete the xctx struct */
 }

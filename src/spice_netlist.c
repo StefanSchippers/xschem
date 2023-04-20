@@ -173,7 +173,7 @@ static int spice_netlist(FILE *fd, int spice_stop )
          if(!strcmp(type, "ipin")) d = 'I';
          if(!strcmp(type, "opin")) d = 'O';
          if(!strcmp(type, "iopin")) d = 'B';
-         fprintf(fd, "%s:%c ",get_tok_value(xctx->inst[i].prop_ptr, "lab",0), d);
+         fprintf(fd, "%s:%c ",xctx->inst[i].lab, d);
        } else {
          print_spice_element(fd, i) ;  /* this is the element line  */
        }

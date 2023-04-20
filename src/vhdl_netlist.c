@@ -212,7 +212,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
  /* 20071009 print top level generics if defined in symbol */
  str_tmp = add_ext(xctx->sch[xctx->currsch], ".sym");
  if(!stat(str_tmp, &buf)) {
-   load_sym_def(str_tmp, NULL );
+   load_sym_def(str_tmp, NULL, 0);
    print_generic(fd,"entity", xctx->symbols-1);  /* added print top level params */
    remove_symbol(xctx->symbols - 1);
  } else {

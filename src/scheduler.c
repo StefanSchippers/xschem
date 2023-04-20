@@ -693,6 +693,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* escape_chars source
+     *   escape tcl special characters with backslash */
+    else if(!strcmp(argv[1], "escape_chars"))
+    {
+      if(argc > 2) {
+        Tcl_SetResult(interp, escape_chars(argv[2]), TCL_VOLATILE);
+      }
+    }
+
     /* exit
      *   Exit the program, ask for confirm if current file modified. */
     else if(!strcmp(argv[1], "exit"))
@@ -2916,7 +2925,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         else if( !strcmp((xctx->inst[i].ptr + xctx->sym)->type, "iopin") ) dir="inout";
         else dir = NULL;
         if(dir) {
-          lab = get_tok_value(xctx->inst[i].prop_ptr, "lab", 0);
+          lab = xctx->inst[i].lab;
           if(first == 0) Tcl_AppendResult(interp, " ", NULL);
           Tcl_AppendResult(interp, "{", lab, "} {", dir, "}", NULL);
           first = 0;
@@ -3610,16 +3619,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   testmode */
     else if(!strcmp(argv[1], "test"))
     {
-      Ptr_hashtable table = {NULL, 0};
-      Ptr_hashentry *entry;
-      double a = 10.1;
-      ptr_hash_init(&table, 37);
-      ptr_hash_lookup(&table, "val", &a, XINSERT);
-    
-      entry = ptr_hash_lookup(&table, "val", NULL, XLOOKUP);
-      dbg(0, "val=%g\n", *(double *)entry->value);
-      ptr_hash_free(&table);
-    
+      FILE *fp = fopen("/home/schippes/xschem-repo/trunk/xschem_library/examples/sr_flop.sym", "r");
+      load_sym_def("sr_flop.sym", fp, 0);
+      fclose(fp);
+
+      xctx->inst[xctx->instances -1].ptr = xctx->symbols - 1;
+      my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances -1].name, xctx->sym[xctx->symbols - 1].name);
+
       Tcl_ResetResult(interp);
     }
 

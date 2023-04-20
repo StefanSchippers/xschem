@@ -180,7 +180,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
  if(!found)
  {
   dbg(1, "match_symbol(): matching symbol not found:%s, loading\n",name);
-  load_sym_def(name, NULL); /* append another symbol to the xctx->sym[] array */
+  load_sym_def(name, NULL, 0); /* append another symbol to the xctx->sym[] array */
  }
  dbg(1, "match_symbol(): returning %d\n",i);
  return i;

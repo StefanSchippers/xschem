@@ -1273,7 +1273,7 @@ extern int spice_block_netlist(FILE *fd, int i);
 extern void remove_symbols(void);
 extern void remove_symbol(int i);
 extern void clear_drawing(void);
-extern int load_sym_def(const char name[], FILE *embed_fd);
+extern int load_sym_def(const char name[], FILE *embed_fd, int embedded);
 extern void descend_symbol(void);
 extern int place_symbol(int pos, const char *symbol_name, double x, double y, short rot, short flip,
                          const char *inst_props, int draw_sym, int first_call, int to_push_undo);
@@ -1480,6 +1480,7 @@ extern void hilight_net_pin_mismatches(void);
 extern Node_hashentry **get_node_table_ptr(void);
 extern void change_elem_order(void);
 extern char *str_replace(const char *str, const char *rep, const char *with, int escape);
+extern char *escape_chars(const char *source);
 extern int set_different_token(char **s,const char *new, const char *old);
 extern void print_hilight_net(int show);
 extern void list_hilights(void);

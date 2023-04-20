@@ -114,52 +114,57 @@ void print_version()
   exit(EXIT_SUCCESS);
 }
 
-#if 0
-*   char *escape_chars(char *dest, const char *source, int size)
-*   {
-*     int s=0;
-*     int d=0;
-*     size--; /* reserve space for \0 */
-*     while(source && source[s]) {
-*       switch(source[s]) {
-*         case '\n':
-*           if(d < size-1) {
-*             dest[d++] = '\\';
-*             dest[d++] = 'n';
-*           }
-*           break;
-*         case '\t':
-*           if(d < size-1) {
-*             dest[d++] = '\\';
-*             dest[d++] = 't';
-*           }
-*           break;
-*         case '\\':
-*         case '\'':
-*         case ' ':
-*         case ';':
-*         case '$':
-*         case '!':
-*         case '#':
-*         case '{':
-*         case '}':
-*         case '[':
-*         case ']':
-*         case '"':
-*           if(d < size-1) {
-*              dest[d++] = '\\';
-*              dest[d++] = source[s];
-*           }
-*           break;
-*         default:
-*           if(d < size) dest[d++] = source[s];
-*       }
-*       s++;
-*     }
-*     dest[d] = '\0';
-*     return dest;
-*   }
-#endif
+char *escape_chars(const char *source)
+{
+  int s=0;
+  int d=0;
+  static char *dest = NULL;
+  size_t slen, size;
+
+  if(!source) {
+    if(dest)  my_free(_ALLOC_ID_, &dest);
+    return NULL;
+  }
+  slen = strlen(source);
+  size = slen + 1;
+  my_realloc(_ALLOC_ID_, &dest, size);
+  while(source && source[s]) {
+    if(d >= size - 2) {
+      size += 2;
+      my_realloc(_ALLOC_ID_, &dest, size);
+    }
+    switch(source[s]) {
+      case '\n':
+        dest[d++] = '\\';
+        dest[d++] = 'n';
+        break;
+      case '\t':
+        dest[d++] = '\\';
+        dest[d++] = 't';
+        break;
+      case '\\':
+      case '\'':
+      case ' ':
+      case ';':
+      case '$':
+      case '!':
+      case '#':
+      case '{':
+      case '}':
+      case '[':
+      case ']':
+      case '"':
+        dest[d++] = '\\';
+        dest[d++] = source[s];
+        break;
+      default:
+        dest[d++] = source[s];
+    }
+    s++;
+  }
+  dest[d] = '\0';
+  return dest;
+}
 
 void set_snap(double newsnap) /*  20161212 set new snap factor and just notify new value */
 {
@@ -1473,7 +1478,7 @@ void go_back(int confirm) /*  20171006 add confirm */
     /* when returning after editing an embedded symbol
      * load immediately symbol definition before going back (.xschem_embedded... file will be lost)
      */
-    load_sym_def(xctx->sch[xctx->currsch], NULL);
+    load_sym_def(xctx->sch[xctx->currsch], NULL, 0);
     from_embedded_sym=1;
   }
   my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));

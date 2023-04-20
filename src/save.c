@@ -2186,7 +2186,7 @@ static void read_xschem_file(FILE *fd)
         }
         read_line(fd, 0); /* skip garbage after '[' */
         if(!found) {
-          load_sym_def(xctx->inst[xctx->instances-1].name, fd);
+          load_sym_def(xctx->inst[xctx->instances-1].name, fd, 1);
           found = 2;
         }
       }
@@ -2371,8 +2371,9 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   return 1;
 }
 
-/* from == -1 --> link symbols to all instances, from 0 to instances-1 */
-void link_symbols_to_instances(int from) /* from >= 0 : linking symbols from pasted schematic / clipboard */
+/* from == -1: link symbols to all instances, from 0 to instances-1
+ * from >=  0: link symbols from pasted schematic / clipboard */
+void link_symbols_to_instances(int from)
 {
   int cond, i, merge = 1;
   char *type=NULL;
@@ -3080,7 +3081,11 @@ void sort_symbol_pins(xRect *pin_array, int npins, const char *name)
   }
 }
 
-/* Global (or static global) variables used:
+/* load_sym_def(): load a symbol definition looking up 'name' in the search paths.
+ * if 'embed_fd' FILE pointer is given read from there instead of searching 'name'
+ * 'embedded' parameter: set to 1 if loading an embedded symbol (embed_fd FILE pointer is given)
+ *                     set to 0 if loading a symbol that is not embedded from the given FILE pointer.
+ * Global (or static global) variables used:
  * cadlayers
  * errfp
  * xctx->file_version
@@ -3088,7 +3093,7 @@ void sort_symbol_pins(xRect *pin_array, int npins, const char *name)
  * xctx->symbols
  * has_x
  */
-int load_sym_def(const char *name, FILE *embed_fd)
+int load_sym_def(const char *name, FILE *embed_fd, int embedded)
 {
   static int recursion_counter=0; /* safe to keep even with multiple schematics, operation not interruptable */
   Lcc *lcc; /* size = level */
@@ -3137,12 +3142,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
   lcc=NULL;
   my_realloc(_ALLOC_ID_, &lcc, (level + 1) * sizeof(Lcc));
   max_level = level + 1;
-  if(!strcmp(xctx->file_version,"1.0")) {
-    my_strncpy(sympath, abs_sym_path(name, ".sym"), S(sympath));
-  } else {
-    my_strncpy(sympath, abs_sym_path(name, ""), S(sympath));
-  }
   if(!embed_fd) { /* regular symbol: open file */
+    if(!strcmp(xctx->file_version,"1.0")) {
+      my_strncpy(sympath, abs_sym_path(name, ".sym"), S(sympath));
+    } else {
+      my_strncpy(sympath, abs_sym_path(name, ""), S(sympath));
+    }
     if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL) {
       /* not found: try web URL */
       if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
@@ -3684,7 +3689,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
     dbg(1, "l_s_d(): fclose2, level=%d, fd=%p\n", level, lcc[0].fd);
     fclose(lcc[0].fd);
   }
-  if(embed_fd || strstr(name, ".xschem_embedded_")) {
+  if(embedded || strstr(name, ".xschem_embedded_")) {
     symbol[symbols].flags |= EMBEDDED;
   } else {
     symbol[symbols].flags &= ~EMBEDDED;
