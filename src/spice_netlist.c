@@ -428,7 +428,6 @@ int global_spice_netlist(int global)  /* netlister driver */
    }
    my_free(_ALLOC_ID_, &abs_path);
    get_additional_symbols(0);
-   str_hash_free(&subckt_table);
    my_free(_ALLOC_ID_, &subckt_name);
    /*clear_drawing(); */
    my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
@@ -492,6 +491,7 @@ int global_spice_netlist(int global)  /* netlister driver */
    }
  }
  str_hash_free(&model_table);
+ str_hash_free(&subckt_table);
  if(first) fprintf(fd,"**** end user architecture code\n");
 
 

@@ -1274,6 +1274,7 @@ void get_additional_symbols(int what)
     }
     xctx->symbols = num_syms;
   }
+  int_hash_free(&sym_table);
 }
 
 void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
