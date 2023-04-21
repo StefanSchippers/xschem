@@ -59,16 +59,6 @@ void check_symbol_storage(void)
         xctx->sch[xctx->currsch] );
   xctx->maxs=(1 + xctx->symbols / ELEMDEF) * ELEMDEF;
   my_realloc(_ALLOC_ID_, &xctx->sym, sizeof(xSymbol)*xctx->maxs);
-  for(i=xctx->symbols;i<xctx->maxs; ++i) {
-    xctx->sym[i].poly=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
-    xctx->sym[i].arc=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
-    xctx->sym[i].line=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
-    xctx->sym[i].rect=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xRect *));
-    xctx->sym[i].lines=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-    xctx->sym[i].rects=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-    xctx->sym[i].polygons=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-    xctx->sym[i].arcs=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-  }
  }
 
 }

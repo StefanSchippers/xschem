@@ -539,6 +539,16 @@ void remove_symbol(int j)
     }
   }
   my_free(_ALLOC_ID_, &xctx->sym[j].text);
+
+  my_free(_ALLOC_ID_, &xctx->sym[j].line);
+  my_free(_ALLOC_ID_, &xctx->sym[j].rect);
+  my_free(_ALLOC_ID_, &xctx->sym[j].arc);
+  my_free(_ALLOC_ID_, &xctx->sym[j].poly);
+  my_free(_ALLOC_ID_, &xctx->sym[j].lines);
+  my_free(_ALLOC_ID_, &xctx->sym[j].polygons);
+  my_free(_ALLOC_ID_, &xctx->sym[j].arcs);
+  my_free(_ALLOC_ID_, &xctx->sym[j].rects);
+
   xctx->sym[j].texts = 0;
 
   save = xctx->sym[j]; /* save cleared symbol slot */
@@ -1208,8 +1218,7 @@ const char *get_sym_name(int inst, int ext)
   return sym;
 }
 
-
-static void copy_symbol1(xSymbol *dest_sym, xSymbol *src_sym)
+void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym)
 {
   int c, j;
   
@@ -1230,7 +1239,6 @@ static void copy_symbol1(xSymbol *dest_sym, xSymbol *src_sym)
   my_strdup2(_ALLOC_ID_, &dest_sym->templ, src_sym->templ);
   my_strdup2(_ALLOC_ID_, &dest_sym->prop_ptr, src_sym->prop_ptr);
 
-  /*
   dest_sym->line = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
   dest_sym->poly = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
   dest_sym->arc = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
@@ -1239,7 +1247,6 @@ static void copy_symbol1(xSymbol *dest_sym, xSymbol *src_sym)
   dest_sym->rects = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   dest_sym->arcs = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   dest_sym->polygons = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-  */
 
   dest_sym->text = my_calloc(_ALLOC_ID_, src_sym->texts, sizeof(xText));
   memcpy(dest_sym->lines, src_sym->lines, sizeof(dest_sym->lines[0]) * cadlayers);
@@ -1335,7 +1342,7 @@ void get_additional_symbols(int what)
           int_hash_lookup(&sym_table, sym, j, XINSERT);
           dbg(1, "get_additional_symbols(): adding symbol %s\n", sym);
           check_symbol_storage();
-          copy_symbol1(&xctx->sym[j], xctx->inst[i].ptr + xctx->sym);
+          copy_symbol(&xctx->sym[j], xctx->inst[i].ptr + xctx->sym);
           xctx->sym[j].base_name = (xctx->inst[i].ptr + xctx->sym)->name;
           my_strdup(_ALLOC_ID_, &xctx->sym[j].name, sym);
 

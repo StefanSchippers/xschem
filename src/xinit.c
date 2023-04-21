@@ -335,16 +335,6 @@ static void free_xschem_data()
     my_free(_ALLOC_ID_, &xctx->poly[i]);
     my_free(_ALLOC_ID_, &xctx->arc[i]);
   }
-  for(i=0;i<xctx->maxs; ++i) {
-    my_free(_ALLOC_ID_, &xctx->sym[i].line);
-    my_free(_ALLOC_ID_, &xctx->sym[i].rect);
-    my_free(_ALLOC_ID_, &xctx->sym[i].arc);
-    my_free(_ALLOC_ID_, &xctx->sym[i].poly);
-    my_free(_ALLOC_ID_, &xctx->sym[i].lines);
-    my_free(_ALLOC_ID_, &xctx->sym[i].polygons);
-    my_free(_ALLOC_ID_, &xctx->sym[i].arcs);
-    my_free(_ALLOC_ID_, &xctx->sym[i].rects);
-  }
   my_free(_ALLOC_ID_, &xctx->sym);
   my_free(_ALLOC_ID_, &xctx->rect);
   my_free(_ALLOC_ID_, &xctx->line);
@@ -561,16 +551,6 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->wire=my_calloc(_ALLOC_ID_, xctx->maxw,sizeof(xWire));
   xctx->inst=my_calloc(_ALLOC_ID_, xctx->maxi , sizeof(xInstance) );
   xctx->sym=my_calloc(_ALLOC_ID_, xctx->maxs , sizeof(xSymbol) );
-  for(i=0;i<xctx->maxs; ++i) {
-    xctx->sym[i].line=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
-    xctx->sym[i].poly=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
-    xctx->sym[i].arc=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
-    xctx->sym[i].rect=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xRect *));
-    xctx->sym[i].lines=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-    xctx->sym[i].rects=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-    xctx->sym[i].arcs=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-    xctx->sym[i].polygons=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-  }
   xctx->maxr=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   xctx->maxa=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   xctx->maxp=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));

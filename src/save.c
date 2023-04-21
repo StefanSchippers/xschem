@@ -3191,6 +3191,17 @@ int load_sym_def(const char *name, FILE *embed_fd, int embedded)
   symbol[symbols].templ = NULL;
   symbol[symbols].base_name=NULL;
   symbol[symbols].name=NULL;
+
+  symbol[symbols].line=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
+  symbol[symbols].poly=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
+  symbol[symbols].arc=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
+  symbol[symbols].rect=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xRect *));
+  symbol[symbols].lines=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  symbol[symbols].rects=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  symbol[symbols].arcs=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  symbol[symbols].polygons=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+
+
   my_strdup2(_ALLOC_ID_, &symbol[symbols].name,name);
   /* read symbol from file */
   while(1)
