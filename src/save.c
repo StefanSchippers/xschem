@@ -1639,12 +1639,17 @@ static void save_inst(FILE *fd, int select_only)
   }
   fprintf(fd, " %.16g %.16g %hd %hd ",inst[i].x0, inst[i].y0, inst[i].rot, inst[i].flip );
   save_ascii_string(inst[i].prop_ptr,fd, 1);
-  if( embedded_saved && !embedded_saved[inst[i].ptr] && inst[i].embed) {
-    embedded_saved[inst[i].ptr] = 1;
-    fprintf(fd, "[\n");
-    save_embedded_symbol( xctx->sym+inst[i].ptr, fd);
-    fprintf(fd, "]\n");
-    xctx->sym[inst[i].ptr].flags |= EMBEDDED;
+  if(embedded_saved && !embedded_saved[inst[i].ptr]) {
+    if(is_symgen(inst[i].name)) {
+      embedded_saved[inst[i].ptr] = 1;
+      xctx->sym[inst[i].ptr].flags |= EMBEDDED;
+    } else if(inst[i].embed) {
+      embedded_saved[inst[i].ptr] = 1;
+      fprintf(fd, "[\n");
+      save_embedded_symbol( xctx->sym+inst[i].ptr, fd);
+      fprintf(fd, "]\n");
+      xctx->sym[inst[i].ptr].flags |= EMBEDDED;
+    }
   }
  }
  my_free(_ALLOC_ID_, &embedded_saved);
@@ -3229,6 +3234,7 @@ int load_sym_def(const char *name, FILE *embed_fd, int embedded)
     case 'K': /* 1.2 file format: symbol attributes for schematics placed as symbols */
      if (level==0) {
        load_ascii_string(&symbol[symbols].prop_ptr, lcc[level].fd);
+       dbg(1, "load_sym_def: K prop=\n%s\n", symbol[symbols].prop_ptr);
        if(!symbol[symbols].prop_ptr) break;
        my_strdup2(_ALLOC_ID_, &symbol[symbols].templ,
                   get_tok_value(symbol[symbols].prop_ptr, "template", 0));

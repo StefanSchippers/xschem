@@ -1479,6 +1479,8 @@ extern void hilight_parent_pins(void);
 extern void hilight_net_pin_mismatches(void);
 extern Node_hashentry **get_node_table_ptr(void);
 extern void change_elem_order(void);
+extern int is_symgen(const char *name);
+extern char *str_chars_replace(const char *str, const char *replace_set, const char with);
 extern char *str_replace(const char *str, const char *rep, const char *with, int escape);
 extern char *escape_chars(const char *source);
 extern int set_different_token(char **s,const char *new, const char *old);

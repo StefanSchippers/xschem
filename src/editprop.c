@@ -1546,6 +1546,24 @@ char *str_replace(const char *str, const char *rep, const char *with, int escape
   return result;
 }
 
+
+/* caller should free returned string */
+char *str_chars_replace(const char *str, const char *replace_set, const char with)
+{
+  char *res = NULL;
+  char *s;
+  my_strdup(_ALLOC_ID_, &res, str);
+  s = res;
+  dbg(0, "%s\n", res);
+  while( *s) {
+    if(strchr(replace_set, *s)) {
+      *s = with;
+    }
+    ++s;
+  }
+  return res;
+}
+
 /* x=0 use tcl text widget  x=1 use vim editor  x=2 only view data */
 void edit_property(int x)
 {

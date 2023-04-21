@@ -161,7 +161,30 @@ void check_unique_names(int rename)
   int_hash_free(&xctx->inst_table);
 }
 
-
+int is_symgen(const char *name)
+{
+  #ifdef __unix__
+  int res = 0;
+  static regex_t *re = NULL; 
+  
+  if(!name) {
+    if(re) {
+      regfree(re);
+      my_free(_ALLOC_ID_, &re);
+    }
+    return 0;
+  }
+  if(!re) {
+    re = my_malloc(_ALLOC_ID_, sizeof(regex_t));
+    regcomp(re, "^[^ \\t()]+\\([^()]*\\)[ \\t]*$", REG_NOSUB | REG_EXTENDED);
+  }
+  if(!regexec(re, name, 0 , NULL, 0) ) res = 1;
+  /* regfree(&re); */
+  return res;
+  #else
+  return 0;
+  #endif
+}
 
 int match_symbol(const char *name)  /* never returns -1, if symbol not found load systemlib/missing.sym */
 {
@@ -179,8 +202,42 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
  }
  if(!found)
  {
-  dbg(1, "match_symbol(): matching symbol not found:%s, loading\n",name);
-  load_sym_def(name, NULL, 0); /* append another symbol to the xctx->sym[] array */
+   dbg(1, "match_symbol(): matching symbol not found:%s, loading\n",name);
+   
+   if(!is_symgen(name)) {
+     load_sym_def(name, NULL, 0); /* append another symbol to the xctx->sym[] array */
+   } else { /* get symbol from generator script */
+     FILE *fp;
+     char *cmd = NULL;
+     char *ss = NULL;
+     const char *s;
+     char *spc_idx;
+     struct stat buf;
+ 
+     cmd = str_chars_replace(name, " (),", ' ');
+     spc_idx = strchr(cmd, ' ');
+     if(!spc_idx) goto end;
+     *spc_idx = '\0';
+     s = abs_sym_path(cmd, "");
+     if(stat(s, &buf)) {
+       load_sym_def(name, NULL, 0);
+       goto end;
+     }
+     my_strdup(_ALLOC_ID_, &ss, s);
+     *spc_idx = ' ';
+     my_strcat(_ALLOC_ID_, &ss, spc_idx);
+     fp = popen(ss, "r");
+     dbg(0, "%p\n", fp);
+     dbg(0, "%s\n", s);
+     dbg(0, "%s\n", ss);
+     dbg(0, "is_symgen=%d\n", is_symgen(name));
+     load_sym_def(name, fp, 1);
+     dbg(0, "%s\n", xctx->sym[xctx->symbols - 1].name);
+     pclose(fp);
+     my_free(_ALLOC_ID_, &ss);
+     end:
+     my_free(_ALLOC_ID_, &cmd);
+   }
  }
  dbg(1, "match_symbol(): returning %d\n",i);
  return i;
@@ -482,19 +539,17 @@ const char *get_sym_template(char *s,char *extra)
   else if( state==TOK_VALUE && space && !quote) state=TOK_END;
   STR_ALLOC(&value, value_pos, &sizeval);
   STR_ALLOC(&token, token_pos, &sizetok);
+  if(c=='"') {
+    if(!escape) quote=!quote;
+  }
   if(state==TOK_BEGIN) {
     result[result_pos++] = (char)c;
   } else if(state==TOK_TOKEN) {
-    token[token_pos++]=(char)c;
+    /* token[token_pos++]=(char)c; */
+    if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) token[token_pos++]=(char)c;
   } else if(state==TOK_VALUE) {
-    if(c=='"') {
-     if(!escape) quote=!quote;
-     if((with_quotes & 1) || escape)  value[value_pos++]=(char)c;
-    }
-    else if( (c=='\\') && (with_quotes & 2) )  ;  /* dont store backslash */
-    else value[value_pos++]=(char)c;
-    escape = (c=='\\' && !escape);
-
+    /* if((with_quotes & 1) || escape)  value[value_pos++]=(char)c; */
+    if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) value[value_pos++]=(char)c;
   } else if(state==TOK_END) {
     value[value_pos]='\0';
     if((!extra || !strstr(extra, token)) && strcmp(token,"name") && strcmp(token,"spiceprefix")) {
@@ -516,6 +571,7 @@ const char *get_sym_template(char *s,char *extra)
       token_pos=0;
     }
   }
+  escape = (c=='\\' && !escape);
   if(c=='\0') {
     break;
   }

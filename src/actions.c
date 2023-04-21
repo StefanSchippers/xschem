@@ -221,7 +221,12 @@ int set_netlist_dir(int force, char *dir)
 const char *abs_sym_path(const char *s, const char *ext)
 {
   char c[PATH_MAX+1000];
-  my_snprintf(c, S(c), "abs_sym_path {%s} {%s}", s, ext);
+
+  if(is_symgen(s)) {
+    my_snprintf(c, S(c), "abs_sym_path [regsub {\\(.*} {%s} {}] {%s}", s, ext);
+  } else {
+    my_snprintf(c, S(c), "abs_sym_path {%s} {%s}", s, ext);
+  }
   tcleval(c);
   return tclresult();
 }
@@ -947,6 +952,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
          dbg(1, "attach_labels_to_inst(): %d   %.16g %.16g %s\n", i, pinx0, piny0,labname);
       }
     }
+    if(first_call == 0) set_modify(1);
     my_free(_ALLOC_ID_, &prop);
     my_free(_ALLOC_ID_, &labname);
     my_free(_ALLOC_ID_, &type);

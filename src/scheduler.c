@@ -3619,13 +3619,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   testmode */
     else if(!strcmp(argv[1], "test"))
     {
-      FILE *fp = fopen("/home/schippes/xschem-repo/trunk/xschem_library/examples/sr_flop.sym", "r");
-      load_sym_def("sr_flop.sym", fp, 0);
-      fclose(fp);
-
-      xctx->inst[xctx->instances -1].ptr = xctx->symbols - 1;
-      my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances -1].name, xctx->sym[xctx->symbols - 1].name);
-
       Tcl_ResetResult(interp);
     }
 

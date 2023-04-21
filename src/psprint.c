@@ -24,27 +24,6 @@
 #define X_TO_PS(x) ( (x+xctx->xorigin)* xctx->mooz )
 #define Y_TO_PS(y) ( (y+xctx->yorigin)* xctx->mooz )
 
-#if 0
-*   /* FIXME: overflow check. Not used, BTW */
-*   static char *strreplace(char s[], char token[], char replace[])
-*   {
-*     static char res[200];
-*     char *p1, *p2;
-*     int l;
-*   
-*     res[0] = '\0';
-*     l = strlen(token);
-*     p1 = p2 = s;
-*     while( (p2 = strstr(p1, token)) ) {
-*        strncat(res, p1, p2 - p1);
-*        strcat(res, replace);
-*        p1 = p2 = p2 + l;
-*     }
-*     strcat(res, p1);
-*     return res;
-*   }
-#endif
-
 char *utf8_enc[]={
   "/recodedict 24 dict def\n",
   "/recode {recodedict begin /nco&na exch def\n",
