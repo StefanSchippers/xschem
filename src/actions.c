@@ -1217,10 +1217,10 @@ void get_additional_symbols(int what)
   static int num_syms; /* no context switch between start and end so it is safe */
   Int_hashentry *found;
   Int_hashtable sym_table = {NULL, 0};
-  int_hash_init(&sym_table, HASHSIZE);
 
 
   if(what == 1) { /* start */
+    int_hash_init(&sym_table, HASHSIZE);
     num_syms = xctx->symbols;
     for(i = 0; i < xctx->symbols; ++i) {
       int_hash_lookup(&sym_table, xctx->sym[i].name, i, XINSERT);
@@ -1274,7 +1274,6 @@ void get_additional_symbols(int what)
     }
     xctx->symbols = num_syms;
   }
-  int_hash_free(&sym_table);
 }
 
 void get_sch_from_sym(char *filename, xSymbol *sym, int inst)

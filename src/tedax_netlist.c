@@ -222,7 +222,8 @@ int global_tedax_netlist(int global)  /* netlister driver */
     }
    }
    my_free(_ALLOC_ID_, &abs_path);
-   get_additional_symbols(0);
+   /* can not free additional syms since *_block_netlist() may have loaded additional syms */
+   /* get_additional_symbols(0); */
    str_hash_free(&subckt_table);
    my_free(_ALLOC_ID_, &subckt_name);
    /*clear_drawing(); */
