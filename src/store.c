@@ -61,42 +61,13 @@ void check_symbol_storage(void)
   my_realloc(_ALLOC_ID_, &xctx->sym, sizeof(xSymbol)*xctx->maxs);
   for(i=xctx->symbols;i<xctx->maxs; ++i) {
     xctx->sym[i].poly=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
-    if(xctx->sym[i].poly==NULL){
-       fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
-    }
-
     xctx->sym[i].arc=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
-    if(xctx->sym[i].arc==NULL){
-       fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
-    }
-
     xctx->sym[i].line=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
-    if(xctx->sym[i].line==NULL){
-       fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
-    }
-
     xctx->sym[i].rect=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xRect *));
-    if(xctx->sym[i].rect==NULL){
-      fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
-    }
-
     xctx->sym[i].lines=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-    if(xctx->sym[i].lines==NULL){
-      fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
-    }
-
     xctx->sym[i].rects=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-    if(xctx->sym[i].rects==NULL){
-      fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
-    }
     xctx->sym[i].polygons=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-    if(xctx->sym[i].polygons==NULL){
-      fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
-    }
     xctx->sym[i].arcs=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-    if(xctx->sym[i].arcs==NULL){
-      fprintf(errfp, "check_symbol_storage(): calloc error\n");tcleval( "exit");
-    }
   }
  }
 
