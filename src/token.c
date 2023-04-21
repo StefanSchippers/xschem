@@ -227,12 +227,12 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
      *spc_idx = ' ';
      my_strcat(_ALLOC_ID_, &ss, spc_idx);
      fp = popen(ss, "r");
-     dbg(0, "%p\n", fp);
-     dbg(0, "%s\n", s);
-     dbg(0, "%s\n", ss);
-     dbg(0, "is_symgen=%d\n", is_symgen(name));
+     dbg(1, "match_symbol(): fp=%p\n", fp);
+     dbg(1, "match_symbol(): s=%s\n", s);
+     dbg(1, "match_symbol(): ss=%s\n", ss);
+     dbg(1, "match_symbol(): is_symgen=%d\n", is_symgen(name));
      load_sym_def(name, fp, 1);
-     dbg(0, "%s\n", xctx->sym[xctx->symbols - 1].name);
+     dbg(1, "match_symbol(): symbol name%s\n", xctx->sym[xctx->symbols - 1].name);
      pclose(fp);
      my_free(_ALLOC_ID_, &ss);
      end:
