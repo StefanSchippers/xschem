@@ -52,7 +52,6 @@ void check_text_storage(void)
 
 void check_symbol_storage(void)
 {
- int i;
  if(xctx->symbols >= xctx->maxs)
  {
   dbg(1, "check_symbol_storage(): more than maxs, %s\n",
