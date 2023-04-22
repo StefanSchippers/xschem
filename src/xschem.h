@@ -1157,6 +1157,8 @@ extern const char *get_cell(const char *str, int no_of_dir);
 extern const char *get_cell_w_ext(const char *str, int no_of_dir);
 extern const char *rel_sym_path(const char *s);
 extern const char *abs_sym_path(const char *s, const char *ext);
+extern const char *sanitized_abs_sym_path(const char *s, const char *ext);
+extern char *sanitize(const char *name);
 extern const char *add_ext(const char *f, const char *ext);
 extern void make_symbol(void);
 /* sort based on pinnumber pin attribute if present */

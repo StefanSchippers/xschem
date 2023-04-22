@@ -187,6 +187,17 @@ int is_symgen(const char *name)
   #endif
 }
 
+/* caller must free returned string
+ * cleanup syntax of symbol generators: xxx(a,b,c) --> xxx_a_b_c */
+char *sanitize(const char *name) 
+{
+  char *s = NULL;
+  tclvareval("regsub -all { *[(),] *} {", name, "} _", NULL);
+  tclvareval("regsub  {_$} {", tclresult(), "} {}", NULL);
+  my_strdup2(_ALLOC_ID_, &s, tclresult());
+  return s;
+}
+
 int match_symbol(const char *name)  /* never returns -1, if symbol not found load systemlib/missing.sym */
 {
  int i,found;
@@ -215,25 +226,34 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
      const char *s;
      char *spc_idx;
      struct stat buf;
+     /* char *symgen_name = NULL; */
  
      dbg(1, "match_symbol(): symgen=%s\n",name);
-     cmd = str_chars_replace(name, " (),", ' ');
+     cmd = str_chars_replace(name, " (),", ' '); /* transform name="xxx(a,b,c)" into ss="xxx a b c" */
      spc_idx = strchr(cmd, ' ');
      if(!spc_idx) goto end;
      *spc_idx = '\0';
      s = abs_sym_path(cmd, "");
-     if(stat(s, &buf)) {
+     if(stat(s, &buf)) { /* symbol generator not found, load 'name' (will probably lead to missing.sym) */
        load_sym_def(name, NULL, 0);
        goto end;
      }
      my_strdup(_ALLOC_ID_, &ss, s);
      *spc_idx = ' ';
      my_strcat(_ALLOC_ID_, &ss, spc_idx);
-     fp = popen(ss, "r");
+     fp = popen(ss, "r"); /* execute ss="xxx a b c" and pipe in the output */
      dbg(1, "match_symbol(): fp=%p\n", fp);
      dbg(1, "match_symbol(): s=%s\n", s);
      dbg(1, "match_symbol(): ss=%s\n", ss);
      dbg(1, "match_symbol(): is_symgen=%d\n", is_symgen(name));
+     /* 
+     tclvareval("regsub -all { *[(),] *} {", name, "} _", NULL);
+     tclvareval("regsub  {_$} {", tclresult(), "} {}", NULL);
+     my_strdup2(_ALLOC_ID_, &symgen_name, tclresult());
+     load_sym_def(symgen_name, fp, 1);
+     dbg(1, "match_symbol(): name=%s, regsub=%s\n", name, symgen_name);
+     my_free(_ALLOC_ID_, &symgen_name);
+     */
      load_sym_def(name, fp, 1);
      dbg(1, "match_symbol(): symbol name%s\n", xctx->sym[xctx->symbols - 1].name);
      pclose(fp);
@@ -1861,11 +1881,12 @@ int print_spice_element(FILE *fd, int inst)
       }
       else if (strcmp(token,"@symname")==0) /* of course symname must not be present in attributes */
       {
-        const char *s = get_sym_name(inst, 0);
+        char *s = sanitize(get_sym_name(inst, 0));
         tmp = strlen(s) +100 ; /* always make room for some extra chars 
                                 * so 1-char writes to result do not need reallocs */
         STR_ALLOC(&result, tmp + result_pos, &size);
         result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
+        my_free(_ALLOC_ID_, &s);
         /* fputs(s,fd); */
       }
       else if (strcmp(token,"@symname_ext")==0) /* of course symname must not be present in attributes */

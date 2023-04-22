@@ -1094,6 +1094,25 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } /* switch */
       }
     }
+
+    /* get_cell cell n_dirs
+     *   return result of get_cell function */
+    else if(!strcmp(argv[1], "get_cell") )
+    {
+      if(argc > 3) {
+        Tcl_SetResult(interp, (char *)get_cell(argv[2], atoi(argv[3])), TCL_VOLATILE);
+      }
+    }
+
+    /* get_cell_w_ext cell n_dirs
+     *   return result of get_cell_w_ext function */
+    else if(!strcmp(argv[1], "get_cell_w_ext") )
+    {
+      if(argc > 3) {
+        Tcl_SetResult(interp, (char *)get_cell_w_ext(argv[2], atoi(argv[3])), TCL_VOLATILE);
+      }
+    }
+
     /************ end xschem get subcommands *************/
     /* getprop instance|instance_pin|symbol|text ref 
      *

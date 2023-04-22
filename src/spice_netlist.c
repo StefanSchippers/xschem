@@ -552,13 +552,15 @@ int spice_block_netlist(FILE *fd, int i)
   fprintf(fd, "\n* expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
   if(xctx->sym[i].base_name) fprintf(fd, "** sym_path: %s\n", abs_sym_path(xctx->sym[i].base_name, ""));
-  else fprintf(fd, "** sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  else fprintf(fd, "** sym_path: %s\n", sanitized_abs_sym_path(xctx->sym[i].name, ""));
   sym_def = get_tok_value(xctx->sym[i].prop_ptr,"spice_sym_def",0);
   if(sym_def[0]) {
     fprintf(fd, "%s\n", sym_def);
   } else {
+    char *s = sanitize(skip_dir(xctx->sym[i].name));
     fprintf(fd, "** sch_path: %s\n", filename);
-    fprintf(fd, ".subckt %s ",skip_dir(xctx->sym[i].name));
+    fprintf(fd, ".subckt %s ", s);
+    my_free(_ALLOC_ID_, &s);
     print_spice_subckt_nodes(fd, i);
   
     my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );

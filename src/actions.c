@@ -216,17 +216,23 @@ int set_netlist_dir(int force, char *dir)
   }
   return 1;
 }
+/* wrapper to TCL function */
+/* remove parameter section of symbol generator before calculating abs path : xxx(a,b) -> xxx */
+const char *sanitized_abs_sym_path(const char *s, const char *ext)
+{   
+  char c[PATH_MAX+1000];
+      
+  my_snprintf(c, S(c), "abs_sym_path [regsub {\\(.*} {%s} {}] {%s}", s, ext);
+  tcleval(c);
+  return tclresult();
+}
 
 /* wrapper to TCL function */
 const char *abs_sym_path(const char *s, const char *ext)
 {
   char c[PATH_MAX+1000];
 
-  if(is_symgen(s)) {
-    my_snprintf(c, S(c), "abs_sym_path [regsub {\\(.*} {%s} {}] {%s}", s, ext);
-  } else {
-    my_snprintf(c, S(c), "abs_sym_path {%s} {%s}", s, ext);
-  }
+  my_snprintf(c, S(c), "abs_sym_path {%s} {%s}", s, ext);
   tcleval(c);
   return tclresult();
 }
@@ -1215,6 +1221,7 @@ const char *get_sym_name(int inst, int ext)
   } else {
     sym = skip_dir(xctx->inst[inst].name);
   }
+  dbg(1, "get_sym_name(): returning sym=%s\n", sym);
   return sym;
 }
 
@@ -1559,6 +1566,7 @@ void go_back(int confirm) /*  20171006 add confirm */
  int prev_sch_type;
 
  save_ok=1;
+ dbg(1,"go_back(): sch[xctx->currsch]=%s\n", xctx->sch[xctx->currsch]);
  prev_sch_type = xctx->netlist_type; /* if CAD_SYMBOL_ATTRS do not hilight_parent_pins */
  if(xctx->currsch>0)
  {

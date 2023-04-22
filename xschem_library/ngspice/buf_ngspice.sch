@@ -18,7 +18,7 @@ C {bsource.sym} 470 -400 0 1 {name=B1 VAR=V FUNC="'VCC/2*(1+tanh((V(A1)-VCC/2)*1
 C {lab_pin.sym} 320 -470 0 0 {name=l2 sig_type=std_logic lab=A1}
 C {lab_pin.sym} 470 -320 0 0 {name=l3 sig_type=std_logic lab=0}
 C {res.sym} 570 -470 1 0 {name=R1
-value=ROUT
+value='ROUT'
 footprint=1206
 device=resistor
 m=1}
