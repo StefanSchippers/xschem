@@ -1554,7 +1554,7 @@ char *str_chars_replace(const char *str, const char *replace_set, const char wit
   char *s;
   my_strdup(_ALLOC_ID_, &res, str);
   s = res;
-  dbg(0, "%s\n", res);
+  dbg(1, "*str_chars_replace(): %s\n", res);
   while( *s) {
     if(strchr(replace_set, *s)) {
       *s = with;
