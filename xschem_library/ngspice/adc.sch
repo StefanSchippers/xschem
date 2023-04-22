@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -102,16 +103,19 @@ C {ipin.sym} 640 -190 0 0 {name=p10 lab=CK}
 C {ipin.sym} 640 -150 0 0 {name=p11 lab=RST}
 C {lab_pin.sym} 790 -170 0 0 {name=p14 lab=VCC}
 C {lab_pin.sym} 950 -190 0 1 {name=p24 lab=C[5:0]}
-C {and3_ngspice.sym} 1120 -230 0 0 {name=x5 ROUT=1000}
+C {and3_ngspice.sym} 1120 -230 0 0 {name=x5 ROUT=1000 net_name=true}
 C {lab_pin.sym} 1080 -250 0 0 {name=p25 lab=C[5]}
 C {lab_pin.sym} 1080 -230 0 0 {name=p26 lab=C[4]}
 C {lab_pin.sym} 1080 -210 0 0 {name=p27 lab=C[3]}
 C {lab_pin.sym} 1080 -150 0 0 {name=p28 lab=C[1]}
 C {lab_pin.sym} 1080 -130 0 0 {name=p29 lab=C[0]}
-C {and3_ngspice.sym} 1120 -150 0 0 {name=x6 ROUT=1000}
+C {and3_ngspice.sym} 1120 -150 0 0 {name=x6 ROUT=1000
+net_name=true}
 C {lab_pin.sym} 1080 -170 0 0 {name=p30 lab=C[2]}
-C {and_ngspice.sym} 1220 -190 0 0 {name=x7 ROUT=1000}
-C {or_ngspice.sym} 1320 -210 0 0 {name=x8 ROUT=1000}
+C {and_ngspice.sym} 1220 -190 0 0 {name=x7 ROUT=1000
+net_name=true}
+C {or_ngspice.sym} 1320 -210 0 0 {name=x8 ROUT=1000
+net_name=true}
 C {lab_pin.sym} 1280 -230 0 0 {name=p31 lab=RST}
 C {lab_pin.sym} 1540 -230 0 1 {name=p15 lab=RSTI}
 C {flip_flop_ngspice.sym} 1480 -210 0 0 {name=x9}
@@ -121,7 +125,7 @@ C {lab_pin.sym} 1520 -390 0 0 {name=p1 lab=RST}
 C {spice_probe.sym} 840 -250 0 0 {name=p6 attrs=""}
 C {spice_probe.sym} 710 -410 0 0 {name=p17 attrs=""}
 C {spice_probe.sym} 1540 -270 0 0 {name=p18 attrs=""}
-C {inv_ngspice.sym} 1040 -410 0 0 {name=x11 ROUT=1000}
+C {inv_ngspice.sym} 1040 -410 0 0 {name=x11 ROUT=1000 net_name=true}
 C {lab_wire.sym} 1130 -410 0 0 {name=l2 lab=QN}
 C {spice_probe.sym} 1090 -410 0 0 {name=p19 attrs=""}
 C {ipin.sym} 310 -370 0 0 {name=p242 lab=VREF}
@@ -145,4 +149,4 @@ C {spice_probe.sym} 220 -430 0 0 {name=p265 attrs=""}
 C {opamp_65nm.sym} 380 -400 2 1 {name=x41}
 C {comp_65nm.sym} 610 -410 0 0 {name=x42}
 C {spice_probe.sym} 1470 -430 0 0 {name=p2 attrs=""}
-C {or_ngspice.sym} 1110 -320 0 0 {name=x3 ROUT=1000}
+C {or_ngspice.sym} 1110 -320 0 0 {name=x3 ROUT=1000 net_name=true}

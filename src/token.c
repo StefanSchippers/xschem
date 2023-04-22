@@ -176,9 +176,10 @@ int is_symgen(const char *name)
   }
   if(!re) {
     re = my_malloc(_ALLOC_ID_, sizeof(regex_t));
-    regcomp(re, "^[^ \\t()]+\\([^()]*\\)[ \\t]*$", REG_NOSUB | REG_EXTENDED);
+    regcomp(re, "^[^ \t()]+\\([^()]*\\)[ \t]*$", REG_NOSUB | REG_EXTENDED);
   }
   if(!regexec(re, name, 0 , NULL, 0) ) res = 1;
+  dbg(1, "is_symgen(%s)=%d\n", name, res);
   /* regfree(&re); */
   return res;
   #else
@@ -202,9 +203,10 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
  }
  if(!found)
  {
-   dbg(1, "match_symbol(): matching symbol not found:%s, loading\n",name);
+   dbg(1, "match_symbol(): matching symbol not found: loading\n");
    
    if(!is_symgen(name)) {
+     dbg(1, "match_symbol(): symbol=%s\n",name);
      load_sym_def(name, NULL, 0); /* append another symbol to the xctx->sym[] array */
    } else { /* get symbol from generator script */
      FILE *fp;
@@ -214,6 +216,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
      char *spc_idx;
      struct stat buf;
  
+     dbg(1, "match_symbol(): symgen=%s\n",name);
      cmd = str_chars_replace(name, " (),", ' ');
      spc_idx = strchr(cmd, ' ');
      if(!spc_idx) goto end;

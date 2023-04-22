@@ -1765,6 +1765,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, pins ? pins : "", TCL_VOLATILE);
       my_free(_ALLOC_ID_, &pins);
     }
+
+    /* is_symgen symbol
+     *   tell if 'symbol' is agenerator (symbol(param1,param2,...) */
+    else if(!strcmp(argv[1], "is_symgen"))
+    {       
+      char s[30];
+      if(argc > 2) {
+        my_snprintf(s, S(s), "%d", is_symgen(argv[2]));
+        Tcl_SetResult(interp, s, TCL_VOLATILE);
+      } 
+    } 
     else { cmd_found = 0;}
     break;
     case 'l': /*----------------------------------------------*/
