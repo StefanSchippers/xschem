@@ -18,6 +18,150 @@ p{padding: 15px  30px 10px;}
 
  <!-- slide title -->
  <h1> TUTORIAL: SYMBOL GENERATORS</h1>
+ <p>
+  It is possible to insert a symbol by referencing a generator script instead of a <kbd>.sym</kbd> file.
+  When inserting the symbol select the <kbd>All</kbd> checkbox to see all files , select the generator script,
+  then in the File/Search textbox add two parenthesis <kbd>()</kbd> (or put required parameters in 
+  between, like <kbd>(buf)</kbd>)
+ </p>
+ <img src="symbol_generators01.png">
+ <p>
+  The symbolgen generator in this example takes either a <kbd>(buf)</kbd> or a <kbd>(inv)</kbd> parameter
+  to generate a buffer or an inverter, respectively. If no parameters are given (empty parentheses) a buffer
+  is generated.<br>
+  In this example a tcl script is used, you can use any language you like.
+ </p>
+ <pre class="code">
+#!/bin/sh
+# the next line restarts using wish \
+exec tclsh "$0" "$@"
+
+set arg1 [lindex $argv 0]
+if { $arg1 eq {inv}} {
+puts {v {xschem version=3.1.0 file_version=1.2}
+K {type=subcircuit
+verilog_primitive=true
+vhdl_primitive=true
+vhdl_format="@@Y &lt;= not @@A after 90 ps;"
+verilog_format="assign #90 @@Y = ~@@A ;"
+format="@name @pinlist @symname ROUT=@ROUT"
+template="name=x1 ROUT=1000"
+schematic=inv_ngspice.sch}
+L 4 -40 0 -20 0 {}
+L 4 -20 -20 20 0 {}
+L 4 -20 -20 -20 20 {}
+L 4 -20 20 20 0 {}
+L 4 30 -0 40 -0 {}
+B 5 37.5 -2.5 42.5 2.5 {name=Y dir=out }
+B 5 -42.5 -2.5 -37.5 2.5 {name=A dir=in }
+A 4 25 -0 5 180 360 {}
+T {@symname} -47.5 24 0 0 0.3 0.3 {}
+T {@name} 25 -22 0 0 0.2 0.2 {}
+T {Y} 7.5 -6.5 0 1 0.2 0.2 {}
+T {A} -17.5 -6.5 0 0 0.2 0.2 {}
+T {ROUT=@ROUT} -25 -42 0 0 0.2 0.2 {}
+}
+} else {
+puts {v {xschem version=3.1.0 file_version=1.2}
+K {type=subcircuit
+verilog_primitive=true
+vhdl_primitive=true
+vhdl_format="@@Y &lt;= @@A after 90 ps;"
+verilog_format="assign #90 @@Y = @@A ;"
+format="@name @pinlist @symname ROUT=@ROUT"
+template="name=x1 ROUT=1000"
+schematic=buf_ngspice.sch}
+L 4 20 0 40 0 {}
+L 4 -40 0 -20 0 {}
+L 4 -20 -20 20 0 {}
+L 4 -20 -20 -20 20 {}
+L 4 -20 20 20 0 {}
+B 5 37.5 -2.5 42.5 2.5 {name=Y dir=out }
+B 5 -42.5 -2.5 -37.5 2.5 {name=A dir=in }
+T {@symname} -47.5 34 0 0 0.3 0.3 {}
+T {@name} 25 -22 0 0 0.2 0.2 {}
+T {Y} 7.5 -6.5 0 1 0.2 0.2 {}
+T {A} -17.5 -6.5 0 0 0.2 0.2 {}
+T {ROUT=@ROUT} -25 -42 0 0 0.2 0.2 {}
+}
+}
+ </pre>
+ <p>
+  The <kbd>generators/test_symbolgen.sch</kbd> is a test schematic that places two instancs of this
+  symbol generator, one as <kbd>symbolgen(buf)</kbd> and one as <kbd>symbolgen(inv)</kbd>.
+  The schematic implementations of these symbols are defined by the generator using a <kbd>schematic</kbd>
+  attribute. The buffer will use <kbd>buf_ngspice.sch</kbd> and the inverter will
+  use <kbd>inv_ngspice.sch</kbd>, these reused example schematics are present in
+  the <kbd>ngspice/</kbd> directory.
+ </p>
+ <img src="symbol_generators02.png">
+ <p>
+  The following is the extracted netlist from this example:
+ </p>
+ <pre class="code">
+** sch_path: /home/schippes/xschem-repo/trunk/xschem_library/generators/test_symbolgen.sch
+**.subckt test_symbolgen
+x1 IN_INV IN symbolgen_inv ROUT=1200
+x3 IN_BUF IN symbolgen_buf ROUT=1200
+C1 IN_BUF 0 100f m=1
+C2 IN_INV 0 100f m=1
+**** begin user architecture code
+
+
+.param vcc=1.8
+Vin in 0 pwl 0 0 10n 0 10.1n 1.8 20n 1.8 20.1n 0
+.control
+  save all
+  tran 0.2n 30n uic
+  write test_symbolgen.raw
+.endc
+
+
+**** end user architecture code
+**.ends
+
+* expanding   symbol:  symbolgen(inv) # of pins=2
+** sym_path: /home/schippes/xschem-repo/trunk/xschem_library/generators/symbolgen
+** sch_path: /home/schippes/xschem-repo/trunk/xschem_library/ngspice/inv_ngspice.sch
+.subckt symbolgen_inv Y A  ROUT=1000
+*.ipin A
+*.opin Y
+B1 net1 0 V = 'VCC/2*(1-tanh((V(A1)-VCC/2)*100))'
+R1 Y1 net1 'ROUT' m=1
+C1 A1 0 8f m=1
+C2 Y1 0 8f m=1
+V1 Y Y1 0
+.save i(v1)
+V2 A1 A 0
+.save i(v2)
+.ends
+
+
+* expanding   symbol:  symbolgen(buf) # of pins=2
+** sym_path: /home/schippes/xschem-repo/trunk/xschem_library/generators/symbolgen
+** sch_path: /home/schippes/xschem-repo/trunk/xschem_library/ngspice/buf_ngspice.sch
+.subckt symbolgen_buf Y A  ROUT=1000
+*.ipin A
+*.opin Y
+B1 net1 0 V = 'VCC/2*(1+tanh((V(A1)-VCC/2)*100))'
+R1 Y1 net1 'ROUT' m=1
+C3 Y1 0 8f m=1
+C1 A1 0 4f m=1
+V1 Y Y1 0
+.save i(v1)
+V2 A1 A 0
+.save i(v2)
+.ends
+
+.end
+ </pre>
+ <p>
+  This approach allows to create polymorphic symbols. Multiple parameters may be given to the generator script,
+  like <kbd>symbolgen(inv,hv,100)</kbd>. Xschem will call the symbolgen script with the following command:
+  <kbd>symbolgen inv hv 100</kbd> and take the standard output from the script as the symbol
+  file to load and display.
+ </p>
+ <br><br><br>
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
