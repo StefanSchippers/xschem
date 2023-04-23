@@ -2355,11 +2355,13 @@ proc is_xschem_file {f} {
   set ret 0
   set score 0
   set instances 0
+  set nline 0
   if {$a} {
     puts stderr "Can not open file $f"
   } else {
     fconfigure $fd -translation binary
     while { [gets $fd line] >=0 } {
+      if { $nline == 0 && [regexp {^#!} $line] } { break } ;# this is a script. not an xschem file
       if { [regexp {^[TKGVSE] \{} $line] } { incr score }
       if { [regexp {^[BL] +[0-9]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +\{} $line] } {incr score}
       if { [regexp {^N +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +\{} $line] } {incr score}
@@ -2367,6 +2369,7 @@ proc is_xschem_file {f} {
       if { [regexp "^v\[ \t\]+\{xschem\[ \t\]+version\[ \t\]*=.*\[ \t\]+file_version\[ \t\]*=" $line] } {
         set ret 1
       }
+      incr nline
     } 
     if { $score > 4 }  { set ret 1} ;# Heuristic decision :-)
     if { $ret } {
