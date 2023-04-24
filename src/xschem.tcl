@@ -2384,7 +2384,7 @@ proc is_xschem_file {f} {
     }
     close $fd
   }
-  # puts "score=$score"
+  # puts "ret=$ret score=$score"
   return $ret
 }
 

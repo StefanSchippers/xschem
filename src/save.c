@@ -2508,7 +2508,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
       if(load_symbols) link_symbols_to_instances(-1);
       if(reset_undo) {
         tclvareval("is_xschem_file {", xctx->sch[xctx->currsch], "}", NULL);
-        if(!strcmp(tclresult(), "SYMBOL")) {
+        if(!strcmp(tclresult(), "SYMBOL") || xctx->instances == 0) {
           xctx->save_netlist_type = xctx->netlist_type;
           xctx->netlist_type = CAD_SYMBOL_ATTRS;
           set_tcl_netlist_type();
