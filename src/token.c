@@ -235,11 +235,9 @@ char *get_generator_command(const char *str)
 
 int match_symbol(const char *name)  /* never returns -1, if symbol not found load systemlib/missing.sym */
 {
-  int i,found, is_sym_generator;
+  int i,found;
  
   found=0;
-  is_sym_generator = is_generator(name);
-  
   for(i=0;i<xctx->symbols; ++i) {
     /* dbg(1, "match_symbol(): name=%s, sym[i].name=%s\n",name, xctx->sym[i].name);*/
     if(xctx->x_strcmp(name, xctx->sym[i].name) == 0)
@@ -249,26 +247,8 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
     }
   }
   if(!found) {
-    dbg(1, "match_symbol(): matching symbol not found: loading\n");
-    if(is_sym_generator) {
-      FILE *fp;
-      char *cmd;
- 
-      cmd = get_generator_command(name);
-      if(cmd) {
-        fp = popen(cmd, "r"); /* execute ss="/path/to/xxx par1 par2 ..." and pipe in the stdout */
-        my_free(_ALLOC_ID_, &cmd);
-        load_sym_def(name, fp, 1); /* append another symbol to the xctx->sym[] array */
-        dbg(1, "match_symbol(): generator symbol name=%s\n", xctx->sym[xctx->symbols - 1].name);
-        pclose(fp);
-      } else {
-        i = xctx->symbols; /* not found */
-      }
-    } else {
-      dbg(1, "match_symbol(): symbol=%s\n",name);
-      load_sym_def(name, NULL, 0); /* append another symbol to the xctx->sym[] array */
-      dbg(1, "match_symbol(): symbol name=%s\n", xctx->sym[xctx->symbols - 1].name);
-    }
+    dbg(1, "match_symbol(): matching symbol not found: loading %s\n", name);
+    load_sym_def(name, NULL); /* append another symbol to the xctx->sym[] array */
   }
   dbg(1, "match_symbol(): returning %d\n",i);
   return i;

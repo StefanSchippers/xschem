@@ -1404,19 +1404,20 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
   dbg(1, "get_sch_from_sym(): symbol %s inst=%d\n", sym->name, inst);
   if(inst >= 0) my_strdup(_ALLOC_ID_, &str_tmp,  get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 2));
   if(!str_tmp) my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 2));
-  if(str_tmp[0] && is_generator(str_tmp)) { /* generator: return as is */
-    my_strncpy(filename, str_tmp, PATH_MAX);
-  } else if(str_tmp[0]) {
+  if(str_tmp[0]) { 
     /* @symname in schematic attribute will be replaced with symbol name */
-    my_strdup(_ALLOC_ID_, &sch, str_replace(str_tmp, "@symname", skip_dir(sym->name), '\\'));
+    my_strdup2(_ALLOC_ID_, &sch, str_replace(str_tmp, "@symname", skip_dir(sym->name), '\\'));
+  }
+  if(str_tmp[0] && is_generator(str_tmp)) { /* generator: return as is */
+    my_strncpy(filename, sch, PATH_MAX);
+  } else if(str_tmp[0]) {
     dbg(1, "get_sch_from_sym(): sch=%s\n", sch);
     my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(&sch));
     dbg(1, "get_sch_from_sym(): after tcl_hook2 sch=%s\n", sch);
     /* for schematics referenced from web symbols do not build absolute path */
     if(web_url) my_strncpy(filename, sch, PATH_MAX);
     else my_strncpy(filename, abs_sym_path(sch, ""), PATH_MAX);
-    my_free(_ALLOC_ID_, &sch);
-  } else {
+  } else { /* no schematic attribute from instance or symbol */
     if(is_generator(sym->name))  my_strncpy(filename, sym->name, PATH_MAX);
     else if(tclgetboolvar("search_schematic")) {
       /* for schematics referenced from web symbols do not build absolute path */
@@ -1433,6 +1434,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
       }
     }
   }
+  if(sch) my_free(_ALLOC_ID_, &sch);
 
   /* if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
    *  strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
@@ -1601,7 +1603,7 @@ void go_back(int confirm) /*  20171006 add confirm */
     /* when returning after editing an embedded symbol
      * load immediately symbol definition before going back (.xschem_embedded... file will be lost)
      */
-    load_sym_def(xctx->sch[xctx->currsch], NULL, 0);
+    load_sym_def(xctx->sch[xctx->currsch], NULL);
     from_embedded_sym=1;
   }
   my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));

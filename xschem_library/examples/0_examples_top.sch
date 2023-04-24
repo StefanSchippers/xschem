@@ -1468,3 +1468,4 @@ C {test_extracted_netlist.sym} 160 -130 0 0 {name=x23
 tclcommand="xschem descend"}
 C {poweramp_lcc.sym} 480 -650 0 0 {name=x16
 tclcommand="xschem descend"}
+C {test_symbolgen.sym} 480 -530 0 0 {name=x18}

@@ -1407,7 +1407,7 @@ int sym_vs_sch_pins()
               }
               break;
             case '[':
-              load_sym_def(name, fd, 1);
+              load_sym_def(name, fd);
               break;
             case ']':
               read_line(fd, 0);

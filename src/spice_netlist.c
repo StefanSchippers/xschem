@@ -559,7 +559,7 @@ int spice_block_netlist(FILE *fd, int i)
     fprintf(fd, "%s\n", sym_def);
   } else {
     char *s = sanitize(skip_dir(xctx->sym[i].name));
-    fprintf(fd, "** sch_path: %s\n", filename);
+    fprintf(fd, "** sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
     fprintf(fd, ".subckt %s ", s);
     my_free(_ALLOC_ID_, &s);
     print_spice_subckt_nodes(fd, i);

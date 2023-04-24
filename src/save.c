@@ -1641,18 +1641,12 @@ static void save_inst(FILE *fd, int select_only)
   }
   fprintf(fd, " %.16g %.16g %hd %hd ",inst[i].x0, inst[i].y0, inst[i].rot, inst[i].flip );
   save_ascii_string(inst[i].prop_ptr,fd, 1);
-  if(embedded_saved && !embedded_saved[inst[i].ptr]) {
-    if(is_generator(inst[i].name)) {
-      embedded_saved[inst[i].ptr] = 1;
-      xctx->sym[inst[i].ptr].flags |= EMBEDDED;
-      dbg(1, "save_inst(): setting symbol %d to embedded\n", inst[i].ptr);
-    } else if(inst[i].embed) {
-      embedded_saved[inst[i].ptr] = 1;
-      fprintf(fd, "[\n");
-      save_embedded_symbol( xctx->sym+inst[i].ptr, fd);
-      fprintf(fd, "]\n");
-      xctx->sym[inst[i].ptr].flags |= EMBEDDED;
-    }
+  if(embedded_saved && !embedded_saved[inst[i].ptr] && inst[i].embed) {
+    embedded_saved[inst[i].ptr] = 1;
+    fprintf(fd, "[\n");
+    save_embedded_symbol( xctx->sym+inst[i].ptr, fd);
+    fprintf(fd, "]\n");
+    xctx->sym[inst[i].ptr].flags |= EMBEDDED;
   }
  }
  my_free(_ALLOC_ID_, &embedded_saved);
@@ -2194,7 +2188,7 @@ static void read_xschem_file(FILE *fd)
         }
         read_line(fd, 0); /* skip garbage after '[' */
         if(!found) {
-          load_sym_def(xctx->inst[xctx->instances-1].name, fd, 1);
+          load_sym_def(xctx->inst[xctx->instances-1].name, fd);
           found = 2;
         }
       }
@@ -2432,7 +2426,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
   else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
   if(fname && fname[0]) {
     int generator = 0;
-    if(is_generator(fname) && !strstr(fname, ".xschem_embedded_")) generator = 1;
+    if(is_generator(fname)) generator = 1;
     my_strncpy(name, fname, S(name));
 
     /* remote web object specified */
@@ -3105,8 +3099,6 @@ void sort_symbol_pins(xRect *pin_array, int npins, const char *name)
 
 /* load_sym_def(): load a symbol definition looking up 'name' in the search paths.
  * if 'embed_fd' FILE pointer is given read from there instead of searching 'name'
- * 'embedded' parameter: set to 1 if loading an embedded symbol (embed_fd FILE pointer is given)
- *                     set to 0 if loading a symbol that is not embedded from the given FILE pointer.
  * Global (or static global) variables used:
  * cadlayers
  * errfp
@@ -3115,7 +3107,7 @@ void sort_symbol_pins(xRect *pin_array, int npins, const char *name)
  * xctx->symbols
  * has_x
  */
-int load_sym_def(const char *name, FILE *embed_fd, int embedded)
+int load_sym_def(const char *name, FILE *embed_fd)
 {
   static int recursion_counter=0; /* safe to keep even with multiple schematics, operation not interruptable */
   Lcc *lcc; /* size = level */
@@ -3153,7 +3145,7 @@ int load_sym_def(const char *name, FILE *embed_fd, int embedded)
   char *skip_line;
   const char *dash;
   xSymbol * symbol;
-  int symbols, sym_n_pins=0;
+  int symbols, sym_n_pins=0, generator;
 
   check_symbol_storage();
   symbol = xctx->sym;
@@ -3164,7 +3156,17 @@ int load_sym_def(const char *name, FILE *embed_fd, int embedded)
   lcc=NULL;
   my_realloc(_ALLOC_ID_, &lcc, (level + 1) * sizeof(Lcc));
   max_level = level + 1;
-  if(!embed_fd) { /* regular symbol: open file */
+
+  generator = is_generator(name);
+  if(generator) {
+    char * cmd = get_generator_command(name);
+    if(cmd) {
+      lcc[level].fd = popen(cmd, "r"); /* execute ss="/path/to/xxx par1 par2 ..." and pipe in the stdout */
+      my_free(_ALLOC_ID_, &cmd);
+    } else {
+      lcc[level].fd = NULL;
+    }
+  } else if(!embed_fd) { /* regular symbol: open file */
     if(!strcmp(xctx->file_version,"1.0")) {
       my_strncpy(sympath, abs_sym_path(name, ".sym"), S(sympath));
     } else {
@@ -3179,20 +3181,20 @@ int load_sym_def(const char *name, FILE *embed_fd, int embedded)
         lcc[level].fd=fopen(sympath,fopen_read_mode);
       }
     }
-    if(lcc[level].fd==NULL) {
-      /* issue warning only on top level symbol loading */
-      if(recursion_counter == 1) dbg(0, "l_s_d(): Symbol not found: %s\n",sympath);
-      my_snprintf(sympath, S(sympath), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing.sym");
-      if((lcc[level].fd=fopen(sympath, fopen_read_mode))==NULL)
-      {
-       fprintf(errfp, "l_s_d(): systemlib/missing.sym missing, I give up\n");
-       tcleval("exit");
-      }
-    }
     dbg(1, "l_s_d(): fopen1(%s), level=%d, fd=%p\n",sympath, level, lcc[level].fd);
   } else { /* embedded symbol (defined after instantiation within [...] ) */
     dbg(1, "l_s_d(): getting embed_fd, level=%d\n", level);
     lcc[level].fd = embed_fd;
+  }
+  if(lcc[level].fd==NULL) {
+    /* issue warning only on top level symbol loading */
+    if(recursion_counter == 1) dbg(0, "l_s_d(): Symbol not found: %s\n",sympath);
+    my_snprintf(sympath, S(sympath), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing.sym");
+    if((lcc[level].fd=fopen(sympath, fopen_read_mode))==NULL)
+    {
+     fprintf(errfp, "l_s_d(): systemlib/missing.sym missing, I give up\n");
+     tcleval("exit");
+    }
   }
   endfile=0;
   /* initialize data for loading a new symbol */
@@ -3227,7 +3229,8 @@ int load_sym_def(const char *name, FILE *embed_fd, int embedded)
    if(fscanf(lcc[level].fd," %c",tag)==EOF) {
      if (level) {
          dbg(1, "l_s_d(): fclose1, level=%d, fd=%p\n", level, lcc[level].fd);
-         fclose(lcc[level].fd);
+         if(generator) pclose(lcc[level].fd);
+         else fclose(lcc[level].fd);
          my_free(_ALLOC_ID_, &lcc[level].prop_ptr);
          my_free(_ALLOC_ID_, &lcc[level].symname);
          --level;
@@ -3721,9 +3724,10 @@ int load_sym_def(const char *name, FILE *embed_fd, int embedded)
   } /* while(1) */
   if(!embed_fd) {
     dbg(1, "l_s_d(): fclose2, level=%d, fd=%p\n", level, lcc[0].fd);
-    fclose(lcc[0].fd);
+    if(generator) pclose(lcc[0].fd);
+    else fclose(lcc[0].fd);
   }
-  if(embedded || strstr(name, ".xschem_embedded_")) {
+  if(embed_fd || strstr(name, ".xschem_embedded_")) {
     symbol[symbols].flags |= EMBEDDED;
   } else {
     symbol[symbols].flags &= ~EMBEDDED;

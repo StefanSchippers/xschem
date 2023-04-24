@@ -215,7 +215,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  /* 20071006 print top level params if defined in symbol */
  str_tmp = add_ext(xctx->sch[xctx->currsch], ".sym");
  if(!stat(str_tmp, &buf)) {
-   load_sym_def(str_tmp, NULL, 0);
+   load_sym_def(str_tmp, NULL);
    print_verilog_param(fd,xctx->symbols-1);  /* added print top level params */
    remove_symbol(xctx->symbols - 1);
  }
