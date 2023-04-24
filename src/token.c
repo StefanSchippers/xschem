@@ -161,7 +161,7 @@ void check_unique_names(int rename)
   int_hash_free(&xctx->inst_table);
 }
 
-int is_symgen(const char *name)
+int is_generator(const char *name)
 {
   #ifdef __unix__
   int res = 0;
@@ -179,7 +179,7 @@ int is_symgen(const char *name)
     regcomp(re, "^[^ \t()]+\\([^()]*\\)[ \t]*$", REG_NOSUB | REG_EXTENDED);
   }
   if(!regexec(re, name, 0 , NULL, 0) ) res = 1;
-  dbg(1, "is_symgen(%s)=%d\n", name, res);
+  dbg(1, "is_generator(%s)=%d\n", name, res);
   /* regfree(&re); */
   return res;
   #else
@@ -226,7 +226,7 @@ char *get_generator_command(const char *str)
   my_strcat(_ALLOC_ID_, &gen_cmd, spc_idx);
   dbg(1, "get_generator_command(): cmd_filename=%s\n", cmd_filename);
   dbg(1, "get_generator_command(): gen_cmd=%s\n", gen_cmd);
-  dbg(1, "get_generator_command(): is_symgen=%d\n", is_symgen(str));
+  dbg(1, "get_generator_command(): is_symgen=%d\n", is_generator(str));
 
   end:
   my_free(_ALLOC_ID_, &cmd);
@@ -238,7 +238,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
   int i,found, is_sym_generator;
  
   found=0;
-  is_sym_generator = is_symgen(name);
+  is_sym_generator = is_generator(name);
   
   for(i=0;i<xctx->symbols; ++i) {
     /* dbg(1, "match_symbol(): name=%s, sym[i].name=%s\n",name, xctx->sym[i].name);*/

@@ -1791,7 +1791,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {       
       char s[30];
       if(argc > 2) {
-        my_snprintf(s, S(s), "%d", is_symgen(argv[2]));
+        my_snprintf(s, S(s), "%d", is_generator(argv[2]));
         Tcl_SetResult(interp, s, TCL_VOLATILE);
       } 
     } 

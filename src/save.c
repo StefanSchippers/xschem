@@ -1642,7 +1642,7 @@ static void save_inst(FILE *fd, int select_only)
   fprintf(fd, " %.16g %.16g %hd %hd ",inst[i].x0, inst[i].y0, inst[i].rot, inst[i].flip );
   save_ascii_string(inst[i].prop_ptr,fd, 1);
   if(embedded_saved && !embedded_saved[inst[i].ptr]) {
-    if(is_symgen(inst[i].name)) {
+    if(is_generator(inst[i].name)) {
       embedded_saved[inst[i].ptr] = 1;
       xctx->sym[inst[i].ptr].flags |= EMBEDDED;
       dbg(1, "save_inst(): setting symbol %d to embedded\n", inst[i].ptr);
@@ -2431,12 +2431,10 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
   if(reset_undo) xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
   else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
   if(fname && fname[0]) {
-    /* 
     int generator = 0;
-    tclvareval("is_xschem_file {", fname, "}", NULL);
-    if(!strcmp(tclresult(), "GENERATOR")) generator = 1;
-    */
+    if(is_generator(fname) && !strstr(fname, ".xschem_embedded_")) generator = 1;
     my_strncpy(name, fname, S(name));
+
     /* remote web object specified */
     if(strstr(fname , "http://") == fname ||
        strstr(fname , "https://") == fname) {
@@ -2488,7 +2486,16 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
         xctx->time_last_modify = 0; /* file does not exist, set mtime to 0 (undefined)*/
       }
     }
-    if( (fd=fopen(name,fopen_read_mode))== NULL) {
+    if(generator) {
+      char *cmd;
+      cmd = get_generator_command(fname);
+      if(cmd) {
+        fd = popen(cmd, "r");
+        my_free(_ALLOC_ID_, &cmd);
+      } else fd = NULL;
+    }
+    else fd=fopen(name,fopen_read_mode);
+    if( fd == NULL) {
       if(alert) {
         fprintf(errfp, "load_schematic(): unable to open file: %s, fname=%s\n", name, fname );
         my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", fname);
@@ -2500,7 +2507,8 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
       clear_drawing();
       dbg(1, "load_schematic(): reading file: %s\n", name);
       read_xschem_file(fd);
-      fclose(fd); /* 20150326 moved before load symbols */
+      if(generator) pclose(fd);
+      else fclose(fd); /* 20150326 moved before load symbols */
       if(reset_undo) set_modify(0);
       dbg(2, "load_schematic(): loaded file:wire=%d inst=%d\n",xctx->wires , xctx->instances);
       if(load_symbols) link_symbols_to_instances(-1);

@@ -646,7 +646,7 @@ static void delete_schematic_data(int delete_pixmap)
   remove_symbols();
   str_replace(NULL, NULL, NULL, 0);
   escape_chars(NULL);
-  is_symgen(NULL);
+  is_generator(NULL);
   free_rawfile(0);
   free_xschem_data(); /* delete the xctx struct */
 }

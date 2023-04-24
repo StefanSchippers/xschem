@@ -8,23 +8,23 @@ puts {v {xschem version=3.1.0 file_version=1.2}
 K {type=subcircuit
 verilog_primitive=true
 vhdl_primitive=true
-vhdl_format="@@Y <= not @@A after 90 ps;"
-verilog_format="assign #90 @@Y = ~@@A ;"
-format="@name @pinlist @symname ROUT=@ROUT"
-template="name=x1 ROUT=1000"
-schematic=inv_ngspice.sch}
+vhdl_format="@@y <= not @@a after 90 ps;"
+verilog_format="assign #90 @@y = ~@@a ;"
+format="@name @pinlist @symname wn=@wn lln=@lln wp=@wp lp=@lp"
+template="name=x1 wn=1u lln=2u wp=4u lp=2u"
+schematic=schematicgen(inv)}
 L 4 -40 0 -20 0 {}
 L 4 -20 -20 20 0 {}
 L 4 -20 -20 -20 20 {}
 L 4 -20 20 20 0 {}
 L 4 30 -0 40 -0 {}
-B 5 37.5 -2.5 42.5 2.5 {name=Y dir=out }
-B 5 -42.5 -2.5 -37.5 2.5 {name=A dir=in }
+B 5 37.5 -2.5 42.5 2.5 {name=y dir=out }
+B 5 -42.5 -2.5 -37.5 2.5 {name=a dir=in }
 A 4 25 -0 5 180 360 {}
 T {@symname} -47.5 24 0 0 0.3 0.3 {}
 T {@name} 25 -22 0 0 0.2 0.2 {}
-T {Y} 7.5 -6.5 0 1 0.2 0.2 {}
-T {A} -17.5 -6.5 0 0 0.2 0.2 {}
+T {y} 7.5 -6.5 0 1 0.2 0.2 {}
+T {a} -17.5 -6.5 0 0 0.2 0.2 {}
 T {ROUT=@ROUT} -25 -42 0 0 0.2 0.2 {}
 }
 } else {
@@ -32,22 +32,22 @@ puts {v {xschem version=3.1.0 file_version=1.2}
 K {type=subcircuit
 verilog_primitive=true
 vhdl_primitive=true
-vhdl_format="@@Y <= @@A after 90 ps;"
-verilog_format="assign #90 @@Y = @@A ;"
-format="@name @pinlist @symname ROUT=@ROUT"
-template="name=x1 ROUT=1000"
-schematic=buf_ngspice.sch}
+vhdl_format="@@y <= @@a after 90 ps;"
+verilog_format="assign #90 @@y = @@a ;"
+format="@name @pinlist @symname wn=@wn lln=@lln wp=@wp lp=@lp"
+template="name=x1 wn=1u lln=2u wp=4u lp=2u"
+schematic=schematicgen(buf)}
 L 4 20 0 40 0 {}
 L 4 -40 0 -20 0 {}
 L 4 -20 -20 20 0 {}
 L 4 -20 -20 -20 20 {}
 L 4 -20 20 20 0 {}
-B 5 37.5 -2.5 42.5 2.5 {name=Y dir=out }
-B 5 -42.5 -2.5 -37.5 2.5 {name=A dir=in }
+B 5 37.5 -2.5 42.5 2.5 {name=y dir=out }
+B 5 -42.5 -2.5 -37.5 2.5 {name=a dir=in }
 T {@symname} -47.5 24 0 0 0.3 0.3 {}
 T {@name} 25 -22 0 0 0.2 0.2 {}
-T {Y} 7.5 -6.5 0 1 0.2 0.2 {}
-T {A} -17.5 -6.5 0 0 0.2 0.2 {}
+T {y} 7.5 -6.5 0 1 0.2 0.2 {}
+T {a} -17.5 -6.5 0 0 0.2 0.2 {}
 T {ROUT=@ROUT} -25 -42 0 0 0.2 0.2 {}
 }
 }

@@ -414,6 +414,7 @@ int global_spice_netlist(int global)  /* netlister driver */
       my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
+      dbg(1, "global_spice_netlist(): subckt_name=%s\n", subckt_name);
       if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
         str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
