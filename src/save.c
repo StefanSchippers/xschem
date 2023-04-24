@@ -3935,24 +3935,37 @@ void descend_symbol(void)
        !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type,"missing")) return;
   }
   else return;
+
   /* build up current hierarchy path */
   my_strdup(_ALLOC_ID_,  &str, xctx->inst[n].instname);
   my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], str);
   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], ".");
   xctx->sch_path_hash[xctx->currsch+1] = 0;
+  my_free(_ALLOC_ID_, &str);
 
+  /* store hierarchy of inst attributes and sym templates for hierarchic parameter substitution */
   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr,
             xctx->inst[n].prop_ptr);
   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ,
             get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "template", 0));
-  xctx->sch_inst_number[xctx->currsch+1] = 1;
-  my_free(_ALLOC_ID_, &str);
-  xctx->previous_instance[xctx->currsch]=n;
+
+  if(!xctx->inst[n].embed)
+    /* use -1 to keep track we are descending into symbol from instance with no embed attr
+     * we use this info to avoid asking to save parent schematic when returning from a symbol
+     * created from a generator */
+    xctx->sch_inst_number[xctx->currsch+1] = -1;
+  else
+    xctx->sch_inst_number[xctx->currsch+1] = 1; /* inst number we descend into. For symbol always 1 */
+  xctx->previous_instance[xctx->currsch]=n; /* instance we are descending from */
+
+  /* store previous zoom area */
   xctx->zoom_array[xctx->currsch].x=xctx->xorigin;
   xctx->zoom_array[xctx->currsch].y=xctx->yorigin;
   xctx->zoom_array[xctx->currsch].zoom=xctx->zoom;
-  ++xctx->currsch;
+
+  ++xctx->currsch; /* increment level counter */
+
   if((xctx->inst[n].ptr+ xctx->sym)->flags & EMBEDDED || xctx->inst[n].embed) {
     /* save embedded symbol into a temporary file */
     my_snprintf(name_embedded, S(name_embedded),

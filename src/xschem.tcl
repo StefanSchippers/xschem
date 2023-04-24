@@ -2361,7 +2361,10 @@ proc is_xschem_file {f} {
   } else {
     fconfigure $fd -translation binary
     while { [gets $fd line] >=0 } {
-      if { $nline == 0 && [regexp {^#!} $line] } { break } ;# this is a script. not an xschem file
+      if { $nline == 0 && [regexp {^#!} $line] } { 
+        set ret GENERATOR
+        break
+      } ;# this is a script. not an xschem file
       if { [regexp {^[TKGVSE] \{} $line] } { incr score }
       if { [regexp {^[BL] +[0-9]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +\{} $line] } {incr score}
       if { [regexp {^N +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +\{} $line] } {incr score}
@@ -2372,7 +2375,7 @@ proc is_xschem_file {f} {
       incr nline
     } 
     if { $score > 4 }  { set ret 1} ;# Heuristic decision :-)
-    if { $ret } {
+    if { $ret ne {0}  && $ret ne {GENERATOR}} {
       if { $instances} {
         set ret SCHEMATIC
       } else { 
@@ -2618,7 +2621,7 @@ proc myload_getresult {loadfile confirm_overwrt} {
       }
     }
     set type [is_xschem_file "$fname"]
-    if { $type eq {0}  } {
+    if { $type eq {0}  || $type eq {GENERATOR} } {
       set answer [
         alert_ "$fname does not seem to be an xschem file...\nContinue?" {} 0 1]
       if { $answer eq {0}} {
@@ -2627,7 +2630,7 @@ proc myload_getresult {loadfile confirm_overwrt} {
       } else {
         return "$fname"
       }
-    } elseif { $type ne {SYMBOL} && ($myload_ext eq {*.sym}) } {
+    } elseif { $type ne {SYMBOL} && ($myload_ext eq {*.sym}) } { ;# SCHEMATIC
       set answer [
         alert_ "$fname does not seem to be a SYMBOL file...\nContinue?" {} 0 1]
       if { $answer eq {0}} {
@@ -2636,7 +2639,7 @@ proc myload_getresult {loadfile confirm_overwrt} {
       } else {
         return "$fname"
       }
-    } else {
+    } else { ;# SYMBOL
       return "$fname"
     }
   } else {
@@ -2646,7 +2649,7 @@ proc myload_getresult {loadfile confirm_overwrt} {
 
 proc myload_display_preview {f} {
   set type [is_xschem_file $f]
-  if { $type ne {0}  } {
+  if { $type ne {0} && $type ne {GENERATOR} } {
     ### update
     if { [winfo exists .load] } {
       .load.l.paneright.draw configure -background {}

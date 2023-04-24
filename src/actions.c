@@ -1599,7 +1599,11 @@ void go_back(int confirm) /*  20171006 add confirm */
 
   my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
   load_schematic(1, filename, 1, 1);
-  if(from_embedded_sym) xctx->modified=save_modified; /* to force ask save embedded sym in parent schematic */
+  /* if we are returning from a symbol created from a generator don't set modified flag on parent
+   * as these symbols can not be edited / saved as embedded
+   * xctx->sch_inst_number[xctx->currsch + 1] == -1 --> we came from an inst with no embed flag set */
+  if(from_embedded_sym && xctx->sch_inst_number[xctx->currsch + 1] != -1)
+    xctx->modified=save_modified; /* to force ask save embedded sym in parent schematic */
 
   if(xctx->hilight_nets) {
     if(prev_sch_type != CAD_SYMBOL_ATTRS) hilight_parent_pins(); 

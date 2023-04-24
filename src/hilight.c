@@ -473,6 +473,12 @@ void hilight_parent_pins(void)
  prepare_netlist_structs(0);
  i=xctx->previous_instance[xctx->currsch];
  inst_number = xctx->sch_inst_number[xctx->currsch+1];
+
+ /* may be set to -1 by descend_symbol to notify we are
+  * descending into a smbol from an instance with no embed flag set 
+  * this is used when descending into symbols created from generators */
+ if(inst_number == -1) inst_number = 1;
+
  dbg(1, "hilight_parent_pins(): previous_instance=%d\n", xctx->previous_instance[xctx->currsch]);
  dbg(1, "hilight_parent_pins(): inst_number=%d\n", inst_number);
 
@@ -522,6 +528,12 @@ void hilight_child_pins(void)
  prepare_netlist_structs(0);
  rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
  inst_number = xctx->sch_inst_number[xctx->currsch];
+
+ /* may be set to -1 by descend_symbol to notify we are
+  * descending into a smbol from an instance with no embed flag set 
+  * this is used when descending into symbols created from generators */
+ if(inst_number == -1) inst_number = 1;
+
  for(j=0;j<rects; ++j)
  {
   dbg(1, "hilight_child_pins(): inst_number=%d\n", inst_number);
