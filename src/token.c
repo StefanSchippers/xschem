@@ -198,72 +198,80 @@ char *sanitize(const char *name)
   return s;
 }
 
+/* caller must free returned string
+ * given xxxx(a,b,c) return /path/to/xxxx a b c
+ * if no xxxx generator file found return NULL */
+char *get_generator_command(const char *str)
+{
+
+  char *cmd = NULL;
+  char *gen_cmd = NULL;
+  const char *cmd_filename;
+  char *spc_idx;
+  struct stat buf;
+
+  dbg(1, "get_generator_command(): symgen=%s\n",str);
+  cmd = str_chars_replace(str, " (),", ' '); /* transform str="xxx(a,b,c)" into cmd="xxx a b c" */
+  spc_idx = strchr(cmd, ' ');
+  if(!spc_idx) {
+    goto end;
+  }
+  *spc_idx = '\0';
+  cmd_filename = abs_sym_path(cmd, "");
+  if(stat(cmd_filename, &buf)) { /* symbol generator not found */
+    goto end;
+  }
+  my_strdup(_ALLOC_ID_, &gen_cmd, cmd_filename);
+  *spc_idx = ' ';
+  my_strcat(_ALLOC_ID_, &gen_cmd, spc_idx);
+  dbg(1, "get_generator_command(): cmd_filename=%s\n", cmd_filename);
+  dbg(1, "get_generator_command(): gen_cmd=%s\n", gen_cmd);
+  dbg(1, "get_generator_command(): is_symgen=%d\n", is_symgen(str));
+
+  end:
+  my_free(_ALLOC_ID_, &cmd);
+  return gen_cmd;
+}
+
 int match_symbol(const char *name)  /* never returns -1, if symbol not found load systemlib/missing.sym */
 {
- int i,found;
-
- found=0;
- for(i=0;i<xctx->symbols; ++i)
- {
-  /* dbg(1, "match_symbol(): name=%s, sym[i].name=%s\n",name, xctx->sym[i].name);*/
-  if(xctx->x_strcmp(name, xctx->sym[i].name) == 0)
-  {
-   dbg(1, "match_symbol(): found matching symbol:%s\n",name);
-   found=1;break;
-  }
- }
- if(!found)
- {
-   dbg(1, "match_symbol(): matching symbol not found: loading\n");
-   
-   if(!is_symgen(name)) {
-     dbg(1, "match_symbol(): symbol=%s\n",name);
-     load_sym_def(name, NULL, 0); /* append another symbol to the xctx->sym[] array */
-   } else { /* get symbol from generator script */
-     FILE *fp;
-     char *cmd = NULL;
-     char *ss = NULL;
-     const char *s;
-     char *spc_idx;
-     struct stat buf;
-     /* char *symgen_name = NULL; */
+  int i,found, is_sym_generator;
  
-     dbg(1, "match_symbol(): symgen=%s\n",name);
-     cmd = str_chars_replace(name, " (),", ' '); /* transform name="xxx(a,b,c)" into ss="xxx a b c" */
-     spc_idx = strchr(cmd, ' ');
-     if(!spc_idx) goto end;
-     *spc_idx = '\0';
-     s = abs_sym_path(cmd, "");
-     if(stat(s, &buf)) { /* symbol generator not found, load 'name' (will probably lead to missing.sym) */
-       load_sym_def(name, NULL, 0);
-       goto end;
-     }
-     my_strdup(_ALLOC_ID_, &ss, s);
-     *spc_idx = ' ';
-     my_strcat(_ALLOC_ID_, &ss, spc_idx);
-     fp = popen(ss, "r"); /* execute ss="xxx a b c" and pipe in the output */
-     dbg(1, "match_symbol(): fp=%p\n", fp);
-     dbg(1, "match_symbol(): s=%s\n", s);
-     dbg(1, "match_symbol(): ss=%s\n", ss);
-     dbg(1, "match_symbol(): is_symgen=%d\n", is_symgen(name));
-     /* 
-     tclvareval("regsub -all { *[(),] *} {", name, "} _", NULL);
-     tclvareval("regsub  {_$} {", tclresult(), "} {}", NULL);
-     my_strdup2(_ALLOC_ID_, &symgen_name, tclresult());
-     load_sym_def(symgen_name, fp, 1);
-     dbg(1, "match_symbol(): name=%s, regsub=%s\n", name, symgen_name);
-     my_free(_ALLOC_ID_, &symgen_name);
-     */
-     load_sym_def(name, fp, 1);
-     dbg(1, "match_symbol(): symbol name%s\n", xctx->sym[xctx->symbols - 1].name);
-     pclose(fp);
-     my_free(_ALLOC_ID_, &ss);
-     end:
-     my_free(_ALLOC_ID_, &cmd);
-   }
- }
- dbg(1, "match_symbol(): returning %d\n",i);
- return i;
+  found=0;
+  is_sym_generator = is_symgen(name);
+  
+  for(i=0;i<xctx->symbols; ++i) {
+    /* dbg(1, "match_symbol(): name=%s, sym[i].name=%s\n",name, xctx->sym[i].name);*/
+    if(xctx->x_strcmp(name, xctx->sym[i].name) == 0)
+    {
+      dbg(1, "match_symbol(): found matching symbol:%s\n",name);
+      found=1;break;
+    }
+  }
+  if(!found) {
+    dbg(1, "match_symbol(): matching symbol not found: loading\n");
+    if(is_sym_generator) {
+      FILE *fp;
+      char *cmd;
+ 
+      cmd = get_generator_command(name);
+      if(cmd) {
+        fp = popen(cmd, "r"); /* execute ss="/path/to/xxx par1 par2 ..." and pipe in the stdout */
+        my_free(_ALLOC_ID_, &cmd);
+        load_sym_def(name, fp, 1); /* append another symbol to the xctx->sym[] array */
+        dbg(1, "match_symbol(): generator symbol name=%s\n", xctx->sym[xctx->symbols - 1].name);
+        pclose(fp);
+      } else {
+        i = xctx->symbols; /* not found */
+      }
+    } else {
+      dbg(1, "match_symbol(): symbol=%s\n",name);
+      load_sym_def(name, NULL, 0); /* append another symbol to the xctx->sym[] array */
+      dbg(1, "match_symbol(): symbol name=%s\n", xctx->sym[xctx->symbols - 1].name);
+    }
+  }
+  dbg(1, "match_symbol(): returning %d\n",i);
+  return i;
 }
 
 /* update **s modifying only the token values that are */

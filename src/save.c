@@ -1622,13 +1622,15 @@ static void save_inst(FILE *fd, int select_only)
  char *tmp = NULL;
  int *embedded_saved = NULL;
 
+ dbg(1, "save_inst(): saving instances\n");
  inst=xctx->inst;
  oldversion = !strcmp(xctx->file_version, "1.0");
- for(i=0;i<xctx->symbols; ++i) xctx->sym[i].flags &=~EMBEDDED;
  embedded_saved = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(int));
  for(i=0;i<xctx->instances; ++i)
  {
-   if (select_only && inst[i].sel != SELECTED) continue;
+  dbg(1, "save_inst() instance %d, name=%s\n", i, inst[i].name);
+  if (select_only && inst[i].sel != SELECTED) continue;
+  xctx->sym[inst[i].ptr].flags &=~EMBEDDED;
   fputs("C ", fd);
   if(oldversion) {
     my_strdup2(_ALLOC_ID_, &tmp, add_ext(inst[i].name, ".sym"));
@@ -1643,6 +1645,7 @@ static void save_inst(FILE *fd, int select_only)
     if(is_symgen(inst[i].name)) {
       embedded_saved[inst[i].ptr] = 1;
       xctx->sym[inst[i].ptr].flags |= EMBEDDED;
+      dbg(1, "save_inst(): setting symbol %d to embedded\n", inst[i].ptr);
     } else if(inst[i].embed) {
       embedded_saved[inst[i].ptr] = 1;
       fprintf(fd, "[\n");
@@ -2428,6 +2431,11 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
   if(reset_undo) xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
   else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
   if(fname && fname[0]) {
+    /* 
+    int generator = 0;
+    tclvareval("is_xschem_file {", fname, "}", NULL);
+    if(!strcmp(tclresult(), "GENERATOR")) generator = 1;
+    */
     my_strncpy(name, fname, S(name));
     /* remote web object specified */
     if(strstr(fname , "http://") == fname ||
@@ -2471,7 +2479,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
     }
     dbg(1, "load_schematic(): opening file for loading:%s, fname=%s\n", name, fname);
     dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
-    if(!name[0]) return;
+    if(!name[0]) return; /* empty filename */
     if(reset_undo) {
       if(!stat(name, &buf)) { /* file exists */
         xctx->time_last_modify =  buf.st_mtime;
@@ -2675,6 +2683,7 @@ void pop_undo(int redo, int set_modify_status)
   #endif
 
   if(xctx->no_undo) return;
+  dbg(1, "pop_undo: redo=%d, set_modify_status=%d\n", redo, set_modify_status);
   if(redo == 1) {
     if(xctx->cur_undo_ptr < xctx->head_undo_ptr) {
       dbg(1, "pop_undo(): redo; cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
