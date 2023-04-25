@@ -1962,6 +1962,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
       "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/generators", pwd_dir);
    tcleval(tmp);
    my_snprintf(tmp, S(tmp), 
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/inst_sch_select", pwd_dir);
+   tcleval(tmp);
+   my_snprintf(tmp, S(tmp), 
       "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/binto7seg", pwd_dir);
    tcleval(tmp);
    my_snprintf(tmp, S(tmp), 
@@ -1976,7 +1979,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
 #else
  char *up_hier=NULL, *win_xschem_library_path=NULL;
- #define WIN_XSCHEM_LIBRARY_PATH_NUM 10
+ #define WIN_XSCHEM_LIBRARY_PATH_NUM 11
  const char *WIN_XSCHEM_LIBRARY_PATH[WIN_XSCHEM_LIBRARY_PATH_NUM] = {
    /*1*/  "xschem_library",
    /*2*/  "xschem_library/devices", 
@@ -1985,9 +1988,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
    /*5*/  "xschem_library/logic", 
    /*6*/  "xschem_library/xschem_simulator",
    /*7*/  "xschem_library/generators", 
-   /*8*/  "xschem_library/binto7seg", 
-   /*9*/  "xschem_library/pcb", 
-   /*10*/ "xschem_library/rom8k" };
+   /*8*/  "xschem_library/inst_sch_select", 
+   /*9*/  "xschem_library/binto7seg", 
+   /*10*/ "xschem_library/pcb", 
+   /*11*/ "xschem_library/rom8k" };
  GetModuleFileNameA(NULL, install_dir, MAX_PATH);
  change_to_unix_fn(install_dir);
  size_t dir_len=strlen(install_dir);

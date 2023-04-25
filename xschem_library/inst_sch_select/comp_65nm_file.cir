@@ -1,0 +1,6 @@
+* comp_65nm_file.cir
+
+.subckt comp_65nm_file PLUS OUT MINUS
+v1 x 0 1
+e1 out x plus minus 0.5
+.ends
