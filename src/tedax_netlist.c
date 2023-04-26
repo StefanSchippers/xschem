@@ -91,10 +91,10 @@ static int tedax_block_netlist(FILE *fd, int i)
   fprintf(fd, "\n# expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
   if(xctx->sym[i].base_name) fprintf(fd, "## sym_path: %s\n", abs_sym_path(xctx->sym[i].base_name, ""));
-  else fprintf(fd, "## sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
-  fprintf(fd, "## sch_path: %s\n", filename);
+  else fprintf(fd, "## sym_path: %s\n", sanitized_abs_sym_path(xctx->sym[i].name, ""));
+  fprintf(fd, "## sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
 
-  fprintf(fd, "begin netlist v1 %s\n",skip_dir(xctx->sym[i].name));
+  fprintf(fd, "begin netlist v1 %s\n",sanitize(skip_dir(xctx->sym[i].name)));
   print_tedax_subckt(fd, i);
 
   my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
@@ -207,7 +207,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
    {
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
-    my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
+    my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
       tclvareval("get_directory [list ", xctx->sch[xctx->currsch - 1], "]", NULL);

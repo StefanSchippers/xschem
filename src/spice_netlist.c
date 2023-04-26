@@ -78,7 +78,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
     int flag;
     /* for printing we process also symbols that have *_ignore attribute */
     if(!xctx->sym[i].type || !xctx->sym[i].name || !xctx->sym[i].name[0]) continue; /* can not descend into */
-    my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
+    my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));
     if(what & 1) flag = check_lib(2, abs_path); /* noprint_libs */
     else flag = check_lib(4, abs_path); /* nolist_libs */
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && flag)

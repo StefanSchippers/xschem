@@ -1574,7 +1574,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
 
   for(i=0;i<no_of_pins; ++i)
   {
-    if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
+    if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"tedax_ignore",0), "true")) {
       str_ptr=
         expandlabel(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0), &multip);
       fprintf(fd, "%s ", str_ptr);
@@ -2107,7 +2107,7 @@ void print_tedax_element(FILE *fd, int inst)
    int n;
    Int_hashtable table={NULL, 0};
    subcircuit = 1;
-   fprintf(fd, "__subcircuit__ %s %s\n", get_sym_name(inst, 0), xctx->inst[inst].instname);
+   fprintf(fd, "__subcircuit__ %s %s\n", sanitize(get_sym_name(inst, 0)), xctx->inst[inst].instname);
    int_hash_init(&table, 37);
    for(i=0;i<no_of_pins; ++i) {
      my_strdup2(_ALLOC_ID_, &net, net_name(inst,i, &net_mult, 0, 1));
