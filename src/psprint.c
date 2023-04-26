@@ -795,7 +795,9 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
  
     /* pdfmarks, only if doing hierarchy print and if symbol has a subcircuit */ 
     if(what != 7) {
+      char fname[PATH_MAX];
       if(!strcmp(get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "type", 0), "subcircuit")) {
+        get_sch_from_sym(fname, xctx->inst[n].ptr+ xctx->sym, n);
         fprintf(fd, 
           "[ "
           "/Rect [ %g %g %g %g ] "
@@ -804,7 +806,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
           "/Subtype /Link "
           "/ANN pdfmark\n",
           x1, y1, x2, y2,
-          sanitize(get_sym_name(n, 0)));
+          sanitize(get_cell_w_ext(fname, 0)));
       }
     }
   }

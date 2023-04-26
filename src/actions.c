@@ -1211,8 +1211,8 @@ const char *get_sym_name(int inst, int ext)
 {
   const char *sym, *sch;
 
+  /* instance based symbol selection */
   sch = get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 0);
-  if(!sch[0]) sch = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "schematic", 0);
   if(xctx->tok_size) { /* token exists */ 
     if(ext) sym = get_cell_w_ext(add_ext(rel_sym_path(sch), ".sym"), 0);
     else sym = skip_dir(add_ext(rel_sym_path(sch), ".sym"));
