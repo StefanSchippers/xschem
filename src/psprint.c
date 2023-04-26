@@ -380,7 +380,8 @@ static void set_ps_colors(unsigned int pixel)
 static void ps_xdrawarc(int layer, int fillarc, double x, double y, double r, double a, double b)
 {
  if(xctx->fill_pattern && xctx->fill_type[layer]  && fillarc)
-   fprintf(fd, "%g %g %g %g %g A %g %g LT C F S\n", x, y, r, -a, -a-b, x, y);
+   fprintf(fd, "%g %g MT %g %g %g %g %g A %g %g LT C F S\n",
+                 x, y,  x, y, r, -a, -a-b, x, y);
  else
    fprintf(fd, "%g %g %g %g %g A S\n", x, y, r, -a, -a-b);
 
@@ -436,7 +437,7 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points, in
     else fprintf(fd, "%g %g LT\n", xx, yy);
   }
   if(xctx->fill_pattern && xctx->fill_type[c] && poly_fill) {
-    fprintf(fd, "C F S\n");
+    fprintf(fd, "GS C F GR S\n");
   } else {
     fprintf(fd, "S\n");
   }

@@ -38,7 +38,7 @@ static void sig_handler(int s){
 
   if(xctx->undo_type == 0 ) { /* on disk undo */
     my_snprintf(emergency_prefix, S(emergency_prefix), "xschem_emergencysave_%s_",
-             skip_dir(xctx->sch[xctx->currsch]));
+             get_cell(xctx->sch[xctx->currsch], 0));
     if( !(emergency_dir = create_tmpdir(emergency_prefix)) ) {
       fprintf(errfp, "xinit(): problems creating emergency save dir\n");
       tcleval("exit");
@@ -54,7 +54,7 @@ static void sig_handler(int s){
 
 
   fprintf(errfp, "\nFATAL: signal %d\n", s);
-  fprintf(errfp, "while editing: %s\n", skip_dir(xctx->sch[xctx->currsch]));
+  fprintf(errfp, "while editing: %s\n", get_cell(xctx->sch[xctx->currsch], 0));
   exit(EXIT_FAILURE);
 }
 

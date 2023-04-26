@@ -103,7 +103,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  /* to be printed before any entity declarations */
 
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
-   tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]),getpid());
+   tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0),getpid());
  fd=fopen(netl_filename, "w");
  if(fd==NULL){
    dbg(0, "global_verilog_netlist(): problems opening netlist file\n");
@@ -114,7 +114,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  if(xctx->netlist_name[0]) {
    my_snprintf(cellname, S(cellname), "%s", get_cell_w_ext(xctx->netlist_name, 0));
  } else {
-   my_snprintf(cellname, S(cellname), "%s.v", skip_dir(xctx->sch[xctx->currsch]));
+   my_snprintf(cellname, S(cellname), "%s.v", get_cell(xctx->sch[xctx->currsch], 0));
  }
 
  dbg(1, "global_verilog_netlist(): opening %s for writing\n",netl_filename);
@@ -145,7 +145,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
 
 
  dbg(1, "global_verilog_netlist(): printing top level entity\n");
- fprintf(fd,"module %s (\n", skip_dir( xctx->sch[xctx->currsch]) );
+ fprintf(fd,"module %s (\n", get_cell( xctx->sch[xctx->currsch], 0) );
  /* flush data structures (remove unused symbols) */
  unselect_all(1);
  remove_symbols();  /* removed 25122002, readded 04112003 */
@@ -447,10 +447,10 @@ int verilog_block_netlist(FILE *fd, int i)
 
   if(split_f) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
-       tclgetvar("netlist_dir"),  skip_dir(name), getpid());
+       tclgetvar("netlist_dir"),  get_cell(name, 0), getpid());
     dbg(1, "global_vhdl_netlist(): split_files: netl_filename=%s\n", netl_filename);
     fd=fopen(netl_filename, "w");
-    my_snprintf(cellname, S(cellname), "%s.v", skip_dir(name));
+    my_snprintf(cellname, S(cellname), "%s.v", get_cell(name, 0));
 
   }
   dbg(1, "verilog_block_netlist(): expanding %s\n",  name);
@@ -492,9 +492,9 @@ int verilog_block_netlist(FILE *fd, int i)
        get_tok_value(xctx->sym[i].prop_ptr, "verilogprefix", 0));
     if(verilogprefix) {
       my_strdup(_ALLOC_ID_, &symname, verilogprefix);
-      my_strcat(_ALLOC_ID_, &symname, skip_dir(xctx->sym[i].name));
+      my_strcat(_ALLOC_ID_, &symname, get_cell(xctx->sym[i].name, 0));
     } else {
-      my_strdup(_ALLOC_ID_, &symname, skip_dir(xctx->sym[i].name));
+      my_strdup(_ALLOC_ID_, &symname, get_cell(xctx->sym[i].name, 0));
     }
     my_free(_ALLOC_ID_, &verilogprefix);
 
@@ -571,7 +571,7 @@ int verilog_block_netlist(FILE *fd, int i)
         fprintf(fd, "  wire %s ;\n", extra_token);
       }
     }
-    dbg(1, "verilog_block_netlist():       netlisting %s\n", skip_dir( xctx->sch[xctx->currsch]));
+    dbg(1, "verilog_block_netlist():       netlisting %s\n", get_cell( xctx->sch[xctx->currsch], 0));
     err |= verilog_netlist(fd, verilog_stop);
     fprintf(fd,"---- begin user architecture code\n");
     for(l=0;l<xctx->instances; ++l) {

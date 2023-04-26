@@ -242,7 +242,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         tcleval(f);
         my_strncpy(f, tclresult(), S(f));  
       } else {
-        my_snprintf(f, S(f), "%s/%s.raw",  tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]));
+        my_snprintf(f, S(f), "%s/%s.raw",  tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0));
       }
       tclsetvar("rawfile_loaded", "0");
       free_rawfile(1);
@@ -906,19 +906,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(argc > 3 &&  !strcmp(argv[3], "fallback")) {
               char f[PATH_MAX];
               if(xctx->netlist_type == CAD_SPICE_NETLIST) {
-                my_snprintf(f, S(f), "%s.spice", skip_dir(xctx->current_name));
+                my_snprintf(f, S(f), "%s.spice", get_cell(xctx->current_name, 0));
               }
               else if(xctx->netlist_type == CAD_VHDL_NETLIST) {
-                my_snprintf(f, S(f), "%s.vhdl", skip_dir(xctx->current_name));
+                my_snprintf(f, S(f), "%s.vhdl", get_cell(xctx->current_name, 0));
               }
               else if(xctx->netlist_type == CAD_VERILOG_NETLIST) {
-                my_snprintf(f, S(f), "%s.v", skip_dir(xctx->current_name));
+                my_snprintf(f, S(f), "%s.v", get_cell(xctx->current_name, 0));
               }
               else if(xctx->netlist_type == CAD_TEDAX_NETLIST) {
-                my_snprintf(f, S(f), "%s.tdx", skip_dir(xctx->current_name));
+                my_snprintf(f, S(f), "%s.tdx", get_cell(xctx->current_name, 0));
               }
               else {
-                my_snprintf(f, S(f), "%s.unknown", skip_dir(xctx->current_name));
+                my_snprintf(f, S(f), "%s.unknown", get_cell(xctx->current_name, 0));
               }
               if(xctx->netlist_name[0] == '\0') {
                 Tcl_SetResult(interp, f, TCL_VOLATILE);

@@ -1154,18 +1154,13 @@ const char *get_trailing_path(const char *str, int no_of_dir, int skip_ext)
   return s+(dir_pos<len ? dir_pos+1 : 0);
 }
 
-/* skip also extension */
-const char *skip_dir(const char *str)
-{
-  return get_trailing_path(str, 0, 1);
-}
-
 /* no extension */
 const char *get_cell(const char *str, int no_of_dir)
 {
   return get_trailing_path(str, no_of_dir, 1);
 }
 
+/* keep extension */
 const char *get_cell_w_ext(const char *str, int no_of_dir)
 {
   return get_trailing_path(str, no_of_dir, 0);
@@ -1384,7 +1379,7 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
   my_strdup(_ALLOC_ID_, &generic_type, get_tok_value(xctx->sym[symbol].prop_ptr,"generic_type",0));
   dbg(2, "print_generic(): symbol=%d template=%s \n", symbol, template);
 
-  fprintf(fd, "%s %s ",ent_or_comp, sanitize(skip_dir(xctx->sym[symbol].name)));
+  fprintf(fd, "%s %s ",ent_or_comp, sanitize(get_cell(xctx->sym[symbol].name, 0)));
   if(!strcmp(ent_or_comp,"entity"))
    fprintf(fd, "is\n");
   else
@@ -1603,7 +1598,8 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
  dbg(1, "print_spice_subckt(): format1=%s\n", format1);
 
  /* can not do this, since @symname is used as a token later in format parser */
- /* my_strdup(_ALLOC_ID_, &format1, str_replace(format1, "@symname", skip_dir(xctx->sym[symbol].name), '\\')); */
+ /* my_strdup(_ALLOC_ID_, &format1,
+  * str_replace(format1, "@symname", get_cell(xctx->sym[symbol].name, 0), '\\')); */
 
  if(format1 && strstr(format1, "tcleval(") == format1) {
     tclres = tcl_hook2(format1);

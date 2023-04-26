@@ -1152,7 +1152,6 @@ extern void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, doubl
 extern void set_viewport_size(int w, int h, double lw);
 extern void print_image();
 extern const char *get_trailing_path(const char *str, int no_of_dir, int skip_ext);
-extern const char *skip_dir(const char *str);
 extern const char *get_cell(const char *str, int no_of_dir);
 extern const char *get_cell_w_ext(const char *str, int no_of_dir);
 extern const char *rel_sym_path(const char *s);

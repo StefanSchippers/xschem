@@ -61,7 +61,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
     my_strcat(_ALLOC_ID_, res, xctx->sch[xctx->currsch]);
     my_strcat(_ALLOC_ID_, res, "}\n");
   }
-  dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
+  dbg(1,"--> %s\n", get_cell(xctx->sch[xctx->currsch], 0) );
   unselect_all(1);
   remove_symbols(); /* ensure all unused symbols purged before descending hierarchy */
   /* reload data without popping undo stack, this populates embedded symbols if any */
@@ -101,7 +101,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
             my_strcat(_ALLOC_ID_, res, xctx->sch[xctx->currsch]);
             my_strcat(_ALLOC_ID_, res, "}\n");
           }
-          dbg(1,"--> %s\n", skip_dir( xctx->sch[xctx->currsch]) );
+          dbg(1,"--> %s\n", get_cell(xctx->sch[xctx->currsch], 0) );
         }
       }
     }
@@ -258,7 +258,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  }
  xctx->netlist_count=0;
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
-   tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]), getpid());
+   tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0), getpid());
  dbg(1, "global_spice_netlist(): opening %s for writing\n",netl_filename);
  fd=fopen(netl_filename, "w");
  if(fd==NULL) {
@@ -270,7 +270,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  if(xctx->netlist_name[0]) {
    my_snprintf(cellname, S(cellname), "%s", get_cell_w_ext(xctx->netlist_name, 0));
  } else {
-   my_snprintf(cellname, S(cellname), "%s.spice", skip_dir(xctx->sch[xctx->currsch]));
+   my_snprintf(cellname, S(cellname), "%s.spice", get_cell(xctx->sch[xctx->currsch], 0));
  }
 
  first = 0;
@@ -305,7 +305,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  }
  top_sub = tclgetboolvar("lvs_netlist");
  if(!top_sub) fprintf(fd,"**");
- fprintf(fd,".subckt %s", skip_dir( xctx->sch[xctx->currsch]) );
+ fprintf(fd,".subckt %s", get_cell(xctx->sch[xctx->currsch], 0));
 
  /* print top subckt ipin/opins */
  for(i=0;i<xctx->instances; ++i) {
@@ -548,10 +548,10 @@ int spice_block_netlist(FILE *fd, int i)
   dbg(1, "spice_block_netlist(): filename=%s\n", filename);
   if(split_f) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
-         tclgetvar("netlist_dir"), skip_dir(name), getpid());
+         tclgetvar("netlist_dir"), get_cell(name, 0), getpid());
     dbg(1, "spice_block_netlist(): split_files: netl_filename=%s\n", netl_filename);
     fd=fopen(netl_filename, "w");
-    my_snprintf(cellname, S(cellname), "%s.spice", skip_dir(name));
+    my_snprintf(cellname, S(cellname), "%s.spice", get_cell(name, 0));
   }
   fprintf(fd, "\n* expanding   symbol:  %s # of pins=%d\n", name,xctx->sym[i].rects[PINLAYER] );
   if(xctx->sym[i].base_name) fprintf(fd, "** sym_path: %s\n", abs_sym_path(xctx->sym[i].base_name, ""));
@@ -560,7 +560,7 @@ int spice_block_netlist(FILE *fd, int i)
   if(sym_def[0]) {
     fprintf(fd, "%s\n", sym_def);
   } else {
-    const char *s = sanitize(skip_dir(name));
+    const char *s = sanitize(get_cell(name, 0));
     fprintf(fd, "** sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
     fprintf(fd, ".subckt %s ", s);
     print_spice_subckt_nodes(fd, i);

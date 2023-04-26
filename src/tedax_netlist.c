@@ -94,7 +94,7 @@ static int tedax_block_netlist(FILE *fd, int i)
   else fprintf(fd, "## sym_path: %s\n", sanitized_abs_sym_path(xctx->sym[i].name, ""));
   fprintf(fd, "## sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
 
-  fprintf(fd, "begin netlist v1 %s\n",sanitize(skip_dir(xctx->sym[i].name)));
+  fprintf(fd, "begin netlist v1 %s\n",sanitize(get_cell(xctx->sym[i].name, 0)));
   print_tedax_subckt(fd, i);
 
   my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
@@ -147,7 +147,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
  }
  xctx->netlist_count=0;
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
-   tclgetvar("netlist_dir"), skip_dir(xctx->sch[xctx->currsch]), getpid());
+   tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0), getpid());
  fd=fopen(netl_filename, "w");
  if(fd==NULL){
    dbg(0, "global_tedax_netlist(): problems opening netlist file\n");
@@ -158,7 +158,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
  if(xctx->netlist_name[0]) {
    my_snprintf(cellname, S(cellname), "%s", get_cell_w_ext(xctx->netlist_name, 0));
  } else {
-   my_snprintf(cellname, S(cellname), "%s.tdx", skip_dir(xctx->sch[xctx->currsch]));
+   my_snprintf(cellname, S(cellname), "%s.tdx", get_cell(xctx->sch[xctx->currsch], 0));
  }
 
  /* netlist_options */
@@ -170,7 +170,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
  }
 
  dbg(1, "global_tedax_netlist(): opening %s for writing\n",netl_filename);
- fprintf(fd,"tEDAx v1\nbegin netlist v1 %s\n", skip_dir( xctx->sch[xctx->currsch]) );
+ fprintf(fd,"tEDAx v1\nbegin netlist v1 %s\n", get_cell( xctx->sch[xctx->currsch], 0) );
 
  tedax_netlist(fd, 0);
  xctx->netlist_count++;

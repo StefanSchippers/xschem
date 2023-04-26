@@ -1215,12 +1215,12 @@ const char *get_sym_name(int inst, int ext)
   sch = get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 0);
   if(xctx->tok_size) { /* token exists */ 
     if(ext) sym = get_cell_w_ext(add_ext(rel_sym_path(sch), ".sym"), 0);
-    else sym = skip_dir(add_ext(rel_sym_path(sch), ".sym"));
+    else sym = get_cell(add_ext(rel_sym_path(sch), ".sym"), 0);
   } 
   else if(ext) {
     sym = get_cell_w_ext(tcl_hook2(xctx->inst[inst].name), 0);
   } else {
-    sym = skip_dir(tcl_hook2(xctx->inst[inst].name));
+    sym = get_cell(tcl_hook2(xctx->inst[inst].name), 0);
   }
   dbg(1, "get_sym_name(): inst=%d, ext=%d, returning sym=%s\n", inst, ext, sym);
   return sym;
