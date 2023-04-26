@@ -467,6 +467,7 @@ int verilog_block_netlist(FILE *fd, int i)
     my_strdup(_ALLOC_ID_, &extra2, get_tok_value(xctx->sym[i].prop_ptr, "verilog_extra", 0));
     fprintf(fd, "// sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
     verilog_stop? load_schematic(0,filename, 0, 1) : load_schematic(1,filename, 0, 1);
+    get_additional_symbols(1);
     /* print verilog timescale  and preprocessor directives 10102004 */
     fmt_attr = xctx->format ? xctx->format : "verilog_format";
     for(j=0;j<xctx->instances; ++j)

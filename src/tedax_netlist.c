@@ -108,6 +108,7 @@ static int tedax_block_netlist(FILE *fd, int i)
   my_free(_ALLOC_ID_, &extra);
   fprintf(fd, "\n");
   load_schematic(1,filename, 0, 1);
+  get_additional_symbols(1);
   err |= tedax_netlist(fd, tedax_stop);
   xctx->netlist_count++;
 

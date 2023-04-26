@@ -93,6 +93,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
           /* for printing we go down to bottom regardless of spice_stop attribute */
           dbg(1, "hier_psprint(): loading file: |%s|\n", filename);
           load_schematic(1,filename, 0, 1);
+          get_additional_symbols(1);
           zoom_full(0, 0, 1, 0.97);
           if(what & 1) ps_draw(2); /* page */
           if(what & 2) { /* print cellname */
@@ -577,6 +578,7 @@ int spice_block_netlist(FILE *fd, int i)
     fprintf(fd, "\n");
   
     spice_stop ? load_schematic(0,filename, 0, 1) : load_schematic(1,filename, 0, 1);
+    get_additional_symbols(1);
     err |= spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
   
     if(xctx->schprop && xctx->schprop[0]) {
