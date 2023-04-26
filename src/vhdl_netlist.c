@@ -331,7 +331,8 @@ int global_vhdl_netlist(int global)  /* netlister driver */
 
  fprintf(fd,"end %s ;\n\n", skip_dir( xctx->sch[xctx->currsch]) );
  fprintf(fd,"architecture arch_%s of %s is\n\n",
-        skip_dir( xctx->sch[xctx->currsch]) , skip_dir( xctx->sch[xctx->currsch]));
+        sanitize(skip_dir( xctx->sch[xctx->currsch])),
+        sanitize(skip_dir( xctx->sch[xctx->currsch])));
 
  dbg(1, "global_vhdl_netlist(): printing top level used components\n");
  /* print all components */
@@ -551,13 +552,13 @@ int vhdl_block_netlist(FILE *fd, int i)
   fprintf(fd, "\n-- expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
   if(xctx->sym[i].base_name) fprintf(fd, "-- sym_path: %s\n", abs_sym_path(xctx->sym[i].base_name, ""));
-  else fprintf(fd, "-- sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  else fprintf(fd, "-- sym_path: %s\n", sanitized_abs_sym_path(xctx->sym[i].name, ""));
   sym_def = get_tok_value(xctx->sym[i].prop_ptr,"vhdl_sym_def",0);
   if(sym_def[0]) {
     fprintf(fd, "%s\n", sym_def);
   } else {
     Int_hashtable table = {NULL, 0};
-    fprintf(fd, "-- sch_path: %s\n", filename);
+    fprintf(fd, "-- sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
     load_schematic(1,filename, 0, 1);
     dbg(1, "vhdl_block_netlist():       packages\n");
     for(l=0;l<xctx->instances; ++l)
@@ -632,11 +633,12 @@ int vhdl_block_netlist(FILE *fd, int i)
       if(xctx->inst[l].prop_ptr) fprintf(fd, "%s\n", xctx->inst[l].prop_ptr);
      }
     }
-    fprintf(fd,"end %s ;\n\n", skip_dir(xctx->sym[i].name) );
+    fprintf(fd,"end %s ;\n\n", sanitize(skip_dir(xctx->sym[i].name)) );
   
     dbg(1, "vhdl_block_netlist():       architecture\n");
     fprintf(fd,"architecture arch_%s of %s is\n\n",
-       skip_dir(xctx->sym[i].name), skip_dir(xctx->sym[i].name) );
+       sanitize(skip_dir(xctx->sym[i].name)),
+       sanitize(skip_dir(xctx->sym[i].name)) );
     /*    skip_dir( xctx->sch[xctx->currsch]), skip_dir( xctx->sch[xctx->currsch])); */
     /* load current schematic to print used components */
   
@@ -724,7 +726,7 @@ int vhdl_block_netlist(FILE *fd, int i)
     }
   
     if(xctx->schvhdlprop && xctx->schvhdlprop[0]) fprintf(fd, "%s\n", xctx->schvhdlprop);
-    fprintf(fd, "end arch_%s ;\n\n", skip_dir(xctx->sym[i].name) ); /* skip_dir( xctx->sch[xctx->currsch]) ); */
+    fprintf(fd, "end arch_%s ;\n\n", sanitize(skip_dir(xctx->sym[i].name)) );
     my_free(_ALLOC_ID_, &sig_type);
     my_free(_ALLOC_ID_, &port_value);
     my_free(_ALLOC_ID_, &type);

@@ -435,8 +435,9 @@ int verilog_block_netlist(FILE *fd, int i)
   int split_f;
   const char *sym_def;
   char *extra_ptr, *saveptr1, *extra_token, *extra = NULL, *extra2=NULL;
+  char *name = NULL;
 
-
+  my_strdup(_ALLOC_ID_, &name, tcl_hook2(xctx->sym[i].name));
   split_f = tclgetboolvar("split_files");
   if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"verilog_stop",0),"true") )
      verilog_stop=1;
@@ -446,17 +447,16 @@ int verilog_block_netlist(FILE *fd, int i)
 
   if(split_f) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
-       tclgetvar("netlist_dir"),  skip_dir(xctx->sym[i].name), getpid());
+       tclgetvar("netlist_dir"),  skip_dir(name), getpid());
     dbg(1, "global_vhdl_netlist(): split_files: netl_filename=%s\n", netl_filename);
     fd=fopen(netl_filename, "w");
-    my_snprintf(cellname, S(cellname), "%s.v", skip_dir(xctx->sym[i].name) );
+    my_snprintf(cellname, S(cellname), "%s.v", skip_dir(name));
 
   }
-  dbg(1, "verilog_block_netlist(): expanding %s\n",  xctx->sym[i].name);
-  fprintf(fd, "\n// expanding   symbol:  %s # of pins=%d\n",
-        xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
+  dbg(1, "verilog_block_netlist(): expanding %s\n",  name);
+  fprintf(fd, "\n// expanding   symbol:  %s # of pins=%d\n", name, xctx->sym[i].rects[PINLAYER] );
   if(xctx->sym[i].base_name) fprintf(fd, "// sym_path: %s\n", abs_sym_path(xctx->sym[i].base_name, ""));
-  else fprintf(fd, "// sym_path: %s\n", abs_sym_path(xctx->sym[i].name, ""));
+  else fprintf(fd, "// sym_path: %s\n", sanitized_abs_sym_path(name, ""));
   sym_def = get_tok_value(xctx->sym[i].prop_ptr,"verilog_sym_def",0);
   if(sym_def[0]) {
     fprintf(fd, "%s\n", sym_def);
@@ -465,7 +465,7 @@ int verilog_block_netlist(FILE *fd, int i)
     int_hash_init(&table, 37);
     my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[i].prop_ptr, "verilog_extra", 0));
     my_strdup(_ALLOC_ID_, &extra2, get_tok_value(xctx->sym[i].prop_ptr, "verilog_extra", 0));
-    fprintf(fd, "// sch_path: %s\n", filename);
+    fprintf(fd, "// sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
     verilog_stop? load_schematic(0,filename, 0, 1) : load_schematic(1,filename, 0, 1);
     /* print verilog timescale  and preprocessor directives 10102004 */
     fmt_attr = xctx->format ? xctx->format : "verilog_format";
@@ -500,7 +500,7 @@ int verilog_block_netlist(FILE *fd, int i)
 
 
  
-    fprintf(fd, "module %s (\n", symname);
+    fprintf(fd, "module %s (\n", sanitize(symname));
     my_free(_ALLOC_ID_, &symname);
     /*print_generic(fd, "entity", i); */
   
@@ -615,6 +615,7 @@ int verilog_block_netlist(FILE *fd, int i)
     if(debug_var==0) xunlink(netl_filename);
   }
   xctx->netlist_count++;
+  my_free(_ALLOC_ID_, &name);
   return err;
 }
 

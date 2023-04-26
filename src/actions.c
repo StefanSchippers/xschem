@@ -1217,11 +1217,11 @@ const char *get_sym_name(int inst, int ext)
     else sym = skip_dir(add_ext(rel_sym_path(sch), ".sym"));
   } 
   else if(ext) {
-    sym = get_cell_w_ext(xctx->inst[inst].name, 0);
+    sym = get_cell_w_ext(tcl_hook2(xctx->inst[inst].name), 0);
   } else {
-    sym = skip_dir(xctx->inst[inst].name);
+    sym = skip_dir(tcl_hook2(xctx->inst[inst].name));
   }
-  dbg(1, "get_sym_name(): returning sym=%s\n", sym);
+  dbg(1, "get_sym_name(): inst=%d, ext=%d, returning sym=%s\n", inst, ext, sym);
   return sym;
 }
 
@@ -1404,21 +1404,24 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
   dbg(1, "get_sch_from_sym(): symbol %s inst=%d\n", sym->name, inst);
   if(inst >= 0) my_strdup(_ALLOC_ID_, &str_tmp,  get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 2));
   if(!str_tmp) my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 2));
-  if(str_tmp[0]) { 
+
+
+
+  if(str_tmp[0]) { /* schematic attribute in symbol or instance was given */
     /* @symname in schematic attribute will be replaced with symbol name */
-    my_strdup2(_ALLOC_ID_, &sch, str_replace(str_tmp, "@symname", skip_dir(sym->name), '\\'));
-  }
-  if(str_tmp[0] && is_generator(str_tmp)) { /* generator: return as is */
-    my_strncpy(filename, sch, PATH_MAX);
-  } else if(str_tmp[0]) {
-    dbg(1, "get_sch_from_sym(): sch=%s\n", sch);
-    my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(&sch));
-    dbg(1, "get_sch_from_sym(): after tcl_hook2 sch=%s\n", sch);
-    /* for schematics referenced from web symbols do not build absolute path */
-    if(web_url) my_strncpy(filename, sch, PATH_MAX);
-    else my_strncpy(filename, abs_sym_path(sch, ""), PATH_MAX);
+    my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(str_replace(str_tmp, "@symname", sym->name, '\\')));
+    if(is_generator(sch)) { /* generator: return as is */
+      my_strncpy(filename, sch, PATH_MAX);
+      dbg(1, "get_sch_from_sym(): filename=%s\n", filename);
+    } else { /* not generator */
+      dbg(1, "get_sch_from_sym(): after tcl_hook2 sch=%s\n", sch);
+      /* for schematics referenced from web symbols do not build absolute path */
+      if(web_url) my_strncpy(filename, sch, PATH_MAX);
+      else my_strncpy(filename, abs_sym_path(sch, ""), PATH_MAX);
+    }
   } else { /* no schematic attribute from instance or symbol */
-    if(is_generator(sym->name))  my_strncpy(filename, sym->name, PATH_MAX);
+    const char *symname_tcl = tcl_hook2(sym->name);
+    if(is_generator(symname_tcl))  my_strncpy(filename, symname_tcl, PATH_MAX);
     else if(tclgetboolvar("search_schematic")) {
       /* for schematics referenced from web symbols do not build absolute path */
       if(web_url) my_strncpy(filename, add_ext(sym->name, ".sch"), PATH_MAX);
@@ -1439,7 +1442,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
   /* if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
    *  strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
    */
-    if(web_url) {
+  if(web_url) {
     char sympath[PATH_MAX];
     /* download item into ${XSCHEM_TMP_DIR}/xschem_web */
     tclvareval("try_download_url {", xctx->current_dirname, "} {", filename, "}", NULL);

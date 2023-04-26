@@ -3146,6 +3146,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   const char *dash;
   xSymbol * symbol;
   int symbols, sym_n_pins=0, generator;
+  const char *cmd;
 
   check_symbol_storage();
   symbol = xctx->sym;
@@ -3156,10 +3157,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
   lcc=NULL;
   my_realloc(_ALLOC_ID_, &lcc, (level + 1) * sizeof(Lcc));
   max_level = level + 1;
-
-  generator = is_generator(name);
+  cmd = tcl_hook2(name);
+  dbg(1, "l_s_d(): cmd=%s\n", cmd);
+  generator = is_generator(cmd);
   if(generator) {
-    char * cmd = get_generator_command(name);
+    cmd = get_generator_command(cmd);
+    dbg(1, "l_s_d(): cmd=%s\n", cmd);
     if(cmd) {
       lcc[level].fd = popen(cmd, "r"); /* execute ss="/path/to/xxx par1 par2 ..." and pipe in the stdout */
       my_free(_ALLOC_ID_, &cmd);
@@ -4002,8 +4005,9 @@ void descend_symbol(void)
     /* load_symbol(name_embedded); */
     load_schematic(1, name_embedded, 1, 1);
   } else {
-    char sympath[PATH_MAX];
-    my_strncpy(sympath, abs_sym_path(name, ""), S(sympath));
+    char *sympath = NULL;
+    my_strdup2(_ALLOC_ID_, &sympath, name);
+    my_strdup2(_ALLOC_ID_, &sympath, abs_sym_path(tcl_hook2(sympath), ""));
     unselect_all(1);
     remove_symbols(); /* must follow save (if) embedded */
     dbg(1, "name=%s, sympath=%s\n", name, sympath);
@@ -4013,11 +4017,14 @@ void descend_symbol(void)
         (strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
          strstr(xctx->current_dirname, "https://") == xctx->current_dirname)) {
       /* symbols have already been downloaded while loading parent schematic: set local file path */
-      my_snprintf(sympath, S(sympath), "%s/xschem_web/%s", tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(name, 0));
+      my_mstrcat(_ALLOC_ID_, &sympath, tclgetvar("XSCHEM_TMP_DIR"),
+                 "/xschem_web/", get_cell_w_ext(name, 0), NULL);
       load_schematic(1, sympath, 1, 1);
     } else {
+      dbg(1, "descend_symbol(): sympath=%s\n", sympath);
       load_schematic(1, sympath, 1, 1);
     }
+    my_free(_ALLOC_ID_, &sympath);
   }
   zoom_full(1, 0, 1, 0.97);
 }

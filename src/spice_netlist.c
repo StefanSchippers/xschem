@@ -534,7 +534,9 @@ int spice_block_netlist(FILE *fd, int i)
   char *extra=NULL;
   int split_f;
   const char *sym_def;
+  char *name = NULL;
 
+  my_strdup(_ALLOC_ID_, &name, tcl_hook2(xctx->sym[i].name));
   split_f = tclgetboolvar("split_files");
 
   if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"spice_stop",0),"true") )
@@ -545,23 +547,21 @@ int spice_block_netlist(FILE *fd, int i)
   dbg(1, "spice_block_netlist(): filename=%s\n", filename);
   if(split_f) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
-         tclgetvar("netlist_dir"), skip_dir(xctx->sym[i].name), getpid());
+         tclgetvar("netlist_dir"), skip_dir(name), getpid());
     dbg(1, "spice_block_netlist(): split_files: netl_filename=%s\n", netl_filename);
     fd=fopen(netl_filename, "w");
-    my_snprintf(cellname, S(cellname), "%s.spice", skip_dir(xctx->sym[i].name));
+    my_snprintf(cellname, S(cellname), "%s.spice", skip_dir(name));
   }
-  fprintf(fd, "\n* expanding   symbol:  %s # of pins=%d\n",
-        xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
+  fprintf(fd, "\n* expanding   symbol:  %s # of pins=%d\n", name,xctx->sym[i].rects[PINLAYER] );
   if(xctx->sym[i].base_name) fprintf(fd, "** sym_path: %s\n", abs_sym_path(xctx->sym[i].base_name, ""));
-  else fprintf(fd, "** sym_path: %s\n", sanitized_abs_sym_path(xctx->sym[i].name, ""));
+  else fprintf(fd, "** sym_path: %s\n", sanitized_abs_sym_path(name, ""));
   sym_def = get_tok_value(xctx->sym[i].prop_ptr,"spice_sym_def",0);
   if(sym_def[0]) {
     fprintf(fd, "%s\n", sym_def);
   } else {
-    char *s = sanitize(skip_dir(xctx->sym[i].name));
+    const char *s = sanitize(skip_dir(name));
     fprintf(fd, "** sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
     fprintf(fd, ".subckt %s ", s);
-    my_free(_ALLOC_ID_, &s);
     print_spice_subckt_nodes(fd, i);
   
     my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
@@ -598,6 +598,7 @@ int spice_block_netlist(FILE *fd, int i)
     if(debug_var==0) xunlink(netl_filename);
   }
   xctx->netlist_count++;
+  my_free(_ALLOC_ID_, &name);
   return err;
 }
 

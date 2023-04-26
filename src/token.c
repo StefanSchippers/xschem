@@ -61,26 +61,28 @@ void hash_all_names(void)
   my_free(_ALLOC_ID_, &type);
 }
 
-const char *tcl_hook2(char **res)
+/* if cmd is wrapped inside tcleval(...) pass the content to tcl
+ * for evaluation, return tcl result. If no tcleval(...) found return copy of cmd */
+const char *tcl_hook2(const char *cmd)
 {
   static char *result = NULL;
   static const char *empty="";
   char *unescaped_res;
 
-  if(res == NULL || *res == NULL) {
+  if(cmd == NULL) {
     my_free(_ALLOC_ID_, &result);
     return empty;
   }
-  if(strstr(*res, "tcleval(") == *res) {
-    unescaped_res = str_replace(*res, "\\}", "}", 0);
+  if(strstr(cmd, "tcleval(") == cmd) {
+    unescaped_res = str_replace(cmd, "\\}", "}", 0);
     tclvareval("tclpropeval2 {", unescaped_res, "}" , NULL);
     my_strdup2(_ALLOC_ID_, &result, tclresult());
     /* dbg(0, "tcl_hook2: return: %s\n", result);*/
-    return result;
   } else {
-    /* dbg(0, "tcl_hook2: return: %s\n", *res); */
-    return *res;
+    /* dbg(0, "tcl_hook2: return: %s\n", cmd); */
+    my_strdup2(_ALLOC_ID_, &result, cmd);
   }
+  return result;
 }
 
 /* Missing: 
@@ -187,11 +189,15 @@ int is_generator(const char *name)
   #endif
 }
 
-/* caller must free returned string
- * cleanup syntax of symbol generators: xxx(a,b,c) --> xxx_a_b_c */
-char *sanitize(const char *name) 
+/* cleanup syntax of symbol generators: xxx(a,b,c) --> xxx_a_b_c */
+const char *sanitize(const char *name) 
 {
-  char *s = NULL;
+  static char *s = NULL;
+  static char *empty="";
+  if(name == NULL) {
+    my_free(_ALLOC_ID_, &s);
+    return empty;
+  }
   tclvareval("regsub -all { *[(),] *} {", name, "} _", NULL);
   tclvareval("regsub  {_$} {", tclresult(), "} {}", NULL);
   my_strdup2(_ALLOC_ID_, &s, tclresult());
@@ -493,7 +499,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     } else if(state==TOK_END) {
       result[value_pos]='\0';
       if( !cmp ) {
-        return with_quotes & 2 ? result : tcl_hook2(&result);
+        return with_quotes & 2 ? result : tcl_hook2(result);
       }
       value_pos=0;
       state=TOK_BEGIN;
@@ -502,7 +508,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     if(c=='\0') {
       result[0]='\0';
       xctx->tok_size = 0;
-      return with_quotes & 2 ? result : tcl_hook2(&result);
+      return with_quotes & 2 ? result : tcl_hook2(result);
     }
   }
 }
@@ -854,11 +860,13 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
    else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
                                         /* in hash table */
    {
-     fputs(get_sym_name(inst, 0), fd);
+     const char *s = sanitize(get_sym_name(inst, 0));
+     fputs(s, fd);
    }
    else if (strcmp(token,"@symname_ext")==0) 
    {
-     fputs(get_sym_name(inst, 1), fd);
+     const char *s = sanitize(get_sym_name(inst, 1));
+     fputs(s, fd);
    }
    else if(strcmp(token,"@schname_ext")==0) /* of course schname must not be present  */
                                         /* in hash table */
@@ -1229,9 +1237,9 @@ void print_vhdl_element(FILE *fd, int inst)
  /* print instance name and subckt */
   dbg(2, "print_vhdl_element(): printing inst name & subcircuit name\n");
   if( (lab = expandlabel(name, &tmp)) != NULL)
-    fprintf(fd, "%d %s : %s\n", tmp, lab, get_sym_name(inst, 0) );
+    fprintf(fd, "%d %s : %s\n", tmp, lab, sanitize(get_sym_name(inst, 0)) );
   else  /*  name in some strange format, probably an error */
-    fprintf(fd, "1 %s : %s\n", name, get_sym_name(inst, 0) );
+    fprintf(fd, "1 %s : %s\n", name, sanitize(get_sym_name(inst, 0)) );
   dbg(2, "print_vhdl_element(): printing generics passed as properties\n");
 
 
@@ -1376,7 +1384,7 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
   my_strdup(_ALLOC_ID_, &generic_type, get_tok_value(xctx->sym[symbol].prop_ptr,"generic_type",0));
   dbg(2, "print_generic(): symbol=%d template=%s \n", symbol, template);
 
-  fprintf(fd, "%s %s ",ent_or_comp, skip_dir(xctx->sym[symbol].name));
+  fprintf(fd, "%s %s ",ent_or_comp, sanitize(skip_dir(xctx->sym[symbol].name)));
   if(!strcmp(ent_or_comp,"entity"))
    fprintf(fd, "is\n");
   else
@@ -1594,11 +1602,11 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
    my_strdup(_ALLOC_ID_, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, "format", 2));
  dbg(1, "print_spice_subckt(): format1=%s\n", format1);
 
- /* can not do this, since @symname is used as a marker later */
+ /* can not do this, since @symname is used as a token later in format parser */
  /* my_strdup(_ALLOC_ID_, &format1, str_replace(format1, "@symname", skip_dir(xctx->sym[symbol].name), '\\')); */
 
  if(format1 && strstr(format1, "tcleval(") == format1) {
-    tclres = tcl_hook2(&format1);
+    tclres = tcl_hook2(format1);
     if(!strcmp(tclres, "?\n")) {
       char *ptr = strrchr(format1 + 8, ')');
       *ptr = '\0';
@@ -1869,17 +1877,16 @@ int print_spice_element(FILE *fd, int inst)
       }
       else if (strcmp(token,"@symname")==0) /* of course symname must not be present in attributes */
       {
-        char *s = sanitize(get_sym_name(inst, 0));
+        const char *s = sanitize(get_sym_name(inst, 0));
         tmp = strlen(s) +100 ; /* always make room for some extra chars 
                                 * so 1-char writes to result do not need reallocs */
         STR_ALLOC(&result, tmp + result_pos, &size);
         result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
-        my_free(_ALLOC_ID_, &s);
         /* fputs(s,fd); */
       }
       else if (strcmp(token,"@symname_ext")==0) /* of course symname must not be present in attributes */
       {
-        const char *s = get_sym_name(inst, 1);
+        const char *s = sanitize(get_sym_name(inst, 1));
         tmp = strlen(s) +100 ; /* always make room for some extra chars 
                                 * so 1-char writes to result do not need reallocs */
         STR_ALLOC(&result, tmp + result_pos, &size);
@@ -2237,11 +2244,13 @@ void print_tedax_element(FILE *fd, int inst)
     else if(strcmp(token,"@symname")==0)        /* of course symname must not be present  */
                                         /* in hash table */
     {
-      fputs(get_sym_name(inst, 0), fd);
+      const char *s = sanitize(get_sym_name(inst, 0));
+      fputs(s, fd);
     }
     else if (strcmp(token,"@symname_ext")==0) 
     {
-      fputs(get_sym_name(inst, 1), fd);
+      const char *s = sanitize(get_sym_name(inst, 1));
+      fputs(s, fd);
     }
     else if(strcmp(token,"@schname_ext")==0)        /* of course schname must not be present  */
                                                 /* in hash table */
@@ -2476,11 +2485,13 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
     else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
                                          /* in hash table */
     {
-     fputs(get_sym_name(inst, 0), fd);
+      const char *s = sanitize(get_sym_name(inst, 0));
+      fputs(s, fd);
     }
     else if (strcmp(token,"@symname_ext")==0) 
     {
-      fputs(get_sym_name(inst, 1), fd);
+      const char *s = sanitize(get_sym_name(inst, 1));
+      fputs(s, fd);
     }
     else if(strcmp(token,"@schname_ext")==0) /* of course schname must not be present  */
                                          /* in hash table */
@@ -2635,7 +2646,7 @@ void print_verilog_element(FILE *fd, int inst)
  s=xctx->inst[inst].prop_ptr;
 /* print instance  subckt */
  dbg(2, "print_verilog_element(): printing inst name & subcircuit name\n");
- fprintf(fd, "%s\n", symname);
+ fprintf(fd, "%s\n", sanitize(symname));
  my_free(_ALLOC_ID_, &symname);
  /* -------- print generics passed as properties */
  tmp=0;
@@ -3540,7 +3551,7 @@ const char *translate(int inst, const char* s)
 
  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
   * can be calculated */
- return tcl_hook2(&result);
+ return tcl_hook2(result);
 }
 
 const char *translate2(Lcc *lcc, int level, char* s)
@@ -3668,7 +3679,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
   my_free(_ALLOC_ID_, &token);
   my_free(_ALLOC_ID_, &value);
   dbg(1, "translate2(): result=%s\n", result);
-  /* return tcl_hook2(&result); */
+  /* return tcl_hook2(result); */
   return result;
 }
 

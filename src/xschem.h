@@ -1158,7 +1158,7 @@ extern const char *get_cell_w_ext(const char *str, int no_of_dir);
 extern const char *rel_sym_path(const char *s);
 extern const char *abs_sym_path(const char *s, const char *ext);
 extern const char *sanitized_abs_sym_path(const char *s, const char *ext);
-extern char *sanitize(const char *name);
+extern const char *sanitize(const char *name);
 extern const char *add_ext(const char *f, const char *ext);
 extern void make_symbol(void);
 /* sort based on pinnumber pin attribute if present */
@@ -1346,7 +1346,7 @@ extern void tclsetdoublevar(const char *s, const double value);
 extern void tclsetboolvar(const char *s, const int value);
 extern void tclsetintvar(const char *s, const int value);
 extern int tclvareval(const char *script, ...);
-extern const char *tcl_hook2(char **res);
+extern const char *tcl_hook2(const char *res);
 extern void statusmsg(char str[],int n);
 extern int place_text(int draw_text, double mx, double my);
 extern void init_inst_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, double y2);
