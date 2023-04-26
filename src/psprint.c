@@ -371,6 +371,7 @@ static void set_lw(void)
 static void set_ps_colors(unsigned int pixel)
 {
 
+   dbg(1, "set_ps_colors(): setting color %u\n", pixel);
    if(color_ps) fprintf(fd, "%g %g %g RGB\n",
      (double)ps_colors[pixel].red/256.0, (double)ps_colors[pixel].green/256.0,
      (double)ps_colors[pixel].blue/256.0);
@@ -533,9 +534,11 @@ static void ps_draw_string_line(int layer, char *s, double x, double y, double s
   unsigned char c, offset;
   double line_delta;
   double lines;
-  set_ps_colors(layer);
+  dbg(1, "ps_draw_string_line(): drawing |%s| on layer %d\n", s, layer);
   if(s==NULL) return;
   if(llength==0) return;
+  fprintf(fd, "GS\n");
+  set_ps_colors(layer);
 
   line_delta = lineno*fontheight;
   lines = (no_of_lines-1)*fontheight;
@@ -555,7 +558,6 @@ static void ps_draw_string_line(int layer, char *s, double x, double y, double s
   else if(rot==2 && flip==1) {iy=iy-fontheight-lines+line_delta+fontascent;}
   else if(rot==3 && flip==1) {ix+=line_delta+fontascent;}
 
-  fprintf(fd, "GS\n");
   fprintf(fd, "/%s", ps_font_family);
   fprintf(fd, " FF\n");
   fprintf(fd, "%g SCF\n", size * xctx->mooz);
@@ -1163,6 +1165,7 @@ void create_ps(char **psfile, int what)
         ps_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
           xctx->poly[c][i].fill, xctx->poly[c][i].dash);
       }
+      dbg(1, "create_ps(): starting drawing symbols on layer %d\n", c);
       for(i=0;i<xctx->instances; ++i)
         ps_draw_symbol(i,c,what,0,0,0.0,0.0);
     }
