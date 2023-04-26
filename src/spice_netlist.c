@@ -85,12 +85,13 @@ void hier_psprint(char **res, int what)  /* netlister driver */
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
-      if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
+      get_sch_from_sym(filename, xctx->sym + i, -1);
+      if (str_hash_lookup(&subckt_table, filename, "", XLOOKUP)==NULL)
       {
-        str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
-        get_sch_from_sym(filename, xctx->sym + i, -1);
-        if(!stat(filename, &buf)) {
+        str_hash_lookup(&subckt_table, filename, "", XINSERT);
+        if(is_generator(filename) || !stat(filename, &buf)) {
           /* for printing we go down to bottom regardless of spice_stop attribute */
+          dbg(1, "hier_psprint(): loading file: |%s|\n", filename);
           load_schematic(1,filename, 0, 1);
           zoom_full(0, 0, 1, 0.97);
           if(what & 1) ps_draw(2); /* page */
