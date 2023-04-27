@@ -1628,9 +1628,13 @@ static void save_inst(FILE *fd, int select_only)
  embedded_saved = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(int));
  for(i=0;i<xctx->instances; ++i)
  {
-  dbg(1, "save_inst() instance %d, name=%s\n", i, inst[i].name);
+  int ptr = inst[i].ptr;
+  dbg(1, "save_inst() %s: instance %d, name=%s\n", xctx->current_name, i, inst[i].name);
+  if(ptr == -1) {
+    dbg(0, "save_inst(): WARNING: inst %d .ptr = -1 ... current_name=%s\n", i, xctx->current_name);
+  }
   if (select_only && inst[i].sel != SELECTED) continue;
-  xctx->sym[inst[i].ptr].flags &=~EMBEDDED;
+  if(ptr >=0) xctx->sym[ptr].flags &=~EMBEDDED;
   fputs("C ", fd);
   if(oldversion) {
     my_strdup2(_ALLOC_ID_, &tmp, add_ext(inst[i].name, ".sym"));
@@ -1641,12 +1645,12 @@ static void save_inst(FILE *fd, int select_only)
   }
   fprintf(fd, " %.16g %.16g %hd %hd ",inst[i].x0, inst[i].y0, inst[i].rot, inst[i].flip );
   save_ascii_string(inst[i].prop_ptr,fd, 1);
-  if(embedded_saved && !embedded_saved[inst[i].ptr] && inst[i].embed) {
-    embedded_saved[inst[i].ptr] = 1;
+  if(ptr >= 0 && embedded_saved && !embedded_saved[ptr] && inst[i].embed) {
+    embedded_saved[ptr] = 1;
     fprintf(fd, "[\n");
-    save_embedded_symbol( xctx->sym+inst[i].ptr, fd);
+    save_embedded_symbol( xctx->sym+ptr, fd);
     fprintf(fd, "]\n");
-    xctx->sym[inst[i].ptr].flags |= EMBEDDED;
+    xctx->sym[ptr].flags |= EMBEDDED;
   }
  }
  my_free(_ALLOC_ID_, &embedded_saved);
@@ -2671,6 +2675,7 @@ void push_undo(void)
 
 /* redo:
  * 0: undo (with push current state for allowing following redo) 
+ * 4: undo, do not push state for redo
  * 1: redo
  * 2: read top data from undo stack without changing undo stack
  */
@@ -2694,11 +2699,12 @@ void pop_undo(int redo, int set_modify_status)
     } else {
       return;
     }
-  } else if(redo == 0) {  /* undo */
+  } else if(redo == 0 || redo == 4) {  /* undo */
     if(xctx->cur_undo_ptr == xctx->tail_undo_ptr) return;
     dbg(1, "pop_undo(): undo; cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
        xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
-    if(xctx->head_undo_ptr == xctx->cur_undo_ptr) {
+    if(redo == 0 && xctx->head_undo_ptr == xctx->cur_undo_ptr) {
+      dbg(1, "pop_undo(): doing push_undo, head=%d  cur=%d\n", xctx->head_undo_ptr, xctx->cur_undo_ptr);
       xctx->push_undo();
       xctx->head_undo_ptr--;
       xctx->cur_undo_ptr--;

@@ -117,7 +117,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
   xctx->currsch--;
   unselect_all(1);
-  xctx->pop_undo(0, 0);
+  xctx->pop_undo(4, 0);
   my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
   xctx->do_copy_area = save;
   if(what & 1) ps_draw(4); /* trailer */
@@ -441,7 +441,7 @@ int global_spice_netlist(int global)  /* netlister driver */
    xctx->currsch--;
    unselect_all(1);
    dbg(1, "global_spice_netlist(): invoking pop_undo(0, 0)\n");
-   xctx->pop_undo(0, 0);
+   xctx->pop_undo(4, 0);
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
    dbg(1, "spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
    err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
