@@ -2031,6 +2031,11 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
   double vthl = gr->gy1 * 0.8 + gr->gy2 * 0.2;
   int hex_digits = ((n_bits - 1) >> 2) + 1;
 
+  for(p=0;p<cadlayers; ++p) {
+    XSetLineAttributes(display, xctx->gc[p], 
+       INT_WIDTH(gr->linewidth_mult * xctx->lw), LineSolid, LINECAP , LINEJOIN);
+  }
+
   if(gr->logx) {
     lx1 = W_X(mylog10(xctx->graph_values[sweep_idx][first]));
     lx2 = W_X(mylog10(xctx->graph_values[sweep_idx][last]));
@@ -2078,6 +2083,9 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
     }
     set_thick_waves(0, wcnt, wave_col, gr);
   }
+  for(p=0;p<cadlayers; ++p) {
+    XSetLineAttributes(display, xctx->gc[p], INT_WIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
+  }
 }
 #define MAX_POLY_POINTS 4096*16
 /* wcnt is the nth wave in graph, idx is the index in spice raw file */
@@ -2094,6 +2102,10 @@ static void draw_graph_points(int idx, int first, int last,
   register SPICE_DATA *gv = xctx->graph_values[idx];
 
   dbg(1, "draw_graph_points: idx=%d, first=%d, last=%d, wcnt=%d\n", idx, first, last, wcnt);
+  for(p=0;p<cadlayers; ++p) {
+    XSetLineAttributes(display, xctx->gc[p],
+      INT_WIDTH(gr->linewidth_mult * xctx->lw), LineSolid, LINECAP , LINEJOIN);
+  }
   if(idx == -1) return;
   digital = gr->digital;
   if(digital) {
@@ -2141,6 +2153,9 @@ static void draw_graph_points(int idx, int first, int last,
     #endif
     set_thick_waves(0, wcnt, wave_col, gr);
   } else dbg(1, "skipping wave: %s\n", xctx->graph_names[idx]);
+  for(p=0;p<cadlayers; ++p) {
+    XSetLineAttributes(display, xctx->gc[p], INT_WIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
+  }
 }
 
 static void draw_graph_grid(Graph_ctx *gr, void *ct)
@@ -2249,6 +2264,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->logx = gr->logy = 0;
   gr->digital = 0;
   gr->rainbow = 0;
+  gr->linewidth_mult = 2.0;
 
   if(!skip) {
     gr->gx1 = 0;
@@ -2315,6 +2331,8 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   val = get_tok_value(r->prop_ptr,"divy",0);
   if(val[0]) gr->divy = atoi(val);
   if(gr->divy < 1) gr->divy = 1;
+  val = get_tok_value(r->prop_ptr,"linewidth_mult",0);
+  if(val[0]) gr->linewidth_mult = atof(val);
   val = get_tok_value(r->prop_ptr,"rainbow",0);
   if(val[0] == '1') gr->rainbow = 1;
   val = get_tok_value(r->prop_ptr,"logx",0);

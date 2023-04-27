@@ -769,6 +769,7 @@ typedef struct {
   int hilight_wave; /* wave index */
   int logx, logy;
   int rainbow; /* draw multiple datasets with incrementing colors */
+  double linewidth_mult; /* multiply factor for waveforms line width */
 } Graph_ctx;
 
 typedef struct {
