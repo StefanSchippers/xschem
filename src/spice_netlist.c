@@ -43,13 +43,15 @@ static const char *hier_psprint_mtime(const char *file_name)
  */
 void hier_psprint(char **res, int what)  /* netlister driver */
 {
-  int i;
+  int i, save;
   char *subckt_name;
   char filename[PATH_MAX];
   char *abs_path = NULL;
   struct stat buf;
   Str_hashtable subckt_table = {NULL, 0};
  
+  save = xctx->do_copy_area;
+  xctx->do_copy_area = 0;
   if((what & 1)  && !ps_draw(1)) return; /* prolog */
   xctx->push_undo();
   str_hash_init(&subckt_table, HASHSIZE);
@@ -117,6 +119,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   unselect_all(1);
   xctx->pop_undo(0, 0);
   my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
+  xctx->do_copy_area = save;
   if(what & 1) ps_draw(4); /* trailer */
   zoom_full(0, 0, 3, 0.97);
   draw();

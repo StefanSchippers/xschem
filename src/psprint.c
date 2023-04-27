@@ -234,7 +234,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   #if defined(HAS_LIBJPEG) && HAS_CAIRO==1
   double  rw, rh, scale;
   cairo_surface_t* png_sfc;
-  int save_draw_window, save_draw_grid, rwi, rhi;
+  int save, save_draw_window, save_draw_grid, rwi, rhi;
   const double max_size = 2000.0;
   int d_c;
   unsigned char* jpgData = NULL;
@@ -277,6 +277,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   save_draw_window = xctx->draw_window;
   xctx->draw_window = 0;
   xctx->draw_pixmap = 1;
+  save = xctx->do_copy_area;
   xctx->do_copy_area = 0;
   d_c = tclgetboolvar("dark_colorscheme");
   tclsetboolvar("dark_colorscheme", 0);
@@ -310,7 +311,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   cairo_surface_destroy(png_sfc);
   xctx->draw_pixmap = 1;
   xctx->draw_window = save_draw_window;
-  xctx->do_copy_area = 1;
+  xctx->do_copy_area = save;
   tclsetboolvar("draw_grid", save_draw_grid);
   save_restore_zoom(0);
   resetwin(1, 1, 1, 0, 0);
