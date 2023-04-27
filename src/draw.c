@@ -1887,11 +1887,11 @@ static void set_thick_waves(int what, int wcnt, int wave_col, Graph_ctx *gr)
   if(what) {
       if(gr->hilight_wave == wcnt)
          XSetLineAttributes (display, xctx->gc[wave_col],
-            3 * INT_WIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
+            INT_WIDTH(2.4 * gr->linewidth_mult * xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
   } else {
       if(gr->hilight_wave == wcnt)
          XSetLineAttributes (display, xctx->gc[wave_col],
-            (int)(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
+            INT_WIDTH(gr->linewidth_mult * xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
   }
 }
 
