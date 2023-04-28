@@ -2736,8 +2736,10 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     if { $myload_sel ne {} } {
       set myload_dir1 [abs_sym_path [.load.l.paneleft.list get $myload_sel]]
       set myload_index1 $myload_sel
-      set myload_globfilter $myload_ext
-      if {$myload_save_initialfile eq {}} {.load.buttons_bot.entry delete 0 end}
+      #### avoid clearing search entry and resetting glob filter
+      #### when changing directory in left listbox
+      # set myload_globfilter $myload_ext
+      # if {$myload_save_initialfile eq {}} {.load.buttons_bot.entry delete 0 end}
       setglob $myload_dir1
       myload_set_colors2
     }
