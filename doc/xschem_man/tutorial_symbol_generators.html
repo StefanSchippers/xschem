@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>XSCHEM TUTORIAL: SYMBOL GENERATORS</title>
+<title>XSCHEM TUTORIAL: SYMBOL AND SCHEMATIC GENERATORS</title>
 <link rel="stylesheet" type="text/css" href="xschem_man.css" />
 <style type="text/css">
 /* Local styling goes here */
@@ -17,7 +17,7 @@ p{padding: 15px  30px 10px;}
 <a href="xschem_man.html" class="home">UP</a>
 
  <!-- slide title -->
- <h1> TUTORIAL: SYMBOL GENERATORS</h1>
+ <h1> TUTORIAL: SYMBOL AND SCHEMATIC GENERATORS (aka PCELLS)</h1>
  <p>
   It is possible to insert a symbol by referencing a generator script instead of a <kbd>.sym</kbd> file.
   When inserting the symbol select the <kbd>All</kbd> checkbox to see all files , select the generator script,
@@ -148,7 +148,7 @@ m4 y net1 0 0 cmosn w=wn l=lln ad='wn *4.3u' as='wn *4.3u' pd='wn *2+8.6u' ps='w
   <kbd>symbolgen inv hv 100</kbd> and take the standard output from the script as the symbol
   file to load and display.
  </p>
- <h2> Schematic generators </h2>
+ <h2> Schematic generators (pcells)</h2>
  <p>
   The same approach used for symbol generators can be used for schematic generators. If you add a 
   <kbd>schematic=schematicgen(buf,4)</kbd> attribute to an instance
