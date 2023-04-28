@@ -306,7 +306,7 @@ void merge_file(int selection_load, const char ext[])
     char tag[1]; /* overflow safe */
     char tmp[256]; /* 20161122 overflow safe */
     char *aux_ptr=NULL;
-    int got_mouse;
+    int got_mouse, generator = 0;
 
 
     if(selection_load==0)
@@ -330,7 +330,20 @@ void merge_file(int selection_load, const char ext[])
     {
       my_snprintf(name, S(name), "%s/.clipboard.sch", user_conf_dir);
     }
-    if( (fd=fopen(name, fopen_read_mode))!= NULL) {
+
+    if(is_generator(name)) generator = 1;
+
+    if(generator) {
+      char *cmd;
+      cmd = get_generator_command(name);
+      if(cmd) {
+        fd = popen(cmd, "r");
+        my_free(_ALLOC_ID_, &cmd);
+      } else fd = NULL;
+    } else {
+      fd=fopen(name, fopen_read_mode);
+    }
+    if(fd) {
      xctx->prep_hi_structs=0;
      xctx->prep_net_structs=0;
      xctx->prep_hash_inst=0;
@@ -411,7 +424,9 @@ void merge_file(int selection_load, const char ext[])
      }
      my_free(_ALLOC_ID_, &aux_ptr);
      link_symbols_to_instances(old); /* in case of paste/merge will set instances .sel to SELECTED */
-     fclose(fd);
+     if(generator) pclose(fd);
+     else fclose(fd);
+
      xctx->ui_state |= STARTMERGE;
      dbg(1, "merge_file(): loaded file:wire=%d inst=%d ui_state=%ld\n",
              xctx->wires , xctx->instances, xctx->ui_state);
