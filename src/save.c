@@ -3609,21 +3609,27 @@ int load_sym_def(const char *name, FILE *embed_fd)
         continue;
       }
 
-      filepos = xftell(lcc[level].fd); /* store file pointer position to inspect next line */
-      fd_tmp = NULL;
-      read_line(lcc[level].fd, 1);
-      fscan_ret = fscanf(lcc[level].fd, " ");
-      if(fscanf(lcc[level].fd," %c",&ch)!=EOF) {
-        if( ch == '[') {
-          fd_tmp = lcc[level].fd;
+      if(generator) {
+        /* for generators (data from a pipe) can not inspect next line (fseek/ftell) looking for
+         * embedded symbols. Assume no embedded symbol follows */
+        fd_tmp = NULL;
+        get_sym_type(symname, &symtype, NULL, fd_tmp, &sym_n_pins);
+      } else {
+        filepos = xftell(lcc[level].fd); /* store file pointer position to inspect next line */
+        fd_tmp = NULL;
+        read_line(lcc[level].fd, 1);
+        fscan_ret = fscanf(lcc[level].fd, " ");
+        if(fscanf(lcc[level].fd," %c",&ch)!=EOF) {
+          if( ch == '[') {
+            fd_tmp = lcc[level].fd;
+          }
         }
+        /* get symbol type by looking into list of loaded symbols or (if not found) by
+         * opening/closing the symbol file and getting the 'type' attribute from global symbol attributes
+         * if fd_tmp set read symbol from embedded tags '[...]' */
+        get_sym_type(symname, &symtype, NULL, fd_tmp, &sym_n_pins);
+        xfseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
       }
-      /* get symbol type by looking into list of loaded symbols or (if not found) by
-       * opening/closing the symbol file and getting the 'type' attribute from global symbol attributes
-       * if fd_tmp set read symbol from embedded tags '[...]' */
-      get_sym_type(symname, &symtype, NULL, fd_tmp, &sym_n_pins);
-      xfseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
-
       dbg(1, "l_s_d(): level=%d, symname=%s symtype=%s\n", level, symname, symtype);
       if(  /* add here symbol types not to consider when loading schematic-as-symbol instances */
           !strcmp(symtype, "logo") ||
@@ -3657,14 +3663,16 @@ int load_sym_def(const char *name, FILE *embed_fd)
       if ((fd_tmp = fopen(sympath, fopen_read_mode)) == NULL) {
         char c;
         fprintf(errfp, "l_s_d(): unable to open file to read schematic: %s\n", sympath);
-        filepos = xftell(lcc[level].fd); /* store file pointer position to inspect next char */
-        read_line(lcc[level].fd, 1);
-        fscan_ret = fscanf(lcc[level].fd, " ");
-        if(fscanf(lcc[level].fd," %c",&c)!=EOF) {
-          if( c == '[') {
-            fd_tmp = lcc[level].fd;
-          } else {
-            xfseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
+        if(!generator) {
+          filepos = xftell(lcc[level].fd); /* store file pointer position to inspect next char */
+          read_line(lcc[level].fd, 1);
+          fscan_ret = fscanf(lcc[level].fd, " ");
+          if(fscanf(lcc[level].fd," %c",&c)!=EOF) {
+            if( c == '[') {
+              fd_tmp = lcc[level].fd;
+            } else {
+              xfseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
+            }
           }
         }
       }
