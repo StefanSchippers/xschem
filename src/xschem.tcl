@@ -2693,7 +2693,8 @@ proc myload_place_symbol {} {
   global myload_retval
 
   set entry [.load.buttons_bot.entry get]
-  puts "entry=$entry, myload_retval=$myload_retval"
+  # puts "entry=$entry, myload_retval=$myload_retval"
+  update
   if {$myload_retval == $entry} {return}
   set myload_retval  $entry
   set sym [myload_getresult 2 0]
@@ -2978,6 +2979,9 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       }
     }
     if {$myload_loadfile == 2} {
+      # set to empty to avoid myload_place_symbol doing nothing if placing
+      # the same symbol multiple times.
+      set myload_retval {}
       myload_place_symbol
     }
   };# bind .load.l.paneright.list <<ListboxSelect>>
