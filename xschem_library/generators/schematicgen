@@ -29,7 +29,6 @@ C {p.sym} 170 -280 0 0 {name=m2 model=cmosp w=wp l=lp  m=1 }
 C {lab_pin.sym} 190 -350 0 0 {name=p149 lab=VCC}
 C {lab_pin.sym} 190 -130 0 0 {name=p3 lab=0}
 C {n.sym} 170 -180 0 0 {name=m1 model=cmosn w=wn l=lln m=1}
-C {title.sym} 160 0 0 0 {name=l3 author="Stefan Schippers"}
 }
 } else {
 puts {v {xschem version=3.1.0 file_version=1.2}
@@ -72,7 +71,6 @@ C {p.sym} 170 -280 0 0 {name=m2 model=cmosp w=wp l=lp  m=1 }
 C {lab_pin.sym} 190 -350 0 0 {name=p149 lab=VCC}
 C {lab_pin.sym} 190 -130 0 0 {name=p3 lab=0}
 C {n.sym} 170 -180 0 0 {name=m1 model=cmosn w=wn l=lln m=1}
-C {title.sym} 160 0 0 0 {name=l3 author="Stefan Schippers"}
 C {p.sym} 400 -280 0 0 {name=m3 model=cmosp w=wp l=lp  m=1 }
 C {lab_pin.sym} 420 -350 0 0 {name=p4 lab=VCC}
 C {lab_pin.sym} 420 -130 0 0 {name=p5 lab=0}
