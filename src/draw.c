@@ -2264,7 +2264,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->logx = gr->logy = 0;
   gr->digital = 0;
   gr->rainbow = 0;
-  gr->linewidth_mult = 2.0;
+  gr->linewidth_mult = tclgetdoublevar("graph_linewidth_mult");
 
   if(!skip) {
     gr->gx1 = 0;

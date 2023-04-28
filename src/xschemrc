@@ -209,6 +209,10 @@
 #### default: enabled (1)
 # set component_browser_on_top 0
 
+#### set graph line width multiplier with respect to xschem actual line width
+#### default: 2.0
+# set graph_linewidth_mult 4.0
+
 ###########################################################################
 #### EXPORT FORMAT TRANSLATORS, PNG AND PDF
 ###########################################################################

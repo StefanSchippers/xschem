@@ -1903,11 +1903,19 @@ proc update_div {graph_selected div} {
   xschem draw_graph $graph_selected
 }
 
+proc set_graph_linewidth {graph_sel} {
+  global graph_linewidth_mult
+  set custom_lw [.graphdialog.top.lwe get]
+  if {[regexp {^[ \t]*$} $custom_lw]} {
+    set custom_lw  $graph_linewidth_mult
+  }
+  xschem setprop rect 2 $graph_sel linewidth_mult $custom_lw
+}
 
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected colors graph_sel_color
   global graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow
-
+  global graph_linewidth_mult
   xschem push_undo
   set geom {}
   if { [winfo exists .graphdialog]} {
@@ -2140,6 +2148,18 @@ proc graph_edit_properties {n} {
          xschem draw_graph $graph_selected
        }
      }
+  label .graphdialog.top.lw -text "  Line width:"
+  entry .graphdialog.top.lwe -width 4 
+  bind .graphdialog.top.lwe <KeyRelease> {
+    set_graph_linewidth $graph_selected
+    xschem draw_graph $graph_selected
+  }
+  set custom_lw [xschem getprop rect 2 $n linewidth_mult]
+  if {[regexp {^[ \t]*$} $custom_lw]} {
+    .graphdialog.top.lwe insert 0 $graph_linewidth_mult 
+  } else {
+    .graphdialog.top.lwe insert 0 $custom_lw
+  }
   checkbutton .graphdialog.top.unlocked -text {Unlocked X axis} -variable graph_unlocked
   checkbutton .graphdialog.top.dig -text {Digital} -variable graph_digital -indicatoron 1 \
     -command {
@@ -2187,6 +2207,8 @@ proc graph_edit_properties {n} {
   pack .graphdialog.top.dig -side left
   pack .graphdialog.top.unlocked -side left
   pack .graphdialog.top.rainbow -side left
+  pack .graphdialog.top.lw -side left
+  pack .graphdialog.top.lwe -side left
   .graphdialog.top3.min insert 0 [xschem getprop rect 2 $graph_selected y1]
   .graphdialog.top3.max insert 0 [xschem getprop rect 2 $graph_selected y2]
   .graphdialog.top3.xmin insert 0 [xschem getprop rect 2 $graph_selected x1]
@@ -5366,7 +5388,8 @@ set tctx::global_list {
   copy_cell custom_label_prefix custom_token dark_colors dark_colorscheme dim_bg dim_value
   disable_unique_names do_all_inst draw_grid draw_window edit_prop_pos edit_prop_size
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
-  filetmp flat_netlist fullscreen gaw_fd gaw_tcp_address graph_bus graph_digital graph_logx
+  filetmp flat_netlist fullscreen gaw_fd gaw_tcp_address graph_bus graph_digital
+  graph_linewidth_mult graph_logx
   graph_logy graph_rainbow graph_raw_level graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols hsize
   incr_hilight infowindow_text input_line_cmd input_line_data launcher_default_program
@@ -6485,6 +6508,7 @@ set_ne graph_rainbow 0
 set_ne graph_selected {}
 set_ne graph_schname {}
 set_ne graph_raw_level -1 ;# hierarchy level where raw file has been loaded 
+set_ne graph_linewidth_mult 2.0 ;# default multiplier (w.r.t. xschem lines) for line width in graphs 
 # user clicked this wave 
 set_ne graph_sel_wave {}
 # flag to force simulation stop (Esc key pressed) 
