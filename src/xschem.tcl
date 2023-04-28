@@ -2668,9 +2668,8 @@ proc myload_getresult {loadfile confirm_overwrt} {
             return {}
           }
         }
-        # $type == 0 so return empty string
-        set myload_retval {}
-        return {}
+        # $type == 0 but $answer==1 so return selected filename
+        return "$fname"
       }
     # $type == SYMBOL or SCHEMATIC
     } elseif { $type ne {SYMBOL} && ($myload_ext eq {*.sym}) } { ;# SCHEMATIC
@@ -2687,6 +2686,21 @@ proc myload_getresult {loadfile confirm_overwrt} {
     }
   } else {
     return {}
+  }
+}
+
+proc myload_place_symbol {} {
+  global myload_retval
+
+  set entry [.load.buttons_bot.entry get]
+  puts "entry=$entry, myload_retval=$myload_retval"
+  if {$myload_retval == $entry} {return}
+  set myload_retval  $entry
+  set sym [myload_getresult 2 0]
+  # puts "sym=$sym myload_dir1=$myload_dir1 myload_dir2=$myload_dir2"
+  xschem abort_operation
+  if {$sym ne {}} {
+    xschem place_symbol "$sym"
   }
 }
 
@@ -2916,13 +2930,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 
   if {$myload_loadfile == 2} { 
     bind .load.buttons_bot.entry <Leave> {
-      set myload_retval  [.load.buttons_bot.entry get]
-      set r [myload_getresult 2 0]
-      # puts "r=$r myload_dir1=$myload_dir1 myload_dir2=$myload_dir2"
-      xschem abort_operation
-      if {$r ne {}} {
-        xschem place_symbol "$r"
-      }
+      myload_place_symbol
     }
   }
 
@@ -2970,13 +2978,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       }
     }
     if {$myload_loadfile == 2} {
-      set myload_retval  [.load.buttons_bot.entry get]
-      set r [myload_getresult 2 0]
-      # puts "r=$r myload_dir1=$myload_dir1 myload_dir2=$myload_dir2"
-      xschem abort_operation
-      if {$r ne {}} {
-        xschem place_symbol "$r"
-      }
+      myload_place_symbol
     }
   };# bind .load.l.paneright.list <<ListboxSelect>>
   if { [ info exists myload_yview]} {
